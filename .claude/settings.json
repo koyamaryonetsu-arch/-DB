@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__65932b34-a038-4a9c-b042-304d67938239__search_threads",
+      "mcp__65932b34-a038-4a9c-b042-304d67938239__get_thread",
+      "mcp__65932b34-a038-4a9c-b042-304d67938239__list_labels",
+      "mcp__65932b34-a038-4a9c-b042-304d67938239__list_drafts"
+    ],
+    "ask": [
+      "mcp__65932b34-a038-4a9c-b042-304d67938239__create_draft"
+    ]
+  }
+}
