@@ -4,10 +4,22 @@
       "mcp__65932b34-a038-4a9c-b042-304d67938239__search_threads",
       "mcp__65932b34-a038-4a9c-b042-304d67938239__get_thread",
       "mcp__65932b34-a038-4a9c-b042-304d67938239__list_labels",
-      "mcp__65932b34-a038-4a9c-b042-304d67938239__list_drafts"
+      "mcp__65932b34-a038-4a9c-b042-304d67938239__list_drafts",
+      "WebSearch",
+      "WebFetch",
+      "mcp__a2ad4633-5c94-4550-bbc6-f21263171e55__search_files",
+      "mcp__a2ad4633-5c94-4550-bbc6-f21263171e55__read_file_content",
+      "mcp__a2ad4633-5c94-4550-bbc6-f21263171e55__list_recent_files",
+      "mcp__a2ad4633-5c94-4550-bbc6-f21263171e55__get_file_metadata",
+      "mcp__a0ae22d3-5044-4418-b7f2-de46978a466e__notion-search",
+      "mcp__a0ae22d3-5044-4418-b7f2-de46978a466e__notion-fetch"
     ],
     "ask": [
-      "mcp__65932b34-a038-4a9c-b042-304d67938239__create_draft"
+      "mcp__65932b34-a038-4a9c-b042-304d67938239__create_draft",
+      "mcp__a2ad4633-5c94-4550-bbc6-f21263171e55__create_file",
+      "mcp__a2ad4633-5c94-4550-bbc6-f21263171e55__copy_file",
+      "mcp__a0ae22d3-5044-4418-b7f2-de46978a466e__notion-create-pages",
+      "mcp__a0ae22d3-5044-4418-b7f2-de46978a466e__notion-update-page"
     ]
   }
 }
