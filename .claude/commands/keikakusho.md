@@ -1,6 +1,6 @@
 ---
 description: 対象工事の施工計画書(PowerPoint)の草案を、過去計画書・議事録・現調・図面を踏まえて自動生成しGoogle Driveに保存（社外送信しない・OK不要）
-allowed-tools: mcp__65932b34-a038-4a9c-b042-304d67938239__search_threads, mcp__65932b34-a038-4a9c-b042-304d67938239__get_thread, mcp__a0ae22d3-5044-4418-b7f2-de46978a466e__notion-search, mcp__a0ae22d3-5044-4418-b7f2-de46978a466e__notion-fetch, mcp__a2ad4633-5c94-4550-bbc6-f21263171e55__search_files, mcp__a2ad4633-5c94-4550-bbc6-f21263171e55__read_file_content, mcp__a2ad4633-5c94-4550-bbc6-f21263171e55__create_file, mcp__a2ad4633-5c94-4550-bbc6-f21263171e55__get_file_metadata, mcp__a2ad4633-5c94-4550-bbc6-f21263171e55__list_recent_files, Write, Bash
+allowed-tools: mcp__65932b34-a038-4a9c-b042-304d67938239__search_threads, mcp__65932b34-a038-4a9c-b042-304d67938239__get_thread, mcp__a0ae22d3-5044-4418-b7f2-de46978a466e__notion-search, mcp__a0ae22d3-5044-4418-b7f2-de46978a466e__notion-fetch, mcp__a2ad4633-5c94-4550-bbc6-f21263171e55__search_files, mcp__a2ad4633-5c94-4550-bbc6-f21263171e55__read_file_content, mcp__a2ad4633-5c94-4550-bbc6-f21263171e55__create_file, mcp__a2ad4633-5c94-4550-bbc6-f21263171e55__get_file_metadata, mcp__a2ad4633-5c94-4550-bbc6-f21263171e55__list_recent_files, Write, Bash, SendUserFile
 ---
 
 # 施工計画書ジェネレータ（PowerPoint・草案・自動）
@@ -22,7 +22,15 @@ allowed-tools: mcp__65932b34-a038-4a9c-b042-304d67938239__search_threads, mcp__6
 - **これは草案。社外（顧客）への送信・共有は絶対にしない**。メールは読むだけ。
 - **事実と出典に基づく**。議事録・現調・図面に根拠が無い項目は、空にせずスライドに `【要記入】` プレースホルダと確認観点を残す（捏造しない）。
 - ファイル名・表紙に **【草案】** を明示。
+- **検証用・お試しのプローブファイルを Drive に作らない**（当 Drive MCP に削除ツールが無く残置するため）。
 - 完了後はサマリーを表示して**そのまま終了**。
+
+## 納品方式（重要）
+
+ネイティブ .pptx の生成はコードで可能（python-pptx）。一方、Drive `create_file` はファイル中身をインライン引数で渡す方式で **約10KB（base64で約1万字）を超えると失敗**するため、現実サイズの .pptx は Drive コネクタ経由では保存できない。
+
+- **主たる納品 = `SendUserFile` でネイティブ .pptx をユーザーに直接送る**（サイズ上限なし＝確実。実体のある PowerPoint をそのまま渡す）。
+- **Drive 保存は副次（ベストエフォート）**: base64 が約1万字以下なら native .pptx を `create_file` で保存。超過するなら、計画書本文を **テキストにして `textContent` 経由で Google ドキュメントとして保存**（`contentMimeType: text/plain`、Drive にも閲覧用コピーを残す）。Drive 保存可否に関わらず、主たる納品（直接送付）は必ず行う。
 
 ## ステップ1: 対象工事の特定
 
@@ -69,28 +77,24 @@ allowed-tools: mcp__65932b34-a038-4a9c-b042-304d67938239__search_threads, mcp__6
 - 出典は各スライド下部に小さく `出典: <議事録名/件名/図面名>`、未確定は本文に `【要記入: 何を埋めるか】`
 - 出力先 `/tmp/<物件>_施工計画書_草案.pptx`
 
-生成後 `python3 -c "import base64,sys;sys.stdout.write(base64.b64encode(open('<path>','rb').read()).decode())"` で base64 を取得。
+生成後 `python3 -c "import base64;b=base64.b64encode(open('<path>','rb').read()).decode();print(len(b))"` で base64 長を測り、Drive 保存経路の判定に使う。
 
-## ステップ5: Drive に保存
+## ステップ5: 納品（直接送付が主・Drive は従）
 
-保存先フォルダ: Drive `search_files` で `mimeType = 'application/vnd.google-apps.folder' and (title contains '計画' or title contains 'シネマ' or title contains '工事')` を探し、見つかればその `parentId`。無ければ `parentId` 未指定（マイドライブ直下）。
-
-`create_file` を呼ぶ:
-
-- `title`: `【草案】YYYYMMDD <物件/工事> 施工計画書`
-- `base64Content`: ステップ4の base64
-- `contentMimeType`: `application/vnd.openxmlformats-officedocument.presentationml.presentation`
-- `disableConversionToGoogleType`: `true`（ネイティブ .pptx を維持）
-- `parentId`: 上記フォルダがあれば設定
+1. **主: ネイティブ .pptx を直接送付** — `SendUserFile`（`status: proactive`、`files`: `/tmp/<物件>_施工計画書_草案.pptx`、`caption`: 対象工事・草案である旨・【要記入】残数）。これは必ず実行する。
+2. **従: Drive にも閲覧用コピーを残す（ベストエフォート）** — 保存先フォルダを Drive `search_files` で `mimeType = 'application/vnd.google-apps.folder' and (title contains '計画' or title contains 'シネマ' or title contains '工事')` を探し、あれば `parentId` に。
+   - base64 長が **約10,000字以下**: `create_file`（`title`=`【草案】YYYYMMDD <物件/工事> 施工計画書`、`base64Content`=ステップ4の base64、`contentMimeType`=`application/vnd.openxmlformats-officedocument.presentationml.presentation`、`disableConversionToGoogleType: true`、`parentId`=任意）。
+   - 超過する場合: 計画書全章をテキスト化し `create_file`（`title`=`【草案】YYYYMMDD <物件/工事> 施工計画書（Doc）`、`textContent`=本文テキスト、`contentMimeType`=`text/plain`＝Google ドキュメントに変換、`parentId`=任意）。
+   - 保存したら `get_file_metadata` で検証。Drive 保存が失敗・スキップでも主たる直接送付が済んでいれば成功扱い。
 
 ## ステップ6: サマリー報告（表示して終了）
 
 ```
 ✅ 施工計画書 草案を作成しました（社外提出前に内容をご確認ください）
 対象: <物件/工事>
-Drive: <作成ファイルのURL or ファイル名>
+納品: ネイティブ .pptx を直接送付しました（ファイル名: <…>.pptx, N枚）
+Drive: <native .pptx 保存 / Doc で保存 / 上限超過のためスキップ> <URL or ファイル名>
 
-スライド数: N枚
 【要記入】が残る項目:
 - <未確定の工程/体制/条件 …>
 主な情報源: 過去計画書 a件 / 議事録 b件 / メール c件 / 図面・現調 d件
