@@ -1,13 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "mcp__65932b34-a038-4a9c-b042-304d67938239__search_threads",
-      "mcp__65932b34-a038-4a9c-b042-304d67938239__get_thread",
-      "mcp__65932b34-a038-4a9c-b042-304d67938239__list_labels",
-      "mcp__65932b34-a038-4a9c-b042-304d67938239__list_drafts",
-      "mcp__65932b34-a038-4a9c-b042-304d67938239__create_draft",
-      "mcp__a0ae22d3-5044-4418-b7f2-de46978a466e__notion-search",
-      "mcp__a0ae22d3-5044-4418-b7f2-de46978a466e__notion-fetch",
+      "mcp__65932b34-a038-4a9c-b042-304d67938239__*",
+      "mcp__a0ae22d3-5044-4418-b7f2-de46978a466e__*",
       "mcp__a2ad4633-5c94-4550-bbc6-f21263171e55__search_files",
       "mcp__a2ad4633-5c94-4550-bbc6-f21263171e55__read_file_content"
     ]
