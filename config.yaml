@@ -1,0 +1,26 @@
+# 監視するnoteアカウントのユーザー名（URLの note.com/ の後ろの部分）
+note_username: ai_katsuyosenshi
+
+ai:
+  # true: AIで紹介文を生成 / false: 「タイトル + リンク」の単純な文で投稿
+  enabled: true
+  model: claude-haiku-4-5-20251001
+  # 紹介文のトーン（自由に書き換えてOK）
+  tone: 親しみやすく、続きを読みたくなる一言を添える。煽りすぎない。絵文字は控えめに。
+
+# ツイート末尾に付けるハッシュタグ
+hashtags:
+  - "#AI活用"
+  - "#note"
+
+posting:
+  # 1回の実行で投稿する最大件数（新着がたまっていた時の連投を防ぐ）
+  max_per_run: 3
+  # true にすると実際には投稿せず、内容のログだけ出す（テスト用）
+  dry_run: false
+
+repromote:
+  # 新着が無い時に過去記事を再告知するか
+  enabled: true
+  # 同じ記事を再告知する最短間隔（日）
+  min_days_between_same_article: 14
