@@ -1,6 +1,10 @@
 {
   "permissions": {
     "allow": [
+      "mcp__a0ae22d3-5044-4418-b7f2-de46978a466e",
+      "mcp__Notion",
+      "mcp__65932b34-a038-4a9c-b042-304d67938239",
+      "mcp__Gmail",
       "mcp__65932b34-a038-4a9c-b042-304d67938239__search_threads",
       "mcp__65932b34-a038-4a9c-b042-304d67938239__get_thread",
       "mcp__65932b34-a038-4a9c-b042-304d67938239__list_labels",
