@@ -1,6 +1,11 @@
 # 監視するnoteアカウントのユーザー名（URLの note.com/ の後ろの部分）
 note_username: ai_katsuyosenshi
 
+# 投稿方法
+#   draft = 貼り付け用のツイート文を drafts/drafts.md に保存（無料・手動で投稿）
+#   api   = X APIで自動投稿（X PremiumなどでAPI利用できる場合のみ）
+output: draft
+
 ai:
   # true: AIで紹介文を生成 / false: 「タイトル + リンク」の単純な文で投稿
   enabled: true
@@ -14,9 +19,9 @@ hashtags:
   - "#note"
 
 posting:
-  # 1回の実行で投稿する最大件数（新着がたまっていた時の連投を防ぐ）
+  # 1回の実行で扱う最大件数（新着がたまっていた時の連投を防ぐ）
   max_per_run: 3
-  # true にすると実際には投稿せず、内容のログだけ出す（テスト用）
+  # output: api のときだけ有効。true で実際には投稿せずログだけ出す（テスト用）
   dry_run: false
 
 repromote:

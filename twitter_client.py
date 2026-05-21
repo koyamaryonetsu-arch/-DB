@@ -1,10 +1,10 @@
-"""X (Twitter) API v2 でツイートを投稿する。"""
+"""X (Twitter) API v2 でツイートを投稿する（output: api のときだけ使用）。"""
 import os
-
-import tweepy
 
 
 def _client():
+    import tweepy
+
     keys = {
         "consumer_key": os.getenv("X_API_KEY"),
         "consumer_secret": os.getenv("X_API_SECRET"),

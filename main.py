@@ -14,6 +14,7 @@ import yaml
 from dotenv import load_dotenv
 
 import ai_writer
+import draft_writer
 import note_feed
 import state
 import twitter_client
@@ -27,6 +28,12 @@ def load_config(path="config.yaml"):
 def _publish(article, config, repromote):
     text = ai_writer.build_tweet(article, config, repromote=repromote)
     label = "再告知" if repromote else "新着"
+
+    if config.get("output", "draft") == "draft":
+        path = draft_writer.save_draft(text, article, repromote)
+        print(f"[下書き作成/{label}] {path} に保存しました:\n{text}\n")
+        return True
+
     if config.get("posting", {}).get("dry_run"):
         print(f"[DRY-RUN/{label}] 投稿内容:\n{text}\n")
         return True
@@ -59,7 +66,7 @@ def cmd_new(config, data):
         state.record_post(data, a["link"], a["title"])
         state.save(data)
         posted += 1
-    print(f"{posted} 件の新着を告知しました。")
+    print(f"新着 {posted} 件を処理しました。")
     return posted
 
 

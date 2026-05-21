@@ -1,5 +1,6 @@
 feedparser>=6.0.11
-tweepy>=4.14.0
 anthropic>=0.40.0
 python-dotenv>=1.0.1
 PyYAML>=6.0.2
+# tweepy は output: api（X APIで自動投稿）にする場合のみ必要
+tweepy>=4.14.0

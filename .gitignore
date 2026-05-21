@@ -1,5 +1,6 @@
 .env
 state/posted.json
+drafts/
 __pycache__/
 *.pyc
 .venv/
