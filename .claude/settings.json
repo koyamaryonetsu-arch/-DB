@@ -9,7 +9,16 @@
       "mcp__a0ae22d3-5044-4418-b7f2-de46978a466e__notion-search",
       "mcp__a0ae22d3-5044-4418-b7f2-de46978a466e__notion-fetch",
       "mcp__a2ad4633-5c94-4550-bbc6-f21263171e55__search_files",
-      "mcp__a2ad4633-5c94-4550-bbc6-f21263171e55__read_file_content"
+      "mcp__a2ad4633-5c94-4550-bbc6-f21263171e55__read_file_content",
+      "mcp__Gmail__search_threads",
+      "mcp__Gmail__get_thread",
+      "mcp__Gmail__list_labels",
+      "mcp__Gmail__list_drafts",
+      "mcp__Gmail__create_draft",
+      "mcp__Notion__notion-search",
+      "mcp__Notion__notion-fetch",
+      "mcp__Google-Drive__search_files",
+      "mcp__Google-Drive__read_file_content"
     ]
   }
 }
