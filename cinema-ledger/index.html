@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>シネマプロジェクト 物件管理台帳</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="logo">CP</span>
+    <div>
+      <h1>シネマプロジェクト 物件管理台帳</h1>
+      <small id="fyLabel"></small>
+    </div>
+  </div>
+  <nav class="tabs">
+    <button class="tab active" data-tab="projects">物件一覧</button>
+    <button class="tab" data-tab="kanban">進捗ボード</button>
+    <button class="tab" data-tab="byPerson">担当者別集計</button>
+    <button class="tab" data-tab="byFY">期別集計</button>
+    <button class="tab" data-tab="byCustomer">顧客別集計</button>
+    <button class="tab" data-tab="people">担当者マスター</button>
+    <button class="tab" data-tab="customers">顧客マスター</button>
+    <button class="tab" data-tab="data">データ管理</button>
+  </nav>
+</header>
+
+<main>
+
+<!-- =========================================== 物件一覧 -->
+<section id="tab-projects" class="tab-panel active">
+  <div class="toolbar">
+    <div class="filters">
+      <label>期
+        <select id="fProjectsFY"><option value="">すべて</option></select>
+      </label>
+      <label>顧客
+        <select id="fProjectsCustomer"><option value="">すべて</option></select>
+      </label>
+      <label>担当
+        <select id="fProjectsLeader"><option value="">すべて</option></select>
+      </label>
+      <label>進捗
+        <select id="fProjectsProgress"><option value="">すべて</option></select>
+      </label>
+      <label>受注判定
+        <select id="fProjectsJudge">
+          <option value="">すべて</option>
+          <option>決定</option><option>◎</option><option>○</option><option>△</option><option>来期</option><option>-</option>
+        </select>
+      </label>
+      <label>検索
+        <input id="fProjectsSearch" type="search" placeholder="物件名・顧客名" />
+      </label>
+    </div>
+    <div class="actions">
+      <button class="primary" id="btnAddProject">＋ 物件を追加</button>
+    </div>
+  </div>
+
+  <div class="summary-bar" id="projectsSummary"></div>
+
+  <div class="table-wrap">
+    <table id="tblProjects" class="data-table">
+      <thead>
+        <tr>
+          <th>物件番号</th>
+          <th>顧客</th>
+          <th>物件名称</th>
+          <th>計上期</th>
+          <th>受注判定</th>
+          <th class="num">見積金額</th>
+          <th class="num">判定額</th>
+          <th class="num">想定粗利</th>
+          <th>進捗</th>
+          <th>リーダー</th>
+          <th>分配</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- =========================================== 進捗ボード -->
+<section id="tab-kanban" class="tab-panel">
+  <div class="toolbar">
+    <div class="filters">
+      <label>期
+        <select id="fKanbanFY"><option value="">すべて</option></select>
+      </label>
+      <label>担当
+        <select id="fKanbanLeader"><option value="">すべて</option></select>
+      </label>
+    </div>
+  </div>
+  <div id="kanbanBoard" class="kanban"></div>
+</section>
+
+<!-- =========================================== 担当者別集計 -->
+<section id="tab-byPerson" class="tab-panel">
+  <div class="toolbar">
+    <div class="filters">
+      <label>期
+        <select id="fByPersonFY"><option value="">全期</option></select>
+      </label>
+      <label>受注判定で絞込み
+        <select id="fByPersonJudgeOnly">
+          <option value="all">全件</option>
+          <option value="decided">決定のみ</option>
+          <option value="weighted">確度加重(決定/◎/○/△)</option>
+        </select>
+      </label>
+    </div>
+  </div>
+  <div id="byPersonGrid" class="cards-grid"></div>
+  <h3 class="section-title">明細</h3>
+  <div class="table-wrap">
+    <table id="tblByPerson" class="data-table">
+      <thead><tr>
+        <th>担当者</th><th>顧客</th><th>物件名称</th><th>計上期</th><th>受注判定</th>
+        <th class="num">想定粗利</th><th class="num">分配率</th><th class="num">分配粗利</th>
+      </tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- =========================================== 期別集計 -->
+<section id="tab-byFY" class="tab-panel">
+  <div id="byFYGrid" class="cards-grid"></div>
+  <h3 class="section-title">期別×顧客マトリクス（判定額）</h3>
+  <div class="table-wrap"><table id="tblFYCustomer" class="data-table"><thead></thead><tbody></tbody></table></div>
+  <h3 class="section-title">期別×担当者マトリクス（分配粗利）</h3>
+  <div class="table-wrap"><table id="tblFYPerson" class="data-table"><thead></thead><tbody></tbody></table></div>
+</section>
+
+<!-- =========================================== 顧客別集計 -->
+<section id="tab-byCustomer" class="tab-panel">
+  <div id="byCustomerGrid" class="cards-grid"></div>
+</section>
+
+<!-- =========================================== 担当者マスター -->
+<section id="tab-people" class="tab-panel">
+  <div class="toolbar">
+    <h2>担当者マスター</h2>
+    <div class="actions">
+      <button class="primary" id="btnAddPerson">＋ 担当者を追加</button>
+    </div>
+  </div>
+  <p class="hint">担当者を追加・削除すると、物件の利益分配欄にも反映されます。削除時に分配が残っている場合は警告します。</p>
+  <div class="table-wrap">
+    <table id="tblPeople" class="data-table">
+      <thead><tr><th>表示色</th><th>氏名</th><th>役職/メモ</th><th>有効</th><th class="num">担当物件数</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- =========================================== 顧客マスター -->
+<section id="tab-customers" class="tab-panel">
+  <div class="toolbar">
+    <h2>顧客マスター</h2>
+    <div class="actions">
+      <button class="primary" id="btnAddCustomer">＋ 顧客を追加</button>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table id="tblCustomers" class="data-table">
+      <thead><tr><th>顧客名</th><th>メモ</th><th class="num">物件数</th><th class="num">合計判定額</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- =========================================== データ管理 -->
+<section id="tab-data" class="tab-panel">
+  <h2>データ管理</h2>
+  <p class="hint">本アプリのデータはブラウザ内（localStorage）に保存されます。バックアップや他PCへの移行には JSON のエクスポート/インポートを使ってください。</p>
+  <div class="data-actions">
+    <button id="btnExport">📥 JSONでエクスポート</button>
+    <label class="filebtn">
+      📤 JSONをインポート
+      <input type="file" id="fileImport" accept="application/json" hidden />
+    </label>
+    <button id="btnSeed">🌱 サンプルデータを読込</button>
+    <button id="btnReset" class="danger">⚠ すべてリセット</button>
+  </div>
+
+  <h3 class="section-title">決算月（決算期の開始月の前月）</h3>
+  <div class="form-row">
+    <label>決算月
+      <select id="fiscalEndMonth">
+        <option value="1">1月</option><option value="2">2月</option><option value="3">3月</option>
+        <option value="4">4月</option><option value="5">5月</option><option value="6">6月</option>
+        <option value="7">7月</option><option value="8">8月</option>
+        <option value="9" selected>9月</option>
+        <option value="10">10月</option><option value="11">11月</option><option value="12">12月</option>
+      </select>
+    </label>
+    <p class="hint">9月末決算の場合は「9月」を選択。竣工時期目安からの自動「計上期」算出に利用します。</p>
+  </div>
+
+  <h3 class="section-title">受注判定の確率（判定額計算用）</h3>
+  <div id="judgeProbs"></div>
+</section>
+
+</main>
+
+<!-- ===================== モーダル: 物件編集 -->
+<div id="projectModal" class="modal" hidden>
+  <div class="modal-card wide">
+    <div class="modal-head">
+      <h3 id="projectModalTitle">物件を追加</h3>
+      <button class="close" data-close-modal>×</button>
+    </div>
+    <div class="modal-body">
+      <div class="grid-2">
+        <label>物件番号 <input id="pId" type="text" placeholder="例: M25001" /></label>
+        <label>顧客名 <input id="pCustomer" list="customerList" /></label>
+        <label class="full">物件名称 <input id="pName" type="text" required /></label>
+        <label>引合日 <input id="pInquiryDate" type="date" /></label>
+        <label>提出日 <input id="pSubmitDate" type="date" /></label>
+        <label>見積種類
+          <select id="pQuoteType">
+            <option value=""></option>
+            <option>納期確認</option>
+            <option>小口</option>
+          </select>
+        </label>
+        <label>案件登録
+          <select id="pCaseStatus">
+            <option value=""></option>
+            <option>受注</option>
+            <option>見積</option>
+          </select>
+        </label>
+        <label>受注時期目安 <input id="pOrderTargetDate" type="date" /></label>
+        <label>竣工時期目安 <input id="pCompletionTargetDate" type="date" /></label>
+        <label>受注判定
+          <select id="pOrderJudge">
+            <option value=""></option>
+            <option>決定</option><option>◎</option><option>○</option><option>△</option><option>来期</option><option>-</option>
+          </select>
+        </label>
+        <label>進捗
+          <select id="pProgress"></select>
+        </label>
+        <label>リーダー
+          <select id="pLeader"></select>
+        </label>
+        <label class="num-input">見積金額(円) <input id="pQuoteAmount" type="number" min="0" step="1" /></label>
+        <label class="num-input">資材・外注費(円) <input id="pMaterial" type="number" min="0" step="1" /></label>
+        <label class="num-input">原価率 <input id="pCostRate" type="text" readonly placeholder="自動" /></label>
+        <label class="num-input">想定粗利 <input id="pGross" type="text" readonly placeholder="自動" /></label>
+        <label class="num-input">判定額(自動) <input id="pJudgedAmount" type="text" readonly placeholder="自動" /></label>
+        <label class="full">計上期(自動：竣工時期目安から)
+          <input id="pFYAuto" type="text" readonly />
+        </label>
+        <label class="full">備考 <textarea id="pNote" rows="2"></textarea></label>
+      </div>
+
+      <h4 class="section-title">利益分配</h4>
+      <p class="hint">分配率は％で入力します。合計を100%にする「均等配分」「リーダーに残り」ボタンも使えます。</p>
+      <div class="alloc-tools">
+        <button type="button" id="btnAllocEqual">均等配分</button>
+        <button type="button" id="btnAllocLeader">リーダーに残り</button>
+        <button type="button" id="btnAllocClear">クリア</button>
+        <span class="alloc-sum">合計：<span id="allocSum">0</span>％ <span id="allocWarn" class="warn"></span></span>
+      </div>
+      <div id="allocList" class="alloc-list"></div>
+    </div>
+    <div class="modal-foot">
+      <button id="btnDeleteProject" class="danger" hidden>削除</button>
+      <span class="spacer"></span>
+      <button data-close-modal>キャンセル</button>
+      <button id="btnSaveProject" class="primary">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== モーダル: 担当者編集 -->
+<div id="personModal" class="modal" hidden>
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3 id="personModalTitle">担当者</h3>
+      <button class="close" data-close-modal>×</button>
+    </div>
+    <div class="modal-body">
+      <div class="grid-2">
+        <label>氏名 <input id="prName" type="text" required /></label>
+        <label>表示色 <input id="prColor" type="color" value="#4f86f7" /></label>
+        <label class="full">役職/メモ <input id="prMemo" type="text" /></label>
+        <label class="full"><input id="prActive" type="checkbox" checked /> 有効（無効化すると分配候補から外れます）</label>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button id="btnDeletePerson" class="danger" hidden>削除</button>
+      <span class="spacer"></span>
+      <button data-close-modal>キャンセル</button>
+      <button id="btnSavePerson" class="primary">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== モーダル: 顧客編集 -->
+<div id="customerModal" class="modal" hidden>
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3 id="customerModalTitle">顧客</h3>
+      <button class="close" data-close-modal>×</button>
+    </div>
+    <div class="modal-body">
+      <div class="grid-2">
+        <label class="full">顧客名 <input id="cuName" type="text" required /></label>
+        <label class="full">メモ <input id="cuMemo" type="text" /></label>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button id="btnDeleteCustomer" class="danger" hidden>削除</button>
+      <span class="spacer"></span>
+      <button data-close-modal>キャンセル</button>
+      <button id="btnSaveCustomer" class="primary">保存</button>
+    </div>
+  </div>
+</div>
+
+<datalist id="customerList"></datalist>
+<datalist id="progressList"></datalist>
+
+<div id="toast" class="toast" hidden></div>
+
+<script src="seed.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
