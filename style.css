@@ -162,10 +162,7 @@ th {
   font-weight: 600;
   color: #374151;
   font-size: 12px;
-  position: sticky;
-  top: 56px;
   background: #eef2f7;
-  z-index: 1;
 }
 
 td.content-cell {
@@ -191,8 +188,12 @@ td.editable:hover {
 
 td.editable.empty::after {
   content: '＋';
-  color: #cbd5e1;
+  color: transparent;
   font-size: 11px;
+}
+
+td.editable.empty:hover::after {
+  color: #94a3b8;
 }
 
 .inline-edit {
@@ -221,11 +222,21 @@ textarea.inline-edit {
 tr.row-yellow td {
   color: #b45309;
   font-weight: 600;
+  background: #fffbeb;
+}
+
+tr.row-yellow:hover td {
+  background: #fef3c7;
 }
 
 tr.row-red td {
   color: #dc2626;
   font-weight: 700;
+  background: #fef2f2;
+}
+
+tr.row-red:hover td {
+  background: #fee2e2;
 }
 
 .row-actions {
