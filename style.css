@@ -196,6 +196,140 @@ tr.row-red td {
 
 .empty-msg.hidden { display: none; }
 
+.hidden { display: none !important; }
+
+/* ---------- Login screen ---------- */
+.login-screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1f2a44 0%, #334155 100%);
+  z-index: 200;
+  padding: 20px;
+}
+
+.login-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 32px 28px;
+  width: 100%;
+  max-width: 380px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+}
+
+.login-card h1 {
+  margin: 0 0 4px;
+  font-size: 20px;
+  color: #1f2a44;
+  text-align: center;
+}
+
+.login-subtitle {
+  margin: 0 0 24px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+#loginForm {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+#loginForm label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+  margin-top: 10px;
+}
+
+#loginForm input {
+  padding: 9px 11px;
+  border: 1px solid #cbd5e1;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+#loginForm input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37,99,235,0.2);
+}
+
+#loginForm button {
+  margin-top: 18px;
+  padding: 10px;
+  font-size: 14px;
+}
+
+.login-error {
+  margin-top: 10px;
+  padding: 8px 10px;
+  background: #fee2e2;
+  color: #991b1b;
+  border-radius: 4px;
+  font-size: 12px;
+  border: 1px solid #fca5a5;
+}
+
+.login-hint {
+  margin: 14px 0 0;
+  font-size: 11px;
+  color: #6b7280;
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* ---------- User info / logout ---------- */
+.user-info {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #cbd5e1;
+  margin-left: 8px;
+}
+
+#userEmail {
+  font-weight: 600;
+  color: #fff;
+}
+
+.link-btn {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.3);
+  color: #fff;
+  padding: 4px 8px;
+  font-size: 11px;
+}
+
+.link-btn:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+/* ---------- Company column accents ---------- */
+.company-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
+.company-TOHOシネマズ            { background: #fee2e2; color: #991b1b; }
+.company-109シネマズ             { background: #ddd6fe; color: #5b21b6; }
+.company-ユナイテッドシネマ      { background: #cffafe; color: #155e75; }
+.company-佐々木興業              { background: #fef3c7; color: #92400e; }
+
+/* Status badges - add invoice/payment */
+.status-請求済 { background: #fef3c7; color: #92400e; }
+.status-入金済 { background: #d1fae5; color: #065f46; }
+
 .status-badge {
   display: inline-block;
   padding: 2px 8px;

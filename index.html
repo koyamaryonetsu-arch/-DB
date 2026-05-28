@@ -3,69 +3,114 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TOHOシネマズ 案件管理</title>
+<title>シネマ案件管理</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header>
-  <h1>TOHOシネマズ 案件管理</h1>
-  <div class="header-actions">
-    <input type="search" id="searchBox" placeholder="検索（劇場名・内容・担当者など）">
-    <select id="statusFilter">
-      <option value="">全ステータス</option>
-      <option value="受付">受付</option>
-      <option value="調査中">調査中</option>
-      <option value="見積り提出済">見積り提出済</option>
-      <option value="作業中">作業中</option>
-      <option value="完了">完了</option>
-      <option value="保留">保留</option>
-    </select>
-    <button id="newCaseBtn" class="primary">＋ 新規案件作成</button>
-    <button id="exportBtn">CSV出力</button>
-  </div>
-</header>
 
-<main>
-  <div class="legend">
-    <span class="legend-item"><span class="swatch swatch-yellow"></span>受付→調査が3日以上</span>
-    <span class="legend-item"><span class="swatch swatch-red"></span>調査→見積りが3日以上</span>
-    <span id="caseCount" class="case-count"></span>
+<div id="loginScreen" class="login-screen">
+  <div class="login-card">
+    <h1>シネマ案件管理</h1>
+    <p class="login-subtitle">ログイン</p>
+    <form id="loginForm">
+      <label for="loginEmail">メールアドレス</label>
+      <input type="email" id="loginEmail" required autocomplete="username" placeholder="例: name@ryonetsu.com">
+      <label for="loginPassword">パスワード</label>
+      <input type="password" id="loginPassword" required autocomplete="current-password">
+      <div id="loginError" class="login-error hidden"></div>
+      <button type="submit" class="primary">ログイン</button>
+      <p class="login-hint">※ パスワードはメールアドレスの@より前の部分（小文字）です</p>
+    </form>
   </div>
+</div>
 
-  <div class="table-wrap">
-    <table id="casesTable">
-      <thead>
-        <tr>
-          <th>受付日</th>
-          <th>劇場名</th>
-          <th>TC担当者</th>
-          <th>R担当者</th>
-          <th>調査日</th>
-          <th>見積り提出日</th>
-          <th>種別</th>
-          <th>内容</th>
-          <th>ステータス</th>
-          <th>作業開始日</th>
-          <th>作業完了日</th>
-          <th>操作</th>
-        </tr>
-      </thead>
-      <tbody id="casesBody"></tbody>
-    </table>
-    <p id="emptyMsg" class="empty-msg">まだ案件が登録されていません。「＋ 新規案件作成」ボタンから登録してください。</p>
-  </div>
-</main>
+<div id="appShell" class="hidden">
+  <header>
+    <h1 id="appTitle">TOHOシネマズ 案件管理</h1>
+    <div class="header-actions">
+      <input type="search" id="searchBox" placeholder="検索（劇場名・担当者・内容・種別など）">
+      <select id="companyFilter" class="hidden">
+        <option value="">全会社</option>
+        <option value="TOHOシネマズ">TOHOシネマズ</option>
+        <option value="109シネマズ">109シネマズ</option>
+        <option value="ユナイテッドシネマ">ユナイテッドシネマ</option>
+        <option value="佐々木興業">佐々木興業</option>
+      </select>
+      <select id="statusFilter">
+        <option value="">全ステータス</option>
+        <option value="受付">受付</option>
+        <option value="調査中">調査中</option>
+        <option value="見積り提出済">見積り提出済</option>
+        <option value="作業中">作業中</option>
+        <option value="完了">完了</option>
+        <option value="保留">保留</option>
+        <option value="請求済">請求済</option>
+        <option value="入金済">入金済</option>
+      </select>
+      <button id="newCaseBtn" class="primary">＋ 新規案件登録</button>
+      <button id="exportBtn">Excelダウンロード</button>
+      <span class="user-info">
+        <span id="userEmail"></span>
+        <button id="logoutBtn" class="link-btn">ログアウト</button>
+      </span>
+    </div>
+  </header>
+
+  <main>
+    <div class="legend">
+      <span class="legend-item"><span class="swatch swatch-yellow"></span>受付→調査が3日以上</span>
+      <span class="legend-item"><span class="swatch swatch-red"></span>調査→見積りが3日以上</span>
+      <span id="caseCount" class="case-count"></span>
+    </div>
+
+    <div class="table-wrap">
+      <table id="casesTable">
+        <thead>
+          <tr>
+            <th class="col-company">会社</th>
+            <th>受付日</th>
+            <th>劇場名</th>
+            <th>TC担当者</th>
+            <th>R担当者</th>
+            <th>調査日</th>
+            <th>見積り提出日</th>
+            <th>種別</th>
+            <th>内容</th>
+            <th>ステータス</th>
+            <th>作業開始日</th>
+            <th>作業完了日</th>
+            <th>請求書発行</th>
+            <th>入金</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="casesBody"></tbody>
+      </table>
+      <p id="emptyMsg" class="empty-msg">まだ案件が登録されていません。「＋ 新規案件登録」ボタンから登録してください。</p>
+    </div>
+  </main>
+</div>
 
 <div id="modal" class="modal hidden">
   <div class="modal-content">
     <div class="modal-header">
-      <h2 id="modalTitle">新規案件作成</h2>
+      <h2 id="modalTitle">新規案件登録</h2>
       <button id="closeModal" class="close-btn" aria-label="閉じる">×</button>
     </div>
     <form id="caseForm">
       <input type="hidden" id="caseId">
 
       <div class="form-grid">
+        <div class="form-row col-company">
+          <label for="company">会社<span class="required">*</span></label>
+          <select id="company" required>
+            <option value="TOHOシネマズ">TOHOシネマズ</option>
+            <option value="109シネマズ">109シネマズ</option>
+            <option value="ユナイテッドシネマ">ユナイテッドシネマ</option>
+            <option value="佐々木興業">佐々木興業</option>
+          </select>
+        </div>
+
         <div class="form-row">
           <label for="receivedDate">受付日<span class="required">*</span></label>
           <input type="date" id="receivedDate" required>
@@ -121,6 +166,8 @@
             <option value="作業中">作業中</option>
             <option value="完了">完了</option>
             <option value="保留">保留</option>
+            <option value="請求済">請求済</option>
+            <option value="入金済">入金済</option>
           </select>
         </div>
 
@@ -132,6 +179,16 @@
         <div class="form-row">
           <label for="workEndDate">作業完了日</label>
           <input type="date" id="workEndDate">
+        </div>
+
+        <div class="form-row">
+          <label for="invoiceDate">請求書発行日</label>
+          <input type="date" id="invoiceDate">
+        </div>
+
+        <div class="form-row">
+          <label for="paymentDate">入金日</label>
+          <input type="date" id="paymentDate">
         </div>
 
         <div class="form-row form-row-wide">
