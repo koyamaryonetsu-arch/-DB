@@ -47,6 +47,7 @@
         <option value="請求済">請求済</option>
         <option value="入金済">入金済</option>
       </select>
+      <button id="quickCaseBtn" class="primary outline">⚡ 簡易登録</button>
       <button id="newCaseBtn" class="primary">＋ 新規案件登録</button>
       <button id="exportBtn">Excelダウンロード</button>
       <span class="user-info">
@@ -60,6 +61,7 @@
     <div class="legend">
       <span class="legend-item"><span class="swatch swatch-yellow"></span>受付→調査が3日以上</span>
       <span class="legend-item"><span class="swatch swatch-red"></span>調査→見積りが3日以上</span>
+      <span class="legend-hint">💡 セルをクリックすると直接編集できます</span>
       <span id="caseCount" class="case-count"></span>
     </div>
 
@@ -68,19 +70,19 @@
         <thead>
           <tr>
             <th class="col-company">会社</th>
-            <th>受付日</th>
             <th>劇場名</th>
+            <th>受付日</th>
             <th>TC担当者</th>
             <th>R担当者</th>
-            <th>調査日</th>
-            <th>見積り提出日</th>
             <th>種別</th>
             <th>内容</th>
-            <th>ステータス</th>
+            <th>調査日</th>
+            <th>見積り提出日</th>
             <th>作業開始日</th>
             <th>作業完了日</th>
-            <th>請求書発行</th>
-            <th>入金</th>
+            <th>請求書発行日</th>
+            <th>入金日</th>
+            <th>ステータス</th>
             <th>操作</th>
           </tr>
         </thead>
@@ -95,13 +97,12 @@
   <div class="modal-content">
     <div class="modal-header">
       <h2 id="modalTitle">新規案件登録</h2>
-      <button id="closeModal" class="close-btn" aria-label="閉じる">×</button>
+      <button id="closeModal" class="close-btn" aria-label="閉じる" tabindex="-1">×</button>
     </div>
     <form id="caseForm">
       <input type="hidden" id="caseId">
-
-      <div class="form-grid">
-        <div class="form-row col-company">
+      <div class="form-stack">
+        <div class="form-row col-company" data-mode="simple">
           <label for="company">会社<span class="required">*</span></label>
           <select id="company" required>
             <option value="TOHOシネマズ">TOHOシネマズ</option>
@@ -111,40 +112,30 @@
           </select>
         </div>
 
-        <div class="form-row">
-          <label for="receivedDate">受付日<span class="required">*</span></label>
-          <input type="date" id="receivedDate" required>
-        </div>
-
-        <div class="form-row">
+        <div class="form-row" data-mode="simple">
           <label for="theater">劇場名<span class="required">*</span></label>
           <input type="text" id="theater" list="theaterList" required placeholder="例：TOHOシネマズ 新宿">
           <datalist id="theaterList"></datalist>
         </div>
 
-        <div class="form-row">
+        <div class="form-row" data-mode="simple">
+          <label for="receivedDate">受付日<span class="required">*</span></label>
+          <input type="date" id="receivedDate" required>
+        </div>
+
+        <div class="form-row" data-mode="simple">
           <label for="tcPerson">TC担当者</label>
           <input type="text" id="tcPerson" list="tcPersonList" placeholder="履歴から選択 or 新規入力">
           <datalist id="tcPersonList"></datalist>
         </div>
 
-        <div class="form-row">
+        <div class="form-row" data-mode="simple">
           <label for="rPerson">R担当者</label>
           <input type="text" id="rPerson" list="rPersonList" placeholder="履歴から選択 or 新規入力">
           <datalist id="rPersonList"></datalist>
         </div>
 
-        <div class="form-row">
-          <label for="surveyDate">調査日</label>
-          <input type="date" id="surveyDate">
-        </div>
-
-        <div class="form-row">
-          <label for="quoteDate">見積り提出日</label>
-          <input type="date" id="quoteDate">
-        </div>
-
-        <div class="form-row">
+        <div class="form-row" data-mode="simple">
           <label for="category">種別</label>
           <select id="category">
             <option value="">選択してください</option>
@@ -157,7 +148,42 @@
           </select>
         </div>
 
-        <div class="form-row">
+        <div class="form-row" data-mode="simple">
+          <label for="content">内容</label>
+          <textarea id="content" rows="3" placeholder="案件の詳細を記入"></textarea>
+        </div>
+
+        <div class="form-row" data-mode="full">
+          <label for="surveyDate">調査日</label>
+          <input type="date" id="surveyDate">
+        </div>
+
+        <div class="form-row" data-mode="full">
+          <label for="quoteDate">見積り提出日</label>
+          <input type="date" id="quoteDate">
+        </div>
+
+        <div class="form-row" data-mode="full">
+          <label for="workStartDate">作業開始日</label>
+          <input type="date" id="workStartDate">
+        </div>
+
+        <div class="form-row" data-mode="full">
+          <label for="workEndDate">作業完了日</label>
+          <input type="date" id="workEndDate">
+        </div>
+
+        <div class="form-row" data-mode="full">
+          <label for="invoiceDate">請求書発行日</label>
+          <input type="date" id="invoiceDate">
+        </div>
+
+        <div class="form-row" data-mode="full">
+          <label for="paymentDate">入金日</label>
+          <input type="date" id="paymentDate">
+        </div>
+
+        <div class="form-row" data-mode="full">
           <label for="status">ステータス</label>
           <select id="status">
             <option value="受付">受付</option>
@@ -169,31 +195,6 @@
             <option value="請求済">請求済</option>
             <option value="入金済">入金済</option>
           </select>
-        </div>
-
-        <div class="form-row">
-          <label for="workStartDate">作業開始日</label>
-          <input type="date" id="workStartDate">
-        </div>
-
-        <div class="form-row">
-          <label for="workEndDate">作業完了日</label>
-          <input type="date" id="workEndDate">
-        </div>
-
-        <div class="form-row">
-          <label for="invoiceDate">請求書発行日</label>
-          <input type="date" id="invoiceDate">
-        </div>
-
-        <div class="form-row">
-          <label for="paymentDate">入金日</label>
-          <input type="date" id="paymentDate">
-        </div>
-
-        <div class="form-row form-row-wide">
-          <label for="content">内容</label>
-          <textarea id="content" rows="3" placeholder="案件の詳細を記入"></textarea>
         </div>
       </div>
 

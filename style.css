@@ -77,6 +77,16 @@ button.primary:hover {
   background: #1d4ed8;
 }
 
+button.primary.outline {
+  background: #fff;
+  color: #2563eb;
+  border-color: #2563eb;
+}
+
+button.primary.outline:hover {
+  background: #eff6ff;
+}
+
 button.danger {
   color: #b91c1c;
   border-color: #fca5a5;
@@ -166,6 +176,46 @@ td.content-cell {
 
 tbody tr:hover {
   background: #f9fafb;
+}
+
+td.editable {
+  cursor: text;
+  position: relative;
+}
+
+td.editable:hover {
+  background: #eff6ff;
+  outline: 1px dashed #93c5fd;
+  outline-offset: -2px;
+}
+
+td.editable.empty::after {
+  content: '＋';
+  color: #cbd5e1;
+  font-size: 11px;
+}
+
+.inline-edit {
+  width: 100%;
+  padding: 4px 6px;
+  border: 1px solid #2563eb;
+  border-radius: 3px;
+  font-size: 13px;
+  font-family: inherit;
+  background: #fff;
+  color: #1f2937;
+  font-weight: normal;
+  box-shadow: 0 0 0 2px rgba(37,99,235,0.2);
+}
+
+textarea.inline-edit {
+  resize: vertical;
+  min-height: 50px;
+}
+
+.legend-hint {
+  color: #2563eb;
+  font-weight: 600;
 }
 
 tr.row-yellow td {
@@ -400,10 +450,10 @@ tr.row-red td {
   padding: 20px;
 }
 
-.form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px 16px;
+.form-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .form-row {
@@ -412,9 +462,7 @@ tr.row-red td {
   gap: 4px;
 }
 
-.form-row-wide {
-  grid-column: 1 / -1;
-}
+.form-row.hidden { display: none !important; }
 
 .form-row label {
   font-size: 12px;

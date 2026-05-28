@@ -6,6 +6,8 @@
   const AUTH_KEY = 'tohoAuthV1';
 
   const COMPANIES = ['TOHOシネマズ', '109シネマズ', 'ユナイテッドシネマ', '佐々木興業'];
+  const CATEGORIES = ['新規工事', '修理', 'メンテナンス', '点検', '改修', 'その他'];
+  const STATUSES = ['受付', '調査中', '見積り提出済', '作業中', '完了', '保留', '請求済', '入金済'];
   const PRIVILEGED_DOMAIN = 'ryonetsu.com';
 
   const DEFAULT_THEATERS = [
@@ -38,12 +40,28 @@
     'TOHOシネマズ ファボーレ富山'
   ];
 
-  // ---------- state ----------
+  // Editable field config used by inline-edit and table render
+  const EDITABLE_FIELDS = {
+    company:        { type: 'select',   options: COMPANIES, privilegedOnly: true },
+    theater:        { type: 'datalist', listId: 'theaterList' },
+    receivedDate:   { type: 'date' },
+    tcPerson:       { type: 'datalist', listId: 'tcPersonList' },
+    rPerson:        { type: 'datalist', listId: 'rPersonList' },
+    category:       { type: 'select',   options: [''].concat(CATEGORIES) },
+    content:        { type: 'textarea' },
+    surveyDate:     { type: 'date' },
+    quoteDate:      { type: 'date' },
+    workStartDate:  { type: 'date' },
+    workEndDate:    { type: 'date' },
+    invoiceDate:    { type: 'date' },
+    paymentDate:    { type: 'date' },
+    status:         { type: 'select',   options: STATUSES }
+  };
+
   let cases = loadCases();
   let history = loadHistory();
   let currentUser = loadAuth();
 
-  // ---------- DOM ----------
   const $ = (id) => document.getElementById(id);
   const loginScreen = $('loginScreen');
   const appShell = $('appShell');
@@ -57,11 +75,9 @@
   const companyFilter = $('companyFilter');
   const companySelect = $('company');
 
-  // ---------- storage ----------
   function loadCases() {
     let arr = [];
     try { arr = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch (e) { arr = []; }
-    // Backfill defaults for older records
     arr.forEach((c) => {
       if (!c.company) c.company = 'TOHOシネマズ';
       if (c.invoiceDate === undefined) c.invoiceDate = '';
@@ -69,9 +85,7 @@
     });
     return arr;
   }
-  function saveCases() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(cases));
-  }
+  function saveCases() { localStorage.setItem(STORAGE_KEY, JSON.stringify(cases)); }
 
   function loadHistory() {
     try {
@@ -85,9 +99,7 @@
       return { theaters: DEFAULT_THEATERS.slice(), tcPersons: [], rPersons: [] };
     }
   }
-  function saveHistory() {
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
-  }
+  function saveHistory() { localStorage.setItem(HISTORY_KEY, JSON.stringify(history)); }
 
   function addToHistory(key, value) {
     if (!value) return;
@@ -109,26 +121,19 @@
       dl.appendChild(opt);
     });
   }
-
   function renderDatalists() {
     fillDatalist('theaterList', history.theaters);
     fillDatalist('tcPersonList', history.tcPersons);
     fillDatalist('rPersonList', history.rPersons);
   }
 
-  // ---------- auth ----------
   function loadAuth() {
     try { return JSON.parse(localStorage.getItem(AUTH_KEY)); } catch (e) { return null; }
   }
-  function saveAuth(user) {
-    localStorage.setItem(AUTH_KEY, JSON.stringify(user));
-  }
-  function clearAuth() {
-    localStorage.removeItem(AUTH_KEY);
-  }
-  function isPrivileged(user) {
-    return !!(user && user.domain === PRIVILEGED_DOMAIN);
-  }
+  function saveAuth(user) { localStorage.setItem(AUTH_KEY, JSON.stringify(user)); }
+  function clearAuth() { localStorage.removeItem(AUTH_KEY); }
+  function isPrivileged(user) { return !!(user && user.domain === PRIVILEGED_DOMAIN); }
+
   function attemptLogin(email, password) {
     const e = (email || '').trim().toLowerCase();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) {
@@ -137,24 +142,21 @@
     const local = e.split('@')[0];
     const domain = e.split('@')[1];
     if (!local) return { ok: false, msg: 'メールアドレスが不正です。' };
-    // Password is the local part of the email (case-insensitive)
     if ((password || '').toLowerCase() !== local.toLowerCase()) {
       return { ok: false, msg: 'パスワードが正しくありません。' };
     }
     return { ok: true, user: { email: e, domain: domain, loginAt: new Date().toISOString() } };
   }
 
-  // ---------- date helpers ----------
   function todayStr() {
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   }
-  function daysBetween(fromStr, toStr) {
-    if (!fromStr || !toStr) return null;
-    const a = new Date(fromStr + 'T00:00:00');
-    const b = new Date(toStr + 'T00:00:00');
-    if (isNaN(a) || isNaN(b)) return null;
-    return Math.floor((b - a) / 86400000);
+  function daysBetween(a, b) {
+    if (!a || !b) return null;
+    const x = new Date(a + 'T00:00:00'), y = new Date(b + 'T00:00:00');
+    if (isNaN(x) || isNaN(y)) return null;
+    return Math.floor((y - x) / 86400000);
   }
   function fmtDate(s) { return s ? s.replace(/-/g, '/') : ''; }
 
@@ -179,7 +181,6 @@
       .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
 
-  // ---------- filter / render ----------
   function getFilteredCases() {
     const q = searchBox.value.trim().toLowerCase();
     const sf = statusFilter.value;
@@ -189,7 +190,8 @@
       if (cf && c.company !== cf) return false;
       if (sf && c.status !== sf) return false;
       if (!q) return true;
-      const hay = [c.company, c.theater, c.tcPerson, c.rPerson, c.category, c.content, c.status, c.receivedDate, c.surveyDate, c.quoteDate, c.workStartDate, c.workEndDate, c.invoiceDate, c.paymentDate]
+      const hay = [c.company, c.theater, c.tcPerson, c.rPerson, c.category, c.content, c.status,
+        c.receivedDate, c.surveyDate, c.quoteDate, c.workStartDate, c.workEndDate, c.invoiceDate, c.paymentDate]
         .map((x) => (x || '').toLowerCase()).join(' ');
       return hay.includes(q);
     }).sort((a, b) => {
@@ -200,6 +202,15 @@
     });
   }
 
+  // Render an editable td
+  function editableTd(c, field, displayHtml) {
+    const cfg = EDITABLE_FIELDS[field];
+    const canEdit = !(cfg.privilegedOnly && !isPrivileged(currentUser));
+    const cls = canEdit ? 'editable' : '';
+    const empty = !c[field] ? 'empty' : '';
+    return `<td class="${cls} ${empty}" data-field="${field}" data-case-id="${escapeHtml(c.id)}">${displayHtml}</td>`;
+  }
+
   function render() {
     const filtered = getFilteredCases();
     tbody.innerHTML = '';
@@ -207,24 +218,32 @@
       const tr = document.createElement('tr');
       const cls = rowColorClass(c);
       if (cls) tr.className = cls;
+
+      const companyHtml = c.company
+        ? `<span class="company-tag company-${escapeHtml(c.company)}">${escapeHtml(c.company)}</span>`
+        : '';
+      const statusHtml = c.status
+        ? `<span class="status-badge status-${escapeHtml(c.status)}">${escapeHtml(c.status)}</span>`
+        : '';
+
       tr.innerHTML = `
-        <td><span class="company-tag company-${escapeHtml(c.company)}">${escapeHtml(c.company)}</span></td>
-        <td>${fmtDate(c.receivedDate)}</td>
-        <td>${escapeHtml(c.theater)}</td>
-        <td>${escapeHtml(c.tcPerson)}</td>
-        <td>${escapeHtml(c.rPerson)}</td>
-        <td>${fmtDate(c.surveyDate)}</td>
-        <td>${fmtDate(c.quoteDate)}</td>
-        <td>${escapeHtml(c.category)}</td>
-        <td class="content-cell">${escapeHtml(c.content)}</td>
-        <td><span class="status-badge status-${escapeHtml(c.status || '')}">${escapeHtml(c.status || '')}</span></td>
-        <td>${fmtDate(c.workStartDate)}</td>
-        <td>${fmtDate(c.workEndDate)}</td>
-        <td>${fmtDate(c.invoiceDate)}</td>
-        <td>${fmtDate(c.paymentDate)}</td>
+        ${editableTd(c, 'company', companyHtml)}
+        ${editableTd(c, 'theater', escapeHtml(c.theater))}
+        ${editableTd(c, 'receivedDate', fmtDate(c.receivedDate))}
+        ${editableTd(c, 'tcPerson', escapeHtml(c.tcPerson))}
+        ${editableTd(c, 'rPerson', escapeHtml(c.rPerson))}
+        ${editableTd(c, 'category', escapeHtml(c.category))}
+        <td class="editable content-cell ${c.content ? '' : 'empty'}" data-field="content" data-case-id="${escapeHtml(c.id)}">${escapeHtml(c.content)}</td>
+        ${editableTd(c, 'surveyDate', fmtDate(c.surveyDate))}
+        ${editableTd(c, 'quoteDate', fmtDate(c.quoteDate))}
+        ${editableTd(c, 'workStartDate', fmtDate(c.workStartDate))}
+        ${editableTd(c, 'workEndDate', fmtDate(c.workEndDate))}
+        ${editableTd(c, 'invoiceDate', fmtDate(c.invoiceDate))}
+        ${editableTd(c, 'paymentDate', fmtDate(c.paymentDate))}
+        ${editableTd(c, 'status', statusHtml)}
         <td class="row-actions">
-          <button data-action="edit" data-id="${c.id}">編集</button>
-          <button data-action="delete" data-id="${c.id}" class="danger">削除</button>
+          <button data-action="edit" data-id="${escapeHtml(c.id)}">編集</button>
+          <button data-action="delete" data-id="${escapeHtml(c.id)}" class="danger">削除</button>
         </td>
       `;
       tbody.appendChild(tr);
@@ -236,12 +255,89 @@
     caseCountEl.textContent = `${filtered.length} 件 / 全 ${totalVisible} 件`;
   }
 
-  // ---------- modal ----------
-  function openModal(caseObj) {
+  // ---------- inline edit ----------
+  function startInlineEdit(td, c, field) {
+    if (td.querySelector('.inline-edit')) return;
+    const cfg = EDITABLE_FIELDS[field];
+    if (!cfg) return;
+    if (cfg.privilegedOnly && !isPrivileged(currentUser)) return;
+
+    const oldVal = c[field] || '';
+    let el;
+    switch (cfg.type) {
+      case 'date':
+        el = document.createElement('input');
+        el.type = 'date';
+        break;
+      case 'select':
+        el = document.createElement('select');
+        cfg.options.forEach((opt) => {
+          const o = document.createElement('option');
+          o.value = opt;
+          o.textContent = opt === '' ? '(未選択)' : opt;
+          el.appendChild(o);
+        });
+        break;
+      case 'datalist':
+        el = document.createElement('input');
+        el.type = 'text';
+        el.setAttribute('list', cfg.listId);
+        break;
+      case 'textarea':
+        el = document.createElement('textarea');
+        el.rows = 2;
+        break;
+      default:
+        el = document.createElement('input');
+        el.type = 'text';
+    }
+    el.className = 'inline-edit';
+    el.value = oldVal;
+    td.innerHTML = '';
+    td.appendChild(el);
+    el.focus();
+    if (el.select) try { el.select(); } catch (e) {}
+
+    let done = false;
+    const commit = () => {
+      if (done) return; done = true;
+      const newVal = (typeof el.value === 'string') ? el.value.trim() : el.value;
+      if (newVal !== oldVal) {
+        c[field] = newVal;
+        c.updatedAt = new Date().toISOString();
+        if (field === 'theater') addToHistory('theaters', newVal);
+        if (field === 'tcPerson') addToHistory('tcPersons', newVal);
+        if (field === 'rPerson') addToHistory('rPersons', newVal);
+        saveHistory();
+        saveCases();
+      }
+      render();
+    };
+    const cancel = () => { if (done) return; done = true; render(); };
+
+    el.addEventListener('blur', commit);
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && cfg.type !== 'textarea') {
+        e.preventDefault();
+        el.blur();
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        cancel();
+      }
+    });
+  }
+
+  // ---------- modal (new / edit) ----------
+  function openModal(caseObj, mode) {
     form.reset();
     $('caseId').value = '';
+    const realMode = mode || 'full';
+    const isSimple = realMode === 'simple';
 
-    // Restrict company for non-privileged users
+    document.querySelectorAll('[data-mode="full"]').forEach((el) => {
+      el.classList.toggle('hidden', isSimple);
+    });
+
     if (isPrivileged(currentUser)) {
       companySelect.disabled = false;
     } else {
@@ -253,32 +349,31 @@
       $('modalTitle').textContent = '案件編集';
       $('caseId').value = caseObj.id;
       $('company').value = caseObj.company || 'TOHOシネマズ';
-      $('receivedDate').value = caseObj.receivedDate || '';
       $('theater').value = caseObj.theater || '';
+      $('receivedDate').value = caseObj.receivedDate || '';
       $('tcPerson').value = caseObj.tcPerson || '';
       $('rPerson').value = caseObj.rPerson || '';
+      $('category').value = caseObj.category || '';
+      $('content').value = caseObj.content || '';
       $('surveyDate').value = caseObj.surveyDate || '';
       $('quoteDate').value = caseObj.quoteDate || '';
-      $('category').value = caseObj.category || '';
-      $('status').value = caseObj.status || '受付';
       $('workStartDate').value = caseObj.workStartDate || '';
       $('workEndDate').value = caseObj.workEndDate || '';
       $('invoiceDate').value = caseObj.invoiceDate || '';
       $('paymentDate').value = caseObj.paymentDate || '';
-      $('content').value = caseObj.content || '';
+      $('status').value = caseObj.status || '受付';
     } else {
-      $('modalTitle').textContent = '新規案件登録';
+      $('modalTitle').textContent = isSimple ? '簡易登録' : '新規案件登録';
+      $('company').value = 'TOHOシネマズ';
       $('receivedDate').value = todayStr();
       $('status').value = '受付';
-      $('company').value = 'TOHOシネマズ';
     }
     renderDatalists();
     modal.classList.remove('hidden');
-    setTimeout(() => $('theater').focus(), 50);
+    setTimeout(() => $('company').focus(), 50);
   }
   function closeModal() { modal.classList.add('hidden'); }
 
-  // ---------- export ----------
   function downloadCSV(filename, rows) {
     const csv = rows.map((row) =>
       row.map((v) => {
@@ -290,11 +385,8 @@
     const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
     URL.revokeObjectURL(url);
   }
 
@@ -304,35 +396,31 @@
       alert('現在の絞り込み条件に一致する案件がありません。');
       return;
     }
-    const headers = ['会社', '受付日', '劇場名', 'TC担当者', 'R担当者', '調査日', '見積り提出日', '種別', '内容', 'ステータス', '作業開始日', '作業完了日', '請求書発行日', '入金日'];
+    const headers = ['会社', '劇場名', '受付日', 'TC担当者', 'R担当者', '種別', '内容',
+      '調査日', '見積り提出日', '作業開始日', '作業完了日', '請求書発行日', '入金日', 'ステータス'];
     const rows = [headers].concat(filtered.map((c) => [
-      c.company, c.receivedDate, c.theater, c.tcPerson, c.rPerson,
-      c.surveyDate, c.quoteDate, c.category, c.content, c.status,
-      c.workStartDate, c.workEndDate, c.invoiceDate, c.paymentDate
+      c.company, c.theater, c.receivedDate, c.tcPerson, c.rPerson, c.category, c.content,
+      c.surveyDate, c.quoteDate, c.workStartDate, c.workEndDate, c.invoiceDate, c.paymentDate, c.status
     ]));
     downloadCSV(`cinema-cases-${todayStr()}.csv`, rows);
   }
 
-  // ---------- login flow ----------
   function showLogin() {
     appShell.classList.add('hidden');
     loginScreen.classList.remove('hidden');
     setTimeout(() => $('loginEmail').focus(), 50);
   }
-
   function showApp() {
     loginScreen.classList.add('hidden');
     appShell.classList.remove('hidden');
     applyUserScope();
     render();
   }
-
   function applyUserScope() {
     $('userEmail').textContent = currentUser.email;
     const privileged = isPrivileged(currentUser);
     $('appTitle').textContent = privileged ? 'シネマ案件管理' : 'TOHOシネマズ 案件管理';
     companyFilter.classList.toggle('hidden', !privileged);
-    // Show/hide the 会社 column in the table for non-privileged users
     document.querySelectorAll('.col-company').forEach((el) => {
       el.classList.toggle('hidden', !privileged);
     });
@@ -361,7 +449,8 @@
     showLogin();
   });
 
-  $('newCaseBtn').addEventListener('click', () => openModal(null));
+  $('newCaseBtn').addEventListener('click', () => openModal(null, 'full'));
+  $('quickCaseBtn').addEventListener('click', () => openModal(null, 'simple'));
   $('closeModal').addEventListener('click', closeModal);
   $('cancelBtn').addEventListener('click', closeModal);
   modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
@@ -376,19 +465,19 @@
     const data = {
       id: id,
       company: company,
-      receivedDate: $('receivedDate').value,
       theater: $('theater').value.trim(),
+      receivedDate: $('receivedDate').value,
       tcPerson: $('tcPerson').value.trim(),
       rPerson: $('rPerson').value.trim(),
+      category: $('category').value,
+      content: $('content').value.trim(),
       surveyDate: $('surveyDate').value,
       quoteDate: $('quoteDate').value,
-      category: $('category').value,
-      status: $('status').value,
       workStartDate: $('workStartDate').value,
       workEndDate: $('workEndDate').value,
       invoiceDate: $('invoiceDate').value,
       paymentDate: $('paymentDate').value,
-      content: $('content').value.trim(),
+      status: $('status').value || '受付',
       updatedAt: new Date().toISOString()
     };
 
@@ -405,22 +494,32 @@
     render();
   });
 
+  // Combined click handler: action buttons + inline edit
   tbody.addEventListener('click', (e) => {
-    const btn = e.target.closest('button');
-    if (!btn) return;
-    const id = btn.dataset.id;
-    const action = btn.dataset.action;
-    const c = cases.find((x) => x.id === id);
-    if (!c) return;
-    if (action === 'edit') {
-      openModal(c);
-    } else if (action === 'delete') {
-      if (confirm(`案件「${c.theater || '(劇場未入力)'}」を削除しますか？`)) {
-        cases = cases.filter((x) => x.id !== id);
-        saveCases();
-        render();
+    const btn = e.target.closest('button[data-action]');
+    if (btn) {
+      const id = btn.dataset.id;
+      const action = btn.dataset.action;
+      const c = cases.find((x) => x.id === id);
+      if (!c) return;
+      if (action === 'edit') {
+        openModal(c, 'full');
+      } else if (action === 'delete') {
+        if (confirm(`案件「${c.theater || '(劇場未入力)'}」を削除しますか？`)) {
+          cases = cases.filter((x) => x.id !== id);
+          saveCases();
+          render();
+        }
       }
+      return;
     }
+    const td = e.target.closest('td.editable');
+    if (!td) return;
+    const field = td.dataset.field;
+    const caseId = td.dataset.caseId;
+    const c = cases.find((x) => x.id === caseId);
+    if (!c) return;
+    startInlineEdit(td, c, field);
   });
 
   searchBox.addEventListener('input', render);
@@ -428,7 +527,6 @@
   companyFilter.addEventListener('change', render);
   $('exportBtn').addEventListener('click', exportFiltered);
 
-  // ---------- init ----------
   renderDatalists();
   if (currentUser) {
     showApp();
