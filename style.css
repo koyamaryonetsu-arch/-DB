@@ -479,6 +479,56 @@ tr.row-red:hover td {
 .col-memo.hidden { display: none !important; }
 td.col-memo { font-size: 11px; max-width: 220px; white-space: normal; word-break: break-word; color: #6b7280; }
 
+/* ---- 役割（受発注）別表示 ---- */
+/* デフォルト = ryonetsu（受注者）表記 */
+.lbl-toho { display: none; }
+.lbl-ryo  { display: inline; }
+/* TOHO（発注者）ユーザー */
+body.user-toho .lbl-ryo  { display: none; }
+body.user-toho .lbl-toho { display: inline; }
+body.user-toho .col-company,
+body.user-toho .col-memo,
+body.user-toho #invoiceBtn { display: none !important; }
+
+/* ---- 内容ポップアップ ---- */
+.modal-content-wide { max-width: 720px; }
+.content-modal-body {
+  padding: 16px 20px;
+  display: flex;
+}
+.content-modal-body textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 280px;
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: inherit;
+  line-height: 1.6;
+}
+.content-modal-body textarea:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37,99,235,0.2);
+}
+/* テーブルの内容セルは省略表示してクリックを誘発 */
+td.content-cell {
+  max-width: 220px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---- スマート日付入力 ---- */
+.smart-date {
+  font-variant-numeric: tabular-nums;
+}
+.smart-date.invalid {
+  border-color: #dc2626;
+  background: #fef2f2;
+}
+
 .status-badge {
   display: inline-block;
   padding: 2px 8px;

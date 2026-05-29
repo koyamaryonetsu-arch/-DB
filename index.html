@@ -30,7 +30,7 @@
   <header>
     <h1 id="appTitle">TOHOシネマズ 案件管理</h1>
     <div class="header-actions">
-      <input type="search" id="searchBox" placeholder="検索（劇場名・担当者・内容・種別など）">
+      <input type="search" id="searchBox" placeholder="検索（劇場名・担当者・内容など）">
       <select id="companyFilter" class="hidden">
         <option value="">全会社</option>
         <option value="TOHOシネマズ">TOHOシネマズ</option>
@@ -63,7 +63,7 @@
     <div class="legend">
       <span class="legend-item"><span class="swatch swatch-yellow"></span>受付→調査が3日以上</span>
       <span class="legend-item"><span class="swatch swatch-red"></span>調査→見積りが3日以上</span>
-      <span class="legend-hint">💡 セル直接編集 ／ ステータス自動判定 ／ ヘッダクリックで並び替え</span>
+      <span class="legend-hint">💡 セルクリックで直接編集 ／ 内容はクリックでポップアップ ／ 日付は 528 で5月28日</span>
       <span id="caseCount" class="case-count"></span>
     </div>
 
@@ -82,11 +82,11 @@
             <th class="sortable" data-sort="certNumber">認証番号</th>
             <th class="sortable" data-sort="estimateName">見積り名</th>
             <th class="sortable" data-sort="estimateAmount">見積り金額</th>
-            <th class="sortable" data-sort="quoteDate">見積り提出日</th>
+            <th class="sortable" data-sort="quoteDate"><span class="lbl-ryo">見積り提出日</span><span class="lbl-toho">見積り受領日</span></th>
             <th class="sortable" data-sort="workStartDate">作業開始日</th>
             <th class="sortable" data-sort="workEndDate">作業完了日</th>
-            <th class="sortable" data-sort="invoiceDate">請求書発行日</th>
-            <th class="sortable" data-sort="paymentDate">入金日</th>
+            <th class="sortable" data-sort="invoiceDate"><span class="lbl-ryo">請求書発行日</span><span class="lbl-toho">請求書受領日</span></th>
+            <th class="sortable" data-sort="paymentDate"><span class="lbl-ryo">入金日</span><span class="lbl-toho">支払日</span></th>
             <th class="sortable" data-sort="status">ステータス</th>
             <th class="col-memo sortable" data-sort="memo">メモ</th>
             <th>操作</th>
@@ -126,7 +126,7 @@
 
         <div class="form-row" data-mode="simple">
           <label for="receivedDate">受付日<span class="required">*</span></label>
-          <input type="date" id="receivedDate" required>
+          <input type="text" id="receivedDate" class="smart-date" inputmode="numeric" required placeholder="YYYY/MM/DD ・ MM/DD ・ 0528 もOK">
         </div>
 
         <div class="form-row" data-mode="simple">
@@ -156,12 +156,12 @@
 
         <div class="form-row" data-mode="simple">
           <label for="content">内容</label>
-          <textarea id="content" rows="3" placeholder="案件の詳細を記入"></textarea>
+          <textarea id="content" rows="3" placeholder="案件の詳細を記入（長文OK・後からクリックでポップアップ編集可）"></textarea>
         </div>
 
         <div class="form-row" data-mode="full">
           <label for="surveyDate">調査日</label>
-          <input type="date" id="surveyDate">
+          <input type="text" id="surveyDate" class="smart-date" inputmode="numeric" placeholder="YYYY/MM/DD ・ MM/DD ・ 0528 もOK">
         </div>
 
         <div class="form-row toho-only-field" data-mode="full">
@@ -180,28 +180,28 @@
         </div>
 
         <div class="form-row" data-mode="full">
-          <label for="quoteDate">見積り提出日</label>
-          <input type="date" id="quoteDate">
+          <label for="quoteDate"><span class="lbl-ryo">見積り提出日</span><span class="lbl-toho">見積り受領日</span></label>
+          <input type="text" id="quoteDate" class="smart-date" inputmode="numeric" placeholder="YYYY/MM/DD ・ MM/DD ・ 0528 もOK">
         </div>
 
         <div class="form-row" data-mode="full">
           <label for="workStartDate">作業開始日</label>
-          <input type="date" id="workStartDate">
+          <input type="text" id="workStartDate" class="smart-date" inputmode="numeric" placeholder="YYYY/MM/DD ・ MM/DD ・ 0528 もOK">
         </div>
 
         <div class="form-row" data-mode="full">
           <label for="workEndDate">作業完了日</label>
-          <input type="date" id="workEndDate">
+          <input type="text" id="workEndDate" class="smart-date" inputmode="numeric" placeholder="YYYY/MM/DD ・ MM/DD ・ 0528 もOK">
         </div>
 
         <div class="form-row" data-mode="full">
-          <label for="invoiceDate">請求書発行日</label>
-          <input type="date" id="invoiceDate">
+          <label for="invoiceDate"><span class="lbl-ryo">請求書発行日</span><span class="lbl-toho">請求書受領日</span></label>
+          <input type="text" id="invoiceDate" class="smart-date" inputmode="numeric" placeholder="YYYY/MM/DD ・ MM/DD ・ 0528 もOK">
         </div>
 
         <div class="form-row" data-mode="full">
-          <label for="paymentDate">入金日</label>
-          <input type="date" id="paymentDate">
+          <label for="paymentDate"><span class="lbl-ryo">入金日</span><span class="lbl-toho">支払日</span></label>
+          <input type="text" id="paymentDate" class="smart-date" inputmode="numeric" placeholder="YYYY/MM/DD ・ MM/DD ・ 0528 もOK">
         </div>
 
         <div class="form-row col-memo" data-mode="full">
@@ -230,8 +230,8 @@
         <input type="month" id="invoiceMonth">
       </div>
       <div class="form-row">
-        <label for="invoiceIssueDate">発行日（請求書発行日として記録されます）</label>
-        <input type="date" id="invoiceIssueDate">
+        <label for="invoiceIssueDate">発行日（請求書発行日として記録）</label>
+        <input type="text" id="invoiceIssueDate" class="smart-date" inputmode="numeric" placeholder="YYYY/MM/DD">
       </div>
       <div class="invoice-preview">
         <div class="invoice-preview-header">
@@ -245,6 +245,22 @@
     <div class="modal-footer">
       <button type="button" id="invoiceCancelBtn">キャンセル</button>
       <button type="button" id="invoiceGenerateBtn" class="primary">発行（ZIPダウンロード）</button>
+    </div>
+  </div>
+</div>
+
+<div id="contentModal" class="modal hidden">
+  <div class="modal-content modal-content-wide">
+    <div class="modal-header">
+      <h2>内容を編集</h2>
+      <button id="closeContentModal" class="close-btn" aria-label="閉じる" tabindex="-1">×</button>
+    </div>
+    <div class="content-modal-body">
+      <textarea id="contentEditor" placeholder="案件の詳細を記入"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button type="button" id="contentCancelBtn">キャンセル</button>
+      <button type="button" id="contentSaveBtn" class="primary">保存</button>
     </div>
   </div>
 </div>

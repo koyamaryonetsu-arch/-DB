@@ -9,6 +9,14 @@
   const CATEGORIES = ['新規工事', '修理', 'メンテナンス', '点検', '改修', 'その他'];
   const PRIVILEGED_DOMAIN = 'ryonetsu.com';
 
+  // 役割別ラベル: 受注者(ryonetsu) ↔ 発注者(TOHO)
+  const ROLE_STATUS = {
+    ryo:  { '見積り提出済': '見積り提出済', '請求済': '請求済',          '入金済': '入金済' },
+    toho: { '見積り提出済': '見積り受領済', '請求済': '請求書受領済',    '入金済': '支払済' }
+  };
+  const STATUS_FILTER_OPTIONS_RYO  = ['', '受付','見積り中','見積り提出済','作業中','完了','請求済','入金済'];
+  const STATUS_FILTER_OPTIONS_TOHO = ['', '受付','見積り中','見積り提出済','作業中','完了','請求済','入金済']; // values unchanged; labels swap
+
   const DEFAULT_THEATERS = [
     'TOHOシネマズ 日本橋', 'TOHOシネマズ 日比谷', 'TOHOシネマズ シャンテ',
     'TOHOシネマズ 新宿', 'TOHOシネマズ 六本木ヒルズ', 'TOHOシネマズ 渋谷',
@@ -46,7 +54,7 @@
     tcPerson:       { type: 'datalist', listId: 'tcPersonList' },
     rPerson:        { type: 'datalist', listId: 'rPersonList' },
     category:       { type: 'select',   options: [''].concat(CATEGORIES) },
-    content:        { type: 'textarea' },
+    content:        { type: 'popup' },
     surveyDate:     { type: 'date' },
     certNumber:     { type: 'text',     tohoOnly: true },
     estimateName:   { type: 'text' },
@@ -63,6 +71,7 @@
   let history = loadHistory();
   let currentUser = loadAuth();
   let sortState = { field: null, direction: 'asc' };
+  let contentEditCaseId = null;
 
   const $ = (id) => document.getElementById(id);
 
@@ -82,7 +91,6 @@
     return arr;
   }
   function saveCases() { localStorage.setItem(STORAGE_KEY, JSON.stringify(cases)); }
-
   function loadHistory() {
     try {
       const stored = JSON.parse(localStorage.getItem(HISTORY_KEY)) || {};
@@ -96,7 +104,6 @@
     }
   }
   function saveHistory() { localStorage.setItem(HISTORY_KEY, JSON.stringify(history)); }
-
   function addToHistory(key, value) {
     if (!value) return;
     const v = String(value).trim();
@@ -107,10 +114,8 @@
     list.unshift(v);
     if (list.length > 200) list.length = 200;
   }
-
   function fillDatalist(id, items) {
-    const dl = $(id);
-    dl.innerHTML = '';
+    const dl = $(id); dl.innerHTML = '';
     items.forEach((v) => { const o = document.createElement('option'); o.value = v; dl.appendChild(o); });
   }
   function renderDatalists() {
@@ -124,7 +129,6 @@
   function saveAuth(user) { localStorage.setItem(AUTH_KEY, JSON.stringify(user)); }
   function clearAuth() { localStorage.removeItem(AUTH_KEY); }
   function isPrivileged(user) { return !!(user && user.domain === PRIVILEGED_DOMAIN); }
-
   function attemptLogin(email, password) {
     const e = (email || '').trim().toLowerCase();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) return { ok: false, msg: 'メールアドレスの形式が正しくありません。' };
@@ -146,7 +150,6 @@
     if (isNaN(x) || isNaN(y)) return null;
     return Math.floor((y - x) / 86400000);
   }
-  function fmtDate(s) { return s ? s.replace(/-/g, '/') : ''; }
   function lastDayOfMonth(yearMonth) {
     const [y, m] = yearMonth.split('-').map(Number);
     const d = new Date(y, m, 0);
@@ -156,9 +159,51 @@
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
   }
+  // MM/DD 形式で表示（テーブル用）
+  function fmtDateShort(s) {
+    if (!s) return '';
+    const p = s.split('-');
+    if (p.length === 3) return `${p[1]}/${p[2]}`;
+    return s;
+  }
+  // YYYY/MM/DD 形式（編集中表示・モーダル用）
+  function fmtDateFull(s) {
+    if (!s) return '';
+    return s.replace(/-/g, '/');
+  }
+  // 各種入力を YYYY-MM-DD に正規化
+  // 例: 528 / 0528 / 5/28 / 5-28 / 20260528 / 2026/5/28 / 2026-5-28
+  function parseSmartDate(input) {
+    if (input == null) return '';
+    const s = String(input).trim().replace(/\s/g, '');
+    if (!s) return '';
+    const cy = new Date().getFullYear();
+    let m;
+    // YYYY/MM/DD / YYYY-MM-DD / YYYY.MM.DD
+    m = s.match(/^(\d{4})[\/\-.](\d{1,2})[\/\-.](\d{1,2})$/);
+    if (m) return validISO(+m[1], +m[2], +m[3]);
+    // YYYYMMDD (8桁)
+    m = s.match(/^(\d{4})(\d{2})(\d{2})$/);
+    if (m) return validISO(+m[1], +m[2], +m[3]);
+    // MM/DD / M/D / MM-DD
+    m = s.match(/^(\d{1,2})[\/\-.](\d{1,2})$/);
+    if (m) return validISO(cy, +m[1], +m[2]);
+    // MMDD (4桁)
+    m = s.match(/^(\d{2})(\d{2})$/);
+    if (m) return validISO(cy, +m[1], +m[2]);
+    // MDD (3桁) → M-DD
+    m = s.match(/^(\d{1})(\d{2})$/);
+    if (m) return validISO(cy, +m[1], +m[2]);
+    return null;
+  }
+  function validISO(y, mo, d) {
+    if (!y || mo < 1 || mo > 12 || d < 1 || d > 31) return null;
+    const dt = new Date(y, mo - 1, d);
+    if (dt.getFullYear() !== y || dt.getMonth() !== mo - 1 || dt.getDate() !== d) return null;
+    return `${y}-${String(mo).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+  }
 
   // ---------- status auto-derive ----------
-  // 入金日 > 請求書発行日 > 作業完了日 > 作業開始日(過去) > 見積り提出日(過去) > 調査日(過去) > 受付
   function deriveStatus(c) {
     const today = todayStr();
     if (c.paymentDate)  return '入金済';
@@ -169,14 +214,13 @@
     if (c.surveyDate && c.surveyDate <= today)       return '見積り中';
     return '受付';
   }
+  function statusDisplayLabel(code) {
+    const map = isPrivileged(currentUser) ? ROLE_STATUS.ryo : ROLE_STATUS.toho;
+    return map[code] || code;
+  }
 
-  // ---------- color: yellow / red / black ----------
-  // 見積り提出日が記入されたら全部黒
-  // 調査日記入済 + (今日 - 調査日) >= 3 → 赤
-  // 受付日のみ + (今日 - 受付日) >= 3 → 黄
-  // 受付→調査が3日以上だった履歴も、調査未提出の間は黄を維持（赤未満時）
   function rowColorClass(c) {
-    if (c.quoteDate) return ''; // 見積り提出済 → 黒
+    if (c.quoteDate) return '';
     const today = todayStr();
     if (c.surveyDate) {
       const dRed = daysBetween(c.surveyDate, today);
@@ -191,7 +235,6 @@
     }
     return '';
   }
-
   function escapeHtml(s) {
     if (s == null) return '';
     return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
@@ -225,11 +268,10 @@
     const dir = sortState.direction === 'asc' ? 1 : -1;
     return arr.sort((a, b) => {
       const av = getSortValue(a, sortState.field), bv = getSortValue(b, sortState.field);
-      const aEmpty = (av === '' || av == null);
-      const bEmpty = (bv === '' || bv == null);
-      if (aEmpty && bEmpty) return 0;
-      if (aEmpty) return 1;  // empties last
-      if (bEmpty) return -1;
+      const aE = (av === '' || av == null), bE = (bv === '' || bv == null);
+      if (aE && bE) return 0;
+      if (aE) return 1;
+      if (bE) return -1;
       if (typeof av === 'number' && typeof bv === 'number') return (av - bv) * dir;
       return String(av).localeCompare(String(bv), 'ja') * dir;
     });
@@ -248,7 +290,6 @@
     const q = $('searchBox').value.trim().toLowerCase();
     const sf = $('statusFilter').value;
     const cf = isPrivileged(currentUser) ? $('companyFilter').value : 'TOHOシネマズ';
-
     const filtered = cases.filter((c) => {
       if (cf && c.company !== cf) return false;
       if (sf && deriveStatus(c) !== sf) return false;
@@ -275,36 +316,37 @@
     const filtered = getFilteredCases();
     const tbody = $('casesBody');
     tbody.innerHTML = '';
+    const isToho = !isPrivileged(currentUser);
     filtered.forEach((c) => {
       const tr = document.createElement('tr');
       const cls = rowColorClass(c);
       if (cls) tr.className = cls;
-
-      const status = deriveStatus(c);
+      const statusCode = deriveStatus(c);
+      const statusLabel = statusDisplayLabel(statusCode);
       const companyHtml = c.company ? `<span class="company-tag company-${escapeHtml(c.company)}">${escapeHtml(c.company)}</span>` : '';
-      const statusHtml = `<span class="status-badge status-${escapeHtml(status)}">${escapeHtml(status)}</span>`;
-      const isToho = c.company === 'TOHOシネマズ';
-      const certHtml = isToho
+      const statusHtml = `<span class="status-badge status-${escapeHtml(statusCode)}">${escapeHtml(statusLabel)}</span>`;
+      const isTohoCo = c.company === 'TOHOシネマズ';
+      const certHtml = isTohoCo
         ? editableTd(c, 'certNumber', escapeHtml(c.certNumber))
         : `<td class="toho-empty">—</td>`;
 
       tr.innerHTML = `
-        ${editableTd(c, 'company', companyHtml)}
+        ${editableTd(c, 'company', companyHtml, 'col-company')}
         ${editableTd(c, 'theater', escapeHtml(c.theater))}
-        ${editableTd(c, 'receivedDate', fmtDate(c.receivedDate))}
+        ${editableTd(c, 'receivedDate', fmtDateShort(c.receivedDate))}
         ${editableTd(c, 'tcPerson', escapeHtml(c.tcPerson))}
         ${editableTd(c, 'rPerson', escapeHtml(c.rPerson))}
         ${editableTd(c, 'category', escapeHtml(c.category))}
         ${editableTd(c, 'content', escapeHtml(c.content), 'content-cell')}
-        ${editableTd(c, 'surveyDate', fmtDate(c.surveyDate))}
+        ${editableTd(c, 'surveyDate', fmtDateShort(c.surveyDate))}
         ${certHtml}
         ${editableTd(c, 'estimateName', escapeHtml(c.estimateName))}
         ${editableTd(c, 'estimateAmount', fmtAmount(c.estimateAmount))}
-        ${editableTd(c, 'quoteDate', fmtDate(c.quoteDate))}
-        ${editableTd(c, 'workStartDate', fmtDate(c.workStartDate))}
-        ${editableTd(c, 'workEndDate', fmtDate(c.workEndDate))}
-        ${editableTd(c, 'invoiceDate', fmtDate(c.invoiceDate))}
-        ${editableTd(c, 'paymentDate', fmtDate(c.paymentDate))}
+        ${editableTd(c, 'quoteDate', fmtDateShort(c.quoteDate))}
+        ${editableTd(c, 'workStartDate', fmtDateShort(c.workStartDate))}
+        ${editableTd(c, 'workEndDate', fmtDateShort(c.workEndDate))}
+        ${editableTd(c, 'invoiceDate', fmtDateShort(c.invoiceDate))}
+        ${editableTd(c, 'paymentDate', fmtDateShort(c.paymentDate))}
         <td>${statusHtml}</td>
         ${editableTd(c, 'memo', escapeHtml(c.memo), 'col-memo')}
         <td class="row-actions">
@@ -327,12 +369,19 @@
     if (!cfg) return;
     if (cfg.privilegedOnly && !isPrivileged(currentUser)) return;
     if (cfg.tohoOnly && c.company !== 'TOHOシネマズ') return;
+    if (cfg.type === 'popup') { openContentModal(c); return; }
 
     const oldVal = c[field] != null ? c[field] : '';
     let el;
     switch (cfg.type) {
-      case 'date':    el = document.createElement('input'); el.type = 'date'; break;
-      case 'number':  el = document.createElement('input'); el.type = 'number'; el.min = '0'; el.step = '1'; break;
+      case 'date':
+        el = document.createElement('input');
+        el.type = 'text';
+        el.inputMode = 'numeric';
+        el.placeholder = 'YYYY/MM/DD ・ MM/DD ・ 528 もOK';
+        break;
+      case 'number':
+        el = document.createElement('input'); el.type = 'number'; el.min = '0'; el.step = '1'; break;
       case 'select':
         el = document.createElement('select');
         cfg.options.forEach((opt) => { const o = document.createElement('option'); o.value = opt; o.textContent = opt === '' ? '(未選択)' : opt; el.appendChild(o); });
@@ -341,8 +390,9 @@
       case 'textarea': el = document.createElement('textarea'); el.rows = 2; break;
       default:         el = document.createElement('input'); el.type = 'text';
     }
-    el.className = 'inline-edit';
-    el.value = oldVal;
+    el.className = 'inline-edit' + (cfg.type === 'date' ? ' smart-date' : '');
+    // 日付セルは編集中は YYYY/MM/DD で表示
+    el.value = cfg.type === 'date' ? fmtDateFull(oldVal) : oldVal;
     td.innerHTML = '';
     td.appendChild(el);
     el.focus();
@@ -353,6 +403,17 @@
       if (done) return; done = true;
       let newVal = el.value;
       if (typeof newVal === 'string') newVal = newVal.trim();
+
+      if (cfg.type === 'date' && newVal !== '') {
+        const parsed = parseSmartDate(newVal);
+        if (parsed === null) {
+          alert('日付として認識できません: ' + newVal + '\n例: 5/28 / 0528 / 2026/5/28');
+          render();
+          return;
+        }
+        newVal = parsed;
+      }
+
       if (String(newVal) !== String(oldVal)) {
         c[field] = newVal;
         c.updatedAt = new Date().toISOString();
@@ -378,9 +439,24 @@
     const isToho = $('company').value === 'TOHOシネマズ';
     document.querySelectorAll('.toho-only-field').forEach((el) => el.classList.toggle('hidden', !isToho));
   }
+  function setDateField(id, iso) { $(id).value = fmtDateFull(iso); }
+  function readDateField(id, label) {
+    const raw = $(id).value.trim();
+    if (raw === '') return '';
+    const parsed = parseSmartDate(raw);
+    if (parsed === null) {
+      alert(`${label}の日付が認識できません: ${raw}\n例: 5/28 / 0528 / 2026/5/28`);
+      $(id).focus();
+      $(id).classList.add('invalid');
+      return undefined;
+    }
+    $(id).classList.remove('invalid');
+    return parsed;
+  }
   function openModal(caseObj, mode) {
     const form = $('caseForm');
     form.reset();
+    document.querySelectorAll('.smart-date').forEach(el => el.classList.remove('invalid'));
     $('caseId').value = '';
     const realMode = mode || 'full';
     const isSimple = realMode === 'simple';
@@ -398,25 +474,25 @@
       $('caseId').value = caseObj.id;
       $('company').value = caseObj.company || 'TOHOシネマズ';
       $('theater').value = caseObj.theater || '';
-      $('receivedDate').value = caseObj.receivedDate || '';
+      setDateField('receivedDate', caseObj.receivedDate);
       $('tcPerson').value = caseObj.tcPerson || '';
       $('rPerson').value = caseObj.rPerson || '';
       $('category').value = caseObj.category || '';
       $('content').value = caseObj.content || '';
-      $('surveyDate').value = caseObj.surveyDate || '';
+      setDateField('surveyDate', caseObj.surveyDate);
       $('certNumber').value = caseObj.certNumber || '';
       $('estimateName').value = caseObj.estimateName || '';
       $('estimateAmount').value = caseObj.estimateAmount || '';
-      $('quoteDate').value = caseObj.quoteDate || '';
-      $('workStartDate').value = caseObj.workStartDate || '';
-      $('workEndDate').value = caseObj.workEndDate || '';
-      $('invoiceDate').value = caseObj.invoiceDate || '';
-      $('paymentDate').value = caseObj.paymentDate || '';
+      setDateField('quoteDate', caseObj.quoteDate);
+      setDateField('workStartDate', caseObj.workStartDate);
+      setDateField('workEndDate', caseObj.workEndDate);
+      setDateField('invoiceDate', caseObj.invoiceDate);
+      setDateField('paymentDate', caseObj.paymentDate);
       $('memo').value = caseObj.memo || '';
     } else {
       $('modalTitle').textContent = isSimple ? '簡易登録' : '新規案件登録';
       $('company').value = 'TOHOシネマズ';
-      $('receivedDate').value = todayStr();
+      setDateField('receivedDate', todayStr());
     }
     updateTohoVisibility();
     renderDatalists();
@@ -424,6 +500,29 @@
     setTimeout(() => $('company').focus(), 50);
   }
   function closeModal() { $('modal').classList.add('hidden'); }
+
+  // ---------- content popup ----------
+  function openContentModal(c) {
+    contentEditCaseId = c.id;
+    $('contentEditor').value = c.content || '';
+    $('contentModal').classList.remove('hidden');
+    setTimeout(() => $('contentEditor').focus(), 50);
+  }
+  function closeContentModal() { $('contentModal').classList.add('hidden'); contentEditCaseId = null; }
+  function saveContentFromModal() {
+    if (!contentEditCaseId) return;
+    const c = cases.find((x) => x.id === contentEditCaseId);
+    if (c) {
+      const newVal = $('contentEditor').value.trim();
+      if (newVal !== (c.content || '')) {
+        c.content = newVal;
+        c.updatedAt = new Date().toISOString();
+        saveCases();
+        render();
+      }
+    }
+    closeContentModal();
+  }
 
   // ---------- CSV export ----------
   function downloadCSV(filename, rows) {
@@ -448,22 +547,27 @@
     const filtered = getFilteredCases();
     if (filtered.length === 0) { alert('現在の絞り込み条件に一致する案件がありません。'); return; }
     const includesMemo = isPrivileged(currentUser);
+    const isToho = !includesMemo;
     const headers = ['会社', '劇場名', '受付日', 'TC担当者', 'R担当者', '種別', '内容',
-      '調査日', '認証番号', '見積り名', '見積り金額', '見積り提出日', '作業開始日', '作業完了日',
-      '請求書発行日', '入金日', 'ステータス'];
+      '調査日', '認証番号', '見積り名', '見積り金額',
+      isToho ? '見積り受領日' : '見積り提出日',
+      '作業開始日', '作業完了日',
+      isToho ? '請求書受領日' : '請求書発行日',
+      isToho ? '支払日' : '入金日',
+      'ステータス'];
     if (includesMemo) headers.push('メモ');
     const rows = [headers].concat(filtered.map((c) => {
       const row = [c.company, c.theater, c.receivedDate, c.tcPerson, c.rPerson, c.category, c.content,
         c.surveyDate, c.company === 'TOHOシネマズ' ? c.certNumber : '',
         c.estimateName, c.estimateAmount, c.quoteDate, c.workStartDate, c.workEndDate,
-        c.invoiceDate, c.paymentDate, deriveStatus(c)];
+        c.invoiceDate, c.paymentDate, statusDisplayLabel(deriveStatus(c))];
       if (includesMemo) row.push(c.memo);
       return row;
     }));
     downloadCSV(`cinema-cases-${todayStr()}.csv`, rows);
   }
 
-  // ---------- invoice generation (JSZip raw XML approach to preserve drawings/VML) ----------
+  // ---------- invoice generation (JSZip preserves drawings/VML/seals) ----------
   function base64ToArrayBuffer(b64) {
     const bin = atob(b64);
     const len = bin.length;
@@ -471,31 +575,28 @@
     for (let i = 0; i < len; i++) bytes[i] = bin.charCodeAt(i);
     return bytes.buffer;
   }
-  function xmlEscape(s) {
-    return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  }
-  function setCellInline(xml, cellRef, value) {
+  function xmlEscape(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+  function setCellInline(xml, ref, value) {
     const escaped = xmlEscape(value);
-    const re = new RegExp(`<c r="${cellRef}"([^/]*?)(/>|>[\\s\\S]*?</c>)`);
-    if (!re.test(xml)) { console.warn('Cell not found:', cellRef); return xml; }
-    return xml.replace(re, (full, attrs) => {
+    const re = new RegExp(`<c r="${ref}"([^/]*?)(/>|>[\\s\\S]*?</c>)`);
+    if (!re.test(xml)) { console.warn('Cell not found:', ref); return xml; }
+    return xml.replace(re, (_, attrs) => {
       const a = attrs.replace(/\s+t="[^"]*"/, '');
-      return `<c r="${cellRef}"${a} t="inlineStr"><is><t xml:space="preserve">${escaped}</t></is></c>`;
+      return `<c r="${ref}"${a} t="inlineStr"><is><t xml:space="preserve">${escaped}</t></is></c>`;
     });
   }
-  function setCellNumber(xml, cellRef, num) {
-    const re = new RegExp(`<c r="${cellRef}"([^/]*?)(/>|>[\\s\\S]*?</c>)`);
-    if (!re.test(xml)) { console.warn('Cell not found:', cellRef); return xml; }
-    return xml.replace(re, (full, attrs) => {
+  function setCellNumber(xml, ref, num) {
+    const re = new RegExp(`<c r="${ref}"([^/]*?)(/>|>[\\s\\S]*?</c>)`);
+    if (!re.test(xml)) { console.warn('Cell not found:', ref); return xml; }
+    return xml.replace(re, (_, attrs) => {
       const a = attrs.replace(/\s+t="[^"]*"/, '');
-      return `<c r="${cellRef}"${a}><v>${num}</v></c>`;
+      return `<c r="${ref}"${a}><v>${num}</v></c>`;
     });
   }
-
   async function buildInvoiceXlsx(c) {
     const zip = await JSZip.loadAsync(base64ToArrayBuffer(window.TEMPLATE_INVOICE_B64));
     let sheet = await zip.file('xl/worksheets/sheet2.xml').async('string');
-    sheet = setCellInline(sheet, 'A21', fmtDate(c.workEndDate));
+    sheet = setCellInline(sheet, 'A21', fmtDateFull(c.workEndDate));
     sheet = setCellInline(sheet, 'D21', `${c.theater} ${c.estimateName}`);
     sheet = setCellNumber(sheet, 'AK21', Number(c.estimateAmount) || 0);
     sheet = setCellInline(sheet, 'B6', c.company);
@@ -505,17 +606,16 @@
     zip.file('xl/styles.xml', styles);
     return await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 9 } });
   }
-
   async function buildCompletionXlsx(c) {
     const zip = await JSZip.loadAsync(base64ToArrayBuffer(window.TEMPLATE_COMPLETION_B64));
     let sheet = await zip.file('xl/worksheets/sheet2.xml').async('string');
     sheet = setCellInline(sheet, 'H14', `${c.theater} ${c.estimateName}`);
     sheet = setCellInline(sheet, 'H17', `${c.theater}（住所を手動でご記入ください）`);
     sheet = setCellNumber(sheet, 'H20', Number(c.estimateAmount) || 0);
-    sheet = setCellInline(sheet, 'H23', fmtDate(c.workStartDate));
-    sheet = setCellInline(sheet, 'S23', fmtDate(c.workEndDate));
-    sheet = setCellInline(sheet, 'H26', fmtDate(c.workStartDate));
-    sheet = setCellInline(sheet, 'H29', fmtDate(c.workEndDate));
+    sheet = setCellInline(sheet, 'H23', fmtDateFull(c.workStartDate));
+    sheet = setCellInline(sheet, 'S23', fmtDateFull(c.workEndDate));
+    sheet = setCellInline(sheet, 'H26', fmtDateFull(c.workStartDate));
+    sheet = setCellInline(sheet, 'H29', fmtDateFull(c.workEndDate));
     if (c.company !== 'TOHOシネマズ') {
       sheet = setCellInline(sheet, 'B7', `${c.company}株式会社　御中`);
     }
@@ -525,7 +625,6 @@
     zip.file('xl/styles.xml', styles);
     return await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 9 } });
   }
-
   function casesMatchingMonth(yearMonth) {
     if (!yearMonth) return [];
     return getFilteredCases().filter((c) => {
@@ -534,7 +633,6 @@
       return c.workEndDate.slice(0, 7) === yearMonth;
     });
   }
-
   function updateInvoicePreview() {
     const month = $('invoiceMonth').value;
     const list = $('invoicePreviewList');
@@ -559,23 +657,19 @@
   function openInvoiceModal() {
     const month = currentMonth();
     $('invoiceMonth').value = month;
-    $('invoiceIssueDate').value = lastDayOfMonth(month);
+    $('invoiceIssueDate').value = fmtDateFull(lastDayOfMonth(month));
     updateInvoicePreview();
     $('invoiceModal').classList.remove('hidden');
   }
   function closeInvoiceModal() { $('invoiceModal').classList.add('hidden'); }
-
-  function safeFilename(s) {
-    return String(s || '').replace(/[\\/:*?"<>|]/g, '_').replace(/\s+/g, '_');
-  }
+  function safeFilename(s) { return String(s || '').replace(/[\\/:*?"<>|]/g, '_').replace(/\s+/g, '_'); }
   async function generateInvoices() {
     const month = $('invoiceMonth').value;
-    const issueDate = $('invoiceIssueDate').value;
-    if (!month || !issueDate) { alert('発行月と発行日を指定してください。'); return; }
+    const issueIso = parseSmartDate($('invoiceIssueDate').value);
+    if (!month || !issueIso) { alert('発行月と発行日を指定してください。'); return; }
     const matches = casesMatchingMonth(month);
     if (matches.length === 0) { alert('対象の案件がありません。'); return; }
-    if (typeof JSZip === 'undefined') { alert('JSZipライブラリの読み込みに失敗しました。インターネット接続を確認して再読み込みしてください。'); return; }
-
+    if (typeof JSZip === 'undefined') { alert('JSZipライブラリの読み込みに失敗しました。'); return; }
     $('invoiceGenerateBtn').disabled = true;
     $('invoiceGenerateBtn').textContent = '生成中...';
     try {
@@ -586,7 +680,7 @@
         const tag = `${safeFilename(c.theater)}_${safeFilename(c.estimateName)}`;
         zip.file(`請求書_${tag}.xlsx`, invBlob);
         zip.file(`完了届_${tag}.xlsx`, comBlob);
-        c.invoiceDate = issueDate;
+        c.invoiceDate = issueIso;
         c.updatedAt = new Date().toISOString();
       }
       saveCases();
@@ -594,10 +688,10 @@
       triggerDownload(blob, `請求書セット_${month}.zip`);
       closeInvoiceModal();
       render();
-      alert(`${matches.length} 件の請求書・完了届を生成しました。\n各案件の請求書発行日を ${issueDate} に更新しました。`);
+      alert(`${matches.length} 件生成し、請求書発行日を ${fmtDateFull(issueIso)} に更新しました。`);
     } catch (err) {
       console.error(err);
-      alert('生成中にエラーが発生しました: ' + (err.message || err));
+      alert('生成中にエラー: ' + (err.message || err));
     } finally {
       $('invoiceGenerateBtn').disabled = false;
       $('invoiceGenerateBtn').textContent = '発行（ZIPダウンロード）';
@@ -619,10 +713,15 @@
   function applyUserScope() {
     $('userEmail').textContent = currentUser.email;
     const privileged = isPrivileged(currentUser);
+    document.body.classList.toggle('user-privileged', privileged);
+    document.body.classList.toggle('user-toho', !privileged);
     $('appTitle').textContent = privileged ? 'シネマ案件管理' : 'TOHOシネマズ 案件管理';
     $('companyFilter').classList.toggle('hidden', !privileged);
-    document.querySelectorAll('.col-company').forEach((el) => el.classList.toggle('hidden', !privileged));
-    document.querySelectorAll('.col-memo').forEach((el) => el.classList.toggle('hidden', !privileged));
+    // status filter のラベル差し替え（受発注で呼称が変わる項目のみ）
+    $('statusFilter').querySelectorAll('option').forEach(opt => {
+      const map = privileged ? ROLE_STATUS.ryo : ROLE_STATUS.toho;
+      if (map[opt.value]) opt.textContent = map[opt.value];
+    });
   }
 
   // ---------- handlers ----------
@@ -649,39 +748,62 @@
   $('invoiceCancelBtn').addEventListener('click', closeInvoiceModal);
   $('invoiceModal').addEventListener('click', (e) => { if (e.target === $('invoiceModal')) closeInvoiceModal(); });
   $('invoiceMonth').addEventListener('change', () => {
-    $('invoiceIssueDate').value = lastDayOfMonth($('invoiceMonth').value);
+    $('invoiceIssueDate').value = fmtDateFull(lastDayOfMonth($('invoiceMonth').value));
     updateInvoicePreview();
   });
   $('invoiceGenerateBtn').addEventListener('click', generateInvoices);
+
+  $('closeContentModal').addEventListener('click', closeContentModal);
+  $('contentCancelBtn').addEventListener('click', closeContentModal);
+  $('contentSaveBtn').addEventListener('click', saveContentFromModal);
+  $('contentModal').addEventListener('click', (e) => { if (e.target === $('contentModal')) closeContentModal(); });
 
   document.addEventListener('keydown', (e) => {
     if (e.key !== 'Escape') return;
     if (!$('modal').classList.contains('hidden')) closeModal();
     if (!$('invoiceModal').classList.contains('hidden')) closeInvoiceModal();
+    if (!$('contentModal').classList.contains('hidden')) closeContentModal();
   });
 
+  // フォーム保存時に日付を一括パース＆バリデーション
   $('caseForm').addEventListener('submit', (e) => {
     e.preventDefault();
+    const isToho = !isPrivileged(currentUser);
+    const dateLabels = {
+      receivedDate: '受付日',
+      surveyDate: '調査日',
+      quoteDate: isToho ? '見積り受領日' : '見積り提出日',
+      workStartDate: '作業開始日',
+      workEndDate: '作業完了日',
+      invoiceDate: isToho ? '請求書受領日' : '請求書発行日',
+      paymentDate: isToho ? '支払日' : '入金日'
+    };
+    const parsedDates = {};
+    for (const f in dateLabels) {
+      const v = readDateField(f, dateLabels[f]);
+      if (v === undefined) return; // バリデーション失敗
+      parsedDates[f] = v;
+    }
     const id = $('caseId').value || String(Date.now()) + Math.random().toString(36).slice(2, 7);
     const company = isPrivileged(currentUser) ? $('company').value : 'TOHOシネマズ';
     const amountRaw = $('estimateAmount').value;
     const data = {
       id: id, company: company,
       theater: $('theater').value.trim(),
-      receivedDate: $('receivedDate').value,
+      receivedDate: parsedDates.receivedDate,
       tcPerson: $('tcPerson').value.trim(),
       rPerson: $('rPerson').value.trim(),
       category: $('category').value,
       content: $('content').value.trim(),
-      surveyDate: $('surveyDate').value,
+      surveyDate: parsedDates.surveyDate,
       certNumber: company === 'TOHOシネマズ' ? $('certNumber').value.trim() : '',
       estimateName: $('estimateName').value.trim(),
       estimateAmount: amountRaw === '' ? '' : Number(amountRaw),
-      quoteDate: $('quoteDate').value,
-      workStartDate: $('workStartDate').value,
-      workEndDate: $('workEndDate').value,
-      invoiceDate: $('invoiceDate').value,
-      paymentDate: $('paymentDate').value,
+      quoteDate: parsedDates.quoteDate,
+      workStartDate: parsedDates.workStartDate,
+      workEndDate: parsedDates.workEndDate,
+      invoiceDate: parsedDates.invoiceDate,
+      paymentDate: parsedDates.paymentDate,
       memo: $('memo').value.trim(),
       updatedAt: new Date().toISOString()
     };
@@ -718,14 +840,13 @@
     startInlineEdit(td, c, td.dataset.field);
   });
 
-  // Sort header click
   document.querySelector('#theadRow').addEventListener('click', (e) => {
     const th = e.target.closest('th.sortable');
     if (!th) return;
     const field = th.dataset.sort;
     if (sortState.field === field) {
       if (sortState.direction === 'asc') sortState.direction = 'desc';
-      else { sortState.field = null; sortState.direction = 'asc'; } // 3rd click clears
+      else { sortState.field = null; sortState.direction = 'asc'; }
     } else {
       sortState.field = field;
       sortState.direction = 'asc';
