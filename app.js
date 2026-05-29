@@ -7,7 +7,7 @@
 
   const COMPANIES = ['TOHOシネマズ', '109シネマズ', 'ユナイテッドシネマ', '佐々木興業'];
   const CATEGORIES = ['新規工事', '修理', 'メンテナンス', '点検', '改修', 'その他'];
-  const STATUSES = ['受付', '調査中', '見積り提出済', '作業中', '完了', '保留', '請求済', '入金済'];
+  const STATUSES = ['受付', '見積り中', '見積り提出済', '作業中', '完了', '請求済', '入金済'];
   const PRIVILEGED_DOMAIN = 'ryonetsu.com';
 
   const DEFAULT_THEATERS = [
@@ -40,7 +40,7 @@
     'TOHOシネマズ ファボーレ富山'
   ];
 
-  // Editable field config used by inline-edit and table render
+  // Inline-editable field config (status excluded — it is derived)
   const EDITABLE_FIELDS = {
     company:        { type: 'select',   options: COMPANIES, privilegedOnly: true },
     theater:        { type: 'datalist', listId: 'theaterList' },
@@ -50,12 +50,14 @@
     category:       { type: 'select',   options: [''].concat(CATEGORIES) },
     content:        { type: 'textarea' },
     surveyDate:     { type: 'date' },
+    estimateName:   { type: 'text' },
+    estimateAmount: { type: 'number' },
     quoteDate:      { type: 'date' },
     workStartDate:  { type: 'date' },
     workEndDate:    { type: 'date' },
     invoiceDate:    { type: 'date' },
     paymentDate:    { type: 'date' },
-    status:         { type: 'select',   options: STATUSES }
+    memo:           { type: 'textarea', privilegedOnly: true }
   };
 
   let cases = loadCases();
@@ -63,18 +65,8 @@
   let currentUser = loadAuth();
 
   const $ = (id) => document.getElementById(id);
-  const loginScreen = $('loginScreen');
-  const appShell = $('appShell');
-  const modal = $('modal');
-  const form = $('caseForm');
-  const tbody = $('casesBody');
-  const emptyMsg = $('emptyMsg');
-  const caseCountEl = $('caseCount');
-  const searchBox = $('searchBox');
-  const statusFilter = $('statusFilter');
-  const companyFilter = $('companyFilter');
-  const companySelect = $('company');
 
+  // ---------- storage ----------
   function loadCases() {
     let arr = [];
     try { arr = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch (e) { arr = []; }
@@ -82,6 +74,9 @@
       if (!c.company) c.company = 'TOHOシネマズ';
       if (c.invoiceDate === undefined) c.invoiceDate = '';
       if (c.paymentDate === undefined) c.paymentDate = '';
+      if (c.estimateName === undefined) c.estimateName = '';
+      if (c.estimateAmount === undefined) c.estimateAmount = '';
+      if (c.memo === undefined) c.memo = '';
     });
     return arr;
   }
@@ -115,11 +110,7 @@
   function fillDatalist(id, items) {
     const dl = $(id);
     dl.innerHTML = '';
-    items.forEach((v) => {
-      const opt = document.createElement('option');
-      opt.value = v;
-      dl.appendChild(opt);
-    });
+    items.forEach((v) => { const o = document.createElement('option'); o.value = v; dl.appendChild(o); });
   }
   function renderDatalists() {
     fillDatalist('theaterList', history.theaters);
@@ -127,27 +118,23 @@
     fillDatalist('rPersonList', history.rPersons);
   }
 
-  function loadAuth() {
-    try { return JSON.parse(localStorage.getItem(AUTH_KEY)); } catch (e) { return null; }
-  }
+  // ---------- auth ----------
+  function loadAuth() { try { return JSON.parse(localStorage.getItem(AUTH_KEY)); } catch (e) { return null; } }
   function saveAuth(user) { localStorage.setItem(AUTH_KEY, JSON.stringify(user)); }
   function clearAuth() { localStorage.removeItem(AUTH_KEY); }
   function isPrivileged(user) { return !!(user && user.domain === PRIVILEGED_DOMAIN); }
 
   function attemptLogin(email, password) {
     const e = (email || '').trim().toLowerCase();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) {
-      return { ok: false, msg: 'メールアドレスの形式が正しくありません。' };
-    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) return { ok: false, msg: 'メールアドレスの形式が正しくありません。' };
     const local = e.split('@')[0];
     const domain = e.split('@')[1];
     if (!local) return { ok: false, msg: 'メールアドレスが不正です。' };
-    if ((password || '').toLowerCase() !== local.toLowerCase()) {
-      return { ok: false, msg: 'パスワードが正しくありません。' };
-    }
+    if ((password || '').toLowerCase() !== local.toLowerCase()) return { ok: false, msg: 'パスワードが正しくありません。' };
     return { ok: true, user: { email: e, domain: domain, loginAt: new Date().toISOString() } };
   }
 
+  // ---------- date helpers ----------
   function todayStr() {
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -159,9 +146,32 @@
     return Math.floor((y - x) / 86400000);
   }
   function fmtDate(s) { return s ? s.replace(/-/g, '/') : ''; }
+  function lastDayOfMonth(yearMonth) {
+    // yearMonth: 'YYYY-MM'
+    const [y, m] = yearMonth.split('-').map(Number);
+    const d = new Date(y, m, 0); // day 0 of next month = last day of this month
+    return `${y}-${String(m).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }
+  function currentMonth() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  }
+
+  // ---------- status auto-derive ----------
+  function deriveStatus(c) {
+    const today = todayStr();
+    if (c.paymentDate && c.paymentDate <= today) return '入金済';
+    if (c.invoiceDate && c.invoiceDate <= today) return '請求済';
+    if (c.workEndDate && c.workEndDate <= today) return '完了';
+    if (c.workStartDate && c.workStartDate <= today) return '作業中';
+    if (c.quoteDate && c.quoteDate <= today) return '見積り提出済';
+    if (c.surveyDate && c.surveyDate <= today) return '見積り中';
+    return '受付';
+  }
 
   function rowColorClass(c) {
-    if (c.status === '完了' || c.status === '入金済') return '';
+    const status = deriveStatus(c);
+    if (status === '完了' || status === '請求済' || status === '入金済') return '';
     const today = todayStr();
     if (c.surveyDate) {
       const d = daysBetween(c.surveyDate, c.quoteDate || today);
@@ -176,23 +186,30 @@
 
   function escapeHtml(s) {
     if (s == null) return '';
-    return String(s)
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+  function fmtAmount(n) {
+    if (n === '' || n == null) return '';
+    const num = Number(n);
+    if (isNaN(num)) return escapeHtml(n);
+    return '¥' + num.toLocaleString('ja-JP');
   }
 
+  // ---------- filter / render ----------
   function getFilteredCases() {
-    const q = searchBox.value.trim().toLowerCase();
-    const sf = statusFilter.value;
-    const cf = isPrivileged(currentUser) ? companyFilter.value : 'TOHOシネマズ';
+    const q = $('searchBox').value.trim().toLowerCase();
+    const sf = $('statusFilter').value;
+    const cf = isPrivileged(currentUser) ? $('companyFilter').value : 'TOHOシネマズ';
 
     return cases.filter((c) => {
       if (cf && c.company !== cf) return false;
-      if (sf && c.status !== sf) return false;
+      if (sf && deriveStatus(c) !== sf) return false;
       if (!q) return true;
-      const hay = [c.company, c.theater, c.tcPerson, c.rPerson, c.category, c.content, c.status,
-        c.receivedDate, c.surveyDate, c.quoteDate, c.workStartDate, c.workEndDate, c.invoiceDate, c.paymentDate]
-        .map((x) => (x || '').toLowerCase()).join(' ');
+      const hay = [c.company, c.theater, c.tcPerson, c.rPerson, c.category, c.content,
+        c.estimateName, String(c.estimateAmount || ''), c.memo,
+        c.receivedDate, c.surveyDate, c.quoteDate, c.workStartDate, c.workEndDate, c.invoiceDate, c.paymentDate,
+        deriveStatus(c)]
+        .map((x) => (x || '').toString().toLowerCase()).join(' ');
       return hay.includes(q);
     }).sort((a, b) => {
       if (!a.receivedDate && !b.receivedDate) return 0;
@@ -202,29 +219,25 @@
     });
   }
 
-  // Render an editable td
-  function editableTd(c, field, displayHtml) {
+  function editableTd(c, field, displayHtml, extraClass) {
     const cfg = EDITABLE_FIELDS[field];
     const canEdit = !(cfg.privilegedOnly && !isPrivileged(currentUser));
-    const cls = canEdit ? 'editable' : '';
-    const empty = !c[field] ? 'empty' : '';
-    return `<td class="${cls} ${empty}" data-field="${field}" data-case-id="${escapeHtml(c.id)}">${displayHtml}</td>`;
+    const cls = (canEdit ? 'editable' : '') + (c[field] ? '' : ' empty') + (extraClass ? ' ' + extraClass : '');
+    return `<td class="${cls}" data-field="${field}" data-case-id="${escapeHtml(c.id)}">${displayHtml}</td>`;
   }
 
   function render() {
     const filtered = getFilteredCases();
+    const tbody = $('casesBody');
     tbody.innerHTML = '';
     filtered.forEach((c) => {
       const tr = document.createElement('tr');
       const cls = rowColorClass(c);
       if (cls) tr.className = cls;
 
-      const companyHtml = c.company
-        ? `<span class="company-tag company-${escapeHtml(c.company)}">${escapeHtml(c.company)}</span>`
-        : '';
-      const statusHtml = c.status
-        ? `<span class="status-badge status-${escapeHtml(c.status)}">${escapeHtml(c.status)}</span>`
-        : '';
+      const status = deriveStatus(c);
+      const companyHtml = c.company ? `<span class="company-tag company-${escapeHtml(c.company)}">${escapeHtml(c.company)}</span>` : '';
+      const statusHtml = `<span class="status-badge status-${escapeHtml(status)}">${escapeHtml(status)}</span>`;
 
       tr.innerHTML = `
         ${editableTd(c, 'company', companyHtml)}
@@ -233,14 +246,17 @@
         ${editableTd(c, 'tcPerson', escapeHtml(c.tcPerson))}
         ${editableTd(c, 'rPerson', escapeHtml(c.rPerson))}
         ${editableTd(c, 'category', escapeHtml(c.category))}
-        <td class="editable content-cell ${c.content ? '' : 'empty'}" data-field="content" data-case-id="${escapeHtml(c.id)}">${escapeHtml(c.content)}</td>
+        ${editableTd(c, 'content', escapeHtml(c.content), 'content-cell')}
         ${editableTd(c, 'surveyDate', fmtDate(c.surveyDate))}
+        ${editableTd(c, 'estimateName', escapeHtml(c.estimateName))}
+        ${editableTd(c, 'estimateAmount', fmtAmount(c.estimateAmount))}
         ${editableTd(c, 'quoteDate', fmtDate(c.quoteDate))}
         ${editableTd(c, 'workStartDate', fmtDate(c.workStartDate))}
         ${editableTd(c, 'workEndDate', fmtDate(c.workEndDate))}
         ${editableTd(c, 'invoiceDate', fmtDate(c.invoiceDate))}
         ${editableTd(c, 'paymentDate', fmtDate(c.paymentDate))}
-        ${editableTd(c, 'status', statusHtml)}
+        <td>${statusHtml}</td>
+        ${editableTd(c, 'memo', escapeHtml(c.memo), 'col-memo')}
         <td class="row-actions">
           <button data-action="edit" data-id="${escapeHtml(c.id)}">編集</button>
           <button data-action="delete" data-id="${escapeHtml(c.id)}" class="danger">削除</button>
@@ -248,11 +264,9 @@
       `;
       tbody.appendChild(tr);
     });
-    emptyMsg.classList.toggle('hidden', filtered.length > 0);
-    const totalVisible = isPrivileged(currentUser)
-      ? cases.length
-      : cases.filter((c) => c.company === 'TOHOシネマズ').length;
-    caseCountEl.textContent = `${filtered.length} 件 / 全 ${totalVisible} 件`;
+    $('emptyMsg').classList.toggle('hidden', filtered.length > 0);
+    const totalVisible = isPrivileged(currentUser) ? cases.length : cases.filter((c) => c.company === 'TOHOシネマズ').length;
+    $('caseCount').textContent = `${filtered.length} 件 / 全 ${totalVisible} 件`;
   }
 
   // ---------- inline edit ----------
@@ -262,34 +276,25 @@
     if (!cfg) return;
     if (cfg.privilegedOnly && !isPrivileged(currentUser)) return;
 
-    const oldVal = c[field] || '';
+    const oldVal = c[field] != null ? c[field] : '';
     let el;
     switch (cfg.type) {
       case 'date':
-        el = document.createElement('input');
-        el.type = 'date';
-        break;
+        el = document.createElement('input'); el.type = 'date'; break;
+      case 'number':
+        el = document.createElement('input'); el.type = 'number'; el.min = '0'; el.step = '1'; break;
       case 'select':
         el = document.createElement('select');
         cfg.options.forEach((opt) => {
-          const o = document.createElement('option');
-          o.value = opt;
-          o.textContent = opt === '' ? '(未選択)' : opt;
-          el.appendChild(o);
+          const o = document.createElement('option'); o.value = opt; o.textContent = opt === '' ? '(未選択)' : opt; el.appendChild(o);
         });
         break;
       case 'datalist':
-        el = document.createElement('input');
-        el.type = 'text';
-        el.setAttribute('list', cfg.listId);
-        break;
+        el = document.createElement('input'); el.type = 'text'; el.setAttribute('list', cfg.listId); break;
       case 'textarea':
-        el = document.createElement('textarea');
-        el.rows = 2;
-        break;
+        el = document.createElement('textarea'); el.rows = 2; break;
       default:
-        el = document.createElement('input');
-        el.type = 'text';
+        el = document.createElement('input'); el.type = 'text';
     }
     el.className = 'inline-edit';
     el.value = oldVal;
@@ -301,8 +306,9 @@
     let done = false;
     const commit = () => {
       if (done) return; done = true;
-      const newVal = (typeof el.value === 'string') ? el.value.trim() : el.value;
-      if (newVal !== oldVal) {
+      let newVal = el.value;
+      if (typeof newVal === 'string') newVal = newVal.trim();
+      if (String(newVal) !== String(oldVal)) {
         c[field] = newVal;
         c.updatedAt = new Date().toISOString();
         if (field === 'theater') addToHistory('theaters', newVal);
@@ -317,32 +323,25 @@
 
     el.addEventListener('blur', commit);
     el.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && cfg.type !== 'textarea') {
-        e.preventDefault();
-        el.blur();
-      } else if (e.key === 'Escape') {
-        e.preventDefault();
-        cancel();
-      }
+      if (e.key === 'Enter' && cfg.type !== 'textarea') { e.preventDefault(); el.blur(); }
+      else if (e.key === 'Escape') { e.preventDefault(); cancel(); }
     });
   }
 
   // ---------- modal (new / edit) ----------
   function openModal(caseObj, mode) {
+    const form = $('caseForm');
     form.reset();
     $('caseId').value = '';
     const realMode = mode || 'full';
     const isSimple = realMode === 'simple';
-
-    document.querySelectorAll('[data-mode="full"]').forEach((el) => {
-      el.classList.toggle('hidden', isSimple);
-    });
+    document.querySelectorAll('[data-mode="full"]').forEach((el) => el.classList.toggle('hidden', isSimple));
 
     if (isPrivileged(currentUser)) {
-      companySelect.disabled = false;
+      $('company').disabled = false;
     } else {
-      companySelect.value = 'TOHOシネマズ';
-      companySelect.disabled = true;
+      $('company').value = 'TOHOシネマズ';
+      $('company').disabled = true;
     }
 
     if (caseObj) {
@@ -356,24 +355,26 @@
       $('category').value = caseObj.category || '';
       $('content').value = caseObj.content || '';
       $('surveyDate').value = caseObj.surveyDate || '';
+      $('estimateName').value = caseObj.estimateName || '';
+      $('estimateAmount').value = caseObj.estimateAmount || '';
       $('quoteDate').value = caseObj.quoteDate || '';
       $('workStartDate').value = caseObj.workStartDate || '';
       $('workEndDate').value = caseObj.workEndDate || '';
       $('invoiceDate').value = caseObj.invoiceDate || '';
       $('paymentDate').value = caseObj.paymentDate || '';
-      $('status').value = caseObj.status || '受付';
+      $('memo').value = caseObj.memo || '';
     } else {
       $('modalTitle').textContent = isSimple ? '簡易登録' : '新規案件登録';
       $('company').value = 'TOHOシネマズ';
       $('receivedDate').value = todayStr();
-      $('status').value = '受付';
     }
     renderDatalists();
-    modal.classList.remove('hidden');
+    $('modal').classList.remove('hidden');
     setTimeout(() => $('company').focus(), 50);
   }
-  function closeModal() { modal.classList.add('hidden'); }
+  function closeModal() { $('modal').classList.add('hidden'); }
 
+  // ---------- CSV export ----------
   function downloadCSV(filename, rows) {
     const csv = rows.map((row) =>
       row.map((v) => {
@@ -383,36 +384,196 @@
       }).join(',')
     ).join('\r\n');
     const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+    triggerDownload(blob, filename);
+  }
+  function triggerDownload(blob, filename) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url; a.download = filename;
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     URL.revokeObjectURL(url);
   }
-
   function exportFiltered() {
     const filtered = getFilteredCases();
-    if (filtered.length === 0) {
-      alert('現在の絞り込み条件に一致する案件がありません。');
-      return;
-    }
+    if (filtered.length === 0) { alert('現在の絞り込み条件に一致する案件がありません。'); return; }
+    const includesMemo = isPrivileged(currentUser);
     const headers = ['会社', '劇場名', '受付日', 'TC担当者', 'R担当者', '種別', '内容',
-      '調査日', '見積り提出日', '作業開始日', '作業完了日', '請求書発行日', '入金日', 'ステータス'];
-    const rows = [headers].concat(filtered.map((c) => [
-      c.company, c.theater, c.receivedDate, c.tcPerson, c.rPerson, c.category, c.content,
-      c.surveyDate, c.quoteDate, c.workStartDate, c.workEndDate, c.invoiceDate, c.paymentDate, c.status
-    ]));
+      '調査日', '見積り名', '見積り金額', '見積り提出日', '作業開始日', '作業完了日',
+      '請求書発行日', '入金日', 'ステータス'];
+    if (includesMemo) headers.push('メモ');
+    const rows = [headers].concat(filtered.map((c) => {
+      const row = [c.company, c.theater, c.receivedDate, c.tcPerson, c.rPerson, c.category, c.content,
+        c.surveyDate, c.estimateName, c.estimateAmount, c.quoteDate, c.workStartDate, c.workEndDate,
+        c.invoiceDate, c.paymentDate, deriveStatus(c)];
+      if (includesMemo) row.push(c.memo);
+      return row;
+    }));
     downloadCSV(`cinema-cases-${todayStr()}.csv`, rows);
   }
 
+  // ---------- invoice generation ----------
+  function base64ToArrayBuffer(b64) {
+    const bin = atob(b64);
+    const len = bin.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) bytes[i] = bin.charCodeAt(i);
+    return bytes.buffer;
+  }
+
+  function casesMatchingMonth(yearMonth) {
+    if (!yearMonth) return [];
+    return getFilteredCases().filter((c) => {
+      if (!c.workEndDate) return false;
+      if (!c.estimateName || !c.estimateAmount) return false;
+      return c.workEndDate.slice(0, 7) === yearMonth;
+    });
+  }
+
+  function updateInvoicePreview() {
+    const month = $('invoiceMonth').value;
+    const list = $('invoicePreviewList');
+    const empty = $('invoicePreviewEmpty');
+    const count = $('invoicePreviewCount');
+    list.innerHTML = '';
+    const matches = casesMatchingMonth(month);
+    count.textContent = `(${matches.length} 件)`;
+    if (matches.length === 0) {
+      empty.classList.remove('hidden');
+      $('invoiceGenerateBtn').disabled = true;
+    } else {
+      empty.classList.add('hidden');
+      $('invoiceGenerateBtn').disabled = false;
+      matches.forEach((c) => {
+        const li = document.createElement('li');
+        li.innerHTML = `${escapeHtml(c.theater)} ／ ${escapeHtml(c.estimateName)} <span class="case-amount">${fmtAmount(c.estimateAmount)}</span>`;
+        list.appendChild(li);
+      });
+    }
+  }
+
+  function openInvoiceModal() {
+    const month = currentMonth();
+    $('invoiceMonth').value = month;
+    $('invoiceIssueDate').value = lastDayOfMonth(month);
+    updateInvoicePreview();
+    $('invoiceModal').classList.remove('hidden');
+  }
+  function closeInvoiceModal() { $('invoiceModal').classList.add('hidden'); }
+
+  async function loadTemplate(b64) {
+    const buf = base64ToArrayBuffer(b64);
+    const wb = new ExcelJS.Workbook();
+    await wb.xlsx.load(buf);
+    return wb;
+  }
+
+  function setCellBlack(cell, value) {
+    // Preserve existing font attributes but force color to black
+    const oldFont = cell.font || {};
+    cell.value = value;
+    cell.font = Object.assign({}, oldFont, { color: { argb: 'FF000000' } });
+  }
+
+  function isoToDate(s) {
+    if (!s) return null;
+    const [y, m, d] = s.split('-').map(Number);
+    return new Date(y, m - 1, d);
+  }
+
+  async function buildInvoice(c) {
+    const wb = await loadTemplate(window.TEMPLATE_INVOICE_B64);
+    const ws = wb.getWorksheet('請求書');
+    if (!ws) throw new Error('請求書シートが見つかりません');
+
+    // A21 = 作業完了日（月日）
+    setCellBlack(ws.getCell('A21'), isoToDate(c.workEndDate));
+    // D21 = 劇場名 + 見積り名
+    setCellBlack(ws.getCell('D21'), `${c.theater} ${c.estimateName}`);
+    // AK21 = 見積り金額
+    setCellBlack(ws.getCell('AK21'), Number(c.estimateAmount) || 0);
+    // B6 (会社名宛先) はテンプレートで #REF! になっているので案件の会社名で上書き
+    setCellBlack(ws.getCell('B6'), c.company);
+
+    return await wb.xlsx.writeBuffer();
+  }
+
+  async function buildCompletion(c) {
+    const wb = await loadTemplate(window.TEMPLATE_COMPLETION_B64);
+    const ws = wb.getWorksheet('完了届');
+    if (!ws) throw new Error('完了届シートが見つかりません');
+
+    // H14 = 工事件名 = 劇場名 + 見積り名
+    setCellBlack(ws.getCell('H14'), `${c.theater} ${c.estimateName}`);
+    // H17 = 工事場所 (劇場住所)。現状未保持なので空欄。劇場名を参考として入れておく
+    setCellBlack(ws.getCell('H17'), `${c.theater}（住所は手動でご記入ください）`);
+    // H20 = 契約金額
+    setCellBlack(ws.getCell('H20'), Number(c.estimateAmount) || 0);
+    // H23 = 作業開始日
+    setCellBlack(ws.getCell('H23'), isoToDate(c.workStartDate));
+    // S23 = 作業完了日
+    setCellBlack(ws.getCell('S23'), isoToDate(c.workEndDate));
+    // B7 = 会社名宛先。テンプレートは TOHO固定なので上書き
+    if (c.company !== 'TOHOシネマズ') {
+      setCellBlack(ws.getCell('B7'), `${c.company}株式会社　御中`);
+    }
+
+    return await wb.xlsx.writeBuffer();
+  }
+
+  function safeFilename(s) {
+    return String(s || '').replace(/[\\/:*?"<>|]/g, '_').replace(/\s+/g, '_');
+  }
+
+  async function generateInvoices() {
+    const month = $('invoiceMonth').value;
+    const issueDate = $('invoiceIssueDate').value;
+    if (!month || !issueDate) { alert('発行月と発行日を指定してください。'); return; }
+    const matches = casesMatchingMonth(month);
+    if (matches.length === 0) { alert('対象の案件がありません。'); return; }
+    if (typeof ExcelJS === 'undefined' || typeof JSZip === 'undefined') {
+      alert('Excel生成ライブラリの読み込みに失敗しました。インターネット接続を確認して再読み込みしてください。');
+      return;
+    }
+
+    $('invoiceGenerateBtn').disabled = true;
+    $('invoiceGenerateBtn').textContent = '生成中...';
+
+    try {
+      const zip = new JSZip();
+      for (const c of matches) {
+        const invBuf = await buildInvoice(c);
+        const comBuf = await buildCompletion(c);
+        const tag = `${safeFilename(c.theater)}_${safeFilename(c.estimateName)}`;
+        zip.file(`請求書_${tag}.xlsx`, invBuf);
+        zip.file(`完了届_${tag}.xlsx`, comBuf);
+        // 請求書発行日を案件に記録
+        c.invoiceDate = issueDate;
+        c.updatedAt = new Date().toISOString();
+      }
+      saveCases();
+      const blob = await zip.generateAsync({ type: 'blob' });
+      triggerDownload(blob, `請求書セット_${month}.zip`);
+      closeInvoiceModal();
+      render();
+      alert(`${matches.length} 件の請求書・完了届を生成しました。各案件の請求書発行日を ${issueDate} に更新しました。`);
+    } catch (err) {
+      console.error(err);
+      alert('生成中にエラーが発生しました: ' + (err.message || err));
+    } finally {
+      $('invoiceGenerateBtn').disabled = false;
+      $('invoiceGenerateBtn').textContent = '発行（ZIPダウンロード）';
+    }
+  }
+
+  // ---------- screens ----------
   function showLogin() {
-    appShell.classList.add('hidden');
-    loginScreen.classList.remove('hidden');
+    $('appShell').classList.add('hidden');
+    $('loginScreen').classList.remove('hidden');
     setTimeout(() => $('loginEmail').focus(), 50);
   }
   function showApp() {
-    loginScreen.classList.add('hidden');
-    appShell.classList.remove('hidden');
+    $('loginScreen').classList.add('hidden');
+    $('appShell').classList.remove('hidden');
     applyUserScope();
     render();
   }
@@ -420,10 +581,9 @@
     $('userEmail').textContent = currentUser.email;
     const privileged = isPrivileged(currentUser);
     $('appTitle').textContent = privileged ? 'シネマ案件管理' : 'TOHOシネマズ 案件管理';
-    companyFilter.classList.toggle('hidden', !privileged);
-    document.querySelectorAll('.col-company').forEach((el) => {
-      el.classList.toggle('hidden', !privileged);
-    });
+    $('companyFilter').classList.toggle('hidden', !privileged);
+    document.querySelectorAll('.col-company').forEach((el) => el.classList.toggle('hidden', !privileged));
+    document.querySelectorAll('.col-memo').forEach((el) => el.classList.toggle('hidden', !privileged));
   }
 
   // ---------- handlers ----------
@@ -431,11 +591,7 @@
     e.preventDefault();
     const res = attemptLogin($('loginEmail').value, $('loginPassword').value);
     const errEl = $('loginError');
-    if (!res.ok) {
-      errEl.textContent = res.msg;
-      errEl.classList.remove('hidden');
-      return;
-    }
+    if (!res.ok) { errEl.textContent = res.msg; errEl.classList.remove('hidden'); return; }
     errEl.classList.add('hidden');
     currentUser = res.user;
     saveAuth(currentUser);
@@ -443,25 +599,34 @@
     showApp();
   });
 
-  $('logoutBtn').addEventListener('click', () => {
-    clearAuth();
-    currentUser = null;
-    showLogin();
-  });
-
+  $('logoutBtn').addEventListener('click', () => { clearAuth(); currentUser = null; showLogin(); });
   $('newCaseBtn').addEventListener('click', () => openModal(null, 'full'));
   $('quickCaseBtn').addEventListener('click', () => openModal(null, 'simple'));
   $('closeModal').addEventListener('click', closeModal);
   $('cancelBtn').addEventListener('click', closeModal);
-  modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+  $('modal').addEventListener('click', (e) => { if (e.target === $('modal')) closeModal(); });
+
+  $('invoiceBtn').addEventListener('click', openInvoiceModal);
+  $('closeInvoiceModal').addEventListener('click', closeInvoiceModal);
+  $('invoiceCancelBtn').addEventListener('click', closeInvoiceModal);
+  $('invoiceModal').addEventListener('click', (e) => { if (e.target === $('invoiceModal')) closeInvoiceModal(); });
+  $('invoiceMonth').addEventListener('change', () => {
+    $('invoiceIssueDate').value = lastDayOfMonth($('invoiceMonth').value);
+    updateInvoicePreview();
+  });
+  $('invoiceGenerateBtn').addEventListener('click', generateInvoices);
+
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeModal();
+    if (e.key !== 'Escape') return;
+    if (!$('modal').classList.contains('hidden')) closeModal();
+    if (!$('invoiceModal').classList.contains('hidden')) closeInvoiceModal();
   });
 
-  form.addEventListener('submit', (e) => {
+  $('caseForm').addEventListener('submit', (e) => {
     e.preventDefault();
     const id = $('caseId').value || String(Date.now()) + Math.random().toString(36).slice(2, 7);
     const company = isPrivileged(currentUser) ? $('company').value : 'TOHOシネマズ';
+    const amountRaw = $('estimateAmount').value;
     const data = {
       id: id,
       company: company,
@@ -472,39 +637,35 @@
       category: $('category').value,
       content: $('content').value.trim(),
       surveyDate: $('surveyDate').value,
+      estimateName: $('estimateName').value.trim(),
+      estimateAmount: amountRaw === '' ? '' : Number(amountRaw),
       quoteDate: $('quoteDate').value,
       workStartDate: $('workStartDate').value,
       workEndDate: $('workEndDate').value,
       invoiceDate: $('invoiceDate').value,
       paymentDate: $('paymentDate').value,
-      status: $('status').value || '受付',
+      memo: $('memo').value.trim(),
       updatedAt: new Date().toISOString()
     };
-
     addToHistory('theaters', data.theater);
     addToHistory('tcPersons', data.tcPerson);
     addToHistory('rPersons', data.rPerson);
     saveHistory();
-
     const existing = cases.findIndex((c) => c.id === id);
-    if (existing >= 0) cases[existing] = data;
-    else cases.push(data);
+    if (existing >= 0) cases[existing] = data; else cases.push(data);
     saveCases();
     closeModal();
     render();
   });
 
-  // Combined click handler: action buttons + inline edit
-  tbody.addEventListener('click', (e) => {
+  $('casesBody').addEventListener('click', (e) => {
     const btn = e.target.closest('button[data-action]');
     if (btn) {
       const id = btn.dataset.id;
-      const action = btn.dataset.action;
       const c = cases.find((x) => x.id === id);
       if (!c) return;
-      if (action === 'edit') {
-        openModal(c, 'full');
-      } else if (action === 'delete') {
+      if (btn.dataset.action === 'edit') openModal(c, 'full');
+      else if (btn.dataset.action === 'delete') {
         if (confirm(`案件「${c.theater || '(劇場未入力)'}」を削除しますか？`)) {
           cases = cases.filter((x) => x.id !== id);
           saveCases();
@@ -515,22 +676,17 @@
     }
     const td = e.target.closest('td.editable');
     if (!td) return;
-    const field = td.dataset.field;
-    const caseId = td.dataset.caseId;
-    const c = cases.find((x) => x.id === caseId);
+    const c = cases.find((x) => x.id === td.dataset.caseId);
     if (!c) return;
-    startInlineEdit(td, c, field);
+    startInlineEdit(td, c, td.dataset.field);
   });
 
-  searchBox.addEventListener('input', render);
-  statusFilter.addEventListener('change', render);
-  companyFilter.addEventListener('change', render);
+  $('searchBox').addEventListener('input', render);
+  $('statusFilter').addEventListener('change', render);
+  $('companyFilter').addEventListener('change', render);
   $('exportBtn').addEventListener('click', exportFiltered);
 
+  // ---------- init ----------
   renderDatalists();
-  if (currentUser) {
-    showApp();
-  } else {
-    showLogin();
-  }
+  if (currentUser) showApp(); else showLogin();
 })();

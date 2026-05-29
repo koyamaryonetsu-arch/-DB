@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>シネマ案件管理</title>
 <link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<script src="templates.js"></script>
 </head>
 <body>
 
@@ -39,16 +42,16 @@
       <select id="statusFilter">
         <option value="">全ステータス</option>
         <option value="受付">受付</option>
-        <option value="調査中">調査中</option>
+        <option value="見積り中">見積り中</option>
         <option value="見積り提出済">見積り提出済</option>
         <option value="作業中">作業中</option>
         <option value="完了">完了</option>
-        <option value="保留">保留</option>
         <option value="請求済">請求済</option>
         <option value="入金済">入金済</option>
       </select>
       <button id="quickCaseBtn" class="primary outline">⚡ 簡易登録</button>
       <button id="newCaseBtn" class="primary">＋ 新規案件登録</button>
+      <button id="invoiceBtn">📄 請求書発行</button>
       <button id="exportBtn">Excelダウンロード</button>
       <span class="user-info">
         <span id="userEmail"></span>
@@ -61,7 +64,7 @@
     <div class="legend">
       <span class="legend-item"><span class="swatch swatch-yellow"></span>受付→調査が3日以上</span>
       <span class="legend-item"><span class="swatch swatch-red"></span>調査→見積りが3日以上</span>
-      <span class="legend-hint">💡 セルをクリックすると直接編集できます</span>
+      <span class="legend-hint">💡 セルをクリックすると直接編集できます（ステータスは日付から自動判定）</span>
       <span id="caseCount" class="case-count"></span>
     </div>
 
@@ -77,12 +80,15 @@
             <th>種別</th>
             <th>内容</th>
             <th>調査日</th>
+            <th>見積り名</th>
+            <th>見積り金額</th>
             <th>見積り提出日</th>
             <th>作業開始日</th>
             <th>作業完了日</th>
             <th>請求書発行日</th>
             <th>入金日</th>
             <th>ステータス</th>
+            <th class="col-memo">メモ</th>
             <th>操作</th>
           </tr>
         </thead>
@@ -93,6 +99,7 @@
   </main>
 </div>
 
+<!-- 案件登録/編集モーダル -->
 <div id="modal" class="modal hidden">
   <div class="modal-content">
     <div class="modal-header">
@@ -159,6 +166,16 @@
         </div>
 
         <div class="form-row" data-mode="full">
+          <label for="estimateName">見積り名</label>
+          <input type="text" id="estimateName" placeholder="例：スクリーン交換工事">
+        </div>
+
+        <div class="form-row" data-mode="full">
+          <label for="estimateAmount">見積り金額（円）</label>
+          <input type="number" id="estimateAmount" min="0" step="1" placeholder="例：500000">
+        </div>
+
+        <div class="form-row" data-mode="full">
           <label for="quoteDate">見積り提出日</label>
           <input type="date" id="quoteDate">
         </div>
@@ -183,18 +200,9 @@
           <input type="date" id="paymentDate">
         </div>
 
-        <div class="form-row" data-mode="full">
-          <label for="status">ステータス</label>
-          <select id="status">
-            <option value="受付">受付</option>
-            <option value="調査中">調査中</option>
-            <option value="見積り提出済">見積り提出済</option>
-            <option value="作業中">作業中</option>
-            <option value="完了">完了</option>
-            <option value="保留">保留</option>
-            <option value="請求済">請求済</option>
-            <option value="入金済">入金済</option>
-          </select>
+        <div class="form-row col-memo" data-mode="full">
+          <label for="memo">メモ（ryonetsuユーザーのみ）</label>
+          <textarea id="memo" rows="2" placeholder="社内メモ"></textarea>
         </div>
       </div>
 
@@ -203,6 +211,38 @@
         <button type="submit" class="primary">保存</button>
       </div>
     </form>
+  </div>
+</div>
+
+<!-- 請求書発行モーダル -->
+<div id="invoiceModal" class="modal hidden">
+  <div class="modal-content modal-content-narrow">
+    <div class="modal-header">
+      <h2>請求書・完了届の発行</h2>
+      <button id="closeInvoiceModal" class="close-btn" aria-label="閉じる" tabindex="-1">×</button>
+    </div>
+    <div class="invoice-body">
+      <div class="form-row">
+        <label for="invoiceMonth">発行月（作業完了日がこの月の案件を対象）</label>
+        <input type="month" id="invoiceMonth">
+      </div>
+      <div class="form-row">
+        <label for="invoiceIssueDate">発行日（請求書発行日として記録されます）</label>
+        <input type="date" id="invoiceIssueDate">
+      </div>
+      <div class="invoice-preview">
+        <div class="invoice-preview-header">
+          <h3>対象案件 <span id="invoicePreviewCount"></span></h3>
+        </div>
+        <ul id="invoicePreviewList"></ul>
+        <p id="invoicePreviewEmpty" class="empty-msg hidden">該当する案件がありません。</p>
+        <p class="invoice-note">⚠️ 見積り名・見積り金額・作業完了日が未入力の案件は除外されます。</p>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" id="invoiceCancelBtn">キャンセル</button>
+      <button type="button" id="invoiceGenerateBtn" class="primary">発行（ZIPダウンロード）</button>
+    </div>
   </div>
 </div>
 

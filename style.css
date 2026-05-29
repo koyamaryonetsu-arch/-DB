@@ -387,9 +387,63 @@ tr.row-red:hover td {
 .company-ユナイテッドシネマ      { background: #cffafe; color: #155e75; }
 .company-佐々木興業              { background: #fef3c7; color: #92400e; }
 
-/* Status badges - add invoice/payment */
-.status-請求済 { background: #fef3c7; color: #92400e; }
-.status-入金済 { background: #d1fae5; color: #065f46; }
+/* Status badges */
+.status-見積り中     { background: #fde68a; color: #78350f; }
+.status-請求済       { background: #fef3c7; color: #92400e; }
+.status-入金済       { background: #d1fae5; color: #065f46; }
+
+/* Invoice modal */
+.modal-content-narrow {
+  max-width: 600px;
+}
+.invoice-body {
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.invoice-preview {
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: #f9fafb;
+  padding: 12px;
+  max-height: 280px;
+  overflow-y: auto;
+}
+.invoice-preview-header h3 {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: #374151;
+}
+.invoice-preview ul {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13px;
+}
+.invoice-preview li {
+  padding: 3px 0;
+  color: #1f2937;
+}
+.invoice-preview .case-amount {
+  color: #2563eb;
+  font-weight: 600;
+  margin-left: 6px;
+}
+.invoice-note {
+  margin: 10px 0 0;
+  font-size: 11px;
+  color: #6b7280;
+}
+.invoice-preview-count {
+  margin-left: 6px;
+  font-weight: normal;
+  color: #6b7280;
+  font-size: 11px;
+}
+
+/* memo column for ryonetsu users */
+.col-memo.hidden { display: none !important; }
+td.col-memo { font-size: 11px; max-width: 220px; white-space: normal; word-break: break-word; color: #6b7280; }
 
 .status-badge {
   display: inline-block;
