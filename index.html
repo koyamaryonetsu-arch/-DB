@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>シネマ案件管理</title>
 <link rel="stylesheet" href="style.css">
-<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 <script src="templates.js"></script>
 </head>
@@ -64,31 +63,32 @@
     <div class="legend">
       <span class="legend-item"><span class="swatch swatch-yellow"></span>受付→調査が3日以上</span>
       <span class="legend-item"><span class="swatch swatch-red"></span>調査→見積りが3日以上</span>
-      <span class="legend-hint">💡 セルをクリックすると直接編集できます（ステータスは日付から自動判定）</span>
+      <span class="legend-hint">💡 セル直接編集 ／ ステータス自動判定 ／ ヘッダクリックで並び替え</span>
       <span id="caseCount" class="case-count"></span>
     </div>
 
     <div class="table-wrap">
       <table id="casesTable">
         <thead>
-          <tr>
-            <th class="col-company">会社</th>
-            <th>劇場名</th>
-            <th>受付日</th>
-            <th>TC担当者</th>
-            <th>R担当者</th>
-            <th>種別</th>
-            <th>内容</th>
-            <th>調査日</th>
-            <th>見積り名</th>
-            <th>見積り金額</th>
-            <th>見積り提出日</th>
-            <th>作業開始日</th>
-            <th>作業完了日</th>
-            <th>請求書発行日</th>
-            <th>入金日</th>
-            <th>ステータス</th>
-            <th class="col-memo">メモ</th>
+          <tr id="theadRow">
+            <th class="col-company sortable" data-sort="company">会社</th>
+            <th class="sortable" data-sort="theater">劇場名</th>
+            <th class="sortable" data-sort="receivedDate">受付日</th>
+            <th class="sortable" data-sort="tcPerson">TC担当者</th>
+            <th class="sortable" data-sort="rPerson">R担当者</th>
+            <th class="sortable" data-sort="category">種別</th>
+            <th class="sortable" data-sort="content">内容</th>
+            <th class="sortable" data-sort="surveyDate">調査日</th>
+            <th class="sortable" data-sort="certNumber">認証番号</th>
+            <th class="sortable" data-sort="estimateName">見積り名</th>
+            <th class="sortable" data-sort="estimateAmount">見積り金額</th>
+            <th class="sortable" data-sort="quoteDate">見積り提出日</th>
+            <th class="sortable" data-sort="workStartDate">作業開始日</th>
+            <th class="sortable" data-sort="workEndDate">作業完了日</th>
+            <th class="sortable" data-sort="invoiceDate">請求書発行日</th>
+            <th class="sortable" data-sort="paymentDate">入金日</th>
+            <th class="sortable" data-sort="status">ステータス</th>
+            <th class="col-memo sortable" data-sort="memo">メモ</th>
             <th>操作</th>
           </tr>
         </thead>
@@ -99,7 +99,6 @@
   </main>
 </div>
 
-<!-- 案件登録/編集モーダル -->
 <div id="modal" class="modal hidden">
   <div class="modal-content">
     <div class="modal-header">
@@ -165,6 +164,11 @@
           <input type="date" id="surveyDate">
         </div>
 
+        <div class="form-row toho-only-field" data-mode="full">
+          <label for="certNumber">認証番号（TOHOシネマズ限定）</label>
+          <input type="text" id="certNumber" placeholder="例: 12345-678">
+        </div>
+
         <div class="form-row" data-mode="full">
           <label for="estimateName">見積り名</label>
           <input type="text" id="estimateName" placeholder="例：スクリーン交換工事">
@@ -214,7 +218,6 @@
   </div>
 </div>
 
-<!-- 請求書発行モーダル -->
 <div id="invoiceModal" class="modal hidden">
   <div class="modal-content modal-content-narrow">
     <div class="modal-header">
