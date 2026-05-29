@@ -1,0 +1,3178 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>シネマプロジェクト 物件管理台帳</title>
+<style>
+/* ====== Reset & base ====== */
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic UI", "Meiryo", system-ui, sans-serif;
+  color: #1f2933;
+  background: #f4f6fb;
+  font-size: 14px;
+  line-height: 1.5;
+}
+h1,h2,h3,h4 { margin: 0; font-weight: 600; }
+button { font-family: inherit; font-size: 13px; cursor: pointer; }
+input, select, textarea { font-family: inherit; font-size: 13px; }
+
+/* ====== Topbar ====== */
+.topbar {
+  background: linear-gradient(135deg, #0f2742 0%, #214b7a 100%);
+  color: #fff;
+  padding: 14px 24px 0 24px;
+  position: sticky; top: 0; z-index: 50;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+.brand { display: flex; align-items: center; gap: 14px; }
+.brand h1 { font-size: 18px; }
+.brand small { color: #cdd9e6; font-size: 12px; }
+.logo {
+  width: 40px; height: 40px; border-radius: 10px;
+  background: linear-gradient(135deg,#f6c453,#e07a3c);
+  color: #1f2933; display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 16px; letter-spacing: 1px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.tabs {
+  display: flex; gap: 4px; margin-top: 12px;
+  overflow-x: auto; scrollbar-width: thin;
+}
+.tab {
+  background: transparent; color: #cdd9e6;
+  border: none; padding: 10px 16px; border-radius: 8px 8px 0 0;
+  white-space: nowrap;
+  font-size: 13px; font-weight: 500;
+  border-bottom: 3px solid transparent;
+}
+.tab:hover { background: rgba(255,255,255,0.05); color: #fff; }
+.tab.active {
+  background: #f4f6fb; color: #1f2933;
+  border-bottom-color: #f6c453;
+}
+
+/* ====== Layout ====== */
+main { padding: 20px 24px 60px 24px; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ====== Toolbar ====== */
+.toolbar {
+  display: flex; justify-content: space-between; align-items: flex-end;
+  gap: 16px; margin-bottom: 16px; flex-wrap: wrap;
+}
+.toolbar h2 { font-size: 18px; }
+.filters { display: flex; flex-wrap: wrap; gap: 10px; }
+.filters label {
+  display: flex; flex-direction: column; gap: 3px;
+  font-size: 11px; color: #5c6b7a; font-weight: 600;
+}
+.filters input, .filters select {
+  padding: 6px 8px; border: 1px solid #d0d9e3; border-radius: 6px;
+  background: #fff; min-width: 130px;
+}
+.actions { display: flex; gap: 8px; }
+
+/* ====== Buttons ====== */
+button.primary {
+  background: #2c6cdf; color: #fff; border: none;
+  padding: 8px 14px; border-radius: 6px; font-weight: 600;
+}
+button.primary:hover { background: #1f57bf; }
+button.danger {
+  background: #fff; color: #c83b3b; border: 1px solid #c83b3b;
+  padding: 6px 12px; border-radius: 6px;
+}
+button.danger:hover { background: #fdecec; }
+button:not(.primary):not(.danger):not(.tab):not(.close) {
+  background: #fff; color: #1f2933;
+  border: 1px solid #d0d9e3; padding: 7px 12px; border-radius: 6px;
+}
+button:not(.primary):not(.danger):not(.tab):not(.close):hover {
+  background: #eef2f7;
+}
+
+/* ====== Summary bar ====== */
+.summary-bar {
+  display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 12px;
+}
+.summary-bar .chip {
+  background: #fff; padding: 8px 14px; border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  font-size: 12px;
+}
+.summary-bar .chip b {
+  display: block; font-size: 16px; color: #2c6cdf; margin-top: 2px;
+}
+
+/* ====== Tables ====== */
+.table-wrap {
+  background: #fff; border-radius: 10px; overflow: auto;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.data-table {
+  width: 100%; border-collapse: collapse; font-size: 13px;
+}
+.data-table th, .data-table td {
+  padding: 10px 12px; text-align: left;
+  border-bottom: 1px solid #eef2f7; vertical-align: middle;
+}
+.data-table th {
+  background: #f8fafc; color: #5c6b7a; font-weight: 600;
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;
+  position: sticky; top: 0; z-index: 1;
+}
+.data-table tr:hover td { background: #fafcff; }
+.data-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* badges */
+.badge {
+  display: inline-block; padding: 2px 8px; border-radius: 12px;
+  font-size: 11px; font-weight: 600;
+}
+.badge.j-決定 { background: #d4f4dd; color: #1a7a3a; }
+.badge.j-◎ { background: #cfe8ff; color: #1f5fb0; }
+.badge.j-○ { background: #fff3c8; color: #8a6f1d; }
+.badge.j-△ { background: #ffe1cf; color: #b3582a; }
+.badge.j-来期 { background: #e4dafd; color: #6440b0; }
+.badge.j-- { background: #ecedef; color: #6c757d; }
+.badge.progress {
+  background: #eef2f7; color: #1f2933;
+}
+.alloc-pills { display: flex; gap: 4px; flex-wrap: wrap; }
+.alloc-pill {
+  font-size: 11px; padding: 2px 6px; border-radius: 8px; color: #fff;
+}
+.fy-pill {
+  display: inline-block; padding: 2px 8px; border-radius: 4px;
+  background: #e8eef7; color: #1f3b6e; font-size: 11px; font-weight: 600;
+}
+
+/* ====== Forms ====== */
+.grid-2 {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px;
+}
+.grid-2 .full { grid-column: 1/-1; }
+.modal label {
+  display: flex; flex-direction: column; gap: 4px;
+  font-size: 12px; color: #5c6b7a; font-weight: 600;
+}
+.modal input[type=text], .modal input[type=number], .modal input[type=date],
+.modal select, .modal textarea {
+  padding: 8px 10px; border: 1px solid #d0d9e3; border-radius: 6px;
+  background: #fff; font-size: 13px; color: #1f2933;
+}
+.modal textarea { resize: vertical; }
+.form-row { display: flex; gap: 14px; align-items: end; flex-wrap: wrap; }
+.form-row label { display: flex; flex-direction: column; gap: 3px; font-size: 12px; }
+
+/* ====== Modal ====== */
+.modal {
+  position: fixed; inset: 0; background: rgba(15,39,66,0.55);
+  z-index: 100; display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.modal[hidden] { display: none; }
+.modal-card {
+  background: #fff; border-radius: 14px; width: 100%; max-width: 540px;
+  max-height: 90vh; display: flex; flex-direction: column;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+}
+.modal-card.wide { max-width: 880px; }
+.modal-head {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 16px 20px; border-bottom: 1px solid #eef2f7;
+}
+.modal-head h3 { font-size: 16px; }
+.modal-head .close {
+  background: transparent; border: none; font-size: 22px;
+  color: #5c6b7a; padding: 0 8px; cursor: pointer;
+}
+.modal-body { padding: 16px 20px; overflow-y: auto; flex: 1; }
+.modal-foot {
+  padding: 12px 20px; border-top: 1px solid #eef2f7;
+  display: flex; gap: 8px; align-items: center;
+}
+.modal-foot .spacer { flex: 1; }
+
+/* ====== Allocations ====== */
+.alloc-tools { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
+.alloc-tools .alloc-sum { margin-left: auto; font-size: 13px; color: #5c6b7a; }
+.alloc-tools .alloc-sum span { font-weight: 700; color: #1f2933; }
+.alloc-tools .warn { color: #c83b3b; margin-left: 8px; font-weight: 600; }
+.alloc-list {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 8px;
+}
+.alloc-row {
+  display: flex; align-items: center; gap: 6px; padding: 6px 8px;
+  background: #f8fafc; border: 1px solid #eef2f7; border-radius: 6px;
+}
+.alloc-row .dot {
+  width: 10px; height: 10px; border-radius: 50%;
+}
+.alloc-row .name { flex: 1; font-size: 12px; }
+.alloc-row input {
+  width: 60px; padding: 4px 6px; border: 1px solid #d0d9e3;
+  border-radius: 4px; text-align: right;
+}
+
+/* ====== Cards ====== */
+.cards-grid {
+  display: grid; gap: 12px; margin-bottom: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(260px,1fr));
+}
+.card {
+  background: #fff; padding: 14px 16px; border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  border-left: 4px solid #2c6cdf;
+}
+.card h4 { font-size: 13px; color: #5c6b7a; margin-bottom: 6px; }
+.card .big { font-size: 22px; font-weight: 700; color: #1f2933; }
+.card .sub { font-size: 12px; color: #5c6b7a; margin-top: 4px; }
+.card .row { display: flex; justify-content: space-between; font-size: 12px; margin-top: 4px; }
+.card .row span:last-child { font-weight: 600; }
+
+/* ====== Kanban ====== */
+.kanban {
+  display: grid; gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+.kanban-col {
+  background: #eef2f7; border-radius: 10px; padding: 10px;
+  min-height: 200px;
+}
+.kanban-col h4 {
+  font-size: 12px; color: #5c6b7a; margin-bottom: 8px;
+  display: flex; justify-content: space-between;
+}
+.kanban-col h4 span { font-size: 11px; background: #fff; padding: 2px 6px; border-radius: 6px; }
+.kanban-card {
+  background: #fff; border-radius: 8px; padding: 8px 10px; margin-bottom: 6px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05); cursor: pointer;
+  font-size: 12px;
+}
+.kanban-card:hover { background: #fafcff; }
+.kanban-card .ttl { font-weight: 600; margin-bottom: 2px; }
+.kanban-card .sub { color: #5c6b7a; font-size: 11px; }
+
+/* ====== Data tab ====== */
+.section-title { margin: 18px 0 8px 0; font-size: 14px; color: #5c6b7a; }
+.data-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.filebtn {
+  display: inline-block;
+  background: #fff; border: 1px solid #d0d9e3; padding: 7px 12px; border-radius: 6px;
+  cursor: pointer; font-size: 13px;
+}
+.filebtn:hover { background: #eef2f7; }
+.hint { color: #5c6b7a; font-size: 12px; margin: 4px 0 12px 0; }
+
+/* ====== Toast ====== */
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  background: #1f2933; color: #fff; padding: 10px 18px; border-radius: 8px;
+  z-index: 200; font-size: 13px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+/* ====== Util ====== */
+.row-action { display: flex; gap: 6px; justify-content: flex-end; }
+.row-action button { padding: 4px 8px; font-size: 12px; }
+.muted { color: #8a96a6; }
+.num-input input { text-align: right; }
+
+@media (max-width: 720px) {
+  .grid-2 { grid-template-columns: 1fr; }
+  .topbar { padding: 12px; }
+  main { padding: 14px; }
+}
+
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="logo">CP</span>
+    <div>
+      <h1>シネマプロジェクト 物件管理台帳</h1>
+      <small id="fyLabel"></small>
+    </div>
+  </div>
+  <nav class="tabs">
+    <button class="tab active" data-tab="projects">物件一覧</button>
+    <button class="tab" data-tab="kanban">進捗ボード</button>
+    <button class="tab" data-tab="byPerson">担当者別集計</button>
+    <button class="tab" data-tab="byFY">期別集計</button>
+    <button class="tab" data-tab="byCustomer">顧客別集計</button>
+    <button class="tab" data-tab="people">担当者マスター</button>
+    <button class="tab" data-tab="customers">顧客マスター</button>
+    <button class="tab" data-tab="data">データ管理</button>
+  </nav>
+</header>
+
+<main>
+
+<!-- =========================================== 物件一覧 -->
+<section id="tab-projects" class="tab-panel active">
+  <div class="toolbar">
+    <div class="filters">
+      <label>期
+        <select id="fProjectsFY"><option value="">すべて</option></select>
+      </label>
+      <label>顧客
+        <select id="fProjectsCustomer"><option value="">すべて</option></select>
+      </label>
+      <label>担当
+        <select id="fProjectsLeader"><option value="">すべて</option></select>
+      </label>
+      <label>進捗
+        <select id="fProjectsProgress"><option value="">すべて</option></select>
+      </label>
+      <label>受注判定
+        <select id="fProjectsJudge">
+          <option value="">すべて</option>
+          <option>決定</option><option>◎</option><option>○</option><option>△</option><option>来期</option><option>-</option>
+        </select>
+      </label>
+      <label>検索
+        <input id="fProjectsSearch" type="search" placeholder="物件名・顧客名" />
+      </label>
+    </div>
+    <div class="actions">
+      <button class="primary" id="btnAddProject">＋ 物件を追加</button>
+    </div>
+  </div>
+
+  <div class="summary-bar" id="projectsSummary"></div>
+
+  <div class="table-wrap">
+    <table id="tblProjects" class="data-table">
+      <thead>
+        <tr>
+          <th>物件番号</th>
+          <th>顧客</th>
+          <th>物件名称</th>
+          <th>計上期</th>
+          <th>受注判定</th>
+          <th class="num">見積金額</th>
+          <th class="num">判定額</th>
+          <th class="num">想定粗利</th>
+          <th>進捗</th>
+          <th>リーダー</th>
+          <th>分配</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- =========================================== 進捗ボード -->
+<section id="tab-kanban" class="tab-panel">
+  <div class="toolbar">
+    <div class="filters">
+      <label>期
+        <select id="fKanbanFY"><option value="">すべて</option></select>
+      </label>
+      <label>担当
+        <select id="fKanbanLeader"><option value="">すべて</option></select>
+      </label>
+    </div>
+  </div>
+  <div id="kanbanBoard" class="kanban"></div>
+</section>
+
+<!-- =========================================== 担当者別集計 -->
+<section id="tab-byPerson" class="tab-panel">
+  <div class="toolbar">
+    <div class="filters">
+      <label>期
+        <select id="fByPersonFY"><option value="">全期</option></select>
+      </label>
+      <label>受注判定で絞込み
+        <select id="fByPersonJudgeOnly">
+          <option value="all">全件</option>
+          <option value="decided">決定のみ</option>
+          <option value="weighted">確度加重(決定/◎/○/△)</option>
+        </select>
+      </label>
+    </div>
+  </div>
+  <div id="byPersonGrid" class="cards-grid"></div>
+  <h3 class="section-title">明細</h3>
+  <div class="table-wrap">
+    <table id="tblByPerson" class="data-table">
+      <thead><tr>
+        <th>担当者</th><th>顧客</th><th>物件名称</th><th>計上期</th><th>受注判定</th>
+        <th class="num">想定粗利</th><th class="num">分配率</th><th class="num">分配粗利</th>
+      </tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- =========================================== 期別集計 -->
+<section id="tab-byFY" class="tab-panel">
+  <div id="byFYGrid" class="cards-grid"></div>
+  <h3 class="section-title">期別×顧客マトリクス（判定額）</h3>
+  <div class="table-wrap"><table id="tblFYCustomer" class="data-table"><thead></thead><tbody></tbody></table></div>
+  <h3 class="section-title">期別×担当者マトリクス（分配粗利）</h3>
+  <div class="table-wrap"><table id="tblFYPerson" class="data-table"><thead></thead><tbody></tbody></table></div>
+</section>
+
+<!-- =========================================== 顧客別集計 -->
+<section id="tab-byCustomer" class="tab-panel">
+  <div id="byCustomerGrid" class="cards-grid"></div>
+</section>
+
+<!-- =========================================== 担当者マスター -->
+<section id="tab-people" class="tab-panel">
+  <div class="toolbar">
+    <h2>担当者マスター</h2>
+    <div class="actions">
+      <button class="primary" id="btnAddPerson">＋ 担当者を追加</button>
+    </div>
+  </div>
+  <p class="hint">担当者を追加・削除すると、物件の利益分配欄にも反映されます。削除時に分配が残っている場合は警告します。</p>
+  <div class="table-wrap">
+    <table id="tblPeople" class="data-table">
+      <thead><tr><th>表示色</th><th>氏名</th><th>役職/メモ</th><th>有効</th><th class="num">担当物件数</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- =========================================== 顧客マスター -->
+<section id="tab-customers" class="tab-panel">
+  <div class="toolbar">
+    <h2>顧客マスター</h2>
+    <div class="actions">
+      <button class="primary" id="btnAddCustomer">＋ 顧客を追加</button>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table id="tblCustomers" class="data-table">
+      <thead><tr><th>顧客名</th><th>メモ</th><th class="num">物件数</th><th class="num">合計判定額</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- =========================================== データ管理 -->
+<section id="tab-data" class="tab-panel">
+  <h2>データ管理</h2>
+  <p class="hint">本アプリのデータはブラウザ内（localStorage）に保存されます。バックアップや他PCへの移行には JSON のエクスポート/インポートを使ってください。</p>
+  <div class="data-actions">
+    <button id="btnExport">📥 JSONでエクスポート</button>
+    <label class="filebtn">
+      📤 JSONをインポート
+      <input type="file" id="fileImport" accept="application/json" hidden />
+    </label>
+    <button id="btnSeed">🌱 サンプルデータを読込</button>
+    <button id="btnReset" class="danger">⚠ すべてリセット</button>
+  </div>
+
+  <h3 class="section-title">決算月（決算期の開始月の前月）</h3>
+  <div class="form-row">
+    <label>決算月
+      <select id="fiscalEndMonth">
+        <option value="1">1月</option><option value="2">2月</option><option value="3">3月</option>
+        <option value="4">4月</option><option value="5">5月</option><option value="6">6月</option>
+        <option value="7">7月</option><option value="8">8月</option>
+        <option value="9" selected>9月</option>
+        <option value="10">10月</option><option value="11">11月</option><option value="12">12月</option>
+      </select>
+    </label>
+    <p class="hint">9月末決算の場合は「9月」を選択。竣工時期目安からの自動「計上期」算出に利用します。</p>
+  </div>
+
+  <h3 class="section-title">受注判定の確率（判定額計算用）</h3>
+  <div id="judgeProbs"></div>
+</section>
+
+</main>
+
+<!-- ===================== モーダル: 物件編集 -->
+<div id="projectModal" class="modal" hidden>
+  <div class="modal-card wide">
+    <div class="modal-head">
+      <h3 id="projectModalTitle">物件を追加</h3>
+      <button class="close" data-close-modal>×</button>
+    </div>
+    <div class="modal-body">
+      <div class="grid-2">
+        <label>物件番号 <input id="pId" type="text" placeholder="例: M25001" /></label>
+        <label>顧客名 <input id="pCustomer" list="customerList" /></label>
+        <label class="full">物件名称 <input id="pName" type="text" required /></label>
+        <label>引合日 <input id="pInquiryDate" type="date" /></label>
+        <label>提出日 <input id="pSubmitDate" type="date" /></label>
+        <label>見積種類
+          <select id="pQuoteType">
+            <option value=""></option>
+            <option>納期確認</option>
+            <option>小口</option>
+          </select>
+        </label>
+        <label>案件登録
+          <select id="pCaseStatus">
+            <option value=""></option>
+            <option>受注</option>
+            <option>見積</option>
+          </select>
+        </label>
+        <label>受注時期目安 <input id="pOrderTargetDate" type="date" /></label>
+        <label>竣工時期目安 <input id="pCompletionTargetDate" type="date" /></label>
+        <label>受注判定
+          <select id="pOrderJudge">
+            <option value=""></option>
+            <option>決定</option><option>◎</option><option>○</option><option>△</option><option>来期</option><option>-</option>
+          </select>
+        </label>
+        <label>進捗
+          <select id="pProgress"></select>
+        </label>
+        <label>リーダー
+          <select id="pLeader"></select>
+        </label>
+        <label class="num-input">見積金額(円) <input id="pQuoteAmount" type="number" min="0" step="1" /></label>
+        <label class="num-input">資材・外注費(円) <input id="pMaterial" type="number" min="0" step="1" /></label>
+        <label class="num-input">原価率 <input id="pCostRate" type="text" readonly placeholder="自動" /></label>
+        <label class="num-input">想定粗利 <input id="pGross" type="text" readonly placeholder="自動" /></label>
+        <label class="num-input">判定額(自動) <input id="pJudgedAmount" type="text" readonly placeholder="自動" /></label>
+        <label class="full">計上期(自動：竣工時期目安から)
+          <input id="pFYAuto" type="text" readonly />
+        </label>
+        <label class="full">備考 <textarea id="pNote" rows="2"></textarea></label>
+      </div>
+
+      <h4 class="section-title">利益分配</h4>
+      <p class="hint">分配率は％で入力します。合計を100%にする「均等配分」「リーダーに残り」ボタンも使えます。</p>
+      <div class="alloc-tools">
+        <button type="button" id="btnAllocEqual">均等配分</button>
+        <button type="button" id="btnAllocLeader">リーダーに残り</button>
+        <button type="button" id="btnAllocClear">クリア</button>
+        <span class="alloc-sum">合計：<span id="allocSum">0</span>％ <span id="allocWarn" class="warn"></span></span>
+      </div>
+      <div id="allocList" class="alloc-list"></div>
+    </div>
+    <div class="modal-foot">
+      <button id="btnDeleteProject" class="danger" hidden>削除</button>
+      <span class="spacer"></span>
+      <button data-close-modal>キャンセル</button>
+      <button id="btnSaveProject" class="primary">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== モーダル: 担当者編集 -->
+<div id="personModal" class="modal" hidden>
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3 id="personModalTitle">担当者</h3>
+      <button class="close" data-close-modal>×</button>
+    </div>
+    <div class="modal-body">
+      <div class="grid-2">
+        <label>氏名 <input id="prName" type="text" required /></label>
+        <label>表示色 <input id="prColor" type="color" value="#4f86f7" /></label>
+        <label class="full">役職/メモ <input id="prMemo" type="text" /></label>
+        <label class="full"><input id="prActive" type="checkbox" checked /> 有効（無効化すると分配候補から外れます）</label>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button id="btnDeletePerson" class="danger" hidden>削除</button>
+      <span class="spacer"></span>
+      <button data-close-modal>キャンセル</button>
+      <button id="btnSavePerson" class="primary">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== モーダル: 顧客編集 -->
+<div id="customerModal" class="modal" hidden>
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3 id="customerModalTitle">顧客</h3>
+      <button class="close" data-close-modal>×</button>
+    </div>
+    <div class="modal-body">
+      <div class="grid-2">
+        <label class="full">顧客名 <input id="cuName" type="text" required /></label>
+        <label class="full">メモ <input id="cuMemo" type="text" /></label>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button id="btnDeleteCustomer" class="danger" hidden>削除</button>
+      <span class="spacer"></span>
+      <button data-close-modal>キャンセル</button>
+      <button id="btnSaveCustomer" class="primary">保存</button>
+    </div>
+  </div>
+</div>
+
+<datalist id="customerList"></datalist>
+<datalist id="progressList"></datalist>
+
+<div id="toast" class="toast" hidden></div>
+
+<script>
+window.__SEED__ = {
+  "people": [
+    {
+      "id": "p_koyama",
+      "name": "小山",
+      "color": "#4f86f7",
+      "memo": "",
+      "active": true
+    },
+    {
+      "id": "p_hosogaya",
+      "name": "細萱",
+      "color": "#e07a3c",
+      "memo": "",
+      "active": true
+    },
+    {
+      "id": "p_yamaguchi",
+      "name": "山口",
+      "color": "#1aaa6b",
+      "memo": "",
+      "active": true
+    },
+    {
+      "id": "p_kaneko",
+      "name": "金子",
+      "color": "#c2569a",
+      "memo": "",
+      "active": true
+    },
+    {
+      "id": "p_wakayama",
+      "name": "若山",
+      "color": "#8a6ad8",
+      "memo": "",
+      "active": true
+    },
+    {
+      "id": "p_yamamoto",
+      "name": "山本",
+      "color": "#d4a017",
+      "memo": "",
+      "active": true
+    }
+  ],
+  "customers": [
+    {
+      "id": "c_1",
+      "name": "LED　PJ",
+      "memo": ""
+    },
+    {
+      "id": "c_2",
+      "name": "TOHOシネマズ",
+      "memo": ""
+    },
+    {
+      "id": "c_3",
+      "name": "ニッパツ",
+      "memo": ""
+    },
+    {
+      "id": "c_4",
+      "name": "ユナイテッドシネマ",
+      "memo": ""
+    },
+    {
+      "id": "c_5",
+      "name": "佐々木興業",
+      "memo": ""
+    },
+    {
+      "id": "c_6",
+      "name": "山本さん",
+      "memo": ""
+    },
+    {
+      "id": "c_7",
+      "name": "東急レクリエーション",
+      "memo": ""
+    }
+  ],
+  "projects": [
+    {
+      "id": "CP0001",
+      "customer": "TOHOシネマズ",
+      "name": "TOHO市川　熱源+空調換気更新　1期",
+      "inquiryDate": "2025-10-14",
+      "submitDate": "2025-09-15",
+      "quoteType": "納期確認",
+      "caseStatus": "受注",
+      "orderTargetDate": "2025-09-15",
+      "completionTargetDate": "2026-02-01",
+      "quoteAmountCurrent": 87500000,
+      "orderJudge": "決定",
+      "judgedAmountCurrent": 87500000,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": 65625000,
+      "costRate": 0.75,
+      "expectedGrossProfit": 21875000,
+      "progress": "工事中",
+      "leader": "金子",
+      "allocations": {
+        "小山": 0.25,
+        "細萱": 0.2,
+        "山口": 0.05,
+        "金子": 0.4,
+        "若山": 0.05,
+        "山本": 0.05
+      }
+    },
+    {
+      "id": "CP0002",
+      "customer": "TOHOシネマズ",
+      "name": "TOHO市川　熱源+空調換気更新　2期",
+      "inquiryDate": null,
+      "submitDate": "2025-09-15",
+      "quoteType": "納期確認",
+      "caseStatus": "受注",
+      "orderTargetDate": "2026-01-01",
+      "completionTargetDate": "2026-05-01",
+      "quoteAmountCurrent": 112000000,
+      "orderJudge": "決定",
+      "judgedAmountCurrent": 112000000,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": 84000000,
+      "costRate": 0.75,
+      "expectedGrossProfit": 28000000,
+      "progress": "工事中",
+      "leader": "金子",
+      "allocations": {
+        "小山": 0.25,
+        "細萱": 0.2,
+        "山口": 0.05,
+        "金子": 0.4,
+        "若山": 0.05,
+        "山本": 0.05
+      }
+    },
+    {
+      "id": "CP0003",
+      "customer": "TOHOシネマズ",
+      "name": "横浜　事務所系統空調機更新",
+      "inquiryDate": null,
+      "submitDate": "2025-06-10",
+      "quoteType": "納期確認",
+      "caseStatus": "見積",
+      "orderTargetDate": "2026-03-01",
+      "completionTargetDate": "2026-06-01",
+      "quoteAmountCurrent": 8600000,
+      "orderJudge": "決定",
+      "judgedAmountCurrent": 8600000,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": 6450000,
+      "costRate": 0.75,
+      "expectedGrossProfit": 2150000,
+      "progress": "見積提出済",
+      "leader": "金子",
+      "allocations": {
+        "小山": 0.25,
+        "細萱": 0.2,
+        "山口": 0.05,
+        "金子": 0.4,
+        "若山": 0.05,
+        "山本": 0.05
+      }
+    },
+    {
+      "id": "CP0004",
+      "customer": "TOHOシネマズ",
+      "name": "池袋　コンセッション増設",
+      "inquiryDate": null,
+      "submitDate": "2025-09-26",
+      "quoteType": "小口",
+      "caseStatus": "見積",
+      "orderTargetDate": "2026-01-01",
+      "completionTargetDate": "2026-02-01",
+      "quoteAmountCurrent": 2460000,
+      "orderJudge": "決定",
+      "judgedAmountCurrent": 2460000,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": 1845000,
+      "costRate": 0.75,
+      "expectedGrossProfit": 615000,
+      "progress": "竣工",
+      "leader": "金子",
+      "allocations": {
+        "小山": 0.25,
+        "細萱": 0.2,
+        "山口": 0.05,
+        "金子": 0.4,
+        "若山": 0.05,
+        "山本": 0.05
+      }
+    },
+    {
+      "id": "CP0005",
+      "customer": "TOHOシネマズ",
+      "name": "新宿　コンセッション増設",
+      "inquiryDate": null,
+      "submitDate": null,
+      "quoteType": "納期確認",
+      "caseStatus": "",
+      "orderTargetDate": "2026-03-01",
+      "completionTargetDate": "2026-06-01",
+      "quoteAmountCurrent": 4000000,
+      "orderJudge": "◎",
+      "judgedAmountCurrent": 3200000,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": 2400000,
+      "costRate": 0.75,
+      "expectedGrossProfit": 800000,
+      "progress": "基本計画作成中",
+      "leader": "金子→小山",
+      "allocations": {
+        "小山": 0.25,
+        "細萱": 0.2,
+        "山口": 0.05,
+        "金子": 0.4,
+        "若山": 0.05,
+        "山本": 0.05
+      }
+    },
+    {
+      "id": "CP0006",
+      "customer": "TOHOシネマズ",
+      "name": "西新井　コンセッション改善",
+      "inquiryDate": null,
+      "submitDate": null,
+      "quoteType": "納期確認",
+      "caseStatus": "",
+      "orderTargetDate": "2026-03-01",
+      "completionTargetDate": "2026-06-01",
+      "quoteAmountCurrent": 4000000,
+      "orderJudge": "○",
+      "judgedAmountCurrent": 2400000,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": 1800000,
+      "costRate": 0.75,
+      "expectedGrossProfit": 600000,
+      "progress": "見積提出済",
+      "leader": "小山",
+      "allocations": {
+        "小山": 0.25,
+        "細萱": 0.2,
+        "山口": 0.05,
+        "金子": 0.4,
+        "若山": 0.05,
+        "山本": 0.05
+      }
+    },
+    {
+      "id": "CP0007",
+      "customer": "TOHOシネマズ",
+      "name": "くずは　シアター系統更新",
+      "inquiryDate": null,
+      "submitDate": null,
+      "quoteType": "納期確認",
+      "caseStatus": "",
+      "orderTargetDate": "2027-12-01",
+      "completionTargetDate": "2028-06-01",
+      "quoteAmountCurrent": 200000000,
+      "orderJudge": "-",
+      "judgedAmountCurrent": 0,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": 0,
+      "costRate": null,
+      "expectedGrossProfit": 0,
+      "progress": "基本計画作成中",
+      "leader": "小山",
+      "allocations": {
+        "小山": 0.25,
+        "細萱": 0.2,
+        "山口": 0.05,
+        "金子": 0.4,
+        "若山": 0.05,
+        "山本": 0.05
+      }
+    },
+    {
+      "id": "CP0008",
+      "customer": "TOHOシネマズ",
+      "name": "宇都宮　コンセ系統増設　【概算】",
+      "inquiryDate": null,
+      "submitDate": "2025-12-19",
+      "quoteType": "小口",
+      "caseStatus": "受注",
+      "orderTargetDate": "2026-03-01",
+      "completionTargetDate": "2027-02-01",
+      "quoteAmountCurrent": 0,
+      "orderJudge": "来期",
+      "judgedAmountCurrent": null,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": null,
+      "costRate": null,
+      "expectedGrossProfit": null,
+      "progress": "見積提出済",
+      "leader": "小山",
+      "allocations": {
+        "小山": 0.25,
+        "細萱": 0.25,
+        "山口": 0.05,
+        "金子": 0.4,
+        "若山": 0.05
+      }
+    },
+    {
+      "id": "CP0009",
+      "customer": "TOHOシネマズ",
+      "name": "各店保守　来期",
+      "inquiryDate": null,
+      "submitDate": "2025-12-19",
+      "quoteType": "納期確認",
+      "caseStatus": "受注",
+      "orderTargetDate": "2026-03-01",
+      "completionTargetDate": "2027-02-01",
+      "quoteAmountCurrent": 18373500,
+      "orderJudge": "来期",
+      "judgedAmountCurrent": 0,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": null,
+      "costRate": null,
+      "expectedGrossProfit": null,
+      "progress": "工事中",
+      "leader": "金子",
+      "allocations": {
+        "小山": 0.25,
+        "細萱": 0.25,
+        "山口": 0.05,
+        "金子": 0.4,
+        "若山": 0.05
+      }
+    },
+    {
+      "id": "CP0010",
+      "customer": "東急レクリエーション",
+      "name": "木場　チラー更新",
+      "inquiryDate": null,
+      "submitDate": "2025-09-25",
+      "quoteType": "納期確認",
+      "caseStatus": "受注",
+      "orderTargetDate": "2025-10-15",
+      "completionTargetDate": "2026-07-15",
+      "quoteAmountCurrent": 35000000,
+      "orderJudge": "決定",
+      "judgedAmountCurrent": 35000000,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": 27800000,
+      "costRate": 0.7942857142857143,
+      "expectedGrossProfit": 7200000,
+      "progress": "着工前調整中",
+      "leader": "細萱",
+      "allocations": {
+        "小山": 0.2,
+        "細萱": 0.4,
+        "山口": 0.2,
+        "金子": 0.05,
+        "若山": 0.1,
+        "山本": 0.05
+      }
+    },
+    {
+      "id": "CP0011",
+      "customer": "東急レクリエーション",
+      "name": "南町田　シアター系統更新",
+      "inquiryDate": null,
+      "submitDate": "2025-09-25",
+      "quoteType": "納期確認",
+      "caseStatus": "受注",
+      "orderTargetDate": "2025-10-15",
+      "completionTargetDate": "2026-06-01",
+      "quoteAmountCurrent": 265000000,
+      "orderJudge": "決定",
+      "judgedAmountCurrent": 265000000,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": 208300000,
+      "costRate": 0.7860377358490566,
+      "expectedGrossProfit": 56700000,
+      "progress": "工事中",
+      "leader": "細萱",
+      "allocations": {
+        "小山": 0.25,
+        "細萱": 0.25,
+        "山口": 0.2,
+        "金子": 0.05,
+        "若山": 0.2,
+        "山本": 0.05
+      }
+    },
+    {
+      "id": "CP0012",
+      "customer": "東急レクリエーション",
+      "name": "川崎　GHP更新計画　3系統(1,6,7)、ぐっぴー6月",
+      "inquiryDate": null,
+      "submitDate": null,
+      "quoteType": "納期確認",
+      "caseStatus": "",
+      "orderTargetDate": "2026-04-27",
+      "completionTargetDate": "2026-09-05",
+      "quoteAmountCurrent": 100000000,
+      "orderJudge": "△",
+      "judgedAmountCurrent": 30000000,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": 22500000,
+      "costRate": 0.75,
+      "expectedGrossProfit": 7500000,
+      "progress": "積算中",
+      "leader": "小山",
+      "allocations": {
+        "小山": 0.25,
+        "細萱": 0.3,
+        "山口": 0.25,
+        "金子": 0.05,
+        "若山": 0.1,
+        "山本": 0.05
+      }
+    },
+    {
+      "id": "CP0013",
+      "customer": "東急レクリエーション",
+      "name": "南町田　一般系統更新",
+      "inquiryDate": null,
+      "submitDate": null,
+      "quoteType": "納期確認",
+      "caseStatus": "受注",
+      "orderTargetDate": "2025-09-16",
+      "completionTargetDate": "2025-12-16",
+      "quoteAmountCurrent": 30000000,
+      "orderJudge": "決定",
+      "judgedAmountCurrent": 30000000,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": 22500000,
+      "costRate": 0.75,
+      "expectedGrossProfit": 7500000,
+      "progress": "竣工",
+      "leader": "山口",
+      "allocations": {
+        "小山": 0.1,
+        "細萱": 0.1,
+        "山口": 0.55,
+        "金子": 0.05,
+        "若山": 0.2
+      }
+    },
+    {
+      "id": "CP0014",
+      "customer": "東急レクリエーション",
+      "name": "神戸　コリドー系統更新",
+      "inquiryDate": null,
+      "submitDate": null,
+      "quoteType": "小口",
+      "caseStatus": "",
+      "orderTargetDate": null,
+      "completionTargetDate": null,
+      "quoteAmountCurrent": null,
+      "orderJudge": "",
+      "judgedAmountCurrent": null,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": null,
+      "costRate": null,
+      "expectedGrossProfit": null,
+      "progress": "積算中",
+      "leader": "細萱",
+      "allocations": {}
+    },
+    {
+      "id": "CP0015",
+      "customer": "東急レクリエーション",
+      "name": "HAT神戸　全台更新",
+      "inquiryDate": null,
+      "submitDate": null,
+      "quoteType": "納期確認",
+      "caseStatus": "",
+      "orderTargetDate": null,
+      "completionTargetDate": null,
+      "quoteAmountCurrent": 300000000,
+      "orderJudge": "-",
+      "judgedAmountCurrent": 0,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": 0,
+      "costRate": null,
+      "expectedGrossProfit": 0,
+      "progress": "見積提出済",
+      "leader": "細萱",
+      "allocations": {}
+    },
+    {
+      "id": "CP0016",
+      "customer": "東急レクリエーション",
+      "name": "神戸　コンセ更新",
+      "inquiryDate": null,
+      "submitDate": null,
+      "quoteType": "納期確認",
+      "caseStatus": "",
+      "orderTargetDate": null,
+      "completionTargetDate": null,
+      "quoteAmountCurrent": 10800000,
+      "orderJudge": "-",
+      "judgedAmountCurrent": 0,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": 0,
+      "costRate": null,
+      "expectedGrossProfit": 0,
+      "progress": "見積提出済",
+      "leader": "細萱",
+      "allocations": {}
+    },
+    {
+      "id": "CP0017",
+      "customer": "東急レクリエーション",
+      "name": "神戸　映写室更新",
+      "inquiryDate": null,
+      "submitDate": null,
+      "quoteType": "小口",
+      "caseStatus": "",
+      "orderTargetDate": null,
+      "completionTargetDate": null,
+      "quoteAmountCurrent": null,
+      "orderJudge": "-",
+      "judgedAmountCurrent": null,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": null,
+      "costRate": null,
+      "expectedGrossProfit": null,
+      "progress": "積算中",
+      "leader": "細萱",
+      "allocations": {}
+    },
+    {
+      "id": "CP0018",
+      "customer": "東急レクリエーション",
+      "name": "箕面　シアター系統更新",
+      "inquiryDate": null,
+      "submitDate": null,
+      "quoteType": "納期確認",
+      "caseStatus": "見積",
+      "orderTargetDate": "2026-02-16",
+      "completionTargetDate": "2026-10-01",
+      "quoteAmountCurrent": 168000000,
+      "orderJudge": "△",
+      "judgedAmountCurrent": 50400000,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": 37800000,
+      "costRate": 0.75,
+      "expectedGrossProfit": 12600000,
+      "progress": "積算中",
+      "leader": "細萱",
+      "allocations": {}
+    },
+    {
+      "id": "CP0019",
+      "customer": "東急レクリエーション",
+      "name": "港北　5階映写室系統更新",
+      "inquiryDate": null,
+      "submitDate": null,
+      "quoteType": "納期確認",
+      "caseStatus": "",
+      "orderTargetDate": "2026-04-16",
+      "completionTargetDate": "2026-06-01",
+      "quoteAmountCurrent": 4500000,
+      "orderJudge": "△",
+      "judgedAmountCurrent": 1350000,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": 1012500,
+      "costRate": 0.75,
+      "expectedGrossProfit": 337500,
+      "progress": "見積提出済",
+      "leader": "山口",
+      "allocations": {
+        "小山": 0.15,
+        "細萱": 0.15,
+        "山口": 0.4,
+        "金子": 0.05,
+        "若山": 0.25
+      }
+    },
+    {
+      "id": "CP0020",
+      "customer": "東急レクリエーション",
+      "name": "名古屋　コリドー系統更新",
+      "inquiryDate": null,
+      "submitDate": null,
+      "quoteType": "納期確認",
+      "caseStatus": "",
+      "orderTargetDate": "2026-02-16",
+      "completionTargetDate": "2026-06-01",
+      "quoteAmountCurrent": 10800000,
+      "orderJudge": "◎",
+      "judgedAmountCurrent": 8640000,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": 6480000,
+      "costRate": 0.75,
+      "expectedGrossProfit": 2160000,
+      "progress": "見積提出済",
+      "leader": "小山",
+      "allocations": {
+        "小山": 0.15,
+        "細萱": 0.15,
+        "山口": 0.4,
+        "金子": 0.05,
+        "若山": 0.25
+      }
+    },
+    {
+      "id": "CP0021",
+      "customer": "東急レクリエーション",
+      "name": "2026年109各店保守契約",
+      "inquiryDate": null,
+      "submitDate": null,
+      "quoteType": "納期確認",
+      "caseStatus": "",
+      "orderTargetDate": null,
+      "completionTargetDate": null,
+      "quoteAmountCurrent": 45000000,
+      "orderJudge": "来期",
+      "judgedAmountCurrent": 0,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": null,
+      "costRate": null,
+      "expectedGrossProfit": null,
+      "progress": "",
+      "leader": "若山",
+      "allocations": {
+        "小山": 0.15,
+        "細萱": 0.15,
+        "山口": 0.25,
+        "金子": 0.05,
+        "若山": 0.4
+      }
+    },
+    {
+      "id": "CP0022",
+      "customer": "ユナイテッドシネマ",
+      "name": "つくば　シアター8更新【閉館】",
+      "inquiryDate": null,
+      "submitDate": null,
+      "quoteType": "納期確認",
+      "caseStatus": "見積",
+      "orderTargetDate": null,
+      "completionTargetDate": null,
+      "quoteAmountCurrent": 35000000,
+      "orderJudge": "-",
+      "judgedAmountCurrent": 0,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": null,
+      "costRate": null,
+      "expectedGrossProfit": null,
+      "progress": "",
+      "leader": "山口",
+      "allocations": {
+        "小山": 0.15,
+        "細萱": 0.15,
+        "山口": 0.4,
+        "金子": 0.05,
+        "若山": 0.25
+      }
+    },
+    {
+      "id": "CP0023",
+      "customer": "ユナイテッドシネマ",
+      "name": "わかば　映写室系統更新",
+      "inquiryDate": null,
+      "submitDate": null,
+      "quoteType": "納期確認",
+      "caseStatus": "受注",
+      "orderTargetDate": "2026-01-16",
+      "completionTargetDate": "2026-02-16",
+      "quoteAmountCurrent": 3800000,
+      "orderJudge": "◎",
+      "judgedAmountCurrent": 3040000,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": 2280000,
+      "costRate": 0.75,
+      "expectedGrossProfit": 760000,
+      "progress": "竣工",
+      "leader": "若山",
+      "allocations": {
+        "小山": 0.15,
+        "細萱": 0.15,
+        "山口": 0.25,
+        "金子": 0.05,
+        "若山": 0.4
+      }
+    },
+    {
+      "id": "CP0024",
+      "customer": "ユナイテッドシネマ",
+      "name": "前橋　トレーサー更新",
+      "inquiryDate": null,
+      "submitDate": null,
+      "quoteType": "納期確認",
+      "caseStatus": "",
+      "orderTargetDate": "2026-03-27",
+      "completionTargetDate": "2026-07-27",
+      "quoteAmountCurrent": 6400000,
+      "orderJudge": "○",
+      "judgedAmountCurrent": 3840000,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": 2880000,
+      "costRate": 0.75,
+      "expectedGrossProfit": 960000,
+      "progress": "見積提出済",
+      "leader": "山口",
+      "allocations": {
+        "小山": 0.15,
+        "細萱": 0.15,
+        "山口": 0.4,
+        "金子": 0.05,
+        "若山": 0.25
+      }
+    },
+    {
+      "id": "CP0025",
+      "customer": "ユナイテッドシネマ",
+      "name": "としまえん　シアター系統更新　2シアター分",
+      "inquiryDate": null,
+      "submitDate": null,
+      "quoteType": "納期確認",
+      "caseStatus": "",
+      "orderTargetDate": "2026-03-27",
+      "completionTargetDate": "2026-07-27",
+      "quoteAmountCurrent": 88000000,
+      "orderJudge": "○",
+      "judgedAmountCurrent": 52800000,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": 39600000,
+      "costRate": 0.75,
+      "expectedGrossProfit": 13200000,
+      "progress": "見積提出済",
+      "leader": "山口",
+      "allocations": {
+        "小山": 0.15,
+        "細萱": 0.15,
+        "山口": 0.25,
+        "金子": 0.05,
+        "若山": 0.4
+      }
+    },
+    {
+      "id": "CP0026",
+      "customer": "ユナイテッドシネマ",
+      "name": "としまえん　中央監視更新",
+      "inquiryDate": null,
+      "submitDate": null,
+      "quoteType": "納期確認",
+      "caseStatus": "見積",
+      "orderTargetDate": "2026-03-27",
+      "completionTargetDate": "2026-07-27",
+      "quoteAmountCurrent": 17000000,
+      "orderJudge": "○",
+      "judgedAmountCurrent": 10200000,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": 7650000,
+      "costRate": 0.75,
+      "expectedGrossProfit": 2550000,
+      "progress": "見積提出済",
+      "leader": "小山",
+      "allocations": {
+        "小山": 0.25,
+        "細萱": 0.15,
+        "山口": 0.4,
+        "金子": 0.05,
+        "若山": 0.15
+      }
+    },
+    {
+      "id": "CP0027",
+      "customer": "ユナイテッドシネマ",
+      "name": "豊洲　シアター系統更新　2シアター分",
+      "inquiryDate": null,
+      "submitDate": null,
+      "quoteType": "納期確認",
+      "caseStatus": "",
+      "orderTargetDate": "2026-03-27",
+      "completionTargetDate": "2026-09-27",
+      "quoteAmountCurrent": 75000000,
+      "orderJudge": "○",
+      "judgedAmountCurrent": 45000000,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": 33750000,
+      "costRate": 0.75,
+      "expectedGrossProfit": 11250000,
+      "progress": "見積提出済",
+      "leader": "山口",
+      "allocations": {
+        "小山": 0.15,
+        "細萱": 0.15,
+        "山口": 0.4,
+        "金子": 0.05,
+        "若山": 0.25
+      }
+    },
+    {
+      "id": "CP0028",
+      "customer": "ユナイテッドシネマ",
+      "name": "金沢　シアター系統更新",
+      "inquiryDate": null,
+      "submitDate": null,
+      "quoteType": "納期確認",
+      "caseStatus": "見積",
+      "orderTargetDate": "2026-02-27",
+      "completionTargetDate": "2026-06-27",
+      "quoteAmountCurrent": 180500000,
+      "orderJudge": "○",
+      "judgedAmountCurrent": 108300000,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": 81225000,
+      "costRate": 0.75,
+      "expectedGrossProfit": 27075000,
+      "progress": "見積提出済",
+      "leader": "小山",
+      "allocations": {}
+    },
+    {
+      "id": "CP0029",
+      "customer": "ユナイテッドシネマ",
+      "name": "金沢　一般更新",
+      "inquiryDate": null,
+      "submitDate": null,
+      "quoteType": "納期確認",
+      "caseStatus": "見積",
+      "orderTargetDate": "2026-02-27",
+      "completionTargetDate": "2026-06-27",
+      "quoteAmountCurrent": 5600000,
+      "orderJudge": "決定",
+      "judgedAmountCurrent": 5600000,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": 4200000,
+      "costRate": 0.75,
+      "expectedGrossProfit": 1400000,
+      "progress": "着工前調整中",
+      "leader": "小山",
+      "allocations": {}
+    },
+    {
+      "id": "CP0030",
+      "customer": "ユナイテッドシネマ",
+      "name": "幸手　シアター9系統更新",
+      "inquiryDate": null,
+      "submitDate": null,
+      "quoteType": "納期確認",
+      "caseStatus": "",
+      "orderTargetDate": "2026-02-27",
+      "completionTargetDate": "2026-06-27",
+      "quoteAmountCurrent": 26000000,
+      "orderJudge": "△",
+      "judgedAmountCurrent": 7800000,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": 5850000,
+      "costRate": 0.75,
+      "expectedGrossProfit": 1950000,
+      "progress": "見積提出済",
+      "leader": "山口",
+      "allocations": {}
+    },
+    {
+      "id": "CP0031",
+      "customer": "ユナイテッドシネマ",
+      "name": "幸手　フィットネスジム更新",
+      "inquiryDate": null,
+      "submitDate": null,
+      "quoteType": "納期確認",
+      "caseStatus": "",
+      "orderTargetDate": "2026-02-27",
+      "completionTargetDate": "2026-06-27",
+      "quoteAmountCurrent": 13000000,
+      "orderJudge": "◎",
+      "judgedAmountCurrent": 10400000,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": 7800000,
+      "costRate": 0.75,
+      "expectedGrossProfit": 2600000,
+      "progress": "見積作成中",
+      "leader": "山口",
+      "allocations": {}
+    },
+    {
+      "id": "CP0032",
+      "customer": "ユナイテッドシネマ",
+      "name": "来期　幸手　シアター系統更新",
+      "inquiryDate": null,
+      "submitDate": null,
+      "quoteType": "小口",
+      "caseStatus": "",
+      "orderTargetDate": null,
+      "completionTargetDate": null,
+      "quoteAmountCurrent": null,
+      "orderJudge": "来期",
+      "judgedAmountCurrent": null,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": null,
+      "costRate": null,
+      "expectedGrossProfit": null,
+      "progress": "",
+      "leader": "仮細萱",
+      "allocations": {}
+    },
+    {
+      "id": "CP0033",
+      "customer": "ユナイテッドシネマ",
+      "name": "来期　水戸　シアター系統更新",
+      "inquiryDate": null,
+      "submitDate": null,
+      "quoteType": "小口",
+      "caseStatus": "",
+      "orderTargetDate": null,
+      "completionTargetDate": null,
+      "quoteAmountCurrent": null,
+      "orderJudge": "来期",
+      "judgedAmountCurrent": null,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": null,
+      "costRate": null,
+      "expectedGrossProfit": null,
+      "progress": "",
+      "leader": "仮山口",
+      "allocations": {}
+    },
+    {
+      "id": "CP0034",
+      "customer": "ユナイテッドシネマ",
+      "name": "2026年UC各店保守契約",
+      "inquiryDate": null,
+      "submitDate": null,
+      "quoteType": "納期確認",
+      "caseStatus": "",
+      "orderTargetDate": null,
+      "completionTargetDate": null,
+      "quoteAmountCurrent": 10000000,
+      "orderJudge": "来期",
+      "judgedAmountCurrent": 0,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": null,
+      "costRate": null,
+      "expectedGrossProfit": null,
+      "progress": "",
+      "leader": "山口",
+      "allocations": {
+        "小山": 0.15,
+        "細萱": 0.15,
+        "山口": 0.05,
+        "金子": 0.4,
+        "若山": 0.25
+      }
+    },
+    {
+      "id": "CP0035",
+      "customer": "ユナイテッドシネマ",
+      "name": "繰越　大津更新",
+      "inquiryDate": null,
+      "submitDate": null,
+      "quoteType": "小口",
+      "caseStatus": "",
+      "orderTargetDate": null,
+      "completionTargetDate": null,
+      "quoteAmountCurrent": null,
+      "orderJudge": "",
+      "judgedAmountCurrent": null,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": 0,
+      "costRate": null,
+      "expectedGrossProfit": 0,
+      "progress": "積算中",
+      "leader": "山口",
+      "allocations": {}
+    },
+    {
+      "id": "CP0036",
+      "customer": "佐々木興業",
+      "name": "三郷　GeM2導入（沼津移設）",
+      "inquiryDate": null,
+      "submitDate": null,
+      "quoteType": "納期確認",
+      "caseStatus": "",
+      "orderTargetDate": null,
+      "completionTargetDate": null,
+      "quoteAmountCurrent": 8000000,
+      "orderJudge": "-",
+      "judgedAmountCurrent": 0,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": 0,
+      "costRate": null,
+      "expectedGrossProfit": 0,
+      "progress": "基本計画作成中",
+      "leader": "小山",
+      "allocations": {
+        "小山": 0.25,
+        "細萱": 0.25,
+        "山口": 0.05,
+        "金子": 0.4,
+        "若山": 0.05
+      }
+    },
+    {
+      "id": "CP0037",
+      "customer": "佐々木興業",
+      "name": "大和郡山　シアター系統更新",
+      "inquiryDate": null,
+      "submitDate": null,
+      "quoteType": "納期確認",
+      "caseStatus": "",
+      "orderTargetDate": "2026-12-01",
+      "completionTargetDate": "2027-06-01",
+      "quoteAmountCurrent": 150000000,
+      "orderJudge": "-",
+      "judgedAmountCurrent": 0,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": 0,
+      "costRate": null,
+      "expectedGrossProfit": 0,
+      "progress": "基本計画作成中",
+      "leader": "小山",
+      "allocations": {
+        "小山": 0.25,
+        "細萱": 0.25,
+        "山口": 0.05,
+        "金子": 0.4,
+        "若山": 0.05
+      }
+    },
+    {
+      "id": "CP0038",
+      "customer": "佐々木興業",
+      "name": "各店保守　来期",
+      "inquiryDate": null,
+      "submitDate": null,
+      "quoteType": "納期確認",
+      "caseStatus": "",
+      "orderTargetDate": "2026-04-01",
+      "completionTargetDate": "2027-03-01",
+      "quoteAmountCurrent": 6530000,
+      "orderJudge": "△",
+      "judgedAmountCurrent": 1959000,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": 1469250,
+      "costRate": 0.75,
+      "expectedGrossProfit": 489750,
+      "progress": "見積作成中",
+      "leader": "金子",
+      "allocations": {
+        "小山": 0.25,
+        "細萱": 0.25,
+        "山口": 0.05,
+        "金子": 0.4,
+        "若山": 0.05
+      }
+    },
+    {
+      "id": "CP0039",
+      "customer": "ニッパツ",
+      "name": "厚生棟　空調更新",
+      "inquiryDate": null,
+      "submitDate": null,
+      "quoteType": "納期確認",
+      "caseStatus": "見積",
+      "orderTargetDate": "2026-02-15",
+      "completionTargetDate": "2027-01-15",
+      "quoteAmountCurrent": 331700000,
+      "orderJudge": "○",
+      "judgedAmountCurrent": 199020000,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": 149265000,
+      "costRate": 0.75,
+      "expectedGrossProfit": 49755000,
+      "progress": "見積作成中",
+      "leader": "細萱",
+      "allocations": {}
+    },
+    {
+      "id": "CP0040",
+      "customer": "山本さん",
+      "name": "周南　AHUオーバーホール",
+      "inquiryDate": null,
+      "submitDate": null,
+      "quoteType": "納期確認",
+      "caseStatus": "受注",
+      "orderTargetDate": null,
+      "completionTargetDate": null,
+      "quoteAmountCurrent": 150000000,
+      "orderJudge": "決定",
+      "judgedAmountCurrent": 150000000,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": 112500000,
+      "costRate": 0.75,
+      "expectedGrossProfit": 37500000,
+      "progress": "竣工",
+      "leader": "山本",
+      "allocations": {
+        "山本": 1
+      }
+    },
+    {
+      "id": "CP0041",
+      "customer": "山本さん",
+      "name": "柏の葉　GHP更新",
+      "inquiryDate": null,
+      "submitDate": null,
+      "quoteType": "納期確認",
+      "caseStatus": "見積",
+      "orderTargetDate": "2026-06-01",
+      "completionTargetDate": "2026-12-15",
+      "quoteAmountCurrent": 200300000,
+      "orderJudge": "-",
+      "judgedAmountCurrent": 0,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": null,
+      "costRate": null,
+      "expectedGrossProfit": null,
+      "progress": "工事計画書作成中",
+      "leader": "山本",
+      "allocations": {
+        "山本": 1
+      }
+    },
+    {
+      "id": "CP0042",
+      "customer": "山本さん",
+      "name": "旬報社　冷温水発生機更新",
+      "inquiryDate": null,
+      "submitDate": null,
+      "quoteType": "納期確認",
+      "caseStatus": "受注",
+      "orderTargetDate": "2026-04-01",
+      "completionTargetDate": "2026-05-01",
+      "quoteAmountCurrent": 40000000,
+      "orderJudge": "決定",
+      "judgedAmountCurrent": 40000000,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": 30000000,
+      "costRate": 0.75,
+      "expectedGrossProfit": 10000000,
+      "progress": "竣工",
+      "leader": "山本",
+      "allocations": {
+        "山本": 1
+      }
+    },
+    {
+      "id": "CP0043",
+      "customer": "山本さん",
+      "name": "つくば　GHP更新",
+      "inquiryDate": null,
+      "submitDate": null,
+      "quoteType": "小口",
+      "caseStatus": "",
+      "orderTargetDate": null,
+      "completionTargetDate": null,
+      "quoteAmountCurrent": null,
+      "orderJudge": "-",
+      "judgedAmountCurrent": null,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": null,
+      "costRate": null,
+      "expectedGrossProfit": null,
+      "progress": "",
+      "leader": "山本",
+      "allocations": {
+        "山本": 1
+      }
+    },
+    {
+      "id": "CP0044",
+      "customer": "LED　PJ",
+      "name": "109木場 LED更新工事",
+      "inquiryDate": null,
+      "submitDate": null,
+      "quoteType": "納期確認",
+      "caseStatus": "見積",
+      "orderTargetDate": "2026-04-01",
+      "completionTargetDate": "2026-10-01",
+      "quoteAmountCurrent": 6900000,
+      "orderJudge": "○",
+      "judgedAmountCurrent": 4140000,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": 3105000,
+      "costRate": 0.75,
+      "expectedGrossProfit": 1035000,
+      "progress": "着工前調整中",
+      "leader": "若山",
+      "allocations": {
+        "小山": 0.1,
+        "細萱": 0.1,
+        "山口": 0.2,
+        "金子": 0.05,
+        "若山": 0.55
+      }
+    },
+    {
+      "id": "CP0045",
+      "customer": "LED　PJ",
+      "name": "109名古屋 LED更新工事",
+      "inquiryDate": null,
+      "submitDate": null,
+      "quoteType": "納期確認",
+      "caseStatus": "",
+      "orderTargetDate": "2026-05-01",
+      "completionTargetDate": "2026-11-01",
+      "quoteAmountCurrent": 10600000,
+      "orderJudge": "○",
+      "judgedAmountCurrent": 6360000,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": 4770000,
+      "costRate": 0.75,
+      "expectedGrossProfit": 5830000,
+      "progress": "着工前調整中",
+      "leader": "若山",
+      "allocations": {
+        "小山": 0.1,
+        "細萱": 0.1,
+        "山口": 0.2,
+        "金子": 0.05,
+        "若山": 0.55
+      }
+    },
+    {
+      "id": "CP0046",
+      "customer": "LED　PJ",
+      "name": "109川崎 LED更新工事",
+      "inquiryDate": null,
+      "submitDate": null,
+      "quoteType": "納期確認",
+      "caseStatus": "見積",
+      "orderTargetDate": null,
+      "completionTargetDate": null,
+      "quoteAmountCurrent": 9850000,
+      "orderJudge": "来期",
+      "judgedAmountCurrent": 0,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": 0,
+      "costRate": null,
+      "expectedGrossProfit": 0,
+      "progress": "見積提出済",
+      "leader": "若山",
+      "allocations": {
+        "小山": 0.1,
+        "細萱": 0.1,
+        "山口": 0.2,
+        "金子": 0.05,
+        "若山": 0.55
+      }
+    },
+    {
+      "id": "CP0047",
+      "customer": "LED　PJ",
+      "name": "CPX　平塚LED更新工事",
+      "inquiryDate": null,
+      "submitDate": null,
+      "quoteType": "納期確認",
+      "caseStatus": "",
+      "orderTargetDate": "2026-09-01",
+      "completionTargetDate": "2027-03-01",
+      "quoteAmountCurrent": 8500000,
+      "orderJudge": "○",
+      "judgedAmountCurrent": 5100000,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": 3825000,
+      "costRate": 0.75,
+      "expectedGrossProfit": 1275000,
+      "progress": "見積提出済",
+      "leader": "若山",
+      "allocations": {}
+    },
+    {
+      "id": "CP0048",
+      "customer": "LED　PJ",
+      "name": "佐々木興業",
+      "inquiryDate": null,
+      "submitDate": null,
+      "quoteType": "納期確認",
+      "caseStatus": "",
+      "orderTargetDate": null,
+      "completionTargetDate": null,
+      "quoteAmountCurrent": 10250000,
+      "orderJudge": "○",
+      "judgedAmountCurrent": 6150000,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": 4612500,
+      "costRate": 0.75,
+      "expectedGrossProfit": 1537500,
+      "progress": "見積提出済",
+      "leader": "若山",
+      "allocations": {}
+    },
+    {
+      "id": "CP0049",
+      "customer": "LED　PJ",
+      "name": "コロナワールド",
+      "inquiryDate": null,
+      "submitDate": null,
+      "quoteType": "納期確認",
+      "caseStatus": "",
+      "orderTargetDate": null,
+      "completionTargetDate": null,
+      "quoteAmountCurrent": 9000000,
+      "orderJudge": "○",
+      "judgedAmountCurrent": 5400000,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": 4050000,
+      "costRate": 0.75,
+      "expectedGrossProfit": 1350000,
+      "progress": "見積提出済",
+      "leader": "若山",
+      "allocations": {}
+    },
+    {
+      "id": "CP0050",
+      "customer": "東急レクリエーション",
+      "name": "繰越　各店保守",
+      "inquiryDate": null,
+      "submitDate": null,
+      "quoteType": "納期確認",
+      "caseStatus": "",
+      "orderTargetDate": null,
+      "completionTargetDate": null,
+      "quoteAmountCurrent": 48934000,
+      "orderJudge": "決定",
+      "judgedAmountCurrent": 48934000,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": 36700500,
+      "costRate": 0.75,
+      "expectedGrossProfit": 12233500,
+      "progress": "",
+      "leader": "山口",
+      "allocations": {
+        "山本": 0.05
+      }
+    },
+    {
+      "id": "CP0051",
+      "customer": "東急レクリエーション",
+      "name": "繰越　佐賀保守",
+      "inquiryDate": null,
+      "submitDate": null,
+      "quoteType": "納期確認",
+      "caseStatus": "",
+      "orderTargetDate": null,
+      "completionTargetDate": null,
+      "quoteAmountCurrent": 12602000,
+      "orderJudge": "決定",
+      "judgedAmountCurrent": 2600000,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": 1950000,
+      "costRate": 0.75,
+      "expectedGrossProfit": 650000,
+      "progress": "",
+      "leader": "",
+      "allocations": {
+        "山本": 0.05
+      }
+    },
+    {
+      "id": "CP0052",
+      "customer": "東急レクリエーション",
+      "name": "繰越　湘南保守",
+      "inquiryDate": null,
+      "submitDate": null,
+      "quoteType": "納期確認",
+      "caseStatus": "",
+      "orderTargetDate": null,
+      "completionTargetDate": null,
+      "quoteAmountCurrent": 12602000,
+      "orderJudge": "決定",
+      "judgedAmountCurrent": 12602000,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": 9451500,
+      "costRate": 0.75,
+      "expectedGrossProfit": 3150500,
+      "progress": "",
+      "leader": "",
+      "allocations": {
+        "山本": 0.05
+      }
+    },
+    {
+      "id": "CP0053",
+      "customer": "東急レクリエーション",
+      "name": "繰越　神戸更新",
+      "inquiryDate": null,
+      "submitDate": null,
+      "quoteType": "納期確認",
+      "caseStatus": "",
+      "orderTargetDate": null,
+      "completionTargetDate": null,
+      "quoteAmountCurrent": 191800000,
+      "orderJudge": "決定",
+      "judgedAmountCurrent": 191800000,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": 143850000,
+      "costRate": 0.75,
+      "expectedGrossProfit": 47950000,
+      "progress": "",
+      "leader": "細萱",
+      "allocations": {}
+    },
+    {
+      "id": "CP0054",
+      "customer": "TOHOシネマズ",
+      "name": "繰越　各店保守",
+      "inquiryDate": null,
+      "submitDate": null,
+      "quoteType": "納期確認",
+      "caseStatus": "",
+      "orderTargetDate": null,
+      "completionTargetDate": null,
+      "quoteAmountCurrent": 18373500,
+      "orderJudge": "決定",
+      "judgedAmountCurrent": 18373500,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": 13780125,
+      "costRate": 0.75,
+      "expectedGrossProfit": 4593375,
+      "progress": "",
+      "leader": "金子",
+      "allocations": {
+        "小山": 0.25,
+        "細萱": 0.25,
+        "山口": 0.05,
+        "金子": 0.4,
+        "若山": 0.05
+      }
+    },
+    {
+      "id": "CP0055",
+      "customer": "ユナイテッドシネマ",
+      "name": "繰越　各店保守",
+      "inquiryDate": null,
+      "submitDate": null,
+      "quoteType": "納期確認",
+      "caseStatus": "",
+      "orderTargetDate": null,
+      "completionTargetDate": null,
+      "quoteAmountCurrent": 7270000,
+      "orderJudge": "決定",
+      "judgedAmountCurrent": 7270000,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": 5452500,
+      "costRate": 0.75,
+      "expectedGrossProfit": 1817500,
+      "progress": "",
+      "leader": "山口",
+      "allocations": {
+        "山本": 0.05
+      }
+    },
+    {
+      "id": "CP0056",
+      "customer": "ユナイテッドシネマ",
+      "name": "繰越　前橋保守",
+      "inquiryDate": null,
+      "submitDate": null,
+      "quoteType": "納期確認",
+      "caseStatus": "",
+      "orderTargetDate": null,
+      "completionTargetDate": null,
+      "quoteAmountCurrent": 4075600,
+      "orderJudge": "決定",
+      "judgedAmountCurrent": 4075600,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": 3056700,
+      "costRate": 0.75,
+      "expectedGrossProfit": 1018900,
+      "progress": "",
+      "leader": "山口",
+      "allocations": {
+        "山本": 0.05
+      }
+    },
+    {
+      "id": "CP0057",
+      "customer": "ユナイテッドシネマ",
+      "name": "繰越　大津更新",
+      "inquiryDate": null,
+      "submitDate": null,
+      "quoteType": "納期確認",
+      "caseStatus": "",
+      "orderTargetDate": null,
+      "completionTargetDate": null,
+      "quoteAmountCurrent": 56000000,
+      "orderJudge": "決定",
+      "judgedAmountCurrent": 56000000,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": 42000000,
+      "costRate": 0.75,
+      "expectedGrossProfit": 14000000,
+      "progress": "",
+      "leader": "山本",
+      "allocations": {}
+    },
+    {
+      "id": "CP0058",
+      "customer": "ユナイテッドシネマ",
+      "name": "繰越　新座更新",
+      "inquiryDate": null,
+      "submitDate": null,
+      "quoteType": "納期確認",
+      "caseStatus": "",
+      "orderTargetDate": null,
+      "completionTargetDate": null,
+      "quoteAmountCurrent": 77000000,
+      "orderJudge": "決定",
+      "judgedAmountCurrent": 77000000,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": 57750000,
+      "costRate": 0.75,
+      "expectedGrossProfit": 19250000,
+      "progress": "",
+      "leader": "細萱",
+      "allocations": {}
+    },
+    {
+      "id": "CP0059",
+      "customer": "佐々木興業",
+      "name": "繰越　保守",
+      "inquiryDate": null,
+      "submitDate": null,
+      "quoteType": "納期確認",
+      "caseStatus": "",
+      "orderTargetDate": "2026-04-01",
+      "completionTargetDate": "2027-03-01",
+      "quoteAmountCurrent": 6530000,
+      "orderJudge": "決定",
+      "judgedAmountCurrent": 6530000,
+      "quoteAmountNext": null,
+      "orderJudgeNext": "",
+      "judgedAmountNext": null,
+      "materialOutsourcing": 4897500,
+      "costRate": 0.75,
+      "expectedGrossProfit": 1632500,
+      "progress": "",
+      "leader": "金子",
+      "allocations": {
+        "小山": 0.25,
+        "細萱": 0.25,
+        "山口": 0.05,
+        "金子": 0.4,
+        "若山": 0.05
+      }
+    }
+  ],
+  "settings": {
+    "fiscalEndMonth": 9,
+    "judgeProbs": {
+      "決定": 1.0,
+      "◎": 0.8,
+      "○": 0.6,
+      "△": 0.3,
+      "来期": 0.0,
+      "-": 0.0,
+      "": 0.0
+    },
+    "progressStages": [
+      "基本計画作成中",
+      "見積作成中",
+      "見積提出済",
+      "積算中",
+      "着工前調整中",
+      "工事中",
+      "竣工",
+      "完成図書作成",
+      "売上"
+    ]
+  }
+};
+
+/* シネマプロジェクト 物件管理台帳
+   - データはlocalStorageに保存
+   - JSONエクスポート/インポート対応
+   - 9月末決算（settings.fiscalEndMonth=9）を基準に「計上期」を自動算出 */
+
+(function () {
+'use strict';
+
+const STORAGE_KEY = 'cinemaLedger.v1';
+
+// ============================================================ State
+let state = loadState();
+
+function defaultState() {
+  return JSON.parse(JSON.stringify(window.__SEED__ || {
+    people: [], customers: [], projects: [],
+    settings: { fiscalEndMonth: 9, judgeProbs: {}, progressStages: [] }
+  }));
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return defaultState();
+    const obj = JSON.parse(raw);
+    if (!obj.settings) obj.settings = {};
+    if (!obj.settings.judgeProbs) obj.settings.judgeProbs = defaultState().settings.judgeProbs;
+    if (!obj.settings.progressStages) obj.settings.progressStages = defaultState().settings.progressStages;
+    if (!obj.settings.fiscalEndMonth) obj.settings.fiscalEndMonth = 9;
+    return obj;
+  } catch (e) {
+    console.warn('loadState failed', e);
+    return defaultState();
+  }
+}
+
+function saveState() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+// ============================================================ Helpers
+function fmtJpy(v) {
+  if (v == null || v === '' || isNaN(v)) return '';
+  return Math.round(Number(v)).toLocaleString('ja-JP');
+}
+function fmtJpyShort(v) {
+  if (!v) return '0';
+  const a = Math.abs(v);
+  if (a >= 1e8) return (v/1e8).toFixed(2) + '億';
+  if (a >= 1e4) return Math.round(v/1e4).toLocaleString() + '万';
+  return Math.round(v).toLocaleString();
+}
+function fmtPct(v) {
+  if (v == null || v === '' || isNaN(v)) return '';
+  return (Number(v) * 100).toFixed(1) + '%';
+}
+function toDate(s) {
+  if (!s) return null;
+  const d = new Date(s);
+  return isNaN(d) ? null : d;
+}
+function uid(prefix) {
+  return prefix + '_' + Math.random().toString(36).slice(2, 9);
+}
+function show(toast, msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.hidden = false;
+  clearTimeout(show._t);
+  show._t = setTimeout(() => { t.hidden = true; }, 1800);
+}
+
+// ============================================================ Fiscal Year
+// 9月末締めの場合: 期は10月-翌年9月。期表示 = 翌年（締め年）
+// 例) 2025-10-01 〜 2026-09-30 → FY2026
+function fiscalYearOf(dateLike) {
+  if (!dateLike) return null;
+  const d = (dateLike instanceof Date) ? dateLike : new Date(dateLike);
+  if (isNaN(d)) return null;
+  const endMonth = state.settings.fiscalEndMonth || 9;
+  const y = d.getFullYear();
+  const m = d.getMonth() + 1; // 1..12
+  // 締め月の翌月から新しい期。 endMonth=9 → 10月以降は y+1 期
+  return (m > endMonth) ? y + 1 : y;
+}
+function fyLabel(fy) {
+  if (!fy) return '未設定';
+  return `FY${fy}（〜${fy}年${state.settings.fiscalEndMonth}月）`;
+}
+function fyShortLabel(fy) {
+  if (!fy) return '未設定';
+  return `FY${fy}`;
+}
+
+function fyForProject(p) {
+  // 計上期：竣工時期目安が最優先。なければ受注時期目安。なければ提出日。
+  // 受注判定 = '来期' の場合は +1期（オフセット）
+  let base = p.completionTargetDate || p.orderTargetDate || p.submitDate || p.inquiryDate;
+  let fy = fiscalYearOf(base);
+  if (!fy) return null;
+  if (p.orderJudge === '来期' && !p.completionTargetDate) {
+    // 来期判定で実日付なしの場合は1期繰下げ
+    fy += 1;
+  }
+  return fy;
+}
+
+function today() { return new Date(); }
+function currentFY() { return fiscalYearOf(today()); }
+
+// ============================================================ Calculations
+function calcCostRate(p) {
+  if (!p.quoteAmountCurrent || !p.materialOutsourcing) return null;
+  return p.materialOutsourcing / p.quoteAmountCurrent;
+}
+function calcGrossProfit(p) {
+  const q = p.quoteAmountCurrent;
+  const m = p.materialOutsourcing;
+  if (q == null || m == null) return null;
+  return Math.max(0, q - m);
+}
+function judgeProb(j) {
+  const probs = state.settings.judgeProbs || {};
+  if (j in probs) return probs[j];
+  return 0;
+}
+function calcJudgedAmount(p) {
+  if (p.quoteAmountCurrent == null) return null;
+  return Math.round(p.quoteAmountCurrent * judgeProb(p.orderJudge));
+}
+
+// 想定粗利 × 分配率
+function allocProfit(p, personName) {
+  const gross = calcGrossProfit(p);
+  if (gross == null) return 0;
+  const ratio = (p.allocations || {})[personName] || 0;
+  return Math.round(gross * ratio);
+}
+function allocJudgedProfit(p, personName) {
+  // 確度を加味した分配粗利
+  const gross = calcGrossProfit(p);
+  if (gross == null) return 0;
+  const ratio = (p.allocations || {})[personName] || 0;
+  return Math.round(gross * ratio * judgeProb(p.orderJudge));
+}
+
+function allocSum(p) {
+  return Object.values(p.allocations || {}).reduce((a,b) => a + (Number(b)||0), 0);
+}
+
+// ============================================================ UI: Tabs
+document.querySelectorAll('.tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    render();
+  });
+});
+
+// ============================================================ Header label
+function renderHeader() {
+  const fy = currentFY();
+  document.getElementById('fyLabel').textContent =
+    `今期：${fyLabel(fy)} ／ 来期：${fyLabel(fy+1)} ／ 再来期：${fyLabel(fy+2)}`;
+}
+
+// ============================================================ Project list
+function renderProjectFilters() {
+  const fy = currentFY();
+  const fySel = document.getElementById('fProjectsFY');
+  const cuSel = document.getElementById('fProjectsCustomer');
+  const ldSel = document.getElementById('fProjectsLeader');
+  const pgSel = document.getElementById('fProjectsProgress');
+  const opts = (cur, items, all='すべて') =>
+    `<option value="">${all}</option>` + items.map(v => `<option value="${v}" ${cur===v?'selected':''}>${v}</option>`).join('');
+  fySel.innerHTML = opts(fySel.value, [fy, fy+1, fy+2].map(fyShortLabel));
+  const customers = [...new Set(state.projects.map(p => p.customer).filter(Boolean))].sort();
+  cuSel.innerHTML = opts(cuSel.value, customers);
+  const leaders = state.people.filter(x => x.active).map(x => x.name);
+  ldSel.innerHTML = opts(ldSel.value, leaders);
+  pgSel.innerHTML = opts(pgSel.value, state.settings.progressStages);
+}
+
+function getFilteredProjects() {
+  const fy = document.getElementById('fProjectsFY').value;
+  const cu = document.getElementById('fProjectsCustomer').value;
+  const ld = document.getElementById('fProjectsLeader').value;
+  const pg = document.getElementById('fProjectsProgress').value;
+  const jd = document.getElementById('fProjectsJudge').value;
+  const q = (document.getElementById('fProjectsSearch').value || '').toLowerCase().trim();
+
+  return state.projects.filter(p => {
+    if (fy) {
+      const f = fyForProject(p);
+      if (fyShortLabel(f) !== fy) return false;
+    }
+    if (cu && p.customer !== cu) return false;
+    if (ld && p.leader !== ld) return false;
+    if (pg && p.progress !== pg) return false;
+    if (jd && p.orderJudge !== jd) return false;
+    if (q) {
+      const t = `${p.name||''} ${p.customer||''} ${p.id||''}`.toLowerCase();
+      if (!t.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+function renderProjectsTable() {
+  const list = getFilteredProjects();
+  const tbody = document.querySelector('#tblProjects tbody');
+  if (list.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="12" class="muted" style="text-align:center;padding:30px;">該当する物件がありません</td></tr>`;
+  } else {
+    tbody.innerHTML = list.map(p => {
+      const fy = fyForProject(p);
+      const gross = calcGrossProfit(p);
+      const judged = calcJudgedAmount(p);
+      const allocs = Object.entries(p.allocations||{}).filter(([,r]) => r);
+      const pillsHtml = allocs.map(([name, r]) => {
+        const person = state.people.find(x => x.name === name);
+        const color = person ? person.color : '#888';
+        return `<span class="alloc-pill" style="background:${color}">${name} ${(r*100).toFixed(0)}%</span>`;
+      }).join('');
+      return `<tr data-id="${p.id}">
+        <td><code>${p.id||''}</code></td>
+        <td>${escapeHtml(p.customer||'')}</td>
+        <td>${escapeHtml(p.name||'')}</td>
+        <td>${fy ? `<span class="fy-pill">${fyShortLabel(fy)}</span>` : '<span class="muted">-</span>'}</td>
+        <td>${p.orderJudge ? `<span class="badge j-${p.orderJudge}">${p.orderJudge}</span>` : ''}</td>
+        <td class="num">${fmtJpy(p.quoteAmountCurrent)}</td>
+        <td class="num">${fmtJpy(judged)}</td>
+        <td class="num">${fmtJpy(gross)}</td>
+        <td>${p.progress ? `<span class="badge progress">${p.progress}</span>` : ''}</td>
+        <td>${escapeHtml(p.leader||'')}</td>
+        <td><div class="alloc-pills">${pillsHtml}</div></td>
+        <td><div class="row-action"><button data-edit="${p.id}">編集</button></div></td>
+      </tr>`;
+    }).join('');
+  }
+
+  // Summary
+  const totalQuote = list.reduce((a,p) => a + (p.quoteAmountCurrent||0), 0);
+  const totalJudged = list.reduce((a,p) => a + (calcJudgedAmount(p)||0), 0);
+  const totalGross = list.reduce((a,p) => a + (calcGrossProfit(p)||0), 0);
+  document.getElementById('projectsSummary').innerHTML = `
+    <div class="chip">物件件数<b>${list.length} 件</b></div>
+    <div class="chip">見積合計<b>${fmtJpyShort(totalQuote)}</b></div>
+    <div class="chip">判定額合計<b>${fmtJpyShort(totalJudged)}</b></div>
+    <div class="chip">想定粗利合計<b>${fmtJpyShort(totalGross)}</b></div>
+  `;
+
+  // Bind row edit buttons
+  tbody.querySelectorAll('button[data-edit]').forEach(b => {
+    b.addEventListener('click', () => openProjectModal(b.dataset.edit));
+  });
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[<>&"]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
+}
+
+// ============================================================ Kanban
+function renderKanban() {
+  const fyV = document.getElementById('fKanbanFY').value;
+  const ld = document.getElementById('fKanbanLeader').value;
+  const fyOpts = [currentFY(), currentFY()+1, currentFY()+2].map(fyShortLabel);
+  document.getElementById('fKanbanFY').innerHTML =
+    `<option value="">すべて</option>` + fyOpts.map(v => `<option ${v===fyV?'selected':''}>${v}</option>`).join('');
+  const leaders = state.people.filter(x => x.active).map(x => x.name);
+  document.getElementById('fKanbanLeader').innerHTML =
+    `<option value="">すべて</option>` + leaders.map(v => `<option ${v===ld?'selected':''}>${v}</option>`).join('');
+
+  const stages = state.settings.progressStages;
+  const board = document.getElementById('kanbanBoard');
+  const filtered = state.projects.filter(p => {
+    if (fyV && fyShortLabel(fyForProject(p)) !== fyV) return false;
+    if (ld && p.leader !== ld) return false;
+    return true;
+  });
+  board.innerHTML = stages.map(stage => {
+    const items = filtered.filter(p => p.progress === stage);
+    const cards = items.map(p => `
+      <div class="kanban-card" data-edit="${p.id}">
+        <div class="ttl">${escapeHtml(p.name||'')}</div>
+        <div class="sub">${escapeHtml(p.customer||'')} ／ ${escapeHtml(p.leader||'')}</div>
+        <div class="sub">${fmtJpyShort(p.quoteAmountCurrent)} ／ ${fyShortLabel(fyForProject(p))}</div>
+      </div>
+    `).join('');
+    return `<div class="kanban-col">
+      <h4>${stage} <span>${items.length}</span></h4>
+      ${cards || '<div class="muted" style="font-size:11px;padding:8px;">案件なし</div>'}
+    </div>`;
+  }).join('');
+  board.querySelectorAll('.kanban-card').forEach(el => {
+    el.addEventListener('click', () => openProjectModal(el.dataset.edit));
+  });
+}
+
+// ============================================================ ByPerson
+function renderByPerson() {
+  const fyV = document.getElementById('fByPersonFY').value;
+  const mode = document.getElementById('fByPersonJudgeOnly').value;
+  const fyOpts = [currentFY(), currentFY()+1, currentFY()+2].map(fyShortLabel);
+  document.getElementById('fByPersonFY').innerHTML =
+    `<option value="">全期</option>` + fyOpts.map(v => `<option ${v===fyV?'selected':''}>${v}</option>`).join('');
+
+  const passes = (p) => {
+    if (fyV && fyShortLabel(fyForProject(p)) !== fyV) return false;
+    if (mode === 'decided' && p.orderJudge !== '決定') return false;
+    if (mode === 'weighted' && !['決定','◎','○','△'].includes(p.orderJudge)) return false;
+    return true;
+  };
+  const calc = (p, name) =>
+    mode === 'weighted' ? allocJudgedProfit(p, name) : allocProfit(p, name);
+
+  // Cards per person
+  const grid = document.getElementById('byPersonGrid');
+  const people = state.people.filter(x => x.active);
+  grid.innerHTML = people.map(person => {
+    const items = state.projects.filter(p => passes(p) && (p.allocations||{})[person.name]);
+    const total = items.reduce((a,p) => a + calc(p, person.name), 0);
+    const count = items.length;
+    return `<div class="card" style="border-left-color:${person.color}">
+      <h4>${escapeHtml(person.name)} ${person.memo? `<span class="muted">(${escapeHtml(person.memo)})</span>`:''}</h4>
+      <div class="big">${fmtJpyShort(total)}</div>
+      <div class="sub">${count} 件 ／ ${mode==='weighted'?'確度加重 分配粗利':'分配粗利合計'}</div>
+    </div>`;
+  }).join('');
+
+  // Detail table
+  const rows = [];
+  state.projects.filter(passes).forEach(p => {
+    Object.entries(p.allocations||{}).forEach(([name, r]) => {
+      if (!r) return;
+      rows.push({ p, name, r });
+    });
+  });
+  rows.sort((a,b) => calc(b.p, b.name) - calc(a.p, a.name));
+  const tbody = document.querySelector('#tblByPerson tbody');
+  if (rows.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8" class="muted" style="text-align:center;padding:30px;">該当データがありません</td></tr>`;
+  } else {
+    tbody.innerHTML = rows.map(({p, name, r}) => {
+      const gross = calcGrossProfit(p);
+      const val = calc(p, name);
+      const person = state.people.find(x => x.name === name);
+      const color = person ? person.color : '#888';
+      return `<tr>
+        <td><span class="alloc-pill" style="background:${color}">${name}</span></td>
+        <td>${escapeHtml(p.customer||'')}</td>
+        <td><a href="#" data-edit="${p.id}">${escapeHtml(p.name||'')}</a></td>
+        <td>${fyShortLabel(fyForProject(p))}</td>
+        <td>${p.orderJudge?`<span class="badge j-${p.orderJudge}">${p.orderJudge}</span>`:''}</td>
+        <td class="num">${fmtJpy(gross)}</td>
+        <td class="num">${(r*100).toFixed(1)}%</td>
+        <td class="num">${fmtJpy(val)}</td>
+      </tr>`;
+    }).join('');
+    tbody.querySelectorAll('a[data-edit]').forEach(a => {
+      a.addEventListener('click', e => { e.preventDefault(); openProjectModal(a.dataset.edit); });
+    });
+  }
+}
+
+// ============================================================ ByFY
+function renderByFY() {
+  const fys = [currentFY(), currentFY()+1, currentFY()+2];
+  const grid = document.getElementById('byFYGrid');
+  grid.innerHTML = fys.map(fy => {
+    const items = state.projects.filter(p => fyForProject(p) === fy);
+    const totalQuote = items.reduce((a,p) => a + (p.quoteAmountCurrent||0), 0);
+    const totalJudged = items.reduce((a,p) => a + (calcJudgedAmount(p)||0), 0);
+    const totalGross = items.reduce((a,p) => a + (calcGrossProfit(p)||0), 0);
+    const decided = items.filter(p => p.orderJudge==='決定').reduce((a,p)=>a+(p.quoteAmountCurrent||0),0);
+    return `<div class="card">
+      <h4>${fyLabel(fy)}</h4>
+      <div class="big">${fmtJpyShort(totalJudged)}</div>
+      <div class="sub">判定額合計（${items.length}件）</div>
+      <div class="row"><span>見積合計</span><span>${fmtJpyShort(totalQuote)}</span></div>
+      <div class="row"><span>決定額</span><span>${fmtJpyShort(decided)}</span></div>
+      <div class="row"><span>想定粗利</span><span>${fmtJpyShort(totalGross)}</span></div>
+    </div>`;
+  }).join('');
+
+  // FY × Customer matrix
+  const customers = [...new Set(state.projects.map(p => p.customer).filter(Boolean))].sort();
+  const fyTh = document.querySelector('#tblFYCustomer thead');
+  const fyTb = document.querySelector('#tblFYCustomer tbody');
+  fyTh.innerHTML = `<tr><th>顧客</th>${fys.map(fy => `<th class="num">${fyShortLabel(fy)}</th>`).join('')}<th class="num">合計</th></tr>`;
+  fyTb.innerHTML = customers.map(c => {
+    const cells = fys.map(fy => {
+      const v = state.projects
+        .filter(p => p.customer === c && fyForProject(p) === fy)
+        .reduce((a,p) => a + (calcJudgedAmount(p)||0), 0);
+      return `<td class="num">${fmtJpyShort(v)}</td>`;
+    }).join('');
+    const total = state.projects
+      .filter(p => p.customer === c && fys.includes(fyForProject(p)))
+      .reduce((a,p) => a + (calcJudgedAmount(p)||0), 0);
+    return `<tr><td>${escapeHtml(c)}</td>${cells}<td class="num"><b>${fmtJpyShort(total)}</b></td></tr>`;
+  }).join('');
+
+  // FY × Person matrix
+  const people = state.people.filter(x => x.active);
+  const pTh = document.querySelector('#tblFYPerson thead');
+  const pTb = document.querySelector('#tblFYPerson tbody');
+  pTh.innerHTML = `<tr><th>担当者</th>${fys.map(fy => `<th class="num">${fyShortLabel(fy)}</th>`).join('')}<th class="num">合計</th></tr>`;
+  pTb.innerHTML = people.map(person => {
+    const cells = fys.map(fy => {
+      const v = state.projects
+        .filter(p => fyForProject(p) === fy)
+        .reduce((a,p) => a + allocProfit(p, person.name), 0);
+      return `<td class="num">${fmtJpyShort(v)}</td>`;
+    }).join('');
+    const total = state.projects
+      .filter(p => fys.includes(fyForProject(p)))
+      .reduce((a,p) => a + allocProfit(p, person.name), 0);
+    return `<tr><td><span class="alloc-pill" style="background:${person.color}">${person.name}</span></td>${cells}<td class="num"><b>${fmtJpyShort(total)}</b></td></tr>`;
+  }).join('');
+}
+
+// ============================================================ ByCustomer
+function renderByCustomer() {
+  const grid = document.getElementById('byCustomerGrid');
+  const groups = {};
+  state.projects.forEach(p => {
+    const c = p.customer || '(未設定)';
+    if (!groups[c]) groups[c] = [];
+    groups[c].push(p);
+  });
+  grid.innerHTML = Object.entries(groups).sort().map(([c, items]) => {
+    const totalQuote = items.reduce((a,p) => a + (p.quoteAmountCurrent||0), 0);
+    const totalJudged = items.reduce((a,p) => a + (calcJudgedAmount(p)||0), 0);
+    const decided = items.filter(p => p.orderJudge==='決定').reduce((a,p)=>a+(p.quoteAmountCurrent||0),0);
+    return `<div class="card">
+      <h4>${escapeHtml(c)}</h4>
+      <div class="big">${fmtJpyShort(totalJudged)}</div>
+      <div class="sub">判定額合計（${items.length}件）</div>
+      <div class="row"><span>見積合計</span><span>${fmtJpyShort(totalQuote)}</span></div>
+      <div class="row"><span>決定額</span><span>${fmtJpyShort(decided)}</span></div>
+    </div>`;
+  }).join('');
+}
+
+// ============================================================ People master
+function renderPeople() {
+  const tbody = document.querySelector('#tblPeople tbody');
+  tbody.innerHTML = state.people.map(person => {
+    const count = state.projects.filter(p => p.leader === person.name || (p.allocations||{})[person.name]).length;
+    return `<tr>
+      <td><span class="alloc-pill" style="background:${person.color}">●</span></td>
+      <td>${escapeHtml(person.name)}</td>
+      <td>${escapeHtml(person.memo||'')}</td>
+      <td>${person.active ? '✅' : '⛔'}</td>
+      <td class="num">${count}</td>
+      <td><div class="row-action"><button data-edit="${person.id}">編集</button></div></td>
+    </tr>`;
+  }).join('');
+  tbody.querySelectorAll('button[data-edit]').forEach(b => {
+    b.addEventListener('click', () => openPersonModal(b.dataset.edit));
+  });
+}
+
+// ============================================================ Customers master
+function renderCustomers() {
+  const tbody = document.querySelector('#tblCustomers tbody');
+  tbody.innerHTML = state.customers.map(c => {
+    const items = state.projects.filter(p => p.customer === c.name);
+    const total = items.reduce((a,p) => a + (calcJudgedAmount(p)||0), 0);
+    return `<tr>
+      <td>${escapeHtml(c.name)}</td>
+      <td>${escapeHtml(c.memo||'')}</td>
+      <td class="num">${items.length}</td>
+      <td class="num">${fmtJpy(total)}</td>
+      <td><div class="row-action"><button data-edit="${c.id}">編集</button></div></td>
+    </tr>`;
+  }).join('');
+  // datalist
+  document.getElementById('customerList').innerHTML =
+    state.customers.map(c => `<option value="${escapeHtml(c.name)}">`).join('');
+  tbody.querySelectorAll('button[data-edit]').forEach(b => {
+    b.addEventListener('click', () => openCustomerModal(b.dataset.edit));
+  });
+}
+
+// ============================================================ Settings (Data tab)
+function renderSettings() {
+  document.getElementById('fiscalEndMonth').value = state.settings.fiscalEndMonth;
+  const box = document.getElementById('judgeProbs');
+  const order = ['決定','◎','○','△','来期','-'];
+  box.innerHTML = `<div class="form-row">` +
+    order.map(j => `<label>${j}（％）
+      <input type="number" min="0" max="100" step="1" data-judge="${j}"
+        value="${Math.round(((state.settings.judgeProbs[j])||0)*100)}" />
+    </label>`).join('') + `</div>`;
+  box.querySelectorAll('input[data-judge]').forEach(inp => {
+    inp.addEventListener('change', () => {
+      const j = inp.dataset.judge;
+      const v = Math.max(0, Math.min(100, Number(inp.value)||0)) / 100;
+      state.settings.judgeProbs[j] = v;
+      saveState(); render();
+      show(null, `「${j}」判定確率を ${(v*100).toFixed(0)}% に更新`);
+    });
+  });
+}
+document.getElementById('fiscalEndMonth').addEventListener('change', e => {
+  state.settings.fiscalEndMonth = Number(e.target.value);
+  saveState(); render();
+  show(null, `決算月を ${state.settings.fiscalEndMonth} 月に変更`);
+});
+
+// ============================================================ Modals
+let editingProjectId = null;
+let editingPersonId = null;
+let editingCustomerId = null;
+
+function openProjectModal(id) {
+  editingProjectId = id || null;
+  const m = document.getElementById('projectModal');
+  m.hidden = false;
+  document.getElementById('projectModalTitle').textContent = id ? '物件を編集' : '物件を追加';
+  document.getElementById('btnDeleteProject').hidden = !id;
+
+  // progress options
+  document.getElementById('pProgress').innerHTML =
+    `<option value=""></option>` + state.settings.progressStages.map(s => `<option>${s}</option>`).join('');
+  // leader options
+  document.getElementById('pLeader').innerHTML =
+    `<option value=""></option>` + state.people.filter(p => p.active).map(p => `<option>${p.name}</option>`).join('');
+
+  const p = id ? state.projects.find(x => x.id === id) : {};
+  document.getElementById('pId').value = p.id || '';
+  document.getElementById('pCustomer').value = p.customer || '';
+  document.getElementById('pName').value = p.name || '';
+  document.getElementById('pInquiryDate').value = p.inquiryDate || '';
+  document.getElementById('pSubmitDate').value = p.submitDate || '';
+  document.getElementById('pQuoteType').value = p.quoteType || '';
+  document.getElementById('pCaseStatus').value = p.caseStatus || '';
+  document.getElementById('pOrderTargetDate').value = p.orderTargetDate || '';
+  document.getElementById('pCompletionTargetDate').value = p.completionTargetDate || '';
+  document.getElementById('pOrderJudge').value = p.orderJudge || '';
+  document.getElementById('pProgress').value = p.progress || '';
+  document.getElementById('pLeader').value = p.leader || '';
+  document.getElementById('pQuoteAmount').value = p.quoteAmountCurrent ?? '';
+  document.getElementById('pMaterial').value = p.materialOutsourcing ?? '';
+  document.getElementById('pNote').value = p.note || '';
+
+  renderAllocList(p.allocations || {});
+  updateProjectCalcs();
+}
+function closeAllModals() {
+  document.querySelectorAll('.modal').forEach(m => m.hidden = true);
+}
+document.querySelectorAll('[data-close-modal]').forEach(b => b.addEventListener('click', closeAllModals));
+document.querySelectorAll('.modal').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) closeAllModals(); });
+});
+
+function renderAllocList(allocs) {
+  const list = document.getElementById('allocList');
+  list.innerHTML = state.people.filter(p => p.active || allocs[p.name]).map(p => {
+    const v = allocs[p.name] != null ? Math.round(allocs[p.name]*1000)/10 : 0;
+    return `<div class="alloc-row">
+      <span class="dot" style="background:${p.color}"></span>
+      <span class="name">${escapeHtml(p.name)}</span>
+      <input type="number" min="0" max="100" step="0.1" data-alloc="${escapeHtml(p.name)}" value="${v}" />
+      <span>%</span>
+    </div>`;
+  }).join('');
+  list.querySelectorAll('input[data-alloc]').forEach(inp => {
+    inp.addEventListener('input', updateAllocSum);
+  });
+  updateAllocSum();
+}
+function readAllocs() {
+  const allocs = {};
+  document.querySelectorAll('#allocList input[data-alloc]').forEach(inp => {
+    const v = Number(inp.value)/100;
+    if (v > 0) allocs[inp.dataset.alloc] = Math.round(v*10000)/10000;
+  });
+  return allocs;
+}
+function updateAllocSum() {
+  const allocs = readAllocs();
+  const sum = Object.values(allocs).reduce((a,b) => a+b, 0);
+  const pct = Math.round(sum*1000)/10;
+  document.getElementById('allocSum').textContent = pct;
+  const w = document.getElementById('allocWarn');
+  if (Math.abs(pct - 100) > 0.5 && pct !== 0) {
+    w.textContent = `（合計が100%ではありません）`;
+  } else {
+    w.textContent = '';
+  }
+}
+
+document.getElementById('btnAllocEqual').addEventListener('click', () => {
+  const ppl = state.people.filter(p => p.active);
+  if (!ppl.length) return;
+  const r = 1 / ppl.length;
+  const allocs = {};
+  ppl.forEach(p => allocs[p.name] = Math.round(r*10000)/10000);
+  renderAllocList(allocs);
+});
+document.getElementById('btnAllocLeader').addEventListener('click', () => {
+  const leader = document.getElementById('pLeader').value;
+  if (!leader) { show(null,'リーダーを選択してください'); return; }
+  const allocs = readAllocs();
+  const others = Object.entries(allocs).filter(([k]) => k !== leader).reduce((a,[,v]) => a+v, 0);
+  allocs[leader] = Math.max(0, 1 - others);
+  allocs[leader] = Math.round(allocs[leader]*10000)/10000;
+  renderAllocList(allocs);
+});
+document.getElementById('btnAllocClear').addEventListener('click', () => {
+  renderAllocList({});
+});
+
+function updateProjectCalcs() {
+  const q = Number(document.getElementById('pQuoteAmount').value) || 0;
+  const m = Number(document.getElementById('pMaterial').value) || 0;
+  const rate = q ? (m/q) : 0;
+  const gross = Math.max(0, q-m);
+  const judge = document.getElementById('pOrderJudge').value;
+  const judged = Math.round(q * judgeProb(judge));
+  document.getElementById('pCostRate').value = q ? (rate*100).toFixed(1)+'%' : '';
+  document.getElementById('pGross').value = q ? fmtJpy(gross) + ' 円' : '';
+  document.getElementById('pJudgedAmount').value = q ? fmtJpy(judged) + ' 円' : '';
+  // FY auto
+  const dt = document.getElementById('pCompletionTargetDate').value
+    || document.getElementById('pOrderTargetDate').value
+    || document.getElementById('pSubmitDate').value;
+  let fy = fiscalYearOf(dt);
+  if (judge === '来期' && !document.getElementById('pCompletionTargetDate').value) {
+    fy = fy ? fy + 1 : null;
+  }
+  document.getElementById('pFYAuto').value = fy ? fyLabel(fy) : '';
+}
+const _calcIds = ['pQuoteAmount','pMaterial','pOrderJudge','pCompletionTargetDate','pOrderTargetDate','pSubmitDate'];
+document.addEventListener('input', e => { if (_calcIds.includes(e.target.id)) updateProjectCalcs(); });
+document.addEventListener('change', e => { if (_calcIds.includes(e.target.id)) updateProjectCalcs(); });
+
+document.getElementById('btnSaveProject').addEventListener('click', () => {
+  const name = document.getElementById('pName').value.trim();
+  if (!name) { show(null, '物件名称は必須です'); return; }
+  const customerName = document.getElementById('pCustomer').value.trim();
+  // Auto-add customer if missing
+  if (customerName && !state.customers.find(c => c.name === customerName)) {
+    state.customers.push({ id: uid('c'), name: customerName, memo: '' });
+  }
+  const allocs = readAllocs();
+  const data = {
+    id: document.getElementById('pId').value.trim() || (editingProjectId || uid('p')),
+    customer: customerName,
+    name,
+    inquiryDate: document.getElementById('pInquiryDate').value || null,
+    submitDate: document.getElementById('pSubmitDate').value || null,
+    quoteType: document.getElementById('pQuoteType').value || '',
+    caseStatus: document.getElementById('pCaseStatus').value || '',
+    orderTargetDate: document.getElementById('pOrderTargetDate').value || null,
+    completionTargetDate: document.getElementById('pCompletionTargetDate').value || null,
+    orderJudge: document.getElementById('pOrderJudge').value || '',
+    progress: document.getElementById('pProgress').value || '',
+    leader: document.getElementById('pLeader').value || '',
+    quoteAmountCurrent: numOrNull(document.getElementById('pQuoteAmount').value),
+    materialOutsourcing: numOrNull(document.getElementById('pMaterial').value),
+    note: document.getElementById('pNote').value || '',
+    allocations: allocs,
+  };
+  // computed
+  data.costRate = calcCostRate(data);
+  data.expectedGrossProfit = calcGrossProfit(data);
+  data.judgedAmountCurrent = calcJudgedAmount(data);
+
+  if (editingProjectId) {
+    const idx = state.projects.findIndex(x => x.id === editingProjectId);
+    if (idx >= 0) state.projects[idx] = { ...state.projects[idx], ...data };
+  } else {
+    state.projects.push(data);
+  }
+  saveState();
+  closeAllModals();
+  render();
+  show(null, '保存しました');
+});
+
+function numOrNull(v) {
+  if (v === '' || v == null) return null;
+  const n = Number(v);
+  return isNaN(n) ? null : n;
+}
+
+document.getElementById('btnDeleteProject').addEventListener('click', () => {
+  if (!editingProjectId) return;
+  if (!confirm('この物件を削除します。よろしいですか？')) return;
+  state.projects = state.projects.filter(p => p.id !== editingProjectId);
+  saveState(); closeAllModals(); render(); show(null,'削除しました');
+});
+
+document.getElementById('btnAddProject').addEventListener('click', () => openProjectModal());
+
+// ---------- person modal
+function openPersonModal(id) {
+  editingPersonId = id || null;
+  const m = document.getElementById('personModal');
+  m.hidden = false;
+  document.getElementById('personModalTitle').textContent = id ? '担当者を編集' : '担当者を追加';
+  document.getElementById('btnDeletePerson').hidden = !id;
+  const p = id ? state.people.find(x => x.id === id) : { color: '#4f86f7', active: true };
+  document.getElementById('prName').value = p.name || '';
+  document.getElementById('prColor').value = p.color || '#4f86f7';
+  document.getElementById('prMemo').value = p.memo || '';
+  document.getElementById('prActive').checked = p.active !== false;
+}
+document.getElementById('btnAddPerson').addEventListener('click', () => openPersonModal());
+document.getElementById('btnSavePerson').addEventListener('click', () => {
+  const name = document.getElementById('prName').value.trim();
+  if (!name) { show(null,'氏名は必須です'); return; }
+  if (state.people.some(p => p.name === name && p.id !== editingPersonId)) {
+    show(null,'同じ氏名の担当者が既に存在します'); return;
+  }
+  const data = {
+    name,
+    color: document.getElementById('prColor').value,
+    memo: document.getElementById('prMemo').value,
+    active: document.getElementById('prActive').checked,
+  };
+  if (editingPersonId) {
+    const idx = state.people.findIndex(x => x.id === editingPersonId);
+    const old = state.people[idx];
+    // rename propagation in allocations / leader
+    if (old.name !== name) {
+      state.projects.forEach(pr => {
+        if (pr.leader === old.name) pr.leader = name;
+        if (pr.allocations && pr.allocations[old.name] != null) {
+          pr.allocations[name] = pr.allocations[old.name];
+          delete pr.allocations[old.name];
+        }
+      });
+    }
+    state.people[idx] = { ...old, ...data };
+  } else {
+    state.people.push({ id: uid('p'), ...data });
+  }
+  saveState(); closeAllModals(); render(); show(null,'保存しました');
+});
+document.getElementById('btnDeletePerson').addEventListener('click', () => {
+  if (!editingPersonId) return;
+  const person = state.people.find(x => x.id === editingPersonId);
+  const used = state.projects.filter(p => p.leader === person.name || (p.allocations||{})[person.name]).length;
+  let msg = `「${person.name}」を削除します。`;
+  if (used > 0) msg += `\n\n${used} 件の物件で使用されています。削除すると、リーダー欄と分配率は空欄になります。`;
+  if (!confirm(msg + '\n\nよろしいですか？')) return;
+  state.projects.forEach(pr => {
+    if (pr.leader === person.name) pr.leader = '';
+    if (pr.allocations) delete pr.allocations[person.name];
+  });
+  state.people = state.people.filter(p => p.id !== editingPersonId);
+  saveState(); closeAllModals(); render(); show(null,'削除しました');
+});
+
+// ---------- customer modal
+function openCustomerModal(id) {
+  editingCustomerId = id || null;
+  const m = document.getElementById('customerModal');
+  m.hidden = false;
+  document.getElementById('customerModalTitle').textContent = id ? '顧客を編集' : '顧客を追加';
+  document.getElementById('btnDeleteCustomer').hidden = !id;
+  const c = id ? state.customers.find(x => x.id === id) : {};
+  document.getElementById('cuName').value = c.name || '';
+  document.getElementById('cuMemo').value = c.memo || '';
+}
+document.getElementById('btnAddCustomer').addEventListener('click', () => openCustomerModal());
+document.getElementById('btnSaveCustomer').addEventListener('click', () => {
+  const name = document.getElementById('cuName').value.trim();
+  if (!name) { show(null,'顧客名は必須です'); return; }
+  if (state.customers.some(c => c.name === name && c.id !== editingCustomerId)) {
+    show(null,'同名の顧客が既に存在します'); return;
+  }
+  const data = {
+    name,
+    memo: document.getElementById('cuMemo').value,
+  };
+  if (editingCustomerId) {
+    const idx = state.customers.findIndex(x => x.id === editingCustomerId);
+    const old = state.customers[idx];
+    if (old.name !== name) {
+      state.projects.forEach(p => { if (p.customer === old.name) p.customer = name; });
+    }
+    state.customers[idx] = { ...old, ...data };
+  } else {
+    state.customers.push({ id: uid('c'), ...data });
+  }
+  saveState(); closeAllModals(); render(); show(null,'保存しました');
+});
+document.getElementById('btnDeleteCustomer').addEventListener('click', () => {
+  if (!editingCustomerId) return;
+  const cust = state.customers.find(x => x.id === editingCustomerId);
+  const used = state.projects.filter(p => p.customer === cust.name).length;
+  let msg = `「${cust.name}」を削除します。`;
+  if (used > 0) msg += `\n\n${used} 件の物件で使用されています。削除すると、物件の顧客欄は空欄になります。`;
+  if (!confirm(msg + '\n\nよろしいですか？')) return;
+  state.projects.forEach(p => { if (p.customer === cust.name) p.customer = ''; });
+  state.customers = state.customers.filter(c => c.id !== editingCustomerId);
+  saveState(); closeAllModals(); render(); show(null,'削除しました');
+});
+
+// ============================================================ Data export/import
+document.getElementById('btnExport').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  const d = new Date();
+  a.download = `cinema-ledger-${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+});
+document.getElementById('fileImport').addEventListener('change', async e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  try {
+    const text = await f.text();
+    const obj = JSON.parse(text);
+    if (!obj.projects || !obj.people) throw new Error('形式が不正です');
+    if (!confirm('現在のデータを上書きします。よろしいですか？')) return;
+    state = obj;
+    if (!state.settings) state.settings = defaultState().settings;
+    saveState(); render(); show(null,'インポート完了');
+  } catch (err) {
+    alert('インポートに失敗しました: ' + err.message);
+  } finally {
+    e.target.value = '';
+  }
+});
+document.getElementById('btnSeed').addEventListener('click', () => {
+  if (!confirm('現在のデータを破棄してサンプルデータを読込みます。よろしいですか？')) return;
+  state = defaultState();
+  saveState(); render(); show(null,'サンプルデータを読込しました');
+});
+document.getElementById('btnReset').addEventListener('click', () => {
+  if (!confirm('すべてのデータを削除します。本当によろしいですか？')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  state = { people: [], customers: [], projects: [],
+            settings: { fiscalEndMonth: 9,
+              judgeProbs: defaultState().settings.judgeProbs,
+              progressStages: defaultState().settings.progressStages } };
+  saveState(); render(); show(null,'リセット完了');
+});
+
+// ============================================================ Render
+function render() {
+  renderHeader();
+  renderProjectFilters();
+  renderProjectsTable();
+  renderKanban();
+  renderByPerson();
+  renderByFY();
+  renderByCustomer();
+  renderPeople();
+  renderCustomers();
+  renderSettings();
+}
+
+// Filter change listeners
+['fProjectsFY','fProjectsCustomer','fProjectsLeader','fProjectsProgress','fProjectsJudge','fProjectsSearch']
+  .forEach(id => document.getElementById(id).addEventListener('input', renderProjectsTable));
+['fKanbanFY','fKanbanLeader'].forEach(id => document.getElementById(id).addEventListener('input', renderKanban));
+['fByPersonFY','fByPersonJudgeOnly'].forEach(id => document.getElementById(id).addEventListener('input', renderByPerson));
+
+render();
+
+})();
+
+</script>
+</body>
+</html>
