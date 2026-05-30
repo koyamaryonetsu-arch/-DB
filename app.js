@@ -86,10 +86,161 @@
     memo:           { type: 'textarea', privilegedOnly: true }
   };
 
-  let cases = loadCases();
+  // ============================================================
+  //  データストア抽象化: local(localStorage) ↔ supabase を切替
+  //   - config.js で SUPABASE_CONFIG が定義され、?local=1 が無ければ Supabase モード
+  // ============================================================
+  const FIELD_MAP = {
+    company: 'company', theater: 'theater', receivedDate: 'received_date',
+    tcPerson: 'tc_person', rPerson: 'r_person', category: 'category', content: 'content',
+    surveyDate: 'survey_date', certNumber: 'cert_number', estimateName: 'estimate_name',
+    estimateAmount: 'estimate_amount', quoteDate: 'quote_date', workStartDate: 'work_start_date',
+    workEndDate: 'work_end_date', invoiceDate: 'invoice_date', paymentDate: 'payment_date',
+    marginRate: 'margin_rate', allocations: 'allocations', memo: 'memo'
+  };
+  const DATE_FIELDS = new Set(['receivedDate', 'surveyDate', 'quoteDate', 'workStartDate', 'workEndDate', 'invoiceDate', 'paymentDate']);
+
+  // app(camelCase) → DB行(snake_case)。空文字の日付/金額は null に
+  function caseToRow(c) {
+    const row = { id: c.id };
+    Object.keys(FIELD_MAP).forEach((k) => {
+      let v = c[k];
+      if (DATE_FIELDS.has(k)) v = (v === '' || v == null) ? null : v;
+      else if (k === 'estimateAmount') v = (v === '' || v == null) ? null : Number(v);
+      else if (k === 'allocations') v = (v && typeof v === 'object') ? v : {};
+      else if (v === undefined) v = null;
+      row[FIELD_MAP[k]] = v;
+    });
+    row.status = deriveStatus(c); // DB側レポート用に派生ステータスも保存
+    return row;
+  }
+  // DB行 → app。null は空文字（日付/テキスト）/既定値（粗利率）に
+  function rowToCase(r) {
+    const c = { id: r.id };
+    Object.keys(FIELD_MAP).forEach((k) => {
+      let v = r[FIELD_MAP[k]];
+      if (k === 'allocations') v = (v && typeof v === 'object') ? v : {};
+      else if (k === 'marginRate') v = (v == null ? DEFAULT_MARGIN_RATE : v);
+      else if (k === 'estimateAmount') v = (v == null ? '' : v);
+      else if (v == null) v = '';
+      c[k] = v;
+    });
+    return c;
+  }
+
+  function genId() {
+    if (window.crypto && typeof crypto.randomUUID === 'function') {
+      try { return crypto.randomUUID(); } catch (e) {}
+    }
+    const b = new Uint8Array(16);
+    if (window.crypto && crypto.getRandomValues) crypto.getRandomValues(b);
+    else for (let i = 0; i < 16; i++) b[i] = Math.floor(Math.random() * 256);
+    b[6] = (b[6] & 0x0f) | 0x40; b[8] = (b[8] & 0x3f) | 0x80;
+    const h = [...b].map((x) => x.toString(16).padStart(2, '0'));
+    return `${h[0]}${h[1]}${h[2]}${h[3]}-${h[4]}${h[5]}-${h[6]}${h[7]}-${h[8]}${h[9]}-${h[10]}${h[11]}${h[12]}${h[13]}${h[14]}${h[15]}`;
+  }
+
+  function translateAuthError(msg) {
+    if (/Invalid login credentials/i.test(msg)) return 'メールアドレスまたはパスワードが正しくありません。';
+    if (/Email not confirmed/i.test(msg)) return 'メールアドレスが未確認です。管理者に確認を依頼してください。';
+    if (/rate limit/i.test(msg)) return '試行回数が多すぎます。しばらく待って再度お試しください。';
+    return 'ログインに失敗しました: ' + msg;
+  }
+
+  let sb = null;          // Supabaseクライアント
+  let rtChannel = null;   // リアルタイム購読
+
+  const store = {
+    mode: 'local',
+    init() {
+      const forceLocal = /[?&]local=1/.test(location.search) || localStorage.getItem('forceLocalMode') === '1';
+      const cfg = window.SUPABASE_CONFIG;
+      if (!forceLocal && cfg && cfg.url && cfg.anonKey && window.supabase && typeof window.supabase.createClient === 'function') {
+        try {
+          sb = window.supabase.createClient(cfg.url, cfg.anonKey);
+          this.mode = 'supabase';
+        } catch (e) { console.error('Supabase init失敗、localモードにfallback', e); this.mode = 'local'; }
+      }
+    },
+    async getSession() {
+      if (this.mode === 'local') return loadAuth();
+      const { data } = await sb.auth.getSession();
+      const u = data.session && data.session.user;
+      return u ? { email: u.email, domain: (u.email.split('@')[1] || '') } : null;
+    },
+    async signIn(email, password) {
+      if (this.mode === 'local') return attemptLogin(email, password);
+      const e = (email || '').trim().toLowerCase();
+      const { data, error } = await sb.auth.signInWithPassword({ email: e, password: password });
+      if (error) return { ok: false, msg: translateAuthError(error.message) };
+      const u = data.user;
+      return { ok: true, user: { email: u.email, domain: (u.email.split('@')[1] || '') } };
+    },
+    async signOut() {
+      if (this.mode === 'local') { clearAuth(); return; }
+      try { await sb.auth.signOut(); } catch (e) {}
+    },
+    async fetchCases() {
+      if (this.mode === 'local') return loadCases();
+      const { data, error } = await sb.from('cases').select('*');
+      if (error) throw error;
+      return (data || []).map(rowToCase);
+    },
+    async upsertCase(c) {
+      if (this.mode === 'local') { saveCases(); return; }
+      const { error } = await sb.from('cases').upsert(caseToRow(c));
+      if (error) throw error;
+    },
+    async upsertCases(arr) {
+      if (this.mode === 'local') { saveCases(); return; }
+      if (!arr.length) return;
+      const { error } = await sb.from('cases').upsert(arr.map(caseToRow));
+      if (error) throw error;
+    },
+    async deleteCase(id) {
+      if (this.mode === 'local') { saveCases(); return; }
+      const { error } = await sb.from('cases').delete().eq('id', id);
+      if (error) throw error;
+    },
+    async fetchCompanies() {
+      if (this.mode === 'local') return loadCompanies();
+      const { data, error } = await sb.from('companies').select('*').order('sort_order', { ascending: true });
+      if (error || !data || !data.length) return loadCompanies();
+      return data.map((r) => ({ name: r.name, abbr: r.abbr }));
+    },
+    async addCompanyRemote(rec) {
+      if (this.mode === 'local') { saveCompanies(companies); return; }
+      const { error } = await sb.from('companies').insert({ name: rec.name, abbr: rec.abbr, sort_order: 100 });
+      if (error) throw error;
+    },
+    subscribe(onChange) {
+      if (this.mode !== 'supabase') return;
+      try {
+        rtChannel = sb.channel('cases-realtime')
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'cases' }, onChange)
+          .subscribe();
+      } catch (e) { console.error('リアルタイム購読失敗', e); }
+    },
+    unsubscribe() {
+      if (rtChannel && sb) { try { sb.removeChannel(rtChannel); } catch (e) {} rtChannel = null; }
+    }
+  };
+
+  // 永続化ラッパ（失敗時はユーザーに通知）
+  function onPersistError(err) {
+    console.error('保存エラー', err);
+    if (store.mode === 'supabase') {
+      alert('サーバーへの保存に失敗しました。通信状況を確認してください。\n（画面を再読み込みすると最新状態に戻ります）\n\n' + (err && err.message ? err.message : ''));
+    }
+  }
+  function persistCase(c) { return Promise.resolve(store.upsertCase(c)).catch(onPersistError); }
+  function persistCases(arr) { return Promise.resolve(store.upsertCases(arr)).catch(onPersistError); }
+  function removeCaseRemote(id) { return Promise.resolve(store.deleteCase(id)).catch(onPersistError); }
+
+  let cases = [];               // 初期化は init() で（local or Supabase）
   let history = loadHistory();
-  let companies = loadCompanies();
-  let currentUser = loadAuth();
+  let companies = DEFAULT_COMPANIES.map((c) => ({ name: c.name, abbr: c.abbr }));
+  let currentUser = null;
   let sortState = { field: null, direction: 'asc' };
   let contentEditCaseId = null;
   let aggMode = false;          // A集計表示モードか
@@ -187,15 +338,21 @@
       companyNames().map((n) => `<option value="${escapeHtml(n)}">${escapeHtml(n)}（${escapeHtml(companyAbbr(n))}）</option>`).join('');
     if (prevFilter && (prevFilter === '' || companyNames().indexOf(prevFilter) !== -1)) filter.value = prevFilter;
   }
-  function addCompany() {
+  async function addCompany() {
     const name = prompt('追加する顧客（会社）の正式名称を入力してください');
     if (!name || !name.trim()) return;
     const nm = name.trim();
     if (companyNames().indexOf(nm) !== -1) { alert('既に登録されています: ' + nm); return; }
     const abbrInput = prompt('一覧表示用の略称（短縮名）を入力してください', nm.slice(0, 4));
     const abbr = (abbrInput && abbrInput.trim()) ? abbrInput.trim() : nm;
+    try {
+      await store.addCompanyRemote({ name: nm, abbr: abbr });
+    } catch (err) {
+      onPersistError(err);
+      return;
+    }
     companies.push({ name: nm, abbr: abbr });
-    saveCompanies(companies);
+    if (store.mode === 'local') saveCompanies(companies);
     populateCompanySelects();
     $('company').value = nm;
   }
@@ -574,7 +731,7 @@
         if (field === 'tcPerson') { addToHistory('tcPersons', newVal); histChanged = true; }
         if (field === 'rPerson') { addToHistory('rPersons', newVal); histChanged = true; }
         if (histChanged) saveHistory();
-        saveCases();
+        persistCase(c);
       }
       render();
     };
@@ -673,7 +830,7 @@
       if (newVal !== (c.content || '')) {
         c.content = newVal;
         c.updatedAt = new Date().toISOString();
-        saveCases();
+        persistCase(c);
         render();
       }
     }
@@ -845,7 +1002,7 @@
       // 2) ここまで来たら成功確定。請求書発行日を全件まとめて更新→保存
       const nowIso = new Date().toISOString();
       matches.forEach((c) => { c.invoiceDate = issueIso; c.updatedAt = nowIso; });
-      saveCases();
+      await persistCases(matches);
       // 3) ダウンロード
       triggerDownload(blob, `請求書セット_${month}.zip`);
       closeInvoiceModal();
@@ -1045,7 +1202,7 @@
       c.allocations[inp.dataset.member] = isNaN(v) ? 0 : v;
     }
     c.updatedAt = new Date().toISOString();
-    saveCases();
+    persistCase(c);
     renderAggTable();
   }
   function addTeamMember() {
@@ -1067,6 +1224,7 @@
   function redistributeSmallCases() {
     if (!confirm('300万円未満の案件すべての配分を初期ルールで再計算します。\n（チームメンバーの配分のみ上書き、削除済みメンバーのデータは保持）')) return;
     const team = loadTeam();
+    const changed = [];
     cases.forEach((c) => {
       const amt = Number(c.estimateAmount) || 0;
       if (amt > 0 && amt < SMALL_CASE_THRESHOLD) {
@@ -1074,9 +1232,10 @@
         const def = defaultAllocations(c, team);
         c.allocations = Object.assign({}, c.allocations || {}, def);
         c.updatedAt = new Date().toISOString();
+        changed.push(c);
       }
     });
-    saveCases();
+    persistCases(changed);
     renderAggTable();
   }
   function exportAggregation() {
@@ -1139,24 +1298,41 @@
   }
 
   // ---------- handlers ----------
-  $('loginForm').addEventListener('submit', (e) => {
+  $('loginForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const res = attemptLogin($('loginEmail').value, $('loginPassword').value);
     const errEl = $('loginError');
-    if (!res.ok) { errEl.textContent = res.msg; errEl.classList.remove('hidden'); return; }
-    errEl.classList.add('hidden');
-    currentUser = res.user; saveAuth(currentUser); $('loginPassword').value = '';
-    showApp();
+    const submitBtn = $('loginForm').querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    try {
+      const res = await store.signIn($('loginEmail').value, $('loginPassword').value);
+      if (!res.ok) { errEl.textContent = res.msg; errEl.classList.remove('hidden'); return; }
+      errEl.classList.add('hidden');
+      currentUser = res.user;
+      if (store.mode === 'local') saveAuth(currentUser); // Supabaseはセッションを自前で永続化
+      $('loginPassword').value = '';
+      try { cases = await store.fetchCases(); } catch (err) { cases = []; onPersistError(err); }
+      companies = await store.fetchCompanies();
+      populateCompanySelects();
+      store.subscribe(onRemoteChange);
+      showApp();
+    } catch (err) {
+      errEl.textContent = 'ログイン処理でエラーが発生しました: ' + (err && err.message ? err.message : err);
+      errEl.classList.remove('hidden');
+    } finally {
+      submitBtn.disabled = false;
+    }
   });
 
-  $('logoutBtn').addEventListener('click', () => {
+  $('logoutBtn').addEventListener('click', async () => {
     // 開いているモーダル/A集計モードを全部クリーンに閉じてからログアウト
     if (aggMode) exitAggMode();
     if (!$('modal').classList.contains('hidden')) closeModal();
     if (!$('invoiceModal').classList.contains('hidden')) closeInvoiceModal();
     if (!$('contentModal').classList.contains('hidden')) closeContentModal();
-    clearAuth();
+    store.unsubscribe();
+    await store.signOut();
     currentUser = null;
+    cases = [];
     showLogin();
   });
   $('newCaseBtn').addEventListener('click', () => openModal(null, 'full'));
@@ -1224,7 +1400,7 @@
       if (v === undefined) return; // バリデーション失敗
       parsedDates[f] = v;
     }
-    const id = $('caseId').value || String(Date.now()) + Math.random().toString(36).slice(2, 7);
+    const id = $('caseId').value || genId();
     const company = isPrivileged(currentUser) ? $('company').value : 'TOHOシネマズ';
     const amountRaw = $('estimateAmount').value;
     const data = {
@@ -1254,7 +1430,7 @@
     saveHistory();
     const existing = cases.findIndex((c) => c.id === id);
     if (existing >= 0) cases[existing] = data; else cases.push(data);
-    saveCases();
+    persistCase(data);
     closeModal();
     render();
   });
@@ -1269,7 +1445,7 @@
       else if (btn.dataset.action === 'delete') {
         if (confirm(`案件「${c.theater || '(劇場未入力)'}」を削除しますか？`)) {
           cases = cases.filter((x) => x.id !== id);
-          saveCases(); render();
+          removeCaseRemote(id); render();
         }
       }
       return;
@@ -1305,7 +1481,44 @@
   // 通常モードのthead HTMLを保存（A集計から戻す用）
   NORMAL_THEAD_HTML = $('casesTable').querySelector('thead').innerHTML;
 
-  renderDatalists();
-  populateCompanySelects();
-  if (currentUser) showApp(); else showLogin();
+  // リアルタイム: 他ユーザーの変更を画面へ反映（Supabaseモードのみ）
+  function isEditingNow() {
+    return !!document.querySelector('.inline-edit')
+      || !$('modal').classList.contains('hidden')
+      || !$('invoiceModal').classList.contains('hidden')
+      || !$('contentModal').classList.contains('hidden');
+  }
+  function onRemoteChange(payload) {
+    try {
+      if (payload.eventType === 'DELETE') {
+        const oid = payload.old && payload.old.id;
+        if (oid) cases = cases.filter((c) => c.id !== oid);
+      } else if (payload.new) {
+        const mapped = rowToCase(payload.new);
+        const i = cases.findIndex((c) => c.id === mapped.id);
+        if (i >= 0) cases[i] = mapped; else cases.push(mapped);
+      }
+      // 編集中は再描画を抑制（次の操作時に反映される）
+      if (!isEditingNow()) refresh();
+    } catch (e) { console.error('realtime適用エラー', e); }
+  }
+
+  // ---------- 起動 ----------
+  async function init() {
+    store.init();
+    renderDatalists();
+    try { companies = await store.fetchCompanies(); } catch (e) { /* 既定値のまま */ }
+    populateCompanySelects();
+    let sess = null;
+    try { sess = await store.getSession(); } catch (e) { sess = null; }
+    if (sess) {
+      currentUser = sess;
+      try { cases = await store.fetchCases(); } catch (e) { cases = []; onPersistError(e); }
+      store.subscribe(onRemoteChange);
+      showApp();
+    } else {
+      showLogin();
+    }
+  }
+  init();
 })();
