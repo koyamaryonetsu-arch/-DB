@@ -5,8 +5,18 @@
   const HISTORY_KEY = 'tohoHistoryV1';
   const AUTH_KEY = 'tohoAuthV1';
   const TEAM_KEY = 'tohoTeamV1';
+  const COMPANY_KEY = 'tohoCompaniesV1';
 
-  const COMPANIES = ['TOHOシネマズ', '109シネマズ', 'ユナイテッドシネマ', '佐々木興業'];
+  // 会社（顧客）と劇場名表示用の略称。name=正式名 / abbr=略称
+  const DEFAULT_COMPANIES = [
+    { name: 'TOHOシネマズ',       abbr: 'TOHO' },
+    { name: '109シネマズ',        abbr: '109' },
+    { name: 'ユナイテッドシネマ', abbr: 'UC' },
+    { name: '佐々木興業',         abbr: 'CS' },
+    { name: 'コロナワールド',     abbr: 'コロナ' },
+    { name: 'MOVIX',              abbr: 'MV' },
+    { name: 'イオンシネマズ',     abbr: 'イオン' }
+  ];
   const CATEGORIES = ['新規工事', '更新案件', '修理', 'メンテナンス', '点検', '改修', 'その他'];
   // 色判定を除外するカテゴリ
   const NO_COLOR_CATEGORIES = new Set(['更新案件', 'その他']);
@@ -57,7 +67,7 @@
   ];
 
   const EDITABLE_FIELDS = {
-    company:        { type: 'select',   options: COMPANIES, privilegedOnly: true },
+    company:        { type: 'select',   dynamicOptions: 'company', privilegedOnly: true },
     theater:        { type: 'datalist', listId: 'theaterList' },
     receivedDate:   { type: 'date' },
     tcPerson:       { type: 'datalist', listId: 'tcPersonList' },
@@ -78,6 +88,7 @@
 
   let cases = loadCases();
   let history = loadHistory();
+  let companies = loadCompanies();
   let currentUser = loadAuth();
   let sortState = { field: null, direction: 'asc' };
   let contentEditCaseId = null;
@@ -117,6 +128,24 @@
     }
   }
   function saveHistory() { localStorage.setItem(HISTORY_KEY, JSON.stringify(history)); }
+
+  // ---------- 会社（顧客）マスタ ----------
+  function loadCompanies() {
+    try {
+      const stored = JSON.parse(localStorage.getItem(COMPANY_KEY));
+      if (Array.isArray(stored) && stored.length > 0) {
+        // 旧データ救済: 略称が無ければ正式名で補完
+        return stored.map((c) => ({ name: c.name, abbr: c.abbr || c.name }));
+      }
+    } catch (e) {}
+    return DEFAULT_COMPANIES.map((c) => ({ name: c.name, abbr: c.abbr }));
+  }
+  function saveCompanies(list) { localStorage.setItem(COMPANY_KEY, JSON.stringify(list)); }
+  function companyNames() { return companies.map((c) => c.name); }
+  function companyAbbr(name) {
+    const found = companies.find((c) => c.name === name);
+    return found ? found.abbr : (name || '');
+  }
   function addToHistory(key, value) {
     if (!value) return;
     const v = String(value).trim();
@@ -135,6 +164,31 @@
     fillDatalist('theaterList', history.theaters);
     fillDatalist('tcPersonList', history.tcPersons);
     fillDatalist('rPersonList', history.rPersons);
+  }
+  // 会社セレクト（モーダル/フィルタ）を会社マスタから再構築
+  function populateCompanySelects() {
+    const sel = $('company');
+    const prevSel = sel.value;
+    sel.innerHTML = companyNames().map((n) => `<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join('');
+    if (prevSel && companyNames().indexOf(prevSel) !== -1) sel.value = prevSel;
+
+    const filter = $('companyFilter');
+    const prevFilter = filter.value;
+    filter.innerHTML = '<option value="">全会社</option>' +
+      companyNames().map((n) => `<option value="${escapeHtml(n)}">${escapeHtml(n)}（${escapeHtml(companyAbbr(n))}）</option>`).join('');
+    if (prevFilter && (prevFilter === '' || companyNames().indexOf(prevFilter) !== -1)) filter.value = prevFilter;
+  }
+  function addCompany() {
+    const name = prompt('追加する顧客（会社）の正式名称を入力してください');
+    if (!name || !name.trim()) return;
+    const nm = name.trim();
+    if (companyNames().indexOf(nm) !== -1) { alert('既に登録されています: ' + nm); return; }
+    const abbrInput = prompt('一覧表示用の略称（短縮名）を入力してください', nm.slice(0, 4));
+    const abbr = (abbrInput && abbrInput.trim()) ? abbrInput.trim() : nm;
+    companies.push({ name: nm, abbr: abbr });
+    saveCompanies(companies);
+    populateCompanySelects();
+    $('company').value = nm;
   }
 
   // ---------- auth ----------
@@ -388,7 +442,7 @@
       if (cls) tr.className = cls;
       const statusCode = deriveStatus(c);
       const statusLabel = statusDisplayLabel(statusCode);
-      const companyHtml = c.company ? `<span class="company-tag company-${escapeHtml(c.company)}">${escapeHtml(c.company)}</span>` : '';
+      const companyHtml = c.company ? `<span class="company-tag company-${escapeHtml(c.company)}" title="${escapeHtml(c.company)}">${escapeHtml(companyAbbr(c.company))}</span>` : '';
       const statusHtml = `<span class="status-badge status-${escapeHtml(statusCode)}">${escapeHtml(statusLabel)}</span>`;
       const isTohoCo = c.company === 'TOHOシネマズ';
       const certHtml = isTohoCo
@@ -447,10 +501,12 @@
         break;
       case 'number':
         el = document.createElement('input'); el.type = 'number'; el.min = '0'; el.step = '1'; break;
-      case 'select':
+      case 'select': {
         el = document.createElement('select');
-        cfg.options.forEach((opt) => { const o = document.createElement('option'); o.value = opt; o.textContent = opt === '' ? '(未選択)' : opt; el.appendChild(o); });
+        const opts = cfg.dynamicOptions === 'company' ? companyNames() : cfg.options;
+        opts.forEach((opt) => { const o = document.createElement('option'); o.value = opt; o.textContent = opt === '' ? '(未選択)' : opt; el.appendChild(o); });
         break;
+      }
       case 'datalist': el = document.createElement('input'); el.type = 'text'; el.setAttribute('list', cfg.listId); break;
       case 'textarea': el = document.createElement('textarea'); el.rows = 2; break;
       default:         el = document.createElement('input'); el.type = 'text';
@@ -565,6 +621,9 @@
     }
     updateTohoVisibility();
     renderDatalists();
+    populateCompanySelects();
+    if (caseObj) $('company').value = caseObj.company || companyNames()[0];
+    else if (!isPrivileged(currentUser)) $('company').value = 'TOHOシネマズ';
     $('modal').classList.remove('hidden');
     setTimeout(() => $('company').focus(), 50);
   }
@@ -1060,6 +1119,7 @@
   $('cancelBtn').addEventListener('click', closeModal);
   $('modal').addEventListener('click', (e) => { if (e.target === $('modal')) closeModal(); });
   $('company').addEventListener('change', updateTohoVisibility);
+  $('addCompanyBtn').addEventListener('click', addCompany);
 
   $('invoiceBtn').addEventListener('click', openInvoiceModal);
   $('closeInvoiceModal').addEventListener('click', closeInvoiceModal);
@@ -1199,5 +1259,6 @@
   NORMAL_THEAD_HTML = $('casesTable').querySelector('thead').innerHTML;
 
   renderDatalists();
+  populateCompanySelects();
   if (currentUser) showApp(); else showLogin();
 })();

@@ -14,6 +14,9 @@ create table if not exists public.cases (
   category        text,
   content         text,
   survey_date     date,
+  cert_number     text,            -- 認証番号（TOHOシネマズのみ運用）
+  estimate_name   text,            -- 見積り名
+  estimate_amount numeric,         -- 見積り金額
   quote_date      date,
   work_start_date date,
   work_end_date   date,
@@ -21,12 +24,39 @@ create table if not exists public.cases (
   payment_date    date,
   status          text default '受付',
   margin_rate     numeric default 20,
-  allocations     jsonb default '{}'::jsonb,
+  allocations     jsonb default '{}'::jsonb,  -- 担当者別の粗利配分 { "小山": 5, ... }
+  memo            text,            -- 社内メモ（「保留」でステータス保留・ryonetsuのみ）
   created_at      timestamptz not null default now(),
   updated_at      timestamptz not null default now(),
   created_by      uuid references auth.users(id) on delete set null,
   updated_by      uuid references auth.users(id) on delete set null
 );
+
+-- 1b. 会社（顧客）マスタ。abbr=一覧表示用の略称
+create table if not exists public.companies (
+  name       text primary key,
+  abbr       text not null,
+  sort_order int default 100,
+  created_at timestamptz not null default now()
+);
+
+insert into public.companies (name, abbr, sort_order) values
+  ('TOHOシネマズ', 'TOHO', 1),
+  ('109シネマズ', '109', 2),
+  ('ユナイテッドシネマ', 'UC', 3),
+  ('佐々木興業', 'CS', 4),
+  ('コロナワールド', 'コロナ', 5),
+  ('MOVIX', 'MV', 6),
+  ('イオンシネマズ', 'イオン', 7)
+on conflict (name) do nothing;
+
+-- 会社マスタは認証ユーザー全員が閲覧、ryonetsu ドメインのみ追加可
+alter table public.companies enable row level security;
+drop policy if exists "companies_select" on public.companies;
+create policy "companies_select" on public.companies for select to authenticated using (true);
+drop policy if exists "companies_insert" on public.companies;
+create policy "companies_insert" on public.companies for insert to authenticated
+  with check (coalesce(auth.email() like '%@ryonetsu.com', false));
 
 create index if not exists idx_cases_received_date on public.cases(received_date desc);
 create index if not exists idx_cases_company        on public.cases(company);

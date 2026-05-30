@@ -31,13 +31,7 @@
     <h1 id="appTitle">TOHOシネマズ 案件管理</h1>
     <div class="header-actions">
       <input type="search" id="searchBox" placeholder="検索（劇場名・担当者・内容など）">
-      <select id="companyFilter" class="hidden">
-        <option value="">全会社</option>
-        <option value="TOHOシネマズ">TOHOシネマズ</option>
-        <option value="109シネマズ">109シネマズ</option>
-        <option value="ユナイテッドシネマ">ユナイテッドシネマ</option>
-        <option value="佐々木興業">佐々木興業</option>
-      </select>
+      <select id="companyFilter" class="hidden"></select>
       <select id="statusFilter">
         <option value="">全ステータス</option>
         <option value="受付">受付</option>
@@ -123,13 +117,11 @@
       <input type="hidden" id="caseId">
       <div class="form-stack">
         <div class="form-row col-company" data-mode="simple">
-          <label for="company">会社<span class="required">*</span></label>
-          <select id="company" required>
-            <option value="TOHOシネマズ">TOHOシネマズ</option>
-            <option value="109シネマズ">109シネマズ</option>
-            <option value="ユナイテッドシネマ">ユナイテッドシネマ</option>
-            <option value="佐々木興業">佐々木興業</option>
-          </select>
+          <label for="company">会社（顧客）<span class="required">*</span></label>
+          <div class="company-row">
+            <select id="company" required></select>
+            <button type="button" id="addCompanyBtn" class="mini-btn" title="顧客を追加">＋顧客追加</button>
+          </div>
         </div>
 
         <div class="form-row" data-mode="simple">
