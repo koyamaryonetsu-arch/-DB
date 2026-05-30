@@ -531,76 +531,28 @@ td.content-cell {
   background: #fef2f2;
 }
 
-/* ---- GitHub DL info ---- */
-.github-dl {
-  margin-top: 22px;
-  padding-top: 16px;
-  border-top: 1px solid #e5e7eb;
-  text-align: center;
-  font-size: 12px;
-  color: #6b7280;
-}
-.github-dl-label {
-  margin: 0 0 6px;
-  font-weight: 600;
-  color: #374151;
-}
-.github-dl a {
-  color: #2563eb;
-  text-decoration: none;
-}
-.github-dl a:hover { text-decoration: underline; }
-.github-dl-sub { margin: 8px 0 0; }
-.github-dl-zip { font-weight: 600; }
-
-.header-link {
-  color: #fff;
-  text-decoration: none;
-  padding: 5px 10px;
-  border: 1px solid rgba(255,255,255,0.3);
-  border-radius: 4px;
-  font-size: 12px;
-  white-space: nowrap;
-}
-.header-link:hover { background: rgba(255,255,255,0.1); }
-
-/* ---- 経営集計（A集計）スプレッドシート ---- */
-.modal-content-fullscreen {
-  width: 96vw;
-  max-width: 1700px;
-  height: 92vh;
-  display: flex;
-  flex-direction: column;
-  max-height: 92vh;
-}
-.modal-content-fullscreen .agg-body {
-  flex: 1;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  padding: 14px 18px;
-}
-.agg-controls {
+/* ---- A集計（粗利配分・メインテーブル切替方式） ---- */
+.agg-bar {
   display: flex;
   gap: 10px;
   align-items: center;
   flex-wrap: wrap;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 8px 12px;
   margin-bottom: 10px;
 }
-.agg-control-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-}
-.agg-control-item select,
-.agg-control-item input {
+.agg-bar.hidden { display: none; }
+.agg-bar-title { color: #1f2a44; font-size: 14px; }
+.agg-bar-item { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; }
+.agg-bar-item select {
   padding: 5px 8px;
   border: 1px solid #cbd5e1;
   border-radius: 4px;
   font-size: 13px;
 }
-.agg-hint {
+.agg-bar-hint {
   font-size: 11px;
   color: #4b5563;
   background: #fefce8;
@@ -608,58 +560,12 @@ td.content-cell {
   padding: 4px 10px;
   border-radius: 4px;
 }
-.agg-table-wrap {
-  flex: 1;
-  overflow: auto;
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
-  background: #fff;
-}
-.agg-spreadsheet {
-  border-collapse: collapse;
-  font-size: 12px;
-  width: 100%;
+
+/* A集計モードのテーブル見た目 */
+#casesTable.agg-mode { min-width: 0; }
+#casesTable.agg-mode td,
+#casesTable.agg-mode th {
   font-variant-numeric: tabular-nums;
-}
-.agg-spreadsheet th,
-.agg-spreadsheet td {
-  border: 1px solid #e5e7eb;
-  padding: 5px 7px;
-  text-align: center;
-  white-space: nowrap;
-}
-.agg-spreadsheet thead th {
-  background: #eef2f7;
-  font-weight: 600;
-  position: sticky;
-  top: 0;
-  z-index: 2;
-}
-.agg-spreadsheet .agg-totals-row th {
-  top: 31px;
-  background: #f0fdf4;
-  color: #15803d;
-  font-weight: 700;
-}
-.agg-spreadsheet thead .agg-totals-label {
-  background: #eef2f7;
-  color: #1f2a44;
-  text-align: right;
-}
-.agg-case-name {
-  text-align: left !important;
-  max-width: 220px;
-  white-space: normal !important;
-  word-break: break-word;
-  font-size: 11px;
-  background: #fafbfc;
-  position: sticky;
-  left: 0;
-  z-index: 1;
-}
-.agg-spreadsheet td.agg-amount,
-.agg-spreadsheet td.agg-profit {
-  text-align: right;
 }
 .agg-input {
   width: 56px;
@@ -672,10 +578,7 @@ td.content-cell {
   border-radius: 3px;
   font-variant-numeric: tabular-nums;
 }
-.agg-input:hover {
-  border-color: #cbd5e1;
-  background: #fff;
-}
+.agg-input:hover { border-color: #cbd5e1; background: #fff; }
 .agg-input:focus {
   outline: none;
   border-color: #2563eb;
@@ -683,12 +586,11 @@ td.content-cell {
   box-shadow: 0 0 0 2px rgba(37,99,235,0.2);
 }
 .agg-input.agg-rate { width: 50px; color: #2563eb; }
-.agg-sum.ok { color: #15803d; font-weight: 700; background: #f0fdf4; }
-.agg-sum.ng { color: #dc2626; font-weight: 700; background: #fef2f2; }
-.agg-member {
-  position: relative;
-  padding-right: 18px !important;
-}
+td.agg-amount, td.agg-profit { text-align: right; }
+.agg-sum { font-weight: 700; }
+.agg-sum.ok { color: #15803d; background: #f0fdf4; }
+.agg-sum.ng { color: #dc2626; background: #fef2f2; }
+.agg-member { position: relative; padding-right: 18px !important; }
 .agg-rm-member {
   position: absolute;
   top: 2px;
@@ -703,17 +605,29 @@ td.content-cell {
   line-height: 1.4;
 }
 .agg-rm-member:hover { color: #dc2626; border-color: #dc2626; }
-.agg-empty {
-  text-align: center;
-  padding: 30px;
-  color: #6b7280;
+/* 集計（見込み/実績/予想）行 */
+tr.agg-summary-row th {
+  position: sticky;
+  background: #f0fdf4;
+  color: #15803d;
+  font-weight: 700;
+  text-align: right;
 }
-.agg-spreadsheet tbody tr:hover {
-  background: #fafbfc;
+tr.agg-summary-row.section-mikomi th { background: #fefce8; color: #92400e; }
+tr.agg-summary-row.section-jisseki th { background: #f0fdf4; color: #15803d; }
+tr.agg-summary-row.section-yosou th { background: #eff6ff; color: #1e40af; }
+tr.agg-summary-row .agg-sec-label { text-align: left; }
+.agg-section-badge {
+  display: inline-block;
+  font-size: 10px;
+  padding: 1px 5px;
+  border-radius: 8px;
+  margin-right: 4px;
+  font-weight: 600;
 }
-.agg-spreadsheet tbody tr:hover .agg-case-name {
-  background: #f1f5f9;
-}
+.badge-mikomi { background: #fef3c7; color: #92400e; }
+.badge-jisseki { background: #d1fae5; color: #065f46; }
+.badge-yosou { background: #dbeafe; color: #1e40af; }
 
 .status-badge {
   display: inline-block;
