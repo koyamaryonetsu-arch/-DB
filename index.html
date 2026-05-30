@@ -23,13 +23,6 @@
       <button type="submit" class="primary">ログイン</button>
       <p class="login-hint">※ パスワードはメールアドレスの@より前の部分（小文字）です</p>
     </form>
-    <div class="github-dl">
-      <p class="github-dl-label">📥 最新版のダウンロード</p>
-      <a href="https://github.com/koyamaryonetsu-arch/-DB/tree/claude/nifty-lamport-YPlSX" target="_blank" rel="noopener">github.com/koyamaryonetsu-arch/-DB</a>
-      <p class="github-dl-sub">
-        <a href="https://github.com/koyamaryonetsu-arch/-DB/archive/refs/heads/claude/nifty-lamport-YPlSX.zip" class="github-dl-zip">📦 ZIPでまとめてダウンロード</a>
-      </p>
-    </div>
   </div>
 </div>
 
@@ -54,13 +47,13 @@
         <option value="完了">完了</option>
         <option value="請求済">請求済</option>
         <option value="入金済">入金済</option>
+        <option value="保留">保留</option>
       </select>
       <button id="quickCaseBtn" class="primary outline">⚡ 簡易登録</button>
       <button id="newCaseBtn" class="primary">＋ 新規案件登録</button>
-      <button id="aggBtn" class="col-ryo">📊 A集計</button>
+      <button id="aggBtn" class="col-ryo">📊 経営集計</button>
       <button id="invoiceBtn">📄 請求書発行</button>
       <button id="exportBtn">Excelダウンロード</button>
-      <a href="https://github.com/koyamaryonetsu-arch/-DB/tree/claude/nifty-lamport-YPlSX" target="_blank" rel="noopener" class="header-link" title="最新版をGitHubで開く">📥 DL</a>
       <span class="user-info">
         <span id="userEmail"></span>
         <button id="logoutBtn" class="link-btn">ログアウト</button>
@@ -72,7 +65,7 @@
     <div class="legend">
       <span class="legend-item"><span class="swatch swatch-yellow"></span>受付→調査が3日以上</span>
       <span class="legend-item"><span class="swatch swatch-red"></span>調査→見積りが3日以上</span>
-      <span class="legend-hint">💡 セルクリックで直接編集 ／ 内容はクリックでポップアップ ／ 日付は 528 で5月28日</span>
+      <span class="legend-hint">💡 セルクリックで編集 ／ 内容クリックでポップアップ ／ メモに「保留」→ ステータス保留</span>
       <span id="caseCount" class="case-count"></span>
     </div>
 
@@ -91,7 +84,6 @@
             <th class="sortable" data-sort="certNumber">認証番号</th>
             <th class="sortable" data-sort="estimateName">見積り名</th>
             <th class="sortable" data-sort="estimateAmount">見積り金額</th>
-            <th class="col-ryo sortable" data-sort="marginRate">粗利率</th>
             <th class="sortable" data-sort="quoteDate"><span class="lbl-ryo">見積り提出日</span><span class="lbl-toho">見積り受領日</span></th>
             <th class="sortable" data-sort="workStartDate">作業開始日</th>
             <th class="sortable" data-sort="workEndDate">作業完了日</th>
@@ -190,11 +182,6 @@
           <input type="number" id="estimateAmount" min="0" step="1" placeholder="例：500000">
         </div>
 
-        <div class="form-row col-ryo" data-mode="full">
-          <label for="marginRate">粗利率（％・ryonetsu限定）</label>
-          <input type="number" id="marginRate" min="0" max="100" step="0.1" placeholder="例：20">
-        </div>
-
         <div class="form-row" data-mode="full">
           <label for="quoteDate"><span class="lbl-ryo">見積り提出日</span><span class="lbl-toho">見積り受領日</span></label>
           <input type="text" id="quoteDate" class="smart-date" inputmode="numeric" placeholder="YYYY/MM/DD ・ MM/DD ・ 0528 もOK">
@@ -221,8 +208,8 @@
         </div>
 
         <div class="form-row col-memo" data-mode="full">
-          <label for="memo">メモ（ryonetsuユーザーのみ）</label>
-          <textarea id="memo" rows="2" placeholder="社内メモ"></textarea>
+          <label for="memo">メモ（ryonetsu限定・「保留」と記入でステータスが保留に）</label>
+          <textarea id="memo" rows="2" placeholder="社内メモ／「保留」と書くとステータス自動切替"></textarea>
         </div>
       </div>
 
@@ -282,15 +269,14 @@
 </div>
 
 <div id="aggModal" class="modal hidden">
-  <div class="modal-content modal-content-wide">
+  <div class="modal-content modal-content-fullscreen">
     <div class="modal-header">
-      <h2>📊 粗利集計（R担当者別・社内用）</h2>
+      <h2>📊 経営集計（粗利配分・社内用）</h2>
       <button id="closeAggModal" class="close-btn" aria-label="閉じる" tabindex="-1">×</button>
     </div>
     <div class="agg-body">
       <div class="agg-controls">
-        <div class="form-row inline">
-          <label for="aggPeriod">対象期間（受付日基準）</label>
+        <label class="agg-control-item">期間:
           <select id="aggPeriod">
             <option value="all">全期間</option>
             <option value="this-year">今年</option>
@@ -299,17 +285,21 @@
             <option value="custom">指定月</option>
           </select>
           <input type="month" id="aggCustomMonth" class="hidden">
-        </div>
-        <p class="agg-hint">※ 検索バー / 会社フィルタ / ステータスフィルタの絞り込みも併用されます。</p>
+        </label>
+        <button id="aggAddMemberBtn">+ 担当者追加</button>
+        <button id="aggRedistributeBtn">300万円未満の配分を初期化</button>
+        <span class="agg-hint">💡 粗利率/配分%は直接編集可。配分合計100%でOK ／ &lt;300万: 山本以外5%＋R担当者残差 ／ ≥300万: 手入力</span>
       </div>
-      <div id="aggSummary" class="agg-summary"></div>
-      <table class="agg-table">
-        <thead>
-          <tr><th>R担当者</th><th>件数</th><th>見積合計</th><th>粗利合計</th><th>平均粗利率</th></tr>
-        </thead>
-        <tbody id="aggBody"></tbody>
-        <tfoot id="aggFoot"></tfoot>
-      </table>
+      <div class="agg-table-wrap">
+        <table id="aggSpreadsheet" class="agg-spreadsheet">
+          <thead>
+            <tr id="aggHeaderRow"></tr>
+            <tr id="aggTotalsRow" class="agg-totals-row"></tr>
+          </thead>
+          <tbody id="aggBody"></tbody>
+        </table>
+        <p id="aggEmpty" class="agg-empty hidden">対象案件がありません。</p>
+      </div>
     </div>
     <div class="modal-footer">
       <button type="button" id="aggCloseBtn">閉じる</button>

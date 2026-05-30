@@ -4,12 +4,18 @@
   const STORAGE_KEY = 'tohoCasesV1';
   const HISTORY_KEY = 'tohoHistoryV1';
   const AUTH_KEY = 'tohoAuthV1';
+  const TEAM_KEY = 'tohoTeamV1';
 
   const COMPANIES = ['TOHOシネマズ', '109シネマズ', 'ユナイテッドシネマ', '佐々木興業'];
   const CATEGORIES = ['新規工事', '更新案件', '修理', 'メンテナンス', '点検', '改修', 'その他'];
   // 色判定を除外するカテゴリ
   const NO_COLOR_CATEGORIES = new Set(['更新案件', 'その他']);
   const DEFAULT_MARGIN_RATE = 20;
+  // 経営集計のデフォルトチームと配分ルール
+  const DEFAULT_TEAM = ['小山', '細萱', '大和', '山口', '金子', '若山', '伊藤', '藤村', '山本'];
+  const EXCLUDED_FROM_BASE = '山本'; // 一律5%対象外
+  const SMALL_CASE_THRESHOLD = 3000000;
+  const BASE_RATE = 5; // %
   const PRIVILEGED_DOMAIN = 'ryonetsu.com';
 
   // 役割別ラベル: 受注者(ryonetsu) ↔ 発注者(TOHO)
@@ -62,7 +68,6 @@
     certNumber:     { type: 'text',     tohoOnly: true },
     estimateName:   { type: 'text' },
     estimateAmount: { type: 'number' },
-    marginRate:     { type: 'number', privilegedOnly: true },
     quoteDate:      { type: 'date' },
     workStartDate:  { type: 'date' },
     workEndDate:    { type: 'date' },
@@ -92,6 +97,7 @@
       if (c.memo === undefined) c.memo = '';
       if (c.certNumber === undefined) c.certNumber = '';
       if (c.marginRate === undefined || c.marginRate === null || c.marginRate === '') c.marginRate = DEFAULT_MARGIN_RATE;
+      if (!c.allocations || typeof c.allocations !== 'object') c.allocations = {};
     });
     return arr;
   }
@@ -130,6 +136,46 @@
   }
 
   // ---------- auth ----------
+  // ---------- team ----------
+  function loadTeam() {
+    try {
+      const t = JSON.parse(localStorage.getItem(TEAM_KEY));
+      return Array.isArray(t) && t.length > 0 ? t : DEFAULT_TEAM.slice();
+    } catch (e) { return DEFAULT_TEAM.slice(); }
+  }
+  function saveTeam(team) { localStorage.setItem(TEAM_KEY, JSON.stringify(team)); }
+
+  function defaultAllocations(c, team) {
+    const amount = Number(c.estimateAmount) || 0;
+    const result = {};
+    team.forEach((m) => { result[m] = 0; });
+    if (amount > 0 && amount < SMALL_CASE_THRESHOLD) {
+      const eligible = team.filter((m) => m !== EXCLUDED_FROM_BASE);
+      eligible.forEach((m) => { result[m] = BASE_RATE; });
+      const base = eligible.length * BASE_RATE;
+      const residual = 100 - base;
+      // R担当者 名前が team に含まれていれば残差を加算
+      if (c.rPerson && team.indexOf(c.rPerson) !== -1) {
+        result[c.rPerson] = (result[c.rPerson] || 0) + residual;
+      }
+      // team外なら残差は未配分 → sumが100未満になりNG表示
+    }
+    return result;
+  }
+  function getAllocations(c, team) {
+    const stored = c.allocations || {};
+    const hasAny = Object.keys(stored).some((k) => Number(stored[k]) > 0);
+    if (hasAny) {
+      const result = {};
+      team.forEach((m) => { result[m] = Number(stored[m]) || 0; });
+      return result;
+    }
+    return defaultAllocations(c, team);
+  }
+  function sumAllocations(alloc) {
+    return Object.values(alloc).reduce((s, v) => s + (Number(v) || 0), 0);
+  }
+
   function loadAuth() { try { return JSON.parse(localStorage.getItem(AUTH_KEY)); } catch (e) { return null; } }
   function saveAuth(user) { localStorage.setItem(AUTH_KEY, JSON.stringify(user)); }
   function clearAuth() { localStorage.removeItem(AUTH_KEY); }
@@ -210,6 +256,8 @@
 
   // ---------- status auto-derive ----------
   function deriveStatus(c) {
+    // メモに「保留」と記入されていたら最優先で 保留
+    if (c.memo && String(c.memo).indexOf('保留') !== -1) return '保留';
     const today = todayStr();
     if (c.paymentDate)  return '入金済';
     if (c.invoiceDate)  return '請求済';
@@ -226,6 +274,7 @@
 
   function rowColorClass(c) {
     if (NO_COLOR_CATEGORIES.has(c.category)) return '';
+    if (deriveStatus(c) === '保留') return '';
     if (c.quoteDate) return '';
     const today = todayStr();
     if (c.surveyDate) {
@@ -332,6 +381,7 @@
     const isToho = !isPrivileged(currentUser);
     filtered.forEach((c) => {
       const tr = document.createElement('tr');
+      tr.dataset.caseId = c.id;
       const cls = rowColorClass(c);
       if (cls) tr.className = cls;
       const statusCode = deriveStatus(c);
@@ -355,7 +405,6 @@
         ${certHtml}
         ${editableTd(c, 'estimateName', escapeHtml(c.estimateName))}
         ${editableTd(c, 'estimateAmount', fmtAmount(c.estimateAmount))}
-        ${editableTd(c, 'marginRate', fmtPercent(c.marginRate), 'col-ryo')}
         ${editableTd(c, 'quoteDate', fmtDateShort(c.quoteDate))}
         ${editableTd(c, 'workStartDate', fmtDateShort(c.workStartDate))}
         ${editableTd(c, 'workEndDate', fmtDateShort(c.workEndDate))}
@@ -501,7 +550,6 @@
       $('certNumber').value = caseObj.certNumber || '';
       $('estimateName').value = caseObj.estimateName || '';
       $('estimateAmount').value = caseObj.estimateAmount || '';
-      $('marginRate').value = (caseObj.marginRate === '' || caseObj.marginRate == null) ? DEFAULT_MARGIN_RATE : caseObj.marginRate;
       setDateField('quoteDate', caseObj.quoteDate);
       setDateField('workStartDate', caseObj.workStartDate);
       setDateField('workEndDate', caseObj.workEndDate);
@@ -512,7 +560,6 @@
       $('modalTitle').textContent = isSimple ? '簡易登録' : '新規案件登録';
       $('company').value = 'TOHOシネマズ';
       setDateField('receivedDate', todayStr());
-      $('marginRate').value = DEFAULT_MARGIN_RATE;
     }
     updateTohoVisibility();
     renderDatalists();
@@ -569,23 +616,19 @@
     const includesMemo = isPrivileged(currentUser);
     const isToho = !includesMemo;
     const headers = ['会社', '劇場名', '受付日', 'TC担当者', 'R担当者', '種別', '内容',
-      '調査日', '認証番号', '見積り名', '見積り金額'];
-    if (includesMemo) headers.push('粗利率(%)');
-    headers.push(
+      '調査日', '認証番号', '見積り名', '見積り金額',
       isToho ? '見積り受領日' : '見積り提出日',
       '作業開始日', '作業完了日',
       isToho ? '請求書受領日' : '請求書発行日',
       isToho ? '支払日' : '入金日',
-      'ステータス'
-    );
+      'ステータス'];
     if (includesMemo) headers.push('メモ');
     const rows = [headers].concat(filtered.map((c) => {
       const row = [c.company, c.theater, c.receivedDate, c.tcPerson, c.rPerson, c.category, c.content,
         c.surveyDate, c.company === 'TOHOシネマズ' ? c.certNumber : '',
-        c.estimateName, c.estimateAmount];
-      if (includesMemo) row.push(c.marginRate);
-      row.push(c.quoteDate, c.workStartDate, c.workEndDate,
-        c.invoiceDate, c.paymentDate, statusDisplayLabel(deriveStatus(c)));
+        c.estimateName, c.estimateAmount,
+        c.quoteDate, c.workStartDate, c.workEndDate,
+        c.invoiceDate, c.paymentDate, statusDisplayLabel(deriveStatus(c))];
       if (includesMemo) row.push(c.memo);
       return row;
     }));
@@ -725,7 +768,7 @@
     }
   }
 
-  // ---------- 粗利集計 (A集計) ----------
+  // ---------- 経営集計 (A集計): 担当者配分スプレッドシート ----------
   function filterByAggPeriod(arr) {
     const period = $('aggPeriod').value;
     if (period === 'all') return arr;
@@ -748,84 +791,174 @@
       return true;
     });
   }
-  function computeAggregation(arr) {
-    const byR = {};
-    let totalAmount = 0, totalProfit = 0, count = 0;
-    arr.forEach((c) => {
+
+  function aggTargetCases() {
+    return filterByAggPeriod(getFilteredCases()).filter((c) => {
       const amt = Number(c.estimateAmount) || 0;
-      if (amt === 0) return;
-      const rate = Number(c.marginRate);
-      const r = isNaN(rate) ? DEFAULT_MARGIN_RATE : rate;
-      const profit = amt * r / 100;
-      count++;
-      totalAmount += amt;
-      totalProfit += profit;
-      const key = c.rPerson || '(未設定)';
-      if (!byR[key]) byR[key] = { name: key, count: 0, amount: 0, profit: 0 };
-      byR[key].count++;
-      byR[key].amount += amt;
-      byR[key].profit += profit;
+      return amt > 0;
     });
-    const rows = Object.values(byR).sort((a, b) => b.profit - a.profit);
-    return { totals: { count, amount: totalAmount, profit: totalProfit }, byR: rows };
   }
-  function renderAggregation() {
-    // 集計対象 = 現在のフィルタ後の案件 ∩ 期間フィルタ
-    const baseFiltered = getFilteredCases();
-    const periodFiltered = filterByAggPeriod(baseFiltered);
-    const agg = computeAggregation(periodFiltered);
-    const avgRate = agg.totals.amount > 0 ? (agg.totals.profit / agg.totals.amount * 100) : 0;
-    $('aggSummary').innerHTML = `
-      <div class="agg-stat"><div class="agg-stat-label">対象案件</div><div class="agg-stat-value">${agg.totals.count} 件</div></div>
-      <div class="agg-stat"><div class="agg-stat-label">見積合計</div><div class="agg-stat-value">${fmtAmount(agg.totals.amount)}</div></div>
-      <div class="agg-stat"><div class="agg-stat-label">粗利合計（平均${avgRate.toFixed(1)}%）</div><div class="agg-stat-value profit">${fmtAmount(agg.totals.profit)}</div></div>
-    `;
+
+  function renderAggSpreadsheet() {
+    const team = loadTeam();
+    const targets = aggTargetCases();
+
+    // ヘッダ行
+    let headerHtml = `
+      <th class="agg-case-name">案件（劇場 / 見積り名）</th>
+      <th>見積金額</th>
+      <th>粗利率</th>
+      <th>粗利(A)</th>
+      ${team.map((m) => `<th class="agg-member" data-member="${escapeHtml(m)}">${escapeHtml(m)}<button class="agg-rm-member" data-member="${escapeHtml(m)}" title="削除">×</button></th>`).join('')}
+      <th>配分計</th>`;
+    $('aggHeaderRow').innerHTML = headerHtml;
+
+    // 個人別 粗利合計を計算
+    const memberTotals = {};
+    team.forEach((m) => { memberTotals[m] = 0; });
+    let totalProfit = 0;
+    targets.forEach((c) => {
+      const amt = Number(c.estimateAmount) || 0;
+      const rate = (c.marginRate === '' || c.marginRate == null || isNaN(Number(c.marginRate))) ? DEFAULT_MARGIN_RATE : Number(c.marginRate);
+      const profit = amt * rate / 100;
+      totalProfit += profit;
+      const alloc = getAllocations(c, team);
+      team.forEach((m) => {
+        memberTotals[m] += profit * (Number(alloc[m]) || 0) / 100;
+      });
+    });
+
+    // 合計行
+    $('aggTotalsRow').innerHTML = `
+      <th class="agg-totals-label" colspan="3">個人別 粗利A合計 →</th>
+      <th>${fmtAmount(totalProfit)}</th>
+      ${team.map((m) => `<th>${fmtAmount(memberTotals[m])}</th>`).join('')}
+      <th>-</th>`;
+
+    // 案件行
     const body = $('aggBody');
-    if (agg.byR.length === 0) {
-      body.innerHTML = `<tr><td colspan="5" class="agg-empty">対象案件がありません。</td></tr>`;
-      $('aggFoot').innerHTML = '';
-    } else {
-      body.innerHTML = agg.byR.map((r) => {
-        const avg = r.amount > 0 ? (r.profit / r.amount * 100) : 0;
-        return `<tr>
-          <td>${escapeHtml(r.name)}</td>
-          <td>${r.count}</td>
-          <td>${fmtAmount(r.amount)}</td>
-          <td class="profit-col">${fmtAmount(r.profit)}</td>
-          <td>${avg.toFixed(1)}%</td>
-        </tr>`;
-      }).join('');
-      $('aggFoot').innerHTML = `<tr>
-        <td>合計</td>
-        <td>${agg.totals.count}</td>
-        <td>${fmtAmount(agg.totals.amount)}</td>
-        <td class="profit-col">${fmtAmount(agg.totals.profit)}</td>
-        <td>${avgRate.toFixed(1)}%</td>
-      </tr>`;
+    if (targets.length === 0) {
+      body.innerHTML = '';
+      $('aggEmpty').classList.remove('hidden');
+      return;
     }
+    $('aggEmpty').classList.add('hidden');
+    body.innerHTML = targets.map((c) => {
+      const amt = Number(c.estimateAmount) || 0;
+      const rate = (c.marginRate === '' || c.marginRate == null || isNaN(Number(c.marginRate))) ? DEFAULT_MARGIN_RATE : Number(c.marginRate);
+      const profit = amt * rate / 100;
+      const alloc = getAllocations(c, team);
+      const sum = sumAllocations(alloc);
+      const okClass = Math.abs(sum - 100) < 0.01 ? 'ok' : 'ng';
+      const okText  = okClass === 'ok' ? '✓ OK' : '✗ NG';
+      return `<tr data-case-id="${escapeHtml(c.id)}">
+        <td class="agg-case-name" title="${escapeHtml(c.theater + ' / ' + (c.estimateName || '-'))}">${escapeHtml(c.theater)} / ${escapeHtml(c.estimateName || '-')}</td>
+        <td class="agg-amount">${fmtAmount(amt)}</td>
+        <td class="agg-rate-cell"><input type="number" data-field="marginRate" min="0" max="100" step="0.1" value="${rate}" class="agg-input agg-rate"></td>
+        <td class="agg-profit">${fmtAmount(profit)}</td>
+        ${team.map((m) => `<td><input type="number" data-member="${escapeHtml(m)}" min="0" max="100" step="0.5" value="${alloc[m] || 0}" class="agg-input"></td>`).join('')}
+        <td class="agg-sum ${okClass}">${sum.toFixed(1)}% ${okText}</td>
+      </tr>`;
+    }).join('');
   }
+
   function openAggModal() {
     $('aggPeriod').value = 'all';
     $('aggCustomMonth').classList.add('hidden');
     $('aggCustomMonth').value = currentMonth();
-    renderAggregation();
+    renderAggSpreadsheet();
     $('aggModal').classList.remove('hidden');
   }
   function closeAggModal() { $('aggModal').classList.add('hidden'); }
+
   function exportAggregation() {
-    const baseFiltered = getFilteredCases();
-    const periodFiltered = filterByAggPeriod(baseFiltered);
-    const agg = computeAggregation(periodFiltered);
-    if (agg.byR.length === 0) { alert('対象案件がありません。'); return; }
-    const headers = ['R担当者', '件数', '見積合計', '粗利合計', '平均粗利率(%)'];
-    const rows = [headers];
-    agg.byR.forEach((r) => {
-      const avg = r.amount > 0 ? (r.profit / r.amount * 100) : 0;
-      rows.push([r.name, r.count, r.amount, r.profit, avg.toFixed(1)]);
+    const team = loadTeam();
+    const targets = aggTargetCases();
+    if (targets.length === 0) { alert('対象案件がありません。'); return; }
+    const memberTotals = {};
+    team.forEach((m) => { memberTotals[m] = 0; });
+    let totalProfit = 0;
+    const rows = [['案件', '見積金額', '粗利率(%)', '粗利(A)'].concat(team).concat(['配分計', '判定'])];
+    targets.forEach((c) => {
+      const amt = Number(c.estimateAmount) || 0;
+      const rate = (c.marginRate === '' || c.marginRate == null || isNaN(Number(c.marginRate))) ? DEFAULT_MARGIN_RATE : Number(c.marginRate);
+      const profit = amt * rate / 100;
+      totalProfit += profit;
+      const alloc = getAllocations(c, team);
+      const sum = sumAllocations(alloc);
+      const ok = Math.abs(sum - 100) < 0.01 ? 'OK' : 'NG';
+      const row = [
+        `${c.theater} / ${c.estimateName || '-'}`,
+        amt, rate, Math.round(profit)
+      ];
+      team.forEach((m) => {
+        const a = Number(alloc[m]) || 0;
+        memberTotals[m] += profit * a / 100;
+        row.push(a);
+      });
+      row.push(sum.toFixed(1) + '%', ok);
+      rows.push(row);
     });
-    const avg = agg.totals.amount > 0 ? (agg.totals.profit / agg.totals.amount * 100) : 0;
-    rows.push(['合計', agg.totals.count, agg.totals.amount, agg.totals.profit, avg.toFixed(1)]);
-    downloadCSV(`粗利集計_${todayStr()}.csv`, rows);
+    const totalsRow = ['個人別粗利A合計', '', '', Math.round(totalProfit)]
+      .concat(team.map((m) => Math.round(memberTotals[m])))
+      .concat(['-', '-']);
+    rows.push(totalsRow);
+    downloadCSV(`経営集計_${todayStr()}.csv`, rows);
+  }
+
+  // 配分の手動更新
+  function handleAggInput(e) {
+    const inp = e.target;
+    if (!inp.classList.contains('agg-input')) return;
+    const tr = inp.closest('tr');
+    if (!tr) return;
+    const c = cases.find((x) => x.id === tr.dataset.caseId);
+    if (!c) return;
+    const team = loadTeam();
+    // 初回編集時に現在の配分(デフォルト含む)を case に書き込む
+    if (!c.allocations || Object.keys(c.allocations).length === 0) {
+      c.allocations = defaultAllocations(c, team);
+    }
+    if (inp.dataset.field === 'marginRate') {
+      const v = Number(inp.value);
+      c.marginRate = isNaN(v) ? DEFAULT_MARGIN_RATE : v;
+    } else if (inp.dataset.member) {
+      const v = Number(inp.value);
+      c.allocations[inp.dataset.member] = isNaN(v) ? 0 : v;
+    }
+    c.updatedAt = new Date().toISOString();
+    saveCases();
+    renderAggSpreadsheet();
+  }
+  function addTeamMember() {
+    const name = prompt('追加する担当者名を入力してください');
+    if (!name) return;
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    const team = loadTeam();
+    if (team.indexOf(trimmed) !== -1) { alert('既に登録されています: ' + trimmed); return; }
+    team.push(trimmed);
+    saveTeam(team);
+    renderAggSpreadsheet();
+  }
+  function removeTeamMember(name) {
+    if (!confirm(`担当者「${name}」を削除しますか？\n（各案件の配分データは保持されます）`)) return;
+    const team = loadTeam().filter((m) => m !== name);
+    saveTeam(team);
+    renderAggSpreadsheet();
+  }
+  function redistributeSmallCases() {
+    if (!confirm('300万円未満の案件すべての配分を初期ルールで再計算します。\n（手動で変更した配分は上書きされます）')) return;
+    const team = loadTeam();
+    cases.forEach((c) => {
+      const amt = Number(c.estimateAmount) || 0;
+      if (amt > 0 && amt < SMALL_CASE_THRESHOLD) {
+        c.allocations = defaultAllocations(c, team);
+        c.updatedAt = new Date().toISOString();
+      }
+    });
+    saveCases();
+    renderAggSpreadsheet();
   }
 
   // ---------- screens ----------
@@ -895,9 +1028,16 @@
   $('aggExportBtn').addEventListener('click', exportAggregation);
   $('aggPeriod').addEventListener('change', () => {
     $('aggCustomMonth').classList.toggle('hidden', $('aggPeriod').value !== 'custom');
-    renderAggregation();
+    renderAggSpreadsheet();
   });
-  $('aggCustomMonth').addEventListener('change', renderAggregation);
+  $('aggCustomMonth').addEventListener('change', renderAggSpreadsheet);
+  $('aggAddMemberBtn').addEventListener('click', addTeamMember);
+  $('aggRedistributeBtn').addEventListener('click', redistributeSmallCases);
+  $('aggBody').addEventListener('change', handleAggInput);
+  $('aggHeaderRow').addEventListener('click', (e) => {
+    const rm = e.target.closest('.agg-rm-member');
+    if (rm) removeTeamMember(rm.dataset.member);
+  });
 
   document.addEventListener('keydown', (e) => {
     if (e.key !== 'Escape') return;
@@ -942,7 +1082,6 @@
       certNumber: $('certNumber').value.trim(),
       estimateName: $('estimateName').value.trim(),
       estimateAmount: amountRaw === '' ? '' : Number(amountRaw),
-      marginRate: (() => { const r = $('marginRate').value; return r === '' ? DEFAULT_MARGIN_RATE : Number(r); })(),
       quoteDate: parsedDates.quoteDate,
       workStartDate: parsedDates.workStartDate,
       workEndDate: parsedDates.workEndDate,

@@ -21,6 +21,7 @@ create table if not exists public.cases (
   payment_date    date,
   status          text default '受付',
   margin_rate     numeric default 20,
+  allocations     jsonb default '{}'::jsonb,
   created_at      timestamptz not null default now(),
   updated_at      timestamptz not null default now(),
   created_by      uuid references auth.users(id) on delete set null,
