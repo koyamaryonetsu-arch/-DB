@@ -297,7 +297,7 @@
       const hay = [c.company, c.theater, c.tcPerson, c.rPerson, c.category, c.content,
         c.certNumber, c.estimateName, String(c.estimateAmount || ''), c.memo,
         c.receivedDate, c.surveyDate, c.quoteDate, c.workStartDate, c.workEndDate, c.invoiceDate, c.paymentDate,
-        deriveStatus(c)]
+        deriveStatus(c), statusDisplayLabel(deriveStatus(c))]
         .map((x) => (x || '').toString().toLowerCase()).join(' ');
       return hay.includes(q);
     });
@@ -400,27 +400,31 @@
 
     let done = false;
     const commit = () => {
-      if (done) return; done = true;
+      if (done) return;
       let newVal = el.value;
       if (typeof newVal === 'string') newVal = newVal.trim();
 
       if (cfg.type === 'date' && newVal !== '') {
         const parsed = parseSmartDate(newVal);
         if (parsed === null) {
+          // 不正な日付は破棄せず、編集状態を維持して再入力させる（中断は Esc）
           alert('日付として認識できません: ' + newVal + '\n例: 5/28 / 0528 / 2026/5/28');
-          render();
+          setTimeout(() => { el.focus(); if (el.select) try { el.select(); } catch (e) {} }, 0);
           return;
         }
         newVal = parsed;
       }
+      done = true;
+      if (cfg.type === 'number') newVal = (newVal === '' ? '' : Number(newVal));
 
       if (String(newVal) !== String(oldVal)) {
         c[field] = newVal;
         c.updatedAt = new Date().toISOString();
-        if (field === 'theater') addToHistory('theaters', newVal);
-        if (field === 'tcPerson') addToHistory('tcPersons', newVal);
-        if (field === 'rPerson') addToHistory('rPersons', newVal);
-        saveHistory();
+        let histChanged = false;
+        if (field === 'theater') { addToHistory('theaters', newVal); histChanged = true; }
+        if (field === 'tcPerson') { addToHistory('tcPersons', newVal); histChanged = true; }
+        if (field === 'rPerson') { addToHistory('rPersons', newVal); histChanged = true; }
+        if (histChanged) saveHistory();
         saveCases();
       }
       render();
@@ -579,18 +583,20 @@
   function setCellInline(xml, ref, value) {
     const escaped = xmlEscape(value);
     const re = new RegExp(`<c r="${ref}"([^/]*?)(/>|>[\\s\\S]*?</c>)`);
-    if (!re.test(xml)) { console.warn('Cell not found:', ref); return xml; }
+    // セルが見つからなければ黙って空欄を作らず、明確にエラーにする（テンプレ変更検知）
+    if (!re.test(xml)) throw new Error(`テンプレートのセル ${ref} が見つかりません（書式が変わった可能性）`);
     return xml.replace(re, (_, attrs) => {
       const a = attrs.replace(/\s+t="[^"]*"/, '');
       return `<c r="${ref}"${a} t="inlineStr"><is><t xml:space="preserve">${escaped}</t></is></c>`;
     });
   }
   function setCellNumber(xml, ref, num) {
+    const safe = Number.isFinite(num) ? num : 0;
     const re = new RegExp(`<c r="${ref}"([^/]*?)(/>|>[\\s\\S]*?</c>)`);
-    if (!re.test(xml)) { console.warn('Cell not found:', ref); return xml; }
+    if (!re.test(xml)) throw new Error(`テンプレートのセル ${ref} が見つかりません（書式が変わった可能性）`);
     return xml.replace(re, (_, attrs) => {
       const a = attrs.replace(/\s+t="[^"]*"/, '');
-      return `<c r="${ref}"${a}><v>${num}</v></c>`;
+      return `<c r="${ref}"${a}><v>${safe}</v></c>`;
     });
   }
   async function buildInvoiceXlsx(c) {
@@ -796,7 +802,8 @@
       category: $('category').value,
       content: $('content').value.trim(),
       surveyDate: parsedDates.surveyDate,
-      certNumber: company === 'TOHOシネマズ' ? $('certNumber').value.trim() : '',
+      // 認証番号は保存値として保持（表示・編集はTOHOのときだけ）。会社を切替えても消えないようにする
+      certNumber: $('certNumber').value.trim(),
       estimateName: $('estimateName').value.trim(),
       estimateAmount: amountRaw === '' ? '' : Number(amountRaw),
       quoteDate: parsedDates.quoteDate,
