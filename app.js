@@ -100,7 +100,12 @@
   // ---------- storage ----------
   function loadCases() {
     let arr = [];
-    try { arr = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch (e) { arr = []; }
+    let needResave = false;
+    try {
+      arr = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      if (!Array.isArray(arr)) { arr = []; needResave = true; }
+    } catch (e) { arr = []; needResave = true; console.warn('案件データのJSONが破損していたため空で復旧'); }
+    if (needResave) try { localStorage.setItem(STORAGE_KEY, '[]'); } catch (e) {}
     arr.forEach((c) => {
       if (!c.company) c.company = 'TOHOシネマズ';
       if (c.invoiceDate === undefined) c.invoiceDate = '';
@@ -145,6 +150,10 @@
   function companyAbbr(name) {
     const found = companies.find((c) => c.name === name);
     return found ? found.abbr : (name || '');
+  }
+  // CSSクラスに安全な文字列化（スペース・記号を_に）
+  function safeClass(s) {
+    return String(s || '').replace(/[^A-Za-z0-9_぀-ゟ゠-ヿ一-鿿]/g, '_');
   }
   function addToHistory(key, value) {
     if (!value) return;
@@ -209,7 +218,8 @@
       const eligible = team.filter((m) => m !== EXCLUDED_FROM_BASE);
       eligible.forEach((m) => { result[m] = BASE_RATE; });
       const base = eligible.length * BASE_RATE;
-      const residual = 100 - base;
+      // チームが大きい(>20人)場合は5%ずつで既に100%超 → 残差0以下にしない
+      const residual = Math.max(0, 100 - base);
       // R担当者 名前が team に含まれていれば残差を加算
       if (c.rPerson && team.indexOf(c.rPerson) !== -1) {
         result[c.rPerson] = (result[c.rPerson] || 0) + residual;
@@ -218,6 +228,7 @@
     }
     return result;
   }
+  // 表示用: チームメンバー分を返す。未知メンバーのデータは破壊せず保持される(stored側)
   function getAllocations(c, team) {
     const stored = c.allocations || {};
     const hasAny = Object.keys(stored).some((k) => Number(stored[k]) > 0);
@@ -311,9 +322,18 @@
   }
 
   // ---------- status auto-derive ----------
+  // メモに「保留」が含まれるか。ただし明示的な否定/解除文言は除外
+  // 例: 保留 / 保留中 / 要保留対応 → 保留扱い
+  //     保留しない / 保留解除 / 保留中止 / 保留終了 / 保留不要 → 通常扱い
+  function memoHasHold(memo) {
+    if (!memo) return false;
+    if (!/保留/.test(memo)) return false;
+    if (/保留(?:しない|しません|解除|中止|終了|不要|なし|無し)/.test(memo)) return false;
+    return true;
+  }
   function deriveStatus(c) {
     // メモに「保留」と記入されていたら最優先で 保留
-    if (c.memo && String(c.memo).indexOf('保留') !== -1) return '保留';
+    if (memoHasHold(c.memo)) return '保留';
     const today = todayStr();
     if (c.paymentDate)  return '入金済';
     if (c.invoiceDate)  return '請求済';
@@ -412,11 +432,13 @@
       if (cf && c.company !== cf) return false;
       if (sf && deriveStatus(c) !== sf) return false;
       if (!q) return true;
-      const hay = [c.company, c.theater, c.tcPerson, c.rPerson, c.category, c.content,
-        c.certNumber, c.estimateName, String(c.estimateAmount || ''), c.memo,
+      const hayArr = [c.company, c.theater, c.tcPerson, c.rPerson, c.category, c.content,
+        c.certNumber, c.estimateName, String(c.estimateAmount || ''),
         c.receivedDate, c.surveyDate, c.quoteDate, c.workStartDate, c.workEndDate, c.invoiceDate, c.paymentDate,
-        deriveStatus(c), statusDisplayLabel(deriveStatus(c))]
-        .map((x) => (x || '').toString().toLowerCase()).join(' ');
+        deriveStatus(c), statusDisplayLabel(deriveStatus(c))];
+      // memo は ryonetsu ユーザーのみ検索対象（情報漏洩防止）
+      if (isPrivileged(currentUser)) hayArr.push(c.memo);
+      const hay = hayArr.map((x) => (x || '').toString().toLowerCase()).join(' ');
       return hay.includes(q);
     });
     return sortCases(filtered);
@@ -442,7 +464,7 @@
       if (cls) tr.className = cls;
       const statusCode = deriveStatus(c);
       const statusLabel = statusDisplayLabel(statusCode);
-      const companyHtml = c.company ? `<span class="company-tag company-${escapeHtml(c.company)}" title="${escapeHtml(c.company)}">${escapeHtml(companyAbbr(c.company))}</span>` : '';
+      const companyHtml = c.company ? `<span class="company-tag company-${safeClass(c.company)}" title="${escapeHtml(c.company)}">${escapeHtml(companyAbbr(c.company))}</span>` : '';
       const statusHtml = `<span class="status-badge status-${escapeHtml(statusCode)}">${escapeHtml(statusLabel)}</span>`;
       const isTohoCo = c.company === 'TOHOシネマズ';
       const certHtml = isTohoCo
@@ -520,8 +542,9 @@
     if (el.select) try { el.select(); } catch (e) {}
 
     let done = false;
+    let reEditing = false; // 不正日付で再入力中（重複起動防止）
     const commit = () => {
-      if (done) return;
+      if (done || reEditing) return;
       let newVal = el.value;
       if (typeof newVal === 'string') newVal = newVal.trim();
 
@@ -529,8 +552,13 @@
         const parsed = parseSmartDate(newVal);
         if (parsed === null) {
           // 不正な日付は破棄せず、編集状態を維持して再入力させる（中断は Esc）
+          reEditing = true;
           alert('日付として認識できません: ' + newVal + '\n例: 5/28 / 0528 / 2026/5/28');
-          setTimeout(() => { el.focus(); if (el.select) try { el.select(); } catch (e) {} }, 0);
+          setTimeout(() => {
+            reEditing = false;
+            el.focus();
+            if (el.select) try { el.select(); } catch (e) {}
+          }, 0);
           return;
         }
         newVal = parsed;
@@ -804,6 +832,7 @@
     $('invoiceGenerateBtn').disabled = true;
     $('invoiceGenerateBtn').textContent = '生成中...';
     try {
+      // 1) まずZIPを完全に生成（途中で失敗してもデータには触れない）
       const zip = new JSZip();
       for (const c of matches) {
         const invBlob = await buildInvoiceXlsx(c);
@@ -811,11 +840,13 @@
         const tag = `${safeFilename(c.theater)}_${safeFilename(c.estimateName)}`;
         zip.file(`請求書_${tag}.xlsx`, invBlob);
         zip.file(`完了届_${tag}.xlsx`, comBlob);
-        c.invoiceDate = issueIso;
-        c.updatedAt = new Date().toISOString();
       }
-      saveCases();
       const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 9 } });
+      // 2) ここまで来たら成功確定。請求書発行日を全件まとめて更新→保存
+      const nowIso = new Date().toISOString();
+      matches.forEach((c) => { c.invoiceDate = issueIso; c.updatedAt = nowIso; });
+      saveCases();
+      // 3) ダウンロード
       triggerDownload(blob, `請求書セット_${month}.zip`);
       closeInvoiceModal();
       render();
@@ -959,7 +990,7 @@
           <td class="agg-amount">${fmtAmount(amt)}</td>
           <td class="agg-sum ${okClass}">${sum.toFixed(1)}% ${okText}</td>
           <td><input type="number" data-field="marginRate" min="0" max="100" step="0.1" value="${rate}" class="agg-input agg-rate"></td>
-          ${team.map((m) => `<td><input type="number" data-member="${escapeHtml(m)}" min="0" max="100" step="0.5" value="${alloc[m] || 0}" class="agg-input"></td>`).join('')}
+          ${team.map((m) => `<td><input type="number" data-member="${escapeHtml(m)}" min="0" max="100" step="1" value="${alloc[m] || 0}" class="agg-input"></td>`).join('')}
         </tr>`;
       }).join('');
     }
@@ -999,8 +1030,12 @@
     const c = cases.find((x) => x.id === tr.dataset.caseId);
     if (!c) return;
     const team = loadTeam();
-    if (!c.allocations || Object.keys(c.allocations).length === 0) {
-      c.allocations = defaultAllocations(c, team);
+    // 既存の配分データを破壊しないように、デフォルトをマージで初期化
+    if (!c.allocations || typeof c.allocations !== 'object') c.allocations = {};
+    const hasAny = Object.keys(c.allocations).some((k) => Number(c.allocations[k]) > 0);
+    if (!hasAny) {
+      const def = defaultAllocations(c, team);
+      Object.keys(def).forEach((k) => { if (!(k in c.allocations)) c.allocations[k] = def[k]; });
     }
     if (inp.dataset.field === 'marginRate') {
       const v = Number(inp.value);
@@ -1025,17 +1060,19 @@
     renderAggTable();
   }
   function removeTeamMember(name) {
-    if (!confirm(`担当者「${name}」を削除しますか？\n（各案件の配分データは保持されます）`)) return;
+    if (!confirm(`担当者「${name}」を削除しますか？\n（各案件の配分データは保持され、再追加すれば復元されます）`)) return;
     saveTeam(loadTeam().filter((m) => m !== name));
     renderAggTable();
   }
   function redistributeSmallCases() {
-    if (!confirm('300万円未満の案件すべての配分を初期ルールで再計算します。\n（手動で変更した配分は上書きされます）')) return;
+    if (!confirm('300万円未満の案件すべての配分を初期ルールで再計算します。\n（チームメンバーの配分のみ上書き、削除済みメンバーのデータは保持）')) return;
     const team = loadTeam();
     cases.forEach((c) => {
       const amt = Number(c.estimateAmount) || 0;
       if (amt > 0 && amt < SMALL_CASE_THRESHOLD) {
-        c.allocations = defaultAllocations(c, team);
+        // 削除済みメンバーの保管値を残しつつ、現チームの配分のみ初期化
+        const def = defaultAllocations(c, team);
+        c.allocations = Object.assign({}, c.allocations || {}, def);
         c.updatedAt = new Date().toISOString();
       }
     });
@@ -1112,7 +1149,16 @@
     showApp();
   });
 
-  $('logoutBtn').addEventListener('click', () => { clearAuth(); currentUser = null; showLogin(); });
+  $('logoutBtn').addEventListener('click', () => {
+    // 開いているモーダル/A集計モードを全部クリーンに閉じてからログアウト
+    if (aggMode) exitAggMode();
+    if (!$('modal').classList.contains('hidden')) closeModal();
+    if (!$('invoiceModal').classList.contains('hidden')) closeInvoiceModal();
+    if (!$('contentModal').classList.contains('hidden')) closeContentModal();
+    clearAuth();
+    currentUser = null;
+    showLogin();
+  });
   $('newCaseBtn').addEventListener('click', () => openModal(null, 'full'));
   $('quickCaseBtn').addEventListener('click', () => openModal(null, 'simple'));
   $('closeModal').addEventListener('click', closeModal);
@@ -1153,9 +1199,10 @@
 
   document.addEventListener('keydown', (e) => {
     if (e.key !== 'Escape') return;
-    if (!$('modal').classList.contains('hidden')) closeModal();
-    if (!$('invoiceModal').classList.contains('hidden')) closeInvoiceModal();
-    if (!$('contentModal').classList.contains('hidden')) closeContentModal();
+    // 最後に開いたものを優先的に閉じる
+    if (!$('contentModal').classList.contains('hidden')) { closeContentModal(); return; }
+    if (!$('invoiceModal').classList.contains('hidden')) { closeInvoiceModal(); return; }
+    if (!$('modal').classList.contains('hidden')) { closeModal(); return; }
   });
 
   // フォーム保存時に日付を一括パース＆バリデーション
