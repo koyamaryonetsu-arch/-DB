@@ -488,7 +488,9 @@ body.user-toho .lbl-ryo  { display: none; }
 body.user-toho .lbl-toho { display: inline; }
 body.user-toho .col-company,
 body.user-toho .col-memo,
-body.user-toho #invoiceBtn { display: none !important; }
+body.user-toho .col-ryo,
+body.user-toho #invoiceBtn,
+body.user-toho #aggBtn { display: none !important; }
 
 /* ---- 内容ポップアップ ---- */
 .modal-content-wide { max-width: 720px; }
@@ -528,6 +530,106 @@ td.content-cell {
   border-color: #dc2626;
   background: #fef2f2;
 }
+
+/* ---- GitHub DL info ---- */
+.github-dl {
+  margin-top: 22px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+  text-align: center;
+  font-size: 12px;
+  color: #6b7280;
+}
+.github-dl-label {
+  margin: 0 0 6px;
+  font-weight: 600;
+  color: #374151;
+}
+.github-dl a {
+  color: #2563eb;
+  text-decoration: none;
+}
+.github-dl a:hover { text-decoration: underline; }
+.github-dl-sub { margin: 8px 0 0; }
+.github-dl-zip { font-weight: 600; }
+
+.header-link {
+  color: #fff;
+  text-decoration: none;
+  padding: 5px 10px;
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.header-link:hover { background: rgba(255,255,255,0.1); }
+
+/* ---- A集計モーダル ---- */
+.agg-body { padding: 16px 20px; }
+.agg-controls { margin-bottom: 14px; }
+.form-row.inline {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+.form-row.inline label {
+  flex-shrink: 0;
+}
+.agg-hint {
+  margin: 8px 0 0;
+  font-size: 11px;
+  color: #6b7280;
+}
+.agg-summary {
+  background: #f1f5f9;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.agg-stat {
+  text-align: center;
+}
+.agg-stat-label {
+  font-size: 11px;
+  color: #6b7280;
+  margin-bottom: 2px;
+}
+.agg-stat-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1f2a44;
+}
+.agg-stat-value.profit { color: #15803d; }
+.agg-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.agg-table th, .agg-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: right;
+}
+.agg-table th:first-child, .agg-table td:first-child { text-align: left; }
+.agg-table thead th { background: #eef2f7; font-weight: 600; }
+.agg-table tfoot td {
+  background: #f1f5f9;
+  font-weight: 700;
+  border-top: 2px solid #cbd5e1;
+}
+.agg-table .profit-col { color: #15803d; font-weight: 600; }
+.agg-empty {
+  text-align: center;
+  padding: 30px;
+  color: #6b7280;
+}
+
+/* margin rate display in cell */
+td.col-ryo { text-align: right; font-variant-numeric: tabular-nums; }
 
 .status-badge {
   display: inline-block;

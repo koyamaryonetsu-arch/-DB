@@ -23,6 +23,13 @@
       <button type="submit" class="primary">ログイン</button>
       <p class="login-hint">※ パスワードはメールアドレスの@より前の部分（小文字）です</p>
     </form>
+    <div class="github-dl">
+      <p class="github-dl-label">📥 最新版のダウンロード</p>
+      <a href="https://github.com/koyamaryonetsu-arch/-DB/tree/claude/nifty-lamport-YPlSX" target="_blank" rel="noopener">github.com/koyamaryonetsu-arch/-DB</a>
+      <p class="github-dl-sub">
+        <a href="https://github.com/koyamaryonetsu-arch/-DB/archive/refs/heads/claude/nifty-lamport-YPlSX.zip" class="github-dl-zip">📦 ZIPでまとめてダウンロード</a>
+      </p>
+    </div>
   </div>
 </div>
 
@@ -50,8 +57,10 @@
       </select>
       <button id="quickCaseBtn" class="primary outline">⚡ 簡易登録</button>
       <button id="newCaseBtn" class="primary">＋ 新規案件登録</button>
+      <button id="aggBtn" class="col-ryo">📊 A集計</button>
       <button id="invoiceBtn">📄 請求書発行</button>
       <button id="exportBtn">Excelダウンロード</button>
+      <a href="https://github.com/koyamaryonetsu-arch/-DB/tree/claude/nifty-lamport-YPlSX" target="_blank" rel="noopener" class="header-link" title="最新版をGitHubで開く">📥 DL</a>
       <span class="user-info">
         <span id="userEmail"></span>
         <button id="logoutBtn" class="link-btn">ログアウト</button>
@@ -82,6 +91,7 @@
             <th class="sortable" data-sort="certNumber">認証番号</th>
             <th class="sortable" data-sort="estimateName">見積り名</th>
             <th class="sortable" data-sort="estimateAmount">見積り金額</th>
+            <th class="col-ryo sortable" data-sort="marginRate">粗利率</th>
             <th class="sortable" data-sort="quoteDate"><span class="lbl-ryo">見積り提出日</span><span class="lbl-toho">見積り受領日</span></th>
             <th class="sortable" data-sort="workStartDate">作業開始日</th>
             <th class="sortable" data-sort="workEndDate">作業完了日</th>
@@ -146,6 +156,7 @@
           <select id="category">
             <option value="">選択してください</option>
             <option value="新規工事">新規工事</option>
+            <option value="更新案件">更新案件</option>
             <option value="修理">修理</option>
             <option value="メンテナンス">メンテナンス</option>
             <option value="点検">点検</option>
@@ -177,6 +188,11 @@
         <div class="form-row" data-mode="full">
           <label for="estimateAmount">見積り金額（円）</label>
           <input type="number" id="estimateAmount" min="0" step="1" placeholder="例：500000">
+        </div>
+
+        <div class="form-row col-ryo" data-mode="full">
+          <label for="marginRate">粗利率（％・ryonetsu限定）</label>
+          <input type="number" id="marginRate" min="0" max="100" step="0.1" placeholder="例：20">
         </div>
 
         <div class="form-row" data-mode="full">
@@ -261,6 +277,43 @@
     <div class="modal-footer">
       <button type="button" id="contentCancelBtn">キャンセル</button>
       <button type="button" id="contentSaveBtn" class="primary">保存</button>
+    </div>
+  </div>
+</div>
+
+<div id="aggModal" class="modal hidden">
+  <div class="modal-content modal-content-wide">
+    <div class="modal-header">
+      <h2>📊 粗利集計（R担当者別・社内用）</h2>
+      <button id="closeAggModal" class="close-btn" aria-label="閉じる" tabindex="-1">×</button>
+    </div>
+    <div class="agg-body">
+      <div class="agg-controls">
+        <div class="form-row inline">
+          <label for="aggPeriod">対象期間（受付日基準）</label>
+          <select id="aggPeriod">
+            <option value="all">全期間</option>
+            <option value="this-year">今年</option>
+            <option value="last-year">去年</option>
+            <option value="this-month">今月</option>
+            <option value="custom">指定月</option>
+          </select>
+          <input type="month" id="aggCustomMonth" class="hidden">
+        </div>
+        <p class="agg-hint">※ 検索バー / 会社フィルタ / ステータスフィルタの絞り込みも併用されます。</p>
+      </div>
+      <div id="aggSummary" class="agg-summary"></div>
+      <table class="agg-table">
+        <thead>
+          <tr><th>R担当者</th><th>件数</th><th>見積合計</th><th>粗利合計</th><th>平均粗利率</th></tr>
+        </thead>
+        <tbody id="aggBody"></tbody>
+        <tfoot id="aggFoot"></tfoot>
+      </table>
+    </div>
+    <div class="modal-footer">
+      <button type="button" id="aggCloseBtn">閉じる</button>
+      <button type="button" id="aggExportBtn" class="primary">CSV出力</button>
     </div>
   </div>
 </div>

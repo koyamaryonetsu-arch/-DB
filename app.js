@@ -6,7 +6,10 @@
   const AUTH_KEY = 'tohoAuthV1';
 
   const COMPANIES = ['TOHOシネマズ', '109シネマズ', 'ユナイテッドシネマ', '佐々木興業'];
-  const CATEGORIES = ['新規工事', '修理', 'メンテナンス', '点検', '改修', 'その他'];
+  const CATEGORIES = ['新規工事', '更新案件', '修理', 'メンテナンス', '点検', '改修', 'その他'];
+  // 色判定を除外するカテゴリ
+  const NO_COLOR_CATEGORIES = new Set(['更新案件', 'その他']);
+  const DEFAULT_MARGIN_RATE = 20;
   const PRIVILEGED_DOMAIN = 'ryonetsu.com';
 
   // 役割別ラベル: 受注者(ryonetsu) ↔ 発注者(TOHO)
@@ -59,6 +62,7 @@
     certNumber:     { type: 'text',     tohoOnly: true },
     estimateName:   { type: 'text' },
     estimateAmount: { type: 'number' },
+    marginRate:     { type: 'number', privilegedOnly: true },
     quoteDate:      { type: 'date' },
     workStartDate:  { type: 'date' },
     workEndDate:    { type: 'date' },
@@ -87,6 +91,7 @@
       if (c.estimateAmount === undefined) c.estimateAmount = '';
       if (c.memo === undefined) c.memo = '';
       if (c.certNumber === undefined) c.certNumber = '';
+      if (c.marginRate === undefined || c.marginRate === null || c.marginRate === '') c.marginRate = DEFAULT_MARGIN_RATE;
     });
     return arr;
   }
@@ -220,6 +225,7 @@
   }
 
   function rowColorClass(c) {
+    if (NO_COLOR_CATEGORIES.has(c.category)) return '';
     if (c.quoteDate) return '';
     const today = todayStr();
     if (c.surveyDate) {
@@ -244,6 +250,13 @@
     const num = Number(n);
     if (isNaN(num)) return escapeHtml(n);
     return '¥' + num.toLocaleString('ja-JP');
+  }
+  function fmtPercent(n) {
+    if (n === '' || n == null) return '';
+    const num = Number(n);
+    if (isNaN(num)) return escapeHtml(n);
+    // 整数なら整数表示、小数なら1桁
+    return (num % 1 === 0 ? num : num.toFixed(1)) + '%';
   }
 
   // ---------- sort ----------
@@ -342,6 +355,7 @@
         ${certHtml}
         ${editableTd(c, 'estimateName', escapeHtml(c.estimateName))}
         ${editableTd(c, 'estimateAmount', fmtAmount(c.estimateAmount))}
+        ${editableTd(c, 'marginRate', fmtPercent(c.marginRate), 'col-ryo')}
         ${editableTd(c, 'quoteDate', fmtDateShort(c.quoteDate))}
         ${editableTd(c, 'workStartDate', fmtDateShort(c.workStartDate))}
         ${editableTd(c, 'workEndDate', fmtDateShort(c.workEndDate))}
@@ -487,6 +501,7 @@
       $('certNumber').value = caseObj.certNumber || '';
       $('estimateName').value = caseObj.estimateName || '';
       $('estimateAmount').value = caseObj.estimateAmount || '';
+      $('marginRate').value = (caseObj.marginRate === '' || caseObj.marginRate == null) ? DEFAULT_MARGIN_RATE : caseObj.marginRate;
       setDateField('quoteDate', caseObj.quoteDate);
       setDateField('workStartDate', caseObj.workStartDate);
       setDateField('workEndDate', caseObj.workEndDate);
@@ -497,6 +512,7 @@
       $('modalTitle').textContent = isSimple ? '簡易登録' : '新規案件登録';
       $('company').value = 'TOHOシネマズ';
       setDateField('receivedDate', todayStr());
+      $('marginRate').value = DEFAULT_MARGIN_RATE;
     }
     updateTohoVisibility();
     renderDatalists();
@@ -553,18 +569,23 @@
     const includesMemo = isPrivileged(currentUser);
     const isToho = !includesMemo;
     const headers = ['会社', '劇場名', '受付日', 'TC担当者', 'R担当者', '種別', '内容',
-      '調査日', '認証番号', '見積り名', '見積り金額',
+      '調査日', '認証番号', '見積り名', '見積り金額'];
+    if (includesMemo) headers.push('粗利率(%)');
+    headers.push(
       isToho ? '見積り受領日' : '見積り提出日',
       '作業開始日', '作業完了日',
       isToho ? '請求書受領日' : '請求書発行日',
       isToho ? '支払日' : '入金日',
-      'ステータス'];
+      'ステータス'
+    );
     if (includesMemo) headers.push('メモ');
     const rows = [headers].concat(filtered.map((c) => {
       const row = [c.company, c.theater, c.receivedDate, c.tcPerson, c.rPerson, c.category, c.content,
         c.surveyDate, c.company === 'TOHOシネマズ' ? c.certNumber : '',
-        c.estimateName, c.estimateAmount, c.quoteDate, c.workStartDate, c.workEndDate,
-        c.invoiceDate, c.paymentDate, statusDisplayLabel(deriveStatus(c))];
+        c.estimateName, c.estimateAmount];
+      if (includesMemo) row.push(c.marginRate);
+      row.push(c.quoteDate, c.workStartDate, c.workEndDate,
+        c.invoiceDate, c.paymentDate, statusDisplayLabel(deriveStatus(c)));
       if (includesMemo) row.push(c.memo);
       return row;
     }));
@@ -704,6 +725,109 @@
     }
   }
 
+  // ---------- 粗利集計 (A集計) ----------
+  function filterByAggPeriod(arr) {
+    const period = $('aggPeriod').value;
+    if (period === 'all') return arr;
+    const today = new Date();
+    const ty = today.getFullYear(), tm = today.getMonth() + 1;
+    return arr.filter((c) => {
+      if (!c.receivedDate) return false;
+      const [y, m] = c.receivedDate.split('-').map(Number);
+      switch (period) {
+        case 'this-year':  return y === ty;
+        case 'last-year':  return y === ty - 1;
+        case 'this-month': return y === ty && m === tm;
+        case 'custom': {
+          const cm = $('aggCustomMonth').value;
+          if (!cm) return false;
+          const [cy, cmo] = cm.split('-').map(Number);
+          return y === cy && m === cmo;
+        }
+      }
+      return true;
+    });
+  }
+  function computeAggregation(arr) {
+    const byR = {};
+    let totalAmount = 0, totalProfit = 0, count = 0;
+    arr.forEach((c) => {
+      const amt = Number(c.estimateAmount) || 0;
+      if (amt === 0) return;
+      const rate = Number(c.marginRate);
+      const r = isNaN(rate) ? DEFAULT_MARGIN_RATE : rate;
+      const profit = amt * r / 100;
+      count++;
+      totalAmount += amt;
+      totalProfit += profit;
+      const key = c.rPerson || '(未設定)';
+      if (!byR[key]) byR[key] = { name: key, count: 0, amount: 0, profit: 0 };
+      byR[key].count++;
+      byR[key].amount += amt;
+      byR[key].profit += profit;
+    });
+    const rows = Object.values(byR).sort((a, b) => b.profit - a.profit);
+    return { totals: { count, amount: totalAmount, profit: totalProfit }, byR: rows };
+  }
+  function renderAggregation() {
+    // 集計対象 = 現在のフィルタ後の案件 ∩ 期間フィルタ
+    const baseFiltered = getFilteredCases();
+    const periodFiltered = filterByAggPeriod(baseFiltered);
+    const agg = computeAggregation(periodFiltered);
+    const avgRate = agg.totals.amount > 0 ? (agg.totals.profit / agg.totals.amount * 100) : 0;
+    $('aggSummary').innerHTML = `
+      <div class="agg-stat"><div class="agg-stat-label">対象案件</div><div class="agg-stat-value">${agg.totals.count} 件</div></div>
+      <div class="agg-stat"><div class="agg-stat-label">見積合計</div><div class="agg-stat-value">${fmtAmount(agg.totals.amount)}</div></div>
+      <div class="agg-stat"><div class="agg-stat-label">粗利合計（平均${avgRate.toFixed(1)}%）</div><div class="agg-stat-value profit">${fmtAmount(agg.totals.profit)}</div></div>
+    `;
+    const body = $('aggBody');
+    if (agg.byR.length === 0) {
+      body.innerHTML = `<tr><td colspan="5" class="agg-empty">対象案件がありません。</td></tr>`;
+      $('aggFoot').innerHTML = '';
+    } else {
+      body.innerHTML = agg.byR.map((r) => {
+        const avg = r.amount > 0 ? (r.profit / r.amount * 100) : 0;
+        return `<tr>
+          <td>${escapeHtml(r.name)}</td>
+          <td>${r.count}</td>
+          <td>${fmtAmount(r.amount)}</td>
+          <td class="profit-col">${fmtAmount(r.profit)}</td>
+          <td>${avg.toFixed(1)}%</td>
+        </tr>`;
+      }).join('');
+      $('aggFoot').innerHTML = `<tr>
+        <td>合計</td>
+        <td>${agg.totals.count}</td>
+        <td>${fmtAmount(agg.totals.amount)}</td>
+        <td class="profit-col">${fmtAmount(agg.totals.profit)}</td>
+        <td>${avgRate.toFixed(1)}%</td>
+      </tr>`;
+    }
+  }
+  function openAggModal() {
+    $('aggPeriod').value = 'all';
+    $('aggCustomMonth').classList.add('hidden');
+    $('aggCustomMonth').value = currentMonth();
+    renderAggregation();
+    $('aggModal').classList.remove('hidden');
+  }
+  function closeAggModal() { $('aggModal').classList.add('hidden'); }
+  function exportAggregation() {
+    const baseFiltered = getFilteredCases();
+    const periodFiltered = filterByAggPeriod(baseFiltered);
+    const agg = computeAggregation(periodFiltered);
+    if (agg.byR.length === 0) { alert('対象案件がありません。'); return; }
+    const headers = ['R担当者', '件数', '見積合計', '粗利合計', '平均粗利率(%)'];
+    const rows = [headers];
+    agg.byR.forEach((r) => {
+      const avg = r.amount > 0 ? (r.profit / r.amount * 100) : 0;
+      rows.push([r.name, r.count, r.amount, r.profit, avg.toFixed(1)]);
+    });
+    const avg = agg.totals.amount > 0 ? (agg.totals.profit / agg.totals.amount * 100) : 0;
+    rows.push(['合計', agg.totals.count, agg.totals.amount, agg.totals.profit, avg.toFixed(1)]);
+    downloadCSV(`粗利集計_${todayStr()}.csv`, rows);
+  }
+
   // ---------- screens ----------
   function showLogin() {
     $('appShell').classList.add('hidden');
@@ -764,11 +888,23 @@
   $('contentSaveBtn').addEventListener('click', saveContentFromModal);
   $('contentModal').addEventListener('click', (e) => { if (e.target === $('contentModal')) closeContentModal(); });
 
+  $('aggBtn').addEventListener('click', openAggModal);
+  $('closeAggModal').addEventListener('click', closeAggModal);
+  $('aggCloseBtn').addEventListener('click', closeAggModal);
+  $('aggModal').addEventListener('click', (e) => { if (e.target === $('aggModal')) closeAggModal(); });
+  $('aggExportBtn').addEventListener('click', exportAggregation);
+  $('aggPeriod').addEventListener('change', () => {
+    $('aggCustomMonth').classList.toggle('hidden', $('aggPeriod').value !== 'custom');
+    renderAggregation();
+  });
+  $('aggCustomMonth').addEventListener('change', renderAggregation);
+
   document.addEventListener('keydown', (e) => {
     if (e.key !== 'Escape') return;
     if (!$('modal').classList.contains('hidden')) closeModal();
     if (!$('invoiceModal').classList.contains('hidden')) closeInvoiceModal();
     if (!$('contentModal').classList.contains('hidden')) closeContentModal();
+    if (!$('aggModal').classList.contains('hidden')) closeAggModal();
   });
 
   // フォーム保存時に日付を一括パース＆バリデーション
@@ -806,6 +942,7 @@
       certNumber: $('certNumber').value.trim(),
       estimateName: $('estimateName').value.trim(),
       estimateAmount: amountRaw === '' ? '' : Number(amountRaw),
+      marginRate: (() => { const r = $('marginRate').value; return r === '' ? DEFAULT_MARGIN_RATE : Number(r); })(),
       quoteDate: parsedDates.quoteDate,
       workStartDate: parsedDates.workStartDate,
       workEndDate: parsedDates.workEndDate,
