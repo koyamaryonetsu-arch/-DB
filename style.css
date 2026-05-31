@@ -370,6 +370,30 @@ tr.row-red:hover td {
   border: 1px solid #fca5a5;
 }
 
+.login-success {
+  margin-top: 10px;
+  padding: 8px 10px;
+  background: #d1fae5;
+  color: #065f46;
+  border-radius: 4px;
+  font-size: 12px;
+  border: 1px solid #6ee7b7;
+}
+
+.login-switch {
+  margin: 16px 0 0;
+  font-size: 12px;
+  text-align: center;
+  color: #6b7280;
+}
+.login-switch a {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 600;
+  margin-left: 4px;
+}
+.login-switch a:hover { text-decoration: underline; }
+
 .login-hint {
   margin: 14px 0 0;
   font-size: 11px;

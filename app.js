@@ -142,9 +142,12 @@
 
   function translateAuthError(msg) {
     if (/Invalid login credentials/i.test(msg)) return 'メールアドレスまたはパスワードが正しくありません。';
-    if (/Email not confirmed/i.test(msg)) return 'メールアドレスが未確認です。管理者に確認を依頼してください。';
-    if (/rate limit/i.test(msg)) return '試行回数が多すぎます。しばらく待って再度お試しください。';
-    return 'ログインに失敗しました: ' + msg;
+    if (/Email not confirmed/i.test(msg)) return 'メールアドレスが未確認です。確認メール内のリンクをクリックしてください。';
+    if (/User already registered/i.test(msg) || /already.*registered/i.test(msg)) return 'このメールアドレスは既に登録されています。ログイン画面からどうぞ。';
+    if (/Password should be at least/i.test(msg)) return 'パスワードは6文字以上にしてください。';
+    if (/rate limit/i.test(msg) || /Email rate limit exceeded/i.test(msg)) return '試行回数が多すぎます。しばらく待って再度お試しください。';
+    if (/signups not allowed/i.test(msg) || /Signups not allowed/i.test(msg)) return 'Supabase側で新規作成が無効になっています。管理者にご相談ください。';
+    return msg;
   }
 
   let sb = null;          // Supabaseクライアント
@@ -223,6 +226,20 @@
     },
     unsubscribe() {
       if (rtChannel && sb) { try { sb.removeChannel(rtChannel); } catch (e) {} rtChannel = null; }
+    },
+    async signUp(email, password) {
+      if (this.mode === 'local') return { ok: false, msg: 'ローカルモードでは新規作成できません。' };
+      const e = (email || '').trim().toLowerCase();
+      const { data, error } = await sb.auth.signUp({ email: e, password: password });
+      if (error) return { ok: false, msg: translateAuthError(error.message) };
+      const u = data.user;
+      const hasSession = !!(data.session);
+      return {
+        ok: true,
+        user: u ? { email: u.email, domain: (u.email.split('@')[1] || '') } : null,
+        autoLoggedIn: hasSession,
+        message: hasSession ? null : 'メール確認が必要です。届いた確認メールのリンクをクリックしてください。'
+      };
     }
   };
 
@@ -861,7 +878,7 @@
     if (filtered.length === 0) { alert('現在の絞り込み条件に一致する案件がありません。'); return; }
     const includesMemo = isPrivileged(currentUser);
     const isToho = !includesMemo;
-    const headers = ['会社', '劇場名', '受付日', 'TC担当者', 'R担当者', '種別', '内容',
+    const headers = ['会社', '劇場名', '受付日', '客先担当者', 'R担当者', '種別', '内容',
       '調査日', '認証番号', '見積り名', '見積り金額',
       isToho ? '見積り受領日' : '見積り提出日',
       '作業開始日', '作業完了日',
@@ -1273,6 +1290,9 @@
   function showLogin() {
     $('appShell').classList.add('hidden');
     $('loginScreen').classList.remove('hidden');
+    // ログインペインに戻す（前回サインアップ画面のままだったケースの保険）
+    if ($('loginPane')) $('loginPane').classList.remove('hidden');
+    if ($('signupPane')) $('signupPane').classList.add('hidden');
     setTimeout(() => $('loginEmail').focus(), 50);
   }
   function showApp() {
@@ -1317,6 +1337,83 @@
       showApp();
     } catch (err) {
       errEl.textContent = 'ログイン処理でエラーが発生しました: ' + (err && err.message ? err.message : err);
+      errEl.classList.remove('hidden');
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+
+  // ---------- 新規アカウント作成（@ryonetsu.com 限定） ----------
+  function showLoginPane() {
+    $('loginPane').classList.remove('hidden');
+    $('signupPane').classList.add('hidden');
+    $('signupError').classList.add('hidden');
+    $('signupSuccess').classList.add('hidden');
+  }
+  function showSignupPane() {
+    $('loginPane').classList.add('hidden');
+    $('signupPane').classList.remove('hidden');
+    $('loginError').classList.add('hidden');
+    setTimeout(() => { try { $('signupEmail').focus(); } catch (e) {} }, 50);
+  }
+  $('toSignupLink').addEventListener('click', (e) => { e.preventDefault(); showSignupPane(); });
+  $('toLoginLink').addEventListener('click', (e) => { e.preventDefault(); showLoginPane(); });
+
+  $('signupForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const errEl = $('signupError'); const okEl = $('signupSuccess');
+    errEl.classList.add('hidden'); okEl.classList.add('hidden');
+    const email = $('signupEmail').value.trim().toLowerCase();
+    const pw = $('signupPassword').value;
+    const pw2 = $('signupPassword2').value;
+
+    // バリデーション
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      errEl.textContent = 'メールアドレスの形式が正しくありません。';
+      errEl.classList.remove('hidden'); return;
+    }
+    if (!email.endsWith('@ryonetsu.com')) {
+      errEl.textContent = 'このアプリは @ryonetsu.com のメールアドレスでのみ登録可能です。';
+      errEl.classList.remove('hidden'); return;
+    }
+    if (pw.length < 6) {
+      errEl.textContent = 'パスワードは6文字以上にしてください。';
+      errEl.classList.remove('hidden'); return;
+    }
+    if (pw !== pw2) {
+      errEl.textContent = 'パスワード（確認）が一致しません。';
+      errEl.classList.remove('hidden'); return;
+    }
+    if (store.mode !== 'supabase') {
+      errEl.textContent = 'この環境では新規作成できません（ローカルモード）。';
+      errEl.classList.remove('hidden'); return;
+    }
+
+    const submitBtn = $('signupForm').querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    try {
+      const res = await store.signUp(email, pw);
+      if (!res.ok) {
+        errEl.textContent = res.msg;
+        errEl.classList.remove('hidden');
+        return;
+      }
+      if (res.autoLoggedIn) {
+        // メール確認OFF設定 → そのままログインへ
+        currentUser = res.user;
+        try { cases = await store.fetchCases(); } catch (err) { cases = []; onPersistError(err); }
+        companies = await store.fetchCompanies();
+        populateCompanySelects();
+        store.subscribe(onRemoteChange);
+        showApp();
+      } else {
+        // メール確認ON設定 → メールリンクを案内
+        okEl.textContent = res.message || '登録しました。メール確認後にログインしてください。';
+        okEl.classList.remove('hidden');
+        $('signupPassword').value = ''; $('signupPassword2').value = '';
+      }
+    } catch (err) {
+      errEl.textContent = '登録処理でエラー: ' + (err && err.message ? err.message : err);
       errEl.classList.remove('hidden');
     } finally {
       submitBtn.disabled = false;

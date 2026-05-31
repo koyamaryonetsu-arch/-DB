@@ -15,16 +15,43 @@
 <div id="loginScreen" class="login-screen">
   <div class="login-card">
     <h1>シネマ案件管理</h1>
-    <p class="login-subtitle">ログイン</p>
-    <form id="loginForm">
-      <label for="loginEmail">メールアドレス</label>
-      <input type="email" id="loginEmail" required autocomplete="username" placeholder="例: name@ryonetsu.com">
-      <label for="loginPassword">パスワード</label>
-      <input type="password" id="loginPassword" required autocomplete="current-password">
-      <div id="loginError" class="login-error hidden"></div>
-      <button type="submit" class="primary">ログイン</button>
-      <p id="loginHint" class="login-hint">※ ログインに使うメールアドレスとパスワードは管理者にご確認ください</p>
-    </form>
+
+    <!-- ログインフォーム -->
+    <div id="loginPane">
+      <p class="login-subtitle">ログイン</p>
+      <form id="loginForm">
+        <label for="loginEmail">メールアドレス</label>
+        <input type="email" id="loginEmail" required autocomplete="username" placeholder="例: name@ryonetsu.com">
+        <label for="loginPassword">パスワード</label>
+        <input type="password" id="loginPassword" required autocomplete="current-password">
+        <div id="loginError" class="login-error hidden"></div>
+        <button type="submit" class="primary">ログイン</button>
+        <p id="loginHint" class="login-hint">※ ログインに使うメールアドレスとパスワードは管理者にご確認ください</p>
+      </form>
+      <p class="login-switch">
+        @ryonetsu.com の方は<a href="#" id="toSignupLink">アカウント新規作成</a>
+      </p>
+    </div>
+
+    <!-- 新規作成フォーム（@ryonetsu.com 専用） -->
+    <div id="signupPane" class="hidden">
+      <p class="login-subtitle">アカウント新規作成（@ryonetsu.com 限定）</p>
+      <form id="signupForm">
+        <label for="signupEmail">メールアドレス</label>
+        <input type="email" id="signupEmail" required autocomplete="email" placeholder="例: yamada@ryonetsu.com">
+        <label for="signupPassword">パスワード（6文字以上）</label>
+        <input type="password" id="signupPassword" required minlength="6" autocomplete="new-password">
+        <label for="signupPassword2">パスワード（確認）</label>
+        <input type="password" id="signupPassword2" required minlength="6" autocomplete="new-password">
+        <div id="signupError" class="login-error hidden"></div>
+        <div id="signupSuccess" class="login-success hidden"></div>
+        <button type="submit" class="primary">登録してログイン</button>
+        <p class="login-hint">※ @ryonetsu.com のメールアドレスのみ登録できます</p>
+      </form>
+      <p class="login-switch">
+        既にアカウントをお持ちの方は<a href="#" id="toLoginLink">ログイン画面へ</a>
+      </p>
+    </div>
   </div>
 </div>
 
@@ -84,7 +111,7 @@
             <th class="col-company sortable" data-sort="company">会社</th>
             <th class="sortable" data-sort="theater">劇場名</th>
             <th class="sortable" data-sort="receivedDate">受付日</th>
-            <th class="sortable" data-sort="tcPerson">TC担当者</th>
+            <th class="sortable" data-sort="tcPerson">客先担当者</th>
             <th class="sortable" data-sort="rPerson">R担当者</th>
             <th class="sortable" data-sort="category">種別</th>
             <th class="sortable" data-sort="content">内容</th>
@@ -138,7 +165,7 @@
         </div>
 
         <div class="form-row" data-mode="simple">
-          <label for="tcPerson">TC担当者</label>
+          <label for="tcPerson">客先担当者</label>
           <input type="text" id="tcPerson" list="tcPersonList" placeholder="履歴から選択 or 新規入力">
           <datalist id="tcPersonList"></datalist>
         </div>
