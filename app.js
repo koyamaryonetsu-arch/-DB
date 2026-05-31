@@ -27,6 +27,8 @@
   const SMALL_CASE_THRESHOLD = 3000000;
   const BASE_RATE = 5; // %
   const PRIVILEGED_DOMAIN = 'ryonetsu.com';
+  // 自己サインアップを許可するドメイン（DB側トリガーでも同一の制限を強制）
+  const ALLOWED_SIGNUP_DOMAINS = ['ryonetsu.com', 'tohocinemas.co.jp'];
 
   // 役割別ラベル: 受注者(ryonetsu) ↔ 発注者(TOHO)
   const ROLE_STATUS = {
@@ -147,6 +149,8 @@
     if (/Password should be at least/i.test(msg)) return 'パスワードは6文字以上にしてください。';
     if (/rate limit/i.test(msg) || /Email rate limit exceeded/i.test(msg)) return '試行回数が多すぎます。しばらく待って再度お試しください。';
     if (/signups not allowed/i.test(msg) || /Signups not allowed/i.test(msg)) return 'Supabase側で新規作成が無効になっています。管理者にご相談ください。';
+    if (/Sign-?up restricted/i.test(msg) || /allowed signup domains/i.test(msg)) return '登録可能なメールアドレスは @ryonetsu.com または @tohocinemas.co.jp のみです。';
+    if (/Database error saving new user/i.test(msg)) return 'サインアップが拒否されました。許可されたドメイン（@ryonetsu.com / @tohocinemas.co.jp）のメールアドレスをご使用ください。';
     return msg;
   }
 
@@ -1343,7 +1347,7 @@
     }
   });
 
-  // ---------- 新規アカウント作成（@ryonetsu.com 限定） ----------
+  // ---------- 新規アカウント作成（許可ドメイン限定） ----------
   function showLoginPane() {
     $('loginPane').classList.remove('hidden');
     $('signupPane').classList.add('hidden');
@@ -1372,8 +1376,9 @@
       errEl.textContent = 'メールアドレスの形式が正しくありません。';
       errEl.classList.remove('hidden'); return;
     }
-    if (!email.endsWith('@ryonetsu.com')) {
-      errEl.textContent = 'このアプリは @ryonetsu.com のメールアドレスでのみ登録可能です。';
+    const domain = email.split('@')[1] || '';
+    if (ALLOWED_SIGNUP_DOMAINS.indexOf(domain) === -1) {
+      errEl.textContent = '登録可能なメールアドレスは @' + ALLOWED_SIGNUP_DOMAINS.join(' / @') + ' のみです。';
       errEl.classList.remove('hidden'); return;
     }
     if (pw.length < 6) {

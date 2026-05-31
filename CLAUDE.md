@@ -73,7 +73,9 @@ done
 
 ### 役割と権限
 - **@ryonetsu.com** = 受注者（菱熱工業）。全機能・全社のデータ閲覧可
-- それ以外 = 発注者（TOHO等）。TOHOシネマズの案件のみ閲覧可（RLSで強制）
+- **@tohocinemas.co.jp** = 発注者（TOHO）。TOHOシネマズの案件のみ閲覧可（RLSで強制）
+- それ以外のドメイン = サインアップ不可（DBトリガーで阻止）
+- 許可ドメインは app.js の `ALLOWED_SIGNUP_DOMAINS` と SQL の `enforce_allowed_signup_domains()` 関数の両方を同期更新する
 
 ### ラベル切替（受注者/発注者で呼称が違う）
 | 内部フィールド | @ryonetsu.com 表示 | TOHO側表示 |

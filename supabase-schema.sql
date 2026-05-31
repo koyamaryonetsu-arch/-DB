@@ -138,4 +138,29 @@ create policy "cases_delete" on public.cases
 -- 6. リアルタイム同期を有効化（他ユーザーの編集が即座に画面に反映される）
 alter publication supabase_realtime add table public.cases;
 
+-- 7. 自己サインアップを許可ドメインに限定する DB トリガー
+--    フロント JS を突破しても DB 側で確実に弾く（多層防御）
+create or replace function public.enforce_allowed_signup_domains()
+returns trigger
+language plpgsql
+security definer
+as $$
+declare
+  email_domain text;
+  allowed_domains text[] := array['ryonetsu.com', 'tohocinemas.co.jp'];
+begin
+  if new.email is null then return new; end if;
+  email_domain := lower(split_part(new.email, '@', 2));
+  if not (email_domain = any(allowed_domains)) then
+    raise exception 'Sign-up restricted to allowed signup domains: %', array_to_string(allowed_domains, ', ');
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists trg_enforce_allowed_signup_domains on auth.users;
+create trigger trg_enforce_allowed_signup_domains
+  before insert on auth.users
+  for each row execute function public.enforce_allowed_signup_domains();
+
 -- 完了
