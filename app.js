@@ -1506,6 +1506,13 @@
   // ---------- 起動 ----------
   async function init() {
     store.init();
+    // モードに応じたログイン画面ヒント
+    const hintEl = $('loginHint');
+    if (hintEl) {
+      hintEl.textContent = store.mode === 'local'
+        ? '※ テストモード: パスワードはメールアドレスの@より前の部分（小文字）で入れます'
+        : '※ ログインに使うメール・パスワードは管理者にご確認ください';
+    }
     renderDatalists();
     try { companies = await store.fetchCompanies(); } catch (e) { /* 既定値のまま */ }
     populateCompanySelects();
