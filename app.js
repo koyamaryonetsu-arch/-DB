@@ -1108,9 +1108,9 @@
       <th>見積り金額</th>
       <th>配分集計</th>
       <th>粗利率</th>
-      ${team.map((m) => `<th class="agg-member" data-member="${escapeHtml(m)}">${escapeHtml(m)}<button class="agg-rm-member" data-member="${escapeHtml(m)}" title="削除">×</button></th>`).join('')}`;
+      ${team.map((m, i) => `<th class="agg-member agg-member-col${i===0?' agg-member-first':''}" data-member="${escapeHtml(m)}">${escapeHtml(m)}<button class="agg-rm-member" data-member="${escapeHtml(m)}" title="削除">×</button></th>`).join('')}`;
 
-    // ===== 区分別 集計行（見込み/実績/予想） =====
+    // ===== 区分別 集計行（見込み/実績/予想）+ 総合計 =====
     const sections = ['mikomi', 'jisseki', 'yosou'];
     const sectionTotals = {};
     sections.forEach((s) => {
@@ -1128,6 +1128,25 @@
       team.forEach((m) => { sectionTotals[s].members[m] += profit * (Number(alloc[m]) || 0) / 100; });
     });
 
+    // 個人別の総合計（見込み + 実績 + 予想）を算出
+    const grandTotal = { count: 0, amount: 0, profit: 0, members: {} };
+    team.forEach((m) => { grandTotal.members[m] = 0; });
+    sections.forEach((s) => {
+      const t = sectionTotals[s];
+      grandTotal.count += t.count;
+      grandTotal.amount += t.amount;
+      grandTotal.profit += t.profit;
+      team.forEach((m) => { grandTotal.members[m] += t.members[m]; });
+    });
+
+    const grandTotalRow = `<tr class="agg-summary-row section-grand">
+      <th class="agg-sec-label" colspan="2">合計（見込み+実績+予想）　${grandTotal.count}件</th>
+      <th>${fmtAmount(grandTotal.amount)}</th>
+      <th>粗利A→</th>
+      <th>${fmtAmount(grandTotal.profit)}</th>
+      ${team.map((m, i) => `<th class="agg-member-col${i===0?' agg-member-first':''}">${fmtAmount(grandTotal.members[m])}</th>`).join('')}
+    </tr>`;
+
     const summaryRows = sections.map((s) => {
       const t = sectionTotals[s];
       const def = SECTION_DEF[s];
@@ -1136,11 +1155,11 @@
         <th>${fmtAmount(t.amount)}</th>
         <th>粗利A→</th>
         <th>${fmtAmount(t.profit)}</th>
-        ${team.map((m) => `<th>${fmtAmount(t.members[m])}</th>`).join('')}
+        ${team.map((m, i) => `<th class="agg-member-col${i===0?' agg-member-first':''}">${fmtAmount(t.members[m])}</th>`).join('')}
       </tr>`;
     }).join('');
 
-    thead.innerHTML = `<tr id="aggHeaderRow">${headerCells}</tr>${summaryRows}`;
+    thead.innerHTML = `<tr id="aggHeaderRow">${headerCells}</tr>${grandTotalRow}${summaryRows}`;
 
     // ===== 案件行（区分順 → 受付日順） =====
     const order = { mikomi: 0, jisseki: 1, yosou: 2 };
@@ -1168,7 +1187,7 @@
           <td class="agg-amount">${fmtAmount(amt)}</td>
           <td class="agg-sum ${okClass}">${sum.toFixed(1)}% ${okText}</td>
           <td><input type="number" data-field="marginRate" min="0" max="100" step="0.1" value="${rate}" class="agg-input agg-rate"></td>
-          ${team.map((m) => `<td><input type="number" data-member="${escapeHtml(m)}" min="0" max="100" step="1" value="${alloc[m] || 0}" class="agg-input"></td>`).join('')}
+          ${team.map((m, i) => `<td class="agg-member-col${i===0?' agg-member-first':''}"><input type="number" data-member="${escapeHtml(m)}" min="0" max="100" step="1" value="${alloc[m] || 0}" class="agg-input"></td>`).join('')}
         </tr>`;
       }).join('');
     }
@@ -1287,6 +1306,13 @@
       rows.push([`【${SECTION_DEF[s].label} 集計】`, t.count + '件', '', t.amount, '', '', '', Math.round(t.profit)]
         .concat(team.map((m) => Math.round(t.members[m]))));
     });
+    // 個人別 総合計（見込み+実績+予想）
+    const grandCount = sections.reduce((s, k) => s + sectionTotals[k].count, 0);
+    const grandAmount = sections.reduce((s, k) => s + sectionTotals[k].amount, 0);
+    const grandProfit = sections.reduce((s, k) => s + sectionTotals[k].profit, 0);
+    const grandMembers = team.map((m) => sections.reduce((s, k) => s + sectionTotals[k].members[m], 0));
+    rows.push(['【合計（見込み+実績+予想）】', grandCount + '件', '', grandAmount, '', '', '', Math.round(grandProfit)]
+      .concat(grandMembers.map((v) => Math.round(v))));
     downloadCSV(`A集計_${todayStr()}.csv`, rows);
   }
 

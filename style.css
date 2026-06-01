@@ -631,11 +631,17 @@ td.agg-amount, td.agg-profit { text-align: right; }
 .agg-sum { font-weight: 700; }
 .agg-sum.ok { color: #15803d; background: #f0fdf4; }
 .agg-sum.ng { color: #dc2626; background: #fef2f2; }
-.agg-member { position: relative; padding-right: 18px !important; }
+/* 担当者名ヘッダ: ×ボタンを左上に置き、名前は右寄せ（下のセルの数字と揃えるため） */
+.agg-member {
+  position: relative;
+  text-align: right !important;
+  padding-right: 7px !important;
+  padding-left: 22px !important;
+}
 .agg-rm-member {
   position: absolute;
   top: 2px;
-  right: 2px;
+  left: 2px;
   padding: 0 4px;
   font-size: 10px;
   background: transparent;
@@ -646,6 +652,24 @@ td.agg-amount, td.agg-profit { text-align: right; }
   line-height: 1.4;
 }
 .agg-rm-member:hover { color: #dc2626; border-color: #dc2626; }
+
+/* 各担当者の列を視覚的に区切る縦線（誰がどの数字かを追いやすく） */
+.agg-spreadsheet .agg-member-col,
+#casesTable.agg-mode .agg-member-col {
+  border-right: 2px solid #94a3b8;
+}
+/* 先頭の担当者列の左側にも区切り線を入れて「ここから担当者」と分かるように */
+.agg-spreadsheet .agg-member-first,
+#casesTable.agg-mode .agg-member-first {
+  border-left: 2px solid #94a3b8;
+}
+
+/* 個人別 総合計行: 一目で「合計」と分かる濃色 */
+tr.agg-summary-row.section-grand th {
+  background: #1f2a44;
+  color: #fff;
+  font-weight: 700;
+}
 /* 集計（見込み/実績/予想）行 */
 tr.agg-summary-row th {
   position: sticky;
