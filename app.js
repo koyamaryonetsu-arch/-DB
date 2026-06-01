@@ -139,17 +139,19 @@
     { name: 'ユナイテッドシネマ札幌',        company: 'ユナイテッドシネマ', address: '北海道札幌市中央区南3条西4 ノルベサ' },
     { name: 'ユナイテッドシネマ長崎',        company: 'ユナイテッドシネマ', address: '長崎県長崎市みなとメディカルセンター近隣' },
 
-    // ===== シネマサンシャイン =====
-    { name: 'シネマサンシャイン平和島',      company: 'シネマサンシャイン', address: '東京都大田区平和島1-1-1 BIGFUN平和島' },
-    { name: 'シネマサンシャイン池袋',        company: 'シネマサンシャイン', address: '東京都豊島区東池袋1-30-3 大正堂ビル' },
-    { name: 'シネマサンシャイン土浦',        company: 'シネマサンシャイン', address: '茨城県土浦市上高津367 イオンモール土浦' },
-    { name: 'シネマサンシャインかほく',      company: 'シネマサンシャイン', address: '石川県かほく市内日角タ27 イオンモールかほく' },
-    { name: 'シネマサンシャイン大和郡山',    company: 'シネマサンシャイン', address: '奈良県大和郡山市下三橋町741 イオンモール大和郡山' },
-    { name: 'シネマサンシャイン姶良',        company: 'シネマサンシャイン', address: '鹿児島県姶良市東餅田533 イオンタウン姶良' },
-    { name: 'シネマサンシャイン衣山',        company: 'シネマサンシャイン', address: '愛媛県松山市衣山4-1-2 エミフルMASAKI近隣' },
-    { name: 'シネマサンシャインエミフルMASAKI', company: 'シネマサンシャイン', address: '愛媛県伊予郡松前町筒井850 エミフルMASAKI' },
-    { name: 'シネマサンシャイン下関',        company: 'シネマサンシャイン', address: '山口県下関市伊倉新町3-1-45 ゆめシティ下関' },
-    { name: 'シネマサンシャイン北島',        company: 'シネマサンシャイン', address: '徳島県板野郡北島町鯛浜西ノ須174 フジグラン北島' },
+    // ===== 佐々木興業（シネマサンシャイン運営） =====
+    // ※ cinemasunshine.co.jp 掲載の劇場は要追加。下記は学習データ基準のベストエフォート
+    { name: 'シネマサンシャイン平和島',          company: '佐々木興業', address: '東京都大田区平和島1-1-1 BIGFUN平和島' },
+    { name: 'シネマサンシャイン池袋',            company: '佐々木興業', address: '東京都豊島区東池袋1-30-3 大正堂ビル' },
+    { name: 'シネマサンシャイン土浦',            company: '佐々木興業', address: '茨城県土浦市上高津367 イオンモール土浦' },
+    { name: 'シネマサンシャインかほく',          company: '佐々木興業', address: '石川県かほく市内日角タ27 イオンモールかほく' },
+    { name: 'シネマサンシャイン大和郡山',        company: '佐々木興業', address: '奈良県大和郡山市下三橋町741 イオンモール大和郡山' },
+    { name: 'シネマサンシャイン姶良',            company: '佐々木興業', address: '鹿児島県姶良市東餅田533 イオンタウン姶良' },
+    { name: 'シネマサンシャイン衣山',            company: '佐々木興業', address: '愛媛県松山市衣山4-1-2' },
+    { name: 'シネマサンシャインエミフルMASAKI',  company: '佐々木興業', address: '愛媛県伊予郡松前町筒井850 エミフルMASAKI' },
+    { name: 'シネマサンシャイン下関',            company: '佐々木興業', address: '山口県下関市伊倉新町3-1-45 ゆめシティ下関' },
+    { name: 'シネマサンシャイン北島',            company: '佐々木興業', address: '徳島県板野郡北島町鯛浜西ノ須174 フジグラン北島' },
+    { name: 'シネマサンシャイン延岡',            company: '佐々木興業', address: '宮崎県延岡市旭町2-1-26 イオンタウン延岡' },
 
     // ===== コロナワールド =====
     { name: '中川コロナシネマワールド',      company: 'コロナワールド', address: '愛知県名古屋市中川区下之一色町野立20' },
@@ -449,10 +451,23 @@
     try {
       const stored = JSON.parse(localStorage.getItem(THEATER_MASTER_KEY));
       if (Array.isArray(stored) && stored.length > 0) {
-        return stored.map((t) => ({ name: t.name || '', company: t.company || '', address: t.address || '' }));
+        let migrated = false;
+        const arr = stored.map((t) => {
+          const obj = { name: t.name || '', company: t.company || '', address: t.address || '' };
+          // 旧データ移行: シネマサンシャイン → 佐々木興業（運営会社の正式名へ）
+          if (obj.company === 'シネマサンシャイン') {
+            obj.company = '佐々木興業';
+            migrated = true;
+          }
+          return obj;
+        });
+        if (migrated) localStorage.setItem(THEATER_MASTER_KEY, JSON.stringify(arr));
+        return arr;
       }
     } catch (e) {}
-    return DEFAULT_THEATER_MASTER.map((t) => ({ name: t.name, company: t.company, address: t.address }));
+    const defaults = DEFAULT_THEATER_MASTER.map((t) => ({ name: t.name, company: t.company, address: t.address }));
+    try { localStorage.setItem(THEATER_MASTER_KEY, JSON.stringify(defaults)); } catch (e) {}
+    return defaults;
   }
   function saveTheaterMaster(list) { localStorage.setItem(THEATER_MASTER_KEY, JSON.stringify(list)); }
   // 案件の劇場名と完全一致する master 行を返す（無ければ undefined）
@@ -1108,13 +1123,15 @@
       return `<c r="${ref}"${a}><v>${safe}</v></c>`;
     });
   }
-  // 客先マスタから劇場の正式名称・住所を引く（無ければ案件のtheater名・住所空欄でフォールバック）
+  // 客先マスタから劇場の正式名称・住所・請求先会社を引く（無ければ案件側にフォールバック）
+  // 例: 「シネマサンシャイン平和島」(ブランド名) → company='佐々木興業'(法人格)
   function resolveTheaterInfo(c) {
     const m = findTheaterInMaster(c.theater);
     return {
       name: m ? m.name : (c.theater || ''),
       address: m ? (m.address || '') : '',
-      company: c.company || ''
+      // マスタに登録があればその会社（=法人格）を請求先に。無ければ案件の会社にフォールバック
+      company: m ? (m.company || c.company || '') : (c.company || '')
     };
   }
   // 会社名を「〇〇株式会社」形式に正規化（既に「株式会社」を含む場合はそのまま）
