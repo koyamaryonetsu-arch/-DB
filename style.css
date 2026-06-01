@@ -518,7 +518,15 @@ body.user-toho #addCompanyBtn { display: none; }
 
 /* memo column for ryonetsu users */
 .col-memo.hidden { display: none !important; }
-td.col-memo { font-size: 11px; max-width: 220px; white-space: normal; word-break: break-word; color: #6b7280; }
+/* メモセルは1行省略表示（クリックでポップアップ編集）。各行が縦に間延びしないように */
+td.col-memo {
+  font-size: 11px;
+  max-width: 220px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #6b7280;
+}
 
 /* ---- 役割（受発注）別表示 ---- */
 /* デフォルト = ryonetsu（受注者）表記 */

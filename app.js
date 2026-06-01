@@ -85,7 +85,7 @@
     workEndDate:    { type: 'date' },
     invoiceDate:    { type: 'date' },
     paymentDate:    { type: 'date' },
-    memo:           { type: 'textarea', privilegedOnly: true }
+    memo:           { type: 'popup', privilegedOnly: true }
   };
 
   // ============================================================
@@ -563,8 +563,17 @@
   }
 
   // ---------- sort ----------
+  // ステータスの工程順（小さいほど早い段階）。保留は最後尾扱い
+  const STATUS_SORT_ORDER = {
+    '受付': 1, '見積り中': 2, '見積り提出済': 3, '作業中': 4,
+    '完了': 5, '請求済': 6, '入金済': 7, '保留': 99
+  };
   function getSortValue(c, field) {
-    if (field === 'status') return deriveStatus(c);
+    if (field === 'status') {
+      const s = deriveStatus(c);
+      // 数値で返すことで工程順ソート（昇順=受付→入金済→保留 の順）
+      return STATUS_SORT_ORDER[s] != null ? STATUS_SORT_ORDER[s] : 0;
+    }
     if (field === 'estimateAmount') {
       const n = Number(c.estimateAmount);
       return isNaN(n) ? -Infinity : n;
@@ -688,7 +697,7 @@
     if (!cfg) return;
     if (cfg.privilegedOnly && !isPrivileged(currentUser)) return;
     if (cfg.tohoOnly && c.company !== 'TOHOシネマズ') return;
-    if (cfg.type === 'popup') { openContentModal(c); return; }
+    if (cfg.type === 'popup') { openContentModal(c, field); return; }
 
     const oldVal = c[field] != null ? c[field] : '';
     let el;
@@ -835,10 +844,17 @@
   }
   function closeModal() { $('modal').classList.add('hidden'); }
 
-  // ---------- content popup ----------
-  function openContentModal(c) {
+  // ---------- ポップアップ編集（内容 / メモ 共用） ----------
+  let popupEditField = 'content';
+  const POPUP_FIELD_TITLES = { content: '内容を編集', memo: 'メモを編集' };
+  function openContentModal(c, field) {
+    field = field || 'content';
     contentEditCaseId = c.id;
-    $('contentEditor').value = c.content || '';
+    popupEditField = field;
+    const titleEl = $('contentModal').querySelector('.modal-header h2');
+    if (titleEl) titleEl.textContent = POPUP_FIELD_TITLES[field] || '編集';
+    $('contentEditor').value = c[field] || '';
+    $('contentEditor').placeholder = field === 'memo' ? '社内メモ／「保留」と書くとステータス自動切替' : '案件の詳細を記入';
     $('contentModal').classList.remove('hidden');
     setTimeout(() => $('contentEditor').focus(), 50);
   }
@@ -848,8 +864,8 @@
     const c = cases.find((x) => x.id === contentEditCaseId);
     if (c) {
       const newVal = $('contentEditor').value.trim();
-      if (newVal !== (c.content || '')) {
-        c.content = newVal;
+      if (newVal !== (c[popupEditField] || '')) {
+        c[popupEditField] = newVal;
         c.updatedAt = new Date().toISOString();
         persistCase(c);
         render();
