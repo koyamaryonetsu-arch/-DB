@@ -341,10 +341,32 @@
     const dl = $(id); dl.innerHTML = '';
     items.forEach((v) => { const o = document.createElement('option'); o.value = v; dl.appendChild(o); });
   }
+  // 現在のユーザーが見られる案件のみ（ローカル版ではTOHO案件のみ／Supabase版ではRLSで既に絞られている）
+  function visibleCases() {
+    if (isPrivileged(currentUser)) return cases;
+    return cases.filter((c) => c.company === 'TOHOシネマズ');
+  }
   function renderDatalists() {
-    fillDatalist('theaterList', history.theaters);
-    fillDatalist('tcPersonList', history.tcPersons);
-    fillDatalist('rPersonList', history.rPersons);
+    // 履歴を案件由来で動的生成（ロール別に自動分離: TOHOにはTOHO案件由来の候補のみ）
+    const theaters = new Set(DEFAULT_THEATERS);  // TOHO 72劇場は初期候補として常に含む
+    const tcPersons = new Set();
+    const rPersons = new Set();
+    visibleCases().forEach((c) => {
+      if (c.theater) theaters.add(c.theater);
+      if (c.tcPerson) tcPersons.add(c.tcPerson);
+      if (c.rPerson) rPersons.add(c.rPerson);
+    });
+    // TOHOユーザーには TOHOシネマズの劇場のみを候補に
+    let theatersArr = [...theaters];
+    if (!isPrivileged(currentUser)) {
+      // 念のためフィルタ: 非ryonetsuユーザーには非TOHOの劇場名（109/UC/コロナ等で始まる）を除外
+      theatersArr = theatersArr.filter((t) =>
+        !/^(109|ユナイテッド|UC |佐々木|コロナ|MOVIX|MV |イオン)/i.test(t)
+      );
+    }
+    fillDatalist('theaterList', theatersArr.sort());
+    fillDatalist('tcPersonList', [...tcPersons].sort());
+    fillDatalist('rPersonList', [...rPersons].sort());
   }
   // 会社セレクト（モーダル/フィルタ）を会社マスタから再構築
   function populateCompanySelects() {
@@ -500,18 +522,20 @@
   }
 
   // ---------- status auto-derive ----------
-  // メモに「保留」が含まれるか。ただし明示的な否定/解除文言は除外
+  // 文字列に「保留」が含まれるか。ただし明示的な否定/解除文言は除外
   // 例: 保留 / 保留中 / 要保留対応 → 保留扱い
   //     保留しない / 保留解除 / 保留中止 / 保留終了 / 保留不要 → 通常扱い
-  function memoHasHold(memo) {
-    if (!memo) return false;
-    if (!/保留/.test(memo)) return false;
-    if (/保留(?:しない|しません|解除|中止|終了|不要|なし|無し)/.test(memo)) return false;
+  function hasHoldKeyword(text) {
+    if (!text) return false;
+    if (!/保留/.test(text)) return false;
+    if (/保留(?:しない|しません|解除|中止|終了|不要|なし|無し)/.test(text)) return false;
     return true;
   }
+  // 後方互換のため旧名は残す（誰かが直接呼んでもOK）
+  const memoHasHold = hasHoldKeyword;
   function deriveStatus(c) {
-    // メモに「保留」と記入されていたら最優先で 保留
-    if (memoHasHold(c.memo)) return '保留';
+    // メモまたは内容に「保留」と記入されていたら最優先で 保留
+    if (hasHoldKeyword(c.memo) || hasHoldKeyword(c.content)) return '保留';
     const today = todayStr();
     if (c.paymentDate)  return '入金済';
     if (c.invoiceDate)  return '請求済';
@@ -640,6 +664,8 @@
   }
 
   function render() {
+    // 案件変更後に履歴候補（datalist）を最新化（ロール別に自動分離）
+    renderDatalists();
     const filtered = getFilteredCases();
     const tbody = $('casesBody');
     tbody.innerHTML = '';
@@ -898,7 +924,7 @@
     if (filtered.length === 0) { alert('現在の絞り込み条件に一致する案件がありません。'); return; }
     const includesMemo = isPrivileged(currentUser);
     const isToho = !includesMemo;
-    const headers = ['会社', '劇場名', '受付日', '客先担当者', 'R担当者', '種別', '内容',
+    const headers = ['会社', '劇場名', '受付日', isToho ? 'TC担当者' : '客先担当者', 'R担当者', '種別', '内容',
       '調査日', '認証番号', '見積り名', '見積り金額',
       isToho ? '見積り受領日' : '見積り提出日',
       '作業開始日', '作業完了日',

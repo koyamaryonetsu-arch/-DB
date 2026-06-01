@@ -538,6 +538,7 @@ body.user-toho .lbl-toho { display: inline; }
 body.user-toho .col-company,
 body.user-toho .col-memo,
 body.user-toho .col-ryo,
+body.user-toho .ryo-only,
 body.user-toho #invoiceBtn,
 body.user-toho #aggBtn { display: none !important; }
 

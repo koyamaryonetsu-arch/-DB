@@ -86,9 +86,9 @@
 
   <main>
     <div class="legend">
-      <span class="legend-item"><span class="swatch swatch-yellow"></span>受付→調査が3日以上</span>
-      <span class="legend-item"><span class="swatch swatch-red"></span>調査→見積りが3日以上</span>
-      <span class="legend-hint">💡 セルクリックで編集 ／ 内容クリックでポップアップ ／ メモに「保留」→ ステータス保留</span>
+      <span class="legend-item ryo-only"><span class="swatch swatch-yellow"></span>受付→調査が3日以上</span>
+      <span class="legend-item ryo-only"><span class="swatch swatch-red"></span>調査→見積りが3日以上</span>
+      <span class="legend-hint ryo-only">💡 セルクリックで編集 ／ 内容・メモはクリックでポップアップ ／ 内容またはメモに「保留」→ ステータス保留</span>
       <span id="caseCount" class="case-count"></span>
     </div>
 
@@ -111,7 +111,7 @@
             <th class="col-company sortable" data-sort="company">会社</th>
             <th class="sortable" data-sort="theater">劇場名</th>
             <th class="sortable" data-sort="receivedDate">受付日</th>
-            <th class="sortable" data-sort="tcPerson">客先担当者</th>
+            <th class="sortable" data-sort="tcPerson"><span class="lbl-ryo">客先担当者</span><span class="lbl-toho">TC担当者</span></th>
             <th class="sortable" data-sort="rPerson">R担当者</th>
             <th class="sortable" data-sort="category">種別</th>
             <th class="sortable" data-sort="content">内容</th>
@@ -165,7 +165,7 @@
         </div>
 
         <div class="form-row" data-mode="simple">
-          <label for="tcPerson">客先担当者</label>
+          <label for="tcPerson"><span class="lbl-ryo">客先担当者</span><span class="lbl-toho">TC担当者</span></label>
           <input type="text" id="tcPerson" list="tcPersonList" placeholder="履歴から選択 or 新規入力">
           <datalist id="tcPersonList"></datalist>
         </div>
@@ -201,7 +201,7 @@
         </div>
 
         <div class="form-row toho-only-field" data-mode="full">
-          <label for="certNumber">認証番号（TOHOシネマズ限定）</label>
+          <label for="certNumber">認証番号</label>
           <input type="text" id="certNumber" placeholder="例: 12345-678">
         </div>
 
