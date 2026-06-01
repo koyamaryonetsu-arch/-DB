@@ -1,0 +1,24 @@
+{
+  "name": "line-bunshin-chat",
+  "version": "0.1.0",
+  "private": true,
+  "description": "LINEで動く「あなたの分身」チャットボット。過去のトーク履歴から口調を学習し、Claude APIで返信を生成します。",
+  "scripts": {
+    "build-persona": "tsx scripts/build-persona.ts",
+    "test-reply": "tsx scripts/test-reply.ts",
+    "typecheck": "tsc --noEmit",
+    "dev": "vercel dev"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.69.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@vercel/node": "^5.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

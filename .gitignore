@@ -1,0 +1,17 @@
+node_modules/
+.vercel/
+.env
+.env.local
+*.log
+
+# 個人データ: 生成された人格ファイルと手書きプロフィールはデフォルトでは追跡しません。
+# Vercel(git連携)へデプロイする場合は README の「デプロイ」を参照し、
+#   (1) 非公開リポジトリにして下の2行を削除する、または
+#   (2) PERSONA_JSON 環境変数に persona.json の中身を入れる
+# のどちらかを選んでください。
+persona/persona.json
+persona/profile.md
+
+# エクスポートした生のトーク履歴は絶対にコミットしないこと
+*.txt
+!persona/*.example.txt
