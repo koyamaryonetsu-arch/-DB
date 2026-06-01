@@ -1501,6 +1501,13 @@
   $('contentCancelBtn').addEventListener('click', closeContentModal);
   $('contentSaveBtn').addEventListener('click', saveContentFromModal);
   $('contentModal').addEventListener('click', (e) => { if (e.target === $('contentModal')) closeContentModal(); });
+  // Ctrl+Enter / Cmd+Enter で保存（IME変換中の Enter は確定なので拾わない）
+  $('contentEditor').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey) && !e.isComposing) {
+      e.preventDefault();
+      saveContentFromModal();
+    }
+  });
 
   $('aggBtn').addEventListener('click', toggleAggMode);
   $('aggExitBtn').addEventListener('click', exitAggMode);

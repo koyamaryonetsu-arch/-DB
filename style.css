@@ -574,10 +574,24 @@ td.content-cell {
 /* ---- スマート日付入力 ---- */
 .smart-date {
   font-variant-numeric: tabular-nums;
+  /* 日付欄はIMEオフ（半角数字入力強制）。Firefox/IE/Edge Legacyで有効。Chrome系は非対応 */
+  ime-mode: disabled;
 }
 .smart-date.invalid {
   border-color: #dc2626;
   background: #fef2f2;
+}
+
+/* 日本語テキスト欄: IMEを自動で日本語入力モードに（Firefox/IE/Edge Legacyのみ有効） */
+input[type="text"]:not(.smart-date):not(#loginEmail):not(#signupEmail):not(#certNumber),
+textarea:not(#loginPassword):not(#signupPassword) {
+  ime-mode: active;
+}
+/* モーダルのヒント文 */
+.modal-hint {
+  font-size: 11px;
+  color: #6b7280;
+  margin-right: auto;
 }
 
 /* ---- A集計（粗利配分・メインテーブル切替方式） ---- */
