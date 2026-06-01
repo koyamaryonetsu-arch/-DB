@@ -279,8 +279,43 @@
       </div>
     </div>
     <div class="modal-footer">
+      <button type="button" id="theaterMasterBtn">📚 客先マスター登録・編集</button>
       <button type="button" id="invoiceCancelBtn">キャンセル</button>
       <button type="button" id="invoiceGenerateBtn" class="primary">発行（ZIPダウンロード）</button>
+    </div>
+  </div>
+</div>
+
+<div id="theaterMasterModal" class="modal hidden">
+  <div class="modal-content modal-content-fullscreen">
+    <div class="modal-header">
+      <h2>📚 客先マスター（会社・劇場・住所）</h2>
+      <button id="closeTheaterMasterModal" class="close-btn" aria-label="閉じる" tabindex="-1">×</button>
+    </div>
+    <div class="tm-body">
+      <div class="tm-controls">
+        <label class="tm-control-item">会社:
+          <select id="tmCompanySelect"></select>
+        </label>
+        <button id="tmAddTheaterBtn">＋ 劇場追加</button>
+        <span class="tm-hint">💡 ここに登録した「劇場の正式名称・住所」が請求書/完了届に使われます。直接編集→自動保存。</span>
+      </div>
+      <div class="tm-table-wrap">
+        <table class="tm-table">
+          <thead>
+            <tr>
+              <th style="width: 40%;">劇場 正式名称</th>
+              <th style="width: 50%;">住所</th>
+              <th style="width: 10%;">操作</th>
+            </tr>
+          </thead>
+          <tbody id="tmBody"></tbody>
+        </table>
+        <p id="tmEmpty" class="empty-msg hidden">この会社にはまだ劇場が登録されていません。「＋ 劇場追加」から追加してください。</p>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" id="tmCloseBtn" class="primary">閉じる</button>
     </div>
   </div>
 </div>

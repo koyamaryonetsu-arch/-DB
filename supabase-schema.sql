@@ -58,6 +58,30 @@ drop policy if exists "companies_insert" on public.companies;
 create policy "companies_insert" on public.companies for insert to authenticated
   with check (coalesce(auth.email() like '%@ryonetsu.com', false));
 
+-- 1c. 客先（劇場）マスタ。正式名称・親会社・住所。請求書/完了届の参照元。
+create table if not exists public.theaters (
+  name       text primary key,
+  company    text not null,
+  address    text default '',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+-- 全認証ユーザー閲覧可・ryonetsuのみ追加/更新/削除可（マスタは菱熱が管理）
+alter table public.theaters enable row level security;
+drop policy if exists "theaters_select" on public.theaters;
+create policy "theaters_select" on public.theaters for select to authenticated using (true);
+drop policy if exists "theaters_insert" on public.theaters;
+create policy "theaters_insert" on public.theaters for insert to authenticated
+  with check (coalesce(auth.email() like '%@ryonetsu.com', false));
+drop policy if exists "theaters_update" on public.theaters;
+create policy "theaters_update" on public.theaters for update to authenticated
+  using (coalesce(auth.email() like '%@ryonetsu.com', false))
+  with check (coalesce(auth.email() like '%@ryonetsu.com', false));
+drop policy if exists "theaters_delete" on public.theaters;
+create policy "theaters_delete" on public.theaters for delete to authenticated
+  using (coalesce(auth.email() like '%@ryonetsu.com', false));
+
 create index if not exists idx_cases_received_date on public.cases(received_date desc);
 create index if not exists idx_cases_company        on public.cases(company);
 create index if not exists idx_cases_status         on public.cases(status);

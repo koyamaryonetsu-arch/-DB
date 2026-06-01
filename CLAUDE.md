@@ -108,7 +108,15 @@ done
 
 ### 会社略称
 DBの `companies` テーブル + フロントの DEFAULT_COMPANIES で管理。
-ryonetsu ユーザーは UI から追加可。
+ryonetsu ユーザーは UI から追加可。デフォルト8社: TOHO/109/UC/CS/コロナ/MV/イオン/SS。
+
+### 客先マスタ（劇場・住所）
+DBの `theaters` テーブル + フロントの DEFAULT_THEATER_MASTER で管理。
+請求書発行モーダルの「客先マスター登録・編集」ボタンから ryonetsu が編集。
+{ name, company, address } の3項目。請求書/完了届はこれを参照して
+- 工事件名 = master.name + 見積り名
+- 工事場所 = master.address
+- 宛先会社名 = formatCompanyName(master.company)
 
 ### 請求書/完了届
 JSZip で Excel テンプレート（templates.js）を直接書き換え。

@@ -6,6 +6,7 @@
   const AUTH_KEY = 'tohoAuthV1';
   const TEAM_KEY = 'tohoTeamV1';
   const COMPANY_KEY = 'tohoCompaniesV1';
+  const THEATER_MASTER_KEY = 'tohoTheaterMasterV1';
 
   // 会社（顧客）と劇場名表示用の略称。name=正式名 / abbr=略称
   const DEFAULT_COMPANIES = [
@@ -15,7 +16,8 @@
     { name: '佐々木興業',         abbr: 'CS' },
     { name: 'コロナワールド',     abbr: 'コロナ' },
     { name: 'MOVIX',              abbr: 'MV' },
-    { name: 'イオンシネマズ',     abbr: 'イオン' }
+    { name: 'イオンシネマズ',     abbr: 'イオン' },
+    { name: 'シネマサンシャイン', abbr: 'SS' }
   ];
   const CATEGORIES = ['新規工事', '更新案件', '修理', 'メンテナンス', '点検', '改修', 'その他'];
   // 色判定を除外するカテゴリ
@@ -38,35 +40,129 @@
   const STATUS_FILTER_OPTIONS_RYO  = ['', '受付','見積り中','見積り提出済','作業中','完了','請求済','入金済'];
   const STATUS_FILTER_OPTIONS_TOHO = ['', '受付','見積り中','見積り提出済','作業中','完了','請求済','入金済']; // values unchanged; labels swap
 
-  const DEFAULT_THEATERS = [
-    'TOHOシネマズ 日本橋', 'TOHOシネマズ 日比谷', 'TOHOシネマズ シャンテ',
-    'TOHOシネマズ 新宿', 'TOHOシネマズ 六本木ヒルズ', 'TOHOシネマズ 渋谷',
-    'TOHOシネマズ 上野', 'TOHOシネマズ 池袋', 'TOHOシネマズ 西新井',
-    'TOHOシネマズ 錦糸町楽天地', 'TOHOシネマズ 立川立飛', 'TOHOシネマズ 府中',
-    'TOHOシネマズ 南大沢', 'TOHOシネマズ 八王子', 'TOHOシネマズ 海老名',
-    'TOHOシネマズ ららぽーと横浜', 'TOHOシネマズ 川崎', 'TOHOシネマズ 上大岡',
-    'TOHOシネマズ 横浜みなとみらい', 'TOHOシネマズ ららぽーと船橋',
-    'TOHOシネマズ 市川コルトンプラザ', 'TOHOシネマズ 流山おおたかの森',
-    'TOHOシネマズ 柏', 'TOHOシネマズ 浦和美園', 'TOHOシネマズ 上尾',
-    'TOHOシネマズ 川越マイン', 'TOHOシネマズ ららぽーと富士見',
-    'TOHOシネマズ 仙台', 'TOHOシネマズ 名取', 'TOHOシネマズ 宇都宮',
-    'TOHOシネマズ 宇都宮インターパーク', 'TOHOシネマズ 高崎',
-    'TOHOシネマズ 太田', 'TOHOシネマズ 日立', 'TOHOシネマズ 水戸内原',
-    'TOHOシネマズ ひたちなか', 'TOHOシネマズ 札幌', 'TOHOシネマズ すすきの',
-    'TOHOシネマズ 名古屋ベイシティ', 'TOHOシネマズ 名古屋', 'TOHOシネマズ 鈴鹿',
-    'TOHOシネマズ 岡崎', 'TOHOシネマズ 赤池', 'TOHOシネマズ 津島',
-    'TOHOシネマズ 二条', 'TOHOシネマズ なんば', 'TOHOシネマズ なんば別館',
-    'TOHOシネマズ 梅田', 'TOHOシネマズ 西宮OS', 'TOHOシネマズ くずはモール',
-    'TOHOシネマズ 鳳', 'TOHOシネマズ 泉北', 'TOHOシネマズ 伊丹',
-    'TOHOシネマズ 岸和田', 'TOHOシネマズ ららぽーと甲子園',
-    'TOHOシネマズ 緑井', 'TOHOシネマズ 広島', 'TOHOシネマズ 高松',
-    'TOHOシネマズ 岡南', 'TOHOシネマズ 倉敷', 'TOHOシネマズ 防府',
-    'TOHOシネマズ 福岡キャナルシティ', 'TOHOシネマズ ららぽーと福岡',
-    'TOHOシネマズ 直方', 'TOHOシネマズ トリアス久山', 'TOHOシネマズ 天神',
-    'TOHOシネマズ 長崎', 'TOHOシネマズ 久留米', 'TOHOシネマズ 熊本サクラマチ',
-    'TOHOシネマズ はませんアイランド', 'TOHOシネマズ 鹿児島', 'TOHOシネマズ 沖縄ライカム',
-    'TOHOシネマズ ファボーレ富山'
+  // 客先マスタ: 劇場の正式名称・親会社・住所
+  // ※ 住所はベストエフォート（Claude学習データ）。運用前にマスター画面で要確認・修正。
+  const DEFAULT_THEATER_MASTER = [
+    // ===== TOHOシネマズ =====
+    { name: 'TOHOシネマズ 日本橋',           company: 'TOHOシネマズ', address: '東京都中央区日本橋2-7-1 東京日本橋タワー' },
+    { name: 'TOHOシネマズ 日比谷',           company: 'TOHOシネマズ', address: '東京都千代田区有楽町1-1-2 東京ミッドタウン日比谷' },
+    { name: 'TOHOシネマズ シャンテ',         company: 'TOHOシネマズ', address: '東京都千代田区有楽町1-2-2' },
+    { name: 'TOHOシネマズ 新宿',             company: 'TOHOシネマズ', address: '東京都新宿区歌舞伎町1-19-1' },
+    { name: 'TOHOシネマズ 六本木ヒルズ',     company: 'TOHOシネマズ', address: '東京都港区六本木6-10-2 六本木ヒルズ ウエストウォーク' },
+    { name: 'TOHOシネマズ 渋谷',             company: 'TOHOシネマズ', address: '東京都渋谷区道玄坂2-6-17 渋東シネタワー' },
+    { name: 'TOHOシネマズ 上野',             company: 'TOHOシネマズ', address: '東京都台東区上野3-24-6 PARCO_ya上野' },
+    { name: 'TOHOシネマズ 池袋',             company: 'TOHOシネマズ', address: '東京都豊島区東池袋1-30-3' },
+    { name: 'TOHOシネマズ 西新井',           company: 'TOHOシネマズ', address: '東京都足立区西新井栄町1-20-1 アリオ西新井' },
+    { name: 'TOHOシネマズ 錦糸町楽天地',     company: 'TOHOシネマズ', address: '東京都墨田区江東橋4-27-14 楽天地ビル' },
+    { name: 'TOHOシネマズ 立川立飛',         company: 'TOHOシネマズ', address: '東京都立川市泉町500-3 ららぽーと立川立飛' },
+    { name: 'TOHOシネマズ 府中',             company: 'TOHOシネマズ', address: '東京都府中市宮町1-41-2 くるるビル' },
+    { name: 'TOHOシネマズ 南大沢',           company: 'TOHOシネマズ', address: '東京都八王子市南大沢2-25' },
+    { name: 'TOHOシネマズ 八王子',           company: 'TOHOシネマズ', address: '東京都八王子市旭町1-10' },
+    { name: 'TOHOシネマズ 海老名',           company: 'TOHOシネマズ', address: '神奈川県海老名市中央1-4-1 ビナウォーク' },
+    { name: 'TOHOシネマズ ららぽーと横浜',   company: 'TOHOシネマズ', address: '神奈川県横浜市都筑区池辺町4035-1 ららぽーと横浜' },
+    { name: 'TOHOシネマズ 川崎',             company: 'TOHOシネマズ', address: '神奈川県川崎市川崎区小川町4-1' },
+    { name: 'TOHOシネマズ 上大岡',           company: 'TOHOシネマズ', address: '神奈川県横浜市港南区上大岡西1-6-1 ゆめおおおか' },
+    { name: 'TOHOシネマズ 横浜みなとみらい', company: 'TOHOシネマズ', address: '神奈川県横浜市西区みなとみらい2-3-5' },
+    { name: 'TOHOシネマズ ららぽーと船橋',   company: 'TOHOシネマズ', address: '千葉県船橋市浜町2-1-1 ららぽーとTOKYO-BAY' },
+    { name: 'TOHOシネマズ 市川コルトンプラザ', company: 'TOHOシネマズ', address: '千葉県市川市鬼高1-1-1' },
+    { name: 'TOHOシネマズ 流山おおたかの森', company: 'TOHOシネマズ', address: '千葉県流山市西初石6-185-2 流山おおたかの森S・C' },
+    { name: 'TOHOシネマズ 柏',               company: 'TOHOシネマズ', address: '千葉県柏市柏2-7-1 柏髙島屋ステーションモール' },
+    { name: 'TOHOシネマズ 浦和美園',         company: 'TOHOシネマズ', address: '埼玉県さいたま市緑区美園4-2-3 イオンモール浦和美園' },
+    { name: 'TOHOシネマズ 上尾',             company: 'TOHOシネマズ', address: '埼玉県上尾市谷津2-1-1 アリオ上尾' },
+    { name: 'TOHOシネマズ 川越マイン',       company: 'TOHOシネマズ', address: '埼玉県川越市新富町1-19-3 マイン' },
+    { name: 'TOHOシネマズ ららぽーと富士見', company: 'TOHOシネマズ', address: '埼玉県富士見市山室1-1313 ららぽーと富士見' },
+    { name: 'TOHOシネマズ 仙台',             company: 'TOHOシネマズ', address: '宮城県仙台市青葉区中央2-3-6 仙台フォーラス' },
+    { name: 'TOHOシネマズ 名取',             company: 'TOHOシネマズ', address: '宮城県名取市杜せきのした5-3-1 イオンモール名取' },
+    { name: 'TOHOシネマズ 宇都宮',           company: 'TOHOシネマズ', address: '栃木県宇都宮市馬場通り2-3-12 うつのみや表参道スクエア' },
+    { name: 'TOHOシネマズ 宇都宮インターパーク', company: 'TOHOシネマズ', address: '栃木県宇都宮市インターパーク6-1-1 FKDインターパーク' },
+    { name: 'TOHOシネマズ 高崎',             company: 'TOHOシネマズ', address: '群馬県高崎市栄町1-1 高崎オーパ' },
+    { name: 'TOHOシネマズ 太田',             company: 'TOHOシネマズ', address: '群馬県太田市石原町81 イオンモール太田' },
+    { name: 'TOHOシネマズ 日立',             company: 'TOHOシネマズ', address: '茨城県日立市鹿島町1-1-1' },
+    { name: 'TOHOシネマズ 水戸内原',         company: 'TOHOシネマズ', address: '茨城県水戸市内原2-1 イオンモール水戸内原' },
+    { name: 'TOHOシネマズ ひたちなか',       company: 'TOHOシネマズ', address: '茨城県ひたちなか市山ノ上町8-1' },
+    { name: 'TOHOシネマズ 札幌',             company: 'TOHOシネマズ', address: '北海道札幌市中央区南2条西1丁目3 サッポロファクトリー' },
+    { name: 'TOHOシネマズ すすきの',         company: 'TOHOシネマズ', address: '北海道札幌市中央区南3条西4' },
+    { name: 'TOHOシネマズ 名古屋ベイシティ', company: 'TOHOシネマズ', address: '愛知県名古屋市港区港明2-3-2 名古屋ベイシティ' },
+    { name: 'TOHOシネマズ 名古屋',           company: 'TOHOシネマズ', address: '愛知県名古屋市中村区平池町4-60-12 グローバルゲート' },
+    { name: 'TOHOシネマズ 鈴鹿',             company: 'TOHOシネマズ', address: '三重県鈴鹿市庄野羽山4-1-2 イオンモール鈴鹿' },
+    { name: 'TOHOシネマズ 岡崎',             company: 'TOHOシネマズ', address: '愛知県岡崎市戸崎町外山38-5 イオンモール岡崎' },
+    { name: 'TOHOシネマズ 赤池',             company: 'TOHOシネマズ', address: '愛知県日進市赤池1-1812 プライムツリー赤池' },
+    { name: 'TOHOシネマズ 二条',             company: 'TOHOシネマズ', address: '京都府京都市中京区西ノ京栂尾町107 BiVi二条' },
+    { name: 'TOHOシネマズ なんば',           company: 'TOHOシネマズ', address: '大阪府大阪市中央区難波3-8-9' },
+    { name: 'TOHOシネマズ 梅田',             company: 'TOHOシネマズ', address: '大阪府大阪市北区角田町7-10 HEP NAVIO' },
+    { name: 'TOHOシネマズ 西宮OS',           company: 'TOHOシネマズ', address: '兵庫県西宮市高松町14-2 阪急西宮ガーデンズ' },
+    { name: 'TOHOシネマズ くずはモール',     company: 'TOHOシネマズ', address: '大阪府枚方市楠葉花園町15-1 くずはモール' },
+    { name: 'TOHOシネマズ 伊丹',             company: 'TOHOシネマズ', address: '兵庫県伊丹市藤ノ木1-1-1 イオンモール伊丹' },
+    { name: 'TOHOシネマズ ららぽーと甲子園', company: 'TOHOシネマズ', address: '兵庫県西宮市甲子園八番町1-100 ららぽーと甲子園' },
+    { name: 'TOHOシネマズ 緑井',             company: 'TOHOシネマズ', address: '広島県広島市安佐南区緑井5-26-22 フジグラン緑井' },
+    { name: 'TOHOシネマズ 広島',             company: 'TOHOシネマズ', address: '広島県広島市南区皆実町2-8-17 ゆめタウン広島' },
+    { name: 'TOHOシネマズ 高松',             company: 'TOHOシネマズ', address: '香川県高松市常磐町1-3-1 瓦町FLAG' },
+    { name: 'TOHOシネマズ 福岡キャナルシティ', company: 'TOHOシネマズ', address: '福岡県福岡市博多区住吉1-2-1 キャナルシティ博多' },
+    { name: 'TOHOシネマズ ららぽーと福岡',   company: 'TOHOシネマズ', address: '福岡県福岡市博多区那珂6-23-1 ららぽーと福岡' },
+    { name: 'TOHOシネマズ 天神',             company: 'TOHOシネマズ', address: '福岡県福岡市中央区天神2-11-3 ソラリアステージ' },
+    { name: 'TOHOシネマズ 熊本サクラマチ',   company: 'TOHOシネマズ', address: '熊本県熊本市中央区桜町3-10 サクラマチクマモト' },
+    { name: 'TOHOシネマズ 鹿児島',           company: 'TOHOシネマズ', address: '鹿児島県鹿児島市与次郎1-9-9' },
+    { name: 'TOHOシネマズ 沖縄ライカム',     company: 'TOHOシネマズ', address: '沖縄県中頭郡北中城村ライカム1番地 イオンモール沖縄ライカム' },
+    { name: 'TOHOシネマズ ファボーレ富山',   company: 'TOHOシネマズ', address: '富山県富山市婦中町下轡田165-1 ファボーレ' },
+
+    // ===== 109シネマズ =====
+    { name: '109シネマズ 川崎',              company: '109シネマズ', address: '神奈川県川崎市川崎区小川町4-1 ラ チッタデッラ' },
+    { name: '109シネマズ 二子玉川',          company: '109シネマズ', address: '東京都世田谷区玉川1-14-1 二子玉川ライズS.C.' },
+    { name: '109シネマズ 木場',              company: '109シネマズ', address: '東京都江東区木場1-5-30 イトーヨーカドー木場' },
+    { name: '109シネマズ 名古屋',            company: '109シネマズ', address: '愛知県名古屋市東区東桜1-1-1 アーバンネット名古屋ビル' },
+    { name: '109シネマズ 大阪エキスポシティ', company: '109シネマズ', address: '大阪府吹田市千里万博公園2-1 ららぽーとEXPOCITY' },
+    { name: '109シネマズ HAT神戸',           company: '109シネマズ', address: '兵庫県神戸市中央区脇浜海岸通2-2-2' },
+    { name: '109シネマズ 港北',              company: '109シネマズ', address: '神奈川県横浜市都筑区中川中央1-31-1 ノースポート・モール' },
+    { name: '109シネマズ 湘南',              company: '109シネマズ', address: '神奈川県藤沢市辻堂神台1-3-1 テラスモール湘南' },
+    { name: '109シネマズ 富谷',              company: '109シネマズ', address: '宮城県富谷市大清水1-33-1 イオンモール富谷' },
+    { name: '109シネマズ 高崎',              company: '109シネマズ', address: '群馬県高崎市棟高町1400 イオンモール高崎' },
+    { name: '109シネマズ 佐野',              company: '109シネマズ', address: '栃木県佐野市富岡町2-2 イオンモール佐野新都市' },
+    { name: '109シネマズ 菖蒲',              company: '109シネマズ', address: '埼玉県久喜市菖蒲町菖蒲6005-1 モラージュ菖蒲' },
+    { name: '109シネマズ 四日市',            company: '109シネマズ', address: '三重県四日市市安島1-3-31 近鉄四日市駅前' },
+    { name: '109シネマズ グランベリーパーク', company: '109シネマズ', address: '東京都町田市鶴間3-3-1 グランベリーパーク' },
+    { name: '109シネマズ 広島',              company: '109シネマズ', address: '広島県広島市西区扇2-1-45 LECT' },
+    { name: '109シネマズ 福山',              company: '109シネマズ', address: '広島県福山市入船町3-1-60 リム・ふくやま' },
+
+    // ===== ユナイテッドシネマ =====
+    { name: 'ユナイテッドシネマ豊洲',        company: 'ユナイテッドシネマ', address: '東京都江東区豊洲2-4-9 アーバンドック ららぽーと豊洲' },
+    { name: 'ユナイテッドシネマ アクアシティお台場', company: 'ユナイテッドシネマ', address: '東京都港区台場1-7-1 アクアシティお台場' },
+    { name: 'ユナイテッドシネマ浦和',        company: 'ユナイテッドシネマ', address: '埼玉県さいたま市浦和区高砂1-12-1 浦和パルコ' },
+    { name: 'ユナイテッドシネマ岸和田',      company: 'ユナイテッドシネマ', address: '大阪府岸和田市港緑町1-1 岸和田カンカンベイサイドモール' },
+    { name: 'ユナイテッドシネマ橿原',        company: 'ユナイテッドシネマ', address: '奈良県橿原市曲川町7-20-1 イオンモール橿原' },
+    { name: 'ユナイテッドシネマ春日部',      company: 'ユナイテッドシネマ', address: '埼玉県春日部市下柳420-1 イオンモール春日部' },
+    { name: 'ユナイテッドシネマ岡崎',        company: 'ユナイテッドシネマ', address: '愛知県岡崎市戸崎町外山38-5 イオンモール岡崎' },
+    { name: 'ユナイテッドシネマ稲毛',        company: 'ユナイテッドシネマ', address: '千葉県千葉市稲毛区長沼原町731-17 ワンズモール' },
+    { name: 'ユナイテッドシネマ熊本',        company: 'ユナイテッドシネマ', address: '熊本県熊本市東区上南部2-2-2 ゆめタウン光の森' },
+    { name: 'ユナイテッドシネマ南砂',        company: 'ユナイテッドシネマ', address: '東京都江東区新砂3-4-31 SUNAMO' },
+    { name: 'ユナイテッドシネマ前橋',        company: 'ユナイテッドシネマ', address: '群馬県前橋市文京町2-1-1 けやきウォーク前橋' },
+    { name: 'ユナイテッドシネマ水戸',        company: 'ユナイテッドシネマ', address: '茨城県水戸市東原3-1-1 水戸内原ロード' },
+    { name: 'ユナイテッドシネマ札幌',        company: 'ユナイテッドシネマ', address: '北海道札幌市中央区南3条西4 ノルベサ' },
+    { name: 'ユナイテッドシネマ長崎',        company: 'ユナイテッドシネマ', address: '長崎県長崎市みなとメディカルセンター近隣' },
+
+    // ===== シネマサンシャイン =====
+    { name: 'シネマサンシャイン平和島',      company: 'シネマサンシャイン', address: '東京都大田区平和島1-1-1 BIGFUN平和島' },
+    { name: 'シネマサンシャイン池袋',        company: 'シネマサンシャイン', address: '東京都豊島区東池袋1-30-3 大正堂ビル' },
+    { name: 'シネマサンシャイン土浦',        company: 'シネマサンシャイン', address: '茨城県土浦市上高津367 イオンモール土浦' },
+    { name: 'シネマサンシャインかほく',      company: 'シネマサンシャイン', address: '石川県かほく市内日角タ27 イオンモールかほく' },
+    { name: 'シネマサンシャイン大和郡山',    company: 'シネマサンシャイン', address: '奈良県大和郡山市下三橋町741 イオンモール大和郡山' },
+    { name: 'シネマサンシャイン姶良',        company: 'シネマサンシャイン', address: '鹿児島県姶良市東餅田533 イオンタウン姶良' },
+    { name: 'シネマサンシャイン衣山',        company: 'シネマサンシャイン', address: '愛媛県松山市衣山4-1-2 エミフルMASAKI近隣' },
+    { name: 'シネマサンシャインエミフルMASAKI', company: 'シネマサンシャイン', address: '愛媛県伊予郡松前町筒井850 エミフルMASAKI' },
+    { name: 'シネマサンシャイン下関',        company: 'シネマサンシャイン', address: '山口県下関市伊倉新町3-1-45 ゆめシティ下関' },
+    { name: 'シネマサンシャイン北島',        company: 'シネマサンシャイン', address: '徳島県板野郡北島町鯛浜西ノ須174 フジグラン北島' },
+
+    // ===== コロナワールド =====
+    { name: '中川コロナシネマワールド',      company: 'コロナワールド', address: '愛知県名古屋市中川区下之一色町野立20' },
+    { name: '春日井コロナシネマワールド',    company: 'コロナワールド', address: '愛知県春日井市町田町6-15-1 コロナワールド' },
+    { name: '安城コロナシネマワールド',      company: 'コロナワールド', address: '愛知県安城市三河安城町1-22-3' },
+    { name: '半田コロナシネマワールド',      company: 'コロナワールド', address: '愛知県半田市更生町3-127-2' },
+    { name: '福山コロナシネマワールド',      company: 'コロナワールド', address: '広島県福山市東深津町4-25-15' },
+    { name: '小田原コロナシネマワールド',    company: 'コロナワールド', address: '神奈川県小田原市前川219-4' },
+    { name: '青森コロナシネマワールド',      company: 'コロナワールド', address: '青森県青森市浪館前田4-13-7' },
+    { name: '大垣コロナシネマワールド',      company: 'コロナワールド', address: '岐阜県大垣市三塚町丹瀬463-1' }
   ];
+  // 旧コードとの互換のため、劇場名リストも生成
+  const DEFAULT_THEATERS = DEFAULT_THEATER_MASTER.map((t) => t.name);
 
   const EDITABLE_FIELDS = {
     company:        { type: 'select',   dynamicOptions: 'company', privilegedOnly: true },
@@ -220,6 +316,29 @@
       const { error } = await sb.from('companies').insert({ name: rec.name, abbr: rec.abbr, sort_order: 100 });
       if (error) throw error;
     },
+    async fetchTheaterMaster() {
+      if (this.mode === 'local') return loadTheaterMaster();
+      const { data, error } = await sb.from('theaters').select('*');
+      if (error || !data) return loadTheaterMaster();
+      if (data.length === 0) {
+        // 初回: デフォルトを Supabase に投入してから返す
+        try {
+          await sb.from('theaters').insert(DEFAULT_THEATER_MASTER.map((t) => ({ name: t.name, company: t.company, address: t.address })));
+        } catch (e) { console.warn('theater master 初期投入失敗', e); }
+        return DEFAULT_THEATER_MASTER.map((t) => ({ name: t.name, company: t.company, address: t.address }));
+      }
+      return data.map((r) => ({ name: r.name, company: r.company, address: r.address || '' }));
+    },
+    async upsertTheater(t) {
+      if (this.mode === 'local') { saveTheaterMaster(theaterMaster); return; }
+      const { error } = await sb.from('theaters').upsert({ name: t.name, company: t.company, address: t.address || '' });
+      if (error) throw error;
+    },
+    async deleteTheater(name) {
+      if (this.mode === 'local') { saveTheaterMaster(theaterMaster); return; }
+      const { error } = await sb.from('theaters').delete().eq('name', name);
+      if (error) throw error;
+    },
     subscribe(onChange) {
       if (this.mode !== 'supabase') return;
       try {
@@ -261,6 +380,7 @@
   let cases = [];               // 初期化は init() で（local or Supabase）
   let history = loadHistory();
   let companies = DEFAULT_COMPANIES.map((c) => ({ name: c.name, abbr: c.abbr }));
+  let theaterMaster = DEFAULT_THEATER_MASTER.slice();
   let currentUser = null;
   let sortState = { field: null, direction: 'asc' };
   let contentEditCaseId = null;
@@ -323,6 +443,27 @@
     const found = companies.find((c) => c.name === name);
     return found ? found.abbr : (name || '');
   }
+
+  // ---------- 客先（劇場）マスタ ----------
+  function loadTheaterMaster() {
+    try {
+      const stored = JSON.parse(localStorage.getItem(THEATER_MASTER_KEY));
+      if (Array.isArray(stored) && stored.length > 0) {
+        return stored.map((t) => ({ name: t.name || '', company: t.company || '', address: t.address || '' }));
+      }
+    } catch (e) {}
+    return DEFAULT_THEATER_MASTER.map((t) => ({ name: t.name, company: t.company, address: t.address }));
+  }
+  function saveTheaterMaster(list) { localStorage.setItem(THEATER_MASTER_KEY, JSON.stringify(list)); }
+  // 案件の劇場名と完全一致する master 行を返す（無ければ undefined）
+  function findTheaterInMaster(name) {
+    if (!name) return undefined;
+    return theaterMaster.find((t) => t.name === name);
+  }
+  function visibleTheaterMaster() {
+    if (isPrivileged(currentUser)) return theaterMaster;
+    return theaterMaster.filter((t) => t.company === 'TOHOシネマズ');
+  }
   // CSSクラスに安全な文字列化（スペース・記号を_に）
   function safeClass(s) {
     return String(s || '').replace(/[^A-Za-z0-9_぀-ゟ゠-ヿ一-鿿]/g, '_');
@@ -347,8 +488,11 @@
     return cases.filter((c) => c.company === 'TOHOシネマズ');
   }
   function renderDatalists() {
-    // 履歴を案件由来で動的生成（ロール別に自動分離: TOHOにはTOHO案件由来の候補のみ）
-    const theaters = new Set(DEFAULT_THEATERS);  // TOHO 72劇場は初期候補として常に含む
+    // 履歴を 客先マスタ + 案件由来 で動的生成（ロール別に自動分離）
+    const theaters = new Set();
+    // 客先マスタから（ロールでフィルタ済）
+    visibleTheaterMaster().forEach((t) => { if (t.name) theaters.add(t.name); });
+    // 案件からも追加（マスタ未登録の劇場でも候補に出る）
     const tcPersons = new Set();
     const rPersons = new Set();
     visibleCases().forEach((c) => {
@@ -356,15 +500,7 @@
       if (c.tcPerson) tcPersons.add(c.tcPerson);
       if (c.rPerson) rPersons.add(c.rPerson);
     });
-    // TOHOユーザーには TOHOシネマズの劇場のみを候補に
-    let theatersArr = [...theaters];
-    if (!isPrivileged(currentUser)) {
-      // 念のためフィルタ: 非ryonetsuユーザーには非TOHOの劇場名（109/UC/コロナ等で始まる）を除外
-      theatersArr = theatersArr.filter((t) =>
-        !/^(109|ユナイテッド|UC |佐々木|コロナ|MOVIX|MV |イオン)/i.test(t)
-      );
-    }
-    fillDatalist('theaterList', theatersArr.sort());
+    fillDatalist('theaterList', [...theaters].sort());
     fillDatalist('tcPersonList', [...tcPersons].sort());
     fillDatalist('rPersonList', [...rPersons].sort());
   }
@@ -972,13 +1108,31 @@
       return `<c r="${ref}"${a}><v>${safe}</v></c>`;
     });
   }
+  // 客先マスタから劇場の正式名称・住所を引く（無ければ案件のtheater名・住所空欄でフォールバック）
+  function resolveTheaterInfo(c) {
+    const m = findTheaterInMaster(c.theater);
+    return {
+      name: m ? m.name : (c.theater || ''),
+      address: m ? (m.address || '') : '',
+      company: c.company || ''
+    };
+  }
+  // 会社名を「〇〇株式会社」形式に正規化（既に「株式会社」を含む場合はそのまま）
+  function formatCompanyName(name) {
+    if (!name) return '';
+    if (/株式会社|有限会社|合同会社/.test(name)) return name;
+    return name + '株式会社';
+  }
   async function buildInvoiceXlsx(c) {
     const zip = await JSZip.loadAsync(base64ToArrayBuffer(window.TEMPLATE_INVOICE_B64));
     let sheet = await zip.file('xl/worksheets/sheet2.xml').async('string');
+    const t = resolveTheaterInfo(c);
     sheet = setCellInline(sheet, 'A21', fmtDateFull(c.workEndDate));
-    sheet = setCellInline(sheet, 'D21', `${c.theater} ${c.estimateName}`);
+    // 現場名 = 劇場の正式名称(マスタ優先) + 見積り名
+    sheet = setCellInline(sheet, 'D21', `${t.name} ${c.estimateName || ''}`.trim());
     sheet = setCellNumber(sheet, 'AK21', Number(c.estimateAmount) || 0);
-    sheet = setCellInline(sheet, 'B6', c.company);
+    // 宛先会社名（マスタの会社名）
+    sheet = setCellInline(sheet, 'B6', formatCompanyName(t.company));
     zip.file('xl/worksheets/sheet2.xml', sheet);
     let styles = await zip.file('xl/styles.xml').async('string');
     styles = styles.replace(/FFFF0000/g, 'FF000000');
@@ -988,16 +1142,17 @@
   async function buildCompletionXlsx(c) {
     const zip = await JSZip.loadAsync(base64ToArrayBuffer(window.TEMPLATE_COMPLETION_B64));
     let sheet = await zip.file('xl/worksheets/sheet2.xml').async('string');
-    sheet = setCellInline(sheet, 'H14', `${c.theater} ${c.estimateName}`);
-    sheet = setCellInline(sheet, 'H17', `${c.theater}（住所を手動でご記入ください）`);
+    const t = resolveTheaterInfo(c);
+    sheet = setCellInline(sheet, 'H14', `${t.name} ${c.estimateName || ''}`.trim());
+    // 工事場所 = マスタの住所（無ければ劇場名のみ）
+    sheet = setCellInline(sheet, 'H17', t.address || t.name || '');
     sheet = setCellNumber(sheet, 'H20', Number(c.estimateAmount) || 0);
     sheet = setCellInline(sheet, 'H23', fmtDateFull(c.workStartDate));
     sheet = setCellInline(sheet, 'S23', fmtDateFull(c.workEndDate));
     sheet = setCellInline(sheet, 'H26', fmtDateFull(c.workStartDate));
     sheet = setCellInline(sheet, 'H29', fmtDateFull(c.workEndDate));
-    if (c.company !== 'TOHOシネマズ') {
-      sheet = setCellInline(sheet, 'B7', `${c.company}株式会社　御中`);
-    }
+    // 完了届B7は宛先「会社名 御中」。マスタの会社名から正規化して上書き
+    sheet = setCellInline(sheet, 'B7', `${formatCompanyName(t.company)}　御中`);
     zip.file('xl/worksheets/sheet2.xml', sheet);
     let styles = await zip.file('xl/styles.xml').async('string');
     styles = styles.replace(/FFFF0000/g, 'FF000000');
@@ -1358,6 +1513,97 @@
     downloadCSV(`A集計_${todayStr()}.csv`, rows);
   }
 
+  // ---------- 客先マスター（劇場・住所）モーダル ----------
+  function populateTheaterMasterCompanySelect() {
+    const sel = $('tmCompanySelect');
+    const prev = sel.value;
+    sel.innerHTML = companyNames().map((n) => `<option value="${escapeHtml(n)}">${escapeHtml(n)}（${escapeHtml(companyAbbr(n))}）</option>`).join('');
+    if (prev && companyNames().indexOf(prev) !== -1) sel.value = prev;
+    else if (companyNames().length > 0) sel.value = companyNames()[0];
+  }
+  function renderTheaterMasterTable() {
+    const company = $('tmCompanySelect').value;
+    const rows = theaterMaster.map((t, idx) => ({ t, idx })).filter((x) => x.t.company === company);
+    const tbody = $('tmBody');
+    if (rows.length === 0) {
+      tbody.innerHTML = '';
+      $('tmEmpty').classList.remove('hidden');
+    } else {
+      $('tmEmpty').classList.add('hidden');
+      tbody.innerHTML = rows.map(({ t, idx }) => `
+        <tr data-master-idx="${idx}">
+          <td><input type="text" class="tm-input tm-name" value="${escapeHtml(t.name)}" placeholder="例: TOHOシネマズ 新宿"></td>
+          <td><input type="text" class="tm-input tm-address" value="${escapeHtml(t.address || '')}" placeholder="例: 東京都新宿区歌舞伎町1-19-1"></td>
+          <td><button type="button" class="tm-delete-btn">削除</button></td>
+        </tr>
+      `).join('');
+    }
+  }
+  function openTheaterMasterModal() {
+    populateTheaterMasterCompanySelect();
+    renderTheaterMasterTable();
+    $('theaterMasterModal').classList.remove('hidden');
+  }
+  function closeTheaterMasterModal() {
+    $('theaterMasterModal').classList.add('hidden');
+    renderDatalists(); // 編集結果を即サジェストへ反映
+  }
+  async function persistTheater(t) {
+    try { await store.upsertTheater(t); }
+    catch (e) { onPersistError(e); }
+  }
+  async function removeTheater(name) {
+    try { await store.deleteTheater(name); }
+    catch (e) { onPersistError(e); }
+  }
+  function handleTheaterMasterInput(e) {
+    const tr = e.target.closest('tr');
+    if (!tr || !tr.dataset.masterIdx) return;
+    const idx = parseInt(tr.dataset.masterIdx, 10);
+    const entry = theaterMaster[idx];
+    if (!entry) return;
+    const oldName = entry.name;
+    if (e.target.classList.contains('tm-name')) {
+      entry.name = e.target.value.trim();
+      // 名前がリネームされた場合: 旧キーを削除 → 新エントリ保存
+      if (oldName && oldName !== entry.name) {
+        removeTheater(oldName);
+      }
+    } else if (e.target.classList.contains('tm-address')) {
+      entry.address = e.target.value.trim();
+    }
+    saveTheaterMaster(theaterMaster);
+    persistTheater(entry);
+  }
+  function handleTheaterMasterClick(e) {
+    if (!e.target.classList.contains('tm-delete-btn')) return;
+    const tr = e.target.closest('tr');
+    if (!tr) return;
+    const idx = parseInt(tr.dataset.masterIdx, 10);
+    const entry = theaterMaster[idx];
+    if (!entry) return;
+    if (!confirm(`劇場「${entry.name || '(無名)'}」をマスターから削除しますか？\n（既存案件への影響はありません）`)) return;
+    if (entry.name) removeTheater(entry.name);
+    theaterMaster.splice(idx, 1);
+    saveTheaterMaster(theaterMaster);
+    renderTheaterMasterTable();
+  }
+  function addTheaterRow() {
+    const company = $('tmCompanySelect').value;
+    if (!company) { alert('先に会社を選択してください'); return; }
+    theaterMaster.push({ name: '', company: company, address: '' });
+    saveTheaterMaster(theaterMaster);
+    renderTheaterMasterTable();
+    // 追加した行の名前入力にフォーカス
+    setTimeout(() => {
+      const rows = $('tmBody').querySelectorAll('tr');
+      if (rows.length > 0) {
+        const lastInput = rows[rows.length - 1].querySelector('.tm-name');
+        if (lastInput) lastInput.focus();
+      }
+    }, 50);
+  }
+
   // ---------- screens ----------
   function showLogin() {
     $('appShell').classList.add('hidden');
@@ -1404,6 +1650,7 @@
       $('loginPassword').value = '';
       try { cases = await store.fetchCases(); } catch (err) { cases = []; onPersistError(err); }
       companies = await store.fetchCompanies();
+      try { theaterMaster = await store.fetchTheaterMaster(); } catch (e) {}
       populateCompanySelects();
       store.subscribe(onRemoteChange);
       showApp();
@@ -1476,6 +1723,7 @@
         currentUser = res.user;
         try { cases = await store.fetchCases(); } catch (err) { cases = []; onPersistError(err); }
         companies = await store.fetchCompanies();
+        try { theaterMaster = await store.fetchTheaterMaster(); } catch (e) {}
         populateCompanySelects();
         store.subscribe(onRemoteChange);
         showApp();
@@ -1499,6 +1747,7 @@
     if (!$('modal').classList.contains('hidden')) closeModal();
     if (!$('invoiceModal').classList.contains('hidden')) closeInvoiceModal();
     if (!$('contentModal').classList.contains('hidden')) closeContentModal();
+    if (!$('theaterMasterModal').classList.contains('hidden')) closeTheaterMasterModal();
     store.unsubscribe();
     await store.signOut();
     currentUser = null;
@@ -1522,6 +1771,16 @@
     updateInvoicePreview();
   });
   $('invoiceGenerateBtn').addEventListener('click', generateInvoices);
+
+  // 客先マスター モーダル
+  $('theaterMasterBtn').addEventListener('click', openTheaterMasterModal);
+  $('closeTheaterMasterModal').addEventListener('click', closeTheaterMasterModal);
+  $('tmCloseBtn').addEventListener('click', closeTheaterMasterModal);
+  $('theaterMasterModal').addEventListener('click', (e) => { if (e.target === $('theaterMasterModal')) closeTheaterMasterModal(); });
+  $('tmCompanySelect').addEventListener('change', renderTheaterMasterTable);
+  $('tmAddTheaterBtn').addEventListener('click', addTheaterRow);
+  $('tmBody').addEventListener('change', handleTheaterMasterInput);
+  $('tmBody').addEventListener('click', handleTheaterMasterClick);
 
   $('closeContentModal').addEventListener('click', closeContentModal);
   $('contentCancelBtn').addEventListener('click', closeContentModal);
@@ -1554,6 +1813,7 @@
     if (e.key !== 'Escape') return;
     // 最後に開いたものを優先的に閉じる
     if (!$('contentModal').classList.contains('hidden')) { closeContentModal(); return; }
+    if (!$('theaterMasterModal').classList.contains('hidden')) { closeTheaterMasterModal(); return; }
     if (!$('invoiceModal').classList.contains('hidden')) { closeInvoiceModal(); return; }
     if (!$('modal').classList.contains('hidden')) { closeModal(); return; }
   });
@@ -1692,6 +1952,7 @@
     }
     renderDatalists();
     try { companies = await store.fetchCompanies(); } catch (e) { /* 既定値のまま */ }
+    try { theaterMaster = await store.fetchTheaterMaster(); } catch (e) { /* 既定値のまま */ }
     populateCompanySelects();
     let sess = null;
     try { sess = await store.getSession(); } catch (e) { sess = null; }
