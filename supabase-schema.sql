@@ -32,30 +32,51 @@ create table if not exists public.cases (
   updated_by      uuid references auth.users(id) on delete set null
 );
 
--- 1b. 会社（顧客）マスタ。abbr=一覧表示用の略称
+-- 1b. 会社（顧客）マスタ。abbr=一覧表示用の略称、official_name=請求書/完了届の宛先、hq_address=本社住所
 create table if not exists public.companies (
-  name       text primary key,
-  abbr       text not null,
-  sort_order int default 100,
-  created_at timestamptz not null default now()
+  name           text primary key,
+  abbr           text not null,
+  sort_order     int default 100,
+  official_name  text default '',
+  hq_address     text default '',
+  created_at     timestamptz not null default now()
 );
 
-insert into public.companies (name, abbr, sort_order) values
-  ('TOHOシネマズ', 'TOHO', 1),
-  ('109シネマズ', '109', 2),
-  ('ユナイテッドシネマ', 'UC', 3),
-  ('佐々木興業', 'CS', 4),
-  ('コロナワールド', 'コロナ', 5),
-  ('MOVIX', 'MV', 6),
-  ('イオンシネマズ', 'イオン', 7)
+-- 既存テーブルへの列追加（既存運用環境向け・新規構築時は no-op）
+alter table public.companies add column if not exists official_name text default '';
+alter table public.companies add column if not exists hq_address    text default '';
+
+insert into public.companies (name, abbr, sort_order, official_name, hq_address) values
+  ('TOHOシネマズ',       'TOHO',   1, 'TOHOシネマズ株式会社',                       '東京都千代田区有楽町1-2-2 東宝日比谷ビル'),
+  ('109シネマズ',        '109',    2, '株式会社東急レクリエーション',               '東京都渋谷区道玄坂2-29-5 渋谷プライム'),
+  ('ユナイテッドシネマ', 'UC',     3, 'ユナイテッド・シネマ株式会社',               '東京都港区台場1-7-1 アクアシティお台場5F'),
+  ('佐々木興業',         'CS',     4, '佐々木興業株式会社',                         '東京都豊島区東池袋1-30-3 大正堂ビル'),
+  ('コロナワールド',     'コロナ', 5, '株式会社コロナワールド',                     '愛知県小牧市東田中1227'),
+  ('MOVIX',              'MV',     6, '株式会社松竹マルチプレックスシアターズ',     '東京都中央区築地4-1-1 松竹本社'),
+  ('イオンシネマズ',     'イオン', 7, 'イオンエンターテイメント株式会社',           '千葉県千葉市美浜区中瀬1-5-1 幕張テクノガーデンB棟'),
+  ('シネマサンシャイン', 'SS',     8, '佐々木興業株式会社',                         '東京都豊島区東池袋1-30-3 大正堂ビル')
 on conflict (name) do nothing;
 
--- 会社マスタは認証ユーザー全員が閲覧、ryonetsu ドメインのみ追加可
+-- 既存運用環境で official_name / hq_address が空の場合の初期化（一度だけ実行・既に値があれば上書きしない）
+update public.companies set official_name = 'TOHOシネマズ株式会社',                       hq_address = '東京都千代田区有楽町1-2-2 東宝日比谷ビル'           where name = 'TOHOシネマズ'       and coalesce(official_name,'') = '';
+update public.companies set official_name = '株式会社東急レクリエーション',               hq_address = '東京都渋谷区道玄坂2-29-5 渋谷プライム'             where name = '109シネマズ'        and coalesce(official_name,'') = '';
+update public.companies set official_name = 'ユナイテッド・シネマ株式会社',               hq_address = '東京都港区台場1-7-1 アクアシティお台場5F'          where name = 'ユナイテッドシネマ' and coalesce(official_name,'') = '';
+update public.companies set official_name = '佐々木興業株式会社',                         hq_address = '東京都豊島区東池袋1-30-3 大正堂ビル'               where name = '佐々木興業'         and coalesce(official_name,'') = '';
+update public.companies set official_name = '株式会社コロナワールド',                     hq_address = '愛知県小牧市東田中1227'                            where name = 'コロナワールド'     and coalesce(official_name,'') = '';
+update public.companies set official_name = '株式会社松竹マルチプレックスシアターズ',     hq_address = '東京都中央区築地4-1-1 松竹本社'                    where name = 'MOVIX'              and coalesce(official_name,'') = '';
+update public.companies set official_name = 'イオンエンターテイメント株式会社',           hq_address = '千葉県千葉市美浜区中瀬1-5-1 幕張テクノガーデンB棟' where name = 'イオンシネマズ'     and coalesce(official_name,'') = '';
+update public.companies set official_name = '佐々木興業株式会社',                         hq_address = '東京都豊島区東池袋1-30-3 大正堂ビル'               where name = 'シネマサンシャイン' and coalesce(official_name,'') = '';
+
+-- 会社マスタは認証ユーザー全員が閲覧、ryonetsu ドメインのみ追加/更新可
 alter table public.companies enable row level security;
 drop policy if exists "companies_select" on public.companies;
 create policy "companies_select" on public.companies for select to authenticated using (true);
 drop policy if exists "companies_insert" on public.companies;
 create policy "companies_insert" on public.companies for insert to authenticated
+  with check (coalesce(auth.email() like '%@ryonetsu.com', false));
+drop policy if exists "companies_update" on public.companies;
+create policy "companies_update" on public.companies for update to authenticated
+  using (coalesce(auth.email() like '%@ryonetsu.com', false))
   with check (coalesce(auth.email() like '%@ryonetsu.com', false));
 
 -- 1c. 客先（劇場）マスタ。正式名称・親会社・住所。請求書/完了届の参照元。

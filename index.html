@@ -298,7 +298,18 @@
           <select id="tmCompanySelect"></select>
         </label>
         <button id="tmAddTheaterBtn">＋ 劇場追加</button>
-        <span class="tm-hint">💡 ここに登録した「劇場の正式名称・住所」が請求書/完了届に使われます。直接編集→自動保存。</span>
+        <span class="tm-hint">💡 ここに登録した「会社正式名称・本社住所・劇場名・劇場住所」が請求書/完了届に使われます。直接編集→自動保存。</span>
+      </div>
+      <div class="tm-hq-box">
+        <div class="tm-hq-title">🏢 本社情報（請求書/完了届の宛先に使用）</div>
+        <div class="tm-hq-row">
+          <label class="tm-hq-label">正式名称</label>
+          <input type="text" id="tmHqOfficialName" class="tm-input tm-hq-input" placeholder="例: 株式会社東急レクリエーション">
+        </div>
+        <div class="tm-hq-row">
+          <label class="tm-hq-label">本社住所</label>
+          <input type="text" id="tmHqAddress" class="tm-input tm-hq-input" placeholder="例: 東京都渋谷区道玄坂2-29-5">
+        </div>
       </div>
       <div class="tm-table-wrap">
         <table class="tm-table">

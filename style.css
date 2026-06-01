@@ -554,6 +554,36 @@ body.user-toho #addCompanyBtn { display: none; }
   padding: 4px 10px;
   border-radius: 4px;
 }
+.tm-hq-box {
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin-bottom: 10px;
+}
+.tm-hq-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0369a1;
+  margin-bottom: 8px;
+}
+.tm-hq-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.tm-hq-row:last-child { margin-bottom: 0; }
+.tm-hq-label {
+  flex: 0 0 90px;
+  font-size: 12px;
+  color: #334155;
+  font-weight: 500;
+}
+.tm-hq-input {
+  flex: 1;
+  font-size: 13px;
+}
 .tm-table-wrap {
   flex: 1;
   overflow: auto;

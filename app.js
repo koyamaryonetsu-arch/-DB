@@ -9,15 +9,17 @@
   const THEATER_MASTER_KEY = 'tohoTheaterMasterV1';
 
   // 会社（顧客）と劇場名表示用の略称。name=正式名 / abbr=略称
+  // 各社の officialName / hqAddress は「請求書・完了届の宛先と住所」に使われる。
+  // 値はベストエフォート（公開情報に基づく初期値）。客先マスター画面から編集できる。
   const DEFAULT_COMPANIES = [
-    { name: 'TOHOシネマズ',       abbr: 'TOHO' },
-    { name: '109シネマズ',        abbr: '109' },
-    { name: 'ユナイテッドシネマ', abbr: 'UC' },
-    { name: '佐々木興業',         abbr: 'CS' },
-    { name: 'コロナワールド',     abbr: 'コロナ' },
-    { name: 'MOVIX',              abbr: 'MV' },
-    { name: 'イオンシネマズ',     abbr: 'イオン' },
-    { name: 'シネマサンシャイン', abbr: 'SS' }
+    { name: 'TOHOシネマズ',       abbr: 'TOHO',   officialName: 'TOHOシネマズ株式会社',         hqAddress: '東京都千代田区有楽町1-2-2 東宝日比谷ビル' },
+    { name: '109シネマズ',        abbr: '109',    officialName: '株式会社東急レクリエーション', hqAddress: '東京都渋谷区道玄坂2-29-5 渋谷プライム' },
+    { name: 'ユナイテッドシネマ', abbr: 'UC',     officialName: 'ユナイテッド・シネマ株式会社', hqAddress: '東京都港区台場1-7-1 アクアシティお台場5F' },
+    { name: '佐々木興業',         abbr: 'CS',     officialName: '佐々木興業株式会社',           hqAddress: '東京都豊島区東池袋1-30-3 大正堂ビル' },
+    { name: 'コロナワールド',     abbr: 'コロナ', officialName: '株式会社コロナワールド',       hqAddress: '愛知県小牧市東田中1227' },
+    { name: 'MOVIX',              abbr: 'MV',     officialName: '株式会社松竹マルチプレックスシアターズ', hqAddress: '東京都中央区築地4-1-1 松竹本社' },
+    { name: 'イオンシネマズ',     abbr: 'イオン', officialName: 'イオンエンターテイメント株式会社',       hqAddress: '千葉県千葉市美浜区中瀬1-5-1 幕張テクノガーデンB棟' },
+    { name: 'シネマサンシャイン', abbr: 'SS',     officialName: '佐々木興業株式会社',           hqAddress: '東京都豊島区東池袋1-30-3 大正堂ビル' }
   ];
   const CATEGORIES = ['新規工事', '更新案件', '修理', 'メンテナンス', '点検', '改修', 'その他'];
   // 色判定を除外するカテゴリ
@@ -311,11 +313,29 @@
       if (this.mode === 'local') return loadCompanies();
       const { data, error } = await sb.from('companies').select('*').order('sort_order', { ascending: true });
       if (error || !data || !data.length) return loadCompanies();
-      return data.map((r) => ({ name: r.name, abbr: r.abbr }));
+      return data.map((r) => {
+        const def = DEFAULT_COMPANIES.find((d) => d.name === r.name);
+        return {
+          name: r.name,
+          abbr: r.abbr,
+          // DB に列が無い場合は undefined。デフォルトで補完
+          officialName: r.official_name != null ? r.official_name : (def ? def.officialName : ''),
+          hqAddress:    r.hq_address    != null ? r.hq_address    : (def ? def.hqAddress    : '')
+        };
+      });
     },
     async addCompanyRemote(rec) {
       if (this.mode === 'local') { saveCompanies(companies); return; }
-      const { error } = await sb.from('companies').insert({ name: rec.name, abbr: rec.abbr, sort_order: 100 });
+      const { error } = await sb.from('companies').insert({ name: rec.name, abbr: rec.abbr, sort_order: 100, official_name: rec.officialName || '', hq_address: rec.hqAddress || '' });
+      if (error) throw error;
+    },
+    async updateCompanyInfo(name, patch) {
+      if (this.mode === 'local') { saveCompanies(companies); return; }
+      const row = {};
+      if (patch.officialName != null) row.official_name = patch.officialName;
+      if (patch.hqAddress    != null) row.hq_address    = patch.hqAddress;
+      if (!Object.keys(row).length) return;
+      const { error } = await sb.from('companies').update(row).eq('name', name);
       if (error) throw error;
     },
     async fetchTheaterMaster() {
@@ -381,7 +401,7 @@
 
   let cases = [];               // 初期化は init() で（local or Supabase）
   let history = loadHistory();
-  let companies = DEFAULT_COMPANIES.map((c) => ({ name: c.name, abbr: c.abbr }));
+  let companies = DEFAULT_COMPANIES.map((c) => ({ name: c.name, abbr: c.abbr, officialName: c.officialName || '', hqAddress: c.hqAddress || '' }));
   let theaterMaster = DEFAULT_THEATER_MASTER.slice();
   let currentUser = null;
   let sortState = { field: null, direction: 'asc' };
@@ -433,17 +453,40 @@
     try {
       const stored = JSON.parse(localStorage.getItem(COMPANY_KEY));
       if (Array.isArray(stored) && stored.length > 0) {
-        // 旧データ救済: 略称が無ければ正式名で補完
-        return stored.map((c) => ({ name: c.name, abbr: c.abbr || c.name }));
+        // 旧データ救済: 不足フィールドはデフォルト/空で補完
+        let migrated = false;
+        const arr = stored.map((c) => {
+          const def = DEFAULT_COMPANIES.find((d) => d.name === c.name);
+          const obj = {
+            name: c.name,
+            abbr: c.abbr || c.name,
+            officialName: c.officialName != null ? c.officialName : (def ? def.officialName : ''),
+            hqAddress:    c.hqAddress    != null ? c.hqAddress    : (def ? def.hqAddress    : '')
+          };
+          if (c.officialName == null || c.hqAddress == null) migrated = true;
+          return obj;
+        });
+        if (migrated) try { localStorage.setItem(COMPANY_KEY, JSON.stringify(arr)); } catch (e) {}
+        return arr;
       }
     } catch (e) {}
-    return DEFAULT_COMPANIES.map((c) => ({ name: c.name, abbr: c.abbr }));
+    const defaults = DEFAULT_COMPANIES.map((c) => ({ name: c.name, abbr: c.abbr, officialName: c.officialName || '', hqAddress: c.hqAddress || '' }));
+    try { localStorage.setItem(COMPANY_KEY, JSON.stringify(defaults)); } catch (e) {}
+    return defaults;
   }
   function saveCompanies(list) { localStorage.setItem(COMPANY_KEY, JSON.stringify(list)); }
   function companyNames() { return companies.map((c) => c.name); }
   function companyAbbr(name) {
     const found = companies.find((c) => c.name === name);
     return found ? found.abbr : (name || '');
+  }
+  function companyOfficialName(name) {
+    const found = companies.find((c) => c.name === name);
+    return found && found.officialName ? found.officialName : '';
+  }
+  function companyHqAddress(name) {
+    const found = companies.find((c) => c.name === name);
+    return found && found.hqAddress ? found.hqAddress : '';
   }
 
   // ---------- 客先（劇場）マスタ ----------
@@ -540,12 +583,12 @@
     const abbrInput = prompt('一覧表示用の略称（短縮名）を入力してください', nm.slice(0, 4));
     const abbr = (abbrInput && abbrInput.trim()) ? abbrInput.trim() : nm;
     try {
-      await store.addCompanyRemote({ name: nm, abbr: abbr });
+      await store.addCompanyRemote({ name: nm, abbr: abbr, officialName: '', hqAddress: '' });
     } catch (err) {
       onPersistError(err);
       return;
     }
-    companies.push({ name: nm, abbr: abbr });
+    companies.push({ name: nm, abbr: abbr, officialName: '', hqAddress: '' });
     if (store.mode === 'local') saveCompanies(companies);
     populateCompanySelects();
     $('company').value = nm;
@@ -1134,9 +1177,12 @@
       company: m ? (m.company || c.company || '') : (c.company || '')
     };
   }
-  // 会社名を「〇〇株式会社」形式に正規化（既に「株式会社」を含む場合はそのまま）
+  // 会社名を「〇〇株式会社」形式に正規化（マスタの officialName を優先）
+  // 例: 109シネマズ → 株式会社東急レクリエーション
   function formatCompanyName(name) {
     if (!name) return '';
+    const official = companyOfficialName(name);
+    if (official) return official;
     if (/株式会社|有限会社|合同会社/.test(name)) return name;
     return name + '株式会社';
   }
@@ -1556,14 +1602,45 @@
       `).join('');
     }
   }
+  function renderHqInfo() {
+    const company = $('tmCompanySelect').value;
+    const c = companies.find((x) => x.name === company);
+    const ro = !isPrivileged(currentUser); // TOHO は閲覧のみ
+    $('tmHqOfficialName').value = c ? (c.officialName || '') : '';
+    $('tmHqAddress').value      = c ? (c.hqAddress || '')    : '';
+    $('tmHqOfficialName').readOnly = ro;
+    $('tmHqAddress').readOnly      = ro;
+  }
   function openTheaterMasterModal() {
     populateTheaterMasterCompanySelect();
+    renderHqInfo();
     renderTheaterMasterTable();
     $('theaterMasterModal').classList.remove('hidden');
   }
   function closeTheaterMasterModal() {
     $('theaterMasterModal').classList.add('hidden');
     renderDatalists(); // 編集結果を即サジェストへ反映
+  }
+  async function persistCompanyInfo(name) {
+    const c = companies.find((x) => x.name === name);
+    if (!c) return;
+    if (store.mode === 'local') { saveCompanies(companies); return; }
+    try { await store.updateCompanyInfo(name, { officialName: c.officialName, hqAddress: c.hqAddress }); }
+    catch (e) { onPersistError(e); }
+  }
+  function handleHqOfficialNameChange() {
+    const name = $('tmCompanySelect').value;
+    const c = companies.find((x) => x.name === name);
+    if (!c) return;
+    c.officialName = $('tmHqOfficialName').value.trim();
+    persistCompanyInfo(name);
+  }
+  function handleHqAddressChange() {
+    const name = $('tmCompanySelect').value;
+    const c = companies.find((x) => x.name === name);
+    if (!c) return;
+    c.hqAddress = $('tmHqAddress').value.trim();
+    persistCompanyInfo(name);
   }
   async function persistTheater(t) {
     try { await store.upsertTheater(t); }
@@ -1794,10 +1871,12 @@
   $('closeTheaterMasterModal').addEventListener('click', closeTheaterMasterModal);
   $('tmCloseBtn').addEventListener('click', closeTheaterMasterModal);
   $('theaterMasterModal').addEventListener('click', (e) => { if (e.target === $('theaterMasterModal')) closeTheaterMasterModal(); });
-  $('tmCompanySelect').addEventListener('change', renderTheaterMasterTable);
+  $('tmCompanySelect').addEventListener('change', () => { renderHqInfo(); renderTheaterMasterTable(); });
   $('tmAddTheaterBtn').addEventListener('click', addTheaterRow);
   $('tmBody').addEventListener('change', handleTheaterMasterInput);
   $('tmBody').addEventListener('click', handleTheaterMasterClick);
+  $('tmHqOfficialName').addEventListener('change', handleHqOfficialNameChange);
+  $('tmHqAddress').addEventListener('change', handleHqAddressChange);
 
   $('closeContentModal').addEventListener('click', closeContentModal);
   $('contentCancelBtn').addEventListener('click', closeContentModal);
