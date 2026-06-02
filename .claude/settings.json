@@ -12,6 +12,10 @@
       "mcp__65932b34-a038-4a9c-b042-304d67938239__create_draft",
       "mcp__a0ae22d3-5044-4418-b7f2-de46978a466e__notion-search",
       "mcp__a0ae22d3-5044-4418-b7f2-de46978a466e__notion-fetch",
+      "mcp__a0ae22d3-5044-4418-b7f2-de46978a466e__notion-get-comments",
+      "mcp__a0ae22d3-5044-4418-b7f2-de46978a466e__notion-create-comment",
+      "mcp__a0ae22d3-5044-4418-b7f2-de46978a466e__notion-create-pages",
+      "mcp__a0ae22d3-5044-4418-b7f2-de46978a466e__notion-update-page",
       "mcp__a2ad4633-5c94-4550-bbc6-f21263171e55__search_files",
       "mcp__a2ad4633-5c94-4550-bbc6-f21263171e55__read_file_content",
       "mcp__Gmail__search_threads",
@@ -21,6 +25,10 @@
       "mcp__Gmail__create_draft",
       "mcp__Notion__notion-search",
       "mcp__Notion__notion-fetch",
+      "mcp__Notion__notion-get-comments",
+      "mcp__Notion__notion-create-comment",
+      "mcp__Notion__notion-create-pages",
+      "mcp__Notion__notion-update-page",
       "mcp__Google-Drive__search_files",
       "mcp__Google-Drive__read_file_content"
     ]
