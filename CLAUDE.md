@@ -20,7 +20,8 @@
 
 - フロント: 素のHTML/CSS/JS（フレームワーク無し・ビルド不要）
 - バックエンド: Supabase（Postgres + Auth + Realtime）
-- 配信: Vercel（静的）
+- 配信: Vercel（静的 + Serverless Functions）
+- **Serverless Functions: `/api/*.js`（Node.js 20）— LINE通知 / AI連携**
 - ライブラリは vendor/ に同梱（CDN非依存）
 
 ## ディレクトリ
@@ -32,14 +33,35 @@
 ├── app.js              # 単一ファイル(IIFE)。store抽象化で local/supabase 切替
 ├── config.js           # Supabase URL + anon key（公開可・RLSで保護）
 ├── templates.js        # 請求書/完了届テンプレート（base64）
+├── api/
+│   ├── case-created.mjs # Supabase webhook → AI判断 → LINE通知
+│   └── line-webhook.mjs # LINE → Vercel（グループID取得・Phase 2双方向化用）
 ├── vendor/
 │   ├── supabase.min.js # @supabase/supabase-js UMD（同梱）
 │   └── jszip.min.js    # JSZip UMD（同梱）
 ├── templates/          # 元のExcelテンプレート（参考用・実行時不使用）
 ├── supabase-schema.sql # DBスキーマ（変更時に追記して koyamaさんに実行依頼）
+├── vercel.json         # Serverless Functions のランタイム宣言
+├── .env.example        # 必要な環境変数のひな型
+├── SETUP_LINE.md       # LINE/AI連携の手順書（Claude in Chrome向け）
 ├── DEPLOY.md
 └── CLAUDE.md           # このファイル
 ```
+
+## Serverless Functions（LINE連携）
+
+| エンドポイント | 役割 | 認証 |
+|---|---|---|
+| `/api/case-created` | Supabase Webhook 受け口。INSERT on cases → Claude API でAI判断 → LINEグループにpush | `x-webhook-secret` header |
+| `/api/line-webhook` | LINE Messaging API Webhook 受け口。join時/「id」送信時に Group ID を返信 | `x-line-signature` HMAC |
+
+必要な環境変数（Vercel Project Settings → Environment Variables）:
+- `SUPABASE_WEBHOOK_SECRET`（任意の長い文字列）
+- `LINE_CHANNEL_ACCESS_TOKEN` / `LINE_CHANNEL_SECRET` / `LINE_TARGET_GROUP_ID`
+- `ANTHROPIC_API_KEY`
+
+詳細セットアップは `SETUP_LINE.md` を参照。
+Serverless Functions の単体テストは `/tmp/line-api-test.js`。
 
 ## モード切替の鉄則
 
@@ -63,11 +85,13 @@ git push origin claude/nifty-lamport-YPlSX
 ## ローカルテスト（必ず通す）
 
 ```bash
-cd /tmp && for f in e2e-test.js agg3-test.js inv-test.js company-test.js debug-test.js hardening-test.js; do
+cd /tmp && for f in e2e-test.js agg3-test.js inv-test.js company-test.js debug-test.js hardening-test.js theater-master-test.js sasaki-test.js hq-test.js; do
   node "$f" 2>&1 | tail -1
 done
+# 加えて Serverless Functions の単体テスト:
+node /tmp/line-api-test.js | tail -1
 ```
-178 PASS が現状の基準（増減があれば理由を確認）。
+245 PASS（UIスイート）+ 29 PASS（line-api）が現状の基準。
 
 ## 主要な仕様（迷ったら確認）
 
