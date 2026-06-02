@@ -22,13 +22,18 @@ allowed-tools: mcp__65932b34-a038-4a9c-b042-304d67938239__search_threads, mcp__6
 - 日本語ビジネス丁寧体。
 - 完了後はサマリーを表示して**そのまま終了**。確認待ちはしない（スマホ通知は不要）。
 
-## ステップ1: 重要メールを検索
+## ステップ1: 小山さんが To 宛のメールを検索
 
 `search_threads` を以下のクエリで実行（pageSize: 50）:
 
 ```
-is:important in:inbox newer_than:1d -category:promotions -category:social -category:updates -category:forums -from:noreply -from:no-reply -from:donotreply -from:notification -from:notifications -from:mailer-daemon -from:bounces
+in:inbox newer_than:2d (to:koyama.ryonetsu@gmail.com OR to:koyama@ryonetsu.com) -category:promotions -category:social -category:updates -category:forums -from:noreply -from:no-reply -from:donotreply -from:notification -from:notifications -from:mailer-daemon -from:bounces -from:mailmag -from:mailnews -from:newsletter
 ```
+
+**重要な設計意図**:
+- `is:important` は使わない。Gmail の「重要」マークは不安定で、顧客が To 宛で送っても重要扱いされず取りこぼす原因になるため、条件から外している。
+- `to:` で**小山さんが To（宛先）に入っているメールだけ**を最初から対象にする（CC のみのメールは検索段階で除外＝小山さんの方針）。
+- `newer_than:2d` でルーティン起動時刻が多少ずれても取りこぼさないようにする。
 
 ヒット 0 件、または以降のフィルタで対象0件でも即終了せず、ステップ6のサマリー報告へ進む。
 
@@ -50,6 +55,11 @@ is:important in:inbox newer_than:1d -category:promotions -category:social -categ
 6. **社内のみ**: 送信者・宛先がすべて社内メンバー/自分のみで、社外の顧客・取引先が関与しない
 
 残ったものが「小山さん宛・顧客取引先からの未返信メール」=自動返信対象。
+
+**【必須】To 宛なら必ず下書きを作る**:
+- 上記 1〜6 の除外（返信済み / CCのみ / 自動送信 / メルマガ / 件名パターン / 社内のみ）の**いずれにも当たらず**、小山さんが To に入っている顧客・取引先メールは、**1件残らず必ず create_draft で下書きを作る**。
+- 「内容的に返信不要そう」「お礼だけだから」等の**主観的判断でスキップしてはならない**。除外条件 1〜6 に機械的に当たる場合のみ除外し、それ以外は例外なく下書きを作成する。
+- 返信内容に迷う要素があっても、下書きを作らない理由にはしない。ステップ3の方針（文脈を調べて妥当な案を作る／断定を避けた言い回しでカバー）で必ず本文を用意する。
 
 ## ステップ3: 文脈調査と返信案生成
 
