@@ -3,7 +3,7 @@
 > **両方のセッション（UI編集モード／新機能モード）の冒頭で、まずこのファイルを読みます。**
 > セッションを中断する時／話題を引き渡す時は、対応するセクションを更新してから止まります。
 
-最終更新: 2026-06-03
+最終更新: 2026-06-03（vercel.json デプロイ復旧）
 
 ---
 
@@ -44,6 +44,7 @@
   ```
 
 ### 完了済み（直近）
+- ✅ **デプロイ復旧**: `vercel.json` の不正な `runtime: "nodejs20.x"` 指定を除去（`maxDuration` のみ残す）。852ca23 以降の全デプロイ失敗（"Function Runtimes must have a valid version" エラー）を解消。.mjs は Vercel が自動で Node ランタイム判定する
 - ✅ Phase 1 実装一式: `api/case-created.mjs` / `api/line-webhook.mjs` / `vercel.json` / `SETUP_LINE.md`（852ca23）
 - ✅ `/tmp/line-api-test.js` で 29項目 PASS
 - ✅ CLAUDE.md にアーキテクチャ追記
