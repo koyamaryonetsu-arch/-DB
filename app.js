@@ -792,7 +792,7 @@
   // ステータスの工程順（小さいほど早い段階）。保留は最後尾扱い
   const STATUS_SORT_ORDER = {
     '受付': 1, '見積り中': 2, '見積り提出済': 3, '作業中': 4,
-    '完了': 5, '請求済': 6, '入金済': 7, '保留': 99
+    '完了': 5, '請求済': 6, '入金済': 7, '取り下げ': 8, '失注': 9, '保留': 99
   };
   function getSortValue(c, field) {
     if (field === 'status') {
@@ -865,10 +865,16 @@
     const filtered = cases.filter((c) => {
       if (cf && c.company !== cf) return false;
       if (sf && statusOf(c) !== sf) return false;
-      // 全ステータス表示中は、請求済・入金済を既定で隠す（トグルで表示可）
-      if (!sf && !showBilled) {
+      // 全ステータス表示中（特定ステータス未選択）の既定の絞り込み
+      if (!sf) {
         const st = statusOf(c);
-        if (st === '請求済' || st === '入金済') return false;
+        // 請求済・入金済は既定で隠す（トグルで表示可）
+        if (!showBilled && (st === '請求済' || st === '入金済')) return false;
+        // 取り下げ・失注は、受付年度が過ぎて新年度になったら標準表示で隠す
+        if (st === '取り下げ' || st === '失注') {
+          const fy = fiscalYearOf(c.receivedDate);
+          if (fy != null && fy < currentFiscalYear()) return false;
+        }
       }
       if (!q) return true;
       const hayArr = [c.company, c.theater, c.tcPerson, c.rPerson, c.category, c.content,
@@ -907,12 +913,12 @@
       const statusLabel = statusDisplayLabel(statusCode);
       const manualStatus = isStatusManual(c);
       const companyHtml = c.company ? `<span class="company-tag company-${safeClass(c.company)}" title="${escapeHtml(c.company)}">${escapeHtml(companyAbbr(c.company))}</span>` : '';
-      const statusHtml = `<span class="status-badge status-${escapeHtml(statusCode)}">${escapeHtml(statusLabel)}</span>`;
-      // ステータスの手動変更・自動/手動切替は受注者(菱熱/ryonetsu)のみ。TOHO側はバッジ表示のみ
+      // 手動上書き中は badge に manual クラス → 文字色を白に
+      const statusHtml = `<span class="status-badge status-${escapeHtml(statusCode)}${manualStatus ? ' manual' : ''}">${escapeHtml(statusLabel)}</span>`;
+      // ステータスの手動変更は受注者(菱熱/ryonetsu)のみ。TOHO側はバッジ表示のみ
       const statusCell = isPrivileged(currentUser)
         ? `<td class="col-status status-cell" data-case-id="${escapeHtml(c.id)}">`
-          + `<span class="status-pick" data-action="status-edit" data-id="${escapeHtml(c.id)}" title="クリックでステータスを手動選択">${statusHtml}</span>`
-          + `<button type="button" class="status-mode-btn ${manualStatus ? 'is-manual' : 'is-auto'}" data-action="toggle-status-mode" data-id="${escapeHtml(c.id)}" title="${manualStatus ? '手動設定中。押すと自動判定に戻します' : '自動判定中。押すと手動に切替えます'}">${manualStatus ? '手動' : '自動'}</button>`
+          + `<span class="status-pick" data-action="status-edit" data-id="${escapeHtml(c.id)}" title="クリックでステータスを変更（先頭の「自動」で自動判定に戻ります）">${statusHtml}</span>`
           + `</td>`
         : `<td class="col-status status-cell">${statusHtml}</td>`;
       const isTohoCo = c.company === 'TOHOシネマズ';
@@ -1040,14 +1046,21 @@
   function openStatusPicker(c) {
     const cell = $('casesBody').querySelector(`td.status-cell[data-case-id="${c.id}"]`);
     if (!cell || cell.querySelector('select')) return;
+    const manual = isStatusManual(c);
     const cur = statusOf(c);
     const sel = document.createElement('select');
     sel.className = 'inline-edit status-select';
+    // 先頭に「自動」（value=''）。選ぶと手動上書きを解除して自動判定へ戻す
+    const autoOpt = document.createElement('option');
+    autoOpt.value = '';
+    autoOpt.textContent = '自動（自動判定に戻す）';
+    if (!manual) autoOpt.selected = true;
+    sel.appendChild(autoOpt);
     Object.keys(STATUS_SORT_ORDER).forEach((code) => {
       const o = document.createElement('option');
       o.value = code;
       o.textContent = statusDisplayLabel(code);
-      if (code === cur) o.selected = true;
+      if (manual && code === cur) o.selected = true;
       sel.appendChild(o);
     });
     cell.innerHTML = '';
@@ -2056,13 +2069,6 @@
           cases = cases.filter((x) => x.id !== id);
           removeCaseRemote(id); render();
         }
-      }
-      else if (action === 'toggle-status-mode') {
-        if (!isPrivileged(currentUser)) return;
-        // 手動→自動（上書き解除） / 自動→手動（現在の自動値を初期値にして固定）
-        c.statusOverride = c.statusOverride ? '' : deriveStatus(c);
-        c.updatedAt = new Date().toISOString();
-        persistCase(c); render();
       }
       else if (action === 'status-edit') {
         if (!isPrivileged(currentUser)) return;

@@ -16,7 +16,10 @@
 - ⚠️ 今回の変更はこの環境に `/tmp` の回帰テストが無く未実行。次回セッションでテスト一式（245 PASS基準）を流して確認すること。
 
 ### 完了済み（直近）
-- ✅ ステータス手動上書き機能: 新カラム `status_override`（FIELD_MAP/スキーマに追加）。`statusOf(c)=statusOverride||deriveStatus(c)` を導入し filter/sort/render/export/rowColorClass を実効ステータスに切替。バッジ右に「自動/手動」トグル（data-action=toggle-status-mode）、バッジクリックで手動選択（status-edit→openStatusPicker）。**受注者(ryonetsu)のみ**操作可、TOHOはバッジ表示のみ。手動→自動はトグルで `statusOverride=''`
+- ✅ ステータス手動上書きのUX改訂: 「自動/手動」トグルボタンは廃止。手動上書き中は badge に `.manual` クラス→**文字色を白**（背景はそのまま・影付きで可読性確保）。バッジクリックで開くプルダウンの**先頭に「自動」**（value=''）を追加し、選ぶと `statusOverride=''` で自動判定へ復帰。手動操作は受注者(ryonetsu)のみ
+- ✅ ステータスに **取り下げ・失注** を追加（STATUS_SORT_ORDER / statusFilter / picker）。`status-取り下げ`/`status-失注` のバッジ色も追加
+- ✅ 取り下げ・失注は「受付年度 < 今年度」になったら標準表示（全ステータス）で非表示。`fiscalYearOf(receivedDate) < currentFiscalYear()` で判定。フィルタで該当ステータスを選べば表示される
+- ✅ （前回）ステータス手動上書き機能: 新カラム `status_override`（FIELD_MAP/スキーマ）。`statusOf(c)=statusOverride||deriveStatus(c)` を filter/sort/render/export/rowColorClass に反映
   - ⚠️ DBに `alter table public.cases add column if not exists status_override text;` の実行が必要（supabase-schema.sql に記載済み）。小山さんに実行依頼
 - ✅ ステータス列を一番左へ移動（thead/render の列順変更。列数19で一致）。横スクロール固定列を「ステータス＋劇場名」に変更（status:left0/185px・theater:left185/160px）。内容列の固定は解除
 - ✅ 一覧表の固定表示（style.css）: 見出し行を縦スクロールで固定。.table-wrap を overflow:auto + max-height で内部スクロール化。行の赤・黄色は維持（固定セルの#fffは低詳細度でtr.row-* tdが優先）。劇場名は160px固定でellipsis（クリック編集で全文）
