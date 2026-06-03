@@ -198,9 +198,10 @@
     surveyDate: 'survey_date', certNumber: 'cert_number', estimateName: 'estimate_name',
     estimateAmount: 'estimate_amount', quoteDate: 'quote_date', workStartDate: 'work_start_date',
     workEndDate: 'work_end_date', invoiceDate: 'invoice_date', paymentDate: 'payment_date',
-    marginRate: 'margin_rate', allocations: 'allocations', memo: 'memo',
-    statusOverride: 'status_override'
+    marginRate: 'margin_rate', allocations: 'allocations', memo: 'memo'
   };
+  // status_override 列がDBに存在するか（fetch時に検出）。未追加環境でも保存が壊れないようにするため
+  let statusOverrideSupported = false;
   const DATE_FIELDS = new Set(['receivedDate', 'surveyDate', 'quoteDate', 'workStartDate', 'workEndDate', 'invoiceDate', 'paymentDate']);
 
   // app(camelCase) → DB行(snake_case)。空文字の日付/金額は null に
@@ -214,6 +215,8 @@
       else if (v === undefined) v = null;
       row[FIELD_MAP[k]] = v;
     });
+    // status_override 列はDB未追加環境でも壊れないよう、対応が確認できた時のみ送信
+    if (statusOverrideSupported) row.status_override = c.statusOverride ? c.statusOverride : null;
     row.status = statusOf(c); // DB側レポート用に実効ステータス（手動上書き反映）も保存
     return row;
   }
@@ -228,6 +231,13 @@
       else if (v == null) v = '';
       c[k] = v;
     });
+    // status_override は列が存在する時のみ取り込む（存在検出も兼ねる）
+    if (Object.prototype.hasOwnProperty.call(r, 'status_override')) {
+      statusOverrideSupported = true;
+      c.statusOverride = r.status_override != null ? r.status_override : '';
+    } else {
+      c.statusOverride = '';
+    }
     return c;
   }
 
@@ -751,6 +761,8 @@
     return c.statusOverride ? c.statusOverride : deriveStatus(c);
   }
   function isStatusManual(c) { return !!c.statusOverride; }
+  // 手動上書きが使えるか（ローカルモード or DBに status_override 列がある時）
+  function statusOverrideAvailable() { return store.mode === 'local' || statusOverrideSupported; }
 
   function rowColorClass(c) {
     if (NO_COLOR_CATEGORIES.has(c.category)) return '';
@@ -2072,6 +2084,10 @@
       }
       else if (action === 'status-edit') {
         if (!isPrivileged(currentUser)) return;
+        if (!statusOverrideAvailable()) {
+          alert('ステータスの手動設定を使うには、データベースの更新（status_override 列の追加）が必要です。\n準備ができてから、もう一度お試しください。');
+          return;
+        }
         openStatusPicker(c);
       }
       return;
