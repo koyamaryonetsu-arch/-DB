@@ -405,6 +405,8 @@
   let theaterMaster = DEFAULT_THEATER_MASTER.slice();
   let currentUser = null;
   let sortState = { field: null, direction: 'asc' };
+  // 全ステータス表示中に、請求済・入金済の案件を表示するか（既定: 非表示）
+  let showBilled = false;
   let contentEditCaseId = null;
   let aggMode = false;          // A集計表示モードか
   let NORMAL_THEAD_HTML = '';   // 通常モードのthead復元用
@@ -798,14 +800,35 @@
     }
     return c[field] != null ? c[field] : '';
   }
+  // 標準（未ソート時）の並び順グループ: 赤=0 → 黄=1 → それ以外(黒)=2
+  function defaultSortRank(c) {
+    const cls = rowColorClass(c);
+    if (cls === 'row-red') return 0;
+    if (cls === 'row-yellow') return 1;
+    return 2;
+  }
   function sortCases(arr) {
     if (!sortState.field) {
-      return arr.sort((a, b) => {
-        const av = a.receivedDate || '', bv = b.receivedDate || '';
+      // ログイン時の標準並び順:
+      // 1) 赤文字（調査→今日が3日以上）… 調査日が経過している順（調査日が古い順）
+      // 2) 黄文字（受付→調査が3日以上）… 受付日が古い順
+      // 3) 黒文字（その他）… 受付日が古い順
+      const asc = (av, bv) => {
         if (!av && !bv) return 0;
         if (!av) return 1;
         if (!bv) return -1;
-        return bv.localeCompare(av);
+        return av.localeCompare(bv);
+      };
+      return arr.sort((a, b) => {
+        const ra = defaultSortRank(a), rb = defaultSortRank(b);
+        if (ra !== rb) return ra - rb;
+        if (ra === 0) {
+          // 赤グループは調査日が古い（＝経過が長い）ほど上
+          const s = asc(a.surveyDate || '', b.surveyDate || '');
+          if (s !== 0) return s;
+        }
+        // 黄・黒、および赤の同調査日は受付日が古い順
+        return asc(a.receivedDate || '', b.receivedDate || '');
       });
     }
     const dir = sortState.direction === 'asc' ? 1 : -1;
@@ -836,6 +859,11 @@
     const filtered = cases.filter((c) => {
       if (cf && c.company !== cf) return false;
       if (sf && deriveStatus(c) !== sf) return false;
+      // 全ステータス表示中は、請求済・入金済を既定で隠す（トグルで表示可）
+      if (!sf && !showBilled) {
+        const st = deriveStatus(c);
+        if (st === '請求済' || st === '入金済') return false;
+      }
       if (!q) return true;
       const hayArr = [c.company, c.theater, c.tcPerson, c.rPerson, c.category, c.content,
         c.certNumber, c.estimateName, String(c.estimateAmount || ''),
@@ -2010,6 +2038,20 @@
   $('statusFilter').addEventListener('change', refresh);
   $('companyFilter').addEventListener('change', refresh);
   $('exportBtn').addEventListener('click', exportFiltered);
+
+  // 請求済・入金済の表示ON/OFFトグル（全ステータス表示中に効く）
+  function updateBilledToggleLabel() {
+    const btn = $('toggleBilledBtn');
+    if (!btn) return;
+    btn.textContent = showBilled ? '請求済・入金済：表示中' : '請求済・入金済：非表示';
+    btn.classList.toggle('active', showBilled);
+  }
+  $('toggleBilledBtn').addEventListener('click', () => {
+    showBilled = !showBilled;
+    updateBilledToggleLabel();
+    refresh();
+  });
+  updateBilledToggleLabel();
 
   // 通常モードのthead HTMLを保存（A集計から戻す用）
   NORMAL_THEAD_HTML = $('casesTable').querySelector('thead').innerHTML;

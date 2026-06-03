@@ -96,6 +96,22 @@ button.danger:hover {
   background: #fee2e2;
 }
 
+/* 請求済・入金済 表示トグル */
+button.toggle-btn {
+  color: #64748b;
+  border-style: dashed;
+}
+button.toggle-btn.active {
+  background: #ecfdf5;
+  color: #047857;
+  border-color: #34d399;
+  border-style: solid;
+  font-weight: 600;
+}
+button.toggle-btn.active:hover {
+  background: #d1fae5;
+}
+
 main {
   padding: 16px 20px;
 }
