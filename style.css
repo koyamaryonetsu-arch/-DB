@@ -153,7 +153,9 @@ main {
   background: #fff;
   border-radius: 6px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-  overflow-x: auto;
+  overflow: auto;
+  max-height: calc(100vh - 200px);
+  min-height: 320px;
 }
 
 table {
@@ -978,4 +980,58 @@ tr.agg-summary-row .agg-sec-label { text-align: left; }
 @media (max-width: 600px) {
   .form-grid { grid-template-columns: 1fr; }
   header h1 { font-size: 16px; }
+}
+
+/* ===== 表のヘッダー固定・列固定 ===== */
+/* (1) 縦スクロールしても見出し行（会社・劇場名…）を常に表示 */
+/* ※ background/color は変えないので、行の色分け（赤・黄）には影響しません */
+/* #casesTable に限定（客先マスターの tm-table には効かせない） */
+#casesTable thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+/* (2) 横スクロールしても「劇場名」「内容」の2列を左に固定 */
+/* 劇場名（左端に固定・幅170px） */
+th[data-sort="theater"] {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  width: 170px;
+  min-width: 170px;
+  max-width: 170px;
+}
+td[data-field="theater"] {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  width: 170px;
+  min-width: 170px;
+  max-width: 170px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: #fff; /* 通常行用の不透明背景。赤・黄行は既存ルールが優先され色が残る */
+}
+/* 内容（劇場名の右隣＝left:170pxに固定） */
+th[data-sort="content"] {
+  position: sticky;
+  left: 170px;
+  z-index: 1;
+}
+td[data-field="content"] {
+  position: sticky;
+  left: 170px;
+  z-index: 1;
+  background: #fff;
+}
+/* 固定列の見出しは縦横スクロールの交点になるため最前面に */
+#casesTable thead th[data-sort="theater"],
+#casesTable thead th[data-sort="content"] {
+  z-index: 3;
+}
+/* 固定した「内容」列の右端に薄い影を出して、下を流れる列との境目を分かりやすく */
+th[data-sort="content"],
+td[data-field="content"] {
+  box-shadow: 2px 0 3px -2px rgba(0,0,0,0.18);
 }
