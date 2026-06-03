@@ -3,7 +3,7 @@
 > **両方のセッション（UI編集モード／新機能モード）の冒頭で、まずこのファイルを読みます。**
 > セッションを中断する時／話題を引き渡す時は、対応するセクションを更新してから止まります。
 
-最終更新: 2026-06-03（表のヘッダー・列固定 / vercel.json デプロイ復旧）
+最終更新: 2026-06-03（ステータス手動上書き＋列移動 / 表のヘッダー・列固定 / vercel.json デプロイ復旧）
 
 ---
 
@@ -16,8 +16,10 @@
 - ⚠️ 今回の変更はこの環境に `/tmp` の回帰テストが無く未実行。次回セッションでテスト一式（245 PASS基準）を流して確認すること。
 
 ### 完了済み（直近）
-- ✅ 一覧表の固定表示（style.css のみ）: ①見出し行を縦スクロールで固定（#casesTable thead th sticky）②横スクロールで「劇場名」「内容」の2列を左に固定（data-sort/data-field でsticky、劇場名170px・内容left:170px）。.table-wrap を overflow:auto + max-height で内部スクロール化。行の赤・黄色は維持（固定セルの#fffは低詳細度でtr.row-* tdが優先）
-  - 劇場名列は170px固定のため長い名称はellipsisで省略（クリック編集で全文表示）
+- ✅ ステータス手動上書き機能: 新カラム `status_override`（FIELD_MAP/スキーマに追加）。`statusOf(c)=statusOverride||deriveStatus(c)` を導入し filter/sort/render/export/rowColorClass を実効ステータスに切替。バッジ右に「自動/手動」トグル（data-action=toggle-status-mode）、バッジクリックで手動選択（status-edit→openStatusPicker）。**受注者(ryonetsu)のみ**操作可、TOHOはバッジ表示のみ。手動→自動はトグルで `statusOverride=''`
+  - ⚠️ DBに `alter table public.cases add column if not exists status_override text;` の実行が必要（supabase-schema.sql に記載済み）。小山さんに実行依頼
+- ✅ ステータス列を一番左へ移動（thead/render の列順変更。列数19で一致）。横スクロール固定列を「ステータス＋劇場名」に変更（status:left0/185px・theater:left185/160px）。内容列の固定は解除
+- ✅ 一覧表の固定表示（style.css）: 見出し行を縦スクロールで固定。.table-wrap を overflow:auto + max-height で内部スクロール化。行の赤・黄色は維持（固定セルの#fffは低詳細度でtr.row-* tdが優先）。劇場名は160px固定でellipsis（クリック編集で全文）
 - ✅ 全ステータス表示中は 請求済・入金済 を既定で非表示に。請求書発行ボタン右に「請求済・入金済：表示/非表示」トグル追加（getFilteredCases / index.html / style.css）
   - 特定ステータスを選んだ時はそのステータス（請求済・入金済含む）は従来通り表示される
 - ✅ 標準（未ソート時）並び順を変更：赤（調査日が古い＝経過が長い順）→ 黄（受付日が古い順）→ 黒（受付日が古い順）（sortCases / defaultSortRank）
@@ -62,6 +64,10 @@
 ## 📋 ユーザー側で必要な作業（小山さん）
 
 ### Supabase SQL 実行
+0. **【最新・要実行】ステータス手動上書き列の追加**（これをやらないと手動ステータスが保存されません）
+   ```sql
+   alter table public.cases add column if not exists status_override text;
+   ```
 1. **会社マスタへの本社情報カラム追加と初期値投入**
    - 場所: `supabase-schema.sql` の `1b.` セクション（`alter table` 〜 `update`）
    - Supabase SQL Editor に貼って Run（何度実行しても安全な書き方）

@@ -983,7 +983,7 @@ tr.agg-summary-row .agg-sec-label { text-align: left; }
 }
 
 /* ===== 表のヘッダー固定・列固定 ===== */
-/* (1) 縦スクロールしても見出し行（会社・劇場名…）を常に表示 */
+/* (1) 縦スクロールしても見出し行（ステータス・会社・劇場名…）を常に表示 */
 /* ※ background/color は変えないので、行の色分け（赤・黄）には影響しません */
 /* #casesTable に限定（客先マスターの tm-table には効かせない） */
 #casesTable thead th {
@@ -992,46 +992,64 @@ tr.agg-summary-row .agg-sec-label { text-align: left; }
   z-index: 2;
 }
 
-/* (2) 横スクロールしても「劇場名」「内容」の2列を左に固定 */
-/* 劇場名（左端に固定・幅170px） */
-th[data-sort="theater"] {
+/* (2) 横スクロールしても「ステータス」「劇場名」の2列を左に固定 */
+/* ステータス（左端に固定・幅185px） */
+th[data-sort="status"],
+td.col-status {
   position: sticky;
   left: 0;
   z-index: 1;
-  width: 170px;
-  min-width: 170px;
-  max-width: 170px;
+  width: 185px;
+  min-width: 185px;
+  max-width: 185px;
 }
-td[data-field="theater"] {
-  position: sticky;
-  left: 0;
-  z-index: 1;
-  width: 170px;
-  min-width: 170px;
-  max-width: 170px;
-  overflow: hidden;
-  text-overflow: ellipsis;
+td.col-status {
   background: #fff; /* 通常行用の不透明背景。赤・黄行は既存ルールが優先され色が残る */
 }
-/* 内容（劇場名の右隣＝left:170pxに固定） */
-th[data-sort="content"] {
+/* 劇場名（ステータスの右隣＝left:185pxに固定・幅160px） */
+th[data-sort="theater"],
+td[data-field="theater"] {
   position: sticky;
-  left: 170px;
+  left: 185px;
   z-index: 1;
+  width: 160px;
+  min-width: 160px;
+  max-width: 160px;
 }
-td[data-field="content"] {
-  position: sticky;
-  left: 170px;
-  z-index: 1;
+td[data-field="theater"] {
+  overflow: hidden;
+  text-overflow: ellipsis;
   background: #fff;
 }
 /* 固定列の見出しは縦横スクロールの交点になるため最前面に */
-#casesTable thead th[data-sort="theater"],
-#casesTable thead th[data-sort="content"] {
+#casesTable thead th[data-sort="status"],
+#casesTable thead th[data-sort="theater"] {
   z-index: 3;
 }
-/* 固定した「内容」列の右端に薄い影を出して、下を流れる列との境目を分かりやすく */
-th[data-sort="content"],
-td[data-field="content"] {
+/* 固定域の右端（劇場名）に薄い影を出して、下を流れる列との境目を分かりやすく */
+th[data-sort="theater"],
+td[data-field="theater"] {
   box-shadow: 2px 0 3px -2px rgba(0,0,0,0.18);
+}
+
+/* ステータスのセル: バッジ＋「自動／手動」切替ボタンを横並びで表示 */
+td.status-cell { white-space: nowrap; }
+.status-pick { cursor: pointer; }
+.status-mode-btn {
+  margin-left: 6px;
+  padding: 1px 7px;
+  font-size: 10px;
+  line-height: 1.6;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  color: #64748b;
+  cursor: pointer;
+  vertical-align: middle;
+}
+.status-mode-btn.is-manual {
+  border-color: #f59e0b;
+  background: #fffbeb;
+  color: #b45309;
+  font-weight: 700;
 }

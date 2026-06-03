@@ -198,7 +198,8 @@
     surveyDate: 'survey_date', certNumber: 'cert_number', estimateName: 'estimate_name',
     estimateAmount: 'estimate_amount', quoteDate: 'quote_date', workStartDate: 'work_start_date',
     workEndDate: 'work_end_date', invoiceDate: 'invoice_date', paymentDate: 'payment_date',
-    marginRate: 'margin_rate', allocations: 'allocations', memo: 'memo'
+    marginRate: 'margin_rate', allocations: 'allocations', memo: 'memo',
+    statusOverride: 'status_override'
   };
   const DATE_FIELDS = new Set(['receivedDate', 'surveyDate', 'quoteDate', 'workStartDate', 'workEndDate', 'invoiceDate', 'paymentDate']);
 
@@ -213,7 +214,7 @@
       else if (v === undefined) v = null;
       row[FIELD_MAP[k]] = v;
     });
-    row.status = deriveStatus(c); // DB側レポート用に派生ステータスも保存
+    row.status = statusOf(c); // DB側レポート用に実効ステータス（手動上書き反映）も保存
     return row;
   }
   // DB行 → app。null は空文字（日付/テキスト）/既定値（粗利率）に
@@ -745,10 +746,15 @@
     const map = isPrivileged(currentUser) ? ROLE_STATUS.ryo : ROLE_STATUS.toho;
     return map[code] || code;
   }
+  // 実効ステータス: 手動上書き(statusOverride)があればそれを、無ければ自動判定(deriveStatus)を返す
+  function statusOf(c) {
+    return c.statusOverride ? c.statusOverride : deriveStatus(c);
+  }
+  function isStatusManual(c) { return !!c.statusOverride; }
 
   function rowColorClass(c) {
     if (NO_COLOR_CATEGORIES.has(c.category)) return '';
-    if (deriveStatus(c) === '保留') return '';
+    if (statusOf(c) === '保留') return '';
     if (c.quoteDate) return '';
     const today = todayStr();
     if (c.surveyDate) {
@@ -790,7 +796,7 @@
   };
   function getSortValue(c, field) {
     if (field === 'status') {
-      const s = deriveStatus(c);
+      const s = statusOf(c);
       // 数値で返すことで工程順ソート（昇順=受付→入金済→保留 の順）
       return STATUS_SORT_ORDER[s] != null ? STATUS_SORT_ORDER[s] : 0;
     }
@@ -858,17 +864,17 @@
     const cf = isPrivileged(currentUser) ? $('companyFilter').value : 'TOHOシネマズ';
     const filtered = cases.filter((c) => {
       if (cf && c.company !== cf) return false;
-      if (sf && deriveStatus(c) !== sf) return false;
+      if (sf && statusOf(c) !== sf) return false;
       // 全ステータス表示中は、請求済・入金済を既定で隠す（トグルで表示可）
       if (!sf && !showBilled) {
-        const st = deriveStatus(c);
+        const st = statusOf(c);
         if (st === '請求済' || st === '入金済') return false;
       }
       if (!q) return true;
       const hayArr = [c.company, c.theater, c.tcPerson, c.rPerson, c.category, c.content,
         c.certNumber, c.estimateName, String(c.estimateAmount || ''),
         c.receivedDate, c.surveyDate, c.quoteDate, c.workStartDate, c.workEndDate, c.invoiceDate, c.paymentDate,
-        deriveStatus(c), statusDisplayLabel(deriveStatus(c))];
+        statusOf(c), statusDisplayLabel(statusOf(c))];
       // memo は ryonetsu ユーザーのみ検索対象（情報漏洩防止）
       if (isPrivileged(currentUser)) hayArr.push(c.memo);
       const hay = hayArr.map((x) => (x || '').toString().toLowerCase()).join(' ');
@@ -897,16 +903,25 @@
       tr.dataset.caseId = c.id;
       const cls = rowColorClass(c);
       if (cls) tr.className = cls;
-      const statusCode = deriveStatus(c);
+      const statusCode = statusOf(c);
       const statusLabel = statusDisplayLabel(statusCode);
+      const manualStatus = isStatusManual(c);
       const companyHtml = c.company ? `<span class="company-tag company-${safeClass(c.company)}" title="${escapeHtml(c.company)}">${escapeHtml(companyAbbr(c.company))}</span>` : '';
       const statusHtml = `<span class="status-badge status-${escapeHtml(statusCode)}">${escapeHtml(statusLabel)}</span>`;
+      // ステータスの手動変更・自動/手動切替は受注者(菱熱/ryonetsu)のみ。TOHO側はバッジ表示のみ
+      const statusCell = isPrivileged(currentUser)
+        ? `<td class="col-status status-cell" data-case-id="${escapeHtml(c.id)}">`
+          + `<span class="status-pick" data-action="status-edit" data-id="${escapeHtml(c.id)}" title="クリックでステータスを手動選択">${statusHtml}</span>`
+          + `<button type="button" class="status-mode-btn ${manualStatus ? 'is-manual' : 'is-auto'}" data-action="toggle-status-mode" data-id="${escapeHtml(c.id)}" title="${manualStatus ? '手動設定中。押すと自動判定に戻します' : '自動判定中。押すと手動に切替えます'}">${manualStatus ? '手動' : '自動'}</button>`
+          + `</td>`
+        : `<td class="col-status status-cell">${statusHtml}</td>`;
       const isTohoCo = c.company === 'TOHOシネマズ';
       const certHtml = isTohoCo
         ? editableTd(c, 'certNumber', escapeHtml(c.certNumber))
         : `<td class="toho-empty">—</td>`;
 
       tr.innerHTML = `
+        ${statusCell}
         ${editableTd(c, 'company', companyHtml, 'col-company')}
         ${editableTd(c, 'theater', escapeHtml(c.theater))}
         ${editableTd(c, 'receivedDate', fmtDateShort(c.receivedDate))}
@@ -923,7 +938,6 @@
         ${editableTd(c, 'workEndDate', fmtDateShort(c.workEndDate))}
         ${editableTd(c, 'invoiceDate', fmtDateShort(c.invoiceDate))}
         ${editableTd(c, 'paymentDate', fmtDateShort(c.paymentDate))}
-        <td>${statusHtml}</td>
         ${editableTd(c, 'memo', escapeHtml(c.memo), 'col-memo')}
         <td class="row-actions">
           <button data-action="edit" data-id="${escapeHtml(c.id)}">編集</button>
@@ -1020,6 +1034,39 @@
       if (e.key === 'Enter' && cfg.type !== 'textarea') { e.preventDefault(); el.blur(); }
       else if (e.key === 'Escape') { e.preventDefault(); cancel(); }
     });
+  }
+
+  // ステータスを手動で選び直す（選んだ時点で手動上書きとして確定。自動判定より優先）
+  function openStatusPicker(c) {
+    const cell = $('casesBody').querySelector(`td.status-cell[data-case-id="${c.id}"]`);
+    if (!cell || cell.querySelector('select')) return;
+    const cur = statusOf(c);
+    const sel = document.createElement('select');
+    sel.className = 'inline-edit status-select';
+    Object.keys(STATUS_SORT_ORDER).forEach((code) => {
+      const o = document.createElement('option');
+      o.value = code;
+      o.textContent = statusDisplayLabel(code);
+      if (code === cur) o.selected = true;
+      sel.appendChild(o);
+    });
+    cell.innerHTML = '';
+    cell.appendChild(sel);
+    sel.focus();
+    let done = false;
+    const commit = () => {
+      if (done) return; done = true;
+      const v = sel.value;
+      if (v !== (c.statusOverride || '')) {
+        c.statusOverride = v;
+        c.updatedAt = new Date().toISOString();
+        persistCase(c);
+      }
+      render();
+    };
+    sel.addEventListener('change', commit);
+    sel.addEventListener('blur', commit);
+    sel.addEventListener('keydown', (e) => { if (e.key === 'Escape') { done = true; render(); } });
   }
 
   // ---------- modal (new / edit) ----------
@@ -1159,7 +1206,7 @@
         c.surveyDate, c.company === 'TOHOシネマズ' ? c.certNumber : '',
         c.estimateName, c.estimateAmount,
         c.quoteDate, c.workStartDate, c.workEndDate,
-        c.invoiceDate, c.paymentDate, statusDisplayLabel(deriveStatus(c))];
+        c.invoiceDate, c.paymentDate, statusDisplayLabel(statusOf(c))];
       if (includesMemo) row.push(c.memo);
       return row;
     }));
@@ -1997,17 +2044,29 @@
   });
 
   $('casesBody').addEventListener('click', (e) => {
-    const btn = e.target.closest('button[data-action]');
-    if (btn) {
-      const id = btn.dataset.id;
+    const actEl = e.target.closest('[data-action]');
+    if (actEl) {
+      const action = actEl.dataset.action;
+      const id = actEl.dataset.id;
       const c = cases.find((x) => x.id === id);
       if (!c) return;
-      if (btn.dataset.action === 'edit') openModal(c, 'full');
-      else if (btn.dataset.action === 'delete') {
+      if (action === 'edit') openModal(c, 'full');
+      else if (action === 'delete') {
         if (confirm(`案件「${c.theater || '(劇場未入力)'}」を削除しますか？`)) {
           cases = cases.filter((x) => x.id !== id);
           removeCaseRemote(id); render();
         }
+      }
+      else if (action === 'toggle-status-mode') {
+        if (!isPrivileged(currentUser)) return;
+        // 手動→自動（上書き解除） / 自動→手動（現在の自動値を初期値にして固定）
+        c.statusOverride = c.statusOverride ? '' : deriveStatus(c);
+        c.updatedAt = new Date().toISOString();
+        persistCase(c); render();
+      }
+      else if (action === 'status-edit') {
+        if (!isPrivileged(currentUser)) return;
+        openStatusPicker(c);
       }
       return;
     }
