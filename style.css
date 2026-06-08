@@ -51,6 +51,9 @@ header h1 {
 .header-actions input[type="search"] {
   min-width: 220px;
 }
+.header-actions input#personFilter {
+  min-width: 150px;
+}
 
 button {
   padding: 7px 14px;
@@ -995,24 +998,24 @@ tr.agg-summary-row .agg-sec-label { text-align: left; }
 }
 
 /* (2) 横スクロールしても「ステータス」「劇場名」の2列を左に固定 */
-/* ステータス（左端に固定・幅185px） */
+/* ステータス（左端に固定・幅120px） */
 th[data-sort="status"],
 td.col-status {
   position: sticky;
   left: 0;
   z-index: 1;
-  width: 185px;
-  min-width: 185px;
-  max-width: 185px;
+  width: 120px;
+  min-width: 120px;
+  max-width: 120px;
 }
 td.col-status {
   background: #fff; /* 通常行用の不透明背景。赤・黄行は既存ルールが優先され色が残る */
 }
-/* 劇場名（ステータスの右隣＝left:185pxに固定・幅160px） */
+/* 劇場名（ステータスの右隣＝left:120pxに固定・幅160px） */
 th[data-sort="theater"],
 td[data-field="theater"] {
   position: sticky;
-  left: 185px;
+  left: 120px;
   z-index: 1;
   width: 160px;
   min-width: 160px;

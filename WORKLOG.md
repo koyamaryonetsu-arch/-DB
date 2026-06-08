@@ -16,6 +16,8 @@
 - ⚠️ 今回の変更はこの環境に `/tmp` の回帰テストが無く未実行。次回セッションでテスト一式（245 PASS基準）を流して確認すること。
 
 ### 完了済み（直近）
+- ✅ 担当者しぼり込み検索窓を追加（#personFilter, datalist personFilterList=R担当者＋客先担当者）。getFilteredCases で rPerson/tcPerson 部分一致
+- ✅ ステータス列の幅を 185px→120px に縮小（劇場名の固定offsetも120pxへ）。ボタン廃止後の余白を解消
 - ✅ ステータス手動上書きのUX改訂: 「自動/手動」トグルボタンは廃止。手動上書き中は badge に `.manual` クラス→**文字色を白**（背景はそのまま・影付きで可読性確保）。バッジクリックで開くプルダウンの**先頭に「自動」**（value=''）を追加し、選ぶと `statusOverride=''` で自動判定へ復帰。手動操作は受注者(ryonetsu)のみ
 - ✅ ステータスに **取り下げ・失注** を追加（STATUS_SORT_ORDER / statusFilter / picker）。`status-取り下げ`/`status-失注` のバッジ色も追加
 - ✅ 取り下げ・失注は「受付年度 < 今年度」になったら標準表示（全ステータス）で非表示。`fiscalYearOf(receivedDate) < currentFiscalYear()` で判定。フィルタで該当ステータスを選べば表示される

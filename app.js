@@ -574,6 +574,8 @@
     fillDatalist('theaterList', [...theaters].sort());
     fillDatalist('tcPersonList', [...tcPersons].sort());
     fillDatalist('rPersonList', [...rPersons].sort());
+    // 担当者しぼり込み用（R担当者＋客先担当者の両方を候補に）
+    fillDatalist('personFilterList', [...new Set([...rPersons, ...tcPersons])].sort());
   }
   // 会社セレクト（モーダル/フィルタ）を会社マスタから再構築
   function populateCompanySelects() {
@@ -873,9 +875,15 @@
   function getFilteredCases() {
     const q = $('searchBox').value.trim().toLowerCase();
     const sf = $('statusFilter').value;
+    const pf = $('personFilter').value.trim().toLowerCase();
     const cf = isPrivileged(currentUser) ? $('companyFilter').value : 'TOHOシネマズ';
     const filtered = cases.filter((c) => {
       if (cf && c.company !== cf) return false;
+      // 担当者しぼり込み（R担当者・客先担当者のどちらかに一致）
+      if (pf) {
+        const persons = ((c.rPerson || '') + ' ' + (c.tcPerson || '')).toLowerCase();
+        if (!persons.includes(pf)) return false;
+      }
       if (sf && statusOf(c) !== sf) return false;
       // 全ステータス表示中（特定ステータス未選択）の既定の絞り込み
       if (!sf) {
@@ -2116,6 +2124,7 @@
   });
 
   $('searchBox').addEventListener('input', refresh);
+  $('personFilter').addEventListener('input', refresh);
   $('statusFilter').addEventListener('change', refresh);
   $('companyFilter').addEventListener('change', refresh);
   $('exportBtn').addEventListener('click', exportFiltered);
