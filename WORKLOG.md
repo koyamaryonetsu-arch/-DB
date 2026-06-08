@@ -16,6 +16,9 @@
 - ⚠️ 今回の変更はこの環境に `/tmp` の回帰テストが無く未実行。次回セッションでテスト一式（245 PASS基準）を流して確認すること。
 
 ### 完了済み（直近）
+- ✅ 各列ヘッダーにフィルタ＋並び替え: 見出しの文字(.th-filter)クリックで絞り込みタブ（値チェックリスト・検索・全選択）、文字の横(矢印)で昇順/降順。columnFilters{field:Set} を getFilteredCases で適用
+- ✅ 大口案件（見積り300万円以上）のみ表示トグル（#toggleBigBtn, showBigOnly, BIG_CASE_THRESHOLD=3000000）
+- ✅ 会社の検索窓(#companyFilter)を廃止。受注者は会社列のフィルタで絞る（TOHOは従来通り自社のみ）
 - ✅ 表の表示倍率コントロール追加（凡例バー：－/＋/⟲、50〜150%、localStorage `tableZoomV1` 記憶）。`#casesTable` に CSS `zoom` を適用しPC/スマホで全体を縮小表示できる（ブラウザズームとは別）。iOS Safari の zoom 対応に依存
 - ✅ 担当者しぼり込み検索窓を追加（#personFilter, datalist personFilterList=R担当者＋客先担当者）。getFilteredCases で rPerson/tcPerson 部分一致
 - ✅ ステータス列の幅を 185px→120px に縮小（劇場名の固定offsetも120pxへ）。ボタン廃止後の余白を解消

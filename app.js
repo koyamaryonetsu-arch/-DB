@@ -418,6 +418,11 @@
   let sortState = { field: null, direction: 'asc' };
   // 全ステータス表示中に、請求済・入金済の案件を表示するか（既定: 非表示）
   let showBilled = false;
+  // 大口案件（見積り金額300万円以上）のみ表示するか
+  let showBigOnly = false;
+  const BIG_CASE_THRESHOLD = 3000000;
+  // 各列の絞り込み: field -> 選択値の Set（未設定/全選択 = フィルタ無し）
+  const columnFilters = {};
   let contentEditCaseId = null;
   let aggMode = false;          // A集計表示モードか
   let NORMAL_THEAD_HTML = '';   // 通常モードのthead復元用
@@ -583,12 +588,6 @@
     const prevSel = sel.value;
     sel.innerHTML = companyNames().map((n) => `<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join('');
     if (prevSel && companyNames().indexOf(prevSel) !== -1) sel.value = prevSel;
-
-    const filter = $('companyFilter');
-    const prevFilter = filter.value;
-    filter.innerHTML = '<option value="">全会社</option>' +
-      companyNames().map((n) => `<option value="${escapeHtml(n)}">${escapeHtml(n)}（${escapeHtml(companyAbbr(n))}）</option>`).join('');
-    if (prevFilter && (prevFilter === '' || companyNames().indexOf(prevFilter) !== -1)) filter.value = prevFilter;
   }
   async function addCompany() {
     const name = prompt('追加する顧客（会社）の正式名称を入力してください');
@@ -871,14 +870,142 @@
     });
   }
 
+  // ---------- 列ごとの絞り込み（ヘッダーのタブ） ----------
+  // 絞り込み・グルーピングに使う生の値
+  function columnValue(c, field) {
+    if (field === 'status') return statusOf(c);
+    const v = c[field];
+    return v != null ? String(v) : '';
+  }
+  // 表示用ラベル
+  function formatColVal(field, v) {
+    if (v === '' || v == null) return '（空白）';
+    if (field === 'status') return statusDisplayLabel(v);
+    if (field === 'estimateAmount') return fmtAmount(v);
+    if (DATE_FIELDS.has(field)) return fmtDateShort(v);
+    return v;
+  }
+  function columnLabel(field) {
+    const th = document.querySelector(`#theadRow th[data-sort="${field}"] .th-filter`);
+    return th ? th.textContent.trim() : field;
+  }
+  function closeColumnFilter() {
+    const p = document.getElementById('colFilterPop');
+    if (p) p.remove();
+    document.removeEventListener('mousedown', onColFilterOutside, true);
+  }
+  function onColFilterOutside(e) {
+    const p = document.getElementById('colFilterPop');
+    if (p && !p.contains(e.target) && !e.target.closest('.th-filter')) closeColumnFilter();
+  }
+  function openColumnFilter(field, anchorEl) {
+    closeColumnFilter();
+    // 候補値（ロール別の可視案件から）を収集
+    const counts = new Map();
+    visibleCases().forEach((c) => {
+      const v = columnValue(c, field);
+      counts.set(v, (counts.get(v) || 0) + 1);
+    });
+    let values = [...counts.keys()];
+    values.sort((a, b) => {
+      if (field === 'estimateAmount') return (Number(a) || 0) - (Number(b) || 0);
+      if (a === '') return 1; if (b === '') return -1;
+      return String(a).localeCompare(String(b), 'ja');
+    });
+    const cur = columnFilters[field] || null; // null = 全選択
+    const pop = document.createElement('div');
+    pop.id = 'colFilterPop';
+    pop.className = 'col-filter-pop';
+    pop.innerHTML = `
+      <div class="cfp-head">
+        <span class="cfp-title">「${escapeHtml(columnLabel(field))}」で絞り込み</span>
+        <button type="button" class="cfp-x" data-cfp="close" aria-label="閉じる">×</button>
+      </div>
+      <input type="search" class="cfp-search" placeholder="値を検索…">
+      <label class="cfp-all"><input type="checkbox" class="cfp-allcb" checked> （すべて選択／解除）</label>
+      <div class="cfp-list"></div>
+      <div class="cfp-foot">
+        <button type="button" class="cfp-clear" data-cfp="clear">絞り込み解除</button>
+        <button type="button" class="cfp-apply primary" data-cfp="apply">適用</button>
+      </div>`;
+    const list = pop.querySelector('.cfp-list');
+    values.forEach((v) => {
+      const checked = !cur || cur.has(v);
+      const row = document.createElement('label');
+      row.className = 'cfp-item';
+      row.innerHTML = `<input type="checkbox" ${checked ? 'checked' : ''}> <span class="cfp-val">${escapeHtml(formatColVal(field, v))}</span> <span class="cfp-cnt">${counts.get(v)}</span>`;
+      row.querySelector('input').value = v;
+      list.appendChild(row);
+    });
+    document.body.appendChild(pop);
+    // 位置（アンカー下・画面内にクランプ）
+    const r = anchorEl.getBoundingClientRect();
+    const pw = pop.offsetWidth, ph = pop.offsetHeight;
+    let left = Math.min(r.left, window.innerWidth - pw - 8);
+    let top = r.bottom + 4;
+    if (top + ph > window.innerHeight - 8) top = Math.max(8, r.top - ph - 4);
+    pop.style.left = Math.max(8, left) + 'px';
+    pop.style.top = top + 'px';
+
+    const allcb = pop.querySelector('.cfp-allcb');
+    const itemCbs = () => [...list.querySelectorAll('input[type="checkbox"]')];
+    const visibleItemCbs = () => itemCbs().filter((cb) => cb.closest('.cfp-item').style.display !== 'none');
+    function syncAll() {
+      const vis = visibleItemCbs();
+      allcb.checked = vis.length > 0 && vis.every((cb) => cb.checked);
+    }
+    allcb.addEventListener('change', () => { visibleItemCbs().forEach((cb) => { cb.checked = allcb.checked; }); });
+    list.addEventListener('change', syncAll);
+    pop.querySelector('.cfp-search').addEventListener('input', (e) => {
+      const q = e.target.value.trim().toLowerCase();
+      list.querySelectorAll('.cfp-item').forEach((it) => {
+        it.style.display = it.querySelector('.cfp-val').textContent.toLowerCase().includes(q) ? '' : 'none';
+      });
+      syncAll();
+    });
+    syncAll();
+    pop.addEventListener('click', (e) => {
+      const b = e.target.closest('button[data-cfp]');
+      if (!b) return;
+      const act = b.dataset.cfp;
+      if (act === 'close') { closeColumnFilter(); return; }
+      if (act === 'clear') { delete columnFilters[field]; closeColumnFilter(); refresh(); return; }
+      if (act === 'apply') {
+        const checked = itemCbs().filter((cb) => cb.checked).map((cb) => cb.value);
+        if (checked.length === itemCbs().length) delete columnFilters[field];
+        else columnFilters[field] = new Set(checked);
+        closeColumnFilter(); refresh();
+      }
+    });
+    setTimeout(() => document.addEventListener('mousedown', onColFilterOutside, true), 0);
+  }
+  function updateColumnFilterIndicators() {
+    document.querySelectorAll('#theadRow .th-filter').forEach((el) => {
+      el.classList.toggle('filtered', !!columnFilters[el.dataset.filter]);
+    });
+  }
+
   // ---------- filter ----------
   function getFilteredCases() {
     const q = $('searchBox').value.trim().toLowerCase();
     const sf = $('statusFilter').value;
     const pf = $('personFilter').value.trim().toLowerCase();
-    const cf = isPrivileged(currentUser) ? $('companyFilter').value : 'TOHOシネマズ';
+    // TOHO は自社のみ（会社プルダウンは廃止。受注者は列フィルタで会社を絞る）
+    const cf = isPrivileged(currentUser) ? '' : 'TOHOシネマズ';
+    const colFilterFields = Object.keys(columnFilters);
     const filtered = cases.filter((c) => {
       if (cf && c.company !== cf) return false;
+      // 大口のみ（見積り金額300万円以上）
+      if (showBigOnly) {
+        const amt = Number(c.estimateAmount);
+        if (isNaN(amt) || amt < BIG_CASE_THRESHOLD) return false;
+      }
+      // 各列のタブ絞り込み
+      for (let i = 0; i < colFilterFields.length; i++) {
+        const f = colFilterFields[i];
+        const set = columnFilters[f];
+        if (set && set.size && !set.has(columnValue(c, f))) return false;
+      }
       // 担当者しぼり込み（R担当者・客先担当者のどちらかに一致）
       if (pf) {
         const persons = ((c.rPerson || '') + ' ' + (c.tcPerson || '')).toLowerCase();
@@ -976,6 +1103,7 @@
     const totalVisible = isPrivileged(currentUser) ? cases.length : cases.filter((c) => c.company === 'TOHOシネマズ').length;
     $('caseCount').textContent = `${filtered.length} 件 / 全 ${totalVisible} 件`;
     updateSortIndicators();
+    updateColumnFilterIndicators();
   }
 
   // ---------- inline edit ----------
@@ -1829,7 +1957,6 @@
     document.body.classList.toggle('user-privileged', privileged);
     document.body.classList.toggle('user-toho', !privileged);
     $('appTitle').textContent = privileged ? 'シネマ案件管理' : 'TOHOシネマズ 案件管理';
-    $('companyFilter').classList.toggle('hidden', !privileged);
     // status filter のラベル差し替え（受発注で呼称が変わる項目のみ）
     $('statusFilter').querySelectorAll('option').forEach(opt => {
       const map = privileged ? ROLE_STATUS.ryo : ROLE_STATUS.toho;
@@ -2110,6 +2237,10 @@
   // ソートは thead に委譲（A集計モードでthead差替えしても生き続ける）
   $('casesTable').querySelector('thead').addEventListener('click', (e) => {
     if (aggMode) return; // A集計モードではソート無効
+    // 見出しの文字（.th-filter）クリック → 絞り込みタブ
+    const fEl = e.target.closest('.th-filter');
+    if (fEl) { openColumnFilter(fEl.dataset.filter, fEl); return; }
+    // それ以外（文字の横）→ 並び替え
     const th = e.target.closest('th.sortable');
     if (!th) return;
     const field = th.dataset.sort;
@@ -2150,7 +2281,6 @@
   $('zoomOutBtn').addEventListener('click', () => setZoom(tableZoom - ZOOM_STEP));
   $('zoomInBtn').addEventListener('click', () => setZoom(tableZoom + ZOOM_STEP));
   $('zoomResetBtn').addEventListener('click', () => setZoom(1));
-  $('companyFilter').addEventListener('change', refresh);
   $('exportBtn').addEventListener('click', exportFiltered);
 
   // 請求済・入金済の表示ON/OFFトグル（全ステータス表示中に効く）
@@ -2166,6 +2296,20 @@
     refresh();
   });
   updateBilledToggleLabel();
+
+  // 大口のみ（300万円以上）トグル
+  function updateBigToggleLabel() {
+    const btn = $('toggleBigBtn');
+    if (!btn) return;
+    btn.textContent = showBigOnly ? '大口のみ：ON' : '大口のみ：OFF';
+    btn.classList.toggle('active', showBigOnly);
+  }
+  $('toggleBigBtn').addEventListener('click', () => {
+    showBigOnly = !showBigOnly;
+    updateBigToggleLabel();
+    refresh();
+  });
+  updateBigToggleLabel();
 
   // 通常モードのthead HTMLを保存（A集計から戻す用）
   NORMAL_THEAD_HTML = $('casesTable').querySelector('thead').innerHTML;
