@@ -94,6 +94,13 @@
       <span class="legend-item ryo-only"><span class="swatch swatch-yellow"></span>受付→調査が3日以上</span>
       <span class="legend-item ryo-only"><span class="swatch swatch-red"></span>調査→見積りが3日以上</span>
       <span class="legend-hint ryo-only">💡 セルクリックで編集 ／ 内容・メモはクリックでポップアップ ／ 内容またはメモに「保留」→ ステータス保留</span>
+      <span class="zoom-control" title="表の表示倍率を変えて全体を見やすくします">
+        <span class="zoom-label">表示倍率</span>
+        <button id="zoomOutBtn" type="button" class="zoom-btn" aria-label="縮小">－</button>
+        <span id="zoomLevel" class="zoom-level">100%</span>
+        <button id="zoomInBtn" type="button" class="zoom-btn" aria-label="拡大">＋</button>
+        <button id="zoomResetBtn" type="button" class="zoom-btn" aria-label="100%に戻す">⟲</button>
+      </span>
       <span id="caseCount" class="case-count"></span>
     </div>
 

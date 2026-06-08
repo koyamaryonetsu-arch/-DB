@@ -2126,6 +2126,30 @@
   $('searchBox').addEventListener('input', refresh);
   $('personFilter').addEventListener('input', refresh);
   $('statusFilter').addEventListener('change', refresh);
+
+  // ===== 表の表示倍率（PC/スマホ共通・localStorage記憶。ブラウザのズームとは別） =====
+  const ZOOM_KEY = 'tableZoomV1';
+  const ZOOM_MIN = 0.5, ZOOM_MAX = 1.5, ZOOM_STEP = 0.1;
+  let tableZoom = 1;
+  function applyTableZoom() {
+    const t = $('casesTable');
+    if (t) t.style.zoom = String(tableZoom);
+    const lbl = $('zoomLevel');
+    if (lbl) lbl.textContent = Math.round(tableZoom * 100) + '%';
+    try { localStorage.setItem(ZOOM_KEY, String(tableZoom)); } catch (e) {}
+  }
+  function setZoom(z) {
+    tableZoom = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, Math.round(z * 10) / 10));
+    applyTableZoom();
+  }
+  (function initZoom() {
+    const v = parseFloat(localStorage.getItem(ZOOM_KEY));
+    if (!isNaN(v) && v >= ZOOM_MIN && v <= ZOOM_MAX) tableZoom = v;
+    applyTableZoom();
+  })();
+  $('zoomOutBtn').addEventListener('click', () => setZoom(tableZoom - ZOOM_STEP));
+  $('zoomInBtn').addEventListener('click', () => setZoom(tableZoom + ZOOM_STEP));
+  $('zoomResetBtn').addEventListener('click', () => setZoom(1));
   $('companyFilter').addEventListener('change', refresh);
   $('exportBtn').addEventListener('click', exportFiltered);
 

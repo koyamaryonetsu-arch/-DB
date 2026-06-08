@@ -152,6 +152,33 @@ main {
   color: #374151;
 }
 
+/* 表の表示倍率コントロール */
+.zoom-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #475569;
+}
+.zoom-control .zoom-label { font-weight: 600; margin-right: 2px; }
+.zoom-btn {
+  padding: 2px 8px;
+  font-size: 14px;
+  line-height: 1.2;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  background: #fff;
+  color: #1f2937;
+  cursor: pointer;
+  min-width: 30px;
+}
+.zoom-btn:hover { background: #f1f5f9; }
+.zoom-level {
+  min-width: 46px;
+  text-align: center;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
 .table-wrap {
   background: #fff;
   border-radius: 6px;
