@@ -16,6 +16,7 @@
 - ⚠️ 今回の変更はこの環境に `/tmp` の回帰テストが無く未実行。次回セッションでテスト一式（245 PASS基準）を流して確認すること。
 
 ### 完了済み（直近）
+- ✅ 会社タグの色をユーザーが選べるように（客先マスター＞本社情報に「一覧の色」カラーピッカー＋「色なし」）。companies.color 列（resilient: 列が無くてもアプリは動作、色保存時のみ要DB更新）。明度で文字色を自動白黒。追加会社が黒くなる問題を解消
 - ✅ 各列ヘッダーにフィルタ＋並び替え: 見出しの文字(.th-filter)クリックで絞り込みタブ（値チェックリスト・検索・全選択）、文字の横(矢印)で昇順/降順。columnFilters{field:Set} を getFilteredCases で適用
 - ✅ 大口案件（見積り300万円以上）のみ表示トグル（#toggleBigBtn, showBigOnly, BIG_CASE_THRESHOLD=3000000）
 - ✅ 会社の検索窓(#companyFilter)を廃止。受注者は会社列のフィルタで絞る（TOHOは従来通り自社のみ）
@@ -76,6 +77,7 @@
 0. **【最新・要実行】ステータス手動上書き列の追加**（これをやらないと手動ステータスが保存されません）
    ```sql
    alter table public.cases add column if not exists status_override text;
+   alter table public.companies add column if not exists color text default '';
    ```
 1. **会社マスタへの本社情報カラム追加と初期値投入**
    - 場所: `supabase-schema.sql` の `1b.` セクション（`alter table` 〜 `update`）

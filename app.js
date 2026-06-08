@@ -202,6 +202,8 @@
   };
   // status_override 列がDBに存在するか（fetch時に検出）。未追加環境でも保存が壊れないようにするため
   let statusOverrideSupported = false;
+  // companies.color 列がDBに存在するか（同上）
+  let companyColorSupported = false;
   const DATE_FIELDS = new Set(['receivedDate', 'surveyDate', 'quoteDate', 'workStartDate', 'workEndDate', 'invoiceDate', 'paymentDate']);
 
   // app(camelCase) → DB行(snake_case)。空文字の日付/金額は null に
@@ -325,13 +327,15 @@
       const { data, error } = await sb.from('companies').select('*').order('sort_order', { ascending: true });
       if (error || !data || !data.length) return loadCompanies();
       return data.map((r) => {
+        if (Object.prototype.hasOwnProperty.call(r, 'color')) companyColorSupported = true;
         const def = DEFAULT_COMPANIES.find((d) => d.name === r.name);
         return {
           name: r.name,
           abbr: r.abbr,
           // DB に列が無い場合は undefined。デフォルトで補完
           officialName: r.official_name != null ? r.official_name : (def ? def.officialName : ''),
-          hqAddress:    r.hq_address    != null ? r.hq_address    : (def ? def.hqAddress    : '')
+          hqAddress:    r.hq_address    != null ? r.hq_address    : (def ? def.hqAddress    : ''),
+          color:        r.color != null ? r.color : ''
         };
       });
     },
@@ -345,6 +349,7 @@
       const row = {};
       if (patch.officialName != null) row.official_name = patch.officialName;
       if (patch.hqAddress    != null) row.hq_address    = patch.hqAddress;
+      if (patch.color != null && companyColorSupported) row.color = patch.color;
       if (!Object.keys(row).length) return;
       const { error } = await sb.from('companies').update(row).eq('name', name);
       if (error) throw error;
@@ -479,7 +484,8 @@
             name: c.name,
             abbr: c.abbr || c.name,
             officialName: c.officialName != null ? c.officialName : (def ? def.officialName : ''),
-            hqAddress:    c.hqAddress    != null ? c.hqAddress    : (def ? def.hqAddress    : '')
+            hqAddress:    c.hqAddress    != null ? c.hqAddress    : (def ? def.hqAddress    : ''),
+            color:        c.color || ''
           };
           if (c.officialName == null || c.hqAddress == null) migrated = true;
           return obj;
@@ -544,6 +550,20 @@
   function safeClass(s) {
     return String(s || '').replace(/[^A-Za-z0-9_぀-ゟ゠-ヿ一-鿿]/g, '_');
   }
+  // 会社の一覧表示色（ユーザー設定。未設定はCSSの既定色クラスにフォールバック）
+  function companyColor(name) {
+    const c = companies.find((x) => x.name === name);
+    return c && c.color ? c.color : '';
+  }
+  function contrastText(hex) {
+    const m = /^#?([0-9a-fA-F]{6})$/.exec(hex || '');
+    if (!m) return '#1e293b';
+    const n = parseInt(m[1], 16);
+    const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+    const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    return lum > 0.6 ? '#1e293b' : '#fff';
+  }
+  function companyColorAvailable() { return store.mode === 'local' || companyColorSupported; }
   function addToHistory(key, value) {
     if (!value) return;
     const v = String(value).trim();
@@ -1059,7 +1079,9 @@
       const statusCode = statusOf(c);
       const statusLabel = statusDisplayLabel(statusCode);
       const manualStatus = isStatusManual(c);
-      const companyHtml = c.company ? `<span class="company-tag company-${safeClass(c.company)}" title="${escapeHtml(c.company)}">${escapeHtml(companyAbbr(c.company))}</span>` : '';
+      const cCol = companyColor(c.company);
+      const cStyle = cCol ? ` style="background:${escapeHtml(cCol)};color:${contrastText(cCol)}"` : '';
+      const companyHtml = c.company ? `<span class="company-tag company-${safeClass(c.company)}"${cStyle} title="${escapeHtml(c.company)}">${escapeHtml(companyAbbr(c.company))}</span>` : '';
       // 手動上書き中は badge に manual クラス → 文字色を白に
       const statusHtml = `<span class="status-badge status-${escapeHtml(statusCode)}${manualStatus ? ' manual' : ''}">${escapeHtml(statusLabel)}</span>`;
       // ステータスの手動変更は受注者(菱熱/ryonetsu)のみ。TOHO側はバッジ表示のみ
@@ -1846,6 +1868,25 @@
     $('tmHqAddress').value      = c ? (c.hqAddress || '')    : '';
     $('tmHqOfficialName').readOnly = ro;
     $('tmHqAddress').readOnly      = ro;
+    $('tmHqColor').value = (c && c.color) ? c.color : '#e2e8f0';
+    $('tmHqColor').disabled = ro;
+    $('tmHqColorClear').disabled = ro;
+  }
+  function setCompanyColor(colorVal) {
+    if (!isPrivileged(currentUser)) return;
+    const name = $('tmCompanySelect').value;
+    const c = companies.find((x) => x.name === name);
+    if (!c) return;
+    if (!companyColorAvailable()) {
+      alert('会社の色を保存するには、データベースの更新（companies.color 列の追加）が必要です。');
+      renderHqInfo();
+      return;
+    }
+    c.color = colorVal || '';
+    if (store.mode === 'local') saveCompanies(companies);
+    persistCompanyInfo(name);
+    renderHqInfo();
+    render();
   }
   function openTheaterMasterModal() {
     populateTheaterMasterCompanySelect();
@@ -1861,7 +1902,7 @@
     const c = companies.find((x) => x.name === name);
     if (!c) return;
     if (store.mode === 'local') { saveCompanies(companies); return; }
-    try { await store.updateCompanyInfo(name, { officialName: c.officialName, hqAddress: c.hqAddress }); }
+    try { await store.updateCompanyInfo(name, { officialName: c.officialName, hqAddress: c.hqAddress, color: c.color != null ? c.color : '' }); }
     catch (e) { onPersistError(e); }
   }
   function handleHqOfficialNameChange() {
@@ -2112,6 +2153,8 @@
   $('tmBody').addEventListener('click', handleTheaterMasterClick);
   $('tmHqOfficialName').addEventListener('change', handleHqOfficialNameChange);
   $('tmHqAddress').addEventListener('change', handleHqAddressChange);
+  $('tmHqColor').addEventListener('change', (e) => setCompanyColor(e.target.value));
+  $('tmHqColorClear').addEventListener('click', () => setCompanyColor(''));
 
   $('closeContentModal').addEventListener('click', closeContentModal);
   $('contentCancelBtn').addEventListener('click', closeContentModal);

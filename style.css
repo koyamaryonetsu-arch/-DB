@@ -1107,3 +1107,7 @@ td.status-cell { white-space: nowrap; }
 .cfp-item .cfp-cnt { color: #94a3b8; font-size: 11px; }
 .cfp-foot { display: flex; justify-content: space-between; gap: 8px; margin-top: 8px; }
 .cfp-foot button { padding: 5px 12px; font-size: 13px; }
+
+/* 会社の一覧色エディタ */
+.tm-color-input { width: 44px; height: 30px; padding: 0; border: 1px solid #cbd5e1; border-radius: 4px; cursor: pointer; vertical-align: middle; }
+.tm-color-hint { font-size: 11px; color: #6b7280; margin-left: 6px; }

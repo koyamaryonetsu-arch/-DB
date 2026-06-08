@@ -48,6 +48,7 @@ create table if not exists public.companies (
 -- 既存テーブルへの列追加（既存運用環境向け・新規構築時は no-op）
 alter table public.companies add column if not exists official_name text default '';
 alter table public.companies add column if not exists hq_address    text default '';
+alter table public.companies add column if not exists color         text default '';
 
 insert into public.companies (name, abbr, sort_order, official_name, hq_address) values
   ('TOHOシネマズ',       'TOHO',   1, 'TOHOシネマズ株式会社',                       '東京都千代田区有楽町1-2-2 東宝日比谷ビル'),
