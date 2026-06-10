@@ -4,15 +4,22 @@
 > 小山さん（非エンジニア）のシネマ案件管理アプリの、データベース（Supabase）側の更新を行います。
 > アプリのコードはすでにデプロイ済みで、この DB 更新を実行すると新機能が完全に動くようになります。
 
+## ⚠️ 前回エラーが出た方へ（重要）
+前回の SQL は、まだ存在しない `theaters`（客先・劇場マスター）テーブルを更新しようとして
+`relation "public.theaters" does not exist` でエラー → 全体ロールバック（DB は未変更）になりました。
+**この手順書の SQL は修正済みで、`theaters` テーブルが無ければ自動で作成してから更新します。**
+そのまま下記を実行すれば 1 回で完了します。初期スキーマ全文を別途流す必要はありません。
+
 ## やること（1分で終わります）
 Supabase の SQL Editor に、下記の SQL を貼り付けて 1 回実行するだけです。
-**この SQL は何度実行しても安全**（既にある列・値・ポリシーは壊さない・重複しない）です。
+**この SQL は何度実行しても安全**（既にある列・値・ポリシー・テーブルは壊さない・重複しない）です。
 
 ## なぜ必要か（参考）
 今セッションでアプリに追加した以下の機能を、本番DBでも有効にするためです：
 - 会社の「正式名称・本社住所」（請求書/完了届の宛先に使用）
 - 会社タグの「色」設定
 - 案件ステータスの「手動上書き」
+- 客先（劇場）マスターを**全ユーザーで共有**（これまでは各PCのブラウザ内だけに保存されていた）
 - 客先マスターでの「会社削除」機能
 - シネマサンシャイン劇場の会社名を「佐々木興業」に統一
 
@@ -30,7 +37,7 @@ Supabase の SQL Editor に、下記の SQL を貼り付けて 1 回実行する
 
 ```sql
 -- =============================================================
--- シネマ案件管理：2026-06 更新（何度実行しても安全）
+-- シネマ案件管理：2026-06 更新（自己完結・何度実行しても安全）
 -- =============================================================
 
 -- 1) 案件テーブル：ステータス手動上書き列
@@ -61,7 +68,30 @@ drop policy if exists "companies_delete" on public.companies;
 create policy "companies_delete" on public.companies for delete to authenticated
   using (coalesce(auth.email() like '%@ryonetsu.com', false));
 
--- 5) 客先（劇場）マスタ：シネマサンシャイン → 佐々木興業 に統一
+-- 5) 客先（劇場）マスタ：無ければ作成（前回エラーの原因。これで自己完結）
+create table if not exists public.theaters (
+  name       text primary key,
+  company    text not null,
+  address    text default '',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+alter table public.theaters enable row level security;
+drop policy if exists "theaters_select" on public.theaters;
+create policy "theaters_select" on public.theaters for select to authenticated using (true);
+drop policy if exists "theaters_insert" on public.theaters;
+create policy "theaters_insert" on public.theaters for insert to authenticated
+  with check (coalesce(auth.email() like '%@ryonetsu.com', false));
+drop policy if exists "theaters_update" on public.theaters;
+create policy "theaters_update" on public.theaters for update to authenticated
+  using (coalesce(auth.email() like '%@ryonetsu.com', false))
+  with check (coalesce(auth.email() like '%@ryonetsu.com', false));
+drop policy if exists "theaters_delete" on public.theaters;
+create policy "theaters_delete" on public.theaters for delete to authenticated
+  using (coalesce(auth.email() like '%@ryonetsu.com', false));
+
+-- 6) 客先マスタ：既存データがあれば シネマサンシャイン → 佐々木興業 に統一
+--    （作りたての空テーブルなら 0 件更新で問題なし）
 update public.theaters set company = '佐々木興業' where company = 'シネマサンシャイン';
 
 -- 完了
@@ -75,11 +105,25 @@ update public.theaters set company = '佐々木興業' where company = 'シネ�
 正しく入ったか見たい場合は、もう一度 New query で下記を実行：
 
 ```sql
+-- 会社マスタ
 select name, abbr, official_name, hq_address, color from public.companies order by sort_order;
+-- 劇場マスタのテーブルができたか（最初は 0 件でOK。アプリ側が初回ログイン時に自動投入します）
+select count(*) as theater_rows from public.theaters;
 ```
 
 - `official_name`（正式名称）と `hq_address`（本社住所）が各社に入っていれば OK
   （例: 109シネマズ の official_name が「株式会社東急レクリエーション」）
+- `public.theaters` テーブルが存在してエラーにならなければ OK（中身は 0 件で問題なし）
+
+---
+
+## 補足：劇場マスターの中身について
+- `theaters` テーブルは**最初は空**で作られます。
+- その後、**@ryonetsu.com のユーザーがアプリを開いた時**に、アプリが初期の劇場一覧（約120件）を
+  自動で投入します。以降は全ユーザーで共有されます。
+- これまで各PCのブラウザ内（localStorage）だけで編集していた劇場住所がもしあれば、
+  共有データに切り替わった後で必要に応じて客先マスター画面から入れ直してください
+  （アプリの初期データは菱熱の標準値で投入されます）。
 
 ---
 
@@ -88,7 +132,7 @@ select name, abbr, official_name, hq_address, color from public.companies order 
 | 症状 | 対処 |
 |---|---|
 | `permission denied` と出る | Supabase の SQL Editor は管理者権限で動くので通常出ません。小山さんのアカウントでログインできているか確認 |
-| `relation "public.companies" does not exist` | まだ初期スキーマ未実行。先に `supabase-schema.sql` 全文を実行してから、この SQL を実行 |
+| `relation "public.companies" does not exist` | companies テーブル自体が無い特殊ケース。リポジトリの `supabase-schema.sql` 全文を先に実行してから、この SQL を実行 |
 | 一部の会社が初期値で埋まらない | その会社は既に official_name が入っている（＝上書きしない設計）。問題なし |
 
 ---
@@ -97,6 +141,7 @@ select name, abbr, official_name, hq_address, color from public.companies order 
 - 小山さんに「**Supabase の更新が完了しました**」と報告してください
 - これで以下がすべて本番で有効になります：
   - 客先マスターの「本社情報（正式名称・本社住所）」編集
+  - 客先（劇場）マスターの全ユーザー共有
   - 会社タグの色設定
   - ステータスの手動上書き
   - 客先マスターでの会社削除
