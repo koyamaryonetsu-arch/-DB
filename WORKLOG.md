@@ -3,7 +3,7 @@
 > **両方のセッション（UI編集モード／新機能モード）の冒頭で、まずこのファイルを読みます。**
 > セッションを中断する時／話題を引き渡す時は、対応するセクションを更新してから止まります。
 
-最終更新: 2026-06-03（ステータス手動上書き＋列移動 / 表のヘッダー・列固定 / vercel.json デプロイ復旧）
+最終更新: 2026-06-10（完了以降の色解除 / 会社削除 / 劇場名の表示短縮 / Supabase更新を本番反映済み）
 
 ---
 
@@ -16,6 +16,10 @@
 - ⚠️ 今回の変更はこの環境に `/tmp` の回帰テストが無く未実行。次回セッションでテスト一式（245 PASS基準）を流して確認すること。
 
 ### 完了済み（直近）
+- ✅ 劇場名を**画面表示だけ**地名に短縮（shortTheaterName）。会社ブランド接頭辞は自動除去、施設名は地名へ個別マッピング（六本木ヒルズ→六本木 等・約25件）。一覧/列フィルタ/A集計/請求書モーダルに適用。内部データ・請求書の工事件名・Excel/CSV・ファイル名は正式名のまま。検索は正式名/地名どちらでもヒット（87930ba）。テスト `/tmp/shortname-test.js` 14 PASS
+- ✅ 完了・請求済・入金済 になったら黄/赤の遅延色を解除（NO_COLOR_STATUSES）（5b86bea）
+- ✅ 客先マスターに「🗑 この会社を削除」ボタン（会社＋その劇場をまとめて削除・参照案件数を警告・最低1社は残す）。store.deleteCompanyRemote + companies_delete RLS（5b86bea）。テスト `/tmp/colordel-test.js` 11 PASS
+- ✅ 顧客追加エラー修正: official_name/hq_address 列が無いDBでも動くフォールバック（isMissingColumnError）（f539c24）
 - ✅ 会社タグの色をユーザーが選べるように（客先マスター＞本社情報に「一覧の色」カラーピッカー＋「色なし」）。companies.color 列（resilient: 列が無くてもアプリは動作、色保存時のみ要DB更新）。明度で文字色を自動白黒。追加会社が黒くなる問題を解消
 - ✅ 各列ヘッダーにフィルタ＋並び替え: 見出しの文字(.th-filter)クリックで絞り込みタブ（値チェックリスト・検索・全選択）、文字の横(矢印)で昇順/降順。columnFilters{field:Set} を getFilteredCases で適用
 - ✅ 大口案件（見積り300万円以上）のみ表示トグル（#toggleBigBtn, showBigOnly, BIG_CASE_THRESHOLD=3000000）
@@ -74,19 +78,12 @@
 ## 📋 ユーザー側で必要な作業（小山さん）
 
 ### Supabase SQL 実行
-0. **【最新・要実行】ステータス手動上書き列の追加**（これをやらないと手動ステータスが保存されません）
-   ```sql
-   alter table public.cases add column if not exists status_override text;
-   alter table public.companies add column if not exists color text default '';
-   ```
-1. **会社マスタへの本社情報カラム追加と初期値投入**
-   - 場所: `supabase-schema.sql` の `1b.` セクション（`alter table` 〜 `update`）
-   - Supabase SQL Editor に貼って Run（何度実行しても安全な書き方）
-
-2. **`theaters` テーブルの旧データ移行（任意）**
-   ```sql
-   update public.theaters set company = '佐々木興業' where company = 'シネマサンシャイン';
-   ```
+- ✅ **【完了 2026-06-10】`SETUP_SUPABASE_UPDATE.md` の統合マイグレーションを本番実行済み（Success）**
+  - 反映内容: cases.status_override / companies.official_name・hq_address・color 列＋初期値 /
+    companies の update・delete RLS / **theaters テーブル新規作成＋RLS** / シネマサンシャイン→佐々木興業
+  - 当初 theaters 未作成でロールバックしていたが、手順書を自己完結型（無ければ作成）に修正して解消
+- ⏳ **残作業（小山さん）**: theaters は空で作成済み。**@ryonetsu.com で一度アプリを開く**と
+  アプリが初期劇場一覧（約120件）を自動投入し、全ユーザー共有になる。投入後 `select count(*) from public.theaters;` で確認
 
 ### LINE通知Phase 1 セットアップ
 - `SETUP_LINE.md` を Claude in Chrome に渡して、Step A〜F を順番に実施
