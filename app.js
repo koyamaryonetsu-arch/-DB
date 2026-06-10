@@ -170,6 +170,58 @@
   // 旧コードとの互換のため、劇場名リストも生成
   const DEFAULT_THEATERS = DEFAULT_THEATER_MASTER.map((t) => t.name);
 
+  // ===== 劇場名の「表示用」短縮（地名だけにする） =====
+  // データ自体は元の正式名のまま保持し、画面表示のときだけ会社名・施設の固有名詞を外す。
+  // 会社ブランドの接頭辞は自動除去。施設名（六本木ヒルズ等）は地名へ個別マッピング。
+  const THEATER_BRANDS = ['TOHOシネマズ', '109シネマズ', 'ユナイテッドシネマ', 'シネマサンシャイン', 'イオンシネマズ', 'イオンシネマ', 'MOVIX'];
+  const THEATER_SHORT_OVERRIDE = {
+    // --- TOHOシネマズ（施設名→地名）---
+    'TOHOシネマズ 六本木ヒルズ': '六本木',
+    'TOHOシネマズ 錦糸町楽天地': '錦糸町',
+    'TOHOシネマズ 立川立飛': '立川',
+    'TOHOシネマズ ららぽーと横浜': '横浜',
+    'TOHOシネマズ 横浜みなとみらい': 'みなとみらい',
+    'TOHOシネマズ ららぽーと船橋': '船橋',
+    'TOHOシネマズ 市川コルトンプラザ': '市川',
+    'TOHOシネマズ 流山おおたかの森': '流山',
+    'TOHOシネマズ 川越マイン': '川越',
+    'TOHOシネマズ ららぽーと富士見': '富士見',
+    'TOHOシネマズ 宇都宮インターパーク': 'インターパーク',
+    'TOHOシネマズ 水戸内原': '内原',
+    'TOHOシネマズ 名古屋ベイシティ': 'ベイシティ',
+    'TOHOシネマズ 西宮OS': '西宮',
+    'TOHOシネマズ くずはモール': 'くずは',
+    'TOHOシネマズ ららぽーと甲子園': '甲子園',
+    'TOHOシネマズ 福岡キャナルシティ': 'キャナルシティ',
+    'TOHOシネマズ ららぽーと福岡': '福岡',
+    'TOHOシネマズ 熊本サクラマチ': '熊本',
+    'TOHOシネマズ 沖縄ライカム': 'ライカム',
+    'TOHOシネマズ ファボーレ富山': '富山',
+    // --- 109シネマズ ---
+    '109シネマズ 大阪エキスポシティ': 'エキスポシティ',
+    '109シネマズ HAT神戸': '神戸',
+    '109シネマズ グランベリーパーク': '南町田',
+    // --- ユナイテッドシネマ ---
+    'ユナイテッドシネマ アクアシティお台場': 'お台場',
+    // --- 佐々木興業（シネマサンシャイン）---
+    'シネマサンシャインエミフルMASAKI': '松前'
+  };
+  function shortTheaterName(name) {
+    if (!name) return '';
+    if (THEATER_SHORT_OVERRIDE[name]) return THEATER_SHORT_OVERRIDE[name];
+    // コロナワールド系: 「○○コロナシネマワールド／○○コロナワールド」→ ○○
+    const m = name.match(/^(.+?)コロナ(?:シネマワールド|ワールド)/);
+    if (m) return m[1].trim();
+    // 会社ブランドの接頭辞を除去（長い順に判定）
+    for (const brand of THEATER_BRANDS) {
+      if (name.startsWith(brand)) {
+        const rest = name.slice(brand.length).trim();
+        return rest || name;
+      }
+    }
+    return name; // 該当しなければそのまま
+  }
+
   const EDITABLE_FIELDS = {
     company:        { type: 'select',   dynamicOptions: 'company', privilegedOnly: true },
     theater:        { type: 'datalist', listId: 'theaterList' },
@@ -937,6 +989,7 @@
     if (field === 'status') return statusDisplayLabel(v);
     if (field === 'estimateAmount') return fmtAmount(v);
     if (DATE_FIELDS.has(field)) return fmtDateShort(v);
+    if (field === 'theater') return shortTheaterName(v);
     return v;
   }
   function columnLabel(field) {
@@ -1078,7 +1131,7 @@
         }
       }
       if (!q) return true;
-      const hayArr = [c.company, c.theater, c.tcPerson, c.rPerson, c.category, c.content,
+      const hayArr = [c.company, c.theater, shortTheaterName(c.theater), c.tcPerson, c.rPerson, c.category, c.content,
         c.certNumber, c.estimateName, String(c.estimateAmount || ''),
         c.receivedDate, c.surveyDate, c.quoteDate, c.workStartDate, c.workEndDate, c.invoiceDate, c.paymentDate,
         statusOf(c), statusDisplayLabel(statusOf(c))];
@@ -1132,7 +1185,7 @@
       tr.innerHTML = `
         ${statusCell}
         ${editableTd(c, 'company', companyHtml, 'col-company')}
-        ${editableTd(c, 'theater', escapeHtml(c.theater))}
+        ${editableTd(c, 'theater', escapeHtml(shortTheaterName(c.theater)))}
         ${editableTd(c, 'receivedDate', fmtDateShort(c.receivedDate))}
         ${editableTd(c, 'tcPerson', escapeHtml(c.tcPerson))}
         ${editableTd(c, 'rPerson', escapeHtml(c.rPerson))}
@@ -1538,7 +1591,7 @@
       $('invoiceGenerateBtn').disabled = false;
       matches.forEach((c) => {
         const li = document.createElement('li');
-        li.innerHTML = `${escapeHtml(c.theater)} ／ ${escapeHtml(c.estimateName)} <span class="case-amount">${fmtAmount(c.estimateAmount)}</span>`;
+        li.innerHTML = `${escapeHtml(shortTheaterName(c.theater))} ／ ${escapeHtml(c.estimateName)} <span class="case-amount">${fmtAmount(c.estimateAmount)}</span>`;
         list.appendChild(li);
       });
     }
@@ -1734,7 +1787,7 @@
         const okText = okClass === 'ok' ? '✓OK' : '✗NG';
         const sec = SECTION_DEF[aggSection(c)];
         return `<tr data-case-id="${escapeHtml(c.id)}">
-          <td class="agg-case-name"><span class="agg-section-badge ${sec.badge}">${sec.label}</span>${escapeHtml(c.theater)}</td>
+          <td class="agg-case-name"><span class="agg-section-badge ${sec.badge}">${sec.label}</span>${escapeHtml(shortTheaterName(c.theater))}</td>
           <td>${escapeHtml(c.estimateName || '-')}</td>
           <td class="agg-amount">${fmtAmount(amt)}</td>
           <td class="agg-sum ${okClass}">${sum.toFixed(1)}% ${okText}</td>
