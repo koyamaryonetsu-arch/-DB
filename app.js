@@ -270,6 +270,18 @@
   let sb = null;          // Supabaseクライアント
   let rtChannel = null;   // リアルタイム購読
 
+  // Supabase/PostgREST が「存在しない列」を指したときのエラー判定
+  // （新カラムの移行SQL未実行な本番環境でも壊れないようにするため）
+  function isMissingColumnError(error) {
+    if (!error) return false;
+    // PostgREST: PGRST204（スキーマキャッシュに列が無い）/ Postgres: 42703（undefined_column）
+    if (error.code === 'PGRST204' || error.code === '42703') return true;
+    const msg = ((error.message || '') + ' ' + (error.details || '') + ' ' + (error.hint || '')).toLowerCase();
+    return msg.includes('official_name') || msg.includes('hq_address') ||
+           (msg.includes('column') && msg.includes('does not exist')) ||
+           (msg.includes('could not find') && msg.includes('column'));
+  }
+
   const store = {
     mode: 'local',
     init() {
@@ -341,7 +353,14 @@
     },
     async addCompanyRemote(rec) {
       if (this.mode === 'local') { saveCompanies(companies); return; }
-      const { error } = await sb.from('companies').insert({ name: rec.name, abbr: rec.abbr, sort_order: 100, official_name: rec.officialName || '', hq_address: rec.hqAddress || '' });
+      // official_name / hq_address はDBに列が無い環境でも壊れないようフォールバックする
+      const full = { name: rec.name, abbr: rec.abbr, sort_order: 100, official_name: rec.officialName || '', hq_address: rec.hqAddress || '' };
+      let { error } = await sb.from('companies').insert(full);
+      if (error && isMissingColumnError(error)) {
+        // 旧スキーマ（official_name/hq_address 列が無い）→ 基本列のみで再試行
+        const res = await sb.from('companies').insert({ name: rec.name, abbr: rec.abbr, sort_order: 100 });
+        error = res.error;
+      }
       if (error) throw error;
     },
     async updateCompanyInfo(name, patch) {
@@ -352,6 +371,11 @@
       if (patch.color != null && companyColorSupported) row.color = patch.color;
       if (!Object.keys(row).length) return;
       const { error } = await sb.from('companies').update(row).eq('name', name);
+      // 列が無い旧スキーマでは本社情報の保存はスキップ（ローカルには反映済み）
+      if (error && isMissingColumnError(error)) {
+        console.warn('companies に official_name/hq_address 列が無いため本社情報の保存をスキップ。Supabaseの移行SQLを実行してください。');
+        return;
+      }
       if (error) throw error;
     },
     async fetchTheaterMaster() {
