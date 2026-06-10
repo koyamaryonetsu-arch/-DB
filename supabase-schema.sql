@@ -71,7 +71,7 @@ update public.companies set official_name = '株式会社松竹マルチプレ�
 update public.companies set official_name = 'イオンエンターテイメント株式会社',           hq_address = '千葉県千葉市美浜区中瀬1-5-1 幕張テクノガーデンB棟' where name = 'イオンシネマズ'     and coalesce(official_name,'') = '';
 update public.companies set official_name = '佐々木興業株式会社',                         hq_address = '東京都豊島区東池袋1-30-3 大正堂ビル'               where name = 'シネマサンシャイン' and coalesce(official_name,'') = '';
 
--- 会社マスタは認証ユーザー全員が閲覧、ryonetsu ドメインのみ追加/更新可
+-- 会社マスタは認証ユーザー全員が閲覧、ryonetsu ドメインのみ追加/更新/削除可
 alter table public.companies enable row level security;
 drop policy if exists "companies_select" on public.companies;
 create policy "companies_select" on public.companies for select to authenticated using (true);
@@ -82,6 +82,9 @@ drop policy if exists "companies_update" on public.companies;
 create policy "companies_update" on public.companies for update to authenticated
   using (coalesce(auth.email() like '%@ryonetsu.com', false))
   with check (coalesce(auth.email() like '%@ryonetsu.com', false));
+drop policy if exists "companies_delete" on public.companies;
+create policy "companies_delete" on public.companies for delete to authenticated
+  using (coalesce(auth.email() like '%@ryonetsu.com', false));
 
 -- 1c. 客先（劇場）マスタ。正式名称・親会社・住所。請求書/完了届の参照元。
 create table if not exists public.theaters (

@@ -24,6 +24,8 @@
   const CATEGORIES = ['新規工事', '更新案件', '修理', 'メンテナンス', '点検', '改修', 'その他'];
   // 色判定を除外するカテゴリ
   const NO_COLOR_CATEGORIES = new Set(['更新案件', 'その他']);
+  // 完了以降のステータス（黄/赤の遅延色を解除して通常表示に戻す）
+  const NO_COLOR_STATUSES = new Set(['完了', '請求済', '入金済']);
   const DEFAULT_MARGIN_RATE = 20;
   // 経営集計のデフォルトチームと配分ルール
   const DEFAULT_TEAM = ['小山', '細萱', '大和', '山口', '金子', '若山', '伊藤', '藤村', '山本'];
@@ -376,6 +378,11 @@
         console.warn('companies に official_name/hq_address 列が無いため本社情報の保存をスキップ。Supabaseの移行SQLを実行してください。');
         return;
       }
+      if (error) throw error;
+    },
+    async deleteCompanyRemote(name) {
+      if (this.mode === 'local') { saveCompanies(companies); return; }
+      const { error } = await sb.from('companies').delete().eq('name', name);
       if (error) throw error;
     },
     async fetchTheaterMaster() {
@@ -811,7 +818,10 @@
 
   function rowColorClass(c) {
     if (NO_COLOR_CATEGORIES.has(c.category)) return '';
-    if (statusOf(c) === '保留') return '';
+    const st = statusOf(c);
+    if (st === '保留') return '';
+    // 完了・請求済・入金済 になったら遅延色（黄/赤）を元に戻す
+    if (NO_COLOR_STATUSES.has(st)) return '';
     if (c.quoteDate) return '';
     const today = todayStr();
     if (c.surveyDate) {
@@ -1998,6 +2008,45 @@
       }
     }, 50);
   }
+  async function deleteCompanyFromMaster() {
+    const name = $('tmCompanySelect').value;
+    if (!name) { alert('削除する会社を選択してください'); return; }
+    if (companyNames().length <= 1) { alert('会社が1社のため削除できません（最低1社必要です）。'); return; }
+    // この会社を参照している案件数を数えて警告
+    const usedBy = cases.filter((c) => c.company === name).length;
+    const theaterCnt = theaterMaster.filter((t) => t.company === name).length;
+    let msg = `会社「${name}」を客先マスターから削除します。\n`;
+    msg += `・この会社の登録劇場 ${theaterCnt} 件も一緒に削除されます。\n`;
+    if (usedBy > 0) {
+      msg += `\n⚠ この会社を使っている案件が ${usedBy} 件あります。\n`;
+      msg += `案件自体は消えませんが、その会社名はマスターから無くなり、\n`;
+      msg += `一覧の色分けや請求書の宛先が正しく出なくなる場合があります。\n`;
+    }
+    msg += `\n本当に削除しますか？`;
+    if (!confirm(msg)) return;
+
+    try {
+      await store.deleteCompanyRemote(name);
+    } catch (err) {
+      onPersistError(err);
+      return;
+    }
+    // この会社の劇場をマスターから削除（DB側も）
+    const ownTheaters = theaterMaster.filter((t) => t.company === name && t.name);
+    for (const t of ownTheaters) { removeTheater(t.name); }
+    theaterMaster = theaterMaster.filter((t) => t.company !== name);
+    saveTheaterMaster(theaterMaster);
+    // 会社マスタから削除
+    companies = companies.filter((c) => c.name !== name);
+    if (store.mode === 'local') saveCompanies(companies);
+    // UI再構築
+    populateCompanySelects();
+    populateTheaterMasterCompanySelect();
+    renderHqInfo();
+    renderTheaterMasterTable();
+    renderDatalists();
+    refresh();
+  }
 
   // ---------- screens ----------
   function showLogin() {
@@ -2173,6 +2222,7 @@
   $('theaterMasterModal').addEventListener('click', (e) => { if (e.target === $('theaterMasterModal')) closeTheaterMasterModal(); });
   $('tmCompanySelect').addEventListener('change', () => { renderHqInfo(); renderTheaterMasterTable(); });
   $('tmAddTheaterBtn').addEventListener('click', addTheaterRow);
+  $('tmDeleteCompanyBtn').addEventListener('click', deleteCompanyFromMaster);
   $('tmBody').addEventListener('change', handleTheaterMasterInput);
   $('tmBody').addEventListener('click', handleTheaterMasterClick);
   $('tmHqOfficialName').addEventListener('change', handleHqOfficialNameChange);
