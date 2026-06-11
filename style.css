@@ -28,9 +28,29 @@ header h1 {
   margin: 0;
   font-size: 18px;
   font-weight: 600;
+  white-space: nowrap;
+}
+.title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   flex: 1;
   min-width: 200px;
+  flex-wrap: wrap;
 }
+.rperson-bar { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
+.rperson-btn {
+  padding: 3px 9px;
+  font-size: 12px;
+  border: 1px solid #46506b;
+  border-radius: 12px;
+  background: #2b3654;
+  color: #cbd5e1;
+  cursor: pointer;
+  line-height: 1.4;
+}
+.rperson-btn:hover { background: #3a466a; color: #fff; }
+.rperson-btn.active { background: #fff; color: #1f2a44; border-color: #fff; font-weight: 700; }
 
 .header-actions {
   display: flex;
@@ -49,10 +69,8 @@ header h1 {
 }
 
 .header-actions input[type="search"] {
-  min-width: 220px;
-}
-.header-actions input#personFilter {
-  min-width: 150px;
+  min-width: 130px;
+  max-width: 190px;
 }
 
 button {
@@ -1032,18 +1050,18 @@ td.col-status {
   position: sticky;
   left: 0;
   z-index: 1;
-  width: 120px;
-  min-width: 120px;
-  max-width: 120px;
+  width: var(--col-status-w, 120px);
+  min-width: var(--col-status-w, 120px);
+  max-width: var(--col-status-w, 120px);
 }
 td.col-status {
   background: #fff; /* 通常行用の不透明背景。赤・黄行は既存ルールが優先され色が残る */
 }
-/* 劇場名（ステータスの右隣＝left:120pxに固定・幅160px） */
+/* 劇場名（ステータスの右隣＝status列幅に固定） */
 th[data-sort="theater"],
 td[data-field="theater"] {
   position: sticky;
-  left: 120px;
+  left: var(--col-status-w, 120px);
   z-index: 1;
   width: 160px;
   min-width: 160px;
@@ -1156,3 +1174,18 @@ td.status-cell { white-space: nowrap; }
 #casesTable.task-mode td.task-col { white-space: normal; }
 .task-open-btn { display: inline-block; float: none; margin: 0 0 4px 0; }
 #casesTable.task-mode th.task-th-company, #casesTable.task-mode td[data-field="company"] { width: 72px; max-width: 72px; }
+
+/* 列幅のドラッグ調整ハンドル */
+#casesTable th { position: relative; }
+.col-resizer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 7px;
+  height: 100%;
+  cursor: col-resize;
+  user-select: none;
+  touch-action: none;
+  z-index: 4;
+}
+.col-resizer:hover { background: rgba(37,99,235,0.35); }

@@ -521,6 +521,13 @@
   const BIG_CASE_THRESHOLD = 3000000;
   // 各列の絞り込み: field -> 選択値の Set（未設定/全選択 = フィルタ無し）
   const columnFilters = {};
+  // R担当者ボタンによる絞り込み（''=全員）
+  let rPersonFilter = '';
+  // 列幅のユーザー調整（field -> px）。localStorage に保存
+  const COLW_KEY = 'colWidthsV1';
+  let colWidths = {};
+  try { const s = JSON.parse(localStorage.getItem(COLW_KEY)); if (s && typeof s === 'object') colWidths = s; } catch (e) {}
+  let colWidthStyleEl = null;
   let contentEditCaseId = null;
   let aggMode = false;          // A集計表示モードか
   let taskMode = false;         // タスク管理表示モードか
@@ -693,8 +700,6 @@
     fillDatalist('theaterList', [...theaters].sort());
     fillDatalist('tcPersonList', [...tcPersons].sort());
     fillDatalist('rPersonList', [...rPersons].sort());
-    // 担当者しぼり込み用（R担当者＋客先担当者の両方を候補に）
-    fillDatalist('personFilterList', [...new Set([...rPersons, ...tcPersons])].sort());
   }
   // 会社セレクト（モーダル/フィルタ）を会社マスタから再構築
   function populateCompanySelects() {
@@ -1113,7 +1118,6 @@
   function getFilteredCases() {
     const q = $('searchBox').value.trim().toLowerCase();
     const sf = $('statusFilter').value;
-    const pf = $('personFilter').value.trim().toLowerCase();
     // TOHO は自社のみ（会社プルダウンは廃止。受注者は列フィルタで会社を絞る）
     const cf = isPrivileged(currentUser) ? '' : 'TOHOシネマズ';
     const colFilterFields = Object.keys(columnFilters);
@@ -1130,11 +1134,8 @@
         const set = columnFilters[f];
         if (set && set.size && !set.has(columnValue(c, f))) return false;
       }
-      // 担当者しぼり込み（R担当者・客先担当者のどちらかに一致）
-      if (pf) {
-        const persons = ((c.rPerson || '') + ' ' + (c.tcPerson || '')).toLowerCase();
-        if (!persons.includes(pf)) return false;
-      }
+      // R担当者ボタンによる絞り込み（全員=''）。AND条件
+      if (rPersonFilter && !(c.rPerson || '').includes(rPersonFilter)) return false;
       if (sf && statusOf(c) !== sf) return false;
       // 全ステータス表示中（特定ステータス未選択）の表示切替（標準 / 請求済・入金済のみ / 取り下げ・失注のみ）
       if (!sf) {
@@ -1180,6 +1181,53 @@
       ? `<td class="col-status status-cell" data-case-id="${escapeHtml(c.id)}"><span class="status-pick" data-action="status-edit" data-id="${escapeHtml(c.id)}" title="クリックでステータスを変更（先頭の「自動」で自動判定に戻ります）">${statusHtml}</span></td>`
       : `<td class="col-status status-cell">${statusHtml}</td>`;
   }
+  // ===== 列幅のドラッグ調整（どの画面でも） =====
+  function fieldOfTh(th) { return th.dataset.sort || th.dataset.col || ''; }
+  function addResizers(thead) {
+    if (!thead) return;
+    thead.querySelectorAll('th').forEach((th) => {
+      if (!fieldOfTh(th)) return;
+      if (th.querySelector('.col-resizer')) return;
+      const h = document.createElement('span');
+      h.className = 'col-resizer';
+      th.appendChild(h);
+    });
+  }
+  function applyColWidths() {
+    const tbl = $('casesTable');
+    if (!tbl) return;
+    // 劇場名の固定offset = ステータス列の幅
+    if (colWidths.status) tbl.style.setProperty('--col-status-w', colWidths.status + 'px');
+    let css = '';
+    Object.keys(colWidths).forEach((field) => {
+      const w = colWidths[field];
+      if (!w) return;
+      const decl = `width:${w}px;min-width:${w}px;max-width:${w}px;overflow:hidden;text-overflow:ellipsis;`;
+      css += `#casesTable th[data-sort="${field}"],#casesTable th[data-col="${field}"],#casesTable td[data-field="${field}"],#casesTable td.col-${field}{${decl}}`;
+      css += `#casesTable.task-mode th[data-col="${field}"],#casesTable.task-mode td[data-field="${field}"],#casesTable.task-mode td.col-${field}{${decl}}`;
+    });
+    if (!colWidthStyleEl) { colWidthStyleEl = document.createElement('style'); document.head.appendChild(colWidthStyleEl); }
+    colWidthStyleEl.textContent = css;
+  }
+  function startColResize(th, field, e) {
+    e.preventDefault(); e.stopPropagation();
+    const startX = e.clientX;
+    const z = (typeof tableZoom === 'number' && tableZoom) ? tableZoom : 1;
+    const startW = th.getBoundingClientRect().width / z;
+    const move = (ev) => {
+      const w = Math.max(40, Math.round(startW + (ev.clientX - startX) / z));
+      colWidths[field] = w;
+      applyColWidths();
+    };
+    const up = () => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+      try { localStorage.setItem(COLW_KEY, JSON.stringify(colWidths)); } catch (err) {}
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  }
+
   // 会社タグ（略称＋ユーザー設定色）— 通常/タスク両モードで共有
   function buildCompanyTag(c) {
     if (!c.company) return '';
@@ -1881,7 +1929,8 @@
     renderDatalists();
     const thead = $('casesTable').querySelector('thead');
     thead.innerHTML = '<tr>' + TASK_COLS.map((c) =>
-      `<th class="task-th-${c.field}${c.field === 'tasks' ? ' task-col' : ''}">${c.label}</th>`).join('') + '</tr>';
+      `<th class="task-th-${c.field}${c.field === 'tasks' ? ' task-col' : ''}" data-col="${c.field}">${c.label}</th>`).join('') + '</tr>';
+    addResizers(thead);
     const tbody = $('casesBody');
     tbody.innerHTML = '';
     const rows = getFilteredCases();
@@ -2258,12 +2307,23 @@
     applyUserScope();
     render();
   }
+  // タイトル横の R担当者 ボタン（全員＋各担当者）。クリックでその担当者の案件に絞る（AND）
+  function renderRPersonBar() {
+    const bar = $('rPersonBar');
+    if (!bar) return;
+    const team = loadTeam();
+    const names = [''].concat(team); // '' = 全員
+    bar.innerHTML = names.map((n) =>
+      `<button type="button" class="rperson-btn${n === rPersonFilter ? ' active' : ''}" data-rperson="${escapeHtml(n)}">${n === '' ? '全員' : escapeHtml(n)}</button>`
+    ).join('');
+  }
   function applyUserScope() {
     $('userEmail').textContent = currentUser.email;
     const privileged = isPrivileged(currentUser);
     document.body.classList.toggle('user-privileged', privileged);
     document.body.classList.toggle('user-toho', !privileged);
     $('appTitle').textContent = privileged ? 'シネマ案件管理' : 'TOHOシネマズ 案件管理';
+    renderRPersonBar();
     // status filter のラベル差し替え（受発注で呼称が変わる項目のみ）
     $('statusFilter').querySelectorAll('option').forEach(opt => {
       const map = privileged ? ROLE_STATUS.ryo : ROLE_STATUS.toho;
@@ -2580,6 +2640,7 @@
 
   // ソートは thead に委譲（A集計モードでthead差替えしても生き続ける）
   $('casesTable').querySelector('thead').addEventListener('click', (e) => {
+    if (e.target.closest('.col-resizer')) return; // 列幅ドラッグは並び替え・絞り込み対象外
     if (aggMode || taskMode) return; // A集計/タスク管理モードではソート無効
     // 見出しの文字（.th-filter）クリック → 絞り込みタブ
     const fEl = e.target.closest('.th-filter');
@@ -2599,8 +2660,14 @@
   });
 
   $('searchBox').addEventListener('input', refresh);
-  $('personFilter').addEventListener('input', refresh);
   $('statusFilter').addEventListener('change', refresh);
+  $('rPersonBar').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-rperson]');
+    if (!b) return;
+    rPersonFilter = b.dataset.rperson;
+    renderRPersonBar();
+    refresh();
+  });
 
   // ===== 表の表示倍率（PC/スマホ共通・localStorage記憶。ブラウザのズームとは別） =====
   const ZOOM_KEY = 'tableZoomV1';
@@ -2655,6 +2722,18 @@
     refresh();
   });
   updateBigToggleLabel();
+
+  // 列幅ドラッグ: 通常モードのthead にハンドルを付与してから保存（復元してもハンドルが残る）
+  addResizers($('casesTable').querySelector('thead'));
+  applyColWidths();
+  // ハンドルのドラッグは table へ委譲（thead差替えでも生き続ける）
+  $('casesTable').addEventListener('pointerdown', (e) => {
+    const h = e.target.closest('.col-resizer');
+    if (!h) return;
+    const th = h.closest('th');
+    const field = fieldOfTh(th);
+    if (field) startColResize(th, field, e);
+  });
 
   // 通常モードのthead HTMLを保存（A集計から戻す用）
   NORMAL_THEAD_HTML = $('casesTable').querySelector('thead').innerHTML;
