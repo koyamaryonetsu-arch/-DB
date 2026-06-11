@@ -896,18 +896,20 @@
     if (st === '保留') return '';
     // 完了・請求済・入金済 になったら遅延色（黄/赤）を元に戻す
     if (NO_COLOR_STATUSES.has(st)) return '';
-    if (c.quoteDate) return '';
     const today = todayStr();
-    if (c.surveyDate) {
-      const dRed = daysBetween(c.surveyDate, today);
-      if (dRed !== null && dRed >= 3) return 'row-red';
-      const dYellow = daysBetween(c.receivedDate, c.surveyDate);
-      if (dYellow !== null && dYellow >= 3) return 'row-yellow';
+    // 調査日が未記入 → 黄（受付から3日以上）。記入されたら黒に戻る
+    if (!c.surveyDate) {
+      if (c.receivedDate) {
+        const d = daysBetween(c.receivedDate, today);
+        if (d !== null && d >= 3) return 'row-yellow';
+      }
       return '';
     }
-    if (c.receivedDate) {
-      const d = daysBetween(c.receivedDate, today);
-      if (d !== null && d >= 3) return 'row-yellow';
+    // 調査日は記入済・見積り提出日が未記入 → 赤（調査日から3日以上）。提出日が記入されたら黒に戻る
+    if (!c.quoteDate) {
+      const d = daysBetween(c.surveyDate, today);
+      if (d !== null && d >= 3) return 'row-red';
+      return '';
     }
     return '';
   }
