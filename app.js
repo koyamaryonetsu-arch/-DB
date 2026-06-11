@@ -521,7 +521,7 @@
   const BIG_CASE_THRESHOLD = 3000000;
   // 各列の絞り込み: field -> 選択値の Set（未設定/全選択 = フィルタ無し）
   const columnFilters = {};
-  // R担当者ボタンによる絞り込み（空=全員）。複数選択時は全員に一致する案件のみ（AND）
+  // R担当者ボタンによる絞り込み（空=全員）。複数選択時はいずれかが担当の案件（OR）
   let rPersonFilter = new Set();
   // 列幅のユーザー調整（field -> px）。localStorage に保存
   const COLW_KEY = 'colWidthsV1';
@@ -1134,10 +1134,12 @@
         const set = columnFilters[f];
         if (set && set.size && !set.has(columnValue(c, f))) return false;
       }
-      // R担当者ボタンによる絞り込み（全員=空）。選択した担当者すべてに一致（AND）
+      // R担当者ボタンによる絞り込み（全員=空）。選んだ担当者の「いずれか」が担当の案件（OR）
       if (rPersonFilter.size) {
         const rp = c.rPerson || '';
-        for (const n of rPersonFilter) { if (!rp.includes(n)) return false; }
+        let hit = false;
+        for (const n of rPersonFilter) { if (rp.includes(n)) { hit = true; break; } }
+        if (!hit) return false;
       }
       if (sf && statusOf(c) !== sf) return false;
       // 全ステータス表示中（特定ステータス未選択）の表示切替（標準 / 請求済・入金済のみ / 取り下げ・失注のみ）
