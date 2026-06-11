@@ -258,6 +258,8 @@
   let statusOverrideSupported = false;
   // companies.color 列がDBに存在するか（同上）
   let companyColorSupported = false;
+  // cases.tasks 列がDBに存在するか（同上）
+  let tasksSupported = false;
   const DATE_FIELDS = new Set(['receivedDate', 'surveyDate', 'quoteDate', 'workStartDate', 'workEndDate', 'invoiceDate', 'paymentDate']);
 
   // app(camelCase) → DB行(snake_case)。空文字の日付/金額は null に
@@ -273,6 +275,7 @@
     });
     // status_override 列はDB未追加環境でも壊れないよう、対応が確認できた時のみ送信
     if (statusOverrideSupported) row.status_override = c.statusOverride ? c.statusOverride : null;
+    if (tasksSupported) row.tasks = Array.isArray(c.tasks) ? c.tasks : [];
     row.status = statusOf(c); // DB側レポート用に実効ステータス（手動上書き反映）も保存
     return row;
   }
@@ -293,6 +296,13 @@
       c.statusOverride = r.status_override != null ? r.status_override : '';
     } else {
       c.statusOverride = '';
+    }
+    // tasks（チェックリスト）も列がある時のみ
+    if (Object.prototype.hasOwnProperty.call(r, 'tasks')) {
+      tasksSupported = true;
+      c.tasks = Array.isArray(r.tasks) ? r.tasks : [];
+    } else {
+      c.tasks = [];
     }
     return c;
   }
@@ -513,6 +523,7 @@
   const columnFilters = {};
   let contentEditCaseId = null;
   let aggMode = false;          // A集計表示モードか
+  let taskMode = false;         // タスク管理表示モードか
   let NORMAL_THEAD_HTML = '';   // 通常モードのthead復元用
 
   const $ = (id) => document.getElementById(id);
@@ -1157,6 +1168,7 @@
   }
 
   function render() {
+    if (taskMode) { renderTaskTable(); return; }
     // 案件変更後に履歴候補（datalist）を最新化（ロール別に自動分離）
     renderDatalists();
     const filtered = getFilteredCases();
@@ -1805,6 +1817,7 @@
   }
 
   function enterAggMode() {
+    if (taskMode) exitTaskMode();
     aggMode = true;
     document.body.classList.add('agg-active');
     $('casesTable').classList.add('agg-mode');
@@ -1826,7 +1839,119 @@
   }
   function toggleAggMode() { if (aggMode) exitAggMode(); else enterAggMode(); }
 
-  function refresh() { if (aggMode) renderAggTable(); else render(); }
+  // ========== タスク管理モード ==========
+  function tasksAvailable() { return store.mode === 'local' || tasksSupported; }
+  function caseTasks(c) { return Array.isArray(c.tasks) ? c.tasks : (c.tasks = []); }
+  const TASK_COLS = [
+    { field: 'status',   label: 'ステータス' },
+    { field: 'theater',  label: '劇場名' },
+    { field: 'tcPerson', label: '客先担当者' },
+    { field: 'rPerson',  label: 'R担当者' },
+    { field: 'content',  label: '内容' },
+    { field: 'memo',     label: 'メモ' },
+    { field: 'tasks',    label: 'タスク' }
+  ];
+  function enterTaskMode() {
+    if (aggMode) exitAggMode();
+    taskMode = true;
+    $('casesTable').classList.add('task-mode');
+    $('emptyMsg').classList.add('hidden');
+    $('taskBtn').textContent = '✕ タスク管理を閉じる';
+    renderTaskTable();
+  }
+  function exitTaskMode() {
+    taskMode = false;
+    $('casesTable').classList.remove('task-mode');
+    $('taskBtn').textContent = '📋 タスク管理';
+    $('casesTable').querySelector('thead').innerHTML = NORMAL_THEAD_HTML;
+    render();
+  }
+  function toggleTaskMode() { if (taskMode) exitTaskMode(); else enterTaskMode(); }
+
+  function renderTaskTable() {
+    const thead = $('casesTable').querySelector('thead');
+    thead.innerHTML = '<tr>' + TASK_COLS.map((c) =>
+      `<th class="${c.field === 'tasks' ? 'task-col' : ''}">${c.label}</th>`).join('') + '</tr>';
+    const tbody = $('casesBody');
+    tbody.innerHTML = '';
+    const rows = getFilteredCases();
+    rows.forEach((c) => {
+      const tr = document.createElement('tr');
+      tr.dataset.caseId = c.id;
+      const cls = rowColorClass(c);
+      if (cls) tr.className = cls;
+      const statusCode = statusOf(c);
+      const statusHtml = `<span class="status-badge status-${escapeHtml(statusCode)}${isStatusManual(c) ? ' manual' : ''}">${escapeHtml(statusDisplayLabel(statusCode))}</span>`;
+      const open = caseTasks(c).filter((t) => !t.done);
+      const taskListHtml = open.length
+        ? '<ul class="cell-task-list">' + open.map((t) => {
+            const idx = caseTasks(c).indexOf(t);
+            return `<li><label><input type="checkbox" data-taskcell="${idx}"> ${escapeHtml(t.text)}</label></li>`;
+          }).join('') + '</ul>'
+        : '<span class="task-empty">（なし）</span>';
+      tr.innerHTML = `
+        <td>${statusHtml}</td>
+        <td>${escapeHtml(c.theater)}</td>
+        <td>${escapeHtml(c.tcPerson)}</td>
+        <td>${escapeHtml(c.rPerson)}</td>
+        <td class="task-info-cell">${escapeHtml(c.content)}</td>
+        <td class="task-info-cell">${escapeHtml(c.memo)}</td>
+        <td class="task-col">
+          <button type="button" class="task-open-btn" data-taskopen="${escapeHtml(c.id)}">✎ タスク編集</button>
+          ${taskListHtml}
+        </td>`;
+      tbody.appendChild(tr);
+    });
+    $('caseCount').textContent = `${rows.length} 件`;
+  }
+
+  // タスク編集ポップアップ
+  let taskModalCase = null;
+  function openTaskModal(c) {
+    if (!tasksAvailable()) {
+      alert('タスク機能を使うには、データベースの更新（cases.tasks 列の追加）が必要です。');
+      return;
+    }
+    taskModalCase = c;
+    $('taskModalTitle').textContent = 'タスク：' + (c.theater || '(劇場未入力)');
+    renderTaskModalList();
+    $('taskNewInput').value = '';
+    $('taskModal').classList.remove('hidden');
+    setTimeout(() => $('taskNewInput').focus(), 0);
+  }
+  function renderTaskModalList() {
+    const c = taskModalCase; if (!c) return;
+    const tasks = caseTasks(c);
+    // 未完了を上に、完了を下に（元のindexは保持）
+    const order = tasks.map((t, i) => i).sort((a, b) => (tasks[a].done - tasks[b].done));
+    const ul = $('taskList');
+    ul.innerHTML = order.map((i) => {
+      const t = tasks[i];
+      return `<li class="task-item ${t.done ? 'done' : ''}">
+        <label><input type="checkbox" data-taskmodal="${i}" ${t.done ? 'checked' : ''}> <span>${escapeHtml(t.text)}</span></label>
+        <button type="button" class="task-del" data-taskdel="${i}" aria-label="削除">×</button>
+      </li>`;
+    }).join('');
+  }
+  function persistTaskCase() {
+    const c = taskModalCase; if (!c) return;
+    c.updatedAt = new Date().toISOString();
+    if (store.mode === 'local') saveCases();
+    persistCase(c);
+  }
+  function addTaskFromInput() {
+    const c = taskModalCase; if (!c) return;
+    const v = $('taskNewInput').value.trim();
+    if (!v) return;
+    caseTasks(c).push({ text: v, done: false });
+    $('taskNewInput').value = '';
+    persistTaskCase();
+    renderTaskModalList();
+    if (taskMode) renderTaskTable();
+    $('taskNewInput').focus();
+  }
+
+  function refresh() { if (aggMode) renderAggTable(); else if (taskMode) renderTaskTable(); else render(); }
 
   // 配分 / 粗利率 の手動編集
   function handleAggInput(e) {
@@ -2301,13 +2426,44 @@
   });
 
   $('aggBtn').addEventListener('click', toggleAggMode);
+  $('taskBtn').addEventListener('click', toggleTaskMode);
+  // タスクポップアップ
+  function closeTaskModal() { $('taskModal').classList.add('hidden'); taskModalCase = null; if (taskMode) renderTaskTable(); }
+  $('taskAddBtn').addEventListener('click', addTaskFromInput);
+  $('taskNewInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); addTaskFromInput(); } });
+  $('closeTaskModal').addEventListener('click', closeTaskModal);
+  $('taskDoneBtn').addEventListener('click', closeTaskModal);
+  $('taskList').addEventListener('change', (e) => {
+    const cb = e.target.closest('[data-taskmodal]');
+    if (!cb || !taskModalCase) return;
+    const t = caseTasks(taskModalCase)[Number(cb.dataset.taskmodal)];
+    if (t) { t.done = cb.checked; persistTaskCase(); renderTaskModalList(); }
+  });
+  $('taskList').addEventListener('click', (e) => {
+    const d = e.target.closest('[data-taskdel]');
+    if (!d || !taskModalCase) return;
+    caseTasks(taskModalCase).splice(Number(d.dataset.taskdel), 1);
+    persistTaskCase(); renderTaskModalList();
+  });
   $('aggExitBtn').addEventListener('click', exitAggMode);
   $('aggExportBtn').addEventListener('click', exportAggregation);
   $('aggFY').addEventListener('change', renderAggTable);
   $('aggAddMemberBtn').addEventListener('click', addTeamMember);
   $('aggRedistributeBtn').addEventListener('click', redistributeSmallCases);
   // A集計の入力（配分%・粗利率）変更
-  $('casesBody').addEventListener('change', (e) => { if (aggMode) handleAggInput(e); });
+  $('casesBody').addEventListener('change', (e) => {
+    if (aggMode) { handleAggInput(e); return; }
+    // タスク管理モード: 一覧のチェックを押したら完了にして一覧から消す（ポップアップには残る）
+    const cb = e.target.closest('[data-taskcell]');
+    if (cb && taskMode) {
+      const tr = cb.closest('tr');
+      const c = cases.find((x) => x.id === tr.dataset.caseId);
+      if (c) {
+        const t = caseTasks(c)[Number(cb.dataset.taskcell)];
+        if (t) { t.done = true; c.updatedAt = new Date().toISOString(); if (store.mode === 'local') saveCases(); persistCase(c); renderTaskTable(); }
+      }
+    }
+  });
   // A集計ヘッダの担当者削除（thead に委譲）
   $('casesTable').querySelector('thead').addEventListener('click', (e) => {
     if (!aggMode) return;
@@ -2379,6 +2535,9 @@
   });
 
   $('casesBody').addEventListener('click', (e) => {
+    // タスク管理モード: 「タスク編集」ボタン
+    const to = e.target.closest('[data-taskopen]');
+    if (to) { const c = cases.find((x) => x.id === to.dataset.taskopen); if (c) openTaskModal(c); return; }
     const actEl = e.target.closest('[data-action]');
     if (actEl) {
       const action = actEl.dataset.action;
@@ -2411,7 +2570,7 @@
 
   // ソートは thead に委譲（A集計モードでthead差替えしても生き続ける）
   $('casesTable').querySelector('thead').addEventListener('click', (e) => {
-    if (aggMode) return; // A集計モードではソート無効
+    if (aggMode || taskMode) return; // A集計/タスク管理モードではソート無効
     // 見出しの文字（.th-filter）クリック → 絞り込みタブ
     const fEl = e.target.closest('.th-filter');
     if (fEl) { openColumnFilter(fEl.dataset.filter, fEl); return; }

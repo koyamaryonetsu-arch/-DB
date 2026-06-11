@@ -79,6 +79,7 @@
       <button id="quickCaseBtn" class="primary outline">⚡ 簡易登録</button>
       <button id="newCaseBtn" class="primary">＋ 新規案件登録</button>
       <button id="aggBtn" class="col-ryo">📊 A集計</button>
+      <button id="taskBtn" class="col-ryo">📋 タスク管理</button>
       <button id="invoiceBtn">📄 請求書発行</button>
       <button id="displayModeBtn" class="toggle-btn" title="押すごとに 標準 → 請求済・入金済 → 取り下げ・失注 を切り替えます">表示切替（標準）</button>
       <button id="toggleBigBtn" class="toggle-btn" title="見積り金額300万円以上の大口案件だけを表示します">大口のみ：OFF</button>
@@ -364,6 +365,25 @@
       <span class="modal-hint">Ctrl+Enter / ⌘+Enter で保存</span>
       <button type="button" id="contentCancelBtn">キャンセル</button>
       <button type="button" id="contentSaveBtn" class="primary">保存</button>
+    </div>
+  </div>
+</div>
+
+<div id="taskModal" class="modal hidden">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 id="taskModalTitle">タスク</h2>
+      <button id="closeTaskModal" class="close-btn" aria-label="閉じる" tabindex="-1">×</button>
+    </div>
+    <div class="task-modal-body">
+      <div class="task-add-row">
+        <input type="text" id="taskNewInput" placeholder="タスクを入力して追加（Enter）">
+        <button type="button" id="taskAddBtn" class="primary">追加</button>
+      </div>
+      <ul id="taskList" class="task-list"></ul>
+    </div>
+    <div class="modal-footer">
+      <button type="button" id="taskDoneBtn" class="primary">閉じる</button>
     </div>
   </div>
 </div>

@@ -1112,3 +1112,27 @@ td.status-cell { white-space: nowrap; }
 /* 会社の一覧色エディタ */
 .tm-color-input { width: 44px; height: 30px; padding: 0; border: 1px solid #cbd5e1; border-radius: 4px; cursor: pointer; vertical-align: middle; }
 .tm-color-hint { font-size: 11px; color: #6b7280; margin-left: 6px; }
+
+/* ===== タスク管理 ===== */
+#casesTable.task-mode { min-width: 0; }
+#casesTable.task-mode td.task-info-cell { white-space: normal; max-width: 320px; word-break: break-word; }
+.task-col { min-width: 240px; }
+.task-open-btn {
+  padding: 3px 8px; font-size: 12px; border: 1px solid #cbd5e1; border-radius: 4px;
+  background: #fff; cursor: pointer; margin-bottom: 4px;
+}
+.task-open-btn:hover { background: #f1f5f9; }
+.cell-task-list { list-style: none; margin: 0; padding: 0; }
+.cell-task-list li { padding: 1px 0; white-space: normal; }
+.cell-task-list label { display: flex; gap: 6px; align-items: flex-start; cursor: pointer; }
+.task-empty { color: #9ca3af; font-size: 12px; }
+
+.task-modal-body { padding: 16px 20px; }
+.task-add-row { display: flex; gap: 8px; margin-bottom: 12px; }
+.task-add-row input { flex: 1; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 14px; }
+.task-list { list-style: none; margin: 0; padding: 0; max-height: 50vh; overflow: auto; }
+.task-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 4px; border-bottom: 1px solid #f1f5f9; }
+.task-item label { display: flex; gap: 8px; align-items: center; cursor: pointer; flex: 1; }
+.task-item.done span { text-decoration: line-through; color: #9ca3af; }
+.task-del { border: none; background: none; color: #94a3b8; font-size: 18px; cursor: pointer; line-height: 1; padding: 0 4px; }
+.task-del:hover { color: #dc2626; }

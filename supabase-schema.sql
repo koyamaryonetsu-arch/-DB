@@ -24,6 +24,7 @@ create table if not exists public.cases (
   payment_date    date,
   status          text default '受付',
   status_override text,            -- ステータス手動上書き（NULL/空=自動判定、値あり=手動でその値に固定）
+  tasks           jsonb default '[]'::jsonb,  -- タスク管理のチェックリスト [{text, done}]
   margin_rate     numeric default 20,
   allocations     jsonb default '{}'::jsonb,  -- 担当者別の粗利配分 { "小山": 5, ... }
   memo            text,            -- 社内メモ（「保留」でステータス保留・ryonetsuのみ）
@@ -32,8 +33,9 @@ create table if not exists public.cases (
   created_by      uuid references auth.users(id) on delete set null,
   updated_by      uuid references auth.users(id) on delete set null
 );
--- 既存DB向け（何度実行しても安全）: ステータス手動上書き列
+-- 既存DB向け（何度実行しても安全）: ステータス手動上書き列・タスク列
 alter table public.cases add column if not exists status_override text;
+alter table public.cases add column if not exists tasks jsonb default '[]'::jsonb;
 
 -- 1b. 会社（顧客）マスタ。abbr=一覧表示用の略称、official_name=請求書/完了届の宛先、hq_address=本社住所
 create table if not exists public.companies (
