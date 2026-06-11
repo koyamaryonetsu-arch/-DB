@@ -1136,15 +1136,19 @@
         if (!persons.includes(pf)) return false;
       }
       if (sf && statusOf(c) !== sf) return false;
-      // 全ステータス表示中（特定ステータス未選択）の既定の絞り込み（表示切替ボタンで制御）
+      // 全ステータス表示中（特定ステータス未選択）の表示切替（標準 / 請求済・入金済のみ / 取り下げ・失注のみ）
       if (!sf) {
         const st = statusOf(c);
-        // 請求済・入金済は displayMode=1 のときだけ表示
-        if ((st === '請求済' || st === '入金済') && displayMode !== 1) return false;
-        // 取り下げ・失注は displayMode=2 のときだけ表示
-        if ((st === '取り下げ' || st === '失注') && displayMode !== 2) return false;
-        // 保留は標準表示では常に隠す（ステータス絞り込みで「保留」を選べば表示）
-        if (st === '保留') return false;
+        if (displayMode === 1) {
+          // 請求済・入金済 のみ表示
+          if (st !== '請求済' && st !== '入金済') return false;
+        } else if (displayMode === 2) {
+          // 取り下げ・失注 のみ表示
+          if (st !== '取り下げ' && st !== '失注') return false;
+        } else {
+          // 標準: 請求済・入金済・取り下げ・失注・保留 は隠す
+          if (st === '請求済' || st === '入金済' || st === '取り下げ' || st === '失注' || st === '保留') return false;
+        }
       }
       if (!q) return true;
       const hayArr = [c.company, c.theater, shortTheaterName(c.theater), c.tcPerson, c.rPerson, c.category, c.content,
@@ -2624,7 +2628,7 @@
   $('exportBtn').addEventListener('click', exportFiltered);
 
   // 表示切替（標準 → 請求済・入金済 → 取り下げ・失注 を循環）
-  const DISPLAY_MODE_LABELS = ['表示切替（標準）', '表示切替（請求済・入金済）', '表示切替（取り下げ・失注）'];
+  const DISPLAY_MODE_LABELS = ['表示切替（標準）', '表示切替（請求済・入金済のみ）', '表示切替（取り下げ・失注のみ）'];
   function updateDisplayModeLabel() {
     const btn = $('displayModeBtn');
     if (!btn) return;
