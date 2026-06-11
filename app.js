@@ -521,8 +521,8 @@
   const BIG_CASE_THRESHOLD = 3000000;
   // 各列の絞り込み: field -> 選択値の Set（未設定/全選択 = フィルタ無し）
   const columnFilters = {};
-  // R担当者ボタンによる絞り込み（''=全員）
-  let rPersonFilter = '';
+  // R担当者ボタンによる絞り込み（空=全員）。複数選択時は全員に一致する案件のみ（AND）
+  let rPersonFilter = new Set();
   // 列幅のユーザー調整（field -> px）。localStorage に保存
   const COLW_KEY = 'colWidthsV1';
   let colWidths = {};
@@ -1134,8 +1134,11 @@
         const set = columnFilters[f];
         if (set && set.size && !set.has(columnValue(c, f))) return false;
       }
-      // R担当者ボタンによる絞り込み（全員=''）。AND条件
-      if (rPersonFilter && !(c.rPerson || '').includes(rPersonFilter)) return false;
+      // R担当者ボタンによる絞り込み（全員=空）。選択した担当者すべてに一致（AND）
+      if (rPersonFilter.size) {
+        const rp = c.rPerson || '';
+        for (const n of rPersonFilter) { if (!rp.includes(n)) return false; }
+      }
       if (sf && statusOf(c) !== sf) return false;
       // 全ステータス表示中（特定ステータス未選択）の表示切替（標準 / 請求済・入金済のみ / 取り下げ・失注のみ）
       if (!sf) {
@@ -2048,11 +2051,14 @@
     if (team.indexOf(trimmed) !== -1) { alert('既に登録されています: ' + trimmed); return; }
     team.push(trimmed);
     saveTeam(team);
+    renderRPersonBar();   // タイトル横の担当者ボタンも連動
     renderAggTable();
   }
   function removeTeamMember(name) {
     if (!confirm(`担当者「${name}」を削除しますか？\n（各案件の配分データは保持され、再追加すれば復元されます）`)) return;
     saveTeam(loadTeam().filter((m) => m !== name));
+    rPersonFilter.delete(name); // 絞り込み中だった場合は外す
+    renderRPersonBar();
     renderAggTable();
   }
   function redistributeSmallCases() {
@@ -2312,10 +2318,12 @@
     const bar = $('rPersonBar');
     if (!bar) return;
     const team = loadTeam();
-    const names = [''].concat(team); // '' = 全員
-    bar.innerHTML = names.map((n) =>
-      `<button type="button" class="rperson-btn${n === rPersonFilter ? ' active' : ''}" data-rperson="${escapeHtml(n)}">${n === '' ? '全員' : escapeHtml(n)}</button>`
+    const allActive = rPersonFilter.size === 0;
+    let html = `<button type="button" class="rperson-btn${allActive ? ' active' : ''}" data-rperson="">全員</button>`;
+    html += team.map((n) =>
+      `<button type="button" class="rperson-btn${rPersonFilter.has(n) ? ' active' : ''}" data-rperson="${escapeHtml(n)}">${escapeHtml(n)}</button>`
     ).join('');
+    bar.innerHTML = html;
   }
   function applyUserScope() {
     $('userEmail').textContent = currentUser.email;
@@ -2664,7 +2672,10 @@
   $('rPersonBar').addEventListener('click', (e) => {
     const b = e.target.closest('[data-rperson]');
     if (!b) return;
-    rPersonFilter = b.dataset.rperson;
+    const name = b.dataset.rperson;
+    if (name === '') rPersonFilter.clear();          // 全員
+    else if (rPersonFilter.has(name)) rPersonFilter.delete(name); // 解除（トグル）
+    else rPersonFilter.add(name);                     // 追加（AND）
     renderRPersonBar();
     refresh();
   });
