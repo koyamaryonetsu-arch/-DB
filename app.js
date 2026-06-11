@@ -504,8 +504,8 @@
   let theaterMaster = DEFAULT_THEATER_MASTER.slice();
   let currentUser = null;
   let sortState = { field: null, direction: 'asc' };
-  // 全ステータス表示中に、請求済・入金済の案件を表示するか（既定: 非表示）
-  let showBilled = false;
+  // 表示切替モード: 0=標準（請求済/入金済/取り下げ/失注/保留を隠す）, 1=請求済・入金済を表示, 2=取り下げ・失注を表示
+  let displayMode = 0;
   // 大口案件（見積り金額300万円以上）のみ表示するか
   let showBigOnly = false;
   const BIG_CASE_THRESHOLD = 3000000;
@@ -850,11 +850,17 @@
     const today = todayStr();
     if (c.paymentDate)  return '入金済';
     if (c.invoiceDate)  return '請求済';
-    if (c.workEndDate)  return '完了';
+    // 見積り0円（無償対応）で作業開始日・終了日が入っていれば「完了」
+    if (isZeroAmount(c) && c.workStartDate && c.workEndDate) return '完了';
+    if (c.workEndDate)  return '対応済み';
     if (c.workStartDate && c.workStartDate <= today) return '作業中';
     if (c.quoteDate && c.quoteDate <= today)         return '見積り提出済';
     if (c.surveyDate && c.surveyDate <= today)       return '見積り中';
     return '受付';
+  }
+  // 見積り金額が明示的に0円か（空欄は除外）
+  function isZeroAmount(c) {
+    return c.estimateAmount !== '' && c.estimateAmount != null && Number(c.estimateAmount) === 0;
   }
   function statusDisplayLabel(code) {
     const map = isPrivileged(currentUser) ? ROLE_STATUS.ryo : ROLE_STATUS.toho;
@@ -911,7 +917,7 @@
   // ステータスの工程順（小さいほど早い段階）。保留は最後尾扱い
   const STATUS_SORT_ORDER = {
     '受付': 1, '見積り中': 2, '見積り提出済': 3, '作業中': 4,
-    '完了': 5, '請求済': 6, '入金済': 7, '取り下げ': 8, '失注': 9, '保留': 99
+    '対応済み': 5, '完了': 6, '請求済': 7, '入金済': 8, '取り下げ': 9, '失注': 10, '保留': 99
   };
   function getSortValue(c, field) {
     if (field === 'status') {
@@ -1119,16 +1125,15 @@
         if (!persons.includes(pf)) return false;
       }
       if (sf && statusOf(c) !== sf) return false;
-      // 全ステータス表示中（特定ステータス未選択）の既定の絞り込み
+      // 全ステータス表示中（特定ステータス未選択）の既定の絞り込み（表示切替ボタンで制御）
       if (!sf) {
         const st = statusOf(c);
-        // 請求済・入金済は既定で隠す（トグルで表示可）
-        if (!showBilled && (st === '請求済' || st === '入金済')) return false;
-        // 取り下げ・失注は、受付年度が過ぎて新年度になったら標準表示で隠す
-        if (st === '取り下げ' || st === '失注') {
-          const fy = fiscalYearOf(c.receivedDate);
-          if (fy != null && fy < currentFiscalYear()) return false;
-        }
+        // 請求済・入金済は displayMode=1 のときだけ表示
+        if ((st === '請求済' || st === '入金済') && displayMode !== 1) return false;
+        // 取り下げ・失注は displayMode=2 のときだけ表示
+        if ((st === '取り下げ' || st === '失注') && displayMode !== 2) return false;
+        // 保留は標準表示では常に隠す（ステータス絞り込みで「保留」を選べば表示）
+        if (st === '保留') return false;
       }
       if (!q) return true;
       const hayArr = [c.company, c.theater, shortTheaterName(c.theater), c.tcPerson, c.rPerson, c.category, c.content,
@@ -2453,19 +2458,20 @@
   $('zoomResetBtn').addEventListener('click', () => setZoom(1));
   $('exportBtn').addEventListener('click', exportFiltered);
 
-  // 請求済・入金済の表示ON/OFFトグル（全ステータス表示中に効く）
-  function updateBilledToggleLabel() {
-    const btn = $('toggleBilledBtn');
+  // 表示切替（標準 → 請求済・入金済 → 取り下げ・失注 を循環）
+  const DISPLAY_MODE_LABELS = ['表示切替（標準）', '表示切替（請求済・入金済）', '表示切替（取り下げ・失注）'];
+  function updateDisplayModeLabel() {
+    const btn = $('displayModeBtn');
     if (!btn) return;
-    btn.textContent = showBilled ? '請求済・入金済：表示中' : '請求済・入金済：非表示';
-    btn.classList.toggle('active', showBilled);
+    btn.textContent = DISPLAY_MODE_LABELS[displayMode];
+    btn.classList.toggle('active', displayMode !== 0);
   }
-  $('toggleBilledBtn').addEventListener('click', () => {
-    showBilled = !showBilled;
-    updateBilledToggleLabel();
+  $('displayModeBtn').addEventListener('click', () => {
+    displayMode = (displayMode + 1) % 3;
+    updateDisplayModeLabel();
     refresh();
   });
-  updateBilledToggleLabel();
+  updateDisplayModeLabel();
 
   // 大口のみ（300万円以上）トグル
   function updateBigToggleLabel() {
