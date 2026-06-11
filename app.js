@@ -25,7 +25,7 @@
   // 色判定を除外するカテゴリ
   const NO_COLOR_CATEGORIES = new Set(['更新案件', 'その他']);
   // 完了以降のステータス（黄/赤の遅延色を解除して通常表示に戻す）
-  const NO_COLOR_STATUSES = new Set(['完了', '請求済', '入金済']);
+  const NO_COLOR_STATUSES = new Set(['対応済み', '完了', '請求済', '入金済']);
   const DEFAULT_MARGIN_RATE = 20;
   // 経営集計のデフォルトチームと配分ルール
   const DEFAULT_TEAM = ['小山', '細萱', '大和', '山口', '金子', '若山', '伊藤', '藤村', '山本'];
