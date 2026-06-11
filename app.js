@@ -1167,6 +1167,15 @@
     return `<td class="${cls}" data-field="${field}" data-case-id="${escapeHtml(c.id)}">${displayHtml}</td>`;
   }
 
+  // ステータスのセル（バッジ＋手動選択。受注者のみ編集可）— 通常/タスク両モードで共有
+  function buildStatusCell(c) {
+    const statusCode = statusOf(c);
+    const manualStatus = isStatusManual(c);
+    const statusHtml = `<span class="status-badge status-${escapeHtml(statusCode)}${manualStatus ? ' manual' : ''}">${escapeHtml(statusDisplayLabel(statusCode))}</span>`;
+    return isPrivileged(currentUser)
+      ? `<td class="col-status status-cell" data-case-id="${escapeHtml(c.id)}"><span class="status-pick" data-action="status-edit" data-id="${escapeHtml(c.id)}" title="クリックでステータスを変更（先頭の「自動」で自動判定に戻ります）">${statusHtml}</span></td>`
+      : `<td class="col-status status-cell">${statusHtml}</td>`;
+  }
   function render() {
     if (taskMode) { renderTaskTable(); return; }
     // 案件変更後に履歴候補（datalist）を最新化（ロール別に自動分離）
@@ -1180,20 +1189,10 @@
       tr.dataset.caseId = c.id;
       const cls = rowColorClass(c);
       if (cls) tr.className = cls;
-      const statusCode = statusOf(c);
-      const statusLabel = statusDisplayLabel(statusCode);
-      const manualStatus = isStatusManual(c);
       const cCol = companyColor(c.company);
       const cStyle = cCol ? ` style="background:${escapeHtml(cCol)};color:${contrastText(cCol)}"` : '';
       const companyHtml = c.company ? `<span class="company-tag company-${safeClass(c.company)}"${cStyle} title="${escapeHtml(c.company)}">${escapeHtml(companyAbbr(c.company))}</span>` : '';
-      // 手動上書き中は badge に manual クラス → 文字色を白に
-      const statusHtml = `<span class="status-badge status-${escapeHtml(statusCode)}${manualStatus ? ' manual' : ''}">${escapeHtml(statusLabel)}</span>`;
-      // ステータスの手動変更は受注者(菱熱/ryonetsu)のみ。TOHO側はバッジ表示のみ
-      const statusCell = isPrivileged(currentUser)
-        ? `<td class="col-status status-cell" data-case-id="${escapeHtml(c.id)}">`
-          + `<span class="status-pick" data-action="status-edit" data-id="${escapeHtml(c.id)}" title="クリックでステータスを変更（先頭の「自動」で自動判定に戻ります）">${statusHtml}</span>`
-          + `</td>`
-        : `<td class="col-status status-cell">${statusHtml}</td>`;
+      const statusCell = buildStatusCell(c);
       const isTohoCo = c.company === 'TOHOシネマズ';
       const certHtml = isTohoCo
         ? editableTd(c, 'certNumber', escapeHtml(c.certNumber))
@@ -1869,9 +1868,10 @@
   function toggleTaskMode() { if (taskMode) exitTaskMode(); else enterTaskMode(); }
 
   function renderTaskTable() {
+    renderDatalists();
     const thead = $('casesTable').querySelector('thead');
     thead.innerHTML = '<tr>' + TASK_COLS.map((c) =>
-      `<th class="${c.field === 'tasks' ? 'task-col' : ''}">${c.label}</th>`).join('') + '</tr>';
+      `<th class="task-th-${c.field}${c.field === 'tasks' ? ' task-col' : ''}">${c.label}</th>`).join('') + '</tr>';
     const tbody = $('casesBody');
     tbody.innerHTML = '';
     const rows = getFilteredCases();
@@ -1880,8 +1880,6 @@
       tr.dataset.caseId = c.id;
       const cls = rowColorClass(c);
       if (cls) tr.className = cls;
-      const statusCode = statusOf(c);
-      const statusHtml = `<span class="status-badge status-${escapeHtml(statusCode)}${isStatusManual(c) ? ' manual' : ''}">${escapeHtml(statusDisplayLabel(statusCode))}</span>`;
       const open = caseTasks(c).filter((t) => !t.done);
       const taskListHtml = open.length
         ? '<ul class="cell-task-list">' + open.map((t) => {
@@ -1889,15 +1887,16 @@
             return `<li><label><input type="checkbox" data-taskcell="${idx}"> ${escapeHtml(t.text)}</label></li>`;
           }).join('') + '</ul>'
         : '<span class="task-empty">（なし）</span>';
+      // 各項目は通常画面と同じく編集可（劇場名は短縮表示で標準と同条件）
       tr.innerHTML = `
-        <td>${statusHtml}</td>
-        <td>${escapeHtml(c.theater)}</td>
-        <td>${escapeHtml(c.tcPerson)}</td>
-        <td>${escapeHtml(c.rPerson)}</td>
-        <td class="task-info-cell">${escapeHtml(c.content)}</td>
-        <td class="task-info-cell">${escapeHtml(c.memo)}</td>
+        ${buildStatusCell(c)}
+        ${editableTd(c, 'theater', escapeHtml(shortTheaterName(c.theater)))}
+        ${editableTd(c, 'tcPerson', escapeHtml(c.tcPerson))}
+        ${editableTd(c, 'rPerson', escapeHtml(c.rPerson))}
+        ${editableTd(c, 'content', escapeHtml(c.content), 'content-cell')}
+        ${editableTd(c, 'memo', escapeHtml(c.memo), 'col-memo')}
         <td class="task-col">
-          <button type="button" class="task-open-btn" data-taskopen="${escapeHtml(c.id)}">✎ タスク編集</button>
+          <button type="button" class="task-open-btn" data-taskopen="${escapeHtml(c.id)}" title="タスク編集">✎</button>
           ${taskListHtml}
         </td>`;
       tbody.appendChild(tr);

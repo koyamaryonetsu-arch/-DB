@@ -1136,3 +1136,22 @@ td.status-cell { white-space: nowrap; }
 .task-item.done span { text-decoration: line-through; color: #9ca3af; }
 .task-del { border: none; background: none; color: #94a3b8; font-size: 18px; cursor: pointer; line-height: 1; padding: 0 4px; }
 .task-del:hover { color: #dc2626; }
+
+/* タスク管理モード: 横固定を解除し、情報列を狭めてタスク列を広く（省略表示・クリックで編集） */
+#casesTable.task-mode td.col-status,
+#casesTable.task-mode td[data-field="theater"],
+#casesTable.task-mode td[data-field="content"] { position: static; left: auto; box-shadow: none; }
+#casesTable.task-mode th.task-th-status,  #casesTable.task-mode td.col-status            { width: 110px; min-width: 0; max-width: 110px; }
+#casesTable.task-mode th.task-th-theater, #casesTable.task-mode td[data-field="theater"] { width: 120px; min-width: 0; max-width: 120px; }
+#casesTable.task-mode th.task-th-tcPerson,#casesTable.task-mode td[data-field="tcPerson"]{ width: 84px;  max-width: 84px; }
+#casesTable.task-mode th.task-th-rPerson, #casesTable.task-mode td[data-field="rPerson"] { width: 84px;  max-width: 84px; }
+#casesTable.task-mode th.task-th-content, #casesTable.task-mode td[data-field="content"] { width: 200px; max-width: 200px; }
+#casesTable.task-mode th.task-th-memo,    #casesTable.task-mode td[data-field="memo"]    { width: 130px; max-width: 130px; }
+#casesTable.task-mode td[data-field="theater"],
+#casesTable.task-mode td[data-field="tcPerson"],
+#casesTable.task-mode td[data-field="rPerson"],
+#casesTable.task-mode td[data-field="content"],
+#casesTable.task-mode td[data-field="memo"] { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#casesTable.task-mode th.task-col { min-width: 300px; }
+#casesTable.task-mode td.task-col { white-space: normal; }
+.task-open-btn { float: right; margin-left: 8px; }
