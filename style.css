@@ -1154,4 +1154,5 @@ td.status-cell { white-space: nowrap; }
 #casesTable.task-mode td[data-field="memo"] { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 #casesTable.task-mode th.task-col { min-width: 300px; }
 #casesTable.task-mode td.task-col { white-space: normal; }
-.task-open-btn { float: right; margin-left: 8px; }
+.task-open-btn { display: inline-block; float: none; margin: 0 0 4px 0; }
+#casesTable.task-mode th.task-th-company, #casesTable.task-mode td[data-field="company"] { width: 72px; max-width: 72px; }

@@ -1176,6 +1176,13 @@
       ? `<td class="col-status status-cell" data-case-id="${escapeHtml(c.id)}"><span class="status-pick" data-action="status-edit" data-id="${escapeHtml(c.id)}" title="クリックでステータスを変更（先頭の「自動」で自動判定に戻ります）">${statusHtml}</span></td>`
       : `<td class="col-status status-cell">${statusHtml}</td>`;
   }
+  // 会社タグ（略称＋ユーザー設定色）— 通常/タスク両モードで共有
+  function buildCompanyTag(c) {
+    if (!c.company) return '';
+    const cCol = companyColor(c.company);
+    const cStyle = cCol ? ` style="background:${escapeHtml(cCol)};color:${contrastText(cCol)}"` : '';
+    return `<span class="company-tag company-${safeClass(c.company)}"${cStyle} title="${escapeHtml(c.company)}">${escapeHtml(companyAbbr(c.company))}</span>`;
+  }
   function render() {
     if (taskMode) { renderTaskTable(); return; }
     // 案件変更後に履歴候補（datalist）を最新化（ロール別に自動分離）
@@ -1189,9 +1196,7 @@
       tr.dataset.caseId = c.id;
       const cls = rowColorClass(c);
       if (cls) tr.className = cls;
-      const cCol = companyColor(c.company);
-      const cStyle = cCol ? ` style="background:${escapeHtml(cCol)};color:${contrastText(cCol)}"` : '';
-      const companyHtml = c.company ? `<span class="company-tag company-${safeClass(c.company)}"${cStyle} title="${escapeHtml(c.company)}">${escapeHtml(companyAbbr(c.company))}</span>` : '';
+      const companyHtml = buildCompanyTag(c);
       const statusCell = buildStatusCell(c);
       const isTohoCo = c.company === 'TOHOシネマズ';
       const certHtml = isTohoCo
@@ -1843,6 +1848,7 @@
   function caseTasks(c) { return Array.isArray(c.tasks) ? c.tasks : (c.tasks = []); }
   const TASK_COLS = [
     { field: 'status',   label: 'ステータス' },
+    { field: 'company',  label: '会社' },
     { field: 'theater',  label: '劇場名' },
     { field: 'tcPerson', label: '客先担当者' },
     { field: 'rPerson',  label: 'R担当者' },
@@ -1890,6 +1896,7 @@
       // 各項目は通常画面と同じく編集可（劇場名は短縮表示で標準と同条件）
       tr.innerHTML = `
         ${buildStatusCell(c)}
+        ${editableTd(c, 'company', buildCompanyTag(c), 'col-company')}
         ${editableTd(c, 'theater', escapeHtml(shortTheaterName(c.theater)))}
         ${editableTd(c, 'tcPerson', escapeHtml(c.tcPerson))}
         ${editableTd(c, 'rPerson', escapeHtml(c.rPerson))}
