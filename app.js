@@ -260,6 +260,9 @@
   let companyColorSupported = false;
   // cases.tasks 列がDBに存在するか（同上）
   let tasksSupported = false;
+  // cases.schedule_adjusting 列がDBに存在するか（日程調整中フラグ・同上）
+  let scheduleAdjustSupported = false;
+  function scheduleAdjustAvailable() { return store.mode === 'local' || scheduleAdjustSupported; }
   const DATE_FIELDS = new Set(['receivedDate', 'surveyDate', 'quoteDate', 'workStartDate', 'workEndDate', 'invoiceDate', 'paymentDate']);
 
   // app(camelCase) → DB行(snake_case)。空文字の日付/金額は null に
@@ -276,6 +279,7 @@
     // status_override 列はDB未追加環境でも壊れないよう、対応が確認できた時のみ送信
     if (statusOverrideSupported) row.status_override = c.statusOverride ? c.statusOverride : null;
     if (tasksSupported) row.tasks = Array.isArray(c.tasks) ? c.tasks : [];
+    if (scheduleAdjustSupported) row.schedule_adjusting = !!c.scheduleAdjusting;
     row.status = statusOf(c); // DB側レポート用に実効ステータス（手動上書き反映）も保存
     return row;
   }
@@ -303,6 +307,13 @@
       c.tasks = Array.isArray(r.tasks) ? r.tasks : [];
     } else {
       c.tasks = [];
+    }
+    // 日程調整中フラグ
+    if (Object.prototype.hasOwnProperty.call(r, 'schedule_adjusting')) {
+      scheduleAdjustSupported = true;
+      c.scheduleAdjusting = !!r.schedule_adjusting;
+    } else {
+      c.scheduleAdjusting = false;
     }
     return c;
   }
@@ -871,6 +882,7 @@
     if (isZeroAmount(c) && c.workStartDate && c.workEndDate) return '完了';
     if (c.workEndDate)  return '対応済み';
     if (c.workStartDate && c.workStartDate <= today) return '作業中';
+    if (c.scheduleAdjusting) return '日程調整中'; // 作業開始日に0（自動）
     if (c.quoteDate && c.quoteDate <= today)         return '見積り提出済';
     if (c.surveyDate && c.surveyDate <= today)       return '見積り中';
     return '受付';
@@ -1344,11 +1356,16 @@
       let newVal = el.value;
       if (typeof newVal === 'string') newVal = newVal.trim();
 
-      // 調査日に「0」→ 日程調整中（調査日は空にして、ステータスを日程調整中に）
-      if (field === 'surveyDate' && newVal === '0') {
+      // 作業開始日に「0」→ 日程調整中（自動ステータス）。作業開始日は空にしてフラグを立てる
+      if (field === 'workStartDate' && newVal === '0') {
         done = true;
-        c.surveyDate = '';
-        c.statusOverride = '日程調整中';
+        if (!scheduleAdjustAvailable()) {
+          alert('「日程調整中」を使うには、データベースの更新（schedule_adjusting 列の追加）が必要です。');
+          render();
+          return;
+        }
+        c.workStartDate = '';
+        c.scheduleAdjusting = true;
         c.updatedAt = new Date().toISOString();
         persistCase(c);
         render();
@@ -1375,8 +1392,8 @@
 
       if (String(newVal) !== String(oldVal)) {
         c[field] = newVal;
-        // 調査日に実日付が入ったら、日程調整中の上書きは解除（自動判定に戻す）
-        if (field === 'surveyDate' && newVal && c.statusOverride === '日程調整中') c.statusOverride = '';
+        // 作業開始日に実日付/空が入ったら、日程調整中フラグは解除（自動判定に戻す）
+        if (field === 'workStartDate' && c.scheduleAdjusting) c.scheduleAdjusting = false;
         c.updatedAt = new Date().toISOString();
         let histChanged = false;
         if (field === 'theater') { addToHistory('theaters', newVal); histChanged = true; }
@@ -2599,11 +2616,11 @@
       invoiceDate: isToho ? '請求書受領日' : '請求書発行日',
       paymentDate: isToho ? '支払日' : '入金日'
     };
-    // 調査日に「0」→ 日程調整中（調査日は空扱い）
-    const scheduleAdjusting = $('surveyDate').value.trim() === '0';
+    // 作業開始日に「0」→ 日程調整中（自動フラグ）。作業開始日は空扱い
+    const scheduleAdjusting = $('workStartDate').value.trim() === '0';
     const parsedDates = {};
     for (const f in dateLabels) {
-      if (f === 'surveyDate' && scheduleAdjusting) { parsedDates.surveyDate = ''; continue; }
+      if (f === 'workStartDate' && scheduleAdjusting) { parsedDates.workStartDate = ''; continue; }
       const v = readDateField(f, dateLabels[f]);
       if (v === undefined) return; // バリデーション失敗
       parsedDates[f] = v;
@@ -2638,9 +2655,8 @@
     saveHistory();
     const existing = cases.findIndex((c) => c.id === id);
     const prev = existing >= 0 ? cases[existing] : null;
-    // 日程調整中の上書き: 0入力ならセット、実日付が入れば解除
-    if (scheduleAdjusting) data.statusOverride = '日程調整中';
-    else if (data.surveyDate && prev && prev.statusOverride === '日程調整中') data.statusOverride = '';
+    // 日程調整中フラグ（自動ステータス）: 作業開始日が0ならON、それ以外はOFF
+    data.scheduleAdjusting = scheduleAdjusting;
     // 既存の statusOverride / tasks / 配分 などフォーム外の項目は保持（マージ）
     const saved = Object.assign({}, prev || {}, data);
     if (existing >= 0) cases[existing] = saved; else cases.push(saved);
