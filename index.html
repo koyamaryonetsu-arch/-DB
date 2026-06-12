@@ -87,6 +87,7 @@
       <button id="invoiceBtn">📄 請求書発行</button>
       <button id="displayModeBtn" class="toggle-btn" title="押すごとに 標準 → 請求済・入金済 → 取り下げ・失注 を切り替えます">表示切替（標準）</button>
       <button id="toggleBigBtn" class="toggle-btn" title="見積り金額300万円以上の大口案件だけを表示します">大口のみ：OFF</button>
+      <button id="taxToggleBtn" class="toggle-btn" title="見積り金額（税込み）列の表示/非表示を切り替えます">税抜き表示</button>
       <button id="exportBtn">Excelダウンロード</button>
       <span class="user-info">
         <span id="userEmail"></span>
@@ -140,6 +141,7 @@
             <th class="sortable" data-sort="certNumber"><span class="th-filter" data-filter="certNumber">認証番号</span></th>
             <th class="sortable" data-sort="estimateName"><span class="th-filter" data-filter="estimateName">見積り名</span></th>
             <th class="sortable" data-sort="estimateAmount"><span class="th-filter" data-filter="estimateAmount">見積り金額</span></th>
+            <th class="col-tax">見積り金額（税込み）</th>
             <th class="sortable" data-sort="quoteDate"><span class="th-filter" data-filter="quoteDate"><span class="lbl-ryo">見積り提出日</span><span class="lbl-toho">見積り受領日</span></span></th>
             <th class="sortable" data-sort="workStartDate"><span class="th-filter" data-filter="workStartDate">作業開始日</span></th>
             <th class="sortable" data-sort="workEndDate"><span class="th-filter" data-filter="workEndDate">作業完了日</span></th>

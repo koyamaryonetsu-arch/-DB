@@ -939,6 +939,13 @@
     if (isNaN(num)) return escapeHtml(n);
     return '¥' + num.toLocaleString('ja-JP');
   }
+  // 税込み金額（消費税10%）。空/非数値は空
+  function taxIncludedAmount(amt) {
+    if (amt === '' || amt == null) return '';
+    const n = Number(amt);
+    if (isNaN(n)) return '';
+    return Math.round(n * 1.1);
+  }
   function fmtPercent(n) {
     if (n === '' || n == null) return '';
     const num = Number(n);
@@ -1291,6 +1298,7 @@
         ${certHtml}
         ${editableTd(c, 'estimateName', escapeHtml(c.estimateName))}
         ${editableTd(c, 'estimateAmount', fmtAmount(c.estimateAmount))}
+        <td class="col-tax">${fmtAmount(taxIncludedAmount(c.estimateAmount))}</td>
         ${editableTd(c, 'quoteDate', fmtDateShort(c.quoteDate))}
         ${editableTd(c, 'workStartDate', fmtDateShort(c.workStartDate))}
         ${editableTd(c, 'workEndDate', fmtDateShort(c.workEndDate))}
@@ -2817,6 +2825,16 @@
     refresh();
   });
   updateBigToggleLabel();
+
+  // 税込み/税抜き表示トグル（標準=税抜き。税込みにすると「見積り金額（税込み）」列を表示）
+  let showTax = false;
+  $('taxToggleBtn').addEventListener('click', () => {
+    showTax = !showTax;
+    document.body.classList.toggle('show-tax', showTax);
+    const b = $('taxToggleBtn');
+    b.textContent = showTax ? '税込み表示中' : '税抜き表示';
+    b.classList.toggle('active', showTax);
+  });
 
   // 列幅ドラッグ: 通常モードのthead にハンドルを付与してから保存（復元してもハンドルが残る）
   addResizers($('casesTable').querySelector('thead'));

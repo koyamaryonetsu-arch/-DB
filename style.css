@@ -1217,3 +1217,7 @@ td.status-cell { white-space: nowrap; }
 }
 .col-resizer:hover { background: rgba(37,99,235,0.35); }
 .cell-task-list li.task-done { text-decoration: line-through; color: #9ca3af; }
+
+/* 見積り金額（税込み）列: 既定は非表示、税込み表示中のみ表示 */
+.col-tax { display: none; }
+body.show-tax .col-tax { display: table-cell; }
