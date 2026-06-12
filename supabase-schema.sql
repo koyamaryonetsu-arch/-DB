@@ -27,6 +27,8 @@ create table if not exists public.cases (
   tasks           jsonb default '[]'::jsonb,  -- タスク管理のチェックリスト [{text, done}]
   schedule_adjusting boolean default false,   -- 日程調整中（作業開始日に0を入力した状態・自動ステータス）
   payment_confirmed boolean default true,     -- 入金: true=確認(入金済), false=予定(請求日翌月末の自動入力)
+  survey_time     text,            -- 調査日の時刻（カレンダー用 HH:MM）
+  work_start_time text,            -- 作業開始日の時刻（カレンダー用 HH:MM）
   margin_rate     numeric default 20,
   allocations     jsonb default '{}'::jsonb,  -- 担当者別の粗利配分 { "小山": 5, ... }
   memo            text,            -- 社内メモ（「保留」でステータス保留・ryonetsuのみ）
@@ -40,6 +42,8 @@ alter table public.cases add column if not exists status_override text;
 alter table public.cases add column if not exists tasks jsonb default '[]'::jsonb;
 alter table public.cases add column if not exists schedule_adjusting boolean default false;
 alter table public.cases add column if not exists payment_confirmed boolean default true;
+alter table public.cases add column if not exists survey_time text;
+alter table public.cases add column if not exists work_start_time text;
 
 -- 1b. 会社（顧客）マスタ。abbr=一覧表示用の略称、official_name=請求書/完了届の宛先、hq_address=本社住所
 create table if not exists public.companies (

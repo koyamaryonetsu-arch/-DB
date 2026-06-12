@@ -266,6 +266,8 @@
   // cases.payment_confirmed 列がDBに存在するか（入金 予定/確認・同上）
   let paymentConfirmedSupported = false;
   function paymentConfirmedAvailable() { return store.mode === 'local' || paymentConfirmedSupported; }
+  // cases.survey_time / work_start_time 列がDBに存在するか（カレンダー用時刻）
+  let timeFieldsSupported = false;
   const DATE_FIELDS = new Set(['receivedDate', 'surveyDate', 'quoteDate', 'workStartDate', 'workEndDate', 'invoiceDate', 'paymentDate']);
 
   // app(camelCase) → DB行(snake_case)。空文字の日付/金額は null に
@@ -284,6 +286,10 @@
     if (tasksSupported) row.tasks = Array.isArray(c.tasks) ? c.tasks : [];
     if (scheduleAdjustSupported) row.schedule_adjusting = !!c.scheduleAdjusting;
     if (paymentConfirmedSupported) row.payment_confirmed = (c.paymentConfirmed !== false);
+    if (timeFieldsSupported) {
+      row.survey_time = c.surveyTime ? c.surveyTime : null;
+      row.work_start_time = c.workStartTime ? c.workStartTime : null;
+    }
     row.status = statusOf(c); // DB側レポート用に実効ステータス（手動上書き反映）も保存
     return row;
   }
@@ -325,6 +331,15 @@
       c.paymentConfirmed = (r.payment_confirmed !== false);
     } else {
       c.paymentConfirmed = true;
+    }
+    // 調査日・作業開始日の時刻（カレンダー用）
+    if (Object.prototype.hasOwnProperty.call(r, 'survey_time')) {
+      timeFieldsSupported = true;
+      c.surveyTime = r.survey_time != null ? r.survey_time : '';
+      c.workStartTime = r.work_start_time != null ? r.work_start_time : '';
+    } else {
+      c.surveyTime = '';
+      c.workStartTime = '';
     }
     return c;
   }
@@ -834,6 +849,12 @@
     if (p.length === 3) return `${p[1]}/${p[2]}`;
     return s;
   }
+  // 日付＋時刻（時刻があれば付ける）
+  function fmtDateTime(date, time) {
+    const d = fmtDateShort(date);
+    if (!d) return '';
+    return time ? d + ' ' + time : d;
+  }
   // YYYY/MM/DD 形式（編集中表示・モーダル用）
   function fmtDateFull(s) {
     if (!s) return '';
@@ -1321,13 +1342,13 @@
         ${editableTd(c, 'rPerson', escapeHtml(c.rPerson))}
         ${editableTd(c, 'category', escapeHtml(c.category))}
         ${editableTd(c, 'content', escapeHtml(c.content), 'content-cell')}
-        ${editableTd(c, 'surveyDate', fmtDateShort(c.surveyDate))}
+        ${editableTd(c, 'surveyDate', escapeHtml(fmtDateTime(c.surveyDate, c.surveyTime)))}
         ${certHtml}
         ${editableTd(c, 'estimateName', escapeHtml(c.estimateName))}
         ${editableTd(c, 'estimateAmount', fmtAmount(c.estimateAmount))}
         <td class="col-tax">${fmtAmount(taxIncludedAmount(c.estimateAmount))}</td>
         ${editableTd(c, 'quoteDate', fmtDateShort(c.quoteDate))}
-        ${editableTd(c, 'workStartDate', fmtDateShort(c.workStartDate))}
+        ${editableTd(c, 'workStartDate', escapeHtml(fmtDateTime(c.workStartDate, c.workStartTime)))}
         ${editableTd(c, 'workEndDate', fmtDateShort(c.workEndDate))}
         ${editableTd(c, 'invoiceDate', fmtDateShort(c.invoiceDate))}
         ${payCell}
@@ -1542,11 +1563,13 @@
       $('category').value = caseObj.category || '';
       $('content').value = caseObj.content || '';
       setDateField('surveyDate', caseObj.surveyDate);
+      $('surveyTime').value = caseObj.surveyTime || '';
       $('certNumber').value = caseObj.certNumber || '';
       $('estimateName').value = caseObj.estimateName || '';
       $('estimateAmount').value = caseObj.estimateAmount || '';
       setDateField('quoteDate', caseObj.quoteDate);
       setDateField('workStartDate', caseObj.workStartDate);
+      $('workStartTime').value = caseObj.workStartTime || '';
       setDateField('workEndDate', caseObj.workEndDate);
       setDateField('invoiceDate', caseObj.invoiceDate);
       setDateField('paymentDate', caseObj.paymentDate);
@@ -1958,6 +1981,7 @@
 
   function enterAggMode() {
     if (taskMode) exitTaskMode();
+    if (calMode) exitCalMode();
     aggMode = true;
     document.body.classList.add('agg-active');
     $('casesTable').classList.add('agg-mode');
@@ -1994,6 +2018,7 @@
   ];
   function enterTaskMode() {
     if (aggMode) exitAggMode();
+    if (calMode) exitCalMode();
     taskMode = true;
     $('casesTable').classList.add('task-mode');
     $('emptyMsg').classList.add('hidden');
@@ -2010,6 +2035,93 @@
     render();
   }
   function toggleTaskMode() { if (taskMode) exitTaskMode(); else enterTaskMode(); }
+
+  // ========== カレンダー ==========
+  let calMode = false;
+  let calYear = null, calMonth = null; // calMonth: 0-11
+  const calCompanyFilter = new Set();
+  const calPersonFilter = new Set();
+  const CAL_EVENT_TYPES = [
+    { field: 'surveyDate', timeField: 'surveyTime', type: 'survey', label: '調査' },
+    { field: 'workStartDate', timeField: 'workStartTime', type: 'start', label: '開始' },
+    { field: 'workEndDate', timeField: null, type: 'end', label: '完了' }
+  ];
+  function enterCalMode() {
+    if (aggMode) exitAggMode();
+    if (taskMode) exitTaskMode();
+    calMode = true;
+    if (calYear == null) { const n = new Date(); calYear = n.getFullYear(); calMonth = n.getMonth(); }
+    $('calBtn').textContent = '✕ カレンダーを閉じる';
+    document.querySelector('.table-wrap').classList.add('hidden');
+    document.querySelector('.legend').classList.add('hidden');
+    $('calendarView').classList.remove('hidden');
+    renderCalendar();
+  }
+  function exitCalMode() {
+    calMode = false;
+    $('calBtn').textContent = '📅 カレンダー';
+    $('calendarView').classList.add('hidden');
+    document.querySelector('.table-wrap').classList.remove('hidden');
+    document.querySelector('.legend').classList.remove('hidden');
+  }
+  function toggleCalMode() { if (calMode) exitCalMode(); else enterCalMode(); }
+  function calVisibleCases() {
+    return visibleCases().filter((c) => {
+      if (calCompanyFilter.size && !calCompanyFilter.has(c.company)) return false;
+      if (calPersonFilter.size) {
+        const rp = c.rPerson || '';
+        let hit = false; for (const n of calPersonFilter) { if (rp.includes(n)) { hit = true; break; } }
+        if (!hit) return false;
+      }
+      return true;
+    });
+  }
+  function collectCalEvents() {
+    const map = {};
+    calVisibleCases().forEach((c) => {
+      CAL_EVENT_TYPES.forEach((et) => {
+        const d = c[et.field];
+        if (!d || String(d).length < 10) return;
+        const [y, m] = String(d).split('-').map(Number);
+        if (y !== calYear || (m - 1) !== calMonth) return;
+        const time = et.timeField ? (c[et.timeField] || '') : '';
+        (map[d] = map[d] || []).push({ type: et.type, label: et.label, time: time, theater: shortTheaterName(c.theater) || '(劇場未入力)' });
+      });
+    });
+    Object.keys(map).forEach((k) => map[k].sort((a, b) => (a.time || '99:99').localeCompare(b.time || '99:99')));
+    return map;
+  }
+  function renderCalFilters() {
+    $('calCompanyBar').innerHTML =
+      `<button type="button" class="cal-fbtn${calCompanyFilter.size === 0 ? ' active' : ''}" data-calco="">全社</button>` +
+      companyNames().map((n) => `<button type="button" class="cal-fbtn${calCompanyFilter.has(n) ? ' active' : ''}" data-calco="${escapeHtml(n)}">${escapeHtml(companyAbbr(n))}</button>`).join('');
+    $('calPersonBar').innerHTML =
+      `<button type="button" class="cal-fbtn${calPersonFilter.size === 0 ? ' active' : ''}" data-calrp="">全員</button>` +
+      loadTeam().map((n) => `<button type="button" class="cal-fbtn${calPersonFilter.has(n) ? ' active' : ''}" data-calrp="${escapeHtml(n)}">${escapeHtml(n)}</button>`).join('');
+  }
+  function renderCalendar() {
+    renderCalFilters();
+    $('calTitle').textContent = `${calYear}年${calMonth + 1}月`;
+    const events = collectCalEvents();
+    const todayIso = todayStr();
+    const firstDow = new Date(calYear, calMonth, 1).getDay();
+    const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+    const cells = [];
+    for (let i = 0; i < firstDow; i++) cells.push(null);
+    for (let d = 1; d <= daysInMonth; d++) cells.push(d);
+    while (cells.length % 7 !== 0) cells.push(null);
+    let html = '';
+    cells.forEach((d, idx) => {
+      if (d == null) { html += '<div class="cal-cell cal-empty"></div>'; return; }
+      const iso = `${calYear}-${String(calMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+      const evs = events[iso] || [];
+      const evHtml = evs.map((e) =>
+        `<div class="cal-ev ev-${e.type}" title="${escapeHtml(e.label + '・' + e.theater + (e.time ? ' ' + e.time : ''))}">${e.time ? '<b>' + escapeHtml(e.time) + '</b> ' : ''}${escapeHtml(e.label)}・${escapeHtml(e.theater)}</div>`
+      ).join('');
+      html += `<div class="cal-cell dow-${idx % 7}${iso === todayIso ? ' cal-today' : ''}"><div class="cal-daynum">${d}</div><div class="cal-events">${evHtml}</div></div>`;
+    });
+    $('calGrid').innerHTML = html;
+  }
 
   function renderTaskTable() {
     renderDatalists();
@@ -2588,6 +2700,27 @@
 
   $('aggBtn').addEventListener('click', toggleAggMode);
   $('taskBtn').addEventListener('click', toggleTaskMode);
+  // カレンダー
+  $('calBtn').addEventListener('click', toggleCalMode);
+  $('calPrev').addEventListener('click', () => { calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; } renderCalendar(); });
+  $('calNext').addEventListener('click', () => { calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; } renderCalendar(); });
+  $('calToday').addEventListener('click', () => { const n = new Date(); calYear = n.getFullYear(); calMonth = n.getMonth(); renderCalendar(); });
+  $('calCompanyBar').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-calco]'); if (!b) return;
+    const v = b.dataset.calco;
+    if (v === '') calCompanyFilter.clear();
+    else if (calCompanyFilter.has(v)) calCompanyFilter.delete(v);
+    else calCompanyFilter.add(v);
+    renderCalendar();
+  });
+  $('calPersonBar').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-calrp]'); if (!b) return;
+    const v = b.dataset.calrp;
+    if (v === '') calPersonFilter.clear();
+    else if (calPersonFilter.has(v)) calPersonFilter.delete(v);
+    else calPersonFilter.add(v);
+    renderCalendar();
+  });
   $('taskDoneToggleBtn').addEventListener('click', () => {
     showDoneTasks = !showDoneTasks;
     const btn = $('taskDoneToggleBtn');
@@ -2682,6 +2815,8 @@
       category: $('category').value,
       content: $('content').value.trim(),
       surveyDate: parsedDates.surveyDate,
+      surveyTime: $('surveyTime').value || '',
+      workStartTime: $('workStartTime').value || '',
       // 認証番号は保存値として保持（表示・編集はTOHOのときだけ）。会社を切替えても消えないようにする
       certNumber: $('certNumber').value.trim(),
       estimateName: $('estimateName').value.trim(),
