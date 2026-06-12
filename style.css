@@ -1277,3 +1277,30 @@ body.show-tax .col-tax { display: table-cell; }
 .date-time-row .smart-date { flex: 1 1 auto; min-width: 0; }
 .cal-ev { cursor: pointer; }
 .cal-ev:hover { filter: brightness(1.1); outline: 1px solid rgba(0,0,0,0.25); }
+
+/* カレンダー: 週ごとのスパン帯表示 */
+.cal-grid { display: block; }
+.cal-week { position: relative; }
+.cal-week-grid { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(7, 1fr); }
+.cal-d { border-right: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb; padding: 2px 4px; min-width: 0; }
+.cal-d:first-child { border-left: 1px solid #e5e7eb; }
+.cal-week:first-child .cal-d { border-top: 1px solid #e5e7eb; }
+.cal-d.cal-other { background: #f8fafc; }
+.cal-d.cal-today { background: #eff6ff; }
+.cal-dn { font-size: 12px; font-weight: 600; color: #374151; }
+.cal-d.cal-other .cal-dn { color: #cbd5e1; }
+.cal-d.dow-0 .cal-dn { color: #dc2626; }
+.cal-d.dow-6 .cal-dn { color: #2563eb; }
+.cal-week-bars { position: absolute; inset: 0; pointer-events: none; }
+.cal-ev-bar {
+  position: absolute; height: 18px; line-height: 18px; font-size: 11px;
+  padding: 0 6px; border-radius: 9px; color: #fff; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis; cursor: pointer; pointer-events: auto;
+  box-sizing: border-box; box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+}
+.cal-ev-bar.ev-survey { background: #3b82f6; }
+.cal-ev-bar.ev-work   { background: #16a34a; }
+.cal-ev-bar.cont-l { border-top-left-radius: 0; border-bottom-left-radius: 0; }
+.cal-ev-bar.cont-r { border-top-right-radius: 0; border-bottom-right-radius: 0; }
+.cal-ev-bar:hover { filter: brightness(1.08); box-shadow: 0 2px 6px rgba(0,0,0,0.3); z-index: 5; }
+.ev-dot.ev-work { background: #16a34a; }

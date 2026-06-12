@@ -268,6 +268,7 @@
   function paymentConfirmedAvailable() { return store.mode === 'local' || paymentConfirmedSupported; }
   // cases.survey_time / work_start_time 列がDBに存在するか（カレンダー用時刻）
   let timeFieldsSupported = false;
+  let workEndTimeSupported = false;
   const DATE_FIELDS = new Set(['receivedDate', 'surveyDate', 'quoteDate', 'workStartDate', 'workEndDate', 'invoiceDate', 'paymentDate']);
 
   // app(camelCase) → DB行(snake_case)。空文字の日付/金額は null に
@@ -290,6 +291,7 @@
       row.survey_time = c.surveyTime ? c.surveyTime : null;
       row.work_start_time = c.workStartTime ? c.workStartTime : null;
     }
+    if (workEndTimeSupported) row.work_end_time = c.workEndTime ? c.workEndTime : null;
     row.status = statusOf(c); // DB側レポート用に実効ステータス（手動上書き反映）も保存
     return row;
   }
@@ -340,6 +342,12 @@
     } else {
       c.surveyTime = '';
       c.workStartTime = '';
+    }
+    if (Object.prototype.hasOwnProperty.call(r, 'work_end_time')) {
+      workEndTimeSupported = true;
+      c.workEndTime = r.work_end_time != null ? r.work_end_time : '';
+    } else {
+      c.workEndTime = '';
     }
     return c;
   }
@@ -1349,7 +1357,7 @@
         <td class="col-tax">${fmtAmount(taxIncludedAmount(c.estimateAmount))}</td>
         ${editableTd(c, 'quoteDate', fmtDateShort(c.quoteDate))}
         ${editableTd(c, 'workStartDate', escapeHtml(fmtDateTime(c.workStartDate, c.workStartTime)))}
-        ${editableTd(c, 'workEndDate', fmtDateShort(c.workEndDate))}
+        ${editableTd(c, 'workEndDate', escapeHtml(fmtDateTime(c.workEndDate, c.workEndTime)))}
         ${editableTd(c, 'invoiceDate', fmtDateShort(c.invoiceDate))}
         ${payCell}
         ${editableTd(c, 'memo', escapeHtml(c.memo), 'col-memo')}
@@ -1543,7 +1551,12 @@
     $('caseId').value = '';
     const realMode = mode || 'full';
     const isSimple = realMode === 'simple';
+    const isCalEdit = realMode === 'calendar';
     document.querySelectorAll('[data-mode="full"]').forEach((el) => el.classList.toggle('hidden', isSimple));
+    // カレンダー編集: data-cal の行（調査/開始/終了 日時・内容・メモ）だけ表示
+    if (isCalEdit) {
+      document.querySelectorAll('#caseForm .form-row').forEach((el) => el.classList.toggle('hidden', !el.hasAttribute('data-cal')));
+    }
 
     if (isPrivileged(currentUser)) {
       $('company').disabled = false;
@@ -1553,7 +1566,7 @@
     }
 
     if (caseObj) {
-      $('modalTitle').textContent = '案件編集';
+      $('modalTitle').textContent = isCalEdit ? '予定の編集' : '案件編集';
       $('caseId').value = caseObj.id;
       $('company').value = caseObj.company || 'TOHOシネマズ';
       $('theater').value = caseObj.theater || '';
@@ -1571,6 +1584,7 @@
       setDateField('workStartDate', caseObj.workStartDate);
       $('workStartTime').value = caseObj.workStartTime || '';
       setDateField('workEndDate', caseObj.workEndDate);
+      $('workEndTime').value = caseObj.workEndTime || '';
       setDateField('invoiceDate', caseObj.invoiceDate);
       setDateField('paymentDate', caseObj.paymentDate);
       $('memo').value = caseObj.memo || '';
@@ -2076,20 +2090,29 @@
       return true;
     });
   }
-  function collectCalEvents() {
-    const map = {};
+  function isoOf(dt) {
+    return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`;
+  }
+  function dayDiff(isoA, isoB) {
+    return Math.round((new Date(isoB) - new Date(isoA)) / 86400000);
+  }
+  // カレンダーの予定: 調査=点、作業=開始〜終了の帯
+  function collectCalItems() {
+    const items = [];
     calVisibleCases().forEach((c) => {
-      CAL_EVENT_TYPES.forEach((et) => {
-        const d = c[et.field];
-        if (!d || String(d).length < 10) return;
-        const [y, m] = String(d).split('-').map(Number);
-        if (y !== calYear || (m - 1) !== calMonth) return;
-        const time = et.timeField ? (c[et.timeField] || '') : '';
-        (map[d] = map[d] || []).push({ id: c.id, type: et.type, label: et.label, time: time, theater: shortTheaterName(c.theater) || '(劇場未入力)' });
-      });
+      const theater = shortTheaterName(c.theater) || '(劇場未入力)';
+      if (c.surveyDate && String(c.surveyDate).length >= 10) {
+        items.push({ id: c.id, kind: 'survey', start: c.surveyDate, end: c.surveyDate, time: c.surveyTime || '', theater: theater, full: c.content || '' });
+      }
+      const ws = (c.workStartDate && String(c.workStartDate).length >= 10) ? c.workStartDate : '';
+      const we = (c.workEndDate && String(c.workEndDate).length >= 10) ? c.workEndDate : '';
+      if (ws || we) {
+        let s = ws || we, e = we || ws;
+        if (s > e) { const t = s; s = e; e = t; }
+        items.push({ id: c.id, kind: 'work', start: s, end: e, time: c.workStartTime || '', theater: theater, full: c.content || '' });
+      }
     });
-    Object.keys(map).forEach((k) => map[k].sort((a, b) => (a.time || '99:99').localeCompare(b.time || '99:99')));
-    return map;
+    return items;
   }
   function renderCalFilters() {
     $('calCompanyBar').innerHTML =
@@ -2102,24 +2125,57 @@
   function renderCalendar() {
     renderCalFilters();
     $('calTitle').textContent = `${calYear}年${calMonth + 1}月`;
-    const events = collectCalEvents();
+    const items = collectCalItems();
     const todayIso = todayStr();
-    const firstDow = new Date(calYear, calMonth, 1).getDay();
-    const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
-    const cells = [];
-    for (let i = 0; i < firstDow; i++) cells.push(null);
-    for (let d = 1; d <= daysInMonth; d++) cells.push(d);
-    while (cells.length % 7 !== 0) cells.push(null);
+    const first = new Date(calYear, calMonth, 1);
+    const startDate = new Date(first); startDate.setDate(1 - first.getDay()); // 週初め(日曜)へ
+    const lastDay = new Date(calYear, calMonth + 1, 0);
+    const endDate = new Date(lastDay); endDate.setDate(lastDay.getDate() + (6 - lastDay.getDay())); // 週末(土)へ
+    const DAYNUM_H = 22, LANE_H = 21;
     let html = '';
-    cells.forEach((d, idx) => {
-      if (d == null) { html += '<div class="cal-cell cal-empty"></div>'; return; }
-      const iso = `${calYear}-${String(calMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-      const evs = events[iso] || [];
-      const evHtml = evs.map((e) =>
-        `<div class="cal-ev ev-${e.type}" data-case-id="${escapeHtml(e.id)}" title="クリックで編集：${escapeHtml(e.label + '・' + e.theater + (e.time ? ' ' + e.time : ''))}">${e.time ? '<b>' + escapeHtml(e.time) + '</b> ' : ''}${escapeHtml(e.label)}・${escapeHtml(e.theater)}</div>`
-      ).join('');
-      html += `<div class="cal-cell dow-${idx % 7}${iso === todayIso ? ' cal-today' : ''}"><div class="cal-daynum">${d}</div><div class="cal-events">${evHtml}</div></div>`;
-    });
+    const cur = new Date(startDate);
+    while (cur <= endDate) {
+      const days = [];
+      for (let i = 0; i < 7; i++) { const d = new Date(cur); d.setDate(cur.getDate() + i); days.push(d); }
+      const wStart = isoOf(days[0]), wEnd = isoOf(days[6]);
+      const evs = items.filter((it) => it.start <= wEnd && it.end >= wStart).map((it) => ({
+        it: it,
+        sc: Math.max(0, dayDiff(wStart, it.start)),
+        ec: Math.min(6, dayDiff(wStart, it.end)),
+        contL: it.start < wStart,
+        contR: it.end > wEnd
+      })).sort((a, b) => a.sc - b.sc || (a.it.start < b.it.start ? -1 : 1));
+      const lanes = [];
+      evs.forEach((ev) => {
+        let lane = lanes.findIndex((lastEc) => lastEc < ev.sc);
+        if (lane === -1) { lane = lanes.length; lanes.push(ev.ec); } else { lanes[lane] = ev.ec; }
+        ev.lane = lane;
+      });
+      const weekH = DAYNUM_H + Math.max(1, lanes.length) * LANE_H + 4;
+      let daysHtml = '';
+      days.forEach((d, i) => {
+        const iso = isoOf(d);
+        const other = d.getMonth() !== calMonth;
+        daysHtml += `<div class="cal-d dow-${i}${other ? ' cal-other' : ''}${iso === todayIso ? ' cal-today' : ''}"><span class="cal-dn">${d.getDate()}</span></div>`;
+      });
+      let barsHtml = '';
+      evs.forEach((ev) => {
+        const it = ev.it;
+        const left = ev.sc / 7 * 100;
+        const width = (ev.ec - ev.sc + 1) / 7 * 100;
+        const top = DAYNUM_H + ev.lane * LANE_H;
+        const cls = it.kind === 'survey' ? 'ev-survey' : 'ev-work';
+        const txt = it.kind === 'survey'
+          ? `${it.time ? '<b>' + escapeHtml(it.time) + '</b> ' : ''}調査・${escapeHtml(it.theater)}`
+          : escapeHtml((it.full || it.theater || '').slice(0, 5));
+        const titleTxt = it.kind === 'survey'
+          ? `調査・${it.theater}${it.time ? ' ' + it.time : ''}`
+          : (it.full || it.theater || '（内容なし）');
+        barsHtml += `<div class="cal-ev-bar ${cls}${ev.contL ? ' cont-l' : ''}${ev.contR ? ' cont-r' : ''}" data-case-id="${escapeHtml(it.id)}" style="left:${left}%;width:${width}%;top:${top}px" title="${escapeHtml(titleTxt)}">${txt}</div>`;
+      });
+      html += `<div class="cal-week" style="height:${weekH}px"><div class="cal-week-grid">${daysHtml}</div><div class="cal-week-bars">${barsHtml}</div></div>`;
+      cur.setDate(cur.getDate() + 7);
+    }
     $('calGrid').innerHTML = html;
   }
 
@@ -2721,11 +2777,11 @@
     else calPersonFilter.add(v);
     renderCalendar();
   });
-  // カレンダーのイベントをクリック → 編集画面（保存で一覧・カレンダー両方に反映）
+  // カレンダーの予定をクリック → 簡易編集（調査/開始/終了 日時・内容・メモのみ）
   $('calGrid').addEventListener('click', (e) => {
-    const ev = e.target.closest('.cal-ev'); if (!ev) return;
+    const ev = e.target.closest('.cal-ev-bar'); if (!ev) return;
     const c = cases.find((x) => x.id === ev.dataset.caseId);
-    if (c) openModal(c, 'full');
+    if (c) openModal(c, 'calendar');
   });
   $('taskDoneToggleBtn').addEventListener('click', () => {
     showDoneTasks = !showDoneTasks;
@@ -2823,6 +2879,7 @@
       surveyDate: parsedDates.surveyDate,
       surveyTime: $('surveyTime').value || '',
       workStartTime: $('workStartTime').value || '',
+      workEndTime: $('workEndTime').value || '',
       // 認証番号は保存値として保持（表示・編集はTOHOのときだけ）。会社を切替えても消えないようにする
       certNumber: $('certNumber').value.trim(),
       estimateName: $('estimateName').value.trim(),

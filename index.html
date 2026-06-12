@@ -167,8 +167,7 @@
         </div>
         <div class="cal-eventlegend">
           <span><span class="ev-dot ev-survey"></span>調査</span>
-          <span><span class="ev-dot ev-start"></span>作業開始</span>
-          <span><span class="ev-dot ev-end"></span>作業完了</span>
+          <span><span class="ev-dot ev-work"></span>作業（開始〜完了）</span>
         </div>
       </div>
       <div class="cal-filters">
@@ -237,13 +236,13 @@
           </select>
         </div>
 
-        <div class="form-row form-row-wide" data-mode="simple">
+        <div class="form-row form-row-wide" data-mode="simple" data-cal="1">
           <label for="content">内容</label>
           <textarea id="content" rows="2" placeholder="案件の詳細を記入（長文OK・後からクリックでポップアップ編集可）"></textarea>
         </div>
 
-        <div class="form-row" data-mode="full">
-          <label for="surveyDate">調査日（時刻も登録可）</label>
+        <div class="form-row form-row-wide" data-mode="full" data-cal="1">
+          <label for="surveyDate">調査日時</label>
           <div class="date-time-row">
             <input type="text" id="surveyDate" class="smart-date" inputmode="numeric" placeholder="YYYY/MM/DD ・ MM/DD ・ 0528 もOK">
             <input type="time" id="surveyTime" class="time-input" title="時刻（任意）">
@@ -270,17 +269,20 @@
           <input type="text" id="quoteDate" class="smart-date" inputmode="numeric" placeholder="YYYY/MM/DD ・ MM/DD ・ 0528 もOK">
         </div>
 
-        <div class="form-row" data-mode="full">
-          <label for="workStartDate">作業開始日（時刻も登録可）</label>
+        <div class="form-row form-row-wide" data-mode="full" data-cal="1">
+          <label for="workStartDate">作業開始日時</label>
           <div class="date-time-row">
             <input type="text" id="workStartDate" class="smart-date" inputmode="numeric" placeholder="YYYY/MM/DD ・ MM/DD ・ 0528 もOK">
             <input type="time" id="workStartTime" class="time-input" title="時刻（任意）">
           </div>
         </div>
 
-        <div class="form-row" data-mode="full">
-          <label for="workEndDate">作業完了日</label>
-          <input type="text" id="workEndDate" class="smart-date" inputmode="numeric" placeholder="YYYY/MM/DD ・ MM/DD ・ 0528 もOK">
+        <div class="form-row form-row-wide" data-mode="full" data-cal="1">
+          <label for="workEndDate">作業完了日時</label>
+          <div class="date-time-row">
+            <input type="text" id="workEndDate" class="smart-date" inputmode="numeric" placeholder="YYYY/MM/DD ・ MM/DD ・ 0528 もOK">
+            <input type="time" id="workEndTime" class="time-input" title="時刻（任意）">
+          </div>
         </div>
 
         <div class="form-row" data-mode="full">
@@ -293,7 +295,7 @@
           <input type="text" id="paymentDate" class="smart-date" inputmode="numeric" placeholder="YYYY/MM/DD ・ MM/DD ・ 0528 もOK">
         </div>
 
-        <div class="form-row form-row-wide col-memo" data-mode="full">
+        <div class="form-row form-row-wide col-memo" data-mode="full" data-cal="1">
           <label for="memo">メモ（ryonetsu限定・「保留」と記入でステータスが保留に）</label>
           <textarea id="memo" rows="2" placeholder="社内メモ／「保留」と書くとステータス自動切替"></textarea>
         </div>
