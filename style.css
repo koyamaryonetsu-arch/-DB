@@ -1000,10 +1000,13 @@ tr.agg-summary-row .agg-sec-label { text-align: left; }
 }
 
 .form-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px 14px;
 }
+.form-row-wide { grid-column: 1 / -1; }
+@media (max-width: 760px) { .form-stack { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .form-stack { grid-template-columns: 1fr; } }
 
 .form-row {
   display: flex;

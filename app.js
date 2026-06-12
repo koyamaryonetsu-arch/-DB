@@ -1299,6 +1299,7 @@
         ${editableTd(c, 'memo', escapeHtml(c.memo), 'col-memo')}
         <td class="row-actions">
           <button data-action="edit" data-id="${escapeHtml(c.id)}">編集</button>
+          <button data-action="duplicate" data-id="${escapeHtml(c.id)}">複製</button>
           <button data-action="delete" data-id="${escapeHtml(c.id)}" class="danger">削除</button>
         </td>
       `;
@@ -1955,12 +1956,14 @@
     $('casesTable').classList.add('task-mode');
     $('emptyMsg').classList.add('hidden');
     $('taskBtn').textContent = '✕ タスク管理を閉じる';
+    $('taskDoneToggleBtn').classList.remove('hidden');
     renderTaskTable();
   }
   function exitTaskMode() {
     taskMode = false;
     $('casesTable').classList.remove('task-mode');
     $('taskBtn').textContent = '📋 タスク管理';
+    $('taskDoneToggleBtn').classList.add('hidden');
     $('casesTable').querySelector('thead').innerHTML = NORMAL_THEAD_HTML;
     render();
   }
@@ -2682,6 +2685,24 @@
           removeCaseRemote(id); render();
         }
       }
+      else if (action === 'duplicate') {
+        const dup = Object.assign({}, c, {
+          id: genId(),
+          tasks: [],
+          allocations: Object.assign({}, c.allocations || {}),
+          updatedAt: new Date().toISOString()
+        });
+        cases.push(dup);
+        persistCase(dup);
+        render();
+      }
+      else if (action === 'toggle-pay') {
+        c.paymentConfirmed = !c.paymentConfirmed;
+        c.updatedAt = new Date().toISOString();
+        if (store.mode === 'local') saveCases();
+        persistCase(c);
+        render();
+      }
       else if (action === 'status-edit') {
         if (!isPrivileged(currentUser)) return;
         if (!statusOverrideAvailable()) {
@@ -2697,6 +2718,16 @@
     const c = cases.find((x) => x.id === td.dataset.caseId);
     if (!c) return;
     startInlineEdit(td, c, td.dataset.field);
+  });
+
+  // ダブルクリックで編集モーダルを開く（A集計モードは除く）
+  $('casesBody').addEventListener('dblclick', (e) => {
+    if (aggMode) return;
+    if (e.target.closest('button') || e.target.closest('.inline-edit')) return;
+    const tr = e.target.closest('tr[data-case-id]');
+    if (!tr) return;
+    const c = cases.find((x) => x.id === tr.dataset.caseId);
+    if (c) openModal(c, 'full');
   });
 
   // ソートは thead に委譲（A集計モードでthead差替えしても生き続ける）
