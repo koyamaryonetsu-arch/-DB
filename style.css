@@ -1275,3 +1275,5 @@ body.show-tax .col-tax { display: table-cell; }
 .cal-ev.ev-end    { background: #7c3aed; }
 @media (max-width: 600px) { .cal-cell { min-height: 68px; } .cal-ev { font-size: 10px; } }
 .date-time-row .smart-date { flex: 1 1 auto; min-width: 0; }
+.cal-ev { cursor: pointer; }
+.cal-ev:hover { filter: brightness(1.1); outline: 1px solid rgba(0,0,0,0.25); }

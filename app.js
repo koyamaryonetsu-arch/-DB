@@ -2085,7 +2085,7 @@
         const [y, m] = String(d).split('-').map(Number);
         if (y !== calYear || (m - 1) !== calMonth) return;
         const time = et.timeField ? (c[et.timeField] || '') : '';
-        (map[d] = map[d] || []).push({ type: et.type, label: et.label, time: time, theater: shortTheaterName(c.theater) || '(劇場未入力)' });
+        (map[d] = map[d] || []).push({ id: c.id, type: et.type, label: et.label, time: time, theater: shortTheaterName(c.theater) || '(劇場未入力)' });
       });
     });
     Object.keys(map).forEach((k) => map[k].sort((a, b) => (a.time || '99:99').localeCompare(b.time || '99:99')));
@@ -2116,7 +2116,7 @@
       const iso = `${calYear}-${String(calMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
       const evs = events[iso] || [];
       const evHtml = evs.map((e) =>
-        `<div class="cal-ev ev-${e.type}" title="${escapeHtml(e.label + '・' + e.theater + (e.time ? ' ' + e.time : ''))}">${e.time ? '<b>' + escapeHtml(e.time) + '</b> ' : ''}${escapeHtml(e.label)}・${escapeHtml(e.theater)}</div>`
+        `<div class="cal-ev ev-${e.type}" data-case-id="${escapeHtml(e.id)}" title="クリックで編集：${escapeHtml(e.label + '・' + e.theater + (e.time ? ' ' + e.time : ''))}">${e.time ? '<b>' + escapeHtml(e.time) + '</b> ' : ''}${escapeHtml(e.label)}・${escapeHtml(e.theater)}</div>`
       ).join('');
       html += `<div class="cal-cell dow-${idx % 7}${iso === todayIso ? ' cal-today' : ''}"><div class="cal-daynum">${d}</div><div class="cal-events">${evHtml}</div></div>`;
     });
@@ -2721,6 +2721,12 @@
     else calPersonFilter.add(v);
     renderCalendar();
   });
+  // カレンダーのイベントをクリック → 編集画面（保存で一覧・カレンダー両方に反映）
+  $('calGrid').addEventListener('click', (e) => {
+    const ev = e.target.closest('.cal-ev'); if (!ev) return;
+    const c = cases.find((x) => x.id === ev.dataset.caseId);
+    if (c) openModal(c, 'full');
+  });
   $('taskDoneToggleBtn').addEventListener('click', () => {
     showDoneTasks = !showDoneTasks;
     const btn = $('taskDoneToggleBtn');
@@ -2852,6 +2858,7 @@
     persistCase(saved);
     closeModal();
     render();
+    if (calMode) renderCalendar(); // カレンダー表示中なら即反映
   });
 
   $('casesBody').addEventListener('click', (e) => {
