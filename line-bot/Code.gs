@@ -276,19 +276,158 @@ function answerQuestion_(question) {
   return (data.content && data.content[0] && data.content[0].text) || '（応答なし）';
 }
 
-// ===== セットアップ補助 =====
-// 一度だけ手動実行して、1分毎の監視トリガーを作成する
-function setupTriggers() {
-  ScriptApp.getProjectTriggers().forEach(function (t) {
-    if (t.getHandlerFunction() === 'checkNewCases') ScriptApp.deleteTrigger(t);
-  });
-  ScriptApp.newTrigger('checkNewCases').timeBased().everyMinutes(1).create();
-  Logger.log('checkNewCases を1分毎に実行するトリガーを作成しました。');
+// ===== 3) メール → 案件 自動登録（半自動化） =====
+// Gmailの「案件登録」ラベルが付いたメールを読み、Claudeが内容を理解してNotionに案件を作成する。
+// 作成された案件は、既存の checkNewCases() が拾って自動でLINE通知する（通知経路は一本化）。
+var SRC_LABEL = '案件登録';      // 取込対象ラベル（人が転送/フィルタ/手動で付与）
+var DONE_LABEL = '案件登録済';   // 処理済みラベル（再処理防止）
+var SKIP_LABEL = '案件登録_要確認'; // 案件と判定できなかったメール
+
+function importFromGmail() {
+  var lock = LockService.getScriptLock();
+  if (!lock.tryLock(5000)) return;
+  try {
+    var doneLabel = getOrCreateLabel_(DONE_LABEL);
+    var skipLabel = getOrCreateLabel_(SKIP_LABEL);
+    // 未処理（SRC_LABELあり・DONE/ SKIPなし）の新しめのスレッドを対象
+    var threads = GmailApp.search(
+      'label:' + SRC_LABEL + ' -label:' + DONE_LABEL + ' -label:' + SKIP_LABEL + ' newer_than:14d', 0, 20);
+    if (!threads.length) { Logger.log('importFromGmail: 対象メールなし'); return; }
+
+    var opts = notionSchemaOptions_(); // {theaters, hqStaff}
+    var created = 0;
+
+    threads.forEach(function (th) {
+      var msgs = th.getMessages();
+      var m = msgs[msgs.length - 1]; // スレッド最新メッセージ
+      var emailText =
+        '件名: ' + m.getSubject() + '\n' +
+        '差出人: ' + m.getFrom() + '\n' +
+        '日時: ' + m.getDate().toISOString() + '\n\n' +
+        m.getPlainBody().slice(0, 6000);
+
+      var parsed = parseCaseFromEmail_(emailText, opts);
+      if (!parsed || !parsed.is_case || (parsed.confidence || 0) < 0.5) {
+        th.addLabel(skipLabel); // 案件と判断できず → 人の確認へ
+        return;
+      }
+      // 受付日が空ならメール受信日
+      var received = parsed['受付日'] || Utilities.formatDate(m.getDate(), 'Asia/Tokyo', 'yyyy-MM-dd');
+      notionCreateCase_({
+        name: parsed['案件名'] || m.getSubject(),
+        theater: parsed['劇場'] || '',
+        content: parsed['内容'] || m.getPlainBody().slice(0, 1500),
+        hqStaff: parsed['TOHO本社担当'] || '',
+        received: received
+      });
+      th.addLabel(doneLabel);
+      created++;
+    });
+    Logger.log('importFromGmail: %s件 を案件登録しました', created);
+  } catch (err) {
+    Logger.log('importFromGmail error: ' + err);
+  } finally {
+    lock.releaseLock();
+  }
 }
 
-// 接続テスト（Notion / LINE設定の確認用）
+function getOrCreateLabel_(name) {
+  return GmailApp.getUserLabelByName(name) || GmailApp.createLabel(name);
+}
+
+// 案件DBの選択肢（劇場・本社担当）を取得（24hキャッシュ）。enum外の値で項目を汚さないため。
+function notionSchemaOptions_() {
+  var cached = cfg_('SCHEMA_OPTS_CACHE', '');
+  var cachedAt = Number(cfg_('SCHEMA_OPTS_AT', '0'));
+  if (cached && (Date.now() - cachedAt) < 24 * 3600 * 1000) return JSON.parse(cached);
+
+  var dbId = cfg_('NOTION_DATABASE_ID');
+  var res = UrlFetchApp.fetch('https://api.notion.com/v1/databases/' + dbId, {
+    method: 'get',
+    headers: { 'Authorization': 'Bearer ' + cfg_('NOTION_TOKEN'), 'Notion-Version': NOTION_VERSION },
+    muteHttpExceptions: true
+  });
+  var opts = { theaters: [], hqStaff: [] };
+  if (res.getResponseCode() < 300) {
+    var props = JSON.parse(res.getContentText()).properties || {};
+    if (props['劇場'] && props['劇場'].select) opts.theaters = props['劇場'].select.options.map(function (o) { return o.name; });
+    if (props['TOHO本社担当'] && props['TOHO本社担当'].select) opts.hqStaff = props['TOHO本社担当'].select.options.map(function (o) { return o.name; });
+    setProp_('SCHEMA_OPTS_CACHE', JSON.stringify(opts));
+    setProp_('SCHEMA_OPTS_AT', String(Date.now()));
+  } else {
+    Logger.log('スキーマ取得失敗: ' + res.getContentText());
+  }
+  return opts;
+}
+
+// メール本文から案件項目をClaudeで抽出（JSON）
+function parseCaseFromEmail_(emailText, opts) {
+  var apiKey = cfg_('ANTHROPIC_API_KEY');
+  if (!apiKey) { Logger.log('ANTHROPIC_API_KEY未設定のため抽出不可'); return null; }
+  var sys =
+    'あなたはシネコン設備の修理依頼メールを読み、案件管理DBへ登録するための項目を抽出するアシスタントです。' +
+    '出力はJSONのみ（前後に文章を付けない）。\n' +
+    '「劇場」は次のいずれかに完全一致させる。該当が判断できなければ空文字にする:\n' + JSON.stringify(opts.theaters) + '\n' +
+    '「TOHO本社担当」は次のいずれかに完全一致、なければ空文字:\n' + JSON.stringify(opts.hqStaff) + '\n' +
+    'スキーマ: {"is_case": boolean(修理/工事/設備対応の依頼か), "confidence": number(0-1), ' +
+    '"案件名": string(劇場+設備+症状で簡潔に), "劇場": string, "内容": string(依頼の要点を1-3文), ' +
+    '"TOHO本社担当": string, "受付日": string(YYYY-MM-DD, メール日時から)}';
+  var res = UrlFetchApp.fetch('https://api.anthropic.com/v1/messages', {
+    method: 'post', contentType: 'application/json',
+    headers: { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
+    payload: JSON.stringify({
+      model: MODEL(), max_tokens: 600, system: sys,
+      messages: [{ role: 'user', content: emailText }]
+    }),
+    muteHttpExceptions: true
+  });
+  if (res.getResponseCode() >= 300) { Logger.log('抽出失敗: ' + res.getContentText()); return null; }
+  var txt = (JSON.parse(res.getContentText()).content || [{}])[0].text || '';
+  var s = txt.indexOf('{'), e = txt.lastIndexOf('}');
+  if (s < 0 || e < 0) return null;
+  try { return JSON.parse(txt.slice(s, e + 1)); } catch (err) { Logger.log('JSON解析失敗: ' + txt); return null; }
+}
+
+// Notionに案件ページを作成
+function notionCreateCase_(f) {
+  var props = {
+    '案件名': { title: [{ text: { content: f.name } }] },
+    '内容': { rich_text: [{ text: { content: f.content } }] },
+    '進捗': { select: { name: '受付済' } }
+  };
+  if (f.theater) props['劇場'] = { select: { name: f.theater } };
+  if (f.hqStaff) props['TOHO本社担当'] = { select: { name: f.hqStaff } };
+  if (f.received) props['受付日'] = { date: { start: f.received } };
+
+  var res = UrlFetchApp.fetch('https://api.notion.com/v1/pages', {
+    method: 'post', contentType: 'application/json',
+    headers: { 'Authorization': 'Bearer ' + cfg_('NOTION_TOKEN'), 'Notion-Version': NOTION_VERSION },
+    payload: JSON.stringify({ parent: { database_id: cfg_('NOTION_DATABASE_ID') }, properties: props }),
+    muteHttpExceptions: true
+  });
+  if (res.getResponseCode() >= 300) Logger.log('案件作成失敗: ' + res.getContentText());
+  else Logger.log('案件作成: ' + f.name);
+}
+
+// ===== セットアップ補助 =====
+// 一度だけ手動実行して、監視トリガー（案件→LINE / メール→案件）を作成する
+function setupTriggers() {
+  ScriptApp.getProjectTriggers().forEach(function (t) {
+    var fn = t.getHandlerFunction();
+    if (fn === 'checkNewCases' || fn === 'importFromGmail') ScriptApp.deleteTrigger(t);
+  });
+  ScriptApp.newTrigger('checkNewCases').timeBased().everyMinutes(1).create();   // Notion→LINE
+  ScriptApp.newTrigger('importFromGmail').timeBased().everyMinutes(5).create(); // メール→案件
+  Logger.log('トリガー作成: checkNewCases(1分毎) / importFromGmail(5分毎)');
+}
+
+// 接続テスト（Notion / LINE / Gmail設定の確認用）
 function testConnections() {
   var pages = notionQueryNewCases_(new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString());
   Logger.log('Notion直近30日の案件数: ' + pages.length);
   Logger.log('LINE_GROUP_ID: ' + (cfg_('LINE_GROUP_ID') || '(未設定)'));
+  var opts = notionSchemaOptions_();
+  Logger.log('劇場 選択肢数: ' + opts.theaters.length + ' / 本社担当: ' + opts.hqStaff.length);
+  var n = GmailApp.search('label:' + SRC_LABEL + ' -label:' + DONE_LABEL + ' newer_than:14d').length;
+  Logger.log('Gmail「' + SRC_LABEL + '」未処理スレッド: ' + n);
 }

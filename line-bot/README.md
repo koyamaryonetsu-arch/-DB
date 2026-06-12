@@ -7,16 +7,19 @@
 ## 構成
 
 ```
-新規案件を登録（Notion）
-      │
-      ▼ （Apps Scriptが1分毎にNotion APIで自動検知）
-Google Apps Script（Code.gs）
-  checkNewCases(): Notion監視 → Claude APIで初期対応診断 → LINEへ自動push
-  doPost():        LINE Webhook。グループ内の質問にAIで応答／groupId自動取得
-      │
-      ▼
-シネマPJ LINEグループ（小山・金子・細萱・山口・若山・大和）＋ 診断ボット常駐
+修理依頼メール（Gmail「案件登録」ラベル）   新規案件を直接登録（Notion）
+      │ ←転送/フィルタ/手動でラベル付与            │
+      ▼ （5分毎）                                  │
+  importFromGmail(): Claudeが内容理解 → Notionに案件作成 ─┤
+                                                          ▼ （1分毎にNotionを自動検知）
+                                          checkNewCases(): Claudeで初期対応診断 → LINEへ自動push
+                                          doPost():        LINE Webhookでグループ質問にAI応答／groupId自動取得
+                                                          │
+                                                          ▼
+                          シネマPJ LINEグループ（小山・金子・細萱・山口・若山・大和）＋ 診断ボット常駐
 ```
+
+通知経路は一本化：メールから作られた案件も、Notionで直接作った案件も、`checkNewCases()` が拾って通知する。
 
 - サーバ不要（Apps Scriptが時間トリガー＋Webhookを兼ねる、無料枠で可）。
 - 初期対応診断は **Claude API（既定 claude-sonnet-4-6）**。APIキー未設定時はルールベースに自動フォールバック。
@@ -47,10 +50,27 @@ Google Apps Script（Code.gs）
 7. **ボットをグループに招待**：LINE グループ「シネマPJ 新規案件」を作り、Messaging API のボットを友だち追加＆グループ招待。ボットが最初のイベントを受けると `LINE_GROUP_ID` を自動保存する。
 8. **動作確認**：Notion に試しの案件を1件登録 → 1分以内にグループへ通知が来ればOK。`testConnections` でも接続確認可。
 
+## メールから案件を半自動登録（importFromGmail）
+修理依頼メールを **Gmailの「案件登録」ラベル** に入れるだけで、Claudeが内容を理解してNotionに案件を作成する。
+ラベルの付け方は3通り（どれでも同じパイプラインに流れる）:
+
+1. **手動転送/ラベル**：依頼メールに「案件登録」ラベルを付ける（最も安全な半自動）。
+2. **Gmailフィルタ**：特定の差出人/件名（例：TOHO本社・「修理」「故障」等）に自動で「案件登録」ラベル → 完全自動。
+3. **Claude Code連携**：別途、私（Claude Code）がGmail MCPで該当メールにラベルを付ける運用も可能。
+
+処理の流れ:
+- 5分毎に `importFromGmail()` が `label:案件登録 -label:案件登録済` の新しいスレッドを取得。
+- Claudeが「これは修理/工事依頼か？(is_case)」を判定し、confidence≥0.5 のみ登録。それ以外は `案件登録_要確認` ラベルを付けて人の確認に回す（誤登録防止）。
+- 「劇場」「TOHO本社担当」はNotionの選択肢に**完全一致**するものだけ設定（一致しなければ空のまま）。選択肢は実行時にNotionから取得・キャッシュするのでDB側を増やせば自動で追従。
+- 受付日はメール受信日、進捗は「受付済」で作成。作成された案件は `checkNewCases()` がLINE通知。
+
+> 既存運用（Notionで直接案件を作る）も並行して使える。両方とも通知される。
+
 ## 運用
-- 完全自動。案件を Notion に登録するだけで通知＋診断が届く。
-- 二重通知は `NOTIFIED_IDS`（直近200件のページID）で自動防止。
+- 完全自動。案件を Notion に登録（または対象メールにラベル付与）するだけで通知＋診断が届く。
+- 二重通知は `NOTIFIED_IDS`（直近200件のページID）で、メール二重取込は `案件登録済` ラベルで自動防止。
 - モデルやプロンプト（ルーティング表）は `Code.gs` 上部の `ROUTING_KNOWLEDGE` で調整可能。
+- Notion 内部インテグレーションには **案件DBへの「読み取り」だけでなく「書き込み（挿入）」権限**が必要（コネクト追加で付与される）。
 
 ## コスト目安
 - Apps Script・LINE Messaging API・Notion API：いずれも無料枠で十分。
