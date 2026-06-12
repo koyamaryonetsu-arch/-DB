@@ -163,6 +163,8 @@ main {
 
 .swatch-yellow { background: #facc15; }
 .swatch-red    { background: #ef4444; }
+.swatch-yellowgreen { background: #84cc16; }
+.swatch-blue   { background: #3b82f6; }
 
 .case-count {
   margin-left: auto;
@@ -337,6 +339,26 @@ tr.row-red td {
 
 tr.row-red:hover td {
   background: #fee2e2;
+}
+
+/* 黄緑: 見積り中（調査日から3日未満） */
+tr.row-yellowgreen td {
+  color: #4d7c0f;
+  font-weight: 600;
+  background: #f7fee7;
+}
+tr.row-yellowgreen:hover td {
+  background: #ecfccb;
+}
+
+/* 青: 客先対応中・見積り提出済（文字全体を青） */
+tr.row-blue td {
+  color: #1d4ed8;
+  font-weight: 600;
+  background: #eff6ff;
+}
+tr.row-blue:hover td {
+  background: #dbeafe;
 }
 
 .row-actions {
@@ -915,6 +937,7 @@ tr.agg-summary-row .agg-sec-label { text-align: left; }
 .status-受付              { background: #e0e7ff; color: #3730a3; }
 .status-調査中            { background: #fef3c7; color: #92400e; }
 .status-見積り提出済      { background: #ddd6fe; color: #5b21b6; }
+.status-客先対応中        { background: #dbeafe; color: #1e40af; }
 .status-作業中            { background: #dbeafe; color: #1e40af; }
 .status-対応済み          { background: #d1fae5; color: #065f46; }
 .status-完了              { background: #ccfbf1; color: #0f766e; }
@@ -1189,3 +1212,4 @@ td.status-cell { white-space: nowrap; }
   z-index: 4;
 }
 .col-resizer:hover { background: rgba(37,99,235,0.35); }
+.cell-task-list li.task-done { text-decoration: line-through; color: #9ca3af; }

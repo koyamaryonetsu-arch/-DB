@@ -68,6 +68,7 @@
         <option value="受付">受付</option>
         <option value="見積り中">見積り中</option>
         <option value="見積り提出済">見積り提出済</option>
+        <option value="客先対応中">客先対応中</option>
         <option value="作業中">作業中</option>
         <option value="対応済み">対応済み</option>
         <option value="完了">完了</option>
@@ -81,6 +82,7 @@
       <button id="newCaseBtn" class="primary">＋ 新規案件登録</button>
       <button id="aggBtn" class="col-ryo">📊 A集計</button>
       <button id="taskBtn" class="col-ryo">📋 タスク管理</button>
+      <button id="taskDoneToggleBtn" class="toggle-btn col-ryo" title="タスク管理画面で、チェック済み（完了）タスクの表示/非表示を切り替えます">完了タスク：非表示</button>
       <button id="invoiceBtn">📄 請求書発行</button>
       <button id="displayModeBtn" class="toggle-btn" title="押すごとに 標準 → 請求済・入金済 → 取り下げ・失注 を切り替えます">表示切替（標準）</button>
       <button id="toggleBigBtn" class="toggle-btn" title="見積り金額300万円以上の大口案件だけを表示します">大口のみ：OFF</button>
@@ -95,7 +97,9 @@
   <main>
     <div class="legend">
       <span class="legend-item ryo-only"><span class="swatch swatch-yellow"></span>調査日が未定（受付から3日以上）</span>
-      <span class="legend-item ryo-only"><span class="swatch swatch-red"></span>見積り未提出（調査日から3日以上）</span>
+      <span class="legend-item ryo-only"><span class="swatch swatch-yellowgreen"></span>見積り中（調査日から3日未満）</span>
+      <span class="legend-item ryo-only"><span class="swatch swatch-red"></span>見積り中（調査日から3日以上）</span>
+      <span class="legend-item ryo-only"><span class="swatch swatch-blue"></span>客先対応中・見積り提出済</span>
       <span class="legend-hint ryo-only">💡 セルクリックで編集 ／ 内容・メモはクリックでポップアップ ／ 内容またはメモに「保留」→ ステータス保留</span>
       <span class="zoom-control" title="表の表示倍率を変えて全体を見やすくします">
         <span class="zoom-label">表示倍率</span>

@@ -531,6 +531,7 @@
   let contentEditCaseId = null;
   let aggMode = false;          // A集計表示モードか
   let taskMode = false;         // タスク管理表示モードか
+  let showDoneTasks = false;    // タスク管理: 完了タスクも一覧に表示するか
   let NORMAL_THEAD_HTML = '';   // 通常モードのthead復元用
 
   const $ = (id) => document.getElementById(id);
@@ -894,10 +895,12 @@
     if (NO_COLOR_CATEGORIES.has(c.category)) return '';
     const st = statusOf(c);
     if (st === '保留') return '';
-    // 完了・請求済・入金済 になったら遅延色（黄/赤）を元に戻す
+    // 完了・対応済み・請求済・入金済 は色なし
     if (NO_COLOR_STATUSES.has(st)) return '';
+    // 客先対応中・見積り提出済 → 文字全体を青
+    if (st === '見積り提出済' || st === '客先対応中') return 'row-blue';
     const today = todayStr();
-    // 調査日が未記入 → 黄（受付から3日以上）。記入されたら黒に戻る
+    // 調査日が未記入 → 黄（受付から3日以上）。調査日を記入すると解除
     if (!c.surveyDate) {
       if (c.receivedDate) {
         const d = daysBetween(c.receivedDate, today);
@@ -905,11 +908,11 @@
       }
       return '';
     }
-    // 調査日は記入済・見積り提出日が未記入 → 赤（調査日から3日以上）。提出日が記入されたら黒に戻る
-    if (!c.quoteDate) {
+    // 見積り中（調査済・見積り未提出）→ 調査日から3日未満は黄緑、3日以上は赤
+    if (st === '見積り中') {
       const d = daysBetween(c.surveyDate, today);
       if (d !== null && d >= 3) return 'row-red';
-      return '';
+      return 'row-yellowgreen';
     }
     return '';
   }
@@ -934,7 +937,7 @@
   // ---------- sort ----------
   // ステータスの工程順（小さいほど早い段階）。保留は最後尾扱い
   const STATUS_SORT_ORDER = {
-    '受付': 1, '見積り中': 2, '見積り提出済': 3, '作業中': 4,
+    '受付': 1, '見積り中': 2, '見積り提出済': 3, '客先対応中': 3.5, '作業中': 4,
     '対応済み': 5, '完了': 6, '請求済': 7, '入金済': 8, '取り下げ': 9, '失注': 10, '保留': 99
   };
   function getSortValue(c, field) {
@@ -1946,11 +1949,11 @@
       tr.dataset.caseId = c.id;
       const cls = rowColorClass(c);
       if (cls) tr.className = cls;
-      const open = caseTasks(c).filter((t) => !t.done);
-      const taskListHtml = open.length
-        ? '<ul class="cell-task-list">' + open.map((t) => {
+      const shown = caseTasks(c).filter((t) => showDoneTasks || !t.done);
+      const taskListHtml = shown.length
+        ? '<ul class="cell-task-list">' + shown.map((t) => {
             const idx = caseTasks(c).indexOf(t);
-            return `<li><label><input type="checkbox" data-taskcell="${idx}"> ${escapeHtml(t.text)}</label></li>`;
+            return `<li class="${t.done ? 'task-done' : ''}"><label><input type="checkbox" data-taskcell="${idx}"${t.done ? ' checked' : ''}> ${escapeHtml(t.text)}</label></li>`;
           }).join('') + '</ul>'
         : '<span class="task-empty">（なし）</span>';
       // 各項目は通常画面と同じく編集可（劇場名は短縮表示で標準と同条件）
@@ -2509,6 +2512,13 @@
 
   $('aggBtn').addEventListener('click', toggleAggMode);
   $('taskBtn').addEventListener('click', toggleTaskMode);
+  $('taskDoneToggleBtn').addEventListener('click', () => {
+    showDoneTasks = !showDoneTasks;
+    const btn = $('taskDoneToggleBtn');
+    btn.textContent = showDoneTasks ? '完了タスク：表示' : '完了タスク：非表示';
+    btn.classList.toggle('active', showDoneTasks);
+    if (taskMode) renderTaskTable();
+  });
   // タスクポップアップ
   function closeTaskModal() { $('taskModal').classList.add('hidden'); taskModalCase = null; if (taskMode) renderTaskTable(); }
   $('taskAddBtn').addEventListener('click', addTaskFromInput);
@@ -2542,7 +2552,7 @@
       const c = cases.find((x) => x.id === tr.dataset.caseId);
       if (c) {
         const t = caseTasks(c)[Number(cb.dataset.taskcell)];
-        if (t) { t.done = true; c.updatedAt = new Date().toISOString(); if (store.mode === 'local') saveCases(); persistCase(c); renderTaskTable(); }
+        if (t) { t.done = cb.checked; c.updatedAt = new Date().toISOString(); if (store.mode === 'local') saveCases(); persistCase(c); renderTaskTable(); }
       }
     }
   });
