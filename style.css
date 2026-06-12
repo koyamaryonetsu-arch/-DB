@@ -1221,3 +1221,17 @@ td.status-cell { white-space: nowrap; }
 /* 見積り金額（税込み）列: 既定は非表示、税込み表示中のみ表示 */
 .col-tax { display: none; }
 body.show-tax .col-tax { display: table-cell; }
+
+/* 入金日の 予定/確認 切替ボタン */
+.pay-status-btn {
+  padding: 1px 7px;
+  font-size: 10px;
+  line-height: 1.5;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  cursor: pointer;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+.pay-status-btn.planned { background: #fff7ed; color: #9a3412; border-color: #fdba74; }
+.pay-status-btn.confirmed { background: #ecfdf5; color: #047857; border-color: #34d399; font-weight: 600; }

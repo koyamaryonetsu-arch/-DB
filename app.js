@@ -263,6 +263,9 @@
   // cases.schedule_adjusting 列がDBに存在するか（日程調整中フラグ・同上）
   let scheduleAdjustSupported = false;
   function scheduleAdjustAvailable() { return store.mode === 'local' || scheduleAdjustSupported; }
+  // cases.payment_confirmed 列がDBに存在するか（入金 予定/確認・同上）
+  let paymentConfirmedSupported = false;
+  function paymentConfirmedAvailable() { return store.mode === 'local' || paymentConfirmedSupported; }
   const DATE_FIELDS = new Set(['receivedDate', 'surveyDate', 'quoteDate', 'workStartDate', 'workEndDate', 'invoiceDate', 'paymentDate']);
 
   // app(camelCase) → DB行(snake_case)。空文字の日付/金額は null に
@@ -280,6 +283,7 @@
     if (statusOverrideSupported) row.status_override = c.statusOverride ? c.statusOverride : null;
     if (tasksSupported) row.tasks = Array.isArray(c.tasks) ? c.tasks : [];
     if (scheduleAdjustSupported) row.schedule_adjusting = !!c.scheduleAdjusting;
+    if (paymentConfirmedSupported) row.payment_confirmed = (c.paymentConfirmed !== false);
     row.status = statusOf(c); // DB側レポート用に実効ステータス（手動上書き反映）も保存
     return row;
   }
@@ -314,6 +318,13 @@
       c.scheduleAdjusting = !!r.schedule_adjusting;
     } else {
       c.scheduleAdjusting = false;
+    }
+    // 入金 予定/確認（列が無い・未設定なら確認扱い＝従来動作を維持）
+    if (Object.prototype.hasOwnProperty.call(r, 'payment_confirmed')) {
+      paymentConfirmedSupported = true;
+      c.paymentConfirmed = (r.payment_confirmed !== false);
+    } else {
+      c.paymentConfirmed = true;
     }
     return c;
   }
@@ -876,7 +887,7 @@
     // メモまたは内容に「保留」と記入されていたら最優先で 保留
     if (hasHoldKeyword(c.memo) || hasHoldKeyword(c.content)) return '保留';
     const today = todayStr();
-    if (c.paymentDate)  return '入金済';
+    if (c.paymentDate && c.paymentConfirmed !== false) return '入金済'; // 確認済のみ入金済（予定は請求済のまま）
     if (c.invoiceDate)  return '請求済';
     // 見積り0円（無償対応）で作業開始日・終了日が入っていれば「完了」
     if (isZeroAmount(c) && c.workStartDate && c.workEndDate) return '完了';
@@ -890,6 +901,16 @@
   // 見積り金額が明示的に0円か（空欄は除外）
   function isZeroAmount(c) {
     return c.estimateAmount !== '' && c.estimateAmount != null && Number(c.estimateAmount) === 0;
+  }
+  // 請求日(ISO)の翌月末（YYYY-MM-DD）を返す
+  function endOfNextMonth(iso) {
+    if (!iso) return '';
+    const [y, m] = String(iso).split('-').map(Number);
+    if (!y || !m) return '';
+    const year = m === 12 ? y + 1 : y;
+    const month = m === 12 ? 1 : m + 1; // 1-12
+    const lastDay = new Date(year, month, 0).getDate(); // 1-indexed month の末日
+    return `${year}-${String(month).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
   }
   function statusDisplayLabel(code) {
     const map = isPrivileged(currentUser) ? ROLE_STATUS.ryo : ROLE_STATUS.toho;
@@ -1280,6 +1301,12 @@
       if (cls) tr.className = cls;
       const companyHtml = buildCompanyTag(c);
       const statusCell = buildStatusCell(c);
+      // 入金日セル: 予定/確認 切替ボタン＋日付
+      const payConfirmed = c.paymentConfirmed !== false;
+      const payBtn = c.paymentDate
+        ? `<button type="button" class="pay-status-btn ${payConfirmed ? 'confirmed' : 'planned'}" data-action="toggle-pay" data-id="${escapeHtml(c.id)}" title="入金の予定/確認を切り替えます">${payConfirmed ? '確認' : '予定'}</button> `
+        : '';
+      const payCell = editableTd(c, 'paymentDate', payBtn + escapeHtml(fmtDateShort(c.paymentDate)));
       const isTohoCo = c.company === 'TOHOシネマズ';
       const certHtml = isTohoCo
         ? editableTd(c, 'certNumber', escapeHtml(c.certNumber))
@@ -1303,7 +1330,7 @@
         ${editableTd(c, 'workStartDate', fmtDateShort(c.workStartDate))}
         ${editableTd(c, 'workEndDate', fmtDateShort(c.workEndDate))}
         ${editableTd(c, 'invoiceDate', fmtDateShort(c.invoiceDate))}
-        ${editableTd(c, 'paymentDate', fmtDateShort(c.paymentDate))}
+        ${payCell}
         ${editableTd(c, 'memo', escapeHtml(c.memo), 'col-memo')}
         <td class="row-actions">
           <button data-action="edit" data-id="${escapeHtml(c.id)}">編集</button>
@@ -1403,6 +1430,13 @@
         c[field] = newVal;
         // 作業開始日に実日付/空が入ったら、日程調整中フラグは解除（自動判定に戻す）
         if (field === 'workStartDate' && c.scheduleAdjusting) c.scheduleAdjusting = false;
+        // 請求書発行日を入れたら、入金日(予定)を翌月末で自動入力（予定状態）
+        if (field === 'invoiceDate' && newVal && !c.paymentDate && paymentConfirmedAvailable()) {
+          c.paymentDate = endOfNextMonth(newVal);
+          c.paymentConfirmed = false;
+        }
+        // 入金日を手入力したら「確認」扱いに
+        if (field === 'paymentDate' && newVal) c.paymentConfirmed = true;
         c.updatedAt = new Date().toISOString();
         let histChanged = false;
         if (field === 'theater') { addToHistory('theaters', newVal); histChanged = true; }
@@ -2668,6 +2702,15 @@
     const prev = existing >= 0 ? cases[existing] : null;
     // 日程調整中フラグ（自動ステータス）: 作業開始日が0ならON、それ以外はOFF
     data.scheduleAdjusting = scheduleAdjusting;
+    // 入金日: 請求発行日があり入金日が空なら翌月末を自動入力（予定）。手入力=確認、変更なし=維持
+    if (data.invoiceDate && !data.paymentDate && paymentConfirmedAvailable()) {
+      data.paymentDate = endOfNextMonth(data.invoiceDate);
+      data.paymentConfirmed = false;
+    } else if (data.paymentDate && prev && prev.paymentDate === data.paymentDate) {
+      data.paymentConfirmed = (prev.paymentConfirmed !== false);
+    } else {
+      data.paymentConfirmed = true;
+    }
     // 既存の statusOverride / tasks / 配分 などフォーム外の項目は保持（マージ）
     const saved = Object.assign({}, prev || {}, data);
     if (existing >= 0) cases[existing] = saved; else cases.push(saved);
