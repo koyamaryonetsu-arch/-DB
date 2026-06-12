@@ -895,6 +895,7 @@
     if (NO_COLOR_CATEGORIES.has(c.category)) return '';
     const st = statusOf(c);
     if (st === '保留') return '';
+    if (st === '日程調整中') return ''; // 日程調整中は注意喚起色なし
     // 完了・対応済み・請求済・入金済 は色なし
     if (NO_COLOR_STATUSES.has(st)) return '';
     // 客先対応中・見積り提出済 → 文字全体を青
@@ -937,7 +938,7 @@
   // ---------- sort ----------
   // ステータスの工程順（小さいほど早い段階）。保留は最後尾扱い
   const STATUS_SORT_ORDER = {
-    '受付': 1, '見積り中': 2, '見積り提出済': 3, '客先対応中': 3.5, '作業中': 4,
+    '受付': 1, '見積り中': 2, '見積り提出済': 3, '日程調整中': 3.2, '客先対応中': 3.5, '作業中': 4,
     '対応済み': 5, '完了': 6, '請求済': 7, '入金済': 8, '取り下げ': 9, '失注': 10, '保留': 99
   };
   function getSortValue(c, field) {
@@ -1343,6 +1344,17 @@
       let newVal = el.value;
       if (typeof newVal === 'string') newVal = newVal.trim();
 
+      // 調査日に「0」→ 日程調整中（調査日は空にして、ステータスを日程調整中に）
+      if (field === 'surveyDate' && newVal === '0') {
+        done = true;
+        c.surveyDate = '';
+        c.statusOverride = '日程調整中';
+        c.updatedAt = new Date().toISOString();
+        persistCase(c);
+        render();
+        return;
+      }
+
       if (cfg.type === 'date' && newVal !== '') {
         const parsed = parseSmartDate(newVal);
         if (parsed === null) {
@@ -1363,6 +1375,8 @@
 
       if (String(newVal) !== String(oldVal)) {
         c[field] = newVal;
+        // 調査日に実日付が入ったら、日程調整中の上書きは解除（自動判定に戻す）
+        if (field === 'surveyDate' && newVal && c.statusOverride === '日程調整中') c.statusOverride = '';
         c.updatedAt = new Date().toISOString();
         let histChanged = false;
         if (field === 'theater') { addToHistory('theaters', newVal); histChanged = true; }
@@ -2585,8 +2599,11 @@
       invoiceDate: isToho ? '請求書受領日' : '請求書発行日',
       paymentDate: isToho ? '支払日' : '入金日'
     };
+    // 調査日に「0」→ 日程調整中（調査日は空扱い）
+    const scheduleAdjusting = $('surveyDate').value.trim() === '0';
     const parsedDates = {};
     for (const f in dateLabels) {
+      if (f === 'surveyDate' && scheduleAdjusting) { parsedDates.surveyDate = ''; continue; }
       const v = readDateField(f, dateLabels[f]);
       if (v === undefined) return; // バリデーション失敗
       parsedDates[f] = v;
@@ -2620,8 +2637,14 @@
     addToHistory('rPersons', data.rPerson);
     saveHistory();
     const existing = cases.findIndex((c) => c.id === id);
-    if (existing >= 0) cases[existing] = data; else cases.push(data);
-    persistCase(data);
+    const prev = existing >= 0 ? cases[existing] : null;
+    // 日程調整中の上書き: 0入力ならセット、実日付が入れば解除
+    if (scheduleAdjusting) data.statusOverride = '日程調整中';
+    else if (data.surveyDate && prev && prev.statusOverride === '日程調整中') data.statusOverride = '';
+    // 既存の statusOverride / tasks / 配分 などフォーム外の項目は保持（マージ）
+    const saved = Object.assign({}, prev || {}, data);
+    if (existing >= 0) cases[existing] = saved; else cases.push(saved);
+    persistCase(saved);
     closeModal();
     render();
   });
