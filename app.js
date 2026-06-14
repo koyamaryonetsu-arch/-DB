@@ -1244,12 +1244,20 @@
     return sortCases(filtered);
   }
 
+  // スマホのカード表示用ラベル（PCでは使われない属性）
+  const FIELD_LABELS = {
+    status: 'ステータス', company: '会社', theater: '劇場名', receivedDate: '受付日',
+    tcPerson: '客先担当者', rPerson: 'R担当者', category: '種別', content: '内容',
+    surveyDate: '調査日', certNumber: '認証番号', estimateName: '見積り名',
+    estimateAmount: '見積り金額', quoteDate: '見積り提出日', workStartDate: '作業開始日',
+    workEndDate: '作業完了日', invoiceDate: '請求書発行日', paymentDate: '入金日', memo: 'メモ'
+  };
   function editableTd(c, field, displayHtml, extraClass) {
     const cfg = EDITABLE_FIELDS[field];
     const canEdit = !(cfg.privilegedOnly && !isPrivileged(currentUser))
                   && !(cfg.tohoOnly && c.company !== 'TOHOシネマズ');
     const cls = (canEdit ? 'editable' : '') + (c[field] ? '' : ' empty') + (extraClass ? ' ' + extraClass : '');
-    return `<td class="${cls}" data-field="${field}" data-case-id="${escapeHtml(c.id)}">${displayHtml}</td>`;
+    return `<td class="${cls}" data-field="${field}" data-case-id="${escapeHtml(c.id)}" data-label="${escapeHtml(FIELD_LABELS[field] || '')}">${displayHtml}</td>`;
   }
 
   // ステータスのセル（バッジ＋手動選択。受注者のみ編集可）— 通常/タスク両モードで共有
@@ -1258,8 +1266,8 @@
     const manualStatus = isStatusManual(c);
     const statusHtml = `<span class="status-badge status-${escapeHtml(statusCode)}${manualStatus ? ' manual' : ''}">${escapeHtml(statusDisplayLabel(statusCode))}</span>`;
     return isPrivileged(currentUser)
-      ? `<td class="col-status status-cell" data-case-id="${escapeHtml(c.id)}"><span class="status-pick" data-action="status-edit" data-id="${escapeHtml(c.id)}" title="クリックでステータスを変更（先頭の「自動」で自動判定に戻ります）">${statusHtml}</span></td>`
-      : `<td class="col-status status-cell">${statusHtml}</td>`;
+      ? `<td class="col-status status-cell" data-case-id="${escapeHtml(c.id)}" data-label="ステータス"><span class="status-pick" data-action="status-edit" data-id="${escapeHtml(c.id)}" title="クリックでステータスを変更（先頭の「自動」で自動判定に戻ります）">${statusHtml}</span></td>`
+      : `<td class="col-status status-cell" data-label="ステータス">${statusHtml}</td>`;
   }
   // ===== 列幅のドラッグ調整（どの画面でも） =====
   function fieldOfTh(th) { return th.dataset.sort || th.dataset.col || ''; }
@@ -1339,7 +1347,7 @@
       const isTohoCo = c.company === 'TOHOシネマズ';
       const certHtml = isTohoCo
         ? editableTd(c, 'certNumber', escapeHtml(c.certNumber))
-        : `<td class="toho-empty">—</td>`;
+        : `<td class="toho-empty" data-label="認証番号">—</td>`;
 
       tr.innerHTML = `
         ${statusCell}
@@ -1354,14 +1362,14 @@
         ${certHtml}
         ${editableTd(c, 'estimateName', escapeHtml(c.estimateName))}
         ${editableTd(c, 'estimateAmount', fmtAmount(c.estimateAmount))}
-        <td class="col-tax">${fmtAmount(taxIncludedAmount(c.estimateAmount))}</td>
+        <td class="col-tax" data-label="見積り金額(税込)">${fmtAmount(taxIncludedAmount(c.estimateAmount))}</td>
         ${editableTd(c, 'quoteDate', fmtDateShort(c.quoteDate))}
         ${editableTd(c, 'workStartDate', escapeHtml(fmtDateTime(c.workStartDate, c.workStartTime)))}
         ${editableTd(c, 'workEndDate', escapeHtml(fmtDateTime(c.workEndDate, c.workEndTime)))}
         ${editableTd(c, 'invoiceDate', fmtDateShort(c.invoiceDate))}
         ${payCell}
         ${editableTd(c, 'memo', escapeHtml(c.memo), 'col-memo')}
-        <td class="row-actions">
+        <td class="row-actions" data-label="操作">
           <button data-action="edit" data-id="${escapeHtml(c.id)}">編集</button>
           <button data-action="duplicate" data-id="${escapeHtml(c.id)}">複製</button>
           <button data-action="delete" data-id="${escapeHtml(c.id)}" class="danger">削除</button>

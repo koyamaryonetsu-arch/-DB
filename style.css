@@ -1304,3 +1304,54 @@ body.show-tax .col-tax { display: table-cell; }
 .cal-ev-bar.cont-r { border-top-right-radius: 0; border-bottom-right-radius: 0; }
 .cal-ev-bar:hover { filter: brightness(1.08); box-shadow: 0 2px 6px rgba(0,0,0,0.3); z-index: 5; }
 .ev-dot.ev-work { background: #16a34a; }
+
+/* ===================== iPhone / 狭い画面 専用UI (PCは不変) ===================== */
+@media (max-width: 600px) {
+  /* ヘッダー: 必要なものだけ（検索・簡易登録・担当者・タスク管理・カレンダー） */
+  #newCaseBtn, #aggBtn, #invoiceBtn, #displayModeBtn, #toggleBigBtn,
+  #taxToggleBtn, #exportBtn, #statusFilter, .zoom-control,
+  .legend-item, .legend-hint { display: none !important; }
+
+  header { padding: 8px 10px; gap: 8px; position: static; }
+  main { padding: 10px; }
+  .title-group { gap: 6px; }
+  header h1 { font-size: 16px; }
+  .header-actions { gap: 6px; width: 100%; }
+  .header-actions input#searchBox { min-width: 0; max-width: none; flex: 1 1 100%; }
+  #quickCaseBtn, #taskBtn, #calBtn { flex: 1 1 auto; }
+
+  /* 一覧表をカード型に */
+  .table-wrap { max-height: none; min-height: 0; overflow: visible; background: transparent; box-shadow: none; }
+  #casesTable { zoom: 1 !important; min-width: 0; width: 100%; display: block; }
+  #casesTable thead { display: none; }
+  #casesTable tbody { display: block; }
+  #casesTable tbody tr {
+    display: block; background: #fff; border: 1px solid #e5e7eb; border-radius: 10px;
+    margin-bottom: 10px; padding: 8px 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+  }
+  #casesTable td {
+    display: flex; align-items: baseline; gap: 10px; border: none; padding: 3px 0;
+    white-space: normal; word-break: break-word;
+    width: auto !important; min-width: 0 !important; max-width: none !important;
+    position: static !important; left: auto !important; box-shadow: none !important;
+    background: transparent !important; overflow: visible !important;
+  }
+  #casesTable td::before {
+    content: attr(data-label); flex: 0 0 84px; font-size: 11px; font-weight: 700;
+    color: #6b7280;
+  }
+  #casesTable td.editable.empty { display: none; }     /* 空欄は省略 */
+  #casesTable td.col-tax { display: none; }
+  #casesTable td.row-actions { justify-content: flex-end; gap: 6px; margin-top: 4px; }
+  #casesTable td.row-actions::before { display: none; }
+  .col-resizer { display: none; }
+
+  /* 行の色はカード全体の背景に */
+  #casesTable tbody tr.row-red { background: #fef2f2; border-color: #fca5a5; }
+  #casesTable tbody tr.row-yellow { background: #fffbeb; border-color: #fde68a; }
+  #casesTable tbody tr.row-yellowgreen { background: #f7fee7; border-color: #d9f99d; }
+  #casesTable tbody tr.row-blue { background: #eff6ff; border-color: #bfdbfe; }
+
+  /* カレンダーを少しコンパクトに */
+  .cal-filter-label { min-width: 44px; }
+}
