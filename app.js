@@ -956,6 +956,43 @@
   // 手動上書きが使えるか（ローカルモード or DBに status_override 列がある時）
   function statusOverrideAvailable() { return store.mode === 'local' || statusOverrideSupported; }
 
+  // 日本の祝日（振替休日・国民の休日を含む。2025〜2028）。黄/赤の遅延判定で土日と共に除外
+  const JP_HOLIDAYS = new Set([
+    '2025-01-01','2025-01-13','2025-02-11','2025-02-23','2025-02-24','2025-03-20','2025-04-29',
+    '2025-05-03','2025-05-04','2025-05-05','2025-05-06','2025-07-21','2025-08-11','2025-09-15',
+    '2025-09-23','2025-10-13','2025-11-03','2025-11-23','2025-11-24',
+    '2026-01-01','2026-01-12','2026-02-11','2026-02-23','2026-03-20','2026-04-29','2026-05-03',
+    '2026-05-04','2026-05-05','2026-05-06','2026-07-20','2026-08-11','2026-09-21','2026-09-22',
+    '2026-09-23','2026-10-12','2026-11-03','2026-11-23',
+    '2027-01-01','2027-01-11','2027-02-11','2027-02-23','2027-03-21','2027-03-22','2027-04-29',
+    '2027-05-03','2027-05-04','2027-05-05','2027-07-19','2027-08-11','2027-09-20','2027-09-23',
+    '2027-10-11','2027-11-03','2027-11-23',
+    '2028-01-01','2028-01-10','2028-02-11','2028-02-23','2028-03-20','2028-04-29','2028-05-03',
+    '2028-05-04','2028-05-05','2028-07-17','2028-08-11','2028-09-18','2028-09-22','2028-10-09',
+    '2028-11-03','2028-11-23'
+  ]);
+  function parseLocalDate(iso) {
+    const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso || ''));
+    return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null;
+  }
+  function isBusinessDay(dt) {
+    const dow = dt.getDay();
+    if (dow === 0 || dow === 6) return false; // 土日
+    return !JP_HOLIDAYS.has(isoOf(dt));        // 祝日
+  }
+  // a の翌日〜b の間の営業日数（土日祝を除く）
+  function businessDaysBetween(aIso, bIso) {
+    const a = parseLocalDate(aIso), b = parseLocalDate(bIso);
+    if (!a || !b || b <= a) return 0;
+    let count = 0;
+    const cur = new Date(a);
+    cur.setDate(cur.getDate() + 1);
+    while (cur <= b) {
+      if (isBusinessDay(cur)) count++;
+      cur.setDate(cur.getDate() + 1);
+    }
+    return count;
+  }
   function rowColorClass(c) {
     if (NO_COLOR_CATEGORIES.has(c.category)) return '';
     const st = statusOf(c);
@@ -966,18 +1003,16 @@
     // 客先対応中・見積り提出済 → 文字全体を青
     if (st === '見積り提出済' || st === '客先対応中') return 'row-blue';
     const today = todayStr();
-    // 調査日が未記入 → 黄（受付から3日以上）。調査日を記入すると解除
+    // 調査日が未記入 → 黄（受付から3営業日以上＝土日祝を除く）。調査日を記入すると解除
     if (!c.surveyDate) {
       if (c.receivedDate) {
-        const d = daysBetween(c.receivedDate, today);
-        if (d !== null && d >= 3) return 'row-yellow';
+        if (businessDaysBetween(c.receivedDate, today) >= 3) return 'row-yellow';
       }
       return '';
     }
-    // 見積り中（調査済・見積り未提出）→ 調査日から3日未満は黄緑、3日以上は赤
+    // 見積り中（調査済・見積り未提出）→ 調査日から3営業日未満は黄緑、3営業日以上は赤
     if (st === '見積り中') {
-      const d = daysBetween(c.surveyDate, today);
-      if (d !== null && d >= 3) return 'row-red';
+      if (businessDaysBetween(c.surveyDate, today) >= 3) return 'row-red';
       return 'row-yellowgreen';
     }
     return '';
