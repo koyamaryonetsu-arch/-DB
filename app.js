@@ -2144,7 +2144,7 @@
         ec: Math.min(6, dayDiff(wStart, it.end)),
         contL: it.start < wStart,
         contR: it.end > wEnd
-      })).sort((a, b) => a.sc - b.sc || (a.it.start < b.it.start ? -1 : 1));
+      })).sort((a, b) => a.sc - b.sc || (a.it.time || '99:99').localeCompare(b.it.time || '99:99') || (a.it.start < b.it.start ? -1 : 1));
       const lanes = [];
       evs.forEach((ev) => {
         let lane = lanes.findIndex((lastEc) => lastEc < ev.sc);
@@ -2165,12 +2165,10 @@
         const width = (ev.ec - ev.sc + 1) / 7 * 100;
         const top = DAYNUM_H + ev.lane * LANE_H;
         const cls = it.kind === 'survey' ? 'ev-survey' : 'ev-work';
-        const txt = it.kind === 'survey'
-          ? `${it.time ? '<b>' + escapeHtml(it.time) + '</b> ' : ''}調査・${escapeHtml(it.theater)}`
-          : escapeHtml((it.full || it.theater || '').slice(0, 5));
-        const titleTxt = it.kind === 'survey'
-          ? `調査・${it.theater}${it.time ? ' ' + it.time : ''}`
-          : (it.full || it.theater || '（内容なし）');
+        const lbl = it.kind === 'survey' ? '調査' : '作業';
+        const body = it.full || it.theater || '';
+        const txt = `${it.time ? '<b>' + escapeHtml(it.time) + '</b> ' : ''}${lbl}・${escapeHtml(body)}`;
+        const titleTxt = `${lbl}・${it.theater}${it.time ? ' ' + it.time : ''}${body ? '　' + body : ''}`;
         barsHtml += `<div class="cal-ev-bar ${cls}${ev.contL ? ' cont-l' : ''}${ev.contR ? ' cont-r' : ''}" data-case-id="${escapeHtml(it.id)}" style="left:${left}%;width:${width}%;top:${top}px" title="${escapeHtml(titleTxt)}">${txt}</div>`;
       });
       html += `<div class="cal-week" style="height:${weekH}px"><div class="cal-week-grid">${daysHtml}</div><div class="cal-week-bars">${barsHtml}</div></div>`;
@@ -2565,6 +2563,17 @@
     render();
   }
   // タイトル横の R担当者 ボタン（全員＋各担当者）。クリックでその担当者の案件に絞る（AND）
+  // 絞り込みの保持（アカウント別）
+  function userFilterKey(base) { return base + '_' + ((currentUser && currentUser.email) || 'anon'); }
+  function saveUserFilter(base, set) { try { localStorage.setItem(userFilterKey(base), JSON.stringify([...set])); } catch (e) {} }
+  function loadSavedFilters() {
+    try { const a = JSON.parse(localStorage.getItem(userFilterKey('rpfV1')) || '[]'); rPersonFilter = new Set(Array.isArray(a) ? a : []); } catch (e) {}
+    const fill = (base, set) => {
+      try { const a = JSON.parse(localStorage.getItem(userFilterKey(base)) || '[]'); set.clear(); (Array.isArray(a) ? a : []).forEach((x) => set.add(x)); } catch (e) {}
+    };
+    fill('calCoV1', calCompanyFilter);
+    fill('calRpV1', calPersonFilter);
+  }
   function renderRPersonBar() {
     const bar = $('rPersonBar');
     if (!bar) return;
@@ -2578,6 +2587,7 @@
   }
   function applyUserScope() {
     $('userEmail').textContent = currentUser.email;
+    loadSavedFilters(); // アカウント別に最後の絞り込みを復元
     const privileged = isPrivileged(currentUser);
     document.body.classList.toggle('user-privileged', privileged);
     document.body.classList.toggle('user-toho', !privileged);
@@ -2767,6 +2777,7 @@
     if (v === '') calCompanyFilter.clear();
     else if (calCompanyFilter.has(v)) calCompanyFilter.delete(v);
     else calCompanyFilter.add(v);
+    saveUserFilter('calCoV1', calCompanyFilter);
     renderCalendar();
   });
   $('calPersonBar').addEventListener('click', (e) => {
@@ -2775,6 +2786,7 @@
     if (v === '') calPersonFilter.clear();
     else if (calPersonFilter.has(v)) calPersonFilter.delete(v);
     else calPersonFilter.add(v);
+    saveUserFilter('calRpV1', calPersonFilter);
     renderCalendar();
   });
   // カレンダーの予定をクリック → 簡易編集（調査/開始/終了 日時・内容・メモのみ）
@@ -3009,7 +3021,8 @@
     const name = b.dataset.rperson;
     if (name === '') rPersonFilter.clear();          // 全員
     else if (rPersonFilter.has(name)) rPersonFilter.delete(name); // 解除（トグル）
-    else rPersonFilter.add(name);                     // 追加（AND）
+    else rPersonFilter.add(name);                     // 追加（OR）
+    saveUserFilter('rpfV1', rPersonFilter);
     renderRPersonBar();
     refresh();
   });
