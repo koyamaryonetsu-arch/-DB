@@ -1384,8 +1384,9 @@
       tbody.appendChild(tr);
     });
     $('emptyMsg').classList.toggle('hidden', filtered.length > 0);
-    // 全件（分母）は選択中のR担当者ごとに変わる（検索/ステータス等の絞り込みは除外）
+    // 全件数（分母分子なし）。選択中の客先・R担当者で件数が変わる
     let scope = visibleCases();
+    if (companyFilter.size) scope = scope.filter((c) => companyFilter.has(c.company));
     if (rPersonFilter.size) {
       scope = scope.filter((c) => {
         const rp = c.rPerson || '';
@@ -1393,8 +1394,7 @@
         return false;
       });
     }
-    const totalVisible = scope.length;
-    $('caseCount').textContent = `${filtered.length} 件 / 全 ${totalVisible} 件`;
+    $('caseCount').textContent = `全 ${scope.length} 件`;
     updateSortIndicators();
     updateColumnFilterIndicators();
   }
@@ -2816,6 +2816,14 @@
 
   $('aggBtn').addEventListener('click', toggleAggMode);
   $('taskBtn').addEventListener('click', toggleTaskMode);
+  // 並び替えボタン（受付日順・客先順）
+  function toggleSortField(field) {
+    if (sortState.field === field) sortState.direction = sortState.direction === 'asc' ? 'desc' : 'asc';
+    else { sortState.field = field; sortState.direction = 'asc'; }
+    render();
+  }
+  $('sortReceivedBtn').addEventListener('click', () => toggleSortField('receivedDate'));
+  $('sortCompanyBtn').addEventListener('click', () => toggleSortField('company'));
   // カレンダー
   $('calBtn').addEventListener('click', toggleCalMode);
   $('calPrev').addEventListener('click', () => { calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; } renderCalendar(); });
