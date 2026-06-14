@@ -1395,3 +1395,6 @@ td[data-field="category"], td[data-field="content"] { background: #fff; }
   .mobile-only { display: inline-block; }
   .cal-filter-label { min-width: 44px; }
 }
+
+/* R担当者バーの下に客先バーを縦に並べる（共通UI） */
+.filter-bars { display: flex; flex-direction: column; gap: 4px; }

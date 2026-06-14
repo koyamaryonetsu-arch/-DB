@@ -2141,12 +2141,13 @@
     document.querySelector('.legend').classList.remove('hidden');
   }
   function toggleCalMode() { if (calMode) exitCalMode(); else enterCalMode(); }
+  // カレンダーはトップ画面の客先(companyFilter)・R担当者(rPersonFilter)を絞り込み条件に使う
   function calVisibleCases() {
     return visibleCases().filter((c) => {
-      if (calCompanyFilter.size && !calCompanyFilter.has(c.company)) return false;
-      if (calPersonFilter.size) {
+      if (companyFilter.size && !companyFilter.has(c.company)) return false;
+      if (rPersonFilter.size) {
         const rp = c.rPerson || '';
-        let hit = false; for (const n of calPersonFilter) { if (rp.includes(n)) { hit = true; break; } }
+        let hit = false; for (const n of rPersonFilter) { if (rp.includes(n)) { hit = true; break; } }
         if (!hit) return false;
       }
       return true;
@@ -2177,16 +2178,7 @@
     });
     return items;
   }
-  function renderCalFilters() {
-    $('calCompanyBar').innerHTML =
-      `<button type="button" class="cal-fbtn${calCompanyFilter.size === 0 ? ' active' : ''}" data-calco="">全社</button>` +
-      companyNames().map((n) => `<button type="button" class="cal-fbtn${calCompanyFilter.has(n) ? ' active' : ''}" data-calco="${escapeHtml(n)}">${escapeHtml(companyAbbr(n))}</button>`).join('');
-    $('calPersonBar').innerHTML =
-      `<button type="button" class="cal-fbtn${calPersonFilter.size === 0 ? ' active' : ''}" data-calrp="">全員</button>` +
-      loadTeam().map((n) => `<button type="button" class="cal-fbtn${calPersonFilter.has(n) ? ' active' : ''}" data-calrp="${escapeHtml(n)}">${escapeHtml(n)}</button>`).join('');
-  }
   function renderCalendar() {
-    renderCalFilters();
     $('calTitle').textContent = `${calYear}年${calMonth + 1}月`;
     const items = collectCalItems();
     const todayIso = todayStr();
@@ -2326,7 +2318,7 @@
     $('taskNewInput').focus();
   }
 
-  function refresh() { if (aggMode) renderAggTable(); else if (taskMode) renderTaskTable(); else render(); }
+  function refresh() { if (calMode) renderCalendar(); else if (aggMode) renderAggTable(); else if (taskMode) renderTaskTable(); else render(); }
 
   // 配分 / 粗利率 の手動編集
   function handleAggInput(e) {
@@ -2876,24 +2868,6 @@
   $('calPrev').addEventListener('click', () => { calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; } renderCalendar(); });
   $('calNext').addEventListener('click', () => { calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; } renderCalendar(); });
   $('calToday').addEventListener('click', () => { const n = new Date(); calYear = n.getFullYear(); calMonth = n.getMonth(); renderCalendar(); });
-  $('calCompanyBar').addEventListener('click', (e) => {
-    const b = e.target.closest('[data-calco]'); if (!b) return;
-    const v = b.dataset.calco;
-    if (v === '') calCompanyFilter.clear();
-    else if (calCompanyFilter.has(v)) calCompanyFilter.delete(v);
-    else calCompanyFilter.add(v);
-    saveUserFilter('calCoV1', calCompanyFilter);
-    renderCalendar();
-  });
-  $('calPersonBar').addEventListener('click', (e) => {
-    const b = e.target.closest('[data-calrp]'); if (!b) return;
-    const v = b.dataset.calrp;
-    if (v === '') calPersonFilter.clear();
-    else if (calPersonFilter.has(v)) calPersonFilter.delete(v);
-    else calPersonFilter.add(v);
-    saveUserFilter('calRpV1', calPersonFilter);
-    renderCalendar();
-  });
   // カレンダーの予定をクリック → 簡易編集（調査/開始/終了 日時・内容・メモのみ）
   $('calGrid').addEventListener('click', (e) => {
     const ev = e.target.closest('.cal-ev-bar'); if (!ev) return;

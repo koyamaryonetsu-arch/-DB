@@ -59,8 +59,10 @@
   <header>
     <div class="title-group">
       <h1 id="appTitle">TOHOシネマズ 案件管理</h1>
-      <div id="rPersonBar" class="rperson-bar col-ryo"></div>
-      <div id="companyBar" class="rperson-bar co-bar col-ryo"></div>
+      <div class="filter-bars col-ryo">
+        <div id="rPersonBar" class="rperson-bar"></div>
+        <div id="companyBar" class="rperson-bar co-bar"></div>
+      </div>
     </div>
     <div class="header-actions">
       <input type="search" id="searchBox" placeholder="検索（劇場名・担当者・内容など）">
@@ -176,10 +178,6 @@
           <span><span class="ev-dot ev-survey"></span>調査</span>
           <span><span class="ev-dot ev-work"></span>作業（開始〜完了）</span>
         </div>
-      </div>
-      <div class="cal-filters">
-        <div class="cal-filter-group"><span class="cal-filter-label">客先</span><div id="calCompanyBar" class="cal-bar"></div></div>
-        <div class="cal-filter-group"><span class="cal-filter-label">R担当者</span><div id="calPersonBar" class="cal-bar"></div></div>
       </div>
       <div class="cal-weekhead">
         <span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span>
