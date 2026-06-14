@@ -1252,6 +1252,7 @@
     estimateAmount: '見積り金額', quoteDate: '見積り提出日', workStartDate: '作業開始日',
     workEndDate: '作業完了日', invoiceDate: '請求書発行日', paymentDate: '入金日', memo: 'メモ'
   };
+  function isMobile() { return window.matchMedia ? window.matchMedia('(max-width: 600px)').matches : (window.innerWidth <= 600); }
   function editableTd(c, field, displayHtml, extraClass) {
     const cfg = EDITABLE_FIELDS[field];
     const canEdit = !(cfg.privilegedOnly && !isPrivileged(currentUser))
@@ -1378,7 +1379,16 @@
       tbody.appendChild(tr);
     });
     $('emptyMsg').classList.toggle('hidden', filtered.length > 0);
-    const totalVisible = isPrivileged(currentUser) ? cases.length : cases.filter((c) => c.company === 'TOHOシネマズ').length;
+    // 全件（分母）は選択中のR担当者ごとに変わる（検索/ステータス等の絞り込みは除外）
+    let scope = visibleCases();
+    if (rPersonFilter.size) {
+      scope = scope.filter((c) => {
+        const rp = c.rPerson || '';
+        for (const n of rPersonFilter) { if (rp.includes(n)) return true; }
+        return false;
+      });
+    }
+    const totalVisible = scope.length;
     $('caseCount').textContent = `${filtered.length} 件 / 全 ${totalVisible} 件`;
     updateSortIndicators();
     updateColumnFilterIndicators();
@@ -1565,6 +1575,9 @@
     if (isCalEdit) {
       document.querySelectorAll('#caseForm .form-row').forEach((el) => el.classList.toggle('hidden', !el.hasAttribute('data-cal')));
     }
+    // 複製/削除（既存案件の編集時のみ・通常編集のみ。表示自体はモバイルのみCSSで制御）
+    $('modalDuplicateBtn').classList.toggle('hidden', !caseObj || isCalEdit);
+    $('modalDeleteBtn').classList.toggle('hidden', !caseObj || isCalEdit);
 
     if (isPrivileged(currentUser)) {
       $('company').disabled = false;
@@ -2734,6 +2747,17 @@
   $('closeModal').addEventListener('click', closeModal);
   $('cancelBtn').addEventListener('click', closeModal);
   $('modal').addEventListener('click', (e) => { if (e.target === $('modal')) closeModal(); });
+  // 編集ポップアップからの複製・削除（主にスマホ用）
+  $('modalDuplicateBtn').addEventListener('click', () => {
+    const c = cases.find((x) => x.id === $('caseId').value); if (!c) return;
+    const dup = Object.assign({}, c, { id: genId(), tasks: [], allocations: Object.assign({}, c.allocations || {}), updatedAt: new Date().toISOString() });
+    cases.push(dup); persistCase(dup); closeModal(); render(); if (calMode) renderCalendar();
+  });
+  $('modalDeleteBtn').addEventListener('click', () => {
+    const c = cases.find((x) => x.id === $('caseId').value); if (!c) return;
+    if (!confirm(`案件「${c.theater || '(劇場未入力)'}」を削除しますか？`)) return;
+    cases = cases.filter((x) => x.id !== c.id); removeCaseRemote(c.id); closeModal(); render(); if (calMode) renderCalendar();
+  });
   $('company').addEventListener('change', updateTohoVisibility);
   $('addCompanyBtn').addEventListener('click', addCompany);
 
@@ -2944,6 +2968,12 @@
     // タスク管理モード: 「タスク編集」ボタン
     const to = e.target.closest('[data-taskopen]');
     if (to) { const c = cases.find((x) => x.id === to.dataset.taskopen); if (c) openTaskModal(c); return; }
+    // スマホ（狭い画面）の通常表示: 項目タップで編集ポップアップを開く（インライン編集はしない）
+    if (isMobile() && !aggMode && !taskMode) {
+      const tr = e.target.closest('tr[data-case-id]');
+      if (tr) { const c = cases.find((x) => x.id === tr.dataset.caseId); if (c) openModal(c, 'full'); }
+      return;
+    }
     const actEl = e.target.closest('[data-action]');
     if (actEl) {
       const action = actEl.dataset.action;

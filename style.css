@@ -1305,46 +1305,68 @@ body.show-tax .col-tax { display: table-cell; }
 .cal-ev-bar:hover { filter: brightness(1.08); box-shadow: 0 2px 6px rgba(0,0,0,0.3); z-index: 5; }
 .ev-dot.ev-work { background: #16a34a; }
 
+/* モーダルの複製/削除はスマホのみ表示（PC不変） */
+.mobile-only { display: none; }
+
 /* ===================== iPhone / 狭い画面 専用UI (PCは不変) ===================== */
 @media (max-width: 600px) {
   /* ヘッダー: 必要なものだけ（検索・簡易登録・担当者・タスク管理・カレンダー） */
   #newCaseBtn, #aggBtn, #invoiceBtn, #displayModeBtn, #toggleBigBtn,
   #taxToggleBtn, #exportBtn, #statusFilter, .zoom-control,
   .legend-item, .legend-hint { display: none !important; }
-
   header { padding: 8px 10px; gap: 8px; position: static; }
   main { padding: 10px; }
-  .title-group { gap: 6px; }
   header h1 { font-size: 16px; }
   .header-actions { gap: 6px; width: 100%; }
   .header-actions input#searchBox { min-width: 0; max-width: none; flex: 1 1 100%; }
   #quickCaseBtn, #taskBtn, #calBtn { flex: 1 1 auto; }
 
-  /* 一覧表をカード型に */
+  /* 一覧: 1案件=カード。PCと同じ横並びを 3列×6行 のグリッドで（字は小さく） */
   .table-wrap { max-height: none; min-height: 0; overflow: visible; background: transparent; box-shadow: none; }
   #casesTable { zoom: 1 !important; min-width: 0; width: 100%; display: block; }
   #casesTable thead { display: none; }
   #casesTable tbody { display: block; }
   #casesTable tbody tr {
-    display: block; background: #fff; border: 1px solid #e5e7eb; border-radius: 10px;
-    margin-bottom: 10px; padding: 8px 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px 8px;
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 10px;
+    margin-bottom: 10px; padding: 8px 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+    cursor: pointer;
   }
   #casesTable td {
-    display: flex; align-items: baseline; gap: 10px; border: none; padding: 3px 0;
+    display: block; border: none; padding: 1px 0; font-size: 11px; line-height: 1.35;
     white-space: normal; word-break: break-word;
     width: auto !important; min-width: 0 !important; max-width: none !important;
     position: static !important; left: auto !important; box-shadow: none !important;
-    background: transparent !important; overflow: visible !important;
+    background: transparent !important; overflow: hidden;
   }
   #casesTable td::before {
-    content: attr(data-label); flex: 0 0 84px; font-size: 11px; font-weight: 700;
-    color: #6b7280;
+    content: attr(data-label); display: block; font-size: 9px; font-weight: 700;
+    color: #9ca3af; white-space: nowrap;
   }
-  #casesTable td.editable.empty { display: none; }     /* 空欄は省略 */
-  #casesTable td.col-tax { display: none; }
-  #casesTable td.row-actions { justify-content: flex-end; gap: 6px; margin-top: 4px; }
-  #casesTable td.row-actions::before { display: none; }
+  #casesTable td.editable.empty::after { content: none; }
+  #casesTable td[data-field="content"], #casesTable td[data-field="memo"] { max-height: 4.2em; }
+  #casesTable td.col-tax, #casesTable td.row-actions { display: none !important; }
   .col-resizer { display: none; }
+
+  /* 並び順（指定のグループ: 3つずつ6行） */
+  #casesTable td.col-status { order: 1; }
+  #casesTable td[data-field="company"] { order: 2; }
+  #casesTable td[data-field="theater"] { order: 3; }
+  #casesTable td[data-field="receivedDate"] { order: 4; }
+  #casesTable td[data-field="tcPerson"] { order: 5; }
+  #casesTable td[data-field="rPerson"] { order: 6; }
+  #casesTable td[data-field="category"] { order: 7; }
+  #casesTable td[data-field="content"] { order: 8; }
+  #casesTable td[data-field="memo"] { order: 9; }
+  #casesTable td[data-field="surveyDate"] { order: 10; }
+  #casesTable td[data-field="workStartDate"] { order: 11; }
+  #casesTable td[data-field="workEndDate"] { order: 12; }
+  #casesTable td[data-field="estimateName"] { order: 13; }
+  #casesTable td[data-field="estimateAmount"] { order: 14; }
+  #casesTable td[data-field="quoteDate"] { order: 15; }
+  #casesTable td[data-field="invoiceDate"] { order: 16; }
+  #casesTable td[data-field="paymentDate"] { order: 17; }
+  #casesTable td[data-field="certNumber"], #casesTable td.toho-empty { order: 18; }
 
   /* 行の色はカード全体の背景に */
   #casesTable tbody tr.row-red { background: #fef2f2; border-color: #fca5a5; }
@@ -1352,6 +1374,6 @@ body.show-tax .col-tax { display: table-cell; }
   #casesTable tbody tr.row-yellowgreen { background: #f7fee7; border-color: #d9f99d; }
   #casesTable tbody tr.row-blue { background: #eff6ff; border-color: #bfdbfe; }
 
-  /* カレンダーを少しコンパクトに */
+  .mobile-only { display: inline-block; }
   .cal-filter-label { min-width: 44px; }
 }
