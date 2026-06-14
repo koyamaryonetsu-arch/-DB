@@ -568,6 +568,8 @@
   const columnFilters = {};
   // R担当者ボタンによる絞り込み（空=全員）。複数選択時はいずれかが担当の案件（OR）
   let rPersonFilter = new Set();
+  // 客先(会社)ボタンによる絞り込み（空=全社・OR）
+  const companyFilter = new Set();
   // 列幅のユーザー調整（field -> px）。localStorage に保存
   const COLW_KEY = 'colWidthsV1';
   let colWidths = {};
@@ -753,6 +755,7 @@
     const prevSel = sel.value;
     sel.innerHTML = companyNames().map((n) => `<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join('');
     if (prevSel && companyNames().indexOf(prevSel) !== -1) sel.value = prevSel;
+    renderCompanyBar();
   }
   async function addCompany() {
     const name = prompt('追加する顧客（会社）の正式名称を入力してください');
@@ -1198,6 +1201,8 @@
     const colFilterFields = Object.keys(columnFilters);
     const filtered = cases.filter((c) => {
       if (cf && c.company !== cf) return false;
+      // 客先(会社)ボタンによる絞り込み（OR）
+      if (companyFilter.size && !companyFilter.has(c.company)) return false;
       // 大口のみ（見積り金額300万円以上）
       if (showBigOnly) {
         const amt = Number(c.estimateAmount);
@@ -2594,8 +2599,18 @@
     const fill = (base, set) => {
       try { const a = JSON.parse(localStorage.getItem(userFilterKey(base)) || '[]'); set.clear(); (Array.isArray(a) ? a : []).forEach((x) => set.add(x)); } catch (e) {}
     };
+    fill('coFV1', companyFilter);
     fill('calCoV1', calCompanyFilter);
     fill('calRpV1', calPersonFilter);
+  }
+  function renderCompanyBar() {
+    const bar = $('companyBar');
+    if (!bar) return;
+    let html = `<button type="button" class="rperson-btn co-btn${companyFilter.size === 0 ? ' active' : ''}" data-co="">全社</button>`;
+    html += companyNames().map((n) =>
+      `<button type="button" class="rperson-btn co-btn${companyFilter.has(n) ? ' active' : ''}" data-co="${escapeHtml(n)}">${escapeHtml(companyAbbr(n))}</button>`
+    ).join('');
+    bar.innerHTML = html;
   }
   function renderRPersonBar() {
     const bar = $('rPersonBar');
@@ -2611,6 +2626,7 @@
   function applyUserScope() {
     $('userEmail').textContent = currentUser.email;
     loadSavedFilters(); // アカウント別に最後の絞り込みを復元
+    renderCompanyBar();
     const privileged = isPrivileged(currentUser);
     document.body.classList.toggle('user-privileged', privileged);
     document.body.classList.toggle('user-toho', !privileged);
@@ -3064,6 +3080,17 @@
     else rPersonFilter.add(name);                     // 追加（OR）
     saveUserFilter('rpfV1', rPersonFilter);
     renderRPersonBar();
+    refresh();
+  });
+  $('companyBar').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-co]');
+    if (!b) return;
+    const v = b.dataset.co;
+    if (v === '') companyFilter.clear();
+    else if (companyFilter.has(v)) companyFilter.delete(v);
+    else companyFilter.add(v);
+    saveUserFilter('coFV1', companyFilter);
+    renderCompanyBar();
     refresh();
   });
 

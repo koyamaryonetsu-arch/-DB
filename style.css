@@ -1308,71 +1308,58 @@ body.show-tax .col-tax { display: table-cell; }
 /* モーダルの複製/削除はスマホのみ表示（PC不変） */
 .mobile-only { display: none; }
 
+/* 客先切替ボタン（active色を担当者ボタンと変えて区別） */
+.co-bar { gap: 4px; }
+.co-btn.active { background: #fbbf24; color: #1f2a44; border-color: #fbbf24; }
+/* 固定列セルの不透明背景（色行は既存ルールが優先・PCでは白地のため無影響） */
+td[data-field="category"], td[data-field="content"] { background: #fff; }
+
 /* ===================== iPhone / 狭い画面 専用UI (PCは不変) ===================== */
 @media (max-width: 600px) {
-  /* ヘッダー: 必要なものだけ（検索・簡易登録・担当者・タスク管理・カレンダー） */
+  /* ヘッダー: 必要なものだけ */
   #newCaseBtn, #aggBtn, #invoiceBtn, #displayModeBtn, #toggleBigBtn,
   #taxToggleBtn, #exportBtn, #statusFilter, .zoom-control,
   .legend-item, .legend-hint { display: none !important; }
-  header { padding: 8px 10px; gap: 8px; position: static; }
-  main { padding: 10px; }
+  header { padding: 8px 10px; gap: 6px; position: static; }
+  main { padding: 8px; }
   header h1 { font-size: 16px; }
   .header-actions { gap: 6px; width: 100%; }
   .header-actions input#searchBox { min-width: 0; max-width: none; flex: 1 1 100%; }
   #quickCaseBtn, #taskBtn, #calBtn { flex: 1 1 auto; }
 
-  /* 一覧: 1案件=カード。PCと同じ横並びを 3列×6行 のグリッドで（字は小さく） */
-  .table-wrap { max-height: none; min-height: 0; overflow: visible; background: transparent; box-shadow: none; }
-  #casesTable { zoom: 1 !important; min-width: 0; width: 100%; display: block; }
-  #casesTable thead { display: none; }
-  #casesTable tbody { display: block; }
-  #casesTable tbody tr {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px 8px;
-    background: #fff; border: 1px solid #e5e7eb; border-radius: 10px;
-    margin-bottom: 10px; padding: 8px 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.07);
-    cursor: pointer;
-  }
-  #casesTable td {
-    display: block; border: none; padding: 1px 0; font-size: 11px; line-height: 1.35;
-    white-space: normal; word-break: break-word;
-    width: auto !important; min-width: 0 !important; max-width: none !important;
-    position: static !important; left: auto !important; box-shadow: none !important;
-    background: transparent !important; overflow: hidden;
-  }
-  #casesTable td::before {
-    content: attr(data-label); display: block; font-size: 9px; font-weight: 700;
-    color: #9ca3af; white-space: nowrap;
-  }
-  #casesTable td.editable.empty::after { content: none; }
-  #casesTable td[data-field="content"], #casesTable td[data-field="memo"] { max-height: 4.2em; }
-  #casesTable td.col-tax, #casesTable td.row-actions { display: none !important; }
+  /* 一覧: コンパクトな横スクロール表。劇場名・種別・内容を左に固定 */
+  .table-wrap { max-height: calc(100vh - 150px); overflow: auto; }
+  #casesTable { zoom: 1 !important; min-width: 0; font-size: 11px; }
+  #casesTable thead th { font-size: 10px; padding: 4px 5px; }
+  #casesTable td { padding: 4px 5px; font-size: 11px; }
   .col-resizer { display: none; }
+  #casesTable td.col-tax, #casesTable th.col-tax,
+  #casesTable td.row-actions, #casesTable thead th:last-child { display: none !important; }
 
-  /* 並び順（指定のグループ: 3つずつ6行） */
-  #casesTable td.col-status { order: 1; }
-  #casesTable td[data-field="company"] { order: 2; }
-  #casesTable td[data-field="theater"] { order: 3; }
-  #casesTable td[data-field="receivedDate"] { order: 4; }
-  #casesTable td[data-field="tcPerson"] { order: 5; }
-  #casesTable td[data-field="rPerson"] { order: 6; }
-  #casesTable td[data-field="category"] { order: 7; }
-  #casesTable td[data-field="content"] { order: 8; }
-  #casesTable td[data-field="memo"] { order: 9; }
-  #casesTable td[data-field="surveyDate"] { order: 10; }
-  #casesTable td[data-field="workStartDate"] { order: 11; }
-  #casesTable td[data-field="workEndDate"] { order: 12; }
-  #casesTable td[data-field="estimateName"] { order: 13; }
-  #casesTable td[data-field="estimateAmount"] { order: 14; }
-  #casesTable td[data-field="quoteDate"] { order: 15; }
-  #casesTable td[data-field="invoiceDate"] { order: 16; }
-  #casesTable td[data-field="paymentDate"] { order: 17; }
-  #casesTable td[data-field="certNumber"], #casesTable td.toho-empty { order: 18; }
-
-  /* 行の色はカード全体の背景に */
-  #casesTable tbody tr.row-red { background: #fef2f2; border-color: #fca5a5; }
-  #casesTable tbody tr.row-yellow { background: #fffbeb; border-color: #fde68a; }
-  #casesTable tbody tr.row-yellowgreen { background: #f7fee7; border-color: #d9f99d; }
-  #casesTable tbody tr.row-blue { background: #eff6ff; border-color: #bfdbfe; }
+  /* ステータス・会社の固定は解除（スクロールする） */
+  #casesTable th[data-sort="status"], #casesTable td.col-status,
+  #casesTable th[data-sort="company"], #casesTable td[data-field="company"] {
+    position: static !important; left: auto !important;
+    width: auto !important; min-width: 0 !important; max-width: none !important;
+  }
+  /* 劇場名・種別・内容を左固定（背景は上のbare規則で不透明・色行は優先） */
+  #casesTable th[data-sort="theater"], #casesTable td[data-field="theater"] {
+    position: sticky !important; left: 0 !important; z-index: 1 !important;
+    width: 84px !important; min-width: 84px !important; max-width: 84px !important;
+  }
+  #casesTable th[data-sort="category"], #casesTable td[data-field="category"] {
+    position: sticky !important; left: 84px !important; z-index: 1 !important;
+    width: 58px !important; min-width: 58px !important; max-width: 58px !important;
+  }
+  #casesTable th[data-sort="content"], #casesTable td[data-field="content"] {
+    position: sticky !important; left: 142px !important; z-index: 1 !important;
+    width: 120px !important; min-width: 120px !important; max-width: 120px !important;
+    white-space: nowrap !important; overflow: hidden; text-overflow: ellipsis;
+    box-shadow: 2px 0 3px -2px rgba(0,0,0,0.25);
+  }
+  #casesTable thead th[data-sort="theater"],
+  #casesTable thead th[data-sort="category"],
+  #casesTable thead th[data-sort="content"] { z-index: 4 !important; }
 
   .mobile-only { display: inline-block; }
   .cal-filter-label { min-width: 44px; }
