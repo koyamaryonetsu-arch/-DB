@@ -1430,6 +1430,7 @@
       });
     }
     $('caseCount').textContent = `全 ${scope.length} 件`;
+    updateMobileSortButtons();
     updateSortIndicators();
     updateColumnFilterIndicators();
   }
@@ -2851,14 +2852,25 @@
 
   $('aggBtn').addEventListener('click', toggleAggMode);
   $('taskBtn').addEventListener('click', toggleTaskMode);
-  // 並び替えボタン（受付日順・客先順）
+  // 並び替えボタン（受付日順・調査日順・客先順・ステータス順）
   function toggleSortField(field) {
     if (sortState.field === field) sortState.direction = sortState.direction === 'asc' ? 'desc' : 'asc';
     else { sortState.field = field; sortState.direction = 'asc'; }
     render();
   }
+  function updateMobileSortButtons() {
+    const map = { receivedDate: ['sortReceivedBtn', '受付日順'], surveyDate: ['sortSurveyBtn', '調査日順'], company: ['sortCompanyBtn', '客先順'], status: ['sortStatusBtn', 'ステータス順'] };
+    Object.keys(map).forEach((field) => {
+      const b = $(map[field][0]); if (!b) return;
+      const active = sortState.field === field;
+      b.classList.toggle('sort-active', active);
+      b.textContent = map[field][1] + (active ? (sortState.direction === 'asc' ? ' ▲' : ' ▼') : '');
+    });
+  }
   $('sortReceivedBtn').addEventListener('click', () => toggleSortField('receivedDate'));
+  $('sortSurveyBtn').addEventListener('click', () => toggleSortField('surveyDate'));
   $('sortCompanyBtn').addEventListener('click', () => toggleSortField('company'));
+  $('sortStatusBtn').addEventListener('click', () => toggleSortField('status'));
   // カレンダー
   $('calBtn').addEventListener('click', toggleCalMode);
   $('calPrev').addEventListener('click', () => { calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; } renderCalendar(); });

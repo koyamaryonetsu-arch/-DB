@@ -1314,6 +1314,8 @@ body.show-tax .col-tax { display: table-cell; }
 /* 固定列セルの不透明背景（色行は既存ルールが優先・PCでは白地のため無影響） */
 td[data-field="category"], td[data-field="content"] { background: #fff; }
 
+.mobile-sort button.sort-active { background: #2563eb; color: #fff; border-color: #2563eb; font-weight: 700; }
+
 /* ===================== iPhone / 狭い画面 専用UI (PCは不変) ===================== */
 @media (max-width: 600px) {
   /* ヘッダー: 必要なものだけ */
