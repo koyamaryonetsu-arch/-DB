@@ -2101,15 +2101,16 @@
     const items = [];
     calVisibleCases().forEach((c) => {
       const theater = shortTheaterName(c.theater) || '(劇場未入力)';
+      const co = companyAbbr(c.company) || '';
       if (c.surveyDate && String(c.surveyDate).length >= 10) {
-        items.push({ id: c.id, kind: 'survey', start: c.surveyDate, end: c.surveyDate, time: c.surveyTime || '', theater: theater, full: c.content || '' });
+        items.push({ id: c.id, kind: 'survey', start: c.surveyDate, end: c.surveyDate, time: c.surveyTime || '', co: co, theater: theater, full: c.content || '' });
       }
       const ws = (c.workStartDate && String(c.workStartDate).length >= 10) ? c.workStartDate : '';
       const we = (c.workEndDate && String(c.workEndDate).length >= 10) ? c.workEndDate : '';
       if (ws || we) {
         let s = ws || we, e = we || ws;
         if (s > e) { const t = s; s = e; e = t; }
-        items.push({ id: c.id, kind: 'work', start: s, end: e, time: c.workStartTime || '', theater: theater, full: c.content || '' });
+        items.push({ id: c.id, kind: 'work', start: s, end: e, time: c.workStartTime || '', co: co, theater: theater, full: c.content || '' });
       }
     });
     return items;
@@ -2166,9 +2167,10 @@
         const top = DAYNUM_H + ev.lane * LANE_H;
         const cls = it.kind === 'survey' ? 'ev-survey' : 'ev-work';
         const lbl = it.kind === 'survey' ? '調査' : '作業';
-        const body = it.full || it.theater || '';
-        const txt = `${it.time ? '<b>' + escapeHtml(it.time) + '</b> ' : ''}${lbl}・${escapeHtml(body)}`;
-        const titleTxt = `${lbl}・${it.theater}${it.time ? ' ' + it.time : ''}${body ? '　' + body : ''}`;
+        const prefix = `${it.co || ''}${it.theater || ''}`; // 例: TOHO川崎
+        const body = it.full || '';
+        const txt = `${it.time ? '<b>' + escapeHtml(it.time) + '</b> ' : ''}${escapeHtml(prefix)}　${lbl}${body ? '：' + escapeHtml(body) : ''}`;
+        const titleTxt = `${prefix}　${lbl}${it.time ? ' ' + it.time : ''}${body ? '：' + body : ''}`;
         barsHtml += `<div class="cal-ev-bar ${cls}${ev.contL ? ' cont-l' : ''}${ev.contR ? ' cont-r' : ''}" data-case-id="${escapeHtml(it.id)}" style="left:${left}%;width:${width}%;top:${top}px" title="${escapeHtml(titleTxt)}">${txt}</div>`;
       });
       html += `<div class="cal-week" style="height:${weekH}px"><div class="cal-week-grid">${daysHtml}</div><div class="cal-week-bars">${barsHtml}</div></div>`;
