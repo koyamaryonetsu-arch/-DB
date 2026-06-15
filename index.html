@@ -87,6 +87,7 @@
       <button id="aggBtn" class="col-ryo">📊 A集計</button>
       <button id="taskBtn" class="col-ryo">📋 タスク管理</button>
       <button id="calBtn" class="col-ryo">📅 カレンダー</button>
+      <button id="koteiBtn" class="col-ryo">📋 工程表</button>
       <button id="taskDoneToggleBtn" class="toggle-btn col-ryo hidden" title="タスク管理画面で、チェック済み（完了）タスクの表示/非表示を切り替えます">完了タスク：非表示</button>
       <button id="invoiceBtn">📄 請求書発行</button>
       <button id="displayModeBtn" class="toggle-btn" title="押すごとに 標準 → 請求済・入金済 → 取り下げ・失注 を切り替えます">表示切替（標準）</button>
@@ -183,6 +184,66 @@
         <span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span>
       </div>
       <div id="calGrid" class="cal-grid"></div>
+    </div>
+
+    <!-- ===== 工程表（ガントチャート）ビュー ===== -->
+    <div id="viewKotei" class="hidden">
+      <header class="toolbar">
+        <div class="field">
+          <label>現場</label>
+          <select id="kSelect" title="編集する工程表（現場）を選びます"></select>
+          <button class="btn" id="kNew">＋ 新規</button>
+          <button class="btn danger" id="kDelete">🗑 削除</button>
+        </div>
+        <div class="field"><label>工事名</label><input type="text" id="title" placeholder="○○工事 工程表"></div>
+        <div class="field"><label>開始日</label><input type="date" id="start"></div>
+        <div class="field"><label>工程日数</label><input type="number" id="days" min="1" max="370" step="1"> 日</div>
+        <button class="btn" id="btnMaster">作業マスター編集</button>
+        <button class="btn" id="btnPrint">印刷 / PDF</button>
+        <button class="btn danger" id="btnClear">バー全消去</button>
+        <div class="legend">
+          <span><span class="sw blue"></span>日中(7-18時起点)</span>
+          <span><span class="sw red"></span>夜間(19-6時起点)</span>
+          <span><span class="sw wknd"></span>土日祝</span>
+        </div>
+      </header>
+      <div class="scroll" id="scroll">
+        <div class="board" id="board"></div>
+      </div>
+
+      <!-- バー編集パネル -->
+      <div id="panel">
+        <div class="pf"><label>作業内容</label><input type="text" id="pLabel" placeholder="例）既存機器解体、ステージ組 / 9:00～18:00"></div>
+        <div class="pf"><label>時間帯</label>
+          <span class="seg" id="pKind">
+            <button data-kind="day" class="day">日中</button>
+            <button data-kind="night" class="night">夜間</button>
+          </span>
+        </div>
+        <div class="pf"><label>色</label><span class="swatches" id="pColors"></span></div>
+        <button class="btn danger" id="pDelete">削除</button>
+        <button class="btn" id="pClose">閉じる</button>
+      </div>
+
+      <!-- 作業マスター -->
+      <div class="modal-bg" id="masterBg">
+        <div class="modal">
+          <h2>作業マスター（縦軸の作業内容）</h2>
+          <div class="body">
+            <p class="hint">行の追加・名称変更・削除・並べ替えができます。追加欄では一覧から選ぶ（▼）か手入力できます。</p>
+            <div id="mlist"></div>
+            <div class="add-row">
+              <input type="text" id="mAdd" list="taskSuggest" placeholder="作業を選択または入力（例：配管工事）">
+              <button class="btn primary" id="mAddBtn">＋ 追加</button>
+            </div>
+            <datalist id="taskSuggest"></datalist>
+          </div>
+          <div class="foot">
+            <button class="btn" id="mRestore">標準セットに戻す</button>
+            <button class="btn primary" id="mClose">閉じる</button>
+          </div>
+        </div>
+      </div>
     </div>
   </main>
 </div>
@@ -437,5 +498,6 @@
 </div>
 
 <script src="app.js"></script>
+<script src="kotei.js"></script>
 </body>
 </html>

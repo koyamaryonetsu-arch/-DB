@@ -227,4 +227,36 @@ create trigger trg_enforce_allowed_signup_domains
   before insert on auth.users
   for each row execute function public.enforce_allowed_signup_domains();
 
+-- 8. 工程表（ガントチャート）テーブル。現場ごとに1ドキュメント・全員共有。
+--    data(jsonb) に {title,start,days,tasks,bars} を丸ごと格納する。
+create table if not exists public.koutei (
+  id          uuid primary key default gen_random_uuid(),
+  name        text not null default '工程表',
+  data        jsonb not null default '{}'::jsonb,
+  created_at  timestamptz not null default now(),
+  updated_at  timestamptz not null default now(),
+  updated_by  uuid references auth.users(id) on delete set null
+);
+
+-- updated_at / updated_by を自動更新（cases と同じトリガー関数を再利用）
+drop trigger if exists trg_koutei_set_updated on public.koutei;
+create trigger trg_koutei_set_updated
+  before update on public.koutei
+  for each row execute function public.tg_set_updated();
+
+-- 全認証ユーザー閲覧可・ryonetsuのみ 追加/更新/削除可（工程表は菱熱が管理）
+alter table public.koutei enable row level security;
+drop policy if exists "koutei_select" on public.koutei;
+create policy "koutei_select" on public.koutei for select to authenticated using (true);
+drop policy if exists "koutei_insert" on public.koutei;
+create policy "koutei_insert" on public.koutei for insert to authenticated
+  with check (coalesce(auth.email() like '%@ryonetsu.com', false));
+drop policy if exists "koutei_update" on public.koutei;
+create policy "koutei_update" on public.koutei for update to authenticated
+  using (coalesce(auth.email() like '%@ryonetsu.com', false))
+  with check (coalesce(auth.email() like '%@ryonetsu.com', false));
+drop policy if exists "koutei_delete" on public.koutei;
+create policy "koutei_delete" on public.koutei for delete to authenticated
+  using (coalesce(auth.email() like '%@ryonetsu.com', false));
+
 -- 完了

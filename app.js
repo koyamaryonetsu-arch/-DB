@@ -2081,6 +2081,7 @@
   function enterAggMode() {
     if (taskMode) exitTaskMode();
     if (calMode) exitCalMode();
+    if (koteiMode) exitKoteiMode();
     aggMode = true;
     document.body.classList.add('agg-active');
     $('casesTable').classList.add('agg-mode');
@@ -2118,6 +2119,7 @@
   function enterTaskMode() {
     if (aggMode) exitAggMode();
     if (calMode) exitCalMode();
+    if (koteiMode) exitKoteiMode();
     taskMode = true;
     $('casesTable').classList.add('task-mode');
     $('emptyMsg').classList.add('hidden');
@@ -2148,6 +2150,7 @@
   function enterCalMode() {
     if (aggMode) exitAggMode();
     if (taskMode) exitTaskMode();
+    if (koteiMode) exitKoteiMode();
     calMode = true;
     if (calYear == null) { const n = new Date(); calYear = n.getFullYear(); calMonth = n.getMonth(); }
     $('calBtn').textContent = '✕ カレンダーを閉じる';
@@ -2164,6 +2167,28 @@
     document.querySelector('.legend').classList.remove('hidden');
   }
   function toggleCalMode() { if (calMode) exitCalMode(); else enterCalMode(); }
+
+  // ===== 工程表（ガントチャート）モード =====
+  let koteiMode = false;
+  function enterKoteiMode() {
+    if (aggMode) exitAggMode();
+    if (taskMode) exitTaskMode();
+    if (calMode) exitCalMode();
+    koteiMode = true;
+    $('koteiBtn').textContent = '✕ 工程表を閉じる';
+    document.querySelector('.table-wrap').classList.add('hidden');
+    document.querySelector('.legend').classList.add('hidden');
+    $('viewKotei').classList.remove('hidden');
+    if (window.KOTEI && window.KOTEI.open) window.KOTEI.open();
+  }
+  function exitKoteiMode() {
+    koteiMode = false;
+    $('koteiBtn').textContent = '📋 工程表';
+    $('viewKotei').classList.add('hidden');
+    document.querySelector('.table-wrap').classList.remove('hidden');
+    document.querySelector('.legend').classList.remove('hidden');
+  }
+  function toggleKoteiMode() { if (koteiMode) exitKoteiMode(); else enterKoteiMode(); }
   // カレンダーはトップ画面の客先(companyFilter)・R担当者(rPersonFilter)を絞り込み条件に使う
   function calVisibleCases() {
     return visibleCases().filter((c) => {
@@ -2888,6 +2913,7 @@
   $('sortStatusBtn').addEventListener('click', () => toggleSortField('status'));
   // カレンダー
   $('calBtn').addEventListener('click', toggleCalMode);
+  $('koteiBtn').addEventListener('click', toggleKoteiMode);
   $('calPrev').addEventListener('click', () => { calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; } renderCalendar(); });
   $('calNext').addEventListener('click', () => { calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; } renderCalendar(); });
   $('calToday').addEventListener('click', () => { const n = new Date(); calYear = n.getFullYear(); calMonth = n.getMonth(); renderCalendar(); });
@@ -3250,6 +3276,8 @@
   // ---------- 起動 ----------
   async function init() {
     store.init();
+    // 工程表(kotei.js)が同じSupabaseクライアント・モードを共有できるよう橋渡し
+    window.CINEMA_DB = { client: () => sb, mode: () => store.mode };
     // モードに応じたログイン画面ヒント
     const hintEl = $('loginHint');
     if (hintEl) {

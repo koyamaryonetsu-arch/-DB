@@ -1398,3 +1398,147 @@ td[data-field="category"], td[data-field="content"] { background: #fff; }
 
 /* R担当者バーの下に客先バーを縦に並べる（共通UI） */
 .filter-bars { display: flex; flex-direction: column; gap: 4px; }
+
+/* ============================================================
+   工程表（ガントチャート）ビュー — すべて #viewKotei 配下にスコープ
+   既存UIのCSSと衝突しないよう .btn/.legend/.modal 等は限定セレクタで上書き
+   ============================================================ */
+#viewKotei{
+  --k-label-w:140px; --k-day-w:56px; --k-half-w:28px; --k-row-h:46px;
+  --k-line:#dfe3e8; --k-line-strong:#b9c0c9;
+  --k-blue:#2f6fed; --k-blue-d:#1d4ed8; --k-red:#e23b3b; --k-red-d:#b91c1c;
+  --k-weekend:#fdeaea; --k-weekend-h:#fadddd; --k-today:#fff7d6;
+  display:flex; flex-direction:column; background:#f4f6f9;
+  color:#1f2733; font-size:13px; border-radius:8px; overflow:hidden;
+  box-shadow:0 1px 3px rgba(0,0,0,.06);
+}
+#viewKotei *{ box-sizing:border-box; }
+
+/* ツールバー */
+#viewKotei .toolbar{
+  background:#fff; border-bottom:1px solid var(--k-line);
+  padding:8px 12px; display:flex; flex-wrap:wrap; gap:8px 14px; align-items:center; flex:0 0 auto;
+}
+#viewKotei .field{ display:flex; align-items:center; gap:5px; }
+#viewKotei .field label{ font-weight:600; color:#445; white-space:nowrap; }
+#viewKotei input[type=text],
+#viewKotei input[type=date],
+#viewKotei input[type=number],
+#viewKotei select{
+  border:1px solid #cbd2db; border-radius:6px; padding:5px 8px; font-size:13px; font-family:inherit; background:#fff;
+}
+#viewKotei #title{ min-width:240px; font-weight:700; }
+#viewKotei #days{ width:64px; }
+#viewKotei #kSelect{ min-width:160px; max-width:240px; font-weight:600; }
+#viewKotei .btn{
+  border:1px solid #cbd2db; background:#fff; border-radius:6px; padding:6px 12px;
+  cursor:pointer; font-size:13px; font-family:inherit; color:#283; font-weight:600; white-space:nowrap;
+}
+#viewKotei .btn:hover{ background:#f0f4ff; border-color:#9db4f0; }
+#viewKotei .btn.primary{ background:var(--k-blue); border-color:var(--k-blue-d); color:#fff; }
+#viewKotei .btn.primary:hover{ background:var(--k-blue-d); }
+#viewKotei .btn.danger{ color:#b91c1c; }
+#viewKotei .btn.danger:hover{ background:#fdecec; border-color:#e7a3a3; }
+#viewKotei .legend{ display:flex; gap:12px; align-items:center; margin-left:auto; margin-bottom:0; color:#556; }
+#viewKotei .legend .sw{ display:inline-block; width:14px; height:14px; border-radius:3px; vertical-align:-2px; margin-right:4px; }
+#viewKotei .sw.blue{ background:var(--k-blue); }
+#viewKotei .sw.red{ background:var(--k-red); }
+#viewKotei .sw.wknd{ background:var(--k-weekend); border:1px solid #e7b9b9; }
+
+/* 盤面 */
+#viewKotei .scroll{ flex:1 1 auto; overflow:auto; background:#fff; position:relative; min-height:320px; max-height:calc(100vh - 230px); }
+#viewKotei .board{ display:grid; grid-template-columns:var(--k-label-w) max-content; align-content:start; }
+#viewKotei .corner{
+  position:sticky; top:0; left:0; z-index:40; background:#eef1f5;
+  border-right:2px solid var(--k-line-strong); border-bottom:2px solid var(--k-line-strong);
+  display:flex; align-items:center; justify-content:center; font-weight:700; color:#445;
+  min-height:48px; text-align:center; line-height:1.3;
+}
+#viewKotei .timeline{ position:sticky; top:0; z-index:30; display:flex; background:#fff; border-bottom:2px solid var(--k-line-strong); }
+#viewKotei .dhead{
+  width:var(--k-day-w); flex:0 0 var(--k-day-w); border-right:1px solid var(--k-line);
+  text-align:center; padding:3px 0 2px; line-height:1.25; user-select:none;
+}
+#viewKotei .dhead .md{ font-weight:700; font-size:12px; }
+#viewKotei .dhead .yr{ font-size:9px; color:#8a93a0; }
+#viewKotei .dhead .dow{ font-size:11px; color:#556; }
+#viewKotei .dhead.month-start{ border-left:2px solid var(--k-line-strong); }
+#viewKotei .dhead.wknd{ background:var(--k-weekend-h); }
+#viewKotei .dhead.wknd .dow,#viewKotei .dhead.wknd .md{ color:#c0392b; }
+#viewKotei .dhead.today{ background:var(--k-today); }
+#viewKotei .rlabel{
+  position:sticky; left:0; z-index:20; background:#f7f9fb;
+  border-right:2px solid var(--k-line-strong); border-bottom:1px solid var(--k-line);
+  display:flex; align-items:center; gap:4px; padding:0 6px; min-height:var(--k-row-h);
+}
+#viewKotei .rlabel .name{ flex:1; font-weight:600; cursor:text; padding:4px 4px; border-radius:5px; line-height:1.25; word-break:break-all; }
+#viewKotei .rlabel .name:hover{ background:#e9eef5; }
+#viewKotei .rlabel .grip{ color:#b3bbc6; cursor:grab; font-size:14px; user-select:none; }
+#viewKotei .rlabel .dn{ display:flex; flex-direction:column; font-size:9px; color:#9aa3af; line-height:1.4; text-align:right; }
+#viewKotei .track{
+  position:relative; height:var(--k-row-h); border-bottom:1px solid var(--k-line);
+  background-image:
+    repeating-linear-gradient(to right,
+      transparent 0, transparent calc(var(--k-half-w) - 1px),
+      #eef1f4 calc(var(--k-half-w) - 1px), #eef1f4 var(--k-half-w),
+      transparent var(--k-half-w), transparent calc(var(--k-day-w) - 1px),
+      var(--k-line) calc(var(--k-day-w) - 1px), var(--k-line) var(--k-day-w));
+  cursor:crosshair;
+}
+#viewKotei .track .midline{ position:absolute; left:0; right:0; top:50%; border-top:1px dashed #eef1f4; pointer-events:none; }
+#viewKotei .wkcol{ position:absolute; top:0; bottom:0; width:var(--k-day-w); background:var(--k-weekend); pointer-events:none; }
+#viewKotei .todaycol{ position:absolute; top:0; bottom:0; width:var(--k-day-w); background:rgba(255,225,90,.18); pointer-events:none; }
+
+/* バー */
+#viewKotei .bar{
+  position:absolute; height:16px; border-radius:4px; color:#fff; font-size:11px; line-height:16px;
+  padding:0 6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; cursor:grab;
+  box-shadow:0 1px 2px rgba(0,0,0,.25); user-select:none; border:1px solid rgba(0,0,0,.15);
+}
+#viewKotei .bar.day{ background:var(--k-blue); top:5px; }
+#viewKotei .bar.night{ background:var(--k-red); top:25px; }
+#viewKotei .bar.sel{ outline:2px solid #111; outline-offset:1px; z-index:5; }
+#viewKotei .bar .h{ position:absolute; top:0; bottom:0; width:7px; cursor:ew-resize; }
+#viewKotei .bar .h.l{ left:0; }
+#viewKotei .bar .h.r{ right:0; }
+#viewKotei .bar.copying{ opacity:.85; box-shadow:0 0 0 2px #16a34a, 0 1px 3px rgba(0,0,0,.3); }
+
+/* プロパティパネル */
+#viewKotei #panel{
+  position:fixed; left:50%; bottom:14px; transform:translateX(-50%);
+  background:#fff; border:1px solid #cbd2db; border-radius:10px; box-shadow:0 6px 24px rgba(0,0,0,.18);
+  padding:10px 14px; display:none; gap:12px; align-items:center; z-index:1200; flex-wrap:wrap; max-width:94vw;
+}
+#viewKotei #panel.show{ display:flex; }
+#viewKotei #panel .pf{ display:flex; align-items:center; gap:6px; }
+#viewKotei #panel label{ font-weight:600; color:#445; }
+#viewKotei #panel input[type=text]{ border:1px solid #cbd2db; border-radius:6px; padding:5px 8px; min-width:200px; font-family:inherit; font-size:13px; }
+#viewKotei .seg{ display:inline-flex; border:1px solid #cbd2db; border-radius:6px; overflow:hidden; }
+#viewKotei .seg button{ border:0; background:#fff; padding:5px 12px; cursor:pointer; font-weight:600; font-family:inherit; font-size:13px; }
+#viewKotei .seg button.on.day{ background:var(--k-blue); color:#fff; }
+#viewKotei .seg button.on.night{ background:var(--k-red); color:#fff; }
+#viewKotei .swatches{ display:flex; gap:5px; }
+#viewKotei .swatch{ width:20px; height:20px; border-radius:4px; border:2px solid transparent; cursor:pointer; }
+#viewKotei .swatch.on{ border-color:#111; }
+
+/* マスター（モーダル） */
+#viewKotei .modal-bg{ position:fixed; inset:0; background:rgba(15,20,30,.45); display:none; align-items:center; justify-content:center; z-index:1300; }
+#viewKotei .modal-bg.show{ display:flex; }
+#viewKotei .modal{ background:#fff; border-radius:12px; width:min(520px,92vw); max-height:86vh; overflow:auto; box-shadow:0 12px 40px rgba(0,0,0,.3); }
+#viewKotei .modal h2{ margin:0; padding:14px 18px; border-bottom:1px solid var(--k-line); font-size:16px; }
+#viewKotei .modal .body{ padding:14px 18px; }
+#viewKotei .mrow{ display:flex; align-items:center; gap:8px; padding:6px 0; border-bottom:1px dashed #eef1f4; }
+#viewKotei .mrow input{ flex:1; border:1px solid #cbd2db; border-radius:6px; padding:6px 8px; font-family:inherit; font-size:13px; }
+#viewKotei .mrow .ic{ border:1px solid #cbd2db; background:#fff; border-radius:6px; width:30px; height:30px; cursor:pointer; font-size:14px; }
+#viewKotei .mrow .ic:hover{ background:#f0f4ff; }
+#viewKotei .add-row{ display:flex; gap:8px; margin-top:12px; }
+#viewKotei .add-row input{ flex:1; border:1px solid #cbd2db; border-radius:6px; padding:7px 9px; font-family:inherit; font-size:13px; }
+#viewKotei .modal .foot{ padding:12px 18px; border-top:1px solid var(--k-line); display:flex; justify-content:flex-end; gap:8px; }
+#viewKotei .hint{ color:#7a828d; font-size:12px; margin:2px 0 0; }
+
+/* 印刷（工程表のみ表示・A3横） */
+@media print{
+  #viewKotei .toolbar, #viewKotei #panel{ display:none !important; }
+  #viewKotei .scroll{ overflow:visible; max-height:none; }
+  #viewKotei .corner, #viewKotei .timeline, #viewKotei .rlabel{ position:static; }
+}

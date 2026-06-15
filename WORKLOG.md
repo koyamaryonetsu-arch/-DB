@@ -68,6 +68,12 @@
   ```
 
 ### 完了済み（直近）
+- ✅ **工程表（ガントチャート）を統合**: 別セッションで作った工程表アプリを本アプリに取り込み
+  - 新ファイル `kotei.js`（別IIFE・`$`=querySelector で app.js と分離）／`#viewKotei` ビュー／CSSは全て `#viewKotei` 配下にスコープ（既存UIに影響なし）
+  - ヘッダーに「📋 工程表」ボタン（`col-ryo`＝受注者のみ）。calMode 等と同じ排他トグル（`enter/exitKoteiMode`）
+  - 保存先は **Supabase `koutei` テーブル**（全員共有）。**現場ごとに独立**した複数ドキュメントを「現場」セレクタで切替・＋新規・🗑削除。`?local=1` 時は localStorage フォールバック。保存は600msデバウンスのupsert
+  - app.js が `window.CINEMA_DB`（Supabaseクライアント/モード）を公開し kotei.js が共有
+  - ⚠️ **DB作業（小山さん）**: `koutei` テーブル新規作成＋RLS が必要（下記「ユーザー側で必要な作業」参照）
 - ✅ **デプロイ復旧**: `vercel.json` の不正な `runtime: "nodejs20.x"` 指定を除去（`maxDuration` のみ残す）。852ca23 以降の全デプロイ失敗（"Function Runtimes must have a valid version" エラー）を解消。.mjs は Vercel が自動で Node ランタイム判定する
 - ✅ Phase 1 実装一式: `api/case-created.mjs` / `api/line-webhook.mjs` / `vercel.json` / `SETUP_LINE.md`（852ca23）
 - ✅ `/tmp/line-api-test.js` で 29項目 PASS
@@ -90,6 +96,36 @@
   - 当初 theaters 未作成でロールバックしていたが、手順書を自己完結型（無ければ作成）に修正して解消
 - ⏳ **残作業（小山さん）**: theaters は空で作成済み。**@ryonetsu.com で一度アプリを開く**と
   アプリが初期劇場一覧（約120件）を自動投入し、全ユーザー共有になる。投入後 `select count(*) from public.theaters;` で確認
+
+### 工程表テーブルの作成（NEW・要実行）
+- ⏳ Supabase SQL Editor で以下を実行（`supabase-schema.sql` の「8. 工程表」と同一）:
+  ```sql
+  create table if not exists public.koutei (
+    id uuid primary key default gen_random_uuid(),
+    name text not null default '工程表',
+    data jsonb not null default '{}'::jsonb,
+    created_at timestamptz not null default now(),
+    updated_at timestamptz not null default now(),
+    updated_by uuid references auth.users(id) on delete set null
+  );
+  drop trigger if exists trg_koutei_set_updated on public.koutei;
+  create trigger trg_koutei_set_updated before update on public.koutei
+    for each row execute function public.tg_set_updated();
+  alter table public.koutei enable row level security;
+  drop policy if exists "koutei_select" on public.koutei;
+  create policy "koutei_select" on public.koutei for select to authenticated using (true);
+  drop policy if exists "koutei_insert" on public.koutei;
+  create policy "koutei_insert" on public.koutei for insert to authenticated
+    with check (coalesce(auth.email() like '%@ryonetsu.com', false));
+  drop policy if exists "koutei_update" on public.koutei;
+  create policy "koutei_update" on public.koutei for update to authenticated
+    using (coalesce(auth.email() like '%@ryonetsu.com', false))
+    with check (coalesce(auth.email() like '%@ryonetsu.com', false));
+  drop policy if exists "koutei_delete" on public.koutei;
+  create policy "koutei_delete" on public.koutei for delete to authenticated
+    using (coalesce(auth.email() like '%@ryonetsu.com', false));
+  ```
+  - 実行前でもアプリは落ちないが、工程表の保存はテーブル作成後から有効
 
 ### LINE通知Phase 1 セットアップ
 - `SETUP_LINE.md` を Claude in Chrome に渡して、Step A〜F を順番に実施
