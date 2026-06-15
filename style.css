@@ -1446,6 +1446,11 @@ td[data-field="category"], td[data-field="content"] { background: #fff; }
 #viewKotei .k-info-cell .k-days{ display:flex; align-items:baseline; gap:2px; }
 #viewKotei .k-info-cell .k-days input{ width:46px; font-size:15px !important; text-align:right; }
 #viewKotei .k-info-cell .k-days em{ font-style:normal; font-size:12px; color:#67748a; font-weight:700; }
+#viewKotei .k-info-cell .k-kind{ font-size:13px !important; font-weight:700; border:1px solid #cbd2db !important; border-radius:6px !important; padding:3px 6px !important; background:#fff !important; }
+#viewKotei .k-info-cell .k-ver{ display:flex; align-items:center; gap:6px; }
+#viewKotei .k-info-cell .k-ver select{ font-size:13px !important; border:1px solid #cbd2db !important; border-radius:6px !important; padding:3px 6px !important; background:#fff !important; font-weight:600; min-width:150px; }
+#viewKotei .k-info-cell .k-ver .btn{ padding:4px 9px; font-size:12px; }
+#viewKotei .k-info-cell.hidden{ display:none !important; }
 
 /* ツールバーのグループ */
 #viewKotei .k-tb-group{ display:inline-flex; align-items:center; gap:4px; padding:0 6px; border-left:1px solid #d7dde6; border-right:1px solid #d7dde6; }
@@ -1482,18 +1487,21 @@ td[data-field="category"], td[data-field="content"] { background: #fff; }
 }
 #viewKotei .kcorner .k-sub{ font-size:9px; color:#8a93a0; font-weight:400; }
 #viewKotei .ktimeline{ display:flex; border-bottom:2px solid var(--k-line-strong); }
-#viewKotei .kday{ width:var(--kday,64px); flex:0 0 var(--kday,64px); border-right:2px solid var(--k-line-strong); }
+#viewKotei .kday{ width:var(--kday,64px); flex:0 0 var(--kday,64px); border-right:2px solid var(--k-line-strong);
+  background-image:
+    repeating-linear-gradient(to right,
+      transparent 0, transparent calc(var(--kqw,16px) - 1px),
+      #c9d0da calc(var(--kqw,16px) - 1px), #c9d0da var(--kqw,16px)); }
 #viewKotei .kday.month-start{ border-left:2px solid var(--k-line-strong); }
-#viewKotei .kday.wknd{ background:#fadddd; }
+#viewKotei .kday.wknd{ background-color:#fadddd; }
 #viewKotei .kday.today .kday-top{ background:var(--k-today); }
-#viewKotei .kday-top{ text-align:center; padding:2px 0 1px; line-height:1.2; }
+#viewKotei .kday-top{ text-align:center; padding:2px 0 1px; line-height:1.2; border-bottom:1px solid var(--k-line-strong); }
 #viewKotei .kday-top .yr{ display:block; font-size:8px; color:#8a93a0; min-height:9px; }
 #viewKotei .kday-top .md{ display:block; font-weight:700; font-size:11px; }
 #viewKotei .kday-top .dow{ display:block; font-size:10px; color:#556; }
 #viewKotei .kday.wknd .kday-top .md,#viewKotei .kday.wknd .kday-top .dow{ color:#c0392b; }
-#viewKotei .kday-times{ position:relative; height:13px; border-top:1px solid var(--k-line-strong); overflow:hidden; }
-#viewKotei .kday-times .kt-line{ position:absolute; top:0; bottom:0; width:0; border-left:1px solid var(--k-line); }
-#viewKotei .kday-times .kt{ position:absolute; top:1px; font-size:8px; color:#67748a; white-space:nowrap; padding-left:1px; }
+/* 時刻ラベル：左寄せで「8時 12時 17時」、文字の下に線 */
+#viewKotei .kday-times{ height:13px; line-height:13px; font-size:8px; color:#67748a; white-space:nowrap; overflow:hidden; padding-left:2px; border-bottom:2px solid var(--k-line-strong); }
 
 /* 作業行（4レーン） */
 #viewKotei .ktask{ display:flex; align-items:stretch; }
@@ -1578,6 +1586,7 @@ td[data-field="category"], td[data-field="content"] { background: #fff; }
   body.kotei-printing main > .table-wrap,
   body.kotei-printing main > #calendarView{ display:none !important; }
   body.kotei-printing #viewKotei .toolbar,
+  body.kotei-printing #viewKotei .k-infobar,
   body.kotei-printing #viewKotei .k-notes label{ display:none !important; }
   body.kotei-printing #viewKotei{ box-shadow:none; border-radius:0; }
   body.kotei-printing #viewKotei .scroll{ overflow:visible; max-height:none; }

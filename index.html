@@ -200,12 +200,26 @@
           </div>
         </div>
         <div class="k-info-grid">
+          <div class="k-info-cell"><span class="k-lbl">種類</span>
+            <select id="kKind" class="k-kind">
+              <option value="date">通常（日付）</option>
+              <option value="zero">ゼロ工程表（1日目・2日目…）</option>
+              <option value="master-week">マスター工程（週単位）</option>
+              <option value="master-month">マスター工程（月単位）</option>
+            </select>
+          </div>
           <div class="k-info-cell wide"><span class="k-lbl">工事内容</span><input type="text" id="kContent" placeholder="例）熱源更新工事"></div>
-          <div class="k-info-cell"><span class="k-lbl">着工日</span><input type="date" id="start"></div>
-          <div class="k-info-cell narrow"><span class="k-lbl">工期</span><span class="k-days"><input type="number" id="days" min="1" max="370" step="1"><em>日</em></span></div>
-          <div class="k-info-cell"><span class="k-lbl">竣工日</span><span id="kEnd" class="k-val">―</span></div>
+          <div class="k-info-cell" id="startCell"><span class="k-lbl">着工日</span><input type="date" id="start"></div>
+          <div class="k-info-cell narrow"><span class="k-lbl" id="kDaysLbl">工期</span><span class="k-days"><input type="number" id="days" min="1" max="370" step="1"><em id="kDaysUnit">日</em></span></div>
+          <div class="k-info-cell" id="endCell"><span class="k-lbl">竣工日</span><span id="kEnd" class="k-val">―</span></div>
           <div class="k-info-cell"><span class="k-lbl">会社</span><span class="k-val">菱熱工業株式会社</span></div>
           <div class="k-info-cell"><span class="k-lbl">作成者</span><input type="text" id="kAuthor" placeholder="作成者名"></div>
+          <div class="k-info-cell wide"><span class="k-lbl">バージョン（作成日）</span>
+            <span class="k-ver">
+              <select id="kVerSelect" title="保存したバージョンを選んで表示します"><option value="">編集中（最新）</option></select>
+              <button class="btn" id="btnSaveVer" title="今の状態を作成日つきのバージョンとして保存します">📌 版を保存</button>
+            </span>
+          </div>
         </div>
       </div>
 
