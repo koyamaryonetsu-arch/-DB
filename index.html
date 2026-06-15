@@ -188,20 +188,41 @@
 
     <!-- ===== 工程表（ガントチャート）ビュー ===== -->
     <div id="viewKotei" class="hidden">
-      <header class="toolbar">
-        <div class="field">
-          <label>現場</label>
-          <select id="kSelect" title="編集する工程表（現場）を選びます"></select>
-          <button class="btn" id="kNew">＋ 新規</button>
-          <button class="btn danger" id="kDelete">🗑 削除</button>
+      <!-- プロジェクト情報バー -->
+      <div class="k-infobar">
+        <div class="k-info-top">
+          <input type="text" id="title" class="k-title-input" placeholder="工事名を入力（例：TOHOシネマズ○○ 熱源更新工事 工程表）">
+          <div class="k-site">
+            <label>現場</label>
+            <select id="kSelect" title="編集する工程表（現場）を選びます"></select>
+            <button class="btn" id="kNew">＋ 新規</button>
+            <button class="btn danger" id="kDelete">🗑 削除</button>
+          </div>
         </div>
-        <div class="field"><label>工事名</label><input type="text" id="title" placeholder="○○工事 工程表"></div>
-        <div class="field"><label>工事内容</label><input type="text" id="kContent" placeholder="例）熱源更新工事"></div>
-        <div class="field"><label>着工日</label><input type="date" id="start"></div>
-        <div class="field"><label>工期</label><input type="number" id="days" min="1" max="370" step="1"> 日</div>
-        <div class="field"><label>竣工日</label><span id="kEnd" class="k-readonly">―</span></div>
-        <div class="field"><label>作成者</label><input type="text" id="kAuthor" placeholder="作成者名"></div>
+        <div class="k-info-grid">
+          <div class="k-info-cell wide"><span class="k-lbl">工事内容</span><input type="text" id="kContent" placeholder="例）熱源更新工事"></div>
+          <div class="k-info-cell"><span class="k-lbl">着工日</span><input type="date" id="start"></div>
+          <div class="k-info-cell narrow"><span class="k-lbl">工期</span><span class="k-days"><input type="number" id="days" min="1" max="370" step="1"><em>日</em></span></div>
+          <div class="k-info-cell"><span class="k-lbl">竣工日</span><span id="kEnd" class="k-val">―</span></div>
+          <div class="k-info-cell"><span class="k-lbl">会社</span><span class="k-val">菱熱工業株式会社</span></div>
+          <div class="k-info-cell"><span class="k-lbl">作成者</span><input type="text" id="kAuthor" placeholder="作成者名"></div>
+        </div>
+      </div>
+
+      <!-- ツールバー（操作） -->
+      <header class="toolbar">
         <button class="btn" id="btnMaster">作業マスター編集</button>
+        <span class="k-tb-group">
+          <button class="btn" id="btnUndo" title="一つ戻す">↶ 戻す</button>
+          <button class="btn" id="btnRedo" title="一つ進む">↷ 進む</button>
+        </span>
+        <span class="k-tb-group k-zoom" title="工程表の表示倍率を変えます">
+          <span class="k-zoom-label">縮尺</span>
+          <button class="btn" id="kZoomOut" aria-label="縮小">－</button>
+          <span id="kZoomLevel" class="k-zoom-level">100%</span>
+          <button class="btn" id="kZoomIn" aria-label="拡大">＋</button>
+          <button class="btn" id="kZoomReset" aria-label="100%に戻す">⟲</button>
+        </span>
         <button class="btn" id="btnExcel">📊 Excel出力</button>
         <button class="btn" id="btnPrint">🖨 印刷 / PDF</button>
         <button class="btn danger" id="btnClear">バー全消去</button>
@@ -209,7 +230,7 @@
           <span><span class="sw blue"></span>日中（青の行）</span>
           <span><span class="sw red"></span>夜間（赤の行）</span>
           <span><span class="sw wknd"></span>土日祝</span>
-          <span class="hint">💡 行をドラッグでバー作成／ダブルクリックで文字入力／バーを上下に動かすと日中⇔夜間</span>
+          <span class="hint">💡 行をドラッグでバー作成／ダブルクリックで文字入力／上下に動かすと日中⇔夜間／Ctrl+クリックで複数選択</span>
         </div>
       </header>
 
@@ -230,28 +251,28 @@
           <textarea id="kNotes" placeholder="特記事項を入力（例：搬出入は管理者立会いのもと実施。雨天時は順延。）"></textarea>
         </div>
       </div>
-
-      <!-- 作業マスター -->
-      <div class="modal-bg" id="masterBg">
-        <div class="modal">
-          <h2>作業マスター（縦軸の作業内容）</h2>
-          <div class="body">
-            <p class="hint">行の追加・名称変更・削除・並べ替えができます。追加欄では一覧から選ぶ（▼）か手入力できます。</p>
-            <div id="mlist"></div>
-            <div class="add-row">
-              <input type="text" id="mAdd" list="taskSuggest" placeholder="作業を選択または入力（例：配管工事）">
-              <button class="btn primary" id="mAddBtn">＋ 追加</button>
-            </div>
-            <datalist id="taskSuggest"></datalist>
-          </div>
-          <div class="foot">
-            <button class="btn" id="mRestore">標準セットに戻す</button>
-            <button class="btn primary" id="mClose">閉じる</button>
-          </div>
-        </div>
-      </div>
     </div>
   </main>
+</div>
+
+<!-- 作業マスター（クリッピング回避のためトップレベルに配置） -->
+<div class="modal-bg" id="masterBg">
+  <div class="modal">
+    <h2>作業マスター（縦軸の作業内容）</h2>
+    <div class="body">
+      <p class="hint">行の追加・名称変更・削除・並べ替えができます。追加欄では一覧から選ぶ（▼）か手入力できます。</p>
+      <div id="mlist"></div>
+      <div class="add-row">
+        <input type="text" id="mAdd" list="taskSuggest" placeholder="作業を選択または入力（例：配管工事）">
+        <button class="btn primary" id="mAddBtn">＋ 追加</button>
+      </div>
+      <datalist id="taskSuggest"></datalist>
+    </div>
+    <div class="foot">
+      <button class="btn" id="mRestore">標準セットに戻す</button>
+      <button class="btn primary" id="mClose">閉じる</button>
+    </div>
+  </div>
 </div>
 
 <div id="modal" class="modal hidden">
