@@ -3276,8 +3276,13 @@
   // ---------- 起動 ----------
   async function init() {
     store.init();
-    // 工程表(kotei.js)が同じSupabaseクライアント・モードを共有できるよう橋渡し
-    window.CINEMA_DB = { client: () => sb, mode: () => store.mode };
+    // 工程表(kotei.js)が同じSupabaseクライアント・モード・担当者/会社マスタを共有できるよう橋渡し
+    window.CINEMA_DB = {
+      client: () => sb,
+      mode: () => store.mode,
+      teams: () => { try { return loadTeam(); } catch (e) { return []; } },
+      companies: () => { try { return companies.map((c) => ({ name: c.name, abbr: c.abbr })); } catch (e) { return []; } }
+    };
     // モードに応じたログイン画面ヒント
     const hintEl = $('loginHint');
     if (hintEl) {

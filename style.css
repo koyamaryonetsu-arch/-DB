@@ -1451,6 +1451,19 @@ td[data-field="category"], td[data-field="content"] { background: #fff; }
 #viewKotei .k-info-cell .k-ver select{ font-size:13px !important; border:1px solid #cbd2db !important; border-radius:6px !important; padding:3px 6px !important; background:#fff !important; font-weight:600; min-width:150px; }
 #viewKotei .k-info-cell .k-ver .btn{ padding:4px 9px; font-size:12px; }
 #viewKotei .k-info-cell.hidden{ display:none !important; }
+#viewKotei .k-info-cell select{ border:1px solid #cbd2db !important; border-radius:6px !important; padding:3px 6px !important; font-size:14px !important; font-weight:700; color:#15233b; background:#fff !important; }
+#viewKotei .k-info-cell .k-ver{ flex-wrap:wrap; }
+
+/* 作業行の削除「×」と「＋作業を追加」 */
+#viewKotei .klabel .ktask-del{ border:none; background:transparent; color:#c0392b; font-size:14px; line-height:1; padding:0 2px; cursor:pointer; opacity:.45; }
+#viewKotei .klabel:hover .ktask-del{ opacity:1; }
+#viewKotei .ktask-addrow{ display:flex; }
+#viewKotei .ktask-add{
+  position:sticky; left:0; z-index:20; width:var(--k-label-w); flex:0 0 var(--k-label-w);
+  border:1px dashed #9db4f0; background:#f0f4ff; color:#2f6fed; font-weight:700; font-size:12px;
+  padding:6px 4px; cursor:pointer; border-radius:0;
+}
+#viewKotei .ktask-add:hover{ background:#e0eaff; }
 
 /* ツールバーのグループ */
 #viewKotei .k-tb-group{ display:inline-flex; align-items:center; gap:4px; padding:0 6px; border-left:1px solid #d7dde6; border-right:1px solid #d7dde6; }
@@ -1487,11 +1500,7 @@ td[data-field="category"], td[data-field="content"] { background: #fff; }
 }
 #viewKotei .kcorner .k-sub{ font-size:9px; color:#8a93a0; font-weight:400; }
 #viewKotei .ktimeline{ display:flex; border-bottom:2px solid var(--k-line-strong); }
-#viewKotei .kday{ width:var(--kday,64px); flex:0 0 var(--kday,64px); border-right:2px solid var(--k-line-strong);
-  background-image:
-    repeating-linear-gradient(to right,
-      transparent 0, transparent calc(var(--kqw,16px) - 1px),
-      #c9d0da calc(var(--kqw,16px) - 1px), #c9d0da var(--kqw,16px)); }
+#viewKotei .kday{ width:var(--kday,64px); flex:0 0 var(--kday,64px); border-right:2px solid var(--k-line-strong); }
 #viewKotei .kday.month-start{ border-left:2px solid var(--k-line-strong); }
 #viewKotei .kday.wknd{ background-color:#fadddd; }
 #viewKotei .kday.today .kday-top{ background:var(--k-today); }
@@ -1517,15 +1526,12 @@ td[data-field="category"], td[data-field="content"] { background: #fff; }
 #viewKotei .kwkcol{ position:absolute; top:0; bottom:0; background:var(--k-weekend); pointer-events:none; z-index:0; }
 #viewKotei .ktodaycol{ position:absolute; top:0; bottom:0; background:var(--k-today); pointer-events:none; z-index:0; }
 
-/* レーン（背景の時刻目盛グリッド：1/4日ごとに細線・1日ごとに太線） */
+/* レーン（ガントチャート欄）：1日を4等分する縦線＋1日ごとの太線。日付セルには線を引かない */
 #viewKotei .klane{
   position:relative; z-index:1;
   background-image:
-    repeating-linear-gradient(to right,
-      transparent 0, transparent calc(var(--kqw,16px) - 1px),
-      #d9dee6 calc(var(--kqw,16px) - 1px), #d9dee6 var(--kqw,16px),
-      transparent var(--kqw,16px), transparent calc(var(--kday,64px) - 1px),
-      var(--k-line-strong) calc(var(--kday,64px) - 1px), var(--k-line-strong) var(--kday,64px));
+    repeating-linear-gradient(to right, transparent 0, transparent calc(var(--kqw,16px) - 1px), #b7bfca calc(var(--kqw,16px) - 1px), #b7bfca var(--kqw,16px)),
+    repeating-linear-gradient(to right, transparent 0, transparent calc(var(--kday,64px) - 1px), var(--k-line-strong) calc(var(--kday,64px) - 1px), var(--k-line-strong) var(--kday,64px));
 }
 #viewKotei .klane.detail{ height:18px; border-bottom:1px dotted #e5e9ee; }
 #viewKotei .klane.bar{ height:20px; border-bottom:1px solid var(--k-line); cursor:crosshair; }

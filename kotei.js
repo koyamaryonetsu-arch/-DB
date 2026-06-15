@@ -31,7 +31,7 @@
     return {
       v: 2, kind: 'date', unit: 'week',
       title: "工事名　工程表", content: "", start: isoToday(), days: 21,
-      author: "", notes: "", versions: [],
+      author: "", client: "", notes: "", versions: [],
       tasks: DEFAULT_TASKS.map((n) => ({ id: uid(), name: n })),
       bars: []   // {id, taskId, startSlot, lenSlots, night:bool, label}
     };
@@ -124,7 +124,7 @@
 
     // ヘッダー
     const head = el('div', 'khead');
-    const corner = el('div', 'kcorner'); corner.innerHTML = '作業内容<br><span class="k-sub">' + (hasCalendar() ? '日付 / 曜日 / 時刻' : (isMaster() ? (state.unit === 'month' ? '月' : '週') : '日数 / 時刻')) + '</span>';
+    const corner = el('div', 'kcorner'); corner.textContent = '作業内容';
     head.appendChild(corner);
     const tl = el('div', 'ktimeline'); tl.style.width = trackW + 'px';
     for (let i = 0; i < cols; i++) {
@@ -142,7 +142,6 @@
         top.innerHTML = `<span class="md">${periodLabel(i)}</span>`;
       }
       day.appendChild(top);
-      if (hasTimes()) { const times = el('div', 'kday-times'); times.textContent = '8時 12時 17時'; day.appendChild(times); }
       tl.appendChild(day);
     }
     head.appendChild(tl);
@@ -161,7 +160,9 @@
       grip.addEventListener('dragstart', (e) => { e.dataTransfer.setData('text/plain', task.id); });
       const name = el('div', 'name'); name.textContent = task.name; name.title = 'クリックで名称編集';
       name.addEventListener('click', () => editTaskName(task, name));
-      lbl.append(grip, name);
+      const del = el('button', 'ktask-del'); del.textContent = '×'; del.title = 'この作業を削除';
+      del.addEventListener('click', () => deleteTask(task));
+      lbl.append(grip, name, del);
       lbl.addEventListener('dragover', (e) => e.preventDefault());
       lbl.addEventListener('drop', (e) => { e.preventDefault(); const id = e.dataTransfer.getData('text/plain'); reorderTask(id, task.id); });
       row.appendChild(lbl);
@@ -185,7 +186,30 @@
       row.appendChild(lanes);
       board.appendChild(row);
     });
+
+    // 「＋ 作業を追加」行（この画面で作業の追加ができる）
+    const addRow = el('div', 'ktask ktask-addrow');
+    const addBtn = el('button', 'ktask-add'); addBtn.textContent = '＋ 作業を追加';
+    addBtn.addEventListener('click', addTaskInline);
+    addRow.appendChild(addBtn);
+    board.appendChild(addRow);
+
     applySelection();
+  }
+
+  function deleteTask(task) {
+    if (state.bars.some((b) => b.taskId === task.id) && !confirm('「' + task.name + '」とそのバーを削除します。よろしいですか？')) return;
+    recordUndo(snap());
+    state.bars = state.bars.filter((b) => b.taskId !== task.id);
+    state.tasks = state.tasks.filter((t) => t.id !== task.id);
+    save(); render();
+  }
+  function addTaskInline() {
+    const nm = prompt('追加する作業名を入力してください。', '');
+    if (nm === null) return;
+    recordUndo(snap());
+    state.tasks.push({ id: uid(), name: nm.trim() || '新規作業' });
+    save(); render();
   }
 
   function makeLane(kind, taskId, night, trackW) {
@@ -370,6 +394,7 @@
   /* ============================================================
      バージョン管理（作成日つき）
      ============================================================ */
+  let lastPickedVer = '';
   function refreshVersionSelect() {
     const sel = $('#viewKotei #kVerSelect'); if (!sel) return;
     sel.innerHTML = '<option value="">編集中（最新）</option>';
@@ -378,14 +403,14 @@
       o.textContent = (v.createdAt || '') + (v.label ? '　' + v.label : '');
       sel.appendChild(o);
     });
-    sel.value = '';
+    sel.value = (lastPickedVer && (state.versions || []).some((v) => v.id === lastPickedVer)) ? lastPickedVer : '';
   }
   function saveVersion() {
     if (!state) return;
     const label = prompt('このバージョンの名前（任意。例：客先提出版）', '');
     if (label === null) return;
     state.versions = state.versions || [];
-    const sd = { title: state.title, content: state.content, start: state.start, days: state.days, author: state.author, notes: state.notes, kind: state.kind, unit: state.unit, tasks: JSON.parse(JSON.stringify(state.tasks)), bars: JSON.parse(JSON.stringify(state.bars)) };
+    const sd = { title: state.title, content: state.content, start: state.start, days: state.days, author: state.author, client: state.client, notes: state.notes, kind: state.kind, unit: state.unit, tasks: JSON.parse(JSON.stringify(state.tasks)), bars: JSON.parse(JSON.stringify(state.bars)) };
     state.versions.unshift({ id: uid(), createdAt: isoToday(), label: label.trim(), snap: sd });
     save(); refreshVersionSelect();
     alert('バージョンを保存しました（作成日：' + isoToday() + '）');
@@ -394,11 +419,28 @@
     const v = (state.versions || []).find((x) => x.id === id); if (!v) return;
     recordUndo(snap());
     const s = v.snap;
-    Object.assign(state, { title: s.title, content: s.content, start: s.start, days: s.days, author: s.author, notes: s.notes, kind: s.kind || 'date', unit: s.unit || 'week', tasks: JSON.parse(JSON.stringify(s.tasks)), bars: JSON.parse(JSON.stringify(s.bars)) });
+    Object.assign(state, { title: s.title, content: s.content, start: s.start, days: s.days, author: s.author, client: s.client || '', notes: s.notes, kind: s.kind || 'date', unit: s.unit || 'week', tasks: JSON.parse(JSON.stringify(s.tasks)), bars: JSON.parse(JSON.stringify(s.bars)) });
     selectedIds = new Set(); save(); syncToolbar(); applyKindUI(); render();
   }
+  // 保存済みバージョンの名前変更・削除（プルダウンで選んでいる版が対象）
+  function renameVersion() {
+    const v = (state.versions || []).find((x) => x.id === lastPickedVer);
+    if (!v) { alert('名前を変えるバージョンを、プルダウンから選んでください。'); return; }
+    const nv = prompt('バージョンの名前を変更します。', v.label || '');
+    if (nv === null) return;
+    v.label = nv.trim(); save(); refreshVersionSelect(); $('#viewKotei #kVerSelect').value = v.id;
+  }
+  function deleteVersion() {
+    const v = (state.versions || []).find((x) => x.id === lastPickedVer);
+    if (!v) { alert('削除するバージョンを、プルダウンから選んでください。'); return; }
+    if (!confirm('バージョン「' + (v.createdAt || '') + (v.label ? '　' + v.label : '') + '」を削除します。よろしいですか？')) return;
+    state.versions = state.versions.filter((x) => x.id !== v.id); lastPickedVer = '';
+    save(); refreshVersionSelect();
+  }
   $('#viewKotei #btnSaveVer').addEventListener('click', saveVersion);
-  $('#viewKotei #kVerSelect').addEventListener('change', (e) => { const id = e.target.value; if (id) { loadVersion(id); e.target.value = ''; } });
+  $('#viewKotei #btnRenameVer').addEventListener('click', renameVersion);
+  $('#viewKotei #btnDelVer').addEventListener('click', deleteVersion);
+  $('#viewKotei #kVerSelect').addEventListener('change', (e) => { lastPickedVer = e.target.value; if (e.target.value) loadVersion(e.target.value); });
 
   /* ============================================================
      作業（縦軸）編集・マスター
@@ -470,8 +512,29 @@
       fieldBefore = null;
     });
   }
-  bindField('title', 'title'); bindField('kContent', 'content'); bindField('kAuthor', 'author'); bindField('kNotes', 'notes');
+  bindField('title', 'title'); bindField('kContent', 'content'); bindField('kNotes', 'notes');
   bindField('start', 'start', { render: true }); bindField('days', 'days', { num: true, render: true });
+
+  // 作成者（担当者）・客先 は案件管理のマスタから選ぶ
+  function bridge() { return window.CINEMA_DB || {}; }
+  function fillSelect(id, items, current) {
+    const sel = $('#viewKotei #' + id); if (!sel) return;
+    const opts = ['（未選択）'].concat(items);
+    if (current && opts.indexOf(current) < 0) opts.push(current); // 旧データ保持
+    sel.innerHTML = '';
+    opts.forEach((v) => { const o = document.createElement('option'); o.value = (v === '（未選択）' ? '' : v); o.textContent = v; sel.appendChild(o); });
+    sel.value = current || '';
+  }
+  function populateMasters() {
+    if (!state) return;
+    let teams = [], comps = [];
+    try { teams = (bridge().teams && bridge().teams()) || []; } catch (e) {}
+    try { comps = ((bridge().companies && bridge().companies()) || []).map((c) => c.name); } catch (e) {}
+    fillSelect('kAuthor', teams, state.author);
+    fillSelect('kClient', comps, state.client);
+  }
+  $('#viewKotei #kAuthor').addEventListener('change', (e) => { if (!state) return; recordUndo(snap()); state.author = e.target.value; save(); });
+  $('#viewKotei #kClient').addEventListener('change', (e) => { if (!state) return; recordUndo(snap()); state.client = e.target.value; save(); });
   $('#viewKotei #btnClear').addEventListener('click', () => { if (!state) return; if (confirm('この工程表のバーをすべて消去します。縦軸・設定は残ります。よろしいですか？')) { recordUndo(snap()); state.bars = []; selectedIds = new Set(); save(); render(); } });
 
   /* ---- 印刷 ---- */
@@ -485,7 +548,8 @@
     if (!state) return;
     const set = (id, v) => { const e = $('#viewKotei #' + id); if (e) e.textContent = v || ''; };
     set('phTitle', state.title); set('phName', state.title); set('phContent', state.content);
-    set('phStart', hasCalendar() ? fmtJp(state.start) : '―'); set('phEnd', hasCalendar() ? fmtJp(endDateIso()) : '―'); set('phAuthor', state.author);
+    set('phStart', hasCalendar() ? fmtJp(state.start) : '―'); set('phEnd', hasCalendar() ? fmtJp(endDateIso()) : '―');
+    set('phClient', state.client); set('phAuthor', state.author);
   }
 
   /* ---- Excel出力 ---- */
@@ -503,7 +567,7 @@
     o = o || {}; const old = !o.v; o.v = 2;
     o.kind = o.kind || 'date'; o.unit = o.unit || 'week';
     o.title = o.title || ''; o.content = o.content || ''; o.start = o.start || isoToday(); o.days = o.days || 21;
-    o.author = o.author || ''; o.notes = o.notes || ''; o.versions = Array.isArray(o.versions) ? o.versions : [];
+    o.author = o.author || ''; o.client = o.client || ''; o.notes = o.notes || ''; o.versions = Array.isArray(o.versions) ? o.versions : [];
     o.tasks = (o.tasks || []).map((t) => ({ id: t.id || uid(), name: t.name || '' }));
     o.bars = (o.bars || []).map((b) => {
       let startSlot = b.startSlot | 0, lenSlots = Math.max(1, b.lenSlots | 0);
@@ -555,14 +619,14 @@
     $('#viewKotei #kContent').value = state.content || '';
     $('#viewKotei #start').value = state.start;
     $('#viewKotei #days').value = state.days;
-    $('#viewKotei #kAuthor').value = state.author || '';
     $('#viewKotei #kNotes').value = state.notes || '';
+    populateMasters();
     applyKindUI(); refreshVersionSelect(); updateEndLabel();
   }
   async function switchTo(id) {
     state = await loadDoc(id); currentId = id;
     try { localStorage.setItem(CUR_LS, id); } catch (e) {}
-    selectedIds = new Set(); undoStack = []; redoStack = []; updateUndoButtons();
+    selectedIds = new Set(); undoStack = []; redoStack = []; lastPickedVer = ''; updateUndoButtons();
     refreshSelect(); syncToolbar(); render();
   }
   $('#viewKotei #kSelect').addEventListener('change', (e) => { switchTo(e.target.value); });
@@ -609,7 +673,8 @@
     put(r, half, hasCalendar() ? '着工日' : '種類', S.meta); put(r, half + 1, hasCalendar() ? fmtJp(state.start) : kindLabel(), S.metaVal); r++;
     put(r, 1, '工事内容', S.meta); put(r, 2, state.content || '', S.metaVal);
     put(r, half, hasCalendar() ? '竣工日' : '期間', S.meta); put(r, half + 1, hasCalendar() ? fmtJp(endDateIso()) : (state.days + (isMaster() ? (state.unit === 'month' ? 'ヶ月' : '週') : '日間')), S.metaVal); r++;
-    put(r, 1, '会社', S.meta); put(r, 2, '菱熱工業株式会社', S.metaVal); put(r, half, '作成者', S.meta); put(r, half + 1, state.author || '', S.metaVal); r++;
+    put(r, 1, '客先', S.meta); put(r, 2, state.client || '', S.metaVal); put(r, half, '作成者', S.meta); put(r, half + 1, state.author || '', S.metaVal); r++;
+    put(r, 1, '会社', S.meta); put(r, 2, '菱熱工業株式会社', S.metaVal); r++;
     r++;
 
     const dateRow = r;
@@ -624,18 +689,7 @@
       if (slots > 1) merges.push(colLetter(c0) + dateRow + ':' + colLetter(c0 + slots - 1) + dateRow);
     }
     setH(dateRow, 22); r++;
-    let timeRow = dateRow;
-    if (hasTimes()) {
-      timeRow = r;
-      put(timeRow, 1, '', S.header);
-      for (let i = 0; i < cols; i++) {
-        const c0 = 2 + i * slots, wk = hasCalendar() && (dayInfo(i).isWeekend || dayInfo(i).isHoliday);
-        put(timeRow, c0, '8時 12時 17時', wk ? S.headerWk : S.time);
-        for (let q = 1; q < slots; q++) put(timeRow, c0 + q, '', wk ? S.headerWk : S.time);
-        if (slots > 1) merges.push(colLetter(c0) + timeRow + ':' + colLetter(c0 + slots - 1) + timeRow);
-      }
-      setH(timeRow, 18); r++;
-    }
+    const timeRow = dateRow; // 時刻行は廃止（凍結はヘッダー行で行う）
 
     state.tasks.forEach((task) => {
       const base = r;
