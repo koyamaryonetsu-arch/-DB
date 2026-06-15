@@ -158,10 +158,101 @@
     .corner,.timeline,.rlabel{position:static;}
     @page{size:A3 landscape; margin:8mm;}
   }
+
+  /* ===== アプリシェル（案件管理＋工程表を一本化） ===== */
+  #appnav{flex:0 0 auto; display:flex; align-items:center; gap:14px; background:#15233b; color:#fff; padding:8px 16px; z-index:70;}
+  #appnav .brand{font-weight:800; font-size:15px;}
+  #appnav .brand small{font-weight:400; opacity:.65; font-size:11px; margin-left:6px;}
+  #appnav .nav{display:flex; gap:6px; margin-left:10px;}
+  #appnav .nav button{background:transparent; border:0; color:#cdd8ea; font-weight:700; padding:6px 16px; border-radius:7px; cursor:pointer; font-family:inherit; font-size:13px;}
+  #appnav .nav button:hover{background:rgba(255,255,255,.10); color:#fff;}
+  #appnav .nav button.active{background:var(--blue); color:#fff;}
+  #appnav .who{margin-left:auto; font-size:11px; opacity:.6;}
+
+  #main{flex:1 1 auto; position:relative; min-height:0;}
+  .view{position:absolute; inset:0;}
+  .view:not(.active){display:none;}
+  #viewGantt.active{display:flex; flex-direction:column;}
+  #viewHome.active{display:block; overflow:auto;}
+  #viewGantt .scroll{min-height:0;}
+
+  /* ===== 案件管理（トップ画面） ===== */
+  .cm-wrap{max-width:1180px; margin:0 auto; padding:18px;}
+  .cm-head{display:flex; align-items:center; gap:10px; margin-bottom:14px; flex-wrap:wrap;}
+  .cm-head h1{font-size:18px; margin:0; color:#1f2733;}
+  .cm-head .cm-search{margin-left:auto; border:1px solid #cbd2db; border-radius:8px; padding:7px 10px; min-width:220px; font-family:inherit; font-size:13px;}
+  .cm-open-gantt{background:var(--blue); border-color:var(--blue-d); color:#fff;}
+  .cm-open-gantt:hover{background:var(--blue-d);}
+  .cm-table{width:100%; border-collapse:collapse; background:#fff; border:1px solid var(--line); border-radius:10px; overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,.05);}
+  .cm-table th,.cm-table td{padding:9px 11px; text-align:left; border-bottom:1px solid var(--line); font-size:13px; vertical-align:middle;}
+  .cm-table th{background:#eef1f5; color:#445; font-weight:700; white-space:nowrap;}
+  .cm-table tr:last-child td{border-bottom:0;}
+  .cm-table tr:hover td{background:#f7f9fb;}
+  .cm-table .nm{font-weight:700;}
+  .cm-empty{padding:46px; text-align:center; color:#8a93a0; background:#fff; border:1px dashed var(--line); border-radius:10px; margin-top:10px;}
+  .badge{display:inline-block; padding:2px 10px; border-radius:999px; font-size:11px; font-weight:700; white-space:nowrap;}
+  .badge.est{background:#eef2ff;color:#3949ab;} .badge.ord{background:#e6f7ee;color:#15803d;}
+  .badge.work{background:#fff4e5;color:#b45309;} .badge.done{background:#eceff3;color:#475569;} .badge.hold{background:#fdecec;color:#b91c1c;}
+  .cm-act{display:flex; gap:5px; white-space:nowrap;}
+  .cm-act .ic{border:1px solid #cbd2db; background:#fff; border-radius:6px; padding:4px 9px; cursor:pointer; font-size:12px; font-family:inherit; color:#334;}
+  .cm-act .ic:hover{background:#f0f4ff; border-color:#9db4f0;}
+  .cm-act .ic.del{color:#b91c1c;}
+  .cm-act .ic.del:hover{background:#fdecec; border-color:#e7a3a3;}
+
+  #cmModalBg{position:fixed; inset:0; background:rgba(15,20,30,.45); display:none; align-items:center; justify-content:center; z-index:90;}
+  #cmModalBg.show{display:flex;}
+  #cmModal{background:#fff; border-radius:12px; width:min(560px,94vw); max-height:88vh; overflow:auto; box-shadow:0 12px 40px rgba(0,0,0,.3);}
+  #cmModal h2{margin:0; padding:14px 18px; border-bottom:1px solid var(--line); font-size:16px;}
+  #cmModal .grid{display:grid; grid-template-columns:1fr 1fr; gap:10px 14px; padding:16px 18px;}
+  #cmModal .fld{display:flex; flex-direction:column; gap:4px;}
+  #cmModal .fld.full{grid-column:1 / 3;}
+  #cmModal label{font-weight:600; color:#445; font-size:12px;}
+  #cmModal input,#cmModal select,#cmModal textarea{border:1px solid #cbd2db; border-radius:7px; padding:7px 9px; font-family:inherit; font-size:13px; width:100%;}
+  #cmModal textarea{resize:vertical; min-height:60px;}
+  #cmModal .foot{padding:12px 18px; border-top:1px solid var(--line); display:flex; justify-content:flex-end; gap:8px;}
+
+  @media print{
+    #appnav, #viewHome{display:none !important;}
+    #main{position:static; overflow:visible;}
+    #viewGantt.view{position:static; display:block;}
+  }
 </style>
 </head>
 <body>
 
+<header id="appnav">
+  <div class="brand">🎬 シネマ案件管理システム<small>社内用</small></div>
+  <div class="nav">
+    <button data-view="home" class="active">案件管理</button>
+    <button data-view="gantt">工程表</button>
+  </div>
+  <div class="who">菱熱</div>
+</header>
+
+<div id="main">
+
+<!-- ===== トップ：案件管理 ===== -->
+<div id="viewHome" class="view active">
+  <div class="cm-wrap">
+    <div class="cm-head">
+      <h1>案件一覧</h1>
+      <button class="btn cm-open-gantt" id="cmGoGantt">📋 工程表を開く</button>
+      <button class="btn primary" id="cmNew">＋ 新規案件</button>
+      <input type="text" id="cmSearch" class="cm-search" placeholder="案件名・施設・顧客で検索">
+    </div>
+    <table class="cm-table" id="cmTable">
+      <thead><tr>
+        <th>案件名</th><th>劇場・施設</th><th>工事種別</th><th>顧客・元請</th>
+        <th>開始予定</th><th>工期</th><th>ステータス</th><th>担当</th><th style="width:1%">操作</th>
+      </tr></thead>
+      <tbody id="cmBody"></tbody>
+    </table>
+    <div class="cm-empty" id="cmEmpty" style="display:none">案件がありません。「＋ 新規案件」から登録してください。</div>
+  </div>
+</div>
+
+<!-- ===== 工程表 ===== -->
+<div id="viewGantt" class="view">
 <header class="toolbar">
   <div class="field"><label>工事名</label><input type="text" id="title" placeholder="○○工事 工程表"></div>
   <div class="field"><label>開始日</label><input type="date" id="start"></div>
@@ -182,6 +273,8 @@
 <div class="scroll" id="scroll">
   <div class="board" id="board"></div>
 </div>
+</div><!-- /viewGantt -->
+</div><!-- /main -->
 
 <!-- バー編集パネル -->
 <div id="panel">
@@ -218,6 +311,40 @@
     </div>
   </div>
 </div>
+
+<!-- 案件 追加/編集モーダル -->
+<div id="cmModalBg">
+  <div id="cmModal">
+    <h2 id="cmModalTitle">新規案件</h2>
+    <div class="grid">
+      <div class="fld full"><label>案件名 *</label><input type="text" id="cmName" placeholder="例）熱源更新工事"></div>
+      <div class="fld"><label>劇場・施設</label><input type="text" id="cmCinema" placeholder="例）TOHOシネマズ ○○"></div>
+      <div class="fld"><label>工事種別</label><input type="text" id="cmType" list="cmTypeList" placeholder="例）熱源更新"></div>
+      <div class="fld"><label>顧客・元請</label><input type="text" id="cmClient"></div>
+      <div class="fld"><label>担当者</label><input type="text" id="cmManager"></div>
+      <div class="fld"><label>開始予定日</label><input type="date" id="cmStart"></div>
+      <div class="fld"><label>工期（日数）</label><input type="number" id="cmDays" min="1" max="370" placeholder="21"></div>
+      <div class="fld"><label>ステータス</label>
+        <select id="cmStatus">
+          <option value="est">見積</option><option value="ord">受注</option>
+          <option value="work">施工中</option><option value="done">完了</option><option value="hold">保留</option>
+        </select>
+      </div>
+      <div class="fld full"><label>備考</label><textarea id="cmNote"></textarea></div>
+    </div>
+    <div class="foot">
+      <button class="btn danger" id="cmDelete" style="margin-right:auto; display:none">削除</button>
+      <button class="btn" id="cmCancel">キャンセル</button>
+      <button class="btn primary" id="cmSaveBtn">保存</button>
+    </div>
+  </div>
+</div>
+<datalist id="cmTypeList">
+  <option value="熱源更新"></option><option value="空調更新"></option><option value="冷温水発生機更新"></option>
+  <option value="ボイラー更新"></option><option value="配管更新"></option><option value="ダクト更新"></option>
+  <option value="自動制御更新"></option><option value="衛生設備改修"></option><option value="排煙設備改修"></option>
+  <option value="定期点検・整備"></option>
+</datalist>
 
 <script>
 "use strict";
@@ -643,6 +770,95 @@ state = load() || defaultState();
 syncToolbar();
 render();
 $('#scroll').addEventListener('pointerdown',e=>{ if(e.target.id==='scroll'||e.target.id==='board'){ selectedBar=null; panel.classList.remove('show'); applySelection(); } });
+</script>
+
+<script>
+/* ============================================================
+   画面切替（案件管理 ⇄ 工程表）＋ 案件管理機能
+   ※ 工程表スクリプトとは別スコープ(IIFE)で名前衝突を回避
+   ============================================================ */
+function showView(v){
+  document.querySelectorAll('.view').forEach(el=>el.classList.toggle('active', el.id===(v==='gantt'?'viewGantt':'viewHome')));
+  document.querySelectorAll('#appnav .nav button').forEach(b=>b.classList.toggle('active', b.dataset.view===v));
+}
+document.querySelectorAll('#appnav .nav button').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)));
+
+(function(){
+  const CM_LS='cinema_cases_v1';
+  const STATUS={est:'見積',ord:'受注',work:'施工中',done:'完了',hold:'保留'};
+  const g=id=>document.getElementById(id);
+  let cases=cmLoad(), editingId=null;
+
+  function cid(){ return 'c'+Math.random().toString(36).slice(2,9); }
+  function esc(s){ return (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+  function seed(){ return {id:cid(),name:'熱源更新工事',cinema:'TOHOシネマズ市川コルトンプラザ',type:'熱源更新',client:'',manager:'',start:'2026-03-25',days:24,status:'work',note:'',createdAt:Date.now()}; }
+  function cmLoad(){ try{ const s=localStorage.getItem(CM_LS); if(s) return JSON.parse(s); }catch(e){} return [seed()]; }
+  function cmSave(){ try{ localStorage.setItem(CM_LS,JSON.stringify(cases)); }catch(e){} }
+
+  const body=g('cmBody'), empty=g('cmEmpty'), search=g('cmSearch');
+
+  function cmRender(){
+    const q=(search.value||'').trim();
+    const list=cases.filter(c=>!q || (c.name+c.cinema+c.client+c.type+c.manager).includes(q));
+    body.innerHTML=''; empty.style.display=list.length?'none':'block';
+    g('cmTable').style.display=list.length?'':'none';
+    list.forEach(c=>{
+      const tr=document.createElement('tr');
+      tr.innerHTML=
+        '<td class="nm">'+esc(c.name)+'</td>'+
+        '<td>'+esc(c.cinema)+'</td>'+
+        '<td>'+esc(c.type)+'</td>'+
+        '<td>'+esc(c.client)+'</td>'+
+        '<td>'+esc(c.start)+'</td>'+
+        '<td>'+(c.days?esc(c.days)+'日':'')+'</td>'+
+        '<td><span class="badge '+c.status+'">'+(STATUS[c.status]||'')+'</span></td>'+
+        '<td>'+esc(c.manager)+'</td>';
+      const td=document.createElement('td');
+      td.innerHTML='<div class="cm-act">'+
+        '<button class="ic" data-a="edit">編集</button>'+
+        '<button class="ic" data-a="dup">複製</button>'+
+        '<button class="ic del" data-a="del">削除</button></div>';
+      td.querySelector('[data-a=edit]').onclick=()=>openModal(c.id);
+      td.querySelector('[data-a=dup]').onclick=()=>{ cases.unshift({...c,id:cid(),name:c.name+'（複製）',createdAt:Date.now()}); cmSave(); cmRender(); };
+      td.querySelector('[data-a=del]').onclick=()=>{ if(confirm('「'+c.name+'」を削除しますか？')){ cases=cases.filter(x=>x.id!==c.id); cmSave(); cmRender(); } };
+      tr.appendChild(td); body.appendChild(tr);
+    });
+  }
+
+  function openModal(id){
+    editingId=id||null;
+    const c=id?cases.find(x=>x.id===id):null;
+    g('cmModalTitle').textContent=c?'案件を編集':'新規案件';
+    g('cmName').value=c?c.name:''; g('cmCinema').value=c?c.cinema:''; g('cmType').value=c?c.type:'';
+    g('cmClient').value=c?c.client:''; g('cmManager').value=c?c.manager:'';
+    g('cmStart').value=c?(c.start||''):''; g('cmDays').value=c?(c.days||''):'';
+    g('cmStatus').value=c?c.status:'est'; g('cmNote').value=c?(c.note||''):'';
+    g('cmDelete').style.display=c?'inline-block':'none';
+    g('cmModalBg').classList.add('show'); g('cmName').focus();
+  }
+  function closeModal(){ g('cmModalBg').classList.remove('show'); }
+
+  g('cmNew').onclick=()=>openModal(null);
+  g('cmCancel').onclick=closeModal;
+  g('cmModalBg').onclick=e=>{ if(e.target.id==='cmModalBg') closeModal(); };
+  g('cmGoGantt').onclick=()=>showView('gantt');
+  search.oninput=cmRender;
+
+  g('cmSaveBtn').onclick=()=>{
+    const name=g('cmName').value.trim();
+    if(!name){ alert('案件名を入力してください。'); g('cmName').focus(); return; }
+    const data={name, cinema:g('cmCinema').value.trim(), type:g('cmType').value.trim(),
+      client:g('cmClient').value.trim(), manager:g('cmManager').value.trim(),
+      start:g('cmStart').value, days:Math.max(1,Math.min(370,parseInt(g('cmDays').value,10)||21)),
+      status:g('cmStatus').value, note:g('cmNote').value};
+    if(editingId){ Object.assign(cases.find(x=>x.id===editingId),data); }
+    else{ cases.unshift({id:cid(),createdAt:Date.now(),...data}); }
+    cmSave(); closeModal(); cmRender();
+  };
+  g('cmDelete').onclick=()=>{ if(editingId && confirm('この案件を削除しますか？')){ cases=cases.filter(x=>x.id!==editingId); cmSave(); closeModal(); cmRender(); } };
+
+  cmRender();
+})();
 </script>
 </body>
 </html>
