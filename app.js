@@ -1238,10 +1238,11 @@
       if (cf && c.company !== cf) return false;
       // 客先(会社)ボタンによる絞り込み（OR）
       if (companyFilter.size && !companyFilter.has(c.company)) return false;
-      // 大口のみ（見積り金額300万円以上）
+      // 大口のみ（見積り金額300万円以上、または 種別=更新案件）
       if (showBigOnly) {
         const amt = Number(c.estimateAmount);
-        if (isNaN(amt) || amt < BIG_CASE_THRESHOLD) return false;
+        const isBig = (!isNaN(amt) && amt >= BIG_CASE_THRESHOLD) || c.category === '更新案件';
+        if (!isBig) return false;
       }
       // 各列のタブ絞り込み
       for (let i = 0; i < colFilterFields.length; i++) {
@@ -1611,6 +1612,8 @@
     const realMode = mode || 'full';
     const isSimple = realMode === 'simple';
     const isCalEdit = realMode === 'calendar';
+    // 直前のカレンダー編集等で隠れた行をリセット（全行を一旦表示に戻す）
+    document.querySelectorAll('#caseForm .form-row').forEach((el) => el.classList.remove('hidden'));
     document.querySelectorAll('[data-mode="full"]').forEach((el) => el.classList.toggle('hidden', isSimple));
     // カレンダー編集: data-cal の行（調査/開始/終了 日時・内容・メモ）だけ表示
     if (isCalEdit) {
