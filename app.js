@@ -1476,6 +1476,7 @@
 
     let done = false;
     let reEditing = false; // 不正日付で再入力中（重複起動防止）
+    let advance = false;   // Enterで右の項目へ移動
     const commit = () => {
       if (done || reEditing) return;
       let newVal = el.value;
@@ -1535,14 +1536,31 @@
         persistCase(c);
       }
       render();
+      if (advance) focusNextEditable(c.id, field);
     };
     const cancel = () => { if (done) return; done = true; render(); };
 
     el.addEventListener('blur', commit);
     el.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && cfg.type !== 'textarea') { e.preventDefault(); el.blur(); }
+      if (e.key === 'Enter' && cfg.type !== 'textarea') { e.preventDefault(); advance = true; el.blur(); }
       else if (e.key === 'Escape') { e.preventDefault(); cancel(); }
     });
+  }
+  // Enter後、同じ行の次の編集可能セル（内容・メモのポップアップは飛ばす）を開く
+  function focusNextEditable(caseId, field) {
+    const tr = $('casesBody').querySelector(`tr[data-case-id="${caseId}"]`);
+    if (!tr) return;
+    const c = cases.find((x) => x.id === caseId);
+    if (!c) return;
+    const cells = Array.prototype.slice.call(tr.querySelectorAll('td.editable[data-field]'));
+    const idx = cells.findIndex((td) => td.dataset.field === field);
+    for (let i = idx + 1; i < cells.length; i++) {
+      const f = cells[i].dataset.field;
+      const cfg = EDITABLE_FIELDS[f];
+      if (cfg && cfg.type === 'popup') continue; // 内容・メモはスキップ
+      startInlineEdit(cells[i], c, f);
+      return;
+    }
   }
 
   // ステータスを手動で選び直す（選んだ時点で手動上書きとして確定。自動判定より優先）
@@ -1655,7 +1673,9 @@
       $('memo').value = caseObj.memo || '';
     } else {
       $('modalTitle').textContent = isSimple ? '簡易登録' : '新規案件登録';
-      $('company').value = 'TOHOシネマズ';
+      // 客先・担当者を1つだけ絞っている時は、それを初期選択（複数選択時は標準）
+      $('company').value = (isPrivileged(currentUser) && companyFilter.size === 1) ? [...companyFilter][0] : 'TOHOシネマズ';
+      if (rPersonFilter.size === 1) $('rPerson').value = [...rPersonFilter][0];
       setDateField('receivedDate', todayStr());
     }
     updateTohoVisibility();
