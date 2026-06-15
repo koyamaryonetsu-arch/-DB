@@ -196,33 +196,39 @@
           <button class="btn danger" id="kDelete">🗑 削除</button>
         </div>
         <div class="field"><label>工事名</label><input type="text" id="title" placeholder="○○工事 工程表"></div>
-        <div class="field"><label>開始日</label><input type="date" id="start"></div>
-        <div class="field"><label>工程日数</label><input type="number" id="days" min="1" max="370" step="1"> 日</div>
+        <div class="field"><label>工事内容</label><input type="text" id="kContent" placeholder="例）熱源更新工事"></div>
+        <div class="field"><label>着工日</label><input type="date" id="start"></div>
+        <div class="field"><label>工期</label><input type="number" id="days" min="1" max="370" step="1"> 日</div>
+        <div class="field"><label>竣工日</label><span id="kEnd" class="k-readonly">―</span></div>
+        <div class="field"><label>作成者</label><input type="text" id="kAuthor" placeholder="作成者名"></div>
         <button class="btn" id="btnMaster">作業マスター編集</button>
-        <button class="btn" id="btnPrint">印刷 / PDF</button>
+        <button class="btn" id="btnExcel">📊 Excel出力</button>
+        <button class="btn" id="btnPrint">🖨 印刷 / PDF</button>
         <button class="btn danger" id="btnClear">バー全消去</button>
         <div class="legend">
-          <span><span class="sw blue"></span>日中(7-18時起点)</span>
-          <span><span class="sw red"></span>夜間(19-6時起点)</span>
+          <span><span class="sw blue"></span>日中（青の行）</span>
+          <span><span class="sw red"></span>夜間（赤の行）</span>
           <span><span class="sw wknd"></span>土日祝</span>
+          <span class="hint">💡 行をドラッグでバー作成／ダブルクリックで文字入力／バーを上下に動かすと日中⇔夜間</span>
         </div>
       </header>
-      <div class="scroll" id="scroll">
-        <div class="board" id="board"></div>
+
+      <!-- 印刷時のみ表示されるヘッダー -->
+      <div id="kPrintHead" class="k-printhead">
+        <div class="k-ph-title" id="phTitle"></div>
+        <table class="k-ph-meta">
+          <tr><th>工事名</th><td id="phName"></td><th>着工日</th><td id="phStart"></td></tr>
+          <tr><th>工事内容</th><td id="phContent"></td><th>竣工日</th><td id="phEnd"></td></tr>
+          <tr><th>会社</th><td>菱熱工業株式会社</td><th>作成者</th><td id="phAuthor"></td></tr>
+        </table>
       </div>
 
-      <!-- バー編集パネル -->
-      <div id="panel">
-        <div class="pf"><label>作業内容</label><input type="text" id="pLabel" placeholder="例）既存機器解体、ステージ組 / 9:00～18:00"></div>
-        <div class="pf"><label>時間帯</label>
-          <span class="seg" id="pKind">
-            <button data-kind="day" class="day">日中</button>
-            <button data-kind="night" class="night">夜間</button>
-          </span>
+      <div class="scroll" id="scroll">
+        <div class="board" id="board"></div>
+        <div class="k-notes">
+          <label for="kNotes">特記事項</label>
+          <textarea id="kNotes" placeholder="特記事項を入力（例：搬出入は管理者立会いのもと実施。雨天時は順延。）"></textarea>
         </div>
-        <div class="pf"><label>色</label><span class="swatches" id="pColors"></span></div>
-        <button class="btn danger" id="pDelete">削除</button>
-        <button class="btn" id="pClose">閉じる</button>
       </div>
 
       <!-- 作業マスター -->
