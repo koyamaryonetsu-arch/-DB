@@ -170,6 +170,8 @@
       const lanes = el('div', 'klanes'); lanes.style.width = trackW + 'px';
       wknd.forEach((i) => { const c = el('div', 'kwkcol'); c.style.left = (i * COL_W) + 'px'; c.style.width = COL_W + 'px'; lanes.appendChild(c); });
       if (todayIdx >= 0) { const c = el('div', 'ktodaycol'); c.style.left = (todayIdx * COL_W) + 'px'; c.style.width = COL_W + 'px'; lanes.appendChild(c); }
+      // 縦線（実体のある要素＝印刷でも確実に出る）: 1日ごとに濃い線、1日の1/4ごとに薄い線
+      addGridLines(lanes, cols, SLOTS);
 
       const laneEls = laneDefs.map((d) => makeLane(d.k, task.id, d.n, trackW));
       laneEls.forEach((le) => lanes.appendChild(le));
@@ -195,6 +197,17 @@
     board.appendChild(addRow);
 
     applySelection();
+  }
+
+  function addGridLines(lanes, cols, slots) {
+    // 1日（または1週/1月）ごとの濃い縦線
+    for (let d = 1; d <= cols; d++) { const ln = el('div', 'kgl kgl-day'); ln.style.left = (d * COL_W) + 'px'; lanes.appendChild(ln); }
+    // 1/4日ごとの薄い縦線（通常/ゼロのみ）
+    if (slots > 1) {
+      for (let d = 0; d < cols; d++) {
+        for (let q = 1; q < slots; q++) { const ln = el('div', 'kgl kgl-q'); ln.style.left = (d * COL_W + q * QW) + 'px'; lanes.appendChild(ln); }
+      }
+    }
   }
 
   function deleteTask(task) {
@@ -517,10 +530,22 @@
 
   // 作成者（担当者）・客先 は案件管理のマスタから選ぶ
   function bridge() { return window.CINEMA_DB || {}; }
+  let companyOfficial = {}; // 会社名 -> 正式名称（kotei側で直接取得・app.jsのキャッシュに依存しない）
+  async function loadCompanyOfficial() {
+    companyOfficial = {};
+    const sb = sbClient();
+    if (sb) {
+      try { const { data } = await sb.from('companies').select('name,official_name'); (data || []).forEach((c) => { if (c.official_name) companyOfficial[c.name] = c.official_name; }); }
+      catch (e) {}
+    }
+    // ローカルモード or 取得失敗時はブリッジから補完
+    try { ((bridge().companies && bridge().companies()) || []).forEach((c) => { if (c.officialName && !companyOfficial[c.name]) companyOfficial[c.name] = c.officialName; }); } catch (e) {}
+  }
   function officialClientName() {
     if (!state || !state.client) return '';
-    try { const list = (bridge().companies && bridge().companies()) || []; const f = list.find((c) => c.name === state.client); return (f && f.officialName) || state.client; }
-    catch (e) { return state.client; }
+    if (companyOfficial[state.client]) return companyOfficial[state.client];
+    try { const list = (bridge().companies && bridge().companies()) || []; const f = list.find((c) => c.name === state.client); if (f && f.officialName) return f.officialName; } catch (e) {}
+    return state.client;
   }
   function fillSelect(id, items, current) {
     const sel = $('#viewKotei #' + id); if (!sel) return;
@@ -794,6 +819,7 @@
   async function open() {
     if (opening) return; opening = true;
     try {
+      try { await loadCompanyOfficial(); } catch (e) {}
       docs = await loadList();
       let id = null; try { id = localStorage.getItem(CUR_LS); } catch (e) {}
       if (!docs.find((d) => d.id === id)) id = docs.length ? docs[0].id : null;

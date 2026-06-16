@@ -1528,12 +1528,11 @@ td[data-field="category"], td[data-field="content"] { background: #fff; }
 #viewKotei .ktodaycol{ position:absolute; top:0; bottom:0; background:var(--k-today); pointer-events:none; z-index:0; }
 
 /* レーン（ガントチャート欄）：1日を4等分する縦線＋1日ごとの太線。日付セルには線を引かない */
-#viewKotei .klane{
-  position:relative; z-index:1;
-  background-image:
-    repeating-linear-gradient(to right, transparent 0, transparent calc(var(--kqw,16px) - 1px), var(--k-quarter-line) calc(var(--kqw,16px) - 1px), var(--k-quarter-line) var(--kqw,16px)),
-    repeating-linear-gradient(to right, transparent 0, transparent calc(var(--kday,64px) - 1px), var(--k-day-line) calc(var(--kday,64px) - 1px), var(--k-day-line) var(--kday,64px));
-}
+#viewKotei .klane{ position:relative; z-index:1; }
+/* 縦線（実体のある要素・印刷でも確実に出る）。レーンの背面に表示しバーは上に乗る */
+#viewKotei .kgl{ position:absolute; top:0; bottom:0; width:0; pointer-events:none; z-index:0; }
+#viewKotei .kgl-day{ border-left:2px solid var(--k-day-line); }
+#viewKotei .kgl-q{ border-left:1px solid var(--k-quarter-line); }
 #viewKotei .klane.detail{ height:18px; border-bottom:1px dotted #e5e9ee; }
 #viewKotei .klane.bar{ height:20px; border-bottom:1px solid var(--k-line); cursor:crosshair; }
 /* バーにマウスを乗せている間はそのレーンを前面に出す（下にはみ出す「×」を確実にクリックできるように） */
@@ -1598,6 +1597,12 @@ td[data-field="category"], td[data-field="content"] { background: #fff; }
   body.kotei-printing #viewKotei .toolbar,
   body.kotei-printing #viewKotei .k-infobar,
   body.kotei-printing #viewKotei .k-notes label{ display:none !important; }
+  /* 編集用の操作部品は印刷しない */
+  body.kotei-printing #viewKotei .ktask-del,
+  body.kotei-printing #viewKotei .klabel .grip,
+  body.kotei-printing #viewKotei .ktask-addrow,
+  body.kotei-printing #viewKotei .kbar .kx,
+  body.kotei-printing #viewKotei .kbar .h{ display:none !important; }
   body.kotei-printing #viewKotei{ box-shadow:none; border-radius:0; }
   body.kotei-printing #viewKotei .scroll{ overflow:visible; max-height:none; }
   body.kotei-printing #viewKotei .khead, body.kotei-printing #viewKotei .kcorner,
@@ -1605,6 +1610,7 @@ td[data-field="category"], td[data-field="content"] { background: #fff; }
   /* 背景の罫線・色（土日祝・バー・グリッド）を印刷でも出す */
   body.kotei-printing #viewKotei .klane,
   body.kotei-printing #viewKotei .kday,
+  body.kotei-printing #viewKotei .kgl,
   body.kotei-printing #viewKotei .kwkcol,
   body.kotei-printing #viewKotei .ktodaycol,
   body.kotei-printing #viewKotei .kbar{
