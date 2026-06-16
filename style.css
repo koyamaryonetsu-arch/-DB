@@ -1541,7 +1541,8 @@ td[data-field="category"], td[data-field="content"] { background: #fff; }
 /* 詳細行に背景色は入れない（要望） */
 
 /* 詳細テキスト */
-#viewKotei .kdetail{ position:absolute; top:1px; height:16px; line-height:16px; font-size:10px; color:#243; padding:0 3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; pointer-events:none; }
+/* 文字がバーより長くても折り返し・縮小せず、そのまま1行で表示（はみ出しOK） */
+#viewKotei .kdetail{ position:absolute; top:1px; height:16px; line-height:16px; font-size:10px; color:#243; padding:0 3px; white-space:nowrap; overflow:visible; pointer-events:none; }
 #viewKotei .klane.detail.night .kdetail{ color:#7a1f1f; }
 #viewKotei .kedit{ position:absolute; top:0; height:18px; border:1px solid #9db4f0 !important; border-radius:3px; font-size:11px !important; padding:0 3px !important; z-index:6; background:#fff; }
 
