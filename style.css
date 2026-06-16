@@ -1406,6 +1406,7 @@ td[data-field="category"], td[data-field="content"] { background: #fff; }
    ============================================================ */
 #viewKotei{
   --k-label-w:140px; --k-line:#dfe3e8; --k-line-strong:#b9c0c9;
+  --k-day-line:#333; --k-quarter-line:#d3d8e0;
   --k-blue:#2f6fed; --k-blue-d:#1d4ed8; --k-red:#e23b3b;
   --k-weekend:rgba(253,234,234,.85); --k-today:rgba(255,225,90,.20);
   display:flex; flex-direction:column; background:#f4f6f9; color:#1f2733; font-size:13px;
@@ -1500,7 +1501,7 @@ td[data-field="category"], td[data-field="content"] { background: #fff; }
 }
 #viewKotei .kcorner .k-sub{ font-size:9px; color:#8a93a0; font-weight:400; }
 #viewKotei .ktimeline{ display:flex; border-bottom:2px solid var(--k-line-strong); }
-#viewKotei .kday{ width:var(--kday,64px); flex:0 0 var(--kday,64px); border-right:2px solid var(--k-line-strong); }
+#viewKotei .kday{ width:var(--kday,64px); flex:0 0 var(--kday,64px); border-right:2px solid var(--k-day-line); }
 #viewKotei .kday.month-start{ border-left:2px solid var(--k-line-strong); }
 #viewKotei .kday.wknd{ background-color:#fadddd; }
 #viewKotei .kday.today .kday-top{ background:var(--k-today); }
@@ -1530,8 +1531,8 @@ td[data-field="category"], td[data-field="content"] { background: #fff; }
 #viewKotei .klane{
   position:relative; z-index:1;
   background-image:
-    repeating-linear-gradient(to right, transparent 0, transparent calc(var(--kqw,16px) - 1px), #b7bfca calc(var(--kqw,16px) - 1px), #b7bfca var(--kqw,16px)),
-    repeating-linear-gradient(to right, transparent 0, transparent calc(var(--kday,64px) - 1px), var(--k-line-strong) calc(var(--kday,64px) - 1px), var(--k-line-strong) var(--kday,64px));
+    repeating-linear-gradient(to right, transparent 0, transparent calc(var(--kqw,16px) - 1px), var(--k-quarter-line) calc(var(--kqw,16px) - 1px), var(--k-quarter-line) var(--kqw,16px)),
+    repeating-linear-gradient(to right, transparent 0, transparent calc(var(--kday,64px) - 1px), var(--k-day-line) calc(var(--kday,64px) - 1px), var(--k-day-line) var(--kday,64px));
 }
 #viewKotei .klane.detail{ height:18px; border-bottom:1px dotted #e5e9ee; }
 #viewKotei .klane.bar{ height:20px; border-bottom:1px solid var(--k-line); cursor:crosshair; }
@@ -1601,13 +1602,26 @@ td[data-field="category"], td[data-field="content"] { background: #fff; }
   body.kotei-printing #viewKotei .scroll{ overflow:visible; max-height:none; }
   body.kotei-printing #viewKotei .khead, body.kotei-printing #viewKotei .kcorner,
   body.kotei-printing #viewKotei .klabel{ position:static; }
-  body.kotei-printing #viewKotei .k-printhead{
-    display:block; padding:6px 10px; border-bottom:2px solid #333;
+  /* 背景の罫線・色（土日祝・バー・グリッド）を印刷でも出す */
+  body.kotei-printing #viewKotei .klane,
+  body.kotei-printing #viewKotei .kday,
+  body.kotei-printing #viewKotei .kwkcol,
+  body.kotei-printing #viewKotei .ktodaycol,
+  body.kotei-printing #viewKotei .kbar{
+    -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important;
   }
-  body.kotei-printing #viewKotei .k-ph-title{ font-size:18px; font-weight:800; text-align:center; margin-bottom:6px; }
-  body.kotei-printing #viewKotei .k-ph-meta{ width:100%; border-collapse:collapse; font-size:11px; }
+  /* 印刷ヘッダー（かっこよく） */
+  body.kotei-printing #viewKotei .k-printhead{
+    display:block; padding:4px 12px 8px; border-bottom:3px solid #111; margin-bottom:2px;
+  }
+  body.kotei-printing #viewKotei .k-ph-type{
+    font-size:22px; font-weight:900; text-align:center; letter-spacing:6px;
+    color:#111; border-bottom:2px solid #111; padding-bottom:4px; margin-bottom:6px;
+  }
+  body.kotei-printing #viewKotei .k-ph-name{ font-size:15px; font-weight:700; text-align:center; color:#222; margin-bottom:8px; }
+  body.kotei-printing #viewKotei .k-ph-meta{ width:100%; border-collapse:collapse; font-size:11px; table-layout:fixed; }
   body.kotei-printing #viewKotei .k-ph-meta th,
-  body.kotei-printing #viewKotei .k-ph-meta td{ border:1px solid #999; padding:2px 6px; text-align:left; white-space:nowrap; }
-  body.kotei-printing #viewKotei .k-ph-meta th{ background:#eee; width:80px; }
+  body.kotei-printing #viewKotei .k-ph-meta td{ border:1px solid #555; padding:3px 8px; text-align:left; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  body.kotei-printing #viewKotei .k-ph-meta th{ background:#e9edf2; width:78px; font-weight:700; -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
   @page{ size:A3 landscape; margin:8mm; }
 }

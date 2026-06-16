@@ -212,8 +212,8 @@
           <div class="k-info-cell" id="startCell"><span class="k-lbl">着工日</span><input type="date" id="start"></div>
           <div class="k-info-cell narrow"><span class="k-lbl" id="kDaysLbl">工期</span><span class="k-days"><input type="number" id="days" min="1" max="370" step="1"><em id="kDaysUnit">日</em></span></div>
           <div class="k-info-cell" id="endCell"><span class="k-lbl">竣工日</span><span id="kEnd" class="k-val">―</span></div>
-          <div class="k-info-cell"><span class="k-lbl">会社</span><span class="k-val">菱熱工業株式会社</span></div>
-          <div class="k-info-cell"><span class="k-lbl">客先</span><select id="kClient"><option value="">（未選択）</option></select></div>
+          <div class="k-info-cell"><span class="k-lbl">施工会社</span><span class="k-val">菱熱工業株式会社</span></div>
+          <div class="k-info-cell"><span class="k-lbl">施主</span><select id="kClient"><option value="">（未選択）</option></select></div>
           <div class="k-info-cell"><span class="k-lbl">作成者（担当者）</span><select id="kAuthor"><option value="">（未選択）</option></select></div>
           <div class="k-info-cell wide"><span class="k-lbl">バージョン（作成日）</span>
             <span class="k-ver">
@@ -253,12 +253,12 @@
 
       <!-- 印刷時のみ表示されるヘッダー -->
       <div id="kPrintHead" class="k-printhead">
-        <div class="k-ph-title" id="phTitle"></div>
+        <div class="k-ph-type" id="phType">工事工程表</div>
+        <div class="k-ph-name" id="phName"></div>
         <table class="k-ph-meta">
-          <tr><th>工事名</th><td id="phName"></td><th>着工日</th><td id="phStart"></td></tr>
-          <tr><th>工事内容</th><td id="phContent"></td><th>竣工日</th><td id="phEnd"></td></tr>
-          <tr><th>客先</th><td id="phClient"></td><th>作成者</th><td id="phAuthor"></td></tr>
-          <tr><th>会社</th><td colspan="3">菱熱工業株式会社</td></tr>
+          <tr><th>工事内容</th><td id="phContent"></td><th>着工日</th><td id="phStart"></td></tr>
+          <tr><th>施主</th><td id="phClient"></td><th>竣工日</th><td id="phEnd"></td></tr>
+          <tr><th>施工会社</th><td id="phMaker">菱熱工業株式会社</td><th>作成者</th><td id="phAuthor"></td></tr>
         </table>
       </div>
 

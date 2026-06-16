@@ -547,7 +547,9 @@
   function fillPrintHead() {
     if (!state) return;
     const set = (id, v) => { const e = $('#viewKotei #' + id); if (e) e.textContent = v || ''; };
-    set('phTitle', state.title); set('phName', state.title); set('phContent', state.content);
+    const typeLabel = isMaster() ? ('マスター工程表（' + (state.unit === 'month' ? '月' : '週') + '）') : (state.kind === 'zero' ? 'ゼロ工程表' : '工事工程表');
+    set('phType', typeLabel);
+    set('phName', state.title); set('phContent', state.content);
     set('phStart', hasCalendar() ? fmtJp(state.start) : '―'); set('phEnd', hasCalendar() ? fmtJp(endDateIso()) : '―');
     set('phClient', state.client); set('phAuthor', state.author);
   }
