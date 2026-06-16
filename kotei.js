@@ -229,7 +229,7 @@
     const lane = el('div', 'klane ' + kind + (night ? ' night' : ' day'));
     lane.style.width = trackW + 'px';
     lane.dataset.task = taskId; lane.dataset.night = night ? '1' : '0'; lane.dataset.kind = kind;
-    if (kind === 'bar') lane.addEventListener('pointerdown', (e) => onLaneDown(e, lane));
+    if (kind === 'bar') lane.addEventListener('dblclick', (e) => onLaneDblClick(e, lane));
     return lane;
   }
   function makeDetailText(b) {
@@ -273,17 +273,16 @@
      ============================================================ */
   let drag = null;
   function slotAtClientX(lane, clientX) { const r = lane.getBoundingClientRect(); return clamp(Math.round((clientX - r.left) / QW), 0, state.days * SLOTS); }
-  function onLaneDown(e, lane) {
+  // バーの作成は「行をダブルクリック」。作成後は1日分の長さで置かれ、ドラッグで移動・端で伸縮できる
+  function onLaneDblClick(e, lane) {
     if (e.target.classList.contains('kbar') || e.target.classList.contains('h') || e.target.classList.contains('kx')) return;
     e.preventDefault();
     const before = snap();
     const startSlot = Math.min(slotAtClientX(lane, e.clientX), state.days * SLOTS - 1);
     const bar = { id: uid(), taskId: lane.dataset.task, startSlot, lenSlots: SLOTS, night: lane.dataset.night === '1', label: '' };
-    state.bars.push(bar); render();
-    const div = board.querySelector('.kbar[data-id="' + bar.id + '"]');
+    state.bars.push(bar);
+    recordUndo(before); save(); render();
     selectedIds = new Set([bar.id]); applySelection();
-    drag = { mode: 'create', primary: bar, group: [{ bar, origStart: bar.startSlot }], startX: e.clientX, origLen: 0, div, moved: false, before, reassigned: false };
-    bindDragMove();
   }
   function onBarDown(e, b, div) {
     e.preventDefault(); e.stopPropagation();

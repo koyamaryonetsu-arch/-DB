@@ -247,12 +247,16 @@
           <span><span class="sw blue"></span>日中（青の行）</span>
           <span><span class="sw red"></span>夜間（赤の行）</span>
           <span><span class="sw wknd"></span>土日祝</span>
-          <span class="hint">💡 行をドラッグでバー作成／ダブルクリックで文字入力／上下に動かすと日中⇔夜間／Ctrl+クリックで複数選択</span>
+          <span class="hint">💡 行をダブルクリックでバー作成／バーをダブルクリックで文字入力／上下に動かすと日中⇔夜間／Ctrl+クリックで複数選択</span>
         </div>
       </header>
 
       <!-- 印刷時のみ表示されるヘッダー -->
       <div id="kPrintHead" class="k-printhead">
+        <div class="k-ph-legend">
+          <span class="k-ph-sw blue"></span>青のバー＝日中
+          <span class="k-ph-sw red"></span>赤のバー＝夜間
+        </div>
         <div class="k-ph-type" id="phType">工事工程表</div>
         <div class="k-ph-name" id="phName"></div>
         <table class="k-ph-meta">
