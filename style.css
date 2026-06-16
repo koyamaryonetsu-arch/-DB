@@ -1621,7 +1621,7 @@ td[data-field="category"], td[data-field="content"] { background: #fff; }
     display:block; padding:4px 12px 8px; border-bottom:3px solid #111; margin-bottom:2px;
   }
   body.kotei-printing #viewKotei .k-ph-legend{
-    float:right; font-size:11px; font-weight:700; color:#222; margin-top:2px;
+    text-align:right; font-size:11px; font-weight:700; color:#222; margin:4px 2px 2px;
   }
   body.kotei-printing #viewKotei .k-ph-sw{
     display:inline-block; width:22px; height:11px; vertical-align:-1px; margin:0 3px 0 10px; border:1px solid #555;
