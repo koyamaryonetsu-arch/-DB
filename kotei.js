@@ -517,6 +517,11 @@
 
   // 作成者（担当者）・客先 は案件管理のマスタから選ぶ
   function bridge() { return window.CINEMA_DB || {}; }
+  function officialClientName() {
+    if (!state || !state.client) return '';
+    try { const list = (bridge().companies && bridge().companies()) || []; const f = list.find((c) => c.name === state.client); return (f && f.officialName) || state.client; }
+    catch (e) { return state.client; }
+  }
   function fillSelect(id, items, current) {
     const sel = $('#viewKotei #' + id); if (!sel) return;
     const opts = ['（未選択）'].concat(items);
@@ -551,7 +556,7 @@
     set('phType', typeLabel);
     set('phName', state.title); set('phContent', state.content);
     set('phStart', hasCalendar() ? fmtJp(state.start) : '―'); set('phEnd', hasCalendar() ? fmtJp(endDateIso()) : '―');
-    set('phClient', state.client); set('phAuthor', state.author);
+    set('phClient', officialClientName()); set('phAuthor', state.author);
   }
 
   /* ---- Excel出力 ---- */
@@ -675,8 +680,8 @@
     put(r, half, hasCalendar() ? '着工日' : '種類', S.meta); put(r, half + 1, hasCalendar() ? fmtJp(state.start) : kindLabel(), S.metaVal); r++;
     put(r, 1, '工事内容', S.meta); put(r, 2, state.content || '', S.metaVal);
     put(r, half, hasCalendar() ? '竣工日' : '期間', S.meta); put(r, half + 1, hasCalendar() ? fmtJp(endDateIso()) : (state.days + (isMaster() ? (state.unit === 'month' ? 'ヶ月' : '週') : '日間')), S.metaVal); r++;
-    put(r, 1, '客先', S.meta); put(r, 2, state.client || '', S.metaVal); put(r, half, '作成者', S.meta); put(r, half + 1, state.author || '', S.metaVal); r++;
-    put(r, 1, '会社', S.meta); put(r, 2, '菱熱工業株式会社', S.metaVal); r++;
+    put(r, 1, '施主', S.meta); put(r, 2, officialClientName(), S.metaVal); put(r, half, '作成者', S.meta); put(r, half + 1, state.author || '', S.metaVal); r++;
+    put(r, 1, '施工会社', S.meta); put(r, 2, '菱熱工業株式会社', S.metaVal); r++;
     r++;
 
     const dateRow = r;

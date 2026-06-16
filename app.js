@@ -3281,7 +3281,7 @@
       client: () => sb,
       mode: () => store.mode,
       teams: () => { try { return loadTeam(); } catch (e) { return []; } },
-      companies: () => { try { return companies.map((c) => ({ name: c.name, abbr: c.abbr })); } catch (e) { return []; } }
+      companies: () => { try { return companies.map((c) => ({ name: c.name, abbr: c.abbr, officialName: c.officialName || '' })); } catch (e) { return []; } }
     };
     // モードに応じたログイン画面ヒント
     const hintEl = $('loginHint');
