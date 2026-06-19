@@ -1037,6 +1037,15 @@ tr.agg-summary-row .agg-sec-label { text-align: left; }
   font-family: inherit;
   background: #fff;
 }
+/* 内容・メモ: 中身に合わせて自動拡張し全文表示（JSで高さ設定。手動リサイズも可） */
+.form-row textarea.autogrow {
+  min-height: 4.5em;
+  max-height: 60vh;
+  overflow-y: auto;
+  resize: vertical;
+  line-height: 1.5;
+  box-sizing: border-box;
+}
 
 .form-row input:focus,
 .form-row select:focus,

@@ -1662,7 +1662,7 @@
       $('surveyTime').value = caseObj.surveyTime || '';
       $('certNumber').value = caseObj.certNumber || '';
       $('estimateName').value = caseObj.estimateName || '';
-      $('estimateAmount').value = caseObj.estimateAmount || '';
+      $('estimateAmount').value = formatThousands(caseObj.estimateAmount);
       setDateField('quoteDate', caseObj.quoteDate);
       setDateField('workStartDate', caseObj.workStartDate);
       $('workStartTime').value = caseObj.workStartTime || '';
@@ -1684,9 +1684,38 @@
     if (caseObj) $('company').value = caseObj.company || companyNames()[0];
     else if (!isPrivileged(currentUser)) $('company').value = 'TOHOシネマズ';
     $('modal').classList.remove('hidden');
+    // 内容・メモは全文が見えるよう、開いた直後に高さを中身に合わせて拡張
+    requestAnimationFrame(() => { autoGrowTextarea($('content')); autoGrowTextarea($('memo')); });
     setTimeout(() => $('company').focus(), 50);
   }
   function closeModal() { $('modal').classList.add('hidden'); }
+
+  // 数値を3桁カンマ区切りの文字列にする（数字以外は除去。空なら空文字）
+  function formatThousands(value) {
+    const digits = String(value == null ? '' : value).replace(/[^\d]/g, '');
+    return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  }
+  // textarea を中身の高さに合わせて自動拡張（全文表示）
+  function autoGrowTextarea(el) {
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = (el.scrollHeight + 2) + 'px';
+  }
+  // 金額入力欄を、入力途中でもカンマ区切りに整形（キャレット位置を維持）
+  function formatAmountFieldLive(el) {
+    if (!el) return;
+    const before = el.value;
+    const caret = el.selectionStart != null ? el.selectionStart : before.length;
+    const digitsBeforeCaret = before.slice(0, caret).replace(/[^\d]/g, '').length;
+    const formatted = formatThousands(before);
+    el.value = formatted;
+    let pos = 0, seen = 0;
+    while (pos < formatted.length && seen < digitsBeforeCaret) {
+      if (/\d/.test(formatted[pos])) seen++;
+      pos++;
+    }
+    try { el.setSelectionRange(pos, pos); } catch (e) { /* noop */ }
+  }
 
   // ---------- ポップアップ編集（内容 / メモ 共用） ----------
   let popupEditField = 'content';
@@ -2852,6 +2881,13 @@
   $('newCaseBtn').addEventListener('click', () => openModal(null, 'full'));
   $('quickCaseBtn').addEventListener('click', () => openModal(null, 'simple'));
   $('closeModal').addEventListener('click', closeModal);
+  // 内容・メモ: 入力に合わせて全文が見えるよう自動拡張
+  ['content', 'memo'].forEach((id) => {
+    const el = $(id);
+    if (el) el.addEventListener('input', () => autoGrowTextarea(el));
+  });
+  // 見積り金額: 入力途中でもカンマ区切りで表示
+  { const amtEl = $('estimateAmount'); if (amtEl) amtEl.addEventListener('input', () => formatAmountFieldLive(amtEl)); }
   $('cancelBtn').addEventListener('click', closeModal);
   $('modal').addEventListener('click', (e) => { if (e.target === $('modal')) closeModal(); });
   // 編集ポップアップからの複製・削除（主にスマホ用）
@@ -3022,7 +3058,7 @@
     }
     const id = $('caseId').value || genId();
     const company = isPrivileged(currentUser) ? $('company').value : 'TOHOシネマズ';
-    const amountRaw = $('estimateAmount').value;
+    const amountRaw = $('estimateAmount').value.replace(/[^\d]/g, '');
     const data = {
       id: id, company: company,
       theater: $('theater').value.trim(),
