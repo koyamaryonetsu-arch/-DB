@@ -142,7 +142,7 @@ function buildLineMessage(c, aiAdvice) {
     '🤖 AI初期対応案',
     aiAdvice,
     '',
-    `🔗 ${APP_URL}`
+    `🔗 ${APP_URL}/?case=${c.id}`
   ];
   return [...head, ...tail].join('\n').slice(0, 4900);
 }
@@ -182,7 +182,7 @@ function buildUpdateMessage(c, changes) {
     '【更新項目】'
   ];
   const body = changes.map((ch) => `・${ch.label}: ${ch.value}`);
-  const tail = ['', '━━━━━━━━━━━━', `🔗 ${APP_URL}`];
+  const tail = ['', '━━━━━━━━━━━━', `🔗 ${APP_URL}/?case=${c.id}`];
   return [...head, ...body, ...tail].join('\n').slice(0, 4900);
 }
 
