@@ -1,19 +1,21 @@
-// Supabase Database Webhook → AI初期対応判断 → LINEグループ通知
+// Supabase Database Webhook → LINEグループ通知
 //
 // 必須 ENV:
 //   SUPABASE_WEBHOOK_SECRET   - Supabase Webhook の HTTP Header に同じ値を設定
 //   LINE_CHANNEL_ACCESS_TOKEN - LINE Messaging API のチャネルアクセストークン
 //   LINE_TARGET_GROUP_ID      - 通知先のLINEグループID
-//   ANTHROPIC_API_KEY         - Anthropic Console で発行したAPIキー
+//   ANTHROPIC_API_KEY         - Anthropic Console で発行したAPIキー（任意。未設定ならAI判断はスキップ）
 //
 // 動作:
-//   1. Supabase Webhook (INSERT on cases) からPOSTを受ける
-//   2. ヘッダの x-webhook-secret を検証
-//   3. Claude API で「優先度・相談先・初動メモ」を生成
-//   4. LINE Messaging API の push でグループに投稿
+//   - INSERT (新規案件): Claude APIで「優先度・相談先・初動メモ」を生成し、AI初期対応案つきで通知
+//   - UPDATE (既存案件): 内容 / メモ / ステータス が変わった時だけ、変更内容を通知（AIは使わない）
+//   いずれも x-webhook-secret を検証し、LINE Messaging API の push でグループへ投稿する。
 //
 // Supabase Webhook ペイロード例:
-//   { "type": "INSERT", "table": "cases", "record": { ... }, "schema": "public" }
+//   INSERT: { "type": "INSERT", "table": "cases", "record": {...} }
+//   UPDATE: { "type": "UPDATE", "table": "cases", "record": {...}, "old_record": {...} }
+//   ※ UPDATE/DELETE で old_record を受け取るには、Supabaseのテーブルで
+//     「REPLICA IDENTITY FULL」が必要（Database Webhook作成時に自動設定される）。
 
 const LINE_PUSH_URL = 'https://api.line.me/v2/bot/message/push';
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
@@ -31,30 +33,51 @@ export default async function handler(req, res) {
   }
 
   const payload = req.body || {};
-  if (payload.type !== 'INSERT' || payload.table !== 'cases' || !payload.record) {
+  if (payload.table !== 'cases' || !payload.record) {
     // 対象外のイベントは黙って 200 を返す
     return res.status(200).json({ skipped: true });
   }
   const c = payload.record;
 
-  // 1) AI初期対応判断
-  let aiAdvice = '';
-  try {
-    aiAdvice = await getInitialResponseAdvice(c);
-  } catch (e) {
-    console.error('AI判断エラー', e);
-    aiAdvice = `(AI判断エラー: ${e.message})`;
+  // ── 新規登録（INSERT）: AI初期対応判断つきで通知 ──
+  if (payload.type === 'INSERT') {
+    let aiAdvice = '';
+    try {
+      aiAdvice = await getInitialResponseAdvice(c);
+    } catch (e) {
+      console.error('AI判断エラー', e);
+      aiAdvice = `(AI判断エラー: ${e.message})`;
+    }
+    const text = buildLineMessage(c, aiAdvice);
+    try {
+      await pushLineMessage(process.env.LINE_TARGET_GROUP_ID, text);
+    } catch (e) {
+      console.error('LINE push エラー', e);
+      return res.status(500).json({ ok: false, error: 'LINE push failed', detail: e.message });
+    }
+    return res.status(200).json({ ok: true });
   }
 
-  // 2) LINEに投稿
-  const text = buildLineMessage(c, aiAdvice);
-  try {
-    await pushLineMessage(process.env.LINE_TARGET_GROUP_ID, text);
-  } catch (e) {
-    console.error('LINE push エラー', e);
-    return res.status(500).json({ ok: false, error: 'LINE push failed', detail: e.message });
+  // ── 更新（UPDATE）: 内容 / メモ / ステータス が変わった時だけ通知（AIなし） ──
+  if (payload.type === 'UPDATE') {
+    const before = payload.old_record || {};
+    const changes = detectChanges(before, c);
+    if (changes.length === 0) {
+      // 内容・メモ・ステータス以外の変更（日付入力など）は通知しない
+      return res.status(200).json({ skipped: 'no relevant change' });
+    }
+    const text = buildUpdateMessage(c, changes);
+    try {
+      await pushLineMessage(process.env.LINE_TARGET_GROUP_ID, text);
+    } catch (e) {
+      console.error('LINE push エラー', e);
+      return res.status(500).json({ ok: false, error: 'LINE push failed', detail: e.message });
+    }
+    return res.status(200).json({ ok: true, changed: changes.map((x) => x.label) });
   }
-  return res.status(200).json({ ok: true });
+
+  // それ以外（DELETE等）は対象外
+  return res.status(200).json({ skipped: true });
 }
 
 async function getInitialResponseAdvice(c) {
@@ -122,6 +145,45 @@ function buildLineMessage(c, aiAdvice) {
     `🔗 ${APP_URL}`
   ];
   return [...head, ...tail].join('\n').slice(0, 4900);
+}
+
+// 表示用の実効ステータス（手動上書きがあればそれを優先）
+function effectiveStatus(r) {
+  const ov = (r.status_override || '').trim();
+  return ov || r.status || '';
+}
+
+// 内容 / メモ / ステータス の変更を検出（変わったものだけ返す）
+function detectChanges(before, after) {
+  const changes = [];
+  if ((before.content || '') !== (after.content || '')) {
+    changes.push({ label: '内容', value: (after.content || '(空)').slice(0, 300) });
+  }
+  if ((before.memo || '') !== (after.memo || '')) {
+    changes.push({ label: 'メモ', value: (after.memo || '(空)').slice(0, 300) });
+  }
+  const sb = effectiveStatus(before);
+  const sa = effectiveStatus(after);
+  if (sb !== sa) {
+    changes.push({ label: 'ステータス', value: `${sb || '(なし)'} → ${sa || '(なし)'}` });
+  }
+  return changes;
+}
+
+function buildUpdateMessage(c, changes) {
+  const head = [
+    '✏️ 案件が更新されました',
+    '━━━━━━━━━━━━',
+    `会社: ${c.company || '-'}`,
+    `劇場: ${c.theater || '-'}`,
+    `種別: ${c.category || '-'}`,
+    `R担当: ${c.r_person || '-'}`,
+    '',
+    '【更新項目】'
+  ];
+  const body = changes.map((ch) => `・${ch.label}: ${ch.value}`);
+  const tail = ['', '━━━━━━━━━━━━', `🔗 ${APP_URL}`];
+  return [...head, ...body, ...tail].join('\n').slice(0, 4900);
 }
 
 async function pushLineMessage(to, text) {
