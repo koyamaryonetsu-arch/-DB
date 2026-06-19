@@ -1333,7 +1333,7 @@
       const w = colWidths[field];
       if (!w) return;
       const decl = `width:${w}px;min-width:${w}px;max-width:${w}px;overflow:hidden;text-overflow:ellipsis;`;
-      css += `#casesTable th[data-sort="${field}"],#casesTable th[data-col="${field}"],#casesTable td[data-field="${field}"],#casesTable td.col-${field}{${decl}}`;
+      css += `#casesTable th[data-sort="${field}"],#casesTable th[data-col="${field}"],#casesTable th.col-${field},#casesTable td[data-field="${field}"],#casesTable td.col-${field}{${decl}}`;
       css += `#casesTable.task-mode th[data-col="${field}"],#casesTable.task-mode td[data-field="${field}"],#casesTable.task-mode td.col-${field}{${decl}}`;
     });
     if (!colWidthStyleEl) { colWidthStyleEl = document.createElement('style'); document.head.appendChild(colWidthStyleEl); }
@@ -2016,8 +2016,7 @@
 
     // ===== ヘッダ行 =====
     const headerCells = `
-      <th>劇場名</th>
-      <th>見積り名</th>
+      <th data-col="aggname" class="col-aggname agg-namecol">客先・劇場名・見積り名</th>
       <th>見積り金額</th>
       <th>配分集計</th>
       <th>粗利率</th>
@@ -2053,7 +2052,7 @@
     });
 
     const grandTotalRow = `<tr class="agg-summary-row section-grand">
-      <th class="agg-sec-label" colspan="2">合計（見込み+実績+予想）　${grandTotal.count}件</th>
+      <th class="agg-sec-label col-aggname">合計（見込み+実績+予想）　${grandTotal.count}件</th>
       <th>${fmtAmount(grandTotal.amount)}</th>
       <th>粗利A→</th>
       <th>${fmtAmount(grandTotal.profit)}</th>
@@ -2064,7 +2063,7 @@
       const t = sectionTotals[s];
       const def = SECTION_DEF[s];
       return `<tr class="agg-summary-row ${def.cls}">
-        <th class="agg-sec-label" colspan="2">${def.label}　${t.count}件</th>
+        <th class="agg-sec-label col-aggname">${def.label}　${t.count}件</th>
         <th>${fmtAmount(t.amount)}</th>
         <th>粗利A→</th>
         <th>${fmtAmount(t.profit)}</th>
@@ -2084,7 +2083,7 @@
 
     const tbody = $('casesBody');
     if (sorted.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="${5 + team.length}" class="agg-empty">対象案件がありません。</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="${4 + team.length}" class="agg-empty">対象案件がありません。</td></tr>`;
     } else {
       tbody.innerHTML = sorted.map((c) => {
         const amt = Number(c.estimateAmount) || 0;
@@ -2095,8 +2094,7 @@
         const okText = okClass === 'ok' ? '✓OK' : '✗NG';
         const sec = SECTION_DEF[aggSection(c)];
         return `<tr data-case-id="${escapeHtml(c.id)}">
-          <td class="agg-case-name"><span class="agg-section-badge ${sec.badge}">${sec.label}</span>${escapeHtml(shortTheaterName(c.theater))}</td>
-          <td>${escapeHtml(c.estimateName || '-')}</td>
+          <td class="agg-case-name col-aggname"><span class="agg-section-badge ${sec.badge}">${sec.label}</span><span class="agg-co">${escapeHtml(companyAbbr(c.company))}</span><span class="agg-th">${escapeHtml(shortTheaterName(c.theater))}</span><span class="agg-est">${escapeHtml(c.estimateName || '-')}</span></td>
           <td class="agg-amount">${fmtAmount(amt)}</td>
           <td class="agg-sum ${okClass}">${sum.toFixed(1)}% ${okText}</td>
           <td><input type="number" data-field="marginRate" min="0" max="100" step="0.1" value="${rate}" class="agg-input agg-rate"></td>
@@ -2105,6 +2103,8 @@
       }).join('');
     }
     $('caseCount').textContent = `A集計: ${targets.length} 件`;
+    addResizers(thead);
+    applyColWidths();
   }
 
   function enterAggMode() {

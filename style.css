@@ -924,6 +924,16 @@ tr.agg-summary-row .agg-sec-label { text-align: left; }
 .badge-jisseki { background: #d1fae5; color: #065f46; }
 .badge-yosou { background: #dbeafe; color: #1e40af; }
 
+/* A集計：客先＋劇場名＋見積り名 のまとめ列（幅はドラッグで調整可） */
+#casesTable.agg-mode td.col-aggname,
+#casesTable.agg-mode th.col-aggname { white-space: normal; word-break: break-word; vertical-align: top; }
+.agg-co {
+  display: inline-block; background: #eef2ff; color: #3949ab; font-weight: 700;
+  font-size: 11px; padding: 1px 6px; border-radius: 4px; margin-right: 5px;
+}
+.agg-th { font-weight: 600; color: #1f2937; }
+.agg-est { color: #475569; margin-left: 6px; }
+
 .status-badge {
   display: inline-block;
   padding: 2px 8px;
