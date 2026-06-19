@@ -2665,6 +2665,21 @@
     if (aggMode) exitAggMode();
     applyUserScope();
     render();
+    maybeOpenCaseFromUrl();
+  }
+  // LINE通知などの「?case=<id>」付きURLで開いた時、その案件の編集画面を直接開く
+  function maybeOpenCaseFromUrl() {
+    try {
+      const params = new URLSearchParams(location.search);
+      const id = params.get('case');
+      if (!id) return;
+      const c = cases.find((x) => String(x.id) === String(id));
+      if (c) openModal(c, 'full');
+      // 再描画・再読込で二重に開かないよう、URLから case パラメータだけ除去（他のパラメータは保持）
+      params.delete('case');
+      const qs = params.toString();
+      history.replaceState(null, '', location.pathname + (qs ? '?' + qs : '') + location.hash);
+    } catch (e) { /* noop */ }
   }
   // タイトル横の R担当者 ボタン（全員＋各担当者）。クリックでその担当者の案件に絞る（AND）
   // 絞り込みの保持（アカウント別）
