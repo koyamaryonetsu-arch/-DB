@@ -21,7 +21,7 @@
     { name: 'イオンシネマズ',     abbr: 'イオン', officialName: 'イオンエンターテイメント株式会社',       hqAddress: '千葉県千葉市美浜区中瀬1-5-1 幕張テクノガーデンB棟' },
     { name: 'シネマサンシャイン', abbr: 'SS',     officialName: '佐々木興業株式会社',           hqAddress: '東京都豊島区東池袋1-30-3 大正堂ビル' }
   ];
-  const CATEGORIES = ['新規工事', '更新案件', '修理', 'メンテナンス', '点検', '改修', 'その他'];
+  const CATEGORIES = ['新規工事', '更新案件', '修理', 'メンテナンス', '点検', '改修', 'タスク', 'その他'];
   // 色判定を除外するカテゴリ
   const NO_COLOR_CATEGORIES = new Set(['更新案件', 'その他']);
   // 完了以降のステータス（黄/赤の遅延色を解除して通常表示に戻す）
@@ -995,14 +995,15 @@
     return count;
   }
   function rowColorClass(c) {
-    if (NO_COLOR_CATEGORIES.has(c.category)) return '';
     const st = statusOf(c);
     if (st === '保留') return '';
     if (st === '日程調整中') return ''; // 日程調整中は注意喚起色なし
     // 完了・対応済み・請求済・入金済 は色なし
     if (NO_COLOR_STATUSES.has(st)) return '';
-    // 客先対応中・見積り提出済 → 文字全体を青
+    // 客先対応中・見積り提出済 → 文字全体を青（種別を問わず全ての種別で適用）
     if (st === '見積り提出済' || st === '客先対応中') return 'row-blue';
+    // 以降の遅延色（黄・赤・黄緑）は 更新案件/その他 では適用しない
+    if (NO_COLOR_CATEGORIES.has(c.category)) return '';
     const today = todayStr();
     // 調査日が未記入 → 黄（受付から3営業日以上＝土日祝を除く）。調査日を記入すると解除
     if (!c.surveyDate) {
