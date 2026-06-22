@@ -561,6 +561,7 @@
   let sortState = { field: null, direction: 'asc' };
   // 表示切替モード: 0=標準（請求済/入金済/取り下げ/失注/保留を隠す）, 1=請求済・入金済を表示, 2=取り下げ・失注を表示
   let displayMode = 0;
+  let showDone = false;         // 完了案件をトップ画面に表示するか（既定=非表示）
   // 大口案件（見積り金額300万円以上）のみ表示するか
   let showBigOnly = false;
   const BIG_CASE_THRESHOLD = 3000000;
@@ -1270,6 +1271,8 @@
         } else {
           // 標準: 請求済・入金済・取り下げ・失注・保留 は隠す
           if (st === '請求済' || st === '入金済' || st === '取り下げ' || st === '失注' || st === '保留') return false;
+          // 完了 はトグルがONのときだけ表示（既定は非表示）
+          if (st === '完了' && !showDone) return false;
         }
       }
       if (!q) return true;
@@ -3262,6 +3265,20 @@
     refresh();
   });
   updateDisplayModeLabel();
+
+  // 完了案件 表示/非表示トグル
+  function updateDoneToggleLabel() {
+    const btn = $('doneToggleBtn');
+    if (!btn) return;
+    btn.textContent = showDone ? '完了案件：表示' : '完了案件：非表示';
+    btn.classList.toggle('active', showDone);
+  }
+  $('doneToggleBtn').addEventListener('click', () => {
+    showDone = !showDone;
+    updateDoneToggleLabel();
+    refresh();
+  });
+  updateDoneToggleLabel();
 
   // 大口のみ（300万円以上）トグル
   function updateBigToggleLabel() {
