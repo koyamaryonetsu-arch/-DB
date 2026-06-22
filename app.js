@@ -561,7 +561,7 @@
   let sortState = { field: null, direction: 'asc' };
   // 表示切替モード: 0=標準（請求済/入金済/取り下げ/失注/保留を隠す）, 1=請求済・入金済を表示, 2=取り下げ・失注を表示
   let displayMode = 0;
-  let showDone = false;         // 完了案件をトップ画面に表示するか（既定=非表示）
+  let doneMode = 0;             // 完了案件の表示: 0=非表示, 1=表示, 2=完了だけ表示
   // 大口案件（見積り金額300万円以上）のみ表示するか
   let showBigOnly = false;
   const BIG_CASE_THRESHOLD = 3000000;
@@ -1268,11 +1268,14 @@
         } else if (displayMode === 2) {
           // 取り下げ・失注 のみ表示
           if (st !== '取り下げ' && st !== '失注') return false;
+        } else if (doneMode === 2) {
+          // 完了案件だけを表示
+          if (st !== '完了') return false;
         } else {
           // 標準: 請求済・入金済・取り下げ・失注・保留 は隠す
           if (st === '請求済' || st === '入金済' || st === '取り下げ' || st === '失注' || st === '保留') return false;
-          // 完了 はトグルがONのときだけ表示（既定は非表示）
-          if (st === '完了' && !showDone) return false;
+          // 完了 は doneMode=1（表示）のときだけ出す（既定 0=非表示）
+          if (st === '完了' && doneMode === 0) return false;
         }
       }
       if (!q) return true;
@@ -1286,6 +1289,12 @@
       return hay.includes(q);
     });
     return sortCases(filtered);
+  }
+
+  // 客先担当者名から敬称（さん/様/ちゃん等）を末尾から除去（表示・保存共通）
+  function stripHonorific(name) {
+    if (name == null) return name;
+    return String(name).replace(/\s*(さん|サン|ｻﾝ|様|さま|サマ|ちゃん|君|くん)\s*$/u, '').trim();
   }
 
   // スマホのカード表示用ラベル（PCでは使われない属性）
@@ -1399,7 +1408,7 @@
         ${editableTd(c, 'company', companyHtml, 'col-company')}
         ${editableTd(c, 'theater', escapeHtml(shortTheaterName(c.theater)))}
         ${editableTd(c, 'receivedDate', fmtDateShort(c.receivedDate))}
-        ${editableTd(c, 'tcPerson', escapeHtml(c.tcPerson))}
+        ${editableTd(c, 'tcPerson', escapeHtml(stripHonorific(c.tcPerson)))}
         ${editableTd(c, 'rPerson', escapeHtml(c.rPerson))}
         ${editableTd(c, 'category', escapeHtml(c.category))}
         ${editableTd(c, 'content', escapeHtml(c.content), 'content-cell')}
@@ -1518,6 +1527,7 @@
       }
       done = true;
       if (cfg.type === 'number') newVal = (newVal === '' ? '' : Number(newVal));
+      if (field === 'tcPerson') newVal = stripHonorific(newVal); // 客先担当者の「さん／様」は保存時に除去
 
       if (String(newVal) !== String(oldVal)) {
         c[field] = newVal;
@@ -2339,7 +2349,7 @@
         ${buildStatusCell(c)}
         ${editableTd(c, 'company', buildCompanyTag(c), 'col-company')}
         ${editableTd(c, 'theater', escapeHtml(shortTheaterName(c.theater)))}
-        ${editableTd(c, 'tcPerson', escapeHtml(c.tcPerson))}
+        ${editableTd(c, 'tcPerson', escapeHtml(stripHonorific(c.tcPerson)))}
         ${editableTd(c, 'rPerson', escapeHtml(c.rPerson))}
         ${editableTd(c, 'content', escapeHtml(c.content), 'content-cell')}
         ${editableTd(c, 'memo', escapeHtml(c.memo), 'col-memo')}
@@ -3066,7 +3076,7 @@
       id: id, company: company,
       theater: $('theater').value.trim(),
       receivedDate: parsedDates.receivedDate,
-      tcPerson: $('tcPerson').value.trim(),
+      tcPerson: stripHonorific($('tcPerson').value.trim()),
       rPerson: $('rPerson').value.trim(),
       category: $('category').value,
       content: $('content').value.trim(),
@@ -3266,15 +3276,16 @@
   });
   updateDisplayModeLabel();
 
-  // 完了案件 表示/非表示トグル
+  // 完了案件 表示切替（非表示 → 表示 → 完了だけ を循環）
+  const DONE_MODE_LABELS = ['完了案件：非表示', '完了案件：表示', '完了案件：これだけ'];
   function updateDoneToggleLabel() {
     const btn = $('doneToggleBtn');
     if (!btn) return;
-    btn.textContent = showDone ? '完了案件：表示' : '完了案件：非表示';
-    btn.classList.toggle('active', showDone);
+    btn.textContent = DONE_MODE_LABELS[doneMode];
+    btn.classList.toggle('active', doneMode !== 0);
   }
   $('doneToggleBtn').addEventListener('click', () => {
-    showDone = !showDone;
+    doneMode = (doneMode + 1) % 3;
     updateDoneToggleLabel();
     refresh();
   });
