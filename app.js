@@ -1267,8 +1267,8 @@
           // 請求済・入金済 のみ表示
           if (st !== '請求済' && st !== '入金済') return false;
         } else if (displayMode === 2) {
-          // 取り下げ・失注 のみ表示
-          if (st !== '取り下げ' && st !== '失注') return false;
+          // 取り下げ・失注・保留 のみ表示
+          if (st !== '取り下げ' && st !== '失注' && st !== '保留') return false;
         } else if (doneMode === 2) {
           // 完了案件だけを表示
           if (st !== '完了') return false;
@@ -3263,7 +3263,7 @@
   $('exportBtn').addEventListener('click', exportFiltered);
 
   // 表示切替（標準 → 請求済・入金済 → 取り下げ・失注 を循環）
-  const DISPLAY_MODE_LABELS = ['表示切替（標準）', '表示切替（請求済・入金済のみ）', '表示切替（取り下げ・失注のみ）'];
+  const DISPLAY_MODE_LABELS = ['表示切替（標準）', '表示切替（請求済・入金済のみ）', '表示切替（取り下げ・失注・保留のみ）'];
   function updateDisplayModeLabel() {
     const btn = $('displayModeBtn');
     if (!btn) return;
