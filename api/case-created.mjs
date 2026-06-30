@@ -8,7 +8,7 @@
 //
 // 動作:
 //   - INSERT (新規案件): Claude APIで「優先度・相談先・初動メモ」を生成し、AI初期対応案つきで通知
-//   - UPDATE (既存案件): 内容 / メモ / ステータス が変わった時だけ、変更内容を通知（AIは使わない）
+//   - UPDATE (既存案件): 内容 / メモ / 見積り提出日 / 作業開始日 / 作業完了日 に値が入った・変わった時だけ通知（AIは使わない）
 //   いずれも x-webhook-secret を検証し、LINE Messaging API の push でグループへ投稿する。
 //
 // Supabase Webhook ペイロード例:
@@ -58,12 +58,12 @@ export default async function handler(req, res) {
     return res.status(200).json({ ok: true });
   }
 
-  // ── 更新（UPDATE）: 内容 / メモ / ステータス が変わった時だけ通知（AIなし） ──
+  // ── 更新（UPDATE）: 内容 / メモ / 見積り提出日 / 作業開始日 / 作業完了日 が記入・変更された時だけ通知（AIなし） ──
   if (payload.type === 'UPDATE') {
     const before = payload.old_record || {};
     const changes = detectChanges(before, c);
     if (changes.length === 0) {
-      // 内容・メモ・ステータス以外の変更（日付入力など）は通知しない
+      // 対象5項目以外の変更（ステータスや他の日付など）は通知しない
       return res.status(200).json({ skipped: 'no relevant change' });
     }
     const text = buildUpdateMessage(c, changes);
@@ -147,25 +147,26 @@ function buildLineMessage(c, aiAdvice) {
   return [...head, ...tail].join('\n').slice(0, 4900);
 }
 
-// 表示用の実効ステータス（手動上書きがあればそれを優先）
-function effectiveStatus(r) {
-  const ov = (r.status_override || '').trim();
-  return ov || r.status || '';
-}
+// 通知対象の更新フィールド（この項目に値が入った/変わった時だけ通知。ステータス変更は通知しない）
+const NOTIFY_FIELDS = [
+  { key: 'content', label: '内容', text: true },
+  { key: 'memo', label: 'メモ', text: true },
+  { key: 'quote_date', label: '見積り提出日' },
+  { key: 'work_start_date', label: '作業開始日' },
+  { key: 'work_end_date', label: '作業完了日' }
+];
+function norm(v) { return v == null ? '' : String(v).trim(); }
 
-// 内容 / メモ / ステータス の変更を検出（変わったものだけ返す）
+// 内容/メモ/見積り提出日/作業開始日/作業完了日 のうち、
+// 「新しい値が空でなく、かつ前と変わった」項目だけを返す（記入・追加・変更を検知。空にした時は通知しない）
 function detectChanges(before, after) {
   const changes = [];
-  if ((before.content || '') !== (after.content || '')) {
-    changes.push({ label: '内容', value: (after.content || '(空)').slice(0, 300) });
-  }
-  if ((before.memo || '') !== (after.memo || '')) {
-    changes.push({ label: 'メモ', value: (after.memo || '(空)').slice(0, 300) });
-  }
-  const sb = effectiveStatus(before);
-  const sa = effectiveStatus(after);
-  if (sb !== sa) {
-    changes.push({ label: 'ステータス', value: `${sb || '(なし)'} → ${sa || '(なし)'}` });
+  for (const f of NOTIFY_FIELDS) {
+    const ov = norm(before[f.key]);
+    const nv = norm(after[f.key]);
+    if (nv !== '' && nv !== ov) {
+      changes.push({ label: f.label, value: f.text ? nv.slice(0, 300) : nv });
+    }
   }
   return changes;
 }
