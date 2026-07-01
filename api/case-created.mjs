@@ -5,6 +5,8 @@
 //   LINE_CHANNEL_ACCESS_TOKEN - LINE Messaging API のチャネルアクセストークン
 //   LINE_TARGET_GROUP_ID      - 通知先のLINEグループID
 //   ANTHROPIC_API_KEY         - Anthropic Console で発行したAPIキー（任意。未設定ならAI判断はスキップ）
+//   SUPABASE_SERVICE_ROLE_KEY - (任意/Lv2) 同じ劇場の過去案件を参照して診断精度を上げる。未設定なら履歴なしで動作
+//   SUPABASE_URL              - (任意) 既定 https://hykjpadvbficiiuockhj.supabase.co
 //
 // 動作:
 //   - INSERT (新規案件): Claude APIで「優先度・相談先・初動メモ」を生成し、AI初期対応案つきで通知
@@ -20,7 +22,19 @@
 const LINE_PUSH_URL = 'https://api.line.me/v2/bot/message/push';
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
 const APP_URL = 'https://cinema-cases.vercel.app';
-const AI_MODEL = 'claude-haiku-4-5-20251001';
+const AI_MODEL = 'claude-sonnet-4-6';
+const SUPABASE_URL = process.env.SUPABASE_URL || 'https://hykjpadvbficiiuockhj.supabase.co';
+
+// シネマPJ 担当ルーティング（初期対応診断の判断材料）
+const TEAM_ROUTING = [
+  'シネマPJの担当と守備範囲:',
+  '- 細萱(修治): 技術判断・大型/緊急・空調/チラー/GHP/熱源/スプリンクラー/防災/映写室系統。緊急故障の技術ジャッジ。',
+  '- 山口: 現場対応・現地調査・見積作成。夜間/応急の現場手配。',
+  '- 金子: TOHO一次窓口・市川/横浜・事務調整（見積/請求/顧客連絡/配管/計画書）。',
+  '- 若山(駿): LED更新・ユナイテッドシネマ系・協力会社スケジュール調整。',
+  '- 大和: 裏方サポート・事務・書類作成（18時退社制約あり）。',
+  '- 小山(PJリーダー): 全体統括・価格/方針・エスカレーション先（500万超/価格交渉/方針未確定/TOHO本社 青木さん対応）。'
+].join('\n');
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -80,15 +94,57 @@ export default async function handler(req, res) {
   return res.status(200).json({ skipped: true });
 }
 
+// 同じ劇場の過去案件を Supabase から取得（RLSをまたぐためサービスロールキーが必要。未設定/失敗なら空配列）
+async function fetchTheaterHistory(theater, excludeId) {
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!key || !theater) return [];
+  const params = new URLSearchParams({
+    theater: `eq.${theater}`,
+    select: 'id,received_date,category,content,status,r_person,estimate_name,work_end_date',
+    order: 'received_date.desc',
+    limit: '8'
+  });
+  try {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/cases?${params.toString()}`, {
+      headers: { apikey: key, Authorization: `Bearer ${key}` }
+    });
+    if (!r.ok) { console.error('Supabase履歴取得失敗', r.status, await r.text()); return []; }
+    const rows = await r.json();
+    return Array.isArray(rows) ? rows.filter((x) => x && x.id !== excludeId) : [];
+  } catch (e) { console.error('Supabase履歴取得エラー', e); return []; }
+}
+
+function formatTheaterHistory(rows) {
+  if (!rows.length) return '(この劇場の過去案件はまだありません)';
+  return rows.map((x, i) => {
+    const line = `${i + 1}. ${x.received_date || '日付不明'} [${x.category || '種別不明'}] ${x.status || ''}`;
+    const detail = x.content ? `\n   内容: ${String(x.content).slice(0, 120)}` : '';
+    const who = x.r_person ? `\n   R担当: ${x.r_person}` : '';
+    return line + detail + who;
+  }).join('\n');
+}
+
 async function getInitialResponseAdvice(c) {
   if (!process.env.ANTHROPIC_API_KEY) return '(ANTHROPIC_API_KEY 未設定のため AI判断はスキップ)';
 
-  const prompt = [
-    'あなたは菱熱工業のシネマ案件管理アシスタントです。',
-    '新規案件が登録されました。以下の情報をもとに、',
-    '「優先度」「誰に何を相談すべきか」「初動メモ」を簡潔に判断してください。',
+  // Lv2: 同じ劇場の過去案件を文脈として取得（無ければ空でLv1相当）
+  const history = await fetchTheaterHistory(c.theater, c.id);
+
+  const system = [
+    'あなたは菱熱工業（シネコン設備の保守/工事）のシネマ案件管理アシスタントです。',
+    '新規案件について、現場が即座に初動を判断できる実践的な初期対応診断を返します。',
     '',
-    '# 案件情報',
+    TEAM_ROUTING,
+    '',
+    '判断の指針:',
+    '- 空調/チラー/GHP/熱源/スプリンクラー/防災/映写室系統は 技術＝細萱・現場手配＝山口 を軸に。',
+    '- 見積/請求/客先連絡は 金子。価格/大型/方針未確定/TOHO本社対応は 小山 へエスカレーション。',
+    '- 故障停止・漏れ・ガス・発煙・安全に関わる語があれば優先度=高。',
+    '- 同じ劇場の過去案件があれば、その傾向・前例・担当・使ったパートナーを踏まえて具体的に助言する。'
+  ].join('\n');
+
+  const user = [
+    '# 今回の新規案件',
     `- 会社: ${c.company || '(未設定)'}`,
     `- 劇場: ${c.theater || '(未設定)'}`,
     `- 種別: ${c.category || '(未設定)'}`,
@@ -97,12 +153,13 @@ async function getInitialResponseAdvice(c) {
     `- 受付日: ${c.received_date || '(未設定)'}`,
     `- 内容: ${c.content || '(未記入)'}`,
     '',
-    '# 出力フォーマット（厳守）',
-    '【優先度】高/中/低 - 一行で理由',
-    '【相談先】箇条書きで2-3個（例: ・劇場のTC担当へ詳細ヒアリング）',
-    '【初動メモ】1-2行で次のアクション',
+    `# この劇場（${c.theater || '不明'}）の過去案件（新しい順・参考）`,
+    formatTheaterHistory(history),
     '',
-    '簡潔に。絵文字は使わない。'
+    '# 出力フォーマット（厳守・絵文字なし）',
+    '【優先度】高/中/低 - 一行で理由',
+    '【相談先】箇条書き2-3個（担当名＋理由。過去の担当/パートナーがあれば反映）',
+    '【初動メモ】1-2行で次のアクション（この劇場の傾向を踏まえて具体的に）'
   ].join('\n');
 
   const r = await fetch(ANTHROPIC_URL, {
@@ -114,8 +171,9 @@ async function getInitialResponseAdvice(c) {
     },
     body: JSON.stringify({
       model: AI_MODEL,
-      max_tokens: 500,
-      messages: [{ role: 'user', content: prompt }]
+      max_tokens: 600,
+      system: system,
+      messages: [{ role: 'user', content: user }]
     })
   });
   if (!r.ok) throw new Error(`Anthropic API ${r.status}: ${await r.text()}`);
