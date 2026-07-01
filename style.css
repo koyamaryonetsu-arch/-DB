@@ -1673,3 +1673,4 @@ td[data-field="category"], td[data-field="content"] { background: #fff; }
 .ocr-drop-icon { font-size: 34px; line-height: 1; margin-bottom: 6px; }
 .ocr-drop p { margin: 0; font-size: 13px; line-height: 1.7; }
 .ocr-status { margin: 12px 4px 4px; font-size: 13px; color: #2563eb; text-align: center; min-height: 1.2em; }
+.ocr-subtitle { margin: 0 4px 10px; font-size: 12px; color: #475569; text-align: center; font-weight: 600; }
