@@ -1731,6 +1731,46 @@
     try { el.setSelectionRange(pos, pos); } catch (e) { /* noop */ }
   }
 
+  // ---------- 見積りAI-OCR（画像/PDF → 見積り名/金額/提出日を自動入力） ----------
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => { const s = String(r.result); const i = s.indexOf(','); resolve(i >= 0 ? s.slice(i + 1) : s); };
+      r.onerror = reject;
+      r.readAsDataURL(file);
+    });
+  }
+  async function runQuoteOcr() {
+    const input = $('quoteOcrFile');
+    const statusEl = $('quoteOcrStatus');
+    const file = input && input.files && input.files[0];
+    if (!file) return;
+    statusEl.textContent = '読み取り中…';
+    try {
+      const base64 = await fileToBase64(file);
+      let token = '';
+      if (store.mode === 'supabase' && sb) {
+        const { data } = await sb.auth.getSession();
+        token = (data && data.session && data.session.access_token) || '';
+      }
+      const res = await fetch('/api/quote-ocr', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+        body: JSON.stringify({ fileBase64: base64, mediaType: file.type || 'application/octet-stream' })
+      });
+      if (!res.ok) throw new Error('読取API ' + res.status);
+      const d = await res.json();
+      if (d.estimate_name) $('estimateName').value = d.estimate_name;
+      if (d.estimate_amount !== '' && d.estimate_amount != null) $('estimateAmount').value = formatThousands(d.estimate_amount);
+      if (d.quote_date) setDateField('quoteDate', d.quote_date);
+      statusEl.textContent = '読み取り完了（内容をご確認ください）';
+    } catch (e) {
+      statusEl.textContent = '読み取り失敗: ' + (e && e.message ? e.message : e);
+    } finally {
+      input.value = ''; // 同じファイルを再選択可能に＆ファイルは保持しない
+    }
+  }
+
   // ---------- ポップアップ編集（内容 / メモ 共用） ----------
   let popupEditField = 'content';
   const POPUP_FIELD_TITLES = { content: '内容を編集', memo: 'メモを編集' };
@@ -2902,6 +2942,9 @@
   });
   // 見積り金額: 入力途中でもカンマ区切りで表示
   { const amtEl = $('estimateAmount'); if (amtEl) amtEl.addEventListener('input', () => formatAmountFieldLive(amtEl)); }
+  // 見積りAI-OCR: 画像/PDFから 見積り名/金額/提出日 を自動入力（ファイルは保存しない）
+  if ($('quoteOcrBtn')) $('quoteOcrBtn').addEventListener('click', () => $('quoteOcrFile').click());
+  if ($('quoteOcrFile')) $('quoteOcrFile').addEventListener('change', runQuoteOcr);
   $('cancelBtn').addEventListener('click', closeModal);
   $('modal').addEventListener('click', (e) => { if (e.target === $('modal')) closeModal(); });
   // 編集ポップアップからの複製・削除（主にスマホ用）
