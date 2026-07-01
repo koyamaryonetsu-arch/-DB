@@ -58,7 +58,8 @@ function importCaseEmails() {
       var emailText = buildThreadText_(th); // スレッド全体を文脈に（最初の依頼＋以降の進捗）
 
       var p = parseEmail_(emailText);
-      if (!p || !p.is_case || (p.confidence || 0) < 0.5) { th.addLabel(lblSkip); nSkip++; return; }
+      // 方針: 要確認に回すのは「明確に案件でない」とAIが判断した時だけ。迷ったら登録する（不要なら後で削除）
+      if (!p || p.is_case === false) { th.addLabel(lblSkip); nSkip++; return; }
 
       var received = p.received_date || Utilities.formatDate(msgs[0].getDate(), 'Asia/Tokyo', 'yyyy-MM-dd');
       var theater = p.theater || '';
