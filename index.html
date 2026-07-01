@@ -372,6 +372,15 @@
         </div>
 
         <div class="form-row" data-mode="full">
+          <label>見積りから自動入力</label>
+          <div>
+            <input type="file" id="quoteOcrFile" accept="image/*,application/pdf" style="display:none">
+            <button type="button" id="quoteOcrBtn" class="toggle-btn">📄 見積りを読み取り</button>
+            <span id="quoteOcrStatus" style="margin-left:8px;font-size:12px;color:#64748b"></span>
+          </div>
+        </div>
+
+        <div class="form-row" data-mode="full">
           <label for="estimateName">見積り名</label>
           <input type="text" id="estimateName" placeholder="例：スクリーン交換工事">
         </div>
