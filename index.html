@@ -372,8 +372,8 @@
         </div>
 
         <div class="form-row" data-mode="full">
-          <label for="estimateName">見積り名<span class="field-hint">（ダブルクリックで見積書を読取）</span></label>
-          <input type="text" id="estimateName" placeholder="例：スクリーン交換工事（ダブルクリックで見積書を読み取り）" title="ダブルクリックで見積書（画像/PDF）を読み取り">
+          <label for="estimateName">見積り名</label>
+          <input type="text" id="estimateName" placeholder="例：スクリーン交換工事">
         </div>
 
         <div class="form-row" data-mode="full">
@@ -536,6 +536,7 @@
       <button id="closeQuoteOcrModal" class="close-btn" aria-label="閉じる" tabindex="-1">×</button>
     </div>
     <div class="ocr-modal-body">
+      <p id="quoteOcrSubtitle" class="ocr-subtitle"></p>
       <div id="quoteOcrDrop" class="ocr-drop">
         <div class="ocr-drop-icon">📄</div>
         <p>ここに見積書（画像 / PDF）を<br><strong>ドラッグ＆ドロップ</strong><br>または クリックしてファイルを選択</p>
@@ -544,7 +545,7 @@
       <p id="quoteOcrStatus" class="ocr-status"></p>
     </div>
     <div class="modal-footer">
-      <span class="modal-hint">読み取ると 見積り名 / 金額 / 提出日 が自動入力されます（内容は要確認）</span>
+      <span class="modal-hint">読み取ると この案件の 見積り名 / 金額 / 提出日 が更新されます（要確認）</span>
       <button type="button" id="quoteOcrCancelBtn">閉じる</button>
     </div>
   </div>

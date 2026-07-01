@@ -1312,7 +1312,8 @@
     const canEdit = !(cfg.privilegedOnly && !isPrivileged(currentUser))
                   && !(cfg.tohoOnly && c.company !== 'TOHOシネマズ');
     const cls = (canEdit ? 'editable' : '') + (c[field] ? '' : ' empty') + (extraClass ? ' ' + extraClass : '');
-    return `<td class="${cls}" data-field="${field}" data-case-id="${escapeHtml(c.id)}" data-label="${escapeHtml(FIELD_LABELS[field] || '')}">${displayHtml}</td>`;
+    const title = field === 'estimateName' ? ' title="ダブルクリックで見積書を読み取り（AI-OCR）"' : '';
+    return `<td class="${cls}" data-field="${field}" data-case-id="${escapeHtml(c.id)}" data-label="${escapeHtml(FIELD_LABELS[field] || '')}"${title}>${displayHtml}</td>`;
   }
 
   // ステータスのセル（バッジ＋手動選択。受注者のみ編集可）— 通常/タスク両モードで共有
@@ -1740,13 +1741,18 @@
       r.readAsDataURL(file);
     });
   }
-  function openQuoteOcrModal() {
-    var st = $('quoteOcrStatus'); if (st) st.textContent = '';
+  let ocrTargetCase = null;   // 見積りOCRの対象案件（トップ一覧の見積り名ダブルクリックで指定）
+  let nameClickTimer = null;  // 見積り名セルの 単/ダブル クリック判別用
+  function openQuoteOcrModalForCase(c) {
+    ocrTargetCase = c || null;
+    const st = $('quoteOcrStatus'); if (st) st.textContent = '';
+    const sub = $('quoteOcrSubtitle');
+    if (sub) sub.textContent = ocrTargetCase ? ((ocrTargetCase.theater || '') + '　' + (ocrTargetCase.estimateName || '（見積り名なし）')) : '';
     $('quoteOcrModal').classList.remove('hidden');
   }
-  function closeQuoteOcrModal() { $('quoteOcrModal').classList.add('hidden'); }
+  function closeQuoteOcrModal() { ocrTargetCase = null; $('quoteOcrModal').classList.add('hidden'); }
 
-  // 指定ファイル（画像/PDF）をAI-OCRして 見積り名/金額/提出日 を自動入力（ファイルは保存しない）
+  // 指定ファイル（画像/PDF）をAI-OCRして、対象案件の 見積り名/金額/提出日 を更新（ファイルは保存しない）
   async function processQuoteFile(file) {
     const statusEl = $('quoteOcrStatus');
     if (!file) return;
@@ -1769,11 +1775,20 @@
       });
       if (!res.ok) throw new Error('読取API ' + res.status);
       const d = await res.json();
-      if (d.estimate_name) $('estimateName').value = d.estimate_name;
-      if (d.estimate_amount !== '' && d.estimate_amount != null) $('estimateAmount').value = formatThousands(d.estimate_amount);
-      if (d.quote_date) setDateField('quoteDate', d.quote_date);
-      statusEl.textContent = '読み取り完了。内容をご確認ください。';
-      setTimeout(closeQuoteOcrModal, 800);
+      const c = ocrTargetCase;
+      if (c) {
+        if (d.estimate_name) c.estimateName = d.estimate_name;
+        if (d.estimate_amount !== '' && d.estimate_amount != null && !isNaN(Number(d.estimate_amount))) c.estimateAmount = Number(d.estimate_amount);
+        if (d.quote_date) c.quoteDate = d.quote_date;
+        c.updatedAt = new Date().toISOString();
+        if (store.mode === 'local') saveCases();
+        persistCase(c);
+        refresh();
+        statusEl.textContent = '読み取り完了。案件「' + (c.estimateName || '') + '」に反映しました。';
+      } else {
+        statusEl.textContent = '対象案件が特定できませんでした。';
+      }
+      setTimeout(closeQuoteOcrModal, 900);
     } catch (e) {
       statusEl.textContent = '読み取り失敗: ' + (e && e.message ? e.message : e);
     }
@@ -2950,8 +2965,7 @@
   });
   // 見積り金額: 入力途中でもカンマ区切りで表示
   { const amtEl = $('estimateAmount'); if (amtEl) amtEl.addEventListener('input', () => formatAmountFieldLive(amtEl)); }
-  // 見積りAI-OCR: 見積り名をダブルクリック → ポップアップ（D&D / クリックでアップロード）
-  if ($('estimateName')) $('estimateName').addEventListener('dblclick', openQuoteOcrModal);
+  // 見積りAI-OCR ポップアップ（トップ一覧の見積り名セルのダブルクリックで開く。D&D/クリックでアップロード）
   if ($('closeQuoteOcrModal')) $('closeQuoteOcrModal').addEventListener('click', closeQuoteOcrModal);
   if ($('quoteOcrCancelBtn')) $('quoteOcrCancelBtn').addEventListener('click', closeQuoteOcrModal);
   if ($('quoteOcrModal')) $('quoteOcrModal').addEventListener('click', (e) => { if (e.target === $('quoteOcrModal')) closeQuoteOcrModal(); });
@@ -3242,6 +3256,16 @@
     if (!td) return;
     const c = cases.find((x) => x.id === td.dataset.caseId);
     if (!c) return;
+    if (td.dataset.field === 'estimateName') {
+      // 見積り名: 単クリック=インライン編集 / 同じセルの素早い再クリック(ダブル)=見積書AI-OCR
+      if (nameClickTimer && nameClickTimer.id === c.id) {
+        clearTimeout(nameClickTimer.t); nameClickTimer = null; openQuoteOcrModalForCase(c); return;
+      }
+      if (nameClickTimer) clearTimeout(nameClickTimer.t);
+      nameClickTimer = { id: c.id, t: setTimeout(() => { nameClickTimer = null; startInlineEdit(td, c, 'estimateName'); }, 260) };
+      return;
+    }
+    if (nameClickTimer) { clearTimeout(nameClickTimer.t); nameClickTimer = null; }
     startInlineEdit(td, c, td.dataset.field);
   });
 
@@ -3249,6 +3273,7 @@
   $('casesBody').addEventListener('dblclick', (e) => {
     if (aggMode) return;
     if (e.target.closest('button') || e.target.closest('.inline-edit')) return;
+    if (e.target.closest('td[data-field="estimateName"]')) return; // 見積り名は AI-OCR に使うためモーダルは開かない
     const tr = e.target.closest('tr[data-case-id]');
     if (!tr) return;
     const c = cases.find((x) => x.id === tr.dataset.caseId);
