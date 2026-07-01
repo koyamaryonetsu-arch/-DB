@@ -12,7 +12,7 @@ AI側で「案件依頼か？/新規か進捗か/重複か」を判定するた�
 | 佐々木興業 / シネマサンシャイン | cinemasunshine.co.jp |
 | コロナワールド | korona.co.jp |
 | イオン（イオンエンターテイメント） | aeonent.jp |
-| MOVIX（松竹） | ★未確認（直メールが見当たらず。判明したら追加） |
+| MOVIX（松竹マルチプレックスシアターズ） | movix.co.jp |
 
 ## 菱熱メンバー（進捗報告の差出人）
 - 会社ドメイン: ryonetsu.com / ryonetsu-ai.com
@@ -24,19 +24,19 @@ AI側で「案件依頼か？/新規か進捗か/重複か」を判定するた�
 ### フィルタA：新規（客先起点）
 - 条件（From）:
   ```
-  from:(tohocinemas.co.jp OR tokyu-rec.co.jp OR unitedcinemas.co.jp OR cinemasunshine.co.jp OR korona.co.jp OR aeonent.jp)
+  from:(tohocinemas.co.jp OR tokyu-rec.co.jp OR unitedcinemas.co.jp OR cinemasunshine.co.jp OR korona.co.jp OR aeonent.jp OR movix.co.jp)
   ```
 - 動作: ラベル「案件登録」を付ける。
 
 ### フィルタB：進捗（メンバー→客先のやり取り）
 - 条件（From かつ 宛先/CCに客先）:
   ```
-  from:(ryonetsu.com OR ryonetsu-ai.com OR r.kaneko0511@gmail.com OR s.wakayama1327@gmail.com OR hs.yamaguchi0404@gmail.com OR koyama.ryonetsu@gmail.com) (to:(tohocinemas.co.jp OR tokyu-rec.co.jp OR unitedcinemas.co.jp OR cinemasunshine.co.jp OR korona.co.jp OR aeonent.jp) OR cc:(tohocinemas.co.jp OR tokyu-rec.co.jp OR unitedcinemas.co.jp OR cinemasunshine.co.jp OR korona.co.jp OR aeonent.jp))
+  from:(ryonetsu.com OR ryonetsu-ai.com OR r.kaneko0511@gmail.com OR s.wakayama1327@gmail.com OR hs.yamaguchi0404@gmail.com OR koyama.ryonetsu@gmail.com) (to:(tohocinemas.co.jp OR tokyu-rec.co.jp OR unitedcinemas.co.jp OR cinemasunshine.co.jp OR korona.co.jp OR aeonent.jp OR movix.co.jp) OR cc:(tohocinemas.co.jp OR tokyu-rec.co.jp OR unitedcinemas.co.jp OR cinemasunshine.co.jp OR korona.co.jp OR aeonent.jp OR movix.co.jp))
   ```
 - 動作: ラベル「案件登録」を付ける。
 - ねらい: 社内チャットを除き「客先が絡む案件メール」だけを拾う。
 
 ## 補足
-- 上記で取りこぼす進捗（社内のみ・ANDPAD経由など）は、担当者が手動で「案件登録」ラベルを付ければ拾える。
-- MOVIX は差出人ドメイン判明後に両フィルタへ追記。
+- 客先は7社ドメイン確定（MOVIX=movix.co.jp を追加済）。
+- **社内のみの進捗は対象外**（方針どおり。フィルタBは客先が宛先/CCに居るメールだけを拾う）。
 - フィルタは Gmail の「検索→フィルタを作成→ラベルを付ける」で作成（既存メールにも適用可）。
