@@ -1659,3 +1659,17 @@ td[data-field="category"], td[data-field="content"] { background: #fff; }
   body.kotei-printing #viewKotei .k-ph-meta th{ background:#e9edf2; width:78px; font-weight:700; -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
   @page{ size:A3 landscape; margin:8mm; }
 }
+
+/* 見積りAI-OCR ポップアップ（ドラッグ＆ドロップ） */
+.field-hint { font-size: 11px; color: #94a3b8; font-weight: normal; margin-left: 4px; }
+.ocr-modal-body { padding: 16px 18px 4px; }
+.ocr-drop {
+  border: 2px dashed #cbd5e1; border-radius: 10px; padding: 28px 16px;
+  text-align: center; cursor: pointer; color: #475569; background: #f8fafc;
+  transition: border-color .15s, background .15s;
+}
+.ocr-drop:hover { border-color: #2563eb; background: #f1f5f9; }
+.ocr-drop.dragover { border-color: #2563eb; background: #e0edff; }
+.ocr-drop-icon { font-size: 34px; line-height: 1; margin-bottom: 6px; }
+.ocr-drop p { margin: 0; font-size: 13px; line-height: 1.7; }
+.ocr-status { margin: 12px 4px 4px; font-size: 13px; color: #2563eb; text-align: center; min-height: 1.2em; }

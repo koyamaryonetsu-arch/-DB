@@ -1740,11 +1740,20 @@
       r.readAsDataURL(file);
     });
   }
-  async function runQuoteOcr() {
-    const input = $('quoteOcrFile');
+  function openQuoteOcrModal() {
+    var st = $('quoteOcrStatus'); if (st) st.textContent = '';
+    $('quoteOcrModal').classList.remove('hidden');
+  }
+  function closeQuoteOcrModal() { $('quoteOcrModal').classList.add('hidden'); }
+
+  // 指定ファイル（画像/PDF）をAI-OCRして 見積り名/金額/提出日 を自動入力（ファイルは保存しない）
+  async function processQuoteFile(file) {
     const statusEl = $('quoteOcrStatus');
-    const file = input && input.files && input.files[0];
     if (!file) return;
+    if (!/^image\//.test(file.type) && file.type !== 'application/pdf') {
+      statusEl.textContent = '対応形式は画像(JPEG/PNG/WebP)またはPDFです';
+      return;
+    }
     statusEl.textContent = '読み取り中…';
     try {
       const base64 = await fileToBase64(file);
@@ -1763,11 +1772,10 @@
       if (d.estimate_name) $('estimateName').value = d.estimate_name;
       if (d.estimate_amount !== '' && d.estimate_amount != null) $('estimateAmount').value = formatThousands(d.estimate_amount);
       if (d.quote_date) setDateField('quoteDate', d.quote_date);
-      statusEl.textContent = '読み取り完了（内容をご確認ください）';
+      statusEl.textContent = '読み取り完了。内容をご確認ください。';
+      setTimeout(closeQuoteOcrModal, 800);
     } catch (e) {
       statusEl.textContent = '読み取り失敗: ' + (e && e.message ? e.message : e);
-    } finally {
-      input.value = ''; // 同じファイルを再選択可能に＆ファイルは保持しない
     }
   }
 
@@ -2942,9 +2950,22 @@
   });
   // 見積り金額: 入力途中でもカンマ区切りで表示
   { const amtEl = $('estimateAmount'); if (amtEl) amtEl.addEventListener('input', () => formatAmountFieldLive(amtEl)); }
-  // 見積りAI-OCR: 画像/PDFから 見積り名/金額/提出日 を自動入力（ファイルは保存しない）
-  if ($('quoteOcrBtn')) $('quoteOcrBtn').addEventListener('click', () => $('quoteOcrFile').click());
-  if ($('quoteOcrFile')) $('quoteOcrFile').addEventListener('change', runQuoteOcr);
+  // 見積りAI-OCR: 見積り名をダブルクリック → ポップアップ（D&D / クリックでアップロード）
+  if ($('estimateName')) $('estimateName').addEventListener('dblclick', openQuoteOcrModal);
+  if ($('closeQuoteOcrModal')) $('closeQuoteOcrModal').addEventListener('click', closeQuoteOcrModal);
+  if ($('quoteOcrCancelBtn')) $('quoteOcrCancelBtn').addEventListener('click', closeQuoteOcrModal);
+  if ($('quoteOcrModal')) $('quoteOcrModal').addEventListener('click', (e) => { if (e.target === $('quoteOcrModal')) closeQuoteOcrModal(); });
+  {
+    const drop = $('quoteOcrDrop');
+    const fileInput = $('quoteOcrFile');
+    if (drop && fileInput) {
+      drop.addEventListener('click', () => fileInput.click());
+      fileInput.addEventListener('change', () => { const f = fileInput.files && fileInput.files[0]; fileInput.value = ''; if (f) processQuoteFile(f); });
+      ['dragenter', 'dragover'].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); e.stopPropagation(); drop.classList.add('dragover'); }));
+      ['dragleave', 'dragend', 'drop'].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); e.stopPropagation(); drop.classList.remove('dragover'); }));
+      drop.addEventListener('drop', (e) => { const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]; if (f) processQuoteFile(f); });
+    }
+  }
   $('cancelBtn').addEventListener('click', closeModal);
   $('modal').addEventListener('click', (e) => { if (e.target === $('modal')) closeModal(); });
   // 編集ポップアップからの複製・削除（主にスマホ用）

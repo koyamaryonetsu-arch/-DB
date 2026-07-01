@@ -372,17 +372,8 @@
         </div>
 
         <div class="form-row" data-mode="full">
-          <label>見積りから自動入力</label>
-          <div>
-            <input type="file" id="quoteOcrFile" accept="image/*,application/pdf" style="display:none">
-            <button type="button" id="quoteOcrBtn" class="toggle-btn">📄 見積りを読み取り</button>
-            <span id="quoteOcrStatus" style="margin-left:8px;font-size:12px;color:#64748b"></span>
-          </div>
-        </div>
-
-        <div class="form-row" data-mode="full">
-          <label for="estimateName">見積り名</label>
-          <input type="text" id="estimateName" placeholder="例：スクリーン交換工事">
+          <label for="estimateName">見積り名<span class="field-hint">（ダブルクリックで見積書を読取）</span></label>
+          <input type="text" id="estimateName" placeholder="例：スクリーン交換工事（ダブルクリックで見積書を読み取り）" title="ダブルクリックで見積書（画像/PDF）を読み取り">
         </div>
 
         <div class="form-row" data-mode="full">
@@ -534,6 +525,27 @@
       <span class="modal-hint">Ctrl+Enter / ⌘+Enter で保存</span>
       <button type="button" id="contentCancelBtn">キャンセル</button>
       <button type="button" id="contentSaveBtn" class="primary">保存</button>
+    </div>
+  </div>
+</div>
+
+<div id="quoteOcrModal" class="modal hidden">
+  <div class="modal-content modal-content-narrow">
+    <div class="modal-header">
+      <h2>見積書を読み取り</h2>
+      <button id="closeQuoteOcrModal" class="close-btn" aria-label="閉じる" tabindex="-1">×</button>
+    </div>
+    <div class="ocr-modal-body">
+      <div id="quoteOcrDrop" class="ocr-drop">
+        <div class="ocr-drop-icon">📄</div>
+        <p>ここに見積書（画像 / PDF）を<br><strong>ドラッグ＆ドロップ</strong><br>または クリックしてファイルを選択</p>
+        <input type="file" id="quoteOcrFile" accept="image/*,application/pdf" style="display:none">
+      </div>
+      <p id="quoteOcrStatus" class="ocr-status"></p>
+    </div>
+    <div class="modal-footer">
+      <span class="modal-hint">読み取ると 見積り名 / 金額 / 提出日 が自動入力されます（内容は要確認）</span>
+      <button type="button" id="quoteOcrCancelBtn">閉じる</button>
     </div>
   </div>
 </div>
