@@ -2,16 +2,15 @@
  * シネマ案件：Gmail → 自動 登録 / 進捗更新（cinema-cases / Supabase）
  *
  * 動作:
- *   1. Gmailの「案件登録」ラベルの新着メールを5分毎に読む
+ *   1. Gmailの「案件登録」ラベルの新着スレッドを5分毎に読む（スレッド全体＝最初の依頼＋以降の進捗を文脈に）
  *   2. Claudeが判定: 案件依頼か? / 新規(new) か 進捗報告(progress) か / 各項目を抽出
- *      （差出人ヒント: 客先=新規依頼が多い / 菱熱工業メンバー=進捗報告が多い）
  *   3. 同じ劇場の既存案件と照合（AIマッチング）
- *      - 進捗 かつ 一致 → その案件を UPDATE（見積提出日/作業開始日/作業完了日/内容追記）
- *      - 新規 かつ 一致 → 重複扱いで登録しない（担当者の手動登録を「正」とする）
- *      - 新規 かつ 一致なし → INSERT（新規登録）
- *      - 進捗 かつ 一致なし → 更新先不明 → 「要確認」ラベル
+ *      - 一致あり かつ 進捗 → その案件を UPDATE（見積提出日/作業開始日/作業完了日/内容追記）
+ *      - 一致あり かつ 新規 → 重複扱いで登録しない（担当者の手動登録を「正」とする）
+ *      - 一致なし → INSERT（新規でも進捗でも「新規案件」として登録＝取りこぼし防止）
  *   4. INSERT/UPDATE すると既存 Database Webhook (case-created) が発火し LINE 通知
  *   5. 処理済みメールにはラベルを付けて再処理を防止
+ *   ※ 案件と判定できないメール(is_case=false/確信度低)のみ「案件登録_要確認」で人の確認へ
  *
  * スクリプトプロパティ:
  *   ANTHROPIC_API_KEY          - Anthropic APIキー
@@ -55,39 +54,33 @@ function importCaseEmails() {
     var nNew = 0, nUpd = 0, nDup = 0, nSkip = 0;
     threads.forEach(function (th) {
       var msgs = th.getMessages();
-      var m = msgs[msgs.length - 1];
-      var emailText =
-        '件名: ' + m.getSubject() + '\n差出人: ' + m.getFrom() +
-        '\n日時: ' + m.getDate().toISOString() + '\n\n' + m.getPlainBody().slice(0, 6000);
+      var m = msgs[msgs.length - 1];        // 最新（進捗判定・受付日フォールバック用）
+      var emailText = buildThreadText_(th); // スレッド全体を文脈に（最初の依頼＋以降の進捗）
 
       var p = parseEmail_(emailText);
       if (!p || !p.is_case || (p.confidence || 0) < 0.5) { th.addLabel(lblSkip); nSkip++; return; }
 
-      var received = p.received_date || Utilities.formatDate(m.getDate(), 'Asia/Tokyo', 'yyyy-MM-dd');
+      var received = p.received_date || Utilities.formatDate(msgs[0].getDate(), 'Asia/Tokyo', 'yyyy-MM-dd');
       var theater = p.theater || '';
       var candidates = theater ? fetchTheaterCases_(theater) : [];
       var matched = candidates.length ? findMatch_(p, received, candidates) : null;
 
-      if (p.intent === 'progress') {
-        if (matched) {
-          updateCase_(matched, p.progress || {}, p.content);
+      if (matched) {
+        if (p.intent === 'progress') {
+          updateCase_(matched, p.progress || {}, p.content);  // 進捗 → 既存案件を更新
           th.addLabel(lblUpd); nUpd++;
         } else {
-          th.addLabel(lblSkip); nSkip++; // 進捗だが対象案件が特定できない → 人の確認へ
-          Logger.log('進捗だが更新先不明: ' + (p.title || m.getSubject()));
-        }
-      } else { // new
-        if (matched) {
-          th.addLabel(lblDup); nDup++; // 手動登録が正
+          th.addLabel(lblDup); nDup++;                         // 新規のつもりだが既存あり → 手動優先で登録せず
           Logger.log('重複のため登録せず（手動優先）: ' + (p.title || m.getSubject()));
-        } else {
-          insertCase_({
-            company: normalizeCompany_(p.company), theater: theater, received_date: received,
-            tc_person: p.tc_person || '', r_person: p.r_person || '',
-            category: normalizeCategory_(p.category), content: p.content || m.getPlainBody().slice(0, 1500)
-          });
-          th.addLabel(lblDone); nNew++;
         }
+      } else {
+        // 該当案件が無ければ、新規でも進捗報告でも「新規案件」として登録（取りこぼし防止）
+        insertCase_({
+          company: normalizeCompany_(p.company), theater: theater, received_date: received,
+          tc_person: p.tc_person || '', r_person: p.r_person || '',
+          category: normalizeCategory_(p.category), content: p.content || m.getPlainBody().slice(0, 1500)
+        });
+        th.addLabel(lblDone); nNew++;
       }
     });
     Logger.log('新規 %s / 進捗更新 %s / 重複スキップ %s / 非案件・要確認 %s', nNew, nUpd, nDup, nSkip);
@@ -99,6 +92,18 @@ function importCaseEmails() {
 }
 
 function getOrCreateLabel_(name) { return GmailApp.getUserLabelByName(name) || GmailApp.createLabel(name); }
+// スレッド全体を1つのテキストに（最初の依頼＋以降のやり取り）。長すぎる場合は先頭優先で丸める
+function buildThreadText_(th) {
+  var msgs = th.getMessages();
+  var out = '件名: ' + msgs[0].getSubject() + '\n';
+  for (var i = 0; i < msgs.length; i++) {
+    var mm = msgs[i];
+    out += '\n--- メッセージ' + (i + 1) + ' ---\n差出人: ' + mm.getFrom() +
+      ' / 日時: ' + Utilities.formatDate(mm.getDate(), 'Asia/Tokyo', 'yyyy-MM-dd HH:mm') + '\n' + mm.getPlainBody();
+    if (out.length > 8000) { out = out.slice(0, 8000); break; }
+  }
+  return out;
+}
 function normalizeCompany_(v) {
   if (!v) return 'TOHOシネマズ';
   for (var i = 0; i < COMPANY_LIST.length; i++) if (COMPANY_LIST[i] === v) return v;
