@@ -114,34 +114,79 @@ async function fetchTheaterHistory(theater, excludeId) {
   } catch (e) { console.error('Supabase履歴取得エラー', e); return []; }
 }
 
-// Lv3: 劇場カルテ（設備・持病・担当パートナー）を客先マスタ(theaters)から取得
+// Lv3: 劇場カルテ（設備・持病・支配人・パートナー連絡先）を客先マスタから取得
 async function fetchTheaterNote(theater) {
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!key || !theater) return null;
   const params = new URLSearchParams({
     name: `eq.${theater}`,
-    select: 'equipment,chronic_issues,partner',
+    select: 'company,equipment,chronic_issues,partner,manager,theater_phone,maintenance,gem2,info_note',
     limit: '1'
   });
   try {
-    const r = await fetch(`${SUPABASE_URL}/rest/v1/theaters?${params.toString()}`, {
+    let r = await fetch(`${SUPABASE_URL}/rest/v1/theaters?${params.toString()}`, {
       headers: { apikey: key, Authorization: `Bearer ${key}` }
     });
-    if (!r.ok) { console.error('劇場カルテ取得失敗', r.status, await r.text()); return null; }
+    if (!r.ok) {
+      // 劇場情報列（manager等）が未移行のDBでは旧カルテ列のみで再試行
+      const p2 = new URLSearchParams({ name: `eq.${theater}`, select: 'company,equipment,chronic_issues,partner', limit: '1' });
+      r = await fetch(`${SUPABASE_URL}/rest/v1/theaters?${p2.toString()}`, {
+        headers: { apikey: key, Authorization: `Bearer ${key}` }
+      });
+      if (!r.ok) { console.error('劇場カルテ取得失敗', r.status, await r.text()); return null; }
+    }
     const rows = await r.json();
-    const t = Array.isArray(rows) && rows[0];
-    if (!t) return null;
-    if (!(t.equipment || t.chronic_issues || t.partner)) return null;
-    return t;
+    const t = (Array.isArray(rows) && rows[0]) || null;
+    const contacts = await fetchTheaterContacts(theater, t && t.company);
+    if (!t && !contacts.length) return null;
+    const out = t || {};
+    out.contacts = contacts;
+    return out;
   } catch (e) { console.error('劇場カルテ取得エラー', e); return null; }
+}
+
+// 各劇場情報: パートナー連絡先（theater_contacts）。会社の（共通）連絡先も含める
+async function fetchTheaterContacts(theater, company) {
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!key || !theater) return [];
+  const targets = [theater];
+  if (company) targets.push(`${company}（共通）`);
+  const params = new URLSearchParams({
+    theater: `in.(${targets.map((s) => `"${s}"`).join(',')})`,
+    select: 'theater,category,maker,vendor,person,phone,email,note',
+    order: 'sort_order.asc',
+    limit: '40'
+  });
+  try {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/theater_contacts?${params.toString()}`, {
+      headers: { apikey: key, Authorization: `Bearer ${key}` }
+    });
+    if (!r.ok) return []; // theater_contacts 未作成の環境では黙ってスキップ
+    const rows = await r.json();
+    return Array.isArray(rows) ? rows : [];
+  } catch (e) { return []; }
 }
 
 function formatTheaterNote(t) {
   if (!t) return '(この劇場のカルテは未登録)';
   const lines = [];
+  if (t.manager) lines.push('・支配人: ' + t.manager);
+  if (t.theater_phone) lines.push('・劇場連絡先: ' + t.theater_phone);
+  if (t.maintenance) lines.push('・保守契約: ' + t.maintenance);
+  if (t.gem2) lines.push('・GeM2: ' + t.gem2);
   if (t.equipment) lines.push('・設備: ' + t.equipment);
   if (t.chronic_issues) lines.push('・持病/注意: ' + t.chronic_issues);
   if (t.partner) lines.push('・担当パートナー: ' + t.partner);
+  if (t.info_note) lines.push('・備考: ' + t.info_note);
+  if (t.contacts && t.contacts.length) {
+    lines.push('・パートナー連絡先（相談先の選定に使う。備考の注意書きは必ず守る）:');
+    for (const c of t.contacts) {
+      const parts = [c.category, c.maker, c.vendor, c.person, c.phone, c.email].filter(Boolean).join(' / ');
+      const note = c.note ? `（${c.note}）` : '';
+      lines.push('   - ' + parts + note);
+    }
+  }
+  if (!lines.length) return '(この劇場のカルテは未登録)';
   return lines.join('\n');
 }
 

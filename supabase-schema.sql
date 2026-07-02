@@ -260,3 +260,46 @@ create policy "koutei_delete" on public.koutei for delete to authenticated
   using (coalesce(auth.email() like '%@ryonetsu.com', false));
 
 -- 完了
+
+-- ============================================
+-- 各劇場情報（支配人・保守契約・パートナー連絡先）
+-- 既存環境への適用は SETUP_THEATER_INFO.md を参照（データ投入SQL付き）
+-- ============================================
+alter table public.theaters add column if not exists manager       text default '';
+alter table public.theaters add column if not exists theater_phone text default '';
+alter table public.theaters add column if not exists maintenance   text default '';
+alter table public.theaters add column if not exists gem2          text default '';
+alter table public.theaters add column if not exists info_note     text default '';
+
+create table if not exists public.theater_contacts (
+  id         uuid primary key default gen_random_uuid(),
+  company    text not null default '',
+  theater    text not null default '',
+  category   text default '',
+  maker      text default '',
+  vendor     text default '',
+  person     text default '',
+  phone      text default '',
+  email      text default '',
+  note       text default '',
+  sort_order int  default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index if not exists idx_theater_contacts_theater on public.theater_contacts(theater);
+
+-- パートナー個人の連絡先を含むため、閲覧も @ryonetsu.com のみに制限
+alter table public.theater_contacts enable row level security;
+drop policy if exists "tc_select" on public.theater_contacts;
+create policy "tc_select" on public.theater_contacts for select to authenticated
+  using (coalesce(auth.email() like '%@ryonetsu.com', false));
+drop policy if exists "tc_insert" on public.theater_contacts;
+create policy "tc_insert" on public.theater_contacts for insert to authenticated
+  with check (coalesce(auth.email() like '%@ryonetsu.com', false));
+drop policy if exists "tc_update" on public.theater_contacts;
+create policy "tc_update" on public.theater_contacts for update to authenticated
+  using (coalesce(auth.email() like '%@ryonetsu.com', false))
+  with check (coalesce(auth.email() like '%@ryonetsu.com', false));
+drop policy if exists "tc_delete" on public.theater_contacts;
+create policy "tc_delete" on public.theater_contacts for delete to authenticated
+  using (coalesce(auth.email() like '%@ryonetsu.com', false));
