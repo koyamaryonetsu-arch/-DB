@@ -100,7 +100,7 @@ async function fetchTheaterHistory(theater, excludeId) {
   if (!key || !theater) return [];
   const params = new URLSearchParams({
     theater: `eq.${theater}`,
-    select: 'id,received_date,category,content,status,r_person,estimate_name,work_end_date',
+    select: 'id,received_date,category,content,memo,status,r_person,estimate_name,work_end_date',
     order: 'received_date.desc',
     limit: '8'
   });
@@ -150,8 +150,9 @@ function formatTheaterHistory(rows) {
   return rows.map((x, i) => {
     const line = `${i + 1}. ${x.received_date || '日付不明'} [${x.category || '種別不明'}] ${x.status || ''}`;
     const detail = x.content ? `\n   内容: ${String(x.content).slice(0, 120)}` : '';
+    const memo = x.memo ? `\n   社内用メモ: ${String(x.memo).slice(0, 120)}` : '';
     const who = x.r_person ? `\n   R担当: ${x.r_person}` : '';
-    return line + detail + who;
+    return line + detail + memo + who;
   }).join('\n');
 }
 
@@ -202,8 +203,8 @@ async function getInitialResponseAdvice(c) {
     '- 見積/請求/客先連絡は 金子。価格/大型/方針未確定/TOHO本社対応は 小山 へエスカレーション。',
     '- 故障停止・漏れ・ガス・発煙・安全に関わる語があれば優先度=高。',
     '- 「劇場カルテ」（設備・持病・担当パートナー）があれば最優先で踏まえる。',
-    '- 「学習メモ（人が確定した正しい対応）」があれば、最も信頼できる正解として反映する（学習）。',
-    '- 同じ劇場の過去案件の傾向・前例・担当・パートナーを踏まえて具体的に助言する。'
+    '- 「AI学習用メモ（人が確定した正しい対応）」があれば、最も信頼できる正解として反映する（学習）。',
+    '- 同じ劇場の過去案件は「内容」「社内用メモ」「AI学習用メモ」から傾向・前例・担当・パートナーを学び、具体的に助言する。'
   ].join('\n');
 
   const user = [
@@ -219,10 +220,10 @@ async function getInitialResponseAdvice(c) {
     `# 劇場カルテ（${c.theater || '不明'}／設備・持病・担当パートナー）`,
     formatTheaterNote(note),
     '',
-    `# 学習メモ（${c.theater || '不明'}／人が確定した正しい対応・最優先で反映）`,
+    `# AI学習用メモ（${c.theater || '不明'}／人が確定した正しい対応・最優先で反映）`,
     formatTheaterAdvice(advice),
     '',
-    `# この劇場（${c.theater || '不明'}）の過去案件（新しい順・参考）`,
+    `# この劇場（${c.theater || '不明'}）の過去案件（新しい順・内容/社内用メモから学ぶ）`,
     formatTheaterHistory(history),
     '',
     '# 出力フォーマット（厳守・絵文字なし）',
