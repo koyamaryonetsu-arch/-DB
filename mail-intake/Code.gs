@@ -29,6 +29,8 @@ var DUP_LABEL = '案件登録_重複';    // 既存の手動登録と重複（�
 
 var COMPANY_LIST = ['TOHOシネマズ', '109シネマズ', 'ユナイテッドシネマ', '佐々木興業', 'コロナワールド', 'MOVIX', 'イオンシネマズ', 'シネマサンシャイン'];
 var CATEGORY_LIST = ['新規工事', '更新案件', '修理', 'メンテナンス', '点検', '改修', 'その他'];
+// 菱熱工業（受注側）メンバー。R担当者はこのリストの苗字のみ許可（客先担当者との取り違え防止）
+var RYONETSU_MEMBERS = ['小山', '細萱', '大和', '山口', '金子', '若山', '伊藤', '藤村', '山本'];
 // 菱熱工業メンバー（内部）の差出人ヒント。ここからのメールは進捗報告の可能性が高い
 var MEMBER_HINT = '@ryonetsu.com / @ryonetsu-ai.com、および 金子/若山/山口/大和/細萱/小山 などの個人アドレス';
 
@@ -65,6 +67,7 @@ function importCaseEmails() {
       var p = parseEmail_(emailText);
       // 方針: 要確認に回すのは「明確に案件でない」とAIが判断した時だけ。迷ったら登録する（不要なら後で削除）
       if (!p || p.is_case === false) { th.addLabel(lblSkip); nSkip++; return; }
+      fixPersons_(p); // 客先担当者/R担当者の取り違え補正＋苗字のみに正規化
 
       var received = p.received_date || Utilities.formatDate(msgs[0].getDate(), 'Asia/Tokyo', 'yyyy-MM-dd');
       var theater = p.theater || '';
@@ -83,13 +86,18 @@ function importCaseEmails() {
         }
       } else {
         // 該当案件が無ければ、新規でも進捗報告でも「新規案件」として登録（取りこぼし防止）
+        // 日付関係（調査日/見積提出日/作業開始日/作業完了日）はメールに出ていれば新規登録時にも正しい項目へ記入
+        var dates = p.progress || {};
         insertCase_({
           company: normalizeCompany_(p.company), theater: theater, received_date: received,
           tc_person: p.tc_person || '', r_person: p.r_person || '',
           category: normalizeCategory_(p.category), content: p.content || m.getPlainBody().slice(0, 1500),
+          survey_date: dates.survey_date || '',
+          work_start_date: dates.work_start_date || '',
+          work_end_date: dates.work_end_date || '',
           estimate_name: quote ? quote.estimate_name : '',
           estimate_amount: quote ? quote.estimate_amount : '',
-          quote_date: quote ? quote.quote_date : ''
+          quote_date: (quote && quote.quote_date) || dates.quote_date || ''
         });
         th.addLabel(lblDone); nNew++;
       }
@@ -124,6 +132,44 @@ function normalizeCategory_(v) {
   for (var i = 0; i < CATEGORY_LIST.length; i++) if (CATEGORY_LIST[i] === v) return v;
   return 'その他';
 }
+// 敬称・名を落として苗字だけにする（「山田太郎様」→「山田太郎」→ 空白区切りなら先頭のみ）
+function surnameOnly_(s) {
+  if (!s) return '';
+  s = String(s).trim().replace(/(様|さん|殿|氏)$/g, '');
+  s = s.split(/[ 　,、\/]/)[0];          // 「山田 太郎」→「山田」
+  return s.replace(/(様|さん|殿|氏)$/g, '').trim();
+}
+// 菱熱メンバーの苗字に一致するか（「小山和也」等もヒットさせる前方一致）
+function memberMatch_(s) {
+  if (!s) return '';
+  for (var i = 0; i < RYONETSU_MEMBERS.length; i++) {
+    if (s.indexOf(RYONETSU_MEMBERS[i]) === 0) return RYONETSU_MEMBERS[i];
+  }
+  return '';
+}
+// 客先担当者(tc_person)とR担当者(r_person)の取り違えを補正し、苗字のみに正規化
+function fixPersons_(p) {
+  var tc = surnameOnly_(p.tc_person || '');
+  var r = surnameOnly_(p.r_person || '');
+  var tcMember = memberMatch_(tc);
+  var rMember = memberMatch_(r);
+  if (rMember) {
+    r = rMember;                     // R担当はメンバー表記（苗字）に正規化
+  } else if (r) {
+    // R担当にメンバー以外の名前 → 実は客先担当の可能性が高い
+    if (!tc) tc = r;
+    r = '';
+  }
+  if (tcMember) {
+    // 客先担当に菱熱メンバー → R担当へ移す（既にR担当がいれば単に除去）
+    if (!r) r = tcMember;
+    tc = '';
+    Logger.log('担当者補正: 客先担当に菱熱メンバー(' + tcMember + ')が入っていたためR担当へ');
+  }
+  p.tc_person = tc;
+  p.r_person = r;
+  return p;
+}
 
 // ===== Claude: メール解析（新規/進捗の判定＋項目抽出） =====
 function parseEmail_(emailText) {
@@ -135,11 +181,17 @@ function parseEmail_(emailText) {
     'ヒント: 差出人が客先なら新規依頼が多い。差出人が菱熱工業メンバー(' + MEMBER_HINT + ')なら進捗報告が多い。\n' +
     '会社は次のいずれかに正規化、なければ原文:\n' + JSON.stringify(COMPANY_LIST) + '\n' +
     '種別は次のいずれか:\n' + JSON.stringify(CATEGORY_LIST) + '\n' +
+    '担当者の区別（重要・取り違え禁止）:\n' +
+    '- r_person = 菱熱工業（受注側・弊社）の担当者。次のリストの苗字と一致する場合のみ入れる。一致しなければ空文字: ' + JSON.stringify(RYONETSU_MEMBERS) + '\n' +
+    '- tc_person = 客先（劇場・シネコン運営会社側）の担当者。菱熱工業メンバーの名前は絶対に入れない。\n' +
+    '- どちらも「苗字のみ」（例: 「山田太郎様」→「山田」。「様」「さん」等の敬称は付けない）。\n' +
     'スキーマ: {"is_case":bool,"confidence":number,"intent":"new"|"progress","title":string,' +
     '"company":string,"theater":string(劇場名),"received_date":"YYYY-MM-DD",' +
     '"tc_person":string,"r_person":string,"category":string,"content":string(要点1-3文),' +
-    '"progress":{"quote_date":"YYYY-MM-DD","work_start_date":"YYYY-MM-DD","work_end_date":"YYYY-MM-DD","note":string}}\n' +
-    'progress は intent=progress のときだけ、メールに出てくる日付/報告内容を入れる（無い項目は空文字）。';
+    '"progress":{"survey_date":"YYYY-MM-DD","quote_date":"YYYY-MM-DD","work_start_date":"YYYY-MM-DD","work_end_date":"YYYY-MM-DD","note":string}}\n' +
+    'progress の日付は intent に関わらず、メールに具体的な日付が出ていれば必ず正しい項目に入れる（無い項目は空文字）:\n' +
+    '- survey_date=現地調査・現調・下見の日 / quote_date=見積書の提出日 / work_start_date=作業・工事の開始日 / work_end_date=作業・工事の完了日\n' +
+    '- 「受付日」と混同しない。note は intent=progress のときだけ報告内容の要点を入れる。';
   return safeJson_(anthropicText_(apiKey, sys, emailText, 800));
 }
 
@@ -148,7 +200,7 @@ function fetchTheaterCases_(theater) {
   var key = cfg_('SUPABASE_SERVICE_ROLE_KEY');
   if (!key) { Logger.log('SUPABASE_SERVICE_ROLE_KEY未設定'); return []; }
   var params = 'theater=eq.' + encodeURIComponent(theater) +
-    '&select=id,received_date,category,content,memo,status,r_person,estimate_name,estimate_amount,quote_date,work_start_date,work_end_date' +
+    '&select=id,received_date,category,content,memo,status,r_person,estimate_name,estimate_amount,survey_date,quote_date,work_start_date,work_end_date' +
     '&order=received_date.desc&limit=15';
   var res = UrlFetchApp.fetch(SUPABASE_URL_() + '/rest/v1/cases?' + params, {
     method: 'get', headers: { apikey: key, Authorization: 'Bearer ' + key }, muteHttpExceptions: true
@@ -192,6 +244,10 @@ function insertCase_(f) {
   if (f.estimate_name) body.estimate_name = f.estimate_name;
   if (f.estimate_amount) body.estimate_amount = normalizeAmount_(f.estimate_amount);
   if (f.quote_date) body.quote_date = f.quote_date;
+  // メール本文に日付が出ていれば、日程の項目にも正しく記入
+  if (f.survey_date) body.survey_date = f.survey_date;
+  if (f.work_start_date) body.work_start_date = f.work_start_date;
+  if (f.work_end_date) body.work_end_date = f.work_end_date;
   var res = UrlFetchApp.fetch(SUPABASE_URL_() + '/rest/v1/cases', {
     method: 'post', contentType: 'application/json',
     headers: { apikey: key, Authorization: 'Bearer ' + key, Prefer: 'return=minimal' },
@@ -207,6 +263,7 @@ function updateCase_(matched, prog, summary, quote) {
   if (!key) return;
   var patch = {};
   // 日付は「まだ空」の項目に記入（既存値は上書きしない＝手動入力を尊重）
+  if (prog.survey_date && !matched.survey_date) patch.survey_date = prog.survey_date;
   if (prog.quote_date && !matched.quote_date) patch.quote_date = prog.quote_date;
   if (prog.work_start_date && !matched.work_start_date) patch.work_start_date = prog.work_start_date;
   if (prog.work_end_date && !matched.work_end_date) patch.work_end_date = prog.work_end_date;
