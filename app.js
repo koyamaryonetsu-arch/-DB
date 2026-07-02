@@ -273,6 +273,8 @@
   let adviceNoteSupported = false;
   // theaters.equipment/chronic_issues/partner 列（Lv3: 劇場カルテ）
   let theaterKarteSupported = false;
+  let theaterInfoSupported = false;      // theaters に manager 等の劇場情報列があるか
+  let theaterContactsSupported = false;  // theater_contacts テーブルがあるか
   const DATE_FIELDS = new Set(['receivedDate', 'surveyDate', 'quoteDate', 'workStartDate', 'workEndDate', 'invoiceDate', 'paymentDate']);
 
   // app(camelCase) → DB行(snake_case)。空文字の日付/金額は null に
@@ -516,9 +518,12 @@
         return DEFAULT_THEATER_MASTER.map((t) => ({ name: t.name, company: t.company, address: t.address }));
       }
       if (data[0] && Object.prototype.hasOwnProperty.call(data[0], 'equipment')) theaterKarteSupported = true;
+      if (data[0] && Object.prototype.hasOwnProperty.call(data[0], 'manager')) theaterInfoSupported = true;
       return data.map((r) => ({
         name: r.name, company: r.company, address: r.address || '',
-        equipment: r.equipment || '', chronicIssues: r.chronic_issues || '', partner: r.partner || ''
+        equipment: r.equipment || '', chronicIssues: r.chronic_issues || '', partner: r.partner || '',
+        manager: r.manager || '', theaterPhone: r.theater_phone || '',
+        maintenance: r.maintenance || '', gem2: r.gem2 || '', infoNote: r.info_note || ''
       }));
     },
     async upsertTheater(t) {
@@ -529,7 +534,52 @@
         payload.chronic_issues = t.chronicIssues || '';
         payload.partner = t.partner || '';
       }
+      if (theaterInfoSupported) {
+        payload.manager = t.manager || '';
+        payload.theater_phone = t.theaterPhone || '';
+        payload.maintenance = t.maintenance || '';
+        payload.gem2 = t.gem2 || '';
+        payload.info_note = t.infoNote || '';
+      }
       const { error } = await sb.from('theaters').upsert(payload);
+      if (error) throw error;
+    },
+    // ---- 各劇場情報: パートナー連絡先（theater_contacts） ----
+    async fetchTheaterContacts() {
+      if (this.mode === 'local') return loadTheaterContactsLocal();
+      const { data, error } = await sb.from('theater_contacts').select('*').order('sort_order', { ascending: true });
+      if (error) { theaterContactsSupported = false; return []; }
+      theaterContactsSupported = true;
+      return (data || []).map((r) => ({
+        id: r.id, company: r.company || '', theater: r.theater || '',
+        category: r.category || '', maker: r.maker || '', vendor: r.vendor || '',
+        person: r.person || '', phone: r.phone || '', email: r.email || '',
+        note: r.note || '', sortOrder: r.sort_order || 0
+      }));
+    },
+    async insertTheaterContact(c) {
+      if (this.mode === 'local') { saveTheaterContactsLocal(theaterContacts); return c; }
+      const { data, error } = await sb.from('theater_contacts').insert({
+        company: c.company, theater: c.theater, category: c.category || '', maker: c.maker || '',
+        vendor: c.vendor || '', person: c.person || '', phone: c.phone || '', email: c.email || '',
+        note: c.note || '', sort_order: c.sortOrder || 0
+      }).select().single();
+      if (error) throw error;
+      c.id = data.id;
+      return c;
+    },
+    async updateTheaterContact(c) {
+      if (this.mode === 'local') { saveTheaterContactsLocal(theaterContacts); return; }
+      const { error } = await sb.from('theater_contacts').update({
+        category: c.category || '', maker: c.maker || '', vendor: c.vendor || '',
+        person: c.person || '', phone: c.phone || '', email: c.email || '',
+        note: c.note || '', updated_at: new Date().toISOString()
+      }).eq('id', c.id);
+      if (error) throw error;
+    },
+    async deleteTheaterContact(id) {
+      if (this.mode === 'local') { saveTheaterContactsLocal(theaterContacts); return; }
+      const { error } = await sb.from('theater_contacts').delete().eq('id', id);
       if (error) throw error;
     },
     async deleteTheater(name) {
@@ -579,6 +629,7 @@
   let history = loadHistory();
   let companies = DEFAULT_COMPANIES.map((c) => ({ name: c.name, abbr: c.abbr, officialName: c.officialName || '', hqAddress: c.hqAddress || '' }));
   let theaterMaster = DEFAULT_THEATER_MASTER.slice();
+  let theaterContacts = [];     // 各劇場情報: パートナー連絡先（init時に取得）
   let currentUser = null;
   let sortState = { field: null, direction: 'asc' };
   // 表示切替モード: 0=標準（請求済/入金済/取り下げ/失注/保留を隠す）, 1=請求済・入金済を表示, 2=取り下げ・失注を表示
@@ -709,6 +760,18 @@
     return defaults;
   }
   function saveTheaterMaster(list) { localStorage.setItem(THEATER_MASTER_KEY, JSON.stringify(list)); }
+  // ---------- 各劇場情報: パートナー連絡先（ローカルモード用） ----------
+  const THEATER_CONTACTS_KEY = 'cinema_theater_contacts';
+  function loadTheaterContactsLocal() {
+    try {
+      const stored = JSON.parse(localStorage.getItem(THEATER_CONTACTS_KEY));
+      if (Array.isArray(stored)) return stored;
+    } catch (e) {}
+    return [];
+  }
+  function saveTheaterContactsLocal(list) {
+    try { localStorage.setItem(THEATER_CONTACTS_KEY, JSON.stringify(list)); } catch (e) {}
+  }
   // 案件の劇場名と完全一致する master 行を返す（無ければ undefined）
   function findTheaterInMaster(name) {
     if (!name) return undefined;
@@ -2598,6 +2661,146 @@
     downloadCSV(`A集計_${todayStr()}.csv`, rows);
   }
 
+  // ---------- 各劇場情報（支配人・保守契約・パートナー連絡先）モーダル ----------
+  function tiCommonName(company) { return company + '（共通）'; }
+  function populateTiCompanySelect() {
+    const sel = $('tiCompanySelect');
+    const prev = sel.value;
+    sel.innerHTML = companyNames().map((n) => `<option value="${escapeHtml(n)}">${escapeHtml(n)}（${escapeHtml(companyAbbr(n))}）</option>`).join('');
+    if (prev && companyNames().indexOf(prev) !== -1) sel.value = prev;
+    else if (companyNames().length > 0) sel.value = companyNames()[0];
+  }
+  function populateTiTheaterSelect() {
+    const company = $('tiCompanySelect').value;
+    const sel = $('tiTheaterSelect');
+    const prev = sel.value;
+    const names = theaterMaster.filter((t) => t.company === company).map((t) => t.name).filter(Boolean);
+    const fromContacts = theaterContacts.filter((c) => c.company === company).map((c) => c.theater).filter(Boolean);
+    const list = Array.from(new Set([tiCommonName(company)].concat(names, fromContacts)));
+    sel.innerHTML = list.map((n) => `<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join('');
+    if (prev && list.indexOf(prev) !== -1) sel.value = prev;
+    else if (list.length > 0) sel.value = list[0];
+  }
+  function tiCurrentContacts() {
+    const theater = $('tiTheaterSelect').value;
+    return theaterContacts
+      .filter((c) => c.theater === theater)
+      .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
+  }
+  function renderTheaterInfo() {
+    const company = $('tiCompanySelect').value;
+    const theater = $('tiTheaterSelect').value;
+    const entry = theaterMaster.find((t) => t.name === theater);
+    // 劇場情報ボックス: マスターに存在する劇場のみ編集可（（共通）や未登録名は非表示）
+    $('tiInfoBox').classList.toggle('hidden', !entry);
+    if (entry) {
+      $('tiManager').value = entry.manager || '';
+      $('tiPhone').value = entry.theaterPhone || '';
+      $('tiMaintenance').value = entry.maintenance || '';
+      $('tiGem2').value = entry.gem2 || '';
+      $('tiEquipment').value = entry.equipment || '';
+      $('tiChronic').value = entry.chronicIssues || '';
+      $('tiNote').value = entry.infoNote || '';
+    }
+    $('tiSetupWarn').classList.toggle('hidden', !(store.mode === 'supabase' && !theaterContactsSupported));
+    const rows = tiCurrentContacts();
+    const tbody = $('tiBody');
+    if (rows.length === 0) {
+      tbody.innerHTML = '';
+      $('tiEmpty').classList.remove('hidden');
+    } else {
+      $('tiEmpty').classList.add('hidden');
+      tbody.innerHTML = rows.map((c) => `
+        <tr data-contact-id="${escapeHtml(String(c.id))}">
+          <td><input type="text" class="tm-input ti-category" value="${escapeHtml(c.category || '')}" placeholder="例: スクリーン系統空調機"></td>
+          <td><input type="text" class="tm-input ti-maker" value="${escapeHtml(c.maker || '')}" placeholder="例: ダイキン"></td>
+          <td><input type="text" class="tm-input ti-vendor" value="${escapeHtml(c.vendor || '')}" placeholder="例: テクノ空調"></td>
+          <td><input type="text" class="tm-input ti-person" value="${escapeHtml(c.person || '')}" placeholder="例: 井上"></td>
+          <td><input type="text" class="tm-input ti-phone" value="${escapeHtml(c.phone || '')}" placeholder="例: 080-1237-4363"></td>
+          <td><input type="text" class="tm-input ti-email" value="${escapeHtml(c.email || '')}" placeholder="例: inoue@japantoa.co.jp"></td>
+          <td><input type="text" class="tm-input ti-note" value="${escapeHtml(c.note || '')}" placeholder="メモ"></td>
+          <td><button type="button" class="ti-delete-btn">削除</button></td>
+        </tr>
+      `).join('');
+    }
+  }
+  async function openTheaterInfoModal() {
+    populateTiCompanySelect();
+    try { theaterContacts = await store.fetchTheaterContacts(); } catch (e) { theaterContacts = []; }
+    populateTiTheaterSelect();
+    renderTheaterInfo();
+    $('theaterInfoModal').classList.remove('hidden');
+  }
+  function closeTheaterInfoModal() {
+    $('theaterInfoModal').classList.add('hidden');
+  }
+  // 劇場情報（支配人・連絡先など）の編集 → theaters に保存
+  function handleTheaterInfoFieldChange() {
+    const theater = $('tiTheaterSelect').value;
+    const entry = theaterMaster.find((t) => t.name === theater);
+    if (!entry) return;
+    entry.manager = $('tiManager').value.trim();
+    entry.theaterPhone = $('tiPhone').value.trim();
+    entry.maintenance = $('tiMaintenance').value;
+    entry.gem2 = $('tiGem2').value;
+    entry.equipment = $('tiEquipment').value;
+    entry.chronicIssues = $('tiChronic').value;
+    entry.infoNote = $('tiNote').value;
+    if (store.mode === 'local') saveTheaterMaster(theaterMaster);
+    persistTheater(entry);
+  }
+  function tiFindContact(id) {
+    return theaterContacts.find((c) => String(c.id) === String(id));
+  }
+  function handleTheaterInfoTableInput(e) {
+    const tr = e.target.closest('tr');
+    if (!tr || !tr.dataset.contactId) return;
+    const c = tiFindContact(tr.dataset.contactId);
+    if (!c) return;
+    if (e.target.classList.contains('ti-category')) c.category = e.target.value;
+    else if (e.target.classList.contains('ti-maker')) c.maker = e.target.value;
+    else if (e.target.classList.contains('ti-vendor')) c.vendor = e.target.value;
+    else if (e.target.classList.contains('ti-person')) c.person = e.target.value;
+    else if (e.target.classList.contains('ti-phone')) c.phone = e.target.value;
+    else if (e.target.classList.contains('ti-email')) c.email = e.target.value;
+    else if (e.target.classList.contains('ti-note')) c.note = e.target.value;
+    else return;
+    Promise.resolve(store.updateTheaterContact(c)).catch(onPersistError);
+  }
+  function handleTheaterInfoTableClick(e) {
+    if (!e.target.classList.contains('ti-delete-btn')) return;
+    const tr = e.target.closest('tr');
+    if (!tr || !tr.dataset.contactId) return;
+    const c = tiFindContact(tr.dataset.contactId);
+    if (!c) return;
+    const label = [c.category, c.vendor, c.person].filter(Boolean).join(' / ') || '(未入力)';
+    if (!confirm(`連絡先「${label}」を削除しますか？`)) return;
+    theaterContacts = theaterContacts.filter((x) => String(x.id) !== String(c.id));
+    Promise.resolve(store.deleteTheaterContact(c.id)).catch(onPersistError);
+    renderTheaterInfo();
+  }
+  async function addTheaterContactRow() {
+    const company = $('tiCompanySelect').value;
+    const theater = $('tiTheaterSelect').value;
+    if (!company || !theater) { alert('先に会社と劇場を選択してください'); return; }
+    if (store.mode === 'supabase' && !theaterContactsSupported) {
+      alert('データベース未設定です。SETUP_THEATER_INFO.md のSQLをSupabaseで実行してください。');
+      return;
+    }
+    const maxOrder = tiCurrentContacts().reduce((m, c) => Math.max(m, c.sortOrder || 0), 0);
+    const rec = { id: 'local-' + Date.now(), company: company, theater: theater, category: '', maker: '', vendor: '', person: '', phone: '', email: '', note: '', sortOrder: maxOrder + 10 };
+    theaterContacts.push(rec);
+    try { await store.insertTheaterContact(rec); } catch (e) { onPersistError(e); }
+    renderTheaterInfo();
+    setTimeout(() => {
+      const rows = $('tiBody').querySelectorAll('tr');
+      if (rows.length > 0) {
+        const firstInput = rows[rows.length - 1].querySelector('.ti-category');
+        if (firstInput) firstInput.focus();
+      }
+    }, 50);
+  }
+
   // ---------- 客先マスター（劇場・住所）モーダル ----------
   function populateTheaterMasterCompanySelect() {
     const sel = $('tmCompanySelect');
@@ -2619,9 +2822,6 @@
         <tr data-master-idx="${idx}">
           <td><input type="text" class="tm-input tm-name" value="${escapeHtml(t.name)}" placeholder="例: TOHOシネマズ 新宿"></td>
           <td><input type="text" class="tm-input tm-address" value="${escapeHtml(t.address || '')}" placeholder="例: 東京都新宿区歌舞伎町1-19-1"></td>
-          <td><input type="text" class="tm-input tm-equipment" value="${escapeHtml(t.equipment || '')}" placeholder="例: チラー(ダイキンJIZAI)、GHP3系統"></td>
-          <td><input type="text" class="tm-input tm-chronic" value="${escapeHtml(t.chronicIssues || '')}" placeholder="例: 映写室2系統・夏場能力低下"></td>
-          <td><input type="text" class="tm-input tm-partner" value="${escapeHtml(t.partner || '')}" placeholder="例: 三機サービス"></td>
           <td><button type="button" class="tm-delete-btn">削除</button></td>
         </tr>
       `).join('');
@@ -2709,12 +2909,6 @@
       }
     } else if (e.target.classList.contains('tm-address')) {
       entry.address = e.target.value.trim();
-    } else if (e.target.classList.contains('tm-equipment')) {
-      entry.equipment = e.target.value;
-    } else if (e.target.classList.contains('tm-chronic')) {
-      entry.chronicIssues = e.target.value;
-    } else if (e.target.classList.contains('tm-partner')) {
-      entry.partner = e.target.value;
     }
     saveTheaterMaster(theaterMaster);
     persistTheater(entry);
@@ -2980,6 +3174,7 @@
     if (!$('modal').classList.contains('hidden')) closeModal();
     if (!$('invoiceModal').classList.contains('hidden')) closeInvoiceModal();
     if (!$('contentModal').classList.contains('hidden')) closeContentModal();
+    if (!$('theaterInfoModal').classList.contains('hidden')) closeTheaterInfoModal();
     if (!$('theaterMasterModal').classList.contains('hidden')) closeTheaterMasterModal();
     store.unsubscribe();
     await store.signOut();
@@ -3052,6 +3247,20 @@
   $('tmHqAddress').addEventListener('change', handleHqAddressChange);
   $('tmHqColor').addEventListener('change', (e) => setCompanyColor(e.target.value));
   $('tmHqColorClear').addEventListener('click', () => setCompanyColor(''));
+
+  // 各劇場情報 モーダル
+  $('theaterInfoBtn').addEventListener('click', openTheaterInfoModal);
+  $('closeTheaterInfoModal').addEventListener('click', closeTheaterInfoModal);
+  $('tiCloseBtn').addEventListener('click', closeTheaterInfoModal);
+  $('theaterInfoModal').addEventListener('click', (e) => { if (e.target === $('theaterInfoModal')) closeTheaterInfoModal(); });
+  $('tiCompanySelect').addEventListener('change', () => { populateTiTheaterSelect(); renderTheaterInfo(); });
+  $('tiTheaterSelect').addEventListener('change', renderTheaterInfo);
+  $('tiAddContactBtn').addEventListener('click', addTheaterContactRow);
+  $('tiBody').addEventListener('change', handleTheaterInfoTableInput);
+  $('tiBody').addEventListener('click', handleTheaterInfoTableClick);
+  ['tiManager', 'tiPhone', 'tiMaintenance', 'tiGem2', 'tiEquipment', 'tiChronic', 'tiNote'].forEach((id) => {
+    $(id).addEventListener('change', handleTheaterInfoFieldChange);
+  });
 
   $('closeContentModal').addEventListener('click', closeContentModal);
   $('contentCancelBtn').addEventListener('click', closeContentModal);
@@ -3153,6 +3362,7 @@
     if (e.key !== 'Escape') return;
     // 最後に開いたものを優先的に閉じる
     if (!$('contentModal').classList.contains('hidden')) { closeContentModal(); return; }
+    if (!$('theaterInfoModal').classList.contains('hidden')) { closeTheaterInfoModal(); return; }
     if (!$('theaterMasterModal').classList.contains('hidden')) { closeTheaterMasterModal(); return; }
     if (!$('invoiceModal').classList.contains('hidden')) { closeInvoiceModal(); return; }
     if (!$('modal').classList.contains('hidden')) { closeModal(); return; }
