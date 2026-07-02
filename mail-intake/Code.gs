@@ -4,10 +4,11 @@
  * 動作:
  *   1. Gmailの「案件登録」ラベルの新着スレッドを5分毎に読む（スレッド全体＝最初の依頼＋以降の進捗を文脈に）
  *   2. Claudeが判定: 案件依頼か? / 新規(new) か 進捗報告(progress) か / 各項目を抽出
+ *   2.5 添付の見積書(画像/PDF)があればAI-OCRで 見積り名/金額/提出日 を抽出
  *   3. 同じ劇場の既存案件と照合（AIマッチング）
- *      - 一致あり かつ 進捗 → その案件を UPDATE（見積提出日/作業開始日/作業完了日/内容追記）
+ *      - 一致あり かつ 進捗/見積添付 → その案件を UPDATE（見積名/金額/見積提出日/作業開始日/作業完了日/内容追記）
  *      - 一致あり かつ 新規 → 重複扱いで登録しない（担当者の手動登録を「正」とする）
- *      - 一致なし → INSERT（新規でも進捗でも「新規案件」として登録＝取りこぼし防止）
+ *      - 一致なし → INSERT（新規でも進捗でも「新規案件」として登録＝取りこぼし防止・見積添付も反映）
  *   4. INSERT/UPDATE すると既存 Database Webhook (case-created) が発火し LINE 通知
  *   5. 処理済みメールにはラベルを付けて再処理を防止
  *   ※ 案件と判定できないメール(is_case=false/確信度低)のみ「案件登録_要確認」で人の確認へ
@@ -16,7 +17,8 @@
  *   ANTHROPIC_API_KEY          - Anthropic APIキー
  *   SUPABASE_SERVICE_ROLE_KEY  - Supabase の service_role キー（Settings > API）
  *   SUPABASE_URL               - (任意) 既定 https://hykjpadvbficiiuockhj.supabase.co
- *   ANTHROPIC_MODEL            - (任意) 既定 claude-haiku-4-5-20251001（抽出は安いHaikuで十分）
+ *   ANTHROPIC_MODEL            - (任意) 既定 claude-haiku-4-5-20251001（本文抽出は安いHaikuで十分）
+ *   ANTHROPIC_OCR_MODEL        - (任意) 既定 claude-sonnet-4-6（添付見積書の画像/PDF読取は視覚対応モデル）
  */
 
 var SRC_LABEL = '案件登録';        // 取込対象（フィルタ/手動で付与）
@@ -36,6 +38,9 @@ function cfg_(k, d) {
 }
 function SUPABASE_URL_() { return cfg_('SUPABASE_URL', 'https://hykjpadvbficiiuockhj.supabase.co'); }
 function MODEL_() { return cfg_('ANTHROPIC_MODEL', 'claude-haiku-4-5-20251001'); }
+// 添付見積書のAI-OCRは画像/PDFを読むため視覚対応モデル（既定Sonnet）を使う
+function OCR_MODEL_() { return cfg_('ANTHROPIC_OCR_MODEL', 'claude-sonnet-4-6'); }
+var OCR_MAX_BYTES = 5 * 1024 * 1024; // 5MB超の添付はスキップ（API上限・コスト対策）
 
 // ===== メイン（5分毎トリガー） =====
 function importCaseEmails() {
@@ -63,12 +68,14 @@ function importCaseEmails() {
 
       var received = p.received_date || Utilities.formatDate(msgs[0].getDate(), 'Asia/Tokyo', 'yyyy-MM-dd');
       var theater = p.theater || '';
+      // 添付の見積書（画像/PDF）をAI-OCRで読み、見積り名・金額・提出日を抽出（無ければnull）
+      var quote = extractQuoteFromAttachments_(th);
       var candidates = theater ? fetchTheaterCases_(theater) : [];
       var matched = candidates.length ? findMatch_(p, received, candidates) : null;
 
       if (matched) {
-        if (p.intent === 'progress') {
-          updateCase_(matched, p.progress || {}, p.content);  // 進捗 → 既存案件を更新
+        if (p.intent === 'progress' || quote) {
+          updateCase_(matched, p.progress || {}, p.content, quote);  // 進捗/見積 → 既存案件を更新
           th.addLabel(lblUpd); nUpd++;
         } else {
           th.addLabel(lblDup); nDup++;                         // 新規のつもりだが既存あり → 手動優先で登録せず
@@ -79,7 +86,10 @@ function importCaseEmails() {
         insertCase_({
           company: normalizeCompany_(p.company), theater: theater, received_date: received,
           tc_person: p.tc_person || '', r_person: p.r_person || '',
-          category: normalizeCategory_(p.category), content: p.content || m.getPlainBody().slice(0, 1500)
+          category: normalizeCategory_(p.category), content: p.content || m.getPlainBody().slice(0, 1500),
+          estimate_name: quote ? quote.estimate_name : '',
+          estimate_amount: quote ? quote.estimate_amount : '',
+          quote_date: quote ? quote.quote_date : ''
         });
         th.addLabel(lblDone); nNew++;
       }
@@ -138,7 +148,7 @@ function fetchTheaterCases_(theater) {
   var key = cfg_('SUPABASE_SERVICE_ROLE_KEY');
   if (!key) { Logger.log('SUPABASE_SERVICE_ROLE_KEY未設定'); return []; }
   var params = 'theater=eq.' + encodeURIComponent(theater) +
-    '&select=id,received_date,category,content,memo,status,r_person,quote_date,work_start_date,work_end_date' +
+    '&select=id,received_date,category,content,memo,status,r_person,estimate_name,estimate_amount,quote_date,work_start_date,work_end_date' +
     '&order=received_date.desc&limit=15';
   var res = UrlFetchApp.fetch(SUPABASE_URL_() + '/rest/v1/cases?' + params, {
     method: 'get', headers: { apikey: key, Authorization: 'Bearer ' + key }, muteHttpExceptions: true
@@ -178,6 +188,10 @@ function insertCase_(f) {
     tc_person: f.tc_person || null, r_person: f.r_person || null,
     category: f.category || null, content: f.content || null
   };
+  // 添付見積書のOCR結果があれば書き込む（空はnullでスキップ）
+  if (f.estimate_name) body.estimate_name = f.estimate_name;
+  if (f.estimate_amount) body.estimate_amount = normalizeAmount_(f.estimate_amount);
+  if (f.quote_date) body.quote_date = f.quote_date;
   var res = UrlFetchApp.fetch(SUPABASE_URL_() + '/rest/v1/cases', {
     method: 'post', contentType: 'application/json',
     headers: { apikey: key, Authorization: 'Bearer ' + key, Prefer: 'return=minimal' },
@@ -188,7 +202,7 @@ function insertCase_(f) {
 }
 
 // ===== Supabase: 進捗UPDATE（該当案件に日付/内容を反映） =====
-function updateCase_(matched, prog, summary) {
+function updateCase_(matched, prog, summary, quote) {
   var key = cfg_('SUPABASE_SERVICE_ROLE_KEY');
   if (!key) return;
   var patch = {};
@@ -196,6 +210,13 @@ function updateCase_(matched, prog, summary) {
   if (prog.quote_date && !matched.quote_date) patch.quote_date = prog.quote_date;
   if (prog.work_start_date && !matched.work_start_date) patch.work_start_date = prog.work_start_date;
   if (prog.work_end_date && !matched.work_end_date) patch.work_end_date = prog.work_end_date;
+  // 添付見積書のOCR結果（見積り名/金額/提出日）も、空の項目のみ記入
+  if (quote) {
+    if (quote.estimate_name && !matched.estimate_name) patch.estimate_name = quote.estimate_name;
+    if (quote.estimate_amount && (matched.estimate_amount === null || matched.estimate_amount === undefined || matched.estimate_amount === ''))
+      patch.estimate_amount = normalizeAmount_(quote.estimate_amount);
+    if (quote.quote_date && !matched.quote_date && !patch.quote_date) patch.quote_date = quote.quote_date;
+  }
   // 進捗メモは内容に追記（元の内容は保持。ステータス誤作動を避けるためmemoではなくcontentへ）
   var note = (prog.note || summary || '').trim();
   if (note) {
@@ -210,6 +231,75 @@ function updateCase_(matched, prog, summary) {
   });
   if (res.getResponseCode() >= 300) Logger.log('UPDATE失敗: ' + res.getContentText());
   else Logger.log('進捗更新: id=' + matched.id + ' 項目=' + Object.keys(patch).join(','));
+}
+
+// ===== 添付見積書のAI-OCR =====
+// スレッド内の添付（画像/PDF）を走査し、最初に読めた見積書から
+// {estimate_name, estimate_amount, quote_date} を返す。見つからなければ null。
+function extractQuoteFromAttachments_(th) {
+  var apiKey = cfg_('ANTHROPIC_API_KEY');
+  if (!apiKey) return null;
+  var msgs = th.getMessages();
+  for (var i = 0; i < msgs.length; i++) {
+    var atts = msgs[i].getAttachments({ includeInlineImages: true, includeAttachments: true });
+    for (var j = 0; j < atts.length; j++) {
+      var a = atts[j];
+      var ct = String(a.getContentType() || '').toLowerCase();
+      var isImg = ct.indexOf('image/') === 0;
+      var isPdf = ct === 'application/pdf';
+      if (!isImg && !isPdf) continue;                 // 見積書になり得るのは画像/PDFのみ
+      if (a.getSize() > OCR_MAX_BYTES) { Logger.log('添付が大きすぎOCRスキップ: ' + a.getName()); continue; }
+      var block = isPdf
+        ? { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: Utilities.base64Encode(a.getBytes()) } }
+        : { type: 'image', source: { type: 'base64', media_type: normalizeImageMime_(ct), data: Utilities.base64Encode(a.getBytes()) } };
+      var q = ocrQuote_(apiKey, block);
+      if (q && (q.estimate_name || q.estimate_amount || q.quote_date)) {
+        Logger.log('見積OCR成功: ' + a.getName() + ' → ' + JSON.stringify(q));
+        return q;
+      }
+    }
+  }
+  return null;
+}
+// Anthropic API が受け付ける画像MIMEに寄せる（未対応は jpeg 扱い）
+function normalizeImageMime_(ct) {
+  if (ct.indexOf('png') >= 0) return 'image/png';
+  if (ct.indexOf('gif') >= 0) return 'image/gif';
+  if (ct.indexOf('webp') >= 0) return 'image/webp';
+  return 'image/jpeg';
+}
+// 1件の添付（画像/PDFブロック）を視覚モデルでOCR。見積書でなければ空を返す。
+function ocrQuote_(apiKey, mediaBlock) {
+  var sys =
+    'あなたは見積書の読み取りアシスタントです。画像/PDFを読み、JSONのみ出力（前後に文章なし）。\n' +
+    'これが見積書（御見積書/お見積り/Quotation等）でなければ is_quote=false を返す。\n' +
+    '見積書なら次を抽出: estimate_name=工事名/件名/工事件名（無ければ主な品目を要約）, ' +
+    'estimate_amount=見積合計金額の数値のみ（税込があれば税込・カンマや¥や円は除く・整数）, ' +
+    'quote_date=見積書の発行日/日付をYYYY-MM-DD。読めない項目は空文字。\n' +
+    'スキーマ: {"is_quote":bool,"estimate_name":string,"estimate_amount":string,"quote_date":"YYYY-MM-DD"}';
+  var res = UrlFetchApp.fetch('https://api.anthropic.com/v1/messages', {
+    method: 'post', contentType: 'application/json',
+    headers: { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
+    payload: JSON.stringify({
+      model: OCR_MODEL_(), max_tokens: 400, system: sys,
+      messages: [{ role: 'user', content: [mediaBlock, { type: 'text', text: 'この書類を読み取ってJSONで返してください。' }] }]
+    }), muteHttpExceptions: true
+  });
+  if (res.getResponseCode() >= 300) { Logger.log('OCR失敗: ' + res.getContentText()); return null; }
+  var data;
+  try { data = JSON.parse(res.getContentText()); } catch (e) { return null; }
+  var txt = (data.content && data.content[0] && data.content[0].text) || '';
+  var j = safeJson_(txt);
+  if (!j || j.is_quote === false) return null;
+  return { estimate_name: j.estimate_name || '', estimate_amount: j.estimate_amount || '', quote_date: j.quote_date || '' };
+}
+// 「¥1,234,000」「1,234,000円」等 → 数値。変換できなければ null（送信しない）
+function normalizeAmount_(v) {
+  if (v === null || v === undefined) return null;
+  var s = String(v).replace(/[^0-9.]/g, '');
+  if (!s) return null;
+  var n = Number(s);
+  return isNaN(n) ? null : n;
 }
 
 // ===== 共通 =====
