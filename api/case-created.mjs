@@ -114,6 +114,37 @@ async function fetchTheaterHistory(theater, excludeId) {
   } catch (e) { console.error('Supabase履歴取得エラー', e); return []; }
 }
 
+// Lv3: 劇場カルテ（設備・持病・担当パートナー）を客先マスタ(theaters)から取得
+async function fetchTheaterNote(theater) {
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!key || !theater) return null;
+  const params = new URLSearchParams({
+    name: `eq.${theater}`,
+    select: 'equipment,chronic_issues,partner',
+    limit: '1'
+  });
+  try {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/theaters?${params.toString()}`, {
+      headers: { apikey: key, Authorization: `Bearer ${key}` }
+    });
+    if (!r.ok) { console.error('劇場カルテ取得失敗', r.status, await r.text()); return null; }
+    const rows = await r.json();
+    const t = Array.isArray(rows) && rows[0];
+    if (!t) return null;
+    if (!(t.equipment || t.chronic_issues || t.partner)) return null;
+    return t;
+  } catch (e) { console.error('劇場カルテ取得エラー', e); return null; }
+}
+
+function formatTheaterNote(t) {
+  if (!t) return '(この劇場のカルテは未登録)';
+  const lines = [];
+  if (t.equipment) lines.push('・設備: ' + t.equipment);
+  if (t.chronic_issues) lines.push('・持病/注意: ' + t.chronic_issues);
+  if (t.partner) lines.push('・担当パートナー: ' + t.partner);
+  return lines.join('\n');
+}
+
 function formatTheaterHistory(rows) {
   if (!rows.length) return '(この劇場の過去案件はまだありません)';
   return rows.map((x, i) => {
@@ -124,11 +155,41 @@ function formatTheaterHistory(rows) {
   }).join('\n');
 }
 
+// Lv4: 同じ劇場で「人が確定した正しい対応メモ(advice_note)」を取得（列が無い/失敗なら空＝Lv2以前に影響なし）
+async function fetchTheaterAdvice(theater) {
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!key || !theater) return [];
+  const params = new URLSearchParams({
+    theater: `eq.${theater}`,
+    advice_note: 'not.is.null',
+    select: 'received_date,category,advice_note',
+    order: 'received_date.desc',
+    limit: '6'
+  });
+  try {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/cases?${params.toString()}`, {
+      headers: { apikey: key, Authorization: `Bearer ${key}` }
+    });
+    if (!r.ok) return []; // advice_note 列が未追加でも診断は継続
+    const rows = await r.json();
+    return Array.isArray(rows) ? rows.filter((x) => x && String(x.advice_note || '').trim()) : [];
+  } catch (e) { return []; }
+}
+
+function formatTheaterAdvice(rows) {
+  if (!rows.length) return '(この劇場の学習メモはまだありません)';
+  return rows.map((x, i) => `${i + 1}. [${x.category || '種別不明'}] ${String(x.advice_note).slice(0, 200)}`).join('\n');
+}
+
 async function getInitialResponseAdvice(c) {
   if (!process.env.ANTHROPIC_API_KEY) return '(ANTHROPIC_API_KEY 未設定のため AI判断はスキップ)';
 
-  // Lv2: 同じ劇場の過去案件を文脈として取得（無ければ空でLv1相当）
-  const history = await fetchTheaterHistory(c.theater, c.id);
+  // Lv2: 同じ劇場の過去案件（Lv4: 正解メモ含む） / Lv3: 劇場カルテ を並行取得（無ければ空でLv1相当）
+  const [history, note, advice] = await Promise.all([
+    fetchTheaterHistory(c.theater, c.id),
+    fetchTheaterNote(c.theater),
+    fetchTheaterAdvice(c.theater)
+  ]);
 
   const system = [
     'あなたは菱熱工業（シネコン設備の保守/工事）のシネマ案件管理アシスタントです。',
@@ -140,7 +201,9 @@ async function getInitialResponseAdvice(c) {
     '- 空調/チラー/GHP/熱源/スプリンクラー/防災/映写室系統は 技術＝細萱・現場手配＝山口 を軸に。',
     '- 見積/請求/客先連絡は 金子。価格/大型/方針未確定/TOHO本社対応は 小山 へエスカレーション。',
     '- 故障停止・漏れ・ガス・発煙・安全に関わる語があれば優先度=高。',
-    '- 同じ劇場の過去案件があれば、その傾向・前例・担当・使ったパートナーを踏まえて具体的に助言する。'
+    '- 「劇場カルテ」（設備・持病・担当パートナー）があれば最優先で踏まえる。',
+    '- 「学習メモ（人が確定した正しい対応）」があれば、最も信頼できる正解として反映する（学習）。',
+    '- 同じ劇場の過去案件の傾向・前例・担当・パートナーを踏まえて具体的に助言する。'
   ].join('\n');
 
   const user = [
@@ -152,6 +215,12 @@ async function getInitialResponseAdvice(c) {
     `- 客先担当: ${c.tc_person || '(未設定)'}`,
     `- 受付日: ${c.received_date || '(未設定)'}`,
     `- 内容: ${c.content || '(未記入)'}`,
+    '',
+    `# 劇場カルテ（${c.theater || '不明'}／設備・持病・担当パートナー）`,
+    formatTheaterNote(note),
+    '',
+    `# 学習メモ（${c.theater || '不明'}／人が確定した正しい対応・最優先で反映）`,
+    formatTheaterAdvice(advice),
     '',
     `# この劇場（${c.theater || '不明'}）の過去案件（新しい順・参考）`,
     formatTheaterHistory(history),

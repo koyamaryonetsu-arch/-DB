@@ -416,6 +416,11 @@
           <label for="memo">メモ（ryonetsu限定・「保留」と記入でステータスが保留に）</label>
           <textarea id="memo" rows="3" class="autogrow" placeholder="社内メモ／「保留」と書くとステータス自動切替"></textarea>
         </div>
+
+        <div class="form-row form-row-wide" data-mode="full">
+          <label for="adviceNote">対応メモ（AIへの正解・注意）<span class="field-hint">（この劇場の今後のAI初期対応診断に「正解」として反映されます）</span></label>
+          <textarea id="adviceNote" rows="2" class="autogrow" placeholder="例：エアバランスはVD交換より潤滑剤調整を先に試す／担当は山口＋三機サービス"></textarea>
+        </div>
       </div>
 
       <div class="modal-footer">
@@ -473,7 +478,7 @@
         </label>
         <button id="tmAddTheaterBtn">＋ 劇場追加</button>
         <button id="tmDeleteCompanyBtn" class="danger">🗑 この会社を削除</button>
-        <span class="tm-hint">💡 ここに登録した「会社正式名称・本社住所・劇場名・劇場住所」が請求書/完了届に使われます。直接編集→自動保存。</span>
+        <span class="tm-hint">💡 会社正式名称・本社住所・劇場名・住所は請求書/完了届に使用。設備・持病・担当パートナー（カルテ）はAI初期対応診断に反映されます。直接編集→自動保存。</span>
       </div>
       <div class="tm-hq-box">
         <div class="tm-hq-title">🏢 本社情報（請求書/完了届の宛先に使用）</div>
@@ -496,9 +501,12 @@
         <table class="tm-table">
           <thead>
             <tr>
-              <th style="width: 40%;">劇場 正式名称</th>
-              <th style="width: 50%;">住所</th>
-              <th style="width: 10%;">操作</th>
+              <th style="width: 18%;">劇場 正式名称</th>
+              <th style="width: 22%;">住所</th>
+              <th style="width: 20%;">設備（カルテ）</th>
+              <th style="width: 20%;">持病/注意（カルテ）</th>
+              <th style="width: 14%;">担当パートナー</th>
+              <th style="width: 6%;">操作</th>
             </tr>
           </thead>
           <tbody id="tmBody"></tbody>
