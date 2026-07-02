@@ -108,7 +108,7 @@
       <span class="legend-item ryo-only"><span class="swatch swatch-yellowgreen"></span>見積り中（調査日から3日未満）</span>
       <span class="legend-item ryo-only"><span class="swatch swatch-red"></span>見積り中（調査日から3日以上）</span>
       <span class="legend-item ryo-only"><span class="swatch swatch-blue"></span>客先対応中・見積り提出済</span>
-      <span class="legend-hint ryo-only">💡 セルクリックで編集 ／ 内容・メモはクリックでポップアップ ／ 内容またはメモに「保留」→ ステータス保留</span>
+      <span class="legend-hint ryo-only">💡 セルクリックで編集 ／ 内容・社内用メモはクリックでポップアップ ／ 内容または社内用メモに「保留」→ ステータス保留</span>
       <span class="zoom-control" title="表の表示倍率を変えて全体を見やすくします">
         <span class="zoom-label">表示倍率</span>
         <button id="zoomOutBtn" type="button" class="zoom-btn" aria-label="縮小">－</button>
@@ -159,7 +159,7 @@
             <th class="sortable" data-sort="workEndDate"><span class="th-filter" data-filter="workEndDate">作業完了日</span></th>
             <th class="sortable" data-sort="invoiceDate"><span class="th-filter" data-filter="invoiceDate"><span class="lbl-ryo">請求書発行日</span><span class="lbl-toho">請求書受領日</span></span></th>
             <th class="sortable" data-sort="paymentDate"><span class="th-filter" data-filter="paymentDate"><span class="lbl-ryo">入金日</span><span class="lbl-toho">支払日</span></span></th>
-            <th class="col-memo sortable" data-sort="memo"><span class="th-filter" data-filter="memo">メモ</span></th>
+            <th class="col-memo sortable" data-sort="memo"><span class="th-filter" data-filter="memo">社内用メモ</span></th>
             <th>操作</th>
           </tr>
         </thead>
@@ -413,12 +413,12 @@
         </div>
 
         <div class="form-row form-row-wide col-memo" data-mode="full" data-cal="1">
-          <label for="memo">メモ（ryonetsu限定・「保留」と記入でステータスが保留に）</label>
-          <textarea id="memo" rows="3" class="autogrow" placeholder="社内メモ／「保留」と書くとステータス自動切替"></textarea>
+          <label for="memo">社内用メモ（ryonetsu限定・「保留」と記入でステータスが保留に）</label>
+          <textarea id="memo" rows="3" class="autogrow" placeholder="社内用メモ／「保留」と書くとステータス自動切替"></textarea>
         </div>
 
         <div class="form-row form-row-wide" data-mode="full">
-          <label for="adviceNote">対応メモ（AIへの正解・注意）<span class="field-hint">（この劇場の今後のAI初期対応診断に「正解」として反映されます）</span></label>
+          <label for="adviceNote">AI学習用メモ（AIへの正解・注意）<span class="field-hint">（この劇場の今後のAI初期対応診断に「正解」として反映されます）</span></label>
           <textarea id="adviceNote" rows="2" class="autogrow" placeholder="例：エアバランスはVD交換より潤滑剤調整を先に試す／担当は山口＋三機サービス"></textarea>
         </div>
       </div>

@@ -1326,7 +1326,7 @@
     tcPerson: '客先担当者', rPerson: 'R担当者', category: '種別', content: '内容',
     surveyDate: '調査日', certNumber: '認証番号', estimateName: '見積り名',
     estimateAmount: '見積り金額', quoteDate: '見積り提出日', workStartDate: '作業開始日',
-    workEndDate: '作業完了日', invoiceDate: '請求書発行日', paymentDate: '入金日', memo: 'メモ'
+    workEndDate: '作業完了日', invoiceDate: '請求書発行日', paymentDate: '入金日', memo: '社内用メモ'
   };
   function isMobile() { return window.matchMedia ? window.matchMedia('(max-width: 600px)').matches : (window.innerWidth <= 600); }
   function editableTd(c, field, displayHtml, extraClass) {
@@ -1819,7 +1819,7 @@
 
   // ---------- ポップアップ編集（内容 / メモ 共用） ----------
   let popupEditField = 'content';
-  const POPUP_FIELD_TITLES = { content: '内容を編集', memo: 'メモを編集' };
+  const POPUP_FIELD_TITLES = { content: '内容を編集', memo: '社内用メモを編集' };
   function openContentModal(c, field) {
     field = field || 'content';
     contentEditCaseId = c.id;
@@ -1878,7 +1878,7 @@
       isToho ? '請求書受領日' : '請求書発行日',
       isToho ? '支払日' : '入金日',
       'ステータス'];
-    if (includesMemo) headers.push('メモ');
+    if (includesMemo) headers.push('社内用メモ');
     const rows = [headers].concat(filtered.map((c) => {
       const row = [c.company, c.theater, c.receivedDate, c.tcPerson, c.rPerson, c.category, c.content,
         c.surveyDate, c.company === 'TOHOシネマズ' ? c.certNumber : '',
@@ -2242,7 +2242,7 @@
     { field: 'tcPerson', label: '客先担当者' },
     { field: 'rPerson',  label: 'R担当者' },
     { field: 'content',  label: '内容' },
-    { field: 'memo',     label: 'メモ' },
+    { field: 'memo',     label: '社内用メモ' },
     { field: 'tasks',    label: 'タスク' }
   ];
   function enterTaskMode() {
