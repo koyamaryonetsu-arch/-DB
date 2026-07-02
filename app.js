@@ -2687,7 +2687,65 @@
       .filter((c) => c.theater === theater)
       .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
   }
+  let tiBulkMode = false; // 全体編集（縦=劇場×横=登録項目のグリッド）モード
+  function renderTiBulkTable() {
+    const company = $('tiCompanySelect').value;
+    const rows = theaterMaster.filter((t) => t.company === company && t.name);
+    const tbody = $('tiBulkBody');
+    if (rows.length === 0) {
+      tbody.innerHTML = '';
+      $('tiBulkEmpty').classList.remove('hidden');
+    } else {
+      $('tiBulkEmpty').classList.add('hidden');
+      const marks = (v) => ['', '○', '×'].map((m) =>
+        `<option value="${m}" ${m === (v || '') ? 'selected' : ''}>${m}</option>`).join('');
+      tbody.innerHTML = rows.map((t) => `
+        <tr data-theater-name="${escapeHtml(t.name)}">
+          <td class="tib-name">${escapeHtml(t.name)}</td>
+          <td><input type="text" class="tm-input tib-manager" value="${escapeHtml(t.manager || '')}"></td>
+          <td><input type="text" class="tm-input tib-phone" value="${escapeHtml(t.theaterPhone || '')}"></td>
+          <td><select class="tm-input tib-maintenance">${marks(t.maintenance)}</select></td>
+          <td><select class="tm-input tib-gem2">${marks(t.gem2)}</select></td>
+          <td><input type="text" class="tm-input tib-equipment" value="${escapeHtml(t.equipment || '')}"></td>
+          <td><input type="text" class="tm-input tib-chronic" value="${escapeHtml(t.chronicIssues || '')}"></td>
+          <td><input type="text" class="tm-input tib-note" value="${escapeHtml(t.infoNote || '')}"></td>
+        </tr>
+      `).join('');
+    }
+  }
+  function handleTiBulkInput(e) {
+    const tr = e.target.closest('tr');
+    if (!tr || !tr.dataset.theaterName) return;
+    const entry = theaterMaster.find((t) => t.name === tr.dataset.theaterName);
+    if (!entry) return;
+    if (e.target.classList.contains('tib-manager')) entry.manager = e.target.value.trim();
+    else if (e.target.classList.contains('tib-phone')) entry.theaterPhone = e.target.value.trim();
+    else if (e.target.classList.contains('tib-maintenance')) entry.maintenance = e.target.value;
+    else if (e.target.classList.contains('tib-gem2')) entry.gem2 = e.target.value;
+    else if (e.target.classList.contains('tib-equipment')) entry.equipment = e.target.value;
+    else if (e.target.classList.contains('tib-chronic')) entry.chronicIssues = e.target.value;
+    else if (e.target.classList.contains('tib-note')) entry.infoNote = e.target.value;
+    else return;
+    if (store.mode === 'local') saveTheaterMaster(theaterMaster);
+    persistTheater(entry);
+  }
+  function toggleTiBulkMode() {
+    tiBulkMode = !tiBulkMode;
+    $('tiBulkBtn').textContent = tiBulkMode ? '👤 個別表示に戻る' : '📑 全体編集';
+    renderTheaterInfo();
+  }
   function renderTheaterInfo() {
+    // 表示モード切替: 個別（劇場情報＋連絡先表） / 全体編集（劇場×項目のグリッド）
+    $('tiTheaterLabel').classList.toggle('hidden', tiBulkMode);
+    $('tiAddContactBtn').classList.toggle('hidden', tiBulkMode);
+    $('tiSingleWrap').classList.toggle('hidden', tiBulkMode);
+    $('tiBulkWrap').classList.toggle('hidden', !tiBulkMode);
+    if (tiBulkMode) {
+      $('tiInfoBox').classList.add('hidden');
+      $('tiSetupWarn').classList.toggle('hidden', !(store.mode === 'supabase' && !theaterContactsSupported));
+      renderTiBulkTable();
+      return;
+    }
     const company = $('tiCompanySelect').value;
     const theater = $('tiTheaterSelect').value;
     const entry = theaterMaster.find((t) => t.name === theater);
@@ -3258,6 +3316,8 @@
   $('tiAddContactBtn').addEventListener('click', addTheaterContactRow);
   $('tiBody').addEventListener('change', handleTheaterInfoTableInput);
   $('tiBody').addEventListener('click', handleTheaterInfoTableClick);
+  $('tiBulkBtn').addEventListener('click', toggleTiBulkMode);
+  $('tiBulkBody').addEventListener('change', handleTiBulkInput);
   ['tiManager', 'tiPhone', 'tiMaintenance', 'tiGem2', 'tiEquipment', 'tiChronic', 'tiNote'].forEach((id) => {
     $(id).addEventListener('change', handleTheaterInfoFieldChange);
   });

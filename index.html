@@ -529,9 +529,10 @@
         <label class="tm-control-item">会社:
           <select id="tiCompanySelect"></select>
         </label>
-        <label class="tm-control-item">劇場:
+        <label class="tm-control-item" id="tiTheaterLabel">劇場:
           <select id="tiTheaterSelect"></select>
         </label>
+        <button type="button" id="tiBulkBtn">📑 全体編集</button>
         <span class="tm-hint">💡 2022年資料＋メール調査(2026年)を統合した劇場ごとのパートナー連絡先。直接編集→自動保存。ここの内容はAI初期対応診断にも反映されます。</span>
       </div>
       <div id="tiSetupWarn" class="empty-msg hidden">⚠ データベース未設定です。SETUP_THEATER_INFO.md のSQLをSupabaseで1回実行してください。</div>
@@ -562,7 +563,7 @@
           <input type="text" id="tiNote" class="tm-input tm-hq-input" placeholder="例: 施設管理: ◯◯さん 03-xxxx-xxxx">
         </div>
       </div>
-      <div class="tm-table-wrap">
+      <div class="tm-table-wrap" id="tiSingleWrap">
         <table class="tm-table" id="tiTable">
           <thead>
             <tr>
@@ -579,6 +580,25 @@
           <tbody id="tiBody"></tbody>
         </table>
         <p id="tiEmpty" class="empty-msg hidden">この劇場のパートナー連絡先はまだ登録されていません。「＋ 連絡先追加」から追加してください。</p>
+      </div>
+      <div class="tm-table-wrap hidden" id="tiBulkWrap">
+        <table class="tm-table">
+          <thead>
+            <tr>
+              <th style="width: 15%;">劇場</th>
+              <th style="width: 10%;">支配人</th>
+              <th style="width: 15%;">劇場連絡先</th>
+              <th style="width: 7%;">保守契約</th>
+              <th style="width: 7%;">GeM2</th>
+              <th style="width: 15%;">設備（カルテ）</th>
+              <th style="width: 15%;">持病/注意</th>
+              <th style="width: 16%;">備考</th>
+            </tr>
+          </thead>
+          <tbody id="tiBulkBody"></tbody>
+        </table>
+        <p class="tm-hint">💡 縦＝劇場、横＝登録項目。セルを直接編集すると自動保存されます。パートナー連絡先の編集は「個別表示」に戻って劇場を選んでください。</p>
+        <p id="tiBulkEmpty" class="empty-msg hidden">この会社にはまだ劇場が登録されていません。</p>
       </div>
     </div>
     <div class="modal-footer">
