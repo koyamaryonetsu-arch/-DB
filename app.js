@@ -269,6 +269,10 @@
   // cases.survey_time / work_start_time 列がDBに存在するか（カレンダー用時刻）
   let timeFieldsSupported = false;
   let workEndTimeSupported = false;
+  // cases.advice_note 列（Lv4: 人が確定した正しい対応メモ＝学習データ）
+  let adviceNoteSupported = false;
+  // theaters.equipment/chronic_issues/partner 列（Lv3: 劇場カルテ）
+  let theaterKarteSupported = false;
   const DATE_FIELDS = new Set(['receivedDate', 'surveyDate', 'quoteDate', 'workStartDate', 'workEndDate', 'invoiceDate', 'paymentDate']);
 
   // app(camelCase) → DB行(snake_case)。空文字の日付/金額は null に
@@ -292,6 +296,7 @@
       row.work_start_time = c.workStartTime ? c.workStartTime : null;
     }
     if (workEndTimeSupported) row.work_end_time = c.workEndTime ? c.workEndTime : null;
+    if (adviceNoteSupported) row.advice_note = c.adviceNote ? c.adviceNote : null;
     row.status = statusOf(c); // DB側レポート用に実効ステータス（手動上書き反映）も保存
     return row;
   }
@@ -326,6 +331,13 @@
       c.scheduleAdjusting = !!r.schedule_adjusting;
     } else {
       c.scheduleAdjusting = false;
+    }
+    // Lv4: 対応メモ(advice_note) 列がある時のみ取り込む
+    if (Object.prototype.hasOwnProperty.call(r, 'advice_note')) {
+      adviceNoteSupported = true;
+      c.adviceNote = r.advice_note != null ? r.advice_note : '';
+    } else {
+      c.adviceNote = '';
     }
     // 入金 予定/確認（列が無い・未設定なら確認扱い＝従来動作を維持）
     if (Object.prototype.hasOwnProperty.call(r, 'payment_confirmed')) {
@@ -503,11 +515,21 @@
         } catch (e) { console.warn('theater master 初期投入失敗', e); }
         return DEFAULT_THEATER_MASTER.map((t) => ({ name: t.name, company: t.company, address: t.address }));
       }
-      return data.map((r) => ({ name: r.name, company: r.company, address: r.address || '' }));
+      if (data[0] && Object.prototype.hasOwnProperty.call(data[0], 'equipment')) theaterKarteSupported = true;
+      return data.map((r) => ({
+        name: r.name, company: r.company, address: r.address || '',
+        equipment: r.equipment || '', chronicIssues: r.chronic_issues || '', partner: r.partner || ''
+      }));
     },
     async upsertTheater(t) {
       if (this.mode === 'local') { saveTheaterMaster(theaterMaster); return; }
-      const { error } = await sb.from('theaters').upsert({ name: t.name, company: t.company, address: t.address || '' });
+      const payload = { name: t.name, company: t.company, address: t.address || '' };
+      if (theaterKarteSupported) {
+        payload.equipment = t.equipment || '';
+        payload.chronic_issues = t.chronicIssues || '';
+        payload.partner = t.partner || '';
+      }
+      const { error } = await sb.from('theaters').upsert(payload);
       if (error) throw error;
     },
     async deleteTheater(name) {
@@ -1686,6 +1708,7 @@
       setDateField('invoiceDate', caseObj.invoiceDate);
       setDateField('paymentDate', caseObj.paymentDate);
       $('memo').value = caseObj.memo || '';
+      if ($('adviceNote')) $('adviceNote').value = caseObj.adviceNote || '';
     } else {
       $('modalTitle').textContent = isSimple ? '簡易登録' : '新規案件登録';
       // 客先・担当者を1つだけ絞っている時は、それを初期選択（複数選択時は標準）
@@ -2596,6 +2619,9 @@
         <tr data-master-idx="${idx}">
           <td><input type="text" class="tm-input tm-name" value="${escapeHtml(t.name)}" placeholder="例: TOHOシネマズ 新宿"></td>
           <td><input type="text" class="tm-input tm-address" value="${escapeHtml(t.address || '')}" placeholder="例: 東京都新宿区歌舞伎町1-19-1"></td>
+          <td><input type="text" class="tm-input tm-equipment" value="${escapeHtml(t.equipment || '')}" placeholder="例: チラー(ダイキンJIZAI)、GHP3系統"></td>
+          <td><input type="text" class="tm-input tm-chronic" value="${escapeHtml(t.chronicIssues || '')}" placeholder="例: 映写室2系統・夏場能力低下"></td>
+          <td><input type="text" class="tm-input tm-partner" value="${escapeHtml(t.partner || '')}" placeholder="例: 三機サービス"></td>
           <td><button type="button" class="tm-delete-btn">削除</button></td>
         </tr>
       `).join('');
@@ -2683,6 +2709,12 @@
       }
     } else if (e.target.classList.contains('tm-address')) {
       entry.address = e.target.value.trim();
+    } else if (e.target.classList.contains('tm-equipment')) {
+      entry.equipment = e.target.value;
+    } else if (e.target.classList.contains('tm-chronic')) {
+      entry.chronicIssues = e.target.value;
+    } else if (e.target.classList.contains('tm-partner')) {
+      entry.partner = e.target.value;
     }
     saveTheaterMaster(theaterMaster);
     persistTheater(entry);
@@ -2959,7 +2991,7 @@
   $('quickCaseBtn').addEventListener('click', () => openModal(null, 'simple'));
   $('closeModal').addEventListener('click', closeModal);
   // 内容・メモ: 入力に合わせて全文が見えるよう自動拡張
-  ['content', 'memo'].forEach((id) => {
+  ['content', 'memo', 'adviceNote'].forEach((id) => {
     const el = $(id);
     if (el) el.addEventListener('input', () => autoGrowTextarea(el));
   });
@@ -3173,6 +3205,7 @@
       invoiceDate: parsedDates.invoiceDate,
       paymentDate: parsedDates.paymentDate,
       memo: $('memo').value.trim(),
+      adviceNote: $('adviceNote') ? $('adviceNote').value.trim() : '',
       updatedAt: new Date().toISOString()
     };
     addToHistory('theaters', data.theater);
