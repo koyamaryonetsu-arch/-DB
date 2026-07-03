@@ -1087,8 +1087,8 @@
     if (NO_COLOR_STATUSES.has(st)) return '';
     // 客先対応中・見積り提出済 → 文字全体を青（種別を問わず全ての種別で適用）
     if (st === '見積り提出済' || st === '客先対応中') return 'row-blue';
-    // 以降の遅延色（黄・赤・黄緑）は 更新案件/その他 では適用しない
-    if (NO_COLOR_CATEGORIES.has(c.category)) return '';
+    // 以降の遅延色（黄・赤・黄緑）は 種別＝修理 のときだけ適用
+    if (c.category !== '修理') return '';
     const today = todayStr();
     // 調査日が未記入 → 黄（受付から3営業日以上＝土日祝を除く）。調査日を記入すると解除
     if (!c.surveyDate) {
