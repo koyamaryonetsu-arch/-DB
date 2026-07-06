@@ -5,8 +5,9 @@
  *   1. Gmailの「案件登録」ラベルの新着スレッドを5分毎に読む（スレッド全体＝最初の依頼＋以降の進捗を文脈に）
  *   2. Claudeが判定: 案件依頼か? / 新規(new) か 進捗報告(progress) か / 各項目を抽出
  *   2.5 添付の見積書(画像/PDF)があればAI-OCRで 見積り名/金額/提出日 を抽出
- *   3. 同じ劇場の既存案件と照合（AIマッチング）
- *      - 一致あり かつ 進捗/見積添付 → その案件を UPDATE（見積名/金額/見積提出日/作業開始日/作業完了日/内容追記）
+ *   3. 既存案件と照合（AIマッチング。劇場exact→表記ゆれ部分一致→会社単位でフォールバックし候補を集め、
+ *      過去のやり取り・関係者(メール)のつながり・対象設備を加味して同一案件か判定＝別スレッド/時間差/複数人でも拾う）
+ *      - 一致あり かつ 進捗/見積添付/日程あり → その案件を UPDATE（見積名/金額/日程/内容追記）
  *      - 一致あり かつ 新規 → 重複扱いで登録しない（担当者の手動登録を「正」とする）
  *      - 一致なし → INSERT（新規でも進捗でも「新規案件」として登録＝取りこぼし防止・見積添付も反映）
  *   4. INSERT/UPDATE すると既存 Database Webhook (case-created) が発火し LINE 通知
@@ -71,13 +72,16 @@ function importCaseEmails() {
 
       var received = p.received_date || Utilities.formatDate(msgs[0].getDate(), 'Asia/Tokyo', 'yyyy-MM-dd');
       var theater = p.theater || '';
+      var participants = threadParticipants_(th); // やり取りの関係者（同一案件判定の手がかり）
       // 添付の見積書（画像/PDF）をAI-OCRで読み、見積り名・金額・提出日を抽出（無ければnull）
       var quote = extractQuoteFromAttachments_(th);
-      var candidates = theater ? fetchTheaterCases_(theater) : [];
-      var matched = candidates.length ? findMatch_(p, received, candidates) : null;
+      // 既存候補を集める（劇場exact→表記ゆれ→会社単位でフォールバック）。関係者も渡してAIが厳密判定
+      var candidates = fetchCandidateCases_(p);
+      var matched = candidates.length ? findMatch_(p, received, candidates, participants) : null;
 
       if (matched) {
-        if (p.intent === 'progress' || quote) {
+        // 一致：進捗報告・見積添付・日程がメールにあれば更新（時間が空いた続報/複数人でも取りこぼさない）
+        if (p.intent === 'progress' || quote || hasProgressDates_(p.progress)) {
           updateCase_(matched, p.progress || {}, p.content, quote);  // 進捗/見積 → 既存案件を更新
           th.addLabel(lblUpd); nUpd++;
         } else {
@@ -195,38 +199,127 @@ function parseEmail_(emailText) {
   return safeJson_(anthropicText_(apiKey, sys, emailText, 800));
 }
 
-// ===== Supabase: 同じ劇場の既存案件を取得 =====
-function fetchTheaterCases_(theater) {
+// ===== Supabase: 既存案件を取得（フィルタ指定） =====
+function queryCases_(filter) {
   var key = cfg_('SUPABASE_SERVICE_ROLE_KEY');
   if (!key) { Logger.log('SUPABASE_SERVICE_ROLE_KEY未設定'); return []; }
-  var params = 'theater=eq.' + encodeURIComponent(theater) +
-    '&select=id,received_date,category,content,memo,status,r_person,estimate_name,estimate_amount,survey_date,quote_date,work_start_date,work_end_date' +
-    '&order=received_date.desc&limit=15';
+  var params = filter +
+    '&select=id,company,theater,received_date,category,content,memo,status,r_person,tc_person,estimate_name,estimate_amount,survey_date,quote_date,work_start_date,work_end_date' +
+    '&order=received_date.desc&limit=25';
   var res = UrlFetchApp.fetch(SUPABASE_URL_() + '/rest/v1/cases?' + params, {
     method: 'get', headers: { apikey: key, Authorization: 'Bearer ' + key }, muteHttpExceptions: true
   });
   if (res.getResponseCode() >= 300) { Logger.log('候補取得失敗: ' + res.getContentText()); return []; }
   try { return JSON.parse(res.getContentText()) || []; } catch (e) { return []; }
 }
+// 従来互換（testConnections用）: 劇場名 exact
+function fetchTheaterCases_(theater) { return queryCases_('theater=eq.' + encodeURIComponent(theater)); }
+// 劇場名のコア語（会社名や「シネマズ」等を除いた店舗名）。表記ゆれの部分一致に使う
+function theaterCore_(t) {
+  var s = String(t || '').replace(/[\s　]/g, '');
+  var strip = COMPANY_LIST.concat(['TOHOシネマズ', 'TOHO', '109シネマズ', '109', 'シネマズ', 'シネマ', 'ユナイテッド', 'MOVIX', 'ムービックス', '株式会社']);
+  for (var i = 0; i < strip.length; i++) s = s.split(strip[i]).join('');
+  return s;
+}
+// メール案件に対する既存候補を集める（劇場exact→表記ゆれ部分一致→会社単位でフォールバック）
+function fetchCandidateCases_(p) {
+  var theater = p.theater || '';
+  var company = p.company ? normalizeCompany_(p.company) : '';
+  var out = [], seen = {};
+  function add(rows) {
+    for (var i = 0; i < rows.length; i++) {
+      var id = String(rows[i].id);
+      if (!seen[id]) { seen[id] = 1; out.push(rows[i]); }
+    }
+  }
+  if (theater) {
+    add(queryCases_('theater=eq.' + encodeURIComponent(theater)));
+    if (!out.length) {
+      var core = theaterCore_(theater); // 「TOHOシネマズ 川崎」↔「TOHO川崎」等の表記ゆれ対策
+      if (core && core.length >= 2) add(queryCases_('theater=ilike.*' + encodeURIComponent(core) + '*'));
+    }
+  }
+  // 劇場名で1件も拾えないとき（抽出失敗・表記差）は会社単位の最近案件も候補に（AIが厳密判定）
+  if (!out.length && company) add(queryCases_('company=eq.' + encodeURIComponent(company)));
+  return out;
+}
+// メールに日程（調査/見積/着工/完了）が含まれるか
+function hasProgressDates_(prog) {
+  if (!prog) return false;
+  return !!(prog.survey_date || prog.quote_date || prog.work_start_date || prog.work_end_date);
+}
+// スレッドのやり取り関係者（From/To/Cc のメールアドレス）を集める。同一案件判定の手がかり
+function threadParticipants_(th) {
+  var set = {}, out = [];
+  var msgs = th.getMessages();
+  for (var i = 0; i < msgs.length; i++) {
+    var fields = [msgs[i].getFrom(), msgs[i].getTo(), msgs[i].getCc()].join(',');
+    var parts = fields.split(',');
+    for (var k = 0; k < parts.length; k++) {
+      var s = String(parts[k] || '').trim();
+      if (!s) continue;
+      var mm = s.match(/<([^>]+)>/);
+      var addr = (mm ? mm[1] : s).toLowerCase().trim();
+      if (addr && addr.indexOf('@') > 0 && !set[addr]) { set[addr] = 1; out.push(addr); }
+      if (out.length >= 20) return out.join(', ');
+    }
+  }
+  return out.join(', ');
+}
 
 // ===== Claude: メールが既存案件のどれと同一かを判定（無ければnull） =====
-function findMatch_(p, received, candidates) {
+// 過去のやり取り・関係者のつながり・対象設備を加味し、時間が空いた続報や複数人のスレッドでも同一案件を拾う
+function findMatch_(p, received, candidates, participants) {
   var apiKey = cfg_('ANTHROPIC_API_KEY');
   if (!apiKey) return null;
   var list = candidates.map(function (x, i) {
-    return (i + 1) + '. id=' + x.id + ' 受付=' + (x.received_date || '?') +
-      ' 種別=' + (x.category || '?') + ' 状態=' + (x.status || '?') +
-      ' 内容=' + String(x.content || '').slice(0, 150);
+    var d = [];
+    if (x.survey_date) d.push('調査' + x.survey_date);
+    if (x.quote_date) d.push('見積' + x.quote_date);
+    if (x.work_start_date) d.push('着工' + x.work_start_date);
+    if (x.work_end_date) d.push('完了' + x.work_end_date);
+    return (i + 1) + '. id=' + x.id +
+      ' 劇場=' + (x.theater || '?') +
+      ' 受付=' + (x.received_date || '?') +
+      ' 種別=' + (x.category || '?') +
+      ' 状態=' + (x.status || '?') +
+      (x.tc_person ? ' 客先担当=' + x.tc_person : '') +
+      (x.r_person ? ' R担当=' + x.r_person : '') +
+      (x.estimate_name ? ' 見積名=' + String(x.estimate_name).slice(0, 40) : '') +
+      (d.length ? ' 日程[' + d.join(',') + ']' : '') +
+      '\n    内容=' + String(x.content || '').slice(0, 300) +
+      (x.memo ? '\n    社内メモ=' + String(x.memo).slice(0, 100) : '');
   }).join('\n');
-  var sys = 'あなたは案件の同一性判定を行います。JSONのみ出力。' +
-    '新規メール案件が、既存案件リストのいずれかと「同一の案件（同じ設備トラブル/工事）」を指すか判定。' +
-    '表現が違っても同じ劇場で同時期・同一対象なら同一とみなす。' +
-    'スキーマ: {"matched":bool,"matched_id":string(同一相手のid,無ければ空),"reason":string}';
-  var user = '# メール案件\n劇場: ' + (p.theater || '') + '\n受付: ' + received +
-    '\n種別: ' + (p.category || '') + '\n内容: ' + (p.content || '') +
-    '\n\n# 既存案件（同じ劇場）\n' + list;
-  var j = safeJson_(anthropicText_(apiKey, sys, user, 300));
+  var sys = [
+    'あなたは「同じ一件の案件かどうか」を判定します。JSONのみ出力（前後に文章なし）。',
+    '新しいメール案件が、既存案件リストのどれかと「同じ一件（同じ設備トラブル/同じ工事/同じ相談ごと）」を指すか判定する。',
+    '重要な判断基準:',
+    '- 一つの案件は複数のメール・複数の担当者・数週間〜数ヶ月にまたがって継続する。時間が空いていても、送信者や宛先が前回と違っても、それだけで別案件と判断しない。',
+    '- 同じ劇場で、対象の設備/系統/場所/工事内容が一致（または明らかに続き。例: 調査→見積→注文→作業日連絡→報告）なら同一案件（進捗）とみなす。',
+    '- 関係者のつながりも手がかりにする: メールの客先担当者・R担当者・やり取りの関係者(メールアドレス)が既存案件の担当と一致すれば同一の可能性が高い。',
+    '- 逆に、同じ劇場でも対象の設備・場所・工事がはっきり別物なら「別案件」。根拠が弱く確信が持てないときは matched=false（無理に結び付けない）。',
+    'スキーマ: {"matched":bool,"matched_id":string(同一のid,無ければ空),"confidence":0〜1の数値,"reason":string}'
+  ].join('\n');
+  var user = [
+    '# 新しいメール案件',
+    '劇場: ' + (p.theater || ''),
+    '会社: ' + (p.company || ''),
+    '受付: ' + received,
+    '種別: ' + (p.category || ''),
+    '件名: ' + (p.title || ''),
+    '客先担当: ' + (p.tc_person || '') + ' / R担当: ' + (p.r_person || ''),
+    'やり取りの関係者(メール): ' + (participants || '(不明)'),
+    '内容: ' + (p.content || ''),
+    '',
+    '# 既存案件（同じ劇場/会社・新しい順）',
+    list
+  ].join('\n');
+  var j = safeJson_(anthropicText_(apiKey, sys, user, 400));
   if (!j || !j.matched || !j.matched_id) return null;
+  if (typeof j.confidence === 'number' && j.confidence < 0.5) {
+    Logger.log('マッチ確信度低で見送り(' + j.confidence + '): ' + (j.reason || ''));
+    return null;
+  }
   for (var i = 0; i < candidates.length; i++) if (String(candidates[i].id) === String(j.matched_id)) return candidates[i];
   return null;
 }
