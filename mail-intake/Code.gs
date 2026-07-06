@@ -5,11 +5,13 @@
  *   1. Gmailの「案件登録」ラベルの新着スレッドを5分毎に読む（スレッド全体＝最初の依頼＋以降の進捗を文脈に）
  *   2. Claudeが判定: 案件依頼か? / 新規(new) か 進捗報告(progress) か / 各項目を抽出
  *   2.5 添付の見積書(画像/PDF)があればAI-OCRで 見積り名/金額/提出日 を抽出
- *   3. 既存案件と照合（AIマッチング。劇場exact→表記ゆれ部分一致→会社単位でフォールバックし候補を集め、
- *      過去のやり取り・関係者(メール)のつながり・対象設備を加味して同一案件か判定＝別スレッド/時間差/複数人でも拾う）
- *      - 一致あり かつ 進捗/見積添付/日程あり → その案件を UPDATE（見積名/金額/日程/内容追記）
- *      - 一致あり かつ 新規 → 重複扱いで登録しない（担当者の手動登録を「正」とする）
- *      - 一致なし → INSERT（新規でも進捗でも「新規案件」として登録＝取りこぼし防止・見積添付も反映）
+ *   3. 既存案件と照合（AIが update/new/review を判定。劇場exact→表記ゆれ部分一致→会社単位でフォールバックし
+ *      候補を集め、過去のやり取り・関係者(メール)のつながり・対象設備を加味＝別スレッド/時間差/複数人でも拾う）
+ *      ※精度最優先。1回目が曖昧(review)なら会社全体の過去案件を集め直して再確認。それでも曖昧なら登録しない。
+ *      - update（同一と確信） かつ 進捗/見積添付/日程あり → その案件を UPDATE（見積名/金額/日程/内容追記）
+ *      - update だが新情報なし → 重複扱いで登録しない（手動登録を「正」とする）
+ *      - review（同一の可能性ありだが不確実） → 「案件登録_要確認」で人の確認へ（あいまいなまま登録しない）
+ *      - new（別の新案件と確信） → INSERT（見積添付・日程も反映）
  *   4. INSERT/UPDATE すると既存 Database Webhook (case-created) が発火し LINE 通知
  *   5. 処理済みメールにはラベルを付けて再処理を防止
  *   ※ 案件と判定できないメール(is_case=false/確信度低)のみ「案件登録_要確認」で人の確認へ
@@ -75,22 +77,24 @@ function importCaseEmails() {
       var participants = threadParticipants_(th); // やり取りの関係者（同一案件判定の手がかり）
       // 添付の見積書（画像/PDF）をAI-OCRで読み、見積り名・金額・提出日を抽出（無ければnull）
       var quote = extractQuoteFromAttachments_(th);
-      // 既存候補を集める（劇場exact→表記ゆれ→会社単位でフォールバック）。関係者も渡してAIが厳密判定
-      var candidates = fetchCandidateCases_(p);
-      var matched = candidates.length ? findMatch_(p, received, candidates, participants) : null;
+      // 既存案件と照合し update/new/review を決定。迷ったら会社全体の過去案件を集め直して再確認
+      var decision = decideCaseWithRecheck_(p, received, participants);
 
-      if (matched) {
-        // 一致：進捗報告・見積添付・日程がメールにあれば更新（時間が空いた続報/複数人でも取りこぼさない）
+      if (decision.decision === 'update' && decision.row) {
+        // 一致確定：進捗・見積添付・日程がメールにあれば更新（時間差/複数人の続報も取りこぼさない）
         if (p.intent === 'progress' || quote || hasProgressDates_(p.progress)) {
-          updateCase_(matched, p.progress || {}, p.content, quote);  // 進捗/見積 → 既存案件を更新
+          updateCase_(decision.row, p.progress || {}, p.content, quote);
           th.addLabel(lblUpd); nUpd++;
         } else {
-          th.addLabel(lblDup); nDup++;                         // 新規のつもりだが既存あり → 手動優先で登録せず
-          Logger.log('重複のため登録せず（手動優先）: ' + (p.title || m.getSubject()));
+          th.addLabel(lblDup); nDup++;   // 既存と同一だが新しい情報なし → 手動優先で登録せず
+          Logger.log('既存と同一（新情報なし）で登録せず: ' + (p.title || m.getSubject()) + ' → id=' + decision.row.id);
         }
+      } else if (decision.decision === 'review') {
+        // 精度重視: 既存案件の続きの可能性があるが確信が持てない → 人の確認へ（あいまいなまま登録しない）
+        th.addLabel(lblSkip); nSkip++;
+        Logger.log('要確認（同一案件か曖昧・再確認しても未確定）: ' + (p.title || m.getSubject()) + ' / ' + (decision.reason || ''));
       } else {
-        // 該当案件が無ければ、新規でも進捗報告でも「新規案件」として登録（取りこぼし防止）
-        // 日付関係（調査日/見積提出日/作業開始日/作業完了日）はメールに出ていれば新規登録時にも正しい項目へ記入
+        // 別の新しい案件と確信 → 新規登録（日程もメールにあれば正しい項目へ）
         var dates = p.progress || {};
         insertCase_({
           company: normalizeCompany_(p.company), theater: theater, received_date: received,
@@ -267,11 +271,12 @@ function threadParticipants_(th) {
   return out.join(', ');
 }
 
-// ===== Claude: メールが既存案件のどれと同一かを判定（無ければnull） =====
-// 過去のやり取り・関係者のつながり・対象設備を加味し、時間が空いた続報や複数人のスレッドでも同一案件を拾う
-function findMatch_(p, received, candidates, participants) {
+// ===== Claude: 既存案件との照合を「update / new / review」で判定 =====
+// 精度最優先。曖昧なまま new と断定せず、続きの可能性が残るなら review（人の確認）へ。
+// 過去のやり取り・関係者のつながり・対象設備を加味し、時間差や複数人のスレッドでも続報を拾う。
+function decideCase_(p, received, candidates, participants, strict) {
   var apiKey = cfg_('ANTHROPIC_API_KEY');
-  if (!apiKey) return null;
+  if (!apiKey) return { decision: 'review', row: null, reason: 'APIキー未設定' };
   var list = candidates.map(function (x, i) {
     var d = [];
     if (x.survey_date) d.push('調査' + x.survey_date);
@@ -291,14 +296,19 @@ function findMatch_(p, received, candidates, participants) {
       (x.memo ? '\n    社内メモ=' + String(x.memo).slice(0, 100) : '');
   }).join('\n');
   var sys = [
-    'あなたは「同じ一件の案件かどうか」を判定します。JSONのみ出力（前後に文章なし）。',
-    '新しいメール案件が、既存案件リストのどれかと「同じ一件（同じ設備トラブル/同じ工事/同じ相談ごと）」を指すか判定する。',
-    '重要な判断基準:',
-    '- 一つの案件は複数のメール・複数の担当者・数週間〜数ヶ月にまたがって継続する。時間が空いていても、送信者や宛先が前回と違っても、それだけで別案件と判断しない。',
-    '- 同じ劇場で、対象の設備/系統/場所/工事内容が一致（または明らかに続き。例: 調査→見積→注文→作業日連絡→報告）なら同一案件（進捗）とみなす。',
-    '- 関係者のつながりも手がかりにする: メールの客先担当者・R担当者・やり取りの関係者(メールアドレス)が既存案件の担当と一致すれば同一の可能性が高い。',
-    '- 逆に、同じ劇場でも対象の設備・場所・工事がはっきり別物なら「別案件」。根拠が弱く確信が持てないときは matched=false（無理に結び付けない）。',
-    'スキーマ: {"matched":bool,"matched_id":string(同一のid,無ければ空),"confidence":0〜1の数値,"reason":string}'
+    'あなたは「新しいメール案件が、既存案件の続き(=同じ一件)か、新規の別案件か」を見分けます。JSONのみ出力（前後に文章なし）。',
+    'decision は次の3つのいずれか:',
+    '- "update": 既存案件のどれかと「同じ一件」だと確信できる（matched_id を必ず返す）。',
+    '- "new": どの既存案件とも別の、新しい一件だと確信できる。',
+    '- "review": 既存案件の続きの可能性があるが確信が持てない（人が確認すべき）。',
+    '判断ルール（精度最優先・この情報は顧客と共有する）:',
+    '- 曖昧なまま new と断定してはいけない。既存案件の続きかもしれないと少しでも思ったら "review"。',
+    '- 同じ劇場で対象の設備/系統/場所/工事が一致、または「調査→見積→注文→作業→報告」の続きなら "update"。',
+    '- 時間が空いていても、送信者や宛先が前回と違っても、それだけで別案件と判断しない。',
+    '- 客先担当/R担当/やり取りの関係者(メール)が既存案件と一致するかも手がかりにする。',
+    '- 対象の設備・場所・工事が明確に別で、既存のどれとも無関係だと判断できる場合のみ "new"。',
+    (strict ? '- これは再確認です。過去案件を一件ずつ丁寧に照合し、少しでも同一の可能性が残るなら "review" にすること。' : ''),
+    'スキーマ: {"decision":"update"|"new"|"review","matched_id":string(updateの時のみ),"confidence":0〜1の数値,"reason":string(日本語で簡潔に)}'
   ].join('\n');
   var user = [
     '# 新しいメール案件',
@@ -315,13 +325,49 @@ function findMatch_(p, received, candidates, participants) {
     list
   ].join('\n');
   var j = safeJson_(anthropicText_(apiKey, sys, user, 400));
-  if (!j || !j.matched || !j.matched_id) return null;
-  if (typeof j.confidence === 'number' && j.confidence < 0.5) {
-    Logger.log('マッチ確信度低で見送り(' + j.confidence + '): ' + (j.reason || ''));
-    return null;
+  if (!j || !j.decision) return { decision: 'review', row: null, reason: 'AI応答不正' };
+  var conf = (typeof j.confidence === 'number') ? j.confidence : 0;
+  var row = null;
+  if (j.decision === 'update') {
+    for (var i = 0; i < candidates.length; i++) if (String(candidates[i].id) === String(j.matched_id)) { row = candidates[i]; break; }
+    if (!row) return { decision: 'review', row: null, confidence: conf, reason: '一致idが候補に無い: ' + (j.reason || '') };
+    if (conf < 0.6) return { decision: 'review', row: row, confidence: conf, reason: '一致だが確信不足(' + conf + '): ' + (j.reason || '') };
+    return { decision: 'update', row: row, confidence: conf, reason: j.reason || '' };
   }
-  for (var i = 0; i < candidates.length; i++) if (String(candidates[i].id) === String(j.matched_id)) return candidates[i];
-  return null;
+  if (j.decision === 'new') {
+    // あいまいなまま新規にしない: 確信が低ければ review（人の確認へ）
+    if (conf < 0.6) return { decision: 'review', row: null, confidence: conf, reason: '新規判断だが確信不足(' + conf + '): ' + (j.reason || '') };
+    return { decision: 'new', row: null, confidence: conf, reason: j.reason || '' };
+  }
+  return { decision: 'review', row: null, confidence: conf, reason: j.reason || '' };
+}
+
+// 迷ったら過去案件を再確認: 1回目が review なら会社全体＋表記ゆれで候補を集め直して厳密に見直す
+function decideCaseWithRecheck_(p, received, participants) {
+  var candidates = fetchCandidateCases_(p);
+  if (!candidates.length) return { decision: 'new', row: null, reason: '同じ劇場/会社の既存案件が無い' };
+  var d1 = decideCase_(p, received, candidates, participants, false);
+  if (d1.decision !== 'review') return d1;
+  // 曖昧 → 会社全体の過去案件も含めて集め直し、厳密モードで再判定
+  var broad = fetchBroadCandidates_(p, candidates);
+  Logger.log('曖昧のため過去案件を再確認（候補' + broad.length + '件）: ' + (p.title || ''));
+  return decideCase_(p, received, broad, participants, true);
+}
+// 再確認用に候補を広げる（既存候補＋会社全体の最近案件＋劇場名の表記ゆれ一致）
+function fetchBroadCandidates_(p, base) {
+  var out = [], seen = {};
+  function add(rows) {
+    for (var i = 0; i < rows.length; i++) {
+      var id = String(rows[i].id);
+      if (!seen[id]) { seen[id] = 1; out.push(rows[i]); }
+    }
+  }
+  add(base || []);
+  var company = p.company ? normalizeCompany_(p.company) : '';
+  if (company) add(queryCases_('company=eq.' + encodeURIComponent(company)));
+  var core = theaterCore_(p.theater || '');
+  if (core && core.length >= 2) add(queryCases_('theater=ilike.*' + encodeURIComponent(core) + '*'));
+  return out;
 }
 
 // ===== Supabase: 新規INSERT =====
