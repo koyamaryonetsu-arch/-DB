@@ -1,9 +1,10 @@
 /**
  * 劇場情報 自動更新（cinema-cases / Supabase）
  *
- * 役割: 毎日AM1時に前日分のシネコン関連メール（本文＋添付の画像/PDF＝点検報告書・機器台帳・
- *       図面・見積書・名刺等）を読み、各劇場情報（設備・持病・備考・支配人・劇場連絡先・
- *       パートナー連絡先）の「新しい事実」をAIで抽出する。※Excel/Wordは画像/PDF化しないと読めない。
+ * 役割: 毎日AM1時に前日分のシネコン関連メール（本文＋添付＝点検報告書・機器台帳・図面・見積書・
+ *       名刺等。画像/PDFは視覚AIで、Excel/WordはDrive変換でテキスト化して）読み、各劇場情報
+ *       （設備・持病・備考・支配人・劇場連絡先・パートナー連絡先）の「新しい事実」をAIで抽出する。
+ * ※ Excel/Word読取には「Drive」高度サービス(Drive API v2)の有効化が必要（appsscript.jsonに記載）。
  *   - 確信が高く根拠のある事実 → theaters / theater_contacts へ自動反映（追記のみ・重複は入れない）
  *   - 支配人/劇場連絡先の変更、および確信が低いもの → 要確認キュー(theater_info_pending)へ。
  *     Webアプリ「🔎 劇場情報更新確認」で人が承認/却下する。
@@ -40,8 +41,10 @@ function updateTheaterInfoDaily() {
     threads.forEach(function (th) {
       try {
         var text = buildThreadText_(th);
-        var media = tiCollectAttachments_(th);   // 添付の見積書/報告書/台帳/図面(画像・PDF)も読む
-        var ext = extractTheaterInfo_(apiKey, text, media);
+        var media = tiCollectAttachments_(th);      // 添付の見積書/報告書/台帳/図面(画像・PDF)を視覚で読む
+        var officeText = tiCollectOfficeText_(th);  // 添付のExcel/Word(.xlsx/.docx)は変換してテキスト化
+        var fullText = officeText ? (text + '\n\n=== 添付資料(Excel/Word)の内容 ===\n' + officeText) : text;
+        var ext = extractTheaterInfo_(apiKey, fullText, media);
         if (ext && ext.items && ext.items.length) {
           var theater = ext.theater || '';
           var company = ext.company ? normalizeCompany_(ext.company) : '';
@@ -84,6 +87,58 @@ function tiCollectAttachments_(th) {
     }
   }
   return blocks;
+}
+
+// スレッドの添付のうち Excel(.xlsx/.xls) / Word(.docx/.doc) を Google 変換してテキスト化し連結
+// ※ Drive 高度サービス(Drive API v2)が必要。無効な環境では黙ってスキップ（画像/PDFは別途読める）
+function tiCollectOfficeText_(th) {
+  var out = '', count = 0;
+  var msgs = th.getMessages();
+  for (var i = 0; i < msgs.length && count < 3 && out.length < 15000; i++) {
+    var atts = msgs[i].getAttachments({ includeAttachments: true });
+    for (var j = 0; j < atts.length && count < 3 && out.length < 15000; j++) {
+      var a = atts[j];
+      var t = tiExtractOfficeText_(a);
+      if (t) { out += '\n【添付: ' + a.getName() + '】\n' + t + '\n'; count++; }
+    }
+  }
+  return out;
+}
+// 1つの添付が Excel/Word なら、Driveで Google スプレッドシート/ドキュメントに変換して本文テキストを返す
+function tiExtractOfficeText_(a) {
+  if (typeof Drive === 'undefined' || !Drive.Files) return ''; // Drive高度サービス未有効
+  var name = String(a.getName() || '');
+  var ct = String(a.getContentType() || '').toLowerCase();
+  var isXls = ct.indexOf('spreadsheet') >= 0 || ct.indexOf('excel') >= 0 || /\.xlsx?$/i.test(name);
+  var isDoc = ct.indexOf('wordprocessing') >= 0 || ct.indexOf('msword') >= 0 || /\.docx?$/i.test(name);
+  if (!isXls && !isDoc) return '';
+  if (a.getSize() > TI_ATT_MAX_BYTES) { Logger.log('Office添付が大きすぎスキップ: ' + name); return ''; }
+  var tempId = null;
+  try {
+    var target = isXls ? 'application/vnd.google-apps.spreadsheet' : 'application/vnd.google-apps.document';
+    var file = Drive.Files.insert({ title: 'ti_tmp_' + name, mimeType: target }, a.copyBlob(), { convert: true });
+    tempId = file.id;
+    var out = '';
+    if (isXls) {
+      var sheets = SpreadsheetApp.openById(tempId).getSheets();
+      for (var s = 0; s < sheets.length && out.length < 12000; s++) {
+        var vals = sheets[s].getDataRange().getValues();
+        out += '［シート:' + sheets[s].getName() + '］\n';
+        for (var r = 0; r < vals.length && out.length < 12000; r++) {
+          var line = vals[r].join('\t').replace(/\t+$/, '');
+          if (line.replace(/\t/g, '').trim()) out += line + '\n';
+        }
+      }
+    } else {
+      out = DocumentApp.openById(tempId).getBody().getText();
+    }
+    return String(out).slice(0, 12000);
+  } catch (e) {
+    Logger.log('Office変換読取失敗(' + name + '): ' + e);
+    return '';
+  } finally {
+    if (tempId) { try { DriveApp.getFileById(tempId).setTrashed(true); } catch (e2) {} }
+  }
 }
 
 // ===== Claude: メール本文＋添付から劇場情報の新事実を抽出 =====
