@@ -4,6 +4,18 @@
 --（支配人のみ、交代が確認できた場合に更新し、旧支配人を備考へ退避）
 -- ============================================================
 
+-- ■ 109シネマズ 高崎（閉館済み・情報として保持）
+-- 2025年8月末で閉館（保守契約も解約済）。根拠: 2025-02「【109シネマズ高崎】閉館のお知らせ」、
+--   2025-05 東急レク長谷川氏「【高崎】エアコン保守契約解約に関する3カ月前通知」＝本年8月末に閉館
+insert into public.theaters (name, company) values ('109シネマズ 高崎', '109シネマズ') on conflict (name) do nothing;
+update public.theaters set
+  maintenance = '×', gem2 = '×',
+  info_note = case
+    when coalesce(info_note,'') = '' then '【閉館】2025年8月末で閉館（保守契約も解約済）。以下は閉館前の参考情報。'
+    when position('閉館' in info_note) > 0 then info_note
+    else '【閉館】2025年8月末で閉館（保守契約も解約済）。 / ' || info_note end
+  where name = '109シネマズ 高崎';
+
 -- ■ 109シネマズ HAT神戸
 insert into public.theaters (name, company) values ('109シネマズ HAT神戸', '109シネマズ') on conflict (name) do nothing;
 update public.theaters set manager = '吉田支配人（吉田征史郎）', info_note = case when coalesce(info_note,'') = '' then '' when position('吉田支配人（吉田征史郎）' in info_note) > 0 then info_note else info_note || '' end where name = '109シネマズ HAT神戸' and coalesce(manager,'') not like '%吉田支配人%';
