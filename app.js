@@ -275,6 +275,8 @@
   let theaterKarteSupported = false;
   let theaterInfoSupported = false;      // theaters に manager 等の劇場情報列があるか
   let theaterContactsSupported = false;  // theater_contacts テーブルがあるか
+  let theaterPendingSupported = false;   // theater_info_pending テーブルがあるか
+  let theaterPending = [];               // 劇場情報 自動更新の要確認キュー
   const DATE_FIELDS = new Set(['receivedDate', 'surveyDate', 'quoteDate', 'workStartDate', 'workEndDate', 'invoiceDate', 'paymentDate']);
 
   // app(camelCase) → DB行(snake_case)。空文字の日付/金額は null に
@@ -580,6 +582,72 @@
     async deleteTheaterContact(id) {
       if (this.mode === 'local') { saveTheaterContactsLocal(theaterContacts); return; }
       const { error } = await sb.from('theater_contacts').delete().eq('id', id);
+      if (error) throw error;
+    },
+    // ---- 劇場情報 自動更新: 要確認キュー（theater_info_pending） ----
+    async fetchPendingTheaterInfo() {
+      if (this.mode !== 'supabase') { theaterPendingSupported = false; return []; }
+      const { data, error } = await sb.from('theater_info_pending')
+        .select('*').eq('status', 'pending').order('created_at', { ascending: true });
+      if (error) { theaterPendingSupported = false; return []; }
+      theaterPendingSupported = true;
+      return data || [];
+    },
+    // 承認: 本テーブルへ反映（field=追記 / contact=無ければ挿入）してから status を approved に
+    async approvePendingTheaterInfo(item) {
+      if (this.mode !== 'supabase') return;
+      if (item.kind === 'contact') {
+        // 既に同じ劇場・業者・担当者が居なければ挿入
+        const { data: dup } = await sb.from('theater_contacts').select('id')
+          .eq('theater', item.theater).eq('vendor', item.vendor || '').eq('person', item.person || '').limit(1);
+        if (!dup || !dup.length) {
+          const note = [item.note, item.evidence].filter(Boolean).join(' / ');
+          const { error } = await sb.from('theater_contacts').insert({
+            company: item.company || '', theater: item.theater, category: item.category || '',
+            maker: item.maker || '', vendor: item.vendor || '', person: item.person || '',
+            phone: item.phone || '', email: item.email || '', note: note, sort_order: 9000
+          });
+          if (error) throw error;
+        }
+      } else {
+        // field: 該当劇場の列に追記（既存は保持・重複語は入れない）。manager/theater_phone は置換
+        const col = item.field;
+        const allowed = ['equipment', 'chronic_issues', 'info_note', 'manager', 'theater_phone'];
+        if (allowed.indexOf(col) === -1) throw new Error('未対応の項目: ' + col);
+        // 劇場行が無ければ作る
+        await sb.from('theaters').upsert({ name: item.theater, company: item.company || '' }, { onConflict: 'name' });
+        const { data: rows } = await sb.from('theaters').select(col + ',manager,info_note').eq('name', item.theater).limit(1);
+        const cur = (rows && rows[0]) ? rows[0] : {};
+        const patch = {};
+        if (col === 'manager' || col === 'theater_phone') {
+          patch[col] = item.value;
+          if (col === 'manager' && cur.manager && cur.manager !== item.value) {
+            const oldNote = '旧: ' + cur.manager;
+            patch.info_note = cur.info_note && cur.info_note.indexOf(oldNote) === -1
+              ? cur.info_note + ' / ' + oldNote : (cur.info_note || oldNote);
+          }
+        } else {
+          const existing = String(cur[col] || '');
+          const key = String(item.value || '').slice(0, 40);
+          if (existing && key && existing.indexOf(key) !== -1) {
+            // 既に含まれている → 追記しない
+          } else {
+            patch[col] = existing ? (existing + ' / ' + item.value) : item.value;
+          }
+        }
+        if (Object.keys(patch).length) {
+          const { error } = await sb.from('theaters').update(patch).eq('name', item.theater);
+          if (error) throw error;
+        }
+      }
+      const { error: e2 } = await sb.from('theater_info_pending')
+        .update({ status: 'approved', decided_at: new Date().toISOString() }).eq('id', item.id);
+      if (e2) throw e2;
+    },
+    async rejectPendingTheaterInfo(id) {
+      if (this.mode !== 'supabase') return;
+      const { error } = await sb.from('theater_info_pending')
+        .update({ status: 'rejected', decided_at: new Date().toISOString() }).eq('id', id);
       if (error) throw error;
     },
     async deleteTheater(name) {
@@ -2792,6 +2860,95 @@
   function closeTheaterInfoModal() {
     $('theaterInfoModal').classList.add('hidden');
   }
+
+  // ---------- 劇場情報 自動更新: 要確認キュー（承認/却下） ----------
+  const FIELD_LABEL = { equipment: '設備', chronic_issues: '持病/注意', info_note: '備考', manager: '支配人', theater_phone: '劇場連絡先' };
+  function pendingItemText(it) {
+    if (it.kind === 'contact') {
+      const parts = [it.category, it.maker, it.vendor, it.person, it.phone, it.email].filter(Boolean).join(' / ');
+      return '【連絡先】' + parts + (it.note ? '（' + it.note + '）' : '');
+    }
+    return '【' + (FIELD_LABEL[it.field] || it.field) + '】' + (it.value || '');
+  }
+  async function refreshPendingBadge() {
+    if (!isPrivileged(currentUser)) { $('theaterPendingBtn').classList.add('hidden'); return; }
+    try { theaterPending = await store.fetchPendingTheaterInfo(); } catch (e) { theaterPending = []; }
+    const btn = $('theaterPendingBtn');
+    btn.classList.remove('hidden');
+    const n = theaterPending.length;
+    $('tpBadge').textContent = n ? String(n) : '';
+    $('tpBadge').classList.toggle('hidden', !n);
+    btn.classList.toggle('has-pending', !!n);
+  }
+  function renderPendingList() {
+    const box = $('tpBody');
+    if (!theaterPending.length) {
+      box.innerHTML = '';
+      $('tpEmpty').classList.remove('hidden');
+      $('tpApproveAllBtn').classList.add('hidden');
+      return;
+    }
+    $('tpEmpty').classList.add('hidden');
+    $('tpApproveAllBtn').classList.remove('hidden');
+    // 劇場ごとにまとめる
+    const byTheater = {};
+    theaterPending.forEach((it) => { (byTheater[it.theater] = byTheater[it.theater] || []).push(it); });
+    box.innerHTML = Object.keys(byTheater).map((th) => {
+      const rows = byTheater[th].map((it) => `
+        <tr data-pending-id="${escapeHtml(String(it.id))}">
+          <td>${escapeHtml(pendingItemText(it))}
+            ${it.evidence ? `<div class="tp-evidence">出典: ${escapeHtml(it.evidence)}</div>` : ''}</td>
+          <td class="tp-conf">${it.confidence != null ? Math.round(Number(it.confidence) * 100) + '%' : ''}</td>
+          <td class="tp-actions">
+            <button type="button" class="tp-approve primary">承認</button>
+            <button type="button" class="tp-reject danger">却下</button>
+          </td>
+        </tr>`).join('');
+      return `<tr class="tp-theater-row"><td colspan="3">🎬 ${escapeHtml(th)}</td></tr>` + rows;
+    }).join('');
+  }
+  async function openTheaterPendingModal() {
+    try { theaterPending = await store.fetchPendingTheaterInfo(); } catch (e) { theaterPending = []; }
+    $('tpSetupWarn').classList.toggle('hidden', !(store.mode === 'supabase' && !theaterPendingSupported));
+    renderPendingList();
+    $('theaterPendingModal').classList.remove('hidden');
+  }
+  function closeTheaterPendingModal() {
+    $('theaterPendingModal').classList.add('hidden');
+    refreshPendingBadge();
+  }
+  function tpFind(id) { return theaterPending.find((x) => String(x.id) === String(id)); }
+  async function approvePending(it, silent) {
+    try {
+      await store.approvePendingTheaterInfo(it);
+      theaterPending = theaterPending.filter((x) => String(x.id) !== String(it.id));
+      if (!silent) { renderPendingList(); }
+    } catch (e) { onPersistError(e); }
+  }
+  async function handlePendingClick(e) {
+    const tr = e.target.closest('tr');
+    if (!tr || !tr.dataset.pendingId) return;
+    const it = tpFind(tr.dataset.pendingId);
+    if (!it) return;
+    if (e.target.classList.contains('tp-approve')) {
+      await approvePending(it, false);
+    } else if (e.target.classList.contains('tp-reject')) {
+      try {
+        await store.rejectPendingTheaterInfo(it.id);
+        theaterPending = theaterPending.filter((x) => String(x.id) !== String(it.id));
+        renderPendingList();
+      } catch (err) { onPersistError(err); }
+    }
+  }
+  async function approveAllPending() {
+    if (!theaterPending.length) return;
+    if (!confirm(`未確認の${theaterPending.length}件すべてを承認して本登録しますか？`)) return;
+    const items = theaterPending.slice();
+    for (const it of items) { await approvePending(it, true); }
+    renderPendingList();
+    alert('承認が完了しました。');
+  }
+
   // 劇場情報（支配人・連絡先など）の編集 → theaters に保存
   function handleTheaterInfoFieldChange() {
     const theater = $('tiTheaterSelect').value;
@@ -3056,6 +3213,7 @@
     applyUserScope();
     render();
     maybeOpenCaseFromUrl();
+    refreshPendingBadge(); // 劇場情報 自動更新の未確認件数バッジ（菱熱のみ）
   }
   // LINE通知などの「?case=<id>」付きURLで開いた時、その案件の編集画面を直接開く
   function maybeOpenCaseFromUrl() {
@@ -3321,6 +3479,14 @@
   ['tiManager', 'tiPhone', 'tiMaintenance', 'tiGem2', 'tiEquipment', 'tiChronic', 'tiNote'].forEach((id) => {
     $(id).addEventListener('change', handleTheaterInfoFieldChange);
   });
+
+  // 劇場情報更新確認 モーダル
+  $('theaterPendingBtn').addEventListener('click', openTheaterPendingModal);
+  $('closeTheaterPendingModal').addEventListener('click', closeTheaterPendingModal);
+  $('tpCloseBtn').addEventListener('click', closeTheaterPendingModal);
+  $('theaterPendingModal').addEventListener('click', (e) => { if (e.target === $('theaterPendingModal')) closeTheaterPendingModal(); });
+  $('tpBody').addEventListener('click', handlePendingClick);
+  $('tpApproveAllBtn').addEventListener('click', approveAllPending);
 
   $('closeContentModal').addEventListener('click', closeContentModal);
   $('contentCancelBtn').addEventListener('click', closeContentModal);

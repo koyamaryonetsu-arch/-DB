@@ -634,6 +634,27 @@ body.user-toho #addCompanyBtn { display: none; }
   font-size: 13px;
   min-width: 220px;
 }
+/* 劇場情報更新確認 */
+.tp-badge {
+  display: inline-block;
+  min-width: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: #dc2626;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+  line-height: 18px;
+}
+.tp-badge.hidden { display: none; }
+#theaterPendingBtn.has-pending { border-color: #dc2626; }
+.tp-theater-row td { background: #f1f5f9; font-weight: 700; }
+.tp-evidence { font-size: 11px; color: #6b7280; margin-top: 2px; }
+.tp-conf { text-align: center; color: #6b7280; }
+.tp-actions { white-space: nowrap; }
+.tp-actions button { margin: 0 2px; padding: 3px 10px; }
+
 .tm-hint {
   font-size: 11px;
   color: #4b5563;
