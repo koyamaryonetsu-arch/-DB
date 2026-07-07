@@ -616,15 +616,15 @@
       <button id="closeTheaterPendingModal" class="close-btn" aria-label="閉じる" tabindex="-1">×</button>
     </div>
     <div class="tm-body">
-      <p class="tm-hint">💡 毎日AM1時に、前日のメールから劇場情報の候補を自動抽出します。確信の高いものは自動反映済み。ここに出るのは「念のため人の確認が必要」と判断された候補です。承認すると各劇場情報へ本登録、却下すると破棄します。</p>
+      <p class="tm-hint">💡 毎日AM1時に、前日のメール（添付の見積書/報告書/台帳/図面も）から劇場情報を自動抽出します。確信度70%以上は自動反映済み。ここに出るのは確信度70%未満で「念のため人の確認が必要」な候補です。承認すると各劇場情報へ本登録、却下すると破棄します。</p>
       <div id="tpSetupWarn" class="empty-msg hidden">⚠ データベース未設定です。SETUP_THEATER_AUTOUPDATE.sql をSupabaseで1回実行してください。</div>
       <div class="tm-table-wrap">
         <table class="tm-table">
           <thead>
             <tr>
+              <th style="width: 18%;">操作</th>
               <th style="width: 72%;">内容</th>
               <th style="width: 10%;">確信度</th>
-              <th style="width: 18%;">操作</th>
             </tr>
           </thead>
           <tbody id="tpBody"></tbody>

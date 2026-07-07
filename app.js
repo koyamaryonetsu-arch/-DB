@@ -2896,13 +2896,13 @@
     box.innerHTML = Object.keys(byTheater).map((th) => {
       const rows = byTheater[th].map((it) => `
         <tr data-pending-id="${escapeHtml(String(it.id))}">
-          <td>${escapeHtml(pendingItemText(it))}
-            ${it.evidence ? `<div class="tp-evidence">出典: ${escapeHtml(it.evidence)}</div>` : ''}</td>
-          <td class="tp-conf">${it.confidence != null ? Math.round(Number(it.confidence) * 100) + '%' : ''}</td>
           <td class="tp-actions">
             <button type="button" class="tp-approve primary">承認</button>
             <button type="button" class="tp-reject danger">却下</button>
           </td>
+          <td>${escapeHtml(pendingItemText(it))}
+            ${it.evidence ? `<div class="tp-evidence">出典: ${escapeHtml(it.evidence)}</div>` : ''}</td>
+          <td class="tp-conf">${it.confidence != null ? Math.round(Number(it.confidence) * 100) + '%' : ''}</td>
         </tr>`).join('');
       return `<tr class="tp-theater-row"><td colspan="3">🎬 ${escapeHtml(th)}</td></tr>` + rows;
     }).join('');
