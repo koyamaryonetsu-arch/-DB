@@ -1,8 +1,9 @@
 /**
  * 劇場情報 自動更新（cinema-cases / Supabase）
  *
- * 役割: 毎日AM1時に前日分のシネコン関連メールを読み、各劇場情報（設備・持病・備考・支配人・
- *       劇場連絡先・パートナー連絡先）の「新しい事実」をAIで抽出する。
+ * 役割: 毎日AM1時に前日分のシネコン関連メール（本文＋添付の画像/PDF＝点検報告書・機器台帳・
+ *       図面・見積書・名刺等）を読み、各劇場情報（設備・持病・備考・支配人・劇場連絡先・
+ *       パートナー連絡先）の「新しい事実」をAIで抽出する。※Excel/Wordは画像/PDF化しないと読めない。
  *   - 確信が高く根拠のある事実 → theaters / theater_contacts へ自動反映（追記のみ・重複は入れない）
  *   - 支配人/劇場連絡先の変更、および確信が低いもの → 要確認キュー(theater_info_pending)へ。
  *     Webアプリ「🔎 劇場情報更新確認」で人が承認/却下する。
@@ -16,6 +17,8 @@
 var TI_DONE_LABEL = '劇場情報確認済';        // 処理済みスレッド（再処理防止）
 var TI_AUTO_CONF = 0.85;                     // これ以上の確信度＋根拠ありなら自動反映
 var TI_THREAD_LIMIT = 40;                    // 1回で読むスレッド数上限
+var TI_ATT_MAX_BYTES = 5 * 1024 * 1024;      // これより大きい添付は読まない（API上限・コスト対策）
+var TI_ATT_MAX = 4;                          // 1スレッドで読む添付（画像/PDF）の最大数
 // 抽出対象のシネコン関連メールを絞り込むGmailクエリ（前日〜当日分）
 var TI_QUERY = '(from:(tohocinemas.co.jp OR tokyu-rec.co.jp OR unitedcinemas.co.jp OR movix.co.jp OR ' +
   'cinemasunshine.co.jp OR korona.co.jp OR aeonent.jp) OR "シネマズ" OR "ユナイテッドシネマ" OR ' +
@@ -37,7 +40,8 @@ function updateTheaterInfoDaily() {
     threads.forEach(function (th) {
       try {
         var text = buildThreadText_(th);
-        var ext = extractTheaterInfo_(apiKey, text);
+        var media = tiCollectAttachments_(th);   // 添付の見積書/報告書/台帳/図面(画像・PDF)も読む
+        var ext = extractTheaterInfo_(apiKey, text, media);
         if (ext && ext.items && ext.items.length) {
           var theater = ext.theater || '';
           var company = ext.company ? normalizeCompany_(ext.company) : '';
@@ -60,21 +64,44 @@ function updateTheaterInfoDaily() {
   }
 }
 
-// ===== Claude: メールから劇場情報の新事実を抽出 =====
-function extractTheaterInfo_(apiKey, text) {
+// スレッドの添付（画像/PDF）を content ブロック配列にして返す（点検報告書/機器台帳/図面/見積書/名刺等）
+// ※ Excel/Word(.xlsx/.docx)はそのままでは読めないためスキップ（画像・PDFのみ対応）
+function tiCollectAttachments_(th) {
+  var blocks = [];
+  var msgs = th.getMessages();
+  for (var i = 0; i < msgs.length && blocks.length < TI_ATT_MAX; i++) {
+    var atts = msgs[i].getAttachments({ includeInlineImages: true, includeAttachments: true });
+    for (var j = 0; j < atts.length && blocks.length < TI_ATT_MAX; j++) {
+      var a = atts[j];
+      var ct = String(a.getContentType() || '').toLowerCase();
+      var isImg = ct.indexOf('image/') === 0;
+      var isPdf = ct === 'application/pdf';
+      if (!isImg && !isPdf) continue;
+      if (a.getSize() > TI_ATT_MAX_BYTES) { Logger.log('添付が大きすぎ読取スキップ: ' + a.getName()); continue; }
+      blocks.push(isPdf
+        ? { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: Utilities.base64Encode(a.getBytes()) } }
+        : { type: 'image', source: { type: 'base64', media_type: normalizeImageMime_(ct), data: Utilities.base64Encode(a.getBytes()) } });
+    }
+  }
+  return blocks;
+}
+
+// ===== Claude: メール本文＋添付から劇場情報の新事実を抽出 =====
+function extractTheaterInfo_(apiKey, text, mediaBlocks) {
   var sys = [
-    'あなたはシネコン設備の保守/工事会社のデータ整理担当です。メールを読み、劇場設備台帳に追記すべき',
-    '「新しい事実」だけをJSONで出力（前後に文章なし）。案件の進捗のような一時的な連絡は対象外（別システムが担当）。',
+    'あなたはシネコン設備の保守/工事会社のデータ整理担当です。メール本文と添付資料（点検報告書・機器台帳・',
+    '図面・見積書・名刺など）を読み、劇場設備台帳に追記すべき「新しい事実」だけをJSONで出力（前後に文章なし）。',
+    '案件の進捗のような一時的な連絡は対象外（別システムが担当）。',
     '対象は「特定の映画館(劇場)」に関する次の事実のみ:',
-    '- 設備(equipment): 機種/型式/系統構成/更新工事の履歴',
+    '- 設備(equipment): 機種/型式/系統構成/更新工事の履歴（添付の台帳・報告書・図面の記載も活用）',
     '- 持病(chronic_issues): 繰り返す不具合・慢性トラブル',
     '- 備考(info_note): 運用上の注意（施設管理会社・作業申請ルール等）',
     '- 支配人(manager): 支配人名（交代が読み取れた場合）',
     '- 劇場連絡先(theater_phone): 劇場の電話番号',
-    '- パートナー連絡先(contact): 業者の会社/担当者/電話/メール（署名から）',
+    '- パートナー連絡先(contact): 業者の会社/担当者/電話/メール（署名・名刺から）',
     '劇場名は正式表記に寄せる（例「TOHOシネマズ 新宿」「109シネマズ 川崎」「ユナイテッドシネマ新座」）。',
-    '各itemに confidence(0〜1) と evidence(根拠: 件名や署名の要約、60字以内) と source_date(YYYY-MM) を付ける。',
-    '推測・創作は禁止。メールから確実に読み取れるものだけ。無ければ items は空配列。',
+    '各itemに confidence(0〜1) と evidence(根拠: 件名/署名/資料名の要約、60字以内) と source_date(YYYY-MM) を付ける。',
+    '推測・創作は禁止。メール・添付から確実に読み取れるものだけ。無ければ items は空配列。',
     'スキーマ: {"theater":string,"company":string,"items":[{',
     '  "kind":"field"|"contact",',
     '  "field":"equipment"|"chronic_issues"|"info_note"|"manager"|"theater_phone",  // kind=fieldのみ',
@@ -82,7 +109,24 @@ function extractTheaterInfo_(apiKey, text) {
     '  "category":string,"maker":string,"vendor":string,"person":string,"phone":string,"email":string,"note":string, // kind=contact',
     '  "confidence":number,"evidence":string,"source_date":string}]}'
   ].join('\n');
-  return safeJson_(anthropicText_(apiKey, sys, text, 1200));
+  // 添付が無ければ安いモデル(既定Haiku)。添付ありは視覚対応モデル(既定Sonnet)で本文＋画像/PDFを読む
+  if (!mediaBlocks || !mediaBlocks.length) {
+    return safeJson_(anthropicText_(apiKey, sys, text, 1200));
+  }
+  var content = [{ type: 'text', text: text }].concat(mediaBlocks);
+  var res = UrlFetchApp.fetch('https://api.anthropic.com/v1/messages', {
+    method: 'post', contentType: 'application/json',
+    headers: { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
+    payload: JSON.stringify({
+      model: OCR_MODEL_(), max_tokens: 1500, system: sys,
+      messages: [{ role: 'user', content: content }]
+    }), muteHttpExceptions: true
+  });
+  if (res.getResponseCode() >= 300) { Logger.log('劇場情報抽出(添付)失敗: ' + res.getContentText()); return null; }
+  var data;
+  try { data = JSON.parse(res.getContentText()); } catch (e) { return null; }
+  var txt = (data.content && data.content[0] && data.content[0].text) || '';
+  return safeJson_(txt);
 }
 
 // 1件を 自動反映 / 要確認 / スキップ に振り分ける
