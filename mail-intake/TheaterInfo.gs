@@ -17,7 +17,8 @@
 
 var TI_DONE_LABEL = '劇場情報確認済';        // 処理済みスレッド（再処理防止）
 var TI_AUTO_CONF = 0.85;                     // これ以上の確信度＋根拠ありなら自動反映
-var TI_THREAD_LIMIT = 40;                    // 1回で読むスレッド数上限
+var TI_THREAD_LIMIT = 30;                    // 1回で読むスレッド数上限
+var TI_TIME_BUDGET_MS = 5 * 60 * 1000;       // 実行時間の目安（6分制限の手前で安全停止）。残りは次回処理
 var TI_ATT_MAX_BYTES = 5 * 1024 * 1024;      // これより大きい添付は読まない（API上限・コスト対策）
 var TI_ATT_MAX = 4;                          // 1スレッドで読む添付（画像/PDF）の最大数
 // 抽出対象のシネコン関連メールを絞り込むGmailクエリ（前日〜当日分）
@@ -37,8 +38,15 @@ function updateTheaterInfoDaily() {
     var threads = GmailApp.search(TI_QUERY + ' -label:' + TI_DONE_LABEL, 0, TI_THREAD_LIMIT);
     if (!threads.length) { Logger.log('劇場情報更新: 対象メールなし'); return; }
 
-    var nAuto = 0, nPend = 0, nSkip = 0;
-    threads.forEach(function (th) {
+    var startMs = Date.now();
+    var nAuto = 0, nPend = 0, nSkip = 0, nDone = 0;
+    for (var ti = 0; ti < threads.length; ti++) {
+      // Apps Scriptの6分制限に達する前に安全停止（未処理はラベル無し→次回に続きから処理）
+      if (Date.now() - startMs > TI_TIME_BUDGET_MS) {
+        Logger.log('時間上限に近づいたため中断。残り ' + (threads.length - ti) + ' 件は次回処理します。');
+        break;
+      }
+      var th = threads[ti];
       try {
         var text = buildThreadText_(th);
         var media = tiCollectAttachments_(th);      // 添付の見積書/報告書/台帳/図面(画像・PDF)を視覚で読む
@@ -56,10 +64,13 @@ function updateTheaterInfoDaily() {
             });
           }
         }
-      } catch (e) { Logger.log('劇場情報更新 スレッド処理エラー: ' + e); }
-      th.addLabel(lblDone); // 成否に関わらず再処理はしない
-    });
-    Logger.log('劇場情報更新: 自動反映 %s / 要確認 %s / スキップ %s', nAuto, nPend, nSkip);
+        th.addLabel(lblDone); nDone++; // 正常処理できたスレッドだけ処理済みにする
+      } catch (e) {
+        Logger.log('劇場情報更新 スレッド処理エラー: ' + e);
+        th.addLabel(lblDone); nDone++; // エラーでも再処理ループを避けるため処理済みにする
+      }
+    }
+    Logger.log('劇場情報更新: 処理 %s 件 / 自動反映 %s / 要確認 %s / スキップ %s', nDone, nAuto, nPend, nSkip);
   } catch (e) {
     Logger.log('updateTheaterInfoDaily error: ' + e);
   } finally {
@@ -104,6 +115,22 @@ function tiCollectOfficeText_(th) {
   }
   return out;
 }
+// Excel/Word の Blob を Google スプレッドシート/ドキュメントに変換し、そのファイルIDを返す。
+// Apps Scriptの「Drive」高度サービスが v2(Files.insert) でも v3(Files.create) でも動くよう両対応。
+function tiConvertOffice_(blob, targetMime, title) {
+  if (typeof Drive === 'undefined' || !Drive.Files) return null;
+  // v3: Files.create（UIから追加されるDrive APIは通常v3）
+  if (typeof Drive.Files.create === 'function') {
+    var f3 = Drive.Files.create({ name: title, mimeType: targetMime }, blob);
+    return f3 && f3.id;
+  }
+  // v2: Files.insert（convert:true で変換）
+  if (typeof Drive.Files.insert === 'function') {
+    var f2 = Drive.Files.insert({ title: title, mimeType: targetMime }, blob, { convert: true });
+    return f2 && f2.id;
+  }
+  return null;
+}
 // 1つの添付が Excel/Word なら、Driveで Google スプレッドシート/ドキュメントに変換して本文テキストを返す
 function tiExtractOfficeText_(a) {
   if (typeof Drive === 'undefined' || !Drive.Files) return ''; // Drive高度サービス未有効
@@ -116,8 +143,8 @@ function tiExtractOfficeText_(a) {
   var tempId = null;
   try {
     var target = isXls ? 'application/vnd.google-apps.spreadsheet' : 'application/vnd.google-apps.document';
-    var file = Drive.Files.insert({ title: 'ti_tmp_' + name, mimeType: target }, a.copyBlob(), { convert: true });
-    tempId = file.id;
+    tempId = tiConvertOffice_(a.copyBlob(), target, 'ti_tmp_' + name);
+    if (!tempId) return '';
     var out = '';
     if (isXls) {
       var sheets = SpreadsheetApp.openById(tempId).getSheets();
