@@ -16,7 +16,7 @@
  */
 
 var TI_DONE_LABEL = '劇場情報確認済';        // 処理済みスレッド（再処理防止）
-var TI_AUTO_CONF = 0.85;                     // これ以上の確信度＋根拠ありなら自動反映
+var TI_AUTO_CONF = 0.70;                     // 確信度これ以上は自動反映。未満だけ「要確認」で人が承認
 var TI_THREAD_LIMIT = 30;                    // 1回で読むスレッド数上限
 var TI_TIME_BUDGET_MS = 5 * 60 * 1000;       // 実行時間の目安（6分制限の手前で安全停止）。残りは次回処理
 var TI_ATT_MAX_BYTES = 5 * 1024 * 1024;      // これより大きい添付は読まない（API上限・コスト対策）
@@ -212,34 +212,43 @@ function extractTheaterInfo_(apiKey, text, mediaBlocks) {
 }
 
 // 1件を 自動反映 / 要確認 / スキップ に振り分ける
+// 方針: 確信度 TI_AUTO_CONF(=70%) 以上かつ既知の劇場なら自動反映。未満は要確認キューへ。
 function routeTheaterItem_(it, theater, company, theaterKnown) {
   if (!it || !it.kind) return 'skip';
   var conf = (typeof it.confidence === 'number') ? it.confidence : 0;
-  var hasEvidence = !!(it.evidence && String(it.evidence).trim());
+  var auto = theaterKnown && conf >= TI_AUTO_CONF;
 
   if (it.kind === 'contact') {
     if (!it.vendor) return 'skip';
-    var contactAuto = theaterKnown && conf >= TI_AUTO_CONF && hasEvidence && (it.email || it.phone);
-    if (contactAuto && tiAutoContact_(theater, company, it)) return 'auto';
-    return tiQueuePending_(theater, company, it) ? 'pending' : 'skip'; // 自動失敗時も要確認へ
+    if (auto && tiAutoContact_(theater, company, it)) return 'auto';
+    return tiQueuePending_(theater, company, it) ? 'pending' : 'skip'; // 未満/自動失敗は要確認へ
   }
 
   // field
   var f = it.field;
-  var appendFields = { equipment: 1, chronic_issues: 1, info_note: 1 };
-  // 支配人・劇場連絡先の変更は影響が大きいので常に要確認（自動反映しない）
-  if (f === 'manager' || f === 'theater_phone') {
-    return tiQueuePending_(theater, company, it) ? 'pending' : 'skip';
-  }
-  if (!appendFields[f] || !it.value) return 'skip';
-  var fieldAuto = theaterKnown && conf >= TI_AUTO_CONF && hasEvidence;
-  if (fieldAuto && tiAutoField_(theater, company, it)) return 'auto';
-  return tiQueuePending_(theater, company, it) ? 'pending' : 'skip'; // 自動失敗時も要確認へ
+  var validFields = { equipment: 1, chronic_issues: 1, info_note: 1, manager: 1, theater_phone: 1 };
+  if (!validFields[f] || !it.value) return 'skip';
+  if (auto && tiAutoField_(theater, company, it)) return 'auto';
+  return tiQueuePending_(theater, company, it) ? 'pending' : 'skip'; // 未満/自動失敗は要確認へ
 }
 
-// ===== 自動反映: theaters の列に追記（既存保持・重複語は入れない） =====
+// ===== 自動反映: theaters の列を更新 =====
+// equipment/chronic_issues/info_note は追記（既存保持・重複語は入れない）。manager/theater_phone は置換（旧支配人は備考へ退避）。
 function tiAutoField_(theater, company, it) {
   var col = it.field;
+  if (col === 'manager' || col === 'theater_phone') {
+    var r0 = tiGetTheater_(theater, col === 'manager' ? 'manager,info_note' : col);
+    if (r0 === null) return false;
+    var patch0 = {};
+    patch0[col] = it.value;
+    if (col === 'manager' && r0.manager && r0.manager !== it.value) {
+      var oldNote = '旧: ' + r0.manager;
+      patch0.info_note = (r0.info_note && r0.info_note.indexOf(oldNote) === -1)
+        ? (r0.info_note + ' / ' + oldNote) : (r0.info_note || oldNote);
+    }
+    return tiPatchTheater_(theater, patch0);
+  }
+  // 追記系
   var row = tiGetTheater_(theater, col);
   if (row === null) return false; // 取得失敗時は反映しない
   var cur = String(row[col] || '');
@@ -292,8 +301,9 @@ function tiTheaterExists_(theater) {
   var c = tiSupaGet_('theater_contacts', 'theater=eq.' + encodeURIComponent(theater) + '&select=id&limit=1');
   return !!(c && c.length);
 }
-function tiGetTheater_(theater, col) {
-  var res = tiSupaGet_('theaters', 'name=eq.' + encodeURIComponent(theater) + '&select=' + encodeURIComponent(col) + '&limit=1');
+function tiGetTheater_(theater, cols) {
+  // cols は列名（"manager" や "manager,info_note"）。安全なリテラルなのでそのまま渡す
+  var res = tiSupaGet_('theaters', 'name=eq.' + encodeURIComponent(theater) + '&select=' + cols + '&limit=1');
   if (res === null) return null;
   return res.length ? res[0] : {};
 }
