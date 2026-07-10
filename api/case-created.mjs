@@ -23,6 +23,7 @@ const LINE_PUSH_URL = 'https://api.line.me/v2/bot/message/push';
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
 const APP_URL = 'https://cinema-cases.vercel.app';
 const AI_MODEL = 'claude-sonnet-4-6';
+const SUMMARY_MODEL = 'claude-haiku-4-5-20251001'; // 更新通知の「案件」1行要約（安いモデルで十分）
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://hykjpadvbficiiuockhj.supabase.co';
 
 // 重複通知の抑止: 同じ内容の通知キーを line_notify_log に記録し、既にあれば送らない。
@@ -112,7 +113,8 @@ export default async function handler(req, res) {
     if (await isDuplicateNotification(notifySignature('UPDATE', c, changes))) {
       return res.status(200).json({ skipped: 'duplicate' });
     }
-    const text = buildUpdateMessage(c, changes);
+    const summary = await summarizeCaseOneLine(c);
+    const text = buildUpdateMessage(c, changes, summary);
     try {
       await pushLineMessage(process.env.LINE_TARGET_GROUP_ID, text);
     } catch (e) {
@@ -383,7 +385,7 @@ function detectChanges(before, after) {
   return changes;
 }
 
-function buildUpdateMessage(c, changes) {
+function buildUpdateMessage(c, changes, summary) {
   const head = [
     '✏️ 案件が更新されました',
     '━━━━━━━━━━━━',
@@ -391,12 +393,49 @@ function buildUpdateMessage(c, changes) {
     `劇場: ${c.theater || '-'}`,
     `種別: ${c.category || '-'}`,
     `R担当: ${c.r_person || '-'}`,
-    '',
+    '',                                  // 空行（案件が埋もれないように）
+    `案件: ${summary || '-'}`,           // ぱっと見で何の案件か分かる1行要約
+    '',                                  // 空行（案件と更新項目の間）
     '【更新項目】'
   ];
   const body = changes.map((ch) => `・${ch.label}: ${ch.value}`);
   const tail = ['', '━━━━━━━━━━━━', `🔗 ${APP_URL}/?case=${c.id}`];
   return [...head, ...body, ...tail].join('\n').slice(0, 4900);
+}
+
+// 案件を「ぱっと見で分かる」10〜20字程度の1行に要約（AIが使えれば要点抽出、無ければ本文先頭）
+async function summarizeCaseOneLine(c) {
+  const fallback = heuristicCaseSummary(c);
+  if (!process.env.ANTHROPIC_API_KEY) return fallback;
+  try {
+    const sys = '案件内容を日本語の超短い1行（10〜20字目安）に要約します。劇場内の場所・設備・症状・エラーコードなど' +
+      '要点だけを体言止めで。前置き・句点・箇条書き記号は不要。1行のみ返す。' +
+      '例:「シアター1 エラーE49」「ロビー空調 水漏れ」「男子トイレ 詰まり」。';
+    const user = `劇場: ${c.theater || ''}\n種別: ${c.category || ''}\n見積名: ${c.estimate_name || ''}\n` +
+      `内容: ${norm(c.content).slice(0, 800)}`;
+    const r = await fetch(ANTHROPIC_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': process.env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify({ model: SUMMARY_MODEL, max_tokens: 60, system: sys, messages: [{ role: 'user', content: user }] })
+    });
+    if (!r.ok) return fallback;
+    const data = await r.json();
+    let s = (data.content && data.content[0] && data.content[0].text) || '';
+    s = s.replace(/\s*\n\s*/g, ' ').replace(/[。\.]$/, '').trim();
+    return s ? s.slice(0, 40) : fallback;
+  } catch (e) {
+    console.error('案件要約エラー', e);
+    return fallback;
+  }
+}
+// AIを使わない簡易要約: 進捗追記より前（元の依頼）の先頭行を短く
+function heuristicCaseSummary(c) {
+  let s = norm(c.content);
+  const idx = s.indexOf('[進捗');
+  if (idx > 0) s = s.slice(0, idx);
+  s = (s.split('\n').find((line) => line.trim()) || '').trim();
+  if (!s) s = [c.theater, c.category].filter(Boolean).join(' ');
+  return s.slice(0, 40);
 }
 
 async function pushLineMessage(to, text) {
