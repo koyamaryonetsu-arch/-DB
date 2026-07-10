@@ -25,6 +25,36 @@ const APP_URL = 'https://cinema-cases.vercel.app';
 const AI_MODEL = 'claude-sonnet-4-6';
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://hykjpadvbficiiuockhj.supabase.co';
 
+// 重複通知の抑止: 同じ内容の通知キーを line_notify_log に記録し、既にあれば送らない。
+// Supabase Webhook が同一変更を二重発火しても1通に収める。テーブル未作成/キー無しなら抑止せず通常送信。
+async function isDuplicateNotification(signature) {
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!key) return false;
+  try {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/line_notify_log`, {
+      method: 'POST',
+      headers: {
+        apikey: key, Authorization: `Bearer ${key}`, 'Content-Type': 'application/json',
+        // 既存キーは無視して挿入。返った行が空＝重複（既に送信済み）
+        Prefer: 'resolution=ignore-duplicates,return=representation'
+      },
+      body: JSON.stringify({ signature })
+    });
+    if (!r.ok) return false; // テーブル未作成等 → 抑止しない（通常どおり送る）
+    const rows = await r.json();
+    return Array.isArray(rows) && rows.length === 0; // 空配列＝重複
+  } catch (e) {
+    console.error('dedup確認エラー', e);
+    return false;
+  }
+}
+// 10分単位のバケットを含めた通知キー（数秒差の二重発火は同一キー、時間が経てば別キー）
+function notifySignature(type, c, changes) {
+  const bucket = Math.floor(Date.now() / (10 * 60 * 1000));
+  const changeKey = (changes || []).map((x) => `${x.label}=${x.value}`).join('|');
+  return `${type}:${c.id}:${bucket}:${changeKey}`.slice(0, 480);
+}
+
 // AI診断は「修理案件」のみ実施（依頼先＝社外パートナー企業の選定が目的）
 function isRepairCase(c) {
   return String(c.category || '').trim() === '修理';
@@ -58,6 +88,9 @@ export default async function handler(req, res) {
         aiAdvice = `(AI判断エラー: ${e.message})`;
       }
     }
+    if (await isDuplicateNotification(notifySignature('INSERT', c, []))) {
+      return res.status(200).json({ skipped: 'duplicate' });
+    }
     const text = buildLineMessage(c, aiAdvice);
     try {
       await pushLineMessage(process.env.LINE_TARGET_GROUP_ID, text);
@@ -75,6 +108,9 @@ export default async function handler(req, res) {
     if (changes.length === 0) {
       // 対象5項目以外の変更（ステータスや他の日付など）は通知しない
       return res.status(200).json({ skipped: 'no relevant change' });
+    }
+    if (await isDuplicateNotification(notifySignature('UPDATE', c, changes))) {
+      return res.status(200).json({ skipped: 'duplicate' });
     }
     const text = buildUpdateMessage(c, changes);
     try {
@@ -327,13 +363,21 @@ function norm(v) { return v == null ? '' : String(v).trim(); }
 
 // 内容/メモ/見積り提出日/作業開始日/作業完了日 のうち、
 // 「新しい値が空でなく、かつ前と変わった」項目だけを返す（記入・追加・変更を検知。空にした時は通知しない）
+// text項目（内容・メモ）は、履歴全文ではなく「今回追記・変更された差分だけ」を返す。
 function detectChanges(before, after) {
   const changes = [];
   for (const f of NOTIFY_FIELDS) {
     const ov = norm(before[f.key]);
     const nv = norm(after[f.key]);
-    if (nv !== '' && nv !== ov) {
-      changes.push({ label: f.label, value: f.text ? nv.slice(0, 300) : nv });
+    if (nv === '' || nv === ov) continue;
+    if (f.text) {
+      // 末尾に追記された場合はその差分だけ。途中変更など前方一致しない場合のみ新しい全文を短く表示
+      let diff = (ov && nv.startsWith(ov)) ? nv.slice(ov.length) : nv;
+      diff = diff.trim();
+      if (diff === '') continue; // 実質的な変化なし（空白のみ）
+      changes.push({ label: f.label, value: diff.slice(0, 300) });
+    } else {
+      changes.push({ label: f.label, value: nv });
     }
   }
   return changes;
