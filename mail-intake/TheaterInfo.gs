@@ -212,11 +212,12 @@ function extractTheaterInfo_(apiKey, text, mediaBlocks) {
 }
 
 // 1件を 自動反映 / 要確認 / スキップ に振り分ける
-// 方針: 確信度 TI_AUTO_CONF(=70%) 以上かつ既知の劇場なら自動反映。未満は要確認キューへ。
+// 方針: 確信度 TI_AUTO_CONF(=70%) 以上なら自動反映。未満だけ要確認キューへ。
+// （劇場がDB未登録でも、自動反映側で必要なら劇場行を作成して反映する）
 function routeTheaterItem_(it, theater, company, theaterKnown) {
   if (!it || !it.kind) return 'skip';
   var conf = (typeof it.confidence === 'number') ? it.confidence : 0;
-  var auto = theaterKnown && conf >= TI_AUTO_CONF;
+  var auto = conf >= TI_AUTO_CONF;
 
   if (it.kind === 'contact') {
     if (!it.vendor) return 'skip';
@@ -236,6 +237,7 @@ function routeTheaterItem_(it, theater, company, theaterKnown) {
 // equipment/chronic_issues/info_note は追記（既存保持・重複語は入れない）。manager/theater_phone は置換（旧支配人は備考へ退避）。
 function tiAutoField_(theater, company, it) {
   var col = it.field;
+  tiEnsureTheaterRow_(theater, company); // 劇場行が無ければ作る（未登録劇場でも反映できるように）
   if (col === 'manager' || col === 'theater_phone') {
     var r0 = tiGetTheater_(theater, col === 'manager' ? 'manager,info_note' : col);
     if (r0 === null) return false;
@@ -294,6 +296,17 @@ function tiHeaders_() {
 function tiWithEvidence_(v, it) {
   var tag = [it.source_date, it.evidence].filter(function (x) { return x; }).join(' ');
   return tag ? (v + '（' + tag + '）') : v;
+}
+// 劇場行が theaters に無ければ作成（既にあれば何もしない）
+function tiEnsureTheaterRow_(theater, company) {
+  var res = tiSupaGet_('theaters', 'name=eq.' + encodeURIComponent(theater) + '&select=name&limit=1');
+  if (res && res.length) return;
+  var r = UrlFetchApp.fetch(SUPABASE_URL_() + '/rest/v1/theaters', {
+    method: 'post', contentType: 'application/json',
+    headers: Object.assign({ Prefer: 'resolution=ignore-duplicates,return=minimal' }, tiHeaders_()),
+    payload: JSON.stringify({ name: theater, company: company || '' }), muteHttpExceptions: true
+  });
+  if (r.getResponseCode() >= 300) Logger.log('劇場行作成失敗: ' + r.getContentText());
 }
 function tiTheaterExists_(theater) {
   var res = tiSupaGet_('theaters', 'name=eq.' + encodeURIComponent(theater) + '&select=name&limit=1');
