@@ -56,6 +56,69 @@ function notifySignature(type, c, changes) {
   return `${type}:${c.id}:${bucket}:${changeKey}`.slice(0, 480);
 }
 
+// ===== Supabase REST 共通（service_role） =====
+function sbHeaders() {
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  return { apikey: key, Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' };
+}
+async function sbGet(pathAndQuery) {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/${pathAndQuery}`, { headers: sbHeaders() });
+  if (!r.ok) throw new Error(`sbGet ${r.status}: ${await r.text()}`);
+  return r.json();
+}
+async function sbInsert(table, body) {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+    method: 'POST', headers: { ...sbHeaders(), Prefer: 'return=minimal' }, body: JSON.stringify(body)
+  });
+  if (!r.ok) throw new Error(`sbInsert ${r.status}: ${await r.text()}`);
+}
+async function sbPatch(pathAndQuery, body) {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/${pathAndQuery}`, {
+    method: 'PATCH', headers: { ...sbHeaders(), Prefer: 'return=minimal' }, body: JSON.stringify(body)
+  });
+  if (!r.ok) throw new Error(`sbPatch ${r.status}: ${await r.text()}`);
+}
+// 条件に合う行を削除しつつ中身を返す（まとめ通知の“取り出し”をアトミックに）
+async function sbDeleteReturning(pathAndQuery) {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/${pathAndQuery}`, {
+    method: 'DELETE', headers: { ...sbHeaders(), Prefer: 'return=representation' }
+  });
+  if (!r.ok) throw new Error(`sbDelete ${r.status}: ${await r.text()}`);
+  return r.json();
+}
+
+// 更新を即送らず pending_notifications に貯める（5分後に flush がまとめて1通送る）。
+// 同じ案件への複数更新は1行にマージ（内容/社内用メモは改行連結、日付等は最新で上書き）。
+async function accumulatePendingUpdate(c, changes) {
+  const id = String(c.id);
+  const existing = await sbGet(`pending_notifications?case_id=eq.${encodeURIComponent(id)}&select=*`);
+  const prev = (existing && existing[0]) || null;
+  const merged = Object.assign({}, prev ? prev.changes : {});
+  for (const ch of changes) {
+    if (TEXT_LABELS.has(ch.label) && merged[ch.label]) {
+      if (String(merged[ch.label]).indexOf(ch.value) === -1) merged[ch.label] += '\n' + ch.value;
+    } else {
+      merged[ch.label] = ch.value;
+    }
+  }
+  const record = {
+    id: id, company: c.company, theater: c.theater, category: c.category,
+    r_person: c.r_person, content: c.content, estimate_name: c.estimate_name
+  };
+  const now = new Date().toISOString();
+  if (prev) {
+    await sbPatch(`pending_notifications?case_id=eq.${encodeURIComponent(id)}`, { changes: merged, record, updated_at: now });
+  } else {
+    await sbInsert('pending_notifications', { case_id: id, changes: merged, record, first_change_at: now, updated_at: now });
+  }
+}
+
+// flush 側（api/flush-notifications.mjs）から使う共有関数をエクスポート
+export {
+  detectChanges, buildUpdateMessage, summarizeCaseOneLine,
+  isDuplicateNotification, notifySignature, pushLineMessage, sbDeleteReturning
+};
+
 // AI診断は「修理案件」のみ実施（依頼先＝社外パートナー企業の選定が目的）
 function isRepairCase(c) {
   return String(c.category || '').trim() === '修理';
@@ -102,7 +165,8 @@ export default async function handler(req, res) {
     return res.status(200).json({ ok: true });
   }
 
-  // ── 更新（UPDATE）: 内容 / メモ / 見積り提出日 / 作業開始日 / 作業完了日 が記入・変更された時だけ通知（AIなし） ──
+  // ── 更新（UPDATE）: 内容 / 社内用メモ / 見積り提出日 / 作業開始日 / 作業完了日 が記入・変更された時だけ通知 ──
+  // すぐ送らず pending に貯めて5分デバウンス。同じ案件への連続更新をまとめて1通にする（flushが送信）。
   if (payload.type === 'UPDATE') {
     const before = payload.old_record || {};
     const changes = detectChanges(before, c);
@@ -110,18 +174,23 @@ export default async function handler(req, res) {
       // 対象5項目以外の変更（ステータスや他の日付など）は通知しない
       return res.status(200).json({ skipped: 'no relevant change' });
     }
-    if (await isDuplicateNotification(notifySignature('UPDATE', c, changes))) {
-      return res.status(200).json({ skipped: 'duplicate' });
-    }
-    const summary = await summarizeCaseOneLine(c);
-    const text = buildUpdateMessage(c, changes, summary);
     try {
-      await pushLineMessage(process.env.LINE_TARGET_GROUP_ID, text);
+      await accumulatePendingUpdate(c, changes);
+      return res.status(200).json({ ok: true, queued: true });
     } catch (e) {
-      console.error('LINE push エラー', e);
-      return res.status(500).json({ ok: false, error: 'LINE push failed', detail: e.message });
+      console.error('pending蓄積エラー→即時送信でフォールバック', e);
+      if (await isDuplicateNotification(notifySignature('UPDATE', c, changes))) {
+        return res.status(200).json({ skipped: 'duplicate' });
+      }
+      const summary = await summarizeCaseOneLine(c);
+      try {
+        await pushLineMessage(process.env.LINE_TARGET_GROUP_ID, buildUpdateMessage(c, changes, summary));
+      } catch (e2) {
+        console.error('LINE push エラー', e2);
+        return res.status(500).json({ ok: false, error: 'LINE push failed', detail: e2.message });
+      }
+      return res.status(200).json({ ok: true, changed: changes.map((x) => x.label), fallback: true });
     }
-    return res.status(200).json({ ok: true, changed: changes.map((x) => x.label) });
   }
 
   // それ以外（DELETE等）は対象外
@@ -356,11 +425,13 @@ function buildLineMessage(c, aiAdvice) {
 // 通知対象の更新フィールド（この項目に値が入った/変わった時だけ通知。ステータス変更は通知しない）
 const NOTIFY_FIELDS = [
   { key: 'content', label: '内容', text: true },
-  { key: 'memo', label: 'メモ', text: true },
+  { key: 'memo', label: '社内用メモ', text: true },
   { key: 'quote_date', label: '見積り提出日' },
   { key: 'work_start_date', label: '作業開始日' },
   { key: 'work_end_date', label: '作業完了日' }
 ];
+// 追記式（前の値に足していく）ラベル＝まとめ通知でも改行で連結する
+const TEXT_LABELS = new Set(['内容', '社内用メモ']);
 function norm(v) { return v == null ? '' : String(v).trim(); }
 
 // 内容/メモ/見積り提出日/作業開始日/作業完了日 のうち、
