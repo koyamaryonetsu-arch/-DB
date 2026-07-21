@@ -144,6 +144,7 @@
       <table id="casesTable">
         <thead>
           <tr id="theadRow">
+            <th class="col-edit">編集</th>
             <th class="col-status sortable" data-sort="status"><span class="th-filter" data-filter="status">ステータス</span></th>
             <th class="col-company sortable" data-sort="company"><span class="th-filter" data-filter="company">会社</span></th>
             <th class="sortable" data-sort="theater"><span class="th-filter" data-filter="theater">劇場名</span></th>
@@ -163,7 +164,6 @@
             <th class="sortable" data-sort="invoiceDate"><span class="th-filter" data-filter="invoiceDate"><span class="lbl-ryo">請求書発行日</span><span class="lbl-toho">請求書受領日</span></span></th>
             <th class="sortable" data-sort="paymentDate"><span class="th-filter" data-filter="paymentDate"><span class="lbl-ryo">入金日</span><span class="lbl-toho">支払日</span></span></th>
             <th class="col-memo sortable" data-sort="memo"><span class="th-filter" data-filter="memo">社内用メモ</span></th>
-            <th>操作</th>
           </tr>
         </thead>
         <tbody id="casesBody"></tbody>
@@ -427,8 +427,8 @@
       </div>
 
       <div class="modal-footer">
-        <button type="button" id="modalDeleteBtn" class="danger mobile-only">削除</button>
-        <button type="button" id="modalDuplicateBtn" class="mobile-only">複製</button>
+        <button type="button" id="modalDuplicateBtn">複製</button>
+        <button type="button" id="modalDeleteBtn" class="danger">削除</button>
         <button type="button" id="cancelBtn">キャンセル</button>
         <button type="submit" class="primary">保存</button>
       </div>
@@ -687,6 +687,11 @@
     </div>
     <div class="task-modal-body">
       <div class="task-add-row">
+        <select id="taskNewPriority" class="task-prio-select" title="優先度（高＝赤 / 中＝オレンジ / 低＝黒）">
+          <option value="high">高</option>
+          <option value="mid">中</option>
+          <option value="low" selected>低</option>
+        </select>
         <input type="text" id="taskNewInput" placeholder="タスクを入力して追加（Enter）">
         <button type="button" id="taskAddBtn" class="primary">追加</button>
       </div>

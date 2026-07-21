@@ -712,7 +712,7 @@
   let sortState = { field: null, direction: 'asc' };
   // 表示切替モード: 0=標準（請求済/入金済/取り下げ/失注/保留を隠す）, 1=請求済・入金済を表示, 2=取り下げ・失注を表示
   let displayMode = 0;
-  let doneMode = 0;             // 完了案件の表示: 0=非表示, 1=表示, 2=完了だけ表示
+  let doneMode = 1;             // 完了案件の表示: 0=非表示, 1=表示(既定), 2=完了だけ表示
   // 大口案件（見積り金額300万円以上）のみ表示するか
   let showBigOnly = false;
   const BIG_CASE_THRESHOLD = 3000000;
@@ -1580,6 +1580,7 @@
         : `<td class="toho-empty" data-label="認証番号">—</td>`;
 
       tr.innerHTML = `
+        <td class="col-edit" data-label="編集"><button type="button" class="row-edit-btn" data-action="edit" data-id="${escapeHtml(c.id)}" title="編集">✎ 編集</button></td>
         ${statusCell}
         ${editableTd(c, 'company', companyHtml, 'col-company')}
         ${editableTd(c, 'theater', escapeHtml(shortTheaterName(c.theater)))}
@@ -1599,11 +1600,6 @@
         ${editableTd(c, 'invoiceDate', fmtDateShort(c.invoiceDate))}
         ${payCell}
         ${editableTd(c, 'memo', escapeHtml(c.memo), 'col-memo')}
-        <td class="row-actions" data-label="操作">
-          <button data-action="edit" data-id="${escapeHtml(c.id)}">編集</button>
-          <button data-action="duplicate" data-id="${escapeHtml(c.id)}">複製</button>
-          <button data-action="delete" data-id="${escapeHtml(c.id)}" class="danger">削除</button>
-        </td>
       `;
       tbody.appendChild(tr);
     });
@@ -2580,7 +2576,7 @@
       const taskListHtml = shown.length
         ? '<ul class="cell-task-list">' + shown.map((t) => {
             const idx = caseTasks(c).indexOf(t);
-            return `<li class="${t.done ? 'task-done' : ''}"><label><input type="checkbox" data-taskcell="${idx}"${t.done ? ' checked' : ''}> ${escapeHtml(t.text)}</label></li>`;
+            return `<li class="${t.done ? 'task-done' : ''}"><label><input type="checkbox" data-taskcell="${idx}"${t.done ? ' checked' : ''}> <span class="${taskPrioClass(t)}">${escapeHtml(t.text)}</span></label></li>`;
           }).join('') + '</ul>'
         : '<span class="task-empty">（なし）</span>';
       // 各項目は通常画面と同じく編集可（劇場名は短縮表示で標準と同条件）
@@ -2615,6 +2611,9 @@
     $('taskModal').classList.remove('hidden');
     setTimeout(() => $('taskNewInput').focus(), 0);
   }
+  // タスクの優先度（未設定は「低」＝黒）→ 文字色クラス
+  function taskPrio(t) { return (t && (t.priority === 'high' || t.priority === 'mid')) ? t.priority : 'low'; }
+  function taskPrioClass(t) { return 'task-prio-' + taskPrio(t); }
   function renderTaskModalList() {
     const c = taskModalCase; if (!c) return;
     const tasks = caseTasks(c);
@@ -2623,8 +2622,12 @@
     const ul = $('taskList');
     ul.innerHTML = order.map((i) => {
       const t = tasks[i];
+      const p = taskPrio(t);
+      const sel = ['high', 'mid', 'low'].map((v) =>
+        `<option value="${v}"${v === p ? ' selected' : ''}>${v === 'high' ? '高' : v === 'mid' ? '中' : '低'}</option>`).join('');
       return `<li class="task-item ${t.done ? 'done' : ''}">
-        <label><input type="checkbox" data-taskmodal="${i}" ${t.done ? 'checked' : ''}> <span>${escapeHtml(t.text)}</span></label>
+        <select class="task-prio-select" data-taskprio="${i}" title="優先度">${sel}</select>
+        <label><input type="checkbox" data-taskmodal="${i}" ${t.done ? 'checked' : ''}> <span class="${taskPrioClass(t)}">${escapeHtml(t.text)}</span></label>
         <button type="button" class="task-del" data-taskdel="${i}" aria-label="削除">×</button>
       </li>`;
     }).join('');
@@ -2639,7 +2642,8 @@
     const c = taskModalCase; if (!c) return;
     const v = $('taskNewInput').value.trim();
     if (!v) return;
-    caseTasks(c).push({ text: v, done: false });
+    const prio = ($('taskNewPriority') && $('taskNewPriority').value) || 'low';
+    caseTasks(c).push({ text: v, done: false, priority: prio });
     $('taskNewInput').value = '';
     persistTaskCase();
     renderTaskModalList();
@@ -3445,7 +3449,7 @@
     }
   }
   $('cancelBtn').addEventListener('click', closeModal);
-  $('modal').addEventListener('click', (e) => { if (e.target === $('modal')) closeModal(); });
+  // 編集中の誤操作で入力が消えないよう、案件編集ポップアップは背景クリックでは閉じない（✕/キャンセルのみ）
   // 編集ポップアップからの複製・削除（主にスマホ用）
   $('modalDuplicateBtn').addEventListener('click', () => {
     const c = cases.find((x) => x.id === $('caseId').value); if (!c) return;
@@ -3568,8 +3572,15 @@
   $('closeTaskModal').addEventListener('click', closeTaskModal);
   $('taskDoneBtn').addEventListener('click', closeTaskModal);
   $('taskList').addEventListener('change', (e) => {
+    if (!taskModalCase) return;
+    const pr = e.target.closest('[data-taskprio]');
+    if (pr) {
+      const t = caseTasks(taskModalCase)[Number(pr.dataset.taskprio)];
+      if (t) { t.priority = pr.value; persistTaskCase(); renderTaskModalList(); if (taskMode) renderTaskTable(); }
+      return;
+    }
     const cb = e.target.closest('[data-taskmodal]');
-    if (!cb || !taskModalCase) return;
+    if (!cb) return;
     const t = caseTasks(taskModalCase)[Number(cb.dataset.taskmodal)];
     if (t) { t.done = cb.checked; persistTaskCase(); renderTaskModalList(); }
   });
@@ -3760,15 +3771,8 @@
   });
 
   // ダブルクリックで編集モーダルを開く（A集計モードは除く）
-  $('casesBody').addEventListener('dblclick', (e) => {
-    if (aggMode) return;
-    if (e.target.closest('button') || e.target.closest('.inline-edit')) return;
-    if (e.target.closest('td[data-field="estimateName"]')) return; // 見積り名は AI-OCR に使うためモーダルは開かない
-    const tr = e.target.closest('tr[data-case-id]');
-    if (!tr) return;
-    const c = cases.find((x) => x.id === tr.dataset.caseId);
-    if (c) openModal(c, 'full');
-  });
+  // 案件編集ポップアップは各行の左端「✎ 編集」ボタンから開く（ダブルクリックでの起動は廃止）。
+  // 見積り名セルのダブルクリック＝見積書AI-OCR は従来どおり別ハンドラで有効。
 
   // ソートは thead に委譲（A集計モードでthead差替えしても生き続ける）
   $('casesTable').querySelector('thead').addEventListener('click', (e) => {
