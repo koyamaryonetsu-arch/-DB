@@ -393,8 +393,8 @@
     if (/Password should be at least/i.test(msg)) return 'パスワードは6文字以上にしてください。';
     if (/rate limit/i.test(msg) || /Email rate limit exceeded/i.test(msg)) return '試行回数が多すぎます。しばらく待って再度お試しください。';
     if (/signups not allowed/i.test(msg) || /Signups not allowed/i.test(msg)) return 'Supabase側で新規作成が無効になっています。管理者にご相談ください。';
-    if (/Sign-?up restricted/i.test(msg) || /allowed signup domains/i.test(msg)) return '登録可能なメールアドレスは @ryonetsu.com または @tohocinemas.co.jp のみです。';
-    if (/Database error saving new user/i.test(msg)) return 'サインアップが拒否されました。許可されたドメイン（@ryonetsu.com / @tohocinemas.co.jp）のメールアドレスをご使用ください。';
+    if (/Sign-?up restricted/i.test(msg) || /allowed signup domains/i.test(msg)) return '登録できるのは @ryonetsu.com / @tohocinemas.co.jp / @tokyu-rec.co.jp / @unitedcinemas.co.jp のメールアドレスのみです。';
+    if (/Database error saving new user/i.test(msg)) return 'サインアップが拒否されました。許可ドメイン（@ryonetsu.com / @tohocinemas.co.jp / @tokyu-rec.co.jp / @unitedcinemas.co.jp）のメールアドレスをご使用ください。';
     return msg;
   }
 
@@ -675,7 +675,11 @@
     async signUp(email, password) {
       if (this.mode === 'local') return { ok: false, msg: 'ローカルモードでは新規作成できません。' };
       const e = (email || '').trim().toLowerCase();
-      const { data, error } = await sb.auth.signUp({ email: e, password: password });
+      // 確認メールのリンクをこのアプリに戻す（メール確認ON時に有効）
+      const { data, error } = await sb.auth.signUp({
+        email: e, password: password,
+        options: { emailRedirectTo: window.location.origin }
+      });
       if (error) return { ok: false, msg: translateAuthError(error.message) };
       const u = data.user;
       const hasSession = !!(data.session);
