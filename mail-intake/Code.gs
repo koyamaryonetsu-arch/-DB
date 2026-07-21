@@ -413,11 +413,13 @@ function updateCase_(matched, prog, summary, quote) {
       patch.estimate_amount = normalizeAmount_(quote.estimate_amount);
     if (quote.quote_date && !matched.quote_date && !patch.quote_date) patch.quote_date = quote.quote_date;
   }
-  // 進捗メモは内容に追記（元の内容は保持。ステータス誤作動を避けるためmemoではなくcontentへ）
+  // 進捗メモは内容に追記（元の内容は保持）。ただし既に同じ/よく似た内容が入っていれば追記しない（重複防止）
   var note = (prog.note || summary || '').trim();
-  if (note) {
+  if (note && !isDuplicateNote_(matched.content, note)) {
     var today = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy-MM-dd');
     patch.content = String(matched.content || '') + '\n[進捗 ' + today + '] ' + note;
+  } else if (note) {
+    Logger.log('重複内容のため追記せず: id=' + matched.id);
   }
   if (!Object.keys(patch).length) { Logger.log('更新項目なし: id=' + matched.id); return; }
   var res = UrlFetchApp.fetch(SUPABASE_URL_() + '/rest/v1/cases?id=eq.' + encodeURIComponent(matched.id), {
@@ -496,6 +498,35 @@ function normalizeAmount_(v) {
   if (!s) return null;
   var n = Number(s);
   return isNaN(n) ? null : n;
+}
+
+// ===== 内容の重複判定（似た進捗メモを二重に追記しない） =====
+// 全角英数字→半角、記号・空白を落として比較用に正規化
+function normalizeText_(s) {
+  s = String(s || '').replace(/[Ａ-Ｚａ-ｚ０-９]/g, function (ch) {
+    return String.fromCharCode(ch.charCodeAt(0) - 0xFEE0);
+  });
+  return s.toLowerCase().replace(/[\s　、。．，\.\/\-ー―（）\(\)\[\]「」【】：:；;]/g, '');
+}
+// 2文字ずつの集合（バイグラム）を作る
+function bigrams_(s) {
+  var out = {}; var n = 0;
+  for (var i = 0; i < s.length - 1; i++) { var g = s.substr(i, 2); if (!out[g]) { out[g] = 1; n++; } }
+  return { set: out, count: n };
+}
+// note が既存 content に「丸ごと含まれる」か「よく似ている(バイグラム8割一致)」なら重複とみなす
+function isDuplicateNote_(content, note) {
+  var n = normalizeText_(note);
+  if (!n) return true;                       // 空 → 追記不要
+  var c = normalizeText_(content);
+  if (!c) return false;
+  if (c.indexOf(n) !== -1) return true;      // 既に丸ごと含む
+  if (n.length < 6) return c.indexOf(n) !== -1; // 短文は完全一致のみ重複扱い
+  var bg = bigrams_(n);
+  if (!bg.count) return false;
+  var hit = 0;
+  for (var g in bg.set) if (c.indexOf(g) !== -1) hit++;
+  return (hit / bg.count) >= 0.8;            // noteのバイグラムの8割が既存内容にある → ほぼ同じ
 }
 
 // ===== 共通 =====
