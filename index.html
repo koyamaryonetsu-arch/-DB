@@ -29,7 +29,7 @@
         <p id="loginHint" class="login-hint">※ ログインに使うメールアドレスとパスワードは管理者にご確認ください</p>
       </form>
       <p class="login-switch">
-        @ryonetsu.com の方は<a href="#" id="toSignupLink">アカウント新規作成</a>
+        初めての方は<a href="#" id="toSignupLink">アカウント新規作成</a>（メール確認あり）
       </p>
     </div>
 
@@ -45,8 +45,9 @@
         <input type="password" id="signupPassword2" required minlength="6" autocomplete="new-password">
         <div id="signupError" class="login-error hidden"></div>
         <div id="signupSuccess" class="login-success hidden"></div>
-        <button type="submit" class="primary">登録してログイン</button>
-        <p class="login-hint">※ 登録可能なメールアドレスは @ryonetsu.com / @tohocinemas.co.jp のみです</p>
+        <button type="submit" class="primary">登録して確認メールを送る</button>
+        <p class="login-hint">※ 登録後、確認メールが届きます。メール内のリンクをクリックすると有効化され、設定したパスワードでログインできます。</p>
+        <p class="login-hint">※ 登録できるのは @ryonetsu.com / @tohocinemas.co.jp / @tokyu-rec.co.jp / @unitedcinemas.co.jp のメールのみです</p>
       </form>
       <p class="login-switch">
         既にアカウントをお持ちの方は<a href="#" id="toLoginLink">ログイン画面へ</a>
