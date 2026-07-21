@@ -33,10 +33,16 @@
   const SMALL_CASE_THRESHOLD = 3000000;
   const BASE_RATE = 5; // %
   const PRIVILEGED_DOMAIN = 'ryonetsu.com';
+  // 客先ドメイン → その客先が見られる会社。ここに足すだけで新しい客先を追加できる。
+  const CUSTOMER_DOMAIN_COMPANY = {
+    'tohocinemas.co.jp': 'TOHOシネマズ',
+    'tokyu-rec.co.jp': '109シネマズ',        // 東急レクリエーション（109シネマズ運営）
+    'unitedcinemas.co.jp': 'ユナイテッドシネマ'
+  };
   // 自己サインアップを許可するドメイン（DB側トリガーでも同一の制限を強制）
-  const ALLOWED_SIGNUP_DOMAINS = ['ryonetsu.com', 'tohocinemas.co.jp'];
+  const ALLOWED_SIGNUP_DOMAINS = ['ryonetsu.com'].concat(Object.keys(CUSTOMER_DOMAIN_COMPANY));
 
-  // 役割別ラベル: 受注者(ryonetsu) ↔ 発注者(TOHO)
+  // 役割別ラベル: 受注者(ryonetsu) ↔ 発注者(客先: TOHO/109/UC 共通)
   const ROLE_STATUS = {
     ryo:  { '見積り提出済': '見積り提出済', '請求済': '請求済',          '入金済': '入金済' },
     toho: { '見積り提出済': '見積り受領済', '請求済': '請求書受領済',    '入金済': '支払済' }
@@ -847,7 +853,8 @@
   }
   function visibleTheaterMaster() {
     if (isPrivileged(currentUser)) return theaterMaster;
-    return theaterMaster.filter((t) => t.company === 'TOHOシネマズ');
+    const co = customerCompany(currentUser);
+    return theaterMaster.filter((t) => t.company === co);
   }
   // CSSクラスに安全な文字列化（スペース・記号を_に）
   function safeClass(s) {
@@ -881,10 +888,11 @@
     const dl = $(id); dl.innerHTML = '';
     items.forEach((v) => { const o = document.createElement('option'); o.value = v; dl.appendChild(o); });
   }
-  // 現在のユーザーが見られる案件のみ（ローカル版ではTOHO案件のみ／Supabase版ではRLSで既に絞られている）
+  // 現在のユーザーが見られる案件のみ（客先は自社のみ／Supabase版ではRLSで既に絞られている）
   function visibleCases() {
     if (isPrivileged(currentUser)) return cases;
-    return cases.filter((c) => c.company === 'TOHOシネマズ');
+    const co = customerCompany(currentUser);
+    return cases.filter((c) => c.company === co);
   }
   function renderDatalists() {
     // 履歴を 客先マスタ + 案件由来 で動的生成（ロール別に自動分離）
@@ -977,6 +985,15 @@
   function saveAuth(user) { localStorage.setItem(AUTH_KEY, JSON.stringify(user)); }
   function clearAuth() { localStorage.removeItem(AUTH_KEY); }
   function isPrivileged(user) { return !!(user && user.domain === PRIVILEGED_DOMAIN); }
+  // 客先ユーザーが閲覧できる会社名（受注者=ryonetsuはnull＝全社）。未知の客先ドメインは既定でTOHO。
+  function customerCompany(user) {
+    if (!user || isPrivileged(user)) return null;
+    return CUSTOMER_DOMAIN_COMPANY[user.domain] || 'TOHOシネマズ';
+  }
+  // 表示・保存で使う「その人の会社」。受注者は指定値（既定TOHO）、客先は自分の会社に固定。
+  function scopedCompany(fallback) {
+    return isPrivileged(currentUser) ? fallback : (customerCompany(currentUser) || 'TOHOシネマズ');
+  }
   function attemptLogin(email, password) {
     const e = (email || '').trim().toLowerCase();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) return { ok: false, msg: 'メールアドレスの形式が正しくありません。' };
@@ -1386,8 +1403,8 @@
   function getFilteredCases() {
     const q = $('searchBox').value.trim().toLowerCase();
     const sf = $('statusFilter').value;
-    // TOHO は自社のみ（会社プルダウンは廃止。受注者は列フィルタで会社を絞る）
-    const cf = isPrivileged(currentUser) ? '' : 'TOHOシネマズ';
+    // 客先は自社のみ（会社プルダウンは廃止。受注者は列フィルタで会社を絞る）
+    const cf = isPrivileged(currentUser) ? '' : customerCompany(currentUser);
     const colFilterFields = Object.keys(columnFilters);
     const filtered = cases.filter((c) => {
       if (cf && c.company !== cf) return false;
@@ -1812,14 +1829,14 @@
     if (isPrivileged(currentUser)) {
       $('company').disabled = false;
     } else {
-      $('company').value = 'TOHOシネマズ';
+      $('company').value = customerCompany(currentUser);
       $('company').disabled = true;
     }
 
     if (caseObj) {
       $('modalTitle').textContent = isCalEdit ? '予定の編集' : '案件編集';
       $('caseId').value = caseObj.id;
-      $('company').value = caseObj.company || 'TOHOシネマズ';
+      $('company').value = caseObj.company || scopedCompany(companyNames()[0]);
       $('theater').value = caseObj.theater || '';
       setDateField('receivedDate', caseObj.receivedDate);
       $('tcPerson').value = caseObj.tcPerson || '';
@@ -1843,7 +1860,7 @@
     } else {
       $('modalTitle').textContent = isSimple ? '簡易登録' : '新規案件登録';
       // 客先・担当者を1つだけ絞っている時は、それを初期選択（複数選択時は標準）
-      $('company').value = (isPrivileged(currentUser) && companyFilter.size === 1) ? [...companyFilter][0] : 'TOHOシネマズ';
+      $('company').value = (isPrivileged(currentUser) && companyFilter.size === 1) ? [...companyFilter][0] : scopedCompany('TOHOシネマズ');
       if (rPersonFilter.size === 1) $('rPerson').value = [...rPersonFilter][0];
       setDateField('receivedDate', todayStr());
     }
@@ -1851,7 +1868,7 @@
     renderDatalists();
     populateCompanySelects();
     if (caseObj) $('company').value = caseObj.company || companyNames()[0];
-    else if (!isPrivileged(currentUser)) $('company').value = 'TOHOシネマズ';
+    else if (!isPrivileged(currentUser)) $('company').value = customerCompany(currentUser);
     $('modal').classList.remove('hidden');
     // 内容・メモは全文が見えるよう、開いた直後に高さを中身に合わせて拡張
     requestAnimationFrame(() => { autoGrowTextarea($('content')); autoGrowTextarea($('memo')); });
@@ -3269,7 +3286,7 @@
     const privileged = isPrivileged(currentUser);
     document.body.classList.toggle('user-privileged', privileged);
     document.body.classList.toggle('user-toho', !privileged);
-    $('appTitle').textContent = privileged ? 'シネマ案件管理' : 'TOHOシネマズ 案件管理';
+    $('appTitle').textContent = privileged ? 'シネマ案件管理' : (customerCompany(currentUser) + ' 案件管理');
     renderRPersonBar();
     // status filter のラベル差し替え（受発注で呼称が変わる項目のみ）
     $('statusFilter').querySelectorAll('option').forEach(opt => {
@@ -3617,7 +3634,7 @@
       parsedDates[f] = v;
     }
     const id = $('caseId').value || genId();
-    const company = isPrivileged(currentUser) ? $('company').value : 'TOHOシネマズ';
+    const company = isPrivileged(currentUser) ? $('company').value : customerCompany(currentUser);
     const amountRaw = $('estimateAmount').value.replace(/[^\d]/g, '');
     const data = {
       id: id, company: company,

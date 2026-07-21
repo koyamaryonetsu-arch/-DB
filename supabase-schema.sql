@@ -175,29 +175,42 @@ as $$
   select coalesce(auth.email() like '%@ryonetsu.com', false);
 $$;
 
--- 5. Row Level Security: 一般ユーザーは TOHOシネマズ のみ、ryonetsu は全社
+-- 4b. 客先ドメイン → 閲覧できる会社名（TOHO/東急レク=109/ユナイテッドシネマ）。ここに足せば客先を追加できる
+create or replace function public.customer_company()
+returns text
+language sql
+stable
+as $$
+  select case lower(split_part(coalesce(auth.email(), ''), '@', 2))
+    when 'tohocinemas.co.jp'    then 'TOHOシネマズ'
+    when 'tokyu-rec.co.jp'      then '109シネマズ'
+    when 'unitedcinemas.co.jp'  then 'ユナイテッドシネマ'
+    else null end;
+$$;
+
+-- 5. Row Level Security: 客先は自社のみ、ryonetsu は全社
 alter table public.cases enable row level security;
 
 drop policy if exists "cases_select" on public.cases;
 create policy "cases_select" on public.cases
   for select to authenticated
-  using (company = 'TOHOシネマズ' or public.is_privileged());
+  using (public.is_privileged() or company = public.customer_company());
 
 drop policy if exists "cases_insert" on public.cases;
 create policy "cases_insert" on public.cases
   for insert to authenticated
-  with check (company = 'TOHOシネマズ' or public.is_privileged());
+  with check (public.is_privileged() or company = public.customer_company());
 
 drop policy if exists "cases_update" on public.cases;
 create policy "cases_update" on public.cases
   for update to authenticated
-  using (company = 'TOHOシネマズ' or public.is_privileged())
-  with check (company = 'TOHOシネマズ' or public.is_privileged());
+  using (public.is_privileged() or company = public.customer_company())
+  with check (public.is_privileged() or company = public.customer_company());
 
 drop policy if exists "cases_delete" on public.cases;
 create policy "cases_delete" on public.cases
   for delete to authenticated
-  using (company = 'TOHOシネマズ' or public.is_privileged());
+  using (public.is_privileged() or company = public.customer_company());
 
 -- 6. リアルタイム同期を有効化（他ユーザーの編集が即座に画面に反映される）
 alter publication supabase_realtime add table public.cases;
@@ -211,7 +224,7 @@ security definer
 as $$
 declare
   email_domain text;
-  allowed_domains text[] := array['ryonetsu.com', 'tohocinemas.co.jp'];
+  allowed_domains text[] := array['ryonetsu.com', 'tohocinemas.co.jp', 'tokyu-rec.co.jp', 'unitedcinemas.co.jp'];
 begin
   if new.email is null then return new; end if;
   email_domain := lower(split_part(new.email, '@', 2));
