@@ -199,7 +199,12 @@ function parseEmail_(emailText) {
     '"progress":{"survey_date":"YYYY-MM-DD","quote_date":"YYYY-MM-DD","work_start_date":"YYYY-MM-DD","work_end_date":"YYYY-MM-DD","note":string}}\n' +
     'progress の日付は intent に関わらず、メールに具体的な日付が出ていれば必ず正しい項目に入れる（無い項目は空文字）:\n' +
     '- survey_date=現地調査・現調・下見の日 / quote_date=見積書の提出日 / work_start_date=作業・工事の開始日 / work_end_date=作業・工事の完了日\n' +
-    '- 「受付日」と混同しない。note は intent=progress のときだけ報告内容の要点を入れる。';
+    '- 「受付日」と混同しない。\n' +
+    'note（進捗メモ）のルール（重要）:\n' +
+    '- intent=progress のときだけ、「一番新しいメッセージで判明した“新しい進展”」だけを1〜3文で簡潔に書く。\n' +
+    '- スレッド全体の再要約や、これまでの経緯の繰り返しはしない。既に分かっている内容は書かない。\n' +
+    '- 「7/10:」「7/13:」のような過去日付の列挙・箇条書きはしない（日付は上の項目で管理する）。\n' +
+    '- 新しい進展が無ければ note は空文字にする。';
   return safeJson_(anthropicText_(apiKey, sys, emailText, 800));
 }
 
@@ -413,11 +418,14 @@ function updateCase_(matched, prog, summary, quote) {
       patch.estimate_amount = normalizeAmount_(quote.estimate_amount);
     if (quote.quote_date && !matched.quote_date && !patch.quote_date) patch.quote_date = quote.quote_date;
   }
-  // 進捗メモは内容に追記（元の内容は保持）。ただし既に同じ/よく似た内容が入っていれば追記しない（重複防止）
-  var note = (prog.note || summary || '').trim();
+  // 進捗メモは「最新の新しい進展だけ」を追記（全履歴の再要約はしない＝prog.noteのみ。summaryへはフォールバックしない）
+  // 既に同じ/よく似た内容が入っていれば追記しない（重複防止）。体裁は「空行＋[進捗 日付]＋改行＋本文」。
+  var note = (prog.note || '').trim();
   if (note && !isDuplicateNote_(matched.content, note)) {
     var today = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy-MM-dd');
-    patch.content = String(matched.content || '') + '\n[進捗 ' + today + '] ' + note;
+    var base = reformatProgress_(String(matched.content || '')); // 既存の詰まった進捗も読みやすく再整形
+    var block = '[進捗 ' + today + ']\n' + note;
+    patch.content = base ? (base + '\n\n' + block) : block;
   } else if (note) {
     Logger.log('重複内容のため追記せず: id=' + matched.id);
   }
@@ -498,6 +506,15 @@ function normalizeAmount_(v) {
   if (!s) return null;
   var n = Number(s);
   return isNaN(n) ? null : n;
+}
+
+// 進捗メモを読みやすく再整形: 各 [進捗 YYYY-MM-DD] の前に空行、直後に改行を入れる
+function reformatProgress_(s) {
+  s = String(s || '');
+  // 見出しの前後の空白/改行を整える（見出し→改行→本文、見出しの前に空行）
+  s = s.replace(/[ \t　]*\n?[ \t　]*(\[進捗\s*\d{4}-\d{2}-\d{2}\])[ \t　]*\n?[ \t　]*/g, '\n\n$1\n');
+  s = s.replace(/\n{3,}/g, '\n\n');       // 空行が続きすぎたら1つに
+  return s.replace(/^\s+/, '').replace(/\s+$/, '');
 }
 
 // ===== 内容の重複判定（似た進捗メモを二重に追記しない） =====
