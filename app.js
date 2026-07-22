@@ -45,8 +45,10 @@
   // 役割別ラベル: 受注者(ryonetsu) ↔ 発注者(客先: TOHO/109/UC 共通)
   const ROLE_STATUS = {
     ryo:  { '見積り提出済': '見積り提出済', '請求済': '請求済',          '入金済': '入金済' },
-    toho: { '見積り提出済': '見積り受領済', '請求済': '請求書受領済',    '入金済': '支払済' }
+    toho: { '見積り提出済': '見積り受領済', '請求済': '請求書受領済',    '入金済': '支払済', '失注': '他社依頼' }
   };
+  // 客先ごとの「客先担当者」表示名（TC担当者 の置換）
+  const CUSTOMER_TC_LABEL = { 'TOHOシネマズ': 'TC担当者', '109シネマズ': '109担当者', 'ユナイテッドシネマ': 'UC担当者' };
   const STATUS_FILTER_OPTIONS_RYO  = ['', '受付','見積り中','見積り提出済','作業中','完了','請求済','入金済'];
   const STATUS_FILTER_OPTIONS_TOHO = ['', '受付','見積り中','見積り提出済','作業中','完了','請求済','入金済']; // values unchanged; labels swap
 
@@ -3305,6 +3307,15 @@
       const map = privileged ? ROLE_STATUS.ryo : ROLE_STATUS.toho;
       if (map[opt.value]) opt.textContent = map[opt.value];
     });
+    // 客先の「TC担当者」表示名を会社別に（TOHO=TC担当者 / 東急レク=109担当者 / UC=UC担当者）
+    if (!privileged) {
+      const tcLabel = CUSTOMER_TC_LABEL[customerCompany(currentUser)] || 'TC担当者';
+      document.querySelectorAll('.tc-label').forEach((el) => { el.textContent = tcLabel; });
+      // 客先には 登録/編集フォームの入力例（プレースホルダ）を出さない
+      document.querySelectorAll('#caseForm input, #caseForm textarea').forEach((el) => { el.placeholder = ''; });
+      // 客先には 担当者の入力履歴（サジェスト）を出さない
+      ['tcPerson', 'rPerson'].forEach((id) => { const el = $(id); if (el) el.removeAttribute('list'); });
+    }
   }
 
   // ---------- handlers ----------
