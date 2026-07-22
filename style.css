@@ -216,6 +216,25 @@ main {
 }
 .table-wrap::-webkit-scrollbar-thumb:hover { background: #64748b; }
 
+/* 上部の横スクロールバー（本体と同期・位置は個人設定） */
+.hscroll-bar { overflow-x: auto; overflow-y: hidden; height: 18px; margin-bottom: 4px; }
+#hScrollTopInner { height: 1px; }
+.hscroll-bar::-webkit-scrollbar { height: 18px; }
+.hscroll-bar::-webkit-scrollbar-track { background: #eef2f7; border-radius: 10px; }
+.hscroll-bar::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 10px; border: 4px solid #eef2f7; min-width: 60px; }
+.hscroll-bar::-webkit-scrollbar-thumb:hover { background: #64748b; }
+body.hscroll-bottom #hScrollTop { display: none; }  /* 「下のみ」＝上バーを隠す（本体下部のバーを使う） */
+
+/* 列の並べ替え（ドラッグ） */
+#casesTable thead th[data-colkey] { cursor: grab; }
+#casesTable thead th.col-dragging { opacity: 0.5; }
+#casesTable thead th.col-drop-target { box-shadow: inset 3px 0 0 #2563eb; }
+/* 個人設定の列並びが有効な時は「横方向の固定」だけ解除（縦のヘッダー固定は維持）して重なりを防ぐ */
+#casesTable.custom-col-order th { left: auto !important; }
+#casesTable.custom-col-order td.col-status,
+#casesTable.custom-col-order td[data-field="theater"],
+#casesTable.custom-col-order td.col-edit { position: static !important; left: auto !important; }
+
 /* 行の左端「編集」ボタン列 */
 .col-edit { width: 66px; text-align: center; white-space: nowrap; }
 .row-edit-btn { padding: 3px 8px; cursor: pointer; white-space: nowrap; font-size: 12px; }
