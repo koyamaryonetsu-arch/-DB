@@ -450,7 +450,7 @@ function updateCase_(matched, prog, summary, quote) {
 
 // ===== 社内メモ → 客先向け「内容」要約 =====
 // 社内メモ(delta)を、客先に見せてよい「内容」向けに要約する。
-// 除外: 下請け/協力会社(パートナー)名・金額/費用感・作業の難易度 等、客先に伝えない社内事情。
+// 除外: 下請け/協力会社(パートナー)名・金額/費用感・作業の難易度・社内の判断過程 等。
 // 重複回避: 既存の内容(currentContent)・顧客メモ(customerMemo)にある事柄は繰り返さない。
 // 共有すべき客先向け情報が無ければ空文字（＝内容へ書かない）。
 function summarizeForCustomer_(delta, currentContent, customerMemo) {
@@ -459,19 +459,26 @@ function summarizeForCustomer_(delta, currentContent, customerMemo) {
   if (!apiKey || !delta) return '';
   var sys = [
     'あなたは菱熱工業（シネコン設備の保守/工事）の案件アシスタントです。',
-    '社内メモの内容を、客先（映画館）に共有する「内容」欄向けの短い文章に要約します。',
+    '社内メモの内容を、客先（映画館）にそのまま見せる「内容」欄向けの短い文章に要約します。',
     '',
-    '厳守（客先に伝えてはいけない社内事情は絶対に書かない）:',
-    '- 下請け・協力会社・パートナー企業の社名/担当者/連絡先は書かない。',
-    '- 金額・費用・原価・粗利・費用感（高い/安い等）は書かない。',
-    '- 作業の難易度・大変さ・社内の苦労・段取りの愚痴などは書かない。',
-    '- 菱熱の社内メンバー名・社内の判断過程は書かない。',
+    '【最重要】あなたの出力は、客先がそのまま読むテキストです。',
+    '前置き・理由・判定・分類・注釈など、要約本文以外は一切書かないでください。',
     '',
-    '要約ルール:',
-    '- 客先が知りたい「案件の状況・進捗・次の予定・依頼事項」だけを、事実ベースで簡潔に。',
-    '- 既存の「内容」や「顧客メモ」に既に書かれている事柄は繰り返さない（重複禁止）。',
-    '- 客先に共有すべき新情報が無い場合（社内事情のみ・重複のみ）は、必ず「(なし)」とだけ返す。',
-    '- 前置き・見出し・箇条書き記号は不要。共有する文だけを1〜3文で返す。'
+    '絶対に書いてはいけないこと（客先に見せない社内事情）:',
+    '- 下請け・協力会社・パートナー企業・別業者の社名/選定/担当者/連絡先。',
+    '- 金額・費用・原価・粗利・費用感（高い/安い等）。',
+    '- 作業の難易度・大変さ・応急処置の技術的検討・社内での判断過程や検討理由。',
+    '- 菱熱の社内メンバー名。',
+    '',
+    '出力ルール:',
+    '- 客先が知りたい「案件の状況・進捗・次の予定・依頼事項」だけを、事実ベースで1〜3文・簡潔に。',
+    '- 既存の「内容」「顧客メモ」に既にある事柄は繰り返さない（重複禁止）。',
+    '- 客先に共有できる新情報が無い場合（社内事情のみ・重複のみ）は、要約文の代わりに半角で NONE とだけ返す。',
+    '  理由や補足は一切書かない。「NONE」と要約文を混ぜない（共有できないなら NONE だけ）。',
+    '',
+    '悪い例（絶対NG）: 「(なし) 理由：社内メモは別業者の選定と応急処置の検討で…」',
+    '良い例: 「シアター3の空調を点検し、部品交換のお見積りを提出予定です。」',
+    '共有なしの例: NONE'
   ].join('\n');
   var user = [
     '# 既存の「内容」（客先も見る。ここに書かれている事は繰り返さない）',
@@ -484,8 +491,18 @@ function summarizeForCustomer_(delta, currentContent, customerMemo) {
     delta
   ].join('\n');
   var s = (anthropicText_(apiKey, sys, user, 300) || '').trim();
-  if (!s || /^[（(]?\s*なし\s*[）)]?$/.test(s)) return '';
+  if (isNoShareSummary_(s)) return '';
   return s;
+}
+// 要約結果が「客先に共有なし」を意味するか（内容へ書かない判定・頑丈版）。
+// "NONE"を含む／先頭が「なし」系／「該当なし」等 → 共有なし扱い。
+function isNoShareSummary_(s) {
+  s = String(s || '').trim();
+  if (!s) return true;
+  if (/NONE/i.test(s)) return true;                         // 半角センチネル
+  if (/^[（(]?\s*なし\s*[）)]?/.test(s)) return true;          // 先頭が「なし」「(なし)」等
+  if (/^(該当なし|共有(事項|情報)?なし|特になし|共有なし)/.test(s)) return true;
+  return false;
 }
 
 // ============================================================
@@ -570,6 +587,53 @@ function migratePatch_(key, id, patch) {
     payload: JSON.stringify(patch), muteHttpExceptions: true
   });
   return res.getResponseCode() < 300;
+}
+
+// ============================================================
+//  【冪等・何度でも安全】内容(content)だけを社内メモ(memo)から作り直す
+//  ------------------------------------------------------------
+//  migrateContentMemo で社内メモへ生ログを集約した後、要約プロンプトを直した等の理由で
+//  「内容」だけを作り直したい時に使う。**社内メモ(memo)は一切変更しない**ので、
+//  何度実行しても二重化しない（migrateContentMemo と違い content↔memo の移動をしない）。
+//
+//  ★実行前に Webhook `case-updated` を必ず無効化（内容のPATCHで通知が飛ぶのを防ぐ）。
+//  ・約5分で自動中断＆再開可（処理済みIDを RESUMMARIZE_DONE に記録）。
+//  ・やり直しは resummarizeContentReset()。
+// ============================================================
+function resummarizeContentFromMemo() {
+  var key = cfg_('SUPABASE_SERVICE_ROLE_KEY');
+  var apiKey = cfg_('ANTHROPIC_API_KEY');
+  if (!key) { Logger.log('SUPABASE_SERVICE_ROLE_KEY未設定'); return; }
+  if (!apiKey) { Logger.log('ANTHROPIC_API_KEY未設定'); return; }
+  var props = PropertiesService.getScriptProperties();
+  var done = {};
+  try { done = JSON.parse(props.getProperty('RESUMMARIZE_DONE') || '{}') || {}; } catch (e) {}
+  var rows = migrateFetchAll_(key);
+  Logger.log('内容 再生成 対象: 全' + rows.length + '件（済 ' + Object.keys(done).length + '件）');
+  var start = Date.now(), BUDGET = 5 * 60 * 1000;
+  var changed = 0, same = 0, empty = 0, failed = 0;
+  for (var i = 0; i < rows.length; i++) {
+    if (Date.now() - start > BUDGET) { Logger.log('⏸ 時間切れ・中断。再度 resummarizeContentFromMemo() で続きから'); break; }
+    var r = rows[i];
+    if (done[r.id]) continue;
+    var memo = String(r.memo || '').trim();
+    var newContent = memo ? summarizeForCustomer_(memo, '', r.customer_memo) : '';
+    var cur = String(r.content || '');
+    if (String(newContent || '') === cur) { done[r.id] = 1; same++; continue; } // 変化なし＝PATCH不要
+    var ok = migratePatch_(key, r.id, { content: newContent || null });
+    if (ok) {
+      done[r.id] = 1; changed++; if (!newContent) empty++;
+      props.setProperty('RESUMMARIZE_DONE', JSON.stringify(done));
+    } else { failed++; Logger.log('✗ 内容 再生成 失敗 id=' + r.id); }
+  }
+  var total = Object.keys(done).length;
+  Logger.log('✅ 内容 再生成 今回:更新' + changed + '（うち空' + empty + '） 変化なし' + same + ' 失敗' + failed +
+    ' ／ 累計済 ' + total + '/' + rows.length + (total >= rows.length ? '（全件完了）' : ''));
+  if (total >= rows.length) Logger.log('👉 完了。Webhook `case-updated` を元のURLに戻してください。');
+}
+function resummarizeContentReset() {
+  PropertiesService.getScriptProperties().deleteProperty('RESUMMARIZE_DONE');
+  Logger.log('内容 再生成の進捗記録をクリアしました。');
 }
 
 // ===== 添付見積書のAI-OCR =====
