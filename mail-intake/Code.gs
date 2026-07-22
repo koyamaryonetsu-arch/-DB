@@ -213,7 +213,7 @@ function queryCases_(filter) {
   var key = cfg_('SUPABASE_SERVICE_ROLE_KEY');
   if (!key) { Logger.log('SUPABASE_SERVICE_ROLE_KEY未設定'); return []; }
   var params = filter +
-    '&select=id,company,theater,received_date,category,content,memo,status,r_person,tc_person,estimate_name,estimate_amount,survey_date,quote_date,work_start_date,work_end_date' +
+    '&select=id,company,theater,received_date,category,content,memo,customer_memo,status,r_person,tc_person,estimate_name,estimate_amount,survey_date,quote_date,work_start_date,work_end_date' +
     '&order=received_date.desc&limit=25';
   var res = UrlFetchApp.fetch(SUPABASE_URL_() + '/rest/v1/cases?' + params, {
     method: 'get', headers: { apikey: key, Authorization: 'Bearer ' + key }, muteHttpExceptions: true
@@ -379,10 +379,15 @@ function fetchBroadCandidates_(p, base) {
 function insertCase_(f) {
   var key = cfg_('SUPABASE_SERVICE_ROLE_KEY');
   if (!key) { Logger.log('SUPABASE_SERVICE_ROLE_KEY未設定'); return; }
+  // メール本文は社内メモ(memo)へ。客先向けの「内容(content)」はAIが社内事情を除いて要約
+  var mailText = f.content || null;
+  var summary = summarizeForCustomer_(mailText, '', '');
   var body = {
     company: f.company, theater: f.theater, received_date: f.received_date || null,
     tc_person: f.tc_person || null, r_person: f.r_person || null,
-    category: f.category || null, content: f.content || null
+    category: f.category || null,
+    memo: mailText,
+    content: summary || null
   };
   // 添付見積書のOCR結果があれば書き込む（空はnullでスキップ）
   if (f.estimate_name) body.estimate_name = f.estimate_name;
@@ -418,16 +423,20 @@ function updateCase_(matched, prog, summary, quote) {
       patch.estimate_amount = normalizeAmount_(quote.estimate_amount);
     if (quote.quote_date && !matched.quote_date && !patch.quote_date) patch.quote_date = quote.quote_date;
   }
-  // 進捗メモは「最新の新しい進展だけ」を追記（全履歴の再要約はしない＝prog.noteのみ。summaryへはフォールバックしない）
-  // 既に同じ/よく似た内容が入っていれば追記しない（重複防止）。体裁は「空行＋[進捗 日付]＋改行＋本文」。
+  // 進捗メモは「社内メモ(memo)」へ追記する（客先向けの「内容」へはサーバ側のAI要約が反映）。
+  // 「最新の新しい進展だけ」を追記（全履歴の再要約はしない＝prog.noteのみ）。
+  // 重複防止: 既に社内メモ or 顧客メモに同/類似の内容があれば追記しない（顧客メモと同内容が
+  //   メールでも来た場合の二重記入を自動スキップ）。体裁は「空行＋[進捗 日付]＋改行＋本文」。
   var note = (prog.note || '').trim();
-  if (note && !isDuplicateNote_(matched.content, note)) {
+  if (note && isDuplicateNote_(matched.customer_memo, note)) {
+    Logger.log('顧客メモと重複のため社内メモへ追記せず: id=' + matched.id);
+  } else if (note && !isDuplicateNote_(matched.memo, note)) {
     var today = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy-MM-dd');
-    var base = reformatProgress_(String(matched.content || '')); // 既存の詰まった進捗も読みやすく再整形
+    var base = reformatProgress_(String(matched.memo || '')); // 既存の詰まった進捗も読みやすく再整形
     var block = '[進捗 ' + today + ']\n' + note;
-    patch.content = base ? (base + '\n\n' + block) : block;
+    patch.memo = base ? (base + '\n\n' + block) : block;
   } else if (note) {
-    Logger.log('重複内容のため追記せず: id=' + matched.id);
+    Logger.log('社内メモと重複のため追記せず: id=' + matched.id);
   }
   if (!Object.keys(patch).length) { Logger.log('更新項目なし: id=' + matched.id); return; }
   var res = UrlFetchApp.fetch(SUPABASE_URL_() + '/rest/v1/cases?id=eq.' + encodeURIComponent(matched.id), {
@@ -437,6 +446,130 @@ function updateCase_(matched, prog, summary, quote) {
   });
   if (res.getResponseCode() >= 300) Logger.log('UPDATE失敗: ' + res.getContentText());
   else Logger.log('進捗更新: id=' + matched.id + ' 項目=' + Object.keys(patch).join(','));
+}
+
+// ===== 社内メモ → 客先向け「内容」要約 =====
+// 社内メモ(delta)を、客先に見せてよい「内容」向けに要約する。
+// 除外: 下請け/協力会社(パートナー)名・金額/費用感・作業の難易度 等、客先に伝えない社内事情。
+// 重複回避: 既存の内容(currentContent)・顧客メモ(customerMemo)にある事柄は繰り返さない。
+// 共有すべき客先向け情報が無ければ空文字（＝内容へ書かない）。
+function summarizeForCustomer_(delta, currentContent, customerMemo) {
+  var apiKey = cfg_('ANTHROPIC_API_KEY');
+  delta = String(delta || '').trim();
+  if (!apiKey || !delta) return '';
+  var sys = [
+    'あなたは菱熱工業（シネコン設備の保守/工事）の案件アシスタントです。',
+    '社内メモの内容を、客先（映画館）に共有する「内容」欄向けの短い文章に要約します。',
+    '',
+    '厳守（客先に伝えてはいけない社内事情は絶対に書かない）:',
+    '- 下請け・協力会社・パートナー企業の社名/担当者/連絡先は書かない。',
+    '- 金額・費用・原価・粗利・費用感（高い/安い等）は書かない。',
+    '- 作業の難易度・大変さ・社内の苦労・段取りの愚痴などは書かない。',
+    '- 菱熱の社内メンバー名・社内の判断過程は書かない。',
+    '',
+    '要約ルール:',
+    '- 客先が知りたい「案件の状況・進捗・次の予定・依頼事項」だけを、事実ベースで簡潔に。',
+    '- 既存の「内容」や「顧客メモ」に既に書かれている事柄は繰り返さない（重複禁止）。',
+    '- 客先に共有すべき新情報が無い場合（社内事情のみ・重複のみ）は、必ず「(なし)」とだけ返す。',
+    '- 前置き・見出し・箇条書き記号は不要。共有する文だけを1〜3文で返す。'
+  ].join('\n');
+  var user = [
+    '# 既存の「内容」（客先も見る。ここに書かれている事は繰り返さない）',
+    String(currentContent || '').trim() || '(空)',
+    '',
+    '# 既存の「顧客メモ」（客先が記入。ここに書かれている事は繰り返さない）',
+    String(customerMemo || '').trim() || '(空)',
+    '',
+    '# 社内メモ（この中から客先に共有してよい部分だけ要約）',
+    delta
+  ].join('\n');
+  var s = (anthropicText_(apiKey, sys, user, 300) || '').trim();
+  if (!s || /^[（(]?\s*なし\s*[）)]?$/.test(s)) return '';
+  return s;
+}
+
+// ============================================================
+//  【一回だけ実行】既存データの移行: 内容/社内メモ を新ルールに書き直す
+//  ------------------------------------------------------------
+//  旧: 内容(content) にメール取込の作業ログ（社内情報を含みうる）が入っている。
+//  新: 社内メモ(memo) = 既存の社内メモ＋既存の内容（＝社内の生ログ）。
+//      内容(content) = その社内メモをAIが客先向けに要約（下請け/金額/難易度など除外）。
+//
+//  ★重要★ 実行前に Supabase の Database Webhook（cases → case-created）を
+//          「無効化」してください。有効のままだと1件ごとにLINE通知が飛び、
+//          通知枠を消費します（顧客メモ/内容更新の通知が全件分発火するため）。
+//          移行が終わったらWebhookを元に戻してください。
+//
+//  ・GASの6分制限に備え、約5分で自動中断＆再開可能（処理済みIDを記録）。
+//    途中で止まったら、もう一度 migrateContentMemo() を実行すれば続きから。
+//  ・最初からやり直したい場合は migrateContentMemoReset() を実行。
+// ============================================================
+function migrateContentMemo() {
+  var key = cfg_('SUPABASE_SERVICE_ROLE_KEY');
+  var apiKey = cfg_('ANTHROPIC_API_KEY');
+  if (!key) { Logger.log('SUPABASE_SERVICE_ROLE_KEY未設定'); return; }
+  if (!apiKey) { Logger.log('ANTHROPIC_API_KEY未設定'); return; }
+  var props = PropertiesService.getScriptProperties();
+  var done = {};
+  try { done = JSON.parse(props.getProperty('MIGRATE_MEMO_DONE') || '{}') || {}; } catch (e) {}
+  var rows = migrateFetchAll_(key);
+  Logger.log('移行対象: 全' + rows.length + '件（済 ' + Object.keys(done).length + '件）');
+  var start = Date.now(), BUDGET = 5 * 60 * 1000;
+  var processed = 0, skipped = 0, failed = 0;
+  for (var i = 0; i < rows.length; i++) {
+    if (Date.now() - start > BUDGET) { Logger.log('⏸ 時間切れ・中断。再度 migrateContentMemo() で続きから'); break; }
+    var r = rows[i];
+    if (done[r.id]) continue;
+    var content = String(r.content || '').trim();
+    var memo = String(r.memo || '').trim();
+    // 新しい社内メモ = 既存社内メモ ＋ 既存内容（内容側の作業ログを社内メモへ集約）
+    var parts = [];
+    if (memo) parts.push(memo);
+    if (content) parts.push(content);
+    var newMemo = parts.join('\n\n');
+    if (!newMemo) { done[r.id] = 1; skipped++; continue; } // 中身が無い案件は対象外
+    var newContent = summarizeForCustomer_(newMemo, '', r.customer_memo);
+    var ok = migratePatch_(key, r.id, { memo: newMemo, content: newContent || null });
+    if (ok) {
+      done[r.id] = 1; processed++;
+      props.setProperty('MIGRATE_MEMO_DONE', JSON.stringify(done)); // 1件ごとに保存＝再開に強い
+    } else { failed++; Logger.log('✗ 移行失敗 id=' + r.id); }
+  }
+  var total = Object.keys(done).length;
+  Logger.log('✅ 移行 今回:実行' + processed + ' スキップ' + skipped + ' 失敗' + failed +
+    ' ／ 累計済 ' + total + '/' + rows.length + (total >= rows.length ? '（全件完了）' : ''));
+  if (total >= rows.length) Logger.log('👉 完了しました。Supabaseの Webhook を元に戻してください。');
+}
+// 移行の進捗をリセット（最初からやり直す時だけ実行）
+function migrateContentMemoReset() {
+  PropertiesService.getScriptProperties().deleteProperty('MIGRATE_MEMO_DONE');
+  Logger.log('移行の進捗記録をクリアしました。');
+}
+// 全案件を取得（id/content/memo/customer_memo）。1000件超はページング。
+function migrateFetchAll_(key) {
+  var out = [], from = 0, PAGE = 1000;
+  for (var guard = 0; guard < 100; guard++) {
+    var res = UrlFetchApp.fetch(SUPABASE_URL_() + '/rest/v1/cases?select=id,content,memo,customer_memo&order=created_at.asc', {
+      method: 'get',
+      headers: { apikey: key, Authorization: 'Bearer ' + key, Range: from + '-' + (from + PAGE - 1) },
+      muteHttpExceptions: true
+    });
+    if (res.getResponseCode() >= 300) { Logger.log('移行 取得失敗: ' + res.getContentText()); break; }
+    var batch = [];
+    try { batch = JSON.parse(res.getContentText()) || []; } catch (e) {}
+    out = out.concat(batch);
+    if (batch.length < PAGE) break;
+    from += PAGE;
+  }
+  return out;
+}
+function migratePatch_(key, id, patch) {
+  var res = UrlFetchApp.fetch(SUPABASE_URL_() + '/rest/v1/cases?id=eq.' + encodeURIComponent(id), {
+    method: 'patch', contentType: 'application/json',
+    headers: { apikey: key, Authorization: 'Bearer ' + key, Prefer: 'return=minimal' },
+    payload: JSON.stringify(patch), muteHttpExceptions: true
+  });
+  return res.getResponseCode() < 300;
 }
 
 // ===== 添付見積書のAI-OCR =====
