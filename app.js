@@ -49,6 +49,14 @@
   };
   // 客先ごとの「客先担当者」表示名（TC担当者 の置換）
   const CUSTOMER_TC_LABEL = { 'TOHOシネマズ': 'TC担当者', '109シネマズ': '109担当者', 'ユナイテッドシネマ': 'UC担当者' };
+  // 客先に渡してよい cases のカラム（社内情報 memo/advice_note/allocations/margin_rate/tasks/created_by/updated_by は除外）
+  const CUSTOMER_CASE_COLUMNS = [
+    'id', 'company', 'theater', 'received_date', 'tc_person', 'r_person', 'category', 'content',
+    'survey_date', 'cert_number', 'estimate_name', 'estimate_amount', 'quote_date',
+    'work_start_date', 'work_end_date', 'invoice_date', 'payment_date', 'status', 'status_override',
+    'schedule_adjusting', 'payment_confirmed', 'survey_time', 'work_start_time', 'work_end_time',
+    'created_at', 'updated_at'
+  ].join(',');
   const STATUS_FILTER_OPTIONS_RYO  = ['', '受付','見積り中','見積り提出済','作業中','完了','請求済','入金済'];
   const STATUS_FILTER_OPTIONS_TOHO = ['', '受付','見積り中','見積り提出済','作業中','完了','請求済','入金済']; // values unchanged; labels swap
 
@@ -310,6 +318,11 @@
     if (workEndTimeSupported) row.work_end_time = c.workEndTime ? c.workEndTime : null;
     if (adviceNoteSupported) row.advice_note = c.adviceNote ? c.adviceNote : null;
     row.status = statusOf(c); // DB側レポート用に実効ステータス（手動上書き反映）も保存
+    // 客先の保存では社内情報カラムを送らない＝既存のDB値を保持（上書き・消去しない）
+    if (!isPrivileged(currentUser)) {
+      delete row.memo; delete row.allocations; delete row.margin_rate;
+      delete row.advice_note; delete row.tasks;
+    }
     return row;
   }
   // DB行 → app。null は空文字（日付/テキスト）/既定値（粗利率）に
@@ -447,7 +460,9 @@
     },
     async fetchCases() {
       if (this.mode === 'local') return loadCases();
-      const { data, error } = await sb.from('cases').select('*');
+      // 客先には社内情報カラム（社内用メモ/AI学習メモ/粗利配分/タスク）をデータごと渡さない
+      const cols = isPrivileged(currentUser) ? '*' : CUSTOMER_CASE_COLUMNS;
+      const { data, error } = await sb.from('cases').select(cols);
       if (error) throw error;
       return (data || []).map(rowToCase);
     },
@@ -665,6 +680,8 @@
     },
     subscribe(onChange) {
       if (this.mode !== 'supabase') return;
+      // 客先にはリアルタイム購読をしない（realtimeは社内情報カラムを含む行を配信するため）
+      if (!isPrivileged(currentUser)) return;
       try {
         rtChannel = sb.channel('cases-realtime')
           .on('postgres_changes', { event: '*', schema: 'public', table: 'cases' }, onChange)
