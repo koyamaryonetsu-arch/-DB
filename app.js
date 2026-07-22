@@ -1510,7 +1510,7 @@
                   && !(cfg.tohoOnly && c.company !== 'TOHOシネマズ');
     const cls = (canEdit ? 'editable' : '') + (c[field] ? '' : ' empty') + (extraClass ? ' ' + extraClass : '');
     const title = field === 'estimateName' ? ' title="ダブルクリックで見積書を読み取り（AI-OCR）"' : '';
-    return `<td class="${cls}" data-field="${field}" data-case-id="${escapeHtml(c.id)}" data-label="${escapeHtml(FIELD_LABELS[field] || '')}"${title}>${displayHtml}</td>`;
+    return `<td class="${cls}" data-field="${field}" data-colkey="${field}" data-case-id="${escapeHtml(c.id)}" data-label="${escapeHtml(FIELD_LABELS[field] || '')}"${title}>${displayHtml}</td>`;
   }
 
   // ステータスのセル（バッジ＋手動選択。受注者のみ編集可）— 通常/タスク両モードで共有
@@ -1519,8 +1519,8 @@
     const manualStatus = isStatusManual(c);
     const statusHtml = `<span class="status-badge status-${escapeHtml(statusCode)}${manualStatus ? ' manual' : ''}">${escapeHtml(statusDisplayLabel(statusCode))}</span>`;
     return isPrivileged(currentUser)
-      ? `<td class="col-status status-cell" data-case-id="${escapeHtml(c.id)}" data-label="ステータス"><span class="status-pick" data-action="status-edit" data-id="${escapeHtml(c.id)}" title="クリックでステータスを変更（先頭の「自動」で自動判定に戻ります）">${statusHtml}</span></td>`
-      : `<td class="col-status status-cell" data-label="ステータス">${statusHtml}</td>`;
+      ? `<td class="col-status status-cell" data-colkey="status" data-case-id="${escapeHtml(c.id)}" data-label="ステータス"><span class="status-pick" data-action="status-edit" data-id="${escapeHtml(c.id)}" title="クリックでステータスを変更（先頭の「自動」で自動判定に戻ります）">${statusHtml}</span></td>`
+      : `<td class="col-status status-cell" data-colkey="status" data-label="ステータス">${statusHtml}</td>`;
   }
   // ===== 列幅のドラッグ調整（どの画面でも） =====
   function fieldOfTh(th) { return th.dataset.sort || th.dataset.col || ''; }
@@ -1600,10 +1600,10 @@
       const isTohoCo = c.company === 'TOHOシネマズ';
       const certHtml = isTohoCo
         ? editableTd(c, 'certNumber', escapeHtml(c.certNumber))
-        : `<td class="toho-empty" data-label="認証番号">—</td>`;
+        : `<td class="toho-empty" data-colkey="certNumber" data-label="認証番号">—</td>`;
 
       tr.innerHTML = `
-        <td class="col-edit" data-label="編集"><button type="button" class="row-edit-btn" data-action="edit" data-id="${escapeHtml(c.id)}" title="編集">✎ 編集</button></td>
+        <td class="col-edit" data-colkey="edit" data-label="編集"><button type="button" class="row-edit-btn" data-action="edit" data-id="${escapeHtml(c.id)}" title="編集">✎ 編集</button></td>
         ${statusCell}
         ${editableTd(c, 'company', companyHtml, 'col-company')}
         ${editableTd(c, 'theater', escapeHtml(shortTheaterName(c.theater)))}
@@ -1616,7 +1616,7 @@
         ${certHtml}
         ${editableTd(c, 'estimateName', escapeHtml(c.estimateName))}
         ${editableTd(c, 'estimateAmount', fmtAmount(c.estimateAmount))}
-        <td class="col-tax" data-label="見積り金額(税込)">${fmtAmount(taxIncludedAmount(c.estimateAmount))}</td>
+        <td class="col-tax" data-colkey="tax" data-label="見積り金額(税込)">${fmtAmount(taxIncludedAmount(c.estimateAmount))}</td>
         ${editableTd(c, 'quoteDate', fmtDateShort(c.quoteDate))}
         ${editableTd(c, 'workStartDate', escapeHtml(fmtDateTime(c.workStartDate, c.workStartTime)))}
         ${editableTd(c, 'workEndDate', escapeHtml(fmtDateTime(c.workEndDate, c.workEndTime)))}
@@ -1641,6 +1641,105 @@
     updateMobileSortButtons();
     updateSortIndicators();
     updateColumnFilterIndicators();
+    applyColumnOrder();   // 個人設定の列並びを反映
+    setupColumnDrag();    // 見出しをドラッグで並べ替え可能に
+    syncHScrollWidth();   // 上部横スクロールバーの幅を合わせる
+  }
+
+  // ===== 列の並べ替え（個人設定・ドラッグ） =====
+  const DEFAULT_COLUMN_KEYS = ['edit', 'status', 'company', 'theater', 'receivedDate', 'tcPerson', 'rPerson', 'category', 'content', 'surveyDate', 'certNumber', 'estimateName', 'estimateAmount', 'tax', 'quoteDate', 'workStartDate', 'workEndDate', 'invoiceDate', 'paymentDate', 'memo'];
+  function loadColumnOrder() {
+    try { const a = JSON.parse(localStorage.getItem(userFilterKey('colOrderV1'))); if (Array.isArray(a) && a.length) return a; } catch (e) {}
+    return null;
+  }
+  function saveColumnOrder(order) { try { localStorage.setItem(userFilterKey('colOrderV1'), JSON.stringify(order)); } catch (e) {} }
+  function currentColumnOrder() {
+    const saved = loadColumnOrder();
+    if (!saved) return DEFAULT_COLUMN_KEYS.slice();
+    const out = saved.filter((k) => DEFAULT_COLUMN_KEYS.indexOf(k) !== -1);
+    DEFAULT_COLUMN_KEYS.forEach((k) => { if (out.indexOf(k) === -1) out.push(k); }); // 新設列は末尾に補完
+    return out;
+  }
+  function reorderCellsByKey(rowEl, order) {
+    const byKey = {};
+    Array.prototype.forEach.call(rowEl.children, (td) => { const k = td.getAttribute('data-colkey'); if (k) byKey[k] = td; });
+    order.forEach((k) => { if (byKey[k]) rowEl.appendChild(byKey[k]); });
+  }
+  function applyColumnOrder() {
+    if (taskMode || aggMode) return; // 通常モードのみ（タスク/A集計は列構成が別）
+    const order = currentColumnOrder();
+    const tbl = $('casesTable');
+    tbl.classList.toggle('custom-col-order', !!loadColumnOrder()); // 並べ替え中は左固定を解除
+    const head = $('theadRow'); if (head) reorderCellsByKey(head, order);
+    $('casesBody').querySelectorAll('tr').forEach((tr) => reorderCellsByKey(tr, order));
+  }
+  function setupColumnDrag() {
+    if (taskMode || aggMode) return;
+    const head = $('theadRow'); if (!head) return;
+    head.querySelectorAll('th[data-colkey]').forEach((th) => { th.draggable = true; });
+  }
+  let dragColKey = null;
+  function clearColDragMarks() {
+    const head = $('theadRow'); if (!head) return;
+    head.querySelectorAll('.col-dragging, .col-drop-target').forEach((x) => x.classList.remove('col-dragging', 'col-drop-target'));
+  }
+  function bindColumnDrag() {
+    const thead = $('casesTable').querySelector('thead');
+    thead.addEventListener('dragstart', (e) => {
+      if (taskMode || aggMode) return;
+      const th = e.target.closest('th[data-colkey]');
+      if (!th || e.target.closest('.col-resizer')) { e.preventDefault(); return; }
+      dragColKey = th.getAttribute('data-colkey');
+      try { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', dragColKey); } catch (err) {}
+      th.classList.add('col-dragging');
+    });
+    thead.addEventListener('dragover', (e) => {
+      if (!dragColKey) return;
+      e.preventDefault();
+      const th = e.target.closest('th[data-colkey]');
+      $('theadRow').querySelectorAll('.col-drop-target').forEach((x) => x.classList.remove('col-drop-target'));
+      if (th && th.getAttribute('data-colkey') !== dragColKey) th.classList.add('col-drop-target');
+    });
+    thead.addEventListener('drop', (e) => {
+      if (!dragColKey) return;
+      e.preventDefault();
+      const th = e.target.closest('th[data-colkey]');
+      const targetKey = th && th.getAttribute('data-colkey');
+      if (targetKey && targetKey !== dragColKey) {
+        const order = currentColumnOrder();
+        order.splice(order.indexOf(dragColKey), 1);
+        order.splice(order.indexOf(targetKey), 0, dragColKey); // ターゲットの前に挿入
+        saveColumnOrder(order);
+        applyColumnOrder();
+      }
+      dragColKey = null; clearColDragMarks();
+    });
+    thead.addEventListener('dragend', () => { dragColKey = null; clearColDragMarks(); });
+  }
+  // 列並びを既定に戻す
+  function resetColumnOrder() {
+    try { localStorage.removeItem(userFilterKey('colOrderV1')); } catch (e) {}
+    render();
+  }
+
+  // ===== 上部の横スクロールバー（本体と同期・位置は個人設定） =====
+  let hScrollSyncing = false;
+  function syncHScrollWidth() {
+    const inner = $('hScrollTopInner'); const tbl = $('casesTable');
+    if (inner && tbl) inner.style.width = tbl.scrollWidth + 'px';
+  }
+  function bindHScroll() {
+    const wrap = document.querySelector('.table-wrap'); const top = $('hScrollTop');
+    if (!wrap || !top) return;
+    top.addEventListener('scroll', () => { if (hScrollSyncing) return; hScrollSyncing = true; wrap.scrollLeft = top.scrollLeft; hScrollSyncing = false; });
+    wrap.addEventListener('scroll', () => { if (hScrollSyncing) return; hScrollSyncing = true; top.scrollLeft = wrap.scrollLeft; hScrollSyncing = false; });
+    window.addEventListener('resize', syncHScrollWidth);
+  }
+  function applyHScrollPos() {
+    const pos = (localStorage.getItem(userFilterKey('hscrollPosV1')) || 'top');
+    document.body.classList.toggle('hscroll-bottom', pos === 'bottom');
+    const btn = $('hscrollPosBtn'); if (btn) btn.textContent = pos === 'bottom' ? '横バー：下のみ' : '横バー：上に表示';
+    syncHScrollWidth();
   }
 
   // ---------- inline edit ----------
@@ -3333,6 +3432,7 @@
       // 客先には 担当者の入力履歴（サジェスト）を出さない
       ['tcPerson', 'rPerson'].forEach((id) => { const el = $(id); if (el) el.removeAttribute('list'); });
     }
+    applyHScrollPos(); // 横スクロールバー位置の個人設定を反映
   }
 
   // ---------- handlers ----------
@@ -3862,6 +3962,7 @@
     const lbl = $('zoomLevel');
     if (lbl) lbl.textContent = Math.round(tableZoom * 100) + '%';
     try { localStorage.setItem(ZOOM_KEY, String(tableZoom)); } catch (e) {}
+    if (typeof syncHScrollWidth === 'function') syncHScrollWidth(); // 倍率変更で表幅が変わるので上部バーを合わせる
   }
   function setZoom(z) {
     tableZoom = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, Math.round(z * 10) / 10));
@@ -3945,6 +4046,16 @@
 
   // 通常モードのthead HTMLを保存（A集計から戻す用）
   NORMAL_THEAD_HTML = $('casesTable').querySelector('thead').innerHTML;
+
+  // 列の並べ替え（ドラッグ）と上部横スクロールバーの同期を有効化
+  bindColumnDrag();
+  bindHScroll();
+  if ($('hscrollPosBtn')) $('hscrollPosBtn').addEventListener('click', () => {
+    const cur = localStorage.getItem(userFilterKey('hscrollPosV1')) || 'top';
+    try { localStorage.setItem(userFilterKey('hscrollPosV1'), cur === 'bottom' ? 'top' : 'bottom'); } catch (e) {}
+    applyHScrollPos();
+  });
+  if ($('colOrderResetBtn')) $('colOrderResetBtn').addEventListener('click', resetColumnOrder);
 
   // リアルタイム: 他ユーザーの変更を画面へ反映（Supabaseモードのみ）
   function isEditingNow() {

@@ -119,6 +119,10 @@
         <button id="zoomInBtn" type="button" class="zoom-btn" aria-label="拡大">＋</button>
         <button id="zoomResetBtn" type="button" class="zoom-btn" aria-label="100%に戻す">⟲</button>
       </span>
+      <span class="table-tools" title="見出しをドラッグで並べ替え。並びは自動保存され次回も維持されます。">
+        <button id="hscrollPosBtn" type="button" class="zoom-btn" title="横スクロールバーの位置を上/下で切り替え">横バー：上に表示</button>
+        <button id="colOrderResetBtn" type="button" class="zoom-btn" title="列の並びを既定に戻す">列並びリセット</button>
+      </span>
       <span class="mobile-sort mobile-only">並び替え:
         <button id="sortReceivedBtn" type="button">受付日順</button>
         <button id="sortSurveyBtn" type="button">調査日順</button>
@@ -140,30 +144,31 @@
       <span class="agg-bar-hint">年度は受付日基準（10月〜翌9月）／ &lt;300万: 山本以外5%＋R担当者残差 ／ ≥300万: 手入力 ／ 配分計100%でOK</span>
     </div>
 
+    <div id="hScrollTop" class="hscroll-bar" aria-hidden="true"><div id="hScrollTopInner"></div></div>
     <div class="table-wrap">
       <table id="casesTable">
         <thead>
           <tr id="theadRow">
-            <th class="col-edit">編集</th>
-            <th class="col-status sortable" data-sort="status"><span class="th-filter" data-filter="status">ステータス</span></th>
-            <th class="col-company sortable" data-sort="company"><span class="th-filter" data-filter="company">会社</span></th>
-            <th class="sortable" data-sort="theater"><span class="th-filter" data-filter="theater">劇場名</span></th>
-            <th class="sortable" data-sort="receivedDate"><span class="th-filter" data-filter="receivedDate">受付日</span></th>
-            <th class="sortable" data-sort="tcPerson"><span class="th-filter" data-filter="tcPerson"><span class="lbl-ryo">客先担当者</span><span class="lbl-toho tc-label">TC担当者</span></span></th>
-            <th class="sortable" data-sort="rPerson"><span class="th-filter" data-filter="rPerson">R担当者</span></th>
-            <th class="sortable" data-sort="category"><span class="th-filter" data-filter="category">種別</span></th>
-            <th class="sortable" data-sort="content"><span class="th-filter" data-filter="content">内容</span></th>
-            <th class="sortable" data-sort="surveyDate"><span class="th-filter" data-filter="surveyDate">調査日</span></th>
-            <th class="sortable" data-sort="certNumber"><span class="th-filter" data-filter="certNumber">認証番号</span></th>
-            <th class="sortable" data-sort="estimateName"><span class="th-filter" data-filter="estimateName">見積り名</span></th>
-            <th class="sortable" data-sort="estimateAmount"><span class="th-filter" data-filter="estimateAmount">見積り金額</span></th>
-            <th class="col-tax">見積り金額（税込み）</th>
-            <th class="sortable" data-sort="quoteDate"><span class="th-filter" data-filter="quoteDate"><span class="lbl-ryo">見積り提出日</span><span class="lbl-toho">見積り受領日</span></span></th>
-            <th class="sortable" data-sort="workStartDate"><span class="th-filter" data-filter="workStartDate">作業開始日</span></th>
-            <th class="sortable" data-sort="workEndDate"><span class="th-filter" data-filter="workEndDate">作業完了日</span></th>
-            <th class="sortable" data-sort="invoiceDate"><span class="th-filter" data-filter="invoiceDate"><span class="lbl-ryo">請求書発行日</span><span class="lbl-toho">請求書受領日</span></span></th>
-            <th class="sortable" data-sort="paymentDate"><span class="th-filter" data-filter="paymentDate"><span class="lbl-ryo">入金日</span><span class="lbl-toho">支払日</span></span></th>
-            <th class="col-memo sortable" data-sort="memo"><span class="th-filter" data-filter="memo">社内用メモ</span></th>
+            <th class="col-edit" data-colkey="edit">編集</th>
+            <th class="col-status sortable" data-sort="status" data-colkey="status"><span class="th-filter" data-filter="status">ステータス</span></th>
+            <th class="col-company sortable" data-sort="company" data-colkey="company"><span class="th-filter" data-filter="company">会社</span></th>
+            <th class="sortable" data-sort="theater" data-colkey="theater"><span class="th-filter" data-filter="theater">劇場名</span></th>
+            <th class="sortable" data-sort="receivedDate" data-colkey="receivedDate"><span class="th-filter" data-filter="receivedDate">受付日</span></th>
+            <th class="sortable" data-sort="tcPerson" data-colkey="tcPerson"><span class="th-filter" data-filter="tcPerson"><span class="lbl-ryo">客先担当者</span><span class="lbl-toho tc-label">TC担当者</span></span></th>
+            <th class="sortable" data-sort="rPerson" data-colkey="rPerson"><span class="th-filter" data-filter="rPerson">R担当者</span></th>
+            <th class="sortable" data-sort="category" data-colkey="category"><span class="th-filter" data-filter="category">種別</span></th>
+            <th class="sortable" data-sort="content" data-colkey="content"><span class="th-filter" data-filter="content">内容</span></th>
+            <th class="sortable" data-sort="surveyDate" data-colkey="surveyDate"><span class="th-filter" data-filter="surveyDate">調査日</span></th>
+            <th class="sortable" data-sort="certNumber" data-colkey="certNumber"><span class="th-filter" data-filter="certNumber">認証番号</span></th>
+            <th class="sortable" data-sort="estimateName" data-colkey="estimateName"><span class="th-filter" data-filter="estimateName">見積り名</span></th>
+            <th class="sortable" data-sort="estimateAmount" data-colkey="estimateAmount"><span class="th-filter" data-filter="estimateAmount">見積り金額</span></th>
+            <th class="col-tax" data-colkey="tax">見積り金額（税込み）</th>
+            <th class="sortable" data-sort="quoteDate" data-colkey="quoteDate"><span class="th-filter" data-filter="quoteDate"><span class="lbl-ryo">見積り提出日</span><span class="lbl-toho">見積り受領日</span></span></th>
+            <th class="sortable" data-sort="workStartDate" data-colkey="workStartDate"><span class="th-filter" data-filter="workStartDate">作業開始日</span></th>
+            <th class="sortable" data-sort="workEndDate" data-colkey="workEndDate"><span class="th-filter" data-filter="workEndDate">作業完了日</span></th>
+            <th class="sortable" data-sort="invoiceDate" data-colkey="invoiceDate"><span class="th-filter" data-filter="invoiceDate"><span class="lbl-ryo">請求書発行日</span><span class="lbl-toho">請求書受領日</span></span></th>
+            <th class="sortable" data-sort="paymentDate" data-colkey="paymentDate"><span class="th-filter" data-filter="paymentDate"><span class="lbl-ryo">入金日</span><span class="lbl-toho">支払日</span></span></th>
+            <th class="col-memo sortable" data-sort="memo" data-colkey="memo"><span class="th-filter" data-filter="memo">社内用メモ</span></th>
           </tr>
         </thead>
         <tbody id="casesBody"></tbody>
