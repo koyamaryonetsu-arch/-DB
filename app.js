@@ -896,7 +896,8 @@
   function visibleCases() {
     if (isPrivileged(currentUser)) return cases;
     const co = customerCompany(currentUser);
-    return cases.filter((c) => c.company === co);
+    // 客先には自社案件のみ、かつ 種別=タスク の案件は見せない
+    return cases.filter((c) => c.company === co && c.category !== 'タスク');
   }
   function renderDatalists() {
     // 履歴を 客先マスタ + 案件由来 で動的生成（ロール別に自動分離）
@@ -1410,8 +1411,11 @@
     // 客先は自社のみ（会社プルダウンは廃止。受注者は列フィルタで会社を絞る）
     const cf = isPrivileged(currentUser) ? '' : customerCompany(currentUser);
     const colFilterFields = Object.keys(columnFilters);
+    const isCustomer = !isPrivileged(currentUser);
     const filtered = cases.filter((c) => {
       if (cf && c.company !== cf) return false;
+      // 客先には 種別=タスク の案件を見せない
+      if (isCustomer && c.category === 'タスク') return false;
       // 客先(会社)ボタンによる絞り込み（OR）
       if (companyFilter.size && !companyFilter.has(c.company)) return false;
       // 大口のみ（見積り金額300万円以上、または 種別=更新案件）
