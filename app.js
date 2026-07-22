@@ -49,13 +49,15 @@
   };
   // 客先ごとの「客先担当者」表示名（TC担当者 の置換）
   const CUSTOMER_TC_LABEL = { 'TOHOシネマズ': 'TC担当者', '109シネマズ': '109担当者', 'ユナイテッドシネマ': 'UC担当者' };
+  // 客先ごとの「顧客メモ」表示名（客先アカウントでは ○○メモ に。菱熱では「顧客メモ」）
+  const CUSTOMER_MEMO_LABEL = { 'TOHOシネマズ': 'TOHOメモ', '109シネマズ': '109メモ', 'ユナイテッドシネマ': 'UCメモ' };
   // 客先に渡してよい cases のカラム（社内情報 memo/advice_note/allocations/margin_rate/tasks/created_by/updated_by は除外）
   const CUSTOMER_CASE_COLUMNS = [
     'id', 'company', 'theater', 'received_date', 'tc_person', 'r_person', 'category', 'content',
     'survey_date', 'cert_number', 'estimate_name', 'estimate_amount', 'quote_date',
     'work_start_date', 'work_end_date', 'invoice_date', 'payment_date', 'status', 'status_override',
     'schedule_adjusting', 'payment_confirmed', 'survey_time', 'work_start_time', 'work_end_time',
-    'created_at', 'updated_at'
+    'customer_memo', 'created_at', 'updated_at'
   ].join(',');
   const STATUS_FILTER_OPTIONS_RYO  = ['', '受付','見積り中','見積り提出済','作業中','完了','請求済','入金済'];
   const STATUS_FILTER_OPTIONS_TOHO = ['', '受付','見積り中','見積り提出済','作業中','完了','請求済','入金済']; // values unchanged; labels swap
@@ -245,7 +247,7 @@
     tcPerson:       { type: 'datalist', listId: 'tcPersonList' },
     rPerson:        { type: 'datalist', listId: 'rPersonList' },
     category:       { type: 'select',   options: [''].concat(CATEGORIES) },
-    content:        { type: 'popup' },
+    content:        { type: 'popup',    readonlyForCustomer: true },
     surveyDate:     { type: 'date' },
     certNumber:     { type: 'text',     tohoOnly: true },
     estimateName:   { type: 'text' },
@@ -255,7 +257,9 @@
     workEndDate:    { type: 'date' },
     invoiceDate:    { type: 'date' },
     paymentDate:    { type: 'date' },
-    memo:           { type: 'popup', privilegedOnly: true }
+    memo:           { type: 'popup', privilegedOnly: true },
+    // 顧客メモ: 客先が記入。菱熱も閲覧・編集可（内容への要約対象外＝そのまま表示）
+    customerMemo:   { type: 'popup' }
   };
 
   // ============================================================
@@ -270,6 +274,8 @@
     workEndDate: 'work_end_date', invoiceDate: 'invoice_date', paymentDate: 'payment_date',
     marginRate: 'margin_rate', allocations: 'allocations', memo: 'memo'
   };
+  // cases.customer_memo 列（顧客メモ: 客先記入・要約対象外）がDBに存在するか
+  let customerMemoSupported = false;
   // status_override 列がDBに存在するか（fetch時に検出）。未追加環境でも保存が壊れないようにするため
   let statusOverrideSupported = false;
   // companies.color 列がDBに存在するか（同上）
@@ -317,11 +323,14 @@
     }
     if (workEndTimeSupported) row.work_end_time = c.workEndTime ? c.workEndTime : null;
     if (adviceNoteSupported) row.advice_note = c.adviceNote ? c.adviceNote : null;
+    // 顧客メモ（列がある時のみ送信）。客先が記入する項目
+    if (customerMemoSupported) row.customer_memo = c.customerMemo ? c.customerMemo : null;
     row.status = statusOf(c); // DB側レポート用に実効ステータス（手動上書き反映）も保存
     // 客先の保存では社内情報カラムを送らない＝既存のDB値を保持（上書き・消去しない）
+    // 内容(content)はAI要約の結果で客先は閲覧のみ。送らない＝客先が上書き・消去できない
     if (!isPrivileged(currentUser)) {
       delete row.memo; delete row.allocations; delete row.margin_rate;
-      delete row.advice_note; delete row.tasks;
+      delete row.advice_note; delete row.tasks; delete row.content;
     }
     return row;
   }
@@ -385,6 +394,13 @@
       c.workEndTime = r.work_end_time != null ? r.work_end_time : '';
     } else {
       c.workEndTime = '';
+    }
+    // 顧客メモ(customer_memo) 列がある時のみ取り込む
+    if (Object.prototype.hasOwnProperty.call(r, 'customer_memo')) {
+      customerMemoSupported = true;
+      c.customerMemo = r.customer_memo != null ? r.customer_memo : '';
+    } else {
+      c.customerMemo = '';
     }
     return c;
   }
@@ -1480,7 +1496,7 @@
       const hayArr = [c.company, c.theater, shortTheaterName(c.theater), c.tcPerson, c.rPerson, c.category, c.content,
         c.certNumber, c.estimateName, String(c.estimateAmount || ''),
         c.receivedDate, c.surveyDate, c.quoteDate, c.workStartDate, c.workEndDate, c.invoiceDate, c.paymentDate,
-        statusOf(c), statusDisplayLabel(statusOf(c))];
+        c.customerMemo, statusOf(c), statusDisplayLabel(statusOf(c))];
       // memo は ryonetsu ユーザーのみ検索対象（情報漏洩防止）
       if (isPrivileged(currentUser)) hayArr.push(c.memo);
       const hay = hayArr.map((x) => (x || '').toString().toLowerCase()).join(' ');
@@ -1501,12 +1517,14 @@
     tcPerson: '客先担当者', rPerson: 'R担当者', category: '種別', content: '内容',
     surveyDate: '調査日', certNumber: '認証番号', estimateName: '見積り名',
     estimateAmount: '見積り金額', quoteDate: '見積り提出日', workStartDate: '作業開始日',
-    workEndDate: '作業完了日', invoiceDate: '請求書発行日', paymentDate: '入金日', memo: '社内用メモ'
+    workEndDate: '作業完了日', invoiceDate: '請求書発行日', paymentDate: '入金日', memo: '社内メモ',
+    customerMemo: '顧客メモ'
   };
   function isMobile() { return window.matchMedia ? window.matchMedia('(max-width: 600px)').matches : (window.innerWidth <= 600); }
   function editableTd(c, field, displayHtml, extraClass) {
     const cfg = EDITABLE_FIELDS[field];
     const canEdit = !(cfg.privilegedOnly && !isPrivileged(currentUser))
+                  && !(cfg.readonlyForCustomer && !isPrivileged(currentUser))
                   && !(cfg.tohoOnly && c.company !== 'TOHOシネマズ');
     const cls = (canEdit ? 'editable' : '') + (c[field] ? '' : ' empty') + (extraClass ? ' ' + extraClass : '');
     const title = field === 'estimateName' ? ' title="ダブルクリックで見積書を読み取り（AI-OCR）"' : '';
@@ -1622,6 +1640,7 @@
         ${editableTd(c, 'workEndDate', escapeHtml(fmtDateTime(c.workEndDate, c.workEndTime)))}
         ${editableTd(c, 'invoiceDate', fmtDateShort(c.invoiceDate))}
         ${payCell}
+        ${editableTd(c, 'customerMemo', escapeHtml(c.customerMemo), 'col-customer-memo')}
         ${editableTd(c, 'memo', escapeHtml(c.memo), 'col-memo')}
       `;
       tbody.appendChild(tr);
@@ -1647,7 +1666,7 @@
   }
 
   // ===== 列の並べ替え（個人設定・ドラッグ） =====
-  const DEFAULT_COLUMN_KEYS = ['edit', 'status', 'company', 'theater', 'receivedDate', 'tcPerson', 'rPerson', 'category', 'content', 'surveyDate', 'certNumber', 'estimateName', 'estimateAmount', 'tax', 'quoteDate', 'workStartDate', 'workEndDate', 'invoiceDate', 'paymentDate', 'memo'];
+  const DEFAULT_COLUMN_KEYS = ['edit', 'status', 'company', 'theater', 'receivedDate', 'tcPerson', 'rPerson', 'category', 'content', 'surveyDate', 'certNumber', 'estimateName', 'estimateAmount', 'tax', 'quoteDate', 'workStartDate', 'workEndDate', 'invoiceDate', 'paymentDate', 'customerMemo', 'memo'];
   function loadColumnOrder() {
     try { const a = JSON.parse(localStorage.getItem(userFilterKey('colOrderV1'))); if (Array.isArray(a) && a.length) return a; } catch (e) {}
     return null;
@@ -1748,6 +1767,7 @@
     const cfg = EDITABLE_FIELDS[field];
     if (!cfg) return;
     if (cfg.privilegedOnly && !isPrivileged(currentUser)) return;
+    if (cfg.readonlyForCustomer && !isPrivileged(currentUser)) return; // 内容は客先は閲覧のみ
     if (cfg.tohoOnly && c.company !== 'TOHOシネマズ') return;
     if (cfg.type === 'popup') { openContentModal(c, field); return; }
 
@@ -1978,6 +1998,7 @@
       setDateField('invoiceDate', caseObj.invoiceDate);
       setDateField('paymentDate', caseObj.paymentDate);
       $('memo').value = caseObj.memo || '';
+      if ($('customerMemo')) $('customerMemo').value = caseObj.customerMemo || '';
       if ($('adviceNote')) $('adviceNote').value = caseObj.adviceNote || '';
     } else {
       $('modalTitle').textContent = isSimple ? '簡易登録' : '新規案件登録';
@@ -1993,7 +2014,7 @@
     else if (!isPrivileged(currentUser)) $('company').value = customerCompany(currentUser);
     $('modal').classList.remove('hidden');
     // 内容・メモは全文が見えるよう、開いた直後に高さを中身に合わせて拡張
-    requestAnimationFrame(() => { autoGrowTextarea($('content')); autoGrowTextarea($('memo')); });
+    requestAnimationFrame(() => { autoGrowTextarea($('content')); autoGrowTextarea($('memo')); if ($('customerMemo')) autoGrowTextarea($('customerMemo')); });
     setTimeout(() => $('company').focus(), 50);
   }
   function closeModal() { $('modal').classList.add('hidden'); }
@@ -2089,15 +2110,24 @@
 
   // ---------- ポップアップ編集（内容 / メモ 共用） ----------
   let popupEditField = 'content';
-  const POPUP_FIELD_TITLES = { content: '内容を編集', memo: '社内用メモを編集' };
+  const POPUP_FIELD_TITLES = { content: '内容を編集', memo: '社内メモを編集' };
+  // 顧客メモの表示名（客先=○○メモ / 菱熱=顧客メモ）
+  function customerMemoLabel() {
+    return isPrivileged(currentUser) ? '顧客メモ' : (CUSTOMER_MEMO_LABEL[customerCompany(currentUser)] || '顧客メモ');
+  }
+  function popupFieldTitle(field) {
+    if (field === 'customerMemo') return customerMemoLabel() + 'を編集';
+    return POPUP_FIELD_TITLES[field] || '編集';
+  }
   function openContentModal(c, field) {
     field = field || 'content';
     contentEditCaseId = c.id;
     popupEditField = field;
     const titleEl = $('contentModal').querySelector('.modal-header h2');
-    if (titleEl) titleEl.textContent = POPUP_FIELD_TITLES[field] || '編集';
+    if (titleEl) titleEl.textContent = popupFieldTitle(field);
     $('contentEditor').value = c[field] || '';
-    $('contentEditor').placeholder = field === 'memo' ? '社内メモ／「保留」と書くとステータス自動切替' : '案件の詳細を記入';
+    $('contentEditor').placeholder = field === 'memo' ? '社内メモ／「保留」と書くとステータス自動切替'
+      : (field === 'customerMemo' ? customerMemoLabel() + 'を記入' : '案件の詳細を記入');
     $('contentModal').classList.remove('hidden');
     setTimeout(() => $('contentEditor').focus(), 50);
   }
@@ -2148,14 +2178,14 @@
       isToho ? '請求書受領日' : '請求書発行日',
       isToho ? '支払日' : '入金日',
       'ステータス'];
-    if (includesMemo) headers.push('社内用メモ');
+    if (includesMemo) headers.push('顧客メモ', '社内メモ');
     const rows = [headers].concat(filtered.map((c) => {
       const row = [c.company, c.theater, c.receivedDate, c.tcPerson, c.rPerson, c.category, c.content,
         c.surveyDate, c.company === 'TOHOシネマズ' ? c.certNumber : '',
         c.estimateName, c.estimateAmount,
         c.quoteDate, c.workStartDate, c.workEndDate,
         c.invoiceDate, c.paymentDate, statusDisplayLabel(statusOf(c))];
-      if (includesMemo) row.push(c.memo);
+      if (includesMemo) row.push(c.customerMemo, c.memo);
       return row;
     }));
     downloadCSV(`cinema-cases-${todayStr()}.csv`, rows);
@@ -3423,14 +3453,20 @@
       const map = privileged ? ROLE_STATUS.ryo : ROLE_STATUS.toho;
       if (map[opt.value]) opt.textContent = map[opt.value];
     });
+    // 顧客メモの表示名（菱熱=顧客メモ / 客先=○○メモ）をヘッダ・フォームに反映
+    document.querySelectorAll('.customer-memo-label').forEach((el) => { el.textContent = customerMemoLabel(); });
     // 客先の「TC担当者」表示名を会社別に（TOHO=TC担当者 / 東急レク=109担当者 / UC=UC担当者）
     if (!privileged) {
       const tcLabel = CUSTOMER_TC_LABEL[customerCompany(currentUser)] || 'TC担当者';
       document.querySelectorAll('.tc-label').forEach((el) => { el.textContent = tcLabel; });
+      // 内容(content)は客先は閲覧のみ（AI要約の結果）。フォームでも編集不可に
+      const contentTa = $('content'); if (contentTa) { contentTa.readOnly = true; }
       // 客先には 登録/編集フォームの入力例（プレースホルダ）を出さない
       document.querySelectorAll('#caseForm input, #caseForm textarea').forEach((el) => { el.placeholder = ''; });
       // 客先には 担当者の入力履歴（サジェスト）を出さない
       ['tcPerson', 'rPerson'].forEach((id) => { const el = $(id); if (el) el.removeAttribute('list'); });
+    } else {
+      const contentTa = $('content'); if (contentTa) { contentTa.readOnly = false; }
     }
     applyHScrollPos(); // 横スクロールバー位置の個人設定を反映
   }
@@ -3805,6 +3841,7 @@
       invoiceDate: parsedDates.invoiceDate,
       paymentDate: parsedDates.paymentDate,
       memo: $('memo').value.trim(),
+      customerMemo: $('customerMemo') ? $('customerMemo').value.trim() : '',
       adviceNote: $('adviceNote') ? $('adviceNote').value.trim() : '',
       updatedAt: new Date().toISOString()
     };

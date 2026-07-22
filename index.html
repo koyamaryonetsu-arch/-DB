@@ -111,7 +111,7 @@
       <span class="legend-item ryo-only"><span class="swatch swatch-yellowgreen"></span>見積り中（調査日から3日未満）</span>
       <span class="legend-item ryo-only"><span class="swatch swatch-red"></span>見積り中（調査日から3日以上）</span>
       <span class="legend-item ryo-only"><span class="swatch swatch-blue"></span>客先対応中・見積り提出済</span>
-      <span class="legend-hint ryo-only">💡 セルクリックで編集 ／ 内容・社内用メモはクリックでポップアップ ／ 内容または社内用メモに「保留」→ ステータス保留</span>
+      <span class="legend-hint ryo-only">💡 セルクリックで編集 ／ 内容・社内メモ・顧客メモはクリックでポップアップ ／ 社内メモに「保留」→ ステータス保留（社内メモはAIが客先向けに要約して「内容」へ）</span>
       <span class="zoom-control" title="表の表示倍率を変えて全体を見やすくします">
         <span class="zoom-label">表示倍率</span>
         <button id="zoomOutBtn" type="button" class="zoom-btn" aria-label="縮小">－</button>
@@ -168,7 +168,8 @@
             <th class="sortable" data-sort="workEndDate" data-colkey="workEndDate"><span class="th-filter" data-filter="workEndDate">作業完了日</span></th>
             <th class="sortable" data-sort="invoiceDate" data-colkey="invoiceDate"><span class="th-filter" data-filter="invoiceDate"><span class="lbl-ryo">請求書発行日</span><span class="lbl-toho">請求書受領日</span></span></th>
             <th class="sortable" data-sort="paymentDate" data-colkey="paymentDate"><span class="th-filter" data-filter="paymentDate"><span class="lbl-ryo">入金日</span><span class="lbl-toho">支払日</span></span></th>
-            <th class="col-memo sortable" data-sort="memo" data-colkey="memo"><span class="th-filter" data-filter="memo">社内用メモ</span></th>
+            <th class="col-customer-memo sortable" data-sort="customerMemo" data-colkey="customerMemo"><span class="th-filter" data-filter="customerMemo"><span class="customer-memo-label">顧客メモ</span></span></th>
+            <th class="col-memo sortable" data-sort="memo" data-colkey="memo"><span class="th-filter" data-filter="memo">社内メモ</span></th>
           </tr>
         </thead>
         <tbody id="casesBody"></tbody>
@@ -366,6 +367,11 @@
           <textarea id="content" rows="3" class="autogrow" placeholder="案件の詳細を記入（長文OK・後からクリックでポップアップ編集可）"></textarea>
         </div>
 
+        <div class="form-row form-row-wide" data-mode="simple">
+          <label for="customerMemo"><span class="customer-memo-label">顧客メモ</span></label>
+          <textarea id="customerMemo" rows="2" class="autogrow" placeholder="ご連絡・ご要望などを記入"></textarea>
+        </div>
+
         <div class="form-row form-row-wide" data-mode="full" data-cal="1">
           <label for="surveyDate">調査日時</label>
           <div class="date-time-row">
@@ -421,8 +427,8 @@
         </div>
 
         <div class="form-row form-row-wide col-memo" data-mode="full" data-cal="1">
-          <label for="memo">社内用メモ（ryonetsu限定・「保留」と記入でステータスが保留に）</label>
-          <textarea id="memo" rows="3" class="autogrow" placeholder="社内用メモ／「保留」と書くとステータス自動切替"></textarea>
+          <label for="memo">社内メモ（ryonetsu限定・メール自動取込もここに追記。「保留」でステータス保留。→ AIが客先向けに要約して「内容」へ）</label>
+          <textarea id="memo" rows="3" class="autogrow" placeholder="社内メモ／メール自動取込・「保留」と書くとステータス自動切替"></textarea>
         </div>
 
         <div class="form-row form-row-wide col-ryo" data-mode="full">

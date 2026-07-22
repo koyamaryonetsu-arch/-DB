@@ -169,10 +169,20 @@ export default async function handler(req, res) {
   // すぐ送らず pending に貯めて5分デバウンス。同じ案件への連続更新をまとめて1通にする（flushが送信）。
   if (payload.type === 'UPDATE') {
     const before = payload.old_record || {};
+    // 社内メモ(memo)に追記があれば、客先向けに要約して内容(content)へ追記する。
+    // （content の PATCH が別のUPDATE webhookを発火させ、そちらが「内容更新」として通知する。
+    //   社内メモの更新それ自体は通知しない）
+    let summarized = false;
+    try {
+      summarized = await summarizeMemoIntoContent(before, c);
+    } catch (e) {
+      console.error('社内メモ→内容 要約エラー', e);
+    }
     const changes = detectChanges(before, c);
     if (changes.length === 0) {
-      // 対象5項目以外の変更（ステータスや他の日付など）は通知しない
-      return res.status(200).json({ skipped: 'no relevant change' });
+      // 対象項目（内容/顧客メモ/見積り提出日/作業開始日/作業完了日）以外の変更は通知しない。
+      // 社内メモのみの更新もここで終了（要約は上で content へ反映済み・その content 更新で通知される）
+      return res.status(200).json({ skipped: 'no relevant change', summarized });
     }
     try {
       await accumulatePendingUpdate(c, changes);
@@ -423,15 +433,18 @@ function buildLineMessage(c, aiAdvice) {
 }
 
 // 通知対象の更新フィールド（この項目に値が入った/変わった時だけ通知。ステータス変更は通知しない）
+// ※ 社内メモ(memo) は通知対象外。菱熱の社内事情なので客先向けの通知には出さない
+//    （社内メモの追記分はサーバ側でAI要約→内容(content)へ追記し、その内容更新として通知する）
+// ※ 顧客メモ(customer_memo) は客先が記入した時に菱熱へ通知する
 const NOTIFY_FIELDS = [
   { key: 'content', label: '内容', text: true },
-  { key: 'memo', label: '社内用メモ', text: true },
+  { key: 'customer_memo', label: '顧客メモ', text: true },
   { key: 'quote_date', label: '見積り提出日' },
   { key: 'work_start_date', label: '作業開始日' },
   { key: 'work_end_date', label: '作業完了日' }
 ];
 // 追記式（前の値に足していく）ラベル＝まとめ通知でも改行で連結する
-const TEXT_LABELS = new Set(['内容', '社内用メモ']);
+const TEXT_LABELS = new Set(['内容', '顧客メモ']);
 function norm(v) { return v == null ? '' : String(v).trim(); }
 
 // 内容/メモ/見積り提出日/作業開始日/作業完了日 のうち、
@@ -454,6 +467,84 @@ function detectChanges(before, after) {
     }
   }
   return changes;
+}
+
+// 社内メモ(memo)で「今回追記された差分」だけを取り出す（前方一致する末尾追記を想定。
+// 途中変更などで前方一致しない場合は新しい全文を差分とみなす）。差分が無ければ空文字。
+function appendedText(before, after) {
+  const ov = norm(before);
+  const nv = norm(after);
+  if (nv === '' || nv === ov) return '';
+  let diff = (ov && nv.startsWith(ov)) ? nv.slice(ov.length) : nv;
+  return diff.trim();
+}
+
+// 社内メモの追記分(delta)を、客先に見せてよい「内容(content)」向けに要約する。
+// 除外: 下請け/協力会社(パートナー)名・金額/費用感・作業の難易度 等、客先に伝えない社内事情。
+// 重複回避: 既存の内容(content)・顧客メモ(customer_memo)に既にある事柄は繰り返さない。
+// 共有すべき客先向け情報が無ければ空文字を返す（＝内容へ追記しない・通知しない）。
+async function summarizeMemoForCustomer(delta, currentContent, customerMemo) {
+  if (!process.env.ANTHROPIC_API_KEY) return '';
+  const sys = [
+    'あなたは菱熱工業（シネコン設備の保守/工事）の案件アシスタントです。',
+    '社内メモに今回追記された内容を、客先（映画館）に共有する「内容」欄向けの短い文章に要約します。',
+    '',
+    '厳守（客先に伝えてはいけない社内事情は絶対に書かない）:',
+    '- 下請け・協力会社・パートナー企業の社名/担当者/連絡先は書かない。',
+    '- 金額・費用・原価・粗利・費用感（高い/安い等）は書かない。',
+    '- 作業の難易度・大変さ・社内の苦労・段取りの愚痴などは書かない。',
+    '- 菱熱の社内メンバー名・社内の判断過程は書かない。',
+    '',
+    '要約ルール:',
+    '- 客先が知りたい「案件の状況・進捗・次の予定・依頼事項」だけを、事実ベースで簡潔に。',
+    '- 既存の「内容」や「顧客メモ」に既に書かれている事柄は繰り返さない（重複禁止）。',
+    '- 客先に共有すべき新情報が無い場合（社内事情のみ・重複のみ）は、必ず「(なし)」とだけ返す。',
+    '- 前置き・見出し・箇条書き記号は不要。共有する文だけを1〜3文で返す。'
+  ].join('\n');
+  const user = [
+    '# 既存の「内容」（客先も見る。ここに書かれている事は繰り返さない）',
+    norm(currentContent) || '(空)',
+    '',
+    '# 既存の「顧客メモ」（客先が記入。ここに書かれている事は繰り返さない）',
+    norm(customerMemo) || '(空)',
+    '',
+    '# 今回、社内メモに追記された内容（この中から客先に共有してよい部分だけ要約）',
+    norm(delta)
+  ].join('\n');
+  try {
+    const r = await fetch(ANTHROPIC_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': process.env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify({ model: SUMMARY_MODEL, max_tokens: 300, system: sys, messages: [{ role: 'user', content: user }] })
+    });
+    if (!r.ok) { console.error('内容要約API失敗', r.status, await r.text()); return ''; }
+    const data = await r.json();
+    let s = (data.content && data.content[0] && data.content[0].text) || '';
+    s = s.trim();
+    // 「(なし)」「なし」等は共有なしとして空に
+    if (!s || /^[（(]?\s*なし\s*[）)]?$/.test(s)) return '';
+    return s;
+  } catch (e) {
+    console.error('内容要約エラー', e);
+    return '';
+  }
+}
+
+// 社内メモの追記分をAI要約し、内容(content)へ追記する。追記した場合 true。
+// ・要約結果が空（社内事情のみ/重複のみ）なら何もしない。
+// ・content を PATCH すると別のUPDATE webhookが発火し、そちらが「内容更新」として通知する
+//   （このイベント自体では社内メモ更新の通知はしない＝ループしない: 再発火時は memo 差分が無い）。
+async function summarizeMemoIntoContent(before, after) {
+  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) return false; // PATCHにサービスロールキーが必要
+  const delta = appendedText(before.memo, after.memo);
+  if (!delta) return false;
+  const summary = await summarizeMemoForCustomer(delta, after.content, after.customer_memo);
+  if (!summary) return false;
+  const cur = norm(after.content);
+  const newContent = cur ? cur + '\n\n' + summary : summary;
+  if (newContent === cur) return false;
+  await sbPatch(`cases?id=eq.${encodeURIComponent(String(after.id))}`, { content: newContent });
+  return true;
 }
 
 function buildUpdateMessage(c, changes, summary) {
