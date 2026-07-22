@@ -784,7 +784,8 @@ body.user-toho #addCompanyBtn { display: none; }
 .tm-delete-btn:hover { background: #fee2e2; }
 
 /* メモセルは1行省略表示（クリックでポップアップ編集）。各行が縦に間延びしないように */
-td.col-memo {
+td.col-memo,
+td.col-customer-memo {
   font-size: 11px;
   max-width: 220px;
   white-space: nowrap;
