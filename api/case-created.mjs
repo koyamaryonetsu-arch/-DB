@@ -103,7 +103,9 @@ async function accumulatePendingUpdate(c, changes) {
   }
   const record = {
     id: id, company: c.company, theater: c.theater, category: c.category,
-    r_person: c.r_person, content: c.content, estimate_name: c.estimate_name
+    r_person: c.r_person, content: c.content, estimate_name: c.estimate_name,
+    // 通知文言（更新/自動更新）の判定用。null=AI/メール自動、値あり=担当者がアプリで更新
+    updated_by: c.updated_by || null
   };
   const now = new Date().toISOString();
   if (prev) {
@@ -405,8 +407,10 @@ async function getInitialResponseAdvice(c) {
 }
 
 function buildLineMessage(c, aiAdvice) {
+  // created_by が無い＝AI/メール自動登録（サービスロール）、有る＝担当者がアプリで登録
+  const auto = !c.created_by;
   const head = [
-    '📋 新規案件が自動登録されました',
+    auto ? '📋 新規案件が自動登録されました' : '📋 新規案件が登録されました',
     '━━━━━━━━━━━━',
     `会社: ${c.company || '-'}`,
     `劇場: ${c.theater || '-'}`,
@@ -573,8 +577,11 @@ async function summarizeMemoIntoContent(before, after) {
 }
 
 function buildUpdateMessage(c, changes, summary) {
+  // updated_by が無い＝AI/メール自動更新（サービスロール。内容へのAI要約反映もこちら）、
+  // 有る＝担当者がアプリで更新
+  const auto = !c.updated_by;
   const head = [
-    '✏️ 案件が自動更新されました',
+    auto ? '✏️ 案件が自動更新されました' : '✏️ 案件が更新されました',
     '━━━━━━━━━━━━',
     `会社: ${c.company || '-'}`,
     `劇場: ${c.theater || '-'}`,
