@@ -75,8 +75,9 @@ function importCaseEmails() {
       var received = p.received_date || Utilities.formatDate(msgs[0].getDate(), 'Asia/Tokyo', 'yyyy-MM-dd');
       var theater = p.theater || '';
       var participants = threadParticipants_(th); // やり取りの関係者（同一案件判定の手がかり）
-      // 添付の見積書（画像/PDF）をAI-OCRで読み、見積り名・金額・提出日を抽出（無ければnull）
-      var quote = extractQuoteFromAttachments_(th);
+      // 見積書の自動OCR取込は無効化（誤登録が多いため）。見積り名・金額・提出日の自動入力はしない。
+      // ※アプリ側の手動OCR（見積り名セルをダブルクリック）は引き続き利用可。
+      var quote = null;
       // 既存案件と照合し update/new/review を決定。迷ったら会社全体の過去案件を集め直して再確認
       var decision = decideCaseWithRecheck_(p, received, participants);
 
@@ -382,11 +383,14 @@ function insertCase_(f) {
   // メール本文は社内メモ(memo)へ。客先向けの「内容(content)」はAIが社内事情を除いて要約
   var mailText = f.content || null;
   var summary = summarizeForCustomer_(mailText, '', '');
+  // AIが自動登録したものと分かるよう、社内メモ先頭にタグを付ける（内容への要約時はこのタグは含めない）
+  var today = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy-MM-dd');
+  var memoText = '【AI自動登録 ' + today + '】' + (mailText ? '\n' + mailText : '');
   var body = {
     company: f.company, theater: f.theater, received_date: f.received_date || null,
     tc_person: f.tc_person || null, r_person: f.r_person || null,
     category: f.category || null,
-    memo: mailText,
+    memo: memoText,
     content: summary || null
   };
   // 添付見積書のOCR結果があれば書き込む（空はnullでスキップ）
@@ -433,7 +437,8 @@ function updateCase_(matched, prog, summary, quote) {
   } else if (note && !isDuplicateNote_(matched.memo, note)) {
     var today = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy-MM-dd');
     var base = reformatProgress_(String(matched.memo || '')); // 既存の詰まった進捗も読みやすく再整形
-    var block = '[進捗 ' + today + ']\n' + note;
+    // AIが自動更新したものと分かるようタグを付ける（内容への要約時はこのタグは含めない）
+    var block = '【AI自動更新 ' + today + '】\n' + note;
     patch.memo = base ? (base + '\n\n' + block) : block;
   } else if (note) {
     Logger.log('社内メモと重複のため追記せず: id=' + matched.id);
