@@ -103,7 +103,10 @@ async function accumulatePendingUpdate(c, changes) {
   }
   const record = {
     id: id, company: c.company, theater: c.theater, category: c.category,
-    r_person: c.r_person, content: c.content, estimate_name: c.estimate_name
+    r_person: c.r_person, content: c.content, estimate_name: c.estimate_name,
+    // 通知文言（更新/顧客が更新/自動更新）の判定用の操作元
+    last_update_source: c.last_update_source || null,
+    updated_by: c.updated_by || null // フォールバック用
   };
   const now = new Date().toISOString();
   if (prev) {
@@ -404,9 +407,28 @@ async function getInitialResponseAdvice(c) {
   return (data.content && data.content[0] && data.content[0].text) || '(AI応答が空)';
 }
 
+// 操作元を判定: 'ryo'=菱熱担当者がアプリ操作 / 'customer'=顧客がアプリ操作 / 'auto'=AI・メール自動。
+// last_update_source（トリガーで消えない専用列）が最優先。未設定の旧データは created_by/updated_by で推定。
+function notifySource(c, isInsert) {
+  const s = c && c.last_update_source;
+  if (s === 'ryo' || s === 'customer' || s === 'auto') return s;
+  const by = isInsert ? (c && c.created_by) : (c && c.updated_by);
+  return by ? 'ryo' : 'auto';
+}
+function insertHeader(src) {
+  if (src === 'customer') return '📋 顧客が新規登録しました';
+  if (src === 'ryo') return '📋 新規案件が登録されました';
+  return '📋 新規案件が自動登録されました';
+}
+function updateHeader(src) {
+  if (src === 'customer') return '✏️ 顧客が更新しました';
+  if (src === 'ryo') return '✏️ 案件が更新されました';
+  return '✏️ 案件が自動更新されました';
+}
+
 function buildLineMessage(c, aiAdvice) {
   const head = [
-    '📋 新規案件が登録されました',
+    insertHeader(notifySource(c, true)),
     '━━━━━━━━━━━━',
     `会社: ${c.company || '-'}`,
     `劇場: ${c.theater || '-'}`,
@@ -574,7 +596,7 @@ async function summarizeMemoIntoContent(before, after) {
 
 function buildUpdateMessage(c, changes, summary) {
   const head = [
-    '✏️ 案件が更新されました',
+    updateHeader(notifySource(c, false)),
     '━━━━━━━━━━━━',
     `会社: ${c.company || '-'}`,
     `劇場: ${c.theater || '-'}`,

@@ -57,10 +57,14 @@
     'survey_date', 'cert_number', 'estimate_name', 'estimate_amount', 'quote_date',
     'work_start_date', 'work_end_date', 'invoice_date', 'payment_date', 'status', 'status_override',
     'schedule_adjusting', 'payment_confirmed', 'survey_time', 'work_start_time', 'work_end_time',
-    'customer_memo', 'created_at', 'updated_at'
+    'customer_memo', 'last_update_source', 'created_at', 'updated_at'
   ].join(',');
   const STATUS_FILTER_OPTIONS_RYO  = ['', '受付','見積り中','見積り提出済','作業中','完了','請求済','入金済'];
   const STATUS_FILTER_OPTIONS_TOHO = ['', '受付','見積り中','見積り提出済','作業中','完了','請求済','入金済']; // values unchanged; labels swap
+  // ステータス絞り込みの並び順（列フィルタで status を出す時の順序）
+  const STATUS_FILTER_ORDER = ['受付','見積り中','見積り提出済','日程調整中','作業中','対応済み','客先対応中','請求済','入金済','保留','取り下げ','完了','失注'];
+  // 「終了案件」＝ステータス未指定時に既定で隠す（見たい時は status で絞り込む）
+  const TERMINAL_STATUSES = new Set(['完了','入金済','取り下げ','失注']);
 
   // 客先マスタ: 劇場の正式名称・親会社・住所
   // ※ 住所はベストエフォート（Claude学習データ）。運用前にマスター画面で要確認・修正。
@@ -224,6 +228,21 @@
     // --- 佐々木興業（シネマサンシャイン）---
     'シネマサンシャインエミフルMASAKI': '松前'
   };
+  // 施設名（商業施設）の接頭辞。劇場名が「施設名＋地名」のとき地名だけにする
+  // 例: ららぽーと横浜→横浜 ／ サンストリート浜北→浜北
+  const FACILITY_PREFIXES = [
+    'ららぽーと', 'サンストリート', 'イオンモール', 'アリオ', 'プライムツリー', 'テラスモール',
+    'ダイバーシティ東京', 'ダイバーシティ', 'モラージュ', 'ゆめタウン', 'フォレオ', 'パワーモール',
+    'リバーウォーク', 'ピオニウォーク', 'マーケットスクエア', 'ウニクス', 'フェアモール'
+  ];
+  // 施設名接頭辞を外して地名だけにする（該当しなければそのまま）
+  function stripFacilityPrefix(s) {
+    s = String(s || '').trim();
+    for (const f of FACILITY_PREFIXES) {
+      if (s.startsWith(f) && s.length > f.length) return s.slice(f.length).trim();
+    }
+    return s;
+  }
   function shortTheaterName(name) {
     if (!name) return '';
     if (THEATER_SHORT_OVERRIDE[name]) return THEATER_SHORT_OVERRIDE[name];
@@ -231,13 +250,12 @@
     const m = name.match(/^(.+?)コロナ(?:シネマワールド|ワールド)/);
     if (m) return m[1].trim();
     // 会社ブランドの接頭辞を除去（長い順に判定）
+    let rest = name;
     for (const brand of THEATER_BRANDS) {
-      if (name.startsWith(brand)) {
-        const rest = name.slice(brand.length).trim();
-        return rest || name;
-      }
+      if (name.startsWith(brand)) { rest = name.slice(brand.length).trim() || name; break; }
     }
-    return name; // 該当しなければそのまま
+    // ブランド除去後（またはブランド無しの生名）に施設名接頭辞が付いていれば地名だけに
+    return stripFacilityPrefix(rest) || rest;
   }
 
   const EDITABLE_FIELDS = {
@@ -276,6 +294,10 @@
   };
   // cases.customer_memo 列（顧客メモ: 客先記入・要約対象外）がDBに存在するか
   let customerMemoSupported = false;
+  // cases.purchases 列（支払い状況: 菱熱のみ・購買発行月/業者名/金額の配列）がDBに存在するか
+  let purchasesSupported = false;
+  // cases.last_update_source 列（通知の操作元 ryo/customer/auto）がDBに存在するか
+  let lastUpdateSourceSupported = false;
   // status_override 列がDBに存在するか（fetch時に検出）。未追加環境でも保存が壊れないようにするため
   let statusOverrideSupported = false;
   // companies.color 列がDBに存在するか（同上）
@@ -325,12 +347,17 @@
     if (adviceNoteSupported) row.advice_note = c.adviceNote ? c.adviceNote : null;
     // 顧客メモ（列がある時のみ送信）。客先が記入する項目
     if (customerMemoSupported) row.customer_memo = c.customerMemo ? c.customerMemo : null;
+    // 支払い状況（菱熱のみの購買情報・列がある時のみ送信）
+    if (purchasesSupported) row.purchases = Array.isArray(c.purchases) ? c.purchases : [];
+    // 操作元（通知文言用）: 菱熱=ryo / 客先=customer。要約時も消えないよう毎回保存（列がある時のみ）
+    if (lastUpdateSourceSupported) row.last_update_source = isPrivileged(currentUser) ? 'ryo' : 'customer';
     row.status = statusOf(c); // DB側レポート用に実効ステータス（手動上書き反映）も保存
     // 客先の保存では社内情報カラムを送らない＝既存のDB値を保持（上書き・消去しない）
     // 内容(content)はAI要約の結果で客先は閲覧のみ。送らない＝客先が上書き・消去できない
     if (!isPrivileged(currentUser)) {
       delete row.memo; delete row.allocations; delete row.margin_rate;
       delete row.advice_note; delete row.tasks; delete row.content;
+      delete row.purchases; // 支払い状況（購買）は菱熱のみ
     }
     return row;
   }
@@ -401,6 +428,17 @@
       c.customerMemo = r.customer_memo != null ? r.customer_memo : '';
     } else {
       c.customerMemo = '';
+    }
+    // 支払い状況(purchases) 列がある時のみ取り込む
+    if (Object.prototype.hasOwnProperty.call(r, 'purchases')) {
+      purchasesSupported = true;
+      c.purchases = Array.isArray(r.purchases) ? r.purchases : [];
+    } else {
+      c.purchases = [];
+    }
+    // 操作元(last_update_source) 列の有無だけ検出（アプリ表示には使わない・保存時のガード用）
+    if (Object.prototype.hasOwnProperty.call(r, 'last_update_source')) {
+      lastUpdateSourceSupported = true;
     }
     return c;
   }
@@ -745,9 +783,8 @@
   let theaterContacts = [];     // 各劇場情報: パートナー連絡先（init時に取得）
   let currentUser = null;
   let sortState = { field: null, direction: 'asc' };
-  // 表示切替モード: 0=標準（請求済/入金済/取り下げ/失注/保留を隠す）, 1=請求済・入金済を表示, 2=取り下げ・失注を表示
-  let displayMode = 0;
-  let doneMode = 1;             // 完了案件の表示: 0=非表示, 1=表示(既定), 2=完了だけ表示
+  // 終了案件（完了・入金済・取り下げ・失注）はステータス未指定時に既定で隠す（TERMINAL_STATUSES）。
+  // 「表示切替」「完了案件」トグルは廃止。見たい時はステータスの絞り込みで表示する。
   // 大口案件（見積り金額300万円以上）のみ表示するか
   let showBigOnly = false;
   const BIG_CASE_THRESHOLD = 3000000;
@@ -1361,11 +1398,19 @@
       counts.set(v, (counts.get(v) || 0) + 1);
     });
     let values = [...counts.keys()];
-    values.sort((a, b) => {
-      if (field === 'estimateAmount') return (Number(a) || 0) - (Number(b) || 0);
-      if (a === '') return 1; if (b === '') return -1;
-      return String(a).localeCompare(String(b), 'ja');
-    });
+    if (field === 'status') {
+      // ステータスは工程順（STATUS_FILTER_ORDER）で並べる。順序外は末尾に
+      values.sort((a, b) => {
+        const ia = STATUS_FILTER_ORDER.indexOf(a), ib = STATUS_FILTER_ORDER.indexOf(b);
+        return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
+      });
+    } else {
+      values.sort((a, b) => {
+        if (field === 'estimateAmount') return (Number(a) || 0) - (Number(b) || 0);
+        if (a === '') return 1; if (b === '') return -1;
+        return String(a).localeCompare(String(b), 'ja');
+      });
+    }
     const cur = columnFilters[field] || null; // null = 全選択
     const pop = document.createElement('div');
     pop.id = 'colFilterPop';
@@ -1376,6 +1421,7 @@
         <button type="button" class="cfp-x" data-cfp="close" aria-label="閉じる">×</button>
       </div>
       <input type="search" class="cfp-search" placeholder="値を検索…">
+      <div class="cfp-hint">値をクリック＝それだけで絞り込み（チェックは複数選択用）</div>
       <label class="cfp-all"><input type="checkbox" class="cfp-allcb" checked> （すべて選択／解除）</label>
       <div class="cfp-list"></div>
       <div class="cfp-foot">
@@ -1410,6 +1456,15 @@
     }
     allcb.addEventListener('change', () => { visibleItemCbs().forEach((cb) => { cb.checked = allcb.checked; }); });
     list.addEventListener('change', syncAll);
+    // 値のテキストをクリック＝その値だけで即絞り込み（1クリック）。チェックボックスは従来どおり複数選択
+    list.addEventListener('click', (e) => {
+      const val = e.target.closest('.cfp-val');
+      if (!val) return;
+      e.preventDefault(); e.stopPropagation();
+      const v = val.closest('.cfp-item').querySelector('input').value;
+      columnFilters[field] = new Set([v]);
+      closeColumnFilter(); refresh();
+    });
     pop.querySelector('.cfp-search').addEventListener('input', (e) => {
       const q = e.target.value.trim().toLowerCase();
       list.querySelectorAll('.cfp-item').forEach((it) => {
@@ -1447,10 +1502,15 @@
     const cf = isPrivileged(currentUser) ? '' : customerCompany(currentUser);
     const colFilterFields = Object.keys(columnFilters);
     const isCustomer = !isPrivileged(currentUser);
+    // ステータスで絞り込み中か（トップのステータス選択 or 列フィルタの status）。
+    // 絞り込み中は「終了案件を既定で隠す」処理をせず、選ばれたステータスをそのまま表示する。
+    const statusFiltering = !!sf || !!(columnFilters['status'] && columnFilters['status'].size);
     const filtered = cases.filter((c) => {
       if (cf && c.company !== cf) return false;
       // 客先には 種別=タスク の案件を見せない
       if (isCustomer && c.category === 'タスク') return false;
+      // 客先には 取り下げ の案件を見せない（社内で取り下げた案件）
+      if (isCustomer && statusOf(c) === '取り下げ') return false;
       // 客先(会社)ボタンによる絞り込み（OR）
       if (companyFilter.size && !companyFilter.has(c.company)) return false;
       // 大口のみ（見積り金額300万円以上、または 種別=更新案件）
@@ -1473,25 +1533,9 @@
         if (!hit) return false;
       }
       if (sf && statusOf(c) !== sf) return false;
-      // 全ステータス表示中（特定ステータス未選択）の表示切替（標準 / 請求済・入金済のみ / 取り下げ・失注のみ）
-      if (!sf) {
-        const st = statusOf(c);
-        if (displayMode === 1) {
-          // 請求済・入金済 のみ表示
-          if (st !== '請求済' && st !== '入金済') return false;
-        } else if (displayMode === 2) {
-          // 取り下げ・失注・保留 のみ表示
-          if (st !== '取り下げ' && st !== '失注' && st !== '保留') return false;
-        } else if (doneMode === 2) {
-          // 完了案件だけを表示
-          if (st !== '完了') return false;
-        } else {
-          // 標準: 請求済・入金済・取り下げ・失注・保留 は隠す
-          if (st === '請求済' || st === '入金済' || st === '取り下げ' || st === '失注' || st === '保留') return false;
-          // 完了 は doneMode=1（表示）のときだけ出す（既定 0=非表示）
-          if (st === '完了' && doneMode === 0) return false;
-        }
-      }
+      // ステータス未指定時は「終了案件（完了・入金済・取り下げ・失注）」を既定で隠す。
+      // 見たい時はステータスで絞り込む（列フィルタの「値クリック」1発でOK）。
+      if (!statusFiltering && TERMINAL_STATUSES.has(statusOf(c))) return false;
       if (!q) return true;
       const hayArr = [c.company, c.theater, shortTheaterName(c.theater), c.tcPerson, c.rPerson, c.category, c.content,
         c.certNumber, c.estimateName, String(c.estimateAmount || ''),
@@ -1949,6 +1993,51 @@
     $(id).classList.remove('invalid');
     return parsed;
   }
+  // ===== 支払い状況（購買: 菱熱のみ・複数業者） =====
+  function setPurchaseSectionOpen(open) {
+    const sec = $('purchaseSection'), btn = $('purchaseToggleBtn');
+    if (!sec || !btn) return;
+    sec.classList.toggle('hidden', !open);
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    btn.textContent = '支払い状況（購買）' + (open ? '▼' : '▶');
+  }
+  function addPurchaseRow(item) {
+    const wrap = $('purchaseRows'); if (!wrap) return;
+    item = item || {};
+    const row = document.createElement('div');
+    row.className = 'purchase-row';
+    row.innerHTML =
+      '<input type="month" class="pur-month">' +
+      '<input type="text" class="pur-vendor" placeholder="業者名">' +
+      '<input type="text" class="pur-amount" inputmode="numeric" placeholder="例：300,000">' +
+      '<button type="button" class="pur-del" title="この行を削除">×</button>';
+    row.querySelector('.pur-month').value = item.month || '';
+    row.querySelector('.pur-vendor').value = item.vendor || '';
+    row.querySelector('.pur-amount').value = item.amount != null && item.amount !== '' ? formatThousands(item.amount) : '';
+    row.querySelector('.pur-del').addEventListener('click', () => row.remove());
+    const amt = row.querySelector('.pur-amount');
+    amt.addEventListener('blur', () => { amt.value = amt.value ? formatThousands(amt.value) : ''; });
+    wrap.appendChild(row);
+  }
+  function renderPurchaseRows(list) {
+    const wrap = $('purchaseRows'); if (!wrap) return;
+    wrap.innerHTML = '';
+    (Array.isArray(list) ? list : []).forEach((it) => addPurchaseRow(it));
+  }
+  // 入力欄から購買配列を収集（月・業者・金額すべて空の行は除外）
+  function collectPurchases() {
+    const wrap = $('purchaseRows'); if (!wrap) return [];
+    const out = [];
+    wrap.querySelectorAll('.purchase-row').forEach((row) => {
+      const month = row.querySelector('.pur-month').value || '';
+      const vendor = row.querySelector('.pur-vendor').value.trim();
+      const amountRaw = row.querySelector('.pur-amount').value.replace(/[^\d]/g, '');
+      if (!month && !vendor && !amountRaw) return; // 空行はスキップ
+      out.push({ month: month, vendor: vendor, amount: amountRaw === '' ? '' : Number(amountRaw) });
+    });
+    return out;
+  }
+
   function openModal(caseObj, mode) {
     const form = $('caseForm');
     form.reset();
@@ -2007,6 +2096,9 @@
       if (rPersonFilter.size === 1) $('rPerson').value = [...rPersonFilter][0];
       setDateField('receivedDate', todayStr());
     }
+    // 支払い状況（購買）: 既存の内容を反映し、セクションは畳んだ状態で開く
+    renderPurchaseRows(caseObj && Array.isArray(caseObj.purchases) ? caseObj.purchases : []);
+    setPurchaseSectionOpen(false);
     updateTohoVisibility();
     renderDatalists();
     populateCompanySelects();
@@ -3617,11 +3709,19 @@
     }
   }
   $('cancelBtn').addEventListener('click', closeModal);
+  // 支払い状況（購買）: 開閉トグルと業者行の追加
+  if ($('purchaseToggleBtn')) {
+    $('purchaseToggleBtn').addEventListener('click', () => {
+      const open = $('purchaseSection').classList.contains('hidden');
+      setPurchaseSectionOpen(open);
+    });
+  }
+  if ($('addPurchaseBtn')) $('addPurchaseBtn').addEventListener('click', () => addPurchaseRow({}));
   // 編集中の誤操作で入力が消えないよう、案件編集ポップアップは背景クリックでは閉じない（✕/キャンセルのみ）
   // 編集ポップアップからの複製・削除（主にスマホ用）
   $('modalDuplicateBtn').addEventListener('click', () => {
     const c = cases.find((x) => x.id === $('caseId').value); if (!c) return;
-    const dup = Object.assign({}, c, { id: genId(), tasks: [], allocations: Object.assign({}, c.allocations || {}), updatedAt: new Date().toISOString() });
+    const dup = Object.assign({}, c, { id: genId(), tasks: [], purchases: [], allocations: Object.assign({}, c.allocations || {}), updatedAt: new Date().toISOString() });
     cases.push(dup); persistCase(dup); closeModal(); render(); if (calMode) renderCalendar();
   });
   $('modalDeleteBtn').addEventListener('click', () => {
@@ -3842,6 +3942,7 @@
       paymentDate: parsedDates.paymentDate,
       memo: $('memo').value.trim(),
       customerMemo: $('customerMemo') ? $('customerMemo').value.trim() : '',
+      purchases: collectPurchases(),
       adviceNote: $('adviceNote') ? $('adviceNote').value.trim() : '',
       updatedAt: new Date().toISOString()
     };
@@ -4014,36 +4115,6 @@
   $('zoomInBtn').addEventListener('click', () => setZoom(tableZoom + ZOOM_STEP));
   $('zoomResetBtn').addEventListener('click', () => setZoom(1));
   $('exportBtn').addEventListener('click', exportFiltered);
-
-  // 表示切替（標準 → 請求済・入金済 → 取り下げ・失注 を循環）
-  const DISPLAY_MODE_LABELS = ['表示切替（標準）', '表示切替（請求済・入金済のみ）', '表示切替（取り下げ・失注・保留のみ）'];
-  function updateDisplayModeLabel() {
-    const btn = $('displayModeBtn');
-    if (!btn) return;
-    btn.textContent = DISPLAY_MODE_LABELS[displayMode];
-    btn.classList.toggle('active', displayMode !== 0);
-  }
-  $('displayModeBtn').addEventListener('click', () => {
-    displayMode = (displayMode + 1) % 3;
-    updateDisplayModeLabel();
-    refresh();
-  });
-  updateDisplayModeLabel();
-
-  // 完了案件 表示切替（非表示 → 表示 → 完了だけ を循環）
-  const DONE_MODE_LABELS = ['完了案件：非表示', '完了案件：表示', '完了案件：これだけ'];
-  function updateDoneToggleLabel() {
-    const btn = $('doneToggleBtn');
-    if (!btn) return;
-    btn.textContent = DONE_MODE_LABELS[doneMode];
-    btn.classList.toggle('active', doneMode !== 0);
-  }
-  $('doneToggleBtn').addEventListener('click', () => {
-    doneMode = (doneMode + 1) % 3;
-    updateDoneToggleLabel();
-    refresh();
-  });
-  updateDoneToggleLabel();
 
   // 大口のみ（300万円以上）トグル
   function updateBigToggleLabel() {
