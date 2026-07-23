@@ -1994,50 +1994,6 @@
     return parsed;
   }
   // ===== 支払い状況（購買: 菱熱のみ・複数業者） =====
-  function setPurchaseSectionOpen(open) {
-    const sec = $('purchaseSection'), btn = $('purchaseToggleBtn');
-    if (!sec || !btn) return;
-    sec.classList.toggle('hidden', !open);
-    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-    btn.textContent = '支払い状況（購買）' + (open ? '▼' : '▶');
-  }
-  function addPurchaseRow(item) {
-    const wrap = $('purchaseRows'); if (!wrap) return;
-    item = item || {};
-    const row = document.createElement('div');
-    row.className = 'purchase-row';
-    row.innerHTML =
-      '<input type="month" class="pur-month">' +
-      '<input type="text" class="pur-vendor" placeholder="業者名">' +
-      '<input type="text" class="pur-amount" inputmode="numeric" placeholder="例：300,000">' +
-      '<button type="button" class="pur-del" title="この行を削除">×</button>';
-    row.querySelector('.pur-month').value = item.month || '';
-    row.querySelector('.pur-vendor').value = item.vendor || '';
-    row.querySelector('.pur-amount').value = item.amount != null && item.amount !== '' ? formatThousands(item.amount) : '';
-    row.querySelector('.pur-del').addEventListener('click', () => row.remove());
-    const amt = row.querySelector('.pur-amount');
-    amt.addEventListener('blur', () => { amt.value = amt.value ? formatThousands(amt.value) : ''; });
-    wrap.appendChild(row);
-  }
-  function renderPurchaseRows(list) {
-    const wrap = $('purchaseRows'); if (!wrap) return;
-    wrap.innerHTML = '';
-    (Array.isArray(list) ? list : []).forEach((it) => addPurchaseRow(it));
-  }
-  // 入力欄から購買配列を収集（月・業者・金額すべて空の行は除外）
-  function collectPurchases() {
-    const wrap = $('purchaseRows'); if (!wrap) return [];
-    const out = [];
-    wrap.querySelectorAll('.purchase-row').forEach((row) => {
-      const month = row.querySelector('.pur-month').value || '';
-      const vendor = row.querySelector('.pur-vendor').value.trim();
-      const amountRaw = row.querySelector('.pur-amount').value.replace(/[^\d]/g, '');
-      if (!month && !vendor && !amountRaw) return; // 空行はスキップ
-      out.push({ month: month, vendor: vendor, amount: amountRaw === '' ? '' : Number(amountRaw) });
-    });
-    return out;
-  }
-
   function openModal(caseObj, mode) {
     const form = $('caseForm');
     form.reset();
@@ -2096,9 +2052,6 @@
       if (rPersonFilter.size === 1) $('rPerson').value = [...rPersonFilter][0];
       setDateField('receivedDate', todayStr());
     }
-    // 支払い状況（購買）: 既存の内容を反映し、セクションは畳んだ状態で開く
-    renderPurchaseRows(caseObj && Array.isArray(caseObj.purchases) ? caseObj.purchases : []);
-    setPurchaseSectionOpen(false);
     updateTohoVisibility();
     renderDatalists();
     populateCompanySelects();
@@ -2599,10 +2552,17 @@
     applyColWidths();
   }
 
+  // 支払い状況/各劇場情報/更新確認 の各モードを閉じる（他モードへ切替える時に呼ぶ）
+  function exitAuxModes() {
+    if (typeof purchaseMode !== 'undefined' && purchaseMode) exitPurchaseMode();
+    if (typeof theaterInfoMode !== 'undefined' && theaterInfoMode) closeTheaterInfoModal();
+    if (typeof theaterPendingMode !== 'undefined' && theaterPendingMode) closeTheaterPendingModal();
+  }
   function enterAggMode() {
     if (taskMode) exitTaskMode();
     if (calMode) exitCalMode();
     if (koteiMode) exitKoteiMode();
+    exitAuxModes();
     aggMode = true;
     document.body.classList.add('agg-active');
     $('casesTable').classList.add('agg-mode');
@@ -2641,6 +2601,7 @@
     if (aggMode) exitAggMode();
     if (calMode) exitCalMode();
     if (koteiMode) exitKoteiMode();
+    exitAuxModes();
     taskMode = true;
     $('casesTable').classList.add('task-mode');
     $('emptyMsg').classList.add('hidden');
@@ -2672,6 +2633,7 @@
     if (aggMode) exitAggMode();
     if (taskMode) exitTaskMode();
     if (koteiMode) exitKoteiMode();
+    exitAuxModes();
     calMode = true;
     if (calYear == null) { const n = new Date(); calYear = n.getFullYear(); calMonth = n.getMonth(); }
     $('calBtn').textContent = '✕ カレンダーを閉じる';
@@ -2695,6 +2657,7 @@
     if (aggMode) exitAggMode();
     if (taskMode) exitTaskMode();
     if (calMode) exitCalMode();
+    exitAuxModes();
     koteiMode = true;
     $('koteiBtn').textContent = '✕ 工程表を閉じる';
     document.querySelector('.table-wrap').classList.add('hidden');
@@ -2710,7 +2673,97 @@
     document.querySelector('.legend').classList.remove('hidden');
   }
   function toggleKoteiMode() { if (koteiMode) exitKoteiMode(); else enterKoteiMode(); }
-  // カレンダーはトップ画面の客先(companyFilter)・R担当者(rPersonFilter)を絞り込み条件に使う
+
+  // ===== 支払い状況（購買）モード（菱熱のみ） =====
+  let purchaseMode = false;
+  function enterPurchaseMode() {
+    if (aggMode) exitAggMode();
+    if (taskMode) exitTaskMode();
+    if (calMode) exitCalMode();
+    if (koteiMode) exitKoteiMode();
+    if (theaterInfoMode) closeTheaterInfoModal();
+    if (theaterPendingMode) closeTheaterPendingModal();
+    purchaseMode = true;
+    $('purchaseBtn').textContent = '✕ 支払い状況を閉じる';
+    document.querySelector('.table-wrap').classList.add('hidden');
+    document.querySelector('.legend').classList.add('hidden');
+    $('purchaseView').classList.remove('hidden');
+    renderPurchaseView();
+  }
+  function exitPurchaseMode() {
+    purchaseMode = false;
+    $('purchaseBtn').textContent = '💰 支払い状況';
+    $('purchaseView').classList.add('hidden');
+    document.querySelector('.table-wrap').classList.remove('hidden');
+    document.querySelector('.legend').classList.remove('hidden');
+  }
+  function togglePurchaseMode() { if (purchaseMode) exitPurchaseMode(); else enterPurchaseMode(); }
+
+  // 1業者ぶんの購買行DOMを作る
+  function buildPurchaseRow(item) {
+    item = item || {};
+    const row = document.createElement('div');
+    row.className = 'pv-row';
+    row.innerHTML =
+      '<input type="month" class="pur-month" aria-label="購買発行月">' +
+      '<input type="text" class="pur-vendor" placeholder="業者名" aria-label="業者名">' +
+      '<input type="text" class="pur-amount" inputmode="numeric" placeholder="例：300,000" aria-label="金額">' +
+      '<button type="button" class="pur-del" title="この行を削除">×</button>';
+    row.querySelector('.pur-month').value = item.month || '';
+    row.querySelector('.pur-vendor').value = item.vendor || '';
+    row.querySelector('.pur-amount').value = (item.amount != null && item.amount !== '') ? formatThousands(item.amount) : '';
+    return row;
+  }
+  // 案件カードの入力欄から購買配列を集計（月・業者・金額すべて空の行は除外）
+  function collectPurchasesFrom(caseEl) {
+    const out = [];
+    caseEl.querySelectorAll('.pv-row').forEach((row) => {
+      const month = row.querySelector('.pur-month').value || '';
+      const vendor = row.querySelector('.pur-vendor').value.trim();
+      const amountRaw = row.querySelector('.pur-amount').value.replace(/[^\d]/g, '');
+      if (!month && !vendor && !amountRaw) return;
+      out.push({ month: month, vendor: vendor, amount: amountRaw === '' ? '' : Number(amountRaw) });
+    });
+    return out;
+  }
+  // 案件カードの内容を c.purchases に反映して保存
+  function savePurchasesForCard(caseEl) {
+    const id = caseEl.dataset.caseId;
+    const c = cases.find((x) => x.id === id);
+    if (!c) return;
+    c.purchases = collectPurchasesFrom(caseEl);
+    c.updatedAt = new Date().toISOString();
+    persistCase(c);
+  }
+  function renderPurchaseView() {
+    const list = $('purchaseList');
+    if (!list) return;
+    // 購買は菱熱専用データ。念のため権限を確認
+    if (!isPrivileged(currentUser)) { list.innerHTML = ''; $('purchaseEmpty').classList.remove('hidden'); return; }
+    const filtered = getFilteredCases();
+    list.innerHTML = '';
+    if (!filtered.length) { $('purchaseEmpty').classList.remove('hidden'); return; }
+    $('purchaseEmpty').classList.add('hidden');
+    filtered.forEach((c) => {
+      const card = document.createElement('div');
+      card.className = 'pv-case';
+      card.dataset.caseId = c.id;
+      const estName = c.estimateName || (c.content ? String(c.content).split(/\r?\n/)[0] : '');
+      card.innerHTML =
+        '<div class="pv-case-head">' +
+          buildCompanyTag(c) +
+          '<span class="pv-theater" title="' + escapeHtml(c.theater || '') + '">' + escapeHtml(shortTheaterName(c.theater) || '（劇場未設定）') + '</span>' +
+          '<span class="pv-estimate" title="' + escapeHtml(estName) + '">' + escapeHtml(estName || '（見積り名なし）') + '</span>' +
+        '</div>' +
+        '<div class="pv-rows"></div>' +
+        '<button type="button" class="pv-add">＋業者を追加</button>';
+      const rowsWrap = card.querySelector('.pv-rows');
+      const purchases = Array.isArray(c.purchases) ? c.purchases : [];
+      if (purchases.length) purchases.forEach((it) => rowsWrap.appendChild(buildPurchaseRow(it)));
+      else rowsWrap.appendChild(buildPurchaseRow({}));
+      list.appendChild(card);
+    });
+  }
   function calVisibleCases() {
     return visibleCases().filter((c) => {
       if (companyFilter.size && !companyFilter.has(c.company)) return false;
@@ -2895,7 +2948,7 @@
     $('taskNewInput').focus();
   }
 
-  function refresh() { if (calMode) renderCalendar(); else if (aggMode) renderAggTable(); else if (taskMode) renderTaskTable(); else render(); }
+  function refresh() { if (calMode) renderCalendar(); else if (aggMode) renderAggTable(); else if (taskMode) renderTaskTable(); else if (purchaseMode) renderPurchaseView(); else render(); }
 
   // 配分 / 粗利率 の手動編集
   function handleAggInput(e) {
@@ -3119,15 +3172,28 @@
       `).join('');
     }
   }
+  let theaterInfoMode = false;
   async function openTheaterInfoModal() {
+    if (aggMode) exitAggMode();
+    if (taskMode) exitTaskMode();
+    if (calMode) exitCalMode();
+    if (koteiMode) exitKoteiMode();
+    if (purchaseMode) exitPurchaseMode();
+    if (theaterPendingMode) closeTheaterPendingModal();
+    theaterInfoMode = true;
     populateTiCompanySelect();
     try { theaterContacts = await store.fetchTheaterContacts(); } catch (e) { theaterContacts = []; }
     populateTiTheaterSelect();
     renderTheaterInfo();
+    document.querySelector('.table-wrap').classList.add('hidden');
+    document.querySelector('.legend').classList.add('hidden');
     $('theaterInfoModal').classList.remove('hidden');
   }
   function closeTheaterInfoModal() {
+    theaterInfoMode = false;
     $('theaterInfoModal').classList.add('hidden');
+    document.querySelector('.table-wrap').classList.remove('hidden');
+    document.querySelector('.legend').classList.remove('hidden');
   }
 
   // ---------- 劇場情報 自動更新: 要確認キュー（承認/却下） ----------
@@ -3176,14 +3242,27 @@
       return `<tr class="tp-theater-row"><td colspan="3">🎬 ${escapeHtml(th)}</td></tr>` + rows;
     }).join('');
   }
+  let theaterPendingMode = false;
   async function openTheaterPendingModal() {
+    if (aggMode) exitAggMode();
+    if (taskMode) exitTaskMode();
+    if (calMode) exitCalMode();
+    if (koteiMode) exitKoteiMode();
+    if (purchaseMode) exitPurchaseMode();
+    if (theaterInfoMode) closeTheaterInfoModal();
+    theaterPendingMode = true;
     try { theaterPending = await store.fetchPendingTheaterInfo(); } catch (e) { theaterPending = []; }
     $('tpSetupWarn').classList.toggle('hidden', !(store.mode === 'supabase' && !theaterPendingSupported));
     renderPendingList();
+    document.querySelector('.table-wrap').classList.add('hidden');
+    document.querySelector('.legend').classList.add('hidden');
     $('theaterPendingModal').classList.remove('hidden');
   }
   function closeTheaterPendingModal() {
+    theaterPendingMode = false;
     $('theaterPendingModal').classList.add('hidden');
+    document.querySelector('.table-wrap').classList.remove('hidden');
+    document.querySelector('.legend').classList.remove('hidden');
     refreshPendingBadge();
   }
   function tpFind(id) { return theaterPending.find((x) => String(x.id) === String(id)); }
@@ -3479,6 +3558,9 @@
     $('appShell').classList.remove('hidden');
     // A集計モードのまま再ログイン等した場合は通常表示へ戻す
     if (aggMode) exitAggMode();
+    if (purchaseMode) exitPurchaseMode();
+    if (theaterInfoMode) closeTheaterInfoModal();
+    if (theaterPendingMode) closeTheaterPendingModal();
     applyUserScope();
     render();
     maybeOpenCaseFromUrl();
@@ -3670,12 +3752,17 @@
   });
 
   $('logoutBtn').addEventListener('click', async () => {
-    // 開いているモーダル/A集計モードを全部クリーンに閉じてからログアウト
+    // 開いているモーダル/各モードを全部クリーンに閉じてからログアウト
     if (aggMode) exitAggMode();
+    if (taskMode) exitTaskMode();
+    if (calMode) exitCalMode();
+    if (koteiMode) exitKoteiMode();
+    if (purchaseMode) exitPurchaseMode();
+    if (theaterInfoMode) closeTheaterInfoModal();
+    if (theaterPendingMode) closeTheaterPendingModal();
     if (!$('modal').classList.contains('hidden')) closeModal();
     if (!$('invoiceModal').classList.contains('hidden')) closeInvoiceModal();
     if (!$('contentModal').classList.contains('hidden')) closeContentModal();
-    if (!$('theaterInfoModal').classList.contains('hidden')) closeTheaterInfoModal();
     if (!$('theaterMasterModal').classList.contains('hidden')) closeTheaterMasterModal();
     store.unsubscribe();
     await store.signOut();
@@ -3709,14 +3796,6 @@
     }
   }
   $('cancelBtn').addEventListener('click', closeModal);
-  // 支払い状況（購買）: 開閉トグルと業者行の追加
-  if ($('purchaseToggleBtn')) {
-    $('purchaseToggleBtn').addEventListener('click', () => {
-      const open = $('purchaseSection').classList.contains('hidden');
-      setPurchaseSectionOpen(open);
-    });
-  }
-  if ($('addPurchaseBtn')) $('addPurchaseBtn').addEventListener('click', () => addPurchaseRow({}));
   // 編集中の誤操作で入力が消えないよう、案件編集ポップアップは背景クリックでは閉じない（✕/キャンセルのみ）
   // 編集ポップアップからの複製・削除（主にスマホ用）
   $('modalDuplicateBtn').addEventListener('click', () => {
@@ -3761,7 +3840,6 @@
   $('theaterInfoBtn').addEventListener('click', openTheaterInfoModal);
   $('closeTheaterInfoModal').addEventListener('click', closeTheaterInfoModal);
   $('tiCloseBtn').addEventListener('click', closeTheaterInfoModal);
-  $('theaterInfoModal').addEventListener('click', (e) => { if (e.target === $('theaterInfoModal')) closeTheaterInfoModal(); });
   $('tiCompanySelect').addEventListener('change', () => { populateTiTheaterSelect(); renderTheaterInfo(); });
   $('tiTheaterSelect').addEventListener('change', renderTheaterInfo);
   $('tiAddContactBtn').addEventListener('click', addTheaterContactRow);
@@ -3777,7 +3855,6 @@
   $('theaterPendingBtn').addEventListener('click', openTheaterPendingModal);
   $('closeTheaterPendingModal').addEventListener('click', closeTheaterPendingModal);
   $('tpCloseBtn').addEventListener('click', closeTheaterPendingModal);
-  $('theaterPendingModal').addEventListener('click', (e) => { if (e.target === $('theaterPendingModal')) closeTheaterPendingModal(); });
   $('tpBody').addEventListener('click', handlePendingClick);
   $('tpApproveAllBtn').addEventListener('click', approveAllPending);
 
@@ -3817,6 +3894,31 @@
   // カレンダー
   $('calBtn').addEventListener('click', toggleCalMode);
   $('koteiBtn').addEventListener('click', toggleKoteiMode);
+  $('purchaseBtn').addEventListener('click', togglePurchaseMode);
+  // 支払い状況ビュー: 行の追加/削除・入力の自動保存（イベント委譲）
+  $('purchaseView').addEventListener('click', (e) => {
+    const addBtn = e.target.closest('.pv-add');
+    if (addBtn) {
+      const card = addBtn.closest('.pv-case');
+      card.querySelector('.pv-rows').appendChild(buildPurchaseRow({}));
+      return;
+    }
+    const delBtn = e.target.closest('.pur-del');
+    if (delBtn) {
+      const card = delBtn.closest('.pv-case');
+      delBtn.closest('.pv-row').remove();
+      savePurchasesForCard(card);
+      return;
+    }
+  });
+  $('purchaseView').addEventListener('change', (e) => {
+    const card = e.target.closest('.pv-case');
+    if (!card) return;
+    if (e.target.classList.contains('pur-amount')) {
+      e.target.value = e.target.value ? formatThousands(e.target.value) : '';
+    }
+    if (e.target.matches('.pur-month, .pur-vendor, .pur-amount')) savePurchasesForCard(card);
+  });
   $('calPrev').addEventListener('click', () => { calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; } renderCalendar(); });
   $('calNext').addEventListener('click', () => { calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; } renderCalendar(); });
   $('calToday').addEventListener('click', () => { const n = new Date(); calYear = n.getFullYear(); calMonth = n.getMonth(); renderCalendar(); });
@@ -3942,7 +4044,6 @@
       paymentDate: parsedDates.paymentDate,
       memo: $('memo').value.trim(),
       customerMemo: $('customerMemo') ? $('customerMemo').value.trim() : '',
-      purchases: collectPurchases(),
       adviceNote: $('adviceNote') ? $('adviceNote').value.trim() : '',
       updatedAt: new Date().toISOString()
     };
@@ -4170,7 +4271,9 @@
     return !!document.querySelector('.inline-edit')
       || !$('modal').classList.contains('hidden')
       || !$('invoiceModal').classList.contains('hidden')
-      || !$('contentModal').classList.contains('hidden');
+      || !$('contentModal').classList.contains('hidden')
+      // 支払い状況ビューの入力欄にフォーカス中は再描画を抑制（入力・カーソルを守る）
+      || !!(purchaseMode && document.activeElement && document.activeElement.closest && document.activeElement.closest('#purchaseView'));
   }
   function onRemoteChange(payload) {
     try {
