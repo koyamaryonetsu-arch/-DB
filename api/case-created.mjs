@@ -406,7 +406,7 @@ async function getInitialResponseAdvice(c) {
 
 function buildLineMessage(c, aiAdvice) {
   const head = [
-    '📋 新規案件が登録されました',
+    '📋 新規案件が自動登録されました',
     '━━━━━━━━━━━━',
     `会社: ${c.company || '-'}`,
     `劇場: ${c.theater || '-'}`,
@@ -574,7 +574,7 @@ async function summarizeMemoIntoContent(before, after) {
 
 function buildUpdateMessage(c, changes, summary) {
   const head = [
-    '✏️ 案件が更新されました',
+    '✏️ 案件が自動更新されました',
     '━━━━━━━━━━━━',
     `会社: ${c.company || '-'}`,
     `劇場: ${c.theater || '-'}`,

@@ -34,6 +34,7 @@ create table if not exists public.cases (
   allocations     jsonb default '{}'::jsonb,  -- 担当者別の粗利配分 { "小山": 5, ... }
   memo            text,            -- 社内メモ（「保留」でステータス保留・ryonetsuのみ。メール自動取込もここ）
   customer_memo   text,            -- 顧客メモ（客先が記入。菱熱も閲覧可・AI要約対象外）
+  purchases       jsonb default '[]'::jsonb,  -- 支払い状況（菱熱のみ）: [{month,vendor,amount}]
   created_at      timestamptz not null default now(),
   updated_at      timestamptz not null default now(),
   created_by      uuid references auth.users(id) on delete set null,
@@ -48,6 +49,7 @@ alter table public.cases add column if not exists survey_time text;
 alter table public.cases add column if not exists work_start_time text;
 alter table public.cases add column if not exists work_end_time text;
 alter table public.cases add column if not exists customer_memo text;  -- 顧客メモ（客先記入・AI要約対象外）
+alter table public.cases add column if not exists purchases jsonb default '[]'::jsonb;  -- 支払い状況（菱熱のみ）
 
 -- 1b. 会社（顧客）マスタ。abbr=一覧表示用の略称、official_name=請求書/完了届の宛先、hq_address=本社住所
 create table if not exists public.companies (
