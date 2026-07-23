@@ -57,7 +57,7 @@
     'survey_date', 'cert_number', 'estimate_name', 'estimate_amount', 'quote_date',
     'work_start_date', 'work_end_date', 'invoice_date', 'payment_date', 'status', 'status_override',
     'schedule_adjusting', 'payment_confirmed', 'survey_time', 'work_start_time', 'work_end_time',
-    'customer_memo', 'created_at', 'updated_at'
+    'customer_memo', 'last_update_source', 'created_at', 'updated_at'
   ].join(',');
   const STATUS_FILTER_OPTIONS_RYO  = ['', '受付','見積り中','見積り提出済','作業中','完了','請求済','入金済'];
   const STATUS_FILTER_OPTIONS_TOHO = ['', '受付','見積り中','見積り提出済','作業中','完了','請求済','入金済']; // values unchanged; labels swap
@@ -296,6 +296,8 @@
   let customerMemoSupported = false;
   // cases.purchases 列（支払い状況: 菱熱のみ・購買発行月/業者名/金額の配列）がDBに存在するか
   let purchasesSupported = false;
+  // cases.last_update_source 列（通知の操作元 ryo/customer/auto）がDBに存在するか
+  let lastUpdateSourceSupported = false;
   // status_override 列がDBに存在するか（fetch時に検出）。未追加環境でも保存が壊れないようにするため
   let statusOverrideSupported = false;
   // companies.color 列がDBに存在するか（同上）
@@ -347,6 +349,8 @@
     if (customerMemoSupported) row.customer_memo = c.customerMemo ? c.customerMemo : null;
     // 支払い状況（菱熱のみの購買情報・列がある時のみ送信）
     if (purchasesSupported) row.purchases = Array.isArray(c.purchases) ? c.purchases : [];
+    // 操作元（通知文言用）: 菱熱=ryo / 客先=customer。要約時も消えないよう毎回保存（列がある時のみ）
+    if (lastUpdateSourceSupported) row.last_update_source = isPrivileged(currentUser) ? 'ryo' : 'customer';
     row.status = statusOf(c); // DB側レポート用に実効ステータス（手動上書き反映）も保存
     // 客先の保存では社内情報カラムを送らない＝既存のDB値を保持（上書き・消去しない）
     // 内容(content)はAI要約の結果で客先は閲覧のみ。送らない＝客先が上書き・消去できない
@@ -431,6 +435,10 @@
       c.purchases = Array.isArray(r.purchases) ? r.purchases : [];
     } else {
       c.purchases = [];
+    }
+    // 操作元(last_update_source) 列の有無だけ検出（アプリ表示には使わない・保存時のガード用）
+    if (Object.prototype.hasOwnProperty.call(r, 'last_update_source')) {
+      lastUpdateSourceSupported = true;
     }
     return c;
   }
