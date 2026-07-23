@@ -1711,16 +1711,39 @@
 
   // ===== 列の並べ替え（個人設定・ドラッグ） =====
   const DEFAULT_COLUMN_KEYS = ['edit', 'status', 'company', 'theater', 'receivedDate', 'tcPerson', 'rPerson', 'category', 'content', 'surveyDate', 'certNumber', 'estimateName', 'estimateAmount', 'tax', 'quoteDate', 'workStartDate', 'workEndDate', 'invoiceDate', 'paymentDate', 'customerMemo', 'memo'];
+  // 支払い状況モードの列（左＝案件情報／右＝支払い入力）
+  const PURCHASE_COLS = [
+    { field: 'company',        label: '会社' },
+    { field: 'theater',        label: '劇場名' },
+    { field: 'content',        label: '内容' },
+    { field: 'estimateName',   label: '見積り名' },
+    { field: 'estimateAmount', label: '見積り金額' },
+    { field: 'purchases',      label: '支払い（年月／業者名／金額）' }
+  ];
+  // 並べ替えの対象モード（A集計は対象外・thead構成が別）
+  function colOrderMode() { return taskMode ? 'task' : (purchaseMode ? 'purchase' : 'main'); }
+  function columnKeysFor(mode) {
+    if (mode === 'task') return TASK_COLS.map((c) => c.field);
+    if (mode === 'purchase') return PURCHASE_COLS.map((c) => c.field);
+    return DEFAULT_COLUMN_KEYS.slice();
+  }
+  function colOrderStorageKey(mode) {
+    const base = mode === 'task' ? 'colOrderTaskV1' : (mode === 'purchase' ? 'colOrderPurchaseV1' : 'colOrderV1');
+    return userFilterKey(base);
+  }
+  // アクティブなthead行（モードで thead を差し替えても追従）
+  function activeTheadRow() { return $('casesTable').querySelector('thead tr') || $('theadRow'); }
   function loadColumnOrder() {
-    try { const a = JSON.parse(localStorage.getItem(userFilterKey('colOrderV1'))); if (Array.isArray(a) && a.length) return a; } catch (e) {}
+    try { const a = JSON.parse(localStorage.getItem(colOrderStorageKey(colOrderMode()))); if (Array.isArray(a) && a.length) return a; } catch (e) {}
     return null;
   }
-  function saveColumnOrder(order) { try { localStorage.setItem(userFilterKey('colOrderV1'), JSON.stringify(order)); } catch (e) {} }
+  function saveColumnOrder(order) { try { localStorage.setItem(colOrderStorageKey(colOrderMode()), JSON.stringify(order)); } catch (e) {} }
   function currentColumnOrder() {
+    const keys = columnKeysFor(colOrderMode());
     const saved = loadColumnOrder();
-    if (!saved) return DEFAULT_COLUMN_KEYS.slice();
-    const out = saved.filter((k) => DEFAULT_COLUMN_KEYS.indexOf(k) !== -1);
-    DEFAULT_COLUMN_KEYS.forEach((k) => { if (out.indexOf(k) === -1) out.push(k); }); // 新設列は末尾に補完
+    if (!saved) return keys.slice();
+    const out = saved.filter((k) => keys.indexOf(k) !== -1);
+    keys.forEach((k) => { if (out.indexOf(k) === -1) out.push(k); }); // 新設列は末尾に補完
     return out;
   }
   function reorderCellsByKey(rowEl, order) {
@@ -1729,27 +1752,27 @@
     order.forEach((k) => { if (byKey[k]) rowEl.appendChild(byKey[k]); });
   }
   function applyColumnOrder() {
-    if (taskMode || aggMode) return; // 通常モードのみ（タスク/A集計は列構成が別）
+    if (aggMode) return; // A集計は列構成が別（対象外）。main/task/purchase で有効
     const order = currentColumnOrder();
     const tbl = $('casesTable');
     tbl.classList.toggle('custom-col-order', !!loadColumnOrder()); // 並べ替え中は左固定を解除
-    const head = $('theadRow'); if (head) reorderCellsByKey(head, order);
+    const head = activeTheadRow(); if (head) reorderCellsByKey(head, order);
     $('casesBody').querySelectorAll('tr').forEach((tr) => reorderCellsByKey(tr, order));
   }
   function setupColumnDrag() {
-    if (taskMode || aggMode) return;
-    const head = $('theadRow'); if (!head) return;
+    if (aggMode) return;
+    const head = activeTheadRow(); if (!head) return;
     head.querySelectorAll('th[data-colkey]').forEach((th) => { th.draggable = true; });
   }
   let dragColKey = null;
   function clearColDragMarks() {
-    const head = $('theadRow'); if (!head) return;
+    const head = activeTheadRow(); if (!head) return;
     head.querySelectorAll('.col-dragging, .col-drop-target').forEach((x) => x.classList.remove('col-dragging', 'col-drop-target'));
   }
   function bindColumnDrag() {
     const thead = $('casesTable').querySelector('thead');
     thead.addEventListener('dragstart', (e) => {
-      if (taskMode || aggMode) return;
+      if (aggMode) return;
       const th = e.target.closest('th[data-colkey]');
       if (!th || e.target.closest('.col-resizer')) { e.preventDefault(); return; }
       dragColKey = th.getAttribute('data-colkey');
@@ -1760,7 +1783,7 @@
       if (!dragColKey) return;
       e.preventDefault();
       const th = e.target.closest('th[data-colkey]');
-      $('theadRow').querySelectorAll('.col-drop-target').forEach((x) => x.classList.remove('col-drop-target'));
+      const head = activeTheadRow(); if (head) head.querySelectorAll('.col-drop-target').forEach((x) => x.classList.remove('col-drop-target'));
       if (th && th.getAttribute('data-colkey') !== dragColKey) th.classList.add('col-drop-target');
     });
     thead.addEventListener('drop', (e) => {
@@ -1779,10 +1802,10 @@
     });
     thead.addEventListener('dragend', () => { dragColKey = null; clearColDragMarks(); });
   }
-  // 列並びを既定に戻す
+  // 列並びを既定に戻す（現在アクティブなモードの順序をリセット）
   function resetColumnOrder() {
-    try { localStorage.removeItem(userFilterKey('colOrderV1')); } catch (e) {}
-    render();
+    try { localStorage.removeItem(colOrderStorageKey(colOrderMode())); } catch (e) {}
+    refresh();
   }
 
   // ===== 上部の横スクロールバー（本体と同期・位置は個人設定） =====
@@ -2684,37 +2707,37 @@
     if (theaterInfoMode) closeTheaterInfoModal();
     if (theaterPendingMode) closeTheaterPendingModal();
     purchaseMode = true;
+    $('casesTable').classList.add('purchase-mode');
+    $('emptyMsg').classList.add('hidden');
     $('purchaseBtn').textContent = '✕ 支払い状況を閉じる';
-    document.querySelector('.table-wrap').classList.add('hidden');
-    document.querySelector('.legend').classList.add('hidden');
-    $('purchaseView').classList.remove('hidden');
     renderPurchaseView();
   }
   function exitPurchaseMode() {
     purchaseMode = false;
+    $('casesTable').classList.remove('purchase-mode');
     $('purchaseBtn').textContent = '💰 支払い状況';
-    $('purchaseView').classList.add('hidden');
-    document.querySelector('.table-wrap').classList.remove('hidden');
-    document.querySelector('.legend').classList.remove('hidden');
+    $('casesTable').querySelector('thead').innerHTML = NORMAL_THEAD_HTML;
+    render();
   }
   function togglePurchaseMode() { if (purchaseMode) exitPurchaseMode(); else enterPurchaseMode(); }
 
-  // 1業者ぶんの購買行DOMを作る
-  function buildPurchaseRow(item) {
+  // 1業者ぶんの購買行HTML（テーブル内セルに描画）
+  function purchaseRowHtml(item) {
     item = item || {};
-    const row = document.createElement('div');
-    row.className = 'pv-row';
-    row.innerHTML =
-      '<input type="month" class="pur-month" aria-label="購買発行月">' +
-      '<input type="text" class="pur-vendor" placeholder="業者名" aria-label="業者名">' +
-      '<input type="text" class="pur-amount" inputmode="numeric" placeholder="例：300,000" aria-label="金額">' +
-      '<button type="button" class="pur-del" title="この行を削除">×</button>';
-    row.querySelector('.pur-month').value = item.month || '';
-    row.querySelector('.pur-vendor').value = item.vendor || '';
-    row.querySelector('.pur-amount').value = (item.amount != null && item.amount !== '') ? formatThousands(item.amount) : '';
-    return row;
+    const amt = (item.amount != null && item.amount !== '') ? formatThousands(item.amount) : '';
+    return '<div class="pv-row">' +
+      '<input type="month" class="pur-month" aria-label="購買発行月" value="' + escapeHtml(item.month || '') + '">' +
+      '<input type="text" class="pur-vendor" placeholder="業者名" aria-label="業者名" value="' + escapeHtml(item.vendor || '') + '">' +
+      '<input type="text" class="pur-amount" inputmode="numeric" placeholder="例：300,000" aria-label="金額" value="' + escapeHtml(amt) + '">' +
+      '<button type="button" class="pur-del" title="この行を削除">×</button>' +
+    '</div>';
   }
-  // 案件カードの入力欄から購買配列を集計（月・業者・金額すべて空の行は除外）
+  function buildPurchaseRow(item) {
+    const tmp = document.createElement('div');
+    tmp.innerHTML = purchaseRowHtml(item);
+    return tmp.firstChild;
+  }
+  // 案件行(tr)の入力欄から購買配列を集計（月・業者・金額すべて空の行は除外）
   function collectPurchasesFrom(caseEl) {
     const out = [];
     caseEl.querySelectorAll('.pv-row').forEach((row) => {
@@ -2726,7 +2749,7 @@
     });
     return out;
   }
-  // 案件カードの内容を c.purchases に反映して保存
+  // 案件行(tr[data-case-id])の内容を c.purchases に反映して保存
   function savePurchasesForCard(caseEl) {
     const id = caseEl.dataset.caseId;
     const c = cases.find((x) => x.id === id);
@@ -2735,34 +2758,46 @@
     c.updatedAt = new Date().toISOString();
     persistCase(c);
   }
+  // 支払い状況モード: タスク管理と同じく #casesTable の thead を差し替えて描画
   function renderPurchaseView() {
-    const list = $('purchaseList');
-    if (!list) return;
-    // 購買は菱熱専用データ。念のため権限を確認
-    if (!isPrivileged(currentUser)) { list.innerHTML = ''; $('purchaseEmpty').classList.remove('hidden'); return; }
-    const filtered = getFilteredCases();
-    list.innerHTML = '';
-    if (!filtered.length) { $('purchaseEmpty').classList.remove('hidden'); return; }
-    $('purchaseEmpty').classList.add('hidden');
-    filtered.forEach((c) => {
-      const card = document.createElement('div');
-      card.className = 'pv-case';
-      card.dataset.caseId = c.id;
-      const estName = c.estimateName || (c.content ? String(c.content).split(/\r?\n/)[0] : '');
-      card.innerHTML =
-        '<div class="pv-case-head">' +
-          buildCompanyTag(c) +
-          '<span class="pv-theater" title="' + escapeHtml(c.theater || '') + '">' + escapeHtml(shortTheaterName(c.theater) || '（劇場未設定）') + '</span>' +
-          '<span class="pv-estimate" title="' + escapeHtml(estName) + '">' + escapeHtml(estName || '（見積り名なし）') + '</span>' +
-        '</div>' +
-        '<div class="pv-rows"></div>' +
-        '<button type="button" class="pv-add">＋業者を追加</button>';
-      const rowsWrap = card.querySelector('.pv-rows');
+    renderDatalists();
+    const thead = $('casesTable').querySelector('thead');
+    thead.innerHTML = '<tr>' + PURCHASE_COLS.map((c) =>
+      `<th class="pv-th-${c.field}${c.field === 'purchases' ? ' pv-col' : ''}" data-col="${c.field}" data-colkey="${c.field}">${c.label}</th>`).join('') + '</tr>';
+    addResizers(thead);
+    const tbody = $('casesBody');
+    tbody.innerHTML = '';
+    // 購買は菱熱専用データ。客先には出さない
+    if (!isPrivileged(currentUser)) {
+      $('caseCount').textContent = '0 件';
+      $('emptyMsg').classList.remove('hidden');
+      applyColumnOrder(); setupColumnDrag();
+      return;
+    }
+    const rows = getFilteredCases();
+    rows.forEach((c) => {
+      const tr = document.createElement('tr');
+      tr.dataset.caseId = c.id;
+      const cls = rowColorClass(c);
+      if (cls) tr.className = cls;
       const purchases = Array.isArray(c.purchases) ? c.purchases : [];
-      if (purchases.length) purchases.forEach((it) => rowsWrap.appendChild(buildPurchaseRow(it)));
-      else rowsWrap.appendChild(buildPurchaseRow({}));
-      list.appendChild(card);
+      const rowsHtml = (purchases.length ? purchases : [{}]).map((it) => purchaseRowHtml(it)).join('');
+      tr.innerHTML = `
+        <td data-colkey="company" class="col-company">${buildCompanyTag(c)}</td>
+        <td data-colkey="theater" title="${escapeHtml(c.theater || '')}">${escapeHtml(shortTheaterName(c.theater))}</td>
+        <td data-colkey="content" class="content-cell">${escapeHtml(c.content)}</td>
+        <td data-colkey="estimateName">${escapeHtml(c.estimateName)}</td>
+        <td data-colkey="estimateAmount" class="pv-amount-col">${fmtAmount(c.estimateAmount)}</td>
+        <td data-colkey="purchases" class="pv-cell">
+          <div class="pv-rows">${rowsHtml}</div>
+          <button type="button" class="pv-add">＋業者を追加</button>
+        </td>`;
+      tbody.appendChild(tr);
     });
+    $('caseCount').textContent = `${rows.length} 件`;
+    $('emptyMsg').classList.toggle('hidden', rows.length > 0);
+    applyColumnOrder();
+    setupColumnDrag();
   }
   function calVisibleCases() {
     return visibleCases().filter((c) => {
@@ -2859,7 +2894,7 @@
     renderDatalists();
     const thead = $('casesTable').querySelector('thead');
     thead.innerHTML = '<tr>' + TASK_COLS.map((c) =>
-      `<th class="task-th-${c.field}${c.field === 'tasks' ? ' task-col' : ''}" data-col="${c.field}">${c.label}</th>`).join('') + '</tr>';
+      `<th class="task-th-${c.field}${c.field === 'tasks' ? ' task-col' : ''}" data-col="${c.field}" data-colkey="${c.field}">${c.label}</th>`).join('') + '</tr>';
     addResizers(thead);
     const tbody = $('casesBody');
     tbody.innerHTML = '';
@@ -2885,13 +2920,15 @@
         ${editableTd(c, 'rPerson', escapeHtml(c.rPerson))}
         ${editableTd(c, 'content', escapeHtml(c.content), 'content-cell')}
         ${editableTd(c, 'memo', escapeHtml(c.memo), 'col-memo')}
-        <td class="task-col">
+        <td class="task-col" data-colkey="tasks">
           <button type="button" class="task-open-btn" data-taskopen="${escapeHtml(c.id)}" title="タスク編集">✎</button>
           ${taskListHtml}
         </td>`;
       tbody.appendChild(tr);
     });
     $('caseCount').textContent = `${rows.length} 件`;
+    applyColumnOrder();   // 個人設定の列並びを反映
+    setupColumnDrag();    // 見出しをドラッグで並べ替え可能に
   }
 
   // タスク編集ポップアップ
@@ -3837,7 +3874,7 @@
   $('tmHqColorClear').addEventListener('click', () => setCompanyColor(''));
 
   // 各劇場情報 モーダル
-  $('theaterInfoBtn').addEventListener('click', openTheaterInfoModal);
+  $('theaterInfoBtn').addEventListener('click', () => { if (theaterInfoMode) closeTheaterInfoModal(); else openTheaterInfoModal(); });
   $('closeTheaterInfoModal').addEventListener('click', closeTheaterInfoModal);
   $('tiCloseBtn').addEventListener('click', closeTheaterInfoModal);
   $('tiCompanySelect').addEventListener('change', () => { populateTiTheaterSelect(); renderTheaterInfo(); });
@@ -3852,7 +3889,7 @@
   });
 
   // 劇場情報更新確認 モーダル
-  $('theaterPendingBtn').addEventListener('click', openTheaterPendingModal);
+  $('theaterPendingBtn').addEventListener('click', () => { if (theaterPendingMode) closeTheaterPendingModal(); else openTheaterPendingModal(); });
   $('closeTheaterPendingModal').addEventListener('click', closeTheaterPendingModal);
   $('tpCloseBtn').addEventListener('click', closeTheaterPendingModal);
   $('tpBody').addEventListener('click', handlePendingClick);
@@ -3895,29 +3932,31 @@
   $('calBtn').addEventListener('click', toggleCalMode);
   $('koteiBtn').addEventListener('click', toggleKoteiMode);
   $('purchaseBtn').addEventListener('click', togglePurchaseMode);
-  // 支払い状況ビュー: 行の追加/削除・入力の自動保存（イベント委譲）
-  $('purchaseView').addEventListener('click', (e) => {
+  // 支払い状況モード: 行の追加/削除・入力の自動保存（#casesBody にイベント委譲・purchaseMode時のみ）
+  $('casesBody').addEventListener('click', (e) => {
+    if (!purchaseMode) return;
     const addBtn = e.target.closest('.pv-add');
     if (addBtn) {
-      const card = addBtn.closest('.pv-case');
-      card.querySelector('.pv-rows').appendChild(buildPurchaseRow({}));
+      const tr = addBtn.closest('tr[data-case-id]');
+      tr.querySelector('.pv-rows').appendChild(buildPurchaseRow({}));
       return;
     }
     const delBtn = e.target.closest('.pur-del');
     if (delBtn) {
-      const card = delBtn.closest('.pv-case');
+      const tr = delBtn.closest('tr[data-case-id]');
       delBtn.closest('.pv-row').remove();
-      savePurchasesForCard(card);
+      savePurchasesForCard(tr);
       return;
     }
   });
-  $('purchaseView').addEventListener('change', (e) => {
-    const card = e.target.closest('.pv-case');
-    if (!card) return;
+  $('casesBody').addEventListener('change', (e) => {
+    if (!purchaseMode) return;
+    const tr = e.target.closest('tr[data-case-id]');
+    if (!tr) return;
     if (e.target.classList.contains('pur-amount')) {
       e.target.value = e.target.value ? formatThousands(e.target.value) : '';
     }
-    if (e.target.matches('.pur-month, .pur-vendor, .pur-amount')) savePurchasesForCard(card);
+    if (e.target.matches('.pur-month, .pur-vendor, .pur-amount')) savePurchasesForCard(tr);
   });
   $('calPrev').addEventListener('click', () => { calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; } renderCalendar(); });
   $('calNext').addEventListener('click', () => { calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; } renderCalendar(); });
@@ -4272,8 +4311,8 @@
       || !$('modal').classList.contains('hidden')
       || !$('invoiceModal').classList.contains('hidden')
       || !$('contentModal').classList.contains('hidden')
-      // 支払い状況ビューの入力欄にフォーカス中は再描画を抑制（入力・カーソルを守る）
-      || !!(purchaseMode && document.activeElement && document.activeElement.closest && document.activeElement.closest('#purchaseView'));
+      // 支払い状況モードの入力欄にフォーカス中は再描画を抑制（入力・カーソルを守る）
+      || !!(purchaseMode && document.activeElement && document.activeElement.closest && document.activeElement.closest('#casesTable .pv-cell'));
   }
   function onRemoteChange(payload) {
     try {
