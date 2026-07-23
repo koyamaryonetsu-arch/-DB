@@ -391,7 +391,8 @@ function insertCase_(f) {
     tc_person: f.tc_person || null, r_person: f.r_person || null,
     category: f.category || null,
     memo: memoText,
-    content: summary || null
+    content: summary || null,
+    last_update_source: 'auto'  // AI・メール自動登録（LINE通知を「自動登録」にするため）
   };
   // 添付見積書のOCR結果があれば書き込む（空はnullでスキップ）
   if (f.estimate_name) body.estimate_name = f.estimate_name;
@@ -444,6 +445,7 @@ function updateCase_(matched, prog, summary, quote) {
     Logger.log('社内メモと重複のため追記せず: id=' + matched.id);
   }
   if (!Object.keys(patch).length) { Logger.log('更新項目なし: id=' + matched.id); return; }
+  patch.last_update_source = 'auto';  // AI・メール自動更新（LINE通知を「自動更新」にするため）
   var res = UrlFetchApp.fetch(SUPABASE_URL_() + '/rest/v1/cases?id=eq.' + encodeURIComponent(matched.id), {
     method: 'patch', contentType: 'application/json',
     headers: { apikey: key, Authorization: 'Bearer ' + key, Prefer: 'return=minimal' },
