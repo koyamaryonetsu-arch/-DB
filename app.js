@@ -63,8 +63,9 @@
   const STATUS_FILTER_OPTIONS_TOHO = ['', '受付','見積り中','見積り提出済','作業中','完了','請求済','入金済']; // values unchanged; labels swap
   // ステータス絞り込みの並び順（列フィルタで status を出す時の順序）
   const STATUS_FILTER_ORDER = ['受付','見積り中','見積り提出済','日程調整中','作業中','対応済み','客先対応中','請求済','入金済','保留','取り下げ','完了','失注'];
-  // 「終了案件」＝ステータス未指定時に既定で隠す（見たい時は status で絞り込む）
-  const TERMINAL_STATUSES = new Set(['完了','入金済','取り下げ','失注']);
+  // ログイン時に既定で非表示にするステータス（ステータス列のチェックボックスから外れた状態にする）。
+  // 「全件表示」ボタンで一時的に全部見せられる。
+  const DEFAULT_HIDDEN_STATUSES = ['完了', '取り下げ'];
 
   // 客先マスタ: 劇場の正式名称・親会社・住所
   // ※ 住所はベストエフォート（Claude学習データ）。運用前にマスター画面で要確認・修正。
@@ -783,13 +784,36 @@
   let theaterContacts = [];     // 各劇場情報: パートナー連絡先（init時に取得）
   let currentUser = null;
   let sortState = { field: null, direction: 'asc' };
-  // 終了案件（完了・入金済・取り下げ・失注）はステータス未指定時に既定で隠す（TERMINAL_STATUSES）。
-  // 「表示切替」「完了案件」トグルは廃止。見たい時はステータスの絞り込みで表示する。
+  // ログイン時は「完了・取り下げ」をステータス絞り込みのチェックから外した状態で開始（seedDefaultStatusFilter）。
+  // チェックボックスの状態＝表示、が一致する。「全件表示」ボタンで完了・取り下げも含めて全件表示できる。
   // 大口案件（見積り金額300万円以上）のみ表示するか
   let showBigOnly = false;
   const BIG_CASE_THRESHOLD = 3000000;
   // 各列の絞り込み: field -> 選択値の Set（未設定/全選択 = フィルタ無し）
   const columnFilters = {};
+  // ステータス絞り込みの既定（完了・取り下げを外した状態）を作る
+  function defaultStatusVisibleSet() {
+    return new Set(STATUS_FILTER_ORDER.filter((s) => DEFAULT_HIDDEN_STATUSES.indexOf(s) === -1));
+  }
+  // ログイン時に「完了・取り下げ」をチェックから外した状態で開始する
+  function seedDefaultStatusFilter() { columnFilters['status'] = defaultStatusVisibleSet(); }
+  // いま完了・取り下げも表示されているか（フィルタ無し or その2つがチェック済み）
+  function statusAllShown() {
+    const set = columnFilters['status'];
+    return !set || DEFAULT_HIDDEN_STATUSES.every((s) => set.has(s));
+  }
+  function updateShowAllBtn() {
+    const btn = $('showAllBtn'); if (!btn) return;
+    const on = statusAllShown();
+    btn.textContent = on ? '全件表示：ON' : '全件表示：OFF';
+    btn.classList.toggle('active', on);
+  }
+  // 「全件表示」ボタン: 完了・取り下げも含めて全部表示 ↔ 既定（完了・取り下げ非表示）を切替
+  function toggleShowAllStatuses() {
+    if (statusAllShown()) columnFilters['status'] = defaultStatusVisibleSet(); // 既定に戻す
+    else delete columnFilters['status'];                                       // 全部表示
+    refresh();
+  }
   // R担当者ボタンによる絞り込み（空=全員）。複数選択時はいずれかが担当の案件（OR）
   let rPersonFilter = new Set();
   // 客先(会社)ボタンによる絞り込み（空=全社・OR）
@@ -1502,9 +1526,6 @@
     const cf = isPrivileged(currentUser) ? '' : customerCompany(currentUser);
     const colFilterFields = Object.keys(columnFilters);
     const isCustomer = !isPrivileged(currentUser);
-    // ステータスで絞り込み中か（トップのステータス選択 or 列フィルタの status）。
-    // 絞り込み中は「終了案件を既定で隠す」処理をせず、選ばれたステータスをそのまま表示する。
-    const statusFiltering = !!sf || !!(columnFilters['status'] && columnFilters['status'].size);
     const filtered = cases.filter((c) => {
       if (cf && c.company !== cf) return false;
       // 客先には 種別=タスク の案件を見せない
@@ -1522,6 +1543,8 @@
       // 各列のタブ絞り込み
       for (let i = 0; i < colFilterFields.length; i++) {
         const f = colFilterFields[i];
+        // トップのステータス選択(sf)を使う時は、status列のチェック絞り込みは無視（sfを優先）
+        if (f === 'status' && sf) continue;
         const set = columnFilters[f];
         if (set && set.size && !set.has(columnValue(c, f))) return false;
       }
@@ -1533,9 +1556,8 @@
         if (!hit) return false;
       }
       if (sf && statusOf(c) !== sf) return false;
-      // ステータス未指定時は「終了案件（完了・入金済・取り下げ・失注）」を既定で隠す。
-      // 見たい時はステータスで絞り込む（列フィルタの「値クリック」1発でOK）。
-      if (!statusFiltering && TERMINAL_STATUSES.has(statusOf(c))) return false;
+      // 「完了・取り下げ」の既定非表示は、ログイン時に seed する columnFilters['status'] で行う
+      // （＝チェックボックスの状態＝表示、が常に一致する）。上の列フィルタのループで反映済み。
       if (!q) return true;
       const hayArr = [c.company, c.theater, shortTheaterName(c.theater), c.tcPerson, c.rPerson, c.category, c.content,
         c.certNumber, c.estimateName, String(c.estimateAmount || ''),
@@ -1704,6 +1726,7 @@
     updateMobileSortButtons();
     updateSortIndicators();
     updateColumnFilterIndicators();
+    updateShowAllBtn();
     applyColumnOrder();   // 個人設定の列並びを反映
     setupColumnDrag();    // 見出しをドラッグで並べ替え可能に
     syncHScrollWidth();   // 上部横スクロールバーの幅を合わせる
@@ -2796,6 +2819,7 @@
     });
     $('caseCount').textContent = `${rows.length} 件`;
     $('emptyMsg').classList.toggle('hidden', rows.length > 0);
+    updateShowAllBtn();
     applyColumnOrder();
     setupColumnDrag();
   }
@@ -2927,6 +2951,7 @@
       tbody.appendChild(tr);
     });
     $('caseCount').textContent = `${rows.length} 件`;
+    updateShowAllBtn();
     applyColumnOrder();   // 個人設定の列並びを反映
     setupColumnDrag();    // 見出しをドラッグで並べ替え可能に
   }
@@ -3653,6 +3678,7 @@
   function applyUserScope() {
     $('userEmail').textContent = currentUser.email;
     loadSavedFilters(); // アカウント別に最後の絞り込みを復元
+    seedDefaultStatusFilter(); // ログイン時は「完了・取り下げ」を非表示（チェック外し）で開始
     renderCompanyBar();
     const privileged = isPrivileged(currentUser);
     document.body.classList.toggle('user-privileged', privileged);
@@ -4269,6 +4295,9 @@
     refresh();
   });
   updateBigToggleLabel();
+
+  // 全件表示（完了・取り下げも表示）トグル
+  if ($('showAllBtn')) $('showAllBtn').addEventListener('click', toggleShowAllStatuses);
 
   // 税込み/税抜き表示トグル（標準=税抜き。税込みにすると「見積り金額（税込み）」列を表示）
   let showTax = false;
