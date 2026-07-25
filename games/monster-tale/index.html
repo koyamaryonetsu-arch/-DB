@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0b0d16">
+<title>まものがたり 〜よみがえりし魔王〜</title>
+<style>
+/* GAME-CSS-START */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; overflow: hidden; background: #0b0d16; }
+body {
+  font-family: "Hiragino Kaku Gothic ProN", "Hiragino Sans", "BIZ UDGothic", "Yu Gothic", "Noto Sans JP", sans-serif;
+  color: #fff; -webkit-text-size-adjust: 100%; -webkit-touch-callout: none;
+  -webkit-user-select: none; user-select: none; overscroll-behavior: none;
+}
+#app { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center;
+  padding-top: max(6px, env(safe-area-inset-top)); background: #0b0d16; }
+#screen { position: relative; width: var(--sw, 320px); height: var(--sh, 240px); flex: none;
+  background: #000; border-radius: calc(var(--u, 1px) * 2); overflow: hidden; touch-action: manipulation; }
+#cv { position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; image-rendering: crisp-edges; }
+#screen.shake { animation: shk .3s linear; }
+@keyframes shk { 0%,100% { transform: translate(0,0);} 20% { transform: translate(-4px,2px);} 40% { transform: translate(4px,-2px);} 60% { transform: translate(-3px,-1px);} 80% { transform: translate(3px,1px);} }
+#fade { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; }
+#fade.flash { animation: flsh .28s linear; }
+@keyframes flsh { 0%,100% { opacity: 0; } 25% { opacity: .9; } 50% { opacity: 0; } 75% { opacity: .9; } }
+
+/* ---- ウィンドウ共通 (白枠・黒地のクラシックRPG窓) ---- */
+.win {
+  position: absolute; background: rgba(4,6,12,.92); color: #fff;
+  border: calc(var(--u) * 1.3) solid #fff; border-radius: calc(var(--u) * 3);
+  box-shadow: 0 0 0 calc(var(--u) * 1.5) rgba(4,6,12,.92);
+  padding: calc(var(--u) * 3.5) calc(var(--u) * 4);
+  font-size: calc(var(--u) * 7.6); line-height: 1.65; z-index: 30;
+}
+.wtitle { color: #f0c860; font-weight: 700; margin-bottom: calc(var(--u) * 1.5);
+  font-size: calc(var(--u) * 7); letter-spacing: .06em; }
+.wlist .row { display: flex; align-items: center; gap: calc(var(--u) * 1.5);
+  padding: calc(var(--u) * .8) calc(var(--u) * 1); border-radius: calc(var(--u) * 1.5); }
+.wlist .row .cur { visibility: hidden; color: #f0c860; }
+.wlist .row.sel { background: rgba(240,200,96,.14); }
+.wlist .row.sel .cur { visibility: visible; }
+.wlist .row.dis { opacity: .4; }
+.wlist .rval { margin-left: auto; padding-left: calc(var(--u) * 5); color: #cfd6ff;
+  font-variant-numeric: tabular-nums; }
+
+/* ---- 各ウィンドウ配置 ---- */
+#msgwin { left: 1.5%; right: 1.5%; bottom: 2%; min-height: 30%; display: none; z-index: 40; }
+#msgwin.on { display: block; }
+#msgcur { position: absolute; right: calc(var(--u) * 5); bottom: calc(var(--u) * 1);
+  color: #f0c860; animation: bl .7s infinite steps(2); font-size: calc(var(--u) * 7); }
+@keyframes bl { 50% { opacity: 0; } }
+.menu.cmd { left: 2%; bottom: 34%; min-width: 38%; }
+.menu.cmd.sub { left: 12%; bottom: 30%; min-width: 46%; }
+.menu.town, .menu.fmenu { left: 3%; top: 4%; min-width: 52%; max-height: 88%; overflow-y: auto; }
+.menu.fmenu.sub2 { left: 22%; top: 22%; }
+.menu.title { left: 50%; transform: translateX(-50%); bottom: 6%; min-width: 46%; }
+.menu.yn { right: 6%; bottom: 34%; min-width: 26%; }
+.win.stat { left: 50%; top: 50%; transform: translate(-50%,-50%); width: 88%; }
+.srow { padding: calc(var(--u) * .6) 0; border-bottom: 1px solid rgba(255,255,255,.12); }
+.srow:last-child { border-bottom: none; }
+.srow b { color: #f0c860; }
+
+/* ---- パーティHUD ---- */
+#hud { position: absolute; top: 1.5%; left: 1.5%; right: 1.5%; display: none;
+  gap: calc(var(--u) * 1.5); z-index: 20; }
+#hud.on { display: flex; }
+.chip { flex: 1; background: rgba(4,6,12,.88); border: calc(var(--u) * 1) solid #fff;
+  border-radius: calc(var(--u) * 2); padding: calc(var(--u) * 1.2) calc(var(--u) * 1.8);
+  font-size: calc(var(--u) * 5.6); line-height: 1.45; min-width: 0; }
+.chip .cname { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.chip .chp, .chip .cmp { font-variant-numeric: tabular-nums; white-space: nowrap; color: #cfe6ff; }
+.chip .chp.low { color: #ff9a72; }
+.chip.sel { border-color: #f0c860; box-shadow: 0 0 calc(var(--u) * 3) rgba(240,200,96,.7); }
+.chip.dead { opacity: .45; }
+
+/* ---- なまえ入力 ---- */
+#namein { position: absolute; inset: 0; display: none; align-items: center; justify-content: center;
+  background: rgba(0,0,0,.6); z-index: 60; }
+#namein.on { display: flex; }
+#namein .box { background: rgba(4,6,12,.95); border: calc(var(--u) * 1.3) solid #fff;
+  border-radius: calc(var(--u) * 3); padding: calc(var(--u) * 6); width: 78%;
+  font-size: calc(var(--u) * 7.6); text-align: center; }
+#nameInput { width: 100%; margin: calc(var(--u) * 4) 0; padding: calc(var(--u) * 2.5);
+  font-size: calc(var(--u) * 9); text-align: center; background: #101425; color: #fff;
+  border: calc(var(--u) * 1) solid #8a93c8; border-radius: calc(var(--u) * 2); outline: none;
+  -webkit-user-select: text; user-select: text; }
+#nameOk { display: inline-block; background: #f0c860; color: #221a06; font-weight: 700;
+  border: none; border-radius: calc(var(--u) * 2); padding: calc(var(--u) * 2.5) calc(var(--u) * 8);
+  font-size: calc(var(--u) * 7.6); }
+
+/* ---- コントローラ ---- */
+#pad { flex: 1; width: 100%; max-width: 560px; display: flex; align-items: center;
+  justify-content: space-between; padding: 10px 20px calc(12px + env(safe-area-inset-bottom));
+  touch-action: none; }
+#dpad { position: relative; width: min(41vw, 185px); height: min(41vw, 185px); flex: none;
+  display: grid; grid-template: repeat(3, 1fr) / repeat(3, 1fr); gap: 2px; }
+.db { border: none; border-radius: 10px; background: #232a45; color: #aab4e8;
+  font-size: 20px; touch-action: none; display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 3px 0 #14182b; }
+.db:active { background: #39426b; transform: translateY(2px); box-shadow: 0 1px 0 #14182b; }
+.db.up { grid-area: 1/2; } .db.left { grid-area: 2/1; } .db.right { grid-area: 2/3; } .db.down { grid-area: 3/2; }
+.dc { grid-area: 2/2; background: #1a2036; border-radius: 8px; }
+#ab { display: flex; align-items: center; gap: 16px; }
+.rb { width: min(17vw, 74px); height: min(17vw, 74px); border-radius: 50%; border: none;
+  background: #232a45; color: #aab4e8; font-size: 24px; font-weight: 700; touch-action: none;
+  box-shadow: 0 4px 0 #14182b; }
+.rb:active { transform: translateY(2px); box-shadow: 0 2px 0 #14182b; }
+.rb.a { width: min(21vw, 90px); height: min(21vw, 90px); background: #7a3040; color: #ffd8de;
+  box-shadow: 0 4px 0 #451420; margin-bottom: 18px; }
+.rb.a:active { box-shadow: 0 2px 0 #451420; }
+#hint { position: fixed; bottom: 2px; left: 0; right: 0; text-align: center;
+  font-size: 10px; color: #4a5378; pointer-events: none; }
+@media (orientation: landscape) {
+  #app { flex-direction: row; justify-content: center; gap: 12px; padding-top: 4px; }
+  #pad { flex: none; width: auto; height: 100%; flex-direction: column; justify-content: center; gap: 26px; padding: 10px 14px; }
+  #ab { flex-direction: column-reverse; }
+}
+/* GAME-CSS-END */
+</style>
+</head>
+<body>
+<!-- GAME-BODY-START -->
+<div id="app">
+  <div id="screen">
+    <canvas id="cv" width="256" height="192"></canvas>
+    <div id="hud"></div>
+    <div id="menus"></div>
+    <div id="msgwin" class="win"><div id="msgtext"></div><div id="msgcur">▼</div></div>
+    <div id="namein"><div class="box">なまえを きめてね (6もじまで)<br>
+      <input id="nameInput" maxlength="6" value="ユウ"><br>
+      <button id="nameOk">けってい</button></div></div>
+    <div id="fade"></div>
+  </div>
+  <div id="pad">
+    <div id="dpad">
+      <button class="db up" data-a="up">▲</button>
+      <button class="db left" data-a="left">◀</button>
+      <div class="dc"></div>
+      <button class="db right" data-a="right">▶</button>
+      <button class="db down" data-a="down">▼</button>
+    </div>
+    <div id="ab">
+      <button id="btnB" class="rb">B</button>
+      <button id="btnA" class="rb a">A</button>
+    </div>
+  </div>
+  <div id="hint">A=けってい・しらべる / B=メニュー・キャンセル</div>
+</div>
+<!-- GAME-BODY-END -->
+<script src="./data.js"></script>
+<script src="./game.js"></script>
+</body>
+</html>
