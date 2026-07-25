@@ -71,9 +71,13 @@ function newMember(sp, lv) {
 }
 function skillsOf(m) {
   const list = SPECIES[m.sp].skills.filter(([lv]) => lv <= m.lv).map(([, id]) => id);
-  if (m.sp === 'hero') HERO_SPELLS.forEach(([lv, id]) => { if (lv <= m.lv) list.push(id); });
+  (INNATE[m.sp] || []).forEach(([lv, id]) => { if (lv <= m.lv) list.push(id); });
   (m.learned || []).forEach(id => list.push(id));
   return [...new Set(list)];
+}
+function canEquip(m, gearId) {
+  const ok = SPECIES[m.sp].eqok || '';
+  return ok.includes(GEAR[gearId].type);
 }
 function knowsSkill(m, id) { return skillsOf(m).includes(id); }
 function alivePt() { return G.party.filter(m => m.hp > 0); }
@@ -81,14 +85,39 @@ function caravan() { return G.party.concat(G.wagon); }
 function caravanCount() { return G.party.length + G.wagon.length; }
 
 /* ---------- セーブ ---------- */
-function save() { try { const g = Object.assign({}, G); delete g.mode; localStorage.setItem(SAVE_KEY, JSON.stringify({ v: 2, g })); } catch (e) { } }
+function save() { try { const g = Object.assign({}, G); delete g.mode; localStorage.setItem(SAVE_KEY, JSON.stringify({ v: 3, g })); } catch (e) { } }
 function loadData() {
   try {
     const d = JSON.parse(localStorage.getItem(SAVE_KEY));
-    if (d && d.v === 2) return d.g;
-    if (d && d.v === 1) return migrateV1(d.g);
+    if (d && d.v === 3) return d.g;
+    if (d && d.v === 2) return migrateV3(d.g);
+    if (d && d.v === 1) return migrateV3(migrateV1(d.g));
   } catch (e) { }
   return null;
+}
+/* v2セーブ → v3: 妹を追加し、装備できないものを ふくろへ */
+function migrateV3(g) {
+  g.party = g.party || []; g.wagon = g.wagon || []; g.reserve = g.reserve || []; g.bag = g.bag || [];
+  const all = g.party.concat(g.wagon, g.reserve);
+  if (!all.some(m => m.sp === 'sister')) {
+    const lv = g.party[0] ? g.party[0].lv : 1;
+    const sis = newMember('sister', lv); sis.name = 'ミア';
+    if (g.party.length < PARTY_MAX) g.party.splice(1, 0, sis);
+    else {
+      const out = g.party.pop(); g.party.splice(1, 0, sis);
+      if (g.party.length + g.wagon.length < CARAVAN_MAX) g.wagon.push(out);
+      else g.reserve.push(out);
+    }
+  }
+  g.party.concat(g.wagon, g.reserve).forEach(m => {
+    ensureMember(m);
+    const ok = (SPECIES[m.sp] && SPECIES[m.sp].eqok) || '';
+    for (const [k] of SLOTS) {
+      const id = m.eq[k]; if (!id || !GEAR[id]) continue;
+      if (!ok.includes(GEAR[id].type)) { m.eq[k] = null; if (g.bag.length < BAG_MAX) g.bag.push(id); }
+    }
+  });
+  return g;
 }
 function migrateV1(g) {
   const out = Object.assign(defaultState(), {
@@ -401,7 +430,7 @@ function say(text, opts = {}) {
 }
 function menuWin(items, opts = {}) {
   return new Promise(res => {
-    const win = el('div', 'win menu ' + (opts.cls || ''));
+    const win = el('div', 'win menu ' + (opts.cls || '') + (opts.cols === 2 ? ' grid2' : ''));
     if (opts.title) win.appendChild(el('div', 'wtitle', '')).textContent = opts.title;
     const list = el('div', 'wlist'); win.appendChild(list);
     let idx = opts.idx || 0;
@@ -416,13 +445,21 @@ function menuWin(items, opts = {}) {
       list.appendChild(r); return r;
     });
     const paint = () => { rows.forEach((r, i) => r.classList.toggle('sel', i === idx));
-      const sel = rows[idx]; if (sel && sel.scrollIntoView) sel.scrollIntoView({ block: 'nearest' }); };
+      const sel = rows[idx]; if (sel && sel.scrollIntoView) sel.scrollIntoView({ block: 'nearest' });
+      if (opts.onMove) { try { opts.onMove(idx); } catch (e) { } } };
     const move = d => { if (!items.length) return; let n = idx;
-      for (let k = 0; k < items.length; k++) { n = (n + d + items.length) % items.length; if (!items[n].dis) break; }
+      for (let k = 0; k < items.length; k++) { n = (n + d + items.length * 4) % items.length; if (!items[n].dis) break; d = Math.sign(d) || 1; }
       idx = n; sfx('cur'); paint(); };
     const choose = () => { const it = items[idx]; if (!it || it.dis) { sfx('buzz'); return; } sfx('ok'); close(it.v !== undefined ? it.v : idx); };
     const close = v => { UI.pop(); win.remove(); res(v); };
     UI.push(act => {
+      if (opts.cols === 2) {
+        if (act === 'up') move(-2); else if (act === 'down') move(2);
+        else if (act === 'left') move(-1); else if (act === 'right') move(1);
+        else if (act === 'A') choose();
+        else if (act === 'B') { if (opts.cancel === false) { sfx('buzz'); } else { sfx('cancel'); close(-1); } }
+        return;
+      }
       if (act === 'up') move(-1); else if (act === 'down') move(1);
       else if (act === 'A') choose();
       else if (act === 'B') { if (opts.cancel === false) { sfx('buzz'); } else { sfx('cancel'); close(-1); } }
@@ -555,7 +592,8 @@ function heroSprite(dir, walking) {
   const wf = walking ? Math.floor(animT / 8) % 2 : 0;
   if (dir === 0) return { spr: SPRC.heroD, flip: wf === 1 };
   if (dir === 1) return { spr: SPRC.heroU, flip: wf === 1 };
-  return { spr: wf ? SPRC.heroS2 : SPRC.heroS1, flip: dir === 2 };
+  /* 横向きドットは左向きで描いてあるので、右を向くときに反転する */
+  return { spr: wf ? SPRC.heroS2 : SPRC.heroS1, flip: dir === 3 };
 }
 function drawField(x2) {
   const sz = mapSize();
@@ -651,8 +689,8 @@ function drawTitle(x2) {
   x2.font = 'bold 11px "Hiragino Kaku Gothic ProN", sans-serif';
   x2.fillStyle = '#d8d4f0'; x2.fillText('〜よみがえりし魔王〜', 128, 134);
   x2.font = '9px "Hiragino Kaku Gothic ProN", sans-serif';
-  x2.fillStyle = '#8a84c0'; x2.fillText('ver.2 ばしゃと ダーマしんでん', 128, 146);
-  const marchers = ['heroD', 'puni', 'kino', 'bat', 'wagon'];
+  x2.fillStyle = '#8a84c0'; x2.fillText('ver.3 兄妹の たびだち', 128, 146);
+  const marchers = ['heroD', 'sisterD', 'puni', 'kino', 'wagon'];
   marchers.forEach((id, i) => {
     const s = SPRC[id]; const mx = 48 + i * 32, my = 152 + Math.round(Math.sin(animT / 14 + i) * 2);
     x2.drawImage(s.c, mx, my);
@@ -683,7 +721,7 @@ function mkEnemy(t, i, troop) {
     atk: Math.floor(s.base[2] + s.grow[2] * l), def: Math.floor(s.base[3] + s.grow[3] * l),
     agi: Math.floor(s.base[4] + s.grow[4] * l),
     alive: true, fled: false, slp: 0, poi: false, defDn: false, flash: 0,
-    scale: s.big ? 4 : s.boss ? 4 : 3, cx: 0, baseY: 0,
+    scale: s.scale || (s.big ? 4 : s.boss ? 4 : 3), cx: 0, baseY: 0,
   };
 }
 function edef(e) { return Math.floor(e.def * (e.defDn ? 0.7 : 1)); }
@@ -729,11 +767,13 @@ async function inputPhase() {
     const m = alive[i];
     if (m._b.slp) { acts.push({ m, type: 'sleep' }); i++; continue; }
     updateParty(G.party.indexOf(m));
+    const wagonOk = G.wagon.some(w => w.hp > 0);
     const cmds = [
       { t: 'たたかう', v: 'atk' },
       { t: 'とくいわざ', v: 'skill', dis: !skillsOf(m).length },
       { t: 'ぼうぎょ', v: 'def' },
       { t: 'どうぐ', v: 'item' },
+      { t: 'いれかえ', v: 'chg', dis: m.sp === 'hero' || !wagonOk },
       { t: 'にげる', v: 'run', dis: B.boss },
     ];
     const c = await menuWin(cmds, { cls: 'cmd', title: m.name, cancel: i > 0 });
@@ -741,6 +781,11 @@ async function inputPhase() {
     if (c === 'atk') {
       const t = await pickEnemy(); if (t === null) continue;
       acts.push({ m, type: 'atk', t }); i++;
+    } else if (c === 'chg') {
+      const cand = G.wagon.filter(w => w.hp > 0);
+      const wv = await menuWin(cand.map((w, k) => ({ t: w.name, r: 'HP' + w.hp, v: k })), { cls: 'cmd sub', title: 'だれと かわる？' });
+      if (wv === -1) continue;
+      acts.push({ m, type: 'swap', ref: cand[wv] }); i++;
     } else if (c === 'skill') {
       const sk = await pickSkill(m, true); if (!sk) continue;
       const def2 = SKILLS[sk];
@@ -824,6 +869,7 @@ async function dmgToEnemy(e, d, opts = {}) {
   if (e.hp <= 0) { e.alive = false; sfx('dead'); await say(e.name + 'を たおした！', { auto: true, wait: 500 }); }
 }
 async function dmgToAlly(m, d) {
+  if (B && B.shieldT > 0) d = Math.floor(d * 0.7);
   m.hp = Math.max(0, m.hp - d); shake(); sfx('hit'); updateParty();
   await say(m.name + 'は ' + d + 'の ダメージを うけた！', { auto: true, wait: 460 });
   if (m._b.slp && d > 0 && Math.random() < 0.5) { m._b.slp = 0; await say(m.name + 'は めを さました！', { auto: true, wait: 400 }); }
@@ -855,7 +901,7 @@ async function resolvePhase(input) {
   input.acts.forEach(a => order.push({ pri: statsOf(a.m).agi * (0.8 + Math.random() * 0.4), a }));
   aliveEnemies().forEach(e => {
     order.push({ pri: e.agi * (0.8 + Math.random() * 0.4), a: { e, type: 'ai' } });
-    if (e.sp === 'maou' && B.phase === 2) order.push({ pri: e.agi * 0.6 * (0.8 + Math.random() * 0.4), a: { e, type: 'ai' } });
+    if ((e.sp === 'maou' && B.phase === 2) || SPECIES[e.sp].twice) order.push({ pri: e.agi * 0.6 * (0.8 + Math.random() * 0.4), a: { e, type: 'ai' } });
   });
   order.sort((x, y) => y.pri - x.pri);
   for (const { a } of order) {
@@ -874,6 +920,17 @@ async function allyAct(a) {
     return battleOver();
   }
   if (a.type === 'def') { m._b.def = true; await say(m.name + 'は みを まもっている。', { auto: true, wait: 420 }); return battleOver(); }
+  if (a.type === 'swap') {
+    const wi = G.wagon.indexOf(a.ref);
+    if (wi < 0 || a.ref.hp <= 0) { await say('しかし いれかわれなかった！', { auto: true, wait: 450 }); return battleOver(); }
+    const pi = G.party.indexOf(m);
+    G.party[pi] = a.ref; G.wagon[wi] = m;
+    a.ref._b = { slp: 0, poi: false, def: false, charge: false };
+    m._b = null;
+    sfx('ok'); updateParty();
+    await say(m.name + 'は ばしゃの ' + a.ref.name + 'と いれかわった！', { auto: true, wait: 650 });
+    return battleOver();
+  }
   if (a.type === 'atk') {
     let e = B.es[a.t]; if (!e.alive) e = aliveEnemies()[0]; if (!e) return battleOver();
     await say(m.name + 'の こうげき！', { auto: true, wait: 380 });
@@ -995,6 +1052,43 @@ async function doSkill(m, st, skId, t) {
     await say(tm.name + 'が いきかえった！', { auto: true, wait: 550 });
     return battleOver();
   }
+  if (sk.kind === 'goldhit') {
+    sfx('hit');
+    const chg = useCharge(m);
+    let e = B.es[t]; if (!e || !e.alive) e = aliveEnemies()[0]; if (!e) return battleOver();
+    const d = SPECIES[e.sp].metal ? rnd(2) : physDmg(st.atk * chg, edef(e), sk.mult);
+    await dmgToEnemy(e, d);
+    if (d > 0) {
+      const gld = Math.max(1, Math.floor(d * 0.5));
+      G.gold += gld;
+      await say(gld + 'ゴールドを まきあげた！', { auto: true, wait: 500 });
+    }
+    return battleOver();
+  }
+  if (sk.kind === 'gold') {
+    const gld = rrange(20, 80);
+    G.gold += gld; sfx('equip');
+    await say('じめんを ほったら ' + gld + 'ゴールド でてきた！', { auto: true, wait: 600 });
+    return battleOver();
+  }
+  if (sk.kind === 'reveal') {
+    for (const e of aliveEnemies()) await say(e.name + '　HP ' + e.hp + '/' + e.maxhp, { auto: true, wait: 550 });
+    return battleOver();
+  }
+  if (sk.kind === 'shield') {
+    B.shieldT = 2; sfx('heal');
+    await say('ひかりの まくが パーティを つつみこむ！', { auto: true, wait: 600 });
+    return battleOver();
+  }
+  if (sk.kind === 'tamephys') {
+    sfx('hit');
+    let e = B.es[t]; if (!e || !e.alive) e = aliveEnemies()[0]; if (!e) return battleOver();
+    const d = SPECIES[e.sp].metal ? rnd(2) : physDmg(st.atk, edef(e), sk.mult);
+    await dmgToEnemy(e, d);
+    B.tame = true;
+    await say(m.name + 'は まものの こころを つかもうとしている…！', { auto: true, wait: 600 });
+    return battleOver();
+  }
   if (sk.kind === 'charge') {
     m._b.charge = true;
     await say(m.name + 'は きあいを ためている…！', { auto: true, wait: 550 });
@@ -1094,6 +1188,7 @@ async function endOfRound() {
     if (m._b.slp > 0) m._b.slp--;
   }
   for (const e of aliveEnemies()) if (e.slp > 0) e.slp--;
+  if (B.shieldT > 0) B.shieldT--;
   return battleOver();
 }
 function recruitRate(sp) {
@@ -1101,6 +1196,7 @@ function recruitRate(sp) {
   if (B.treat) rate *= 2;
   if (B.tame) rate *= 2;
   if (G.party.some(m => m.hp > 0 && m.job === 'mamotsukai')) rate *= 1.5;
+  if (G.party.some(m => m.hp > 0 && m.job === 'ranger')) rate *= 1.3;
   if (G.party.some(m => m.hp > 0 && m.eq && (m.eq.a1 === 'a_natsuki' || m.eq.a2 === 'a_natsuki'))) rate *= 1.5;
   return Math.min(rate, 0.92);
 }
@@ -1109,7 +1205,8 @@ async function victoryFlow() {
   const defeated = B.es.filter(e => !e.alive && !e.fled);
   await say('まものたちを やっつけた！');
   const exp = defeated.reduce((s, e) => s + SPECIES[e.sp].exp, 0);
-  const gold = defeated.reduce((s, e) => s + SPECIES[e.sp].gold, 0);
+  let gold = defeated.reduce((s, e) => s + SPECIES[e.sp].gold, 0);
+  if (G.party.some(m => m.hp > 0 && m.job === 'shonin')) gold = Math.floor(gold * 1.25);
   if (exp || gold) {
     G.gold += gold;
     await say('けいけんち ' + exp + 'ポイント と ' + gold + 'ゴールドを てにいれた！');
@@ -1168,7 +1265,7 @@ async function gainExp(m, exp) {
     AU.jingle('levelup'); updateParty();
     await say(m.name + 'は レベル' + m.lv + 'に あがった！');
     const learned = SPECIES[m.sp].skills.filter(([lv]) => lv === m.lv).map(([, id]) => id);
-    if (m.sp === 'hero') HERO_SPELLS.forEach(([lv, id]) => { if (lv === m.lv) learned.push(id); });
+    (INNATE[m.sp] || []).forEach(([lv, id]) => { if (lv === m.lv) learned.push(id); });
     for (const id of learned) await say(m.name + 'は ' + SKILLS[id].n + 'を おぼえた！');
   }
 }
@@ -1280,13 +1377,43 @@ function gearInfo(id) {
   return p.join(' ') + ' (' + slotName(g.type) + ')';
 }
 function slotName(tp) { return { w: 'けん', s: 'たて', h: 'あたま', b: 'からだ', a: 'アクセサリー' }[tp]; }
+/* 装備したときのステータス変化プレビュー */
+function previewSlotFor(m, id) {
+  const g = GEAR[id];
+  if (g.type !== 'a') return g.type;
+  if (!m.eq.a1) return 'a1';
+  if (!m.eq.a2) return 'a2';
+  return 'a1';
+}
+function equipPreviewHTML(m, id, slot) {
+  if (!canEquip(m, id)) return '<div class="srow"><b>' + m.name + '</b></div><div class="srow">この そうびは つけられない</div>';
+  const s = slot || previewSlotFor(m, id);
+  const before = statsOf(m);
+  const saved = m.eq[s]; m.eq[s] = id;
+  const after = statsOf(m); m.eq[s] = saved;
+  const row = (nm, b, a) => b === a ? '' :
+    '<div class="srow">' + nm + ' ' + b + ' → <span class="' + (a > b ? 'up' : 'down') + '">' + a + (a > b ? ' ▲' : ' ▼') + '</span></div>';
+  const html = row('こうげき', before.atk, after.atk) + row('ぼうぎょ', before.def, after.def) +
+    row('すばやさ', before.agi, after.agi) + row('さいだいHP', before.hp, after.hp) + row('さいだいMP', before.mp, after.mp);
+  return '<div class="srow"><b>' + m.name + '</b>　' + GEAR[id].n + '</div>' + (html || '<div class="srow">のうりょくの へんかは ない</div>');
+}
 async function equipNewGear(id) {
   const g = GEAR[id];
-  const rows = caravan().map((m, i) => ({ t: m.name, r: 'Lv' + m.lv, v: i }));
+  const rows = caravan().map((m, i) => ({ t: m.name, r: canEquip(m, id) ? 'Lv' + m.lv : '×', v: i, dis: !canEquip(m, id) }));
   rows.push({ t: 'ふくろに いれる', v: 'bag' });
-  const v = await menuWin(rows, { cls: 'town', title: 'だれが そうびする？' });
+  const pv = infoWin('', 'preview');
+  const v = await menuWin(rows, { cls: 'town', title: 'だれが そうびする？', onMove: i => {
+    const it = rows[i];
+    pv.innerHTML = (it && it.v !== 'bag' && !it.dis) ? equipPreviewHTML(caravan()[it.v], id) : '';
+  } });
+  pv.remove();
   if (v === -1 || v === 'bag') {
-    if (G.bag.length >= BAG_MAX) { await say('ふくろが いっぱいだ！ そのばで そうびしよう。'); const v2 = await menuWin(caravan().map((m, i) => ({ t: m.name, v: i })), { cls: 'town', title: 'だれが そうびする？', cancel: false }); await equipOn(caravan()[v2], id); return; }
+    if (G.bag.length >= BAG_MAX) {
+      await say('ふくろが いっぱいだ！ そのばで そうびしよう。');
+      const okRows = caravan().map((m, i) => ({ t: m.name, v: i, dis: !canEquip(m, id) }));
+      const v2 = await menuWin(okRows, { cls: 'town', title: 'だれが そうびする？', cancel: false });
+      await equipOn(caravan()[v2], id); return;
+    }
     G.bag.push(id); sfx('ok');
     await say(g.n + 'を ふくろに いれた！');
     return;
@@ -1295,6 +1422,11 @@ async function equipNewGear(id) {
 }
 async function equipOn(m, id) {
   const g = GEAR[id];
+  if (!canEquip(m, id)) {
+    if (G.bag.length < BAG_MAX) { G.bag.push(id); await say(m.name + 'は ' + g.n + 'を そうびできない！ ふくろに いれた。'); }
+    else { const refund = Math.floor(g.price / 2); G.gold += refund; await say('そうびできず ふくろも いっぱい。' + refund + 'Gで ひきとってもらった。'); }
+    return;
+  }
   let slot = g.type;
   if (g.type === 'a') {
     if (!m.eq.a1) slot = 'a1';
@@ -1365,9 +1497,12 @@ async function jobSelect(m) {
     const rows = Object.keys(JOBS).map(jid => {
       const j = JOBS[jid];
       const lv = jobLvOf(m, jid);
-      const locked = j.req && !j.req.every(r => jobLvOf(m, r) >= JOB_MAX);
+      let locked = false;
+      if (j.req && !j.req.every(r => jobLvOf(m, r) >= JOB_MAX)) locked = true;
+      if (j.human && !SPECIES[m.sp].human) locked = true;
+      if (j.reqAdv && !ADV_JOBS.some(a => jobLvOf(m, a) >= JOB_MAX)) locked = true;
       const cur = m.job === jid;
-      return { t: (cur ? '★' : '') + j.n, r: locked ? '？？？' : 'Lv' + lv, v: jid, dis: locked || cur };
+      return { t: (cur ? '★' : '') + j.n, r: locked ? '？？？' : '★' + lv + ' ' + JOB_TITLES[lv - 1], v: jid, dis: locked || cur };
     });
     if (m.job) rows.push({ t: 'しょくぎょうを やめる', v: 'none' });
     rows.push({ t: 'もどる', v: 'q' });
@@ -1399,7 +1534,24 @@ async function bridgeEvent() {
   }
 }
 async function caveEvent() {
-  if (G.flags.cave) { await say('どうくつは ひっそりと しずまりかえっている。おたからは もう ない。'); return; }
+  if (G.flags.cave && G.flags.clear && !G.flags.superclear) {
+    await say('どうくつの さいしんぶから きんいろの ひかりが もれている…なにかが めざめたようだ！');
+    if (!(await askYN('さいしんぶへ すすみますか？'))) return;
+    await say('こがねいろに かがやく きょだいな りゅうが しずかに めを あけた…');
+    await say('りゅうじんカイザー『よくぞ きた。まおうを たおせし 兄妹よ…ワシと ぜんりょくで あそんでもらおうか！』');
+    const r = await battle([{ sp: 'kaiser', lv: 1 }], { boss: true, bg: 'cave' });
+    if (r === 'lose') { await gameOver(); return; }
+    if (r !== 'win') return;
+    G.flags.superclear = true;
+    await say('りゅうじんカイザー『…みごとだ。おぬしらこそ しんの ゆうしゃ。これを さずけよう。』');
+    if (G.bag.length < BAG_MAX) { G.bag.push('a_ryujin'); await say('「りゅうじんのたま」を てにいれた！'); }
+    await say('〜 しんのエンディング 〜　うらボスも たおして かんぜんクリア！ おめでとう！！');
+    save(); return;
+  }
+  if (G.flags.cave) {
+    if (G.flags.superclear) { await say('こがねの りゅうは しずかに ねむっている。どうくつは おだやかだ。'); return; }
+    await say('どうくつは ひっそりと しずまりかえっている。おたからは もう ない。'); return;
+  }
   await say('ほのおのどうくつを みつけた！ なかから あつい かぜが ふきつけてくる…');
   if (!(await askYN('どうくつに はいりますか？'))) return;
   await say('どうくつの おくへ すすむと まものたちが おそいかかってきた！');
@@ -1436,24 +1588,46 @@ async function ending() {
   bgm(null); AU.jingle('victory');
   await say('まおうゾルデは ひかりに つつまれ ほろびさった！');
   await say('せかいに おだやかな あさが もどっていく…。');
-  await say('まものと こころを かよわせる ゆうしゃ ' + G.name + '。その ぼうけんは いつまでも かたりつがれることだろう。');
-  const cnt = G.party.length - 1 + G.wagon.length + G.reserve.length;
+  await say('まものと こころを かよわせた 兄妹の ぼうけんは いつまでも かたりつがれることだろう。');
+  const cnt = G.party.concat(G.wagon, G.reserve).filter(m => !SPECIES[m.sp].human).length;
   await say('【ぼうけんのきろく】 レベル:' + G.party[0].lv + '　なかまにした まもの:' + cnt + 'ひき　あるいた かず:' + G.steps + 'ほ');
   await say('〜 THE END 〜　あそんでくれて ありがとう！');
-  await say('※このあとも じゆうに ぼうけんできます。ぜんしょくマスターや なかまコンプを めざすのも いいかも…？');
+  await say('…そのとき とおくの どうくつの さいしんぶで なにかが めを さました ような きがした…。');
   G.flags.clear = true; save(); bgm('field');
 }
 
-/* ---------- フィールドメニュー ---------- */
+/* ---------- フィールドメニュー (SFC DQ6ふう: 2列コマンド+パーティ窓+ゴールド窓) ---------- */
+function jobShort(m) { return m.job ? JOBS[m.job].n + '★' + jobLvOf(m, m.job) : 'むしょく'; }
+function buildPartyPanel() {
+  const w = infoWin('', 'ppanel');
+  w.innerHTML = G.party.map(m =>
+    '<div class="pprow' + (m.hp <= 0 ? ' dead' : '') + '"><b>' + m.name + '</b> <span class="pjob">' + jobShort(m) + '</span><br>' +
+    'Lv' + m.lv + '　HP<span class="' + (m.hp <= m.maxhp / 4 ? 'low' : '') + '">' + m.hp + '</span>/' + m.maxhp + '　MP' + m.mp + '</div>').join('');
+  return w;
+}
+async function talkAction() {
+  if (G.area !== 'world') {
+    const f = facingTile();
+    const npc = npcAt(f.x, f.y);
+    if (npc) { await talkNpc(npc); return; }
+  }
+  await say('そのほうこうには だれも いない。');
+  hideMsgWin();
+}
 async function fieldMenu() {
-  hudShow(); updateParty(); sfx('ok');
+  sfx('ok'); hideMsgWin();
+  let pp = buildPartyPanel();
+  let gw = infoWin('G ' + G.gold + '　ほすう ' + G.steps, 'goldwin');
+  const refresh = () => { pp.remove(); gw.remove(); pp = buildPartyPanel(); gw = infoWin('G ' + G.gold + '　ほすう ' + G.steps, 'goldwin'); };
   while (true) {
     const c = await menuWin([
-      { t: 'つよさ', v: 'st' }, { t: 'とくいわざ', v: 'sp' }, { t: 'どうぐ', v: 'it' },
-      { t: 'そうび', v: 'eq' }, { t: 'なかま', v: 'pt' }, { t: 'セーブ', v: 'sv' },
-      { t: 'せってい', v: 'cf' }, { t: 'とじる', v: 'q' },
-    ], { cls: 'fmenu', title: 'メニュー  ' + G.gold + 'G' });
-    if (c === 'q' || c === -1) break;
+      { t: 'はなす', v: 'talk' }, { t: 'つよさ', v: 'st' },
+      { t: 'とくいわざ', v: 'sp' }, { t: 'どうぐ', v: 'it' },
+      { t: 'そうび', v: 'eq' }, { t: 'なかま', v: 'pt' },
+      { t: 'きろく', v: 'sv' }, { t: 'せってい', v: 'cf' },
+    ], { cls: 'fmenu', cols: 2 });
+    if (c === -1) break;
+    if (c === 'talk') { pp.remove(); gw.remove(); await talkAction(); return; }
     if (c === 'st') await statusFlow();
     else if (c === 'sp') await fieldSkillFlow();
     else if (c === 'it') await fieldItemFlow();
@@ -1461,8 +1635,9 @@ async function fieldMenu() {
     else if (c === 'pt') await partyFlow();
     else if (c === 'sv') { save(); await say('ぼうけんのしょに きろくした！'); }
     else if (c === 'cf') await configFlow();
+    refresh();
   }
-  hudHide(); hideMsgWin();
+  pp.remove(); gw.remove(); hideMsgWin();
 }
 function memberRows() {
   const rows = [];
@@ -1478,7 +1653,7 @@ async function statusFlow() {
     const m = memberOf(v); const st = statsOf(m);
     const sks = skillsOf(m).map(id => SKILLS[id].n).join('、') || 'なし';
     const next = m.lv >= MAXLV ? '--' : (EXPT[m.lv + 1] - m.exp);
-    const jobTxt = m.job ? JOBS[m.job].n + ' Lv' + jobLvOf(m, m.job) : 'むしょく';
+    const jobTxt = m.job ? JOBS[m.job].n + '★' + jobLvOf(m, m.job) + '(' + JOB_TITLES[jobLvOf(m, m.job) - 1] + ')' : 'むしょく';
     const eqTxt = SLOTS.map(([k, nm]) => nm + ':' + (m.eq[k] ? GEAR[m.eq[k]].n : 'なし')).join('　');
     let html = '<div class="srow"><b>' + m.name + '</b>　Lv' + m.lv + '　' + jobTxt + '</div>' +
       '<div class="srow">HP ' + m.hp + '/' + m.maxhp + '　MP ' + m.mp + '/' + m.maxmp + '</div>' +
@@ -1562,8 +1737,12 @@ async function equipFlow() {
   }
 }
 async function equipMember(m) {
+  const ok = SPECIES[m.sp].eqok || '';
   while (true) {
-    const rows = SLOTS.map(([k, nm]) => ({ t: nm, r: m.eq[k] ? GEAR[m.eq[k]].n : '----', v: k }));
+    const rows = SLOTS.map(([k, nm]) => {
+      const allowed = ok.includes(k === 'a1' || k === 'a2' ? 'a' : k);
+      return { t: nm, r: !allowed ? 'そうび不可' : (m.eq[k] ? GEAR[m.eq[k]].n : '----'), v: k, dis: !allowed };
+    });
     rows.push({ t: 'もどる', v: 'q' });
     const st = statsOf(m);
     const v = await menuWin(rows, { cls: 'fmenu', title: m.name + '  こ' + st.atk + ' ぼ' + st.def + ' す' + st.agi });
@@ -1575,7 +1754,12 @@ async function equipMember(m) {
     if (m.eq[slot]) cands.push({ t: 'はずす', v: 'off' });
     if (!cands.length) { await say('つけられる そうびを もっていない。(おみせで かえるよ)'); continue; }
     cands.push({ t: 'もどる', v: 'q' });
-    const c = await menuWin(cands, { cls: 'fmenu sub2', title: SLOTS.find(s => s[0] === slot)[1] });
+    const pv = infoWin('', 'preview');
+    const c = await menuWin(cands, { cls: 'fmenu sub2', title: SLOTS.find(s => s[0] === slot)[1], onMove: i => {
+      const it = cands[i];
+      pv.innerHTML = (it && typeof it.v === 'number') ? equipPreviewHTML(m, G.bag[it.v], slot) : '';
+    } });
+    pv.remove();
     if (c === 'q' || c === -1) continue;
     if (c === 'off') {
       if (G.bag.length >= BAG_MAX) { await say('ふくろが いっぱいで はずせない！'); continue; }
@@ -1609,20 +1793,21 @@ async function partyFlow() {
     const [where, idx] = v;
     const m = memberOf(v);
     const isHero = m.sp === 'hero';
+    const isHuman = !!SPECIES[m.sp].human;
     const acts = [];
     acts.push({ t: 'ならびかえ (たいれつと いれかえ)', v: 'swap' });
     if (!isHero) {
       if (where === 'p') {
         acts.push({ t: 'ばしゃへ', v: 'toW' });
-        acts.push({ t: 'ほこらへ', v: 'toR', dis: G.reserve.length >= RESERVE_MAX });
+        if (!isHuman) acts.push({ t: 'ほこらへ', v: 'toR', dis: G.reserve.length >= RESERVE_MAX });
       } else if (where === 'w') {
         acts.push({ t: 'たいれつへ', v: 'toP', dis: G.party.length >= PARTY_MAX });
-        acts.push({ t: 'ほこらへ', v: 'toR', dis: G.reserve.length >= RESERVE_MAX });
+        if (!isHuman) acts.push({ t: 'ほこらへ', v: 'toR', dis: G.reserve.length >= RESERVE_MAX });
       } else {
         acts.push({ t: 'たいれつへ', v: 'toP', dis: G.party.length >= PARTY_MAX });
         acts.push({ t: 'ばしゃへ', v: 'toW', dis: caravanCount() >= CARAVAN_MAX });
       }
-      acts.push({ t: 'にがす', v: 'bye' });
+      if (!isHuman) acts.push({ t: 'にがす', v: 'bye' });
     }
     acts.push({ t: 'もどる', v: 'q' });
     const a = await menuWin(acts, { cls: 'fmenu sub2', title: m.name + ' Lv' + m.lv });
@@ -1674,14 +1859,15 @@ async function configFlow() {
 }
 
 /* ---------- タイトル・オープニング ---------- */
-function naming() {
+function naming(label, def) {
   return new Promise(res => {
     const ni = $('#namein'); ni.classList.add('on');
-    const input = $('#nameInput'); input.value = 'ユウ';
+    $('#nameLabel').textContent = label;
+    const input = $('#nameInput'); input.value = def;
     setTimeout(() => { try { input.focus(); input.select(); } catch (e) { } }, 60);
     const ok = () => {
       let v = (input.value || '').trim().slice(0, 6);
-      if (!v) v = 'ユウ';
+      if (!v) v = def;
       ni.classList.remove('on');
       $('#nameOk').removeEventListener('pointerdown', ok);
       res(v);
@@ -1690,10 +1876,11 @@ function naming() {
   });
 }
 async function opening() {
+  const sis = G.party[1];
   await say('むかしむかし。ふういんされていた まおうゾルデが よみがえり せかいは まもので あふれてしまった。');
-  await say('しかし ' + G.name + 'には ふしぎな ちからが あった。たたかった まものと こころを かよわせ なかまに する ちからが…！');
-  await say('そふの のこした ばしゃに のって しゅっぱつだ！ ばしゃが あれば なかまを 7ひきまで つれていける。');
-  await say('まものたちと ちからをあわせ ほくせいの まおうじょうに ねむる ゾルデを うちたおすのだ！');
+  await say('アニの ' + G.name + 'と イモウトの ' + sis.name + '。ふたりには まものと こころを かよわせる ふしぎな ちからが あった。');
+  await say('そふの のこした ばしゃに のり 兄妹は たびだつ。ばしゃが あれば なかまを あわせて 8にんまで つれていける！');
+  await say('めざすは ほくせいの まおうじょう。まものたちと ちからをあわせ ゾルデを うちたおすのだ！');
   await say('そうさ: 十じキーで いどう / Aで けってい・はなす / Bで メニュー。むらの ひとの はなしも きいてみよう！');
 }
 async function titleFlow() {
@@ -1711,11 +1898,14 @@ async function titleFlow() {
       break;
     }
     if (c === 'new') {
-      const nm = await naming();
+      const nm = await naming('おにいちゃんの なまえ (6もじまで)', 'ユウ');
+      const nm2 = await naming('いもうとの なまえ (6もじまで)', 'ミア');
       G = defaultState(); G.name = nm;
       const hero = newMember('hero', 1); hero.name = nm;
       hero.eq.w = 'w0'; hero.eq.b = 'b0'; recalc(hero); hero.hp = hero.maxhp; hero.mp = hero.maxmp;
-      G.party = [hero];
+      const sis = newMember('sister', 1); sis.name = nm2;
+      sis.eq.b = 'b0'; recalc(sis); sis.hp = sis.maxhp; sis.mp = sis.maxmp;
+      G.party = [hero, sis];
       G.mode = 'field'; bgm('field');
       await opening();
       save();
@@ -1759,7 +1949,9 @@ window.__test = {
   gold(n) { G.gold = n; },
   warp(x, y) { G.area = 'world'; G.x = x; G.y = y; G.px = x * 16; G.py = y * 16; TRAIL = []; },
   enterTown(id) { runEvent(() => enterTown(id)); },
-  jobLvOf, statsOf, skillsOf,
+  jobLvOf, statsOf, skillsOf, canEquip,
+  zap() { if (B) B.es.forEach(e => { if (e.alive) e.hp = 1; }); },
+  battleState() { return B ? { es: B.es.map(e => ({ sp: e.sp, hp: e.hp, alive: e.alive })), party: G.party.map(m => m.sp) } : null; },
   fullMap() {
     const c = document.createElement('canvas'); c.width = MW * 16; c.height = MH * 16;
     const x2 = c.getContext('2d');

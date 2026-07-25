@@ -62,6 +62,21 @@ body {
 .srow { padding: calc(var(--u) * .6) 0; border-bottom: 1px solid rgba(255,255,255,.12); }
 .srow:last-child { border-bottom: none; }
 .srow b { color: #f0c860; }
+.up { color: #8af08a; } .down { color: #ff9a8a; }
+
+/* ---- SFC風フィールドメニュー ---- */
+.menu.grid2 .wlist { display: grid; grid-template-columns: 1fr 1fr; column-gap: calc(var(--u) * 3); }
+.menu.fmenu.grid2 { min-width: 56%; max-height: none; overflow: visible; }
+.win.ppanel { right: 1.5%; top: 3%; width: 38%; font-size: calc(var(--u) * 5.6); line-height: 1.5; padding: calc(var(--u) * 2.5) calc(var(--u) * 3); }
+.win.ppanel .pprow { border-bottom: 1px solid rgba(255,255,255,.15); padding: calc(var(--u) * .8) 0; }
+.win.ppanel .pprow:last-child { border-bottom: none; }
+.win.ppanel .pprow.dead { opacity: .45; }
+.win.ppanel b { color: #f0c860; }
+.win.ppanel .pjob { color: #9ad0ff; font-size: calc(var(--u) * 4.8); }
+.win.ppanel .low { color: #ff9a72; }
+.win.goldwin { left: 3%; bottom: 34%; font-size: calc(var(--u) * 6.4); padding: calc(var(--u) * 2) calc(var(--u) * 3.5); font-variant-numeric: tabular-nums; }
+.win.preview { right: 1.5%; top: 34%; width: 42%; font-size: calc(var(--u) * 6); line-height: 1.5; z-index: 25; }
+.win.preview:empty { display: none; }
 
 /* ---- パーティHUD ---- */
 #hud { position: absolute; top: 1.5%; left: 1.5%; right: 1.5%; display: none;
@@ -129,7 +144,7 @@ body {
     <div id="hud"></div>
     <div id="menus"></div>
     <div id="msgwin" class="win"><div id="msgtext"></div><div id="msgcur">▼</div></div>
-    <div id="namein"><div class="box">なまえを きめてね (6もじまで)<br>
+    <div id="namein"><div class="box"><span id="nameLabel">なまえを きめてね (6もじまで)</span><br>
       <input id="nameInput" maxlength="6" value="ユウ"><br>
       <button id="nameOk">けってい</button></div></div>
     <div id="fade"></div>

@@ -106,6 +106,29 @@ const SPR = {
     '....khhhhhhk....', '.....kffffk.....', '.....kfkffk.....', '.....kffffk.....',
     '.....kggggk.....', '....kggggggk....', '....kggggggk....', '....kgggggkf....',
     '.....kggggk.....', '.....kggggk.....', '.....kbbbk......', '.....kkkkk......'] },
+  /* --- 妹 (ミア) --- */
+  sisterD: { mirror: false, pal: { k: OUTLINE, h: '#b0622a', f: '#f6d2ac', d: '#d05a7a', b: '#8a3852' }, px: [
+    '................', '......kkkk......', '.....khhhhk.....', '....khhhhhhk....',
+    '...khhhhhhhhk...', '...khffffffhk...', '...khfkffkfhk...', '....khffffhk....',
+    '.....kddddk.....', '....kddddddk....', '...kdddddddd....', '..kfkddddddkf...',
+    '...kkddddddkk...', '...kddddddddk...', '...kddddddddk...', '....kkkkkkkk....'] },
+  sisterU: { mirror: false, pal: { k: OUTLINE, h: '#b0622a', f: '#f6d2ac', d: '#d05a7a', b: '#8a3852' }, px: [
+    '................', '......kkkk......', '.....khhhhk.....', '....khhhhhhk....',
+    '...khhhhhhhhk...', '...khhhhhhhhk...', '...khhhhhhhhk...', '....khhhhhhk....',
+    '.....kddddk.....', '....kddddddk....', '...kdddddddd....', '..kfkddddddkf...',
+    '...kkddddddkk...', '...kddddddddk...', '...kddddddddk...', '....kkkkkkkk....'] },
+  sisterS1: { mirror: false, pal: { k: OUTLINE, h: '#b0622a', f: '#f6d2ac', d: '#d05a7a', b: '#8a3852' }, px: [
+    '................', '......kkkk......', '.....khhhhk.....', '....khhhhhhk....',
+    '....khhhhhhhk...', '.....kffffkhk...', '.....kfkffkhk...', '.....kffffkhk...',
+    '.....kddddkk....', '....kddddddk....', '....kddddddk....', '....kdddddkf....',
+    '....kddddddk....', '...kddddddddk...', '...kddddddddk...', '....kkkkkkkk....'] },
+  sisterS2: { mirror: false, pal: { k: OUTLINE, h: '#b0622a', f: '#f6d2ac', d: '#d05a7a', b: '#8a3852' }, px: [
+    '................', '................', '......kkkk......', '.....khhhhk.....',
+    '....khhhhhhk....', '....khhhhhhhk...', '.....kffffkhk...', '.....kfkffkhk...',
+    '.....kffffkhk...', '.....kddddkk....', '....kddddddk....', '....kddddddk....',
+    '....kdddddkf....', '...kddddddddk...', '...kddddddddk...', '....kkkkkkkk....'] },
+  /* --- 裏ボス りゅうじんカイザー (黄金竜) --- */
+  kaiser: { base: 'drak', pal: { k: OUTLINE, g: '#e0b83a', c: '#f8f0d0', e: '#f04830', h: '#ffffff', d: '#a87f1e' } },
   /* --- 町のひとびと (heroDの色ちがい / ローブ姿) --- */
   vilA: { base: 'heroD', pal: { k: OUTLINE, h: '#4a3320', f: '#f4cba0', g: '#b0623a', b: '#4a3830' } },
   vilB: { base: 'heroD', pal: { k: OUTLINE, h: '#c8a24a', f: '#f4cba0', g: '#4a78c0', b: '#3a3548' } },
@@ -237,10 +260,42 @@ const SKILLS = {
   fullheal: { n: 'フルヒール', mp: 8, kind: 'heal', pow: [999, 999], tgt: 'ally' },
   gigafrea: { n: 'ギガフレア', mp: 16, kind: 'mag', pow: [60, 80], tgt: 'all' },
   fullrez: { n: 'フルリザレク', mp: 15, kind: 'revive', pow: 1.0, tgt: 'ally' },
+  /* おどりこ */
+  shibire: { n: 'しびれダンス', mp: 3, kind: 'sleep', tgt: 'all' },
+  kennomai: { n: 'けんのまい', mp: 4, kind: 'physR', mult: 0.9, hits: 2, tgt: 'all' },
+  iyashistep: { n: 'いやしのステップ', mp: 5, kind: 'healall', pow: [30, 40], tgt: 'self' },
+  tsuruginomai: { n: 'つるぎのまい', mp: 10, kind: 'physR', mult: 1.0, hits: 4, tgt: 'all' },
+  /* しょうにん */
+  bottakuri: { n: 'ぼったくり', mp: 2, kind: 'goldhit', mult: 1.2, tgt: 'one' },
+  anahori: { n: 'あなほり', mp: 0, kind: 'gold', tgt: 'self' },
+  mekiki: { n: 'めきき', mp: 0, kind: 'reveal', tgt: 'self' },
+  oomouke: { n: 'おおもうけ', mp: 6, kind: 'goldhit', mult: 1.6, tgt: 'one' },
+  /* パラディン */
+  oinori: { n: 'おいのり', mp: 4, kind: 'heal', pow: [40, 60], tgt: 'ally' },
+  holylance: { n: 'ホーリーランス', mp: 6, kind: 'mag', pow: [55, 75], tgt: 'one' },
+  shinkotate: { n: 'しんこうのたて', mp: 6, kind: 'shield', tgt: 'self' },
+  grandcross: { n: 'グランドクロス', mp: 12, kind: 'mag', pow: [45, 60], tgt: 'all' },
+  /* レンジャー */
+  moonsault: { n: 'ムーンサルト', mp: 3, kind: 'phys', mult: 1.35, tgt: 'one' },
+  tsukamaeru: { n: 'つかまえる', mp: 3, kind: 'tamephys', mult: 0.8, tgt: 'one' },
+  featherarrow: { n: 'フェザーアロー', mp: 5, kind: 'phys', mult: 0.9, hits: 2, tgt: 'one' },
+  kemonoyobi: { n: 'けものよび', mp: 10, kind: 'breath', pow: [40, 55], tgt: 'all' },
+  /* ゆうしゃ */
+  raitoning: { n: 'ライトニング', mp: 8, kind: 'mag', pow: [45, 60], tgt: 'all' },
+  iyashihikari: { n: 'いやしのひかり', mp: 10, kind: 'healall', pow: [60, 80], tgt: 'self' },
+  gigacrash: { n: 'ギガクラッシュ', mp: 10, kind: 'phys', mult: 2.6, tgt: 'one' },
+  ultimavolt: { n: 'アルテマボルト', mp: 18, kind: 'mag', pow: [70, 90], tgt: 'all' },
+  /* 兄妹の固有わざ */
+  shinebolt: { n: 'シャインボルト', mp: 12, kind: 'mag', pow: [90, 120], tgt: 'one' },
 };
-const HERO_SPELLS = [[2, 'heal'], [4, 'spark'], [6, 'blaze'], [8, 'hiheal'], [10, 'gigaspark'], [12, 'rezarek']];
+/* キャラクター固有のとくいわざ (レベルで習得・職業とは別枠) */
+const INNATE = {
+  hero: [[2, 'spark'], [5, 'blaze'], [9, 'gigaspark'], [14, 'shinebolt']],
+  sister: [[2, 'heal'], [5, 'rifure'], [9, 'hiheal'], [13, 'rezarek']],
+};
 
-/* ---------- 職業 (ダーマしんでんで転職) ----------
+/* ---------- 職業 (ダーマしんでんで転職・DQ6方式) ----------
+   基本8職 → 2職マスターで上級職 → 上級マスターで「ゆうしゃ」(兄妹のみ)
    m: 在職中のステータス倍率 / skills: [職Lv, わざ] (おぼえたら永続) */
 const JOBS = {
   senshi: { n: 'せんし', desc: 'こうげき・まもりが 上がる', m: { atk: 1.25, def: 1.10, agi: 0.90, hp: 1.10, mp: 0.90 }, skills: [[2, 'kabutowari'], [4, 'hayabusa'], [6, 'zenryoku'], [8, 'majin']] },
@@ -249,33 +304,43 @@ const JOBS = {
   soryo: { n: 'そうりょ', desc: 'かいふく呪文の 使い手', m: { atk: 0.90, def: 1.00, agi: 1.00, hp: 0.95, mp: 1.25 }, skills: [[2, 'heal'], [4, 'rifure'], [6, 'hiheal'], [8, 'rezarek']] },
   tozoku: { n: 'とうぞく', desc: 'すばやく 盗みも できる', m: { atk: 0.95, def: 0.95, agi: 1.30, hp: 1.00, mp: 1.00 }, skills: [[2, 'nusumu'], [4, 'kamaitachi'], [6, 'smoke'], [8, 'shinobiashi']] },
   mamotsukai: { n: 'まものつかい', desc: 'まものが なかまに なりやすい', m: { atk: 1.00, def: 1.00, agi: 1.05, hp: 1.00, mp: 1.10 }, rec: 1.5, skills: [[2, 'nadameru'], [4, 'muchiuchi'], [6, 'iyashiuta'], [8, 'wildkick']] },
+  odoriko: { n: 'おどりこ', desc: 'まいおどり ほんろうする', m: { atk: 0.95, def: 0.95, agi: 1.35, hp: 0.95, mp: 1.05 }, skills: [[2, 'shibire'], [4, 'kennomai'], [6, 'iyashistep'], [8, 'tsuruginomai']] },
+  shonin: { n: 'しょうにん', desc: 'おかねもうけの たつじん', m: { atk: 1.05, def: 1.05, agi: 1.00, hp: 1.05, mp: 1.00 }, goldx: 1.25, skills: [[2, 'bottakuri'], [4, 'anahori'], [6, 'mekiki'], [8, 'oomouke']] },
   batoma: { n: 'バトルマスター', desc: 'せんし+ぶとうかを 極めし者', req: ['senshi', 'butoka'], m: { atk: 1.40, def: 1.10, agi: 1.15, hp: 1.15, mp: 0.95 }, crit: 2, skills: [[2, 'tsubame'], [4, 'grand'], [6, 'tension'], [8, 'ougi']] },
+  paladin: { n: 'パラディン', desc: 'ぶとうか+そうりょを 極めし者', req: ['butoka', 'soryo'], m: { atk: 1.10, def: 1.30, agi: 0.90, hp: 1.15, mp: 1.10 }, skills: [[2, 'oinori'], [4, 'holylance'], [6, 'shinkotate'], [8, 'grandcross']] },
   kenja: { n: 'けんじゃ', desc: 'まほう+そうりょを 極めし者', req: ['maho', 'soryo'], m: { atk: 0.90, def: 1.00, agi: 1.05, hp: 1.00, mp: 1.45 }, skills: [[2, 'holyray'], [4, 'fullheal'], [6, 'gigafrea'], [8, 'fullrez']] },
+  ranger: { n: 'レンジャー', desc: 'とうぞく+まものつかいを 極めし者', req: ['tozoku', 'mamotsukai'], m: { atk: 1.10, def: 1.00, agi: 1.25, hp: 1.05, mp: 1.05 }, rec: 1.3, skills: [[2, 'moonsault'], [4, 'tsukamaeru'], [6, 'featherarrow'], [8, 'kemonoyobi']] },
+  yusha: { n: 'ゆうしゃ', desc: 'えらばれし 兄妹だけの しょくぎょう', human: true, reqAdv: true, m: { atk: 1.30, def: 1.20, agi: 1.15, hp: 1.20, mp: 1.20 }, skills: [[2, 'raitoning'], [4, 'iyashihikari'], [6, 'gigacrash'], [8, 'ultimavolt']] },
 };
-/* 職Lv l に なるのに必要な 勝利数 (index = l-1) */
+/* 職Lv l に なるのに必要な 勝利数 (index = l-1) と 段位のなまえ */
 const JCUM = [0, 2, 5, 10, 16, 24, 34, 46];
 const JOB_MAX = 8;
+const JOB_TITLES = ['みならい', 'かけだし', 'いちにんまえ', 'じゅくれん', 'くろうと', 'たつじん', 'めいじん', 'マスター'];
+const ADV_JOBS = ['batoma', 'paladin', 'kenja', 'ranger'];
 
-/* ---------- 種族 ---------- */
+/* ---------- 種族 ----------
+   eqok: 装備できる部位 (w=けん s=たて h=あたま b=からだ a=アクセ) */
 const SPECIES = {
-  hero: { n: 'ゆうしゃ', spr: 'heroD', base: [26, 8, 9, 6, 7], grow: [7, 4, 2.4, 2, 1.6], skills: [], rec: 0, exp: 0, gold: 0 },
-  puni: { n: 'ぷにまる', spr: 'puni', base: [11, 6, 6, 5, 5], grow: [5, 1.5, 1.8, 1.7, 1.4], skills: [[1, 'taiatari'], [6, 'heal']], rec: 0.45, exp: 4, gold: 5, ai: [['atk', 75], ['taiatari', 25]] },
-  bat: { n: 'バサバサ', spr: 'bat', base: [9, 6, 6, 4, 9], grow: [4.5, 1.5, 1.7, 1.3, 2], skills: [[1, 'kyuketsu']], rec: 0.38, exp: 4, gold: 4, ai: [['atk', 70], ['kyuketsu', 30]] },
-  rat: { n: 'とげネズミ', spr: 'rat', base: [12, 4, 8, 5, 7], grow: [5, 1, 2, 1.5, 1.6], skills: [[1, 'togetoge']], rec: 0.35, exp: 6, gold: 7, ai: [['atk', 70], ['togetoge', 30]] },
-  kino: { n: 'キノッコ', spr: 'kino', base: [14, 8, 7, 6, 5], grow: [5.5, 1.6, 1.8, 1.7, 1.2], skills: [[1, 'nemuri']], rec: 0.32, exp: 9, gold: 8, ai: [['atk', 65], ['nemuri', 35]] },
-  bee: { n: 'ハチどん', spr: 'bee', base: [13, 6, 9, 5, 10], grow: [5, 1.2, 2.1, 1.4, 2], skills: [[1, 'dokubari']], rec: 0.30, exp: 10, gold: 9, ai: [['atk', 60], ['dokubari', 40]] },
-  wolf: { n: 'もりオオカミ', spr: 'wolf', base: [18, 4, 11, 7, 9], grow: [6, 1, 2.4, 1.6, 1.8], skills: [[1, 'kamitsuku']], rec: 0.26, exp: 13, gold: 11, ai: [['atk', 60], ['kamitsuku', 40]] },
-  cact: { n: 'サボチン', spr: 'cact', base: [16, 8, 10, 9, 6], grow: [5.5, 1.2, 2.2, 2, 1.2], skills: [[1, 'misairu']], rec: 0.25, exp: 16, gold: 14, ai: [['atk', 60], ['misairu', 40]] },
-  liza: { n: 'スナトカゲ', spr: 'liza', base: [17, 8, 11, 8, 8], grow: [6, 1.4, 2.3, 1.7, 1.6], skills: [[1, 'hinoiki']], rec: 0.22, exp: 18, gold: 15, ai: [['atk', 60], ['hinoiki', 40]] },
-  gobl: { n: 'ゴブリン', spr: 'gobl', base: [20, 4, 13, 8, 8], grow: [6.5, 1, 2.5, 1.8, 1.6], skills: [[1, 'bunmawashi']], rec: 0.22, exp: 20, gold: 18, ai: [['atk', 70], ['bunmawashi', 30]] },
-  wisp: { n: 'ゆらび', spr: 'wisp', base: [14, 14, 8, 7, 9], grow: [5, 2.6, 1.9, 1.6, 1.8], skills: [[1, 'blaze'], [10, 'nemuri']], rec: 0.20, exp: 24, gold: 20, ai: [['atk', 40], ['blaze', 45], ['nemuri', 15]] },
-  skel: { n: 'ガイコッツ', spr: 'skel', base: [24, 6, 15, 10, 9], grow: [7, 1, 2.7, 1.9, 1.7], skills: [[1, 'nidogiri']], rec: 0.18, exp: 30, gold: 24, ai: [['atk', 60], ['nidogiri', 40]] },
-  golem: { n: 'マッドゴーレム', spr: 'golem', base: [30, 6, 16, 14, 4], grow: [8, 1, 2.8, 2.4, 1], skills: [[1, 'iwanage']], rec: 0.15, exp: 36, gold: 28, ai: [['atk', 60], ['iwanage', 40]] },
-  drak: { n: 'ドラゴキッズ', spr: 'drak', base: [26, 10, 15, 11, 10], grow: [7, 1.8, 2.6, 1.9, 1.9], skills: [[1, 'hinoiki'], [13, 'goukaen']], rec: 0.12, exp: 45, gold: 40, ai: [['atk', 50], ['hinoiki', 50]] },
-  metal: { n: 'メタルぷに', spr: 'metal', base: [6, 0, 7, 40, 20], grow: [2, 0, 1, 3, 2], skills: [[1, 'taiatari']], rec: 0.06, exp: 180, gold: 30, metal: true, ai: [['atk', 50], ['flee', 50]] },
+  hero: { n: 'ゆうしゃ', spr: 'heroD', human: true, eqok: 'wshba', base: [26, 8, 9, 6, 7], grow: [7, 4, 2.4, 2, 1.6], skills: [], rec: 0, exp: 0, gold: 0 },
+  sister: { n: 'いもうと', spr: 'sisterD', human: true, eqok: 'wshba', base: [23, 12, 8, 5, 8], grow: [6, 4.6, 2.1, 1.8, 1.8], skills: [], rec: 0, exp: 0, gold: 0 },
+  puni: { n: 'ぷにまる', spr: 'puni', eqok: 'ba', base: [11, 6, 6, 5, 5], grow: [5, 1.5, 1.8, 1.7, 1.4], skills: [[1, 'taiatari'], [6, 'heal']], rec: 0.25, exp: 4, gold: 5, ai: [['atk', 75], ['taiatari', 25]] },
+  bat: { n: 'バサバサ', spr: 'bat', eqok: 'a', base: [9, 6, 6, 4, 9], grow: [4.5, 1.5, 1.7, 1.3, 2], skills: [[1, 'kyuketsu']], rec: 0.20, exp: 4, gold: 4, ai: [['atk', 70], ['kyuketsu', 30]] },
+  rat: { n: 'とげネズミ', spr: 'rat', eqok: 'ba', base: [12, 4, 8, 5, 7], grow: [5, 1, 2, 1.5, 1.6], skills: [[1, 'togetoge']], rec: 0.18, exp: 6, gold: 7, ai: [['atk', 70], ['togetoge', 30]] },
+  kino: { n: 'キノッコ', spr: 'kino', eqok: 'ha', base: [14, 8, 7, 6, 5], grow: [5.5, 1.6, 1.8, 1.7, 1.2], skills: [[1, 'nemuri']], rec: 0.16, exp: 9, gold: 8, ai: [['atk', 65], ['nemuri', 35]] },
+  bee: { n: 'ハチどん', spr: 'bee', eqok: 'a', base: [13, 6, 9, 5, 10], grow: [5, 1.2, 2.1, 1.4, 2], skills: [[1, 'dokubari']], rec: 0.15, exp: 10, gold: 9, ai: [['atk', 60], ['dokubari', 40]] },
+  wolf: { n: 'もりオオカミ', spr: 'wolf', eqok: 'ba', base: [18, 4, 11, 7, 9], grow: [6, 1, 2.4, 1.6, 1.8], skills: [[1, 'kamitsuku']], rec: 0.13, exp: 13, gold: 11, ai: [['atk', 60], ['kamitsuku', 40]] },
+  cact: { n: 'サボチン', spr: 'cact', eqok: 'ha', base: [16, 8, 10, 9, 6], grow: [5.5, 1.2, 2.2, 2, 1.2], skills: [[1, 'misairu']], rec: 0.12, exp: 16, gold: 14, ai: [['atk', 60], ['misairu', 40]] },
+  liza: { n: 'スナトカゲ', spr: 'liza', eqok: 'ba', base: [17, 8, 11, 8, 8], grow: [6, 1.4, 2.3, 1.7, 1.6], skills: [[1, 'hinoiki']], rec: 0.11, exp: 18, gold: 15, ai: [['atk', 60], ['hinoiki', 40]] },
+  gobl: { n: 'ゴブリン', spr: 'gobl', eqok: 'wshba', base: [20, 4, 13, 8, 8], grow: [6.5, 1, 2.5, 1.8, 1.6], skills: [[1, 'bunmawashi']], rec: 0.11, exp: 20, gold: 18, ai: [['atk', 70], ['bunmawashi', 30]] },
+  wisp: { n: 'ゆらび', spr: 'wisp', eqok: 'a', base: [14, 14, 8, 7, 9], grow: [5, 2.6, 1.9, 1.6, 1.8], skills: [[1, 'blaze'], [10, 'nemuri']], rec: 0.10, exp: 24, gold: 20, ai: [['atk', 40], ['blaze', 45], ['nemuri', 15]] },
+  skel: { n: 'ガイコッツ', spr: 'skel', eqok: 'wshba', base: [24, 6, 15, 10, 9], grow: [7, 1, 2.7, 1.9, 1.7], skills: [[1, 'nidogiri']], rec: 0.09, exp: 30, gold: 24, ai: [['atk', 60], ['nidogiri', 40]] },
+  golem: { n: 'マッドゴーレム', spr: 'golem', eqok: 'hba', base: [30, 6, 16, 14, 4], grow: [8, 1, 2.8, 2.4, 1], skills: [[1, 'iwanage']], rec: 0.08, exp: 36, gold: 28, ai: [['atk', 60], ['iwanage', 40]] },
+  drak: { n: 'ドラゴキッズ', spr: 'drak', eqok: 'hba', base: [26, 10, 15, 11, 10], grow: [7, 1.8, 2.6, 1.9, 1.9], skills: [[1, 'hinoiki'], [13, 'goukaen']], rec: 0.06, exp: 45, gold: 40, ai: [['atk', 50], ['hinoiki', 50]] },
+  metal: { n: 'メタルぷに', spr: 'metal', eqok: 'ba', base: [6, 0, 7, 40, 20], grow: [2, 0, 1, 3, 2], skills: [[1, 'taiatari']], rec: 0.03, exp: 180, gold: 30, metal: true, ai: [['atk', 50], ['flee', 50]] },
   guard: { n: 'ガーディアン', spr: 'guard', boss: true, base: [210, 0, 19, 14, 7], grow: [0, 0, 0, 0, 0], skills: [], rec: 0, exp: 130, gold: 160, ai: [['atk', 65], ['iwanage', 35]] },
   dlord: { n: 'ドラゴロード', spr: 'dlord', boss: true, base: [360, 0, 25, 16, 11], grow: [0, 0, 0, 0, 0], skills: [], rec: 0, exp: 400, gold: 450, ai: [['atk', 45], ['kamitsuku', 20], ['goukaen', 35]] },
   maou: { n: 'まおうゾルデ', spr: 'maou', boss: true, big: true, base: [680, 0, 33, 19, 14], grow: [0, 0, 0, 0, 0], skills: [], rec: 0, exp: 0, gold: 0, ai: [['atk', 40], ['darkball', 30], ['goukaen', 30]], ai2: [['atk', 30], ['darkball', 25], ['darkstorm', 45]] },
+  kaiser: { n: 'りゅうじんカイザー', spr: 'kaiser', boss: true, scale: 5, twice: true, base: [1200, 0, 42, 26, 18], grow: [0, 0, 0, 0, 0], skills: [], rec: 0, exp: 2000, gold: 2000, ai: [['atk', 30], ['goukaen', 25], ['darkstorm', 25], ['raitoning', 20]] },
 };
 
 const EXPT = (() => { const a = [0, 0]; for (let l = 2; l <= 30; l++) a[l] = a[l - 1] + 6 * (l - 1) * (l - 1); return a; })();
@@ -320,6 +385,7 @@ const GEAR = {
   a_inochi: { n: 'いのちのたま', type: 'a', hp: 30, price: 1100 },
   a_maho: { n: 'まほうのしずく', type: 'a', mp: 25, price: 1000 },
   a_natsuki: { n: 'なつきのすず', type: 'a', rec: 1.5, price: 600, info: 'まものが なかまに なりやすくなる' },
+  a_ryujin: { n: 'りゅうじんのたま', type: 'a', atk: 10, def: 10, price: 5000, info: 'りゅうじんの ちからが やどる たま' },
 };
 const SLOTS = [['w', 'けん'], ['s', 'たて'], ['h', 'あたま'], ['b', 'からだ'], ['a1', 'アクセ1'], ['a2', 'アクセ2']];
 const BAG_MAX = 24;
@@ -426,9 +492,12 @@ const TOWN_MAPS = {
       { x: 6, y: 2, spr: 'robe', txt: ['ようこそ ダーマしんでんへ。おくの さいだんに たてば しょくぎょうに つくことが できます。'] },
       { x: 11, y: 6, spr: 'mage', txt: ['たたかいに かつたび 職の熟練が あがり、あたらしい とくいわざを おぼえていく。おぼえた わざは 転職しても わすれないぞ。'] },
       { x: 4, y: 7, spr: 'robe', txt: ['「せんし」と「ぶとうか」を きわめれば バトルマスターに、「まほうつかい」と「そうりょ」を きわめれば けんじゃに なれる。'] },
-      { x: 12, y: 8, spr: 'vilB', txt: ['まものたちも 転職できるんだ。ぷにまるの せんし…つよそうだろ？'] },
+      { x: 12, y: 8, spr: 'vilB', txt: ['まものたちも 転職できるんだ。ぷにまるの せんし…つよそうだろ？', 'じょうきゅうしょくを マスターした にんげんは…「ゆうしゃ」に なれるという でんせつが ある。'] },
     ] },
 };
+/* 追加のうわさばなし */
+TOWN_MAPS.P.npcs.push({ x: 7, y: 9, spr: 'vilA', txt: ['せんとうちゅうも 「いれかえ」で ばしゃの なかまと こうたいできるぞ。', 'まおうを たおした あとも…どうくつの さいしんぶに なにかが ひそんでいる という うわさだ。'] });
+TOWN_MAPS.C.npcs.push({ x: 8, y: 9, spr: 'elder', txt: ['そうびは まものによって つけられる ものが ちがう。ゴブリンや ガイコッツは ひとと おなじ そうびが できるぞい。'] });
 
 /* ---------- BGM/SE (オリジナル曲) ---------- */
 const BGM = {
