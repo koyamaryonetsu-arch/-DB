@@ -37,10 +37,20 @@ const game = new Phaser.Game({
   ],
 });
 
-// 整数倍スケーリング（ピクセルパーフェクト表示）
+// スケーリング: PC等の広い画面では整数倍(ピクセルパーフェクト)、
+// スマホなど2倍に満たない画面では0.25刻みで画面いっぱいに表示する
 function applyZoom(): void {
-  const zoom = Math.max(1, Math.floor(Math.min(window.innerWidth / 320, window.innerHeight / 240)));
+  const raw = Math.min(window.innerWidth / 320, window.innerHeight / 240);
+  const zoom = raw >= 2 ? Math.floor(raw) : Math.max(0.75, Math.floor(raw * 4) / 4);
   game.scale.setZoom(zoom);
 }
 window.addEventListener('resize', applyZoom);
+window.addEventListener('orientationchange', () => setTimeout(applyZoom, 200));
 applyZoom();
+
+// PWA: 本番ビルドではサービスワーカーを登録（オフライン対応・ホーム画面起動）
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  });
+}

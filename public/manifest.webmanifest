@@ -1,0 +1,17 @@
+{
+  "name": "星環の継承者 ―アストラル・レガシー―",
+  "short_name": "星環の継承者",
+  "description": "空に浮かぶ星環の欠片「環晶」を巡る、完全オリジナルの16bit風コマンドRPG（第一章）",
+  "lang": "ja",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#05060c",
+  "theme_color": "#0e1428",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

@@ -11,7 +11,14 @@ const DIST = new URL('../dist', import.meta.url).pathname;
 const SHOT_DIR = new URL('../screenshots', import.meta.url).pathname;
 mkdirSync(SHOT_DIR, { recursive: true });
 
-const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json' };
+const MIME = {
+  '.html': 'text/html',
+  '.js': 'text/javascript',
+  '.css': 'text/css',
+  '.json': 'application/json',
+  '.png': 'image/png',
+  '.webmanifest': 'application/manifest+json',
+};
 
 const server = createServer((req, res) => {
   let path = req.url.split('?')[0];
@@ -37,7 +44,7 @@ const browser = await chromium.launch({
 });
 const page = await browser.newPage({ viewport: { width: 960, height: 720 } });
 const errors = [];
-page.on('pageerror', (e) => errors.push(`pageerror: ${e.message}`));
+page.on('pageerror', (e) => errors.push(`pageerror: ${e.message}\n${(e.stack ?? '').split('\n').slice(0, 6).join('\n')}`));
 page.on('console', (msg) => {
   if (msg.type() === 'error') errors.push(`console.error: ${msg.text()}`);
 });
