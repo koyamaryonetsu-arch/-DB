@@ -34,7 +34,12 @@
     "power": 0,
     "mpCost": 5,
     "target": "allyAll",
-    "buffs": [{ "stat": "defense", "stages": 1 }],
+    "buffs": [
+      {
+        "stat": "defense",
+        "stages": 1
+      }
+    ],
     "inheritable": true,
     "description": "光の円陣を描き、味方全員の守備力を上げる。"
   },
@@ -67,8 +72,14 @@
     "gaugeCost": 100,
     "requiresHpRateLte": 0.5,
     "selfAfterBuffs": [
-      { "stat": "attack", "stages": -1 },
-      { "stat": "magic", "stages": -1 }
+      {
+        "stat": "attack",
+        "stages": -1
+      },
+      {
+        "stat": "magic",
+        "stages": -1
+      }
     ],
     "actorOnly": "hero",
     "description": "奥義。HPが半分以下の窮地でのみ放てる、星環の光を宿す全体斬撃。使用後は攻撃力と魔力が一時低下する。"
@@ -82,7 +93,12 @@
     "power": 0,
     "mpCost": 2,
     "target": "self",
-    "buffs": [{ "stat": "defense", "stages": 2 }],
+    "buffs": [
+      {
+        "stat": "defense",
+        "stages": 2
+      }
+    ],
     "taunt": true,
     "inheritable": true,
     "description": "守りを固めて敵の注意を引き付ける。"
@@ -96,7 +112,12 @@
     "power": 120,
     "mpCost": 4,
     "target": "enemySingle",
-    "addStatus": [{ "id": "paralysis", "chance": 0.25 }],
+    "addStatus": [
+      {
+        "id": "paralysis",
+        "chance": 0.25
+      }
+    ],
     "inheritable": true,
     "description": "盾の縁で打ち据える。まれに敵を痺れさせる。"
   },
@@ -123,7 +144,12 @@
     "power": 0,
     "mpCost": 8,
     "target": "allyAll",
-    "buffs": [{ "stat": "defense", "stages": 1 }],
+    "buffs": [
+      {
+        "stat": "defense",
+        "stages": 1
+      }
+    ],
     "taunt": true,
     "inheritable": false,
     "description": "自らを城塞と化し、味方全員を守りへ導く。"
@@ -151,7 +177,12 @@
     "mpCost": 4,
     "target": "enemySingle",
     "tags": ["fist"],
-    "buffs": [{ "stat": "defense", "stages": -1 }],
+    "buffs": [
+      {
+        "stat": "defense",
+        "stages": -1
+      }
+    ],
     "inheritable": true,
     "description": "掌打で装甲を砕き、敵の守備力を下げる。"
   },
@@ -192,7 +223,12 @@
     "mpCost": 3,
     "target": "enemySingle",
     "tags": ["dagger"],
-    "addStatus": [{ "id": "paralysis", "chance": 0.3 }],
+    "addStatus": [
+      {
+        "id": "paralysis",
+        "chance": 0.3
+      }
+    ],
     "inheritable": true,
     "description": "敵の影を縫い止め、動きを封じる一突き。"
   },
@@ -218,7 +254,12 @@
     "power": 0,
     "mpCost": 4,
     "target": "enemyAll",
-    "buffs": [{ "stat": "accuracy", "stages": -1 }],
+    "buffs": [
+      {
+        "stat": "accuracy",
+        "stages": -1
+      }
+    ],
     "inheritable": true,
     "description": "煙で視界を奪い、敵全体の命中率を下げる。"
   },
@@ -246,7 +287,12 @@
     "mpCost": 3,
     "target": "allyAll",
     "tags": ["song"],
-    "buffs": [{ "stat": "agility", "stages": 1 }],
+    "buffs": [
+      {
+        "stat": "agility",
+        "stages": 1
+      }
+    ],
     "inheritable": true,
     "description": "獣の血を呼び覚ます声。味方全体の素早さが上がる。"
   },
@@ -259,7 +305,12 @@
     "power": 0,
     "mpCost": 5,
     "target": "allyAll",
-    "buffs": [{ "stat": "defense", "stages": 1 }],
+    "buffs": [
+      {
+        "stat": "defense",
+        "stages": 1
+      }
+    ],
     "inheritable": true,
     "description": "群れで身を寄せ合うように、味方全体の守りを固める。"
   },
@@ -314,7 +365,12 @@
     "power": 0,
     "mpCost": 3,
     "target": "allySingle",
-    "buffs": [{ "stat": "defense", "stages": 1 }],
+    "buffs": [
+      {
+        "stat": "defense",
+        "stages": 1
+      }
+    ],
     "inheritable": true,
     "description": "戦いの合間に武具を整え、味方1人の守りを高める。"
   },
@@ -353,7 +409,16 @@
     "power": 0,
     "mpCost": 6,
     "target": "allyAll",
-    "buffs": [{ "stat": "defense", "stages": 1 }, { "stat": "spirit", "stages": 1 }],
+    "buffs": [
+      {
+        "stat": "defense",
+        "stages": 1
+      },
+      {
+        "stat": "spirit",
+        "stages": 1
+      }
+    ],
     "inheritable": false,
     "description": "聖域の光で味方全体を包み、守備と精神を高める。"
   },
@@ -383,8 +448,14 @@
     "target": "enemySingle",
     "inheritable": false,
     "comboParts": [
-      { "actorId": "hero", "tag": "sword" },
-      { "actorId": "mirea", "tag": "star" }
+      {
+        "actorId": "hero",
+        "tag": "sword"
+      },
+      {
+        "actorId": "mirea",
+        "tag": "star"
+      }
     ],
     "description": "連携技。主人公が剣技、ミレアが攻撃星術を同じターンに使うと、斬撃と星光が交差する複合攻撃が発動する。"
   },
@@ -398,7 +469,11 @@
     "mpCost": 0,
     "target": "self",
     "inheritable": true,
-    "passive": { "elementBoost": { "lumen": 0.15 } },
+    "passive": {
+      "elementBoost": {
+        "lumen": 0.15
+      }
+    },
     "description": "光熱属性の技の威力が15%上がる。"
   },
   {
@@ -411,7 +486,11 @@
     "mpCost": 0,
     "target": "self",
     "inheritable": true,
-    "passive": { "statMul": { "attack": 1.08 } },
+    "passive": {
+      "statMul": {
+        "attack": 1.08
+      }
+    },
     "description": "攻撃力が8%上がる。"
   },
   {
@@ -424,7 +503,11 @@
     "mpCost": 0,
     "target": "self",
     "inheritable": true,
-    "passive": { "statMul": { "hp": 1.12 } },
+    "passive": {
+      "statMul": {
+        "hp": 1.12
+      }
+    },
     "description": "最大HPが12%上がる。"
   },
   {
@@ -437,7 +520,11 @@
     "mpCost": 0,
     "target": "self",
     "inheritable": true,
-    "passive": { "statMul": { "defense": 1.08 } },
+    "passive": {
+      "statMul": {
+        "defense": 1.08
+      }
+    },
     "description": "守備力が8%上がる。"
   },
   {
@@ -450,7 +537,11 @@
     "mpCost": 0,
     "target": "self",
     "inheritable": true,
-    "passive": { "statMul": { "magic": 1.1 } },
+    "passive": {
+      "statMul": {
+        "magic": 1.1
+      }
+    },
     "description": "魔力が10%上がる。"
   },
   {
@@ -463,7 +554,11 @@
     "mpCost": 0,
     "target": "self",
     "inheritable": true,
-    "passive": { "statMul": { "mp": 1.15 } },
+    "passive": {
+      "statMul": {
+        "mp": 1.15
+      }
+    },
     "description": "最大MPが15%上がる。"
   },
   {
@@ -476,7 +571,11 @@
     "mpCost": 0,
     "target": "self",
     "inheritable": true,
-    "passive": { "statMul": { "spirit": 1.1 } },
+    "passive": {
+      "statMul": {
+        "spirit": 1.1
+      }
+    },
     "description": "精神が10%上がる。"
   },
   {
@@ -489,7 +588,11 @@
     "mpCost": 0,
     "target": "self",
     "inheritable": true,
-    "passive": { "statMul": { "hp": 1.08 } },
+    "passive": {
+      "statMul": {
+        "hp": 1.08
+      }
+    },
     "description": "最大HPが8%上がる。"
   },
   {
@@ -502,7 +605,11 @@
     "mpCost": 0,
     "target": "self",
     "inheritable": true,
-    "passive": { "statMul": { "attack": 1.08 } },
+    "passive": {
+      "statMul": {
+        "attack": 1.08
+      }
+    },
     "description": "攻撃力が8%上がる。"
   },
   {
@@ -515,7 +622,9 @@
     "mpCost": 0,
     "target": "self",
     "inheritable": true,
-    "passive": { "critBonus": 0.05 },
+    "passive": {
+      "critBonus": 0.05
+    },
     "description": "会心率が5%上がる。"
   },
   {
@@ -528,7 +637,11 @@
     "mpCost": 0,
     "target": "self",
     "inheritable": true,
-    "passive": { "statMul": { "agility": 1.12 } },
+    "passive": {
+      "statMul": {
+        "agility": 1.12
+      }
+    },
     "description": "素早さが12%上がる。"
   },
   {
@@ -541,7 +654,11 @@
     "mpCost": 0,
     "target": "self",
     "inheritable": true,
-    "passive": { "statMul": { "luck": 1.1 } },
+    "passive": {
+      "statMul": {
+        "luck": 1.1
+      }
+    },
     "description": "運が10%上がる。"
   },
   {
@@ -554,7 +671,11 @@
     "mpCost": 0,
     "target": "self",
     "inheritable": true,
-    "passive": { "statMul": { "agility": 1.08 } },
+    "passive": {
+      "statMul": {
+        "agility": 1.08
+      }
+    },
     "description": "素早さが8%上がる。"
   },
   {
@@ -567,7 +688,11 @@
     "mpCost": 0,
     "target": "self",
     "inheritable": true,
-    "passive": { "statMul": { "luck": 1.1 } },
+    "passive": {
+      "statMul": {
+        "luck": 1.1
+      }
+    },
     "description": "運が10%上がる。"
   },
   {
@@ -604,7 +729,12 @@
     "power": 0,
     "mpCost": 2,
     "target": "enemyGroup",
-    "addStatus": [{ "id": "sleep", "chance": 0.45 }],
+    "addStatus": [
+      {
+        "id": "sleep",
+        "chance": 0.45
+      }
+    ],
     "inheritable": false,
     "description": "傘の裏から眠りの鱗粉をまき散らす。"
   },
@@ -629,7 +759,12 @@
     "power": 0,
     "mpCost": 2,
     "target": "enemySingle",
-    "addStatus": [{ "id": "paralysis", "chance": 0.35 }],
+    "addStatus": [
+      {
+        "id": "paralysis",
+        "chance": 0.35
+      }
+    ],
     "inheritable": false,
     "description": "生きた蔓で相手を縛り上げる。"
   },
@@ -655,7 +790,12 @@
     "power": 0,
     "mpCost": 2,
     "target": "enemyGroup",
-    "addStatus": [{ "id": "confusion", "chance": 0.35 }],
+    "addStatus": [
+      {
+        "id": "confusion",
+        "chance": 0.35
+      }
+    ],
     "inheritable": false,
     "description": "首輪の音色が心を惑わせる。"
   },
@@ -681,7 +821,12 @@
     "power": 0,
     "mpCost": 2,
     "target": "enemyGroup",
-    "addStatus": [{ "id": "blind", "chance": 0.4 }],
+    "addStatus": [
+      {
+        "id": "blind",
+        "chance": 0.4
+      }
+    ],
     "inheritable": false,
     "description": "羽ばたきで闇の粉を振りまき、視界を奪う。"
   },
@@ -719,7 +864,12 @@
     "power": 0,
     "mpCost": 0,
     "target": "self",
-    "buffs": [{ "stat": "defense", "stages": 1 }],
+    "buffs": [
+      {
+        "stat": "defense",
+        "stages": 1
+      }
+    ],
     "inheritable": false,
     "description": "岩盤の背を丸めて守りを固める。"
   },
@@ -745,8 +895,14 @@
     "mpCost": 0,
     "target": "self",
     "buffs": [
-      { "stat": "accuracy", "stages": 1 },
-      { "stat": "attack", "stages": 1 }
+      {
+        "stat": "accuracy",
+        "stages": 1
+      },
+      {
+        "stat": "attack",
+        "stages": 1
+      }
     ],
     "inheritable": false,
     "description": "センサーが標的を捉え、次の攻撃が正確になる。"
@@ -772,7 +928,12 @@
     "power": 0,
     "mpCost": 4,
     "target": "enemyAll",
-    "addStatus": [{ "id": "poison", "chance": 0.5 }],
+    "addStatus": [
+      {
+        "id": "poison",
+        "chance": 0.5
+      }
+    ],
     "inheritable": false,
     "description": "腹の空洞から毒の霧を噴き出す。"
   },
@@ -782,7 +943,7 @@
     "kind": "skill",
     "category": "physical",
     "element": "slash",
-    "power": 130,
+    "power": 145,
     "mpCost": 0,
     "target": "enemyGroup",
     "inheritable": false,
@@ -794,7 +955,7 @@
     "kind": "skill",
     "category": "physical",
     "element": "blunt",
-    "power": 170,
+    "power": 190,
     "mpCost": 0,
     "target": "enemySingle",
     "inheritable": false,
@@ -809,7 +970,12 @@
     "power": 0,
     "mpCost": 4,
     "target": "enemyGroup",
-    "addStatus": [{ "id": "confusion", "chance": 0.4 }],
+    "addStatus": [
+      {
+        "id": "confusion",
+        "chance": 0.4
+      }
+    ],
     "inheritable": false,
     "description": "角の菌類から惑わせの胞子を飛ばす。"
   },
@@ -822,7 +988,12 @@
     "power": 0,
     "mpCost": 3,
     "target": "enemyAll",
-    "addStatus": [{ "id": "fear", "chance": 0.35 }],
+    "addStatus": [
+      {
+        "id": "fear",
+        "chance": 0.35
+      }
+    ],
     "inheritable": false,
     "description": "森を喰らう者の咆哮が恐怖を呼ぶ。"
   },
@@ -835,7 +1006,12 @@
     "power": 0,
     "mpCost": 0,
     "target": "self",
-    "buffs": [{ "stat": "attack", "stages": 1 }],
+    "buffs": [
+      {
+        "stat": "attack",
+        "stages": 1
+      }
+    ],
     "inheritable": false,
     "description": "低い唸りとともに力を昂ぶらせる。"
   },
@@ -846,7 +1022,7 @@
     "category": "heal",
     "element": "none",
     "power": 0,
-    "healPower": 30,
+    "healPower": 55,
     "mpCost": 2,
     "target": "allySingle",
     "inheritable": false,
