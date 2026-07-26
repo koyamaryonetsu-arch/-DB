@@ -11,6 +11,8 @@ export default tseslint.config(
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
       '@typescript-eslint/no-explicit-any': 'off',
       'no-empty': ['error', { allowEmptyCatch: true }],
+      // 日本語UI文字列内の全角スペースは意図的に使用する
+      'no-irregular-whitespace': ['error', { skipStrings: true, skipTemplates: true, skipComments: true }],
     },
   }
 );
