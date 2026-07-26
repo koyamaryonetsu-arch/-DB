@@ -8,7 +8,13 @@
 
 公開URL: **https://koyamaryonetsu-arch.github.io/-DB/**
 
-対象ブランチへ push すると GitHub Actions が自動でビルドして公開します（`.github/workflows/deploy-pages.yml`）。
+対象ブランチへ push すると GitHub Actions が自動でビルドし、成果物を `gh-pages` ブランチへ配置します（`.github/workflows/deploy-pages.yml`）。
+
+> **初回のみ必要な設定（1分・リポジトリ管理者の操作）**
+> GitHub の仕様上、Pages の有効化だけは手動が必要です。
+> リポジトリの **Settings → Pages → Build and deployment** で
+> Source: **Deploy from a branch** / Branch: **gh-pages** / **(root)** を選んで **Save**。
+> 1〜2分後に上のURLが開けるようになります。以後は push のたびに自動更新されます。
 
 スマホでの遊び方:
 
