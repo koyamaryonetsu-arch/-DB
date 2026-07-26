@@ -1,0 +1,11 @@
+[
+  { "id": "slash", "name": "斬撃", "physical": true },
+  { "id": "blunt", "name": "打撃", "physical": true },
+  { "id": "pierce", "name": "刺突", "physical": true },
+  { "id": "lumen", "name": "光熱", "physical": false },
+  { "id": "cryo", "name": "冷晶", "physical": false },
+  { "id": "volt", "name": "雷磁", "physical": false },
+  { "id": "gravity", "name": "重力", "physical": false },
+  { "id": "psyche", "name": "精神", "physical": false },
+  { "id": "none", "name": "無属性", "physical": false }
+]

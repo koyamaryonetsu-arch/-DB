@@ -1,0 +1,209 @@
+[
+  {
+    "id": "koketsuno",
+    "name": "コケツノ",
+    "description": "苔に覆われた小型の四足獣。額の木角は枝分かれし、黄緑の目で辺りを窺う。",
+    "family": "獣・植物",
+    "level": 2,
+    "stats": { "hp": 26, "mp": 4, "attack": 11, "defense": 8, "magic": 4, "spirit": 5, "agility": 7, "luck": 5 },
+    "resistances": { "lumen": 1.25 },
+    "statusResist": {},
+    "skills": ["m_zutsuki", "m_herb_eat"],
+    "drops": [{ "itemId": "iyashi_ba", "chance": 0.3 }],
+    "exp": 6,
+    "gold": 5,
+    "jobExp": 4,
+    "scout": { "rate": 0.25, "favoriteItemId": "kinomi_dango" },
+    "aiPattern": [
+      { "if": { "hpRateLte": 0.4, "once": "heal1" }, "do": { "action": "skill", "skillId": "m_herb_eat" } },
+      { "if": { "alliesAliveLte": 1, "turnGte": 2, "once": "call1" }, "do": { "action": "summon", "summonId": "koketsuno" } },
+      { "do": { "action": "attack" }, "weight": 3 },
+      { "do": { "action": "skill", "skillId": "m_zutsuki" }, "weight": 2 }
+    ],
+    "spriteKey": "koketsuno"
+  },
+  {
+    "id": "hanekinoko",
+    "name": "ハネキノコ",
+    "description": "キノコと蛾が融け合った生き物。傘の裏の羽根で滑空し、眠りの粉をまく。",
+    "family": "植物・昆虫",
+    "level": 3,
+    "stats": { "hp": 24, "mp": 8, "attack": 10, "defense": 7, "magic": 8, "spirit": 7, "agility": 9, "luck": 6 },
+    "resistances": { "lumen": 1.5, "gravity": 1.25 },
+    "statusResist": { "sleep": 1 },
+    "skills": ["m_nemuriko", "m_kakku"],
+    "drops": [{ "itemId": "mezamashi_suzu", "chance": 0.2 }],
+    "exp": 8,
+    "gold": 7,
+    "jobExp": 5,
+    "scout": { "rate": 0.22, "favoriteItemId": "kinomi_dango" },
+    "aiPattern": [
+      { "if": { "everyTurns": 3 }, "do": { "action": "skill", "skillId": "m_nemuriko" } },
+      { "do": { "action": "attack" }, "weight": 2 },
+      { "do": { "action": "skill", "skillId": "m_kakku" }, "weight": 2 }
+    ],
+    "spriteKey": "hanekinoko"
+  },
+  {
+    "id": "tsurukage",
+    "name": "ツルカゲ",
+    "description": "蔓植物が獣の形を取った怪物。木製の仮面の奥に、うろの闇が覗く。",
+    "family": "植物・仮面",
+    "level": 4,
+    "stats": { "hp": 36, "mp": 6, "attack": 12, "defense": 9, "magic": 6, "spirit": 6, "agility": 8, "luck": 5 },
+    "resistances": { "slash": 1.25, "lumen": 1.5, "blunt": 0.75 },
+    "statusResist": {},
+    "skills": ["m_tsuru_shibari", "m_kyuketsu"],
+    "drops": [{ "itemId": "iyashi_ba", "chance": 0.25 }],
+    "exp": 12,
+    "gold": 10,
+    "jobExp": 6,
+    "scout": { "rate": 0.18 },
+    "aiPattern": [
+      { "if": { "everyTurns": 4 }, "do": { "action": "skill", "skillId": "m_tsuru_shibari" } },
+      { "do": { "action": "attack" }, "weight": 2 },
+      { "do": { "action": "skill", "skillId": "m_kyuketsu" }, "weight": 2 }
+    ],
+    "spriteKey": "tsurukage"
+  },
+  {
+    "id": "rinneko",
+    "name": "リンネコ",
+    "description": "首元に金属の輪を持つ山猫。動くたびに澄んだ音が鳴り、心を惑わせる。",
+    "family": "獣・楽器",
+    "level": 4,
+    "stats": { "hp": 30, "mp": 10, "attack": 12, "defense": 8, "magic": 7, "spirit": 8, "agility": 15, "luck": 12 },
+    "resistances": { "volt": 1.25 },
+    "statusResist": { "confusion": 0.5 },
+    "skills": ["m_suzune", "m_hikkaki"],
+    "drops": [{ "itemId": "hoshimizu", "chance": 0.15 }],
+    "exp": 12,
+    "gold": 14,
+    "jobExp": 6,
+    "scout": { "rate": 0.2, "favoriteItemId": "kinomi_dango" },
+    "aiPattern": [
+      { "if": { "everyTurns": 3 }, "do": { "action": "skill", "skillId": "m_suzune" } },
+      { "do": { "action": "attack" }, "weight": 2 },
+      { "do": { "action": "skill", "skillId": "m_hikkaki" }, "weight": 3 }
+    ],
+    "spriteKey": "rinneko"
+  },
+  {
+    "id": "lampbat",
+    "name": "ランプバット",
+    "description": "発光器官を持つ洞窟のコウモリ。垂れ下がる尾は古いランプの形をしている。",
+    "family": "獣・遺物",
+    "level": 5,
+    "stats": { "hp": 32, "mp": 12, "attack": 13, "defense": 9, "magic": 10, "spirit": 8, "agility": 13, "luck": 7 },
+    "resistances": { "lumen": 0.5, "cryo": 1.25 },
+    "statusResist": { "blind": 1 },
+    "skills": ["m_yami_habataki", "m_kouden", "m_mp_kyuu"],
+    "drops": [{ "itemId": "hoshimizu", "chance": 0.2 }],
+    "exp": 15,
+    "gold": 12,
+    "jobExp": 7,
+    "scout": { "rate": 0.15 },
+    "aiPattern": [
+      { "if": { "everyTurns": 3 }, "do": { "action": "skill", "skillId": "m_yami_habataki" } },
+      { "do": { "action": "attack" }, "weight": 1 },
+      { "do": { "action": "skill", "skillId": "m_kouden" }, "weight": 2 },
+      { "do": { "action": "skill", "skillId": "m_mp_kyuu" }, "weight": 1 }
+    ],
+    "spriteKey": "lampbat"
+  },
+  {
+    "id": "gansekimogura",
+    "name": "ガンセキモグラ",
+    "description": "水晶の爪を持つ大型モグラ。岩盤のような背は生半可な刃を通さない。",
+    "family": "獣・鉱物",
+    "level": 6,
+    "stats": { "hp": 52, "mp": 6, "attack": 15, "defense": 16, "magic": 5, "spirit": 6, "agility": 6, "luck": 4 },
+    "resistances": { "slash": 0.75, "pierce": 0.75, "blunt": 1.5, "volt": 1.25 },
+    "statusResist": { "blind": 0.5 },
+    "skills": ["m_bogyo_shisei", "m_suisho_zume"],
+    "drops": [
+      { "itemId": "iyashi_tsuyu", "chance": 0.2 },
+      { "equipId": "tekkan_tate", "chance": 0.05 }
+    ],
+    "exp": 22,
+    "gold": 18,
+    "jobExp": 9,
+    "scout": { "rate": 0.12 },
+    "aiPattern": [
+      { "if": { "hpRateLte": 0.5, "once": "guard1" }, "do": { "action": "skill", "skillId": "m_bogyo_shisei" } },
+      { "do": { "action": "attack" }, "weight": 2 },
+      { "do": { "action": "skill", "skillId": "m_suisho_zume" }, "weight": 2 }
+    ],
+    "spriteKey": "gansekimogura"
+  },
+  {
+    "id": "gearhound",
+    "name": "ギアハウンド",
+    "description": "黒天帝国の魔導兵団が放つ、歯車関節の四足機械。顔は縦長の無機質なセンサー。",
+    "family": "古代機械",
+    "level": 3,
+    "stats": { "hp": 22, "mp": 0, "attack": 11, "defense": 10, "magic": 0, "spirit": 4, "agility": 9, "luck": 2 },
+    "resistances": { "volt": 1.5, "psyche": 0 },
+    "statusResist": { "poison": 1, "venom": 1, "sleep": 1, "confusion": 1, "fear": 1 },
+    "skills": ["m_shoujun", "m_kinzoku_kiba"],
+    "drops": [],
+    "exp": 7,
+    "gold": 0,
+    "jobExp": 4,
+    "aiPattern": [
+      { "if": { "turnGte": 2, "once": "aim1" }, "do": { "action": "skill", "skillId": "m_shoujun" } },
+      { "do": { "action": "attack" }, "weight": 3 },
+      { "do": { "action": "skill", "skillId": "m_kinzoku_kiba" }, "weight": 2 }
+    ],
+    "spriteKey": "gearhound"
+  },
+  {
+    "id": "balgrow_root",
+    "name": "縛りの根",
+    "description": "バルグロウの体から伸びる生きた根。主を守り、養分を送り続ける。",
+    "family": "植物",
+    "level": 7,
+    "stats": { "hp": 38, "mp": 10, "attack": 10, "defense": 11, "magic": 8, "spirit": 8, "agility": 5, "luck": 3 },
+    "resistances": { "slash": 1.5, "lumen": 1.5 },
+    "statusResist": { "confusion": 1, "fear": 1, "sleep": 0.5 },
+    "skills": ["m_tsuru_shibari", "m_ne_no_iyashi"],
+    "drops": [],
+    "exp": 15,
+    "gold": 0,
+    "jobExp": 5,
+    "linkedTo": "balgrow",
+    "aiPattern": [
+      { "if": { "everyTurns": 3 }, "do": { "action": "skill", "skillId": "m_ne_no_iyashi" } },
+      { "do": { "action": "skill", "skillId": "m_tsuru_shibari" }, "weight": 2 },
+      { "do": { "action": "attack" }, "weight": 1 }
+    ],
+    "spriteKey": "balgrow_root"
+  },
+  {
+    "id": "balgrow",
+    "name": "森喰いのバルグロウ",
+    "description": "星影の森を蝕む巨大な鹿。枯れ木と菌類の大角を戴き、腹には空洞化した森が見える。根が生きている間は守りが固い。光熱を浴びせすぎると暴走する。",
+    "family": "獣・植物",
+    "level": 8,
+    "stats": { "hp": 430, "mp": 60, "attack": 20, "defense": 15, "magic": 13, "spirit": 10, "agility": 9, "luck": 5 },
+    "resistances": { "lumen": 1.25, "psyche": 0.5 },
+    "statusResist": { "sleep": 0.7, "paralysis": 0.6, "poison": 0.5, "venom": 0.6, "confusion": 0.8, "fear": 1, "freeze": 0.7 },
+    "skills": ["m_dokugiri", "m_tsuno_nagi", "m_fumitsubushi", "m_houkou", "m_kurui_houshi", "m_ikari_unari"],
+    "drops": [{ "itemId": "kanshou_kakera", "chance": 1 }],
+    "exp": 150,
+    "gold": 260,
+    "jobExp": 25,
+    "boss": true,
+    "aiPattern": [
+      { "if": { "once": "roar1" }, "do": { "action": "skill", "skillId": "m_houkou" } },
+      { "if": { "phaseGte": 2, "once": "rage1" }, "do": { "action": "skill", "skillId": "m_ikari_unari" } },
+      { "if": { "everyTurns": 3 }, "do": { "action": "skill", "skillId": "m_dokugiri" } },
+      { "if": { "phaseGte": 2, "everyTurns": 4 }, "do": { "action": "skill", "skillId": "m_kurui_houshi" } },
+      { "if": { "alliesAliveLte": 1, "turnGte": 4, "once": "call1" }, "do": { "action": "summon", "summonId": "koketsuno" } },
+      { "do": { "action": "attack" }, "weight": 3 },
+      { "do": { "action": "skill", "skillId": "m_tsuno_nagi" }, "weight": 2 },
+      { "do": { "action": "skill", "skillId": "m_fumitsubushi" }, "weight": 2 }
+    ],
+    "spriteKey": "balgrow"
+  }
+]

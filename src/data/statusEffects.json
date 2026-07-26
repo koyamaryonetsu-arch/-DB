@@ -1,0 +1,15 @@
+[
+  { "id": "poison", "name": "毒", "dotPct": 0.06, "duration": [4, 6] },
+  { "id": "venom", "name": "猛毒", "dotPct": 0.12, "duration": [3, 5] },
+  { "id": "sleep", "name": "睡眠", "blockAct": true, "wakeOnHitChance": 0.5, "duration": [2, 4] },
+  { "id": "paralysis", "name": "麻痺", "blockActChance": 0.5, "duration": [2, 3] },
+  { "id": "confusion", "name": "混乱", "confuse": true, "wakeOnHitChance": 0.35, "duration": [2, 4] },
+  { "id": "silence", "name": "沈黙", "blockSpells": true, "duration": [3, 5] },
+  { "id": "blind", "name": "暗闇", "accMul": 0.6, "duration": [3, 5] },
+  { "id": "bleed", "name": "出血", "dotPct": 0.04, "duration": [3, 4] },
+  { "id": "burn", "name": "炎上", "dotPct": 0.08, "duration": [2, 3] },
+  { "id": "freeze", "name": "凍結", "blockAct": true, "duration": [1, 2] },
+  { "id": "pressure", "name": "重圧", "agiMul": 0.6, "duration": [3, 4] },
+  { "id": "fear", "name": "恐怖", "blockActChance": 0.25, "atkMul": 0.85, "duration": [2, 3] },
+  { "id": "curse", "name": "呪縛", "dotPct": 0.03, "gaugeBlock": true, "duration": [3, 4] }
+]

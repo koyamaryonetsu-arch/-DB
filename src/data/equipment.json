@@ -1,0 +1,187 @@
+[
+  {
+    "id": "renshu_ken",
+    "name": "練習用の木剣",
+    "description": "儀式の稽古に使う木剣。",
+    "slot": "weapon",
+    "weaponType": "sword",
+    "price": 10,
+    "stats": { "attack": 3 }
+  },
+  {
+    "id": "kandoki",
+    "name": "環導器・初環",
+    "description": "主人公の腕の印に応えて目覚めた古代の武器。光熱を帯びる。",
+    "slot": "weapon",
+    "weaponType": "sword",
+    "price": 0,
+    "stats": { "attack": 8 },
+    "attackElement": "lumen",
+    "sellable": false
+  },
+  {
+    "id": "douka_ken",
+    "name": "銅環の剣",
+    "description": "銅の環飾りが付いた実用の剣。",
+    "slot": "weapon",
+    "weaponType": "sword",
+    "price": 280,
+    "stats": { "attack": 12 }
+  },
+  {
+    "id": "seitetu_ken",
+    "name": "星鉄の剣",
+    "description": "星鉄を鍛えた業物。",
+    "slot": "weapon",
+    "weaponType": "sword",
+    "price": 860,
+    "stats": { "attack": 17 }
+  },
+  {
+    "id": "minarai_jo",
+    "name": "見習いの杖",
+    "description": "星術学院の見習いが持つ杖。",
+    "slot": "weapon",
+    "weaponType": "staff",
+    "price": 120,
+    "stats": { "attack": 4, "magic": 5 }
+  },
+  {
+    "id": "hoshiyomi_jo",
+    "name": "星読みの杖",
+    "description": "先端に星図盤を掲げた杖。光熱の術を強める。",
+    "slot": "weapon",
+    "weaponType": "staff",
+    "price": 620,
+    "stats": { "attack": 6, "magic": 11 },
+    "elementBoost": { "lumen": 0.15 }
+  },
+  {
+    "id": "heidan_yari",
+    "name": "兵団の重槍",
+    "description": "帝国兵団の制式重槍。ガルドが持ち出した。",
+    "slot": "weapon",
+    "weaponType": "spear",
+    "price": 520,
+    "stats": { "attack": 15 }
+  },
+  {
+    "id": "tabi_tekkou",
+    "name": "旅の拳甲",
+    "description": "拳士が旅に使う軽い拳甲。",
+    "slot": "weapon",
+    "weaponType": "knuckle",
+    "price": 300,
+    "stats": { "attack": 11, "agility": 2 }
+  },
+  {
+    "id": "kagerou_tanken",
+    "name": "陽炎の短剣",
+    "description": "軽く鋭い短剣。素早さが上がる。",
+    "slot": "weapon",
+    "weaponType": "dagger",
+    "price": 320,
+    "stats": { "attack": 9, "agility": 3 }
+  },
+  {
+    "id": "kiban_tate",
+    "name": "木環の盾",
+    "description": "年輪を活かした丸盾。",
+    "slot": "shield",
+    "price": 90,
+    "stats": { "defense": 3 }
+  },
+  {
+    "id": "tekkan_tate",
+    "name": "鉄環の盾",
+    "description": "鉄の環で補強された盾。",
+    "slot": "shield",
+    "price": 380,
+    "stats": { "defense": 6 }
+  },
+  {
+    "id": "tabi_fuku",
+    "name": "旅人の服",
+    "description": "丈夫な旅装。",
+    "slot": "body",
+    "price": 80,
+    "stats": { "defense": 3 }
+  },
+  {
+    "id": "kawa_yoroi",
+    "name": "革の胸当て",
+    "description": "なめし革の胸当て。",
+    "slot": "body",
+    "price": 260,
+    "stats": { "defense": 6 }
+  },
+  {
+    "id": "jusou_kou",
+    "name": "重層甲",
+    "description": "重いが頼れる層状の鎧。動きはやや鈍る。",
+    "slot": "body",
+    "price": 640,
+    "stats": { "defense": 11, "agility": -2 }
+  },
+  {
+    "id": "hoshimon_robe",
+    "name": "星紋のローブ",
+    "description": "星図を織り込んだローブ。術式の消費MPを1割抑える。",
+    "slot": "body",
+    "price": 480,
+    "stats": { "defense": 5, "spirit": 4 },
+    "mpCostMul": 0.9
+  },
+  {
+    "id": "kawa_boushi",
+    "name": "革の帽子",
+    "description": "つばの広い革帽子。",
+    "slot": "head",
+    "price": 80,
+    "stats": { "defense": 2 }
+  },
+  {
+    "id": "tekkan_kabuto",
+    "name": "鉄環の兜",
+    "description": "額に鉄環をあしらった兜。",
+    "slot": "head",
+    "price": 300,
+    "stats": { "defense": 4 }
+  },
+  {
+    "id": "koke_udewa",
+    "name": "苔の腕輪",
+    "description": "生命の苔を編んだ腕輪。毒への抵抗を高める。",
+    "slot": "accessory",
+    "price": 150,
+    "stats": {},
+    "statusResist": { "poison": 0.8, "venom": 0.5 }
+  },
+  {
+    "id": "akatsuki_omamori",
+    "name": "暁のお守り",
+    "description": "夜明けの光を封じたお守り。眠りと暗闇に抗う。",
+    "slot": "accessory",
+    "price": 220,
+    "stats": {},
+    "statusResist": { "sleep": 0.6, "blind": 0.6 }
+  },
+  {
+    "id": "kesshi_wa",
+    "name": "決死の環",
+    "description": "追い詰められたとき、攻撃の力が跳ね上がる指環。",
+    "slot": "accessory",
+    "price": 480,
+    "stats": {},
+    "lowHpAttackBonus": 0.25
+  },
+  {
+    "id": "seiun_kazari",
+    "name": "星雲の飾り",
+    "description": "戦いの始まりに魔力を高める髪飾り。",
+    "slot": "accessory",
+    "price": 520,
+    "stats": {},
+    "battleStartBuffs": [{ "stat": "magic", "stages": 1 }]
+  }
+]

@@ -1,0 +1,45 @@
+[
+  {
+    "id": "world_plains",
+    "rate": 0.07,
+    "groups": [
+      { "monsters": ["koketsuno", "koketsuno"], "weight": 3 },
+      { "monsters": ["koketsuno", "hanekinoko"], "weight": 3 },
+      { "monsters": ["hanekinoko", "hanekinoko"], "weight": 2 },
+      { "monsters": ["koketsuno"], "weight": 2, "times": [0, 1] },
+      { "monsters": ["rinneko"], "weight": 2, "times": [2, 3] }
+    ]
+  },
+  {
+    "id": "world_forestedge",
+    "rate": 0.1,
+    "groups": [
+      { "monsters": ["hanekinoko", "hanekinoko"], "weight": 3 },
+      { "monsters": ["tsurukage"], "weight": 2 },
+      { "monsters": ["koketsuno", "koketsuno", "hanekinoko"], "weight": 2 },
+      { "monsters": ["rinneko", "rinneko"], "weight": 2, "times": [3] }
+    ]
+  },
+  {
+    "id": "forest1",
+    "rate": 0.09,
+    "groups": [
+      { "monsters": ["tsurukage", "koketsuno"], "weight": 3 },
+      { "monsters": ["hanekinoko", "hanekinoko"], "weight": 2 },
+      { "monsters": ["tsurukage", "tsurukage"], "weight": 2 },
+      { "monsters": ["rinneko"], "weight": 2, "times": [2, 3] },
+      { "monsters": ["lampbat"], "weight": 1, "times": [3] }
+    ]
+  },
+  {
+    "id": "forest2",
+    "rate": 0.1,
+    "groups": [
+      { "monsters": ["tsurukage", "tsurukage"], "weight": 2 },
+      { "monsters": ["lampbat", "lampbat"], "weight": 3 },
+      { "monsters": ["gansekimogura"], "weight": 2 },
+      { "monsters": ["gansekimogura", "tsurukage"], "weight": 1 },
+      { "monsters": ["lampbat", "rinneko"], "weight": 1, "times": [3] }
+    ]
+  }
+]

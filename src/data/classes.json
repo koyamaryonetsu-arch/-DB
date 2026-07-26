@@ -1,0 +1,178 @@
+[
+  {
+    "id": "kankenshi",
+    "name": "環剣士",
+    "category": "basic",
+    "description": "剣技と簡単な環装魔法を扱うバランス型前衛。主人公の初期職業。",
+    "statModifiers": { "hp": 100, "mp": 90, "attack": 105, "defense": 100, "magic": 80, "spirit": 85, "agility": 105, "luck": 100 },
+    "allowedWeapons": ["sword", "greatsword"],
+    "learnableSkills": [
+      { "rank": 1, "skillId": "kanjin" },
+      { "rank": 2, "skillId": "ryusei_zuki" },
+      { "rank": 3, "skillId": "shugo_enjin" },
+      { "rank": 4, "skillId": "tenkan_shuha" },
+      { "rank": 6, "skillId": "seimyaku_giri" }
+    ],
+    "passiveSkills": ["kan_no_kago", "kensei_kokoroe"],
+    "unlockConditions": [],
+    "available": true
+  },
+  {
+    "id": "jusohei",
+    "name": "重装兵",
+    "category": "basic",
+    "description": "鉄壁の守りで仲間をかばい、敵の注意を引き受ける防御職。",
+    "statModifiers": { "hp": 120, "mp": 60, "attack": 100, "defense": 125, "magic": 50, "spirit": 80, "agility": 75, "luck": 90 },
+    "allowedWeapons": ["spear", "axe", "sword"],
+    "learnableSkills": [
+      { "rank": 1, "skillId": "teppeki_shisei" },
+      { "rank": 2, "skillId": "tate_uchi" },
+      { "rank": 3, "skillId": "migawari" },
+      { "rank": 6, "skillId": "jousai_kamae" }
+    ],
+    "passiveSkills": ["ganken", "tetsu_no_ishi"],
+    "unlockConditions": [],
+    "available": true
+  },
+  {
+    "id": "seijutsushi",
+    "name": "星術師",
+    "category": "basic",
+    "description": "光・重力・星塵を操る攻撃魔法の使い手。魔力は高いが打たれ弱い。",
+    "statModifiers": { "hp": 80, "mp": 130, "attack": 70, "defense": 75, "magic": 125, "spirit": 105, "agility": 95, "luck": 100 },
+    "allowedWeapons": ["staff", "grimoire"],
+    "learnableSkills": [
+      { "rank": 1, "skillId": "luxia" },
+      { "rank": 2, "skillId": "gravid" },
+      { "rank": 3, "skillId": "luxion" },
+      { "rank": 4, "skillId": "stellard" },
+      { "rank": 5, "skillId": "crisia" },
+      { "rank": 6, "skillId": "volna" },
+      { "rank": 8, "skillId": "novarain" }
+    ],
+    "passiveSkills": ["hoshiyomi_hitomi", "seishin_tayu"],
+    "unlockConditions": [],
+    "available": true
+  },
+  {
+    "id": "seimeikan",
+    "name": "生命官",
+    "category": "basic",
+    "description": "回復・蘇生・状態異常解除を司る生命の術士。",
+    "statModifiers": { "hp": 90, "mp": 120, "attack": 75, "defense": 85, "magic": 100, "spirit": 125, "agility": 90, "luck": 105 },
+    "allowedWeapons": ["staff", "bellblade"],
+    "learnableSkills": [
+      { "rank": 1, "skillId": "vita" },
+      { "rank": 2, "skillId": "serna" },
+      { "rank": 3, "skillId": "vital" },
+      { "rank": 4, "skillId": "renata" },
+      { "rank": 5, "skillId": "alveil" },
+      { "rank": 6, "skillId": "clairena" }
+    ],
+    "passiveSkills": ["inori_no_kokoro", "seimei_no_chie"],
+    "unlockConditions": [],
+    "available": true
+  },
+  {
+    "id": "kikoutoushi",
+    "name": "気鋼闘士",
+    "category": "basic",
+    "description": "拳と蹴りで戦う格闘職。連続攻撃と自己強化を得意とする。",
+    "statModifiers": { "hp": 110, "mp": 70, "attack": 115, "defense": 90, "magic": 60, "spirit": 80, "agility": 110, "luck": 100 },
+    "allowedWeapons": ["knuckle"],
+    "learnableSkills": [
+      { "rank": 1, "skillId": "shinkyaku" },
+      { "rank": 2, "skillId": "hako_sho" },
+      { "rank": 4, "skillId": "rensei_ken" },
+      { "rank": 6, "skillId": "tensho_kyaku" }
+    ],
+    "passiveSkills": ["touki_rensei", "shinsoku_no_kan"],
+    "unlockConditions": [],
+    "available": true
+  },
+  {
+    "id": "kagehashiri",
+    "name": "影走り",
+    "category": "basic",
+    "description": "素早さと搦め手で戦う探索の達人。盗みと状態異常を操る。",
+    "statModifiers": { "hp": 90, "mp": 80, "attack": 95, "defense": 80, "magic": 70, "spirit": 75, "agility": 130, "luck": 120 },
+    "allowedWeapons": ["dagger", "sword", "bow"],
+    "learnableSkills": [
+      { "rank": 1, "skillId": "kagenui" },
+      { "rank": 2, "skillId": "dasshu" },
+      { "rank": 3, "skillId": "enmaku" },
+      { "rank": 5, "skillId": "souga" }
+    ],
+    "passiveSkills": ["jinsoku", "tousoku_no_kan"],
+    "unlockConditions": [],
+    "available": true
+  },
+  {
+    "id": "jusoushi",
+    "name": "獣奏士",
+    "category": "basic",
+    "description": "幻獣と心を通わせ、歌で仲間を支える職業。（この章では転職不可）",
+    "statModifiers": { "hp": 95, "mp": 100, "attack": 85, "defense": 85, "magic": 95, "spirit": 110, "agility": 105, "luck": 110 },
+    "allowedWeapons": ["bellblade", "resonstaff", "staff"],
+    "learnableSkills": [
+      { "rank": 1, "skillId": "yobigoe" },
+      { "rank": 4, "skillId": "mure_no_kago" },
+      { "rank": 6, "skillId": "shinra_no_uta" }
+    ],
+    "passiveSkills": ["kemono_no_kokoro"],
+    "unlockConditions": [],
+    "available": false
+  },
+  {
+    "id": "rengushi",
+    "name": "錬具師",
+    "category": "basic",
+    "description": "道具と装置を操る技術職。（この章では転職不可）",
+    "statModifiers": { "hp": 100, "mp": 90, "attack": 90, "defense": 95, "magic": 90, "spirit": 90, "agility": 90, "luck": 115 },
+    "allowedWeapons": ["dagger", "ancientgun", "staff"],
+    "learnableSkills": [
+      { "rank": 1, "skillId": "sokuseki_chougou" },
+      { "rank": 3, "skillId": "haretsu_bin" },
+      { "rank": 4, "skillId": "bugu_shuuzen" }
+    ],
+    "passiveSkills": ["chougou_no_kokoroe"],
+    "unlockConditions": [],
+    "available": false
+  },
+  {
+    "id": "seikenshou",
+    "name": "星剣将",
+    "category": "advanced",
+    "description": "武器攻撃と星術を融合する魔法剣士。環剣士と星術師を極めた者だけが到達できる。",
+    "statModifiers": { "hp": 105, "mp": 110, "attack": 115, "defense": 100, "magic": 110, "spirit": 90, "agility": 105, "luck": 100 },
+    "allowedWeapons": ["sword", "greatsword"],
+    "learnableSkills": [
+      { "rank": 1, "skillId": "kouen_sou" },
+      { "rank": 3, "skillId": "seiretsu_sen" }
+    ],
+    "passiveSkills": ["kan_no_kago"],
+    "unlockConditions": [
+      { "type": "classRank", "classId": "kankenshi", "rank": 5 },
+      { "type": "classRank", "classId": "seijutsushi", "rank": 3 }
+    ],
+    "available": false
+  },
+  {
+    "id": "seieikan",
+    "name": "聖衛官",
+    "category": "advanced",
+    "description": "仲間を守りながら癒す守護の要。重装兵と生命官を極めた者の道。",
+    "statModifiers": { "hp": 120, "mp": 100, "attack": 95, "defense": 130, "magic": 85, "spirit": 115, "agility": 80, "luck": 95 },
+    "allowedWeapons": ["spear", "sword"],
+    "learnableSkills": [
+      { "rank": 1, "skillId": "seiiki_tate" },
+      { "rank": 3, "skillId": "kenshin" }
+    ],
+    "passiveSkills": ["ganken"],
+    "unlockConditions": [
+      { "type": "classRank", "classId": "jusohei", "rank": 5 },
+      { "type": "classRank", "classId": "seimeikan", "rank": 4 }
+    ],
+    "available": false
+  }
+]

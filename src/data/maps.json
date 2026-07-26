@@ -1,0 +1,209 @@
+[
+  {
+    "id": "village",
+    "name": "ルミナ村",
+    "kind": "town",
+    "tileset": "town",
+    "bgm": "bgm_village",
+    "advanceTime": false,
+    "rows": [
+      "TTTTTTTTTTTTTTTTTTTTTTTT",
+      "TggggggggggggggggggggggT",
+      "TggRRRRRg=======ggRRRRRT",
+      "TggHHDHHg==#=#==ggHHDHHT",
+      "Tggggpggg===p===ggggpggT",
+      "TfgggpggggggpgggggggpggT",
+      "TgggpppppppppppppppppggT",
+      "TggggggggggwwwwggggggggT",
+      "TggggggggggwwwwggggggggT",
+      "TggRRRRRggggppggggRRRRRT",
+      "TggRRRRRggggppggggRRRRRT",
+      "TggHHDHHggggppggggHHDHHT",
+      "TggggpggggggppggggggpggT",
+      "TggggpppppppppppppppggfT",
+      "TgggggggggggppgggggggggT",
+      "TfggggggggggppggggggggfT",
+      "TgggggggggggppgggggggggT",
+      "TTTTTTTTTTTTppTTTTTTTTTT"
+    ],
+    "legend": {
+      "T": { "tile": "tree", "solid": true },
+      "g": { "tile": "grass" },
+      "f": { "tile": "flower" },
+      "p": { "tile": "path" },
+      "w": { "tile": "water", "solid": true, "water": true },
+      "R": { "tile": "roof", "solid": true },
+      "H": { "tile": "wall", "solid": true },
+      "D": { "tile": "door", "solid": true },
+      "=": { "tile": "templefloor" },
+      "#": { "tile": "pillar", "solid": true }
+    },
+    "npcs": [
+      { "id": "priest", "x": 12, "y": 2, "sprite": "priest", "dialogueId": "dlg_priest", "shop": "temple" },
+      { "id": "elder", "x": 5, "y": 5, "sprite": "elder", "dialogueId": "dlg_elder" },
+      { "id": "merchant", "x": 20, "y": 5, "sprite": "merchant", "dialogueId": "dlg_itemshop", "shop": "item" },
+      { "id": "innkeeper", "x": 5, "y": 12, "sprite": "innkeeper", "dialogueId": "dlg_inn", "shop": "inn" },
+      { "id": "smith", "x": 20, "y": 12, "sprite": "smith", "dialogueId": "dlg_equipshop", "shop": "equip" },
+      { "id": "guard", "x": 11, "y": 15, "sprite": "guard", "dialogueId": "dlg_guard" },
+      { "id": "kid", "x": 8, "y": 14, "sprite": "kid", "dialogueId": "dlg_kid" },
+      { "id": "sign_gate", "x": 14, "y": 14, "sprite": "sign", "dialogueId": "dlg_sign_gate" },
+      { "id": "villager_a", "x": 9, "y": 7, "sprite": "villager_a", "dialogueId": "dlg_villager_a", "times": [0, 1, 2] },
+      { "id": "villager_b", "x": 17, "y": 8, "sprite": "villager_b", "dialogueId": "dlg_villager_b", "times": [2, 3] }
+    ],
+    "warps": [
+      { "x": 12, "y": 17, "to": "world", "tx": 15, "ty": 19, "dir": "down" },
+      { "x": 13, "y": 17, "to": "world", "tx": 15, "ty": 19, "dir": "down" }
+    ],
+    "chests": [
+      { "id": "chest_v1", "x": 2, "y": 14, "gold": 80 },
+      { "id": "chest_v2", "x": 21, "y": 1, "itemId": "hoshimizu" }
+    ],
+    "events": [
+      { "id": "ev_opening", "trigger": "auto", "mainStep": 0, "once": true },
+      { "id": "ev_homecoming", "trigger": "auto", "mainStep": 3, "once": true }
+    ]
+  },
+  {
+    "id": "world",
+    "name": "ルミナス島南部",
+    "kind": "world",
+    "tileset": "world",
+    "bgm": "bgm_field",
+    "advanceTime": true,
+    "rows": [
+      "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+      "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+      "WWWWWWWWWWMMMMMMMMMMMMWWWWWWWWWW",
+      "WWWWWWWWMMMMMMMMMMMMMMMMWWWWWWWW",
+      "WWWWWWMMMMFFFFFFFFFFMMMMWWWWWWWW",
+      "WWWWWMMFFFFFFFFFFFFFFMMWWWWWWWWW",
+      "WWWWWMFFFFFFFFFXFFFFFFMWWWWWWWWW",
+      "WWWWMMFFFFFFFFFdFFFFFFMMWWWWWWWW",
+      "WWWWMGGGGGGGGGGdGGGGGGMMWWWWWWWW",
+      "WWWMGGGGGGGGGGGdGGGGGGGMWWWWWWWW",
+      "WWWMGGGGGGGGGGGdGGGGGGGMWWWWWWWW",
+      "WWMGGGGGGGGGGGGdGGGGGGGGMWWWWWWW",
+      "WWMGGGGGGGGGGGGdGGGGGGGGMWWWWWWW",
+      "WWMGGGGGGGGGGGGdGGGGGGGGMWWWWWWW",
+      "WWMGGGGGGGGGGGGdGGGGGGGGMWWWWWWW",
+      "WWWMGGGGGGGGGGGdGGGGGGGMWWWWWWWW",
+      "WWWMGGGGGGGGGGGdGGGGGGGMWWWWWWWW",
+      "WWWWMGGGGGGGGGGdGGGGGGMWWWWWWWWW",
+      "WWWWMGGGGGGGGGGVGGGGGGMWWWWWWWWW",
+      "WWWWWMGGGGGGGGGGGGGGGMWWWWWWWWWW",
+      "WWWWWWMGGGGGGGGGGGGGMWWWWWWWWWWW",
+      "WWWWWWWssssssssssssssWWWWWWWWWWW",
+      "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW",
+      "WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+    ],
+    "legend": {
+      "W": { "tile": "sea", "solid": true, "water": true },
+      "M": { "tile": "mountain", "solid": true },
+      "G": { "tile": "wgrass", "encounter": "world_plains" },
+      "F": { "tile": "wforest", "encounter": "world_forestedge" },
+      "d": { "tile": "wpath" },
+      "s": { "tile": "sand" },
+      "X": { "tile": "forestgate" },
+      "V": { "tile": "villagetile" }
+    },
+    "npcs": [],
+    "warps": [
+      { "x": 15, "y": 18, "to": "village", "tx": 12, "ty": 16, "dir": "up" },
+      { "x": 15, "y": 6, "to": "forest1", "tx": 12, "ty": 16, "dir": "up" }
+    ],
+    "chests": [],
+    "events": []
+  },
+  {
+    "id": "forest1",
+    "name": "星影の森",
+    "kind": "dungeon",
+    "tileset": "forest",
+    "bgm": "bgm_forest",
+    "advanceTime": true,
+    "rows": [
+      "tttttttttttttttttttttttt",
+      "tggggggggggggggggggggggt",
+      "tgUggggggggggggggggggggt",
+      "tggttttttttttttttttttggt",
+      "tggttggggggggggggggttggt",
+      "tggttggggggggggggggttggt",
+      "tggttggggttttttggggttggt",
+      "tggggggggttttttggggggggt",
+      "tggttggggggggggggggttggt",
+      "tggttggggggggggggggttggt",
+      "tggttttttttggttttttttggt",
+      "tggggggggggggggggggggggt",
+      "ttttttttttggggtttttttttt",
+      "tggggggggggggggggggggggt",
+      "tggttttttttttttttttttggt",
+      "tggggggggggggggggggggggt",
+      "tggggggggggggggggggggggt",
+      "ttttttttttttEEtttttttttt"
+    ],
+    "legend": {
+      "t": { "tile": "dtree", "solid": true },
+      "g": { "tile": "dfloor", "encounter": "forest1" },
+      "U": { "tile": "stairs_up" },
+      "E": { "tile": "dexit" }
+    },
+    "npcs": [],
+    "warps": [
+      { "x": 12, "y": 17, "to": "world", "tx": 15, "ty": 7, "dir": "down" },
+      { "x": 13, "y": 17, "to": "world", "tx": 15, "ty": 7, "dir": "down" },
+      { "x": 2, "y": 2, "to": "forest2", "tx": 11, "ty": 15, "dir": "up" }
+    ],
+    "chests": [
+      { "id": "chest_f1_a", "x": 11, "y": 11, "itemId": "iyashi_tsuyu" },
+      { "id": "chest_f1_b", "x": 22, "y": 15, "gold": 120 },
+      { "id": "chest_f1_c", "x": 12, "y": 8, "itemId": "hoshimizu" }
+    ],
+    "events": [{ "id": "ev_forest_intro", "trigger": "auto", "mainStep": 2, "once": true }]
+  },
+  {
+    "id": "forest2",
+    "name": "星影の森・深部",
+    "kind": "dungeon",
+    "tileset": "forest",
+    "bgm": "bgm_forest",
+    "advanceTime": true,
+    "rows": [
+      "tttttttttttttttttttttttt",
+      "tttttttttggggggttttttttt",
+      "ttttttttgggggggggttttttt",
+      "ttttttttgggBgggggttttttt",
+      "ttttttttgggggggggttttttt",
+      "tttttttttgggggggtttttttt",
+      "ttttttttttggggtttttttttt",
+      "tggggggggggggggggggggggt",
+      "tggttttttttttttttttttggt",
+      "tggttggggggggggggggttggt",
+      "tggttggwwwwwwwwggggttggt",
+      "tggttggwwwwwwwwggggttggt",
+      "tggttggggggggggggggttggt",
+      "tggttttttttggttttttttggt",
+      "tggggggggggggggggggggggt",
+      "tggggggggggggggggggggggt",
+      "tggggggggggDDggggggggggt",
+      "tttttttttttttttttttttttt"
+    ],
+    "legend": {
+      "t": { "tile": "dtree", "solid": true },
+      "g": { "tile": "dfloor", "encounter": "forest2" },
+      "w": { "tile": "dwater", "solid": true, "water": true },
+      "B": { "tile": "clearing" },
+      "D": { "tile": "stairs_down" }
+    },
+    "npcs": [],
+    "warps": [
+      { "x": 11, "y": 16, "to": "forest1", "tx": 2, "ty": 3, "dir": "down" },
+      { "x": 12, "y": 16, "to": "forest1", "tx": 2, "ty": 3, "dir": "down" }
+    ],
+    "chests": [
+      { "id": "chest_f2_a", "x": 2, "y": 9, "equipId": "kesshi_wa" },
+      { "id": "chest_f2_b", "x": 21, "y": 9, "itemId": "inochi_shizuku" },
+      { "id": "chest_f2_c", "x": 16, "y": 12, "gold": 200 }
+    ],
+    "events": [{ "id": "ev_boss", "trigger": "enter", "x": 8, "y": 3, "w": 9, "h": 2, "mainStep": 2, "once": false }]
+  }
+]

@@ -1,0 +1,93 @@
+[
+  {
+    "id": "iyashi_ba",
+    "name": "いやし葉",
+    "description": "星脈の力を宿した葉。HPを35回復する。",
+    "price": 30,
+    "usableInBattle": true,
+    "usableInField": true,
+    "target": "allySingle",
+    "effect": { "healHp": 35 }
+  },
+  {
+    "id": "iyashi_tsuyu",
+    "name": "いやし露",
+    "description": "夜明けに集めた光る露。HPを90回復する。",
+    "price": 110,
+    "usableInBattle": true,
+    "usableInField": true,
+    "target": "allySingle",
+    "effect": { "healHp": 90 }
+  },
+  {
+    "id": "hoshimizu",
+    "name": "星水",
+    "description": "星環の光を映した水。MPを25回復する。",
+    "price": 90,
+    "usableInBattle": true,
+    "usableInField": true,
+    "target": "allySingle",
+    "effect": { "healMp": 25 }
+  },
+  {
+    "id": "gedoku_mi",
+    "name": "解毒の実",
+    "description": "苦い果実。毒と猛毒を治す。",
+    "price": 20,
+    "usableInBattle": true,
+    "usableInField": true,
+    "target": "allySingle",
+    "effect": { "cureStatus": ["poison", "venom"] }
+  },
+  {
+    "id": "mezamashi_suzu",
+    "name": "目覚まし鈴",
+    "description": "澄んだ音の鈴。睡眠と混乱を払う。",
+    "price": 25,
+    "usableInBattle": true,
+    "usableInField": true,
+    "target": "allySingle",
+    "effect": { "cureStatus": ["sleep", "confusion"] }
+  },
+  {
+    "id": "inochi_shizuku",
+    "name": "命の雫",
+    "description": "生命の環晶の欠片が溶けた雫。倒れた仲間を復活させる。",
+    "price": 300,
+    "usableInBattle": true,
+    "usableInField": true,
+    "target": "allyDead",
+    "effect": { "revive": 0.25 }
+  },
+  {
+    "id": "kinomi_dango",
+    "name": "木の実だんご",
+    "description": "森の獣が好む素朴なだんご。HPを10回復する。",
+    "price": 15,
+    "usableInBattle": true,
+    "usableInField": true,
+    "target": "allySingle",
+    "effect": { "healHp": 10 },
+    "scoutTreat": true
+  },
+  {
+    "id": "kikan_hane",
+    "name": "帰環の羽",
+    "description": "淡く光る羽。使うとルミナ村へ舞い戻る。",
+    "price": 60,
+    "usableInBattle": false,
+    "usableInField": true,
+    "target": "none",
+    "effect": { "warpVillage": true }
+  },
+  {
+    "id": "kanshou_kakera",
+    "name": "生命の環晶",
+    "description": "星環から落ちた七つの環晶のひとつ。緑の光が脈打っている。",
+    "price": 0,
+    "usableInBattle": false,
+    "usableInField": false,
+    "keyItem": true,
+    "target": "none"
+  }
+]

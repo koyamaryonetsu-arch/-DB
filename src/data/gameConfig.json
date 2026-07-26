@@ -1,0 +1,53 @@
+{
+  "title": "星環の継承者",
+  "subtitle": "―アストラル・レガシー―",
+  "titleEn": "HEIRS OF THE ASTRAL RING",
+  "version": "0.1.0",
+  "saveVersion": 1,
+  "currency": "セラ",
+  "saveKey": "astral_ring_save",
+  "settingsKey": "astral_ring_settings",
+  "chapterEndText": [
+    "最初の環晶は、静かに北を指し示した。",
+    "海の向こう――黒天帝国の空へ。",
+    "少年少女の旅は、まだ始まったばかりである。",
+    "",
+    "第一章　完",
+    "",
+    "物語は北の大陸へ続く……"
+  ],
+  "shops": {
+    "item": [
+      "iyashi_ba",
+      "iyashi_tsuyu",
+      "hoshimizu",
+      "gedoku_mi",
+      "mezamashi_suzu",
+      "kinomi_dango",
+      "kikan_hane"
+    ],
+    "itemLate": ["inochi_shizuku"],
+    "equip": [
+      "douka_ken",
+      "kagerou_tanken",
+      "tabi_tekkou",
+      "minarai_jo",
+      "kiban_tate",
+      "tekkan_tate",
+      "tabi_fuku",
+      "kawa_yoroi",
+      "kawa_boushi",
+      "koke_udewa",
+      "akatsuki_omamori"
+    ],
+    "equipLate": [
+      "seitetu_ken",
+      "hoshiyomi_jo",
+      "jusou_kou",
+      "hoshimon_robe",
+      "tekkan_kabuto",
+      "kesshi_wa",
+      "seiun_kazari"
+    ]
+  }
+}
