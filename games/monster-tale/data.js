@@ -10,74 +10,76 @@ const OUTLINE = '#1a1626';
    px: 行文字列の配列。'.'は透明。mirror:true なら左半分だけ定義し左右対称に展開
    base: 他スプライトの形を流用しパレットだけ変える */
 const SPR = {
-  puni: { mirror: true, pal: { k: OUTLINE, a: '#3b76e8', b: '#8ab6ff', w: '#ffffff', m: '#123064' }, px: [
-    '........', '........', '........', '.....kkk',
-    '...kkabb', '..kabbba', '.kabbbaa', '.kaawkaa',
-    'kaaaaaaa', 'kaaaaamm', 'kaaaaaaa', 'kaaaaaaa',
-    '.kaaaaaa', '..kkaaaa', '....kkkk', '........'] },
-  metal: { base: 'puni', pal: { k: OUTLINE, a: '#b9c2d4', b: '#eef4ff', w: '#ffffff', m: '#4a5a76' } },
-  bat: { mirror: true, pal: { k: OUTLINE, a: '#8a5fd8', b: '#5a3aa8', e: '#ff5a5a', w: '#ffffff' }, px: [
-    '........', '........', '........', '.....k..',
-    '....kkkk', '...kbbbb', 'k..kbbbb', 'kk.kbebb',
-    'kakkbbbb', 'kaakbwbb', 'kaaakbbb', '.kaakbbb',
-    '..kkkbbb', '....kkkk', '........', '........'] },
-  rat: { mirror: true, pal: { k: OUTLINE, a: '#a8703d', s: '#e8dcc0', w: '#ffffff', p: '#e87a9a' }, px: [
-    '........', '........', '..s...s.', '.sss.sss',
-    '.sssssss', '.kaaaaaa', 'kaaaaaaa', 'kaawkaaa',
-    'kaaaaaaa', 'kaaaaapp', 'kaaaaaaw', '.kaaaaaa',
-    '.kaaaaaa', '..kkaaaa', '....kkkk', '........'] },
-  kino: { mirror: true, pal: { k: OUTLINE, c: '#e04848', w: '#ffffff', t: '#f2e2c4', m: '#a05a3a' }, px: [
-    '........', '.....kkk', '...kkccc', '..kccccc',
-    '.kccwwcc', '.kcccccc', 'kccccccc', 'kkkkkkkk',
-    '..kttttt', '..kttktt', '..kttttt', '..ktttmm',
-    '..kttttt', '...kkkkk', '........', '........'] },
-  bee: { mirror: true, pal: { k: OUTLINE, y: '#f2c832', d: '#2a2418', w: '#e8f0ff' }, px: [
-    '.....k..', '.....k..', '........', '....kkkk',
-    '...kyyyy', '..kykkyy', '.wkyyyyy', 'wwkddddd',
-    'wwkyyyyy', '.wkddddd', '..kyyyyy', '..kddddd',
-    '...kyyyy', '....kkkk', '.......k', '........'] },
-  wolf: { mirror: true, pal: { k: OUTLINE, a: '#7a7f8c', b: '#c8ccd4', e: '#f0c030', w: '#ffffff' }, px: [
-    '........', '.kk.....', '.kak....', '.kaakkkk',
-    '.kaaaaaa', 'kaaaaaaa', 'kaeeaaaa', 'kaaaaaaa',
-    'kaaaabbb', '.kaaabbk', '.kaabwbb', '..kaabbb',
-    '...kkbbb', '.....kkk', '........', '........'] },
-  cact: { mirror: true, pal: { k: OUTLINE, g: '#3f9e4f', w: '#e8f0d8', p: '#f088b0' }, px: [
-    '......pp', '......pp', '....kkkk', '...kgggg',
-    '...kgwgg', 'kk.kgggg', 'kgkkgwgg', 'kgkkgkgg',
-    'kgkkgggg', 'kkkkgggg', '...kggkk', '...kgggg',
-    '...kgwgg', '...kgggg', '....kkkk', '........'] },
-  liza: { mirror: true, pal: { k: OUTLINE, a: '#8fae4a', b: '#e0d8a0', e: '#e05030' }, px: [
-    '........', '........', '...kkkkk', '..kaaaaa',
+  /* ================= まもの (16bit風・全面リニューアル) ================= */
+  puni: { mirror: true, pal: { k: OUTLINE, a: '#2e6ee0', b: '#78b0ff', d: '#1c48a0', w: '#ffffff', m: '#0e2c6e' }, px: [
+    '........', '........', '.....kkk', '...kkbbb',
+    '..kbbbba', '.kbbbaaa', '.kbaaaaa', 'kbaaaaaa',
+    'kbawwkaa', 'kaaaaaaa', 'kaaaaamm', 'kaaaaaaa',
+    '.kaaaadd', '..kkaddd', '....kkkk', '........'] },
+  metal: { base: 'puni', pal: { k: OUTLINE, a: '#b0bcd4', b: '#eef4ff', d: '#68789a', w: '#ffffff', m: '#3c4a68' } },
+  bat: { mirror: true, pal: { k: OUTLINE, a: '#9a6fe8', b: '#5a3aa8', p: '#f0a0c0', e: '#ff4444', w: '#ffffff', d: '#3a2478' }, px: [
+    '........', 'k....kk.', 'kk...kpk', 'kak.kbbb',
+    'kaakkbbb', 'kaaakbeb', 'kaaakbbb', 'kaakbbwb',
+    'kakbbbbb', 'kk.kbbbd', '...kbbdd', '....kkkk',
+    '........', '........', '........', '........'] },
+  rat: { mirror: true, pal: { k: OUTLINE, y: '#f2c840', a: '#c89a20', o: '#f08020', d: '#b8860e', w: '#ffffff' }, px: [
+    '........', '.....k..', '....kkyk', '...kyyyy',
+    '..kyyyyy', '.kyyywky', '.kyyyyyy', 'kyayyyoo',
+    'kyaayyyy', 'kyaayyyy', '.kyayyyd', '..kyyydd',
+    '...kkkkk', '....o..o', '........', '........'] },
+  kino: { mirror: true, pal: { k: OUTLINE, c: '#e04848', C: '#f47c6c', d: '#a02838', w: '#ffffff', t: '#f2e2c4', m: '#a05a3a' }, px: [
+    '........', '.....kkk', '...kkccc', '..kcCCcc',
+    '.kcCwwCc', '.kcccccc', 'kccccwcc', 'kdcccccc',
+    'kkkkkkkk', '..kttttt', '..kttktt', '..kttttt',
+    '..ktttmm', '..kttttt', '...kkkkk', '........'] },
+  bee: { mirror: true, pal: { k: OUTLINE, y: '#f2c832', d: '#1e1a12', w: '#dce8ff' }, px: [
+    '.....k..', '.ww..k..', 'wwww.kk.', 'www.kyyy',
+    '.w.kyyyy', '..kyywky', '..kyyyyy', '.kdddddd',
+    '.kyyyyyy', '.kdddddd', '..kyyyyy', '..kddddd',
+    '...kkyyy', '.....kkk', '.......k', '........'] },
+  wolf: { mirror: false, pal: { k: OUTLINE, a: '#e0b84a', d: '#b8862a', e: '#f04830', w: '#ffffff' }, px: [
+    '................', '.kk...........k.', 'kaaek........kak', 'kaaaak......kak.',
+    'kwaaaakkkkkkaak.', '.kaaaaaaaaaaak..', '.kaadaaadaaaak..', '.kaaaaaaaaaaak..',
+    '.kaakkaaakkaak..', '.kak..kak..kak..', '.kk...kk...kk...', '................',
+    '................', '................', '................', '................'] },
+  cact: { mirror: true, pal: { k: OUTLINE, g: '#3f9e4f', G: '#5cc06a', d: '#2a7038', w: '#e8f0d8', p: '#f088b0' }, px: [
+    '......pp', '.....kpp', '....kkkk', '...kgGgg',
+    '...kgwgg', 'kk.kgGgg', 'kgkkgggg', 'kgkkgkgg',
+    'kgkkgGgg', 'kkkkgggg', '...kggkk', '...kgGgg',
+    '...kgwgg', '...kgdgg', '....kkkk', '........'] },
+  liza: { mirror: true, pal: { k: OUTLINE, a: '#8fae4a', A: '#aacc60', b: '#e0d8a0', d: '#c4b478', e: '#f05030' }, px: [
+    '........', '....k...', '...kkkkk', '..kaAaaa',
     '.kaeeaaa', 'kaaaaaaa', 'kaaaaaak', '.kaaaaaa',
-    '..kkaaaa', '.kaaaaaa', 'kaaabbbb', 'kaaabbbb',
-    '.kaabbbb', '..kkbbbb', '....kkkk', '........'] },
-  gobl: { mirror: true, pal: { k: OUTLINE, r: '#c03838', g: '#5da84c', n: '#3d7a34', e: '#f0d040', w: '#ffffff', b: '#7a5230' }, px: [
-    '........', '...kkkkk', '..krrrrr', '.krrrrrr',
-    '.kkggggg', '.kgeeggg', 'kkggggnn', '.kgggggg',
-    '.kgwwwww', '.kkkkkkk', '..kggggg', '..kkkkkk',
-    '..kbbbbb', '.kbbbbbb', '..kkkkkk', '........'] },
-  wisp: { mirror: true, pal: { k: OUTLINE, f: '#7a5df0', i: '#cfeaff' }, px: [
+    '..kkaaaa', '.kaAaaaa', 'kaaabbbb', 'kaaabbbb',
+    '.kaabbbb', '..kkbbdd', '....kkkk', '........'] },
+  gobl: { mirror: true, pal: { k: OUTLINE, r: '#c03838', R: '#e06050', g: '#5da84c', G: '#78c060', n: '#3d7a34', e: '#f0d040', w: '#ffffff', b: '#7a5230', B: '#96703c', d: '#3d7a34' }, px: [
+    '........', '...kkkkk', '..krrRrr', '.krrrrrr',
+    '.kkggggg', '.kgeeggg', 'kkgGggnn', '.kgggggg',
+    '.kgwkwkw', '.kkkkkkk', '..kgggdd', '..kkkkkk',
+    '..kbbBbb', '.kbbbbbb', '..kkkkkk', '........'] },
+  wisp: { mirror: true, pal: { k: OUTLINE, f: '#6a4ae0', F: '#9a7af8', i: '#d8ecff' }, px: [
     '.....k..', '..k..kf.', '..kf.kf.', '.kffkfff',
-    '.kffffff', 'kfffffff', 'kffiiiii', 'kfiiiiii',
-    'kfiikiii', 'kfiiiiii', 'kffiiiii', '.kffffff',
+    '.kffffff', 'kffFFFFF', 'kfFFiiii', 'kfFiiiii',
+    'kfFikiii', 'kfFiiiii', 'kffFiiii', '.kffFFFF',
     '.kffffff', '..kkffff', '....kkkk', '........'] },
-  skel: { mirror: true, pal: { k: OUTLINE, W: '#e8e8ea' }, px: [
+  skel: { mirror: true, pal: { k: OUTLINE, W: '#e8e8ea', e: '#ff3838' }, px: [
     '........', '...kkkkk', '..kWWWWW', '.kWWWWWW',
-    '.kWWWWWW', '.kWkkWWW', '.kWkkWWW', '.kWWWWWk',
+    '.kWWWWWW', '.kWkkWWW', '.kWkekWW', '.kWWWWWk',
     '..kWWWWW', '..kWkWkW', '...kkkkk', '......kW',
     '..kWWWWW', '...kWWWW', '....kkkk', '........'] },
-  golem: { mirror: true, pal: { k: OUTLINE, R: '#8a6f52', c: '#5a4534', o: '#ffb028' }, px: [
-    '........', '....kkkk', '...kRRRR', '...kRoRR',
-    '...kRRRR', '.kkkRRRR', 'kRRkRRRR', 'kRRkRRRR',
-    'kRRkRcRR', 'kRRkRRRR', 'kRRkRRRR', 'kkkkRcRR',
-    '...kRRRR', '..kRRRRR', '..kkkkkk', '........'] },
-  guard: { base: 'golem', pal: { k: OUTLINE, R: '#7a8494', c: '#59616e', o: '#40d8f0' } },
-  drak: { mirror: true, pal: { k: OUTLINE, g: '#4fae5e', c: '#f0e0b0', e: '#f04830', h: '#f0e8d0', d: '#2e7a3e' }, px: [
-    '........', '..h.....', '..kkkkkk', '.kgggggg',
-    '.kggeggg', 'kggggggg', 'kggggggk', 'kggggggg',
-    '.kgggggg', 'dkgccccc', 'ddkgcccc', '.dkgcccc',
-    '..kgcccc', '..kgcccc', '...kkkkk', '........'] },
-  dlord: { base: 'drak', pal: { k: OUTLINE, g: '#c04838', c: '#f0d0a0', e: '#f0e030', h: '#f0e8d0', d: '#7a2820' } },
+  golem: { mirror: true, pal: { k: OUTLINE, S: '#9a8468', s: '#7a6850', o: '#ff9828' }, px: [
+    '........', '..kkkkkk', '..kSsSsS', '..ksSoSs',
+    '..kSsSsS', '.kkkkkkk', 'kSskSsSs', 'ksSkkkkk',
+    'kSskSsSs', 'ksSksSsS', 'kSskSsSs', 'kkkkkkkk',
+    '...kSsSs', '...ksSsS', '...kkk..', '........'] },
+  guard: { base: 'golem', pal: { k: OUTLINE, S: '#8a94a8', s: '#6a7488', o: '#40d8f0' } },
+  drak: { mirror: true, pal: { k: OUTLINE, g: '#4fae5e', G: '#74cc80', c: '#f0e0b0', C: '#fff0d0', e: '#f04830', n: '#2e7a3e', h: '#f0e8d0', d: '#2e7a3e' }, px: [
+    '..k.....', '..kh....', '.kkkkkkk', 'kgGGgggg',
+    'kgGeeggg', 'kggggggg', 'kgggggnn', '.kgggggg',
+    'dkkgcccc', 'ddkgcccc', '.dkgCccc', '..kgcccc',
+    '..kgcccc', '...kkkkk', '........', '........'] },
+  dlord: { base: 'drak', pal: { k: OUTLINE, g: '#c04838', G: '#e07060', c: '#f0d0a0', C: '#ffe8c8', e: '#f0e030', n: '#7a2820', h: '#f0e8d0', d: '#7a2820' } },
+  kaiser: { base: 'drak', pal: { k: OUTLINE, g: '#e0b83a', G: '#f0d060', c: '#f8f0d0', C: '#ffffff', e: '#f04830', n: '#a87f1e', h: '#ffffff', d: '#a87f1e' } },
   maou: { mirror: true, pal: { k: OUTLINE, h: '#e8d9a0', P: '#cfa9e8', e: '#ff4b4b', w: '#ffffff', B: '#3a2350', G: '#40e0d0' }, px: [
     '.hh.........', '.khh........', '..khh.......', '..khhh......',
     '...khh.kkkkk', '...khhkPPPPP', '....kkPPPPPP', '....kPPPPPPP',
@@ -85,72 +87,69 @@ const SPR = {
     '...kkBBkkkkk', '..kBBBBBBBBB', '.kBBkBBBBBBB', '.kBBkBBBBBBB',
     'kBBkBBBBBBGG', 'kBBkBBBBBBBB', 'kBkkBBBBBBBB', 'khkBBBBBBBBB',
     '.kkkBBBBBBBB', '....kBBBBBBB', '.....kkkkkkk', '............'] },
-  /* --- 主人公 --- */
-  heroD: { mirror: false, pal: { k: OUTLINE, h: '#8a5a2e', f: '#f4cba0', g: '#3fae62', b: '#4a3830' }, px: [
-    '................', '......kkkk......', '.....khhhhk.....', '....khhhhhhk....',
-    '....khhhhhhk....', '....kffffffk....', '....kfkffkfk....', '.....kffffk.....',
-    '.....kggggk.....', '....kggggggk....', '...kgggggggg....', '..kfkggggggkf...',
-    '...kkggggggkk...', '....kggggggk....', '....kbbkkbbk....', '....kkk..kkk....'] },
-  heroU: { mirror: false, pal: { k: OUTLINE, h: '#8a5a2e', g: '#3fae62', b: '#4a3830', f: '#f4cba0' }, px: [
-    '................', '......kkkk......', '.....khhhhk.....', '....khhhhhhk....',
-    '....khhhhhhk....', '....khhhhhhk....', '....khhhhhhk....', '.....khhhhk.....',
-    '.....kggggk.....', '....kggggggk....', '...kgggggggg....', '..kfkggggggkf...',
-    '...kkggggggkk...', '....kggggggk....', '....kbbkkbbk....', '....kkk..kkk....'] },
-  heroS1: { mirror: false, pal: { k: OUTLINE, h: '#8a5a2e', f: '#f4cba0', g: '#3fae62', b: '#4a3830' }, px: [
-    '................', '......kkkk......', '.....khhhhk.....', '....khhhhhhk....',
-    '....khhhhhhk....', '.....kffffk.....', '.....kfkffk.....', '.....kffffk.....',
-    '.....kggggk.....', '....kggggggk....', '....kggggggk....', '....kgggggkf....',
-    '.....kggggk.....', '.....kggggk.....', '....kbbkbbk.....', '....kkk.kkk.....'] },
-  heroS2: { mirror: false, pal: { k: OUTLINE, h: '#8a5a2e', f: '#f4cba0', g: '#3fae62', b: '#4a3830' }, px: [
-    '................', '......kkkk......', '.....khhhhk.....', '....khhhhhhk....',
-    '....khhhhhhk....', '.....kffffk.....', '.....kfkffk.....', '.....kffffk.....',
-    '.....kggggk.....', '....kggggggk....', '....kggggggk....', '....kgggggkf....',
-    '.....kggggk.....', '.....kggggk.....', '.....kbbbk......', '.....kkkkk......'] },
-  /* --- 妹 (ミア) --- */
-  sisterD: { mirror: false, pal: { k: OUTLINE, h: '#b0622a', f: '#f6d2ac', d: '#d05a7a', b: '#8a3852' }, px: [
-    '................', '......kkkk......', '.....khhhhk.....', '....khhhhhhk....',
-    '...khhhhhhhhk...', '...khffffffhk...', '...khfkffkfhk...', '....khffffhk....',
-    '.....kddddk.....', '....kddddddk....', '...kdddddddd....', '..kfkddddddkf...',
-    '...kkddddddkk...', '...kddddddddk...', '...kddddddddk...', '....kkkkkkkk....'] },
-  sisterU: { mirror: false, pal: { k: OUTLINE, h: '#b0622a', f: '#f6d2ac', d: '#d05a7a', b: '#8a3852' }, px: [
-    '................', '......kkkk......', '.....khhhhk.....', '....khhhhhhk....',
-    '...khhhhhhhhk...', '...khhhhhhhhk...', '...khhhhhhhhk...', '....khhhhhhk....',
-    '.....kddddk.....', '....kddddddk....', '...kdddddddd....', '..kfkddddddkf...',
-    '...kkddddddkk...', '...kddddddddk...', '...kddddddddk...', '....kkkkkkkk....'] },
-  sisterS1: { mirror: false, pal: { k: OUTLINE, h: '#b0622a', f: '#f6d2ac', d: '#d05a7a', b: '#8a3852' }, px: [
-    '................', '......kkkk......', '.....khhhhk.....', '....khhhhhhk....',
-    '....khhhhhhhk...', '.....kffffkhk...', '.....kfkffkhk...', '.....kffffkhk...',
-    '.....kddddkk....', '....kddddddk....', '....kddddddk....', '....kdddddkf....',
-    '....kddddddk....', '...kddddddddk...', '...kddddddddk...', '....kkkkkkkk....'] },
-  sisterS2: { mirror: false, pal: { k: OUTLINE, h: '#b0622a', f: '#f6d2ac', d: '#d05a7a', b: '#8a3852' }, px: [
-    '................', '................', '......kkkk......', '.....khhhhk.....',
-    '....khhhhhhk....', '....khhhhhhhk...', '.....kffffkhk...', '.....kfkffkhk...',
-    '.....kffffkhk...', '.....kddddkk....', '....kddddddk....', '....kddddddk....',
-    '....kdddddkf....', '...kddddddddk...', '...kddddddddk...', '....kkkkkkkk....'] },
-  /* --- 裏ボス りゅうじんカイザー (黄金竜) --- */
-  kaiser: { base: 'drak', pal: { k: OUTLINE, g: '#e0b83a', c: '#f8f0d0', e: '#f04830', h: '#ffffff', d: '#a87f1e' } },
-  /* --- 真のラスボス だいまおう (漆黒) --- */
   darklord: { base: 'maou', pal: { k: OUTLINE, h: '#8a1a2a', P: '#3a3f5c', e: '#ffe040', w: '#ff6a6a', B: '#14101e', G: '#ff3050' } },
-  /* --- 町のひとびと (heroDの色ちがい / ローブ姿) --- */
-  vilA: { base: 'heroD', pal: { k: OUTLINE, h: '#4a3320', f: '#f4cba0', g: '#b0623a', b: '#4a3830' } },
-  vilB: { base: 'heroD', pal: { k: OUTLINE, h: '#c8a24a', f: '#f4cba0', g: '#4a78c0', b: '#3a3548' } },
-  vilC: { base: 'heroD', pal: { k: OUTLINE, h: '#7a3a28', f: '#f6d2ac', g: '#c05a88', b: '#5a3040' } },
-  child: { base: 'heroD', pal: { k: OUTLINE, h: '#3a3a3a', f: '#f6d2ac', g: '#e0a040', b: '#7a5230' } },
-  soldier: { base: 'heroD', pal: { k: OUTLINE, h: '#888e9c', f: '#f4cba0', g: '#8a2f3a', b: '#3a3f4c' } },
-  merchant: { base: 'heroD', pal: { k: OUTLINE, h: '#5a4028', f: '#f4cba0', g: '#3f8e62', b: '#4a3830' } },
+  /* ================= 兄 (あお装束のゆうしゃ・4方向) ================= */
+  heroD: { mirror: false, pal: { k: OUTLINE, h: '#5a3c20', r: '#d03838', f: '#f4cba0', g: '#2858c8', d: '#16307a', b: '#3a3548', o: '#8a5a2e' }, px: [
+    '................', '.....kkkkkk.....', '....khhhhhhk....', '...khhhhhhhhk...',
+    '...krrrrrrrrk...', '....kffffffk....', '....kfkffkfk....', '.....kffffk.....',
+    '....kggggggk....', '...kggggggggk...', '..kfkggggggkf...', '...kkgddddgkk...',
+    '....kggggggk....', '....kbbkkbbk....', '....koo..ook....', '................'] },
+  heroU: { mirror: false, pal: { k: OUTLINE, h: '#5a3c20', r: '#d03838', f: '#f4cba0', g: '#2858c8', d: '#16307a', b: '#3a3548', o: '#8a5a2e' }, px: [
+    '................', '.....kkkkkk.....', '....khhhhhhk....', '...khhhhhhhhk...',
+    '...krrrkkrrrk...', '...khhhhhhhhk...', '....khhhhhhk....', '.....khhhhk.....',
+    '....kggggggk....', '...kggggggggk...', '..kfkggggggkf...', '...kkgddddgkk...',
+    '....kggggggk....', '....kbbkkbbk....', '....koo..ook....', '................'] },
+  heroS1: { mirror: false, pal: { k: OUTLINE, h: '#5a3c20', r: '#d03838', f: '#f4cba0', g: '#2858c8', d: '#16307a', b: '#3a3548', o: '#8a5a2e', s: '#c8ccd4' }, px: [
+    '................', '.....kkkkkk.....', '....khhhhhhk....', '....khhhhhhhk...',
+    '....krrrrrrk....', '.....kffffhk....', '.....kfkffhk....', '.....kffffk.....',
+    '.....kggggk.....', '....kggggggk....', '....kggggggks...', '....kgddddgks...',
+    '.....kggggk.....', '....kbbkbbk.....', '....koo.ook.....', '................'] },
+  heroS2: { mirror: false, pal: { k: OUTLINE, h: '#5a3c20', r: '#d03838', f: '#f4cba0', g: '#2858c8', d: '#16307a', b: '#3a3548', o: '#8a5a2e', s: '#c8ccd4' }, px: [
+    '................', '................', '.....kkkkkk.....', '....khhhhhhk....',
+    '....khhhhhhhk...', '....krrrrrrk....', '.....kffffhk....', '.....kfkffhk....',
+    '.....kffffk.....', '.....kggggk.....', '....kggggggks...', '....kgddddgks...',
+    '.....kggggk.....', '.....kbbbbk.....', '.....koook......', '................'] },
+  /* ================= 妹 (しろい法衣のヒーラー・4方向) ================= */
+  sisterD: { mirror: false, pal: { k: OUTLINE, H: '#a04a20', f: '#f6d2ac', W: '#f0eee8', t: '#e88830' }, px: [
+    '................', '.....kkkkkk.....', '....kHHHHHHk....', '...kHHHHHHHHk...',
+    '...kHHffffHHk...', '...kHfkffkfHk...', '...kHffffffHk...', '...kHkffffkHk...',
+    '...kHkWWWWkHk...', '...kHkWWWWkHk...', '....kWWWWWWk....', '..kfkWWWWWWkf...',
+    '...kkWWWWWWkk...', '....kttttttk....', '....kWWWWWWk....', '....kkkkkkkk....'] },
+  sisterU: { mirror: false, pal: { k: OUTLINE, H: '#a04a20', f: '#f6d2ac', W: '#f0eee8', t: '#e88830' }, px: [
+    '................', '.....kkkkkk.....', '....kHHHHHHk....', '...kHHHHHHHHk...',
+    '...kHHHHHHHHk...', '...kHHHHHHHHk...', '...kHHHHHHHHk...', '...kHHHHHHHHk...',
+    '...kHkWWWWkHk...', '....kWWWWWWk....', '....kWWWWWWk....', '..kfkWWWWWWkf...',
+    '...kkWWWWWWkk...', '....kttttttk....', '....kWWWWWWk....', '....kkkkkkkk....'] },
+  sisterS1: { mirror: false, pal: { k: OUTLINE, H: '#a04a20', f: '#f6d2ac', W: '#f0eee8', t: '#e88830' }, px: [
+    '................', '.....kkkkkk.....', '....kHHHHHHk....', '....kHHHHHHHk...',
+    '.....kffffHHk...', '.....kfkffHHk...', '.....kffffHk....', '.....kWWWWHk....',
+    '....kWWWWWHk....', '....kWWWWWWk....', '....kWWWWWfk....', '....kWWWWWWk....',
+    '....kttttttk....', '....kWWWWWWk....', '....kkkkkkkk....', '................'] },
+  sisterS2: { mirror: false, pal: { k: OUTLINE, H: '#a04a20', f: '#f6d2ac', W: '#f0eee8', t: '#e88830' }, px: [
+    '................', '................', '.....kkkkkk.....', '....kHHHHHHk....',
+    '....kHHHHHHHk...', '.....kffffHHk...', '.....kfkffHHk...', '.....kffffHk....',
+    '.....kWWWWHk....', '....kWWWWWHk....', '....kWWWWWWk....', '....kWWWWWfk....',
+    '....kttttttk....', '....kWWWWWWk....', '....kkkkkkkk....', '................'] },
+  /* ================= 町のひとびと ================= */
+  vilA: { base: 'heroD', pal: { k: OUTLINE, h: '#3a2a18', r: '#8a6a3a', f: '#f4cba0', g: '#b0623a', d: '#7a3c22', b: '#4a3830', o: '#6a4a2e' } },
+  vilB: { base: 'heroD', pal: { k: OUTLINE, h: '#c8a24a', r: '#4a78c0', f: '#f4cba0', g: '#4a78c0', d: '#2c4a80', b: '#3a3548', o: '#6a4a2e' } },
+  vilC: { base: 'sisterD', pal: { k: OUTLINE, H: '#6a3a20', f: '#f6d2ac', W: '#c05a88', t: '#8a3852' } },
+  child: { base: 'heroD', pal: { k: OUTLINE, h: '#3a3a3a', r: '#e0a040', f: '#f6d2ac', g: '#e0a040', d: '#a87020', b: '#7a5230', o: '#5a3c20' } },
+  soldier: { base: 'heroD', pal: { k: OUTLINE, h: '#888e9c', r: '#c8ccd4', f: '#f4cba0', g: '#8a2f3a', d: '#5a1f28', b: '#3a3f4c', o: '#4a3828' } },
+  merchant: { base: 'heroD', pal: { k: OUTLINE, h: '#5a4028', r: '#3f8e62', f: '#f4cba0', g: '#3f8e62', d: '#2a6a48', b: '#4a3830', o: '#6a4a2e' } },
   robe: { mirror: false, pal: { k: OUTLINE, h: '#d8d0c0', f: '#f4cba0', R: '#f0ead8', t: '#c8a24a' }, px: [
-    '................', '......kkkk......', '.....khhhhk.....', '....khhhhhhk....',
-    '....khhhhhhk....', '....kffffffk....', '....kfkffkfk....', '.....kffffk.....',
-    '.....kRRRRk.....', '....kRRttRRk....', '...kRRRttRRRk...', '..kfkRRttRRkf...',
-    '...kkRRttRRkk...', '....kRRRRRRk....', '....kRRRRRRk....', '....kkkkkkkk....'] },
+    '................', '.....kkkkkk.....', '....khhhhhhk....', '...khhhhhhhhk...',
+    '....kffffffk....', '....kfkffkfk....', '.....kffffk.....', '....kRRRRRRk....',
+    '...kRRttttRRk...', '...kRRRRRRRRk...', '..kfkRRRRRRkf...', '...kkRRRRRRkk...',
+    '....kRRRRRRk....', '....kRttttRk....', '....kRRRRRRk....', '....kkkkkkkk....'] },
   elder: { base: 'robe', pal: { k: OUTLINE, h: '#c8c8c8', f: '#e8c098', R: '#8a7a5a', t: '#6a5c40' } },
   mage: { base: 'robe', pal: { k: OUTLINE, h: '#3a2a5a', f: '#f4cba0', R: '#6a4ab0', t: '#c8a24a' } },
-  /* --- 馬車 (うま+荷台) --- */
-  wagon: { mirror: false, pal: { k: OUTLINE, h: '#a8703d', m: '#6a4526', c: '#c8a05a', d: '#8a6a3a', o: '#3a3025', w: '#f0e8d8' }, px: [
-    '................', '................', '.........kk.....', '........khhk....',
-    '.kkkkkkk.khhkk..', '.kccccck.khhk...', '.kcddddkkkhhk...', '.kcddddkhhhhhk..',
-    '.kcddddkhhhhhk..', '.kccccckhhhhk...', '.kkkkkkkkhkhk...', '..koo.k.khkhk...',
-    '..kookk.kk.kk...', '...kk...........', '................', '................'] },
+  /* ================= ほろばしゃ ================= */
+  wagon: { mirror: false, pal: { k: OUTLINE, C: '#e8dcc0', d: '#8a5c34', o: '#4a3828', h: '#a8703d' }, px: [
+    '................', '................', '..kkkkkk........', '.kCCCCCCk..kk...',
+    'kCCCCCCCCk.khk..', 'kCCCCCCCCk.khhk.', 'kddddddddkkhhhk.', 'kddddddddkhhhhk.',
+    'kkkkkkkkkkhhhhk.', '..koo.k..khkkhk.', '..kook...kk..kk.', '...kk...........',
+    '................', '................', '................', '................'] },
 };
 
 /* ---------- ワールドマップ生成 (48x40) ----------
@@ -205,7 +204,7 @@ const SKILLS = {
   /* まものの わざ */
   taiatari: { n: 'たいあたり', mp: 0, kind: 'phys', mult: 1.3, tgt: 'one' },
   kyuketsu: { n: 'きゅうけつ', mp: 2, kind: 'drain', mult: 1.0, tgt: 'one' },
-  togetoge: { n: 'とげとげこうげき', mp: 2, kind: 'phys', mult: 1.25, tgt: 'one' },
+  togetoge: { n: 'つつきラッシュ', mp: 2, kind: 'phys', mult: 1.25, tgt: 'one' },
   nemuri: { n: 'ねむりこな', mp: 3, kind: 'sleep', tgt: 'all' },
   dokubari: { n: 'どくばり', mp: 2, kind: 'phys', mult: 1.0, poison: 0.4, tgt: 'one' },
   kamitsuku: { n: 'かみつく', mp: 2, kind: 'phys', mult: 1.4, tgt: 'one' },
@@ -350,16 +349,16 @@ const SPECIES = {
   sister: { n: 'いもうと', spr: 'sisterD', human: true, eqok: 'wshba', base: [23, 12, 8, 5, 8], grow: [6, 4.6, 2.1, 1.8, 1.8], skills: [], rec: 0, exp: 0, gold: 0 },
   puni: { n: 'ぷにまる', spr: 'puni', eqok: 'ba', base: [11, 6, 6, 5, 5], grow: [5, 1.5, 1.8, 1.7, 1.4], skills: [[1, 'taiatari'], [6, 'heal']], rec: 0.25, exp: 4, gold: 5, ai: [['atk', 75], ['taiatari', 25]] },
   bat: { n: 'バサバサ', spr: 'bat', eqok: 'a', base: [9, 6, 6, 4, 9], grow: [4.5, 1.5, 1.7, 1.3, 2], skills: [[1, 'kyuketsu']], rec: 0.20, exp: 4, gold: 4, ai: [['atk', 70], ['kyuketsu', 30]] },
-  rat: { n: 'とげネズミ', spr: 'rat', eqok: 'ba', base: [12, 4, 8, 5, 7], grow: [5, 1, 2, 1.5, 1.6], skills: [[1, 'togetoge']], rec: 0.18, exp: 6, gold: 7, ai: [['atk', 70], ['togetoge', 30]] },
+  rat: { n: 'ピッキー', spr: 'rat', eqok: 'ba', base: [12, 4, 8, 5, 7], grow: [5, 1, 2, 1.5, 1.6], skills: [[1, 'togetoge']], rec: 0.18, exp: 6, gold: 7, ai: [['atk', 70], ['togetoge', 30]] },
   kino: { n: 'キノッコ', spr: 'kino', eqok: 'ha', base: [14, 8, 7, 6, 5], grow: [5.5, 1.6, 1.8, 1.7, 1.2], skills: [[1, 'nemuri']], rec: 0.16, exp: 9, gold: 8, ai: [['atk', 65], ['nemuri', 35]] },
   bee: { n: 'ハチどん', spr: 'bee', eqok: 'a', base: [13, 6, 9, 5, 10], grow: [5, 1.2, 2.1, 1.4, 2], skills: [[1, 'dokubari']], rec: 0.15, exp: 10, gold: 9, ai: [['atk', 60], ['dokubari', 40]] },
-  wolf: { n: 'もりオオカミ', spr: 'wolf', eqok: 'ba', base: [18, 4, 11, 7, 9], grow: [6, 1, 2.4, 1.6, 1.8], skills: [[1, 'kamitsuku']], rec: 0.13, exp: 13, gold: 11, ai: [['atk', 60], ['kamitsuku', 40]] },
+  wolf: { n: 'キバパンサー', spr: 'wolf', eqok: 'ba', base: [18, 4, 11, 7, 9], grow: [6, 1, 2.4, 1.6, 1.8], skills: [[1, 'kamitsuku']], rec: 0.13, exp: 13, gold: 11, ai: [['atk', 60], ['kamitsuku', 40]] },
   cact: { n: 'サボチン', spr: 'cact', eqok: 'ha', base: [16, 8, 10, 9, 6], grow: [5.5, 1.2, 2.2, 2, 1.2], skills: [[1, 'misairu']], rec: 0.12, exp: 16, gold: 14, ai: [['atk', 60], ['misairu', 40]] },
   liza: { n: 'スナトカゲ', spr: 'liza', eqok: 'ba', base: [17, 8, 11, 8, 8], grow: [6, 1.4, 2.3, 1.7, 1.6], skills: [[1, 'hinoiki']], rec: 0.11, exp: 18, gold: 15, ai: [['atk', 60], ['hinoiki', 40]] },
   gobl: { n: 'ゴブリン', spr: 'gobl', eqok: 'wshba', base: [20, 4, 13, 8, 8], grow: [6.5, 1, 2.5, 1.8, 1.6], skills: [[1, 'bunmawashi']], rec: 0.11, exp: 20, gold: 18, ai: [['atk', 70], ['bunmawashi', 30]] },
   wisp: { n: 'ゆらび', spr: 'wisp', eqok: 'a', base: [14, 14, 8, 7, 9], grow: [5, 2.6, 1.9, 1.6, 1.8], skills: [[1, 'blaze'], [10, 'nemuri']], rec: 0.10, exp: 24, gold: 20, ai: [['atk', 40], ['blaze', 45], ['nemuri', 15]] },
   skel: { n: 'ガイコッツ', spr: 'skel', eqok: 'wshba', base: [24, 6, 15, 10, 9], grow: [7, 1, 2.7, 1.9, 1.7], skills: [[1, 'nidogiri']], rec: 0.09, exp: 30, gold: 24, ai: [['atk', 60], ['nidogiri', 40]] },
-  golem: { n: 'マッドゴーレム', spr: 'golem', eqok: 'hba', base: [30, 6, 16, 14, 4], grow: [8, 1, 2.8, 2.4, 1], skills: [[1, 'iwanage']], rec: 0.08, exp: 36, gold: 28, ai: [['atk', 60], ['iwanage', 40]] },
+  golem: { n: 'ロックゴーレム', spr: 'golem', eqok: 'hba', base: [30, 6, 16, 14, 4], grow: [8, 1, 2.8, 2.4, 1], skills: [[1, 'iwanage']], rec: 0.08, exp: 36, gold: 28, ai: [['atk', 60], ['iwanage', 40]] },
   drak: { n: 'ドラゴキッズ', spr: 'drak', eqok: 'hba', base: [26, 10, 15, 11, 10], grow: [7, 1.8, 2.6, 1.9, 1.9], skills: [[1, 'hinoiki'], [13, 'goukaen']], rec: 0.06, exp: 45, gold: 40, ai: [['atk', 50], ['hinoiki', 50]] },
   metal: { n: 'メタルぷに', spr: 'metal', eqok: 'ba', base: [6, 0, 7, 40, 20], grow: [2, 0, 1, 3, 2], skills: [[1, 'taiatari']], rec: 0.03, exp: 180, gold: 30, metal: true, ai: [['atk', 50], ['flee', 50]] },
   guard: { n: 'ガーディアン', spr: 'guard', boss: true, base: [210, 0, 19, 14, 7], grow: [0, 0, 0, 0, 0], skills: [], rec: 0, exp: 130, gold: 160, ai: [['atk', 65], ['iwanage', 35]] },

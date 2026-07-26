@@ -251,24 +251,58 @@ function buildTiles() {
     dots.forEach(([px, py, col]) => { x2.fillStyle = col; x2.fillRect(px, py, 2, 1); });
   };
   const mkBase = (base, dots) => { const [c, x2] = mk(); speck(x2, base, dots); return c; };
-  const grassD = [[1, 2, '#4a9c46'], [6, 5, '#4a9c46'], [12, 3, '#4a9c46'], [3, 9, '#6cc465'], [9, 11, '#4a9c46'], [13, 13, '#6cc465'], [5, 14, '#4a9c46'], [10, 7, '#6cc465']];
-  const grass = () => mkBase('#58b452', grassD);
-  const sand = () => mkBase('#e2cf8e', [[2, 3, '#cbb474'], [8, 6, '#cbb474'], [12, 2, '#f0e0a8'], [4, 11, '#cbb474'], [10, 13, '#f0e0a8'], [14, 9, '#cbb474']]);
-  const swamp = () => mkBase('#6b5a8c', [[2, 2, '#7e6ba0'], [9, 5, '#57486f'], [13, 10, '#7e6ba0'], [5, 8, '#9a86bc'], [3, 13, '#57486f'], [11, 14, '#9a86bc']]);
-  const road = () => mkBase('#cfa96b', [[3, 4, '#b8935a'], [10, 2, '#b8935a'], [6, 9, '#e2c288'], [13, 12, '#b8935a'], [2, 13, '#b8935a']]);
+  /* 草原: 2トーンの市松 + 草の穂 */
+  const grass = () => { const [c, x2] = mk();
+    for (let y = 0; y < 4; y++) for (let x = 0; x < 4; x++) {
+      x2.fillStyle = (x + y) % 2 ? '#4fae4a' : '#57ba52'; x2.fillRect(x * 4, y * 4, 4, 4);
+    }
+    const blades = [[2, 2], [9, 4], [13, 8], [5, 10], [11, 13], [3, 14], [14, 2], [7, 7]];
+    blades.forEach(([bx, by], i) => { x2.fillStyle = i % 2 ? '#3f9440' : '#74d06a'; x2.fillRect(bx, by, 1, 2); x2.fillRect(bx + 1, by + 1, 1, 1); });
+    return c; };
+  const sand = () => { const [c, x2] = mk(); x2.fillStyle = '#e8d494'; x2.fillRect(0, 0, 16, 16);
+    x2.fillStyle = '#d4bc74'; x2.fillRect(1, 3, 5, 1); x2.fillRect(9, 6, 5, 1); x2.fillRect(3, 10, 5, 1); x2.fillRect(10, 13, 4, 1);
+    x2.fillStyle = '#f4e4ac'; x2.fillRect(6, 1, 3, 1); x2.fillRect(12, 9, 3, 1); x2.fillRect(2, 13, 3, 1);
+    return c; };
+  const swamp = () => { const [c, x2] = mk(); x2.fillStyle = '#655287'; x2.fillRect(0, 0, 16, 16);
+    x2.fillStyle = '#57486f'; x2.fillRect(2, 2, 5, 2); x2.fillRect(9, 8, 5, 2); x2.fillRect(3, 12, 4, 2);
+    x2.fillStyle = '#8a76ac'; x2.fillRect(10, 3, 2, 1); x2.fillRect(4, 8, 2, 1); x2.fillRect(12, 13, 2, 1);
+    x2.fillStyle = '#b0a0cc'; x2.fillRect(11, 3, 1, 1) ; x2.fillRect(5, 8, 1, 1);
+    return c; };
+  const road = () => { const [c, x2] = mk(); x2.fillStyle = '#d4ae72'; x2.fillRect(0, 0, 16, 16);
+    x2.fillStyle = '#ba9258'; x2.fillRect(2, 2, 3, 2); x2.fillRect(10, 5, 3, 2); x2.fillRect(4, 9, 3, 2); x2.fillRect(11, 12, 3, 2);
+    x2.fillStyle = '#e8c88c'; x2.fillRect(7, 3, 2, 1); x2.fillRect(1, 12, 2, 1); x2.fillRect(13, 2, 2, 1);
+    return c; };
   const stone = () => mkBase('#d8cfae', [[3, 3, '#c2b892'], [10, 5, '#c2b892'], [6, 10, '#e8e0c4'], [13, 12, '#c2b892'], [2, 14, '#c2b892']]);
-  const water = f => { const [c, x2] = mk(); x2.fillStyle = '#2e6ed0'; x2.fillRect(0, 0, 16, 16);
-    for (let i = 0; i < 3; i++) { const y = 2 + i * 5 + (f ? 1 : 0); const off = (i * 5 + (f ? 3 : 0)) % 8;
-      x2.fillStyle = '#6aa2ee'; x2.fillRect(off, y, 4, 1); x2.fillStyle = '#2456a8'; x2.fillRect((off + 8) % 14, y + 2, 4, 1); }
+  /* 海: 濃い青 + うねる波 + きらめき */
+  const water = f => { const [c, x2] = mk(); x2.fillStyle = '#1e56be'; x2.fillRect(0, 0, 16, 16);
+    x2.fillStyle = '#1a48a2';
+    for (let i = 0; i < 3; i++) { const y = 3 + i * 5 + (f ? 1 : 0); x2.fillRect(((i * 6 + (f ? 4 : 0)) % 12), y + 1, 5, 1); }
+    x2.fillStyle = '#4f8ae0';
+    for (let i = 0; i < 3; i++) { const y = 2 + i * 5 + (f ? 1 : 0); const off = (i * 5 + (f ? 3 : 0)) % 9;
+      x2.fillRect(off, y, 3, 1); x2.fillRect(off + 4, y, 1, 1); }
+    x2.fillStyle = '#bcd8ff'; x2.fillRect(f ? 11 : 4, f ? 8 : 12, 1, 1);
     return c; };
   const over = (bc, fn) => { const x2 = bc.getContext('2d'); fn(x2); return bc; };
-  const tree = x2 => { x2.fillStyle = OUTLINE; x2.fillRect(4, 1, 8, 1); x2.fillRect(2, 2, 2, 8); x2.fillRect(12, 2, 2, 8);
-    x2.fillStyle = '#2e7d32'; x2.fillRect(4, 2, 8, 8); x2.fillStyle = '#48a04c'; x2.fillRect(5, 3, 3, 2); x2.fillRect(9, 5, 2, 2);
-    x2.fillStyle = OUTLINE; x2.fillRect(4, 10, 8, 1); x2.fillStyle = '#7a5230'; x2.fillRect(7, 10, 3, 5); x2.fillStyle = OUTLINE; x2.fillRect(6, 10, 1, 5); x2.fillRect(10, 10, 1, 5); };
-  const mtn = x2 => { x2.fillStyle = OUTLINE; x2.fillRect(7, 2, 2, 1);
-    x2.fillStyle = '#8d8577'; for (let i = 0; i < 11; i++) { const w2 = 2 + i; x2.fillRect(8 - Math.ceil(w2 / 2), 3 + i, w2 + 2, 1); }
-    x2.fillStyle = '#6e685c'; for (let i = 3; i < 11; i++) x2.fillRect(9 + Math.floor(i / 2), 3 + i, 2, 1);
-    x2.fillStyle = '#c8c2b4'; x2.fillRect(7, 3, 2, 2); x2.fillRect(6, 5, 2, 1); };
+  /* 木: まるい樹冠 3トーン + みき */
+  const tree = x2 => {
+    x2.fillStyle = OUTLINE; x2.fillRect(5, 0, 6, 1); x2.fillRect(3, 1, 2, 1); x2.fillRect(11, 1, 2, 1);
+    x2.fillRect(2, 2, 1, 7); x2.fillRect(13, 2, 1, 7);
+    x2.fillStyle = '#237030'; x2.fillRect(3, 2, 10, 8); x2.fillRect(4, 10, 8, 1);
+    x2.fillStyle = '#2f8c3c'; x2.fillRect(3, 2, 10, 5); x2.fillRect(4, 7, 5, 2);
+    x2.fillStyle = '#4cb254'; x2.fillRect(4, 2, 6, 2); x2.fillRect(5, 4, 3, 2);
+    x2.fillStyle = '#63d068'; x2.fillRect(5, 2, 3, 1);
+    x2.fillStyle = OUTLINE; x2.fillRect(3, 9, 2, 1); x2.fillRect(11, 9, 2, 1); x2.fillRect(4, 10, 8, 1);
+    x2.fillStyle = '#6a4a2c'; x2.fillRect(7, 10, 3, 5);
+    x2.fillStyle = '#8a6440'; x2.fillRect(7, 10, 1, 5);
+    x2.fillStyle = OUTLINE; x2.fillRect(6, 10, 1, 5); x2.fillRect(10, 10, 1, 5); x2.fillRect(6, 15, 5, 1); };
+  /* 山: 岩肌 2面 + 雪の頂 */
+  const mtn = x2 => {
+    x2.fillStyle = OUTLINE; x2.fillRect(7, 1, 2, 1);
+    x2.fillStyle = '#8a7458'; for (let i = 0; i < 12; i++) { const w2 = 2 + i; x2.fillRect(8 - Math.ceil(w2 / 2), 2 + i, w2 + 1, 1); }
+    x2.fillStyle = '#66543e'; for (let i = 3; i < 12; i++) x2.fillRect(8 + Math.floor(i / 2), 2 + i, Math.ceil(i / 3), 1);
+    x2.fillStyle = '#a89478'; for (let i = 2; i < 12; i += 3) x2.fillRect(8 - Math.ceil(i / 2), 2 + i, 1, 2);
+    x2.fillStyle = '#eef2f4'; x2.fillRect(7, 2, 2, 2); x2.fillRect(6, 4, 2, 1); x2.fillRect(9, 4, 1, 1);
+    x2.fillStyle = OUTLINE; x2.fillRect(2, 14, 12, 1); };
   const house = (x2, roof) => { x2.fillStyle = OUTLINE; x2.fillRect(2, 6, 12, 1);
     x2.fillStyle = roof; for (let i = 0; i < 4; i++) x2.fillRect(7 - i - i, 2 + i, 2 + i * 4, 1); x2.fillRect(2, 6, 12, 1);
     x2.fillStyle = '#f0e2c8'; x2.fillRect(3, 7, 10, 7); x2.fillStyle = OUTLINE; x2.fillRect(2, 7, 1, 7); x2.fillRect(13, 7, 1, 7); x2.fillRect(2, 14, 12, 1);
@@ -547,7 +581,7 @@ function fieldTick() {
   if (moveQ) {
     const tx = moveQ.tx * 16, ty = moveQ.ty * 16;
     G.px += Math.sign(tx - G.px) * 2; G.py += Math.sign(ty - G.py) * 2;
-    TRAIL.unshift({ px: G.px, py: G.py });
+    TRAIL.unshift({ px: G.px, py: G.py, dir: G.dir });
     if (TRAIL.length > 400) TRAIL.length = 400;
     if (G.px === tx && G.py === ty) { G.x = moveQ.tx; G.y = moveQ.ty; moveQ = null; onStep(); }
     return;
@@ -605,13 +639,14 @@ function render() {
   else drawField(x2);
   requestAnimationFrame(render);
 }
-function heroSprite(dir, walking) {
+/* 4方向スプライトを持つキャラの描画選択 (横向きは左向きで描いてあり、右向きは反転) */
+function charSprite(prefix, dir, walking) {
   const wf = walking ? Math.floor(animT / 8) % 2 : 0;
-  if (dir === 0) return { spr: SPRC.heroD, flip: wf === 1 };
-  if (dir === 1) return { spr: SPRC.heroU, flip: wf === 1 };
-  /* 横向きドットは左向きで描いてあるので、右を向くときに反転する */
-  return { spr: wf ? SPRC.heroS2 : SPRC.heroS1, flip: dir === 3 };
+  if (dir === 0) return { spr: SPRC[prefix + 'D'], flip: wf === 1 };
+  if (dir === 1) return { spr: SPRC[prefix + 'U'], flip: wf === 1 };
+  return { spr: wf ? SPRC[prefix + 'S2'] : SPRC[prefix + 'S1'], flip: dir === 3 };
 }
+function heroSprite(dir, walking) { return charSprite('hero', dir, walking); }
 function drawField(x2) {
   const sz = mapSize();
   const camX = clamp(G.px - 120, 0, Math.max(0, sz.w * 16 - 256));
@@ -630,21 +665,31 @@ function drawField(x2) {
   if (town) town.npcs.forEach(n => {
     x2.drawImage(SPRC[n.spr].c, n.x * 16 - camX, n.y * 16 - camY - 2);
   });
-  /* おとも(たいれつ) + ばしゃ */
+  /* おとも(たいれつ) + ばしゃ — 移動方向に むきを かえる */
   const followers = G.party.slice(1, 4);
-  const drawAt = (spr, tp, i) => {
-    if (!tp) return;
-    const bob = Math.floor(animT / 10 + i) % 2;
-    x2.drawImage(spr, tp.px - camX, tp.py - camY - 2 - bob);
+  const walking = !!moveQ;
+  const drawFlipAt = (img, tp, flip, bob) => {
+    const dx = tp.px - camX, dy = tp.py - camY - 2 - bob;
+    x2.save();
+    if (flip) { x2.translate(dx + 16, dy); x2.scale(-1, 1); x2.drawImage(img, 0, 0); }
+    else x2.drawImage(img, dx, dy);
+    x2.restore();
   };
   const wagonIdx = (followers.length + 1) * 9;
   if (!town && TRAIL.length) {
     const wp = TRAIL[Math.min(wagonIdx, TRAIL.length - 1)];
-    drawAt(SPRC.wagon.c, wp, 9);
+    drawFlipAt(SPRC.wagon.c, wp, wp.dir === 2, 0); /* ばしゃは右向きの絵なので左移動で反転 */
   }
   for (let i = followers.length - 1; i >= 0; i--) {
-    const tp = TRAIL[Math.min((i + 1) * 9, Math.max(0, TRAIL.length - 1))] || { px: G.px, py: G.py };
-    drawAt(SPRC[SPECIES[followers[i].sp].spr].c, tp, i);
+    const m = followers[i];
+    const tp = TRAIL[Math.min((i + 1) * 9, Math.max(0, TRAIL.length - 1))] || { px: G.px, py: G.py, dir: G.dir };
+    const bob = Math.floor(animT / 10 + i) % 2;
+    if (SPECIES[m.sp].human) {
+      const { spr, flip } = charSprite(m.sp, tp.dir === undefined ? 0 : tp.dir, walking);
+      drawFlipAt(spr.c, tp, flip, 0);
+    } else {
+      drawFlipAt(SPRC[SPECIES[m.sp].spr].c, tp, tp.dir === 2, bob);
+    }
   }
   /* 主人公 */
   const { spr, flip } = heroSprite(G.dir, !!moveQ);
@@ -709,8 +754,8 @@ function drawTitle(x2) {
   x2.font = 'bold 11px "Hiragino Kaku Gothic ProN", sans-serif';
   x2.fillStyle = '#d8d4f0'; x2.fillText('〜よみがえりし魔王〜', 128, 134);
   x2.font = '9px "Hiragino Kaku Gothic ProN", sans-serif';
-  x2.fillStyle = '#8a84c0'; x2.fillText('ver.4 よると しんのまおう', 128, 146);
-  const marchers = ['heroD', 'sisterD', 'puni', 'kino', 'wagon'];
+  x2.fillStyle = '#8a84c0'; x2.fillText('ver.5 グラフィックいっしん', 128, 146);
+  const marchers = ['heroD', 'sisterD', 'puni', 'rat', 'wagon'];
   marchers.forEach((id, i) => {
     const s = SPRC[id]; const mx = 48 + i * 32, my = 152 + Math.round(Math.sin(animT / 14 + i) * 2);
     x2.drawImage(s.c, mx, my);
@@ -2026,6 +2071,7 @@ window.__test = {
   G: () => G, mode: () => G && G.mode, busy: () => busy, ui: () => UI.stack.length,
   dispatch, save, TESTF,
   startBattle(zone, n) { runEvent(async () => { const r = await battle(makeTroop(zone || 't1', n), { bg: ZONE_BG[zone || 't1'] }); if (r === 'lose') await gameOver(); }); },
+  fight(spList, bg) { runEvent(async () => { const r = await battle(spList.map(sp => ({ sp, lv: 5 })), { bg: bg || 'plain' }); if (r === 'lose') await gameOver(); }); },
   boss(sp) { runEvent(async () => { const r = await battle([{ sp, lv: 1 }], { boss: true, bg: 'dark' }); if (r === 'lose') await gameOver(); }); },
   buff(lv) { const h = G.party[0]; h.lv = lv || 20; h.exp = EXPT[h.lv]; recalc(h); h.hp = h.maxhp; h.mp = h.maxmp; updateParty(); },
   addMonster(sp, lv) {
