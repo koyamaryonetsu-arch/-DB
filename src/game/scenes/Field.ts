@@ -588,7 +588,14 @@ export class FieldScene extends Phaser.Scene {
       this.playClock -= 1000;
       if (G.state) G.state.playSeconds += 1;
     }
-    if (this.busy || this.moving) return;
+    if (this.busy || this.moving) {
+      // 移動不能中の方向タップは捨てて、解除後の暴発を防ぐ
+      controls.justPressed('up');
+      controls.justPressed('down');
+      controls.justPressed('left');
+      controls.justPressed('right');
+      return;
+    }
 
     if (controls.justPressed('menu')) {
       sound.sfx('confirm');
@@ -604,9 +611,10 @@ export class FieldScene extends Phaser.Scene {
       this.interact();
       return;
     }
-    if (controls.isDown('up')) this.tryMove('up');
-    else if (controls.isDown('down')) this.tryMove('down');
-    else if (controls.isDown('left')) this.tryMove('left');
-    else if (controls.isDown('right')) this.tryMove('right');
+    // 長押しで連続移動、タップでも1歩動く
+    if (controls.isDown('up') || controls.justPressed('up')) this.tryMove('up');
+    else if (controls.isDown('down') || controls.justPressed('down')) this.tryMove('down');
+    else if (controls.isDown('left') || controls.justPressed('left')) this.tryMove('left');
+    else if (controls.isDown('right') || controls.justPressed('right')) this.tryMove('right');
   }
 }

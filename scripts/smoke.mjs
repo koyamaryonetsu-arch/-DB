@@ -49,6 +49,16 @@ async function keys(seq, delay = 260) {
   }
 }
 
+/** フィールド移動用: キーを押しっぱなしにして1歩あるく */
+async function step(key, times = 1) {
+  for (let i = 0; i < times; i++) {
+    await page.keyboard.down(key);
+    await page.waitForTimeout(230);
+    await page.keyboard.up(key);
+    await page.waitForTimeout(160);
+  }
+}
+
 try {
   await page.goto(`http://127.0.0.1:${port}/`, { waitUntil: 'load' });
   await page.waitForSelector('canvas', { timeout: 15000 });
@@ -93,7 +103,8 @@ try {
   await page.screenshot({ path: join(SHOT_DIR, '08_after_battle.png') });
 
   // 移動してみる
-  await keys(['ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowLeft'], 350);
+  await step('ArrowUp', 2);
+  await step('ArrowDown', 1);
   await page.screenshot({ path: join(SHOT_DIR, '09_walk.png') });
 
   // メニューを開く
@@ -102,6 +113,15 @@ try {
   await page.screenshot({ path: join(SHOT_DIR, '10_menu.png') });
   await page.keyboard.press('Escape');
   await page.waitForTimeout(500);
+
+  // 南門からワールドマップへ（マップ遷移+オートセーブ検証）
+  await step('ArrowDown', 3);
+  await page.waitForTimeout(1400);
+  await page.screenshot({ path: join(SHOT_DIR, '11_worldmap.png') });
+  // 村へ戻る
+  await step('ArrowUp', 2);
+  await page.waitForTimeout(1400);
+  await page.screenshot({ path: join(SHOT_DIR, '12_back_village.png') });
 
   const fatal = errors.filter(
     (e) =>
