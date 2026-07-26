@@ -129,6 +129,8 @@ const SPR = {
     '....kdddddkf....', '...kddddddddk...', '...kddddddddk...', '....kkkkkkkk....'] },
   /* --- 裏ボス りゅうじんカイザー (黄金竜) --- */
   kaiser: { base: 'drak', pal: { k: OUTLINE, g: '#e0b83a', c: '#f8f0d0', e: '#f04830', h: '#ffffff', d: '#a87f1e' } },
+  /* --- 真のラスボス だいまおう (漆黒) --- */
+  darklord: { base: 'maou', pal: { k: OUTLINE, h: '#8a1a2a', P: '#3a3f5c', e: '#ffe040', w: '#ff6a6a', B: '#14101e', G: '#ff3050' } },
   /* --- 町のひとびと (heroDの色ちがい / ローブ姿) --- */
   vilA: { base: 'heroD', pal: { k: OUTLINE, h: '#4a3320', f: '#f4cba0', g: '#b0623a', b: '#4a3830' } },
   vilB: { base: 'heroD', pal: { k: OUTLINE, h: '#c8a24a', f: '#f4cba0', g: '#4a78c0', b: '#3a3548' } },
@@ -287,6 +289,16 @@ const SKILLS = {
   ultimavolt: { n: 'アルテマボルト', mp: 18, kind: 'mag', pow: [70, 90], tgt: 'all' },
   /* 兄妹の固有わざ */
   shinebolt: { n: 'シャインボルト', mp: 12, kind: 'mag', pow: [90, 120], tgt: 'one' },
+  /* まほうせんし */
+  flameblade: { n: 'ほのおぎり', mp: 3, kind: 'phys', mult: 1.4, tgt: 'one' },
+  raiblade: { n: 'いなずまぎり', mp: 5, kind: 'phys', mult: 1.6, tgt: 'one' },
+  magibarrier: { n: 'マジックバリア', mp: 6, kind: 'shield', tgt: 'self' },
+  gigasword: { n: 'ギガソード', mp: 10, kind: 'phys', mult: 2.2, tgt: 'one' },
+  /* スーパースター */
+  smile: { n: 'まばゆいスマイル', mp: 4, kind: 'sleep', tgt: 'all' },
+  stardust: { n: 'スターダスト', mp: 6, kind: 'mag', pow: [20, 30], tgt: 'all' },
+  concert: { n: 'スターコンサート', mp: 8, kind: 'healall', pow: [40, 55], tgt: 'self' },
+  million: { n: 'ミリオンスマッシュ', mp: 12, kind: 'physR', mult: 0.75, hits: 5, tgt: 'all' },
 };
 /* キャラクター固有のとくいわざ (レベルで習得・職業とは別枠) */
 const INNATE = {
@@ -310,13 +322,26 @@ const JOBS = {
   paladin: { n: 'パラディン', desc: 'ぶとうか+そうりょを 極めし者', req: ['butoka', 'soryo'], m: { atk: 1.10, def: 1.30, agi: 0.90, hp: 1.15, mp: 1.10 }, skills: [[2, 'oinori'], [4, 'holylance'], [6, 'shinkotate'], [8, 'grandcross']] },
   kenja: { n: 'けんじゃ', desc: 'まほう+そうりょを 極めし者', req: ['maho', 'soryo'], m: { atk: 0.90, def: 1.00, agi: 1.05, hp: 1.00, mp: 1.45 }, skills: [[2, 'holyray'], [4, 'fullheal'], [6, 'gigafrea'], [8, 'fullrez']] },
   ranger: { n: 'レンジャー', desc: 'とうぞく+まものつかいを 極めし者', req: ['tozoku', 'mamotsukai'], m: { atk: 1.10, def: 1.00, agi: 1.25, hp: 1.05, mp: 1.05 }, rec: 1.3, skills: [[2, 'moonsault'], [4, 'tsukamaeru'], [6, 'featherarrow'], [8, 'kemonoyobi']] },
+  mahosenshi: { n: 'まほうせんし', desc: 'せんし+まほうつかいを 極めし者', req: ['senshi', 'maho'], m: { atk: 1.20, def: 1.05, agi: 1.05, hp: 1.05, mp: 1.20 }, skills: [[2, 'flameblade'], [4, 'raiblade'], [6, 'magibarrier'], [8, 'gigasword']] },
+  superstar: { n: 'スーパースター', desc: 'おどりこ+しょうにんを 極めし者', req: ['odoriko', 'shonin'], m: { atk: 1.00, def: 1.00, agi: 1.30, hp: 1.05, mp: 1.20 }, goldx: 1.25, skills: [[2, 'smile'], [4, 'stardust'], [6, 'concert'], [8, 'million']] },
   yusha: { n: 'ゆうしゃ', desc: 'えらばれし 兄妹だけの しょくぎょう', human: true, reqAdv: true, m: { atk: 1.30, def: 1.20, agi: 1.15, hp: 1.20, mp: 1.20 }, skills: [[2, 'raitoning'], [4, 'iyashihikari'], [6, 'gigacrash'], [8, 'ultimavolt']] },
 };
 /* 職Lv l に なるのに必要な 勝利数 (index = l-1) と 段位のなまえ */
 const JCUM = [0, 2, 5, 10, 16, 24, 34, 46];
 const JOB_MAX = 8;
 const JOB_TITLES = ['みならい', 'かけだし', 'いちにんまえ', 'じゅくれん', 'くろうと', 'たつじん', 'めいじん', 'マスター'];
-const ADV_JOBS = ['batoma', 'paladin', 'kenja', 'ranger'];
+const ADV_JOBS = ['batoma', 'paladin', 'kenja', 'ranger', 'mahosenshi', 'superstar'];
+
+/* ---------- せいかく (なかまごとの個性・DQ3ふう) ---------- */
+const PERSONALITIES = [
+  { id: 'normal', n: 'ふつう', w: 25, m: {} },
+  { id: 'chikara', n: 'ちからじまん', w: 15, m: { atk: 1.1 } },
+  { id: 'tough', n: 'タフネス', w: 15, m: { hp: 1.1 } },
+  { id: 'quick', n: 'すばしっこい', w: 15, m: { agi: 1.12 } },
+  { id: 'smart', n: 'ものしり', w: 12, m: { mp: 1.12 } },
+  { id: 'guard', n: 'しんちょう', w: 12, m: { def: 1.08 } },
+  { id: 'genki', n: 'おてんば', w: 6, m: { atk: 1.06, agi: 1.06 } },
+];
 
 /* ---------- 種族 ----------
    eqok: 装備できる部位 (w=けん s=たて h=あたま b=からだ a=アクセ) */
@@ -341,6 +366,16 @@ const SPECIES = {
   dlord: { n: 'ドラゴロード', spr: 'dlord', boss: true, base: [360, 0, 25, 16, 11], grow: [0, 0, 0, 0, 0], skills: [], rec: 0, exp: 400, gold: 450, ai: [['atk', 45], ['kamitsuku', 20], ['goukaen', 35]] },
   maou: { n: 'まおうゾルデ', spr: 'maou', boss: true, big: true, base: [680, 0, 33, 19, 14], grow: [0, 0, 0, 0, 0], skills: [], rec: 0, exp: 0, gold: 0, ai: [['atk', 40], ['darkball', 30], ['goukaen', 30]], ai2: [['atk', 30], ['darkball', 25], ['darkstorm', 45]] },
   kaiser: { n: 'りゅうじんカイザー', spr: 'kaiser', boss: true, scale: 5, twice: true, base: [1200, 0, 42, 26, 18], grow: [0, 0, 0, 0, 0], skills: [], rec: 0, exp: 2000, gold: 2000, ai: [['atk', 30], ['goukaen', 25], ['darkstorm', 25], ['raitoning', 20]] },
+  darklord: { n: 'だいまおうグラゾス', spr: 'darklord', boss: true, big: true, base: [950, 0, 38, 22, 15], grow: [0, 0, 0, 0, 0], skills: [], rec: 0, exp: 0, gold: 0, ai: [['atk', 35], ['darkball', 30], ['darkstorm', 20], ['goukaen', 15]], ai2: [['atk', 25], ['darkball', 25], ['darkstorm', 35], ['raitoning', 15]] },
+};
+
+/* よるに あらわれやすい まものたち */
+const NIGHT_ENC = {
+  t1: [['bat', 1, 2, 25]],
+  t2: [['wisp', 4, 4, 12], ['bat', 3, 4, 12]],
+  t3a: [['skel', 7, 7, 12]],
+  t3b: [['skel', 7, 8, 12]],
+  t4: [['wisp', 9, 10, 12]],
 };
 
 const EXPT = (() => { const a = [0, 0]; for (let l = 2; l <= 30; l++) a[l] = a[l - 1] + 6 * (l - 1) * (l - 1); return a; })();
@@ -496,8 +531,10 @@ const TOWN_MAPS = {
     ] },
 };
 /* 追加のうわさばなし */
-TOWN_MAPS.P.npcs.push({ x: 7, y: 9, spr: 'vilA', txt: ['せんとうちゅうも 「いれかえ」で ばしゃの なかまと こうたいできるぞ。', 'まおうを たおした あとも…どうくつの さいしんぶに なにかが ひそんでいる という うわさだ。'] });
+TOWN_MAPS.P.npcs.push({ x: 7, y: 9, spr: 'vilA', txt: ['せんとうちゅうも 「いれかえ」で ばしゃの なかまと こうたいできるぞ。', 'まおうには…その うえが いるという うわさが ある。おそろしいことだ。'] });
 TOWN_MAPS.C.npcs.push({ x: 8, y: 9, spr: 'elder', txt: ['そうびは まものによって つけられる ものが ちがう。ゴブリンや ガイコッツは ひとと おなじ そうびが できるぞい。'] });
+TOWN_MAPS.P.npcs.push({ x: 11, y: 5, spr: 'vilC', casino: true, txt: ['カジノねえさん『いらっしゃい♪ スロット あそんでいく？』'] });
+TOWN_MAPS.T.npcs.push({ x: 5, y: 8, spr: 'vilB', txt: ['よるは まものが きょうぼうに なって であいやすくなる。だが メタルぷにも よるのほうが みつかるらしいぞ。', 'やどに とまれば あさに なる。むりせず やすむんだぞ。'] });
 
 /* ---------- BGM/SE (オリジナル曲) ---------- */
 const BGM = {
