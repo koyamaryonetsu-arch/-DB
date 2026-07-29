@@ -92,7 +92,11 @@ function importCaseEmails() {
       if (!p || p.is_case === false) { th.addLabel(lblSkip); nSkip++; return; }
       fixPersons_(p); // 客先担当者/R担当者の取り違え補正＋苗字のみに正規化
 
-      var received = p.received_date || Utilities.formatDate(msgs[0].getDate(), 'Asia/Tokyo', 'yyyy-MM-dd');
+      // 受付日は「今回届いたメールの日」を基準にする。
+      // 旧: スレッド最古(msgs[0])の日付を使っていたため、古いスレッドへの新着返信で
+      //     過去日付の案件として登録されていた（＝過去案件の登録に見える）。
+      var lastDateStr = Utilities.formatDate(lastAt || msgs[msgs.length - 1].getDate(), 'Asia/Tokyo', 'yyyy-MM-dd');
+      var received = clampReceivedDate_(p.received_date, lastDateStr);
       var theater = p.theater || '';
       var participants = threadParticipants_(th); // やり取りの関係者（同一案件判定の手がかり）
       // 見積書の自動OCR取込は無効化（誤登録が多いため）。見積り名・金額・提出日の自動入力はしない。
@@ -398,6 +402,23 @@ function fetchBroadCandidates_(p, base) {
   var core = theaterCore_(p.theater || '');
   if (core && core.length >= 2) add(queryCases_('theater=ilike.*' + encodeURIComponent(core) + '*'));
   return out;
+}
+
+// 受付日の遡り防止: AIが本文から拾った日付が、今回届いたメールの日より
+// RECEIVED_MAX_BACKDATE_DAYS(既定14日)以上前／未来なら採用せず、メール受信日を使う。
+function RECEIVED_MAX_BACKDATE_DAYS_() { return Number(cfg_('RECEIVED_MAX_BACKDATE_DAYS', '14')) || 14; }
+function clampReceivedDate_(candidate, mailDateStr) {
+  var s = String(candidate || '').trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return mailDateStr;
+  var c = new Date(s + 'T00:00:00+09:00').getTime();
+  var m = new Date(mailDateStr + 'T00:00:00+09:00').getTime();
+  if (isNaN(c) || isNaN(m)) return mailDateStr;
+  if (c > m) return mailDateStr;                                            // 未来日は使わない
+  if ((m - c) > RECEIVED_MAX_BACKDATE_DAYS_() * 24 * 60 * 60 * 1000) {
+    Logger.log('受付日が古すぎるためメール受信日を採用: ' + s + ' → ' + mailDateStr);
+    return mailDateStr;
+  }
+  return s;
 }
 
 // ===== 二重登録の疑い検出 =====
