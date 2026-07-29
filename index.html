@@ -437,6 +437,14 @@
     </div>
     <form id="caseForm">
       <input type="hidden" id="caseId">
+      <div id="dupBanner" class="dup-banner hidden">
+        <span class="dup-banner-text">⚠️ 二重登録の可能性があります（同じ劇場に似た案件があります）</span>
+        <span class="dup-banner-info" id="dupBannerInfo"></span>
+        <span class="dup-banner-actions">
+          <button type="button" id="dupOpenBtn" class="mini-btn">元の案件を開く</button>
+          <button type="button" id="dupClearBtn" class="mini-btn">二重ではない（印を消す）</button>
+        </span>
+      </div>
       <div class="form-stack">
         <div class="form-row col-company" data-mode="simple">
           <label for="company">会社（顧客）<span class="required">*</span></label>

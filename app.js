@@ -66,6 +66,8 @@
   // ログイン時に既定で非表示にするステータス（ステータス列のチェックボックスから外れた状態にする）。
   // 「全件表示」ボタンで一時的に全部見せられる。
   const DEFAULT_HIDDEN_STATUSES = ['完了', '入金済', '取り下げ', '失注'];
+  // 終了した案件（二重登録の判定では比較対象から外す）
+  const TERMINAL_LIKE_STATUSES = new Set(['完了', '入金済', '取り下げ', '失注']);
 
   // 客先マスタ: 劇場の正式名称・親会社・住所
   // ※ 住所はベストエフォート（Claude学習データ）。運用前にマスター画面で要確認・修正。
@@ -299,6 +301,8 @@
   let purchasesSupported = false;
   // cases.last_update_source 列（通知の操作元 ryo/customer/auto）がDBに存在するか
   let lastUpdateSourceSupported = false;
+  // cases.dup_suspect_id 列（二重登録の疑い: 重複相手の案件id）がDBに存在するか
+  let dupSuspectSupported = false;
   // status_override 列がDBに存在するか（fetch時に検出）。未追加環境でも保存が壊れないようにするため
   let statusOverrideSupported = false;
   // companies.color 列がDBに存在するか（同上）
@@ -352,6 +356,8 @@
     if (purchasesSupported) row.purchases = Array.isArray(c.purchases) ? c.purchases : [];
     // 操作元（通知文言用）: 菱熱=ryo / 客先=customer。要約時も消えないよう毎回保存（列がある時のみ）
     if (lastUpdateSourceSupported) row.last_update_source = isPrivileged(currentUser) ? 'ryo' : 'customer';
+    // 二重登録の疑い（菱熱のみが判定・解除する）
+    if (dupSuspectSupported) row.dup_suspect_id = c.dupSuspectId ? c.dupSuspectId : null;
     row.status = statusOf(c); // DB側レポート用に実効ステータス（手動上書き反映）も保存
     // 客先の保存では社内情報カラムを送らない＝既存のDB値を保持（上書き・消去しない）
     // 内容(content)はAI要約の結果で客先は閲覧のみ。送らない＝客先が上書き・消去できない
@@ -438,6 +444,13 @@
       c.purchases = [];
     }
     // 操作元(last_update_source) 列の有無だけ検出（アプリ表示には使わない・保存時のガード用）
+    // 二重登録の疑い(dup_suspect_id) 列がある時のみ取り込む
+    if (Object.prototype.hasOwnProperty.call(r, 'dup_suspect_id')) {
+      dupSuspectSupported = true;
+      c.dupSuspectId = r.dup_suspect_id != null ? r.dup_suspect_id : '';
+    } else {
+      c.dupSuspectId = '';
+    }
     if (Object.prototype.hasOwnProperty.call(r, 'last_update_source')) {
       lastUpdateSourceSupported = true;
     }
@@ -1265,6 +1278,79 @@
     }
     return count;
   }
+  // ===== 二重登録の疑い =====
+  // 疑いあり＝dup_suspect_id に相手の案件idが入っている（菱熱のみ表示・解除できる）
+  function isDupSuspect(c) { return !!(c && c.dupSuspectId) && isPrivileged(currentUser); }
+  function dupBadgeHtml(c) {
+    if (!isDupSuspect(c)) return '';
+    const other = cases.find((x) => String(x.id) === String(c.dupSuspectId));
+    const label = other ? `${shortTheaterName(other.theater)}／${(other.estimateName || other.content || '').slice(0, 20)}` : '既存案件';
+    return `<span class="dup-badge" data-action="dup-open" data-id="${escapeHtml(c.id)}" title="似た案件があります（${escapeHtml(label)}）。クリックで比較・解除">⚠️二重の可能性</span> `;
+  }
+  // 文章の似ぐあい（0〜1）。GAS側(textSimilarity_)と同じ考え方＝共通バイグラムの割合
+  function normalizeForSim(s) {
+    return String(s || '')
+      .replace(/[Ａ-Ｚａ-ｚ０-９]/g, (ch) => String.fromCharCode(ch.charCodeAt(0) - 0xFEE0))
+      .toLowerCase().replace(/[\s　、。．，./\-ー―（）()\[\]「」【】：:；;]/g, '');
+  }
+  function textSimilarity(a, b) {
+    const x = normalizeForSim(a), y = normalizeForSim(b);
+    if (x.length < 2 || y.length < 2) return 0;
+    const setX = new Set(), setY = new Set();
+    for (let i = 0; i < x.length - 1; i++) setX.add(x.substr(i, 2));
+    for (let i = 0; i < y.length - 1; i++) setY.add(y.substr(i, 2));
+    if (!setX.size || !setY.size) return 0;
+    let hit = 0;
+    setX.forEach((g) => { if (setY.has(g)) hit++; });
+    return hit / Math.min(setX.size, setY.size);
+  }
+  const DUP_SIM_THRESHOLD = 0.35;   // これ以上似ていたら二重の可能性あり
+  const DUP_LOOKBACK_DAYS = 90;     // 受付日がこの日数以内の案件だけ比較
+  // 新規登録しようとしている案件と二重の可能性がある既存案件を探す（無ければ null）
+  function findDupSuspect(data) {
+    if (!isPrivileged(currentUser)) return null;
+    const theaterCore = normalizeForSim(shortTheaterName(data.theater));
+    if (!theaterCore) return null;
+    const baseAt = data.receivedDate ? new Date(data.receivedDate).getTime() : Date.now();
+    const limitMs = DUP_LOOKBACK_DAYS * 24 * 60 * 60 * 1000;
+    const newText = [data.estimateName || '', data.content || ''].join(' ');
+    let best = null, bestScore = 0;
+    cases.forEach((x) => {
+      if (String(x.id) === String(data.id)) return;                      // 自分自身は除く
+      if (x.company !== data.company) return;                            // 会社が違えば別
+      if (normalizeForSim(shortTheaterName(x.theater)) !== theaterCore) return; // 劇場が違えば別
+      if (TERMINAL_LIKE_STATUSES.has(statusOf(x))) return;               // 終了案件は対象外
+      if (x.receivedDate) {
+        const d = new Date(x.receivedDate).getTime();
+        if (!isNaN(d) && Math.abs(baseAt - d) > limitMs) return;         // 期間外は対象外
+      }
+      let score = textSimilarity(newText, [x.estimateName || '', x.content || ''].join(' '));
+      if (data.category && x.category && data.category === x.category) score += 0.10;
+      if (score > bestScore) { bestScore = score; best = x; }
+    });
+    return (best && bestScore >= DUP_SIM_THRESHOLD) ? best : null;
+  }
+  // 編集ポップアップ上部の「二重登録の可能性」バナー
+  let dupBannerCase = null;
+  function renderDupBanner(caseObj) {
+    const box = $('dupBanner'); if (!box) return;
+    dupBannerCase = (caseObj && isDupSuspect(caseObj)) ? caseObj : null;
+    box.classList.toggle('hidden', !dupBannerCase);
+    if (!dupBannerCase) return;
+    const other = cases.find((x) => String(x.id) === String(dupBannerCase.dupSuspectId));
+    $('dupBannerInfo').textContent = other
+      ? `似ている案件: ${other.theater || '(劇場未入力)'}／受付 ${other.receivedDate || '-'}／${(other.estimateName || other.content || '').slice(0, 40)}`
+      : '（似ていた案件は見つかりませんでした。既に削除された可能性があります）';
+    $('dupOpenBtn').classList.toggle('hidden', !other);
+  }
+  // 二重の疑いを解除（人が確認して「二重ではない」と判断した時）
+  function clearDupSuspect(c) {
+    c.dupSuspectId = '';
+    c.updatedAt = new Date().toISOString();
+    persistCase(c);
+    refresh();
+  }
+
   function rowColorClass(c) {
     const st = statusOf(c);
     if (st === '保留') return '';
@@ -1695,7 +1781,7 @@
         ${editableTd(c, 'tcPerson', escapeHtml(stripHonorific(c.tcPerson)))}
         ${editableTd(c, 'rPerson', escapeHtml(c.rPerson))}
         ${editableTd(c, 'category', escapeHtml(c.category))}
-        ${editableTd(c, 'content', escapeHtml(c.content), 'content-cell')}
+        ${editableTd(c, 'content', dupBadgeHtml(c) + escapeHtml(c.content), 'content-cell')}
         ${editableTd(c, 'surveyDate', escapeHtml(fmtDateTime(c.surveyDate, c.surveyTime)))}
         ${certHtml}
         ${editableTd(c, 'estimateName', escapeHtml(c.estimateName))}
@@ -2098,6 +2184,7 @@
       if (rPersonFilter.size === 1) $('rPerson').value = [...rPersonFilter][0];
       setDateField('receivedDate', todayStr());
     }
+    renderDupBanner(caseObj);
     updateTohoVisibility();
     renderDatalists();
     populateCompanySelects();
@@ -2942,7 +3029,7 @@
         ${editableTd(c, 'theater', escapeHtml(shortTheaterName(c.theater)))}
         ${editableTd(c, 'tcPerson', escapeHtml(stripHonorific(c.tcPerson)))}
         ${editableTd(c, 'rPerson', escapeHtml(c.rPerson))}
-        ${editableTd(c, 'content', escapeHtml(c.content), 'content-cell')}
+        ${editableTd(c, 'content', dupBadgeHtml(c) + escapeHtml(c.content), 'content-cell')}
         ${editableTd(c, 'memo', escapeHtml(c.memo), 'col-memo')}
         <td class="task-col" data-colkey="tasks">
           <button type="button" class="task-open-btn" data-taskopen="${escapeHtml(c.id)}" title="タスク編集">✎</button>
@@ -3859,6 +3946,18 @@
     }
   }
   $('cancelBtn').addEventListener('click', closeModal);
+  // 二重登録バナー: 元の案件を開く / 疑いを解除する
+  if ($('dupOpenBtn')) $('dupOpenBtn').addEventListener('click', () => {
+    if (!dupBannerCase) return;
+    const other = cases.find((x) => String(x.id) === String(dupBannerCase.dupSuspectId));
+    if (other) openModal(other, 'full');
+  });
+  if ($('dupClearBtn')) $('dupClearBtn').addEventListener('click', () => {
+    if (!dupBannerCase) return;
+    const c = dupBannerCase;
+    clearDupSuspect(c);
+    renderDupBanner(c);
+  });
   // 編集中の誤操作で入力が消えないよう、案件編集ポップアップは背景クリックでは閉じない（✕/キャンセルのみ）
   // 編集ポップアップからの複製・削除（主にスマホ用）
   $('modalDuplicateBtn').addEventListener('click', () => {
@@ -4118,6 +4217,19 @@
     saveHistory();
     const existing = cases.findIndex((c) => c.id === id);
     const prev = existing >= 0 ? cases[existing] : null;
+    // 新規登録のとき: 同じ劇場に似た進行中案件があれば、二重登録の可能性を知らせて確認する
+    if (!prev) {
+      const dup = findDupSuspect(data);
+      if (dup) {
+        const info = `${dup.theater || '(劇場未入力)'}／受付 ${dup.receivedDate || '-'}／${(dup.estimateName || dup.content || '').slice(0, 40)}`;
+        const go = confirm(
+          '⚠️ 二重登録の可能性があります。\n\n同じ劇場に似た案件が既にあります:\n' + info +
+          '\n\n「OK」＝それでもこのまま登録する（一覧に「二重の可能性」と表示されます）\n「キャンセル」＝登録をやめて確認する'
+        );
+        if (!go) return;          // 登録を中止（入力内容はそのまま残る）
+        data.dupSuspectId = dup.id; // 登録するが印を付けて後から確認できるようにする
+      }
+    }
     // 日程調整中フラグ（自動ステータス）: 作業開始日が0ならON、それ以外はOFF
     data.scheduleAdjusting = scheduleAdjusting;
     // 入金日: 請求発行日があり入金日が空なら翌月末を自動入力（予定）。手入力=確認、変更なし=維持
@@ -4155,6 +4267,21 @@
       const c = cases.find((x) => x.id === id);
       if (!c) return;
       if (action === 'edit') openModal(c, 'full');
+      // 二重の可能性バッジ: 相手の案件を見るか、疑いを解除するか
+      else if (action === 'dup-open') {
+        e.stopPropagation();
+        const other = cases.find((x) => String(x.id) === String(c.dupSuspectId));
+        const info = other
+          ? `${other.theater || '(劇場未入力)'}／受付 ${other.receivedDate || '-'}／${(other.estimateName || other.content || '').slice(0, 40)}`
+          : '(相手の案件が見つかりません。既に削除された可能性があります)';
+        const ok = confirm(
+          'この案件は二重登録の可能性があります。\n\n【似ている既存案件】\n' + info +
+          '\n\n「OK」＝その既存案件を開いて見比べる\n「キャンセル」＝二重ではないので印を消す'
+        );
+        if (ok) { if (other) openModal(other, 'full'); }
+        else clearDupSuspect(c);
+        return;
+      }
       else if (action === 'delete') {
         if (confirm(`案件「${c.theater || '(劇場未入力)'}」を削除しますか？`)) {
           cases = cases.filter((x) => x.id !== id);

@@ -1792,3 +1792,37 @@ td[data-field="category"], td[data-field="content"] { background: #fff; }
 /* 左側の案件情報セルは通常セル表示（金額は右寄せ） */
 #casesTable.purchase-mode td.pv-amount-col { text-align: right; }
 #casesTable.purchase-mode th.pv-col { min-width: 320px; }
+
+/* ===== 二重登録の可能性（バッジ／バナー） ===== */
+.dup-badge {
+  display: inline-block;
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fca5a5;
+  border-radius: 4px;
+  padding: 0 5px;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.6;
+  cursor: pointer;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+.dup-badge:hover { background: #fecaca; }
+
+.dup-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  border-radius: 6px;
+}
+.dup-banner.hidden { display: none; }
+.dup-banner-text { font-size: 13px; font-weight: 700; color: #b91c1c; }
+.dup-banner-info { font-size: 12px; color: #7f1d1d; flex: 1 1 100%; }
+.dup-banner-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.dup-banner-actions .mini-btn { font-size: 12px; }

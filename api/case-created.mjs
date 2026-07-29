@@ -427,8 +427,16 @@ function updateHeader(src) {
 }
 
 function buildLineMessage(c, aiAdvice) {
+  // 二重登録の疑い（同じ劇場・似た内容の進行中案件がある）→ 先頭で目立たせる
+  const dupLines = c.dup_suspect_id ? [
+    '⚠️ 二重登録の可能性あり（同じ劇場に似た案件が既にあります）',
+    `　既存案件: ${APP_URL}/?case=${c.dup_suspect_id}`,
+    '　※重複ならこの案件を削除、問題なければアプリで「二重でない」を押してください',
+    ''
+  ] : [];
   const head = [
     insertHeader(notifySource(c, true)),
+    ...dupLines,
     '━━━━━━━━━━━━',
     `会社: ${c.company || '-'}`,
     `劇場: ${c.theater || '-'}`,
