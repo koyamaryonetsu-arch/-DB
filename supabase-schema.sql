@@ -36,6 +36,7 @@ create table if not exists public.cases (
   customer_memo   text,            -- 顧客メモ（客先が記入。菱熱も閲覧可・AI要約対象外）
   purchases       jsonb default '[]'::jsonb,  -- 支払い状況（菱熱のみ）: [{month,vendor,amount}]
   last_update_source text,        -- 通知の操作元: ryo=菱熱/customer=客先/auto=AI・メール自動
+  dup_suspect_id  text,           -- 二重登録の疑い: 重複相手の案件id（null=疑いなし）
   created_at      timestamptz not null default now(),
   updated_at      timestamptz not null default now(),
   created_by      uuid references auth.users(id) on delete set null,
@@ -52,6 +53,7 @@ alter table public.cases add column if not exists work_end_time text;
 alter table public.cases add column if not exists customer_memo text;  -- 顧客メモ（客先記入・AI要約対象外）
 alter table public.cases add column if not exists purchases jsonb default '[]'::jsonb;  -- 支払い状況（菱熱のみ）
 alter table public.cases add column if not exists last_update_source text;  -- 通知の操作元(ryo/customer/auto)
+alter table public.cases add column if not exists dup_suspect_id text;  -- 二重登録の疑い(重複相手のid)
 
 -- 1b. 会社（顧客）マスタ。abbr=一覧表示用の略称、official_name=請求書/完了届の宛先、hq_address=本社住所
 create table if not exists public.companies (
