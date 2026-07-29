@@ -29,6 +29,15 @@ var DONE_LABEL = '案件登録済';      // 新規登録 完了
 var UPD_LABEL = '案件更新済';       // 進捗更新 完了
 var SKIP_LABEL = '案件登録_要確認'; // 案件でない / 進捗だが更新先不明
 var DUP_LABEL = '案件登録_重複';    // 既存の手動登録と重複（登録せず）
+var OLD_LABEL = '案件登録_期間外';  // 受信が古いメール（遡り登録しない・再スキャンもしない）
+
+// 取込対象にするメールの新しさ（時間）。既定24時間＝「その日その日に届いたメールだけ」を登録する。
+// 過去メールを遡って登録しない（古い案件の重複登録・遡り更新を防ぐ）。
+function INTAKE_MAX_AGE_HOURS_() { return Number(cfg_('INTAKE_MAX_AGE_HOURS', '24')) || 24; }
+// 二重登録の疑い判定: 同じ劇場の「進行中」案件を何日前まで見るか
+function DUP_LOOKBACK_DAYS_() { return Number(cfg_('DUP_LOOKBACK_DAYS', '90')) || 90; }
+// 二重登録の疑い判定: 内容の類似度しきい値（0〜1。これ以上で「二重の可能性あり」）
+function DUP_SIM_THRESHOLD_() { return Number(cfg_('DUP_SIM_THRESHOLD', '0.35')) || 0.35; }
 
 var COMPANY_LIST = ['TOHOシネマズ', '109シネマズ', 'ユナイテッドシネマ', '佐々木興業', 'コロナワールド', 'MOVIX', 'イオンシネマズ', 'シネマサンシャイン'];
 var CATEGORY_LIST = ['新規工事', '更新案件', '修理', 'メンテナンス', '点検', '改修', 'その他'];
@@ -56,13 +65,24 @@ function importCaseEmails() {
     var lblUpd = getOrCreateLabel_(UPD_LABEL);
     var lblSkip = getOrCreateLabel_(SKIP_LABEL);
     var lblDup = getOrCreateLabel_(DUP_LABEL);
+    var lblOld = getOrCreateLabel_(OLD_LABEL);
+    // 取込対象は「直近に届いたメール」だけ。過去メールは遡って登録しない（newer_than:2d＋下の時間ガード）
     var q = 'label:' + SRC_LABEL + ' -label:' + DONE_LABEL + ' -label:' + UPD_LABEL +
-            ' -label:' + SKIP_LABEL + ' -label:' + DUP_LABEL + ' newer_than:14d';
+            ' -label:' + SKIP_LABEL + ' -label:' + DUP_LABEL + ' -label:' + OLD_LABEL + ' newer_than:2d';
     var threads = GmailApp.search(q, 0, 20);
     if (!threads.length) { Logger.log('対象メールなし'); return; }
 
-    var nNew = 0, nUpd = 0, nDup = 0, nSkip = 0;
+    var maxAgeMs = INTAKE_MAX_AGE_HOURS_() * 60 * 60 * 1000;
+    var nNew = 0, nUpd = 0, nDup = 0, nSkip = 0, nOld = 0;
     threads.forEach(function (th) {
+      // 期間ガード: 最新メールが古いスレッドは登録・更新しない（過去案件の遡り登録を防ぐ）。
+      // 期間外ラベルを付けて以後スキャン対象から外す（毎回の再判定・APIコストも避ける）。
+      var lastAt = th.getLastMessageDate();
+      if (lastAt && (Date.now() - lastAt.getTime()) > maxAgeMs) {
+        th.addLabel(lblOld); nOld++;
+        Logger.log('期間外のため取込せず（' + Utilities.formatDate(lastAt, 'Asia/Tokyo', 'yyyy-MM-dd HH:mm') + '）: ' + th.getFirstMessageSubject());
+        return;
+      }
       var msgs = th.getMessages();
       var m = msgs[msgs.length - 1];        // 最新（進捗判定・受付日フォールバック用）
       var emailText = buildThreadText_(th); // スレッド全体を文脈に（最初の依頼＋以降の進捗）
@@ -96,8 +116,12 @@ function importCaseEmails() {
         Logger.log('要確認（同一案件か曖昧・再確認しても未確定）: ' + (p.title || m.getSubject()) + ' / ' + (decision.reason || ''));
       } else {
         // 別の新しい案件と確信 → 新規登録（日程もメールにあれば正しい項目へ）
+        // ただし同じ劇場の進行中案件と内容が似ていれば「二重登録の可能性あり」の印を付けて登録する
+        // （登録は止めない＝取りこぼし防止。人がアプリ/LINEで確認して解除できる）
         var dates = p.progress || {};
+        var dupId = findDupSuspect_(p, received);
         insertCase_({
+          dup_suspect_id: dupId,
           company: normalizeCompany_(p.company), theater: theater, received_date: received,
           tc_person: p.tc_person || '', r_person: p.r_person || '',
           category: normalizeCategory_(p.category), content: p.content || m.getPlainBody().slice(0, 1500),
@@ -111,7 +135,7 @@ function importCaseEmails() {
         th.addLabel(lblDone); nNew++;
       }
     });
-    Logger.log('新規 %s / 進捗更新 %s / 重複スキップ %s / 非案件・要確認 %s', nNew, nUpd, nDup, nSkip);
+    Logger.log('新規 %s / 進捗更新 %s / 重複スキップ %s / 非案件・要確認 %s / 期間外 %s', nNew, nUpd, nDup, nSkip, nOld);
   } catch (e) {
     Logger.log('importCaseEmails error: ' + e);
   } finally {
@@ -376,6 +400,53 @@ function fetchBroadCandidates_(p, base) {
   return out;
 }
 
+// ===== 二重登録の疑い検出 =====
+// 2つの文章の似ぐあい（0〜1）。共通するバイグラムの割合（短い方を基準）。
+function textSimilarity_(a, b) {
+  var x = normalizeText_(a), y = normalizeText_(b);
+  if (!x || !y) return 0;
+  var bx = bigrams_(x), by = bigrams_(y);
+  if (!bx.count || !by.count) return 0;
+  var hit = 0;
+  for (var g in bx.set) if (by.set[g]) hit++;
+  return hit / Math.min(bx.count, by.count);
+}
+// 「終了した案件」＝二重登録の相手として扱わない
+function isClosedStatus_(s) {
+  s = String(s || '');
+  return s === '完了' || s === '入金済' || s === '取り下げ' || s === '失注';
+}
+// 新規登録しようとしている案件が、既存の進行中案件と二重の可能性があるか。
+// 疑いがあれば相手の case id を返す（登録は止めず、フラグを立てて人が確認できるようにする）。
+function findDupSuspect_(p, received) {
+  try {
+    var cands = fetchCandidateCases_(p);
+    if (!cands.length) return '';
+    var limitMs = DUP_LOOKBACK_DAYS_() * 24 * 60 * 60 * 1000;
+    var baseAt = received ? new Date(received + 'T00:00:00+09:00').getTime() : Date.now();
+    var newText = [p.title || '', p.content || ''].join(' ');
+    var best = '', bestScore = 0;
+    for (var i = 0; i < cands.length; i++) {
+      var x = cands[i];
+      if (isClosedStatus_(x.status)) continue;                    // 終了案件は対象外
+      if (x.received_date) {
+        var d = new Date(x.received_date + 'T00:00:00+09:00').getTime();
+        if (isNaN(d) || Math.abs(baseAt - d) > limitMs) continue; // 期間外は対象外
+      }
+      var oldText = [x.estimate_name || '', x.content || ''].join(' ');
+      var score = textSimilarity_(newText, oldText);
+      // 同じ種別なら少し寄せる（同劇場・同種別の同時進行は二重の可能性が高い）
+      if (p.category && x.category && normalizeCategory_(p.category) === x.category) score += 0.10;
+      if (score > bestScore) { bestScore = score; best = String(x.id); }
+    }
+    if (best && bestScore >= DUP_SIM_THRESHOLD_()) {
+      Logger.log('二重登録の可能性: 類似度' + bestScore.toFixed(2) + ' → 既存id=' + best);
+      return best;
+    }
+  } catch (e) { Logger.log('二重判定エラー: ' + e); }
+  return '';
+}
+
 // ===== Supabase: 新規INSERT =====
 function insertCase_(f) {
   var key = cfg_('SUPABASE_SERVICE_ROLE_KEY');
@@ -386,6 +457,7 @@ function insertCase_(f) {
   // AIが自動登録したものと分かるよう、社内メモ先頭にタグを付ける（内容への要約時はこのタグは含めない）
   var today = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy-MM-dd');
   var memoText = '【AI自動登録 ' + today + '】' + (mailText ? '\n' + mailText : '');
+  if (f.dup_suspect_id) memoText = '【⚠️二重登録の可能性あり（既存 id=' + f.dup_suspect_id + '）】\n' + memoText;
   var body = {
     company: f.company, theater: f.theater, received_date: f.received_date || null,
     tc_person: f.tc_person || null, r_person: f.r_person || null,
@@ -394,6 +466,8 @@ function insertCase_(f) {
     content: summary || null,
     last_update_source: 'auto'  // AI・メール自動登録（LINE通知を「自動登録」にするため）
   };
+  // 二重登録の疑い（アプリで「⚠️二重の可能性」表示・LINE通知にも出す）
+  if (f.dup_suspect_id) body.dup_suspect_id = f.dup_suspect_id;
   // 添付見積書のOCR結果があれば書き込む（空はnullでスキップ）
   if (f.estimate_name) body.estimate_name = f.estimate_name;
   if (f.estimate_amount) body.estimate_amount = normalizeAmount_(f.estimate_amount);
@@ -788,7 +862,7 @@ function setupTrigger() {
   Logger.log('importCaseEmails を5分毎に実行するトリガーを作成しました。');
 }
 function testConnections() {
-  var n = GmailApp.search('label:' + SRC_LABEL + ' -label:' + DONE_LABEL + ' newer_than:14d').length;
+  var n = GmailApp.search('label:' + SRC_LABEL + ' -label:' + DONE_LABEL + ' newer_than:2d').length;
   Logger.log('Gmail「' + SRC_LABEL + '」未処理: ' + n + '件');
   Logger.log('Supabase接続（川崎の既存案件）: ' + fetchTheaterCases_('TOHOシネマズ 川崎').length + '件');
   Logger.log('ANTHROPIC_API_KEY: ' + (cfg_('ANTHROPIC_API_KEY') ? 'あり' : 'なし') +
