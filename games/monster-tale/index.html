@@ -108,6 +108,25 @@ body {
   border: none; border-radius: calc(var(--u) * 2); padding: calc(var(--u) * 2.5) calc(var(--u) * 8);
   font-size: calc(var(--u) * 7.6); }
 
+/* ---- ふっかつのじゅもん ---- */
+#spellin { position: absolute; inset: 0; display: none; align-items: center; justify-content: center;
+  background: rgba(0,0,0,.65); z-index: 60; }
+#spellin.on { display: flex; }
+#spellin .box { background: rgba(4,6,12,.96); border: calc(var(--u) * 1.3) solid #fff;
+  border-radius: calc(var(--u) * 3); padding: calc(var(--u) * 4.5); width: 90%;
+  font-size: calc(var(--u) * 6.6); text-align: center; }
+#spellLabel { color: #f0c860; font-weight: 700; }
+#spellText { width: 100%; margin: calc(var(--u) * 3) 0; padding: calc(var(--u) * 2);
+  font-size: calc(var(--u) * 5.2); font-family: monospace; word-break: break-all;
+  background: #101425; color: #cfe6ff; border: calc(var(--u) * 1) solid #8a93c8;
+  border-radius: calc(var(--u) * 2); outline: none; resize: none;
+  -webkit-user-select: text; user-select: text; }
+#spellin .btnrow { display: flex; gap: calc(var(--u) * 2.5); justify-content: center; }
+.sbtn { background: #39426b; color: #dfe6ff; border: none; border-radius: calc(var(--u) * 2);
+  padding: calc(var(--u) * 2.2) calc(var(--u) * 5); font-size: calc(var(--u) * 6.6); font-weight: 700; }
+.sbtn.ok { background: #f0c860; color: #221a06; }
+#spellMsg { margin-top: calc(var(--u) * 2); color: #8af08a; font-size: calc(var(--u) * 5.6); min-height: calc(var(--u) * 7); }
+
 /* ---- コントローラ ---- */
 #pad { flex: 1; width: 100%; max-width: 560px; display: flex; align-items: center;
   justify-content: space-between; padding: 10px 20px calc(12px + env(safe-area-inset-bottom));
@@ -149,6 +168,14 @@ body {
     <div id="namein"><div class="box"><span id="nameLabel">なまえを きめてね (6もじまで)</span><br>
       <input id="nameInput" maxlength="6" value="ユウ"><br>
       <button id="nameOk">けってい</button></div></div>
+    <div id="spellin"><div class="box"><span id="spellLabel">ふっかつのじゅもん</span>
+      <textarea id="spellText" rows="5" spellcheck="false" autocapitalize="off" autocomplete="off"></textarea>
+      <div class="btnrow">
+        <button id="spellCopy" class="sbtn">コピー</button>
+        <button id="spellOk" class="sbtn ok">けってい</button>
+        <button id="spellClose" class="sbtn">とじる</button>
+      </div>
+      <div id="spellMsg"></div></div></div>
     <div id="fade"></div>
   </div>
   <div id="pad">

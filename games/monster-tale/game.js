@@ -100,17 +100,107 @@ function alivePt() { return G.party.filter(m => m.hp > 0); }
 function caravan() { return G.party.concat(G.wagon); }
 function caravanCount() { return G.party.length + G.wagon.length; }
 
-/* ---------- セーブ ---------- */
-function save() { try { const g = Object.assign({}, G); delete g.mode; localStorage.setItem(SAVE_KEY, JSON.stringify({ v: 3, g })); } catch (e) { } }
-function loadData() {
-  try {
-    const d = JSON.parse(localStorage.getItem(SAVE_KEY));
-    if (d && d.v === 3) return d.g;
-    if (d && d.v === 2) return migrateV3(d.g);
-    if (d && d.v === 1) return migrateV3(migrateV1(d.g));
-  } catch (e) { }
+/* ---------- セーブ ----------
+   localStorageが使えない環境(サンドボックス内のiframe等)では
+   「ふっかつのじゅもん」での手動セーブ/ロードにフォールバックする */
+const storageOK = (() => {
+  try { const k = '__mg_test'; localStorage.setItem(k, '1'); localStorage.removeItem(k); return true; }
+  catch (e) { return false; }
+})();
+function saveObj() { const g = Object.assign({}, G); delete g.mode; return { v: 3, g }; }
+function save() {
+  if (!storageOK) return;
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(saveObj())); } catch (e) { }
+}
+function normalizeSaved(d) {
+  if (!d) return null;
+  if (d.v === 3) return d.g;
+  if (d.v === 2) return migrateV3(d.g);
+  if (d.v === 1) return migrateV3(migrateV1(d.g));
   return null;
 }
+function loadData() {
+  if (!storageOK) return null;
+  try { return normalizeSaved(JSON.parse(localStorage.getItem(SAVE_KEY))); } catch (e) { }
+  return null;
+}
+/* --- ふっかつのじゅもん (圧縮+base64url) --- */
+function b64urlEnc(bytes) {
+  let s = '';
+  for (let i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i]);
+  return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+function b64urlDec(str) {
+  str = str.replace(/-/g, '+').replace(/_/g, '/');
+  while (str.length % 4) str += '=';
+  const bin = atob(str);
+  const u = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+  return u;
+}
+async function makeSpell() {
+  const json = JSON.stringify(saveObj());
+  const raw = new TextEncoder().encode(json);
+  if (typeof CompressionStream !== 'undefined') {
+    const ab = await new Response(new Blob([raw]).stream().pipeThrough(new CompressionStream('deflate-raw'))).arrayBuffer();
+    return 'MG5.D' + b64urlEnc(new Uint8Array(ab));
+  }
+  return 'MG5.J' + b64urlEnc(raw);
+}
+async function readSpell(code) {
+  code = String(code || '').replace(/\s+/g, '');
+  if (!code.startsWith('MG5.')) throw new Error('bad');
+  const tag = code[4]; const data = code.slice(5);
+  let json;
+  if (tag === 'D') {
+    if (typeof DecompressionStream === 'undefined') throw new Error('unsupported');
+    const ab = await new Response(new Blob([b64urlDec(data)]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer();
+    json = new TextDecoder().decode(ab);
+  } else if (tag === 'J') {
+    json = new TextDecoder().decode(b64urlDec(data));
+  } else throw new Error('bad');
+  const g = normalizeSaved(JSON.parse(json));
+  if (!g || !g.party || !g.party.length) throw new Error('bad');
+  return g;
+}
+/* --- じゅもんウィンドウ (mode: 'view'=表示+コピー / 'input'=入力) --- */
+function spellDialog(mode, text) {
+  return new Promise(res => {
+    const box = $('#spellin'); box.classList.add('on');
+    const ta = $('#spellText'), msg = $('#spellMsg');
+    const bCopy = $('#spellCopy'), bOk = $('#spellOk'), bClose = $('#spellClose');
+    $('#spellLabel').textContent = mode === 'view' ? 'ふっかつのじゅもん (ひかえておこう)' : 'ふっかつのじゅもんを いれてね';
+    ta.value = text || ''; ta.readOnly = mode === 'view'; msg.textContent = '';
+    bCopy.style.display = mode === 'view' ? '' : 'none';
+    bOk.style.display = mode === 'view' ? 'none' : '';
+    const selectAll = () => { try { ta.focus(); ta.select(); ta.setSelectionRange(0, ta.value.length); } catch (e) { } };
+    if (mode === 'view') setTimeout(selectAll, 80);
+    else setTimeout(() => { try { ta.focus(); } catch (e) { } }, 80);
+    const onTap = () => { if (mode === 'view') selectAll(); };
+    const onCopy = async e => {
+      e.preventDefault();
+      let ok = false;
+      try { await navigator.clipboard.writeText(ta.value); ok = true; } catch (err) { }
+      if (!ok) { try { selectAll(); ok = document.execCommand('copy'); } catch (err) { } }
+      msg.textContent = ok ? 'コピーしました！ メモちょうに はりつけて ほかんしてね' : 'じどうコピーできず…ながおしで せんたくして コピーしてね';
+    };
+    const finish = v => {
+      box.classList.remove('on');
+      bCopy.removeEventListener('pointerdown', onCopy);
+      bOk.removeEventListener('pointerdown', onOk);
+      bClose.removeEventListener('pointerdown', onClose);
+      ta.removeEventListener('pointerdown', onTap);
+      res(v);
+    };
+    const onOk = e => { e.preventDefault(); finish(ta.value); };
+    const onClose = e => { e.preventDefault(); finish(null); };
+    bCopy.addEventListener('pointerdown', onCopy);
+    bOk.addEventListener('pointerdown', onOk);
+    bClose.addEventListener('pointerdown', onClose);
+    ta.addEventListener('pointerdown', onTap);
+  });
+}
+async function showSpellView() { const code = await makeSpell(); await spellDialog('view', code); }
 /* v2セーブ → v3: 妹を追加し、装備できないものを ふくろへ */
 function migrateV3(g) {
   g.party = g.party || []; g.wagon = g.wagon || []; g.reserve = g.reserve || []; g.bag = g.bag || [];
@@ -393,6 +483,7 @@ function facingTile() {
   return { x: G.x + d[0], y: G.y + d[1] };
 }
 function dispatch(act, data) {
+  if ($('#spellin').classList.contains('on') || $('#namein').classList.contains('on')) return;
   const t = UI.top();
   if (t) { t(act, data); return; }
   if (G && G.mode === 'field' && !busy) {
@@ -442,7 +533,7 @@ function bindControls() {
   });
   window.addEventListener('keyup', e => { const act = KEYS[e.key]; if (act && HELD[act] !== undefined) HELD[act] = false; });
   $('#screen').addEventListener('pointerdown', e => {
-    if (e.target.closest('.menu') || e.target.closest('#namein')) return;
+    if (e.target.closest('.menu') || e.target.closest('#namein') || e.target.closest('#spellin')) return;
     e.preventDefault(); AU.init();
     const r = cv().getBoundingClientRect();
     const x = (e.clientX - r.left) / r.width * 256, y = (e.clientY - r.top) / r.height * 192;
@@ -755,6 +846,7 @@ function drawTitle(x2) {
   x2.fillStyle = '#d8d4f0'; x2.fillText('〜よみがえりし魔王〜', 128, 134);
   x2.font = '9px "Hiragino Kaku Gothic ProN", sans-serif';
   x2.fillStyle = '#8a84c0'; x2.fillText('ver.5 グラフィックいっしん', 128, 146);
+  if (!storageOK) { x2.fillStyle = '#d8b060'; x2.fillText('セーブは「ふっかつのじゅもん」で！', 128, 188); }
   const marchers = ['heroD', 'sisterD', 'puni', 'rat', 'wagon'];
   marchers.forEach((id, i) => {
     const s = SPRC[id]; const mx = 48 + i * 32, my = 152 + Math.round(Math.sin(animT / 14 + i) * 2);
@@ -1755,7 +1847,19 @@ async function fieldMenu() {
     else if (c === 'it') await fieldItemFlow();
     else if (c === 'eq') await equipFlow();
     else if (c === 'pt') await partyFlow();
-    else if (c === 'sv') { save(); await say('ぼうけんのしょに きろくした！'); }
+    else if (c === 'sv') {
+      save();
+      if (storageOK) {
+        await say('ぼうけんのしょに きろくした！');
+        if (await askYN('「ふっかつのじゅもん」も ひょうじする？ (ほかの たんまつでも つづきが できるよ)', { idx: 1 })) {
+          hideMsgWin(); await showSpellView();
+        }
+      } else {
+        await say('※この かんきょうでは じどうきろくが つかえない！ かわりに「ふっかつのじゅもん」を ひかえてね。');
+        hideMsgWin(); await showSpellView();
+        await say('タイトルの「ふっかつのじゅもん」に いれると つづきから あそべるよ。', { auto: true, wait: 1200 });
+      }
+    }
     else if (c === 'cf') await configFlow();
     refresh();
   }
@@ -2020,6 +2124,7 @@ async function opening() {
   await say('むらおさ『ちちの けんと ばしゃを たくす。まものと こころを かよわせる ちからを もつ おまえたちなら…ゾルデを たおせるはずじゃ。』');
   await say('こうして 兄妹の ぼうけんが はじまった。めざすは ほくせいの まおうじょう！');
   await say('そうさ: 十じキーで いどう / Aで けってい・はなす / Bで メニュー。むらの ひとの はなしも きいてみよう！');
+  if (!storageOK) await say('※この かんきょうでは じどうセーブが きかないよ。メニューの「きろく」で「ふっかつのじゅもん」を ひかえて、タイトルから さいかいしてね！');
 }
 async function titleFlow() {
   G = defaultState(); G.mode = 'title';
@@ -2028,12 +2133,27 @@ async function titleFlow() {
     const c = await menuWin([
       { t: 'はじめから', v: 'new' },
       { t: 'つづきから', v: 'cont', dis: !has },
+      { t: 'ふっかつのじゅもん', v: 'spell' },
     ], { cls: 'title', cancel: false, idx: has ? 1 : 0 });
     if (c === 'cont') {
       const d = loadData(); if (!d) continue;
       applyLoad(d); bgm(G.area === 'world' ? 'field' : 'town');
       await say('ぼうけんのしょを よみこんだ！ つづきから スタート！', { auto: true, wait: 800 });
       break;
+    }
+    if (c === 'spell') {
+      const code = await spellDialog('input', '');
+      if (!code || !code.trim()) continue;
+      try {
+        const g = await readSpell(code);
+        applyLoad(g); save(); bgm(G.area === 'world' ? 'field' : 'town');
+        await say('ふっかつのじゅもんを うけつけた！ ぼうけんを さいかいする！', { auto: true, wait: 900 });
+        break;
+      } catch (e) {
+        await say('…じゅもんが ちがうようです。もういちど たしかめてね。');
+        hideMsgWin();
+        continue;
+      }
     }
     if (c === 'new') {
       const nm = await naming('おにいちゃんの なまえ (6もじまで)', 'ユウ');
@@ -2089,6 +2209,7 @@ window.__test = {
   warp(x, y) { G.area = 'world'; G.x = x; G.y = y; G.px = x * 16; G.py = y * 16; TRAIL = []; },
   enterTown(id) { runEvent(() => enterTown(id)); },
   jobLvOf, statsOf, skillsOf, canEquip, isNight,
+  makeSpell, readSpell, storageOK: () => storageOK,
   setTime(t) { G.time = t; },
   zap() { if (B) B.es.forEach(e => { if (e.alive) e.hp = 1; }); },
   battleState() { return B ? { es: B.es.map(e => ({ sp: e.sp, hp: e.hp, alive: e.alive })), party: G.party.map(m => m.sp) } : null; },
