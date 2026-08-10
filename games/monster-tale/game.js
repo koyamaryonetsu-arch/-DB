@@ -141,10 +141,13 @@ function b64urlDec(str) {
 async function makeSpell() {
   const json = JSON.stringify(saveObj());
   const raw = new TextEncoder().encode(json);
-  if (typeof CompressionStream !== 'undefined') {
-    const ab = await new Response(new Blob([raw]).stream().pipeThrough(new CompressionStream('deflate-raw'))).arrayBuffer();
-    return 'MG5.D' + b64urlEnc(new Uint8Array(ab));
-  }
+  /* 圧縮に失敗する環境では 無圧縮(J)に自動フォールバック */
+  try {
+    if (typeof CompressionStream !== 'undefined') {
+      const ab = await new Response(new Blob([raw]).stream().pipeThrough(new CompressionStream('deflate-raw'))).arrayBuffer();
+      if (ab && ab.byteLength > 0) return 'MG5.D' + b64urlEnc(new Uint8Array(ab));
+    }
+  } catch (e) { }
   return 'MG5.J' + b64urlEnc(raw);
 }
 async function readSpell(code) {
@@ -200,7 +203,12 @@ function spellDialog(mode, text) {
     ta.addEventListener('pointerdown', onTap);
   });
 }
-async function showSpellView() { const code = await makeSpell(); await spellDialog('view', code); }
+async function showSpellView() {
+  let code = null;
+  try { code = await makeSpell(); } catch (e) { }
+  if (!code) { await say('じゅもんの さくせいに しっぱいした…すこし あそんでから もういちど ためしてね。'); return; }
+  await spellDialog('view', code);
+}
 /* v2セーブ → v3: 妹を追加し、装備できないものを ふくろへ */
 function migrateV3(g) {
   g.party = g.party || []; g.wagon = g.wagon || []; g.reserve = g.reserve || []; g.bag = g.bag || [];
@@ -1723,6 +1731,7 @@ async function bridgeEvent() {
   if (r === 'win') {
     G.flags.bridge = true; save();
     await say('ばんにんを うちやぶった！ ひがしへの はしが とおれるように なった！');
+    await say('(だいじな ばめんの あとは メニューの「きろく」で ふっかつのじゅもんを ひかえておこう！)', { auto: true, wait: 1400 });
   }
 }
 async function caveEvent() {
@@ -1848,17 +1857,11 @@ async function fieldMenu() {
     else if (c === 'eq') await equipFlow();
     else if (c === 'pt') await partyFlow();
     else if (c === 'sv') {
-      save();
-      if (storageOK) {
-        await say('ぼうけんのしょに きろくした！');
-        if (await askYN('「ふっかつのじゅもん」も ひょうじする？ (ほかの たんまつでも つづきが できるよ)', { idx: 1 })) {
-          hideMsgWin(); await showSpellView();
-        }
-      } else {
-        await say('※この かんきょうでは じどうきろくが つかえない！ かわりに「ふっかつのじゅもん」を ひかえてね。');
-        hideMsgWin(); await showSpellView();
-        await say('タイトルの「ふっかつのじゅもん」に いれると つづきから あそべるよ。', { auto: true, wait: 1200 });
-      }
+      save(); hideMsgWin();
+      if (storageOK) await say('ぼうけんのしょに きろくした！ 「ふっかつのじゅもん」も ひかえておくと あんしんだよ。', { auto: true, wait: 1100 });
+      else await say('この かんきょうでは この「ふっかつのじゅもん」が セーブデータに なる！ かならず コピーして ひかえてね。');
+      hideMsgWin();
+      await showSpellView();
     }
     else if (c === 'cf') await configFlow();
     refresh();
