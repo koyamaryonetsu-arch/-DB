@@ -1,0 +1,1386 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b3d91">
+<title>写真台帳作成アプリ</title>
+<style>
+/* ========== 基本 ========== */
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:"Yu Gothic UI","Yu Gothic","Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP","Meiryo",sans-serif;
+  background:#eceff3; color:#111; -webkit-text-size-adjust:100%;
+}
+button,input,select,textarea{font-family:inherit}
+:focus-visible{outline:2px solid #0b57d0; outline-offset:1px}
+
+/* ========== ツールバー ========== */
+.bar{
+  position:sticky; top:0; z-index:50; background:#0b3d91; color:#fff;
+  padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px)); display:flex; flex-wrap:wrap; gap:6px; align-items:center;
+  box-shadow:0 2px 8px rgba(0,0,0,.25);
+}
+.bar .title{font-weight:700; font-size:15px; margin-right:4px; white-space:nowrap}
+.bar .spacer{flex:1}
+.btn{
+  appearance:none; border:1px solid rgba(255,255,255,.35); background:rgba(255,255,255,.10); color:#fff;
+  padding:8px 10px; border-radius:8px; font-size:13px; cursor:pointer; white-space:nowrap; line-height:1.2;
+  min-height:38px; display:inline-flex; align-items:center; gap:5px;
+}
+.btn:hover{background:rgba(255,255,255,.22)}
+.btn:active{transform:translateY(1px)}
+.btn.primary{background:#ffb703; border-color:#ffb703; color:#25200a; font-weight:700}
+.btn.primary:hover{background:#ffc42e}
+.btn.ghost{background:transparent}
+.btn.sm{padding:4px 7px; min-height:30px; font-size:12px}
+.bar select,.bar input[type=text]{
+  background:rgba(255,255,255,.12); color:#fff; border:1px solid rgba(255,255,255,.35);
+  border-radius:8px; padding:7px 8px; font-size:13px; min-height:38px; max-width:42vw;
+}
+.bar select option{color:#111}
+.more,.more2{display:contents}
+#btnMore{display:none}
+@media screen and (max-width:820px){
+  .bar{padding:5px 6px; gap:5px}
+  .bar .title{font-size:14px}
+  .btn{padding:6px 9px; font-size:12.5px; min-height:36px}
+  .bar select{padding:6px; font-size:12.5px; min-height:36px; max-width:38vw}
+  #btnMore{display:inline-flex}
+  .more,.more2{
+    display:none; position:absolute; top:100%; right:6px; z-index:60;
+    background:#0b3d91; border:1px solid rgba(255,255,255,.35); border-radius:10px;
+    padding:8px; flex-direction:column; gap:6px; box-shadow:0 10px 28px rgba(0,0,0,.35); min-width:200px;
+  }
+  .more.open,.more2.open{display:flex}
+  .more .btn,.more2 .btn{justify-content:flex-start; width:100%}
+  .more2{right:auto; left:6px}
+}
+.hint{font-size:12px; opacity:.85}
+
+/* ========== 設定パネル ========== */
+.panel{background:#fff; border-bottom:1px solid #d5dae2; padding:10px 12px; display:none}
+.panel.open{display:block}
+.panel h3{margin:0 0 8px; font-size:13px; color:#0b3d91; letter-spacing:.04em}
+.grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:8px 12px}
+.fld{display:flex; flex-direction:column; gap:3px}
+.fld label{font-size:11px; color:#5b6472; font-weight:600}
+.fld input,.fld select,.fld textarea{
+  border:1px solid #c6ccd6; border-radius:7px; padding:8px; font-size:14px; background:#fff; min-height:38px;
+}
+.fld .row{display:flex; gap:6px; align-items:center}
+.chk{display:flex; align-items:center; gap:6px; font-size:13px; padding-top:14px}
+.chk input{width:18px; height:18px}
+.linked{color:#0b57d0; font-size:11px; font-weight:600}
+
+/* ========== 一括操作バー ========== */
+.selbar{
+  position:sticky; top:52px; z-index:45; background:#123a6b; color:#fff; padding:8px 10px;
+  display:none; flex-wrap:wrap; gap:6px; align-items:center; font-size:13px;
+}
+.selbar.open{display:flex}
+.selbar input[type=text]{background:#fff; color:#111; border:0; border-radius:7px; padding:7px 8px; font-size:13px; min-height:36px}
+
+/* ========== ページ表示領域 ========== */
+.wrap{padding:14px 8px 120px; display:flex; flex-direction:column; align-items:center; gap:14px; overflow-x:auto}
+.pages{display:flex; flex-direction:column; align-items:center; gap:14px}
+.sheetbox{position:relative}
+.pagetools{
+  display:flex; gap:6px; justify-content:center; flex-wrap:wrap; margin:2px 0 0;
+}
+.pagetools .btn{background:#fff; color:#22303f; border:1px solid #c6ccd6}
+.pagetools .btn:hover{background:#eef2f8}
+.pagelabel{font-size:12px; color:#5b6472; font-weight:700; align-self:center; margin-right:4px}
+
+/* ========== 用紙（A4）========== */
+.sheet{
+  width:210mm; min-height:297mm; background:#fff; padding:5mm 3mm 4mm;
+  display:flex; flex-direction:column; box-shadow:0 2px 12px rgba(20,30,50,.18);
+  position:relative; color:#000;
+}
+.sheet-head{font-size:11pt; line-height:1.2; padding:0 0 1.5mm 1mm; min-height:7mm}
+.tbl{border:0.3mm solid #000; border-bottom:0}
+.prow{display:flex; height:var(--rowh,86.4mm); border-bottom:0.3mm solid #000; position:relative; overflow:hidden}
+.cell-photo{
+  width:121.3mm; flex:0 0 121.3mm; border-right:0.3mm solid #000; padding:3mm;
+  display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden;
+}
+.cell-photo img{max-width:100%; max-height:100%; object-fit:contain; display:block}
+.cell-text{flex:1; padding:3mm 2.6mm; font-size:10.4pt; line-height:1.35; overflow:hidden; display:flex; flex-direction:column}
+.f{min-height:4mm; margin-bottom:7.2mm; white-space:pre-wrap; word-break:break-word}
+.f-site{font-weight:700; margin-bottom:1.8mm}
+.rule{border-bottom:0.25mm solid #000; margin:0 0 2.6mm}
+.f-note{margin-bottom:0; flex:1; line-height:1.55}
+.sheet-foot{margin-top:auto; text-align:center; font-size:9.3pt; padding-top:2mm}
+
+/* 表紙 */
+.cover{display:flex; flex-direction:column; align-items:center; text-align:center; padding:0 12mm}
+.cover .c-sp1{height:62mm}
+.cover .c-title{font-size:21.7pt; font-weight:700; line-height:1.85}
+.cover .c-date{font-size:13pt; margin-top:52mm}
+.cover .c-logo{margin-top:14mm; height:22mm; display:flex; align-items:center; justify-content:center}
+.cover .c-logo img{max-height:22mm; max-width:80mm; object-fit:contain}
+.cover .c-comp{font-size:21.7pt; font-weight:700; margin-top:10mm}
+.cover .c-addr{font-size:13pt; margin-top:6mm}
+.cover .c-tel{font-size:13pt; margin-top:6mm}
+
+/* ========== 編集UI（画面のみ）========== */
+[contenteditable]{outline:none}
+.ed{border-radius:3px; transition:background .12s}
+body.editing .ed:hover{background:#eaf1ff}
+body.editing .ed:focus{background:#dfeaff; box-shadow:0 0 0 1px #0b57d0}
+.ed:empty::before{content:attr(data-ph); color:#9aa4b2}
+body:not(.editing) .ed:empty::before{content:""}
+
+.rowtools{
+  position:absolute; top:2px; left:30px; display:none; gap:3px; z-index:6; flex-wrap:wrap; max-width:118mm;
+  background:rgba(255,255,255,.94); border:1px solid #c6ccd6; border-radius:8px; padding:2px;
+}
+body.editing .prow:hover .rowtools, body.editing .prow:focus-within .rowtools{display:flex}
+body.editing .rowtools.always{display:flex}
+.rowtools .btn{background:#fff; color:#22303f; border:1px solid #d7dce4; padding:3px 6px; min-height:26px; font-size:12px}
+.rowtools .btn:hover{background:#eef2f8}
+.rowtools .btn.danger{color:#b3261e}
+.rowsel{position:absolute; top:4px; left:4px; z-index:6; width:20px; height:20px; display:none}
+body.editing .rowsel{display:block}
+.prow.selected{box-shadow:inset 0 0 0 2px #0b57d0}
+
+.drop{
+  position:absolute; inset:0; border:0.6mm dashed #b9c2cf; margin:2mm; border-radius:2mm;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
+  color:#7c8697; font-size:12px; cursor:pointer; background:#fbfcfe; text-align:center; padding:6px;
+}
+body:not(.editing) .drop{display:none}
+.drop b{font-size:13px; color:#0b57d0}
+.cell-photo.dragover{background:#e3efff}
+.phototools{
+  position:absolute; left:3mm; bottom:3mm; display:none; gap:4px; z-index:6;
+  background:rgba(255,255,255,.94); border:1px solid #c6ccd6; border-radius:8px; padding:2px;
+}
+body.editing .cell-photo:hover .phototools{display:flex}
+.phototools .btn{background:#fff; color:#22303f; border:1px solid #d7dce4; padding:3px 6px; min-height:26px; font-size:12px}
+
+/* ========== モーダル ========== */
+.mask{position:fixed; inset:0; background:rgba(15,22,35,.55); display:none; z-index:100; padding:16px; overflow:auto}
+.mask.open{display:flex; align-items:flex-start; justify-content:center}
+.modal{background:#fff; border-radius:14px; padding:16px; width:min(680px,100%); margin:24px 0; box-shadow:0 18px 48px rgba(0,0,0,.35)}
+.modal h2{margin:0 0 4px; font-size:17px; color:#0b3d91}
+.modal p{font-size:13px; color:#4b5563; line-height:1.7}
+.modal textarea{width:100%; min-height:170px; border:1px solid #c6ccd6; border-radius:8px; padding:10px; font-size:13px; font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.modal .acts{display:flex; gap:8px; justify-content:flex-end; margin-top:12px; flex-wrap:wrap}
+.modal .btn{background:#0b3d91; border-color:#0b3d91}
+.modal .btn.ghost{background:#fff; color:#22303f; border:1px solid #c6ccd6}
+.modal ul{font-size:13px; line-height:1.9; padding-left:1.2em; color:#333}
+.modal kbd{background:#eef1f6; border:1px solid #c9d0da; border-bottom-width:2px; border-radius:4px; padding:1px 5px; font-size:12px}
+
+.toast{
+  position:fixed; left:50%; bottom:24px; transform:translateX(-50%) translateY(20px);
+  background:#111a2b; color:#fff; padding:11px 18px; border-radius:24px; font-size:13px; z-index:200;
+  opacity:0; pointer-events:none; transition:.22s; max-width:92vw; text-align:center;
+}
+.toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
+.busy{position:fixed; inset:0; background:rgba(255,255,255,.75); z-index:150; display:none; align-items:center; justify-content:center; flex-direction:column; gap:10px; font-size:14px; color:#0b3d91; font-weight:700}
+.busy.open{display:flex}
+.spin{width:34px; height:34px; border:4px solid #cfd8e6; border-top-color:#0b3d91; border-radius:50%; animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* ========== スマホ：カード表示 ========== */
+@media screen{
+  body.view-cards .wrap{padding:10px 8px 140px}
+  body.view-cards .sheet{
+    width:100%; max-width:620px; min-height:0; padding:0; background:transparent; box-shadow:none;
+  }
+  body.view-cards .sheet-head{
+    font-size:13px; font-weight:700; color:#0b3d91; background:#dde6f5; border-radius:8px;
+    padding:7px 10px; margin-bottom:8px; min-height:0;
+  }
+  body.view-cards .tbl{border:0}
+  body.view-cards .prow{
+    display:block; height:auto; border:1px solid #d5dae2; border-radius:12px; background:#fff;
+    margin-bottom:10px; padding:8px 8px 10px; box-shadow:0 1px 4px rgba(20,30,50,.08); overflow:visible;
+  }
+  body.view-cards .cell-photo{
+    width:100%; flex:none; border:0; padding:0; height:52vw; max-height:300px; background:#f4f6fa; border-radius:8px;
+  }
+  body.view-cards .cell-text{padding:10px 2px 0; font-size:15px}
+  body.view-cards .f{margin-bottom:0; padding:7px 6px; border-bottom:1px dashed #dfe4ec; min-height:0}
+  body.view-cards .f-site{font-size:15px}
+  body.view-cards .rule{display:none}
+  body.view-cards .f-note{min-height:44px; border-bottom:0}
+  body.view-cards .sheet-foot{
+    font-size:12px; color:#5b6472; padding:0 0 4px; text-align:center;
+  }
+  body.view-cards .rowtools{display:flex; position:static; margin:8px 0 0; justify-content:flex-end; background:transparent; border:0; padding:0; flex-wrap:wrap}
+  body.view-cards .rowsel{position:static; margin-bottom:6px}
+  body.view-cards .phototools{display:flex; left:6px; bottom:6px}
+  body.view-cards .cover{padding:16px; background:#fff; border-radius:12px; border:1px solid #d5dae2}
+  body.view-cards .cover .c-sp1{height:8mm}
+  body.view-cards .cover .c-title{font-size:19px}
+  body.view-cards .cover .c-date{margin-top:16px; font-size:14px}
+  body.view-cards .cover .c-logo{margin-top:14px}
+  body.view-cards .cover .c-comp{font-size:19px; margin-top:12px}
+  body.view-cards .cover .c-addr,body.view-cards .cover .c-tel{font-size:13px; margin-top:6px}
+  body.view-cards .fieldlabel{display:inline-block}
+}
+.fieldlabel{display:none; font-size:11px; color:#7c8697; font-weight:700; margin-right:6px; min-width:4.5em}
+
+/* ========== 印刷 ========== */
+@page{size:A4 portrait; margin:0}
+@media print{
+  body{background:#fff}
+  .bar,.panel,.selbar,.pagetools,.rowtools,.rowsel,.phototools,.drop,.toast,.mask,.busy,.fieldlabel{display:none !important}
+  .wrap{padding:0; gap:0; display:block}
+  .pages{display:block; zoom:1 !important; transform:none !important; width:auto !important; margin-bottom:0 !important}
+  .sheetbox{margin:0}
+  .sheet{
+    width:210mm; min-height:297mm; height:297mm; box-shadow:none; margin:0;
+    page-break-after:always; break-after:page;
+  }
+  .sheetbox:last-child .sheet{page-break-after:auto; break-after:auto}
+  .ed:empty::before{content:""}
+  *{-webkit-print-color-adjust:exact; print-color-adjust:exact}
+}
+</style>
+</head>
+<body class="editing">
+
+<div class="bar">
+  <span class="title">📷 写真台帳</span>
+  <select id="projSel" title="台帳を切り替え"></select>
+  <button class="btn sm ghost" id="btnNewProj" title="新しい台帳">＋新規</button>
+  <div class="more2" id="more2">
+    <button class="btn sm ghost" id="btnDupProj" title="この台帳を複製">⧉ 台帳を複製</button>
+    <button class="btn sm ghost" id="btnDelProj" title="この台帳を削除">🗑 台帳を削除</button>
+  </div>
+  <span class="spacer"></span>
+  <button class="btn primary" id="btnAddPhotos">🖼 写真をまとめて追加</button>
+  <button class="btn" id="btnAddPage">＋ページ</button>
+  <button class="btn" id="btnSettings">⚙ 共通設定</button>
+  <button class="btn primary" id="btnPrint">🖨 印刷/PDF</button>
+  <button class="btn" id="btnMore">⋯ その他</button>
+  <div class="more" id="more">
+    <button class="btn" id="btnCamera">📸 その場で撮影</button>
+    <button class="btn" id="btnPaste">📋 まとめて貼り付け</button>
+    <button class="btn" id="btnCopyAll">⧉ 全文コピー</button>
+    <button class="btn" id="btnUndo" title="元に戻す (Ctrl+Z)">↩︎ 元に戻す</button>
+    <button class="btn" id="btnSelAll">☑ 全部の写真を選択</button>
+    <button class="btn" id="btnView">📱／🖨 表示切替</button>
+    <button class="btn" id="btnHelp">? 使い方</button>
+  </div>
+</div>
+
+<div class="panel" id="panel">
+  <h3>共通項目（ここを直すと 表紙・全ページのヘッダー・全写真の欄が自動で書き換わります）<span class="linked">🔗 自動反映</span></h3>
+  <div class="grid">
+    <div class="fld"><label>台帳の名前（アプリ内の管理用）</label><input type="text" id="in_name"></div>
+    <div class="fld"><label>物件名 🔗</label><input type="text" id="in_siteName" placeholder="TOHOシネマズ西新井"></div>
+    <div class="fld"><label>工事名 🔗</label><input type="text" id="in_workName" placeholder="コンセッション環境改善工事"></div>
+    <div class="fld"><label>日付（表紙）</label><input type="text" id="in_date" placeholder="2026/08/10"></div>
+    <div class="fld"><label>会社名（表紙）</label><input type="text" id="in_company"></div>
+    <div class="fld"><label>住所（表紙）</label><input type="text" id="in_address"></div>
+    <div class="fld"><label>電話番号（表紙）</label><input type="text" id="in_tel"></div>
+    <div class="fld"><label>1ページあたりの写真枚数</label>
+      <select id="in_rpp"><option value="1">1枚</option><option value="2">2枚</option><option value="3" selected>3枚</option><option value="4">4枚</option></select>
+    </div>
+    <div class="fld"><label>ヘッダー文字（空欄なら「物件名　工事名」）</label><input type="text" id="in_header" placeholder="（自動）"></div>
+    <div class="fld"><label>フッター書式（{n}=ページ番号 {t}=総ページ数）</label><input type="text" id="in_footer" placeholder="{n}/{t}ページ"></div>
+    <div class="chk"><input type="checkbox" id="in_cover"><label for="in_cover">表紙をつける</label></div>
+    <div class="chk"><input type="checkbox" id="in_inheritStage"><label for="in_inheritStage">新しい行に前の行の「工事区分」を引き継ぐ</label></div>
+    <div class="chk"><input type="checkbox" id="in_inheritPlace"><label for="in_inheritPlace">新しい行に前の行の「撮影箇所」を引き継ぐ</label></div>
+    <div class="fld"><label>表紙のロゴ</label>
+      <div class="row">
+        <button class="btn sm" id="btnLogo" style="background:#0b3d91">画像を選ぶ</button>
+        <button class="btn sm ghost" id="btnLogoDef" style="color:#22303f;border-color:#c6ccd6">既定に戻す</button>
+        <button class="btn sm ghost" id="btnLogoDel" style="color:#b3261e;border-color:#e6c3c0">消す</button>
+      </div>
+    </div>
+    <div class="fld"><label>写真の並び順（まとめて追加するとき）</label>
+      <select id="in_sort"><option value="name">ファイル名順</option><option value="taken">撮影日時順（Exif）</option><option value="pick">選んだ順</option></select>
+    </div>
+    <div class="fld"><label>写真の保存サイズ（長辺px・小さいほど軽い）</label>
+      <select id="in_maxpx"><option value="1200">1200px</option><option value="1600" selected>1600px</option><option value="2000">2000px</option><option value="2600">2600px</option></select>
+    </div>
+    <div class="fld"><label>画面の表示倍率</label>
+      <select id="in_zoom"><option value="fit">用紙を画面幅に合わせる</option><option value="0.5">50%</option><option value="0.75">75%</option><option value="1" selected>100%</option><option value="1.25">125%</option></select>
+    </div>
+    <div class="fld"><label>この台帳</label>
+      <div class="row">
+        <button class="btn sm" id="btnDupProj2" style="background:#0b3d91">複製する</button>
+        <button class="btn sm ghost" id="btnDelProj2" style="color:#b3261e;border-color:#e6c3c0">削除する</button>
+      </div>
+    </div>
+    <div class="fld"><label>データ</label>
+      <div class="row">
+        <button class="btn sm" id="btnExport" style="background:#0b3d91">書き出し(.json)</button>
+        <button class="btn sm" id="btnImport" style="background:#0b3d91">読み込み</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="selbar" id="selbar">
+  <b id="selcount">0枚選択中</b>
+  <input type="text" id="selStage" placeholder="工事区分を一括入力" list="dl_stage">
+  <input type="text" id="selPlace" placeholder="撮影箇所を一括入力" list="dl_place">
+  <button class="btn sm" id="selApply">選択行に反映</button>
+  <button class="btn sm" id="selPhotos">🖼 選択行に写真を入れる</button>
+  <button class="btn sm" id="selClearPhoto">写真を外す</button>
+  <button class="btn sm" id="selDelete" style="border-color:#ffb3ad;color:#ffd6d3">選択行を削除</button>
+  <span class="spacer"></span>
+  <button class="btn sm ghost" id="selAll">全選択</button>
+  <button class="btn sm ghost" id="selNone">選択解除</button>
+</div>
+
+<datalist id="dl_stage"></datalist>
+<datalist id="dl_place"></datalist>
+
+<div class="wrap"><div class="pages" id="pages"></div></div>
+
+<input type="file" id="fileMulti" accept="image/*" multiple hidden>
+<input type="file" id="fileOne" accept="image/*" hidden>
+<input type="file" id="fileCam" accept="image/*" capture="environment" hidden>
+<input type="file" id="fileLogo" accept="image/*" hidden>
+<input type="file" id="fileJson" accept="application/json,.json" hidden>
+
+<div class="mask" id="mask">
+  <div class="modal" id="modal"></div>
+</div>
+<div class="busy" id="busy"><div class="spin"></div><div id="busyTxt">処理中…</div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+
+const DEFAULT_LOGO = 'data:image/png;base64,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';
+/* ============================================================
+   写真台帳アプリ  —  単一HTMLで動作（PC / スマホ 兼用）
+   ============================================================ */
+
+const MM = 96/25.4;                 // 1mm = 3.7795px
+const A4W = 210*MM;                 // A4横幅(px)
+const uid = () => 'x' + Date.now().toString(36) + Math.random().toString(36).slice(2,8);
+const $  = (s,r=document) => r.querySelector(s);
+const $$ = (s,r=document) => Array.from(r.querySelectorAll(s));
+const esc = s => String(s==null?'':s);
+
+const DEFAULT_META = {
+  siteName:'', workName:'', date:'', company:'菱熱工業株式会社',
+  address:'東京都品川区北品川6-7-29 ガーデンシティ品川御殿山', tel:'03-6456-4201',
+  logo:'__default__', cover:true, rowsPerPage:3, header:'', footer:'{n}/{t}ページ',
+  sort:'name', maxpx:1600, inheritStage:true, inheritPlace:false
+};
+
+/* ---------- IndexedDB（使えない環境ではメモリに退避） ---------- */
+const MEM = {projects:new Map(), photos:new Map()};
+let dbFail = false;
+function idb(){
+  return new Promise((res,rej)=>{
+    if(dbFail || !window.indexedDB) return rej(new Error('no-idb'));
+    const r = indexedDB.open('photo-ledger', 1);
+    r.onupgradeneeded = () => {
+      const db = r.result;
+      if(!db.objectStoreNames.contains('projects')) db.createObjectStore('projects',{keyPath:'id'});
+      if(!db.objectStoreNames.contains('photos'))   db.createObjectStore('photos');
+    };
+    r.onsuccess = () => res(r.result);
+    r.onerror   = () => { dbFail = true; rej(r.error); };
+  });
+}
+async function dbPut(store, val, key){
+  try{
+    const db = await idb();
+    await new Promise((res,rej)=>{ const t=db.transaction(store,'readwrite');
+      t.objectStore(store).put(val, key); t.oncomplete=res; t.onerror=()=>rej(t.error); });
+  }catch(e){ MEM[store].set(key!==undefined?key:val.id, val); }
+}
+async function dbGet(store, key){
+  try{
+    const db = await idb();
+    return await new Promise((res,rej)=>{ const t=db.transaction(store,'readonly');
+      const q=t.objectStore(store).get(key); q.onsuccess=()=>res(q.result); q.onerror=()=>rej(q.error); });
+  }catch(e){ return MEM[store].get(key); }
+}
+async function dbDel(store, key){
+  try{
+    const db = await idb();
+    await new Promise((res,rej)=>{ const t=db.transaction(store,'readwrite');
+      t.objectStore(store).delete(key); t.oncomplete=res; t.onerror=()=>rej(t.error); });
+  }catch(e){ MEM[store].delete(key); }
+}
+async function dbAll(store){
+  try{
+    const db = await idb();
+    return await new Promise((res,rej)=>{ const t=db.transaction(store,'readonly');
+      const q=t.objectStore(store).getAll(); q.onsuccess=()=>res(q.result||[]); q.onerror=()=>rej(q.error); });
+  }catch(e){ return Array.from(MEM[store].values()); }
+}
+
+/* ---------- 状態 ---------- */
+let DOC = null;            // 現在の台帳
+let LIST = [];             // 台帳一覧 [{id,name,updatedAt}]
+let rowClip = null;        // 行コピー用の内部クリップボード
+let lastRow = 0;           // 直近に触った行
+const urlCache = new Map();
+const undoStack = [];
+
+function emptyRow(){ return {id:uid(), photo:null, stage:'', place:'', note:'', taken:0}; }
+function newDoc(name){
+  return {id:uid(), name:name||'新しい写真台帳', meta:Object.assign({},DEFAULT_META,{date:todayStr()}),
+          rows:[emptyRow(),emptyRow(),emptyRow()], updatedAt:Date.now()};
+}
+function todayStr(){
+  const d = new Date();
+  const p = n => String(n).padStart(2,'0');
+  return d.getFullYear()+'/'+p(d.getMonth()+1)+'/'+p(d.getDate());
+}
+const rpp = () => Math.max(1, Math.min(4, +DOC.meta.rowsPerPage || 3));
+const pageCount = () => Math.max(1, Math.ceil(DOC.rows.length / rpp()));
+function headerText(){
+  const m = DOC.meta;
+  if(m.header && m.header.trim()) return m.header;
+  return [m.siteName, m.workName].filter(Boolean).join('　');
+}
+function footerText(n,t){
+  return (DOC.meta.footer || '{n}/{t}ページ').replace(/\{n\}/g,n).replace(/\{t\}/g,t);
+}
+
+/* ---------- 保存 ---------- */
+let saveTimer = null;
+function save(now){
+  clearTimeout(saveTimer);
+  const go = async () => {
+    DOC.updatedAt = Date.now();
+    await dbPut('projects', JSON.parse(JSON.stringify(DOC)));
+    const i = LIST.findIndex(p=>p.id===DOC.id);
+    const ent = {id:DOC.id, name:DOC.name, updatedAt:DOC.updatedAt};
+    if(i<0) LIST.push(ent); else LIST[i]=ent;
+    try{ localStorage.setItem('pl.last', DOC.id); }catch(e){}
+    renderProjectSelect();
+  };
+  if(now) return go();
+  saveTimer = setTimeout(go, 400);
+}
+function pushUndo(){
+  undoStack.push(JSON.stringify({meta:DOC.meta, rows:DOC.rows, name:DOC.name}));
+  if(undoStack.length>40) undoStack.shift();
+}
+function undo(){
+  if(!undoStack.length) return toast('元に戻せる操作がありません');
+  const s = JSON.parse(undoStack.pop());
+  DOC.meta = s.meta; DOC.rows = s.rows; DOC.name = s.name;
+  render(); fillPanel(); save(); toast('元に戻しました');
+}
+
+/* ---------- 画像 ---------- */
+function photoURL(id){
+  if(!id) return null;
+  if(urlCache.has(id)) return urlCache.get(id);
+  return null;
+}
+async function loadPhotoURL(id){
+  if(!id) return null;
+  if(urlCache.has(id)) return urlCache.get(id);
+  const blob = await dbGet('photos', id);
+  if(!blob) return null;
+  const url = URL.createObjectURL(blob);
+  urlCache.set(id, url);
+  return url;
+}
+async function shrink(file, maxpx){
+  let bmp;
+  try{ bmp = await createImageBitmap(file, {imageOrientation:'from-image'}); }
+  catch(e){ bmp = await createImageBitmap(file); }
+  let w = bmp.width, h = bmp.height;
+  const s = Math.min(1, maxpx/Math.max(w,h));
+  w = Math.max(1,Math.round(w*s)); h = Math.max(1,Math.round(h*s));
+  const c = document.createElement('canvas'); c.width=w; c.height=h;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle='#fff'; ctx.fillRect(0,0,w,h);
+  ctx.drawImage(bmp,0,0,w,h);
+  if(bmp.close) bmp.close();
+  return await new Promise(r=>c.toBlob(r,'image/jpeg',0.85));
+}
+async function rotatePhoto(id){
+  const blob = await dbGet('photos', id);
+  if(!blob) return;
+  const bmp = await createImageBitmap(blob);
+  const c = document.createElement('canvas'); c.width=bmp.height; c.height=bmp.width;
+  const x = c.getContext('2d');
+  x.translate(c.width/2, c.height/2); x.rotate(Math.PI/2);
+  x.drawImage(bmp, -bmp.width/2, -bmp.height/2);
+  if(bmp.close) bmp.close();
+  const out = await new Promise(r=>c.toBlob(r,'image/jpeg',0.88));
+  await dbPut('photos', out, id);
+  const old = urlCache.get(id); if(old) URL.revokeObjectURL(old);
+  urlCache.delete(id);
+}
+/* Exif の撮影日時（JPEGのみ・失敗したら0） */
+async function exifTaken(file){
+  try{
+    const buf = await file.slice(0, 256*1024).arrayBuffer();
+    const v = new DataView(buf);
+    if(v.getUint16(0) !== 0xFFD8) return 0;
+    let off = 2;
+    while(off < v.byteLength-4){
+      if(v.getUint8(off) !== 0xFF) break;
+      const marker = v.getUint8(off+1), size = v.getUint16(off+2);
+      if(marker === 0xE1){
+        const start = off+4;
+        if(v.getUint32(start) !== 0x45786966) return 0;      // "Exif"
+        const t = start+6;
+        const le = v.getUint16(t) === 0x4949;
+        const g16 = p => v.getUint16(p, le), g32 = p => v.getUint32(p, le);
+        let ifd = t + g32(t+4);
+        const readIFD = (p, tag) => {
+          const n = g16(p);
+          for(let i=0;i<n;i++){
+            const e = p+2+i*12;
+            if(g16(e) === tag) return {type:g16(e+2), cnt:g32(e+4), val:g32(e+8), ent:e};
+          }
+          return null;
+        };
+        const exifPtr = readIFD(ifd, 0x8769);
+        if(exifPtr){
+          const d = readIFD(t + exifPtr.val, 0x9003);
+          if(d){
+            let p = d.cnt > 4 ? t + d.val : d.ent + 8;
+            let s = '';
+            for(let i=0;i<19;i++) s += String.fromCharCode(v.getUint8(p+i));
+            const m = s.match(/(\d{4}):(\d{2}):(\d{2}) (\d{2}):(\d{2}):(\d{2})/);
+            if(m) return new Date(+m[1],+m[2]-1,+m[3],+m[4],+m[5],+m[6]).getTime();
+          }
+        }
+        return 0;
+      }
+      if(marker === 0xDA) break;
+      off += 2 + size;
+    }
+  }catch(e){}
+  return 0;
+}
+
+/* ============================================================
+   描画
+   ============================================================ */
+function el(tag, cls, txt){
+  const e = document.createElement(tag);
+  if(cls) e.className = cls;
+  if(txt != null) e.textContent = txt;
+  return e;
+}
+function edSpan(ph){
+  const s = el('span','ed');
+  s.setAttribute('contenteditable','true');
+  s.setAttribute('spellcheck','false');
+  if(ph) s.dataset.ph = ph;
+  return s;
+}
+function field(labelTxt, cls, ph){
+  const f = el('div','f '+cls);
+  f.appendChild(el('span','fieldlabel', labelTxt));
+  const e = edSpan(ph);
+  f.appendChild(e);
+  return {wrap:f, ed:e};
+}
+
+function render(){
+  const pages = $('#pages');
+  pages.innerHTML = '';
+  const n = rpp(), total = pageCount();
+
+  if(DOC.meta.cover) pages.appendChild(coverSheet());
+
+  for(let p=0; p<total; p++){
+    const box = el('div','sheetbox');
+    const sh  = el('div','sheet');
+    sh.style.setProperty('--rowh', (259.2/n)+'mm');
+
+    const head = el('div','sheet-head', headerText());
+    head.dataset.auto = '1';
+    sh.appendChild(head);
+
+    const tbl = el('div','tbl');
+    for(let k=0; k<n; k++){
+      const i = p*n + k;
+      if(i >= DOC.rows.length) DOC.rows.push(emptyRow());
+      tbl.appendChild(rowEl(i));
+    }
+    sh.appendChild(tbl);
+    sh.appendChild(el('div','sheet-foot', footerText(p+1, total)));
+
+    box.appendChild(sh);
+    box.appendChild(pageTools(p, total));
+    pages.appendChild(box);
+  }
+  applyZoom();
+  refreshDatalists();
+  updateSelBar();
+}
+
+function coverSheet(){
+  const m = DOC.meta;
+  const box = el('div','sheetbox');
+  const sh  = el('div','sheet cover');
+  sh.appendChild(el('div','c-sp1'));
+
+  const t1 = el('div','c-title'); const e1 = edSpan('物件名'); e1.dataset.bind='siteName'; e1.textContent=m.siteName; t1.appendChild(e1);
+  const t2 = el('div','c-title'); const e2 = edSpan('工事名'); e2.dataset.bind='workName'; e2.textContent=m.workName; t2.appendChild(e2);
+  sh.appendChild(t1); sh.appendChild(t2);
+
+  const dt = el('div','c-date'); const e3 = edSpan('日付'); e3.dataset.bind='date'; e3.textContent=m.date; dt.appendChild(e3);
+  sh.appendChild(dt);
+
+  const lg = el('div','c-logo');
+  const src = m.logo === '__default__' ? DEFAULT_LOGO : m.logo;
+  if(src){ const im = el('img'); im.src = src; im.alt=''; lg.appendChild(im); }
+  sh.appendChild(lg);
+
+  const cp = el('div','c-comp'); const e4 = edSpan('会社名'); e4.dataset.bind='company'; e4.textContent=m.company; cp.appendChild(e4);
+  const ad = el('div','c-addr'); const e5 = edSpan('住所');   e5.dataset.bind='address'; e5.textContent=m.address; ad.appendChild(e5);
+  const tl = el('div','c-tel');  const e6 = edSpan('電話');   e6.dataset.bind='tel';     e6.textContent=m.tel;     tl.appendChild(e6);
+  sh.appendChild(cp); sh.appendChild(ad); sh.appendChild(tl);
+
+  const tools = el('div','pagetools');
+  tools.appendChild(el('span','pagelabel','表紙'));
+  const b = el('button','btn sm','表紙を外す');
+  b.onclick = () => { pushUndo(); DOC.meta.cover=false; $('#in_cover').checked=false; render(); save(); };
+  tools.appendChild(b);
+  box.appendChild(sh); box.appendChild(tools);
+  return box;
+}
+
+function rowEl(i){
+  const r = DOC.rows[i];
+  const row = el('div','prow');
+  row.dataset.i = i;
+  if(r.sel) row.classList.add('selected');
+
+  /* 選択チェック */
+  const ck = el('input','rowsel'); ck.type='checkbox'; ck.checked=!!r.sel; ck.title='複数選択';
+  ck.onchange = () => { r.sel = ck.checked; row.classList.toggle('selected', ck.checked); updateSelBar(); };
+  row.appendChild(ck);
+
+  /* 写真セル */
+  const pc = el('div','cell-photo');
+  pc.dataset.i = i;
+  if(r.photo){
+    const im = el('img'); im.alt='';
+    const cached = photoURL(r.photo);
+    if(cached) im.src = cached;
+    else loadPhotoURL(r.photo).then(u => { if(u) im.src = u; });
+    pc.appendChild(im);
+    const pt = el('div','phototools');
+    pt.appendChild(mini('↻','回転', async ()=>{ busy(true,'回転中…'); await rotatePhoto(r.photo); busy(false); render(); }));
+    pt.appendChild(mini('差替','写真を差し替え', ()=>pickOne(i)));
+    pt.appendChild(mini('✕','写真を外す', ()=>{ pushUndo(); r.photo=null; render(); save(); }));
+    pc.appendChild(pt);
+  }else{
+    const d = el('div','drop');
+    d.innerHTML = '<b>＋ 写真を入れる</b><span>クリックで選択（複数可）／ドラッグ＆ドロップ／貼り付け</span>';
+    d.onclick = () => pickMulti(i);
+    pc.appendChild(d);
+  }
+  pc.addEventListener('dragover', e => { e.preventDefault(); pc.classList.add('dragover'); });
+  pc.addEventListener('dragleave', () => pc.classList.remove('dragover'));
+  pc.addEventListener('drop', e => {
+    e.preventDefault(); e.stopPropagation(); pc.classList.remove('dragover');
+    const fs = Array.from(e.dataTransfer.files||[]).filter(f=>f.type.startsWith('image/'));
+    if(fs.length) addPhotos(fs, i);
+  });
+  row.appendChild(pc);
+
+  /* テキストセル */
+  const tc = el('div','cell-text');
+  const site = field('物件名','f-site','物件名');
+  site.ed.dataset.bind='siteName'; site.ed.textContent = DOC.meta.siteName;
+  tc.appendChild(site.wrap);
+  tc.appendChild(el('div','rule'));
+
+  const work = field('工事名','f-work','工事名');
+  work.ed.dataset.bind='workName'; work.ed.textContent = DOC.meta.workName;
+  tc.appendChild(work.wrap);
+
+  const st = field('工事区分','f-stage','工事前 / 工事中 / 工事後');
+  st.ed.dataset.k='stage'; st.ed.dataset.i=i; st.ed.textContent = r.stage;
+  tc.appendChild(st.wrap);
+
+  const pl = field('撮影箇所','f-place','撮影箇所');
+  pl.ed.dataset.k='place'; pl.ed.dataset.i=i; pl.ed.textContent = r.place;
+  tc.appendChild(pl.wrap);
+
+  const nt = field('備考','f-note','備考（改行できます）');
+  nt.ed.dataset.k='note'; nt.ed.dataset.i=i; nt.ed.textContent = r.note;
+  tc.appendChild(nt.wrap);
+  row.appendChild(tc);
+
+  /* 行ツール */
+  const tools = el('div','rowtools');
+  tools.appendChild(mini('▲','ひとつ前へ', ()=>moveRow(i,-1)));
+  tools.appendChild(mini('▼','ひとつ後ろへ', ()=>moveRow(i, 1)));
+  tools.appendChild(mini('⧉','この行をコピー', ()=>{ rowClip={stage:r.stage,place:r.place,note:r.note};
+      copyText([r.stage,r.place,r.note.replace(/\n/g,'｜')].join('\t')); toast('この行をコピーしました（他の行の「貼」で貼り付け）'); }));
+  tools.appendChild(mini('貼','コピーした文字を貼り付け', ()=>{
+      if(!rowClip) return toast('先に「⧉」でコピーしてください');
+      pushUndo(); Object.assign(r, rowClip); render(); save(); }));
+  tools.appendChild(mini('↑同','ひとつ前の行と同じ文字にする', ()=>{
+      if(i===0) return toast('前の行がありません');
+      pushUndo(); const p=DOC.rows[i-1]; r.stage=p.stage; r.place=p.place; r.note=p.note; render(); save(); }));
+  tools.appendChild(mini('＋行','この下に行を追加', ()=>{ pushUndo(); const nr=emptyRow();
+      if(DOC.meta.inheritStage) nr.stage=r.stage;
+      if(DOC.meta.inheritPlace) nr.place=r.place;
+      DOC.rows.splice(i+1,0,nr); render(); save(); }));
+  tools.appendChild(mini('複製','写真ごと複製', ()=>{ pushUndo();
+      DOC.rows.splice(i+1,0,Object.assign({},r,{id:uid(),sel:false})); render(); save(); }));
+  const del = mini('削除','この行を削除', ()=>{ pushUndo(); DOC.rows.splice(i,1);
+      if(!DOC.rows.length) DOC.rows.push(emptyRow()); render(); save(); toast('行を削除（↩︎で戻せます）'); });
+  del.classList.add('danger');
+  tools.appendChild(del);
+  row.appendChild(tools);
+
+  return row;
+}
+function mini(label, title, fn){
+  const b = el('button','btn sm', label);
+  b.title = title; b.type='button';
+  b.onclick = e => { e.preventDefault(); e.stopPropagation(); fn(); };
+  return b;
+}
+function pageTools(p, total){
+  const t = el('div','pagetools');
+  t.appendChild(el('span','pagelabel', (p+1)+' / '+total+' ページ'));
+  t.appendChild(mini('＋ このページの後にページを追加','空のページを追加', ()=>{
+     pushUndo(); const n=rpp(); const at=(p+1)*n; const add=[];
+     const last = DOC.rows[at-1] || {};
+     for(let k=0;k<n;k++){ const r=emptyRow();
+       if(DOC.meta.inheritStage) r.stage=last.stage||'';
+       if(DOC.meta.inheritPlace) r.place=last.place||'';
+       add.push(r); }
+     DOC.rows.splice(at,0,...add); render(); save();
+     toast('ページを追加しました');
+  }));
+  t.appendChild(mini('🖼 このページに写真を入れる','このページの枠に写真をまとめて入れる', ()=>pickMulti(p*rpp())));
+  const d = mini('🗑 このページを削除','ページごと削除', ()=>{
+     if(!confirm((p+1)+'ページ目を削除します。よろしいですか？')) return;
+     pushUndo(); DOC.rows.splice(p*rpp(), rpp());
+     if(!DOC.rows.length) DOC.rows.push(emptyRow());
+     render(); save(); toast('ページを削除（↩︎で戻せます）');
+  });
+  d.classList.add('danger');
+  t.appendChild(d);
+  return t;
+}
+function moveRow(i, d){
+  const j = i + d;
+  if(j < 0 || j >= DOC.rows.length) return;
+  pushUndo();
+  const [r] = DOC.rows.splice(i,1);
+  DOC.rows.splice(j,0,r);
+  render(); save();
+}
+
+/* ---------- 連動フィールド ---------- */
+function syncBound(key, except){
+  const v = DOC.meta[key] || '';
+  $$('[data-bind="'+key+'"]').forEach(e => { if(e !== except) e.textContent = v; });
+  const inp = $('#in_'+key);
+  if(inp && document.activeElement !== inp) inp.value = v;
+  if(key==='siteName' || key==='workName' || key==='header'){
+    const h = headerText();
+    $$('.sheet-head[data-auto]').forEach(e => e.textContent = h);
+  }
+}
+function refreshDatalists(){
+  const put = (id, vals) => {
+    const dl = $(id); dl.innerHTML='';
+    Array.from(new Set(vals.filter(v=>v && v.trim()))).slice(0,60)
+      .forEach(v => { const o=document.createElement('option'); o.value=v; dl.appendChild(o); });
+  };
+  put('#dl_stage', DOC.rows.map(r=>r.stage));
+  put('#dl_place', DOC.rows.map(r=>r.place));
+}
+const CAN_ZOOM = !!(window.CSS && CSS.supports && CSS.supports('zoom','0.5'));
+function setScale(pages, z){
+  if(z === 1){ clearScale(pages); return; }
+  if(CAN_ZOOM){ pages.style.zoom = z; return; }
+  pages.style.transformOrigin = 'top left';
+  pages.style.transform = 'scale(' + z + ')';
+  pages.style.width = (100/z) + '%';
+  pages.style.marginBottom = (-(pages.offsetHeight * (1-z))) + 'px';
+}
+function clearScale(pages){
+  pages.style.zoom = ''; pages.style.transform = ''; pages.style.width = ''; pages.style.marginBottom = '';
+}
+function applyZoom(){
+  const pages = $('#pages');
+  if(!pages) return;
+  let z = (DOC && DOC.meta.zoom) || 'fit';
+  if(document.body.classList.contains('view-cards')){ clearScale(pages); return; }
+  if(z === 'fit'){
+    const wrap = $('.wrap');
+    const avail = Math.min((wrap ? wrap.clientWidth : window.innerWidth) - 10, 1400);
+    z = Math.max(0.2, Math.min(1, avail / A4W));
+  }
+  setScale(pages, +z);
+}
+window.addEventListener('beforeprint', () => clearScale($('#pages')));
+window.addEventListener('afterprint', () => applyZoom());
+
+/* ============================================================
+   入力・イベント
+   ============================================================ */
+function toast(msg, ms){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._t); t._t = setTimeout(()=>t.classList.remove('show'), ms||2200);
+}
+function busy(on, txt){
+  $('#busyTxt').textContent = txt || '処理中…';
+  $('#busy').classList.toggle('open', !!on);
+}
+function copyText(s){
+  if(navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(s).catch(()=>fallbackCopy(s));
+  return fallbackCopy(s);
+}
+function fallbackCopy(s){
+  const ta = document.createElement('textarea');
+  ta.value = s; ta.style.position='fixed'; ta.style.opacity='0';
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand('copy'); }catch(e){}
+  ta.remove();
+}
+
+/* ---------- 文字入力（連動あり） ---------- */
+document.addEventListener('input', e => {
+  const ed = e.target.closest ? e.target.closest('.ed') : null;
+  if(!ed) return;
+  const v = ed.innerText.replace(/\u00a0/g,' ').replace(/\n$/,'');
+  if(ed.dataset.bind){
+    DOC.meta[ed.dataset.bind] = v;
+    syncBound(ed.dataset.bind, ed);
+  }else if(ed.dataset.k){
+    const i = +ed.dataset.i;
+    if(DOC.rows[i]){ DOC.rows[i][ed.dataset.k] = v; lastRow = i; }
+  }
+  save();
+});
+/* 貼り付けは書式なしテキストに */
+document.addEventListener('paste', e => {
+  const ed = e.target.closest ? e.target.closest('.ed') : null;
+  const items = e.clipboardData ? Array.from(e.clipboardData.items||[]) : [];
+  const imgs = items.filter(it => it.kind === 'file' && it.type.startsWith('image/'))
+                    .map(it => it.getAsFile()).filter(Boolean);
+  if(imgs.length){                                   // 画像の貼り付け
+    e.preventDefault();
+    const i = (ed && ed.dataset.i != null) ? +ed.dataset.i : firstEmptyIndex();
+    addPhotos(imgs, i);
+    return;
+  }
+  if(!ed) return;
+  e.preventDefault();
+  let txt = (e.clipboardData && e.clipboardData.getData('text/plain')) || '';
+  if(!ed.classList.contains('multi') && ed.dataset.k !== 'note') txt = txt.replace(/\s*\n+\s*/g,' ');
+  document.execCommand('insertText', false, txt);
+});
+/* Enter：1行項目では次の欄へ */
+document.addEventListener('keydown', e => {
+  const ed = e.target.closest ? e.target.closest('.ed') : null;
+  if(ed && e.key === 'Enter' && ed.dataset.k !== 'note' && !e.shiftKey){
+    e.preventDefault();
+    const all = $$('.ed');
+    const n = all[all.indexOf(ed)+1];
+    if(n) n.focus();
+    return;
+  }
+  if((e.ctrlKey||e.metaKey) && e.key === 'z' && !ed && !/input|textarea/i.test(document.activeElement.tagName)){
+    e.preventDefault(); undo();
+  }
+  if((e.ctrlKey||e.metaKey) && e.key === 'p'){ e.preventDefault(); doPrint(); }
+});
+/* 欄のどこをクリックしても文字入力にフォーカス */
+document.addEventListener('click', e => {
+  const f = e.target.closest ? e.target.closest('.f') : null;
+  if(f && !e.target.closest('.ed')){ const ed = f.querySelector('.ed'); if(ed) ed.focus(); }
+  const ed = e.target.closest ? e.target.closest('.ed') : null;
+  if(ed && ed.dataset.i != null) lastRow = +ed.dataset.i;
+});
+
+/* ---------- 写真の追加 ---------- */
+function firstEmptyIndex(){
+  const i = DOC.rows.findIndex(r => !r.photo);
+  return i < 0 ? DOC.rows.length : i;
+}
+function pickMulti(startIndex){ $('#fileMulti')._at = startIndex; $('#fileMulti').click(); }
+function pickOne(index){ $('#fileOne')._at = index; $('#fileOne').click(); }
+
+async function sortFiles(files){
+  const mode = DOC.meta.sort || 'name';
+  const arr = files.slice();
+  if(mode === 'pick') return arr;
+  if(mode === 'name'){
+    const col = new Intl.Collator('ja', {numeric:true, sensitivity:'base'});
+    return arr.sort((a,b) => col.compare(a.name, b.name));
+  }
+  const withT = [];
+  for(const f of arr) withT.push({f, t: (await exifTaken(f)) || f.lastModified || 0});
+  withT.sort((a,b) => a.t - b.t);
+  return withT.map(x => x.f);
+}
+
+async function addPhotos(files, startIndex, targets){
+  files = Array.from(files).filter(f => f.type.startsWith('image/'));
+  if(!files.length) return;
+  pushUndo();
+  busy(true, '写真を読み込み中… (0/'+files.length+')');
+  const sorted = await sortFiles(files);
+  const maxpx = +DOC.meta.maxpx || 1600;
+  let ti = 0;
+  let cursor = (startIndex == null ? firstEmptyIndex() : Math.max(0, startIndex));
+
+  for(let k=0; k<sorted.length; k++){
+    busy(true, '写真を読み込み中… ('+(k+1)+'/'+sorted.length+')');
+    let idx;
+    if(targets && targets.length){
+      idx = (ti < targets.length) ? targets[ti++] : null;
+      if(idx == null){ DOC.rows.push(newInheritRow()); idx = DOC.rows.length-1; }
+    }else{
+      while(cursor < DOC.rows.length && DOC.rows[cursor].photo) cursor++;
+      if(cursor >= DOC.rows.length){ DOC.rows.push(newInheritRow()); }
+      idx = cursor; cursor++;
+    }
+    try{
+      const blob = await shrink(sorted[k], maxpx);
+      const id = uid();
+      await dbPut('photos', blob, id);
+      const r = DOC.rows[idx];
+      const old = r.photo;
+      r.photo = id;
+      r.taken = (await exifTaken(sorted[k])) || sorted[k].lastModified || 0;
+      if(old && urlCache.has(old)){ URL.revokeObjectURL(urlCache.get(old)); urlCache.delete(old); }
+    }catch(err){ console.error(err); toast('読み込めない画像がありました: '+sorted[k].name); }
+  }
+  padToFullPage();
+  busy(false);
+  render(); save();
+  toast(sorted.length + '枚の写真を入れました');
+}
+function newInheritRow(){
+  const r = emptyRow();
+  const last = DOC.rows[DOC.rows.length-1];
+  if(last){
+    if(DOC.meta.inheritStage) r.stage = last.stage || '';
+    if(DOC.meta.inheritPlace) r.place = last.place || '';
+  }
+  return r;
+}
+function padToFullPage(){
+  const n = rpp();
+  while(DOC.rows.length % n !== 0) DOC.rows.push(newInheritRow());
+}
+
+$('#fileMulti').addEventListener('change', e => {
+  const at = e.target._at, tg = e.target._targets;
+  e.target._at = null; e.target._targets = null;
+  if(e.target.files.length) addPhotos(e.target.files, at, tg);
+  e.target.value = '';
+});
+$('#fileOne').addEventListener('change', e => {
+  const at = e.target._at; e.target._at = null;
+  if(e.target.files.length) addPhotos([e.target.files[0]], at, [at]);
+  e.target.value = '';
+});
+$('#fileCam').addEventListener('change', e => {
+  if(e.target.files.length) addPhotos(e.target.files, null);
+  e.target.value = '';
+});
+/* 画面全体へのドラッグ＆ドロップ */
+document.addEventListener('dragover', e => { if(e.dataTransfer && e.dataTransfer.types.includes('Files')) e.preventDefault(); });
+document.addEventListener('drop', e => {
+  const fs = Array.from((e.dataTransfer && e.dataTransfer.files) || []).filter(f=>f.type.startsWith('image/'));
+  if(fs.length){ e.preventDefault(); addPhotos(fs, null); }
+});
+
+/* ---------- 複数選択 ---------- */
+function selected(){ return DOC.rows.map((r,i)=>r.sel?i:-1).filter(i=>i>=0); }
+function updateSelBar(){
+  const s = selected();
+  $('#selbar').classList.toggle('open', s.length > 0);
+  $('#selcount').textContent = s.length + '枚選択中';
+}
+$('#selAll').onclick  = () => { DOC.rows.forEach(r=>r.sel=true);  render(); };
+$('#btnSelAll').onclick = () => { DOC.rows.forEach(r=>r.sel=true); render();
+  toast('全部の行を選択しました。上のバーからまとめて入力・削除できます'); };
+$('#selNone').onclick = () => { DOC.rows.forEach(r=>r.sel=false); render(); };
+$('#selApply').onclick = () => {
+  const s = selected(); if(!s.length) return;
+  const st = $('#selStage').value, pl = $('#selPlace').value;
+  if(!st && !pl) return toast('一括入力する文字を入れてください');
+  pushUndo();
+  s.forEach(i => { if(st) DOC.rows[i].stage = st; if(pl) DOC.rows[i].place = pl; });
+  render(); save(); toast(s.length + '行に反映しました');
+};
+$('#selPhotos').onclick = () => {
+  const s = selected(); if(!s.length) return;
+  const inp = $('#fileMulti');
+  inp._targets = s; inp._at = s[0];
+  inp.click();
+};
+$('#selClearPhoto').onclick = () => {
+  const s = selected(); if(!s.length) return;
+  pushUndo(); s.forEach(i => DOC.rows[i].photo = null); render(); save();
+};
+$('#selDelete').onclick = () => {
+  const s = selected(); if(!s.length) return;
+  if(!confirm(s.length + '行を削除します。よろしいですか？')) return;
+  pushUndo();
+  DOC.rows = DOC.rows.filter(r => !r.sel);
+  if(!DOC.rows.length) DOC.rows.push(emptyRow());
+  render(); save(); toast('削除しました（↩︎で戻せます）');
+};
+
+/* ============================================================
+   共通設定パネル
+   ============================================================ */
+function fillPanel(){
+  const m = DOC.meta;
+  $('#in_name').value     = DOC.name;
+  $('#in_siteName').value = m.siteName;
+  $('#in_workName').value = m.workName;
+  $('#in_date').value     = m.date;
+  $('#in_company').value  = m.company;
+  $('#in_address').value  = m.address;
+  $('#in_tel').value      = m.tel;
+  $('#in_rpp').value      = m.rowsPerPage;
+  $('#in_header').value   = m.header || '';
+  $('#in_footer').value   = m.footer || '';
+  $('#in_cover').checked  = !!m.cover;
+  $('#in_sort').value     = m.sort || 'name';
+  $('#in_maxpx').value    = m.maxpx || 1600;
+  $('#in_zoom').value     = m.zoom || 'fit';
+  const ih = $('#in_inheritStage'), ip = $('#in_inheritPlace');
+  if(ih) ih.checked = !!m.inheritStage;
+  if(ip) ip.checked = !!m.inheritPlace;
+}
+function bindMeta(inputId, key, opt){
+  const e = $(inputId);
+  if(!e) return;
+  const ev = (e.type === 'checkbox' || e.tagName === 'SELECT') ? 'change' : 'input';
+  e.addEventListener(ev, () => {
+    DOC.meta[key] = (e.type === 'checkbox') ? e.checked : e.value;
+    if(opt && opt.rerender) render(); else syncBound(key, null);
+    save();
+  });
+}
+bindMeta('#in_siteName','siteName');
+bindMeta('#in_workName','workName');
+bindMeta('#in_date','date');
+bindMeta('#in_company','company');
+bindMeta('#in_address','address');
+bindMeta('#in_tel','tel');
+bindMeta('#in_header','header');
+bindMeta('#in_footer','footer',{rerender:true});
+bindMeta('#in_cover','cover',{rerender:true});
+bindMeta('#in_inheritStage','inheritStage');
+bindMeta('#in_inheritPlace','inheritPlace');
+bindMeta('#in_sort','sort');
+bindMeta('#in_maxpx','maxpx');
+$('#in_rpp').addEventListener('change', () => {
+  pushUndo();
+  DOC.meta.rowsPerPage = +$('#in_rpp').value;
+  padToFullPage(); render(); save();
+});
+$('#in_zoom').addEventListener('change', () => {
+  DOC.meta.zoom = $('#in_zoom').value;
+  try{ localStorage.setItem('pl.zoom', DOC.meta.zoom); }catch(e){}
+  applyZoom(); save();
+});
+$('#in_name').addEventListener('input', () => { DOC.name = $('#in_name').value; save(); });
+$('#btnSettings').onclick = () => $('#panel').classList.toggle('open');
+$('#btnDupProj2').onclick = () => $('#btnDupProj').click();
+$('#btnDelProj2').onclick = () => $('#btnDelProj').click();
+$('#btnMore').onclick = e => { e.stopPropagation(); $('#more').classList.toggle('open'); $('#more2').classList.remove('open'); };
+$('#projSel').addEventListener('dblclick', () => $('#more2').classList.toggle('open'));
+document.addEventListener('click', e => {
+  if(!e.target.closest('#more') && !e.target.closest('#btnMore')) $('#more').classList.remove('open');
+  if(!e.target.closest('#more2') && !e.target.closest('#projSel')) $('#more2').classList.remove('open');
+});
+$$('#more .btn').forEach(b => b.addEventListener('click', () => $('#more').classList.remove('open')));
+
+/* ロゴ */
+$('#btnLogo').onclick    = () => $('#fileLogo').click();
+$('#btnLogoDef').onclick = () => { DOC.meta.logo = '__default__'; render(); save(); };
+$('#btnLogoDel').onclick = () => { DOC.meta.logo = ''; render(); save(); };
+$('#fileLogo').addEventListener('change', async e => {
+  const f = e.target.files[0]; e.target.value='';
+  if(!f) return;
+  const blob = await shrink(f, 700);
+  const fr = new FileReader();
+  fr.onload = () => { DOC.meta.logo = fr.result; render(); save(); };
+  fr.readAsDataURL(blob);
+});
+
+/* ============================================================
+   台帳（プロジェクト）管理
+   ============================================================ */
+function renderProjectSelect(){
+  const sel = $('#projSel');
+  sel.innerHTML = '';
+  LIST.slice().sort((a,b)=>b.updatedAt-a.updatedAt).forEach(p => {
+    const o = document.createElement('option');
+    o.value = p.id; o.textContent = p.name || '(名称未設定)';
+    if(p.id === DOC.id) o.selected = true;
+    sel.appendChild(o);
+  });
+}
+$('#projSel').onchange = async () => { await openProject($('#projSel').value); };
+$('#btnNewProj').onclick = async () => {
+  const name = prompt('新しい台帳の名前', '写真台帳 ' + todayStr());
+  if(name === null) return;
+  await save(true);
+  DOC = newDoc(name);
+  urlCache.clear(); undoStack.length = 0;
+  await save(true); fillPanel(); render();
+  $('#panel').classList.add('open');
+  toast('新しい台帳をつくりました');
+};
+$('#btnDupProj').onclick = async () => {
+  await save(true);
+  const copy = JSON.parse(JSON.stringify(DOC));
+  copy.id = uid(); copy.name = DOC.name + ' のコピー';
+  for(const r of copy.rows){
+    if(r.photo){
+      const b = await dbGet('photos', r.photo);
+      if(b){ const nid = uid(); await dbPut('photos', b, nid); r.photo = nid; }
+    }
+  }
+  DOC = copy; undoStack.length = 0;
+  await save(true); fillPanel(); render(); toast('複製しました');
+};
+$('#btnDelProj').onclick = async () => {
+  if(!confirm('この台帳「' + DOC.name + '」を削除します。元に戻せません。よろしいですか？')) return;
+  for(const r of DOC.rows) if(r.photo) await dbDel('photos', r.photo);
+  await dbDel('projects', DOC.id);
+  LIST = LIST.filter(p => p.id !== DOC.id);
+  urlCache.clear(); undoStack.length = 0;
+  if(LIST.length) await openProject(LIST[0].id);
+  else { DOC = newDoc(); await save(true); fillPanel(); render(); }
+  toast('削除しました');
+};
+async function openProject(id){
+  await save(true);
+  const d = await dbGet('projects', id);
+  if(!d) return toast('台帳が見つかりません');
+  DOC = d;
+  DOC.meta = Object.assign({}, DEFAULT_META, DOC.meta);
+  DOC.rows.forEach(r => r.sel = false);
+  urlCache.clear(); undoStack.length = 0;
+  try{ localStorage.setItem('pl.last', DOC.id); }catch(e){}
+  fillPanel(); render(); renderProjectSelect();
+}
+
+/* ============================================================
+   コピー＆貼り付け
+   ============================================================ */
+$('#btnCopyAll').onclick = () => {
+  const n = rpp();
+  const head = ['ページ','番号','物件名','工事名','工事区分','撮影箇所','備考'].join('\t');
+  const body = DOC.rows.map((r,i) => [
+    Math.floor(i/n)+1, i+1, DOC.meta.siteName, DOC.meta.workName,
+    r.stage, r.place, (r.note||'').replace(/\n/g,'｜')
+  ].join('\t'));
+  copyText([head].concat(body).join('\n'));
+  toast('台帳の文字を全部コピーしました（Excelにそのまま貼れます）');
+};
+
+function modal(html){
+  $('#modal').innerHTML = html;
+  $('#mask').classList.add('open');
+}
+function closeModal(){ $('#mask').classList.remove('open'); }
+$('#mask').addEventListener('click', e => { if(e.target.id === 'mask') closeModal(); });
+
+$('#btnPaste').onclick = () => {
+  modal(
+    '<h2>まとめて貼り付け</h2>' +
+    '<p>Excel やメモから <b>1行＝写真1枚</b> で貼り付けできます。列は <b>タブ区切り</b>で ' +
+    '「工事区分 → 撮影箇所 → 備考」の順。備考の中で改行したいところは <b>｜</b>（縦棒）で区切ってください。<br>' +
+    '例：<code>工事前&#9;送風機&#9;風量5,500m3/h</code></p>' +
+    '<textarea id="pasteTa" placeholder="工事前	コンセッション内&#10;工事前	送風機	風量5,500m3/h"></textarea>' +
+    '<p><label><input type="checkbox" id="pasteFrom"> 選択中の行から反映する（未チェックなら1行目から）</label><br>' +
+    '<label><input type="checkbox" id="pasteGrow" checked> 行が足りないときは自動で追加する</label></p>' +
+    '<div class="acts"><button class="btn ghost" id="pcancel">やめる</button>' +
+    '<button class="btn" id="pok">反映する</button></div>'
+  );
+  $('#pcancel').onclick = closeModal;
+  $('#pok').onclick = () => {
+    const txt = $('#pasteTa').value.replace(/\r/g,'');
+    const lines = txt.split('\n').filter(l => l.trim() !== '');
+    if(!lines.length) return closeModal();
+    pushUndo();
+    const sel = selected();
+    let start = ($('#pasteFrom').checked && sel.length) ? sel[0] : 0;
+    const grow = $('#pasteGrow').checked;
+    lines.forEach((ln, k) => {
+      const i = start + k;
+      if(i >= DOC.rows.length){ if(!grow) return; DOC.rows.push(newInheritRow()); }
+      const c = ln.split('\t');
+      const r = DOC.rows[i];
+      if(c[0] !== undefined && c[0] !== '') r.stage = c[0].trim();
+      if(c[1] !== undefined) r.place = (c[1]||'').trim();
+      if(c[2] !== undefined) r.note  = (c.slice(2).join('\t')||'').replace(/｜/g,'\n').trim();
+    });
+    padToFullPage();
+    closeModal(); render(); save(); toast(lines.length + '行に反映しました');
+  };
+};
+
+/* ============================================================
+   書き出し / 読み込み
+   ============================================================ */
+function blobToDataURL(b){
+  return new Promise(res => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.readAsDataURL(b); });
+}
+function dataURLtoBlob(u){
+  const [h, d] = u.split(',');
+  const mime = (h.match(/:(.*?);/) || [,'image/jpeg'])[1];
+  const bin = atob(d);
+  const arr = new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) arr[i] = bin.charCodeAt(i);
+  return new Blob([arr], {type:mime});
+}
+$('#btnExport').onclick = async () => {
+  busy(true, '書き出し中…');
+  const out = {app:'photo-ledger', ver:1, name:DOC.name, meta:DOC.meta, rows:[]};
+  for(const r of DOC.rows){
+    const o = {stage:r.stage, place:r.place, note:r.note, taken:r.taken, img:null};
+    if(r.photo){ const b = await dbGet('photos', r.photo); if(b) o.img = await blobToDataURL(b); }
+    out.rows.push(o);
+  }
+  const blob = new Blob([JSON.stringify(out)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = (DOC.name || '写真台帳').replace(/[\\/:*?"<>|]/g,'_') + '.json';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+  busy(false);
+  toast('書き出しました（写真も入っています）');
+};
+$('#btnImport').onclick = () => $('#fileJson').click();
+$('#fileJson').addEventListener('change', async e => {
+  const f = e.target.files[0]; e.target.value = '';
+  if(!f) return;
+  busy(true, '読み込み中…');
+  try{
+    const data = JSON.parse(await f.text());
+    if(data.app !== 'photo-ledger') throw new Error('形式が違います');
+    await save(true);
+    const d = newDoc(data.name || '読み込んだ台帳');
+    d.meta = Object.assign({}, DEFAULT_META, data.meta || {});
+    d.rows = [];
+    for(const r of (data.rows || [])){
+      const nr = emptyRow();
+      nr.stage = r.stage||''; nr.place = r.place||''; nr.note = r.note||''; nr.taken = r.taken||0;
+      if(r.img){ const id = uid(); await dbPut('photos', dataURLtoBlob(r.img), id); nr.photo = id; }
+      d.rows.push(nr);
+    }
+    if(!d.rows.length) d.rows = [emptyRow(),emptyRow(),emptyRow()];
+    DOC = d; urlCache.clear(); undoStack.length = 0;
+    await save(true); fillPanel(); render();
+    toast('読み込みました');
+  }catch(err){ alert('読み込めませんでした：' + err.message); }
+  busy(false);
+});
+
+/* ============================================================
+   表示切替・印刷・ヘルプ
+   ============================================================ */
+function setView(cards){
+  document.body.classList.toggle('view-cards', cards);
+  try{ localStorage.setItem('pl.view', cards ? 'cards' : 'paper'); }catch(e){}
+  applyZoom();
+}
+$('#btnView').onclick = () => {
+  const cards = !document.body.classList.contains('view-cards');
+  setView(cards);
+  toast(cards ? 'スマホ向けのカード表示にしました' : '用紙（A4）表示にしました');
+};
+function doPrint(){
+  modal(
+    '<h2>印刷 / PDF保存</h2>' +
+    '<p>印刷ダイアログで次のように設定すると、見本どおりのA4になります。</p>' +
+    '<ul>' +
+    '<li>用紙サイズ：<b>A4</b>／向き：<b>縦</b></li>' +
+    '<li>余白：<b>なし</b>（詳細設定 → 余白）</li>' +
+    '<li><b>背景のグラフィック</b>にチェック</li>' +
+    '<li>PDFにするときは「送信先／プリンター」を<b>PDFに保存</b></li>' +
+    '<li>スマホは Chrome / Safari の「共有 → 印刷 → PDF」で保存できます</li>' +
+    '</ul>' +
+    '<div class="acts"><button class="btn ghost" id="prcancel">やめる</button>' +
+    '<button class="btn" id="prok">印刷画面をひらく</button></div>'
+  );
+  $('#prcancel').onclick = closeModal;
+  $('#prok').onclick = () => { closeModal(); setTimeout(()=>window.print(), 120); };
+}
+$('#btnPrint').onclick = doPrint;
+$('#btnAddPhotos').onclick = () => pickMulti(null);
+$('#btnCamera').onclick = () => $('#fileCam').click();
+$('#btnAddPage').onclick = () => {
+  pushUndo();
+  const n = rpp();
+  padToFullPage();
+  for(let k=0;k<n;k++) DOC.rows.push(newInheritRow());
+  render(); save();
+  const boxes = $$('.sheetbox');
+  if(boxes.length) boxes[boxes.length-1].scrollIntoView({behavior:'smooth', block:'center'});
+  toast('ページを追加しました');
+};
+$('#btnUndo').onclick = undo;
+$('#btnHelp').onclick = () => {
+  modal(
+    '<h2>写真台帳アプリの使い方</h2>' +
+    '<ul>' +
+    '<li><b>共通の文字は1か所だけ入力</b>：⚙共通設定の「物件名」「工事名」を入れると、表紙・各ページの見出し・全写真の欄に自動で入ります。台紙の上で直接直しても、全部が一緒に変わります。</li>' +
+    '<li><b>写真をまとめて入れる</b>：「🖼写真をまとめて追加」で複数選択（PCは Ctrl / Shift、スマホは長押しで複数選択）。ドラッグ＆ドロップ、<kbd>Ctrl</kbd>+<kbd>V</kbd>の貼り付けもできます。並び順はファイル名順／撮影日時順を⚙で選べます。</li>' +
+    '<li><b>ページの増減</b>：上の「＋ページ」、各ページ下の「＋このページの後にページを追加」「🗑このページを削除」。行単位でも ＋行／削除／▲▼ で動かせます。</li>' +
+    '<li><b>同じ文字をすぐ入れる</b>：行の「↑同」で前の行と同じ文字に。「⧉」でコピー →他の行で「貼」。左上のチェックで複数選択 → 上のバーで一括入力もできます。</li>' +
+    '<li><b>Excelから一気に</b>：「📋一括貼付」に、工事区分／撮影箇所／備考をタブ区切りで貼り付け。「⧉全文コピー」でExcelへ書き出せます。</li>' +
+    '<li><b>保存</b>：入力するたび自動保存（この端末のブラウザ内）。別の端末へ移すときは⚙の「書き出し(.json)」→「読み込み」。</li>' +
+    '<li><b>元に戻す</b>：<kbd>Ctrl</kbd>+<kbd>Z</kbd> または「↩︎戻す」。</li>' +
+    '<li><b>印刷</b>：「🖨印刷/PDF」→ 余白なし・背景グラフィックONでA4に出力。</li>' +
+    '</ul>' +
+    '<div class="acts"><button class="btn" id="hok">とじる</button></div>'
+  );
+  $('#hok').onclick = closeModal;
+};
+window.addEventListener('resize', () => { clearTimeout(window._rz); window._rz = setTimeout(applyZoom, 150); });
+window.addEventListener('beforeunload', () => { if(DOC) save(true); });
+
+/* ============================================================
+   起動
+   ============================================================ */
+(async function init(){
+  try{
+    const all = await dbAll('projects');
+    LIST = all.map(p => ({id:p.id, name:p.name, updatedAt:p.updatedAt||0}));
+    let last = null;
+    try{ last = localStorage.getItem('pl.last'); }catch(e){}
+    const pick = (last && all.find(p=>p.id===last)) || all.sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0))[0];
+    if(pick){ DOC = pick; DOC.meta = Object.assign({}, DEFAULT_META, DOC.meta); DOC.rows.forEach(r=>r.sel=false); }
+    else { DOC = newDoc('写真台帳 ' + todayStr()); await save(true); }
+  }catch(e){
+    console.error(e);
+    DOC = newDoc('写真台帳 ' + todayStr());
+    toast('この環境では自動保存が使えません。⚙の「書き出し(.json)」でバックアップしてください', 6000);
+  }
+  let view = null;
+  try{ view = localStorage.getItem('pl.view'); }catch(e){}
+  setView(view ? view === 'cards' : window.innerWidth < 1000);
+  try{ const z = localStorage.getItem('pl.zoom'); if(z && !DOC.meta.zoom) DOC.meta.zoom = z; }catch(e){}
+  fillPanel();
+  renderProjectSelect();
+  render();
+  if(!DOC.meta.siteName && !DOC.meta.workName) $('#panel').classList.add('open');
+})();
+
+</script>
+</body>
+</html>
