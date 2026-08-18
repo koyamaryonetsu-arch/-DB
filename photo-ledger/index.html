@@ -1256,14 +1256,40 @@ $('#btnExport').onclick = async () => {
     out.rows.push(o);
   }
   const blob = new Blob([JSON.stringify(out)], {type:'application/json'});
+  const fname = (DOC.name || '写真台帳').replace(/[\\/:*?"<>|]/g,'_') + '.json';
+  busy(false);
+  await saveFile(fname, blob);
+};
+/* 保存：ブラウザで開いているときは通常のダウンロード、
+   claude.ai で開いているときは downloads 機能を使う */
+function anchorSave(filename, blob){
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = (DOC.name || '写真台帳').replace(/[\\/:*?"<>|]/g,'_') + '.json';
+  a.download = filename;
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
-  busy(false);
   toast('書き出しました（写真も入っています）');
-};
+}
+async function saveFile(filename, blob){
+  try{
+    if(window.claude && typeof window.claude.use === 'function'){
+      const dl = await window.claude.use('downloads');
+      if(dl){
+        try{
+          await dl.save({filename, data:blob});
+          toast('書き出しました（写真も入っています）');
+        }catch(err){
+          const c = err && err.code;
+          if(c === 'declined') toast('保存をやめました');
+          else if(c === 'too_large') alert('データが大きすぎます（16MBまで）。⚙の「写真の保存サイズ」を小さくするか、台帳を分けてください。');
+          else anchorSave(filename, blob);
+        }
+        return;
+      }
+    }
+  }catch(e){}
+  anchorSave(filename, blob);
+}
 $('#btnImport').onclick = () => $('#fileJson').click();
 $('#fileJson').addEventListener('change', async e => {
   const f = e.target.files[0]; e.target.value = '';
@@ -1358,6 +1384,7 @@ window.addEventListener('beforeunload', () => { if(DOC) save(true); });
    起動
    ============================================================ */
 (async function init(){
+  document.body.classList.add('editing');   // 埋め込み表示でも編集UIを有効に
   try{
     const all = await dbAll('projects');
     LIST = all.map(p => ({id:p.id, name:p.name, updatedAt:p.updatedAt||0}));
