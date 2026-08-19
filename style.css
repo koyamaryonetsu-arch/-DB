@@ -1827,6 +1827,36 @@ td[data-field="category"], td[data-field="content"] { background: #fff; }
 .dup-banner-actions { display: flex; gap: 6px; flex-wrap: wrap; }
 .dup-banner-actions .mini-btn { font-size: 12px; }
 
+/* ===== 劇場情報テーブル: 列幅ドラッグ＋全文表示（折り返し・高さ調整） ===== */
+.tm-table { table-layout: fixed; }
+.tm-table th { position: relative; }
+.tm-table td { vertical-align: top; }
+/* セルの中身は折り返して全文表示。右下をドラッグして高さも変えられる */
+.tm-table textarea.tm-input,
+textarea.tm-hq-area {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 34px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  resize: vertical;
+  font-family: inherit;
+}
+/* 見出し右端のつまみ（ドラッグで列幅変更） */
+.tm-col-resizer {
+  position: absolute;
+  top: 0; right: 0; width: 8px; height: 100%;
+  cursor: col-resize;
+  user-select: none;
+}
+.tm-col-resizer::after {
+  content: ''; position: absolute; top: 20%; right: 3px; width: 2px; height: 60%;
+  background: #cbd5e1; border-radius: 1px;
+}
+.tm-col-resizer:hover::after { background: #2563eb; }
+body.tm-resizing { cursor: col-resize; user-select: none; }
 /* ===== 登録確認（新規か更新か）画面 ===== */
 .ik-list { display: flex; flex-direction: column; gap: 14px; }
 .ik-item {
