@@ -3306,6 +3306,9 @@
   // セルの中身に合わせて高さを広げる（全文が見えるように。手動ドラッグでも変えられる）
   function autoGrowTmCells(root) {
     (root || document).querySelectorAll('textarea.tm-input').forEach((el) => {
+      // 画面に出ていない時は高さを測れない（scrollHeight=0）ので触らない。
+      // 表示された直後に呼び直す（openTheaterInfoModal 参照）。
+      if (el.offsetParent === null) return;
       el.style.height = 'auto';
       el.style.height = Math.min(el.scrollHeight + 2, 220) + 'px';
     });
@@ -3427,6 +3430,9 @@
     document.querySelector('.table-wrap').classList.add('hidden');
     document.querySelector('.legend').classList.add('hidden');
     $('theaterInfoModal').classList.remove('hidden');
+    // 表示されてから測らないと高さが取れないため、描画後にもう一度合わせる
+    // （開いた直後だけ2行目が切れていた不具合の修正）
+    requestAnimationFrame(() => autoGrowTmCells($('theaterInfoModal')));
   }
   function closeTheaterInfoModal() {
     theaterInfoMode = false;
