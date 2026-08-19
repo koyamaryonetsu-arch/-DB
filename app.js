@@ -3227,6 +3227,66 @@
       .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
   }
   let tiBulkMode = false; // 全体編集（縦=劇場×横=登録項目のグリッド）モード
+  // ===== 劇場情報テーブルの列幅ドラッグ（個人設定・localStorage保存） =====
+  // 見出しの右端をドラッグすると列幅が変わる。幅はテーブルごと・列ごとにアカウント別で保存。
+  function tmWidthKey(tableId) { return userFilterKey('tmColW_' + tableId); }
+  function loadTmWidths(tableId) {
+    try { const o = JSON.parse(localStorage.getItem(tmWidthKey(tableId))); return (o && typeof o === 'object') ? o : {}; }
+    catch (e) { return {}; }
+  }
+  function saveTmWidths(tableId, obj) {
+    try { localStorage.setItem(tmWidthKey(tableId), JSON.stringify(obj)); } catch (e) {}
+  }
+  function applyTmWidths(table) {
+    const w = loadTmWidths(table.id);
+    const ths = table.querySelectorAll('thead th');
+    ths.forEach((th, i) => { if (w[i]) th.style.width = w[i] + 'px'; });
+  }
+  // 列幅リセット（既定の幅に戻す）
+  function resetTmWidths(table) {
+    try { localStorage.removeItem(tmWidthKey(table.id)); } catch (e) {}
+    table.querySelectorAll('thead th').forEach((th) => { th.style.width = ''; });
+  }
+  function setupTmResizers(table) {
+    if (!table || !table.id) return;
+    applyTmWidths(table);
+    const ths = table.querySelectorAll('thead th');
+    ths.forEach((th, idx) => {
+      if (th.querySelector('.tm-col-resizer')) return;
+      const grip = document.createElement('span');
+      grip.className = 'tm-col-resizer';
+      grip.title = 'ドラッグで列幅を変更';
+      th.appendChild(grip);
+      grip.addEventListener('mousedown', (e) => {
+        e.preventDefault(); e.stopPropagation();
+        const startX = e.clientX;
+        const startW = th.getBoundingClientRect().width;
+        document.body.classList.add('tm-resizing');
+        const onMove = (ev) => {
+          const px = Math.max(60, Math.round(startW + (ev.clientX - startX)));
+          th.style.width = px + 'px';
+        };
+        const onUp = () => {
+          document.removeEventListener('mousemove', onMove);
+          document.removeEventListener('mouseup', onUp);
+          document.body.classList.remove('tm-resizing');
+          const w = loadTmWidths(table.id);
+          w[idx] = Math.round(th.getBoundingClientRect().width);
+          saveTmWidths(table.id, w);
+        };
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+      });
+    });
+  }
+  // セルの中身に合わせて高さを広げる（全文が見えるように。手動ドラッグでも変えられる）
+  function autoGrowTmCells(root) {
+    (root || document).querySelectorAll('textarea.tm-input').forEach((el) => {
+      el.style.height = 'auto';
+      el.style.height = Math.min(el.scrollHeight + 2, 220) + 'px';
+    });
+  }
+
   function renderTiBulkTable() {
     const company = $('tiCompanySelect').value;
     const rows = theaterMaster.filter((t) => t.company === company && t.name);
@@ -3241,13 +3301,13 @@
       tbody.innerHTML = rows.map((t) => `
         <tr data-theater-name="${escapeHtml(t.name)}">
           <td class="tib-name">${escapeHtml(t.name)}</td>
-          <td><input type="text" class="tm-input tib-manager" value="${escapeHtml(t.manager || '')}"></td>
-          <td><input type="text" class="tm-input tib-phone" value="${escapeHtml(t.theaterPhone || '')}"></td>
+          <td><textarea class="tm-input tib-manager" rows="2">${escapeHtml(t.manager || '')}</textarea></td>
+          <td><textarea class="tm-input tib-phone" rows="2">${escapeHtml(t.theaterPhone || '')}</textarea></td>
           <td><select class="tm-input tib-maintenance">${marks(t.maintenance)}</select></td>
           <td><select class="tm-input tib-gem2">${marks(t.gem2)}</select></td>
-          <td><input type="text" class="tm-input tib-equipment" value="${escapeHtml(t.equipment || '')}"></td>
-          <td><input type="text" class="tm-input tib-chronic" value="${escapeHtml(t.chronicIssues || '')}"></td>
-          <td><input type="text" class="tm-input tib-note" value="${escapeHtml(t.infoNote || '')}"></td>
+          <td><textarea class="tm-input tib-equipment" rows="2">${escapeHtml(t.equipment || '')}</textarea></td>
+          <td><textarea class="tm-input tib-chronic" rows="2">${escapeHtml(t.chronicIssues || '')}</textarea></td>
+          <td><textarea class="tm-input tib-note" rows="2">${escapeHtml(t.infoNote || '')}</textarea></td>
         </tr>
       `).join('');
     }
@@ -3298,6 +3358,7 @@
       $('tiEquipment').value = entry.equipment || '';
       $('tiChronic').value = entry.chronicIssues || '';
       $('tiNote').value = entry.infoNote || '';
+      requestAnimationFrame(() => autoGrowTmCells($('tiInfoBox')));
     }
     $('tiSetupWarn').classList.toggle('hidden', !(store.mode === 'supabase' && !theaterContactsSupported));
     const rows = tiCurrentContacts();
@@ -3309,17 +3370,21 @@
       $('tiEmpty').classList.add('hidden');
       tbody.innerHTML = rows.map((c) => `
         <tr data-contact-id="${escapeHtml(String(c.id))}">
-          <td><input type="text" class="tm-input ti-category" value="${escapeHtml(c.category || '')}" placeholder="例: スクリーン系統空調機"></td>
-          <td><input type="text" class="tm-input ti-maker" value="${escapeHtml(c.maker || '')}" placeholder="例: ダイキン"></td>
-          <td><input type="text" class="tm-input ti-vendor" value="${escapeHtml(c.vendor || '')}" placeholder="例: テクノ空調"></td>
-          <td><input type="text" class="tm-input ti-person" value="${escapeHtml(c.person || '')}" placeholder="例: 井上"></td>
-          <td><input type="text" class="tm-input ti-phone" value="${escapeHtml(c.phone || '')}" placeholder="例: 080-1237-4363"></td>
-          <td><input type="text" class="tm-input ti-email" value="${escapeHtml(c.email || '')}" placeholder="例: inoue@japantoa.co.jp"></td>
-          <td><input type="text" class="tm-input ti-note" value="${escapeHtml(c.note || '')}" placeholder="メモ"></td>
+          <td><textarea class="tm-input ti-category" rows="2" placeholder="例: スクリーン系統空調機">${escapeHtml(c.category || '')}</textarea></td>
+          <td><textarea class="tm-input ti-maker" rows="2" placeholder="例: ダイキン">${escapeHtml(c.maker || '')}</textarea></td>
+          <td><textarea class="tm-input ti-vendor" rows="2" placeholder="例: テクノ空調">${escapeHtml(c.vendor || '')}</textarea></td>
+          <td><textarea class="tm-input ti-person" rows="2" placeholder="例: 井上">${escapeHtml(c.person || '')}</textarea></td>
+          <td><textarea class="tm-input ti-phone" rows="2" placeholder="例: 080-1237-4363">${escapeHtml(c.phone || '')}</textarea></td>
+          <td><textarea class="tm-input ti-email" rows="2" placeholder="例: inoue@japantoa.co.jp">${escapeHtml(c.email || '')}</textarea></td>
+          <td><textarea class="tm-input ti-note" rows="2" placeholder="メモ">${escapeHtml(c.note || '')}</textarea></td>
           <td><button type="button" class="ti-delete-btn">削除</button></td>
         </tr>
       `).join('');
     }
+    // 列幅ドラッグを有効化し、セルの高さを中身に合わせて広げる（全文が見えるように）
+    const tbl = tiBulkMode ? $('tiBulkTable') : $('tiTable');
+    if (tbl) setupTmResizers(tbl);
+    autoGrowTmCells(tbl || document);
   }
   let theaterInfoMode = false;
   async function openTheaterInfoModal() {
@@ -4009,6 +4074,21 @@
   $('tiBody').addEventListener('click', handleTheaterInfoTableClick);
   $('tiBulkBtn').addEventListener('click', toggleTiBulkMode);
   $('tiBulkBody').addEventListener('change', handleTiBulkInput);
+  // 劇場情報の入力: 打ちながら高さを中身に合わせる（全文が見えるように）
+  ['tiBody', 'tiBulkBody', 'tiInfoBox'].forEach((id) => {
+    const el = $(id); if (!el) return;
+    el.addEventListener('input', (e) => {
+      if (e.target.tagName === 'TEXTAREA') {
+        e.target.style.height = 'auto';
+        e.target.style.height = Math.min(e.target.scrollHeight + 2, 220) + 'px';
+      }
+    });
+  });
+  // 列幅を既定に戻す
+  if ($('tiColResetBtn')) $('tiColResetBtn').addEventListener('click', () => {
+    ['tiTable', 'tiBulkTable'].forEach((id) => { const t = $(id); if (t) resetTmWidths(t); });
+    renderTheaterInfo();
+  });
   ['tiManager', 'tiPhone', 'tiMaintenance', 'tiGem2', 'tiEquipment', 'tiChronic', 'tiNote'].forEach((id) => {
     $(id).addEventListener('change', handleTheaterInfoFieldChange);
   });

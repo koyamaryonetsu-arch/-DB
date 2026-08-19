@@ -301,6 +301,7 @@
               <select id="tiTheaterSelect"></select>
             </label>
             <button type="button" id="tiBulkBtn">📑 全体編集</button>
+        <button type="button" id="tiColResetBtn" class="mini-btn" title="列幅を既定に戻す">列幅リセット</button>
             <span class="tm-hint">💡 2022年資料＋メール調査(2026年)を統合した劇場ごとのパートナー連絡先。直接編集→自動保存。ここの内容はAI初期対応診断にも反映されます。</span>
           </div>
           <div id="tiSetupWarn" class="empty-msg hidden">⚠ データベース未設定です。SETUP_THEATER_INFO.md のSQLをSupabaseで1回実行してください。</div>
@@ -320,15 +321,15 @@
             </div>
             <div class="tm-hq-row">
               <label class="tm-hq-label">設備（カルテ）</label>
-              <input type="text" id="tiEquipment" class="tm-input tm-hq-input" placeholder="例: チラー(ダイキンJIZAI)、GHP3系統">
+              <textarea id="tiEquipment" class="tm-input tm-hq-input tm-hq-area" rows="2" placeholder="例: チラー(ダイキンJIZAI)、GHP3系統"></textarea>
             </div>
             <div class="tm-hq-row">
               <label class="tm-hq-label">持病/注意</label>
-              <input type="text" id="tiChronic" class="tm-input tm-hq-input" placeholder="例: 映写室2系統・夏場能力低下">
+              <textarea id="tiChronic" class="tm-input tm-hq-input tm-hq-area" rows="2" placeholder="例: 映写室2系統・夏場能力低下"></textarea>
             </div>
             <div class="tm-hq-row">
               <label class="tm-hq-label">備考</label>
-              <input type="text" id="tiNote" class="tm-input tm-hq-input" placeholder="例: 施設管理: ◯◯さん 03-xxxx-xxxx">
+              <textarea id="tiNote" class="tm-input tm-hq-input tm-hq-area" rows="2" placeholder="例: 施設管理: ◯◯さん 03-xxxx-xxxx"></textarea>
             </div>
           </div>
           <div class="tm-table-wrap" id="tiSingleWrap">
@@ -350,7 +351,7 @@
             <p id="tiEmpty" class="empty-msg hidden">この劇場のパートナー連絡先はまだ登録されていません。「＋ 連絡先追加」から追加してください。</p>
           </div>
           <div class="tm-table-wrap hidden" id="tiBulkWrap">
-            <table class="tm-table">
+            <table class="tm-table" id="tiBulkTable">
               <thead>
                 <tr>
                   <th style="width: 15%;">劇場</th>
@@ -562,7 +563,7 @@
         </div>
 
         <div class="form-row form-row-wide col-ryo" data-mode="full">
-          <label for="adviceNote">AI学習用メモ（AIへの正解・注意）<span class="field-hint">（この劇場の今後のAI初期対応診断に「正解」として反映されます）</span></label>
+          <label for="adviceNote">社内アドバイス（社内限定・AIへの正解/注意）<span class="field-hint">（客先には表示されません。この劇場の今後のAI初期対応診断に「正解」として反映されます）</span></label>
           <textarea id="adviceNote" rows="2" class="autogrow" placeholder="例：エアバランスはVD交換より潤滑剤調整を先に試す／担当は山口＋三機サービス"></textarea>
         </div>
       </div>
