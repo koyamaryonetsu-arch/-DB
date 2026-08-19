@@ -29,6 +29,7 @@ var DONE_LABEL = '案件登録済';      // 新規登録 完了
 var UPD_LABEL = '案件更新済';       // 進捗更新 完了
 var SKIP_LABEL = '案件登録_要確認'; // 案件でない / 進捗だが更新先不明
 var DUP_LABEL = '案件登録_重複';    // 既存の手動登録と重複（登録せず）
+var CONFIRM_LABEL = '案件登録_確認待ち'; // 新規か更新か人に確認中（アプリの「🆕 登録確認」で処理）
 var OLD_LABEL = '案件登録_期間外';  // 受信が古いメール（遡り登録しない・再スキャンもしない）
 
 // 取込対象にするメールの新しさ（時間）。既定24時間＝「その日その日に届いたメールだけ」を登録する。
@@ -66,14 +67,16 @@ function importCaseEmails() {
     var lblSkip = getOrCreateLabel_(SKIP_LABEL);
     var lblDup = getOrCreateLabel_(DUP_LABEL);
     var lblOld = getOrCreateLabel_(OLD_LABEL);
+    var lblConfirm = getOrCreateLabel_(CONFIRM_LABEL);
     // 取込対象は「直近に届いたメール」だけ。過去メールは遡って登録しない（newer_than:2d＋下の時間ガード）
     var q = 'label:' + SRC_LABEL + ' -label:' + DONE_LABEL + ' -label:' + UPD_LABEL +
-            ' -label:' + SKIP_LABEL + ' -label:' + DUP_LABEL + ' -label:' + OLD_LABEL + ' newer_than:2d';
+            ' -label:' + SKIP_LABEL + ' -label:' + DUP_LABEL + ' -label:' + OLD_LABEL +
+            ' -label:' + CONFIRM_LABEL + ' newer_than:2d';
     var threads = GmailApp.search(q, 0, 20);
     if (!threads.length) { Logger.log('対象メールなし'); return; }
 
     var maxAgeMs = INTAKE_MAX_AGE_HOURS_() * 60 * 60 * 1000;
-    var nNew = 0, nUpd = 0, nDup = 0, nSkip = 0, nOld = 0;
+    var nNew = 0, nUpd = 0, nDup = 0, nSkip = 0, nOld = 0, nConfirm = 0;
     threads.forEach(function (th) {
       // 期間ガード: 最新メールが古いスレッドは登録・更新しない（過去案件の遡り登録を防ぐ）。
       // 期間外ラベルを付けて以後スキャン対象から外す（毎回の再判定・APIコストも避ける）。
@@ -115,14 +118,23 @@ function importCaseEmails() {
           Logger.log('既存と同一（新情報なし）で登録せず: ' + (p.title || m.getSubject()) + ' → id=' + decision.row.id);
         }
       } else if (decision.decision === 'review') {
-        // 精度重視: 既存案件の続きの可能性があるが確信が持てない → 人の確認へ（あいまいなまま登録しない）
-        th.addLabel(lblSkip); nSkip++;
-        Logger.log('要確認（同一案件か曖昧・再確認しても未確定）: ' + (p.title || m.getSubject()) + ' / ' + (decision.reason || ''));
+        // 新規か更新か決められない → 登録せず「登録確認キュー」へ。LINEで問い合わせ、
+        // 人がアプリの「🆕 登録確認」でボタンを押して 自動登録 / 自動更新 する。
+        queueIntakeConfirm_(p, received, m, th, decision.reason || '新規か更新か判断できませんでした');
+        th.addLabel(lblConfirm); nConfirm++;
       } else {
         // 別の新しい案件と確信 → 新規登録（日程もメールにあれば正しい項目へ）
         // ただし同じ劇場の進行中案件と内容が似ていれば「二重登録の可能性あり」の印を付けて登録する
         // （登録は止めない＝取りこぼし防止。人がアプリ/LINEで確認して解除できる）
         var dates = p.progress || {};
+        // 近い日程(既定7日)に同じ劇場の進行中案件があれば、AIが「新規」と言っても登録しない。
+        // 件名が違っても同じ話をしていることが多いため、人に新規/更新を確認してもらう。
+        var near = findNearbyActiveCases_(p, received);
+        if (near.length) {
+          queueIntakeConfirm_(p, received, m, th, INTAKE_CONFIRM_DAYS_() + '日以内に同じ劇場の進行中案件があります', near);
+          th.addLabel(lblConfirm); nConfirm++;
+          return;
+        }
         var dupId = findDupSuspect_(p, received);
         insertCase_({
           dup_suspect_id: dupId,
@@ -139,7 +151,8 @@ function importCaseEmails() {
         th.addLabel(lblDone); nNew++;
       }
     });
-    Logger.log('新規 %s / 進捗更新 %s / 重複スキップ %s / 非案件・要確認 %s / 期間外 %s', nNew, nUpd, nDup, nSkip, nOld);
+    Logger.log('新規 %s / 進捗更新 %s / 重複スキップ %s / 非案件・要確認 %s / 期間外 %s / 確認待ち %s',
+      nNew, nUpd, nDup, nSkip, nOld, nConfirm);
   } catch (e) {
     Logger.log('importCaseEmails error: ' + e);
   } finally {
@@ -419,6 +432,97 @@ function clampReceivedDate_(candidate, mailDateStr) {
     return mailDateStr;
   }
   return s;
+}
+
+// ===== 登録確認キュー（新規か更新か迷ったら登録せず人に聞く） =====
+// 「近い日程」の判定日数。同じ劇場でこの日数以内に進行中案件があれば新規登録せず確認へ回す。
+function INTAKE_CONFIRM_DAYS_() { return Number(cfg_('INTAKE_CONFIRM_DAYS', '7')) || 7; }
+
+// 同じ劇場・進行中で、受付日が INTAKE_CONFIRM_DAYS 以内の既存案件を返す（無ければ空配列）
+function findNearbyActiveCases_(p, received) {
+  var out = [];
+  try {
+    var cands = fetchCandidateCases_(p);
+    if (!cands.length) return out;
+    var theaterKey = normalizeText_(p.theater || '');
+    var limitMs = INTAKE_CONFIRM_DAYS_() * 24 * 60 * 60 * 1000;
+    var baseAt = received ? new Date(received + 'T00:00:00+09:00').getTime() : Date.now();
+    for (var i = 0; i < cands.length; i++) {
+      var x = cands[i];
+      if (isClosedStatus_(x.status)) continue;                       // 終了案件は対象外
+      if (theaterKey && normalizeText_(x.theater || '') !== theaterKey) continue; // 別の劇場は対象外
+      if (!x.received_date) continue;
+      var d = new Date(x.received_date + 'T00:00:00+09:00').getTime();
+      if (isNaN(d) || Math.abs(baseAt - d) > limitMs) continue;      // 期間外は対象外
+      out.push(x);
+    }
+  } catch (e) { Logger.log('近接案件の取得エラー: ' + e); }
+  return out;
+}
+
+// 確認待ちとして case_intake_pending に積み、LINEで「新規か更新か」を問い合わせる。
+// 案件は登録しない（人がアプリでボタンを押した時に登録/更新される）。
+function queueIntakeConfirm_(p, received, m, th, reason, candidates) {
+  var key = cfg_('SUPABASE_SERVICE_ROLE_KEY');
+  if (!key) { Logger.log('SUPABASE_SERVICE_ROLE_KEY未設定のため確認キューに積めません'); return; }
+  var cands = candidates || [];
+  if (!cands.length) { try { cands = fetchCandidateCases_(p); } catch (e) { cands = []; } }
+  var dates = p.progress || {};
+  var body = {
+    company: normalizeCompany_(p.company) || '',
+    theater: p.theater || '',
+    received_date: received || null,
+    category: normalizeCategory_(p.category) || '',
+    tc_person: p.tc_person || '',
+    r_person: p.r_person || '',
+    title: (p.title || (m ? m.getSubject() : '') || '').slice(0, 300),
+    content: String(p.content || (m ? m.getPlainBody().slice(0, 1500) : '')),
+    progress_note: String((p.progress && p.progress.note) || ''),
+    survey_date: dates.survey_date || null,
+    quote_date: dates.quote_date || null,
+    work_start_date: dates.work_start_date || null,
+    work_end_date: dates.work_end_date || null,
+    intent: p.intent || '',
+    reason: String(reason || '').slice(0, 500),
+    // 候補は人が見て選ぶぶんだけ（多すぎても選べないので上位5件）
+    candidates: cands.slice(0, 5).map(function (x) {
+      return {
+        id: String(x.id), theater: x.theater || '', received_date: x.received_date || '',
+        category: x.category || '', status: x.status || '',
+        estimate_name: x.estimate_name || '', content: String(x.content || '').slice(0, 200)
+      };
+    }),
+    thread_url: th ? ('https://mail.google.com/mail/u/0/#all/' + th.getId()) : ''
+  };
+  var res = UrlFetchApp.fetch(SUPABASE_URL_() + '/rest/v1/case_intake_pending', {
+    method: 'post', contentType: 'application/json',
+    headers: { apikey: key, Authorization: 'Bearer ' + key, Prefer: 'return=representation' },
+    payload: JSON.stringify(body), muteHttpExceptions: true
+  });
+  if (res.getResponseCode() >= 300) {
+    Logger.log('確認キュー登録失敗（テーブル未作成かも: SETUP_INTAKE_CONFIRM.sql）: ' + res.getContentText());
+    return;
+  }
+  Logger.log('確認待ちに追加（登録せず）: ' + (p.theater || '') + ' / ' + (body.title || '') + ' / ' + reason);
+  var rows;
+  try { rows = JSON.parse(res.getContentText()); } catch (e) { rows = null; }
+  var id = (rows && rows[0] && rows[0].id) ? rows[0].id : '';
+  if (id) notifyIntakeConfirm_(id);
+}
+
+// 確認待ちができたことをLINEへ通知（Vercelの /api/notify-intake が送信する）
+function notifyIntakeConfirm_(id) {
+  var key = cfg_('SUPABASE_SERVICE_ROLE_KEY');
+  var base = cfg_('APP_API_BASE', 'https://cinema-cases.vercel.app');
+  if (!key) return;
+  try {
+    var res = UrlFetchApp.fetch(base + '/api/notify-intake', {
+      method: 'post', contentType: 'application/json',
+      headers: { 'x-flush-key': key },
+      payload: JSON.stringify({ id: String(id) }), muteHttpExceptions: true
+    });
+    if (res.getResponseCode() >= 300) Logger.log('確認待ちLINE通知に失敗: ' + res.getContentText());
+  } catch (e) { Logger.log('確認待ちLINE通知エラー: ' + e); }
 }
 
 // ===== 二重登録の疑い検出 =====
