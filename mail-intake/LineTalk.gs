@@ -9,7 +9,8 @@
  *
  * 対象スプレッドシートの探し方（上から順に試す）:
  *   1. スクリプトプロパティ LINE_LOG_SHEET_ID にIDを設定（複数ある場合はカンマ区切り）→ それを使う
- *   2. 未設定なら、Driveから名前に「LINE」「ライン」「トーク」を含むスプレッドシートを自動検索
+ *   2. 未設定なら、既定の LT_DEFAULT_SHEET_ID（シネマPJのLINEトーク履歴）を使う
+ *   3. それも開けなければ、Driveから名前に「LINE」「ライン」「トーク」を含むスプレッドシートを自動検索
  *
  * 列の並びは問いません（1行ぶんのセルを連結して文章として読みます）。
  * 初回は直近 LT_FIRST_RUN_ROWS 行だけを読み、以降は増えたぶんだけを読みます（過去全部は遡りません）。
@@ -18,6 +19,10 @@
  *    （extractTheaterInfo_ / routeTheaterItem_ / tiTheaterExists_ / normalizeCompany_ / cfg_ を流用）。
  * ※ 有効化: 本ファイルを貼付 → setupLineTalkTrigger() を1回実行（毎日AM2時トリガー作成）。
  */
+
+// 既定の対象スプレッドシート（シネマPJ LINEトーク履歴）。
+// 変更したい時はスクリプトプロパティ LINE_LOG_SHEET_ID を設定すれば、そちらが優先されます。
+var LT_DEFAULT_SHEET_ID = '1FJqxZbCMh-aIDCCMwGHtT3S1aqUbMXGYBoK3boJ_5Fw';
 
 var LT_FIRST_RUN_ROWS = 300;             // 初回に読む「直近の行数」（過去全部は読まない）
 var LT_MAX_ROWS_PER_RUN = 600;           // 1回の実行で読む最大行数（増えすぎた時の保険）
@@ -111,6 +116,16 @@ function ltFindSpreadsheets_() {
       out.push({ id: id, name: nm });
     });
     return out;
+  }
+  // 既定のトーク履歴ファイル（開ければこれを使う）
+  if (LT_DEFAULT_SHEET_ID) {
+    try {
+      var df = DriveApp.getFileById(LT_DEFAULT_SHEET_ID);
+      Logger.log('LINE劇場情報: 既定ファイルを使用 ' + df.getName());
+      return [{ id: LT_DEFAULT_SHEET_ID, name: df.getName() }];
+    } catch (e) {
+      Logger.log('既定ファイルを開けませんでした（名前で自動検索します）: ' + e);
+    }
   }
   var words = ['LINE', 'ライン', 'トーク'];
   for (var w = 0; w < words.length; w++) {
