@@ -193,7 +193,8 @@ function extractTheaterInfo_(apiKey, text, mediaBlocks) {
   ].join('\n');
   // 添付が無ければ安いモデル(既定Haiku)。添付ありは視覚対応モデル(既定Sonnet)で本文＋画像/PDFを読む
   if (!mediaBlocks || !mediaBlocks.length) {
-    return safeJson_(anthropicText_(apiKey, sys, text, 1200));
+    // 抽出項目が多いと1200では途中で切れることがあるため余裕を持たせる
+    return safeJson_(anthropicText_(apiKey, sys, text, 2000));
   }
   var content = [{ type: 'text', text: text }].concat(mediaBlocks);
   var res = UrlFetchApp.fetch('https://api.anthropic.com/v1/messages', {

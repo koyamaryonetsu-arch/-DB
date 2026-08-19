@@ -973,9 +973,52 @@ function anthropicText_(apiKey, system, user, maxTokens) {
 }
 function safeJson_(txt) {
   if (!txt) return null;
-  var s = txt.indexOf('{'), e = txt.lastIndexOf('}');
-  if (s < 0 || e < 0) return null;
-  try { return JSON.parse(txt.slice(s, e + 1)); } catch (err) { Logger.log('JSON解析失敗: ' + txt); return null; }
+  // ```json ... ``` のコードフェンスが付いていても読めるように取り除く
+  var t = String(txt).replace(/```[a-zA-Z]*/g, '').replace(/```/g, '');
+  var s = t.indexOf('{');
+  if (s < 0) return null;
+  t = t.slice(s);
+  var e = t.lastIndexOf('}');
+  if (e >= 0) {
+    try { return JSON.parse(t.slice(0, e + 1)); } catch (err) { /* 下で復旧を試す */ }
+  }
+  // max_tokens 等で途中で切れたJSONを、直前の「閉じた」地点まで戻して復旧する
+  var fixed = jsonRepairTruncated_(t);
+  if (fixed) return fixed;
+  Logger.log('JSON解析失敗(先頭300字): ' + t.slice(0, 300));
+  return null;
+}
+// 途中で切れたJSONの復旧: 後ろから「}」を探し、そこまでで閉じ括弧を補って解析できたら採用する。
+// （例: items配列の途中で切れた場合、最後まで完結している要素だけを拾える）
+function jsonRepairTruncated_(t) {
+  for (var i = t.length - 1; i >= 0; i--) {
+    if (t.charAt(i) !== '}') continue;
+    var head = t.slice(0, i + 1);
+    var closers = jsonMissingClosers_(head);
+    if (closers === null) continue;              // 文字列の途中など、切り所として不適
+    try { return JSON.parse(head + closers); } catch (err) { /* 次の候補へ */ }
+  }
+  return null;
+}
+// 開いたままの括弧を閉じる文字列を返す（文字列リテラルの途中なら null）
+function jsonMissingClosers_(t) {
+  var stack = [], inStr = false, esc = false;
+  for (var i = 0; i < t.length; i++) {
+    var c = t.charAt(i);
+    if (inStr) {
+      if (esc) esc = false;
+      else if (c === '\\') esc = true;
+      else if (c === '"') inStr = false;
+      continue;
+    }
+    if (c === '"') inStr = true;
+    else if (c === '{' || c === '[') stack.push(c);
+    else if (c === '}' || c === ']') stack.pop();
+  }
+  if (inStr) return null;
+  var out = '';
+  for (var k = stack.length - 1; k >= 0; k--) out += (stack[k] === '{') ? '}' : ']';
+  return out;
 }
 
 // ===== セットアップ補助 =====
