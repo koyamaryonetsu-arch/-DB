@@ -1857,3 +1857,37 @@ textarea.tm-hq-area {
 }
 .tm-col-resizer:hover::after { background: #2563eb; }
 body.tm-resizing { cursor: col-resize; user-select: none; }
+/* ===== 登録確認（新規か更新か）画面 ===== */
+.ik-list { display: flex; flex-direction: column; gap: 14px; }
+.ik-item {
+  border: 1px solid #e2e8f0; border-left: 4px solid #f59e0b;
+  border-radius: 8px; padding: 12px 14px; background: #fffdf7;
+}
+.ik-head { display: flex; flex-wrap: wrap; gap: 10px; align-items: baseline; margin-bottom: 4px; }
+.ik-theater { font-size: 15px; font-weight: 700; color: #0f172a; }
+.ik-company, .ik-date, .ik-cat { font-size: 12px; color: #64748b; }
+.ik-title { font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 6px; }
+.ik-content {
+  font-size: 12px; color: #475569; line-height: 1.7; white-space: pre-wrap;
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px 10px;
+  max-height: 180px; overflow-y: auto;
+}
+.ik-reason { margin-top: 6px; font-size: 12px; color: #b45309; }
+.ik-nocand { margin: 10px 0 0; font-size: 12px; color: #64748b; }
+.ik-cands { margin-top: 10px; }
+.ik-cands-title { font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px; }
+.ik-cand {
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between;
+  border: 1px solid #e2e8f0; border-radius: 6px; padding: 6px 10px; margin-bottom: 6px; background: #fff;
+}
+.ik-cand-info { display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline; font-size: 12px; }
+.ik-cand-date { color: #475569; }
+.ik-cand-cat, .ik-cand-status { color: #64748b; }
+.ik-cand-name { color: #0f172a; font-weight: 600; }
+.ik-cand-actions { display: flex; gap: 6px; }
+.ik-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.ik-actions button { padding: 7px 14px; font-size: 13px; }
+@media (max-width: 600px) {
+  .ik-cand { flex-direction: column; align-items: flex-start; }
+  .ik-actions button { flex: 1 1 100%; }
+}

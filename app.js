@@ -325,11 +325,13 @@
   let theaterInfoSupported = false;      // theaters に manager 等の劇場情報列があるか
   let theaterContactsSupported = false;  // theater_contacts テーブルがあるか
   let theaterPendingSupported = false;   // theater_info_pending テーブルがあるか
+  let intakePendingSupported = false;    // case_intake_pending テーブルがあるか
+  let intakePending = [];                // 案件の登録確認（新規か更新か）待ちリスト
   let theaterPending = [];               // 劇場情報 自動更新の要確認キュー
   const DATE_FIELDS = new Set(['receivedDate', 'surveyDate', 'quoteDate', 'workStartDate', 'workEndDate', 'invoiceDate', 'paymentDate']);
 
   // app(camelCase) → DB行(snake_case)。空文字の日付/金額は null に
-  function caseToRow(c) {
+  function caseToRow(c, sourceOverride) {
     const row = { id: c.id };
     Object.keys(FIELD_MAP).forEach((k) => {
       let v = c[k];
@@ -355,7 +357,10 @@
     // 支払い状況（菱熱のみの購買情報・列がある時のみ送信）
     if (purchasesSupported) row.purchases = Array.isArray(c.purchases) ? c.purchases : [];
     // 操作元（通知文言用）: 菱熱=ryo / 客先=customer。要約時も消えないよう毎回保存（列がある時のみ）
-    if (lastUpdateSourceSupported) row.last_update_source = isPrivileged(currentUser) ? 'ryo' : 'customer';
+    if (lastUpdateSourceSupported) {
+      // sourceOverride='auto' は「登録確認」画面からのメール内容の反映（LINEは自動登録/自動更新と表示）
+      row.last_update_source = sourceOverride || (isPrivileged(currentUser) ? 'ryo' : 'customer');
+    }
     // 二重登録の疑い（菱熱のみが判定・解除する）
     if (dupSuspectSupported) row.dup_suspect_id = c.dupSuspectId ? c.dupSuspectId : null;
     row.status = statusOf(c); // DB側レポート用に実効ステータス（手動上書き反映）も保存
@@ -534,15 +539,15 @@
       if (error) throw error;
       return (data || []).map(rowToCase);
     },
-    async upsertCase(c) {
+    async upsertCase(c, sourceOverride) {
       if (this.mode === 'local') { saveCases(); return; }
-      const { error } = await sb.from('cases').upsert(caseToRow(c));
+      const { error } = await sb.from('cases').upsert(caseToRow(c, sourceOverride));
       if (error) throw error;
     },
     async upsertCases(arr) {
       if (this.mode === 'local') { saveCases(); return; }
       if (!arr.length) return;
-      const { error } = await sb.from('cases').upsert(arr.map(caseToRow));
+      const { error } = await sb.from('cases').upsert(arr.map((c) => caseToRow(c)));
       if (error) throw error;
     },
     async deleteCase(id) {
@@ -675,6 +680,23 @@
       const { error } = await sb.from('theater_contacts').delete().eq('id', id);
       if (error) throw error;
     },
+    // ---- 案件の登録確認キュー（case_intake_pending: 新規か更新か迷ったメール） ----
+    async fetchIntakePending() {
+      if (this.mode !== 'supabase') { intakePendingSupported = false; return []; }
+      const { data, error } = await sb.from('case_intake_pending')
+        .select('*').eq('status', 'pending').order('created_at', { ascending: true });
+      if (error) { intakePendingSupported = false; return []; }
+      intakePendingSupported = true;
+      return data || [];
+    },
+    // 確認済みにする（registered / updated / discarded）
+    async decideIntakePending(id, status, caseId) {
+      if (this.mode !== 'supabase') return;
+      const { error } = await sb.from('case_intake_pending')
+        .update({ status: status, decided_at: new Date().toISOString(), decided_case_id: caseId || null })
+        .eq('id', id);
+      if (error) throw error;
+    },
     // ---- 劇場情報 自動更新: 要確認キュー（theater_info_pending） ----
     async fetchPendingTheaterInfo() {
       if (this.mode !== 'supabase') { theaterPendingSupported = false; return []; }
@@ -786,7 +808,7 @@
       alert('サーバーへの保存に失敗しました。通信状況を確認してください。\n（画面を再読み込みすると最新状態に戻ります）\n\n' + (err && err.message ? err.message : ''));
     }
   }
-  function persistCase(c) { return Promise.resolve(store.upsertCase(c)).catch(onPersistError); }
+  function persistCase(c, sourceOverride) { return Promise.resolve(store.upsertCase(c, sourceOverride)).catch(onPersistError); }
   function persistCases(arr) { return Promise.resolve(store.upsertCases(arr)).catch(onPersistError); }
   function removeCaseRemote(id) { return Promise.resolve(store.deleteCase(id)).catch(onPersistError); }
 
@@ -2690,6 +2712,7 @@
     if (typeof purchaseMode !== 'undefined' && purchaseMode) exitPurchaseMode();
     if (typeof theaterInfoMode !== 'undefined' && theaterInfoMode) closeTheaterInfoModal();
     if (typeof theaterPendingMode !== 'undefined' && theaterPendingMode) closeTheaterPendingModal();
+    if (typeof intakeMode !== 'undefined' && intakeMode) exitIntakeMode();
   }
   function enterAggMode() {
     if (taskMode) exitTaskMode();
@@ -2816,6 +2839,7 @@
     if (koteiMode) exitKoteiMode();
     if (theaterInfoMode) closeTheaterInfoModal();
     if (theaterPendingMode) closeTheaterPendingModal();
+    if (intakeMode) exitIntakeMode();
     purchaseMode = true;
     $('casesTable').classList.add('purchase-mode');
     $('emptyMsg').classList.add('hidden');
@@ -3394,6 +3418,7 @@
     if (koteiMode) exitKoteiMode();
     if (purchaseMode) exitPurchaseMode();
     if (theaterPendingMode) closeTheaterPendingModal();
+    if (intakeMode) exitIntakeMode();
     theaterInfoMode = true;
     populateTiCompanySelect();
     try { theaterContacts = await store.fetchTheaterContacts(); } catch (e) { theaterContacts = []; }
@@ -3456,6 +3481,136 @@
       return `<tr class="tp-theater-row"><td colspan="3">🎬 ${escapeHtml(th)}</td></tr>` + rows;
     }).join('');
   }
+  // ================= 案件の登録確認（新規か更新か） =================
+  // 同じ劇場で近い日程に似た案件があると、メール取込は登録せず case_intake_pending に溜める。
+  // ここでボタンを押すと「自動登録」または「既存案件へ自動更新」を実行する。
+  let intakeMode = false;
+  async function refreshIntakeBadge() {
+    const btn = $('intakeBtn'); if (!btn) return;
+    if (!isPrivileged(currentUser)) { btn.classList.add('hidden'); return; }
+    try { intakePending = await store.fetchIntakePending(); } catch (e) { intakePending = []; }
+    btn.classList.remove('hidden');
+    const n = intakePending.length;
+    $('ikBadge').textContent = n ? String(n) : '';
+    $('ikBadge').classList.toggle('hidden', !n);
+    btn.classList.toggle('has-pending', !!n);
+  }
+  function intakeCandHtml(it) {
+    const cands = Array.isArray(it.candidates) ? it.candidates : [];
+    if (!cands.length) return '<p class="ik-nocand">似ている既存案件は見つかりませんでした（新規の可能性が高いです）。</p>';
+    return '<div class="ik-cands"><div class="ik-cands-title">似ている既存案件（更新するならこの中から選ぶ）</div>' +
+      cands.map((c) => {
+        const name = c.estimate_name || String(c.content || '').slice(0, 40) || '(内容なし)';
+        return `<div class="ik-cand">
+          <div class="ik-cand-info">
+            <span class="ik-cand-date">${escapeHtml(c.received_date || '日付不明')}</span>
+            <span class="ik-cand-cat">${escapeHtml(c.category || '種別不明')}</span>
+            <span class="ik-cand-status">${escapeHtml(c.status || '')}</span>
+            <span class="ik-cand-name">${escapeHtml(name)}</span>
+          </div>
+          <div class="ik-cand-actions">
+            <button type="button" class="mini-btn" data-ik="open" data-case="${escapeHtml(String(c.id))}">案件を見る</button>
+            <button type="button" class="mini-btn primary" data-ik="update" data-id="${escapeHtml(String(it.id))}" data-case="${escapeHtml(String(c.id))}">この案件に更新</button>
+          </div>
+        </div>`;
+      }).join('') + '</div>';
+  }
+  function renderIntakeList() {
+    const box = $('ikList'); if (!box) return;
+    if (!intakePending.length) {
+      box.innerHTML = '';
+      $('ikEmpty').classList.remove('hidden');
+      return;
+    }
+    $('ikEmpty').classList.add('hidden');
+    box.innerHTML = intakePending.map((it) => `
+      <div class="ik-item" data-id="${escapeHtml(String(it.id))}">
+        <div class="ik-head">
+          <span class="ik-theater">🎬 ${escapeHtml(it.theater || '(劇場未設定)')}</span>
+          <span class="ik-company">${escapeHtml(it.company || '')}</span>
+          <span class="ik-date">受付 ${escapeHtml(it.received_date || '-')}</span>
+          <span class="ik-cat">${escapeHtml(it.category || '')}</span>
+        </div>
+        <div class="ik-title">${escapeHtml(it.title || '(件名なし)')}</div>
+        <div class="ik-content">${escapeHtml(String(it.content || '').slice(0, 500))}</div>
+        ${it.reason ? `<div class="ik-reason">迷った理由: ${escapeHtml(it.reason)}</div>` : ''}
+        ${intakeCandHtml(it)}
+        <div class="ik-actions">
+          <button type="button" class="primary" data-ik="new" data-id="${escapeHtml(String(it.id))}">＋ 新規として登録</button>
+          <button type="button" class="danger" data-ik="discard" data-id="${escapeHtml(String(it.id))}">破棄（登録しない）</button>
+        </div>
+      </div>`).join('');
+  }
+  async function enterIntakeMode() {
+    if (aggMode) exitAggMode();
+    if (taskMode) exitTaskMode();
+    if (calMode) exitCalMode();
+    if (koteiMode) exitKoteiMode();
+    if (purchaseMode) exitPurchaseMode();
+    if (theaterInfoMode) closeTheaterInfoModal();
+    if (theaterPendingMode) closeTheaterPendingModal();
+    intakeMode = true;
+    try { intakePending = await store.fetchIntakePending(); } catch (e) { intakePending = []; }
+    $('ikSetupWarn').classList.toggle('hidden', !(store.mode === 'supabase' && !intakePendingSupported));
+    renderIntakeList();
+    document.querySelector('.table-wrap').classList.add('hidden');
+    document.querySelector('.legend').classList.add('hidden');
+    $('intakeView').classList.remove('hidden');
+  }
+  function exitIntakeMode() {
+    intakeMode = false;
+    $('intakeView').classList.add('hidden');
+    document.querySelector('.table-wrap').classList.remove('hidden');
+    document.querySelector('.legend').classList.remove('hidden');
+    refreshIntakeBadge();
+  }
+  function toggleIntakeMode() { if (intakeMode) exitIntakeMode(); else enterIntakeMode(); }
+  function ikFind(id) { return intakePending.find((x) => String(x.id) === String(id)); }
+  // 「新規として登録」: 確認待ちの内容で案件を作る（メール由来なのでLINEは「自動登録」）
+  async function intakeRegisterNew(it) {
+    const today = todayStr();
+    const c = {
+      id: genId(),
+      company: it.company || '', theater: it.theater || '',
+      receivedDate: it.received_date || today,
+      tcPerson: it.tc_person || '', rPerson: it.r_person || '',
+      category: it.category || '',
+      content: '',
+      memo: '【AI自動登録 ' + today + '】（登録確認で「新規」を選択）\n' + String(it.content || ''),
+      surveyDate: it.survey_date || '', quoteDate: it.quote_date || '',
+      workStartDate: it.work_start_date || '', workEndDate: it.work_end_date || '',
+      estimateName: '', estimateAmount: '', certNumber: '',
+      invoiceDate: '', paymentDate: '',
+      marginRate: DEFAULT_MARGIN_RATE, allocations: {}, tasks: [],
+      customerMemo: '', adviceNote: '', purchases: [],
+      updatedAt: new Date().toISOString()
+    };
+    cases.push(c);
+    await persistCase(c, 'auto');   // 社内メモ→内容のAI要約はサーバ側(webhook)が行う
+    await store.decideIntakePending(it.id, 'registered', c.id);
+    intakePending = intakePending.filter((x) => String(x.id) !== String(it.id));
+    renderIntakeList(); refreshIntakeBadge(); render();
+  }
+  // 「この案件に更新」: 選んだ既存案件の社内メモへ追記し、空の日程だけ埋める
+  async function intakeApplyUpdate(it, caseId) {
+    const c = cases.find((x) => String(x.id) === String(caseId));
+    if (!c) { alert('対象の案件が見つかりませんでした。画面を再読み込みしてください。'); return; }
+    const today = todayStr();
+    const note = String(it.progress_note || it.content || '').trim();
+    const block = '【AI自動更新 ' + today + '】（登録確認で「更新」を選択）\n' + note;
+    c.memo = c.memo ? (c.memo + '\n\n' + block) : block;
+    // 空いている日程だけ、メールから拾った日付で埋める（既存の手入力は上書きしない）
+    if (it.survey_date && !c.surveyDate) c.surveyDate = it.survey_date;
+    if (it.quote_date && !c.quoteDate) c.quoteDate = it.quote_date;
+    if (it.work_start_date && !c.workStartDate) c.workStartDate = it.work_start_date;
+    if (it.work_end_date && !c.workEndDate) c.workEndDate = it.work_end_date;
+    c.updatedAt = new Date().toISOString();
+    await persistCase(c, 'auto');
+    await store.decideIntakePending(it.id, 'updated', c.id);
+    intakePending = intakePending.filter((x) => String(x.id) !== String(it.id));
+    renderIntakeList(); refreshIntakeBadge(); render();
+  }
+
   let theaterPendingMode = false;
   async function openTheaterPendingModal() {
     if (aggMode) exitAggMode();
@@ -3464,6 +3619,7 @@
     if (koteiMode) exitKoteiMode();
     if (purchaseMode) exitPurchaseMode();
     if (theaterInfoMode) closeTheaterInfoModal();
+    if (intakeMode) exitIntakeMode();
     theaterPendingMode = true;
     try { theaterPending = await store.fetchPendingTheaterInfo(); } catch (e) { theaterPending = []; }
     $('tpSetupWarn').classList.toggle('hidden', !(store.mode === 'supabase' && !theaterPendingSupported));
@@ -3775,10 +3931,24 @@
     if (purchaseMode) exitPurchaseMode();
     if (theaterInfoMode) closeTheaterInfoModal();
     if (theaterPendingMode) closeTheaterPendingModal();
+    if (intakeMode) exitIntakeMode();
     applyUserScope();
     render();
     maybeOpenCaseFromUrl();
     refreshPendingBadge(); // 劇場情報 自動更新の未確認件数バッジ（菱熱のみ）
+    refreshIntakeBadge();  // 登録確認（新規か更新か）の件数バッジ（菱熱のみ）
+    maybeOpenIntakeFromUrl();
+  }
+  // LINE通知の「?intake=1」付きURLで開いた時、登録確認の画面を直接開く
+  function maybeOpenIntakeFromUrl() {
+    try {
+      const params = new URLSearchParams(location.search);
+      if (!params.get('intake')) return;
+      if (isPrivileged(currentUser)) enterIntakeMode();
+      params.delete('intake');
+      const qs = params.toString();
+      history.replaceState(null, '', location.pathname + (qs ? '?' + qs : '') + location.hash);
+    } catch (e) { /* noop */ }
   }
   // LINE通知などの「?case=<id>」付きURLで開いた時、その案件の編集画面を直接開く
   function maybeOpenCaseFromUrl() {
@@ -4095,6 +4265,36 @@
 
   // 劇場情報更新確認 モーダル
   $('theaterPendingBtn').addEventListener('click', () => { if (theaterPendingMode) closeTheaterPendingModal(); else openTheaterPendingModal(); });
+  // 登録確認（新規か更新か）
+  if ($('intakeBtn')) $('intakeBtn').addEventListener('click', toggleIntakeMode);
+  if ($('closeIntakeView')) $('closeIntakeView').addEventListener('click', exitIntakeMode);
+  if ($('ikCloseBtn')) $('ikCloseBtn').addEventListener('click', exitIntakeMode);
+  if ($('intakeView')) $('intakeView').addEventListener('click', async (e) => {
+    const btn = e.target.closest('[data-ik]'); if (!btn) return;
+    const act = btn.dataset.ik;
+    if (act === 'open') {
+      const c = cases.find((x) => String(x.id) === String(btn.dataset.case));
+      if (c) openModal(c, 'full'); else alert('その案件は見つかりませんでした（削除された可能性があります）。');
+      return;
+    }
+    const it = ikFind(btn.dataset.id); if (!it) return;
+    btn.disabled = true;
+    try {
+      if (act === 'new') {
+        if (confirm('この内容で「新規案件」として登録します。よろしいですか？')) await intakeRegisterNew(it);
+      } else if (act === 'update') {
+        if (confirm('選んだ既存案件に「更新」として反映します。よろしいですか？')) await intakeApplyUpdate(it, btn.dataset.case);
+      } else if (act === 'discard') {
+        if (confirm('この確認待ちを破棄します（案件は登録されません）。よろしいですか？')) {
+          await store.decideIntakePending(it.id, 'discarded', null);
+          intakePending = intakePending.filter((x) => String(x.id) !== String(it.id));
+          renderIntakeList(); refreshIntakeBadge();
+        }
+      }
+    } catch (err) {
+      alert('処理に失敗しました: ' + (err && err.message ? err.message : err));
+    } finally { btn.disabled = false; }
+  });
   $('closeTheaterPendingModal').addEventListener('click', closeTheaterPendingModal);
   $('tpCloseBtn').addEventListener('click', closeTheaterPendingModal);
   $('tpBody').addEventListener('click', handlePendingClick);
