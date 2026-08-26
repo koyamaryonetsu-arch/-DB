@@ -19,7 +19,9 @@
     { name: 'コロナワールド',     abbr: 'コロナ', officialName: '株式会社コロナワールド',       hqAddress: '愛知県小牧市東田中1227' },
     { name: 'MOVIX',              abbr: 'MV',     officialName: '株式会社松竹マルチプレックスシアターズ', hqAddress: '東京都中央区築地4-1-1 松竹本社' },
     { name: 'イオンシネマズ',     abbr: 'イオン', officialName: 'イオンエンターテイメント株式会社',       hqAddress: '千葉県千葉市美浜区中瀬1-5-1 幕張テクノガーデンB棟' },
-    { name: 'シネマサンシャイン', abbr: 'SS',     officialName: '佐々木興業株式会社',           hqAddress: '東京都豊島区東池袋1-30-3 大正堂ビル' }
+    { name: 'シネマサンシャイン', abbr: 'SS',     officialName: '佐々木興業株式会社',           hqAddress: '東京都豊島区東池袋1-30-3 大正堂ビル' },
+    // 小さい取引先をまとめて入れる用。案件が増えたら個別の会社として登録し直す
+    { name: 'その他',             abbr: 'その他', officialName: '',                             hqAddress: '' }
   ];
   const CATEGORIES = ['新規工事', '更新案件', '修理', 'メンテナンス', '点検', '改修', 'タスク', 'その他'];
   // 色判定を除外するカテゴリ
@@ -326,6 +328,9 @@
   let theaterContactsSupported = false;  // theater_contacts テーブルがあるか
   let theaterPendingSupported = false;   // theater_info_pending テーブルがあるか
   let intakePendingSupported = false;    // case_intake_pending テーブルがあるか
+  let equipSupported = false;            // equipment_items / equipment_loans テーブルがあるか
+  let equipItems = [];                   // 機器マスタ（風速計 など）
+  let equipLoans = [];                   // 貸出記録
   let intakePending = [];                // 案件の登録確認（新規か更新か）待ちリスト
   let theaterPending = [];               // 劇場情報 自動更新の要確認キュー
   const DATE_FIELDS = new Set(['receivedDate', 'surveyDate', 'quoteDate', 'workStartDate', 'workEndDate', 'invoiceDate', 'paymentDate']);
@@ -643,6 +648,71 @@
       if (error) throw error;
     },
     // ---- 各劇場情報: パートナー連絡先（theater_contacts） ----
+    // ---- 設備管理台帳（機器マスタ equipment_items / 貸出記録 equipment_loans） ----
+    async fetchEquipItems() {
+      if (this.mode !== 'supabase') { equipSupported = false; return []; }
+      const { data, error } = await sb.from('equipment_items').select('*')
+        .order('sort_order', { ascending: true }).order('name', { ascending: true });
+      if (error) { equipSupported = false; return []; }
+      equipSupported = true;
+      return (data || []).map((r) => ({
+        id: r.id, name: r.name || '', note: r.note || '',
+        sortOrder: r.sort_order || 100, active: r.active !== false
+      }));
+    },
+    async insertEquipItem(name) {
+      if (this.mode !== 'supabase') return null;
+      const { data, error } = await sb.from('equipment_items')
+        .insert({ name: name, sort_order: 100 }).select().single();
+      if (error) throw error;
+      return data;
+    },
+    async updateEquipItem(id, patch) {
+      if (this.mode !== 'supabase') return;
+      const { error } = await sb.from('equipment_items').update(patch).eq('id', id);
+      if (error) throw error;
+    },
+    async deleteEquipItem(id) {
+      if (this.mode !== 'supabase') return;
+      const { error } = await sb.from('equipment_items').delete().eq('id', id);
+      if (error) throw error;
+    },
+    async fetchEquipLoans() {
+      if (this.mode !== 'supabase') return [];
+      const { data, error } = await sb.from('equipment_loans').select('*')
+        .order('created_at', { ascending: false });
+      if (error) return [];
+      return (data || []).map((r) => ({
+        id: r.id, itemId: r.item_id || '', equipmentName: r.equipment_name || '',
+        borrower: r.borrower || '', lentOn: r.lent_on || '', dueOn: r.due_on || '',
+        returnedOn: r.returned_on || '', note: r.note || ''
+      }));
+    },
+    async insertEquipLoan(l) {
+      if (this.mode !== 'supabase') return null;
+      const { data, error } = await sb.from('equipment_loans').insert({
+        item_id: l.itemId || null, equipment_name: l.equipmentName || '',
+        borrower: l.borrower || '', lent_on: l.lentOn || null, due_on: l.dueOn || null,
+        returned_on: l.returnedOn || null, note: l.note || ''
+      }).select().single();
+      if (error) throw error;
+      return data;
+    },
+    async updateEquipLoan(id, l) {
+      if (this.mode !== 'supabase') return;
+      const { error } = await sb.from('equipment_loans').update({
+        item_id: l.itemId || null, equipment_name: l.equipmentName || '',
+        borrower: l.borrower || '', lent_on: l.lentOn || null, due_on: l.dueOn || null,
+        returned_on: l.returnedOn || null, note: l.note || '',
+        updated_at: new Date().toISOString()
+      }).eq('id', id);
+      if (error) throw error;
+    },
+    async deleteEquipLoan(id) {
+      if (this.mode !== 'supabase') return;
+      const { error } = await sb.from('equipment_loans').delete().eq('id', id);
+      if (error) throw error;
+    },
     async fetchTheaterContacts() {
       if (this.mode === 'local') return loadTheaterContactsLocal();
       const { data, error } = await sb.from('theater_contacts').select('*').order('sort_order', { ascending: true });
@@ -2713,6 +2783,7 @@
     if (typeof theaterInfoMode !== 'undefined' && theaterInfoMode) closeTheaterInfoModal();
     if (typeof theaterPendingMode !== 'undefined' && theaterPendingMode) closeTheaterPendingModal();
     if (typeof intakeMode !== 'undefined' && intakeMode) exitIntakeMode();
+    if (typeof equipMode !== 'undefined' && equipMode) exitEquipMode();
   }
   function enterAggMode() {
     if (taskMode) exitTaskMode();
@@ -2840,6 +2911,7 @@
     if (theaterInfoMode) closeTheaterInfoModal();
     if (theaterPendingMode) closeTheaterPendingModal();
     if (intakeMode) exitIntakeMode();
+    if (equipMode) exitEquipMode();
     purchaseMode = true;
     $('casesTable').classList.add('purchase-mode');
     $('emptyMsg').classList.add('hidden');
@@ -3419,6 +3491,7 @@
     if (purchaseMode) exitPurchaseMode();
     if (theaterPendingMode) closeTheaterPendingModal();
     if (intakeMode) exitIntakeMode();
+    if (equipMode) exitEquipMode();
     theaterInfoMode = true;
     populateTiCompanySelect();
     try { theaterContacts = await store.fetchTheaterContacts(); } catch (e) { theaterContacts = []; }
@@ -3481,6 +3554,96 @@
       return `<tr class="tp-theater-row"><td colspan="3">🎬 ${escapeHtml(th)}</td></tr>` + rows;
     }).join('');
   }
+  // ================= 設備管理台帳（機器の貸出・返却） =================
+  let equipMode = false;
+  let eqShowReturned = false;
+  // 状態: 返却済 / 延滞（返却予定日を過ぎて未返却） / 貸出中
+  function eqStatusOf(l) {
+    if (l.returnedOn) return { key: 'returned', label: '返却済' };
+    if (l.dueOn && l.dueOn < todayStr()) return { key: 'overdue', label: '延滞' };
+    return { key: 'lending', label: '貸出中' };
+  }
+  function eqItemOptions(selectedId, selectedName) {
+    const opts = ['<option value="">（選択）</option>'];
+    const list = equipItems.filter((it) => it.active || String(it.id) === String(selectedId));
+    let matched = false;
+    list.forEach((it) => {
+      const sel = (String(it.id) === String(selectedId)) || (!selectedId && it.name === selectedName);
+      if (sel) matched = true;
+      opts.push(`<option value="${escapeHtml(String(it.id))}"${sel ? ' selected' : ''}>${escapeHtml(it.name)}</option>`);
+    });
+    // マスタから消された機器の記録も名前だけは残す
+    if (!matched && selectedName) {
+      opts.push(`<option value="" selected>${escapeHtml(selectedName)}（一覧にない機器）</option>`);
+    }
+    return opts.join('');
+  }
+  function renderEquipItems() {
+    const box = $('eqItemList'); if (!box) return;
+    if (!equipItems.length) { box.innerHTML = '<span class="eq-none">機器が登録されていません。</span>'; return; }
+    box.innerHTML = equipItems.map((it) => `
+      <span class="eq-item-chip${it.active ? '' : ' inactive'}" data-eqitem="${escapeHtml(String(it.id))}">
+        <input type="text" class="eq-item-name" value="${escapeHtml(it.name)}" title="名前を直すと保存されます">
+        <button type="button" class="eq-item-del" title="削除">×</button>
+      </span>`).join('');
+  }
+  function renderEquipTable() {
+    const tbody = $('eqBody'); if (!tbody) return;
+    const rows = equipLoans.filter((l) => eqShowReturned || !l.returnedOn);
+    tbody.innerHTML = rows.map((l) => {
+      const st = eqStatusOf(l);
+      return `
+      <tr data-eqloan="${escapeHtml(String(l.id))}" class="eq-row-${st.key}">
+        <td><select class="tm-input eq-f" data-f="itemId">${eqItemOptions(l.itemId, l.equipmentName)}</select></td>
+        <td><input type="text" class="tm-input eq-f" data-f="borrower" value="${escapeHtml(l.borrower)}" placeholder="例: 山口"></td>
+        <td><input type="date" class="tm-input eq-f" data-f="lentOn" value="${escapeHtml(l.lentOn)}"></td>
+        <td><input type="date" class="tm-input eq-f" data-f="dueOn" value="${escapeHtml(l.dueOn)}"></td>
+        <td><input type="date" class="tm-input eq-f" data-f="returnedOn" value="${escapeHtml(l.returnedOn)}"></td>
+        <td><span class="eq-badge eq-${st.key}">${st.label}</span></td>
+        <td><input type="text" class="tm-input eq-f" data-f="note" value="${escapeHtml(l.note)}" placeholder="持出先など"></td>
+        <td class="eq-actions">
+          ${l.returnedOn ? '' : '<button type="button" class="eq-return-btn" title="今日の日付で返却にします">返却</button>'}
+          <button type="button" class="eq-del-btn danger" title="この記録を削除">削除</button>
+        </td>
+      </tr>`;
+    }).join('');
+    $('eqEmpty').classList.toggle('hidden', rows.length > 0);
+  }
+  function eqFind(id) { return equipLoans.find((x) => String(x.id) === String(id)); }
+  async function eqSaveLoan(l) {
+    try { await store.updateEquipLoan(l.id, l); }
+    catch (e) { alert('保存に失敗しました: ' + (e && e.message ? e.message : e)); }
+  }
+  async function enterEquipMode() {
+    if (aggMode) exitAggMode();
+    if (taskMode) exitTaskMode();
+    if (calMode) exitCalMode();
+    if (koteiMode) exitKoteiMode();
+    if (purchaseMode) exitPurchaseMode();
+    if (theaterInfoMode) closeTheaterInfoModal();
+    if (theaterPendingMode) closeTheaterPendingModal();
+    if (intakeMode) exitIntakeMode();
+    equipMode = true;
+    try { equipItems = await store.fetchEquipItems(); } catch (e) { equipItems = []; }
+    try { equipLoans = await store.fetchEquipLoans(); } catch (e) { equipLoans = []; }
+    $('eqSetupWarn').classList.toggle('hidden', !(store.mode === 'supabase' && !equipSupported));
+    $('eqShowReturned').checked = eqShowReturned;
+    renderEquipItems();
+    renderEquipTable();
+    $('equipBtn').textContent = '✕ 設備管理台帳を閉じる';
+    document.querySelector('.table-wrap').classList.add('hidden');
+    document.querySelector('.legend').classList.add('hidden');
+    $('equipView').classList.remove('hidden');
+  }
+  function exitEquipMode() {
+    equipMode = false;
+    $('equipView').classList.add('hidden');
+    $('equipBtn').textContent = '🧰 設備管理台帳';
+    document.querySelector('.table-wrap').classList.remove('hidden');
+    document.querySelector('.legend').classList.remove('hidden');
+  }
+  function toggleEquipMode() { if (equipMode) exitEquipMode(); else enterEquipMode(); }
+
   // ================= 案件の登録確認（新規か更新か） =================
   // 同じ劇場で近い日程に似た案件があると、メール取込は登録せず case_intake_pending に溜める。
   // ここでボタンを押すと「自動登録」または「既存案件へ自動更新」を実行する。
@@ -3549,6 +3712,7 @@
     if (purchaseMode) exitPurchaseMode();
     if (theaterInfoMode) closeTheaterInfoModal();
     if (theaterPendingMode) closeTheaterPendingModal();
+    if (equipMode) exitEquipMode();
     intakeMode = true;
     try { intakePending = await store.fetchIntakePending(); } catch (e) { intakePending = []; }
     $('ikSetupWarn').classList.toggle('hidden', !(store.mode === 'supabase' && !intakePendingSupported));
@@ -3620,6 +3784,7 @@
     if (purchaseMode) exitPurchaseMode();
     if (theaterInfoMode) closeTheaterInfoModal();
     if (intakeMode) exitIntakeMode();
+    if (equipMode) exitEquipMode();
     theaterPendingMode = true;
     try { theaterPending = await store.fetchPendingTheaterInfo(); } catch (e) { theaterPending = []; }
     $('tpSetupWarn').classList.toggle('hidden', !(store.mode === 'supabase' && !theaterPendingSupported));
@@ -3932,6 +4097,7 @@
     if (theaterInfoMode) closeTheaterInfoModal();
     if (theaterPendingMode) closeTheaterPendingModal();
     if (intakeMode) exitIntakeMode();
+    if (equipMode) exitEquipMode();
     applyUserScope();
     render();
     maybeOpenCaseFromUrl();
@@ -3997,6 +4163,14 @@
     ).join('');
     bar.innerHTML = html;
   }
+  // 客先ログインでは col-ryo のボタンが消えるため、中身が無くなったグループ枠は隠す
+  function hideEmptyToolbarGroups() {
+    document.querySelectorAll('.header-actions .tb-group').forEach((g) => {
+      const items = [...g.children].filter((el) => !el.classList.contains('tb-label'));
+      const anyVisible = items.some((el) => el.offsetParent !== null || !el.classList.contains('col-ryo'));
+      g.classList.toggle('hidden', !anyVisible);
+    });
+  }
   function applyUserScope() {
     $('userEmail').textContent = currentUser.email;
     loadSavedFilters(); // アカウント別に最後の絞り込みを復元
@@ -4028,6 +4202,7 @@
       const contentTa = $('content'); if (contentTa) { contentTa.readOnly = false; }
     }
     applyHScrollPos(); // 横スクロールバー位置の個人設定を反映
+    requestAnimationFrame(hideEmptyToolbarGroups); // 空になったグループ枠を隠す
   }
 
   // ---------- handlers ----------
@@ -4265,6 +4440,101 @@
 
   // 劇場情報更新確認 モーダル
   $('theaterPendingBtn').addEventListener('click', () => { if (theaterPendingMode) closeTheaterPendingModal(); else openTheaterPendingModal(); });
+  // 設備管理台帳
+  if ($('equipBtn')) $('equipBtn').addEventListener('click', toggleEquipMode);
+  if ($('closeEquipView')) $('closeEquipView').addEventListener('click', exitEquipMode);
+  if ($('eqCloseBtn')) $('eqCloseBtn').addEventListener('click', exitEquipMode);
+  if ($('eqItemsBtn')) $('eqItemsBtn').addEventListener('click', () => {
+    $('eqItemsBox').classList.toggle('hidden');
+  });
+  if ($('eqShowReturned')) $('eqShowReturned').addEventListener('change', (e) => {
+    eqShowReturned = e.target.checked;
+    renderEquipTable();
+  });
+  // 貸出を追加
+  if ($('eqAddLoanBtn')) $('eqAddLoanBtn').addEventListener('click', async () => {
+    const first = equipItems.find((it) => it.active);
+    const l = {
+      itemId: first ? first.id : '', equipmentName: first ? first.name : '',
+      borrower: '', lentOn: todayStr(), dueOn: '', returnedOn: '', note: ''
+    };
+    try {
+      const row = await store.insertEquipLoan(l);
+      if (row) { l.id = row.id; equipLoans.unshift(l); renderEquipTable(); }
+    } catch (e) { alert('追加に失敗しました: ' + (e && e.message ? e.message : e)); }
+  });
+  // 機器を追加
+  if ($('eqAddItemBtn')) $('eqAddItemBtn').addEventListener('click', async () => {
+    const name = $('eqNewItemName').value.trim();
+    if (!name) return;
+    try {
+      const row = await store.insertEquipItem(name);
+      if (row) {
+        equipItems.push({ id: row.id, name: name, note: '', sortOrder: 100, active: true });
+        $('eqNewItemName').value = '';
+        renderEquipItems(); renderEquipTable();
+      }
+    } catch (e) { alert('機器の追加に失敗しました（同じ名前が既にあるかもしれません）: ' + (e && e.message ? e.message : e)); }
+  });
+  // 機器名の編集・削除
+  if ($('eqItemList')) {
+    $('eqItemList').addEventListener('change', async (e) => {
+      const chip = e.target.closest('[data-eqitem]'); if (!chip) return;
+      if (!e.target.classList.contains('eq-item-name')) return;
+      const id = chip.dataset.eqitem;
+      const it = equipItems.find((x) => String(x.id) === String(id)); if (!it) return;
+      const name = e.target.value.trim();
+      if (!name) { e.target.value = it.name; return; }
+      try { await store.updateEquipItem(id, { name: name }); it.name = name; renderEquipTable(); }
+      catch (err) { alert('機器名の変更に失敗しました: ' + (err && err.message ? err.message : err)); e.target.value = it.name; }
+    });
+    $('eqItemList').addEventListener('click', async (e) => {
+      const del = e.target.closest('.eq-item-del'); if (!del) return;
+      const chip = del.closest('[data-eqitem]'); const id = chip.dataset.eqitem;
+      const it = equipItems.find((x) => String(x.id) === String(id)); if (!it) return;
+      if (!confirm(`機器「${it.name}」を一覧から削除しますか？\n（過去の貸出記録は残ります）`)) return;
+      try {
+        await store.deleteEquipItem(id);
+        equipItems = equipItems.filter((x) => String(x.id) !== String(id));
+        renderEquipItems(); renderEquipTable();
+      } catch (err) { alert('削除に失敗しました: ' + (err && err.message ? err.message : err)); }
+    });
+  }
+  // 貸出記録の編集・返却・削除
+  if ($('eqBody')) {
+    $('eqBody').addEventListener('change', async (e) => {
+      const tr = e.target.closest('[data-eqloan]'); if (!tr) return;
+      const l = eqFind(tr.dataset.eqloan); if (!l) return;
+      const f = e.target.dataset.f; if (!f) return;
+      if (f === 'itemId') {
+        l.itemId = e.target.value;
+        const it = equipItems.find((x) => String(x.id) === String(l.itemId));
+        l.equipmentName = it ? it.name : '';
+      } else {
+        l[f] = e.target.value;
+      }
+      await eqSaveLoan(l);
+      renderEquipTable();   // 状態バッジ（貸出中/延滞/返却済）を更新
+    });
+    $('eqBody').addEventListener('click', async (e) => {
+      const tr = e.target.closest('[data-eqloan]'); if (!tr) return;
+      const l = eqFind(tr.dataset.eqloan); if (!l) return;
+      if (e.target.closest('.eq-return-btn')) {
+        l.returnedOn = todayStr();
+        await eqSaveLoan(l);
+        renderEquipTable();
+        return;
+      }
+      if (e.target.closest('.eq-del-btn')) {
+        if (!confirm('この貸出記録を削除しますか？')) return;
+        try {
+          await store.deleteEquipLoan(l.id);
+          equipLoans = equipLoans.filter((x) => String(x.id) !== String(l.id));
+          renderEquipTable();
+        } catch (err) { alert('削除に失敗しました: ' + (err && err.message ? err.message : err)); }
+      }
+    });
+  }
   // 登録確認（新規か更新か）
   if ($('intakeBtn')) $('intakeBtn').addEventListener('click', toggleIntakeMode);
   if ($('closeIntakeView')) $('closeIntakeView').addEventListener('click', exitIntakeMode);
