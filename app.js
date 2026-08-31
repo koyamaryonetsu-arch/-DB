@@ -50,9 +50,9 @@
     toho: { '見積り提出済': '見積り受領済', '請求済': '請求書受領済',    '入金済': '支払済', '失注': '他社依頼' }
   };
   // 客先ごとの「客先担当者」表示名（TC担当者 の置換）
-  const CUSTOMER_TC_LABEL = { 'TOHOシネマズ': 'TC担当者', '109シネマズ': '109担当者', 'ユナイテッドシネマ': 'UC担当者' };
-  // 客先ごとの「顧客メモ」表示名（客先アカウントでは ○○メモ に。菱熱では「顧客メモ」）
-  const CUSTOMER_MEMO_LABEL = { 'TOHOシネマズ': 'TOHOメモ', '109シネマズ': '109メモ', 'ユナイテッドシネマ': 'UCメモ' };
+  // 客先ログインでは略称を使わず、会社名をそのまま使う（TC→TOHOシネマズ 等の表記ゆれ防止）
+  function customerLabel(suffix) { return (customerCompany(currentUser) || '客先') + suffix; }
+  // 顧客メモの表示名は customerMemoLabel()（客先＝会社名＋メモ／菱熱＝顧客メモ）
   // 客先に渡してよい cases のカラム（社内情報 memo/advice_note/allocations/margin_rate/tasks/created_by/updated_by は除外）
   const CUSTOMER_CASE_COLUMNS = [
     'id', 'company', 'theater', 'received_date', 'tc_person', 'r_person', 'category', 'content',
@@ -1323,7 +1323,10 @@
   }
   function statusDisplayLabel(code) {
     const map = isPrivileged(currentUser) ? ROLE_STATUS.ryo : ROLE_STATUS.toho;
-    return map[code] || code;
+    const label = map[code] || code;
+    // 客先ログインでは「客先対応中」等の“客先”を会社名にする（表記ゆれ防止）
+    if (!isPrivileged(currentUser)) return label.replace(/客先/g, customerCompany(currentUser) || '客先');
+    return label;
   }
   // 実効ステータス: 手動上書き(statusOverride)があればそれを、無ければ自動判定(deriveStatus)を返す
   function statusOf(c) {
@@ -1764,15 +1767,27 @@
     workEndDate: '作業完了日', invoiceDate: '請求書発行日', paymentDate: '入金日', memo: '社内メモ',
     customerMemo: '顧客メモ'
   };
+  // 表示用のラベル（スマホのカード表示など）。客先ログインでは「客先」「顧客」を会社名に置き換える
+  function fieldLabel(field) {
+    const base = FIELD_LABELS[field] || '';
+    if (isPrivileged(currentUser) || !base) return base;
+    const co = customerCompany(currentUser);
+    if (!co) return base;
+    if (field === 'customerMemo') return co + 'メモ';
+    return base.replace(/客先/g, co);
+  }
   function isMobile() { return window.matchMedia ? window.matchMedia('(max-width: 600px)').matches : (window.innerWidth <= 600); }
   function editableTd(c, field, displayHtml, extraClass) {
     const cfg = EDITABLE_FIELDS[field];
     const canEdit = !(cfg.privilegedOnly && !isPrivileged(currentUser))
                   && !(cfg.readonlyForCustomer && !isPrivileged(currentUser))
                   && !(cfg.tohoOnly && c.company !== 'TOHOシネマズ');
-    const cls = (canEdit ? 'editable' : '') + (c[field] ? '' : ' empty') + (extraClass ? ' ' + extraClass : '');
+    // 編集はできないが、ポップアップで全文を見られる項目（客先の「内容」など）
+    const viewOnlyPopup = !canEdit && cfg.type === 'popup' && !cfg.privilegedOnly;
+    const cls = (canEdit ? 'editable' : (viewOnlyPopup ? 'viewable' : ''))
+      + (c[field] ? '' : ' empty') + (extraClass ? ' ' + extraClass : '');
     const title = field === 'estimateName' ? ' title="ダブルクリックで見積書を読み取り（AI-OCR）"' : '';
-    return `<td class="${cls}" data-field="${field}" data-colkey="${field}" data-case-id="${escapeHtml(c.id)}" data-label="${escapeHtml(FIELD_LABELS[field] || '')}"${title}>${displayHtml}</td>`;
+    return `<td class="${cls}" data-field="${field}" data-colkey="${field}" data-case-id="${escapeHtml(c.id)}" data-label="${escapeHtml(fieldLabel(field))}"${title}>${displayHtml}</td>`;
   }
 
   // ステータスのセル（バッジ＋手動選択。受注者のみ編集可）— 通常/タスク両モードで共有
@@ -1836,7 +1851,9 @@
     if (!c.company) return '';
     const cCol = companyColor(c.company);
     const cStyle = cCol ? ` style="background:${escapeHtml(cCol)};color:${contrastText(cCol)}"` : '';
-    return `<span class="company-tag company-${safeClass(c.company)}"${cStyle} title="${escapeHtml(c.company)}">${escapeHtml(companyAbbr(c.company))}</span>`;
+    // 客先ログインでは略称(TOHO等)を使わず会社名をそのまま表示する
+    const shown = isPrivileged(currentUser) ? companyAbbr(c.company) : c.company;
+    return `<span class="company-tag company-${safeClass(c.company)}"${cStyle} title="${escapeHtml(c.company)}">${escapeHtml(shown)}</span>`;
   }
   function render() {
     if (taskMode) { renderTaskTable(); return; }
@@ -2035,9 +2052,10 @@
     const cfg = EDITABLE_FIELDS[field];
     if (!cfg) return;
     if (cfg.privilegedOnly && !isPrivileged(currentUser)) return;
-    if (cfg.readonlyForCustomer && !isPrivileged(currentUser)) return; // 内容は客先は閲覧のみ
     if (cfg.tohoOnly && c.company !== 'TOHOシネマズ') return;
+    // ポップアップ項目は、編集できない場合でも「閲覧用」として開く（全文が読めるように）
     if (cfg.type === 'popup') { openContentModal(c, field); return; }
+    if (cfg.readonlyForCustomer && !isPrivileged(currentUser)) return; // 内容は客先は閲覧のみ
 
     const oldVal = c[field] != null ? c[field] : '';
     let el;
@@ -2383,7 +2401,7 @@
   const POPUP_FIELD_TITLES = { content: '内容を編集', memo: '社内メモを編集' };
   // 顧客メモの表示名（客先=○○メモ / 菱熱=顧客メモ）
   function customerMemoLabel() {
-    return isPrivileged(currentUser) ? '顧客メモ' : (CUSTOMER_MEMO_LABEL[customerCompany(currentUser)] || '顧客メモ');
+    return isPrivileged(currentUser) ? '顧客メモ' : customerLabel('メモ');
   }
   function popupFieldTitle(field) {
     if (field === 'customerMemo') return customerMemoLabel() + 'を編集';
@@ -2398,12 +2416,25 @@
     $('contentEditor').value = c[field] || '';
     $('contentEditor').placeholder = field === 'memo' ? '社内メモ／「保留」と書くとステータス自動切替'
       : (field === 'customerMemo' ? customerMemoLabel() + 'を記入' : '案件の詳細を記入');
+    // 閲覧のみ（客先の「内容」）は編集不可にして保存ボタンを隠す
+    const cfgPopup = EDITABLE_FIELDS[field] || {};
+    const readOnly = !!(cfgPopup.readonlyForCustomer && !isPrivileged(currentUser));
+    const ta = $('contentEditor');
+    ta.readOnly = readOnly;
+    ta.classList.toggle('readonly', readOnly);
+    if (titleEl) titleEl.textContent = readOnly ? popupFieldTitle(field).replace('を編集', '') : popupFieldTitle(field);
+    $('contentSaveBtn').classList.toggle('hidden', readOnly);
+    const hintEl = $('contentModal').querySelector('.modal-hint');
+    if (hintEl) hintEl.textContent = readOnly ? '（閲覧のみ）' : 'Ctrl+Enter / ⌘+Enter で保存';
+    $('contentCancelBtn').textContent = readOnly ? '閉じる' : 'キャンセル';
     $('contentModal').classList.remove('hidden');
     setTimeout(() => $('contentEditor').focus(), 50);
   }
   function closeContentModal() { $('contentModal').classList.add('hidden'); contentEditCaseId = null; }
   function saveContentFromModal() {
     if (!contentEditCaseId) return;
+    const cfgSave = EDITABLE_FIELDS[popupEditField] || {};
+    if (cfgSave.readonlyForCustomer && !isPrivileged(currentUser)) { closeContentModal(); return; }
     const c = cases.find((x) => x.id === contentEditCaseId);
     if (c) {
       const newVal = $('contentEditor').value.trim();
@@ -2441,14 +2472,14 @@
     if (filtered.length === 0) { alert('現在の絞り込み条件に一致する案件がありません。'); return; }
     const includesMemo = isPrivileged(currentUser);
     const isToho = !includesMemo;
-    const headers = ['会社', '劇場名', '受付日', isToho ? 'TC担当者' : '客先担当者', 'R担当者', '種別', '内容',
+    const headers = ['会社', '劇場名', '受付日', fieldLabel('tcPerson'), 'R担当者', '種別', '内容',
       '調査日', '認証番号', '見積り名', '見積り金額',
       isToho ? '見積り受領日' : '見積り提出日',
       '作業開始日', '作業完了日',
       isToho ? '請求書受領日' : '請求書発行日',
       isToho ? '支払日' : '入金日',
       'ステータス'];
-    if (includesMemo) headers.push('顧客メモ', '社内メモ');
+    if (includesMemo) headers.push(customerMemoLabel(), '社内メモ');
     const rows = [headers].concat(filtered.map((c) => {
       const row = [c.company, c.theater, c.receivedDate, c.tcPerson, c.rPerson, c.category, c.content,
         c.surveyDate, c.company === 'TOHOシネマズ' ? c.certNumber : '',
@@ -4185,18 +4216,19 @@
     const privileged = isPrivileged(currentUser);
     document.body.classList.toggle('user-privileged', privileged);
     document.body.classList.toggle('user-toho', !privileged);
-    $('appTitle').textContent = privileged ? 'シネマ案件管理' : (customerCompany(currentUser) + ' 案件管理');
+    const appTitleText = privileged ? 'シネマ案件管理' : (customerCompany(currentUser) + ' 案件管理');
+    $('appTitle').textContent = appTitleText;
+    document.title = appTitleText;   // ブラウザのタブ名も合わせる
     renderRPersonBar();
     // status filter のラベル差し替え（受発注で呼称が変わる項目のみ）
     $('statusFilter').querySelectorAll('option').forEach(opt => {
-      const map = privileged ? ROLE_STATUS.ryo : ROLE_STATUS.toho;
-      if (map[opt.value]) opt.textContent = map[opt.value];
+      if (opt.value) opt.textContent = statusDisplayLabel(opt.value);
     });
     // 顧客メモの表示名（菱熱=顧客メモ / 客先=○○メモ）をヘッダ・フォームに反映
     document.querySelectorAll('.customer-memo-label').forEach((el) => { el.textContent = customerMemoLabel(); });
     // 客先の「TC担当者」表示名を会社別に（TOHO=TC担当者 / 東急レク=109担当者 / UC=UC担当者）
     if (!privileged) {
-      const tcLabel = CUSTOMER_TC_LABEL[customerCompany(currentUser)] || 'TC担当者';
+      const tcLabel = customerLabel('担当者');
       document.querySelectorAll('.tc-label').forEach((el) => { el.textContent = tcLabel; });
       // 内容(content)は客先は閲覧のみ（AI要約の結果）。フォームでも編集不可に
       const contentTa = $('content'); if (contentTa) { contentTa.readOnly = true; }
@@ -4597,7 +4629,9 @@
     render();
   }
   function updateMobileSortButtons() {
-    const map = { receivedDate: ['sortReceivedBtn', '受付日順'], surveyDate: ['sortSurveyBtn', '調査日順'], company: ['sortCompanyBtn', '客先順'], status: ['sortStatusBtn', 'ステータス順'] };
+    // 客先ログインでは「客先」表記を使わない（自社のみのため「会社順」）
+    const companyLabel = isPrivileged(currentUser) ? '客先順' : '会社順';
+    const map = { receivedDate: ['sortReceivedBtn', '受付日順'], surveyDate: ['sortSurveyBtn', '調査日順'], company: ['sortCompanyBtn', companyLabel], status: ['sortStatusBtn', 'ステータス順'] };
     Object.keys(map).forEach((field) => {
       const b = $(map[field][0]); if (!b) return;
       const active = sortState.field === field;
@@ -4872,7 +4906,7 @@
       }
       return;
     }
-    const td = e.target.closest('td.editable');
+    const td = e.target.closest('td.editable, td.viewable');
     if (!td) return;
     const c = cases.find((x) => x.id === td.dataset.caseId);
     if (!c) return;
