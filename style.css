@@ -1962,3 +1962,12 @@ body.tm-resizing { cursor: col-resize; user-select: none; }
 #eqTable tr.eq-row-returned { color: #94a3b8; }
 .eq-actions { display: flex; gap: 4px; flex-wrap: wrap; }
 .eq-actions button { padding: 4px 8px; font-size: 12px; }
+
+/* ===== 閲覧のみのポップアップ項目（客先の「内容」など） ===== */
+/* クリックで全文をポップアップ表示できることが分かるように */
+td.viewable { cursor: zoom-in; }
+td.viewable:hover { background: #f1f5f9; }
+#contentEditor.readonly { background: #f8fafc; color: #0f172a; }
+
+/* 客先ログインでは会社名をそのまま表示するため、タグが折り返せるようにする */
+body.user-toho .company-tag { white-space: normal; word-break: keep-all; }
