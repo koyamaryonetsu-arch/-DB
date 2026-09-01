@@ -1891,6 +1891,7 @@
         ${editableTd(c, 'rPerson', escapeHtml(c.rPerson))}
         ${editableTd(c, 'category', escapeHtml(c.category))}
         ${editableTd(c, 'content', dupBadgeHtml(c) + escapeHtml(c.content), 'content-cell')}
+        ${editableTd(c, 'customerMemo', escapeHtml(c.customerMemo), 'col-customer-memo')}
         ${editableTd(c, 'surveyDate', escapeHtml(fmtDateTime(c.surveyDate, c.surveyTime)))}
         ${certHtml}
         ${editableTd(c, 'estimateName', escapeHtml(c.estimateName))}
@@ -1901,7 +1902,6 @@
         ${editableTd(c, 'workEndDate', escapeHtml(fmtDateTime(c.workEndDate, c.workEndTime)))}
         ${editableTd(c, 'invoiceDate', fmtDateShort(c.invoiceDate))}
         ${payCell}
-        ${editableTd(c, 'customerMemo', escapeHtml(c.customerMemo), 'col-customer-memo')}
         ${editableTd(c, 'memo', escapeHtml(c.memo), 'col-memo')}
       `;
       tbody.appendChild(tr);
@@ -1924,11 +1924,14 @@
     updateShowAllBtn();
     applyColumnOrder();   // 個人設定の列並びを反映
     setupColumnDrag();    // 見出しをドラッグで並べ替え可能に
+    addColMoveHandles();  // 見出しの「▲」で1つ前へ移動できるように
     syncHScrollWidth();   // 上部横スクロールバーの幅を合わせる
   }
 
   // ===== 列の並べ替え（個人設定・ドラッグ） =====
-  const DEFAULT_COLUMN_KEYS = ['edit', 'status', 'company', 'theater', 'receivedDate', 'tcPerson', 'rPerson', 'category', 'content', 'surveyDate', 'certNumber', 'estimateName', 'estimateAmount', 'tax', 'quoteDate', 'workStartDate', 'workEndDate', 'invoiceDate', 'paymentDate', 'customerMemo', 'memo'];
+  // 標準の並び。顧客メモは「内容」のすぐ右に置く（既に個人で並べ替えている場合は
+  // その設定が優先されるため、標準に戻すには「列並びリセット」を押す）
+  const DEFAULT_COLUMN_KEYS = ['edit', 'status', 'company', 'theater', 'receivedDate', 'tcPerson', 'rPerson', 'category', 'content', 'customerMemo', 'surveyDate', 'certNumber', 'estimateName', 'estimateAmount', 'tax', 'quoteDate', 'workStartDate', 'workEndDate', 'invoiceDate', 'paymentDate', 'memo'];
   // 支払い状況モードの列（左＝案件情報／右＝支払い入力）
   const PURCHASE_COLS = [
     { field: 'company',        label: '会社' },
@@ -1976,6 +1979,42 @@
     tbl.classList.toggle('custom-col-order', !!loadColumnOrder()); // 並べ替え中は左固定を解除
     const head = activeTheadRow(); if (head) reorderCellsByKey(head, order);
     $('casesBody').querySelectorAll('tr').forEach((tr) => reorderCellsByKey(tr, order));
+  }
+  // 見出しの先頭に「▲」を付ける。押すとその列を1つ前（左）へ移動できる。
+  // ドラッグが使いにくい環境（タブレット等）でも並べ替えできるようにするため。
+  function addColMoveHandles() {
+    if (aggMode) return;
+    const head = activeTheadRow(); if (!head) return;
+    const order = currentColumnOrder();
+    head.querySelectorAll('th[data-colkey]').forEach((th) => {
+      let btn = th.querySelector('.col-move-btn');
+      if (!btn) {
+        btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'col-move-btn';
+        btn.textContent = '▲';
+        // ボタン自体はドラッグ対象にしない（クリックが拾えなくなるため）
+        btn.draggable = false;
+        btn.addEventListener('mousedown', (ev) => ev.stopPropagation());
+        th.insertBefore(btn, th.firstChild);
+      }
+      // 先頭の列はこれ以上前に動かせない
+      const key = th.getAttribute('data-colkey');
+      const first = order.indexOf(key) <= 0;
+      btn.disabled = first;
+      btn.title = first ? 'これ以上、前には移動できません' : 'この列を1つ前（左）へ移動';
+    });
+  }
+  // 列を1つ前（左）へ移動して保存
+  function moveColumnLeft(key) {
+    const order = currentColumnOrder();
+    const i = order.indexOf(key);
+    if (i <= 0) return;
+    order.splice(i, 1);
+    order.splice(i - 1, 0, key);
+    saveColumnOrder(order);
+    applyColumnOrder();
+    addColMoveHandles();
   }
   function setupColumnDrag() {
     if (aggMode) return;
@@ -3008,7 +3047,7 @@
     if (!isPrivileged(currentUser)) {
       $('caseCount').textContent = '0 件';
       $('emptyMsg').classList.remove('hidden');
-      applyColumnOrder(); setupColumnDrag();
+      applyColumnOrder(); setupColumnDrag(); addColMoveHandles();
       return;
     }
     const rows = getFilteredCases();
@@ -3036,6 +3075,7 @@
     updateShowAllBtn();
     applyColumnOrder();
     setupColumnDrag();
+    addColMoveHandles();
   }
   function calVisibleCases() {
     return visibleCases().filter((c) => {
@@ -3168,6 +3208,7 @@
     updateShowAllBtn();
     applyColumnOrder();   // 個人設定の列並びを反映
     setupColumnDrag();    // 見出しをドラッグで並べ替え可能に
+    addColMoveHandles();  // 見出しの「▲」で1つ前へ移動できるように
   }
 
   // タスク編集ポップアップ
@@ -4930,6 +4971,14 @@
   // ソートは thead に委譲（A集計モードでthead差替えしても生き続ける）
   $('casesTable').querySelector('thead').addEventListener('click', (e) => {
     if (e.target.closest('.col-resizer')) return; // 列幅ドラッグは並び替え・絞り込み対象外
+    // 見出し先頭の「▲」→ その列を1つ前へ移動（ソート・絞り込みは動かさない）
+    const moveBtn = e.target.closest('.col-move-btn');
+    if (moveBtn) {
+      e.preventDefault(); e.stopPropagation();
+      const th = moveBtn.closest('th[data-colkey]');
+      if (th) moveColumnLeft(th.getAttribute('data-colkey'));
+      return;
+    }
     if (aggMode || taskMode) return; // A集計/タスク管理モードではソート無効
     // 見出しの文字（.th-filter）クリック → 絞り込みタブ
     const fEl = e.target.closest('.th-filter');
