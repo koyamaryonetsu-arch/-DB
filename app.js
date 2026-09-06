@@ -1924,7 +1924,7 @@
     updateShowAllBtn();
     applyColumnOrder();   // 個人設定の列並びを反映
     setupColumnDrag();    // 見出しをドラッグで並べ替え可能に
-    addColMoveHandles();  // 見出しの「▲」で1つ前へ移動できるように
+    addColSortHandles();  // 見出しの「▲」で昇順/降順の並び替え
     syncHScrollWidth();   // 上部横スクロールバーの幅を合わせる
   }
 
@@ -1980,41 +1980,44 @@
     const head = activeTheadRow(); if (head) reorderCellsByKey(head, order);
     $('casesBody').querySelectorAll('tr').forEach((tr) => reorderCellsByKey(tr, order));
   }
-  // 見出しの先頭に「▲」を付ける。押すとその列を1つ前（左）へ移動できる。
-  // ドラッグが使いにくい環境（タブレット等）でも並べ替えできるようにするため。
-  function addColMoveHandles() {
+  // 見出しの先頭に「▲」を付ける。押すとその列で並び替え（昇順→降順→解除）。
+  // ▼=降順、▲(青)=昇順、▲(グレー)=並び替えなし。列の移動は見出しのドラッグで行う。
+  function addColSortHandles() {
     if (aggMode) return;
     const head = activeTheadRow(); if (!head) return;
-    const order = currentColumnOrder();
     head.querySelectorAll('th[data-colkey]').forEach((th) => {
-      let btn = th.querySelector('.col-move-btn');
+      const field = th.dataset.sort;
+      let btn = th.querySelector('.col-sort-btn');
+      // 並び替えできない列（編集ボタン等）にはボタンを出さない
+      if (!field || !th.classList.contains('sortable')) { if (btn) btn.remove(); return; }
       if (!btn) {
         btn = document.createElement('button');
         btn.type = 'button';
-        btn.className = 'col-move-btn';
-        btn.textContent = '▲';
+        btn.className = 'col-sort-btn';
         // ボタン自体はドラッグ対象にしない（クリックが拾えなくなるため）
         btn.draggable = false;
         btn.addEventListener('mousedown', (ev) => ev.stopPropagation());
         th.insertBefore(btn, th.firstChild);
       }
-      // 先頭の列はこれ以上前に動かせない
-      const key = th.getAttribute('data-colkey');
-      const first = order.indexOf(key) <= 0;
-      btn.disabled = first;
-      btn.title = first ? 'これ以上、前には移動できません' : 'この列を1つ前（左）へ移動';
+      const active = sortState.field === field;
+      const desc = active && sortState.direction === 'desc';
+      btn.textContent = desc ? '▼' : '▲';
+      btn.classList.toggle('active', active);
+      btn.title = !active ? 'この項目で並び替え（昇順）'
+        : (desc ? 'この項目の並び替えを解除' : 'この項目で並び替え（降順）');
     });
   }
-  // 列を1つ前（左）へ移動して保存
-  function moveColumnLeft(key) {
-    const order = currentColumnOrder();
-    const i = order.indexOf(key);
-    if (i <= 0) return;
-    order.splice(i, 1);
-    order.splice(i - 1, 0, key);
-    saveColumnOrder(order);
-    applyColumnOrder();
-    addColMoveHandles();
+  // その列で 昇順 → 降順 → 解除 と切り替える
+  function toggleColumnSort(field) {
+    if (!field) return;
+    if (sortState.field === field) {
+      if (sortState.direction === 'asc') sortState.direction = 'desc';
+      else { sortState.field = null; sortState.direction = 'asc'; }
+    } else {
+      sortState.field = field;
+      sortState.direction = 'asc';
+    }
+    render();
   }
   function setupColumnDrag() {
     if (aggMode) return;
@@ -3047,7 +3050,7 @@
     if (!isPrivileged(currentUser)) {
       $('caseCount').textContent = '0 件';
       $('emptyMsg').classList.remove('hidden');
-      applyColumnOrder(); setupColumnDrag(); addColMoveHandles();
+      applyColumnOrder(); setupColumnDrag(); addColSortHandles();
       return;
     }
     const rows = getFilteredCases();
@@ -3075,7 +3078,7 @@
     updateShowAllBtn();
     applyColumnOrder();
     setupColumnDrag();
-    addColMoveHandles();
+    addColSortHandles();
   }
   function calVisibleCases() {
     return visibleCases().filter((c) => {
@@ -3208,7 +3211,7 @@
     updateShowAllBtn();
     applyColumnOrder();   // 個人設定の列並びを反映
     setupColumnDrag();    // 見出しをドラッグで並べ替え可能に
-    addColMoveHandles();  // 見出しの「▲」で1つ前へ移動できるように
+    addColSortHandles();  // 見出しの「▲」で昇順/降順の並び替え
   }
 
   // タスク編集ポップアップ
@@ -4971,12 +4974,12 @@
   // ソートは thead に委譲（A集計モードでthead差替えしても生き続ける）
   $('casesTable').querySelector('thead').addEventListener('click', (e) => {
     if (e.target.closest('.col-resizer')) return; // 列幅ドラッグは並び替え・絞り込み対象外
-    // 見出し先頭の「▲」→ その列を1つ前へ移動（ソート・絞り込みは動かさない）
-    const moveBtn = e.target.closest('.col-move-btn');
-    if (moveBtn) {
+    // 見出し先頭の「▲」→ その列で並び替え（昇順→降順→解除）
+    const sortBtn = e.target.closest('.col-sort-btn');
+    if (sortBtn) {
       e.preventDefault(); e.stopPropagation();
-      const th = moveBtn.closest('th[data-colkey]');
-      if (th) moveColumnLeft(th.getAttribute('data-colkey'));
+      const th = sortBtn.closest('th[data-colkey]');
+      if (th) toggleColumnSort(th.dataset.sort);
       return;
     }
     if (aggMode || taskMode) return; // A集計/タスク管理モードではソート無効

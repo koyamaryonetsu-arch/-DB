@@ -274,30 +274,12 @@ th.sortable {
   cursor: pointer;
   user-select: none;
   position: relative;
-  padding-right: 22px;
+  padding-right: 8px;
 }
 th.sortable:hover {
   background: #dde6f0;
 }
-th.sortable::after {
-  content: '↕';
-  position: absolute;
-  right: 8px;
-  top: 50%;
-  transform: translateY(-50%);
-  opacity: 0.25;
-  font-size: 10px;
-}
-th.sortable.sort-asc::after {
-  content: '▲';
-  opacity: 1;
-  color: #2563eb;
-}
-th.sortable.sort-desc::after {
-  content: '▼';
-  opacity: 1;
-  color: #2563eb;
-}
+/* 並び替えの矢印は見出し先頭の ▲ ボタン（.col-sort-btn）に一本化。右側の矢印は廃止 */
 
 td.toho-empty {
   color: #cbd5e1;
@@ -1972,18 +1954,19 @@ td.viewable:hover { background: #f1f5f9; }
 /* 客先ログインでは会社名をそのまま表示するため、タグが折り返せるようにする */
 body.user-toho .company-tag { white-space: normal; word-break: keep-all; }
 
-/* ===== 見出しの「▲」（押すとその列を1つ前へ移動） ===== */
-.col-move-btn {
+/* ===== 見出し先頭の「▲」（押すとその項目で昇順/降順に並び替え） ===== */
+.col-sort-btn {
   border: none;
   background: transparent;
   color: #94a3b8;
   cursor: pointer;
   font-size: 10px;
   line-height: 1;
-  padding: 1px 2px;
+  padding: 1px 3px;
   margin-right: 3px;
   vertical-align: middle;
   border-radius: 3px;
 }
-.col-move-btn:hover:not(:disabled) { color: #2563eb; background: #e0edff; }
-.col-move-btn:disabled { opacity: 0.25; cursor: default; }
+.col-sort-btn:hover { color: #2563eb; background: #e0edff; }
+/* 並び替え中の項目は青く強調（▲=昇順 / ▼=降順） */
+.col-sort-btn.active { color: #2563eb; font-weight: 700; }
