@@ -119,7 +119,7 @@ async function accumulatePendingUpdate(c, changes) {
 // flush 側（api/flush-notifications.mjs）から使う共有関数をエクスポート
 export {
   detectChanges, buildUpdateMessage, summarizeCaseOneLine,
-  isDuplicateNotification, notifySignature, pushLineMessage, sbDeleteReturning
+  isDuplicateNotification, notifySignature, pushLineMessage, pushLineMessages, sbDeleteReturning
 };
 
 // AI診断は「修理案件」のみ実施（依頼先＝社外パートナー企業の選定が目的）
@@ -653,6 +653,21 @@ function heuristicCaseSummary(c) {
   s = (s.split('\n').find((line) => line.trim()) || '').trim();
   if (!s) s = [c.theater, c.category].filter(Boolean).join(' ');
   return s.slice(0, 40);
+}
+
+// 複数のメッセージ（テキスト＋ボタン等）をまとめて送る。LINEは1回5通まで
+async function pushLineMessages(to, messages) {
+  if (!to) throw new Error('LINE_TARGET_GROUP_ID 未設定');
+  if (!process.env.LINE_CHANNEL_ACCESS_TOKEN) throw new Error('LINE_CHANNEL_ACCESS_TOKEN 未設定');
+  const r = await fetch(LINE_PUSH_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${process.env.LINE_CHANNEL_ACCESS_TOKEN}`
+    },
+    body: JSON.stringify({ to, messages: (messages || []).slice(0, 5) })
+  });
+  if (!r.ok) throw new Error(`LINE API ${r.status}: ${await r.text()}`);
 }
 
 async function pushLineMessage(to, text) {

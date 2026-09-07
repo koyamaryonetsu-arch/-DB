@@ -8,7 +8,7 @@
 // 認証: x-flush-key = SUPABASE_SERVICE_ROLE_KEY（flush-notifications と同じ方式・新規secret不要）
 // 必須 ENV: SUPABASE_SERVICE_ROLE_KEY / LINE_CHANNEL_ACCESS_TOKEN / LINE_TARGET_GROUP_ID / (任意)SUPABASE_URL
 
-import { pushLineMessage } from './case-created.mjs';
+import { pushLineMessages } from './case-created.mjs';
 
 const APP_URL = 'https://cinema-cases.vercel.app';
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://hykjpadvbficiiuockhj.supabase.co';
@@ -43,11 +43,46 @@ function buildIntakeMessage(row, waiting) {
   lines.push(
     '',
     '━━━━━━━━━━━━',
-    '👉 アプリの「🆕 登録確認」でボタンを押すと登録／更新されます',
+    '👉 下のボタンでそのまま登録／更新できます（アプリの「🆕 登録確認」でも操作できます）',
     `🔗 ${APP_URL}/?intake=1`
   );
   if (waiting > 1) lines.push(`（確認待ち: 全${waiting}件）`);
   return lines.join('\n').slice(0, 4900);
+}
+
+// LINE上でそのまま「新規登録／更新／破棄」を押せるボタンを作る。
+// buttons テンプレートはボタン4つまで・text は160文字までなので、候補は最大2件まで載せる。
+function buildIntakeButtons(row) {
+  const cands = (Array.isArray(row.candidates) ? row.candidates : []).slice(0, 2);
+  const actions = [{
+    type: 'postback', label: '新規として登録',
+    data: `a=new&p=${row.id}`, displayText: '新規として登録します'
+  }];
+  cands.forEach((c, i) => {
+    const nm = (c.estimate_name || String(c.content || '').replace(/\s+/g, ' ') || '既存案件').slice(0, 8);
+    actions.push({
+      type: 'postback',
+      label: `更新${cands.length > 1 ? (i + 1) : ''}: ${nm}`.slice(0, 20), // ラベルは20文字まで
+      data: `a=upd&p=${row.id}&c=${c.id}`,
+      displayText: `既存案件（${nm}）に更新します`
+    });
+  });
+  actions.push({
+    type: 'postback', label: '破棄（登録しない）',
+    data: `a=del&p=${row.id}`, displayText: '破棄します'
+  });
+
+  const head = [
+    `${row.theater || '(劇場未設定)'}`,
+    `${(row.title || '').slice(0, 40)}`,
+    cands.length ? '似た案件があります。どれにしますか？' : '似た既存案件は見つかりませんでした。'
+  ].filter(Boolean).join('\n');
+
+  return {
+    type: 'template',
+    altText: '新規か更新か確認してください（LINEのボタンで選べます）',
+    template: { type: 'buttons', text: head.slice(0, 160), actions: actions.slice(0, 4) }
+  };
 }
 
 export default async function handler(req, res) {
@@ -82,7 +117,10 @@ export default async function handler(req, res) {
   }
 
   try {
-    await pushLineMessage(process.env.LINE_TARGET_GROUP_ID, buildIntakeMessage(row, waiting));
+    await pushLineMessages(process.env.LINE_TARGET_GROUP_ID, [
+      { type: 'text', text: buildIntakeMessage(row, waiting) },
+      buildIntakeButtons(row)
+    ]);
   } catch (e) {
     console.error('LINE push エラー', e);
     return res.status(500).json({ ok: false, error: 'LINE push failed', detail: e.message });
