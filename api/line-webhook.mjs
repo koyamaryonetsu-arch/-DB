@@ -4,6 +4,8 @@
 //   - 「id」または「ID」と送信されたら、Group ID を返す（LINE_TARGET_GROUP_ID 設定用）
 //   - グループに招待された時 (join イベント) に Group ID を投稿
 //
+//   - 「登録確認」のボタン（postback）を受けて、その場で 新規登録 / 更新 / 破棄 を実行
+//
 // Phase 2 で拡張予定:
 //   - LINE上での「OK」「修正」返信を学習データとして Supabase に保存
 //   - 自然言語からの案件登録
@@ -13,8 +15,13 @@
 //   LINE_CHANNEL_ACCESS_TOKEN - 返信用
 
 import crypto from 'node:crypto';
+import {
+  getPending, pendingLabel,
+  registerNewFromPending, applyUpdateFromPending, discardPending
+} from '../lib/intake-actions.mjs';
 
 const LINE_REPLY_URL = 'https://api.line.me/v2/bot/message/reply';
+const APP_URL = 'https://cinema-cases.vercel.app';
 
 // 生のリクエストボディを取得するため bodyParser を無効化
 export const config = { api: { bodyParser: false } };
@@ -66,6 +73,12 @@ async function handleEvent(ev) {
     return;
   }
 
+  // 「登録確認」のボタンが押された時（新規登録 / 更新 / 破棄）
+  if (ev.type === 'postback' && ev.postback && ev.postback.data) {
+    await handleIntakePostback(ev);
+    return;
+  }
+
   if (ev.type === 'message' && ev.message && ev.message.type === 'text') {
     const text = ev.message.text.trim();
     if (text.toLowerCase() === 'id') {
@@ -82,6 +95,64 @@ async function handleEvent(ev) {
       return;
     }
     // 他のテキストは Phase 1 では無応答（LINE Bot の自動応答を切るのが推奨）
+  }
+}
+
+// LINEのボタン（postback）で 登録確認キュー を処理する
+async function handleIntakePostback(ev) {
+  const params = new URLSearchParams(ev.postback.data);
+  const action = params.get('a');
+  const pendingId = params.get('p');
+  if (!action || !pendingId) return;               // 別用途のpostbackは無視
+
+  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    await reply(ev.replyToken, '設定が未完了のため処理できません（SUPABASE_SERVICE_ROLE_KEY 未設定）。');
+    return;
+  }
+
+  let p;
+  try { p = await getPending(pendingId); }
+  catch (e) {
+    console.error('確認待ちの取得に失敗', e);
+    await reply(ev.replyToken, '確認待ちの読み込みに失敗しました。アプリの「🆕 登録確認」から操作してください。');
+    return;
+  }
+  if (!p) {
+    await reply(ev.replyToken, 'この確認待ちは見つかりませんでした（既に削除された可能性があります）。');
+    return;
+  }
+  // 二重押し対策: すでに誰かが処理済みなら何もしない
+  if (p.status && p.status !== 'pending') {
+    const done = { registered: '新規登録', updated: '更新', discarded: '破棄' }[p.status] || p.status;
+    await reply(ev.replyToken, `この案件はすでに「${done}」で処理済みです。`);
+    return;
+  }
+
+  const label = pendingLabel(p);
+  try {
+    if (action === 'new') {
+      const row = await registerNewFromPending(p);
+      await reply(ev.replyToken,
+        `✅ 新規案件として登録しました\n${label}` +
+        (row && row.id ? `\n🔗 ${APP_URL}/?case=${row.id}` : ''));
+      return;
+    }
+    if (action === 'upd') {
+      const caseId = params.get('c');
+      if (!caseId) { await reply(ev.replyToken, '更新先の案件が指定されていません。'); return; }
+      await applyUpdateFromPending(p, caseId);
+      await reply(ev.replyToken,
+        `✅ 既存案件に更新しました（社内メモへ追記）\n${label}\n🔗 ${APP_URL}/?case=${caseId}`);
+      return;
+    }
+    if (action === 'del') {
+      await discardPending(p);
+      await reply(ev.replyToken, `🗑 破棄しました（案件は登録していません）\n${label}`);
+      return;
+    }
+  } catch (e) {
+    console.error('登録確認の処理に失敗', e);
+    await reply(ev.replyToken, `処理に失敗しました: ${e.message}\nアプリの「🆕 登録確認」から操作してください。`);
   }
 }
 
