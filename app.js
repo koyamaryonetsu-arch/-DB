@@ -2109,7 +2109,12 @@
         el.placeholder = 'YYYY/MM/DD ・ MM/DD ・ 528 もOK';
         break;
       case 'number':
-        el = document.createElement('input'); el.type = 'number'; el.min = '0'; el.step = '1'; break;
+        // type="number" ではカンマを表示できないため text にして、入力中にカンマを入れる
+        el = document.createElement('input');
+        el.type = 'text';
+        el.inputMode = 'numeric';
+        el.addEventListener('input', () => formatAmountFieldLive(el));
+        break;
       case 'select': {
         el = document.createElement('select');
         const opts = cfg.dynamicOptions === 'company' ? companyNames() : cfg.options;
@@ -2122,7 +2127,8 @@
     }
     el.className = 'inline-edit' + (cfg.type === 'date' ? ' smart-date' : '');
     // 日付セルは編集中は YYYY/MM/DD で表示
-    el.value = cfg.type === 'date' ? fmtDateFull(oldVal) : oldVal;
+    el.value = cfg.type === 'date' ? fmtDateFull(oldVal)
+      : (cfg.type === 'number' ? formatThousands(oldVal) : oldVal);
     td.innerHTML = '';
     td.appendChild(el);
     el.focus();
@@ -2168,7 +2174,10 @@
         newVal = parsed;
       }
       done = true;
-      if (cfg.type === 'number') newVal = (newVal === '' ? '' : Number(newVal));
+      if (cfg.type === 'number') {
+        const digits = String(newVal).replace(/[^\d]/g, ''); // カンマ等を除いて数値に
+        newVal = (digits === '' ? '' : Number(digits));
+      }
       if (field === 'tcPerson') newVal = stripHonorific(newVal); // 客先担当者の「さん／様」は保存時に除去
 
       if (String(newVal) !== String(oldVal)) {
