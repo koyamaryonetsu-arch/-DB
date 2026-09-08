@@ -91,7 +91,7 @@
         <button id="toggleBigBtn" class="toggle-btn col-ryo" title="見積り金額300万円以上の大口案件だけを表示します">大口のみ：OFF</button>
         <button id="taxToggleBtn" class="toggle-btn" title="見積り金額（税込み）列の表示/非表示を切り替えます">税抜き表示</button>
         <button id="taskDoneToggleBtn" class="toggle-btn col-ryo hidden" title="タスク管理画面で、チェック済み（完了）タスクの表示/非表示を切り替えます">完了タスク：非表示</button>
-        <button id="personalTaskBtn" class="toggle-btn col-ryo hidden" title="個人タスク（上の担当者ボタンで選んだ人のタスク）の表示/非表示。非表示にすると案件ごとのタスクになります">👤 個人タスク：表示</button>
+        <button id="personalTaskBtn" class="toggle-btn col-ryo hidden" title="案件のタスク表の上に出る「個人タスク」（上の担当者ボタンで選んだ人のタスク）の表示/非表示">👤 個人タスク：表示</button>
         <button id="taskBtn" class="col-ryo">📋 タスク管理</button>
         <button id="aggBtn" class="col-ryo">📊 A集計</button>
         <button id="purchaseBtn" class="col-ryo">💰 支払い状況</button>
@@ -154,6 +154,18 @@
       <button id="aggExportBtn">CSV出力</button>
       <button id="aggExitBtn" class="primary">✕ 通常表示に戻る</button>
       <span class="agg-bar-hint">年度は受付日基準（10月〜翌9月）／ &lt;300万: 山本以外5%＋R担当者残差 ／ ≥300万: 手入力 ／ 配分計100%でOK</span>
+    </div>
+
+    <div id="personTaskPanel" class="person-task-panel hidden">
+      <div class="ptp-head">
+        <strong>👤 個人タスク</strong>
+        <span id="ptpCount" class="ptp-count"></span>
+        <span class="ptp-hint">上の担当者ボタンで名前を押すと、その人のタスクが出ます（もう一度押すと消えます）</span>
+      </div>
+      <table id="personTaskTable" class="person-task-table">
+        <thead><tr><th class="ptp-th-person">R担当者</th><th>タスク</th></tr></thead>
+        <tbody id="personTaskBody"></tbody>
+      </table>
     </div>
 
     <div id="hScrollTop" class="hscroll-bar" aria-hidden="true"><div id="hScrollTopInner"></div></div>
