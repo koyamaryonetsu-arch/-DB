@@ -1254,6 +1254,8 @@ td.status-cell { white-space: nowrap; }
 .task-item.done .task-due { background: #f1f5f9; color: #9ca3af; font-weight: 400; text-decoration: none; }
 .task-due-input { font-size: 11px; padding: 3px 5px; border: 1px solid #cbd5e1; border-radius: 4px; flex: none; }
 
+.task-hint { color: #64748b; font-size: 13px; padding: 14px 10px; }
+
 /* 個人タスク（担当者ごと）: R担当者＋タスクの2列だけ */
 #casesTable.person-task-mode th.task-th-rPerson,
 #casesTable.person-task-mode td.col-rPerson { width: 140px; white-space: nowrap; font-weight: 600; }

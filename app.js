@@ -2932,16 +2932,20 @@
   function tasksAvailable() { return store.mode === 'local' || tasksSupported; }
   function caseTasks(c) { return Array.isArray(c.tasks) ? c.tasks : (c.tasks = []); }
   // 個人タスク（案件に紐づかない、担当者ごとのタスク）
-  let taskView = 'case';   // 'case' = 案件のタスク / 'person' = 担当者ごとの個人タスク
+  let taskView = 'person'; // 'person' = 個人タスク（既定・表示） / 'case' = 案件のタスク
   function personTasks(person) {
     if (!Array.isArray(personalTasks[person])) personalTasks[person] = [];
     return personalTasks[person];
   }
-  // 個人タスクを表示する担当者の一覧（A集計の担当者＋既にタスクを持っている人）
+  // 個人タスクを表示する担当者。上の「R担当者」ボタンで選ばれている人だけを出す。
+  // （「全員」＝誰も選んでいない時は並べない。名前をもう一度押せば消える＝トグル）
   function taskPersons() {
+    if (!rPersonFilter.size) return [];
     const list = loadTeam().slice();
     Object.keys(personalTasks).forEach((p) => { if (p && list.indexOf(p) < 0) list.push(p); });
-    return list;
+    const sel = list.filter((n) => rPersonFilter.has(n));
+    rPersonFilter.forEach((n) => { if (sel.indexOf(n) < 0) sel.push(n); });
+    return sel;
   }
   async function savePersonTasks(person) {
     try { await store.savePersonalTasks(person, personTasks(person)); }
@@ -3028,7 +3032,7 @@
   function toggleTaskMode() { if (taskMode) exitTaskMode(); else enterTaskMode(); }
   function updatePersonalTaskBtn() {
     const btn = $('personalTaskBtn');
-    btn.textContent = taskView === 'person' ? '📋 案件のタスク' : '👤 個人タスク';
+    btn.textContent = taskView === 'person' ? '👤 個人タスク：表示' : '👤 個人タスク：非表示';
     btn.classList.toggle('active', taskView === 'person');
   }
   function togglePersonalTaskView() {
@@ -3313,10 +3317,12 @@
       tbody.appendChild(tr);
     });
     const total = persons.reduce((n, p) => n + personTasks(p).filter((t) => !t.done).length, 0);
-    $('caseCount').textContent = `未完了 ${total} 件`;
+    $('caseCount').textContent = persons.length ? `未完了 ${total} 件` : '';
     updateShowAllBtn();
     if (store.mode === 'supabase' && !personalTasksSupported) {
       tbody.innerHTML = '<tr><td colspan="2" class="task-empty">個人タスクを使うには、データベースの更新（personal_tasks テーブルの追加）が必要です。</td></tr>';
+    } else if (!persons.length) {
+      tbody.innerHTML = '<tr><td colspan="2" class="task-hint">上の担当者ボタンから名前を押すと、その人の個人タスクが出ます。もう一度押すと消えます。</td></tr>';
     }
   }
 
