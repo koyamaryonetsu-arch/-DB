@@ -1243,9 +1243,25 @@ td.status-cell { white-space: nowrap; }
 .cell-task-list label { display: flex; gap: 6px; align-items: flex-start; cursor: pointer; }
 .task-empty { color: #9ca3af; font-size: 12px; }
 
+/* タスクの期限（いつまで）。過ぎている＝赤 / 3日以内＝オレンジ / それ以外＝グレー */
+.task-due {
+  font-size: 11px; padding: 0 5px; border-radius: 3px; white-space: nowrap;
+  background: #f1f5f9; color: #475569; flex: none;
+}
+.task-due-soon { background: #ffedd5; color: #c2410c; font-weight: 700; }
+.task-due-over { background: #fee2e2; color: #b91c1c; font-weight: 700; }
+.cell-task-list li.task-done .task-due,
+.task-item.done .task-due { background: #f1f5f9; color: #9ca3af; font-weight: 400; text-decoration: none; }
+.task-due-input { font-size: 11px; padding: 3px 5px; border: 1px solid #cbd5e1; border-radius: 4px; flex: none; }
+
+/* 個人タスク（担当者ごと）: R担当者＋タスクの2列だけ */
+#casesTable.person-task-mode th.task-th-rPerson,
+#casesTable.person-task-mode td.col-rPerson { width: 140px; white-space: nowrap; font-weight: 600; }
+
 .task-modal-body { padding: 16px 20px; }
 .task-add-row { display: flex; gap: 8px; margin-bottom: 12px; }
-.task-add-row input { flex: 1; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 14px; }
+.task-add-row input[type="text"] { flex: 1; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 14px; }
+.task-add-row .task-due-input { font-size: 13px; padding: 6px 8px; }
 .task-list { list-style: none; margin: 0; padding: 0; max-height: 50vh; overflow: auto; }
 .task-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 4px; border-bottom: 1px solid #f1f5f9; }
 .task-item label { display: flex; gap: 8px; align-items: center; cursor: pointer; flex: 1; }
