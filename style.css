@@ -1256,9 +1256,24 @@ td.status-cell { white-space: nowrap; }
 
 .task-hint { color: #64748b; font-size: 13px; padding: 14px 10px; }
 
-/* 個人タスク（担当者ごと）: R担当者＋タスクの2列だけ */
-#casesTable.person-task-mode th.task-th-rPerson,
-#casesTable.person-task-mode td.col-rPerson { width: 140px; white-space: nowrap; font-weight: 600; }
+/* 個人タスク（担当者ごと）: 案件のタスク表の上に出る別枠。R担当者＋タスクの2列だけ */
+.person-task-panel {
+  margin: 0 0 12px; border: 1px solid #cbd5e1; border-radius: 6px;
+  background: #fff; overflow: hidden;
+}
+.ptp-head {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 8px 12px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; font-size: 13px;
+}
+.ptp-count { color: #475569; font-size: 12px; }
+.ptp-hint { color: #94a3b8; font-size: 11px; }
+.person-task-table { width: 100%; border-collapse: collapse; }
+.person-task-table th, .person-task-table td {
+  border-bottom: 1px solid #f1f5f9; padding: 6px 10px; text-align: left; vertical-align: top;
+}
+.person-task-table th { background: #f8fafc; font-size: 12px; color: #475569; font-weight: 600; }
+.person-task-table tr:last-child td { border-bottom: none; }
+.ptp-th-person, .ptp-person { width: 140px; white-space: nowrap; font-weight: 600; }
 
 .task-modal-body { padding: 16px 20px; }
 .task-add-row { display: flex; gap: 8px; margin-bottom: 12px; }

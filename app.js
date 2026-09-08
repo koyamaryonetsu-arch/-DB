@@ -2932,7 +2932,7 @@
   function tasksAvailable() { return store.mode === 'local' || tasksSupported; }
   function caseTasks(c) { return Array.isArray(c.tasks) ? c.tasks : (c.tasks = []); }
   // 個人タスク（案件に紐づかない、担当者ごとのタスク）
-  let taskView = 'person'; // 'person' = 個人タスク（既定・表示） / 'case' = 案件のタスク
+  let showPersonalTasks = true;  // 個人タスクのパネルを出すか（既定=表示）。案件のタスク表とは同時に出る
   function personTasks(person) {
     if (!Array.isArray(personalTasks[person])) personalTasks[person] = [];
     return personalTasks[person];
@@ -3017,28 +3017,29 @@
     // 個人タスクは最新をDBから読み直す（読めたら再描画）
     store.fetchPersonalTasks().then((map) => {
       personalTasks = map || {};
-      if (taskMode && taskView === 'person') renderTaskTable();
+      if (taskMode) renderPersonTaskPanel();
     }).catch(() => {});
   }
   function exitTaskMode() {
     taskMode = false;
-    $('casesTable').classList.remove('task-mode', 'person-task-mode');
+    $('casesTable').classList.remove('task-mode');
     $('taskBtn').textContent = '📋 タスク管理';
     $('taskDoneToggleBtn').classList.add('hidden');
     $('personalTaskBtn').classList.add('hidden');
+    $('personTaskPanel').classList.add('hidden');
     $('casesTable').querySelector('thead').innerHTML = NORMAL_THEAD_HTML;
     render();
   }
   function toggleTaskMode() { if (taskMode) exitTaskMode(); else enterTaskMode(); }
   function updatePersonalTaskBtn() {
     const btn = $('personalTaskBtn');
-    btn.textContent = taskView === 'person' ? '👤 個人タスク：表示' : '👤 個人タスク：非表示';
-    btn.classList.toggle('active', taskView === 'person');
+    btn.textContent = showPersonalTasks ? '👤 個人タスク：表示' : '👤 個人タスク：非表示';
+    btn.classList.toggle('active', showPersonalTasks);
   }
-  function togglePersonalTaskView() {
-    taskView = (taskView === 'person') ? 'case' : 'person';
+  function togglePersonalTasks() {
+    showPersonalTasks = !showPersonalTasks;
     updatePersonalTaskBtn();
-    renderTaskTable();
+    renderPersonTaskPanel();
   }
 
   // ========== カレンダー ==========
@@ -3293,42 +3294,41 @@
     $('calGrid').innerHTML = html;
   }
 
-  // 担当者ごとの個人タスク（案件のタスクと同じ見え方で「R担当者」と「タスク」だけ）
-  function renderPersonTaskTable() {
-    const table = $('casesTable');
-    table.classList.add('person-task-mode');
-    const thead = table.querySelector('thead');
-    thead.innerHTML = '<tr>' +
-      '<th class="task-th-rPerson" data-col="rPerson" data-colkey="rPerson">R担当者</th>' +
-      '<th class="task-th-tasks task-col" data-col="tasks" data-colkey="tasks">タスク</th></tr>';
-    addResizers(thead);
-    const tbody = $('casesBody');
+  // 担当者ごとの個人タスク。案件のタスク表の「上」に別枠で出す（同時表示・ボタンで表示/非表示）
+  function renderPersonTaskPanel() {
+    const panel = $('personTaskPanel');
+    if (!taskMode || !showPersonalTasks) { panel.classList.add('hidden'); return; }
+    panel.classList.remove('hidden');
+    const tbody = $('personTaskBody');
     tbody.innerHTML = '';
+    if (store.mode === 'supabase' && !personalTasksSupported) {
+      tbody.innerHTML = '<tr><td colspan="2" class="task-empty">個人タスクを使うには、データベースの更新（personal_tasks テーブルの追加）が必要です。</td></tr>';
+      $('ptpCount').textContent = '';
+      return;
+    }
     const persons = taskPersons();
+    if (!persons.length) {
+      tbody.innerHTML = '<tr><td colspan="2" class="task-hint">上の担当者ボタンから名前を押すと、その人の個人タスクが出ます。もう一度押すと消えます。</td></tr>';
+      $('ptpCount').textContent = '';
+      return;
+    }
     persons.forEach((p) => {
       const tr = document.createElement('tr');
       tr.dataset.person = p;
       tr.innerHTML = `
-        <td class="col-rPerson">${escapeHtml(p)}</td>
-        <td class="task-col" data-colkey="tasks">
+        <td class="ptp-person">${escapeHtml(p)}</td>
+        <td class="task-col">
           <button type="button" class="task-open-btn" data-persontaskopen="${escapeHtml(p)}" title="${escapeHtml(p)}さんのタスクを編集">✎</button>
           ${taskCellHtml(personTasks(p), 'data-persontaskcell')}
         </td>`;
       tbody.appendChild(tr);
     });
     const total = persons.reduce((n, p) => n + personTasks(p).filter((t) => !t.done).length, 0);
-    $('caseCount').textContent = persons.length ? `未完了 ${total} 件` : '';
-    updateShowAllBtn();
-    if (store.mode === 'supabase' && !personalTasksSupported) {
-      tbody.innerHTML = '<tr><td colspan="2" class="task-empty">個人タスクを使うには、データベースの更新（personal_tasks テーブルの追加）が必要です。</td></tr>';
-    } else if (!persons.length) {
-      tbody.innerHTML = '<tr><td colspan="2" class="task-hint">上の担当者ボタンから名前を押すと、その人の個人タスクが出ます。もう一度押すと消えます。</td></tr>';
-    }
+    $('ptpCount').textContent = `未完了 ${total} 件`;
   }
 
   function renderTaskTable() {
-    if (taskView === 'person') { renderPersonTaskTable(); return; }
-    $('casesTable').classList.remove('person-task-mode');
+    renderPersonTaskPanel();
     renderDatalists();
     const thead = $('casesTable').querySelector('thead');
     thead.innerHTML = '<tr>' + TASK_COLS.map((c) =>
@@ -4847,7 +4847,20 @@
 
   $('aggBtn').addEventListener('click', toggleAggMode);
   $('taskBtn').addEventListener('click', toggleTaskMode);
-  $('personalTaskBtn').addEventListener('click', togglePersonalTaskView);
+  $('personalTaskBtn').addEventListener('click', togglePersonalTasks);
+  // 個人タスクのパネル: ✎で編集ポップアップ、チェックで完了
+  $('personTaskBody').addEventListener('click', (e) => {
+    const po = e.target.closest('[data-persontaskopen]');
+    if (po) openPersonTaskModal(po.dataset.persontaskopen);
+  });
+  $('personTaskBody').addEventListener('change', (e) => {
+    const cb = e.target.closest('[data-persontaskcell]');
+    if (!cb) return;
+    const tr = cb.closest('tr');
+    const person = tr && tr.dataset.person;
+    const t = person && personTasks(person)[Number(cb.dataset.persontaskcell)];
+    if (t) { t.done = cb.checked; savePersonTasks(person); renderPersonTaskPanel(); }
+  });
   // 並び替えボタン（受付日順・調査日順・客先順・ステータス順）
   function toggleSortField(field) {
     if (sortState.field === field) sortState.direction = sortState.direction === 'asc' ? 'desc' : 'asc';
@@ -4960,15 +4973,6 @@
   // A集計の入力（配分%・粗利率）変更
   $('casesBody').addEventListener('change', (e) => {
     if (aggMode) { handleAggInput(e); return; }
-    // 個人タスク: 一覧のチェックを押したら完了にする
-    const pcb = e.target.closest('[data-persontaskcell]');
-    if (pcb && taskMode) {
-      const tr = pcb.closest('tr');
-      const person = tr && tr.dataset.person;
-      const t = person && personTasks(person)[Number(pcb.dataset.persontaskcell)];
-      if (t) { t.done = pcb.checked; savePersonTasks(person); renderTaskTable(); }
-      return;
-    }
     // タスク管理モード: 一覧のチェックを押したら完了にして一覧から消す（ポップアップには残る）
     const cb = e.target.closest('[data-taskcell]');
     if (cb && taskMode) {
@@ -5091,9 +5095,6 @@
     // タスク管理モード: 「タスク編集」ボタン
     const to = e.target.closest('[data-taskopen]');
     if (to) { const c = cases.find((x) => x.id === to.dataset.taskopen); if (c) openTaskModal(c); return; }
-    // 個人タスク: 「タスク編集」ボタン
-    const po = e.target.closest('[data-persontaskopen]');
-    if (po) { openPersonTaskModal(po.dataset.persontaskopen); return; }
     // スマホ（狭い画面）の通常表示: 項目タップで編集ポップアップを開く（インライン編集はしない）
     if (isMobile() && !aggMode && !taskMode) {
       const tr = e.target.closest('tr[data-case-id]');
