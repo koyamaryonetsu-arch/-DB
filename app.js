@@ -2968,9 +2968,17 @@
     const label = (!t.done && left !== null && left < 0) ? `〜${fmtDateShort(due)} 超過` : `〜${fmtDateShort(due)}`;
     return ` <span class="${cls}" title="期限 ${escapeHtml(fmtDateFull(due))}">${escapeHtml(label)}</span>`;
   }
-  // 表示順: 未完了が先 → 期限が近い順（期限なしは後） → 元の並び
+  // 表示順: 手で並べた順（＝配列の順）をそのまま使い、完了したものだけ下にまとめる。
+  // ※ドラッグで並べ替えられるようにしたため、期限での自動並べ替えはしない
+  //   （期限順にしたい時はポップアップの「期限順に並べる」ボタン → sortTasksByDue）
   function taskDisplayOrder(tasks) {
-    return tasks.map((t, i) => i).sort((a, b) => {
+    const undone = [], done = [];
+    tasks.forEach((t, i) => { (t.done ? done : undone).push(i); });
+    return undone.concat(done);
+  }
+  // 「期限順に並べる」ボタン用: 配列そのものを期限の近い順に並べ替える（未完了が先・期限なしは後ろ）
+  function sortTasksByDue(tasks) {
+    const sorted = tasks.map((t, i) => i).sort((a, b) => {
       const x = tasks[a], y = tasks[b];
       if (!!x.done !== !!y.done) return x.done ? 1 : -1;
       const dx = taskDue(x), dy = taskDue(y);
@@ -2980,17 +2988,142 @@
         return dx < dy ? -1 : 1;
       }
       return a - b;
-    });
+    }).map((i) => tasks[i]);
+    tasks.length = 0;
+    sorted.forEach((t) => tasks.push(t));
+  }
+  // ドラッグでの並べ替え（from の位置のタスクを to の位置へ移す）
+  function moveTaskInList(tasks, from, to) {
+    if (from === to) return false;
+    if (from < 0 || to < 0 || from >= tasks.length || to >= tasks.length) return false;
+    const [t] = tasks.splice(from, 1);
+    tasks.splice(to, 0, t);
+    return true;
   }
   // 一覧セルの中のタスク行（案件・個人で共通）
   function taskCellHtml(tasks, attr) {
     const order = taskDisplayOrder(tasks).filter((i) => showDoneTasks || !tasks[i].done);
     if (!order.length) return '<span class="task-empty">（なし）</span>';
+    // チェックボックス=完了 / 文字クリック=その場で書き直し / 文字をつかんで動かす=並べ替え
     return '<ul class="cell-task-list">' + order.map((i) => {
       const t = tasks[i];
-      return `<li class="${t.done ? 'task-done' : ''}"><label><input type="checkbox" ${attr}="${i}"${t.done ? ' checked' : ''}> <span class="${taskPrioClass(t)}">${escapeHtml(t.text)}</span>${taskDueHtml(t)}</label></li>`;
+      return `<li class="task-row${t.done ? ' task-done' : ''}" draggable="true" data-tidx="${i}">` +
+        `<input type="checkbox" ${attr}="${i}"${t.done ? ' checked' : ''} title="チェックすると完了になります">` +
+        `<span class="task-text ${taskPrioClass(t)}" data-tedit="${i}" title="クリックで書き直し／つかんで上下に動かすと並べ替え">${escapeHtml(t.text)}</span>` +
+        `${taskDueHtml(t)}</li>`;
     }).join('') + '</ul>';
   }
+  // クリック/ドラッグされたタスク行から「どのタスク配列か・どう保存するか」を割り出す。
+  // 案件のタスク表・個人タスクのパネル・編集ポップアップの3か所で同じ操作をさせるための共通化。
+  function taskCtxFromEl(el) {
+    if (!el || !el.closest) return null;
+    if (el.closest('#taskList')) {
+      const tasks = activeTaskList();
+      if (!tasks) return null;
+      return {
+        tasks: tasks,
+        persist: () => persistTaskModal(),
+        rerender: () => { renderTaskModalList(); if (taskMode) renderTaskTable(); }
+      };
+    }
+    const ptr = el.closest('#personTaskBody tr[data-person]');
+    if (ptr) {
+      const p = ptr.dataset.person;
+      return { tasks: personTasks(p), persist: () => savePersonTasks(p), rerender: () => renderPersonTaskPanel() };
+    }
+    const ctr = el.closest('#casesBody tr[data-case-id]');
+    if (ctr) {
+      const c = cases.find((x) => x.id === ctr.dataset.caseId);
+      if (!c) return null;
+      return {
+        tasks: caseTasks(c),
+        persist: () => {
+          c.updatedAt = new Date().toISOString();
+          if (store.mode === 'local') saveCases();
+          persistCase(c);
+        },
+        rerender: () => renderTaskTable()
+      };
+    }
+    return null;
+  }
+  // タスクの文字をクリック → その場で書き直し（画面は変わらない）。Enterまたは他所クリックで確定、Escで取り消し
+  function editTaskText(span) {
+    if (!span || span.dataset.editing === '1') return;
+    const ctx = taskCtxFromEl(span);
+    if (!ctx) return;
+    const idx = Number(span.dataset.tedit);
+    const t = ctx.tasks[idx];
+    if (!t) return;
+    span.dataset.editing = '1';
+    const li = span.closest('li');
+    if (li) li.setAttribute('draggable', 'false');   // 書き直し中はドラッグさせない
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'task-text-edit';
+    input.value = t.text || '';
+    span.replaceWith(input);
+    input.focus();
+    const len = input.value.length;
+    try { input.setSelectionRange(len, len); } catch (e) {}
+    let closed = false;
+    const finish = (save) => {
+      if (closed) return;
+      closed = true;
+      const v = input.value.trim();
+      if (save && v && v !== t.text) { t.text = v; ctx.persist(); }
+      ctx.rerender();   // 取り消し時も描き直して元の文字に戻す（空欄での確定は無視）
+    };
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); finish(true); }
+      else if (e.key === 'Escape') { e.preventDefault(); finish(false); }
+      e.stopPropagation();
+    });
+    input.addEventListener('blur', () => finish(true));
+    input.addEventListener('click', (e) => e.stopPropagation());
+  }
+  // 文字をつかんで動かすと並べ替え（3か所とも同じ動き）
+  let taskDragIdx = null, taskDragRoot = null;
+  function clearTaskDropMarks() {
+    document.querySelectorAll('.task-drop-target').forEach((el) => el.classList.remove('task-drop-target'));
+    document.querySelectorAll('.task-dragging').forEach((el) => el.classList.remove('task-dragging'));
+  }
+  document.addEventListener('dragstart', (e) => {
+    const li = e.target.closest && e.target.closest('li[data-tidx]');
+    if (!li || li.getAttribute('draggable') === 'false') return;
+    taskDragIdx = Number(li.dataset.tidx);
+    taskDragRoot = li.parentElement;
+    li.classList.add('task-dragging');
+    if (e.dataTransfer) {
+      e.dataTransfer.effectAllowed = 'move';
+      try { e.dataTransfer.setData('text/plain', String(taskDragIdx)); } catch (err) {}
+    }
+  });
+  document.addEventListener('dragover', (e) => {
+    if (taskDragIdx === null) return;
+    const li = e.target.closest && e.target.closest('li[data-tidx]');
+    if (!li || li.parentElement !== taskDragRoot) return;   // 別の行・別の人のタスクへは移せない
+    e.preventDefault();
+    if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
+    if (!li.classList.contains('task-dragging')) li.classList.add('task-drop-target');
+  });
+  document.addEventListener('dragleave', (e) => {
+    const li = e.target.closest && e.target.closest('li[data-tidx]');
+    if (li) li.classList.remove('task-drop-target');
+  });
+  document.addEventListener('drop', (e) => {
+    if (taskDragIdx === null) return;
+    const li = e.target.closest && e.target.closest('li[data-tidx]');
+    const from = taskDragIdx;
+    taskDragIdx = null;
+    clearTaskDropMarks();
+    if (!li || li.parentElement !== taskDragRoot) return;
+    e.preventDefault();
+    const ctx = taskCtxFromEl(li);
+    if (ctx && moveTaskInList(ctx.tasks, from, Number(li.dataset.tidx))) { ctx.persist(); ctx.rerender(); }
+  });
+  document.addEventListener('dragend', () => { taskDragIdx = null; clearTaskDropMarks(); });
+
   const TASK_COLS = [
     { field: 'status',   label: 'ステータス' },
     { field: 'company',  label: '会社' },
@@ -3414,9 +3547,10 @@
       const p = taskPrio(t);
       const sel = ['high', 'mid', 'low'].map((v) =>
         `<option value="${v}"${v === p ? ' selected' : ''}>${v === 'high' ? '高' : v === 'mid' ? '中' : '低'}</option>`).join('');
-      return `<li class="task-item ${t.done ? 'done' : ''}">
+      return `<li class="task-item ${t.done ? 'done' : ''}" draggable="true" data-tidx="${i}">
         <select class="task-prio-select" data-taskprio="${i}" title="優先度">${sel}</select>
-        <label><input type="checkbox" data-taskmodal="${i}" ${t.done ? 'checked' : ''}> <span class="${taskPrioClass(t)}">${escapeHtml(t.text)}</span></label>
+        <input type="checkbox" data-taskmodal="${i}" ${t.done ? 'checked' : ''} title="チェックすると完了になります">
+        <span class="task-text ${taskPrioClass(t)}" data-tedit="${i}" title="クリックで書き直し／つかんで上下に動かすと並べ替え">${escapeHtml(t.text)}</span>
         ${taskDueHtml(t)}
         <input type="date" class="task-due-input" data-taskdue="${i}" value="${escapeHtml(taskDue(t))}" title="期限（いつまで）">
         <button type="button" class="task-del" data-taskdel="${i}" aria-label="削除">×</button>
@@ -4850,6 +4984,8 @@
   $('personalTaskBtn').addEventListener('click', togglePersonalTasks);
   // 個人タスクのパネル: ✎で編集ポップアップ、チェックで完了
   $('personTaskBody').addEventListener('click', (e) => {
+    const te = e.target.closest('[data-tedit]');
+    if (te) { editTaskText(te); return; }
     const po = e.target.closest('[data-persontaskopen]');
     if (po) openPersonTaskModal(po.dataset.persontaskopen);
   });
@@ -4959,11 +5095,20 @@
     if (t) { t.done = cb.checked; persistTaskModal(); renderTaskModalList(); }
   });
   $('taskList').addEventListener('click', (e) => {
+    const te = e.target.closest('[data-tedit]');
+    if (te) { editTaskText(te); return; }
     const d = e.target.closest('[data-taskdel]');
     if (!d) return;
     const tasks = activeTaskList(); if (!tasks) return;
     tasks.splice(Number(d.dataset.taskdel), 1);
     persistTaskModal(); renderTaskModalList();
+  });
+  $('taskSortDueBtn').addEventListener('click', () => {
+    const tasks = activeTaskList(); if (!tasks || tasks.length < 2) return;
+    sortTasksByDue(tasks);
+    persistTaskModal();
+    renderTaskModalList();
+    if (taskMode) renderTaskTable();
   });
   $('aggExitBtn').addEventListener('click', exitAggMode);
   $('aggExportBtn').addEventListener('click', exportAggregation);
@@ -5092,6 +5237,9 @@
   });
 
   $('casesBody').addEventListener('click', (e) => {
+    // タスク管理モード: タスクの文字クリック → その場で書き直し
+    const te = e.target.closest('[data-tedit]');
+    if (te) { e.stopPropagation(); editTaskText(te); return; }
     // タスク管理モード: 「タスク編集」ボタン
     const to = e.target.closest('[data-taskopen]');
     if (to) { const c = cases.find((x) => x.id === to.dataset.taskopen); if (c) openTaskModal(c); return; }
