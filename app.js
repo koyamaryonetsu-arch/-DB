@@ -331,6 +331,8 @@
   let equipSupported = false;            // equipment_items / equipment_loans テーブルがあるか
   let equipItems = [];                   // 機器マスタ（風速計 など）
   let equipLoans = [];                   // 貸出記録
+  let personalTasksSupported = false;    // personal_tasks テーブルがあるか
+  let personalTasks = {};                // { 担当者名: [ {text,done,priority,due}, ... ] }
   let intakePending = [];                // 案件の登録確認（新規か更新か）待ちリスト
   let theaterPending = [];               // 劇場情報 自動更新の要確認キュー
   const DATE_FIELDS = new Set(['receivedDate', 'surveyDate', 'quoteDate', 'workStartDate', 'workEndDate', 'invoiceDate', 'paymentDate']);
@@ -713,6 +715,27 @@
       const { error } = await sb.from('equipment_loans').delete().eq('id', id);
       if (error) throw error;
     },
+    // ---- 個人タスク（personal_tasks: 担当者1人=1行、タスクはJSON配列） ----
+    async fetchPersonalTasks() {
+      if (this.mode === 'local') { personalTasksSupported = true; return loadPersonalTasksLocal(); }
+      const { data, error } = await sb.from('personal_tasks').select('person,tasks');
+      if (error) { personalTasksSupported = false; return {}; }
+      personalTasksSupported = true;
+      const map = {};
+      (data || []).forEach((r) => { if (r && r.person) map[r.person] = Array.isArray(r.tasks) ? r.tasks : []; });
+      return map;
+    },
+    async savePersonalTasks(person, tasks) {
+      if (this.mode === 'local') {
+        const map = loadPersonalTasksLocal();
+        map[person] = tasks;
+        savePersonalTasksLocal(map);
+        return;
+      }
+      const { error } = await sb.from('personal_tasks')
+        .upsert({ person: person, tasks: tasks, updated_at: new Date().toISOString() }, { onConflict: 'person' });
+      if (error) throw error;
+    },
     async fetchTheaterContacts() {
       if (this.mode === 'local') return loadTheaterContactsLocal();
       const { data, error } = await sb.from('theater_contacts').select('*').order('sort_order', { ascending: true });
@@ -1050,6 +1073,18 @@
   }
   function saveTheaterContactsLocal(list) {
     try { localStorage.setItem(THEATER_CONTACTS_KEY, JSON.stringify(list)); } catch (e) {}
+  }
+  // ---------- 個人タスク（担当者ごと・案件に紐づかないタスク／ローカルモード用） ----------
+  const PERSONAL_TASKS_KEY = 'cinema_personal_tasks';
+  function loadPersonalTasksLocal() {
+    try {
+      const stored = JSON.parse(localStorage.getItem(PERSONAL_TASKS_KEY));
+      if (stored && typeof stored === 'object' && !Array.isArray(stored)) return stored;
+    } catch (e) {}
+    return {};
+  }
+  function savePersonalTasksLocal(map) {
+    try { localStorage.setItem(PERSONAL_TASKS_KEY, JSON.stringify(map)); } catch (e) {}
   }
   // 案件の劇場名と完全一致する master 行を返す（無ければ undefined）
   function findTheaterInMaster(name) {
@@ -2896,6 +2931,62 @@
   // ========== タスク管理モード ==========
   function tasksAvailable() { return store.mode === 'local' || tasksSupported; }
   function caseTasks(c) { return Array.isArray(c.tasks) ? c.tasks : (c.tasks = []); }
+  // 個人タスク（案件に紐づかない、担当者ごとのタスク）
+  let taskView = 'case';   // 'case' = 案件のタスク / 'person' = 担当者ごとの個人タスク
+  function personTasks(person) {
+    if (!Array.isArray(personalTasks[person])) personalTasks[person] = [];
+    return personalTasks[person];
+  }
+  // 個人タスクを表示する担当者の一覧（A集計の担当者＋既にタスクを持っている人）
+  function taskPersons() {
+    const list = loadTeam().slice();
+    Object.keys(personalTasks).forEach((p) => { if (p && list.indexOf(p) < 0) list.push(p); });
+    return list;
+  }
+  async function savePersonTasks(person) {
+    try { await store.savePersonalTasks(person, personTasks(person)); }
+    catch (e) { alert('個人タスクの保存に失敗しました: ' + (e && e.message ? e.message : e)); }
+  }
+
+  // ---- タスクの期限（いつまで） ----
+  function taskDue(t) { return (t && typeof t.due === 'string') ? t.due : ''; }
+  // 期限の表示用チップ。過ぎている=赤 / 今日〜3日以内=オレンジ / それ以外=グレー
+  function taskDueHtml(t) {
+    const due = taskDue(t);
+    if (!due) return '';
+    let cls = 'task-due';
+    if (!t.done) {
+      const left = daysBetween(todayStr(), due);
+      if (left !== null && left < 0) cls += ' task-due-over';
+      else if (left !== null && left <= 3) cls += ' task-due-soon';
+    }
+    const left = daysBetween(todayStr(), due);
+    const label = (!t.done && left !== null && left < 0) ? `〜${fmtDateShort(due)} 超過` : `〜${fmtDateShort(due)}`;
+    return ` <span class="${cls}" title="期限 ${escapeHtml(fmtDateFull(due))}">${escapeHtml(label)}</span>`;
+  }
+  // 表示順: 未完了が先 → 期限が近い順（期限なしは後） → 元の並び
+  function taskDisplayOrder(tasks) {
+    return tasks.map((t, i) => i).sort((a, b) => {
+      const x = tasks[a], y = tasks[b];
+      if (!!x.done !== !!y.done) return x.done ? 1 : -1;
+      const dx = taskDue(x), dy = taskDue(y);
+      if (dx !== dy) {
+        if (!dx) return 1;
+        if (!dy) return -1;
+        return dx < dy ? -1 : 1;
+      }
+      return a - b;
+    });
+  }
+  // 一覧セルの中のタスク行（案件・個人で共通）
+  function taskCellHtml(tasks, attr) {
+    const order = taskDisplayOrder(tasks).filter((i) => showDoneTasks || !tasks[i].done);
+    if (!order.length) return '<span class="task-empty">（なし）</span>';
+    return '<ul class="cell-task-list">' + order.map((i) => {
+      const t = tasks[i];
+      return `<li class="${t.done ? 'task-done' : ''}"><label><input type="checkbox" ${attr}="${i}"${t.done ? ' checked' : ''}> <span class="${taskPrioClass(t)}">${escapeHtml(t.text)}</span>${taskDueHtml(t)}</label></li>`;
+    }).join('') + '</ul>';
+  }
   const TASK_COLS = [
     { field: 'status',   label: 'ステータス' },
     { field: 'company',  label: '会社' },
@@ -2916,17 +3007,35 @@
     $('emptyMsg').classList.add('hidden');
     $('taskBtn').textContent = '✕ タスク管理を閉じる';
     $('taskDoneToggleBtn').classList.remove('hidden');
+    $('personalTaskBtn').classList.remove('hidden');
+    updatePersonalTaskBtn();
     renderTaskTable();
+    // 個人タスクは最新をDBから読み直す（読めたら再描画）
+    store.fetchPersonalTasks().then((map) => {
+      personalTasks = map || {};
+      if (taskMode && taskView === 'person') renderTaskTable();
+    }).catch(() => {});
   }
   function exitTaskMode() {
     taskMode = false;
-    $('casesTable').classList.remove('task-mode');
+    $('casesTable').classList.remove('task-mode', 'person-task-mode');
     $('taskBtn').textContent = '📋 タスク管理';
     $('taskDoneToggleBtn').classList.add('hidden');
+    $('personalTaskBtn').classList.add('hidden');
     $('casesTable').querySelector('thead').innerHTML = NORMAL_THEAD_HTML;
     render();
   }
   function toggleTaskMode() { if (taskMode) exitTaskMode(); else enterTaskMode(); }
+  function updatePersonalTaskBtn() {
+    const btn = $('personalTaskBtn');
+    btn.textContent = taskView === 'person' ? '📋 案件のタスク' : '👤 個人タスク';
+    btn.classList.toggle('active', taskView === 'person');
+  }
+  function togglePersonalTaskView() {
+    taskView = (taskView === 'person') ? 'case' : 'person';
+    updatePersonalTaskBtn();
+    renderTaskTable();
+  }
 
   // ========== カレンダー ==========
   let calMode = false;
@@ -3180,7 +3289,40 @@
     $('calGrid').innerHTML = html;
   }
 
+  // 担当者ごとの個人タスク（案件のタスクと同じ見え方で「R担当者」と「タスク」だけ）
+  function renderPersonTaskTable() {
+    const table = $('casesTable');
+    table.classList.add('person-task-mode');
+    const thead = table.querySelector('thead');
+    thead.innerHTML = '<tr>' +
+      '<th class="task-th-rPerson" data-col="rPerson" data-colkey="rPerson">R担当者</th>' +
+      '<th class="task-th-tasks task-col" data-col="tasks" data-colkey="tasks">タスク</th></tr>';
+    addResizers(thead);
+    const tbody = $('casesBody');
+    tbody.innerHTML = '';
+    const persons = taskPersons();
+    persons.forEach((p) => {
+      const tr = document.createElement('tr');
+      tr.dataset.person = p;
+      tr.innerHTML = `
+        <td class="col-rPerson">${escapeHtml(p)}</td>
+        <td class="task-col" data-colkey="tasks">
+          <button type="button" class="task-open-btn" data-persontaskopen="${escapeHtml(p)}" title="${escapeHtml(p)}さんのタスクを編集">✎</button>
+          ${taskCellHtml(personTasks(p), 'data-persontaskcell')}
+        </td>`;
+      tbody.appendChild(tr);
+    });
+    const total = persons.reduce((n, p) => n + personTasks(p).filter((t) => !t.done).length, 0);
+    $('caseCount').textContent = `未完了 ${total} 件`;
+    updateShowAllBtn();
+    if (store.mode === 'supabase' && !personalTasksSupported) {
+      tbody.innerHTML = '<tr><td colspan="2" class="task-empty">個人タスクを使うには、データベースの更新（personal_tasks テーブルの追加）が必要です。</td></tr>';
+    }
+  }
+
   function renderTaskTable() {
+    if (taskView === 'person') { renderPersonTaskTable(); return; }
+    $('casesTable').classList.remove('person-task-mode');
     renderDatalists();
     const thead = $('casesTable').querySelector('thead');
     thead.innerHTML = '<tr>' + TASK_COLS.map((c) =>
@@ -3194,13 +3336,7 @@
       tr.dataset.caseId = c.id;
       const cls = rowColorClass(c);
       if (cls) tr.className = cls;
-      const shown = caseTasks(c).filter((t) => showDoneTasks || !t.done);
-      const taskListHtml = shown.length
-        ? '<ul class="cell-task-list">' + shown.map((t) => {
-            const idx = caseTasks(c).indexOf(t);
-            return `<li class="${t.done ? 'task-done' : ''}"><label><input type="checkbox" data-taskcell="${idx}"${t.done ? ' checked' : ''}> <span class="${taskPrioClass(t)}">${escapeHtml(t.text)}</span></label></li>`;
-          }).join('') + '</ul>'
-        : '<span class="task-empty">（なし）</span>';
+      const taskListHtml = taskCellHtml(caseTasks(c), 'data-taskcell');
       // 各項目は通常画面と同じく編集可（劇場名は短縮表示で標準と同条件）
       tr.innerHTML = `
         ${buildStatusCell(c)}
@@ -3225,15 +3361,37 @@
 
   // タスク編集ポップアップ
   let taskModalCase = null;
+  let taskModalPerson = null;   // 個人タスクを開いている時の担当者名
+  // 今ポップアップで編集中のタスク配列（案件 or 個人）
+  function activeTaskList() {
+    if (taskModalPerson) return personTasks(taskModalPerson);
+    if (taskModalCase) return caseTasks(taskModalCase);
+    return null;
+  }
   function openTaskModal(c) {
     if (!tasksAvailable()) {
       alert('タスク機能を使うには、データベースの更新（cases.tasks 列の追加）が必要です。');
       return;
     }
+    taskModalPerson = null;
     taskModalCase = c;
     $('taskModalTitle').textContent = 'タスク：' + (c.theater || '(劇場未入力)');
+    openTaskModalCommon();
+  }
+  function openPersonTaskModal(person) {
+    if (store.mode === 'supabase' && !personalTasksSupported) {
+      alert('個人タスクを使うには、データベースの更新（personal_tasks テーブルの追加）が必要です。');
+      return;
+    }
+    taskModalCase = null;
+    taskModalPerson = person;
+    $('taskModalTitle').textContent = '個人タスク：' + person;
+    openTaskModalCommon();
+  }
+  function openTaskModalCommon() {
     renderTaskModalList();
     $('taskNewInput').value = '';
+    $('taskNewDue').value = '';
     $('taskModal').classList.remove('hidden');
     setTimeout(() => $('taskNewInput').focus(), 0);
   }
@@ -3241,10 +3399,9 @@
   function taskPrio(t) { return (t && (t.priority === 'high' || t.priority === 'mid')) ? t.priority : 'low'; }
   function taskPrioClass(t) { return 'task-prio-' + taskPrio(t); }
   function renderTaskModalList() {
-    const c = taskModalCase; if (!c) return;
-    const tasks = caseTasks(c);
-    // 未完了を上に、完了を下に（元のindexは保持）
-    const order = tasks.map((t, i) => i).sort((a, b) => (tasks[a].done - tasks[b].done));
+    const tasks = activeTaskList(); if (!tasks) return;
+    // 未完了を上に、期限が近い順（元のindexは保持）
+    const order = taskDisplayOrder(tasks);
     const ul = $('taskList');
     ul.innerHTML = order.map((i) => {
       const t = tasks[i];
@@ -3254,9 +3411,16 @@
       return `<li class="task-item ${t.done ? 'done' : ''}">
         <select class="task-prio-select" data-taskprio="${i}" title="優先度">${sel}</select>
         <label><input type="checkbox" data-taskmodal="${i}" ${t.done ? 'checked' : ''}> <span class="${taskPrioClass(t)}">${escapeHtml(t.text)}</span></label>
+        ${taskDueHtml(t)}
+        <input type="date" class="task-due-input" data-taskdue="${i}" value="${escapeHtml(taskDue(t))}" title="期限（いつまで）">
         <button type="button" class="task-del" data-taskdel="${i}" aria-label="削除">×</button>
       </li>`;
     }).join('');
+  }
+  // ポップアップの内容を保存（案件のタスク or 個人タスク）
+  function persistTaskModal() {
+    if (taskModalPerson) { savePersonTasks(taskModalPerson); return; }
+    persistTaskCase();
   }
   function persistTaskCase() {
     const c = taskModalCase; if (!c) return;
@@ -3265,13 +3429,15 @@
     persistCase(c);
   }
   function addTaskFromInput() {
-    const c = taskModalCase; if (!c) return;
+    const tasks = activeTaskList(); if (!tasks) return;
     const v = $('taskNewInput').value.trim();
     if (!v) return;
     const prio = ($('taskNewPriority') && $('taskNewPriority').value) || 'low';
-    caseTasks(c).push({ text: v, done: false, priority: prio });
+    const due = ($('taskNewDue') && $('taskNewDue').value) || '';
+    tasks.push({ text: v, done: false, priority: prio, due: due });
     $('taskNewInput').value = '';
-    persistTaskCase();
+    $('taskNewDue').value = '';
+    persistTaskModal();
     renderTaskModalList();
     if (taskMode) renderTaskTable();
     $('taskNewInput').focus();
@@ -4675,6 +4841,7 @@
 
   $('aggBtn').addEventListener('click', toggleAggMode);
   $('taskBtn').addEventListener('click', toggleTaskMode);
+  $('personalTaskBtn').addEventListener('click', togglePersonalTaskView);
   // 並び替えボタン（受付日順・調査日順・客先順・ステータス順）
   function toggleSortField(field) {
     if (sortState.field === field) sortState.direction = sortState.direction === 'asc' ? 'desc' : 'asc';
@@ -4743,29 +4910,41 @@
     if (taskMode) renderTaskTable();
   });
   // タスクポップアップ
-  function closeTaskModal() { $('taskModal').classList.add('hidden'); taskModalCase = null; if (taskMode) renderTaskTable(); }
+  function closeTaskModal() {
+    $('taskModal').classList.add('hidden');
+    taskModalCase = null; taskModalPerson = null;
+    if (taskMode) renderTaskTable();
+  }
   $('taskAddBtn').addEventListener('click', addTaskFromInput);
   $('taskNewInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); addTaskFromInput(); } });
+  $('taskNewDue').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); addTaskFromInput(); } });
   $('closeTaskModal').addEventListener('click', closeTaskModal);
   $('taskDoneBtn').addEventListener('click', closeTaskModal);
   $('taskList').addEventListener('change', (e) => {
-    if (!taskModalCase) return;
+    const tasks = activeTaskList(); if (!tasks) return;
     const pr = e.target.closest('[data-taskprio]');
     if (pr) {
-      const t = caseTasks(taskModalCase)[Number(pr.dataset.taskprio)];
-      if (t) { t.priority = pr.value; persistTaskCase(); renderTaskModalList(); if (taskMode) renderTaskTable(); }
+      const t = tasks[Number(pr.dataset.taskprio)];
+      if (t) { t.priority = pr.value; persistTaskModal(); renderTaskModalList(); if (taskMode) renderTaskTable(); }
+      return;
+    }
+    const du = e.target.closest('[data-taskdue]');
+    if (du) {
+      const t = tasks[Number(du.dataset.taskdue)];
+      if (t) { t.due = du.value || ''; persistTaskModal(); renderTaskModalList(); if (taskMode) renderTaskTable(); }
       return;
     }
     const cb = e.target.closest('[data-taskmodal]');
     if (!cb) return;
-    const t = caseTasks(taskModalCase)[Number(cb.dataset.taskmodal)];
-    if (t) { t.done = cb.checked; persistTaskCase(); renderTaskModalList(); }
+    const t = tasks[Number(cb.dataset.taskmodal)];
+    if (t) { t.done = cb.checked; persistTaskModal(); renderTaskModalList(); }
   });
   $('taskList').addEventListener('click', (e) => {
     const d = e.target.closest('[data-taskdel]');
-    if (!d || !taskModalCase) return;
-    caseTasks(taskModalCase).splice(Number(d.dataset.taskdel), 1);
-    persistTaskCase(); renderTaskModalList();
+    if (!d) return;
+    const tasks = activeTaskList(); if (!tasks) return;
+    tasks.splice(Number(d.dataset.taskdel), 1);
+    persistTaskModal(); renderTaskModalList();
   });
   $('aggExitBtn').addEventListener('click', exitAggMode);
   $('aggExportBtn').addEventListener('click', exportAggregation);
@@ -4775,6 +4954,15 @@
   // A集計の入力（配分%・粗利率）変更
   $('casesBody').addEventListener('change', (e) => {
     if (aggMode) { handleAggInput(e); return; }
+    // 個人タスク: 一覧のチェックを押したら完了にする
+    const pcb = e.target.closest('[data-persontaskcell]');
+    if (pcb && taskMode) {
+      const tr = pcb.closest('tr');
+      const person = tr && tr.dataset.person;
+      const t = person && personTasks(person)[Number(pcb.dataset.persontaskcell)];
+      if (t) { t.done = pcb.checked; savePersonTasks(person); renderTaskTable(); }
+      return;
+    }
     // タスク管理モード: 一覧のチェックを押したら完了にして一覧から消す（ポップアップには残る）
     const cb = e.target.closest('[data-taskcell]');
     if (cb && taskMode) {
@@ -4897,6 +5085,9 @@
     // タスク管理モード: 「タスク編集」ボタン
     const to = e.target.closest('[data-taskopen]');
     if (to) { const c = cases.find((x) => x.id === to.dataset.taskopen); if (c) openTaskModal(c); return; }
+    // 個人タスク: 「タスク編集」ボタン
+    const po = e.target.closest('[data-persontaskopen]');
+    if (po) { openPersonTaskModal(po.dataset.persontaskopen); return; }
     // スマホ（狭い画面）の通常表示: 項目タップで編集ポップアップを開く（インライン編集はしない）
     if (isMobile() && !aggMode && !taskMode) {
       const tr = e.target.closest('tr[data-case-id]');
