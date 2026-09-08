@@ -813,6 +813,10 @@
         <input type="date" id="taskNewDue" class="task-due-input" title="期限（いつまでに終わらせるか）※空欄でもOK">
         <button type="button" id="taskAddBtn" class="primary">追加</button>
       </div>
+      <div class="task-list-tools">
+        <span class="task-list-hint">文字をクリックすると書き直せます／文字をつかんで上下に動かすと並べ替え／チェックで完了</span>
+        <button type="button" id="taskSortDueBtn" class="zoom-btn" title="期限の近い順に並べ替えます（期限なしは後ろ）">期限順に並べる</button>
+      </div>
       <ul id="taskList" class="task-list"></ul>
     </div>
     <div class="modal-footer">
