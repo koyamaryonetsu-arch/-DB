@@ -221,9 +221,10 @@ const fadeOut = (f = 18, c = '#000') => fadeTo(1, f, c);
 const fadeIn = (f = 18) => fadeTo(0, f);
 
 /* screen shake / flash effects (battle etc.) */
+const REDUCED_MOTION = (() => { try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (_) { return false; } })();
 const FX = {
   shake: 0, shakeMag: 0, flash: 0, flashColor: '#fff',
-  doShake(frames = 12, mag = 3) { this.shake = frames; this.shakeMag = mag; },
+  doShake(frames = 12, mag = 3) { if (REDUCED_MOTION) return; this.shake = frames; this.shakeMag = mag; },
   doFlash(frames = 6, color = '#fff') { this.flash = frames; this.flashColor = color; },
   update() { if (this.shake > 0) this.shake--; if (this.flash > 0) this.flash--; },
   offset() { return this.shake > 0 ? [(rnd(3) - 1) * this.shakeMag, (rnd(3) - 1) * this.shakeMag] : [0, 0]; },
