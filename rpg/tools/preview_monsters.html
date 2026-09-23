@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Monster Sprite Preview</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; padding: 16px; background: #0c0c14; color: #e8e8f0; font: 13px/1.4 system-ui, sans-serif; }
+  h1 { font-size: 18px; margin: 0 0 4px; }
+  h2 { font-size: 15px; margin: 24px 0 8px; border-bottom: 1px solid #333; padding-bottom: 4px; }
+  p.note { margin: 0 0 8px; color: #a0a0b8; }
+  .grid { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 10px; }
+  .card { background: #181824; border: 1px solid #2c2c40; border-radius: 4px; padding: 6px; }
+  .card .lbl { font-size: 12px; margin-bottom: 4px; white-space: nowrap; }
+  .card .lbl b { color: #f8d038; font-weight: 600; }
+  .card .lbl span { color: #9090a8; }
+  canvas { display: block; image-rendering: pixelated; }
+  #status { margin: 8px 0; color: #98e070; }
+  #status.err { color: #f86060; }
+</style>
+</head>
+<body>
+<h1>MonsterArt preview</h1>
+<p class="note">Each card shows the sprite at 1× (left) and 3× (right, nearest-neighbour) on the same backdrop. The lineup mock shows a 256-px-wide battle strip at 3×.</p>
+<div id="status">loading…</div>
+
+<h2>Battle backdrop (dark)</h2>
+<div class="grid" id="dark"></div>
+
+<h2>Grassland backdrop</h2>
+<div class="grid" id="grass"></div>
+
+<h2>Battle lineup mock (256 × 96 game px, shown at 3×)</h2>
+<div class="grid" id="lineup"></div>
+
+<script src="../src/gfx_monsters.js"></script>
+<script>
+(() => {
+  'use strict';
+  const NAMES = {
+    jelly_blue: 'あおゼリー', jelly_mud: 'どろゼリー', crow: 'やみガラス', rabbit: 'とげウサギ',
+    bat: 'キバコウモリ', bat_red: 'ちすいコウモリ', mushroom: 'ねむりダケ', ant: 'くろアリ',
+    apprentice: 'みならいまどうし', frog: 'どくガエル', skeleton: 'がいこつへい', flame: 'ほのおのこ',
+    bee: 'さしバチ', rockman: 'いわおとこ', ghost: 'まよいゴースト', orc: 'オーク',
+    star: 'キラキラぼし', boss_knight: 'ボルザーク', boss_beast: 'もりのぬし', guard_golem: 'いしのばんぺい',
+    jelly_red: 'ほむらゼリー', crow_night: 'よいどりガラス', rabbit_dark: 'かげウサギ',
+    mushroom_blue: 'まひダケ', skeleton_red: 'ちぞめがいこつ', apprentice_dark: 'やみまどうし',
+  };
+  const BGS = {
+    dark: ['#101828', '#284060'],
+    grass: ['#48a040', '#88c860'],
+  };
+  const status = document.getElementById('status');
+
+  function backdrop(ctx, w, h, stops) {
+    const g = ctx.createLinearGradient(0, 0, 0, h);
+    g.addColorStop(0, stops[0]);
+    g.addColorStop(1, stops[1]);
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, w, h);
+  }
+
+  function card(id, bgKey) {
+    const spr = MonsterArt.get(id);
+    const pad = 8, gap = 10, Z = 3;
+    const w = pad * 2 + spr.width + gap + spr.width * Z;
+    const h = pad * 2 + spr.height * Z;
+    const cv = document.createElement('canvas');
+    cv.width = w; cv.height = h;
+    cv.style.width = w + 'px'; cv.style.height = h + 'px';
+    const ctx = cv.getContext('2d');
+    ctx.imageSmoothingEnabled = false;
+    backdrop(ctx, w, h, BGS[bgKey]);
+    const ground = pad + spr.height * Z;
+    ctx.drawImage(spr, pad, ground - spr.height);
+    ctx.drawImage(spr, pad + spr.width + gap, pad, spr.width * Z, spr.height * Z);
+    const el = document.createElement('div');
+    el.className = 'card';
+    el.dataset.id = id;
+    const lbl = document.createElement('div');
+    lbl.className = 'lbl';
+    lbl.innerHTML = '<b></b> <span></span>';
+    lbl.querySelector('b').textContent = NAMES[id] || id;
+    lbl.querySelector('span').textContent = id + '  ' + spr.width + '×' + spr.height;
+    el.appendChild(lbl);
+    el.appendChild(cv);
+    return el;
+  }
+
+  function lineup(ids, bgKey) {
+    const W = 256, H = 96, Z = 3, groundY = 88;
+    const cv = document.createElement('canvas');
+    cv.width = W * Z; cv.height = H * Z;
+    cv.style.width = W * Z + 'px'; cv.style.height = H * Z + 'px';
+    const ctx = cv.getContext('2d');
+    ctx.imageSmoothingEnabled = false;
+    // draw at 1x into an offscreen game buffer, then scale up
+    const buf = document.createElement('canvas');
+    buf.width = W; buf.height = H;
+    const b = buf.getContext('2d');
+    b.imageSmoothingEnabled = false;
+    backdrop(b, W, H, BGS[bgKey]);
+    b.fillStyle = 'rgba(0,0,0,0.25)';
+    b.fillRect(0, groundY, W, H - groundY);
+    const sprs = ids.map((id) => MonsterArt.get(id));
+    const total = sprs.reduce((s, c) => s + c.width, 0);
+    const space = (W - total) / (sprs.length + 1);
+    let x = space;
+    for (const c of sprs) {
+      b.drawImage(c, Math.round(x), groundY - c.height);
+      x += c.width + space;
+    }
+    ctx.drawImage(buf, 0, 0, W * Z, H * Z);
+    const el = document.createElement('div');
+    el.className = 'card';
+    const lbl = document.createElement('div');
+    lbl.className = 'lbl';
+    lbl.textContent = ids.join(' · ');
+    el.appendChild(lbl);
+    el.appendChild(cv);
+    return el;
+  }
+
+  try {
+    for (const id of MonsterArt.ids) {
+      document.getElementById('dark').appendChild(card(id, 'dark'));
+      document.getElementById('grass').appendChild(card(id, 'grass'));
+    }
+    const L = document.getElementById('lineup');
+    const groups = [
+      ['jelly_blue', 'crow', 'rabbit', 'bat', 'mushroom'],
+      ['ant', 'frog', 'bee', 'flame', 'jelly_mud'],
+      ['skeleton', 'apprentice', 'ghost', 'orc', 'star'],
+      ['rockman', 'guard_golem', 'jelly_red', 'crow_night'],
+      ['rabbit_dark', 'mushroom_blue', 'skeleton_red', 'apprentice_dark', 'bat_red'],
+      ['boss_knight'],
+      ['boss_beast'],
+    ];
+    groups.forEach((g, i) => L.appendChild(lineup(g.filter((id) => MonsterArt.ids.includes(id)), i % 2 ? 'grass' : 'dark')));
+    status.textContent = MonsterArt.ids.length + ' monsters rendered.';
+  } catch (e) {
+    status.textContent = 'Error: ' + e;
+    status.className = 'err';
+    throw e;
+  }
+})();
+</script>
+</body>
+</html>

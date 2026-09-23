@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Character Sprite Sheet</title>
+<style>
+  :root { --bg: #20242c; --fg: #e8e8f0; --muted: #9aa0b0; }
+  html, body { margin: 0; background: var(--bg); color: var(--fg); font: 12px/1.4 monospace; }
+  h1 { font-size: 16px; margin: 12px 16px 4px; }
+  h2 { font-size: 13px; margin: 16px 16px 4px; color: var(--muted); font-weight: normal; }
+  p { margin: 0 16px 8px; color: var(--muted); }
+  code { color: var(--fg); }
+  .sheet { margin: 4px 16px 16px; display: inline-block; vertical-align: top; }
+  canvas { image-rendering: pixelated; image-rendering: crisp-edges; display: block; }
+  #status { margin: 0 16px 8px; }
+  #status.err { color: #ff7060; }
+</style>
+</head>
+<body>
+<h1>CharArt sprite review sheet</h1>
+<p>Every kind &times; 4 directions &times; 2 walk frames, drawn from <code>../src/gfx_chars.js</code>.
+  Column labels per kind: D/L/U/R = down/left/up/right, 0/1 = frame.
+  Query params: <code>?zoom=4</code> <code>?cols=4</code> <code>?kinds=man,woman</code>
+  <code>?bg=grass,cave,stone,dark|all</code> <code>?anim=1</code> (animate the sheets too).</p>
+<div id="status"></div>
+<div id="sheets"></div>
+<h2>Walk preview (animated, frames alternate every 8 game frames at 60fps)</h2>
+<div id="anim" class="sheet"></div>
+<script src="../src/gfx_chars.js"></script>
+<script>
+(function () {
+  'use strict';
+  const qs = new URLSearchParams(location.search);
+  const ZOOM = Math.max(1, parseInt(qs.get('zoom') || '4', 10));
+  const COLS = Math.max(1, parseInt(qs.get('cols') || '4', 10));
+  const ANIM = qs.get('anim') === '1';
+  const kinds = qs.get('kinds') ? qs.get('kinds').split(',').filter(Boolean) : CharArt.kinds.slice();
+  const BGS = {
+    grass: { name: 'grass', fill: '#58b848', label: '#0c2a0c', sub: '#1e5a1e' },
+    stone: { name: 'stone', fill: '#8890a0', label: '#101418', sub: '#343a48' },
+    cave:  { name: 'cave',  fill: '#3a3028', label: '#e8e0d0', sub: '#a89880' },
+    dark:  { name: 'dark',  fill: '#181820', label: '#e8e8f0', sub: '#8890a0' },
+  };
+  const bgSel = qs.get('bg') || 'grass,cave';
+  const bgList = bgSel === 'all' ? [BGS.grass, BGS.stone, BGS.cave]
+    : bgSel.split(',').map(n => BGS[n]).filter(Boolean);
+
+  const DIRS = ['down', 'left', 'up', 'right'];
+  const CELL = 16 * ZOOM;
+  const GAP = Math.max(2, ZOOM);
+  const DIR_GAP = 4;
+  const LABEL_H = 26;
+  const GROUP_W = DIRS.length * 2 * (CELL + GAP) + DIRS.length * DIR_GAP + 20;
+  const GROUP_H = LABEL_H + CELL + 12;
+
+  function spriteX(gx, d, f) { return gx + (d * 2 + f) * (CELL + GAP) + d * DIR_GAP; }
+
+  function drawSheet(bg, frameOffset) {
+    const rows = Math.ceil(kinds.length / COLS);
+    const cv = document.createElement('canvas');
+    cv.width = Math.min(COLS, kinds.length) * GROUP_W + 16;
+    cv.height = rows * GROUP_H + 30;
+    const g = cv.getContext('2d');
+    g.imageSmoothingEnabled = false;
+    g.fillStyle = bg.fill;
+    g.fillRect(0, 0, cv.width, cv.height);
+    g.textBaseline = 'top';
+    g.fillStyle = bg.label;
+    g.font = 'bold 12px monospace';
+    g.fillText('background: ' + bg.name + ' ' + bg.fill + '   x' + ZOOM, 8, 6);
+    kinds.forEach((kind, i) => {
+      const gx = 8 + (i % COLS) * GROUP_W;
+      const gy = 26 + Math.floor(i / COLS) * GROUP_H;
+      g.fillStyle = bg.label;
+      g.font = 'bold 12px monospace';
+      g.fillText(kind, gx, gy);
+      g.font = '10px monospace';
+      g.fillStyle = bg.sub;
+      DIRS.forEach((dir, d) => {
+        for (let f = 0; f < 2; f++) {
+          const x = spriteX(gx, d, f);
+          g.fillText(dir[0].toUpperCase() + f, x + 1, gy + 13);
+          const frame = ANIM ? (f + frameOffset) % 2 : f;
+          g.drawImage(CharArt.get(kind, dir, frame), 0, 0, 16, 16, x, gy + LABEL_H, CELL, CELL);
+        }
+      });
+    });
+    return cv;
+  }
+
+  // Animated walk preview: each kind in 4 directions, all frames in sync.
+  function makeAnim() {
+    const per = 4, cols = 6;
+    const cell = 16 * ZOOM + 6;
+    const gw = per * cell + 18, gh = 16 * ZOOM + 26;
+    const rows = Math.ceil(kinds.length / cols);
+    const cv = document.createElement('canvas');
+    cv.width = cols * gw + 16;
+    cv.height = rows * gh + 8;
+    const g = cv.getContext('2d');
+    g.imageSmoothingEnabled = false;
+    function draw(frame) {
+      g.fillStyle = BGS.grass.fill;
+      g.fillRect(0, 0, cv.width, cv.height);
+      g.textBaseline = 'top';
+      g.font = 'bold 11px monospace';
+      kinds.forEach((kind, i) => {
+        const gx = 8 + (i % cols) * gw, gy = 4 + Math.floor(i / cols) * gh;
+        g.fillStyle = BGS.grass.label;
+        g.fillText(kind, gx, gy);
+        DIRS.forEach((dir, d) => {
+          g.drawImage(CharArt.get(kind, dir, frame), 0, 0, 16, 16, gx + d * cell, gy + 14, 16 * ZOOM, 16 * ZOOM);
+        });
+      });
+    }
+    return { cv, draw };
+  }
+
+  const host = document.getElementById('sheets');
+  const status = document.getElementById('status');
+  function renderSheets(frameOffset) {
+    host.innerHTML = '';
+    bgList.forEach(bg => {
+      const wrap = document.createElement('div');
+      wrap.className = 'sheet';
+      wrap.dataset.bg = bg.name;
+      wrap.appendChild(drawSheet(bg, frameOffset));
+      host.appendChild(wrap);
+    });
+  }
+  try {
+    renderSheets(0);
+    const anim = makeAnim();
+    anim.draw(0);
+    document.getElementById('anim').appendChild(anim.cv);
+    let t = 0;
+    setInterval(() => {
+      t ^= 1;
+      anim.draw(t);
+      if (ANIM) renderSheets(t);
+    }, Math.round(8 * 1000 / 60));
+    status.textContent = CharArt.kinds.length + ' kinds available; showing ' + kinds.length + ' at x' + ZOOM + '.';
+    document.body.dataset.ready = '1';
+  } catch (e) {
+    status.textContent = 'ERROR: ' + e.message;
+    status.className = 'err';
+    console.error(e);
+    document.body.dataset.ready = 'error';
+  }
+})();
+</script>
+</body>
+</html>

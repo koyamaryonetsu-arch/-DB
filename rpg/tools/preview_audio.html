@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Audio Preview</title>
+<style>
+  :root {
+    --bg: #0b0d1e; --panel: #151a3a; --ink: #f4f1e6; --dim: #9aa0c3;
+    --accent: #ffd35c; --btn: #232a5c; --btn-hi: #33407f; --on: #3fa56b;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 16px; background: var(--bg); color: var(--ink);
+    font: 15px/1.4 ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  }
+  h1 { font-size: 20px; margin: 0 0 4px; color: var(--accent); letter-spacing: 1px; }
+  h2 { font-size: 15px; margin: 18px 0 8px; color: var(--accent); text-transform: uppercase; }
+  p.note { margin: 0 0 12px; color: var(--dim); font-size: 13px; }
+  .panel { background: var(--panel); border: 2px solid #fff3; border-radius: 6px; padding: 12px; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  button {
+    font: inherit; color: var(--ink); background: var(--btn); border: 2px solid #fff4;
+    border-radius: 4px; padding: 7px 11px; cursor: pointer; min-height: 38px;
+  }
+  button:hover, button:focus-visible { background: var(--btn-hi); outline: none; border-color: var(--accent); }
+  button.on { background: var(--on); border-color: #fff; }
+  label { display: inline-flex; align-items: center; gap: 8px; }
+  input[type=range] { width: 160px; }
+  #status { margin-top: 10px; color: var(--dim); font-size: 13px; white-space: pre-wrap; min-height: 2.8em; }
+  #log { margin-top: 8px; color: var(--dim); font-size: 12px; max-height: 140px; overflow: auto; }
+</style>
+</head>
+<body>
+  <h1>RPG Audio Preview</h1>
+  <p class="note">Tap any button (the first tap unlocks audio). BGM buttons loop; jingles pause the BGM and resume it afterwards.</p>
+
+  <div class="panel">
+    <div class="row">
+      <button id="stop">Stop BGM</button>
+      <button id="mute">Mute</button>
+      <label>Volume <input id="vol" type="range" min="0" max="100" value="50"> <span id="volv">50</span></label>
+      <button id="check">Run self-check</button>
+    </div>
+    <div id="status"></div>
+  </div>
+
+  <h2>BGM</h2>
+  <div class="row" id="bgm"></div>
+  <h2>Jingles</h2>
+  <div class="row" id="jingles"></div>
+  <h2>Sound effects</h2>
+  <div class="row" id="sfx"></div>
+  <div id="log"></div>
+
+  <script src="../src/audio.js"></script>
+  <script>
+    (function () {
+      var logEl = document.getElementById('log');
+      function log(msg) {
+        var d = document.createElement('div');
+        d.textContent = new Date().toLocaleTimeString() + '  ' + msg;
+        logEl.insertBefore(d, logEl.firstChild);
+      }
+      // Unlock audio on the first gesture (pointerdown is fine on desktop; the
+      // module itself re-tries on pointerup/touchend for mobile browsers).
+      function unlock() { Sound.unlock(); }
+      window.addEventListener('pointerdown', unlock, true);
+      window.addEventListener('keydown', unlock, true);
+
+      function makeButtons(containerId, names, onClick) {
+        var box = document.getElementById(containerId);
+        names.forEach(function (name) {
+          var b = document.createElement('button');
+          b.textContent = name;
+          b.dataset.name = name;
+          b.addEventListener('click', function () { Sound.unlock(); onClick(name, b); refresh(); });
+          box.appendChild(b);
+        });
+      }
+      var names = Sound.list();
+      makeButtons('bgm', names.bgm, function (name) { Sound.playBGM(name); });
+      makeButtons('jingles', names.jingles, function (name) {
+        var t0 = performance.now();
+        log('jingle ' + name + ' started');
+        Sound.playJingle(name).then(function () {
+          log('jingle ' + name + ' resolved after ' + ((performance.now() - t0) / 1000).toFixed(2) + ' s');
+          refresh();
+        });
+      });
+      makeButtons('sfx', names.sfx, function (name) { Sound.sfx(name); });
+
+      document.getElementById('stop').addEventListener('click', function () { Sound.stopBGM(); refresh(); });
+      var muteBtn = document.getElementById('mute');
+      muteBtn.addEventListener('click', function () { Sound.setMuted(!Sound.isMuted()); refresh(); });
+      var vol = document.getElementById('vol');
+      vol.addEventListener('input', function () {
+        Sound.setVolume(vol.value / 100);
+        document.getElementById('volv').textContent = vol.value;
+      });
+
+      // Self-check: every track's channels must have identical lengths and no MML warnings.
+      document.getElementById('check').addEventListener('click', function () {
+        var L = Sound.list(), bad = 0;
+        L.bgm.concat(L.jingles).forEach(function (n) {
+          var t = Sound._debug.trackDurations(n);
+          var same = t.channels.every(function (x) { return Math.abs(x - t.channels[0]) < 1e-6; });
+          var ok = same && !t.warnings.length && t.loop === (L.bgm.indexOf(n) >= 0);
+          if (!ok) bad++;
+          log((ok ? 'ok   ' : 'FAIL ') + n + '  ' + t.len.toFixed(2) + ' s  channels=' +
+            t.channels.map(function (x) { return x.toFixed(3); }).join('/') + (t.warnings.length ? '  ' + t.warnings.join('; ') : ''));
+        });
+        log(bad ? bad + ' track(s) failed the self-check' : 'self-check passed: ' + (L.bgm.length + L.jingles.length) + ' tracks');
+      });
+
+      function refresh() {
+        var cur = Sound.currentBGM();
+        document.querySelectorAll('#bgm button').forEach(function (b) {
+          b.classList.toggle('on', b.dataset.name === cur);
+        });
+        muteBtn.textContent = Sound.isMuted() ? 'Unmute' : 'Mute';
+        muteBtn.classList.toggle('on', Sound.isMuted());
+        var st = Sound._debug ? Sound._debug.state() : {};
+        document.getElementById('status').textContent =
+          'BGM: ' + (cur || '-') + '   context: ' + (st.ctxState || 'locked') +
+          (st.jingle ? '   [jingle playing]' : '') + '\nlive sfx: ' + (st.sfxLive || 0) +
+          '   bgm nodes: ' + (st.bgmNodes || 0);
+      }
+      setInterval(refresh, 500);
+      refresh();
+    })();
+  </script>
+</body>
+</html>
