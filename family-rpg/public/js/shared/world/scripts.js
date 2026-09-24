@@ -93,11 +93,18 @@ export class ScriptRun {
     if (!this.batch.length) return Promise.resolve({});
     const steps = this.batch;
     this.batch = [];
+    this.lastSteps = steps;
     for (const m of this.everyone) {
       this.world.send(m, { t: 'script', runId: this.id, steps, spectator: m.id !== this.init.id, who: this.init.char.name });
     }
     if (!this.world.sessions.has(this.init.id)) return Promise.resolve({ aborted: true });
     return new Promise((resolve) => { this.waiting = { resolve }; });
+  }
+
+  // つなぎなおした 人に、いま まっている ところを もういちど おくる
+  resend(m) {
+    if (!this.waiting || !this.lastSteps) return;
+    this.world.send(m, { t: 'script', runId: this.id, steps: this.lastSteps, spectator: m.id !== this.init.id, who: this.init.char.name });
   }
 
   say(text) {
@@ -262,7 +269,7 @@ export function runScript(world, s, scriptId, opts = {}) {
     for (const sid of p?.members || []) {
       if (sid === s.id) continue;
       const m = world.sessions.get(sid);
-      if (m && m.inWorld && m.map === s.map && !m.busy) participants.push(m);
+      if (m && m.inWorld && m.map === s.map && !m.busy && !m.away) participants.push(m);
     }
   }
   const run = new ScriptRun(world, s, participants, steps, { scriptId });

@@ -18,7 +18,8 @@ export class Bot {
     this.battles = [];
     this.seq = 0;
     this.gateFlags = [];
-    this.s = world.connect({ send: (m) => this.onMsg(JSON.parse(JSON.stringify(m))) });
+    this.conn = { send: (m) => this.onMsg(JSON.parse(JSON.stringify(m))) };
+    this.s = world.connect(this.conn);
   }
 
   onMsg(m) {
@@ -26,8 +27,10 @@ export class Bot {
     switch (m.t) {
       case 'welcome': this.welcome = m; break;
       case 'enter':
-        this.char = m.char; this.map = m.map; this.x = m.x; this.y = m.y; this.seq = 0; this.sid = m.sid;
+        this.char = m.char; this.map = m.map; this.x = m.x; this.y = m.y; this.seq = m.posSeq || 0; this.sid = m.sid;
         this.party = m.party;
+        this.resumed = !!m.resumed;
+        if (m.resumed) this.s = this.world.sessions.get(m.sid) || this.s; // ひきついだ セッション
         break;
       case 'self': this.char = m.char; break;
       case 'party': this.party = m.party; this.gateFlags = m.party.gateFlags || []; break;
@@ -42,13 +45,13 @@ export class Bot {
         if (!m.spectator) {
           const last = m.steps[m.steps.length - 1];
           const choice = last && last[0] === 'choice' ? this.choice : undefined;
-          this.queue.push(() => this.world.handle(this.s, { t: 'ack', runId: m.runId, choice }));
+          this.queue.push(() => this.world.handle(this.s, { t: 'ack', runId: m.runId, choice }, this.conn));
         }
         break;
       }
       case 'battleStart':
         this.inBattle = true;
-        for (const id of m.mine) this.queue.push(() => this.world.handle(this.s, { t: 'battle', actor: id, auto: true }));
+        for (const id of m.mine) this.queue.push(() => this.world.handle(this.s, { t: 'battle', actor: id, auto: true }, this.conn));
         break;
       case 'battleEnd': this.inBattle = false; this.battles.push(m); break;
       default:
@@ -61,7 +64,7 @@ export class Bot {
     for (const f of q) f();
   }
 
-  send(msg) { this.world.handle(this.s, msg); }
+  send(msg) { this.world.handle(this.s, msg, this.conn); }
 
   async login(pw = '') {
     this.send({ t: 'hello', pw });

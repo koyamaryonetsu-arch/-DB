@@ -10,7 +10,7 @@ import { ITEMS } from '../data/items.js';
 import { JOBS } from '../data/jobs.js';
 import { newCharacter, computeStats, addItem, fullHeal } from '../stats.js';
 import { mapState, spawnSymbols, moveSymbols, symbolSnapshot } from './monsters.js';
-import { startFieldBattle, battleTick, battleCommand, battleLeave } from './battles.js';
+import { startFieldBattle, battleTick, battleCommand, battleLeave, joinBattle } from './battles.js';
 import { runScript, runSteps } from './scripts.js';
 import { serviceAction, menuAction } from './services.js';
 import { newParty, partyOf, partyState, PARTY_MAX } from './party.js';
@@ -34,12 +34,15 @@ export class GameWorld {
     this.parties = new Map();
     this.battles = new Map();
     this.runs = new Map();
+    this.byConn = new Map(); // つなぎ → セッション（つなぎなおしで いれかわる）
     this.mapStates = new Map();
     this.dirty = false;
     this.saveTimer = 0;
     this.snapTimer = 0;
     this.log = opts.log || (() => {});
     this.rateLimit = opts.rateLimit !== false;
+    // つうしんが きれても この じかんは パーティー・たたかいに のこしておく（スマホの スリープ たいさく）
+    this.awayMs = opts.awayMs ?? 3 * 60 * 1000;
   }
 
   // ───────────── つなぐ ─────────────
@@ -52,13 +55,84 @@ export class GameWorld {
       level: 1,
     };
     this.sessions.set(s.id, s);
+    if (conn && typeof conn === 'object') this.byConn.set(conn, s);
     return s;
   }
 
-  disconnect(s) {
+  sessionOf(s, conn) {
+    return (conn && this.byConn.get(conn)) || s;
+  }
+
+  // conn: きれた つなぎ（べつの つなぎに ひきつがれた あとなら なにも しない）
+  disconnect(s0, conn) {
+    const s = this.sessionOf(s0, conn);
+    if (conn) this.byConn.delete(conn);
     if (!this.sessions.has(s.id)) return;
+    if (conn && s.conn !== conn) return;
+    if (s.inWorld && !this.offline && this.awayMs > 0) {
+      this.goAway(s);
+      return;
+    }
     this.leaveWorld(s);
     this.sessions.delete(s.id);
+  }
+
+  // つうしんが とぎれた: しばらくは そのまま（たたかいは オート）。もどってきたら つづきから
+  goAway(s) {
+    s.away = true;
+    s.awayAt = this.now();
+    s.conn = null;
+    s.moving = false;
+    s.invitedBy = null;
+    battleLeave(this, s);
+    const p = partyOf(this, s);
+    if (p && p.members.length > 1) {
+      this.broadcastToParty(p, { t: 'toast', text: `${s.char.name}の つうしんが とぎれた…\nもどってくるまで オートで たたかうよ` });
+      this.sendParty(p);
+    }
+    this.broadcastPlayers();
+    this.markDirty();
+    this.saveNow();
+  }
+
+  // おなじ キャラクターで つなぎなおした: まえの セッションを そのまま ひきつぐ
+  resumeSession(s, t) {
+    const oldConn = t.conn;
+    if (oldConn && oldConn !== s.conn) {
+      // まえの たんまつ（まだ つながっている）は キャラを えらびなおせるように あたらしい セッションへ
+      this.send(t, { t: 'kicked', text: 'ほかの たんまつで おなじ キャラクターが ログインしました' });
+      const fresh = this.connect(oldConn);
+      fresh.authed = true;
+    }
+    if (s.inWorld) this.leaveWorld(s);
+    t.conn = s.conn;
+    if (s.conn && typeof s.conn === 'object') this.byConn.set(s.conn, t);
+    t.authed = true;
+    t.away = false;
+    t.awayAt = 0;
+    t.posSeq++;
+    this.sessions.delete(s.id);
+    const ctx = t.battleId && this.battles.get(t.battleId);
+    if (ctx) {
+      for (const a of ctx.battle.allies) if (a.controller === t.id) ctx.battle.setAuto(a.id, !!t.char.battleSettings?.auto);
+    }
+    const p = partyOf(this, t);
+    this.send(t, {
+      t: 'enter', sid: t.id, char: t.char, map: t.map, x: t.x, y: t.y, dir: t.dir, posSeq: t.posSeq,
+      party: p ? partyState(this, p) : null, board: this.data.board || [], supportLog: [], serverTime: this.now(),
+      players: this.playerList(t), resumed: true,
+    });
+    if (ctx && !ctx.battle.over) {
+      const mine = Object.entries(ctx.actorMap).filter(([, v]) => v.type === 'human' && v.sid === t.id).map(([k]) => k);
+      this.send(t, { t: 'battleStart', snap: ctx.battle.snapshot(), mine, boss: !!ctx.opts.boss, story: !!ctx.opts.fixed, resume: true });
+    }
+    const run = t.runId && this.runs.get(t.runId);
+    if (run) run.resend(t);
+    if (p && p.members.length > 1) {
+      for (const sid of p.members) if (sid !== t.id) this.send(this.sessions.get(sid), { t: 'toast', text: `${t.char.name}が もどってきた！` });
+      this.sendParty(p);
+    }
+    this.broadcastPlayers();
   }
 
   leaveWorld(s) {
@@ -94,8 +168,10 @@ export class GameWorld {
   }
 
   // ───────────── メッセージ ─────────────
-  handle(s, msg) {
+  handle(s0, msg, conn) {
     if (!msg || typeof msg.t !== 'string') return;
+    const s = this.sessionOf(s0, conn);
+    if (conn && s.conn !== conn) return; // ひきつがれた まえの つなぎからは うけつけない
     // あまりに おおい メッセージは むし
     const now = this.now();
     if (now - s.msgWindow > 1000) {
@@ -128,6 +204,11 @@ export class GameWorld {
       case 'chat': return this.onChat(s, msg);
       case 'explored': return this.onExplored(s, msg);
       case 'warpTo': return this.onMenu(s, { t: 'menu', action: 'useItem', id: 'return_wing', place: msg.place });
+      case 'joinBattle': {
+        const r = joinBattle(this, s, msg.sid);
+        if (!r.ok && r.reason) this.send(s, { t: 'toast', text: r.reason });
+        return;
+      }
     }
   }
 
@@ -180,6 +261,11 @@ export class GameWorld {
   onPlay(s, msg) {
     const c = this.data.characters[msg.id];
     if (!c) return this.send(s, { t: 'error', text: 'キャラクターが みつかりません' });
+    // つなぎなおし（スマホの スリープの あと など）: パーティーも たたかいも そのまま つづける
+    if (!this.offline) {
+      const prev = [...this.sessions.values()].find((o) => o !== s && o.charId === c.id && o.inWorld);
+      if (prev) return this.resumeSession(s, prev);
+    }
     // ほかの たんまつで つかっていたら そちらを おわらせる
     for (const other of this.sessions.values()) {
       if (other !== s && other.charId === c.id && other.inWorld) {
@@ -205,7 +291,7 @@ export class GameWorld {
     const supportLog = c.supportLog || [];
     c.supportLog = [];
     this.send(s, {
-      t: 'enter', sid: s.id, char: c, map: s.map, x: s.x, y: s.y, dir: s.dir,
+      t: 'enter', sid: s.id, char: c, map: s.map, x: s.x, y: s.y, dir: s.dir, posSeq: s.posSeq,
       party: partyState(this, p), board: this.data.board || [], supportLog, serverTime: this.now(),
       players: this.playerList(s),
     });
@@ -223,7 +309,7 @@ export class GameWorld {
   }
 
   playerList(except) {
-    return [...this.sessions.values()].filter((x) => x.inWorld && x !== except).map((x) => ({ sid: x.id, name: x.char.name, level: x.char.level, job: x.char.job, map: x.map, partyId: x.partyId }));
+    return [...this.sessions.values()].filter((x) => x.inWorld && x !== except).map((x) => ({ sid: x.id, name: x.char.name, level: x.char.level, job: x.char.job, map: x.map, partyId: x.partyId, away: !!x.away }));
   }
 
   // ───────────── いどう ─────────────
@@ -261,7 +347,9 @@ export class GameWorld {
     const warp = map.warpAt.get(ty * map.w + tx);
     if (warp) {
       const to = warp.to;
+      const fromMap = s.map, fx = s.x, fy = s.y;
       this.placeSession(s, to.map, to.x, to.y, to.dir, true);
+      this.warpFollowers(s, fromMap, fx, fy, to);
       this.checkTriggers(s, Math.floor(to.x), Math.floor(to.y));
       return;
     }
@@ -272,6 +360,24 @@ export class GameWorld {
         s.char.visited = s.char.visited || {};
         s.char.visited[id] = true;
       }
+    }
+  }
+
+  // リーダーに「ついていく」に している なかまは、でいりぐちも いっしょに とおる
+  warpFollowers(s, fromMap, fx, fy, to) {
+    const p = partyOf(this, s);
+    if (!p || p.leader !== s.id) return;
+    const offs = [[0, 1], [-1, 1], [1, 1], [0, 2]];
+    let i = 0;
+    for (const sid of p.members) {
+      const m = this.sessions.get(sid);
+      if (!m || m === s || !m.follow || m.busy || m.away || !m.inWorld || m.map !== fromMap) continue;
+      if (Math.hypot(m.x - fx, m.y - fy) > 12) continue;
+      const [ox, oy] = offs[i++ % offs.length];
+      const map = MAPS[to.map];
+      let x = to.x + ox, y = to.y + oy;
+      if (isBlocked(map, Math.floor(x), Math.floor(y), () => false)) { x = to.x; y = to.y; }
+      this.placeSession(m, to.map, x, y, to.dir, true);
     }
   }
 
@@ -553,6 +659,14 @@ export class GameWorld {
   tick(dt) {
     // バトル
     for (const ctx of [...this.battles.values()]) battleTick(this, ctx, dt);
+    // つうしんが とぎれた まま もどってこない人
+    const now = this.now();
+    for (const s of [...this.sessions.values()]) {
+      if (s.away && now - s.awayAt > this.awayMs) {
+        this.leaveWorld(s);
+        this.sessions.delete(s.id);
+      }
+    }
     // プレイヤーの むてき時間
     const byMap = new Map();
     for (const s of this.sessions.values()) {
@@ -561,11 +675,11 @@ export class GameWorld {
       if (!byMap.has(s.map)) byMap.set(s.map, []);
       byMap.get(s.map).push(s);
     }
-    // モンスター
+    // モンスター（とぎれている 人は おいかけない）
     for (const [mapId, players] of byMap) {
       const ms = mapState(this, mapId);
       spawnSymbols(this, ms, dt, players);
-      moveSymbols(this, ms, dt, players);
+      moveSymbols(this, ms, dt, players.filter((p) => !p.away));
     }
     // いちを おくる（10かい/びょう）
     this.snapTimer += dt;
@@ -576,7 +690,7 @@ export class GameWorld {
         const syms = symbolSnapshot(ms);
         const ps = players.map((p) => ({
           sid: p.id, name: p.char.name, look: p.char.look, job: p.char.job, x: Math.round(p.x * 100) / 100, y: Math.round(p.y * 100) / 100,
-          dir: p.dir, mv: p.moving ? 1 : 0, b: p.busy === 'battle' ? 1 : 0, pid: p.partyId,
+          dir: p.dir, mv: p.moving ? 1 : 0, b: p.busy === 'battle' ? 1 : 0, pid: p.partyId, aw: p.away ? 1 : 0,
           fl: this.followerLooks(p),
         }));
         for (const p of players) this.send(p, { t: 'snap', map: mapId, players: ps.filter((x) => x.sid !== p.id), syms });

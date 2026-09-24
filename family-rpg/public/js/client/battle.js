@@ -44,7 +44,9 @@ export class BattleScene {
     this.build();
     this.game.audio.play(msg.snap.bgm || (this.boss ? 'boss' : 'battle'), { force: true });
     const names = this.enemyNames();
-    this.say([msg.preemptive === 'ally' ? 'まものは まだ こちらに きづいていない！' : msg.preemptive === 'enemy' ? 'まものたちが いきなり おそいかかってきた！' : `${names}が あらわれた！`]);
+    if (msg.resume) this.say(['つなぎなおした！ たたかいの つづきだ！']);
+    else if (msg.joined) this.say([`${names}との たたかいに かけつけた！`]);
+    else this.say([msg.preemptive === 'ally' ? 'まものは まだ こちらに きづいていない！' : msg.preemptive === 'enemy' ? 'まものたちが いきなり おそいかかってきた！' : `${names}が あらわれた！`]);
   }
 
   enemyNames() {
@@ -86,15 +88,24 @@ export class BattleScene {
     this.resizeCanvas();
     this.onResize = () => this.resizeCanvas();
     addEventListener('resize', this.onResize);
+    // がめんの むきが かわった・もじが よみこまれた ときも あわせる
+    if (window.ResizeObserver) {
+      this.ro = new ResizeObserver(() => this.resizeCanvas());
+      this.ro.observe(this.stage);
+    }
   }
 
+  // たたかいの え を できるだけ おおきく（ドットが そろうように がめんの ほんとうの ピクセルで わりきれる おおきさ）
   resizeCanvas() {
     const r = this.stage.getBoundingClientRect();
-    const k = Math.max(0.5, Math.min(r.width / BW, r.height / BH));
-    const kk = k >= 1 ? Math.floor(k * 2) / 2 : k;
-    this.canvas.style.width = `${Math.floor(BW * kk)}px`;
-    this.canvas.style.height = `${Math.floor(BH * kk)}px`;
-    this.cssK = kk;
+    if (!r.width || !r.height) return;
+    const dpr = window.devicePixelRatio || 1;
+    const kmax = Math.min(r.width / BW, r.height / BH);
+    let k = Math.floor(kmax * dpr) / dpr;
+    if (k < 0.5) k = kmax;
+    this.canvas.style.width = `${Math.round(BW * k)}px`;
+    this.canvas.style.height = `${Math.round(BH * k)}px`;
+    this.cssK = k;
   }
 
   allies() { return [...this.c.values()].filter((c) => c.side === 'ally'); }
@@ -695,6 +706,7 @@ export class BattleScene {
   destroy() {
     this.closeMenus();
     removeEventListener('resize', this.onResize);
+    this.ro?.disconnect();
     this.root.innerHTML = '';
     this.root.hidden = true;
   }

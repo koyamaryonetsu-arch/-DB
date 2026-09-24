@@ -35,19 +35,23 @@ export class FieldMenu {
     const g = this.game;
     if (this.root) return;
     g.menuOpen = true;
-    this.root = el('div', { class: 'panel', style: { left: '50%', top: '50%', transform: 'translate(-50%, -50%)', width: 'min(96vw, 900px)' } });
-    const head = el('div', { class: 'win', style: { display: 'flex', justifyContent: 'space-between', marginBottom: '6px', gap: '1em', flexWrap: 'wrap' } });
+    // そとを タップしても とじる
+    this.backdrop = el('div', { class: 'modal-back', onclick: () => this.closeByUser() });
+    this.root = el('div', { class: 'panel fmenu-panel' });
+    const head = el('div', { class: 'win fm-head' });
     this.headL = el('span', { class: 'gold' });
-    this.headR = el('span');
-    head.append(this.headL, this.headR);
+    this.headR = el('span', { class: 'fm-stat' });
+    const closeBtn = el('button', { class: 'btn closebtn', text: '✕ とじる', 'aria-label': 'メニューを とじる', onclick: () => this.closeByUser() });
+    head.append(this.headL, this.headR, closeBtn);
     this.side = el('div', { class: 'win side' });
     this.main = el('div', { class: 'win main scroll' });
     this.root.append(head, el('div', { class: 'fmenu' }, this.side, this.main));
-    document.getElementById('ui').append(this.root);
+    document.getElementById('ui').append(this.backdrop, this.root);
     this.updateHead();
     this.menu = new ListMenu(g.input, {
       items: MAIN,
       sound: this.sfx,
+      back: null,
       onMove: (it) => this.preview(it.value),
       onSelect: (it) => this.select(it.value),
       onCancel: () => this.close(),
@@ -67,8 +71,17 @@ export class FieldMenu {
     this.sub?.blur();
     this.menu?.blur();
     this.root?.remove();
+    this.backdrop?.remove();
     this.root = null;
+    this.backdrop = null;
     this.game.menuOpen = false;
+  }
+
+  // ✕ボタン・そとを タップ（えらんでいる とちゅうの ウィンドウが あれば そちらが さき）
+  closeByUser() {
+    if (this.popupOpen) return;
+    this.game.audio.sfx('cancel');
+    this.close();
   }
 
   refresh() {
@@ -206,19 +219,25 @@ export class FieldMenu {
   pick(title, items) {
     const g = this.game;
     return new Promise((resolve) => {
-      const box = el('div', { class: 'win panel center-panel', style: { width: 'min(80vw, 380px)', zIndex: 5 } }, el('div', { class: 'small gold', text: title }));
+      const hasCancel = items.some((i) => i.value === null || i.value === 'cancel');
+      const back = el('div', { class: 'modal-back', style: { zIndex: 4 }, onclick: () => { this.sfx('cancel'); done(null); } });
+      const box = el('div', { class: 'win panel center-panel', style: { width: 'min(86vw, 380px)', zIndex: 5 } }, el('div', { class: 'small gold', text: title }));
       const m = new ListMenu(g.input, {
         items,
         sound: this.sfx,
+        back: hasCancel ? null : 'やめる',
         onSelect: (it) => done(it.value),
         onCancel: () => done(null),
       });
       box.append(m.root);
-      document.getElementById('ui').append(box);
+      document.getElementById('ui').append(back, box);
+      this.popupOpen = true;
       m.focus();
       const done = (v) => {
         m.blur();
+        back.remove();
         box.remove();
+        this.popupOpen = false;
         resolve(v);
       };
     });
@@ -387,11 +406,11 @@ export class FieldMenu {
     for (const gu of p?.guests || []) rows.push(el('div', { class: 'kv' }, el('span', { text: `　${gu.name}` }), el('span', { class: 'small muted', text: 'ゲスト' })));
     box.append(...rows);
     if (!active) {
-      box.append(el('div', { class: 'detail', text: 'あそんでいる かぞくを パーティーに さそえるよ。サポートなかまは 酒場で やとえる。' }));
+      box.append(el('div', { class: 'detail', text: 'あそんでいる かぞくを パーティーに さそえるよ。サポートなかまは 酒場で やとえる。\nちかくに いる なかまは いっしょに たたかう。はなれている なかまも、たたかっている ところへ かけつけると とちゅうから さんか できるよ。' }));
       return box;
     }
     const acts = [];
-    const others = (g.players || []).filter((x) => x.sid !== g.sid && x.partyId !== p?.id);
+    const others = (g.players || []).filter((x) => x.sid !== g.sid && x.partyId !== p?.id && !x.away);
     if (iAmLeader) for (const o of others) acts.push({ label: `${o.name}を さそう`, value: { a: 'invite', sid: o.sid } });
     if (iAmLeader) for (const s of p?.supports || []) acts.push({ label: `${s.name}と わかれる`, value: { a: 'dismiss', key: s.key } });
     if (iAmLeader) for (const m of p?.members || []) if (m.sid !== g.sid) acts.push({ label: `${m.name}を リーダーに する`, value: { a: 'leader', sid: m.sid } });
@@ -480,10 +499,19 @@ export class FieldMenu {
       { label: `こうかおん：${vol(g.audio.sfxVol)}`, value: 'sfx' },
       { label: `もじの おおきさ：${document.body.classList.contains('big-text') ? 'おおきい' : 'ふつう'}`, value: 'text' },
     ];
+    if (g.input.touch) {
+      items.push({ label: `あそんでいる あいだ がめんを けさない：${g.awakeOn ? 'ON' : 'OFF'}`, value: 'awake' });
+      if (navigator.audioSession) items.push({ label: `マナーモードでも おとを だす：${g.audio.silentPlay ? 'ON' : 'OFF'}`, value: 'silent' });
+    }
     const box = el('div');
     if (!active) {
       for (const it of items) box.append(el('div', { text: it.label }));
-      box.append(el('div', { class: 'detail', text: 'そうさ: やじるし/WASDで いどう、Z/Enterで はなす・けってい、X/Escで メニュー・もどる、Mで マップ、Cで チャット' }));
+      box.append(el('div', {
+        class: 'detail',
+        text: g.input.touch
+          ? 'そうさ: ひだりしたの スティックで いどう、Aで はなす・けってい、Bで メニュー。メニューは みぎうえの「✕ とじる」か、そとを タップで とじる'
+          : 'そうさ: やじるし/WASDで いどう、Z/Enterで はなす・けってい、X/Escで メニュー・もどる、Mで マップ、Cで チャット',
+      }));
       return box;
     }
     const m = this.mkSub({
@@ -503,11 +531,16 @@ export class FieldMenu {
         } else if (it.value === 'text') {
           document.body.classList.toggle('big-text');
           try { localStorage.setItem('kizuna_bigtext', document.body.classList.contains('big-text') ? '1' : ''); } catch { /* */ }
+        } else if (it.value === 'awake') {
+          g.awakeOn = !g.awakeOn;
+        } else if (it.value === 'silent') {
+          g.audio.silentPlay = !g.audio.silentPlay;
+          g.audio.sfx('confirm');
         }
         setTimeout(() => { if (this.root) this.focusSub(this.settingsView(true)); }, 200);
       },
     });
-    box.append(m.root, el('div', { class: 'detail', text: 'ウェイトを ON に すると、コマンドを えらぶ あいだ たたかいの じかんが とまるよ（ちいさい こどもに おすすめ）' }));
+    box.append(m.root, el('div', { class: 'detail', text: 'ウェイトを ON に すると、コマンドを えらぶ あいだ たたかいの じかんが とまるよ（ちいさい こどもに おすすめ）' + (g.input.touch ? '\nがめんが きえると 家族との つうしんが とぎれやすいので「がめんを けさない」は ON が おすすめ' : '') }));
     return box;
   }
 }
@@ -570,18 +603,25 @@ export function renderMiniMap(game, canvas, full = false) {
 }
 
 export function openWorldMap(game) {
+  if (document.querySelector('.worldmap')) return;
+  const back = el('div', { class: 'modal-back' });
   const box = el('div', { class: 'win panel center-panel worldmap', style: { width: 'auto', maxWidth: '96vw' } });
   const cv = makeCanvas(10, 10);
-  box.append(el('div', { class: 'gold', text: game.field.map.name }), cv, el('div', { class: 'small muted', text: 'あかい てん: じぶん　きいろ: パーティー　あお: かぞく　（B/Xで とじる）' }));
-  document.getElementById('ui').append(box);
+  const head = el('div', { class: 'wm-head' }, el('span', { class: 'gold', text: game.field.map.name }),
+    el('button', { class: 'btn closebtn', text: '✕ とじる', 'aria-label': 'ちずを とじる' }));
+  box.append(head, cv, el('div', { class: 'small muted', text: `あかい てん: じぶん　きいろ: パーティー　あお: かぞく　（${game.input.touch ? 'タップで とじる' : 'B/Xで とじる'}）` }));
+  document.getElementById('ui').append(back, box);
   renderMiniMap(game, cv, true);
   const iv = setInterval(() => renderMiniMap(game, cv, true), 400);
   const h = { onNav: (a) => { if (a === 'b' || a === 'a' || a === 'map') close(); } };
   const close = () => {
     clearInterval(iv);
     game.input.pop(h);
+    back.remove();
     box.remove();
+    game.audio.sfx('cancel');
   };
   box.addEventListener('click', close);
+  back.addEventListener('click', close);
   game.input.push(h);
 }

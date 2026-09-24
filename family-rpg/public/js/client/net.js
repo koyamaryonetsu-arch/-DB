@@ -17,6 +17,9 @@ export class Net {
       net.mode = 'server';
       net.family = server.family;
       net.connectWS();
+      // iPhone: アプリに もどってきたら すぐに つなぎなおす（きれた つなぎが のこっている ことも ある）
+      document.addEventListener('visibilitychange', () => net.onVisible());
+      addEventListener('pageshow', () => net.onVisible());
     } else {
       net.mode = 'offline';
       const { startOffline } = await import('./offline.js');
@@ -69,6 +72,7 @@ export class Net {
       this.deliver({ t: '_open' });
     };
     ws.onmessage = (e) => {
+      this.lastMsgAt = Date.now();
       let msg;
       try {
         msg = JSON.parse(e.data);
@@ -83,12 +87,37 @@ export class Net {
       this.deliver({ t: '_close' });
       const wait = Math.min(8000, 800 * 2 ** (this.retry || 0));
       this.retry = (this.retry || 0) + 1;
-      setTimeout(() => this.connectWS(), wait);
+      clearTimeout(this.retryTimer);
+      this.retryTimer = setTimeout(() => this.connectWS(), wait);
     };
     ws.onerror = () => {};
     // こまめに ping（スマホの スリープ たいさく）
     clearInterval(this.pingTimer);
     this.pingTimer = setInterval(() => this.send({ t: 'ping', at: Date.now() }), 10000);
+  }
+
+  onVisible() {
+    if (document.hidden || this.mode !== 'server') return;
+    const ws = this.ws;
+    if (!ws || ws.readyState >= 2) {
+      clearTimeout(this.retryTimer);
+      this.retry = 0;
+      this.connectWS();
+      return;
+    }
+    if (ws.readyState !== 1) return;
+    // へんじが なければ きれている → すぐ つなぎなおす
+    const at = Date.now();
+    this.send({ t: 'ping', at });
+    setTimeout(() => {
+      if (this.ws !== ws || (this.lastMsgAt || 0) >= at) return;
+      this.ws = null;
+      try { ws.close(); } catch { /* */ }
+      this.setStatus('lost');
+      this.deliver({ t: '_close' });
+      this.retry = 0;
+      this.connectWS();
+    }, 3500);
   }
 }
 

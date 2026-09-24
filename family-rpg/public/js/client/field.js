@@ -66,6 +66,7 @@ export class Field {
     this.touchCooldown = new Map();
     this.hideGuests = false;
     this.scriptHidden = new Set(); // イベント中に けした NPC（マップを かえると もどる）
+    this.leaderCrumbs = [];
     this.darkCanvas = makeCanvas(64, 64);
     this.roofCache = new Map();
     this.time = 0;
@@ -97,6 +98,7 @@ export class Field {
     this.me.y = y;
     this.me.dir = dir || this.me.dir;
     this.me.trail = [];
+    this.leaderCrumbs = [];
     if (changed) {
       this.scriptHidden.clear();
       this.syms.clear();
@@ -170,15 +172,11 @@ export class Field {
     let { x: ix, y: iy } = controls.dir;
     const canMove = controls.canMove;
     if (!canMove) { ix = 0; iy = 0; }
-    // ついていく
+    // ついていく（リーダーの とおった みちを たどる）
     if (canMove && ix === 0 && iy === 0 && this.game.follow) {
-      const leader = this.leaderPos();
-      if (leader) {
-        const dx = leader.x - me.x, dy = leader.y - me.y;
-        const d = Math.hypot(dx, dy);
-        if (d > 1.3 && d < 30) { ix = dx / d; iy = dy / d; }
-      }
-    }
+      const d = this.followStep(dt);
+      if (d) { ix = d.x; iy = d.y; }
+    } else this.followStuck = 0;
     const mag = Math.min(1, Math.hypot(ix, iy));
     me.moving = mag > 0.05;
     if (me.moving) {
@@ -222,8 +220,11 @@ export class Field {
       this.lastSent = { x: me.x, y: me.y, moving: me.moving };
       this.game.net.send({ t: 'move', x: +me.x.toFixed(3), y: +me.y.toFixed(3), dir: me.dir, moving: me.moving, seq: this.game.posSeq, follow: !!this.game.follow });
     }
-    // モンスターに ふれた？
-    if (canMove) this.checkTouch();
+    // モンスターに ふれた？・たたかっている なかまの ところに きた？
+    if (canMove) {
+      this.checkJoin();
+      this.checkTouch();
+    }
     this.reveal();
     if (this.shakeT > 0) this.shakeT -= dt;
   }
@@ -268,6 +269,79 @@ export class Field {
     if (!p || p.leader === this.game.sid) return null;
     const o = this.others.get(p.leader);
     return o || null;
+  }
+
+  // リーダーの とおった ばしょ（パンくず）を たどって あるく。つまったら みちを さがす
+  followStep(dt) {
+    const leader = this.leaderPos();
+    const tr = this.leaderCrumbs;
+    const me = this.me;
+    if (!leader) { tr.length = 0; return null; }
+    // リーダーが たたかっていても そばへ いく（ちかづけば とちゅうから さんか）
+    const dl = Math.hypot(leader.x - me.x, leader.y - me.y);
+    if (dl < 1.4) { tr.length = 0; this.followStuck = 0; return null; }
+    if (dl > 45) return null;
+    // もう とおりすぎた パンくずは すてる
+    let k = -1;
+    for (let i = tr.length - 1; i >= 0; i--) if (Math.hypot(tr[i].x - me.x, tr[i].y - me.y) < 0.55) { k = i; break; }
+    if (k >= 0) tr.splice(0, k + 1);
+    // つまっている？
+    const moved = this.followLast ? Math.hypot(me.x - this.followLast.x, me.y - this.followLast.y) : 1;
+    this.followLast = { x: me.x, y: me.y };
+    this.followStuck = moved < 0.01 ? (this.followStuck || 0) + dt : 0;
+    if (this.followStuck > 450) {
+      this.followStuck = 0;
+      const path = this.findPath(Math.floor(me.x), Math.floor(me.y), Math.floor(leader.x), Math.floor(leader.y));
+      if (path) tr.splice(0, tr.length, ...path.slice(1).map(([x, y]) => ({ x: x + 0.5, y: y + 0.5 })));
+    }
+    const t = tr[0] || leader;
+    const dx = t.x - me.x, dy = t.y - me.y;
+    const d = Math.hypot(dx, dy) || 1;
+    return { x: dx / d, y: dy / d };
+  }
+
+  // タイルの みちさがし（ちかい ところ だけ）
+  findPath(sx, sy, tx, ty, limit = 2500) {
+    const w = this.map.w;
+    const key = (x, y) => y * w + x;
+    const prev = new Map([[key(sx, sy), null]]);
+    const q = [[sx, sy]];
+    let head = 0;
+    while (head < q.length && prev.size < limit) {
+      const [x, y] = q[head++];
+      if (x === tx && y === ty) {
+        const out = [];
+        let c = [x, y];
+        while (c) { out.unshift(c); c = prev.get(key(c[0], c[1])); }
+        return out;
+      }
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        const nx = x + dx, ny = y + dy;
+        if (nx < 0 || ny < 0 || nx >= w || ny >= this.map.h) continue;
+        const k = key(nx, ny);
+        if (prev.has(k)) continue;
+        if (!(nx === tx && ny === ty) && this.solidAt(nx, ny)) continue;
+        prev.set(k, [x, y]);
+        q.push([nx, ny]);
+      }
+    }
+    return null;
+  }
+
+  // たたかっている なかまに ちかづいたら さんかする
+  checkJoin() {
+    const myParty = this.game.party?.id;
+    if (!myParty) return;
+    const now = performance.now();
+    if (now < (this.joinCooldown || 0)) return;
+    for (const o of this.others.values()) {
+      if (!o.battle || o.partyId !== myParty) continue;
+      if (Math.hypot(o.x - this.me.x, o.y - this.me.y) < 2.0) {
+        this.joinCooldown = now + 1500;
+        this.game.net.send({ t: 'joinBattle', sid: o.sid });
+        return;
+      }
+    }
   }
 
   checkTouch() {
@@ -361,7 +435,16 @@ export class Field {
         o = { sid: p.sid, x: p.x, y: p.y, trail: [] };
         this.others.set(p.sid, o);
       }
-      Object.assign(o, { name: p.name, look: p.look, job: p.job, tx: p.x, ty: p.y, dir: p.dir, moving: !!p.mv, battle: !!p.b, partyId: p.pid, fl: p.fl || [] });
+      Object.assign(o, { name: p.name, look: p.look, job: p.job, tx: p.x, ty: p.y, dir: p.dir, moving: !!p.mv, battle: !!p.b, away: !!p.aw, partyId: p.pid, fl: p.fl || [] });
+      // リーダーの とおった みちを おぼえる（ついていく ため）
+      if (this.game.follow && p.sid === this.game.party?.leader) {
+        const tr = this.leaderCrumbs;
+        const last = tr[tr.length - 1];
+        if (!last || Math.hypot(last.x - p.x, last.y - p.y) > 0.5) {
+          tr.push({ x: p.x, y: p.y });
+          if (tr.length > 240) tr.shift();
+        }
+      }
     }
     for (const sid of [...this.others.keys()]) if (!seen.has(sid)) this.others.delete(sid);
     const seenS = new Set();
@@ -614,13 +697,44 @@ export class Field {
   drawPlayer(o, camX, camY, look, job, mine = false) {
     if (!look) return;
     const c = playerSprite(look, job, o.dir || 'down', this.walkFrame(o.moving));
+    const ctx = this.ctx;
+    const myParty = this.game.party?.id;
+    // なかまが たたかっている: あしもとに ひかる わ（ちかづくと さんか できる）
+    if (o.battle && !mine && o.partyId === myParty) {
+      const px = o.x * TS - camX, py = o.y * TS - camY;
+      const r = 13 + Math.sin(this.time / 160) * 2;
+      ctx.save();
+      ctx.strokeStyle = 'rgba(255, 214, 107, 0.9)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.ellipse(Math.round(px), Math.round(py - 1), r, r * 0.45, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    }
+    if (o.away) ctx.globalAlpha = 0.45;
     this.drawAt(c, o.x, o.y, camX, camY);
+    ctx.globalAlpha = 1;
     if (o.battle) {
+      // ⚔ の しるし
+      const px = Math.round(o.x * TS - camX), py = Math.round(o.y * TS - 27 - camY);
+      ctx.fillStyle = '#1b1330';
+      ctx.fillRect(px - 5, py - 5, 11, 11);
+      ctx.fillStyle = '#ffd66b';
+      for (let i = -3; i <= 3; i++) {
+        ctx.fillRect(px + i, py + i, 1, 1);
+        ctx.fillRect(px - i, py + i, 1, 1);
+      }
+      ctx.fillStyle = '#d9534f';
+      ctx.fillRect(px - 4, py + 2, 2, 2);
+      ctx.fillRect(px + 3, py + 2, 2, 2);
+    } else if (o.away) {
       const px = Math.round(o.x * TS - camX), py = Math.round(o.y * TS - 26 - camY);
-      this.ctx.fillStyle = '#ffd66b';
-      this.ctx.fillRect(px - 3, py - 3, 6, 6);
-      this.ctx.fillStyle = '#d9534f';
-      this.ctx.fillRect(px - 1, py - 2, 2, 4);
+      const bob = Math.floor(this.time / 500) % 2;
+      ctx.fillStyle = '#c9d4ff';
+      ctx.fillRect(px + 2, py - bob, 4, 1);
+      ctx.fillRect(px + 4, py + 1 - bob, 1, 1);
+      ctx.fillRect(px + 3, py + 2 - bob, 1, 1);
+      ctx.fillRect(px + 2, py + 3 - bob, 4, 1);
     }
   }
 
@@ -750,7 +864,11 @@ export class Field {
       e.style.top = `${(y * TS - 22 - camY) * s}px`;
     };
     const myParty = this.game.party?.id;
-    for (const o of this.others.values()) put('p:' + o.sid, o.name, o.x, o.y, o.partyId === myParty ? 'party' : '');
+    for (const o of this.others.values()) {
+      const mate = o.partyId === myParty;
+      const text = o.away ? `${o.name}（つうしんまち）` : o.battle && mate ? `${o.name}（たたかいちゅう！ちかづくと さんか）` : o.name;
+      put('p:' + o.sid, text, o.x, o.y, mate ? 'party' : '');
+    }
     for (const [key, e] of this.labels) if (!alive.has(key)) { e.remove(); this.labels.delete(key); }
     // ふきだし
     const now = performance.now();

@@ -10,6 +10,7 @@ export class ScriptPlayer {
     this.game = game;
     this.queue = [];
     this.running = false;
+    this.gen = 0;
   }
 
   enqueue(msg) {
@@ -18,6 +19,7 @@ export class ScriptPlayer {
   }
 
   async run() {
+    const gen = this.gen;
     this.running = true;
     this.game.busy = true;
     while (this.queue.length) {
@@ -25,6 +27,7 @@ export class ScriptPlayer {
       let choice;
       for (const step of msg.steps) {
         const r = await this.step(step, msg);
+        if (gen !== this.gen) return; // とちゅうで リセットされた
         if (step[0] === 'choice') choice = r;
       }
       if (!msg.spectator) this.game.net.send({ t: 'ack', runId: msg.runId, choice });
@@ -32,6 +35,15 @@ export class ScriptPlayer {
     this.running = false;
     this.closeDialog();
     if (this.game.scriptEnded) this.game.endScript();
+  }
+
+  // つなぎなおした ときなど: いま とちゅうの だいほんを すてる
+  reset() {
+    this.gen += 1;
+    this.queue = [];
+    this.running = false;
+    this.advance = null;
+    this.closeDialog();
   }
 
   fill(text, msg) {
@@ -109,7 +121,9 @@ export class ScriptPlayer {
       this.dlgMore = el('div', { class: 'more', text: '▼' });
       this.dlg.append(this.dlgSpeaker, this.dlgText, this.dlgMore);
       this.dlg.addEventListener('click', () => this.advance?.());
-      document.getElementById('ui').append(this.dlg);
+      // がめんの どこを タップしても すすむ（スマホで ゆびが とどきやすいように）
+      this.catcher = el('div', { class: 'talk-catcher', onclick: () => this.advance?.() });
+      document.getElementById('ui').append(this.catcher, this.dlg);
       document.body.classList.add('talking');
     }
     return this.dlg;
@@ -117,7 +131,9 @@ export class ScriptPlayer {
 
   closeDialog() {
     this.dlg?.remove();
+    this.catcher?.remove();
     this.dlg = null;
+    this.catcher = null;
     document.body.classList.remove('talking');
   }
 
@@ -177,6 +193,7 @@ export class ScriptPlayer {
       const menu = new ListMenu(g.input, {
         items: options.map((o, i) => ({ label: o, value: i })),
         sound: (s) => g.audio.sfx(s),
+        back: null,
         onSelect: (it) => finish(it.value),
         onCancel: () => finish(options.length - 1),
       });

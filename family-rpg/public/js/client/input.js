@@ -19,6 +19,15 @@ export class Input {
     this.bindKeys();
     this.bindTouch();
     if (this.touch) document.body.classList.add('touch');
+    // iPhone: ピンチで がめんが かくだい されないように
+    for (const ev of ['gesturestart', 'gesturechange', 'gestureend']) {
+      document.addEventListener(ev, (e) => e.preventDefault(), { passive: false });
+    }
+  }
+
+  // タッチの ボタンが かくれた ときなど（ゆびを はなした あつかい）
+  releaseTouch() {
+    this.endStick?.();
   }
 
   // メニューなどが じぶんの ハンドラーを のせる
@@ -87,17 +96,19 @@ export class Input {
     let origin = null;
     const R = 50;
     const field = document.getElementById('field');
+    // スティックは ひだりしたに こていする（ゆびが すこし はずれても うごかせる）
+    const stickCenter = () => {
+      const r = stickEl.getBoundingClientRect();
+      return { x: r.left + r.width / 2, y: r.top + r.height / 2, r: r.width / 2 };
+    };
+    const nearStick = (t) => {
+      const c = stickCenter();
+      return Math.hypot(t.clientX - c.x, t.clientY - c.y) < c.r * 1.9;
+    };
     const startStick = (t) => {
       stickId = t.identifier;
-      const r = stickEl.getBoundingClientRect();
-      origin = { x: r.left + r.width / 2, y: r.top + r.height / 2 };
-      // ひだりはんぶんを さわったら そこに スティックを うごかす
-      if (t.clientX < innerWidth * 0.5 && Math.hypot(t.clientX - origin.x, t.clientY - origin.y) > 80) {
-        origin = { x: t.clientX, y: t.clientY };
-        stickEl.style.left = `${t.clientX - r.width / 2}px`;
-        stickEl.style.top = `${t.clientY - r.height / 2}px`;
-        stickEl.style.bottom = 'auto';
-      }
+      origin = stickCenter();
+      stickEl.classList.add('on');
       moveStick(t);
     };
     const moveStick = (t) => {
@@ -125,13 +136,12 @@ export class Input {
       knob.style.transform = '';
       this.stick = { x: 0, y: 0, active: false };
       this.stickNav = null;
-      stickEl.style.left = '';
-      stickEl.style.top = '';
-      stickEl.style.bottom = '';
+      stickEl.classList.remove('on');
     };
+    this.endStick = endStick;
     field.addEventListener('touchstart', (e) => {
       for (const t of e.changedTouches) {
-        if (stickId === null && t.clientX < innerWidth * 0.55) startStick(t);
+        if (stickId === null && nearStick(t)) startStick(t);
       }
       e.preventDefault();
     }, { passive: false });

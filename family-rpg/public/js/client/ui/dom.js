@@ -26,8 +26,9 @@ export function esc(s) {
 
 // ───────────── えらぶ メニュー ─────────────
 // items: [{label, right, disabled, value, cls, title}]
+// back: タッチでも もどれるように リストの うえに だす ボタンの もじ（null で なし）
 export class ListMenu {
-  constructor(input, { items = [], cols = 1, onSelect, onCancel, onMove, sound, className = '' } = {}) {
+  constructor(input, { items = [], cols = 1, onSelect, onCancel, onMove, sound, className = '', back } = {}) {
     this.input = input;
     this.items = items;
     this.cols = cols;
@@ -35,6 +36,7 @@ export class ListMenu {
     this.onCancel = onCancel;
     this.onMove = onMove;
     this.sound = sound;
+    this.back = back === undefined ? (onCancel ? 'もどる' : null) : back;
     this.idx = Math.max(0, items.findIndex((i) => !i.disabled));
     if (this.idx < 0) this.idx = 0;
     this.root = el('ul', { class: `menu ${cols === 2 ? 'cols2' : ''} ${className}`, role: 'listbox' });
@@ -77,7 +79,26 @@ export class ListMenu {
       if (it.right !== undefined && it.right !== null && it.right !== '') li.append(el('span', { class: `r ${it.rightCls || ''}`, text: it.right }));
       this.root.append(li);
     });
+    // さいごに つけるが、みためは いちばん うえ（CSS の order）。ばんごうが ずれないように
+    if (this.back && this.onCancel) {
+      this.root.append(el('li', {
+        class: 'backchip',
+        role: 'button',
+        'aria-label': this.back,
+        text: this.back === 'とじる' ? '✕ とじる' : `← ${this.back}`,
+        onclick: (e) => {
+          e.stopPropagation();
+          this.cancel();
+        },
+      }));
+    }
     this.scrollToSel();
+  }
+
+  cancel() {
+    if (!this.onCancel) return;
+    this.sound?.('cancel');
+    this.onCancel();
   }
 
   updateSel() {
@@ -127,12 +148,7 @@ export class ListMenu {
       case 'left': if (this.cols > 1) step(-1); break;
       case 'right': if (this.cols > 1) step(1); break;
       case 'a': this.choose(); break;
-      case 'b':
-        if (this.onCancel) {
-          this.sound?.('cancel');
-          this.onCancel();
-        }
-        break;
+      case 'b': this.cancel(); break;
       default:
     }
   }
@@ -161,7 +177,8 @@ export function toast(text, ms = 3200) {
 export function askText(input, { title, placeholder = '', max = 40, initial = '', numeric = false } = {}) {
   return new Promise((resolve) => {
     const ui = document.getElementById('ui');
-    const back = el('div', { class: 'modal-back' });
+    // そとを タップしたら キーボードを しまうだけ（かいた もじは きえない）
+    const back = el('div', { class: 'modal-back', onclick: () => field.blur() });
     const field = el('input', { class: 'textin', type: 'text', maxlength: String(max), placeholder, value: initial, inputmode: numeric ? 'numeric' : null, autocomplete: 'off', enterkeyhint: 'done' });
     const done = (v) => {
       input.pop(h);
@@ -189,10 +206,11 @@ export function askText(input, { title, placeholder = '', max = 40, initial = ''
 export function confirmBox(input, text, yes = 'はい', no = 'いいえ', sound) {
   return new Promise((resolve) => {
     const ui = document.getElementById('ui');
-    const back = el('div', { class: 'modal-back' });
+    const back = el('div', { class: 'modal-back', onclick: () => finish(false) });
     const menu = new ListMenu(input, {
       items: [{ label: yes, value: true }, { label: no, value: false }],
       sound,
+      back: null,
       onSelect: (it) => finish(it.value),
       onCancel: () => finish(false),
     });

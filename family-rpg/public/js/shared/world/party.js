@@ -147,7 +147,7 @@ export function partyState(world, p) {
       const m = world.sessions.get(sid);
       if (!m) return null;
       const st = computeStats(m.char);
-      return { sid, charId: m.charId, name: m.char.name, job: m.char.job, level: m.char.level, hp: m.char.hp, maxHp: st.maxHp, mp: m.char.mp, maxMp: st.maxMp, look: m.char.look, map: m.map, follow: !!m.follow };
+      return { sid, charId: m.charId, name: m.char.name, job: m.char.job, level: m.char.level, hp: m.char.hp, maxHp: st.maxHp, mp: m.char.mp, maxMp: st.maxMp, look: m.char.look, map: m.map, follow: !!m.follow, away: !!m.away };
     }).filter(Boolean),
     supports: p.supports.map((x) => {
       const st = computeStats(x.char);

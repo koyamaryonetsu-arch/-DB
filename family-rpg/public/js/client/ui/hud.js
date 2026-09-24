@@ -53,10 +53,10 @@ export class Hud {
     const c = g.me;
     if (!c) return;
     this.party.innerHTML = '';
-    const add = (name, lv, job, hp, maxHp, mp, maxMp, tag) => {
-      const box = el('div', { class: `win hud-mem ${hp <= 0 ? 'dead' : ''}` },
+    const add = (name, lv, job, hp, maxHp, mp, maxMp, tag, away = false) => {
+      const box = el('div', { class: `win hud-mem ${hp <= 0 ? 'dead' : ''} ${away ? 'away' : ''}` },
         el('div', { class: 'nm' }, el('span', { text: name }), el('span', { class: 'lv', text: `${JOBS[job]?.name?.slice(0, 2) || ''}${lv}` })),
-        el('div', { class: 'small', text: `H${hp} M${mp}` }),
+        el('div', { class: 'small', text: away ? 'つうしんまち…' : `H${hp} M${mp}` }),
         bar(hp / Math.max(1, maxHp)), bar(mp / Math.max(1, maxMp), 'mp'));
       if (tag) box.title = tag;
       this.party.append(box);
@@ -64,7 +64,7 @@ export class Hud {
     const st = computeStats(c);
     add(c.name, c.level, c.job, c.hp, st.maxHp, c.mp, st.maxMp);
     const p = g.party;
-    for (const m of p?.members || []) if (m.sid !== g.sid) add(m.name, m.level, m.job, m.hp, m.maxHp, m.mp, m.maxMp, 'かぞく');
+    for (const m of p?.members || []) if (m.sid !== g.sid) add(m.name, m.level, m.job, m.hp, m.maxHp, m.mp, m.maxMp, 'かぞく', m.away);
     for (const s of p?.supports || []) add(s.name, s.level, s.job, s.hp, s.maxHp, s.mp, s.maxMp, 'サポート');
     for (const gu of p?.guests || []) add(gu.name, gu.level, gu.job, gu.hp, gu.maxHp, 0, 1, 'ゲスト');
   }
@@ -91,10 +91,12 @@ export class Hud {
   stampMenu() {
     const g = this.game;
     if (this.stampBox) return;
-    const box = el('div', { class: 'win panel', style: { right: '12px', top: '40%', width: 'min(70vw, 300px)' } });
+    const back = el('div', { class: 'modal-back', style: { background: 'transparent' }, onclick: () => { g.audio.sfx('cancel'); close(); } });
+    const box = el('div', { class: 'win panel stamp-panel' });
     const m = new ListMenu(g.input, {
       items: STAMPS.map((s) => ({ label: s, value: s })),
       cols: 2,
+      back: 'とじる',
       sound: (x) => g.audio.sfx(x),
       onSelect: (it) => {
         g.net.send({ t: 'chat', stamp: it.value });
@@ -103,11 +105,12 @@ export class Hud {
       onCancel: () => close(),
     });
     box.append(m.root);
-    document.getElementById('ui').append(box);
+    document.getElementById('ui').append(back, box);
     this.stampBox = box;
     m.focus();
     const close = () => {
       m.blur();
+      back.remove();
       box.remove();
       this.stampBox = null;
     };

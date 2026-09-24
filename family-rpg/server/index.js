@@ -157,14 +157,14 @@ server.on('upgrade', (req, socket, head) => {
         }
       }
       try {
-        world.handle(session, msg);
+        world.handle(session, msg, conn);
       } catch (e) {
         console.error('message error', e);
       }
     });
     ws.on('close', () => {
       sockets.delete(ws);
-      world.disconnect(session);
+      world.disconnect(session, conn);
     });
   });
 });

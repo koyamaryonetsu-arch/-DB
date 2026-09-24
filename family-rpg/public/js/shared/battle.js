@@ -72,6 +72,14 @@ export class Battle {
     return c;
   }
 
+  // たたかいの とちゅうから なかまが かけつける
+  joinAlly(init) {
+    const c = this.addAlly(init);
+    c.atb = this.rng.float(0, 40);
+    this.emit({ t: 'msg', lines: [`${c.name}が かけつけた！`], joined: [pub(c)], dur: 900 });
+    return c;
+  }
+
   addEnemies(list) {
     // list: ['pururin', 'pururin', 'goblin']
     const counts = {};

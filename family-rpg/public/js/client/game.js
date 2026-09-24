@@ -35,6 +35,44 @@ export class Game {
     net.on((m) => this.onMessage(m));
     net.onStatus((s) => this.hud.setConnection(s));
     try { if (localStorage.getItem('kizuna_bigtext')) document.body.classList.add('big-text'); } catch { /* */ }
+    // iPhone: さわったら おとを もどす・もどってきたら がめんを つけたままに する
+    const kick = () => this.audio.resumeIfNeeded();
+    addEventListener('touchend', kick, { passive: true });
+    addEventListener('pointerup', kick);
+    addEventListener('keydown', kick);
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) return;
+      this.audio.resumeIfNeeded();
+      if (this.inWorld) this.keepAwake(true);
+    });
+  }
+
+  get inWorld() {
+    return !!this.me && ['field', 'battle', 'battle-intro'].includes(this.state);
+  }
+
+  // がめんが きえないように する（せっていで OFF に できる）
+  get awakeOn() {
+    try { return localStorage.getItem('kizuna_awake') !== 'off'; } catch { return true; }
+  }
+
+  set awakeOn(on) {
+    try { localStorage.setItem('kizuna_awake', on ? 'on' : 'off'); } catch { /* */ }
+    this.keepAwake(on && this.inWorld);
+  }
+
+  async keepAwake(on) {
+    try {
+      if (on && this.awakeOn && !this.wakeLock && navigator.wakeLock && !document.hidden) {
+        const lock = await navigator.wakeLock.request('screen');
+        this.wakeLock = lock;
+        lock.addEventListener('release', () => { if (this.wakeLock === lock) this.wakeLock = null; });
+      } else if (!on && this.wakeLock) {
+        const lock = this.wakeLock;
+        this.wakeLock = null;
+        await lock.release();
+      }
+    } catch { /* ゆるされない ときは なにも しない */ }
   }
 
   start() {
@@ -71,7 +109,10 @@ export class Game {
   frame(dt) {
     this.input.update();
     const inField = this.state === 'field';
-    document.getElementById('touch').hidden = !(inField && this.input.touch && !this.menuOpen);
+    const touchEl = document.getElementById('touch');
+    const hideTouch = !(inField && this.input.touch && !this.menuOpen);
+    if (hideTouch && !touchEl.hidden) this.input.releaseTouch();
+    touchEl.hidden = hideTouch;
     if (inField) {
       const canMove = !this.busy && !this.menuOpen && !this.input.busy;
       this.field.update(dt, { dir: this.input.dir, canMove });
@@ -202,6 +243,7 @@ export class Game {
     this.hud.show(false);
     document.getElementById('ui').innerHTML = '';
     this.me = null;
+    this.keepAwake(false);
   }
 
   waitBattleClosed() {
@@ -353,14 +395,31 @@ export class Game {
     showSelect(this, this.chars || []);
   }
 
-  onEnter(m) {
+  // がめんの じょうたいを まっさらに する（つなぎなおし など）
+  resetUI() {
+    this.menu.close();
+    this.script.reset();
+    this.input.stack.length = 0;
+    if (this.battle) {
+      this.battle.destroy();
+      this.battle = null;
+    }
+    this.battleClosing = false;
+    this.battleWaiters = []; // まえの だいほんは つかわない（サーバーが いまの ところを おくりなおす）
+    this.hud.stampBox = null;
     document.getElementById('ui').innerHTML = '';
+    this.busy = false;
+    this.scriptEnded = false;
+  }
+
+  onEnter(m) {
+    this.resetUI();
     this.me = m.char;
     this.sid = m.sid;
     this.lastCharId = m.char.id;
     this.party = m.party;
     this.players = m.players || [];
-    this.posSeq = 0;
+    this.posSeq = m.posSeq || 0;
     this.busy = false;
     this.state = 'field';
     this.field.setMap(m.map, m.x, m.y, m.dir);
@@ -368,6 +427,8 @@ export class Game {
     this.hud.renderParty();
     this.hud.setObjective(m.char.objective);
     this.audio.play(this.field.areaBgm());
+    this.keepAwake(true);
+    if (m.resumed) toast('つなぎなおしました！ つづきから あそべるよ');
     for (const log of m.supportLog || []) {
       toast(`${log.helper}の ぼうけんを ${log.count}かい てつだって\nけいけんち ${log.exp}と ${log.gold}ゴールドを もらった！${log.level ? `\nレベルが ${log.level}に あがった！` : ''}`, 6000);
     }
@@ -383,9 +444,15 @@ export class Game {
   async onBattleStart(m) {
     this.menu.close();
     this.closeFieldUI();
-    this.audio.sfx('encounter');
-    this.state = 'battle-intro';
-    await this.flash();
+    if (this.battle) {
+      this.battle.destroy();
+      this.battle = null;
+    }
+    if (!m.resume) {
+      this.audio.sfx('encounter');
+      this.state = 'battle-intro';
+      await this.flash();
+    }
     this.hud.show(false);
     this.field.clearLabels();
     this.state = 'battle';

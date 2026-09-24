@@ -33,15 +33,30 @@ function request(game, msg) {
   });
 }
 
+// お店などの まど。みぎうえの「✕ とじる」と そとの タップで とじる（s.onClose を よぶ）
 function shell(title, extraCls = '') {
-  const root = el('div', { class: `panel center-panel ${extraCls}`, style: { width: 'min(96vw, 860px)' } });
-  const head = el('div', { class: 'win', style: { display: 'flex', justifyContent: 'space-between', gap: '1em', marginBottom: '6px' } }, el('span', { class: 'gold', text: title }));
-  const right = el('span');
-  head.append(right);
+  const backdrop = el('div', { class: 'modal-back' });
+  const root = el('div', { class: `panel center-panel svc-panel ${extraCls}` });
+  const right = el('span', { class: 'svc-right' });
+  const s = { root, right, onClose: null };
+  const userClose = () => {
+    if (!s.onClose) return;
+    s.game?.audio.sfx('cancel');
+    s.onClose();
+  };
+  const closeBtn = el('button', { class: 'btn closebtn', text: '✕ とじる', 'aria-label': 'とじる', onclick: userClose });
+  const head = el('div', { class: 'win svc-head' }, el('span', { class: 'gold', text: title }), right, closeBtn);
   const body = el('div', { class: 'fmenu' });
   root.append(head, body);
-  document.getElementById('ui').append(root);
-  return { root, head, right, body };
+  backdrop.addEventListener('click', userClose);
+  document.getElementById('ui').append(backdrop, root);
+  // s.root.remove() で うしろの まくも いっしょに けす
+  const removeRoot = root.remove.bind(root);
+  root.remove = () => {
+    backdrop.remove();
+    removeRoot();
+  };
+  return Object.assign(s, { head, body });
 }
 
 function goldText(game) {
@@ -52,6 +67,7 @@ function goldText(game) {
 function shopUI(game, data) {
   return new Promise((resolve) => {
     const s = shell(data.name);
+    s.game = game;
     const side = el('div', { class: 'win side' });
     const main = el('div', { class: 'win main scroll' });
     const detail = el('div', { class: 'detail' });
@@ -60,6 +76,7 @@ function shopUI(game, data) {
     updGold();
     const modeMenu = new ListMenu(game.input, {
       items: [{ label: 'かう', value: 'buy' }, { label: 'うる', value: 'sell' }, { label: 'やめる', value: 'exit' }],
+      back: null,
       sound: (x) => game.audio.sfx(x),
       onSelect: (it) => {
         if (it.value === 'exit') return close();
@@ -77,6 +94,7 @@ function shopUI(game, data) {
       s.root.remove();
       resolve();
     };
+    s.onClose = close;
     const back = () => {
       list?.blur();
       list = null;
@@ -208,6 +226,7 @@ function pickQty(game, title, max, price) {
 function jobUI(game) {
   return new Promise((resolve) => {
     const s = shell('星の神殿 ― 転職');
+    s.game = game;
     const side = el('div', { class: 'win side' });
     const main = el('div', { class: 'win main scroll' });
     s.body.append(side, main);
@@ -244,13 +263,16 @@ function jobUI(game) {
         }
         menu.focus();
       },
-      onCancel: () => {
-        menu.blur();
-        s.root.remove();
-        resolve();
-      },
+      back: null,
+      onCancel: () => close(),
     });
-    side.append(menu.root, el('div', { class: 'detail', text: 'Bボタンで おわる' }));
+    const close = () => {
+      menu.blur();
+      s.root.remove();
+      resolve();
+    };
+    s.onClose = close;
+    side.append(menu.root);
     const showJob = (j) => {
       const job = JOBS[j];
       const c = game.me;
@@ -283,6 +305,7 @@ function jobUI(game) {
 function tavernUI(game, data) {
   return new Promise((resolve) => {
     const s = shell('なかまの 酒場');
+    s.game = game;
     const main = el('div', { class: 'win main scroll', style: { gridColumn: '1 / -1' } });
     const detail = el('div', { class: 'detail' });
     s.body.append(main);
@@ -315,12 +338,15 @@ function tavernUI(game, data) {
         menu.setItems(items());
         setTimeout(() => { s.right.textContent = partyText(); }, 100);
       },
-      onCancel: () => {
-        menu.blur();
-        s.root.remove();
-        resolve();
-      },
+      back: null,
+      onCancel: () => close(),
     });
+    const close = () => {
+      menu.blur();
+      s.root.remove();
+      resolve();
+    };
+    s.onClose = close;
     main.append(el('div', { class: 'small muted', text: 'サポートなかまは AIで たたかう。さくせんは メニューの「さくせん」で かえられるよ。' }), menu.root, detail);
     menu.focus();
   });
@@ -330,6 +356,7 @@ function tavernUI(game, data) {
 function boardUI(game, data) {
   return new Promise((resolve) => {
     const s = shell('かぞくの でんごんばん');
+    s.game = game;
     const main = el('div', { class: 'win main scroll', style: { gridColumn: '1 / -1' } });
     s.body.append(main);
     let posts = data.posts || [];
@@ -357,14 +384,16 @@ function boardUI(game, data) {
         }
         menu.focus();
       },
+      back: null,
       onCancel: () => close(),
     });
-    s.head.append(menu.root);
+    main.before(menu.root);
     const close = () => {
       menu.blur();
       s.root.remove();
       resolve();
     };
+    s.onClose = close;
     menu.focus();
   });
 }
@@ -381,6 +410,7 @@ export function ago(t) {
 function starUI(game, data) {
   return new Promise((resolve) => {
     const s = shell('ほしのかけら こうかん');
+    s.game = game;
     const main = el('div', { class: 'win main scroll', style: { gridColumn: '1 / -1' } });
     const detail = el('div', { class: 'detail' });
     s.body.append(main);
@@ -401,12 +431,15 @@ function starUI(game, data) {
         }
         menu.focus();
       },
-      onCancel: () => {
-        menu.blur();
-        s.root.remove();
-        resolve();
-      },
+      back: null,
+      onCancel: () => close(),
     });
+    const close = () => {
+      menu.blur();
+      s.root.remove();
+      resolve();
+    };
+    s.onClose = close;
     main.append(menu.root, detail);
     menu.focus();
   });
@@ -416,6 +449,7 @@ function starUI(game, data) {
 function churchUI(game, data) {
   return new Promise((resolve) => {
     const s = shell('きょうかい');
+    s.game = game;
     const main = el('div', { class: 'win main scroll', style: { gridColumn: '1 / -1' } });
     s.body.append(main);
     let info = data;
@@ -443,6 +477,7 @@ function churchUI(game, data) {
         menu.setItems(opts());
         setTimeout(() => { s.right.textContent = goldText(game); }, 100);
       },
+      back: null,
       onCancel: () => close(),
     });
     main.append(menu.root, el('div', { class: 'detail', text: 'ぜんめつ すると、さいごに おいのりした きょうかいで めを さますよ。' }));
@@ -451,6 +486,7 @@ function churchUI(game, data) {
       s.root.remove();
       resolve();
     };
+    s.onClose = close;
     menu.focus();
   });
 }

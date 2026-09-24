@@ -196,6 +196,33 @@ export class GameAudio {
       if (this.pending) this.play(this.pending);
     }
     if (this.ctx.state === 'suspended') this.ctx.resume();
+    this.applySession();
+  }
+
+  // iPhone: アプリを きりかえたり でんわの あとは おとが とまるので、つぎに さわった ときに もどす
+  resumeIfNeeded() {
+    if (!this.ctx || this.ctx.state === 'running') return;
+    try { this.ctx.resume().catch(() => {}); } catch { /* */ }
+  }
+
+  // iPhone の マナーモード（サイレントスイッチ）でも おとを だすか
+  get silentPlay() {
+    try { return !!JSON.parse(localStorage.getItem('kizuna_audio') || '{}').silentPlay; } catch { return false; }
+  }
+
+  set silentPlay(on) {
+    try {
+      const s = JSON.parse(localStorage.getItem('kizuna_audio') || '{}');
+      s.silentPlay = !!on;
+      localStorage.setItem('kizuna_audio', JSON.stringify(s));
+    } catch { /* */ }
+    this.applySession();
+  }
+
+  applySession() {
+    try {
+      if (navigator.audioSession) navigator.audioSession.type = this.silentPlay ? 'playback' : 'auto';
+    } catch { /* */ }
   }
 
   setVolumes(music, sfx) {
@@ -203,7 +230,10 @@ export class GameAudio {
     this.sfxVol = sfx;
     if (this.musicGain) this.musicGain.gain.value = music;
     if (this.sfxGain) this.sfxGain.gain.value = sfx;
-    try { localStorage.setItem('kizuna_audio', JSON.stringify({ music, sfx })); } catch { /* */ }
+    try {
+      const s = JSON.parse(localStorage.getItem('kizuna_audio') || '{}');
+      localStorage.setItem('kizuna_audio', JSON.stringify({ ...s, music, sfx }));
+    } catch { /* */ }
   }
 
   // ───── おんがく ─────

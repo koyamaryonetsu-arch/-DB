@@ -11,16 +11,44 @@ import { MAPS } from '../maps/index.js';
 
 let battleSeq = 1;
 
-// いっしょに たたかう 人（おなじ マップに いて、ほかの ことを していない パーティーの 人）
+// いっしょに たたかいを はじめる きょり（がめんに うつるくらい）
+export const JOIN_RADIUS = 10;
+// とちゅうから さんか できる きょり（たたかっている なかまに ちかづく）
+export const LATE_JOIN_RADIUS = 2.4;
+
+// いっしょに たたかう 人（おなじ マップの ちかくに いて、ほかの ことを していない パーティーの 人）
 export function battleSessions(world, s) {
   const p = partyOf(world, s);
   const out = [s];
   for (const sid of p?.members || []) {
     if (sid === s.id) continue;
     const m = world.sessions.get(sid);
-    if (m && m.map === s.map && !m.busy && m.inWorld) out.push(m);
+    if (!m || !m.inWorld || m.busy || m.away || m.map !== s.map) continue;
+    if (Math.hypot(m.x - s.x, m.y - s.y) > JOIN_RADIUS) continue;
+    out.push(m);
   }
   return out;
+}
+
+// たたかっている なかまの ところへ かけつけて さんかする（ふつうの たたかい だけ）
+export function joinBattle(world, s, targetSid) {
+  if (s.busy || s.away || !s.inWorld) return { ok: false };
+  const t = world.sessions.get(targetSid);
+  if (!t || t === s || t.busy !== 'battle' || t.partyId !== s.partyId || t.map !== s.map) return { ok: false };
+  const ctx = world.battles.get(t.battleId);
+  if (!ctx || ctx.opts.fixed || ctx.battle.over || ctx.battle.pendingEnd) return { ok: false };
+  if (Math.hypot(t.x - s.x, t.y - s.y) > LATE_JOIN_RADIUS) return { ok: false };
+  if (ctx.sids.includes(s.id)) return { ok: false };
+  if (ctx.battle.allies.length >= 4) return { ok: false, reason: 'たたかいの ばしょが いっぱいだ…' };
+  const a = ctx.battle.joinAlly({ char: s.char, kind: 'player', controller: s.id, auto: !!s.char.battleSettings?.auto });
+  ctx.actorMap[a.id] = { type: 'human', sid: s.id };
+  ctx.sids.push(s.id);
+  s.busy = 'battle';
+  s.battleId = ctx.id;
+  s.moving = false;
+  world.send(s, { t: 'battleStart', snap: ctx.battle.snapshot(), mine: [a.id], boss: !!ctx.opts.boss, story: false, joined: true });
+  world.broadcastPositions = true;
+  return { ok: true };
 }
 
 function makeBattle(world, sessions, party, enemies, opts) {

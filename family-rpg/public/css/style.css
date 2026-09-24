@@ -48,9 +48,15 @@ html, body {
   user-select: none;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
+  overscroll-behavior: none;
+  -webkit-touch-callout: none;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
-#app { position: fixed; inset: 0; overflow: hidden; }
+/* iPhone: ピンチや ひっぱりで がめんが うごかないように（スクロールする リストだけ たてに うごかせる） */
+#app { position: fixed; inset: 0; overflow: hidden; touch-action: none; }
+.scroll, .b-cmd .menu, .b-msg, .title-screen { touch-action: pan-y; }
 
 #field {
   position: absolute;
@@ -221,6 +227,7 @@ button:focus-visible, input:focus-visible, .item:focus-visible { outline: 3px so
 .bar.mp > i { background: var(--mp); }
 .bar.low > i { background: var(--warn); }
 .hud-mem.dead .nm { color: var(--danger); }
+.hud-mem.away { opacity: 0.55; }
 
 .hud-area {
   position: absolute;
@@ -339,7 +346,9 @@ button:focus-visible, input:focus-visible, .item:focus-visible { outline: 3px so
   background: rgba(255, 255, 255, 0.07);
   border: 2px solid rgba(255, 255, 255, 0.25);
   opacity: 0.8;
+  transition: opacity 0.15s;
 }
+#stick.on { opacity: 1; border-color: rgba(255, 255, 255, 0.55); }
 #stick-knob {
   position: absolute;
   left: 50%;
@@ -470,6 +479,8 @@ body.touch .hud-chat { bottom: calc(230px + var(--safe-b)); }
   user-select: text;
 }
 .textin:focus { border-color: var(--accent); outline: none; }
+/* iPhone は 16px より ちいさい にゅうりょくらんで かってに かくだい するので */
+body.touch .textin { font-size: max(16px, 1em); }
 .btn {
   background: #13153a;
   border: 2px solid var(--line);
@@ -507,6 +518,58 @@ body.touch .hud-chat { bottom: calc(230px + var(--safe-b)); }
   .create { grid-template-columns: 1fr; }
   .create .preview { flex-direction: row; justify-content: center; }
 }
+
+/* ───── とじる・もどる（タッチでも わかるように） ───── */
+.closebtn {
+  position: absolute;
+  right: 0.45em;
+  top: 50%;
+  transform: translateY(-50%);
+  min-height: 40px;
+  min-width: 44px;
+  padding: 0.05em 0.8em;
+  border-color: var(--accent);
+  color: var(--accent);
+  font-size: var(--fs-small);
+  white-space: nowrap;
+}
+.closebtn:active { background: #2a2d6a; }
+.menu .backchip {
+  order: -1;
+  grid-column: 1 / -1;
+  align-self: flex-start;
+  justify-self: start;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0.05em 0.9em;
+  margin-bottom: 0.3em;
+  border: 2px solid var(--muted);
+  border-radius: 999px;
+  background: var(--win-solid);
+  color: var(--muted);
+  font-size: var(--fs-small);
+  cursor: pointer;
+}
+.menu .backchip:hover, .menu .backchip:active { border-color: var(--accent); color: var(--accent); }
+.fm-head, .svc-head {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.2em 1em;
+  margin-bottom: 6px;
+  padding-right: 7.4em;
+  min-height: 3.1em;
+}
+.fm-stat, .svc-right { margin-left: auto; }
+.fmenu-panel { left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(96vw, 900px); }
+.svc-panel { width: min(96vw, 860px); }
+.wm-head { position: relative; width: 100%; min-height: 2.8em; display: flex; align-items: center; padding-right: 7.4em; }
+.stamp-panel { right: calc(12px + var(--safe-r)); top: 38%; width: min(80vw, 320px); }
 
 /* ───── メニュー ───── */
 .fmenu { display: grid; grid-template-columns: minmax(8em, auto) 1fr; gap: 10px; }
@@ -629,15 +692,19 @@ body.touch .hud-chat { bottom: calc(230px + var(--safe-b)); }
 }
 .b-result { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(92vw, 640px); max-height: 80%; z-index: 6; }
 
+/* たてむき（スマホを たてに もつ）: え は よこいっぱい、メッセージは まんなか、コマンドは したで おおきく */
 @media (max-aspect-ratio: 1/1) {
-  .b-bottom { flex-direction: column; min-height: 0; }
-  .b-cmd { width: 100%; }
-  .b-cmd .menu { max-height: 8.5em; display: grid; grid-template-columns: 1fr 1fr; }
-  .b-msg { min-height: 5.2em; max-height: 6.5em; }
-  .b-status { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .b-top { flex-direction: column; }
+  .b-status { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .b-bond { width: 100%; flex-direction: row; align-items: center; }
   .b-bond .bb { flex: 1; }
+  .b-stage { flex: 0 0 auto; height: calc((100vw - 12px - var(--safe-l) - var(--safe-r)) * 0.5625); max-height: 42vh; }
+  .b-bottom { flex: 1; flex-direction: column-reverse; min-height: 0; }
+  .b-cmd { width: 100%; flex: none; }
+  .b-cmd .menu { max-height: 14.5em; display: grid; grid-template-columns: 1fr 1fr; }
+  .b-cmd .menu .item { min-height: 2.6em; }
+  .b-msg { flex: 1; min-height: 4.8em; }
+  .b-tools { top: 6px; transform: none; }
 }
 
 /* ───── ぜんたいマップ ───── */
@@ -649,7 +716,48 @@ body.touch .hud-chat { bottom: calc(230px + var(--safe-b)); }
   :root { --fs: clamp(12px, 2vmin + 6px, 17px); }
   .b-bottom { min-height: 6.8em; }
   .b-cmd .menu { max-height: 7.2em; }
+  .b-cmd .menu .item { min-height: 2.1em; }
 }
+
+/* よこむきの スマホ（たかさが みじかい）: たたかいは ひだりに おおきく え、みぎに つよさと コマンド */
+@media (orientation: landscape) and (max-height: 500px) {
+  #battle {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) min(36vw, 320px);
+    grid-template-rows: auto auto minmax(0, 1fr) auto;
+    grid-template-areas: "stage status" "stage bond" "stage cmd" "msg cmd";
+  }
+  .b-top, .b-bottom { display: contents; }
+  .b-status { grid-area: status; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; }
+  .b-mem { padding: 0.1em 0.45em 0.2em; line-height: 1.25; }
+  .b-mem .sts:empty { display: none; }
+  .b-bond { grid-area: bond; width: auto; flex-direction: row; align-items: center; padding: 0.1em 0.5em; }
+  .b-bond .bb { flex: 1; }
+  .b-stage { grid-area: stage; }
+  .b-cmd { grid-area: cmd; width: auto; min-height: 0; overflow: hidden; }
+  .b-cmd .menu { max-height: none; flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 1fr; align-content: start; }
+  .b-msg { grid-area: msg; min-height: 3.4em; max-height: 4.9em; }
+}
+
+/* よこむきの スマホ: もくひょう・チャットは した まんなか（スティックと ボタンの あいだ）に。キャラに かさならない */
+@media (orientation: landscape) and (max-height: 520px) {
+  body.touch .hud-obj {
+    left: 50%;
+    bottom: calc(8px + var(--safe-b));
+    transform: translateX(-50%);
+    max-width: min(50vw, 460px);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  body.touch .hud-chat { left: 50%; transform: translateX(-50%); bottom: calc(3.4em + var(--safe-b)); max-width: min(50vw, 460px); }
+  .hud-party { max-width: 58vw; }
+  .hud-mem { min-width: 5.6em; }
+}
+
+/* はなしている あいだは スティックと ボタンを しまう（がめんの どこを タップしても すすむ） */
+body.talking #touch { display: none; }
+.talk-catcher { position: absolute; inset: 0; background: transparent; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
