@@ -6,6 +6,7 @@ import { TS, tileCanvas, frameOf, prepareMap } from './render/tiles.js';
 import { paintHuman, lookToOpts, npcOpts, paintSpecial, CW, CH } from './render/chars.js';
 import { monsterCanvas, bigNpcCanvas } from './render/monsters.js';
 import { makeCanvas, ctxOf, shade } from './render/pixel.js';
+import { chestCanvas as chestCanvas3d } from './render/tex3d.js';
 import { el } from './ui/dom.js';
 
 const SPEED = 4.6; // マス/びょう
@@ -70,8 +71,52 @@ export class Field {
     this.darkCanvas = makeCanvas(64, 64);
     this.roofCache = new Map();
     this.time = 0;
+    this.r3d = null;
+    this.view = '2d';
     addEventListener('resize', () => this.resize());
     this.resize();
+  }
+
+  // ───────────── 2D / 2.5D ─────────────
+  static webgl2() {
+    try {
+      const c = document.createElement('canvas');
+      return !!(window.WebGL2RenderingContext && c.getContext('webgl2'));
+    } catch {
+      return false;
+    }
+  }
+
+  savedView() {
+    let v = null;
+    try { v = localStorage.getItem('kizuna_view'); } catch { /* */ }
+    if (v === '2d') return '2d';
+    return Field.webgl2() ? '3d' : '2d';
+  }
+
+  async setView(mode, save = false) {
+    if (save) { try { localStorage.setItem('kizuna_view', mode); } catch { /* */ } }
+    const cv = document.getElementById('field3d');
+    if (mode === '3d' && Field.webgl2() && cv) {
+      if (!this.r3d) {
+        try {
+          const { Field3D } = await import('./render/field3d.js');
+          this.r3d = new Field3D(this, cv);
+        } catch (e) {
+          console.warn('2.5D に できませんでした', e);
+          this.r3d = null;
+          mode = '2d';
+        }
+      }
+    } else mode = '2d';
+    if (mode === '2d' && this.r3d) {
+      this.r3d.dispose();
+      this.r3d = null;
+    }
+    this.view = mode;
+    if (cv) cv.hidden = mode !== '3d';
+    document.body.classList.toggle('view3d', mode === '3d');
+    return mode;
   }
 
   resize() {
@@ -166,6 +211,7 @@ export class Field {
   // ───────────── まいフレーム ─────────────
   update(dt, controls) {
     this.time += dt;
+    this.lastDt = dt;
     const sec = dt / 1000;
     const me = this.me;
     // じぶんの いどう
@@ -561,6 +607,7 @@ export class Field {
 
   // ───────────── かく ─────────────
   render() {
+    if (this.r3d && this.map) return this.render3d();
     const ctx = this.ctx;
     const m = this.map;
     if (!m) return;
@@ -657,6 +704,170 @@ export class Field {
       ctx.globalCompositeOperation = 'source-over';
     }
     this.renderLabels(camX, camY);
+  }
+
+  // ───────────── 2.5D で かく ─────────────
+  render3d() {
+    const m = this.map;
+    this.r3d.render(this.lastDt || 16);
+    // うえに かさねる 2D（くらやみ・よる・きらきら・しるし）
+    const ctx = this.ctx;
+    ctx.clearRect(0, 0, this.vw, this.vh);
+    const s = innerWidth / this.vw;
+    const P = (x, y, up = 0) => {
+      const p = this.r3d.project(x, y, up);
+      return { x: p.x / s, y: p.y / s, k: this.r3d.tilePx(x, y) / s };
+    };
+    const t = this.time;
+    // きらきら
+    if (m.sparkles) {
+      const now = Date.now();
+      for (const sp of m.sparkles) {
+        if (Math.abs(sp.x - this.me.x) > 24 || Math.abs(sp.y - this.me.y) > 24) continue;
+        const last = this.game.me?.sparkles?.[sp.id] || 0;
+        if (now - last < 20 * 60 * 1000) continue;
+        const ph = Math.floor(t / 180 + sp.x) % 6;
+        if (ph > 3) continue;
+        const p = P(sp.x + 0.5, sp.y + 0.5, 0.25);
+        const k = Math.max(1, Math.round(p.k / 16));
+        ctx.fillStyle = ph % 2 ? '#ffffff' : '#fff6b0';
+        ctx.fillRect(p.x - k, p.y - 3 * k + (ph === 2 ? k : 0), 2 * k, 6 * k);
+        ctx.fillRect(p.x - 3 * k, p.y - k, 6 * k, 2 * k);
+      }
+    }
+    // なかまの しるし（たたかいちゅう・つうしんまち）
+    const myParty = this.game.party?.id;
+    for (const o of this.others.values()) {
+      if (o.battle && o.partyId === myParty) {
+        const p = P(o.x, o.y);
+        const r = (0.8 + Math.sin(t / 160) * 0.12) * p.k;
+        ctx.strokeStyle = 'rgba(255, 214, 107, 0.9)';
+        ctx.lineWidth = Math.max(1, p.k / 16);
+        ctx.beginPath();
+        ctx.ellipse(p.x, p.y, r, r * 0.5, 0, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      if (o.battle || o.away) {
+        const p = P(o.x, o.y, 1.55);
+        const k = Math.max(1, Math.round(p.k / 16));
+        if (o.battle) {
+          ctx.fillStyle = '#1b1330';
+          ctx.fillRect(p.x - 5 * k, p.y - 5 * k, 11 * k, 11 * k);
+          ctx.fillStyle = '#ffd66b';
+          for (let i = -3; i <= 3; i++) {
+            ctx.fillRect(p.x + i * k, p.y + i * k, k, k);
+            ctx.fillRect(p.x - i * k, p.y + i * k, k, k);
+          }
+        } else {
+          const bob = (Math.floor(t / 500) % 2) * k;
+          ctx.fillStyle = '#c9d4ff';
+          ctx.fillRect(p.x, p.y - bob, 4 * k, k);
+          ctx.fillRect(p.x + 2 * k, p.y + k - bob, k, k);
+          ctx.fillRect(p.x + k, p.y + 2 * k - bob, k, k);
+          ctx.fillRect(p.x, p.y + 3 * k - bob, 4 * k, k);
+        }
+      }
+    }
+    // くらやみ（どうくつ）
+    if (m.dark) {
+      const d = this.darkCanvas;
+      const x = ctxOf(d);
+      x.globalCompositeOperation = 'source-over';
+      x.clearRect(0, 0, d.width, d.height);
+      x.fillStyle = 'rgba(4, 2, 10, 0.86)';
+      x.fillRect(0, 0, d.width, d.height);
+      x.globalCompositeOperation = 'destination-out';
+      const light = (p, r, a = 1) => {
+        const g = x.createRadialGradient(p.x, p.y, r * 0.25, p.x, p.y, r);
+        g.addColorStop(0, `rgba(0,0,0,${a})`);
+        g.addColorStop(1, 'rgba(0,0,0,0)');
+        x.fillStyle = g;
+        x.fillRect(p.x - r, p.y - r, r * 2, r * 2);
+      };
+      const flick = 1 + Math.sin(t / 90) * 0.03;
+      const pm = P(this.me.x, this.me.y, 0.5);
+      light(pm, 5 * pm.k * flick);
+      for (const o of this.others.values()) { const p = P(o.x, o.y, 0.5); light(p, 3.8 * p.k); }
+      for (const a of this.actors.values()) { const p = P(a.x, a.y, 0.5); light(p, 3.2 * p.k, 0.8); }
+      const x0 = Math.max(0, Math.floor(this.me.x - 16)), x1 = Math.min(m.w - 1, Math.floor(this.me.x + 16));
+      const y0 = Math.max(0, Math.floor(this.me.y - 14)), y1 = Math.min(m.h - 1, Math.floor(this.me.y + 18));
+      for (let yy = y0; yy <= y1; yy++) for (let xx = x0; xx <= x1; xx++) {
+        const id = tileAt(m, xx, yy);
+        if (id === T.TORCH) { const p = P(xx + 0.5, yy + 1.05, 0.9); light(p, 2.8 * p.k * flick, 0.9); }
+        else if (id === T.CRYSTAL) { const p = P(xx + 0.5, yy + 0.8, 0.5); light(p, 2 * p.k, 0.7); }
+      }
+      x.globalCompositeOperation = 'source-over';
+      ctx.drawImage(d, 0, 0);
+    }
+    // よる
+    const na = this.nightAlpha();
+    if (na > 0) {
+      ctx.fillStyle = `rgba(12, 18, 60, ${na})`;
+      ctx.fillRect(0, 0, this.vw, this.vh);
+      ctx.globalCompositeOperation = 'lighter';
+      const x0 = Math.max(0, Math.floor(this.me.x - 18)), x1 = Math.min(m.w - 1, Math.floor(this.me.x + 18));
+      const y0 = Math.max(0, Math.floor(this.me.y - 14)), y1 = Math.min(m.h - 1, Math.floor(this.me.y + 20));
+      for (let yy = y0; yy <= y1; yy++) for (let xx = x0; xx <= x1; xx++) {
+        const id = m.tiles[yy * m.w + xx];
+        if (id === T.LAMP || id === T.FIREPLACE || id === T.STAR_ALTAR) {
+          const p = P(xx + 0.5, yy + 0.7, 1);
+          const r = 2.6 * p.k;
+          const g = ctx.createRadialGradient(p.x, p.y, 1, p.x, p.y, r);
+          g.addColorStop(0, `rgba(255, 200, 110, ${na * 0.55})`);
+          g.addColorStop(1, 'rgba(255, 200, 110, 0)');
+          ctx.fillStyle = g;
+          ctx.fillRect(p.x - r, p.y - r, r * 2, r * 2);
+        }
+      }
+      ctx.globalCompositeOperation = 'source-over';
+    }
+    this.renderLabels(0, 0);
+  }
+
+  // 2.5D で たてて かく もの の いちらん
+  entities3d() {
+    const out = [];
+    const m = this.map;
+    const hasF = (f) => this.hasFlag(f);
+    for (const ch of m.chests) {
+      if (!condOk(ch.show, hasF)) continue;
+      out.push({ key: 'c:' + ch.id, canvas: chestCanvas3d(!!this.game.me?.chests?.[ch.id]), x: ch.x + 0.5, y: ch.y + 0.8, anchor: 1, shadowScale: 1.3 });
+    }
+    for (const n of m.npcs) {
+      if (!this.npcVisible(n) || n.sprite === 'none') continue;
+      const s = this.npcState.get(n.id);
+      if (n.big) {
+        const c = bigNpcCanvas(n.sprite, Math.floor(this.time / 600) % 2);
+        const k = n.sprite === 'goldoon_sleep' ? 0.6 : 0.5;
+        out.push({ key: 'n:' + n.id, canvas: c, x: s.x, y: s.y, scale: k, anchor: 6 / k, shadowScale: 3 });
+        continue;
+      }
+      const frame = n.wander ? this.walkFrame(s.moving) : Math.floor(this.time / 500) % 2;
+      out.push({ key: 'n:' + n.id, canvas: npcSprite(n.sprite, s.dir, frame), x: s.x, y: s.y, shadow: n.sprite !== 'starstone' });
+    }
+    for (const s of this.syms.values()) {
+      const c = monsterCanvas(s.sp, Math.floor(this.time / 300 + (s.id.length % 2)) % 2, true);
+      const fly = s.sp === 'koumorin' || s.sp === 'dark_bat' || s.sp === 'crow';
+      out.push({ key: 's:' + s.id, canvas: c, x: s.x, y: s.y, flip: s.dir === 'right', anchor: 2, lift: fly ? 0.35 + Math.sin(this.time / 200) * 0.12 : 0 });
+    }
+    for (const o of this.others.values()) {
+      const mate = o.partyId === this.game.party?.id;
+      out.push({ key: 'p:' + o.sid, canvas: playerSprite(o.look, o.job, o.dir || 'down', this.walkFrame(o.moving)), x: o.x, y: o.y, alpha: o.away ? 0.45 : 1, ghost: mate ? '#ffd66b' : null });
+      o.fl.forEach((f, i) => {
+        if (this.hideGuests && f.guest) return;
+        const tp = this.trailPos(o, i + 1);
+        if (tp) out.push({ key: `pf:${o.sid}:${i}`, canvas: playerSprite(f.look, f.job, tp.dir, this.walkFrame(o.moving)), x: tp.x, y: tp.y });
+      });
+    }
+    this.myFollowers().forEach((f, i) => {
+      const tp = this.trailPos(this.me, i + 1);
+      if (tp) out.push({ key: 'mf:' + i, canvas: playerSprite(f.look, f.job, tp.dir, this.walkFrame(this.me.moving)), x: tp.x, y: tp.y });
+    });
+    for (const a of this.actors.values()) {
+      out.push({ key: 'a:' + a.id, canvas: npcSprite(a.sprite, a.dir, this.walkFrame(true)), x: a.x, y: a.y });
+    }
+    if (!this.hideMe && this.game.me) out.push({ key: 'me', canvas: playerSprite(this.game.me.look, this.game.me.job, this.me.dir || 'down', this.walkFrame(this.me.moving)), x: this.me.x, y: this.me.y, ghost: '#9fd6ff' });
+    return out;
   }
 
   walkFrame(moving) {
@@ -849,6 +1060,10 @@ export class Field {
   // なまえ・ふきだし（DOM）
   renderLabels(camX, camY) {
     const s = innerWidth / this.vw;
+    // あしもとから px ぶん うえの がめんの いち
+    const at = this.r3d
+      ? (x, y, px) => this.r3d.project(x, y, px / TS)
+      : (x, y, px) => ({ x: (x * TS - camX) * s, y: (y * TS - px - camY) * s });
     const alive = new Set();
     const put = (key, text, x, y, cls) => {
       alive.add(key);
@@ -860,8 +1075,9 @@ export class Field {
       }
       if (e.textContent !== text) e.textContent = text;
       e.className = `plabel ${cls}`;
-      e.style.left = `${(x * TS - camX) * s}px`;
-      e.style.top = `${(y * TS - 22 - camY) * s}px`;
+      const p = at(x, y, 22);
+      e.style.left = `${p.x}px`;
+      e.style.top = `${p.y}px`;
     };
     const myParty = this.game.party?.id;
     for (const o of this.others.values()) {
@@ -877,8 +1093,9 @@ export class Field {
       const o = b.sid === this.game.sid ? this.me : this.others.get(b.sid);
       if (!o) { b.el.style.display = 'none'; return true; }
       b.el.style.display = '';
-      b.el.style.left = `${(o.x * TS - camX) * s}px`;
-      b.el.style.top = `${(o.y * TS - 30 - camY) * s}px`;
+      const p = at(o.x, o.y, 30);
+      b.el.style.left = `${p.x}px`;
+      b.el.style.top = `${p.y}px`;
       return true;
     });
   }

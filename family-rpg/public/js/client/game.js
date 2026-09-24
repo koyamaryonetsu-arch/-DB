@@ -78,6 +78,8 @@ export class Game {
   start() {
     this.state = 'title';
     showTitle(this);
+    // 2.5D（つかえる ときだけ。せっていで 2D に もどせる）
+    this.field.setView(this.field.savedView());
     let last = performance.now();
     const loop = (t) => {
       const dt = Math.min(50, t - last);

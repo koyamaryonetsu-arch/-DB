@@ -499,6 +499,7 @@ export class FieldMenu {
       { label: `こうかおん：${vol(g.audio.sfxVol)}`, value: 'sfx' },
       { label: `もじの おおきさ：${document.body.classList.contains('big-text') ? 'おおきい' : 'ふつう'}`, value: 'text' },
     ];
+    if (g.field.constructor.webgl2()) items.unshift({ label: `がめん：${g.field.view === '3d' ? '2.5D（たちたい）' : '2D（ドット）'}`, value: 'view' });
     if (g.input.touch) {
       items.push({ label: `あそんでいる あいだ がめんを けさない：${g.awakeOn ? 'ON' : 'OFF'}`, value: 'awake' });
       if (navigator.audioSession) items.push({ label: `マナーモードでも おとを だす：${g.audio.silentPlay ? 'ON' : 'OFF'}`, value: 'silent' });
@@ -531,6 +532,12 @@ export class FieldMenu {
         } else if (it.value === 'text') {
           document.body.classList.toggle('big-text');
           try { localStorage.setItem('kizuna_bigtext', document.body.classList.contains('big-text') ? '1' : ''); } catch { /* */ }
+        } else if (it.value === 'view') {
+          g.field.setView(g.field.view === '3d' ? '2d' : '3d', true).then((v) => {
+            toast(v === '3d' ? 'がめんを 2.5D（たちたい）に しました' : 'がめんを 2D（ドット）に しました');
+            if (this.root) this.focusSub(this.settingsView(true));
+          });
+          return;
         } else if (it.value === 'awake') {
           g.awakeOn = !g.awakeOn;
         } else if (it.value === 'silent') {
