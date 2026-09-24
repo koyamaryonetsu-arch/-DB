@@ -1,0 +1,5 @@
+# 家族の セーブデータ・あいことば（GitHubには のせない）
+data/
+node_modules/
+*.log
+dist/

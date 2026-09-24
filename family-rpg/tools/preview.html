@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>ドットえ プレビュー（かいはつよう）</title>
+<style>
+  body { background: #333; color: #fff; font-family: sans-serif; margin: 10px; }
+  canvas { image-rendering: pixelated; }
+  h2 { font-size: 14px; margin: 10px 0 4px; }
+</style>
+</head>
+<body>
+<h2>タイル</h2>
+<canvas id="tiles"></canvas>
+<h2>キャラクター</h2>
+<canvas id="chars"></canvas>
+<h2>モンスター</h2>
+<canvas id="mons"></canvas>
+<script type="module">
+import { T, TILE_INFO } from '../public/js/shared/tiles.js';
+import { tileCanvas } from '../public/js/client/render/tiles.js';
+import { paintHuman, lookToOpts, npcOpts, paintSpecial } from '../public/js/client/render/chars.js';
+
+const S = 3;
+// タイル
+const ids = Object.values(T);
+const tc = document.getElementById('tiles');
+const cols = 16;
+tc.width = cols * 18 * S; tc.height = Math.ceil(ids.length * 2 / cols) * 18 * S;
+const tx = tc.getContext('2d'); tx.imageSmoothingEnabled = false;
+let i = 0;
+for (const id of ids) {
+  for (const [v, m] of [[0, 0], [1, id === T.WATER ? 5 : (id === T.WALL_STONE || id === T.CAVE_WALL || id === T.WALL_WOOD) ? 1 : 0]]) {
+    const c = tileCanvas(id, v, 0, m);
+    tx.drawImage(c, (i % cols) * 18 * S, Math.floor(i / cols) * 18 * S, 16 * S, 16 * S);
+    i++;
+  }
+}
+// キャラ
+const looks = [
+  { look: { body: 0, hair: 0, hairColor: 1, skin: 0, color: 0 } },
+  { look: { body: 1, hair: 1, hairColor: 2, skin: 1, color: 4 } },
+  { look: { body: 1, hair: 3, hairColor: 6, skin: 0, color: 3 } },
+  { look: { body: 0, hair: 2, hairColor: 3, skin: 2, color: 1 } },
+];
+const jobs = ['warrior', 'monk', 'priest', 'mage', 'performer'];
+const npcs = ['elder', 'luca', 'merchant', 'priest', 'priestess', 'guard', 'farmer', 'girl', 'boy', 'oldman', 'woman', 'mayor', 'sage', 'bartender', 'carpenter', 'cook', 'bard', 'zarba', 'shadow'];
+const dirs = ['down', 'up', 'left', 'right'];
+const cc = document.getElementById('chars');
+const rows = [];
+for (const j of jobs) for (const l of looks) rows.push(lookToOpts(l.look, j));
+for (const n of npcs) rows.push(npcOpts(n));
+cc.width = 8 * 18 * S * 2; cc.height = Math.ceil(rows.length / 2) * 23 * S;
+const cx = cc.getContext('2d'); cx.imageSmoothingEnabled = false;
+rows.forEach((o, r) => {
+  let k = 0;
+  for (const d of dirs) for (const f of [0, 1]) {
+    const p = paintHuman(d, f, o);
+    const x0 = (r % 2) * 8 * 18 * S;
+    cx.drawImage(p.toCanvas(), x0 + k * 18 * S, Math.floor(r / 2) * 23 * S, 16 * S, 21 * S);
+    k++;
+  }
+});
+const mc = document.getElementById('mons');
+mc.width = 900; mc.height = 400;
+const mx = mc.getContext('2d'); mx.imageSmoothingEnabled = false;
+let k = 0;
+for (const s of ['dog', 'cat', 'flower', 'starstone', 'spring']) {
+  for (const f of [0, 1]) {
+    const p = paintSpecial(s, 'down', f);
+    mx.drawImage(p.toCanvas(), k * 18 * S, 0, 16 * S, 21 * S);
+    k++;
+  }
+}
+window.__monsHook?.(mx, S);
+document.title = 'ready';
+</script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><title>モンスター プレビュー</title>
+<style>body{background:#1a1a2a;color:#fff;font-family:sans-serif;margin:10px} canvas{image-rendering:pixelated}</style></head>
+<body><canvas id="c"></canvas>
+<script type="module">
+import { MONSTER_ART, monsterCanvas } from '../public/js/client/render/monsters.js';
+const S = 3;
+const ids = Object.keys(MONSTER_ART);
+const c = document.getElementById('c');
+c.width = 1350; c.height = 1500;
+const x = c.getContext('2d'); x.imageSmoothingEnabled = false;
+x.fillStyle = '#2a3a2a'; x.fillRect(0, 0, c.width, c.height);
+let px = 10, py = 10, rowH = 0;
+for (const id of ids) {
+  for (const f of [0, 1]) {
+    const m = monsterCanvas(id, f);
+    if (px + m.width * S > c.width - 10) { px = 10; py += rowH + 20; rowH = 0; }
+    x.drawImage(m, px, py, m.width * S, m.height * S);
+    px += m.width * S + 12;
+    rowH = Math.max(rowH, m.height * S);
+  }
+  const s = monsterCanvas(id, 0, true);
+  x.drawImage(s, px, py, s.width * S, s.height * S);
+  px += s.width * S + 30;
+}
+document.title = 'ready';
+</script></body></html>

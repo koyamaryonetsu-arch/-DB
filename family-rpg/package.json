@@ -1,0 +1,14 @@
+{
+  "name": "kizuna-no-monsho",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "家族だけで遊べるRPG「きずなの紋章」",
+  "scripts": {
+    "start": "node server/index.js",
+    "test": "node --test test/*.test.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
