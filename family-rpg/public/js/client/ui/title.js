@@ -5,6 +5,7 @@ import { HAIR, CLOTH, SKIN, HAIR_NAMES } from '../render/chars.js';
 import { playerSprite } from '../field.js';
 import { makeCanvas, ctxOf } from '../render/pixel.js';
 import { ago } from './services.js';
+import { LINE_MAX } from '../../shared/world/transfer.js';
 
 function clearUI() {
   document.getElementById('ui').innerHTML = '';
@@ -159,6 +160,23 @@ function playedAgo(t) {
 }
 
 // ───────────── 引っこしコード（キャラクターを べつの 場所へ つれていく） ─────────────
+// コピー: iPhone の Safari（http の 家族サーバー）や アプリの 中では、新しい コピーの しくみ
+// （navigator.clipboard）が つかえない ことが あるので、まず 文字を 全部 選んで コピーする
+function selectAllText(ta) {
+  ta.focus({ preventScroll: true });
+  ta.select();
+  ta.setSelectionRange(0, ta.value.length);
+}
+
+function copyBySelect(ta) {
+  selectAllText(ta);
+  try {
+    return document.execCommand('copy');
+  } catch {
+    return false;
+  }
+}
+
 // 書き出す: キャラを えらぶ → コードが 出る → コピー
 // 連れてくる: コードを はりつける → 「だれで遊ぶ？」に くわわる
 function request(game, msg, want) {
@@ -230,42 +248,41 @@ export function showTransfer(game, chars) {
     const ta = el('textarea', { class: 'textin codearea', readonly: true, rows: '5', spellcheck: 'false' });
     ta.value = r.code;
     const copyBtn = el('button', { class: 'btn primary', text: 'コピーする' });
+    const hint = el('div', { class: 'small' });
     copyBtn.addEventListener('click', () => {
-      // コピーできなかった ときは コードを 選んだ ままに して、長おしで コピーしてもらう
-      let settled = false;
       const copied = () => {
-        if (settled) return;
-        settled = true;
+        ta.setSelectionRange(0, 0);
+        ta.blur();
         toast('コピーしました！');
         game.audio.sfx('confirm');
+        hint.className = 'small good';
+        hint.textContent = 'コピーしました！　連れていく先で「② コードから連れてくる」を開いて、はりつけてね。\n（同じスマホなら、そのまま連れていく先をブラウザで開いて、はりつけるだけ）';
       };
-      const fallback = () => {
-        if (settled) return;
-        settled = true;
-        ta.focus();
-        ta.setSelectionRange(0, ta.value.length);
-        let ok = false;
-        try { ok = document.execCommand('copy'); } catch { /* */ }
-        toast(ok ? 'コピーしました！' : 'コードを選んだよ。長おしして「コピー」してね');
+      const manual = () => {
+        selectAllText(ta);
+        hint.className = 'small warn';
+        hint.textContent = '自動でコピーできませんでした。コードを全部選んであるので、青いところを長おし →「コピー」してね。';
       };
-      try {
-        navigator.clipboard.writeText(r.code).then(copied, fallback);
-        setTimeout(fallback, 1500);
-      } catch {
-        fallback();
-      }
+      // http の 家族サーバーや アプリの 中でも コピーできる やりかたから ためす
+      if (copyBySelect(ta)) return copied();
+      if (navigator.clipboard?.writeText) navigator.clipboard.writeText(r.code).then(copied, manual);
+      else manual();
     });
+    const send = r.code.length < LINE_MAX
+      ? 'べつのスマホへは、LINE・メッセージ・AirDrop・メモなどで送れます。'
+      : '長いので、LINEでは送れません。メッセージ・AirDrop・メモなどで送ってね。';
     body.append(
       el('div', { class: 'gold', text: `${r.name}の引っこしコード` }),
       el('div', { class: 'small', text: '連れていく先の「だれで遊ぶ？」→「引っこしコード」→「② コードから連れてくる」で、このコードをはりつけてね。' }),
       ta,
       el('div', { class: 'row', style: { gap: '0.5em' } }, copyBtn, el('button', { class: 'btn', text: '← もどる', onclick: top })),
-      el('div', { class: 'detail', text: `コードの長さ: ${r.code.length}文字。全部コピーしてね（とちゅうで切れると読めません）。` }));
+      hint,
+      el('div', { class: 'detail', text: `コードの長さ: ${r.code.length}文字。${send}\n全部コピーしてね（とちゅうで切れると読めません）。コードをメモにとっておくと、もしものときのバックアップにもなります。` }));
   };
 
   const importView = () => {
     body.innerHTML = '';
-    const ta = el('textarea', { class: 'textin codearea', rows: '5', spellcheck: 'false', placeholder: 'ここに引っこしコードをはりつける（KIZUNA-1-…）' });
+    const ta = el('textarea', { class: 'textin codearea', rows: '5', spellcheck: 'false', autocomplete: 'off', autocapitalize: 'off', autocorrect: 'off', placeholder: 'ここに引っこしコードをはりつける（KIZUNA-…）' });
     const go = el('button', { class: 'btn primary', text: '連れてくる' });
     const msg = el('div', { class: 'small' });
     go.addEventListener('click', async () => {
@@ -284,7 +301,7 @@ export function showTransfer(game, chars) {
       if (r.ok && r.mode !== 'kept') ta.value = '';
     });
     body.append(
-      el('div', { class: 'small', text: `書き出したコードを、ここにはりつけてね。キャラクターが「${where}」にやってきます。` }),
+      el('div', { class: 'small', text: `書き出したコードを、ここにはりつけてね。キャラクターが「${where}」にやってきます。\niPhone・iPad: わくの中を長おし →「ペースト」` }),
       ta,
       el('div', { class: 'row', style: { gap: '0.5em' } }, go, el('button', { class: 'btn', text: '← もどる', onclick: top })),
       msg,

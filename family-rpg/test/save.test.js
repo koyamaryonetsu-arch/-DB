@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { upgradeSave, repairChar, SAVE_VERSION } from '../public/js/shared/world/save.js';
-import { exportCode, parseCode, importChar, CHAR_MAX } from '../public/js/shared/world/transfer.js';
+import { exportCode, parseCode, importChar, CHAR_MAX, LINE_MAX, pack, unpack } from '../public/js/shared/world/transfer.js';
 import { GameWorld } from '../public/js/shared/world/world.js';
 import { makeRng } from '../public/js/shared/rng.js';
 import { ITEMS } from '../public/js/shared/data/items.js';
@@ -226,10 +226,77 @@ test('家族サーバー: セーブは ホームの kizuna-save に 作られる
 });
 
 // ───────────── 引っこしコード ─────────────
+test('引っこしコード: ちぢめる しくみは どんな 文字でも もとに もどる', () => {
+  const rng = makeRng(21);
+  const samples = ['', 'a', 'aa', 'aaa', 'abababababab', 'ソラ', '🐉ドラゴン🐉', '{"a":1}'];
+  for (let t = 0; t < 150; t++) {
+    let s = '';
+    const len = Math.floor(rng.next() * (t < 120 ? 300 : 30000));
+    for (let i = 0; i < len; i++) {
+      const r = rng.next();
+      s += t % 2 ? 'ab{}":,0123ソラ'[Math.floor(rng.next() * 12)] : r < 0.9 ? String.fromCharCode(32 + Math.floor(rng.next() * 95)) : r < 0.97 ? String.fromCharCode(0x3041 + Math.floor(rng.next() * 80)) : '😀';
+    }
+    samples.push(s);
+  }
+  for (const s of samples) assert.equal(unpack(pack(s)), s);
+  assert.match(pack('ソラの引っこし'), /^[A-Za-z0-9_-]*$/, '英数字と - _ だけ');
+});
+
+test('引っこしコード: 仲間が いっぱいの キャラでも LINE で 1回で 送れる 長さ', async () => {
+  const world = new GameWorld({ offline: true, rng: makeRng(1), rateLimit: false });
+  const bot = new Bot(world, 'ソラ');
+  await bot.login();
+  await bot.createAndPlay('warrior');
+  await bot.settle();
+  const s = [...world.sessions.values()].find((x) => x.inWorld);
+  const c = s.char;
+  const st = await import('../public/js/shared/stats.js');
+  const party = await import('../public/js/shared/world/party.js');
+  const { MONSTERS } = await import('../public/js/shared/data/monsters.js');
+  const { STORY_STEPS } = await import('../public/js/shared/data/story.js');
+  st.gainExp(c, st.expForLevel(40) - c.exp);
+  for (const f of STORY_STEPS) c.flags[f] = true;
+  c.flags.monster_bond = true;
+  for (const m of Object.keys(MONSTERS)) { c.kills[m] = 99; party.noteSeen(c, m); }
+  for (const id of Object.keys(ITEMS).slice(0, 60)) st.addItem(c, id, 9);
+  for (let i = 0; i < 80; i++) c.chests['chest' + i] = true;
+  for (const id of ['npc_gard', 'npc_mina', 'npc_rin', 'npc_tina', 'npc_luca']) party.recruitNpc(world, s, id, { join: false });
+  for (const sp of Object.keys(MONSTERS)) {
+    if (c.companions.length >= 24) break;
+    party.addMonsterCompanion(world, s, sp, 40, true);
+  }
+  assert.equal(c.companions.length, 24, '仲間 24人（いちばん 多い）');
+  const code = exportCode(c);
+  assert.ok(code.length < LINE_MAX, `コードの 長さ ${code.length}`);
+  const r = parseCode(code);
+  assert.equal(r.ok, true);
+  assert.equal(r.char.companions.length, 24);
+  assert.equal(r.char.level, 40);
+});
+
+test('引っこしコード: 前の 版の コード（KIZUNA-1）も 読める', () => {
+  const c = upgradeSave(oldSave()).data.characters.c_old;
+  const json = JSON.stringify({ v: 2, at: 5, char: c });
+  let h = 0x811c9dc5;
+  for (let i = 0; i < json.length; i++) { h ^= json.charCodeAt(i); h = Math.imul(h, 0x01000193); }
+  const b64 = Buffer.from(json, 'utf8').toString('base64');
+  const v1 = `KIZUNA-1-${(h >>> 0).toString(16).padStart(8, '0')}-${b64}`;
+  const r = parseCode(v1);
+  assert.equal(r.ok, true, r.reason);
+  assert.equal(r.char.name, 'ソラ');
+  assert.equal(parseCode(v1.slice(0, -8)).ok, false);
+});
+
 test('引っこしコード: 書き出して 読みこめる。切れた コードは 読まない', () => {
   const c = upgradeSave(oldSave()).data.characters.c_old;
   const code = exportCode(c);
-  assert.ok(code.startsWith('KIZUNA-1-'));
+  assert.ok(code.startsWith('KIZUNA-2-'));
+  // どこで 切れても、1文字 まちがえても 読まない
+  for (const cut of [1, 2, 5, 13, Math.floor(code.length / 2)]) assert.equal(parseCode(code.slice(0, -cut)).ok, false, `うしろ ${cut}文字 切れ`);
+  for (const at of [20, 40, code.length - 3]) {
+    const ch = code[at] === 'A' ? 'B' : 'A';
+    assert.equal(parseCode(code.slice(0, at) + ch + code.slice(at + 1)).ok, false, `${at}文字めが ちがう`);
+  }
   const r = parseCode(`  ${code.slice(0, 40)}\n${code.slice(40)}  `);
   assert.equal(r.ok, true, '改行や すきまが 入っても 読める');
   assert.equal(r.char.name, 'ソラ');
