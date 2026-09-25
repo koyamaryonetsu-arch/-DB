@@ -3,7 +3,7 @@ import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js';
 import { ITEMS, SLOTS, SLOT_NAMES } from '../../shared/data/items.js';
 import { ABILITIES } from '../../shared/data/abilities.js';
 import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, TIER_NAMES } from '../../shared/data/jobs.js';
-import { computeStats, learnedAbilities, canEquip, mpCost, penaltyFor, expForLevel, comboUnlocked, comboAllowed, comboJobNames, jobProgress } from '../../shared/stats.js';
+import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboUnlocked, comboAllowed, comboJobNames, jobProgress } from '../../shared/stats.js';
 import { MONSTERS } from '../../shared/data/monsters.js';
 import { MONSTER_FRIENDS, RACE_NAMES, recipeHint } from '../../shared/data/companions.js';
 import { TACTICS } from '../../shared/ai.js';
@@ -15,7 +15,7 @@ import { itemDetail, abilityDetail } from './info.js';
 import { makeCanvas, ctxOf } from '../render/pixel.js';
 import { monsterCanvas } from '../render/monsters.js';
 import { mapIconCanvas, boardIconURL } from '../render/boards.js';
-import { compareOne } from './counter.js';
+import { compareOne, compareTeam, whoItems } from './counter.js';
 import { faceURL } from '../field.js';
 
 const MAIN = [
@@ -248,7 +248,8 @@ export class FieldMenu {
     if (entry.key || it.type === 'key') return;
     const acts = [];
     if (it.type === 'use' && it.field) acts.push({ label: '使う', value: 'use' });
-    if (['weapon', 'armor', 'shield', 'head', 'acc'].includes(it.type)) acts.push({ label: '装備する', value: 'equip', disabled: !canEquip(g.me.job, entry.value) });
+    const team = ['weapon', 'armor', 'shield', 'head', 'acc'].includes(it.type) ? compareTeam(g, entry.value) : null;
+    if (team) acts.push({ label: '装備する', value: 'equip', disabled: !team.some((r) => r.can && !r.same) });
     acts.push({ label: '捨てる', value: 'drop' }, { label: 'やめる', value: 'cancel' });
     this.sub.blur();
     const act = await this.pick(`${it.name}をどうする？`, acts);
@@ -268,19 +269,22 @@ export class FieldMenu {
         if (ref) g.net.send({ t: 'menu', action: 'useItem', id: entry.value, ref });
       }
     } else if (act === 'equip') {
-      g.net.send({ t: 'menu', action: 'equip', id: entry.value });
+      // ドラクエと おなじ:「だれが 装備する？」（みんなの 強さが どう かわるか いっしょに 出す）
+      const who = team.length === 1 ? 'self'
+        : await this.pick(`だれが${it.name}を装備する？`, [...whoItems(team), { label: 'やめる', value: null }], { wide: true });
+      if (who) g.net.send({ t: 'menu', action: 'equip', id: entry.value, who });
     } else if (act === 'drop') {
       if (await confirmBox(g.input, `${it.name}を捨てますか？`, '捨てる', 'やめる', this.sfx)) g.net.send({ t: 'menu', action: 'discard', id: entry.value, n: 1 });
     }
     setTimeout(() => { if (this.root) this.focusSub(this.itemsList(true)); }, 150);
   }
 
-  pick(title, items) {
+  pick(title, items, { wide = false } = {}) {
     const g = this.game;
     return new Promise((resolve) => {
       const hasCancel = items.some((i) => i.value === null || i.value === 'cancel');
       const back = el('div', { class: 'modal-back', style: { zIndex: 4 }, onclick: () => { this.sfx('cancel'); done(null); } });
-      const box = el('div', { class: 'win panel center-panel', style: { width: 'min(86vw, 380px)', zIndex: 5 } }, el('div', { class: 'small gold', text: title }));
+      const box = el('div', { class: 'win panel center-panel', style: { width: wide ? 'min(94vw, 560px)' : 'min(86vw, 380px)', zIndex: 5, background: 'var(--win-solid)' } }, el('div', { class: 'small gold', text: title }));
       const m = new ListMenu(g.input, {
         items,
         sound: this.sfx,
