@@ -14,7 +14,9 @@ export class Input {
     this.stack = [];
     this.fieldHandler = null;
     this.stick = { x: 0, y: 0, active: false };
-    this.pad = { prev: {}, dir: { x: 0, y: 0 }, repeat: {} };
+    this.pad = { prev: {}, dir: { x: 0, y: 0 }, repeat: {}, run: false };
+    this.runToggle = false; // タッチの「はしる」ボタン（おすたびに ON/OFF）
+    this.shift = false;
     this.touch = matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window;
     this.bindKeys();
     this.bindTouch();
@@ -47,6 +49,17 @@ export class Input {
     if (!repeat) this.fieldHandler?.(action);
   }
 
+  // はしる？（Shift を おしている・はしるボタンが ON・ゲームパッドの X/R）
+  get run() {
+    return this.shift || this.runToggle || this.pad.run;
+  }
+
+  setRunToggle(on) {
+    this.runToggle = !!on;
+    document.getElementById('btn-run')?.classList.toggle('on', this.runToggle);
+    try { localStorage.setItem('kizuna_run', this.runToggle ? '1' : ''); } catch { /* */ }
+  }
+
   get dir() {
     let x = 0, y = 0;
     if (this.held.has('left')) x -= 1;
@@ -67,6 +80,7 @@ export class Input {
 
   bindKeys() {
     addEventListener('keydown', (e) => {
+      if (e.key === 'Shift') this.shift = true;
       const tag = document.activeElement?.tagName;
       if (tag === 'INPUT' || tag === 'TEXTAREA') {
         if (e.code === 'Escape') { document.activeElement.blur(); this.emit('b'); }
@@ -81,39 +95,57 @@ export class Input {
       this.emit(a, e.repeat);
     });
     addEventListener('keyup', (e) => {
+      if (e.key === 'Shift') this.shift = false;
       const a = KEYMAP[e.code];
       if (a) this.held.delete(a);
     });
-    addEventListener('blur', () => this.held.clear());
+    addEventListener('blur', () => { this.held.clear(); this.shift = false; });
   }
 
   bindTouch() {
+    const touchEl = document.getElementById('touch');
     const stickEl = document.getElementById('stick');
     const knob = document.getElementById('stick-knob');
     const btnA = document.getElementById('btn-a');
     const btnB = document.getElementById('btn-b');
+    const btnRun = document.getElementById('btn-run');
     let stickId = null;
     let origin = null;
     const R = 50;
     const field = document.getElementById('field');
-    // スティックは ひだりしたに こていする（ゆびが すこし はずれても うごかせる）
-    const stickCenter = () => {
-      const r = stickEl.getBoundingClientRect();
-      return { x: r.left + r.width / 2, y: r.top + r.height / 2, r: r.width / 2 };
+    const field3d = document.getElementById('field3d');
+    // スティックは さわった ところに でてくる（がめんの ひだり がわ）。はなすと もとの ばしょに もどる
+    const inStickZone = (t) => t.clientX < innerWidth * 0.6;
+    const placeStick = (x, y) => {
+      const r = touchEl.getBoundingClientRect();
+      stickEl.style.left = `${x - r.left - stickEl.offsetWidth / 2}px`;
+      stickEl.style.top = `${y - r.top - stickEl.offsetHeight / 2}px`;
+      stickEl.style.bottom = 'auto';
     };
-    const nearStick = (t) => {
-      const c = stickCenter();
-      return Math.hypot(t.clientX - c.x, t.clientY - c.y) < c.r * 1.9;
+    const homeStick = () => {
+      stickEl.style.left = '';
+      stickEl.style.top = '';
+      stickEl.style.bottom = '';
     };
     const startStick = (t) => {
       stickId = t.identifier;
-      origin = stickCenter();
-      stickEl.classList.add('on');
+      origin = { x: t.clientX, y: t.clientY };
+      placeStick(origin.x, origin.y);
+      stickEl.classList.add('on', 'float');
       moveStick(t);
     };
     const moveStick = (t) => {
       let dx = t.clientX - origin.x, dy = t.clientY - origin.y;
-      const m = Math.hypot(dx, dy);
+      let m = Math.hypot(dx, dy);
+      // ゆびが とおくへ いったら スティックも ついていく（むきを かえやすい）
+      if (m > R * 1.6) {
+        const k = (m - R * 1.6) / m;
+        origin = { x: origin.x + dx * k, y: origin.y + dy * k };
+        placeStick(origin.x, origin.y);
+        dx = t.clientX - origin.x;
+        dy = t.clientY - origin.y;
+        m = Math.hypot(dx, dy);
+      }
       if (m > R) {
         dx = dx / m * R;
         dy = dy / m * R;
@@ -136,15 +168,18 @@ export class Input {
       knob.style.transform = '';
       this.stick = { x: 0, y: 0, active: false };
       this.stickNav = null;
-      stickEl.classList.remove('on');
+      stickEl.classList.remove('on', 'float');
+      homeStick();
     };
     this.endStick = endStick;
-    field.addEventListener('touchstart', (e) => {
+    const onFieldTouch = (e) => {
       for (const t of e.changedTouches) {
-        if (stickId === null && nearStick(t)) startStick(t);
+        if (stickId === null && inStickZone(t)) startStick(t);
       }
       e.preventDefault();
-    }, { passive: false });
+    };
+    field.addEventListener('touchstart', onFieldTouch, { passive: false });
+    field3d?.addEventListener('touchstart', onFieldTouch, { passive: false });
     stickEl.addEventListener('touchstart', (e) => {
       for (const t of e.changedTouches) if (stickId === null) startStick(t);
       e.preventDefault();
@@ -171,6 +206,16 @@ export class Input {
     };
     bindBtn(btnA, 'a');
     bindBtn(btnB, 'b');
+    // はしる（おすたびに ON / OFF）
+    if (btnRun) {
+      const toggle = (e) => {
+        e.preventDefault();
+        this.setRunToggle(!this.runToggle);
+      };
+      btnRun.addEventListener('touchstart', toggle, { passive: false });
+      btnRun.addEventListener('mousedown', toggle);
+      try { if (localStorage.getItem('kizuna_run')) this.setRunToggle(true); } catch { /* */ }
+    }
   }
 
   // まいフレーム よぶ（ゲームパッド）
@@ -189,6 +234,7 @@ export class Input {
     if (b(12)) y = -1;
     if (b(13)) y = 1;
     this.pad.dir = { x, y };
+    this.pad.run = b(2) || b(5) || b(7);
     const now = performance.now();
     const edge = (name, pressed) => {
       const was = this.pad.prev[name];

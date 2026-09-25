@@ -8,6 +8,8 @@ export const TACTICS = {
   aggressive: { name: 'ガンガンいこうぜ', healAt: 0.33, mpWeight: 0.015, buffs: false },
   heal: { name: 'いのちだいじに', healAt: 0.68, mpWeight: 0.05, buffs: true },
   nomp: { name: 'じゅもんせつやく', healAt: 0.4, mpWeight: 0.5, buffs: false },
+  // なかま だけ: じぶんで コマンドを えらぶ（オートの ときは バッチリがんばれ）
+  manual: { name: 'めいれいさせろ', healAt: 0.5, mpWeight: 0.04, buffs: true, manual: true },
 };
 
 // ───────────── モンスター ─────────────

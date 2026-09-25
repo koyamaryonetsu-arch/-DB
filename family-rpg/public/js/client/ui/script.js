@@ -2,6 +2,7 @@
 import { el } from './dom.js';
 import { ListMenu } from './dom.js';
 import { openServiceUI } from './services.js';
+import { monsterCanvas } from '../render/monsters.js';
 
 const TYPE_MS = 28;
 
@@ -103,6 +104,11 @@ export class ScriptPlayer {
         return null;
       case 'chestOpen':
         return null;
+      case 'showMon':
+        this.showMon(a[0]);
+        return null;
+      case 'crest':
+        return this.crest();
       case 'ui':
         if (msg.spectator) return null;
         this.closeDialog();
@@ -129,7 +135,58 @@ export class ScriptPlayer {
     return this.dlg;
   }
 
+  // なかまに なりたそうな モンスター
+  showMon(sp) {
+    this.monBox?.remove();
+    this.monBox = null;
+    if (!sp) return;
+    const src = monsterCanvas(sp, 0);
+    const c = document.createElement('canvas');
+    c.width = src.width;
+    c.height = src.height;
+    c.getContext('2d').drawImage(src, 0, 0);
+    const k = Math.max(2, Math.min(5, Math.floor(160 / Math.max(src.width, src.height))));
+    c.style.width = `${src.width * k}px`;
+    c.style.height = `${src.height * k}px`;
+    this.monBox = el('div', { class: 'win mon-pop' }, c);
+    document.getElementById('ui').append(this.monBox);
+  }
+
+  // 紋章が ひかる
+  crest() {
+    const fx = document.getElementById('fx');
+    const cv = document.createElement('canvas');
+    cv.width = 64;
+    cv.height = 64;
+    const x = cv.getContext('2d');
+    x.imageSmoothingEnabled = false;
+    const star = (r1, r2, col) => {
+      x.fillStyle = col;
+      x.beginPath();
+      for (let i = 0; i < 10; i++) {
+        const r = i % 2 ? r2 : r1;
+        const a = -Math.PI / 2 + i * Math.PI / 5;
+        x.lineTo(32 + Math.cos(a) * r, 32 + Math.sin(a) * r);
+      }
+      x.closePath();
+      x.fill();
+    };
+    x.strokeStyle = '#ffd66b';
+    x.lineWidth = 3;
+    x.beginPath(); x.arc(32, 32, 27, 0, Math.PI * 2); x.stroke();
+    x.strokeStyle = '#fff6d0';
+    x.lineWidth = 1;
+    x.beginPath(); x.arc(32, 32, 23, 0, Math.PI * 2); x.stroke();
+    star(20, 8, '#ffd66b');
+    star(12, 5, '#ffffff');
+    const box = el('div', { class: 'crest-fx' }, cv);
+    fx.append(box);
+    return new Promise((resolve) => setTimeout(() => { box.remove(); resolve(); }, 1800));
+  }
+
   closeDialog() {
+    this.monBox?.remove();
+    this.monBox = null;
     this.dlg?.remove();
     this.catcher?.remove();
     this.dlg = null;

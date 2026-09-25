@@ -87,6 +87,23 @@ export function battleBackground(id) {
 }
 
 // ───────────── つぶつぶ エフェクト ─────────────
+// こうげき・じゅもんの えんしゅつ（てきの え の うえに かく）
+// つぶ（parts）は delay で じゅんばんに でてくる。proj は とんでいく たま、swirl は うずまき
+
+const COL = {
+  fire: ['#ff5a2a', '#ff9a3a', '#ffe07a', '#ffffff'],
+  ice: ['#9ae6ff', '#e6fbff', '#5ab8e8', '#ffffff'],
+  wind: ['#d8ffe0', '#9af0b0', '#ffffff', '#6ad89a'],
+  blast: ['#ffffff', '#ffd66b', '#ff8a2a', '#ff5a2a'],
+  bolt: ['#ffffff', '#fff6b0', '#9ad8ff'],
+  light: ['#ffffff', '#fff6b0', '#ffd66b'],
+  dark: ['#8a5ac8', '#3a2a5a', '#c8a8f0', '#5a2a8a'],
+  void: ['#ffffff', '#c8a8ff', '#8a5ac8'],
+  heal: ['#7dffb0', '#ffffff', '#b8ffd0'],
+  poison: ['#b06ae0', '#7a3aa8', '#d8a8ff'],
+  phys: ['#ffffff', '#ffd66b'],
+};
+
 export class Effects {
   constructor() {
     this.parts = [];
@@ -94,6 +111,7 @@ export class Effects {
     this.flash = 0;
     this.flashColor = '#fff';
     this.tint = null;
+    this.shakeT = 0;
   }
 
   add(p) { this.parts.push({ life: 600, age: 0, size: 2, vx: 0, vy: 0, g: 0, ...p }); }
@@ -106,119 +124,403 @@ export class Effects {
     }
   }
 
-  slash(x, y, color = '#ffffff', n = 1) {
+  // ななめの きりさき（ang: かたむき、len: ながさ）
+  slash(x, y, color = '#ffffff', n = 1, opts = {}) {
+    const angs = opts.angs || [-0.8, 0.8, -0.2, 0.3];
     for (let i = 0; i < n; i++) {
-      this.add({ kind: 'slash', x: x + (i - (n - 1) / 2) * 6, y, color, life: 260, delay: i * 90, len: 26 });
+      this.add({
+        kind: 'slash', x: x + (i - (n - 1) / 2) * (opts.spread ?? 6), y, color, life: opts.life || 280, delay: (opts.delay || 0) + i * (opts.gap ?? 90),
+        len: opts.len || 30, ang: angs[i % angs.length] + (opts.rot || 0), w: opts.w || 2, glow: opts.glow || null,
+      });
     }
   }
 
+  // しょうげきの ほし
+  star(x, y, color = '#ffffff', size = 10, delay = 0, life = 260) {
+    this.add({ kind: 'star', x, y, color, size, delay, life });
+  }
+
+  ring(x, y, color, size = 3, delay = 0, life = 380, r1 = 40) {
+    this.add({ kind: 'ring', x, y, color, size, delay, life, r1 });
+  }
+
+  // したから とんでいく たま（じゅもん）
+  proj(x1, y1, colors, { size = 3, travel = 300, delay = 0, from } = {}) {
+    const x0 = from?.x ?? BW / 2 + (Math.random() - 0.5) * 30, y0 = from?.y ?? BH + 6;
+    this.add({ kind: 'proj', x0, y0, x1, y1, x: x0, y: y0, colors, size, life: travel, delay });
+  }
+
+  // じめんから たつ はしら（こおり・ひかり）
+  pillar(x, y, color, { w = 6, h = 46, delay = 0, life = 520, edge = '#ffffff' } = {}) {
+    this.add({ kind: 'pillar', x, y, color, edge, w, h, delay, life });
+  }
+
+  // うずまき（かぜ・ほのおの たつまき）
+  swirl(x, y, colors, { n = 24, rad = 16, h = 50, delay = 0, life = 700, size = 1.5 } = {}) {
+    for (let k = 0; k < n; k++) {
+      this.add({ kind: 'swirl', cx: x, cy: y + 12, x, y, ang: (k / n) * Math.PI * 4, rad: rad * (0.5 + Math.random() * 0.6), rise: h * (0.6 + Math.random() * 0.5), color: colors[k % colors.length], life, delay: delay + k * 12, size });
+    }
+  }
+
+  // ↑↓ やじるし（つよく なる・よわく なる）
+  arrows(x, y, color, up = true, n = 3, delay = 0) {
+    for (let k = 0; k < n; k++) this.add({ kind: 'arrow', x: x + (k - (n - 1) / 2) * 9, y: y + (up ? 10 : -14), vy: up ? -32 : 32, color, up, life: 620, delay: delay + k * 80 });
+  }
+
+  // まほうじん（となえた とき）
+  circle(color = '#9ad8ff', delay = 0) {
+    this.add({ kind: 'circle', x: BW / 2, y: BH - 10, color, life: 420, delay });
+  }
+
   // anim の しゅるいで エフェクトを だす
-  play(anim, targets, element) {
-    const col = {
-      fire: ['#ff5a2a', '#ff9a3a', '#ffe07a'], ice: ['#9ae6ff', '#e6fbff', '#5ab8e8'], wind: ['#d8ffe0', '#9af0b0', '#ffffff'],
-      blast: ['#ffffff', '#ffd66b', '#ff8a2a'], bolt: ['#ffffff', '#fff6b0', '#9ad8ff'], light: ['#ffffff', '#fff6b0', '#ffd66b'],
-      dark: ['#8a5ac8', '#3a2a5a', '#c8a8f0'], void: ['#ffffff', '#c8a8ff', '#8a5ac8'],
-    };
+  // opts: { crit, element, fromAlly }
+  play(anim, targets, element, opts = {}) {
+    const crit = !!opts.crit;
+    const ec = COL[element] || null;
+    const spell = /^(fire|ice|wind|blast|void|dark|minadein)/.test(anim);
+    if (spell && opts.fromAlly !== false) this.circle((ec || COL.light)[0]);
+    const all = targets.length > 1;
+    targets.forEach((t, ti) => {
+      const { x, y } = t;
+      const d = ti * (all ? 70 : 0); // ぜんたい こうげきは すこし ずらす
+      switch (anim) {
+        // ── けん ──
+        case 'slash_heavy':
+          this.slash(x, y, '#ffffff', 1, { len: crit ? 44 : 34, w: crit ? 4 : 3, glow: '#ffd66b', delay: d });
+          this.star(x, y, '#fff6b0', crit ? 16 : 10, d + 90);
+          this.burst(x, y, ['#fff', '#ffd66b'], 10, 60, { delay: d + 90 });
+          if (crit) this.hitStop(160);
+          break;
+        case 'slash_fast': // 海波斬: みずの ように すばやい 2れん
+          this.slash(x, y, '#bfe6ff', 2, { angs: [-0.6, 0.6], len: 30, gap: 70, glow: '#5ab8e8', delay: d });
+          this.burst(x, y + 4, ['#9ae6ff', '#e6fbff', '#5ab8e8'], 14, 55, { delay: d + 120, g: 120 });
+          break;
+        case 'slash_light': // 空裂斬: ひかりの きりさき
+          this.slash(x, y, '#fff6b0', 1, { len: 38, w: 3, glow: '#ffffff', delay: d });
+          this.pillar(x, y + 14, 'rgba(255,246,176,0.55)', { w: 5, h: 40, delay: d + 120, life: 380 });
+          this.burst(x, y, COL.light, 14, 50, { delay: d + 120 });
+          break;
+        case 'slash_multi':
+          this.slash(x, y, '#ffffff', 4, { angs: [-0.8, 0.8, -0.1, 1.4], spread: 4, gap: 70, len: 28, glow: '#9ad8ff', delay: d });
+          break;
+        case 'strash': // アバンストラッシュ ふう
+          this.slash(x, y, '#fff6b0', 3, { angs: [-0.8, 0.8, 0], spread: 2, gap: 90, len: 50, w: 4, glow: '#ffffff', delay: d });
+          this.ring(x, y, '#fff6b0', 5, d + 300, 450, 60);
+          this.burst(x, y, COL.light, 34, 130, { delay: d + 300 });
+          this.flashAt(200, '#fffbe0', d + 300);
+          this.hitStop(220);
+          break;
+        case 'mahouken': {
+          const c = COL[element] || COL.light;
+          this.slash(x, y, c[0], 2, { angs: [-0.7, 0.7], len: 40, w: 3, glow: c[2] || '#fff', delay: d });
+          this.burst(x, y, c, 22, 90, { delay: d + 150 });
+          if (element === 'fire') this.fireUp(x, y, 14, d + 150);
+          if (element === 'ice') for (let k = 0; k < 6; k++) this.add({ kind: 'shard', x: x + (Math.random() - 0.5) * 24, y: y - 26, vy: 110, color: COL.ice[k % 3], life: 350, delay: d + 150 });
+          if (element === 'wind') this.swirl(x, y, COL.wind, { n: 16, rad: 12, delay: d + 150, life: 500 });
+          break;
+        }
+        // ── こぶし・け ──
+        case 'punch': case 'kick':
+          this.star(x, y, '#ffffff', crit ? 16 : 11, d);
+          this.ring(x, y, '#ffd66b', 2, d, 260, 22);
+          this.burst(x, y, ['#ffd66b', '#ffffff'], 10, 80, { delay: d });
+          if (anim === 'kick') this.add({ kind: 'streak', x: x - 20, y: y + 6, vx: 160, vy: -30, color: '#ffffff', life: 220, delay: d });
+          if (crit) this.hitStop(140);
+          break;
+        case 'punch_multi':
+          for (let k = 0; k < 5; k++) {
+            const px = x + (Math.random() - 0.5) * 22, py = y + (Math.random() - 0.5) * 16;
+            this.star(px, py, k % 2 ? '#ffd66b' : '#ffffff', 8, d + k * 70, 200);
+            this.burst(px, py, ['#ffd66b', '#ffffff'], 4, 60, { delay: d + k * 70 });
+          }
+          break;
+        case 'holy_punch':
+          this.star(x, y, '#ffffff', 16, d);
+          this.pillar(x, y + 16, 'rgba(125,255,176,0.55)', { w: 10, h: 70, delay: d + 60, life: 500, edge: '#e8fff0' });
+          this.burst(x, y, ['#ffffff', '#fff6b0', '#7dffb0'], 26, 100, { delay: d + 60 });
+          this.flashAt(120, '#eaffef', d + 60);
+          break;
+        // ── ほのお ──
+        case 'fire1': case 'fire2': case 'fire3': {
+          const big = anim === 'fire3' ? 3 : anim === 'fire2' ? 2 : 1;
+          this.proj(x, y, COL.fire, { size: 2 + big * 1.5, travel: 280 + big * 40, delay: d });
+          const hit = d + 280 + big * 40;
+          this.star(x, y, '#ffe07a', 8 + big * 5, hit);
+          this.fireUp(x, y, 12 + big * 10, hit);
+          this.burst(x, y, COL.fire, 8 + big * 8, 50 + big * 25, { delay: hit });
+          if (big >= 2) this.ring(x, y, '#ff9a3a', big, hit, 400, 20 + big * 12);
+          if (big === 3) { this.flashAt(220, '#ffd0a0', hit); this.hitStop(200, hit); }
+          break;
+        }
+        case 'fire_wave': // ギラ: ほのおの なみが よこに はしる
+          for (let k = 0; k < 10; k++) {
+            const px = x - 26 + k * 6;
+            this.add({ x: px, y: y + 14, vx: 0, vy: -45 - Math.random() * 40, color: COL.fire[k % 3], life: 480, size: 3, delay: d + k * 22 });
+            this.add({ x: px, y: y + 10, vx: (Math.random() - 0.5) * 10, vy: -25, color: COL.fire[(k + 1) % 3], life: 380, size: 2, delay: d + k * 22 + 60 });
+          }
+          this.star(x, y, '#ffe07a', 9, d + 120);
+          break;
+        case 'fire_tornado':
+          this.swirl(x, y, COL.fire, { n: 36, rad: 20, h: 70, delay: d, life: 800, size: 2.5 });
+          this.flashAt(120, '#ffd0a0', d + 250);
+          break;
+        // ── こおり ──
+        case 'ice1': // ヒャド: こおりの つぶが あつまって はじける
+          for (let k = 0; k < 8; k++) {
+            const a = (k / 8) * Math.PI * 2;
+            this.add({ kind: 'shard', x: x + Math.cos(a) * 22, y: y + Math.sin(a) * 14, vx: -Math.cos(a) * 70, vy: -Math.sin(a) * 45, color: COL.ice[k % 3], life: 300, delay: d });
+          }
+          this.star(x, y, '#e6fbff', 12, d + 280);
+          this.burst(x, y, COL.ice, 14, 60, { delay: d + 280 });
+          break;
+        case 'ice2': // ヒャダルコ: したから こおりの はしら
+          for (let k = -1; k <= 1; k++) this.pillar(x + k * 9, y + 16, 'rgba(154,230,255,0.75)', { w: 6, h: 30 + (k === 0 ? 14 : 0), delay: d + (k + 1) * 60, life: 560 });
+          this.burst(x, y + 6, COL.ice, 16, 70, { delay: d + 260 });
+          break;
+        // ── かぜ ──
+        case 'wind1':
+          this.swirl(x, y, COL.wind, { n: 22, rad: 14, h: 44, delay: d, life: 560 });
+          for (let k = 0; k < 4; k++) this.slash(x + (k - 1.5) * 5, y, '#d8ffe0', 1, { len: 18, w: 1, delay: d + 100 + k * 60, angs: [k % 2 ? 0.6 : -0.6] });
+          break;
+        case 'wind2':
+          this.swirl(x, y, COL.wind, { n: 40, rad: 22, h: 70, delay: d, life: 760, size: 2 });
+          for (let k = 0; k < 6; k++) this.slash(x + (k - 2.5) * 5, y, '#ffffff', 1, { len: 22, w: 1, delay: d + 80 + k * 55, angs: [k % 2 ? 0.7 : -0.7] });
+          this.flashAt(80, '#e8fff0', d + 200);
+          break;
+        // ── ばくはつ ──
+        case 'blast1': case 'blast2': {
+          const n = anim === 'blast2' ? 3 : 1;
+          for (let k = 0; k < n; k++) {
+            const px = x + (n > 1 ? (k - 1) * 12 : 0), py = y + (n > 1 ? (k % 2) * 6 - 3 : 0), dd = d + k * 110;
+            this.star(px, py, '#ffffff', 14, dd, 220);
+            this.ring(px, py, '#ffffff', 4, dd, 330, 36);
+            this.ring(px, py, '#ff8a2a', 2, dd + 60, 380, 28);
+            this.burst(px, py, COL.blast, 20, 120, { delay: dd, g: 90 });
+          }
+          this.flashAt(anim === 'blast2' ? 200 : 140, '#fff4d0', d);
+          this.hitStop(anim === 'blast2' ? 220 : 140, d);
+          break;
+        }
+        // ── ひかり・やみ・しょうめつ ──
+        case 'void': // メドローア: ほのおと こおりが まじって しろい ひかりに
+          this.proj(x, y, COL.fire, { size: 3, travel: 320, delay: d, from: { x: BW / 2 - 40, y: BH + 6 } });
+          this.proj(x, y, COL.ice, { size: 3, travel: 320, delay: d, from: { x: BW / 2 + 40, y: BH + 6 } });
+          this.add({ kind: 'orb', x, y, color: '#ffffff', r: 26, life: 520, delay: d + 320 });
+          this.ring(x, y, '#c8a8ff', 6, d + 320, 500, 64);
+          this.burst(x, y, COL.void, 30, 60, { delay: d + 360 });
+          this.flashAt(260, '#f0e8ff', d + 320);
+          this.hitStop(240, d + 320);
+          break;
+        case 'dark1':
+          for (let k = 0; k < 3; k++) this.bolts.push({ x: x + (k - 1) * 8, life: 360, age: -d - k * 70, color: '#c8a8f0', to: y });
+          this.burst(x, y, COL.dark, 18, 50, { delay: d + 120 });
+          this.tintAt('rgba(40, 10, 60, 0.28)', 420);
+          break;
+        case 'minadein':
+          for (let k = 0; k < 3; k++) this.bolts.push({ x: x + (k - 1) * 10, life: 520, age: -d - k * 90, color: '#fff6b0', to: y + 10 });
+          this.add({ kind: 'orb', x, y, color: '#fff6b0', r: 22, life: 600, delay: d + 200 });
+          this.burst(x, y, COL.bolt, 26, 110, { delay: d + 200 });
+          this.flashAt(320, '#fffbe0', d);
+          this.hitStop(260, d + 200);
+          break;
+        // ── かいふく・ほじょ（てきの ほう） ──
+        case 'heal1': case 'heal2': case 'heal_dance':
+          for (let k = 0; k < 14; k++) this.add({ x: x + (Math.random() - 0.5) * 22, y: y + 12, vx: 0, vy: -35 - Math.random() * 20, color: COL.heal[k % 3], life: 700, size: 1.5, delay: d + k * 20 });
+          this.ring(x, y, '#7dffb0', 2, d, 420, 26);
+          break;
+        case 'revive':
+          this.pillar(x, y + 16, 'rgba(255,246,176,0.6)', { w: 12, h: 80, delay: d, life: 700 });
+          break;
+        case 'buff': case 'charge': case 'guard': case 'warcry':
+          this.ring(x, y, '#ffd66b', 3, d, 420, 30);
+          this.arrows(x, y, '#ffd66b', true, 3, d);
+          break;
+        case 'debuff':
+          this.arrows(x, y, '#b07ae0', false, 3, d);
+          for (let k = 0; k < 8; k++) this.add({ x: x + (Math.random() - 0.5) * 20, y: y - 10, vx: 0, vy: 30, color: '#8a5ac8', life: 500, size: 2, delay: d });
+          break;
+        case 'sleep':
+          this.add({ kind: 'z', x: x + 6, y: y - 10, vx: 8, vy: -14, color: '#ffffff', life: 1000, delay: d });
+          this.add({ kind: 'z', x: x - 4, y: y - 4, vx: 6, vy: -12, color: '#c8e0ff', life: 1000, delay: d + 250 });
+          for (let k = 0; k < 10; k++) this.add({ x: x + (Math.random() - 0.5) * 30, y: y - 20, vx: 0, vy: 18, color: '#f7c8e8', life: 700, size: 1, delay: d + k * 30 });
+          break;
+        case 'breath':
+          this.tintAt('rgba(200, 230, 255, 0.25)', 500);
+          break;
+        case 'dance':
+          this.burst(x, y, ['#f7a1c4', '#ffe066', '#9ad1ff'], 14, 50, { delay: d });
+          for (let k = 0; k < 3; k++) this.star(x + (k - 1) * 12, y - 12, ['#f7a1c4', '#ffe066', '#9ad1ff'][k], 5, d + k * 90, 300);
+          break;
+        // ── モンスターの なかま ──
+        case 'tackle':
+          this.star(x, y, '#ffffff', crit ? 16 : 12, d);
+          this.ring(x, y, '#9ad8ff', 3, d, 280, 26);
+          this.burst(x, y, ['#ffffff', '#9ad8ff'], 12, 90, { delay: d });
+          break;
+        case 'bite':
+          this.add({ kind: 'bite', x, y, color: '#ffffff', life: 320, delay: d });
+          this.burst(x, y + 2, ['#ff6464', '#ffffff'], 8, 60, { delay: d + 150 });
+          break;
+        case 'hit': case 'hit_all':
+          this.star(x, y, '#ffffff', 9, d);
+          this.burst(x, y, ['#ffffff'], 6, 40, { delay: d });
+          break;
+        case 'quake':
+          this.burst(x, y + 16, ['#a08060', '#6a5040', '#d8c0a0'], 12, 50, { delay: d, g: 160 });
+          break;
+        default:
+          this.star(x, y, '#ffffff', 8, d);
+          this.burst(x, y, ['#ffffff'], 6, 40, { delay: d });
+      }
+    });
+  }
+
+  // ふつうの こうげき（ぶきの しゅるいで かわる）
+  weaponHit(targets, weapon, crit) {
     for (const t of targets) {
       const { x, y } = t;
-      switch (anim) {
-        case 'slash_heavy': this.slash(x, y, '#ffffff', 1); this.burst(x, y, ['#fff', '#ffd66b'], 8, 50); break;
-        case 'slash_fast': this.slash(x, y, '#bfe6ff', 2); break;
-        case 'slash_light': this.slash(x, y, '#fff6b0', 1); this.burst(x, y, col.light, 10, 40); break;
-        case 'slash_multi': this.slash(x, y, '#ffffff', 3); break;
-        case 'strash': this.slash(x, y, '#fff6b0', 3); this.burst(x, y, col.light, 26, 110); this.flash = 180; break;
-        case 'mahouken': this.slash(x, y, (col[element] || col.light)[0], 2); this.burst(x, y, col[element] || col.light, 18, 80); break;
-        case 'punch': case 'kick': this.burst(x, y, ['#ffd66b', '#ffffff'], 10, 70); break;
-        case 'punch_multi': for (let k = 0; k < 3; k++) this.burst(x + (Math.random() - 0.5) * 16, y + (Math.random() - 0.5) * 12, ['#ffd66b', '#ffffff'], 6, 60, { delay: k * 90 }); break;
-        case 'holy_punch': this.burst(x, y, ['#ffffff', '#fff6b0', '#7dffb0'], 26, 100); this.flash = 120; break;
-        case 'fire1': case 'fire2': case 'fire3':
-          for (let k = 0; k < (anim === 'fire1' ? 18 : 30); k++) this.add({ x: x + (Math.random() - 0.5) * 20, y: y + 10, vx: (Math.random() - 0.5) * 20, vy: -30 - Math.random() * 50, color: col.fire[k % 3], life: 500 + Math.random() * 300, size: 2 + Math.random() * 2 });
+      switch (weapon) {
+        case 'claw': case 'none':
+          this.play('punch', [t], null, { crit });
+          if (weapon === 'claw') this.slash(x, y, '#dfe4f0', 3, { angs: [0.9, 0.9, 0.9], spread: 4, gap: 30, len: 20, w: 1 });
           break;
-        case 'fire_wave': case 'fire_tornado':
-          for (let k = 0; k < 26; k++) {
-            const a = k / 26 * Math.PI * 4;
-            this.add({ x: x + Math.cos(a) * 14, y: y + 14 - k, vx: Math.cos(a + 1.5) * 30, vy: -40, color: col.fire[k % 3], life: 600, size: 2.5 });
-          }
+        case 'spear': // つき
+          this.add({ kind: 'thrust', x, y, color: '#ffffff', life: 240 });
+          this.star(x, y, '#fff6b0', crit ? 14 : 9, 120);
+          this.burst(x, y, ['#fff', '#ffd66b'], 8, 60, { delay: 120 });
           break;
-        case 'ice1': case 'ice2':
-          for (let k = 0; k < 16; k++) this.add({ x: x + (Math.random() - 0.5) * 24, y: y - 40 - Math.random() * 20, vx: 0, vy: 90 + Math.random() * 40, color: col.ice[k % 3], life: 450, size: 2, kind: 'shard' });
-          this.burst(x, y, col.ice, 10, 40, { delay: 300 });
+        case 'staff': // なぐる
+          this.star(x, y, '#ffffff', crit ? 16 : 11);
+          this.ring(x, y, '#9ad8ff', 2, 0, 240, 20);
+          this.burst(x, y, ['#fff', '#9ad8ff'], 8, 60);
           break;
-        case 'wind1': case 'wind2':
-          for (let k = 0; k < 20; k++) {
-            const a = k / 20 * Math.PI * 2;
-            this.add({ x: x + Math.cos(a) * 18, y: y + Math.sin(a) * 10, vx: -Math.sin(a) * 70, vy: Math.cos(a) * 30, color: col.wind[k % 3], life: 450, size: 1.5, kind: 'streak' });
-          }
+        case 'axe':
+          this.slash(x, y, '#ffffff', 1, { angs: [1.2], len: 36, w: 4, glow: '#ffb070' });
+          this.star(x, y, '#ffd66b', crit ? 18 : 13, 80);
+          this.burst(x, y, ['#fff', '#ffd66b', '#ff8a2a'], 12, 80, { delay: 80 });
+          this.hitStop(crit ? 180 : 90, 80);
           break;
-        case 'blast1': case 'blast2':
-          this.add({ kind: 'ring', x, y, color: '#ffffff', life: 350, size: 4 });
-          this.burst(x, y, col.blast, 24, 110);
-          this.flash = 140;
+        case 'fan':
+          this.slash(x, y, '#ffd0e8', 2, { angs: [-0.4, 0.4], len: 26, w: 2, glow: '#f7a1c4' });
+          for (let k = 0; k < 8; k++) this.add({ kind: 'petal', x: x + (Math.random() - 0.5) * 20, y: y - 14, vx: (Math.random() - 0.5) * 30, vy: 20 + Math.random() * 20, color: k % 2 ? '#f7a1c4' : '#ffffff', life: 700, delay: 80 });
           break;
-        case 'void':
-          this.add({ kind: 'ring', x, y, color: '#c8a8ff', life: 500, size: 6 });
-          this.burst(x, y, col.void, 30, 60, { delay: 200 });
-          this.flash = 220;
-          this.flashColor = '#e8d8ff';
+        case 'dagger':
+          this.slash(x, y, '#ffffff', 2, { angs: [-0.9, 0.5], len: 20, w: 2, gap: 60 });
+          this.star(x, y, '#ffffff', 8, 100);
           break;
-        case 'dark1': this.burst(x, y, col.dark, 18, 50); break;
-        case 'minadein':
-          this.bolts.push({ x, life: 500, age: 0 });
-          this.burst(x, y, col.bolt, 20, 90, { delay: 200 });
-          this.flash = 300;
-          this.flashColor = '#fffbe0';
-          break;
-        case 'heal1': case 'heal2': case 'heal_dance':
-          for (let k = 0; k < 12; k++) this.add({ x: x + (Math.random() - 0.5) * 20, y: y + 10, vx: 0, vy: -35 - Math.random() * 20, color: ['#7dffb0', '#ffffff', '#b8ffd0'][k % 3], life: 700, size: 1.5 });
-          break;
-        case 'buff': this.add({ kind: 'ring', x, y, color: '#ffd66b', life: 400, size: 3 }); break;
-        case 'debuff': for (let k = 0; k < 10; k++) this.add({ x: x + (Math.random() - 0.5) * 20, y: y - 10, vx: 0, vy: 30, color: '#8a5ac8', life: 500, size: 2 }); break;
-        case 'sleep': this.add({ kind: 'z', x: x + 6, y: y - 10, vx: 8, vy: -14, color: '#ffffff', life: 1000 }); this.add({ kind: 'z', x: x - 4, y: y - 4, vx: 6, vy: -12, color: '#c8e0ff', life: 1000, delay: 250 }); break;
-        case 'breath': this.tint = { color: 'rgba(200, 230, 255, 0.25)', life: 500, age: 0 }; break;
-        case 'dance': this.burst(x, y, ['#f7a1c4', '#ffe066', '#9ad1ff'], 12, 50); break;
-        default: this.burst(x, y, ['#ffffff'], 6, 40);
+        default: // けん
+          this.play('slash_heavy', [t], null, { crit });
+      }
+      if (crit) {
+        this.flashAt(140, '#ffffff', 60);
+        this.hitStop(160, 60);
       }
     }
+  }
+
+  // ほのおが たちのぼる
+  fireUp(x, y, n, delay) {
+    for (let k = 0; k < n; k++) this.add({ x: x + (Math.random() - 0.5) * 20, y: y + 10, vx: (Math.random() - 0.5) * 20, vy: -30 - Math.random() * 50, color: COL.fire[k % 3], life: 500 + Math.random() * 300, size: 2 + Math.random() * 2, delay });
+  }
+
+  flashAt(ms, color, delay = 0) {
+    this.add({ kind: 'flash', x: 0, y: 0, color, life: 1, delay, dur: ms });
+  }
+
+  tintAt(color, ms) {
+    this.tint = { color, life: ms, age: 0 };
+  }
+
+  // こうげきが あたった しゅんかんに がめんが ゆれる
+  hitStop(ms, delay = 0) {
+    this.add({ kind: 'shake', x: 0, y: 0, color: '#000', life: 1, delay, dur: ms });
   }
 
   update(dt) {
     for (const p of this.parts) {
       if (p.delay > 0) { p.delay -= dt; continue; }
       p.age += dt;
+      if (p.kind === 'proj') {
+        const t = Math.min(1, p.age / p.life);
+        const e = t * t * (3 - 2 * t);
+        p.x = p.x0 + (p.x1 - p.x0) * e;
+        p.y = p.y0 + (p.y1 - p.y0) * e - Math.sin(t * Math.PI) * 18;
+        // しっぽ
+        if (Math.random() < 0.9) this.add({ x: p.x + (Math.random() - 0.5) * 3, y: p.y + (Math.random() - 0.5) * 3, vx: (Math.random() - 0.5) * 12, vy: 10, color: p.colors[Math.floor(Math.random() * p.colors.length)], life: 260, size: 1 + Math.random() * p.size * 0.6 });
+        continue;
+      }
+      if (p.kind === 'swirl') {
+        const t = p.age / p.life;
+        const a = p.ang + t * 9;
+        p.x = p.cx + Math.cos(a) * p.rad * (1 - t * 0.3);
+        p.y = p.cy - t * p.rise + Math.sin(a) * p.rad * 0.3;
+        continue;
+      }
+      if (p.kind === 'flash' && p.age >= 0 && !p.done) {
+        p.done = true;
+        this.flash = Math.max(this.flash, p.dur);
+        this.flashColor = p.color;
+        continue;
+      }
+      if (p.kind === 'shake' && !p.done) {
+        p.done = true;
+        this.shakeT = Math.max(this.shakeT, p.dur);
+        continue;
+      }
       p.x += p.vx * dt / 1000;
       p.y += p.vy * dt / 1000;
       p.vy += (p.g || 0) * dt / 1000;
     }
-    this.parts = this.parts.filter((p) => p.age < p.life);
+    this.parts = this.parts.filter((p) => p.age < p.life || p.delay > 0);
     for (const b of this.bolts) b.age += dt;
     this.bolts = this.bolts.filter((b) => b.age < b.life);
     if (this.flash > 0) this.flash -= dt;
+    if (this.shakeT > 0) this.shakeT -= dt;
     if (this.tint) {
       this.tint.age += dt;
       if (this.tint.age > this.tint.life) this.tint = null;
     }
   }
 
+  // ゆれの ずれ（がめんに つかう）
+  get shakeOffset() {
+    if (this.shakeT <= 0) return { x: 0, y: 0 };
+    const k = Math.min(1, this.shakeT / 120);
+    return { x: Math.round((Math.random() - 0.5) * 6 * k), y: Math.round((Math.random() - 0.5) * 4 * k) };
+  }
+
+  get busy() {
+    return this.parts.length > 0 || this.bolts.length > 0;
+  }
+
   draw(x) {
     for (const p of this.parts) {
-      if (p.delay > 0) continue;
-      const t = p.age / p.life;
+      if (p.delay > 0 || p.kind === 'flash' || p.kind === 'shake') continue;
+      const t = Math.min(1, p.age / p.life);
       x.globalAlpha = Math.max(0, 1 - t * 0.9);
       x.fillStyle = p.color;
       x.strokeStyle = p.color;
       switch (p.kind) {
         case 'slash': {
-          const L = p.len * Math.min(1, t * 3);
-          x.lineWidth = 2;
-          x.beginPath();
-          x.moveTo(p.x + 12 - L * 0.5, p.y - 14 + 0);
-          x.lineTo(p.x + 12 - L, p.y - 14 + L * 0.9);
-          x.stroke();
+          // のびて きえる ななめの せん（まわりに ひかり）
+          const L = p.len * Math.min(1, t * 3.5);
+          const c = Math.cos(p.ang), s = Math.sin(p.ang);
+          const x0 = p.x - c * p.len / 2, y0 = p.y - s * p.len / 2;
+          if (p.glow) {
+            x.strokeStyle = p.glow;
+            x.globalAlpha = Math.max(0, 0.45 * (1 - t));
+            x.lineWidth = p.w + 3;
+            x.beginPath(); x.moveTo(x0, y0); x.lineTo(x0 + c * L, y0 + s * L); x.stroke();
+            x.globalAlpha = Math.max(0, 1 - t * 0.9);
+            x.strokeStyle = p.color;
+          }
+          x.lineWidth = p.w;
+          x.beginPath(); x.moveTo(x0, y0); x.lineTo(x0 + c * L, y0 + s * L); x.stroke();
           x.lineWidth = 1;
           break;
         }
         case 'ring': {
-          const r = 4 + t * 40;
+          const r = 4 + t * (p.r1 || 40);
           x.lineWidth = Math.max(1, p.size * (1 - t));
           x.beginPath();
           x.arc(p.x, p.y, r, 0, Math.PI * 2);
@@ -226,6 +528,86 @@ export class Effects {
           x.lineWidth = 1;
           break;
         }
+        case 'star': {
+          const r = p.size * (0.5 + Math.min(1, t * 3) * 0.7);
+          x.beginPath();
+          for (let i = 0; i < 16; i++) {
+            const rr = i % 2 ? r * 0.3 : r;
+            const a = (i / 16) * Math.PI * 2 + 0.2;
+            x.lineTo(p.x + Math.cos(a) * rr, p.y + Math.sin(a) * rr);
+          }
+          x.closePath();
+          x.fill();
+          break;
+        }
+        case 'proj': {
+          const r = p.size;
+          x.fillStyle = p.colors[2] || '#fff';
+          x.beginPath(); x.arc(p.x, p.y, r + 1.5, 0, Math.PI * 2); x.fill();
+          x.fillStyle = p.colors[0];
+          x.beginPath(); x.arc(p.x, p.y, r, 0, Math.PI * 2); x.fill();
+          x.fillStyle = '#ffffff';
+          x.fillRect(Math.round(p.x - 1), Math.round(p.y - 1), 2, 2);
+          break;
+        }
+        case 'pillar': {
+          const g = Math.min(1, t * 4);
+          const h = p.h * g;
+          x.globalAlpha = Math.max(0, 1 - Math.max(0, t - 0.5) * 2);
+          x.fillStyle = p.color;
+          x.fillRect(Math.round(p.x - p.w / 2), Math.round(p.y - h), p.w, Math.round(h));
+          x.fillStyle = p.edge;
+          x.fillRect(Math.round(p.x - p.w / 2), Math.round(p.y - h), 1, Math.round(h));
+          x.fillRect(Math.round(p.x - p.w / 2), Math.round(p.y - h), p.w, 1);
+          break;
+        }
+        case 'orb': {
+          const r = p.r * Math.min(1, t * 2.5);
+          x.globalAlpha = Math.max(0, 0.9 * (1 - t));
+          x.beginPath(); x.arc(p.x, p.y, r, 0, Math.PI * 2); x.fill();
+          x.globalAlpha = Math.max(0, 1 - t);
+          x.fillStyle = '#ffffff';
+          x.beginPath(); x.arc(p.x, p.y, r * 0.5, 0, Math.PI * 2); x.fill();
+          break;
+        }
+        case 'arrow': {
+          const ax = Math.round(p.x), ay = Math.round(p.y);
+          const dir = p.up ? -1 : 1;
+          x.fillRect(ax - 1, ay - 4, 2, 8);
+          x.fillRect(ax - 3, ay + dir * 3, 6, 1);
+          x.fillRect(ax - 2, ay + dir * 4, 4, 1);
+          break;
+        }
+        case 'circle': {
+          // まほうじん（したに ひろがる だえん）
+          const r = 16 + t * 34;
+          x.lineWidth = 1;
+          x.globalAlpha = Math.max(0, 0.8 * (1 - t));
+          x.beginPath(); x.ellipse(p.x, p.y, r, r * 0.28, 0, 0, Math.PI * 2); x.stroke();
+          x.beginPath(); x.ellipse(p.x, p.y, r * 0.7, r * 0.2, 0, 0, Math.PI * 2); x.stroke();
+          break;
+        }
+        case 'bite': {
+          // うえと したから とじる キバ
+          const k = Math.min(1, t * 3);
+          const gap = 14 * (1 - k);
+          for (let i = -2; i <= 2; i++) {
+            x.fillRect(Math.round(p.x + i * 5 - 1), Math.round(p.y - 8 - gap), 2, 5);
+            x.fillRect(Math.round(p.x + i * 5 - 1), Math.round(p.y + 3 + gap), 2, 5);
+          }
+          break;
+        }
+        case 'thrust': {
+          const L = 30 * Math.min(1, t * 3);
+          x.lineWidth = 2;
+          x.beginPath(); x.moveTo(p.x, p.y + 30); x.lineTo(p.x, p.y + 30 - L); x.stroke();
+          x.lineWidth = 1;
+          break;
+        }
+        case 'petal':
+          x.fillRect(Math.round(p.x), Math.round(p.y), 2, 1);
+          x.fillRect(Math.round(p.x) + 1, Math.round(p.y) + 1, 1, 1);
+          break;
         case 'z':
           x.font = '8px monospace';
           x.fillText('Z', Math.round(p.x), Math.round(p.y));
@@ -235,6 +617,10 @@ export class Effects {
           break;
         case 'shard':
           x.fillRect(Math.round(p.x), Math.round(p.y), 1, 4);
+          x.fillRect(Math.round(p.x) - 1, Math.round(p.y) + 1, 3, 1);
+          break;
+        case 'swirl':
+          x.fillRect(Math.round(p.x - p.size / 2), Math.round(p.y - p.size / 2), Math.ceil(p.size), Math.ceil(p.size));
           break;
         default:
           x.fillRect(Math.round(p.x - p.size / 2), Math.round(p.y - p.size / 2), Math.ceil(p.size), Math.ceil(p.size));
@@ -242,15 +628,17 @@ export class Effects {
     }
     x.globalAlpha = 1;
     for (const b of this.bolts) {
-      x.strokeStyle = b.age % 100 < 50 ? '#ffffff' : '#fff6b0';
+      if (b.age < 0) continue;
+      x.strokeStyle = b.age % 100 < 50 ? '#ffffff' : (b.color || '#fff6b0');
       x.lineWidth = 2;
       x.beginPath();
       let px = b.x + (Math.random() - 0.5) * 10, py = 0;
+      const to = b.to ?? 110;
       x.moveTo(px, py);
-      while (py < 110) {
+      while (py < to) {
         py += 10 + Math.random() * 10;
         px += (Math.random() - 0.5) * 16;
-        x.lineTo(px, py);
+        x.lineTo(px, Math.min(py, to));
       }
       x.stroke();
       x.lineWidth = 1;

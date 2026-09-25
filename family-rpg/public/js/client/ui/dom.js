@@ -25,7 +25,7 @@ export function esc(s) {
 }
 
 // ───────────── えらぶ メニュー ─────────────
-// items: [{label, right, disabled, value, cls, title}]
+// items: [{label, right, disabled, value, cls, title, header}]  header: えらべない みだし
 // back: タッチでも もどれるように リストの うえに だす ボタンの もじ（null で なし）
 export class ListMenu {
   constructor(input, { items = [], cols = 1, onSelect, onCancel, onMove, sound, className = '', back } = {}) {
@@ -37,7 +37,7 @@ export class ListMenu {
     this.onMove = onMove;
     this.sound = sound;
     this.back = back === undefined ? (onCancel ? 'もどる' : null) : back;
-    this.idx = Math.max(0, items.findIndex((i) => !i.disabled));
+    this.idx = Math.max(0, items.findIndex((i) => !i.disabled && !i.header));
     if (this.idx < 0) this.idx = 0;
     this.root = el('ul', { class: `menu ${cols === 2 ? 'cols2' : ''} ${className}`, role: 'listbox' });
     this.handler = { onNav: (a, rep) => this.nav(a, rep) };
@@ -47,13 +47,17 @@ export class ListMenu {
 
   setItems(items, keepIdx = true) {
     this.items = items;
-    if (!keepIdx || this.idx >= items.length) this.idx = Math.max(0, items.findIndex((i) => !i.disabled));
+    if (!keepIdx || this.idx >= items.length || items[this.idx]?.header) this.idx = Math.max(0, items.findIndex((i) => !i.disabled && !i.header));
     this.render();
   }
 
   render() {
     this.root.innerHTML = '';
     this.items.forEach((it, i) => {
+      if (it.header) {
+        this.root.append(el('li', { class: `hdr ${it.cls || ''}`, role: 'presentation', text: it.label }));
+        return;
+      }
       const li = el('li', {
         class: `item ${i === this.idx ? 'sel' : ''} ${it.disabled ? 'dis' : ''} ${it.cls || ''}`,
         role: 'option',
@@ -75,6 +79,10 @@ export class ListMenu {
       const lab = el('span', { class: 'l' });
       if (it.html) lab.innerHTML = it.html;
       else lab.textContent = it.label;
+      if (it.face) {
+        lab.classList.add('wf');
+        lab.prepend(el('img', { class: 'face', src: it.face, alt: '' }));
+      }
       li.append(lab);
       if (it.right !== undefined && it.right !== null && it.right !== '') li.append(el('span', { class: `r ${it.rightCls || ''}`, text: it.right }));
       this.root.append(li);
@@ -135,7 +143,7 @@ export class ListMenu {
       let i = this.idx;
       for (let k = 0; k < n; k++) {
         i = (i + d + n) % n;
-        if (!this.items[i].disabled || true) break;
+        if (!this.items[i].header) break;
       }
       this.idx = i;
       this.sound?.('cursor');

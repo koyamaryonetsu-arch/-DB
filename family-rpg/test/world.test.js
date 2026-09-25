@@ -170,9 +170,10 @@ test('サポートなかま: 家族の キャラを つれていくと おれい
   await b.login();
   await b.createAndPlay('warrior');
   await b.settle();
-  const { hireSupport } = await import('../public/js/shared/world/party.js');
-  const r = hireSupport(world, b.s, 'fam:' + a.char.id);
-  assert.ok(r.ok, r.reason);
+  b.send({ t: 'svc', kind: 'tavern', action: 'join', key: 'fam:' + a.char.id });
+  const r = b.msgs.filter((m) => m.t === 'svcRes').pop();
+  assert.ok(r.ok, r.text);
+  assert.equal(b.party.supports[0].family, true);
   const mamaBefore = world.data.characters[a.char.id].exp;
   // たたかう
   const ms = world.mapStates.get('overworld') || null;

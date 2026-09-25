@@ -97,7 +97,7 @@ export function showSelect(game, chars) {
   const items = [];
   for (const c of chars) {
     const cv = makeCanvas(16, 21);
-    ctxOf(cv).drawImage(playerSprite(c.look, c.job, 'down', 0), 0, 0);
+    ctxOf(cv).drawImage(playerSprite(c.look, c.job, 'down', 0, c.equip), 0, 0);
     const card = el('button', { class: 'win charcard' }, cv, el('div', {},
       el('div', { text: c.name }),
       el('div', { class: 'meta', text: `${JOBS[c.job]?.name} Lv${c.level}${c.online ? '' : ''}` }),

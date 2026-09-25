@@ -53,9 +53,9 @@ export class Hud {
     const c = g.me;
     if (!c) return;
     this.party.innerHTML = '';
-    const add = (name, lv, job, hp, maxHp, mp, maxMp, tag, away = false) => {
+    const add = (name, lv, job, hp, maxHp, mp, maxMp, tag, away = false, mon = null) => {
       const box = el('div', { class: `win hud-mem ${hp <= 0 ? 'dead' : ''} ${away ? 'away' : ''}` },
-        el('div', { class: 'nm' }, el('span', { text: name }), el('span', { class: 'lv', text: `${JOBS[job]?.name?.slice(0, 2) || ''}${lv}` })),
+        el('div', { class: 'nm' }, el('span', { text: name }), el('span', { class: 'lv', text: `${mon ? 'Lv' : JOBS[job]?.name?.slice(0, 2) || ''}${lv}` })),
         el('div', { class: 'small', text: away ? 'つうしんまち…' : `H${hp} M${mp}` }),
         bar(hp / Math.max(1, maxHp)), bar(mp / Math.max(1, maxMp), 'mp'));
       if (tag) box.title = tag;
@@ -65,8 +65,8 @@ export class Hud {
     add(c.name, c.level, c.job, c.hp, st.maxHp, c.mp, st.maxMp);
     const p = g.party;
     for (const m of p?.members || []) if (m.sid !== g.sid) add(m.name, m.level, m.job, m.hp, m.maxHp, m.mp, m.maxMp, 'かぞく', m.away);
-    for (const s of p?.supports || []) add(s.name, s.level, s.job, s.hp, s.maxHp, s.mp, s.maxMp, 'サポート');
-    for (const gu of p?.guests || []) add(gu.name, gu.level, gu.job, gu.hp, gu.maxHp, 0, 1, 'ゲスト');
+    for (const s of p?.supports || []) add(s.name, s.level, s.job, s.hp, s.maxHp, s.mp, s.maxMp, s.family ? 'かぞく サポート' : s.species ? 'モンスター' : 'なかま', false, s.species);
+    for (const gu of p?.guests || []) add(gu.name, gu.level, gu.job, gu.hp, gu.maxHp, gu.mp ?? 0, gu.maxMp || 1, 'ゲスト');
   }
 
   setObjective(text) {

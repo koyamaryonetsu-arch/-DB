@@ -3,13 +3,14 @@ import { MAPS, isBlocked, effectiveTile, condOk, tileAt } from '../shared/maps/i
 import { T, TILE_INFO } from '../shared/tiles.js';
 import { PLACES } from '../shared/maps/overworld.js';
 import { TS, tileCanvas, frameOf, prepareMap } from './render/tiles.js';
-import { paintHuman, lookToOpts, npcOpts, paintSpecial, CW, CH } from './render/chars.js';
+import { paintHuman, lookToOpts, npcOpts, paintSpecial, equipKey, CW, CH } from './render/chars.js';
 import { monsterCanvas, bigNpcCanvas } from './render/monsters.js';
-import { makeCanvas, ctxOf, shade } from './render/pixel.js';
+import { makeCanvas, ctxOf, shade, flipCanvas } from './render/pixel.js';
 import { chestCanvas as chestCanvas3d } from './render/tex3d.js';
 import { el } from './ui/dom.js';
 
 const SPEED = 4.6; // マス/びょう
+const RUN = 1.65; // はしると この ばい
 const DAY_MS = 24 * 60 * 1000;
 
 const spriteCache = new Map();
@@ -30,8 +31,39 @@ function specialSprite(kind, dir, frame) {
   spriteCache.set(k, c);
   return c;
 }
-export function playerSprite(look, job, dir, frame) {
-  return charSprite(`p:${JSON.stringify(look)}:${job}`, lookToOpts(look, job), dir, frame);
+// eq: そうび（'ぶき,よろい,たて,あたま' か { weapon, armor, … }）。ないときは しょくぎょうの はじめの そうび
+export function playerSprite(look, job, dir, frame, eq) {
+  const ek = equipKey(eq, job);
+  const k = `p:${JSON.stringify(look)}:${job}:${ek}`;
+  const ck = `${k}|${dir}|${frame}`;
+  if (spriteCache.has(ck)) return spriteCache.get(ck);
+  return charSprite(k, lookToOpts(look, job, ek), dir, frame);
+}
+
+// なかま（モンスターは ちいさい モンスターの え。みぎむきは はんてん）
+const monFlip = new WeakMap();
+export function followerSprite(f, dir, frame) {
+  if (f.mon) {
+    const c = monsterCanvas(f.mon, frame, true);
+    if (dir !== 'right') return c;
+    let fc = monFlip.get(c);
+    if (!fc) { fc = flipCanvas(c); monFlip.set(c, fc); }
+    return fc;
+  }
+  return playerSprite(f.look, f.job, dir, frame, f.eq);
+}
+
+// メニューなどに だす かお（えの データURL）
+const faceCache = new Map();
+export function faceURL(f) {
+  const k = f.mon ? `m:${f.mon}` : `p:${JSON.stringify(f.look)}:${f.job}:${equipKey(f.eq, f.job)}`;
+  let u = faceCache.get(k);
+  if (!u) {
+    const c = followerSprite(f, 'down', 0);
+    try { u = c.toDataURL(); } catch { u = ''; }
+    faceCache.set(k, u);
+  }
+  return u;
 }
 export function npcSprite(kind, dir, frame) {
   const o = npcOpts(kind);
@@ -218,17 +250,19 @@ export class Field {
     let { x: ix, y: iy } = controls.dir;
     const canMove = controls.canMove;
     if (!canMove) { ix = 0; iy = 0; }
-    // ついていく（リーダーの とおった みちを たどる）
+    // ついていく（リーダーの とおった みちを たどる。はなれたら はしって おいつく）
+    let run = !!controls.run;
     if (canMove && ix === 0 && iy === 0 && this.game.follow) {
       const d = this.followStep(dt);
-      if (d) { ix = d.x; iy = d.y; }
+      if (d) { ix = d.x; iy = d.y; run = run || d.far; }
     } else this.followStuck = 0;
     const mag = Math.min(1, Math.hypot(ix, iy));
     me.moving = mag > 0.05;
+    me.running = me.moving && run;
     if (me.moving) {
       if (Math.abs(ix) > Math.abs(iy)) me.dir = ix > 0 ? 'right' : 'left';
       else me.dir = iy > 0 ? 'down' : 'up';
-      const sp = SPEED * sec * (mag > 0.4 ? 1 : 0.6);
+      const sp = SPEED * sec * (mag > 0.4 ? 1 : 0.6) * (run ? RUN : 1);
       const nx = me.x + (ix / (Math.hypot(ix, iy) || 1)) * sp;
       const ny = me.y + (iy / (Math.hypot(ix, iy) || 1)) * sp;
       let moved = false;
@@ -343,7 +377,7 @@ export class Field {
     const t = tr[0] || leader;
     const dx = t.x - me.x, dy = t.y - me.y;
     const d = Math.hypot(dx, dy) || 1;
-    return { x: dx / d, y: dy / d };
+    return { x: dx / d, y: dy / d, far: dl > 3.2 };
   }
 
   // タイルの みちさがし（ちかい ところ だけ）
@@ -481,7 +515,7 @@ export class Field {
         o = { sid: p.sid, x: p.x, y: p.y, trail: [] };
         this.others.set(p.sid, o);
       }
-      Object.assign(o, { name: p.name, look: p.look, job: p.job, tx: p.x, ty: p.y, dir: p.dir, moving: !!p.mv, battle: !!p.b, away: !!p.aw, partyId: p.pid, fl: p.fl || [] });
+      Object.assign(o, { name: p.name, look: p.look, job: p.job, eq: p.eq, tx: p.x, ty: p.y, dir: p.dir, moving: !!p.mv, battle: !!p.b, away: !!p.aw, partyId: p.pid, fl: p.fl || [] });
       // リーダーの とおった みちを おぼえる（ついていく ため）
       if (this.game.follow && p.sid === this.game.party?.leader) {
         const tr = this.leaderCrumbs;
@@ -662,23 +696,23 @@ export class Field {
       objs.push({ y: s.y, draw: () => this.drawSym(s, camX, camY) });
     }
     for (const o of this.others.values()) {
-      objs.push({ y: o.y, draw: () => this.drawPlayer(o, camX, camY, o.look, o.job) });
+      objs.push({ y: o.y, draw: () => this.drawPlayer(o, camX, camY, o.look, o.job, false, o.eq) });
       o.fl.forEach((f, i) => {
         if (this.hideGuests && f.guest) return;
         const tp = this.trailPos(o, i + 1);
-        if (tp) objs.push({ y: tp.y, draw: () => this.drawAt(playerSprite(f.look, f.job, tp.dir, this.walkFrame(o.moving)), tp.x, tp.y, camX, camY) });
+        if (tp) objs.push({ y: tp.y, draw: () => this.drawAt(followerSprite(f, tp.dir, this.walkFrame(o.moving)), tp.x, tp.y, camX, camY) });
       });
     }
-    // じぶんの なかま（サポート・ゲスト）
+    // じぶんの なかま（酒場の なかま・モンスター・ゲスト）
     const fl = this.myFollowers();
     fl.forEach((f, i) => {
       const tp = this.trailPos(this.me, i + 1);
-      if (tp) objs.push({ y: tp.y, draw: () => this.drawAt(playerSprite(f.look, f.job, tp.dir, this.walkFrame(this.me.moving)), tp.x, tp.y, camX, camY) });
+      if (tp) objs.push({ y: tp.y, draw: () => this.drawAt(followerSprite(f, tp.dir, this.walkFrame(this.myStep)), tp.x, tp.y, camX, camY) });
     });
     for (const a of this.actors.values()) {
       objs.push({ y: a.y, draw: () => this.drawAt(npcSprite(a.sprite, a.dir, this.walkFrame(true)), a.x, a.y, camX, camY) });
     }
-    if (!this.hideMe) objs.push({ y: this.me.y, draw: () => this.drawPlayer(this.me, camX, camY, this.game.me.look, this.game.me.job, true) });
+    if (!this.hideMe) objs.push({ y: this.me.y, draw: () => this.drawPlayer(this.me, camX, camY, this.game.me.look, this.game.me.job, true, this.game.me.equip) });
     objs.sort((a, b) => a.y - b.y);
     for (const o of objs) o.draw();
     // やね
@@ -852,26 +886,31 @@ export class Field {
     }
     for (const o of this.others.values()) {
       const mate = o.partyId === this.game.party?.id;
-      out.push({ key: 'p:' + o.sid, canvas: playerSprite(o.look, o.job, o.dir || 'down', this.walkFrame(o.moving)), x: o.x, y: o.y, alpha: o.away ? 0.45 : 1, ghost: mate ? '#ffd66b' : null });
+      out.push({ key: 'p:' + o.sid, canvas: playerSprite(o.look, o.job, o.dir || 'down', this.walkFrame(o.moving), o.eq), x: o.x, y: o.y, alpha: o.away ? 0.45 : 1, ghost: mate ? '#ffd66b' : null });
       o.fl.forEach((f, i) => {
         if (this.hideGuests && f.guest) return;
         const tp = this.trailPos(o, i + 1);
-        if (tp) out.push({ key: `pf:${o.sid}:${i}`, canvas: playerSprite(f.look, f.job, tp.dir, this.walkFrame(o.moving)), x: tp.x, y: tp.y });
+        if (tp) out.push({ key: `pf:${o.sid}:${i}`, canvas: followerSprite(f, tp.dir, this.walkFrame(o.moving)), x: tp.x, y: tp.y, anchor: f.mon ? 2 : undefined });
       });
     }
     this.myFollowers().forEach((f, i) => {
       const tp = this.trailPos(this.me, i + 1);
-      if (tp) out.push({ key: 'mf:' + i, canvas: playerSprite(f.look, f.job, tp.dir, this.walkFrame(this.me.moving)), x: tp.x, y: tp.y });
+      if (tp) out.push({ key: 'mf:' + i, canvas: followerSprite(f, tp.dir, this.walkFrame(this.myStep)), x: tp.x, y: tp.y, anchor: f.mon ? 2 : undefined });
     });
     for (const a of this.actors.values()) {
       out.push({ key: 'a:' + a.id, canvas: npcSprite(a.sprite, a.dir, this.walkFrame(true)), x: a.x, y: a.y });
     }
-    if (!this.hideMe && this.game.me) out.push({ key: 'me', canvas: playerSprite(this.game.me.look, this.game.me.job, this.me.dir || 'down', this.walkFrame(this.me.moving)), x: this.me.x, y: this.me.y, ghost: '#9fd6ff' });
+    if (!this.hideMe && this.game.me) out.push({ key: 'me', canvas: playerSprite(this.game.me.look, this.game.me.job, this.me.dir || 'down', this.walkFrame(this.myStep), this.game.me.equip), x: this.me.x, y: this.me.y, ghost: '#9fd6ff' });
     return out;
   }
 
   walkFrame(moving) {
-    return Math.floor(this.time / (moving ? 170 : 420)) % 2;
+    return Math.floor(this.time / (moving ? (moving === 'run' ? 110 : 170) : 420)) % 2;
+  }
+
+  // じぶんと なかまの あしぶみ（はしると はやい）
+  get myStep() {
+    return this.me.running ? 'run' : this.me.moving;
   }
 
   trailPos(o, n) {
@@ -890,8 +929,8 @@ export class Field {
     const p = this.game.party;
     if (!p || p.leader !== this.game.sid) return [];
     const out = [];
-    for (const s of p.supports || []) out.push({ look: s.look, job: s.job });
-    if (!this.hideGuests) for (const g of p.guests || []) out.push({ look: g.look, job: g.job, guest: true });
+    for (const s of p.supports || []) out.push({ look: s.look, job: s.job, eq: s.equip, mon: s.species || undefined });
+    if (!this.hideGuests) for (const g of p.guests || []) out.push({ look: g.look, job: g.job, eq: g.equip, guest: true });
     return out;
   }
 
@@ -905,9 +944,9 @@ export class Field {
     this.ctx.drawImage(c, px, py);
   }
 
-  drawPlayer(o, camX, camY, look, job, mine = false) {
+  drawPlayer(o, camX, camY, look, job, mine = false, eq = undefined) {
     if (!look) return;
-    const c = playerSprite(look, job, o.dir || 'down', this.walkFrame(o.moving));
+    const c = playerSprite(look, job, o.dir || 'down', this.walkFrame(mine ? this.myStep : o.moving), eq);
     const ctx = this.ctx;
     const myParty = this.game.party?.id;
     // なかまが たたかっている: あしもとに ひかる わ（ちかづくと さんか できる）

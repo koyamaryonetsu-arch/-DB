@@ -13,7 +13,9 @@ import { mapState, spawnSymbols, moveSymbols, symbolSnapshot } from './monsters.
 import { startFieldBattle, battleTick, battleCommand, battleLeave, joinBattle } from './battles.js';
 import { runScript, runSteps } from './scripts.js';
 import { serviceAction, menuAction } from './services.js';
-import { newParty, partyOf, partyState, PARTY_MAX } from './party.js';
+import { newParty, partyOf, partyState, syncParty, ensureCompanions, companionWait, PARTY_MAX } from './party.js';
+import { MONSTERS } from '../data/monsters.js';
+import { COMPANION_SLOTS } from '../data/companions.js';
 
 export const PROTOCOL_VERSION = 1;
 const SPARKLE_RESPAWN_MS = 20 * 60 * 1000;
@@ -228,7 +230,7 @@ export class GameWorld {
     const online = new Set([...this.sessions.values()].filter((x) => x.inWorld).map((x) => x.charId));
     return Object.values(this.data.characters)
       .sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0))
-      .map((c) => ({ id: c.id, name: c.name, job: c.job, level: c.level, look: c.look, online: online.has(c.id), objective: c.objective, lastPlayed: c.lastPlayed }));
+      .map((c) => ({ id: c.id, name: c.name, job: c.job, level: c.level, look: c.look, equip: c.equip, online: online.has(c.id), objective: c.objective, lastPlayed: c.lastPlayed }));
   }
 
   onCreateChar(s, msg) {
@@ -287,6 +289,7 @@ export class GameWorld {
     s.level = c.level;
     const p = newParty(this, s.id);
     s.partyId = p.id;
+    syncParty(this, p);
     if (c.hp <= 0) c.hp = 1;
     const supportLog = c.supportLog || [];
     c.supportLog = [];
@@ -301,6 +304,42 @@ export class GameWorld {
     this.markDirty();
     // はじめての ときは オープニング
     if (!c.flags.p_opening) runScript(this, s, 'opening');
+    // まえの バージョンで 森の ぬしを たおしていた 人は、ゆめの なかで 紋章の ちからに めざめる
+    else if (c.flags.c1_treant && !c.flags.monster_bond) runScript(this, s, 'bond_dream');
+  }
+
+  // たおした まものが なかまに なりたがっている
+  offerBefriend(s, species, level) {
+    const m = MONSTERS[species];
+    if (!m || s.busy) return;
+    const c = s.char;
+    ensureCompanions(c);
+    const id = 'o' + (++this.offerSeq || (this.offerSeq = 1)) + Math.floor(this.rng.next() * 1e6).toString(36);
+    s.befriendOffer = { id, species, level };
+    const p = partyOf(this, s);
+    const slotsFree = c.partyKeys.length < COMPANION_SLOTS;
+    let yes;
+    if (slotsFree) {
+      yes = [['befriend', id, null]];
+    } else {
+      const names = c.partyKeys.map((k) => (k.startsWith('fam:') ? this.data.characters[k.slice(4)]?.name : c.companions.find((e) => e.key === k)?.char.name) || '？');
+      yes = [
+        ['say', null, 'パーティーが いっぱいだ。\nだれかに 酒場で まっていて もらおう。'],
+        ['choice', 'だれが 酒場へ もどる？', [...names, `${m.name}が 酒場で まつ`],
+          [...c.partyKeys.map((k) => [['befriend', id, k]]), [['befriend', id, '__tavern']]]],
+      ];
+    }
+    runSteps(this, s, [
+      ['showMon', species],
+      ['sfx', 'sparkle'],
+      ['say', null, `なんと ${m.name}が おきあがり\nなかまに なりたそうに こちらを みている！`],
+      ['choice', `${m.name}を なかまに してあげますか？`, ['はい', 'いいえ'], [
+        yes,
+        [['say', null, `${m.name}は さびしそうに さっていった…`], ['befriend', id, false]],
+      ]],
+      ['showMon', null],
+    ]);
+    if (p && p.members.length > 1) this.broadcastToParty(p, { t: 'toast', text: `${m.name}が ${c.name}の なかまに なりたそうに している！` });
   }
 
   broadcastPlayers() {
@@ -554,13 +593,13 @@ export class GameWorld {
         if (s.busy) return this.send(s, { t: 'toast', text: 'いまは パーティーに はいれません' });
         // じぶんの パーティーを ぬける
         this.leaveParty(s, true);
-        // いっぱいなら サポートを へらす
-        while (target.members.length + target.supports.length >= PARTY_MAX && target.supports.length) target.supports.pop();
         if (target.members.length >= PARTY_MAX) return this.send(s, { t: 'toast', text: 'パーティーが いっぱいです' });
         const own = this.parties.get(s.partyId);
         if (own) this.parties.delete(own.id);
         target.members.push(s.id);
         s.partyId = target.id;
+        // にんげんが ふえたので はいりきらない なかまは いったん まつ
+        syncParty(this, target);
         this.sendParty(target);
         this.broadcastToParty(target, { t: 'toast', text: `${s.char.name}が パーティーに くわわった！` });
         return;
@@ -587,13 +626,15 @@ export class GameWorld {
       case 'leader': {
         if (p.leader !== s.id || !p.members.includes(msg.sid)) return;
         p.leader = msg.sid;
+        syncParty(this, p);
         this.sendParty(p);
         return;
       }
       case 'dismiss': {
-        if (p.leader !== s.id) return;
-        p.supports = p.supports.filter((x) => x.key !== msg.key);
-        this.sendParty(p);
+        // なかまに 酒場で まっていて もらう
+        if (p.leader !== s.id || s.busy) return;
+        const r = companionWait(this, s, String(msg.key || ''));
+        if (r.ok) this.send(s, { t: 'toast', text: `${r.name}は 酒場へ もどった。\n（ルミナの町の 酒場で また つれていけるよ）` });
         return;
       }
       default:
@@ -610,12 +651,14 @@ export class GameWorld {
       if (p.leader === s.id) {
         p.leader = p.members[0];
       }
+      syncParty(this, p);
       this.sendParty(p);
       if (!silent) this.broadcastToParty(p, { t: 'toast', text: `${s.char.name}が パーティーから はなれた。` });
     }
     if (s.inWorld) {
       const np = newParty(this, s.id);
       s.partyId = np.id;
+      syncParty(this, np);
       this.sendParty(np);
     } else {
       s.partyId = null;
@@ -689,7 +732,7 @@ export class GameWorld {
         const ms = mapState(this, mapId);
         const syms = symbolSnapshot(ms);
         const ps = players.map((p) => ({
-          sid: p.id, name: p.char.name, look: p.char.look, job: p.char.job, x: Math.round(p.x * 100) / 100, y: Math.round(p.y * 100) / 100,
+          sid: p.id, name: p.char.name, look: p.char.look, job: p.char.job, eq: equipLook(p.char), x: Math.round(p.x * 100) / 100, y: Math.round(p.y * 100) / 100,
           dir: p.dir, mv: p.moving ? 1 : 0, b: p.busy === 'battle' ? 1 : 0, pid: p.partyId, aw: p.away ? 1 : 0,
           fl: this.followerLooks(p),
         }));
@@ -706,7 +749,10 @@ export class GameWorld {
   followerLooks(s) {
     const p = partyOf(this, s);
     if (!p || p.leader !== s.id) return [];
-    return [...p.supports.map((x) => ({ look: x.char.look, job: x.char.job, name: x.char.name })), ...p.guests.map((g) => ({ look: g.char.look, job: g.char.job, name: g.char.name, guest: g.id }))];
+    return [
+      ...p.supports.map((x) => ({ look: x.char.look, job: x.char.job, eq: equipLook(x.char), mon: x.char.species || undefined, name: x.char.name })),
+      ...p.guests.map((g) => ({ look: g.char.look, job: g.char.job, eq: equipLook(g.char), name: g.char.name, guest: g.id })),
+    ];
   }
 
   markDirty() {
@@ -727,6 +773,12 @@ export class GameWorld {
       this.log('save error', e);
     }
   }
+}
+
+// みための ための そうび（ぶき・よろい・たて・あたま）
+export function equipLook(c) {
+  const e = c.equip || {};
+  return [e.weapon || '', e.armor || '', e.shield || '', e.head || ''].join(',');
 }
 
 function normalizeData(d) {
@@ -751,4 +803,5 @@ function normalizeChar(c) {
   c.jobs = c.jobs || { [c.job]: { lv: 1, exp: 0 } };
   if (!c.jobs[c.job]) c.jobs[c.job] = { lv: 1, exp: 0 };
   c.battleSettings = c.battleSettings || { speed: 1, wait: false, auto: false };
+  ensureCompanions(c);
 }

@@ -1,11 +1,13 @@
 // お店・転職・酒場・でんごんばん・ほしのかけら・きょうかい の がめん
-import { el, ListMenu, toast, askText, confirmBox } from './dom.js';
+import { el, ListMenu, toast, askText, confirmBox, esc } from './dom.js';
 import { ITEMS, sellPrice } from '../../shared/data/items.js';
 import { JOBS, JOB_ORDER } from '../../shared/data/jobs.js';
 import { ABILITIES } from '../../shared/data/abilities.js';
-import { canEquip, itemCount } from '../../shared/stats.js';
+import { canEquip, itemCount, learnedAbilities } from '../../shared/stats.js';
+import { MONSTERS } from '../../shared/data/monsters.js';
+import { TACTICS } from '../../shared/ai.js';
 import { itemDetail, equipDiff, diffText } from './info.js';
-import { playerSprite } from '../field.js';
+import { playerSprite, followerSprite, faceURL } from '../field.js';
 
 export function openServiceUI(game, kind, data) {
   switch (kind) {
@@ -230,12 +232,32 @@ function jobUI(game) {
     const side = el('div', { class: 'win side' });
     const main = el('div', { class: 'win main scroll' });
     s.body.append(side, main);
+    // だれが 転職する？（じぶん と 酒場の なかま。モンスターは 転職できない）
+    let who = 'self';
+    const mates = () => (game.party?.supports || []).filter((x) => x.kind === 'npc' && x.owner === game.me.id);
+    const target = () => {
+      if (who === 'self') return { name: game.me.name, job: game.me.job, jobs: game.me.jobs, look: game.me.look, equip: game.me.equip };
+      return mates().find((x) => x.key === who) || null;
+    };
+    const whoRow = el('div', { class: 'who-list' });
+    const renderWho = () => {
+      whoRow.innerHTML = '';
+      const list = [{ key: 'self', name: game.me.name }, ...mates()];
+      if (list.length < 2) return;
+      for (const m of list) {
+        whoRow.append(el('button', {
+          class: `btn ${who === m.key ? 'sel' : ''}`, text: m.name,
+          onclick: () => { who = m.key; renderWho(); menu.setItems(render()); showJob(menu.current?.value || target().job); },
+        }));
+      }
+    };
     const render = () => {
-      const c = game.me;
-      s.right.textContent = `いま: ${JOBS[c.job].name}`;
+      if (!target()) who = 'self';
+      const c = target();
+      s.right.textContent = `${c.name}: ${JOBS[c.job]?.name || ''}`;
       return JOB_ORDER.map((j) => ({
         label: JOBS[j].name,
-        right: c.jobs[j] ? `Lv${c.jobs[j].lv}` : 'はじめて',
+        right: c.jobs?.[j] ? `Lv${c.jobs[j].lv}` : 'はじめて',
         value: j,
         cls: j === c.job ? 'good' : '',
       }));
@@ -245,21 +267,23 @@ function jobUI(game) {
       sound: (x) => game.audio.sfx(x),
       onMove: (it) => showJob(it.value),
       onSelect: async (it) => {
-        if (it.value === game.me.job) {
+        const c = target();
+        if (!c) return;
+        if (it.value === c.job) {
           toast('いまの しょくぎょうです');
           return;
         }
         menu.blur();
-        const ok = await confirmBox(game.input, `${JOBS[it.value].name}に 転職しますか？\n（いまの しょくぎょうの レベルは のこります）`, 'はい', 'いいえ', (x) => game.audio.sfx(x));
+        const ok = await confirmBox(game.input, `${who === 'self' ? '' : c.name + 'を '}${JOBS[it.value].name}に 転職${who === 'self' ? 'しますか' : 'させますか'}？\n（いまの しょくぎょうの レベルは のこります）`, 'はい', 'いいえ', (x) => game.audio.sfx(x));
         if (ok) {
-          const r = await request(game, { kind: 'jobChange', job: it.value });
+          const r = await request(game, { kind: 'jobChange', job: it.value, who });
           if (r.ok) {
             game.audio.sfx('join');
-            game.field.flashLocal?.();
+            if (who === 'self') game.field.flashLocal?.();
           }
           toast(r.text || '');
-          menu.setItems(render());
-          showJob(it.value);
+          // なかまの じょうほうが とどくのを すこし まつ
+          setTimeout(() => { menu.setItems(render()); showJob(it.value); }, 150);
         }
         menu.focus();
       },
@@ -275,10 +299,13 @@ function jobUI(game) {
     side.append(menu.root);
     const showJob = (j) => {
       const job = JOBS[j];
-      const c = game.me;
-      const lv = c.jobs[j]?.lv || 0;
+      const c = target();
+      if (!job || !c) return;
+      const lv = c.jobs?.[j]?.lv || 0;
       main.innerHTML = '';
-      const pv = playerSprite(c.look, j, 'down', 0);
+      main.append(whoRow);
+      renderWho();
+      const pv = playerSprite(c.look, j, 'down', 0, c.equip);
       const img = el('canvas', { width: pv.width, height: pv.height, style: { width: '48px', height: '63px', imageRendering: 'pixelated', float: 'right' } });
       img.getContext('2d').drawImage(pv, 0, 0);
       main.append(img, el('h3', { text: `${job.name}（${job.kana}）` }), el('div', { class: 'detail', text: job.desc }));
@@ -295,60 +322,193 @@ function jobUI(game) {
         learn.append(el('div', { class: lv >= l ? 'good' : 'muted', text: `Lv${l}　${a.name}${lv >= l ? '（おぼえた）' : ''}` }));
       }
       main.append(learn);
-      main.append(el('div', { class: 'detail', text: 'ほかの しょくぎょうで おぼえた わざも つかえるが、MPが ふえたり いりょくが さがる ことが ある。（旅芸人は きようなので ペナルティが かるい）' }));
+      main.append(el('div', { class: 'detail', text: 'ほかの しょくぎょうで おぼえた わざも つかえるが、MPが ふえたり いりょくが さがる ことが ある。（旅芸人は きようなので ペナルティが かるい）\n酒場の なかまも ここで 転職できるよ。' }));
     };
     menu.focus();
   });
 }
 
 // ───────────── 酒場 ─────────────
+// いっしょに いる なかま / 酒場で まつ なかま / あたらしい なかま / かぞくの キャラ
 function tavernUI(game, data) {
   return new Promise((resolve) => {
-    const s = shell('なかまの 酒場');
+    const s = shell('なかまの 酒場', 'tavern-panel');
     s.game = game;
-    const main = el('div', { class: 'win main scroll', style: { gridColumn: '1 / -1' } });
-    const detail = el('div', { class: 'detail' });
-    s.body.append(main);
-    let list = data.list;
-    const partyText = () => {
-      const p = game.party;
-      const n = (p?.members.length || 1) + (p?.supports.length || 0);
-      return `パーティー ${n}/4人`;
+    const side = el('div', { class: 'win side scroll tavern-list' });
+    const main = el('div', { class: 'win main scroll' });
+    s.body.append(side, main);
+    let info = data;
+    const sfx = (x) => game.audio.sfx(x);
+    const face = (e) => faceURL({ look: e.look, job: e.job, eq: e.equip, mon: e.species || undefined });
+    const who = (e) => (e.species ? `${MONSTERS[e.species]?.name || ''} Lv${e.level}` : `${JOBS[e.job]?.name || ''} Lv${e.level}`);
+    const byKey = () => {
+      const m = new Map();
+      for (const e of info.roster) m.set(e.key, { ...e, sec: 'roster' });
+      for (const e of info.family) m.set(e.key, { ...e, sec: 'family' });
+      for (const e of info.recruits) m.set(e.key, { ...e, sec: 'recruit' });
+      return m;
     };
-    const items = () => list.map((e) => ({
-      html: `${e.name}　<span class="muted small">${JOBS[e.job].name} Lv${e.level}</span>${e.family ? '<span class="tag gold">かぞく</span>' : ''}${e.hired ? '<span class="tag good">いっしょ</span>' : ''}`,
-      value: e.key,
-      right: e.hired ? 'わかれる' : 'なかまにする',
-    }));
-    s.right.textContent = partyText();
+    let entries = byKey();
+    const partyKeys = () => [...entries.values()].filter((e) => e.inParty).map((e) => e.key);
+    const items = () => {
+      const out = [];
+      const inParty = [...entries.values()].filter((e) => e.inParty);
+      out.push({ header: true, label: `いっしょに いる なかま（${inParty.length}/${info.slots}）` });
+      if (!inParty.length) out.push({ label: '（まだ だれも いない）', value: null, disabled: true });
+      for (const e of inParty) {
+        out.push({ face: face(e), html: `${esc(e.name)} <span class="muted small">${who(e)}</span>${e.family ? '<span class="tag gold">かぞく</span>' : ''}${e.inParty && !e.active ? '<span class="tag muted">いまは まつ</span>' : ''}`, value: e.key });
+      }
+      const waiting = info.roster.filter((e) => !e.inParty);
+      if (waiting.length) {
+        out.push({ header: true, label: `酒場で まっている なかま（${waiting.length}）` });
+        for (const e of waiting) out.push({ face: face(e), html: `${esc(e.name)} <span class="muted small">${who(e)}</span>${e.hp <= 0 ? '<span class="tag warn">やすんでいる</span>' : ''}`, value: e.key });
+      }
+      if (info.recruits.length) {
+        out.push({ header: true, label: 'あたらしい なかまを さがす' });
+        for (const e of info.recruits) out.push({ face: face(e), html: `${esc(e.name)} <span class="muted small">${who(e)}</span><span class="tag good">NEW</span>`, value: e.key });
+      }
+      const fam = info.family.filter((e) => !e.inParty);
+      if (fam.length) {
+        out.push({ header: true, label: 'かぞくの キャラクター（サポート）' });
+        for (const e of fam) out.push({ face: face(e), html: `${esc(e.name)} <span class="muted small">${who(e)}</span>`, value: e.key });
+      }
+      return out;
+    };
+    const partyText = () => {
+      const n = Math.min(4, (info.humans || 1) + info.used);
+      return `パーティー ${n}/4人${info.isLeader ? '' : '（リーダーの なかまが ついてくる）'}`;
+    };
+    const show = (key) => {
+      main.innerHTML = '';
+      const e = entries.get(key);
+      if (!e) {
+        main.append(el('div', { class: 'detail', text: 'なかまを つれていくと いっしょに たたかって くれるよ。\nつれていけるのは 3人まで。まっている なかまとは いつでも いれかえられる。\nモンスターの なかまも ここで まっているよ。' }));
+        return;
+      }
+      const pv = e.species ? followerSprite({ mon: e.species }, 'down', 0) : playerSprite(e.look, e.job, 'down', 0, e.equip);
+      const img = el('canvas', { width: pv.width, height: pv.height, class: 'tv-face' });
+      img.getContext('2d').drawImage(pv, 0, 0);
+      main.append(img, el('h3', { text: e.name }), el('div', { class: 'small gold', text: e.sec === 'recruit' ? `${who(e)}（なかまに なると この レベル）` : who(e) }));
+      if (e.maxHp) main.append(el('div', { class: 'small', text: `HP ${Math.max(0, e.hp)}/${e.maxHp}　MP ${e.mp}/${e.maxMp}${e.tactics ? `　さくせん: ${TACTICS[e.tactics]?.name || ''}` : ''}` }));
+      if (e.sec === 'roster' && e.species) {
+        const learned = learnedAbilities({ species: e.species, level: e.level });
+        main.append(el('div', { class: 'small', text: `わざ: ${learned.map((id) => ABILITIES[id]?.name).filter(Boolean).join('・') || 'なし'}` }));
+      }
+      main.append(el('div', { class: 'detail', text: e.desc || '' }));
+      if (e.sec === 'roster' && e.inParty && !e.active) main.append(el('div', { class: 'detail', text: 'いまは パーティーの にんずうが いっぱいなので まっている。' }));
+    };
     const menu = new ListMenu(game.input, {
       items: items(),
-      sound: (x) => game.audio.sfx(x),
-      onMove: (it) => {
-        const e = list.find((x) => x.key === it?.value);
-        detail.textContent = e ? e.desc + (e.family ? '\n（つれていくと その キャラクターにも けいけんちの おすそわけが あるよ）' : '') : '';
-      },
-      onSelect: async (it) => {
-        const e = list.find((x) => x.key === it.value);
-        const r = await request(game, { kind: 'tavern', action: e.hired ? 'dismiss' : 'hire', key: e.key });
-        toast(r.text || '');
-        if (r.ok) game.audio.sfx(e.hired ? 'leave' : 'join');
-        if (r.list) list = r.list;
-        else if (r.ok) e.hired = !e.hired;
-        menu.setItems(items());
-        setTimeout(() => { s.right.textContent = partyText(); }, 100);
-      },
+      sound: sfx,
+      onMove: (it) => show(it?.value),
+      onSelect: (it) => act(it.value),
       back: null,
       onCancel: () => close(),
     });
+    const refresh = (r) => {
+      if (r?.tavern) {
+        info = r.tavern;
+        entries = byKey();
+      }
+      menu.setItems(items());
+      s.right.textContent = partyText();
+      show(menu.current?.value);
+    };
+    const ask = (title, opts) => choose(game, title, opts);
+    const doReq = async (msg) => {
+      const r = await request(game, { kind: 'tavern', ...msg });
+      toast(r.text || '');
+      if (r.ok) sfx(msg.action === 'wait' || msg.action === 'release' ? 'leave' : 'join');
+      refresh(r);
+      return r;
+    };
+    // いっぱいの ときは だれと いれかわるか えらぶ
+    const pickSwap = async (name) => {
+      const cur = partyKeys().map((k) => entries.get(k)).filter(Boolean);
+      return ask(`パーティーが いっぱい！\n${name}と いれかわりに だれが 酒場で まつ？`, [
+        ...cur.map((e) => ({ face: face(e), label: `${e.name}（${who(e)}）`, value: e.key })),
+        { label: 'やめる', value: null },
+      ]);
+    };
+    const act = async (key) => {
+      const e = entries.get(key);
+      if (!e) return;
+      menu.blur();
+      const full = partyKeys().length >= info.slots;
+      if (e.sec === 'recruit') {
+        const a = await ask(`${e.name}（${who(e)}）を なかまに する？`, [
+          { label: full ? 'なかまに して いれかわる' : 'なかまに して つれていく', value: 'join' },
+          { label: 'なかまに して 酒場で まってもらう', value: 'wait' },
+          { label: 'やめる', value: null },
+        ]);
+        if (a === 'join') {
+          let swap = null;
+          if (full) swap = await pickSwap(e.name);
+          if (!full || swap) await doReq({ action: 'recruit', key, swap });
+        } else if (a === 'wait') await doReq({ action: 'recruit', key, join: false });
+      } else if (e.inParty) {
+        const opts = [{ label: '酒場で まっていて もらう', value: 'wait' }];
+        if (e.sec === 'roster') opts.push({ label: 'なまえを かえる', value: 'rename' });
+        opts.push({ label: 'やめる', value: null });
+        const a = await ask(`${e.name}を どうする？`, opts);
+        if (a === 'wait') await doReq({ action: 'wait', key });
+        else if (a === 'rename') await rename(e);
+      } else {
+        const opts = [{ label: full ? 'つれていく（いれかわる）' : 'つれていく', value: 'join' }];
+        if (e.sec === 'roster') opts.push({ label: 'なまえを かえる', value: 'rename' });
+        if (e.species) opts.push({ label: 'わかれる', value: 'release' });
+        opts.push({ label: 'やめる', value: null });
+        const a = await ask(`${e.name}を どうする？`, opts);
+        if (a === 'join') {
+          let swap = null;
+          if (full) swap = await pickSwap(e.name);
+          if (!full || swap) await doReq({ action: 'join', key, swap });
+        } else if (a === 'rename') await rename(e);
+        else if (a === 'release') {
+          const ok = await confirmBox(game.input, `ほんとうに ${e.name}と わかれますか？\n（もう あえなくなるよ。そうびは ふくろに もどる）`, 'わかれる', 'やめる', sfx);
+          if (ok) await doReq({ action: 'release', key });
+        }
+      }
+      menu.focus();
+    };
+    const rename = async (e) => {
+      const nm = await askText(game.input, { title: `${e.name}の あたらしい なまえ`, max: 8, initial: e.name });
+      if (nm) await doReq({ action: 'rename', key: e.key, name: nm });
+    };
     const close = () => {
       menu.blur();
       s.root.remove();
       resolve();
     };
     s.onClose = close;
-    main.append(el('div', { class: 'small muted', text: 'サポートなかまは AIで たたかう。さくせんは メニューの「さくせん」で かえられるよ。' }), menu.root, detail);
+    side.append(menu.root);
+    s.right.textContent = partyText();
     menu.focus();
+  });
+}
+
+// ちいさな えらぶ まど（Promise で えらんだ value。やめたら null）
+export function choose(game, title, items) {
+  return new Promise((resolve) => {
+    const back = el('div', { class: 'modal-back', style: { zIndex: 6 }, onclick: () => { game.audio.sfx('cancel'); done(null); } });
+    const box = el('div', { class: 'win panel center-panel choose-pop', style: { width: 'min(90vw, 440px)', zIndex: 7 } }, el('div', { class: 'small gold', style: { whiteSpace: 'pre-line' }, text: title }));
+    const hasCancel = items.some((i) => i.value === null);
+    const m = new ListMenu(game.input, {
+      items,
+      sound: (x) => game.audio.sfx(x),
+      back: hasCancel ? null : 'やめる',
+      onSelect: (it) => done(it.value),
+      onCancel: () => done(null),
+    });
+    box.append(m.root);
+    document.getElementById('ui').append(back, box);
+    m.focus();
+    const done = (v) => {
+      m.blur();
+      back.remove();
+      box.remove();
+      resolve(v);
+    };
   });
 }
 

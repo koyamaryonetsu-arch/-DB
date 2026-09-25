@@ -1215,6 +1215,8 @@ export function allyFromCharacter(char, init = {}) {
     tactics: init.tactics || char.tactics || 'balanced',
     look: char.look,
     job: char.job,
+    eq: char.equip ? [char.equip.weapon || '', char.equip.armor || '', char.equip.shield || '', char.equip.head || ''].join(',') : '',
+    mon: char.species || undefined,
     lv: char.level,
     maxHp: st.maxHp,
     hp: Math.max(0, Math.min(st.maxHp, char.hp ?? st.maxHp)),
@@ -1224,7 +1226,7 @@ export function allyFromCharacter(char, init = {}) {
     weaponCat: st.weaponCat,
     onHit: st.onHit,
     resist: { ...st.resist },
-    race: 'human',
+    race: char.species ? (MONSTERS[char.species]?.race || 'beast') : 'human',
     abilities,
     penChar: { job: char.job, jobs: char.jobs },
     atb: 0, ready: false, queued: false,
@@ -1259,13 +1261,14 @@ export function pub(c) {
   const buffs = [...Object.keys(c.buffs || {}).map((k) => '+' + k), ...Object.keys(c.debuffs || {}).map((k) => '-' + k)];
   return {
     id: c.id, side: c.side, kind: c.kind, name: c.name, species: c.species, charId: c.charId,
-    controller: c.controller, auto: c.auto, look: c.look, job: c.job, lv: c.lv,
+    controller: c.controller, auto: c.auto, look: c.look, job: c.job, eq: c.eq, mon: c.mon, lv: c.lv,
     hp: c.hp, maxHp: c.maxHp, mp: c.mp, maxMp: c.maxMp,
     atb: Math.round(c.atb * 10) / 10, rate: 100 / fillTime(effAgi(c)),
     ready: !!c.ready, alive: !!c.alive, fled: !!c.fled, status: st, buffs,
     defending: !!c.defending, telegraph: !!c.telegraph, boss: !!c.boss, size: c.size, slot: c.slot,
     abilities: c.side === 'ally' ? c.abilities : undefined,
     weaponCat: c.side === 'ally' ? c.weaponCat : undefined,
+    pc: c.side === 'ally' ? c.penChar : undefined,
     covering: c.cover ? c.cover.target : null,
   };
 }

@@ -1,5 +1,6 @@
 # 家族の セーブデータ・あいことば（GitHubには のせない）
-data/
+# ※ いちばん うえの data/ だけ（public/js/shared/data/ は ゲームの データなので のせる）
+/data/
 node_modules/
 *.log
 dist/

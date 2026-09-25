@@ -2,6 +2,8 @@
 import { JOBS, JOB_ORDER, JOB_MAX_LEVEL, jobExpForLevel } from './data/jobs.js';
 import { ITEMS, SLOTS } from './data/items.js';
 import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js';
+import { MONSTERS } from './data/monsters.js';
+import { MONSTER_FRIENDS, monsterNatural } from './data/companions.js';
 
 export const MAX_LEVEL = 50;
 export const STAT_KEYS = ['hp', 'mp', 'str', 'def', 'agi', 'mag', 'heal'];
@@ -61,6 +63,7 @@ function equipBonus(char) {
 
 // キャラクターの いまの つよさ
 export function computeStats(char) {
+  if (char.species) return monsterCompanionStats(char);
   const job = JOBS[char.job];
   const b = baseStats(char.level);
   const jl = jobLevel(char);
@@ -94,6 +97,43 @@ export function computeStats(char) {
   return r;
 }
 
+// なかまの モンスターの つよさ（しゅぞくの のびかた × レベル ＋ からだの つよさ）
+function monsterCompanionStats(char) {
+  const f = MONSTER_FRIENDS[char.species] || {};
+  const g = f.growth || {};
+  const b = baseStats(char.level);
+  const s = {};
+  for (const k of STAT_KEYS) s[k] = b[k] * (g[k] ?? 1);
+  for (const [k, v] of Object.entries(char.seeds || {})) s[k] = (s[k] || 0) + v;
+  const eq = equipBonus(char);
+  for (const k of STAT_KEYS) s[k] += eq.out[k] || 0;
+  const r = {};
+  for (const k of STAT_KEYS) r[k] = Math.max(k === 'hp' || k === 'agi' ? 1 : 0, Math.round(s[k]));
+  const nat = monsterNatural(char.level);
+  r.mag += Math.round(nat.mag * (g.mag ?? 1));
+  r.heal += Math.round(nat.heal * (g.heal ?? 1));
+  r.maxHp = r.hp;
+  r.maxMp = r.mp;
+  r.atk = Math.round(r.str + nat.atk + eq.out.atk);
+  r.dfn = Math.round(r.def + nat.dfn + eq.out.dfn);
+  r.weaponCat = 'none';
+  // しゅぞくの たいせい（つよすぎない ように ぞくせいは 0.3まで）
+  const base = f.resist || MONSTERS[char.species]?.resist || {};
+  const res = {};
+  for (const [k, v] of Object.entries(base)) res[k] = ['fire', 'ice', 'wind', 'blast', 'bolt', 'light', 'dark', 'void'].includes(k) ? Math.max(0.3, v) : v;
+  for (const [k, v] of Object.entries(eq.resist)) res[k] = (res[k] ?? 1) * v;
+  r.resist = res;
+  r.onHit = null;
+  return r;
+}
+
+// なかまの モンスターが おぼえている わざ
+export function monsterAbilities(char) {
+  const f = MONSTER_FRIENDS[char.species];
+  if (!f) return [];
+  return f.learn.filter(([l, id]) => l <= char.level && ABILITIES[id]).map(([, id]) => id);
+}
+
 // 職業ごとに おぼえている 技
 export function jobAbilities(char, jobId) {
   const lv = jobLevel(char, jobId);
@@ -102,6 +142,7 @@ export function jobAbilities(char, jobId) {
 
 // おぼえている 技 すべて（掛け合わせ技も ふくむ）
 export function learnedAbilities(char) {
+  if (char.species) return monsterAbilities(char);
   const set = new Set();
   for (const jid of JOB_ORDER) {
     if (!char.jobs?.[jid]) continue;
@@ -148,6 +189,7 @@ export function penaltyFor(char, abilityId) {
   if (!a) return none;
   const cur = char.job;
   const curJob = JOBS[cur];
+  if (!curJob) return none; // モンスターの なかまは じぶんの わざを そのまま つかえる
   if (a.kind === 'bond' || a.kind === 'monster') return none;
   if (a.kind === 'combo') {
     const jobs = comboJobs(abilityId);
@@ -216,6 +258,12 @@ export function canEquip(jobId, itemId) {
   }
 }
 
+// その キャラクターが そうびできるか（モンスターの なかまは アクセサリー だけ）
+export function canEquipChar(char, itemId) {
+  if (char.species) return ITEMS[itemId]?.type === 'acc';
+  return canEquip(char.job, itemId);
+}
+
 // 職業に あわせた はじめの そうび
 export const STARTER_EQUIP = {
   warrior: { weapon: 'wood_sword', armor: 'cloth', shield: null, head: null, acc: null },
@@ -271,6 +319,22 @@ export function newCharacter({ id, name, look, job }) {
   return c;
 }
 
+// なかまに なった モンスター
+export function newMonsterCompanion({ id, name, species, level }) {
+  const lv = Math.max(1, Math.min(MAX_LEVEL, level || 1));
+  const c = {
+    id, name: String(name || MONSTERS[species]?.name || 'まもの').slice(0, 8), species,
+    look: null, job: null, jobs: {},
+    level: lv, exp: expForLevel(lv),
+    equip: { weapon: null, armor: null, shield: null, head: null, acc: null },
+    items: [], seeds: {}, status: {}, flags: {},
+    tactics: 'balanced',
+    joinedAt: Date.now(),
+  };
+  fullHeal(c);
+  return c;
+}
+
 // けいけんちを えて レベルアップ。 もどりち: レベルアップ情報の 配列
 export function gainExp(char, exp) {
   const ups = [];
@@ -296,7 +360,7 @@ export function gainExp(char, exp) {
 
 export function gainJobExp(char, jexp) {
   const ups = [];
-  if (jexp <= 0) return ups;
+  if (jexp <= 0 || char.species || !JOBS[char.job]) return ups;
   const info = char.jobs[char.job] || (char.jobs[char.job] = { lv: 1, exp: 0 });
   info.exp += jexp;
   while (info.lv < JOB_MAX_LEVEL && info.exp >= jobExpForLevel(info.lv + 1)) {

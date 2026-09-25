@@ -3,7 +3,7 @@ import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js';
 import { ITEMS } from '../data/items.js';
 import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js';
 import { startFixedBattle } from './battles.js';
-import { partyOf, guestChar, partyState } from './party.js';
+import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion } from './party.js';
 import { openService } from './services.js';
 
 let runSeq = 1;
@@ -198,18 +198,55 @@ export class ScriptRun {
           break;
         }
         case 'guest': {
-          const p = partyOf(w, this.init);
-          if (!p) break;
-          if (a[0]) {
-            if (!p.guests.some((g) => g.id === a[0])) {
-              p.guests.push({ id: a[0], char: guestChar(w, a[0], this.init.char.level) });
-            }
-          } else {
-            p.guests = [];
+          // ゲストは セーブデータに のこす（アプリを おとしても いなくならない）
+          for (const m of all) {
+            ensureCompanions(m.char);
+            if (a[0]) {
+              if (!m.char.guests.includes(a[0])) m.char.guests.push(a[0]);
+            } else m.char.guests = [];
+          }
+          if (!a[0]) {
             this.batch.push(['sfx', 'leave']);
             this.say('ルカは パーティーから はなれた。');
           }
-          w.sendParty(p);
+          const p = partyOf(w, this.init);
+          if (p) {
+            syncParty(w, p);
+            w.sendParty(p);
+          }
+          w.markDirty();
+          break;
+        }
+        case 'recruit': {
+          // ものがたりで なかまに なる（パーティーが いっぱいなら 酒場で まつ）
+          for (const m of all) {
+            const r = recruitNpc(w, m, a[0], { force: true });
+            if (!r.ok) continue;
+            if (m === this.init) {
+              this.batch.push(['sfx', 'join']);
+              this.say(r.joined ? `${r.name}が なかまに くわわった！` : `${r.name}が なかまに なった！\n（いまは ルミナの町の 酒場で まっている）`);
+            }
+          }
+          break;
+        }
+        case 'befriend': {
+          // たおした まものが なかまに なる（a[1]: 酒場へ もどる なかま / false: ことわった）
+          const s = this.init;
+          const off = s.befriendOffer;
+          if (!off || off.id !== a[0]) break;
+          s.befriendOffer = null;
+          if (a[1] === false) break;
+          const r = addMonsterCompanion(w, s, off.species, off.level, a[1]);
+          if (!r.ok) {
+            this.say(r.reason);
+            break;
+          }
+          this.batch.push(['sfx', 'join']);
+          if (r.joined) this.say(`${r.name}が なかまに くわわった！`);
+          else this.say(`${r.name}が なかまに なった！\n${r.name}は ルミナの町の 酒場で まっている。`);
+          if (r.benchedName) this.say(`${r.benchedName}は 酒場へ もどった。`);
+          this.say(`（なまえは 酒場で かえられるよ）`);
+          w.sendSelf(s);
           break;
         }
         case 'battle': {
@@ -247,7 +284,7 @@ export class ScriptRun {
         }
         case 'say':
         case 'fade': case 'flash': case 'shake': case 'night': case 'bgm': case 'sfx': case 'wait':
-        case 'actor': case 'move': case 'face': case 'remove': case 'chapter': case 'guestHide': case 'chestOpen': case 'hideNpc':
+        case 'actor': case 'move': case 'face': case 'remove': case 'chapter': case 'guestHide': case 'chestOpen': case 'hideNpc': case 'showMon': case 'crest':
           this.batch.push(step);
           break;
         default:

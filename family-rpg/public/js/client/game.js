@@ -117,7 +117,7 @@ export class Game {
     touchEl.hidden = hideTouch;
     if (inField) {
       const canMove = !this.busy && !this.menuOpen && !this.input.busy;
-      this.field.update(dt, { dir: this.input.dir, canMove });
+      this.field.update(dt, { dir: this.input.dir, canMove, run: this.input.run });
       this.field.render();
       this.hud.update(dt);
       this.bgmTimer -= dt;
@@ -341,7 +341,7 @@ export class Game {
       case 'battleRej':
         toast(m.reason);
         this.audio.sfx('buzz');
-        if (this.battle?.myActor?.ready) this.battle.openCommand();
+        this.battle?.onReject();
         break;
       case 'battleEnd': return this.onBattleEnd(m);
       case 'invite': {

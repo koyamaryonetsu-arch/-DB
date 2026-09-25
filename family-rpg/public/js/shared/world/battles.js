@@ -6,7 +6,7 @@ import { ABILITIES } from '../data/abilities.js';
 import { JOBS } from '../data/jobs.js';
 import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js';
 import { gainExp, gainJobExp, itemCount, removeItem, addItem, computeStats, STAT_NAMES, fullHeal } from '../stats.js';
-import { partyOf, creditSupportOwner, partyState } from './party.js';
+import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendLevel } from './party.js';
 import { MAPS } from '../maps/index.js';
 
 let battleSeq = 1;
@@ -41,14 +41,29 @@ export function joinBattle(world, s, targetSid) {
   if (ctx.sids.includes(s.id)) return { ok: false };
   if (ctx.battle.allies.length >= 4) return { ok: false, reason: 'たたかいの ばしょが いっぱいだ…' };
   const a = ctx.battle.joinAlly({ char: s.char, kind: 'player', controller: s.id, auto: !!s.char.battleSettings?.auto });
-  ctx.actorMap[a.id] = { type: 'human', sid: s.id };
+  ctx.actorMap[a.id] = { type: 'human', sid: s.id, char: s.char };
   ctx.sids.push(s.id);
   s.busy = 'battle';
   s.battleId = ctx.id;
   s.moving = false;
-  world.send(s, { t: 'battleStart', snap: ctx.battle.snapshot(), mine: [a.id], boss: !!ctx.opts.boss, story: false, joined: true });
+  // じぶんの なかまで「めいれいさせろ」の なかまは、かけつけた じぶんが うごかす
+  for (const ally of ctx.battle.allies) {
+    const who = ctx.actorMap[ally.id];
+    if (who?.type === 'support' && who.owner === s.charId && who.manual && !ally.controller) {
+      ally.controller = s.id;
+      ctx.battle.setAuto(ally.id, !!s.char.battleSettings?.auto);
+    }
+  }
+  world.send(s, { t: 'battleStart', snap: ctx.battle.snapshot(), mine: mineOf(ctx, s.id), boss: !!ctx.opts.boss, story: false, joined: true });
   world.broadcastPositions = true;
   return { ok: true };
+}
+
+// その 人が うごかす キャラ（じぶん＋「めいれいさせろ」の なかま）。じぶんが さいしょ
+export function mineOf(ctx, sid) {
+  const out = ctx.battle.allies.filter((a) => a.controller === sid);
+  out.sort((x, y) => (x.kind === 'player' ? 0 : 1) - (y.kind === 'player' ? 0 : 1));
+  return out.map((a) => a.id);
 }
 
 function makeBattle(world, sessions, party, enemies, opts) {
@@ -59,7 +74,18 @@ function makeBattle(world, sessions, party, enemies, opts) {
   for (const m of sessions) {
     allies.push({ char: m.char, kind: 'player', controller: m.id, auto: !!m.char.battleSettings?.auto });
   }
-  for (const sup of party.supports) allies.push({ char: sup.char, kind: 'support', auto: true, tactics: sup.tactics });
+  // なかま: さくせんが「めいれいさせろ」なら もちぬしが コマンドを えらぶ（もちぬしが いない ときは AI）
+  const supInfo = [];
+  for (const sup of party.supports) {
+    const tac = sup.char.tactics || 'balanced';
+    const owner = tac === 'manual' ? sessions.find((m) => m.charId === sup.owner) : null;
+    supInfo.push({ manual: tac === 'manual' });
+    allies.push({
+      char: sup.char, kind: sup.kind === 'monster' ? 'monster' : 'support',
+      controller: owner ? owner.id : null, auto: owner ? !!owner.char.battleSettings?.auto : true,
+      tactics: tac === 'manual' ? 'balanced' : tac,
+    });
+  }
   for (const g of party.guests) allies.push({ char: g.char, kind: 'guest', auto: true, tactics: g.char.tactics });
   const b = new Battle({
     id: 'b' + (battleSeq++),
@@ -90,16 +116,17 @@ function makeBattle(world, sessions, party, enemies, opts) {
   });
   // だれが どの キャラか
   let i = 0;
-  for (const m of sessions) actorMap[b.allies[i++].id] = { type: 'human', sid: m.id };
-  for (const sup of party.supports) actorMap[b.allies[i++].id] = { type: 'support', key: sup.key };
-  for (const g of party.guests) actorMap[b.allies[i++].id] = { type: 'guest', id: g.id };
+  for (const m of sessions) actorMap[b.allies[i++].id] = { type: 'human', sid: m.id, char: m.char };
+  party.supports.forEach((sup, k) => {
+    actorMap[b.allies[i++].id] = { type: 'support', key: sup.key, owner: sup.owner, kind: sup.kind, char: sup.char, manual: supInfo[k].manual };
+  });
+  for (const g of party.guests) actorMap[b.allies[i++].id] = { type: 'guest', id: g.id, char: g.char };
   const ctx = { id: b.id, battle: b, sids: sessions.map((m) => m.id), partyId: party.id, map: sessions[0].map, actorMap, opts };
   world.battles.set(ctx.id, ctx);
   for (const m of sessions) {
     m.busy = 'battle';
     m.battleId = ctx.id;
-    const mine = Object.entries(actorMap).filter(([, v]) => v.type === 'human' && v.sid === m.id).map(([k]) => k);
-    world.send(m, { t: 'battleStart', snap: b.snapshot(), mine, boss: !!opts.boss, story: !!opts.fixed, preemptive: opts.preemptive || null });
+    world.send(m, { t: 'battleStart', snap: b.snapshot(), mine: mineOf(ctx, m.id), boss: !!opts.boss, story: !!opts.fixed, preemptive: opts.preemptive || null });
   }
   world.broadcastPositions = true;
   return ctx;
@@ -159,7 +186,7 @@ export function battleCommand(world, s, msg) {
     const a = b.get(msg.actor);
     if (a && a.controller === s.id) {
       b.setAuto(msg.actor, !!msg.auto);
-      s.char.battleSettings = { ...(s.char.battleSettings || {}), auto: !!msg.auto };
+      if (a.kind === 'player') s.char.battleSettings = { ...(s.char.battleSettings || {}), auto: !!msg.auto };
     }
     return;
   }
@@ -183,11 +210,7 @@ function finishBattle(world, ctx) {
   // HP・MPを もどす
   for (const a of b.allies) {
     const who = ctx.actorMap[a.id];
-    if (!who) continue;
-    let ch = null;
-    if (who.type === 'human') ch = world.sessions.get(who.sid)?.char;
-    else if (who.type === 'support') ch = party?.supports.find((x) => x.key === who.key)?.char;
-    else if (who.type === 'guest') ch = party?.guests.find((x) => x.id === who.id)?.char;
+    const ch = who?.char;
     if (!ch) continue;
     ch.hp = a.alive ? a.hp : 0;
     ch.mp = a.mp;
@@ -197,6 +220,7 @@ function finishBattle(world, ctx) {
 
   const outcome = res.outcome;
   const perSession = {};
+  let befriend = null;
   if (outcome === 'win') {
     let exp = 0, gold = 0, jexp = 0;
     for (const sp of res.killed) {
@@ -240,11 +264,26 @@ function finishBattle(world, ctx) {
       }
       perSession[m.id] = { lines, levelUp: ups.length > 0, jobUp: jups.length > 0, drops };
     }
-    // サポートなかま（家族キャラ）への おれい
-    for (const sup of party?.supports || []) {
-      if (sup.char.ownerId) creditSupportOwner(world, sup.char.ownerId, exp, gold, leaderName);
+    // なかま: たたかいに でた なかまだけ そだつ。家族の キャラには おれいが とどく
+    const compLines = [];
+    for (const a of b.allies) {
+      const who = ctx.actorMap[a.id];
+      if (who?.type !== 'support' || !who.char) continue;
+      if (who.kind === 'family') {
+        if (who.char.ownerId) creditSupportOwner(world, who.char.ownerId, exp, gold, leaderName);
+        continue;
+      }
+      for (const l of growCompanion(who.char, exp, jexp)) {
+        compLines.push(typeof l === 'string' ? l : learnLine({ name: l.who }, l.learn));
+      }
     }
-    // ゲスト・サポートの レベルは ひとつ上げる だけの かんたんな しくみ
+    if (compLines.length) for (const m of sessions) perSession[m.id].lines.push(...compLines);
+    // まものが なかまに なりたがる（ふつうの たたかい だけ）
+    if (!ctx.resolve && !b.boss && res.killed.length) {
+      const target = sessions.find((m) => m.id === party?.leader) || sessions[0];
+      const sp = target && rollBefriend(world, target.char, res.killed);
+      if (sp) befriend = { s: target, species: sp, level: befriendLevel(target.char, sp) };
+    }
   } else if (outcome === 'lose') {
     for (const m of sessions) {
       perSession[m.id] = { lines: [`${m.char.name}たちは ぜんめつ してしまった…`] };
@@ -274,13 +313,16 @@ function finishBattle(world, ctx) {
   }
   if (outcome === 'lose') {
     for (const m of sessions) world.respawn(m);
-    for (const sup of party?.supports || []) fullHeal(sup.char);
-    for (const g of party?.guests || []) fullHeal(g.char);
+    for (const a of b.allies) {
+      const who = ctx.actorMap[a.id];
+      if (who && who.type !== 'human' && who.char) fullHeal(who.char);
+    }
   }
   for (const m of sessions) world.sendSelf(m);
   if (party) world.sendParty(party);
   world.markDirty();
   if (ctx.resolve) ctx.resolve(outcome);
+  if (befriend && world.sessions.has(befriend.s.id) && !befriend.s.away) world.offerBefriend(befriend.s, befriend.species, befriend.level);
 }
 
 function statShort(k) {
