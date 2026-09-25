@@ -603,6 +603,9 @@ body.touch .textin { font-size: max(16px, 1em); }
 .fmenu-panel { left: 50%; top: calc(var(--safe-t) + max(8px, 4vh)); transform: translateX(-50%); width: min(96vw, 900px); }
 .svc-panel { width: min(96vw, 860px); top: calc(var(--safe-t) + max(8px, 4vh)); transform: translateX(-50%); }
 .wm-head { position: relative; width: 100%; min-height: 2.8em; display: flex; align-items: center; padding-right: 7.4em; }
+.map-legend { display: flex; flex-wrap: wrap; gap: 0.2em 0.9em; margin: 0.35em 0 0.2em; }
+.map-legend .lg { display: inline-flex; align-items: center; gap: 0.3em; white-space: nowrap; }
+.map-legend img { width: 1.4em; height: 1.4em; image-rendering: pixelated; }
 .stamp-panel { right: calc(12px + var(--safe-r)); top: 38%; width: min(80vw, 320px); }
 
 /* ───── メニュー ───── */
@@ -670,6 +673,84 @@ img.face { image-rendering: pixelated; }
   .fmenu-panel .fmenu .side .menu { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 0.2em; }
   .job-panel .side .menu { display: flex; flex-direction: column; }
   .job-panel .job-list, .job-panel .main { max-height: 64vh; height: 64vh; }
+}
+
+/* ───── お店・教会（ドラクエ風の カウンター） ───── */
+.counter-panel {
+  left: 50%;
+  top: calc(var(--safe-t) + max(6px, 2vh));
+  transform: translateX(-50%);
+  width: min(96vw, 940px);
+  height: min(calc(100% - 12px - 2vh - var(--safe-t) - var(--safe-b)), 680px);
+  max-height: none;
+  gap: 6px;
+}
+.counter-panel .svc-head { margin-bottom: 0; min-height: 2.8em; flex: none; }
+.counter-panel .win { background: var(--win-solid); }
+.ct-title { display: inline-flex; align-items: center; gap: 0.4em; }
+.ct-icon { width: 1.7em; height: 1.7em; image-rendering: pixelated; flex: none; }
+.ct-gold { margin-left: auto; color: var(--accent); font-size: var(--fs-small); white-space: nowrap; }
+.ct-body { flex: 1 1 auto; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 6px; }
+.ct-list, .ct-info { min-height: 0; }
+.ct-list.active, .ct-info.active { border-color: var(--accent); }
+.ct-msg {
+  position: relative;
+  flex: none;
+  margin-top: 1em;
+  min-height: 5em;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4em 0.8em;
+  align-items: flex-start;
+  padding: 0.75em 1em 0.8em;
+  cursor: pointer;
+}
+.ct-speaker {
+  position: absolute;
+  top: -1.35em;
+  left: 0.9em;
+  background: var(--win-solid);
+  border: 3px solid var(--line);
+  border-radius: 7px;
+  padding: 0 0.6em;
+  font-size: var(--fs-small);
+  color: var(--accent);
+}
+.ct-text { flex: 1 1 12em; min-width: 0; white-space: pre-wrap; word-break: break-all; line-height: 1.6; font-size: calc(var(--fs) * 1.02); }
+.ct-choice { flex: none; margin-left: auto; }
+.ct-choice .menu { min-width: 6.5em; }
+.ct-choice .menu .item { min-height: 2.3em; }
+.ct-more { position: absolute; right: 0.8em; bottom: 0.15em; animation: blink 0.8s steps(2) infinite; color: var(--accent); }
+.ct-qty { display: flex; flex-direction: column; align-items: flex-end; gap: 0.3em; }
+.ct-qty-val { font-size: 1.15em; white-space: nowrap; }
+.ct-qty .row { display: flex; gap: 0.3em; flex-wrap: wrap; justify-content: flex-end; }
+.ct-item .hd { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 0.8em; }
+.ct-item .hd .st { font-size: var(--fs-small); color: var(--good); }
+.ct-item .detail { margin-top: 0.15em; }
+.cmp-head { color: var(--accent); margin: 0.45em 0 0.15em; padding-bottom: 0.1em; border-bottom: 1px dashed rgba(255, 214, 107, 0.35); font-size: var(--fs-small); }
+.cmp-row { display: flex; align-items: center; gap: 0.45em; padding: 0.15em 0; }
+.cmp-row .face { height: 1.9em; width: auto; image-rendering: pixelated; flex: none; }
+.cmp-row.dis { color: #6d6c88; }
+.cmp-top { display: flex; align-items: baseline; gap: 0.1em 0.6em; flex-wrap: wrap; min-width: 0; flex: 1; }
+.cmp-top .nm { min-width: 4.2em; }
+.cmp-top .ar { font-weight: bold; }
+.cmp-top .cmp-sub { color: var(--muted); font-size: var(--fs-small); }
+.tag.e { color: var(--accent); }
+.menu .tag.up { color: var(--good); }
+.menu .item .cnt { color: var(--muted); font-size: 0.8em; margin-left: 0.35em; }
+.menu .item .r.dis { color: #6d6c88; }
+.menu .item .r.up { color: var(--good); }
+.menu .item .r.down { color: var(--danger); }
+@media (max-width: 700px) {
+  .ct-body { grid-template-columns: 1fr; grid-template-rows: minmax(0, 0.85fr) minmax(0, 1.15fr); }
+  .ct-msg { min-height: 4.4em; }
+  .ct-choice.wide { flex-basis: 100%; }
+}
+@media (max-height: 520px) and (orientation: landscape) {
+  .counter-panel { top: calc(var(--safe-t) + 4px); height: calc(100% - 8px - var(--safe-t) - var(--safe-b)); }
+  .counter-panel .svc-head { min-height: 2.4em; padding-top: 0.2em; padding-bottom: 0.2em; }
+  .ct-msg { min-height: 3.2em; padding-top: 0.55em; padding-bottom: 0.45em; margin-top: 0.9em; }
+  .ct-text { line-height: 1.4; }
 }
 
 /* ───── たたかい ───── */

@@ -35,11 +35,17 @@ export const ITEMS_CH2 = {
 export const SHOPS_CH2 = {
   port_arms: {
     name: 'カモメ港の武器と防具の店',
+    kind: 'arms',
+    keeper: '店のおやじ',
+    hello: 'いらっしゃい！海の男のための、\nじょうぶな武器と防具がそろってるよ！\n今日はどうする？',
     items: ['silver_sword', 'pirate_axe', 'silver_dagger', 'coral_spear', 'shark_fang', 'wave_staff', 'sea_fan', 'chain_whip',
       'silver_mail', 'sailor_clothes', 'coral_robe', 'wave_gi', 'silver_shield', 'shell_shield', 'silver_helm', 'captain_hat'],
   },
   port_item: {
     name: 'カモメ港の道具屋',
-    items: ['herb', 'antidote', 'moonherb', 'holy_water', 'magic_water', 'return_wing', 'smoke_ball'],
+    kind: 'item',
+    keeper: '道具屋のおねえさん',
+    hello: 'いらっしゃいませ！\n船旅には、薬草をたくさん持っていってね。\nどんなご用？',
+    items: ['herb', 'antidote', 'moonherb', 'holy_water', 'return_wing', 'smoke_ball'],
   },
 };

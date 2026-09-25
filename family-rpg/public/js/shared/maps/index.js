@@ -108,6 +108,25 @@ const OVERWORLD_SIGNS = [
   { x: 97, y: 50, text: 'ささやきの森\n迷わないように気を付けて。' },
 ];
 
+// ───────────── お店の かんばん（入り口の よこの かべに かける） ─────────────
+// kind: かんばんの え（render/boards.js）  name: 地図に 出す なまえ
+export const BOARD_NAMES = {
+  general: 'よろず屋', weapon: '武器屋', armor: '防具屋', arms: '武器と防具の店', item: '道具屋', inn: '宿屋',
+  church: '教会', bar: '酒場', temple: '星の神殿', harbor: '港長の家',
+};
+const board = ([x, y], kind) => ({ x, y, kind, name: BOARD_NAMES[kind] });
+const OVERWORLD_BOARDS = [
+  board(V(26, 6), 'general'),
+  board(V(7, 20), 'church'),
+  board(TW(8, 17), 'weapon'),
+  board(TW(41, 17), 'item'),
+  board(TW(8, 26), 'armor'),
+  board(TW(41, 26), 'inn'),
+  board(TW(40, 9), 'bar'),
+  board(TW(8, 33), 'church'),
+  board(TW(25, 9), 'temple'),
+];
+
 // ───────────── ワープ（出入り口） ─────────────
 const OVERWORLD_WARPS = [
   { x: CAVE_ENTRANCE.x, y: CAVE_ENTRANCE.y, to: { map: 'cave_b1', x: 24, y: 32.6, dir: 'up' } },
@@ -148,7 +167,7 @@ function buildMaps() {
   maps.overworld = {
     id: 'overworld', name: 'ミドリナ地方', kind: 'field', bgm: 'field', dark: false,
     w: ow.w, h: ow.h, tiles: ow.tiles, gates: ow.gates,
-    npcs: OVERWORLD_NPCS, chests: OVERWORLD_CHESTS, signs: OVERWORLD_SIGNS, warps: OVERWORLD_WARPS,
+    npcs: OVERWORLD_NPCS, chests: OVERWORLD_CHESTS, signs: OVERWORLD_SIGNS, warps: OVERWORLD_WARPS, boards: OVERWORLD_BOARDS,
     triggers: OVERWORLD_TRIGGERS,
     sparkles: makeSparkles(ow.tiles, ow.w, ow.h),
     roofs: [

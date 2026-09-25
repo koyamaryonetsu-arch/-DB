@@ -17,6 +17,7 @@ import { PLACES } from '../maps/overworld.js';
 import { ABILITIES } from './abilities.js';
 import { learnedAbilities, comboUnlocked } from '../stats.js';
 import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js';
+import { innSteps } from './inn.js';
 
 const V = (x, y) => [PLACES.village.x + x + 0.5, PLACES.village.y + y + 0.5];
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
@@ -294,24 +295,19 @@ export const SCRIPTS = {
   lake_traveler: (x) => S('旅人', '湖の真ん中の島に何か光るものが見えるんだ…', '北側の岸に飛び石があるって聞いたけど…'),
 
   // ───────────── おみせ・しせつ ─────────────
-  shop_village: (x) => [...S('よろず屋のおじさん', 'いらっしゃい！ホシフル村のよろず屋だよ。'), ['shop', 'village']],
-  shop_weapon: (x) => [...S('武器屋のおやじ', 'ここは武器屋だ。どんな用だい？'), ['shop', 'weapon']],
-  shop_armor: (x) => [...S('防具屋のおねえさん', '防具屋へようこそ！身を守る装備は大切よ。'), ['shop', 'armor']],
-  shop_item: (x) => [...S('道具屋のむすめ', '道具屋です！旅のおともにどうぞ！'), ['shop', 'item']],
-  inn: (x) => [
-    ...S('宿屋のおかみ', '旅人の宿屋へようこそ。\n一晩12ゴールドだけど、とまっていくかい？'),
-    ['choice', 'とまる？（12ゴールド）', ['はい', 'いいえ'], [
-      [['inn', 12]],
-      [...S('宿屋のおかみ', 'またいつでもおいで。')],
-    ]],
-  ],
+  // お店は カウンターの まどで 店の人が 話す（ui/shop.js）
+  shop_village: () => [['shop', 'village']],
+  shop_weapon: () => [['shop', 'weapon']],
+  shop_armor: () => [['shop', 'armor']],
+  shop_item: () => [['shop', 'item']],
+  inn: () => innSteps('宿屋のおかみ', 12),
   home_bed: (x) => [
     ['choice', 'ベッドで休む？', ['はい', 'いいえ'], [
       [['inn', 0]],
       [],
     ]],
   ],
-  church: (x) => [...S('神父さま', '神の家にようこそ。\n何の用かな？'), ['church']],
+  church: () => [['church']],
   job_change: (x) => [
     ...S('神官セレナ', 'ここは星の神殿。\n紋章を持つ者は、新しい道を選ぶことができます。',
       '転職しても、今までに覚えた呪文や特技は使えます。',

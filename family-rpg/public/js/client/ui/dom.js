@@ -71,7 +71,10 @@ export class ListMenu {
           if (moved) this.onMove?.(this.items[i], i);
           this.choose();
         },
-        onmouseenter: () => {
+        // マウスを 本当に うごかした ときだけ カーソルを あわせる
+        // （まどが マウスの 下に 出てきた だけで「いいえ」などに かわらないように）
+        onmousemove: (e) => {
+          if (!e.movementX && !e.movementY) return;
           if (this.idx !== i) {
             this.idx = i;
             this.updateSel();

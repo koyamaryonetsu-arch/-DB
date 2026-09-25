@@ -3,7 +3,7 @@ import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js';
 import { ITEMS, SLOTS, SLOT_NAMES } from '../../shared/data/items.js';
 import { ABILITIES } from '../../shared/data/abilities.js';
 import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, TIER_NAMES } from '../../shared/data/jobs.js';
-import { computeStats, learnedAbilities, canEquip, canEquipChar, mpCost, penaltyFor, expForLevel, comboUnlocked, comboAllowed, comboJobNames, jobProgress } from '../../shared/stats.js';
+import { computeStats, learnedAbilities, canEquip, mpCost, penaltyFor, expForLevel, comboUnlocked, comboAllowed, comboJobNames, jobProgress } from '../../shared/stats.js';
 import { MONSTERS } from '../../shared/data/monsters.js';
 import { MONSTER_FRIENDS, RACE_NAMES, recipeHint } from '../../shared/data/companions.js';
 import { TACTICS } from '../../shared/ai.js';
@@ -11,9 +11,11 @@ import { PLACES } from '../../shared/maps/overworld.js';
 import { SEA_PLACES } from '../../shared/maps/ch2.js';
 import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js';
 import { T } from '../../shared/tiles.js';
-import { itemDetail, abilityDetail, equipDiff, diffText } from './info.js';
+import { itemDetail, abilityDetail } from './info.js';
 import { makeCanvas, ctxOf } from '../render/pixel.js';
 import { monsterCanvas } from '../render/monsters.js';
+import { mapIconCanvas, boardIconURL } from '../render/boards.js';
+import { compareOne } from './counter.js';
 import { faceURL } from '../field.js';
 
 const MAIN = [
@@ -409,13 +411,20 @@ export class FieldMenu {
     }
     const m = this.mkSub({
       items,
-      onMove: (it) => { detail.textContent = c.equip?.[it.value] ? itemDetail(c.equip[it.value]) : ''; },
+      onMove: (it) => { detail.textContent = c.equip?.[it.value] ? `E ${ITEMS[c.equip[it.value]].name}（装備している）\n${itemDetail(c.equip[it.value])}` : ''; },
       onSelect: async (it) => {
         const slot = it.value;
         const cands = g.me.items.filter((e) => ITEMS[e.id]?.type === slot);
+        // お店と おなじ 見せかた（攻撃力 52→66 ↑14）
         const opts = cands.map((e) => {
-          const ok = canEquipChar(c, e.id);
-          return { label: `${ITEMS[e.id].name}　${ok ? diffText(equipDiff(c, e.id)) : '（装備できない）'}`, value: e.id, disabled: !ok };
+          const r = compareOne({ key: who, name: c.name, char: c }, e.id);
+          if (!r.can) return { label: ITEMS[e.id].name, right: '装備できない', value: e.id, disabled: true };
+          const d = r.main.d;
+          return {
+            label: ITEMS[e.id].name, value: e.id,
+            right: `${r.main.n} ${r.main.b}→${r.main.a} ${d > 0 ? `↑${d}` : d < 0 ? `↓${-d}` : '＝'}`,
+            rightCls: d > 0 ? 'up' : d < 0 ? 'down' : '',
+          };
         });
         if (c.equip?.[slot]) opts.push({ label: '外す', value: '__off' });
         opts.push({ label: 'やめる', value: null });
@@ -766,9 +775,28 @@ export function renderMiniMap(game, canvas, full = false) {
       ctx.fillText(p.name, Math.max(2, (p.x - x0) * pxPer), Math.max(12, (p.y - y0) * pxPer - 3));
     }
   }
+  // お店の しるし（行ったことが ある ところ だけ）
+  for (const b of m.boards || []) {
+    if (!f.isExplored(b.x, b.y)) continue;
+    const ic = mapIconCanvas(b.kind);
+    const px = Math.round((b.x + 0.5 - x0) * pxPer - ic.width / 2), py = Math.round((b.y + 0.5 - y0) * pxPer - ic.height / 2);
+    if (px + ic.width < 0 || py + ic.height < 0 || px > canvas.width || py > canvas.height) continue;
+    ctx.drawImage(ic, px, py);
+  }
   for (const o of f.others.values()) dot(o.x, o.y, o.partyId === game.party?.id ? '#ffd66b' : '#8fd0ff', full ? 3 : 2);
   const blink = Math.floor(performance.now() / 300) % 2;
   dot(f.me.x, f.me.y, blink ? '#ff5a5a' : '#ffffff', full ? 3 : 2);
+}
+
+// 地図の しるしの せつめい（行ったことが ある お店 だけ）
+function mapLegend(game) {
+  const f = game.field;
+  const seen = new Map();
+  for (const b of f.map.boards || []) if (f.isExplored(b.x, b.y) && !seen.has(b.kind)) seen.set(b.kind, b.name);
+  if (!seen.size) return null;
+  const box = el('div', { class: 'map-legend small' });
+  for (const [kind, name] of seen) box.append(el('span', { class: 'lg' }, el('img', { src: boardIconURL(kind), alt: '' }), name));
+  return box;
 }
 
 export function openWorldMap(game) {
@@ -778,7 +806,7 @@ export function openWorldMap(game) {
   const cv = makeCanvas(10, 10);
   const head = el('div', { class: 'wm-head' }, el('span', { class: 'gold', text: game.field.map.name }),
     el('button', { class: 'btn closebtn', text: '✕ 閉じる', 'aria-label': '地図を閉じる' }));
-  box.append(head, cv, el('div', { class: 'small muted', text: `赤い点: 自分　黄色: パーティー　青: 家族　（${game.input.touch ? 'タップで閉じる' : 'B/Xで閉じる'}）` }));
+  box.append(head, cv, mapLegend(game), el('div', { class: 'small muted', text: `赤い点: 自分　黄色: パーティー　青: 家族　（${game.input.touch ? 'タップで閉じる' : 'B/Xで閉じる'}）` }));
   document.getElementById('ui').append(back, box);
   renderMiniMap(game, cv, true);
   const iv = setInterval(() => renderMiniMap(game, cv, true), 400);

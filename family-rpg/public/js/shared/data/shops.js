@@ -1,24 +1,37 @@
 // お店・ほしのかけら交換・サポートなかま
+// お店: name 店の なまえ / kind かんばんの しゅるい / keeper 店の人 / hello さいしょの ことば / items 売っている 品物
 
 import { SHOPS_CH2 } from './items-ch2.js';
 
 export const SHOPS = {
   village: {
     name: 'ホシフル村のよろず屋',
+    kind: 'general',
+    keeper: 'よろず屋のおじさん',
+    hello: 'いらっしゃい！ホシフル村のよろず屋だよ。\n薬草から剣まで、何でもそろってるよ。\n今日はどんなご用だい？',
     items: ['herb', 'antidote', 'holy_water', 'wood_sword', 'oak_staff', 'bronze_knife', 'feather_fan', 'cloth', 'leather_hat', 'leather_shield'],
   },
   weapon: {
     name: 'ルミナの武器屋',
+    kind: 'weapon',
+    keeper: '武器屋のおやじ',
+    hello: 'ここは武器屋だ。\n強い武器がなけりゃ、魔物とは戦えねえぞ。\nどんな用だい？',
     items: ['bronze_sword', 'stone_axe', 'bronze_knife', 'bronze_spear', 'bronze_knuckle', 'feather_fan', 'oak_staff',
       'iron_sword', 'iron_axe', 'iron_spear', 'iron_claw', 'dancer_fan', 'wizard_staff', 'healing_staff', 'poison_knife', 'leather_whip', 'thorn_whip'],
   },
   armor: {
     name: 'ルミナの防具屋',
+    kind: 'armor',
+    keeper: '防具屋のおねえさん',
+    hello: '防具屋へようこそ！\n身を守る装備は、とっても大切よ。\nどんなご用かしら？',
     items: ['travel_clothes', 'leather_armor', 'martial_gi', 'wizard_robe', 'chain_mail', 'holy_robe', 'dragon_gi', 'iron_armor',
       'leather_shield', 'scale_shield', 'iron_shield', 'leather_hat', 'bandana', 'pointy_hat', 'iron_helm'],
   },
   item: {
     name: 'ルミナの道具屋',
+    kind: 'item',
+    keeper: '道具屋のむすめ',
+    hello: 'いらっしゃいませ！道具屋です。\n旅のおともに、薬草はいかがですか？\nどんなご用でしょう？',
     items: ['herb', 'antidote', 'moonherb', 'holy_water', 'return_wing', 'smoke_ball'],
   },
 };

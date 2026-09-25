@@ -8,6 +8,7 @@ import { monsterCanvas, bigNpcCanvas } from './render/monsters.js';
 import { MONSTERS } from '../shared/data/monsters.js';
 import { makeCanvas, ctxOf, shade, flipCanvas } from './render/pixel.js';
 import { chestCanvas as chestCanvas3d } from './render/tex3d.js';
+import { boardCanvas } from './render/boards.js';
 import { el } from './ui/dom.js';
 
 const SPEED = 4.6; // マス/びょう
@@ -739,6 +740,12 @@ export class Field {
     for (const o of objs) o.draw();
     // やね
     for (const roof of m.roofs || []) this.drawRoof(roof, camX, camY);
+    // お店の かんばん（やねの うえに かける）
+    for (const b of m.boards || []) {
+      if (b.x < x0 - 1 || b.x > x1 + 1 || b.y < y0 - 1 || b.y > y1 + 1) continue;
+      const c = boardCanvas(b.kind);
+      ctx.drawImage(c, Math.round(b.x * TS + (TS - c.width) / 2 - camX), Math.round(b.y * TS - 4 - camY));
+    }
     // くらやみ・よる
     if (m.dark) this.drawDark(camX, camY, x0, y0, x1, y1);
     const na = this.nightAlpha();
@@ -889,6 +896,12 @@ export class Field {
       if (!condOk(ch.show, hasF)) continue;
       out.push({ key: 'c:' + ch.id, canvas: chestCanvas3d(!!this.game.me?.chests?.[ch.id]), x: ch.x + 0.5, y: ch.y + 0.8, anchor: 1, shadowScale: 1.3 });
     }
+    // お店の かんばん（かべの まえに うかべる。なかに いる たてものの かんばんは かくす）
+    const inside = this.r3d?.inside;
+    (m.boards || []).forEach((b, i) => {
+      if (inside && b.x >= inside.x && b.x < inside.x + inside.w && b.y >= inside.y && b.y < inside.y + inside.h) return;
+      out.push({ key: 'b:' + i, canvas: boardCanvas(b.kind), x: b.x + 0.5, y: b.y + 1.04, lift: 0.5, anchor: 0, shadow: false });
+    });
     for (const n of m.npcs) {
       if (!this.npcVisible(n) || n.sprite === 'none') continue;
       const s = this.npcState.get(n.id);

@@ -107,8 +107,8 @@ export class ScriptRun {
     this.world.send(m, { t: 'script', runId: this.id, steps: this.lastSteps, spectator: m.id !== this.init.id, who: this.init.char.name });
   }
 
-  say(text) {
-    this.batch.push(['say', null, text]);
+  say(text, who = null) {
+    this.batch.push(['say', who, text]);
   }
 
   who() {
@@ -179,10 +179,12 @@ export class ScriptRun {
           break;
         }
         case 'inn': {
+          // ['inn', ねだん, 宿屋の人]（ねだん 0 は 家の ベッド）
           const price = a[0] || 0;
+          const keeper = a[1] || null;
           const c = this.init.char;
           if (c.gold < price) {
-            this.say('ゴールドが足りないようだね…');
+            this.say('おや？ゴールドが足りないようですね。', keeper);
             break;
           }
           c.gold -= price;
@@ -190,9 +192,16 @@ export class ScriptRun {
           const p = partyOf(w, this.init);
           for (const sup of p?.supports || []) fullHeal(sup.char);
           for (const g of p?.guests || []) fullHeal(g.char);
+          if (price) this.say('では、ごゆっくりお休みください。', keeper);
           this.batch.push(['fade', 'out'], ['bgm', 'inn'], ['wait', 2200], ['bgm', 'resume'], ['fade', 'in']);
-          this.say(price ? 'おはようございます。夕べはよくねむれましたか？' : '{name}はぐっすりねむった。');
-          this.say('HPとMPがすっかり回復した！');
+          if (price) {
+            this.say('おはようございます。\nゆうべは、よくねむれましたか？', keeper);
+            this.say('HPとMPがすっかり回復した！');
+            this.say('では、いってらっしゃいませ。', keeper);
+          } else {
+            this.say('{name}はぐっすりねむった。');
+            this.say('HPとMPがすっかり回復した！');
+          }
           for (const m of all) w.sendSelf(m);
           if (p) w.sendParty(p);
           break;

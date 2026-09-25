@@ -3,6 +3,7 @@
 // さんばしで 船長マリナから しおかぜ号を かりて 海へ。灯台に 光をともすと 嵐の中に 道がひらく。
 import { POS } from '../maps/index.js';
 import { SEA_POS } from '../maps/sea.js';
+import { innSteps } from './inn.js';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -99,13 +100,10 @@ export const CH2_SCRIPTS = {
     return S('船長マリナ', '次はどこへ行くんだい？\nしおかぜ号なら、どこへだって行けるさ！');
   },
 
-  port_inn: () => [
-    ...S('宿屋のおかみ', 'いらっしゃい！船旅でつかれたろう。\n一晩20ゴールドだよ。とまっていくかい？'),
-    ['choice', 'とまる？', ['とまる', 'やめる'], [[['inn', 20]], [...S('宿屋のおかみ', 'また来ておくれ！')]]],
-  ],
-  port_arms: () => [...S('武器と防具の店', 'いらっしゃい！海の男のための、じょうぶな武器と防具だよ！'), ['shop', 'port_arms']],
-  port_items: () => [...S('道具屋', 'いらっしゃいませ！船旅には薬草をたくさん持っていってね。'), ['shop', 'port_item']],
-  port_church: () => [...S('神父さま', '海の神のみもとへようこそ。\nなんのご用かな？'), ['church']],
+  port_inn: () => innSteps('宿屋のおかみ', 20),
+  port_arms: () => [['shop', 'port_arms']],
+  port_items: () => [['shop', 'port_item']],
+  port_church: () => [['church']],
 
   old_sailor: () => S('年よりの船乗り', 'むかし、星の竜の背中に乗って、空をとんだ勇者がいたそうじゃ…。',
     '竜は今も、北の山のどこかでねむっておると、じいさまから聞いたもんじゃ。'),

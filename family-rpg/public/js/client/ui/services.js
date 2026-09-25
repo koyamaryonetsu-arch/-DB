@@ -1,14 +1,15 @@
 // お店・転職・酒場・でんごんばん・ほしのかけら・きょうかい の がめん
 import { el, ListMenu, toast, askText, confirmBox, esc } from './dom.js';
-import { ITEMS, sellPrice } from '../../shared/data/items.js';
+import { ITEMS } from '../../shared/data/items.js';
 import { JOBS, JOB_ORDER, ADVANCED_ORDER, SUPER_ORDER, TIER_NAMES, JOB_MAX_LEVEL, JOB_TRAIN_GAP, jobReqText } from '../../shared/data/jobs.js';
 import { ABILITIES } from '../../shared/data/abilities.js';
-import { canEquip, itemCount, learnedAbilities, jobUnlocked, jobProgress } from '../../shared/stats.js';
+import { itemCount, learnedAbilities, jobUnlocked, jobProgress } from '../../shared/stats.js';
 import { MONSTERS } from '../../shared/data/monsters.js';
 import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES } from '../../shared/data/companions.js';
 import { TACTICS } from '../../shared/ai.js';
-import { itemDetail, equipDiff, diffText } from './info.js';
+import { itemDetail } from './info.js';
 import { playerSprite, followerSprite, faceURL } from '../field.js';
+import { shopUI, churchUI } from './shop.js';
 
 export function openServiceUI(game, kind, data) {
   switch (kind) {
@@ -60,169 +61,6 @@ function shell(title, extraCls = '') {
     removeRoot();
   };
   return Object.assign(s, { head, body });
-}
-
-function goldText(game) {
-  return `${game.me.gold} G`;
-}
-
-// ───────────── お店 ─────────────
-function shopUI(game, data) {
-  return new Promise((resolve) => {
-    const s = shell(data.name);
-    s.game = game;
-    const side = el('div', { class: 'win side' });
-    const main = el('div', { class: 'win main scroll' });
-    const detail = el('div', { class: 'detail' });
-    s.body.append(side, main);
-    const updGold = () => { s.right.textContent = goldText(game); };
-    updGold();
-    const modeMenu = new ListMenu(game.input, {
-      items: [{ label: '買う', value: 'buy' }, { label: '売る', value: 'sell' }, { label: 'やめる', value: 'exit' }],
-      back: null,
-      sound: (x) => game.audio.sfx(x),
-      onSelect: (it) => {
-        if (it.value === 'exit') return close();
-        if (it.value === 'buy') showBuy();
-        else showSell();
-      },
-      onCancel: () => close(),
-    });
-    side.append(modeMenu.root);
-    modeMenu.focus();
-    let list = null;
-    const close = () => {
-      list?.blur();
-      modeMenu.blur();
-      s.root.remove();
-      resolve();
-    };
-    s.onClose = close;
-    const back = () => {
-      list?.blur();
-      list = null;
-      main.innerHTML = '';
-      modeMenu.focus();
-    };
-    const showBuy = () => {
-      modeMenu.blur();
-      main.innerHTML = '';
-      const items = data.items.map((id) => {
-        const it = ITEMS[id];
-        const eq = ['weapon', 'armor', 'shield', 'head', 'acc'].includes(it.type);
-        const mine = eq && !canEquip(game.me.job, id);
-        return { label: it.name + (mine ? '' : ''), right: `${it.price}G`, value: id, cls: mine ? '' : '', html: `${it.name}${eq && !canEquip(game.me.job, id) ? '<span class="tag muted">装備できない</span>' : ''}` };
-      });
-      list = new ListMenu(game.input, {
-        items,
-        sound: (x) => game.audio.sfx(x),
-        onMove: (it) => {
-          if (!it) return;
-          const d = ITEMS[it.value];
-          let text = itemDetail(it.value);
-          if (['weapon', 'armor', 'shield', 'head', 'acc'].includes(d.type) && canEquip(game.me.job, it.value)) {
-            text += `\n今の装備と比べると: ${diffText(equipDiff(game.me, it.value))}`;
-          }
-          text += `\n持っている数: ${itemCount(game.me, it.value)}`;
-          detail.textContent = text;
-        },
-        onSelect: async (it) => {
-          const d = ITEMS[it.value];
-          list.blur();
-          let qty = 1;
-          const eq = ['weapon', 'armor', 'shield', 'head', 'acc'].includes(d.type);
-          if (!eq) {
-            qty = await pickQty(game, `${d.name}をいくつ買う？`, Math.min(99, Math.floor(game.me.gold / d.price)), d.price);
-            if (!qty) return list.focus();
-          }
-          let equip = false;
-          if (eq && canEquip(game.me.job, it.value)) {
-            equip = await confirmBox(game.input, `${d.name}を${d.price}ゴールドで買って\nすぐに装備しますか？`, '買って装備する', '買うだけ', (x) => game.audio.sfx(x));
-          } else if (!(await confirmBox(game.input, `${d.name}を${qty > 1 ? qty + '個 ' : ''}${d.price * qty}ゴールドで買いますか？`, 'はい', 'いいえ', (x) => game.audio.sfx(x)))) {
-            return list.focus();
-          }
-          const r = await request(game, { kind: 'shop', action: 'buy', id: it.value, qty, equip });
-          if (r.ok) game.audio.sfx('item');
-          toast(r.text || (r.ok ? 'まいど！' : '買えませんでした'));
-          updGold();
-          list.focus();
-        },
-        onCancel: back,
-      });
-      main.append(list.root, detail);
-      list.focus();
-    };
-    const showSell = () => {
-      modeMenu.blur();
-      const build = () => {
-        main.innerHTML = '';
-        const items = game.me.items.filter((e) => ITEMS[e.id] && ITEMS[e.id].type !== 'key').map((e) => ({ label: `${ITEMS[e.id].name} ×${e.n}`, right: `${sellPrice(e.id)}G`, value: e.id, disabled: sellPrice(e.id) <= 0 }));
-        if (!items.length) {
-          main.append(el('div', { class: 'muted', text: '売れる物を持っていない。' }));
-          setTimeout(back, 900);
-          return;
-        }
-        list = new ListMenu(game.input, {
-          items,
-          sound: (x) => game.audio.sfx(x),
-          onMove: (it) => { detail.textContent = it ? itemDetail(it.value) : ''; },
-          onSelect: async (it) => {
-            list.blur();
-            const have = itemCount(game.me, it.value);
-            const qty = have > 1 ? await pickQty(game, `${ITEMS[it.value].name}をいくつ売る？`, have, sellPrice(it.value)) : 1;
-            if (!qty) return list.focus();
-            const r = await request(game, { kind: 'shop', action: 'sell', id: it.value, qty });
-            if (r.ok) game.audio.sfx('item');
-            toast(r.text || '');
-            updGold();
-            list.blur();
-            build();
-          },
-          onCancel: back,
-        });
-        main.append(list.root, detail);
-        list.focus();
-      };
-      build();
-    };
-  });
-}
-
-function pickQty(game, title, max, price) {
-  return new Promise((resolve) => {
-    if (max <= 0) {
-      toast('ゴールドが足りないよ');
-      resolve(0);
-      return;
-    }
-    let q = 1;
-    const box = el('div', { class: 'win panel center-panel', style: { width: 'min(90vw, 420px)', textAlign: 'center' } });
-    const val = el('div', { style: { fontSize: '1.4em', margin: '0.3em 0' } });
-    const upd = () => { val.textContent = `◀ ${q}個 ▶　${price * q}G`; };
-    const minus = el('button', { class: 'btn', text: '－', onclick: () => { q = Math.max(1, q - 1); upd(); } });
-    const plus = el('button', { class: 'btn', text: '＋', onclick: () => { q = Math.min(max, q + 1); upd(); } });
-    const ok = el('button', { class: 'btn primary', text: '決定', onclick: () => done(q) });
-    const no = el('button', { class: 'btn', text: 'やめる', onclick: () => done(0) });
-    box.append(el('div', { text: title }), val, el('div', { class: 'row', style: { justifyContent: 'center' } }, minus, plus, no, ok));
-    const h = {
-      onNav: (a) => {
-        if (a === 'left' || a === 'down') q = Math.max(1, q - 1);
-        if (a === 'right' || a === 'up') q = Math.min(max, q + 1);
-        if (a === 'a') return done(q);
-        if (a === 'b') return done(0);
-        game.audio.sfx('cursor');
-        upd();
-      },
-    };
-    const done = (v) => {
-      game.input.pop(h);
-      box.remove();
-      resolve(v);
-    };
-    upd();
-    game.input.push(h);
-    document.getElementById('ui').append(box);
-  });
 }
 
 // ───────────── 転職 ─────────────
@@ -738,52 +576,6 @@ function starUI(game, data) {
     };
     s.onClose = close;
     main.append(menu.root, detail);
-    menu.focus();
-  });
-}
-
-// ───────────── きょうかい ─────────────
-function churchUI(game, data) {
-  return new Promise((resolve) => {
-    const s = shell('教会');
-    s.game = game;
-    const main = el('div', { class: 'win main scroll', style: { gridColumn: '1 / -1' } });
-    s.body.append(main);
-    let info = data;
-    const opts = () => {
-      const items = [];
-      for (const d of info.dead) items.push({ label: `${d.name}を生き返らせる`, right: `${d.price}G`, value: { action: 'revive', ref: d.ref } });
-      for (const d of info.poisoned) items.push({ label: `${d.name}の毒を治す`, right: `${d.price}G`, value: { action: 'cure', ref: d.ref } });
-      items.push({ label: 'おいのりをする（ここを記録する）', value: { action: 'record' } });
-      items.push({ label: '何でもない', value: { action: 'close' } });
-      return items;
-    };
-    s.right.textContent = goldText(game);
-    const menu = new ListMenu(game.input, {
-      items: opts(),
-      sound: (x) => game.audio.sfx(x),
-      onSelect: async (it) => {
-        if (it.value.action === 'close') return close();
-        const r = await request(game, { kind: 'church', ...it.value });
-        if (r.ok) game.audio.sfx('heal');
-        toast(r.text || '');
-        if (r.church) info = r.church;
-        else if (r.ok && it.value.action !== 'record') {
-          info = { dead: info.dead.filter((d) => d.ref !== it.value.ref), poisoned: info.poisoned.filter((d) => d.ref !== it.value.ref) };
-        }
-        menu.setItems(opts());
-        setTimeout(() => { s.right.textContent = goldText(game); }, 100);
-      },
-      back: null,
-      onCancel: () => close(),
-    });
-    main.append(menu.root, el('div', { class: 'detail', text: '全滅すると、最後においのりした教会で目を覚ますよ。' }));
-    const close = () => {
-      menu.blur();
-      s.root.remove();
-      resolve();
-    };
-    s.onClose = close;
     menu.focus();
   });
 }

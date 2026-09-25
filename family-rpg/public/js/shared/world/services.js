@@ -3,7 +3,7 @@ import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE } from '../data/shops.js';
 import { ITEMS, sellPrice, SLOTS } from '../data/items.js';
 import { JOBS, ALL_JOBS, jobReqText } from '../data/jobs.js';
 import { ABILITIES } from '../data/abilities.js';
-import { addItem, removeItem, itemCount, canEquip, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js';
+import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js';
 import { TACTICS } from '../ai.js';
 import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf } from './party.js';
 import { breedMonsters, breedPreview } from './breed.js';
@@ -17,7 +17,7 @@ export function openService(world, s, kind, arg) {
       const shop = SHOPS[arg];
       if (!shop) return null;
       s.openShop = arg;
-      return { shop: arg, name: shop.name, items: shop.items };
+      return { shop: arg, name: shop.name, items: shop.items, keeper: shop.keeper, hello: shop.hello, kind: shop.kind };
     }
     case 'jobChange': return { jobs: ALL_JOBS };
     case 'tavern': return tavernInfo(world, s);
@@ -78,9 +78,10 @@ function ownChar(s, who) {
 // お店などの そうさ
 export function serviceAction(world, s, msg) {
   const c = s.char;
+  // へんじより さきに 新しい じょうたいを おくる（がめんの ゴールドや 装備が すぐ かわるように）
   const reply = (ok, text, extra = {}) => {
-    world.send(s, { t: 'svcRes', ok, text, ...extra });
     world.sendSelf(s);
+    world.send(s, { t: 'svcRes', ok, text, ...extra });
     world.markDirty();
   };
   switch (msg.kind) {
@@ -88,24 +89,39 @@ export function serviceAction(world, s, msg) {
       const shop = SHOPS[s.openShop];
       if (msg.action === 'buy') {
         const it = ITEMS[msg.id];
-        const qty = Math.max(1, Math.min(99, Math.floor(msg.qty || 1)));
-        if (!shop || !shop.items.includes(msg.id) || !it) return reply(false, 'その品物はありません');
+        const equipable = SLOTS.includes(it?.type);
+        const qty = equipable ? 1 : Math.max(1, Math.min(99, Math.floor(msg.qty || 1)));
+        if (!shop || !shop.items.includes(msg.id) || !it || !(it.price > 0)) return reply(false, 'その品物はありません');
         const cost = it.price * qty;
-        if (c.gold < cost) return reply(false, 'ゴールドが足りないよ');
+        if (c.gold < cost) return reply(false, 'おや？ゴールドが足りないようですね。');
+        // だれが 装備する？（じぶん か じぶんの なかま。むかしの 'equip: true' は じぶん）
+        const whoKey = msg.who || (msg.equip ? 'self' : null);
+        const who = whoKey && equipable ? ownChar(s, whoKey) : null;
+        if (whoKey && equipable && (!who || !canEquipChar(who, msg.id))) return reply(false, 'その人は装備できないようですね。');
         c.gold -= cost;
         addItem(c, msg.id, qty);
-        let text = `${it.name}を${qty > 1 ? qty + '個' : ''}買った！`;
-        if (msg.equip && canEquip(c.job, msg.id)) {
-          equipItem(c, msg.id);
-          text = `${it.name}を買って装備した！`;
+        const lines = [`${it.name}${qty > 1 ? `を${qty}個` : 'を'}買った！`];
+        if (who) {
+          const old = who.equip[it.type];
+          equipItem(who, msg.id, c);
+          lines.push(`${who.name}は${it.name}を装備した！`);
+          if (old && msg.sellOld && sellPrice(old) > 0 && removeItem(c, old, 1)) {
+            c.gold += sellPrice(old);
+            lines.push(`今まで装備していた${ITEMS[old].name}を${sellPrice(old)}ゴールドで売った。`);
+          } else if (old) {
+            lines.push(`${ITEMS[old].name}は、ふくろに入れた。`);
+          }
+          if (who !== c) world.sendParty(partyOf(world, s));
+        } else {
+          lines.push(`${it.name}は、ふくろに入れた。`);
         }
-        return reply(true, text);
+        return reply(true, lines.join('\n'), { equipped: !!who });
       }
       if (msg.action === 'sell') {
         const it = ITEMS[msg.id];
         const qty = Math.max(1, Math.min(99, Math.floor(msg.qty || 1)));
-        if (!it || it.type === 'key') return reply(false, 'それは売れないよ');
-        if (itemCount(c, msg.id) < qty) return reply(false, '持っていないよ');
+        if (!it || it.type === 'key' || sellPrice(msg.id) <= 0) return reply(false, 'それは引き取れません。');
+        if (itemCount(c, msg.id) < qty) return reply(false, '持っていないようですね。');
         const price = sellPrice(msg.id);
         removeItem(c, msg.id, qty);
         c.gold += price * qty;

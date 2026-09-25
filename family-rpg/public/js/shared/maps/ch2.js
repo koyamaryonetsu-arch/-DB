@@ -38,6 +38,15 @@ const SEA_NPCS = [
   npc('storm_tower', '嵐の塔', [D.x, D.y - 1], 'storm_tower', 'storm_tower', { big: true, solid: false }),
 ];
 
+// お店の かんばん
+const SEA_BOARDS = [
+  [P(6, 7), 'item', '道具屋'],
+  [P(27, 7), 'inn', '宿屋'],
+  [P(7, 17), 'arms', '武器と防具の店'],
+  [P(26, 17), 'church', '教会'],
+  [P(16, 16), 'harbor', '港長の家'],
+].map(([[x, y], kind, name]) => ({ x, y, kind, name }));
+
 const SEA_CHESTS = [
   { id: 'sea_islet1', x: ISLETS[0][0], y: ISLETS[0][1], item: 'bottle_letter' },
   { id: 'sea_islet2', x: ISLETS[1][0], y: ISLETS[1][1], item: 'seed_agi' },
@@ -66,7 +75,7 @@ export function buildCh2Maps() {
     sailable: true, // 水の 上を 船で すすめる
     altarScript: 'wind_altar',
     w: sea.w, h: sea.h, tiles: sea.tiles, gates: sea.gates,
-    npcs: SEA_NPCS, chests: SEA_CHESTS, signs: SEA_SIGNS,
+    npcs: SEA_NPCS, chests: SEA_CHESTS, signs: SEA_SIGNS, boards: SEA_BOARDS,
     warps: [
       { x: C.x, y: C.y, to: { map: 'sea_cave', x: 20.5, y: 27.5, dir: 'up' } },
       { x: D.x, y: D.y, to: { map: 'tower_1f', x: 11, y: 19.6, dir: 'up' } },
