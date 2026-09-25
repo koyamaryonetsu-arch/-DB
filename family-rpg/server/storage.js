@@ -1,6 +1,7 @@
 // セーブデータを ファイルに ほぞんする（こわれないように いちど べつの ファイルに かいてから おきかえる）
 import fs from 'node:fs';
 import path from 'node:path';
+import { SAVE_VERSION } from '../public/js/shared/world/save.js';
 
 export class FileStorage {
   constructor(dir) {
@@ -14,12 +15,34 @@ export class FileStorage {
   load() {
     for (const f of [this.file, this.file + '.bak']) {
       try {
-        if (fs.existsSync(f)) return JSON.parse(fs.readFileSync(f, 'utf8'));
+        if (!fs.existsSync(f)) continue;
+        const text = fs.readFileSync(f, 'utf8');
+        const data = JSON.parse(text);
+        // むかしの 形の セーブは、新しい 形に する まえに まるごと とっておく（1回だけ）
+        if (data?.characters && (Number(data.version) || 1) < SAVE_VERSION) this.backupOnce(`before-v${SAVE_VERSION}`, text);
+        return data;
       } catch (e) {
         console.error(`セーブデータの読みこみに失敗: ${f}`, e.message);
       }
     }
     return {};
+  }
+
+  // その ときの バックアップ（引っこしコードで 入れかえる まえ など）
+  backup(label, text) {
+    try {
+      const stamp = new Date().toISOString().replace(/[:T]/g, '-').slice(0, 19);
+      fs.writeFileSync(path.join(this.backupDir, `save-${label}-${stamp}.json`), text);
+    } catch { /* */ }
+  }
+
+  // label の バックアップが まだ なければ つくる
+  backupOnce(label, text) {
+    try {
+      if (fs.readdirSync(this.backupDir).some((f) => f.startsWith(`save-${label}`))) return;
+      const stamp = new Date().toISOString().replace(/[:T]/g, '-').slice(0, 16);
+      fs.writeFileSync(path.join(this.backupDir, `save-${label}-${stamp}.json`), text);
+    } catch { /* */ }
   }
 
   save(data) {
@@ -37,7 +60,8 @@ export class FileStorage {
       const stamp = new Date(now).toISOString().replace(/[:T]/g, '-').slice(0, 16);
       try {
         fs.writeFileSync(path.join(this.backupDir, `save-${stamp}.json`), json);
-        const files = fs.readdirSync(this.backupDir).filter((f) => f.startsWith('save-')).sort();
+        // じどうの バックアップ（save-2026-…）だけ 24こに へらす。ひっこし・バージョンアップ まえの ものは のこす
+        const files = fs.readdirSync(this.backupDir).filter((f) => /^save-\d/.test(f)).sort();
         while (files.length > 24) fs.unlinkSync(path.join(this.backupDir, files.shift()));
       } catch { /* */ }
     }

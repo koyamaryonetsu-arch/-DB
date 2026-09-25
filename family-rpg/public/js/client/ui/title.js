@@ -101,7 +101,7 @@ export function showSelect(game, chars) {
     const card = el('button', { class: 'win charcard' }, cv, el('div', {},
       el('div', { text: c.name }),
       el('div', { class: 'meta', text: `${JOBS[c.job]?.name} Lv${c.level}${c.online ? '' : ''}` }),
-      c.online ? el('div', { class: 'meta on', text: '今遊んでいる' }) : el('div', { class: 'meta', text: c.lastPlayed ? `${ago(c.lastPlayed)}に遊んだ` : '' }),
+      c.online ? el('div', { class: 'meta on', text: '今遊んでいる' }) : el('div', { class: 'meta', text: c.lastPlayed ? playedAgo(c.lastPlayed) : '' }),
       el('div', { class: 'meta', text: c.objective || '' })));
     card.addEventListener('click', () => choose(c));
     grid.append(card);
@@ -110,9 +110,11 @@ export function showSelect(game, chars) {
   const newBtn = el('button', { class: 'win charcard', style: { justifyContent: 'center' } }, el('span', { class: 'gold', text: '＋ 新しく作る' }));
   newBtn.addEventListener('click', () => { cleanup(); showCreate(game); });
   grid.append(newBtn);
-  const foot = el('div', { class: 'win row', style: { marginTop: '6px', justifyContent: 'space-between' } },
+  const foot = el('div', { class: 'win row', style: { marginTop: '6px', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.4em' } },
     el('span', { class: 'small muted', text: chars.length ? 'カードを選んでね（矢印キーでも動かせる）' : 'まずはキャラクターを作ろう！' }),
-    chars.length ? el('button', { class: 'btn danger', text: 'キャラを消す', onclick: () => delFlow() }) : null);
+    el('span', { class: 'row', style: { gap: '0.4em' } },
+      el('button', { class: 'btn', text: '引っこしコード', onclick: () => { cleanup(); showTransfer(game, chars); } }),
+      chars.length ? el('button', { class: 'btn danger', text: 'キャラを消す', onclick: () => delFlow() }) : null));
   wrap.append(head, list, foot);
   ui.append(wrap);
   let idx = 0;
@@ -148,6 +150,148 @@ export function showSelect(game, chars) {
     } else if (name) toast('やめました');
     showSelect(game, game.chars || chars);
   };
+}
+
+// 「3分前に遊んだ」「たった今遊んだ」
+function playedAgo(t) {
+  const when = ago(t);
+  return when === 'たった今' ? 'たった今遊んだ' : `${when}に遊んだ`;
+}
+
+// ───────────── 引っこしコード（キャラクターを べつの 場所へ つれていく） ─────────────
+// 書き出す: キャラを えらぶ → コードが 出る → コピー
+// 連れてくる: コードを はりつける → 「だれで遊ぶ？」に くわわる
+function request(game, msg, want) {
+  return new Promise((resolve) => {
+    game.transferWaiter = (m) => {
+      if (m.t !== want) return false;
+      game.transferWaiter = null;
+      resolve(m);
+      return true;
+    };
+    game.net.send(msg);
+    setTimeout(() => {
+      if (game.transferWaiter) {
+        game.transferWaiter = null;
+        resolve({ ok: false, text: '通信がおくれています' });
+      }
+    }, 8000);
+  });
+}
+
+export function showTransfer(game, chars) {
+  clearUI();
+  const ui = document.getElementById('ui');
+  const where = game.net.mode === 'server' ? `家族サーバー「${game.net.family || 'わが家'}」` : 'このブラウザ（ひとりで遊ぶモード）';
+  const wrap = el('div', { class: 'panel center-panel transfer-panel', style: { width: 'min(96vw, 720px)' } });
+  const box = el('div', { class: 'win scroll', style: { maxHeight: '88vh' } });
+  const body = el('div', { class: 'col', style: { gap: '0.6em' } });
+  const close = el('button', { class: 'btn closebtn', text: '✕ 閉じる', 'aria-label': '閉じる' });
+  const head = el('div', { class: 'svc-head', style: { marginBottom: '0.3em' } }, el('span', { class: 'gold', text: '引っこしコード' }), close);
+  box.append(head, body);
+  wrap.append(box);
+  ui.append(wrap);
+  const h = { onNav: (a) => { if (a === 'b') done(); } };
+  game.input.push(h);
+  const done = () => {
+    game.input.pop(h);
+    game.transferWaiter = null;
+    showSelect(game, game.chars || chars);
+  };
+  close.addEventListener('click', done);
+
+  const top = () => {
+    body.innerHTML = '';
+    body.append(
+      el('div', { class: 'small', text: `キャラクターを、べつの場所へ連れていけます。\n今いる場所: ${where}` }),
+      el('div', { class: 'detail', text: 'れい: 家族サーバーの電源がないときに、スマホの「ひとりで遊ぶモード」で進めたキャラを、あとで家族サーバーに連れてくる。\n書き出したあとは、連れていった先で続きを遊んでね（両方で遊ぶと、あとで進んだほうのデータになります）。' }),
+      el('div', { class: 'row', style: { gap: '0.5em', flexWrap: 'wrap' } },
+        el('button', { class: 'btn primary', text: '① キャラを書き出す', disabled: !chars.length, onclick: pickExport }),
+        el('button', { class: 'btn primary', text: '② コードから連れてくる', onclick: importView })));
+  };
+
+  const pickExport = () => {
+    body.innerHTML = '';
+    body.append(el('div', { class: 'small gold', text: 'だれを書き出す？' }));
+    const row = el('div', { class: 'row', style: { gap: '0.4em', flexWrap: 'wrap' } });
+    for (const c of chars) row.append(el('button', { class: 'btn', text: `${c.name}（Lv${c.level}）`, onclick: () => exportView(c) }));
+    body.append(row, el('button', { class: 'btn', text: '← もどる', onclick: top }));
+  };
+
+  const exportView = async (c) => {
+    body.innerHTML = '';
+    body.append(el('div', { class: 'small muted', text: 'コードを作っています…' }));
+    const r = await request(game, { t: 'exportChar', id: c.id }, 'exportCode');
+    body.innerHTML = '';
+    if (!r.code) {
+      body.append(el('div', { class: 'warn', text: r.text || '書き出せませんでした' }), el('button', { class: 'btn', text: '← もどる', onclick: top }));
+      return;
+    }
+    const ta = el('textarea', { class: 'textin codearea', readonly: true, rows: '5', spellcheck: 'false' });
+    ta.value = r.code;
+    const copyBtn = el('button', { class: 'btn primary', text: 'コピーする' });
+    copyBtn.addEventListener('click', () => {
+      // コピーできなかった ときは コードを 選んだ ままに して、長おしで コピーしてもらう
+      let settled = false;
+      const copied = () => {
+        if (settled) return;
+        settled = true;
+        toast('コピーしました！');
+        game.audio.sfx('confirm');
+      };
+      const fallback = () => {
+        if (settled) return;
+        settled = true;
+        ta.focus();
+        ta.setSelectionRange(0, ta.value.length);
+        let ok = false;
+        try { ok = document.execCommand('copy'); } catch { /* */ }
+        toast(ok ? 'コピーしました！' : 'コードを選んだよ。長おしして「コピー」してね');
+      };
+      try {
+        navigator.clipboard.writeText(r.code).then(copied, fallback);
+        setTimeout(fallback, 1500);
+      } catch {
+        fallback();
+      }
+    });
+    body.append(
+      el('div', { class: 'gold', text: `${r.name}の引っこしコード` }),
+      el('div', { class: 'small', text: '連れていく先の「だれで遊ぶ？」→「引っこしコード」→「② コードから連れてくる」で、このコードをはりつけてね。' }),
+      ta,
+      el('div', { class: 'row', style: { gap: '0.5em' } }, copyBtn, el('button', { class: 'btn', text: '← もどる', onclick: top })),
+      el('div', { class: 'detail', text: `コードの長さ: ${r.code.length}文字。全部コピーしてね（とちゅうで切れると読めません）。` }));
+  };
+
+  const importView = () => {
+    body.innerHTML = '';
+    const ta = el('textarea', { class: 'textin codearea', rows: '5', spellcheck: 'false', placeholder: 'ここに引っこしコードをはりつける（KIZUNA-1-…）' });
+    const go = el('button', { class: 'btn primary', text: '連れてくる' });
+    const msg = el('div', { class: 'small' });
+    go.addEventListener('click', async () => {
+      const code = ta.value.trim();
+      if (!code) {
+        toast('コードをはりつけてね');
+        return;
+      }
+      go.disabled = true;
+      msg.textContent = '読みこんでいます…';
+      const r = await request(game, { t: 'importChar', code }, 'importResult');
+      go.disabled = false;
+      msg.textContent = r.text || '';
+      msg.className = r.ok ? 'small good' : 'small warn';
+      game.audio.sfx(r.ok ? 'join' : 'buzz');
+      if (r.ok && r.mode !== 'kept') ta.value = '';
+    });
+    body.append(
+      el('div', { class: 'small', text: `書き出したコードを、ここにはりつけてね。キャラクターが「${where}」にやってきます。` }),
+      ta,
+      el('div', { class: 'row', style: { gap: '0.5em' } }, go, el('button', { class: 'btn', text: '← もどる', onclick: top })),
+      msg,
+      el('div', { class: 'detail', text: 'もういるキャラクターのコードなら、コードのほうが後で遊んだデータのときだけ入れかえます。' }));
+    setTimeout(() => ta.focus(), 50);
+  };
+  top();
 }
 
 export function showCreate(game) {

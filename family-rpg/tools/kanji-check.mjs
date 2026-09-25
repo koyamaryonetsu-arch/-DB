@@ -163,8 +163,8 @@ export function gameFiles() {
     'public/js/shared/data/monsters-ch2.js', 'public/js/shared/data/story-ch2.js',
     'public/js/shared/world/battles.js', 'public/js/shared/world/breed.js', 'public/js/shared/world/monsters.js',
     'public/js/shared/world/party.js', 'public/js/shared/world/scripts.js', 'public/js/shared/world/services.js',
-    'public/js/shared/world/world.js',
-    'server/index.js', 'server/storage.js',
+    'public/js/shared/world/world.js', 'public/js/shared/world/save.js', 'public/js/shared/world/transfer.js',
+    'server/index.js', 'server/storage.js', 'server/savedir.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

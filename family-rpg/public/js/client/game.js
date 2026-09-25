@@ -282,7 +282,11 @@ export class Game {
         break;
       case 'chars':
         this.chars = m.chars;
-        if (this.state === 'select' && !this.pendingPlay && !document.querySelector('.create')) showSelect(this, m.chars);
+        if (this.state === 'select' && !this.pendingPlay && !document.querySelector('.create, .transfer-panel')) showSelect(this, m.chars);
+        break;
+      case 'exportCode':
+      case 'importResult':
+        this.transferWaiter?.(m);
         break;
       case 'charCreated':
         if (this.pendingPlay) {

@@ -17,6 +17,8 @@ import { newParty, partyOf, partyState, syncParty, ensureCompanions, companionWa
 import { MONSTERS } from '../data/monsters.js';
 import { COMPANION_SLOTS } from '../data/companions.js';
 import { CH1_CLEAR_OBJECTIVE } from '../data/story.js';
+import { upgradeSave, repairChar } from './save.js';
+import { exportCode, parseCode, importChar } from './transfer.js';
 
 export const PROTOCOL_VERSION = 1;
 const SPARKLE_RESPAWN_MS = 20 * 60 * 1000;
@@ -32,7 +34,10 @@ export class GameWorld {
     this.checkPassword = opts.checkPassword || (() => true);
     this.familyName = opts.familyName || 'わが家';
     this.now = opts.now || (() => Date.now());
-    this.data = normalizeData(opts.data || this.storage?.load?.() || {});
+    // むかしの セーブも 読める 形に（save.js）
+    const up = upgradeSave(opts.data || this.storage?.load?.() || {});
+    this.data = up.data;
+    this.saveUpgradedFrom = up.from;
     this.sessions = new Map();
     this.parties = new Map();
     this.battles = new Map();
@@ -190,6 +195,8 @@ export class GameWorld {
       case 'hello': return this.onHello(s, msg);
       case 'createChar': return this.onCreateChar(s, msg);
       case 'deleteChar': return this.onDeleteChar(s, msg);
+      case 'exportChar': return this.onExportChar(s, msg);
+      case 'importChar': return this.onImportChar(s, msg);
       case 'play': return this.onPlay(s, msg);
       case 'quit': this.leaveWorld(s); return this.send(s, { t: 'chars', chars: this.charList() });
       case 'ping': return this.send(s, { t: 'pong', at: msg.at });
@@ -250,6 +257,38 @@ export class GameWorld {
     this.broadcast({ t: 'chars', chars: this.charList() });
   }
 
+  // 引っこしコード（transfer.js）
+  onExportChar(s, msg) {
+    const c = this.data.characters[msg.id];
+    if (!c) return this.send(s, { t: 'exportCode', ok: false, text: '見つかりません' });
+    // 遊んでいる とちゅうなら 今の いちも 入れる
+    for (const x of this.sessions.values()) {
+      if (x.inWorld && x.charId === c.id && !x.busy) c.pos = { map: x.map, x: x.x, y: x.y, dir: x.dir };
+    }
+    this.send(s, { t: 'exportCode', ok: true, id: c.id, name: c.name, code: exportCode(c, this.now()) });
+  }
+
+  onImportChar(s, msg) {
+    const r = parseCode(msg.code);
+    if (!r.ok) return this.send(s, { t: 'importResult', ok: false, text: r.reason });
+    const before = JSON.stringify(this.data);
+    const res = importChar(this.data, r.char, { online: (id) => [...this.sessions.values()].some((x) => x.inWorld && x.charId === id) });
+    if (!res.ok) return this.send(s, { t: 'importResult', ok: false, text: res.reason });
+    const text = {
+      new: `${res.name}がやってきた！\n「だれで遊ぶ？」から選んでね。`,
+      updated: `${res.name}を、引っこしコードの新しいデータにしました。`,
+      kept: `${res.name}は、こちらのデータが同じか新しいので、そのままにしました。`,
+    }[res.mode];
+    if (res.mode !== 'kept') {
+      // 入れかえる まえの セーブを とっておく
+      if (res.mode === 'updated') this.storage?.backup?.('before-import', before);
+      this.markDirty();
+      this.saveNow();
+      this.broadcast({ t: 'chars', chars: this.charList() });
+    }
+    this.send(s, { t: 'importResult', ok: true, mode: res.mode, name: res.name, text });
+  }
+
   onDeleteChar(s, msg) {
     const c = this.data.characters[msg.id];
     if (!c) return;
@@ -280,7 +319,10 @@ export class GameWorld {
     s.charId = c.id;
     s.char = c;
     normalizeChar(c);
-    const pos = c.pos && MAPS[c.pos.map] ? c.pos : { map: 'overworld', x: START_POS[0] + 0.5, y: START_POS[1] + 0.5, dir: 'down' };
+    // 知らない マップ・マップの 外なら はじまりの 場所から
+    const pm = c.pos && typeof c.pos.map === 'string' && Object.prototype.hasOwnProperty.call(MAPS, c.pos.map) ? MAPS[c.pos.map] : null;
+    const inside = pm && Number.isFinite(c.pos.x) && Number.isFinite(c.pos.y) && c.pos.x >= 0 && c.pos.y >= 0 && c.pos.x < pm.w && c.pos.y < pm.h;
+    const pos = inside ? c.pos : { map: 'overworld', x: START_POS[0] + 0.5, y: START_POS[1] + 0.5, dir: 'down' };
     s.map = pos.map;
     s.x = pos.x;
     s.y = pos.y;
@@ -789,18 +831,8 @@ export function equipLook(c) {
   return [e.weapon || '', e.armor || '', e.shield || '', e.head || ''].join(',');
 }
 
-function normalizeData(d) {
-  // 家族の キャラは ログインしていなくても サポートなかまに なるので、ここで 職業レベルを あたらしい しくみに
-  for (const c of Object.values(d.characters || {})) migrateJobs(c);
-  return {
-    version: 1,
-    characters: d.characters || {},
-    board: d.board || [],
-    createdAt: d.createdAt || Date.now(),
-  };
-}
-
 function normalizeChar(c) {
+  repairChar(c);
   c.flags = c.flags || {};
   c.chests = c.chests || {};
   c.items = c.items || [];

@@ -9,13 +9,26 @@ import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { acceptUpgrade } from './ws.js';
 import { FileStorage } from './storage.js';
+import { defaultDataDir, handOverOldSaves } from './savedir.js';
 import { GameWorld } from '../public/js/shared/world/world.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PUBLIC = path.join(ROOT, 'public');
-const DATA_DIR = path.resolve(process.env.DATA_DIR || path.join(ROOT, 'data'));
+// セーブは アプリの フォルダの 外（ホームの kizuna-save）。アプリを 入れかえても のこる
+const CUSTOM_DIR = !!process.env.DATA_DIR;
+const DATA_DIR = path.resolve(process.env.DATA_DIR || defaultDataDir());
 
 fs.mkdirSync(DATA_DIR, { recursive: true });
+
+// むかしの 版の セーブ（アプリの フォルダの 中の data）を ひっこす
+let handOver = { moved: [], from: [], config: false };
+if (!CUSTOM_DIR) {
+  try {
+    handOver = handOverOldSaves({ root: ROOT, dataDir: DATA_DIR });
+  } catch (e) {
+    console.error('むかしのセーブの引っこしに失敗しました:', e.message);
+  }
+}
 
 // ───────────── せってい ─────────────
 const CONFIG_FILE = path.join(DATA_DIR, 'config.json');
@@ -190,7 +203,14 @@ server.listen(PORT, HOST, () => {
   }
   console.log('');
   console.log(`  家族の合言葉:  ${PASSWORD}`);
-  console.log(`  （変えるときは ${path.relative(process.cwd(), CONFIG_FILE) || CONFIG_FILE} の password を編集）`);
+  console.log(`  （変えるときは ${CONFIG_FILE} の password を編集）`);
+  console.log('');
+  console.log(`  セーブの場所:  ${DATA_DIR}`);
+  console.log('  （アプリを新しくしても、ここのセーブはそのまま使えます）');
+  if (handOver.moved.length) {
+    console.log(`  ★ 前の版のセーブを引っこしました: ${handOver.moved.join('、')}`);
+    for (const d of handOver.from) console.log(`     （${d} から。前のセーブも消さずに残してあります）`);
+  }
   console.log('');
   console.log('  終わるときはこの画面で Ctrl + C をおしてね（自動でセーブされます）');
   console.log('');
