@@ -40,7 +40,7 @@ export function joinBattle(world, s, targetSid) {
   if (!ctx || ctx.opts.fixed || ctx.battle.over || ctx.battle.pendingEnd) return { ok: false };
   if (Math.hypot(t.x - s.x, t.y - s.y) > LATE_JOIN_RADIUS) return { ok: false };
   if (ctx.sids.includes(s.id)) return { ok: false };
-  if (ctx.battle.allies.length >= 4) return { ok: false, reason: 'たたかいの ばしょが いっぱいだ…' };
+  if (ctx.battle.allies.length >= 4) return { ok: false, reason: '戦いの場所がいっぱいだ…' };
   const a = ctx.battle.joinAlly({ char: s.char, kind: 'player', controller: s.id, auto: !!s.char.battleSettings?.auto });
   ctx.actorMap[a.id] = { type: 'human', sid: s.id, char: s.char };
   noteSeen(s.char, [...new Set(ctx.battle.combatants.filter((x) => x.side === 'enemy').map((x) => x.species))]);
@@ -245,9 +245,9 @@ function finishBattle(world, ctx) {
     for (const m of sessions) {
       const c = m.char;
       const lines = [];
-      lines.push(res.killed.length ? 'まものたちを やっつけた！' : 'たたかいに かった！');
-      if (exp > 0) lines.push(`${c.name}は ${exp}ポイントの けいけんちを かくとく！`);
-      if (gold > 0) lines.push(`${gold}ゴールドを てにいれた！`);
+      lines.push(res.killed.length ? '魔物たちをやっつけた！' : '戦いに勝った！');
+      if (exp > 0) lines.push(`${c.name}は${exp}ポイントの経験値をかくとく！`);
+      if (gold > 0) lines.push(`${gold}ゴールドを手に入れた！`);
       c.gold = Math.min(9999999, c.gold + gold);
       for (const sp of res.killed) c.kills[sp] = (c.kills[sp] || 0) + 1;
       // ドロップ
@@ -257,14 +257,14 @@ function finishBattle(world, ctx) {
           if (world.rng.chance(d.rate)) {
             addItem(c, d.item, 1);
             drops.push(d.item);
-            lines.push(`${MONSTERS[sp].name}は ${ITEMS[d.item].name}を もっていた！`, `${c.name}は ${ITEMS[d.item].name}を てにいれた！`);
+            lines.push(`${MONSTERS[sp].name}は${ITEMS[d.item].name}を持っていた！`, `${c.name}は${ITEMS[d.item].name}を手に入れた！`);
             break;
           }
         }
       }
       const ups = gainExp(c, exp);
       for (const u of ups) {
-        lines.push(`${c.name}の レベルが ${u.level}に あがった！`);
+        lines.push(`${c.name}のレベルが${u.level}に上がった！`);
         const g = Object.entries(u.gains).map(([k, v]) => `${statShort(k)}+${v}`).join('　');
         if (g) lines.push(g);
         for (const id of u.learned) lines.push(learnLine(c, id));
@@ -272,7 +272,7 @@ function finishBattle(world, ctx) {
       let jups = [];
       if (JOBS[c.job] && (c.jobs[c.job]?.lv || 1) < JOB_MAX_LEVEL) {
         if (jobTrainable(c, maxEnemyLv)) jups = gainJobBattles(c, trainN);
-        else lines.push('（てきが よわすぎて しょくぎょうの しゅぎょうに ならなかった）');
+        else lines.push('（敵が弱すぎて職業の修行にならなかった）');
       }
       for (const u of jups) lines.push(...jobUpLines(c, u));
       perSession[m.id] = { lines, levelUp: ups.length > 0, jobUp: jups.length > 0, drops };
@@ -304,7 +304,7 @@ function finishBattle(world, ctx) {
     }
   } else if (outcome === 'lose') {
     for (const m of sessions) {
-      perSession[m.id] = { lines: [`${m.char.name}たちは ぜんめつ してしまった…`] };
+      perSession[m.id] = { lines: [`${m.char.name}たちは全滅してしまった…`] };
     }
   } else if (outcome === 'flee') {
     for (const m of sessions) perSession[m.id] = { lines: [] };
@@ -345,20 +345,20 @@ function finishBattle(world, ctx) {
 
 // 職業レベルが あがった ときの メッセージ
 function jobUpLines(c, u) {
-  const out = [`${c.name}の ${JOBS[u.job].name}の しょくぎょうレベルが ${u.lv}に あがった！`];
-  if (u.lv >= JOB_MAX_LEVEL) out.push(`${c.name}は ${JOBS[u.job].name}を マスターした！`);
+  const out = [`${c.name}の${JOBS[u.job].name}の職業レベルが${u.lv}に上がった！`];
+  if (u.lv >= JOB_MAX_LEVEL) out.push(`${c.name}は${JOBS[u.job].name}をマスターした！`);
   for (const id of u.learned) out.push(learnLine(c, id));
-  for (const id of u.unlocked || []) out.push(`★ ${c.name}は ${JOBS[id].name}に なれるように なった！（ルミナの町の 神殿で 転職できる）`);
+  for (const id of u.unlocked || []) out.push(`★ ${c.name}は${JOBS[id].name}になれるようになった！（ルミナの町の神殿で転職できる）`);
   return out;
 }
 
 function statShort(k) {
-  return { maxHp: 'HP', maxMp: 'MP', str: 'ちから', def: 'まもり', agi: 'すばやさ', mag: 'まりょく', heal: 'かいふく' }[k] || STAT_NAMES[k] || k;
+  return { maxHp: 'HP', maxMp: 'MP', str: '力', def: '守り', agi: '素早さ', mag: '魔力', heal: '回復' }[k] || STAT_NAMES[k] || k;
 }
 
 function learnLine(c, id) {
   const a = ABILITIES[id];
   if (!a) return '';
-  if (a.kind === 'combo') return `${c.name}は 掛け合わせ技「${a.name}」を ひらめいた！`;
-  return `${c.name}は ${a.name}を おぼえた！`;
+  if (a.kind === 'combo') return `${c.name}は掛け合わせ技「${a.name}」をひらめいた！`;
+  return `${c.name}は${a.name}を覚えた！`;
 }

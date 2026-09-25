@@ -135,7 +135,7 @@ export class Field {
           const { Field3D } = await import('./render/field3d.js');
           this.r3d = new Field3D(this, cv);
         } catch (e) {
-          console.warn('2.5D に できませんでした', e);
+          console.warn('2.5Dにできませんでした', e);
           this.r3d = null;
           mode = '2d';
         }
@@ -1121,7 +1121,7 @@ export class Field {
     const myParty = this.game.party?.id;
     for (const o of this.others.values()) {
       const mate = o.partyId === myParty;
-      const text = o.away ? `${o.name}（つうしんまち）` : o.battle && mate ? `${o.name}（たたかいちゅう！ちかづくと さんか）` : o.name;
+      const text = o.away ? `${o.name}（通信待ち）` : o.battle && mate ? `${o.name}（戦い中！近づくと参加）` : o.name;
       put('p:' + o.sid, text, o.x, o.y, mate ? 'party' : '');
     }
     for (const [key, e] of this.labels) if (!alive.has(key)) { e.remove(); this.labels.delete(key); }

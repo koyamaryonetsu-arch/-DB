@@ -89,7 +89,7 @@ export class GameWorld {
     battleLeave(this, s);
     const p = partyOf(this, s);
     if (p && p.members.length > 1) {
-      this.broadcastToParty(p, { t: 'toast', text: `${s.char.name}の つうしんが とぎれた…\nもどってくるまで オートで たたかうよ` });
+      this.broadcastToParty(p, { t: 'toast', text: `${s.char.name}の通信がとぎれた…\nもどってくるまでオートで戦うよ` });
       this.sendParty(p);
     }
     this.broadcastPlayers();
@@ -102,7 +102,7 @@ export class GameWorld {
     const oldConn = t.conn;
     if (oldConn && oldConn !== s.conn) {
       // まえの たんまつ（まだ つながっている）は キャラを えらびなおせるように あたらしい セッションへ
-      this.send(t, { t: 'kicked', text: 'ほかの たんまつで おなじ キャラクターが ログインしました' });
+      this.send(t, { t: 'kicked', text: '他のたんまつで同じキャラクターがログインしました' });
       const fresh = this.connect(oldConn);
       fresh.authed = true;
     }
@@ -131,7 +131,7 @@ export class GameWorld {
     const run = t.runId && this.runs.get(t.runId);
     if (run) run.resend(t);
     if (p && p.members.length > 1) {
-      for (const sid of p.members) if (sid !== t.id) this.send(this.sessions.get(sid), { t: 'toast', text: `${t.char.name}が もどってきた！` });
+      for (const sid of p.members) if (sid !== t.id) this.send(this.sessions.get(sid), { t: 'toast', text: `${t.char.name}がもどってきた！` });
       this.sendParty(p);
     }
     this.broadcastPlayers();
@@ -216,7 +216,7 @@ export class GameWorld {
 
   onHello(s, msg) {
     if (!this.offline && !this.checkPassword(String(msg.pw || ''))) {
-      this.send(s, { t: 'helloFail', reason: 'あいことばが ちがいます' });
+      this.send(s, { t: 'helloFail', reason: '合言葉がちがいます' });
       return;
     }
     s.authed = true;
@@ -235,9 +235,9 @@ export class GameWorld {
 
   onCreateChar(s, msg) {
     const name = String(msg.name || '').replace(/[<>&"'\s]/g, '').slice(0, 8);
-    if (!name) return this.send(s, { t: 'error', text: 'なまえを いれてね' });
-    if (Object.keys(this.data.characters).length >= 12) return this.send(s, { t: 'error', text: 'キャラクターは 12人まで です' });
-    if (Object.values(this.data.characters).some((c) => c.name === name)) return this.send(s, { t: 'error', text: 'おなじ なまえの キャラクターが います' });
+    if (!name) return this.send(s, { t: 'error', text: '名前を入れてね' });
+    if (Object.keys(this.data.characters).length >= 12) return this.send(s, { t: 'error', text: 'キャラクターは12人までです' });
+    if (Object.values(this.data.characters).some((c) => c.name === name)) return this.send(s, { t: 'error', text: '同じ名前のキャラクターがいます' });
     const id = 'c' + this.now().toString(36) + Math.floor(this.rng.next() * 1e6).toString(36);
     const c = newCharacter({ id, name, look: msg.look, job: msg.job });
     c.pos = { map: 'overworld', x: START_POS[0] + 0.5, y: START_POS[1] + 0.5, dir: 'down' };
@@ -252,8 +252,8 @@ export class GameWorld {
   onDeleteChar(s, msg) {
     const c = this.data.characters[msg.id];
     if (!c) return;
-    if ([...this.sessions.values()].some((x) => x.charId === c.id && x.inWorld)) return this.send(s, { t: 'error', text: 'いま あそんでいる キャラクターは けせません' });
-    if (msg.confirm !== c.name) return this.send(s, { t: 'error', text: 'なまえが ちがいます' });
+    if ([...this.sessions.values()].some((x) => x.charId === c.id && x.inWorld)) return this.send(s, { t: 'error', text: '今遊んでいるキャラクターは消せません' });
+    if (msg.confirm !== c.name) return this.send(s, { t: 'error', text: '名前がちがいます' });
     delete this.data.characters[msg.id];
     this.markDirty();
     this.saveNow();
@@ -262,7 +262,7 @@ export class GameWorld {
 
   onPlay(s, msg) {
     const c = this.data.characters[msg.id];
-    if (!c) return this.send(s, { t: 'error', text: 'キャラクターが みつかりません' });
+    if (!c) return this.send(s, { t: 'error', text: 'キャラクターが見つかりません' });
     // つなぎなおし（スマホの スリープの あと など）: パーティーも たたかいも そのまま つづける
     if (!this.offline) {
       const prev = [...this.sessions.values()].find((o) => o !== s && o.charId === c.id && o.inWorld);
@@ -271,7 +271,7 @@ export class GameWorld {
     // ほかの たんまつで つかっていたら そちらを おわらせる
     for (const other of this.sessions.values()) {
       if (other !== s && other.charId === c.id && other.inWorld) {
-        this.send(other, { t: 'kicked', text: 'ほかの たんまつで おなじ キャラクターが ログインしました' });
+        this.send(other, { t: 'kicked', text: '他のたんまつで同じキャラクターがログインしました' });
         this.leaveWorld(other);
       }
     }
@@ -324,22 +324,22 @@ export class GameWorld {
     } else {
       const names = c.partyKeys.map((k) => (k.startsWith('fam:') ? this.data.characters[k.slice(4)]?.name : c.companions.find((e) => e.key === k)?.char.name) || '？');
       yes = [
-        ['say', null, 'パーティーが いっぱいだ。\nだれかに 酒場で まっていて もらおう。'],
-        ['choice', 'だれが 酒場へ もどる？', [...names, `${m.name}が 酒場で まつ`],
+        ['say', null, 'パーティーがいっぱいだ。\nだれかに酒場で待っていてもらおう。'],
+        ['choice', 'だれが酒場へもどる？', [...names, `${m.name}が酒場で待つ`],
           [...c.partyKeys.map((k) => [['befriend', id, k]]), [['befriend', id, '__tavern']]]],
       ];
     }
     runSteps(this, s, [
       ['showMon', species],
       ['sfx', 'sparkle'],
-      ['say', null, `なんと ${m.name}が おきあがり\nなかまに なりたそうに こちらを みている！`],
-      ['choice', `${m.name}を なかまに してあげますか？`, ['はい', 'いいえ'], [
+      ['say', null, `なんと${m.name}が起き上がり\n仲間になりたそうにこちらを見ている！`],
+      ['choice', `${m.name}を仲間にしてあげますか？`, ['はい', 'いいえ'], [
         yes,
-        [['say', null, `${m.name}は さびしそうに さっていった…`], ['befriend', id, false]],
+        [['say', null, `${m.name}はさびしそうに去っていった…`], ['befriend', id, false]],
       ]],
       ['showMon', null],
     ]);
-    if (p && p.members.length > 1) this.broadcastToParty(p, { t: 'toast', text: `${m.name}が ${c.name}の なかまに なりたそうに している！` });
+    if (p && p.members.length > 1) this.broadcastToParty(p, { t: 'toast', text: `${m.name}が${c.name}の仲間になりたそうにしている！` });
   }
 
   broadcastPlayers() {
@@ -447,7 +447,7 @@ export class GameWorld {
     const sp = s.char.spawn && MAPS[s.char.spawn.map] ? s.char.spawn : { map: 'overworld', x: POS.villageChurch[0] + 0.5, y: POS.villageChurch[1] + 0.5 };
     fullHeal(s.char);
     this.placeSession(s, sp.map, sp.x, sp.y, 'down', true);
-    this.send(s, { t: 'toast', text: `${s.char.name}は いのりの ばしょで めを さました。\n「むりは いけませんよ」` });
+    this.send(s, { t: 'toast', text: `${s.char.name}はいのりの場所で目を覚ました。\n「無理はいけませんよ」` });
   }
 
   mapKind(id) { return MAPS[id]?.kind; }
@@ -504,25 +504,25 @@ export class GameWorld {
     if (tile === T.ALTAR && s.map === 'overworld' && Math.abs(tx - POS.shrineAltar[0]) <= 1 && Math.abs(ty - POS.shrineAltar[1]) <= 1) {
       return runScript(this, s, 'star_flower');
     }
-    if (tile === T.WELL) return runSteps(this, s, [['say', null, 'いどを のぞきこんだ。\nふかくて そこが みえない…']]);
-    if (tile === T.FOUNTAIN) return runSteps(this, s, [['say', null, 'きれいな ふんすいだ。\nみずが きらきら ひかっている。']]);
-    if (tile === T.STATUE) return runSteps(this, s, [['say', null, 'ゆうしゃの ぞうだ。\n「きずなは ほしのように かがやく」と きざまれている。']]);
+    if (tile === T.WELL) return runSteps(this, s, [['say', null, '井戸をのぞきこんだ。\n深くて底が見えない…']]);
+    if (tile === T.FOUNTAIN) return runSteps(this, s, [['say', null, 'きれいなふんすいだ。\n水がきらきら光っている。']]);
+    if (tile === T.STATUE) return runSteps(this, s, [['say', null, '勇者の像だ。\n「きずなは星のようにかがやく」と刻まれている。']]);
   }
 
   openChest(s, chest) {
     const c = s.char;
-    if (c.chests[chest.id]) return runSteps(this, s, [['say', null, 'たからばこは からっぽだ。']]);
+    if (c.chests[chest.id]) return runSteps(this, s, [['say', null, '宝箱は空っぽだ。']]);
     c.chests[chest.id] = true;
     const steps = [['sfx', 'chest'], ['chestOpen', chest.id]];
     if (chest.gold) {
       c.gold += chest.gold;
-      steps.push(['say', null, `${c.name}は たからばこを あけた！\n${chest.gold}ゴールドを てにいれた！`]);
+      steps.push(['say', null, `${c.name}は宝箱を開けた！\n${chest.gold}ゴールドを手に入れた！`]);
     } else {
       const n = chest.n || 1;
       addItem(c, chest.item, n);
-      steps.push(['say', null, `${c.name}は たからばこを あけた！\n${ITEMS[chest.item].name}${n > 1 ? `を ${n}こ` : 'を'} てにいれた！`]);
+      steps.push(['say', null, `${c.name}は宝箱を開けた！\n${ITEMS[chest.item].name}${n > 1 ? `を${n}個` : 'を'}手に入れた！`]);
       if (chest.item === 'cave_key') {
-        c.objective = 'カギで おくの とびらを あけよう';
+        c.objective = 'カギで、おくのとびらを開けよう';
         steps.push(['objective', c.objective]);
       }
     }
@@ -534,34 +534,34 @@ export class GameWorld {
     const c = s.char;
     c.sparkles = c.sparkles || {};
     const last = c.sparkles[sp.id] || 0;
-    if (this.now() - last < SPARKLE_RESPAWN_MS) return runSteps(this, s, [['say', null, 'なにも ない。\n（しばらく すると また ひかるかも）']]);
+    if (this.now() - last < SPARKLE_RESPAWN_MS) return runSteps(this, s, [['say', null, '何もない。\n（しばらくするとまた光るかも）']]);
     c.sparkles[sp.id] = this.now();
     const id = sparkleLoot(sp.zone, this.rng.next());
     addItem(c, id, 1);
     this.markDirty();
-    runSteps(this, s, [['sfx', 'item'], ['say', null, `${c.name}は ${ITEMS[id].name}を ひろった！`]]);
+    runSteps(this, s, [['sfx', 'item'], ['say', null, `${c.name}は${ITEMS[id].name}を拾った！`]]);
   }
 
   searchTile(s, tx, ty, tile) {
     const c = s.char;
     c.searched = c.searched || {};
     const key = `${s.map}:${tx}:${ty}`;
-    const names = { [T.POT]: 'つぼ', [T.BARREL]: 'たる', [T.SHELF]: 'たな', [T.BOOKSHELF]: 'ほんだな', [T.CRATE]: 'はこ' };
+    const names = { [T.POT]: 'つぼ', [T.BARREL]: 'たる', [T.SHELF]: 'たな', [T.BOOKSHELF]: '本だな', [T.CRATE]: '箱' };
     const nm = names[tile] || 'それ';
-    if (c.searched[key]) return runSteps(this, s, [['say', null, `${nm}を しらべた。\nしかし なにも みつからなかった。`]]);
+    if (c.searched[key]) return runSteps(this, s, [['say', null, `${nm}を調べた。\nしかし何も見つからなかった。`]]);
     c.searched[key] = true;
     const loot = searchLoot(s.map, tx, ty);
     this.markDirty();
     if (!loot) {
-      if (tile === T.BOOKSHELF) return runSteps(this, s, [['say', null, 'むずかしそうな ほんが ならんでいる…\n「まほうけんの きほん」「ほしの うた」…']]);
-      return runSteps(this, s, [['say', null, `${nm}を しらべた。\nしかし なにも みつからなかった。`]]);
+      if (tile === T.BOOKSHELF) return runSteps(this, s, [['say', null, 'むずかしそうな本が並んでいる…\n「魔法剣の基本」「星の歌」…']]);
+      return runSteps(this, s, [['say', null, `${nm}を調べた。\nしかし何も見つからなかった。`]]);
     }
     if (loot.gold) {
       c.gold += loot.gold;
-      return runSteps(this, s, [['sfx', 'item'], ['say', null, `${nm}を しらべた。\n${loot.gold}ゴールドを みつけた！`]]);
+      return runSteps(this, s, [['sfx', 'item'], ['say', null, `${nm}を調べた。\n${loot.gold}ゴールドを見つけた！`]]);
     }
     addItem(c, loot.item, 1);
-    runSteps(this, s, [['sfx', 'item'], ['say', null, `${nm}を しらべた。\n${ITEMS[loot.item].name}を みつけた！`]]);
+    runSteps(this, s, [['sfx', 'item'], ['say', null, `${nm}を調べた。\n${ITEMS[loot.item].name}を見つけた！`]]);
   }
 
   // ───────────── メニュー ─────────────
@@ -576,11 +576,11 @@ export class GameWorld {
       case 'invite': {
         const t = this.sessions.get(msg.sid);
         if (!t || !t.inWorld || t === s) return;
-        if (p.leader !== s.id) return this.send(s, { t: 'toast', text: 'さそえるのは リーダー だけです' });
-        if (p.members.length + p.supports.length >= PARTY_MAX && !p.supports.length) return this.send(s, { t: 'toast', text: 'パーティーが いっぱいです' });
+        if (p.leader !== s.id) return this.send(s, { t: 'toast', text: 'さそえるのはリーダーだけです' });
+        if (p.members.length + p.supports.length >= PARTY_MAX && !p.supports.length) return this.send(s, { t: 'toast', text: 'パーティーがいっぱいです' });
         t.invitedBy = { sid: s.id, partyId: p.id, at: this.now() };
         this.send(t, { t: 'invite', from: s.char.name, sid: s.id });
-        this.send(s, { t: 'toast', text: `${t.char.name}を パーティーに さそった！` });
+        this.send(s, { t: 'toast', text: `${t.char.name}をパーティーにさそった！` });
         return;
       }
       case 'accept': {
@@ -589,11 +589,11 @@ export class GameWorld {
         if (!inv) return;
         const target = this.parties.get(inv.partyId);
         const inviter = this.sessions.get(inv.sid);
-        if (!target || !inviter) return this.send(s, { t: 'toast', text: 'さそいが きれてしまった…' });
-        if (s.busy) return this.send(s, { t: 'toast', text: 'いまは パーティーに はいれません' });
+        if (!target || !inviter) return this.send(s, { t: 'toast', text: 'さそいが切れてしまった…' });
+        if (s.busy) return this.send(s, { t: 'toast', text: '今はパーティーに入れません' });
         // じぶんの パーティーを ぬける
         this.leaveParty(s, true);
-        if (target.members.length >= PARTY_MAX) return this.send(s, { t: 'toast', text: 'パーティーが いっぱいです' });
+        if (target.members.length >= PARTY_MAX) return this.send(s, { t: 'toast', text: 'パーティーがいっぱいです' });
         const own = this.parties.get(s.partyId);
         if (own) this.parties.delete(own.id);
         target.members.push(s.id);
@@ -601,14 +601,14 @@ export class GameWorld {
         // にんげんが ふえたので はいりきらない なかまは いったん まつ
         syncParty(this, target);
         this.sendParty(target);
-        this.broadcastToParty(target, { t: 'toast', text: `${s.char.name}が パーティーに くわわった！` });
+        this.broadcastToParty(target, { t: 'toast', text: `${s.char.name}がパーティーに加わった！` });
         return;
       }
       case 'decline': {
         const inv = s.invitedBy;
         s.invitedBy = null;
         const inviter = inv && this.sessions.get(inv.sid);
-        if (inviter) this.send(inviter, { t: 'toast', text: `${s.char.name}は いまは むずかしいようだ…` });
+        if (inviter) this.send(inviter, { t: 'toast', text: `${s.char.name}は今はむずかしいようだ…` });
         return;
       }
       case 'leave': {
@@ -634,7 +634,7 @@ export class GameWorld {
         // なかまに 酒場で まっていて もらう
         if (p.leader !== s.id || s.busy) return;
         const r = companionWait(this, s, String(msg.key || ''));
-        if (r.ok) this.send(s, { t: 'toast', text: `${r.name}は 酒場へ もどった。\n（ルミナの町の 酒場で また つれていけるよ）` });
+        if (r.ok) this.send(s, { t: 'toast', text: `${r.name}は酒場へもどった。\n（ルミナの町の酒場でまた連れていけるよ）` });
         return;
       }
       default:
@@ -653,7 +653,7 @@ export class GameWorld {
       }
       syncParty(this, p);
       this.sendParty(p);
-      if (!silent) this.broadcastToParty(p, { t: 'toast', text: `${s.char.name}が パーティーから はなれた。` });
+      if (!silent) this.broadcastToParty(p, { t: 'toast', text: `${s.char.name}がパーティーからはなれた。` });
     }
     if (s.inWorld) {
       const np = newParty(this, s.id);

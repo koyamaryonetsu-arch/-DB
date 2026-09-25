@@ -16,17 +16,17 @@ import { monsterCanvas } from '../render/monsters.js';
 import { faceURL } from '../field.js';
 
 const MAIN = [
-  { label: 'どうぐ', value: 'items' },
-  { label: 'じゅもん', value: 'skills' },
-  { label: 'そうび', value: 'equip' },
-  { label: 'つよさ', value: 'status' },
-  { label: 'なかま', value: 'party' },
-  { label: 'さくせん', value: 'tactics' },
-  { label: 'ずかん', value: 'zukan' },
+  { label: '道具', value: 'items' },
+  { label: '呪文', value: 'skills' },
+  { label: '装備', value: 'equip' },
+  { label: '強さ', value: 'status' },
+  { label: '仲間', value: 'party' },
+  { label: '作戦', value: 'tactics' },
+  { label: '図鑑', value: 'zukan' },
   { label: 'マップ', value: 'map' },
   { label: 'クエスト', value: 'quest' },
-  { label: 'せってい', value: 'settings' },
-  { label: 'おわる', value: 'quit' },
+  { label: '設定', value: 'settings' },
+  { label: '終わる', value: 'quit' },
 ];
 
 // ずかんの ならび: ふつうの まもの（つよさじゅん）→ はいごう だけの まもの → ボス
@@ -53,7 +53,7 @@ export class FieldMenu {
     const head = el('div', { class: 'win fm-head' });
     this.headL = el('span', { class: 'gold' });
     this.headR = el('span', { class: 'fm-stat' });
-    const closeBtn = el('button', { class: 'btn closebtn', text: '✕ とじる', 'aria-label': 'メニューを とじる', onclick: () => this.closeByUser() });
+    const closeBtn = el('button', { class: 'btn closebtn', text: '✕ 閉じる', 'aria-label': 'メニューを閉じる', onclick: () => this.closeByUser() });
     head.append(this.headL, this.headR, closeBtn);
     this.side = el('div', { class: 'win side' });
     this.main = el('div', { class: 'win main scroll' });
@@ -121,10 +121,10 @@ export class FieldMenu {
       case 'party': this.main.append(this.partyView(false)); break;
       case 'tactics': this.main.append(this.tacticsView(false)); break;
       case 'zukan': this.main.append(this.zukanView(false)); break;
-      case 'map': this.main.append(el('div', { class: 'muted', text: 'たんけんした ばしょの ちずを みる。（Mキーでも ひらけるよ）' })); break;
+      case 'map': this.main.append(el('div', { class: 'muted', text: '探検した場所の地図を見る。（Mキーでも開けるよ）' })); break;
       case 'quest': this.main.append(this.questView()); break;
       case 'settings': this.main.append(this.settingsView(false)); break;
-      case 'quit': this.main.append(el('div', { class: 'muted', text: g.net.mode === 'offline' ? 'セーブして タイトルに もどる。（このブラウザに セーブされます）' : 'セーブして タイトルに もどる。（家族サーバーに セーブされます）' })); break;
+      case 'quit': this.main.append(el('div', { class: 'muted', text: g.net.mode === 'offline' ? 'セーブしてタイトルにもどる。（このブラウザにセーブされます）' : 'セーブしてタイトルにもどる。（家族サーバーにセーブされます）' })); break;
       default:
     }
   }
@@ -153,8 +153,8 @@ export class FieldMenu {
     const g = this.game;
     const box = el('div');
     const mates = this.myMates();
-    const title = { skills: 'だれの じゅもん？', equip: 'だれの そうび？', status: 'だれの つよさ？' }[next] || 'だれ？';
-    const items = [{ label: `${g.me.name}（じぶん）`, value: 'self', face: faceURL({ look: g.me.look, job: g.me.job, eq: g.me.equip }) },
+    const title = { skills: 'だれの呪文？', equip: 'だれの装備？', status: 'だれの強さ？' }[next] || 'だれ？';
+    const items = [{ label: `${g.me.name}（自分）`, value: 'self', face: faceURL({ look: g.me.look, job: g.me.job, eq: g.me.equip }) },
       ...mates.map((m) => ({ label: `${m.name}（${m.species ? MONSTERS[m.species]?.name : JOBS[m.job]?.name} Lv${m.level}）`, value: m.key, face: faceURL({ look: m.look, job: m.job, eq: m.equip, mon: m.species || undefined }) }))];
     const m = this.mkSub({
       items,
@@ -186,7 +186,7 @@ export class FieldMenu {
         return openWorldMap(g);
       case 'quit':
         this.menu.blur();
-        return confirmBox(g.input, 'セーブして タイトルに もどりますか？', 'はい', 'いいえ', this.sfx).then((ok) => {
+        return confirmBox(g.input, 'セーブしてタイトルにもどりますか？', 'はい', 'いいえ', this.sfx).then((ok) => {
           if (ok) {
             this.close();
             g.quitToTitle();
@@ -220,9 +220,9 @@ export class FieldMenu {
       const it = ITEMS[e.id];
       return { label: `${it.name}`, right: `×${e.n}`, value: e.id };
     });
-    for (const k of c.keyItems) items.push({ html: `${ITEMS[k].name}<span class="tag gold">だいじ</span>`, value: k, key: true });
+    for (const k of c.keyItems) items.push({ html: `${ITEMS[k].name}<span class="tag gold">大事</span>`, value: k, key: true });
     if (!items.length) {
-      box.append(el('div', { class: 'muted', text: 'なにも もっていない。' }));
+      box.append(el('div', { class: 'muted', text: '何も持っていない。' }));
       if (active) setTimeout(() => this.back(), 600);
       return box;
     }
@@ -244,15 +244,15 @@ export class FieldMenu {
     const it = ITEMS[entry.value];
     if (entry.key || it.type === 'key') return;
     const acts = [];
-    if (it.type === 'use' && it.field) acts.push({ label: 'つかう', value: 'use' });
-    if (['weapon', 'armor', 'shield', 'head', 'acc'].includes(it.type)) acts.push({ label: 'そうびする', value: 'equip', disabled: !canEquip(g.me.job, entry.value) });
-    acts.push({ label: 'すてる', value: 'drop' }, { label: 'やめる', value: 'cancel' });
+    if (it.type === 'use' && it.field) acts.push({ label: '使う', value: 'use' });
+    if (['weapon', 'armor', 'shield', 'head', 'acc'].includes(it.type)) acts.push({ label: '装備する', value: 'equip', disabled: !canEquip(g.me.job, entry.value) });
+    acts.push({ label: '捨てる', value: 'drop' }, { label: 'やめる', value: 'cancel' });
     this.sub.blur();
-    const act = await this.pick(`${it.name}を どうする？`, acts);
+    const act = await this.pick(`${it.name}をどうする？`, acts);
     if (act === 'use') {
       if (it.effect.type === 'warp') {
         const places = Object.entries(PLACES).filter(([id]) => g.me.visited?.[id] && id !== 'shrine').map(([id, p]) => ({ label: p.name, value: id }));
-        const place = await this.pick('どこへ とぶ？', [...places, { label: 'やめる', value: null }]);
+        const place = await this.pick('どこへ飛ぶ？', [...places, { label: 'やめる', value: null }]);
         if (place) {
           g.net.send({ t: 'menu', action: 'useItem', id: entry.value, place });
           this.close();
@@ -261,13 +261,13 @@ export class FieldMenu {
       } else if (it.target === 'self') {
         g.net.send({ t: 'menu', action: 'useItem', id: entry.value, ref: 'self' });
       } else {
-        const ref = await this.pickTarget(`だれに つかう？`, it.target === 'deadAlly');
+        const ref = await this.pickTarget(`だれに使う？`, it.target === 'deadAlly');
         if (ref) g.net.send({ t: 'menu', action: 'useItem', id: entry.value, ref });
       }
     } else if (act === 'equip') {
       g.net.send({ t: 'menu', action: 'equip', id: entry.value });
     } else if (act === 'drop') {
-      if (await confirmBox(g.input, `${it.name}を すてますか？`, 'すてる', 'やめる', this.sfx)) g.net.send({ t: 'menu', action: 'discard', id: entry.value, n: 1 });
+      if (await confirmBox(g.input, `${it.name}を捨てますか？`, '捨てる', 'やめる', this.sfx)) g.net.send({ t: 'menu', action: 'discard', id: entry.value, n: 1 });
     }
     setTimeout(() => { if (this.root) this.focusSub(this.itemsList(true)); }, 150);
   }
@@ -321,13 +321,13 @@ export class FieldMenu {
     const g = this.game;
     const c = this.charOf(who) || g.me;
     const box = el('div');
-    if (c.companion) box.append(el('div', { class: 'gold small', text: `${c.name}の わざ　MP ${c.mp}` }));
+    if (c.companion) box.append(el('div', { class: 'gold small', text: `${c.name}の技　MP ${c.mp}` }));
     const learned = learnedAbilities(c);
     const detail = el('div', { class: 'detail' });
     const tabs = el('div', { class: 'tabs' });
     let mode = this.skillMode || 'list';
     const tabBtn = (id, label) => el('button', { class: `btn ${mode === id ? 'sel' : ''}`, text: label, onclick: () => { this.skillMode = id; this.focusSub(this.skillsView(true, who)); } });
-    tabs.append(tabBtn('list', 'おぼえた わざ'), tabBtn('combo', '掛け合わせ いちらん'));
+    tabs.append(tabBtn('list', '覚えた技'), tabBtn('combo', '掛け合わせ一覧'));
     box.append(tabs);
     if (mode === 'combo') {
       const known = new Set(learned);
@@ -339,12 +339,12 @@ export class FieldMenu {
         const usable = ok && comboAllowed(c, id);
         box.append(el('div', { class: `combo-row ${ok ? '' : 'locked'}` },
           el('span', { class: 'nm', text: ok ? a.name : '？？？？' }),
-          ok ? el('span', { class: `tag ${usable ? 'good' : 'warn'}`, text: usable ? 'つかえる' : 'いまは つかえない' }) : null,
+          ok ? el('span', { class: `tag ${usable ? 'good' : 'warn'}`, text: usable ? '使える' : '今は使えない' }) : null,
           el('div', { class: 'small', text: `${reqs}${jl}` }),
-          el('div', { class: 'small gold', text: `つかえる しょくぎょう: ${comboJobNames(id).join('・')}（とその 超級職）` }),
+          el('div', { class: 'small gold', text: `使える職業: ${comboJobNames(id).join('・')}（とその超級職）` }),
           ok ? el('div', { class: 'small muted', text: a.desc }) : null));
       }
-      box.append(el('div', { class: 'detail', text: 'ちがう しょくぎょうで わざを おぼえると ひらめく。つかえるのは、もとに なった しょくぎょうを あわせもつ 上級職 いじょう だけ（たとえば 魔法剣は 魔法戦士）。\n神殿の「ひらめきの けんじゃ」に ヒントを きいてみよう。みんなで つづけて こうげきすると「れんけい」、ほのお＋こおり などは「合体」に なるよ！' }));
+      box.append(el('div', { class: 'detail', text: 'ちがう職業で技を覚えるとひらめく。使えるのは、元になった職業を合わせ持つ上級職以上だけ（例えば魔法剣は魔法戦士）。\n神殿の「ひらめきの賢者」にヒントを聞いてみよう。みんなで続けて攻撃すると「れんけい」、炎＋氷などは「合体」になるよ！' }));
       if (active) {
         this.mkSub({ items: [{ label: 'もどる', value: 'back' }], onSelect: () => this.back() });
         box.append(this.sub.root);
@@ -364,12 +364,12 @@ export class FieldMenu {
       };
     });
     if (!items.length) {
-      box.append(el('div', { class: 'muted', text: 'まだ なにも おぼえていない。' }));
+      box.append(el('div', { class: 'muted', text: 'まだ何も覚えていない。' }));
       return box;
     }
     if (!active) {
       box.append(el('div', { class: 'small', text: items.map((i) => ABILITIES[i.value].name).join('、') }));
-      box.append(el('div', { class: 'detail', text: '「他」は いまの しょくぎょう いがいで おぼえた わざ。MPが ふえたり、いりょくが さがったり する。' }));
+      box.append(el('div', { class: 'detail', text: '「他」は今の職業以外で覚えた技。MPが増えたり、威力が下がったりする。' }));
       return box;
     }
     const m = this.mkSub({
@@ -381,12 +381,12 @@ export class FieldMenu {
         this.sub.blur();
         let ref = 'self';
         if (a.target === 'self' && c.companion) ref = 'sup:' + c.key;
-        else if (a.target !== 'allies' && a.target !== 'self') ref = await this.pickTarget(`だれに ${a.name}？`, a.target === 'deadAlly');
+        else if (a.target !== 'allies' && a.target !== 'self') ref = await this.pickTarget(`だれに${a.name}？`, a.target === 'deadAlly');
         if (ref) g.net.send({ t: 'menu', action: 'cast', id: it.value, ref, who });
         setTimeout(() => { if (this.root) this.focusSub(this.skillsView(true, who)); }, 200);
       },
     });
-    box.append(el('div', { class: 'small muted', text: 'フィールドで つかえる わざ だけ えらべるよ' }), m.root, detail);
+    box.append(el('div', { class: 'small muted', text: 'フィールドで使える技だけ選べるよ' }), m.root, detail);
     return box;
   }
 
@@ -397,10 +397,10 @@ export class FieldMenu {
     const box = el('div');
     const detail = el('div', { class: 'detail' });
     const st = computeStats(c);
-    const stats = el('div', { class: 'small', text: `こうげき ${st.atk}　しゅび ${st.dfn}　すばやさ ${st.agi}　まりょく ${st.mag}　かいふく ${st.heal}` });
+    const stats = el('div', { class: 'small', text: `攻撃 ${st.atk}　守備 ${st.dfn}　素早さ ${st.agi}　魔力 ${st.mag}　回復 ${st.heal}` });
     const slots = c.species ? ['acc'] : SLOTS;
     const items = slots.map((sl) => ({ label: `${SLOT_NAMES[sl]}：${c.equip?.[sl] ? ITEMS[c.equip[sl]].name : 'なし'}`, value: sl }));
-    if (c.companion) box.append(el('div', { class: 'gold small', text: `${c.name}の そうび${c.species ? '（モンスターは アクセサリー だけ）' : ''}` }));
+    if (c.companion) box.append(el('div', { class: 'gold small', text: `${c.name}の装備${c.species ? '（モンスターはアクセサリーだけ）' : ''}` }));
     if (!active) {
       for (const it of items) box.append(el('div', { text: it.label }));
       box.append(stats);
@@ -414,12 +414,12 @@ export class FieldMenu {
         const cands = g.me.items.filter((e) => ITEMS[e.id]?.type === slot);
         const opts = cands.map((e) => {
           const ok = canEquipChar(c, e.id);
-          return { label: `${ITEMS[e.id].name}　${ok ? diffText(equipDiff(c, e.id)) : '（そうびできない）'}`, value: e.id, disabled: !ok };
+          return { label: `${ITEMS[e.id].name}　${ok ? diffText(equipDiff(c, e.id)) : '（装備できない）'}`, value: e.id, disabled: !ok };
         });
-        if (c.equip?.[slot]) opts.push({ label: 'はずす', value: '__off' });
+        if (c.equip?.[slot]) opts.push({ label: '外す', value: '__off' });
         opts.push({ label: 'やめる', value: null });
         this.sub.blur();
-        const pick = await this.pick(`${c.companion ? c.name + 'の ' : ''}${SLOT_NAMES[slot]}を えらぶ`, opts);
+        const pick = await this.pick(`${c.companion ? c.name + 'の' : ''}${SLOT_NAMES[slot]}を選ぶ`, opts);
         if (pick === '__off') g.net.send({ t: 'menu', action: 'unequip', slot, who });
         else if (pick) g.net.send({ t: 'menu', action: 'equip', id: pick, who });
         setTimeout(() => { if (this.root) this.focusSub(this.equipView(true, who)); }, 200);
@@ -439,30 +439,30 @@ export class FieldMenu {
     box.append(el('h3', { text: `${c.name}　${kind}` }));
     const kv = (k, v, cls = '') => el('div', { class: 'kv' }, el('span', { class: 'k', text: k }), el('span', { class: cls, text: String(v) }));
     box.append(el('div', { class: 'twocol' },
-      kv('レベル', c.level), kv('つぎの レベルまで', Math.max(0, next)),
+      kv('レベル', c.level), kv('次のレベルまで', Math.max(0, next)),
       kv('HP', `${Math.max(0, c.hp)}/${st.maxHp}`), kv('MP', `${c.mp}/${st.maxMp}`),
-      kv('ちから', st.str), kv('みのまもり', st.def),
-      kv('すばやさ', st.agi), kv('こうげき魔力', st.mag),
-      kv('かいふく魔力', st.heal), c.companion ? kv('さくせん', TACTICS[c.tactics]?.name || '') : kv('ゴールド', c.gold),
-      kv('こうげき力', st.atk, 'gold'), kv('しゅび力', st.dfn, 'gold')));
+      kv('力', st.str), kv('身の守り', st.def),
+      kv('素早さ', st.agi), kv('攻撃魔力', st.mag),
+      kv('回復魔力', st.heal), c.companion ? kv('作戦', TACTICS[c.tactics]?.name || '') : kv('ゴールド', c.gold),
+      kv('攻撃力', st.atk, 'gold'), kv('守備力', st.dfn, 'gold')));
     if (c.species) {
       const f = MONSTER_FRIENDS[c.species];
-      const learnList = el('div', { style: { marginTop: '0.6em' } }, el('div', { class: 'gold small', text: 'おぼえる わざ（レベル）' }));
+      const learnList = el('div', { style: { marginTop: '0.6em' } }, el('div', { class: 'gold small', text: '覚える技（レベル）' }));
       for (const [l, id] of f?.learn || []) learnList.append(el('div', { class: `small ${c.level >= l ? 'good' : 'muted'}`, text: `Lv${l}　${ABILITIES[id]?.name || id}` }));
       box.append(learnList, el('div', { class: 'detail', text: f?.note || '' }));
     } else {
-      const jobs = el('div', { style: { marginTop: '0.6em' } }, el('div', { class: 'gold small', text: 'しょくぎょう レベル（かった たたかいの かずで あがる）' }));
+      const jobs = el('div', { style: { marginTop: '0.6em' } }, el('div', { class: 'gold small', text: '職業レベル（勝った戦いの数で上がる）' }));
       for (const j of ALL_JOBS) {
         const info = c.jobs?.[j];
         if (!info) continue;
         const pg = jobProgress(c, j);
         jobs.append(el('div', { class: 'kv small' },
           el('span', { class: j === c.job ? 'good' : '', text: `${JOBS[j].name}${JOBS[j].tier ? `（${TIER_NAMES[JOBS[j].tier]}）` : ''}` }),
-          el('span', { class: pg.done ? 'gold' : '', text: pg.done ? `Lv${JOB_MAX_LEVEL} ★マスター` : `Lv${info.lv}（あと ${pg.next}かい）` })));
+          el('span', { class: pg.done ? 'gold' : '', text: pg.done ? `Lv${JOB_MAX_LEVEL} ★マスター` : `Lv${info.lv}（あと${pg.next}回）` })));
       }
-      box.append(jobs, el('div', { class: 'detail', text: 'じぶんより レベルが 5いじょう ひくい てきとの たたかいは、しょくぎょうの しゅぎょうに ならないよ。' }));
+      box.append(jobs, el('div', { class: 'detail', text: '自分よりレベルが5以上低い敵との戦いは、職業の修行にならないよ。' }));
     }
-    const speedNote = el('div', { class: 'detail', text: `すばやさ ${st.agi} … たたかいで やく ${(128000 / (st.agi + 12) / 1000).toFixed(1)}びょうごとに じゅんばんが くる` });
+    const speedNote = el('div', { class: 'detail', text: `素早さ ${st.agi}…戦いで約${(128000 / (st.agi + 12) / 1000).toFixed(1)}秒ごとに順番が来る` });
     box.append(speedNote);
     if (active) {
       this.mkSub({ items: [{ label: 'もどる', value: 'back' }], onSelect: () => this.back() });
@@ -483,22 +483,22 @@ export class FieldMenu {
     for (const m of p?.members || []) rows.push(row(m, `${m.sid === p.leader ? '★' : ''}${m.name}（${JOBS[m.job].name} Lv${m.level}）`, `HP ${m.hp}/${m.maxHp}`, m.sid === p.leader ? 'gold' : ''));
     for (const s of p?.supports || []) {
       const kind = s.species ? `${MONSTERS[s.species]?.name}${s.plus ? `＋${s.plus}` : ''} Lv${s.level}` : `${JOBS[s.job]?.name} Lv${s.level}`;
-      rows.push(row(s, `${s.name}（${kind}）`, s.family ? 'かぞく サポート' : s.species ? 'モンスター' : 'なかま'));
+      rows.push(row(s, `${s.name}（${kind}）`, s.family ? '家族サポート' : s.species ? 'モンスター' : '仲間'));
     }
     for (const gu of p?.guests || []) rows.push(row(gu, gu.name, 'ゲスト'));
     box.append(...rows);
     if (!active) {
-      box.append(el('div', { class: 'detail', text: 'あそんでいる かぞくを パーティーに さそえるよ。なかまは ルミナの町の 酒場で さがしたり いれかえたり できる。\nちかくに いる なかまは いっしょに たたかう。はなれている なかまも、たたかっている ところへ かけつけると とちゅうから さんか できるよ。' }));
+      box.append(el('div', { class: 'detail', text: '遊んでいる家族をパーティーにさそえるよ。仲間はルミナの町の酒場で探したり入れかえたりできる。\n近くにいる仲間はいっしょに戦う。はなれている仲間も、戦っているところへかけつけると、とちゅうから参加できるよ。' }));
       return box;
     }
     const acts = [];
     const others = (g.players || []).filter((x) => x.sid !== g.sid && x.partyId !== p?.id && !x.away);
-    if (iAmLeader) for (const o of others) acts.push({ label: `${o.name}を さそう`, value: { a: 'invite', sid: o.sid } });
-    if (iAmLeader) for (const s of p?.supports || []) acts.push({ label: `${s.name}に 酒場で まっていて もらう`, value: { a: 'dismiss', key: s.key, name: s.name } });
-    if (iAmLeader) for (const m of p?.members || []) if (m.sid !== g.sid) acts.push({ label: `${m.name}を リーダーに する`, value: { a: 'leader', sid: m.sid } });
-    if (!iAmLeader && p) acts.push({ label: g.follow ? 'リーダーに ついていくのを やめる' : 'リーダーに ついていく（じどう）', value: { a: 'follow' } });
-    if ((p?.members.length || 1) > 1) acts.push({ label: 'パーティーを ぬける', value: { a: 'leave' } });
-    if (!acts.length) acts.push({ label: '（いま あそんでいる かぞくは いないみたい）', value: null, disabled: true });
+    if (iAmLeader) for (const o of others) acts.push({ label: `${o.name}をさそう`, value: { a: 'invite', sid: o.sid } });
+    if (iAmLeader) for (const s of p?.supports || []) acts.push({ label: `${s.name}に酒場で待っていてもらう`, value: { a: 'dismiss', key: s.key, name: s.name } });
+    if (iAmLeader) for (const m of p?.members || []) if (m.sid !== g.sid) acts.push({ label: `${m.name}をリーダーにする`, value: { a: 'leader', sid: m.sid } });
+    if (!iAmLeader && p) acts.push({ label: g.follow ? 'リーダーについていくのをやめる' : 'リーダーについていく（自動）', value: { a: 'follow' } });
+    if ((p?.members.length || 1) > 1) acts.push({ label: 'パーティーをぬける', value: { a: 'leave' } });
+    if (!acts.length) acts.push({ label: '（今遊んでいる家族はいないみたい）', value: null, disabled: true });
     const m = this.mkSub({
       items: acts,
       onSelect: async (it) => {
@@ -506,10 +506,10 @@ export class FieldMenu {
         if (!v) return;
         if (v.a === 'follow') {
           g.follow = !g.follow;
-          toast(g.follow ? 'リーダーに ついていきます' : 'じぶんで あるきます');
+          toast(g.follow ? 'リーダーについていきます' : '自分で歩きます');
         } else if (v.a === 'dismiss') {
           this.sub.blur();
-          const ok = await confirmBox(g.input, `${v.name}に ルミナの町の 酒場で まっていて もらう？\n（酒場で また つれていけるよ）`, 'はい', 'いいえ', this.sfx);
+          const ok = await confirmBox(g.input, `${v.name}にルミナの町の酒場で待っていてもらう？\n（酒場でまた連れていけるよ）`, 'はい', 'いいえ', this.sfx);
           if (ok) g.net.send({ t: 'party', action: 'dismiss', key: v.key });
         } else g.net.send({ t: 'party', action: v.a, sid: v.sid, key: v.key });
         setTimeout(() => { if (this.root) this.focusSub(this.partyView(true)); }, 250);
@@ -533,9 +533,9 @@ export class FieldMenu {
     };
     const box = el('div', { class: active ? 'zukan-box' : '' });
     const count = (k) => order.filter((sp) => st(sp)[k]).length;
-    box.append(el('div', { class: 'small gold', text: `みつけた ${count('seen')}/${order.length}　なかまに した ${count('friend')}　はいごうで うんだ ${count('bred')}` }));
+    box.append(el('div', { class: 'small gold', text: `見つけた ${count('seen')}/${order.length}　仲間にした ${count('friend')}　配合で生んだ ${count('bred')}` }));
     if (!active) {
-      box.append(el('div', { class: 'detail', text: 'であった モンスターが のる ずかん。\nなかまに した モンスターや、はいごうで うまれた モンスターも きろく されるよ。\nはいごうでしか うまれない モンスターも いるらしい…' }));
+      box.append(el('div', { class: 'detail', text: '出会ったモンスターがのる図鑑。\n仲間にしたモンスターや、配合で生まれたモンスターも記録されるよ。\n配合でしか生まれないモンスターもいるらしい…' }));
       return box;
     }
     const detail = el('div', { class: 'detail zukan-detail' });
@@ -558,17 +558,17 @@ export class FieldMenu {
       detail.append(cv);
       if (!s.seen) {
         detail.append(el('div', { class: 'gold', text: '？？？' }));
-        if (M.breedOnly) detail.append(el('div', { class: 'small', text: `はいごうで うまれる らしい…\nヒント: ${recipeHint(sp, MONSTERS)}` }));
-        else detail.append(el('div', { class: 'small muted', text: M.boss ? 'どこかに いる おおきな まもの…' : 'まだ であって いない' }));
+        if (M.breedOnly) detail.append(el('div', { class: 'small', text: `配合で生まれるらしい…\nヒント: ${recipeHint(sp, MONSTERS)}` }));
+        else detail.append(el('div', { class: 'small muted', text: M.boss ? 'どこかにいる大きな魔物…' : 'まだ出会っていない' }));
         return;
       }
       const fr = MONSTER_FRIENDS[sp];
-      const how = M.breedOnly ? `はいごうで うまれる（${recipeHint(sp, MONSTERS)}）` : fr && fr.rate > 0 ? 'たおすと なかまに なる ことが ある' : 'なかまに ならない';
+      const how = M.breedOnly ? `配合で生まれる（${recipeHint(sp, MONSTERS)}）` : fr && fr.rate > 0 ? '倒すと仲間になることがある' : '仲間にならない';
       detail.append(
         el('div', { class: 'gold', text: `${M.name}${M.boss ? '（ボス）' : ''}` }),
-        el('div', { class: 'small muted', text: `${RACE_NAMES[M.race] || ''}${M.breedOnly ? '' : `　Lv${M.lv}`}　たおした かず ${s.kills}` }),
+        el('div', { class: 'small muted', text: `${RACE_NAMES[M.race] || ''}${M.breedOnly ? '' : `　Lv${M.lv}`}　倒した数 ${s.kills}` }),
         el('div', { class: 'small', text: M.desc || '' }),
-        el('div', { class: 'small', text: `${how}${s.friend ? '　★なかまに した' : ''}${s.bred ? '　★はいごうで うんだ' : ''}` }),
+        el('div', { class: 'small', text: `${how}${s.friend ? '　★仲間にした' : ''}${s.bred ? '　★配合で生んだ' : ''}` }),
       );
     };
     const m = this.mkSub({
@@ -577,7 +577,7 @@ export class FieldMenu {
         const M = MONSTERS[sp];
         return {
           html: `<span class="muted small">No.${String(i + 1).padStart(2, '0')}</span> ${s.seen ? esc(M.name) : '？？？'}`,
-          right: [s.friend ? 'なかま' : '', s.bred ? 'はいごう' : ''].filter(Boolean).join('・') || (M.boss && s.seen ? 'ボス' : ''),
+          right: [s.friend ? '仲間' : '', s.bred ? '配合' : ''].filter(Boolean).join('・') || (M.boss && s.seen ? 'ボス' : ''),
           rightCls: s.friend || s.bred ? 'good' : '',
           value: sp,
           cls: s.seen ? '' : 'muted',
@@ -596,15 +596,15 @@ export class FieldMenu {
     const box = el('div');
     const bs = c.battleSettings || {};
     const tname = (t) => TACTICS[t]?.name || t;
-    const items = [{ label: `${c.name}（オートの とき）：${tname(c.tactics || 'balanced')}`, value: { key: 'self' } }];
+    const items = [{ label: `${c.name}（オートのとき）：${tname(c.tactics || 'balanced')}`, value: { key: 'self' } }];
     for (const s of g.party?.supports || []) {
       if (s.owner !== c.id) continue;
       items.push({ label: `${s.name}：${tname(s.tactics)}`, value: { key: s.key, name: s.name }, face: faceURL({ look: s.look, job: s.job, eq: s.equip, mon: s.species || undefined }) });
     }
-    items.push({ label: `たたかいの はじめから オート：${bs.auto ? 'ON' : 'OFF'}`, value: { toggle: 'auto' } });
+    items.push({ label: `戦いの初めからオート：${bs.auto ? 'ON' : 'OFF'}`, value: { toggle: 'auto' } });
     if (!active) {
       for (const it of items) box.append(el('div', { text: it.label }));
-      box.append(el('div', { class: 'detail', text: 'なかまや オートの ときの たたかいかたを きめる。\nなかまを「めいれいさせろ」に すると、なかまの コマンドも じぶんで えらべる。' }));
+      box.append(el('div', { class: 'detail', text: '仲間やオートのときの戦い方を決める。\n仲間を「めいれいさせろ」にすると、仲間のコマンドも自分で選べる。' }));
       return box;
     }
     const m = this.mkSub({
@@ -616,13 +616,13 @@ export class FieldMenu {
         } else {
           this.sub.blur();
           const list = Object.entries(TACTICS).filter(([k]) => v.key !== 'self' || k !== 'manual').map(([k, x]) => ({ label: x.name, value: k }));
-          const t = await this.pick(v.key === 'self' ? 'オートの ときの さくせん' : `${v.name}の さくせん`, [...list, { label: 'やめる', value: null }]);
+          const t = await this.pick(v.key === 'self' ? 'オートのときの作戦' : `${v.name}の作戦`, [...list, { label: 'やめる', value: null }]);
           if (t) g.net.send({ t: 'menu', action: 'tactics', key: v.key, tactics: t, label: TACTICS[t].name });
         }
         setTimeout(() => { if (this.root) this.focusSub(this.tacticsView(true)); }, 250);
       },
     });
-    box.append(m.root, el('div', { class: 'detail', text: 'バッチリがんばれ: バランスよく / ガンガンいこうぜ: こうげき ちゅうしん / いのちだいじに: かいふく ちゅうしん / じゅもんせつやく: MPを つかわない / めいれいさせろ: じぶんで コマンドを えらぶ（なかま だけ）' }));
+    box.append(m.root, el('div', { class: 'detail', text: 'バッチリがんばれ: バランスよく / ガンガンいこうぜ: 攻撃中心 / いのちだいじに: 回復中心 / じゅもんせつやく: MPを使わない / めいれいさせろ: 自分でコマンドを選ぶ（仲間だけ）' }));
     return box;
   }
 
@@ -630,18 +630,18 @@ export class FieldMenu {
   questView() {
     const c = this.game.me;
     const box = el('div');
-    box.append(el('h3', { text: 'いまの もくひょう' }), el('div', { text: c.objective || '（とくに なし）' }));
+    box.append(el('h3', { text: '今の目標' }), el('div', { text: c.objective || '（特になし）' }));
     const q = [];
     const f = (k) => !!c.flags[k];
-    if (f('q_mike_start')) q.push(['まいごの ねこ ミケ', f('q_mike_done') ? 'クリア！' : f('q_mike_found') ? 'リリに ほうこくしよう' : 'ほしみの丘で さがそう']);
-    if (f('q_jelly_start')) q.push(['コックの とくせいゼリー', f('q_jelly_done') ? 'クリア！' : `ぷるりんゼリー ${Math.min(3, (c.items.find((i) => i.id === 'jelly')?.n) || 0)}/3`]);
-    if (f('q_wolf_start')) q.push(['ウルフ たいじ', f('q_wolf_done') ? 'クリア！' : `${Math.max(0, (c.kills?.wolf || 0) - (c.quests?.wolfBase || 0))}/5ひき`]);
+    if (f('q_mike_start')) q.push(['迷子のねこミケ', f('q_mike_done') ? 'クリア！' : f('q_mike_found') ? 'リリに報告しよう' : '星見の丘で探そう']);
+    if (f('q_jelly_start')) q.push(['コックの特製ゼリー', f('q_jelly_done') ? 'クリア！' : `ぷるりんゼリー ${Math.min(3, (c.items.find((i) => i.id === 'jelly')?.n) || 0)}/3`]);
+    if (f('q_wolf_start')) q.push(['ウルフ退治', f('q_wolf_done') ? 'クリア！' : `${Math.max(0, (c.kills?.wolf || 0) - (c.quests?.wolfBase || 0))}/5ひき`]);
     box.append(el('h3', { style: { marginTop: '0.6em' }, text: 'たのまれごと' }));
-    if (!q.length) box.append(el('div', { class: 'muted small', text: 'まだ ない。町の 人に はなしかけてみよう。' }));
+    if (!q.length) box.append(el('div', { class: 'muted small', text: 'まだない。町の人に話しかけてみよう。' }));
     for (const [n, s] of q) box.append(el('div', { class: 'kv' }, el('span', { text: n }), el('span', { class: s === 'クリア！' ? 'good' : 'muted', text: s })));
     const chests = Object.keys(c.chests || {}).length;
     const total = Object.values(MAPS).reduce((s, m) => s + m.chests.length, 0);
-    box.append(el('div', { class: 'detail', text: `たからばこ ${chests}/${total}　たおした まもの ${Object.values(c.kills || {}).reduce((s, x) => s + x, 0)}ひき` }));
+    box.append(el('div', { class: 'detail', text: `宝箱 ${chests}/${total}　倒した魔物 ${Object.values(c.kills || {}).reduce((s, x) => s + x, 0)}ひき` }));
     return box;
   }
 
@@ -650,19 +650,19 @@ export class FieldMenu {
     const g = this.game;
     const c = g.me;
     const bs = c.battleSettings || { speed: 1, wait: false };
-    const sp = { 0.75: 'ゆっくり', 1: 'ふつう', 1.35: 'はやい' }[bs.speed || 1];
+    const sp = { 0.75: 'ゆっくり', 1: 'ふつう', 1.35: '速い' }[bs.speed || 1];
     const vol = (v) => '■'.repeat(Math.round(v * 5)) + '□'.repeat(5 - Math.round(v * 5));
     const items = [
-      { label: `たたかいの はやさ：${sp}`, value: 'speed' },
-      { label: `えらぶ あいだ とまる（ウェイト）：${bs.wait ? 'ON' : 'OFF'}`, value: 'wait' },
-      { label: `おんがく：${vol(g.audio.musicVol)}`, value: 'music' },
-      { label: `こうかおん：${vol(g.audio.sfxVol)}`, value: 'sfx' },
-      { label: `もじの おおきさ：${document.body.classList.contains('big-text') ? 'おおきい' : 'ふつう'}`, value: 'text' },
+      { label: `戦いの速さ：${sp}`, value: 'speed' },
+      { label: `選ぶ間は止まる（ウェイト）：${bs.wait ? 'ON' : 'OFF'}`, value: 'wait' },
+      { label: `音楽：${vol(g.audio.musicVol)}`, value: 'music' },
+      { label: `効果音：${vol(g.audio.sfxVol)}`, value: 'sfx' },
+      { label: `文字の大きさ：${document.body.classList.contains('big-text') ? '大きい' : 'ふつう'}`, value: 'text' },
     ];
-    if (g.field.constructor.webgl2()) items.unshift({ label: `がめん：${g.field.view === '3d' ? '2.5D（たちたい）' : '2D（ドット）'}`, value: 'view' });
+    if (g.field.constructor.webgl2()) items.unshift({ label: `画面：${g.field.view === '3d' ? '2.5D（立体）' : '2D（ドット）'}`, value: 'view' });
     if (g.input.touch) {
-      items.push({ label: `あそんでいる あいだ がめんを けさない：${g.awakeOn ? 'ON' : 'OFF'}`, value: 'awake' });
-      if (navigator.audioSession) items.push({ label: `マナーモードでも おとを だす：${g.audio.silentPlay ? 'ON' : 'OFF'}`, value: 'silent' });
+      items.push({ label: `遊んでいる間は画面を消さない：${g.awakeOn ? 'ON' : 'OFF'}`, value: 'awake' });
+      if (navigator.audioSession) items.push({ label: `マナーモードでも音を出す：${g.audio.silentPlay ? 'ON' : 'OFF'}`, value: 'silent' });
     }
     const box = el('div');
     if (!active) {
@@ -670,8 +670,8 @@ export class FieldMenu {
       box.append(el('div', {
         class: 'detail',
         text: g.input.touch
-          ? 'そうさ: がめんの ひだりがわを さわると そこに スティックが でるよ（ゆびを うごかして いどう）。「はしる」ボタンで はしる／あるくを きりかえ。Aで はなす・けってい、Bで メニュー。メニューは みぎうえの「✕ とじる」か、そとを タップで とじる'
-          : 'そうさ: やじるし/WASDで いどう、Shiftを おしながらで はしる、Z/Enterで はなす・けってい、X/Escで メニュー・もどる、Mで マップ、Cで チャット',
+          ? '操作: 画面の左側をさわるとそこにスティックが出るよ（指を動かして移動）。「走る」ボタンで走る／歩くを切りかえ。Aで話す・決定、Bでメニュー。メニューは右上の「✕ 閉じる」か、外をタップで閉じる'
+          : '操作: 矢印/WASDで移動、Shiftをおしながらで走る、Z/Enterで話す・決定、X/Escでメニュー・もどる、Mでマップ、Cでチャット',
       }));
       return box;
     }
@@ -694,7 +694,7 @@ export class FieldMenu {
           try { localStorage.setItem('kizuna_bigtext', document.body.classList.contains('big-text') ? '1' : ''); } catch { /* */ }
         } else if (it.value === 'view') {
           g.field.setView(g.field.view === '3d' ? '2d' : '3d', true).then((v) => {
-            toast(v === '3d' ? 'がめんを 2.5D（たちたい）に しました' : 'がめんを 2D（ドット）に しました');
+            toast(v === '3d' ? '画面を2.5D（立体）にしました' : '画面を2D（ドット）にしました');
             if (this.root) this.focusSub(this.settingsView(true));
           });
           return;
@@ -707,7 +707,7 @@ export class FieldMenu {
         setTimeout(() => { if (this.root) this.focusSub(this.settingsView(true)); }, 200);
       },
     });
-    box.append(m.root, el('div', { class: 'detail', text: 'ウェイトを ON に すると、コマンドを えらぶ あいだ たたかいの じかんが とまるよ（ちいさい こどもに おすすめ）' + (g.input.touch ? '\nがめんが きえると 家族との つうしんが とぎれやすいので「がめんを けさない」は ON が おすすめ' : '') }));
+    box.append(m.root, el('div', { class: 'detail', text: 'ウェイトをONにすると、コマンドを選ぶ間は戦いの時間が止まるよ（小さい子どもにおすすめ）' + (g.input.touch ? '\n画面が消えると家族との通信がとぎれやすいので「画面を消さない」はONがおすすめ' : '') }));
     return box;
   }
 }
@@ -775,8 +775,8 @@ export function openWorldMap(game) {
   const box = el('div', { class: 'win panel center-panel worldmap', style: { width: 'auto', maxWidth: '96vw' } });
   const cv = makeCanvas(10, 10);
   const head = el('div', { class: 'wm-head' }, el('span', { class: 'gold', text: game.field.map.name }),
-    el('button', { class: 'btn closebtn', text: '✕ とじる', 'aria-label': 'ちずを とじる' }));
-  box.append(head, cv, el('div', { class: 'small muted', text: `あかい てん: じぶん　きいろ: パーティー　あお: かぞく　（${game.input.touch ? 'タップで とじる' : 'B/Xで とじる'}）` }));
+    el('button', { class: 'btn closebtn', text: '✕ 閉じる', 'aria-label': '地図を閉じる' }));
+  box.append(head, cv, el('div', { class: 'small muted', text: `赤い点: 自分　黄色: パーティー　青: 家族　（${game.input.touch ? 'タップで閉じる' : 'B/Xで閉じる'}）` }));
   document.getElementById('ui').append(back, box);
   renderMiniMap(game, cv, true);
   const iv = setInterval(() => renderMiniMap(game, cv, true), 400);

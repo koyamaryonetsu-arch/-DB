@@ -25,7 +25,7 @@ export function fillTime(agi) {
 }
 
 const STATUS_NAMES = {
-  sleep: 'ねむり', paralyze: 'まひ', confuse: 'こんらん', blind: 'マヌーサ', silence: 'マホトーン', poison: 'どく',
+  sleep: 'ねむり', paralyze: 'マヒ', confuse: '混乱', blind: 'マヌーサ', silence: 'マホトーン', poison: '毒',
 };
 
 export class Battle {
@@ -76,7 +76,7 @@ export class Battle {
   joinAlly(init) {
     const c = this.addAlly(init);
     c.atb = this.rng.float(0, 40);
-    this.emit({ t: 'msg', lines: [`${c.name}が かけつけた！`], joined: [pub(c)], dur: 900 });
+    this.emit({ t: 'msg', lines: [`${c.name}がかけつけた！`], joined: [pub(c)], dur: 900 });
     return c;
   }
 
@@ -196,7 +196,7 @@ export class Battle {
           if (b.until <= this.time) {
             delete c[kind][stat];
             if (c.side === 'ally' || stat !== 'eva') {
-              this.emit({ t: 'msg', lines: [`${c.name}の ${statLabel(stat)}が もとに もどった。`], upd: [pub(c)] });
+              this.emit({ t: 'msg', lines: [`${c.name}の${statLabel(stat)}が元にもどった。`], upd: [pub(c)] });
             }
           }
         }
@@ -213,7 +213,7 @@ export class Battle {
         if (!c.alive || !c.status.poison) continue;
         const d = Math.max(1, Math.min(c.side === 'ally' ? 12 : 20, Math.floor(c.maxHp / 12)));
         c.hp = Math.max(0, c.hp - d);
-        lines.push(c.side === 'ally' ? `${c.name}は どくで ${d}の ダメージを うけた！` : `${c.name}は どくで ${d}の ダメージ！`);
+        lines.push(c.side === 'ally' ? `${c.name}は毒で${d}のダメージを受けた！` : `${c.name}は毒で${d}のダメージ！`);
         if (c.hp <= 0) lines.push(...this.kill(c));
         upd.push(pub(c));
       }
@@ -272,7 +272,7 @@ export class Battle {
       c.ready = false;
       c.atb = 0;
       c.defending = true;
-      this.emit({ t: 'act', id: c.id, lines: [`${c.name}は みを まもっている。`], upd: [pub(c)], fx: { type: 'defend', actor: c.id } });
+      this.emit({ t: 'act', id: c.id, lines: [`${c.name}は身を守っている。`], upd: [pub(c)], fx: { type: 'defend', actor: c.id } });
       return { ok: true };
     }
     this.enqueue(c, cmd);
@@ -297,34 +297,34 @@ export class Battle {
     switch (cmd.type) {
       case 'attack': case 'defend': return { ok: true };
       case 'flee':
-        if (!this.canFlee) return { ok: false, reason: 'にげられない！' };
+        if (!this.canFlee) return { ok: false, reason: '逃げられない！' };
         return { ok: true };
       case 'ability': {
         const a = ABILITIES[cmd.id];
-        if (!a || !c.abilities.includes(cmd.id) || a.kind === 'bond') return { ok: false, reason: 'まだ おぼえていない' };
+        if (!a || !c.abilities.includes(cmd.id) || a.kind === 'bond') return { ok: false, reason: 'まだ覚えていない' };
         if (a.effect.type === 'mahouken') return { ok: false, reason: 'bad' };
-        if (a.kind === 'combo' && !comboAllowed(c.penChar, cmd.id)) return { ok: false, reason: 'いまの しょくぎょうでは つかえない' };
-        if (!weaponOk(a, c.weaponCat)) return { ok: false, reason: 'ぶきが あわない' };
-        if (mpCost(c.penChar, cmd.id) > c.mp) return { ok: false, reason: 'MPが たりない' };
+        if (a.kind === 'combo' && !comboAllowed(c.penChar, cmd.id)) return { ok: false, reason: '今の職業では使えない' };
+        if (!weaponOk(a, c.weaponCat)) return { ok: false, reason: '武器が合わない' };
+        if (mpCost(c.penChar, cmd.id) > c.mp) return { ok: false, reason: 'MPが足りない' };
         return { ok: true };
       }
       case 'mahouken': {
-        if (!c.abilities.includes('mahouken')) return { ok: false, reason: 'まだ おぼえていない' };
-        if (!comboAllowed(c.penChar, 'mahouken')) return { ok: false, reason: 'いまの しょくぎょうでは つかえない' };
+        if (!c.abilities.includes('mahouken')) return { ok: false, reason: 'まだ覚えていない' };
+        if (!comboAllowed(c.penChar, 'mahouken')) return { ok: false, reason: '今の職業では使えない' };
         const sp = ABILITIES[cmd.spell], sk = ABILITIES[cmd.skill];
         if (!sp?.attackSpell || !sk?.sword || !c.abilities.includes(cmd.spell) || !c.abilities.includes(cmd.skill)) return { ok: false, reason: 'bad' };
-        if (!weaponOk({ weapon: 'blade' }, c.weaponCat)) return { ok: false, reason: 'けんが ひつよう' };
-        if (mpCost(c.penChar, cmd.spell) + mpCost(c.penChar, cmd.skill) > c.mp) return { ok: false, reason: 'MPが たりない' };
+        if (!weaponOk({ weapon: 'blade' }, c.weaponCat)) return { ok: false, reason: '剣が必要' };
+        if (mpCost(c.penChar, cmd.spell) + mpCost(c.penChar, cmd.skill) > c.mp) return { ok: false, reason: 'MPが足りない' };
         return { ok: true };
       }
       case 'item': {
         const it = ITEMS[cmd.id];
-        if (!it || it.type !== 'use' || !it.battle) return { ok: false, reason: 'つかえない' };
-        if (this.hooks.hasItem && !this.hooks.hasItem(c, cmd.id)) return { ok: false, reason: 'もっていない' };
+        if (!it || it.type !== 'use' || !it.battle) return { ok: false, reason: '使えない' };
+        if (this.hooks.hasItem && !this.hooks.hasItem(c, cmd.id)) return { ok: false, reason: '持っていない' };
         return { ok: true };
       }
       case 'bond':
-        if (this.bond < BOND_MAX) return { ok: false, reason: 'きずなゲージが たりない' };
+        if (this.bond < BOND_MAX) return { ok: false, reason: 'きずなゲージが足りない' };
         return { ok: true };
       default: return { ok: false, reason: 'bad' };
     }
@@ -366,10 +366,10 @@ export class Battle {
         s.turns--;
         if (s.turns <= 0) {
           delete c.status.confuse;
-          ev.lines.push(`${c.name}は しょうきに もどった！`);
+          ev.lines.push(`${c.name}は正気にもどった！`);
         } else {
           confused = true;
-          ev.lines.push(`${c.name}は こんらんしている！`);
+          ev.lines.push(`${c.name}は混乱している！`);
           const pool = this.combatants.filter((x) => x.alive && x !== c && !x.fled);
           cmd = { type: 'attack', target: this.rng.pick(pool)?.id, confused: true };
         }
@@ -407,18 +407,18 @@ export class Battle {
       s.turns--;
       if (s.turns <= 0) {
         delete c.status.sleep;
-        ev.lines.push(`${c.name}は めを さました！`);
+        ev.lines.push(`${c.name}は目を覚ました！`);
         ev.atbAfter = 60;
-      } else ev.lines.push(`${c.name}は ねむっている。`);
+      } else ev.lines.push(`${c.name}はねむっている。`);
       ev.fx = { type: 'sleep', actor: c.id };
     } else if (c.status.paralyze) {
       const s = c.status.paralyze;
       s.turns--;
       if (s.turns <= 0) {
         delete c.status.paralyze;
-        ev.lines.push(`${c.name}の からだの しびれが とれた！`);
+        ev.lines.push(`${c.name}の体のしびれが取れた！`);
         ev.atbAfter = 60;
-      } else ev.lines.push(`${c.name}は からだが しびれて うごけない！`);
+      } else ev.lines.push(`${c.name}は体がしびれて動けない！`);
       ev.fx = { type: 'paralyze', actor: c.id };
     }
   }
@@ -430,8 +430,8 @@ export class Battle {
     if (s.turns <= 0) {
       delete c.status[st];
       const msg = {
-        blind: `${c.name}の まぼろしが きえた！`,
-        silence: `${c.name}の じゅもんの ふういんが とけた！`,
+        blind: `${c.name}のまぼろしが消えた！`,
+        silence: `${c.name}の呪文のふういんが解けた！`,
       }[st];
       if (msg) ev.lines.push(msg);
     }
@@ -441,8 +441,8 @@ export class Battle {
     const cast = (tmpl, t) => tmpl.replaceAll('{a}', c.name).replaceAll('{t}', t ? t.name : '');
     switch (cmd.type) {
       case 'attack': {
-        ev.name = 'こうげき';
-        ev.lines.push(`${c.name}の こうげき！`);
+        ev.name = '攻撃';
+        ev.lines.push(`${c.name}の攻撃！`);
         const t = this.resolveTarget(c, 'enemy', cmd.target);
         this.pushCoverMsg(ev);
         if (!t) break;
@@ -454,25 +454,25 @@ export class Battle {
       }
       case 'defend': {
         c.defending = true;
-        ev.lines.push(`${c.name}は みを まもっている。`);
+        ev.lines.push(`${c.name}は身を守っている。`);
         ev.fx = { type: 'defend', actor: c.id };
         break;
       }
       case 'flee': {
         if (!this.canFlee) {
-          ev.lines.push('しかし にげられない！');
+          ev.lines.push('しかし逃げられない！');
           break;
         }
         const pa = avg(this.aliveAllies().map(effAgi));
         const ea = avg(this.aliveEnemies().map(effAgi));
         const chance = clamp(0.55 + (pa - ea) / 100 + this.fleeBonus, 0.25, 0.95);
-        ev.lines.push(`${c.name}たちは にげだした！`);
+        ev.lines.push(`${c.name}たちは逃げ出した！`);
         if (this.rng.chance(chance)) {
           ev.fx = { type: 'flee' };
           this.pendingEnd = { outcome: 'flee' };
         } else {
           this.fleeBonus += 0.12;
-          ev.lines.push('しかし まわりこまれて しまった！');
+          ev.lines.push('しかし回りこまれてしまった！');
         }
         break;
       }
@@ -489,20 +489,20 @@ export class Battle {
         const cost = c.side === 'ally' ? mpCost(c.penChar, cmd.id) : (a.kind === 'monster' ? 0 : (a.mp || 0));
         const targets = this.targetsFor(c, a, cmd);
         const firstTarget = ['enemy', 'group', 'ally', 'deadAlly'].includes(a.target) ? targets[0] : null;
-        ev.lines.push(cast(a.cast || `{a}は ${a.name}を つかった！`, firstTarget));
+        ev.lines.push(cast(a.cast || `{a}は${a.name}を使った！`, firstTarget));
         this.pushCoverMsg(ev);
         if (isSpell && c.status.silence) {
-          ev.lines.push('しかし じゅもんは ふうじこめられている！');
+          ev.lines.push('しかし呪文はふうじこめられている！');
           ev.fx = { type: 'fizzle', actor: c.id };
           break;
         }
         if (cost > c.mp) {
-          ev.lines.push('しかし MPが たりない！');
+          ev.lines.push('しかしMPが足りない！');
           break;
         }
         c.mp -= cost;
         if (a.weapon && c.side === 'ally' && !weaponOk(a, c.weaponCat)) {
-          ev.lines.push('しかし ぶきが あわず うまく いかなかった！');
+          ev.lines.push('しかし武器が合わずうまくいかなかった！');
           break;
         }
         const pen = c.side === 'ally' ? penaltyFor(c.penChar, cmd.id) : { powMult: 1 };
@@ -511,7 +511,7 @@ export class Battle {
         break;
       }
       default:
-        ev.lines.push(`${c.name}は ようすを みている。`);
+        ev.lines.push(`${c.name}は様子を見ている。`);
     }
   }
 
@@ -538,7 +538,7 @@ export class Battle {
     const cover = this.allies.find((x) => x.alive && x !== t && x.cover && (x.cover.target === 'all' || x.cover.target === t.id)
       && !x.status.sleep && !x.status.paralyze);
     if (cover) {
-      if (this.cur) this.cur.coverMsg = `${cover.name}が ${t.name}を かばった！`;
+      if (this.cur) this.cur.coverMsg = `${cover.name}が${t.name}をかばった！`;
       return cover;
     }
     return t;
@@ -584,7 +584,7 @@ export class Battle {
     this.pushCoverMsg(ev);
     ev.fx = { type: 'ability', anim: a.anim, actor: c.id, targets: targets.map((t) => t.id), side: c.side, element: eff.element };
     if (!targets.length && !['callHelp', 'flee', 'nothing', 'telegraph', 'charge', 'bondUp'].includes(eff.type)) {
-      ev.lines.push('しかし こうかが なかった！');
+      ev.lines.push('しかし効果がなかった！');
       return;
     }
     switch (eff.type) {
@@ -611,7 +611,7 @@ export class Battle {
         if (eff.recoil && ev.dealt > 0 && c.alive) {
           const r = Math.max(1, Math.round(ev.dealt * eff.recoil));
           c.hp = Math.max(0, c.hp - r);
-          ev.lines.push(`${c.name}も ${r}の ダメージを うけた！`);
+          ev.lines.push(`${c.name}も${r}のダメージを受けた！`);
           ev.results = ev.results || [];
           ev.results.push({ id: c.id, dmg: r });
           if (c.hp <= 0) ev.lines.push(...this.kill(c));
@@ -633,7 +633,7 @@ export class Battle {
           if (!t.alive) continue;
           const d = Math.min(t.maxMp - t.mp, this.rng.int(eff.base[0], eff.base[1]));
           t.mp += d;
-          ev.lines.push(d > 0 ? `${t.name}の MPが ${d} かいふくした！` : `${t.name}の MPは まんたんだ。`);
+          ev.lines.push(d > 0 ? `${t.name}のMPが${d}回復した！` : `${t.name}のMPは満タンだ。`);
           ev.upd.push(t);
         }
         break;
@@ -654,14 +654,14 @@ export class Battle {
       case 'revive': {
         for (const t of targets) {
           if (t.alive) {
-            ev.lines.push(`しかし ${t.name}は しんでいない！`);
+            ev.lines.push(`しかし${t.name}は死んでいない！`);
             continue;
           }
           t.alive = true;
           t.hp = Math.max(1, Math.round(t.maxHp * (eff.hpRatio || 0.25) * (0.5 + powMult / 2)));
           t.atb = 0;
           t.status = {};
-          ev.lines.push(`なんと ${t.name}が いきかえった！`);
+          ev.lines.push(`なんと${t.name}が生き返った！`);
           ev.upd.push(t);
           this.addBond(8);
         }
@@ -676,7 +676,7 @@ export class Battle {
             if (st === 'eva') t.buffs.eva = { add: eff.add, until: this.time + dur };
             else t.buffs[st] = { mult: eff.mult, until: this.time + dur };
           }
-          ev.lines.push(`${t.name}の ${stats.map(statLabel).join('と ')}が あがった！`);
+          ev.lines.push(`${t.name}の${stats.map(statLabel).join('と')}が上がった！`);
           ev.upd.push(t);
         }
         if (c.side === 'ally') this.addBond(1);
@@ -697,10 +697,10 @@ export class Battle {
             if (t.status[st]) {
               delete t.status[st];
               any = true;
-              ev.lines.push(`${t.name}の ${STATUS_NAMES[st]}が なおった！`);
+              ev.lines.push(`${t.name}の${STATUS_NAMES[st]}が治った！`);
             }
           }
-          if (!any && targets.length === 1) ev.lines.push('しかし なにも おこらなかった！');
+          if (!any && targets.length === 1) ev.lines.push('しかし何も起こらなかった！');
           ev.upd.push(t);
         }
         break;
@@ -713,11 +713,11 @@ export class Battle {
         if (eff.all) {
           c.cover = { target: 'all', until: this.time + eff.dur * 1000 };
           if (eff.defMult) c.buffs.def = { mult: eff.defMult, until: this.time + eff.dur * 1000 };
-          ev.lines.push(`${c.name}は なかま 全員を まもる かまえだ！`);
+          ev.lines.push(`${c.name}は仲間全員を守る構えだ！`);
         } else {
           const t = targets[0];
           if (t === c) {
-            ev.lines.push('しかし じぶんを かばうことは できない！');
+            ev.lines.push('しかし自分をかばうことはできない！');
             break;
           }
           c.cover = { target: t.id, until: this.time + eff.dur * 1000 };
@@ -727,7 +727,7 @@ export class Battle {
       }
       case 'bondUp': {
         this.addBond(Math.round(eff.amount * powMult));
-        ev.lines.push('きずなゲージが ふえた！');
+        ev.lines.push('きずなゲージが増えた！');
         break;
       }
       case 'drainHp': {
@@ -739,7 +739,7 @@ export class Battle {
           const h = Math.min(c.maxHp - c.hp, Math.ceil(got / 2));
           if (h > 0) {
             c.hp += h;
-            ev.lines.push(`${c.name}の HPが ${h} かいふくした！`);
+            ev.lines.push(`${c.name}のHPが${h}回復した！`);
           }
         }
         break;
@@ -748,7 +748,7 @@ export class Battle {
         const t = targets[0];
         const d = Math.min(t.mp, this.rng.int(eff.amount[0], eff.amount[1]));
         t.mp -= d;
-        ev.lines.push(d > 0 ? `${t.name}の MPが ${d} へった！` : `しかし ${t.name}には きかなかった！`);
+        ev.lines.push(d > 0 ? `${t.name}のMPが${d}減った！` : `しかし${t.name}には効かなかった！`);
         ev.upd.push(t);
         break;
       }
@@ -785,12 +785,12 @@ export class Battle {
     const res = this.calcPhys(c, t, eff, powMult, element);
     ev.fx = ev.fx || { type: 'attack', actor: c.id, targets: [t.id], side: c.side };
     if (res.miss) {
-      ev.lines.push(t.side === 'enemy' ? `ミス！ ${t.name}は すばやく みを かわした！` : `${t.name}は ひらりと みを かわした！`);
+      ev.lines.push(t.side === 'enemy' ? `ミス！${t.name}は素早く身をかわした！` : `${t.name}はひらりと身をかわした！`);
       ev.results = ev.results || [];
       ev.results.push({ id: t.id, miss: true });
       return 0;
     }
-    if (res.crit) ev.lines.push(c.side === 'ally' ? 'かいしんの いちげき！' : 'つうこんの いちげき！');
+    if (res.crit) ev.lines.push(c.side === 'ally' ? '会心の一撃！' : 'つうこんの一撃！');
     this.damage(c, t, res.dmg, ev, { crit: res.crit, element });
     if (eff.forceCrit !== undefined || res.crit) { /* noop */ }
     return res.dmg;
@@ -842,7 +842,7 @@ export class Battle {
     if (!t.alive) return 0;
     const res = this.calcMagic(c, t, eff, powMult);
     if (res.resisted || res.dmg === 0) {
-      ev.lines.push(t.side === 'enemy' ? `しかし ${t.name}には きかなかった！` : `${t.name}は ダメージを うけない！`);
+      ev.lines.push(t.side === 'enemy' ? `しかし${t.name}には効かなかった！` : `${t.name}はダメージを受けない！`);
       ev.results = ev.results || [];
       ev.results.push({ id: t.id, miss: true });
       return 0;
@@ -854,12 +854,12 @@ export class Battle {
   damage(c, t, dmg, ev, info = {}) {
     ev.results = ev.results || [];
     if (dmg <= 0) {
-      ev.lines.push(t.side === 'enemy' ? `ミス！ ${t.name}に ダメージを あたえられない！` : `ミス！ ${t.name}は ダメージを うけない！`);
+      ev.lines.push(t.side === 'enemy' ? `ミス！${t.name}にダメージをあたえられない！` : `ミス！${t.name}はダメージを受けない！`);
       ev.results.push({ id: t.id, dmg: 0 });
       return;
     }
     t.hp = Math.max(0, t.hp - dmg);
-    ev.lines.push(t.side === 'enemy' ? `${t.name}に ${dmg}の ダメージ！` : `${t.name}は ${dmg}の ダメージを うけた！`);
+    ev.lines.push(t.side === 'enemy' ? `${t.name}に${dmg}のダメージ！` : `${t.name}は${dmg}のダメージを受けた！`);
     ev.results.push({ id: t.id, dmg, crit: !!info.crit, element: info.element });
     ev.upd.push(t);
     ev.dealt = (ev.dealt || 0) + dmg;
@@ -868,7 +868,7 @@ export class Battle {
     // ねむりは ダメージで おきることがある
     if (t.status.sleep && t.hp > 0 && this.rng.chance(0.5)) {
       delete t.status.sleep;
-      ev.lines.push(`${t.name}は めを さました！`);
+      ev.lines.push(`${t.name}は目を覚ました！`);
     }
     if (t.hp <= 0) ev.lines.push(...this.kill(t));
     else if (t.boss) this.checkPhase(t, ev);
@@ -887,10 +887,10 @@ export class Battle {
     this.queue = this.queue.filter((q) => q.id !== t.id);
     if (t.side === 'enemy') {
       this.killed.push(t.species);
-      return [`${t.name}を たおした！`];
+      return [`${t.name}を倒した！`];
     }
     this.addBond(5);
-    return [`${t.name}は しんでしまった！`];
+    return [`${t.name}は死んでしまった！`];
   }
 
   heal(c, t, eff, ev, powMult) {
@@ -904,8 +904,8 @@ export class Battle {
     ev.results = ev.results || [];
     ev.results.push({ id: t.id, heal: real });
     ev.upd.push(t);
-    if (t.hp >= t.maxHp) ev.lines.push(`${t.name}の キズが すっかり かいふくした！`);
-    else ev.lines.push(`${t.name}の HPが ${real} かいふくした！`);
+    if (t.hp >= t.maxHp) ev.lines.push(`${t.name}のキズがすっかり回復した！`);
+    else ev.lines.push(`${t.name}のHPが${real}回復した！`);
     if (c.side === 'ally' && t !== c && real > 0) this.addBond(2);
   }
 
@@ -914,11 +914,11 @@ export class Battle {
     const r = t.resist.debuff ?? 1;
     const chance = (d.chance ?? 0.9) * r * (0.6 + 0.4 * powMult) * (t.boss ? 0.7 : 1);
     if (!this.rng.chance(chance)) {
-      ev.lines.push(`しかし ${t.name}には きかなかった！`);
+      ev.lines.push(`しかし${t.name}には効かなかった！`);
       return;
     }
     t.debuffs[d.stat] = { mult: d.mult, until: this.time + (d.dur || 30) * 1000 };
-    ev.lines.push(`${t.name}の ${statLabel(d.stat)}が さがった！`);
+    ev.lines.push(`${t.name}の${statLabel(d.stat)}が下がった！`);
     ev.upd.push(t);
   }
 
@@ -928,18 +928,18 @@ export class Battle {
     const r = t.resist[st] ?? 1;
     const chance = (eff.chance ?? 0.5) * r * (0.6 + 0.4 * powMult);
     if (t.status[st] || !this.rng.chance(chance)) {
-      if (!eff.quiet && ev.lines.length < 12) ev.lines.push(`しかし ${t.name}には きかなかった！`);
+      if (!eff.quiet && ev.lines.length < 12) ev.lines.push(`しかし${t.name}には効かなかった！`);
       return false;
     }
     const turns = eff.turns ? this.rng.int(eff.turns[0], eff.turns[1]) : 3;
     t.status[st] = { turns };
     const msg = {
-      sleep: `${t.name}は ねむってしまった！`,
-      paralyze: `${t.name}は からだが しびれて うごけなくなった！`,
-      confuse: `${t.name}は こんらんした！`,
-      blind: `${t.name}は まぼろしに つつまれた！`,
-      silence: `${t.name}の じゅもんが ふうじこめられた！`,
-      poison: `${t.name}は どくに おかされた！`,
+      sleep: `${t.name}はねむってしまった！`,
+      paralyze: `${t.name}は体がしびれて動けなくなった！`,
+      confuse: `${t.name}は混乱した！`,
+      blind: `${t.name}はまぼろしに包まれた！`,
+      silence: `${t.name}の呪文がふうじこめられた！`,
+      poison: `${t.name}は毒におかされた！`,
     }[st];
     ev.lines.push(msg);
     ev.upd.push(t);
@@ -974,13 +974,13 @@ export class Battle {
     const prev = this.combo;
     if (n >= 2) {
       ev.combo = n;
-      ev.lines.splice(1, 0, `れんけい ${n}！`);
+      ev.lines.splice(1, 0, `れんけい${n}！`);
       this.addBond(Math.min(4, n));
       // 合体（ぞくせいの くみあわせ）
       const el = element || 'phys';
       const tc = TEAM_COMBOS.find((x) => (x.a === prev.element && x.b === el) || (x.b === prev.element && x.a === el));
       if (tc && prev.element !== el) {
-        ev.lines.push(`合体！ ${tc.name}！`, tc.desc);
+        ev.lines.push(`合体！${tc.name}！`, tc.desc);
         ev.team = tc.name;
         const bonus = Math.max(1, Math.round(ev.dealt * tc.mult));
         const targets = tc.all ? this.aliveEnemies() : (ev.lastTarget?.alive ? [ev.lastTarget] : this.aliveEnemies().slice(0, 1));
@@ -1007,15 +1007,15 @@ export class Battle {
     const sp = ABILITIES[cmd.spell], sk = ABILITIES[cmd.skill];
     const name = sp.name + sk.name;
     ev.name = name;
-    ev.lines.push(`${c.name}は けんに ${sp.name}を やどらせた！`);
+    ev.lines.push(`${c.name}は剣に${sp.name}を宿らせた！`);
     ev.lines.push(`${name}！`);
     if (c.status.silence) {
-      ev.lines.push('しかし じゅもんは ふうじこめられている！');
+      ev.lines.push('しかし呪文はふうじこめられている！');
       return;
     }
     const cost = mpCost(c.penChar, cmd.spell) + mpCost(c.penChar, cmd.skill);
     if (cost > c.mp) {
-      ev.lines.push('しかし MPが たりない！');
+      ev.lines.push('しかしMPが足りない！');
       return;
     }
     c.mp -= cost;
@@ -1027,11 +1027,11 @@ export class Battle {
     const skEff = { ...sk.effect, element: sp.effect.element };
     const res = this.calcPhys(c, t, skEff, skPen, sp.effect.element);
     if (res.miss) {
-      ev.lines.push(`ミス！ ${t.name}は すばやく みを かわした！`);
+      ev.lines.push(`ミス！${t.name}は素早く身をかわした！`);
     } else {
       const magic = this.calcMagic(c, t, sp.effect, spPen);
       const total = Math.round(res.dmg + magic.dmg * 0.6);
-      if (res.crit) ev.lines.push('かいしんの いちげき！');
+      if (res.crit) ev.lines.push('会心の一撃！');
       this.damage(c, t, t.metal && !res.crit ? this.rng.int(0, 1) : total, ev, { crit: res.crit, element: sp.effect.element });
     }
     if (skEff.atbAfter) ev.atbAfter = skEff.atbAfter;
@@ -1041,13 +1041,13 @@ export class Battle {
   // ───────────── きずな技（ミナデイン） ─────────────
   startBond(c, cmd, ev) {
     if (this.bond < BOND_MAX) {
-      ev.lines.push('しかし きずなゲージが たりない！');
+      ev.lines.push('しかしきずなゲージが足りない！');
       return;
     }
     const target = this.peekTarget(c, 'enemy', cmd.target);
     if (!target) return;
     this.bond = 0;
-    ev.lines.push(`${c.name}は きずなの紋章を たかく かかげた！`, 'みんな、ちからを あわせて！');
+    ev.lines.push(`${c.name}はきずなの紋章を高くかかげた！`, 'みんな、力を合わせて！');
     ev.fx = { type: 'bondStart', actor: c.id };
     const total = 3500;
     const aiJoin = this.aliveAllies()
@@ -1075,7 +1075,7 @@ export class Battle {
     this.cur = ev;
     const joined = [...bc.joined].map((id) => this.get(id)).filter((x) => x && x.alive);
     const n = joined.length;
-    ev.lines.push(n >= 4 ? 'みんなの こころが ひとつに なった！' : `${n}人の ちからが ひとつに なった！`);
+    ev.lines.push(n >= 4 ? 'みんなの心が一つになった！' : `${n}人の力が一つになった！`);
     ev.lines.push('ミナデイン！！');
     let power = 0;
     for (const j of joined) power += j.atk * 0.35 + j.mag * 0.35 + j.lv * 2;
@@ -1111,9 +1111,9 @@ export class Battle {
   useItem(c, cmd, ev) {
     const it = ITEMS[cmd.id];
     ev.name = it.name;
-    ev.lines.push(`${c.name}は ${it.name}を つかった！`);
+    ev.lines.push(`${c.name}は${it.name}を使った！`);
     if (this.hooks.consumeItem && !this.hooks.consumeItem(c, cmd.id)) {
-      ev.lines.push('しかし どうぐが みつからなかった！');
+      ev.lines.push('しかし道具が見つからなかった！');
       return;
     }
     const eff = it.effect;
@@ -1128,22 +1128,22 @@ export class Battle {
         for (const t of targets) {
           const d = Math.min(t.maxMp - t.mp, this.rng.int(eff.base[0], eff.base[1]));
           t.mp += d;
-          ev.lines.push(`${t.name}の MPが ${d} かいふくした！`);
+          ev.lines.push(`${t.name}のMPが${d}回復した！`);
           ev.upd.push(t);
         }
         break;
       }
       case 'escape': {
         if (!this.canFlee) {
-          ev.lines.push('しかし にげられない！');
+          ev.lines.push('しかし逃げられない！');
           break;
         }
-        ev.lines.push('あたりが けむりに つつまれた！', 'うまく にげきれた！');
+        ev.lines.push('辺りがけむりに包まれた！', 'うまく逃げ切れた！');
         ev.fx = { type: 'flee' };
         this.pendingEnd = { outcome: 'flee' };
         break;
       }
-      default: ev.lines.push('しかし なにも おこらなかった！');
+      default: ev.lines.push('しかし何も起こらなかった！');
     }
   }
 
@@ -1153,13 +1153,13 @@ export class Battle {
     const room = 7 - this.aliveEnemies().length;
     const sp = eff.species || c.species;
     if (room <= 0 || (!eff.count && !this.rng.chance(0.55))) {
-      ev.lines.push('しかし なにも こなかった！');
+      ev.lines.push('しかし何も来なかった！');
       return;
     }
     const n = Math.min(room, count);
     const added = this.addEnemies(Array(n).fill(sp));
     for (const m of added) m.atb = this.rng.float(0, 30);
-    ev.lines.push(n > 1 ? `${MONSTERS[sp].name}が ${n}ひき あらわれた！` : `${added[0].name}が あらわれた！`);
+    ev.lines.push(n > 1 ? `${MONSTERS[sp].name}が${n}ひき現れた！` : `${added[0].name}が現れた！`);
     ev.joined = added.map(pub);
     c.helpCalls = (c.helpCalls || 0) + 1;
   }
@@ -1185,7 +1185,7 @@ export class Battle {
             const added = this.addEnemies(list);
             for (const m of added) m.atb = this.rng.float(0, 40);
             ev.joined = (ev.joined || []).concat(added.map(pub));
-            ev.phaseLines.push(`${MONSTERS[list[0]].name}が ${list.length}ひき あらわれた！`);
+            ev.phaseLines.push(`${MONSTERS[list[0]].name}が${list.length}ひき現れた！`);
           }
         }
         ev.phase = true;
@@ -1332,7 +1332,7 @@ export function effDfn(c) {
 }
 
 function statLabel(stat) {
-  return { atk: 'こうげき力', def: 'しゅび力', agi: 'すばやさ', eva: 'かいひりつ', breath: 'ブレスたいせい' }[stat] || stat;
+  return { atk: '攻撃力', def: '守備力', agi: '素早さ', eva: 'かいひりつ', breath: 'ブレスたいせい' }[stat] || stat;
 }
 
 function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }

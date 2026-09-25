@@ -17,7 +17,7 @@ test('家族サーバー: 合言葉で ログインして キャラを つくれ
   try {
     await new Promise((resolve, reject) => {
       const t = setTimeout(() => reject(new Error('server did not start')), 8000);
-      proc.stdout.on('data', (d) => { if (String(d).includes('うごきました')) { clearTimeout(t); resolve(); } });
+      proc.stdout.on('data', (d) => { if (String(d).includes('動きました')) { clearTimeout(t); resolve(); } });
       proc.on('exit', (c) => reject(new Error('exit ' + c)));
     });
     const info = await (await fetch(`http://127.0.0.1:${port}/api/info`)).json();

@@ -349,7 +349,7 @@ export class Game {
         for (let i = 0; i < 600 && (this.state !== 'field' || this.busy || this.menuOpen); i++) await wait(200);
         if (this.state !== 'field') break;
         this.audio.sfx('join');
-        const ok = await confirmBox(this.input, `${m.from}から パーティーの おさそいが きた！\nいっしょに ぼうけんする？`, 'はいる！', 'いまは いい', (x) => this.audio.sfx(x));
+        const ok = await confirmBox(this.input, `${m.from}からパーティーのおさそいが来た！\nいっしょに冒険する？`, '入る！', '今はいい', (x) => this.audio.sfx(x));
         this.net.send({ t: 'party', action: ok ? 'accept' : 'decline' });
         break;
       }
@@ -362,10 +362,10 @@ export class Game {
         this.audio.sfx('stamp');
         break;
       case 'joined':
-        toast(`${m.name}が ぼうけんに やってきた！`);
+        toast(`${m.name}が冒険にやって来た！`);
         break;
       case 'left':
-        toast(`${m.name}が ひとやすみ している`);
+        toast(`${m.name}がひと休みしている`);
         break;
       case 'kicked':
         toast(m.text, 6000);
@@ -430,15 +430,15 @@ export class Game {
     this.hud.setObjective(m.char.objective);
     this.audio.play(this.field.areaBgm());
     this.keepAwake(true);
-    if (m.resumed) toast('つなぎなおしました！ つづきから あそべるよ');
+    if (m.resumed) toast('つなぎ直しました！続きから遊べるよ');
     for (const log of m.supportLog || []) {
-      toast(`${log.helper}の ぼうけんを ${log.count}かい てつだって\nけいけんち ${log.exp}と ${log.gold}ゴールドを もらった！${log.level ? `\nレベルが ${log.level}に あがった！` : ''}`, 6000);
+      toast(`${log.helper}の冒険を${log.count}回手伝って\n経験値${log.exp}と${log.gold}ゴールドをもらった！${log.level ? `\nレベルが${log.level}に上がった！` : ''}`, 6000);
     }
     if (this.net.mode === 'offline' && !this.saveWarned) {
       this.saveWarned = true;
       import('./offline.js').then(({ offlineStorage }) => {
         offlineStorage.load();
-        if (!offlineStorage.ok) toast('このブラウザでは セーブが できないかもしれません', 5000);
+        if (!offlineStorage.ok) toast('このブラウザではセーブができないかもしれません', 5000);
       });
     }
   }

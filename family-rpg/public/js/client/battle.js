@@ -91,15 +91,15 @@ export class BattleScene {
     this.build();
     this.game.audio.play(msg.snap.bgm || (this.boss ? 'boss' : 'battle'), { force: true });
     const names = this.enemyNames();
-    if (msg.resume) this.say(['つなぎなおした！ たたかいの つづきだ！']);
-    else if (msg.joined) this.say([`${names}との たたかいに かけつけた！`]);
-    else this.say([msg.preemptive === 'ally' ? 'まものは まだ こちらに きづいていない！' : msg.preemptive === 'enemy' ? 'まものたちが いきなり おそいかかってきた！' : `${names}が あらわれた！`]);
+    if (msg.resume) this.say(['つなぎ直した！戦いの続きだ！']);
+    else if (msg.joined) this.say([`${names}との戦いにかけつけた！`]);
+    else this.say([msg.preemptive === 'ally' ? '魔物はまだこちらに気づいていない！' : msg.preemptive === 'enemy' ? '魔物たちがいきなりおそいかかってきた！' : `${names}が現れた！`]);
   }
 
   enemyNames() {
     const counts = {};
     for (const c of this.c.values()) if (c.side === 'enemy') counts[c.species] = (counts[c.species] || 0) + 1;
-    return Object.entries(counts).map(([sp, n]) => (n > 1 ? `${MONSTERS[sp].name}たち` : MONSTERS[sp].name)).join('と ');
+    return Object.entries(counts).map(([sp, n]) => (n > 1 ? `${MONSTERS[sp].name}たち` : MONSTERS[sp].name)).join('と');
   }
 
   // じぶんの キャラ（プレイヤー）
@@ -227,7 +227,7 @@ export class BattleScene {
       s.hpmp.innerHTML = '';
       s.hpmp.append(el('span', { class: 'h', text: `HP${a.hp}` }), el('span', { class: 'mpc', text: `MP${a.mp}` }));
       const st = [statusNames(a.status), buffNames(a.buffs)].filter(Boolean).join(' ');
-      s.sts.textContent = !a.alive ? 'しに' : a.defending ? `ぼうぎょ ${st}` : (st || (a.auto && a.controller ? 'オート' : a.controller && a.kind !== 'player' ? 'めいれい' : a.kind === 'support' ? 'なかま' : a.kind === 'monster' ? 'まもの' : a.kind === 'guest' ? 'ゲスト' : ''));
+      s.sts.textContent = !a.alive ? '死に' : a.defending ? `防御 ${st}` : (st || (a.auto && a.controller ? 'オート' : a.controller && a.kind !== 'player' ? '命令' : a.kind === 'support' ? '仲間' : a.kind === 'monster' ? '魔物' : a.kind === 'guest' ? 'ゲスト' : ''));
     }
   }
 
@@ -267,10 +267,10 @@ export class BattleScene {
     this.cmdEl.innerHTML = '';
     const a = this.primary;
     if (!a) {
-      this.cmdEl.append(el('div', { class: 'wait', text: 'なかまが たたかっている…' }));
+      this.cmdEl.append(el('div', { class: 'wait', text: '仲間が戦っている…' }));
       return;
     }
-    this.cmdEl.append(el('div', { class: 'who', text: a.name }), el('div', { class: 'wait', text: text || (a.alive ? (a.auto ? 'オートで たたかっている' : 'こうどうゲージが たまるのを まっている…') : 'しんでしまった…') }));
+    this.cmdEl.append(el('div', { class: 'who', text: a.name }), el('div', { class: 'wait', text: text || (a.alive ? (a.auto ? 'オートで戦っている' : '行動ゲージがたまるのを待っている…') : '死んでしまった…') }));
   }
 
   closeMenus() {
@@ -289,12 +289,12 @@ export class BattleScene {
     const spells = learned.filter((id) => ABILITIES[id] && (ABILITIES[id].kind === 'spell' || ABILITIES[id].spellLike));
     const skills = learned.filter((id) => ABILITIES[id] && (ABILITIES[id].kind === 'skill' || ABILITIES[id].kind === 'monster' || (ABILITIES[id].kind === 'combo' && !ABILITIES[id].spellLike)));
     const items = [
-      { label: 'たたかう', value: 'attack' },
-      { label: 'じゅもん', value: 'spell', disabled: !spells.length },
-      { label: 'とくぎ', value: 'skill', disabled: !skills.length },
-      { label: 'どうぐ', value: 'item' },
-      { label: 'ぼうぎょ', value: 'defend' },
-      { label: 'にげる', value: 'flee', disabled: !this.canFlee },
+      { label: '戦う', value: 'attack' },
+      { label: '呪文', value: 'spell', disabled: !spells.length },
+      { label: '特技', value: 'skill', disabled: !skills.length },
+      { label: '道具', value: 'item' },
+      { label: '防御', value: 'defend' },
+      { label: '逃げる', value: 'flee', disabled: !this.canFlee },
     ];
     if (this.bond >= 100) items.unshift({ html: '<span class="gold">★ きずな（ミナデイン）</span>', value: 'bond' });
     this.showMenu(items, (it) => {
@@ -305,10 +305,10 @@ export class BattleScene {
         case 'item': return this.itemMenu();
         case 'defend': return this.send({ type: 'defend' });
         case 'flee': return this.send({ type: 'flee' });
-        case 'bond': return this.pickEnemy((t) => this.send({ type: 'bond', target: t }), 'ミナデインで ねらう あいて');
+        case 'bond': return this.pickEnemy((t) => this.send({ type: 'bond', target: t }), 'ミナデインでねらう相手');
         default:
       }
-    }, null, `${a.name}は どうする？`);
+    }, null, `${a.name}はどうする？`);
   }
 
   showMenu(items, onSelect, onCancel, title, detailFn) {
@@ -366,34 +366,34 @@ export class BattleScene {
     const a = this.myActor;
     const opts = mahoukenOptions({ ...(a.pc || this.game.me), job: a.job }, a.abilities);
     const items = opts.map((o) => ({ label: o.name, right: `${o.mp}`, value: o, disabled: o.mp > a.mp || !weaponOk({ weapon: 'blade' }, a.weaponCat) }));
-    if (!items.length) return toast('まほうけんに できる わざが ない');
+    if (!items.length) return toast('魔法剣にできる技がない');
     this.showMenu(items, (it) => {
       this.pickEnemy((tid) => this.send({ type: 'mahouken', spell: it.value.spell, skill: it.value.skill, target: tid }), it.value.name);
-    }, () => this.openCommand(), 'まほうけん（じゅもん×けんわざ）', (it) => {
+    }, () => this.openCommand(), '魔法剣（呪文×剣技）', (it) => {
       if (!it) return;
       this.msgEl.innerHTML = '';
-      this.msgEl.append(el('div', { class: 'ln small', text: `${ABILITIES[it.value.spell].name}の ちからを ${ABILITIES[it.value.skill].name}に やどらせる。\nMP ${it.value.mp}（けんが ひつよう）` }));
+      this.msgEl.append(el('div', { class: 'ln small', text: `${ABILITIES[it.value.spell].name}の力を${ABILITIES[it.value.skill].name}に宿らせる。\nMP ${it.value.mp}（剣が必要）` }));
     });
   }
 
   itemMenu() {
     const bag = this.game.me.items.filter((e) => ITEMS[e.id]?.battle);
     if (!bag.length) {
-      toast('たたかいで つかえる どうぐが ない');
+      toast('戦いで使える道具がない');
       return this.openCommand();
     }
     this.showMenu(bag.map((e) => ({ label: ITEMS[e.id].name, right: `×${e.n}`, value: e.id })), (it) => {
       const item = ITEMS[it.value];
       if (item.target === 'self') return this.send({ type: 'item', id: it.value });
       return this.pickAlly((tid) => this.send({ type: 'item', id: it.value, target: tid }), item.target === 'deadAlly', item.name);
-    }, () => this.openCommand(), 'どうぐ', (it) => {
+    }, () => this.openCommand(), '道具', (it) => {
       if (!it) return;
       this.msgEl.innerHTML = '';
       this.msgEl.append(el('div', { class: 'ln small', text: ITEMS[it.value].desc }));
     });
   }
 
-  pickEnemy(done, title = 'だれを ねらう？') {
+  pickEnemy(done, title = 'だれをねらう？') {
     const list = this.enemies().filter((e) => e.alive);
     if (list.length === 1) return done(list[0].id);
     this.targeting = { side: 'enemy', done };
@@ -434,7 +434,7 @@ export class BattleScene {
     this.readyQ = this.readyQ.filter((x) => x !== a.id);
     this.cur = null;
     this.game.net.send({ t: 'battle', actor: a.id, cmd });
-    this.renderCmdIdle('コマンドを えらんだ！');
+    this.renderCmdIdle('コマンドを選んだ！');
     // めいれいさせろの なかまが まっていれば つづけて えらぶ
     this.nextCommand();
   }
@@ -499,7 +499,7 @@ export class BattleScene {
           break;
         case 'bondJoin': {
           const c = this.c.get(ev.id);
-          if (c) this.banner(`${c.name}が ちからを あわせた！（${ev.count}人）`);
+          if (c) this.banner(`${c.name}が力を合わせた！（${ev.count}人）`);
           this.game.audio.sfx('bond');
           break;
         }
@@ -570,11 +570,11 @@ export class BattleScene {
         }
       }
     }
-    if (fx.type === 'telegraph') { g.audio.sfx('warn'); this.banner('！ おおわざが くる ！ ぼうぎょ しよう！', 'danger'); }
+    if (fx.type === 'telegraph') { g.audio.sfx('warn'); this.banner('！大技が来る！防御しよう！', 'danger'); }
     if (fx.type === 'bondStart') this.startBondPrompt(ev);
     if (fx.type === 'flee') g.audio.sfx('flee');
     if (fx.team) {
-      this.banner(`合体！ ${fx.team}！`);
+      this.banner(`合体！${fx.team}！`);
       const ta = TEAM_ANIM[fx.teamElement];
       if (ta && enemyPts.length) setTimeout(() => { if (!this.destroyed) this.fx.play(ta, enemyPts, fx.teamElement, { fromAlly: false }); }, 250);
     } else if (ev.combo >= 2) this.banner(`れんけい ${ev.combo}！`, 'combo');
@@ -703,7 +703,7 @@ export class BattleScene {
     this.fx.flashColor = '#ffe0f4';
     const a = this.primary;
     if (!a || !a.alive || a.auto || ev.id === a.id) return;
-    const btn = el('button', { class: 'bondjoin', text: '★ ちからを あわせる！ ★' });
+    const btn = el('button', { class: 'bondjoin', text: '★ 力を合わせる！ ★' });
     const join = () => {
       this.game.net.send({ t: 'battle', actor: a.id, cmd: { type: 'bondJoin' } });
       btn.remove();
@@ -853,7 +853,7 @@ export class BattleScene {
           g.audio.play('levelup', { force: true });
           box.lastChild.classList.add('gold');
         }
-        if (line.includes('ひらめいた') || line.includes('おぼえた')) {
+        if (line.includes('ひらめいた') || line.includes('覚えた')) {
           box.lastChild.classList.add('good');
           g.audio.sfx('sparkle');
         }

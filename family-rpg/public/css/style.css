@@ -741,12 +741,14 @@ img.face { image-rendering: pixelated; }
 }
 @keyframes banner { 0% { opacity: 0; transform: translate(-50%, 10px) scale(0.8); } 15%, 80% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; } }
 
-.b-bottom { display: flex; gap: 6px; min-height: 8.6em; }
-.b-cmd { width: min(40vw, 16em); display: flex; flex-direction: column; }
-.b-cmd .menu { overflow-y: auto; max-height: 11em; }
-.b-cmd .who { font-size: var(--fs-small); color: var(--accent); margin-bottom: 0.1em; }
-.b-cmd .wait { color: var(--muted); font-size: var(--fs-small); }
-.b-msg { flex: 1; font-size: var(--fs); line-height: 1.6; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; }
+/* コマンドは 大きく（2れつの 大きな ボタン）、メッセージは コンパクトに */
+.b-bottom { display: flex; gap: 6px; min-height: 10em; }
+.b-cmd { flex: 2 1 0; min-width: 0; display: flex; flex-direction: column; }
+.b-cmd .menu { overflow-y: auto; max-height: 12.5em; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 0.5em; align-content: start; }
+.b-cmd .menu .item { min-height: 2.45em; font-size: 1.15em; }
+.b-cmd .who { font-size: var(--fs); color: var(--accent); margin-bottom: 0.15em; }
+.b-cmd .wait { color: var(--muted); font-size: var(--fs); }
+.b-msg { flex: 1 1 0; min-width: 0; font-size: var(--fs-small); line-height: 1.5; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; }
 .b-msg .ln { white-space: pre-wrap; }
 .b-msg .ln.old { color: var(--muted); }
 .b-tools { position: absolute; right: calc(8px + var(--safe-r)); top: 50%; display: flex; flex-direction: column; gap: 6px; z-index: 2; }
@@ -776,10 +778,11 @@ img.face { image-rendering: pixelated; }
   .b-bond .bb { flex: 1; }
   .b-stage { flex: 0 0 auto; height: calc((100vw - 12px - var(--safe-l) - var(--safe-r)) * 0.5625); max-height: 42vh; }
   .b-bottom { flex: 1; flex-direction: column-reverse; min-height: 0; }
-  .b-cmd { width: 100%; flex: none; }
-  .b-cmd .menu { max-height: 14.5em; display: grid; grid-template-columns: 1fr 1fr; }
-  .b-cmd .menu .item { min-height: 2.6em; }
-  .b-msg { flex: 1; min-height: 4.8em; }
+  .b-cmd { width: 100%; flex: 1 1 auto; min-height: 0; }
+  .b-cmd .menu { max-height: none; flex: 1; min-height: 0; }
+  .b-cmd .menu .item { min-height: 2.8em; font-size: 1.22em; }
+  /* メッセージは 3行ぶん だけ */
+  .b-msg { flex: none; height: 5.6em; min-height: 0; }
   .b-tools { top: 6px; transform: none; }
 }
 
@@ -812,6 +815,7 @@ img.face { image-rendering: pixelated; }
   .b-stage { grid-area: stage; }
   .b-cmd { grid-area: cmd; width: auto; min-height: 0; overflow: hidden; }
   .b-cmd .menu { max-height: none; flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 1fr; align-content: start; }
+  .b-cmd .menu .item { min-height: 2.5em; font-size: 1.1em; }
   .b-msg { grid-area: msg; min-height: 3.4em; max-height: 4.9em; }
 }
 

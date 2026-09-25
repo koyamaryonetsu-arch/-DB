@@ -30,7 +30,7 @@ function request(game, msg) {
     setTimeout(() => {
       if (game.svcWaiter === resolve) {
         game.svcWaiter = null;
-        resolve({ ok: false, text: 'つうしんが おくれています' });
+        resolve({ ok: false, text: '通信がおくれています' });
       }
     }, 6000);
   });
@@ -47,7 +47,7 @@ function shell(title, extraCls = '') {
     s.game?.audio.sfx('cancel');
     s.onClose();
   };
-  const closeBtn = el('button', { class: 'btn closebtn', text: '✕ とじる', 'aria-label': 'とじる', onclick: userClose });
+  const closeBtn = el('button', { class: 'btn closebtn', text: '✕ 閉じる', 'aria-label': '閉じる', onclick: userClose });
   const head = el('div', { class: 'win svc-head' }, el('span', { class: 'gold', text: title }), right, closeBtn);
   const body = el('div', { class: 'fmenu' });
   root.append(head, body);
@@ -78,7 +78,7 @@ function shopUI(game, data) {
     const updGold = () => { s.right.textContent = goldText(game); };
     updGold();
     const modeMenu = new ListMenu(game.input, {
-      items: [{ label: 'かう', value: 'buy' }, { label: 'うる', value: 'sell' }, { label: 'やめる', value: 'exit' }],
+      items: [{ label: '買う', value: 'buy' }, { label: '売る', value: 'sell' }, { label: 'やめる', value: 'exit' }],
       back: null,
       sound: (x) => game.audio.sfx(x),
       onSelect: (it) => {
@@ -111,7 +111,7 @@ function shopUI(game, data) {
         const it = ITEMS[id];
         const eq = ['weapon', 'armor', 'shield', 'head', 'acc'].includes(it.type);
         const mine = eq && !canEquip(game.me.job, id);
-        return { label: it.name + (mine ? '' : ''), right: `${it.price}G`, value: id, cls: mine ? '' : '', html: `${it.name}${eq && !canEquip(game.me.job, id) ? '<span class="tag muted">そうびできない</span>' : ''}` };
+        return { label: it.name + (mine ? '' : ''), right: `${it.price}G`, value: id, cls: mine ? '' : '', html: `${it.name}${eq && !canEquip(game.me.job, id) ? '<span class="tag muted">装備できない</span>' : ''}` };
       });
       list = new ListMenu(game.input, {
         items,
@@ -121,9 +121,9 @@ function shopUI(game, data) {
           const d = ITEMS[it.value];
           let text = itemDetail(it.value);
           if (['weapon', 'armor', 'shield', 'head', 'acc'].includes(d.type) && canEquip(game.me.job, it.value)) {
-            text += `\nいまの そうびと くらべると: ${diffText(equipDiff(game.me, it.value))}`;
+            text += `\n今の装備と比べると: ${diffText(equipDiff(game.me, it.value))}`;
           }
-          text += `\nもっている かず: ${itemCount(game.me, it.value)}`;
+          text += `\n持っている数: ${itemCount(game.me, it.value)}`;
           detail.textContent = text;
         },
         onSelect: async (it) => {
@@ -132,18 +132,18 @@ function shopUI(game, data) {
           let qty = 1;
           const eq = ['weapon', 'armor', 'shield', 'head', 'acc'].includes(d.type);
           if (!eq) {
-            qty = await pickQty(game, `${d.name}を いくつ かう？`, Math.min(99, Math.floor(game.me.gold / d.price)), d.price);
+            qty = await pickQty(game, `${d.name}をいくつ買う？`, Math.min(99, Math.floor(game.me.gold / d.price)), d.price);
             if (!qty) return list.focus();
           }
           let equip = false;
           if (eq && canEquip(game.me.job, it.value)) {
-            equip = await confirmBox(game.input, `${d.name}を ${d.price}ゴールドで かって\nすぐに そうびしますか？`, 'かって そうびする', 'かうだけ', (x) => game.audio.sfx(x));
-          } else if (!(await confirmBox(game.input, `${d.name}を ${qty > 1 ? qty + 'こ ' : ''}${d.price * qty}ゴールドで かいますか？`, 'はい', 'いいえ', (x) => game.audio.sfx(x)))) {
+            equip = await confirmBox(game.input, `${d.name}を${d.price}ゴールドで買って\nすぐに装備しますか？`, '買って装備する', '買うだけ', (x) => game.audio.sfx(x));
+          } else if (!(await confirmBox(game.input, `${d.name}を${qty > 1 ? qty + '個 ' : ''}${d.price * qty}ゴールドで買いますか？`, 'はい', 'いいえ', (x) => game.audio.sfx(x)))) {
             return list.focus();
           }
           const r = await request(game, { kind: 'shop', action: 'buy', id: it.value, qty, equip });
           if (r.ok) game.audio.sfx('item');
-          toast(r.text || (r.ok ? 'まいど！' : 'かえませんでした'));
+          toast(r.text || (r.ok ? 'まいど！' : '買えませんでした'));
           updGold();
           list.focus();
         },
@@ -158,7 +158,7 @@ function shopUI(game, data) {
         main.innerHTML = '';
         const items = game.me.items.filter((e) => ITEMS[e.id] && ITEMS[e.id].type !== 'key').map((e) => ({ label: `${ITEMS[e.id].name} ×${e.n}`, right: `${sellPrice(e.id)}G`, value: e.id, disabled: sellPrice(e.id) <= 0 }));
         if (!items.length) {
-          main.append(el('div', { class: 'muted', text: 'うれる ものを もっていない。' }));
+          main.append(el('div', { class: 'muted', text: '売れる物を持っていない。' }));
           setTimeout(back, 900);
           return;
         }
@@ -169,7 +169,7 @@ function shopUI(game, data) {
           onSelect: async (it) => {
             list.blur();
             const have = itemCount(game.me, it.value);
-            const qty = have > 1 ? await pickQty(game, `${ITEMS[it.value].name}を いくつ うる？`, have, sellPrice(it.value)) : 1;
+            const qty = have > 1 ? await pickQty(game, `${ITEMS[it.value].name}をいくつ売る？`, have, sellPrice(it.value)) : 1;
             if (!qty) return list.focus();
             const r = await request(game, { kind: 'shop', action: 'sell', id: it.value, qty });
             if (r.ok) game.audio.sfx('item');
@@ -191,17 +191,17 @@ function shopUI(game, data) {
 function pickQty(game, title, max, price) {
   return new Promise((resolve) => {
     if (max <= 0) {
-      toast('ゴールドが たりないよ');
+      toast('ゴールドが足りないよ');
       resolve(0);
       return;
     }
     let q = 1;
     const box = el('div', { class: 'win panel center-panel', style: { width: 'min(90vw, 420px)', textAlign: 'center' } });
     const val = el('div', { style: { fontSize: '1.4em', margin: '0.3em 0' } });
-    const upd = () => { val.textContent = `◀ ${q}こ ▶　${price * q}G`; };
+    const upd = () => { val.textContent = `◀ ${q}個 ▶　${price * q}G`; };
     const minus = el('button', { class: 'btn', text: '－', onclick: () => { q = Math.max(1, q - 1); upd(); } });
     const plus = el('button', { class: 'btn', text: '＋', onclick: () => { q = Math.min(max, q + 1); upd(); } });
-    const ok = el('button', { class: 'btn primary', text: 'けってい', onclick: () => done(q) });
+    const ok = el('button', { class: 'btn primary', text: '決定', onclick: () => done(q) });
     const no = el('button', { class: 'btn', text: 'やめる', onclick: () => done(0) });
     box.append(el('div', { text: title }), val, el('div', { class: 'row', style: { justifyContent: 'center' } }, minus, plus, no, ok));
     const h = {
@@ -265,7 +265,7 @@ function jobUI(game) {
           const lv = c.jobs?.[j]?.lv || 0;
           out.push({
             html: ok ? esc(JOBS[j].name) : `<span class="muted">🔒 ${esc(JOBS[j].name)}</span>`,
-            right: !ok ? '' : lv >= JOB_MAX_LEVEL ? '★マスター' : lv ? `Lv${lv}` : 'はじめて',
+            right: !ok ? '' : lv >= JOB_MAX_LEVEL ? '★マスター' : lv ? `Lv${lv}` : '初めて',
             rightCls: lv >= JOB_MAX_LEVEL ? 'gold' : '',
             value: j,
             disabled: !ok,
@@ -283,11 +283,11 @@ function jobUI(game) {
         const c = target();
         if (!c) return;
         if (it.value === c.job) {
-          toast('いまの しょくぎょうです');
+          toast('今の職業です');
           return;
         }
         menu.blur();
-        const ok = await confirmBox(game.input, `${who === 'self' ? '' : c.name + 'を '}${JOBS[it.value].name}に 転職${who === 'self' ? 'しますか' : 'させますか'}？\n（いまの しょくぎょうの レベルは のこります）`, 'はい', 'いいえ', (x) => game.audio.sfx(x));
+        const ok = await confirmBox(game.input, `${who === 'self' ? '' : c.name + 'を'}${JOBS[it.value].name}に転職${who === 'self' ? 'しますか' : 'させますか'}？\n（今の職業のレベルは残ります）`, 'はい', 'いいえ', (x) => game.audio.sfx(x));
         if (ok) {
           const r = await request(game, { kind: 'jobChange', job: it.value, who });
           if (r.ok) {
@@ -329,28 +329,28 @@ function jobUI(game) {
         req.append(el('div', { class: open ? 'good' : 'warn', text: open ? `なれる！（${jobReqText(j)}）` : `なるには: ${jobReqText(j)}` }));
         for (const r of job.req) {
           const rl = c.jobs?.[r]?.lv || 0;
-          req.append(el('div', { class: rl >= JOB_MAX_LEVEL ? 'good' : 'muted', text: `　${JOBS[r].name}　${rl >= JOB_MAX_LEVEL ? '★マスター' : rl ? `Lv${rl}/${JOB_MAX_LEVEL}` : 'まだ なったことが ない'}` }));
+          req.append(el('div', { class: rl >= JOB_MAX_LEVEL ? 'good' : 'muted', text: `　${JOBS[r].name}　${rl >= JOB_MAX_LEVEL ? '★マスター' : rl ? `Lv${rl}/${JOB_MAX_LEVEL}` : 'まだなったことがない'}` }));
         }
         main.append(req);
       }
       if (open && lv) {
         const pg = jobProgress(c, j);
-        main.append(el('div', { class: 'small', text: pg.done ? `しょくぎょうレベル ${lv}（★マスター）` : `しょくぎょうレベル ${lv}　つぎまで あと ${pg.next}かい かつ` }));
+        main.append(el('div', { class: 'small', text: pg.done ? `職業レベル ${lv}（★マスター）` : `職業レベル ${lv}　次まであと${pg.next}回勝つ` }));
       }
       const bars = el('div', { class: 'statbars', style: { margin: '0.5em 0' } });
-      for (const [k, n] of [['hp', 'HP'], ['mp', 'MP'], ['str', 'ちから'], ['def', 'みのまもり'], ['agi', 'すばやさ'], ['mag', 'まりょく'], ['heal', 'かいふく']]) {
+      for (const [k, n] of [['hp', 'HP'], ['mp', 'MP'], ['str', '力'], ['def', '身の守り'], ['agi', '素早さ'], ['mag', '魔力'], ['heal', '回復']]) {
         const v = job.mods[k];
         bars.append(el('span', { text: n }), el('div', { class: 'b' }, el('i', { style: { width: `${Math.min(100, v / 1.5 * 100)}%` } })), el('span', { class: v > 1 ? 'up' : v < 1 ? 'down' : '', text: `${Math.round(v * 100)}%` }));
       }
       main.append(bars);
       const learn = el('div', { class: 'small' });
-      learn.append(el('div', { class: 'gold', text: 'おぼえる わざ（しょくぎょうレベル）' }));
+      learn.append(el('div', { class: 'gold', text: '覚える技（職業レベル）' }));
       for (const [l, id] of job.learn) {
         const a = ABILITIES[id];
-        learn.append(el('div', { class: lv >= l ? 'good' : 'muted', text: `Lv${l}　${a.name}${lv >= l ? '（おぼえた）' : ''}` }));
+        learn.append(el('div', { class: lv >= l ? 'good' : 'muted', text: `Lv${l}　${a.name}${lv >= l ? '（覚えた）' : ''}` }));
       }
       main.append(learn);
-      main.append(el('div', { class: 'detail', text: `しょくぎょうレベルは たたかいに かつと あがる（さいだい ${JOB_MAX_LEVEL}）。ただし じぶんより ${JOB_TRAIN_GAP + 1}つ いじょう レベルが ひくい てき ばかりだと しゅぎょうに ならない。\n基本職を 2つ マスターすると 上級職、上級職を マスターすると 超級職に なれる。\n呪文の 掛け合わせは、もとの しょくぎょうを あわせもつ 上級職いじょうで つかえる。\nほかの しょくぎょうで おぼえた わざも つかえるが、MPが ふえたり いりょくが さがる ことが ある（もとに なった しょくぎょうの わざは だいじょうぶ）。\n酒場の なかまも ここで 転職できるよ。` }));
+      main.append(el('div', { class: 'detail', text: `職業レベルは戦いに勝つと上がる（最大${JOB_MAX_LEVEL}）。ただし自分より${JOB_TRAIN_GAP + 1}つ以上レベルが低い敵ばかりだと修行にならない。\n基本職を2つマスターすると上級職、上級職をマスターすると超級職になれる。\n呪文の掛け合わせは、元の職業を合わせ持つ上級職以上で使える。\n他の職業で覚えた技も使えるが、MPが増えたり威力が下がることがある（元になった職業の技はだいじょうぶ）。\n酒場の仲間もここで転職できるよ。` }));
     };
     menu.focus();
   });
@@ -360,7 +360,7 @@ function jobUI(game) {
 // いっしょに いる なかま / 酒場で まつ なかま / あたらしい なかま / かぞくの キャラ
 function tavernUI(game, data) {
   return new Promise((resolve) => {
-    const s = shell('なかまの 酒場', 'tavern-panel');
+    const s = shell('仲間の酒場', 'tavern-panel');
     s.game = game;
     const side = el('div', { class: 'win side scroll tavern-list' });
     const main = el('div', { class: 'win main scroll' });
@@ -383,67 +383,67 @@ function tavernUI(game, data) {
     const items = () => {
       const out = [];
       const inParty = [...entries.values()].filter((e) => e.inParty);
-      out.push({ header: true, label: `いっしょに いる なかま（${inParty.length}/${info.slots}）` });
-      if (!inParty.length) out.push({ label: '（まだ だれも いない）', value: null, disabled: true });
+      out.push({ header: true, label: `いっしょにいる仲間（${inParty.length}/${info.slots}）` });
+      if (!inParty.length) out.push({ label: '（まだだれもいない）', value: null, disabled: true });
       for (const e of inParty) {
-        out.push({ face: face(e), html: `${esc(e.name)}${plusTag(e)} <span class="muted small">${who(e)}</span>${e.family ? '<span class="tag gold">かぞく</span>' : ''}${e.inParty && !e.active ? '<span class="tag muted">いまは まつ</span>' : ''}`, value: e.key });
+        out.push({ face: face(e), html: `${esc(e.name)}${plusTag(e)} <span class="muted small">${who(e)}</span>${e.family ? '<span class="tag gold">家族</span>' : ''}${e.inParty && !e.active ? '<span class="tag muted">今は待つ</span>' : ''}`, value: e.key });
       }
       const waiting = info.roster.filter((e) => !e.inParty);
       if (waiting.length) {
-        out.push({ header: true, label: `酒場で まっている なかま（${waiting.length}）` });
-        for (const e of waiting) out.push({ face: face(e), html: `${esc(e.name)}${plusTag(e)} <span class="muted small">${who(e)}</span>${e.hp <= 0 ? '<span class="tag warn">やすんでいる</span>' : ''}`, value: e.key });
+        out.push({ header: true, label: `酒場で待っている仲間（${waiting.length}）` });
+        for (const e of waiting) out.push({ face: face(e), html: `${esc(e.name)}${plusTag(e)} <span class="muted small">${who(e)}</span>${e.hp <= 0 ? '<span class="tag warn">休んでいる</span>' : ''}`, value: e.key });
       }
       const mons = info.roster.filter((e) => e.species);
       if (mons.length) {
         const ready = mons.filter((e) => e.level >= BREED_MIN_LEVEL).length;
-        out.push({ header: true, label: 'まものの はいごう' });
-        out.push({ html: 'はいごう する <span class="muted small">（2ひきを かけあわせる）</span>', right: `Lv${BREED_MIN_LEVEL}+ ${ready}ひき`, value: BREED_KEY });
+        out.push({ header: true, label: '魔物の配合' });
+        out.push({ html: '配合する <span class="muted small">（2ひきを掛け合わせる）</span>', right: `Lv${BREED_MIN_LEVEL}+ ${ready}ひき`, value: BREED_KEY });
       }
       if (info.recruits.length) {
-        out.push({ header: true, label: 'あたらしい なかまを さがす' });
+        out.push({ header: true, label: '新しい仲間を探す' });
         for (const e of info.recruits) out.push({ face: face(e), html: `${esc(e.name)} <span class="muted small">${who(e)}</span><span class="tag good">NEW</span>`, value: e.key });
       }
       const fam = info.family.filter((e) => !e.inParty);
       if (fam.length) {
-        out.push({ header: true, label: 'かぞくの キャラクター（サポート）' });
+        out.push({ header: true, label: '家族のキャラクター（サポート）' });
         for (const e of fam) out.push({ face: face(e), html: `${esc(e.name)} <span class="muted small">${who(e)}</span>`, value: e.key });
       }
       return out;
     };
     const partyText = () => {
       const n = Math.min(4, (info.humans || 1) + info.used);
-      return `パーティー ${n}/4人${info.isLeader ? '' : '（リーダーの なかまが ついてくる）'}`;
+      return `パーティー ${n}/4人${info.isLeader ? '' : '（リーダーの仲間がついてくる）'}`;
     };
     const show = (key) => {
       main.innerHTML = '';
       if (key === BREED_KEY) {
-        main.append(el('h3', { text: 'まものの はいごう' }), el('div', { class: 'detail', text: [
-          `レベル${BREED_MIN_LEVEL}いじょうの モンスター 2ひきを かけあわせて、あたらしい モンスターを うみだす。`,
-          '・うまれた こは レベル1から。でも おやの わざを 4つまで うけつげる',
-          '・おやの つよさを すこし うけつぎ、「+」の かずが おおいほど よく そだつ',
-          '・うまれる しゅぞくは ふつう 1ぴきめの おやと おなじ。くみあわせ しだいで めずらしい モンスターが うまれることも…',
-          '・おやの 2ひきは たびだっていく（そうびは ふくろに もどる）',
+        main.append(el('h3', { text: '魔物の配合' }), el('div', { class: 'detail', text: [
+          `レベル${BREED_MIN_LEVEL}以上のモンスター2ひきを掛け合わせて、新しいモンスターを生み出す。`,
+          '・生まれた子はレベル1から。でも親の技を4つまで受けつげる',
+          '・親の強さを少し受けつぎ、「+」の数が多いほどよく育つ',
+          '・生まれる種族はふつう1ぴきめの親と同じ。組み合わせ次第でめずらしいモンスターが生まれることも…',
+          '・親の2ひきは旅立っていく（装備はふくろにもどる）',
         ].join('\n') }));
         return;
       }
       const e = entries.get(key);
       if (!e) {
-        main.append(el('div', { class: 'detail', text: 'なかまを つれていくと いっしょに たたかって くれるよ。\nつれていけるのは 3人まで。まっている なかまとは いつでも いれかえられる。\nモンスターの なかまも ここで まっているよ。' }));
+        main.append(el('div', { class: 'detail', text: '仲間を連れていくといっしょに戦ってくれるよ。\n連れていけるのは3人まで。待っている仲間とはいつでも入れかえられる。\nモンスターの仲間もここで待っているよ。' }));
         return;
       }
       const pv = e.species ? followerSprite({ mon: e.species }, 'down', 0) : playerSprite(e.look, e.job, 'down', 0, e.equip);
       const img = el('canvas', { width: pv.width, height: pv.height, class: 'tv-face' });
       img.getContext('2d').drawImage(pv, 0, 0);
-      main.append(img, el('h3', { text: `${e.name}${e.plus ? ` ＋${e.plus}` : ''}` }), el('div', { class: 'small gold', text: e.sec === 'recruit' ? `${who(e)}（なかまに なると この レベル）` : who(e) }));
-      if (e.maxHp) main.append(el('div', { class: 'small', text: `HP ${Math.max(0, e.hp)}/${e.maxHp}　MP ${e.mp}/${e.maxMp}${e.tactics ? `　さくせん: ${TACTICS[e.tactics]?.name || ''}` : ''}` }));
+      main.append(img, el('h3', { text: `${e.name}${e.plus ? ` ＋${e.plus}` : ''}` }), el('div', { class: 'small gold', text: e.sec === 'recruit' ? `${who(e)}（仲間になるとこのレベル）` : who(e) }));
+      if (e.maxHp) main.append(el('div', { class: 'small', text: `HP ${Math.max(0, e.hp)}/${e.maxHp}　MP ${e.mp}/${e.maxMp}${e.tactics ? `　作戦: ${TACTICS[e.tactics]?.name || ''}` : ''}` }));
       if (e.sec === 'roster' && e.species) {
         const learned = e.abilities || learnedAbilities({ species: e.species, level: e.level });
-        main.append(el('div', { class: 'small', text: `わざ: ${learned.map((id) => ABILITIES[id]?.name).filter(Boolean).join('・') || 'なし'}` }));
-        if (e.parents) main.append(el('div', { class: 'small muted', text: `おや: ${e.parents.join(' ＋ ')}` }));
-        if (e.level < BREED_MIN_LEVEL) main.append(el('div', { class: 'small muted', text: `レベル${BREED_MIN_LEVEL}に なると はいごう できる` }));
+        main.append(el('div', { class: 'small', text: `技: ${learned.map((id) => ABILITIES[id]?.name).filter(Boolean).join('・') || 'なし'}` }));
+        if (e.parents) main.append(el('div', { class: 'small muted', text: `親: ${e.parents.join(' ＋ ')}` }));
+        if (e.level < BREED_MIN_LEVEL) main.append(el('div', { class: 'small muted', text: `レベル${BREED_MIN_LEVEL}になると配合できる` }));
       }
       main.append(el('div', { class: 'detail', text: e.desc || '' }));
-      if (e.sec === 'roster' && e.inParty && !e.active) main.append(el('div', { class: 'detail', text: 'いまは パーティーの にんずうが いっぱいなので まっている。' }));
+      if (e.sec === 'roster' && e.inParty && !e.active) main.append(el('div', { class: 'detail', text: '今はパーティーの人数がいっぱいなので待っている。' }));
     };
     const menu = new ListMenu(game.input, {
       items: items(),
@@ -473,7 +473,7 @@ function tavernUI(game, data) {
     // いっぱいの ときは だれと いれかわるか えらぶ
     const pickSwap = async (name) => {
       const cur = partyKeys().map((k) => entries.get(k)).filter(Boolean);
-      return ask(`パーティーが いっぱい！\n${name}と いれかわりに だれが 酒場で まつ？`, [
+      return ask(`パーティーがいっぱい！\n${name}と入れかわりにだれが酒場で待つ？`, [
         ...cur.map((e) => ({ face: face(e), label: `${e.name}（${who(e)}）`, value: e.key })),
         { label: 'やめる', value: null },
       ]);
@@ -490,14 +490,14 @@ function tavernUI(game, data) {
       box.append(
         el('div', { style: { display: 'flex', gap: '0.6em', alignItems: 'flex-start' } },
           el('div', { style: { flex: '1', minWidth: '0' } },
-            el('div', { class: 'small gold', style: { whiteSpace: 'pre-line' }, text: `うまれる こ: ${pv.childName}（${RACE_NAMES[MONSTERS[pv.child]?.race] || ''}）＋${pv.plus}${pv.special ? '\n★ めずらしい くみあわせ！' : ''}` }),
-            el('div', { class: 'small muted', text: `じぶんで おぼえる わざ: ${own || 'なし'}` })),
+            el('div', { class: 'small gold', style: { whiteSpace: 'pre-line' }, text: `生まれる子: ${pv.childName}（${RACE_NAMES[MONSTERS[pv.child]?.race] || ''}）＋${pv.plus}${pv.special ? '\n★ めずらしい組み合わせ！' : ''}` }),
+            el('div', { class: 'small muted', text: `自分で覚える技: ${own || 'なし'}` })),
           img),
-        el('div', { class: 'small', text: `おやから うけつぐ わざを ${pv.max}つまで えらんでね` }));
+        el('div', { class: 'small', text: `親から受けつぐ技を${pv.max}つまで選んでね` }));
       const desc = el('div', { class: 'small detail', style: { minHeight: '2.4em' } });
       const rows = () => [
-        { html: `これで けってい <span class="muted small">（${sel.size}/${pv.max}）</span>`, value: '#ok' },
-        { label: 'おまかせに する', value: '#auto' },
+        { html: `これで決定 <span class="muted small">（${sel.size}/${pv.max}）</span>`, value: '#ok' },
+        { label: 'おまかせにする', value: '#auto' },
         ...pv.skills.map((id) => ({ html: `${sel.has(id) ? '●' : '○'} ${esc(ABILITIES[id]?.name || id)}`, right: ABILITIES[id]?.mp ? `MP${ABILITIES[id].mp}` : '', value: id, cls: sel.has(id) ? 'good' : '' })),
         { label: 'やめる', value: null },
       ];
@@ -518,7 +518,7 @@ function tavernUI(game, data) {
           if (it.value === null) return done(null);
           if (sel.has(it.value)) sel.delete(it.value);
           else if (sel.size < pv.max) sel.add(it.value);
-          else { toast(`うけつげる わざは ${pv.max}つまで`); return; }
+          else { toast(`受けつげる技は${pv.max}つまで`); return; }
           m.setItems(rows());
         },
         onCancel: () => done(null),
@@ -532,7 +532,7 @@ function tavernUI(game, data) {
       const mons = info.roster.filter((x) => x.species);
       if (mons.filter((x) => x.level >= BREED_MIN_LEVEL).length < 2) {
         sfx('buzz');
-        toast(`レベル${BREED_MIN_LEVEL}いじょうの モンスターが 2ひき ひつようだよ`);
+        toast(`レベル${BREED_MIN_LEVEL}以上のモンスターが2ひき必要だよ`);
         return;
       }
       const pick = (title, exclude) => ask(title, [
@@ -542,22 +542,22 @@ function tavernUI(game, data) {
         })),
         { label: 'やめる', value: null },
       ]);
-      const a = await pick('はいごう: 1ぴきめの おやを えらんでね\n（うまれる こは ふつう 1ぴきめと おなじ しゅぞく）');
+      const a = await pick('配合: 1ぴきめの親を選んでね\n（生まれる子はふつう1ぴきめと同じ種族）');
       if (!a) return;
-      const b = await pick(`${entries.get(a)?.name}の あいてを えらんでね`, a);
+      const b = await pick(`${entries.get(a)?.name}の相手を選んでね`, a);
       if (!b) return;
       const r = await request(game, { kind: 'tavern', action: 'breedPreview', a, b });
       if (!r.ok || !r.preview) {
-        toast(r.text || 'はいごう できない');
+        toast(r.text || '配合できない');
         return;
       }
       const pv = r.preview;
       const inherit = pv.skills.length ? await pickSkills(pv) : [];
       if (!inherit) return;
-      const nm = await askText(game.input, { title: `うまれる ${pv.childName}の なまえ`, max: 8, initial: pv.childName });
+      const nm = await askText(game.input, { title: `生まれる${pv.childName}の名前`, max: 8, initial: pv.childName });
       if (nm === null) return;
       const A = entries.get(a), B = entries.get(b);
-      const ok = await confirmBox(game.input, `${A.name}と ${B.name}を はいごう しますか？\n→ ${nm || pv.childName}（${pv.childName} ＋${pv.plus}）が うまれる\n※ ${A.name}と ${B.name}は たびだっていく（そうびは ふくろに もどる）`, 'はいごう する', 'やめる', sfx);
+      const ok = await confirmBox(game.input, `${A.name}と${B.name}を配合しますか？\n→ ${nm || pv.childName}（${pv.childName} ＋${pv.plus}）が生まれる\n※ ${A.name}と${B.name}は旅立っていく（装備はふくろにもどる）`, '配合する', 'やめる', sfx);
       if (!ok) return;
       await doReq({ action: 'breed', a, b, inherit, name: nm || pv.childName });
     };
@@ -573,9 +573,9 @@ function tavernUI(game, data) {
       menu.blur();
       const full = partyKeys().length >= info.slots;
       if (e.sec === 'recruit') {
-        const a = await ask(`${e.name}（${who(e)}）を なかまに する？`, [
-          { label: full ? 'なかまに して いれかわる' : 'なかまに して つれていく', value: 'join' },
-          { label: 'なかまに して 酒場で まってもらう', value: 'wait' },
+        const a = await ask(`${e.name}（${who(e)}）を仲間にする？`, [
+          { label: full ? '仲間にして入れかわる' : '仲間にして連れていく', value: 'join' },
+          { label: '仲間にして酒場で待ってもらう', value: 'wait' },
           { label: 'やめる', value: null },
         ]);
         if (a === 'join') {
@@ -584,32 +584,32 @@ function tavernUI(game, data) {
           if (!full || swap) await doReq({ action: 'recruit', key, swap });
         } else if (a === 'wait') await doReq({ action: 'recruit', key, join: false });
       } else if (e.inParty) {
-        const opts = [{ label: '酒場で まっていて もらう', value: 'wait' }];
-        if (e.sec === 'roster') opts.push({ label: 'なまえを かえる', value: 'rename' });
+        const opts = [{ label: '酒場で待っていてもらう', value: 'wait' }];
+        if (e.sec === 'roster') opts.push({ label: '名前を変える', value: 'rename' });
         opts.push({ label: 'やめる', value: null });
-        const a = await ask(`${e.name}を どうする？`, opts);
+        const a = await ask(`${e.name}をどうする？`, opts);
         if (a === 'wait') await doReq({ action: 'wait', key });
         else if (a === 'rename') await rename(e);
       } else {
-        const opts = [{ label: full ? 'つれていく（いれかわる）' : 'つれていく', value: 'join' }];
-        if (e.sec === 'roster') opts.push({ label: 'なまえを かえる', value: 'rename' });
-        if (e.species) opts.push({ label: 'わかれる', value: 'release' });
+        const opts = [{ label: full ? '連れていく（入れかわる）' : '連れていく', value: 'join' }];
+        if (e.sec === 'roster') opts.push({ label: '名前を変える', value: 'rename' });
+        if (e.species) opts.push({ label: '別れる', value: 'release' });
         opts.push({ label: 'やめる', value: null });
-        const a = await ask(`${e.name}を どうする？`, opts);
+        const a = await ask(`${e.name}をどうする？`, opts);
         if (a === 'join') {
           let swap = null;
           if (full) swap = await pickSwap(e.name);
           if (!full || swap) await doReq({ action: 'join', key, swap });
         } else if (a === 'rename') await rename(e);
         else if (a === 'release') {
-          const ok = await confirmBox(game.input, `ほんとうに ${e.name}と わかれますか？\n（もう あえなくなるよ。そうびは ふくろに もどる）`, 'わかれる', 'やめる', sfx);
+          const ok = await confirmBox(game.input, `本当に${e.name}と別れますか？\n（もう会えなくなるよ。装備はふくろにもどる）`, '別れる', 'やめる', sfx);
           if (ok) await doReq({ action: 'release', key });
         }
       }
       menu.focus();
     };
     const rename = async (e) => {
-      const nm = await askText(game.input, { title: `${e.name}の あたらしい なまえ`, max: 8, initial: e.name });
+      const nm = await askText(game.input, { title: `${e.name}の新しい名前`, max: 8, initial: e.name });
       if (nm) await doReq({ action: 'rename', key: e.key, name: nm });
     };
     const close = () => {
@@ -652,27 +652,27 @@ export function choose(game, title, items) {
 // ───────────── でんごんばん ─────────────
 function boardUI(game, data) {
   return new Promise((resolve) => {
-    const s = shell('かぞくの でんごんばん');
+    const s = shell('家族の伝言板');
     s.game = game;
     const main = el('div', { class: 'win main scroll', style: { gridColumn: '1 / -1' } });
     s.body.append(main);
     let posts = data.posts || [];
     const render = () => {
       main.innerHTML = '';
-      if (!posts.length) main.append(el('div', { class: 'muted', text: 'まだ なにも かかれていない。さいしょの メッセージを かいてみよう！' }));
+      if (!posts.length) main.append(el('div', { class: 'muted', text: 'まだ何も書かれていない。最初のメッセージを書いてみよう！' }));
       for (const p of posts.slice(0, 20)) {
         main.append(el('div', { class: 'combo-row' }, el('span', { class: 'gold', text: p.from }), el('span', { class: 'muted small', text: `　${ago(p.time)}` }), el('div', { text: p.text })));
       }
     };
     render();
     const menu = new ListMenu(game.input, {
-      items: [{ label: 'かきこむ', value: 'post' }, { label: 'とじる', value: 'close' }],
+      items: [{ label: '書きこむ', value: 'post' }, { label: '閉じる', value: 'close' }],
       cols: 2,
       sound: (x) => game.audio.sfx(x),
       onSelect: async (it) => {
         if (it.value === 'close') return close();
         menu.blur();
-        const text = await askText(game.input, { title: 'でんごんばんに かく', placeholder: 'きょうは どうくつまで いったよ！', max: 120 });
+        const text = await askText(game.input, { title: '伝言板に書く', placeholder: '今日は洞窟まで行ったよ！', max: 120 });
         if (text) {
           const r = await request(game, { kind: 'board', action: 'post', text });
           toast(r.text || '');
@@ -697,21 +697,21 @@ function boardUI(game, data) {
 
 export function ago(t) {
   const d = (Date.now() - t) / 1000;
-  if (d < 60) return 'たったいま';
-  if (d < 3600) return `${Math.floor(d / 60)}ぷんまえ`;
-  if (d < 86400) return `${Math.floor(d / 3600)}じかんまえ`;
-  return `${Math.floor(d / 86400)}にちまえ`;
+  if (d < 60) return 'たった今';
+  if (d < 3600) return `${Math.floor(d / 60)}分前`;
+  if (d < 86400) return `${Math.floor(d / 3600)}時間前`;
+  return `${Math.floor(d / 86400)}日前`;
 }
 
 // ───────────── ほしのかけら ─────────────
 function starUI(game, data) {
   return new Promise((resolve) => {
-    const s = shell('ほしのかけら こうかん');
+    const s = shell('星のかけらこうかん');
     s.game = game;
     const main = el('div', { class: 'win main scroll', style: { gridColumn: '1 / -1' } });
     const detail = el('div', { class: 'detail' });
     s.body.append(main);
-    const upd = () => { s.right.textContent = `ほしのかけら ${itemCount(game.me, 'star_shard')}こ`; };
+    const upd = () => { s.right.textContent = `星のかけら ${itemCount(game.me, 'star_shard')}個`; };
     upd();
     const menu = new ListMenu(game.input, {
       items: data.trades.map((t, i) => ({ label: ITEMS[t.item].name, right: `★${t.shards}`, value: i })),
@@ -720,7 +720,7 @@ function starUI(game, data) {
       onSelect: async (it) => {
         const t = data.trades[it.value];
         menu.blur();
-        if (await confirmBox(game.input, `ほしのかけら ${t.shards}こで ${ITEMS[t.item].name}と こうかんする？`, 'はい', 'いいえ', (x) => game.audio.sfx(x))) {
+        if (await confirmBox(game.input, `星のかけら${t.shards}個で${ITEMS[t.item].name}とこうかんする？`, 'はい', 'いいえ', (x) => game.audio.sfx(x))) {
           const r = await request(game, { kind: 'starTrade', index: it.value });
           if (r.ok) game.audio.sfx('sparkle');
           toast(r.text || '');
@@ -745,17 +745,17 @@ function starUI(game, data) {
 // ───────────── きょうかい ─────────────
 function churchUI(game, data) {
   return new Promise((resolve) => {
-    const s = shell('きょうかい');
+    const s = shell('教会');
     s.game = game;
     const main = el('div', { class: 'win main scroll', style: { gridColumn: '1 / -1' } });
     s.body.append(main);
     let info = data;
     const opts = () => {
       const items = [];
-      for (const d of info.dead) items.push({ label: `${d.name}を いきかえらせる`, right: `${d.price}G`, value: { action: 'revive', ref: d.ref } });
-      for (const d of info.poisoned) items.push({ label: `${d.name}の どくを なおす`, right: `${d.price}G`, value: { action: 'cure', ref: d.ref } });
-      items.push({ label: 'おいのりを する（ここを きろくする）', value: { action: 'record' } });
-      items.push({ label: 'なんでもない', value: { action: 'close' } });
+      for (const d of info.dead) items.push({ label: `${d.name}を生き返らせる`, right: `${d.price}G`, value: { action: 'revive', ref: d.ref } });
+      for (const d of info.poisoned) items.push({ label: `${d.name}の毒を治す`, right: `${d.price}G`, value: { action: 'cure', ref: d.ref } });
+      items.push({ label: 'おいのりをする（ここを記録する）', value: { action: 'record' } });
+      items.push({ label: '何でもない', value: { action: 'close' } });
       return items;
     };
     s.right.textContent = goldText(game);
@@ -777,7 +777,7 @@ function churchUI(game, data) {
       back: null,
       onCancel: () => close(),
     });
-    main.append(menu.root, el('div', { class: 'detail', text: 'ぜんめつ すると、さいごに おいのりした きょうかいで めを さますよ。' }));
+    main.append(menu.root, el('div', { class: 'detail', text: '全滅すると、最後においのりした教会で目を覚ますよ。' }));
     const close = () => {
       menu.blur();
       s.root.remove();

@@ -217,7 +217,7 @@ test('紋章の ちから: たおした まものが なかまに なりたが�
   assert.ok(c.partyKeys.includes(mon.key), 'パーティーに はいる');
   assert.ok(!c.partyKeys.includes('npc_gard'), 'ガルドは 酒場へ もどった');
   assert.ok(bot.party.supports.some((x) => x.species === 'pururin'));
-  assert.ok(bot.msgs.some((m) => m.t === 'script' && m.steps.some((st) => st[0] === 'say' && /なかまに なりたそう/.test(st[2]))));
+  assert.ok(bot.msgs.some((m) => m.t === 'script' && m.steps.some((st) => st[0] === 'say' && /仲間になりたそう/.test(st[2]))));
   // モンスターの なかまは わかれられる（そうびは ふくろへ）
   c.items.push({ id: 'power_ring', n: 1 });
   bot.send({ t: 'menu', action: 'equip', id: 'power_ring', who: mon.key });

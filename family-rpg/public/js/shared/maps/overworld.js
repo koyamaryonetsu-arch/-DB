@@ -12,7 +12,7 @@ export const OW_H = 128;
 export const PLACES = {
   village: { x: 12, y: 90, w: 32, h: 24, name: 'ホシフル村', bgm: 'village' },
   town: { x: 32, y: 22, w: 48, h: 36, name: 'ルミナの町', bgm: 'town' },
-  shrine: { x: 56, y: 78, w: 11, h: 9, name: 'ほしみの丘', bgm: 'shrine' },
+  shrine: { x: 56, y: 78, w: 11, h: 9, name: '星見の丘', bgm: 'shrine' },
 };
 
 // 川の みちすじ
@@ -304,8 +304,8 @@ export function areaName(x, y) {
   for (const p of Object.values(PLACES)) if (inRect(x, y, p)) return p.name;
   const z = zoneAt(x, y);
   if (z === 'forest') return 'ささやきの森';
-  if (z === 'swamp') return 'どくの ぬま';
-  if (z === 'east') return 'ひがしの へいげん';
-  if (Math.hypot((x - LAKE.x) / (LAKE.rx + 4), (y - LAKE.y) / (LAKE.ry + 4)) < 1) return 'かがみ湖';
+  if (z === 'swamp') return '毒の沼';
+  if (z === 'east') return '東の平原';
+  if (Math.hypot((x - LAKE.x) / (LAKE.rx + 4), (y - LAKE.y) / (LAKE.ry + 4)) < 1) return '鏡の湖';
   return 'ミドリナ平原';
 }

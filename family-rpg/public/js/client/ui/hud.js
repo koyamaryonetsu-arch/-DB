@@ -5,7 +5,7 @@ import { JOBS } from '../../shared/data/jobs.js';
 import { renderMiniMap, openWorldMap } from './menu.js';
 import { makeCanvas } from '../render/pixel.js';
 
-export const STAMPS = ['よろしく！', 'ありがとう！', 'いくよー！', 'たすけて！', 'まってて！', 'やったね！', 'おつかれさま', 'ごはんだよ〜'];
+export const STAMPS = ['よろしく！', 'ありがとう！', '行くよー！', '助けて！', '待ってて！', 'やったね！', 'おつかれさま', 'ご飯だよ〜'];
 
 export class Hud {
   constructor(game) {
@@ -14,7 +14,7 @@ export class Hud {
     this.party = el('div', { class: 'hud-party' });
     this.area = el('div', { class: 'win hud-area' });
     this.obj = el('div', { class: 'win hud-obj', onclick: () => this.game.openMenu('quest') });
-    this.mapBox = el('div', { class: 'win hud-map', onclick: () => openWorldMap(game), title: 'ちず' });
+    this.mapBox = el('div', { class: 'win hud-map', onclick: () => openWorldMap(game), title: '地図' });
     this.mini = makeCanvas(84, 84);
     this.mapBox.append(this.mini);
     this.btns = el('div', { class: 'hud-btns' },
@@ -56,7 +56,7 @@ export class Hud {
     const add = (name, lv, job, hp, maxHp, mp, maxMp, tag, away = false, mon = null) => {
       const box = el('div', { class: `win hud-mem ${hp <= 0 ? 'dead' : ''} ${away ? 'away' : ''}` },
         el('div', { class: 'nm' }, el('span', { text: name }), el('span', { class: 'lv', text: `${mon ? 'Lv' : JOBS[job]?.short || ''}${lv}` })),
-        el('div', { class: 'small', text: away ? 'つうしんまち…' : `H${hp} M${mp}` }),
+        el('div', { class: 'small', text: away ? '通信待ち…' : `H${hp} M${mp}` }),
         bar(hp / Math.max(1, maxHp)), bar(mp / Math.max(1, maxMp), 'mp'));
       if (tag) box.title = tag;
       this.party.append(box);
@@ -64,14 +64,14 @@ export class Hud {
     const st = computeStats(c);
     add(c.name, c.level, c.job, c.hp, st.maxHp, c.mp, st.maxMp);
     const p = g.party;
-    for (const m of p?.members || []) if (m.sid !== g.sid) add(m.name, m.level, m.job, m.hp, m.maxHp, m.mp, m.maxMp, 'かぞく', m.away);
-    for (const s of p?.supports || []) add(s.name, s.level, s.job, s.hp, s.maxHp, s.mp, s.maxMp, s.family ? 'かぞく サポート' : s.species ? 'モンスター' : 'なかま', false, s.species);
+    for (const m of p?.members || []) if (m.sid !== g.sid) add(m.name, m.level, m.job, m.hp, m.maxHp, m.mp, m.maxMp, '家族', m.away);
+    for (const s of p?.supports || []) add(s.name, s.level, s.job, s.hp, s.maxHp, s.mp, s.maxMp, s.family ? '家族サポート' : s.species ? 'モンスター' : '仲間', false, s.species);
     for (const gu of p?.guests || []) add(gu.name, gu.level, gu.job, gu.hp, gu.maxHp, gu.mp ?? 0, gu.maxMp || 1, 'ゲスト');
   }
 
   setObjective(text) {
     this.obj.innerHTML = '';
-    this.obj.append(el('b', { text: 'もくひょう　' }), document.createTextNode(text || '（じゆうに ぼうけんしよう）'));
+    this.obj.append(el('b', { text: '目標　' }), document.createTextNode(text || '（自由に冒険しよう）'));
   }
 
   addChat(from, text, stamp) {
@@ -84,7 +84,7 @@ export class Hud {
   async chatInput() {
     const g = this.game;
     if (g.busy) return;
-    const text = await askText(g.input, { title: 'チャット（かぞく みんなに とどく）', max: 80, placeholder: 'いま どこに いる？' });
+    const text = await askText(g.input, { title: 'チャット（家族みんなに届く）', max: 80, placeholder: '今どこにいる？' });
     if (text) g.net.send({ t: 'chat', text });
   }
 
@@ -96,7 +96,7 @@ export class Hud {
     const m = new ListMenu(g.input, {
       items: STAMPS.map((s) => ({ label: s, value: s })),
       cols: 2,
-      back: 'とじる',
+      back: '閉じる',
       sound: (x) => g.audio.sfx(x),
       onSelect: (it) => {
         g.net.send({ t: 'chat', stamp: it.value });
@@ -119,7 +119,7 @@ export class Hud {
   setConnection(state) {
     if (state === 'lost') {
       this.status.style.display = '';
-      this.status.textContent = 'つうしんが きれました… つなぎなおしています';
+      this.status.textContent = '通信が切れました…つなぎ直しています';
     } else this.status.style.display = 'none';
   }
 }

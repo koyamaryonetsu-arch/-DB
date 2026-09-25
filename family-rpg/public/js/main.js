@@ -10,5 +10,5 @@ async function boot() {
 
 boot().catch((e) => {
   console.error(e);
-  document.body.insertAdjacentHTML('beforeend', `<div style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;background:#05071a;padding:2em;text-align:center">よみこみに しっぱいしました。<br>ページを よみこみなおしてね。<br><small>${String(e.message || e)}</small></div>`);
+  document.body.insertAdjacentHTML('beforeend', `<div style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;background:#05071a;padding:2em;text-align:center">読みこみに失敗しました。<br>ページを読みこみ直してね。<br><small>${String(e.message || e)}</small></div>`);
 });

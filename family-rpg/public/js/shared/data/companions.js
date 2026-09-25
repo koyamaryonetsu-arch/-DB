@@ -14,116 +14,116 @@ export const MONSTER_FRIENDS = {
     rate: 1 / 10, names: ['ぷるる', 'ぷるお', 'ぷるみ', 'ぷるたろう'],
     growth: { hp: 0.9, mp: 0.85, str: 0.85, def: 0.9, agi: 1.0, mag: 0.9, heal: 1.1 },
     learn: [[1, 'm_tackle'], [3, 'hoimi'], [7, 'mera'], [11, 'sukara'], [15, 'behoimi'], [20, 'merami'], [26, 'behomara']],
-    note: 'いやしの じゅもんを おぼえる ぷるぷるの なかま。',
+    note: 'いやしの呪文を覚えるぷるぷるの仲間。',
   },
   tsunousagi: {
     rate: 1 / 12, names: ['ツノすけ', 'ピョンタ', 'うさみ', 'ツノまる'],
     growth: { hp: 0.9, mp: 0.5, str: 1.05, def: 0.8, agi: 1.35, mag: 0.5, heal: 0.6 },
     learn: [[1, 'm_horn'], [4, 'mikawashi'], [8, 'piorimu'], [12, 'kamaitachi'], [17, 'mawashigeri'], [22, 'issen']],
-    note: 'とても すばやい。まっさきに とびこんでいく。',
+    note: 'とても素早い。真っ先に飛びこんでいく。',
   },
   kobushi: {
     rate: 1 / 12, names: ['コブシン', 'キノパン', 'こぶりん', 'ナグール'],
     growth: { hp: 1.05, mp: 0.6, str: 1.1, def: 1.0, agi: 0.8, mag: 0.5, heal: 0.8 },
     learn: [[1, 'seiken'], [3, 'm_sleep_powder'], [7, 'kiarii'], [11, 'bakuretsu'], [16, 'kiaitame'], [22, 'hyakuretsu']],
-    note: 'こぶしの わざが とくいな キノコ。',
+    note: 'こぶしの技が得意なキノコ。',
   },
   koumorin: {
     rate: 1 / 14, names: ['コウモン', 'バッティ', 'ぱたぱた', 'よるまる'],
     growth: { hp: 0.85, mp: 0.8, str: 0.95, def: 0.8, agi: 1.3, mag: 0.9, heal: 0.7 },
     learn: [[1, 'm_drain'], [4, 'manusa'], [8, 'm_gust'], [12, 'bagi'], [18, 'bagima']],
-    note: 'てきの HPを すいとる。かぜの じゅもんも おぼえる。',
+    note: '敵のHPを吸い取る。風の呪文も覚える。',
   },
   goblin: {
     rate: 1 / 16, names: ['ゴブたろう', 'ゴブリー', 'いたずらっこ', 'ゴブすけ'],
     growth: { hp: 1.05, mp: 0.6, str: 1.15, def: 1.0, agi: 0.95, mag: 0.6, heal: 0.6 },
     learn: [[1, 'm_rock_throw'], [4, 'chikaratame'], [8, 'm_boulder'], [13, 'medapani'], [18, 'm_stomp']],
-    note: 'ちからもちの いたずらもの。',
+    note: '力持ちのいたずら者。',
   },
   pururin_beth: {
     rate: 1 / 14, names: ['ベス', 'ほのか', 'あかぷる', 'ベスたろう'],
     growth: { hp: 0.95, mp: 1.2, str: 0.8, def: 0.9, agi: 1.0, mag: 1.25, heal: 1.0 },
     learn: [[1, 'mera'], [4, 'hoimi'], [8, 'gira'], [12, 'merami'], [17, 'begirama'], [23, 'merazoma']],
-    note: 'ほのおの じゅもんが とくいな あかい ぷるりん。',
+    note: '炎の呪文が得意な赤いぷるりん。',
   },
   frog: {
     rate: 1 / 16, names: ['ケロッタ', 'ゲコすけ', 'どくみ', 'ケロまる'],
     growth: { hp: 1.0, mp: 0.8, str: 1.0, def: 0.95, agi: 1.05, mag: 0.9, heal: 0.8 },
     learn: [[1, 'm_poison_lick'], [4, 'kiarii'], [8, 'hyado'], [12, 'm_poison_spray'], [17, 'hyadaruko']],
-    note: 'どくに つよい カエル。こおりの じゅもんも つかう。',
+    note: '毒に強いカエル。氷の呪文も使う。',
   },
   nemuri: {
     rate: 1 / 16, names: ['スヤリン', 'ねむこ', 'まくらん', 'ふわり'],
     growth: { hp: 1.1, mp: 1.1, str: 0.85, def: 1.05, agi: 0.7, mag: 0.9, heal: 1.2 },
     learn: [[1, 'm_sweet_breath'], [4, 'hoimi'], [8, 'rariho'], [13, 'behoimi'], [18, 'kiariku'], [24, 'zao']],
-    note: 'てきを ねむらせる。いやしの ちからも つよい。',
+    note: '敵をねむらせる。いやしの力も強い。',
   },
   wolf: {
     rate: 1 / 18, names: ['ガルル', 'シルバ', 'ウルフィ', 'はやて'],
     growth: { hp: 1.05, mp: 0.5, str: 1.2, def: 0.95, agi: 1.35, mag: 0.5, heal: 0.6 },
     learn: [[1, 'm_bite'], [5, 'm_warcry'], [9, 'kamaitachi'], [14, 'mouko'], [20, 'issen']],
-    note: 'するどい キバの おおかみ。おたけびで みんなを ふるいたたせる。',
+    note: 'するどいキバのおおかみ。おたけびでみんなを奮い立たせる。',
   },
   lamp: {
     rate: 1 / 18, names: ['ランプル', 'ともしび', 'ほむら', 'ポッポ'],
     growth: { hp: 0.85, mp: 1.35, str: 0.7, def: 0.85, agi: 1.05, mag: 1.4, heal: 0.8 },
     learn: [[1, 'mera'], [4, 'gira'], [8, 'merami'], [12, 'begirama'], [18, 'merazoma'], [24, 'm_fire_breath']],
-    note: 'ほのおの せいれい。こうげき呪文の いりょくが たかい。',
+    note: '炎のせいれい。攻撃呪文の威力が高い。',
   },
   hedoron: {
     rate: 1 / 18, names: ['ヘドロン', 'どろすけ', 'ぬまお', 'べとべと'],
     growth: { hp: 1.25, mp: 0.7, str: 1.0, def: 1.1, agi: 0.7, mag: 0.7, heal: 0.9 },
     learn: [[1, 'm_poison_spray'], [5, 'm_harden'], [9, 'hoimi'], [14, 'm_poison_lick'], [19, 'behoimi']],
-    note: 'HPが おおく しぶとい。どくを まきちらす。',
+    note: 'HPが多くしぶとい。毒をまき散らす。',
   },
   armor_crab: {
     rate: 1 / 20, names: ['カニタ', 'ガニー', 'はさみん', 'よろいまる'],
     growth: { hp: 1.15, mp: 0.5, str: 1.1, def: 1.45, agi: 0.75, mag: 0.5, heal: 0.6 },
     learn: [[1, 'm_pinch'], [4, 'm_harden'], [8, 'kabau'], [12, 'sukuruto'], [18, 'nioudachi']],
-    note: 'かたい こうらで なかまを まもる。',
+    note: '固いこうらで仲間を守る。',
   },
   ice_pururin: {
     rate: 1 / 18, names: ['ヒャドりん', 'ゆきみ', 'つららん', 'ひえぷる'],
     growth: { hp: 0.95, mp: 1.2, str: 0.8, def: 1.0, agi: 1.05, mag: 1.25, heal: 1.05 },
     learn: [[1, 'hyado'], [4, 'hoimi'], [9, 'hyadaruko'], [14, 'behoimi'], [19, 'sukuruto']],
-    note: 'こおりの じゅもんが とくいな つめたい ぷるりん。',
+    note: '氷の呪文が得意な冷たいぷるりん。',
   },
   crow: {
     rate: 1 / 20, names: ['カーすけ', 'クロウ', 'はばたき', 'くろまる'],
     growth: { hp: 0.95, mp: 0.8, str: 1.1, def: 0.85, agi: 1.35, mag: 0.9, heal: 0.6 },
     learn: [[1, 'm_peck'], [4, 'm_gust'], [8, 'bagi'], [13, 'piorimu'], [18, 'bagima']],
-    note: 'そらから つつく すばやい カラス。',
+    note: '空からつつく素早いカラス。',
   },
   skeleton: {
     rate: 1 / 24, names: ['ホネゾウ', 'カラコロ', 'ボーン', 'しろほね'],
     growth: { hp: 1.1, mp: 0.6, str: 1.25, def: 1.1, agi: 0.9, mag: 0.5, heal: 0.5 },
     learn: [[1, 'm_swing'], [5, 'chikaratame'], [10, 'm_glare'], [15, 'mawashigeri'], [21, 'tamashii']],
-    note: 'けんの うでが たつ がいこつ。こうげき力が たかい。',
+    note: '剣のうでが立つがいこつ。攻撃力が高い。',
   },
   dark_bat: {
     rate: 1 / 22, names: ['ヤミー', 'くらやみ', 'ノクト', 'バット'],
     growth: { hp: 0.95, mp: 1.0, str: 1.05, def: 0.85, agi: 1.35, mag: 1.0, heal: 0.7 },
     learn: [[1, 'm_drain'], [4, 'manusa'], [9, 'm_dark_bolt'], [14, 'rukani'], [19, 'mahoton']],
-    note: 'くらやみの ちからを つかう こうもり。',
+    note: '暗闇の力を使うこうもり。',
   },
   rockman: {
     rate: 1 / 28, names: ['ゴロン', 'いわお', 'ガンさん', 'ロック'],
     growth: { hp: 1.4, mp: 0.4, str: 1.3, def: 1.4, agi: 0.6, mag: 0.4, heal: 0.5 },
     learn: [[1, 'm_boulder'], [4, 'm_harden'], [9, 'kabau'], [14, 'm_stomp'], [20, 'm_avalanche']],
-    note: 'とても かたくて ちからもち。うごきは おそい。',
+    note: 'とても固くて力持ち。動きはおそい。',
   },
   shadow_mage: {
     rate: 1 / 32, names: ['カゲロウ', 'シャドー', 'よみ', 'ゆらぎ'],
     growth: { hp: 0.95, mp: 1.35, str: 0.8, def: 0.9, agi: 1.0, mag: 1.3, heal: 1.2 },
     learn: [[1, 'gira'], [3, 'hoimi'], [7, 'rukani'], [11, 'begirama'], [15, 'behoimi'], [20, 'zao'], [25, 'iora']],
-    note: 'やみから ときはなたれた まほうつかい。こうげきも かいふくも できる。',
+    note: '闇から解き放たれた魔法使い。攻撃も回復もできる。',
   },
   kirakira: {
     rate: 1 / 40, names: ['キラリン', 'ぎんちゃん', 'ピカ', 'メタリン'],
     growth: { hp: 0.7, mp: 1.0, str: 0.9, def: 2.0, agi: 1.8, mag: 1.0, heal: 1.0 },
     learn: [[1, 'mera'], [3, 'hoimi'], [6, 'piorimu'], [10, 'merami'], [15, 'io'], [20, 'behoimi'], [25, 'iora']],
     resist: { sleep: 0.5, poison: 0.5, confuse: 0.5 },
-    note: 'めったに なかまに ならない ぎんいろの ぷるりん。とても かたくて すばやい！',
+    note: 'めったに仲間にならない銀色のぷるりん。とても固くて素早い！',
   },
 };
 
@@ -145,43 +145,43 @@ Object.assign(MONSTER_FRIENDS, {
     rate: 0, breedOnly: true, names: ['キングぷるる', 'おうさま', 'ぷるキング', 'だいおう'],
     growth: { hp: 1.3, mp: 1.1, str: 1.1, def: 1.15, agi: 0.9, mag: 1.1, heal: 1.2 },
     learn: [[1, 'm_tackle'], [4, 'behoimi'], [8, 'm_king_press'], [12, 'io'], [16, 'behomara'], [22, 'iora']],
-    note: 'ぷるりんたちの おうさま。からだが おおきく HPが とても おおい。',
+    note: 'ぷるりんたちの王さま。体が大きくHPがとても多い。',
   },
   fuwari: {
     rate: 0, breedOnly: true, names: ['ふわり', 'クラゲっち', 'ぷかぷか', 'ほいみん'],
     growth: { hp: 0.95, mp: 1.3, str: 0.8, def: 0.95, agi: 1.2, mag: 1.0, heal: 1.45 },
     learn: [[1, 'hoimi'], [3, 'kiarii'], [6, 'behoimi'], [10, 'kiariku'], [14, 'zao'], [18, 'behomara'], [24, 'sg_behoma']],
-    note: 'かいふくが とくいな ふわふわの なかま。',
+    note: '回復が得意なふわふわの仲間。',
   },
   chibi_dragon: {
     rate: 0, breedOnly: true, names: ['ドラコ', 'ちびドラ', 'リュウタ', 'ほむら'],
     growth: { hp: 1.2, mp: 0.8, str: 1.25, def: 1.1, agi: 1.05, mag: 0.9, heal: 0.7 },
     learn: [[1, 'm_bite'], [4, 'm_fire_breath'], [8, 'm_dragon_claw'], [12, 'm_warcry'], [16, 'm_blaze'], [22, 'dk_ikari']],
-    note: 'ほのおを はく ちいさな ドラゴン。そだつと とても つよくなる。',
+    note: '炎をはく小さなドラゴン。育つととても強くなる。',
   },
   golem: {
     rate: 0, breedOnly: true, names: ['ゴーレム', 'ガンセキ', 'いわまる', 'ストーン'],
     growth: { hp: 1.5, mp: 0.4, str: 1.3, def: 1.55, agi: 0.55, mag: 0.4, heal: 0.5 },
     learn: [[1, 'm_boulder'], [4, 'm_harden'], [8, 'kabau'], [12, 'm_stomp'], [16, 'gd_wall'], [22, 'm_avalanche']],
-    note: 'いわの きょじん。とても かたくて ちからもち。',
+    note: '岩のきょじん。とても固くて力持ち。',
   },
   star_panther: {
     rate: 0, breedOnly: true, names: ['ほしまる', 'パンサー', 'きらり', 'シリウス'],
     growth: { hp: 1.1, mp: 0.6, str: 1.3, def: 1.0, agi: 1.55, mag: 0.6, heal: 0.6 },
     learn: [[1, 'm_pounce'], [4, 'piorimu'], [8, 'kamaitachi'], [12, 'm_dragon_claw'], [16, 'mouko'], [22, 'gh_shinsoku']],
-    note: 'せなかに ほしの もようが ある はやい けもの。',
+    note: '背中に星の模様がある速いけもの。',
   },
   demon_knight: {
     rate: 0, breedOnly: true, names: ['デモンナイト', 'くろきし', 'ゼクス', 'ヤミまる'],
     growth: { hp: 1.15, mp: 0.8, str: 1.35, def: 1.2, agi: 1.0, mag: 0.9, heal: 0.5 },
     learn: [[1, 'm_darkslash'], [4, 'chikaratame'], [8, 'm_glare'], [12, 'ms_soul'], [16, 'tamashii'], [24, 'sm_jigo']],
-    note: 'やみの よろいを まとった きし。けんの うでが たつ。',
+    note: '闇のよろいをまとった騎士。剣のうでが立つ。',
   },
   chibi_treant: {
     rate: 0, breedOnly: true, names: ['もりっこ', 'きのめ', 'トレン', 'みどり'],
     growth: { hp: 1.3, mp: 1.0, str: 0.95, def: 1.2, agi: 0.6, mag: 0.8, heal: 1.35 },
     learn: [[1, 'm_root_heal'], [4, 'hoimi'], [8, 'm_branch_whip'], [12, 'behoimi'], [16, 'm_pollen'], [22, 'behomara']],
-    note: 'もりの ぬしの こども。からだを いやす ちからが ある。',
+    note: '森の主の子ども。体をいやす力がある。',
   },
 });
 
@@ -194,8 +194,8 @@ export const BREED_MIN_LEVEL = 10;
 export const BREED_INHERIT_MAX = 4;
 
 export const RACE_NAMES = {
-  slime: 'スライムけい', beast: 'けものけい', plant: 'しょくぶつけい', spirit: 'せいれいけい', demon: 'あくまけい',
-  undead: 'ゾンビけい', material: 'ぶっしつけい', dragon: 'ドラゴンけい', human: 'にんげん',
+  slime: 'スライム系', beast: 'けもの系', plant: '植物系', spirit: 'せいれい系', demon: '悪魔系',
+  undead: 'ゾンビ系', material: '物質系', dragon: 'ドラゴン系', human: '人間',
 };
 
 // a・b: しゅぞくID か { race, flying } の じょうけん
@@ -231,7 +231,7 @@ export function breedResult(spA, spB, MONSTERS) {
 export function recipeHint(child, MONSTERS) {
   const r = BREED_RECIPES.find((x) => x.child === child);
   if (!r) return '';
-  const nm = (spec) => (typeof spec === 'string' ? MONSTERS[spec]?.name : spec.flying ? 'そらを とぶ まもの' : RACE_NAMES[spec.race] || '？');
+  const nm = (spec) => (typeof spec === 'string' ? MONSTERS[spec]?.name : spec.flying ? '空を飛ぶ魔物' : RACE_NAMES[spec.race] || '？');
   return `${nm(r.a)} ＋ ${nm(r.b)}`;
 }
 

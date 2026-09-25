@@ -8,8 +8,8 @@ import { MONSTER_FRIENDS, monsterNatural } from './data/companions.js';
 export const MAX_LEVEL = 50;
 export const STAT_KEYS = ['hp', 'mp', 'str', 'def', 'agi', 'mag', 'heal'];
 export const STAT_NAMES = {
-  hp: 'さいだいHP', mp: 'さいだいMP', str: 'ちから', def: 'みのまもり', agi: 'すばやさ',
-  mag: 'こうげき魔力', heal: 'かいふく魔力', atk: 'こうげき力', dfn: 'しゅび力',
+  hp: '最大HP', mp: '最大MP', str: '力', def: '身の守り', agi: '素早さ',
+  mag: '攻撃魔力', heal: '回復魔力', atk: '攻撃力', dfn: '守備力',
 };
 
 // レベルに必要な 累計けいけんち
@@ -240,7 +240,7 @@ export function penaltyFor(char, abilityId) {
     powMult = 1 - (1 - powMult) / 2;
   }
   const pct = Math.round(powMult * 100);
-  const label = `${origin.name}の わざ：MP${mpMult === 1 ? 'そのまま' : mpMult + 'ばい'}・いりょく${pct}%${mastered ? '（マスター したので かるめ）' : ''}`;
+  const label = `${origin.name}の技：MP${mpMult === 1 ? 'そのまま' : mpMult + '倍'}・威力${pct}%${mastered ? '（マスターしたので軽め）' : ''}`;
   return { mpMult, powMult, penalized: true, label };
 }
 
@@ -315,7 +315,7 @@ export function newCharacter({ id, name, look, job }) {
   const jobId = JOBS[job] && !JOBS[job].tier ? job : 'warrior';
   const c = {
     id,
-    name: String(name || 'ゆうしゃ').slice(0, 8),
+    name: String(name || '勇者').slice(0, 8),
     look: sanitizeLook(look),
     level: 1, exp: 0, gold: 50,
     job: jobId,
@@ -351,7 +351,7 @@ export function newCharacter({ id, name, look, job }) {
 export function newMonsterCompanion({ id, name, species, level }) {
   const lv = Math.max(1, Math.min(MAX_LEVEL, level || 1));
   const c = {
-    id, name: String(name || MONSTERS[species]?.name || 'まもの').slice(0, 8), species,
+    id, name: String(name || MONSTERS[species]?.name || '魔物').slice(0, 8), species,
     look: null, job: null, jobs: {},
     level: lv, exp: expForLevel(lv),
     equip: { weapon: null, armor: null, shield: null, head: null, acc: null },

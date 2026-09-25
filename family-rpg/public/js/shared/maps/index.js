@@ -33,17 +33,17 @@ const OVERWORLD_NPCS = [
   npc('luca_rest', 'ルカ', V(26, 19), 'luca', 'luca_rest', { show: { all: ['p_attack'], not: ['c1_clear'] }, dir: 'up' }),
   npc('luca_plaza', 'ルカ', V(19, 13), 'luca', 'luca_after', { show: { all: ['c1_clear'] } }),
   npc('dog', 'ポチ', V(4, 5), 'dog', 'dog', { wander: 1 }),
-  npc('v_shop', 'よろずやの おじさん', V(23, 3), 'merchant', 'shop_village'),
-  npc('v_priest', 'しんぷさま', V(6, 18), 'priest', 'church', { dir: 'down' }),
-  npc('v_guard', 'みはりの ドンク', V(15, 1), 'guard', 'village_guard', { show: { not: ['p_attack'] } }),
-  npc('v_guard_b', 'みはりの ポルン', V(16, 1), 'guard', 'village_guard', { show: { not: ['p_attack'] } }),
-  npc('v_guard2', 'みはりの ドンク', V(13, 1), 'guard', 'village_guard', { show: { all: ['p_attack'] } }),
-  npc('v_guard2_b', 'みはりの ポルン', V(18, 1), 'guard', 'village_guard', { show: { all: ['p_attack'] } }),
-  npc('v_farmer', 'はたけの おじさん', V(27, 9), 'farmer', 'v_farmer', { wander: 2 }),
-  npc('v_girl', 'むらの おんなのこ', V(9, 12), 'girl', 'v_girl', { wander: 2 }),
-  npc('v_boy', 'むらの おとこのこ', V(21, 10), 'boy', 'v_boy', { wander: 2 }),
+  npc('v_shop', 'よろず屋のおじさん', V(23, 3), 'merchant', 'shop_village'),
+  npc('v_priest', '神父さま', V(6, 18), 'priest', 'church', { dir: 'down' }),
+  npc('v_guard', '見張りのドンク', V(15, 1), 'guard', 'village_guard', { show: { not: ['p_attack'] } }),
+  npc('v_guard_b', '見張りのポルン', V(16, 1), 'guard', 'village_guard', { show: { not: ['p_attack'] } }),
+  npc('v_guard2', '見張りのドンク', V(13, 1), 'guard', 'village_guard', { show: { all: ['p_attack'] } }),
+  npc('v_guard2_b', '見張りのポルン', V(18, 1), 'guard', 'village_guard', { show: { all: ['p_attack'] } }),
+  npc('v_farmer', '畑のおじさん', V(27, 9), 'farmer', 'v_farmer', { wander: 2 }),
+  npc('v_girl', '村の女の子', V(9, 12), 'girl', 'v_girl', { wander: 2 }),
+  npc('v_boy', '村の男の子', V(21, 10), 'boy', 'v_boy', { wander: 2 }),
   npc('v_oldman', 'おじいさん', V(13, 21), 'oldman', 'v_oldman', { wander: 1 }),
-  npc('v_woman', 'むらの おくさん', V(8, 15), 'woman', 'v_woman', { wander: 2 }),
+  npc('v_woman', '村のおくさん', V(8, 15), 'woman', 'v_woman', { wander: 2 }),
   npc('star_stone', '守り星の石', V(16, 11), 'starstone', 'star_stone', { solid: false }),
 
   // ほしみの丘
@@ -51,31 +51,31 @@ const OVERWORLD_NPCS = [
   npc('mike', 'ミケ', [68, 90], 'cat', 'mike_cat', { show: { all: ['q_mike_start'], not: ['q_mike_found'] }, wander: 1 }),
 
   // ルミナの町
-  npc('mayor', '町長 ゴードン', TW(7, 4), 'mayor', 'mayor'),
-  npc('priestess', 'しんかん セレナ', TW(23, 5), 'priestess', 'job_change'),
-  npc('sage', 'ひらめきの けんじゃ', TW(20, 7), 'sage', 'sage'),
-  npc('bartender', '酒場の マスター', TW(38, 3), 'bartender', 'tavern'),
-  npc('weapon_keeper', 'ぶきやの おやじ', TW(6, 13), 'merchant', 'shop_weapon'),
-  npc('armor_keeper', 'ぼうぐやの おねえさん', TW(6, 22), 'woman', 'shop_armor'),
-  npc('item_keeper', 'どうぐやの むすめ', TW(41, 13), 'girl', 'shop_item'),
-  npc('innkeeper', 'やどやの おかみ', TW(41, 23), 'woman', 'inn'),
-  npc('t_priest', 'しんぷさま', TW(7, 30), 'priest', 'church'),
-  npc('carpenter', '大工の ガンテツ', TW(38, 31), 'carpenter', 'carpenter'),
-  npc('star_granny', 'ほしあつめの おばあさん', TW(17, 31), 'elder', 'star_granny'),
+  npc('mayor', '町長ゴードン', TW(7, 4), 'mayor', 'mayor'),
+  npc('priestess', '神官セレナ', TW(23, 5), 'priestess', 'job_change'),
+  npc('sage', 'ひらめきの賢者', TW(20, 7), 'sage', 'sage'),
+  npc('bartender', '酒場のマスター', TW(38, 3), 'bartender', 'tavern'),
+  npc('weapon_keeper', '武器屋のおやじ', TW(6, 13), 'merchant', 'shop_weapon'),
+  npc('armor_keeper', '防具屋のおねえさん', TW(6, 22), 'woman', 'shop_armor'),
+  npc('item_keeper', '道具屋のむすめ', TW(41, 13), 'girl', 'shop_item'),
+  npc('innkeeper', '宿屋のおかみ', TW(41, 23), 'woman', 'inn'),
+  npc('t_priest', '神父さま', TW(7, 30), 'priest', 'church'),
+  npc('carpenter', '大工のガンテツ', TW(38, 31), 'carpenter', 'carpenter'),
+  npc('star_granny', '星集めのおばあさん', TW(17, 31), 'elder', 'star_granny'),
   npc('mike_girl', 'リリ', TW(27, 20), 'girl', 'mike_girl', { wander: 1 }),
-  npc('cook', '酒場の コック', TW(41, 7), 'cook', 'cook'),
-  npc('farmer_wolf', 'ぼくじょうの おじさん', TW(44, 20), 'farmer', 'wolf_hunt', { wander: 1 }),
-  npc('t_guard1', 'もんばん', TW(21, 33), 'guard', 't_guard'),
-  npc('t_guard2', 'もんばん', TW(26, 33), 'guard', 't_guard'),
-  npc('t_traveler', 'たびの ぎんゆうしじん', TW(28, 16), 'bard', 't_traveler', { wander: 2 }),
-  npc('t_kid', 'まちの こども', TW(18, 22), 'boy', 't_kid', { wander: 3 }),
-  npc('t_lady', 'まちの おばさん', TW(34, 24), 'woman', 't_lady', { wander: 2 }),
-  npc('t_oldman', 'ものしり じいさん', TW(12, 10), 'oldman', 't_oldman', { wander: 2 }),
+  npc('cook', '酒場のコック', TW(41, 7), 'cook', 'cook'),
+  npc('farmer_wolf', '牧場のおじさん', TW(44, 20), 'farmer', 'wolf_hunt', { wander: 1 }),
+  npc('t_guard1', '門番', TW(21, 33), 'guard', 't_guard'),
+  npc('t_guard2', '門番', TW(26, 33), 'guard', 't_guard'),
+  npc('t_traveler', '旅の詩人', TW(28, 16), 'bard', 't_traveler', { wander: 2 }),
+  npc('t_kid', '町の子ども', TW(18, 22), 'boy', 't_kid', { wander: 3 }),
+  npc('t_lady', '町のおばさん', TW(34, 24), 'woman', 't_lady', { wander: 2 }),
+  npc('t_oldman', '物知りじいさん', TW(12, 10), 'oldman', 't_oldman', { wander: 2 }),
   npc('t_drinker', 'よっぱらい', TW(42, 8), 'farmer', 't_drinker'),
 
   // フィールド
-  npc('bridge_worker', 'はしの ばんにん', [123, 61], 'carpenter', 'bridge_worker'),
-  npc('lake_traveler', 'たびびと', [84, 70], 'bard', 'lake_traveler', { wander: 2 }),
+  npc('bridge_worker', '橋の番人', [123, 61], 'carpenter', 'bridge_worker'),
+  npc('lake_traveler', '旅人', [84, 70], 'bard', 'lake_traveler', { wander: 2 }),
   npc('treant', 'ダークトレント', [FOREST_CLEARING.x, FOREST_CLEARING.y - 1], 'treant', 'treant', { big: true, show: { not: ['c1_treant'] } }),
   npc('treant_calm', 'トレント', [FOREST_CLEARING.x, FOREST_CLEARING.y - 1], 'treant_calm', 'treant_calm', { big: true, show: { all: ['c1_treant'] } }),
   npc('east_hunter', 'かりゅうど', [141, 70], 'guard', 'east_hunter', { wander: 2 }),
@@ -96,14 +96,14 @@ const OVERWORLD_CHESTS = [
 
 // ───────────── かんばん ─────────────
 const OVERWORLD_SIGNS = [
-  { x: 25, y: 88, text: 'ここは ホシフル村。\n↑ 北へ すすむと ルミナの町。' },
-  { x: 46, y: 99, text: '→ ほしみの丘' },
-  { x: 91, y: 44, text: '← ルミナの町　↑ ささやきの森\n↘ ひがしの 橋' },
-  { x: 121, y: 61, text: 'この さき ひがしの へいげん。\nまものが つよいので ちゅうい！' },
-  { x: 149, y: 56, text: 'なげきの洞窟\n（ふかい ところには つよい まものが いるぞ）' },
-  { x: 29, y: 115, text: 'ホシフル さんばし\n（いまは ふねが きていない）' },
-  { x: LAKE.x - 3, y: LAKE.y - LAKE.ry - 2, text: 'かがみ湖\nしずかな 湖。なにかが ひかっている…？' },
-  { x: 97, y: 50, text: 'ささやきの森\nまよわないように きを つけて。' },
+  { x: 25, y: 88, text: 'ここはホシフル村。\n↑ 北へ進むとルミナの町。' },
+  { x: 46, y: 99, text: '→ 星見の丘' },
+  { x: 91, y: 44, text: '← ルミナの町　↑ ささやきの森\n↘ 東の橋' },
+  { x: 121, y: 61, text: 'この先、東の平原。\n魔物が強いので注意！' },
+  { x: 149, y: 56, text: 'なげきの洞窟\n（深い所には強い魔物がいるぞ）' },
+  { x: 29, y: 115, text: 'ホシフルさんばし\n（今は船が来ていない）' },
+  { x: LAKE.x - 3, y: LAKE.y - LAKE.ry - 2, text: '鏡の湖\n静かな湖。何かが光っている…？' },
+  { x: 97, y: 50, text: 'ささやきの森\n迷わないように気を付けて。' },
 ];
 
 // ───────────── ワープ（出入り口） ─────────────
@@ -164,7 +164,7 @@ function buildMaps() {
   };
   const b1 = parseRows(CAVE_B1_ROWS);
   maps.cave_b1 = {
-    id: 'cave_b1', name: 'なげきの洞窟 ちか1かい', kind: 'dungeon', bgm: 'cave', dark: true,
+    id: 'cave_b1', name: 'なげきの洞窟　地下1階', kind: 'dungeon', bgm: 'cave', dark: true,
     w: b1.w, h: b1.h, tiles: b1.tiles, gates: [],
     npcs: [],
     chests: [
@@ -184,7 +184,7 @@ function buildMaps() {
     sparkles: [],
     roofs: [],
     zoneAt: () => 'cave1',
-    areaName: () => 'なげきの洞窟 ちか1かい',
+    areaName: () => 'なげきの洞窟　地下1階',
     spawnCounts: { cave1: 10 },
   };
   const b2 = parseRows(CAVE_B2_ROWS);
@@ -193,10 +193,10 @@ function buildMaps() {
     if (b2.tiles[y * b2.w + x] === T.LOCKED_DOOR) b2gates.push({ x, y, closed: T.LOCKED_DOOR, open: T.CAVE_FLOOR, flag: 'c1_door' });
   }
   maps.cave_b2 = {
-    id: 'cave_b2', name: 'なげきの洞窟 ちか2かい', kind: 'dungeon', bgm: 'cave', dark: true,
+    id: 'cave_b2', name: 'なげきの洞窟　地下2階', kind: 'dungeon', bgm: 'cave', dark: true,
     w: b2.w, h: b2.h, tiles: b2.tiles, gates: b2gates,
     npcs: [
-      npc('spring', 'いやしの いずみ', [20, 13], 'spring', 'spring', { solid: true }),
+      npc('spring', 'いやしの泉', [20, 13], 'spring', 'spring', { solid: true }),
       npc('locked_door', 'とびら', [23, 11], 'none', 'locked_door', { show: { not: ['c1_door'] }, solid: false }),
       npc('locked_door2', 'とびら', [24, 11], 'none', 'locked_door', { show: { not: ['c1_door'] }, solid: false }),
       npc('boss_rock', 'ゴルドーン', [23.5, 5], 'goldoon_sleep', 'boss_rock', { big: true, show: { not: ['c1_boss'] } }),
@@ -218,7 +218,7 @@ function buildMaps() {
     sparkles: [],
     roofs: [],
     zoneAt: (x, y) => (y <= 10 && x >= 14 && x <= 33 ? 'safe:boss' : 'cave2'),
-    areaName: () => 'なげきの洞窟 ちか2かい',
+    areaName: () => 'なげきの洞窟　地下2階',
     spawnCounts: { cave2: 10 },
   };
   for (const m of Object.values(maps)) {

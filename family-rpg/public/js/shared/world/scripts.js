@@ -149,7 +149,7 @@ export class ScriptRun {
           for (const m of all) addItem(m.char, id, n);
           const name = ITEMS[id]?.name || id;
           this.batch.push(['sfx', ITEMS[id]?.type === 'key' ? 'key' : 'item']);
-          this.say(`${this.who()}は ${name}${n > 1 ? `を ${n}こ` : 'を'} てにいれた！`);
+          this.say(`${this.who()}は${name}${n > 1 ? `を${n}個` : 'を'}手に入れた！`);
           break;
         }
         case 'takeItem': {
@@ -163,7 +163,7 @@ export class ScriptRun {
         case 'gold':
           for (const m of all) m.char.gold += a[0];
           this.batch.push(['sfx', 'item']);
-          this.say(`${this.who()}は ${a[0]}ゴールドを てにいれた！`);
+          this.say(`${this.who()}は${a[0]}ゴールドを手に入れた！`);
           break;
         case 'objective':
           for (const m of all) m.char.objective = a[0];
@@ -182,7 +182,7 @@ export class ScriptRun {
           const price = a[0] || 0;
           const c = this.init.char;
           if (c.gold < price) {
-            this.say('ゴールドが たりないようだね…');
+            this.say('ゴールドが足りないようだね…');
             break;
           }
           c.gold -= price;
@@ -191,8 +191,8 @@ export class ScriptRun {
           for (const sup of p?.supports || []) fullHeal(sup.char);
           for (const g of p?.guests || []) fullHeal(g.char);
           this.batch.push(['fade', 'out'], ['bgm', 'inn'], ['wait', 2200], ['bgm', 'resume'], ['fade', 'in']);
-          this.say(price ? 'おはようございます。ゆうべは よく ねむれましたか？' : '{name}は ぐっすり ねむった。');
-          this.say('HPと MPが すっかり かいふくした！');
+          this.say(price ? 'おはようございます。夕べはよくねむれましたか？' : '{name}はぐっすりねむった。');
+          this.say('HPとMPがすっかり回復した！');
           for (const m of all) w.sendSelf(m);
           if (p) w.sendParty(p);
           break;
@@ -207,7 +207,7 @@ export class ScriptRun {
           }
           if (!a[0]) {
             this.batch.push(['sfx', 'leave']);
-            this.say('ルカは パーティーから はなれた。');
+            this.say('ルカはパーティーからはなれた。');
           }
           const p = partyOf(w, this.init);
           if (p) {
@@ -224,7 +224,7 @@ export class ScriptRun {
             if (!r.ok) continue;
             if (m === this.init) {
               this.batch.push(['sfx', 'join']);
-              this.say(r.joined ? `${r.name}が なかまに くわわった！` : `${r.name}が なかまに なった！\n（いまは ルミナの町の 酒場で まっている）`);
+              this.say(r.joined ? `${r.name}が仲間に加わった！` : `${r.name}が仲間になった！\n（今はルミナの町の酒場で待っている）`);
             }
           }
           break;
@@ -242,10 +242,10 @@ export class ScriptRun {
             break;
           }
           this.batch.push(['sfx', 'join']);
-          if (r.joined) this.say(`${r.name}が なかまに くわわった！`);
-          else this.say(`${r.name}が なかまに なった！\n${r.name}は ルミナの町の 酒場で まっている。`);
-          if (r.benchedName) this.say(`${r.benchedName}は 酒場へ もどった。`);
-          this.say(`（なまえは 酒場で かえられるよ）`);
+          if (r.joined) this.say(`${r.name}が仲間に加わった！`);
+          else this.say(`${r.name}が仲間になった！\n${r.name}はルミナの町の酒場で待っている。`);
+          if (r.benchedName) this.say(`${r.benchedName}は酒場へもどった。`);
+          this.say(`（名前は酒場で変えられるよ）`);
           w.sendSelf(s);
           break;
         }

@@ -23,7 +23,7 @@ let config = {};
 try {
   if (fs.existsSync(CONFIG_FILE)) config = JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'));
 } catch (e) {
-  console.error('config.json の よみこみに しっぱいしました:', e.message);
+  console.error('config.json の読みこみに失敗しました:', e.message);
 }
 let changed = false;
 if (!config.password) {
@@ -35,7 +35,7 @@ if (!config.familyName) { config.familyName = 'わが家'; changed = true; }
 if (changed) {
   fs.writeFileSync(CONFIG_FILE, JSON.stringify({
     ...config,
-    _memo: 'password = 家族の あいことば（すきな ことばに かえてOK）。port = ポートばんごう。かえたら サーバーを さいきどう してね。',
+    _memo: 'password = 家族の合言葉（好きな言葉に変えてOK）。port = ポート番号。変えたらサーバーを再起動してね。',
   }, null, 2));
 }
 const PASSWORD = String(process.env.FAMILY_PASSWORD || config.password);
@@ -102,7 +102,7 @@ const server = http.createServer((req, res) => {
   fs.stat(file, (err, st) => {
     if (err || !st.isFile()) {
       res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
-      res.end('みつかりません');
+      res.end('見つかりません');
       return;
     }
     res.writeHead(200, {
@@ -152,7 +152,7 @@ server.on('upgrade', (req, socket, head) => {
       if (msg?.t === 'hello') {
         const f = failures.get(ip);
         if (f && f.until > Date.now()) {
-          ws.send(JSON.stringify({ t: 'helloFail', reason: 'まちがいが おおいので 1ぷん まってね' }));
+          ws.send(JSON.stringify({ t: 'helloFail', reason: 'まちがいが多いので1分待ってね' }));
           return;
         }
       }
@@ -181,18 +181,18 @@ setInterval(() => {
 server.listen(PORT, HOST, () => {
   const urls = lanAddresses().map((a) => `http://${a}:${PORT}`);
   console.log('');
-  console.log('  ★☆★ きずなの紋章 家族サーバーが うごきました ★☆★');
+  console.log('  ★☆★ 「きずなの紋章」家族サーバーが動きました ★☆★');
   console.log('');
-  console.log(`  このPCで あそぶ:  http://localhost:${PORT}`);
+  console.log(`  このPCで遊ぶ:  http://localhost:${PORT}`);
   if (urls.length) {
-    console.log('  おなじ Wi-Fi の スマホ・タブレットから:');
+    console.log('  同じ Wi-Fi のスマホ・タブレットから:');
     for (const u of urls) console.log(`     ${u}`);
   }
   console.log('');
-  console.log(`  家族の あいことば:  ${PASSWORD}`);
-  console.log(`  （かえるときは ${path.relative(process.cwd(), CONFIG_FILE) || CONFIG_FILE} の password を へんしゅう）`);
+  console.log(`  家族の合言葉:  ${PASSWORD}`);
+  console.log(`  （変えるときは ${path.relative(process.cwd(), CONFIG_FILE) || CONFIG_FILE} の password を編集）`);
   console.log('');
-  console.log('  おわるときは この画面で Ctrl + C を おしてね（じどうで セーブされます）');
+  console.log('  終わるときはこの画面で Ctrl + C をおしてね（自動でセーブされます）');
   console.log('');
 });
 
@@ -207,7 +207,7 @@ function lanAddresses() {
 }
 
 function shutdown() {
-  console.log('\n  セーブして おわります…');
+  console.log('\n  セーブして終わります…');
   world.markDirty();
   world.saveNow();
   process.exit(0);

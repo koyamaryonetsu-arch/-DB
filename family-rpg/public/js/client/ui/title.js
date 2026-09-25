@@ -48,15 +48,15 @@ export function showTitle(game) {
   const crest = crestCanvas(48);
   crest.className = 'crest';
   const mode = game.net.mode === 'server'
-    ? `家族サーバー「${game.net.family || 'わが家'}」に つながっています`
-    : 'ひとりで あそぶ モード（このブラウザに セーブ）';
-  const start = el('button', { class: 'bigbtn sel', text: '▶ はじめる' });
+    ? `家族サーバー「${game.net.family || 'わが家'}」につながっています`
+    : 'ひとりで遊ぶモード（このブラウザにセーブ）';
+  const start = el('button', { class: 'bigbtn sel', text: '▶ 始める' });
   const box = el('div', { class: 'title-screen' },
-    el('div', { class: 'logo' }, crest, el('div', { class: 'main', text: 'きずなの紋章' }), el('div', { class: 'sub', text: '～ ほしふる むらの ものがたり ～' })),
+    el('div', { class: 'logo' }, crest, el('div', { class: 'main', text: 'きずなの紋章' }), el('div', { class: 'sub', text: '～ 星ふる村の物語 ～' })),
     el('div', { class: 'win col', style: { minWidth: 'min(88vw, 420px)' } },
       start,
       el('div', { class: 'small muted', text: mode }),
-      el('div', { class: 'small muted', text: 'そうさ: やじるしキー/WASD・Z/Enter・X/Esc　（スマホは がめんの ボタン）' })));
+      el('div', { class: 'small muted', text: '操作: 矢印キー/WASD・Z/Enter・X/Esc　（スマホは画面のボタン）' })));
   ui.append(box);
   const go = () => {
     game.input.pop(h);
@@ -78,7 +78,7 @@ export async function showLogin(game, failed) {
     game.net.send({ t: 'hello', pw: saved });
     return;
   }
-  const pw = await askText(game.input, { title: failed ? `あいことばが ちがうみたい…（${failed}）` : '家族の あいことばを いれてね', placeholder: 'サーバーの がめんに でている あいことば', max: 40 });
+  const pw = await askText(game.input, { title: failed ? `合言葉がちがうみたい…（${failed}）` : '家族の合言葉を入れてね', placeholder: 'サーバーの画面に出ている合言葉', max: 40 });
   if (pw === null) return showLogin(game, failed);
   try { localStorage.setItem('kizuna_pw', pw); } catch { /* */ }
   game.net.send({ t: 'hello', pw });
@@ -89,8 +89,8 @@ export function showSelect(game, chars) {
   const ui = document.getElementById('ui');
   const wrap = el('div', { class: 'panel center-panel', style: { width: 'min(96vw, 900px)' } });
   const head = el('div', { class: 'win row', style: { justifyContent: 'space-between', marginBottom: '6px' } },
-    el('span', { class: 'gold', text: 'だれで あそぶ？' }),
-    el('span', { class: 'small muted', text: game.net.mode === 'server' ? `家族サーバー: ${game.net.family || ''}` : 'このブラウザの セーブ' }));
+    el('span', { class: 'gold', text: 'だれで遊ぶ？' }),
+    el('span', { class: 'small muted', text: game.net.mode === 'server' ? `家族サーバー: ${game.net.family || ''}` : 'このブラウザのセーブ' }));
   const list = el('div', { class: 'win scroll', style: { maxHeight: '64vh' } });
   const grid = el('div', { class: 'chars' });
   list.append(grid);
@@ -101,18 +101,18 @@ export function showSelect(game, chars) {
     const card = el('button', { class: 'win charcard' }, cv, el('div', {},
       el('div', { text: c.name }),
       el('div', { class: 'meta', text: `${JOBS[c.job]?.name} Lv${c.level}${c.online ? '' : ''}` }),
-      c.online ? el('div', { class: 'meta on', text: 'いま あそんでいる' }) : el('div', { class: 'meta', text: c.lastPlayed ? `${ago(c.lastPlayed)}に あそんだ` : '' }),
+      c.online ? el('div', { class: 'meta on', text: '今遊んでいる' }) : el('div', { class: 'meta', text: c.lastPlayed ? `${ago(c.lastPlayed)}に遊んだ` : '' }),
       el('div', { class: 'meta', text: c.objective || '' })));
     card.addEventListener('click', () => choose(c));
     grid.append(card);
     items.push({ card, c });
   }
-  const newBtn = el('button', { class: 'win charcard', style: { justifyContent: 'center' } }, el('span', { class: 'gold', text: '＋ あたらしく つくる' }));
+  const newBtn = el('button', { class: 'win charcard', style: { justifyContent: 'center' } }, el('span', { class: 'gold', text: '＋ 新しく作る' }));
   newBtn.addEventListener('click', () => { cleanup(); showCreate(game); });
   grid.append(newBtn);
   const foot = el('div', { class: 'win row', style: { marginTop: '6px', justifyContent: 'space-between' } },
-    el('span', { class: 'small muted', text: chars.length ? 'カードを えらんでね（やじるしキーでも うごかせる）' : 'まずは キャラクターを つくろう！' }),
-    chars.length ? el('button', { class: 'btn danger', text: 'キャラを けす', onclick: () => delFlow() }) : null);
+    el('span', { class: 'small muted', text: chars.length ? 'カードを選んでね（矢印キーでも動かせる）' : 'まずはキャラクターを作ろう！' }),
+    chars.length ? el('button', { class: 'btn danger', text: 'キャラを消す', onclick: () => delFlow() }) : null);
   wrap.append(head, list, foot);
   ui.append(wrap);
   let idx = 0;
@@ -141,9 +141,9 @@ export function showSelect(game, chars) {
   const cleanup = () => game.input.pop(h);
   const delFlow = async () => {
     cleanup();
-    const name = await askText(game.input, { title: 'けす キャラクターの なまえを いれてね（もとに もどせません）', max: 8 });
+    const name = await askText(game.input, { title: '消すキャラクターの名前を入れてね（元にもどせません）', max: 8 });
     const c = chars.find((x) => x.name === name);
-    if (c && await confirmBox(game.input, `${c.name}を ほんとうに けしますか？\n（セーブも すべて きえます）`, 'けす', 'やめる', (x) => game.audio.sfx(x))) {
+    if (c && await confirmBox(game.input, `${c.name}を本当に消しますか？\n（セーブも全て消えます）`, '消す', 'やめる', (x) => game.audio.sfx(x))) {
       game.net.send({ t: 'deleteChar', id: c.id, confirm: c.name });
     } else if (name) toast('やめました');
     showSelect(game, game.chars || chars);
@@ -160,7 +160,7 @@ export function showCreate(game) {
   const wrap = el('div', { class: 'panel center-panel', style: { width: 'min(96vw, 860px)' } });
   const box = el('div', { class: 'win scroll', style: { maxHeight: '86vh' } });
   const preview = makeCanvas(16, 21);
-  const name = el('input', { class: 'textin', id: 'cname', maxlength: '8', placeholder: 'なまえ（8もじまで）', autocomplete: 'off' });
+  const name = el('input', { class: 'textin', id: 'cname', maxlength: '8', placeholder: '名前（8文字まで）', autocomplete: 'off' });
   const jobDesc = el('div', { class: 'jobdesc' });
   const draw = () => {
     const x = ctxOf(preview);
@@ -185,14 +185,14 @@ export function showCreate(game) {
     });
     return o;
   };
-  const bodyOpt = opts(['おとこのこ', 'おんなのこ'], look.body, (i) => { look.body = i; }, (v) => el('button', { class: 'btn', text: v }));
+  const bodyOpt = opts(['男の子', '女の子'], look.body, (i) => { look.body = i; }, (v) => el('button', { class: 'btn', text: v }));
   const hairOpt = opts(HAIR_NAMES, look.hair, (i) => { look.hair = i; }, (v) => el('button', { class: 'btn', text: v }));
-  const hairCol = opts(HAIR, look.hairColor, (i) => { look.hairColor = i; }, (v) => el('button', { class: 'swatch', style: { background: v }, 'aria-label': 'かみの いろ' }));
-  const skinOpt = opts(SKIN, look.skin, (i) => { look.skin = i; }, (v) => el('button', { class: 'swatch', style: { background: v }, 'aria-label': 'はだの いろ' }));
-  const clothOpt = opts(CLOTH, look.color, (i) => { look.color = i; }, (v) => el('button', { class: 'swatch', style: { background: v }, 'aria-label': 'ふくの いろ' }));
+  const hairCol = opts(HAIR, look.hairColor, (i) => { look.hairColor = i; }, (v) => el('button', { class: 'swatch', style: { background: v }, 'aria-label': 'かみの色' }));
+  const skinOpt = opts(SKIN, look.skin, (i) => { look.skin = i; }, (v) => el('button', { class: 'swatch', style: { background: v }, 'aria-label': 'はだの色' }));
+  const clothOpt = opts(CLOTH, look.color, (i) => { look.color = i; }, (v) => el('button', { class: 'swatch', style: { background: v }, 'aria-label': '服の色' }));
   const jobsEl = el('div', { class: 'jobs' });
   JOB_ORDER.forEach((j) => {
-    const b = el('button', { class: `btn jobbtn ${j === job ? 'sel' : ''}` }, el('span', { class: 'jn', text: JOBS[j].name }), el('span', { class: 'jd', text: { warrior: 'かたくて つよい', monk: 'とても すばやい', priest: 'かいふくの めがみ', mage: 'こうげき呪文', performer: 'みんなを おうえん' }[j] }));
+    const b = el('button', { class: `btn jobbtn ${j === job ? 'sel' : ''}` }, el('span', { class: 'jn', text: JOBS[j].name }), el('span', { class: 'jd', text: { warrior: '固くて強い', monk: 'とても素早い', priest: '回復の女神', mage: '攻撃呪文', performer: 'みんなをおうえん' }[j] }));
     b.addEventListener('click', () => {
       job = j;
       [...jobsEl.children].forEach((x) => x.classList.toggle('sel', x === b));
@@ -203,21 +203,21 @@ export function showCreate(game) {
     jobsEl.append(b);
   });
   jobDesc.textContent = JOBS[job].desc;
-  const turn = el('button', { class: 'btn', text: 'まわす', onclick: () => { dirI = (dirI + 1) % 4; draw(); } });
-  const ok = el('button', { class: 'btn primary', text: 'これで はじめる！' });
+  const turn = el('button', { class: 'btn', text: '回す', onclick: () => { dirI = (dirI + 1) % 4; draw(); } });
+  const ok = el('button', { class: 'btn primary', text: 'これで始める！' });
   const back = el('button', { class: 'btn', text: 'もどる' });
   box.append(
-    el('h2', { text: 'キャラクターを つくる' }),
+    el('h2', { text: 'キャラクターを作る' }),
     el('div', { class: 'create' },
       el('div', { class: 'preview' }, preview, turn),
       el('div', { class: 'col' },
-        row('なまえ', name),
-        row('からだ', bodyOpt),
+        row('名前', name),
+        row('体', bodyOpt),
         row('かみがた', hairOpt),
-        row('かみの いろ', hairCol),
-        row('はだの いろ', skinOpt),
-        row('ふくの いろ', clothOpt),
-        row('さいしょの しょくぎょう（あとで 転職できるよ）', jobsEl),
+        row('かみの色', hairCol),
+        row('はだの色', skinOpt),
+        row('服の色', clothOpt),
+        row('最初の職業（後で転職できるよ）', jobsEl),
         jobDesc,
         el('div', { class: 'row end' }, back, ok))),
   );
@@ -238,7 +238,7 @@ export function showCreate(game) {
   ok.addEventListener('click', () => {
     const n = name.value.trim();
     if (!n) {
-      toast('なまえを いれてね');
+      toast('名前を入れてね');
       name.focus();
       return;
     }

@@ -4,15 +4,15 @@ import { ABILITIES, ELEMENT_NAMES } from '../../shared/data/abilities.js';
 import { JOBS, ALL_JOBS } from '../../shared/data/jobs.js';
 import { computeStats, canEquip, penaltyFor, mpCost, comboJobNames, comboAllowed } from '../../shared/stats.js';
 
-const TARGET_NAMES = { enemy: 'てき1体', group: 'てき1グループ', enemies: 'てき全体', ally: 'みかた1人', allies: 'みかた全員', self: 'じぶん', deadAlly: 'しんだ みかた' };
-const BONUS_NAMES = { str: 'ちから', def: 'みのまもり', agi: 'すばやさ', mag: 'まりょく', heal: 'かいふく', hp: 'HP', mp: 'MP' };
+const TARGET_NAMES = { enemy: '敵1体', group: '敵1グループ', enemies: '敵全体', ally: '味方1人', allies: '味方全員', self: '自分', deadAlly: '死んだ味方' };
+const BONUS_NAMES = { str: '力', def: '身の守り', agi: '素早さ', mag: '魔力', heal: '回復', hp: 'HP', mp: 'MP' };
 
 export function itemStats(id) {
   const it = ITEMS[id];
   if (!it) return '';
   const parts = [];
-  if (it.atk) parts.push(`こうげき+${it.atk}`);
-  if (it.def) parts.push(`しゅび+${it.def}`);
+  if (it.atk) parts.push(`攻撃+${it.atk}`);
+  if (it.def) parts.push(`守備+${it.def}`);
   for (const [k, v] of Object.entries(it.bonus || {})) parts.push(`${BONUS_NAMES[k] || k}${v > 0 ? '+' : ''}${v}`);
   return parts.join(' ');
 }
@@ -21,11 +21,11 @@ export function whoCanEquip(id) {
   const it = ITEMS[id];
   if (!it || !['weapon', 'armor', 'shield', 'head', 'acc'].includes(it.type)) return '';
   const jobs = ALL_JOBS.filter((j) => canEquip(j, id));
-  if (jobs.length === ALL_JOBS.length) return 'だれでも そうびできる';
+  if (jobs.length === ALL_JOBS.length) return 'だれでも装備できる';
   const base = jobs.filter((j) => !JOBS[j].tier).map((j) => JOBS[j].name);
   const more = jobs.filter((j) => JOBS[j].tier);
-  const moreText = more.length <= 4 ? more.map((j) => JOBS[j].name).join('・') : `上級職・超級職 ${more.length}しゅるい`;
-  return `そうび: ${[base.join('・'), moreText].filter(Boolean).join(' ／ ')}`;
+  const moreText = more.length <= 4 ? more.map((j) => JOBS[j].name).join('・') : `上級職・超級職 ${more.length}種類`;
+  return `装備: ${[base.join('・'), moreText].filter(Boolean).join(' ／ ')}`;
 }
 
 export function itemDetail(id) {
@@ -34,7 +34,7 @@ export function itemDetail(id) {
   const lines = [it.desc || ''];
   const st = itemStats(id);
   if (st) lines.push(st);
-  if (it.type === 'weapon') lines.push(`しゅるい: ${WEAPON_CAT_NAMES[it.cat] || it.cat}`);
+  if (it.type === 'weapon') lines.push(`種類: ${WEAPON_CAT_NAMES[it.cat] || it.cat}`);
   const w = whoCanEquip(id);
   if (w) lines.push(w);
   return lines.filter(Boolean).join('\n');
@@ -49,7 +49,7 @@ export function equipDiff(char, id) {
   c2.equip[it.type] = id;
   const after = computeStats(c2);
   const out = [];
-  for (const [k, n] of [['atk', 'こうげき'], ['dfn', 'しゅび'], ['agi', 'すばやさ'], ['mag', 'まりょく'], ['heal', 'かいふく'], ['maxHp', 'HP'], ['maxMp', 'MP']]) {
+  for (const [k, n] of [['atk', '攻撃'], ['dfn', '守備'], ['agi', '素早さ'], ['mag', '魔力'], ['heal', '回復'], ['maxHp', 'HP'], ['maxMp', 'MP']]) {
     const d = after[k] - before[k];
     if (d) out.push({ k, name: n, d });
   }
@@ -57,7 +57,7 @@ export function equipDiff(char, id) {
 }
 
 export function diffText(diffs) {
-  if (!diffs || !diffs.length) return 'かわらない';
+  if (!diffs || !diffs.length) return '変わらない';
   return diffs.map((x) => `${x.name}${x.d > 0 ? '+' : ''}${x.d}`).join(' ');
 }
 
@@ -66,18 +66,18 @@ export function abilityDetail(id, char) {
   if (!a) return '';
   const lines = [];
   const cost = char ? mpCost(char, id) : a.mp;
-  lines.push(`しょうひMP ${cost}${char && cost !== (a.mp || 0) ? `（もとは ${a.mp}）` : ''}　あいて: ${TARGET_NAMES[a.target] || ''}`);
-  if (a.effect?.element) lines.push(`ぞくせい: ${ELEMENT_NAMES[a.effect.element] || a.effect.element}`);
+  lines.push(`消費MP ${cost}${char && cost !== (a.mp || 0) ? `（元は${a.mp}）` : ''}　相手: ${TARGET_NAMES[a.target] || ''}`);
+  if (a.effect?.element) lines.push(`属性: ${ELEMENT_NAMES[a.effect.element] || a.effect.element}`);
   lines.push(a.desc || '');
   if (a.kind === 'combo') {
     lines.push(`掛け合わせ: ${a.requires.map((r) => ABILITIES[r]?.name).join(' ＋ ')}`);
-    lines.push(`つかえる しょくぎょう: ${comboJobNames(id).join('・')}（とその 超級職）`);
-    if (char && char.job && !comboAllowed(char, id)) lines.push('⚠ いまの しょくぎょうでは つかえない');
+    lines.push(`使える職業: ${comboJobNames(id).join('・')}（とその超級職）`);
+    if (char && char.job && !comboAllowed(char, id)) lines.push('⚠ 今の職業では使えない');
   } else if (a.job) {
-    lines.push(`おぼえた しょくぎょう: ${JOBS[a.job]?.name || ''}`);
+    lines.push(`覚えた職業: ${JOBS[a.job]?.name || ''}`);
   }
-  if (a.weapon === 'blade') lines.push('けん・たんけん・オノが ひつよう');
-  if (a.weapon === 'fist') lines.push('ツメか すでで つかう');
+  if (a.weapon === 'blade') lines.push('剣・短剣・オノが必要');
+  if (a.weapon === 'fist') lines.push('ツメか素手で使う');
   if (char) {
     const p = penaltyFor(char, id);
     if (p.penalized) lines.push(`⚠ 転職ペナルティ: ${p.label}`);
@@ -86,12 +86,12 @@ export function abilityDetail(id, char) {
 }
 
 export function statusNames(st) {
-  const n = { sleep: 'ねむり', paralyze: 'まひ', confuse: 'こんらん', blind: 'まぼろし', silence: 'ふうじ', poison: 'どく' };
+  const n = { sleep: 'ねむり', paralyze: 'マヒ', confuse: '混乱', blind: 'まぼろし', silence: 'ふうじ', poison: '毒' };
   return (st || []).map((s) => n[s] || s).join(' ');
 }
 
 export function buffNames(b) {
-  const n = { '+atk': 'こう↑', '+def': 'しゅ↑', '+agi': 'はや↑', '+eva': 'かわ↑', '-def': 'しゅ↓', '-atk': 'こう↓', '-agi': 'はや↓' };
+  const n = { '+atk': '攻↑', '+def': '守↑', '+agi': '速↑', '+eva': 'かわ↑', '-def': '守↓', '-atk': '攻↓', '-agi': '速↓' };
   return (b || []).map((x) => n[x] || '').filter(Boolean).join(' ');
 }
 

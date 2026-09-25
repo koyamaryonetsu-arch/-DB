@@ -96,7 +96,7 @@ export class ListMenu {
         class: 'backchip',
         role: 'button',
         'aria-label': this.back,
-        text: this.back === 'とじる' ? '✕ とじる' : `← ${this.back}`,
+        text: this.back === '閉じる' ? '✕ 閉じる' : `← ${this.back}`,
         onclick: (e) => {
           e.stopPropagation();
           this.cancel();
@@ -197,7 +197,7 @@ export function askText(input, { title, placeholder = '', max = 40, initial = ''
       box.remove();
       resolve(v);
     };
-    const ok = el('button', { class: 'btn primary', text: 'けってい', onclick: () => done(field.value.trim()) });
+    const ok = el('button', { class: 'btn primary', text: '決定', onclick: () => done(field.value.trim()) });
     const cancel = el('button', { class: 'btn', text: 'やめる', onclick: () => done(null) });
     const box = el('div', { class: 'win panel center-panel' },
       el('h2', { text: title }),

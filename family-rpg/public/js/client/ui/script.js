@@ -242,7 +242,7 @@ export class ScriptPlayer {
   choice(question, options, spectator, who) {
     const g = this.game;
     if (spectator) {
-      return this.say(null, `（${who}が えらんでいます…）\n${question}`, true).then(() => 0);
+      return this.say(null, `（${who}が選んでいます…）\n${question}`, true).then(() => 0);
     }
     return new Promise((resolve) => {
       const box = el('div', { class: 'win choice' });

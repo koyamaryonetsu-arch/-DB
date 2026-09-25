@@ -21,7 +21,7 @@ export const JOBS = {
   // ───────────── 基本職 ─────────────
   warrior: {
     id: 'warrior', name: '戦士', kana: 'せんし', short: '戦士', tier: 0, family: 'phys', color: '#d4574e',
-    desc: 'たくましい からだで なかまを まもる。けんの わざ「大地斬」「海波斬」が とくい。',
+    desc: 'たくましい体で仲間を守る。剣の技「大地斬」「海波斬」が得意。',
     mods: { hp: 1.25, mp: 0.4, str: 1.25, def: 1.3, agi: 0.85, mag: 0.5, heal: 0.5 },
     weapons: ['sword', 'axe', 'dagger'], shield: true, armor: ['cloth', 'heavy', 'gi'], helm: true,
     perLv: { hp: 2 },
@@ -32,7 +32,7 @@ export const JOBS = {
   },
   monk: {
     id: 'monk', name: '武闘家', kana: 'ぶとうか', short: '武闘', tier: 0, family: 'phys', color: '#e0913a',
-    desc: 'とても すばやく、こうどうの じゅんばんが はやく まわってくる。こぶしの わざで かいしんを ねらう。',
+    desc: 'とても素早く、行動の順番が早く回ってくる。こぶしの技で会心をねらう。',
     mods: { hp: 1.05, mp: 0.5, str: 1.12, def: 0.9, agi: 1.45, mag: 0.5, heal: 0.7 },
     weapons: ['claw', 'none'], shield: false, armor: ['cloth', 'gi'], helm: false,
     perLv: { agi: 1 },
@@ -43,7 +43,7 @@ export const JOBS = {
   },
   priest: {
     id: 'priest', name: '僧侶', kana: 'そうりょ', short: '僧侶', tier: 0, family: 'magic', color: '#5aa0d8',
-    desc: 'かいふくの じゅもん「ホイミ」で なかまを たすける。パーティーの いのちづな。',
+    desc: '回復の呪文「ホイミ」で仲間を助ける。パーティーの命づな。',
     mods: { hp: 0.95, mp: 1.2, str: 0.85, def: 1.0, agi: 0.95, mag: 0.8, heal: 1.45 },
     weapons: ['staff', 'spear'], shield: true, armor: ['cloth', 'robe'], helm: false,
     perLv: { heal: 1, mp: 0.6 },
@@ -54,7 +54,7 @@ export const JOBS = {
   },
   mage: {
     id: 'mage', name: '魔法使い', kana: 'まほうつかい', short: '魔法', tier: 0, family: 'magic', color: '#9a6ad0',
-    desc: 'こうげき呪文「メラ」「ヒャド」で てきを やっつける。からだは よわいので まもってもらおう。',
+    desc: '攻撃呪文「メラ」「ヒャド」で敵をやっつける。体は弱いので守ってもらおう。',
     mods: { hp: 0.8, mp: 1.4, str: 0.7, def: 0.8, agi: 1.0, mag: 1.45, heal: 0.8 },
     weapons: ['staff', 'dagger'], shield: false, armor: ['cloth', 'robe'], helm: false,
     perLv: { mag: 1, mp: 0.6 },
@@ -65,7 +65,7 @@ export const JOBS = {
   },
   performer: {
     id: 'performer', name: '旅芸人', kana: 'たびげいにん', short: '旅芸', tier: 0, family: 'tech', color: '#4fb880',
-    desc: 'おどりや うたで なかまを もりあげる。きような ので、ほかの しょくぎょうの わざも うまく つかえる。',
+    desc: 'おどりや歌で仲間を盛り上げる。器用なので、他の職業の技もうまく使える。',
     mods: { hp: 1.0, mp: 1.0, str: 0.95, def: 0.95, agi: 1.15, mag: 1.0, heal: 1.0 },
     weapons: ['dagger', 'fan', 'whip'], shield: true, armor: ['cloth', 'robe', 'gi'], helm: false,
     perLv: { mp: 0.6, agi: 0.4 },
@@ -79,7 +79,7 @@ export const JOBS = {
   // ───────────── 上級職（基本職 2つを マスターすると なれる） ─────────────
   battlemaster: {
     id: 'battlemaster', name: 'バトルマスター', kana: 'ばとるますたー', short: 'バト', tier: 1, req: ['warrior', 'monk'], family: 'phys', color: '#e0503a',
-    desc: 'たたかいの たつじん。ちからも すばやさも たかく、もろばぎりや むそうぎりで てきを なぎたおす。',
+    desc: '戦いの達人。力も素早さも高く、「もろば斬り」や「むそうぎり」で敵をなぎ倒す。',
     mods: { hp: 1.3, mp: 0.5, str: 1.4, def: 1.15, agi: 1.2, mag: 0.5, heal: 0.6 },
     weapons: ['sword', 'axe', 'spear', 'claw', 'none'], shield: true, armor: ['cloth', 'heavy', 'gi'], helm: true,
     perLv: { str: 1, hp: 1 },
@@ -87,7 +87,7 @@ export const JOBS = {
   },
   paladin: {
     id: 'paladin', name: 'パラディン', kana: 'ぱらでぃん', short: 'パラ', tier: 1, req: ['warrior', 'priest'], family: 'phys', color: '#6a8ad8',
-    desc: 'せいなる きし。かたい まもりで なかまを まもり、いやしの ひかりで かいふくも できる。',
+    desc: '聖なる騎士。固い守りで仲間を守り、いやしの光で回復もできる。',
     mods: { hp: 1.4, mp: 0.85, str: 1.1, def: 1.5, agi: 0.8, mag: 0.6, heal: 1.2 },
     weapons: ['sword', 'spear', 'staff'], shield: true, armor: ['cloth', 'heavy', 'robe'], helm: true,
     perLv: { def: 1, hp: 1 },
@@ -95,7 +95,7 @@ export const JOBS = {
   },
   magic_knight: {
     id: 'magic_knight', name: '魔法戦士', kana: 'まほうせんし', short: '魔戦', tier: 1, req: ['warrior', 'mage'], family: 'phys', color: '#b05ad0',
-    desc: 'けんと じゅもんを あわせて たたかう。ほのお・こおり・いかずちの けんと「魔法剣」が つかえる。',
+    desc: '剣と呪文を合わせて戦う。炎・氷・いかずちの剣と「魔法剣」が使える。',
     mods: { hp: 1.15, mp: 1.05, str: 1.2, def: 1.1, agi: 1.05, mag: 1.2, heal: 0.7 },
     weapons: ['sword', 'dagger', 'staff'], shield: true, armor: ['cloth', 'heavy', 'robe'], helm: true,
     perLv: { str: 0.5, mag: 0.5, mp: 0.4 },
@@ -103,7 +103,7 @@ export const JOBS = {
   },
   pirate: {
     id: 'pirate', name: '海賊', kana: 'かいぞく', short: '海賊', tier: 1, req: ['warrior', 'performer'], family: 'phys', color: '#2a8aa8',
-    desc: 'うみの あらくれもの。かいぞくぎりや うずしおで あばれまわり、うたげの うたで なかまを もりあげる。',
+    desc: '海のあらくれ者。「海賊斬り」や「うずしお」で暴れ回り、うたげの歌で仲間を盛り上げる。',
     mods: { hp: 1.3, mp: 0.7, str: 1.3, def: 1.15, agi: 1.1, mag: 0.8, heal: 0.8 },
     weapons: ['sword', 'axe', 'dagger', 'whip'], shield: true, armor: ['cloth', 'heavy', 'gi'], helm: true,
     perLv: { hp: 1, str: 0.5 },
@@ -111,7 +111,7 @@ export const JOBS = {
   },
   holyfist: {
     id: 'holyfist', name: '聖拳士', kana: 'せいけんし', short: '聖拳', tier: 1, req: ['monk', 'priest'], family: 'phys', color: '#f2c14e',
-    desc: 'せいなる ひかりを こぶしに やどす ぶじゅつか。めいそうで じぶんの キズも なおせる。',
+    desc: '聖なる光をこぶしに宿す武術家。めいそうで自分のキズも治せる。',
     mods: { hp: 1.15, mp: 0.9, str: 1.2, def: 1.0, agi: 1.35, mag: 0.6, heal: 1.2 },
     weapons: ['claw', 'staff', 'spear', 'none'], shield: false, armor: ['cloth', 'gi', 'robe'], helm: false,
     perLv: { agi: 0.5, heal: 0.5 },
@@ -119,15 +119,15 @@ export const JOBS = {
   },
   ninja: {
     id: 'ninja', name: '忍者', kana: 'にんじゃ', short: '忍者', tier: 1, req: ['monk', 'mage'], family: 'tech', color: '#3a3a6a',
-    desc: 'かげの ように すばやい。しゅりけんと にんぽう（かとん・ふうじん）で てきを ほんろうする。',
+    desc: '影のように素早い。手裏剣と忍法（かとん・風神）で敵をほんろうする。',
     mods: { hp: 0.95, mp: 0.9, str: 1.1, def: 0.85, agi: 1.7, mag: 1.1, heal: 0.6 },
     weapons: ['dagger', 'claw', 'sword', 'none'], shield: false, armor: ['cloth', 'gi'], helm: false,
     perLv: { agi: 1 },
     learn: [[1, 'nj_shuriken'], [3, 'nj_katon'], [5, 'nj_bunshin'], [7, 'nj_kagenui'], [10, 'nj_fuujin']],
   },
   tamer: {
-    id: 'tamer', name: 'まもの使い', kana: 'まものつかい', short: 'まも', tier: 1, req: ['monk', 'performer'], family: 'tech', color: '#8a6a3a',
-    desc: 'まものと こころを かよわせる。ムチで たたかい、この しょくぎょうの ひとが いると まものが なかまに なりやすい。',
+    id: 'tamer', name: '魔物使い', kana: 'まものつかい', short: '魔物', tier: 1, req: ['monk', 'performer'], family: 'tech', color: '#8a6a3a',
+    desc: '魔物と心を通わせる。ムチで戦い、この職業の人がいると魔物が仲間になりやすい。',
     mods: { hp: 1.2, mp: 0.7, str: 1.2, def: 1.05, agi: 1.2, mag: 0.7, heal: 0.9 },
     weapons: ['whip', 'claw', 'axe', 'none'], shield: true, armor: ['cloth', 'gi', 'heavy'], helm: false,
     perLv: { hp: 1, agi: 0.3 },
@@ -136,7 +136,7 @@ export const JOBS = {
   },
   sage: {
     id: 'sage', name: '賢者', kana: 'けんじゃ', short: '賢者', tier: 1, req: ['priest', 'mage'], family: 'magic', color: '#3fa35a',
-    desc: 'かいふくと こうげき、りょうほうの じゅもんを きわめた もの。ベホマや マヒャドを おぼえる。',
+    desc: '回復と攻撃、両方の呪文を極めた者。ベホマやマヒャドを覚える。',
     mods: { hp: 0.95, mp: 1.5, str: 0.75, def: 0.95, agi: 1.05, mag: 1.4, heal: 1.4 },
     weapons: ['staff', 'spear', 'dagger'], shield: true, armor: ['cloth', 'robe'], helm: false,
     perLv: { mp: 1, mag: 0.5, heal: 0.5 },
@@ -144,7 +144,7 @@ export const JOBS = {
   },
   superstar: {
     id: 'superstar', name: 'スーパースター', kana: 'すーぱーすたー', short: 'スタ', tier: 1, req: ['priest', 'performer'], family: 'tech', color: '#e46fa8',
-    desc: 'みんなの あこがれ。おどりで かいふくし、スポットライトで てきの めを ひきつける。',
+    desc: 'みんなのあこがれ。おどりで回復し、スポットライトで敵の目を引きつける。',
     mods: { hp: 1.0, mp: 1.2, str: 0.9, def: 1.0, agi: 1.3, mag: 1.1, heal: 1.3 },
     weapons: ['fan', 'whip', 'dagger'], shield: true, armor: ['cloth', 'robe', 'gi'], helm: false,
     perLv: { mp: 0.5, heal: 0.5 },
@@ -153,7 +153,7 @@ export const JOBS = {
   },
   fortune: {
     id: 'fortune', name: '占い師', kana: 'うらないし', short: '占い', tier: 1, req: ['mage', 'performer'], family: 'magic', color: '#7a4ab8',
-    desc: 'タロットカードで うんめいを うごかす。たいようの カードで かいふく、つきの カードで ねむらせる。',
+    desc: 'タロットカードで運命を動かす。太陽のカードで回復、月のカードでねむらせる。',
     mods: { hp: 0.95, mp: 1.35, str: 0.8, def: 0.95, agi: 1.1, mag: 1.35, heal: 1.1 },
     weapons: ['staff', 'fan', 'dagger'], shield: false, armor: ['cloth', 'robe'], helm: false,
     perLv: { mag: 0.5, mp: 0.5 },
@@ -163,7 +163,7 @@ export const JOBS = {
   // ───────────── 超級職（上級職を マスターすると なれる） ─────────────
   dragon_knight: {
     id: 'dragon_knight', name: '竜の騎士', kana: 'りゅうのきし', short: '竜騎', tier: 2, req: ['battlemaster', 'magic_knight'], family: 'phys', color: '#2aa06a',
-    desc: 'でんせつの 竜の ちからを うけついだ せんし。竜闘気を まとい、ギガブレイクと ドルオーラを はなつ。',
+    desc: '伝説の竜の力を受けついだ戦士。竜闘気をまとい、ギガブレイクとドルオーラを放つ。',
     mods: { hp: 1.45, mp: 0.9, str: 1.5, def: 1.35, agi: 1.25, mag: 1.15, heal: 0.8 },
     weapons: ['sword', 'spear', 'axe', 'claw', 'none'], shield: true, armor: ['cloth', 'heavy', 'gi', 'robe'], helm: true,
     perLv: { str: 1, def: 0.5, hp: 1 },
@@ -171,7 +171,7 @@ export const JOBS = {
   },
   archmage: {
     id: 'archmage', name: '大魔道士', kana: 'だいまどうし', short: '大魔', tier: 2, req: ['sage', 'magic_knight'], family: 'magic', color: '#5ac880',
-    desc: 'あらゆる じゅもんを きわめた まどうし。しょう消滅呪文「メドローア」を つかえる ただ ひとつの しょくぎょう。',
+    desc: 'あらゆる呪文を極めた魔道士。消滅呪文「メドローア」を使えるただ一つの職業。',
     mods: { hp: 0.95, mp: 1.7, str: 0.75, def: 0.95, agi: 1.1, mag: 1.75, heal: 1.1 },
     weapons: ['staff', 'dagger'], shield: false, armor: ['cloth', 'robe'], helm: false,
     perLv: { mag: 1, mp: 1 },
@@ -179,7 +179,7 @@ export const JOBS = {
   },
   high_priest: {
     id: 'high_priest', name: '大神官', kana: 'だいしんかん', short: '大神', tier: 2, req: ['sage', 'paladin'], family: 'magic', color: '#f4e08a',
-    desc: 'かみに えらばれた いやしての ちょうてん。ザオリクと ベホマズンで パーティーを まもりぬく。',
+    desc: '神に選ばれた、いやし手の頂点。ザオリクとベホマズンでパーティーを守りぬく。',
     mods: { hp: 1.1, mp: 1.6, str: 0.8, def: 1.15, agi: 1.0, mag: 1.0, heal: 1.75 },
     weapons: ['staff', 'spear'], shield: true, armor: ['cloth', 'robe'], helm: false,
     perLv: { heal: 1, mp: 1 },
@@ -187,7 +187,7 @@ export const JOBS = {
   },
   god_hand: {
     id: 'god_hand', name: 'ゴッドハンド', kana: 'ごっどはんど', short: 'ゴッ', tier: 2, req: ['battlemaster', 'holyfist'], family: 'phys', color: '#ffb030',
-    desc: 'かみの こぶしを もつ ぶじんの ちょうてん。しんそくの けんと むそうけんで てきを うちくだく。',
+    desc: '神のこぶしを持つ武人の頂点。「神速の拳」と「むそうけん」で敵を打ち砕く。',
     mods: { hp: 1.35, mp: 0.7, str: 1.6, def: 1.2, agi: 1.5, mag: 0.5, heal: 0.9 },
     weapons: ['claw', 'sword', 'axe', 'spear', 'none'], shield: false, armor: ['cloth', 'gi', 'heavy'], helm: true,
     perLv: { str: 1, agi: 1 },
@@ -195,7 +195,7 @@ export const JOBS = {
   },
   summoner: {
     id: 'summoner', name: '天地雷鳴士', kana: 'てんちらいめいし', short: '天地', tier: 2, req: ['fortune', 'sage'], family: 'magic', color: '#6ab8e8',
-    desc: 'てんちの せいれい「げんま」を よびだして たたかう。さいごには ジゴスパークを おぼえる。',
+    desc: '天地のせいれい「げんま」を呼び出して戦う。最後にはジゴスパークを覚える。',
     mods: { hp: 1.0, mp: 1.6, str: 0.8, def: 1.0, agi: 1.1, mag: 1.6, heal: 1.3 },
     weapons: ['staff', 'fan', 'whip'], shield: false, armor: ['cloth', 'robe'], helm: false,
     perLv: { mag: 1, heal: 0.5 },
@@ -203,7 +203,7 @@ export const JOBS = {
   },
   magic_swordsman: {
     id: 'magic_swordsman', name: '魔剣士', kana: 'まけんし', short: '魔剣', tier: 2, req: ['magic_knight', 'ninja'], family: 'phys', color: '#6a2a8a',
-    desc: 'やみの ちからを けんに やどす けんし。ソウルイーターで てきの いのちを すいとる。',
+    desc: '闇の力を剣に宿す剣士。ソウルイーターで敵の命を吸い取る。',
     mods: { hp: 1.25, mp: 1.1, str: 1.45, def: 1.15, agi: 1.25, mag: 1.3, heal: 0.6 },
     weapons: ['sword', 'dagger', 'axe'], shield: true, armor: ['cloth', 'heavy', 'robe'], helm: true,
     perLv: { str: 1, mag: 0.5 },
@@ -211,7 +211,7 @@ export const JOBS = {
   },
   guardian: {
     id: 'guardian', name: 'ガーディアン', kana: 'がーでぃあん', short: 'ガー', tier: 2, req: ['paladin', 'pirate'], family: 'phys', color: '#8a9ab8',
-    desc: 'なかまの たてと なる まもりの ちょうてん。ふどうの ようさいで みんなを まもる。',
+    desc: '仲間のたてとなる守りの頂点。「不動のようさい」でみんなを守る。',
     mods: { hp: 1.6, mp: 0.8, str: 1.15, def: 1.75, agi: 0.8, mag: 0.6, heal: 1.1 },
     weapons: ['spear', 'sword', 'axe'], shield: true, armor: ['cloth', 'heavy'], helm: true,
     perLv: { def: 1, hp: 2 },
@@ -219,7 +219,7 @@ export const JOBS = {
   },
   hero: {
     id: 'hero', name: '勇者', kana: 'ゆうしゃ', short: '勇者', tier: 2, req: ['battlemaster', 'sage', 'paladin'], family: 'phys', color: '#3f7fd0',
-    desc: 'きずなの紋章に みとめられた ほんとうの ゆうしゃ。ギガスラッシュと ギガデインで やみを はらう。',
+    desc: 'きずなの紋章に認められた本当の勇者。ギガスラッシュとギガデインで闇をはらう。',
     mods: { hp: 1.4, mp: 1.2, str: 1.35, def: 1.3, agi: 1.2, mag: 1.3, heal: 1.3 },
     weapons: ['sword', 'spear', 'axe', 'staff'], shield: true, armor: ['cloth', 'heavy', 'robe', 'gi'], helm: true,
     perLv: { hp: 1, str: 0.5, mag: 0.5, heal: 0.5 },
@@ -228,7 +228,7 @@ export const JOBS = {
   },
   monster_master: {
     id: 'monster_master', name: 'モンスターマスター', kana: 'もんすたーますたー', short: 'モン', tier: 2, req: ['tamer', 'sage'], family: 'tech', color: '#c8903a',
-    desc: 'まものと こころを ひとつに する たつじん。まものが とても なかまに なりやすく、なかまの まものも つよくなる。',
+    desc: '魔物と心を一つにする達人。魔物がとても仲間になりやすく、仲間の魔物も強くなる。',
     mods: { hp: 1.25, mp: 1.1, str: 1.2, def: 1.1, agi: 1.25, mag: 1.0, heal: 1.2 },
     weapons: ['whip', 'claw', 'axe', 'staff', 'none'], shield: true, armor: ['cloth', 'gi', 'heavy'], helm: false,
     perLv: { hp: 1, heal: 0.5 },
@@ -237,7 +237,7 @@ export const JOBS = {
   },
   star_diva: {
     id: 'star_diva', name: '星の歌姫', kana: 'ほしのうたひめ', short: '歌姫', tier: 2, req: ['superstar', 'fortune'], family: 'magic', color: '#f7a1c4',
-    desc: '守り星の うたを うたう うたひめ。ほしの うたで いやし、りゅうせいぐんを ふらせる。',
+    desc: '守り星の歌を歌う歌姫。星の歌でいやし、流星群を降らせる。',
     mods: { hp: 1.05, mp: 1.5, str: 0.8, def: 1.0, agi: 1.35, mag: 1.4, heal: 1.5 },
     weapons: ['fan', 'staff', 'whip'], shield: false, armor: ['cloth', 'robe'], helm: false,
     perLv: { mp: 1, heal: 0.5 },

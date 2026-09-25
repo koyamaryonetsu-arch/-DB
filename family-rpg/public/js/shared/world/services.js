@@ -89,37 +89,37 @@ export function serviceAction(world, s, msg) {
       if (msg.action === 'buy') {
         const it = ITEMS[msg.id];
         const qty = Math.max(1, Math.min(99, Math.floor(msg.qty || 1)));
-        if (!shop || !shop.items.includes(msg.id) || !it) return reply(false, 'その しなものは ありません');
+        if (!shop || !shop.items.includes(msg.id) || !it) return reply(false, 'その品物はありません');
         const cost = it.price * qty;
-        if (c.gold < cost) return reply(false, 'ゴールドが たりないよ');
+        if (c.gold < cost) return reply(false, 'ゴールドが足りないよ');
         c.gold -= cost;
         addItem(c, msg.id, qty);
-        let text = `${it.name}を ${qty > 1 ? qty + 'こ ' : ''}かった！`;
+        let text = `${it.name}を${qty > 1 ? qty + '個' : ''}買った！`;
         if (msg.equip && canEquip(c.job, msg.id)) {
           equipItem(c, msg.id);
-          text = `${it.name}を かって そうびした！`;
+          text = `${it.name}を買って装備した！`;
         }
         return reply(true, text);
       }
       if (msg.action === 'sell') {
         const it = ITEMS[msg.id];
         const qty = Math.max(1, Math.min(99, Math.floor(msg.qty || 1)));
-        if (!it || it.type === 'key') return reply(false, 'それは うれないよ');
-        if (itemCount(c, msg.id) < qty) return reply(false, 'もっていないよ');
+        if (!it || it.type === 'key') return reply(false, 'それは売れないよ');
+        if (itemCount(c, msg.id) < qty) return reply(false, '持っていないよ');
         const price = sellPrice(msg.id);
         removeItem(c, msg.id, qty);
         c.gold += price * qty;
-        return reply(true, `${it.name}を ${price * qty}ゴールドで うった！`);
+        return reply(true, `${it.name}を${price * qty}ゴールドで売った！`);
       }
       return reply(false, '');
     }
     case 'jobChange': {
       if (!JOBS[msg.job]) return reply(false, '');
       const who = ownChar(s, msg.who);
-      if (!who || who.species) return reply(false, 'モンスターは 転職できない');
-      if (who.job === msg.job) return reply(false, 'いまの しょくぎょうと おなじです');
+      if (!who || who.species) return reply(false, 'モンスターは転職できない');
+      if (who.job === msg.job) return reply(false, '今の職業と同じです');
       const r = changeJob(who, msg.job);
-      if (r.locked) return reply(false, `まだ ${JOBS[msg.job].name}には なれない…\n（${jobReqText(msg.job)}が ひつよう）`);
+      if (r.locked) return reply(false, `まだ${JOBS[msg.job].name}にはなれない…\n（${jobReqText(msg.job)}が必要）`);
       if (!r.ok) return reply(false, '');
       // なかまが はずした そうびは ふくろへ
       if (who !== c) {
@@ -128,7 +128,7 @@ export function serviceAction(world, s, msg) {
       }
       const removed = r.removed.map((id) => ITEMS[id]?.name).filter(Boolean);
       world.sendParty(partyOf(world, s));
-      return reply(true, `${who.name}は ${JOBS[msg.job].name}に なった！${removed.length ? `\n（${removed.join('・')}は そうびできないので はずした）` : ''}`, { jobChanged: true, who: msg.who || 'self' });
+      return reply(true, `${who.name}は${JOBS[msg.job].name}になった！${removed.length ? `\n（${removed.join('・')}は装備できないので外した）` : ''}`, { jobChanged: true, who: msg.who || 'self' });
     }
     case 'tavern': {
       let r;
@@ -136,23 +136,23 @@ export function serviceAction(world, s, msg) {
       switch (msg.action) {
         case 'recruit':
           r = recruitNpc(world, s, String(msg.key || ''), { swap: msg.swap, join: msg.join !== false });
-          if (r.ok) text = r.joined ? `${r.name}が なかまに くわわった！` : `${r.name}が なかまに なった！\n（いまは 酒場で まっている）`;
+          if (r.ok) text = r.joined ? `${r.name}が仲間に加わった！` : `${r.name}が仲間になった！\n（今は酒場で待っている）`;
           break;
         case 'join':
           r = companionJoin(world, s, String(msg.key || ''), msg.swap);
-          if (r.ok) text = `${r.name}が パーティーに くわわった！${r.benchedName ? `\n${r.benchedName}は 酒場で まっている。` : ''}`;
+          if (r.ok) text = `${r.name}がパーティーに加わった！${r.benchedName ? `\n${r.benchedName}は酒場で待っている。` : ''}`;
           break;
         case 'wait':
           r = companionWait(world, s, String(msg.key || ''));
-          if (r.ok) text = `${r.name}は 酒場で まっている。`;
+          if (r.ok) text = `${r.name}は酒場で待っている。`;
           break;
         case 'release':
           r = companionRelease(world, s, String(msg.key || ''));
-          if (r.ok) text = `${r.name}と わかれた。\n「いままで ありがとう！」`;
+          if (r.ok) text = `${r.name}と別れた。\n「今までありがとう！」`;
           break;
         case 'rename':
           r = companionRename(world, s, String(msg.key || ''), msg.name);
-          if (r.ok) text = `${r.old}の なまえを ${r.name}に かえた！`;
+          if (r.ok) text = `${r.old}の名前を${r.name}に変えた！`;
           break;
         case 'breedPreview': {
           // みるだけ（なにも かわらない）
@@ -162,7 +162,7 @@ export function serviceAction(world, s, msg) {
         }
         case 'breed':
           r = breedMonsters(world, s, { a: String(msg.a || ''), b: String(msg.b || ''), inherit: Array.isArray(msg.inherit) ? msg.inherit.map(String) : null, name: msg.name });
-          if (r.ok) text = `${r.name}（${MONSTERS[r.species].name}＋${r.plus}）が うまれた！${r.joined ? '' : `\n${r.name}は 酒場で まっている。`}`;
+          if (r.ok) text = `${r.name}（${MONSTERS[r.species].name}＋${r.plus}）が生まれた！${r.joined ? '' : `\n${r.name}は酒場で待っている。`}`;
           break;
         default:
           return;
@@ -173,48 +173,48 @@ export function serviceAction(world, s, msg) {
     case 'board': {
       if (msg.action === 'post') {
         const text = String(msg.text || '').replace(/[<>]/g, '').slice(0, 120).trim();
-        if (!text) return reply(false, 'メッセージを いれてね');
+        if (!text) return reply(false, 'メッセージを入れてね');
         world.data.board = world.data.board || [];
         world.data.board.unshift({ from: c.name, text, time: Date.now() });
         world.data.board = world.data.board.slice(0, 40);
         world.broadcast({ t: 'board', posts: world.data.board });
-        return reply(true, 'でんごんばんに かきこんだ！', { posts: world.data.board });
+        return reply(true, '伝言板に書きこんだ！', { posts: world.data.board });
       }
       return;
     }
     case 'starTrade': {
       const tr = STAR_TRADES[msg.index];
       if (!tr) return reply(false, '');
-      if (itemCount(c, 'star_shard') < tr.shards) return reply(false, 'ほしのかけらが たりないねえ');
+      if (itemCount(c, 'star_shard') < tr.shards) return reply(false, '星のかけらが足りないねえ');
       removeItem(c, 'star_shard', tr.shards);
       addItem(c, tr.item, 1);
-      return reply(true, `ほしのかけら ${tr.shards}こと ${ITEMS[tr.item].name}を こうかんした！`);
+      return reply(true, `星のかけら${tr.shards}個と${ITEMS[tr.item].name}をこうかんした！`);
     }
     case 'church': {
       if (msg.action === 'record') {
         c.spawn = { map: s.map, x: s.x, y: s.y };
-        return reply(true, 'かみの ごかごが ありますように。\nここを いのりの ばしょとして きろくしました。');
+        return reply(true, '神のご加護がありますように。\nここをいのりの場所として記録しました。');
       }
       const target = refChar(world, s, msg.ref);
       if (!target) return reply(false, '');
       if (msg.action === 'revive') {
-        if (target.hp > 0) return reply(false, 'その ひとは いきています');
+        if (target.hp > 0) return reply(false, 'その人は生きています');
         const price = revivePrice(target.level);
-        if (c.gold < price) return reply(false, 'ゴールドが たりないようですね');
+        if (c.gold < price) return reply(false, 'ゴールドが足りないようですね');
         c.gold -= price;
         target.hp = computeStats(target).maxHp;
         const info = churchInfo(world, s);
         world.sendParty(partyOf(world, s));
         for (const sid of partyOf(world, s)?.members || []) world.sendSelf(world.sessions.get(sid));
-        return reply(true, `おお かみよ… ${target.name}を いきかえらせたまえ！\n${target.name}は いきかえった！`, { church: info });
+        return reply(true, `おお神よ…${target.name}を生き返らせたまえ！\n${target.name}は生き返った！`, { church: info });
       }
       if (msg.action === 'cure') {
-        if (!target.status?.poison) return reply(false, 'どくには かかっていません');
-        if (c.gold < CURE_PRICE) return reply(false, 'ゴールドが たりないようですね');
+        if (!target.status?.poison) return reply(false, '毒にはかかっていません');
+        if (c.gold < CURE_PRICE) return reply(false, 'ゴールドが足りないようですね');
         c.gold -= CURE_PRICE;
         target.status = {};
         world.sendParty(partyOf(world, s));
-        return reply(true, `${target.name}の どくが きえた！`, { church: churchInfo(world, s) });
+        return reply(true, `${target.name}の毒が消えた！`, { church: churchInfo(world, s) });
       }
       return;
     }
@@ -250,13 +250,13 @@ export function menuAction(world, s, msg) {
     if (p) world.sendParty(p);
     world.markDirty();
   };
-  if (s.busy) return reply(false, 'いまは できません');
+  if (s.busy) return reply(false, '今はできません');
   switch (msg.action) {
     case 'equip': {
       const who = ownChar(s, msg.who);
       if (!who) return reply(false, '');
-      if (!equipItem(who, msg.id, c)) return reply(false, who.species ? 'モンスターは アクセサリー だけ そうびできる' : 'その しょくぎょうでは そうびできない');
-      return reply(true, `${who === c ? '' : who.name + 'は '}${ITEMS[msg.id].name}を そうびした！`);
+      if (!equipItem(who, msg.id, c)) return reply(false, who.species ? 'モンスターはアクセサリーだけ装備できる' : 'その職業では装備できない');
+      return reply(true, `${who === c ? '' : who.name + 'は'}${ITEMS[msg.id].name}を装備した！`);
     }
     case 'unequip': {
       const who = ownChar(s, msg.who);
@@ -268,48 +268,48 @@ export function menuAction(world, s, msg) {
       const st = computeStats(who);
       who.hp = Math.min(who.hp, st.maxHp);
       who.mp = Math.min(who.mp, st.maxMp);
-      return reply(true, `${who === c ? '' : who.name + 'の '}${ITEMS[id].name}を はずした。`);
+      return reply(true, `${who === c ? '' : who.name + 'の'}${ITEMS[id].name}を外した。`);
     }
     case 'discard': {
       const it = ITEMS[msg.id];
-      if (!it || it.type === 'key') return reply(false, 'それは すてられない');
+      if (!it || it.type === 'key') return reply(false, 'それは捨てられない');
       if (!removeItem(c, msg.id, Math.max(1, msg.n || 1))) return reply(false, '');
-      return reply(true, `${it.name}を すてた。`);
+      return reply(true, `${it.name}を捨てた。`);
     }
     case 'useItem': {
       const it = ITEMS[msg.id];
-      if (!it || it.type !== 'use' || !it.field) return reply(false, 'いまは つかえない');
-      if (itemCount(c, msg.id) < 1) return reply(false, 'もっていない');
+      if (!it || it.type !== 'use' || !it.field) return reply(false, '今は使えない');
+      if (itemCount(c, msg.id) < 1) return reply(false, '持っていない');
       const eff = it.effect;
       if (eff.type === 'repel') {
         removeItem(c, msg.id, 1);
         s.repelUntil = world.now() + eff.seconds * 1000;
-        return reply(true, `${c.name}は せいすいを ふりまいた！\nしばらく よわい まものが よってこない。`);
+        return reply(true, `${c.name}は聖水をふりまいた！\nしばらく弱い魔物が寄ってこない。`);
       }
       if (eff.type === 'warp') {
         const dest = msg.place && PLACES[msg.place] && c.visited?.[msg.place] ? msg.place : null;
-        if (!dest) return reply(false, 'どこへ いく？');
+        if (!dest) return reply(false, 'どこへ行く？');
         if (s.map !== 'overworld' && world.mapKind(s.map) !== 'dungeon') return reply(false, '');
         removeItem(c, msg.id, 1);
         const pos = warpPos(dest);
         world.placeSession(s, 'overworld', pos[0], pos[1], 'down', true);
-        return reply(true, `${c.name}は きかんのはねを そらに なげた！`);
+        return reply(true, `${c.name}は帰り道の羽を空に投げた！`);
       }
       const target = refChar(world, s, msg.ref);
       if (!target) return reply(false, '');
       const r = applyFieldEffect(world, c, target, eff);
       if (!r.ok) return reply(false, r.text);
       removeItem(c, msg.id, 1);
-      return reply(true, `${c.name}は ${it.name}を つかった！\n${r.text}`);
+      return reply(true, `${c.name}は${it.name}を使った！\n${r.text}`);
     }
     case 'cast': {
       const caster = ownChar(s, msg.who);
       if (!caster) return reply(false, '');
-      if (caster.hp <= 0) return reply(false, `${caster.name}は しんでいる…`);
+      if (caster.hp <= 0) return reply(false, `${caster.name}は死んでいる…`);
       const a = ABILITIES[msg.id];
-      if (!a || !a.field || !learnedAbilities(caster).includes(msg.id)) return reply(false, 'いまは つかえない');
+      if (!a || !a.field || !learnedAbilities(caster).includes(msg.id)) return reply(false, '今は使えない');
       const cost = mpCost(caster, msg.id);
-      if (caster.mp < cost) return reply(false, 'MPが たりない！');
+      if (caster.mp < cost) return reply(false, 'MPが足りない！');
       const pen = penaltyFor(caster, msg.id);
       const targets = a.target === 'allies' ? allRefs(world, s).map((r) => refChar(world, s, r)).filter(Boolean) : [refChar(world, s, msg.ref)].filter(Boolean);
       if (!targets.length) return reply(false, '');
@@ -320,9 +320,9 @@ export function menuAction(world, s, msg) {
         if (r.ok) any = true;
         texts.push(r.text);
       }
-      if (!any) return reply(false, texts[0] || 'こうかが なかった');
+      if (!any) return reply(false, texts[0] || '効果がなかった');
       caster.mp -= cost;
-      return reply(true, `${caster.name}は ${a.name}を となえた！\n${texts.filter(Boolean).slice(0, 3).join('\n')}`);
+      return reply(true, `${caster.name}は${a.name}を唱えた！\n${texts.filter(Boolean).slice(0, 3).join('\n')}`);
     }
     case 'tactics': {
       const t = TACTICS[msg.tactics] ? msg.tactics : null;
@@ -330,7 +330,7 @@ export function menuAction(world, s, msg) {
       if (msg.key === 'self') {
         if (t === 'manual') return reply(false, '');
         c.tactics = t;
-        return reply(true, `さくせんを「${TACTICS[t].name}」に した。`);
+        return reply(true, `作戦を「${TACTICS[t].name}」にした。`);
       }
       const p = partyOf(world, s);
       const own = companionOf(ensureCompanions(c), msg.key);
@@ -338,7 +338,7 @@ export function menuAction(world, s, msg) {
       const target = own?.char || sup?.char;
       if (!target) return reply(false, '');
       target.tactics = t;
-      return reply(true, `${target.name}の さくせんを「${TACTICS[t].name}」に した。`);
+      return reply(true, `${target.name}の作戦を「${TACTICS[t].name}」にした。`);
     }
     case 'settings': {
       c.battleSettings = {
@@ -346,7 +346,7 @@ export function menuAction(world, s, msg) {
         wait: !!msg.wait,
         auto: !!msg.auto,
       };
-      return reply(true, 'せっていを かえた。');
+      return reply(true, '設定を変えた。');
     }
     default:
       return reply(false, '');
@@ -366,40 +366,40 @@ function applyFieldEffect(world, user, target, eff, powMult = 1) {
   const st = computeStats(target);
   switch (eff.type) {
     case 'heal': {
-      if (target.hp <= 0) return { ok: false, text: `${target.name}は しんでいる…` };
-      if (target.hp >= st.maxHp) return { ok: false, text: `${target.name}の HPは まんたんだ` };
+      if (target.hp <= 0) return { ok: false, text: `${target.name}は死んでいる…` };
+      if (target.hp >= st.maxHp) return { ok: false, text: `${target.name}のHPは満タンだ` };
       let amt = world.rng.int(eff.base[0], eff.base[1]);
       if (!eff.fixed) amt *= 1 + Math.max(0, Math.min(1, (computeStats(user).heal - (eff.thr ?? 20)) / 150));
       amt = Math.round(amt * powMult);
       const real = Math.min(st.maxHp - target.hp, amt);
       target.hp += real;
-      return { ok: true, text: target.hp >= st.maxHp ? `${target.name}の キズが すっかり かいふくした！` : `${target.name}の HPが ${real} かいふくした！` };
+      return { ok: true, text: target.hp >= st.maxHp ? `${target.name}のキズがすっかり回復した！` : `${target.name}のHPが${real}回復した！` };
     }
     case 'mpHeal': {
-      if (target.mp >= st.maxMp) return { ok: false, text: `${target.name}の MPは まんたんだ` };
+      if (target.mp >= st.maxMp) return { ok: false, text: `${target.name}のMPは満タンだ` };
       const d = Math.min(st.maxMp - target.mp, world.rng.int(eff.base[0], eff.base[1]));
       target.mp += d;
-      return { ok: true, text: `${target.name}の MPが ${d} かいふくした！` };
+      return { ok: true, text: `${target.name}のMPが${d}回復した！` };
     }
     case 'cure': {
-      if (!target.status?.poison || !eff.statuses.includes('poison')) return { ok: false, text: 'しかし なにも おこらなかった' };
+      if (!target.status?.poison || !eff.statuses.includes('poison')) return { ok: false, text: 'しかし何も起こらなかった' };
       target.status = {};
-      return { ok: true, text: `${target.name}の どくが きえた！` };
+      return { ok: true, text: `${target.name}の毒が消えた！` };
     }
     case 'revive': {
-      if (target.hp > 0) return { ok: false, text: `${target.name}は いきている` };
+      if (target.hp > 0) return { ok: false, text: `${target.name}は生きている` };
       target.hp = Math.max(1, Math.round(st.maxHp * (eff.hpRatio || 0.25)));
-      return { ok: true, text: `なんと ${target.name}が いきかえった！` };
+      return { ok: true, text: `なんと${target.name}が生き返った！` };
     }
     case 'seed': {
       const n = world.rng.int(eff.amount[0], eff.amount[1]);
       target.seeds = target.seeds || {};
       target.seeds[eff.stat] = (target.seeds[eff.stat] || 0) + n;
-      const names = { str: 'ちから', def: 'みのまもり', agi: 'すばやさ', mag: 'こうげき魔力', hp: 'さいだいHP' };
-      return { ok: true, text: `${target.name}の ${names[eff.stat]}が ${n} あがった！` };
+      const names = { str: '力', def: '身の守り', agi: '素早さ', mag: '攻撃魔力', hp: '最大HP' };
+      return { ok: true, text: `${target.name}の${names[eff.stat]}が${n}上がった！` };
     }
     default:
-      return { ok: false, text: 'いまは つかえない' };
+      return { ok: false, text: '今は使えない' };
   }
 }
 

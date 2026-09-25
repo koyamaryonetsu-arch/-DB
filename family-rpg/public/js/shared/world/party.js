@@ -135,7 +135,7 @@ export function tavernInfo(world, s) {
     const key = 'fam:' + other.id;
     family.push({
       key, name: other.name, job: other.job, level: other.level, look: other.look, equip: other.equip,
-      desc: `かぞくの キャラクター（${other.name}）。つれていくと ${other.name}にも けいけんちの おすそわけが とどくよ。`,
+      desc: `家族のキャラクター（${other.name}）。連れていくと${other.name}にも経験値のおすそわけが届くよ。`,
       inParty: c.partyKeys.includes(key), active: activeKeys.has(key),
     });
   }
@@ -179,7 +179,7 @@ export function putInParty(c, key, swapKey) {
     return { ok: true };
   }
   const i = swapKey ? c.partyKeys.indexOf(swapKey) : -1;
-  if (i < 0) return { ok: false, full: true, reason: 'パーティーが いっぱいです。だれかに 酒場で まっていて もらおう' };
+  if (i < 0) return { ok: false, full: true, reason: 'パーティーがいっぱいです。だれかに酒場で待っていてもらおう' };
   c.partyKeys[i] = key;
   return { ok: true, benched: swapKey };
 }
@@ -203,10 +203,10 @@ export function afterRosterChange(world, s) {
 export function recruitNpc(world, s, npcId, opts = {}) {
   const c = ensureCompanions(s.char);
   const def = NPC_SUPPORTS.find((n) => n.id === npcId);
-  if (!def) return { ok: false, reason: 'みつかりません' };
-  if (def.unlock && !c.flags[def.unlock] && !opts.force) return { ok: false, reason: 'まだ なかまに できません' };
-  if (companionOf(c, npcId)) return { ok: false, reason: 'もう なかまです' };
-  if (c.companions.length >= ROSTER_MAX) return { ok: false, reason: `なかまは ${ROSTER_MAX}人まで です` };
+  if (!def) return { ok: false, reason: '見つかりません' };
+  if (def.unlock && !c.flags[def.unlock] && !opts.force) return { ok: false, reason: 'まだ仲間にできません' };
+  if (companionOf(c, npcId)) return { ok: false, reason: 'もう仲間です' };
+  if (c.companions.length >= ROSTER_MAX) return { ok: false, reason: `仲間は${ROSTER_MAX}人までです` };
   const ch = makeNpcSupportChar(def, npcStartLevel(c));
   ch.id = `${c.id}:${def.id}`;
   c.companions.push({ key: def.id, kind: 'npc', char: ch });
@@ -224,8 +224,8 @@ export function companionJoin(world, s, key, swapKey) {
   const c = ensureCompanions(s.char);
   if (key.startsWith('fam:')) {
     const other = world.data.characters[key.slice(4)];
-    if (!other || other.id === c.id) return { ok: false, reason: 'みつかりません' };
-  } else if (!companionOf(c, key)) return { ok: false, reason: 'みつかりません' };
+    if (!other || other.id === c.id) return { ok: false, reason: '見つかりません' };
+  } else if (!companionOf(c, key)) return { ok: false, reason: '見つかりません' };
   const r = putInParty(c, key, swapKey);
   if (!r.ok) return r;
   // 酒場で やすんでいたので げんき いっぱい
@@ -239,7 +239,7 @@ export function companionJoin(world, s, key, swapKey) {
 export function companionWait(world, s, key) {
   const c = ensureCompanions(s.char);
   const i = c.partyKeys.indexOf(key);
-  if (i < 0) return { ok: false, reason: 'パーティーに いません' };
+  if (i < 0) return { ok: false, reason: 'パーティーにいません' };
   c.partyKeys.splice(i, 1);
   afterRosterChange(world, s);
   return { ok: true, name: nameOfKey(world, c, key) };
@@ -249,8 +249,8 @@ export function companionWait(world, s, key) {
 export function companionRelease(world, s, key) {
   const c = ensureCompanions(s.char);
   const e = companionOf(c, key);
-  if (!e) return { ok: false, reason: 'みつかりません' };
-  if (e.kind !== 'monster') return { ok: false, reason: 'この なかまは 酒場で ずっと まっていて くれるよ' };
+  if (!e) return { ok: false, reason: '見つかりません' };
+  if (e.kind !== 'monster') return { ok: false, reason: 'この仲間は酒場でずっと待っていてくれるよ' };
   for (const slot of SLOTS) if (e.char.equip?.[slot]) addItem(c, e.char.equip[slot], 1);
   c.companions = c.companions.filter((x) => x !== e);
   c.partyKeys = c.partyKeys.filter((k) => k !== key);
@@ -262,7 +262,7 @@ export function companionRename(world, s, key, name) {
   const c = ensureCompanions(s.char);
   const e = companionOf(c, key);
   const nm = String(name || '').replace(/[<>&"'\s]/g, '').slice(0, 8);
-  if (!e || !nm) return { ok: false, reason: 'なまえを いれてね' };
+  if (!e || !nm) return { ok: false, reason: '名前を入れてね' };
   const old = e.char.name;
   e.char.name = nm;
   afterRosterChange(world, s);
@@ -306,7 +306,7 @@ function monsterName(c, species) {
   const f = MONSTER_FRIENDS[species];
   const used = new Set(c.companions.map((e) => e.char.name));
   for (const n of f?.names || []) if (!used.has(n)) return n;
-  const base = MONSTERS[species]?.name || 'まもの';
+  const base = MONSTERS[species]?.name || '魔物';
   for (let i = 2; i < 99; i++) if (!used.has(`${base}${i}`.slice(0, 8))) return `${base}${i}`.slice(0, 8);
   return base;
 }
@@ -314,8 +314,8 @@ function monsterName(c, species) {
 // bench: 入れかわりに 酒場へ もどる なかま（'__tavern' なら あたらしい なかまが 酒場へ）
 export function addMonsterCompanion(world, s, species, level, bench) {
   const c = ensureCompanions(s.char);
-  if (!MONSTER_FRIENDS[species]) return { ok: false, reason: 'この まものは なかまに できない' };
-  if (c.companions.length >= ROSTER_MAX) return { ok: false, reason: `なかまは ${ROSTER_MAX}ひきまで です。酒場で だれかと わかれよう` };
+  if (!MONSTER_FRIENDS[species]) return { ok: false, reason: 'この魔物は仲間にできない' };
+  if (c.companions.length >= ROSTER_MAX) return { ok: false, reason: `仲間は${ROSTER_MAX}ひきまでです。酒場でだれかと別れよう` };
   const key = 'm' + (c.monsterSeq++);
   const ch = newMonsterCompanion({ id: `${c.id}:${key}`, name: monsterName(c, species), species, level });
   c.companions.push({ key, kind: 'monster', species, char: ch });
@@ -346,7 +346,7 @@ export function growCompanion(ch, exp, trainN = 0) {
   const lines = [];
   const ups = gainExp(ch, exp);
   for (const u of ups) {
-    lines.push(`${ch.name}の レベルが ${u.level}に あがった！`);
+    lines.push(`${ch.name}のレベルが${u.level}に上がった！`);
     for (const id of u.learned) lines.push({ learn: id, who: ch.name });
   }
   if (!ch.species && trainN > 0) {

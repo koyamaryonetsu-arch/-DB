@@ -26,9 +26,9 @@ export function autoInherit(A, B, child) {
 export function breedPreview(c, keyA, keyB) {
   ensureCompanions(c);
   const A = companionOf(c, keyA), B = companionOf(c, keyB);
-  if (!A || !B || A === B) return { ok: false, reason: 'まものを 2ひき えらんでね' };
-  if (A.kind !== 'monster' || B.kind !== 'monster') return { ok: false, reason: 'はいごう できるのは モンスターの なかま だけ' };
-  if (A.char.level < BREED_MIN_LEVEL || B.char.level < BREED_MIN_LEVEL) return { ok: false, reason: `レベル${BREED_MIN_LEVEL}いじょうの まもの どうしで ないと はいごう できない` };
+  if (!A || !B || A === B) return { ok: false, reason: '魔物を2ひき選んでね' };
+  if (A.kind !== 'monster' || B.kind !== 'monster') return { ok: false, reason: '配合できるのはモンスターの仲間だけ' };
+  if (A.char.level < BREED_MIN_LEVEL || B.char.level < BREED_MIN_LEVEL) return { ok: false, reason: `レベル${BREED_MIN_LEVEL}以上の魔物同士でないと配合できない` };
   const child = breedResult(A.species, B.species, MONSTERS);
   return {
     ok: true, child, childName: MONSTERS[child].name, plus: breedPlus(A.char, B.char), special: child !== A.species && child !== B.species,

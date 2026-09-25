@@ -150,7 +150,7 @@ test('ワールド: かった たたかいで 職業レベルが すすみ、よ
   const r2 = await fight(['pururin']);
   assert.equal(r2.outcome, 'win');
   assert.equal(c.jobs.warrior.b, b0 + 1, 'Lv10 で ぷるりんは しゅぎょうに ならない');
-  assert.ok(r2.lines.some((l) => l.includes('しゅぎょうに ならなかった')));
+  assert.ok(r2.lines.some((l) => l.includes('修行にならなかった')));
 });
 
 test('上級職・超級職の わざは ぜんぶ たたかいで つかえる（エラーが でない）', () => {

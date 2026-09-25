@@ -128,8 +128,8 @@ test('ボスの ためこみ（いきを すいこむ）の あとは すぐに 
   let avalancheAt = null;
   for (let t = 0; t < 60000 && !b.over; t += 50) {
     for (const e of b.tick(50)) {
-      if (e.t === 'act' && e.id === boss.id && e.name === 'いきをすいこむ' && inhaleAt === null) inhaleAt = b.time;
-      if (e.t === 'act' && e.id === boss.id && e.name === 'いわなだれ' && avalancheAt === null) avalancheAt = b.time;
+      if (e.t === 'act' && e.id === boss.id && e.name === '息を吸いこむ' && inhaleAt === null) inhaleAt = b.time;
+      if (e.t === 'act' && e.id === boss.id && e.name === '岩なだれ' && avalancheAt === null) avalancheAt = b.time;
     }
     if (avalancheAt !== null) break;
   }
@@ -187,5 +187,5 @@ test('ねむると じゅんばんが とばされ、やがて めを さます'
   const evs = run(b, 20000);
   const lines = evs.filter((e) => e.t === 'act').flatMap((e) => e.lines);
   assert.ok(lines.some((l) => l.includes('ねむっている')));
-  assert.ok(lines.some((l) => l.includes('めを さました')));
+  assert.ok(lines.some((l) => l.includes('目を覚ました')));
 });

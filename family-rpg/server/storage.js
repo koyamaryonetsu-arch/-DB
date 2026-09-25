@@ -16,7 +16,7 @@ export class FileStorage {
       try {
         if (fs.existsSync(f)) return JSON.parse(fs.readFileSync(f, 'utf8'));
       } catch (e) {
-        console.error(`セーブデータの よみこみに しっぱい: ${f}`, e.message);
+        console.error(`セーブデータの読みこみに失敗: ${f}`, e.message);
       }
     }
     return {};
