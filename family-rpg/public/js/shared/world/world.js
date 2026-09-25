@@ -3,7 +3,7 @@
 // クライアントとは メッセージ（JSON）で やりとりする。
 // つなぎかたは なんでも よい（WebSocket でも ブラウザ内の ちょくせつ呼び出しでも）。
 import { makeRng } from '../rng.js';
-import { MAPS, isBlocked, effectiveTile, condOk, searchLoot, sparkleLoot, tileAt, POS } from '../maps/index.js';
+import { MAPS, isBlocked, effectiveTile, condOk, searchLoot, sparkleLoot, tileAt, POS, SEA_PLACES } from '../maps/index.js';
 import { PLACES } from '../maps/overworld.js';
 import { T, TILE_INFO } from '../tiles.js';
 import { ITEMS } from '../data/items.js';
@@ -16,6 +16,7 @@ import { serviceAction, menuAction } from './services.js';
 import { newParty, partyOf, partyState, syncParty, ensureCompanions, companionWait, PARTY_MAX } from './party.js';
 import { MONSTERS } from '../data/monsters.js';
 import { COMPANION_SLOTS } from '../data/companions.js';
+import { CH1_CLEAR_OBJECTIVE } from '../data/story.js';
 
 export const PROTOCOL_VERSION = 1;
 const SPARKLE_RESPAWN_MS = 20 * 60 * 1000;
@@ -400,6 +401,13 @@ export class GameWorld {
         s.char.visited[id] = true;
       }
     }
+    for (const [id, p] of Object.entries(SEA_PLACES)) {
+      const [rx, ry, rw, rh] = p.rect;
+      if (s.map === p.map && tx >= rx && ty >= ry && tx < rx + rw && ty < ry + rh && !s.char.visited?.[id]) {
+        s.char.visited = s.char.visited || {};
+        s.char.visited[id] = true;
+      }
+    }
   }
 
   // リーダーに「ついていく」に している なかまは、でいりぐちも いっしょに とおる
@@ -500,7 +508,7 @@ export class GameWorld {
     }
     if (tile === T.LOCKED_DOOR) return runScript(this, s, 'locked_door');
     if (TILE_INFO[tile]?.search) return this.searchTile(s, tx, ty, tile);
-    if (tile === T.STAR_ALTAR) return runScript(this, s, 'star_stone');
+    if (tile === T.STAR_ALTAR) return runScript(this, s, map.altarScript || 'star_stone');
     if (tile === T.ALTAR && s.map === 'overworld' && Math.abs(tx - POS.shrineAltar[0]) <= 1 && Math.abs(ty - POS.shrineAltar[1]) <= 1) {
       return runScript(this, s, 'star_flower');
     }
@@ -807,5 +815,7 @@ function normalizeChar(c) {
   if (!JOBS[c.job]) c.job = 'warrior';
   if (!c.jobs[c.job]) c.jobs[c.job] = { lv: 1, b: 0 };
   c.battleSettings = c.battleSettings || { speed: 1, wait: false, auto: false };
+  // 第1章クリアの あとの もくひょう（第2章が できた ので あんない を かえる）
+  if (c.flags.c1_clear && !c.flags.c2_start && /続きはアップデート/.test(c.objective || '')) c.objective = CH1_CLEAR_OBJECTIVE;
   ensureCompanions(c);
 }

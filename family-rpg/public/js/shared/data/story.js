@@ -16,6 +16,7 @@ import { POS } from '../maps/index.js';
 import { PLACES } from '../maps/overworld.js';
 import { ABILITIES } from './abilities.js';
 import { learnedAbilities, comboUnlocked } from '../stats.js';
+import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js';
 
 const V = (x, y) => [PLACES.village.x + x + 0.5, PLACES.village.y + y + 0.5];
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
@@ -25,10 +26,11 @@ const N = (...lines) => lines.map((l) => ['say', null, l]);
 export const STORY_STEPS = [
   'p_opening', 'p_start', 'p_flower', 'p_attack', 'c1_town', 'c1_mayor', 'c1_wood_quest', 'c1_treant', 'bridge_fixed',
   'c1_cave', 'c1_door', 'c1_boss', 'c1_clear',
+  ...CH2_STEPS,
 ];
 
 // パーティー全員で みる ストーリーイベント
-export const STORY_SCRIPTS = new Set(['elder', 'star_flower', 'treant', 'carpenter', 'boss_event', 'mayor', 'opening', 'town_arrive', 'cave_enter', 'locked_door']);
+export const STORY_SCRIPTS = new Set(['elder', 'star_flower', 'treant', 'carpenter', 'boss_event', 'mayor', 'opening', 'town_arrive', 'cave_enter', 'locked_door', ...CH2_STORY_SCRIPTS]);
 
 export const SCRIPTS = {
   // ───────────── じょしょう ─────────────
@@ -89,7 +91,10 @@ export const SCRIPTS = {
     if (!x.flag('p_attack')) return festival(x);
     if (x.flag('c1_boss') && !x.flag('c1_clear')) return ending(x);
     if (x.flag('c1_clear')) {
-      return S('ホシミばあちゃん', '守り星の石がもどって、村にも平和がもどったよ。', '{name}、次の旅に出る前に、体をしっかり休めるんじゃよ。');
+      if (!x.flag('c2_start')) return SCRIPTS.ch2_intro(x);
+      if (!x.flag('c2_clear')) return S('ホシミばあちゃん', '風の島へは、村の南のさんばしから船で行けるよ。', '{name}、気を付けて行っておいで。');
+      return S('ホシミばあちゃん', '風の守り星がもどって、海もおだやかになったようじゃね。',
+        '星の竜の話は、わしも子どものころに聞いたことがある。\n北の山の上に、竜がねむっておるとな…');
     }
     return S('ホシミばあちゃん', 'まずは北のルミナの町へ行きなさい。\n町長どのが力になってくれるはずじゃ。', 'つかれたら自分の家のベッドで休むとええよ。');
   },
@@ -486,6 +491,7 @@ function festival(x) {
 }
 
 // ───────────── エンディング ─────────────
+export const CH1_CLEAR_OBJECTIVE = '第1章クリア！ホシミばあちゃんに話しかけると、第2章が始まるよ';
 function ending(x) {
   return [
     ...S('ホシミばあちゃん', 'おお…{name}！無事だったかい！\nそれに…守り星の石まで！'),
@@ -511,7 +517,7 @@ function ending(x) {
     ['flag', 'c1_clear'],
     ['chapter', '第1章「始まりの星」', 'クリア！'],
     ...N('――次の冒険は第2章「海をわたる風」――'),
-    ['objective', '第1章クリア！自由に冒険しよう（続きはアップデートで！）'],
+    ['objective', CH1_CLEAR_OBJECTIVE],
   ];
 }
 
@@ -553,5 +559,7 @@ function sageHints(x) {
   lines.push(...S('ひらめきの賢者', 'メニューの「呪文・特技」から「掛け合わせ」の一覧も見られるぞ。'));
   return lines;
 }
+
+Object.assign(SCRIPTS, CH2_SCRIPTS);
 
 export { comboUnlocked };

@@ -18,6 +18,7 @@
 // 上級職・超級職の 技は abilities-adv.js（さいごに まぜる）
 
 import { ADV_ABILITIES } from './abilities-adv.js';
+import { CH2_ABILITIES } from './abilities-ch2.js';
 
 export const ABILITIES = {
   // ───────────── 戦士 ─────────────
@@ -569,7 +570,7 @@ export const ABILITIES = {
     effect: { type: 'drainMp', amount: [3, 6] }, cast: '{a}は不思議なおどりをおどった！', anim: 'dance',
   },
 };
-Object.assign(ABILITIES, ADV_ABILITIES);
+Object.assign(ABILITIES, ADV_ABILITIES, CH2_ABILITIES);
 
 // 攻撃呪文かどうか（魔法剣で使える）
 export function isAttackSpell(id) {

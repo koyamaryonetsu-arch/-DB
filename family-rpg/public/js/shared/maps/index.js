@@ -3,6 +3,8 @@ import { T, parseRows, TILE_INFO } from '../tiles.js';
 import { makeRng, hash2 } from '../rng.js';
 import { buildOverworld, PLACES, zoneAt, areaName, OW_W, OW_H, CAVE_ENTRANCE, FOREST_CLEARING, LAKE, SWAMP } from './overworld.js';
 import { CAVE_B1_ROWS, CAVE_B2_ROWS } from './cave-rows.js';
+import { npc } from './npc.js';
+import { buildCh2Maps, SEA_PLACES } from './ch2.js';
 
 const V = (x, y) => [PLACES.village.x + x, PLACES.village.y + y];
 const TW = (x, y) => [PLACES.town.x + x, PLACES.town.y + y];
@@ -17,15 +19,11 @@ export const POS = {
   townPlaza: TW(23, 20),
   townChurch: TW(7, 31),
   shrineAltar: SH(5, 3),
+  pierEnd: [28, 122.5], // 村の 南の さんばしの 先（船に のる ところ）
 };
 
 // ───────────── 人（NPC） ─────────────
-// sprite: キャラの みため / script: はなしかけた ときの だいほん（story.js）
-// show: でてくる じょうけん（フラグ）  wander: うろうろ する はんい
-function npc(id, name, [x, y], sprite, script, opts = {}) {
-  return { id, name, x, y, sprite, script, dir: opts.dir || 'down', wander: opts.wander || 0, show: opts.show || null, pal: opts.pal || null, solid: opts.solid !== false, big: opts.big || false };
-}
-
+// npc() の つかいかたは npc.js
 const OVERWORLD_NPCS = [
   // ホシフル村
   npc('elder', 'ホシミばあちゃん', V(24, 17), 'elder', 'elder'),
@@ -79,6 +77,10 @@ const OVERWORLD_NPCS = [
   npc('treant', 'ダークトレント', [FOREST_CLEARING.x, FOREST_CLEARING.y - 1], 'treant', 'treant', { big: true, show: { not: ['c1_treant'] } }),
   npc('treant_calm', 'トレント', [FOREST_CLEARING.x, FOREST_CLEARING.y - 1], 'treant_calm', 'treant_calm', { big: true, show: { all: ['c1_treant'] } }),
   npc('east_hunter', 'かりゅうど', [141, 70], 'guard', 'east_hunter', { wander: 2 }),
+
+  // 第2章: 村の 南の さんばし
+  npc('captain_pier', '船長マリナ', [27, 121], 'captain', 'captain_pier', { show: { all: ['c2_start'], not: ['c2_ship'] }, dir: 'right' }),
+  npc('ship', 'しおかぜ号', [27.5, 124], 'ship', 'ship_board', { show: { all: ['c2_start'] } }),
 ];
 
 // ───────────── たからばこ ─────────────
@@ -101,7 +103,7 @@ const OVERWORLD_SIGNS = [
   { x: 91, y: 44, text: '← ルミナの町　↑ ささやきの森\n↘ 東の橋' },
   { x: 121, y: 61, text: 'この先、東の平原。\n魔物が強いので注意！' },
   { x: 149, y: 56, text: 'なげきの洞窟\n（深い所には強い魔物がいるぞ）' },
-  { x: 29, y: 115, text: 'ホシフルさんばし\n（今は船が来ていない）' },
+  { x: 29, y: 115, text: 'ホシフル村のさんばし\n（船に乗ると、南の海へ出られる）' },
   { x: LAKE.x - 3, y: LAKE.y - LAKE.ry - 2, text: '鏡の湖\n静かな湖。何かが光っている…？' },
   { x: 97, y: 50, text: 'ささやきの森\n迷わないように気を付けて。' },
 ];
@@ -221,6 +223,7 @@ function buildMaps() {
     areaName: () => 'なげきの洞窟　地下2階',
     spawnCounts: { cave2: 10 },
   };
+  Object.assign(maps, buildCh2Maps());
   for (const m of Object.values(maps)) {
     m.npcById = Object.fromEntries(m.npcs.map((n) => [n.id, n]));
     m.chestAt = new Map(m.chests.map((c) => [c.y * m.w + c.x, c]));
@@ -249,8 +252,17 @@ export function effectiveTile(map, x, y, hasFlag) {
 
 export function isBlocked(map, x, y, hasFlag) {
   const t = effectiveTile(map, x, y, hasFlag);
+  // 海の マップでは 船で 水の 上を すすめる
+  if (map.sailable && (t === T.WATER || t === T.DEEP)) return false;
   if (TILE_INFO[t]?.solid ?? true) return true;
   return false;
+}
+
+// 船に のっている（海の マップで 水の 上に いる）
+export function onWater(map, x, y, hasFlag) {
+  if (!map.sailable) return false;
+  const t = effectiveTile(map, Math.floor(x), Math.floor(y), hasFlag);
+  return t === T.WATER || t === T.DEEP;
 }
 
 // NPCや たからばこの 表示じょうけん
@@ -291,4 +303,4 @@ export function sparkleLoot(zone, roll) {
   return t[0][0];
 }
 
-export { PLACES, zoneAt, areaName, OW_W, OW_H };
+export { PLACES, SEA_PLACES, zoneAt, areaName, OW_W, OW_H };

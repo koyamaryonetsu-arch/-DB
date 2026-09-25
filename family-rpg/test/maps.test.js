@@ -54,7 +54,7 @@ test('フィールド: たからばこ・かんばん・人に ちかづける',
   for (const n of ow.npcs) {
     const tx = Math.floor(n.x), ty = Math.floor(n.y);
     const tile = tileAt(ow, tx, ty);
-    if (!['star_stone'].includes(n.id)) assert.ok(!TILE_INFO[tile].solid, `npc ${n.id} on solid tile ${TILE_INFO[tile].name}`);
+    if (!['star_stone', 'ship'].includes(n.id)) assert.ok(!TILE_INFO[tile].solid, `npc ${n.id} on solid tile ${TILE_INFO[tile].name}`);
     const ok = reach(tx, ty) || nextTo(reach, tx, ty) || [[0, 2], [0, -2], [2, 0], [-2, 0]].some(([dx, dy]) => reach(tx + dx, ty + dy));
     assert.ok(ok, `npc ${n.id} unreachable`);
     assert.ok(SCRIPTS[n.script], `script ${n.script} for ${n.id}`);

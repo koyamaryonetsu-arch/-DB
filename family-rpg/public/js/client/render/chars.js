@@ -120,6 +120,14 @@ const NPC_LOOKS = {
   bard: { hair: 2, hairStyle: 'short', skin: 0, outfit: 'tunic', cloth: '#3fa35a', hat: 'feather' },
   zarba: { hair: 0, skin: 2, outfit: 'robe', robeMain: '#2a1a3a', robeTrim: '#8a2a5a', hat: 'hood', hatColor: '#2a1a3a', glowEyes: true },
   shadow: { hair: 0, skin: 2, outfit: 'shadow', hat: 'hood', hatColor: '#1a1026', glowEyes: true },
+  // 第2章（カモメ港）
+  captain: { hair: 3, hairStyle: 'pony', skin: 1, outfit: 'vest', cloth: '#2a4a8a', hat: 'bandana', hatColor: '#c83a3a', female: true },
+  sailor: { hair: 0, hairStyle: 'short', skin: 1, outfit: 'tunic', cloth: '#3f7fd0', hat: 'bandana', hatColor: '#f4f4f4' },
+  harbor_master: { hair: 5, hairStyle: 'bald', skin: 0, outfit: 'vest', cloth: '#5a3a2a', beard: true, hat: 'cap' },
+  old_sailor: { hair: 5, hairStyle: 'short', skin: 1, outfit: 'tunic', cloth: '#2a8aa8', beard: true, cane: true, hunch: true },
+  fisher: { hair: 1, hairStyle: 'short', skin: 1, outfit: 'apron', cloth: '#8a6a3a', hat: 'straw' },
+  lh_keeper: { hair: 5, hairStyle: 'short', skin: 0, outfit: 'robe', robeMain: '#3a4a6a', robeTrim: '#f2c14e', beard: true, hat: 'cap' },
+  mina: { hair: 3, hairStyle: 'twin', skin: 0, outfit: 'dress', cloth: '#5ac8b4', female: true, small: true },
 };
 
 // そうびの かきかた: 'ぶき,よろい,たて,あたま' の もじれつ か { weapon, armor, shield, head }
@@ -782,12 +790,15 @@ export function paintSpecial(kind, dir, f) {
       p.outline('#6a5a1a');
       break;
     }
-    case 'starstone': {
-      const a = '#9ad8ff', b = '#e6f6ff', c = '#5aa8e8';
+    case 'starstone':
+    case 'windstone': {
+      // 守り星（村の 星は 青、風の 星は みどり）
+      const wind = kind === 'windstone';
+      const a = wind ? '#9af0c0' : '#9ad8ff', b = wind ? '#eafff2' : '#e6f6ff', c = wind ? '#4ac88a' : '#5aa8e8';
       p.rect(6, 5, 4, 12, a); p.rect(5, 7, 6, 8, a); p.vline(7, 5, 15, b); p.vline(9, 7, 14, c);
       p.set(7, 4, a); p.set(8, 4, a); p.set(7, 3, b);
       if (f) { p.set(3, 4, '#ffffff'); p.set(12, 9, '#ffffff'); p.set(4, 14, '#fff6b0'); }
-      p.outline('#2a4a7a');
+      p.outline(wind ? '#1f6a48' : '#2a4a7a');
       break;
     }
     case 'spring': {
@@ -798,8 +809,53 @@ export function paintSpecial(kind, dir, f) {
     }
     case 'none':
       break;
+    case 'ship':
+      return paintShip(dir, f);
     default:
       return null;
   }
+  return p;
+}
+
+// 船（しおかぜ号）。よこむきは left を かく（right は はんてんして つかう）
+export function paintShip(dir, f) {
+  const p = new Painter(30, 26);
+  const hull = '#8a5a32', hullD = '#5a3a22', hullL = '#b8864a', stripe = '#f4f2fa';
+  const sail = '#f4f2fa', sailD = '#c8c4d8', mast = '#5a3a22', flag = '#c83a3a', star = '#f2c14e', foam = '#e6f4ff';
+  const b = f ? 1 : 0;
+  if (dir === 'left' || dir === 'right') {
+    for (let x = 2; x <= 27; x++) {
+      const top = (x < 6 ? 13 + Math.floor((x - 2) / 1.4) : 16) + b;
+      const bot = (x < 5 ? 17 : x < 7 ? 19 : x > 25 ? 19 : 21) + b;
+      for (let y = top; y <= bot; y++) p.set(x, y, y === top ? hullL : y === bot ? hullD : hull);
+      if (x >= 6 && x <= 25) p.set(x, 18 + b, stripe);
+    }
+    for (const x of [10, 15, 20]) p.set(x, 19 + b, hullD);
+    p.vline(15, 2 + b, 15 + b, mast);
+    for (let y = 4; y <= 12; y++) {
+      const bulge = Math.round(Math.sin(((y - 4) / 8) * Math.PI) * 2);
+      p.hline(9 - bulge, 21 - bulge, y + b, sail);
+      p.set(21 - bulge, y + b, sailD);
+    }
+    p.hline(13, 17, 8 + b, star); p.vline(15, 6 + b, 10 + b, star);
+    p.rect(16, 1 + b, 4, 2, flag); p.set(f ? 20 : 19, (f ? 1 : 3) + b, flag);
+    p.set(3 + f, 22, foam); p.set(26 - f, 22, foam); p.set(8, 23, foam); p.set(22, 23, foam);
+  } else {
+    const back = dir === 'up';
+    for (let y = 15; y <= 21; y++) {
+      const half = back ? (y === 21 ? 6 : 7) : (y <= 18 ? 7 : y <= 20 ? 5 : 3);
+      for (let x = 15 - half; x <= 14 + half; x++) p.set(x, y + b, y === 15 ? hullL : y === 21 || (!back && y === 20 && Math.abs(x - 14.5) > 3) ? hullD : hull);
+    }
+    p.hline(8, 21, 17 + b, stripe);
+    p.vline(14, 2 + b, 15 + b, mast); p.vline(15, 2 + b, 15 + b, mast);
+    for (let y = 4; y <= 12; y++) {
+      const w = 8 + Math.round(Math.sin(((y - 4) / 8) * Math.PI) * 1);
+      p.hline(15 - w, 14 + w, y + b, back ? sailD : sail);
+    }
+    if (!back) { p.hline(12, 17, 8 + b, star); p.vline(14, 6 + b, 10 + b, star); p.vline(15, 6 + b, 10 + b, star); }
+    p.rect(16, 1 + b, 3, 2, flag); p.set(f ? 19 : 18, 3 + b, flag);
+    p.set(7 + f, 22 + b, foam); p.set(22 - f, 22 + b, foam);
+  }
+  p.outline(OUT);
   return p;
 }

@@ -14,6 +14,8 @@ const GEAR = {
   4: { warrior: ['bronze_sword', 'travel_clothes', 'leather_shield', 'leather_hat'], monk: ['bronze_knuckle', 'martial_gi', null, 'leather_hat'], priest: ['bronze_spear', 'travel_clothes', 'leather_shield', 'leather_hat'], mage: ['oak_staff', 'wizard_robe', null, 'leather_hat'], performer: ['feather_fan', 'travel_clothes', 'leather_shield', 'leather_hat'] },
   7: { warrior: ['bronze_sword', 'chain_mail', 'scale_shield', 'leather_hat'], monk: ['bronze_knuckle', 'martial_gi', null, 'bandana'], priest: ['bronze_spear', 'leather_armor', 'scale_shield', 'leather_hat'], mage: ['oak_staff', 'wizard_robe', null, 'pointy_hat'], performer: ['feather_fan', 'leather_armor', 'scale_shield', 'bandana'] },
   10: { warrior: ['iron_sword', 'iron_armor', 'iron_shield', 'iron_helm'], monk: ['iron_claw', 'dragon_gi', null, 'bandana'], priest: ['healing_staff', 'holy_robe', 'scale_shield', 'leather_hat'], mage: ['wizard_staff', 'wizard_robe', null, 'pointy_hat'], performer: ['dancer_fan', 'leather_armor', 'scale_shield', 'bandana'] },
+  // 第2章（カモメ港の お店）
+  14: { warrior: ['silver_sword', 'silver_mail', 'silver_shield', 'silver_helm'], monk: ['shark_fang', 'wave_gi', null, 'captain_hat'], priest: ['coral_spear', 'coral_robe', 'shell_shield', 'captain_hat'], mage: ['wave_staff', 'coral_robe', null, 'pointy_hat'], performer: ['sea_fan', 'sailor_clothes', 'shell_shield', 'captain_hat'] },
 };
 
 export function makeChar(job, level, jobLv, name) {
@@ -21,7 +23,7 @@ export function makeChar(job, level, jobLv, name) {
   c.exp = expForLevel(level);
   c.level = level;
   c.jobs[job] = { lv: jobLv, b: jobBattlesForLevel(jobLv, JOBS[job].tier) };
-  const tier = level >= 10 ? 10 : level >= 7 ? 7 : level >= 4 ? 4 : 1;
+  const tier = level >= 14 ? 14 : level >= 10 ? 10 : level >= 7 ? 7 : level >= 4 ? 4 : 1;
   const [w, a, s, h] = GEAR[tier][job];
   c.equip = { weapon: w, armor: a, shield: s || null, head: h || null, acc: null };
   fullHeal(c);
@@ -79,7 +81,23 @@ const PARTY = (lv, jlv) => [
   makeChar('monk', lv, jlv, 'ぶとう'),
 ];
 
-if (process.argv[1].endsWith('sim.js')) {
+// 第2章: node tools/sim.js [回数] ch2
+if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'ch2') {
+  const rng = makeRng(777);
+  for (const [table, lv, jlv] of [['sea', 12, 5], ['sea', 14, 6], ['isle', 12, 5], ['isle', 14, 6], ['seacave', 14, 6], ['seacave', 16, 6], ['storm', 16, 6], ['storm', 18, 7], ['tower', 17, 7], ['tower', 19, 7]]) {
+    const res = [];
+    for (let i = 0; i < N; i++) res.push(runBattle(PARTY(lv, jlv), rollGroup(table, rng), { seed: i }));
+    summarize(`${table} Lv${lv}`, res);
+  }
+  for (const [enc, lv, jlv] of [['giant_squid', 13, 5], ['giant_squid', 14, 6], ['giant_squid', 15, 6], ['giant_squid', 16, 6], ['giant_squid', 17, 7],
+    ['storm_general', 17, 7], ['storm_general', 18, 7], ['storm_general', 19, 7], ['storm_general', 20, 8], ['storm_general', 21, 8], ['storm_general', 23, 8]]) {
+    const res = [];
+    const group = FIXED_ENCOUNTERS[enc].group.flatMap(([sp, n]) => Array(n).fill(sp));
+    for (let i = 0; i < Math.min(N, 20); i++) res.push(runBattle(PARTY(lv, jlv), group, { seed: i, boss: true }));
+    summarize(`BOSS ${enc} Lv${lv}`, res);
+  }
+  if (process.env.LOG) runBattle(PARTY(19, 7), [process.env.LOG], { seed: 1, boss: true, log: true });
+} else if (process.argv[1].endsWith('sim.js')) {
   const rng = makeRng(12345);
   const plan = [
     ['outskirts', 1, 1], ['outskirts', 2, 1], ['plains', 3, 1], ['plains', 5, 2], ['forest', 5, 2], ['forest', 7, 3],

@@ -9,7 +9,7 @@ import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease,
 import { breedMonsters, breedPreview } from './breed.js';
 import { MONSTERS } from '../data/monsters.js';
 import { PLACES } from '../maps/overworld.js';
-import { POS } from '../maps/index.js';
+import { POS, SEA_PLACES } from '../maps/index.js';
 
 export function openService(world, s, kind, arg) {
   switch (kind) {
@@ -287,12 +287,13 @@ export function menuAction(world, s, msg) {
         return reply(true, `${c.name}は聖水をふりまいた！\nしばらく弱い魔物が寄ってこない。`);
       }
       if (eff.type === 'warp') {
-        const dest = msg.place && PLACES[msg.place] && c.visited?.[msg.place] ? msg.place : null;
+        const dest = msg.place && (PLACES[msg.place] || SEA_PLACES[msg.place]) && c.visited?.[msg.place] ? msg.place : null;
         if (!dest) return reply(false, 'どこへ行く？');
-        if (s.map !== 'overworld' && world.mapKind(s.map) !== 'dungeon') return reply(false, '');
+        const kind = world.mapKind(s.map);
+        if (kind !== 'field' && kind !== 'dungeon') return reply(false, '');
         removeItem(c, msg.id, 1);
-        const pos = warpPos(dest);
-        world.placeSession(s, 'overworld', pos[0], pos[1], 'down', true);
+        const to = warpDest(dest);
+        world.placeSession(s, to.map, to.x, to.y, 'down', true);
         return reply(true, `${c.name}は帰り道の羽を空に投げた！`);
       }
       const target = refChar(world, s, msg.ref);
@@ -407,4 +408,12 @@ export function warpPos(place) {
   if (place === 'village') return [PLACES.village.x + 16.5, PLACES.village.y - 1.5];
   if (place === 'town') return [PLACES.town.x + 24, PLACES.town.y + 37];
   return POS.villagePlaza;
+}
+
+// 帰り道の羽の 行き先（マップと いち）
+export function warpDest(place) {
+  const sp = SEA_PLACES[place];
+  if (sp) return { map: sp.map, x: sp.x + 0.5, y: sp.y + 0.5 };
+  const [x, y] = warpPos(place);
+  return { map: 'overworld', x, y };
 }

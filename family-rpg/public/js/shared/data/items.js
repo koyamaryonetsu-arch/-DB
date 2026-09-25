@@ -4,6 +4,8 @@
 // armor.armorType: cloth(だれでも) heavy(戦士) robe(僧侶/魔法使い/旅芸人) gi(武闘家/戦士/旅芸人)
 // head.helm: true だと 戦士だけ
 
+import { ITEMS_CH2 } from './items-ch2.js';
+
 export const ITEMS = {
   // ───── つかう どうぐ ─────
   herb: {
@@ -136,6 +138,7 @@ export const ITEMS = {
   guardian_stone: { name: '守り星の石', type: 'key', desc: 'ホシフル村を守ってきた星の石。ヒビが入っている。' },
   mike_bell: { name: 'ミケのすず', type: 'key', desc: '迷子のねこミケの首輪に付いていたすず。' },
 };
+Object.assign(ITEMS, ITEMS_CH2);
 
 // そうび部位
 export const SLOTS = ['weapon', 'armor', 'shield', 'head', 'acc'];

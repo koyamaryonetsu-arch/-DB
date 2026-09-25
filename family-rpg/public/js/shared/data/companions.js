@@ -9,6 +9,8 @@
 // names:  なかまに なった ときの なまえ（じゅんばんに つかう。酒場で かえられる）
 // resist: たいせい（しゅぞくの たいせいを つかう。ここに かけば うわがき）
 
+import { FRIENDS_CH2 } from './companions-ch2.js';
+
 export const MONSTER_FRIENDS = {
   pururin: {
     rate: 1 / 10, names: ['ぷるる', 'ぷるお', 'ぷるみ', 'ぷるたろう'],
@@ -190,6 +192,9 @@ Object.assign(MONSTER_FRIENDS, {
 // ・うまれた こは レベル1から。おやの つよさを すこし うけつぎ、おやの わざを 4つまで おぼえられる
 // ・「＋」（プラス）が つき、そだつと ふつうより つよくなる
 // ・とくべつな くみあわせでは あたらしい まものが うまれる（それいがいは さいしょに えらんだ おやと おなじ しゅるい）
+// 第2章の なかま
+Object.assign(MONSTER_FRIENDS, FRIENDS_CH2);
+
 export const BREED_MIN_LEVEL = 10;
 export const BREED_INHERIT_MAX = 4;
 

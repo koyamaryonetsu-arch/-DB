@@ -14,7 +14,7 @@ import { SLOTS } from '../data/items.js';
 
 export const PARTY_MAX = 4;
 // パーティーの だれかが もっていれば みんなが とおれる フラグ
-export const GATE_FLAGS = ['bridge_fixed', 'c1_door'];
+export const GATE_FLAGS = ['bridge_fixed', 'c1_door', 'c2_light', 'c2_boss'];
 
 let partySeq = 1;
 

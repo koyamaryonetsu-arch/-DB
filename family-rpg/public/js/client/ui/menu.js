@@ -8,7 +8,8 @@ import { MONSTERS } from '../../shared/data/monsters.js';
 import { MONSTER_FRIENDS, RACE_NAMES, recipeHint } from '../../shared/data/companions.js';
 import { TACTICS } from '../../shared/ai.js';
 import { PLACES } from '../../shared/maps/overworld.js';
-import { MAPS, tileAt } from '../../shared/maps/index.js';
+import { SEA_PLACES } from '../../shared/maps/ch2.js';
+import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js';
 import { T } from '../../shared/tiles.js';
 import { itemDetail, abilityDetail, equipDiff, diffText } from './info.js';
 import { makeCanvas, ctxOf } from '../render/pixel.js';
@@ -251,7 +252,7 @@ export class FieldMenu {
     const act = await this.pick(`${it.name}をどうする？`, acts);
     if (act === 'use') {
       if (it.effect.type === 'warp') {
-        const places = Object.entries(PLACES).filter(([id]) => g.me.visited?.[id] && id !== 'shrine').map(([id, p]) => ({ label: p.name, value: id }));
+        const places = Object.entries({ ...PLACES, ...SEA_PLACES }).filter(([id]) => g.me.visited?.[id] && id !== 'shrine').map(([id, p]) => ({ label: p.name, value: id }));
         const place = await this.pick('どこへ飛ぶ？', [...places, { label: 'やめる', value: null }]);
         if (place) {
           g.net.send({ t: 'menu', action: 'useItem', id: entry.value, place });
@@ -718,6 +719,7 @@ const MAP_COLORS = {
   [T.DEEP]: '#2a58a8', [T.TREE]: '#2f7a36', [T.PINE]: '#2a6a3a', [T.MOUNTAIN]: '#8f8270', [T.HILL]: '#6cb558', [T.ROCK]: '#8f8270',
   [T.BRIDGE_H]: '#a8733e', [T.BROKEN_BRIDGE]: '#3c80d6', [T.SWAMP]: '#6a4a7a', [T.FOREST_FLOOR]: '#3f7d3a', [T.STEPPING]: '#8a9ab8',
   [T.CAVE_FLOOR]: '#6a5a4a', [T.CAVE_WALL]: '#1d1714', [T.CAVE_WATER]: '#1f3f6e', [T.BOSS_FLOOR]: '#5a4870',
+  [T.PIER]: '#a8733e', [T.WHIRLPOOL]: '#9a8ad8',
 };
 
 export function renderMiniMap(game, canvas, full = false) {
@@ -743,7 +745,7 @@ export function renderMiniMap(game, canvas, full = false) {
       const mx = x0 + x, my = y0 + y;
       if (mx < 0 || my < 0 || mx >= m.w || my >= m.h) continue;
       if (!f.isExplored(mx, my)) continue;
-      const t = tileAt(m, mx, my);
+      const t = m.gates.length ? effectiveTile(m, mx, my, (fl) => f.gateFlag(fl)) : tileAt(m, mx, my);
       ctx.fillStyle = MAP_COLORS[t] || (t >= 30 && t < 70 ? '#c8bfae' : '#555');
       ctx.fillRect(x * pxPer, y * pxPer, pxPer, pxPer);
     }
@@ -754,14 +756,14 @@ export function renderMiniMap(game, canvas, full = false) {
     ctx.fillStyle = c;
     ctx.fillRect((x - x0) * pxPer - r, (y - y0) * pxPer - r, r * 2, r * 2);
   };
-  if (m.id === 'overworld') {
-    for (const [id, p] of Object.entries(PLACES)) {
+  // ばしょの なまえ（行ったことが ある ところ だけ）
+  const labels = m.id === 'overworld' ? Object.values(PLACES) : m.labels || [];
+  if (full) {
+    for (const p of labels) {
       if (!f.isExplored(p.x + Math.floor(p.w / 2), p.y + Math.floor(p.h / 2))) continue;
-      if (full) {
-        ctx.fillStyle = '#fff';
-        ctx.font = `${Math.max(10, pxPer * 4)}px KizunaDot, sans-serif`;
-        ctx.fillText(p.name, (p.x - x0) * pxPer, (p.y - y0) * pxPer - 3);
-      }
+      ctx.fillStyle = '#fff';
+      ctx.font = `${Math.max(10, pxPer * 4)}px KizunaDot, sans-serif`;
+      ctx.fillText(p.name, Math.max(2, (p.x - x0) * pxPer), Math.max(12, (p.y - y0) * pxPer - 3));
     }
   }
   for (const o of f.others.values()) dot(o.x, o.y, o.partyId === game.party?.id ? '#ffd66b' : '#8fd0ff', full ? 3 : 2);

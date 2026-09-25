@@ -462,6 +462,16 @@ const painters = {
     for (let y = 0; y < 16; y += 4) p.hline(2, 13, y, C.woodD);
     p.vline(2, 0, 15, C.woodL);
   },
+  [T.WHIRLPOOL]: (p, v, f) => {
+    // 嵐の うず（くらい 海に しろい うずまき）
+    p.rect(0, 0, 16, 16, '#1a3470');
+    const rot = f * 2.1 + v * 1.3;
+    for (let i = 0; i < 28; i++) {
+      const a = rot + i * 0.42, r = 0.8 + i * 0.25;
+      p.set(Math.round(7.5 + Math.cos(a) * r), Math.round(7.5 + Math.sin(a) * r * 0.8), i % 3 === 0 ? '#ffffff' : '#8fb4f0');
+    }
+    p.rect(7, 7, 2, 2, '#0c1c44');
+  },
   [T.RUBBLE_WALL]: (p, v) => {
     grassBase(p, v, 61);
     p.ellipse(5, 10, 5, 4.5, C.rockD); p.ellipse(11, 9, 5, 5, C.rock); p.ellipse(8, 5, 4, 3.5, C.rockL);
@@ -472,6 +482,7 @@ const painters = {
 const FRAMES = {
   [T.WATER]: 3, [T.DEEP]: 3, [T.SWAMP]: 3, [T.FOUNTAIN]: 2, [T.FIREPLACE]: 2, [T.CAVE_WATER]: 3, [T.CRYSTAL]: 3,
   [T.TORCH]: 3, [T.LAMP]: 2, [T.STEPPING]: 3, [T.BRIDGE_H]: 3, [T.BRIDGE_V]: 3, [T.BROKEN_BRIDGE]: 3, [T.CAVE_BRIDGE]: 3, [T.PIER]: 3,
+  [T.WHIRLPOOL]: 3,
 };
 const SPEED = { [T.TORCH]: 140, [T.FIREPLACE]: 180, [T.CRYSTAL]: 500, [T.LAMP]: 700 };
 
@@ -493,7 +504,7 @@ export function tileCanvas(id, variant, frame, mask) {
   return c;
 }
 
-const WATERY = new Set([T.WATER, T.DEEP, T.BROKEN_BRIDGE, T.STEPPING, T.PIER, T.BRIDGE_H, T.BRIDGE_V]);
+const WATERY = new Set([T.WATER, T.DEEP, T.BROKEN_BRIDGE, T.STEPPING, T.PIER, T.BRIDGE_H, T.BRIDGE_V, T.WHIRLPOOL]);
 const WALLS = new Set([T.WALL_STONE, T.WALL_WOOD, T.CAVE_WALL, T.TORCH]);
 
 // マップごとに いちど だけ けいさん（となりの タイルで かわる みため）

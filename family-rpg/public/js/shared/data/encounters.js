@@ -2,6 +2,8 @@
 // group: [[モンスターID, 最小数, 最大数], ...]
 // フィールドでは 先頭の モンスターの すがたで うろうろしている（シンボルエンカウント）
 
+import { ENCOUNTERS_CH2, FIXED_CH2, ZONE_BG_CH2 } from './encounters-ch2.js';
+
 export const ENCOUNTER_TABLES = {
   outskirts: [
     { w: 6, group: [['pururin', 1, 2]] },
@@ -66,3 +68,8 @@ export const ZONE_BG = {
   outskirts: 'grass', plains: 'grass', forest: 'forest', swamp: 'swamp', east: 'plains_east',
   cave1: 'cave', cave2: 'cave', rare: 'grass',
 };
+
+// 第2章
+Object.assign(ENCOUNTER_TABLES, ENCOUNTERS_CH2);
+Object.assign(FIXED_ENCOUNTERS, FIXED_CH2);
+Object.assign(ZONE_BG, ZONE_BG_CH2);

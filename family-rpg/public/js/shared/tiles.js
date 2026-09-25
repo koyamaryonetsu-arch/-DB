@@ -13,6 +13,7 @@ export const T = {
   HEDGE: 53, FIREPLACE: 55, BOOKSHELF: 56, CRATE: 57, TOWN_FLOWERS: 59, STAIRS_DOWN: 60, STAIRS_UP: 61,
   CAVE_FLOOR: 70, CAVE_WALL: 71, CAVE_WATER: 72, CRYSTAL: 73, TORCH: 74, PILLAR: 75, LOCKED_DOOR: 76,
   RUBBLE: 77, BOSS_FLOOR: 78, CAVE_BRIDGE: 79, PIER: 80, RUBBLE_WALL: 81,
+  WHIRLPOOL: 82,
 };
 
 export const TILE_INFO = {};
@@ -82,6 +83,7 @@ def(T.BOSS_FLOOR, 'boss_floor');
 def(T.CAVE_BRIDGE, 'cave_bridge');
 def(T.PIER, 'pier');
 def(T.RUBBLE_WALL, 'rubble_wall', { solid: true });
+def(T.WHIRLPOOL, 'whirlpool', { solid: true, water: true, anim: true }); // 嵐の うず（船でも とおれない）
 
 export function isSolid(id) {
   return TILE_INFO[id]?.solid ?? true;
@@ -99,6 +101,7 @@ export const LEGEND = {
   // どうくつ
   'g': T.CAVE_FLOOR, 'G': T.CAVE_WALL, 'v': T.CAVE_WATER, 'y': T.CRYSTAL, 'i': T.TORCH, 'p': T.PILLAR,
   'L': T.LOCKED_DOOR, 'u': T.RUBBLE, 'b': T.BOSS_FLOOR, 'n': T.CAVE_BRIDGE, 'U': T.RUBBLE_WALL,
+  '@': T.WHIRLPOOL,
 };
 
 export function parseRows(rows) {

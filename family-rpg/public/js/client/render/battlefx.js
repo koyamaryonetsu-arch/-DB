@@ -12,6 +12,13 @@ const BG = {
   cave: { sky: ['#0e0a10', '#1a1418', '#2a221e'], far: '#2a221e', near: '#3a3028', ground: ['#4a4038', '#3a322a'], deco: 'stalactite' },
   cave_boss: { sky: ['#0a0612', '#1a1024', '#2a1a38'], far: '#2a1a38', near: '#3a2848', ground: ['#3c3048', '#2c2238'], deco: 'crystal' },
   village_night: { sky: ['#0a1030', '#1a2450', '#2a3470'], far: '#1a2a3a', near: '#2a3a2a', ground: ['#3a5a3a', '#2e4a2e'], deco: 'houses' },
+  // 第2章
+  sea: { sky: ['#5aa8f0', '#8ccaff', '#c8e8ff'], far: '#2e69bd', near: '#6a4222', ground: ['#a8733e', '#96652f'], deco: 'sea', deck: true },
+  beach: { sky: ['#5aa8f0', '#8ccaff', '#d0ecff'], far: '#3c80d6', near: '#d7bf82', ground: ['#ead79c', '#dcc88a'], deco: 'palms' },
+  storm: { sky: ['#22222e', '#34344a', '#4a4a62'], far: '#1e3050', near: '#4a2e1a', ground: ['#7c5329', '#6a4522'], deco: 'storm', deck: true },
+  sea_cave: { sky: ['#061014', '#0e2026', '#16303a'], far: '#163640', near: '#22505a', ground: ['#2a4a50', '#223c42'], deco: 'stalactite' },
+  tower: { sky: ['#16162a', '#24243c', '#32324e'], far: '#4a4a62', near: '#5a5a70', ground: ['#77788a', '#686a7e'], deco: 'pillars' },
+  tower_top: { sky: ['#1a1a28', '#2e2e46', '#46466a'], far: '#3a3a52', near: '#5a5a70', ground: ['#77788a', '#686a7e'], deco: 'storm' },
 };
 
 export function battleBackground(id) {
@@ -36,7 +43,21 @@ export function battleBackground(id) {
     x.fillStyle = '#ffffff';
     for (let i = 0; i < 30; i++) x.fillRect((i * 97) % BW, (i * 53) % (hor - 10), 1, 1);
   }
-  if (id === 'grass' || id === 'plains_east') {
+  if (d.deco === 'storm') {
+    // くらい くもと いなずま
+    x.fillStyle = 'rgba(12,12,20,0.55)';
+    for (const [cx, cy, w] of [[20, 10, 60], [110, 4, 70], [190, 14, 60]]) {
+      x.fillRect(cx, cy, w, 8); x.fillRect(cx + 6, cy - 4, w - 12, 4);
+    }
+    x.fillStyle = '#fff6b0';
+    let lx = 168, ly = 12;
+    for (let i = 0; i < 7; i++) {
+      const nx = lx + (i % 2 ? 5 : -4), ny = ly + 7;
+      for (let k = 0; k <= 7; k++) x.fillRect(Math.round(lx + (nx - lx) * k / 7), ly + k, 2, 1);
+      lx = nx; ly = ny;
+    }
+  }
+  if (id === 'grass' || id === 'plains_east' || id === 'sea' || id === 'beach') {
     x.fillStyle = 'rgba(255,255,255,0.85)';
     for (const [cx, cy, w] of [[40, 20, 26], [150, 12, 34], [220, 28, 22]]) {
       x.fillRect(cx, cy, w, 5); x.fillRect(cx + 4, cy - 3, w - 8, 3); x.fillRect(cx + 8, cy - 5, w - 18, 2);
@@ -53,6 +74,9 @@ export function battleBackground(id) {
       case 'houses': h = (px % 48 < 30) ? 18 + (px % 48 > 10 && px % 48 < 20 ? 8 : 0) : 6; break;
       case 'rocks': h = 10 + Math.abs(Math.sin(px * 0.05) * 18); break;
       case 'dead': h = 8 + (px % 29 < 2 ? 20 : 0) + Math.abs(Math.sin(px * 0.08) * 6); break;
+      case 'sea': case 'palms': h = 7 + Math.abs(Math.sin(px * 0.3)) * 2; break;
+      case 'storm': h = 9 + Math.abs(Math.sin(px * 0.22) * 7) + (px % 17 < 3 ? 3 : 0); break;
+      case 'pillars': h = px % 48 < 10 ? 78 : 14 + (px % 48 > 20 && px % 48 < 38 ? 10 : 0); break;
       default: h = 10 + Math.abs(Math.sin(px * 0.035) * 14) + Math.abs(Math.sin(px * 0.11) * 4);
     }
     if (d.deco === 'stalactite' || d.deco === 'crystal') {
@@ -64,6 +88,28 @@ export function battleBackground(id) {
     x.fillStyle = '#ffd66b';
     for (let k = 10; k < BW; k += 48) x.fillRect(k + 8, hor - 12, 3, 3);
   }
+  if (d.deco === 'sea' || d.deco === 'palms' || d.deco === 'storm') {
+    // なみの しろい あわ
+    x.fillStyle = d.deco === 'storm' ? 'rgba(220,230,255,0.55)' : 'rgba(255,255,255,0.8)';
+    for (let k = 0; k < BW; k += 9) x.fillRect((k * 7) % BW, hor - 3 - (k % 4), 4, 1);
+  }
+  if (d.deco === 'palms') {
+    // ヤシの木
+    for (const [tx, th] of [[26, 40], [226, 34]]) {
+      x.fillStyle = '#7a5a32';
+      for (let k = 0; k < th; k++) x.fillRect(tx + Math.round(Math.sin(k / 9) * 3), hor + 6 - k, 3, 1);
+      x.fillStyle = '#2f8a3a';
+      const top = hor + 6 - th;
+      for (let k = -14; k <= 14; k++) {
+        x.fillRect(tx + k, top + Math.round(Math.abs(k) / 3), 2, 2);
+        x.fillRect(tx + Math.round(k / 2), top - 5 + Math.round(Math.abs(k) / 2), 2, 2);
+      }
+    }
+  }
+  if (d.deco === 'pillars') {
+    x.fillStyle = 'rgba(255,255,255,0.12)';
+    for (let k = 0; k < BW; k += 48) x.fillRect(k + 1, 0, 2, hor);
+  }
   // じめん
   x.fillStyle = d.near;
   x.fillRect(0, hor, BW, 4);
@@ -71,6 +117,16 @@ export function battleBackground(id) {
     const t = (y - hor) / (BH - hor);
     x.fillStyle = t < 0.5 ? d.ground[0] : d.ground[1];
     x.fillRect(0, y, BW, 1);
+  }
+  // 船の かんぱん（いたの すじ）
+  if (d.deck) {
+    x.fillStyle = 'rgba(0,0,0,0.18)';
+    for (let y = hor + 8; y < BH; y += 7) x.fillRect(0, y, BW, 1);
+    for (let y = hor + 8; y < BH; y += 7) for (let k = (y * 13) % 40; k < BW; k += 40) x.fillRect(k, y - 6, 1, 6);
+    x.fillStyle = '#5a3a22';
+    x.fillRect(0, hor - 2, BW, 3);
+    for (let k = 4; k < BW; k += 16) x.fillRect(k, hor - 8, 2, 8);
+    x.fillRect(0, hor - 9, BW, 2);
   }
   // えんきんの せん
   x.fillStyle = 'rgba(0,0,0,0.12)';

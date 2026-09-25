@@ -1,5 +1,7 @@
 // お店・ほしのかけら交換・サポートなかま
 
+import { SHOPS_CH2 } from './items-ch2.js';
+
 export const SHOPS = {
   village: {
     name: 'ホシフル村のよろず屋',
@@ -20,6 +22,7 @@ export const SHOPS = {
     items: ['herb', 'antidote', 'moonherb', 'holy_water', 'return_wing', 'smoke_ball'],
   },
 };
+Object.assign(SHOPS, SHOPS_CH2);
 
 // ほしのかけら と こうかん
 export const STAR_TRADES = [

@@ -187,7 +187,7 @@ export class Field3D {
       const id = idAt(x, y);
       if (id === -1 || id === T.VOID) return null;
       const k = kindOf(id);
-      if (k === WATER) return WATER_Y;
+      if (k === WATER || id === T.WHIRLPOOL) return WATER_Y;
       if (k === BLOCK) return spec(x, y).h;
       return id === T.STEPPING ? -0.16 : 0;
     };
@@ -252,6 +252,12 @@ export class Field3D {
         const kind = kindOf(id);
         const g = chunks[Math.floor(y / CH) * cw + Math.floor(x / CH)];
         const hh = topH(x, y);
+        if (id === T.WHIRLPOOL) {
+          // 嵐の うず（水の たかさに うずの え を はる）
+          const wy = WATER_Y + 0.01;
+          quad(g, [x, wy, y], [x, wy, y + 1], [x + 1, wy, y + 1], [x + 1, wy, y], uvOf(['t', T.WHIRLPOOL, Math.floor(hash2(x, y, 17) * 4), 0]), 1);
+          continue;
+        }
         if (kind === WATER) {
           const deep = id === T.DEEP ? 0.72 : id === T.CAVE_WATER ? 0.9 : 1;
           quad(water, [x, WATER_Y, y], [x, WATER_Y, y + 1], [x + 1, WATER_Y, y + 1], [x + 1, WATER_Y, y], { u0: x, u1: x + 1, v0: -y - 1, v1: -y }, deep);

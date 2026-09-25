@@ -1,16 +1,18 @@
 // フィールド（あるく・はなす・みる）
-import { MAPS, isBlocked, effectiveTile, condOk, tileAt } from '../shared/maps/index.js';
+import { MAPS, isBlocked, effectiveTile, condOk, tileAt, onWater } from '../shared/maps/index.js';
 import { T, TILE_INFO } from '../shared/tiles.js';
 import { PLACES } from '../shared/maps/overworld.js';
 import { TS, tileCanvas, frameOf, prepareMap } from './render/tiles.js';
-import { paintHuman, lookToOpts, npcOpts, paintSpecial, equipKey, CW, CH } from './render/chars.js';
+import { paintHuman, lookToOpts, npcOpts, paintSpecial, paintShip, equipKey, CW, CH } from './render/chars.js';
 import { monsterCanvas, bigNpcCanvas } from './render/monsters.js';
+import { MONSTERS } from '../shared/data/monsters.js';
 import { makeCanvas, ctxOf, shade, flipCanvas } from './render/pixel.js';
 import { chestCanvas as chestCanvas3d } from './render/tex3d.js';
 import { el } from './ui/dom.js';
 
 const SPEED = 4.6; // マス/びょう
 const RUN = 1.65; // はしると この ばい
+const SHIP = 1.25; // 船は すこし はやい
 const DAY_MS = 24 * 60 * 1000;
 
 const spriteCache = new Map();
@@ -31,6 +33,26 @@ function specialSprite(kind, dir, frame) {
   spriteCache.set(k, c);
   return c;
 }
+// 船（水の 上に いる ときの すがた。みぎむきは はんてん）
+export function shipSprite(dir, frame) {
+  const k = `ship|${dir}|${frame}`;
+  if (spriteCache.has(k)) return spriteCache.get(k);
+  let c = paintShip(dir === 'right' ? 'left' : dir, frame).toCanvas();
+  if (dir === 'right') c = flipCanvas(c);
+  spriteCache.set(k, c);
+  return c;
+}
+
+// 2.5D の 船は 水に すこし しずめる（かげ なし）
+const SHIP3D = { lift: -0.26, shadow: false };
+
+// 空を とぶ モンスター（フィールドで ふわふわ うかぶ）
+const isFlying = (sp) => !!MONSTERS[sp]?.flying;
+
+// 大きな NPC（ボス・たてもの）の 大きさ
+const BIG_SCALE = { goldoon_sleep: 0.6, lighthouse_dark: 1, lighthouse_lit: 1, storm_tower: 1 };
+const bigScale = (sprite) => BIG_SCALE[sprite] || 0.5;
+
 // eq: そうび（'ぶき,よろい,たて,あたま' か { weapon, armor, … }）。ないときは しょくぎょうの はじめの そうび
 export function playerSprite(look, job, dir, frame, eq) {
   const ek = equipKey(eq, job);
@@ -214,7 +236,7 @@ export class Field {
   npcVisible(n) {
     if (this.scriptHidden.has(n.id)) return false;
     if (!condOk(n.show, (f) => this.hasFlag(f))) return false;
-    if (n.sprite === 'starstone') return !this.hasFlag('p_attack') || this.hasFlag('c1_clear');
+    if (n.id === 'star_stone') return !this.hasFlag('p_attack') || this.hasFlag('c1_clear');
     return true;
   }
 
@@ -262,7 +284,7 @@ export class Field {
     if (me.moving) {
       if (Math.abs(ix) > Math.abs(iy)) me.dir = ix > 0 ? 'right' : 'left';
       else me.dir = iy > 0 ? 'down' : 'up';
-      const sp = SPEED * sec * (mag > 0.4 ? 1 : 0.6) * (run ? RUN : 1);
+      const sp = SPEED * sec * (mag > 0.4 ? 1 : 0.6) * (run ? RUN : 1) * (this.isOnWater(me.x, me.y) ? SHIP : 1);
       const nx = me.x + (ix / (Math.hypot(ix, iy) || 1)) * sp;
       const ny = me.y + (iy / (Math.hypot(ix, iy) || 1)) * sp;
       let moved = false;
@@ -550,7 +572,7 @@ export class Field {
     const npc = this.npcNear(fx, fy) || (TILE_INFO[tileAt(this.map, tx, ty)]?.talkThrough ? this.npcNear(fx + d[0], fy + d[1]) : null);
     if (npc) {
       const s = this.npcState.get(npc.id);
-      if (s && !npc.big && npc.sprite !== 'none' && npc.sprite !== 'flower' && npc.sprite !== 'starstone' && npc.sprite !== 'spring') {
+      if (s && !npc.big && !['none', 'flower', 'starstone', 'windstone', 'spring', 'ship'].includes(npc.sprite)) {
         s.dir = { up: 'down', down: 'up', left: 'right', right: 'left' }[me.dir];
         s.moving = false;
         s.goal = null;
@@ -700,14 +722,14 @@ export class Field {
       o.fl.forEach((f, i) => {
         if (this.hideGuests && f.guest) return;
         const tp = this.trailPos(o, i + 1);
-        if (tp) objs.push({ y: tp.y, draw: () => this.drawAt(followerSprite(f, tp.dir, this.walkFrame(o.moving)), tp.x, tp.y, camX, camY) });
+        if (tp && !this.isOnWater(tp.x, tp.y)) objs.push({ y: tp.y, draw: () => this.drawAt(followerSprite(f, tp.dir, this.walkFrame(o.moving)), tp.x, tp.y, camX, camY) });
       });
     }
     // じぶんの なかま（酒場の なかま・モンスター・ゲスト）
     const fl = this.myFollowers();
     fl.forEach((f, i) => {
       const tp = this.trailPos(this.me, i + 1);
-      if (tp) objs.push({ y: tp.y, draw: () => this.drawAt(followerSprite(f, tp.dir, this.walkFrame(this.myStep)), tp.x, tp.y, camX, camY) });
+      if (tp && !this.isOnWater(tp.x, tp.y)) objs.push({ y: tp.y, draw: () => this.drawAt(followerSprite(f, tp.dir, this.walkFrame(this.myStep)), tp.x, tp.y, camX, camY) });
     });
     for (const a of this.actors.values()) {
       objs.push({ y: a.y, draw: () => this.drawAt(npcSprite(a.sprite, a.dir, this.walkFrame(true)), a.x, a.y, camX, camY) });
@@ -872,36 +894,57 @@ export class Field {
       const s = this.npcState.get(n.id);
       if (n.big) {
         const c = bigNpcCanvas(n.sprite, Math.floor(this.time / 600) % 2);
-        const k = n.sprite === 'goldoon_sleep' ? 0.6 : 0.5;
+        const k = bigScale(n.sprite);
         out.push({ key: 'n:' + n.id, canvas: c, x: s.x, y: s.y, scale: k, anchor: 6 / k, shadowScale: 3 });
         continue;
       }
       const frame = n.wander ? this.walkFrame(s.moving) : Math.floor(this.time / 500) % 2;
-      out.push({ key: 'n:' + n.id, canvas: npcSprite(n.sprite, s.dir, frame), x: s.x, y: s.y, shadow: n.sprite !== 'starstone' });
+      if (n.sprite === 'ship') {
+        out.push({ key: 'n:' + n.id, canvas: npcSprite('ship', s.dir, this.shipFrame()), x: s.x, y: s.y, ...SHIP3D });
+        continue;
+      }
+      out.push({ key: 'n:' + n.id, canvas: npcSprite(n.sprite, s.dir, frame), x: s.x, y: s.y, shadow: n.sprite !== 'starstone' && n.sprite !== 'windstone' });
     }
     for (const s of this.syms.values()) {
       const c = monsterCanvas(s.sp, Math.floor(this.time / 300 + (s.id.length % 2)) % 2, true);
-      const fly = s.sp === 'koumorin' || s.sp === 'dark_bat' || s.sp === 'crow';
+      const fly = isFlying(s.sp);
       out.push({ key: 's:' + s.id, canvas: c, x: s.x, y: s.y, flip: s.dir === 'right', anchor: 2, lift: fly ? 0.35 + Math.sin(this.time / 200) * 0.12 : 0 });
     }
     for (const o of this.others.values()) {
       const mate = o.partyId === this.game.party?.id;
-      out.push({ key: 'p:' + o.sid, canvas: playerSprite(o.look, o.job, o.dir || 'down', this.walkFrame(o.moving), o.eq), x: o.x, y: o.y, alpha: o.away ? 0.45 : 1, ghost: mate ? '#ffd66b' : null });
+      const oShip = this.isOnWater(o.x, o.y);
+      const oc = oShip ? shipSprite(o.dir || 'down', this.shipFrame()) : playerSprite(o.look, o.job, o.dir || 'down', this.walkFrame(o.moving), o.eq);
+      out.push({ key: 'p:' + o.sid, canvas: oc, x: o.x, y: o.y, alpha: o.away ? 0.45 : 1, ghost: mate ? '#ffd66b' : null, ...(oShip ? SHIP3D : {}) });
       o.fl.forEach((f, i) => {
         if (this.hideGuests && f.guest) return;
         const tp = this.trailPos(o, i + 1);
-        if (tp) out.push({ key: `pf:${o.sid}:${i}`, canvas: followerSprite(f, tp.dir, this.walkFrame(o.moving)), x: tp.x, y: tp.y, anchor: f.mon ? 2 : undefined });
+        if (tp && !this.isOnWater(tp.x, tp.y)) out.push({ key: `pf:${o.sid}:${i}`, canvas: followerSprite(f, tp.dir, this.walkFrame(o.moving)), x: tp.x, y: tp.y, anchor: f.mon ? 2 : undefined });
       });
     }
     this.myFollowers().forEach((f, i) => {
       const tp = this.trailPos(this.me, i + 1);
-      if (tp) out.push({ key: 'mf:' + i, canvas: followerSprite(f, tp.dir, this.walkFrame(this.myStep)), x: tp.x, y: tp.y, anchor: f.mon ? 2 : undefined });
+      if (tp && !this.isOnWater(tp.x, tp.y)) out.push({ key: 'mf:' + i, canvas: followerSprite(f, tp.dir, this.walkFrame(this.myStep)), x: tp.x, y: tp.y, anchor: f.mon ? 2 : undefined });
     });
     for (const a of this.actors.values()) {
       out.push({ key: 'a:' + a.id, canvas: npcSprite(a.sprite, a.dir, this.walkFrame(true)), x: a.x, y: a.y });
     }
-    if (!this.hideMe && this.game.me) out.push({ key: 'me', canvas: playerSprite(this.game.me.look, this.game.me.job, this.me.dir || 'down', this.walkFrame(this.myStep), this.game.me.equip), x: this.me.x, y: this.me.y, ghost: '#9fd6ff' });
+    if (!this.hideMe && this.game.me) {
+      const ship = this.isOnWater(this.me.x, this.me.y);
+      const mc = ship ? shipSprite(this.me.dir || 'down', this.shipFrame())
+        : playerSprite(this.game.me.look, this.game.me.job, this.me.dir || 'down', this.walkFrame(this.myStep), this.game.me.equip);
+      out.push({ key: 'me', canvas: mc, x: this.me.x, y: this.me.y, ghost: '#9fd6ff', ...(ship ? SHIP3D : {}) });
+    }
     return out;
+  }
+
+  // 船に のっている？（海の マップの 水の 上）
+  isOnWater(x, y) {
+    return onWater(this.map, x, y, (f) => this.gateFlag(f));
+  }
+
+  // 船は ゆっくり ゆれる
+  shipFrame() {
+    return Math.floor(this.time / 520) % 2;
   }
 
   walkFrame(moving) {
@@ -934,19 +977,23 @@ export class Field {
     return out;
   }
 
-  drawAt(c, x, y, camX, camY) {
+  drawAt(c, x, y, camX, camY, shadow = true) {
     if (!c) return;
     const px = Math.round(x * TS - c.width / 2 - camX);
     const py = Math.round(y * TS - c.height + 3 - camY);
     // かげ
-    this.ctx.fillStyle = 'rgba(0,0,0,0.22)';
-    this.ctx.fillRect(px + 4, py + c.height - 3, c.width - 8, 2);
+    if (shadow) {
+      this.ctx.fillStyle = 'rgba(0,0,0,0.22)';
+      this.ctx.fillRect(px + 4, py + c.height - 3, c.width - 8, 2);
+    }
     this.ctx.drawImage(c, px, py);
   }
 
   drawPlayer(o, camX, camY, look, job, mine = false, eq = undefined) {
     if (!look) return;
-    const c = playerSprite(look, job, o.dir || 'down', this.walkFrame(mine ? this.myStep : o.moving), eq);
+    const ship = this.isOnWater(o.x, o.y);
+    const c = ship ? shipSprite(o.dir || 'down', this.shipFrame())
+      : playerSprite(look, job, o.dir || 'down', this.walkFrame(mine ? this.myStep : o.moving), eq);
     const ctx = this.ctx;
     const myParty = this.game.party?.id;
     // なかまが たたかっている: あしもとに ひかる わ（ちかづくと さんか できる）
@@ -962,7 +1009,7 @@ export class Field {
       ctx.restore();
     }
     if (o.away) ctx.globalAlpha = 0.45;
-    this.drawAt(c, o.x, o.y, camX, camY);
+    this.drawAt(c, o.x, o.y + (ship ? 0.2 : 0), camX, camY, !ship);
     ctx.globalAlpha = 1;
     if (o.battle) {
       // ⚔ の しるし
@@ -992,9 +1039,13 @@ export class Field {
     if (n.big) {
       const c = bigNpcCanvas(n.sprite, Math.floor(this.time / 600) % 2);
       if (!c) return;
-      const k = n.sprite === 'goldoon_sleep' ? 0.6 : 0.5;
+      const k = bigScale(n.sprite);
       const w = Math.round(c.width * k), h = Math.round(c.height * k);
       this.ctx.drawImage(c, Math.round(s.x * TS - w / 2 - camX), Math.round(s.y * TS - h + 6 - camY), w, h);
+      return;
+    }
+    if (n.sprite === 'ship') {
+      this.drawAt(npcSprite('ship', s.dir, this.shipFrame()), s.x, s.y + 0.2, camX, camY, false);
       return;
     }
     const frame = n.wander ? this.walkFrame(s.moving) : Math.floor(this.time / 500) % 2;
@@ -1003,7 +1054,7 @@ export class Field {
 
   drawSym(s, camX, camY) {
     const c = monsterCanvas(s.sp, Math.floor(this.time / 300 + (s.id.length % 2)) % 2, true);
-    const bob = s.sp === 'koumorin' || s.sp === 'dark_bat' || s.sp === 'crow' ? Math.round(Math.sin(this.time / 200) * 2) - 4 : 0;
+    const bob = isFlying(s.sp) ? Math.round(Math.sin(this.time / 200) * 2) - 4 : 0;
     const px = Math.round(s.x * TS - c.width / 2 - camX);
     const py = Math.round(s.y * TS - c.height + 2 - camY + bob);
     this.ctx.fillStyle = 'rgba(0,0,0,0.25)';
@@ -1158,7 +1209,8 @@ export class Field {
   }
 
   areaBgm() {
-    if (this.map.kind === 'dungeon') return 'cave';
+    if (this.map.bgmAt) return this.map.bgmAt(Math.floor(this.me.x), Math.floor(this.me.y));
+    if (this.map.kind === 'dungeon') return this.map.bgm || 'cave';
     const name = this.areaName();
     for (const p of Object.values(PLACES)) if (p.name === name) return p.bgm;
     if (name === 'ささやきの森') return 'forest';

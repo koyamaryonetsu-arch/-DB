@@ -80,6 +80,26 @@ const TRACKS = {
       { drums: true, v: 0.35, n: 'k:4 r:12 '.repeat(8) },
     ],
   },
+  // 第2章: 海（6/8 の ふなうた）
+  sea: {
+    bpm: 120,
+    ch: [
+      { w: 'pulse', v: 0.1, n: 'C5:4 F5:2 A5:4 G5:2 F5:6 C5:6 D5:4 G5:2 Bb5:4 A5:2 G5:6 r:6 A5:4 G5:2 F5:4 E5:2 D5:4 E5:2 F5:4 D5:2 C5:4 A4:2 Bb4:4 G4:2 F4:12 A4:4 C5:2 F5:4 A5:2 C6:6 A5:6 Bb5:4 A5:2 G5:4 F5:2 E5:6 C5:6 D5:4 F5:2 Bb5:4 D6:2 C6:4 A5:2 F5:4 A5:2 G5:4 E5:2 C5:4 E5:2 F5:12' },
+      { w: 'triangle', v: 0.22, n: 'F2:6 C3:6 F2:6 A2:6 Bb2:6 D3:6 C3:6 G2:6 F2:6 C3:6 Bb2:6 F2:6 C3:6 C2:6 F2:6 C3:6 F2:6 C3:6 F2:6 A2:6 Bb2:6 D3:6 C3:6 E3:6 Bb2:6 D3:6 F2:6 A2:6 C3:6 C2:6 F2:6 F2:6' },
+      { w: 'square', v: 0.03, n: 'A4:12 A4:12 Bb4:12 G4:12 A4:12 F4:12 E4:12 F4:12 C5:12 C5:12 D5:12 C5:12 D5:12 C5:12 Bb4:12 A4:12' },
+      { drums: true, v: 0.4, n: 'k:2 h:2 h:2 s:2 h:2 h:2 '.repeat(16) },
+    ],
+  },
+  // 第2章: 嵐の塔
+  tower: {
+    bpm: 108,
+    ch: [
+      { w: 'pulse', v: 0.09, n: 'D5:4 F5:4 E5:2 D5:2 C#5:4 D5:6 A4:2 A4:8 Bb4:4 D5:4 C5:2 Bb4:2 A4:4 G4:6 A4:2 E4:8 F4:4 A4:4 D5:4 F5:4 E5:4 G5:4 A5:8 G5:2 F5:2 E5:2 D5:2 C#5:4 E5:4 D5:16' },
+      { w: 'triangle', v: 0.24, n: ('D2:2 D3:2 '.repeat(8) + 'Bb1:2 Bb2:2 '.repeat(4) + 'A1:2 A2:2 '.repeat(4) + 'D2:2 D3:2 '.repeat(4) + 'C2:2 C3:2 '.repeat(4) + 'A1:2 A2:2 '.repeat(4) + 'D2:2 D3:2 '.repeat(4)) },
+      { w: 'saw', v: 0.025, n: 'F4:16 F4:16 F4:16 E4:16 A4:16 G4:16 E4:16 F4:16' },
+      { drums: true, v: 0.4, n: 'k:4 h:4 s:4 h:4 '.repeat(8) },
+    ],
+  },
   battle: {
     bpm: 152,
     ch: [
