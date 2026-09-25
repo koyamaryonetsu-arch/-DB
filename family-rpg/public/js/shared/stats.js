@@ -1,5 +1,5 @@
 // キャラクターの つよさ計算・レベルアップ・転職ペナルティ
-import { JOBS, JOB_ORDER, JOB_MAX_LEVEL, jobExpForLevel } from './data/jobs.js';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_TRAIN_GAP, jobBattlesForLevel, jobBases, jobAncestry } from './data/jobs.js';
 import { ITEMS, SLOTS } from './data/items.js';
 import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js';
 import { MONSTERS } from './data/monsters.js';
@@ -67,7 +67,7 @@ export function computeStats(char) {
   const job = JOBS[char.job];
   const b = baseStats(char.level);
   const jl = jobLevel(char);
-  const boost = 1 + 0.015 * (jl - 1);
+  const boost = 1 + 0.03 * (jl - 1);
   const s = {};
   for (const k of STAT_KEYS) {
     const m = job.mods[k];
@@ -103,7 +103,9 @@ function monsterCompanionStats(char) {
   const g = f.growth || {};
   const b = baseStats(char.level);
   const s = {};
-  for (const k of STAT_KEYS) s[k] = b[k] * (g[k] ?? 1);
+  // はいごうの「＋」と おやから うけついだ つよさ
+  const plus = 1 + Math.min(99, char.plus || 0) * 0.01;
+  for (const k of STAT_KEYS) s[k] = b[k] * (g[k] ?? 1) * plus + (char.bonus?.[k] || 0);
   for (const [k, v] of Object.entries(char.seeds || {})) s[k] = (s[k] || 0) + v;
   const eq = equipBonus(char);
   for (const k of STAT_KEYS) s[k] += eq.out[k] || 0;
@@ -130,8 +132,10 @@ function monsterCompanionStats(char) {
 // なかまの モンスターが おぼえている わざ
 export function monsterAbilities(char) {
   const f = MONSTER_FRIENDS[char.species];
-  if (!f) return [];
-  return f.learn.filter(([l, id]) => l <= char.level && ABILITIES[id]).map(([, id]) => id);
+  const out = f ? f.learn.filter(([l, id]) => l <= char.level && ABILITIES[id]).map(([, id]) => id) : [];
+  // はいごうで おやから うけついだ わざ
+  for (const id of char.inherit || []) if (ABILITIES[id] && !out.includes(id)) out.push(id);
+  return out;
 }
 
 // 職業ごとに おぼえている 技
@@ -144,7 +148,7 @@ export function jobAbilities(char, jobId) {
 export function learnedAbilities(char) {
   if (char.species) return monsterAbilities(char);
   const set = new Set();
-  for (const jid of JOB_ORDER) {
+  for (const jid of ALL_JOBS) {
     if (!char.jobs?.[jid]) continue;
     for (const id of jobAbilities(char, jid)) set.add(id);
   }
@@ -173,6 +177,30 @@ export function comboJobs(id) {
   return [...new Set(a.requires.map((r) => ABILITIES[r]?.job).filter(Boolean))];
 }
 
+// 掛け合わせ技の もとになる 基本職（例: 魔法剣 → 戦士・魔法使い）
+export function comboBaseJobs(id) {
+  const out = [];
+  for (const j of comboJobs(id)) for (const b of jobBases(j)) if (!out.includes(b)) out.push(b);
+  return out;
+}
+
+// 掛け合わせ技は、もとに なった 職業を ぜんぶ あわせもつ 上級職いじょうで ないと つかえない
+// （例: 魔法剣は 魔法戦士・竜の騎士…、メドロは 賢者・魔法戦士・忍者・占い師…）
+export function comboAllowed(char, id) {
+  const a = ABILITIES[id];
+  if (!a || a.kind !== 'combo') return true;
+  const j = JOBS[char.job];
+  if (!j || !j.tier) return false;
+  const have = jobBases(char.job);
+  return comboBaseJobs(id).every((b) => have.includes(b));
+}
+
+// その 掛け合わせ技が つかえる 上級職の なまえ
+export function comboJobNames(id) {
+  const need = comboBaseJobs(id);
+  return ALL_JOBS.filter((j) => JOBS[j].tier === 1 && need.every((b) => jobBases(j).includes(b))).map((j) => JOBS[j].name);
+}
+
 // ぶきの じょうけん
 export function weaponOk(ability, weaponCat) {
   if (!ability.weapon) return true;
@@ -190,13 +218,11 @@ export function penaltyFor(char, abilityId) {
   const cur = char.job;
   const curJob = JOBS[cur];
   if (!curJob) return none; // モンスターの なかまは じぶんの わざを そのまま つかえる
-  if (a.kind === 'bond' || a.kind === 'monster') return none;
-  if (a.kind === 'combo') {
-    const jobs = comboJobs(abilityId);
-    if (jobs.includes(cur)) return none;
-    return { mpMult: 1.25, powMult: 0.9, penalized: true, label: '掛け合わせの もとの 職業では ないため MP1.25ばい・いりょく90%' };
-  }
+  // 掛け合わせ技は つかえる 職業なら そのまま（つかえるかは comboAllowed）
+  if (a.kind === 'bond' || a.kind === 'monster' || a.kind === 'combo') return none;
   if (!a.job || a.job === cur) return none;
+  // いまの 職業に なるまでに とおった 職業の わざも そのまま（バトルマスターの 大地斬 など）
+  if (jobAncestry(cur).has(a.job)) return none;
   const origin = JOBS[a.job];
   const light = curJob.versatile || origin.family === curJob.family;
   let mpMult, powMult;
@@ -207,14 +233,14 @@ export function penaltyFor(char, abilityId) {
     mpMult = light ? 1.0 : 1.25;
     powMult = light ? 0.85 : 0.7;
   }
-  // もとの職業を きわめている（レベル15以上）と ペナルティが はんぶんに
-  const mastered = jobLevel(char, a.job) >= 15;
+  // もとの職業を マスターしている（レベル10）と ペナルティが はんぶんに
+  const mastered = jobLevel(char, a.job) >= JOB_MAX_LEVEL;
   if (mastered) {
     mpMult = 1 + (mpMult - 1) / 2;
     powMult = 1 - (1 - powMult) / 2;
   }
   const pct = Math.round(powMult * 100);
-  const label = `${origin.name}の わざ：MP${mpMult === 1 ? 'そのまま' : mpMult + 'ばい'}・いりょく${pct}%${mastered ? '（きわめた ので かるめ）' : ''}`;
+  const label = `${origin.name}の わざ：MP${mpMult === 1 ? 'そのまま' : mpMult + 'ばい'}・いりょく${pct}%${mastered ? '（マスター したので かるめ）' : ''}`;
   return { mpMult, powMult, penalized: true, label };
 }
 
@@ -228,8 +254,9 @@ export function mpCost(char, abilityId) {
 // 魔法剣の くみあわせ（こうげき呪文 × 剣技）
 export function mahoukenOptions(char, learned = learnedAbilities(char)) {
   if (!learned.includes('mahouken')) return [];
-  const spells = learned.filter(isAttackSpell);
-  const skills = learned.filter(isSwordSkill);
+  // 1体を ねらう こうげき呪文 × 戦士の けんわざ
+  const spells = learned.filter((id) => isAttackSpell(id) && ABILITIES[id].target === 'enemy');
+  const skills = learned.filter((id) => isSwordSkill(id) && ABILITIES[id].job === 'warrior' && ABILITIES[id].target === 'enemy');
   const out = [];
   for (const sp of spells) {
     for (const sk of skills) {
@@ -285,14 +312,15 @@ export function sanitizeLook(look = {}) {
 }
 
 export function newCharacter({ id, name, look, job }) {
-  const jobId = JOBS[job] ? job : 'warrior';
+  const jobId = JOBS[job] && !JOBS[job].tier ? job : 'warrior';
   const c = {
     id,
     name: String(name || 'ゆうしゃ').slice(0, 8),
     look: sanitizeLook(look),
     level: 1, exp: 0, gold: 50,
     job: jobId,
-    jobs: { [jobId]: { lv: 1, exp: 0 } },
+    jobs: { [jobId]: { lv: 1, b: 0 } },
+    jobSys: 2,
     equip: { ...STARTER_EQUIP[jobId] },
     items: [{ id: 'herb', n: 3 }],
     keyItems: [],
@@ -358,29 +386,73 @@ export function gainExp(char, exp) {
   return ups;
 }
 
-export function gainJobExp(char, jexp) {
+// ───── 職業レベル（たたかいに かった かずで あがる） ─────
+// なれる 職業か（上級職・超級職は じょうけんの 職業を ぜんぶ マスター）
+export function jobUnlocked(char, jobId) {
+  const j = JOBS[jobId];
+  if (!j) return false;
+  if (!j.req) return true;
+  return j.req.every((r) => (char.jobs?.[r]?.lv || 0) >= JOB_MAX_LEVEL);
+}
+
+export function jobProgress(char, jobId = char.job) {
+  const j = JOBS[jobId];
+  const info = char.jobs?.[jobId] || { lv: 1, b: 0 };
+  if (!j) return { lv: 1, next: 0, done: false };
+  if (info.lv >= JOB_MAX_LEVEL) return { lv: info.lv, next: 0, done: true };
+  return { lv: info.lv, next: Math.max(1, jobBattlesForLevel(info.lv + 1, j.tier || 0) - (info.b || 0)), done: false };
+}
+
+// てきが よわすぎると しゅぎょうに ならない（じぶんより レベルが 5いじょう ひくい てきだけ の とき）
+export function jobTrainable(char, maxEnemyLv) {
+  return maxEnemyLv >= (char.level || 1) - JOB_TRAIN_GAP;
+}
+
+// かった たたかいの かずを たす。もどりち: [{ job, lv, learned, unlocked }]
+export function gainJobBattles(char, n = 1) {
   const ups = [];
-  if (jexp <= 0 || char.species || !JOBS[char.job]) return ups;
-  const info = char.jobs[char.job] || (char.jobs[char.job] = { lv: 1, exp: 0 });
-  info.exp += jexp;
-  while (info.lv < JOB_MAX_LEVEL && info.exp >= jobExpForLevel(info.lv + 1)) {
+  const j = JOBS[char.job];
+  if (n <= 0 || char.species || !j) return ups;
+  const info = char.jobs[char.job] || (char.jobs[char.job] = { lv: 1, b: 0 });
+  if (info.lv >= JOB_MAX_LEVEL) return ups;
+  info.b = (info.b || 0) + n;
+  while (info.lv < JOB_MAX_LEVEL && info.b >= jobBattlesForLevel(info.lv + 1, j.tier || 0)) {
     const learnedBefore = new Set(learnedAbilities(char));
+    const lockedBefore = ALL_JOBS.filter((id) => !jobUnlocked(char, id));
     const before = computeStats(char);
     info.lv++;
     const after = computeStats(char);
     char.hp = Math.min(after.maxHp, char.hp + Math.max(0, after.maxHp - before.maxHp));
     char.mp = Math.min(after.maxMp, char.mp + Math.max(0, after.maxMp - before.maxMp));
     const learned = learnedAbilities(char).filter((a) => !learnedBefore.has(a));
-    ups.push({ job: char.job, lv: info.lv, learned });
+    const unlocked = lockedBefore.filter((id) => jobUnlocked(char, id));
+    ups.push({ job: char.job, lv: info.lv, learned, unlocked });
   }
   return ups;
+}
+
+// まえの バージョンの 職業レベル（1〜20・けいけんち）を あたらしい しくみ（1〜10・たたかいの かず）へ
+export function migrateJobs(char) {
+  if (!char || char.species || char.jobSys === 2) return char;
+  const jobs = {};
+  for (const [jid, info] of Object.entries(char.jobs || {})) {
+    const j = JOBS[jid];
+    if (!j) continue;
+    const lv = Math.max(1, Math.min(JOB_MAX_LEVEL, Math.ceil((info?.lv || 1) / 2)));
+    jobs[jid] = { lv, b: jobBattlesForLevel(lv, j.tier || 0) };
+  }
+  if (JOBS[char.job] && !jobs[char.job]) jobs[char.job] = { lv: 1, b: 0 };
+  char.jobs = jobs;
+  char.jobSys = 2;
+  return char;
 }
 
 // 転職
 export function changeJob(char, jobId) {
   if (!JOBS[jobId] || char.job === jobId) return { ok: false };
+  if (!jobUnlocked(char, jobId)) return { ok: false, locked: true };
   char.job = jobId;
-  if (!char.jobs[jobId]) char.jobs[jobId] = { lv: 1, exp: 0 };
+  if (!char.jobs[jobId]) char.jobs[jobId] = { lv: 1, b: 0 };
   // そうびできない ものは はずして ふくろへ
   const removed = [];
   for (const slot of SLOTS) {

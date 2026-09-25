@@ -1,6 +1,6 @@
 // どうぐ・そうびの データ
 // type: use(つかう どうぐ) weapon armor shield head acc key(だいじなもの)
-// weapon.cat: sword dagger axe staff spear claw fan
+// weapon.cat: sword dagger axe staff spear claw fan whip
 // armor.armorType: cloth(だれでも) heavy(戦士) robe(僧侶/魔法使い/旅芸人) gi(武闘家/戦士/旅芸人)
 // head.helm: true だと 戦士だけ
 
@@ -92,6 +92,9 @@ export const ITEMS = {
   iron_spear: { name: 'てつのやり', type: 'weapon', cat: 'spear', atk: 19, price: 400, desc: 'てつの やり。' },
   bronze_knuckle: { name: 'ブロンズナックル', type: 'weapon', cat: 'claw', atk: 10, price: 90, desc: 'こぶしに はめる どうの ぶき。' },
   iron_claw: { name: 'てつのツメ', type: 'weapon', cat: 'claw', atk: 18, bonus: { agi: 2 }, price: 380, desc: 'するどい てつの ツメ。' },
+  leather_whip: { name: 'かわのムチ', type: 'weapon', cat: 'whip', atk: 10, price: 180, desc: 'しなやかな かわの ムチ。まもの使いや 旅芸人が つかう。' },
+  thorn_whip: { name: 'いばらのムチ', type: 'weapon', cat: 'whip', atk: 18, price: 460, desc: 'トゲの ついた ムチ。' },
+  flame_whip: { name: 'ほのおのムチ', type: 'weapon', cat: 'whip', atk: 26, bonus: { mag: 4 }, price: 0, sell: 520, desc: 'ほのおを まとった ムチ。' },
   feather_fan: { name: 'はねのおうぎ', type: 'weapon', cat: 'fan', atk: 7, bonus: { agi: 3 }, price: 70, desc: 'かるい はねの おうぎ。' },
   dancer_fan: { name: 'おどりこのおうぎ', type: 'weapon', cat: 'fan', atk: 14, bonus: { agi: 5 }, price: 360, desc: 'おどりこが つかう うつくしい おうぎ。' },
 
@@ -140,7 +143,7 @@ export const SLOT_NAMES = { weapon: 'ぶき', armor: 'よろい', shield: 'た�
 export const SLOT_OF_TYPE = { weapon: 'weapon', armor: 'armor', shield: 'shield', head: 'head', acc: 'acc' };
 
 export const WEAPON_CAT_NAMES = {
-  sword: 'けん', dagger: 'たんけん', axe: 'オノ', staff: 'つえ', spear: 'やり', claw: 'ツメ', fan: 'おうぎ', none: 'すで',
+  sword: 'けん', dagger: 'たんけん', axe: 'オノ', staff: 'つえ', spear: 'やり', claw: 'ツメ', fan: 'おうぎ', whip: 'ムチ', none: 'すで',
 };
 
 export function sellPrice(id) {

@@ -64,8 +64,11 @@ export class ListMenu {
         title: it.title || null,
         onclick: (e) => {
           e.stopPropagation();
+          const moved = this.idx !== i;
           this.idx = i;
           this.render();
+          // タッチでは ホバーが ないので、タップで せつめいも かえる
+          if (moved) this.onMove?.(this.items[i], i);
           this.choose();
         },
         onmouseenter: () => {

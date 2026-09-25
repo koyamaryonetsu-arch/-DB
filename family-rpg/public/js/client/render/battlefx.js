@@ -177,7 +177,7 @@ export class Effects {
   play(anim, targets, element, opts = {}) {
     const crit = !!opts.crit;
     const ec = COL[element] || null;
-    const spell = /^(fire|ice|wind|blast|void|dark|minadein)/.test(anim);
+    const spell = /^(fire|ice|wind|blast|void|dark1|minadein|bolt|meteor)/.test(anim);
     if (spell && opts.fromAlly !== false) this.circle((ec || COL.light)[0]);
     const all = targets.length > 1;
     targets.forEach((t, ti) => {
@@ -368,6 +368,86 @@ export class Effects {
         case 'quake':
           this.burst(x, y + 16, ['#a08060', '#6a5040', '#d8c0a0'], 12, 50, { delay: d, g: 160 });
           break;
+        // ── いかずち ──
+        case 'bolt1': // ライデイン
+          this.bolts.push({ x, life: 420, age: -d, color: '#fff6b0', to: y + 8 });
+          this.star(x, y, '#ffffff', 14, d + 60, 260);
+          this.burst(x, y, COL.bolt, 18, 90, { delay: d + 60 });
+          this.flashAt(160, '#fffbe0', d);
+          this.hitStop(140, d + 60);
+          break;
+        case 'bolt2': // ギガデイン・いかずち
+          for (let k = 0; k < 4; k++) this.bolts.push({ x: x + (k - 1.5) * 9, life: 520, age: -d - k * 60, color: k % 2 ? '#9ad8ff' : '#fff6b0', to: y + 12 });
+          this.add({ kind: 'orb', x, y, color: '#fff6b0', r: 20, life: 520, delay: d + 180 });
+          this.ring(x, y, '#9ad8ff', 4, d + 180, 420, 44);
+          this.burst(x, y, COL.bolt, 26, 120, { delay: d + 180 });
+          this.flashAt(260, '#fffbe0', d);
+          this.hitStop(220, d + 180);
+          break;
+        case 'gigabreak': // ギガブレイク・いなずま斬り: かみなりを まとった きりさき
+          this.bolts.push({ x: x + 4, life: 360, age: -d, color: '#fff6b0', to: y });
+          this.slash(x, y, '#fffbe0', 2, { angs: [-0.9, 0.9], len: 46, w: 4, gap: 110, glow: '#9ad8ff', delay: d + 140 });
+          this.star(x, y, '#ffffff', crit ? 20 : 15, d + 250);
+          this.burst(x, y, COL.bolt, 28, 130, { delay: d + 250 });
+          this.flashAt(200, '#fffbe0', d + 250);
+          this.hitStop(crit ? 260 : 200, d + 250);
+          break;
+        // ── ムチ・しゅりけん ──
+        case 'whip':
+          this.add({ kind: 'lash', x0: x - 70, y0: y + 34, x, y, color: '#e8c89a', w: 2, phase: Math.random() * 6, life: 380, delay: d });
+          this.star(x, y, '#ffffff', crit ? 14 : 10, d + 200, 220);
+          this.burst(x, y, ['#ffffff', '#e8c89a'], 8, 70, { delay: d + 200 });
+          break;
+        case 'shuriken':
+          for (let k = 0; k < 3; k++) {
+            const x0 = -8, y0 = y - 18 + k * 14;
+            this.add({ kind: 'shuri', x0, y0, x1: x + (k - 1) * 4, y1: y + (k - 1) * 3, x: x0, y: y0, color: '#dfe4f0', size: 4, travel: 220, life: 300, delay: d + k * 50 });
+          }
+          this.star(x, y, '#ffffff', 9, d + 260, 200);
+          this.burst(x, y, ['#ffffff', '#dfe4f0'], 8, 60, { delay: d + 260 });
+          break;
+        // ── 竜の騎士 ──
+        case 'dragon_beam': // ドルオーラ: りゅうの とうきが まっすぐ とんでいく
+          if (ti === 0) this.circle('#7dffb0', d);
+          this.add({ kind: 'beam', x0: BW / 2, y0: BH + 4, x, y, color: '#b8ffd0', glow: '#2aa06a', w: 14, life: 620, delay: d + 150 });
+          this.add({ kind: 'orb', x, y, color: '#b8ffd0', r: 30, life: 560, delay: d + 380 });
+          this.ring(x, y, '#7dffb0', 6, d + 380, 520, 70);
+          this.burst(x, y, ['#ffffff', '#b8ffd0', '#2aa06a'], 36, 140, { delay: d + 380 });
+          this.flashAt(300, '#eaffef', d + 380);
+          this.hitStop(300, d + 380);
+          break;
+        // ── しょうかん ──
+        case 'summon': // 天地雷鳴士: まじんを よびだす
+          if (ti === 0) {
+            this.circle('#ff9a3a', d);
+            this.add({ kind: 'orb', x: BW / 2, y: 30, color: 'rgba(255,120,40,0.8)', r: 34, life: 700, delay: d });
+          }
+          this.swirl(x, y, COL.fire, { n: 30, rad: 18, h: 60, delay: d + 300, life: 700, size: 2 });
+          this.fireUp(x, y, 24, d + 380);
+          this.burst(x, y, COL.fire, 24, 110, { delay: d + 420 });
+          this.flashAt(220, '#ffd0a0', d + 420);
+          this.hitStop(200, d + 420);
+          break;
+        // ── ほし・いんせき ──
+        case 'meteor': {
+          for (let k = 0; k < 2; k++) {
+            const from = { x: x - 70 + k * 25 + (Math.random() - 0.5) * 20, y: -12 };
+            this.proj(x + (k - 0.5) * 8, y, ['#ffd66b', '#ff8a2a', '#ffffff'], { size: 3 + k, travel: 360, delay: d + k * 120, from });
+          }
+          const hit = d + 480;
+          this.star(x, y, '#ffffff', 16, hit, 240);
+          this.ring(x, y, '#ffd66b', 4, hit, 400, 44);
+          this.burst(x, y, COL.blast, 26, 130, { delay: hit, g: 90 });
+          this.flashAt(200, '#fff4d0', hit);
+          this.hitStop(200, hit);
+          break;
+        }
+        case 'dark_slash': // あんこくの けん
+          this.slash(x, y, '#c8a8f0', 2, { angs: [-0.8, 0.8], len: 40, w: 3, gap: 90, glow: '#5a2a8a', delay: d });
+          this.burst(x, y, COL.dark, 20, 80, { delay: d + 120 });
+          this.ring(x, y, '#8a5ac8', 3, d + 120, 380, 34);
+          if (ti === 0) this.tintAt('rgba(40, 10, 60, 0.22)', 380);
+          break;
         default:
           this.star(x, y, '#ffffff', 8, d);
           this.burst(x, y, ['#ffffff'], 6, 40, { delay: d });
@@ -407,6 +487,9 @@ export class Effects {
         case 'dagger':
           this.slash(x, y, '#ffffff', 2, { angs: [-0.9, 0.5], len: 20, w: 2, gap: 60 });
           this.star(x, y, '#ffffff', 8, 100);
+          break;
+        case 'whip':
+          this.play('whip', [t], null, { crit });
           break;
         default: // けん
           this.play('slash_heavy', [t], null, { crit });
@@ -449,6 +532,14 @@ export class Effects {
         if (Math.random() < 0.9) this.add({ x: p.x + (Math.random() - 0.5) * 3, y: p.y + (Math.random() - 0.5) * 3, vx: (Math.random() - 0.5) * 12, vy: 10, color: p.colors[Math.floor(Math.random() * p.colors.length)], life: 260, size: 1 + Math.random() * p.size * 0.6 });
         continue;
       }
+      if (p.kind === 'shuri') {
+        const t = Math.min(1, p.age / p.travel);
+        p.x = p.x0 + (p.x1 - p.x0) * t;
+        p.y = p.y0 + (p.y1 - p.y0) * t;
+        p.rot = p.age / 35;
+        continue;
+      }
+      if (p.kind === 'lash' || p.kind === 'beam') continue;
       if (p.kind === 'swirl') {
         const t = p.age / p.life;
         const a = p.ang + t * 9;
@@ -602,6 +693,53 @@ export class Effects {
           x.lineWidth = 2;
           x.beginPath(); x.moveTo(p.x, p.y + 30); x.lineTo(p.x, p.y + 30 - L); x.stroke();
           x.lineWidth = 1;
+          break;
+        }
+        case 'lash': {
+          // ムチ: したから しなって とどく
+          const n = 18, upto = Math.max(2, Math.floor(n * Math.min(1, t * 2.8)));
+          x.lineWidth = p.w || 2;
+          x.beginPath();
+          for (let i = 0; i <= upto; i++) {
+            const u = i / n;
+            const bx = p.x0 + (p.x - p.x0) * u, by = p.y0 + (p.y - p.y0) * u;
+            const wob = Math.sin(u * Math.PI * 2.5 + p.phase) * (1 - u) * 14 * (1 - t);
+            if (i === 0) x.moveTo(bx, by + wob);
+            else x.lineTo(bx, by + wob);
+          }
+          x.stroke();
+          x.lineWidth = 1;
+          break;
+        }
+        case 'shuri': {
+          const r = p.size || 4;
+          x.beginPath();
+          for (let i = 0; i < 8; i++) {
+            const rr = i % 2 ? r * 0.35 : r;
+            const a = (p.rot || 0) + (i / 8) * Math.PI * 2;
+            x.lineTo(p.x + Math.cos(a) * rr, p.y + Math.sin(a) * rr);
+          }
+          x.closePath();
+          x.fill();
+          break;
+        }
+        case 'beam': {
+          // ドルオーラ: ふとい ひかりの せん
+          const g = Math.max(0, t < 0.2 ? t / 0.2 : 1 - (t - 0.2) / 0.8);
+          const w = p.w * g;
+          const L = Math.hypot(p.x - p.x0, p.y - p.y0);
+          x.save();
+          x.translate(p.x0, p.y0);
+          x.rotate(Math.atan2(p.y - p.y0, p.x - p.x0));
+          x.globalAlpha = 0.5 * g;
+          x.fillStyle = p.glow;
+          x.fillRect(0, -w, L, w * 2);
+          x.globalAlpha = g;
+          x.fillStyle = p.color;
+          x.fillRect(0, -w / 2, L, w);
+          x.fillStyle = '#ffffff';
+          x.fillRect(0, -w / 5, L, (w * 2) / 5);
+          x.restore();
           break;
         }
         case 'petal':

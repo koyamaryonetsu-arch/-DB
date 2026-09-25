@@ -22,6 +22,28 @@ const JOB_LOOK = {
   priest: { outfit: 'robe', robeMain: '#f4f2fa', robeTrim: 'cloth' },
   mage: { outfit: 'robe', robeMain: 'cloth', robeTrim: '#f2c14e' },
   performer: { outfit: 'jester' },
+  // 上級職
+  battlemaster: { outfit: 'gi', cloth: '#c83a3a', giTrim: '#2d2330', hat: 'headband' },
+  paladin: { outfit: 'robe', robeMain: '#f4f2fa', robeTrim: '#3f7fd0', holy: true, hat: 'helmet' },
+  magic_knight: { outfit: 'tunic', cloth: '#8a5ac8', hat: 'bandana', hatColor: '#f2c14e' },
+  pirate: { outfit: 'vest', cloth: '#2a8aa8', hat: 'bandana', hatColor: '#c83a3a' },
+  holyfist: { outfit: 'gi', cloth: '#f4f2fa', giTrim: '#f2c14e', hat: 'headband' },
+  ninja: { outfit: 'gi', cloth: '#2d2d4a', giTrim: '#c83a3a', hat: 'cowl', hatColor: '#2d2d4a' },
+  tamer: { outfit: 'traveler', cloth: '#8a6a3a', hat: 'bandana', hatColor: '#3fa35a' },
+  sage: { outfit: 'robe', robeMain: '#3fa35a', robeTrim: '#f4f2fa', hat: 'wizard', hatColor: '#3fa35a' },
+  superstar: { outfit: 'jester', cloth: '#e46fa8', hat: 'feather' },
+  fortune: { outfit: 'robe', robeMain: '#4a2a7a', robeTrim: '#f2c14e', hat: 'cowl', hatColor: '#4a2a7a' },
+  // 超級職
+  dragon_knight: { outfit: 'armor', cloth: '#2aa06a', hat: 'helmet' },
+  archmage: { outfit: 'robe', robeMain: '#2a4a3a', robeTrim: '#5ac880', hat: 'wizard', hatColor: '#2a4a3a' },
+  high_priest: { outfit: 'robe', robeMain: '#fff8e0', robeTrim: '#f2c14e', holy: true, hat: 'mitre' },
+  god_hand: { outfit: 'gi', cloth: '#f2c14e', giTrim: '#c83a3a', hat: 'headband' },
+  summoner: { outfit: 'robe', robeMain: '#2a5a8a', robeTrim: '#9ad8ff', hat: 'cowl', hatColor: '#2a5a8a' },
+  magic_swordsman: { outfit: 'chain', cloth: '#6a2a8a', hat: 'cowl', hatColor: '#3a1a4a' },
+  guardian: { outfit: 'armor', cloth: '#8a9ab8', hat: 'helmet' },
+  hero: { outfit: 'traveler', cloth: '#3f7fd0', hat: 'headband' },
+  monster_master: { outfit: 'vest', cloth: '#c8903a', hat: 'bandana', hatColor: '#c8903a' },
+  star_diva: { outfit: 'dress', cloth: '#f7a1c4', hat: 'feather' },
 };
 
 // よろい・ふくの みため（'cloth' は じぶんで えらんだ いろ）
@@ -65,6 +87,9 @@ const WEAPON_LOOK = {
   iron_claw: { blade: '#dfe4f0' },
   feather_fan: { blade: '#f4f4f4', guard: '#e46fa8' },
   dancer_fan: { blade: '#ffd0e8', guard: '#c83a3a' },
+  leather_whip: { blade: '#a0703a', guard: '#5a3a22' },
+  thorn_whip: { blade: '#3a8a3a', guard: '#5a3a22' },
+  flame_whip: { blade: '#ff7a3a', guard: '#8a2a1a' },
 };
 
 // たての いろ
@@ -138,7 +163,8 @@ export function lookToOpts(look = {}, job = 'warrior', eq = undefined) {
   if (al.giTrim) o.giTrim = al.giTrim;
   if (al.holy) o.holy = true;
   // ぼうし（ぬののふくの 武闘家は はちまき）
-  const hl = e.head ? HEAD_LOOK[e.head] : (!ARMOR_LOOK[e.armor] && e.armor ? { hat: (JOB_LOOK[job] || {}).hat || null } : null);
+  const jl = JOB_LOOK[job] || {};
+  const hl = e.head ? HEAD_LOOK[e.head] : (!ARMOR_LOOK[e.armor] && e.armor ? { hat: jl.hat || null, hatColor: jl.hatColor || null } : null);
   if (hl?.hat) {
     o.hat = hl.hat;
     o.hatColor = res(hl.hatColor || null);
@@ -426,6 +452,9 @@ function drawGear(p, dir, f, o) {
         p.rect(ax - 3, 13, 3, 2, bl); p.set(ax - 2, 15, gd); p.set(ax - 3, 12, gd); p.set(ax - 1, 12, gd);
         break;
       }
+      case 'whip': // まるめた ムチ
+        p.vline(2, 14, 16, gd); p.set(1, 17, bl); p.set(1, 18, bl); p.set(2, 19, bl); p.set(3, 18, bl); p.set(3, 17, shade(bl, 0.3));
+        break;
       default:
     }
     return;
@@ -458,6 +487,12 @@ function drawGear(p, dir, f, o) {
       if (dir === 'down') { p.rect(hx, hy - 3, 2, 3, bl); p.set(hx + 2, hy - 2, bl); p.set(hx, hy - 1, gd); p.set(hx + 1, hy - 3, gd); }
       else { p.rect(hx - 1, hy - 3, 2, 3, bl); p.set(hx - 2, hy - 2, bl); }
       break;
+    case 'whip': { // たれさがる ムチ
+      const sx = dir === 'down' ? 1 : -1;
+      p.set(hx, hy, gd); p.set(hx, hy + 1, gd);
+      p.set(hx + sx, hy + 2, bl); p.set(hx + sx, hy + 3, bl); p.set(hx, hy + 4, bl); p.set(hx - sx, hy + 3, shade(bl, 0.3));
+      break;
+    }
     default:
   }
 }
@@ -633,6 +668,16 @@ function drawHat(p, dir, f, o) {
         p.set(5, 6, '#ff4a4a'); p.set(10, 6, '#ff4a4a'); p.set(5, 7, '#ff8a4a'); p.set(10, 7, '#ff8a4a');
       } else {
         p.rect(4, 1, 7, 3, c); p.rect(8, 4, 3, 7, c); p.rect(4, 4, 4, 6, '#120a18'); p.set(4, 6, '#ff4a4a');
+      }
+      break;
+    }
+    case 'cowl': { // かおが みえる フード（忍者・占い師 など）
+      const c = hc || '#2a1a3a', cD = shade(c, -0.3);
+      if (dir === 'up') { p.rect(3, 1, 10, 10, c); p.hline(4, 11, 0, c); }
+      else if (dir === 'down') {
+        p.rect(3, 1, 10, 3, c); p.hline(4, 11, 0, c); p.vline(3, 4, 10, c); p.vline(12, 4, 10, c); p.vline(4, 4, 5, cD); p.vline(11, 4, 5, cD);
+      } else {
+        p.rect(4, 1, 7, 3, c); p.rect(9, 4, 3, 7, c); p.vline(8, 4, 5, cD);
       }
       break;
     }

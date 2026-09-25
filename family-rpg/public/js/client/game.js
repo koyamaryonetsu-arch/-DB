@@ -190,7 +190,7 @@ export class Game {
     this.audio.sfx('confirm');
     this.menu.open();
     if (section) {
-      const idx = ['items', 'skills', 'equip', 'status', 'party', 'tactics', 'map', 'quest', 'settings', 'quit'].indexOf(section);
+      const idx = this.menu.menu.items.findIndex((it) => it.value === section);
       if (idx >= 0) {
         this.menu.menu.idx = idx;
         this.menu.menu.updateSel();

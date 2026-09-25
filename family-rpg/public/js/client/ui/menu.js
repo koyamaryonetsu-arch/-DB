@@ -1,17 +1,18 @@
 // フィールドの メニュー
-import { el, ListMenu, toast, confirmBox, bar } from './dom.js';
+import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js';
 import { ITEMS, SLOTS, SLOT_NAMES } from '../../shared/data/items.js';
 import { ABILITIES } from '../../shared/data/abilities.js';
-import { JOBS, JOB_ORDER, jobExpForLevel } from '../../shared/data/jobs.js';
-import { computeStats, learnedAbilities, canEquip, canEquipChar, mpCost, penaltyFor, expForLevel, comboUnlocked } from '../../shared/stats.js';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, TIER_NAMES } from '../../shared/data/jobs.js';
+import { computeStats, learnedAbilities, canEquip, canEquipChar, mpCost, penaltyFor, expForLevel, comboUnlocked, comboAllowed, comboJobNames, jobProgress } from '../../shared/stats.js';
 import { MONSTERS } from '../../shared/data/monsters.js';
-import { MONSTER_FRIENDS } from '../../shared/data/companions.js';
+import { MONSTER_FRIENDS, RACE_NAMES, recipeHint } from '../../shared/data/companions.js';
 import { TACTICS } from '../../shared/ai.js';
 import { PLACES } from '../../shared/maps/overworld.js';
 import { MAPS, tileAt } from '../../shared/maps/index.js';
 import { T } from '../../shared/tiles.js';
 import { itemDetail, abilityDetail, equipDiff, diffText } from './info.js';
 import { makeCanvas, ctxOf } from '../render/pixel.js';
+import { monsterCanvas } from '../render/monsters.js';
 import { faceURL } from '../field.js';
 
 const MAIN = [
@@ -21,11 +22,19 @@ const MAIN = [
   { label: 'つよさ', value: 'status' },
   { label: 'なかま', value: 'party' },
   { label: 'さくせん', value: 'tactics' },
+  { label: 'ずかん', value: 'zukan' },
   { label: 'マップ', value: 'map' },
   { label: 'クエスト', value: 'quest' },
   { label: 'せってい', value: 'settings' },
   { label: 'おわる', value: 'quit' },
 ];
+
+// ずかんの ならび: ふつうの まもの（つよさじゅん）→ はいごう だけの まもの → ボス
+function zukanOrder() {
+  const all = Object.keys(MONSTERS);
+  const normal = all.filter((sp) => !MONSTERS[sp].boss && !MONSTERS[sp].breedOnly).sort((a, b) => (MONSTERS[a].lv || 0) - (MONSTERS[b].lv || 0));
+  return [...normal, ...all.filter((sp) => MONSTERS[sp].breedOnly), ...all.filter((sp) => MONSTERS[sp].boss)];
+}
 
 export class FieldMenu {
   constructor(game) {
@@ -111,6 +120,7 @@ export class FieldMenu {
       case 'status': this.main.append(this.statusView()); break;
       case 'party': this.main.append(this.partyView(false)); break;
       case 'tactics': this.main.append(this.tacticsView(false)); break;
+      case 'zukan': this.main.append(this.zukanView(false)); break;
       case 'map': this.main.append(el('div', { class: 'muted', text: 'たんけんした ばしょの ちずを みる。（Mキーでも ひらけるよ）' })); break;
       case 'quest': this.main.append(this.questView()); break;
       case 'settings': this.main.append(this.settingsView(false)); break;
@@ -134,6 +144,7 @@ export class FieldMenu {
     return {
       key: x.key, name: x.name, level: x.level, exp: x.exp || 0, job: x.job, jobs: x.jobs || {}, equip: x.equip || {}, seeds: x.seeds || {},
       species: x.species || undefined, hp: x.hp, mp: x.mp, look: x.look, tactics: x.tactics, status: {}, companion: true,
+      plus: x.plus || 0, bonus: x.bonus || undefined, inherit: x.inherit || undefined,
     };
   }
 
@@ -168,6 +179,7 @@ export class FieldMenu {
       case 'equip': return this.focusSub(this.equipView(true));
       case 'party': return this.focusSub(this.partyView(true));
       case 'tactics': return this.focusSub(this.tacticsView(true));
+      case 'zukan': return this.focusSub(this.zukanView(true));
       case 'settings': return this.focusSub(this.settingsView(true));
       case 'map':
         this.close();
@@ -324,12 +336,15 @@ export class FieldMenu {
         const ok = known.has(id);
         const reqs = a.requires.map((r) => (known.has(r) ? ABILITIES[r].name : '？？？')).join(' ＋ ');
         const jl = a.reqJobLv ? `（${Object.entries(a.reqJobLv).map(([j, l]) => `${JOBS[j].name}Lv${l}`).join('')}）` : '';
+        const usable = ok && comboAllowed(c, id);
         box.append(el('div', { class: `combo-row ${ok ? '' : 'locked'}` },
           el('span', { class: 'nm', text: ok ? a.name : '？？？？' }),
+          ok ? el('span', { class: `tag ${usable ? 'good' : 'warn'}`, text: usable ? 'つかえる' : 'いまは つかえない' }) : null,
           el('div', { class: 'small', text: `${reqs}${jl}` }),
+          el('div', { class: 'small gold', text: `つかえる しょくぎょう: ${comboJobNames(id).join('・')}（とその 超級職）` }),
           ok ? el('div', { class: 'small muted', text: a.desc }) : null));
       }
-      box.append(el('div', { class: 'detail', text: 'ちがう しょくぎょうで わざを おぼえると ひらめく。神殿の「ひらめきの けんじゃ」に ヒントを きいてみよう。\nみんなで つづけて こうげきすると「れんけい」、ほのお＋こおり などは「合体」に なるよ！' }));
+      box.append(el('div', { class: 'detail', text: 'ちがう しょくぎょうで わざを おぼえると ひらめく。つかえるのは、もとに なった しょくぎょうを あわせもつ 上級職 いじょう だけ（たとえば 魔法剣は 魔法戦士）。\n神殿の「ひらめきの けんじゃ」に ヒントを きいてみよう。みんなで つづけて こうげきすると「れんけい」、ほのお＋こおり などは「合体」に なるよ！' }));
       if (active) {
         this.mkSub({ items: [{ label: 'もどる', value: 'back' }], onSelect: () => this.back() });
         box.append(this.sub.root);
@@ -339,12 +354,13 @@ export class FieldMenu {
     const items = learned.map((id) => {
       const a = ABILITIES[id];
       const p = penaltyFor(c, id);
+      const locked = a.kind === 'combo' && !comboAllowed(c, id);
       return {
-        html: `${a.name}${a.kind === 'combo' ? '<span class="tag gold">掛け合わせ</span>' : ''}${p.penalized ? '<span class="tag warn">他</span>' : ''}`,
+        html: `${a.name}${a.kind === 'combo' ? `<span class="tag ${locked ? 'muted' : 'gold'}">掛け合わせ${locked ? '（上級職で）' : ''}</span>` : ''}${p.penalized ? '<span class="tag warn">他</span>' : ''}`,
         right: a.effect.type === 'mahouken' ? '' : `MP${mpCost(c, id)}`,
         rightCls: p.penalized ? 'pen' : '',
         value: id,
-        disabled: active && !a.field,
+        disabled: active && (!a.field || locked),
       };
     });
     if (!items.length) {
@@ -435,14 +451,16 @@ export class FieldMenu {
       for (const [l, id] of f?.learn || []) learnList.append(el('div', { class: `small ${c.level >= l ? 'good' : 'muted'}`, text: `Lv${l}　${ABILITIES[id]?.name || id}` }));
       box.append(learnList, el('div', { class: 'detail', text: f?.note || '' }));
     } else {
-      const jobs = el('div', { style: { marginTop: '0.6em' } }, el('div', { class: 'gold small', text: 'しょくぎょう レベル' }));
-      for (const j of JOB_ORDER) {
+      const jobs = el('div', { style: { marginTop: '0.6em' } }, el('div', { class: 'gold small', text: 'しょくぎょう レベル（かった たたかいの かずで あがる）' }));
+      for (const j of ALL_JOBS) {
         const info = c.jobs?.[j];
         if (!info) continue;
-        const nextJ = jobExpForLevel(info.lv + 1) - info.exp;
-        jobs.append(el('div', { class: 'kv small' }, el('span', { class: j === c.job ? 'good' : '', text: JOBS[j].name }), el('span', { text: `Lv${info.lv}（つぎまで ${Math.max(0, nextJ)}）` })));
+        const pg = jobProgress(c, j);
+        jobs.append(el('div', { class: 'kv small' },
+          el('span', { class: j === c.job ? 'good' : '', text: `${JOBS[j].name}${JOBS[j].tier ? `（${TIER_NAMES[JOBS[j].tier]}）` : ''}` }),
+          el('span', { class: pg.done ? 'gold' : '', text: pg.done ? `Lv${JOB_MAX_LEVEL} ★マスター` : `Lv${info.lv}（あと ${pg.next}かい）` })));
       }
-      box.append(jobs);
+      box.append(jobs, el('div', { class: 'detail', text: 'じぶんより レベルが 5いじょう ひくい てきとの たたかいは、しょくぎょうの しゅぎょうに ならないよ。' }));
     }
     const speedNote = el('div', { class: 'detail', text: `すばやさ ${st.agi} … たたかいで やく ${(128000 / (st.agi + 12) / 1000).toFixed(1)}びょうごとに じゅんばんが くる` });
     box.append(speedNote);
@@ -464,7 +482,7 @@ export class FieldMenu {
     const row = (x, name, tag, cls = '') => el('div', { class: 'kv party-row' }, el('span', { class: cls }, face(x), name), el('span', { class: 'small muted', text: tag }));
     for (const m of p?.members || []) rows.push(row(m, `${m.sid === p.leader ? '★' : ''}${m.name}（${JOBS[m.job].name} Lv${m.level}）`, `HP ${m.hp}/${m.maxHp}`, m.sid === p.leader ? 'gold' : ''));
     for (const s of p?.supports || []) {
-      const kind = s.species ? `${MONSTERS[s.species]?.name} Lv${s.level}` : `${JOBS[s.job]?.name} Lv${s.level}`;
+      const kind = s.species ? `${MONSTERS[s.species]?.name}${s.plus ? `＋${s.plus}` : ''} Lv${s.level}` : `${JOBS[s.job]?.name} Lv${s.level}`;
       rows.push(row(s, `${s.name}（${kind}）`, s.family ? 'かぞく サポート' : s.species ? 'モンスター' : 'なかま'));
     }
     for (const gu of p?.guests || []) rows.push(row(gu, gu.name, 'ゲスト'));
@@ -498,6 +516,76 @@ export class FieldMenu {
       },
     });
     box.append(el('div', { style: { marginTop: '0.5em' } }, m.root));
+    return box;
+  }
+
+  // ───── ずかん ─────
+  zukanView(active) {
+    const c = this.game.me;
+    const bs = c.bestiary || {};
+    const kills = c.kills || {};
+    const order = zukanOrder();
+    const st = (sp) => {
+      const b = bs[sp] || {};
+      const friend = (b.friend || 0) > 0;
+      const bred = (b.bred || 0) > 0;
+      return { seen: (b.seen || 0) > 0 || (kills[sp] || 0) > 0 || friend || bred, friend, bred, kills: kills[sp] || 0 };
+    };
+    const box = el('div', { class: active ? 'zukan-box' : '' });
+    const count = (k) => order.filter((sp) => st(sp)[k]).length;
+    box.append(el('div', { class: 'small gold', text: `みつけた ${count('seen')}/${order.length}　なかまに した ${count('friend')}　はいごうで うんだ ${count('bred')}` }));
+    if (!active) {
+      box.append(el('div', { class: 'detail', text: 'であった モンスターが のる ずかん。\nなかまに した モンスターや、はいごうで うまれた モンスターも きろく されるよ。\nはいごうでしか うまれない モンスターも いるらしい…' }));
+      return box;
+    }
+    const detail = el('div', { class: 'detail zukan-detail' });
+    const showMon = (sp) => {
+      detail.innerHTML = '';
+      const M = MONSTERS[sp];
+      if (!M) return;
+      const s = st(sp);
+      const src = monsterCanvas(sp, 0);
+      const cv = makeCanvas(src.width, src.height);
+      const x = ctxOf(cv);
+      x.drawImage(src, 0, 0);
+      if (!s.seen) {
+        // まだ であって いない: かげだけ
+        x.globalCompositeOperation = 'source-in';
+        x.fillStyle = '#2a2440';
+        x.fillRect(0, 0, cv.width, cv.height);
+      }
+      cv.className = 'zukan-mon';
+      detail.append(cv);
+      if (!s.seen) {
+        detail.append(el('div', { class: 'gold', text: '？？？' }));
+        if (M.breedOnly) detail.append(el('div', { class: 'small', text: `はいごうで うまれる らしい…\nヒント: ${recipeHint(sp, MONSTERS)}` }));
+        else detail.append(el('div', { class: 'small muted', text: M.boss ? 'どこかに いる おおきな まもの…' : 'まだ であって いない' }));
+        return;
+      }
+      const fr = MONSTER_FRIENDS[sp];
+      const how = M.breedOnly ? `はいごうで うまれる（${recipeHint(sp, MONSTERS)}）` : fr && fr.rate > 0 ? 'たおすと なかまに なる ことが ある' : 'なかまに ならない';
+      detail.append(
+        el('div', { class: 'gold', text: `${M.name}${M.boss ? '（ボス）' : ''}` }),
+        el('div', { class: 'small muted', text: `${RACE_NAMES[M.race] || ''}${M.breedOnly ? '' : `　Lv${M.lv}`}　たおした かず ${s.kills}` }),
+        el('div', { class: 'small', text: M.desc || '' }),
+        el('div', { class: 'small', text: `${how}${s.friend ? '　★なかまに した' : ''}${s.bred ? '　★はいごうで うんだ' : ''}` }),
+      );
+    };
+    const m = this.mkSub({
+      items: order.map((sp, i) => {
+        const s = st(sp);
+        const M = MONSTERS[sp];
+        return {
+          html: `<span class="muted small">No.${String(i + 1).padStart(2, '0')}</span> ${s.seen ? esc(M.name) : '？？？'}`,
+          right: [s.friend ? 'なかま' : '', s.bred ? 'はいごう' : ''].filter(Boolean).join('・') || (M.boss && s.seen ? 'ボス' : ''),
+          rightCls: s.friend || s.bred ? 'good' : '',
+          value: sp,
+          cls: s.seen ? '' : 'muted',
+        };
+      }),
+      onMove: (it) => showMon(it.value),
+    });
+    box.append(detail, el('div', { class: 'zukan-list scroll' }, m.root));
     return box;
   }
 

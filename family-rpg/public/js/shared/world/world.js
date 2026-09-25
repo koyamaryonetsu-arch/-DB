@@ -8,7 +8,7 @@ import { PLACES } from '../maps/overworld.js';
 import { T, TILE_INFO } from '../tiles.js';
 import { ITEMS } from '../data/items.js';
 import { JOBS } from '../data/jobs.js';
-import { newCharacter, computeStats, addItem, fullHeal } from '../stats.js';
+import { newCharacter, computeStats, addItem, fullHeal, migrateJobs } from '../stats.js';
 import { mapState, spawnSymbols, moveSymbols, symbolSnapshot } from './monsters.js';
 import { startFieldBattle, battleTick, battleCommand, battleLeave, joinBattle } from './battles.js';
 import { runScript, runSteps } from './scripts.js';
@@ -782,6 +782,8 @@ export function equipLook(c) {
 }
 
 function normalizeData(d) {
+  // 家族の キャラは ログインしていなくても サポートなかまに なるので、ここで 職業レベルを あたらしい しくみに
+  for (const c of Object.values(d.characters || {})) migrateJobs(c);
   return {
     version: 1,
     characters: d.characters || {},
@@ -800,8 +802,10 @@ function normalizeChar(c) {
   c.visited = c.visited || { village: true };
   c.seeds = c.seeds || {};
   c.status = c.status || {};
-  c.jobs = c.jobs || { [c.job]: { lv: 1, exp: 0 } };
-  if (!c.jobs[c.job]) c.jobs[c.job] = { lv: 1, exp: 0 };
+  c.jobs = c.jobs || { [c.job]: { lv: 1, b: 0 } };
+  migrateJobs(c);
+  if (!JOBS[c.job]) c.job = 'warrior';
+  if (!c.jobs[c.job]) c.jobs[c.job] = { lv: 1, b: 0 };
   c.battleSettings = c.battleSettings || { speed: 1, wait: false, auto: false };
   ensureCompanions(c);
 }

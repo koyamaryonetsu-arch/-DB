@@ -55,7 +55,7 @@ export class Hud {
     this.party.innerHTML = '';
     const add = (name, lv, job, hp, maxHp, mp, maxMp, tag, away = false, mon = null) => {
       const box = el('div', { class: `win hud-mem ${hp <= 0 ? 'dead' : ''} ${away ? 'away' : ''}` },
-        el('div', { class: 'nm' }, el('span', { text: name }), el('span', { class: 'lv', text: `${mon ? 'Lv' : JOBS[job]?.name?.slice(0, 2) || ''}${lv}` })),
+        el('div', { class: 'nm' }, el('span', { text: name }), el('span', { class: 'lv', text: `${mon ? 'Lv' : JOBS[job]?.short || ''}${lv}` })),
         el('div', { class: 'small', text: away ? 'つうしんまち…' : `H${hp} M${mp}` }),
         bar(hp / Math.max(1, maxHp)), bar(mp / Math.max(1, maxMp), 'mp'));
       if (tag) box.title = tag;

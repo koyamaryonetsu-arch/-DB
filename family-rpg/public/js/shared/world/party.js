@@ -5,8 +5,8 @@
 //   c.partyKeys  … いま いっしょに ぼうけんしている なかま（じゅんばん）。'fam:ID' は 家族の キャラ
 //   c.guests     … ものがたりで いっしょに いる ゲスト（ルカ など）
 // パーティーには リーダーの なかまが ついてくる（にんげんが ふえると、はいりきらない なかまは いったん まつ）
-import { newCharacter, computeStats, fullHeal, gainExp, gainJobExp, expForLevel, addItem, newMonsterCompanion } from '../stats.js';
-import { jobExpForLevel } from '../data/jobs.js';
+import { newCharacter, computeStats, fullHeal, gainExp, gainJobBattles, migrateJobs, expForLevel, addItem, newMonsterCompanion, learnedAbilities } from '../stats.js';
+import { jobBattlesForLevel } from '../data/jobs.js';
 import { NPC_SUPPORTS, GUESTS } from '../data/shops.js';
 import { MONSTERS } from '../data/monsters.js';
 import { MONSTER_FRIENDS, ROSTER_MAX, COMPANION_SLOTS } from '../data/companions.js';
@@ -36,6 +36,7 @@ export function partySize(p) {
 export function ensureCompanions(c) {
   if (!Array.isArray(c.companions)) c.companions = [];
   c.companions = c.companions.filter((e) => e && e.key && e.char);
+  for (const e of c.companions) migrateJobs(e.char);
   if (!Array.isArray(c.partyKeys)) c.partyKeys = [];
   c.partyKeys = c.partyKeys.filter((k, i, arr) => typeof k === 'string' && arr.indexOf(k) === i
     && (k.startsWith('fam:') || c.companions.some((e) => e.key === k))).slice(0, COMPANION_SLOTS);
@@ -112,6 +113,7 @@ function companionInfo(e, activeKeys, partyKeys) {
     hp: ch.hp, maxHp: st.maxHp, mp: ch.mp, maxMp: st.maxMp, tactics: ch.tactics,
     inParty: partyKeys.includes(e.key), active: activeKeys.has(e.key),
     desc: def?.desc || MONSTER_FRIENDS[e.species]?.note || '',
+    plus: ch.plus || 0, abilities: e.kind === 'monster' ? learnedAbilities(ch) : undefined, parents: ch.parents || null,
   };
 }
 
@@ -155,8 +157,8 @@ export function makeNpcSupportChar(def, level) {
   const c = newCharacter({ id: def.id, name: def.name, look: def.look, job: def.job });
   c.level = level;
   c.exp = expForLevel(level);
-  const jl = Math.max(1, Math.min(14, Math.floor(level * 0.8)));
-  c.jobs[def.job] = { lv: jl, exp: jobExpForLevel(jl) };
+  const jl = Math.max(1, Math.min(7, Math.floor(level * 0.4)));
+  c.jobs[def.job] = { lv: jl, b: jobBattlesForLevel(jl) };
   let gear = TIER_GEAR[0][1];
   for (const [lv, g] of TIER_GEAR) if (level >= lv) gear = g;
   const [w, a, s, h] = gear[def.job];
@@ -170,7 +172,7 @@ export function makeNpcSupportChar(def, level) {
 }
 
 // なかまを パーティーに いれる（いっぱいなら swapKey の なかまを 酒場へ）
-function putInParty(c, key, swapKey) {
+export function putInParty(c, key, swapKey) {
   if (c.partyKeys.includes(key)) return { ok: true };
   if (c.partyKeys.length < COMPANION_SLOTS) {
     c.partyKeys.push(key);
@@ -182,13 +184,13 @@ function putInParty(c, key, swapKey) {
   return { ok: true, benched: swapKey };
 }
 
-function nameOfKey(world, c, key) {
+export function nameOfKey(world, c, key) {
   if (!key) return '';
   if (key.startsWith('fam:')) return world.data.characters[key.slice(4)]?.name || '';
   return companionOf(c, key)?.char.name || '';
 }
 
-function afterRosterChange(world, s) {
+export function afterRosterChange(world, s) {
   const p = partyOf(world, s);
   if (p) {
     syncParty(world, p);
@@ -269,18 +271,30 @@ export function companionRename(world, s, key, name) {
 
 // ───────────── モンスターが なかまに なる ─────────────
 // たたかいで さいごに たおした まものが おきあがる（紋章の ちからに めざめていれば）
-export function rollBefriend(world, c, killed) {
+// mult: まもの使いなどが いると おおきくなる
+export function rollBefriend(world, c, killed, mult = 1) {
   if (!c?.flags?.monster_bond) return null;
   ensureCompanions(c);
   if (c.companions.length >= ROSTER_MAX) return null;
   for (let i = killed.length - 1; i >= 0; i--) {
     const f = MONSTER_FRIENDS[killed[i]];
-    if (!f || MONSTERS[killed[i]]?.boss) continue;
+    if (!f || f.breedOnly || MONSTERS[killed[i]]?.boss) continue;
     // はじめての なかまは すこし なりやすい
     const first = !c.companions.some((e) => e.kind === 'monster');
-    return world.rng.chance(Math.min(0.5, f.rate * (first ? 3 : 1))) ? killed[i] : null;
+    return world.rng.chance(Math.min(0.5, f.rate * (first ? 3 : 1) * mult)) ? killed[i] : null;
   }
   return null;
+}
+
+// ずかん: みた まもの
+export function noteSeen(c, species) {
+  if (!c) return;
+  c.bestiary = c.bestiary || {};
+  for (const sp of species) {
+    if (!MONSTERS[sp]) continue;
+    const b = c.bestiary[sp] || (c.bestiary[sp] = {});
+    b.seen = (b.seen || 0) + 1;
+  }
 }
 
 export function befriendLevel(c, species) {
@@ -327,16 +341,16 @@ export function guestChar(world, id, heroLevel) {
 
 // ───────────── なかまの せいちょう ─────────────
 // たたかいに でた なかまだけが そだつ（酒場で まっている なかまは そだたない）
-export function growCompanion(ch, exp, jexp) {
+// trainN: 職業の しゅぎょうに なった かず（てきが よわすぎると 0）
+export function growCompanion(ch, exp, trainN = 0) {
   const lines = [];
   const ups = gainExp(ch, exp);
   for (const u of ups) {
     lines.push(`${ch.name}の レベルが ${u.level}に あがった！`);
     for (const id of u.learned) lines.push({ learn: id, who: ch.name });
   }
-  if (!ch.species) {
-    const jups = gainJobExp(ch, jexp);
-    for (const u of jups) for (const id of u.learned) lines.push({ learn: id, who: ch.name });
+  if (!ch.species && trainN > 0) {
+    for (const u of gainJobBattles(ch, trainN)) lines.push({ job: u });
   }
   return lines;
 }
@@ -348,7 +362,6 @@ export function creditSupportOwner(world, ownerId, exp, gold, helperName) {
   const e = Math.floor(exp / 2);
   const g = Math.floor(gold / 4);
   const ups = gainExp(c, e);
-  gainJobExp(c, Math.floor(e * 0.6));
   c.gold = Math.min(9999999, c.gold + g);
   c.supportLog = c.supportLog || [];
   const last = c.supportLog[c.supportLog.length - 1];
@@ -387,6 +400,7 @@ export function partyState(world, p) {
         key: x.key, name: x.char.name, job: x.char.job, level: x.char.level, hp: x.char.hp, maxHp: st.maxHp, mp: x.char.mp, maxMp: st.maxMp,
         look: x.char.look, equip: x.char.equip, tactics: x.char.tactics || 'balanced', family: x.kind === 'family', kind: x.kind, species: x.char.species || null, owner: x.owner,
         jobs: x.kind === 'npc' ? x.char.jobs : undefined, seeds: x.kind === 'family' ? undefined : x.char.seeds, exp: x.char.exp,
+        plus: x.char.plus || 0, bonus: x.char.bonus || undefined, inherit: x.char.inherit || undefined,
         status: x.char.status?.poison ? ['poison'] : [],
       };
     }),

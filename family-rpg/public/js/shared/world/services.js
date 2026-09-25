@@ -1,11 +1,13 @@
 // お店・やどや・きょうかい・転職・酒場・でんごんばん・メニュー操作
 import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE } from '../data/shops.js';
 import { ITEMS, sellPrice, SLOTS } from '../data/items.js';
-import { JOBS, JOB_ORDER } from '../data/jobs.js';
+import { JOBS, ALL_JOBS, jobReqText } from '../data/jobs.js';
 import { ABILITIES } from '../data/abilities.js';
 import { addItem, removeItem, itemCount, canEquip, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js';
 import { TACTICS } from '../ai.js';
 import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf } from './party.js';
+import { breedMonsters, breedPreview } from './breed.js';
+import { MONSTERS } from '../data/monsters.js';
 import { PLACES } from '../maps/overworld.js';
 import { POS } from '../maps/index.js';
 
@@ -17,7 +19,7 @@ export function openService(world, s, kind, arg) {
       s.openShop = arg;
       return { shop: arg, name: shop.name, items: shop.items };
     }
-    case 'jobChange': return { jobs: JOB_ORDER };
+    case 'jobChange': return { jobs: ALL_JOBS };
     case 'tavern': return tavernInfo(world, s);
     case 'board': return { posts: world.data.board || [] };
     case 'starTrade': return { trades: STAR_TRADES };
@@ -117,6 +119,8 @@ export function serviceAction(world, s, msg) {
       if (!who || who.species) return reply(false, 'モンスターは 転職できない');
       if (who.job === msg.job) return reply(false, 'いまの しょくぎょうと おなじです');
       const r = changeJob(who, msg.job);
+      if (r.locked) return reply(false, `まだ ${JOBS[msg.job].name}には なれない…\n（${jobReqText(msg.job)}が ひつよう）`);
+      if (!r.ok) return reply(false, '');
       // なかまが はずした そうびは ふくろへ
       if (who !== c) {
         for (const e of who.items || []) addItem(c, e.id, e.n);
@@ -149,6 +153,16 @@ export function serviceAction(world, s, msg) {
         case 'rename':
           r = companionRename(world, s, String(msg.key || ''), msg.name);
           if (r.ok) text = `${r.old}の なまえを ${r.name}に かえた！`;
+          break;
+        case 'breedPreview': {
+          // みるだけ（なにも かわらない）
+          const pv = breedPreview(ensureCompanions(s.char), String(msg.a || ''), String(msg.b || ''));
+          world.send(s, { t: 'svcRes', ok: pv.ok, text: pv.ok ? '' : pv.reason, preview: pv.ok ? pv : null });
+          return;
+        }
+        case 'breed':
+          r = breedMonsters(world, s, { a: String(msg.a || ''), b: String(msg.b || ''), inherit: Array.isArray(msg.inherit) ? msg.inherit.map(String) : null, name: msg.name });
+          if (r.ok) text = `${r.name}（${MONSTERS[r.species].name}＋${r.plus}）が うまれた！${r.joined ? '' : `\n${r.name}は 酒場で まっている。`}`;
           break;
         default:
           return;

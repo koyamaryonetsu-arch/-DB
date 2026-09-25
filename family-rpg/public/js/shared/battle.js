@@ -11,7 +11,7 @@ import { makeRng } from './rng.js';
 import { ABILITIES, TEAM_COMBOS } from './data/abilities.js';
 import { MONSTERS } from './data/monsters.js';
 import { ITEMS } from './data/items.js';
-import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk } from './stats.js';
+import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed } from './stats.js';
 import { decideMonster, decideAlly } from './ai.js';
 
 export const BOND_MAX = 100;
@@ -303,12 +303,14 @@ export class Battle {
         const a = ABILITIES[cmd.id];
         if (!a || !c.abilities.includes(cmd.id) || a.kind === 'bond') return { ok: false, reason: 'まだ おぼえていない' };
         if (a.effect.type === 'mahouken') return { ok: false, reason: 'bad' };
+        if (a.kind === 'combo' && !comboAllowed(c.penChar, cmd.id)) return { ok: false, reason: 'いまの しょくぎょうでは つかえない' };
         if (!weaponOk(a, c.weaponCat)) return { ok: false, reason: 'ぶきが あわない' };
         if (mpCost(c.penChar, cmd.id) > c.mp) return { ok: false, reason: 'MPが たりない' };
         return { ok: true };
       }
       case 'mahouken': {
         if (!c.abilities.includes('mahouken')) return { ok: false, reason: 'まだ おぼえていない' };
+        if (!comboAllowed(c.penChar, 'mahouken')) return { ok: false, reason: 'いまの しょくぎょうでは つかえない' };
         const sp = ABILITIES[cmd.spell], sk = ABILITIES[cmd.skill];
         if (!sp?.attackSpell || !sk?.sword || !c.abilities.includes(cmd.spell) || !c.abilities.includes(cmd.skill)) return { ok: false, reason: 'bad' };
         if (!weaponOk({ weapon: 'blade' }, c.weaponCat)) return { ok: false, reason: 'けんが ひつよう' };
@@ -559,6 +561,7 @@ export class Battle {
     const kind = a.target;
     if (kind === 'self') return [c];
     if (kind === 'allies') return this.sideOf(c, true).filter((x) => x.alive);
+    if (kind === 'deadAllies') return this.sideOf(c, true).filter((x) => !x.alive && !x.fled);
     if (kind === 'enemies') return this.sideOf(c, false).filter((x) => x.alive);
     if (kind === 'ally' || kind === 'deadAlly') {
       const t = this.peekTarget(c, kind, cmd.target);
@@ -604,12 +607,44 @@ export class Battle {
           }
         }
         if (eff.atbAfter) ev.atbAfter = eff.atbAfter;
+        // もろばぎり: じぶんも ダメージを うける
+        if (eff.recoil && ev.dealt > 0 && c.alive) {
+          const r = Math.max(1, Math.round(ev.dealt * eff.recoil));
+          c.hp = Math.max(0, c.hp - r);
+          ev.lines.push(`${c.name}も ${r}の ダメージを うけた！`);
+          ev.results = ev.results || [];
+          ev.results.push({ id: c.id, dmg: r });
+          if (c.hp <= 0) ev.lines.push(...this.kill(c));
+          ev.upd.push(c);
+        }
         this.afterDamage(c, ev, eff.element || 'phys');
         break;
       }
       case 'magic': {
-        for (const t of targets) this.magicHit(c, t, eff, ev, powMult);
+        for (const t of targets) {
+          this.magicHit(c, t, eff, ev, powMult);
+          if (eff.status && t.alive) this.tryStatus(c, t, eff.status, ev, powMult);
+        }
         this.afterDamage(c, ev, eff.element);
+        break;
+      }
+      case 'mpHeal': {
+        for (const t of targets) {
+          if (!t.alive) continue;
+          const d = Math.min(t.maxMp - t.mp, this.rng.int(eff.base[0], eff.base[1]));
+          t.mp += d;
+          ev.lines.push(d > 0 ? `${t.name}の MPが ${d} かいふくした！` : `${t.name}の MPは まんたんだ。`);
+          ev.upd.push(t);
+        }
+        break;
+      }
+      case 'random': {
+        // うんめいの カード: どれか ひとつが おこる
+        const pick = this.rng.pick(eff.options || []);
+        const sub = ABILITIES[pick];
+        if (!sub) break;
+        ev.lines.push(sub.cast.replaceAll('{a}', c.name));
+        this.applyAbility(c, sub, { ...cmd, target: undefined }, ev, powMult);
         break;
       }
       case 'heal': {
@@ -636,9 +671,12 @@ export class Battle {
         for (const t of targets) {
           if (!t.alive) continue;
           const dur = (eff.dur || 30) * 1000 * (0.5 + powMult / 2);
-          if (eff.stat === 'eva') t.buffs.eva = { add: eff.add, until: this.time + dur };
-          else t.buffs[eff.stat] = { mult: eff.mult, until: this.time + dur };
-          ev.lines.push(`${t.name}の ${statLabel(eff.stat)}が あがった！`);
+          const stats = eff.stats || [eff.stat];
+          for (const st of stats) {
+            if (st === 'eva') t.buffs.eva = { add: eff.add, until: this.time + dur };
+            else t.buffs[st] = { mult: eff.mult, until: this.time + dur };
+          }
+          ev.lines.push(`${t.name}の ${stats.map(statLabel).join('と ')}が あがった！`);
           ev.upd.push(t);
         }
         if (c.side === 'ally') this.addBond(1);

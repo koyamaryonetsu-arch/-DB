@@ -4,7 +4,7 @@ import { ABILITIES } from '../shared/data/abilities.js';
 import { ITEMS } from '../shared/data/items.js';
 import { JOBS } from '../shared/data/jobs.js';
 import { MONSTERS } from '../shared/data/monsters.js';
-import { mpCost, penaltyFor, weaponOk, mahoukenOptions } from '../shared/stats.js';
+import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed } from '../shared/stats.js';
 import { monsterCanvas } from './render/monsters.js';
 import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js';
 import { battleBackground, Effects, BW, BH } from './render/battlefx.js';
@@ -22,11 +22,13 @@ function white(img, color = '#ffffff') {
 const HIT_DELAY = {
   fire1: 320, fire2: 360, fire3: 400, void: 340, ice1: 260, ice2: 180, minadein: 220, slash_light: 100, strash: 300,
   holy_punch: 60, mahouken: 150, fire_wave: 120, wind2: 150, blast2: 110, dark1: 120,
+  bolt1: 60, bolt2: 180, gigabreak: 250, whip: 200, shuriken: 260, dragon_beam: 380, summon: 420, meteor: 480, dark_slash: 120,
 };
-const SPELL_ANIMS = new Set(['fire1', 'fire2', 'fire3', 'fire_wave', 'fire_tornado', 'ice1', 'ice2', 'wind1', 'wind2', 'blast1', 'blast2', 'void', 'dark1']);
+const SPELL_ANIMS = new Set(['fire1', 'fire2', 'fire3', 'fire_wave', 'fire_tornado', 'ice1', 'ice2', 'wind1', 'wind2', 'blast1', 'blast2', 'void', 'dark1', 'meteor']);
 const ELEM_COLORS = {
   fire: ['#ff5a2a', '#ff9a3a', '#ffe07a'], ice: ['#9ae6ff', '#e6fbff', '#5ab8e8'], wind: ['#d8ffe0', '#9af0b0', '#ffffff'],
   blast: ['#ffffff', '#ffd66b', '#ff8a2a'], dark: ['#8a5ac8', '#3a2a5a', '#c8a8f0'], light: ['#ffffff', '#fff6b0', '#ffd66b'],
+  bolt: ['#ffffff', '#fff6b0', '#9ad8ff'],
 };
 const TEAM_ANIM = { void: 'void', fire: 'fire_tornado', ice: 'ice2', blast: 'blast2', wind: 'wind2' };
 
@@ -43,7 +45,9 @@ function allyFxKind(anim, fx, ab) {
     if (eff.type === 'status') return eff.status === 'sleep' ? 'sleep' : eff.status === 'poison' ? 'poison' : 'dark';
   }
   const el = fx.element;
-  if (/^fire|blast/.test(anim) || el === 'fire') return 'fire';
+  if (/^bolt|gigabreak|dragon_beam/.test(anim) || el === 'bolt') return 'bolt';
+  if (anim === 'dark_slash') return 'dark';
+  if (/^fire|blast|meteor|summon/.test(anim) || el === 'fire') return 'fire';
   if (/^ice/.test(anim) || el === 'ice') return 'ice';
   if (/^wind/.test(anim) || el === 'wind') return 'wind';
   if (anim === 'dark1' || el === 'dark' || anim === 'void') return 'dark';
@@ -62,6 +66,7 @@ const ANIM_SFX = {
   blast1: 'blast', blast2: 'blast', void: 'void', dark1: 'dark', minadein: 'bolt', heal1: 'heal', heal2: 'heal', heal_dance: 'heal', revive: 'heal',
   buff: 'buff', debuff: 'debuff', sleep: 'sleep', dance: 'buff', breath: 'wind', quake: 'rumble', charge: 'buff', guard: 'buff',
   warcry: 'buff', tackle: 'hit', bite: 'hit',
+  bolt1: 'bolt', bolt2: 'thunder', gigabreak: 'thunder', whip: 'hit', shuriken: 'miss', dragon_beam: 'void', summon: 'fire', meteor: 'blast', dark_slash: 'dark',
 };
 
 export class BattleScene {
@@ -202,7 +207,7 @@ export class BattleScene {
       for (const a of allies) {
         const box = el('div', { class: 'win b-mem' });
         box.addEventListener('click', () => this.onAllyClick(a.id));
-        const nm = el('div', { class: 'nm' }, el('span', { text: a.name }), el('span', { class: 'job', text: `${a.mon ? 'Lv' : JOBS[a.job]?.name?.slice(0, 2) || ''}${a.lv}` }));
+        const nm = el('div', { class: 'nm' }, el('span', { text: a.name }), el('span', { class: 'job', text: `${a.mon ? 'Lv' : JOBS[a.job]?.short || ''}${a.lv}` }));
         const hpmp = el('div', { class: 'hpmp' });
         const sts = el('div', { class: 'sts' });
         const atb = el('div', { class: 'atb' }, el('i'));
@@ -334,12 +339,13 @@ export class BattleScene {
       const noMp = !isMk && cost > a.mp;
       const noWeapon = !weaponOk(ab, a.weaponCat);
       const sil = silenced && (ab.kind === 'spell' || ab.spellLike);
+      const locked = ab.kind === 'combo' && !comboAllowed(pc, id);
       return {
-        html: `${ab.name}${pen ? '<span class="tag warn">他</span>' : ''}`,
+        html: `${ab.name}${pen ? '<span class="tag warn">他</span>' : ''}${locked ? '<span class="tag muted">上級職で</span>' : ''}`,
         right: isMk ? '▶' : `${cost}`,
         rightCls: pen ? 'pen' : '',
         value: id,
-        disabled: noMp || noWeapon || sil,
+        disabled: noMp || noWeapon || sil || locked,
       };
     });
     this.showMenu(items, (it) => {

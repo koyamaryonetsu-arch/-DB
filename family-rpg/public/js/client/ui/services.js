@@ -1,10 +1,11 @@
 // お店・転職・酒場・でんごんばん・ほしのかけら・きょうかい の がめん
 import { el, ListMenu, toast, askText, confirmBox, esc } from './dom.js';
 import { ITEMS, sellPrice } from '../../shared/data/items.js';
-import { JOBS, JOB_ORDER } from '../../shared/data/jobs.js';
+import { JOBS, JOB_ORDER, ADVANCED_ORDER, SUPER_ORDER, TIER_NAMES, JOB_MAX_LEVEL, JOB_TRAIN_GAP, jobReqText } from '../../shared/data/jobs.js';
 import { ABILITIES } from '../../shared/data/abilities.js';
-import { canEquip, itemCount, learnedAbilities } from '../../shared/stats.js';
+import { canEquip, itemCount, learnedAbilities, jobUnlocked, jobProgress } from '../../shared/stats.js';
 import { MONSTERS } from '../../shared/data/monsters.js';
+import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES } from '../../shared/data/companions.js';
 import { TACTICS } from '../../shared/ai.js';
 import { itemDetail, equipDiff, diffText } from './info.js';
 import { playerSprite, followerSprite, faceURL } from '../field.js';
@@ -227,9 +228,9 @@ function pickQty(game, title, max, price) {
 // ───────────── 転職 ─────────────
 function jobUI(game) {
   return new Promise((resolve) => {
-    const s = shell('星の神殿 ― 転職');
+    const s = shell('星の神殿 ― 転職', 'job-panel');
     s.game = game;
-    const side = el('div', { class: 'win side' });
+    const side = el('div', { class: 'win side scroll job-list' });
     const main = el('div', { class: 'win main scroll' });
     s.body.append(side, main);
     // だれが 転職する？（じぶん と 酒場の なかま。モンスターは 転職できない）
@@ -255,12 +256,24 @@ function jobUI(game) {
       if (!target()) who = 'self';
       const c = target();
       s.right.textContent = `${c.name}: ${JOBS[c.job]?.name || ''}`;
-      return JOB_ORDER.map((j) => ({
-        label: JOBS[j].name,
-        right: c.jobs?.[j] ? `Lv${c.jobs[j].lv}` : 'はじめて',
-        value: j,
-        cls: j === c.job ? 'good' : '',
-      }));
+      const out = [];
+      [JOB_ORDER, ADVANCED_ORDER, SUPER_ORDER].forEach((order, tier) => {
+        const open = order.filter((j) => jobUnlocked(c, j)).length;
+        out.push({ header: true, label: tier ? `${TIER_NAMES[tier]}（なれる ${open}/${order.length}）` : TIER_NAMES[tier] });
+        for (const j of order) {
+          const ok = jobUnlocked(c, j);
+          const lv = c.jobs?.[j]?.lv || 0;
+          out.push({
+            html: ok ? esc(JOBS[j].name) : `<span class="muted">🔒 ${esc(JOBS[j].name)}</span>`,
+            right: !ok ? '' : lv >= JOB_MAX_LEVEL ? '★マスター' : lv ? `Lv${lv}` : 'はじめて',
+            rightCls: lv >= JOB_MAX_LEVEL ? 'gold' : '',
+            value: j,
+            disabled: !ok,
+            cls: j === c.job ? 'good' : '',
+          });
+        }
+      });
+      return out;
     };
     const menu = new ListMenu(game.input, {
       items: render(),
@@ -302,13 +315,28 @@ function jobUI(game) {
       const c = target();
       if (!job || !c) return;
       const lv = c.jobs?.[j]?.lv || 0;
+      const open = jobUnlocked(c, j);
       main.innerHTML = '';
       main.append(whoRow);
       renderWho();
       const pv = playerSprite(c.look, j, 'down', 0, c.equip);
-      const img = el('canvas', { width: pv.width, height: pv.height, style: { width: '48px', height: '63px', imageRendering: 'pixelated', float: 'right' } });
+      const img = el('canvas', { width: pv.width, height: pv.height, style: { width: '48px', height: '63px', imageRendering: 'pixelated', float: 'right', opacity: open ? '1' : '0.45' } });
       img.getContext('2d').drawImage(pv, 0, 0);
-      main.append(img, el('h3', { text: `${job.name}（${job.kana}）` }), el('div', { class: 'detail', text: job.desc }));
+      main.append(img, el('h3', { text: `${job.name}（${job.kana}）` }), el('div', { class: 'small gold', text: TIER_NAMES[job.tier || 0] }), el('div', { class: 'detail', text: job.desc }));
+      // なる ための じょうけん・しゅぎょうの すすみぐあい
+      if (job.req) {
+        const req = el('div', { class: 'small', style: { margin: '0.4em 0' } });
+        req.append(el('div', { class: open ? 'good' : 'warn', text: open ? `なれる！（${jobReqText(j)}）` : `なるには: ${jobReqText(j)}` }));
+        for (const r of job.req) {
+          const rl = c.jobs?.[r]?.lv || 0;
+          req.append(el('div', { class: rl >= JOB_MAX_LEVEL ? 'good' : 'muted', text: `　${JOBS[r].name}　${rl >= JOB_MAX_LEVEL ? '★マスター' : rl ? `Lv${rl}/${JOB_MAX_LEVEL}` : 'まだ なったことが ない'}` }));
+        }
+        main.append(req);
+      }
+      if (open && lv) {
+        const pg = jobProgress(c, j);
+        main.append(el('div', { class: 'small', text: pg.done ? `しょくぎょうレベル ${lv}（★マスター）` : `しょくぎょうレベル ${lv}　つぎまで あと ${pg.next}かい かつ` }));
+      }
       const bars = el('div', { class: 'statbars', style: { margin: '0.5em 0' } });
       for (const [k, n] of [['hp', 'HP'], ['mp', 'MP'], ['str', 'ちから'], ['def', 'みのまもり'], ['agi', 'すばやさ'], ['mag', 'まりょく'], ['heal', 'かいふく']]) {
         const v = job.mods[k];
@@ -322,7 +350,7 @@ function jobUI(game) {
         learn.append(el('div', { class: lv >= l ? 'good' : 'muted', text: `Lv${l}　${a.name}${lv >= l ? '（おぼえた）' : ''}` }));
       }
       main.append(learn);
-      main.append(el('div', { class: 'detail', text: 'ほかの しょくぎょうで おぼえた わざも つかえるが、MPが ふえたり いりょくが さがる ことが ある。（旅芸人は きようなので ペナルティが かるい）\n酒場の なかまも ここで 転職できるよ。' }));
+      main.append(el('div', { class: 'detail', text: `しょくぎょうレベルは たたかいに かつと あがる（さいだい ${JOB_MAX_LEVEL}）。ただし じぶんより ${JOB_TRAIN_GAP + 1}つ いじょう レベルが ひくい てき ばかりだと しゅぎょうに ならない。\n基本職を 2つ マスターすると 上級職、上級職を マスターすると 超級職に なれる。\n呪文の 掛け合わせは、もとの しょくぎょうを あわせもつ 上級職いじょうで つかえる。\nほかの しょくぎょうで おぼえた わざも つかえるが、MPが ふえたり いりょくが さがる ことが ある（もとに なった しょくぎょうの わざは だいじょうぶ）。\n酒場の なかまも ここで 転職できるよ。` }));
     };
     menu.focus();
   });
@@ -341,6 +369,8 @@ function tavernUI(game, data) {
     const sfx = (x) => game.audio.sfx(x);
     const face = (e) => faceURL({ look: e.look, job: e.job, eq: e.equip, mon: e.species || undefined });
     const who = (e) => (e.species ? `${MONSTERS[e.species]?.name || ''} Lv${e.level}` : `${JOBS[e.job]?.name || ''} Lv${e.level}`);
+    const plusTag = (e) => (e.plus ? `<span class="plus">+${e.plus}</span>` : '');
+    const BREED_KEY = '#breed';
     const byKey = () => {
       const m = new Map();
       for (const e of info.roster) m.set(e.key, { ...e, sec: 'roster' });
@@ -356,12 +386,18 @@ function tavernUI(game, data) {
       out.push({ header: true, label: `いっしょに いる なかま（${inParty.length}/${info.slots}）` });
       if (!inParty.length) out.push({ label: '（まだ だれも いない）', value: null, disabled: true });
       for (const e of inParty) {
-        out.push({ face: face(e), html: `${esc(e.name)} <span class="muted small">${who(e)}</span>${e.family ? '<span class="tag gold">かぞく</span>' : ''}${e.inParty && !e.active ? '<span class="tag muted">いまは まつ</span>' : ''}`, value: e.key });
+        out.push({ face: face(e), html: `${esc(e.name)}${plusTag(e)} <span class="muted small">${who(e)}</span>${e.family ? '<span class="tag gold">かぞく</span>' : ''}${e.inParty && !e.active ? '<span class="tag muted">いまは まつ</span>' : ''}`, value: e.key });
       }
       const waiting = info.roster.filter((e) => !e.inParty);
       if (waiting.length) {
         out.push({ header: true, label: `酒場で まっている なかま（${waiting.length}）` });
-        for (const e of waiting) out.push({ face: face(e), html: `${esc(e.name)} <span class="muted small">${who(e)}</span>${e.hp <= 0 ? '<span class="tag warn">やすんでいる</span>' : ''}`, value: e.key });
+        for (const e of waiting) out.push({ face: face(e), html: `${esc(e.name)}${plusTag(e)} <span class="muted small">${who(e)}</span>${e.hp <= 0 ? '<span class="tag warn">やすんでいる</span>' : ''}`, value: e.key });
+      }
+      const mons = info.roster.filter((e) => e.species);
+      if (mons.length) {
+        const ready = mons.filter((e) => e.level >= BREED_MIN_LEVEL).length;
+        out.push({ header: true, label: 'まものの はいごう' });
+        out.push({ html: 'はいごう する <span class="muted small">（2ひきを かけあわせる）</span>', right: `Lv${BREED_MIN_LEVEL}+ ${ready}ひき`, value: BREED_KEY });
       }
       if (info.recruits.length) {
         out.push({ header: true, label: 'あたらしい なかまを さがす' });
@@ -380,6 +416,16 @@ function tavernUI(game, data) {
     };
     const show = (key) => {
       main.innerHTML = '';
+      if (key === BREED_KEY) {
+        main.append(el('h3', { text: 'まものの はいごう' }), el('div', { class: 'detail', text: [
+          `レベル${BREED_MIN_LEVEL}いじょうの モンスター 2ひきを かけあわせて、あたらしい モンスターを うみだす。`,
+          '・うまれた こは レベル1から。でも おやの わざを 4つまで うけつげる',
+          '・おやの つよさを すこし うけつぎ、「+」の かずが おおいほど よく そだつ',
+          '・うまれる しゅぞくは ふつう 1ぴきめの おやと おなじ。くみあわせ しだいで めずらしい モンスターが うまれることも…',
+          '・おやの 2ひきは たびだっていく（そうびは ふくろに もどる）',
+        ].join('\n') }));
+        return;
+      }
       const e = entries.get(key);
       if (!e) {
         main.append(el('div', { class: 'detail', text: 'なかまを つれていくと いっしょに たたかって くれるよ。\nつれていけるのは 3人まで。まっている なかまとは いつでも いれかえられる。\nモンスターの なかまも ここで まっているよ。' }));
@@ -388,11 +434,13 @@ function tavernUI(game, data) {
       const pv = e.species ? followerSprite({ mon: e.species }, 'down', 0) : playerSprite(e.look, e.job, 'down', 0, e.equip);
       const img = el('canvas', { width: pv.width, height: pv.height, class: 'tv-face' });
       img.getContext('2d').drawImage(pv, 0, 0);
-      main.append(img, el('h3', { text: e.name }), el('div', { class: 'small gold', text: e.sec === 'recruit' ? `${who(e)}（なかまに なると この レベル）` : who(e) }));
+      main.append(img, el('h3', { text: `${e.name}${e.plus ? ` ＋${e.plus}` : ''}` }), el('div', { class: 'small gold', text: e.sec === 'recruit' ? `${who(e)}（なかまに なると この レベル）` : who(e) }));
       if (e.maxHp) main.append(el('div', { class: 'small', text: `HP ${Math.max(0, e.hp)}/${e.maxHp}　MP ${e.mp}/${e.maxMp}${e.tactics ? `　さくせん: ${TACTICS[e.tactics]?.name || ''}` : ''}` }));
       if (e.sec === 'roster' && e.species) {
-        const learned = learnedAbilities({ species: e.species, level: e.level });
+        const learned = e.abilities || learnedAbilities({ species: e.species, level: e.level });
         main.append(el('div', { class: 'small', text: `わざ: ${learned.map((id) => ABILITIES[id]?.name).filter(Boolean).join('・') || 'なし'}` }));
+        if (e.parents) main.append(el('div', { class: 'small muted', text: `おや: ${e.parents.join(' ＋ ')}` }));
+        if (e.level < BREED_MIN_LEVEL) main.append(el('div', { class: 'small muted', text: `レベル${BREED_MIN_LEVEL}に なると はいごう できる` }));
       }
       main.append(el('div', { class: 'detail', text: e.desc || '' }));
       if (e.sec === 'roster' && e.inParty && !e.active) main.append(el('div', { class: 'detail', text: 'いまは パーティーの にんずうが いっぱいなので まっている。' }));
@@ -418,7 +466,7 @@ function tavernUI(game, data) {
     const doReq = async (msg) => {
       const r = await request(game, { kind: 'tavern', ...msg });
       toast(r.text || '');
-      if (r.ok) sfx(msg.action === 'wait' || msg.action === 'release' ? 'leave' : 'join');
+      if (r.ok) sfx(msg.action === 'wait' || msg.action === 'release' ? 'leave' : msg.action === 'breed' ? 'bond' : 'join');
       refresh(r);
       return r;
     };
@@ -430,7 +478,96 @@ function tavernUI(game, data) {
         { label: 'やめる', value: null },
       ]);
     };
+    // はいごう: おやを 2ひき えらぶ → うまれる こを みる → うけつぐ わざ → なまえ
+    const pickSkills = (pv) => new Promise((resolve) => {
+      let sel = new Set(pv.auto);
+      const back = el('div', { class: 'modal-back', style: { zIndex: 6 } });
+      const box = el('div', { class: 'win panel center-panel choose-pop', style: { width: 'min(94vw, 480px)', zIndex: 7 } });
+      const cv = followerSprite({ mon: pv.child }, 'down', 0);
+      const img = el('canvas', { width: cv.width, height: cv.height, style: { height: '3.6em', width: 'auto', imageRendering: 'pixelated', flex: 'none' } });
+      img.getContext('2d').drawImage(cv, 0, 0);
+      const own = (MONSTER_FRIENDS[pv.child]?.learn || []).map(([lv, id]) => `Lv${lv} ${ABILITIES[id]?.name || id}`).join('・');
+      box.append(
+        el('div', { style: { display: 'flex', gap: '0.6em', alignItems: 'flex-start' } },
+          el('div', { style: { flex: '1', minWidth: '0' } },
+            el('div', { class: 'small gold', style: { whiteSpace: 'pre-line' }, text: `うまれる こ: ${pv.childName}（${RACE_NAMES[MONSTERS[pv.child]?.race] || ''}）＋${pv.plus}${pv.special ? '\n★ めずらしい くみあわせ！' : ''}` }),
+            el('div', { class: 'small muted', text: `じぶんで おぼえる わざ: ${own || 'なし'}` })),
+          img),
+        el('div', { class: 'small', text: `おやから うけつぐ わざを ${pv.max}つまで えらんでね` }));
+      const desc = el('div', { class: 'small detail', style: { minHeight: '2.4em' } });
+      const rows = () => [
+        { html: `これで けってい <span class="muted small">（${sel.size}/${pv.max}）</span>`, value: '#ok' },
+        { label: 'おまかせに する', value: '#auto' },
+        ...pv.skills.map((id) => ({ html: `${sel.has(id) ? '●' : '○'} ${esc(ABILITIES[id]?.name || id)}`, right: ABILITIES[id]?.mp ? `MP${ABILITIES[id].mp}` : '', value: id, cls: sel.has(id) ? 'good' : '' })),
+        { label: 'やめる', value: null },
+      ];
+      const done = (v) => {
+        m.blur();
+        back.remove();
+        box.remove();
+        resolve(v);
+      };
+      const m = new ListMenu(game.input, {
+        items: rows(),
+        sound: sfx,
+        back: null,
+        onMove: (it) => { desc.textContent = ABILITIES[it?.value]?.desc || ''; },
+        onSelect: (it) => {
+          if (it.value === '#ok') return done([...sel]);
+          if (it.value === '#auto') { sel = new Set(pv.auto); m.setItems(rows()); return; }
+          if (it.value === null) return done(null);
+          if (sel.has(it.value)) sel.delete(it.value);
+          else if (sel.size < pv.max) sel.add(it.value);
+          else { toast(`うけつげる わざは ${pv.max}つまで`); return; }
+          m.setItems(rows());
+        },
+        onCancel: () => done(null),
+      });
+      back.onclick = () => { sfx('cancel'); done(null); };
+      box.append(m.root, desc);
+      document.getElementById('ui').append(back, box);
+      m.focus();
+    });
+    const breedFlow = async () => {
+      const mons = info.roster.filter((x) => x.species);
+      if (mons.filter((x) => x.level >= BREED_MIN_LEVEL).length < 2) {
+        sfx('buzz');
+        toast(`レベル${BREED_MIN_LEVEL}いじょうの モンスターが 2ひき ひつようだよ`);
+        return;
+      }
+      const pick = (title, exclude) => ask(title, [
+        ...mons.filter((x) => x.key !== exclude).map((x) => ({
+          face: face(x), html: `${esc(x.name)}${plusTag(x)} <span class="muted small">${who(x)}</span>`, value: x.key,
+          disabled: x.level < BREED_MIN_LEVEL, right: x.level < BREED_MIN_LEVEL ? `Lv${BREED_MIN_LEVEL}から` : '',
+        })),
+        { label: 'やめる', value: null },
+      ]);
+      const a = await pick('はいごう: 1ぴきめの おやを えらんでね\n（うまれる こは ふつう 1ぴきめと おなじ しゅぞく）');
+      if (!a) return;
+      const b = await pick(`${entries.get(a)?.name}の あいてを えらんでね`, a);
+      if (!b) return;
+      const r = await request(game, { kind: 'tavern', action: 'breedPreview', a, b });
+      if (!r.ok || !r.preview) {
+        toast(r.text || 'はいごう できない');
+        return;
+      }
+      const pv = r.preview;
+      const inherit = pv.skills.length ? await pickSkills(pv) : [];
+      if (!inherit) return;
+      const nm = await askText(game.input, { title: `うまれる ${pv.childName}の なまえ`, max: 8, initial: pv.childName });
+      if (nm === null) return;
+      const A = entries.get(a), B = entries.get(b);
+      const ok = await confirmBox(game.input, `${A.name}と ${B.name}を はいごう しますか？\n→ ${nm || pv.childName}（${pv.childName} ＋${pv.plus}）が うまれる\n※ ${A.name}と ${B.name}は たびだっていく（そうびは ふくろに もどる）`, 'はいごう する', 'やめる', sfx);
+      if (!ok) return;
+      await doReq({ action: 'breed', a, b, inherit, name: nm || pv.childName });
+    };
     const act = async (key) => {
+      if (key === BREED_KEY) {
+        menu.blur();
+        await breedFlow();
+        menu.focus();
+        return;
+      }
       const e = entries.get(key);
       if (!e) return;
       menu.blur();

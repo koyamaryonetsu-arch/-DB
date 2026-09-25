@@ -234,3 +234,56 @@ test('ボスや ものがたりの たたかいでは なかまに ならない'
     if (m.boss || ['shadow_soldier', 'rock_shard'].includes(sp)) assert.ok(!MONSTER_FRIENDS[sp], sp);
   }
 });
+
+test('はいごう: レベル10いじょうの 2ひきから レベル1の こが うまれ、わざと つよさを うけつぐ', { timeout: 60000 }, async () => {
+  const { breedPreview } = await import('../public/js/shared/world/breed.js');
+  const world = new GameWorld({ offline: true, rng: makeRng(31), rateLimit: false });
+  const bot = new Bot(world, 'モモ');
+  await bot.login();
+  await bot.createAndPlay('performer');
+  await bot.settle();
+  level(bot, 14);
+  const c = world.data.characters[bot.char.id];
+  c.flags.monster_bond = true;
+  const { addMonsterCompanion } = await import('../public/js/shared/world/party.js');
+  const a = addMonsterCompanion(world, bot.s, 'pururin', 12);
+  const b = addMonsterCompanion(world, bot.s, 'koumorin', 8);
+  c.items.push({ id: 'power_ring', n: 1 });
+  bot.send({ t: 'menu', action: 'equip', id: 'power_ring', who: a.key });
+  // レベルが たりない
+  assert.equal(breedPreview(c, a.key, b.key).ok, false);
+  const kb = c.companions.find((e) => e.key === b.key).char;
+  gainExp(kb, expForLevel(10) - kb.exp);
+  const pv = breedPreview(c, a.key, b.key);
+  assert.ok(pv.ok, pv.reason);
+  assert.equal(pv.child, 'fuwari', 'ぷるりん＋そらを とぶ まもの＝ふわりん');
+  assert.ok(pv.skills.includes('m_drain'), 'おやの わざを うけつげる');
+  // みるだけの よこく（なにも かわらない）
+  const before = JSON.stringify(c.companions);
+  bot.send({ t: 'svc', kind: 'tavern', action: 'breedPreview', a: a.key, b: b.key });
+  const pr = bot.msgs.filter((m) => m.t === 'svcRes').pop();
+  assert.ok(pr.ok && pr.preview?.child === 'fuwari' && pr.preview.special, 'よこく: めずらしい くみあわせ');
+  assert.ok(pr.preview.auto.length <= pr.preview.max);
+  assert.equal(JSON.stringify(c.companions), before, 'よこくでは かわらない');
+  bot.send({ t: 'svc', kind: 'tavern', action: 'breedPreview', a: a.key, b: a.key });
+  assert.equal(bot.msgs.filter((m) => m.t === 'svcRes').pop().ok, false, 'おなじ まものどうしは だめ');
+  bot.send({ t: 'svc', kind: 'tavern', action: 'breed', a: a.key, b: b.key, inherit: ['m_drain', 'mera'], name: 'ふわこ' });
+  const r = bot.msgs.filter((m) => m.t === 'svcRes').pop();
+  assert.ok(r.ok, r.text);
+  const kid = c.companions.find((e) => e.species === 'fuwari');
+  assert.ok(kid, 'うまれた');
+  assert.equal(kid.char.level, 1);
+  assert.equal(kid.char.name, 'ふわこ');
+  assert.ok(kid.char.plus >= 2, `＋${kid.char.plus}`);
+  assert.ok(learnedAbilities(kid.char).includes('m_drain') && learnedAbilities(kid.char).includes('mera'), 'わざを うけついだ');
+  const plain = newMonsterCompanion({ id: 'p', species: 'fuwari', level: 1 });
+  assert.ok(computeStats(kid.char).maxHp > computeStats(plain).maxHp, 'おやの つよさを すこし うけつぐ');
+  assert.ok(!c.companions.some((e) => e.key === a.key || e.key === b.key), 'おやは いなくなる');
+  assert.equal(c.items.find((e) => e.id === 'power_ring')?.n, 1, 'おやの そうびは ふくろへ');
+  assert.equal(c.bestiary.fuwari.bred, 1);
+  assert.ok(c.partyKeys.includes(kid.key), 'おやが パーティーに いたので こも パーティーへ');
+  // パーティーの じょうほうにも ＋と うけついだ わざが のる（メニューの つよさ・じゅもんで つかう）
+  const pmsg = bot.msgs.filter((m) => m.t === 'party').pop();
+  const sup = pmsg?.party?.supports.find((x) => x.key === kid.key);
+  assert.ok(sup && sup.plus === kid.char.plus && sup.inherit.includes('m_drain'), 'パーティーの じょうほう');
+});

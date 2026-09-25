@@ -8,7 +8,7 @@ export const SHOPS = {
   weapon: {
     name: 'ルミナの ぶきや',
     items: ['bronze_sword', 'stone_axe', 'bronze_knife', 'bronze_spear', 'bronze_knuckle', 'feather_fan', 'oak_staff',
-      'iron_sword', 'iron_axe', 'iron_spear', 'iron_claw', 'dancer_fan', 'wizard_staff', 'healing_staff', 'poison_knife'],
+      'iron_sword', 'iron_axe', 'iron_spear', 'iron_claw', 'dancer_fan', 'wizard_staff', 'healing_staff', 'poison_knife', 'leather_whip', 'thorn_whip'],
   },
   armor: {
     name: 'ルミナの ぼうぐや',

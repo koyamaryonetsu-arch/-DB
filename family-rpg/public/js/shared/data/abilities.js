@@ -15,6 +15,9 @@
 // element: fire ice wind blast bolt light dark
 //
 // 名前の一部は「ダイの大冒険」「ロトの紋章」へのオマージュです。
+// 上級職・超級職の 技は abilities-adv.js（さいごに まぜる）
+
+import { ADV_ABILITIES } from './abilities-adv.js';
 
 export const ABILITIES = {
   // ───────────── 戦士 ─────────────
@@ -323,6 +326,7 @@ export const ABILITIES = {
 
   // ───────────── 掛け合わせ技（ちがう職業の技を あわせる） ─────────────
   // requires: おぼえている ひつようが ある 技。reqJobLv: 職業レベルの じょうけん
+  // つかえるのは、もとに なった しょくぎょうを ぜんぶ あわせもつ 上級職いじょう だけ（stats.js の comboAllowed）
   mahouken: {
     name: '魔法剣', kana: 'まほうけん', kind: 'combo', requires: ['daichi', 'mera'], mp: 0, target: 'enemy', weapon: 'blade',
     effect: { type: 'mahouken' },
@@ -366,7 +370,7 @@ export const ABILITIES = {
     cast: '{a}は まどろみのうたを うたった！', anim: 'sleep',
   },
   medoro: {
-    name: 'メドロ', kana: 'めどろ', kind: 'combo', requires: ['mera', 'hyado'], reqJobLv: { mage: 8 }, mp: 10, target: 'enemy', spellLike: true,
+    name: 'メドロ', kana: 'めどろ', kind: 'combo', requires: ['mera', 'hyado'], reqJobLv: { mage: 4 }, mp: 10, target: 'enemy', spellLike: true,
     effect: { type: 'magic', element: 'void', base: [44, 56], thr: 30 },
     desc: 'しょう消滅呪文。メラと ヒャドを まったく おなじ つよさで ぶつけ、たいせいを むしして けしさる。いつか「メドローア」へ…',
     cast: '{a}は 左手に メラ、右手に ヒャドを…！ メドロ！', anim: 'void',
@@ -401,6 +405,31 @@ export const ABILITIES = {
     name: 'おたけび', kind: 'monster', mp: 4, target: 'allies',
     effect: { type: 'buff', stat: 'atk', mult: 1.15, dur: 25 }, cast: '{a}は ちからづよい おたけびを あげた！', anim: 'warcry',
     desc: 'みかた みんなの こうげき力を すこし あげる。',
+  },
+  m_king_press: {
+    name: 'キングプレス', kind: 'monster', mp: 5, target: 'enemies',
+    effect: { type: 'phys', mult: 1.0 }, cast: '{a}は とびあがって のしかかった！', anim: 'quake',
+    desc: 'おおきな からだで のしかかり、てき 全体に ダメージ。',
+  },
+  m_blaze: {
+    name: 'はげしいほのお', kind: 'monster', mp: 8, target: 'enemies',
+    effect: { type: 'magic', element: 'fire', base: [40, 55], thr: 30, breath: true }, cast: '{a}は はげしい ほのおを はいた！', anim: 'breath',
+    desc: 'はげしい ほのおで てき 全体を やく。',
+  },
+  m_dragon_claw: {
+    name: 'ドラゴンクロー', kind: 'monster', mp: 4, target: 'enemy',
+    effect: { type: 'phys', mult: 1.8 }, cast: '{a}の するどい ツメが ひらめいた！', anim: 'slash_multi',
+    desc: 'するどい ツメで ひきさく。',
+  },
+  m_pounce: {
+    name: 'とびかかり', kind: 'monster', mp: 3, target: 'enemy',
+    effect: { type: 'phys', mult: 2.0, acc: 0.9 }, cast: '{a}は すばやく とびかかった！', anim: 'bite',
+    desc: 'すばやく とびかかって かみつく。',
+  },
+  m_darkslash: {
+    name: 'やみのつるぎ', kind: 'monster', mp: 4, target: 'enemy',
+    effect: { type: 'phys', mult: 1.6, element: 'dark' }, cast: '{a}の やみの つるぎ！', anim: 'dark_slash',
+    desc: 'やみの ちからを こめた けんで きる。',
   },
   m_horn: {
     name: 'つのでつく', kind: 'monster', mp: 2, target: 'enemy',
@@ -472,16 +501,19 @@ export const ABILITIES = {
     desc: 'おおきな いわを なげつける。',
   },
   m_branch_whip: {
-    name: 'えだのむち', kind: 'monster', target: 'enemies',
+    name: 'えだのむち', kind: 'monster', mp: 4, target: 'enemies',
     effect: { type: 'phys', mult: 0.7 }, cast: '{a}は えだを むちのように ふりまわした！', anim: 'hit_all',
+    desc: 'えだを むちのように ふりまわし、てき 全体を うつ。',
   },
   m_pollen: {
-    name: 'ねむりのかふん', kind: 'monster', target: 'enemies',
+    name: 'ねむりのかふん', kind: 'monster', mp: 5, target: 'enemies',
     effect: { type: 'status', status: 'sleep', chance: 0.3, turns: [1, 2] }, cast: '{a}は ねむりの かふんを ふりまいた！', anim: 'sleep',
+    desc: 'ねむりの かふんで てき 全体を ねむらせる ことが ある。',
   },
   m_root_heal: {
-    name: 'ねをはる', kind: 'monster', target: 'self',
+    name: 'ねをはる', kind: 'monster', mp: 4, target: 'self',
     effect: { type: 'heal', base: [55, 70], thr: 999, fixed: true }, cast: '{a}は じめんに ねを はった！ だいちの ちからを すいあげる！', anim: 'heal1',
+    desc: 'じめんに ねを はり、じぶんの HPを かいふくする。',
   },
   m_big_branch: {
     name: 'おおえだたたき', kind: 'monster', target: 'enemy',
@@ -537,6 +569,7 @@ export const ABILITIES = {
     effect: { type: 'drainMp', amount: [3, 6] }, cast: '{a}は ふしぎな おどりを おどった！', anim: 'dance',
   },
 };
+Object.assign(ABILITIES, ADV_ABILITIES);
 
 // 攻撃呪文かどうか（魔法剣で使える）
 export function isAttackSpell(id) {

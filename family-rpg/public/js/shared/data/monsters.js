@@ -136,6 +136,50 @@ export const MONSTERS = {
     desc: 'めったに あえない ぎんいろの ぷるりん。とても かたく、すぐ にげる。たおせば たくさんの けいけんち！',
   },
 
+  // ───── はいごうで うまれる まもの（やせいには いない） ─────
+  king_pururin: {
+    name: 'キングぷるりん', lv: 18, hp: 220, mp: 40, str: 60, def: 50, agi: 22, mag: 40, exp: 0, gold: 0, breedOnly: true,
+    race: 'slime', size: 'l', resist: { fire: 0.8, ice: 0.8 },
+    actions: [{ w: 3, id: 'attack' }, { w: 1, id: 'm_king_press' }],
+    desc: 'ぷるりんたちの おうさま。おおきな からだで のしかかる。',
+  },
+  fuwari: {
+    name: 'ふわりん', lv: 12, hp: 90, mp: 60, str: 35, def: 30, agi: 38, mag: 40, exp: 0, gold: 0, breedOnly: true,
+    race: 'slime', size: 's', flying: true,
+    actions: [{ w: 2, id: 'attack' }, { w: 1, id: 'hoimi' }],
+    desc: 'ふわふわ ういている クラゲの ような ぷるりん。かいふくが とくい。',
+  },
+  chibi_dragon: {
+    name: 'ちびドラゴン', lv: 15, hp: 150, mp: 30, str: 58, def: 45, agi: 36, mag: 30, exp: 0, gold: 0, breedOnly: true,
+    race: 'dragon', size: 'm', resist: { fire: 0.5 },
+    actions: [{ w: 3, id: 'attack' }, { w: 1, id: 'm_fire_breath' }],
+    desc: 'ほのおを はく ちいさな ドラゴン。そだつと とても つよくなる。',
+  },
+  golem: {
+    name: 'ストーンゴーレム', lv: 18, hp: 260, str: 70, def: 70, agi: 12, exp: 0, gold: 0, breedOnly: true,
+    race: 'material', size: 'l', resist: { fire: 0.7, ice: 0.8, sleep: 0, poison: 0 },
+    actions: [{ w: 3, id: 'attack' }, { w: 1, id: 'm_stomp' }],
+    desc: 'いわで できた きょじん。とても かたくて ちからもち。',
+  },
+  star_panther: {
+    name: 'ほしがたパンサー', lv: 16, hp: 160, str: 68, def: 40, agi: 70, exp: 0, gold: 0, breedOnly: true,
+    race: 'beast', size: 'm',
+    actions: [{ w: 3, id: 'attack' }, { w: 1, id: 'm_pounce' }],
+    desc: 'せなかに ほしの もようが ある、かぜの ように はやい けもの。',
+  },
+  demon_knight: {
+    name: 'あくまのきし', lv: 17, hp: 180, mp: 20, str: 72, def: 55, agi: 34, exp: 0, gold: 0, breedOnly: true,
+    race: 'demon', size: 'm', resist: { dark: 0.5, light: 1.5 },
+    actions: [{ w: 3, id: 'attack' }, { w: 1, id: 'm_darkslash' }],
+    desc: 'やみの よろいを まとった きし。けんの うでが たつ。',
+  },
+  chibi_treant: {
+    name: 'ちびトレント', lv: 14, hp: 170, mp: 40, str: 45, def: 50, agi: 16, mag: 30, exp: 0, gold: 0, breedOnly: true,
+    race: 'plant', size: 'm', resist: { fire: 1.5, wind: 0.7 },
+    actions: [{ w: 3, id: 'attack' }, { w: 1, id: 'm_branch_whip' }],
+    desc: 'ささやきの森の ぬしの こども。からだを いやす ちからが ある。',
+  },
+
   // ───── ボス ─────
   dark_treant: {
     name: 'ダークトレント', lv: 8, hp: 480, str: 36, def: 20, agi: 11, mag: 20, exp: 300, gold: 150,

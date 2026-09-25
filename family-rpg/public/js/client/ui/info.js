@@ -1,8 +1,8 @@
 // せつめい文を つくる
 import { ITEMS, SLOT_NAMES, WEAPON_CAT_NAMES } from '../../shared/data/items.js';
 import { ABILITIES, ELEMENT_NAMES } from '../../shared/data/abilities.js';
-import { JOBS, JOB_ORDER } from '../../shared/data/jobs.js';
-import { computeStats, canEquip, penaltyFor, mpCost, comboJobs } from '../../shared/stats.js';
+import { JOBS, ALL_JOBS } from '../../shared/data/jobs.js';
+import { computeStats, canEquip, penaltyFor, mpCost, comboJobNames, comboAllowed } from '../../shared/stats.js';
 
 const TARGET_NAMES = { enemy: 'てき1体', group: 'てき1グループ', enemies: 'てき全体', ally: 'みかた1人', allies: 'みかた全員', self: 'じぶん', deadAlly: 'しんだ みかた' };
 const BONUS_NAMES = { str: 'ちから', def: 'みのまもり', agi: 'すばやさ', mag: 'まりょく', heal: 'かいふく', hp: 'HP', mp: 'MP' };
@@ -20,8 +20,12 @@ export function itemStats(id) {
 export function whoCanEquip(id) {
   const it = ITEMS[id];
   if (!it || !['weapon', 'armor', 'shield', 'head', 'acc'].includes(it.type)) return '';
-  const jobs = JOB_ORDER.filter((j) => canEquip(j, id)).map((j) => JOBS[j].name);
-  return jobs.length === JOB_ORDER.length ? 'だれでも そうびできる' : `そうび: ${jobs.join('・')}`;
+  const jobs = ALL_JOBS.filter((j) => canEquip(j, id));
+  if (jobs.length === ALL_JOBS.length) return 'だれでも そうびできる';
+  const base = jobs.filter((j) => !JOBS[j].tier).map((j) => JOBS[j].name);
+  const more = jobs.filter((j) => JOBS[j].tier);
+  const moreText = more.length <= 4 ? more.map((j) => JOBS[j].name).join('・') : `上級職・超級職 ${more.length}しゅるい`;
+  return `そうび: ${[base.join('・'), moreText].filter(Boolean).join(' ／ ')}`;
 }
 
 export function itemDetail(id) {
@@ -67,6 +71,8 @@ export function abilityDetail(id, char) {
   lines.push(a.desc || '');
   if (a.kind === 'combo') {
     lines.push(`掛け合わせ: ${a.requires.map((r) => ABILITIES[r]?.name).join(' ＋ ')}`);
+    lines.push(`つかえる しょくぎょう: ${comboJobNames(id).join('・')}（とその 超級職）`);
+    if (char && char.job && !comboAllowed(char, id)) lines.push('⚠ いまの しょくぎょうでは つかえない');
   } else if (a.job) {
     lines.push(`おぼえた しょくぎょう: ${JOBS[a.job]?.name || ''}`);
   }

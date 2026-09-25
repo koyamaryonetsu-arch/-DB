@@ -5,8 +5,9 @@ import { ITEMS } from '../data/items.js';
 import { ABILITIES } from '../data/abilities.js';
 import { JOBS } from '../data/jobs.js';
 import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js';
-import { gainExp, gainJobExp, itemCount, removeItem, addItem, computeStats, STAT_NAMES, fullHeal } from '../stats.js';
-import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendLevel } from './party.js';
+import { gainExp, gainJobBattles, jobTrainable, itemCount, removeItem, addItem, computeStats, STAT_NAMES, fullHeal } from '../stats.js';
+import { JOB_MAX_LEVEL } from '../data/jobs.js';
+import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendLevel, noteSeen } from './party.js';
 import { MAPS } from '../maps/index.js';
 
 let battleSeq = 1;
@@ -42,6 +43,7 @@ export function joinBattle(world, s, targetSid) {
   if (ctx.battle.allies.length >= 4) return { ok: false, reason: 'たたかいの ばしょが いっぱいだ…' };
   const a = ctx.battle.joinAlly({ char: s.char, kind: 'player', controller: s.id, auto: !!s.char.battleSettings?.auto });
   ctx.actorMap[a.id] = { type: 'human', sid: s.id, char: s.char };
+  noteSeen(s.char, [...new Set(ctx.battle.combatants.filter((x) => x.side === 'enemy').map((x) => x.species))]);
   ctx.sids.push(s.id);
   s.busy = 'battle';
   s.battleId = ctx.id;
@@ -121,6 +123,14 @@ function makeBattle(world, sessions, party, enemies, opts) {
     actorMap[b.allies[i++].id] = { type: 'support', key: sup.key, owner: sup.owner, kind: sup.kind, char: sup.char, manual: supInfo[k].manual };
   });
   for (const g of party.guests) actorMap[b.allies[i++].id] = { type: 'guest', id: g.id, char: g.char };
+  // モンスターマスターが いると なかまの まものが つよくなる
+  const boost = Math.max(1, ...sessions.map((m) => JOBS[m.char.job]?.passive?.monsterBoost || 1));
+  if (boost > 1) {
+    for (const a of b.allies) if (a.mon) { a.atk = Math.round(a.atk * boost); a.dfn = Math.round(a.dfn * boost); }
+  }
+  // ずかん: みた まもの
+  const seen = [...new Set(enemies)];
+  for (const m of sessions) noteSeen(m.char, seen);
   const ctx = { id: b.id, battle: b, sids: sessions.map((m) => m.id), partyId: party.id, map: sessions[0].map, actorMap, opts };
   world.battles.set(ctx.id, ctx);
   for (const m of sessions) {
@@ -222,13 +232,15 @@ function finishBattle(world, ctx) {
   const perSession = {};
   let befriend = null;
   if (outcome === 'win') {
-    let exp = 0, gold = 0, jexp = 0;
+    let exp = 0, gold = 0;
     for (const sp of res.killed) {
       const m = MONSTERS[sp];
       exp += m.exp;
       gold += m.gold;
-      jexp += m.jexp ?? Math.ceil(m.exp * 0.6);
     }
+    // 職業の しゅぎょう: かった たたかい 1かい（ボスは 3かいぶん）。てきが よわすぎると ならない
+    const maxEnemyLv = Math.max(1, ...b.combatants.filter((x) => x.side === 'enemy').map((x) => MONSTERS[x.species]?.lv || 1));
+    const trainN = b.boss ? 3 : 1;
     const leaderName = sessions[0]?.char.name || '';
     for (const m of sessions) {
       const c = m.char;
@@ -257,11 +269,12 @@ function finishBattle(world, ctx) {
         if (g) lines.push(g);
         for (const id of u.learned) lines.push(learnLine(c, id));
       }
-      const jups = gainJobExp(c, jexp);
-      for (const u of jups) {
-        lines.push(`${JOBS[u.job].name}の しょくぎょうレベルが ${u.lv}に あがった！`);
-        for (const id of u.learned) lines.push(learnLine(c, id));
+      let jups = [];
+      if (JOBS[c.job] && (c.jobs[c.job]?.lv || 1) < JOB_MAX_LEVEL) {
+        if (jobTrainable(c, maxEnemyLv)) jups = gainJobBattles(c, trainN);
+        else lines.push('（てきが よわすぎて しょくぎょうの しゅぎょうに ならなかった）');
       }
+      for (const u of jups) lines.push(...jobUpLines(c, u));
       perSession[m.id] = { lines, levelUp: ups.length > 0, jobUp: jups.length > 0, drops };
     }
     // なかま: たたかいに でた なかまだけ そだつ。家族の キャラには おれいが とどく
@@ -273,15 +286,20 @@ function finishBattle(world, ctx) {
         if (who.char.ownerId) creditSupportOwner(world, who.char.ownerId, exp, gold, leaderName);
         continue;
       }
-      for (const l of growCompanion(who.char, exp, jexp)) {
-        compLines.push(typeof l === 'string' ? l : learnLine({ name: l.who }, l.learn));
+      const trains = !who.char.species && jobTrainable(who.char, maxEnemyLv) ? trainN : 0;
+      for (const l of growCompanion(who.char, exp, trains)) {
+        if (typeof l === 'string') compLines.push(l);
+        else if (l.learn) compLines.push(learnLine({ name: l.who }, l.learn));
+        else if (l.job) compLines.push(...jobUpLines(who.char, l.job));
       }
     }
     if (compLines.length) for (const m of sessions) perSession[m.id].lines.push(...compLines);
     // まものが なかまに なりたがる（ふつうの たたかい だけ）
     if (!ctx.resolve && !b.boss && res.killed.length) {
       const target = sessions.find((m) => m.id === party?.leader) || sessions[0];
-      const sp = target && rollBefriend(world, target.char, res.killed);
+      // まもの使い・モンスターマスターが いると なかまに なりやすい
+      const mult = Math.max(1, ...b.allies.map((a) => JOBS[a.job]?.passive?.befriend || 1));
+      const sp = target && rollBefriend(world, target.char, res.killed, mult);
       if (sp) befriend = { s: target, species: sp, level: befriendLevel(target.char, sp) };
     }
   } else if (outcome === 'lose') {
@@ -323,6 +341,15 @@ function finishBattle(world, ctx) {
   world.markDirty();
   if (ctx.resolve) ctx.resolve(outcome);
   if (befriend && world.sessions.has(befriend.s.id) && !befriend.s.away) world.offerBefriend(befriend.s, befriend.species, befriend.level);
+}
+
+// 職業レベルが あがった ときの メッセージ
+function jobUpLines(c, u) {
+  const out = [`${c.name}の ${JOBS[u.job].name}の しょくぎょうレベルが ${u.lv}に あがった！`];
+  if (u.lv >= JOB_MAX_LEVEL) out.push(`${c.name}は ${JOBS[u.job].name}を マスターした！`);
+  for (const id of u.learned) out.push(learnLine(c, id));
+  for (const id of u.unlocked || []) out.push(`★ ${c.name}は ${JOBS[id].name}に なれるように なった！（ルミナの町の 神殿で 転職できる）`);
+  return out;
 }
 
 function statShort(k) {

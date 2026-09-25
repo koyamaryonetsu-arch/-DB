@@ -1,6 +1,6 @@
 // たたかいの AI（モンスター と サポートなかま）
 import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js';
-import { mpCost, penaltyFor, weaponOk } from './stats.js';
+import { mpCost, penaltyFor, weaponOk, comboAllowed } from './stats.js';
 
 // さくせん
 export const TACTICS = {
@@ -63,7 +63,7 @@ export function decideAlly(b, c) {
   const dead = b.allies.filter((x) => !x.alive && !x.fled);
   const foes = b.aliveEnemies();
   if (!foes.length) return { type: 'defend' };
-  const can = (id) => canUse(b, c, id);
+  const mine = usable(b, c);
 
   // 1) きずな技（にんげんが いない ときだけ）
   if (b.bond >= 100 && !b.humans().some((h) => h.alive)) {
@@ -71,42 +71,60 @@ export function decideAlly(b, c) {
     return { type: 'bond', target: t.id };
   }
 
-  // 2) しんだ なかまを いきかえらせる
-  if (dead.length && can('zao')) {
-    return { type: 'ability', id: 'zao', target: dead[0].id };
+  // 2) しんだ なかまを いきかえらせる（ふたり いじょうなら みんなを いきかえらせる わざ）
+  if (dead.length) {
+    const revs = mine.filter(({ a }) => a.effect.type === 'revive');
+    const all = revs.find(({ a }) => a.target === 'deadAllies');
+    if (all && dead.length >= 2) return { type: 'ability', id: all.id };
+    const one = revs.filter(({ a }) => a.target === 'deadAlly').sort((x, y) => (y.a.effect.hpRatio || 0) - (x.a.effect.hpRatio || 0))[0];
+    if (one) return { type: 'ability', id: one.id, target: dead[0].id };
   }
 
   // 3) かいふく
-  const healCmd = chooseHeal(b, c, tac, allies);
+  const healCmd = chooseHeal(b, c, tac, allies, mine);
   if (healCmd) return healCmd;
 
   // 4) じょうたい いじょうを なおす
-  for (const a of allies) {
-    if ((a.status.sleep || a.status.paralyze || a.status.confuse) && a !== c) {
-      if (can('kiariku')) return { type: 'ability', id: 'kiariku', target: a.id };
-      if (can('zameha_dance')) return { type: 'ability', id: 'zameha_dance' };
-    }
-    if (a.status.poison && can('kiarii') && a.hp / a.maxHp < 0.8 && b.rng.chance(0.5)) {
-      return { type: 'ability', id: 'kiarii', target: a.id };
-    }
+  const cures = mine.filter(({ a }) => a.effect.type === 'cure');
+  const needs = (a, st) => a.effect.statuses.includes(st);
+  const stuck = allies.filter((a) => a !== c && (a.status.sleep || a.status.paralyze || a.status.confuse));
+  if (stuck.length) {
+    const st = (x) => (x.status.sleep ? 'sleep' : x.status.paralyze ? 'paralyze' : 'confuse');
+    const allCure = cures.find(({ a }) => a.target === 'allies' && stuck.every((x) => needs(a, st(x))));
+    if (allCure && stuck.length >= 2) return { type: 'ability', id: allCure.id };
+    const one = cures.find(({ a }) => a.target === 'ally' && needs(a, st(stuck[0])));
+    if (one) return { type: 'ability', id: one.id, target: stuck[0].id };
+    if (allCure) return { type: 'ability', id: allCure.id };
+  }
+  const poisoned = allies.find((a) => a.status.poison && a.hp / a.maxHp < 0.8);
+  if (poisoned && b.rng.chance(0.5)) {
+    const cure = cures.find(({ a }) => a.target === 'ally' && needs(a, 'poison'));
+    if (cure) return { type: 'ability', id: cure.id, target: poisoned.id };
   }
 
   // 5) ボスの 大わざに そなえる
   const telegraphing = foes.some((f) => f.telegraph);
   if (telegraphing && c.hp / c.maxHp < 0.6 && b.rng.chance(0.75)) return { type: 'defend' };
 
-  // 6) ほじょ呪文
+  // MPが へってきたら まりょくを あつめる
+  if (c.maxMp && c.mp / c.maxMp < 0.25) {
+    const mpUp = mine.find(({ a }) => a.effect.type === 'mpHeal' && a.target === 'self');
+    if (mpUp && b.rng.chance(0.6)) return { type: 'ability', id: mpUp.id };
+  }
+
+  // 6) ほじょ（つよい てきの とき）
   const tough = b.boss || foes.reduce((s, f) => s + f.hp, 0) > 180;
   if (tac.buffs && tough) {
-    const buff = chooseBuff(b, c, allies);
+    const buff = chooseBuff(b, c, allies, mine);
     if (buff) return buff;
   }
+  // てきが おおい ときは ねむらせたり こんらんさせたり
   if (tac.buffs && !b.boss && foes.length >= 3 && b.rng.chance(0.2)) {
-    for (const id of ['rariho', 'madoromi', 'manusa', 'medapani']) {
-      if (can(id)) {
-        const t = foes.find((f) => !f.status.sleep && !f.status.confuse && !f.status.blind);
-        if (t) return { type: 'ability', id, target: t.id };
-      }
+    const st = mine.filter(({ a }) => a.effect.type === 'status' && ['enemies', 'group', 'enemy'].includes(a.target) && a.effect.status !== 'poison');
+    const t = foes.find((f) => !f.status.sleep && !f.status.confuse && !f.status.blind && !f.status.paralyze);
+    if (st.length && t) {
+      const pick = st.sort((x, y) => (y.a.target === 'enemies') - (x.a.target === 'enemies'))[0];
+      return { type: 'ability', id: pick.id, target: t.id };
     }
   }
 
@@ -117,54 +135,77 @@ export function decideAlly(b, c) {
 export function canUse(b, c, id) {
   const a = ABILITIES[id];
   if (!a || !c.abilities.includes(id)) return false;
+  if (a.hidden) return false;
   if ((a.kind === 'spell' || a.spellLike) && c.status.silence) return false;
+  if (a.kind === 'combo' && c.side === 'ally' && c.penChar && !comboAllowed(c.penChar, id)) return false;
   if (!weaponOk(a, c.weaponCat)) return false;
   return mpCost(c.penChar, id) <= c.mp;
 }
 
-function chooseHeal(b, c, tac, allies) {
+// いま つかえる わざ（{ id, a }）
+function usable(b, c) {
+  const out = [];
+  for (const id of c.abilities || []) if (canUse(b, c, id)) out.push({ id, a: ABILITIES[id] });
+  return out;
+}
+
+// だいたい どれくらい かいふくするか
+function healAmount(c, a) {
+  const [mn, mx] = a.effect.base;
+  const base = (mn + mx) / 2;
+  if (a.effect.fixed) return base;
+  return base * (1 + Math.max(0, Math.min(1, ((c.healPow || 0) - (a.effect.thr ?? 20)) / 150)));
+}
+
+function chooseHeal(b, c, tac, allies, mine) {
   const hurt = allies.filter((a) => a.hp / a.maxHp < tac.healAt);
   if (!hurt.length) return null;
-  const can = (id) => canUse(b, c, id);
-  const partyHeals = ['behomara', 'iyashi_mai', 'hustle'].filter(can);
-  if (hurt.length >= 2 && partyHeals.length) return { type: 'ability', id: partyHeals[0] };
+  const heals = mine.filter(({ a }) => a.effect.type === 'heal');
+  if (!heals.length) return null;
+  const mpw = (x) => 1 + mpCost(c.penChar, x.id) * tac.mpWeight;
+  const partyHeals = heals.filter(({ a }) => a.target === 'allies');
+  if (hurt.length >= 2 && partyHeals.length) {
+    const deficit = hurt.reduce((s, a) => s + (a.maxHp - a.hp), 0) / hurt.length;
+    // たりなさに ちかい ものを えらぶ（むだに おおきい わざは つかわない）
+    const best = partyHeals.slice().sort((x, y) => Math.abs(healAmount(c, x.a) - deficit) * mpw(x) - Math.abs(healAmount(c, y.a) - deficit) * mpw(y))[0];
+    return { type: 'ability', id: best.id };
+  }
   hurt.sort((x, y) => x.hp / x.maxHp - y.hp / y.maxHp);
   const t = hurt[0];
   const deficit = t.maxHp - t.hp;
-  const singles = ['behoimi', 'hoimi'].filter(can);
+  const singles = heals.filter(({ a }) => a.target === 'ally' || (a.target === 'self' && t === c));
   if (singles.length) {
-    // たりなさに あわせて えらぶ
-    const pick = deficit > 60 && singles.includes('behoimi') ? 'behoimi' : (singles.includes('hoimi') ? 'hoimi' : singles[0]);
-    return { type: 'ability', id: pick, target: t.id };
+    const enough = singles.filter((x) => healAmount(c, x.a) >= deficit * 0.6);
+    const pool = enough.length ? enough : singles;
+    const pick = pool.slice().sort((x, y) => (enough.length ? mpCost(c.penChar, x.id) - mpCost(c.penChar, y.id) : healAmount(c, y.a) - healAmount(c, x.a)))[0];
+    return { type: 'ability', id: pick.id, target: t.id };
   }
-  if (partyHeals.length && t.hp / t.maxHp < 0.35) return { type: 'ability', id: partyHeals[0] };
+  if (partyHeals.length && t.hp / t.maxHp < 0.35) return { type: 'ability', id: partyHeals[0].id };
   return null;
 }
 
-function chooseBuff(b, c, allies) {
-  const can = (id) => canUse(b, c, id);
+// ほじょ: まだ かかっていない つよく なる わざを えらぶ
+function chooseBuff(b, c, allies, mine) {
   const rng = b.rng;
-  if (can('piorimu') && allies.filter((a) => !a.buffs.agi).length >= Math.ceil(allies.length / 2) && rng.chance(0.55)) {
-    return { type: 'ability', id: 'piorimu' };
+  const buffs = mine.filter(({ a }) => a.effect.type === 'buff');
+  const stat = (a) => a.effect.stats || [a.effect.stat];
+  const lacking = (x, a) => stat(a).some((st) => !x.buffs[st]);
+  for (const { id, a } of buffs.sort(() => rng.float(-1, 1))) {
+    if (a.target === 'allies') {
+      if (allies.filter((x) => lacking(x, a)).length >= Math.ceil(allies.length / 2) && rng.chance(0.5)) return { type: 'ability', id };
+    } else if (a.target === 'ally') {
+      const st = stat(a);
+      const pool = allies.filter((x) => lacking(x, a));
+      const t = st.includes('atk') ? pool.sort((x, y) => y.atk - x.atk)[0] : pool.sort((x, y) => x.dfn - y.dfn)[0];
+      if (t && rng.chance(0.4) && (!st.includes('atk') || t.atk > 25)) return { type: 'ability', id, target: t.id };
+    } else if (a.target === 'self') {
+      if (lacking(c, a) && rng.chance(0.3)) return { type: 'ability', id };
+    }
   }
-  if (can('sukuruto') && allies.filter((a) => !a.buffs.def).length >= 2 && rng.chance(0.5)) {
-    return { type: 'ability', id: 'sukuruto' };
-  }
-  if (can('baikiruto') && rng.chance(0.5)) {
-    const best = allies.filter((a) => !a.buffs.atk).sort((x, y) => y.atk - x.atk)[0];
-    if (best && best.atk > 25) return { type: 'ability', id: 'baikiruto', target: best.id };
-  }
-  if (can('tatakai_uta') && allies.filter((a) => !a.buffs.atk).length >= 2 && rng.chance(0.4)) {
-    return { type: 'ability', id: 'tatakai_uta' };
-  }
-  if (can('sukara') && rng.chance(0.3)) {
-    const t = allies.filter((a) => !a.buffs.def).sort((x, y) => x.dfn - y.dfn)[0];
-    if (t) return { type: 'ability', id: 'sukara', target: t.id };
-  }
-  if (can('ouen') && b.bond < 80 && rng.chance(0.25)) return { type: 'ability', id: 'ouen' };
-  if ((can('chikaratame') || can('kiaitame')) && b.boss && c.charge <= 1 && rng.chance(0.25)) {
-    return { type: 'ability', id: can('kiaitame') ? 'kiaitame' : 'chikaratame' };
-  }
+  const bond = mine.find(({ a }) => a.effect.type === 'bondUp');
+  if (bond && b.bond < 80 && rng.chance(0.25)) return { type: 'ability', id: bond.id };
+  const charge = mine.find(({ a }) => a.effect.type === 'charge');
+  if (charge && b.boss && c.charge <= 1 && rng.chance(0.25)) return { type: 'ability', id: charge.id };
   return null;
 }
 
@@ -188,11 +229,12 @@ function chooseAttack(b, c, tac, foes) {
     const a = ABILITIES[id];
     if (!a || !canUse(b, c, id)) continue;
     const eff = a.effect;
-    if (eff.type !== 'phys' && eff.type !== 'magic') continue;
+    if (eff.type !== 'phys' && eff.type !== 'magic' && eff.type !== 'drainHp') continue;
+    if (eff.recoil && c.hp / c.maxHp < 0.5) continue; // もろばぎりは HPが すくない ときは つかわない
     const mp = mpCost(c.penChar, id);
     const pow = penaltyFor(c.penChar, id).powMult;
     const est = (t) => {
-      if (eff.type === 'phys') {
+      if (eff.type === 'phys' || eff.type === 'drainHp') {
         const r = b.calcPhys(c, t, eff, pow, eff.element || 'phys', true);
         return r.dmg * r.hit * (eff.hits || 1);
       }

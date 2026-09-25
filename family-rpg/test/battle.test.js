@@ -2,13 +2,13 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { Battle, fillTime } from '../public/js/shared/battle.js';
 import { newCharacter, learnedAbilities, mpCost, penaltyFor, changeJob, gainExp, computeStats, mahoukenOptions, fullHeal } from '../public/js/shared/stats.js';
-import { jobExpForLevel } from '../public/js/shared/data/jobs.js';
+import { JOBS, jobBattlesForLevel } from '../public/js/shared/data/jobs.js';
 import { makeRng } from '../public/js/shared/rng.js';
 
 function char(job, level = 5, jobLv = 5, id = job) {
   const c = newCharacter({ id, name: id, look: {}, job });
   c.level = level;
-  c.jobs[job] = { lv: jobLv, exp: jobExpForLevel(jobLv) };
+  c.jobs[job] = { lv: jobLv, b: jobBattlesForLevel(jobLv, JOBS[job].tier) };
   fullHeal(c);
   return c;
 }
@@ -95,11 +95,19 @@ test('ちがう職業の 技を おぼえると 掛け合わせ技を ひらめ�
   assert.ok(opts.some((o) => o.name === 'メラ大地斬'));
 });
 
-test('魔法剣で こうげきできる', () => {
+test('魔法剣で こうげきできる（魔法戦士 だけ。戦士の ままでは つかえない）', () => {
   const w = char('warrior', 8, 3, 'w');
   changeJob(w, 'mage');
   changeJob(w, 'warrior');
   w.equip.weapon = 'bronze_sword';
+  fullHeal(w);
+  const b0 = new Battle({ rng: makeRng(4), allies: [{ char: w, controller: 's1' }], enemies: ['kobushi'] });
+  for (let i = 0; i < 400 && !b0.allies[0].ready; i++) b0.tick(50);
+  assert.equal(b0.command(b0.allies[0].id, { type: 'mahouken', spell: 'mera', skill: 'daichi', target: b0.enemies[0].id }, 's1').ok, false, '戦士の ままでは つかえない');
+  // 戦士と 魔法使いを マスターして 魔法戦士に
+  w.jobs.warrior = { lv: 10, b: 999 };
+  w.jobs.mage = { lv: 10, b: 999 };
+  assert.equal(changeJob(w, 'magic_knight').ok, true);
   fullHeal(w);
   const b = new Battle({ rng: makeRng(4), allies: [{ char: w, controller: 's1' }], enemies: ['kobushi'] });
   b.enemies[0].actions = [{ w: 1, id: 'm_nothing' }];

@@ -141,6 +141,8 @@ button:focus-visible, input:focus-visible, .item:focus-visible { outline: 3px so
 .menu .item.dis { color: #6d6c88; }
 .menu .item .r { color: var(--muted); font-size: var(--fs-small); white-space: nowrap; }
 .menu .item .r.pen { color: var(--warn); }
+.menu .item .r.gold { color: var(--accent); }
+.menu .item .r.good { color: var(--good); }
 .menu .hdr {
   color: var(--accent);
   font-size: var(--fs-small);
@@ -597,8 +599,9 @@ body.touch .textin { font-size: max(16px, 1em); }
   min-height: 3.1em;
 }
 .fm-stat, .svc-right { margin-left: auto; }
-.fmenu-panel { left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(96vw, 900px); }
-.svc-panel { width: min(96vw, 860px); }
+/* うえに そろえる: みぎの なかみの たかさが かわっても、ひだりの リスト（ゆびの した）が うごかない */
+.fmenu-panel { left: 50%; top: calc(var(--safe-t) + max(8px, 4vh)); transform: translateX(-50%); width: min(96vw, 900px); }
+.svc-panel { width: min(96vw, 860px); top: calc(var(--safe-t) + max(8px, 4vh)); transform: translateX(-50%); }
 .wm-head { position: relative; width: 100%; min-height: 2.8em; display: flex; align-items: center; padding-right: 7.4em; }
 .stamp-panel { right: calc(12px + var(--safe-r)); top: 38%; width: min(80vw, 320px); }
 
@@ -606,6 +609,8 @@ body.touch .textin { font-size: max(16px, 1em); }
 .fmenu { display: grid; grid-template-columns: minmax(8em, auto) 1fr; gap: 10px; }
 .fmenu .side { min-width: 8.5em; }
 .fmenu .main { min-height: 12em; max-height: min(74vh, 640px); }
+.fmenu-panel .fmenu .main { height: min(74vh, 640px); }
+.fmenu-panel .fmenu .side { max-height: min(74vh, 640px); overflow-y: auto; }
 .gold-box { font-size: var(--fs-small); margin-top: 0.4em; }
 .twocol { display: grid; grid-template-columns: 1fr 1fr; gap: 0.3em 1.4em; }
 .kv { display: flex; justify-content: space-between; gap: 1em; }
@@ -627,9 +632,18 @@ img.face { image-rendering: pixelated; }
 .party-row .face { height: 1.8em; width: auto; vertical-align: middle; margin-right: 0.35em; }
 .party-row > span:first-child { display: flex; align-items: center; }
 
+/* 神殿（転職） */
+.job-panel .job-list { max-height: min(72vh, 620px); }
+.job-panel .main { height: min(72vh, 620px); }
+
 /* 酒場 */
 .tavern-panel .fmenu { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); }
 .tavern-panel .tavern-list { max-height: min(72vh, 620px); }
+.zukan-box { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+.zukan-detail { flex: none; min-height: 7.6em; margin: 0.3em 0 0.4em; padding-bottom: 0.3em; border-bottom: 1px dashed rgba(255, 214, 107, 0.35); white-space: pre-line; }
+.zukan-list { flex: 1; min-height: 0; }
+.zukan-mon { float: right; height: 5em; width: auto; image-rendering: pixelated; margin: 0 0 0.3em 0.5em; }
+.plus { color: var(--accent); font-size: 0.85em; margin-left: 0.15em; }
 .tv-face { float: right; height: 3.6em; width: auto; image-rendering: pixelated; margin: 0 0 0.3em 0.5em; }
 .choose-pop .menu { max-height: 60vh; overflow-y: auto; }
 
@@ -637,6 +651,10 @@ img.face { image-rendering: pixelated; }
   .fmenu { grid-template-columns: 1fr; }
   .fmenu .side .menu { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .fmenu .main { max-height: 52vh; }
+  .fmenu-panel .fmenu .main { height: 52vh; }
+  .job-panel .side .menu { display: flex; flex-direction: column; }
+  .job-panel .job-list { max-height: 34vh; }
+  .job-panel .main { min-height: 0; height: 36vh; max-height: 36vh; }
   .tavern-panel .fmenu { grid-template-columns: 1fr; }
   .tavern-panel .side .menu { display: flex; flex-direction: column; }
   .tavern-panel .tavern-list { max-height: 44vh; }
@@ -646,6 +664,12 @@ img.face { image-rendering: pixelated; }
   .tavern-panel .fmenu { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); }
   .tavern-panel .side .menu { display: flex; flex-direction: column; }
   .tavern-panel .tavern-list, .tavern-panel .main { max-height: 62vh; }
+  .job-panel .fmenu { grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); }
+  /* よこむきの スマホ: メニューの こうもくは 2れつ（した に はみださない） */
+  .fmenu-panel .fmenu { grid-template-columns: minmax(10.5em, auto) 1fr; }
+  .fmenu-panel .fmenu .side .menu { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 0.2em; }
+  .job-panel .side .menu { display: flex; flex-direction: column; }
+  .job-panel .job-list, .job-panel .main { max-height: 64vh; height: 64vh; }
 }
 
 /* ───── たたかい ───── */
@@ -861,6 +885,8 @@ body.talking .mon-pop { top: 26%; }
 .afx-wind { background: repeating-linear-gradient(170deg, transparent 0 8px, rgba(216, 255, 224, 0.75) 8px 10px, transparent 10px 18px); animation: afx-wind 0.6s ease-out forwards; }
 @keyframes afx-wind { 0% { transform: translateX(-40%); opacity: 1; } 100% { transform: translateX(40%); opacity: 0; } }
 .afx-dark { background: radial-gradient(circle at 50% 50%, rgba(200, 168, 240, 0.7), rgba(90, 42, 138, 0.65) 55%, rgba(20, 0, 40, 0.3)); animation: afx-fade 0.8s ease-out forwards; }
+.afx-bolt { background: linear-gradient(100deg, transparent 38%, rgba(255, 251, 224, 0.95) 45%, rgba(154, 216, 255, 0.9) 50%, transparent 57%), rgba(255, 246, 176, 0.25); animation: afx-flicker 0.5s steps(2) forwards; }
+@keyframes afx-flicker { 0% { opacity: 1; } 50% { opacity: 0.3; } 70% { opacity: 1; } 100% { opacity: 0; } }
 .afx-quake { background: linear-gradient(0deg, rgba(160, 128, 96, 0.85), rgba(160, 128, 96, 0) 60%); animation: afx-fade 0.7s ease-out forwards; }
 .afx-heal { background: radial-gradient(ellipse at 50% 100%, rgba(125, 255, 176, 0.6), rgba(125, 255, 176, 0) 70%); animation: afx-fade 0.9s ease-out forwards; }
 .afx-heal::before, .afx-heal::after {
