@@ -43,20 +43,44 @@ export function crestCanvas(size = 32) {
   return c;
 }
 
+// セーブの 場所（画面に 出す）。warn … 消えるかも しれない とき
+export function saveWhere(game) {
+  if (game.net.mode === 'server') return { short: `家族サーバー: ${game.net.family || ''}`, long: `家族サーバー「${game.net.family || 'わが家'}」につながっています`, place: `家族サーバー「${game.net.family || 'わが家'}」` };
+  const st = game.net.local?.cloud;
+  const state = st?.state || 'off';
+  if (state === 'loading' || state === 'asking') return { short: '☁ セーブを読みこみ中…', long: 'ひとりで遊ぶモード（セーブを読みこみ中…）', place: 'ひとりで遊ぶモード' };
+  if (state === 'on') return { short: '☁ claude.aiにセーブ（ブラウザを閉じても消えません）', long: 'ひとりで遊ぶモード（claude.aiにセーブ）', place: 'ひとりで遊ぶモード（claude.aiにセーブ）' };
+  if (state === 'error') return { short: '☁ 今はclaude.aiにセーブできていません（このブラウザには残っています）', long: 'ひとりで遊ぶモード（claude.aiにセーブ）', place: 'ひとりで遊ぶモード（claude.aiにセーブ）', warn: true };
+  if (st?.inViewer) {
+    const why = state === 'readonly' ? '見るだけの共有なので、claude.aiにはセーブできません。' : 'claude.aiにセーブできないので、';
+    return { short: `このブラウザだけにセーブ（${why}ブラウザを閉じると消えることがあります）`, long: 'ひとりで遊ぶモード（このブラウザだけにセーブ）', place: 'このブラウザ（ひとりで遊ぶモード）', warn: true };
+  }
+  return { short: 'このブラウザのセーブ', long: 'ひとりで遊ぶモード（このブラウザにセーブ）', place: 'このブラウザ（ひとりで遊ぶモード）' };
+}
+
+// セーブを 読みこんでいる あいだ
+export function showLoading(game) {
+  clearUI();
+  const ui = document.getElementById('ui');
+  const asking = game.net.local?.cloud?.state === 'asking';
+  ui.append(el('div', { class: 'panel center-panel', style: { width: 'min(90vw, 460px)' } },
+    el('div', { class: 'win col' },
+      el('div', { class: 'gold', text: asking ? '☁ クラウドセーブの確認' : '☁ セーブを読みこんでいます…' }),
+      el('div', { class: 'small', text: asking ? 'claude.aiの画面に出ている確認で「許可」を選ぶと、ブラウザを閉じてもセーブが消えなくなります。' : 'ちょっと待ってね。' }))));
+}
+
 export function showTitle(game) {
   clearUI();
   const ui = document.getElementById('ui');
   const crest = crestCanvas(48);
   crest.className = 'crest';
-  const mode = game.net.mode === 'server'
-    ? `家族サーバー「${game.net.family || 'わが家'}」につながっています`
-    : 'ひとりで遊ぶモード（このブラウザにセーブ）';
+  const mode = saveWhere(game).long;
   const start = el('button', { class: 'bigbtn sel', text: '▶ 始める' });
   const box = el('div', { class: 'title-screen' },
     el('div', { class: 'logo' }, crest, el('div', { class: 'main', text: 'きずなの紋章' }), el('div', { class: 'sub', text: '～ 星ふる村の物語 ～' })),
     el('div', { class: 'win col', style: { minWidth: 'min(88vw, 420px)' } },
       start,
-      el('div', { class: 'small muted', text: mode }),
+      el('div', { class: `small ${saveWhere(game).warn ? 'warn' : 'muted'} title-save`, text: mode }),
       el('div', { class: 'small muted', text: '操作: 矢印キー/WASD・Z/Enter・X/Esc　（スマホは画面のボタン）' })));
   ui.append(box);
   const go = () => {
@@ -91,7 +115,10 @@ export function showSelect(game, chars) {
   const wrap = el('div', { class: 'panel center-panel', style: { width: 'min(96vw, 900px)' } });
   const head = el('div', { class: 'win row', style: { justifyContent: 'space-between', marginBottom: '6px' } },
     el('span', { class: 'gold', text: 'だれで遊ぶ？' }),
-    el('span', { class: 'small muted', text: game.net.mode === 'server' ? `家族サーバー: ${game.net.family || ''}` : 'このブラウザのセーブ' }));
+    (() => {
+      const w = saveWhere(game);
+      return el('span', { class: w.warn ? 'small warn' : 'small muted', text: w.short });
+    })());
   const list = el('div', { class: 'win scroll', style: { maxHeight: '64vh' } });
   const grid = el('div', { class: 'chars' });
   list.append(grid);
@@ -200,7 +227,7 @@ function request(game, msg, want) {
 export function showTransfer(game, chars) {
   clearUI();
   const ui = document.getElementById('ui');
-  const where = game.net.mode === 'server' ? `家族サーバー「${game.net.family || 'わが家'}」` : 'このブラウザ（ひとりで遊ぶモード）';
+  const where = saveWhere(game).place;
   const wrap = el('div', { class: 'panel center-panel transfer-panel', style: { width: 'min(96vw, 720px)' } });
   const box = el('div', { class: 'win scroll', style: { maxHeight: '88vh' } });
   const body = el('div', { class: 'col', style: { gap: '0.6em' } });

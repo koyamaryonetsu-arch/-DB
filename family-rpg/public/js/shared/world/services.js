@@ -209,7 +209,9 @@ export function serviceAction(world, s, msg) {
     case 'church': {
       if (msg.action === 'record') {
         c.spawn = { map: s.map, x: s.x, y: s.y };
-        return reply(true, '神のご加護がありますように。\nここをいのりの場所として記録しました。');
+        reply(true, '神のご加護がありますように。\nここをいのりの場所として記録しました。');
+        world.saveNow({ urgent: true });
+        return;
       }
       const target = refChar(world, s, msg.ref);
       if (!target) return reply(false, '');

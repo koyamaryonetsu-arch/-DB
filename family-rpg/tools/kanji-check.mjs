@@ -150,7 +150,7 @@ export function gameFiles() {
   const list = [
     'public/index.html',
     'public/js/main.js',
-    'public/js/client/game.js', 'public/js/client/battle.js', 'public/js/client/field.js', 'public/js/client/offline.js', 'public/js/client/net.js',
+    'public/js/client/game.js', 'public/js/client/battle.js', 'public/js/client/field.js', 'public/js/client/offline.js', 'public/js/client/net.js', 'public/js/client/cloudsave.js',
     'public/js/client/ui/dom.js', 'public/js/client/ui/hud.js', 'public/js/client/ui/info.js', 'public/js/client/ui/menu.js',
     'public/js/client/ui/script.js', 'public/js/client/ui/services.js', 'public/js/client/ui/title.js',
     'public/js/client/ui/counter.js', 'public/js/client/ui/shop.js', 'public/js/shared/data/inn.js',

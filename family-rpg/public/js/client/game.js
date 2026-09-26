@@ -6,7 +6,7 @@ import { Hud, STAMPS } from './ui/hud.js';
 import { FieldMenu, openWorldMap } from './ui/menu.js';
 import { ScriptPlayer, wait } from './ui/script.js';
 import { BattleScene } from './battle.js';
-import { showTitle, showLogin, showSelect, showCreate } from './ui/title.js';
+import { showTitle, showLogin, showSelect, showCreate, showLoading, saveWhere } from './ui/title.js';
 import { toast, confirmBox, el } from './ui/dom.js';
 import { MAPS } from '../shared/maps/index.js';
 
@@ -34,6 +34,8 @@ export class Game {
     this.input.fieldHandler = (a) => this.onFieldAction(a);
     net.on((m) => this.onMessage(m));
     net.onStatus((s) => this.hud.setConnection(s));
+    // クラウドセーブの ようすが かわったら 画面に 出す（ひとりモード）
+    net.local?.cloud?.onChange((st) => this.onCloudState(st));
     try { if (localStorage.getItem('kizuna_bigtext')) document.body.classList.add('big-text'); } catch { /* */ }
     // iPhone: さわったら おとを もどす・もどってきたら がめんを つけたままに する
     const kick = () => this.audio.resumeIfNeeded();
@@ -103,8 +105,26 @@ export class Game {
       else showLogin(this);
     } else {
       this.state = 'select';
+      // クラウドの セーブを 読みおわるまで まつ（そのあいだ「読みこみ中」）
+      if (['loading', 'asking'].includes(this.net.local?.cloud?.state)) showLoading(this);
       this.net.send({ t: 'hello' });
     }
+  }
+
+  onCloudState(st) {
+    const label = document.querySelector('.title-save');
+    if (label) {
+      const w = saveWhere(this);
+      label.textContent = w.long;
+      label.className = `small ${w.warn ? 'warn' : 'muted'} title-save`;
+    }
+    if (this.state === 'select' && !this.welcomed && ['loading', 'asking'].includes(st)) showLoading(this);
+    if (this.state === 'select' && this.welcomed && !document.querySelector('.create, .transfer-panel, .modal-back')) showSelect(this, this.chars || []);
+    if (st === 'error' && !this.cloudErrorShown) {
+      this.cloudErrorShown = true;
+      toast('今はclaude.aiにセーブできません。このブラウザには残っているので、そのまま遊べます', 6000);
+    }
+    if (st === 'readonly') toast('見るだけの共有なので、claude.aiにはセーブできません（このブラウザだけにセーブします）', 7000);
   }
 
   // ───────────── まいフレーム ─────────────
@@ -440,9 +460,12 @@ export class Game {
     }
     if (this.net.mode === 'offline' && !this.saveWarned) {
       this.saveWarned = true;
+      const cloud = this.net.local?.cloud;
       import('./offline.js').then(({ offlineStorage }) => {
         offlineStorage.load();
+        if (cloud?.state === 'on') return;
         if (!offlineStorage.ok) toast('このブラウザではセーブができないかもしれません', 5000);
+        else if (cloud?.inViewer && cloud.state === 'off') toast('claude.aiにセーブできないので、このブラウザだけにセーブします。ブラウザを閉じると消えることがあるので、大事なキャラは引っこしコードをメモにとっておいてね', 8000);
       });
     }
   }

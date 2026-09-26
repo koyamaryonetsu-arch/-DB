@@ -127,7 +127,11 @@ export class FieldMenu {
       case 'map': this.main.append(el('div', { class: 'muted', text: '探検した場所の地図を見る。（Mキーでも開けるよ）' })); break;
       case 'quest': this.main.append(this.questView()); break;
       case 'settings': this.main.append(this.settingsView(false)); break;
-      case 'quit': this.main.append(el('div', { class: 'muted', text: g.net.mode === 'offline' ? 'セーブしてタイトルにもどる。（このブラウザにセーブされます）' : 'セーブしてタイトルにもどる。（家族サーバーにセーブされます）' })); break;
+      case 'quit': {
+        const where = g.net.mode !== 'offline' ? '家族サーバー' : g.net.local?.cloud?.state === 'on' ? 'claude.ai' : 'このブラウザ';
+        this.main.append(el('div', { class: 'muted', text: `セーブしてタイトルにもどる。（${where}にセーブされます）` }));
+        break;
+      }
       default:
     }
   }

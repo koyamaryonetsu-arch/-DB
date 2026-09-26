@@ -159,7 +159,7 @@ export class GameWorld {
     this.broadcast({ t: 'left', sid: s.id, name: s.char?.name }, s);
     this.broadcastPlayers();
     this.markDirty();
-    this.saveNow();
+    this.saveNow({ urgent: true });
   }
 
   send(s, msg) {
@@ -252,7 +252,7 @@ export class GameWorld {
     c.spawn = { map: 'overworld', x: POS.villageChurch[0] + 0.5, y: POS.villageChurch[1] + 0.5 };
     this.data.characters[id] = c;
     this.markDirty();
-    this.saveNow();
+    this.saveNow({ urgent: true });
     this.send(s, { t: 'charCreated', id });
     this.broadcast({ t: 'chars', chars: this.charList() });
   }
@@ -283,7 +283,7 @@ export class GameWorld {
       // 入れかえる まえの セーブを とっておく
       if (res.mode === 'updated') this.storage?.backup?.('before-import', before);
       this.markDirty();
-      this.saveNow();
+      this.saveNow({ urgent: true });
       this.broadcast({ t: 'chars', chars: this.charList() });
     }
     this.send(s, { t: 'importResult', ok: true, mode: res.mode, name: res.name, text });
@@ -296,7 +296,7 @@ export class GameWorld {
     if (msg.confirm !== c.name) return this.send(s, { t: 'error', text: '名前がちがいます' });
     delete this.data.characters[msg.id];
     this.markDirty();
-    this.saveNow();
+    this.saveNow({ urgent: true });
     this.broadcast({ t: 'chars', chars: this.charList() });
   }
 
@@ -809,7 +809,8 @@ export class GameWorld {
     this.dirty = true;
   }
 
-  saveNow() {
+  // opts.urgent … 宿屋・教会・終わる など、すぐに 書いて ほしい とき（クラウドセーブ用）
+  saveNow(opts) {
     this.saveTimer = 0;
     if (!this.dirty) return;
     this.dirty = false;
@@ -818,7 +819,7 @@ export class GameWorld {
       if (s.inWorld && s.char && !s.busy) s.char.pos = { map: s.map, x: s.x, y: s.y, dir: s.dir };
     }
     try {
-      this.storage?.save?.(this.data);
+      this.storage?.save?.(this.data, opts);
     } catch (e) {
       this.log('save error', e);
     }

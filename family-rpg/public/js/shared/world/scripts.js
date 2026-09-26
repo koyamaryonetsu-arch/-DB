@@ -204,6 +204,9 @@ export class ScriptRun {
           }
           for (const m of all) w.sendSelf(m);
           if (p) w.sendParty(p);
+          // 宿屋で ねたら すぐ セーブ（ドラクエと おなじ 安心感）
+          w.markDirty();
+          w.saveNow({ urgent: true });
           break;
         }
         case 'guest': {
