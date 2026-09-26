@@ -1,0 +1,521 @@
+// ゲーム ぜんたいの しんこう
+import { Input } from './input.js?v=5d38639d0719';
+import { GameAudio } from './audio.js?v=5d38639d0719';
+import { Field } from './field.js?v=5d38639d0719';
+import { Hud, STAMPS } from './ui/hud.js?v=5d38639d0719';
+import { FieldMenu, openWorldMap } from './ui/menu.js?v=5d38639d0719';
+import { ScriptPlayer, wait } from './ui/script.js?v=5d38639d0719';
+import { BattleScene } from './battle.js?v=5d38639d0719';
+import { showTitle, showLogin, showSelect, showCreate, showLoading, saveWhere } from './ui/title.js?v=5d38639d0719';
+import { toast, confirmBox, el } from './ui/dom.js?v=5d38639d0719';
+import { MAPS } from '../shared/maps/index.js?v=5d38639d0719';
+
+export class Game {
+  constructor(net) {
+    this.net = net;
+    this.input = new Input();
+    this.audio = new GameAudio();
+    this.field = new Field(this);
+    this.hud = new Hud(this);
+    this.menu = new FieldMenu(this);
+    this.script = new ScriptPlayer(this);
+    this.state = 'boot';
+    this.me = null;
+    this.party = null;
+    this.players = [];
+    this.busy = false;
+    this.menuOpen = false;
+    this.follow = false;
+    this.posSeq = 0;
+    this.invulnUntil = 0;
+    this.exploredTimer = 0;
+    this.bgmTimer = 0;
+    this.titleStars = null;
+    this.input.fieldHandler = (a) => this.onFieldAction(a);
+    net.on((m) => this.onMessage(m));
+    net.onStatus((s) => this.hud.setConnection(s));
+    // クラウドセーブの ようすが かわったら 画面に 出す（ひとりモード）
+    net.local?.cloud?.onChange((st) => this.onCloudState(st));
+    try { if (localStorage.getItem('kizuna_bigtext')) document.body.classList.add('big-text'); } catch { /* */ }
+    // iPhone: さわったら おとを もどす・もどってきたら がめんを つけたままに する
+    const kick = () => this.audio.resumeIfNeeded();
+    addEventListener('touchend', kick, { passive: true });
+    addEventListener('pointerup', kick);
+    addEventListener('keydown', kick);
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) return;
+      this.audio.resumeIfNeeded();
+      if (this.inWorld) this.keepAwake(true);
+    });
+  }
+
+  get inWorld() {
+    return !!this.me && ['field', 'battle', 'battle-intro'].includes(this.state);
+  }
+
+  // がめんが きえないように する（せっていで OFF に できる）
+  get awakeOn() {
+    try { return localStorage.getItem('kizuna_awake') !== 'off'; } catch { return true; }
+  }
+
+  set awakeOn(on) {
+    try { localStorage.setItem('kizuna_awake', on ? 'on' : 'off'); } catch { /* */ }
+    this.keepAwake(on && this.inWorld);
+  }
+
+  async keepAwake(on) {
+    try {
+      if (on && this.awakeOn && !this.wakeLock && navigator.wakeLock && !document.hidden) {
+        const lock = await navigator.wakeLock.request('screen');
+        this.wakeLock = lock;
+        lock.addEventListener('release', () => { if (this.wakeLock === lock) this.wakeLock = null; });
+      } else if (!on && this.wakeLock) {
+        const lock = this.wakeLock;
+        this.wakeLock = null;
+        await lock.release();
+      }
+    } catch { /* ゆるされない ときは なにも しない */ }
+  }
+
+  start() {
+    this.state = 'title';
+    showTitle(this);
+    // 2.5D（つかえる ときだけ。せっていで 2D に もどせる）
+    this.field.setView(this.field.savedView());
+    let last = performance.now();
+    const loop = (t) => {
+      const dt = Math.min(50, t - last);
+      last = t;
+      try {
+        this.frame(dt);
+      } catch (e) {
+        console.error(e);
+      }
+      requestAnimationFrame(loop);
+    };
+    requestAnimationFrame(loop);
+    // テスト・デバッグ用
+    window.__game = this;
+  }
+
+  afterTitle() {
+    if (this.net.mode === 'server') {
+      this.state = 'login';
+      if (this.welcomed) this.onWelcomeReady();
+      else showLogin(this);
+    } else {
+      this.state = 'select';
+      // クラウドの セーブを 読みおわるまで まつ（そのあいだ「読みこみ中」）
+      if (['loading', 'asking'].includes(this.net.local?.cloud?.state)) showLoading(this);
+      this.net.send({ t: 'hello' });
+    }
+  }
+
+  onCloudState(st) {
+    const label = document.querySelector('.title-save');
+    if (label) {
+      const w = saveWhere(this);
+      label.textContent = w.long;
+      label.className = `small ${w.warn ? 'warn' : 'muted'} title-save`;
+    }
+    if (this.state === 'select' && !this.welcomed && ['loading', 'asking'].includes(st)) showLoading(this);
+    if (this.state === 'select' && this.welcomed && !document.querySelector('.create, .transfer-panel, .modal-back')) showSelect(this, this.chars || []);
+    if (st === 'error' && !this.cloudErrorShown) {
+      this.cloudErrorShown = true;
+      toast('今はclaude.aiにセーブできません。このブラウザには残っているので、そのまま遊べます', 6000);
+    }
+    if (st === 'readonly') toast('見るだけの共有なので、claude.aiにはセーブできません（このブラウザだけにセーブします）', 7000);
+  }
+
+  // ───────────── まいフレーム ─────────────
+  frame(dt) {
+    this.input.update();
+    const inField = this.state === 'field';
+    const touchEl = document.getElementById('touch');
+    const hideTouch = !(inField && this.input.touch && !this.menuOpen);
+    if (hideTouch && !touchEl.hidden) this.input.releaseTouch();
+    touchEl.hidden = hideTouch;
+    if (inField) {
+      const canMove = !this.busy && !this.menuOpen && !this.input.busy;
+      this.field.update(dt, { dir: this.input.dir, canMove, run: this.input.run });
+      this.field.render();
+      this.hud.update(dt);
+      this.bgmTimer -= dt;
+      if (this.bgmTimer <= 0 && !this.busy) {
+        this.bgmTimer = 600;
+        this.audio.play(this.field.areaBgm());
+      }
+      this.exploredTimer -= dt;
+      if (this.exploredTimer <= 0 && this.field.exploredDirty) {
+        this.exploredTimer = 12000;
+        this.field.exploredDirty = false;
+        this.net.send({ t: 'explored', map: this.field.mapId, data: this.field.exploredB64() });
+      }
+    } else if (this.state === 'battle') {
+      this.battle?.update(dt);
+    } else {
+      this.drawTitleBg(dt);
+    }
+  }
+
+  drawTitleBg(dt) {
+    const f = this.field;
+    const x = f.ctx;
+    const W = f.vw, H = f.vh;
+    if (!this.titleStars || this.titleStars.w !== W) {
+      this.titleStars = { w: W, list: Array.from({ length: 90 }, () => ({ x: Math.random() * W, y: Math.random() * H * 0.75, p: Math.random() * 6, s: Math.random() < 0.15 ? 2 : 1 })), t: 0, shoot: null };
+    }
+    const st = this.titleStars;
+    st.t += dt;
+    const g = x.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, '#05071a');
+    g.addColorStop(0.7, '#1a1a52');
+    g.addColorStop(1, '#3a2a6a');
+    x.fillStyle = g;
+    x.fillRect(0, 0, W, H);
+    for (const s of st.list) {
+      const tw = (Math.sin(st.t / 500 + s.p) + 1) / 2;
+      x.fillStyle = tw > 0.6 ? '#ffffff' : '#9aa8ff';
+      x.fillRect(Math.round(s.x), Math.round(s.y), s.s, s.s);
+    }
+    if (!st.shoot && Math.random() < dt / 2500) st.shoot = { x: Math.random() * W * 0.7 + W * 0.2, y: Math.random() * H * 0.3, a: 0 };
+    if (st.shoot) {
+      st.shoot.a += dt;
+      const k = st.shoot.a / 700;
+      x.fillStyle = '#fff6d8';
+      for (let i = 0; i < 12; i++) x.fillRect(Math.round(st.shoot.x - (k * 120) + i * 2), Math.round(st.shoot.y + (k * 60) - i), 1, 1);
+      if (k > 1) st.shoot = null;
+    }
+    // やまと むらの かげ
+    x.fillStyle = '#0c0a24';
+    for (let px = 0; px < W; px++) {
+      const h = 20 + Math.abs(Math.sin(px * 0.02) * 26) + Math.abs(Math.sin(px * 0.07) * 8);
+      x.fillRect(px, H - h, 1, h);
+    }
+    x.fillStyle = '#ffd66b';
+    for (let i = 0; i < 6; i++) x.fillRect(Math.round(W * (0.15 + i * 0.13)), H - 14 - (i % 2) * 4, 2, 2);
+  }
+
+  // ───────────── ボタン ─────────────
+  onFieldAction(a) {
+    if (this.state !== 'field' || this.busy || this.menuOpen) return;
+    if (a === 'a') this.field.interact();
+    else if (a === 'b' || a === 'menu') this.openMenu();
+    else if (a === 'map') openWorldMap(this);
+    else if (a === 'chat') this.hud.chatInput();
+  }
+
+  openMenu(section) {
+    if (this.state !== 'field' || this.busy || this.menuOpen) return;
+    this.audio.sfx('confirm');
+    this.menu.open();
+    if (section) {
+      const idx = this.menu.menu.items.findIndex((it) => it.value === section);
+      if (idx >= 0) {
+        this.menu.menu.idx = idx;
+        this.menu.menu.updateSel();
+        this.menu.preview(section);
+      }
+    }
+  }
+
+  // ───────────── えんしゅつ ─────────────
+  fade(out) {
+    const c = document.getElementById('curtain');
+    c.classList.remove('flash');
+    c.classList.toggle('on', out);
+    return wait(480);
+  }
+
+  async flash() {
+    const c = document.getElementById('curtain');
+    const was = c.classList.contains('on');
+    c.classList.add('flash', 'on');
+    await wait(140);
+    c.classList.remove('on');
+    await wait(140);
+    c.classList.remove('flash');
+    if (was) c.classList.add('on');
+  }
+
+  applyPos(map, x, y, dir, seq) {
+    if (seq !== undefined) this.posSeq = seq;
+    const changed = this.field.mapId !== map;
+    this.field.setMap(map, x, y, dir);
+    this.field.lastSent = { x, y, moving: false };
+    if (changed) {
+      this.audio.sfx('stairs');
+      this.hud.lastArea = null;
+    }
+  }
+
+  setObjective(text) {
+    if (this.me) this.me.objective = text;
+    this.hud.setObjective(text);
+  }
+
+  async quitToTitle() {
+    this.net.send({ t: 'quit' });
+    this.leaveField();
+    this.state = 'select';
+  }
+
+  leaveField() {
+    this.field.clearLabels();
+    this.hud.show(false);
+    document.getElementById('ui').innerHTML = '';
+    this.me = null;
+    this.keepAwake(false);
+  }
+
+  waitBattleClosed() {
+    if (this.state !== 'battle' && !this.battleClosing) return Promise.resolve();
+    return new Promise((r) => { this.battleWaiters = (this.battleWaiters || []).concat(r); });
+  }
+
+  // ───────────── メッセージ ─────────────
+  async onMessage(m) {
+    switch (m.t) {
+      case '_open':
+        if (this.pwSent || this.me) {
+          let pw = '';
+          try { pw = localStorage.getItem('kizuna_pw') || ''; } catch { /* */ }
+          this.net.send({ t: 'hello', pw });
+        }
+        break;
+      case '_close':
+        break;
+      case 'welcome':
+        this.welcomed = true;
+        this.chars = m.chars;
+        this.timeOffset = (m.serverTime || Date.now()) - Date.now();
+        this.pwSent = true;
+        if (this.me && this.lastCharId) {
+          this.net.send({ t: 'play', id: this.lastCharId });
+          return;
+        }
+        if (this.state === 'login' || this.state === 'select') this.onWelcomeReady();
+        break;
+      case 'helloFail':
+        try { localStorage.removeItem('kizuna_pw'); } catch { /* */ }
+        if (this.state !== 'title') showLogin(this, m.reason);
+        break;
+      case 'chars':
+        this.chars = m.chars;
+        if (this.state === 'select' && !this.pendingPlay && !document.querySelector('.create, .transfer-panel')) showSelect(this, m.chars);
+        break;
+      case 'exportCode':
+      case 'importResult':
+        this.transferWaiter?.(m);
+        break;
+      case 'charCreated':
+        if (this.pendingPlay) {
+          this.pendingPlay = false;
+          this.net.send({ t: 'play', id: m.id });
+        }
+        break;
+      case 'enter': return this.onEnter(m);
+      case 'self': {
+        const prevJob = this.me?.job;
+        this.me = m.char;
+        // もくひょうは サーバーの ものに あわせる（なかまの イベントの あとも 自分の もくひょう）
+        if (m.char?.objective !== undefined) this.hud.setObjective(m.char.objective);
+        this.hud.renderParty();
+        this.menu.refresh();
+        if (prevJob && prevJob !== m.char.job) this.hud.renderParty();
+        break;
+      }
+      case 'party':
+        this.party = m.party;
+        this.hud.renderParty();
+        this.menu.refresh();
+        break;
+      case 'players':
+        this.players = m.players;
+        break;
+      case 'setPos':
+        this.applyPos(m.map, m.x, m.y, m.dir, m.seq);
+        break;
+      case 'snap':
+        this.field.onSnap(m);
+        break;
+      case 'script':
+        this.scriptEnded = false;
+        await this.waitBattleClosed();
+        this.script.enqueue(m);
+        break;
+      case 'scriptEnd':
+        await this.waitBattleClosed();
+        this.scriptEnded = true;
+        if (!this.script.running) this.endScript();
+        break;
+      case 'svcRes':
+        if (this.svcWaiter) {
+          const w = this.svcWaiter;
+          this.svcWaiter = null;
+          w(m);
+        }
+        break;
+      case 'menuRes':
+        if (m.text) toast(m.text);
+        this.audio.sfx(m.ok ? 'confirm' : 'buzz');
+        break;
+      case 'battleStart': return this.onBattleStart(m);
+      case 'battleEv':
+        this.battle?.onEvents(m.evs);
+        break;
+      case 'battleRej':
+        toast(m.reason);
+        this.audio.sfx('buzz');
+        this.battle?.onReject();
+        break;
+      case 'battleEnd': return this.onBattleEnd(m);
+      case 'invite': {
+        // たたかいや かいわの あいだは おわるまで まつ
+        for (let i = 0; i < 600 && (this.state !== 'field' || this.busy || this.menuOpen); i++) await wait(200);
+        if (this.state !== 'field') break;
+        this.audio.sfx('join');
+        const ok = await confirmBox(this.input, `${m.from}からパーティーのおさそいが来た！\nいっしょに冒険する？`, '入る！', '今はいい', (x) => this.audio.sfx(x));
+        this.net.send({ t: 'party', action: ok ? 'accept' : 'decline' });
+        break;
+      }
+      case 'toast':
+        toast(m.text);
+        break;
+      case 'chat':
+        this.hud.addChat(m.from, m.text, m.stamp);
+        if (this.state === 'field') this.field.bubble(m.sid === this.sid ? this.sid : m.sid, m.stamp || m.text);
+        this.audio.sfx('stamp');
+        break;
+      case 'joined':
+        toast(`${m.name}が冒険にやって来た！`);
+        break;
+      case 'left':
+        toast(`${m.name}がひと休みしている`);
+        break;
+      case 'kicked':
+        toast(m.text, 6000);
+        this.leaveField();
+        this.state = 'select';
+        this.net.send({ t: 'hello', pw: (() => { try { return localStorage.getItem('kizuna_pw') || ''; } catch { return ''; } })() });
+        break;
+      case 'error':
+        toast(m.text);
+        this.audio.sfx('buzz');
+        if (this.state === 'select' && this.pendingPlay) {
+          this.pendingPlay = false;
+          showCreate(this);
+        }
+        break;
+      default:
+    }
+  }
+
+  endScript() {
+    this.busy = false;
+    this.scriptBgm = null;
+    this.field.nightOverride = null;
+    this.field.hideGuests = false;
+  }
+
+  onWelcomeReady() {
+    this.state = 'select';
+    showSelect(this, this.chars || []);
+  }
+
+  // がめんの じょうたいを まっさらに する（つなぎなおし など）
+  resetUI() {
+    this.menu.close();
+    this.script.reset();
+    this.input.stack.length = 0;
+    if (this.battle) {
+      this.battle.destroy();
+      this.battle = null;
+    }
+    this.battleClosing = false;
+    this.battleWaiters = []; // まえの だいほんは つかわない（サーバーが いまの ところを おくりなおす）
+    this.hud.stampBox = null;
+    document.getElementById('ui').innerHTML = '';
+    this.busy = false;
+    this.scriptEnded = false;
+  }
+
+  onEnter(m) {
+    this.resetUI();
+    this.me = m.char;
+    this.sid = m.sid;
+    this.lastCharId = m.char.id;
+    this.party = m.party;
+    this.players = m.players || [];
+    this.posSeq = m.posSeq || 0;
+    this.busy = false;
+    this.state = 'field';
+    this.field.setMap(m.map, m.x, m.y, m.dir);
+    this.hud.show(true);
+    this.hud.renderParty();
+    this.hud.setObjective(m.char.objective);
+    this.audio.play(this.field.areaBgm());
+    this.keepAwake(true);
+    if (m.resumed) toast('つなぎ直しました！続きから遊べるよ');
+    for (const log of m.supportLog || []) {
+      toast(`${log.helper}の冒険を${log.count}回手伝って\n経験値${log.exp}と${log.gold}ゴールドをもらった！${log.level ? `\nレベルが${log.level}に上がった！` : ''}`, 6000);
+    }
+    if (this.net.mode === 'offline' && !this.saveWarned) {
+      this.saveWarned = true;
+      const cloud = this.net.local?.cloud;
+      import('./offline.js?v=5d38639d0719').then(({ offlineStorage }) => {
+        offlineStorage.load();
+        if (cloud?.state === 'on') return;
+        if (!offlineStorage.ok) toast('このブラウザではセーブができないかもしれません', 5000);
+        else if (cloud?.inViewer && cloud.state === 'off') toast('claude.aiにセーブできないので、このブラウザだけにセーブします。ブラウザを閉じると消えることがあるので、大事なキャラは引っこしコードをメモにとっておいてね', 8000);
+      });
+    }
+  }
+
+  async onBattleStart(m) {
+    this.menu.close();
+    this.closeFieldUI();
+    if (this.battle) {
+      this.battle.destroy();
+      this.battle = null;
+    }
+    if (!m.resume) {
+      this.audio.sfx('encounter');
+      this.state = 'battle-intro';
+      await this.flash();
+    }
+    this.hud.show(false);
+    this.field.clearLabels();
+    this.state = 'battle';
+    this.battle = new BattleScene(this, m);
+  }
+
+  closeFieldUI() {
+    for (const p of document.querySelectorAll('#ui .panel, #ui .modal-back')) {
+      if (!p.classList.contains('dialog')) p.remove();
+    }
+    this.input.stack.length = 0;
+  }
+
+  async onBattleEnd(m) {
+    const b = this.battle;
+    if (!b) return;
+    this.battleClosing = true;
+    // のこりの えんしゅつを まつ
+    for (let i = 0; i < 100 && (b.queue.length || b.showing); i++) await wait(100);
+    await wait(300);
+    await b.showResult(m);
+    await this.fade(true);
+    b.destroy();
+    this.battle = null;
+    this.state = 'field';
+    this.hud.show(true);
+    this.invulnUntil = performance.now() + 2500;
+    this.audio.play(this.scriptBgm && this.scriptBgm !== 'resume' ? this.scriptBgm : this.field.areaBgm(), { force: true });
+    await this.fade(false);
+    this.battleClosing = false;
+    const ws = this.battleWaiters || [];
+    this.battleWaiters = [];
+    for (const w of ws) w();
+  }
+}
