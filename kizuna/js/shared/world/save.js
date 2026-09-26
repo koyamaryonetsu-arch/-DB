@@ -5,10 +5,10 @@
 // ・知らない 項目や 知らない 品物・職業・モンスターは けさずに とっておく（stash）。
 //   あとで その ゲームが 知っている ものに なったら もとに もどす
 // ・品物・職業・モンスター・マップの ID は けさない・なまえを かえない
-import { ITEMS, SLOTS } from '../data/items.js?v=5d38639d0719';
-import { JOBS } from '../data/jobs.js?v=5d38639d0719';
-import { MONSTERS } from '../data/monsters.js?v=5d38639d0719';
-import { migrateJobs } from '../stats.js?v=5d38639d0719';
+import { ITEMS, SLOTS } from '../data/items.js?v=cb6fd0fb30e1';
+import { JOBS } from '../data/jobs.js?v=cb6fd0fb30e1';
+import { MONSTERS } from '../data/monsters.js?v=cb6fd0fb30e1';
+import { migrateJobs } from '../stats.js?v=cb6fd0fb30e1';
 
 export const SAVE_VERSION = 2;
 

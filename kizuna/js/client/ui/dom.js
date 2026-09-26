@@ -40,7 +40,8 @@ export class ListMenu {
     this.idx = Math.max(0, items.findIndex((i) => !i.disabled && !i.header));
     if (this.idx < 0) this.idx = 0;
     this.root = el('ul', { class: `menu ${cols === 2 ? 'cols2' : ''} ${className}`, role: 'listbox' });
-    this.handler = { onNav: (a, rep) => this.nav(a, rep) };
+    // pad: スマホでは 十字キーの パッドも 出す
+    this.handler = { onNav: (a, rep) => this.nav(a, rep), pad: true };
     this.active = false;
     this.render();
   }
@@ -142,9 +143,24 @@ export class ListMenu {
     }
   }
 
+  // 画面で ならんでいる 列の 数（CSS で 2列・3列に している メニューも 十字キーで みたまま うごく）
+  visualCols() {
+    if (this.cols > 1) return this.cols;
+    const lis = [...this.root.children].filter((li) => li.classList.contains('item'));
+    if (lis.length < 2 || !lis[0].offsetParent) return 1;
+    const top = lis[0].offsetTop;
+    let n = 0;
+    for (const li of lis) {
+      if (Math.abs(li.offsetTop - top) > 3) break;
+      n++;
+    }
+    return Math.max(1, n);
+  }
+
   nav(a) {
     const n = this.items.length;
     if (!n && a !== 'b') return;
+    const cols = ['up', 'down', 'left', 'right'].includes(a) && !this.items.some((it) => it.header) ? this.visualCols() : this.cols;
     const step = (d) => {
       let i = this.idx;
       for (let k = 0; k < n; k++) {
@@ -157,10 +173,10 @@ export class ListMenu {
       this.onMove?.(this.current, this.idx);
     };
     switch (a) {
-      case 'up': step(-this.cols); break;
-      case 'down': step(this.cols); break;
-      case 'left': if (this.cols > 1) step(-1); break;
-      case 'right': if (this.cols > 1) step(1); break;
+      case 'up': step(-cols); break;
+      case 'down': step(cols); break;
+      case 'left': if (cols > 1) step(-1); break;
+      case 'right': if (cols > 1) step(1); break;
       case 'a': this.choose(); break;
       case 'b': this.cancel(); break;
       default:

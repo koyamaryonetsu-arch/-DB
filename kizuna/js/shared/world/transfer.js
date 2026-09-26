@@ -6,7 +6,7 @@
 //   ちぢめた データ … LZW で ちぢめて、英数字と - _ だけで 書いたもの
 //   （LINE で 送れるように。LINE は 1回に 1万文字まで。仲間が いっぱいでも 7千文字ほど）
 // むかしの KIZUNA-1-<しるし>-<base64> も 読める
-import { repairChar, upgradeSave, SAVE_VERSION } from './save.js?v=5d38639d0719';
+import { repairChar, upgradeSave, SAVE_VERSION } from './save.js?v=cb6fd0fb30e1';
 
 const PREFIX = 'KIZUNA-2-';
 const PREFIX_V1 = 'KIZUNA-1-';
@@ -15,11 +15,11 @@ export const LINE_MAX = 10000;
 export const CHAR_MAX = 12;
 
 // キャラの ID は 英数字だけ（'__proto__' などは つかわせない）
-function validId(id) {
+export function validId(id) {
   return typeof id === 'string' && /^[A-Za-z0-9_-]{1,40}$/.test(id) && !['__proto__', 'constructor', 'prototype'].includes(id);
 }
 
-function hash(text) {
+export function hash(text) {
   let h = 0x811c9dc5;
   for (let i = 0; i < text.length; i++) {
     h ^= text.charCodeAt(i);

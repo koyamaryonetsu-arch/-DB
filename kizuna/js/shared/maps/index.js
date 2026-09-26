@@ -1,10 +1,10 @@
 // マップの ぜんたい（フィールド・どうくつ）と、そこに いる 人や たからばこ
-import { T, parseRows, TILE_INFO } from '../tiles.js?v=5d38639d0719';
-import { makeRng, hash2 } from '../rng.js?v=5d38639d0719';
-import { buildOverworld, PLACES, zoneAt, areaName, OW_W, OW_H, CAVE_ENTRANCE, FOREST_CLEARING, LAKE, SWAMP } from './overworld.js?v=5d38639d0719';
-import { CAVE_B1_ROWS, CAVE_B2_ROWS } from './cave-rows.js?v=5d38639d0719';
-import { npc } from './npc.js?v=5d38639d0719';
-import { buildCh2Maps, SEA_PLACES } from './ch2.js?v=5d38639d0719';
+import { T, parseRows, TILE_INFO } from '../tiles.js?v=cb6fd0fb30e1';
+import { makeRng, hash2 } from '../rng.js?v=cb6fd0fb30e1';
+import { buildOverworld, PLACES, zoneAt, areaName, OW_W, OW_H, CAVE_ENTRANCE, FOREST_CLEARING, LAKE, SWAMP } from './overworld.js?v=cb6fd0fb30e1';
+import { CAVE_B1_ROWS, CAVE_B2_ROWS } from './cave-rows.js?v=cb6fd0fb30e1';
+import { npc } from './npc.js?v=cb6fd0fb30e1';
+import { buildCh2Maps, SEA_PLACES } from './ch2.js?v=cb6fd0fb30e1';
 
 const V = (x, y) => [PLACES.village.x + x, PLACES.village.y + y];
 const TW = (x, y) => [PLACES.town.x + x, PLACES.town.y + y];

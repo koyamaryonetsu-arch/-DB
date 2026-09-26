@@ -1,8 +1,8 @@
 // だいほんの さいせい（メッセージ・えらぶ・えんしゅつ）
-import { el } from './dom.js?v=5d38639d0719';
-import { ListMenu } from './dom.js?v=5d38639d0719';
-import { openServiceUI } from './services.js?v=5d38639d0719';
-import { monsterCanvas } from '../render/monsters.js?v=5d38639d0719';
+import { el } from './dom.js?v=cb6fd0fb30e1';
+import { ListMenu } from './dom.js?v=cb6fd0fb30e1';
+import { openServiceUI } from './services.js?v=cb6fd0fb30e1';
+import { monsterCanvas } from '../render/monsters.js?v=cb6fd0fb30e1';
 
 const TYPE_MS = 28;
 
@@ -94,7 +94,11 @@ export class ScriptPlayer {
         return null;
       }
       case 'objective':
-        g.setObjective(a[0]);
+        // 見ている なかまは 自分の 目標は そのまま（リーダーの 目標として 出す）
+        if (msg.spectator) {
+          if (g.party) g.party.objective = a[0];
+          g.refreshObjective();
+        } else g.setObjective(a[0]);
         return null;
       case 'guestHide':
         g.field.hideGuests = !!a[0];

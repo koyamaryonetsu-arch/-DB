@@ -17,8 +17,8 @@
 // 名前の一部は「ダイの大冒険」「ロトの紋章」へのオマージュです。
 // 上級職・超級職の 技は abilities-adv.js（さいごに まぜる）
 
-import { ADV_ABILITIES } from './abilities-adv.js?v=5d38639d0719';
-import { CH2_ABILITIES } from './abilities-ch2.js?v=5d38639d0719';
+import { ADV_ABILITIES } from './abilities-adv.js?v=cb6fd0fb30e1';
+import { CH2_ABILITIES } from './abilities-ch2.js?v=cb6fd0fb30e1';
 
 export const ABILITIES = {
   // ───────────── 戦士 ─────────────

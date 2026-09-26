@@ -1,6 +1,7 @@
 // キーボード・タッチ・ゲームパッドを まとめて あつかう
 // ・フィールドでは input.dir（いどう）と A/B を つかう
 // ・メニューでは スタックの いちばん うえの ハンドラーに up/down/left/right/a/b を とどける
+// ・スマホで ウインドウ（えらぶ リスト）が 出ている ときは、十字キーと A/B の パッド（#pad）でも うごかせる
 
 const KEYMAP = {
   ArrowUp: 'up', KeyW: 'up', ArrowDown: 'down', KeyS: 'down', ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right',
@@ -18,8 +19,10 @@ export class Input {
     this.runToggle = false; // タッチの「はしる」ボタン（おすたびに ON/OFF）
     this.shift = false;
     this.touch = matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window;
+    this.onStack = null; // ウインドウが ひらいた・とじた（パッドを 出す・しまう）
     this.bindKeys();
     this.bindTouch();
+    this.bindPad();
     if (this.touch) document.body.classList.add('touch');
     // iPhone: ピンチで がめんが かくだい されないように
     for (const ev of ['gesturestart', 'gesturechange', 'gestureend']) {
@@ -33,10 +36,37 @@ export class Input {
   }
 
   // メニューなどが じぶんの ハンドラーを のせる
-  push(h) { this.stack.push(h); return h; }
+  push(h) {
+    this.stack.push(h);
+    this.onStack?.();
+    return h;
+  }
+
   pop(h) {
     const i = this.stack.lastIndexOf(h);
     if (i >= 0) this.stack.splice(i, 1);
+    this.onStack?.();
+  }
+
+  // いちばん うえの ウインドウが 十字キーで うごかせる もの（リスト など）か
+  get padWanted() {
+    return !!this.stack[this.stack.length - 1]?.pad;
+  }
+
+  // パッドを 出すか（せっていで しまえる）
+  get padOn() {
+    try {
+      return localStorage.getItem('kizuna_pad') !== 'off';
+    } catch {
+      return true;
+    }
+  }
+
+  set padOn(on) {
+    try {
+      localStorage.setItem('kizuna_pad', on ? 'on' : 'off');
+    } catch { /* */ }
+    this.onStack?.();
   }
   get busy() { return this.stack.length > 0; }
 
@@ -216,6 +246,66 @@ export class Input {
       btnRun.addEventListener('mousedown', toggle);
       try { if (localStorage.getItem('kizuna_run')) this.setRunToggle(true); } catch { /* */ }
     }
+  }
+
+  // ウインドウ用の パッド（十字キー・A・B）。おしっぱなしで くりかえし うごく
+  bindPad() {
+    const pad = document.createElement('div');
+    pad.id = 'pad';
+    pad.hidden = true;
+    const key = (k, label, cls, aria) => {
+      const b = document.createElement('button');
+      b.className = cls;
+      b.dataset.k = k;
+      b.textContent = label;
+      b.setAttribute('aria-label', aria);
+      return b;
+    };
+    const cross = document.createElement('div');
+    cross.id = 'pad-cross';
+    cross.append(key('up', '▲', 'pk up', '上'), key('left', '◀', 'pk left', '左'), key('right', '▶', 'pk right', '右'), key('down', '▼', 'pk down', '下'));
+    const ab = document.createElement('div');
+    ab.id = 'pad-ab';
+    ab.append(key('b', 'B', 'tbtn pb', 'もどる'), key('a', 'A', 'tbtn pa', '決定'));
+    pad.append(cross, ab);
+    document.getElementById('app')?.append(pad);
+    this.padEl = pad;
+    let rep = null;
+    const stop = () => {
+      clearTimeout(rep?.t);
+      rep?.el.classList.remove('on');
+      rep = null;
+    };
+    const press = (el) => {
+      stop();
+      const k = el.dataset.k;
+      el.classList.add('on');
+      this.emit(k);
+      rep = { el, t: 0 };
+      if (['up', 'down', 'left', 'right'].includes(k)) {
+        const again = (ms) => {
+          rep.t = setTimeout(() => {
+            if (!rep || rep.el !== el) return;
+            this.emit(k, true);
+            again(110);
+          }, ms);
+        };
+        again(330);
+      }
+    };
+    for (const el of pad.querySelectorAll('button')) {
+      el.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        press(el);
+      }, { passive: false });
+      el.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        press(el);
+      });
+    }
+    for (const ev of ['touchend', 'touchcancel', 'mouseup', 'mouseleave']) pad.addEventListener(ev, stop);
+    addEventListener('blur', stop);
+    this.stopPad = stop;
   }
 
   // まいフレーム よぶ（ゲームパッド）

@@ -1,15 +1,15 @@
 // お店・やどや・きょうかい・転職・酒場・でんごんばん・メニュー操作
-import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE } from '../data/shops.js?v=5d38639d0719';
-import { ITEMS, sellPrice, SLOTS } from '../data/items.js?v=5d38639d0719';
-import { JOBS, ALL_JOBS, jobReqText } from '../data/jobs.js?v=5d38639d0719';
-import { ABILITIES } from '../data/abilities.js?v=5d38639d0719';
-import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=5d38639d0719';
-import { TACTICS } from '../ai.js?v=5d38639d0719';
-import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf } from './party.js?v=5d38639d0719';
-import { breedMonsters, breedPreview } from './breed.js?v=5d38639d0719';
-import { MONSTERS } from '../data/monsters.js?v=5d38639d0719';
-import { PLACES } from '../maps/overworld.js?v=5d38639d0719';
-import { POS, SEA_PLACES } from '../maps/index.js?v=5d38639d0719';
+import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE } from '../data/shops.js?v=cb6fd0fb30e1';
+import { ITEMS, sellPrice, SLOTS } from '../data/items.js?v=cb6fd0fb30e1';
+import { JOBS, ALL_JOBS, jobReqText } from '../data/jobs.js?v=cb6fd0fb30e1';
+import { ABILITIES } from '../data/abilities.js?v=cb6fd0fb30e1';
+import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=cb6fd0fb30e1';
+import { TACTICS } from '../ai.js?v=cb6fd0fb30e1';
+import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf } from './party.js?v=cb6fd0fb30e1';
+import { breedMonsters, breedPreview } from './breed.js?v=cb6fd0fb30e1';
+import { MONSTERS } from '../data/monsters.js?v=cb6fd0fb30e1';
+import { PLACES } from '../maps/overworld.js?v=cb6fd0fb30e1';
+import { POS, SEA_PLACES } from '../maps/index.js?v=cb6fd0fb30e1';
 
 export function openService(world, s, kind, arg) {
   switch (kind) {
@@ -208,8 +208,13 @@ export function serviceAction(world, s, msg) {
     }
     case 'church': {
       if (msg.action === 'record') {
-        c.spawn = { map: s.map, x: s.x, y: s.y };
-        reply(true, '神のご加護がありますように。\nここをいのりの場所として記録しました。');
+        // さそわれて 手伝っている ときは、自分の いのりの場所は そのまま（自分の 冒険は かわらない）
+        const host = world.hostOf?.(s);
+        if (host) reply(true, `神のご加護がありますように。\n今は${host.char.name}の冒険を手伝っているので、\nいのりの場所は${host.char.name}と同じです。`);
+        else {
+          c.spawn = { map: s.map, x: s.x, y: s.y };
+          reply(true, '神のご加護がありますように。\nここをいのりの場所として記録しました。');
+        }
         world.saveNow({ urgent: true });
         return;
       }

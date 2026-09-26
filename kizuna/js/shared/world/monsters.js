@@ -1,7 +1,7 @@
 // フィールドを うろうろする モンスター（シンボル）
-import { ENCOUNTER_TABLES } from '../data/encounters.js?v=5d38639d0719';
-import { MONSTERS } from '../data/monsters.js?v=5d38639d0719';
-import { MAPS, isBlocked } from '../maps/index.js?v=5d38639d0719';
+import { ENCOUNTER_TABLES } from '../data/encounters.js?v=cb6fd0fb30e1';
+import { MONSTERS } from '../data/monsters.js?v=cb6fd0fb30e1';
+import { MAPS, isBlocked } from '../maps/index.js?v=cb6fd0fb30e1';
 
 let symSeq = 1;
 

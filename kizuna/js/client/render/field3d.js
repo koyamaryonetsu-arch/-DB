@@ -3,13 +3,13 @@
 // ・ひと・まもの・もの は ドット絵を カメラに むけて たてる（ビルボード）
 // ・カメラは ななめ うえから みおろす（うごかすのは いち だけ。むきは かわらない）
 // あるく・ぶつかる などの きまりは 2D と おなじ（Field が きめる）。ここでは かく だけ。
-import * as THREE from '../../../vendor/three.min.js?v=5d38639d0719';
-import { T } from '../../shared/tiles.js?v=5d38639d0719';
-import { effectiveTile } from '../../shared/maps/index.js?v=5d38639d0719';
-import { hash2 } from '../../shared/rng.js?v=5d38639d0719';
-import { Atlas, extraCanvas, propCanvas, PROP_TILES, leafCanvas, roofCanvas, tileArt } from './tex3d.js?v=5d38639d0719';
-import { tileCanvas } from './tiles.js?v=5d38639d0719';
-import { flipCanvas, makeCanvas, ctxOf, whiteCopy } from './pixel.js?v=5d38639d0719';
+import * as THREE from '../../../vendor/three.min.js?v=cb6fd0fb30e1';
+import { T } from '../../shared/tiles.js?v=cb6fd0fb30e1';
+import { effectiveTile } from '../../shared/maps/index.js?v=cb6fd0fb30e1';
+import { hash2 } from '../../shared/rng.js?v=cb6fd0fb30e1';
+import { Atlas, extraCanvas, propCanvas, PROP_TILES, leafCanvas, roofCanvas, tileArt } from './tex3d.js?v=cb6fd0fb30e1';
+import { tileCanvas } from './tiles.js?v=cb6fd0fb30e1';
+import { flipCanvas, makeCanvas, ctxOf, whiteCopy } from './pixel.js?v=cb6fd0fb30e1';
 
 const PITCH = 55 * Math.PI / 180;
 const SIN = Math.sin(PITCH), COS = Math.cos(PITCH);

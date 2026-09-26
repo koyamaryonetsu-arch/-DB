@@ -28,6 +28,8 @@
   --safe-t: env(safe-area-inset-top, 0px);
   --safe-l: env(safe-area-inset-left, 0px);
   --safe-r: env(safe-area-inset-right, 0px);
+  /* ウインドウ用の 十字キーが したに 出ている ときの たかさ（ふだんは 0） */
+  --pad-h: 0px;
 }
 
 body.big-text { --fs: clamp(17px, 2vmin + 10px, 27px); }
@@ -409,6 +411,53 @@ button:focus-visible, input:focus-visible, .item:focus-visible { outline: 3px so
 #btn-run.on { background: rgba(143, 208, 255, 0.55); border-color: #ffffff; box-shadow: 0 0 12px rgba(143, 208, 255, 0.9); }
 #btn-run span { display: block; }
 body.touch .hud-obj { bottom: calc(170px + var(--safe-b)); }
+
+/* ───── ウインドウ用の 十字キー（スマホ。input.js の bindPad） ───── */
+#pad { position: absolute; inset: 0; pointer-events: none; z-index: 65; }
+#pad button { pointer-events: auto; touch-action: none; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+#pad-cross {
+  position: absolute;
+  left: calc(10px + var(--safe-l));
+  bottom: calc(10px + var(--safe-b));
+  display: grid;
+  grid-template-columns: repeat(3, var(--pk));
+  grid-template-rows: repeat(3, var(--pk));
+  grid-template-areas: ". up ." "left . right" ". down .";
+  --pk: 46px;
+}
+#pad .pk {
+  width: var(--pk);
+  height: var(--pk);
+  padding: 0;
+  border: 2px solid rgba(255, 255, 255, 0.75);
+  border-radius: 9px;
+  background: rgba(10, 12, 40, 0.72);
+  color: #fff;
+  font-size: 17px;
+  line-height: 1;
+}
+#pad .pk.up { grid-area: up; }
+#pad .pk.down { grid-area: down; }
+#pad .pk.left { grid-area: left; }
+#pad .pk.right { grid-area: right; }
+#pad .pk.on, #pad .tbtn.on { background: rgba(255, 214, 107, 0.55); }
+#pad-ab { position: absolute; right: calc(10px + var(--safe-r)); bottom: calc(10px + var(--safe-b)); width: 138px; height: 138px; }
+#pad-ab .tbtn { width: 64px; height: 64px; font-size: 22px; }
+#pad-ab .pa { right: 0; top: 8px; }
+#pad-ab .pb { left: 0; bottom: 4px; }
+/* パッドが 出ている あいだは、ウインドウを パッドの ない ところへ よせる（たて: うえ・よこ: まんなか） */
+body.pad-on { --pad-h: calc(160px + var(--safe-b)); }
+body.pad-on #ui { bottom: var(--pad-h); }
+body.pad-on #ui .panel, body.pad-on #ui .dialog, body.pad-on #ui .choice { max-width: calc(100% - 12px) !important; }
+@media (orientation: landscape) {
+  body.pad-on { --pad-h: 0px; }
+  body.pad-on #ui { bottom: 0; left: calc(140px + var(--safe-l)); right: calc(84px + var(--safe-r)); }
+  #pad-cross { --pk: 42px; }
+  #pad-ab { width: 66px; height: 136px; }
+  #pad-ab .tbtn { width: 60px; height: 60px; }
+  #pad-ab .pa { right: 0; top: 0; }
+  #pad-ab .pb { left: auto; right: 0; bottom: 0; }
+}
 body.talking .hud-obj, body.talking .hud-chat { visibility: hidden; }
 body.touch .hud-chat { bottom: calc(230px + var(--safe-b)); }
 
@@ -498,6 +547,20 @@ body.touch .hud-chat { bottom: calc(230px + var(--safe-b)); }
 }
 .bigbtn:hover, .bigbtn.sel { border-color: var(--accent); color: var(--accent); }
 .bigbtn:disabled { opacity: 0.5; cursor: default; }
+.bigbtn.home-btn { margin-top: 0.5em; font-size: 0.92em; border-color: #6fb3ff; }
+
+/* 家族サーバーと データを 合わせている あいだの まく */
+.sync-cover {
+  position: absolute;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(5, 7, 26, 0.94);
+  white-space: pre-line;
+}
 .row { display: flex; gap: 0.6em; align-items: center; flex-wrap: wrap; }
 .row.end { justify-content: flex-end; }
 .col { display: flex; flex-direction: column; gap: 0.5em; }
@@ -615,9 +678,9 @@ body.touch .textin { font-size: max(16px, 1em); }
 /* ───── メニュー ───── */
 .fmenu { display: grid; grid-template-columns: minmax(8em, auto) 1fr; gap: 10px; }
 .fmenu .side { min-width: 8.5em; }
-.fmenu .main { min-height: 12em; max-height: min(74vh, 640px); }
-.fmenu-panel .fmenu .main { height: min(74vh, 640px); }
-.fmenu-panel .fmenu .side { max-height: min(74vh, 640px); overflow-y: auto; }
+.fmenu .main { min-height: 12em; max-height: min(calc(74vh - var(--pad-h)), 640px); }
+.fmenu-panel .fmenu .main { height: min(calc(74vh - var(--pad-h)), 640px); }
+.fmenu-panel .fmenu .side { max-height: min(calc(74vh - var(--pad-h)), 640px); overflow-y: auto; }
 .gold-box { font-size: var(--fs-small); margin-top: 0.4em; }
 .twocol { display: grid; grid-template-columns: 1fr 1fr; gap: 0.3em 1.4em; }
 .kv { display: flex; justify-content: space-between; gap: 1em; }
@@ -640,43 +703,43 @@ img.face { image-rendering: pixelated; }
 .party-row > span:first-child { display: flex; align-items: center; }
 
 /* 神殿（転職） */
-.job-panel .job-list { max-height: min(72vh, 620px); }
-.job-panel .main { height: min(72vh, 620px); }
+.job-panel .job-list { max-height: min(calc(72vh - var(--pad-h)), 620px); }
+.job-panel .main { height: min(calc(72vh - var(--pad-h)), 620px); }
 
 /* 酒場 */
 .tavern-panel .fmenu { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); }
-.tavern-panel .tavern-list { max-height: min(72vh, 620px); }
+.tavern-panel .tavern-list { max-height: min(calc(72vh - var(--pad-h)), 620px); }
 .zukan-box { display: flex; flex-direction: column; height: 100%; min-height: 0; }
 .zukan-detail { flex: none; min-height: 7.6em; margin: 0.3em 0 0.4em; padding-bottom: 0.3em; border-bottom: 1px dashed rgba(255, 214, 107, 0.35); white-space: pre-line; }
 .zukan-list { flex: 1; min-height: 0; }
 .zukan-mon { float: right; height: 5em; width: auto; image-rendering: pixelated; margin: 0 0 0.3em 0.5em; }
 .plus { color: var(--accent); font-size: 0.85em; margin-left: 0.15em; }
 .tv-face { float: right; height: 3.6em; width: auto; image-rendering: pixelated; margin: 0 0 0.3em 0.5em; }
-.choose-pop .menu { max-height: 60vh; overflow-y: auto; }
+.choose-pop .menu { max-height: calc(60vh - var(--pad-h)); overflow-y: auto; }
 
 @media (max-width: 700px) {
   .fmenu { grid-template-columns: 1fr; }
   .fmenu .side .menu { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .fmenu .main { max-height: 52vh; }
-  .fmenu-panel .fmenu .main { height: 52vh; }
+  .fmenu .main { max-height: calc(52vh - var(--pad-h)); }
+  .fmenu-panel .fmenu .main { height: calc(52vh - var(--pad-h)); }
   .job-panel .side .menu { display: flex; flex-direction: column; }
-  .job-panel .job-list { max-height: 34vh; }
-  .job-panel .main { min-height: 0; height: 36vh; max-height: 36vh; }
+  .job-panel .job-list { max-height: calc(34vh - var(--pad-h)); }
+  .job-panel .main { min-height: 0; height: calc(36vh - var(--pad-h)); max-height: calc(36vh - var(--pad-h)); }
   .tavern-panel .fmenu { grid-template-columns: 1fr; }
   .tavern-panel .side .menu { display: flex; flex-direction: column; }
-  .tavern-panel .tavern-list { max-height: 44vh; }
-  .tavern-panel .main { min-height: 0; max-height: 24vh; }
+  .tavern-panel .tavern-list { max-height: calc(44vh - var(--pad-h)); }
+  .tavern-panel .main { min-height: 0; max-height: calc(24vh - var(--pad-h)); }
 }
 @media (max-height: 520px) and (orientation: landscape) {
   .tavern-panel .fmenu { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); }
   .tavern-panel .side .menu { display: flex; flex-direction: column; }
-  .tavern-panel .tavern-list, .tavern-panel .main { max-height: 62vh; }
+  .tavern-panel .tavern-list, .tavern-panel .main { max-height: calc(62vh - var(--pad-h)); }
   .job-panel .fmenu { grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); }
   /* よこむきの スマホ: メニューの こうもくは 2れつ（した に はみださない） */
   .fmenu-panel .fmenu { grid-template-columns: minmax(10.5em, auto) 1fr; }
   .fmenu-panel .fmenu .side .menu { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 0.2em; }
   .job-panel .side .menu { display: flex; flex-direction: column; }
-  .job-panel .job-list, .job-panel .main { max-height: 64vh; height: 64vh; }
+  .job-panel .job-list, .job-panel .main { max-height: calc(64vh - var(--pad-h)); height: calc(64vh - var(--pad-h)); }
 }
 
 /* ───── お店・教会（ドラクエ風の カウンター） ───── */
@@ -873,7 +936,7 @@ img.face { image-rendering: pixelated; }
 
 /* ───── ぜんたいマップ ───── */
 .worldmap { display: flex; flex-direction: column; align-items: center; gap: 0.4em; }
-.worldmap canvas { max-width: 86vw; max-height: 72vh; image-rendering: pixelated; border-radius: 6px; }
+.worldmap canvas { max-width: 86vw; max-height: calc(72vh - var(--pad-h)); image-rendering: pixelated; border-radius: 6px; }
 
 /* ───── ちいさい がめん ───── */
 @media (max-height: 460px) {
@@ -918,7 +981,10 @@ img.face { image-rendering: pixelated; }
   body.touch .hud-chat { left: 50%; transform: translateX(-50%); bottom: calc(3.4em + var(--safe-b)); max-width: min(50vw, 460px); }
   /* はしるボタンは B の うえ（メニューの ボタンと かさならない） */
   #btn-run { right: calc(104px + var(--safe-r)); bottom: calc(102px + var(--safe-b)); }
-  .hud-party { max-width: 58vw; }
+  /* メニュー・チャット・スタンプは ちずの ひだりに よこならび（A・B・走るの ボタンと かさならない） */
+  .hud-btns { flex-direction: row; top: calc(8px + var(--safe-t)); right: calc(clamp(90px, 18vmin, 170px) + 28px + var(--safe-r)); }
+  .hud-party { max-width: calc(100vw - clamp(90px, 18vmin, 170px) - 20em - 48px - var(--safe-l) - var(--safe-r)); }
+  .hud-area { top: calc(3.4em + var(--safe-t)); }
   .hud-mem { min-width: 5.6em; }
 }
 

@@ -1,9 +1,46 @@
 // ひとりモード: ブラウザの なかで サーバーを うごかす
 // セーブは このブラウザ（localStorage）と、claude.ai の アーティファクトの 中なら クラウド（cloudsave.js）の 両方に
-import { GameWorld } from '../shared/world/world.js?v=5d38639d0719';
-import { openCloud, adoptCloud } from './cloudsave.js?v=5d38639d0719';
+import { GameWorld } from '../shared/world/world.js?v=cb6fd0fb30e1';
+import { pruneEntries } from '../shared/world/sync.js?v=cb6fd0fb30e1';
+import { openCloud, adoptCloud } from './cloudsave.js?v=cb6fd0fb30e1';
 
 const KEY = 'kizuna_offline_save_v1';
+const SYNC_KEY = 'kizuna_sync_v1';
+
+// 家族サーバーと キャラを 合わせる ときに おぼえておく 版（sync.js）。この ブラウザに
+export function localSyncStore(backend, max = 5) {
+  const ls = () => backend || globalThis.localStorage;
+  let all = null;
+  const load = () => {
+    if (all) return all;
+    try {
+      all = JSON.parse(ls().getItem(SYNC_KEY) || '{}');
+    } catch {
+      all = {};
+    }
+    if (!all || typeof all !== 'object' || Array.isArray(all)) all = {};
+    return all;
+  };
+  return {
+    entries(id) {
+      const l = load()[id];
+      return Array.isArray(l) ? l : [];
+    },
+    add(id, entry) {
+      const a = load();
+      a[id] = pruneEntries([entry, ...this.entries(id)], max);
+      try {
+        ls().setItem(SYNC_KEY, JSON.stringify(a));
+      } catch {
+        // いっぱいの ときは 古い 版を へらして もう一度
+        for (const k of Object.keys(a)) a[k] = a[k].slice(0, 2);
+        try {
+          ls().setItem(SYNC_KEY, JSON.stringify(a));
+        } catch { /* */ }
+      }
+    },
+  };
+}
 
 // キャラの しるし（savedAt は のぞく。いちだけ かわったかも 見る）
 function sig(c) {
@@ -140,7 +177,7 @@ export async function attachCloud(world, storage, status, claude) {
 }
 
 export function startOffline(deliver) {
-  const world = new GameWorld({ storage: offlineStorage, offline: true, familyName: 'このブラウザ' });
+  const world = new GameWorld({ storage: offlineStorage, syncStore: localSyncStore(), offline: true, familyName: 'このブラウザ' });
   offlineStorage.prime(world.data);
   const status = cloudStatus();
   // クラウドの セーブを 読みおわるまで、遊ぶ ための メッセージは まつ

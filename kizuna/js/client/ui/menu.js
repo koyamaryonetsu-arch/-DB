@@ -1,22 +1,22 @@
 // フィールドの メニュー
-import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js?v=5d38639d0719';
-import { ITEMS, SLOTS, SLOT_NAMES } from '../../shared/data/items.js?v=5d38639d0719';
-import { ABILITIES } from '../../shared/data/abilities.js?v=5d38639d0719';
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, TIER_NAMES } from '../../shared/data/jobs.js?v=5d38639d0719';
-import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboUnlocked, comboAllowed, comboJobNames, jobProgress } from '../../shared/stats.js?v=5d38639d0719';
-import { MONSTERS } from '../../shared/data/monsters.js?v=5d38639d0719';
-import { MONSTER_FRIENDS, RACE_NAMES, recipeHint } from '../../shared/data/companions.js?v=5d38639d0719';
-import { TACTICS } from '../../shared/ai.js?v=5d38639d0719';
-import { PLACES } from '../../shared/maps/overworld.js?v=5d38639d0719';
-import { SEA_PLACES } from '../../shared/maps/ch2.js?v=5d38639d0719';
-import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js?v=5d38639d0719';
-import { T } from '../../shared/tiles.js?v=5d38639d0719';
-import { itemDetail, abilityDetail } from './info.js?v=5d38639d0719';
-import { makeCanvas, ctxOf } from '../render/pixel.js?v=5d38639d0719';
-import { monsterCanvas } from '../render/monsters.js?v=5d38639d0719';
-import { mapIconCanvas, boardIconURL } from '../render/boards.js?v=5d38639d0719';
-import { compareOne, compareTeam, whoItems } from './counter.js?v=5d38639d0719';
-import { faceURL } from '../field.js?v=5d38639d0719';
+import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js?v=cb6fd0fb30e1';
+import { ITEMS, SLOTS, SLOT_NAMES } from '../../shared/data/items.js?v=cb6fd0fb30e1';
+import { ABILITIES } from '../../shared/data/abilities.js?v=cb6fd0fb30e1';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, TIER_NAMES } from '../../shared/data/jobs.js?v=cb6fd0fb30e1';
+import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboUnlocked, comboAllowed, comboJobNames, jobProgress } from '../../shared/stats.js?v=cb6fd0fb30e1';
+import { MONSTERS } from '../../shared/data/monsters.js?v=cb6fd0fb30e1';
+import { MONSTER_FRIENDS, RACE_NAMES, recipeHint } from '../../shared/data/companions.js?v=cb6fd0fb30e1';
+import { TACTICS } from '../../shared/ai.js?v=cb6fd0fb30e1';
+import { PLACES } from '../../shared/maps/overworld.js?v=cb6fd0fb30e1';
+import { SEA_PLACES } from '../../shared/maps/ch2.js?v=cb6fd0fb30e1';
+import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js?v=cb6fd0fb30e1';
+import { T } from '../../shared/tiles.js?v=cb6fd0fb30e1';
+import { itemDetail, abilityDetail } from './info.js?v=cb6fd0fb30e1';
+import { makeCanvas, ctxOf } from '../render/pixel.js?v=cb6fd0fb30e1';
+import { monsterCanvas } from '../render/monsters.js?v=cb6fd0fb30e1';
+import { mapIconCanvas, boardIconURL } from '../render/boards.js?v=cb6fd0fb30e1';
+import { compareOne, compareTeam, whoItems } from './counter.js?v=cb6fd0fb30e1';
+import { faceURL } from '../field.js?v=cb6fd0fb30e1';
 
 const MAIN = [
   { label: '道具', value: 'items' },
@@ -648,7 +648,12 @@ export class FieldMenu {
   questView() {
     const c = this.game.me;
     const box = el('div');
-    box.append(el('h3', { text: '今の目標' }), el('div', { text: c.objective || '（特になし）' }));
+    const leader = this.game.visitingLeader?.();
+    if (leader) {
+      box.append(el('h3', { text: `${leader.name}の目標（いっしょに冒険中）` }), el('div', { text: this.game.party.objective || '（特になし）' }));
+      box.append(el('div', { class: 'detail', text: `${leader.name}の冒険を手伝っているあいだは、自分のストーリーは進みません。\nレベル・お金・道具はそのままもらえるよ。パーティーをぬけると、自分の冒険の場所にもどります。` }));
+    }
+    box.append(el('h3', { text: leader ? '自分の目標' : '今の目標' }), el('div', { text: c.objective || '（特になし）' }));
     const q = [];
     const f = (k) => !!c.flags[k];
     if (f('q_mike_start')) q.push(['迷子のねこミケ', f('q_mike_done') ? 'クリア！' : f('q_mike_found') ? 'リリに報告しよう' : '星見の丘で探そう']);
@@ -679,6 +684,7 @@ export class FieldMenu {
     ];
     if (g.field.constructor.webgl2()) items.unshift({ label: `画面：${g.field.view === '3d' ? '2.5D（立体）' : '2D（ドット）'}`, value: 'view' });
     if (g.input.touch) {
+      items.push({ label: `ウインドウの十字キー：${g.input.padOn ? '出す' : '出さない'}`, value: 'pad' });
       items.push({ label: `遊んでいる間は画面を消さない：${g.awakeOn ? 'ON' : 'OFF'}`, value: 'awake' });
       if (navigator.audioSession) items.push({ label: `マナーモードでも音を出す：${g.audio.silentPlay ? 'ON' : 'OFF'}`, value: 'silent' });
     }
@@ -688,7 +694,7 @@ export class FieldMenu {
       box.append(el('div', {
         class: 'detail',
         text: g.input.touch
-          ? '操作: 画面の左側をさわるとそこにスティックが出るよ（指を動かして移動）。「走る」ボタンで走る／歩くを切りかえ。Aで話す・決定、Bでメニュー。メニューは右上の「✕ 閉じる」か、外をタップで閉じる'
+          ? '操作: 画面の左側をさわるとそこにスティックが出るよ（指を動かして移動）。「走る」ボタンで走る／歩くを切りかえ。Aで話す・決定、Bでメニュー。メニューは右上の「✕ 閉じる」か、外をタップで閉じる\nメニューやお店などのウインドウは、直接タップするほかに、十字キー（▲▼◀▶）とA・Bでも選べるよ（「ウインドウの十字キー」で出さないこともできる）'
           : '操作: 矢印/WASDで移動、Shiftをおしながらで走る、Z/Enterで話す・決定、X/Escでメニュー・もどる、Mでマップ、Cでチャット',
       }));
       return box;
@@ -716,6 +722,8 @@ export class FieldMenu {
             if (this.root) this.focusSub(this.settingsView(true));
           });
           return;
+        } else if (it.value === 'pad') {
+          g.input.padOn = !g.input.padOn;
         } else if (it.value === 'awake') {
           g.awakeOn = !g.awakeOn;
         } else if (it.value === 'silent') {

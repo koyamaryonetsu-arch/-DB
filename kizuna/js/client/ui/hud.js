@@ -1,9 +1,9 @@
 // フィールドの がめんの かざり（HP・ばしょ・もくひょう・ちず・チャット）
-import { el, bar, askText, ListMenu } from './dom.js?v=5d38639d0719';
-import { computeStats } from '../../shared/stats.js?v=5d38639d0719';
-import { JOBS } from '../../shared/data/jobs.js?v=5d38639d0719';
-import { renderMiniMap, openWorldMap } from './menu.js?v=5d38639d0719';
-import { makeCanvas } from '../render/pixel.js?v=5d38639d0719';
+import { el, bar, askText, ListMenu } from './dom.js?v=cb6fd0fb30e1';
+import { computeStats } from '../../shared/stats.js?v=cb6fd0fb30e1';
+import { JOBS } from '../../shared/data/jobs.js?v=cb6fd0fb30e1';
+import { renderMiniMap, openWorldMap } from './menu.js?v=cb6fd0fb30e1';
+import { makeCanvas } from '../render/pixel.js?v=cb6fd0fb30e1';
 
 export const STAMPS = ['よろしく！', 'ありがとう！', '行くよー！', '助けて！', '待ってて！', 'やったね！', 'おつかれさま', 'ご飯だよ〜'];
 
@@ -69,9 +69,10 @@ export class Hud {
     for (const gu of p?.guests || []) add(gu.name, gu.level, gu.job, gu.hp, gu.maxHp, gu.mp ?? 0, gu.maxMp || 1, 'ゲスト');
   }
 
-  setObjective(text) {
+  // leader … さそわれて 手伝っている リーダーの 名前（その人の 目標を 出す）
+  setObjective(text, leader = '') {
     this.obj.innerHTML = '';
-    this.obj.append(el('b', { text: '目標　' }), document.createTextNode(text || '（自由に冒険しよう）'));
+    this.obj.append(el('b', { text: leader ? `${leader}の目標　` : '目標　' }), document.createTextNode(text || '（自由に冒険しよう）'));
   }
 
   addChat(from, text, stamp) {

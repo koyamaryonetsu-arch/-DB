@@ -1,8 +1,8 @@
 // せつめい文を つくる
-import { ITEMS, SLOT_NAMES, WEAPON_CAT_NAMES } from '../../shared/data/items.js?v=5d38639d0719';
-import { ABILITIES, ELEMENT_NAMES } from '../../shared/data/abilities.js?v=5d38639d0719';
-import { JOBS, ALL_JOBS } from '../../shared/data/jobs.js?v=5d38639d0719';
-import { computeStats, canEquip, penaltyFor, mpCost, comboJobNames, comboAllowed } from '../../shared/stats.js?v=5d38639d0719';
+import { ITEMS, SLOT_NAMES, WEAPON_CAT_NAMES } from '../../shared/data/items.js?v=cb6fd0fb30e1';
+import { ABILITIES, ELEMENT_NAMES } from '../../shared/data/abilities.js?v=cb6fd0fb30e1';
+import { JOBS, ALL_JOBS } from '../../shared/data/jobs.js?v=cb6fd0fb30e1';
+import { computeStats, canEquip, penaltyFor, mpCost, comboJobNames, comboAllowed } from '../../shared/stats.js?v=cb6fd0fb30e1';
 
 const TARGET_NAMES = { enemy: '敵1体', group: '敵1グループ', enemies: '敵全体', ally: '味方1人', allies: '味方全員', self: '自分', deadAlly: '死んだ味方' };
 const BONUS_NAMES = { str: '力', def: '身の守り', agi: '素早さ', mag: '魔力', heal: '回復', hp: 'HP', mp: 'MP' };

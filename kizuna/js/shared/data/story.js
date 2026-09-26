@@ -12,12 +12,12 @@
 //   ['teleport', 'map', x, y, 'dir']  ['spawn', 'map', x, y]  ['chapter', 'だい1しょう', 'サブタイトル']
 //
 // x（じょうほう）: x.name x.flag('f') x.has('item') x.count('item') x.kills('monster') x.quest('key')
-import { POS } from '../maps/index.js?v=5d38639d0719';
-import { PLACES } from '../maps/overworld.js?v=5d38639d0719';
-import { ABILITIES } from './abilities.js?v=5d38639d0719';
-import { learnedAbilities, comboUnlocked } from '../stats.js?v=5d38639d0719';
-import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js?v=5d38639d0719';
-import { innSteps } from './inn.js?v=5d38639d0719';
+import { POS } from '../maps/index.js?v=cb6fd0fb30e1';
+import { PLACES } from '../maps/overworld.js?v=cb6fd0fb30e1';
+import { ABILITIES } from './abilities.js?v=cb6fd0fb30e1';
+import { learnedAbilities, comboUnlocked } from '../stats.js?v=cb6fd0fb30e1';
+import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js?v=cb6fd0fb30e1';
+import { innSteps } from './inn.js?v=cb6fd0fb30e1';
 
 const V = (x, y) => [PLACES.village.x + x + 0.5, PLACES.village.y + y + 0.5];
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);

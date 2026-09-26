@@ -1,8 +1,8 @@
 // キャラクターの ドットえ（16×21）を プログラムで くみたてる
 // みため（かみがた・いろ）と そうび（ぶき・よろい・たて・かぶと）で かわる
-import { Painter, shade } from './pixel.js?v=5d38639d0719';
-import { ITEMS } from '../../shared/data/items.js?v=5d38639d0719';
-import { STARTER_EQUIP } from '../../shared/stats.js?v=5d38639d0719';
+import { Painter, shade } from './pixel.js?v=cb6fd0fb30e1';
+import { ITEMS } from '../../shared/data/items.js?v=cb6fd0fb30e1';
+import { STARTER_EQUIP } from '../../shared/stats.js?v=cb6fd0fb30e1';
 
 export const CW = 16;
 export const CH = 21;

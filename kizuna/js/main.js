@@ -1,7 +1,8 @@
 // きずなの紋章 ― はじまり
-import { Net } from './client/net.js?v=5d38639d0719';
-import { Game } from './client/game.js?v=5d38639d0719';
-import { readLinkHash } from './client/links.js?v=5d38639d0719';
+import { Net } from './client/net.js?v=cb6fd0fb30e1';
+import { Game } from './client/game.js?v=cb6fd0fb30e1';
+import { readLinkHash } from './client/links.js?v=cb6fd0fb30e1';
+import { syncOnSite, confirmAskedServer } from './client/ui/syncui.js?v=cb6fd0fb30e1';
 
 async function boot() {
   // 「連れていく」リンクで 開いた とき（#kizuna=…&server=…）
@@ -9,6 +10,10 @@ async function boot() {
   const net = await Net.create();
   const game = new Game(net);
   game.start();
+  // ひとりで遊ぶサイト: 家族サーバーから とどいた データを 合わせる（#sync=…）
+  if (net.mode !== 'server') {
+    syncOnSite(game).catch((e) => console.error(e)).finally(() => confirmAskedServer(game));
+  }
   // 読みこみ直しの しるしを 消す（ひとりで遊ぶサイトを 新しくした 直後の ため）
   try { sessionStorage.removeItem('kizuna_reload'); } catch { /* */ }
 }
