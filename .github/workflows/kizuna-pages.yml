@@ -1,4 +1,6 @@
 # きずなの紋章: 「ひとりで遊ぶサイト」を GitHub Pages に おく
+# 公開先: https://koyamaryonetsu-arch.github.io/-DB/kizuna/
+# gh-pages ブランチの kizuna/ フォルダだけを 入れかえる（ほかの フォルダ・ほかの ゲームは そのまま）
 # family-rpg を かえて push すると、テストを してから 自動で サイトが 新しくなる
 name: kizuna-site
 
@@ -11,16 +13,14 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 concurrency:
   group: kizuna-pages
   cancel-in-progress: true
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -32,17 +32,28 @@ jobs:
         run: npm test
       - name: Build site
         run: node family-rpg/tools/build-site.mjs _site "$GITHUB_SHA" "$(git log -1 --format=%cI)"
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: _site
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Deploy to gh-pages/kizuna
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          REPO="https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          for i in 1 2 3; do
+            rm -rf pages
+            if git ls-remote --exit-code --heads "$REPO" gh-pages > /dev/null; then
+              git clone --depth 1 --branch gh-pages "$REPO" pages
+            else
+              git init -b gh-pages pages
+            fi
+            rm -rf pages/kizuna
+            cp -r _site pages/kizuna
+            touch pages/.nojekyll
+            git -C pages add -A
+            if git -C pages diff --cached --quiet; then echo "no changes"; exit 0; fi
+            git -C pages commit -q -m "kizuna: ${GITHUB_SHA::7}"
+            if git -C pages push "$REPO" HEAD:gh-pages; then exit 0; fi
+            sleep 5
+          done
+          exit 1

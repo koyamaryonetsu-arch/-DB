@@ -6,7 +6,7 @@
 // server= は ひとりで遊ぶサイトが おぼえておく（つぎから「家族サーバーへ連れていく」ボタンが つかえる）。
 
 // ひとりで遊ぶサイト（GitHub Pages。家族サーバーの config.json の siteUrl で かえられる）
-export const DEFAULT_SITE = 'https://koyamaryonetsu-arch.github.io/-DB/';
+export const DEFAULT_SITE = 'https://koyamaryonetsu-arch.github.io/-DB/kizuna/';
 const SERVER_KEY = 'kizuna_family_server';
 const PENDING_KEY = 'kizuna_pending_import';
 
