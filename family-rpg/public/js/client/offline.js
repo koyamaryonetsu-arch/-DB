@@ -146,6 +146,12 @@ export function startOffline(deliver) {
   // クラウドの セーブを 読みおわるまで、遊ぶ ための メッセージは まつ
   // （古い セーブで 遊びはじめて、新しい セーブを 上書きしない ように）
   const ready = attachCloud(world, offlineStorage, status, globalThis.window?.claude);
+  // ひとりで遊ぶサイトでは、ブラウザに「このサイトの データを 消さないで」と たのむ
+  if (!status.inViewer) {
+    try {
+      navigator.storage?.persist?.().catch(() => {});
+    } catch { /* */ }
+  }
   const conn = {
     send: (msg) => {
       const copy = JSON.parse(JSON.stringify(msg));

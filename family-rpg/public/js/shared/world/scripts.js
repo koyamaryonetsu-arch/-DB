@@ -22,6 +22,15 @@ export function scriptCtx(s) {
   };
 }
 
+// ものがたりの すすみぐあい（STORY_STEPS の なんばんめまで おわったか。まだなら -1）
+export function storyIndex(c) {
+  let idx = -1;
+  STORY_STEPS.forEach((f, i) => {
+    if (c?.flags?.[f]) idx = i;
+  });
+  return idx;
+}
+
 export function setStoryFlag(c, f) {
   c.flags[f] = true;
   const i = STORY_STEPS.indexOf(f);
@@ -42,6 +51,12 @@ export class ScriptRun {
   }
 
   get everyone() { return this.parts.filter((m) => this.world.sessions.has(m.id)); }
+
+  // イベントを すすめている 人（リーダー）より 先に すすんでいる なかま
+  // … もくひょう・ゲスト・いのりの場所・だいじな もの は その人の ものを のこす
+  ahead(m) {
+    return m !== this.init && storyIndex(m.char) > storyIndex(this.init.char);
+  }
 
   async start() {
     for (const m of this.everyone) {
@@ -155,6 +170,7 @@ export class ScriptRun {
         case 'takeItem': {
           const [id, n = 1] = a;
           for (const m of all) {
+            if (this.ahead(m)) continue;
             if (ITEMS[id]?.type === 'key') m.char.keyItems = m.char.keyItems.filter((k) => k !== id);
             else removeItem(m.char, id, n);
           }
@@ -166,7 +182,7 @@ export class ScriptRun {
           this.say(`${this.who()}は${a[0]}ゴールドを手に入れた！`);
           break;
         case 'objective':
-          for (const m of all) m.char.objective = a[0];
+          for (const m of all) if (!this.ahead(m)) m.char.objective = a[0];
           this.batch.push(['objective', a[0]]);
           break;
         case 'heal': {
@@ -212,6 +228,7 @@ export class ScriptRun {
         case 'guest': {
           // ゲストは セーブデータに のこす（アプリを おとしても いなくならない）
           for (const m of all) {
+            if (this.ahead(m)) continue;
             ensureCompanions(m.char);
             if (a[0]) {
               if (!m.char.guests.includes(a[0])) m.char.guests.push(a[0]);
@@ -232,6 +249,7 @@ export class ScriptRun {
         case 'recruit': {
           // ものがたりで なかまに なる（パーティーが いっぱいなら 酒場で まつ）
           for (const m of all) {
+            if (this.ahead(m)) continue;
             const r = recruitNpc(w, m, a[0], { force: true });
             if (!r.ok) continue;
             if (m === this.init) {
@@ -281,7 +299,7 @@ export class ScriptRun {
         }
         case 'spawn': {
           const [map, x, y] = a;
-          for (const m of all) m.char.spawn = { map, x, y };
+          for (const m of all) if (!this.ahead(m)) m.char.spawn = { map, x, y };
           break;
         }
         case 'shop': case 'jobChange': case 'tavern': case 'board': case 'starTrade': case 'church': {
@@ -307,21 +325,42 @@ export class ScriptRun {
 }
 
 // NPCや ばしょから だいほんを はじめる
+// ストーリーを いっしょに すすめられる くらい 近いか
+const STORY_NEAR = 16;
+
 export function runScript(world, s, scriptId, opts = {}) {
   const fn = SCRIPTS[scriptId];
   if (!fn) return false;
-  const steps = fn(scriptCtx(s));
-  if (!steps || !steps.length) return false;
-  let participants = [s];
-  if (STORY_SCRIPTS.has(scriptId) || opts.story) {
-    const p = partyOf(world, s);
-    for (const sid of p?.members || []) {
-      if (sid === s.id) continue;
-      const m = world.sessions.get(sid);
-      if (m && m.inWorld && m.map === s.map && !m.busy && !m.away) participants.push(m);
+  const story = STORY_SCRIPTS.has(scriptId) || opts.story;
+  const p = story ? partyOf(world, s) : null;
+  // パーティーでは、リーダー（さそった 人）の ストーリーを みんなで すすめる
+  let init = s;
+  if (p && p.leader !== s.id) {
+    const leader = world.sessions.get(p.leader);
+    if (leader?.inWorld) {
+      const near = leader.map === s.map && !leader.busy && !leader.away && Math.hypot(leader.x - s.x, leader.y - s.y) <= STORY_NEAR;
+      if (!near) {
+        const now = world.now();
+        if (!(s.storyHintAt > now - 8000)) {
+          s.storyHintAt = now;
+          world.send(s, { t: 'toast', text: `ストーリーは、リーダーの${leader.char.name}といっしょに進めよう` });
+        }
+        return false;
+      }
+      init = leader;
     }
   }
-  const run = new ScriptRun(world, s, participants, steps, { scriptId });
+  const steps = fn(scriptCtx(init));
+  if (!steps || !steps.length) return false;
+  const participants = [init];
+  if (init !== s && !s.busy) participants.push(s);
+  if (story) {
+    for (const sid of p?.members || []) {
+      const m = world.sessions.get(sid);
+      if (m && !participants.includes(m) && m.inWorld && m.map === init.map && !m.busy && !m.away) participants.push(m);
+    }
+  }
+  const run = new ScriptRun(world, init, participants, steps, { scriptId });
   run.start();
   return true;
 }

@@ -5,7 +5,8 @@ import { HAIR, CLOTH, SKIN, HAIR_NAMES } from '../render/chars.js';
 import { playerSprite } from '../field.js';
 import { makeCanvas, ctxOf } from '../render/pixel.js';
 import { ago } from './services.js';
-import { LINE_MAX } from '../../shared/world/transfer.js';
+import { LINE_MAX, parseCode } from '../../shared/world/transfer.js';
+import { DEFAULT_SITE, pendingImport, clearPendingImport, familyServer, setFamilyServer, linkToFamilyServer, linkToSite, serverAddress } from '../links.js';
 
 function clearUI() {
   document.getElementById('ui').innerHTML = '';
@@ -58,6 +59,14 @@ export function saveWhere(game) {
   return { short: 'このブラウザのセーブ', long: 'ひとりで遊ぶモード（このブラウザにセーブ）', place: 'このブラウザ（ひとりで遊ぶモード）' };
 }
 
+// いまの 版（ひとりで遊ぶサイト・家族サーバー）
+function versionLine(game) {
+  const d = new Date(globalThis.KIZUNA_VERSION?.date || game.net.version || '');
+  if (Number.isNaN(d.getTime())) return null;
+  const p = (n) => String(n).padStart(2, '0');
+  return el('div', { class: 'small muted', style: { opacity: 0.6 }, text: `版: ${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}` });
+}
+
 // セーブを 読みこんでいる あいだ
 export function showLoading(game) {
   clearUI();
@@ -81,7 +90,8 @@ export function showTitle(game) {
     el('div', { class: 'win col', style: { minWidth: 'min(88vw, 420px)' } },
       start,
       el('div', { class: `small ${saveWhere(game).warn ? 'warn' : 'muted'} title-save`, text: mode }),
-      el('div', { class: 'small muted', text: '操作: 矢印キー/WASD・Z/Enter・X/Esc　（スマホは画面のボタン）' })));
+      el('div', { class: 'small muted', text: '操作: 矢印キー/WASD・Z/Enter・X/Esc　（スマホは画面のボタン）' }),
+      versionLine(game)));
   ui.append(box);
   const go = () => {
     game.input.pop(h);
@@ -169,6 +179,8 @@ export function showSelect(game, chars) {
   };
   game.input.push(h);
   const cleanup = () => game.input.pop(h);
+  // 「連れていく」リンクで 開いた ときは、ここで 聞く
+  setTimeout(() => offerPendingImport(game), 0);
   const delFlow = async () => {
     cleanup();
     const name = await askText(game.input, { title: '消すキャラクターの名前を入れてね（元にもどせません）', max: 8 });
@@ -184,6 +196,39 @@ export function showSelect(game, chars) {
 function playedAgo(t) {
   const when = ago(t);
   return when === 'たった今' ? 'たった今遊んだ' : `${when}に遊んだ`;
+}
+
+// ───────────── 行き来の リンク（ひとりで遊ぶサイト ⇄ 家族サーバー） ─────────────
+function goTo(game, url) {
+  // claude.ai の 中では 新しい タブ、それ以外は この タブで 開く（ポップアップを ブロックされない）
+  if (game.net.local?.cloud?.inViewer) window.open(url, '_blank', 'noopener');
+  else location.assign(url);
+}
+
+async function offerPendingImport(game) {
+  const code = pendingImport();
+  if (!code || game.importOffering || document.querySelector('.modal-back, .transfer-panel, .create')) return;
+  game.importOffering = true;
+  clearPendingImport();
+  try {
+    const r = parseCode(code);
+    if (!r.ok) {
+      toast(r.reason, 6000);
+      return;
+    }
+    const place = game.net.mode === 'server' ? `家族サーバー「${game.net.family || 'わが家'}」` : 'このブラウザ';
+    const ok = await confirmBox(game.input, `${r.char.name}（Lv${r.char.level}）を\n${place}に連れてきますか？`, '連れてくる', 'やめる', (x) => game.audio.sfx(x));
+    if (!ok) {
+      toast('やめました');
+      return;
+    }
+    const res = await request(game, { t: 'importChar', code }, 'importResult');
+    toast(res.text || '', 6000);
+    game.audio.sfx(res.ok ? 'join' : 'buzz');
+  } finally {
+    game.importOffering = false;
+    if (game.state === 'select') showSelect(game, game.chars || []);
+  }
 }
 
 // ───────────── 引っこしコード（キャラクターを べつの 場所へ つれていく） ─────────────
@@ -252,7 +297,12 @@ export function showTransfer(game, chars) {
       el('div', { class: 'detail', text: 'れい: 家族サーバーの電源がないときに、スマホの「ひとりで遊ぶモード」で進めたキャラを、あとで家族サーバーに連れてくる。\n書き出したあとは、連れていった先で続きを遊んでね（両方で遊ぶと、あとで進んだほうのデータになります）。' }),
       el('div', { class: 'row', style: { gap: '0.5em', flexWrap: 'wrap' } },
         el('button', { class: 'btn primary', text: '① キャラを書き出す', disabled: !chars.length, onclick: pickExport }),
-        el('button', { class: 'btn primary', text: '② コードから連れてくる', onclick: importView })));
+        el('button', { class: 'btn primary', text: '② コードから連れてくる', onclick: importView })),
+      game.net.mode === 'server'
+        ? el('div', { class: 'col', style: { gap: '0.3em' } },
+          el('div', { class: 'small', text: 'PCがついていない時も、スマホだけで遊べる「ひとりで遊ぶサイト」があります。ここから開くと、この家族サーバーのアドレスを覚えるので、あとで1タップで連れてこられます。' }),
+          el('div', { class: 'row' }, el('button', { class: 'btn', text: '📱 ひとりで遊ぶサイトを開く', onclick: () => goTo(game, linkToSite(game.net.site || DEFAULT_SITE, { server: serverAddress(game.net) })) })))
+        : null);
   };
 
   const pickExport = () => {
@@ -298,9 +348,35 @@ export function showTransfer(game, chars) {
     const send = r.code.length < LINE_MAX
       ? 'べつのスマホへは、LINE・メッセージ・AirDrop・メモなどで送れます。'
       : '長いので、LINEでは送れません。メッセージ・AirDrop・メモなどで送ってね。';
+    // 1タップで 連れていく（リンクで 開くと、むこうで「連れてきますか？」と 聞かれる）
+    const jump = [];
+    if (game.net.mode === 'server') {
+      jump.push(el('button', { class: 'btn primary', text: '📱 ひとりで遊ぶサイトへ連れていく', onclick: () => goTo(game, linkToSite(game.net.site || DEFAULT_SITE, { code: r.code, server: serverAddress(game.net) })) }));
+    } else {
+      const toServer = async () => {
+        let server = familyServer();
+        if (!server) {
+          const typed = await askText(game.input, { title: '家族サーバーのアドレスを入れてね（PCの画面に出ている「同じWi-Fiのスマホから」のアドレス）', placeholder: '192.168.1.23:3000', max: 60, initial: '' });
+          if (typed === null) return;
+          server = setFamilyServer(typed);
+          if (!server) {
+            toast('アドレスの形がちがうみたい（例: 192.168.1.23:3000）', 5000);
+            return;
+          }
+        }
+        goTo(game, linkToFamilyServer(server, r.code));
+      };
+      jump.push(el('button', { class: 'btn primary', text: '🏠 家族サーバーへ連れていく', onclick: toServer }));
+      if (familyServer()) jump.push(el('button', { class: 'btn', text: 'アドレスを変える', onclick: async () => {
+        const typed = await askText(game.input, { title: '家族サーバーのアドレス', placeholder: '192.168.1.23:3000', max: 60, initial: familyServer().replace(/^https?:\/\//, '') });
+        if (typed !== null && !setFamilyServer(typed)) toast('アドレスの形がちがうみたい', 4000);
+      } }));
+    }
     body.append(
       el('div', { class: 'gold', text: `${r.name}の引っこしコード` }),
       el('div', { class: 'small', text: '連れていく先の「だれで遊ぶ？」→「引っこしコード」→「② コードから連れてくる」で、このコードをはりつけてね。' }),
+      el('div', { class: 'row', style: { gap: '0.5em', flexWrap: 'wrap' } }, ...jump),
+      el('div', { class: 'small muted', text: game.net.mode === 'server' ? '同じスマホなら、このボタンだけでOK（ひとりで遊ぶサイトが開いて、連れていくか聞かれます）。' : '家に帰ってPCがついていれば、このボタンだけでOK（家族サーバーが開いて、連れていくか聞かれます）。' }),
       ta,
       el('div', { class: 'row', style: { gap: '0.5em' } }, copyBtn, el('button', { class: 'btn', text: '← もどる', onclick: top })),
       hint,

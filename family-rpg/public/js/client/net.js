@@ -16,6 +16,9 @@ export class Net {
     if (server) {
       net.mode = 'server';
       net.family = server.family;
+      net.urls = Array.isArray(server.urls) ? server.urls : [];
+      net.site = server.site || '';
+      net.version = server.version || '';
       net.connectWS();
       // iPhone: アプリに もどってきたら すぐに つなぎなおす（きれた つなぎが のこっている ことも ある）
       document.addEventListener('visibilitychange', () => net.onVisible());

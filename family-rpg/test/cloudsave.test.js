@@ -134,7 +134,8 @@ test('クラウドセーブ: あとで セーブした ほうを つかう（ど
   await a.cloud.flush(true);
   const oldLocal = a.backend.map.get('kizuna_offline_save_v1');
 
-  // べつの スマホで 進めた（クラウドが 新しい）
+  // べつの スマホで 進めた（クラウドが 新しい。時こくが かさならない ように 少し まつ）
+  await new Promise((r) => setTimeout(r, 5));
   const b = await device(db);
   b.world.data.characters[id].gold = 9999;
   b.world.markDirty();

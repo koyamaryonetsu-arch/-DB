@@ -652,6 +652,13 @@ export class GameWorld {
         syncParty(this, target);
         this.sendParty(target);
         this.broadcastToParty(target, { t: 'toast', text: `${s.char.name}がパーティーに加わった！` });
+        // さそってくれた リーダーの ところへ（ひとりで きたえた キャラも すぐ いっしょに 冒険できる）
+        const leader = this.sessions.get(target.leader);
+        if (leader && leader !== s && leader.inWorld && (leader.map !== s.map || Math.hypot(leader.x - s.x, leader.y - s.y) > 6)) {
+          this.placeSession(s, leader.map, leader.x, leader.y, leader.dir, true);
+          this.send(s, { t: 'toast', text: `${leader.char.name}のところへ移動した！` });
+          this.broadcastPlayers();
+        }
         return;
       }
       case 'decline': {

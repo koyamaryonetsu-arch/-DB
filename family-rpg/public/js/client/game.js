@@ -318,6 +318,8 @@ export class Game {
       case 'self': {
         const prevJob = this.me?.job;
         this.me = m.char;
+        // もくひょうは サーバーの ものに あわせる（なかまの イベントの あとも 自分の もくひょう）
+        if (m.char?.objective !== undefined) this.hud.setObjective(m.char.objective);
         this.hud.renderParty();
         this.menu.refresh();
         if (prevJob && prevJob !== m.char.job) this.hud.renderParty();

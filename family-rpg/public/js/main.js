@@ -1,11 +1,16 @@
 // きずなの紋章 ― はじまり
 import { Net } from './client/net.js';
 import { Game } from './client/game.js';
+import { readLinkHash } from './client/links.js';
 
 async function boot() {
+  // 「連れていく」リンクで 開いた とき（#kizuna=…&server=…）
+  readLinkHash();
   const net = await Net.create();
   const game = new Game(net);
   game.start();
+  // 読みこみ直しの しるしを 消す（ひとりで遊ぶサイトを 新しくした 直後の ため）
+  try { sessionStorage.removeItem('kizuna_reload'); } catch { /* */ }
 }
 
 boot().catch((e) => {
