@@ -33,6 +33,11 @@ export class FileStorage {
     try {
       const stamp = new Date().toISOString().replace(/[:T]/g, '-').slice(0, 19);
       fs.writeFileSync(path.join(this.backupDir, `save-${label}-${stamp}.json`), text);
+      // スマホと 合わせる まえの バックアップは よく できるので、新しい 30こだけ のこす
+      if (label === 'before-sync') {
+        const files = fs.readdirSync(this.backupDir).filter((f) => f.startsWith('save-before-sync-')).sort();
+        while (files.length > 30) fs.unlinkSync(path.join(this.backupDir, files.shift()));
+      }
     } catch { /* */ }
   }
 

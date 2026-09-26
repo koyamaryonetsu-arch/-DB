@@ -9,6 +9,7 @@ import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { acceptUpgrade } from './ws.js';
 import { FileStorage } from './storage.js';
+import { fileSyncStore } from './syncstore.js';
 import { defaultDataDir, handOverOldSaves } from './savedir.js';
 import { readVersion } from './update.js';
 import { GameWorld } from '../public/js/shared/world/world.js';
@@ -60,6 +61,8 @@ const HOST = process.env.HOST || '0.0.0.0';
 const storage = new FileStorage(DATA_DIR);
 const world = new GameWorld({
   storage,
+  // スマホと キャラを 合わせる ときの 版（kizuna-save/sync/）
+  syncStore: fileSyncStore(path.join(DATA_DIR, 'sync')),
   offline: false,
   familyName: config.familyName,
   checkPassword: (pw) => safeEqual(pw.normalize('NFKC').trim(), PASSWORD.normalize('NFKC').trim()),
@@ -95,7 +98,7 @@ const server = http.createServer((req, res) => {
   const url = new URL(req.url, 'http://localhost');
   if (url.pathname === '/api/info') {
     res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
-    res.end(JSON.stringify({ app: 'kizuna', server: true, family: config.familyName, urls: lanAddresses().map((a) => `http://${a}:${PORT}`), site: config.siteUrl || '', version: readVersion(ROOT)?.date || '' }));
+    res.end(JSON.stringify({ app: 'kizuna', server: true, family: config.familyName, urls: [...lanAddresses(), ...tailnetAddresses()].map((a) => `http://${a}:${PORT}`), site: config.siteUrl || '', version: readVersion(ROOT)?.date || '' }));
     return;
   }
   let p;
@@ -213,6 +216,12 @@ server.listen(PORT, HOST, () => {
     console.log('  同じ Wi-Fi のスマホ・タブレットから:');
     for (const u of urls) console.log(`     ${u}`);
   }
+  // Tailscale（家族だけの つながり）が あれば、外出先からも つながる
+  const far = tailnetAddresses().map((a) => `http://${a}:${PORT}`);
+  if (far.length) {
+    console.log('  外出先から（スマホの Tailscale をONにして）:');
+    for (const u of far) console.log(`     ${u}`);
+  }
   console.log('');
   console.log(`  家族の合言葉:  ${PASSWORD}`);
   console.log(`  （変えるときは ${CONFIG_FILE} の password を編集）`);
@@ -230,7 +239,13 @@ server.listen(PORT, HOST, () => {
   console.log('');
 });
 
-function lanAddresses() {
+// Tailscale の アドレス（100.64.0.0/10）
+const isTailnet = (ip) => {
+  const [a, b] = ip.split('.').map(Number);
+  return a === 100 && b >= 64 && b <= 127;
+};
+
+function ipv4s() {
   const out = [];
   for (const list of Object.values(os.networkInterfaces())) {
     for (const a of list || []) {
@@ -238,6 +253,16 @@ function lanAddresses() {
     }
   }
   return out;
+}
+
+// 家の Wi-Fi の アドレス
+function lanAddresses() {
+  return ipv4s().filter((ip) => !isTailnet(ip));
+}
+
+// 外出先から つながる アドレス（Tailscale）
+function tailnetAddresses() {
+  return ipv4s().filter(isTailnet);
 }
 
 function shutdown() {

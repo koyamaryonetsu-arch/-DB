@@ -31,7 +31,10 @@ export class Game {
     this.exploredTimer = 0;
     this.bgmTimer = 0;
     this.titleStars = null;
+    this.waiters = new Set(); // 返事を まっている もの（ui/syncui.js の request）
     this.input.fieldHandler = (a) => this.onFieldAction(a);
+    // ウインドウが ひらいた・とじた → 十字キーの パッドを 出す・しまう（すぐに。ウインドウが ずれない ように）
+    this.input.onStack = () => this.updatePad();
     net.on((m) => this.onMessage(m));
     net.onStatus((s) => this.hud.setConnection(s));
     // クラウドセーブの ようすが かわったら 画面に 出す（ひとりモード）
@@ -132,7 +135,8 @@ export class Game {
     this.input.update();
     const inField = this.state === 'field';
     const touchEl = document.getElementById('touch');
-    const hideTouch = !(inField && this.input.touch && !this.menuOpen);
+    this.updatePad();
+    const hideTouch = !(inField && this.input.touch && !this.menuOpen) || this.padShown;
     if (hideTouch && !touchEl.hidden) this.input.releaseTouch();
     touchEl.hidden = hideTouch;
     if (inField) {
@@ -156,6 +160,17 @@ export class Game {
     } else {
       this.drawTitleBg(dt);
     }
+  }
+
+  // ウインドウ（えらぶ リスト）が 出ている ときの 十字キー・A・B（スマホ。せっていで しまえる）
+  updatePad() {
+    const inp = this.input;
+    const on = !!(inp.touch && inp.padEl && inp.padOn && inp.padWanted && !['battle', 'battle-intro', 'boot'].includes(this.state) && !document.querySelector('.sync-cover'));
+    if (on === !!this.padShown) return;
+    this.padShown = on;
+    if (!on) inp.stopPad?.();
+    inp.padEl.hidden = !on;
+    document.body.classList.toggle('pad-on', on);
   }
 
   drawTitleBg(dt) {
@@ -251,7 +266,20 @@ export class Game {
 
   setObjective(text) {
     if (this.me) this.me.objective = text;
-    this.hud.setObjective(text);
+    this.refreshObjective();
+  }
+
+  // さそわれて リーダーの 冒険を 手伝っている ときは リーダーの 目標を 出す
+  visitingLeader() {
+    const p = this.party;
+    if (!p || (p.members?.length || 0) < 2 || !this.sid || p.leader === this.sid) return null;
+    return p.members.find((m) => m.sid === p.leader) || null;
+  }
+
+  refreshObjective() {
+    const leader = this.visitingLeader();
+    if (leader) this.hud.setObjective(this.party.objective, leader.name);
+    else this.hud.setObjective(this.me?.objective);
   }
 
   async quitToTitle() {
@@ -275,6 +303,7 @@ export class Game {
 
   // ───────────── メッセージ ─────────────
   async onMessage(m) {
+    for (const w of [...this.waiters]) w(m);
     switch (m.t) {
       case '_open':
         if (this.pwSent || this.me) {
@@ -319,7 +348,7 @@ export class Game {
         const prevJob = this.me?.job;
         this.me = m.char;
         // もくひょうは サーバーの ものに あわせる（なかまの イベントの あとも 自分の もくひょう）
-        if (m.char?.objective !== undefined) this.hud.setObjective(m.char.objective);
+        if (m.char?.objective !== undefined) this.refreshObjective();
         this.hud.renderParty();
         this.menu.refresh();
         if (prevJob && prevJob !== m.char.job) this.hud.renderParty();
@@ -328,6 +357,7 @@ export class Game {
       case 'party':
         this.party = m.party;
         this.hud.renderParty();
+        this.refreshObjective();
         this.menu.refresh();
         break;
       case 'players':
@@ -375,7 +405,7 @@ export class Game {
         for (let i = 0; i < 600 && (this.state !== 'field' || this.busy || this.menuOpen); i++) await wait(200);
         if (this.state !== 'field') break;
         this.audio.sfx('join');
-        const ok = await confirmBox(this.input, `${m.from}からパーティーのおさそいが来た！\nいっしょに冒険する？`, '入る！', '今はいい', (x) => this.audio.sfx(x));
+        const ok = await confirmBox(this.input, `${m.from}からパーティーのおさそいが来た！\nいっしょに冒険する？\n（${m.from}のストーリーを手伝うよ。自分のストーリーは進まないけど、レベルやお金はもらえる）`, '入る！', '今はいい', (x) => this.audio.sfx(x));
         this.net.send({ t: 'party', action: ok ? 'accept' : 'decline' });
         break;
       }
@@ -453,7 +483,7 @@ export class Game {
     this.field.setMap(m.map, m.x, m.y, m.dir);
     this.hud.show(true);
     this.hud.renderParty();
-    this.hud.setObjective(m.char.objective);
+    this.refreshObjective();
     this.audio.play(this.field.areaBgm());
     this.keepAwake(true);
     if (m.resumed) toast('つなぎ直しました！続きから遊べるよ');

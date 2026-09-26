@@ -648,7 +648,12 @@ export class FieldMenu {
   questView() {
     const c = this.game.me;
     const box = el('div');
-    box.append(el('h3', { text: '今の目標' }), el('div', { text: c.objective || '（特になし）' }));
+    const leader = this.game.visitingLeader?.();
+    if (leader) {
+      box.append(el('h3', { text: `${leader.name}の目標（いっしょに冒険中）` }), el('div', { text: this.game.party.objective || '（特になし）' }));
+      box.append(el('div', { class: 'detail', text: `${leader.name}の冒険を手伝っているあいだは、自分のストーリーは進みません。\nレベル・お金・道具はそのままもらえるよ。パーティーをぬけると、自分の冒険の場所にもどります。` }));
+    }
+    box.append(el('h3', { text: leader ? '自分の目標' : '今の目標' }), el('div', { text: c.objective || '（特になし）' }));
     const q = [];
     const f = (k) => !!c.flags[k];
     if (f('q_mike_start')) q.push(['迷子のねこミケ', f('q_mike_done') ? 'クリア！' : f('q_mike_found') ? 'リリに報告しよう' : '星見の丘で探そう']);
@@ -679,6 +684,7 @@ export class FieldMenu {
     ];
     if (g.field.constructor.webgl2()) items.unshift({ label: `画面：${g.field.view === '3d' ? '2.5D（立体）' : '2D（ドット）'}`, value: 'view' });
     if (g.input.touch) {
+      items.push({ label: `ウインドウの十字キー：${g.input.padOn ? '出す' : '出さない'}`, value: 'pad' });
       items.push({ label: `遊んでいる間は画面を消さない：${g.awakeOn ? 'ON' : 'OFF'}`, value: 'awake' });
       if (navigator.audioSession) items.push({ label: `マナーモードでも音を出す：${g.audio.silentPlay ? 'ON' : 'OFF'}`, value: 'silent' });
     }
@@ -688,7 +694,7 @@ export class FieldMenu {
       box.append(el('div', {
         class: 'detail',
         text: g.input.touch
-          ? '操作: 画面の左側をさわるとそこにスティックが出るよ（指を動かして移動）。「走る」ボタンで走る／歩くを切りかえ。Aで話す・決定、Bでメニュー。メニューは右上の「✕ 閉じる」か、外をタップで閉じる'
+          ? '操作: 画面の左側をさわるとそこにスティックが出るよ（指を動かして移動）。「走る」ボタンで走る／歩くを切りかえ。Aで話す・決定、Bでメニュー。メニューは右上の「✕ 閉じる」か、外をタップで閉じる\nメニューやお店などのウインドウは、直接タップするほかに、十字キー（▲▼◀▶）とA・Bでも選べるよ（「ウインドウの十字キー」で出さないこともできる）'
           : '操作: 矢印/WASDで移動、Shiftをおしながらで走る、Z/Enterで話す・決定、X/Escでメニュー・もどる、Mでマップ、Cでチャット',
       }));
       return box;
@@ -716,6 +722,8 @@ export class FieldMenu {
             if (this.root) this.focusSub(this.settingsView(true));
           });
           return;
+        } else if (it.value === 'pad') {
+          g.input.padOn = !g.input.padOn;
         } else if (it.value === 'awake') {
           g.awakeOn = !g.awakeOn;
         } else if (it.value === 'silent') {

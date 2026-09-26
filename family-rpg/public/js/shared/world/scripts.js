@@ -52,10 +52,11 @@ export class ScriptRun {
 
   get everyone() { return this.parts.filter((m) => this.world.sessions.has(m.id)); }
 
-  // イベントを すすめている 人（リーダー）より 先に すすんでいる なかま
-  // … もくひょう・ゲスト・いのりの場所・だいじな もの は その人の ものを のこす
-  ahead(m) {
-    return m !== this.init && storyIndex(m.char) > storyIndex(this.init.char);
+  // パーティーの イベントは リーダー（さそった 人）の ものがたり。
+  // さそわれて 来ている なかまの ものがたり（フラグ・目標・大事な物・ゲスト・いのりの場所）は かえない。
+  // ごほうび（ゴールド・ふつうの 道具・たたかいの 経験値）は みんなで もらえる
+  helper(m) {
+    return m !== this.init;
   }
 
   async start() {
@@ -151,29 +152,29 @@ export class ScriptRun {
           break;
         }
         case 'flag':
-          for (const m of all) setStoryFlag(m.char, a[0]);
+          setStoryFlag(this.init.char, a[0]);
           break;
-        case 'questBase':
-          for (const m of all) {
-            m.char.quests = m.char.quests || {};
-            m.char.quests[a[0]] = m.char.kills?.[a[1]] || 0;
-          }
+        case 'questBase': {
+          const c = this.init.char;
+          c.quests = c.quests || {};
+          c.quests[a[0]] = c.kills?.[a[1]] || 0;
           break;
+        }
         case 'item': {
           const [id, n = 1] = a;
-          for (const m of all) addItem(m.char, id, n);
+          // 大事な物は リーダーだけ（なかまの ものがたりは かえない）
+          const key = ITEMS[id]?.type === 'key';
+          for (const m of all) if (!key || !this.helper(m)) addItem(m.char, id, n);
           const name = ITEMS[id]?.name || id;
-          this.batch.push(['sfx', ITEMS[id]?.type === 'key' ? 'key' : 'item']);
-          this.say(`${this.who()}は${name}${n > 1 ? `を${n}個` : 'を'}手に入れた！`);
+          this.batch.push(['sfx', key ? 'key' : 'item']);
+          this.say(`${key ? this.init.char.name : this.who()}は${name}${n > 1 ? `を${n}個` : 'を'}手に入れた！`);
           break;
         }
         case 'takeItem': {
           const [id, n = 1] = a;
-          for (const m of all) {
-            if (this.ahead(m)) continue;
-            if (ITEMS[id]?.type === 'key') m.char.keyItems = m.char.keyItems.filter((k) => k !== id);
-            else removeItem(m.char, id, n);
-          }
+          const c = this.init.char;
+          if (ITEMS[id]?.type === 'key') c.keyItems = c.keyItems.filter((k) => k !== id);
+          else removeItem(c, id, n);
           break;
         }
         case 'gold':
@@ -181,10 +182,14 @@ export class ScriptRun {
           this.batch.push(['sfx', 'item']);
           this.say(`${this.who()}は${a[0]}ゴールドを手に入れた！`);
           break;
-        case 'objective':
-          for (const m of all) if (!this.ahead(m)) m.char.objective = a[0];
+        case 'objective': {
+          this.init.char.objective = a[0];
           this.batch.push(['objective', a[0]]);
+          // なかまの 画面にも リーダーの 目標を 出す
+          const p = partyOf(w, this.init);
+          if (p && p.members.length > 1) w.sendParty(p);
           break;
+        }
         case 'heal': {
           for (const m of all) fullHeal(m.char);
           const p = partyOf(w, this.init);
@@ -226,14 +231,12 @@ export class ScriptRun {
           break;
         }
         case 'guest': {
-          // ゲストは セーブデータに のこす（アプリを おとしても いなくならない）
-          for (const m of all) {
-            if (this.ahead(m)) continue;
-            ensureCompanions(m.char);
-            if (a[0]) {
-              if (!m.char.guests.includes(a[0])) m.char.guests.push(a[0]);
-            } else m.char.guests = [];
-          }
+          // ゲストは セーブデータに のこす（アプリを おとしても いなくならない）。リーダーだけ
+          const gc = this.init.char;
+          ensureCompanions(gc);
+          if (a[0]) {
+            if (!gc.guests.includes(a[0])) gc.guests.push(a[0]);
+          } else gc.guests = [];
           if (!a[0]) {
             this.batch.push(['sfx', 'leave']);
             this.say('ルカはパーティーからはなれた。');
@@ -247,15 +250,11 @@ export class ScriptRun {
           break;
         }
         case 'recruit': {
-          // ものがたりで なかまに なる（パーティーが いっぱいなら 酒場で まつ）
-          for (const m of all) {
-            if (this.ahead(m)) continue;
-            const r = recruitNpc(w, m, a[0], { force: true });
-            if (!r.ok) continue;
-            if (m === this.init) {
-              this.batch.push(['sfx', 'join']);
-              this.say(r.joined ? `${r.name}が仲間に加わった！` : `${r.name}が仲間になった！\n（今はルミナの町の酒場で待っている）`);
-            }
+          // ものがたりで なかまに なる（パーティーが いっぱいなら 酒場で まつ）。リーダーだけ
+          const r = recruitNpc(w, this.init, a[0], { force: true });
+          if (r.ok) {
+            this.batch.push(['sfx', 'join']);
+            this.say(r.joined ? `${r.name}が仲間に加わった！` : `${r.name}が仲間になった！\n（今はルミナの町の酒場で待っている）`);
           }
           break;
         }
@@ -299,7 +298,7 @@ export class ScriptRun {
         }
         case 'spawn': {
           const [map, x, y] = a;
-          for (const m of all) if (!this.ahead(m)) m.char.spawn = { map, x, y };
+          this.init.char.spawn = { map, x, y };
           break;
         }
         case 'shop': case 'jobChange': case 'tavern': case 'board': case 'starTrade': case 'church': {

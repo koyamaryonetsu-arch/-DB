@@ -208,8 +208,13 @@ export function serviceAction(world, s, msg) {
     }
     case 'church': {
       if (msg.action === 'record') {
-        c.spawn = { map: s.map, x: s.x, y: s.y };
-        reply(true, '神のご加護がありますように。\nここをいのりの場所として記録しました。');
+        // さそわれて 手伝っている ときは、自分の いのりの場所は そのまま（自分の 冒険は かわらない）
+        const host = world.hostOf?.(s);
+        if (host) reply(true, `神のご加護がありますように。\n今は${host.char.name}の冒険を手伝っているので、\nいのりの場所は${host.char.name}と同じです。`);
+        else {
+          c.spawn = { map: s.map, x: s.x, y: s.y };
+          reply(true, '神のご加護がありますように。\nここをいのりの場所として記録しました。');
+        }
         world.saveNow({ urgent: true });
         return;
       }

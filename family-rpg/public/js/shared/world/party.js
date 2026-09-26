@@ -386,6 +386,8 @@ export function partyState(world, p) {
   return {
     id: p.id,
     leader: p.leader,
+    // リーダーの 目標（さそわれて 来ている 人の 画面に 出す）
+    objective: world.sessions.get(p.leader)?.char?.objective || '',
     bond: p.bond,
     gateFlags: [...gateFlags],
     members: p.members.map((sid) => {

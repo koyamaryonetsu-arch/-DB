@@ -19,6 +19,7 @@ import { COMPANION_SLOTS } from '../data/companions.js';
 import { CH1_CLEAR_OBJECTIVE } from '../data/story.js';
 import { upgradeSave, repairChar } from './save.js';
 import { exportCode, parseCode, importChar } from './transfer.js';
+import { memorySyncStore, buildSyncOut, applySyncIn, encodeSync, decodeSync, syncSummary } from './sync.js';
 
 export const PROTOCOL_VERSION = 1;
 const SPARKLE_RESPAWN_MS = 20 * 60 * 1000;
@@ -34,6 +35,8 @@ export class GameWorld {
     this.checkPassword = opts.checkPassword || (() => true);
     this.familyName = opts.familyName || 'わが家';
     this.now = opts.now || (() => Date.now());
+    // 家族サーバーと スマホで キャラを 合わせる ときに おぼえておく 版（sync.js）
+    this.syncStore = opts.syncStore || memorySyncStore();
     // むかしの セーブも 読める 形に（save.js）
     const up = upgradeSave(opts.data || this.storage?.load?.() || {});
     this.data = up.data;
@@ -197,6 +200,8 @@ export class GameWorld {
       case 'deleteChar': return this.onDeleteChar(s, msg);
       case 'exportChar': return this.onExportChar(s, msg);
       case 'importChar': return this.onImportChar(s, msg);
+      case 'syncOut': return this.onSyncOut(s, msg);
+      case 'syncIn': return this.onSyncIn(s, msg);
       case 'play': return this.onPlay(s, msg);
       case 'quit': this.leaveWorld(s); return this.send(s, { t: 'chars', chars: this.charList() });
       case 'ping': return this.send(s, { t: 'pong', at: msg.at });
@@ -289,12 +294,52 @@ export class GameWorld {
     this.send(s, { t: 'importResult', ok: true, mode: res.mode, name: res.name, text });
   }
 
+  // 家族サーバー ⇄ スマホ: キャラを 送る（ids が なければ ぜんぶ）
+  onSyncOut(s, msg) {
+    const ids = Array.isArray(msg.ids) ? msg.ids.map(String).slice(0, 24) : null;
+    // 遊んでいる とちゅうなら 今の いちも 入れる
+    for (const x of this.sessions.values()) {
+      if (x.inWorld && x.char && (!ids || ids.includes(x.charId)) && !x.busy) x.char.pos = { map: x.map, x: x.x, y: x.y, dir: x.dir };
+    }
+    const out = buildSyncOut(this, { ids, onlyChanged: !!msg.onlyChanged, from: this.offline ? 'site' : 'server', now: this.now() });
+    this.markDirty();
+    this.send(s, { t: 'syncPayload', text: out.data.chars.length ? encodeSync(out.data) : '', names: out.names, ids: out.data.chars.map((e) => e.char.id) });
+  }
+
+  // 家族サーバー ⇄ スマホ: とどいた キャラと 合わせる
+  onSyncIn(s, msg) {
+    const r = decodeSync(msg.text);
+    if (!r.ok) return this.send(s, { t: 'syncResult', ok: false, text: r.reason, results: [] });
+    // 通信が とぎれた ままの キャラは おわらせてから
+    for (const x of [...this.sessions.values()]) {
+      if (x.away && x.inWorld && r.data.chars.some((e) => e?.char?.id === x.charId)) {
+        this.leaveWorld(x);
+        this.sessions.delete(x.id);
+      }
+    }
+    const before = JSON.stringify(this.data);
+    const results = applySyncIn(this, r.data, { online: (id) => [...this.sessions.values()].some((x) => x.inWorld && x.charId === id), now: this.now() });
+    const changed = results.some((x) => ['new', 'updated', 'merged'].includes(x.mode));
+    if (changed) {
+      // 入れかえる まえの セーブを とっておく
+      this.storage?.backup?.('before-sync', before);
+      this.markDirty();
+      this.saveNow({ urgent: true });
+      this.broadcast({ t: 'chars', chars: this.charList() });
+    }
+    const place = this.offline ? 'このスマホ' : '家族サーバー';
+    this.send(s, { t: 'syncResult', ok: true, changed, results, lines: syncSummary(results, place) });
+  }
+
   onDeleteChar(s, msg) {
     const c = this.data.characters[msg.id];
     if (!c) return;
     if ([...this.sessions.values()].some((x) => x.charId === c.id && x.inWorld)) return this.send(s, { t: 'error', text: '今遊んでいるキャラクターは消せません' });
     if (msg.confirm !== c.name) return this.send(s, { t: 'error', text: '名前がちがいます' });
     delete this.data.characters[msg.id];
+    // 消した しるし（スマホから おなじ キャラが もどってこない ように）
+    this.data.deleted = this.data.deleted || {};
+    this.data.deleted[msg.id] = this.now();
     this.markDirty();
     this.saveNow({ urgent: true });
     this.broadcast({ t: 'chars', chars: this.charList() });
@@ -319,10 +364,11 @@ export class GameWorld {
     s.charId = c.id;
     s.char = c;
     normalizeChar(c);
+    // ほかの 人の 冒険を 手伝っていた ときは、自分の 冒険の 場所から。
     // 知らない マップ・マップの 外なら はじまりの 場所から
-    const pm = c.pos && typeof c.pos.map === 'string' && Object.prototype.hasOwnProperty.call(MAPS, c.pos.map) ? MAPS[c.pos.map] : null;
-    const inside = pm && Number.isFinite(c.pos.x) && Number.isFinite(c.pos.y) && c.pos.x >= 0 && c.pos.y >= 0 && c.pos.x < pm.w && c.pos.y < pm.h;
-    const pos = inside ? c.pos : { map: 'overworld', x: START_POS[0] + 0.5, y: START_POS[1] + 0.5, dir: 'down' };
+    const home = validPos(c.soloPos);
+    delete c.soloPos;
+    const pos = home || validPos(c.pos) || { map: 'overworld', x: START_POS[0] + 0.5, y: START_POS[1] + 0.5, dir: 'down' };
     s.map = pos.map;
     s.x = pos.x;
     s.y = pos.y;
@@ -493,8 +539,29 @@ export class GameWorld {
     this.markDirty();
   }
 
+  // さそわれて リーダーの 冒険を 手伝っている ときは、その リーダー（ほかは null）
+  hostOf(s) {
+    const p = partyOf(this, s);
+    if (!p || p.members.length < 2 || p.leader === s.id) return null;
+    const leader = this.sessions.get(p.leader);
+    return leader?.char ? leader : null;
+  }
+
+  // パーティーが おわって ひとりに なった: 自分の 冒険の 場所へ もどる
+  returnHome(s) {
+    const pos = validPos(s.char.soloPos);
+    delete s.char.soloPos;
+    this.markDirty();
+    if (!pos || (pos.map === s.map && Math.hypot(pos.x - s.x, pos.y - s.y) < 1)) return;
+    this.placeSession(s, pos.map, pos.x, pos.y, pos.dir || s.dir, true);
+    this.send(s, { t: 'toast', text: `${s.char.name}は自分の冒険にもどった！\n（パーティーに入る前の場所へ）` });
+    this.broadcastPlayers();
+  }
+
   respawn(s) {
-    const sp = s.char.spawn && MAPS[s.char.spawn.map] ? s.char.spawn : { map: 'overworld', x: POS.villageChurch[0] + 0.5, y: POS.villageChurch[1] + 0.5 };
+    // さそわれて 来ている 人は リーダーの いのりの場所で（みんな いっしょに 目を覚ます）
+    const own = this.hostOf(s)?.char.spawn || s.char.spawn;
+    const sp = own && MAPS[own.map] ? own : { map: 'overworld', x: POS.villageChurch[0] + 0.5, y: POS.villageChurch[1] + 0.5 };
     fullHeal(s.char);
     this.placeSession(s, sp.map, sp.x, sp.y, 'down', true);
     this.send(s, { t: 'toast', text: `${s.char.name}はいのりの場所で目を覚ました。\n「無理はいけませんよ」` });
@@ -562,6 +629,10 @@ export class GameWorld {
   openChest(s, chest) {
     const c = s.char;
     if (c.chests[chest.id]) return runSteps(this, s, [['say', null, '宝箱は空っぽだ。']]);
+    // 手伝いに 来ている ときは、ものがたりの 大事な物は とらない（自分の 冒険で）
+    if (!chest.gold && ITEMS[chest.item]?.type === 'key' && this.hostOf(s)) {
+      return runSteps(this, s, [['say', null, '宝箱には、大切な物が入っているみたいだ。\n自分の冒険のときに開けよう。']]);
+    }
     c.chests[chest.id] = true;
     const steps = [['sfx', 'chest'], ['chestOpen', chest.id]];
     if (chest.gold) {
@@ -641,9 +712,11 @@ export class GameWorld {
         const inviter = this.sessions.get(inv.sid);
         if (!target || !inviter) return this.send(s, { t: 'toast', text: 'さそいが切れてしまった…' });
         if (s.busy) return this.send(s, { t: 'toast', text: '今はパーティーに入れません' });
+        if (target.members.length >= PARTY_MAX) return this.send(s, { t: 'toast', text: 'パーティーがいっぱいです' });
         // じぶんの パーティーを ぬける
         this.leaveParty(s, true);
-        if (target.members.length >= PARTY_MAX) return this.send(s, { t: 'toast', text: 'パーティーがいっぱいです' });
+        // 自分の 冒険の 場所を おぼえておく（パーティーが おわったら ここへ もどる）
+        if (!s.char.soloPos) s.char.soloPos = { map: s.map, x: s.x, y: s.y, dir: s.dir };
         const own = this.parties.get(s.partyId);
         if (own) this.parties.delete(own.id);
         target.members.push(s.id);
@@ -772,6 +845,8 @@ export class GameWorld {
     for (const s of this.sessions.values()) {
       if (!s.inWorld) continue;
       if (s.invuln > 0) s.invuln -= dt;
+      // さそわれて 来ていた 人が ひとりに なった → 自分の 冒険の 場所へ
+      if (s.char?.soloPos && !s.busy && !s.away && (partyOf(this, s)?.members.length || 1) < 2) this.returnHome(s);
       if (!byMap.has(s.map)) byMap.set(s.map, []);
       byMap.get(s.map).push(s);
     }
@@ -837,6 +912,13 @@ export class GameWorld {
 export function equipLook(c) {
   const e = c.equip || {};
   return [e.weapon || '', e.armor || '', e.shield || '', e.head || ''].join(',');
+}
+
+// セーブの 場所が つかえるか（知らない マップ・マップの 外なら null）
+function validPos(pos) {
+  const pm = pos && typeof pos.map === 'string' && Object.prototype.hasOwnProperty.call(MAPS, pos.map) ? MAPS[pos.map] : null;
+  const inside = pm && Number.isFinite(pos.x) && Number.isFinite(pos.y) && pos.x >= 0 && pos.y >= 0 && pos.x < pm.w && pos.y < pm.h;
+  return inside ? pos : null;
 }
 
 function normalizeChar(c) {

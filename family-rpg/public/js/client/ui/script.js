@@ -94,7 +94,11 @@ export class ScriptPlayer {
         return null;
       }
       case 'objective':
-        g.setObjective(a[0]);
+        // 見ている なかまは 自分の 目標は そのまま（リーダーの 目標として 出す）
+        if (msg.spectator) {
+          if (g.party) g.party.objective = a[0];
+          g.refreshObjective();
+        } else g.setObjective(a[0]);
         return null;
       case 'guestHide':
         g.field.hideGuests = !!a[0];

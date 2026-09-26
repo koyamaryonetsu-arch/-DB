@@ -7,6 +7,7 @@ import { makeCanvas, ctxOf } from '../render/pixel.js';
 import { ago } from './services.js';
 import { LINE_MAX, parseCode } from '../../shared/world/transfer.js';
 import { DEFAULT_SITE, pendingImport, clearPendingImport, familyServer, setFamilyServer, linkToFamilyServer, linkToSite, serverAddress } from '../links.js';
+import { goFamilyServer, goSite, roundTrip, changeServer, syncOnServer, maybeRoundTrip, notePlayed } from './syncui.js';
 
 function clearUI() {
   document.getElementById('ui').innerHTML = '';
@@ -85,10 +86,16 @@ export function showTitle(game) {
   crest.className = 'crest';
   const mode = saveWhere(game).long;
   const start = el('button', { class: 'bigbtn sel', text: '▶ 始める' });
+  // ひとりで遊ぶサイト: 家族サーバーを 知っていれば、そちらへも 1タップで（この スマホの データも 持っていく）
+  const home = game.net.mode !== 'server' && familyServer() && !game.net.local?.cloud?.inViewer
+    ? el('button', { class: 'bigbtn home-btn', text: '🏠 家族サーバーで遊ぶ', onclick: () => { game.audio.unlock(); goFamilyServer(game); } })
+    : null;
   const box = el('div', { class: 'title-screen' },
     el('div', { class: 'logo' }, crest, el('div', { class: 'main', text: 'きずなの紋章' }), el('div', { class: 'sub', text: '～ 星ふる村の物語 ～' })),
     el('div', { class: 'win col', style: { minWidth: 'min(88vw, 420px)' } },
       start,
+      home,
+      home ? el('div', { class: 'small muted', text: 'このスマホで進めたキャラも、家族サーバーに保存されます' }) : null,
       el('div', { class: `small ${saveWhere(game).warn ? 'warn' : 'muted'} title-save`, text: mode }),
       el('div', { class: 'small muted', text: '操作: 矢印キー/WASD・Z/Enter・X/Esc　（スマホは画面のボタン）' }),
       versionLine(game)));
@@ -129,7 +136,7 @@ export function showSelect(game, chars) {
       const w = saveWhere(game);
       return el('span', { class: w.warn ? 'small warn' : 'small muted', text: w.short });
     })());
-  const list = el('div', { class: 'win scroll', style: { maxHeight: '64vh' } });
+  const list = el('div', { class: 'win scroll', style: { maxHeight: 'calc(64vh - var(--pad-h))' } });
   const grid = el('div', { class: 'chars' });
   list.append(grid);
   const items = [];
@@ -150,7 +157,8 @@ export function showSelect(game, chars) {
   grid.append(newBtn);
   const foot = el('div', { class: 'win row', style: { marginTop: '6px', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.4em' } },
     el('span', { class: 'small muted', text: chars.length ? 'カードを選んでね（矢印キーでも動かせる）' : 'まずはキャラクターを作ろう！' }),
-    el('span', { class: 'row', style: { gap: '0.4em' } },
+    el('span', { class: 'row', style: { gap: '0.4em', flexWrap: 'wrap' } },
+      ...syncButtons(game, () => cleanup()),
       el('button', { class: 'btn', text: '引っこしコード', onclick: () => { cleanup(); showTransfer(game, chars); } }),
       chars.length ? el('button', { class: 'btn danger', text: 'キャラを消す', onclick: () => delFlow() }) : null));
   wrap.append(head, list, foot);
@@ -162,9 +170,11 @@ export function showSelect(game, chars) {
   const choose = (c) => {
     cleanup();
     game.audio.sfx('confirm');
+    notePlayed(game, c.id);
     game.net.send({ t: 'play', id: c.id });
   };
   const h = {
+    pad: true,
     onNav: (a) => {
       const cols = Math.max(1, Math.round(grid.clientWidth / (all[0]?.clientWidth || 200)));
       if (a === 'right') idx = Math.min(all.length - 1, idx + 1);
@@ -179,8 +189,19 @@ export function showSelect(game, chars) {
   };
   game.input.push(h);
   const cleanup = () => game.input.pop(h);
-  // 「連れていく」リンクで 開いた ときは、ここで 聞く
-  setTimeout(() => offerPendingImport(game), 0);
+  // 「連れていく」リンクで 開いた ときは、ここで 聞く。
+  // 家族サーバーでは、スマホの データを 合わせてから（とどいて いなければ ときどき 取りに 行く）
+  setTimeout(async () => {
+    if (game.net.mode === 'server' && !game.syncing) {
+      game.syncing = true;
+      try {
+        if (!(await syncOnServer(game))) await maybeRoundTrip(game);
+      } finally {
+        game.syncing = false;
+      }
+    }
+    offerPendingImport(game);
+  }, 0);
   const delFlow = async () => {
     cleanup();
     const name = await askText(game.input, { title: '消すキャラクターの名前を入れてね（元にもどせません）', max: 8 });
@@ -190,6 +211,25 @@ export function showSelect(game, chars) {
     } else if (name) toast('やめました');
     showSelect(game, game.chars || chars);
   };
+}
+
+// 家族サーバー ⇄ ひとりで遊ぶサイト（データを 合わせる）
+function syncButtons(game, cleanup) {
+  if (game.net.local?.cloud?.inViewer) return [];
+  // 行かなかった（やめた）ときは「だれで遊ぶ？」に もどる
+  const go = (fn) => async () => {
+    cleanup();
+    if (!(await fn(game))) showSelect(game, game.chars || []);
+  };
+  if (game.net.mode === 'server') {
+    return [
+      el('button', { class: 'btn', text: '📱 ひとりで遊ぶサイトへ', onclick: go(goSite) }),
+      el('button', { class: 'btn', text: '🔄 スマホと合わせる', onclick: go(roundTrip) }),
+    ];
+  }
+  const out = [el('button', { class: 'btn primary', text: '🏠 家族サーバーで遊ぶ', onclick: go(goFamilyServer) })];
+  if (familyServer()) out.push(el('button', { class: 'btn', text: 'アドレス', 'aria-label': '家族サーバーのアドレスを変える', onclick: () => changeServer(game) }));
+  return out;
 }
 
 // 「3分前に遊んだ」「たった今遊んだ」
@@ -274,7 +314,7 @@ export function showTransfer(game, chars) {
   const ui = document.getElementById('ui');
   const where = saveWhere(game).place;
   const wrap = el('div', { class: 'panel center-panel transfer-panel', style: { width: 'min(96vw, 720px)' } });
-  const box = el('div', { class: 'win scroll', style: { maxHeight: '88vh' } });
+  const box = el('div', { class: 'win scroll', style: { maxHeight: 'calc(88vh - var(--pad-h))' } });
   const body = el('div', { class: 'col', style: { gap: '0.6em' } });
   const close = el('button', { class: 'btn closebtn', text: '✕ 閉じる', 'aria-label': '閉じる' });
   const head = el('div', { class: 'svc-head', style: { marginBottom: '0.3em' } }, el('span', { class: 'gold', text: '引っこしコード' }), close);
@@ -422,7 +462,7 @@ export function showCreate(game) {
   let dirI = 0;
   const dirs = ['down', 'left', 'up', 'right'];
   const wrap = el('div', { class: 'panel center-panel', style: { width: 'min(96vw, 860px)' } });
-  const box = el('div', { class: 'win scroll', style: { maxHeight: '86vh' } });
+  const box = el('div', { class: 'win scroll', style: { maxHeight: 'calc(86vh - var(--pad-h))' } });
   const preview = makeCanvas(16, 21);
   const name = el('input', { class: 'textin', id: 'cname', maxlength: '8', placeholder: '名前（8文字まで）', autocomplete: 'off' });
   const jobDesc = el('div', { class: 'jobdesc' });

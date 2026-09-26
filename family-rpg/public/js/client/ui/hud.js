@@ -69,9 +69,10 @@ export class Hud {
     for (const gu of p?.guests || []) add(gu.name, gu.level, gu.job, gu.hp, gu.maxHp, gu.mp ?? 0, gu.maxMp || 1, 'ゲスト');
   }
 
-  setObjective(text) {
+  // leader … さそわれて 手伝っている リーダーの 名前（その人の 目標を 出す）
+  setObjective(text, leader = '') {
     this.obj.innerHTML = '';
-    this.obj.append(el('b', { text: '目標　' }), document.createTextNode(text || '（自由に冒険しよう）'));
+    this.obj.append(el('b', { text: leader ? `${leader}の目標　` : '目標　' }), document.createTextNode(text || '（自由に冒険しよう）'));
   }
 
   addChat(from, text, stamp) {

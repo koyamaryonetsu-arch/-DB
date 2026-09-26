@@ -15,11 +15,11 @@ export const LINE_MAX = 10000;
 export const CHAR_MAX = 12;
 
 // キャラの ID は 英数字だけ（'__proto__' などは つかわせない）
-function validId(id) {
+export function validId(id) {
   return typeof id === 'string' && /^[A-Za-z0-9_-]{1,40}$/.test(id) && !['__proto__', 'constructor', 'prototype'].includes(id);
 }
 
-function hash(text) {
+export function hash(text) {
   let h = 0x811c9dc5;
   for (let i = 0; i < text.length; i++) {
     h ^= text.charCodeAt(i);
