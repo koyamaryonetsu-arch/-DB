@@ -1,8 +1,8 @@
 // せつめい文を つくる
-import { ITEMS, SLOT_NAMES, WEAPON_CAT_NAMES } from '../../shared/data/items.js?v=6e585c537cb6';
-import { ABILITIES, ELEMENT_NAMES } from '../../shared/data/abilities.js?v=6e585c537cb6';
-import { JOBS, ALL_JOBS } from '../../shared/data/jobs.js?v=6e585c537cb6';
-import { computeStats, canEquip, penaltyFor, mpCost, comboJobNames, comboAllowed } from '../../shared/stats.js?v=6e585c537cb6';
+import { ITEMS, SLOT_NAMES, WEAPON_CAT_NAMES } from '../../shared/data/items.js?v=a40ea0d598a3';
+import { ABILITIES, abilityTypeText } from '../../shared/data/abilities.js?v=a40ea0d598a3';
+import { JOBS, ALL_JOBS } from '../../shared/data/jobs.js?v=a40ea0d598a3';
+import { computeStats, canEquip, penaltyFor, mpCost, comboJobNames, comboAllowed } from '../../shared/stats.js?v=a40ea0d598a3';
 
 const TARGET_NAMES = { enemy: '敵1体', group: '敵1グループ', enemies: '敵全体', ally: '味方1人', allies: '味方全員', self: '自分', deadAlly: '死んだ味方' };
 const BONUS_NAMES = { str: '力', def: '身の守り', agi: '素早さ', mag: '魔力', heal: '回復', hp: 'HP', mp: 'MP' };
@@ -23,9 +23,11 @@ export function whoCanEquip(id) {
   const jobs = ALL_JOBS.filter((j) => canEquip(j, id));
   if (jobs.length === ALL_JOBS.length) return 'だれでも装備できる';
   const base = jobs.filter((j) => !JOBS[j].tier).map((j) => JOBS[j].name);
-  const more = jobs.filter((j) => JOBS[j].tier);
-  const moreText = more.length <= 4 ? more.map((j) => JOBS[j].name).join('・') : `上級職・超級職 ${more.length}種類`;
-  return `装備: ${[base.join('・'), moreText].filter(Boolean).join(' ／ ')}`;
+  const adv = jobs.filter((j) => JOBS[j].tier === 1);
+  const advText = adv.length <= 4 ? adv.map((j) => JOBS[j].name).join('・') : `上級職 ${adv.length}種類`;
+  // 超級職の なまえは 神殿で ヒントが 出るまで ひみつ
+  const sup = jobs.filter((j) => JOBS[j].tier === 2).length;
+  return `装備: ${[base.join('・'), advText, sup ? `超級職 ${sup}種類` : ''].filter(Boolean).join(' ／ ')}`;
 }
 
 export function itemDetail(id) {
@@ -61,13 +63,24 @@ export function diffText(diffs) {
   return diffs.map((x) => `${x.name}${x.d > 0 ? '+' : ''}${x.d}`).join(' ');
 }
 
-export function abilityDetail(id, char) {
+// brief: 戦いの 小さな まど よう（見出し・MP・せつめい・ペナルティ だけ）
+export function abilityDetail(id, char, { brief = false } = {}) {
   const a = ABILITIES[id];
   if (!a) return '';
   const lines = [];
   const cost = char ? mpCost(char, id) : a.mp;
+  if (brief) {
+    lines.push(`【${abilityTypeText(a)}】MP${cost}・${TARGET_NAMES[a.target] || ''}`);
+    lines.push(a.desc || '');
+    if (a.kind === 'combo' && char?.job && !comboAllowed(char, id)) lines.push('⚠ 今の職業では使えない');
+    else if (char) {
+      const p = penaltyFor(char, id);
+      if (p.penalized) lines.push(`⚠ ${p.label}`);
+    }
+    return lines.filter(Boolean).join('\n');
+  }
+  lines.push(`【${abilityTypeText(a)}】`);
   lines.push(`消費MP ${cost}${char && cost !== (a.mp || 0) ? `（元は${a.mp}）` : ''}　相手: ${TARGET_NAMES[a.target] || ''}`);
-  if (a.effect?.element) lines.push(`属性: ${ELEMENT_NAMES[a.effect.element] || a.effect.element}`);
   lines.push(a.desc || '');
   if (a.kind === 'combo') {
     lines.push(`掛け合わせ: ${a.requires.map((r) => ABILITIES[r]?.name).join(' ＋ ')}`);

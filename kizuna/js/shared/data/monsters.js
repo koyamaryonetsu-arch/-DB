@@ -8,36 +8,36 @@
 const ROCK_RESIST = { fire: 0.5, ice: 0.7, wind: 0.6, blast: 1.5, poison: 0, sleep: 0, confuse: 0.3, paralyze: 0.2 };
 const METAL_RESIST = { fire: 0, ice: 0, wind: 0, blast: 0, bolt: 0, light: 0, dark: 0, void: 0.5, sleep: 0, poison: 0, confuse: 0, blind: 0, silence: 0, paralyze: 0, debuff: 0 };
 
-import { MONSTERS_CH2 } from './monsters-ch2.js?v=6e585c537cb6';
+import { MONSTERS_CH2 } from './monsters-ch2.js?v=a40ea0d598a3';
 
 export const MONSTERS = {
   pururin: {
     name: 'ぷるりん', lv: 1, hp: 8, mp: 0, str: 9, def: 4, agi: 5, mag: 0, exp: 2, gold: 3,
-    race: 'slime', size: 's', drops: [{ item: 'jelly', rate: 0.25 }, { item: 'herb', rate: 0.06 }],
+    race: 'slime', size: 's', resist: { bolt: 1.3, wind: 0.8 }, drops: [{ item: 'jelly', rate: 0.25 }, { item: 'herb', rate: 0.06 }],
     actions: [{ w: 1, id: 'attack' }],
     desc: 'ぷるぷるふるえる青いゼリーの魔物。いたずら好きだが弱い。',
   },
   tsunousagi: {
     name: 'ツノうさぎ', lv: 2, hp: 12, str: 12, def: 5, agi: 12, exp: 3, gold: 4,
-    race: 'beast', size: 's', drops: [{ item: 'herb', rate: 0.1 }],
+    race: 'beast', size: 's', resist: { fire: 1.3, ice: 0.8 }, drops: [{ item: 'herb', rate: 0.1 }],
     actions: [{ w: 3, id: 'attack' }, { w: 1, id: 'm_horn' }],
     desc: 'ひたいのツノでつっこんでくるうさぎ。',
   },
   kobushi: {
     name: 'こぶしキノコ', lv: 2, hp: 14, str: 11, def: 7, agi: 4, exp: 4, gold: 5,
-    race: 'plant', size: 's', resist: { fire: 1.5 }, drops: [{ item: 'herb', rate: 0.12 }, { item: 'antidote', rate: 0.05 }],
+    race: 'plant', size: 's', resist: { fire: 1.5, wind: 0.8 }, drops: [{ item: 'herb', rate: 0.12 }, { item: 'antidote', rate: 0.05 }],
     actions: [{ w: 4, id: 'attack' }, { w: 1, id: 'm_sleep_powder' }],
     desc: '小さなこぶしでなぐってくるキノコ。ねむりの粉に注意。',
   },
   koumorin: {
     name: 'こうもりん', lv: 3, hp: 14, str: 17, def: 6, agi: 16, exp: 5, gold: 5,
-    race: 'beast', size: 's', flying: true, resist: { wind: 1.5 }, drops: [{ item: 'herb', rate: 0.1 }],
+    race: 'beast', size: 's', flying: true, resist: { wind: 1.5, dark: 0.7 }, drops: [{ item: 'herb', rate: 0.1 }],
     actions: [{ w: 3, id: 'attack' }, { w: 1, id: 'm_drain' }],
     desc: 'ひらひら飛び回るこうもり。血を吸って元気になる。',
   },
   goblin: {
     name: 'いたずらゴブリン', lv: 4, hp: 25, str: 21, def: 9, agi: 10, exp: 8, gold: 12,
-    race: 'demon', size: 'm', drops: [{ item: 'herb', rate: 0.15 }, { item: 'bronze_knife', rate: 0.03 }],
+    race: 'demon', size: 'm', resist: { light: 1.4, ice: 1.2, dark: 0.7 }, drops: [{ item: 'herb', rate: 0.15 }, { item: 'bronze_knife', rate: 0.03 }],
     actions: [{ w: 3, id: 'attack' }, { w: 1, id: 'm_rock_throw' }],
     desc: '石を投げてくるいたずら者。',
   },
@@ -55,7 +55,7 @@ export const MONSTERS = {
   },
   frog: {
     name: 'どくどくガエル', lv: 5, hp: 30, str: 25, def: 12, agi: 11, exp: 11, gold: 9,
-    race: 'beast', size: 's', resist: { poison: 0, ice: 1.3 }, drops: [{ item: 'antidote', rate: 0.2 }],
+    race: 'beast', size: 's', resist: { poison: 0, ice: 1.3, bolt: 1.2, fire: 0.8 }, drops: [{ item: 'antidote', rate: 0.2 }],
     actions: [{ w: 3, id: 'attack' }, { w: 2, id: 'm_poison_lick' }],
     desc: '毒の舌を持つカエル。毒消し草を忘れずに。',
   },
@@ -67,7 +67,7 @@ export const MONSTERS = {
   },
   wolf: {
     name: 'はぐれウルフ', lv: 6, hp: 34, str: 28, def: 12, agi: 22, exp: 14, gold: 12,
-    race: 'beast', size: 'm', drops: [{ item: 'herb', rate: 0.15 }, { item: 'seed_agi', rate: 0.01 }],
+    race: 'beast', size: 'm', resist: { fire: 1.3, ice: 0.7 }, drops: [{ item: 'herb', rate: 0.15 }, { item: 'seed_agi', rate: 0.01 }],
     actions: [{ w: 6, id: 'attack' }, { w: 1, id: 'm_howl', cond: 'callHelp' }],
     desc: '群れからはぐれたオオカミ。素早く、仲間を呼ぶ。',
   },
@@ -79,7 +79,7 @@ export const MONSTERS = {
   },
   hedoron: {
     name: 'ヘドロン', lv: 6, hp: 38, str: 25, def: 16, agi: 7, exp: 13, gold: 10,
-    race: 'slime', size: 'm', resist: { poison: 0, fire: 1.2 }, drops: [{ item: 'antidote', rate: 0.2 }],
+    race: 'slime', size: 'm', resist: { poison: 0, fire: 1.3, ice: 0.7 }, drops: [{ item: 'antidote', rate: 0.2 }],
     actions: [{ w: 3, id: 'attack' }, { w: 1, id: 'm_poison_spray' }],
     desc: '沼に住むどろどろの魔物。毒をまき散らす。',
   },
@@ -97,7 +97,7 @@ export const MONSTERS = {
   },
   crow: {
     name: '大ガラス', lv: 7, hp: 34, str: 32, def: 14, agi: 24, exp: 17, gold: 14,
-    race: 'beast', size: 'm', flying: true, resist: { wind: 1.5 }, drops: [{ item: 'herb', rate: 0.2 }],
+    race: 'beast', size: 'm', flying: true, resist: { wind: 1.5, bolt: 1.2, dark: 0.7 }, drops: [{ item: 'herb', rate: 0.2 }],
     actions: [{ w: 3, id: 'attack' }, { w: 2, id: 'm_peck' }, { w: 1, id: 'm_gust' }],
     desc: '東の平原を飛び回る大きなカラス。',
   },
@@ -141,31 +141,31 @@ export const MONSTERS = {
   // ───── はいごうで うまれる まもの（やせいには いない） ─────
   king_pururin: {
     name: 'キングぷるりん', lv: 18, hp: 220, mp: 40, str: 60, def: 50, agi: 22, mag: 40, exp: 0, gold: 0, breedOnly: true,
-    race: 'slime', size: 'l', resist: { fire: 0.8, ice: 0.8 },
+    race: 'slime', size: 'l', resist: { fire: 0.8, ice: 0.8, bolt: 1.3 },
     actions: [{ w: 3, id: 'attack' }, { w: 1, id: 'm_king_press' }],
     desc: 'ぷるりんたちの王さま。大きな体でのしかかる。',
   },
   fuwari: {
     name: 'ふわりん', lv: 12, hp: 90, mp: 60, str: 35, def: 30, agi: 38, mag: 40, exp: 0, gold: 0, breedOnly: true,
-    race: 'slime', size: 's', flying: true,
+    race: 'slime', size: 's', flying: true, resist: { wind: 0.5, fire: 1.3 },
     actions: [{ w: 2, id: 'attack' }, { w: 1, id: 'hoimi' }],
     desc: 'ふわふわういているクラゲのようなぷるりん。回復が得意。',
   },
   chibi_dragon: {
     name: 'ちびドラゴン', lv: 15, hp: 150, mp: 30, str: 58, def: 45, agi: 36, mag: 30, exp: 0, gold: 0, breedOnly: true,
-    race: 'dragon', size: 'm', resist: { fire: 0.5 },
+    race: 'dragon', size: 'm', resist: { fire: 0.5, ice: 1.3 },
     actions: [{ w: 3, id: 'attack' }, { w: 1, id: 'm_fire_breath' }],
     desc: '炎をはく小さなドラゴン。育つととても強くなる。',
   },
   golem: {
     name: 'ストーンゴーレム', lv: 18, hp: 260, str: 70, def: 70, agi: 12, exp: 0, gold: 0, breedOnly: true,
-    race: 'material', size: 'l', resist: { fire: 0.7, ice: 0.8, sleep: 0, poison: 0 },
+    race: 'material', size: 'l', resist: { fire: 0.7, ice: 0.8, blast: 1.4, sleep: 0, poison: 0 },
     actions: [{ w: 3, id: 'attack' }, { w: 1, id: 'm_stomp' }],
     desc: '岩でできたきょじん。とても固くて力持ち。',
   },
   star_panther: {
     name: '星形パンサー', lv: 16, hp: 160, str: 68, def: 40, agi: 70, exp: 0, gold: 0, breedOnly: true,
-    race: 'beast', size: 'm',
+    race: 'beast', size: 'm', resist: { light: 0.5, dark: 1.3 },
     actions: [{ w: 3, id: 'attack' }, { w: 1, id: 'm_pounce' }],
     desc: '背中に星の模様がある、風のように速いけもの。',
   },

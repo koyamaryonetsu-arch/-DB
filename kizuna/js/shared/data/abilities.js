@@ -17,8 +17,9 @@
 // 名前の一部は「ダイの大冒険」「ロトの紋章」へのオマージュです。
 // 上級職・超級職の 技は abilities-adv.js（さいごに まぜる）
 
-import { ADV_ABILITIES } from './abilities-adv.js?v=6e585c537cb6';
-import { CH2_ABILITIES } from './abilities-ch2.js?v=6e585c537cb6';
+import { ADV_ABILITIES } from './abilities-adv.js?v=a40ea0d598a3';
+import { CH2_ABILITIES } from './abilities-ch2.js?v=a40ea0d598a3';
+import { JOB_ABILITIES } from './abilities-jobs.js?v=a40ea0d598a3';
 
 export const ABILITIES = {
   // ───────────── 戦士 ─────────────
@@ -570,7 +571,7 @@ export const ABILITIES = {
     effect: { type: 'drainMp', amount: [3, 6] }, cast: '{a}は不思議なおどりをおどった！', anim: 'dance',
   },
 };
-Object.assign(ABILITIES, ADV_ABILITIES, CH2_ABILITIES);
+Object.assign(ABILITIES, ADV_ABILITIES, CH2_ABILITIES, JOB_ABILITIES);
 
 // 攻撃呪文かどうか（魔法剣で使える）
 export function isAttackSpell(id) {
@@ -587,6 +588,28 @@ export function isSwordSkill(id) {
 export const ELEMENT_NAMES = {
   fire: '炎', ice: '氷', wind: '風', blast: '爆発', bolt: '雷', light: '光', dark: '闇', void: '消滅',
 };
+// 敵の 得手不得手を しらべる 属性（図鑑に のる じゅん）
+export const ELEMENT_ORDER = ['fire', 'ice', 'wind', 'blast', 'bolt', 'light', 'dark'];
+
+// 技の 種類（色分け）: dmg=ダメージ heal=回復 sup=補助
+const DMG_TYPES = new Set(['phys', 'magic', 'drainHp', 'drainMp', 'mahouken', 'bond', 'telegraph', 'multi', 'goldThrow', 'gamble', 'fixed']);
+const HEAL_TYPES = new Set(['heal', 'revive', 'cure', 'mpHeal']);
+export const ROLE_NAMES = { dmg: 'ダメージ', heal: '回復', sup: '補助' };
+export function abilityRole(a) {
+  const t = a?.effect?.type;
+  if (a?.role) return a.role;
+  if (DMG_TYPES.has(t)) return 'dmg';
+  if (HEAL_TYPES.has(t)) return 'heal';
+  return 'sup';
+}
+
+// せつめいの 見出し（例:「炎属性のダメージ呪文」「回復の呪文」「補助の特技」）
+export function abilityTypeText(a) {
+  if (!a) return '';
+  const kind = a.kind === 'spell' || a.spellLike ? '呪文' : a.kind === 'combo' ? '掛け合わせ技' : '特技';
+  const el = a.effect?.element;
+  return `${ELEMENT_NAMES[el] ? `${ELEMENT_NAMES[el]}属性の` : ''}${ROLE_NAMES[abilityRole(a)]}の${kind}`;
+}
 
 // れんけい（ちがう人が つづけて こうげき）で おこる 合体ボーナス
 // 先の属性 → 後の属性 の組み合わせ（順番は どちらでも よい）

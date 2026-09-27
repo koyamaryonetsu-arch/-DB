@@ -9,12 +9,12 @@
 // ・道具と そうび … 品物ごとに 両方で ふえた・へった 数を たす（そうびは 手もとに ある ものだけ）
 // ・仲間 … 両方の 仲間を のこす（べつべつに 仲間に なった まものは 両方とも）
 // ・いる場所・HP・作戦 など … 両方で かわって いたら、あとで 遊んだ ほう
-import { expForLevel, MAX_LEVEL, computeStats } from '../stats.js?v=6e585c537cb6';
-import { JOBS, JOB_MAX_LEVEL, jobBattlesForLevel } from '../data/jobs.js?v=6e585c537cb6';
-import { SLOTS } from '../data/items.js?v=6e585c537cb6';
-import { STORY_STEPS } from '../data/story.js?v=6e585c537cb6';
-import { COMPANION_SLOTS } from '../data/companions.js?v=6e585c537cb6';
-import { repairChar } from './save.js?v=6e585c537cb6';
+import { expForLevel, MAX_LEVEL, computeStats } from '../stats.js?v=a40ea0d598a3';
+import { JOBS, JOB_MAX_LEVEL, jobBattlesForLevel } from '../data/jobs.js?v=a40ea0d598a3';
+import { SLOTS } from '../data/items.js?v=a40ea0d598a3';
+import { STORY_STEPS } from '../data/story.js?v=a40ea0d598a3';
+import { COMPANION_SLOTS } from '../data/companions.js?v=a40ea0d598a3';
+import { repairChar } from './save.js?v=a40ea0d598a3';
 
 const GOLD_MAX = 9999999;
 const clone = (x) => (x === undefined ? undefined : JSON.parse(JSON.stringify(x)));

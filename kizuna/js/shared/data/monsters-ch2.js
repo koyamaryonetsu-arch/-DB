@@ -11,7 +11,7 @@ export const MONSTERS_CH2 = {
   },
   wild_gull: {
     name: 'あばれカモメ', lv: 12, hp: 52, str: 46, def: 22, agi: 38, exp: 36, gold: 20,
-    race: 'beast', size: 's', flying: true, resist: { wind: 0.6 }, drops: [{ item: 'return_wing', rate: 0.05 }],
+    race: 'beast', size: 's', flying: true, resist: { wind: 0.6, bolt: 1.3 }, drops: [{ item: 'return_wing', rate: 0.05 }],
     actions: [{ w: 4, id: 'attack' }, { w: 3, id: 'm_dive' }, { w: 1, id: 'm_gust' }],
     desc: '船の上をとびまわる、らんぼうなカモメ。空から急降下してくる。',
   },
@@ -55,7 +55,7 @@ export const MONSTERS_CH2 = {
   },
   storm_bird: {
     name: 'ストームバード', lv: 16, hp: 88, str: 62, def: 34, agi: 50, exp: 62, gold: 36,
-    race: 'beast', size: 'm', flying: true, resist: { wind: 0.3, bolt: 0.8 }, drops: [{ item: 'seed_agi', rate: 0.02 }],
+    race: 'beast', size: 'm', flying: true, resist: { wind: 0.3, bolt: 0.8, ice: 1.3 }, drops: [{ item: 'seed_agi', rate: 0.02 }],
     actions: [{ w: 3, id: 'attack' }, { w: 2, id: 'm_dive' }, { w: 2, id: 'm_storm_wing' }],
     desc: '嵐の中を平気でとぶ大きな鳥。つばさで風のやいばをおこす。',
   },
@@ -69,7 +69,7 @@ export const MONSTERS_CH2 = {
   // ── 嵐の塔 ──
   storm_soldier: {
     name: '嵐の兵', lv: 16, hp: 96, str: 66, def: 46, agi: 30, exp: 64, gold: 40,
-    race: 'demon', size: 'm', resist: { wind: 0.5, bolt: 0.8 }, drops: [{ item: 'moonherb', rate: 0.05 }],
+    race: 'demon', size: 'm', resist: { wind: 0.5, bolt: 0.8, light: 1.3 }, drops: [{ item: 'moonherb', rate: 0.05 }],
     actions: [{ w: 4, id: 'attack' }, { w: 2, id: 'm_wind_slash' }, { w: 1, id: 'm_harden', cond: 'notRecent:m_harden' }],
     desc: '嵐の将軍に仕える兵士。風のマントで身を守る。',
   },

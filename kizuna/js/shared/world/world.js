@@ -2,24 +2,24 @@
 //
 // クライアントとは メッセージ（JSON）で やりとりする。
 // つなぎかたは なんでも よい（WebSocket でも ブラウザ内の ちょくせつ呼び出しでも）。
-import { makeRng } from '../rng.js?v=6e585c537cb6';
-import { MAPS, isBlocked, effectiveTile, condOk, searchLoot, sparkleLoot, tileAt, POS, SEA_PLACES } from '../maps/index.js?v=6e585c537cb6';
-import { PLACES } from '../maps/overworld.js?v=6e585c537cb6';
-import { T, TILE_INFO } from '../tiles.js?v=6e585c537cb6';
-import { ITEMS } from '../data/items.js?v=6e585c537cb6';
-import { JOBS } from '../data/jobs.js?v=6e585c537cb6';
-import { newCharacter, computeStats, addItem, fullHeal, migrateJobs } from '../stats.js?v=6e585c537cb6';
-import { mapState, spawnSymbols, moveSymbols, symbolSnapshot } from './monsters.js?v=6e585c537cb6';
-import { startFieldBattle, battleTick, battleCommand, battleLeave, joinBattle } from './battles.js?v=6e585c537cb6';
-import { runScript, runSteps } from './scripts.js?v=6e585c537cb6';
-import { serviceAction, menuAction } from './services.js?v=6e585c537cb6';
-import { newParty, partyOf, partyState, syncParty, ensureCompanions, companionWait, PARTY_MAX } from './party.js?v=6e585c537cb6';
-import { MONSTERS } from '../data/monsters.js?v=6e585c537cb6';
-import { COMPANION_SLOTS } from '../data/companions.js?v=6e585c537cb6';
-import { CH1_CLEAR_OBJECTIVE } from '../data/story.js?v=6e585c537cb6';
-import { upgradeSave, repairChar } from './save.js?v=6e585c537cb6';
-import { exportCode, parseCode, importChar } from './transfer.js?v=6e585c537cb6';
-import { memorySyncStore, buildSyncOut, applySyncIn, encodeSync, decodeSync, syncSummary } from './sync.js?v=6e585c537cb6';
+import { makeRng } from '../rng.js?v=a40ea0d598a3';
+import { MAPS, isBlocked, effectiveTile, condOk, searchLoot, sparkleLoot, tileAt, POS, SEA_PLACES } from '../maps/index.js?v=a40ea0d598a3';
+import { PLACES } from '../maps/overworld.js?v=a40ea0d598a3';
+import { T, TILE_INFO } from '../tiles.js?v=a40ea0d598a3';
+import { ITEMS } from '../data/items.js?v=a40ea0d598a3';
+import { JOBS } from '../data/jobs.js?v=a40ea0d598a3';
+import { newCharacter, computeStats, addItem, fullHeal, migrateJobs } from '../stats.js?v=a40ea0d598a3';
+import { mapState, spawnSymbols, moveSymbols, symbolSnapshot } from './monsters.js?v=a40ea0d598a3';
+import { startFieldBattle, battleTick, battleCommand, battleLeave, joinBattle } from './battles.js?v=a40ea0d598a3';
+import { runScript, runSteps } from './scripts.js?v=a40ea0d598a3';
+import { serviceAction, menuAction } from './services.js?v=a40ea0d598a3';
+import { newParty, partyOf, partyState, syncParty, ensureCompanions, companionWait, PARTY_MAX } from './party.js?v=a40ea0d598a3';
+import { MONSTERS } from '../data/monsters.js?v=a40ea0d598a3';
+import { COMPANION_SLOTS } from '../data/companions.js?v=a40ea0d598a3';
+import { CH1_CLEAR_OBJECTIVE } from '../data/story.js?v=a40ea0d598a3';
+import { upgradeSave, repairChar } from './save.js?v=a40ea0d598a3';
+import { exportCode, parseCode, importChar } from './transfer.js?v=a40ea0d598a3';
+import { memorySyncStore, buildSyncOut, applySyncIn, encodeSync, decodeSync, syncSummary } from './sync.js?v=a40ea0d598a3';
 
 export const PROTOCOL_VERSION = 1;
 const SPARKLE_RESPAWN_MS = 20 * 60 * 1000;

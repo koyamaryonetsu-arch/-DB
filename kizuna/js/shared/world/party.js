@@ -5,12 +5,12 @@
 //   c.partyKeys  … いま いっしょに ぼうけんしている なかま（じゅんばん）。'fam:ID' は 家族の キャラ
 //   c.guests     … ものがたりで いっしょに いる ゲスト（ルカ など）
 // パーティーには リーダーの なかまが ついてくる（にんげんが ふえると、はいりきらない なかまは いったん まつ）
-import { newCharacter, computeStats, fullHeal, gainExp, gainJobBattles, migrateJobs, expForLevel, addItem, newMonsterCompanion, learnedAbilities } from '../stats.js?v=6e585c537cb6';
-import { jobBattlesForLevel } from '../data/jobs.js?v=6e585c537cb6';
-import { NPC_SUPPORTS, GUESTS } from '../data/shops.js?v=6e585c537cb6';
-import { MONSTERS } from '../data/monsters.js?v=6e585c537cb6';
-import { MONSTER_FRIENDS, ROSTER_MAX, COMPANION_SLOTS } from '../data/companions.js?v=6e585c537cb6';
-import { SLOTS } from '../data/items.js?v=6e585c537cb6';
+import { newCharacter, computeStats, fullHeal, gainExp, gainJobBattles, migrateJobs, expForLevel, addItem, newMonsterCompanion, learnedAbilities } from '../stats.js?v=a40ea0d598a3';
+import { jobBattlesForLevel } from '../data/jobs.js?v=a40ea0d598a3';
+import { NPC_SUPPORTS, GUESTS } from '../data/shops.js?v=a40ea0d598a3';
+import { MONSTERS } from '../data/monsters.js?v=a40ea0d598a3';
+import { MONSTER_FRIENDS, ROSTER_MAX, COMPANION_SLOTS } from '../data/companions.js?v=a40ea0d598a3';
+import { SLOTS } from '../data/items.js?v=a40ea0d598a3';
 
 export const PARTY_MAX = 4;
 // パーティーの だれかが もっていれば みんなが とおれる フラグ
@@ -297,6 +297,18 @@ export function noteSeen(c, species) {
   }
 }
 
+// ずかん: たたかいで ためした 属性（どの 属性が 効くか。'まもの|属性' の あつまり）
+export function noteTried(c, tried) {
+  if (!c || !tried?.size) return;
+  c.bestiary = c.bestiary || {};
+  for (const key of tried) {
+    const [sp, el] = key.split('|');
+    if (!MONSTERS[sp] || !el) continue;
+    const b = c.bestiary[sp] || (c.bestiary[sp] = {});
+    if (!b[`el_${el}`]) b[`el_${el}`] = 1;
+  }
+}
+
 export function befriendLevel(c, species) {
   const m = MONSTERS[species];
   return Math.max(1, Math.min(c.level, Math.max(m?.lv || 1, c.level - 3)));
@@ -376,6 +388,9 @@ export function creditSupportOwner(world, ownerId, exp, gold, helperName) {
   }
 }
 
+// メニューの「全員の強さ」に 出す 強さ
+const statsOf = (st) => ({ str: st.str, def: st.def, agi: st.agi, mag: st.mag, heal: st.heal, atk: st.atk, dfn: st.dfn });
+
 export function partyState(world, p) {
   if (!p) return null;
   // なかまは リーダーの ものがたりの 世界を 見る（人の いち・橋・とびら など）
@@ -393,18 +408,21 @@ export function partyState(world, p) {
       const m = world.sessions.get(sid);
       if (!m) return null;
       const st = computeStats(m.char);
-      return { sid, charId: m.charId, name: m.char.name, job: m.char.job, level: m.char.level, hp: m.char.hp, maxHp: st.maxHp, mp: m.char.mp, maxMp: st.maxMp, look: m.char.look, equip: m.char.equip, map: m.map, follow: !!m.follow, away: !!m.away };
+      return { sid, charId: m.charId, name: m.char.name, job: m.char.job, level: m.char.level, hp: m.char.hp, maxHp: st.maxHp, mp: m.char.mp, maxMp: st.maxMp, st: statsOf(st), look: m.char.look, equip: m.char.equip, map: m.map, follow: !!m.follow, away: !!m.away };
     }).filter(Boolean),
     supports: p.supports.map((x) => {
       const st = computeStats(x.char);
       return {
-        key: x.key, name: x.char.name, job: x.char.job, level: x.char.level, hp: x.char.hp, maxHp: st.maxHp, mp: x.char.mp, maxMp: st.maxMp,
+        key: x.key, name: x.char.name, job: x.char.job, level: x.char.level, hp: x.char.hp, maxHp: st.maxHp, mp: x.char.mp, maxMp: st.maxMp, st: statsOf(st),
         look: x.char.look, equip: x.char.equip, tactics: x.char.tactics || 'balanced', family: x.kind === 'family', kind: x.kind, species: x.char.species || null, owner: x.owner,
         jobs: x.kind === 'npc' ? x.char.jobs : undefined, seeds: x.kind === 'family' ? undefined : x.char.seeds, exp: x.char.exp,
         plus: x.char.plus || 0, bonus: x.char.bonus || undefined, inherit: x.char.inherit || undefined,
         status: x.char.status?.poison ? ['poison'] : [],
       };
     }),
-    guests: p.guests.map((g) => ({ id: g.id, name: g.char.name, job: g.char.job, level: g.char.level, look: g.char.look, equip: g.char.equip, hp: g.char.hp, maxHp: computeStats(g.char).maxHp, mp: g.char.mp, maxMp: computeStats(g.char).maxMp })),
+    guests: p.guests.map((g) => {
+      const st = computeStats(g.char);
+      return { id: g.id, name: g.char.name, job: g.char.job, level: g.char.level, look: g.char.look, equip: g.char.equip, hp: g.char.hp, maxHp: st.maxHp, mp: g.char.mp, maxMp: st.maxMp, st: statsOf(st) };
+    }),
   };
 }

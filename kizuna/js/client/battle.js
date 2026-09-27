@@ -1,14 +1,15 @@
 // たたかいの がめん（むかしの RPG ふう 1がめん）
-import { el, ListMenu, toast } from './ui/dom.js?v=6e585c537cb6';
-import { ABILITIES } from '../shared/data/abilities.js?v=6e585c537cb6';
-import { ITEMS } from '../shared/data/items.js?v=6e585c537cb6';
-import { JOBS } from '../shared/data/jobs.js?v=6e585c537cb6';
-import { MONSTERS } from '../shared/data/monsters.js?v=6e585c537cb6';
-import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed } from '../shared/stats.js?v=6e585c537cb6';
-import { monsterCanvas } from './render/monsters.js?v=6e585c537cb6';
-import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=6e585c537cb6';
-import { battleBackground, Effects, BW, BH } from './render/battlefx.js?v=6e585c537cb6';
-import { abilityDetail, statusNames, buffNames } from './ui/info.js?v=6e585c537cb6';
+import { el, ListMenu, toast } from './ui/dom.js?v=a40ea0d598a3';
+import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js?v=a40ea0d598a3';
+import { ITEMS } from '../shared/data/items.js?v=a40ea0d598a3';
+import { JOBS } from '../shared/data/jobs.js?v=a40ea0d598a3';
+import { MONSTERS } from '../shared/data/monsters.js?v=a40ea0d598a3';
+import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed } from '../shared/stats.js?v=a40ea0d598a3';
+import { affinityOf } from '../shared/battle.js?v=a40ea0d598a3';
+import { monsterCanvas } from './render/monsters.js?v=a40ea0d598a3';
+import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=a40ea0d598a3';
+import { battleBackground, Effects, BW, BH } from './render/battlefx.js?v=a40ea0d598a3';
+import { abilityDetail, statusNames, buffNames } from './ui/info.js?v=a40ea0d598a3';
 
 const whiteCache = new WeakMap();
 function white(img, color = '#ffffff') {
@@ -80,6 +81,8 @@ export class BattleScene {
     this.canFlee = msg.snap.canFlee;
     this.c = new Map();
     for (const c of msg.snap.combatants) this.c.set(c.id, { ...c, flash: 0, dead: !c.alive ? 1 : 0, lunge: 0 });
+    // この たたかいで ためした 属性（'まもの|属性'）。図鑑に のっている ぶんと あわせて ねらう ときに 見せる
+    this.tried = new Set();
     this.bond = msg.snap.bond || 0;
     this.fx = new Effects();
     this.bg = battleBackground(msg.snap.bg);
@@ -247,6 +250,7 @@ export class BattleScene {
   // ───────────── メッセージ ─────────────
   say(lines, dur = 1200) {
     this.msgEl.innerHTML = '';
+    this.msgEl.classList.remove('info');
     const els = lines.map((l) => el('div', { class: 'ln', text: l }));
     const per = Math.max(90, Math.min(280, (dur * 0.7) / Math.max(1, lines.length)));
     els.forEach((e, i) => {
@@ -259,6 +263,13 @@ export class BattleScene {
 
   skipMsg() {
     for (const e of this.msgEl.children) e.style.visibility = '';
+  }
+
+  // えらんでいる 技・道具の せつめい（上から 見せる。長くても 1行めが かくれない）
+  info(text) {
+    this.msgEl.innerHTML = '';
+    this.msgEl.classList.add('info');
+    this.msgEl.append(el('div', { class: 'ln small', text }));
   }
 
   // ───────────── コマンド ─────────────
@@ -321,6 +332,7 @@ export class BattleScene {
       onSelect,
       onCancel: onCancel || null,
       onMove: detailFn ? (it) => detailFn(it) : null,
+      press: 130,
     });
     this.cmdEl.append(m.root);
     this.menu = m;
@@ -340,11 +352,13 @@ export class BattleScene {
       const noWeapon = !weaponOk(ab, a.weaponCat);
       const sil = silenced && (ab.kind === 'spell' || ab.spellLike);
       const locked = ab.kind === 'combo' && !comboAllowed(pc, id);
+      const el = ab.effect?.element;
       return {
-        html: `${ab.name}${pen ? '<span class="tag warn">他</span>' : ''}${locked ? '<span class="tag muted">上級職で</span>' : ''}`,
+        html: `${ELEMENT_NAMES[el] ? `<span class="elem e-${el}">${ELEMENT_NAMES[el]}</span>` : ''}${ab.name}${pen ? '<span class="tag warn">他</span>' : ''}${locked ? '<span class="tag muted">上級職で</span>' : ''}`,
         right: isMk ? '▶' : `${cost}`,
         rightCls: pen ? 'pen' : '',
         value: id,
+        cls: `k-${abilityRole(ab)}`,
         disabled: noMp || noWeapon || sil || locked,
       };
     });
@@ -352,13 +366,12 @@ export class BattleScene {
       const ab = ABILITIES[it.value];
       if (ab.effect.type === 'mahouken') return this.mahoukenMenu();
       const t = ab.target;
-      if (t === 'enemy' || t === 'group') return this.pickEnemy((tid) => this.send({ type: 'ability', id: it.value, target: tid }), ab.name);
+      if (t === 'enemy' || t === 'group') return this.pickEnemy((tid) => this.send({ type: 'ability', id: it.value, target: tid }), ab.name, ab.effect?.element);
       if (t === 'ally' || t === 'deadAlly') return this.pickAlly((tid) => this.send({ type: 'ability', id: it.value, target: tid }), t === 'deadAlly', ab.name);
       return this.send({ type: 'ability', id: it.value });
     }, () => this.openCommand(), null, (it) => {
       if (!it) return;
-      this.msgEl.innerHTML = '';
-      this.msgEl.append(el('div', { class: 'ln small', text: abilityDetail(it.value, pc) }));
+      this.info(abilityDetail(it.value, pc, { brief: true }));
     });
   }
 
@@ -368,11 +381,10 @@ export class BattleScene {
     const items = opts.map((o) => ({ label: o.name, right: `${o.mp}`, value: o, disabled: o.mp > a.mp || !weaponOk({ weapon: 'blade' }, a.weaponCat) }));
     if (!items.length) return toast('魔法剣にできる技がない');
     this.showMenu(items, (it) => {
-      this.pickEnemy((tid) => this.send({ type: 'mahouken', spell: it.value.spell, skill: it.value.skill, target: tid }), it.value.name);
+      this.pickEnemy((tid) => this.send({ type: 'mahouken', spell: it.value.spell, skill: it.value.skill, target: tid }), it.value.name, ABILITIES[it.value.spell]?.effect?.element);
     }, () => this.openCommand(), '魔法剣（呪文×剣技）', (it) => {
       if (!it) return;
-      this.msgEl.innerHTML = '';
-      this.msgEl.append(el('div', { class: 'ln small', text: `${ABILITIES[it.value.spell].name}の力を${ABILITIES[it.value.skill].name}に宿らせる。\nMP ${it.value.mp}（剣が必要）` }));
+      this.info(`${ABILITIES[it.value.spell].name}の力を${ABILITIES[it.value.skill].name}に宿らせる。\nMP ${it.value.mp}（剣が必要）`);
     });
   }
 
@@ -388,16 +400,30 @@ export class BattleScene {
       return this.pickAlly((tid) => this.send({ type: 'item', id: it.value, target: tid }), item.target === 'deadAlly', item.name);
     }, () => this.openCommand(), '道具', (it) => {
       if (!it) return;
-      this.msgEl.innerHTML = '';
-      this.msgEl.append(el('div', { class: 'ln small', text: ITEMS[it.value].desc }));
+      this.info(ITEMS[it.value].desc);
     });
   }
 
-  pickEnemy(done, title = 'だれをねらう？') {
+  // その 敵に その 属性が どれくらい 効くか（ためした ことが なければ null）
+  knownAffinity(e, element) {
+    if (!e?.species || !element || element === 'phys') return null;
+    const known = this.tried.has(`${e.species}|${element}`) || !!this.game.me?.bestiary?.[e.species]?.[`el_${element}`];
+    if (!known) return null;
+    return affinityOf(MONSTERS[e.species]?.resist?.[element] ?? 1);
+  }
+
+  // element: 属性の 技で ねらう とき、ためした ことの ある 敵には 効きぐあいを 出す
+  pickEnemy(done, title = 'だれをねらう？', element = null) {
     const list = this.enemies().filter((e) => e.alive);
     if (list.length === 1) return done(list[0].id);
     this.targeting = { side: 'enemy', done };
-    this.showMenu(list.map((e) => ({ label: e.name, value: e.id })), (it) => done(it.value), () => this.openCommand(), title, (it) => { this.hover = it?.value; });
+    const AFF = { weak: ['弱点！', 'gold'], resist: ['効きにくい', ''], null: ['効かない', 'pen'], normal: ['ふつう', ''] };
+    const items = list.map((e) => {
+      const aff = element ? this.knownAffinity(e, element) : null;
+      const [right, rightCls] = aff ? AFF[aff] : element && ELEMENT_NAMES[element] ? ['？', ''] : ['', ''];
+      return { label: e.name, value: e.id, right, rightCls };
+    });
+    this.showMenu(items, (it) => done(it.value), () => this.openCommand(), title, (it) => { this.hover = it?.value; });
   }
 
   pickAlly(done, dead = false, title = 'だれに？') {
@@ -589,6 +615,10 @@ export class BattleScene {
       for (const r of ev.results || []) {
         const t = this.c.get(r.id);
         if (!t) continue;
+        if (r.aff && r.element && t.species) {
+          this.tried.add(`${t.species}|${r.element}`);
+          if (r.aff === 'weak' && r.dmg > 0) this.floatNum(t, '弱点！', 'weak');
+        }
         if (r.dmg > 0) {
           if (t.side === 'enemy') {
             t.flash = 320;

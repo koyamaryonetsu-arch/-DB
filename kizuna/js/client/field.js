@@ -1,15 +1,15 @@
 // フィールド（あるく・はなす・みる）
-import { MAPS, isBlocked, effectiveTile, condOk, tileAt, onWater } from '../shared/maps/index.js?v=6e585c537cb6';
-import { T, TILE_INFO } from '../shared/tiles.js?v=6e585c537cb6';
-import { PLACES } from '../shared/maps/overworld.js?v=6e585c537cb6';
-import { TS, tileCanvas, frameOf, prepareMap } from './render/tiles.js?v=6e585c537cb6';
-import { paintHuman, lookToOpts, npcOpts, paintSpecial, paintShip, equipKey, CW, CH } from './render/chars.js?v=6e585c537cb6';
-import { monsterCanvas, bigNpcCanvas } from './render/monsters.js?v=6e585c537cb6';
-import { MONSTERS } from '../shared/data/monsters.js?v=6e585c537cb6';
-import { makeCanvas, ctxOf, shade, flipCanvas } from './render/pixel.js?v=6e585c537cb6';
-import { chestCanvas as chestCanvas3d } from './render/tex3d.js?v=6e585c537cb6';
-import { boardCanvas } from './render/boards.js?v=6e585c537cb6';
-import { el } from './ui/dom.js?v=6e585c537cb6';
+import { MAPS, isBlocked, effectiveTile, condOk, tileAt, onWater } from '../shared/maps/index.js?v=a40ea0d598a3';
+import { T, TILE_INFO } from '../shared/tiles.js?v=a40ea0d598a3';
+import { PLACES } from '../shared/maps/overworld.js?v=a40ea0d598a3';
+import { TS, tileCanvas, frameOf, prepareMap } from './render/tiles.js?v=a40ea0d598a3';
+import { paintHuman, lookToOpts, npcOpts, paintSpecial, paintShip, equipKey, CW, CH } from './render/chars.js?v=a40ea0d598a3';
+import { monsterCanvas, bigNpcCanvas } from './render/monsters.js?v=a40ea0d598a3';
+import { MONSTERS } from '../shared/data/monsters.js?v=a40ea0d598a3';
+import { makeCanvas, ctxOf, shade, flipCanvas } from './render/pixel.js?v=a40ea0d598a3';
+import { chestCanvas as chestCanvas3d } from './render/tex3d.js?v=a40ea0d598a3';
+import { boardCanvas } from './render/boards.js?v=a40ea0d598a3';
+import { el } from './ui/dom.js?v=a40ea0d598a3';
 
 const SPEED = 4.6; // マス/びょう
 const RUN = 1.65; // はしると この ばい
@@ -156,7 +156,7 @@ export class Field {
     if (mode === '3d' && Field.webgl2() && cv) {
       if (!this.r3d) {
         try {
-          const { Field3D } = await import('./render/field3d.js?v=6e585c537cb6');
+          const { Field3D } = await import('./render/field3d.js?v=a40ea0d598a3');
           this.r3d = new Field3D(this, cv);
         } catch (e) {
           console.warn('2.5Dにできませんでした', e);

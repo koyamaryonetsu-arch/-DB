@@ -1,14 +1,14 @@
 // たたかいの はじまりと おわり（ほうしゅう・ぜんめつ）
-import { Battle } from '../battle.js?v=6e585c537cb6';
-import { MONSTERS } from '../data/monsters.js?v=6e585c537cb6';
-import { ITEMS } from '../data/items.js?v=6e585c537cb6';
-import { ABILITIES } from '../data/abilities.js?v=6e585c537cb6';
-import { JOBS } from '../data/jobs.js?v=6e585c537cb6';
-import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=6e585c537cb6';
-import { gainExp, gainJobBattles, jobTrainable, itemCount, removeItem, addItem, computeStats, STAT_NAMES, fullHeal } from '../stats.js?v=6e585c537cb6';
-import { JOB_MAX_LEVEL } from '../data/jobs.js?v=6e585c537cb6';
-import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendLevel, noteSeen } from './party.js?v=6e585c537cb6';
-import { MAPS } from '../maps/index.js?v=6e585c537cb6';
+import { Battle } from '../battle.js?v=a40ea0d598a3';
+import { MONSTERS } from '../data/monsters.js?v=a40ea0d598a3';
+import { ITEMS } from '../data/items.js?v=a40ea0d598a3';
+import { ABILITIES } from '../data/abilities.js?v=a40ea0d598a3';
+import { JOBS } from '../data/jobs.js?v=a40ea0d598a3';
+import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=a40ea0d598a3';
+import { gainExp, gainJobBattles, jobTrainable, itemCount, removeItem, addItem, computeStats, STAT_NAMES, fullHeal } from '../stats.js?v=a40ea0d598a3';
+import { JOB_MAX_LEVEL } from '../data/jobs.js?v=a40ea0d598a3';
+import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendLevel, noteSeen, noteTried } from './party.js?v=a40ea0d598a3';
+import { MAPS } from '../maps/index.js?v=a40ea0d598a3';
 
 let battleSeq = 1;
 
@@ -113,6 +113,35 @@ function makeBattle(world, sessions, party, enemies, opts) {
         const ok = removeItem(m.char, id, 1);
         if (ok) world.sendSelf(m);
         return ok;
+      },
+      // 銭投げ: 持っている お金から はらう（たりなければ あるだけ）
+      spendGold: (actor, want) => {
+        const m = actor.controller && world.sessions.get(actor.controller);
+        if (!m || !(m.char.gold > 0)) return 0;
+        const paid = Math.min(m.char.gold, Math.max(1, Math.round(want)));
+        m.char.gold -= paid;
+        world.sendSelf(m);
+        return paid;
+      },
+      // 大型買収: おいだした 敵の お金を もらう
+      gainGold: (actor, species, mult = 1) => {
+        const m = (actor.controller && world.sessions.get(actor.controller)) || sessions[0];
+        const g = Math.round((MONSTERS[species]?.gold || 0) * mult);
+        if (!m || g <= 0) return 0;
+        m.char.gold = Math.min(9999999, m.char.gold + g);
+        world.sendSelf(m);
+        return g;
+      },
+      // 盗塁・お宝さがし: 敵の 持ち物を ぬすむ
+      steal: (actor, species) => {
+        const m = (actor.controller && world.sessions.get(actor.controller)) || sessions[0];
+        const drops = MONSTERS[species]?.drops || [];
+        if (!m || !drops.length) return null;
+        const pick = world.rng.pick(drops);
+        if (!ITEMS[pick.item]) return null;
+        addItem(m.char, pick.item, 1);
+        world.sendSelf(m);
+        return ITEMS[pick.item].name;
       },
     },
   });
@@ -238,6 +267,9 @@ function finishBattle(world, ctx) {
       exp += m.exp;
       gold += m.gold;
     }
+    // 海賊・会社員など: お金が ふえる 職業が いると ゴールドが ふえる
+    const goldMult = Math.max(1, ...Object.values(ctx.actorMap).map((w) => JOBS[w?.char?.job]?.passive?.gold || 1));
+    gold = Math.round(gold * goldMult);
     // 職業の しゅぎょう: かった たたかい 1かい（ボスは 3かいぶん）。てきが よわすぎると ならない
     const maxEnemyLv = Math.max(1, ...b.combatants.filter((x) => x.side === 'enemy').map((x) => MONSTERS[x.species]?.lv || 1));
     const trainN = b.boss ? 3 : 1;
@@ -336,6 +368,8 @@ function finishBattle(world, ctx) {
       if (who && who.type !== 'human' && who.char) fullHeal(who.char);
     }
   }
+  // ずかん: ためした 属性を おぼえる（いっしょに たたかった 人 みんな）
+  for (const m of sessions) noteTried(m.char, ctx.battle.tried);
   for (const m of sessions) world.sendSelf(m);
   if (party) world.sendParty(party);
   world.markDirty();
@@ -349,6 +383,7 @@ function jobUpLines(c, u) {
   if (u.lv >= JOB_MAX_LEVEL) out.push(`${c.name}は${JOBS[u.job].name}をマスターした！`);
   for (const id of u.learned) out.push(learnLine(c, id));
   for (const id of u.unlocked || []) out.push(`★ ${c.name}は${JOBS[id].name}になれるようになった！（ルミナの町の神殿で転職できる）`);
+  for (const id of u.hinted || []) out.push(`☆ 新しい職業「${JOBS[id].name}」のヒントを見つけた！（神殿で見られる）`);
   return out;
 }
 
