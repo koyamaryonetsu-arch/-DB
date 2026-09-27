@@ -183,3 +183,9 @@ export function serverAddress(net, loc = globalThis.location) {
   if (!local && here) return here;
   return (net?.urls || [])[0] || here;
 }
+
+// ひとりで遊ぶサイトに 覚えてもらう 家族サーバーの アドレス
+// 外出先からも 開ける https の アドレス（Tailscale Funnel）が あれば そちら（家でも 外でも 開ける・動いているか サイトで 分かる）
+export function siteServerAddress(net, loc = globalThis.location) {
+  return net?.public || serverAddress(net, loc);
+}

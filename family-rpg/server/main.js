@@ -10,6 +10,8 @@ import { fileURLToPath } from 'node:url';
 import { acceptUpgrade } from './ws.js';
 import { FileStorage } from './storage.js';
 import { fileSyncStore } from './syncstore.js';
+import { clientAddress, isFromInternet, strongEnough, LoginGuard } from './guard.js';
+import { findFunnelUrl } from './funnel.js';
 import { defaultDataDir, handOverOldSaves } from './savedir.js';
 import { readVersion } from './update.js';
 import { GameWorld } from '../public/js/shared/world/world.js';
@@ -94,11 +96,34 @@ const MIME = {
   '.ttf': 'font/ttf', '.woff2': 'font/woff2', '.txt': 'text/plain; charset=utf-8', '.webmanifest': 'application/manifest+json',
 };
 
+// ひとりで遊ぶサイト（GitHub Pages）から「家族サーバーは動いている？」を 見られる ように する
+const DEFAULT_SITE_ORIGIN = 'https://koyamaryonetsu-arch.github.io';
+function siteOrigins() {
+  const out = new Set([DEFAULT_SITE_ORIGIN]);
+  try {
+    if (config.siteUrl) out.add(new URL(config.siteUrl).origin);
+  } catch { /* */ }
+  return out;
+}
+
+// 外出先から つながる アドレス（config.json の publicUrl、または Tailscale Funnel）
+let funnel = { installed: false, url: '' };
+const publicUrl = () => String(config.publicUrl || funnel.url || '').replace(/\/+$/, '');
+
 const server = http.createServer((req, res) => {
   const url = new URL(req.url, 'http://localhost');
   if (url.pathname === '/api/info') {
-    res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
-    res.end(JSON.stringify({ app: 'kizuna', server: true, family: config.familyName, urls: [...lanAddresses(), ...tailnetAddresses()].map((a) => `http://${a}:${PORT}`), site: config.siteUrl || '', version: readVersion(ROOT)?.date || '' }));
+    const headers = { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' };
+    const origin = String(req.headers.origin || '');
+    if (siteOrigins().has(origin)) {
+      headers['Access-Control-Allow-Origin'] = origin;
+      headers.Vary = 'Origin';
+    }
+    // インターネットからは 家の 中の アドレスを 見せない
+    const outside = isFromInternet(req);
+    const urls = outside ? [] : [...lanAddresses(), ...tailnetAddresses()].map((a) => `http://${a}:${PORT}`);
+    res.writeHead(200, headers);
+    res.end(JSON.stringify({ app: 'kizuna', server: true, family: config.familyName, urls, public: strongEnough(PASSWORD) ? publicUrl() : '', site: config.siteUrl || '', version: readVersion(ROOT)?.date || '' }));
     return;
   }
   let p;
@@ -133,8 +158,11 @@ const server = http.createServer((req, res) => {
 });
 
 // ───────────── WebSocket ─────────────
-const failures = new Map(); // IP → {count, until}
+// 合言葉の まちがいが 続いたら 待ってもらう（server/guard.js）。外からは きびしく、家の Wi-Fi からは やさしく
+const guardNet = new LoginGuard();
+const guardHome = new LoginGuard({ tries: 8, escalate: false });
 const sockets = new Set();
+let publicSeen = false;
 
 server.on('upgrade', (req, socket, head) => {
   if (new URL(req.url, 'http://localhost').pathname !== '/ws') {
@@ -143,18 +171,14 @@ server.on('upgrade', (req, socket, head) => {
   }
   acceptUpgrade(req, socket, head, (ws) => {
     sockets.add(ws);
-    const ip = ws.remote || '?';
+    // Tailscale Funnel などを 通って きた ときは、本当の アドレスで 見る
+    const ip = clientAddress(req) || ws.remote || '?';
+    const fromInternet = isFromInternet(req);
+    const guard = fromInternet ? guardNet : guardHome;
     const conn = {
       send: (msg) => {
-        if (msg.t === 'helloFail') {
-          const f = failures.get(ip) || { count: 0, until: 0 };
-          f.count++;
-          if (f.count >= 8) {
-            f.until = Date.now() + 60 * 1000;
-            f.count = 0;
-          }
-          failures.set(ip, f);
-        }
+        if (msg.t === 'helloFail' && !msg.code) guard.fail(ip);
+        if (msg.t === 'welcome') guard.success(ip);
         ws.send(JSON.stringify(msg));
       },
     };
@@ -167,9 +191,19 @@ server.on('upgrade', (req, socket, head) => {
         return;
       }
       if (msg?.t === 'hello') {
-        const f = failures.get(ip);
-        if (f && f.until > Date.now()) {
-          ws.send(JSON.stringify({ t: 'helloFail', reason: 'まちがいが多いので1分待ってね' }));
+        const g = guard.check(ip);
+        if (!g.ok) {
+          ws.send(JSON.stringify({ t: 'helloFail', code: 'wait', reason: `合言葉のまちがいが多いので、${Math.ceil(g.wait / 60000)}分待ってからもう一度入れてね` }));
+          return;
+        }
+        // インターネットから（外出先から）は、合言葉が じゅうぶん 長い 時だけ
+        if (fromInternet && !strongEnough(PASSWORD)) {
+          if (!publicSeen) {
+            publicSeen = true;
+            console.log('\n  ★ 外出先からアクセスがありましたが、合言葉が短いので入れませんでした。');
+            console.log(`    ${CONFIG_FILE} の password を、8文字以上（数字だけはだめ）に変えてサーバーを再起動してね。\n`);
+          }
+          ws.send(JSON.stringify({ t: 'helloFail', code: 'weak', reason: '外出先から遊ぶには、家のPCで合言葉を8文字以上（数字だけはだめ）に変えてもらってね' }));
           return;
         }
       }
@@ -237,7 +271,33 @@ server.listen(PORT, HOST, () => {
   console.log('');
   console.log('  終わるときはこの画面で Ctrl + C をおしてね（自動でセーブされます）');
   console.log('');
+  // 外出先から（スマホに アプリなしで）つながるか: Tailscale Funnel を しらべる
+  checkFunnel(true);
 });
+
+async function checkFunnel(print) {
+  try {
+    funnel = await findFunnelUrl(PORT);
+  } catch {
+    funnel = { installed: false, url: '' };
+  }
+  if (!print) return;
+  const pub = publicUrl();
+  if (pub) {
+    console.log('  ★ 外出先から（スマホにアプリはいりません）:');
+    console.log(`     ${pub}`);
+    if (!strongEnough(PASSWORD)) {
+      console.log('     ※ いまの合言葉は短いので、外出先からは入れません。');
+      console.log(`       ${CONFIG_FILE} の password を 8文字以上（数字だけはだめ）に変えて、サーバーを再起動してね。`);
+    }
+    console.log('');
+  } else if (funnel.installed) {
+    console.log('  （外出先からも遊ぶ時は、funnel-on をダブルクリック → サーバーを再起動）');
+    console.log('');
+  }
+}
+// あとから Funnel を ON に した ときも わかる ように
+setInterval(() => checkFunnel(false), 5 * 60 * 1000).unref();
 
 // Tailscale の アドレス（100.64.0.0/10）
 const isTailnet = (ip) => {

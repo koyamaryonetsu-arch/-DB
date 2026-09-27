@@ -378,18 +378,17 @@ export function creditSupportOwner(world, ownerId, exp, gold, helperName) {
 
 export function partyState(world, p) {
   if (!p) return null;
-  const gateFlags = new Set();
-  for (const sid of p.members) {
-    const c = world.sessions.get(sid)?.char;
-    for (const f of GATE_FLAGS) if (c?.flags?.[f]) gateFlags.add(f);
-  }
+  // なかまは リーダーの ものがたりの 世界を 見る（人の いち・橋・とびら など）
+  const lflags = world.sessions.get(p.leader)?.char?.flags || {};
+  const worldFlags = Object.keys(lflags).filter((f) => lflags[f]);
   return {
     id: p.id,
     leader: p.leader,
+    worldFlags,
     // リーダーの 目標（さそわれて 来ている 人の 画面に 出す）
     objective: world.sessions.get(p.leader)?.char?.objective || '',
     bond: p.bond,
-    gateFlags: [...gateFlags],
+    gateFlags: GATE_FLAGS.filter((f) => lflags[f]),
     members: p.members.map((sid) => {
       const m = world.sessions.get(sid);
       if (!m) return null;

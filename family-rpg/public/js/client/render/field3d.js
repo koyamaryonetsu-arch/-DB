@@ -373,7 +373,8 @@ export class Field3D {
   addProp(g, canvas, cx, cz, key) {
     if (!this.propAtlas) this.propAtlas = new PropAtlas();
     const uv = this.propAtlas.uv(key, canvas);
-    const wd = canvas.width / 16, ht = canvas.height / 16;
+    const r = canvas.res || 1;
+    const wd = canvas.width / r / 16, ht = canvas.height / r / 16;
     const b = new THREE.Vector3(cx, 0, cz);
     const p = (dx, up) => b.clone().add(new THREE.Vector3(dx, 0, 0)).addScaledVector(UP, up).toArray();
     quad(g, p(-wd / 2, ht), p(-wd / 2, 0), p(wd / 2, 0), p(wd / 2, ht), uv, 1);
@@ -496,8 +497,10 @@ export class Field3D {
       }
       mat.opacity = alpha;
       const k = e.scale || 1;
-      sp.scale.set(canvas.width * k / 16, canvas.height * k / 16, 1);
-      sp.center.set(0.5, (e.anchor ?? 3) / canvas.height);
+      // こまかい え（res 2）も 見た目の 大きさは おなじ
+      const lw = canvas.width / (canvas.res || 1), lh = canvas.height / (canvas.res || 1);
+      sp.scale.set(lw * k / 16, lh * k / 16, 1);
+      sp.center.set(0.5, (e.anchor ?? 3) / lh);
       // あしもと → カメラの ほうへ すこし ちかづける（がめんの いちは かわらない）
       const base = this.tmp.set(e.x, this.floorAt(e.x, e.y) + (e.lift || 0), e.y);
       const dir = this.camera.position.clone().sub(base).normalize();

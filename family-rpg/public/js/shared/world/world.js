@@ -463,11 +463,14 @@ export class GameWorld {
     if (tx !== oldTx || ty !== oldTy) this.onEnterTile(s, tx, ty);
   }
 
+  // 世界の フラグ（橋・とびら・人・イベントの 場所）。さそわれて 手伝っている ときは リーダーの ものがたりの 世界
+  worldFlags(s) {
+    return (this.hostOf(s) || s).char?.flags || {};
+  }
+
   hasFlagFn(s) {
-    // 橋や とびらは パーティーの だれかが あけていれば とおれる
-    const p = partyOf(this, s);
-    const chars = (p?.members || [s.id]).map((sid) => this.sessions.get(sid)?.char).filter(Boolean);
-    return (f) => chars.some((c) => c.flags[f]);
+    const flags = this.worldFlags(s);
+    return (f) => !!flags[f];
   }
 
   onEnterTile(s, tx, ty) {
@@ -482,7 +485,8 @@ export class GameWorld {
       return;
     }
     if (this.checkTriggers(s, tx, ty)) return;
-    // ばしょの きろく（きかんのはね）
+    // ばしょの きろく（きかんのはね）。リーダーの 冒険を 手伝っている あいだは 自分の きろくに しない
+    if (this.hostOf(s)) return;
     for (const [id, p] of Object.entries(PLACES)) {
       if (s.map === 'overworld' && tx >= p.x && ty >= p.y && tx < p.x + p.w && ty < p.y + p.h && !s.char.visited?.[id]) {
         s.char.visited = s.char.visited || {};
@@ -520,7 +524,7 @@ export class GameWorld {
     const map = MAPS[s.map];
     for (const tr of map.triggers) {
       if (tx >= tr.x && ty >= tr.y && tx < tr.x + tr.w && ty < tr.y + tr.h) {
-        if (!condOk(tr.show, (f) => !!s.char.flags[f])) continue;
+        if (!condOk(tr.show, this.hasFlagFn(s))) continue;
         if (runScript(this, s, tr.script)) return true;
       }
     }
@@ -585,7 +589,8 @@ export class GameWorld {
   onInteract(s, msg) {
     if (s.busy) return;
     const map = MAPS[s.map];
-    const hasFlag = (f) => !!s.char.flags[f];
+    // 人・宝箱が 出ているかは 世界の フラグで（手伝っている ときは リーダーの 世界）
+    const hasFlag = this.hasFlagFn(s);
     if (msg.kind === 'npc') {
       const n = map.npcById[msg.id];
       if (!n || !condOk(n.show, hasFlag)) return;

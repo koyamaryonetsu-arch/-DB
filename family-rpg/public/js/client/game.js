@@ -7,6 +7,7 @@ import { FieldMenu, openWorldMap } from './ui/menu.js';
 import { ScriptPlayer, wait } from './ui/script.js';
 import { BattleScene } from './battle.js';
 import { showTitle, showLogin, showSelect, showCreate, showLoading, saveWhere } from './ui/title.js';
+import { showServerDown } from './ui/syncui.js';
 import { toast, confirmBox, el } from './ui/dom.js';
 import { MAPS } from '../shared/maps/index.js';
 
@@ -36,7 +37,10 @@ export class Game {
     // ウインドウが ひらいた・とじた → 十字キーの パッドを 出す・しまう（すぐに。ウインドウが ずれない ように）
     this.input.onStack = () => this.updatePad();
     net.on((m) => this.onMessage(m));
-    net.onStatus((s) => this.hud.setConnection(s));
+    net.onStatus((s) => {
+      this.hud.setConnection(s);
+      this.onNetStatus(s);
+    });
     // クラウドセーブの ようすが かわったら 画面に 出す（ひとりモード）
     net.local?.cloud?.onChange((st) => this.onCloudState(st));
     try { if (localStorage.getItem('kizuna_bigtext')) document.body.classList.add('big-text'); } catch { /* */ }
@@ -49,6 +53,11 @@ export class Game {
       if (document.hidden) return;
       this.audio.resumeIfNeeded();
       if (this.inWorld) this.keepAwake(true);
+      // スリープから もどった: つなぎ直す 時間を あげてから 数えなおす
+      if (this.lostAt) {
+        this.lostAt = Date.now();
+        this.watchDown();
+      }
     });
   }
 
@@ -112,6 +121,33 @@ export class Game {
       if (['loading', 'asking'].includes(this.net.local?.cloud?.state)) showLoading(this);
       this.net.send({ t: 'hello' });
     }
+  }
+
+  // 家族サーバーに つながらない（PCが 止まった など）: ひとりで遊ぶサイトを 案内する
+  onNetStatus(st) {
+    if (st === 'ok') {
+      clearTimeout(this.downTimer);
+      this.lostAt = 0;
+      showServerDown(this, false);
+      return;
+    }
+    // つなぎ直している あいだ（connecting）も 数えつづける
+    if (this.net.mode !== 'server' || st !== 'lost' || this.lostAt) return;
+    this.lostAt = Date.now();
+    this.watchDown();
+  }
+
+  // 家族サーバーに つながらない まま しばらく たったら、ひとりで遊ぶサイトへの 案内を 出す
+  // （ゲームの 中では 長めに 待つ。スマホの 画面が 消えていた 間は 数えない）
+  watchDown() {
+    clearTimeout(this.downTimer);
+    if (!this.lostAt || this.net.status === 'ok' || document.hidden) return;
+    const left = (this.inWorld ? 15000 : 4000) - (Date.now() - this.lostAt);
+    if (left > 0) {
+      this.downTimer = setTimeout(() => this.watchDown(), left);
+      return;
+    }
+    showServerDown(this, true);
   }
 
   onCloudState(st) {
@@ -326,8 +362,11 @@ export class Game {
         if (this.state === 'login' || this.state === 'select') this.onWelcomeReady();
         break;
       case 'helloFail':
-        try { localStorage.removeItem('kizuna_pw'); } catch { /* */ }
-        if (this.state !== 'title') showLogin(this, m.reason);
+        // 待ってね・合言葉が 短い（外出先）の ときは、おぼえた 合言葉は そのまま
+        if (!m.code) {
+          try { localStorage.removeItem('kizuna_pw'); } catch { /* */ }
+        }
+        if (this.state !== 'title') showLogin(this, m.reason, m.code);
         break;
       case 'chars':
         this.chars = m.chars;
@@ -356,6 +395,7 @@ export class Game {
       }
       case 'party':
         this.party = m.party;
+        this.worldFlagSet = Array.isArray(m.party?.worldFlags) ? new Set(m.party.worldFlags) : null;
         this.hud.renderParty();
         this.refreshObjective();
         this.menu.refresh();
@@ -476,6 +516,7 @@ export class Game {
     this.sid = m.sid;
     this.lastCharId = m.char.id;
     this.party = m.party;
+    this.worldFlagSet = Array.isArray(m.party?.worldFlags) ? new Set(m.party.worldFlags) : null;
     this.players = m.players || [];
     this.posSeq = m.posSeq || 0;
     this.busy = false;

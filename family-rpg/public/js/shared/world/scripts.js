@@ -9,16 +9,19 @@ import { openService } from './services.js';
 let runSeq = 1;
 
 // だいほんに わたす じょうほう
-export function scriptCtx(s) {
+//  s … 話しかけた 人 / owner … その 世界の もちぬし（さそわれて 手伝っている ときは リーダー）
+//  ものがたりの すすみぐあい（フラグ・大事な物・たのまれごと）は owner、ふつうの 道具は 話しかけた 人
+export function scriptCtx(s, owner = s) {
   const c = s.char;
+  const o = owner.char;
   return {
     c,
     name: c.name,
-    flag: (f) => !!c.flags[f],
-    has: (id) => hasKeyItem(c, id) || itemCount(c, id) > 0,
-    count: (id) => itemCount(c, id),
-    kills: (sp) => c.kills?.[sp] || 0,
-    quest: (k) => c.quests?.[k],
+    flag: (f) => !!o.flags[f],
+    has: (id) => hasKeyItem(o, id) || (ITEMS[id]?.type !== 'key' && itemCount(c, id) > 0),
+    count: (id) => (ITEMS[id]?.type === 'key' ? (hasKeyItem(o, id) ? 1 : 0) : itemCount(c, id)),
+    kills: (sp) => o.kills?.[sp] || 0,
+    quest: (k) => o.quests?.[k],
   };
 }
 
@@ -42,6 +45,8 @@ export class ScriptRun {
     this.id = 'r' + (runSeq++);
     this.world = world;
     this.init = initiator;
+    // ものがたりが すすむ 人（ふつうは はじめた 人。さそわれて 手伝っている 人が はじめた ときは リーダー）
+    this.owner = meta.owner || initiator;
     this.parts = participants;
     this.steps = steps;
     this.meta = meta;
@@ -52,12 +57,9 @@ export class ScriptRun {
 
   get everyone() { return this.parts.filter((m) => this.world.sessions.has(m.id)); }
 
-  // パーティーの イベントは リーダー（さそった 人）の ものがたり。
+  // パーティーの イベントは リーダー（さそった 人）の ものがたり（this.owner）。
   // さそわれて 来ている なかまの ものがたり（フラグ・目標・大事な物・ゲスト・いのりの場所）は かえない。
   // ごほうび（ゴールド・ふつうの 道具・たたかいの 経験値）は みんなで もらえる
-  helper(m) {
-    return m !== this.init;
-  }
 
   async start() {
     for (const m of this.everyone) {
@@ -76,6 +78,9 @@ export class ScriptRun {
 
   finish() {
     this.world.runs.delete(this.id);
+    // リーダーの ものがたりが すすんだら、なかまの 画面の 世界（人・橋 など）も あわせる
+    const p = partyOf(this.world, this.owner);
+    if (p && p.members.length > 1) this.world.sendParty(p);
     for (const m of this.everyone) {
       if (m.runId === this.id) {
         m.runId = null;
@@ -139,7 +144,7 @@ export class ScriptRun {
       const all = this.everyone;
       switch (op) {
         case 'if': {
-          const ok = a[0](scriptCtx(this.init));
+          const ok = a[0](scriptCtx(this.init, this.owner));
           await this.runSteps(ok ? a[1] || [] : a[2] || []);
           break;
         }
@@ -152,29 +157,30 @@ export class ScriptRun {
           break;
         }
         case 'flag':
-          setStoryFlag(this.init.char, a[0]);
+          setStoryFlag(this.owner.char, a[0]);
           break;
         case 'questBase': {
-          const c = this.init.char;
+          const c = this.owner.char;
           c.quests = c.quests || {};
           c.quests[a[0]] = c.kills?.[a[1]] || 0;
           break;
         }
         case 'item': {
           const [id, n = 1] = a;
-          // 大事な物は リーダーだけ（なかまの ものがたりは かえない）
+          // 大事な物は ものがたりの もちぬし（リーダー）だけ（なかまの ものがたりは かえない）
           const key = ITEMS[id]?.type === 'key';
-          for (const m of all) if (!key || !this.helper(m)) addItem(m.char, id, n);
+          if (key) addItem(this.owner.char, id, n);
+          else for (const m of all) addItem(m.char, id, n);
           const name = ITEMS[id]?.name || id;
           this.batch.push(['sfx', key ? 'key' : 'item']);
-          this.say(`${key ? this.init.char.name : this.who()}は${name}${n > 1 ? `を${n}個` : 'を'}手に入れた！`);
+          this.say(`${key ? this.owner.char.name : this.who()}は${name}${n > 1 ? `を${n}個` : 'を'}手に入れた！`);
           break;
         }
         case 'takeItem': {
+          // 大事な物は もちぬしから、ふつうの 道具は 話しかけた 人から
           const [id, n = 1] = a;
-          const c = this.init.char;
-          if (ITEMS[id]?.type === 'key') c.keyItems = c.keyItems.filter((k) => k !== id);
-          else removeItem(c, id, n);
+          if (ITEMS[id]?.type === 'key') this.owner.char.keyItems = this.owner.char.keyItems.filter((k) => k !== id);
+          else removeItem(this.init.char, id, n);
           break;
         }
         case 'gold':
@@ -183,10 +189,10 @@ export class ScriptRun {
           this.say(`${this.who()}は${a[0]}ゴールドを手に入れた！`);
           break;
         case 'objective': {
-          this.init.char.objective = a[0];
+          this.owner.char.objective = a[0];
           this.batch.push(['objective', a[0]]);
           // なかまの 画面にも リーダーの 目標を 出す
-          const p = partyOf(w, this.init);
+          const p = partyOf(w, this.owner);
           if (p && p.members.length > 1) w.sendParty(p);
           break;
         }
@@ -232,7 +238,7 @@ export class ScriptRun {
         }
         case 'guest': {
           // ゲストは セーブデータに のこす（アプリを おとしても いなくならない）。リーダーだけ
-          const gc = this.init.char;
+          const gc = this.owner.char;
           ensureCompanions(gc);
           if (a[0]) {
             if (!gc.guests.includes(a[0])) gc.guests.push(a[0]);
@@ -241,7 +247,7 @@ export class ScriptRun {
             this.batch.push(['sfx', 'leave']);
             this.say('ルカはパーティーからはなれた。');
           }
-          const p = partyOf(w, this.init);
+          const p = partyOf(w, this.owner);
           if (p) {
             syncParty(w, p);
             w.sendParty(p);
@@ -251,7 +257,7 @@ export class ScriptRun {
         }
         case 'recruit': {
           // ものがたりで なかまに なる（パーティーが いっぱいなら 酒場で まつ）。リーダーだけ
-          const r = recruitNpc(w, this.init, a[0], { force: true });
+          const r = recruitNpc(w, this.owner, a[0], { force: true });
           if (r.ok) {
             this.batch.push(['sfx', 'join']);
             this.say(r.joined ? `${r.name}が仲間に加わった！` : `${r.name}が仲間になった！\n（今はルミナの町の酒場で待っている）`);
@@ -298,7 +304,7 @@ export class ScriptRun {
         }
         case 'spawn': {
           const [map, x, y] = a;
-          this.init.char.spawn = { map, x, y };
+          this.owner.char.spawn = { map, x, y };
           break;
         }
         case 'shop': case 'jobChange': case 'tavern': case 'board': case 'starTrade': case 'church': {
@@ -349,7 +355,9 @@ export function runScript(world, s, scriptId, opts = {}) {
       init = leader;
     }
   }
-  const steps = fn(scriptCtx(init));
+  // さそわれて 手伝っている 人が 町の 人に 話しかけた ときも、リーダーの 世界（ものがたり）で
+  const owner = story ? init : (world.hostOf?.(init) || init);
+  const steps = fn(scriptCtx(init, owner));
   if (!steps || !steps.length) return false;
   const participants = [init];
   if (init !== s && !s.busy) participants.push(s);
@@ -359,7 +367,7 @@ export function runScript(world, s, scriptId, opts = {}) {
       if (m && !participants.includes(m) && m.inWorld && m.map === init.map && !m.busy && !m.away) participants.push(m);
     }
   }
-  const run = new ScriptRun(world, init, participants, steps, { scriptId });
+  const run = new ScriptRun(world, init, participants, steps, { scriptId, owner });
   run.start();
   return true;
 }

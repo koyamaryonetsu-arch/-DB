@@ -7,7 +7,7 @@
 // どちらで 遊んだ ぶんも なくならない ように、合わせかたは shared/world/sync.js・merge.js
 import { el, toast, confirmBox, askText } from './dom.js';
 import {
-  DEFAULT_SITE, familyServer, setFamilyServer, normalizeServer, serverAddress, isHomeAddress, takeAskServer,
+  DEFAULT_SITE, familyServer, setFamilyServer, normalizeServer, serverAddress, siteServerAddress, isHomeAddress, takeAskServer,
   pendingSync, clearPendingSync, syncLink, mineIds, rememberMine,
 } from '../links.js';
 
@@ -80,6 +80,41 @@ function siteBase(game) {
 
 function showLines(lines, ms = 7000) {
   if (lines?.length) toast(lines.join('\n'), ms);
+}
+
+// 家族サーバーは 動いているか（https の アドレス（Tailscale Funnel など）の ときだけ しらべられる）
+// もどりち: true（動いている）/ false（お休み中）/ null（しらべられない: 家の Wi-Fi の http の アドレス）
+export async function familyServerUp(url = familyServer()) {
+  if (!/^https:\/\//i.test(url || '')) return null;
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 3500);
+    const r = await fetch(`${url}/api/info`, { cache: 'no-store', signal: ctrl.signal });
+    clearTimeout(t);
+    const j = await r.json();
+    return !!(j && j.app === 'kizuna' && j.server);
+  } catch {
+    return false;
+  }
+}
+
+// 家族サーバーの ページで、サーバーに つながらない ときの あんない（ひとりで遊ぶサイトへ）
+export function showServerDown(game, on) {
+  const old = document.querySelector('.server-down');
+  if (!on) {
+    old?.remove();
+    return;
+  }
+  if (old) return;
+  const site = siteBase(game);
+  const box = el('div', { class: 'win server-down col' },
+    el('div', { class: 'gold', text: '家族サーバーにつながりません' }),
+    el('div', { class: 'small', text: '家のPCの電源と、家族サーバー（黒い画面）が動いているか見てね。\nPCが使えない時は、ひとりで遊ぶサイトで遊べます（あとで家族サーバーに合わせられます）。' }),
+    el('div', { class: 'row', style: { gap: '0.5em', flexWrap: 'wrap' } },
+      el('a', { class: 'btn primary', href: site, text: '📱 ひとりで遊ぶサイトへ' }),
+      el('button', { class: 'btn', text: 'もう一度つなぐ', onclick: () => location.reload() })),
+    el('div', { class: 'small muted', text: site }));
+  document.getElementById('app').append(box);
 }
 
 // ─────────── ひとりで遊ぶサイトの がわ ───────────
@@ -223,7 +258,7 @@ export async function goSite(game) {
   }
   overlay('このスマホで遊んだキャラを持って、ひとりで遊ぶサイトへ行きます…');
   const out = await request(game, { t: 'syncOut', ids }, 'syncPayload', 20000);
-  location.assign(syncLink(siteBase(game), { text: out.text || '', server: serverAddress(game.net) }));
+  location.assign(syncLink(siteBase(game), { text: out.text || '', server: siteServerAddress(game.net) }));
   return true;
 }
 

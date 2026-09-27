@@ -7,6 +7,7 @@ import { runScript, ScriptRun, setStoryFlag, storyIndex } from '../public/js/sha
 import { STORY_STEPS } from '../public/js/shared/data/story.js';
 import { Bot } from './helpers.js';
 import { MAPS } from '../public/js/shared/maps/index.js';
+import { PLACES } from '../public/js/shared/maps/overworld.js';
 
 async function family() {
   const world = new GameWorld({ offline: false, rng: makeRng(21), checkPassword: (pw) => pw === 'ほし', rateLimit: false });
@@ -205,4 +206,58 @@ test('パーティー: 手伝っている 人は 全滅したら リーダーと
   world.openChest(Y, chest);
   await yui.settle();
   assert.ok(Y.char.chests[chest.id]);
+});
+
+test('パーティー: さそわれた 人は リーダーの 世界で 動く（村の 見張りも どいている）', async () => {
+  const { world, papa, yui } = await family();
+  const P = sess(world, papa);
+  // パパは 村が おそわれた あと（見張りは 道を あけている）。ユイは はじめたばかり
+  for (const f of ['p_opening', 'p_start', 'p_flower', 'p_attack']) setStoryFlag(P.char, f);
+  assert.ok(!sess(world, yui).char.flags.p_attack);
+  await team(world, papa, yui);
+  const Y = sess(world, yui);
+  assert.ok(world.hasFlagFn(Y)('p_attack'), 'ユイの 世界も リーダーの ものがたり');
+  assert.ok(yui.party.worldFlags.includes('p_attack'), '画面にも リーダーの 世界が とどく');
+  // 道を ふさぐ 見張り（p_attack の まえ だけ いる）は、ユイの 世界にも いない
+  const ow = MAPS.overworld;
+  const block = ow.npcById.v_guard;
+  world.placeSession(Y, 'overworld', block.x + 0.5, block.y + 1.5, 'up');
+  const before = yui.msgs.length;
+  world.handle(Y, { t: 'interact', kind: 'npc', id: 'v_guard' }, yui.conn);
+  await yui.settle();
+  assert.ok(!yui.msgs.slice(before).some((m) => m.t === 'script'), '道を ふさぐ 見張りは いない');
+  // よけた 見張りは リーダーの ものがたりの ことばで 話す
+  const side = ow.npcById.v_guard2;
+  world.placeSession(Y, 'overworld', side.x + 0.5, side.y + 1.5, 'up');
+  world.handle(Y, { t: 'interact', kind: 'npc', id: 'v_guard2' }, yui.conn);
+  await yui.settle();
+  const said = yui.msgs.filter((m) => m.t === 'script').flatMap((m) => m.steps).map((st) => st.join(' ')).join('\n');
+  assert.ok(said.includes('ルミナの町はこの道をまっすぐ北'), said);
+  // 手伝っている あいだは 自分の 行った場所に しない（きかんのはねで 先へ 行けない）
+  const town = Object.entries(PLACES).find(([id]) => id === 'town')[1];
+  world.placeSession(Y, 'overworld', town.x + 1.5, town.y + 1.5, 'down');
+  world.onEnterTile(Y, town.x + 1, town.y + 1);
+  assert.ok(!Y.char.visited?.town, '行った場所は 自分の きろくに しない');
+  assert.ok(!Y.char.flags.p_attack, '自分の フラグは そのまま');
+  // ぬけたら 自分の 世界に もどる
+  yui.send({ t: 'party', action: 'leave' });
+  await yui.settle();
+  assert.ok(!world.hasFlagFn(Y)('p_attack'), 'ぬけたら 自分の ものがたりの 世界');
+});
+
+test('パーティー: 手伝っている 人が 町の 人の たのまれごとを 受けると、リーダーの たのまれごとが すすむ', async () => {
+  const { world, papa, yui } = await family();
+  const P = sess(world, papa);
+  for (const f of ['p_opening', 'p_start', 'p_flower', 'p_attack', 'c1_town']) setStoryFlag(P.char, f);
+  await team(world, papa, yui);
+  const Y = sess(world, yui);
+  const girl = MAPS.overworld.npcById.mike_girl;
+  world.placeSession(Y, 'overworld', girl.x + 0.5, girl.y + 1.5, 'up');
+  world.placeSession(P, 'overworld', girl.x + 1.5, girl.y + 1.5, 'up');
+  yui.choice = 0; // 「はい」
+  world.handle(Y, { t: 'interact', kind: 'npc', id: 'mike_girl' }, yui.conn);
+  await yui.settle();
+  await papa.settle();
+  assert.ok(P.char.flags.q_mike_start, 'リーダーの たのまれごとが はじまる');
+  assert.ok(!Y.char.flags.q_mike_start, '手伝った 人の フラグは そのまま');
 });

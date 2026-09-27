@@ -12,11 +12,12 @@ export const STAT_NAMES = {
   mag: '攻撃魔力', heal: '回復魔力', atk: '攻撃力', dfn: '守備力',
 };
 
-// レベルに必要な 累計けいけんち
+// レベルに必要な 累計けいけんち（EXP_RATE: レベル上げの むずかしさ。1.5 = はじめの 版の 1.5倍 ひつよう）
+export const EXP_RATE = 1.5;
 export function expForLevel(lv) {
   if (lv <= 1) return 0;
   const n = lv - 1;
-  return Math.round(6 * Math.pow(n, 2.5) + 6 * n);
+  return Math.round((6 * Math.pow(n, 2.5) + 6 * n) * EXP_RATE);
 }
 
 // レベルごとの 基本ステータス（職業の倍率を かける前）
