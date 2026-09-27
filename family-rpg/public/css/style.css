@@ -768,6 +768,8 @@ img.face { image-rendering: pixelated; }
 }
 .counter-panel .svc-head { margin-bottom: 0; min-height: 2.8em; flex: none; }
 .counter-panel .win { background: var(--win-solid); }
+/* メニュー・お店などの まどは すきとおらない（うしろの 目標の まどが すけて 見えない） */
+.panel .win { background: var(--win-solid); }
 .ct-title { display: inline-flex; align-items: center; gap: 0.4em; }
 .ct-icon { width: 1.7em; height: 1.7em; image-rendering: pixelated; flex: none; }
 .ct-gold { margin-left: auto; color: var(--accent); font-size: var(--fs-small); white-space: nowrap; }
@@ -1130,6 +1132,11 @@ body.talking .mon-pop { top: 26%; }
 .elem.e-dark { background: #b58cff; }
 .elem.e-void { background: #cfcfe0; }
 .aff { font-size: 0.8em; margin-left: 0.3em; }
+/* ねらう 相手の 下に 出す 効きぐあい */
+.aff-line { display: block; font-size: 0.66em; line-height: 1.15; color: var(--muted); }
+.aff-line.a-weak { color: var(--accent); font-weight: bold; }
+.aff-line.a-null { color: var(--warn); }
+.aff-line.a-normal { color: var(--text); }
 .aff.weak { color: var(--accent); font-weight: bold; }
 .aff.resist { color: var(--muted); }
 .aff.null { color: var(--warn); }

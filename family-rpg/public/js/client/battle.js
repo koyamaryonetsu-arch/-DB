@@ -1,5 +1,5 @@
 // たたかいの がめん（むかしの RPG ふう 1がめん）
-import { el, ListMenu, toast } from './ui/dom.js';
+import { el, esc, ListMenu, toast } from './ui/dom.js';
 import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js';
 import { ITEMS } from '../shared/data/items.js';
 import { JOBS } from '../shared/data/jobs.js';
@@ -417,11 +417,12 @@ export class BattleScene {
     const list = this.enemies().filter((e) => e.alive);
     if (list.length === 1) return done(list[0].id);
     this.targeting = { side: 'enemy', done };
-    const AFF = { weak: ['弱点！', 'gold'], resist: ['効きにくい', ''], null: ['効かない', 'pen'], normal: ['ふつう', ''] };
+    // 効きぐあいは 名前の 下に 小さく（名前が 2行に ならないように）
+    const AFF = { weak: '弱点！', resist: '効きにくい', null: '効かない', normal: 'ふつう' };
     const items = list.map((e) => {
       const aff = element ? this.knownAffinity(e, element) : null;
-      const [right, rightCls] = aff ? AFF[aff] : element && ELEMENT_NAMES[element] ? ['？', ''] : ['', ''];
-      return { label: e.name, value: e.id, right, rightCls };
+      const tag = aff ? `<span class="aff-line a-${aff}">${AFF[aff]}</span>` : element && ELEMENT_NAMES[element] ? '<span class="aff-line a-unknown">？</span>' : '';
+      return { html: `${esc(e.name)}${tag}`, value: e.id };
     });
     this.showMenu(items, (it) => done(it.value), () => this.openCommand(), title, (it) => { this.hover = it?.value; });
   }
