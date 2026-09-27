@@ -1,14 +1,14 @@
 // たたかいの がめん（むかしの RPG ふう 1がめん）
-import { el, ListMenu, toast } from './ui/dom.js?v=cb6fd0fb30e1';
-import { ABILITIES } from '../shared/data/abilities.js?v=cb6fd0fb30e1';
-import { ITEMS } from '../shared/data/items.js?v=cb6fd0fb30e1';
-import { JOBS } from '../shared/data/jobs.js?v=cb6fd0fb30e1';
-import { MONSTERS } from '../shared/data/monsters.js?v=cb6fd0fb30e1';
-import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed } from '../shared/stats.js?v=cb6fd0fb30e1';
-import { monsterCanvas } from './render/monsters.js?v=cb6fd0fb30e1';
-import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=cb6fd0fb30e1';
-import { battleBackground, Effects, BW, BH } from './render/battlefx.js?v=cb6fd0fb30e1';
-import { abilityDetail, statusNames, buffNames } from './ui/info.js?v=cb6fd0fb30e1';
+import { el, ListMenu, toast } from './ui/dom.js?v=bc78c1f3dcbf';
+import { ABILITIES } from '../shared/data/abilities.js?v=bc78c1f3dcbf';
+import { ITEMS } from '../shared/data/items.js?v=bc78c1f3dcbf';
+import { JOBS } from '../shared/data/jobs.js?v=bc78c1f3dcbf';
+import { MONSTERS } from '../shared/data/monsters.js?v=bc78c1f3dcbf';
+import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed } from '../shared/stats.js?v=bc78c1f3dcbf';
+import { monsterCanvas } from './render/monsters.js?v=bc78c1f3dcbf';
+import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=bc78c1f3dcbf';
+import { battleBackground, Effects, BW, BH } from './render/battlefx.js?v=bc78c1f3dcbf';
+import { abilityDetail, statusNames, buffNames } from './ui/info.js?v=bc78c1f3dcbf';
 
 const whiteCache = new WeakMap();
 function white(img, color = '#ffffff') {

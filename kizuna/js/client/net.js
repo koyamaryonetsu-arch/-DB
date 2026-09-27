@@ -18,14 +18,17 @@ export class Net {
       net.family = server.family;
       net.urls = Array.isArray(server.urls) ? server.urls : [];
       net.site = server.site || '';
+      // 外出先からも 開ける アドレス（Tailscale Funnel の https）
+      net.public = /^https:\/\//i.test(server.public || '') ? server.public : '';
       net.version = server.version || '';
       net.connectWS();
+      watchDownPage(net.site);
       // iPhone: アプリに もどってきたら すぐに つなぎなおす（きれた つなぎが のこっている ことも ある）
       document.addEventListener('visibilitychange', () => net.onVisible());
       addEventListener('pageshow', () => net.onVisible());
     } else {
       net.mode = 'offline';
-      const { startOffline } = await import('./offline.js?v=cb6fd0fb30e1');
+      const { startOffline } = await import('./offline.js?v=bc78c1f3dcbf');
       net.local = startOffline((msg) => net.deliver(msg));
       net.setStatus('ok');
     }
@@ -122,6 +125,16 @@ export class Net {
       this.connectWS();
     }, 3500);
   }
+}
+
+// 家の PC が 止まっている 時に 開いても、ひとりで遊ぶサイトへの 案内が 出る ように する（sw.js）
+// https（Tailscale Funnel）や この PC（localhost）で 開いた 時だけ 使える（ブラウザの きまり）
+function watchDownPage(site) {
+  try {
+    if (!globalThis.isSecureContext || !navigator.serviceWorker) return;
+    const q = /^https:\/\//i.test(site || '') ? `?site=${encodeURIComponent(site)}` : '';
+    navigator.serviceWorker.register(`sw.js${q}`).catch(() => {});
+  } catch { /* */ }
 }
 
 async function detectServer() {

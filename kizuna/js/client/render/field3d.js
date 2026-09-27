@@ -3,13 +3,13 @@
 // ・ひと・まもの・もの は ドット絵を カメラに むけて たてる（ビルボード）
 // ・カメラは ななめ うえから みおろす（うごかすのは いち だけ。むきは かわらない）
 // あるく・ぶつかる などの きまりは 2D と おなじ（Field が きめる）。ここでは かく だけ。
-import * as THREE from '../../../vendor/three.min.js?v=cb6fd0fb30e1';
-import { T } from '../../shared/tiles.js?v=cb6fd0fb30e1';
-import { effectiveTile } from '../../shared/maps/index.js?v=cb6fd0fb30e1';
-import { hash2 } from '../../shared/rng.js?v=cb6fd0fb30e1';
-import { Atlas, extraCanvas, propCanvas, PROP_TILES, leafCanvas, roofCanvas, tileArt } from './tex3d.js?v=cb6fd0fb30e1';
-import { tileCanvas } from './tiles.js?v=cb6fd0fb30e1';
-import { flipCanvas, makeCanvas, ctxOf, whiteCopy } from './pixel.js?v=cb6fd0fb30e1';
+import * as THREE from '../../../vendor/three.min.js?v=bc78c1f3dcbf';
+import { T } from '../../shared/tiles.js?v=bc78c1f3dcbf';
+import { effectiveTile } from '../../shared/maps/index.js?v=bc78c1f3dcbf';
+import { hash2 } from '../../shared/rng.js?v=bc78c1f3dcbf';
+import { Atlas, extraCanvas, propCanvas, PROP_TILES, leafCanvas, roofCanvas, tileArt } from './tex3d.js?v=bc78c1f3dcbf';
+import { tileCanvas } from './tiles.js?v=bc78c1f3dcbf';
+import { flipCanvas, makeCanvas, ctxOf, whiteCopy } from './pixel.js?v=bc78c1f3dcbf';
 
 const PITCH = 55 * Math.PI / 180;
 const SIN = Math.sin(PITCH), COS = Math.cos(PITCH);
@@ -373,7 +373,8 @@ export class Field3D {
   addProp(g, canvas, cx, cz, key) {
     if (!this.propAtlas) this.propAtlas = new PropAtlas();
     const uv = this.propAtlas.uv(key, canvas);
-    const wd = canvas.width / 16, ht = canvas.height / 16;
+    const r = canvas.res || 1;
+    const wd = canvas.width / r / 16, ht = canvas.height / r / 16;
     const b = new THREE.Vector3(cx, 0, cz);
     const p = (dx, up) => b.clone().add(new THREE.Vector3(dx, 0, 0)).addScaledVector(UP, up).toArray();
     quad(g, p(-wd / 2, ht), p(-wd / 2, 0), p(wd / 2, 0), p(wd / 2, ht), uv, 1);
@@ -496,8 +497,10 @@ export class Field3D {
       }
       mat.opacity = alpha;
       const k = e.scale || 1;
-      sp.scale.set(canvas.width * k / 16, canvas.height * k / 16, 1);
-      sp.center.set(0.5, (e.anchor ?? 3) / canvas.height);
+      // こまかい え（res 2）も 見た目の 大きさは おなじ
+      const lw = canvas.width / (canvas.res || 1), lh = canvas.height / (canvas.res || 1);
+      sp.scale.set(lw * k / 16, lh * k / 16, 1);
+      sp.center.set(0.5, (e.anchor ?? 3) / lh);
       // あしもと → カメラの ほうへ すこし ちかづける（がめんの いちは かわらない）
       const base = this.tmp.set(e.x, this.floorAt(e.x, e.y) + (e.lift || 0), e.y);
       const dir = this.camera.position.clone().sub(base).normalize();

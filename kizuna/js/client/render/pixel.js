@@ -92,11 +92,14 @@ export class Painter {
   }
   flipX() {
     const p = new Painter(this.w, this.h);
+    p.res = this.res;
     for (let y = 0; y < this.h; y++) for (let x = 0; x < this.w; x++) p.px[y * this.w + (this.w - 1 - x)] = this.px[y * this.w + x];
     return p;
   }
   toCanvas(scale = 1) {
     const c = makeCanvas(this.w * scale, this.h * scale);
+    // res … こまかさ（2 なら せかいでは はばと たかさの 半分の 大きさで かく）
+    c.res = (this.res || 1) * scale;
     const x = ctxOf(c);
     for (let j = 0; j < this.h; j++) {
       for (let i = 0; i < this.w; i++) {
@@ -153,6 +156,7 @@ export function pixelize(src, { palette = null, outline = '#15102a', alphaCut = 
 
 export function flipCanvas(c) {
   const o = makeCanvas(c.width, c.height);
+  o.res = c.res || 1;
   const x = ctxOf(o);
   x.translate(c.width, 0);
   x.scale(-1, 1);
@@ -163,6 +167,7 @@ export function flipCanvas(c) {
 // しろく ひかる（ダメージの てんめつ）
 export function whiteCopy(c, color = '#ffffff') {
   const o = makeCanvas(c.width, c.height);
+  o.res = c.res || 1;
   const x = ctxOf(o);
   x.drawImage(c, 0, 0);
   x.globalCompositeOperation = 'source-in';

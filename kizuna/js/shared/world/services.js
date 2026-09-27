@@ -1,15 +1,15 @@
 // お店・やどや・きょうかい・転職・酒場・でんごんばん・メニュー操作
-import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE } from '../data/shops.js?v=cb6fd0fb30e1';
-import { ITEMS, sellPrice, SLOTS } from '../data/items.js?v=cb6fd0fb30e1';
-import { JOBS, ALL_JOBS, jobReqText } from '../data/jobs.js?v=cb6fd0fb30e1';
-import { ABILITIES } from '../data/abilities.js?v=cb6fd0fb30e1';
-import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=cb6fd0fb30e1';
-import { TACTICS } from '../ai.js?v=cb6fd0fb30e1';
-import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf } from './party.js?v=cb6fd0fb30e1';
-import { breedMonsters, breedPreview } from './breed.js?v=cb6fd0fb30e1';
-import { MONSTERS } from '../data/monsters.js?v=cb6fd0fb30e1';
-import { PLACES } from '../maps/overworld.js?v=cb6fd0fb30e1';
-import { POS, SEA_PLACES } from '../maps/index.js?v=cb6fd0fb30e1';
+import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE } from '../data/shops.js?v=bc78c1f3dcbf';
+import { ITEMS, sellPrice, SLOTS } from '../data/items.js?v=bc78c1f3dcbf';
+import { JOBS, ALL_JOBS, jobReqText } from '../data/jobs.js?v=bc78c1f3dcbf';
+import { ABILITIES } from '../data/abilities.js?v=bc78c1f3dcbf';
+import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=bc78c1f3dcbf';
+import { TACTICS } from '../ai.js?v=bc78c1f3dcbf';
+import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf } from './party.js?v=bc78c1f3dcbf';
+import { breedMonsters, breedPreview } from './breed.js?v=bc78c1f3dcbf';
+import { MONSTERS } from '../data/monsters.js?v=bc78c1f3dcbf';
+import { PLACES } from '../maps/overworld.js?v=bc78c1f3dcbf';
+import { POS, SEA_PLACES } from '../maps/index.js?v=bc78c1f3dcbf';
 
 export function openService(world, s, kind, arg) {
   switch (kind) {

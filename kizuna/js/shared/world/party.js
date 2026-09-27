@@ -5,12 +5,12 @@
 //   c.partyKeys  … いま いっしょに ぼうけんしている なかま（じゅんばん）。'fam:ID' は 家族の キャラ
 //   c.guests     … ものがたりで いっしょに いる ゲスト（ルカ など）
 // パーティーには リーダーの なかまが ついてくる（にんげんが ふえると、はいりきらない なかまは いったん まつ）
-import { newCharacter, computeStats, fullHeal, gainExp, gainJobBattles, migrateJobs, expForLevel, addItem, newMonsterCompanion, learnedAbilities } from '../stats.js?v=cb6fd0fb30e1';
-import { jobBattlesForLevel } from '../data/jobs.js?v=cb6fd0fb30e1';
-import { NPC_SUPPORTS, GUESTS } from '../data/shops.js?v=cb6fd0fb30e1';
-import { MONSTERS } from '../data/monsters.js?v=cb6fd0fb30e1';
-import { MONSTER_FRIENDS, ROSTER_MAX, COMPANION_SLOTS } from '../data/companions.js?v=cb6fd0fb30e1';
-import { SLOTS } from '../data/items.js?v=cb6fd0fb30e1';
+import { newCharacter, computeStats, fullHeal, gainExp, gainJobBattles, migrateJobs, expForLevel, addItem, newMonsterCompanion, learnedAbilities } from '../stats.js?v=bc78c1f3dcbf';
+import { jobBattlesForLevel } from '../data/jobs.js?v=bc78c1f3dcbf';
+import { NPC_SUPPORTS, GUESTS } from '../data/shops.js?v=bc78c1f3dcbf';
+import { MONSTERS } from '../data/monsters.js?v=bc78c1f3dcbf';
+import { MONSTER_FRIENDS, ROSTER_MAX, COMPANION_SLOTS } from '../data/companions.js?v=bc78c1f3dcbf';
+import { SLOTS } from '../data/items.js?v=bc78c1f3dcbf';
 
 export const PARTY_MAX = 4;
 // パーティーの だれかが もっていれば みんなが とおれる フラグ
@@ -378,18 +378,17 @@ export function creditSupportOwner(world, ownerId, exp, gold, helperName) {
 
 export function partyState(world, p) {
   if (!p) return null;
-  const gateFlags = new Set();
-  for (const sid of p.members) {
-    const c = world.sessions.get(sid)?.char;
-    for (const f of GATE_FLAGS) if (c?.flags?.[f]) gateFlags.add(f);
-  }
+  // なかまは リーダーの ものがたりの 世界を 見る（人の いち・橋・とびら など）
+  const lflags = world.sessions.get(p.leader)?.char?.flags || {};
+  const worldFlags = Object.keys(lflags).filter((f) => lflags[f]);
   return {
     id: p.id,
     leader: p.leader,
+    worldFlags,
     // リーダーの 目標（さそわれて 来ている 人の 画面に 出す）
     objective: world.sessions.get(p.leader)?.char?.objective || '',
     bond: p.bond,
-    gateFlags: [...gateFlags],
+    gateFlags: GATE_FLAGS.filter((f) => lflags[f]),
     members: p.members.map((sid) => {
       const m = world.sessions.get(sid);
       if (!m) return null;

@@ -1,6 +1,6 @@
 // モンスターの え（ベクターで かいて ドットえに へんかん）
 // すべて オリジナルの デザイン
-import { makeCanvas, ctxOf, pixelize, shade } from './pixel.js?v=cb6fd0fb30e1';
+import { makeCanvas, ctxOf, pixelize, shade } from './pixel.js?v=bc78c1f3dcbf';
 
 // かく ための べんりな かんすう（w,h は 0〜1 の わりあいで しめす）
 function G(ctx, w, h) {

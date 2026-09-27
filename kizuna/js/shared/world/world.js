@@ -2,24 +2,24 @@
 //
 // クライアントとは メッセージ（JSON）で やりとりする。
 // つなぎかたは なんでも よい（WebSocket でも ブラウザ内の ちょくせつ呼び出しでも）。
-import { makeRng } from '../rng.js?v=cb6fd0fb30e1';
-import { MAPS, isBlocked, effectiveTile, condOk, searchLoot, sparkleLoot, tileAt, POS, SEA_PLACES } from '../maps/index.js?v=cb6fd0fb30e1';
-import { PLACES } from '../maps/overworld.js?v=cb6fd0fb30e1';
-import { T, TILE_INFO } from '../tiles.js?v=cb6fd0fb30e1';
-import { ITEMS } from '../data/items.js?v=cb6fd0fb30e1';
-import { JOBS } from '../data/jobs.js?v=cb6fd0fb30e1';
-import { newCharacter, computeStats, addItem, fullHeal, migrateJobs } from '../stats.js?v=cb6fd0fb30e1';
-import { mapState, spawnSymbols, moveSymbols, symbolSnapshot } from './monsters.js?v=cb6fd0fb30e1';
-import { startFieldBattle, battleTick, battleCommand, battleLeave, joinBattle } from './battles.js?v=cb6fd0fb30e1';
-import { runScript, runSteps } from './scripts.js?v=cb6fd0fb30e1';
-import { serviceAction, menuAction } from './services.js?v=cb6fd0fb30e1';
-import { newParty, partyOf, partyState, syncParty, ensureCompanions, companionWait, PARTY_MAX } from './party.js?v=cb6fd0fb30e1';
-import { MONSTERS } from '../data/monsters.js?v=cb6fd0fb30e1';
-import { COMPANION_SLOTS } from '../data/companions.js?v=cb6fd0fb30e1';
-import { CH1_CLEAR_OBJECTIVE } from '../data/story.js?v=cb6fd0fb30e1';
-import { upgradeSave, repairChar } from './save.js?v=cb6fd0fb30e1';
-import { exportCode, parseCode, importChar } from './transfer.js?v=cb6fd0fb30e1';
-import { memorySyncStore, buildSyncOut, applySyncIn, encodeSync, decodeSync, syncSummary } from './sync.js?v=cb6fd0fb30e1';
+import { makeRng } from '../rng.js?v=bc78c1f3dcbf';
+import { MAPS, isBlocked, effectiveTile, condOk, searchLoot, sparkleLoot, tileAt, POS, SEA_PLACES } from '../maps/index.js?v=bc78c1f3dcbf';
+import { PLACES } from '../maps/overworld.js?v=bc78c1f3dcbf';
+import { T, TILE_INFO } from '../tiles.js?v=bc78c1f3dcbf';
+import { ITEMS } from '../data/items.js?v=bc78c1f3dcbf';
+import { JOBS } from '../data/jobs.js?v=bc78c1f3dcbf';
+import { newCharacter, computeStats, addItem, fullHeal, migrateJobs } from '../stats.js?v=bc78c1f3dcbf';
+import { mapState, spawnSymbols, moveSymbols, symbolSnapshot } from './monsters.js?v=bc78c1f3dcbf';
+import { startFieldBattle, battleTick, battleCommand, battleLeave, joinBattle } from './battles.js?v=bc78c1f3dcbf';
+import { runScript, runSteps } from './scripts.js?v=bc78c1f3dcbf';
+import { serviceAction, menuAction } from './services.js?v=bc78c1f3dcbf';
+import { newParty, partyOf, partyState, syncParty, ensureCompanions, companionWait, PARTY_MAX } from './party.js?v=bc78c1f3dcbf';
+import { MONSTERS } from '../data/monsters.js?v=bc78c1f3dcbf';
+import { COMPANION_SLOTS } from '../data/companions.js?v=bc78c1f3dcbf';
+import { CH1_CLEAR_OBJECTIVE } from '../data/story.js?v=bc78c1f3dcbf';
+import { upgradeSave, repairChar } from './save.js?v=bc78c1f3dcbf';
+import { exportCode, parseCode, importChar } from './transfer.js?v=bc78c1f3dcbf';
+import { memorySyncStore, buildSyncOut, applySyncIn, encodeSync, decodeSync, syncSummary } from './sync.js?v=bc78c1f3dcbf';
 
 export const PROTOCOL_VERSION = 1;
 const SPARKLE_RESPAWN_MS = 20 * 60 * 1000;
@@ -463,11 +463,14 @@ export class GameWorld {
     if (tx !== oldTx || ty !== oldTy) this.onEnterTile(s, tx, ty);
   }
 
+  // 世界の フラグ（橋・とびら・人・イベントの 場所）。さそわれて 手伝っている ときは リーダーの ものがたりの 世界
+  worldFlags(s) {
+    return (this.hostOf(s) || s).char?.flags || {};
+  }
+
   hasFlagFn(s) {
-    // 橋や とびらは パーティーの だれかが あけていれば とおれる
-    const p = partyOf(this, s);
-    const chars = (p?.members || [s.id]).map((sid) => this.sessions.get(sid)?.char).filter(Boolean);
-    return (f) => chars.some((c) => c.flags[f]);
+    const flags = this.worldFlags(s);
+    return (f) => !!flags[f];
   }
 
   onEnterTile(s, tx, ty) {
@@ -482,7 +485,8 @@ export class GameWorld {
       return;
     }
     if (this.checkTriggers(s, tx, ty)) return;
-    // ばしょの きろく（きかんのはね）
+    // ばしょの きろく（きかんのはね）。リーダーの 冒険を 手伝っている あいだは 自分の きろくに しない
+    if (this.hostOf(s)) return;
     for (const [id, p] of Object.entries(PLACES)) {
       if (s.map === 'overworld' && tx >= p.x && ty >= p.y && tx < p.x + p.w && ty < p.y + p.h && !s.char.visited?.[id]) {
         s.char.visited = s.char.visited || {};
@@ -520,7 +524,7 @@ export class GameWorld {
     const map = MAPS[s.map];
     for (const tr of map.triggers) {
       if (tx >= tr.x && ty >= tr.y && tx < tr.x + tr.w && ty < tr.y + tr.h) {
-        if (!condOk(tr.show, (f) => !!s.char.flags[f])) continue;
+        if (!condOk(tr.show, this.hasFlagFn(s))) continue;
         if (runScript(this, s, tr.script)) return true;
       }
     }
@@ -585,7 +589,8 @@ export class GameWorld {
   onInteract(s, msg) {
     if (s.busy) return;
     const map = MAPS[s.map];
-    const hasFlag = (f) => !!s.char.flags[f];
+    // 人・宝箱が 出ているかは 世界の フラグで（手伝っている ときは リーダーの 世界）
+    const hasFlag = this.hasFlagFn(s);
     if (msg.kind === 'npc') {
       const n = map.npcById[msg.id];
       if (!n || !condOk(n.show, hasFlag)) return;

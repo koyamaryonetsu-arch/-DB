@@ -548,6 +548,19 @@ body.touch .hud-chat { bottom: calc(230px + var(--safe-b)); }
 .bigbtn:hover, .bigbtn.sel { border-color: var(--accent); color: var(--accent); }
 .bigbtn:disabled { opacity: 0.5; cursor: default; }
 .bigbtn.home-btn { margin-top: 0.5em; font-size: 0.92em; border-color: #6fb3ff; }
+.bigbtn.home-btn.down { border-color: var(--line); opacity: 0.75; }
+/* 家族サーバーに つながらない ときの あんない */
+.server-down {
+  position: absolute;
+  left: 50%;
+  bottom: calc(12px + var(--safe-b));
+  transform: translateX(-50%);
+  width: min(94vw, 520px);
+  z-index: 80;
+  gap: 0.45em;
+  white-space: pre-line;
+}
+.server-down a.btn { text-decoration: none; }
 
 /* 家族サーバーと データを 合わせている あいだの まく */
 .sync-cover {
@@ -596,14 +609,14 @@ body.touch .textin { font-size: max(16px, 1em); }
 
 .chars { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 15em), 1fr)); gap: 0.6em; }
 .charcard { display: flex; gap: 0.7em; align-items: center; padding: 0.5em 0.7em; text-align: left; cursor: pointer; }
-.charcard canvas { width: 48px; height: 60px; image-rendering: pixelated; flex: none; }
+.charcard canvas { width: 48px; height: 63px; image-rendering: pixelated; flex: none; }
 .charcard.sel { border-color: var(--accent); }
 .charcard .meta { font-size: var(--fs-small); color: var(--muted); line-height: 1.35; }
 .charcard .on { color: var(--good); }
 
 .create { display: grid; grid-template-columns: auto 1fr; gap: 1em; align-items: start; }
 .create .preview { display: flex; flex-direction: column; align-items: center; gap: 0.4em; }
-.create .preview canvas { width: 96px; height: 120px; image-rendering: pixelated; }
+.create .preview canvas { width: 96px; height: 126px; image-rendering: pixelated; }
 .opt { display: flex; flex-wrap: wrap; gap: 0.35em; }
 .opt button { min-width: 2.4em; }
 .swatch { width: 2em; height: 2em; border-radius: 50%; border: 3px solid #333; padding: 0; }

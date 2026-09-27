@@ -1,20 +1,21 @@
 // フィールド（あるく・はなす・みる）
-import { MAPS, isBlocked, effectiveTile, condOk, tileAt, onWater } from '../shared/maps/index.js?v=cb6fd0fb30e1';
-import { T, TILE_INFO } from '../shared/tiles.js?v=cb6fd0fb30e1';
-import { PLACES } from '../shared/maps/overworld.js?v=cb6fd0fb30e1';
-import { TS, tileCanvas, frameOf, prepareMap } from './render/tiles.js?v=cb6fd0fb30e1';
-import { paintHuman, lookToOpts, npcOpts, paintSpecial, paintShip, equipKey, CW, CH } from './render/chars.js?v=cb6fd0fb30e1';
-import { monsterCanvas, bigNpcCanvas } from './render/monsters.js?v=cb6fd0fb30e1';
-import { MONSTERS } from '../shared/data/monsters.js?v=cb6fd0fb30e1';
-import { makeCanvas, ctxOf, shade, flipCanvas } from './render/pixel.js?v=cb6fd0fb30e1';
-import { chestCanvas as chestCanvas3d } from './render/tex3d.js?v=cb6fd0fb30e1';
-import { boardCanvas } from './render/boards.js?v=cb6fd0fb30e1';
-import { el } from './ui/dom.js?v=cb6fd0fb30e1';
+import { MAPS, isBlocked, effectiveTile, condOk, tileAt, onWater } from '../shared/maps/index.js?v=bc78c1f3dcbf';
+import { T, TILE_INFO } from '../shared/tiles.js?v=bc78c1f3dcbf';
+import { PLACES } from '../shared/maps/overworld.js?v=bc78c1f3dcbf';
+import { TS, tileCanvas, frameOf, prepareMap } from './render/tiles.js?v=bc78c1f3dcbf';
+import { paintHuman, lookToOpts, npcOpts, paintSpecial, paintShip, equipKey, CW, CH } from './render/chars.js?v=bc78c1f3dcbf';
+import { monsterCanvas, bigNpcCanvas } from './render/monsters.js?v=bc78c1f3dcbf';
+import { MONSTERS } from '../shared/data/monsters.js?v=bc78c1f3dcbf';
+import { makeCanvas, ctxOf, shade, flipCanvas } from './render/pixel.js?v=bc78c1f3dcbf';
+import { chestCanvas as chestCanvas3d } from './render/tex3d.js?v=bc78c1f3dcbf';
+import { boardCanvas } from './render/boards.js?v=bc78c1f3dcbf';
+import { el } from './ui/dom.js?v=bc78c1f3dcbf';
 
 const SPEED = 4.6; // マス/びょう
 const RUN = 1.65; // はしると この ばい
 const SHIP = 1.25; // 船は すこし はやい
 const DAY_MS = 24 * 60 * 1000;
+const RES = 2; // がめんの こまかさ（せかいの 1ドットを 2×2 で かく）
 
 const spriteCache = new Map();
 function charSprite(key, opts, dir, frame) {
@@ -155,7 +156,7 @@ export class Field {
     if (mode === '3d' && Field.webgl2() && cv) {
       if (!this.r3d) {
         try {
-          const { Field3D } = await import('./render/field3d.js?v=cb6fd0fb30e1');
+          const { Field3D } = await import('./render/field3d.js?v=bc78c1f3dcbf');
           this.r3d = new Field3D(this, cv);
         } catch (e) {
           console.warn('2.5Dにできませんでした', e);
@@ -181,9 +182,11 @@ export class Field {
     if (Math.min(w, h) / this.scale < 16 * 9) this.scale = Math.max(1, this.scale - 1);
     this.vw = Math.ceil(w / this.scale);
     this.vh = Math.ceil(h / this.scale);
-    this.canvas.width = this.vw;
-    this.canvas.height = this.vh;
+    // 人の ドット絵が こまかい（res 2）ので、がめんは 2ばいの こまかさで かく。ざひょうは これまでと おなじ
+    this.canvas.width = this.vw * RES;
+    this.canvas.height = this.vh * RES;
     this.ctx = ctxOf(this.canvas);
+    this.ctx.setTransform(RES, 0, 0, RES, 0, 0);
     this.darkCanvas.width = this.vw;
     this.darkCanvas.height = this.vh;
   }
@@ -225,13 +228,16 @@ export class Field {
     return { x: cx, y: cy };
   }
 
+  // 世界の フラグ（人の いち・橋・とびら など）。さそわれて 手伝っている ときは リーダーの ものがたりの 世界
   hasFlag(f) {
+    const world = this.game.worldFlagSet;
+    if (world && this.game.visitingLeader()) return world.has(f);
     const c = this.game.me;
     return !!c?.flags?.[f];
   }
 
   gateFlag(f) {
-    return this.hasFlag(f) || (this.game.party?.gateFlags || []).includes(f);
+    return this.hasFlag(f);
   }
 
   npcVisible(n) {
@@ -992,14 +998,17 @@ export class Field {
 
   drawAt(c, x, y, camX, camY, shadow = true) {
     if (!c) return;
-    const px = Math.round(x * TS - c.width / 2 - camX);
-    const py = Math.round(y * TS - c.height + 3 - camY);
+    // こまかい え（res 2）は 見た目の 大きさで おく
+    const r = c.res || 1;
+    const w = c.width / r, h = c.height / r;
+    const px = Math.round(x * TS - w / 2 - camX);
+    const py = Math.round(y * TS - h + 3 - camY);
     // かげ
     if (shadow) {
       this.ctx.fillStyle = 'rgba(0,0,0,0.22)';
-      this.ctx.fillRect(px + 4, py + c.height - 3, c.width - 8, 2);
+      this.ctx.fillRect(px + 4, py + h - 3, w - 8, 2);
     }
-    this.ctx.drawImage(c, px, py);
+    this.ctx.drawImage(c, px, py, w, h);
   }
 
   drawPlayer(o, camX, camY, look, job, mine = false, eq = undefined) {

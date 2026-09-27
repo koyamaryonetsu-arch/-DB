@@ -4,14 +4,14 @@
 //   うえ: 店の なまえ・所持金・✕閉じる
 //   まんなか: ひだり＝品物や コマンド、みぎ＝せつめいと「だれが どう かわるか」
 //   した: 店の人の ことば（はい／いいえ は ここの みぎに 出る）
-import { el, ListMenu } from './dom.js?v=cb6fd0fb30e1';
-import { ITEMS, sellPrice } from '../../shared/data/items.js?v=cb6fd0fb30e1';
-import { MONSTERS } from '../../shared/data/monsters.js?v=cb6fd0fb30e1';
-import { JOBS } from '../../shared/data/jobs.js?v=cb6fd0fb30e1';
-import { computeStats, canEquipChar, itemCount } from '../../shared/stats.js?v=cb6fd0fb30e1';
-import { itemStats, whoCanEquip } from './info.js?v=cb6fd0fb30e1';
-import { faceURL } from '../field.js?v=cb6fd0fb30e1';
-import { boardIconURL } from '../render/boards.js?v=cb6fd0fb30e1';
+import { el, ListMenu } from './dom.js?v=bc78c1f3dcbf';
+import { ITEMS, sellPrice } from '../../shared/data/items.js?v=bc78c1f3dcbf';
+import { MONSTERS } from '../../shared/data/monsters.js?v=bc78c1f3dcbf';
+import { JOBS } from '../../shared/data/jobs.js?v=bc78c1f3dcbf';
+import { computeStats, canEquipChar, itemCount } from '../../shared/stats.js?v=bc78c1f3dcbf';
+import { itemStats, whoCanEquip } from './info.js?v=bc78c1f3dcbf';
+import { faceURL } from '../field.js?v=bc78c1f3dcbf';
+import { boardIconURL } from '../render/boards.js?v=bc78c1f3dcbf';
 
 const TYPE_MS = 18;
 export const EQUIP_TYPES = ['weapon', 'armor', 'shield', 'head', 'acc'];

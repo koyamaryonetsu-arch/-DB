@@ -1,15 +1,15 @@
 // お店・転職・酒場・でんごんばん・ほしのかけら・きょうかい の がめん
-import { el, ListMenu, toast, askText, confirmBox, esc } from './dom.js?v=cb6fd0fb30e1';
-import { ITEMS } from '../../shared/data/items.js?v=cb6fd0fb30e1';
-import { JOBS, JOB_ORDER, ADVANCED_ORDER, SUPER_ORDER, TIER_NAMES, JOB_MAX_LEVEL, JOB_TRAIN_GAP, jobReqText } from '../../shared/data/jobs.js?v=cb6fd0fb30e1';
-import { ABILITIES } from '../../shared/data/abilities.js?v=cb6fd0fb30e1';
-import { itemCount, learnedAbilities, jobUnlocked, jobProgress } from '../../shared/stats.js?v=cb6fd0fb30e1';
-import { MONSTERS } from '../../shared/data/monsters.js?v=cb6fd0fb30e1';
-import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES } from '../../shared/data/companions.js?v=cb6fd0fb30e1';
-import { TACTICS } from '../../shared/ai.js?v=cb6fd0fb30e1';
-import { itemDetail } from './info.js?v=cb6fd0fb30e1';
-import { playerSprite, followerSprite, faceURL } from '../field.js?v=cb6fd0fb30e1';
-import { shopUI, churchUI } from './shop.js?v=cb6fd0fb30e1';
+import { el, ListMenu, toast, askText, confirmBox, esc } from './dom.js?v=bc78c1f3dcbf';
+import { ITEMS } from '../../shared/data/items.js?v=bc78c1f3dcbf';
+import { JOBS, JOB_ORDER, ADVANCED_ORDER, SUPER_ORDER, TIER_NAMES, JOB_MAX_LEVEL, JOB_TRAIN_GAP, jobReqText } from '../../shared/data/jobs.js?v=bc78c1f3dcbf';
+import { ABILITIES } from '../../shared/data/abilities.js?v=bc78c1f3dcbf';
+import { itemCount, learnedAbilities, jobUnlocked, jobProgress } from '../../shared/stats.js?v=bc78c1f3dcbf';
+import { MONSTERS } from '../../shared/data/monsters.js?v=bc78c1f3dcbf';
+import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES } from '../../shared/data/companions.js?v=bc78c1f3dcbf';
+import { TACTICS } from '../../shared/ai.js?v=bc78c1f3dcbf';
+import { itemDetail } from './info.js?v=bc78c1f3dcbf';
+import { playerSprite, followerSprite, faceURL } from '../field.js?v=bc78c1f3dcbf';
+import { shopUI, churchUI } from './shop.js?v=bc78c1f3dcbf';
 
 export function openServiceUI(game, kind, data) {
   switch (kind) {
