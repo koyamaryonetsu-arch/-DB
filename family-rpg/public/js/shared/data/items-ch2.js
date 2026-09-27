@@ -38,7 +38,7 @@ export const SHOPS_CH2 = {
     kind: 'arms',
     keeper: '店のおやじ',
     hello: 'いらっしゃい！海の男のための、\nじょうぶな武器と防具がそろってるよ！\n今日はどうする？',
-    items: ['silver_sword', 'pirate_axe', 'silver_dagger', 'coral_spear', 'shark_fang', 'wave_staff', 'sea_fan', 'chain_whip',
+    items: ['silver_sword', 'pirate_axe', 'silver_dagger', 'coral_spear', 'shark_fang', 'wave_staff', 'sea_fan', 'chain_whip', 'legend_bat',
       'silver_mail', 'sailor_clothes', 'coral_robe', 'wave_gi', 'silver_shield', 'shell_shield', 'silver_helm', 'captain_hat'],
   },
   port_item: {

@@ -1,7 +1,8 @@
 // フィールドの メニュー
 import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js';
 import { ITEMS, SLOTS, SLOT_NAMES } from '../../shared/data/items.js';
-import { ABILITIES } from '../../shared/data/abilities.js';
+import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js';
+import { affinityOf } from '../../shared/battle.js';
 import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, TIER_NAMES } from '../../shared/data/jobs.js';
 import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboUnlocked, comboAllowed, comboJobNames, jobProgress } from '../../shared/stats.js';
 import { MONSTERS } from '../../shared/data/monsters.js';
@@ -163,13 +164,16 @@ export class FieldMenu {
     const title = { skills: 'だれの呪文？', equip: 'だれの装備？', status: 'だれの強さ？' }[next] || 'だれ？';
     const items = [{ label: `${g.me.name}（自分）`, value: 'self', face: faceURL({ look: g.me.look, job: g.me.job, eq: g.me.equip }) },
       ...mates.map((m) => ({ label: `${m.name}（${m.species ? MONSTERS[m.species]?.name : JOBS[m.job]?.name} Lv${m.level}）`, value: m.key, face: faceURL({ look: m.look, job: m.job, eq: m.equip, mon: m.species || undefined }) }))];
+    // 強さは「全員」を 一覧で くらべられる
+    if (next === 'status') items.unshift({ label: '全員（一覧でくらべる）', value: '__all' });
     const m = this.mkSub({
       items,
       onSelect: (it) => {
-        this.who = it.value;
+        this.who = it.value === '__all' ? 'self' : it.value;
         this.sub.blur();
         this.sub = null;
-        const view = next === 'skills' ? this.skillsView(true, it.value) : next === 'equip' ? this.equipView(true, it.value) : this.statusView(it.value, true);
+        const view = it.value === '__all' ? this.allStatusView(true)
+          : next === 'skills' ? this.skillsView(true, it.value) : next === 'equip' ? this.equipView(true, it.value) : this.statusView(it.value, true);
         this.focusSub(view);
       },
     });
@@ -177,9 +181,16 @@ export class FieldMenu {
     return box;
   }
 
+  // パーティーに 自分 いがいの 人（家族・なかま・ゲスト）が いるか
+  hasOthers() {
+    const p = this.game.party;
+    return !!p && ((p.members || []).length > 1 || (p.supports || []).length > 0 || (p.guests || []).length > 0);
+  }
+
   select(v) {
     const g = this.game;
-    if (['skills', 'equip', 'status'].includes(v) && this.myMates().length) return this.focusSub(this.whoView(v));
+    if (['skills', 'equip'].includes(v) && this.myMates().length) return this.focusSub(this.whoView(v));
+    if (v === 'status' && (this.myMates().length || this.hasOthers())) return this.focusSub(this.whoView(v));
     switch (v) {
       case 'items': return this.focusSub(this.itemsList(true));
       case 'skills': return this.focusSub(this.skillsView(true));
@@ -366,11 +377,13 @@ export class FieldMenu {
       const a = ABILITIES[id];
       const p = penaltyFor(c, id);
       const locked = a.kind === 'combo' && !comboAllowed(c, id);
+      const elm = a.effect?.element;
       return {
-        html: `${a.name}${a.kind === 'combo' ? `<span class="tag ${locked ? 'muted' : 'gold'}">掛け合わせ${locked ? '（上級職で）' : ''}</span>` : ''}${p.penalized ? '<span class="tag warn">他</span>' : ''}`,
+        html: `${ELEMENT_NAMES[elm] ? `<span class="elem e-${elm}">${ELEMENT_NAMES[elm]}</span>` : ''}${a.name}${a.kind === 'combo' ? `<span class="tag ${locked ? 'muted' : 'gold'}">掛け合わせ${locked ? '（上級職で）' : ''}</span>` : ''}${p.penalized ? '<span class="tag warn">他</span>' : ''}`,
         right: a.effect.type === 'mahouken' ? '' : `MP${mpCost(c, id)}`,
         rightCls: p.penalized ? 'pen' : '',
         value: id,
+        cls: `k-${abilityRole(a)}`,
         disabled: active && (!a.field || locked),
       };
     });
@@ -489,6 +502,53 @@ export class FieldMenu {
     return box;
   }
 
+  // ───── つよさ（全員を 一覧で くらべる） ─────
+  allStatusView(active = false) {
+    const g = this.game;
+    const p = g.party || {};
+    const cols = [];
+    const add = (x, st, kind) => cols.push({
+      name: x.name, level: x.level, hp: x.hp, mp: x.mp, maxHp: st.maxHp ?? x.maxHp, maxMp: st.maxMp ?? x.maxMp, st, kind,
+      face: faceURL({ look: x.look, job: x.job, eq: x.equip, mon: x.species || undefined }),
+    });
+    add(g.me, computeStats(g.me), JOBS[g.me.job]?.name || '');
+    for (const m of this.myMates()) {
+      const c = this.charOf(m.key);
+      if (c) add(m, computeStats(c), m.species ? MONSTERS[m.species]?.name || '' : JOBS[m.job]?.name || '');
+    }
+    // 家族（パーティーの ほかの 人）と その なかま、ゲスト
+    for (const m of p.members || []) if (m.sid !== g.sid && m.st) add(m, m.st, JOBS[m.job]?.name || '');
+    for (const m of p.supports || []) if (m.owner !== g.me.id && m.st) add(m, m.st, m.species ? MONSTERS[m.species]?.name || '' : JOBS[m.job]?.name || '');
+    for (const m of p.guests || []) if (m.st) add(m, m.st, JOBS[m.job]?.name || '');
+    const rows = [
+      ['レベル', (x) => x.level],
+      ['HP', (x) => x.maxHp, (x) => `${Math.max(0, x.hp)}/${x.maxHp}`],
+      ['MP', (x) => x.maxMp, (x) => `${Math.max(0, x.mp)}/${x.maxMp}`],
+      ['力', (x) => x.st.str], ['身の守り', (x) => x.st.def], ['素早さ', (x) => x.st.agi],
+      ['攻撃魔力', (x) => x.st.mag], ['回復魔力', (x) => x.st.heal],
+      ['攻撃力', (x) => x.st.atk], ['守備力', (x) => x.st.dfn],
+    ];
+    const table = el('table', { class: 'allstat' });
+    const head = el('tr', {}, el('th'));
+    for (const x of cols) head.append(el('th', {}, el('img', { class: 'face', src: x.face, alt: '' }), el('div', { class: 'nm', text: x.name }), el('div', { class: 'jb', text: x.kind })));
+    table.append(head);
+    for (const [label, val, show] of rows) {
+      const vals = cols.map(val);
+      const best = cols.length > 1 ? Math.max(...vals) : null;
+      const tr = el('tr', {}, el('th', { text: label }));
+      cols.forEach((x, i) => tr.append(el('td', { class: vals[i] === best ? 'gold' : '', text: String(show ? show(x) : vals[i]) })));
+      table.append(tr);
+    }
+    const box = el('div');
+    box.append(el('h3', { text: '全員の強さ' }), el('div', { class: 'allstat-wrap' }, table),
+      el('div', { class: 'detail', text: '黄色は、その強さが一番高い人。' }));
+    if (active) {
+      this.mkSub({ items: [{ label: 'もどる', value: 'back' }], onSelect: () => this.back() });
+      box.append(this.sub.root);
+    }
+    return box;
+  }
+
   // ───── なかま ─────
   partyView(active) {
     const g = this.game;
@@ -547,7 +607,7 @@ export class FieldMenu {
       const b = bs[sp] || {};
       const friend = (b.friend || 0) > 0;
       const bred = (b.bred || 0) > 0;
-      return { seen: (b.seen || 0) > 0 || (kills[sp] || 0) > 0 || friend || bred, friend, bred, kills: kills[sp] || 0 };
+      return { seen: (b.seen || 0) > 0 || (kills[sp] || 0) > 0 || friend || bred, friend, bred, kills: kills[sp] || 0, raw: b };
     };
     const box = el('div', { class: active ? 'zukan-box' : '' });
     const count = (k) => order.filter((sp) => st(sp)[k]).length;
@@ -588,6 +648,15 @@ export class FieldMenu {
         el('div', { class: 'small', text: M.desc || '' }),
         el('div', { class: 'small', text: `${how}${s.friend ? '　★仲間にした' : ''}${s.bred ? '　★配合で生んだ' : ''}` }),
       );
+      // 属性の 得手不得手（戦いで ためした ものだけ 分かる）
+      const MARK = { weak: '◎', normal: '○', resist: '△', null: '×' };
+      const affRow = el('div', { class: 'small zukan-aff' }, el('span', { class: 'muted', text: '属性 ' }));
+      for (const e of ELEMENT_ORDER) {
+        const known = !!s.raw[`el_${e}`];
+        const aff = known ? affinityOf(M.resist?.[e] ?? 1) : null;
+        affRow.append(el('span', { class: `zaff ${aff || 'unk'}` }, el('span', { class: `elem e-${e}`, text: ELEMENT_NAMES[e] }), el('span', { text: known ? MARK[aff] : '？' })));
+      }
+      detail.append(affRow, el('div', { class: 'small muted', text: '◎弱点 ○ふつう △効きにくい ×効かない ？まだためしていない' }));
     };
     const m = this.mkSub({
       items: order.map((sp, i) => {

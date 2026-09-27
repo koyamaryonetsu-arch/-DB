@@ -11,6 +11,7 @@ import { makeRng } from './rng.js';
 import { ABILITIES, TEAM_COMBOS } from './data/abilities.js';
 import { MONSTERS } from './data/monsters.js';
 import { ITEMS } from './data/items.js';
+import { JOBS } from './data/jobs.js';
 import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed } from './stats.js';
 import { decideMonster, decideAlly } from './ai.js';
 
@@ -38,6 +39,8 @@ export class Battle {
     this.queue = [];
     this.events = [];
     this.combatants = [];
+    // ためした 属性（'まもの|属性'）。たたかいの あとで 図鑑に のこす
+    this.tried = new Set();
     this.over = false;
     this.result = null;
     this.pendingEnd = null;
@@ -377,7 +380,12 @@ export class Battle {
       if (!confused && cmd.type === 'ai') {
         cmd = c.side === 'enemy' ? decideMonster(this, c) : decideAlly(this, c);
       }
-      this.perform(c, cmd, ev);
+      // 遊び人は ときどき かってに 遊びだす（にげる ときは まじめ）
+      const goof = !confused && c.side === 'ally' && cmd.type !== 'flee' ? (JOBS[c.job]?.passive?.goof || 0) : 0;
+      if (goof && ABILITIES.js_asobu && this.rng.chance(goof)) {
+        ev.lines.push(`${c.name}は遊んでいる！`);
+        this.applyAbility(c, ABILITIES.js_asobu, {}, ev, 1);
+      } else this.perform(c, cmd, ev);
       this.tickStatus(c, 'blind', ev);
       this.tickStatus(c, 'silence', ev);
     }
@@ -583,7 +591,7 @@ export class Battle {
     const targets = givenTargets || this.targetsFor(c, a, cmd);
     this.pushCoverMsg(ev);
     ev.fx = { type: 'ability', anim: a.anim, actor: c.id, targets: targets.map((t) => t.id), side: c.side, element: eff.element };
-    if (!targets.length && !['callHelp', 'flee', 'nothing', 'telegraph', 'charge', 'bondUp'].includes(eff.type)) {
+    if (!targets.length && !['callHelp', 'flee', 'nothing', 'telegraph', 'charge', 'bondUp', 'escape', 'goldThrow'].includes(eff.type)) {
       ev.lines.push('しかし効果がなかった！');
       return;
     }
@@ -607,6 +615,8 @@ export class Battle {
           }
         }
         if (eff.atbAfter) ev.atbAfter = eff.atbAfter;
+        // 50-50 など: こうげきの あとで ぬすむ
+        if (eff.steal && targets[0]) this.trySteal(c, targets[0], ev, eff.steal);
         // もろばぎり: じぶんも ダメージを うける
         if (eff.recoil && ev.dealt > 0 && c.alive) {
           const r = Math.max(1, Math.round(ev.dealt * eff.recoil));
@@ -707,6 +717,81 @@ export class Battle {
       }
       case 'charge': {
         c.charge = Math.max(c.charge || 1, eff.mult);
+        // 残業: 体をけずって 力を ためる
+        if (eff.hpCost && c.hp > 1) {
+          const d = Math.min(c.hp - 1, Math.max(1, Math.round(c.maxHp * eff.hpCost)));
+          c.hp -= d;
+          ev.lines.push(`${c.name}は${d}のダメージを受けた…`);
+          ev.upd.push(c);
+        }
+        break;
+      }
+      case 'atbSet': {
+        // 行動ゲージを かえる（非常ブレーキ＝敵を 止める、鶴の一声＝味方が すぐ 動く）
+        for (const t of targets) {
+          if (!t.alive || t.fled) continue;
+          const next = eff.value !== undefined ? eff.value : Math.min(100, (t.atb || 0) + (eff.add || 0));
+          if (t === c) ev.atbAfter = next;
+          else if (t.side === 'enemy') {
+            this.queue = this.queue.filter((q) => q.id !== t.id);
+            t.queued = false;
+            t.atb = next;
+          } else if (!t.ready && !t.queued) t.atb = next;
+          ev.lines.push(fmtLine(eff.msg || (t.side === 'enemy' ? '{t}の動きが止まった！' : '{t}はすぐに動けそうだ！'), c, t));
+          ev.upd.push(t);
+        }
+        break;
+      }
+      case 'banish': {
+        // 回送電車・異動命令: 敵を 戦いから おいだす（ボスには 効かない）
+        for (const t of targets) {
+          if (!t.alive || t.fled) continue;
+          if (t.boss || !this.rng.chance((eff.chance ?? 0.5) * (t.resist?.banish ?? 1))) {
+            ev.lines.push(fmtLine(eff.failMsg || 'しかし{t}には効かなかった！', c, t));
+            continue;
+          }
+          t.fled = true;
+          t.alive = false;
+          t.queued = false;
+          t.ready = false;
+          this.queue = this.queue.filter((q) => q.id !== t.id);
+          this.fledEnemies.push(t.species);
+          ev.lines.push(fmtLine(eff.msg || '{t}はどこかへ行ってしまった！', c, t));
+          if (eff.gold && this.hooks.gainGold) {
+            const g = this.hooks.gainGold(c, t.species, eff.gold);
+            if (g > 0) ev.lines.push(`${g}ゴールドを手に入れた！`);
+          }
+          ev.upd.push(t);
+        }
+        break;
+      }
+      case 'goldThrow': {
+        // 銭投げ: お金を 投げて 敵全体に ダメージ（守りは 関係ない）
+        const want = Math.round((eff.base || 50) + (c.lv || 1) * (eff.perLv || 10));
+        const paid = this.hooks.spendGold ? this.hooks.spendGold(c, want) : 0;
+        if (!paid) {
+          ev.lines.push('しかしお金が足りない！');
+          break;
+        }
+        ev.lines.push(`${paid}ゴールドを投げつけた！`);
+        const each = Math.max(1, Math.round(paid * (eff.mult || 1) * (0.5 + powMult / 2)));
+        for (const t of targets) if (t.alive) this.damage(c, t, t.metal ? this.rng.int(0, 1) : each, ev, {});
+        this.afterDamage(c, ev, 'phys');
+        break;
+      }
+      case 'steal': {
+        if (targets[0]) this.trySteal(c, targets[0], ev, eff.chance ?? 0.6);
+        break;
+      }
+      case 'escape': {
+        // 定時ダッシュ: かならず にげられる（にげられない 戦いは だめ）
+        if (!this.canFlee) {
+          ev.lines.push('しかし逃げられない！');
+          break;
+        }
+        ev.lines.push(`${c.name}たちは逃げ出した！`);
+        ev.fx = { type: 'flee' };
+        this.pendingEnd = { outcome: 'flee' };
         break;
       }
       case 'cover': {
@@ -779,6 +864,20 @@ export class Battle {
     }
   }
 
+  // ぬすむ（1体に つき 1回）
+  trySteal(c, t, ev, chance = 0.6) {
+    if (!t?.alive || t.side !== 'enemy') return;
+    if (t.stolen) {
+      ev.lines.push(`${t.name}はもう何も持っていない。`);
+      return;
+    }
+    const got = this.rng.chance(chance) && this.hooks.steal ? this.hooks.steal(c, t.species) : null;
+    if (got) {
+      t.stolen = true;
+      ev.lines.push(`${c.name}は${got}をぬすんだ！`);
+    } else ev.lines.push('しかし何もぬすめなかった！');
+  }
+
   // ───────────── ダメージ計算 ─────────────
   physHit(c, t, eff, ev, element, powMult = 1) {
     if (!t.alive) return 0;
@@ -791,7 +890,7 @@ export class Battle {
       return 0;
     }
     if (res.crit) ev.lines.push(c.side === 'ally' ? '会心の一撃！' : 'つうこんの一撃！');
-    this.damage(c, t, res.dmg, ev, { crit: res.crit, element });
+    this.damage(c, t, res.dmg, ev, { crit: res.crit, element, nonLethal: eff.nonLethal });
     if (eff.forceCrit !== undefined || res.crit) { /* noop */ }
     return res.dmg;
   }
@@ -844,7 +943,7 @@ export class Battle {
     if (res.resisted || res.dmg === 0) {
       ev.lines.push(t.side === 'enemy' ? `しかし${t.name}には効かなかった！` : `${t.name}はダメージを受けない！`);
       ev.results = ev.results || [];
-      ev.results.push({ id: t.id, miss: true });
+      ev.results.push({ id: t.id, miss: true, element: eff.element, aff: this.noteTried(t, eff.element) || undefined });
       return 0;
     }
     this.damage(c, t, res.dmg, ev, { element: eff.element });
@@ -853,6 +952,15 @@ export class Battle {
 
   damage(c, t, dmg, ev, info = {}) {
     ev.results = ev.results || [];
+    // 峰打ち: たおさずに HP を 1 のこす
+    if (info.nonLethal && dmg >= t.hp) {
+      dmg = Math.max(0, t.hp - 1);
+      if (dmg <= 0) {
+        ev.lines.push(`${c.name}は手かげんした。`);
+        ev.results.push({ id: t.id, dmg: 0 });
+        return;
+      }
+    }
     if (dmg <= 0) {
       ev.lines.push(t.side === 'enemy' ? `ミス！${t.name}にダメージをあたえられない！` : `ミス！${t.name}はダメージを受けない！`);
       ev.results.push({ id: t.id, dmg: 0 });
@@ -860,7 +968,11 @@ export class Battle {
     }
     t.hp = Math.max(0, t.hp - dmg);
     ev.lines.push(t.side === 'enemy' ? `${t.name}に${dmg}のダメージ！` : `${t.name}は${dmg}のダメージを受けた！`);
-    ev.results.push({ id: t.id, dmg, crit: !!info.crit, element: info.element });
+    // 属性の 効きぐあい（敵だけ。ためした 属性は 図鑑に のこる）
+    const aff = this.noteTried(t, info.element);
+    if (aff === 'weak') ev.lines.push('弱点をついた！');
+    else if (aff === 'resist') ev.lines.push(`${t.name}には、あまり効いていない…`);
+    ev.results.push({ id: t.id, dmg, crit: !!info.crit, element: info.element, aff: aff || undefined });
     ev.upd.push(t);
     ev.dealt = (ev.dealt || 0) + dmg;
     ev.lastTarget = t;
@@ -872,6 +984,13 @@ export class Battle {
     }
     if (t.hp <= 0) ev.lines.push(...this.kill(t));
     else if (t.boss) this.checkPhase(t, ev);
+  }
+
+  // 敵に 属性の 技を あてた: 効きぐあいを かえす（weak / resist / null / normal）
+  noteTried(t, element) {
+    if (t.side !== 'enemy' || !element || element === 'phys' || !t.species) return null;
+    this.tried.add(`${t.species}|${element}`);
+    return affinityOf(t.resist?.[element] ?? 1);
   }
 
   kill(t) {
@@ -1294,6 +1413,19 @@ export function enemyFromSpecies(sp) {
 }
 
 // クライアントに みせる じょうほう
+// 技の メッセージ（{a}＝使った人 {t}＝相手）
+function fmtLine(tmpl, c, t) {
+  return String(tmpl).replaceAll('{a}', c.name).replaceAll('{t}', t ? t.name : '');
+}
+
+// 属性の 効きぐあい（resist の かず → 弱点・効きにくい・効かない）
+export function affinityOf(r) {
+  if (r === 0) return 'null';
+  if (r >= 1.2) return 'weak';
+  if (r <= 0.8) return 'resist';
+  return 'normal';
+}
+
 export function pub(c) {
   const st = Object.keys(c.status || {});
   const buffs = [...Object.keys(c.buffs || {}).map((k) => '+' + k), ...Object.keys(c.debuffs || {}).map((k) => '-' + k)];

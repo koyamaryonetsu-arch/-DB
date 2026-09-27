@@ -47,6 +47,19 @@ const JOB_LOOK = {
   hero: { outfit: 'traveler', cloth: '#3f7fd0', hat: 'headband' },
   monster_master: { outfit: 'vest', cloth: '#c8903a', hat: 'bandana', hatColor: '#c8903a' },
   star_diva: { outfit: 'dress', cloth: '#f7a1c4', hat: 'feather' },
+  // 新しい 職業
+  jester: { outfit: 'jester', cloth: '#9a4ad0', hat: 'jester' },
+  salaryman: { outfit: 'suit', cloth: '#34405e', tie: '#c83a3a' },
+  idol: { outfit: 'dress', cloth: '#ff7ab8', hat: 'ribbon', hatColor: '#ffffff' },
+  railman: { outfit: 'uniform', cloth: '#1f2f5a', hat: 'conductor', hatColor: '#1f2f5a' },
+  ballplayer: { outfit: 'baseball', cloth: '#f4f4f4', trim: '#2a3a8a', hat: 'bbcap', hatColor: '#2a3a8a' },
+  samurai: { outfit: 'hakama', cloth: '#3a3a5a', hakama: '#5a4a3a', hat: 'headband', hatColor: '#f4f4f4' },
+  bucho: { outfit: 'suit', cloth: '#5a5a64', tie: '#2a6ad0', glasses: true },
+  major_leaguer: { outfit: 'baseball', cloth: '#d4d8e0', trim: '#1a2a5a', hat: 'bbcap', hatColor: '#1a2a5a' },
+  sword_master: { outfit: 'armor', cloth: '#3a4a9a', cape: '#2a3a7a' },
+  shogun: { outfit: 'yoroi', cloth: '#8a2a2a', hat: 'kabuto', hatColor: '#2a2a32' },
+  shacho: { outfit: 'suit', cloth: '#22222c', tie: '#f2c14e', glasses: true },
+  nitoryu: { outfit: 'baseball', cloth: '#f4f4f4', trim: '#c83a3a', hat: 'bbcap', hatColor: '#1a2a5a' },
 };
 
 // よろい・ふくの みため（'cloth' は じぶんで えらんだ いろ）
@@ -61,6 +74,7 @@ const ARMOR_LOOK = {
   martial_gi: { outfit: 'gi' },
   dragon_gi: { outfit: 'gi', cloth: '#c83a3a', giTrim: '#f2c14e' },
   star_mail: { outfit: 'starmail' },
+  suit: { outfit: 'suit', cloth: '#34405e', tie: '#c83a3a' },
 };
 
 // かぶと・ぼうしの みため
@@ -69,6 +83,7 @@ const HEAD_LOOK = {
   pointy_hat: { hat: 'wizard', hatColor: '#4a3a8a' },
   bandana: { hat: 'bandana', hatColor: 'cloth' },
   iron_helm: { hat: 'helmet' },
+  bb_helmet: { hat: 'bbcap', hatColor: '#2a3a8a' },
 };
 
 // ぶきの いろ
@@ -93,6 +108,14 @@ const WEAPON_LOOK = {
   leather_whip: { blade: '#a0703a', guard: '#5a3a22' },
   thorn_whip: { blade: '#3a8a3a', guard: '#5a3a22' },
   flame_whip: { blade: '#ff7a3a', guard: '#8a2a1a' },
+  harisen: { blade: '#f4f0e0', guard: '#c83a3a' },
+  signal_flag: { blade: '#e84a3a', guard: '#8a6a4a' },
+  ballpen: { blade: '#3a6ad0', guard: '#dfe4f0' },
+  penlight: { blade: '#e8e8f0', orb: '#ff7ab8' },
+  wood_bat: { blade: '#d0a060', guard: '#6a4422' },
+  metal_bat: { blade: '#c8ccd8', guard: '#2a2a3a' },
+  legend_bat: { blade: '#f2c14e', guard: '#8a2a2a', glow: '#ffffff' },
+  katana: { blade: '#e8ecf4', guard: '#2a2a2a' },
 };
 
 // たての いろ
@@ -100,6 +123,7 @@ const SHIELD_LOOK = {
   leather_shield: { main: '#9a6a3a', rim: '#6a4422', boss: '#d8b070' },
   scale_shield: { main: '#4a9a6a', rim: '#2e6a46', boss: '#bfe6c8' },
   iron_shield: { main: '#b8bccb', rim: '#6d7184', boss: '#f2c14e' },
+  briefcase: { main: '#4a3226', rim: '#22160f', boss: '#c8a040' },
 };
 
 // NPCの みため
@@ -173,6 +197,10 @@ export function lookToOpts(look = {}, job = 'warrior', eq = undefined) {
   if (al.robeTrim) o.robeTrim = res(al.robeTrim);
   if (al.giTrim) o.giTrim = al.giTrim;
   if (al.holy) o.holy = true;
+  if (al.tie) o.tie = al.tie;
+  if (al.trim) o.trim = al.trim;
+  if (al.hakama) o.hakama = al.hakama;
+  if (al.cape) o.cape = al.cape;
   // ぼうし（ぬののふくの 武闘家は はちまき）
   const jl = JOB_LOOK[job] || {};
   const hl = e.head ? HEAD_LOOK[e.head] : (!ARMOR_LOOK[e.armor] && e.armor ? { hat: jl.hat || null, hatColor: jl.hatColor || null } : null);
@@ -181,6 +209,8 @@ export function lookToOpts(look = {}, job = 'warrior', eq = undefined) {
     o.hatColor = res(hl.hatColor || null);
   }
   if (!o.hat && o.outfit === 'gi') o.hat = 'headband';
+  // めがね（部長・社長）は どの ふくでも
+  if ((JOB_LOOK[job] || {}).glasses) o.glasses = true;
   // ぶき・たて
   const w = e.weapon && ITEMS[e.weapon];
   if (w) o.weapon = { cat: w.cat, ...(WEAPON_LOOK[e.weapon] || { blade: '#dfe4f0', guard: '#7a4a22' }) };
@@ -245,12 +275,15 @@ function drawBody(p, dir, f, o) {
   const sk = o.skin, skD = shade(o.skin, -0.18);
   const main = o.outfit === 'robe' ? o.robeMain : o.cloth;
   const mainD = shade(main, -0.25), mainL = shade(main, 0.18);
+  const suitLike = o.outfit === 'suit' || o.outfit === 'uniform';
   const pants = o.outfit === 'armor' || o.outfit === 'chain' ? '#4a4a5a' : o.outfit === 'gi' ? shade(o.cloth, -0.35)
-    : o.outfit === 'starmail' ? '#23285a' : o.outfit === 'wind' ? '#3a6a7a' : o.outfit === 'leather' ? '#5a3a22' : '#4a3a2e';
+    : o.outfit === 'starmail' ? '#23285a' : o.outfit === 'wind' ? '#3a6a7a' : o.outfit === 'leather' ? '#5a3a22'
+      : suitLike ? shade(o.cloth, -0.08) : o.outfit === 'baseball' ? shade(o.cloth, -0.06) : o.outfit === 'yoroi' ? '#2a2a30' : '#4a3a2e';
   const pantsD = shade(pants, -0.25);
-  const shoe = o.outfit === 'armor' || o.outfit === 'chain' ? '#6d7184' : o.outfit === 'starmail' ? '#c8c8e0' : '#5a3a22';
+  const shoe = o.outfit === 'armor' || o.outfit === 'chain' ? '#6d7184' : o.outfit === 'starmail' ? '#c8c8e0'
+    : suitLike ? '#1a1a22' : o.outfit === 'baseball' ? '#2a2a2a' : o.outfit === 'yoroi' ? '#3a2a1a' : '#5a3a22';
   const shoeL = shade(shoe, 0.3);
-  const long = o.outfit === 'robe' || o.outfit === 'dress' || o.outfit === 'shadow';
+  const long = o.outfit === 'robe' || o.outfit === 'dress' || o.outfit === 'shadow' || o.outfit === 'hakama';
 
   // あし・くつ
   if (!long) {
@@ -498,6 +531,94 @@ function drawBody(p, dir, f, o) {
       p.hline(dir === 'side' ? 7 : 6, dir === 'side' ? 24 : 25, 37, shade(main, 0.3));
       break;
     }
+    case 'suit': {
+      // スーツ: しろい シャツ・ネクタイ・えり
+      const tie = o.tie || '#c83a3a', tieD = shade(tie, -0.25);
+      if (dir === 'down') {
+        spans(p, [[22, 13, 18], [23, 13, 18], [24, 14, 17], [25, 14, 17], [26, 15, 16]], '#f4f4f4');
+        p.rect(15, 22, 2, 2, tie); p.vline(15, 24, 30, tie); p.vline(16, 24, 30, tieD); p.set(15, 31, tieD);
+        line(p, 12, 22, 14, 27, mainD); line(p, 19, 22, 17, 27, mainD);
+        p.set(13, 29, shade(main, 0.4)); p.set(13, 32, shade(main, 0.4));
+        p.hline(8, 23, 33, mainD);
+      } else if (dir === 'side') {
+        p.rect(10, 22, 3, 5, '#f4f4f4'); p.vline(11, 23, 29, tie); p.set(11, 30, tieD);
+        p.vline(13, 22, 27, mainD);
+      } else {
+        p.hline(10, 21, 22, '#f4f4f4'); p.vline(15, 26, 33, mainD); p.vline(16, 26, 33, mainL);
+      }
+      break;
+    }
+    case 'uniform': {
+      // 鉄道員の せいふく: 金の ボタン・えりの しるし
+      const gold = '#f2c14e';
+      if (dir === 'down') {
+        p.rect(13, 22, 6, 2, '#f4f4f4'); p.set(15, 24, '#2a2a2a'); p.set(16, 24, '#2a2a2a');
+        p.vline(15, 25, 33, mainD);
+        for (const y of [26, 29, 32]) { p.set(13, y, gold); p.set(18, y, gold); }
+        p.set(10, 23, gold); p.set(21, 23, gold);
+      } else if (dir === 'side') {
+        p.rect(10, 22, 2, 2, '#f4f4f4');
+        for (const y of [26, 29, 32]) p.set(12, y, gold);
+      } else p.vline(15, 24, 33, mainD);
+      belt('#1a1a22', gold);
+      break;
+    }
+    case 'baseball': {
+      // 野球の ユニフォーム: ふちの いろ（trim）・むねの マーク・せばんごう
+      const tr = o.trim || '#2a3a8a';
+      if (dir === 'down') {
+        spans(p, [[22, 14, 17], [23, 15, 16]], sk);
+        p.hline(12, 14, 22, tr); p.hline(17, 19, 22, tr); p.set(14, 23, tr); p.set(17, 23, tr);
+        p.vline(15, 24, 31, shade(main, -0.12));
+        p.rect(18, 25, 3, 3, tr); p.set(20, 27, main);
+        p.vline(8, 24, 31, tr); p.vline(23, 24, 31, tr);
+      } else if (dir === 'up') {
+        p.hline(11, 20, 22, tr);
+        p.rect(15, 25, 2, 6, tr); p.set(14, 26, tr); p.hline(14, 17, 30, tr);
+      } else {
+        p.hline(10, 13, 22, tr); p.vline(21, 23, 31, tr);
+      }
+      belt('#2a2a3a');
+      break;
+    }
+    case 'hakama': {
+      // サムライ: きものの えり・しろい おび・はかま（したは ぬりなおす）
+      const hk = o.hakama || '#5a4a3a', hkD = shade(hk, -0.28);
+      if (dir === 'side') {
+        spans(p, [[32, 9, 22], [33, 8, 23], [34, 8, 23], [35, 7, 23], [36, 7, 24], [37, 7, 24]], hk);
+        p.vline(12, 33, 37, hkD); p.vline(17, 33, 37, hkD); p.hline(7, 24, 37, hkD);
+        p.rect(10, 30, 12, 2, '#f4f4f4');
+        line(p, 11, 22, 13, 27, '#f4f4f4');
+      } else {
+        spans(p, [[32, 8, 23], [33, 8, 23], [34, 7, 24], [35, 7, 24], [36, 6, 25], [37, 6, 25]], hk);
+        for (const x of [10, 13, 18, 21]) p.vline(x, 33, 37, hkD);
+        p.hline(6, 25, 37, hkD);
+        p.rect(8, 30, 16, 2, '#f4f4f4'); p.hline(8, 23, 31, '#d8d8d8');
+        if (dir === 'down') {
+          line(p, 12, 22, 15, 28, '#f4f4f4'); line(p, 19, 22, 16, 28, '#f4f4f4');
+          p.set(15, 29, '#f4f4f4'); p.set(16, 29, '#f4f4f4');
+        } else p.hline(11, 20, 22, '#f4f4f4');
+      }
+      break;
+    }
+    case 'yoroi': {
+      // 将軍の よろい: いたを ひもで つないだ どう・かたの そで・こしの いた
+      const r = o.cloth, rD = shade(r, -0.32), rL = shade(r, 0.2), lace = '#1a1a1a', gold = '#d8b050';
+      if (dir === 'side') {
+        p.rect(10, 22, 12, 10, r); p.vline(10, 23, 30, rL);
+        for (const y of [24, 27, 30]) p.hline(10, 21, y, lace);
+        p.rect(12, 21, 9, 6, rD); p.hline(12, 20, 23, lace); p.hline(12, 20, 25, lace);
+        p.rect(10, 32, 12, 3, rD); p.vline(14, 32, 34, lace); p.vline(18, 32, 34, lace);
+      } else {
+        p.rect(8, 22, 16, 10, r); p.vline(8, 23, 30, rL);
+        for (const y of [24, 27, 30]) p.hline(8, 23, y, lace);
+        if (dir === 'down') for (const x of [11, 15, 19]) for (const y of [25, 28]) p.set(x, y, gold);
+        srect(p, 4, 21, 5, 7, rD, rD);
+        for (const y of [23, 25]) { p.hline(4, 8, y, lace); p.hline(23, 27, y, lace); }
+        p.rect(8, 32, 16, 3, rD); for (const x of [12, 16, 20]) p.vline(x, 32, 34, lace);
+      }
+      break;
+    }
     case 'shadow':
     default:
   }
@@ -592,6 +713,12 @@ function drawGear(p, dir, f, o) {
         p.rect(ax - 4, 30, 2, 2, gd);
         break;
       }
+      case 'bat': // バット（さきが ふとい）
+        p.rect(3, 13, 4, 9, bl); p.vline(3, 14, 21, blL); p.vline(6, 14, 21, blD); p.hline(4, 5, 12, bl);
+        p.rect(4, 22, 2, 7, bl); p.vline(5, 22, 28, blD);
+        p.rect(4, 29, 2, 5, gd); p.hline(3, 6, 34, gd);
+        if (w.glow) { p.set(4, 15, w.glow); p.set(5, 18, w.glow); }
+        break;
       case 'whip': // まるめた ムチ
         p.rect(4, 28, 2, 5, gd);
         for (const [x, y] of [[3, 34], [2, 35], [2, 36], [3, 37], [4, 38], [5, 37], [6, 36], [6, 35], [5, 34]]) p.set(x, y, bl);
@@ -637,6 +764,14 @@ function drawGear(p, dir, f, o) {
         for (let x = hx + 1; x <= hx + 4; x += 2) p.vline(x, hy - 6, hy - 2, shade(bl, -0.12));
       } else { p.rect(hx - 3, hy - 6, 5, 5, bl); p.hline(hx - 3, hx + 1, hy - 7, gd); }
       break;
+    case 'bat': {
+      // かたに かつぐ バット
+      p.rect(hx, hy - 1, 2, 4, gd); p.hline(hx - 1, hx + 2, hy + 3, gd);
+      p.rect(hx, hy - 8, 2, 7, bl); p.vline(hx + 1, hy - 8, hy - 2, blD);
+      p.rect(hx - 1, hy - 17, 4, 9, bl); p.vline(hx - 1, hy - 16, hy - 9, blL); p.vline(hx + 2, hy - 16, hy - 9, blD); p.hline(hx, hx + 1, hy - 18, bl);
+      if (w.glow) { p.set(hx, hy - 14, w.glow); p.set(hx + 1, hy - 11, w.glow); }
+      break;
+    }
     case 'whip': { // たれさがる ムチ
       const sx = dir === 'down' ? 1 : -1;
       p.rect(hx, hy, 2, 3, gd);
@@ -840,6 +975,73 @@ function drawHat(p, dir, f, o) {
   const hc = o.hatColor;
   const side = dir === 'side';
   switch (o.hat) {
+    case 'bbcap': {
+      // 野球ぼう（つばは まえ）
+      const c = hc || '#2a3a8a', cD = shade(c, -0.3), cL = shade(c, 0.25);
+      if (side) {
+        spans(p, [[1, 10, 18], [2, 8, 20], [3, 7, 21], [4, 7, 22], [5, 7, 22], [6, 7, 22], [7, 7, 22]], c);
+        p.hline(10, 16, 2, cL); p.vline(21, 3, 7, cD);
+        p.rect(1, 7, 8, 2, cD); p.hline(1, 7, 7, c);
+        p.rect(7, 8, 16, 1, cD);
+      } else {
+        spans(p, [[0, 11, 20], [1, 9, 22], [2, 7, 24], [3, 6, 25], [4, 6, 25], [5, 6, 25], [6, 6, 25], [7, 6, 25]], c);
+        p.hline(10, 19, 1, cL); p.vline(24, 3, 7, cD); p.vline(25, 4, 7, cD);
+        if (dir === 'down') {
+          p.rect(7, 8, 18, 2, cD); p.hline(7, 24, 8, shade(c, -0.12));
+          p.rect(14, 3, 4, 3, '#f4f4f4'); p.set(15, 4, c);
+        } else { p.rect(6, 8, 20, 1, cD); p.rect(14, 6, 4, 2, '#e4e4e4'); }
+      }
+      break;
+    }
+    case 'conductor': {
+      // 鉄道員の ぼうし（上が たいら・金の おび・くろい つば）
+      const c = hc || '#1f2f5a', cD = shade(c, -0.3), cL = shade(c, 0.25), g = '#f2c14e';
+      if (side) {
+        p.rect(7, 1, 17, 6, c); p.hline(7, 23, 1, cL); p.vline(23, 1, 6, cD);
+        p.rect(7, 6, 17, 2, g); p.rect(2, 8, 8, 2, '#1a1a1a'); p.rect(8, 8, 15, 1, cD);
+      } else {
+        p.rect(5, 1, 22, 6, c); p.hline(5, 26, 1, cL); p.vline(26, 1, 6, cD); p.vline(25, 2, 6, cD);
+        p.rect(6, 6, 20, 2, g);
+        if (dir === 'down') { p.rect(14, 2, 4, 3, g); p.set(15, 3, '#fff6c8'); p.rect(7, 8, 18, 2, '#1a1a1a'); }
+        else p.rect(6, 8, 20, 1, cD);
+      }
+      break;
+    }
+    case 'ribbon': {
+      // アイドルの 大きな リボン
+      const c = hc || '#ffffff', cD = shade(c, -0.2), k = '#ff7ab8';
+      if (side) {
+        spans(p, [[0, 13, 17], [1, 12, 18], [2, 12, 18], [3, 13, 17]], c);
+        spans(p, [[0, 20, 24], [1, 19, 25], [2, 19, 25], [3, 20, 24]], cD);
+        p.rect(17, 1, 3, 2, k);
+      } else {
+        spans(p, [[0, 8, 12], [1, 7, 13], [2, 7, 14], [3, 8, 13], [4, 9, 12]], c);
+        spans(p, [[0, 19, 23], [1, 18, 24], [2, 17, 24], [3, 18, 23], [4, 19, 22]], cD);
+        p.rect(14, 1, 4, 3, k); p.set(15, 1, shade(k, 0.35));
+        p.set(9, 1, k); p.set(22, 1, k);
+      }
+      break;
+    }
+    case 'kabuto': {
+      // 将軍の かぶと（金の くわがた・ひろい しころ）
+      const c = hc || '#2a2a32', cD = shade(c, -0.3), cL = shade(c, 0.3), g = '#e8c050', gD = '#b8902a';
+      if (side) {
+        spans(p, [[1, 10, 19], [2, 8, 21], [3, 7, 22], [4, 7, 23], [5, 7, 23], [6, 7, 23], [7, 6, 24]], c);
+        p.hline(10, 16, 2, cL);
+        spans(p, [[8, 12, 26], [9, 14, 27], [10, 16, 28], [11, 18, 28]], cD);
+        p.set(6, 3, g); p.set(5, 2, g); p.set(4, 1, g); p.set(4, 0, g); p.set(7, 4, gD);
+      } else {
+        spans(p, [[1, 11, 20], [2, 9, 22], [3, 8, 23], [4, 7, 24], [5, 7, 24], [6, 7, 24], [7, 6, 25]], c);
+        p.hline(11, 18, 2, cL);
+        spans(p, [[8, 3, 28], [9, 2, 29], [10, 2, 8], [10, 23, 29], [11, 2, 6], [11, 25, 29]], cD);
+        if (dir === 'down') {
+          // くわがた（V の かたち）
+          for (let i = 0; i < 5; i++) { p.set(13 - i, 5 - i, g); p.set(18 + i, 5 - i, g); p.set(14 - i, 5 - i, gD); p.set(17 + i, 5 - i, gD); }
+          p.rect(14, 5, 4, 3, g); p.set(15, 6, '#fff0b0');
+        }
+      }
+      break;
+    }
     case 'helmet': {
       const m = '#b8bccb', mD = '#7d8194', mL = '#eef0f6', g = '#f2c14e';
       if (side) {
@@ -875,7 +1077,7 @@ function drawHat(p, dir, f, o) {
       break;
     }
     case 'headband': {
-      const c = '#d9534f', cD = shade(c, -0.25);
+      const c = hc || '#d9534f', cD = shade(c, -0.25);
       if (side) { p.rect(6, 8, 17, 2, c); p.hline(6, 22, 9, cD); p.rect(23, 9, 2, 2, c); p.rect(24, 11, 2, 3, c); p.rect(25, 13 + f, 2, 2, cD); }
       else if (dir === 'down') { p.rect(6, 8, 20, 2, c); p.hline(6, 25, 9, cD); p.set(10, 8, shade(c, 0.3)); }
       else { p.rect(6, 8, 20, 2, c); p.hline(6, 25, 9, cD); p.rect(14, 10, 4, 2, c); p.rect(13, 12, 2, 3 + f, c); p.rect(17, 12, 2, 3 - f, cD); }
@@ -1003,6 +1205,46 @@ function drawHat(p, dir, f, o) {
 }
 
 // からだ ぜんたい（ドットは 32×42。res: 2 … まえの 16×21 の 2倍）
+// マント（ソードマスター）
+function drawCape(p, dir, f, o) {
+  const c = o.cape, cD = shade(c, -0.3), cL = shade(c, 0.2);
+  if (dir === 'down') {
+    // からだの うしろに ひろがる（はしと すそだけ 見える）
+    for (let y = 22; y <= 38; y++) {
+      const w = y < 24 ? 0 : y < 36 ? 1 : 0;
+      p.hline(4 - w, 27 + w, y, y > 36 ? cD : c);
+    }
+    p.vline(3, 24, 35, cL); p.vline(28, 24, 35, cD);
+  } else if (dir === 'side') {
+    // せなかから うしろへ なびく
+    for (let y = 22; y <= 38; y++) {
+      const x0 = 18 + Math.floor((y - 22) / 4), x1 = Math.min(29, 25 + Math.floor((y - 22) / 3));
+      p.hline(x0, x1, y, c);
+      p.set(x1, y, cD);
+    }
+    p.vline(19, 24, 30, cL);
+  } else {
+    p.rect(6, 22, 20, 16, c); p.vline(6, 23, 37, cL); p.vline(25, 22, 37, cD); p.vline(24, 22, 37, cD);
+    for (const x of [11, 16, 21]) p.vline(x, 26, 37, cD);
+    p.hline(6, 25, 37, cD); p.hline(8, 23, 22, cL);
+  }
+}
+
+// めがね（部長・社長）
+function drawGlasses(p, dir) {
+  const g = '#2a2a3a';
+  if (dir === 'down') {
+    for (const x0 of [8, 18]) {
+      p.hline(x0 + 1, x0 + 4, 11, g); p.hline(x0 + 1, x0 + 4, 15, g);
+      p.vline(x0, 12, 14, g); p.vline(x0 + 5, 12, 14, g);
+    }
+    p.hline(14, 17, 12, g); p.set(6, 12, g); p.set(7, 12, g); p.set(24, 12, g); p.set(25, 12, g);
+  } else if (dir === 'side') {
+    p.hline(6, 9, 11, g); p.hline(6, 9, 15, g); p.vline(5, 12, 14, g); p.vline(10, 12, 14, g);
+    p.hline(11, 15, 12, g);
+  }
+}
+
 export function paintHuman(dir, f, o) {
   const p = new Painter(HW, HH);
   p.res = 2;
@@ -1016,8 +1258,12 @@ export function paintHuman(dir, f, o) {
     if (vdir !== 'up') { p.rect(11, 12, 3, 2, '#ff4a4a'); p.rect(19, 12, 3, 2, '#ff4a4a'); p.set(11, 12, '#ffb0a0'); p.set(19, 12, '#ffb0a0'); }
     p.outline('#6a3a8a');
   } else {
+    // マント（まえ・よこ むきは からだの うしろ）
+    if (o.cape && vdir !== 'up') drawCape(p, vdir, f, o);
     drawBody(p, vdir, f, o);
+    if (o.cape && vdir === 'up') drawCape(p, vdir, f, o);
     drawHead(p, vdir, f, o);
+    if (o.glasses) drawGlasses(p, vdir);
     drawGear(p, vdir, f, o);
     drawHat(p, vdir, f, o);
     p.outline(OUT);

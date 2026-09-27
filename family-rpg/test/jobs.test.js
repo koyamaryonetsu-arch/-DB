@@ -13,13 +13,21 @@ import { Bot } from './helpers.js';
 
 const master = (c, ...jobs) => { for (const j of jobs) c.jobs[j] = { lv: JOB_MAX_LEVEL, b: 999 }; };
 
-test('職業データ: 上級職は 基本職 2つ、わざは ぜんぶ ある', () => {
-  assert.equal(JOB_ORDER.length, 5);
-  assert.equal(ADVANCED_ORDER.length, 10);
-  assert.ok(SUPER_ORDER.length >= 8);
-  // 基本職の くみあわせ 10とおりに 1つずつ 上級職
-  const pairs = new Set(ADVANCED_ORDER.map((j) => JOBS[j].req.slice().sort().join('+')));
+test('職業データ: 上級職は 基本職 2つ（新しい 職業は 1つの ものも）、わざは ぜんぶ ある', () => {
+  assert.equal(JOB_ORDER.length, 10);
+  assert.equal(ADVANCED_ORDER.length, 13);
+  assert.ok(SUPER_ORDER.length >= 14);
+  // はじめの 基本職 5つの くみあわせ 10とおりに 1つずつ 上級職
+  const pairs = new Set(ADVANCED_ORDER.slice(0, 10).map((j) => JOBS[j].req.slice().sort().join('+')));
   assert.equal(pairs.size, 10);
+  assert.deepEqual(JOBS.samurai.req, ['warrior', 'monk']);
+  assert.deepEqual(JOBS.bucho.req, ['salaryman']);
+  assert.deepEqual(JOBS.shacho.req, ['bucho']);
+  assert.deepEqual(JOBS.major_leaguer.req, ['ballplayer']);
+  assert.deepEqual(JOBS.nitoryu.req, ['major_leaguer']);
+  assert.deepEqual(JOBS.shogun.req, ['samurai', 'ninja']);
+  assert.deepEqual(JOBS.sword_master.req, ['samurai', 'paladin', 'magic_knight']);
+  for (const id of ALL_JOBS) assert.ok(ALL_JOBS.indexOf(id) === ALL_JOBS.lastIndexOf(id), `${id} は 1つだけ`);
   for (const id of ALL_JOBS) {
     const j = JOBS[id];
     for (const [lv, a] of j.learn) {
@@ -153,8 +161,8 @@ test('ワールド: かった たたかいで 職業レベルが すすみ、よ
   assert.ok(r2.lines.some((l) => l.includes('修行にならなかった')));
 });
 
-test('上級職・超級職の わざは ぜんぶ たたかいで つかえる（エラーが でない）', () => {
-  const ids = [...ADVANCED_ORDER, ...SUPER_ORDER];
+test('上級職・超級職・新しい 基本職の わざは ぜんぶ たたかいで つかえる（エラーが でない）', () => {
+  const ids = [...JOB_ORDER.slice(5), ...ADVANCED_ORDER, ...SUPER_ORDER];
   let used = 0;
   for (const jid of ids) {
     const c = newCharacter({ id: jid, name: jid, job: 'warrior' });
@@ -164,7 +172,7 @@ test('上級職・超級職の わざは ぜんぶ たたかいで つかえる�
     master(c, jid);
     assert.equal(changeJob(c, jid).ok, true, jid);
     const wcat = JOBS[jid].weapons.find((w) => w !== 'none');
-    c.equip.weapon = { sword: 'iron_sword', axe: 'iron_axe', dagger: 'bronze_knife', spear: 'iron_spear', claw: 'iron_claw', staff: 'oak_staff', fan: 'feather_fan', whip: 'leather_whip' }[wcat] || null;
+    c.equip.weapon = { sword: 'iron_sword', axe: 'iron_axe', dagger: 'bronze_knife', spear: 'iron_spear', claw: 'iron_claw', staff: 'oak_staff', fan: 'feather_fan', whip: 'leather_whip', bat: 'wood_bat' }[wcat] || null;
     fullHeal(c);
     const mate = newCharacter({ id: 'mate', name: 'mate', job: 'priest' });
     gainExp(mate, expForLevel(30));
@@ -184,5 +192,5 @@ test('上級職・超級職の わざは ぜんぶ たたかいで つかえる�
       used++;
     }
   }
-  assert.ok(used >= 90, `つかった わざ ${used}`);
+  assert.ok(used >= 150, `つかった わざ ${used}`);
 });

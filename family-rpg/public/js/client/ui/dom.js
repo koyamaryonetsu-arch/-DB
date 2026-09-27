@@ -28,8 +28,11 @@ export function esc(s) {
 // items: [{label, right, disabled, value, cls, title, header}]  header: えらべない みだし
 // back: タッチでも もどれるように リストの うえに だす ボタンの もじ（null で なし）
 export class ListMenu {
-  constructor(input, { items = [], cols = 1, onSelect, onCancel, onMove, sound, className = '', back } = {}) {
+  // press: えらんだ ボタンを この ミリ秒 光らせてから すすむ（どれを おしたか わかるように）
+  constructor(input, { items = [], cols = 1, onSelect, onCancel, onMove, sound, className = '', back, press = 0 } = {}) {
     this.input = input;
+    this.press = press;
+    this.pressing = false;
     this.items = items;
     this.cols = cols;
     this.onSelect = onSelect;
@@ -185,13 +188,26 @@ export class ListMenu {
 
   choose() {
     const it = this.current;
-    if (!it) return;
+    if (!it || this.pressing) return;
     if (it.disabled) {
       this.sound?.('buzz');
       return;
     }
     this.sound?.('confirm');
-    this.onSelect?.(it, this.idx);
+    if (!this.press) {
+      this.onSelect?.(it, this.idx);
+      return;
+    }
+    const idx = this.idx;
+    const li = this.root.children[idx];
+    li?.classList.add('press');
+    this.pressing = true;
+    setTimeout(() => {
+      this.pressing = false;
+      li?.classList.remove('press');
+      // とじられた メニュー（たたかいが おわった など）では なにも しない
+      if (this.active) this.onSelect?.(it, idx);
+    }, this.press);
   }
 }
 

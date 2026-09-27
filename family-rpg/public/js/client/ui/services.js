@@ -1,9 +1,9 @@
 // お店・転職・酒場・でんごんばん・ほしのかけら・きょうかい の がめん
 import { el, ListMenu, toast, askText, confirmBox, esc } from './dom.js';
 import { ITEMS } from '../../shared/data/items.js';
-import { JOBS, JOB_ORDER, ADVANCED_ORDER, SUPER_ORDER, TIER_NAMES, JOB_MAX_LEVEL, JOB_TRAIN_GAP, jobReqText } from '../../shared/data/jobs.js';
+import { JOBS, JOB_ORDER, ADVANCED_ORDER, SUPER_ORDER, TIER_NAMES, JOB_MAX_LEVEL, JOB_TRAIN_GAP, jobReqText, jobReqSets } from '../../shared/data/jobs.js';
 import { ABILITIES } from '../../shared/data/abilities.js';
-import { itemCount, learnedAbilities, jobUnlocked, jobProgress } from '../../shared/stats.js';
+import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered } from '../../shared/stats.js';
 import { MONSTERS } from '../../shared/data/monsters.js';
 import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES } from '../../shared/data/companions.js';
 import { TACTICS } from '../../shared/ai.js';
@@ -98,7 +98,10 @@ function jobUI(game) {
       [JOB_ORDER, ADVANCED_ORDER, SUPER_ORDER].forEach((order, tier) => {
         const open = order.filter((j) => jobUnlocked(c, j)).length;
         out.push({ header: true, label: tier ? `${TIER_NAMES[tier]}（なれる ${open}/${order.length}）` : TIER_NAMES[tier] });
-        for (const j of order) {
+        // 超級職は ヒントが 出るまで ひみつ
+        const known = order.filter((j) => jobKnown(c, j));
+        const secret = order.length - known.length;
+        for (const j of known) {
           const ok = jobUnlocked(c, j);
           const lv = c.jobs?.[j]?.lv || 0;
           out.push({
@@ -110,6 +113,7 @@ function jobUI(game) {
             cls: j === c.job ? 'good' : '',
           });
         }
+        if (secret) out.push({ html: `<span class="muted">？？？　×${secret}</span>`, right: 'ひみつ', value: '__secret', disabled: true });
       });
       return out;
     };
@@ -149,8 +153,16 @@ function jobUI(game) {
     s.onClose = close;
     side.append(menu.root);
     const showJob = (j) => {
-      const job = JOBS[j];
       const c = target();
+      if (j === '__secret' && c) {
+        main.innerHTML = '';
+        main.append(whoRow);
+        renderWho();
+        main.append(el('h3', { text: '？？？' }), el('div', { class: 'small gold', text: TIER_NAMES[2] }),
+          el('div', { class: 'detail', text: 'まだだれも知らない、ひみつの職業。\n上級職をマスターすると、その先の職業のヒントがここに出てくるよ。' }));
+        return;
+      }
+      const job = JOBS[j];
       if (!job || !c) return;
       const lv = c.jobs?.[j]?.lv || 0;
       const open = jobUnlocked(c, j);
@@ -162,13 +174,20 @@ function jobUI(game) {
       img.getContext('2d').drawImage(pv, 0, 0);
       main.append(img, el('h3', { text: `${job.name}（${job.kana}）` }), el('div', { class: 'small gold', text: TIER_NAMES[job.tier || 0] }), el('div', { class: 'detail', text: job.desc }));
       // なる ための じょうけん・しゅぎょうの すすみぐあい
+      // （まだ なれない 超級職は、マスターしていない じょうけんを ？？？？ に する）
+      const secretReq = (job.tier || 0) >= 2 && !open;
+      const reqName = (r) => (secretReq && !jobMastered(c, r) ? '？？？？' : JOBS[r].name);
       if (job.req) {
         const req = el('div', { class: 'small', style: { margin: '0.4em 0' } });
-        req.append(el('div', { class: open ? 'good' : 'warn', text: open ? `なれる！（${jobReqText(j)}）` : `なるには: ${jobReqText(j)}` }));
-        for (const r of job.req) {
-          const rl = c.jobs?.[r]?.lv || 0;
-          req.append(el('div', { class: rl >= JOB_MAX_LEVEL ? 'good' : 'muted', text: `　${JOBS[r].name}　${rl >= JOB_MAX_LEVEL ? '★マスター' : rl ? `Lv${rl}/${JOB_MAX_LEVEL}` : 'まだなったことがない'}` }));
-        }
+        req.append(el('div', { class: open ? 'good' : 'warn', text: open ? `なれる！（${jobReqText(j)}）` : `なるには: ${jobReqText(j, reqName)}` }));
+        jobReqSets(j).forEach((set, i) => {
+          if (i) req.append(el('div', { class: 'muted', text: '　または' }));
+          for (const r of set) {
+            const rl = c.jobs?.[r]?.lv || 0;
+            const state = rl >= JOB_MAX_LEVEL ? '★マスター' : secretReq ? '' : rl ? `Lv${rl}/${JOB_MAX_LEVEL}` : 'まだなったことがない';
+            req.append(el('div', { class: rl >= JOB_MAX_LEVEL ? 'good' : 'muted', text: `　${reqName(r)}　${state}` }));
+          }
+        });
         main.append(req);
       }
       if (open && lv) {
@@ -185,10 +204,10 @@ function jobUI(game) {
       learn.append(el('div', { class: 'gold', text: '覚える技（職業レベル）' }));
       for (const [l, id] of job.learn) {
         const a = ABILITIES[id];
-        learn.append(el('div', { class: lv >= l ? 'good' : 'muted', text: `Lv${l}　${a.name}${lv >= l ? '（覚えた）' : ''}` }));
+        learn.append(el('div', { class: lv >= l ? 'good' : 'muted', text: `Lv${l}　${secretReq ? '？？？' : a.name}${lv >= l ? '（覚えた）' : ''}` }));
       }
       main.append(learn);
-      main.append(el('div', { class: 'detail', text: `職業レベルは戦いに勝つと上がる（最大${JOB_MAX_LEVEL}）。ただし自分より${JOB_TRAIN_GAP + 1}つ以上レベルが低い敵ばかりだと修行にならない。\n基本職を2つマスターすると上級職、上級職をマスターすると超級職になれる。\n呪文の掛け合わせは、元の職業を合わせ持つ上級職以上で使える。\n他の職業で覚えた技も使えるが、MPが増えたり威力が下がることがある（元になった職業の技はだいじょうぶ）。\n酒場の仲間もここで転職できるよ。` }));
+      main.append(el('div', { class: 'detail', text: `職業レベルは戦いに勝つと上がる（最大${JOB_MAX_LEVEL}）。ただし自分より${JOB_TRAIN_GAP + 1}つ以上レベルが低い敵ばかりだと修行にならない。\n基本職を2つマスターすると上級職、上級職をマスターすると超級職になれる（超級職は、上級職をマスターするとヒントが出る）。\n呪文の掛け合わせは、元の職業を合わせ持つ上級職以上で使える。\n他の職業で覚えた技も使えるが、MPが増えたり威力が下がることがある（元になった職業の技はだいじょうぶ）。\n酒場の仲間もここで転職できるよ。` }));
     };
     menu.focus();
   });

@@ -1,5 +1,5 @@
 // キャラクターの つよさ計算・レベルアップ・転職ペナルティ
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_TRAIN_GAP, jobBattlesForLevel, jobBases, jobAncestry } from './data/jobs.js';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_TRAIN_GAP, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets } from './data/jobs.js';
 import { ITEMS, SLOTS } from './data/items.js';
 import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js';
 import { MONSTERS } from './data/monsters.js';
@@ -299,6 +299,11 @@ export const STARTER_EQUIP = {
   priest: { weapon: 'oak_staff', armor: 'cloth', shield: null, head: null, acc: null },
   mage: { weapon: 'oak_staff', armor: 'cloth', shield: null, head: null, acc: null },
   performer: { weapon: 'feather_fan', armor: 'cloth', shield: null, head: null, acc: null },
+  jester: { weapon: 'harisen', armor: 'cloth', shield: null, head: null, acc: null },
+  salaryman: { weapon: 'ballpen', armor: 'cloth', shield: 'briefcase', head: null, acc: null },
+  idol: { weapon: 'feather_fan', armor: 'cloth', shield: null, head: null, acc: null },
+  railman: { weapon: 'signal_flag', armor: 'cloth', shield: null, head: null, acc: null },
+  ballplayer: { weapon: 'wood_bat', armor: 'cloth', shield: null, head: null, acc: null },
 };
 
 export function sanitizeLook(look = {}) {
@@ -389,11 +394,23 @@ export function gainExp(char, exp) {
 
 // ───── 職業レベル（たたかいに かった かずで あがる） ─────
 // なれる 職業か（上級職・超級職は じょうけんの 職業を ぜんぶ マスター）
+export function jobMastered(char, jobId) {
+  return (char.jobs?.[jobId]?.lv || 0) >= JOB_MAX_LEVEL;
+}
+
 export function jobUnlocked(char, jobId) {
   const j = JOBS[jobId];
   if (!j) return false;
   if (!j.req) return true;
-  return j.req.every((r) => (char.jobs?.[r]?.lv || 0) >= JOB_MAX_LEVEL);
+  return jobReqSets(jobId).some((set) => set.every((r) => jobMastered(char, r)));
+}
+
+// 神殿で 見える 職業か。超級職は、じょうけんの 職業を 1つでも マスターすると 出てくる（ほかの じょうけんは ？？？？）
+export function jobKnown(char, jobId) {
+  const j = JOBS[jobId];
+  if (!j) return false;
+  if ((j.tier || 0) < 2 || char.jobs?.[jobId]) return true;
+  return jobReqSets(jobId).some((set) => set.some((r) => jobMastered(char, r)));
 }
 
 export function jobProgress(char, jobId = char.job) {
@@ -420,6 +437,7 @@ export function gainJobBattles(char, n = 1) {
   while (info.lv < JOB_MAX_LEVEL && info.b >= jobBattlesForLevel(info.lv + 1, j.tier || 0)) {
     const learnedBefore = new Set(learnedAbilities(char));
     const lockedBefore = ALL_JOBS.filter((id) => !jobUnlocked(char, id));
+    const hiddenBefore = ALL_JOBS.filter((id) => !jobKnown(char, id));
     const before = computeStats(char);
     info.lv++;
     const after = computeStats(char);
@@ -427,7 +445,9 @@ export function gainJobBattles(char, n = 1) {
     char.mp = Math.min(after.maxMp, char.mp + Math.max(0, after.maxMp - before.maxMp));
     const learned = learnedAbilities(char).filter((a) => !learnedBefore.has(a));
     const unlocked = lockedBefore.filter((id) => jobUnlocked(char, id));
-    ups.push({ job: char.job, lv: info.lv, learned, unlocked });
+    // 新しく ヒントが 出た 超級職（まだ なれない もの）
+    const hinted = hiddenBefore.filter((id) => jobKnown(char, id) && !jobUnlocked(char, id));
+    ups.push({ job: char.job, lv: info.lv, learned, unlocked, hinted });
   }
   return ups;
 }

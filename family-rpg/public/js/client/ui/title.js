@@ -512,7 +512,10 @@ export function showCreate(game) {
   const clothOpt = opts(CLOTH, look.color, (i) => { look.color = i; }, (v) => el('button', { class: 'swatch', style: { background: v }, 'aria-label': '服の色' }));
   const jobsEl = el('div', { class: 'jobs' });
   JOB_ORDER.forEach((j) => {
-    const b = el('button', { class: `btn jobbtn ${j === job ? 'sel' : ''}` }, el('span', { class: 'jn', text: JOBS[j].name }), el('span', { class: 'jd', text: { warrior: '固くて強い', monk: 'とても素早い', priest: '回復の女神', mage: '攻撃呪文', performer: 'みんなをおうえん' }[j] }));
+    const b = el('button', { class: `btn jobbtn ${j === job ? 'sel' : ''}` }, el('span', { class: 'jn', text: JOBS[j].name }), el('span', { class: 'jd', text: {
+      warrior: '固くて強い', monk: 'とても素早い', priest: '回復の女神', mage: '攻撃呪文', performer: 'みんなをおうえん',
+      jester: '何が起こるかな？', salaryman: 'チームを支える', idol: 'みんなの人気者', railman: '時間に正確', ballplayer: 'かっとばせ！',
+    }[j] }));
     b.addEventListener('click', () => {
       job = j;
       [...jobsEl.children].forEach((x) => x.classList.toggle('sel', x === b));

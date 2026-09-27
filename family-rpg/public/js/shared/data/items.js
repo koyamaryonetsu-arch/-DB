@@ -99,9 +99,19 @@ export const ITEMS = {
   flame_whip: { name: '炎のムチ', type: 'weapon', cat: 'whip', atk: 26, bonus: { mag: 4 }, price: 0, sell: 520, desc: '炎をまとったムチ。' },
   feather_fan: { name: '羽のおうぎ', type: 'weapon', cat: 'fan', atk: 7, bonus: { agi: 3 }, price: 70, desc: '軽い羽のおうぎ。' },
   dancer_fan: { name: 'おどり子のおうぎ', type: 'weapon', cat: 'fan', atk: 14, bonus: { agi: 5 }, price: 360, desc: 'おどり子が使う美しいおうぎ。' },
+  // 新しい 職業の ぶき
+  harisen: { name: 'ハリセン', type: 'weapon', cat: 'fan', atk: 5, bonus: { agi: 2 }, price: 40, desc: '紙でできたおうぎ。たたくといい音がする。遊び人のあいぼう。' },
+  signal_flag: { name: '手旗', type: 'weapon', cat: 'fan', atk: 6, bonus: { def: 2 }, price: 50, desc: '合図に使う旗。鉄道員のあいぼう。' },
+  ballpen: { name: 'ボールペン', type: 'weapon', cat: 'dagger', atk: 6, bonus: { mag: 2 }, price: 30, desc: '会社員には、なくてはならない道具。ペンは剣よりも強し？' },
+  penlight: { name: 'ペンライト', type: 'weapon', cat: 'staff', atk: 7, bonus: { heal: 5, agi: 2 }, price: 160, desc: 'キラキラ光るライト。ふると仲間が元気になる。' },
+  wood_bat: { name: '木のバット', type: 'weapon', cat: 'bat', atk: 8, price: 60, desc: '木でできたバット。よくしなる。' },
+  metal_bat: { name: '金属バット', type: 'weapon', cat: 'bat', atk: 19, price: 380, desc: 'カキーンといい音がするバット。' },
+  legend_bat: { name: '伝説のバット', type: 'weapon', cat: 'bat', atk: 34, bonus: { agi: 4 }, price: 1600, desc: 'たくさんのホームランを生んだという伝説のバット。' },
+  katana: { name: '刀', type: 'weapon', cat: 'sword', atk: 24, bonus: { agi: 2 }, price: 760, desc: 'よく切れる刀。サムライのたましい。' },
 
   // ───── よろい・ふく ─────
   cloth: { name: '布の服', type: 'armor', armorType: 'cloth', def: 4, price: 10, desc: 'ふつうの布の服。' },
+  suit: { name: 'スーツ', type: 'armor', armorType: 'cloth', def: 9, bonus: { def: 2 }, price: 260, desc: 'びしっと決まるスーツ。着ると仕事ができそうに見える。' },
   travel_clothes: { name: '旅人の服', type: 'armor', armorType: 'cloth', def: 7, price: 70, desc: '旅に向いたじょうぶな服。' },
   leather_armor: { name: '皮のよろい', type: 'armor', armorType: 'cloth', def: 11, price: 190, desc: 'なめし革のよろい。' },
   wind_clothes: { name: '風の服', type: 'armor', armorType: 'cloth', def: 10, bonus: { agi: 8 }, price: 0, sell: 300, desc: '風のように身軽に動ける服。' },
@@ -115,11 +125,13 @@ export const ITEMS = {
 
   // ───── たて ─────
   leather_shield: { name: '皮のたて', type: 'shield', def: 4, price: 50, desc: '皮でできたたて。' },
+  briefcase: { name: 'ビジネスバッグ', type: 'shield', def: 5, price: 90, desc: '書類でいっぱいのがんじょうなかばん。たてにもなる。' },
   scale_shield: { name: 'うろこのたて', type: 'shield', def: 8, price: 190, desc: '魔物のうろこのたて。' },
   iron_shield: { name: '鉄のたて', type: 'shield', def: 12, price: 400, desc: '鉄のたて。' },
 
   // ───── かぶと・ぼうし ─────
   leather_hat: { name: '皮のぼうし', type: 'head', def: 2, price: 30, desc: '皮のぼうし。' },
+  bb_helmet: { name: 'ヘルメット', type: 'head', helm: true, def: 5, price: 150, desc: '頭を守るじょうぶなヘルメット。野球選手や鉄道員にも。' },
   pointy_hat: { name: 'とんがりぼうし', type: 'head', def: 4, bonus: { mag: 3 }, price: 150, desc: '魔法使いに人気のぼうし。' },
   bandana: { name: 'バンダナ', type: 'head', def: 3, bonus: { agi: 2 }, price: 80, desc: '頭に巻く布。' },
   iron_helm: { name: '鉄かぶと', type: 'head', helm: true, def: 7, price: 300, desc: '鉄のかぶと。戦士だけが装備できる。' },
@@ -146,7 +158,7 @@ export const SLOT_NAMES = { weapon: '武器', armor: 'よろい', shield: 'た�
 export const SLOT_OF_TYPE = { weapon: 'weapon', armor: 'armor', shield: 'shield', head: 'head', acc: 'acc' };
 
 export const WEAPON_CAT_NAMES = {
-  sword: '剣', dagger: '短剣', axe: 'オノ', staff: 'つえ', spear: 'やり', claw: 'ツメ', fan: 'おうぎ', whip: 'ムチ', none: '素手',
+  sword: '剣', dagger: '短剣', axe: 'オノ', staff: 'つえ', spear: 'やり', claw: 'ツメ', fan: 'おうぎ', whip: 'ムチ', bat: 'バット', none: '素手',
 };
 
 export function sellPrice(id) {
