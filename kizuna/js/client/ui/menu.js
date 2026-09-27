@@ -1,23 +1,23 @@
 // フィールドの メニュー
-import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js?v=a40ea0d598a3';
-import { ITEMS, SLOTS, SLOT_NAMES } from '../../shared/data/items.js?v=a40ea0d598a3';
-import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js?v=a40ea0d598a3';
-import { affinityOf } from '../../shared/battle.js?v=a40ea0d598a3';
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, TIER_NAMES } from '../../shared/data/jobs.js?v=a40ea0d598a3';
-import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboUnlocked, comboAllowed, comboJobNames, jobProgress } from '../../shared/stats.js?v=a40ea0d598a3';
-import { MONSTERS } from '../../shared/data/monsters.js?v=a40ea0d598a3';
-import { MONSTER_FRIENDS, RACE_NAMES, recipeHint } from '../../shared/data/companions.js?v=a40ea0d598a3';
-import { TACTICS } from '../../shared/ai.js?v=a40ea0d598a3';
-import { PLACES } from '../../shared/maps/overworld.js?v=a40ea0d598a3';
-import { SEA_PLACES } from '../../shared/maps/ch2.js?v=a40ea0d598a3';
-import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js?v=a40ea0d598a3';
-import { T } from '../../shared/tiles.js?v=a40ea0d598a3';
-import { itemDetail, abilityDetail } from './info.js?v=a40ea0d598a3';
-import { makeCanvas, ctxOf } from '../render/pixel.js?v=a40ea0d598a3';
-import { monsterCanvas } from '../render/monsters.js?v=a40ea0d598a3';
-import { mapIconCanvas, boardIconURL } from '../render/boards.js?v=a40ea0d598a3';
-import { compareOne, compareTeam, whoItems } from './counter.js?v=a40ea0d598a3';
-import { faceURL } from '../field.js?v=a40ea0d598a3';
+import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js?v=55000d078174';
+import { ITEMS, SLOTS, SLOT_NAMES } from '../../shared/data/items.js?v=55000d078174';
+import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js?v=55000d078174';
+import { affinityOf } from '../../shared/battle.js?v=55000d078174';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, TIER_NAMES } from '../../shared/data/jobs.js?v=55000d078174';
+import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboUnlocked, comboAllowed, comboJobNames, jobProgress } from '../../shared/stats.js?v=55000d078174';
+import { MONSTERS } from '../../shared/data/monsters.js?v=55000d078174';
+import { MONSTER_FRIENDS, RACE_NAMES, recipeHint } from '../../shared/data/companions.js?v=55000d078174';
+import { TACTICS } from '../../shared/ai.js?v=55000d078174';
+import { PLACES } from '../../shared/maps/overworld.js?v=55000d078174';
+import { SEA_PLACES } from '../../shared/maps/ch2.js?v=55000d078174';
+import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js?v=55000d078174';
+import { T } from '../../shared/tiles.js?v=55000d078174';
+import { itemDetail, abilityDetail } from './info.js?v=55000d078174';
+import { makeCanvas, ctxOf } from '../render/pixel.js?v=55000d078174';
+import { monsterCanvas } from '../render/monsters.js?v=55000d078174';
+import { mapIconCanvas, boardIconURL } from '../render/boards.js?v=55000d078174';
+import { compareOne, compareTeam, whoItems } from './counter.js?v=55000d078174';
+import { faceURL } from '../field.js?v=55000d078174';
 
 const MAIN = [
   { label: '道具', value: 'items' },

@@ -1,15 +1,15 @@
 // たたかいの がめん（むかしの RPG ふう 1がめん）
-import { el, ListMenu, toast } from './ui/dom.js?v=a40ea0d598a3';
-import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js?v=a40ea0d598a3';
-import { ITEMS } from '../shared/data/items.js?v=a40ea0d598a3';
-import { JOBS } from '../shared/data/jobs.js?v=a40ea0d598a3';
-import { MONSTERS } from '../shared/data/monsters.js?v=a40ea0d598a3';
-import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed } from '../shared/stats.js?v=a40ea0d598a3';
-import { affinityOf } from '../shared/battle.js?v=a40ea0d598a3';
-import { monsterCanvas } from './render/monsters.js?v=a40ea0d598a3';
-import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=a40ea0d598a3';
-import { battleBackground, Effects, BW, BH } from './render/battlefx.js?v=a40ea0d598a3';
-import { abilityDetail, statusNames, buffNames } from './ui/info.js?v=a40ea0d598a3';
+import { el, esc, ListMenu, toast } from './ui/dom.js?v=55000d078174';
+import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js?v=55000d078174';
+import { ITEMS } from '../shared/data/items.js?v=55000d078174';
+import { JOBS } from '../shared/data/jobs.js?v=55000d078174';
+import { MONSTERS } from '../shared/data/monsters.js?v=55000d078174';
+import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed } from '../shared/stats.js?v=55000d078174';
+import { affinityOf } from '../shared/battle.js?v=55000d078174';
+import { monsterCanvas } from './render/monsters.js?v=55000d078174';
+import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=55000d078174';
+import { battleBackground, Effects, BW, BH } from './render/battlefx.js?v=55000d078174';
+import { abilityDetail, statusNames, buffNames } from './ui/info.js?v=55000d078174';
 
 const whiteCache = new WeakMap();
 function white(img, color = '#ffffff') {
@@ -417,11 +417,12 @@ export class BattleScene {
     const list = this.enemies().filter((e) => e.alive);
     if (list.length === 1) return done(list[0].id);
     this.targeting = { side: 'enemy', done };
-    const AFF = { weak: ['弱点！', 'gold'], resist: ['効きにくい', ''], null: ['効かない', 'pen'], normal: ['ふつう', ''] };
+    // 効きぐあいは 名前の 下に 小さく（名前が 2行に ならないように）
+    const AFF = { weak: '弱点！', resist: '効きにくい', null: '効かない', normal: 'ふつう' };
     const items = list.map((e) => {
       const aff = element ? this.knownAffinity(e, element) : null;
-      const [right, rightCls] = aff ? AFF[aff] : element && ELEMENT_NAMES[element] ? ['？', ''] : ['', ''];
-      return { label: e.name, value: e.id, right, rightCls };
+      const tag = aff ? `<span class="aff-line a-${aff}">${AFF[aff]}</span>` : element && ELEMENT_NAMES[element] ? '<span class="aff-line a-unknown">？</span>' : '';
+      return { html: `${esc(e.name)}${tag}`, value: e.id };
     });
     this.showMenu(items, (it) => done(it.value), () => this.openCommand(), title, (it) => { this.hover = it?.value; });
   }

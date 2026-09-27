@@ -1,9 +1,9 @@
 // キャラクターの つよさ計算・レベルアップ・転職ペナルティ
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_TRAIN_GAP, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets } from './data/jobs.js?v=a40ea0d598a3';
-import { ITEMS, SLOTS } from './data/items.js?v=a40ea0d598a3';
-import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=a40ea0d598a3';
-import { MONSTERS } from './data/monsters.js?v=a40ea0d598a3';
-import { MONSTER_FRIENDS, monsterNatural } from './data/companions.js?v=a40ea0d598a3';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_TRAIN_GAP, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets } from './data/jobs.js?v=55000d078174';
+import { ITEMS, SLOTS } from './data/items.js?v=55000d078174';
+import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=55000d078174';
+import { MONSTERS } from './data/monsters.js?v=55000d078174';
+import { MONSTER_FRIENDS, monsterNatural } from './data/companions.js?v=55000d078174';
 
 export const MAX_LEVEL = 50;
 export const STAT_KEYS = ['hp', 'mp', 'str', 'def', 'agi', 'mag', 'heal'];

@@ -1,5 +1,5 @@
 // たたかいの はいけいと エフェクト
-import { makeCanvas, ctxOf } from './pixel.js?v=a40ea0d598a3';
+import { makeCanvas, ctxOf } from './pixel.js?v=55000d078174';
 
 export const BW = 256;
 export const BH = 144;

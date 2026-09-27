@@ -4,7 +4,7 @@
 // armor.armorType: cloth(だれでも) heavy(戦士) robe(僧侶/魔法使い/旅芸人) gi(武闘家/戦士/旅芸人)
 // head.helm: true だと 戦士だけ
 
-import { ITEMS_CH2 } from './items-ch2.js?v=a40ea0d598a3';
+import { ITEMS_CH2 } from './items-ch2.js?v=55000d078174';
 
 export const ITEMS = {
   // ───── つかう どうぐ ─────
