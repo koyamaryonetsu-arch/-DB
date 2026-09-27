@@ -135,6 +135,26 @@ function copyTree(from, to, skipTop = SKIP_TOP) {
   }
 }
 
+// Mac・Linux で ダブルクリックする ファイル（.command・.sh）を 実行できる ように する
+// （tar の 中の 権限は 見ていないので、新しく 入った ファイルは そのままだと 実行できない）
+export function markExecutables(root) {
+  if (process.platform === 'win32') return;
+  let names = [];
+  try {
+    names = fs.readdirSync(root);
+  } catch {
+    return;
+  }
+  for (const name of names) {
+    if (!/\.(command|sh)$/.test(name)) continue;
+    const p = path.join(root, name);
+    try {
+      const st = fs.statSync(p);
+      if (st.isFile() && (st.mode & 0o111) !== 0o111) fs.chmodSync(p, (st.mode & 0o7777) | 0o755);
+    } catch { /* */ }
+  }
+}
+
 // いまの アプリを とっておく
 function backupApp(root, dataDir) {
   const dest = path.join(dataDir, 'app-previous');
@@ -151,6 +171,7 @@ export function rollback({ root, dataDir }) {
   const src = path.join(dataDir, 'app-previous');
   if (!fs.existsSync(path.join(src, 'server', 'index.js'))) return false;
   copyTree(src, root, new Set(['data', 'node_modules', '.git']));
+  markExecutables(root);
   const v = path.join(src, 'version.json');
   if (fs.existsSync(v)) fs.copyFileSync(v, path.join(root, 'version.json'));
   else fs.rmSync(path.join(root, 'version.json'), { force: true });
@@ -202,6 +223,7 @@ export async function checkAndUpdate({
     backupApp(root, dataDir);
     try {
       copyTree(staging, root, new Set());
+      markExecutables(root);
     } catch (e) {
       // とちゅうで しっぱいしたら 前の 版に もどす
       rollback({ root, dataDir });

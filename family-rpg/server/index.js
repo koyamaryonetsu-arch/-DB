@@ -9,7 +9,7 @@ import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { defaultDataDir } from './savedir.js';
-import { checkAndUpdate, rollback } from './update.js';
+import { checkAndUpdate, rollback, markExecutables } from './update.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DATA_DIR = path.resolve(process.env.DATA_DIR || defaultDataDir());
@@ -42,6 +42,8 @@ function runChild(isRollback) {
   });
 }
 
+// 前の 版の 自動更新で 入った funnel-on.command なども、ダブルクリックで 動く ように
+markExecutables(ROOT);
 let up = { status: 'skip' };
 if (!process.env.KIZUNA_CHILD) {
   fs.mkdirSync(DATA_DIR, { recursive: true });

@@ -8,7 +8,7 @@ import http from 'node:http';
 import zlib from 'node:zlib';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { readTar, checkAndUpdate, rollback, readVersion, SOURCE } from '../server/update.js';
+import { readTar, checkAndUpdate, rollback, readVersion, markExecutables, SOURCE } from '../server/update.js';
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -92,6 +92,17 @@ function tmpApp(files) {
   return { home, root, dataDir };
 }
 
+test('自動更新: .command・.sh は 実行できる ように する（ほかは そのまま）', { skip: process.platform === 'win32' }, () => {
+  const { root } = tmpApp({ 'funnel-on.command': '#!/bin/sh\n', 'start.sh': '#!/bin/sh\n', 'funnel-on.bat': '@echo off\n', 'public/x.sh': 'x' });
+  for (const f of ['funnel-on.command', 'start.sh', 'funnel-on.bat', 'public/x.sh']) fs.chmodSync(path.join(root, f), 0o644);
+  markExecutables(root);
+  const mode = (f) => fs.statSync(path.join(root, f)).mode & 0o777;
+  assert.equal(mode('funnel-on.command'), 0o755);
+  assert.equal(mode('start.sh'), 0o755);
+  assert.equal(mode('funnel-on.bat'), 0o644);
+  assert.equal(mode('public/x.sh'), 0o644, 'アプリの 一番上の フォルダだけ');
+});
+
 test('自動更新: GitHub の tar.gz を 読める（長い 名前も）', () => {
   const long = 'family-rpg/public/js/shared/data/とても長いなまえのファイル-'.padEnd(120, 'a') + '.js';
   const gz = makeTarGz('abc123', { 'family-rpg/server/index.js': 'x', [long]: 'long' }, { longPath: true });
@@ -109,6 +120,7 @@ test('自動更新: 新しい 版を 入れる。セーブ・起動用ファイ�
   const state = { sha: 'sha-new-1', tar: makeTarGz('sha-new-1', {
     'family-rpg/server/index.js': 'new-index', 'family-rpg/public/index.html': 'new-html', 'family-rpg/public/js/new.js': 'new',
     'family-rpg/start.bat': 'NEW START', 'family-rpg/data/save.json': 'BAD', '.claude/x.md': 'other',
+    'family-rpg/funnel-on.command': '#!/bin/sh\n',
   }) };
   const gh = await fakeGitHub(state);
   try {
@@ -125,6 +137,7 @@ test('自動更新: 新しい 版を 入れる。セーブ・起動用ファイ�
     assert.equal(readVersion(root).sha, 'sha-new-1');
     assert.equal(fs.readFileSync(path.join(dataDir, 'app-previous', 'server/index.js'), 'utf8'), 'old-index', '前の 版を とっておく');
     assert.ok(logs.some((t) => t.includes('新しい版にしました')));
+    if (process.platform !== 'win32') assert.equal(fs.statSync(path.join(root, 'funnel-on.command')).mode & 0o111, 0o111, 'Mac で ダブルクリック できる');
     // 2回め
     const r2 = await checkAndUpdate({ root, dataDir, api: gh.base, codeload: gh.base });
     assert.equal(r2.status, 'latest');

@@ -127,8 +127,10 @@
 1. **家族サーバーのPCに Tailscale を入れてログイン**（<https://tailscale.com/download>）。PCだけでOK
 2. **合言葉を強くする**：ホームフォルダの `kizuna-save/config.json` の `password` を、**8文字以上（数字だけはだめ）** にします（12文字以上なら数字だけでもOK）。
    例：`"password": "ほしぞらのきずな"`。短いままだと、外出先からは入れません（家のWi-Fiからはいつも通り入れます）
-3. **`funnel-on` をダブルクリック**（Windows は `funnel-on.bat`、Mac は `funnel-on.command`。`family-rpg` フォルダの中）
+3. **`funnel-on` をダブルクリック**（Windows は `funnel-on.bat`、Mac は `funnel-on.command`。`family-rpg` フォルダの中。Mac は、はじめは右クリック →「開く」）
    - はじめての時は、黒い画面にリンクが出ます。ブラウザで開いて「Funnel」と「HTTPS」を **許可** してから、もう一度 `funnel-on` をダブルクリック
+   - `funnel-on` が見つからない時は、家族サーバーを一度起動すると新しい版といっしょに入ります
+   - HTTPS を許可すると、PCの名前（アドレスの頭の部分）が公開の証明書の記録にのります。本名などが入っている時は、先に Tailscale の管理画面（Machines →「…」→ Edit machine name）で `kizuna` などに変えておくと安心です
 4. **家族サーバーを再起動** すると、黒い画面に **「★ 外出先から（スマホにアプリはいりません）: `https://…ts.net`」** が出ます
 5. 家族のスマホの Safari でそのアドレスを開いて、合言葉を入れる（ホーム画面に追加すると、アプリのように使えます）
 
