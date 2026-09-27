@@ -7,12 +7,12 @@
 //
 // サーバー（家族サーバー）でも ブラウザ（ひとりモード）でも おなじ コードが うごく
 
-import { makeRng } from './rng.js?v=bc78c1f3dcbf';
-import { ABILITIES, TEAM_COMBOS } from './data/abilities.js?v=bc78c1f3dcbf';
-import { MONSTERS } from './data/monsters.js?v=bc78c1f3dcbf';
-import { ITEMS } from './data/items.js?v=bc78c1f3dcbf';
-import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed } from './stats.js?v=bc78c1f3dcbf';
-import { decideMonster, decideAlly } from './ai.js?v=bc78c1f3dcbf';
+import { makeRng } from './rng.js?v=6e585c537cb6';
+import { ABILITIES, TEAM_COMBOS } from './data/abilities.js?v=6e585c537cb6';
+import { MONSTERS } from './data/monsters.js?v=6e585c537cb6';
+import { ITEMS } from './data/items.js?v=6e585c537cb6';
+import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed } from './stats.js?v=6e585c537cb6';
+import { decideMonster, decideAlly } from './ai.js?v=6e585c537cb6';
 
 export const BOND_MAX = 100;
 const COMBO_WINDOW = 6000;

@@ -1,7 +1,7 @@
 // お店・ほしのかけら交換・サポートなかま
 // お店: name 店の なまえ / kind かんばんの しゅるい / keeper 店の人 / hello さいしょの ことば / items 売っている 品物
 
-import { SHOPS_CH2 } from './items-ch2.js?v=bc78c1f3dcbf';
+import { SHOPS_CH2 } from './items-ch2.js?v=6e585c537cb6';
 
 export const SHOPS = {
   village: {
