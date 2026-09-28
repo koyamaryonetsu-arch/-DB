@@ -930,12 +930,13 @@
     const set = columnFilters['status'];
     return !set || DEFAULT_HIDDEN_STATUSES.every((s) => set.has(s));
   }
-  function updateShowAllBtn() {
-    const btn = $('showAllBtn'); if (!btn) return;
-    const on = statusAllShown();
-    btn.textContent = on ? '全件表示：ON' : '全件表示：OFF';
-    btn.classList.toggle('active', on);
+  // ⑥ ON/OFF はスイッチで表す（青＝ON）。文字はそのまま、状態は aria-checked で持つ
+  function setSwitch(btn, on) {
+    if (!btn) return;
+    btn.setAttribute('aria-checked', on ? 'true' : 'false');
+    btn.classList.toggle('active', !!on);
   }
+  function updateShowAllBtn() { setSwitch($('showAllBtn'), statusAllShown()); }
   // 「全件表示」ボタン: 完了・取り下げも含めて全部表示 ↔ 既定（完了・取り下げ非表示）を切替
   function toggleShowAllStatuses() {
     if (statusAllShown()) columnFilters['status'] = defaultStatusVisibleSet(); // 既定に戻す
@@ -1735,9 +1736,11 @@
   }
 
   // ---------- filter ----------
-  function getFilteredCases() {
+  // opts.forChips = 状態ボタンの件数を数える用（状態・注意ボタンの絞り込みはかけず、並び替えもしない）
+  function getFilteredCases(opts) {
+    const forChips = !!(opts && opts.forChips);
     const q = $('searchBox').value.trim().toLowerCase();
-    const sf = $('statusFilter').value;
+    const sf = forChips ? '' : $('statusFilter').value;
     // 客先は自社のみ（会社プルダウンは廃止。受注者は列フィルタで会社を絞る）
     const cf = isPrivileged(currentUser) ? '' : customerCompany(currentUser);
     const colFilterFields = Object.keys(columnFilters);
@@ -1772,6 +1775,8 @@
         if (!hit) return false;
       }
       if (sf && statusOf(c) !== sf) return false;
+      // ⑤ 注意ボタン（見積り遅れ／調査日未定）
+      if (!forChips && attentionFilter && rowColorClass(c) !== attentionFilter) return false;
       // 「完了・取り下げ」の既定非表示は、ログイン時に seed する columnFilters['status'] で行う
       // （＝チェックボックスの状態＝表示、が常に一致する）。上の列フィルタのループで反映済み。
       if (!q) return true;
@@ -1784,7 +1789,36 @@
       const hay = hayArr.map((x) => (x || '').toString().toLowerCase()).join(' ');
       return hay.includes(q);
     });
-    return sortCases(filtered);
+    return forChips ? filtered : sortCases(filtered);
+  }
+
+  // ===== ⑤ 状態ごとの件数ボタン（押すとその状態だけ・もう一度押すと戻る）＋注意ボタン =====
+  // 注意ボタンでの絞り込み: '' = なし / 'row-red' = 見積り遅れ / 'row-yellow' = 調査日未定（行の左端の色と同じ意味）
+  let attentionFilter = '';
+  const CHIP_STATUS_ORDER = ['受付', '見積り中', '見積り提出済', '日程調整中', '客先対応中', '作業中', '対応済み', '請求済', '入金済', '完了', '保留', '取り下げ', '失注'];
+  function renderStatusChips() {
+    const box = $('statusChips'); if (!box || !currentUser) return;
+    const base = getFilteredCases({ forChips: true });
+    const cnt = {};
+    base.forEach((c) => { const st = statusOf(c); cnt[st] = (cnt[st] || 0) + 1; });
+    const sf = $('statusFilter').value;
+    if (sf && !cnt[sf]) cnt[sf] = 0; // 選択中の状態は0件でも残す（押して解除できるように）
+    const order = CHIP_STATUS_ORDER.concat(Object.keys(cnt).filter((k) => CHIP_STATUS_ORDER.indexOf(k) === -1));
+    let html = '';
+    if (isPrivileged(currentUser)) {
+      const nR = base.filter((c) => rowColorClass(c) === 'row-red').length;
+      const nY = base.filter((c) => rowColorClass(c) === 'row-yellow').length;
+      html += `<button type="button" class="fb-chip warn-r${attentionFilter === 'row-red' ? ' on' : ''}" data-attn="row-red" title="調査日から3営業日以上たっても見積りが出ていない案件（行の左端が赤）">見積り遅れ <i>${nR}</i></button>`;
+      html += `<button type="button" class="fb-chip warn-y${attentionFilter === 'row-yellow' ? ' on' : ''}" data-attn="row-yellow" title="受付から3営業日以上たっても調査日が決まっていない案件（行の左端が黄）">調査日未定 <i>${nY}</i></button>`;
+      html += '<span class="fb-chip-sep"></span>';
+    }
+    html += `<button type="button" class="fb-chip${!sf && !attentionFilter ? ' on' : ''}" data-chip-status="">すべて <i>${base.length}</i></button>`;
+    order.forEach((st) => {
+      if (cnt[st] === undefined) return;
+      html += `<button type="button" class="fb-chip${sf === st ? ' on' : ''}" data-chip-status="${escapeHtml(st)}">${escapeHtml(statusDisplayLabel(st))} <i>${cnt[st]}</i></button>`;
+    });
+    box.innerHTML = html;
+    box.classList.toggle('overflow', box.scrollWidth > box.clientWidth + 1);
   }
 
   // 客先担当者名から敬称（さん/様/ちゃん等）を末尾から除去（表示・保存共通）
@@ -1826,10 +1860,25 @@
   }
 
   // ステータスのセル（バッジ＋手動選択。受注者のみ編集可）— 通常/タスク両モードで共有
+  // ② 遅れている日数（見積り遅れ＝調査から○日／調査日未定＝受付から○日）。社内だけに出す
+  function lateDaysHtml(c) {
+    if (!isPrivileged(currentUser)) return '';
+    const cls = rowColorClass(c);
+    const today = todayStr();
+    if (cls === 'row-red' && c.surveyDate) {
+      const n = daysBetween(c.surveyDate, today);
+      if (n !== null && n > 0) return `<span class="late-days" title="調査日から${n}日たっても見積りが出ていません">調査から${n}日</span>`;
+    }
+    if (cls === 'row-yellow' && c.receivedDate) {
+      const n = daysBetween(c.receivedDate, today);
+      if (n !== null && n > 0) return `<span class="late-days y" title="受付から${n}日たっても調査日が決まっていません">受付から${n}日</span>`;
+    }
+    return '';
+  }
   function buildStatusCell(c) {
     const statusCode = statusOf(c);
     const manualStatus = isStatusManual(c);
-    const statusHtml = `<span class="status-badge status-${escapeHtml(statusCode)}${manualStatus ? ' manual' : ''}">${escapeHtml(statusDisplayLabel(statusCode))}</span>`;
+    const statusHtml = `<span class="status-badge status-${escapeHtml(statusCode)}${manualStatus ? ' manual' : ''}">${escapeHtml(statusDisplayLabel(statusCode))}</span>` + lateDaysHtml(c);
     return isPrivileged(currentUser)
       ? `<td class="col-status status-cell" data-colkey="status" data-case-id="${escapeHtml(c.id)}" data-label="ステータス"><span class="status-pick" data-action="status-edit" data-id="${escapeHtml(c.id)}" title="クリックでステータスを変更（先頭の「自動」で自動判定に戻ります）">${statusHtml}</span></td>`
       : `<td class="col-status status-cell" data-colkey="status" data-label="ステータス">${statusHtml}</td>`;
@@ -1917,7 +1966,7 @@
         : `<td class="toho-empty" data-colkey="certNumber" data-label="認証番号">—</td>`;
 
       tr.innerHTML = `
-        <td class="col-edit" data-colkey="edit" data-label="編集"><button type="button" class="row-edit-btn" data-action="edit" data-id="${escapeHtml(c.id)}" title="編集">✎ 編集</button></td>
+        <td class="col-edit" data-colkey="edit" data-label="編集"><button type="button" class="row-edit-btn" data-action="edit" data-id="${escapeHtml(c.id)}" title="この案件のすべての項目を編集" aria-label="編集">✎<span class="edit-lbl"> 編集</span></button></td>
         ${statusCell}
         ${editableTd(c, 'company', companyHtml, 'col-company')}
         ${editableTd(c, 'theater', escapeHtml(shortTheaterName(c.theater)))}
@@ -1961,6 +2010,7 @@
     setupColumnDrag();    // 見出しをドラッグで並べ替え可能に
     addColSortHandles();  // 見出しの「▲」で昇順/降順の並び替え
     syncHScrollWidth();   // 上部横スクロールバーの幅を合わせる
+    renderStatusChips();  // 状態ごとの件数ボタン
   }
 
   // ===== 列の並べ替え（個人設定・ドラッグ） =====
@@ -1998,8 +2048,10 @@
     const keys = columnKeysFor(colOrderMode());
     const saved = loadColumnOrder();
     if (!saved) return keys.slice();
-    const out = saved.filter((k) => keys.indexOf(k) !== -1);
+    let out = saved.filter((k) => keys.indexOf(k) !== -1);
     keys.forEach((k) => { if (out.indexOf(k) === -1) out.push(k); }); // 新設列は末尾に補完
+    // ✎ 列は行の色の帯も兼ねるので、以前の並び設定で動かしていても常に左端へ
+    if (keys[0] === 'edit') out = ['edit'].concat(out.filter((k) => k !== 'edit'));
     return out;
   }
   function reorderCellsByKey(rowEl, order) {
@@ -2057,7 +2109,7 @@
   function setupColumnDrag() {
     if (aggMode) return;
     const head = activeTheadRow(); if (!head) return;
-    head.querySelectorAll('th[data-colkey]').forEach((th) => { th.draggable = true; });
+    head.querySelectorAll('th[data-colkey]').forEach((th) => { th.draggable = th.getAttribute('data-colkey') !== 'edit'; });
   }
   let dragColKey = null;
   function clearColDragMarks() {
@@ -3165,9 +3217,7 @@
   }
   function toggleTaskMode() { if (taskMode) exitTaskMode(); else enterTaskMode(); }
   function updatePersonalTaskBtn() {
-    const btn = $('personalTaskBtn');
-    btn.textContent = showPersonalTasks ? '👤 個人タスク：表示' : '👤 個人タスク：非表示';
-    btn.classList.toggle('active', showPersonalTasks);
+    setSwitch($('personalTaskBtn'), showPersonalTasks);
   }
   function togglePersonalTasks() {
     showPersonalTasks = !showPersonalTasks;
@@ -3496,6 +3546,7 @@
     applyColumnOrder();   // 個人設定の列並びを反映
     setupColumnDrag();    // 見出しをドラッグで並べ替え可能に
     addColSortHandles();  // 見出しの「▲」で昇順/降順の並び替え
+    renderStatusChips();  // 状態ごとの件数ボタン
   }
 
   // タスク編集ポップアップ
@@ -3583,7 +3634,10 @@
     $('taskNewInput').focus();
   }
 
-  function refresh() { if (calMode) renderCalendar(); else if (aggMode) renderAggTable(); else if (taskMode) renderTaskTable(); else if (purchaseMode) renderPurchaseView(); else render(); }
+  function refresh() {
+    if (calMode) renderCalendar(); else if (aggMode) renderAggTable(); else if (taskMode) renderTaskTable(); else if (purchaseMode) renderPurchaseView(); else render();
+    if (calMode || aggMode || purchaseMode) renderStatusChips(); // render()/renderTaskTable() は内部で更新済み
+  }
 
   // 配分 / 粗利率 の手動編集
   function handleAggInput(e) {
@@ -4496,6 +4550,7 @@
     if (equipMode) exitEquipMode();
     applyUserScope();
     render();
+    requestAnimationFrame(fitTableHeight); // 表の高さを画面の残りに合わせる
     maybeOpenCaseFromUrl();
     refreshPendingBadge(); // 劇場情報 自動更新の未確認件数バッジ（菱熱のみ）
     refreshIntakeBadge();  // 登録確認（新規か更新か）の件数バッジ（菱熱のみ）
@@ -4559,16 +4614,21 @@
     ).join('');
     bar.innerHTML = html;
   }
-  // 客先ログインでは col-ryo のボタンが消えるため、中身が無くなったグループ枠は隠す
+  // 客先ログインでは社内用のボタンが消えるため、中身が無くなった「☰ その他」の区切り・ボタン自体を隠す
+  // （閉じた小窓の中は offsetParent が取れないので、各ボタン自身の display で判定する）
   function hideEmptyToolbarGroups() {
-    document.querySelectorAll('.header-actions .tb-group').forEach((g) => {
-      const items = [...g.children].filter((el) => !el.classList.contains('tb-label'));
-      const anyVisible = items.some((el) => el.offsetParent !== null || !el.classList.contains('col-ryo'));
-      g.classList.toggle('hidden', !anyVisible);
+    const shown = (el) => getComputedStyle(el).display !== 'none';
+    let any = false;
+    document.querySelectorAll('#moreMenu .pop-group').forEach((g) => {
+      const has = [...g.querySelectorAll('.pop-item')].some(shown);
+      g.classList.toggle('hidden', !has);
+      if (has) any = true;
     });
+    $('moreWrap').classList.toggle('hidden', !any);
   }
   function applyUserScope() {
     $('userEmail').textContent = currentUser.email;
+    $('userMenuBtn').title = currentUser.email + '（表示倍率・列の並び・ログアウト）';
     loadSavedFilters(); // アカウント別に最後の絞り込みを復元
     seedDefaultStatusFilter(); // ログイン時は「完了・取り下げ」を非表示（チェック外し）で開始
     renderCompanyBar();
@@ -5059,9 +5119,7 @@
   });
   $('taskDoneToggleBtn').addEventListener('click', () => {
     showDoneTasks = !showDoneTasks;
-    const btn = $('taskDoneToggleBtn');
-    btn.textContent = showDoneTasks ? '完了タスク：表示' : '完了タスク：非表示';
-    btn.classList.toggle('active', showDoneTasks);
+    setSwitch($('taskDoneToggleBtn'), showDoneTasks);
     if (taskMode) renderTaskTable();
   });
   // タスクポップアップ
@@ -5408,10 +5466,7 @@
 
   // 大口のみ（300万円以上）トグル
   function updateBigToggleLabel() {
-    const btn = $('toggleBigBtn');
-    if (!btn) return;
-    btn.textContent = showBigOnly ? '大口のみ：ON' : '大口のみ：OFF';
-    btn.classList.toggle('active', showBigOnly);
+    setSwitch($('toggleBigBtn'), showBigOnly);
   }
   $('toggleBigBtn').addEventListener('click', () => {
     showBigOnly = !showBigOnly;
@@ -5428,10 +5483,90 @@
   $('taxToggleBtn').addEventListener('click', () => {
     showTax = !showTax;
     document.body.classList.toggle('show-tax', showTax);
-    const b = $('taxToggleBtn');
-    b.textContent = showTax ? '税込み表示中' : '税抜き表示';
-    b.classList.toggle('active', showTax);
+    setSwitch($('taxToggleBtn'), showTax);
   });
+
+  // ===== ① 押すと開く小窓（☰ その他／自分のメニュー／色の意味） =====
+  const POPOVERS = [['moreMenuBtn', 'moreMenu'], ['userMenuBtn', 'userMenu'], ['legendBtn', 'legendPop']];
+  function closePopovers(exceptId) {
+    POPOVERS.forEach(([b, p]) => {
+      if (p === exceptId) return;
+      const pop = $(p), btn = $(b);
+      if (pop) pop.classList.add('hidden');
+      if (btn) btn.setAttribute('aria-expanded', 'false');
+    });
+  }
+  POPOVERS.forEach(([b, p]) => {
+    const btn = $(b), pop = $(p);
+    if (!btn || !pop) return;
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const willOpen = pop.classList.contains('hidden');
+      closePopovers(p);
+      pop.classList.toggle('hidden', !willOpen);
+      btn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+    });
+    // 中の機能を押したら閉じる（表示倍率の －／＋ は続けて押せるよう閉じない）
+    pop.addEventListener('click', (e) => {
+      const item = e.target.closest('button');
+      if (item && !item.closest('.zoom-control')) closePopovers();
+    });
+  });
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.hdr-pop-wrap, .fb-pop-wrap')) closePopovers();
+  });
+  window.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    const open = POPOVERS.some(([, p]) => $(p) && !$(p).classList.contains('hidden'));
+    if (open) { closePopovers(); e.stopPropagation(); }
+  }, true);
+
+  // ☰ の中の機能（A集計・工程表など）を開いている間は、上に「✕ ○○を閉じる」を出す。
+  // 各機能はボタンの文字を「✕ …を閉じる」に変えるので、それを見て同じボタンを押す
+  function syncModeCloseBtn() {
+    const btn = $('modeCloseBtn'); if (!btn) return;
+    const active = Array.prototype.find.call($('moreMenu').querySelectorAll('.pop-item'),
+      (el) => (el.textContent || '').trim().indexOf('✕') === 0);
+    btn.classList.toggle('hidden', !active);
+    btn.textContent = active ? active.textContent.trim() : '';
+    btn.dataset.target = active ? active.id : '';
+  }
+  $('modeCloseBtn').addEventListener('click', () => {
+    const t = $($('modeCloseBtn').dataset.target || '');
+    if (t) t.click();
+  });
+  new MutationObserver(syncModeCloseBtn).observe($('moreMenu'), { subtree: true, childList: true, characterData: true });
+
+  // ⑤ 状態ごとの件数ボタン・注意ボタン
+  $('statusChips').addEventListener('click', (e) => {
+    const attn = e.target.closest('[data-attn]');
+    if (attn) {
+      attentionFilter = (attentionFilter === attn.dataset.attn) ? '' : attn.dataset.attn;
+      $('statusFilter').value = '';
+      refresh();
+      return;
+    }
+    const chip = e.target.closest('[data-chip-status]');
+    if (!chip) return;
+    const v = chip.dataset.chipStatus;
+    attentionFilter = '';
+    $('statusFilter').value = ($('statusFilter').value === v) ? '' : v;
+    refresh();
+  });
+
+  // ① 表の高さを「画面の残り」にぴったり合わせる。
+  // 上の部分より表が長いとページ全体がスクロールし、列の見出しが上の部分の裏に隠れていたため
+  function fitTableHeight() {
+    const wrap = document.querySelector('main > .table-wrap');
+    if (!wrap || wrap.offsetParent === null) return;
+    const top = Math.round(wrap.getBoundingClientRect().top + window.scrollY);
+    document.documentElement.style.setProperty('--table-top', top + 'px');
+  }
+  if (window.ResizeObserver) {
+    const ro = new ResizeObserver(() => fitTableHeight());
+    ['appHeader', 'filterBar', 'personTaskPanel', 'hScrollTop', 'aggBar'].forEach((id) => { if ($(id)) ro.observe($(id)); });
+  }
+  window.addEventListener('resize', fitTableHeight);
 
   // 列幅ドラッグ: 通常モードのthead にハンドルを付与してから保存（復元してもハンドルが残る）
   addResizers($('casesTable').querySelector('thead'));

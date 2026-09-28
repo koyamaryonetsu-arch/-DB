@@ -57,18 +57,70 @@
 </div>
 
 <div id="appShell" class="hidden">
-  <header>
-    <div class="title-group">
+  <header id="appHeader">
+    <!-- 1段目: 検索・登録・よく使う機能（毎日使うものだけ外に出す。残りは「☰ その他」） -->
+    <div class="hdr-top">
       <h1 id="appTitle">TOHOシネマズ 案件管理</h1>
-      <div class="filter-bars col-ryo">
-        <div id="rPersonBar" class="rperson-bar"></div>
-        <div id="companyBar" class="rperson-bar co-bar"></div>
+      <input type="search" id="searchBox" class="hdr-search" placeholder="劇場名・担当者・内容で検索">
+      <button id="quickCaseBtn" class="hdr-btn">⚡ 簡易登録</button>
+      <button id="newCaseBtn" class="hdr-btn pri">＋ 新規登録</button>
+      <button id="taskBtn" class="hdr-btn col-ryo">📋 タスク管理</button>
+      <button id="calBtn" class="hdr-btn col-ryo">📅 カレンダー</button>
+      <button id="intakeBtn" class="hdr-btn col-ryo hidden">🆕 登録確認 <span id="ikBadge" class="tp-badge hidden"></span></button>
+      <button id="theaterPendingBtn" class="hdr-btn col-ryo hidden">🔎 劇場情報更新確認 <span id="tpBadge" class="tp-badge hidden"></span></button>
+      <!-- ☰ の中の機能を開いている時だけ出る「閉じる」ボタン（☰を開かずに戻れるように） -->
+      <button id="modeCloseBtn" class="hdr-btn on hidden"></button>
+      <div class="hdr-pop-wrap" id="moreWrap">
+        <button id="moreMenuBtn" class="hdr-btn" aria-haspopup="true" aria-expanded="false">☰ その他</button>
+        <div id="moreMenu" class="hdr-pop right hidden" role="menu">
+          <div class="pop-group">
+            <div class="pop-h">管理</div>
+            <button id="aggBtn" class="pop-item col-ryo">📊 A集計</button>
+            <button id="purchaseBtn" class="pop-item col-ryo">💰 支払い状況</button>
+            <button id="invoiceBtn" class="pop-item">📄 請求書発行</button>
+          </div>
+          <div class="pop-group">
+            <div class="pop-h">別機能</div>
+            <button id="koteiBtn" class="pop-item col-ryo">📋 工程表</button>
+            <button id="equipBtn" class="pop-item col-ryo">🧰 設備管理台帳</button>
+          </div>
+          <div class="pop-group">
+            <div class="pop-h">確認</div>
+            <button id="theaterInfoBtn" class="pop-item col-ryo">🏢 各劇場情報</button>
+            <button id="exportBtn" class="pop-item col-ryo">⬇ Excelダウンロード</button>
+          </div>
+        </div>
+      </div>
+      <span class="hdr-grow"></span>
+      <div class="hdr-pop-wrap">
+        <button id="userMenuBtn" class="hdr-user" aria-haspopup="true" aria-expanded="false"><span class="hdr-av" aria-hidden="true">👤</span>▾</button>
+        <div id="userMenu" class="hdr-pop right hidden" role="menu">
+          <div class="pop-mi" id="userEmail"></div>
+          <div class="pop-sep"></div>
+          <div class="pop-mi zoom-control" title="表の表示倍率を変えて全体を見やすくします">
+            <span class="zoom-label">表示倍率</span>
+            <button id="zoomOutBtn" type="button" class="zoom-btn" aria-label="縮小">－</button>
+            <span id="zoomLevel" class="zoom-level">100%</span>
+            <button id="zoomInBtn" type="button" class="zoom-btn" aria-label="拡大">＋</button>
+            <button id="zoomResetBtn" type="button" class="zoom-btn" aria-label="100%に戻す">⟲</button>
+          </div>
+          <button id="hscrollPosBtn" type="button" class="pop-item" title="横スクロールバーの位置を上/下で切り替え">横バー：上に表示</button>
+          <button id="colOrderResetBtn" type="button" class="pop-item" title="列の並びを既定に戻す">列並びリセット</button>
+          <div class="pop-sep"></div>
+          <button id="logoutBtn" class="pop-item">ログアウト</button>
+        </div>
       </div>
     </div>
-    <div class="header-actions">
-      <div class="tb-group">
-        <span class="tb-label">管理</span>
-        <input type="search" id="searchBox" placeholder="検索（劇場名・担当者・内容など）">
+    <!-- 2段目: 担当者・会社（1回クリックで絞り込み。複数選べて、もう一度押すと外れる） -->
+    <div class="hdr-who col-ryo">
+      <span class="hdr-lb">担当者</span>
+      <div id="rPersonBar" class="rperson-bar"></div>
+      <span class="hdr-sep"></span>
+      <span class="hdr-lb">会社</span>
+      <div id="companyBar" class="rperson-bar co-bar"></div>
+    </div>
+  </header>
+  <div hidden>
         <select id="statusFilter">
           <option value="">全ステータス</option>
           <option value="受付">受付</option>
@@ -85,56 +137,32 @@
           <option value="失注">失注</option>
           <option value="保留">保留</option>
         </select>
-        <button id="quickCaseBtn" class="primary outline">⚡ 簡易登録</button>
-        <button id="newCaseBtn" class="primary">＋ 新規案件登録</button>
-        <button id="showAllBtn" class="toggle-btn" title="ONにすると「完了・入金済・取り下げ・失注」も含めて全件表示。OFFは既定（これらは非表示）">全件表示：OFF</button>
-        <button id="toggleBigBtn" class="toggle-btn col-ryo" title="見積り金額300万円以上の大口案件だけを表示します">大口のみ：OFF</button>
-        <button id="taxToggleBtn" class="toggle-btn" title="見積り金額（税込み）列の表示/非表示を切り替えます">税抜き表示</button>
-        <button id="taskDoneToggleBtn" class="toggle-btn col-ryo hidden" title="タスク管理画面で、チェック済み（完了）タスクの表示/非表示を切り替えます">完了タスク：非表示</button>
-        <button id="personalTaskBtn" class="toggle-btn col-ryo hidden" title="案件のタスク表の上に出る「個人タスク」（上の担当者ボタンで選んだ人のタスク）の表示/非表示">👤 個人タスク：表示</button>
-        <button id="taskBtn" class="col-ryo">📋 タスク管理</button>
-        <button id="aggBtn" class="col-ryo">📊 A集計</button>
-        <button id="purchaseBtn" class="col-ryo">💰 支払い状況</button>
-        <button id="invoiceBtn">📄 請求書発行</button>
-      </div>
-      <div class="tb-group">
-        <span class="tb-label">別機能</span>
-        <button id="calBtn" class="col-ryo">📅 カレンダー</button>
-        <button id="koteiBtn" class="col-ryo">📋 工程表</button>
-        <button id="equipBtn" class="col-ryo">🧰 設備管理台帳</button>
-      </div>
-      <div class="tb-group">
-        <span class="tb-label">確認</span>
-        <button id="theaterInfoBtn" class="col-ryo">🏢 各劇場情報</button>
-        <button id="intakeBtn" class="col-ryo hidden">🆕 登録確認 <span id="ikBadge" class="tp-badge hidden"></span></button>
-        <button id="theaterPendingBtn" class="col-ryo hidden">🔎 劇場情報更新確認 <span id="tpBadge" class="tp-badge hidden"></span></button>
-        <button id="exportBtn" class="col-ryo">Excelダウンロード</button>
-      </div>
-      <span class="user-info">
-        <span id="userEmail"></span>
-        <button id="logoutBtn" class="link-btn">ログアウト</button>
-      </span>
-    </div>
-  </header>
+  </div>
 
   <main>
-    <div class="legend">
-      <span class="legend-item ryo-only"><span class="swatch swatch-yellow"></span>調査日が未定（受付から3日以上）</span>
-      <span class="legend-item ryo-only"><span class="swatch swatch-yellowgreen"></span>見積り中（調査日から3日未満）</span>
-      <span class="legend-item ryo-only"><span class="swatch swatch-red"></span>見積り中（調査日から3日以上）</span>
-      <span class="legend-item ryo-only"><span class="swatch swatch-blue"></span>客先対応中・見積り提出済</span>
-      <span class="legend-hint ryo-only">💡 セルクリックで編集 ／ 内容・社内メモ・顧客メモはクリックでポップアップ ／ 社内メモに「保留」→ ステータス保留（社内メモはAIが客先向けに要約して「内容」へ）</span>
-      <span class="zoom-control" title="表の表示倍率を変えて全体を見やすくします">
-        <span class="zoom-label">表示倍率</span>
-        <button id="zoomOutBtn" type="button" class="zoom-btn" aria-label="縮小">－</button>
-        <span id="zoomLevel" class="zoom-level">100%</span>
-        <button id="zoomInBtn" type="button" class="zoom-btn" aria-label="拡大">＋</button>
-        <button id="zoomResetBtn" type="button" class="zoom-btn" aria-label="100%に戻す">⟲</button>
-      </span>
-      <span class="table-tools" title="見出しの▲を押すとその項目で並び替え（昇順→降順→解除）。列の場所を変えるときは見出しをドラッグ。並びは自動保存され次回も維持されます。">
-        <button id="hscrollPosBtn" type="button" class="zoom-btn" title="横スクロールバーの位置を上/下で切り替え">横バー：上に表示</button>
-        <button id="colOrderResetBtn" type="button" class="zoom-btn" title="列の並びを既定に戻す">列並びリセット</button>
-      </span>
+    <!-- 絞り込みバー（状態ごとの件数ボタン・表示スイッチ）。class="legend" は各画面の表示切替で共通に使う目印 -->
+    <div id="filterBar" class="legend filter-bar">
+      <div id="statusChips" class="fb-chips"></div>
+      <span class="fb-sep"></span>
+      <button id="showAllBtn" type="button" class="sw-btn" role="switch" aria-checked="false" title="ONにすると「完了・入金済・取り下げ・失注」も含めて全件表示。OFFは既定（これらは非表示）"><span class="sw-t"></span>完了も表示</button>
+      <button id="toggleBigBtn" type="button" class="sw-btn col-ryo" role="switch" aria-checked="false" title="見積り金額300万円以上の大口案件（と更新案件）だけを表示します"><span class="sw-t"></span>大口のみ</button>
+      <button id="taxToggleBtn" type="button" class="sw-btn" role="switch" aria-checked="false" title="「見積り金額（税込み）」の列を表示します"><span class="sw-t"></span>税込み</button>
+      <button id="taskDoneToggleBtn" type="button" class="sw-btn col-ryo hidden" role="switch" aria-checked="false" title="タスク管理画面で、チェック済み（完了）タスクも表示します"><span class="sw-t"></span>完了タスクも表示</button>
+      <button id="personalTaskBtn" type="button" class="sw-btn col-ryo hidden" role="switch" aria-checked="true" title="案件のタスク表の上に出る「個人タスク」（上の担当者ボタンで選んだ人のタスク）の表示/非表示"><span class="sw-t"></span>個人タスク</button>
+      <div class="fb-pop-wrap ryo-only">
+        <button id="legendBtn" type="button" class="fb-help" aria-haspopup="true" aria-expanded="false" title="色の意味・操作のしかた">?</button>
+        <div id="legendPop" class="fb-pop hidden">
+          <div class="fb-pop-h">行の左端の色の意味</div>
+          <div class="legend-item"><span class="swatch swatch-yellow"></span>調査日が未定（受付から3営業日以上）</div>
+          <div class="legend-item"><span class="swatch swatch-yellowgreen"></span>見積り中（調査日から3営業日未満）</div>
+          <div class="legend-item"><span class="swatch swatch-red"></span>見積り遅れ（調査日から3営業日以上）</div>
+          <div class="legend-item"><span class="swatch swatch-blue"></span>客先対応中・見積り提出済</div>
+          <div class="fb-pop-h">操作のしかた</div>
+          <p>セルをクリックするとその場で編集。内容・社内メモ・顧客メモはクリックでポップアップ。行にマウスを乗せると左端に ✎（すべての項目を編集）。</p>
+          <p>見出しの ▲ で並び替え（昇順→降順→解除）。列の場所は見出しをドラッグ。</p>
+          <p>社内メモに「保留」と書くとステータスが保留になります（社内メモはAIが客先向けに要約して「内容」へ）。</p>
+        </div>
+      </div>
       <span class="mobile-sort mobile-only">並び替え:
         <button id="sortReceivedBtn" type="button">受付日順</button>
         <button id="sortSurveyBtn" type="button">調査日順</button>
@@ -173,7 +201,7 @@
       <table id="casesTable">
         <thead>
           <tr id="theadRow">
-            <th class="col-edit" data-colkey="edit">編集</th>
+            <th class="col-edit" data-colkey="edit" aria-label="編集"></th>
             <th class="col-status sortable" data-sort="status" data-colkey="status"><span class="th-filter" data-filter="status">ステータス</span></th>
             <th class="col-company sortable" data-sort="company" data-colkey="company"><span class="th-filter" data-filter="company">会社</span></th>
             <th class="sortable" data-sort="theater" data-colkey="theater"><span class="th-filter" data-filter="theater">劇場名</span></th>
