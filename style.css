@@ -492,9 +492,10 @@ tr.row-red .status-badge { background: #fee2e2; color: #b91c1c; }
   margin-left: 8px;
 }
 
+/* 自分のメニュー（白い小窓）の一番上に出すメールアドレス */
 #userEmail {
   font-weight: 600;
-  color: #fff;
+  color: #1f2937;
 }
 
 .link-btn {
@@ -2047,7 +2048,7 @@ header#appHeader { display: block; padding: 0; gap: 0; }
 .hdr-pop.hidden, .fb-pop.hidden { display: none; }
 .pop-group + .pop-group { border-top: 1px solid #eef1f5; margin-top: 4px; padding-top: 4px; }
 .pop-group.hidden { display: none; }
-.pop-h { font-size: 11px; font-weight: 700; color: #94a3b8; letter-spacing: .08em; padding: 6px 10px 2px; }
+.pop-h { font-size: 11px; font-weight: 700; color: #64748b; letter-spacing: .08em; padding: 6px 10px 2px; }
 .pop-item {
   display: flex; width: 100%; align-items: center; gap: 8px; text-align: left;
   border: none; background: none; padding: 8px 10px; border-radius: 6px; font-size: 13px; color: #1f2937;
