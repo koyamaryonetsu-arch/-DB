@@ -86,7 +86,8 @@ test('基本職を 2つ マスターすると 上級職に なれる（どうぐ
 test('掛け合わせ技は もとの 職業を あわせもつ 上級職いじょう だけ', () => {
   const c = newCharacter({ id: 'a', name: 'a', job: 'mage' });
   master(c, 'mage', 'priest', 'warrior');
-  assert.ok(learnedAbilities(c).includes('medoro'), 'メドロは ひらめく');
+  c.hirameki = ['medoro', 'kaen_senpu', 'mahouken'];
+  assert.ok(learnedAbilities(c).includes('medoro'), 'ひらめいた メドロ');
   assert.equal(comboAllowed(c, 'medoro'), false, '魔法使いの ままでは つかえない');
   assert.equal(comboAllowed(c, 'kaen_senpu'), false);
   changeJob(c, 'sage');

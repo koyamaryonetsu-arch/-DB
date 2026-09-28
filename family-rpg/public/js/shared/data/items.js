@@ -1,8 +1,10 @@
 // どうぐ・そうびの データ
 // type: use(つかう どうぐ) weapon armor shield head acc key(だいじなもの)
-// weapon.cat: sword dagger axe staff spear claw fan whip
+// weapon.cat: sword dagger axe staff spear claw fan whip bat
 // armor.armorType: cloth(だれでも) heavy(戦士) robe(僧侶/魔法使い/旅芸人) gi(武闘家/戦士/旅芸人)
 // head.helm: true だと 戦士だけ
+// rank: 装備の ランク（1〜10。下の EQUIP_RANKS）。star: 店では 買えない 1つ上の 品（宝箱・レアドロップ）
+// unique: 1人 1つの 品（ボスが 落とす 物）。データを 合わせる ときに ふえすぎない
 
 import { ITEMS_CH2 } from './items-ch2.js';
 
@@ -79,69 +81,73 @@ export const ITEMS = {
   },
 
   // ───── ぶき ─────
-  wood_sword: { name: '木の剣', type: 'weapon', cat: 'sword', atk: 6, price: 30, desc: '木でできたけいこ用の剣。' },
-  bronze_sword: { name: '銅の剣', type: 'weapon', cat: 'sword', atk: 12, price: 110, desc: '銅でできた剣。' },
-  iron_sword: { name: '鉄の剣', type: 'weapon', cat: 'sword', atk: 20, price: 420, desc: 'じょうぶな鉄の剣。' },
-  stardust_sword: { name: '星くずの剣', type: 'weapon', cat: 'sword', atk: 27, bonus: { agi: 4 }, price: 0, sell: 600, desc: '星の光を宿した剣。軽くて素早くふれる。' },
-  stone_axe: { name: '石のオノ', type: 'weapon', cat: 'axe', atk: 15, price: 160, desc: '重たい石のオノ。' },
-  iron_axe: { name: '鉄のオノ', type: 'weapon', cat: 'axe', atk: 25, bonus: { agi: -3 }, price: 520, desc: '威力はあるが少し重い。' },
-  bronze_knife: { name: '銅のナイフ', type: 'weapon', cat: 'dagger', atk: 8, price: 60, desc: '軽いナイフ。' },
-  poison_knife: { name: '毒のナイフ', type: 'weapon', cat: 'dagger', atk: 12, price: 300, onHit: { status: 'poison', chance: 0.25 }, desc: '時々敵を毒にするナイフ。' },
-  oak_staff: { name: 'かしのつえ', type: 'weapon', cat: 'staff', atk: 5, bonus: { mag: 4, heal: 4 }, price: 45, desc: '魔力を高める木のつえ。' },
-  wizard_staff: { name: '魔道士のつえ', type: 'weapon', cat: 'staff', atk: 9, bonus: { mag: 10 }, price: 340, desc: '攻撃呪文の威力が上がるつえ。' },
-  healing_staff: { name: 'いやしのつえ', type: 'weapon', cat: 'staff', atk: 8, bonus: { heal: 12 }, price: 340, desc: '回復呪文の効き目が上がるつえ。' },
-  bronze_spear: { name: '銅のやり', type: 'weapon', cat: 'spear', atk: 12, price: 120, desc: '銅でできたやり。' },
-  iron_spear: { name: '鉄のやり', type: 'weapon', cat: 'spear', atk: 19, price: 400, desc: '鉄のやり。' },
-  bronze_knuckle: { name: 'ブロンズナックル', type: 'weapon', cat: 'claw', atk: 10, price: 90, desc: 'こぶしにはめる銅の武器。' },
-  iron_claw: { name: '鉄のツメ', type: 'weapon', cat: 'claw', atk: 18, bonus: { agi: 2 }, price: 380, desc: 'するどい鉄のツメ。' },
-  leather_whip: { name: '皮のムチ', type: 'weapon', cat: 'whip', atk: 10, price: 180, desc: 'しなやかな皮のムチ。魔物使いや旅芸人が使う。' },
-  thorn_whip: { name: '茨のムチ', type: 'weapon', cat: 'whip', atk: 18, price: 460, desc: 'トゲの付いたムチ。' },
-  flame_whip: { name: '炎のムチ', type: 'weapon', cat: 'whip', atk: 26, bonus: { mag: 4 }, price: 0, sell: 520, desc: '炎をまとったムチ。' },
-  feather_fan: { name: '羽のおうぎ', type: 'weapon', cat: 'fan', atk: 7, bonus: { agi: 3 }, price: 70, desc: '軽い羽のおうぎ。' },
-  dancer_fan: { name: 'おどり子のおうぎ', type: 'weapon', cat: 'fan', atk: 14, bonus: { agi: 5 }, price: 360, desc: 'おどり子が使う美しいおうぎ。' },
+  wood_sword: { name: '木の剣', type: 'weapon', rank: 1, cat: 'sword', atk: 6, price: 30, desc: '木でできたけいこ用の剣。' },
+  bronze_sword: { name: '銅の剣', type: 'weapon', rank: 2, cat: 'sword', atk: 12, price: 110, desc: '銅でできた剣。' },
+  iron_sword: { name: '鉄の剣', type: 'weapon', rank: 3, cat: 'sword', atk: 20, price: 420, desc: 'じょうぶな鉄の剣。' },
+  stardust_sword: { name: '星くずの剣', type: 'weapon', rank: 3, star: true, cat: 'sword', atk: 27, bonus: { agi: 4 }, price: 0, sell: 600, desc: '星の光を宿した剣。軽くて素早くふれる。' },
+  stone_axe: { name: '石のオノ', type: 'weapon', rank: 2, cat: 'axe', atk: 15, price: 160, desc: '重たい石のオノ。' },
+  iron_axe: { name: '鉄のオノ', type: 'weapon', rank: 3, cat: 'axe', atk: 25, bonus: { agi: -3 }, price: 520, desc: '威力はあるが少し重い。' },
+  bronze_knife: { name: '銅のナイフ', type: 'weapon', rank: 1, cat: 'dagger', atk: 8, price: 60, desc: '軽いナイフ。' },
+  poison_knife: { name: '毒のナイフ', type: 'weapon', rank: 2, cat: 'dagger', atk: 12, price: 300, onHit: { status: 'poison', chance: 0.25 }, desc: '時々敵を毒にするナイフ。' },
+  oak_staff: { name: 'かしのつえ', type: 'weapon', rank: 1, cat: 'staff', atk: 5, bonus: { mag: 4, heal: 4 }, price: 45, desc: '魔力を高める木のつえ。' },
+  wizard_staff: { name: '魔道士のつえ', type: 'weapon', rank: 3, cat: 'staff', atk: 9, bonus: { mag: 10 }, price: 340, desc: '攻撃呪文の威力が上がるつえ。' },
+  healing_staff: { name: 'いやしのつえ', type: 'weapon', rank: 3, cat: 'staff', atk: 8, bonus: { heal: 12 }, price: 340, desc: '回復呪文の効き目が上がるつえ。' },
+  bronze_spear: { name: '銅のやり', type: 'weapon', rank: 2, cat: 'spear', atk: 12, price: 120, desc: '銅でできたやり。' },
+  iron_spear: { name: '鉄のやり', type: 'weapon', rank: 3, cat: 'spear', atk: 19, price: 400, desc: '鉄のやり。' },
+  bronze_knuckle: { name: 'ブロンズナックル', type: 'weapon', rank: 2, cat: 'claw', atk: 10, price: 90, desc: 'こぶしにはめる銅の武器。' },
+  iron_claw: { name: '鉄のツメ', type: 'weapon', rank: 3, cat: 'claw', atk: 18, bonus: { agi: 2 }, price: 380, desc: 'するどい鉄のツメ。' },
+  leather_whip: { name: '皮のムチ', type: 'weapon', rank: 2, cat: 'whip', atk: 10, price: 180, desc: 'しなやかな皮のムチ。魔物使いや旅芸人が使う。' },
+  thorn_whip: { name: '茨のムチ', type: 'weapon', rank: 3, cat: 'whip', atk: 18, price: 460, desc: 'トゲの付いたムチ。' },
+  flame_whip: { name: '炎のムチ', type: 'weapon', rank: 3, star: true, cat: 'whip', atk: 22, bonus: { mag: 4 }, price: 0, sell: 520, desc: '炎をまとったムチ。ランプの精がごくまれに持っている。' },
+  feather_fan: { name: '羽のおうぎ', type: 'weapon', rank: 1, cat: 'fan', atk: 7, bonus: { agi: 3 }, price: 70, desc: '軽い羽のおうぎ。' },
+  dancer_fan: { name: 'おどり子のおうぎ', type: 'weapon', rank: 3, cat: 'fan', atk: 14, bonus: { agi: 5 }, price: 360, desc: 'おどり子が使う美しいおうぎ。' },
   // 新しい 職業の ぶき
-  harisen: { name: 'ハリセン', type: 'weapon', cat: 'fan', atk: 5, bonus: { agi: 2 }, price: 40, desc: '紙でできたおうぎ。たたくといい音がする。遊び人のあいぼう。' },
-  signal_flag: { name: '手旗', type: 'weapon', cat: 'fan', atk: 6, bonus: { def: 2 }, price: 50, desc: '合図に使う旗。鉄道員のあいぼう。' },
-  ballpen: { name: 'ボールペン', type: 'weapon', cat: 'dagger', atk: 6, bonus: { mag: 2 }, price: 30, desc: '会社員には、なくてはならない道具。ペンは剣よりも強し？' },
-  penlight: { name: 'ペンライト', type: 'weapon', cat: 'staff', atk: 7, bonus: { heal: 5, agi: 2 }, price: 160, desc: 'キラキラ光るライト。ふると仲間が元気になる。' },
-  wood_bat: { name: '木のバット', type: 'weapon', cat: 'bat', atk: 8, price: 60, desc: '木でできたバット。よくしなる。' },
-  metal_bat: { name: '金属バット', type: 'weapon', cat: 'bat', atk: 19, price: 380, desc: 'カキーンといい音がするバット。' },
-  legend_bat: { name: '伝説のバット', type: 'weapon', cat: 'bat', atk: 34, bonus: { agi: 4 }, price: 1600, desc: 'たくさんのホームランを生んだという伝説のバット。' },
-  katana: { name: '刀', type: 'weapon', cat: 'sword', atk: 24, bonus: { agi: 2 }, price: 760, desc: 'よく切れる刀。サムライのたましい。' },
+  harisen: { name: 'ハリセン', type: 'weapon', rank: 1, cat: 'fan', atk: 5, bonus: { agi: 2 }, price: 40, desc: '紙でできたおうぎ。たたくといい音がする。遊び人のあいぼう。' },
+  signal_flag: { name: '手旗', type: 'weapon', rank: 1, cat: 'fan', atk: 6, bonus: { def: 2 }, price: 50, desc: '合図に使う旗。鉄道員のあいぼう。' },
+  ballpen: { name: 'ボールペン', type: 'weapon', rank: 1, cat: 'dagger', atk: 6, bonus: { mag: 2 }, price: 30, desc: '会社員には、なくてはならない道具。ペンは剣よりも強し？' },
+  penlight: { name: 'ペンライト', type: 'weapon', rank: 2, cat: 'staff', atk: 7, bonus: { heal: 5, agi: 2 }, price: 160, desc: 'キラキラ光るライト。ふると仲間が元気になる。' },
+  wood_bat: { name: '木のバット', type: 'weapon', rank: 1, cat: 'bat', atk: 8, price: 60, desc: '木でできたバット。よくしなる。' },
+  bamboo_bat: { name: '竹のバット', type: 'weapon', rank: 2, cat: 'bat', atk: 13, price: 170, desc: '竹を何まいも重ねたバット。軽くてふりやすい。' },
+  metal_bat: { name: '金属バット', type: 'weapon', rank: 3, cat: 'bat', atk: 19, price: 380, desc: 'カキーンといい音がするバット。' },
+  legend_bat: { name: 'ホームランバット', type: 'weapon', rank: 4, cat: 'bat', atk: 31, bonus: { agi: 3 }, price: 1300, desc: '海の男たちが使う、よく飛ぶバット。当たれば場外ホームラン！' },
+  katana: { name: '刀', type: 'weapon', rank: 3, cat: 'sword', atk: 24, bonus: { agi: 2 }, price: 760, desc: 'よく切れる刀。サムライのたましい。' },
 
   // ───── よろい・ふく ─────
-  cloth: { name: '布の服', type: 'armor', armorType: 'cloth', def: 4, price: 10, desc: 'ふつうの布の服。' },
-  suit: { name: 'スーツ', type: 'armor', armorType: 'cloth', def: 9, bonus: { def: 2 }, price: 260, desc: 'びしっと決まるスーツ。着ると仕事ができそうに見える。' },
-  travel_clothes: { name: '旅人の服', type: 'armor', armorType: 'cloth', def: 7, price: 70, desc: '旅に向いたじょうぶな服。' },
-  leather_armor: { name: '皮のよろい', type: 'armor', armorType: 'cloth', def: 11, price: 190, desc: 'なめし革のよろい。' },
-  wind_clothes: { name: '風の服', type: 'armor', armorType: 'cloth', def: 10, bonus: { agi: 8 }, price: 0, sell: 300, desc: '風のように身軽に動ける服。' },
-  chain_mail: { name: 'くさりかたびら', type: 'armor', armorType: 'heavy', def: 16, price: 280, desc: 'くさりを編んだよろい。' },
-  iron_armor: { name: '鉄のよろい', type: 'armor', armorType: 'heavy', def: 23, bonus: { agi: -2 }, price: 560, desc: 'じょうぶな鉄のよろい。' },
-  wizard_robe: { name: '魔道士のローブ', type: 'armor', armorType: 'robe', def: 8, bonus: { mag: 4 }, price: 130, desc: '魔力を高めるローブ。' },
-  holy_robe: { name: '聖なるローブ', type: 'armor', armorType: 'robe', def: 12, bonus: { heal: 6 }, price: 360, desc: 'いやしの力が宿るローブ。' },
-  martial_gi: { name: '武道着', type: 'armor', armorType: 'gi', def: 9, bonus: { agi: 2 }, price: 150, desc: '動きやすい武闘家の服。' },
-  dragon_gi: { name: '竜の道着', type: 'armor', armorType: 'gi', def: 15, bonus: { agi: 4 }, price: 480, desc: '竜のししゅうがある道着。' },
-  star_mail: { name: '星のよろい', type: 'armor', armorType: 'cloth', def: 18, bonus: { agi: 3, mag: 3 }, price: 0, sell: 700, desc: '星の布を織りこんだ不思議なよろい。だれでも装備できる。' },
+  cloth: { name: '布の服', type: 'armor', rank: 1, armorType: 'cloth', def: 4, price: 10, desc: 'ふつうの布の服。' },
+  suit: { name: 'スーツ', type: 'armor', rank: 2, armorType: 'cloth', def: 9, bonus: { def: 2 }, price: 260, desc: 'びしっと決まるスーツ。着ると仕事ができそうに見える。' },
+  travel_clothes: { name: '旅人の服', type: 'armor', rank: 1, armorType: 'cloth', def: 7, price: 70, desc: '旅に向いたじょうぶな服。' },
+  leather_armor: { name: '皮のよろい', type: 'armor', rank: 2, armorType: 'cloth', def: 11, price: 190, desc: 'なめし革のよろい。' },
+  wind_clothes: { name: '風の服', type: 'armor', rank: 2, star: true, armorType: 'cloth', def: 10, bonus: { agi: 8 }, price: 0, sell: 300, desc: '風のように身軽に動ける服。' },
+  chain_mail: { name: 'くさりかたびら', type: 'armor', rank: 2, armorType: 'heavy', def: 16, price: 280, desc: 'くさりを編んだよろい。' },
+  iron_armor: { name: '鉄のよろい', type: 'armor', rank: 3, armorType: 'heavy', def: 23, bonus: { agi: -2 }, price: 560, desc: 'じょうぶな鉄のよろい。' },
+  wizard_robe: { name: '魔道士のローブ', type: 'armor', rank: 2, armorType: 'robe', def: 8, bonus: { mag: 4 }, price: 130, desc: '魔力を高めるローブ。' },
+  holy_robe: { name: '聖なるローブ', type: 'armor', rank: 3, armorType: 'robe', def: 12, bonus: { heal: 6 }, price: 360, desc: 'いやしの力が宿るローブ。' },
+  martial_gi: { name: '武道着', type: 'armor', rank: 2, armorType: 'gi', def: 9, bonus: { agi: 2 }, price: 150, desc: '動きやすい武闘家の服。' },
+  dragon_gi: { name: '竜の道着', type: 'armor', rank: 3, armorType: 'gi', def: 15, bonus: { agi: 4 }, price: 480, desc: '竜のししゅうがある道着。' },
+  star_mail: { name: '星のよろい', type: 'armor', rank: 3, star: true, armorType: 'cloth', def: 18, bonus: { agi: 3, mag: 3 }, price: 0, sell: 700, desc: '星の布を織りこんだ不思議なよろい。だれでも装備できる。' },
 
   // ───── たて ─────
-  leather_shield: { name: '皮のたて', type: 'shield', def: 4, price: 50, desc: '皮でできたたて。' },
-  briefcase: { name: 'ビジネスバッグ', type: 'shield', def: 5, price: 90, desc: '書類でいっぱいのがんじょうなかばん。たてにもなる。' },
-  scale_shield: { name: 'うろこのたて', type: 'shield', def: 8, price: 190, desc: '魔物のうろこのたて。' },
-  iron_shield: { name: '鉄のたて', type: 'shield', def: 12, price: 400, desc: '鉄のたて。' },
+  leather_shield: { name: '皮のたて', type: 'shield', rank: 1, def: 4, price: 50, desc: '皮でできたたて。' },
+  briefcase: { name: 'ビジネスバッグ', type: 'shield', rank: 1, def: 5, price: 90, desc: '書類でいっぱいのがんじょうなかばん。たてにもなる。' },
+  scale_shield: { name: 'うろこのたて', type: 'shield', rank: 2, def: 8, price: 190, desc: '魔物のうろこのたて。' },
+  iron_shield: { name: '鉄のたて', type: 'shield', rank: 3, def: 12, price: 400, desc: '鉄のたて。' },
 
   // ───── かぶと・ぼうし ─────
-  leather_hat: { name: '皮のぼうし', type: 'head', def: 2, price: 30, desc: '皮のぼうし。' },
-  bb_helmet: { name: 'ヘルメット', type: 'head', helm: true, def: 5, price: 150, desc: '頭を守るじょうぶなヘルメット。野球選手や鉄道員にも。' },
-  pointy_hat: { name: 'とんがりぼうし', type: 'head', def: 4, bonus: { mag: 3 }, price: 150, desc: '魔法使いに人気のぼうし。' },
-  bandana: { name: 'バンダナ', type: 'head', def: 3, bonus: { agi: 2 }, price: 80, desc: '頭に巻く布。' },
-  iron_helm: { name: '鉄かぶと', type: 'head', helm: true, def: 7, price: 300, desc: '鉄のかぶと。戦士だけが装備できる。' },
+  leather_hat: { name: '皮のぼうし', type: 'head', rank: 1, def: 2, price: 30, desc: '皮のぼうし。' },
+  bb_helmet: { name: 'ヘルメット', type: 'head', rank: 2, helm: true, def: 5, price: 150, desc: '頭を守るじょうぶなヘルメット。野球選手や鉄道員にも。' },
+  pointy_hat: { name: 'とんがりぼうし', type: 'head', rank: 2, def: 4, bonus: { mag: 3 }, price: 150, desc: '魔法使いに人気のぼうし。' },
+  bandana: { name: 'バンダナ', type: 'head', rank: 2, def: 3, bonus: { agi: 2 }, price: 80, desc: '頭に巻く布。' },
+  iron_helm: { name: '鉄かぶと', type: 'head', rank: 3, helm: true, def: 7, price: 300, desc: '鉄のかぶと。戦士だけが装備できる。' },
 
   // ───── アクセサリー ─────
-  power_ring: { name: '力の指輪', type: 'acc', bonus: { str: 5 }, price: 0, sell: 150, desc: '力が5上がる指輪。' },
-  guard_ring: { name: '守りの指輪', type: 'acc', bonus: { def: 6 }, price: 0, sell: 150, desc: '身の守りが6上がる指輪。' },
-  swift_ring: { name: 'はやてのリング', type: 'acc', bonus: { agi: 10 }, price: 0, sell: 300, desc: '素早さが10上がる。行動の順番が早く来る！' },
-  star_charm: { name: '星のお守り', type: 'acc', bonus: { hp: 10, mp: 5 }, resist: { sleep: 0.5, poison: 0.5 }, price: 0, sell: 200, desc: 'ねむりと毒にかかりにくくなるお守り。' },
-  mage_earring: { name: '魔法のイヤリング', type: 'acc', bonus: { mp: 8, mag: 2 }, price: 0, sell: 200, desc: 'MPと魔力が上がるイヤリング。' },
+  power_ring: { name: '力の指輪', type: 'acc', rank: 2, bonus: { str: 5 }, price: 0, sell: 150, desc: '力が5上がる指輪。' },
+  guard_ring: { name: '守りの指輪', type: 'acc', rank: 2, bonus: { def: 6 }, price: 0, sell: 150, desc: '身の守りが6上がる指輪。' },
+  swift_ring: { name: 'はやてのリング', type: 'acc', rank: 3, bonus: { agi: 10 }, price: 0, sell: 300, desc: '素早さが10上がる。行動の順番が早く来る！' },
+  star_charm: { name: '星のお守り', type: 'acc', rank: 2, bonus: { hp: 10, mp: 5 }, resist: { sleep: 0.5, poison: 0.5 }, price: 0, sell: 200, desc: 'ねむりと毒にかかりにくくなるお守り。' },
+  mage_earring: { name: '魔法のイヤリング', type: 'acc', rank: 2, bonus: { mp: 8, mag: 2 }, price: 0, sell: 200, desc: 'MPと魔力が上がるイヤリング。' },
+  // ボスが かならず 落とす 物（1人 1つ）
+  forest_necklace: { name: '森の首かざり', type: 'acc', rank: 2, unique: true, bonus: { hp: 15, heal: 4 }, resist: { poison: 0.5 }, price: 0, sell: 150, desc: 'ダークトレントが落とした木の実の首かざり。HPと回復魔力が上がり、毒にかかりにくい。' },
+  rock_bangle: { name: '岩のうでわ', type: 'acc', rank: 3, unique: true, bonus: { def: 6, str: 4 }, price: 0, sell: 250, desc: 'ゴルドーンの体からけずり出したうでわ。力と身の守りが上がる。' },
 
   // ───── だいじなもの ─────
   star_flower: { name: '星の花', type: 'key', desc: '星見の丘にさく、星の光を吸った花。' },
@@ -151,6 +157,27 @@ export const ITEMS = {
   mike_bell: { name: 'ミケのすず', type: 'key', desc: '迷子のねこミケの首輪に付いていたすず。' },
 };
 Object.assign(ITEMS, ITEMS_CH2);
+
+// ───── 装備の ランク（長い 物語の ための ものさし）─────
+// 1つの 章で 1〜2ランク すすむ。新しい 章を 作る ときは、その章の 町で 次の ランクを 売る。
+//   ・店で 売るのは その章の ランク。物語が すすむと 品ぞろえが ふえる（shops.js の more）
+//   ・★（star）は 店で 買えない 少し 強い 品。宝箱・ボス・魔物の レアドロップで 手に入る
+//   ・「伝説」の 名前は ランク10（さいごの 章）だけで 使う
+// sword: その ランクの 剣の 攻撃力の めやす（ほかの 武器は これより 弱く、ボーナスが つく）
+// cloth: その ランクの だれでも 着られる 服の 守備力の めやす
+export const EQUIP_RANKS = [
+  { rank: 1, name: '木と皮', where: '序章のホシフル村', sword: 6, cloth: 5 },
+  { rank: 2, name: '銅と石', where: '第1章のルミナの町', sword: 12, cloth: 10 },
+  { rank: 3, name: '鉄', where: '第1章のルミナの町（森の主を助けたあと）', sword: 20, cloth: 14 },
+  { rank: 4, name: '銀と海', where: '第2章のカモメ港', sword: 30, cloth: 17 },
+  { rank: 5, name: 'はがね', where: '第3章「星の竜がねむる山」（これから）', sword: 40, cloth: 22 },
+  { rank: 6, name: '魔法', where: '第4章（これから）', sword: 50, cloth: 27 },
+  { rank: 7, name: 'プラチナ', where: '第5章（これから）', sword: 61, cloth: 33 },
+  { rank: 8, name: '光', where: '第6章（これから）', sword: 72, cloth: 39 },
+  { rank: 9, name: '竜', where: '第7章（これから）', sword: 85, cloth: 46 },
+  { rank: 10, name: '伝説', where: '最後の章（これから）', sword: 100, cloth: 54 },
+];
+export const RANK_MAX = EQUIP_RANKS.length;
 
 // そうび部位
 export const SLOTS = ['weapon', 'armor', 'shield', 'head', 'acc'];

@@ -44,6 +44,7 @@ export class Game {
     // クラウドセーブの ようすが かわったら 画面に 出す（ひとりモード）
     net.local?.cloud?.onChange((st) => this.onCloudState(st));
     try { if (localStorage.getItem('kizuna_bigtext')) document.body.classList.add('big-text'); } catch { /* */ }
+    try { if (localStorage.getItem('kizuna_font') === 'dot') document.body.classList.add('dot-font'); } catch { /* */ }
     // iPhone: さわったら おとを もどす・もどってきたら がめんを つけたままに する
     const kick = () => this.audio.resumeIfNeeded();
     addEventListener('touchend', kick, { passive: true });

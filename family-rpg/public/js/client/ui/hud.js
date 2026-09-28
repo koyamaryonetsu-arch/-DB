@@ -53,18 +53,22 @@ export class Hud {
     const c = g.me;
     if (!c) return;
     this.party.innerHTML = '';
-    const add = (name, lv, job, hp, maxHp, mp, maxMp, tag, away = false, mon = null) => {
+    const p = g.party;
+    // 家族と いっしょ（マルチ）の ときは、人が 動かしている キャラの 名前を 黄緑に。HP が へると オレンジ・赤
+    const multi = (p?.members?.length || 1) >= 2;
+    const add = (name, lv, job, hp, maxHp, mp, maxMp, tag, away = false, mon = null, player = false) => {
+      const r = Math.max(0, hp) / Math.max(1, maxHp);
+      const hpCls = hp <= 0 ? 'dead' : r <= 0.1 ? 'red' : r <= 0.5 ? 'orange' : '';
       const box = el('div', { class: `win hud-mem ${hp <= 0 ? 'dead' : ''} ${away ? 'away' : ''}` },
-        el('div', { class: 'nm' }, el('span', { text: name }), el('span', { class: 'lv', text: `${mon ? 'Lv' : JOBS[job]?.short || ''}${lv}` })),
-        el('div', { class: 'small', text: away ? '通信待ち…' : `H${hp} M${mp}` }),
-        bar(hp / Math.max(1, maxHp)), bar(mp / Math.max(1, maxMp), 'mp'));
+        el('div', { class: 'nm' }, el('span', { class: `n ${multi && player ? 'player' : ''} ${hpCls}`, text: name }), el('span', { class: 'lv', text: `Lv${lv}` })),
+        el('div', { class: `small hn ${hpCls}`, text: away ? '通信待ち…' : `H${Math.max(0, hp)} M${mp}` }),
+        bar(r, hpCls ? `hp ${hpCls}` : 'hp'), bar(mp / Math.max(1, maxMp), 'mp'));
       if (tag) box.title = tag;
       this.party.append(box);
     };
     const st = computeStats(c);
-    add(c.name, c.level, c.job, c.hp, st.maxHp, c.mp, st.maxMp);
-    const p = g.party;
-    for (const m of p?.members || []) if (m.sid !== g.sid) add(m.name, m.level, m.job, m.hp, m.maxHp, m.mp, m.maxMp, '家族', m.away);
+    add(c.name, c.level, c.job, c.hp, st.maxHp, c.mp, st.maxMp, '', false, null, true);
+    for (const m of p?.members || []) if (m.sid !== g.sid) add(m.name, m.level, m.job, m.hp, m.maxHp, m.mp, m.maxMp, '家族', m.away, null, true);
     for (const s of p?.supports || []) add(s.name, s.level, s.job, s.hp, s.maxHp, s.mp, s.maxMp, s.family ? '家族サポート' : s.species ? 'モンスター' : '仲間', false, s.species);
     for (const gu of p?.guests || []) add(gu.name, gu.level, gu.job, gu.hp, gu.maxHp, gu.mp ?? 0, gu.maxMp || 1, 'ゲスト');
   }

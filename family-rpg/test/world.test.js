@@ -86,8 +86,8 @@ test('ひとりで じょしょう〜1しょうの ボスまで とおして あ
   await bot.examine(23, 11);
   assert.ok(bot.flag('c1_door'), 'とびらが ひらいた');
 
-  // ボス
-  boost(bot, 24);
+  // ボス（ひとりの 戦士は Lv24 だと 6わりしか 勝てない。とおしの テストなので 28 で 確実に）
+  boost(bot, 28);
   await bot.walkTo(23, 9);
   await bot.settle();
   assert.ok(bot.flag('c1_boss'), 'ゴルドーンを たおした');

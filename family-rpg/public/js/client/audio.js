@@ -448,6 +448,16 @@ export class GameAudio {
       case 'poison': [300, 360, 280].forEach((f, i) => T(f, 0.08, { vol: 0.08, delay: i * 0.08, type: 'sine' })); break;
       case 'encounter': this.noise(0.4, { vol: 0.35, type: 'bandpass', from: 300, to: 3000, q: 2 }); [330, 440, 554, 659].forEach((f, i) => T(f, 0.06, { vol: 0.08, delay: i * 0.04 })); break;
       case 'warn': T(880, 0.12, { vol: 0.1 }); T(880, 0.12, { vol: 0.1, delay: 0.18 }); break;
+      // ひらめき: ピコーン
+      case 'hirameki': T(1319, 0.06, { vol: 0.12, type: 'pulse' }); T(1976, 0.3, { vol: 0.12, delay: 0.07, type: 'pulse' }); [2637, 3136, 3951].forEach((f, i) => T(f, 0.18, { vol: 0.05, delay: 0.2 + i * 0.06, type: 'sine' })); break;
+      // 合体技: 2人の 力が 重なる
+      case 'dual': this.noise(0.5, { vol: 0.3, type: 'bandpass', from: 300, to: 3000, q: 2 }); [392, 523, 659, 784, 1047].forEach((f, i) => T(f, 0.35, { vol: 0.08, delay: 0.1 + i * 0.05, type: 'triangle' })); break;
+      // 大きな 一撃（ドカッ）
+      case 'smash': this.noise(0.3, { vol: 0.55, from: 1200, to: 60 }); T(70, 0.3, { vol: 0.3, slide: 35, type: 'triangle' }); break;
+      // バットの 快音（カキーン）
+      case 'bat': T(2093, 0.05, { vol: 0.14, type: 'square' }); T(3136, 0.25, { vol: 0.09, delay: 0.03, type: 'triangle' }); this.noise(0.08, { vol: 0.2, from: 6000, to: 2000 }); break;
+      // 電車（ガタンゴトン）
+      case 'train': [0, 0.18, 0.36, 0.54].forEach((d) => this.noise(0.1, { vol: 0.3, delay: d, from: 900, to: 200 })); T(660, 0.4, { vol: 0.06, delay: 0.1, type: 'square' }); break;
       case 'stamp': T(1047, 0.06, { vol: 0.07, type: 'triangle' }); T(1319, 0.08, { vol: 0.07, delay: 0.06, type: 'triangle' }); break;
       default:
     }

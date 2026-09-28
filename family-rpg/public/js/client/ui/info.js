@@ -17,6 +17,12 @@ export function itemStats(id) {
   return parts.join(' ');
 }
 
+// 装備の ランク（★は 店で 買えない 品）
+export function rankText(id) {
+  const it = ITEMS[id];
+  return it?.rank ? `ランク${it.rank}${it.star ? '★' : ''}` : '';
+}
+
 export function whoCanEquip(id) {
   const it = ITEMS[id];
   if (!it || !['weapon', 'armor', 'shield', 'head', 'acc'].includes(it.type)) return '';
@@ -36,7 +42,9 @@ export function itemDetail(id) {
   const lines = [it.desc || ''];
   const st = itemStats(id);
   if (st) lines.push(st);
-  if (it.type === 'weapon') lines.push(`種類: ${WEAPON_CAT_NAMES[it.cat] || it.cat}`);
+  const rk = rankText(id);
+  if (it.type === 'weapon') lines.push(`種類: ${WEAPON_CAT_NAMES[it.cat] || it.cat}${rk ? `　${rk}` : ''}`);
+  else if (rk) lines.push(rk);
   const w = whoCanEquip(id);
   if (w) lines.push(w);
   return lines.filter(Boolean).join('\n');

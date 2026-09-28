@@ -20,6 +20,7 @@
 import { ADV_ABILITIES } from './abilities-adv.js';
 import { CH2_ABILITIES } from './abilities-ch2.js';
 import { JOB_ABILITIES } from './abilities-jobs.js';
+import { HIRA_ABILITIES } from './hirameki.js';
 
 export const ABILITIES = {
   // ───────────── 戦士 ─────────────
@@ -571,7 +572,7 @@ export const ABILITIES = {
     effect: { type: 'drainMp', amount: [3, 6] }, cast: '{a}は不思議なおどりをおどった！', anim: 'dance',
   },
 };
-Object.assign(ABILITIES, ADV_ABILITIES, CH2_ABILITIES, JOB_ABILITIES);
+Object.assign(ABILITIES, ADV_ABILITIES, CH2_ABILITIES, JOB_ABILITIES, HIRA_ABILITIES);
 
 // 攻撃呪文かどうか（魔法剣で使える）
 export function isAttackSpell(id) {

@@ -228,6 +228,40 @@ export class Effects {
     this.add({ kind: 'circle', x: BW / 2, y: BH - 10, color, life: 420, delay });
   }
 
+  // 三日月の ような 太い きりさき（弧）。a0→a1 へ のびる
+  arc(x, y, { r = 28, a0 = -2.5, a1 = 0.5, w = 5, color = '#ffffff', glow = '#ffd66b', delay = 0, life = 300 } = {}) {
+    this.add({ kind: 'arc', x, y, r, a0, a1, w, color, glow, delay, life });
+  }
+
+  // しょうげき（白い 円が はじける）
+  impact(x, y, { r = 16, color = '#ffffff', delay = 0, life = 170 } = {}) {
+    this.add({ kind: 'impact', x, y, r, color, delay, life });
+  }
+
+  // 集中線（大きな 一撃）
+  speedLines(x, y, { color = '#ffffff', n = 16, delay = 0, life = 260, r0 = 18, r1 = 80 } = {}) {
+    this.add({ kind: 'lines', x, y, color, n, r0, r1, delay, life, seed: Math.random() * 6 });
+  }
+
+  // はへん（岩・木・すな）
+  debris(x, y, colors, n = 10, delay = 0, up = 90) {
+    for (let k = 0; k < n; k++) {
+      const a = -Math.PI / 2 + (Math.random() - 0.5) * 2.2;
+      const sp = up * (0.5 + Math.random() * 0.8);
+      this.add({ kind: 'chip', x: x + (Math.random() - 0.5) * 16, y: y + 8, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, g: 260, color: colors[k % colors.length], life: 520 + Math.random() * 200, size: 2 + Math.random() * 2, delay });
+    }
+  }
+
+  // 大きな 一撃の セット（しょうげき＋ほし＋わ＋火花）
+  bigHit(x, y, { color = '#ffd66b', crit = false, delay = 0, heavy = false } = {}) {
+    this.impact(x, y, { r: crit ? 26 : heavy ? 20 : 15, delay });
+    this.star(x, y, color, crit ? 22 : heavy ? 17 : 13, delay + 20, 240);
+    this.ring(x, y, color, heavy || crit ? 4 : 3, delay + 20, 320, crit ? 52 : 36);
+    this.burst(x, y, ['#ffffff', color], crit ? 22 : 14, crit ? 130 : 95, { delay: delay + 20 });
+    if (crit || heavy) this.speedLines(x, y, { delay, r1: crit ? 110 : 80, color: crit ? '#fff6b0' : '#ffffff' });
+    if (crit) { this.flashAt(150, '#ffffff', delay); this.hitStop(200, delay); } else if (heavy) this.hitStop(110, delay);
+  }
+
   // anim の しゅるいで エフェクトを だす
   // opts: { crit, element, fromAlly }
   play(anim, targets, element, opts = {}) {
@@ -242,10 +276,8 @@ export class Effects {
       switch (anim) {
         // ── けん ──
         case 'slash_heavy':
-          this.slash(x, y, '#ffffff', 1, { len: crit ? 44 : 34, w: crit ? 4 : 3, glow: '#ffd66b', delay: d });
-          this.star(x, y, '#fff6b0', crit ? 16 : 10, d + 90);
-          this.burst(x, y, ['#fff', '#ffd66b'], 10, 60, { delay: d + 90 });
-          if (crit) this.hitStop(160);
+          this.arc(x, y, { r: crit ? 36 : 30, a0: -2.6, a1: 0.6, w: crit ? 7 : 5, glow: '#ffd66b', delay: d });
+          this.bigHit(x, y, { crit, heavy: true, delay: d + 110 });
           break;
         case 'slash_fast': // 海波斬: みずの ように すばやい 2れん
           this.slash(x, y, '#bfe6ff', 2, { angs: [-0.6, 0.6], len: 30, gap: 70, glow: '#5ab8e8', delay: d });
@@ -257,7 +289,23 @@ export class Effects {
           this.burst(x, y, COL.light, 14, 50, { delay: d + 120 });
           break;
         case 'slash_multi':
-          this.slash(x, y, '#ffffff', 4, { angs: [-0.8, 0.8, -0.1, 1.4], spread: 4, gap: 70, len: 28, glow: '#9ad8ff', delay: d });
+          [[-2.6, 0.5], [-0.6, 2.5], [-2.0, 1.0], [0.4, 3.3]].forEach(([a0, a1], k) => {
+            this.arc(x + (k % 2 ? 4 : -4), y, { r: 24, a0, a1, w: 4, glow: '#9ad8ff', delay: d + k * 80, life: 220 });
+            this.impact(x, y, { r: 10, delay: d + k * 80 + 60 });
+          });
+          this.burst(x, y, ['#ffffff', '#9ad8ff'], 16, 100, { delay: d + 300 });
+          break;
+        case 'cross_slash': // クロスブレイク: 2人の 剣が 十字を えがく
+          this.arc(x, y, { r: 36, a0: -2.4, a1: 0.7, w: 6, glow: '#ffd66b', delay: d });
+          this.arc(x, y, { r: 36, a0: -0.7, a1: 2.4, w: 6, glow: '#9ad8ff', delay: d + 120 });
+          this.bigHit(x, y, { crit: true, delay: d + 260, color: '#fff6b0' });
+          break;
+        case 'rock_smash': // 大地のいかり: 地面ごと 打ち上げる
+          this.arc(x, y - 6, { r: 30, a0: -1.9, a1: 1.2, w: 6, glow: '#d8b070', delay: d });
+          this.debris(x, y + 12, ['#a08060', '#6a5040', '#d8c0a0', '#8a7050'], 16, d + 120, 140);
+          this.burst(x, y + 14, ['#d8c0a0', '#a08060'], 14, 70, { delay: d + 120, g: 120 });
+          this.bigHit(x, y, { heavy: true, crit, delay: d + 120, color: '#ffd66b' });
+          if (ti === 0) this.hitStop(260, d + 120);
           break;
         case 'strash': // アバンストラッシュ ふう
           this.slash(x, y, '#fff6b0', 3, { angs: [-0.8, 0.8, 0], spread: 2, gap: 90, len: 50, w: 4, glow: '#ffffff', delay: d });
@@ -409,17 +457,16 @@ export class Effects {
           break;
         // ── モンスターの なかま ──
         case 'tackle':
-          this.star(x, y, '#ffffff', crit ? 16 : 12, d);
-          this.ring(x, y, '#9ad8ff', 3, d, 280, 26);
-          this.burst(x, y, ['#ffffff', '#9ad8ff'], 12, 90, { delay: d });
+          this.add({ kind: 'streak', x: x - 60, y: y + 4, vx: 380, vy: 0, color: '#ffffff', life: 150, delay: d, w: 10 });
+          this.bigHit(x, y, { crit, heavy: true, delay: d + 140, color: '#9ad8ff' });
+          this.debris(x, y + 10, ['#d8c0a0', '#a08060'], 6, d + 140, 80);
           break;
         case 'bite':
           this.add({ kind: 'bite', x, y, color: '#ffffff', life: 320, delay: d });
           this.burst(x, y + 2, ['#ff6464', '#ffffff'], 8, 60, { delay: d + 150 });
           break;
         case 'hit': case 'hit_all':
-          this.star(x, y, '#ffffff', 9, d);
-          this.burst(x, y, ['#ffffff'], 6, 40, { delay: d });
+          this.bigHit(x, y, { crit, delay: d, color: '#ffffff' });
           break;
         case 'quake':
           this.burst(x, y + 16, ['#a08060', '#6a5040', '#d8c0a0'], 12, 50, { delay: d, g: 160 });
@@ -504,55 +551,132 @@ export class Effects {
           this.ring(x, y, '#8a5ac8', 3, d + 120, 380, 34);
           if (ti === 0) this.tintAt('rgba(40, 10, 60, 0.22)', 380);
           break;
+        // ── あたらしい 職業の 技 ──
+        case 'bat_swing': { // バットで かっとばす（カキーン）
+          this.arc(x, y - 2, { r: 34, a0: Math.PI * 0.95, a1: 0.1, w: 6, glow: '#ffe07a', delay: d, life: 240 });
+          this.bigHit(x, y, { crit, heavy: true, delay: d + 110, color: '#ffe07a' });
+          if (ti === 0) this.add({ kind: 'ball', x0: x, y0: y, x1: BW + 20, y1: -20, x, y, color: '#ffffff', life: 520, delay: d + 120 });
+          break;
+        }
+        case 'ball': { // 速い 球（ごう速球・魔球・160キロ）
+          this.add({ kind: 'ball', x0: BW / 2, y0: BH + 8, x1: x, y1: y, x: BW / 2, y: BH + 8, color: '#ffffff', life: 200, delay: d, trail: true });
+          this.bigHit(x, y, { crit, heavy: true, delay: d + 200, color: '#ffffff' });
+          break;
+        }
+        case 'train': { // 電車が 走りぬける
+          if (ti === 0) this.add({ kind: 'train', x: -90, y: Math.min(BH - 30, y + 6), vx: 520, vy: 0, color: '#3a8ad8', life: 700, delay: d });
+          this.speedLines(x, y, { delay: d + 150, r1: 90 });
+          this.bigHit(x, y, { crit, heavy: true, delay: d + 180 + ti * 40, color: '#9ad8ff' });
+          break;
+        }
+        case 'cards': // めいし・カードを 投げる
+          for (let k = 0; k < 3; k++) {
+            const x0 = -8, y0 = y - 20 + k * 12;
+            this.add({ kind: 'card', x0, y0, x1: x + (k - 1) * 5, y1: y + (k - 1) * 3, x: x0, y: y0, color: '#ffffff', travel: 200, life: 280, delay: d + k * 60 });
+          }
+          this.impact(x, y, { r: 12, delay: d + 240 });
+          this.burst(x, y, ['#ffffff', '#dfe4f0'], 10, 70, { delay: d + 240 });
+          break;
+        case 'hearts': // 投げキッス・ラブリービーム
+          for (let k = 0; k < 5; k++) this.add({ kind: 'heart', x: BW / 2 + (k - 2) * 10, y: BH - 4, x0: BW / 2 + (k - 2) * 10, y0: BH - 4, x1: x + (k - 2) * 4, y1: y, color: k % 2 ? '#ff8ac8' : '#ffc8e8', life: 420, delay: d + k * 50 });
+          this.impact(x, y, { r: 16, color: '#ffd0ec', delay: d + 420 });
+          this.burst(x, y, ['#ff8ac8', '#ffffff', '#ffc8e8'], 18, 90, { delay: d + 420 });
+          break;
+        case 'coins': // ぜに投げ・大型買収
+          for (let k = 0; k < 10; k++) this.add({ kind: 'coin', x: x + (Math.random() - 0.5) * 34, y: y - 60 - Math.random() * 30, vx: 0, vy: 150 + Math.random() * 60, color: '#ffd66b', life: 520, delay: d + k * 30 });
+          this.star(x, y, '#ffe07a', 14, d + 380, 260);
+          this.burst(x, y, ['#ffd66b', '#fff6b0', '#ffffff'], 18, 110, { delay: d + 380 });
+          break;
+        case 'laugh': // ギャグ・大ばくしょう
+          for (let k = 0; k < 6; k++) this.add({ kind: 'ha', x: x + (Math.random() - 0.5) * 36, y: y - 6 + (Math.random() - 0.5) * 16, vx: (Math.random() - 0.5) * 20, vy: -28, color: k % 2 ? '#ffe066' : '#ffffff', life: 800, delay: d + k * 70 });
+          break;
+        case 'ice_arrow': // 氷の矢
+          this.add({ kind: 'arrowshot', x0: BW / 2, y0: BH + 6, x1: x, y1: y, x: BW / 2, y: BH + 6, color: '#e6fbff', life: 220, delay: d });
+          for (let k = 0; k < 8; k++) this.add({ kind: 'shard', x, y, vx: (Math.random() - 0.5) * 140, vy: (Math.random() - 0.5) * 100, color: COL.ice[k % 3], life: 380, delay: d + 220 });
+          this.bigHit(x, y, { crit, delay: d + 220, color: '#9ae6ff' });
+          break;
+        case 'holy': // 聖なる光
+          this.pillar(x, y + 18, 'rgba(255,246,176,0.7)', { w: 14, h: 90, delay: d, life: 620, edge: '#ffffff' });
+          this.add({ kind: 'crossflash', x, y, color: '#fffbe0', life: 360, delay: d + 160 });
+          this.burst(x, y, COL.light, 24, 90, { delay: d + 160 });
+          if (ti === 0) this.flashAt(180, '#fffbe0', d + 160);
+          break;
+        case 'blizzard': // ブリザード
+          if (ti === 0) {
+            this.tintAt('rgba(220, 240, 255, 0.28)', 700);
+            for (let k = 0; k < 40; k++) this.add({ kind: 'shard', x: Math.random() * BW + 40, y: -10 - Math.random() * 60, vx: -150, vy: 120 + Math.random() * 60, color: COL.ice[k % 4], life: 700, delay: d + k * 12 });
+          }
+          this.burst(x, y, COL.ice, 16, 80, { delay: d + 350 });
+          this.impact(x, y, { r: 14, color: '#e6fbff', delay: d + 350 });
+          break;
+        case 'heal_ring': // いやしの輪
+          if (ti === 0) this.add({ kind: 'ellipse', x: BW / 2, y: BH - 16, color: '#7dffb0', life: 700, delay: d, r1: 110 });
+          for (let k = 0; k < 10; k++) this.add({ x: x + (Math.random() - 0.5) * 24, y: y + 12, vx: 0, vy: -40 - Math.random() * 20, color: COL.heal[k % 3], life: 700, size: 2, delay: d + k * 25 });
+          break;
+        case 'stage': // ステージ・インタビュー: スポットライト
+          if (ti === 0) {
+            for (let k = 0; k < 3; k++) this.add({ kind: 'spot', x: 50 + k * 78, y: BH, color: ['#ffe066', '#ff8ac8', '#9ad1ff'][k], life: 800, delay: d + k * 80 });
+          }
+          for (let k = 0; k < 3; k++) this.star(x + (k - 1) * 14, y - 14, ['#f7a1c4', '#ffe066', '#9ad1ff'][k], 7, d + 200 + k * 90, 320);
+          break;
         default:
-          this.star(x, y, '#ffffff', 8, d);
-          this.burst(x, y, ['#ffffff'], 6, 40, { delay: d });
+          this.bigHit(x, y, { crit, delay: d, color: '#ffffff' });
       }
     });
   }
 
   // ふつうの こうげき（ぶきの しゅるいで かわる）
+  // 武器ごとに 形と 色を かえる（剣は 三日月・オノは 重い 一撃・やりは つき・バットは カキーン など）
   weaponHit(targets, weapon, crit) {
     for (const t of targets) {
       const { x, y } = t;
       switch (weapon) {
-        case 'claw': case 'none':
-          this.play('punch', [t], null, { crit });
-          if (weapon === 'claw') this.slash(x, y, '#dfe4f0', 3, { angs: [0.9, 0.9, 0.9], spread: 4, gap: 30, len: 20, w: 1 });
+        case 'none': // こぶし
+          this.impact(x, y, { r: crit ? 20 : 14 });
+          this.ring(x, y, '#ffd66b', 3, 0, 260, crit ? 40 : 28);
+          this.bigHit(x, y, { crit, delay: 30, color: '#ffd66b' });
           break;
-        case 'spear': // つき
-          this.add({ kind: 'thrust', x, y, color: '#ffffff', life: 240 });
-          this.star(x, y, '#fff6b0', crit ? 14 : 9, 120);
-          this.burst(x, y, ['#fff', '#ffd66b'], 8, 60, { delay: 120 });
+        case 'claw': // ツメ: 3本の ひっかき
+          for (let k = 0; k < 3; k++) this.add({ kind: 'slash', x: x + (k - 1) * 7, y, color: '#ffffff', life: 240, delay: k * 35, len: 34, ang: 1.15, w: 3, glow: '#ff8a8a' });
+          this.bigHit(x, y, { crit, delay: 120, color: '#ffc8c8' });
           break;
-        case 'staff': // なぐる
-          this.star(x, y, '#ffffff', crit ? 16 : 11);
-          this.ring(x, y, '#9ad8ff', 2, 0, 240, 20);
-          this.burst(x, y, ['#fff', '#9ad8ff'], 8, 60);
+        case 'spear': // やり: 下から まっすぐ つく
+          this.add({ kind: 'thrust', x, y, color: '#ffffff', life: 220, w: 4 });
+          this.add({ kind: 'thrust', x: x + 1, y, color: '#fff6b0', life: 220, w: 2 });
+          this.speedLines(x, y, { delay: 90, r0: 12, r1: 60, n: 10 });
+          this.bigHit(x, y, { crit, delay: 110, color: '#fff6b0' });
           break;
-        case 'axe':
-          this.slash(x, y, '#ffffff', 1, { angs: [1.2], len: 36, w: 4, glow: '#ffb070' });
-          this.star(x, y, '#ffd66b', crit ? 18 : 13, 80);
-          this.burst(x, y, ['#fff', '#ffd66b', '#ff8a2a'], 12, 80, { delay: 80 });
-          this.hitStop(crit ? 180 : 90, 80);
+        case 'staff': // つえ: ポカッ
+          this.arc(x, y - 6, { r: 20, a0: -2.2, a1: -0.4, w: 4, glow: '#9ad8ff', life: 200 });
+          this.bigHit(x, y, { crit, delay: 100, color: '#9ad8ff' });
+          for (let k = 0; k < 3; k++) this.star(x + Math.cos(k * 2.1) * 14, y - 16 + Math.sin(k * 2.1) * 4, '#fff6b0', 5, 200 + k * 60, 320);
           break;
-        case 'fan':
-          this.slash(x, y, '#ffd0e8', 2, { angs: [-0.4, 0.4], len: 26, w: 2, glow: '#f7a1c4' });
-          for (let k = 0; k < 8; k++) this.add({ kind: 'petal', x: x + (Math.random() - 0.5) * 20, y: y - 14, vx: (Math.random() - 0.5) * 30, vy: 20 + Math.random() * 20, color: k % 2 ? '#f7a1c4' : '#ffffff', life: 700, delay: 80 });
+        case 'axe': // オノ: 重い 一撃
+          this.arc(x, y - 4, { r: 34, a0: -2.0, a1: 1.1, w: 8, glow: '#ff9a3a', life: 240 });
+          this.bigHit(x, y, { crit, heavy: true, delay: 130, color: '#ffb070' });
+          this.debris(x, y + 10, ['#a08060', '#d8c0a0', '#ffd66b'], 8, 130, 110);
+          this.hitStop(crit ? 240 : 160, 130);
           break;
-        case 'dagger':
-          this.slash(x, y, '#ffffff', 2, { angs: [-0.9, 0.5], len: 20, w: 2, gap: 60 });
-          this.star(x, y, '#ffffff', 8, 100);
+        case 'fan': // おうぎ: 風と 花びら
+          this.arc(x, y, { r: 26, a0: -2.8, a1: -0.2, w: 4, color: '#ffe0f0', glow: '#f7a1c4', life: 260 });
+          for (let k = 0; k < 12; k++) this.add({ kind: 'petal', x: x + (Math.random() - 0.5) * 30, y: y - 18, vx: (Math.random() - 0.5) * 50, vy: 20 + Math.random() * 30, color: k % 2 ? '#f7a1c4' : '#ffffff', life: 800, delay: 80 });
+          this.bigHit(x, y, { crit, delay: 120, color: '#ffc8e8' });
+          break;
+        case 'dagger': // ナイフ: すばやく 2回
+          this.arc(x - 3, y, { r: 20, a0: -2.4, a1: 0.2, w: 3, glow: '#bfe6ff', life: 160 });
+          this.arc(x + 3, y, { r: 20, a0: -0.8, a1: 2.3, w: 3, glow: '#bfe6ff', delay: 90, life: 160 });
+          this.bigHit(x, y, { crit, delay: 150, color: '#bfe6ff' });
           break;
         case 'whip':
           this.play('whip', [t], null, { crit });
+          this.bigHit(x, y, { crit, delay: 200, color: '#e8c89a' });
           break;
-        default: // けん
-          this.play('slash_heavy', [t], null, { crit });
-      }
-      if (crit) {
-        this.flashAt(140, '#ffffff', 60);
-        this.hitStop(160, 60);
+        case 'bat': // バット: カキーン
+          this.play('bat_swing', [t], null, { crit });
+          break;
+        default: // 剣: 三日月の きりさき
+          this.arc(x, y, { r: crit ? 36 : 30, a0: -2.6, a1: 0.6, w: crit ? 7 : 5, glow: '#ffd66b', life: 260 });
+          this.bigHit(x, y, { crit, delay: 110, color: '#fff6b0' });
       }
     }
   }
@@ -595,7 +719,16 @@ export class Effects {
         p.rot = p.age / 35;
         continue;
       }
-      if (p.kind === 'lash' || p.kind === 'beam') continue;
+      if (p.kind === 'lash' || p.kind === 'beam' || p.kind === 'arc' || p.kind === 'impact' || p.kind === 'lines' || p.kind === 'crossflash' || p.kind === 'ellipse' || p.kind === 'spot') continue;
+      if (p.kind === 'ball' || p.kind === 'card' || p.kind === 'heart' || p.kind === 'arrowshot') {
+        const t = Math.min(1, p.age / (p.travel || p.life));
+        const e = p.kind === 'heart' ? t * t * (3 - 2 * t) : t;
+        p.x = p.x0 + (p.x1 - p.x0) * e;
+        p.y = p.y0 + (p.y1 - p.y0) * e - (p.kind === 'heart' ? Math.sin(t * Math.PI) * 14 : 0);
+        p.rot = p.age / 40;
+        if (p.trail && Math.random() < 0.9) this.add({ x: p.x, y: p.y, vx: 0, vy: 0, color: '#dfe4f0', life: 140, size: 2 });
+        continue;
+      }
       if (p.kind === 'swirl') {
         const t = p.age / p.life;
         const a = p.ang + t * 9;
@@ -745,9 +878,9 @@ export class Effects {
           break;
         }
         case 'thrust': {
-          const L = 30 * Math.min(1, t * 3);
-          x.lineWidth = 2;
-          x.beginPath(); x.moveTo(p.x, p.y + 30); x.lineTo(p.x, p.y + 30 - L); x.stroke();
+          const L = 56 * Math.min(1, t * 3.5);
+          x.lineWidth = p.w || 2;
+          x.beginPath(); x.moveTo(p.x, p.y + 56); x.lineTo(p.x, p.y + 56 - L); x.stroke();
           x.lineWidth = 1;
           break;
         }
@@ -798,6 +931,115 @@ export class Effects {
           x.restore();
           break;
         }
+        case 'arc': {
+          // 三日月: 先に のびて、太さが へる
+          const grow = Math.min(1, t * 3.2);
+          const a1 = p.a0 + (p.a1 - p.a0) * grow;
+          const fade = Math.max(0, 1 - Math.max(0, t - 0.35) / 0.65);
+          x.lineCap = 'round';
+          x.globalAlpha = 0.55 * fade;
+          x.strokeStyle = p.glow;
+          x.lineWidth = p.w + 5;
+          x.beginPath(); x.arc(p.x, p.y, p.r, Math.min(p.a0, a1), Math.max(p.a0, a1)); x.stroke();
+          x.globalAlpha = fade;
+          x.strokeStyle = p.color;
+          x.lineWidth = Math.max(1, p.w * (1 - t * 0.6));
+          x.beginPath(); x.arc(p.x, p.y, p.r, Math.min(p.a0, a1), Math.max(p.a0, a1)); x.stroke();
+          x.lineWidth = 1;
+          x.lineCap = 'butt';
+          break;
+        }
+        case 'impact': {
+          const r = p.r * (0.35 + t * 0.9);
+          x.globalAlpha = Math.max(0, 0.95 * (1 - t));
+          x.beginPath(); x.arc(p.x, p.y, r, 0, Math.PI * 2); x.fill();
+          break;
+        }
+        case 'lines': {
+          x.globalAlpha = Math.max(0, 0.8 * (1 - t));
+          x.lineWidth = 1;
+          x.beginPath();
+          for (let i = 0; i < p.n; i++) {
+            const a = p.seed + (i / p.n) * Math.PI * 2 + (i % 2) * 0.12;
+            const r0 = p.r0 + t * 10, r1 = p.r1 * (0.7 + ((i * 37) % 10) / 30);
+            x.moveTo(p.x + Math.cos(a) * r0, p.y + Math.sin(a) * r0);
+            x.lineTo(p.x + Math.cos(a) * r1, p.y + Math.sin(a) * r1);
+          }
+          x.stroke();
+          break;
+        }
+        case 'chip':
+          x.fillRect(Math.round(p.x), Math.round(p.y), Math.ceil(p.size), Math.ceil(p.size * 0.7));
+          break;
+        case 'ball':
+          x.fillStyle = '#ffffff';
+          x.beginPath(); x.arc(p.x, p.y, 3, 0, Math.PI * 2); x.fill();
+          x.fillStyle = '#e04848';
+          x.fillRect(Math.round(p.x - 2), Math.round(p.y - 1), 1, 2);
+          x.fillRect(Math.round(p.x + 1), Math.round(p.y - 1), 1, 2);
+          break;
+        case 'train': {
+          // 電車（先頭車両の 横から 見た 形）
+          const tx = Math.round(p.x), ty = Math.round(p.y);
+          x.globalAlpha = 1;
+          x.fillStyle = '#e8ecf4'; x.fillRect(tx, ty - 18, 88, 18);
+          x.fillStyle = p.color; x.fillRect(tx, ty - 8, 88, 4);
+          x.fillStyle = '#2a3a5a';
+          for (let i = 0; i < 5; i++) x.fillRect(tx + 8 + i * 15, ty - 15, 10, 6);
+          x.fillStyle = '#e8ecf4'; x.beginPath(); x.moveTo(tx + 88, ty - 18); x.lineTo(tx + 100, ty - 4); x.lineTo(tx + 88, ty); x.fill();
+          x.fillStyle = '#2a2a3a'; for (let i = 0; i < 4; i++) x.fillRect(tx + 10 + i * 22, ty, 6, 3);
+          x.fillStyle = '#ffffff'; x.globalAlpha = 0.6;
+          for (let i = 0; i < 4; i++) x.fillRect(tx - 20 - i * 14, ty - 14 + i * 4, 14, 1);
+          break;
+        }
+        case 'card':
+          x.save(); x.translate(p.x, p.y); x.rotate(p.rot || 0);
+          x.fillRect(-3, -2, 6, 4);
+          x.fillStyle = '#5a6a9a'; x.fillRect(-2, -1, 3, 1);
+          x.restore();
+          break;
+        case 'heart': {
+          const hx = Math.round(p.x), hy = Math.round(p.y);
+          x.fillRect(hx - 3, hy - 2, 2, 2); x.fillRect(hx + 1, hy - 2, 2, 2);
+          x.fillRect(hx - 3, hy, 6, 1); x.fillRect(hx - 2, hy + 1, 4, 1); x.fillRect(hx - 1, hy + 2, 2, 1);
+          break;
+        }
+        case 'coin':
+          x.fillStyle = '#ffd66b'; x.fillRect(Math.round(p.x) - 2, Math.round(p.y) - 2, 4, 4);
+          x.fillStyle = '#fff6b0'; x.fillRect(Math.round(p.x) - 1, Math.round(p.y) - 1, 1, 2);
+          break;
+        case 'ha':
+          x.font = 'bold 9px sans-serif';
+          x.fillText('ハ', Math.round(p.x), Math.round(p.y));
+          break;
+        case 'arrowshot': {
+          const ang = Math.atan2(p.y1 - p.y0, p.x1 - p.x0);
+          x.save(); x.translate(p.x, p.y); x.rotate(ang);
+          x.fillRect(-16, -1, 16, 2);
+          x.beginPath(); x.moveTo(4, 0); x.lineTo(-2, -4); x.lineTo(-2, 4); x.fill();
+          x.restore();
+          break;
+        }
+        case 'crossflash': {
+          const L = 40 * Math.min(1, t * 3);
+          x.globalAlpha = Math.max(0, 1 - t);
+          x.fillRect(Math.round(p.x - 2), Math.round(p.y - L), 4, L * 2);
+          x.fillRect(Math.round(p.x - L), Math.round(p.y - 2), L * 2, 4);
+          break;
+        }
+        case 'ellipse': {
+          const r = 10 + t * p.r1;
+          x.globalAlpha = Math.max(0, 0.9 * (1 - t));
+          x.lineWidth = 3;
+          x.beginPath(); x.ellipse(p.x, p.y, r, r * 0.3, 0, 0, Math.PI * 2); x.stroke();
+          x.lineWidth = 1;
+          break;
+        }
+        case 'spot': {
+          x.globalAlpha = Math.max(0, 0.35 * (1 - Math.abs(t - 0.5) * 2) + 0.05);
+          x.beginPath(); x.moveTo(p.x - 4, 0); x.lineTo(p.x + 4, 0); x.lineTo(p.x + 26, p.y); x.lineTo(p.x - 26, p.y); x.fill();
+          break;
+        }
         case 'petal':
           x.fillRect(Math.round(p.x), Math.round(p.y), 2, 1);
           x.fillRect(Math.round(p.x) + 1, Math.round(p.y) + 1, 1, 1);
@@ -807,7 +1049,7 @@ export class Effects {
           x.fillText('Z', Math.round(p.x), Math.round(p.y));
           break;
         case 'streak':
-          x.fillRect(Math.round(p.x), Math.round(p.y), 3, 1);
+          x.fillRect(Math.round(p.x), Math.round(p.y), p.w || 3, 1);
           break;
         case 'shard':
           x.fillRect(Math.round(p.x), Math.round(p.y), 1, 4);

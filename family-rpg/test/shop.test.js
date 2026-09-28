@@ -5,14 +5,15 @@ import { makeRng } from '../public/js/shared/rng.js';
 import { openService, serviceAction } from '../public/js/shared/world/services.js';
 import { recruitNpc, ensureCompanions } from '../public/js/shared/world/party.js';
 import { ITEMS, sellPrice } from '../public/js/shared/data/items.js';
-import { SHOPS } from '../public/js/shared/data/shops.js';
+import { SHOPS, shopItems } from '../public/js/shared/data/shops.js';
 import { itemCount } from '../public/js/shared/stats.js';
 import { MAPS, tileAt, BOARD_NAMES } from '../public/js/shared/maps/index.js';
 import { TILE_INFO, T } from '../public/js/shared/tiles.js';
 import { SCRIPTS } from '../public/js/shared/data/story.js';
 import { Bot } from './helpers.js';
 
-async function shopper(shop = 'weapon') {
+// flags: その人の 世界の フラグ（はじめは 森の主を 助けた あと＝鉄の 武器が ならぶ）
+async function shopper(shop = 'weapon', flags = ['c1_treant']) {
   const world = new GameWorld({ offline: true, rng: makeRng(5), rateLimit: false });
   const bot = new Bot(world, 'ソラ');
   await bot.login();
@@ -20,6 +21,7 @@ async function shopper(shop = 'weapon') {
   await bot.settle();
   const c = world.data.characters[bot.char.id];
   c.gold = 2000;
+  for (const f of flags) c.flags[f] = true;
   openService(world, bot.s, 'shop', shop);
   const act = (msg) => {
     serviceAction(world, bot.s, { kind: 'shop', ...msg });
@@ -32,8 +34,29 @@ test('お店: 店の人・あいさつ・かんばんの しゅるいが ある'
   for (const [id, s] of Object.entries(SHOPS)) {
     assert.ok(s.keeper && s.hello && s.kind, id);
     assert.ok(BOARD_NAMES[s.kind], `${id} kind ${s.kind}`);
-    for (const it of s.items) assert.ok(ITEMS[it]?.price > 0, `${id}: ${it}`);
+    for (const it of shopItems(s, () => true)) assert.ok(ITEMS[it]?.price > 0, `${id}: ${it}`);
   }
+});
+
+test('お店: 物語が すすむと 品ぞろえが ふえる（鉄の 武器は 森の主を 助けた あと）', async () => {
+  const { world, bot, c, act } = await shopper('weapon', []);
+  let open = openService(world, bot.s, 'shop', 'weapon');
+  assert.ok(open.items.includes('bronze_sword'));
+  assert.ok(!open.items.includes('iron_sword'), 'まだ 鉄の剣は ない');
+  const gold = c.gold;
+  let r = act({ action: 'buy', id: 'iron_sword' });
+  assert.equal(r.ok, false, '店に ない 品は 買えない');
+  assert.equal(c.gold, gold);
+  assert.equal(open.hello, SHOPS.weapon.hello);
+  c.flags.c1_treant = true;
+  open = openService(world, bot.s, 'shop', 'weapon');
+  assert.ok(open.items.includes('iron_sword') && open.items.includes('katana'));
+  assert.match(open.hello, /鉄の武器/, '店の人も 教えてくれる');
+  r = act({ action: 'buy', id: 'iron_sword' });
+  assert.equal(r.ok, true, r.text);
+  // カモメ港の 銀の 品は 大王イカの あと
+  assert.ok(!shopItems(SHOPS.port_arms, () => false).includes('silver_sword'));
+  assert.ok(shopItems(SHOPS.port_arms, (f) => f === 'c2_kraken').includes('silver_sword'));
 });
 
 test('お店: 買って その場で 装備し、今までの 装備を 売れる', async () => {

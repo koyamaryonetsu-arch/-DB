@@ -6,6 +6,8 @@ import { JOBS } from '../shared/data/jobs.js';
 import { MONSTERS } from '../shared/data/monsters.js';
 import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed } from '../shared/stats.js';
 import { affinityOf } from '../shared/battle.js';
+import { DUAL_TECHS, dualOptions } from '../shared/data/dual.js';
+import { faceURL } from './field.js';
 import { monsterCanvas } from './render/monsters.js';
 import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js';
 import { battleBackground, Effects, BW, BH } from './render/battlefx.js';
@@ -24,6 +26,8 @@ const HIT_DELAY = {
   fire1: 320, fire2: 360, fire3: 400, void: 340, ice1: 260, ice2: 180, minadein: 220, slash_light: 100, strash: 300,
   holy_punch: 60, mahouken: 150, fire_wave: 120, wind2: 150, blast2: 110, dark1: 120,
   bolt1: 60, bolt2: 180, gigabreak: 250, whip: 200, shuriken: 260, dragon_beam: 380, summon: 420, meteor: 480, dark_slash: 120,
+  slash_heavy: 110, slash_multi: 120, hit: 20, hit_all: 20, tackle: 140, bat_swing: 110, ball: 200, train: 180, cards: 240, hearts: 420,
+  coins: 380, ice_arrow: 220, holy: 160, blizzard: 350, cross_slash: 260, rock_smash: 120,
 };
 const SPELL_ANIMS = new Set(['fire1', 'fire2', 'fire3', 'fire_wave', 'fire_tornado', 'ice1', 'ice2', 'wind1', 'wind2', 'blast1', 'blast2', 'void', 'dark1', 'meteor']);
 const ELEM_COLORS = {
@@ -31,7 +35,6 @@ const ELEM_COLORS = {
   blast: ['#ffffff', '#ffd66b', '#ff8a2a'], dark: ['#8a5ac8', '#3a2a5a', '#c8a8f0'], light: ['#ffffff', '#fff6b0', '#ffd66b'],
   bolt: ['#ffffff', '#fff6b0', '#9ad8ff'],
 };
-const TEAM_ANIM = { void: 'void', fire: 'fire_tornado', ice: 'ice2', blast: 'blast2', wind: 'wind2' };
 
 // みかたの まどに だす えんしゅつの しゅるい
 function allyFxKind(anim, fx, ab) {
@@ -54,6 +57,7 @@ function allyFxKind(anim, fx, ab) {
   if (anim === 'dark1' || el === 'dark' || anim === 'void') return 'dark';
   if (anim === 'sleep') return 'sleep';
   if (anim === 'quake') return 'quake';
+  if (anim === 'stage' || anim === 'dance' || anim === 'hearts') return 'up';
   if (/^heal|revive/.test(anim)) return anim === 'revive' ? 'revive' : 'heal';
   if (anim === 'buff' || anim === 'warcry') return 'up';
   if (anim === 'debuff') return 'down';
@@ -68,7 +72,12 @@ const ANIM_SFX = {
   buff: 'buff', debuff: 'debuff', sleep: 'sleep', dance: 'buff', breath: 'wind', quake: 'rumble', charge: 'buff', guard: 'buff',
   warcry: 'buff', tackle: 'hit', bite: 'hit',
   bolt1: 'bolt', bolt2: 'thunder', gigabreak: 'thunder', whip: 'hit', shuriken: 'miss', dragon_beam: 'void', summon: 'fire', meteor: 'blast', dark_slash: 'dark',
+  bat_swing: 'bat', train: 'train', cards: 'miss', hearts: 'buff', coins: 'item', laugh: 'buff', ice_arrow: 'ice', holy: 'heal', blizzard: 'ice',
+  heal_ring: 'heal', stage: 'buff', cross_slash: 'smash', rock_smash: 'smash', ball: 'miss',
 };
+
+// ひらめきの 電球（ドット絵ふう）
+const BULB_SVG = '<svg viewBox="0 0 16 20" width="100%" height="100%" shape-rendering="crispEdges"><path fill="#fff6b0" d="M5 1h6v1h2v2h1v5h-1v2h-1v2h-1v2H5v-2H4v-2H3V9H2V4h1V2h2z"/><path fill="#ffd66b" d="M6 3h1v1H6zM4 5h1v3H4z"/><path fill="#fffbe6" d="M6 2h4v1H6z"/><path fill="#9aa0b8" d="M5 15h6v1H5zM5 17h6v1H5z"/><path fill="#6a6f88" d="M5 16h6v1H5zM6 18h4v1H6z"/></svg>';
 
 export class BattleScene {
   constructor(game, msg) {
@@ -210,27 +219,46 @@ export class BattleScene {
       for (const a of allies) {
         const box = el('div', { class: 'win b-mem' });
         box.addEventListener('click', () => this.onAllyClick(a.id));
-        const nm = el('div', { class: 'nm' }, el('span', { text: a.name }), el('span', { class: 'job', text: `${a.mon ? 'Lv' : JOBS[a.job]?.short || ''}${a.lv}` }));
-        const hpmp = el('div', { class: 'hpmp' });
+        const name = el('span', { class: 'n', text: a.name });
+        const tag = el('span', { class: 'tg' });
+        const lv = el('span', { class: 'lv' });
+        const nm = el('div', { class: 'nm' }, el('span', { class: 'nl' }, name, tag), lv);
+        const gauge = (label, kind) => {
+          const bar = el('div', { class: `gb ${kind}` }, el('i'));
+          const num = el('span', { class: 'gn' });
+          const row = el('div', { class: `grow ${kind}` }, el('span', { class: 'gl', text: label }), bar, num);
+          return { row, bar: bar.firstChild, num };
+        };
+        const hp = gauge('HP', 'hp');
+        const mp = gauge('MP', 'mp');
         const sts = el('div', { class: 'sts' });
         const atb = el('div', { class: 'atb' }, el('i'));
-        box.append(nm, hpmp, sts, atb);
+        box.append(nm, hp.row, mp.row, sts, atb);
         this.statusEl.append(box);
-        this.statusBoxes.set(a.id, { box, hpmp, sts, atb: atb.firstChild, atbBox: atb });
+        this.statusBoxes.set(a.id, { box, name, tag, lv, hp, mp, sts, atb: atb.firstChild, atbBox: atb });
       }
     }
+    // 家族と いっしょの ときは、人が 動かしている キャラの 名前を 黄緑に
+    const multi = allies.filter((a) => a.kind === 'player').length >= 2;
     for (const a of allies) {
       const s = this.statusBoxes.get(a.id);
       if (!s) continue;
+      const r = a.maxHp ? Math.max(0, a.hp) / a.maxHp : 0;
+      const hpCls = !a.alive ? 'dead' : r <= 0.1 ? 'red' : r <= 0.5 ? 'orange' : '';
       s.box.classList.toggle('dead', !a.alive);
-      s.box.classList.toggle('low', a.alive && a.hp / a.maxHp < 0.26);
       s.box.classList.toggle('me', this.mine.includes(a.id));
       s.box.classList.toggle('ready', !!a.ready && this.mine.includes(a.id));
       s.box.classList.toggle('cur', this.cur === a.id);
-      s.hpmp.innerHTML = '';
-      s.hpmp.append(el('span', { class: 'h', text: `HP${a.hp}` }), el('span', { class: 'mpc', text: `MP${a.mp}` }));
+      s.name.className = `n ${multi && a.kind === 'player' ? 'player' : ''} ${hpCls}`;
+      s.lv.textContent = `Lv${a.lv}`;
+      s.hp.row.className = `grow hp ${hpCls}`;
+      s.hp.bar.style.width = `${Math.round(r * 100)}%`;
+      s.hp.num.textContent = `${Math.max(0, a.hp)}/${a.maxHp}`;
+      s.mp.bar.style.width = `${a.maxMp ? Math.round(Math.max(0, a.mp) / a.maxMp * 100) : 0}%`;
+      s.mp.num.textContent = `${Math.max(0, a.mp)}/${a.maxMp}`;
+      s.tag.textContent = a.auto && a.controller ? 'オート' : a.controller && a.kind !== 'player' ? '命令' : a.kind === 'support' ? '仲間' : a.kind === 'monster' ? '魔物' : a.kind === 'guest' ? 'ゲスト' : '';
       const st = [statusNames(a.status), buffNames(a.buffs)].filter(Boolean).join(' ');
-      s.sts.textContent = !a.alive ? '死に' : a.defending ? `防御 ${st}` : (st || (a.auto && a.controller ? 'オート' : a.controller && a.kind !== 'player' ? '命令' : a.kind === 'support' ? '仲間' : a.kind === 'monster' ? '魔物' : a.kind === 'guest' ? 'ゲスト' : ''));
+      s.sts.textContent = !a.alive ? '死んでいる' : a.defending ? `防御 ${st}` : st;
     }
   }
 
@@ -296,9 +324,12 @@ export class BattleScene {
     this.cur = a.id;
     this.renderStatus();
     this.game.audio.sfx('warn');
-    const learned = a.abilities || [];
-    const spells = learned.filter((id) => ABILITIES[id] && (ABILITIES[id].kind === 'spell' || ABILITIES[id].spellLike));
-    const skills = learned.filter((id) => ABILITIES[id] && (ABILITIES[id].kind === 'skill' || ABILITIES[id].kind === 'monster' || (ABILITIES[id].kind === 'combo' && !ABILITIES[id].spellLike)));
+    // 今の 職業で 使えない 掛け合わせ技は 出さない
+    const pc = a.pc || { job: a.job, jobs: {} };
+    const learned = (a.abilities || []).filter((id) => ABILITIES[id] && !(ABILITIES[id].kind === 'combo' && !comboAllowed(pc, id)));
+    const spells = learned.filter((id) => ABILITIES[id].kind === 'spell' || ABILITIES[id].spellLike);
+    const skills = learned.filter((id) => ABILITIES[id].kind === 'skill' || ABILITIES[id].kind === 'monster' || (ABILITIES[id].kind === 'combo' && !ABILITIES[id].spellLike));
+    const duals = this.myDualOptions(a);
     const items = [
       { label: '戦う', value: 'attack' },
       { label: '呪文', value: 'spell', disabled: !spells.length },
@@ -307,12 +338,14 @@ export class BattleScene {
       { label: '防御', value: 'defend' },
       { label: '逃げる', value: 'flee', disabled: !this.canFlee },
     ];
+    if (duals.length) items.splice(3, 0, { html: '<span class="dual-cmd">合体技</span>', value: 'dual', cls: 'k-dual' });
     if (this.bond >= 100) items.unshift({ html: '<span class="gold">★ きずな（ミナデイン）</span>', value: 'bond' });
     this.showMenu(items, (it) => {
       switch (it.value) {
         case 'attack': return this.pickEnemy((t) => this.send({ type: 'attack', target: t }));
         case 'spell': return this.abilityMenu(spells);
         case 'skill': return this.abilityMenu(skills);
+        case 'dual': return this.dualMenu(this.myDualOptions(a));
         case 'item': return this.itemMenu();
         case 'defend': return this.send({ type: 'defend' });
         case 'flee': return this.send({ type: 'flee' });
@@ -354,7 +387,7 @@ export class BattleScene {
       const locked = ab.kind === 'combo' && !comboAllowed(pc, id);
       const el = ab.effect?.element;
       return {
-        html: `${ELEMENT_NAMES[el] ? `<span class="elem e-${el}">${ELEMENT_NAMES[el]}</span>` : ''}${ab.name}${pen ? '<span class="tag warn">他</span>' : ''}${locked ? '<span class="tag muted">上級職で</span>' : ''}`,
+        html: `${ELEMENT_NAMES[el] ? `<span class="elem e-${el}">${ELEMENT_NAMES[el]}</span>` : ''}${ab.name}${pen ? '<span class="tag warn">他</span>' : ''}${ab.hirameki || ab.kind === 'combo' ? '<span class="tag hira">閃</span>' : ''}`,
         right: isMk ? '▶' : `${cost}`,
         rightCls: pen ? 'pen' : '',
         value: id,
@@ -461,7 +494,9 @@ export class BattleScene {
     this.readyQ = this.readyQ.filter((x) => x !== a.id);
     this.cur = null;
     this.game.net.send({ t: 'battle', actor: a.id, cmd });
-    this.renderCmdIdle('コマンドを選んだ！');
+    const partner = cmd.type === 'dual' ? this.c.get(cmd.partner) : null;
+    const asking = partner && partner.controller && !partner.auto && !this.mine.includes(partner.id);
+    this.renderCmdIdle(asking ? `${partner.name}の返事を待っている…` : 'コマンドを選んだ！');
     // めいれいさせろの なかまが まっていれば つづけて えらぶ
     this.nextCommand();
   }
@@ -504,7 +539,7 @@ export class BattleScene {
         }
         case 'queued': {
           const c = this.c.get(ev.id);
-          if (c) c.ready = false;
+          if (c) { c.ready = false; c.queued = true; }
           if (this.mine.includes(ev.id)) this.dropReady(ev.id);
           this.renderStatus();
           break;
@@ -524,6 +559,22 @@ export class BattleScene {
         case 'msg':
           this.queue.push(ev);
           break;
+        case 'dualInvite': {
+          if (this.mine.includes(ev.to)) this.showInvite(ev);
+          break;
+        }
+        case 'dualAnswer': {
+          if (this.invite?.invite === ev.invite) this.closeInvite();
+          if (this.mine.includes(ev.from) && !ev.ok) {
+            const who = this.c.get(ev.to)?.name || '仲間';
+            const why = { 'ことわった': `${who}は参加しなかった…`, '時間切れ': `${who}から返事がなかった…`, '出せなくなった': '合体技は出せなくなった…', '倒れた': '合体技は出せなくなった…' }[ev.reason];
+            if (why) toast(why);
+            const c = this.c.get(ev.from);
+            if (c && c.alive && c.ready && !this.readyQ.includes(ev.from)) this.readyQ.unshift(ev.from);
+            if (!this.cur) this.nextCommand();
+          }
+          break;
+        }
         case 'bondJoin': {
           const c = this.c.get(ev.id);
           if (c) this.banner(`${c.name}が力を合わせた！（${ev.count}人）`);
@@ -539,6 +590,20 @@ export class BattleScene {
   }
 
   present(ev) {
+    if (ev.t === 'act') this.plate(ev);
+    // 合体技・ひらめきは さきに 大きく 見せてから
+    const pre = ev.dual ? 820 : ev.hirameki ? 700 : 0;
+    if (pre) {
+      this.say((ev.lines || []).slice(0, ev.dual ? 2 : 1), 500);
+      if (ev.dual) this.dualFx(ev);
+      else this.hiramekiFx(ev);
+      setTimeout(() => { if (!this.destroyed) this.presentBody(ev); }, pre);
+      return;
+    }
+    this.presentBody(ev);
+  }
+
+  presentBody(ev) {
     const g = this.game;
     for (const u of ev.upd || []) {
       const c = this.c.get(u.id);
@@ -562,10 +627,16 @@ export class BattleScene {
     const ab = ev.ability ? ABILITIES[ev.ability] : null;
     let hitDelay = 0;
     if (anim && enemyPts.length) {
-      if (fx.type === 'attack' && fromAlly) this.fx.weaponHit(enemyPts, fx.weapon, crit);
+      if (fx.type === 'attack' && fromAlly) {
+        this.fx.weaponHit(enemyPts, fx.weapon, crit);
+        if (fx.weapon === 'bat') g.audio.sfx('bat');
+        else if (fx.weapon === 'axe') g.audio.sfx('smash');
+      }
       else this.fx.play(anim, enemyPts, fx.element, { crit, fromAlly });
       hitDelay = HIT_DELAY[anim] || 0;
     }
+    // 味方に かける 合体技（回復・ステージ）は、たたかいの 画面にも 大きく
+    if (fx.type === 'dual' && anim && !enemyPts.length) this.fx.play(anim, [{ x: BW / 2, y: BH * 0.55 }], fx.element, { fromAlly: true });
     // みかたへの えんしゅつ（てきの じゅもんは たまが とんでくる）
     const allyTargets = targets.filter((t) => t.side === 'ally');
     if (anim && anim !== 'none' && allyTargets.length) {
@@ -600,11 +671,7 @@ export class BattleScene {
     if (fx.type === 'telegraph') { g.audio.sfx('warn'); this.banner('！大技が来る！防御しよう！', 'danger'); }
     if (fx.type === 'bondStart') this.startBondPrompt(ev);
     if (fx.type === 'flee') g.audio.sfx('flee');
-    if (fx.team) {
-      this.banner(`合体！${fx.team}！`);
-      const ta = TEAM_ANIM[fx.teamElement];
-      if (ta && enemyPts.length) setTimeout(() => { if (!this.destroyed) this.fx.play(ta, enemyPts, fx.teamElement, { fromAlly: false }); }, 250);
-    } else if (ev.combo >= 2) this.banner(`れんけい ${ev.combo}！`, 'combo');
+    if (ev.combo >= 2 && !ev.dual) this.banner(`れんけい ${ev.combo}！`, 'combo');
     if (anim === 'minadein') g.audio.sfx('bolt');
     if (anim && ANIM_SFX[anim]) g.audio.sfx(ANIM_SFX[anim]);
     else if (fx.type === 'ability' && fromAlly && !ANIM_SFX[anim]) g.audio.sfx('spell');
@@ -638,9 +705,12 @@ export class BattleScene {
           g.audio.sfx('miss');
         }
       }
-      if (hurtAlly && actor?.side === 'enemy' && (actor.boss || (ev.results || []).some((r) => r.crit))) {
-        this.shake(350);
-        if ((ev.results || []).some((r) => r.crit)) { this.fx.flash = 160; this.fx.flashColor = '#ff6a6a'; }
+      // 味方が 大きな ダメージを 受けた（HPの 2わりいじょう・つうこん・ボス）: 画面が ゆれて 赤く 光る
+      const bigHurt = (ev.results || []).some((r) => r.dmg > 0 && this.c.get(r.id)?.side === 'ally' && r.dmg >= (this.c.get(r.id).maxHp || 1) * 0.2);
+      if (hurtAlly && actor?.side === 'enemy' && (actor.boss || bigHurt || (ev.results || []).some((r) => r.crit))) {
+        this.shake(bigHurt || actor.boss ? 380 : 300);
+        this.fx.flash = 170;
+        this.fx.flashColor = '#ff5a5a';
       }
       for (const c of this.c.values()) {
         if (c.side === 'enemy' && !c.alive && !c.dead) {
@@ -657,6 +727,145 @@ export class BattleScene {
     else if (!this.cur && this.menu && !this.targeting) this.renderCmdIdle();
     this.renderStatus();
     this.updateAutoBtn();
+  }
+
+  // ───────────── 合体技 ─────────────
+  // 自分の キャラが 今 出せる 合体技（サーバーでも たしかめる）
+  myDualOptions(a) {
+    if (!a || a.mon) return [];
+    const info = (x) => ({
+      id: x.id, name: x.name, alive: x.alive, abilities: x.abilities || [], mp: x.mp, atb: x.atb, ready: x.ready, queued: !!x.queued,
+      inviting: false, statuses: x.status || [], weaponCat: x.weaponCat,
+      usable: (id) => {
+        const ab = ABILITIES[id];
+        return !!ab && (ab.kind !== 'combo' || comboAllowed(x.pc || { job: x.job, jobs: {} }, id)) && weaponOk(ab, x.weaponCat);
+      },
+    });
+    const others = this.allies().filter((x) => x.id !== a.id && !x.mon);
+    return dualOptions(info(a), others.map(info), weaponOk);
+  }
+
+  dualMenu(opts) {
+    if (!opts.length) {
+      toast('今は合体技を出せる仲間がいない');
+      return this.openCommand();
+    }
+    const role = (t) => (t.parts.some((x) => x.type === 'phys' || x.type === 'magic') ? 'dmg' : t.parts.some((x) => x.type === 'heal' || x.type === 'cure') ? 'heal' : 'sup');
+    const items = opts.map((o) => {
+      const t = DUAL_TECHS[o.id];
+      const e = o.element;
+      return {
+        html: `${ELEMENT_NAMES[e] ? `<span class="elem e-${e}">${ELEMENT_NAMES[e]}</span>` : ''}${esc(t.name)}<span class="with-line">${esc(o.partnerName)}といっしょに</span>`,
+        right: `${o.mp[0]}`, value: o, cls: `k-${role(t)}`,
+      };
+    });
+    this.showMenu(items, (it) => {
+      const o = it.value;
+      const t = DUAL_TECHS[o.id];
+      const go = (target) => this.send({ type: 'dual', id: o.id, partner: o.partner, target });
+      if (t.target === 'enemy' || t.target === 'group') return this.pickEnemy((tid) => go(tid), t.name, o.element);
+      return go();
+    }, () => this.openCommand(), '合体技（2人の番を使う）', (it) => {
+      if (!it) return;
+      const o = it.value;
+      const t = DUAL_TECHS[o.id];
+      this.info(`【合体技】${o.partnerName}といっしょに　MP ${o.mp[0]}＋${o.mp[1]}\n${t.desc}\n（${ABILITIES[o.skills[0]]?.name}＋${ABILITIES[o.skills[1]]?.name}）`);
+    });
+  }
+
+  // 家族から 合体技に さそわれた
+  showInvite(ev) {
+    this.closeInvite();
+    const t = DUAL_TECHS[ev.tech];
+    const bar = el('div', { class: 'di-bar' }, el('i', { style: { animationDuration: `${ev.ms || 7000}ms` } }));
+    const box = el('div', { class: 'win dual-invite' },
+      el('div', { class: 'di-t', text: `${ev.fromName}が合体技にさそっている！` }),
+      el('div', { class: 'di-n', text: `「${t?.name || '合体技'}」` }),
+      el('div', { class: 'di-d', text: t?.desc || '' }), bar);
+    const answer = (ok) => {
+      this.game.net.send({ t: 'battle', actor: ev.to, cmd: { type: 'dualAnswer', invite: ev.invite, ok } });
+      this.closeInvite();
+    };
+    const m = new ListMenu(this.game.input, {
+      items: [{ label: '参加する！', value: true }, { label: 'ことわる', value: false }],
+      sound: (x) => this.game.audio.sfx(x),
+      onSelect: (it) => answer(it.value),
+      onCancel: () => answer(false),
+    });
+    box.append(m.root);
+    this.stage.append(box);
+    this.menu?.blur();
+    m.focus();
+    this.invite = { invite: ev.invite, box, menu: m };
+    this.game.audio.sfx('dual');
+  }
+
+  closeInvite() {
+    const iv = this.invite;
+    if (!iv) return;
+    this.invite = null;
+    iv.menu.blur();
+    iv.box.remove();
+    this.menu?.focus();
+  }
+
+  // ───────────── だれが 何を したか ─────────────
+  plate(ev) {
+    const a = this.c.get(ev.id);
+    if (!a || !ev.name) return;
+    let cls = a.side === 'enemy' ? 'enemy' : 'ally';
+    let who = a.name;
+    let what = ev.sub ? `${ev.name} → ${ev.sub}` : ev.name;
+    if (ev.dual) {
+      cls = 'dual';
+      who = `${a.name}＆${this.c.get(ev.dual.b)?.name || ''}`;
+      what = ev.dual.name;
+    } else if (ev.hirameki) cls = 'hira';
+    const ai = a.side === 'ally' && (!a.controller || a.auto);
+    this.plateEl?.remove();
+    const e = el('div', { class: `b-plate ${cls}` }, el('span', { class: 'who', text: who }), ai ? el('span', { class: 'ai', text: 'オート' }) : null, el('span', { class: 'what', text: what }));
+    this.stage.append(e);
+    this.plateEl = e;
+    clearTimeout(this.plateT);
+    this.plateT = setTimeout(() => e.remove(), Math.max(1400, (ev.dur || 900) * 0.9));
+    if (a.side === 'ally' && !ev.dual) this.glowStatus(a.id, ev.hirameki ? '#fff6b0' : '#9ad8ff');
+  }
+
+  // ひらめき！（電球と 大きな 文字）
+  hiramekiFx(ev) {
+    const h = ev.hirameki;
+    this.game.audio.sfx('hirameki');
+    this.fx.flash = 220;
+    this.fx.flashColor = '#fff6b0';
+    const s = this.statusBoxes.get(h.actor);
+    if (s) {
+      const bulb = el('div', { class: 'bulb', html: BULB_SVG });
+      s.box.append(bulb);
+      setTimeout(() => bulb.remove(), 2000);
+      this.glowStatus(h.actor, '#fff6b0');
+    }
+    const who = this.c.get(h.actor)?.name || '';
+    const cut = el('div', { class: 'b-hira' }, el('div', { class: 'h0', html: BULB_SVG }), el('div', { class: 'h1', text: `${who}はひらめいた！` }), el('div', { class: 'h2', text: h.name }));
+    this.stage.append(cut);
+    setTimeout(() => cut.remove(), 1700);
+  }
+
+  // 合体技の カットイン（2人の かおと 技の 名前）
+  dualFx(ev) {
+    const d = ev.dual;
+    const a = this.c.get(d.a), b = this.c.get(d.b);
+    this.game.audio.sfx('dual');
+    this.fx.flash = 260;
+    this.fx.flashColor = '#ffffff';
+    const face = (x) => el('img', { class: 'cf', alt: '', src: x ? faceURL({ look: x.look, job: x.job, eq: x.eq, mon: x.mon }) : '' });
+    const cut = el('div', { class: 'b-dual' },
+      el('div', { class: 'rays' }),
+      el('div', { class: 'l' }, face(a), el('span', { text: a?.name || '' })),
+      el('div', { class: 'r' }, face(b), el('span', { text: b?.name || '' })),
+      el('div', { class: 'nm' }, el('small', { text: '合体技' }), el('b', { text: d.name })));
+    this.stage.append(cut);
+    setTimeout(() => cut.remove(), 1500);
+    for (const id of [d.a, d.b]) this.glowStatus(id, '#ffd66b');
   }
 
   center(t) {

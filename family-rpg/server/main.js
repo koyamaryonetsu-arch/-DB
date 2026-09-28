@@ -150,7 +150,8 @@ const server = http.createServer((req, res) => {
     res.writeHead(200, {
       'Content-Type': MIME[path.extname(file).toLowerCase()] || 'application/octet-stream',
       'Content-Length': st.size,
-      'Cache-Control': 'no-cache',
+      // 字の ファイルは かわらないので、ブラウザに とっておいてもらう（ほかは 毎回 たしかめる）
+      'Cache-Control': file.includes(`${path.sep}fonts${path.sep}`) ? 'public, max-age=2592000' : 'no-cache',
       'X-Content-Type-Options': 'nosniff',
     });
     fs.createReadStream(file).pipe(res);

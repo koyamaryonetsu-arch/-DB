@@ -309,6 +309,14 @@ export function noteTried(c, tried) {
   }
 }
 
+// ずかん: その まものから 手に入れた 物（'drop_品物'）
+export function noteDrop(c, species, item) {
+  if (!c || !MONSTERS[species] || !item) return;
+  c.bestiary = c.bestiary || {};
+  const b = c.bestiary[species] || (c.bestiary[species] = {});
+  b[`drop_${item}`] = 1;
+}
+
 export function befriendLevel(c, species) {
   const m = MONSTERS[species];
   return Math.max(1, Math.min(c.level, Math.max(m?.lv || 1, c.level - 3)));
@@ -417,6 +425,7 @@ export function partyState(world, p) {
         look: x.char.look, equip: x.char.equip, tactics: x.char.tactics || 'balanced', family: x.kind === 'family', kind: x.kind, species: x.char.species || null, owner: x.owner,
         jobs: x.kind === 'npc' ? x.char.jobs : undefined, seeds: x.kind === 'family' ? undefined : x.char.seeds, exp: x.char.exp,
         plus: x.char.plus || 0, bonus: x.char.bonus || undefined, inherit: x.char.inherit || undefined,
+        hirameki: x.kind === 'npc' ? x.char.hirameki || [] : undefined, skillUse: x.kind === 'npc' ? x.char.skillUse || {} : undefined,
         status: x.char.status?.poison ? ['poison'] : [],
       };
     }),

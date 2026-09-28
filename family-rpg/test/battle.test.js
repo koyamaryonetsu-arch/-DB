@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { Battle, fillTime } from '../public/js/shared/battle.js';
-import { newCharacter, learnedAbilities, mpCost, penaltyFor, changeJob, gainExp, computeStats, mahoukenOptions, fullHeal } from '../public/js/shared/stats.js';
+import { newCharacter, learnedAbilities, mpCost, penaltyFor, changeJob, gainExp, computeStats, mahoukenOptions, fullHeal, oldComboUnlocks } from '../public/js/shared/stats.js';
 import { JOBS, jobBattlesForLevel } from '../public/js/shared/data/jobs.js';
 import { makeRng } from '../public/js/shared/rng.js';
 
@@ -82,15 +82,17 @@ test('転職すると まえの職業の 呪文は MPが ふえて いりょく�
   assert.equal(penaltyFor(c, 'mera').powMult, 0.9);
 });
 
-test('ちがう職業の 技を おぼえると 掛け合わせ技を ひらめく', () => {
+test('掛け合わせ技は 技を 覚えただけでは 覚えない（ひらめいた ものだけ）', () => {
   const c = char('monk', 5, 1, 'x');
-  assert.ok(!learnedAbilities(c).includes('senka'));
   changeJob(c, 'priest');
-  assert.ok(learnedAbilities(c).includes('senka'), '閃華裂光拳');
+  assert.ok(!learnedAbilities(c).includes('senka'), '覚えただけでは ひらめかない');
+  assert.ok(oldComboUnlocks(c).includes('senka'), 'むかしの きまりでは 閃華裂光拳');
+  c.hirameki = ['senka'];
+  assert.ok(learnedAbilities(c).includes('senka'), 'ひらめいた 技は 使える');
   const w = char('warrior', 5, 1, 'w');
   changeJob(w, 'mage');
   changeJob(w, 'warrior');
-  assert.ok(learnedAbilities(w).includes('mahouken'));
+  w.hirameki = ['mahouken'];
   const opts = mahoukenOptions(w);
   assert.ok(opts.some((o) => o.name === 'メラ大地斬'));
 });
@@ -99,6 +101,7 @@ test('魔法剣で こうげきできる（魔法戦士 だけ。戦士の ま�
   const w = char('warrior', 8, 3, 'w');
   changeJob(w, 'mage');
   changeJob(w, 'warrior');
+  w.hirameki = ['mahouken'];
   w.equip.weapon = 'bronze_sword';
   fullHeal(w);
   const b0 = new Battle({ rng: makeRng(4), allies: [{ char: w, controller: 's1' }], enemies: ['kobushi'] });

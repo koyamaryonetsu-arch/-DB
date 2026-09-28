@@ -9,7 +9,7 @@ import { ITEMS, sellPrice } from '../../shared/data/items.js';
 import { MONSTERS } from '../../shared/data/monsters.js';
 import { JOBS } from '../../shared/data/jobs.js';
 import { computeStats, canEquipChar, itemCount } from '../../shared/stats.js';
-import { itemStats, whoCanEquip } from './info.js';
+import { itemStats, whoCanEquip, rankText } from './info.js';
 import { faceURL } from '../field.js';
 import { boardIconURL } from '../render/boards.js';
 
@@ -292,18 +292,17 @@ export function compareTeam(game, id) {
 const arrow = (d) => (d > 0 ? `↑${d}` : d < 0 ? `↓${-d}` : '＝');
 const arrowCls = (d) => (d > 0 ? 'up' : d < 0 ? 'down' : 'muted');
 
-// ならびの 1行（みるだけ）: かお・なまえ・かわる 強さ（せまい ときは おりかえす）
+// ならびの 1行（みるだけ）: なまえ・かわる 強さ（文字だけ。2れつに ならぶ）
 function compareRow(r) {
-  const top = el('div', { class: 'cmp-top' }, el('span', { class: 'nm', text: r.name }));
-  if (!r.can) top.append(el('span', { class: 'muted', text: '装備できない' }));
-  else if (r.same) top.append(el('span', { class: 'tag e', text: 'E' }), el('span', { class: 'muted', text: '装備している' }));
+  const row = el('div', { class: 'cmp-row' }, el('span', { class: 'nm', text: r.name }));
+  if (r.same) row.append(el('span', { class: 'tag e', text: 'E' }), el('span', { class: 'muted', text: '装備中' }));
   else {
-    top.append(el('span', { class: 'st', text: `${r.main.n} ${r.main.b}→${r.main.a}` }), el('span', { class: `ar ${arrowCls(r.main.d)}`, text: arrow(r.main.d) }));
+    row.append(el('span', { class: 'st', text: `${r.main.n} ${r.main.b}→${r.main.a}` }), el('span', { class: `ar ${arrowCls(r.main.d)}`, text: arrow(r.main.d) }));
     const sub = r.extras.map((x) => `${x.n}${x.d > 0 ? '+' : ''}${x.d}`);
     sub.push(`今: ${r.cur ? ITEMS[r.cur].name : 'なし'}`);
-    top.append(el('span', { class: 'cmp-sub', text: sub.join('　') }));
+    row.append(el('span', { class: 'cmp-sub', text: sub.join('　') }));
   }
-  return el('div', { class: `cmp-row ${r.can ? '' : 'dis'}` }, el('img', { class: 'face', src: r.face, alt: '' }), top);
+  return row;
 }
 
 // 品物の せつめい ＋ みんなの くらべ
@@ -311,13 +310,17 @@ export function itemInfo(game, id, { sell = false } = {}) {
   const it = ITEMS[id];
   if (!it) return null;
   const box = el('div', { class: 'ct-item' });
-  box.append(el('div', { class: 'hd' }, el('span', { class: 'gold', text: it.name }), el('span', { class: 'st', text: itemStats(id) })));
+  box.append(el('div', { class: 'hd' }, el('span', { class: 'gold', text: it.name }), el('span', { class: 'st', text: itemStats(id) }), el('span', { class: 'rk', text: rankText(id) })));
   box.append(el('div', { class: 'detail', text: it.desc || '' }));
   if (EQUIP_TYPES.includes(it.type) && !sell) {
     const team = compareTeam(game, id);
     box.append(el('div', { class: 'cmp-head', text: '装備すると、こう変わる' }));
-    for (const r of team) box.append(compareRow(r));
-    if (!team.some((r) => r.can)) box.append(el('div', { class: 'detail', text: whoCanEquip(id) }));
+    const can = team.filter((r) => r.can);
+    const cannot = team.filter((r) => !r.can);
+    if (can.length) box.append(el('div', { class: 'cmp-grid' }, ...can.map(compareRow)));
+    // 装備できない 人は 1行に まとめる（強さが かわる 人を 見やすく）
+    if (cannot.length) box.append(el('div', { class: 'cmp-row dis' }, el('span', { text: `装備できない: ${cannot.map((r) => r.name).join('、')}` })));
+    if (!can.length) box.append(el('div', { class: 'detail', text: whoCanEquip(id) }));
   } else {
     box.append(el('div', { class: 'small', text: `持っている数: ${itemCount(game.me, id)}` }));
     if (sell && sellPrice(id) <= 0) box.append(el('div', { class: 'small warn', text: 'これは引き取ってもらえない' }));
@@ -329,7 +332,6 @@ export function itemInfo(game, id, { sell = false } = {}) {
 export function whoItems(rows) {
   return rows.map((r) => ({
     value: r.key,
-    face: r.face,
     label: r.name,
     disabled: !r.can || r.same,
     right: !r.can ? '装備できない' : r.same ? 'E 装備している' : `${r.main.n} ${r.main.b}→${r.main.a} ${arrow(r.main.d)}`,

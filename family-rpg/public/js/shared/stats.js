@@ -4,6 +4,7 @@ import { ITEMS, SLOTS } from './data/items.js';
 import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js';
 import { MONSTERS } from './data/monsters.js';
 import { MONSTER_FRIENDS, monsterNatural } from './data/companions.js';
+import { HIRAMEKI, hiraRatio } from './data/hirameki.js';
 
 export const MAX_LEVEL = 50;
 export const STAT_KEYS = ['hp', 'mp', 'str', 'def', 'agi', 'mag', 'heal'];
@@ -145,7 +146,7 @@ export function jobAbilities(char, jobId) {
   return JOBS[jobId].learn.filter(([l]) => l <= lv).map(([, id]) => id);
 }
 
-// おぼえている 技 すべて（掛け合わせ技も ふくむ）
+// おぼえている 技 すべて（職業で 覚えた 技 ＋ ひらめいた 技）
 export function learnedAbilities(char) {
   if (char.species) return monsterAbilities(char);
   const set = new Set();
@@ -153,13 +154,12 @@ export function learnedAbilities(char) {
     if (!char.jobs?.[jid]) continue;
     for (const id of jobAbilities(char, jid)) set.add(id);
   }
-  for (const [id, a] of Object.entries(ABILITIES)) {
-    if (a.kind !== 'combo') continue;
-    if (comboUnlocked(char, id, set)) set.add(id);
-  }
+  for (const id of Array.isArray(char.hirameki) ? char.hirameki : []) if (ABILITIES[id]) set.add(id);
   return [...set];
 }
 
+// むかしの きまり（もとの 技を 両方 覚えたら 掛け合わせ技を 覚える）で 覚えていた 掛け合わせ技。
+// セーブの ひきつぎで、今までの キャラの 技を なくさない ために 使う
 export function comboUnlocked(char, id, learnedSet) {
   const a = ABILITIES[id];
   if (!a || a.kind !== 'combo') return false;
@@ -169,6 +169,32 @@ export function comboUnlocked(char, id, learnedSet) {
     for (const [jid, lv] of Object.entries(a.reqJobLv)) if (jobLevel(char, jid) < lv) return false;
   }
   return true;
+}
+
+export function oldComboUnlocks(char) {
+  if (!char || char.species) return [];
+  const set = new Set(learnedAbilities(char));
+  return Object.keys(ABILITIES).filter((id) => ABILITIES[id].kind === 'combo' && comboUnlocked(char, id, set));
+}
+
+// その 技を 今 ひらめける 職業か（char: { job, jobs }）
+//   掛け合わせ技 … もとの 職業を 合わせ持つ 上級職から（＋職業レベルの じょうけん）
+//   職業の ひらめき技 … その 職業か、その 職業から 進んだ 職業
+export function hiraAllowed(char, id) {
+  const a = ABILITIES[id];
+  if (!a || !HIRAMEKI[id] || !char?.job || !JOBS[char.job]) return false;
+  if (a.kind === 'combo') {
+    if (!comboAllowed(char, id)) return false;
+    for (const [jid, lv] of Object.entries(a.reqJobLv || {})) if (jobLevel(char, jid) < lv) return false;
+    return true;
+  }
+  return a.job ? jobAncestry(char.job).has(a.job) : true;
+}
+
+// ひらめきの すすみぐあい（0〜1。1 で ひらめける）
+export function hiraProgress(char, id) {
+  const h = HIRAMEKI[id];
+  return h ? Math.min(1, hiraRatio(char?.skillUse, h.from)) : 0;
 }
 
 // 掛け合わせ技の もとになる 職業
@@ -327,6 +353,8 @@ export function newCharacter({ id, name, look, job }) {
     job: jobId,
     jobs: { [jobId]: { lv: 1, b: 0 } },
     jobSys: 2,
+    skillUse: {},
+    hirameki: [],
     equip: { ...STARTER_EQUIP[jobId] },
     items: [{ id: 'herb', n: 3 }],
     keyItems: [],
@@ -494,6 +522,13 @@ export function changeJob(char, jobId) {
 // ───── ふくろ ─────
 export function itemCount(char, id) {
   return char.items.find((e) => e.id === id)?.n || 0;
+}
+
+// もっているか（ふくろ・装備・仲間の 装備）
+export function ownsItem(char, id) {
+  if (itemCount(char, id) > 0) return true;
+  if (Object.values(char.equip || {}).includes(id)) return true;
+  return (char.companions || []).some((e) => Object.values(e?.char?.equip || {}).includes(id));
 }
 
 export function addItem(char, id, n = 1) {

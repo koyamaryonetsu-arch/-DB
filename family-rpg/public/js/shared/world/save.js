@@ -8,9 +8,9 @@
 import { ITEMS, SLOTS } from '../data/items.js';
 import { JOBS } from '../data/jobs.js';
 import { MONSTERS } from '../data/monsters.js';
-import { migrateJobs } from '../stats.js';
+import { migrateJobs, oldComboUnlocks, addItem } from '../stats.js';
 
-export const SAVE_VERSION = 2;
+export const SAVE_VERSION = 4;
 
 const obj = (v) => (v && typeof v === 'object' && !Array.isArray(v) ? v : {});
 const num = (v, d = 0) => (Number.isFinite(v) ? v : d);
@@ -22,6 +22,40 @@ const UPGRADES = {
   // 1 → 2: 職業レベル（勝った 数）・仲間・ゲスト・第2章。1人ずつの 手直しは repairChar が する
   1: (d) => {
     for (const c of Object.values(d.characters)) migrateJobs(c);
+  },
+  // 2 → 3: 掛け合わせ技は「ひらめき」で 覚える きまりに なった。
+  //        今まで 覚えていた 掛け合わせ技は、ひらめいた 技として のこす（仲間・ゲストも）
+  2: (d) => {
+    const keep = (c) => {
+      if (!c || typeof c !== 'object' || c.species) return;
+      const had = oldComboUnlocks(c);
+      const list = Array.isArray(c.hirameki) ? c.hirameki : [];
+      c.hirameki = [...new Set([...list, ...had])];
+    };
+    for (const c of Object.values(d.characters)) {
+      keep(c);
+      for (const e of Array.isArray(c?.companions) ? c.companions : []) keep(e?.char);
+      for (const g of Array.isArray(c?.guests) ? c.guests : []) keep(g?.char);
+    }
+  },
+  // 3 → 4: ボスが かならず 物を 落とす ように なった。もう たおした ボスの ぶんを わたす
+  //        （ふくろ・装備・仲間の 装備に もう あれば わたさない）
+  3: (d) => {
+    const BOSS = [['c1_treant', 'dark_treant', 'forest_necklace'], ['c1_boss', 'goldoon', 'rock_bangle'],
+      ['c2_kraken', 'giant_squid', 'deep_ring'], ['c2_boss', 'storm_general', 'storm_bangle']];
+    for (const c of Object.values(d.characters)) {
+      if (!c || typeof c !== 'object' || !c.flags || typeof c.flags !== 'object') continue;
+      const have = (id) => (Array.isArray(c.items) && c.items.some((e) => e?.id === id))
+        || Object.values(obj(c.equip)).includes(id)
+        || (Array.isArray(c.companions) && c.companions.some((e) => Object.values(obj(e?.char?.equip)).includes(id)));
+      for (const [flag, boss, id] of BOSS) {
+        if (!c.flags[flag] || have(id)) continue;
+        if (!Array.isArray(c.items)) c.items = [];
+        addItem(c, id, 1);
+        c.bestiary = obj(c.bestiary);
+        c.bestiary[boss] = { ...obj(c.bestiary[boss]), [`drop_${id}`]: 1 };
+      }
+    }
   },
 };
 
@@ -50,6 +84,9 @@ export function repairChar(c, id) {
   c.hp = num(c.hp, 1);
   c.mp = num(c.mp, 0);
   for (const k of ['flags', 'chests', 'kills', 'quests', 'seeds', 'status', 'visited']) c[k] = obj(c[k]);
+  // 技を 使った 回数・ひらめいた 技（知らない 技も けさずに のこす）
+  c.skillUse = Object.fromEntries(Object.entries(obj(c.skillUse)).filter(([, v]) => Number.isFinite(v) && v > 0));
+  c.hirameki = Array.isArray(c.hirameki) ? [...new Set(c.hirameki.filter((x) => typeof x === 'string'))] : [];
   if (!c.species && !Object.keys(c.visited).length) c.visited.village = true;
   const st = stashOf(c);
 

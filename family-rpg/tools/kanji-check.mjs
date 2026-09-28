@@ -156,6 +156,7 @@ export function gameFiles() {
     'public/js/client/ui/counter.js', 'public/js/client/ui/shop.js', 'public/js/shared/data/inn.js',
     'public/js/shared/ai.js', 'public/js/shared/battle.js', 'public/js/shared/stats.js',
     'public/js/shared/data/abilities.js', 'public/js/shared/data/abilities-adv.js', 'public/js/shared/data/abilities-jobs.js', 'public/js/shared/data/companions.js',
+    'public/js/shared/data/hirameki.js', 'public/js/shared/data/dual.js', 'public/js/shared/data/loot.js',
     'public/js/shared/data/encounters.js', 'public/js/shared/data/items.js', 'public/js/shared/data/jobs.js',
     'public/js/shared/data/monsters.js', 'public/js/shared/data/shops.js', 'public/js/shared/data/story.js',
     'public/js/shared/maps/index.js', 'public/js/shared/maps/overworld.js', 'public/js/shared/maps/ch2.js', 'public/js/shared/maps/sea.js',
