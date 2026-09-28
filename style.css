@@ -236,8 +236,10 @@ body.hscroll-bottom #hScrollTop { display: none; }  /* 「下のみ」＝上バ�
 #casesTable.custom-col-order td.col-edit { position: static !important; left: auto !important; }
 
 /* 行の左端「編集」ボタン列 */
-.col-edit { width: 66px; text-align: center; white-space: nowrap; }
-.row-edit-btn { padding: 3px 8px; cursor: pointer; white-space: nowrap; font-size: 12px; }
+.col-edit { width: var(--col-edit-w, 34px); min-width: var(--col-edit-w, 34px); max-width: var(--col-edit-w, 34px); padding: 6px 2px 6px 7px !important; text-align: center; white-space: nowrap; }
+.row-edit-btn { width: 24px; height: 24px; padding: 0; cursor: pointer; white-space: nowrap; font-size: 12px; line-height: 22px; border-radius: 6px; opacity: 0; transition: opacity .1s; }
+tbody tr:hover .row-edit-btn, .row-edit-btn:focus-visible { opacity: 1; }
+.row-edit-btn .edit-lbl { display: none; }
 
 /* タスクの優先度（文字色で識別） */
 .task-prio-high { color: #dc2626; font-weight: 700; }  /* 高＝赤 */
@@ -340,45 +342,16 @@ textarea.inline-edit {
   font-weight: 600;
 }
 
-tr.row-yellow td {
-  color: #b45309;
-  font-weight: 600;
-  background: #fffbeb;
-}
-
-tr.row-yellow:hover td {
-  background: #fef3c7;
-}
-
-tr.row-red td {
-  color: #dc2626;
-  font-weight: 700;
-  background: #fef2f2;
-}
-
-tr.row-red:hover td {
-  background: #fee2e2;
-}
-
-/* 黄緑: 見積り中（調査日から3日未満） */
-tr.row-yellowgreen td {
-  color: #4d7c0f;
-  font-weight: 600;
-  background: #f7fee7;
-}
-tr.row-yellowgreen:hover td {
-  background: #ecfccb;
-}
-
-/* 青: 客先対応中・見積り提出済（文字全体を青） */
-tr.row-blue td {
-  color: #1d4ed8;
-  font-weight: 600;
-  background: #eff6ff;
-}
-tr.row-blue:hover td {
-  background: #dbeafe;
-}
+/* ② 行の色は「左端の帯」と「状態ラベル」だけで示す（文字は黒のまま＝本当に急ぐ行だけが目に入る）
+   帯は左端の ✎ 列の内側に影で描く（幅を取らない・横スクロールしても左に残る） */
+tr.row-yellow      td.col-edit { box-shadow: inset 5px 0 0 #f59e0b; }
+tr.row-yellowgreen td.col-edit { box-shadow: inset 5px 0 0 #84cc16; }
+tr.row-red         td.col-edit { box-shadow: inset 5px 0 0 #ef4444; }
+tr.row-blue        td.col-edit { box-shadow: inset 5px 0 0 #3b82f6; }
+tr.row-red .status-badge { background: #fee2e2; color: #b91c1c; }
+/* 遅れている日数（調査から○日／受付から○日） */
+.late-days { margin-left: 6px; font-size: 11px; font-weight: 700; color: #b91c1c; white-space: nowrap; }
+.late-days.y { color: #92400e; }
 
 .row-actions {
   display: flex;
@@ -1150,9 +1123,9 @@ td[data-field="theater"] {
   position: sticky;
   left: var(--col-status-w, 120px);
   z-index: 1;
-  width: 160px;
-  min-width: 160px;
-  max-width: 160px;
+  width: 200px;
+  min-width: 200px;
+  max-width: 200px;
 }
 td[data-field="theater"] {
   overflow: hidden;
@@ -1164,12 +1137,12 @@ td[data-field="theater"] {
 #casesTable:not(.task-mode):not(.agg-mode) td.col-edit {
   position: sticky; left: 0; z-index: 1; background: #fff;
 }
-#casesTable:not(.task-mode):not(.agg-mode) th.col-edit { z-index: 3; }
-/* 編集列(66px)の分だけ ステータス・劇場名 の固定位置を右へずらす */
+#casesTable:not(.task-mode):not(.agg-mode) th.col-edit { z-index: 3; background: #eef2f7; }
+/* 編集列(--col-edit-w)の分だけ ステータス・劇場名 の固定位置を右へずらす */
 #casesTable:not(.task-mode):not(.agg-mode) th[data-sort="status"],
-#casesTable:not(.task-mode):not(.agg-mode) td.col-status { left: 66px; }
+#casesTable:not(.task-mode):not(.agg-mode) td.col-status { left: var(--col-edit-w, 34px); }
 #casesTable:not(.task-mode):not(.agg-mode) th[data-sort="theater"],
-#casesTable:not(.task-mode):not(.agg-mode) td[data-field="theater"] { left: calc(66px + var(--col-status-w, 120px)); }
+#casesTable:not(.task-mode):not(.agg-mode) td[data-field="theater"] { left: calc(var(--col-edit-w, 34px) + var(--col-status-w, 120px)); }
 /* 固定列の見出しは縦横スクロールの交点になるため最前面に */
 #casesTable thead th[data-sort="status"],
 #casesTable thead th[data-sort="theater"] {
@@ -2017,3 +1990,155 @@ body.user-toho .company-tag { white-space: normal; word-break: keep-all; }
 .col-sort-btn:hover { color: #2563eb; background: #e0edff; }
 /* 並び替え中の項目は青く強調（▲=昇順 / ▼=降順） */
 .col-sort-btn.active { color: #2563eb; font-weight: 700; }
+
+/* ============================================================
+   画面改良 ①②③⑤⑥（上部を3段にまとめる・状態ボタン・スイッチ）
+   ============================================================ */
+/* ① 上部: 1段目＝検索・登録・よく使う機能 ／ 2段目＝担当者・会社（1回クリック） */
+header#appHeader { display: block; padding: 0; gap: 0; }
+.hdr-top { display: flex; align-items: center; gap: 7px; padding: 10px 16px; }
+.hdr-top h1 { margin: 0 6px 0 0; font-size: 17px; font-weight: 700; white-space: nowrap; }
+.hdr-search {
+  flex: 1 1 220px; min-width: 150px; max-width: 320px; height: 34px;
+  padding: 0 12px; border: 1px solid transparent; border-radius: 8px;
+  background: #2b3858; color: #fff; font-size: 13px;
+}
+.hdr-search::placeholder { color: #9aa6c3; }
+.hdr-search:focus { background: #fff; color: #1f2937; border-color: #2563eb; outline: none; }
+.hdr-btn {
+  height: 34px; padding: 0 11px; border-radius: 8px; border: 1px solid #3b4a6e;
+  background: transparent; color: #e5e9f2; font-size: 13px; font-weight: 600;
+  display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; flex: none;
+}
+.hdr-btn:hover { background: #2b3858; color: #fff; }
+.hdr-btn.pri { background: #2563eb; border-color: #2563eb; color: #fff; }
+.hdr-btn.pri:hover { background: #1d4ed8; }
+.hdr-btn.on { background: #fff; color: #1f2a44; border-color: #fff; }
+.hdr-btn.hidden { display: none; }
+.hdr-btn .tp-badge { margin-left: 2px; }
+.hdr-grow { flex: 1; }
+.hdr-user {
+  height: 34px; display: inline-flex; align-items: center; gap: 4px; padding: 0 8px;
+  border: 1px solid transparent; border-radius: 8px; background: transparent; color: #c7d0e3; font-size: 12px;
+}
+.hdr-user:hover { background: #2b3858; color: #fff; }
+.hdr-av {
+  width: 28px; height: 28px; border-radius: 50%; background: #f59e0b; color: #1f2a44;
+  display: inline-flex; align-items: center; justify-content: center; font-size: 14px;
+}
+.hdr-who {
+  display: flex; align-items: center; gap: 4px; padding: 0 16px 9px;
+  overflow-x: auto; scrollbar-width: thin;
+}
+.hdr-who .rperson-bar { flex-wrap: nowrap; }
+.hdr-lb { font-size: 11px; color: #9aa6c3; letter-spacing: .04em; white-space: nowrap; margin-right: 2px; }
+.hdr-sep { width: 1px; height: 20px; background: #3b4a6e; margin: 0 10px; flex: none; }
+.hdr-who .rperson-btn { height: 28px; padding: 0 11px; font-size: 12.5px; border-radius: 14px; white-space: nowrap; flex: none; }
+
+/* ☰ その他／自分のメニュー（押すと開く小窓） */
+.hdr-pop-wrap, .fb-pop-wrap { position: relative; flex: none; }
+.hdr-pop {
+  position: absolute; z-index: 60; top: calc(100% + 6px); left: 0; min-width: 230px;
+  background: #fff; color: #1f2937; border: 1px solid #e2e8f0; border-radius: 10px;
+  box-shadow: 0 12px 32px rgba(28, 36, 51, .18); padding: 6px;
+}
+.hdr-pop.right { left: auto; right: 0; }
+.hdr-pop.hidden, .fb-pop.hidden { display: none; }
+.pop-group + .pop-group { border-top: 1px solid #eef1f5; margin-top: 4px; padding-top: 4px; }
+.pop-group.hidden { display: none; }
+.pop-h { font-size: 11px; font-weight: 700; color: #94a3b8; letter-spacing: .08em; padding: 6px 10px 2px; }
+.pop-item {
+  display: flex; width: 100%; align-items: center; gap: 8px; text-align: left;
+  border: none; background: none; padding: 8px 10px; border-radius: 6px; font-size: 13px; color: #1f2937;
+}
+.pop-item:hover { background: #f1f5f9; }
+.pop-mi { display: flex; align-items: center; gap: 6px; padding: 8px 10px; font-size: 12.5px; color: #475569; white-space: nowrap; }
+.pop-sep { border-top: 1px solid #eef1f5; margin: 4px 0; }
+
+/* ⑤⑥ 絞り込みバー: 状態ごとの件数ボタン＋表示スイッチ（凡例は「?」の中） */
+.legend.filter-bar {
+  display: flex; align-items: center; gap: 8px; flex-wrap: nowrap;
+  margin: 0 0 10px; padding: 8px 10px; background: #fff; border: 1px solid #e5e7eb; border-radius: 8px;
+  font-size: 12.5px; color: #374151;
+}
+.fb-chips {
+  display: flex; align-items: center; gap: 6px; min-width: 0; flex: 0 1 auto; overflow-x: auto; scrollbar-width: none;
+}
+/* 横にはみ出している時だけ右端をぼかして「続きがある」ことを示す */
+.fb-chips.overflow {
+  -webkit-mask-image: linear-gradient(to right, #000 90%, transparent); mask-image: linear-gradient(to right, #000 90%, transparent);
+  padding-right: 18px;
+}
+.fb-chips::-webkit-scrollbar { display: none; }
+.fb-chip {
+  height: 30px; padding: 0 11px; border-radius: 15px; border: 1px solid #e5e7eb; background: #f8fafc;
+  color: #374151; font-size: 12.5px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;
+  white-space: nowrap; flex: none;
+}
+.fb-chip i { font-style: normal; font-size: 11.5px; font-weight: 700; padding: 0 6px; border-radius: 9px; background: #e5e9f0; font-variant-numeric: tabular-nums; }
+.fb-chip:hover { border-color: #c3cad6; background: #f1f5f9; }
+.fb-chip.on, .fb-chip.on:hover { background: #1f2a44; border-color: #1f2a44; color: #fff; }
+.fb-chip.on i { background: #f59e0b; color: #1f2a44; }
+.fb-chip.warn-r { border-color: #f3c4c4; background: #fff7f7; color: #b91c1c; }
+.fb-chip.warn-r i { background: #fee2e2; color: #b91c1c; }
+.fb-chip.warn-y { border-color: #f1d9a6; background: #fffbf0; color: #92400e; }
+.fb-chip.warn-y i { background: #fef3c7; color: #92400e; }
+.fb-chip.warn-r.on, .fb-chip.warn-y.on { background: #1f2a44; border-color: #1f2a44; color: #fff; }
+.fb-chip.warn-r.on i, .fb-chip.warn-y.on i { background: #f59e0b; color: #1f2a44; }
+.fb-chip-sep, .fb-sep { width: 1px; height: 22px; background: #e5e7eb; flex: none; }
+/* ON/OFF はスイッチで（青＝ON） */
+.sw-btn {
+  display: inline-flex; align-items: center; gap: 7px; border: none; background: none; padding: 0 2px;
+  font-size: 12.5px; color: #4b5563; white-space: nowrap; flex: none;
+}
+.sw-btn:hover { background: none; color: #1f2937; }
+.sw-btn.hidden { display: none; }
+.sw-t { width: 32px; height: 18px; border-radius: 9px; background: #cfd5df; position: relative; flex: none; transition: background .15s; }
+.sw-t::after {
+  content: ""; position: absolute; left: 2px; top: 2px; width: 14px; height: 14px; border-radius: 50%;
+  background: #fff; box-shadow: 0 1px 2px rgba(0, 0, 0, .2); transition: left .15s;
+}
+.sw-btn[aria-checked="true"] { color: #1f2937; font-weight: 700; }
+.sw-btn[aria-checked="true"] .sw-t { background: #2563eb; }
+.sw-btn[aria-checked="true"] .sw-t::after { left: 16px; }
+.fb-help { width: 26px; height: 26px; padding: 0; border-radius: 50%; border: 1px solid #d3d9e3; background: #fff; color: #64748b; font-weight: 700; font-size: 12px; }
+.fb-pop {
+  position: absolute; z-index: 60; top: calc(100% + 8px); right: 0; width: 360px;
+  background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; box-shadow: 0 12px 32px rgba(28, 36, 51, .18);
+  padding: 12px 14px; font-size: 12.5px; color: #374151; white-space: normal; line-height: 1.6;
+}
+.fb-pop .legend-item { display: flex; gap: 8px; align-items: center; padding: 2px 0; }
+.fb-pop-h { font-weight: 700; margin: 8px 0 4px; }
+.fb-pop-h:first-child { margin-top: 0; }
+.fb-pop p { margin: 0 0 6px; color: #64748b; }
+.legend.filter-bar .case-count { margin-left: auto; white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+/* 見出しがボタン群の裏に隠れないよう、表の高さを画面の残りにぴったり合わせる（--table-top はJSで計測） */
+@media (min-width: 601px) {
+  .table-wrap { max-height: calc(100vh - var(--table-top, 200px) - 16px); }
+}
+/* 遅れ日数が入るぶんステータス列を少し広げる（社内のみ。列幅を自分で変えた場合はそちらが優先） */
+body.user-privileged #casesTable { --col-status-w: 176px; }
+/* タスク管理の表には ✎ 列が無いので、先頭のセルに帯を描く */
+#casesTable.task-mode tr.row-yellow      td:first-child { box-shadow: inset 5px 0 0 #f59e0b; }
+#casesTable.task-mode tr.row-yellowgreen td:first-child { box-shadow: inset 5px 0 0 #84cc16; }
+#casesTable.task-mode tr.row-red         td:first-child { box-shadow: inset 5px 0 0 #ef4444; }
+#casesTable.task-mode tr.row-blue        td:first-child { box-shadow: inset 5px 0 0 #3b82f6; }
+/* タスク管理の表は列が狭いので遅れ日数は出さない（左端の帯と状態ラベルの色で分かる） */
+#casesTable.task-mode .late-days { display: none; }
+/* タッチ操作の端末ではマウスを乗せられないので ✎ を常に出す */
+@media (hover: none) { .row-edit-btn { opacity: 1; } }
+/* 画面が狭い時は上部を折り返す（スマホの作り直しは ⑨ で行う） */
+@media (max-width: 1100px) {
+  .hdr-top { flex-wrap: wrap; }
+  .legend.filter-bar { flex-wrap: wrap; }
+  .fb-chips { flex-basis: 100%; }
+}
+@media (max-width: 600px) {
+  .hdr-top { padding: 8px 10px; gap: 6px; }
+  .hdr-search { flex: 1 1 100%; max-width: none; order: 5; }
+  .hdr-who { padding: 0 10px 8px; }
+  .row-edit-btn { opacity: 1; width: auto; padding: 3px 8px; }
+  .row-edit-btn .edit-lbl { display: inline; }
+  .legend.filter-bar .fb-pop-wrap { display: none; }
+}
