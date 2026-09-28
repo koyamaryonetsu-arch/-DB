@@ -10,7 +10,8 @@
 <script src="config.js"></script>
 <script src="templates.js"></script>
 </head>
-<body>
+<body class="booting">
+<div id="bootMsg" class="boot-msg" role="status">読み込み中…</div>
 
 <div id="loginScreen" class="login-screen">
   <div class="login-card">
@@ -64,15 +65,22 @@
       <input type="search" id="searchBox" class="hdr-search" placeholder="劇場名・担当者・内容で検索">
       <button id="quickCaseBtn" class="hdr-btn">⚡ 簡易登録</button>
       <button id="newCaseBtn" class="hdr-btn pri">＋ 新規登録</button>
-      <button id="taskBtn" class="hdr-btn col-ryo"><span id="taskBtnLabel">📋 タスク管理</span><span id="taskBadge" class="tp-badge task-badge hidden"></span></button>
+      <button id="taskBtn" class="hdr-btn col-ryo"><span id="taskBtnLabel"><span class="tb-ic">📋</span><span class="tb-tx"> タスク管理</span></span><span id="taskBadge" class="tp-badge task-badge hidden"></span></button>
       <button id="calBtn" class="hdr-btn col-ryo">📅 カレンダー</button>
       <button id="intakeBtn" class="hdr-btn col-ryo hidden">🆕 登録確認 <span id="ikBadge" class="tp-badge hidden"></span></button>
       <button id="theaterPendingBtn" class="hdr-btn col-ryo hidden">🔎 劇場情報更新確認 <span id="tpBadge" class="tp-badge hidden"></span></button>
       <!-- ☰ の中の機能を開いている時だけ出る「閉じる」ボタン（☰を開かずに戻れるように） -->
       <button id="modeCloseBtn" class="hdr-btn on hidden"></button>
       <div class="hdr-pop-wrap" id="moreWrap">
-        <button id="moreMenuBtn" class="hdr-btn" aria-haspopup="true" aria-expanded="false">☰ その他</button>
+        <button id="moreMenuBtn" class="hdr-btn" aria-haspopup="true" aria-expanded="false">☰<span class="tb-tx"> その他</span><span id="moreBadge" class="tp-badge m-badge hidden"></span></button>
         <div id="moreMenu" class="hdr-pop right hidden" role="menu">
+          <!-- ⑨ スマホでは上に並べきれないボタンをここに出す（押すと元のボタンと同じ動き） -->
+          <div class="pop-group m-only">
+            <button type="button" class="pop-item m-proxy" data-proxy="quickCaseBtn"></button>
+            <button type="button" class="pop-item m-proxy col-ryo" data-proxy="calBtn"></button>
+            <button type="button" class="pop-item m-proxy col-ryo" data-proxy="intakeBtn"></button>
+            <button type="button" class="pop-item m-proxy col-ryo" data-proxy="theaterPendingBtn"></button>
+          </div>
           <div class="pop-group">
             <div class="pop-h">管理</div>
             <button id="aggBtn" class="pop-item col-ryo">📊 A集計</button>
@@ -225,6 +233,8 @@
         </thead>
         <tbody id="casesBody"></tbody>
       </table>
+      <!-- ⑨ スマホ: 一覧は表ではなくカードで出す（PCでは表示しない） -->
+      <div id="mobileCards" class="m-cards"></div>
       <p id="emptyMsg" class="empty-msg">まだ案件が登録されていません。「＋ 新規案件登録」ボタンから登録してください。</p>
     </div>
 
@@ -530,6 +540,8 @@
       </div>
     </div>
   </main>
+  <!-- ⑨ スマホ: 右下の「＋ 新規登録」（いつでも押せる） -->
+  <button type="button" id="fabNewBtn" class="m-fab">＋ 新規登録</button>
 </div>
 
 <!-- 作業マスター（クリッピング回避のためトップレベルに配置） -->

@@ -2013,6 +2013,7 @@
     syncHScrollWidth();   // 上部横スクロールバーの幅を合わせる
     renderStatusChips();  // 状態ごとの件数ボタン
     updateTaskBadge();    // 「タスク管理」ボタンの未完了件数
+    renderMobileCards(filtered); // ⑨ スマホのカード
   }
 
   // ===== 列の並べ替え（個人設定・ドラッグ） =====
@@ -3249,7 +3250,7 @@
     taskMode = true;
     $('casesTable').classList.add('task-mode');
     $('emptyMsg').classList.add('hidden');
-    $('taskBtnLabel').textContent = '✕ タスク管理を閉じる';
+    $('taskBtnLabel').innerHTML = '<span class="tb-ic">✕</span><span class="tb-tx"> タスク管理を閉じる</span><span class="tb-sh"> 閉じる</span>';
     $('taskDoneToggleBtn').classList.remove('hidden');
     $('personalTaskBtn').classList.remove('hidden');
     updatePersonalTaskBtn();
@@ -3263,7 +3264,7 @@
   function exitTaskMode() {
     taskMode = false;
     $('casesTable').classList.remove('task-mode');
-    $('taskBtnLabel').textContent = '📋 タスク管理';
+    $('taskBtnLabel').innerHTML = '<span class="tb-ic">📋</span><span class="tb-tx"> タスク管理</span>';
     $('taskDoneToggleBtn').classList.add('hidden');
     $('personalTaskBtn').classList.add('hidden');
     $('personTaskPanel').classList.add('hidden');
@@ -3627,6 +3628,49 @@
     setupColumnDrag();    // 見出しをドラッグで並べ替え可能に
     addColSortHandles();  // 見出しの「▲」で昇順/降順の並び替え
     renderStatusChips();  // 状態ごとの件数ボタン
+    renderMobileCards(rows); // ⑨ スマホのカード（タスク管理版）
+  }
+
+  // ===== ⑨ スマホ: 一覧をカードで出す =====
+  // 表示は「劇場名・状態・内容・次の予定・担当者」だけ。タップで編集（タスク管理中はタスクの編集）
+  function nextPlanHtml(c) {
+    const today = todayStr();
+    const md = (iso) => escapeHtml(fmtDateShort(iso));
+    if (c.workStartDate && (c.workEndDate || c.workStartDate) >= today) {
+      return `作業 <b>${md(c.workStartDate)}${c.workEndDate && c.workEndDate !== c.workStartDate ? '〜' + md(c.workEndDate) : ''}</b>`;
+    }
+    if (c.surveyDate && c.surveyDate >= today) return `調査 <b>${md(c.surveyDate)}</b>`;
+    if (c.quoteDate) return `見積り提出 <b>${md(c.quoteDate)}</b>`;
+    if (c.surveyDate) return `調査済 <b>${md(c.surveyDate)}</b>`;
+    return c.receivedDate ? `受付 <b>${md(c.receivedDate)}</b>` : '';
+  }
+  function renderMobileCards(list) {
+    const box = $('mobileCards'); if (!box) return;
+    if (!isMobile()) { if (box.firstChild) box.innerHTML = ''; return; } // PCでは作らない
+    const priv = isPrivileged(currentUser);
+    box.innerHTML = list.map((c) => {
+      const st = statusOf(c);
+      const cls = rowColorClass(c);
+      const coTag = priv ? buildCompanyTag(c) : '';
+      const dup = isDupSuspect(c) ? '<span class="m-dup">⚠️二重の可能性</span>' : '';
+      let body;
+      if (taskMode) {
+        const open = caseTasks(c).map((t, i) => i).filter((i) => !caseTasks(c)[i].done || showDoneTasks);
+        body = open.length
+          ? '<ul class="m-tasks">' + open.map((i) => { const t = caseTasks(c)[i]; return `<li class="${t.done ? 'task-done' : ''}"><span class="${taskPrioClass(t)}">${escapeHtml(t.text)}</span>${taskDueHtml(t)}</li>`; }).join('') + '</ul>'
+          : '<div class="m-none">タスクなし（タップで追加）</div>';
+      } else {
+        const amt = c.estimateAmount ? `<span>${fmtAmount(c.estimateAmount)}</span>` : '';
+        const nTask = priv ? (Array.isArray(c.tasks) ? c.tasks.filter((t) => !t.done).length : 0) : 0;
+        body = `<div class="m-ct">${escapeHtml(c.content || '')}</div>
+          <div class="m-l3"><span>${nextPlanHtml(c)}</span>${amt}${nTask ? `<span>タスク <b>${nTask}</b></span>` : ''}</div>`;
+      }
+      return `<div class="m-card ${cls}" role="button" tabindex="0" data-mcase="${escapeHtml(c.id)}">
+        <span class="m-l1">${coTag}<span class="m-th">${escapeHtml(shortTheaterName(c.theater) || '（劇場名なし）')}</span><span class="m-rp">${escapeHtml(c.rPerson || '')}</span></span>
+        <span class="m-l2"><span class="status-badge status-${escapeHtml(st)}">${escapeHtml(statusDisplayLabel(st))}</span>${lateDaysHtml(c)}${dup}</span>
+        ${body}
+      </div>`;
+    }).join('');
   }
 
   // タスク編集ポップアップ
@@ -4611,6 +4655,7 @@
 
   // ---------- screens ----------
   function showLogin() {
+    document.body.classList.remove('booting');
     $('appShell').classList.add('hidden');
     $('loginScreen').classList.remove('hidden');
     // ログインペインに戻す（前回サインアップ画面のままだったケースの保険）
@@ -4619,6 +4664,7 @@
     setTimeout(() => $('loginEmail').focus(), 50);
   }
   function showApp() {
+    document.body.classList.remove('booting');
     $('loginScreen').classList.add('hidden');
     $('appShell').classList.remove('hidden');
     // A集計モードのまま再ログイン等した場合は通常表示へ戻す
@@ -4704,7 +4750,8 @@
     const shown = (el) => getComputedStyle(el).display !== 'none';
     let any = false;
     document.querySelectorAll('#moreMenu .pop-group').forEach((g) => {
-      const has = [...g.querySelectorAll('.pop-item')].some(shown);
+      if (g.classList.contains('m-only') && !isMobile()) { g.classList.add('hidden'); return; }
+      const has = [...g.querySelectorAll('.pop-item:not(.m-hidden)')].some(shown);
       g.classList.toggle('hidden', !has);
       if (has) any = true;
     });
@@ -5627,17 +5674,62 @@
   // 各機能はボタンの文字を「✕ …を閉じる」に変えるので、それを見て同じボタンを押す
   function syncModeCloseBtn() {
     const btn = $('modeCloseBtn'); if (!btn) return;
+    const phone = isMobile();
     const active = Array.prototype.find.call($('moreMenu').querySelectorAll('.pop-item'),
-      (el) => (el.textContent || '').trim().indexOf('✕') === 0);
+      (el) => (phone || !el.classList.contains('m-proxy')) && (el.textContent || '').trim().indexOf('✕') === 0);
     btn.classList.toggle('hidden', !active);
     btn.textContent = active ? active.textContent.trim() : '';
-    btn.dataset.target = active ? active.id : '';
+    btn.dataset.target = active ? (active.dataset.proxy || active.id) : '';
   }
   $('modeCloseBtn').addEventListener('click', () => {
     const t = $($('modeCloseBtn').dataset.target || '');
     if (t) t.click();
   });
   new MutationObserver(syncModeCloseBtn).observe($('moreMenu'), { subtree: true, childList: true, characterData: true });
+
+  // ⑨ スマホ: 上に並べきれないボタン（簡易登録・カレンダー・登録確認・劇場情報更新確認）を ☰ の中に写す。
+  // 文字・件数・表示/非表示は元のボタンに合わせ、押すと元のボタンを押したのと同じ動きにする
+  function syncMenuProxies() {
+    let pending = 0;
+    document.querySelectorAll('#moreMenu .m-proxy').forEach((px) => {
+      const orig = $(px.dataset.proxy); if (!orig) return;
+      const cl = orig.cloneNode(true);
+      cl.querySelectorAll('[id]').forEach((el) => el.removeAttribute('id'));
+      if (px.innerHTML !== cl.innerHTML) px.innerHTML = cl.innerHTML;
+      px.classList.toggle('m-hidden', orig.classList.contains('hidden'));
+      const badge = orig.querySelector('.tp-badge:not(.hidden)');
+      if (badge && !orig.classList.contains('hidden')) pending += Number(badge.textContent) || 0;
+    });
+    const mb = $('moreBadge');
+    if (mb) { mb.textContent = pending ? String(pending) : ''; mb.classList.toggle('hidden', !pending); }
+  }
+  ['quickCaseBtn', 'calBtn', 'intakeBtn', 'theaterPendingBtn'].forEach((id) => {
+    if ($(id)) new MutationObserver(syncMenuProxies).observe($(id), { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ['class'] });
+  });
+  syncMenuProxies();
+  $('moreMenu').addEventListener('click', (e) => {
+    const px = e.target.closest('.m-proxy'); if (!px) return;
+    const orig = $(px.dataset.proxy); if (orig) orig.click();
+  });
+  // ⑨ スマホ: 右下の「＋ 新規登録」
+  $('fabNewBtn').addEventListener('click', () => $('newCaseBtn').click());
+  // ⑨ スマホ: カードをタップ → 編集（タスク管理中はそのタスクの編集）
+  function openFromCard(card) {
+    const c = cases.find((x) => String(x.id) === String(card.dataset.mcase)); if (!c) return;
+    if (taskMode) openTaskModal(c); else openModal(c, 'full');
+  }
+  $('mobileCards').addEventListener('click', (e) => { const card = e.target.closest('.m-card'); if (card) openFromCard(card); });
+  $('mobileCards').addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const card = e.target.closest('.m-card'); if (!card) return;
+    e.preventDefault(); openFromCard(card);
+  });
+  // PC ⇔ スマホの幅をまたいだら（画面の回転など）、カード・☰の中身・閉じるボタンを合わせ直す
+  if (window.matchMedia) {
+    const mq = window.matchMedia('(max-width: 600px)');
+    const onChange = () => { if (currentUser) { refresh(); hideEmptyToolbarGroups(); syncModeCloseBtn(); } };
+    if (mq.addEventListener) mq.addEventListener('change', onChange); else if (mq.addListener) mq.addListener(onChange);
+  }
 
   // ⑤ 状態ごとの件数ボタン・注意ボタン
   $('statusChips').addEventListener('click', (e) => {
@@ -5721,6 +5813,8 @@
 
   // ---------- 起動 ----------
   async function init() {
+    // 万一、起動の途中で止まっても真っ白のままにしない（ログイン画面を出す）
+    setTimeout(() => { if (document.body.classList.contains('booting')) document.body.classList.remove('booting'); }, 15000);
     store.init();
     // 工程表(kotei.js)が同じSupabaseクライアント・モード・担当者/会社マスタを共有できるよう橋渡し
     window.CINEMA_DB = {
