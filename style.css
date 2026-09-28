@@ -1253,7 +1253,7 @@ li.task-drop-target { box-shadow: inset 0 2px 0 #2563eb; }
 }
 .ptp-count { color: #475569; font-size: 12px; }
 .ptp-hint { color: #94a3b8; font-size: 11px; }
-.person-task-table { width: 100%; border-collapse: collapse; }
+.person-task-table { width: 100%; min-width: 0; border-collapse: collapse; } /* 全体の table{min-width:1400px} を打ち消す（狭い画面で案内文が切れていた） */
 .person-task-table th, .person-task-table td {
   border-bottom: 1px solid #f1f5f9; padding: 6px 10px; text-align: left; vertical-align: top;
 }
@@ -2218,3 +2218,94 @@ body.drawer-open #casesBody td.editable:hover { background: inherit; outline: no
   .modal.drawer .form-stack { grid-template-columns: 1fr; }
   .modal.drawer .form-scroll { padding: 4px 14px 14px; }
 }
+
+/* ============================================================
+   画面改良 ⑨（スマホの作り直し）＋起動中の表示
+   ============================================================ */
+/* 起動中はログイン画面を出さず「読み込み中」（ログイン状態の確認が終わるまで数秒ログイン画面が見えていた） */
+.boot-msg { display: none; }
+body.booting .boot-msg {
+  display: flex; position: fixed; inset: 0; z-index: 200; align-items: center; justify-content: center;
+  background: #f4f6f9; color: #64748b; font-size: 14px;
+}
+body.booting #loginScreen { display: none !important; }
+/* PCでは使わない部品 */
+.m-cards, .m-fab { display: none; }
+.pop-group.m-only { display: none; }
+.m-hidden { display: none !important; }
+.m-badge { margin-left: 4px; }
+
+@media (max-width: 600px) {
+  /* 上部: 1行目＝タイトル・タスク・☰・自分 ／ 2行目＝検索 ／ 3行目＝担当者（横にすべらせる） */
+  .hdr-top { flex-wrap: wrap; gap: 6px; padding: 8px 10px; }
+  .hdr-top h1 { flex: 1 1 auto; min-width: 0; font-size: 16px; overflow: hidden; text-overflow: ellipsis; }
+  #quickCaseBtn, #calBtn, #intakeBtn, #theaterPendingBtn { display: none !important; }
+  #taskBtn { flex: none; }
+  .hdr-btn { height: 38px; padding: 0 11px; font-size: 15px; }
+  .hdr-btn .tb-tx { display: none; }
+  .hdr-grow { display: none; }
+  .hdr-search { order: 10; flex: 1 1 100%; max-width: none; height: 40px; font-size: 16px; }
+  #modeCloseBtn { order: 11; flex: 1 1 100%; justify-content: center; font-size: 14px; }
+  .pop-group.m-only { display: block; }
+  .hdr-pop { min-width: 250px; }
+  .pop-item { padding: 11px 12px; font-size: 14px; }
+
+  /* 絞り込み: 状態ボタンは1行で横にすべらせる */
+  .legend.filter-bar { flex-wrap: wrap; gap: 8px; padding: 8px; margin-bottom: 8px; }
+  .legend.filter-bar .fb-sep { display: none; }
+  .fb-chips { flex: 1 1 100%; }
+  .fb-chip { height: 32px; }
+  .legend.filter-bar .mobile-sort { display: flex; flex: 1 1 100%; align-items: center; gap: 6px; overflow-x: auto; white-space: nowrap; font-size: 12px; color: #64748b; scrollbar-width: none; }
+  .legend.filter-bar .case-count { font-size: 12px; }
+
+  /* 一覧は表ではなくカード（A集計・支払い状況は表のまま） */
+  #casesTable:not(.agg-mode):not(.purchase-mode) { display: none !important; }
+  .table-wrap:has(#casesTable:not(.agg-mode):not(.purchase-mode)) {
+    background: transparent; box-shadow: none; border-radius: 0; max-height: none; min-height: 0; overflow: visible;
+  }
+  #hScrollTop { display: none; }
+  .m-cards { display: grid; gap: 8px; padding-bottom: 88px; }
+  .m-card {
+    display: grid; gap: 4px; text-align: left; width: 100%; background: #fff; color: #1f2937;
+    border: 1px solid #e5e7eb; border-left: 5px solid #d8dee8; border-radius: 10px; padding: 10px 12px; cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .m-card:active { background: #f8fafc; }
+  .m-card:focus-visible { outline: 2px solid #2563eb; outline-offset: 1px; }
+  .m-card.row-red { border-left-color: #ef4444; }
+  .m-card.row-yellow { border-left-color: #f59e0b; }
+  .m-card.row-yellowgreen { border-left-color: #84cc16; }
+  .m-card.row-blue { border-left-color: #3b82f6; }
+  .m-l1 { display: flex; align-items: center; gap: 6px; min-width: 0; }
+  .m-th { font-weight: 700; font-size: 15px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .m-rp { margin-left: auto; flex: none; font-size: 12px; color: #64748b; white-space: nowrap; }
+  .m-l2 { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .m-l2 .late-days { display: inline; margin: 0; }
+  .m-dup { font-size: 11px; font-weight: 700; color: #b45309; }
+  .m-ct { font-size: 13.5px; line-height: 1.5; color: #374151; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word; }
+  .m-l3 { display: flex; gap: 12px; flex-wrap: wrap; font-size: 12px; color: #64748b; font-variant-numeric: tabular-nums; }
+  .m-l3 b { color: #1f2937; }
+  .m-tasks { list-style: none; margin: 2px 0 0; padding: 0; display: grid; gap: 3px; font-size: 13.5px; }
+  .m-tasks li { display: flex; gap: 6px; align-items: flex-start; flex-wrap: wrap; }
+  .m-tasks li.task-done span { text-decoration: line-through; color: #9ca3af; }
+  .m-none { font-size: 12.5px; color: #9ca3af; }
+
+  /* 右下の「＋ 新規登録」 */
+  .m-fab {
+    display: inline-flex; align-items: center; position: fixed; z-index: 50;
+    right: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    height: 52px; padding: 0 20px; border: none; border-radius: 26px;
+    background: #2563eb; color: #fff; font-size: 15px; font-weight: 700; box-shadow: 0 8px 20px rgba(37, 99, 235, .4);
+  }
+  .m-fab:hover, .m-fab:active { background: #1d4ed8; }
+  body.drawer-open .m-fab { display: none; }
+
+  /* 個人タスクの枠は縦に並べる */
+  #personTaskTable thead { display: none; }
+  #personTaskTable, #personTaskTable tbody, #personTaskTable tr, #personTaskTable td { display: block; width: auto; }
+  #personTaskTable td.ptp-person { padding-bottom: 0; }
+  #personTaskTable td { white-space: normal; }
+  .m-card.row-red .status-badge { background: #fee2e2; color: #b91c1c; }
+  header .hdr-btn .tb-sh { display: inline; }
+}
+.hdr-btn .tb-sh { display: none; }
