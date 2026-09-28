@@ -2238,7 +2238,7 @@ body.booting #loginScreen { display: none !important; }
 @media (max-width: 600px) {
   /* 上部: 1行目＝タイトル・タスク・☰・自分 ／ 2行目＝検索 ／ 3行目＝担当者（横にすべらせる） */
   .hdr-top { flex-wrap: wrap; gap: 6px; padding: 8px 10px; }
-  .hdr-top h1 { flex: 1 1 auto; min-width: 0; font-size: 16px; overflow: hidden; text-overflow: ellipsis; }
+  .hdr-top h1 { flex: 1 1 0; min-width: 0; font-size: 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   #quickCaseBtn, #calBtn, #intakeBtn, #theaterPendingBtn { display: none !important; }
   #taskBtn { flex: none; }
   .hdr-btn { height: 38px; padding: 0 11px; font-size: 15px; }
