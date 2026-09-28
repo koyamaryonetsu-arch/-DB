@@ -2011,6 +2011,7 @@
     addColSortHandles();  // 見出しの「▲」で昇順/降順の並び替え
     syncHScrollWidth();   // 上部横スクロールバーの幅を合わせる
     renderStatusChips();  // 状態ごとの件数ボタン
+    updateTaskBadge();    // 「タスク管理」ボタンの未完了件数
   }
 
   // ===== 列の並べ替え（個人設定・ドラッグ） =====
@@ -3000,6 +3001,7 @@
     return sel;
   }
   async function savePersonTasks(person) {
+    updateTaskBadge();
     try { await store.savePersonalTasks(person, personTasks(person)); }
     catch (e) { alert('個人タスクの保存に失敗しました: ' + (e && e.message ? e.message : e)); }
   }
@@ -3194,7 +3196,7 @@
     taskMode = true;
     $('casesTable').classList.add('task-mode');
     $('emptyMsg').classList.add('hidden');
-    $('taskBtn').textContent = '✕ タスク管理を閉じる';
+    $('taskBtnLabel').textContent = '✕ タスク管理を閉じる';
     $('taskDoneToggleBtn').classList.remove('hidden');
     $('personalTaskBtn').classList.remove('hidden');
     updatePersonalTaskBtn();
@@ -3208,7 +3210,7 @@
   function exitTaskMode() {
     taskMode = false;
     $('casesTable').classList.remove('task-mode');
-    $('taskBtn').textContent = '📋 タスク管理';
+    $('taskBtnLabel').textContent = '📋 タスク管理';
     $('taskDoneToggleBtn').classList.add('hidden');
     $('personalTaskBtn').classList.add('hidden');
     $('personTaskPanel').classList.add('hidden');
@@ -3477,8 +3479,33 @@
     $('calGrid').innerHTML = html;
   }
 
+  // ⑧ 「📋 タスク管理」ボタンの件数＝未完了のタスク（案件のタスク＋全員の個人タスク）。
+  // 期限切れが1件でもあると赤、無ければ黄。完了・入金済・取り下げ・失注の案件のタスクは数えない
+  function updateTaskBadge() {
+    const badge = $('taskBadge'); if (!badge || !currentUser) return;
+    if (!isPrivileged(currentUser)) { badge.classList.add('hidden'); return; }
+    const today = todayStr();
+    let open = 0, over = 0;
+    const count = (t) => {
+      if (!t || t.done) return;
+      open++;
+      const due = taskDue(t);
+      if (due && due < today) over++;
+    };
+    visibleCases().forEach((c) => {
+      if (DEFAULT_HIDDEN_STATUSES.indexOf(statusOf(c)) !== -1) return;
+      (Array.isArray(c.tasks) ? c.tasks : []).forEach(count);
+    });
+    Object.keys(personalTasks).forEach((p) => (Array.isArray(personalTasks[p]) ? personalTasks[p] : []).forEach(count));
+    badge.textContent = open ? String(open) : '';
+    badge.classList.toggle('hidden', !open);
+    badge.classList.toggle('ok', !over);
+    $('taskBtn').title = open ? `未完了のタスク ${open} 件${over ? `（うち期限切れ ${over} 件）` : ''}` : '';
+  }
+
   // 担当者ごとの個人タスク。案件のタスク表の「上」に別枠で出す（同時表示・ボタンで表示/非表示）
   function renderPersonTaskPanel() {
+    updateTaskBadge();
     const panel = $('personTaskPanel');
     if (!taskMode || !showPersonalTasks) { panel.classList.add('hidden'); return; }
     panel.classList.remove('hidden');
@@ -4551,6 +4578,10 @@
     applyUserScope();
     render();
     requestAnimationFrame(fitTableHeight); // 表の高さを画面の残りに合わせる
+    // 「タスク管理」ボタンの件数に個人タスクも入れるため、ログイン時に読み込んでおく
+    if (isPrivileged(currentUser)) {
+      store.fetchPersonalTasks().then((map) => { personalTasks = map || {}; updateTaskBadge(); }).catch(() => {});
+    }
     maybeOpenCaseFromUrl();
     refreshPendingBadge(); // 劇場情報 自動更新の未確認件数バッジ（菱熱のみ）
     refreshIntakeBadge();  // 登録確認（新規か更新か）の件数バッジ（菱熱のみ）

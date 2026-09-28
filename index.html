@@ -64,7 +64,7 @@
       <input type="search" id="searchBox" class="hdr-search" placeholder="劇場名・担当者・内容で検索">
       <button id="quickCaseBtn" class="hdr-btn">⚡ 簡易登録</button>
       <button id="newCaseBtn" class="hdr-btn pri">＋ 新規登録</button>
-      <button id="taskBtn" class="hdr-btn col-ryo">📋 タスク管理</button>
+      <button id="taskBtn" class="hdr-btn col-ryo"><span id="taskBtnLabel">📋 タスク管理</span><span id="taskBadge" class="tp-badge task-badge hidden"></span></button>
       <button id="calBtn" class="hdr-btn col-ryo">📅 カレンダー</button>
       <button id="intakeBtn" class="hdr-btn col-ryo hidden">🆕 登録確認 <span id="ikBadge" class="tp-badge hidden"></span></button>
       <button id="theaterPendingBtn" class="hdr-btn col-ryo hidden">🔎 劇場情報更新確認 <span id="tpBadge" class="tp-badge hidden"></span></button>
@@ -188,7 +188,6 @@
       <div class="ptp-head">
         <strong>👤 個人タスク</strong>
         <span id="ptpCount" class="ptp-count"></span>
-        <span class="ptp-hint">上の担当者ボタンで名前を押すと、その人のタスクが出ます（もう一度押すと消えます）</span>
       </div>
       <table id="personTaskTable" class="person-task-table">
         <thead><tr><th class="ptp-th-person">R担当者</th><th>タスク</th></tr></thead>

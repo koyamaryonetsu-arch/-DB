@@ -2146,3 +2146,21 @@ body.user-privileged #casesTable { --col-status-w: 176px; }
   .row-edit-btn .edit-lbl { display: inline; }
   .legend.filter-bar .fb-pop-wrap { display: none; }
 }
+
+/* ============================================================
+   画面改良 ④⑧（タスク管理）
+   ============================================================ */
+/* ④ 期限は文字のすぐ右に（文字が横いっぱいに広がって期限が右端へ離れていた） */
+.cell-task-list .task-text, .task-item .task-text { flex: 0 1 auto; }
+/* ④ ✎ はマウスを乗せた時だけセルの右上に出す（今までは ✎ だけで1段使っていた） */
+td.task-col { position: relative; padding-right: 38px !important; }
+td.task-col .task-open-btn {
+  position: absolute; top: 5px; right: 6px; margin: 0; width: 26px; height: 24px; padding: 0;
+  line-height: 22px; text-align: center; border-radius: 6px; opacity: 0; transition: opacity .1s;
+}
+tr:hover td.task-col .task-open-btn, td.task-col .task-open-btn:focus-visible { opacity: 1; }
+@media (hover: none) { td.task-col .task-open-btn { opacity: 1; } }
+/* ⑧ 「タスク管理」ボタンの未完了件数（期限切れがあると赤・無ければ黄） */
+.task-badge { margin-left: 5px; }
+.task-badge.ok { background: #f59e0b; color: #1f2a44; }
+#taskBtn.on .task-badge, .hdr-btn:hover .task-badge { box-shadow: 0 0 0 1px rgba(255, 255, 255, .6); }
