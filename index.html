@@ -552,14 +552,18 @@
   </div>
 </div>
 
-<div id="modal" class="modal hidden">
+<div id="modal" class="modal drawer hidden" role="dialog" aria-labelledby="modalTitle">
   <div class="modal-content">
     <div class="modal-header">
-      <h2 id="modalTitle">新規案件登録</h2>
+      <div class="modal-head-text">
+        <h2 id="modalTitle">新規案件登録</h2>
+        <div id="modalSub" class="modal-sub"></div>
+      </div>
       <button id="closeModal" class="close-btn" aria-label="閉じる" tabindex="-1">×</button>
     </div>
     <form id="caseForm">
       <input type="hidden" id="caseId">
+      <div class="form-scroll">
       <div id="dupBanner" class="dup-banner hidden">
         <span class="dup-banner-text">⚠️ 二重登録の可能性があります（同じ劇場に似た案件があります）</span>
         <span class="dup-banner-info" id="dupBannerInfo"></span>
@@ -568,128 +572,136 @@
           <button type="button" id="dupClearBtn" class="mini-btn">二重ではない（印を消す）</button>
         </span>
       </div>
-      <div class="form-stack">
-        <div class="form-row col-company" data-mode="simple">
-          <label for="company">会社（顧客）<span class="required">*</span></label>
-          <div class="company-row">
-            <select id="company" required></select>
-            <button type="button" id="addCompanyBtn" class="mini-btn" title="顧客を追加">＋顧客追加</button>
+      <!-- ⑦ 編集パネル: 項目を5つのまとまりに（項目・ID・表示条件は今までと同じ） -->
+      <section class="form-sec" data-sec="basic">
+        <h3 class="form-sec-h">基本</h3>
+        <div class="form-stack">
+          <div class="form-row col-company" data-mode="simple">
+            <label for="company">会社（顧客）<span class="required">*</span></label>
+            <div class="company-row">
+              <select id="company" required></select>
+              <button type="button" id="addCompanyBtn" class="mini-btn" title="顧客を追加">＋顧客追加</button>
+            </div>
+          </div>
+          <div class="form-row" data-mode="simple">
+            <label for="theater">劇場名<span class="required">*</span></label>
+            <input type="text" id="theater" list="theaterList" required placeholder="例：TOHOシネマズ 新宿">
+            <datalist id="theaterList"></datalist>
+          </div>
+          <div class="form-row" data-mode="simple">
+            <label for="receivedDate">受付日</label>
+            <input type="text" id="receivedDate" class="smart-date" inputmode="numeric" placeholder="例 9/12">
+          </div>
+          <div class="form-row" data-mode="simple">
+            <label for="tcPerson"><span class="lbl-ryo">客先担当者</span><span class="lbl-toho tc-label">TC担当者</span></label>
+            <input type="text" id="tcPerson" list="tcPersonList" placeholder="履歴から選択 or 新規入力">
+            <datalist id="tcPersonList"></datalist>
+          </div>
+          <div class="form-row" data-mode="simple">
+            <label for="rPerson">R担当者</label>
+            <input type="text" id="rPerson" list="rPersonList" placeholder="履歴から選択 or 新規入力">
+            <datalist id="rPersonList"></datalist>
+          </div>
+          <div class="form-row" data-mode="simple">
+            <label for="category">種別</label>
+            <select id="category">
+              <option value="">選択してください</option>
+              <option value="新規工事">新規工事</option>
+              <option value="更新案件">更新案件</option>
+              <option value="修理">修理</option>
+              <option value="メンテナンス">メンテナンス</option>
+              <option value="点検">点検</option>
+              <option value="改修">改修</option>
+              <option value="タスク">タスク</option>
+              <option value="その他">その他</option>
+            </select>
           </div>
         </div>
-
-        <div class="form-row" data-mode="simple">
-          <label for="theater">劇場名<span class="required">*</span></label>
-          <input type="text" id="theater" list="theaterList" required placeholder="例：TOHOシネマズ 新宿">
-          <datalist id="theaterList"></datalist>
-        </div>
-
-        <div class="form-row" data-mode="simple">
-          <label for="receivedDate">受付日</label>
-          <input type="text" id="receivedDate" class="smart-date" inputmode="numeric" placeholder="YYYY/MM/DD ・ MM/DD ・ 0528 もOK">
-        </div>
-
-        <div class="form-row" data-mode="simple">
-          <label for="tcPerson"><span class="lbl-ryo">客先担当者</span><span class="lbl-toho tc-label">TC担当者</span></label>
-          <input type="text" id="tcPerson" list="tcPersonList" placeholder="履歴から選択 or 新規入力">
-          <datalist id="tcPersonList"></datalist>
-        </div>
-
-        <div class="form-row" data-mode="simple">
-          <label for="rPerson">R担当者</label>
-          <input type="text" id="rPerson" list="rPersonList" placeholder="履歴から選択 or 新規入力">
-          <datalist id="rPersonList"></datalist>
-        </div>
-
-        <div class="form-row" data-mode="simple">
-          <label for="category">種別</label>
-          <select id="category">
-            <option value="">選択してください</option>
-            <option value="新規工事">新規工事</option>
-            <option value="更新案件">更新案件</option>
-            <option value="修理">修理</option>
-            <option value="メンテナンス">メンテナンス</option>
-            <option value="点検">点検</option>
-            <option value="改修">改修</option>
-            <option value="タスク">タスク</option>
-            <option value="その他">その他</option>
-          </select>
-        </div>
-
-        <div class="form-row form-row-wide" data-mode="simple" data-cal="1">
-          <label for="content">内容</label>
-          <textarea id="content" rows="3" class="autogrow" placeholder="案件の詳細を記入（長文OK・後からクリックでポップアップ編集可）"></textarea>
-        </div>
-
-        <div class="form-row form-row-wide" data-mode="simple">
-          <label for="customerMemo"><span class="customer-memo-label">顧客メモ</span></label>
-          <textarea id="customerMemo" rows="2" class="autogrow" placeholder="ご連絡・ご要望などを記入"></textarea>
-        </div>
-
-        <div class="form-row form-row-wide" data-mode="full" data-cal="1">
-          <label for="surveyDate">調査日時</label>
-          <div class="date-time-row">
-            <input type="text" id="surveyDate" class="smart-date" inputmode="numeric" placeholder="YYYY/MM/DD ・ MM/DD ・ 0528 もOK">
-            <input type="time" id="surveyTime" class="time-input" title="時刻（任意）">
+      </section>
+      <section class="form-sec" data-sec="content">
+        <h3 class="form-sec-h">内容</h3>
+        <div class="form-stack">
+          <div class="form-row form-row-wide" data-mode="simple" data-cal="1">
+            <label for="content">内容</label>
+            <textarea id="content" rows="3" class="autogrow" placeholder="案件の詳細を記入（長文OK・後からクリックでポップアップ編集可）"></textarea>
+          </div>
+          <div class="form-row form-row-wide" data-mode="simple">
+            <label for="customerMemo"><span class="customer-memo-label">顧客メモ</span></label>
+            <textarea id="customerMemo" rows="2" class="autogrow" placeholder="ご連絡・ご要望などを記入"></textarea>
           </div>
         </div>
-
-        <div class="form-row toho-only-field" data-mode="full">
-          <label for="certNumber">認証番号</label>
-          <input type="text" id="certNumber" placeholder="例: 12345-678">
-        </div>
-
-        <div class="form-row" data-mode="full">
-          <label for="estimateName">見積り名</label>
-          <input type="text" id="estimateName" placeholder="例：スクリーン交換工事">
-        </div>
-
-        <div class="form-row" data-mode="full">
-          <label for="estimateAmount">見積り金額（円）</label>
-          <input type="text" id="estimateAmount" inputmode="numeric" autocomplete="off" placeholder="例：500,000">
-        </div>
-
-        <div class="form-row" data-mode="full">
-          <label for="quoteDate"><span class="lbl-ryo">見積り提出日</span><span class="lbl-toho">見積り受領日</span></label>
-          <input type="text" id="quoteDate" class="smart-date" inputmode="numeric" placeholder="YYYY/MM/DD ・ MM/DD ・ 0528 もOK">
-        </div>
-
-        <div class="form-row form-row-wide" data-mode="full" data-cal="1">
-          <label for="workStartDate">作業開始日時</label>
-          <div class="date-time-row">
-            <input type="text" id="workStartDate" class="smart-date" inputmode="numeric" placeholder="YYYY/MM/DD ・ MM/DD ・ 0528 もOK">
-            <input type="time" id="workStartTime" class="time-input" title="時刻（任意）">
+      </section>
+      <section class="form-sec" data-sec="sched">
+        <h3 class="form-sec-h">日程</h3>
+        <p class="form-sec-note">日付は 0912・9/12・2026/9/12 のどれでも入力できます</p>
+        <div class="form-stack">
+          <div class="form-row form-row-wide" data-mode="full" data-cal="1">
+            <label for="surveyDate">調査日時</label>
+            <div class="date-time-row">
+              <input type="text" id="surveyDate" class="smart-date" inputmode="numeric" placeholder="例 9/12">
+              <input type="time" id="surveyTime" class="time-input" title="時刻（任意）">
+            </div>
+          </div>
+          <div class="form-row" data-mode="full">
+            <label for="quoteDate"><span class="lbl-ryo">見積り提出日</span><span class="lbl-toho">見積り受領日</span></label>
+            <input type="text" id="quoteDate" class="smart-date" inputmode="numeric" placeholder="例 9/12">
+          </div>
+          <div class="form-row form-row-wide" data-mode="full" data-cal="1">
+            <label for="workStartDate">作業開始日時</label>
+            <div class="date-time-row">
+              <input type="text" id="workStartDate" class="smart-date" inputmode="numeric" placeholder="例 9/12">
+              <input type="time" id="workStartTime" class="time-input" title="時刻（任意）">
+            </div>
+          </div>
+          <div class="form-row form-row-wide" data-mode="full" data-cal="1">
+            <label for="workEndDate">作業完了日時</label>
+            <div class="date-time-row">
+              <input type="text" id="workEndDate" class="smart-date" inputmode="numeric" placeholder="例 9/12">
+              <input type="time" id="workEndTime" class="time-input" title="時刻（任意）">
+            </div>
           </div>
         </div>
-
-        <div class="form-row form-row-wide" data-mode="full" data-cal="1">
-          <label for="workEndDate">作業完了日時</label>
-          <div class="date-time-row">
-            <input type="text" id="workEndDate" class="smart-date" inputmode="numeric" placeholder="YYYY/MM/DD ・ MM/DD ・ 0528 もOK">
-            <input type="time" id="workEndTime" class="time-input" title="時刻（任意）">
+      </section>
+      <section class="form-sec" data-sec="money">
+        <h3 class="form-sec-h">金額・請求</h3>
+        <div class="form-stack">
+          <div class="form-row" data-mode="full">
+            <label for="estimateName">見積り名</label>
+            <input type="text" id="estimateName" placeholder="例：スクリーン交換工事">
+          </div>
+          <div class="form-row" data-mode="full">
+            <label for="estimateAmount">見積り金額（円）</label>
+            <input type="text" id="estimateAmount" inputmode="numeric" autocomplete="off" placeholder="例：500,000">
+          </div>
+          <div class="form-row toho-only-field" data-mode="full">
+            <label for="certNumber">認証番号</label>
+            <input type="text" id="certNumber" placeholder="例: 12345-678">
+          </div>
+          <div class="form-row" data-mode="full">
+            <label for="invoiceDate"><span class="lbl-ryo">請求書発行日</span><span class="lbl-toho">請求書受領日</span></label>
+            <input type="text" id="invoiceDate" class="smart-date" inputmode="numeric" placeholder="例 9/12">
+          </div>
+          <div class="form-row" data-mode="full">
+            <label for="paymentDate"><span class="lbl-ryo">入金日</span><span class="lbl-toho">支払日</span></label>
+            <input type="text" id="paymentDate" class="smart-date" inputmode="numeric" placeholder="例 9/12">
           </div>
         </div>
-
-        <div class="form-row" data-mode="full">
-          <label for="invoiceDate"><span class="lbl-ryo">請求書発行日</span><span class="lbl-toho">請求書受領日</span></label>
-          <input type="text" id="invoiceDate" class="smart-date" inputmode="numeric" placeholder="YYYY/MM/DD ・ MM/DD ・ 0528 もOK">
+      </section>
+      <section class="form-sec form-sec-inner col-ryo" data-sec="inner">
+        <h3 class="form-sec-h">社内だけ <span class="lock-tag">🔒 顧客には見えません</span></h3>
+        <div class="form-stack">
+          <div class="form-row form-row-wide col-memo" data-mode="full" data-cal="1">
+            <label for="memo">社内メモ <span class="field-hint">メールの自動取込もここに追記されます。「保留」と書くとステータスが保留に。AIが顧客向けに要約して「内容」へ入れます</span></label>
+            <textarea id="memo" rows="3" class="autogrow" placeholder="社内メモ／メール自動取込・「保留」と書くとステータス自動切替"></textarea>
+          </div>
+          <div class="form-row form-row-wide col-ryo" data-mode="full">
+            <label for="adviceNote">社内アドバイス <span class="field-hint">この劇場の今後のAI初期対応診断に「正解」として反映されます</span></label>
+            <textarea id="adviceNote" rows="2" class="autogrow" placeholder="例：エアバランスはVD交換より潤滑剤調整を先に試す／担当は山口＋三機サービス"></textarea>
+          </div>
         </div>
+      </section>
 
-        <div class="form-row" data-mode="full">
-          <label for="paymentDate"><span class="lbl-ryo">入金日</span><span class="lbl-toho">支払日</span></label>
-          <input type="text" id="paymentDate" class="smart-date" inputmode="numeric" placeholder="YYYY/MM/DD ・ MM/DD ・ 0528 もOK">
-        </div>
-
-        <div class="form-row form-row-wide col-memo" data-mode="full" data-cal="1">
-          <label for="memo">社内メモ（ryonetsu限定・メール自動取込もここに追記。「保留」でステータス保留。→ AIが客先向けに要約して「内容」へ）</label>
-          <textarea id="memo" rows="3" class="autogrow" placeholder="社内メモ／メール自動取込・「保留」と書くとステータス自動切替"></textarea>
-        </div>
-
-        <div class="form-row form-row-wide col-ryo" data-mode="full">
-          <label for="adviceNote">社内アドバイス（社内限定・AIへの正解/注意）<span class="field-hint">（客先には表示されません。この劇場の今後のAI初期対応診断に「正解」として反映されます）</span></label>
-          <textarea id="adviceNote" rows="2" class="autogrow" placeholder="例：エアバランスはVD交換より潤滑剤調整を先に試す／担当は山口＋三機サービス"></textarea>
-        </div>
       </div>
-
       <div class="modal-footer">
         <button type="button" id="modalDuplicateBtn">複製</button>
         <button type="button" id="modalDeleteBtn" class="danger">削除</button>
