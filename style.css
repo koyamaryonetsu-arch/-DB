@@ -350,7 +350,7 @@ tr.row-red         td.col-edit { box-shadow: inset 5px 0 0 #ef4444; }
 tr.row-blue        td.col-edit { box-shadow: inset 5px 0 0 #3b82f6; }
 tr.row-red .status-badge { background: #fee2e2; color: #b91c1c; }
 /* 遅れている日数（調査から○日／受付から○日） */
-.late-days { margin-left: 6px; font-size: 11px; font-weight: 700; color: #b91c1c; white-space: nowrap; }
+.late-days { display: block; margin-top: 3px; font-size: 11px; line-height: 1.3; font-weight: 700; color: #b91c1c; white-space: normal; overflow-wrap: anywhere; }
 .late-days.y { color: #92400e; }
 
 .row-actions {
@@ -2043,6 +2043,7 @@ header#appHeader { display: block; padding: 0; gap: 0; }
   box-shadow: 0 12px 32px rgba(28, 36, 51, .18); padding: 6px;
 }
 .hdr-pop.right { left: auto; right: 0; }
+.hdr-pop, .fb-pop { transform: translateX(var(--pop-dx, 0px)); max-width: calc(100vw - 16px); }
 .hdr-pop.hidden, .fb-pop.hidden { display: none; }
 .pop-group + .pop-group { border-top: 1px solid #eef1f5; margin-top: 4px; padding-top: 4px; }
 .pop-group.hidden { display: none; }
@@ -2126,6 +2127,8 @@ body.user-privileged #casesTable { --col-status-w: 176px; }
 #casesTable.task-mode tr.row-blue        td:first-child { box-shadow: inset 5px 0 0 #3b82f6; }
 /* タスク管理の表は列が狭いので遅れ日数は出さない（左端の帯と状態ラベルの色で分かる） */
 #casesTable.task-mode .late-days { display: none; }
+#casesTable td.col-status { white-space: normal; }
+#casesTable td.col-status .status-badge { white-space: nowrap; }
 /* タッチ操作の端末ではマウスを乗せられないので ✎ を常に出す */
 @media (hover: none) { .row-edit-btn { opacity: 1; } }
 /* 画面が狭い時は上部を折り返す（スマホの作り直しは ⑨ で行う） */

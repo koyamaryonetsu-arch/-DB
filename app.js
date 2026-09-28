@@ -5504,6 +5504,7 @@
       const willOpen = pop.classList.contains('hidden');
       closePopovers(p);
       pop.classList.toggle('hidden', !willOpen);
+      if (willOpen) keepPopInView(pop);
       btn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
     });
     // 中の機能を押したら閉じる（表示倍率の －／＋ は続けて押せるよう閉じない）
@@ -5515,6 +5516,16 @@
   document.addEventListener('click', (e) => {
     if (!e.target.closest('.hdr-pop-wrap, .fb-pop-wrap')) closePopovers();
   });
+  // 狭い画面で上部が折り返すと、小窓が画面の外にはみ出すことがある → はみ出した分だけ内側へずらす
+  function keepPopInView(pop) {
+    pop.style.setProperty('--pop-dx', '0px');
+    const r = pop.getBoundingClientRect();
+    const margin = 8;
+    let dx = 0;
+    if (r.left < margin) dx = margin - r.left;
+    else if (r.right > window.innerWidth - margin) dx = (window.innerWidth - margin) - r.right;
+    pop.style.setProperty('--pop-dx', Math.round(dx) + 'px');
+  }
   window.addEventListener('keydown', (e) => {
     if (e.key !== 'Escape') return;
     const open = POPOVERS.some(([, p]) => $(p) && !$(p).classList.contains('hidden'));
