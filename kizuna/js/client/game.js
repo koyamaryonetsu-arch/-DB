@@ -1,15 +1,15 @@
 // ゲーム ぜんたいの しんこう
-import { Input } from './input.js?v=55000d078174';
-import { GameAudio } from './audio.js?v=55000d078174';
-import { Field } from './field.js?v=55000d078174';
-import { Hud, STAMPS } from './ui/hud.js?v=55000d078174';
-import { FieldMenu, openWorldMap } from './ui/menu.js?v=55000d078174';
-import { ScriptPlayer, wait } from './ui/script.js?v=55000d078174';
-import { BattleScene } from './battle.js?v=55000d078174';
-import { showTitle, showLogin, showSelect, showCreate, showLoading, saveWhere } from './ui/title.js?v=55000d078174';
-import { showServerDown } from './ui/syncui.js?v=55000d078174';
-import { toast, confirmBox, el } from './ui/dom.js?v=55000d078174';
-import { MAPS } from '../shared/maps/index.js?v=55000d078174';
+import { Input } from './input.js?v=28ae91202741';
+import { GameAudio } from './audio.js?v=28ae91202741';
+import { Field } from './field.js?v=28ae91202741';
+import { Hud, STAMPS } from './ui/hud.js?v=28ae91202741';
+import { FieldMenu, openWorldMap } from './ui/menu.js?v=28ae91202741';
+import { ScriptPlayer, wait } from './ui/script.js?v=28ae91202741';
+import { BattleScene } from './battle.js?v=28ae91202741';
+import { showTitle, showLogin, showSelect, showCreate, showLoading, saveWhere } from './ui/title.js?v=28ae91202741';
+import { showServerDown } from './ui/syncui.js?v=28ae91202741';
+import { toast, confirmBox, el } from './ui/dom.js?v=28ae91202741';
+import { MAPS } from '../shared/maps/index.js?v=28ae91202741';
 
 export class Game {
   constructor(net) {
@@ -44,6 +44,7 @@ export class Game {
     // クラウドセーブの ようすが かわったら 画面に 出す（ひとりモード）
     net.local?.cloud?.onChange((st) => this.onCloudState(st));
     try { if (localStorage.getItem('kizuna_bigtext')) document.body.classList.add('big-text'); } catch { /* */ }
+    try { if (localStorage.getItem('kizuna_font') === 'dot') document.body.classList.add('dot-font'); } catch { /* */ }
     // iPhone: さわったら おとを もどす・もどってきたら がめんを つけたままに する
     const kick = () => this.audio.resumeIfNeeded();
     addEventListener('touchend', kick, { passive: true });
@@ -534,7 +535,7 @@ export class Game {
     if (this.net.mode === 'offline' && !this.saveWarned) {
       this.saveWarned = true;
       const cloud = this.net.local?.cloud;
-      import('./offline.js?v=55000d078174').then(({ offlineStorage }) => {
+      import('./offline.js?v=28ae91202741').then(({ offlineStorage }) => {
         offlineStorage.load();
         if (cloud?.state === 'on') return;
         if (!offlineStorage.ok) toast('このブラウザではセーブができないかもしれません', 5000);

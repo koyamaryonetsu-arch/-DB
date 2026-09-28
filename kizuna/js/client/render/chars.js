@@ -1,9 +1,9 @@
 // キャラクターの ドットえを プログラムで くみたてる
 // みため（かみがた・いろ）と そうび（ぶき・よろい・たて・かぶと）で かわる
 // 人は 32×42（res 2: せかいでは 16×21 の 大きさに かく）。どうぶつ・船は 16×21 など（res 1）
-import { Painter, shade } from './pixel.js?v=55000d078174';
-import { ITEMS } from '../../shared/data/items.js?v=55000d078174';
-import { STARTER_EQUIP } from '../../shared/stats.js?v=55000d078174';
+import { Painter, shade } from './pixel.js?v=28ae91202741';
+import { ITEMS } from '../../shared/data/items.js?v=28ae91202741';
+import { STARTER_EQUIP } from '../../shared/stats.js?v=28ae91202741';
 
 export const CW = 16;
 export const CH = 21;

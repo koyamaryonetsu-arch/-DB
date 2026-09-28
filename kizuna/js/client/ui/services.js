@@ -1,15 +1,15 @@
 // お店・転職・酒場・でんごんばん・ほしのかけら・きょうかい の がめん
-import { el, ListMenu, toast, askText, confirmBox, esc } from './dom.js?v=55000d078174';
-import { ITEMS } from '../../shared/data/items.js?v=55000d078174';
-import { JOBS, JOB_ORDER, ADVANCED_ORDER, SUPER_ORDER, TIER_NAMES, JOB_MAX_LEVEL, JOB_TRAIN_GAP, jobReqText, jobReqSets } from '../../shared/data/jobs.js?v=55000d078174';
-import { ABILITIES } from '../../shared/data/abilities.js?v=55000d078174';
-import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered } from '../../shared/stats.js?v=55000d078174';
-import { MONSTERS } from '../../shared/data/monsters.js?v=55000d078174';
-import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES } from '../../shared/data/companions.js?v=55000d078174';
-import { TACTICS } from '../../shared/ai.js?v=55000d078174';
-import { itemDetail } from './info.js?v=55000d078174';
-import { playerSprite, followerSprite, faceURL } from '../field.js?v=55000d078174';
-import { shopUI, churchUI } from './shop.js?v=55000d078174';
+import { el, ListMenu, toast, askText, confirmBox, esc } from './dom.js?v=28ae91202741';
+import { ITEMS } from '../../shared/data/items.js?v=28ae91202741';
+import { JOBS, JOB_ORDER, ADVANCED_ORDER, SUPER_ORDER, TIER_NAMES, JOB_MAX_LEVEL, JOB_TRAIN_GAP, jobReqText, jobReqSets } from '../../shared/data/jobs.js?v=28ae91202741';
+import { ABILITIES } from '../../shared/data/abilities.js?v=28ae91202741';
+import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered } from '../../shared/stats.js?v=28ae91202741';
+import { MONSTERS } from '../../shared/data/monsters.js?v=28ae91202741';
+import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES } from '../../shared/data/companions.js?v=28ae91202741';
+import { TACTICS } from '../../shared/ai.js?v=28ae91202741';
+import { itemDetail } from './info.js?v=28ae91202741';
+import { playerSprite, followerSprite, faceURL } from '../field.js?v=28ae91202741';
+import { shopUI, churchUI } from './shop.js?v=28ae91202741';
 
 export function openServiceUI(game, kind, data) {
   switch (kind) {

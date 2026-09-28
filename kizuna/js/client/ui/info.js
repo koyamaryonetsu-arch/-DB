@@ -1,8 +1,8 @@
 // せつめい文を つくる
-import { ITEMS, SLOT_NAMES, WEAPON_CAT_NAMES } from '../../shared/data/items.js?v=55000d078174';
-import { ABILITIES, abilityTypeText } from '../../shared/data/abilities.js?v=55000d078174';
-import { JOBS, ALL_JOBS } from '../../shared/data/jobs.js?v=55000d078174';
-import { computeStats, canEquip, penaltyFor, mpCost, comboJobNames, comboAllowed } from '../../shared/stats.js?v=55000d078174';
+import { ITEMS, SLOT_NAMES, WEAPON_CAT_NAMES } from '../../shared/data/items.js?v=28ae91202741';
+import { ABILITIES, abilityTypeText } from '../../shared/data/abilities.js?v=28ae91202741';
+import { JOBS, ALL_JOBS } from '../../shared/data/jobs.js?v=28ae91202741';
+import { computeStats, canEquip, penaltyFor, mpCost, comboJobNames, comboAllowed } from '../../shared/stats.js?v=28ae91202741';
 
 const TARGET_NAMES = { enemy: '敵1体', group: '敵1グループ', enemies: '敵全体', ally: '味方1人', allies: '味方全員', self: '自分', deadAlly: '死んだ味方' };
 const BONUS_NAMES = { str: '力', def: '身の守り', agi: '素早さ', mag: '魔力', heal: '回復', hp: 'HP', mp: 'MP' };
@@ -15,6 +15,12 @@ export function itemStats(id) {
   if (it.def) parts.push(`守備+${it.def}`);
   for (const [k, v] of Object.entries(it.bonus || {})) parts.push(`${BONUS_NAMES[k] || k}${v > 0 ? '+' : ''}${v}`);
   return parts.join(' ');
+}
+
+// 装備の ランク（★は 店で 買えない 品）
+export function rankText(id) {
+  const it = ITEMS[id];
+  return it?.rank ? `ランク${it.rank}${it.star ? '★' : ''}` : '';
 }
 
 export function whoCanEquip(id) {
@@ -36,7 +42,9 @@ export function itemDetail(id) {
   const lines = [it.desc || ''];
   const st = itemStats(id);
   if (st) lines.push(st);
-  if (it.type === 'weapon') lines.push(`種類: ${WEAPON_CAT_NAMES[it.cat] || it.cat}`);
+  const rk = rankText(id);
+  if (it.type === 'weapon') lines.push(`種類: ${WEAPON_CAT_NAMES[it.cat] || it.cat}${rk ? `　${rk}` : ''}`);
+  else if (rk) lines.push(rk);
   const w = whoCanEquip(id);
   if (w) lines.push(w);
   return lines.filter(Boolean).join('\n');

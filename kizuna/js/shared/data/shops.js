@@ -1,7 +1,8 @@
 // お店・ほしのかけら交換・サポートなかま
 // お店: name 店の なまえ / kind かんばんの しゅるい / keeper 店の人 / hello さいしょの ことば / items 売っている 品物
+//       more: 物語が すすむと ふえる 品物 [{ show: { all: [フラグ] }, items: [...], hello }]（show の 書き方は NPC と おなじ。hello が あれば あいさつも かわる）
 
-import { SHOPS_CH2 } from './items-ch2.js?v=55000d078174';
+import { SHOPS_CH2 } from './items-ch2.js?v=28ae91202741';
 
 export const SHOPS = {
   village: {
@@ -17,16 +18,26 @@ export const SHOPS = {
     keeper: '武器屋のおやじ',
     hello: 'ここは武器屋だ。\n強い武器がなけりゃ、魔物とは戦えねえぞ。\nどんな用だい？',
     items: ['bronze_sword', 'stone_axe', 'bronze_knife', 'bronze_spear', 'bronze_knuckle', 'feather_fan', 'oak_staff',
-      'iron_sword', 'iron_axe', 'iron_spear', 'iron_claw', 'dancer_fan', 'wizard_staff', 'healing_staff', 'poison_knife', 'leather_whip', 'thorn_whip',
-      'penlight', 'metal_bat', 'katana'],
+      'poison_knife', 'leather_whip', 'penlight', 'bamboo_bat'],
+    // 森の主を 助けると 鉄の 武器が とどく
+    more: [{
+      show: { all: ['c1_treant'] },
+      items: ['iron_sword', 'iron_axe', 'iron_spear', 'iron_claw', 'dancer_fan', 'wizard_staff', 'healing_staff', 'thorn_whip', 'metal_bat', 'katana'],
+      hello: 'ここは武器屋だ。\n森が元にもどって、鉄の武器がとどくようになったぞ！\nどんな用だい？',
+    }],
   },
   armor: {
     name: 'ルミナの防具屋',
     kind: 'armor',
     keeper: '防具屋のおねえさん',
     hello: '防具屋へようこそ！\n身を守る装備は、とっても大切よ。\nどんなご用かしら？',
-    items: ['travel_clothes', 'leather_armor', 'martial_gi', 'wizard_robe', 'chain_mail', 'holy_robe', 'dragon_gi', 'iron_armor', 'suit',
-      'leather_shield', 'scale_shield', 'iron_shield', 'briefcase', 'leather_hat', 'bandana', 'pointy_hat', 'iron_helm', 'bb_helmet'],
+    items: ['travel_clothes', 'leather_armor', 'martial_gi', 'wizard_robe', 'chain_mail', 'suit',
+      'leather_shield', 'scale_shield', 'briefcase', 'leather_hat', 'bandana', 'pointy_hat', 'bb_helmet'],
+    more: [{
+      show: { all: ['c1_treant'] },
+      items: ['holy_robe', 'dragon_gi', 'iron_armor', 'iron_shield', 'iron_helm'],
+      hello: '防具屋へようこそ！\n鉄の防具も入ったのよ。\nどんなご用かしら？',
+    }],
   },
   item: {
     name: 'ルミナの道具屋',
@@ -37,6 +48,30 @@ export const SHOPS = {
   },
 };
 Object.assign(SHOPS, SHOPS_CH2);
+
+// 物語で ふえた 品ぞろえ（hasFlag: その人の 世界の フラグ）
+function moreOpen(shop, hasFlag) {
+  return (shop?.more || []).filter((m) => {
+    const show = m.show || {};
+    if (show.all && !show.all.every(hasFlag)) return false;
+    if (show.not && show.not.some(hasFlag)) return false;
+    return true;
+  });
+}
+
+// 今 売っている 品物
+export function shopItems(shop, hasFlag = () => false) {
+  if (!shop) return [];
+  const out = [...shop.items];
+  for (const m of moreOpen(shop, hasFlag)) for (const id of m.items) if (!out.includes(id)) out.push(id);
+  return out;
+}
+
+// 店の人の あいさつ（品ぞろえが ふえたら かわる）
+export function shopHello(shop, hasFlag = () => false) {
+  const open = moreOpen(shop, hasFlag).filter((m) => m.hello);
+  return open.length ? open[open.length - 1].hello : shop?.hello || '';
+}
 
 // ほしのかけら と こうかん
 export const STAR_TRADES = [

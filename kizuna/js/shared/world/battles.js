@@ -1,14 +1,15 @@
 // たたかいの はじまりと おわり（ほうしゅう・ぜんめつ）
-import { Battle } from '../battle.js?v=55000d078174';
-import { MONSTERS } from '../data/monsters.js?v=55000d078174';
-import { ITEMS } from '../data/items.js?v=55000d078174';
-import { ABILITIES } from '../data/abilities.js?v=55000d078174';
-import { JOBS } from '../data/jobs.js?v=55000d078174';
-import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=55000d078174';
-import { gainExp, gainJobBattles, jobTrainable, itemCount, removeItem, addItem, computeStats, STAT_NAMES, fullHeal } from '../stats.js?v=55000d078174';
-import { JOB_MAX_LEVEL } from '../data/jobs.js?v=55000d078174';
-import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendLevel, noteSeen, noteTried } from './party.js?v=55000d078174';
-import { MAPS } from '../maps/index.js?v=55000d078174';
+import { Battle } from '../battle.js?v=28ae91202741';
+import { MONSTERS } from '../data/monsters.js?v=28ae91202741';
+import { ITEMS } from '../data/items.js?v=28ae91202741';
+import { ABILITIES } from '../data/abilities.js?v=28ae91202741';
+import { JOBS } from '../data/jobs.js?v=28ae91202741';
+import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=28ae91202741';
+import { gainExp, gainJobBattles, jobTrainable, itemCount, removeItem, addItem, ownsItem, computeStats, STAT_NAMES, fullHeal } from '../stats.js?v=28ae91202741';
+import { JOB_MAX_LEVEL } from '../data/jobs.js?v=28ae91202741';
+import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendLevel, noteSeen, noteTried, noteDrop } from './party.js?v=28ae91202741';
+import { rollDrops, stealPick } from '../data/loot.js?v=28ae91202741';
+import { MAPS } from '../maps/index.js?v=28ae91202741';
 
 let battleSeq = 1;
 
@@ -135,13 +136,12 @@ function makeBattle(world, sessions, party, enemies, opts) {
       // 盗塁・お宝さがし: 敵の 持ち物を ぬすむ
       steal: (actor, species) => {
         const m = (actor.controller && world.sessions.get(actor.controller)) || sessions[0];
-        const drops = MONSTERS[species]?.drops || [];
-        if (!m || !drops.length) return null;
-        const pick = world.rng.pick(drops);
-        if (!ITEMS[pick.item]) return null;
-        addItem(m.char, pick.item, 1);
+        const id = m ? stealPick(species, world.rng) : null;
+        if (!id) return null;
+        addItem(m.char, id, 1);
+        noteDrop(m.char, species, id);
         world.sendSelf(m);
-        return ITEMS[pick.item].name;
+        return ITEMS[id].name;
       },
     },
   });
@@ -256,6 +256,18 @@ function finishBattle(world, ctx) {
     ch.status = a.status.poison && a.alive ? { poison: true } : {};
   }
   if (party) party.bond = b.bond;
+  // 技を 使った 回数と、ひらめいた 技を のこす（自分・自分の 仲間。家族の キャラと ゲストは のこさない）
+  const hiraLines = [];
+  for (const a of b.allies) {
+    const who = ctx.actorMap[a.id];
+    const ch = who?.char;
+    if (!ch || !a.use || who.type === 'guest' || who.kind === 'family') continue;
+    ch.skillUse = { ...a.use };
+    if (a.hiraNew?.length) {
+      ch.hirameki = [...new Set([...(Array.isArray(ch.hirameki) ? ch.hirameki : []), ...a.hiraNew])];
+      for (const id of a.hiraNew) hiraLines.push(`★ ${ch.name}は「${ABILITIES[id]?.name}」をひらめいた！（これからも使える）`);
+    }
+  }
 
   const outcome = res.outcome;
   const perSession = {};
@@ -282,16 +294,15 @@ function finishBattle(world, ctx) {
       if (gold > 0) lines.push(`${gold}ゴールドを手に入れた！`);
       c.gold = Math.min(9999999, c.gold + gold);
       for (const sp of res.killed) c.kills[sp] = (c.kills[sp] || 0) + 1;
-      // ドロップ
+      // ドロップ（1体から 1つまで。ボスは かならず。loot.js）
       const drops = [];
       for (const sp of res.killed) {
-        for (const d of MONSTERS[sp].drops || []) {
-          if (world.rng.chance(d.rate)) {
-            addItem(c, d.item, 1);
-            drops.push(d.item);
-            lines.push(`${MONSTERS[sp].name}は${ITEMS[d.item].name}を持っていた！`, `${c.name}は${ITEMS[d.item].name}を手に入れた！`);
-            break;
-          }
+        for (const id of rollDrops(sp, world.rng)) {
+          if (ITEMS[id].unique && ownsItem(c, id)) continue; // ボスの 品は 1人 1つ
+          addItem(c, id, 1);
+          noteDrop(c, sp, id);
+          drops.push(id);
+          lines.push(`${MONSTERS[sp].name}は${ITEMS[id].name}を持っていた！`, `${c.name}は${ITEMS[id].name}を手に入れた！`);
         }
       }
       const ups = gainExp(c, exp);
@@ -341,6 +352,8 @@ function finishBattle(world, ctx) {
   } else if (outcome === 'flee') {
     for (const m of sessions) perSession[m.id] = { lines: [] };
   }
+
+  if (hiraLines.length) for (const m of sessions) (perSession[m.id] = perSession[m.id] || { lines: [] }).lines.push(...hiraLines);
 
   // シンボル
   if (ctx.opts.symbolId) {

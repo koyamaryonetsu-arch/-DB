@@ -17,9 +17,10 @@
 // 名前の一部は「ダイの大冒険」「ロトの紋章」へのオマージュです。
 // 上級職・超級職の 技は abilities-adv.js（さいごに まぜる）
 
-import { ADV_ABILITIES } from './abilities-adv.js?v=55000d078174';
-import { CH2_ABILITIES } from './abilities-ch2.js?v=55000d078174';
-import { JOB_ABILITIES } from './abilities-jobs.js?v=55000d078174';
+import { ADV_ABILITIES } from './abilities-adv.js?v=28ae91202741';
+import { CH2_ABILITIES } from './abilities-ch2.js?v=28ae91202741';
+import { JOB_ABILITIES } from './abilities-jobs.js?v=28ae91202741';
+import { HIRA_ABILITIES } from './hirameki.js?v=28ae91202741';
 
 export const ABILITIES = {
   // ───────────── 戦士 ─────────────
@@ -571,7 +572,7 @@ export const ABILITIES = {
     effect: { type: 'drainMp', amount: [3, 6] }, cast: '{a}は不思議なおどりをおどった！', anim: 'dance',
   },
 };
-Object.assign(ABILITIES, ADV_ABILITIES, CH2_ABILITIES, JOB_ABILITIES);
+Object.assign(ABILITIES, ADV_ABILITIES, CH2_ABILITIES, JOB_ABILITIES, HIRA_ABILITIES);
 
 // 攻撃呪文かどうか（魔法剣で使える）
 export function isAttackSpell(id) {

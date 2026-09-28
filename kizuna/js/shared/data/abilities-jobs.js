@@ -20,7 +20,7 @@ export const JOB_ABILITIES = {
   js_gag: {
     name: 'ギャグ', kana: 'ぎゃぐ', kind: 'skill', job: 'jester', mp: 3, target: 'group',
     effect: { type: 'atbSet', value: 0, msg: '{t}は笑いころげている！' },
-    desc: 'とっておきのギャグ。敵のグループが笑いころげて、行動がおくれる。', cast: '{a}はとっておきのギャグを言った！', anim: 'dance',
+    desc: 'とっておきのギャグ。敵のグループが笑いころげて、行動がおくれる。', cast: '{a}はとっておきのギャグを言った！', anim: 'laugh',
   },
   js_lucky: {
     name: '運だめし', kana: 'うんだめし', kind: 'skill', job: 'jester', mp: 2, target: 'enemy',
@@ -45,7 +45,7 @@ export const JOB_ABILITIES = {
   js_kusuguri: {
     name: 'くすぐり', kana: 'くすぐり', kind: 'skill', job: 'jester', mp: 4, target: 'enemy',
     effect: { type: 'status', status: 'confuse', chance: 0.65, turns: [1, 3] },
-    desc: 'こちょこちょくすぐって、敵1体を混乱させる。', cast: '{a}は{t}をこちょこちょくすぐった！', anim: 'debuff',
+    desc: 'こちょこちょくすぐって、敵1体を混乱させる。', cast: '{a}は{t}をこちょこちょくすぐった！', anim: 'laugh',
   },
   js_darts: {
     name: 'ダーツ', kana: 'だーつ', kind: 'skill', job: 'jester', mp: 5, target: 'enemies',
@@ -103,7 +103,7 @@ export const JOB_ABILITIES = {
   sm_meishi: {
     name: 'めいしわたし', kana: 'めいしわたし', kind: 'skill', job: 'salaryman', mp: 2, target: 'enemy',
     effect: { type: 'debuff', stat: 'def', mult: 0.75, dur: 30, chance: 0.9 },
-    desc: 'ていねいにめいしを差し出す。相手はゆだんして、守備力が下がる。', cast: '{a}はめいしを差し出した！「いつもお世話になっております」', anim: 'debuff',
+    desc: 'ていねいにめいしを差し出す。相手はゆだんして、守備力が下がる。', cast: '{a}はめいしを差し出した！「いつもお世話になっております」', anim: 'cards',
   },
   sm_horenso: {
     name: '報連相', kana: 'ほうれんそう', kind: 'skill', job: 'salaryman', mp: 5, target: 'allies',
@@ -150,7 +150,7 @@ export const JOB_ABILITIES = {
   id_kiss: {
     name: '投げキッス', kana: 'なげきっす', kind: 'skill', job: 'idol', mp: 3, target: 'enemy',
     effect: { type: 'status', status: 'confuse', chance: 0.6, turns: [1, 3] },
-    desc: '敵1体をメロメロにして混乱させる。', cast: '{a}の投げキッス！{t}はメロメロになった？', anim: 'heal_dance',
+    desc: '敵1体をメロメロにして混乱させる。', cast: '{a}の投げキッス！{t}はメロメロになった？', anim: 'hearts',
   },
   id_fansa: {
     name: 'ファンサ', kana: 'ふぁんさ', kind: 'skill', job: 'idol', mp: 3, target: 'ally', field: true,
@@ -160,7 +160,7 @@ export const JOB_ABILITIES = {
   id_wink: {
     name: 'ウインク', kana: 'ういんく', kind: 'skill', job: 'idol', mp: 2, target: 'enemy',
     effect: { type: 'atbSet', value: 0, msg: '{t}はドキッとして動けなくなった！' },
-    desc: 'ドキッとさせて、敵1体の行動をおくらせる。', cast: '{a}はパチッとウインクした！', anim: 'buff',
+    desc: 'ドキッとさせて、敵1体の行動をおくらせる。', cast: '{a}はパチッとウインクした！', anim: 'hearts',
   },
   id_hightouch: {
     name: 'ハイタッチ会', kana: 'はいたっちかい', kind: 'skill', job: 'idol', mp: 6, target: 'allies', field: true,
@@ -224,7 +224,7 @@ export const JOB_ABILITIES = {
   rw_manin: {
     name: '満員電車', kana: 'まんいんでんしゃ', kind: 'skill', job: 'railman', mp: 5, target: 'enemies',
     effect: { type: 'phys', mult: 0.9, status: { status: 'paralyze', chance: 0.3, turns: [1, 2] } },
-    desc: '敵全体をぎゅうぎゅうにおしこむ。身動きがとれなくなることがある。', cast: '満員電車だ！ぎゅうぎゅうおしこまれる！', anim: 'hit_all',
+    desc: '敵全体をぎゅうぎゅうにおしこむ。身動きがとれなくなることがある。', cast: '満員電車だ！ぎゅうぎゅうおしこまれる！', anim: 'train',
   },
   rw_brake: {
     name: '非常ブレーキ', kana: 'ひじょうぶれーき', kind: 'skill', job: 'railman', mp: 5, target: 'group',
@@ -234,7 +234,7 @@ export const JOB_ABILITIES = {
   rw_teikoku: {
     name: '定刻運転', kana: 'ていこくうんてん', kind: 'skill', job: 'railman', mp: 3, target: 'enemy',
     effect: { type: 'phys', mult: 1.2, atbAfter: 70 },
-    desc: '時間どおりの正確な一撃。すぐに次の順番が回ってくる。', cast: '{a}は時間ぴったりに攻撃した！', anim: 'hit',
+    desc: '時間どおりの正確な一撃。すぐに次の順番が回ってくる。', cast: '{a}は時間ぴったりに攻撃した！', anim: 'tackle',
   },
   rw_kaisou: {
     name: '回送電車', kana: 'かいそうでんしゃ', kind: 'skill', job: 'railman', mp: 7, target: 'enemy',
@@ -244,19 +244,19 @@ export const JOB_ABILITIES = {
   rw_shinkansen: {
     name: '新幹線アタック', kana: 'しんかんせんあたっく', kind: 'skill', job: 'railman', mp: 8, target: 'enemy',
     effect: { type: 'phys', mult: 2.1, ignoreDef: 0.3 },
-    desc: '新幹線のようなものすごい体当たり。守りの固い敵にもよく効く。', cast: 'びゅーん！{a}の新幹線アタック！', anim: 'tackle',
+    desc: '新幹線のようなものすごい体当たり。守りの固い敵にもよく効く。', cast: 'びゅーん！{a}の新幹線アタック！', anim: 'train',
   },
   rw_shuuden: {
     name: '終電', kana: 'しゅうでん', kind: 'skill', job: 'railman', mp: 14, target: 'enemies',
     effect: { type: 'phys', mult: 1.7 },
-    desc: '「乗りおくれるな！」最終電車が敵全体をはねとばす。', cast: '最終電車が、ものすごいいきおいで走ってきた！', anim: 'hit_all',
+    desc: '「乗りおくれるな！」最終電車が敵全体をはねとばす。', cast: '最終電車が、ものすごいいきおいで走ってきた！', anim: 'train',
   },
 
   // ───────────── プロ野球選手 ─────────────
   bb_hit: {
     name: 'ヒット', kana: 'ひっと', kind: 'skill', job: 'ballplayer', mp: 1, target: 'enemy', weapon: 'bat',
     effect: { type: 'phys', mult: 1.35, acc: 1.05 },
-    desc: 'しっかりミートする、確実な一打。', cast: 'カキーン！{a}のヒット！', anim: 'hit',
+    desc: 'しっかりミートする、確実な一打。', cast: 'カキーン！{a}のヒット！', anim: 'bat_swing',
   },
   bb_bunt: {
     name: 'バント', kana: 'ばんと', kind: 'skill', job: 'ballplayer', mp: 0, target: 'enemy', weapon: 'bat',
@@ -266,7 +266,7 @@ export const JOB_ABILITIES = {
   bb_fastball: {
     name: 'ごう速球', kana: 'ごうそっきゅう', kind: 'skill', job: 'ballplayer', mp: 3, target: 'enemy',
     effect: { type: 'phys', mult: 1.5, critBonus: 0.15, ignoreDef: 0.2 },
-    desc: 'ズバッとものすごい速さの球を投げつける。会心が出やすい。', cast: '{a}のごう速球！', anim: 'shuriken',
+    desc: 'ズバッとものすごい速さの球を投げつける。会心が出やすい。', cast: '{a}のごう速球！', anim: 'ball',
   },
   bb_tourui: {
     name: 'とうるい', kana: 'とうるい', kind: 'skill', job: 'ballplayer', mp: 3, target: 'enemy',
@@ -286,7 +286,7 @@ export const JOB_ABILITIES = {
   bb_homerun: {
     name: 'ホームラン', kana: 'ほーむらん', kind: 'skill', job: 'ballplayer', mp: 6, target: 'enemy', weapon: 'bat',
     effect: { type: 'phys', mult: 4.2, acc: 0.4, critBonus: 0.1 },
-    desc: 'かっとばせー！当たればものすごいが、からぶりしやすい。', cast: '{a}はフルスイングした！', anim: 'slash_heavy',
+    desc: 'かっとばせー！当たればものすごいが、からぶりしやすい。', cast: '{a}はフルスイングした！', anim: 'bat_swing',
   },
   bb_keien: {
     name: '敬遠', kana: 'けいえん', kind: 'skill', job: 'ballplayer', mp: 3, target: 'enemy',
@@ -296,7 +296,7 @@ export const JOB_ABILITIES = {
   bb_sayonara: {
     name: 'サヨナラ打', kana: 'さよならだ', kind: 'skill', job: 'ballplayer', mp: 12, target: 'enemies', weapon: 'bat',
     effect: { type: 'phys', mult: 1.6 },
-    desc: '試合を決める一打。敵全体をまとめてかっとばす。', cast: 'カキーン！{a}のサヨナラ打！', anim: 'hit_all',
+    desc: '試合を決める一打。敵全体をまとめてかっとばす。', cast: 'カキーン！{a}のサヨナラ打！', anim: 'bat_swing',
   },
 
   // ───────────── サムライ ─────────────
@@ -318,12 +318,12 @@ export const JOB_ABILITIES = {
   sa_zeni: {
     name: 'ぜに投げ', kana: 'ぜになげ', kind: 'skill', job: 'samurai', mp: 0, target: 'enemies',
     effect: { type: 'goldThrow', base: 50, perLv: 10, mult: 1 },
-    desc: 'お金を投げつけて、敵全体に投げたお金と同じダメージ。お金（50＋レベル×10ゴールド）を使う。', cast: '{a}は小判をばらまいた！', anim: 'meteor',
+    desc: 'お金を投げつけて、敵全体に投げたお金と同じダメージ。お金（50＋レベル×10ゴールド）を使う。', cast: '{a}は小判をばらまいた！', anim: 'coins',
   },
   sa_ittou: {
     name: '一刀両断', kana: 'いっとうりょうだん', kind: 'skill', job: 'samurai', mp: 12, target: 'enemy', weapon: 'blade',
     effect: { type: 'phys', mult: 3.0, acc: 0.9, ignoreDef: 0.3 },
-    desc: '心をこめた、いのちがけの一太刀。敵1体に大ダメージ。', cast: '{a}の一刀両断！', anim: 'gigabreak', sword: true,
+    desc: '心をこめた、いのちがけの一太刀。敵1体に大ダメージ。', cast: '{a}の一刀両断！', anim: 'cross_slash', sword: true,
   },
 
   // ───────────── 部長 ─────────────
@@ -357,7 +357,7 @@ export const JOB_ABILITIES = {
   ml_160: {
     name: '160キロの速球', kana: 'ひゃくろくじっきろのそっきゅう', kind: 'skill', job: 'major_leaguer', mp: 5, target: 'enemy',
     effect: { type: 'phys', mult: 2.0, ignoreDef: 0.4, critBonus: 0.1 },
-    desc: 'うなりを上げる160キロの球。守りの固い敵にもよく効く。', cast: '{a}の160キロの速球！', anim: 'shuriken',
+    desc: 'うなりを上げる160キロの球。守りの固い敵にもよく効く。', cast: '{a}の160キロの速球！', anim: 'ball',
   },
   ml_sweeper: {
     name: 'スイーパー', kana: 'すいーぱー', kind: 'skill', job: 'major_leaguer', mp: 6, target: 'group',
@@ -372,7 +372,7 @@ export const JOB_ABILITIES = {
   ml_grandslam: {
     name: 'グランドスラム', kana: 'ぐらんどすらむ', kind: 'skill', job: 'major_leaguer', mp: 12, target: 'enemies', weapon: 'bat',
     effect: { type: 'phys', mult: 1.3, hits: 4, random: true },
-    desc: '満るいのホームラン！4回、敵にランダムで当たる。', cast: 'カキーン！{a}のグランドスラム！', anim: 'hit_all',
+    desc: '満るいのホームラン！4回、敵にランダムで当たる。', cast: 'カキーン！{a}のグランドスラム！', anim: 'bat_swing',
   },
   ml_worldseries: {
     name: 'ワールドシリーズ', kana: 'わーるどしりーず', kind: 'skill', job: 'major_leaguer', mp: 14, target: 'allies',
@@ -453,7 +453,7 @@ export const JOB_ABILITIES = {
   sh_baishu: {
     name: '大型買収', kana: 'おおがたばいしゅう', kind: 'skill', job: 'shacho', mp: 16, target: 'enemies',
     effect: { type: 'banish', chance: 0.5, gold: 3, msg: '{t}は会社ごと買い取られた！', failMsg: '{t}は買収にこたえなかった！' },
-    desc: '敵を会社ごと買い取って、戦いからおいだす。おいだした敵のお金の3倍が手に入る（経験値はもらえない）。ボスには効かない。', cast: '{a}の大型買収！', anim: 'meteor',
+    desc: '敵を会社ごと買い取って、戦いからおいだす。おいだした敵のお金の3倍が手に入る（経験値はもらえない）。ボスには効かない。', cast: '{a}の大型買収！', anim: 'coins',
   },
   sh_topdown: {
     name: 'トップダウン', kana: 'とっぷだうん', kind: 'skill', job: 'shacho', mp: 14, target: 'enemy',
@@ -470,7 +470,7 @@ export const JOB_ABILITIES = {
   nt_5050: {
     name: 'フィフティ・フィフティ', kana: 'ふぃふてぃ・ふぃふてぃ', kind: 'skill', job: 'nitoryu', mp: 8, target: 'enemy',
     effect: { type: 'phys', mult: 1.6, steal: 0.7 },
-    desc: 'ホームランも、とうるいも。攻撃したあと、敵の持ち物をぬすむ。', cast: '{a}のフィフティ・フィフティ！', anim: 'hit',
+    desc: 'ホームランも、とうるいも。攻撃したあと、敵の持ち物をぬすむ。', cast: '{a}のフィフティ・フィフティ！', anim: 'bat_swing',
   },
   nt_nemuri: {
     name: 'ねむりファースト', kana: 'ねむりふぁーすと', kind: 'skill', job: 'nitoryu', mp: 5, target: 'self',
@@ -485,7 +485,7 @@ export const JOB_ABILITIES = {
   nt_real: {
     name: 'リアル二刀流', kana: 'りあるにとうりゅう', kind: 'skill', job: 'nitoryu', mp: 20, target: 'enemies',
     effect: { type: 'phys', mult: 2.2, atbAfter: 100 },
-    desc: '世界一の投げと打ち。敵全体に大ダメージをあたえ、すぐにもう一度動ける。', cast: '{a}のリアル二刀流！', anim: 'hit_all',
+    desc: '世界一の投げと打ち。敵全体に大ダメージをあたえ、すぐにもう一度動ける。', cast: '{a}のリアル二刀流！', anim: 'bat_swing',
   },
 
   // ───────────── 海賊（ふやした 技） ─────────────

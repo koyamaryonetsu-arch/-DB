@@ -4,17 +4,18 @@
 //   ours   … こちらの キャラ（たとえば 家族サーバー）
 //   theirs … とどいた キャラ（たとえば スマホの ひとりで遊ぶサイト）
 //
-// ・けいけんち・ゴールド・たおした 数・職業の 勝った 数・種 … 両方で ふえた（へった）ぶんを たす
+// ・けいけんち・ゴールド・たおした 数・職業の 勝った 数・種・技を 使った 回数 … 両方で ふえた（へった）ぶんを たす
+// ・ひらめいた 技 … 両方を 合わせる（わすれる ことは ない）
 // ・フラグ・宝箱・行った 場所・大事な物 … 両方を 合わせる（どちらかで 使った 大事な物は なくなる）
-// ・道具と そうび … 品物ごとに 両方で ふえた・へった 数を たす（そうびは 手もとに ある ものだけ）
+// ・道具と そうび … 品物ごとに 両方で ふえた・へった 数を たす（そうびは 手もとに ある ものだけ。ボスの 品は 1つまで）
 // ・仲間 … 両方の 仲間を のこす（べつべつに 仲間に なった まものは 両方とも）
 // ・いる場所・HP・作戦 など … 両方で かわって いたら、あとで 遊んだ ほう
-import { expForLevel, MAX_LEVEL, computeStats } from '../stats.js?v=55000d078174';
-import { JOBS, JOB_MAX_LEVEL, jobBattlesForLevel } from '../data/jobs.js?v=55000d078174';
-import { SLOTS } from '../data/items.js?v=55000d078174';
-import { STORY_STEPS } from '../data/story.js?v=55000d078174';
-import { COMPANION_SLOTS } from '../data/companions.js?v=55000d078174';
-import { repairChar } from './save.js?v=55000d078174';
+import { expForLevel, MAX_LEVEL, computeStats } from '../stats.js?v=28ae91202741';
+import { JOBS, JOB_MAX_LEVEL, jobBattlesForLevel } from '../data/jobs.js?v=28ae91202741';
+import { ITEMS, SLOTS } from '../data/items.js?v=28ae91202741';
+import { STORY_STEPS } from '../data/story.js?v=28ae91202741';
+import { COMPANION_SLOTS } from '../data/companions.js?v=28ae91202741';
+import { repairChar } from './save.js?v=28ae91202741';
 
 const GOLD_MAX = 9999999;
 const clone = (x) => (x === undefined ? undefined : JSON.parse(JSON.stringify(x)));
@@ -126,7 +127,8 @@ function mergeBody(b, a, t, tLater) {
     switch (k) {
       case 'exp': out.exp = Math.max(add(vb, va, vt), num(va), num(vt)); break;
       case 'gold': out.gold = Math.min(GOLD_MAX, add(vb, va, vt)); break;
-      case 'kills': case 'seeds': out[k] = eachKey(vb, va, vt, (x, y, z) => add(x, y, z) || undefined); break;
+      case 'kills': case 'seeds': case 'skillUse': out[k] = eachKey(vb, va, vt, (x, y, z) => add(x, y, z) || undefined); break;
+      case 'hirameki': out.hirameki = [...new Set([...(Array.isArray(va) ? va : []), ...(Array.isArray(vt) ? vt : [])])]; break;
       case 'jobs': out.jobs = mergeJobs(vb, va, vt); break;
       case 'bestiary': out.bestiary = mergeBestiary(vb, va, vt); break;
       case 'flags': case 'chests': case 'visited': case 'searched':
@@ -254,7 +256,9 @@ export function mergeChars(base, ours, theirs) {
   const IB = inventory(b), IA = inventory(a), IT = inventory(t);
   const total = new Map();
   for (const id of new Set([...IA.keys(), ...IT.keys(), ...IB.keys()])) {
-    const n = (IA.get(id) || 0) + (IT.get(id) || 0) - (IB.get(id) || 0);
+    let n = (IA.get(id) || 0) + (IT.get(id) || 0) - (IB.get(id) || 0);
+    // 1人 1つの 品（ボスの 品）は、両方で もらっても ふえない
+    if (ITEMS[id]?.unique) n = Math.min(n, Math.max(IA.get(id) || 0, IT.get(id) || 0));
     if (n > 0) total.set(id, n);
   }
   const take = (id) => {

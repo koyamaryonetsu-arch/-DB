@@ -1,23 +1,26 @@
 // フィールドの メニュー
-import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js?v=55000d078174';
-import { ITEMS, SLOTS, SLOT_NAMES } from '../../shared/data/items.js?v=55000d078174';
-import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js?v=55000d078174';
-import { affinityOf } from '../../shared/battle.js?v=55000d078174';
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, TIER_NAMES } from '../../shared/data/jobs.js?v=55000d078174';
-import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboUnlocked, comboAllowed, comboJobNames, jobProgress } from '../../shared/stats.js?v=55000d078174';
-import { MONSTERS } from '../../shared/data/monsters.js?v=55000d078174';
-import { MONSTER_FRIENDS, RACE_NAMES, recipeHint } from '../../shared/data/companions.js?v=55000d078174';
-import { TACTICS } from '../../shared/ai.js?v=55000d078174';
-import { PLACES } from '../../shared/maps/overworld.js?v=55000d078174';
-import { SEA_PLACES } from '../../shared/maps/ch2.js?v=55000d078174';
-import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js?v=55000d078174';
-import { T } from '../../shared/tiles.js?v=55000d078174';
-import { itemDetail, abilityDetail } from './info.js?v=55000d078174';
-import { makeCanvas, ctxOf } from '../render/pixel.js?v=55000d078174';
-import { monsterCanvas } from '../render/monsters.js?v=55000d078174';
-import { mapIconCanvas, boardIconURL } from '../render/boards.js?v=55000d078174';
-import { compareOne, compareTeam, whoItems } from './counter.js?v=55000d078174';
-import { faceURL } from '../field.js?v=55000d078174';
+import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js?v=28ae91202741';
+import { ITEMS, SLOTS, SLOT_NAMES } from '../../shared/data/items.js?v=28ae91202741';
+import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js?v=28ae91202741';
+import { affinityOf } from '../../shared/battle.js?v=28ae91202741';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, TIER_NAMES } from '../../shared/data/jobs.js?v=28ae91202741';
+import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress } from '../../shared/stats.js?v=28ae91202741';
+import { HIRAMEKI } from '../../shared/data/hirameki.js?v=28ae91202741';
+import { DUAL_TECHS, DUAL_ORDER, groupName } from '../../shared/data/dual.js?v=28ae91202741';
+import { MONSTERS } from '../../shared/data/monsters.js?v=28ae91202741';
+import { monsterDrops } from '../../shared/data/loot.js?v=28ae91202741';
+import { MONSTER_FRIENDS, RACE_NAMES, recipeHint } from '../../shared/data/companions.js?v=28ae91202741';
+import { TACTICS } from '../../shared/ai.js?v=28ae91202741';
+import { PLACES } from '../../shared/maps/overworld.js?v=28ae91202741';
+import { SEA_PLACES } from '../../shared/maps/ch2.js?v=28ae91202741';
+import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js?v=28ae91202741';
+import { T } from '../../shared/tiles.js?v=28ae91202741';
+import { itemDetail, abilityDetail } from './info.js?v=28ae91202741';
+import { makeCanvas, ctxOf } from '../render/pixel.js?v=28ae91202741';
+import { monsterCanvas } from '../render/monsters.js?v=28ae91202741';
+import { mapIconCanvas, boardIconURL } from '../render/boards.js?v=28ae91202741';
+import { compareOne, compareTeam, whoItems } from './counter.js?v=28ae91202741';
+import { faceURL } from '../field.js?v=28ae91202741';
 
 const MAIN = [
   { label: '道具', value: 'items' },
@@ -153,6 +156,7 @@ export class FieldMenu {
       key: x.key, name: x.name, level: x.level, exp: x.exp || 0, job: x.job, jobs: x.jobs || {}, equip: x.equip || {}, seeds: x.seeds || {},
       species: x.species || undefined, hp: x.hp, mp: x.mp, look: x.look, tactics: x.tactics, status: {}, companion: true,
       plus: x.plus || 0, bonus: x.bonus || undefined, inherit: x.inherit || undefined,
+      hirameki: x.hirameki || [], skillUse: x.skillUse || {},
     };
   }
 
@@ -349,28 +353,52 @@ export class FieldMenu {
     const tabs = el('div', { class: 'tabs' });
     let mode = this.skillMode || 'list';
     const tabBtn = (id, label) => el('button', { class: `btn ${mode === id ? 'sel' : ''}`, text: label, onclick: () => { this.skillMode = id; this.focusSub(this.skillsView(true, who)); } });
-    tabs.append(tabBtn('list', '覚えた技'), tabBtn('combo', '掛け合わせ一覧'));
+    tabs.append(tabBtn('list', '覚えた技'), tabBtn('combo', 'ひらめき'), tabBtn('dual', '合体技'));
     box.append(tabs);
+    const backBtn = () => {
+      if (!active) return;
+      this.mkSub({ items: [{ label: 'もどる', value: 'back' }], onSelect: () => this.back() });
+      box.append(this.sub.root);
+    };
     if (mode === 'combo') {
+      // ひらめき: 関係する 技を 何回も 使うと、使った しゅんかんに ひらめく
       const known = new Set(learned);
-      for (const [id, a] of Object.entries(ABILITIES)) {
-        if (a.kind !== 'combo') continue;
+      const use = c.skillUse || {};
+      const order = Object.keys(HIRAMEKI).sort((x, y) => (known.has(y) ? 1 : 0) - (known.has(x) ? 1 : 0));
+      for (const id of order) {
+        const a = ABILITIES[id];
+        if (!a) continue;
         const ok = known.has(id);
-        const reqs = a.requires.map((r) => (known.has(r) ? ABILITIES[r].name : '？？？')).join(' ＋ ');
-        const jl = a.reqJobLv ? `（${Object.entries(a.reqJobLv).map(([j, l]) => `${JOBS[j].name}Lv${l}`).join('')}）` : '';
-        const usable = ok && comboAllowed(c, id);
+        const reqs = Object.entries(HIRAMEKI[id].from).map(([k, n]) => {
+          const seen = k === '@atk' || known.has(k) || use[k] > 0;
+          const nm = k === '@atk' ? 'ふつうの攻撃' : seen ? ABILITIES[k]?.name : '？？？';
+          return `${nm} ${seen ? Math.min(use[k] || 0, n) : '?'}/${n}回`;
+        }).join('　');
+        const prog = hiraProgress(c, id);
+        const who = a.kind === 'combo' ? `使える職業: ${comboJobNames(id).join('・')}（とその超級職）` : `${JOBS[a.job]?.name || ''}の技（${JOBS[a.job]?.name || ''}とそこから進んだ職業でひらめく）`;
         box.append(el('div', { class: `combo-row ${ok ? '' : 'locked'}` },
           el('span', { class: 'nm', text: ok ? a.name : '？？？？' }),
-          ok ? el('span', { class: `tag ${usable ? 'good' : 'warn'}`, text: usable ? '使える' : '今は使えない' }) : null,
-          el('div', { class: 'small', text: `${reqs}${jl}` }),
-          el('div', { class: 'small gold', text: `使える職業: ${comboJobNames(id).join('・')}（とその超級職）` }),
+          ok ? el('span', { class: 'tag good', text: 'ひらめいた' }) : prog >= 1 ? el('span', { class: 'tag gold', text: 'もうすぐ！' }) : null,
+          el('div', { class: 'small', text: reqs }),
+          el('div', { class: 'small gold', text: who }),
           ok ? el('div', { class: 'small muted', text: a.desc }) : null));
       }
-      box.append(el('div', { class: 'detail', text: 'ちがう職業で技を覚えるとひらめく。使えるのは、元になった職業を合わせ持つ上級職以上だけ（例えば魔法剣は魔法戦士）。\n神殿の「ひらめきの賢者」にヒントを聞いてみよう。みんなで続けて攻撃すると「れんけい」、炎＋氷などは「合体」になるよ！' }));
-      if (active) {
-        this.mkSub({ items: [{ label: 'もどる', value: 'back' }], onSelect: () => this.back() });
-        box.append(this.sub.root);
+      box.append(el('div', { class: 'detail', text: '技を使うたびに回数がふえる。書いてある回数をこえると、その技を使ったしゅんかんに、ひらめくことがある（ひらめいた技がそのまま出る）。\n掛け合わせ技は、元になった職業を合わせ持つ上級職からひらめく。神殿の「ひらめきの賢者」にヒントを聞いてみよう。' }));
+      backBtn();
+      return box;
+    }
+    if (mode === 'dual') {
+      // 合体技: 2人の 番を 使う 技
+      for (const id of DUAL_ORDER) {
+        const t = DUAL_TECHS[id];
+        box.append(el('div', { class: 'combo-row' },
+          el('span', { class: 'nm', text: t.name }),
+          el('span', { class: 'tag gold', text: `MP ${t.mp[0]}＋${t.mp[1]}` }),
+          el('div', { class: 'small', text: `${groupName(t.need[0])} ＋ ${groupName(t.need[1])}（2人で1つずつ）` }),
+          el('div', { class: 'small muted', text: t.desc })));
       }
+      box.append(el('div', { class: 'detail', text: '合体技は、2人の番を使う技。戦いで自分のゲージがたまった時、ゲージが半分いじょうたまっている仲間がいると「合体技」のコマンドが出る。\n家族のキャラと出す時は、相手の画面に「参加する？」と出るよ。' }));
+      backBtn();
       return box;
     }
     const items = learned.map((id) => {
@@ -379,7 +407,7 @@ export class FieldMenu {
       const locked = a.kind === 'combo' && !comboAllowed(c, id);
       const elm = a.effect?.element;
       return {
-        html: `${ELEMENT_NAMES[elm] ? `<span class="elem e-${elm}">${ELEMENT_NAMES[elm]}</span>` : ''}${a.name}${a.kind === 'combo' ? `<span class="tag ${locked ? 'muted' : 'gold'}">掛け合わせ${locked ? '（上級職で）' : ''}</span>` : ''}${p.penalized ? '<span class="tag warn">他</span>' : ''}`,
+        html: `${ELEMENT_NAMES[elm] ? `<span class="elem e-${elm}">${ELEMENT_NAMES[elm]}</span>` : ''}${a.name}${a.kind === 'combo' ? `<span class="tag ${locked ? 'muted' : 'gold'}">掛け合わせ${locked ? '（上級職で）' : ''}</span>` : a.hirameki ? '<span class="tag hira">ひらめき</span>' : ''}${p.penalized ? '<span class="tag warn">他</span>' : ''}`,
         right: a.effect.type === 'mahouken' ? '' : `MP${mpCost(c, id)}`,
         rightCls: p.penalized ? 'pen' : '',
         value: id,
@@ -398,7 +426,7 @@ export class FieldMenu {
     }
     const m = this.mkSub({
       items,
-      onMove: (it) => { detail.textContent = it ? abilityDetail(it.value, c) : ''; },
+      onMove: (it) => { detail.textContent = it ? `${abilityDetail(it.value, c)}\n使った回数: ${c.skillUse?.[it.value] || 0}回` : ''; },
       onSelect: async (it) => {
         const a = ABILITIES[it.value];
         if (!a.field) return;
@@ -657,6 +685,18 @@ export class FieldMenu {
         affRow.append(el('span', { class: `zaff ${aff || 'unk'}` }, el('span', { class: `elem e-${e}`, text: ELEMENT_NAMES[e] }), el('span', { text: known ? MARK[aff] : '？' })));
       }
       detail.append(affRow, el('div', { class: 'small muted', text: '◎弱点 ○ふつう △効きにくい ×効かない ？まだためしていない' }));
+      // 落とす 物（手に 入れた ものだけ 名前が 分かる）
+      const ORDER = { common: 0, rare: 1, boss: 2 };
+      const drops = monsterDrops(sp).sort((p, q) => ORDER[p.kind] - ORDER[q.kind]);
+      if (drops.length) {
+        const KIND = { boss: 'かならず', rare: 'レア', common: 'よく' };
+        const row = el('div', { class: 'small zukan-drops' }, el('span', { class: 'muted', text: '落とす物 ' }));
+        for (const d of drops) {
+          const known = !!s.raw[`drop_${d.item}`];
+          row.append(el('span', { class: `zdrop ${d.kind} ${known ? '' : 'unk'}` }, el('span', { text: known ? ITEMS[d.item].name : '？？？' }), el('span', { class: 'tag', text: KIND[d.kind] })));
+        }
+        detail.append(row);
+      }
     };
     const m = this.mkSub({
       items: order.map((sp, i) => {
@@ -750,6 +790,7 @@ export class FieldMenu {
       { label: `音楽：${vol(g.audio.musicVol)}`, value: 'music' },
       { label: `効果音：${vol(g.audio.sfxVol)}`, value: 'sfx' },
       { label: `文字の大きさ：${document.body.classList.contains('big-text') ? '大きい' : 'ふつう'}`, value: 'text' },
+      { label: `字の形：${document.body.classList.contains('dot-font') ? 'ドット' : 'なめらか'}`, value: 'font' },
     ];
     if (g.field.constructor.webgl2()) items.unshift({ label: `画面：${g.field.view === '3d' ? '2.5D（立体）' : '2D（ドット）'}`, value: 'view' });
     if (g.input.touch) {
@@ -785,6 +826,9 @@ export class FieldMenu {
         } else if (it.value === 'text') {
           document.body.classList.toggle('big-text');
           try { localStorage.setItem('kizuna_bigtext', document.body.classList.contains('big-text') ? '1' : ''); } catch { /* */ }
+        } else if (it.value === 'font') {
+          document.body.classList.toggle('dot-font');
+          try { localStorage.setItem('kizuna_font', document.body.classList.contains('dot-font') ? 'dot' : ''); } catch { /* */ }
         } else if (it.value === 'view') {
           g.field.setView(g.field.view === '3d' ? '2d' : '3d', true).then((v) => {
             toast(v === '3d' ? '画面を2.5D（立体）にしました' : '画面を2D（ドット）にしました');
@@ -805,6 +849,14 @@ export class FieldMenu {
     box.append(m.root, el('div', { class: 'detail', text: 'ウェイトをONにすると、コマンドを選ぶ間は戦いの時間が止まるよ（小さい子どもにおすすめ）' + (g.input.touch ? '\n画面が消えると家族との通信がとぎれやすいので「画面を消さない」はONがおすすめ' : '') }));
     return box;
   }
+}
+
+// キャンバスの 字（設定の「字の形」に あわせる。まだ 読みこんで いない 字は 読みこんでおく）
+function canvasFont(px, text) {
+  const fam = document.body.classList.contains('dot-font') ? 'KizunaDot' : 'KizunaRound';
+  const f = `${px}px ${fam}, sans-serif`;
+  try { document.fonts?.load(f, text).catch(() => {}); } catch { /* */ }
+  return f;
 }
 
 // ───────────── ぜんたいマップ ─────────────
@@ -856,7 +908,7 @@ export function renderMiniMap(game, canvas, full = false) {
     for (const p of labels) {
       if (!f.isExplored(p.x + Math.floor(p.w / 2), p.y + Math.floor(p.h / 2))) continue;
       ctx.fillStyle = '#fff';
-      ctx.font = `${Math.max(10, pxPer * 4)}px KizunaDot, sans-serif`;
+      ctx.font = canvasFont(Math.max(10, pxPer * 4), p.name);
       ctx.fillText(p.name, Math.max(2, (p.x - x0) * pxPer), Math.max(12, (p.y - y0) * pxPer - 3));
     }
   }

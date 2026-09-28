@@ -12,12 +12,13 @@
 //   ['teleport', 'map', x, y, 'dir']  ['spawn', 'map', x, y]  ['chapter', 'だい1しょう', 'サブタイトル']
 //
 // x（じょうほう）: x.name x.flag('f') x.has('item') x.count('item') x.kills('monster') x.quest('key')
-import { POS } from '../maps/index.js?v=55000d078174';
-import { PLACES } from '../maps/overworld.js?v=55000d078174';
-import { ABILITIES } from './abilities.js?v=55000d078174';
-import { learnedAbilities, comboUnlocked } from '../stats.js?v=55000d078174';
-import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js?v=55000d078174';
-import { innSteps } from './inn.js?v=55000d078174';
+import { POS } from '../maps/index.js?v=28ae91202741';
+import { PLACES } from '../maps/overworld.js?v=28ae91202741';
+import { ABILITIES } from './abilities.js?v=28ae91202741';
+import { learnedAbilities, comboUnlocked, hiraAllowed } from '../stats.js?v=28ae91202741';
+import { HIRAMEKI, hiraRatio } from './hirameki.js?v=28ae91202741';
+import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js?v=28ae91202741';
+import { innSteps } from './inn.js?v=28ae91202741';
 
 const V = (x, y) => [PLACES.village.x + x + 0.5, PLACES.village.y + y + 0.5];
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
@@ -286,7 +287,7 @@ export const SCRIPTS = {
   t_traveler: (x) => S('詩人', '君、家族といっしょに旅をしているのかい？',
     'メニューの「仲間」から、遊んでいる家族をパーティーにさそえるよ。',
     '家族がいない時は、酒場で家族のキャラを「サポート仲間」として連れていけるんだ。'),
-  t_kid: (x) => S('子ども', '知ってる？ちがう職業の技を覚えると、\n「掛け合わせ技」をひらめくことがあるんだって！', '神殿のひらめきの賢者さまがくわしいよ！'),
+  t_kid: (x) => S('子ども', '知ってる？同じ技を何回も使っていると、\n新しい技を「ひらめく」ことがあるんだって！', '神殿のひらめきの賢者さまがくわしいよ！'),
   t_lady: (x) => S('おばさん', 'ルミナの町へようこそ。', '真ん中のふんすいの近くに「家族の伝言板」があるのよ。\n家族にメッセージを残せるわ。'),
   t_oldman: (x) => S('物知りじいさん', '昔、勇者たちは5つの守り星を守るために旅をしたそうじゃ…',
     '戦いで仲間が続けて攻撃すると「れんけい」が起こる。\n炎と風を続けると…ふふ、試してみなされ。'),
@@ -533,26 +534,37 @@ const COMBO_HINTS = {
 function sageHints(x) {
   const c = x.c;
   const learned = new Set(learnedAbilities(c));
+  const use = c.skillUse || {};
   const hints = [];
+  // あと少しで ひらめける 技（今の 職業で ひらめける もの）を さきに
+  const near = Object.entries(HIRAMEKI)
+    .filter(([id]) => !learned.has(id) && hiraAllowed(c, id))
+    .map(([id, h]) => ({ id, r: hiraRatio(use, h.from) }))
+    .filter((e) => e.r >= 0.5)
+    .sort((a, b) => b.r - a.r);
+  for (const e of near.slice(0, 1)) {
+    const names = Object.keys(HIRAMEKI[e.id].from).map((k) => (k === '@atk' ? 'ふつうの攻撃' : `「${ABILITIES[k]?.name}」`)).join('と');
+    hints.push(e.r >= 1 ? `おぬしの${names}…もう十分に使いこんでおる。\n次に使った時、何かひらめくかもしれんぞ。` : `おぬしの${names}…なかなか使いこんでおるな。\nもっと使えば、新しい技をひらめくじゃろう。`);
+  }
   for (const [id, text] of Object.entries(COMBO_HINTS)) {
     if (learned.has(id)) continue;
     hints.push(text);
   }
   const lines = [
     ...S('ひらめきの賢者', 'ほっほっほ。わしはひらめきの賢者。',
-      'ちがう職業で覚えた技を組み合わせると、\n「掛け合わせ技」をひらめくことがある。',
-      'じゃが、ひらめいても、すぐには使えん。\n元になった職業を合わせ持つ上級職にならねばな。',
-      '例えばメラとヒャドのメドロなら魔法使いの上級職（賢者・魔法戦士・忍者・占い師）…\n大地斬とメラの魔法剣なら戦士と魔法使いを合わせた魔法戦士じゃ。'),
+      '同じ技を何回も使いこむと、戦いの中で\n新しい技を「ひらめく」ことがある。',
+      'ちがう職業の技を両方使いこめば「掛け合わせ技」もひらめく。\nじゃが、元になった職業を合わせ持つ上級職にならねば、ひらめかん。',
+      '例えば大地斬とメラの魔法剣なら、戦士と魔法使いを合わせた魔法戦士じゃ。'),
   ];
-  const have = [...learned].filter((id) => ABILITIES[id]?.kind === 'combo');
-  if (have.length) lines.push(...S('ひらめきの賢者', `おぬしはすでに${have.map((id) => ABILITIES[id].name).join('・')}をひらめいておるな。見事じゃ。`));
+  const have = [...learned].filter((id) => HIRAMEKI[id]);
+  if (have.length) lines.push(...S('ひらめきの賢者', `おぬしはすでに${have.map((id) => ABILITIES[id].name).slice(0, 4).join('・')}をひらめいておるな。見事じゃ。`));
   if (hints.length) {
     const pick = hints.slice(0, 2);
     lines.push(...S('ひらめきの賢者', ...pick));
   } else {
     lines.push(...S('ひらめきの賢者', 'もうわしが教えることはない。おぬしこそ本当の賢者じゃ。'));
   }
-  lines.push(...S('ひらめきの賢者', 'メニューの「呪文・特技」から「掛け合わせ」の一覧も見られるぞ。'));
+  lines.push(...S('ひらめきの賢者', 'メニューの「呪文・特技」の「ひらめき」で、使った回数も見られるぞ。\n仲間と力を合わせる「合体技」の一覧もあるぞい。'));
   return lines;
 }
 

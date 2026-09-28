@@ -7,15 +7,19 @@
 //
 // サーバー（家族サーバー）でも ブラウザ（ひとりモード）でも おなじ コードが うごく
 
-import { makeRng } from './rng.js?v=55000d078174';
-import { ABILITIES, TEAM_COMBOS } from './data/abilities.js?v=55000d078174';
-import { MONSTERS } from './data/monsters.js?v=55000d078174';
-import { ITEMS } from './data/items.js?v=55000d078174';
-import { JOBS } from './data/jobs.js?v=55000d078174';
-import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed } from './stats.js?v=55000d078174';
-import { decideMonster, decideAlly } from './ai.js?v=55000d078174';
+import { makeRng } from './rng.js?v=28ae91202741';
+import { ABILITIES } from './data/abilities.js?v=28ae91202741';
+import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=28ae91202741';
+import { DUAL_TECHS, dualOptions } from './data/dual.js?v=28ae91202741';
+import { MONSTERS } from './data/monsters.js?v=28ae91202741';
+import { ITEMS } from './data/items.js?v=28ae91202741';
+import { JOBS } from './data/jobs.js?v=28ae91202741';
+import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed } from './stats.js?v=28ae91202741';
+import { decideMonster, decideAlly } from './ai.js?v=28ae91202741';
 
 export const BOND_MAX = 100;
+// 合体技に さそわれた 家族が こたえるまで まつ 時間（ミリびょう）
+export const DUAL_ASK_MS = 7000;
 const COMBO_WINDOW = 6000;
 const LETTERS = 'ABCDEFGH';
 
@@ -54,6 +58,9 @@ export class Battle {
     this.combo = { count: 0, actor: null, element: null, time: -99999 };
     this.fleeBonus = 0;
     this.bondCharge = null;
+    // 合体技の さそい（家族が こたえるのを まっている もの）
+    this.invites = new Map();
+    this.inviteSeq = 0;
     this.gaugeTimer = 0;
     this.poisonTimer = 0;
     this.killed = [];
@@ -147,6 +154,13 @@ export class Battle {
   tick(dtReal) {
     if (this.over) return this.flush();
     const dt = dtReal * this.speed;
+    // 合体技の さそいは リアル時間で まつ（えんしゅつ中も へる）
+    if (this.invites.size) {
+      for (const inv of [...this.invites.values()]) {
+        inv.remaining -= dtReal;
+        if (inv.remaining <= 0) this.endInvite(inv, '時間切れ');
+      }
+    }
     // きずな技の ちからあわせ中（リアル時間で まつ）
     if (this.bondCharge) {
       this.bondCharge.remaining -= dtReal;
@@ -254,6 +268,7 @@ export class Battle {
       return;
     }
     this.enqueue(c, { type: 'ai' });
+    this.emit({ t: 'queued', id: c.id });
   }
 
   enqueue(c, cmd, last = true) {
@@ -268,14 +283,21 @@ export class Battle {
     if (!c || !c.alive || this.over) return { ok: false, reason: 'no' };
     if (controller !== undefined && c.controller !== controller) return { ok: false, reason: 'notyours' };
     if (cmd?.type === 'bondJoin') return this.bondJoin(actorId) ? { ok: true } : { ok: false };
+    if (cmd?.type === 'dualAnswer') return this.answerDual(actorId, cmd);
     if (!c.ready) return { ok: false, reason: 'notready' };
     const v = this.validate(c, cmd);
     if (!v.ok) return v;
+    // 合体技に さそっていた ときは、とりやめて ほかの コマンドに
+    if (c.inviting) {
+      const inv = this.invites.get(c.inviting);
+      if (inv) this.endInvite(inv, 'やめた');
+    }
+    if (cmd.type === 'dual') return this.startDual(c, cmd);
     if (cmd.type === 'defend') {
       c.ready = false;
       c.atb = 0;
       c.defending = true;
-      this.emit({ t: 'act', id: c.id, lines: [`${c.name}は身を守っている。`], upd: [pub(c)], fx: { type: 'defend', actor: c.id } });
+      this.emit({ t: 'act', id: c.id, name: '防御', lines: [`${c.name}は身を守っている。`], upd: [pub(c)], fx: { type: 'defend', actor: c.id } });
       return { ok: true };
     }
     this.enqueue(c, cmd);
@@ -287,6 +309,10 @@ export class Battle {
     const c = this.get(actorId);
     if (!c) return;
     c.auto = !!on;
+    if (c.auto && c.inviting) {
+      const inv = this.invites.get(c.inviting);
+      if (inv) this.endInvite(inv, 'やめた');
+    }
     if (c.auto && c.ready) {
       c.ready = false;
       this.enqueue(c, { type: 'ai' });
@@ -329,6 +355,10 @@ export class Battle {
       case 'bond':
         if (this.bond < BOND_MAX) return { ok: false, reason: 'きずなゲージが足りない' };
         return { ok: true };
+      case 'dual': {
+        const o = this.dualOptionsFor(c).find((x) => x.id === cmd.id && x.partner === cmd.partner);
+        return o ? { ok: true } : { ok: false, reason: '合体技は出せない' };
+      }
       default: return { ok: false, reason: 'bad' };
     }
   }
@@ -339,6 +369,7 @@ export class Battle {
     const c = this.get(q.id);
     if (!c || !c.alive || c.fled) {
       if (c) c.queued = false;
+      if (q.cmd?.type === 'dual') this.releasePartner(q.cmd.partner);
       return;
     }
     if (q.last) {
@@ -380,9 +411,11 @@ export class Battle {
       if (!confused && cmd.type === 'ai') {
         cmd = c.side === 'enemy' ? decideMonster(this, c) : decideAlly(this, c);
       }
-      // 遊び人は ときどき かってに 遊びだす（にげる ときは まじめ）
-      const goof = !confused && c.side === 'ally' && cmd.type !== 'flee' ? (JOBS[c.job]?.passive?.goof || 0) : 0;
+      // 遊び人は ときどき かってに 遊びだす（にげる・合体技の ときは まじめ）
+      const goof = !confused && c.side === 'ally' && cmd.type !== 'flee' && cmd.type !== 'dual' ? (JOBS[c.job]?.passive?.goof || 0) : 0;
       if (goof && ABILITIES.js_asobu && this.rng.chance(goof)) {
+        ev.name = '遊ぶ';
+        ev.goof = true;
         ev.lines.push(`${c.name}は遊んでいる！`);
         this.applyAbility(c, ABILITIES.js_asobu, {}, ev, 1);
       } else this.perform(c, cmd, ev);
@@ -391,6 +424,8 @@ export class Battle {
     }
     if (ev.postLines) ev.lines.push(...ev.postLines);
     delete ev.postLines;
+    // 合体技が 出なかった（混乱した など）: 相手を もとに もどす
+    if (q.cmd?.type === 'dual' && !ev.dual) this.releasePartner(q.cmd.partner);
     // てきが うごいたら れんけいは とぎれる
     if (c.side === 'enemy') this.combo = { count: 0, actor: null, element: null, time: -99999 };
     if (q.last || ev.forceLast) {
@@ -418,6 +453,7 @@ export class Battle {
         ev.lines.push(`${c.name}は目を覚ました！`);
         ev.atbAfter = 60;
       } else ev.lines.push(`${c.name}はねむっている。`);
+      ev.name = 'ねむり';
       ev.fx = { type: 'sleep', actor: c.id };
     } else if (c.status.paralyze) {
       const s = c.status.paralyze;
@@ -427,6 +463,7 @@ export class Battle {
         ev.lines.push(`${c.name}の体のしびれが取れた！`);
         ev.atbAfter = 60;
       } else ev.lines.push(`${c.name}は体がしびれて動けない！`);
+      ev.name = 'マヒ';
       ev.fx = { type: 'paralyze', actor: c.id };
     }
   }
@@ -449,7 +486,16 @@ export class Battle {
     const cast = (tmpl, t) => tmpl.replaceAll('{a}', c.name).replaceAll('{t}', t ? t.name : '');
     switch (cmd.type) {
       case 'attack': {
-        ev.name = '攻撃';
+        // ふつうの 攻撃も 回数を かぞえる（ひらめきの もと）
+        if (c.side === 'ally' && !cmd.confused) {
+          this.countUse(c, '@atk');
+          const hid = this.rollHirameki(c, '@atk', cmd);
+          if (hid) {
+            this.doHirameki(c, hid, cmd, ev);
+            break;
+          }
+        }
+        ev.name = cmd.confused ? '混乱' : '攻撃';
         ev.lines.push(`${c.name}の攻撃！`);
         const t = this.resolveTarget(c, 'enemy', cmd.target);
         this.pushCoverMsg(ev);
@@ -487,6 +533,7 @@ export class Battle {
       case 'item': this.useItem(c, cmd, ev); break;
       case 'mahouken': this.doMahouken(c, cmd, ev); break;
       case 'bond': this.startBond(c, cmd, ev); break;
+      case 'dual': this.performDual(c, cmd, ev); break;
       case 'ability': {
         const a = ABILITIES[cmd.id];
         if (!a) break;
@@ -497,6 +544,15 @@ export class Battle {
         const cost = c.side === 'ally' ? mpCost(c.penChar, cmd.id) : (a.kind === 'monster' ? 0 : (a.mp || 0));
         const targets = this.targetsFor(c, a, cmd);
         const firstTarget = ['enemy', 'group', 'ally', 'deadAlly'].includes(a.target) ? targets[0] : null;
+        // 使った 回数を かぞえて、ひらめきの チャンス（ふうじられて いない・MP が たりる とき）
+        if (c.side === 'ally' && !(isSpell && c.status.silence) && cost <= c.mp) {
+          this.countUse(c, cmd.id);
+          const hid = this.rollHirameki(c, cmd.id, cmd);
+          if (hid) {
+            this.doHirameki(c, hid, cmd, ev);
+            break;
+          }
+        }
         ev.lines.push(cast(a.cast || `{a}は${a.name}を使った！`, firstTarget));
         this.pushCoverMsg(ev);
         if (isSpell && c.status.silence) {
@@ -653,6 +709,7 @@ export class Battle {
         const pick = this.rng.pick(eff.options || []);
         const sub = ABILITIES[pick];
         if (!sub) break;
+        ev.sub = sub.name;
         ev.lines.push(sub.cast.replaceAll('{a}', c.name));
         this.applyAbility(c, sub, { ...cmd, target: undefined }, ev, powMult);
         break;
@@ -1003,7 +1060,9 @@ export class Battle {
     t.debuffs = {};
     t.cover = null;
     t.telegraph = null;
+    for (const q of this.queue) if (q.id === t.id && q.cmd?.type === 'dual') this.releasePartner(q.cmd.partner);
     this.queue = this.queue.filter((q) => q.id !== t.id);
+    for (const inv of [...this.invites.values()]) if (inv.from === t.id || inv.to === t.id) this.endInvite(inv, '倒れた');
     if (t.side === 'enemy') {
       this.killed.push(t.species);
       return [`${t.name}を倒した！`];
@@ -1090,29 +1149,10 @@ export class Battle {
     if (!ev.dealt) return;
     this.addBond(1);
     const n = ev.comboCount || 1;
-    const prev = this.combo;
     if (n >= 2) {
       ev.combo = n;
       ev.lines.splice(1, 0, `れんけい${n}！`);
       this.addBond(Math.min(4, n));
-      // 合体（ぞくせいの くみあわせ）
-      const el = element || 'phys';
-      const tc = TEAM_COMBOS.find((x) => (x.a === prev.element && x.b === el) || (x.b === prev.element && x.a === el));
-      if (tc && prev.element !== el) {
-        ev.lines.push(`合体！${tc.name}！`, tc.desc);
-        ev.team = tc.name;
-        const bonus = Math.max(1, Math.round(ev.dealt * tc.mult));
-        const targets = tc.all ? this.aliveEnemies() : (ev.lastTarget?.alive ? [ev.lastTarget] : this.aliveEnemies().slice(0, 1));
-        for (const t of targets) {
-          const r = tc.element === 'void' ? Math.max(0.5, Math.min(1, t.resist.void ?? 1)) : (t.resist[tc.element] ?? 1);
-          let d = Math.round(bonus * r * (tc.all ? 0.8 : 1));
-          if (t.metal) d = this.rng.int(0, 1);
-          if (d > 0) this.damage(c, t, d, ev, { element: tc.element });
-        }
-        ev.fx = { ...(ev.fx || {}), team: tc.name, teamElement: tc.element };
-        this.addBond(3);
-        ev.extraLock = 500;
-      }
     }
     this.combo = { count: n, actor: c.id, element: element || 'phys', time: this.time };
   }
@@ -1121,8 +1161,211 @@ export class Battle {
     this.bond = Math.max(0, Math.min(BOND_MAX, this.bond + n));
   }
 
+  // ───────────── ひらめき ─────────────
+  // 技（ふつうの 攻撃は '@atk'）を 使った 回数
+  countUse(c, key) {
+    if (c.side !== 'ally' || !c.use || !key) return;
+    c.use[key] = (c.use[key] || 0) + 1;
+  }
+
+  // 使った 技で ひらめくか（ひらめいたら その 技の id）
+  rollHirameki(c, key, cmd) {
+    if (c.side !== 'ally' || !c.use || c.mon || !c.penChar?.job) return null;
+    for (const [id, h] of Object.entries(HIRAMEKI)) {
+      if (!(key in h.from) || c.abilities.includes(id)) continue;
+      const a = ABILITIES[id];
+      if (!a || !hiraAllowed(c.penChar, id)) continue;
+      if (a.weapon && !weaponOk(a, c.weaponCat)) continue;
+      if ((a.kind === 'spell' || a.spellLike) && c.status.silence) continue;
+      if (a.effect.type !== 'mahouken' && !this.hiraTargets(c, a, cmd)) continue;
+      const chance = hiraChance(hiraRatio(c.use, h.from));
+      if (chance > 0 && this.rng.chance(chance)) return id;
+    }
+    return null;
+  }
+
+  // ひらめいた 技の 相手（もとの 技の 相手が つかえれば そのまま）
+  hiraTargets(c, a, cmd) {
+    const t0 = cmd?.target ? this.get(cmd.target) : null;
+    switch (a.target) {
+      case 'enemy': case 'group': {
+        const t = t0 && t0.side !== c.side && t0.alive && !t0.fled ? t0 : this.rng.pick(this.sideOf(c, false).filter((x) => x.alive));
+        return t ? { target: t.id } : null;
+      }
+      case 'ally': {
+        const t = t0 && t0.side === c.side && t0.alive ? t0 : this.sideOf(c, true).filter((x) => x.alive).sort((x, y) => x.hp / x.maxHp - y.hp / y.maxHp)[0];
+        return t ? { target: t.id } : null;
+      }
+      case 'deadAlly': {
+        const t = this.sideOf(c, true).find((x) => !x.alive);
+        return t ? { target: t.id } : null;
+      }
+      default: return {};
+    }
+  }
+
+  // ひらめいた 技を その場で 出す（はじめの 1回は MP いらず）。覚えて、たたかいの あとも 使える
+  doHirameki(c, id, cmd, ev) {
+    const a = ABILITIES[id];
+    c.abilities = [...c.abilities, id];
+    c.hiraNew = [...(c.hiraNew || []), id];
+    ev.hirameki = { id, name: a.name, actor: c.id };
+    ev.name = a.name;
+    ev.ability = id;
+    ev.lines.push(`${c.name}はひらめいた！`);
+    ev.extraLock = 900;
+    this.addBond(3);
+    if (a.effect.type === 'mahouken') {
+      const spell = ['merazoma', 'merami', 'mera', 'hyadaruko', 'hyado', 'gira', 'io', 'bagi'].find((x) => c.abilities.includes(x)) || 'mera';
+      const skill = ['daichi', 'kaiha', 'kuuretsu', 'kabutowari'].find((x) => c.abilities.includes(x)) || 'daichi';
+      const tc = this.hiraTargets(c, { target: 'enemy' }, cmd) || {};
+      this.doMahouken(c, { spell, skill, target: tc.target }, ev, true);
+      return;
+    }
+    const tc = this.hiraTargets(c, a, cmd) || {};
+    const targets = this.targetsFor(c, a, tc);
+    ev.lines.push(fmtLine(a.cast || `{a}の${a.name}！`, c, targets[0]));
+    this.applyAbility(c, a, tc, ev, 1, targets);
+  }
+
+  // ───────────── 合体技 ─────────────
+  // c が 今 出せる 合体技（exec: 出す しゅんかんの たしかめ。よやくした 相手も かぞえる）
+  dualOptionsFor(c, others = null, exec = false) {
+    if (!c || c.side !== 'ally' || c.mon) return [];
+    const list = (others || this.allies.filter((x) => x !== c)).filter((x) => x.side === 'ally' && !x.mon);
+    const info = (x) => ({
+      id: x.id, name: x.name, alive: x.alive, abilities: x.abilities || [], mp: x.mp, atb: x.atb, ready: x.ready,
+      queued: exec && x.dualWith === c.id ? false : !!x.queued,
+      inviting: !exec && x !== c && !!(x.inviting || x.invited),
+      statuses: Object.keys(x.status || {}), weaponCat: x.weaponCat,
+      usable: (id) => {
+        const a = ABILITIES[id];
+        return !!a && (a.kind !== 'combo' || comboAllowed(x.penChar, id)) && weaponOk(a, x.weaponCat);
+      },
+    });
+    return dualOptions(info(c), list.map(info), weaponOk);
+  }
+
+  // 合体技を はじめる（相手が 家族なら さそう。AI・自分の 仲間なら すぐ）
+  startDual(c, cmd) {
+    const p = this.get(cmd.partner);
+    const ask = p.controller && !p.auto && p.controller !== c.controller;
+    if (!ask) {
+      this.reserveDual(c, p, cmd);
+      return { ok: true };
+    }
+    const inv = { id: 'd' + (++this.inviteSeq), from: c.id, to: p.id, tech: cmd.id, target: cmd.target, remaining: DUAL_ASK_MS };
+    this.invites.set(inv.id, inv);
+    c.inviting = inv.id;
+    p.invited = inv.id;
+    this.emit({ t: 'dualInvite', invite: inv.id, from: c.id, to: p.id, tech: cmd.id, fromName: c.name, toName: p.name, ms: DUAL_ASK_MS });
+    return { ok: true, pending: true };
+  }
+
+  // 2人の 番を おさえて、合体技を 出す じゅんばんに ならべる
+  reserveDual(c, p, cmd) {
+    if (p.ready) {
+      p.ready = false;
+      this.emit({ t: 'queued', id: p.id });
+    }
+    p.queued = true;
+    p.dualWith = c.id;
+    c.inviting = null;
+    this.enqueue(c, { type: 'dual', id: cmd.id, partner: p.id, target: cmd.target });
+    this.emit({ t: 'queued', id: c.id, dual: cmd.id, partner: p.id });
+  }
+
+  // 合体技の 相手を もとに もどす（出せなかった とき）
+  releasePartner(pid) {
+    const p = this.get(pid);
+    if (!p || !p.dualWith) return;
+    p.dualWith = null;
+    p.queued = false;
+  }
+
+  // さそわれた 家族の こたえ
+  answerDual(pid, cmd) {
+    const inv = this.invites.get(cmd.invite);
+    if (!inv || inv.to !== pid) return { ok: false, reason: 'もう終わっている' };
+    if (!cmd.ok) {
+      this.endInvite(inv, 'ことわった');
+      return { ok: true };
+    }
+    const c = this.get(inv.from), p = this.get(inv.to);
+    this.invites.delete(inv.id);
+    if (p) p.invited = null;
+    const ok = c && c.alive && c.ready && this.dualOptionsFor(c, [p]).some((o) => o.id === inv.tech);
+    if (!ok) {
+      if (c) c.inviting = null;
+      this.emit({ t: 'dualAnswer', invite: inv.id, ok: false, from: inv.from, to: inv.to, reason: '出せなくなった' });
+      return { ok: true };
+    }
+    this.emit({ t: 'dualAnswer', invite: inv.id, ok: true, from: c.id, to: p.id });
+    this.reserveDual(c, p, { id: inv.tech, target: inv.target });
+    return { ok: true };
+  }
+
+  // さそいを おわりに する（ことわった・時間切れ・やめた）
+  endInvite(inv, reason) {
+    this.invites.delete(inv.id);
+    const c = this.get(inv.from), p = this.get(inv.to);
+    if (c && c.inviting === inv.id) c.inviting = null;
+    if (p && p.invited === inv.id) p.invited = null;
+    this.emit({ t: 'dualAnswer', invite: inv.id, ok: false, from: inv.from, to: inv.to, reason });
+  }
+
+  // 合体技を 出す（2人の 強さを 合わせる）
+  performDual(c, cmd, ev) {
+    const t = DUAL_TECHS[cmd.id];
+    const p = this.get(cmd.partner);
+    ev.name = t?.name || '合体技';
+    if (!t || !p || !p.alive || p.status.sleep || p.status.paralyze || p.status.confuse) {
+      ev.lines.push(`しかし${p?.name || '仲間'}は合体技に参加できなかった！`);
+      this.releasePartner(cmd.partner);
+      return;
+    }
+    const opt = this.dualOptionsFor(c, [p], true).find((o) => o.id === cmd.id);
+    if (!opt) {
+      ev.lines.push('しかし合体技は出せなかった！');
+      this.releasePartner(p.id);
+      return;
+    }
+    c.mp -= opt.mp[0];
+    p.mp -= opt.mp[1];
+    ev.dual = { id: cmd.id, name: t.name, a: c.id, b: p.id };
+    ev.lines.push(`${c.name}と${p.name}の合体技！`, `${t.name}！`);
+    // 2人の 力を 合わせた かげ（強さだけ 合わせて、あとは c の まま）
+    const proxy = Object.create(c);
+    const mix = (x, y, k) => Math.round(Math.max(x || 0, y || 0) + Math.min(x || 0, y || 0) * k);
+    proxy.atk = mix(c.atk, p.atk, 0.5);
+    proxy.mag = mix(c.mag, p.mag, 0.6);
+    proxy.healPow = mix(c.healPow, p.healPow, 0.6);
+    proxy.charge = 1;
+    const hit = new Set();
+    for (const part of t.parts) {
+      const eff = { ...part };
+      if (eff.elementFrom !== undefined) {
+        eff.element = opt.element || undefined;
+        delete eff.elementFrom;
+      }
+      const ab = { name: t.name, effect: eff, target: part.target || t.target, anim: t.anim };
+      const targets = this.targetsFor(proxy, ab, cmd);
+      this.applyAbility(proxy, ab, cmd, ev, 1, targets);
+      for (const x of targets) hit.add(x.id);
+    }
+    ev.upd = ev.upd.map((x) => (x === proxy ? c : x));
+    ev.fx = { type: 'dual', anim: t.anim, actor: c.id, partner: p.id, targets: [...hit], side: 'ally', element: opt.element || t.element };
+    ev.extraLock = (ev.extraLock || 0) + 700;
+    p.atb = 0;
+    p.ready = false;
+    this.releasePartner(p.id);
+    ev.upd.push(c, p);
+    this.addBond(6);
+  }
+
   // ───────────── 魔法剣 ─────────────
-  doMahouken(c, cmd, ev) {
+  // free: ひらめいた ときの はじめの 1回（MP いらず）
+  doMahouken(c, cmd, ev, free = false) {
     const sp = ABILITIES[cmd.spell], sk = ABILITIES[cmd.skill];
     const name = sp.name + sk.name;
     ev.name = name;
@@ -1132,12 +1375,14 @@ export class Battle {
       ev.lines.push('しかし呪文はふうじこめられている！');
       return;
     }
-    const cost = mpCost(c.penChar, cmd.spell) + mpCost(c.penChar, cmd.skill);
+    const cost = free ? 0 : mpCost(c.penChar, cmd.spell) + mpCost(c.penChar, cmd.skill);
     if (cost > c.mp) {
       ev.lines.push('しかしMPが足りない！');
       return;
     }
     c.mp -= cost;
+    this.countUse(c, cmd.spell);
+    this.countUse(c, cmd.skill);
     const t = this.resolveTarget(c, 'enemy', cmd.target);
     if (!t) return;
     const spPen = penaltyFor(c.penChar, cmd.spell).powMult;
@@ -1386,6 +1631,9 @@ export function allyFromCharacter(char, init = {}) {
     race: char.species ? (MONSTERS[char.species]?.race || 'beast') : 'human',
     abilities,
     penChar: { job: char.job, jobs: char.jobs },
+    // 技を 使った 回数（ひらめきの もと）と、この たたかいで ひらめいた 技
+    use: char.species ? null : { ...(char.skillUse || {}) },
+    hiraNew: [],
     atb: 0, ready: false, queued: false,
     buffs: {}, debuffs: {}, status: char.status?.poison ? { poison: { turns: 99 } } : {},
     alive: (char.hp ?? 1) > 0,
@@ -1434,7 +1682,7 @@ export function pub(c) {
     controller: c.controller, auto: c.auto, look: c.look, job: c.job, eq: c.eq, mon: c.mon, lv: c.lv,
     hp: c.hp, maxHp: c.maxHp, mp: c.mp, maxMp: c.maxMp,
     atb: Math.round(c.atb * 10) / 10, rate: 100 / fillTime(effAgi(c)),
-    ready: !!c.ready, alive: !!c.alive, fled: !!c.fled, status: st, buffs,
+    ready: !!c.ready, queued: !!c.queued, alive: !!c.alive, fled: !!c.fled, status: st, buffs,
     defending: !!c.defending, telegraph: !!c.telegraph, boss: !!c.boss, size: c.size, slot: c.slot,
     abilities: c.side === 'ally' ? c.abilities : undefined,
     weaponCat: c.side === 'ally' ? c.weaponCat : undefined,

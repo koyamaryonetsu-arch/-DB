@@ -1,15 +1,15 @@
 // お店・やどや・きょうかい・転職・酒場・でんごんばん・メニュー操作
-import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE } from '../data/shops.js?v=55000d078174';
-import { ITEMS, sellPrice, SLOTS } from '../data/items.js?v=55000d078174';
-import { JOBS, ALL_JOBS, jobReqText } from '../data/jobs.js?v=55000d078174';
-import { ABILITIES } from '../data/abilities.js?v=55000d078174';
-import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=55000d078174';
-import { TACTICS } from '../ai.js?v=55000d078174';
-import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf } from './party.js?v=55000d078174';
-import { breedMonsters, breedPreview } from './breed.js?v=55000d078174';
-import { MONSTERS } from '../data/monsters.js?v=55000d078174';
-import { PLACES } from '../maps/overworld.js?v=55000d078174';
-import { POS, SEA_PLACES } from '../maps/index.js?v=55000d078174';
+import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js?v=28ae91202741';
+import { ITEMS, sellPrice, SLOTS } from '../data/items.js?v=28ae91202741';
+import { JOBS, ALL_JOBS, jobReqText } from '../data/jobs.js?v=28ae91202741';
+import { ABILITIES } from '../data/abilities.js?v=28ae91202741';
+import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=28ae91202741';
+import { TACTICS } from '../ai.js?v=28ae91202741';
+import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf } from './party.js?v=28ae91202741';
+import { breedMonsters, breedPreview } from './breed.js?v=28ae91202741';
+import { MONSTERS } from '../data/monsters.js?v=28ae91202741';
+import { PLACES } from '../maps/overworld.js?v=28ae91202741';
+import { POS, SEA_PLACES } from '../maps/index.js?v=28ae91202741';
 
 export function openService(world, s, kind, arg) {
   switch (kind) {
@@ -17,7 +17,8 @@ export function openService(world, s, kind, arg) {
       const shop = SHOPS[arg];
       if (!shop) return null;
       s.openShop = arg;
-      return { shop: arg, name: shop.name, items: shop.items, keeper: shop.keeper, hello: shop.hello, kind: shop.kind };
+      const has = world.hasFlagFn(s);
+      return { shop: arg, name: shop.name, items: shopItems(shop, has), keeper: shop.keeper, hello: shopHello(shop, has), kind: shop.kind };
     }
     case 'jobChange': return { jobs: ALL_JOBS };
     case 'tavern': return tavernInfo(world, s);
@@ -91,7 +92,7 @@ export function serviceAction(world, s, msg) {
         const it = ITEMS[msg.id];
         const equipable = SLOTS.includes(it?.type);
         const qty = equipable ? 1 : Math.max(1, Math.min(99, Math.floor(msg.qty || 1)));
-        if (!shop || !shop.items.includes(msg.id) || !it || !(it.price > 0)) return reply(false, 'その品物はありません');
+        if (!shop || !shopItems(shop, world.hasFlagFn(s)).includes(msg.id) || !it || !(it.price > 0)) return reply(false, 'その品物はありません');
         const cost = it.price * qty;
         if (c.gold < cost) return reply(false, 'おや？ゴールドが足りないようですね。');
         // だれが 装備する？（じぶん か じぶんの なかま。むかしの 'equip: true' は じぶん）
