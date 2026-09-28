@@ -1952,6 +1952,7 @@
       tr.dataset.caseId = c.id;
       const cls = rowColorClass(c);
       if (cls) tr.className = cls;
+      if (editingCaseId && String(editingCaseId) === String(c.id)) tr.classList.add('row-editing');
       const companyHtml = buildCompanyTag(c);
       const statusCell = buildStatusCell(c);
       // 入金日セル: 予定/確認 切替ボタン＋日付
@@ -2356,9 +2357,16 @@
   }
 
   // ---------- modal (new / edit) ----------
+  // 認証番号（TOHOのみ）の表示。簡易登録・予定の編集で隠している行は、TOHOでも隠したままにする
+  // （以前は会社がTOHOだと、隠すはずの簡易登録・予定の編集でも認証番号が出ていた）
+  let modalMode = 'full';
   function updateTohoVisibility() {
     const isToho = $('company').value === 'TOHOシネマズ';
-    document.querySelectorAll('.toho-only-field').forEach((el) => el.classList.toggle('hidden', !isToho));
+    document.querySelectorAll('.toho-only-field').forEach((el) => {
+      const hiddenByMode = (modalMode === 'simple' && el.dataset.mode === 'full')
+        || (modalMode === 'calendar' && !el.hasAttribute('data-cal'));
+      el.classList.toggle('hidden', !isToho || hiddenByMode);
+    });
   }
   function setDateField(id, iso) { $(id).value = fmtDateFull(iso); }
   function readDateField(id, label) {
@@ -2381,6 +2389,7 @@
     document.querySelectorAll('.smart-date').forEach(el => el.classList.remove('invalid'));
     $('caseId').value = '';
     const realMode = mode || 'full';
+    modalMode = realMode;
     const isSimple = realMode === 'simple';
     const isCalEdit = realMode === 'calendar';
     // 直前のカレンダー編集等で隠れた行をリセット（全行を一旦表示に戻す）
@@ -2440,11 +2449,55 @@
     if (caseObj) $('company').value = caseObj.company || companyNames()[0];
     else if (!isPrivileged(currentUser)) $('company').value = customerCompany(currentUser);
     $('modal').classList.remove('hidden');
+    // ⑦ 右から出るパネル: 見出しの下に状態・劇場名、一覧では編集中の行に色を付ける
+    renderModalSub(caseObj, isCalEdit);
+    markEditingRow(caseObj ? caseObj.id : null);
+    document.body.classList.add('drawer-open');
+    modalSnapshot = caseFormSnapshot();
     // 内容・メモは全文が見えるよう、開いた直後に高さを中身に合わせて拡張
     requestAnimationFrame(() => { autoGrowTextarea($('content')); autoGrowTextarea($('memo')); if ($('customerMemo')) autoGrowTextarea($('customerMemo')); });
     setTimeout(() => $('company').focus(), 50);
   }
-  function closeModal() { $('modal').classList.add('hidden'); }
+  function closeModal() {
+    $('modal').classList.add('hidden');
+    document.body.classList.remove('drawer-open');
+    markEditingRow(null);
+  }
+  // ===== ⑦ 編集パネル =====
+  let editingCaseId = null;   // パネルで開いている案件（一覧の行に色を付ける）
+  let modalSnapshot = '';     // 開いた時点の入力内容（保存せずに別の案件へ切り替える時の確認用）
+  function markEditingRow(id) {
+    editingCaseId = id;
+    document.querySelectorAll('#casesBody tr.row-editing').forEach((tr) => tr.classList.remove('row-editing'));
+    if (!id) return;
+    const tr = document.querySelector(`#casesBody tr[data-case-id="${CSS.escape(String(id))}"]`);
+    if (tr) tr.classList.add('row-editing');
+  }
+  function renderModalSub(caseObj, isCalEdit) {
+    const el = $('modalSub'); if (!el) return;
+    if (!caseObj) { el.innerHTML = ''; return; }
+    const st = statusOf(caseObj);
+    const parts = [
+      `<span class="status-badge status-${escapeHtml(st)}">${escapeHtml(statusDisplayLabel(st))}</span>`,
+      lateDaysHtml(caseObj),
+      `<span>${escapeHtml(shortTheaterName(caseObj.theater) || '')}</span>`
+    ];
+    if (!isCalEdit && caseObj.receivedDate) parts.push(`<span>受付 ${escapeHtml(fmtDateShort(caseObj.receivedDate))}</span>`);
+    if (!isCalEdit && caseObj.rPerson && isPrivileged(currentUser)) parts.push(`<span>R担当 ${escapeHtml(caseObj.rPerson)}</span>`);
+    el.innerHTML = parts.filter(Boolean).join('');
+  }
+  function caseFormSnapshot() {
+    return Array.prototype.map.call($('caseForm').querySelectorAll('input, select, textarea'),
+      (el) => el.id + '=' + (el.type === 'checkbox' ? el.checked : el.value)).join('\u0001');
+  }
+  // パネルを開いたまま別の案件を開く時、保存していない変更があれば確認する
+  function openModalGuarded(c, mode) {
+    const open = !$('modal').classList.contains('hidden');
+    if (open && String($('caseId').value) === String(c.id)) return; // 同じ案件なら何もしない
+    if (open && caseFormSnapshot() !== modalSnapshot
+        && !confirm('編集中の内容が保存されていません。\n保存せずに「' + (shortTheaterName(c.theater) || 'この案件') + '」を開きますか？')) return;
+    openModal(c, mode);
+  }
 
   // 数値を3桁カンマ区切りの文字列にする（数字以外は除去。空なら空文字）
   function formatThousands(value) {
@@ -4848,7 +4901,7 @@
   if ($('dupOpenBtn')) $('dupOpenBtn').addEventListener('click', () => {
     if (!dupBannerCase) return;
     const other = cases.find((x) => String(x.id) === String(dupBannerCase.dupSuspectId));
-    if (other) openModal(other, 'full');
+    if (other) openModalGuarded(other, 'full');
   });
   if ($('dupClearBtn')) $('dupClearBtn').addEventListener('click', () => {
     if (!dupBannerCase) return;
@@ -5332,6 +5385,13 @@
     // タスク管理モード: 「タスク編集」ボタン
     const to = e.target.closest('[data-taskopen]');
     if (to) { const c = cases.find((x) => x.id === to.dataset.taskopen); if (c) openTaskModal(c); return; }
+    // ⑦ 編集パネルを開いている間は、一覧側では編集しない（✎ で別の案件へ切り替えるだけ）。
+    // 同じ案件を一覧とパネルの両方で直すと、パネルの保存で一覧側の変更が上書きされてしまうため
+    if (!$('modal').classList.contains('hidden')) {
+      const ed = e.target.closest('[data-action="edit"]');
+      if (ed) { const c = cases.find((x) => x.id === ed.dataset.id); if (c) openModalGuarded(c, 'full'); }
+      return;
+    }
     // スマホ（狭い画面）の通常表示: 項目タップで編集ポップアップを開く（インライン編集はしない）
     if (isMobile() && !aggMode && !taskMode) {
       const tr = e.target.closest('tr[data-case-id]');
@@ -5344,7 +5404,7 @@
       const id = actEl.dataset.id;
       const c = cases.find((x) => x.id === id);
       if (!c) return;
-      if (action === 'edit') openModal(c, 'full');
+      if (action === 'edit') openModalGuarded(c, 'full');
       // 二重の可能性バッジ: 相手の案件を見るか、疑いを解除するか
       else if (action === 'dup-open') {
         e.stopPropagation();

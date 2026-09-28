@@ -2164,3 +2164,57 @@ tr:hover td.task-col .task-open-btn, td.task-col .task-open-btn:focus-visible { 
 .task-badge { margin-left: 5px; }
 .task-badge.ok { background: #f59e0b; color: #1f2a44; }
 #taskBtn.on .task-badge, .hdr-btn:hover .task-badge { box-shadow: 0 0 0 1px rgba(255, 255, 255, .6); }
+
+/* ============================================================
+   画面改良 ⑦（案件の編集を右から出るパネルに）
+   一覧は見えたまま（暗くしない）。項目は5つのまとまり。保存ボタンは常に下に見える
+   ============================================================ */
+.modal.drawer {
+  background: transparent; pointer-events: none;           /* 左の一覧は見えたまま */
+  justify-content: flex-end; align-items: stretch; padding: 0;
+}
+.modal.drawer .modal-content {
+  pointer-events: auto; width: min(580px, 100vw); max-width: none; max-height: none; height: 100%;
+  border-radius: 0; border-left: 1px solid #e2e8f0; box-shadow: -12px 0 32px rgba(28, 36, 51, .18);
+  animation: drawer-in .16s ease-out;
+}
+@keyframes drawer-in { from { transform: translateX(24px); opacity: .6; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .modal.drawer .modal-content { animation: none; } }
+.modal.drawer .modal-header { padding: 14px 18px 12px; align-items: flex-start; }
+.modal-head-text { min-width: 0; }
+.modal.drawer .modal-header h2 { font-size: 17px; }
+.modal-sub { margin-top: 4px; font-size: 12.5px; color: #64748b; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.modal-sub:empty { display: none; }
+.modal-sub .late-days { display: inline; margin: 0; }
+/* 本文だけスクロールし、保存ボタンの帯は常に下に見える */
+.modal.drawer #caseForm { display: flex; flex-direction: column; flex: 1; min-height: 0; padding: 0; overflow: hidden; }
+.modal.drawer .form-scroll { flex: 1; min-height: 0; overflow-y: auto; padding: 4px 18px 18px; }
+.modal.drawer .modal-footer { flex: none; }
+/* まとまり（基本・内容・日程・金額・請求・社内だけ） */
+.form-sec { padding: 12px 0 6px; border-bottom: 1px solid #eef1f5; }
+.form-sec:last-child { border-bottom: none; }
+.form-sec-h { margin: 0 0 10px; font-size: 12.5px; font-weight: 700; color: #64748b; letter-spacing: .06em; display: flex; align-items: center; gap: 8px; }
+.form-sec-note { margin: -4px 0 10px; font-size: 11.5px; color: #64748b; }
+.form-sec-inner { margin-top: 12px; padding: 12px; background: #fbf7ee; border: 1px solid #efe2c2; border-radius: 8px; }
+.form-sec-inner .form-sec-h { color: #92400e; }
+.lock-tag { font-size: 11px; font-weight: 700; letter-spacing: 0; background: #fef3c7; color: #92400e; border-radius: 4px; padding: 0 6px; }
+/* 中の項目がすべて隠れている（簡易登録・予定の編集・顧客アカウント）まとまりは見出しごと隠す */
+.form-sec:not(:has(.form-row:not(.hidden))) { display: none; }
+.form-row label .field-hint { display: block; font-weight: 400; font-size: 11px; color: #64748b; margin-top: 2px; }
+/* パネルの幅では2列が読みやすい。日程は「日付＋時刻」を1マスに収める */
+.modal.drawer .form-stack { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.modal.drawer .form-sec[data-sec="sched"] .form-row-wide { grid-column: auto; }
+.modal.drawer .date-time-row .time-input { flex: 0 0 96px; min-width: 0; }
+.modal.drawer .company-row { display: flex; gap: 6px; }
+.modal.drawer .company-row select { flex: 1; min-width: 0; }
+/* パネルを開いている間は、一覧のセルをその場で編集しない（止めるのはJS側。ここでは「編集できそう」な見た目を消す）。
+   ✎ で別の案件に切り替えはできる */
+body.drawer-open #casesBody td.editable, body.drawer-open #casesBody td.viewable { cursor: default; }
+body.drawer-open #casesBody td.editable:hover { background: inherit; outline: none; }
+#casesBody tr.row-editing td { background: #eef4ff !important; }
+/* スマホは画面いっぱいに */
+@media (max-width: 600px) {
+  .modal.drawer .modal-content { width: 100vw; border-left: none; }
+  .modal.drawer .form-stack { grid-template-columns: 1fr; }
+  .modal.drawer .form-scroll { padding: 4px 14px 14px; }
+}
