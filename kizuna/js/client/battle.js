@@ -1,18 +1,18 @@
 // たたかいの がめん（むかしの RPG ふう 1がめん）
-import { el, esc, ListMenu, toast } from './ui/dom.js?v=52bd06082054';
-import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js?v=52bd06082054';
-import { ITEMS } from '../shared/data/items.js?v=52bd06082054';
-import { JOBS } from '../shared/data/jobs.js?v=52bd06082054';
-import { MONSTERS } from '../shared/data/monsters.js?v=52bd06082054';
-import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed } from '../shared/stats.js?v=52bd06082054';
-import { affinityOf } from '../shared/battle.js?v=52bd06082054';
-import { DUAL_TECHS, dualOptions } from '../shared/data/dual.js?v=52bd06082054';
-import { faceURL } from './field.js?v=52bd06082054';
-import { monsterCanvas } from './render/monsters.js?v=52bd06082054';
-import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=52bd06082054';
-import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js?v=52bd06082054';
-import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js?v=52bd06082054';
-import { abilityDetail, statusNames, buffNames } from './ui/info.js?v=52bd06082054';
+import { el, esc, ListMenu, toast } from './ui/dom.js?v=4deb19092b33';
+import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js?v=4deb19092b33';
+import { ITEMS } from '../shared/data/items.js?v=4deb19092b33';
+import { JOBS } from '../shared/data/jobs.js?v=4deb19092b33';
+import { MONSTERS } from '../shared/data/monsters.js?v=4deb19092b33';
+import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed } from '../shared/stats.js?v=4deb19092b33';
+import { affinityOf } from '../shared/battle.js?v=4deb19092b33';
+import { DUAL_TECHS, dualOptions } from '../shared/data/dual.js?v=4deb19092b33';
+import { faceURL } from './field.js?v=4deb19092b33';
+import { monsterCanvas } from './render/monsters.js?v=4deb19092b33';
+import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=4deb19092b33';
+import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js?v=4deb19092b33';
+import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js?v=4deb19092b33';
+import { abilityDetail, statusNames, buffNames } from './ui/info.js?v=4deb19092b33';
 
 // たたかいの え の こまかさ（おもい きかいで さげたら、その あいだは さげた まま）
 let battleRes = BRES;

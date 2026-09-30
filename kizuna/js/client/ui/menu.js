@@ -1,31 +1,33 @@
 // フィールドの メニュー
-import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js?v=52bd06082054';
-import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js?v=52bd06082054';
-import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js?v=52bd06082054';
-import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS } from '../../shared/battle.js?v=52bd06082054';
-import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily } from '../prefs.js?v=52bd06082054';
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, TIER_NAMES } from '../../shared/data/jobs.js?v=52bd06082054';
-import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress } from '../../shared/stats.js?v=52bd06082054';
-import { HIRAMEKI } from '../../shared/data/hirameki.js?v=52bd06082054';
-import { DUAL_TECHS, DUAL_ORDER, groupName } from '../../shared/data/dual.js?v=52bd06082054';
-import { MONSTERS } from '../../shared/data/monsters.js?v=52bd06082054';
-import { monsterDrops } from '../../shared/data/loot.js?v=52bd06082054';
-import { MONSTER_FRIENDS, RACE_NAMES, recipeHint } from '../../shared/data/companions.js?v=52bd06082054';
-import { TACTICS } from '../../shared/ai.js?v=52bd06082054';
-import { PLACES } from '../../shared/maps/overworld.js?v=52bd06082054';
-import { SEA_PLACES } from '../../shared/maps/ch2.js?v=52bd06082054';
-import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js?v=52bd06082054';
-import { T } from '../../shared/tiles.js?v=52bd06082054';
-import { itemDetail, abilityDetail } from './info.js?v=52bd06082054';
-import { makeCanvas, ctxOf } from '../render/pixel.js?v=52bd06082054';
-import { monsterCanvas } from '../render/monsters.js?v=52bd06082054';
-import { mapIconCanvas, boardIconURL } from '../render/boards.js?v=52bd06082054';
-import { compareOne, compareTeam, whoItems } from './counter.js?v=52bd06082054';
-import { faceURL } from '../field.js?v=52bd06082054';
-import { partyRows } from './hud.js?v=52bd06082054';
-import { questMarks, subQuests, OBJECTIVE_TARGETS, whereName } from '../../shared/data/quest-targets.js?v=52bd06082054';
+import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js?v=4deb19092b33';
+import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js?v=4deb19092b33';
+import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js?v=4deb19092b33';
+import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS } from '../../shared/battle.js?v=4deb19092b33';
+import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily } from '../prefs.js?v=4deb19092b33';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, TIER_NAMES } from '../../shared/data/jobs.js?v=4deb19092b33';
+import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress } from '../../shared/stats.js?v=4deb19092b33';
+import { HIRAMEKI } from '../../shared/data/hirameki.js?v=4deb19092b33';
+import { DUAL_TECHS, DUAL_ORDER, groupName } from '../../shared/data/dual.js?v=4deb19092b33';
+import { MONSTERS } from '../../shared/data/monsters.js?v=4deb19092b33';
+import { monsterDrops } from '../../shared/data/loot.js?v=4deb19092b33';
+import { MONSTER_FRIENDS, RACE_NAMES, recipeHint } from '../../shared/data/companions.js?v=4deb19092b33';
+import { TACTICS } from '../../shared/ai.js?v=4deb19092b33';
+import { PLACES } from '../../shared/maps/overworld.js?v=4deb19092b33';
+import { SEA_PLACES } from '../../shared/maps/ch2.js?v=4deb19092b33';
+import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js?v=4deb19092b33';
+import { T } from '../../shared/tiles.js?v=4deb19092b33';
+import { itemDetail, abilityDetail } from './info.js?v=4deb19092b33';
+import { makeCanvas, ctxOf } from '../render/pixel.js?v=4deb19092b33';
+import { monsterCanvas } from '../render/monsters.js?v=4deb19092b33';
+import { mapIconCanvas, boardIconURL } from '../render/boards.js?v=4deb19092b33';
+import { compareOne, compareTeam, whoItems } from './counter.js?v=4deb19092b33';
+import { faceURL } from '../field.js?v=4deb19092b33';
+import { partyRows } from './hud.js?v=4deb19092b33';
+import { questMarks, subQuests, OBJECTIVE_TARGETS, whereName } from '../../shared/data/quest-targets.js?v=4deb19092b33';
+import { memberTalk, talkFor } from '../../shared/data/party-talk.js?v=4deb19092b33';
 
 const MAIN = [
+  { label: 'はなす', value: 'talk' },
   { label: '道具', value: 'items' },
   { label: '呪文', value: 'skills' },
   { label: 'まんたん', value: 'fullheal' },
@@ -145,6 +147,7 @@ export class FieldMenu {
     const g = this.game;
     switch (v) {
       case 'items': this.main.append(this.itemsList(false)); break;
+      case 'talk': this.main.append(el('div', { class: 'muted', text: '仲間と話す。次にどこへ行けばいいか、仲間がヒントをくれる。' })); break;
       case 'fullheal': this.main.append(el('div', { class: 'muted', text: 'みんなのHPを満タンにする。\n「呪文で」…回復の呪文を、MPのむだが少ない順に使う。\n「道具で」…薬草などを、むだが少ない順に使う。' })); break;
       case 'skills': this.main.append(this.skillsView(false)); break;
       case 'equip': this.main.append(this.equipView(false)); break;
@@ -227,6 +230,9 @@ export class FieldMenu {
       case 'tactics': return this.focusSub(this.tacticsView(true));
       case 'zukan': return this.focusSub(this.zukanView(true));
       case 'settings': return this.focusSub(this.settingsView(true));
+      case 'talk':
+        this.close();
+        return partyTalk(g);
       case 'fullheal':
         this.menu.blur();
         return this.pick('どうやって満タンにする？', [{ label: '呪文で', value: 'spell' }, { label: '道具で', value: 'item' }, { label: 'やめる', value: null }]).then((mode) => {
@@ -1075,6 +1081,34 @@ export function renderMiniMap(game, canvas, full = false) {
   for (const o of f.others.values()) dot(o.x, o.y, o.partyId === game.party?.id ? '#ffd66b' : '#8fd0ff', full ? 3 : 2);
   const blink = Math.floor(performance.now() / 300) % 2;
   dot(f.me.x, f.me.y, blink ? '#ff5a5a' : '#ffffff', full ? 3 : 2);
+}
+
+// 仲間会話（はなす）: 仲間が 1人ずつ 今の 目標の ヒントを 話す。さいごに 行き先の 方角
+const DIR8 = ['東', '南東', '南', '南西', '西', '北西', '北', '北東'];
+export function questDirection(game) {
+  const f = game.field;
+  const m = questMarks(game.me, f.mapId, currentObjective(game)).find((x) => x.kind === 'main');
+  if (!m) return '';
+  const dx = m.x + 0.5 - f.me.x, dy = m.y + 0.5 - f.me.y;
+  const dist = Math.hypot(dx, dy);
+  if (dist < 3) return m.via ? '次の行き先へは、すぐそこの出入り口から行ける。' : '次の行き先は、すぐ近くだ。';
+  const i = ((Math.round(Math.atan2(dy, dx) / (Math.PI / 4)) % 8) + 8) % 8;
+  const where = `ここから${DIR8[i]}${dist > 40 ? 'のずっと先' : 'のほう'}`;
+  return m.via ? `次の行き先へは、${where}にある出入り口から行ける。` : `次の行き先は、${where}。`;
+}
+export async function partyTalk(game) {
+  const g = game;
+  const obj = currentObjective(g);
+  const p = g.party;
+  const speakers = [];
+  for (const s of p?.supports || []) speakers.push(memberTalk({ key: s.key, name: s.name, species: s.species }, obj));
+  for (const gu of p?.guests || []) speakers.push(memberTalk({ key: gu.id, name: gu.name }, obj));
+  g.audio.sfx('confirm');
+  if (!speakers.length) await g.script.say(g.me.name, talkFor(obj, 'self'));
+  for (const sp of speakers.slice(0, 4)) await g.script.say(sp.mon ? '' : sp.name, sp.text);
+  const dir = questDirection(g);
+  if (dir) await g.script.say('', `――${dir}`);
+  g.script.closeDialog();
 }
 
 // 目標の しるし: ピンク＝次の 行き先、水色＝たのまれごと、みどり＝報告できる。

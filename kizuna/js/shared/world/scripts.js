@@ -1,10 +1,10 @@
 // だいほん（イベント）を すすめる しくみ
-import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js?v=52bd06082054';
-import { ITEMS } from '../data/items.js?v=52bd06082054';
-import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js?v=52bd06082054';
-import { startFixedBattle } from './battles.js?v=52bd06082054';
-import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion } from './party.js?v=52bd06082054';
-import { openService } from './services.js?v=52bd06082054';
+import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js?v=4deb19092b33';
+import { ITEMS } from '../data/items.js?v=4deb19092b33';
+import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js?v=4deb19092b33';
+import { startFixedBattle } from './battles.js?v=4deb19092b33';
+import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion } from './party.js?v=4deb19092b33';
+import { openService } from './services.js?v=4deb19092b33';
 
 let runSeq = 1;
 

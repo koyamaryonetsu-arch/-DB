@@ -1,17 +1,17 @@
 // お店・やどや・きょうかい・転職・酒場・でんごんばん・メニュー操作
-import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js?v=52bd06082054';
-import { ITEMS, sellPrice, SLOTS } from '../data/items.js?v=52bd06082054';
-import { JOBS, ALL_JOBS, jobReqText } from '../data/jobs.js?v=52bd06082054';
-import { ABILITIES } from '../data/abilities.js?v=52bd06082054';
-import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=52bd06082054';
-import { TACTICS } from '../ai.js?v=52bd06082054';
-import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js?v=52bd06082054';
-import { breedMonsters, breedPreview } from './breed.js?v=52bd06082054';
-import { MONSTERS } from '../data/monsters.js?v=52bd06082054';
-import { DUAL_TECHS } from '../data/dual.js?v=52bd06082054';
-import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings } from '../battle.js?v=52bd06082054';
-import { PLACES } from '../maps/overworld.js?v=52bd06082054';
-import { POS, SEA_PLACES } from '../maps/index.js?v=52bd06082054';
+import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js?v=4deb19092b33';
+import { ITEMS, sellPrice, SLOTS } from '../data/items.js?v=4deb19092b33';
+import { JOBS, ALL_JOBS, jobReqText } from '../data/jobs.js?v=4deb19092b33';
+import { ABILITIES } from '../data/abilities.js?v=4deb19092b33';
+import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=4deb19092b33';
+import { TACTICS } from '../ai.js?v=4deb19092b33';
+import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js?v=4deb19092b33';
+import { breedMonsters, breedPreview } from './breed.js?v=4deb19092b33';
+import { MONSTERS } from '../data/monsters.js?v=4deb19092b33';
+import { DUAL_TECHS } from '../data/dual.js?v=4deb19092b33';
+import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings } from '../battle.js?v=4deb19092b33';
+import { PLACES } from '../maps/overworld.js?v=4deb19092b33';
+import { POS, SEA_PLACES } from '../maps/index.js?v=4deb19092b33';
 
 export function openService(world, s, kind, arg) {
   switch (kind) {
@@ -529,7 +529,7 @@ function fullHealBySpells(world, s) {
     count.set(key, (count.get(key) || 0) + 1);
     mpUsed.set(best.ch.name, (mpUsed.get(best.ch.name) || 0) + best.cost);
   }
-  if (!any) return { ok: false, text: 'HPを回復できる呪文を使える人がいない…\n（MPが足りないか、回復の呪文をおぼえていない）' };
+  if (!any) return { ok: false, text: 'HPを回復できる呪文を使える人がいない…\n（MPが足りないか、回復の呪文を覚えていない）' };
   const byWho = new Map();
   for (const [k, n] of count) {
     const [who, sp] = k.split('|');

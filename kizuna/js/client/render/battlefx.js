@@ -1,6 +1,6 @@
 // たたかいの はいけいと エフェクト
-import { makeCanvas, ctxOf, hexToRgb } from './pixel.js?v=52bd06082054';
-import { weaponLook, playWeapon } from './weaponfx.js?v=52bd06082054';
+import { makeCanvas, ctxOf, hexToRgb } from './pixel.js?v=4deb19092b33';
+import { weaponLook, playWeapon } from './weaponfx.js?v=4deb19092b33';
 
 export const BW = 256;
 export const BH = 144;

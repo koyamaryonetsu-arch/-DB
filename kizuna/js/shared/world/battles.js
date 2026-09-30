@@ -1,15 +1,15 @@
 // たたかいの はじまりと おわり（ほうしゅう・ぜんめつ）
-import { Battle, normBattleSettings } from '../battle.js?v=52bd06082054';
-import { MONSTERS } from '../data/monsters.js?v=52bd06082054';
-import { ITEMS } from '../data/items.js?v=52bd06082054';
-import { ABILITIES } from '../data/abilities.js?v=52bd06082054';
-import { JOBS } from '../data/jobs.js?v=52bd06082054';
-import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=52bd06082054';
-import { gainExp, gainJobBattles, jobTrainable, itemCount, removeItem, addItem, ownsItem, computeStats, STAT_NAMES, fullHeal } from '../stats.js?v=52bd06082054';
-import { JOB_MAX_LEVEL } from '../data/jobs.js?v=52bd06082054';
-import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf } from './party.js?v=52bd06082054';
-import { rollDrops, stealPick } from '../data/loot.js?v=52bd06082054';
-import { MAPS } from '../maps/index.js?v=52bd06082054';
+import { Battle, normBattleSettings } from '../battle.js?v=4deb19092b33';
+import { MONSTERS } from '../data/monsters.js?v=4deb19092b33';
+import { ITEMS } from '../data/items.js?v=4deb19092b33';
+import { ABILITIES } from '../data/abilities.js?v=4deb19092b33';
+import { JOBS } from '../data/jobs.js?v=4deb19092b33';
+import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=4deb19092b33';
+import { gainExp, gainJobBattles, jobTrainable, itemCount, removeItem, addItem, ownsItem, computeStats, STAT_NAMES, fullHeal } from '../stats.js?v=4deb19092b33';
+import { JOB_MAX_LEVEL } from '../data/jobs.js?v=4deb19092b33';
+import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf } from './party.js?v=4deb19092b33';
+import { rollDrops, stealPick } from '../data/loot.js?v=4deb19092b33';
+import { MAPS } from '../maps/index.js?v=4deb19092b33';
 
 let battleSeq = 1;
 
