@@ -1,5 +1,5 @@
 // たたかいの はじまりと おわり（ほうしゅう・ぜんめつ）
-import { Battle } from '../battle.js';
+import { Battle, normBattleSettings } from '../battle.js';
 import { MONSTERS } from '../data/monsters.js';
 import { ITEMS } from '../data/items.js';
 import { ABILITIES } from '../data/abilities.js';
@@ -95,7 +95,7 @@ function makeBattle(world, sessions, party, enemies, opts) {
     rng: world.rng,
     allies,
     enemies,
-    speed: settings.speed || 1,
+    ...normBattleSettings(settings),
     wait: !!settings.wait,
     canFlee: opts.canFlee !== false,
     boss: !!opts.boss,
@@ -231,6 +231,10 @@ export function battleCommand(world, s, msg) {
   }
   const r = b.command(msg.actor, msg.cmd, s.id);
   if (!r.ok) world.send(s, { t: 'battleRej', reason: r.reason || 'できません' });
+  // オートの 合体技は つぎの 戦いでも おぼえておく
+  else if (msg.cmd?.type === 'setAutoDual' && b.get(msg.actor)?.kind === 'player') {
+    s.char.battleSettings = { ...(s.char.battleSettings || {}), autoDual: b.get(msg.actor).autoDual || null };
+  }
 }
 
 // サーバーから プレイヤーが ぬけたとき

@@ -2,7 +2,8 @@
 import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js';
 import { ITEMS, SLOTS, SLOT_NAMES } from '../../shared/data/items.js';
 import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js';
-import { affinityOf } from '../../shared/battle.js';
+import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS } from '../../shared/battle.js';
+import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref } from '../prefs.js';
 import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, TIER_NAMES } from '../../shared/data/jobs.js';
 import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress } from '../../shared/stats.js';
 import { HIRAMEKI } from '../../shared/data/hirameki.js';
@@ -156,7 +157,7 @@ export class FieldMenu {
       key: x.key, name: x.name, level: x.level, exp: x.exp || 0, job: x.job, jobs: x.jobs || {}, equip: x.equip || {}, seeds: x.seeds || {},
       species: x.species || undefined, hp: x.hp, mp: x.mp, look: x.look, tactics: x.tactics, status: {}, companion: true,
       plus: x.plus || 0, bonus: x.bonus || undefined, inherit: x.inherit || undefined,
-      hirameki: x.hirameki || [], skillUse: x.skillUse || {},
+      hirameki: x.hirameki || [], skillUse: x.skillUse || {}, favorites: x.favorites || [],
     };
   }
 
@@ -353,7 +354,7 @@ export class FieldMenu {
     const tabs = el('div', { class: 'tabs' });
     let mode = this.skillMode || 'list';
     const tabBtn = (id, label) => el('button', { class: `btn ${mode === id ? 'sel' : ''}`, text: label, onclick: () => { this.skillMode = id; this.focusSub(this.skillsView(true, who)); } });
-    tabs.append(tabBtn('list', '覚えた技'), tabBtn('combo', 'ひらめき'), tabBtn('dual', '合体技'));
+    tabs.append(tabBtn('list', '覚えた技'), tabBtn('fav', 'お気に入り'), tabBtn('combo', 'ひらめき'), tabBtn('dual', '合体技'));
     box.append(tabs);
     const backBtn = () => {
       if (!active) return;
@@ -387,6 +388,26 @@ export class FieldMenu {
       backBtn();
       return box;
     }
+    if (mode === 'fav') {
+      // お気に入り: 戦いの 呪文・特技の いちばん 上に この じゅんで 出る
+      const favs = (c.favorites || []).filter((id) => ABILITIES[id] && learned.includes(id));
+      if (!favs.length) box.append(el('div', { class: 'muted', text: 'まだお気に入りはない。「覚えた技」で技を選んで「お気に入りに入れる」を選ぼう。' }));
+      if (active && favs.length) {
+        const m = this.mkSub({
+          items: favs.map((id, i) => ({ html: `<span class="muted small">${i + 1}.</span> ${esc(ABILITIES[id].name)}`, value: id, right: ABILITIES[id].kind === 'spell' ? '呪文' : '特技' })),
+          onSelect: async (it) => {
+            this.sub.blur();
+            const op = await this.pick(`${ABILITIES[it.value].name}`, [{ label: '▲ 上へ', value: 'up' }, { label: '▼ 下へ', value: 'down' }, { label: 'お気に入りからはずす', value: 'remove' }, { label: 'やめる', value: null }]);
+            if (op) this.sendFav(c, who, it.value, op);
+            setTimeout(() => { if (this.root) this.focusSub(this.skillsView(true, who)); }, 200);
+          },
+        });
+        box.append(m.root);
+      } else if (favs.length) box.append(el('div', { class: 'small', text: favs.map((id) => ABILITIES[id].name).join('、') }));
+      box.append(el('div', { class: 'detail', text: '戦いで呪文・特技を開くと、いちばん上の「お気に入り」の窓にこのじゅんで出る。選ぶと、上へ・下へでならびを変えられる。' }));
+      backBtn();
+      return box;
+    }
     if (mode === 'dual') {
       // 合体技: 2人の 番を 使う 技
       for (const id of DUAL_ORDER) {
@@ -397,7 +418,7 @@ export class FieldMenu {
           el('div', { class: 'small', text: `${groupName(t.need[0])} ＋ ${groupName(t.need[1])}（2人で1つずつ）` }),
           el('div', { class: 'small muted', text: t.desc })));
       }
-      box.append(el('div', { class: 'detail', text: '合体技は、2人の番を使う技。戦いで自分のゲージがたまった時、ゲージが半分いじょうたまっている仲間がいると「合体技」のコマンドが出る。\n家族のキャラと出す時は、相手の画面に「参加する？」と出るよ。' }));
+      box.append(el('div', { class: 'detail', text: '合体技は、2人の番を使う技。自分のゲージがたまった時に「合体技」から選ぶ。仲間のゲージが半分いじょうならすぐ出る。まだの時は「よやく」して、仲間のゲージが半分たまったらいっしょに出す。\nオートで戦う時にねらう合体技は「作戦」で決められる。家族のキャラと出す時は、相手の画面に「参加する？」と出る。' }));
       backBtn();
       return box;
     }
@@ -412,7 +433,7 @@ export class FieldMenu {
         rightCls: p.penalized ? 'pen' : '',
         value: id,
         cls: `k-${abilityRole(a)}`,
-        disabled: active && (!a.field || locked),
+        disabled: false,
       };
     });
     if (!items.length) {
@@ -429,8 +450,23 @@ export class FieldMenu {
       onMove: (it) => { detail.textContent = it ? `${abilityDetail(it.value, c)}\n使った回数: ${c.skillUse?.[it.value] || 0}回` : ''; },
       onSelect: async (it) => {
         const a = ABILITIES[it.value];
-        if (!a.field) return;
+        const locked = a.kind === 'combo' && !comboAllowed(c, it.value);
+        const fav = (c.favorites || []).includes(it.value);
         this.sub.blur();
+        const act = await this.pick(a.name, [
+          ...(a.field && !locked ? [{ label: '使う', value: 'use' }] : []),
+          { label: fav ? 'お気に入りからはずす' : '★ お気に入りに入れる', value: fav ? 'remove' : 'add' },
+          { label: 'やめる', value: null },
+        ]);
+        if (act === 'add' || act === 'remove') {
+          this.sendFav(c, who, it.value, act);
+          setTimeout(() => { if (this.root) this.focusSub(this.skillsView(true, who)); }, 200);
+          return;
+        }
+        if (act !== 'use') {
+          if (this.root) this.focusSub(this.skillsView(true, who));
+          return;
+        }
         let ref = 'self';
         if (a.target === 'self' && c.companion) ref = 'sup:' + c.key;
         else if (a.target !== 'allies' && a.target !== 'self') ref = await this.pickTarget(`だれに${a.name}？`, a.target === 'deadAlly');
@@ -438,8 +474,21 @@ export class FieldMenu {
         setTimeout(() => { if (this.root) this.focusSub(this.skillsView(true, who)); }, 200);
       },
     });
-    box.append(el('div', { class: 'small muted', text: 'フィールドで使える技だけ選べるよ' }), m.root, detail);
+    box.append(el('div', { class: 'small muted', text: '選ぶと「使う（フィールドで使える技）」「お気に入り」を選べる' }), m.root, detail);
     return box;
+  }
+
+  // お気に入りを サーバーに おくる（画面の キャラにも すぐ 入れる）
+  sendFav(c, who, id, op) {
+    const list = Array.isArray(c.favorites) ? c.favorites : (c.favorites = []);
+    const i = list.indexOf(id);
+    if (op === 'add' && i < 0) list.push(id);
+    if (op === 'remove' && i >= 0) list.splice(i, 1);
+    if ((op === 'up' || op === 'down') && i >= 0) {
+      const j = op === 'up' ? i - 1 : i + 1;
+      if (j >= 0 && j < list.length) [list[i], list[j]] = [list[j], list[i]];
+    }
+    this.game.net.send({ t: 'menu', action: 'favorite', who: who || 'self', id, op });
   }
 
   // ───── そうび ─────
@@ -729,6 +778,7 @@ export class FieldMenu {
       items.push({ label: `${s.name}：${tname(s.tactics)}`, value: { key: s.key, name: s.name }, face: faceURL({ look: s.look, job: s.job, eq: s.equip, mon: s.species || undefined }) });
     }
     items.push({ label: `戦いの初めからオート：${bs.auto ? 'ON' : 'OFF'}`, value: { toggle: 'auto' } });
+    items.push({ label: `オートでねらう合体技：${DUAL_TECHS[bs.autoDual]?.name || 'なし'}`, value: { toggle: 'autoDual' } });
     if (!active) {
       for (const it of items) box.append(el('div', { text: it.label }));
       box.append(el('div', { class: 'detail', text: '仲間やオートのときの戦い方を決める。\n仲間を「めいれいさせろ」にすると、仲間のコマンドも自分で選べる。' }));
@@ -739,7 +789,15 @@ export class FieldMenu {
       onSelect: async (it) => {
         const v = it.value;
         if (v.toggle === 'auto') {
-          g.net.send({ t: 'menu', action: 'settings', speed: bs.speed || 1, wait: !!bs.wait, auto: !bs.auto });
+          g.net.send({ t: 'menu', action: 'settings', auto: !bs.auto });
+        } else if (v.toggle === 'autoDual') {
+          // 自分が 片方の 技を 覚えている 合体技
+          this.sub.blur();
+          const mine = new Set(learnedAbilities(c));
+          const list = DUAL_ORDER.filter((id) => DUAL_TECHS[id].need.some((grp) => grp.some((k) => mine.has(k))))
+            .map((id) => ({ label: DUAL_TECHS[id].name, value: id, right: bs.autoDual === id ? '★' : '' }));
+          const t = await this.pick('オートでねらう合体技（仲間のゲージが半分たまったらいっしょに出す）', [{ label: '使わない', value: '__none' }, ...list, { label: 'やめる', value: null }]);
+          if (t) g.net.send({ t: 'menu', action: 'settings', autoDual: t === '__none' ? null : t });
         } else {
           this.sub.blur();
           const list = Object.entries(TACTICS).filter(([k]) => v.key !== 'self' || k !== 'manual').map(([k, x]) => ({ label: x.name, value: k }));
@@ -781,11 +839,20 @@ export class FieldMenu {
   settingsView(active) {
     const g = this.game;
     const c = g.me;
-    const bs = c.battleSettings || { speed: 1, wait: false };
-    const sp = { 0.75: 'ゆっくり', 1: 'ふつう', 1.35: '速い' }[bs.speed || 1];
+    const bs = c.battleSettings || { wait: false };
+    const cur = normBattleSettings(bs);
+    const STEP = ['とてもゆっくり', 'ゆっくり', 'ふつう', '速い', 'とても速い'];
+    const sp = STEP[BATTLE_SPEEDS.indexOf(cur.speed)] || 'ふつう';
+    const tsp = STEP[TEXT_SPEEDS.indexOf(cur.textSpeed)] || 'ふつう';
+    const bfs = { s: '小さい', m: 'ふつう', l: '大きい' }[battleFontPref()];
+    const bden = { 1: '少なめ（大きく）', 2: 'ふつう', 3: '多め（3列）' }[battleDensityPref()];
     const vol = (v) => '■'.repeat(Math.round(v * 5)) + '□'.repeat(5 - Math.round(v * 5));
+    const send = (patch) => g.net.send({ t: 'menu', action: 'settings', speed: cur.speed, textSpeed: cur.textSpeed, wait: !!bs.wait, auto: !!bs.auto, ...patch });
     const items = [
-      { label: `戦いの速さ：${sp}`, value: 'speed' },
+      { label: `戦いの速さ（エフェクト）：${sp}`, value: 'speed' },
+      { label: `文字の速さ：${tsp}`, value: 'textSpeed' },
+      { label: `戦いの文字の大きさ：${bfs}`, value: 'bfont' },
+      { label: `戦いのコマンドの数：${bden}`, value: 'bdense' },
       { label: `選ぶ間は止まる（ウェイト）：${bs.wait ? 'ON' : 'OFF'}`, value: 'wait' },
       { label: `音楽：${vol(g.audio.musicVol)}`, value: 'music' },
       { label: `効果音：${vol(g.audio.sfxVol)}`, value: 'sfx' },
@@ -813,11 +880,15 @@ export class FieldMenu {
       items,
       onSelect: (it) => {
         if (it.value === 'speed') {
-          const order = [0.75, 1, 1.35];
-          const next = order[(order.indexOf(bs.speed || 1) + 1) % 3];
-          g.net.send({ t: 'menu', action: 'settings', speed: next, wait: !!bs.wait, auto: !!bs.auto });
+          send({ speed: BATTLE_SPEEDS[(BATTLE_SPEEDS.indexOf(cur.speed) + 1) % BATTLE_SPEEDS.length] });
+        } else if (it.value === 'textSpeed') {
+          send({ textSpeed: TEXT_SPEEDS[(TEXT_SPEEDS.indexOf(cur.textSpeed) + 1) % TEXT_SPEEDS.length] });
+        } else if (it.value === 'bfont') {
+          setBattleFontPref({ s: 'm', m: 'l', l: 's' }[battleFontPref()]);
+        } else if (it.value === 'bdense') {
+          setBattleDensityPref({ 1: 2, 2: 3, 3: 1 }[battleDensityPref()]);
         } else if (it.value === 'wait') {
-          g.net.send({ t: 'menu', action: 'settings', speed: bs.speed || 1, wait: !bs.wait, auto: !!bs.auto });
+          send({ wait: !bs.wait });
         } else if (it.value === 'music') {
           g.audio.setVolumes((Math.round(g.audio.musicVol * 5) + 1) % 6 / 5, g.audio.sfxVol);
         } else if (it.value === 'sfx') {

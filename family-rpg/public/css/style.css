@@ -1262,3 +1262,36 @@ body.talking .mon-pop { top: 26%; }
 .dual-invite .di-bar i { display: block; height: 100%; width: 100%; background: #ffd66b; transform-origin: left; animation: dibar linear forwards; }
 @keyframes dibar { to { transform: scaleX(0); } }
 .dual-invite .menu { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4em; }
+
+/* ───── 戦いの 見ための 設定（設定 → 戦いの 文字の 大きさ・コマンドの 数） ───── */
+#battle { --bcmd-fs: 1em; --bcmd-h: 2.15em; --bcols: 2; }
+body.bf-s #battle { --bcmd-fs: 0.88em; --bcmd-h: 1.95em; }
+body.bf-l #battle { --bcmd-fs: 1.15em; --bcmd-h: 2.5em; }
+body.bd-1 #battle { --bcmd-h: 2.6em; }
+body.bd-3 #battle { --bcols: 3; --bcmd-h: 1.9em; }
+#battle .b-cmd .menu { grid-template-columns: repeat(var(--bcols), minmax(0, 1fr)); }
+#battle .b-cmd .menu .item { min-height: var(--bcmd-h); font-size: var(--bcmd-fs); }
+body.bd-3 #battle .b-cmd .menu .item { font-size: calc(var(--bcmd-fs) * 0.9); padding-left: 0.3em; padding-right: 0.3em; }
+@media (max-aspect-ratio: 1/1) {
+  #battle .b-cmd .menu .item { min-height: calc(var(--bcmd-h) * 1.08); font-size: calc(var(--bcmd-fs) * 1.04); }
+}
+
+/* 行動ゲージは モノクロ（HP・MP の 色と まざらない） */
+.atb { background: #16161c; }
+.atb i { background: linear-gradient(90deg, #8c8c96, #dadae2); }
+.atb.full i { background: #ffffff; box-shadow: 0 0 6px rgba(255, 255, 255, 0.7); }
+
+/* お気に入りの まど（戦いの 呪文・特技） */
+.b-cmd .menu .hdr { grid-column: 1 / -1; font-size: 0.8em; color: var(--muted); padding: 0.15em 0.2em 0; letter-spacing: 0.05em; }
+.b-cmd .menu .hdr.fav-h { color: var(--accent); border-bottom: 1px solid rgba(255, 214, 107, 0.4); }
+.b-cmd .menu .hdr.all-h { margin-top: 0.3em; border-bottom: 1px solid rgba(255, 255, 255, 0.18); }
+.b-cmd .menu .item.fav { background: rgba(255, 214, 107, 0.07); }
+.b-msg.info { position: relative; }
+.b-msg .favbtn { position: absolute; top: 0.35em; right: 0.45em; font-size: 0.85em; padding: 0.1em 0.6em; min-height: 0; }
+.b-msg.hasfav .ln { padding-right: 6.4em; }
+.b-cmd .menu .item.k-bond { border-color: var(--accent); white-space: nowrap; }
+.b-msg .favbtn.on { border-color: var(--accent); color: var(--accent); }
+/* 合体技の よやく */
+.b-cmd .menu .item.later { opacity: 0.85; border-style: dashed; }
+.b-cmd .menu .item.auto-dual { grid-column: 1 / -1; min-height: 1.8em; }
+.b-cmd .dual-cancel { margin-top: 0.4em; align-self: flex-start; }

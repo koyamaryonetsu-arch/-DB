@@ -8,6 +8,8 @@ import { TACTICS } from '../ai.js';
 import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf } from './party.js';
 import { breedMonsters, breedPreview } from './breed.js';
 import { MONSTERS } from '../data/monsters.js';
+import { DUAL_TECHS } from '../data/dual.js';
+import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings } from '../battle.js';
 import { PLACES } from '../maps/overworld.js';
 import { POS, SEA_PLACES } from '../maps/index.js';
 
@@ -274,7 +276,8 @@ export function menuAction(world, s, msg) {
     if (p) world.sendParty(p);
     world.markDirty();
   };
-  if (s.busy) return reply(false, '今はできません');
+  // お気に入りは 戦いの 中でも 変えられる
+  if (s.busy && msg.action !== 'favorite') return reply(false, '今はできません');
   switch (msg.action) {
     case 'equip': {
       const who = ownChar(s, msg.who);
@@ -365,12 +368,34 @@ export function menuAction(world, s, msg) {
       target.tactics = t;
       return reply(true, `${target.name}の作戦を「${TACTICS[t].name}」にした。`);
     }
+    // 技の お気に入り（ならびも おぼえる）。who: 'self' か 自分の 仲間
+    case 'favorite': {
+      const who = ownChar(s, msg.who || 'self');
+      const id = msg.id;
+      if (!who || who.species || !ABILITIES[id]) return reply(false, '');
+      const list = Array.isArray(who.favorites) ? who.favorites.filter((x) => ABILITIES[x]) : [];
+      const i = list.indexOf(id);
+      if (msg.op === 'add' && i < 0) list.push(id);
+      else if (msg.op === 'remove' && i >= 0) list.splice(i, 1);
+      else if ((msg.op === 'up' || msg.op === 'down') && i >= 0) {
+        const j = msg.op === 'up' ? i - 1 : i + 1;
+        if (j >= 0 && j < list.length) [list[i], list[j]] = [list[j], list[i]];
+      }
+      who.favorites = list.slice(0, 30);
+      return reply(true, msg.op === 'add' ? `${ABILITIES[id].name}をお気に入りに入れた。` : msg.op === 'remove' ? `${ABILITIES[id].name}をお気に入りからはずした。` : 'ならびを変えた。');
+    }
     case 'settings': {
+      const old = c.battleSettings || {};
+      const cur = normBattleSettings(old);
       c.battleSettings = {
-        speed: [0.75, 1, 1.35].includes(msg.speed) ? msg.speed : (c.battleSettings?.speed || 1),
-        wait: !!msg.wait,
-        auto: !!msg.auto,
+        ...old,
+        sv: 2,
+        speed: BATTLE_SPEEDS.includes(msg.speed) ? msg.speed : cur.speed,
+        textSpeed: TEXT_SPEEDS.includes(msg.textSpeed) ? msg.textSpeed : cur.textSpeed,
+        wait: msg.wait === undefined ? !!old.wait : !!msg.wait,
+        auto: msg.auto === undefined ? !!old.auto : !!msg.auto,
       };
+      if (msg.autoDual !== undefined) c.battleSettings.autoDual = typeof msg.autoDual === 'string' && DUAL_TECHS[msg.autoDual] ? msg.autoDual : null;
       return reply(true, '設定を変えた。');
     }
     default:

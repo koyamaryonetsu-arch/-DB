@@ -1,6 +1,8 @@
 // 合体技（2人で 力を 合わせる 技）
 //
-// ・自分の 行動ゲージが たまって コマンドを えらぶ とき、ゲージが 半分 いじょう たまっている 仲間と 出せる
+// ・自分の 行動ゲージが たまって コマンドを えらぶ とき、仲間と 出せる。
+//   仲間の ゲージが 半分 いじょう なら すぐ。まだ なら「よやく」して、仲間の ゲージが 半分 たまったら いっしょに 出す
+// ・オートの ときは、主人公が えらんで おいた 合体技を つかう（battleSettings.autoDual）
 // ・need の 2つの 組の 技を、2人が 1つずつ 覚えていれば 出せる（どちらが どちらでも よい）
 // ・2人の 番（行動ゲージ）と、それぞれの MP（mp[0]・mp[1]）を 使う
 // ・相手が 家族（人が 動かしている キャラ）の ときは、相手に「参加する？」と 聞く
@@ -130,23 +132,27 @@ function findSkill(who, list) {
 }
 
 // 相手が 合体技に 入れるか（生きていて、ねむり・マヒ・混乱で なく、ゲージが 半分 いじょう）
+// anyGauge: よやく できるか（ゲージは まだ たまって いなくて よい）
 export const DUAL_GAUGE = 50;
-export function partnerFree(p) {
-  if (!p || !p.alive || p.queued || p.inviting) return false;
+export function partnerNow(p) {
+  return !!p?.ready || (p?.atb || 0) >= DUAL_GAUGE;
+}
+export function partnerFree(p, anyGauge = false) {
+  if (!p || !p.alive || p.queued || p.inviting || p.waiting) return false;
   const st = p.statuses || [];
   if (st.includes('sleep') || st.includes('paralyze') || st.includes('confuse')) return false;
-  return !!p.ready || (p.atb || 0) >= DUAL_GAUGE;
+  return anyGauge || partnerNow(p);
 }
 
 // actor が 今 出せる 合体技
 // actor・others: { id, name, alive, abilities, mp, atb, ready, queued, statuses, weaponCat, usable(id) }
 // もどりち: [{ id, partner, partnerName, mine: 0|1, skills: [a, b], mp: [actorの MP, 相手の MP], element }]
-export function dualOptions(actor, others, weaponOk) {
+export function dualOptions(actor, others, weaponOk, { anyGauge = false } = {}) {
   const out = [];
   if (!actor || !actor.alive) return out;
   const silenced = (x) => (x.statuses || []).includes('silence');
   for (const p of others) {
-    if (p.id === actor.id || !partnerFree(p)) continue;
+    if (p.id === actor.id || !partnerFree(p, anyGauge)) continue;
     for (const [id, t] of Object.entries(DUAL_TECHS)) {
       for (const side of [0, 1]) {
         const mine = findSkill(actor, t.need[side]);
@@ -164,7 +170,7 @@ export function dualOptions(actor, others, weaponOk) {
         const skills = side === 0 ? [mine, theirs] : [theirs, mine];
         const elFrom = t.parts.find((x) => x.elementFrom !== undefined)?.elementFrom;
         const element = elFrom !== undefined ? ABILITIES[skills[elFrom]]?.effect?.element : t.element;
-        out.push({ id, partner: p.id, partnerName: p.name, mine: side, skills, mp: [mpMine, mpTheirs], element });
+        out.push({ id, partner: p.id, partnerName: p.name, mine: side, skills, mp: [mpMine, mpTheirs], element, now: partnerNow(p) });
         break;
       }
     }

@@ -93,6 +93,9 @@ export class BattleScene {
     // この たたかいで ためした 属性（'まもの|属性'）。図鑑に のっている ぶんと あわせて ねらう ときに 見せる
     this.tried = new Set();
     this.bond = msg.snap.bond || 0;
+    // 戦いの 速さ（エフェクト）と 文字の 速さ（サーバーと おなじ あたい）
+    this.fxSpeed = msg.snap.speed || 1;
+    this.textSpeed = msg.snap.textSpeed || 1;
     this.fx = new Effects();
     this.bg = battleBackground(msg.snap.bg);
     this.queue = [];
@@ -280,7 +283,7 @@ export class BattleScene {
     this.msgEl.innerHTML = '';
     this.msgEl.classList.remove('info');
     const els = lines.map((l) => el('div', { class: 'ln', text: l }));
-    const per = Math.max(90, Math.min(280, (dur * 0.7) / Math.max(1, lines.length)));
+    const per = Math.max(90, Math.min(260 / this.textSpeed, (dur * 0.8) / Math.max(1, lines.length)));
     els.forEach((e, i) => {
       e.style.visibility = 'hidden';
       this.msgEl.append(e);
@@ -296,6 +299,7 @@ export class BattleScene {
   // えらんでいる 技・道具の せつめい（上から 見せる。長くても 1行めが かくれない）
   info(text) {
     this.msgEl.innerHTML = '';
+    this.msgEl.classList.remove('hasfav');
     this.msgEl.classList.add('info');
     this.msgEl.append(el('div', { class: 'ln small', text }));
   }
@@ -309,7 +313,19 @@ export class BattleScene {
       this.cmdEl.append(el('div', { class: 'wait', text: '仲間が戦っている…' }));
       return;
     }
-    this.cmdEl.append(el('div', { class: 'who', text: a.name }), el('div', { class: 'wait', text: text || (a.alive ? (a.auto ? 'オートで戦っている' : '行動ゲージがたまるのを待っている…') : '死んでしまった…') }));
+    // 合体技の よやく中: 仲間の ゲージを まっている（やめられる）
+    if (a.alive && a.waitDual) {
+      const p = this.c.get(a.waitDual.partner);
+      const t = DUAL_TECHS[a.waitDual.id];
+      this.cmdEl.append(
+        el('div', { class: 'who', text: a.name }),
+        el('div', { class: 'wait', text: `${p?.name || '仲間'}のゲージが半分たまったら「${t?.name || '合体技'}」を出す。力をためている…` }),
+        el('button', { class: 'btn dual-cancel', text: 'よやくをやめる', onclick: () => this.game.net.send({ t: 'battle', actor: a.id, cmd: { type: 'dualCancel' } }) }),
+      );
+      return;
+    }
+    const autoNote = a.auto && a.autoDual && DUAL_TECHS[a.autoDual] ? `（合体技「${DUAL_TECHS[a.autoDual].name}」をねらう）` : '';
+    this.cmdEl.append(el('div', { class: 'who', text: a.name }), el('div', { class: 'wait', text: text || (a.alive ? (a.auto ? `オートで戦っている${autoNote}` : '行動ゲージがたまるのを待っている…') : '死んでしまった…') }));
   }
 
   closeMenus() {
@@ -339,12 +355,12 @@ export class BattleScene {
       { label: '逃げる', value: 'flee', disabled: !this.canFlee },
     ];
     if (duals.length) items.splice(3, 0, { html: '<span class="dual-cmd">合体技</span>', value: 'dual', cls: 'k-dual' });
-    if (this.bond >= 100) items.unshift({ html: '<span class="gold">★ きずな（ミナデイン）</span>', value: 'bond' });
+    if (this.bond >= 100) items.unshift({ html: '<span class="gold">★ミナデイン</span>', value: 'bond', cls: 'k-bond' });
     this.showMenu(items, (it) => {
       switch (it.value) {
         case 'attack': return this.pickEnemy((t) => this.send({ type: 'attack', target: t }));
-        case 'spell': return this.abilityMenu(spells);
-        case 'skill': return this.abilityMenu(skills);
+        case 'spell': return this.abilityMenu(spells, 'spell');
+        case 'skill': return this.abilityMenu(skills, 'skill');
         case 'dual': return this.dualMenu(this.myDualOptions(a));
         case 'item': return this.itemMenu();
         case 'defend': return this.send({ type: 'defend' });
@@ -355,7 +371,7 @@ export class BattleScene {
     }, null, `${a.name}はどうする？`);
   }
 
-  showMenu(items, onSelect, onCancel, title, detailFn) {
+  showMenu(items, onSelect, onCancel, title, detailFn, start = -1) {
     this.closeMenus();
     this.cmdEl.innerHTML = '';
     if (title) this.cmdEl.append(el('div', { class: 'who', text: title }));
@@ -366,17 +382,43 @@ export class BattleScene {
       onCancel: onCancel || null,
       onMove: detailFn ? (it) => detailFn(it) : null,
       press: 130,
+      start,
     });
     this.cmdEl.append(m.root);
     this.menu = m;
     m.focus();
+    if (start >= 0 && detailFn) detailFn(items[m.idx]);
   }
 
-  abilityMenu(ids) {
+  // まえに えらんだ 技（キャラ・ページごと。つぎの 戦いでも おぼえておく）
+  lastPick(a, page) {
+    try { return JSON.parse(localStorage.getItem('kizuna_bcur') || '{}')[`${a.charId || a.id}:${page}`] || null; } catch { return null; }
+  }
+
+  rememberPick(a, page, value) {
+    try {
+      const m = JSON.parse(localStorage.getItem('kizuna_bcur') || '{}');
+      m[`${a.charId || a.id}:${page}`] = value;
+      localStorage.setItem('kizuna_bcur', JSON.stringify(m));
+    } catch { /* */ }
+  }
+
+  // お気に入りに 入れる・はずす（サーバーに おぼえてもらう）
+  toggleFav(a, id) {
+    const favs = a.favs || (a.favs = []);
+    const on = !favs.includes(id);
+    if (on) favs.push(id);
+    else favs.splice(favs.indexOf(id), 1);
+    const who = String(a.charId || '').includes(':') ? String(a.charId).split(':').pop() : 'self';
+    // 知らせは サーバーの 返事（menuRes）で 出る
+    this.game.net.send({ t: 'menu', action: 'favorite', who, id, op: on ? 'add' : 'remove' });
+  }
+
+  abilityMenu(ids, page = 'spell') {
     const a = this.myActor;
     const pc = a.pc || { job: a.job, jobs: this.game.me.jobs };
     const silenced = (a.status || []).includes('silence');
-    const items = ids.map((id) => {
+    const row = (id, fav) => {
       const ab = ABILITIES[id];
       const isMk = ab.effect.type === 'mahouken';
       const cost = isMk ? 0 : mpCost(pc, id);
@@ -391,21 +433,46 @@ export class BattleScene {
         right: isMk ? '▶' : `${cost}`,
         rightCls: pen ? 'pen' : '',
         value: id,
-        cls: `k-${abilityRole(ab)}`,
+        cls: `k-${abilityRole(ab)}${fav ? ' fav' : ''}`,
         disabled: noMp || noWeapon || sil || locked,
       };
-    });
+    };
+    // お気に入りの まど（ならびは メニューの「技」で かえられる）＋ ぜんぶ
+    const favs = (a.favs || []).filter((id) => ids.includes(id));
+    const items = [];
+    if (favs.length) {
+      items.push({ header: true, label: '★ お気に入り', cls: 'fav-h' }, ...favs.map((id) => row(id, true)));
+      items.push({ header: true, label: page === 'spell' ? '呪文（ぜんぶ）' : '特技（ぜんぶ）', cls: 'all-h' });
+    }
+    items.push(...ids.map((id) => row(id, false)));
+    // まえに えらんだ 技から はじめる
+    const last = this.lastPick(a, page);
+    const start = last ? items.findIndex((it) => it.value === last) : -1;
+    const detail = (it) => {
+      if (!it || it.header) return;
+      this.info(abilityDetail(it.value, pc, { brief: true }));
+      const on = (a.favs || []).includes(it.value);
+      this.msgEl.classList.add('hasfav');
+      this.msgEl.append(el('button', {
+        class: `btn favbtn ${on ? 'on' : ''}`,
+        text: on ? '★お気に入り' : '☆お気に入り',
+        title: on ? 'お気に入りからはずす' : 'お気に入りに入れる',
+        onclick: (e) => {
+          e.stopPropagation();
+          this.toggleFav(a, it.value);
+          this.abilityMenu(ids, page);
+        },
+      }));
+    };
     this.showMenu(items, (it) => {
       const ab = ABILITIES[it.value];
+      this.rememberPick(a, page, it.value);
       if (ab.effect.type === 'mahouken') return this.mahoukenMenu();
       const t = ab.target;
       if (t === 'enemy' || t === 'group') return this.pickEnemy((tid) => this.send({ type: 'ability', id: it.value, target: tid }), ab.name, ab.effect?.element);
       if (t === 'ally' || t === 'deadAlly') return this.pickAlly((tid) => this.send({ type: 'ability', id: it.value, target: tid }), t === 'deadAlly', ab.name);
       return this.send({ type: 'ability', id: it.value });
-    }, () => this.openCommand(), null, (it) => {
-      if (!it) return;
-      this.info(abilityDetail(it.value, pc, { brief: true }));
-    });
+    }, () => this.openCommand(), null, detail, start);
   }
 
   mahoukenMenu() {
@@ -427,14 +494,18 @@ export class BattleScene {
       toast('戦いで使える道具がない');
       return this.openCommand();
     }
-    this.showMenu(bag.map((e) => ({ label: ITEMS[e.id].name, right: `×${e.n}`, value: e.id })), (it) => {
+    const bagItems = bag.map((e) => ({ label: ITEMS[e.id].name, right: `×${e.n}`, value: e.id }));
+    const a = this.myActor;
+    const last = a && this.lastPick(a, 'item');
+    this.showMenu(bagItems, (it) => {
+      if (a) this.rememberPick(a, 'item', it.value);
       const item = ITEMS[it.value];
       if (item.target === 'self') return this.send({ type: 'item', id: it.value });
       return this.pickAlly((tid) => this.send({ type: 'item', id: it.value, target: tid }), item.target === 'deadAlly', item.name);
     }, () => this.openCommand(), '道具', (it) => {
       if (!it) return;
       this.info(ITEMS[it.value].desc);
-    });
+    }, last ? bagItems.findIndex((x) => x.value === last) : -1);
   }
 
   // その 敵に その 属性が どれくらい 効くか（ためした ことが なければ null）
@@ -529,7 +600,7 @@ export class BattleScene {
           break;
         case 'ready': {
           const c = this.c.get(ev.id);
-          if (c) { c.ready = true; c.atb = 100; }
+          if (c) { c.ready = true; c.atb = 100; c.waitDual = null; }
           if (this.mine.includes(ev.id)) {
             if (!this.readyQ.includes(ev.id)) this.readyQ.push(ev.id);
             if (!this.cur) this.nextCommand();
@@ -539,7 +610,7 @@ export class BattleScene {
         }
         case 'queued': {
           const c = this.c.get(ev.id);
-          if (c) { c.ready = false; c.queued = true; }
+          if (c) { c.ready = false; c.queued = true; c.waitDual = null; }
           if (this.mine.includes(ev.id)) this.dropReady(ev.id);
           this.renderStatus();
           break;
@@ -561,6 +632,40 @@ export class BattleScene {
           break;
         case 'dualInvite': {
           if (this.mine.includes(ev.to)) this.showInvite(ev);
+          if (this.mine.includes(ev.from)) {
+            const c = this.c.get(ev.from);
+            if (c) { c.waitDual = null; c.ready = true; }
+            if (!this.cur) this.renderCmdIdle(`${ev.toName}の返事を待っている…`);
+          }
+          break;
+        }
+        case 'dualWait': {
+          const c = this.c.get(ev.id);
+          if (c) { c.waitDual = { id: ev.tech, partner: ev.partner }; c.ready = false; }
+          const p = this.c.get(ev.partner);
+          if (p) p.dualTarget = ev.id;
+          this.queue.push({ t: 'msg', lines: ev.lines || [], dur: 900 });
+          if (this.mine.includes(ev.id)) {
+            this.dropReady(ev.id);
+            if (!this.cur) this.renderCmdIdle();
+          }
+          this.renderStatus();
+          break;
+        }
+        case 'dualWaitEnd': {
+          const c = this.c.get(ev.id);
+          const pid = c?.waitDual?.partner;
+          if (c) c.waitDual = null;
+          if (pid && this.c.get(pid)) this.c.get(pid).dualTarget = null;
+          if (ev.lines?.length && this.mine.includes(ev.id)) toast(ev.lines[0]);
+          if (this.mine.includes(ev.id) && !this.cur) this.renderCmdIdle();
+          this.renderStatus();
+          break;
+        }
+        case 'autoDual': {
+          const c = this.c.get(ev.id);
+          if (c) c.autoDual = ev.tech;
+          if (this.mine.includes(ev.id) && !this.cur) this.renderCmdIdle();
           break;
         }
         case 'dualAnswer': {
@@ -592,7 +697,7 @@ export class BattleScene {
   present(ev) {
     if (ev.t === 'act') this.plate(ev);
     // 合体技・ひらめきは さきに 大きく 見せてから
-    const pre = ev.dual ? 820 : ev.hirameki ? 700 : 0;
+    const pre = (ev.dual ? 820 : ev.hirameki ? 700 : 0) / this.fxSpeed;
     if (pre) {
       this.say((ev.lines || []).slice(0, ev.dual ? 2 : 1), 500);
       if (ev.dual) this.dualFx(ev);
@@ -719,7 +824,7 @@ export class BattleScene {
         }
       }
     };
-    if (hitDelay > 0) setTimeout(apply, hitDelay);
+    if (hitDelay > 0) setTimeout(apply, hitDelay / this.fxSpeed);
     else apply();
     // えらんでいる とちゅうで たおれた・ねむった など
     const cur = this.cur && this.c.get(this.cur);
@@ -736,13 +841,32 @@ export class BattleScene {
     const info = (x) => ({
       id: x.id, name: x.name, alive: x.alive, abilities: x.abilities || [], mp: x.mp, atb: x.atb, ready: x.ready, queued: !!x.queued,
       inviting: false, statuses: x.status || [], weaponCat: x.weaponCat,
+      waiting: x.id !== a.id && (!!x.waitDual || (!!x.dualTarget && x.dualTarget !== a.id)),
       usable: (id) => {
         const ab = ABILITIES[id];
         return !!ab && (ab.kind !== 'combo' || comboAllowed(x.pc || { job: x.job, jobs: {} }, id)) && weaponOk(ab, x.weaponCat);
       },
     });
     const others = this.allies().filter((x) => x.id !== a.id && !x.mon);
-    return dualOptions(info(a), others.map(info), weaponOk);
+    return dualOptions(info(a), others.map(info), weaponOk, { anyGauge: true });
+  }
+
+  // オートの ときに ねらう 合体技を えらぶ
+  autoDualMenu(opts) {
+    const a = this.myActor;
+    const seen = new Set();
+    const items = [{ label: '使わない', value: null }];
+    for (const o of opts) {
+      if (seen.has(o.id)) continue;
+      seen.add(o.id);
+      items.push({ html: `${esc(DUAL_TECHS[o.id].name)}<span class="with-line">${esc(o.partnerName)}など</span>`, value: o.id, right: a.autoDual === o.id ? '★' : '' });
+    }
+    this.showMenu(items, (it) => {
+      this.game.net.send({ t: 'battle', actor: a.id, cmd: { type: 'setAutoDual', id: it.value } });
+      a.autoDual = it.value;
+      toast(it.value ? `オートの時は「${DUAL_TECHS[it.value].name}」をねらう` : 'オートの時は合体技を使わない');
+      this.dualMenu(this.myDualOptions(a));
+    }, () => this.dualMenu(this.myDualOptions(a)), 'オートの時にねらう合体技');
   }
 
   dualMenu(opts) {
@@ -751,15 +875,19 @@ export class BattleScene {
       return this.openCommand();
     }
     const role = (t) => (t.parts.some((x) => x.type === 'phys' || x.type === 'magic') ? 'dmg' : t.parts.some((x) => x.type === 'heal' || x.type === 'cure') ? 'heal' : 'sup');
+    const a = this.myActor;
     const items = opts.map((o) => {
       const t = DUAL_TECHS[o.id];
       const e = o.element;
       return {
-        html: `${ELEMENT_NAMES[e] ? `<span class="elem e-${e}">${ELEMENT_NAMES[e]}</span>` : ''}${esc(t.name)}<span class="with-line">${esc(o.partnerName)}といっしょに</span>`,
-        right: `${o.mp[0]}`, value: o, cls: `k-${role(t)}`,
+        html: `${ELEMENT_NAMES[e] ? `<span class="elem e-${e}">${ELEMENT_NAMES[e]}</span>` : ''}${esc(t.name)}<span class="with-line">${esc(o.partnerName)}といっしょに${o.now ? '' : '（よやく）'}</span>`,
+        right: `${o.mp[0]}`, value: o, cls: `k-${role(t)}${o.now ? '' : ' later'}`,
       };
     });
+    const autoName = a?.autoDual && DUAL_TECHS[a.autoDual] ? DUAL_TECHS[a.autoDual].name : 'なし';
+    items.push({ html: `<span class="muted">オートでねらう：${esc(autoName)}</span>`, value: '__auto', cls: 'k-sup auto-dual' });
     this.showMenu(items, (it) => {
+      if (it.value === '__auto') return this.autoDualMenu(opts);
       const o = it.value;
       const t = DUAL_TECHS[o.id];
       const go = (target) => this.send({ type: 'dual', id: o.id, partner: o.partner, target });
@@ -767,9 +895,11 @@ export class BattleScene {
       return go();
     }, () => this.openCommand(), '合体技（2人の番を使う）', (it) => {
       if (!it) return;
+      if (it.value === '__auto') return this.info('オートで戦う時にねらう合体技を決めておくと、仲間のゲージが半分たまった時にいっしょに出します。');
       const o = it.value;
       const t = DUAL_TECHS[o.id];
-      this.info(`【合体技】${o.partnerName}といっしょに　MP ${o.mp[0]}＋${o.mp[1]}\n${t.desc}\n（${ABILITIES[o.skills[0]]?.name}＋${ABILITIES[o.skills[1]]?.name}）`);
+      const when = o.now ? '' : `\n${o.partnerName}のゲージが半分たまったら出す（それまで力をためて待つ）`;
+      this.info(`【合体技】${o.partnerName}といっしょに　MP ${o.mp[0]}＋${o.mp[1]}\n${t.desc}\n（${ABILITIES[o.skills[0]]?.name}＋${ABILITIES[o.skills[1]]?.name}）${when}`);
     });
   }
 
@@ -992,7 +1122,7 @@ export class BattleScene {
       if (c.dead > 0 && c.dead < 2) c.dead += dt / 500;
       if (c.appear > 0) c.appear -= dt / 400;
     }
-    this.fx.update(dt);
+    this.fx.update(dt * this.fxSpeed);
     this.updateGauges();
     this.draw();
   }

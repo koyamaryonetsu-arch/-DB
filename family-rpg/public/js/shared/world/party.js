@@ -426,6 +426,7 @@ export function partyState(world, p) {
         jobs: x.kind === 'npc' ? x.char.jobs : undefined, seeds: x.kind === 'family' ? undefined : x.char.seeds, exp: x.char.exp,
         plus: x.char.plus || 0, bonus: x.char.bonus || undefined, inherit: x.char.inherit || undefined,
         hirameki: x.kind === 'npc' ? x.char.hirameki || [] : undefined, skillUse: x.kind === 'npc' ? x.char.skillUse || {} : undefined,
+        favorites: x.kind === 'npc' ? x.char.favorites || [] : undefined,
         status: x.char.status?.poison ? ['poison'] : [],
       };
     }),

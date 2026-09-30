@@ -10,6 +10,7 @@ import { showTitle, showLogin, showSelect, showCreate, showLoading, saveWhere } 
 import { showServerDown } from './ui/syncui.js';
 import { toast, confirmBox, el } from './ui/dom.js';
 import { MAPS } from '../shared/maps/index.js';
+import { applyBattlePrefs } from './prefs.js';
 
 export class Game {
   constructor(net) {
@@ -45,6 +46,7 @@ export class Game {
     net.local?.cloud?.onChange((st) => this.onCloudState(st));
     try { if (localStorage.getItem('kizuna_bigtext')) document.body.classList.add('big-text'); } catch { /* */ }
     try { if (localStorage.getItem('kizuna_font') === 'dot') document.body.classList.add('dot-font'); } catch { /* */ }
+    applyBattlePrefs();
     // iPhone: さわったら おとを もどす・もどってきたら がめんを つけたままに する
     const kick = () => this.audio.resumeIfNeeded();
     addEventListener('touchend', kick, { passive: true });
