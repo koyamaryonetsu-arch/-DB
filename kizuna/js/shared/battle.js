@@ -7,15 +7,15 @@
 //
 // サーバー（家族サーバー）でも ブラウザ（ひとりモード）でも おなじ コードが うごく
 
-import { makeRng } from './rng.js?v=80fa5367005a';
-import { ABILITIES } from './data/abilities.js?v=80fa5367005a';
-import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=80fa5367005a';
-import { DUAL_TECHS, dualOptions, DUAL_GAUGE } from './data/dual.js?v=80fa5367005a';
-import { MONSTERS } from './data/monsters.js?v=80fa5367005a';
-import { ITEMS } from './data/items.js?v=80fa5367005a';
-import { JOBS } from './data/jobs.js?v=80fa5367005a';
-import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed } from './stats.js?v=80fa5367005a';
-import { decideMonster, decideAlly } from './ai.js?v=80fa5367005a';
+import { makeRng } from './rng.js?v=52bd06082054';
+import { ABILITIES } from './data/abilities.js?v=52bd06082054';
+import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=52bd06082054';
+import { DUAL_TECHS, dualOptions, DUAL_GAUGE } from './data/dual.js?v=52bd06082054';
+import { MONSTERS } from './data/monsters.js?v=52bd06082054';
+import { ITEMS } from './data/items.js?v=52bd06082054';
+import { JOBS } from './data/jobs.js?v=52bd06082054';
+import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed } from './stats.js?v=52bd06082054';
+import { decideMonster, decideAlly } from './ai.js?v=52bd06082054';
 
 export const BOND_MAX = 100;
 // きずなゲージの たまりやすさ（1 … はじめの 版。ちいさいほど たまりにくい）
@@ -570,7 +570,7 @@ export class Battle {
         const t = this.resolveTarget(c, 'enemy', cmd.target);
         this.pushCoverMsg(ev);
         if (!t) break;
-        ev.fx = { type: 'attack', actor: c.id, targets: [t.id], weapon: c.weaponCat, side: c.side };
+        ev.fx = { type: 'attack', actor: c.id, targets: [t.id], weapon: c.weaponCat, weaponId: c.weaponId || undefined, side: c.side };
         this.physHit(c, t, { mult: 1 }, ev, 'phys');
         if (c.onHit && t.alive) this.tryStatus(c, t, { status: c.onHit.status, chance: c.onHit.chance, turns: [2, 3] }, ev, 1);
         this.afterDamage(c, ev, 'phys');
@@ -1785,6 +1785,7 @@ export function allyFromCharacter(char, init = {}) {
     mp: Math.max(0, Math.min(st.maxMp, char.mp ?? st.maxMp)),
     atk: st.atk, dfn: st.dfn, agi: st.agi, mag: st.mag, healPow: st.heal,
     weaponCat: st.weaponCat,
+    weaponId: char.equip?.weapon || null, // エフェクト用（ぶきごとに みためを かえる）
     onHit: st.onHit,
     resist: { ...st.resist },
     race: char.species ? (MONSTERS[char.species]?.race || 'beast') : 'human',

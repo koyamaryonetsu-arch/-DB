@@ -1,17 +1,17 @@
 // お店・やどや・きょうかい・転職・酒場・でんごんばん・メニュー操作
-import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js?v=80fa5367005a';
-import { ITEMS, sellPrice, SLOTS } from '../data/items.js?v=80fa5367005a';
-import { JOBS, ALL_JOBS, jobReqText } from '../data/jobs.js?v=80fa5367005a';
-import { ABILITIES } from '../data/abilities.js?v=80fa5367005a';
-import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=80fa5367005a';
-import { TACTICS } from '../ai.js?v=80fa5367005a';
-import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js?v=80fa5367005a';
-import { breedMonsters, breedPreview } from './breed.js?v=80fa5367005a';
-import { MONSTERS } from '../data/monsters.js?v=80fa5367005a';
-import { DUAL_TECHS } from '../data/dual.js?v=80fa5367005a';
-import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings } from '../battle.js?v=80fa5367005a';
-import { PLACES } from '../maps/overworld.js?v=80fa5367005a';
-import { POS, SEA_PLACES } from '../maps/index.js?v=80fa5367005a';
+import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js?v=52bd06082054';
+import { ITEMS, sellPrice, SLOTS } from '../data/items.js?v=52bd06082054';
+import { JOBS, ALL_JOBS, jobReqText } from '../data/jobs.js?v=52bd06082054';
+import { ABILITIES } from '../data/abilities.js?v=52bd06082054';
+import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=52bd06082054';
+import { TACTICS } from '../ai.js?v=52bd06082054';
+import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js?v=52bd06082054';
+import { breedMonsters, breedPreview } from './breed.js?v=52bd06082054';
+import { MONSTERS } from '../data/monsters.js?v=52bd06082054';
+import { DUAL_TECHS } from '../data/dual.js?v=52bd06082054';
+import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings } from '../battle.js?v=52bd06082054';
+import { PLACES } from '../maps/overworld.js?v=52bd06082054';
+import { POS, SEA_PLACES } from '../maps/index.js?v=52bd06082054';
 
 export function openService(world, s, kind, arg) {
   switch (kind) {

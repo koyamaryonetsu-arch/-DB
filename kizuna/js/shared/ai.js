@@ -1,6 +1,6 @@
 // たたかいの AI（モンスター と サポートなかま）
-import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=80fa5367005a';
-import { mpCost, penaltyFor, weaponOk, comboAllowed } from './stats.js?v=80fa5367005a';
+import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=52bd06082054';
+import { mpCost, penaltyFor, weaponOk, comboAllowed } from './stats.js?v=52bd06082054';
 
 // さくせん
 export const TACTICS = {

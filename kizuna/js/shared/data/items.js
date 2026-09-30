@@ -6,7 +6,7 @@
 // rank: 装備の ランク（1〜10。下の EQUIP_RANKS）。star: 店では 買えない 1つ上の 品（宝箱・レアドロップ）
 // unique: 1人 1つの 品（ボスが 落とす 物）。データを 合わせる ときに ふえすぎない
 
-import { ITEMS_CH2 } from './items-ch2.js?v=80fa5367005a';
+import { ITEMS_CH2 } from './items-ch2.js?v=52bd06082054';
 
 export const ITEMS = {
   // ───── つかう どうぐ ─────
