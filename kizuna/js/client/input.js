@@ -48,6 +48,24 @@ export class Input {
     this.onStack?.();
   }
 
+  // がめんから 消えた ウインドウの ハンドラーを かたづける（el を もつ ものだけ）。
+  // メニューを とじた あとに のこって、フィールドで 動けなくなる・スティックが 出ない のを ふせぐ
+  prune(now = performance.now()) {
+    let changed = false;
+    for (let i = this.stack.length - 1; i >= 0; i--) {
+      const h = this.stack[i];
+      if (!h.el) continue;
+      if (h.el.isConnected) { h.goneAt = 0; continue; }
+      if (!h.goneAt) { h.goneAt = now; continue; }
+      if (now - h.goneAt > 400) {
+        this.stack.splice(i, 1);
+        h.onGone?.();
+        changed = true;
+      }
+    }
+    if (changed) this.onStack?.();
+  }
+
   // いちばん うえの ウインドウが 十字キーで うごかせる もの（リスト など）か
   get padWanted() {
     return !!this.stack[this.stack.length - 1]?.pad;

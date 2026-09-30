@@ -1,13 +1,13 @@
 // タイトル・ログイン・キャラクターえらび・キャラクターづくり
-import { el, ListMenu, toast, askText, confirmBox } from './dom.js?v=28ae91202741';
-import { JOBS, JOB_ORDER } from '../../shared/data/jobs.js?v=28ae91202741';
-import { HAIR, CLOTH, SKIN, HAIR_NAMES, HW, HH } from '../render/chars.js?v=28ae91202741';
-import { playerSprite } from '../field.js?v=28ae91202741';
-import { makeCanvas, ctxOf } from '../render/pixel.js?v=28ae91202741';
-import { ago } from './services.js?v=28ae91202741';
-import { LINE_MAX, parseCode } from '../../shared/world/transfer.js?v=28ae91202741';
-import { DEFAULT_SITE, pendingImport, clearPendingImport, familyServer, setFamilyServer, linkToFamilyServer, linkToSite, siteServerAddress } from '../links.js?v=28ae91202741';
-import { goFamilyServer, goSite, roundTrip, changeServer, syncOnServer, maybeRoundTrip, notePlayed, familyServerUp } from './syncui.js?v=28ae91202741';
+import { el, ListMenu, toast, askText, confirmBox } from './dom.js?v=80fa5367005a';
+import { JOBS, JOB_ORDER } from '../../shared/data/jobs.js?v=80fa5367005a';
+import { HAIR, CLOTH, SKIN, HAIR_NAMES, CW, CH, HRES } from '../render/chars.js?v=80fa5367005a';
+import { playerSprite } from '../field.js?v=80fa5367005a';
+import { makeCanvas, ctxOf } from '../render/pixel.js?v=80fa5367005a';
+import { ago } from './services.js?v=80fa5367005a';
+import { LINE_MAX, parseCode } from '../../shared/world/transfer.js?v=80fa5367005a';
+import { DEFAULT_SITE, pendingImport, clearPendingImport, familyServer, setFamilyServer, linkToFamilyServer, linkToSite, siteServerAddress } from '../links.js?v=80fa5367005a';
+import { goFamilyServer, goSite, roundTrip, changeServer, syncOnServer, maybeRoundTrip, notePlayed, familyServerUp } from './syncui.js?v=80fa5367005a';
 
 function clearUI() {
   document.getElementById('ui').innerHTML = '';
@@ -76,7 +76,7 @@ export function showLoading(game) {
   ui.append(el('div', { class: 'panel center-panel', style: { width: 'min(90vw, 460px)' } },
     el('div', { class: 'win col' },
       el('div', { class: 'gold', text: asking ? '☁ クラウドセーブの確認' : '☁ セーブを読みこんでいます…' }),
-      el('div', { class: 'small', text: asking ? 'claude.aiの画面に出ている確認で「許可」を選ぶと、ブラウザを閉じてもセーブが消えなくなります。' : 'ちょっと待ってね。' }))));
+      el('div', { class: 'small', text: asking ? 'claude.aiの画面に出ている確認で「許可」を選ぶと、ブラウザを閉じてもセーブが消えなくなります。' : '少しお待ちください。' }))));
 }
 
 export function showTitle(game) {
@@ -88,14 +88,14 @@ export function showTitle(game) {
   const start = el('button', { class: 'bigbtn sel', text: '▶ 始める' });
   // ひとりで遊ぶサイト: 家族サーバーを 知っていれば、そちらへも 1タップで（この スマホの データも 持っていく）
   const home = game.net.mode !== 'server' && familyServer() && !game.net.local?.cloud?.inViewer
-    ? el('button', { class: 'bigbtn home-btn', text: '🏠 家族サーバーで遊ぶ', onclick: () => { game.audio.unlock(); goFamilyServer(game); } })
+    ? el('button', { class: 'bigbtn home-btn', text: '家族サーバーで遊ぶ', onclick: () => { game.audio.unlock(); goFamilyServer(game); } })
     : null;
   const homeNote = home ? el('div', { class: 'small muted', text: 'このスマホで進めたキャラも、家族サーバーに保存されます' }) : null;
   // 外出先から つながる（https の）家族サーバーなら、動いているか 見る
   if (home) {
     familyServerUp().then((up) => {
       if (up === null || !home.isConnected) return;
-      home.textContent = up ? '🏠 家族サーバーで遊ぶ（動いています）' : '🏠 家族サーバー（今はお休み中）';
+      home.textContent = up ? '家族サーバーで遊ぶ（動いています）' : '家族サーバー（今はお休み中）';
       home.classList.toggle('down', !up);
       if (!up) {
         homeNote.textContent = '家族サーバーのPCが動いていないみたい。「▶ 始める」でひとりで遊べます（あとで家族サーバーに合わせられます）';
@@ -134,7 +134,7 @@ export async function showLogin(game, failed, code = '') {
     game.net.send({ t: 'hello', pw: saved });
     return;
   }
-  const title = code ? failed : failed ? `合言葉がちがうみたい…（${failed}）` : '家族の合言葉を入れてね';
+  const title = code ? failed : failed ? `合言葉がちがうみたい…（${failed}）` : '家族の合言葉を入れてください';
   const pw = await askText(game.input, { title, placeholder: 'サーバーの画面に出ている合言葉', max: 60, initial: code ? saved : '' });
   if (pw === null) return showLogin(game, failed, code);
   try { localStorage.setItem('kizuna_pw', pw); } catch { /* */ }
@@ -172,7 +172,7 @@ export function showSelect(game, chars) {
   newBtn.addEventListener('click', () => { cleanup(); showCreate(game); });
   grid.append(newBtn);
   const foot = el('div', { class: 'win row', style: { marginTop: '6px', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.4em' } },
-    el('span', { class: 'small muted', text: chars.length ? 'カードを選んでね（矢印キーでも動かせる）' : 'まずはキャラクターを作ろう！' }),
+    el('span', { class: 'small muted', text: chars.length ? 'カードを選ぶ（矢印キーでも動かせる）' : 'まずはキャラクターを作ろう' }),
     el('span', { class: 'row', style: { gap: '0.4em', flexWrap: 'wrap' } },
       ...syncButtons(game, () => cleanup()),
       el('button', { class: 'btn', text: '引っこしコード', onclick: () => { cleanup(); showTransfer(game, chars); } }),
@@ -220,7 +220,7 @@ export function showSelect(game, chars) {
   }, 0);
   const delFlow = async () => {
     cleanup();
-    const name = await askText(game.input, { title: '消すキャラクターの名前を入れてね（元にもどせません）', max: 8 });
+    const name = await askText(game.input, { title: '消すキャラクターの名前を入れてください（元にもどせません）', max: 8 });
     const c = chars.find((x) => x.name === name);
     if (c && await confirmBox(game.input, `${c.name}を本当に消しますか？\n（セーブも全て消えます）`, '消す', 'やめる', (x) => game.audio.sfx(x))) {
       game.net.send({ t: 'deleteChar', id: c.id, confirm: c.name });
@@ -243,7 +243,7 @@ function syncButtons(game, cleanup) {
       el('button', { class: 'btn', text: '🔄 スマホと合わせる', onclick: go(roundTrip) }),
     ];
   }
-  const out = [el('button', { class: 'btn primary', text: '🏠 家族サーバーで遊ぶ', onclick: go(goFamilyServer) })];
+  const out = [el('button', { class: 'btn primary', text: '家族サーバーで遊ぶ', onclick: go(goFamilyServer) })];
   if (familyServer()) out.push(el('button', { class: 'btn', text: 'アドレス', 'aria-label': '家族サーバーのアドレスを変える', onclick: () => changeServer(game) }));
   return out;
 }
@@ -389,12 +389,12 @@ export function showTransfer(game, chars) {
         toast('コピーしました！');
         game.audio.sfx('confirm');
         hint.className = 'small good';
-        hint.textContent = 'コピーしました！　連れていく先で「② コードから連れてくる」を開いて、はりつけてね。\n（同じスマホなら、そのまま連れていく先をブラウザで開いて、はりつけるだけ）';
+        hint.textContent = 'コピーしました！　連れていく先で「② コードから連れてくる」を開いて、はりつけてください。\n（同じスマホなら、そのまま連れていく先をブラウザで開いて、はりつけるだけ）';
       };
       const manual = () => {
         selectAllText(ta);
         hint.className = 'small warn';
-        hint.textContent = '自動でコピーできませんでした。コードを全部選んであるので、青いところを長おし →「コピー」してね。';
+        hint.textContent = '自動でコピーできませんでした。コードを全部選んであるので、青いところを長おし →「コピー」してください。';
       };
       // http の 家族サーバーや アプリの 中でも コピーできる やりかたから ためす
       if (copyBySelect(ta)) return copied();
@@ -403,7 +403,7 @@ export function showTransfer(game, chars) {
     });
     const send = r.code.length < LINE_MAX
       ? 'べつのスマホへは、LINE・メッセージ・AirDrop・メモなどで送れます。'
-      : '長いので、LINEでは送れません。メッセージ・AirDrop・メモなどで送ってね。';
+      : '長いので、LINEでは送れません。メッセージ・AirDrop・メモなどで送ってください。';
     // 1タップで 連れていく（リンクで 開くと、むこうで「連れてきますか？」と 聞かれる）
     const jump = [];
     if (game.net.mode === 'server') {
@@ -412,7 +412,7 @@ export function showTransfer(game, chars) {
       const toServer = async () => {
         let server = familyServer();
         if (!server) {
-          const typed = await askText(game.input, { title: '家族サーバーのアドレスを入れてね（PCの画面に出ている「同じWi-Fiのスマホから」のアドレス）', placeholder: '192.168.1.23:3000', max: 60, initial: '' });
+          const typed = await askText(game.input, { title: '家族サーバーのアドレスを入れてください（PCの画面に出ている「同じWi-Fiのスマホから」のアドレス）', placeholder: '192.168.1.23:3000', max: 60, initial: '' });
           if (typed === null) return;
           server = setFamilyServer(typed);
           if (!server) {
@@ -422,7 +422,7 @@ export function showTransfer(game, chars) {
         }
         goTo(game, linkToFamilyServer(server, r.code));
       };
-      jump.push(el('button', { class: 'btn primary', text: '🏠 家族サーバーへ連れていく', onclick: toServer }));
+      jump.push(el('button', { class: 'btn primary', text: '家族サーバーへ連れていく', onclick: toServer }));
       if (familyServer()) jump.push(el('button', { class: 'btn', text: 'アドレスを変える', onclick: async () => {
         const typed = await askText(game.input, { title: '家族サーバーのアドレス', placeholder: '192.168.1.23:3000', max: 60, initial: familyServer().replace(/^https?:\/\//, '') });
         if (typed !== null && !setFamilyServer(typed)) toast('アドレスの形がちがうみたい', 4000);
@@ -430,7 +430,7 @@ export function showTransfer(game, chars) {
     }
     body.append(
       el('div', { class: 'gold', text: `${r.name}の引っこしコード` }),
-      el('div', { class: 'small', text: '連れていく先の「だれで遊ぶ？」→「引っこしコード」→「② コードから連れてくる」で、このコードをはりつけてね。' }),
+      el('div', { class: 'small', text: '連れていく先の「だれで遊ぶ？」→「引っこしコード」→「② コードから連れてくる」で、このコードをはりつけてください。' }),
       el('div', { class: 'row', style: { gap: '0.5em', flexWrap: 'wrap' } }, ...jump),
       el('div', { class: 'small muted', text: game.net.mode === 'server' ? '同じスマホなら、このボタンだけでOK（ひとりで遊ぶサイトが開いて、連れていくか聞かれます）。' : '家に帰ってPCがついていれば、このボタンだけでOK（家族サーバーが開いて、連れていくか聞かれます）。' }),
       ta,
@@ -447,7 +447,7 @@ export function showTransfer(game, chars) {
     go.addEventListener('click', async () => {
       const code = ta.value.trim();
       if (!code) {
-        toast('コードをはりつけてね');
+        toast('コードをはりつけてください');
         return;
       }
       go.disabled = true;
@@ -479,13 +479,13 @@ export function showCreate(game) {
   const dirs = ['down', 'left', 'up', 'right'];
   const wrap = el('div', { class: 'panel center-panel', style: { width: 'min(96vw, 860px)' } });
   const box = el('div', { class: 'win scroll', style: { maxHeight: 'calc(86vh - var(--pad-h))' } });
-  const preview = makeCanvas(HW, HH);
+  const preview = makeCanvas(CW * HRES, CH * HRES);
   const name = el('input', { class: 'textin', id: 'cname', maxlength: '8', placeholder: '名前（8文字まで）', autocomplete: 'off' });
   const jobDesc = el('div', { class: 'jobdesc' });
   const draw = () => {
     const x = ctxOf(preview);
-    x.clearRect(0, 0, HW, HH);
-    x.drawImage(playerSprite(look, job, dirs[dirI], Math.floor(performance.now() / 300) % 2), 0, 0);
+    x.clearRect(0, 0, preview.width, preview.height);
+    x.drawImage(playerSprite(look, job, dirs[dirI], Math.floor(performance.now() / 300) % 2), 0, 0, preview.width, preview.height);
   };
   const timer = setInterval(draw, 150);
   setTimeout(() => { dirI = 0; }, 0);
@@ -505,7 +505,7 @@ export function showCreate(game) {
     });
     return o;
   };
-  const bodyOpt = opts(['男の子', '女の子'], look.body, (i) => { look.body = i; }, (v) => el('button', { class: 'btn', text: v }));
+  const bodyOpt = opts(['男性', '女性'], look.body, (i) => { look.body = i; }, (v) => el('button', { class: 'btn', text: v }));
   const hairOpt = opts(HAIR_NAMES, look.hair, (i) => { look.hair = i; }, (v) => el('button', { class: 'btn', text: v }));
   const hairCol = opts(HAIR, look.hairColor, (i) => { look.hairColor = i; }, (v) => el('button', { class: 'swatch', style: { background: v }, 'aria-label': 'かみの色' }));
   const skinOpt = opts(SKIN, look.skin, (i) => { look.skin = i; }, (v) => el('button', { class: 'swatch', style: { background: v }, 'aria-label': 'はだの色' }));
@@ -540,7 +540,7 @@ export function showCreate(game) {
         row('かみの色', hairCol),
         row('はだの色', skinOpt),
         row('服の色', clothOpt),
-        row('最初の職業（後で転職できるよ）', jobsEl),
+        row('最初の職業（後で転職できる）', jobsEl),
         jobDesc,
         el('div', { class: 'row end' }, back, ok))),
   );
@@ -561,7 +561,7 @@ export function showCreate(game) {
   ok.addEventListener('click', () => {
     const n = name.value.trim();
     if (!n) {
-      toast('名前を入れてね');
+      toast('名前を入れてください');
       name.focus();
       return;
     }

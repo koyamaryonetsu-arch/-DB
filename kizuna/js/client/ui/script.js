@@ -1,8 +1,8 @@
 // だいほんの さいせい（メッセージ・えらぶ・えんしゅつ）
-import { el } from './dom.js?v=28ae91202741';
-import { ListMenu } from './dom.js?v=28ae91202741';
-import { openServiceUI } from './services.js?v=28ae91202741';
-import { monsterCanvas } from '../render/monsters.js?v=28ae91202741';
+import { el } from './dom.js?v=80fa5367005a';
+import { ListMenu } from './dom.js?v=80fa5367005a';
+import { openServiceUI } from './services.js?v=80fa5367005a';
+import { monsterCanvas } from '../render/monsters.js?v=80fa5367005a';
 
 const TYPE_MS = 28;
 
@@ -149,9 +149,11 @@ export class ScriptPlayer {
     c.width = src.width;
     c.height = src.height;
     c.getContext('2d').drawImage(src, 0, 0);
-    const k = Math.max(2, Math.min(5, Math.floor(160 / Math.max(src.width, src.height))));
-    c.style.width = `${src.width * k}px`;
-    c.style.height = `${src.height * k}px`;
+    // こまかい え（res 4）も 見た目の 大きさで
+    const r = src.res || 1, w = src.width / r, h = src.height / r;
+    const k = Math.max(2, Math.min(5, Math.floor(160 / Math.max(w, h))));
+    c.style.width = `${w * k}px`;
+    c.style.height = `${h * k}px`;
     this.monBox = el('div', { class: 'win mon-pop' }, c);
     document.getElementById('ui').append(this.monBox);
   }

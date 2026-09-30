@@ -1,8 +1,8 @@
 // せつめい文を つくる
-import { ITEMS, SLOT_NAMES, WEAPON_CAT_NAMES } from '../../shared/data/items.js?v=28ae91202741';
-import { ABILITIES, abilityTypeText } from '../../shared/data/abilities.js?v=28ae91202741';
-import { JOBS, ALL_JOBS } from '../../shared/data/jobs.js?v=28ae91202741';
-import { computeStats, canEquip, penaltyFor, mpCost, comboJobNames, comboAllowed } from '../../shared/stats.js?v=28ae91202741';
+import { ITEMS, SLOT_NAMES, WEAPON_CAT_NAMES } from '../../shared/data/items.js?v=80fa5367005a';
+import { ABILITIES, abilityTypeText } from '../../shared/data/abilities.js?v=80fa5367005a';
+import { JOBS, ALL_JOBS } from '../../shared/data/jobs.js?v=80fa5367005a';
+import { computeStats, canEquip, penaltyFor, mpCost, comboJobNames, comboAllowed, jobPower } from '../../shared/stats.js?v=80fa5367005a';
 
 const TARGET_NAMES = { enemy: '敵1体', group: '敵1グループ', enemies: '敵全体', ally: '味方1人', allies: '味方全員', self: '自分', deadAlly: '死んだ味方' };
 const BONUS_NAMES = { str: '力', def: '身の守り', agi: '素早さ', mag: '魔力', heal: '回復', hp: 'HP', mp: 'MP' };
@@ -96,6 +96,9 @@ export function abilityDetail(id, char, { brief = false } = {}) {
     if (char && char.job && !comboAllowed(char, id)) lines.push('⚠ 今の職業では使えない');
   } else if (a.job) {
     lines.push(`覚えた職業: ${JOBS[a.job]?.name || ''}`);
+    // 職業レベルで 威力が 上がる
+    const jp = char ? jobPower(char, id) : 1;
+    if (jp > 1) lines.push(`${JOBS[a.job]?.name}Lv${char.jobs?.[a.job]?.lv || 1}：威力+${Math.round((jp - 1) * 100)}%`);
   }
   if (a.weapon === 'blade') lines.push('剣・短剣・オノが必要');
   if (a.weapon === 'fist') lines.push('ツメか素手で使う');

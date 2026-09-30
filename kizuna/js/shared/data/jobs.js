@@ -10,11 +10,11 @@
 // passive: その職業で いる あいだの とくべつな ちから
 //
 // 職業レベルは「たたかいに かった かず」で あがる（けいけんちとは べつ）。
-// じぶんより レベルが 5いじょう ひくい てきとの たたかいは しゅぎょうに ならない。
+// じぶんより レベルが とても ひくい てき だけ との たたかいは しゅぎょうに ならない。
 
 export const JOB_MAX_LEVEL = 10;
-// てきの レベルが「じぶんの レベル − この かず」より ひくいと しゅぎょうに ならない
-export const JOB_TRAIN_GAP = 4;
+// てきの レベルが「じぶんの レベル − この かず」より ひくいと しゅぎょうに ならない（ゆるめ）
+export const JOB_TRAIN_GAP = 12;
 
 const W_ALL = ['sword', 'axe', 'dagger', 'spear', 'claw', 'staff', 'fan', 'whip'];
 
@@ -375,8 +375,8 @@ export const TIER_NAMES = ['基本職', '上級職', '超級職'];
 // 職業レベルに ひつような たたかいの かず（るいけい。上級・超級は すこし おおい）
 const BATTLES = [0, 3, 7, 13, 21, 31, 43, 58, 76, 98];
 const TIER_MULT = [1, 1.4, 1.8];
-// 職業レベルの 上がりにくさ（1.3 … 前の 1.3倍 たたかう）。上がった レベルは そのまま
-export const JOB_RATE = 1.3;
+// 職業レベルの 上がりにくさ（0.8 … はじめの 版の 0.8倍 たたかえば よい）。上がった レベルは そのまま
+export const JOB_RATE = 0.8;
 export function jobBattlesForLevel(lv, tier = 0) {
   if (lv <= 1) return 0;
   return Math.round(BATTLES[Math.min(JOB_MAX_LEVEL, lv) - 1] * (TIER_MULT[tier] || 1) * JOB_RATE);

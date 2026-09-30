@@ -1,30 +1,34 @@
 // フィールドの メニュー
-import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js?v=28ae91202741';
-import { ITEMS, SLOTS, SLOT_NAMES } from '../../shared/data/items.js?v=28ae91202741';
-import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js?v=28ae91202741';
-import { affinityOf } from '../../shared/battle.js?v=28ae91202741';
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, TIER_NAMES } from '../../shared/data/jobs.js?v=28ae91202741';
-import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress } from '../../shared/stats.js?v=28ae91202741';
-import { HIRAMEKI } from '../../shared/data/hirameki.js?v=28ae91202741';
-import { DUAL_TECHS, DUAL_ORDER, groupName } from '../../shared/data/dual.js?v=28ae91202741';
-import { MONSTERS } from '../../shared/data/monsters.js?v=28ae91202741';
-import { monsterDrops } from '../../shared/data/loot.js?v=28ae91202741';
-import { MONSTER_FRIENDS, RACE_NAMES, recipeHint } from '../../shared/data/companions.js?v=28ae91202741';
-import { TACTICS } from '../../shared/ai.js?v=28ae91202741';
-import { PLACES } from '../../shared/maps/overworld.js?v=28ae91202741';
-import { SEA_PLACES } from '../../shared/maps/ch2.js?v=28ae91202741';
-import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js?v=28ae91202741';
-import { T } from '../../shared/tiles.js?v=28ae91202741';
-import { itemDetail, abilityDetail } from './info.js?v=28ae91202741';
-import { makeCanvas, ctxOf } from '../render/pixel.js?v=28ae91202741';
-import { monsterCanvas } from '../render/monsters.js?v=28ae91202741';
-import { mapIconCanvas, boardIconURL } from '../render/boards.js?v=28ae91202741';
-import { compareOne, compareTeam, whoItems } from './counter.js?v=28ae91202741';
-import { faceURL } from '../field.js?v=28ae91202741';
+import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js?v=80fa5367005a';
+import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js?v=80fa5367005a';
+import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js?v=80fa5367005a';
+import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS } from '../../shared/battle.js?v=80fa5367005a';
+import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily } from '../prefs.js?v=80fa5367005a';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, TIER_NAMES } from '../../shared/data/jobs.js?v=80fa5367005a';
+import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress } from '../../shared/stats.js?v=80fa5367005a';
+import { HIRAMEKI } from '../../shared/data/hirameki.js?v=80fa5367005a';
+import { DUAL_TECHS, DUAL_ORDER, groupName } from '../../shared/data/dual.js?v=80fa5367005a';
+import { MONSTERS } from '../../shared/data/monsters.js?v=80fa5367005a';
+import { monsterDrops } from '../../shared/data/loot.js?v=80fa5367005a';
+import { MONSTER_FRIENDS, RACE_NAMES, recipeHint } from '../../shared/data/companions.js?v=80fa5367005a';
+import { TACTICS } from '../../shared/ai.js?v=80fa5367005a';
+import { PLACES } from '../../shared/maps/overworld.js?v=80fa5367005a';
+import { SEA_PLACES } from '../../shared/maps/ch2.js?v=80fa5367005a';
+import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js?v=80fa5367005a';
+import { T } from '../../shared/tiles.js?v=80fa5367005a';
+import { itemDetail, abilityDetail } from './info.js?v=80fa5367005a';
+import { makeCanvas, ctxOf } from '../render/pixel.js?v=80fa5367005a';
+import { monsterCanvas } from '../render/monsters.js?v=80fa5367005a';
+import { mapIconCanvas, boardIconURL } from '../render/boards.js?v=80fa5367005a';
+import { compareOne, compareTeam, whoItems } from './counter.js?v=80fa5367005a';
+import { faceURL } from '../field.js?v=80fa5367005a';
+import { partyRows } from './hud.js?v=80fa5367005a';
+import { questMarks, subQuests, OBJECTIVE_TARGETS, whereName } from '../../shared/data/quest-targets.js?v=80fa5367005a';
 
 const MAIN = [
   { label: '道具', value: 'items' },
   { label: '呪文', value: 'skills' },
+  { label: 'まんたん', value: 'fullheal' },
   { label: '装備', value: 'equip' },
   { label: '強さ', value: 'status' },
   { label: '仲間', value: 'party' },
@@ -35,6 +39,14 @@ const MAIN = [
   { label: '設定', value: 'settings' },
   { label: '終わる', value: 'quit' },
 ];
+
+// 道具の ならべかえ（この 端末に おぼえる）
+function itemSortPref() {
+  try { return ITEM_SORTS[localStorage.getItem('kizuna_isort')] ? localStorage.getItem('kizuna_isort') : 'got'; } catch { return 'got'; }
+}
+function setItemSortPref(k) {
+  try { localStorage.setItem('kizuna_isort', k); } catch { /* */ }
+}
 
 // ずかんの ならび: ふつうの まもの（つよさじゅん）→ はいごう だけの まもの → ボス
 function zukanOrder() {
@@ -57,11 +69,13 @@ export class FieldMenu {
     // そとを タップしても とじる
     this.backdrop = el('div', { class: 'modal-back', onclick: () => this.closeByUser() });
     this.root = el('div', { class: 'panel fmenu-panel' });
+    // ドラクエの ように: パーティー みんなの HP・MP・Lv と、所持金
     const head = el('div', { class: 'win fm-head' });
-    this.headL = el('span', { class: 'gold' });
-    this.headR = el('span', { class: 'fm-stat' });
+    this.headParty = el('div', { class: 'fm-party' });
+    this.headGold = el('div', { class: 'fm-gold' });
     const closeBtn = el('button', { class: 'btn closebtn', text: '✕ 閉じる', 'aria-label': 'メニューを閉じる', onclick: () => this.closeByUser() });
-    head.append(this.headL, this.headR, closeBtn);
+    head.append(this.headParty, this.headGold, closeBtn);
+    document.body.classList.add('menu-open');
     this.side = el('div', { class: 'win side' });
     this.main = el('div', { class: 'win main scroll' });
     this.root.append(head, el('div', { class: 'fmenu' }, this.side, this.main));
@@ -81,9 +95,16 @@ export class FieldMenu {
 
   updateHead() {
     const c = this.game.me;
-    const st = computeStats(c);
-    this.headL.textContent = `${c.name}　${JOBS[c.job].name} Lv${c.level}`;
-    this.headR.textContent = `HP ${c.hp}/${st.maxHp}　MP ${c.mp}/${st.maxMp}　${c.gold}G`;
+    this.headParty.innerHTML = '';
+    for (const m of partyRows(this.game)) {
+      this.headParty.append(el('div', { class: `fm-mem ${m.hp <= 0 ? 'dead' : ''}` },
+        el('div', { class: `n ${m.hpCls}`, text: m.name }),
+        el('div', { class: `v ${m.hpCls}` }, el('span', { class: 'k', text: 'H' }), `${Math.max(0, m.hp)}`),
+        el('div', { class: 'v' }, el('span', { class: 'k', text: 'M' }), `${m.mp}`),
+        el('div', { class: 'v lv' }, el('span', { class: 'k', text: 'Lv' }), `${m.level}`)));
+    }
+    this.headGold.innerHTML = '';
+    this.headGold.append(el('span', { class: 'k', text: '所持金' }), el('span', { class: 'g', text: `${c.gold.toLocaleString('ja-JP')} G` }));
   }
 
   close() {
@@ -94,6 +115,7 @@ export class FieldMenu {
     this.root = null;
     this.backdrop = null;
     this.game.menuOpen = false;
+    document.body.classList.remove('menu-open');
   }
 
   // ✕ボタン・そとを タップ（えらんでいる とちゅうの ウィンドウが あれば そちらが さき）
@@ -112,6 +134,7 @@ export class FieldMenu {
   back() {
     this.sub?.blur();
     this.sub = null;
+    if (!this.root) return; // もう とじている（おくれて よばれた とき）
     this.menu.focus();
     this.preview(this.current);
   }
@@ -122,13 +145,14 @@ export class FieldMenu {
     const g = this.game;
     switch (v) {
       case 'items': this.main.append(this.itemsList(false)); break;
+      case 'fullheal': this.main.append(el('div', { class: 'muted', text: 'みんなのHPを満タンにする。\n「呪文で」…回復の呪文を、MPのむだが少ない順に使う。\n「道具で」…薬草などを、むだが少ない順に使う。' })); break;
       case 'skills': this.main.append(this.skillsView(false)); break;
       case 'equip': this.main.append(this.equipView(false)); break;
       case 'status': this.main.append(this.statusView()); break;
       case 'party': this.main.append(this.partyView(false)); break;
       case 'tactics': this.main.append(this.tacticsView(false)); break;
       case 'zukan': this.main.append(this.zukanView(false)); break;
-      case 'map': this.main.append(el('div', { class: 'muted', text: '探検した場所の地図を見る。（Mキーでも開けるよ）' })); break;
+      case 'map': this.main.append(el('div', { class: 'muted', text: '探検した場所の地図を見る。（Mキーでも開ける）\n次の行き先はピンク、たのまれごとは水色、報告できるときはみどりのしるし。' })); break;
       case 'quest': this.main.append(this.questView()); break;
       case 'settings': this.main.append(this.settingsView(false)); break;
       case 'quit': {
@@ -156,7 +180,7 @@ export class FieldMenu {
       key: x.key, name: x.name, level: x.level, exp: x.exp || 0, job: x.job, jobs: x.jobs || {}, equip: x.equip || {}, seeds: x.seeds || {},
       species: x.species || undefined, hp: x.hp, mp: x.mp, look: x.look, tactics: x.tactics, status: {}, companion: true,
       plus: x.plus || 0, bonus: x.bonus || undefined, inherit: x.inherit || undefined,
-      hirameki: x.hirameki || [], skillUse: x.skillUse || {},
+      hirameki: x.hirameki || [], skillUse: x.skillUse || {}, favorites: x.favorites || [],
     };
   }
 
@@ -203,6 +227,12 @@ export class FieldMenu {
       case 'tactics': return this.focusSub(this.tacticsView(true));
       case 'zukan': return this.focusSub(this.zukanView(true));
       case 'settings': return this.focusSub(this.settingsView(true));
+      case 'fullheal':
+        this.menu.blur();
+        return this.pick('どうやって満タンにする？', [{ label: '呪文で', value: 'spell' }, { label: '道具で', value: 'item' }, { label: 'やめる', value: null }]).then((mode) => {
+          if (mode) g.net.send({ t: 'menu', action: 'fullHeal', mode });
+          if (this.root) this.menu.focus();
+        });
       case 'map':
         this.close();
         return openWorldMap(g);
@@ -219,6 +249,7 @@ export class FieldMenu {
   }
 
   focusSub(node) {
+    if (!this.root) { this.sub?.blur(); return; }
     this.main.innerHTML = '';
     this.main.append(node);
     if (this.sub) {
@@ -238,10 +269,9 @@ export class FieldMenu {
     const c = g.me;
     const box = el('div');
     const detail = el('div', { class: 'detail' });
-    const items = c.items.map((e) => {
-      const it = ITEMS[e.id];
-      return { label: `${it.name}`, right: `×${e.n}`, value: e.id };
-    });
+    const mode = itemSortPref();
+    const counts = new Map(c.items.map((e) => [e.id, e.n]));
+    const items = sortItemIds(c.items.map((e) => e.id), mode).map((id) => ({ label: ITEMS[id].name, right: `×${counts.get(id)}`, value: id }));
     for (const k of c.keyItems) items.push({ html: `${ITEMS[k].name}<span class="tag gold">大事</span>`, value: k, key: true });
     if (!items.length) {
       box.append(el('div', { class: 'muted', text: '何も持っていない。' }));
@@ -252,12 +282,23 @@ export class FieldMenu {
       box.append(el('div', { class: 'small', text: items.map((i) => i.label || ITEMS[i.value].name).join('、') }));
       return box;
     }
+    // ならべかえ（あいうえお順・種類順・手に入れた順）
+    const tabs = el('div', { class: 'tabs sort-tabs' }, el('span', { class: 'small muted', text: 'ならべかえ' }),
+      ...Object.entries(ITEM_SORTS).map(([k, label]) => el('button', {
+        class: `btn ${k === mode ? 'on' : ''}`,
+        text: label,
+        onclick: () => {
+          setItemSortPref(k);
+          this.sfx('cursor');
+          this.focusSub(this.itemsList(true));
+        },
+      })));
     const m = this.mkSub({
       items,
       onMove: (it) => { detail.textContent = it ? itemDetail(it.value) : ''; },
       onSelect: (it) => this.itemAction(it),
     });
-    box.append(m.root, detail);
+    box.append(tabs, m.root, detail);
     return box;
   }
 
@@ -353,7 +394,7 @@ export class FieldMenu {
     const tabs = el('div', { class: 'tabs' });
     let mode = this.skillMode || 'list';
     const tabBtn = (id, label) => el('button', { class: `btn ${mode === id ? 'sel' : ''}`, text: label, onclick: () => { this.skillMode = id; this.focusSub(this.skillsView(true, who)); } });
-    tabs.append(tabBtn('list', '覚えた技'), tabBtn('combo', 'ひらめき'), tabBtn('dual', '合体技'));
+    tabs.append(tabBtn('list', '覚えた技'), tabBtn('fav', 'お気に入り'), tabBtn('combo', 'ひらめき'), tabBtn('dual', '合体技'));
     box.append(tabs);
     const backBtn = () => {
       if (!active) return;
@@ -383,7 +424,27 @@ export class FieldMenu {
           el('div', { class: 'small gold', text: who }),
           ok ? el('div', { class: 'small muted', text: a.desc }) : null));
       }
-      box.append(el('div', { class: 'detail', text: '技を使うたびに回数がふえる。書いてある回数をこえると、その技を使ったしゅんかんに、ひらめくことがある（ひらめいた技がそのまま出る）。\n掛け合わせ技は、元になった職業を合わせ持つ上級職からひらめく。神殿の「ひらめきの賢者」にヒントを聞いてみよう。' }));
+      box.append(el('div', { class: 'detail', text: '技を使うたびに回数がふえる。書いてある回数をこえると、その技を使ったしゅんかんに、ひらめくことがある（ひらめいた技がそのまま出る）。\n掛け合わせ技は、元になった職業を合わせ持つ上級職からひらめく。神殿の「ひらめきの賢者」がヒントを教えてくれる。' }));
+      backBtn();
+      return box;
+    }
+    if (mode === 'fav') {
+      // お気に入り: 戦いの 呪文・特技の いちばん 上に この じゅんで 出る
+      const favs = (c.favorites || []).filter((id) => ABILITIES[id] && learned.includes(id));
+      if (!favs.length) box.append(el('div', { class: 'muted', text: 'まだお気に入りはない。「覚えた技」で技を選んで「お気に入りに入れる」を選ぼう。' }));
+      if (active && favs.length) {
+        const m = this.mkSub({
+          items: favs.map((id, i) => ({ html: `<span class="muted small">${i + 1}.</span> ${esc(ABILITIES[id].name)}`, value: id, right: ABILITIES[id].kind === 'spell' ? '呪文' : '特技' })),
+          onSelect: async (it) => {
+            this.sub.blur();
+            const op = await this.pick(`${ABILITIES[it.value].name}`, [{ label: '▲ 上へ', value: 'up' }, { label: '▼ 下へ', value: 'down' }, { label: 'お気に入りからはずす', value: 'remove' }, { label: 'やめる', value: null }]);
+            if (op) this.sendFav(c, who, it.value, op);
+            setTimeout(() => { if (this.root) this.focusSub(this.skillsView(true, who)); }, 200);
+          },
+        });
+        box.append(m.root);
+      } else if (favs.length) box.append(el('div', { class: 'small', text: favs.map((id) => ABILITIES[id].name).join('、') }));
+      box.append(el('div', { class: 'detail', text: '戦いで呪文・特技を開くと、いちばん上の「お気に入り」の窓にこのじゅんで出る。選ぶと、上へ・下へでならびを変えられる。' }));
       backBtn();
       return box;
     }
@@ -397,7 +458,7 @@ export class FieldMenu {
           el('div', { class: 'small', text: `${groupName(t.need[0])} ＋ ${groupName(t.need[1])}（2人で1つずつ）` }),
           el('div', { class: 'small muted', text: t.desc })));
       }
-      box.append(el('div', { class: 'detail', text: '合体技は、2人の番を使う技。戦いで自分のゲージがたまった時、ゲージが半分いじょうたまっている仲間がいると「合体技」のコマンドが出る。\n家族のキャラと出す時は、相手の画面に「参加する？」と出るよ。' }));
+      box.append(el('div', { class: 'detail', text: '合体技は、2人の番を使う技。自分のゲージがたまった時に「合体技」から選ぶ。仲間のゲージが半分いじょうならすぐ出る。まだの時は「よやく」して、仲間のゲージが半分たまったらいっしょに出す。\nオートで戦う時にねらう合体技は「作戦」で決められる。家族のキャラと出す時は、相手の画面に「参加する？」と出る。' }));
       backBtn();
       return box;
     }
@@ -412,7 +473,7 @@ export class FieldMenu {
         rightCls: p.penalized ? 'pen' : '',
         value: id,
         cls: `k-${abilityRole(a)}`,
-        disabled: active && (!a.field || locked),
+        disabled: false,
       };
     });
     if (!items.length) {
@@ -429,8 +490,23 @@ export class FieldMenu {
       onMove: (it) => { detail.textContent = it ? `${abilityDetail(it.value, c)}\n使った回数: ${c.skillUse?.[it.value] || 0}回` : ''; },
       onSelect: async (it) => {
         const a = ABILITIES[it.value];
-        if (!a.field) return;
+        const locked = a.kind === 'combo' && !comboAllowed(c, it.value);
+        const fav = (c.favorites || []).includes(it.value);
         this.sub.blur();
+        const act = await this.pick(a.name, [
+          ...(a.field && !locked ? [{ label: '使う', value: 'use' }] : []),
+          { label: fav ? 'お気に入りからはずす' : '★ お気に入りに入れる', value: fav ? 'remove' : 'add' },
+          { label: 'やめる', value: null },
+        ]);
+        if (act === 'add' || act === 'remove') {
+          this.sendFav(c, who, it.value, act);
+          setTimeout(() => { if (this.root) this.focusSub(this.skillsView(true, who)); }, 200);
+          return;
+        }
+        if (act !== 'use') {
+          if (this.root) this.focusSub(this.skillsView(true, who));
+          return;
+        }
         let ref = 'self';
         if (a.target === 'self' && c.companion) ref = 'sup:' + c.key;
         else if (a.target !== 'allies' && a.target !== 'self') ref = await this.pickTarget(`だれに${a.name}？`, a.target === 'deadAlly');
@@ -438,8 +514,21 @@ export class FieldMenu {
         setTimeout(() => { if (this.root) this.focusSub(this.skillsView(true, who)); }, 200);
       },
     });
-    box.append(el('div', { class: 'small muted', text: 'フィールドで使える技だけ選べるよ' }), m.root, detail);
+    box.append(el('div', { class: 'small muted', text: '選ぶと「使う（フィールドで使える技）」「お気に入り」を選べる' }), m.root, detail);
     return box;
+  }
+
+  // お気に入りを サーバーに おくる（画面の キャラにも すぐ 入れる）
+  sendFav(c, who, id, op) {
+    const list = Array.isArray(c.favorites) ? c.favorites : (c.favorites = []);
+    const i = list.indexOf(id);
+    if (op === 'add' && i < 0) list.push(id);
+    if (op === 'remove' && i >= 0) list.splice(i, 1);
+    if ((op === 'up' || op === 'down') && i >= 0) {
+      const j = op === 'up' ? i - 1 : i + 1;
+      if (j >= 0 && j < list.length) [list[i], list[j]] = [list[j], list[i]];
+    }
+    this.game.net.send({ t: 'menu', action: 'favorite', who: who || 'self', id, op });
   }
 
   // ───── そうび ─────
@@ -452,6 +541,8 @@ export class FieldMenu {
     const stats = el('div', { class: 'small', text: `攻撃 ${st.atk}　守備 ${st.dfn}　素早さ ${st.agi}　魔力 ${st.mag}　回復 ${st.heal}` });
     const slots = c.species ? ['acc'] : SLOTS;
     const items = slots.map((sl) => ({ label: `${SLOT_NAMES[sl]}：${c.equip?.[sl] ? ITEMS[c.equip[sl]].name : 'なし'}`, value: sl }));
+    // ドラクエの「さいきょう装備」: ふくろの 中で いちばん 強い ものを まとめて 装備
+    if (!c.species) items.push({ label: 'さいきょう装備', value: '__best' }, ...(this.myMates().some((m) => !m.species) ? [{ label: 'みんなさいきょう装備', value: '__bestAll' }] : []));
     if (c.companion) box.append(el('div', { class: 'gold small', text: `${c.name}の装備${c.species ? '（モンスターはアクセサリーだけ）' : ''}` }));
     if (!active) {
       for (const it of items) box.append(el('div', { text: it.label }));
@@ -460,9 +551,18 @@ export class FieldMenu {
     }
     const m = this.mkSub({
       items,
-      onMove: (it) => { detail.textContent = c.equip?.[it.value] ? `E ${ITEMS[c.equip[it.value]].name}（装備している）\n${itemDetail(c.equip[it.value])}` : ''; },
+      onMove: (it) => {
+        if (it.value === '__best') detail.textContent = 'ふくろの中から、攻撃力・守備力がいちばん上がる武器・よろい・たて・かぶとを装備する（アクセサリーはそのまま）';
+        else if (it.value === '__bestAll') detail.textContent = '自分と仲間みんなを、ならびの順にさいきょう装備にする';
+        else detail.textContent = c.equip?.[it.value] ? `E ${ITEMS[c.equip[it.value]].name}（装備している）\n${itemDetail(c.equip[it.value])}` : '';
+      },
       onSelect: async (it) => {
         const slot = it.value;
+        if (slot === '__best' || slot === '__bestAll') {
+          g.net.send({ t: 'menu', action: 'bestEquip', who: slot === '__bestAll' ? 'all' : who });
+          setTimeout(() => { if (this.root) this.focusSub(this.equipView(true, who)); }, 250);
+          return;
+        }
         const cands = g.me.items.filter((e) => ITEMS[e.id]?.type === slot);
         // お店と おなじ 見せかた（攻撃力 52→66 ↑14）
         const opts = cands.map((e) => {
@@ -586,18 +686,23 @@ export class FieldMenu {
     const rows = [];
     const face = (x) => el('img', { class: 'face', src: faceURL({ look: x.look, job: x.job, eq: x.equip, mon: x.species || undefined }), alt: '' });
     const row = (x, name, tag, cls = '') => el('div', { class: 'kv party-row' }, el('span', { class: cls }, face(x), name), el('span', { class: 'small muted', text: tag }));
-    for (const m of p?.members || []) rows.push(row(m, `${m.sid === p.leader ? '★' : ''}${m.name}（${JOBS[m.job].name} Lv${m.level}）`, `HP ${m.hp}/${m.maxHp}`, m.sid === p.leader ? 'gold' : ''));
-    for (const s of p?.supports || []) {
+    // ならびの じゅん（リーダーが きめる。先頭ほど 敵に ねらわれやすい）
+    const memRows = (p?.members || []).map((m) => row(m, `${m.sid === p.leader ? '★' : ''}${m.name}（${JOBS[m.job].name} Lv${m.level}）`, `HP ${m.hp}/${m.maxHp}`, m.sid === p.leader ? 'gold' : ''));
+    const supRows = (p?.supports || []).map((s) => {
       const kind = s.species ? `${MONSTERS[s.species]?.name}${s.plus ? `＋${s.plus}` : ''} Lv${s.level}` : `${JOBS[s.job]?.name} Lv${s.level}`;
-      rows.push(row(s, `${s.name}（${kind}）`, s.family ? '家族サポート' : s.species ? 'モンスター' : '仲間'));
-    }
+      return row(s, `${s.name}（${kind}）`, s.family ? '家族サポート' : s.species ? 'モンスター' : '仲間');
+    });
+    const pos = Math.max(0, Math.min(supRows.length, p?.selfPos || 0));
+    rows.push(...supRows.slice(0, pos), ...memRows, ...supRows.slice(pos));
+    rows.forEach((r, i) => r.firstChild.prepend(el('span', { class: 'ord', text: `${i + 1}` })));
     for (const gu of p?.guests || []) rows.push(row(gu, gu.name, 'ゲスト'));
     box.append(...rows);
     if (!active) {
-      box.append(el('div', { class: 'detail', text: '遊んでいる家族をパーティーにさそえるよ。仲間はルミナの町の酒場で探したり入れかえたりできる。\n近くにいる仲間はいっしょに戦う。はなれている仲間も、戦っているところへかけつけると、とちゅうから参加できるよ。' }));
+      box.append(el('div', { class: 'detail', text: '遊んでいる家族をパーティーにさそえる。仲間はルミナの町の酒場で探したり入れかえたりできる。\n近くにいる仲間はいっしょに戦う。はなれている仲間も、戦っている場所へかけつけると、とちゅうから参加できる。\n「ならびを変える」で順番を変えられる（先頭ほど敵にねらわれやすい）。' }));
       return box;
     }
     const acts = [];
+    if (iAmLeader && (p?.supports?.length || 0) >= 1) acts.push({ label: 'ならびを変える', value: { a: 'order' } });
     const others = (g.players || []).filter((x) => x.sid !== g.sid && x.partyId !== p?.id && !x.away);
     if (iAmLeader) for (const o of others) acts.push({ label: `${o.name}をさそう`, value: { a: 'invite', sid: o.sid } });
     if (iAmLeader) for (const s of p?.supports || []) acts.push({ label: `${s.name}に酒場で待っていてもらう`, value: { a: 'dismiss', key: s.key, name: s.name } });
@@ -610,7 +715,11 @@ export class FieldMenu {
       onSelect: async (it) => {
         const v = it.value;
         if (!v) return;
-        if (v.a === 'follow') {
+        if (v.a === 'order') {
+          this.sub.blur();
+          const order = await this.pickOrder();
+          if (order) g.net.send({ t: 'menu', action: 'order', order });
+        } else if (v.a === 'follow') {
           g.follow = !g.follow;
           toast(g.follow ? 'リーダーについていきます' : '自分で歩きます');
         } else if (v.a === 'dismiss') {
@@ -623,6 +732,22 @@ export class FieldMenu {
     });
     box.append(el('div', { style: { marginTop: '0.5em' } }, m.root));
     return box;
+  }
+
+  // ドラクエの ならびかえ: 1番目から じゅんに えらぶ（人の まとまりは いっしょに うごく）
+  async pickOrder() {
+    const p = this.game.party;
+    const people = (p?.members || []).map((m) => m.name).join('・') || this.game.me.name;
+    const pool = [{ label: people, value: 'self' }, ...(p?.supports || []).map((s) => ({ label: s.name, value: s.key }))];
+    const order = [];
+    while (pool.length > 1) {
+      const v = await this.pick(`${order.length + 1}番目はだれにする？（先頭ほど敵にねらわれやすい）`, [...pool, { label: 'やめる', value: null }]);
+      if (!v) return null;
+      order.push(v);
+      pool.splice(pool.findIndex((x) => x.value === v), 1);
+    }
+    order.push(pool[0].value);
+    return order;
   }
 
   // ───── ずかん ─────
@@ -641,7 +766,7 @@ export class FieldMenu {
     const count = (k) => order.filter((sp) => st(sp)[k]).length;
     box.append(el('div', { class: 'small gold', text: `見つけた ${count('seen')}/${order.length}　仲間にした ${count('friend')}　配合で生んだ ${count('bred')}` }));
     if (!active) {
-      box.append(el('div', { class: 'detail', text: '出会ったモンスターがのる図鑑。\n仲間にしたモンスターや、配合で生まれたモンスターも記録されるよ。\n配合でしか生まれないモンスターもいるらしい…' }));
+      box.append(el('div', { class: 'detail', text: '出会ったモンスターがのる図鑑。\n仲間にしたモンスターや、配合で生まれたモンスターも記録される。\n配合でしか生まれないモンスターもいるらしい…' }));
       return box;
     }
     const detail = el('div', { class: 'detail zukan-detail' });
@@ -729,6 +854,7 @@ export class FieldMenu {
       items.push({ label: `${s.name}：${tname(s.tactics)}`, value: { key: s.key, name: s.name }, face: faceURL({ look: s.look, job: s.job, eq: s.equip, mon: s.species || undefined }) });
     }
     items.push({ label: `戦いの初めからオート：${bs.auto ? 'ON' : 'OFF'}`, value: { toggle: 'auto' } });
+    items.push({ label: `オートでねらう合体技：${DUAL_TECHS[bs.autoDual]?.name || 'なし'}`, value: { toggle: 'autoDual' } });
     if (!active) {
       for (const it of items) box.append(el('div', { text: it.label }));
       box.append(el('div', { class: 'detail', text: '仲間やオートのときの戦い方を決める。\n仲間を「めいれいさせろ」にすると、仲間のコマンドも自分で選べる。' }));
@@ -739,7 +865,15 @@ export class FieldMenu {
       onSelect: async (it) => {
         const v = it.value;
         if (v.toggle === 'auto') {
-          g.net.send({ t: 'menu', action: 'settings', speed: bs.speed || 1, wait: !!bs.wait, auto: !bs.auto });
+          g.net.send({ t: 'menu', action: 'settings', auto: !bs.auto });
+        } else if (v.toggle === 'autoDual') {
+          // 自分が 片方の 技を 覚えている 合体技
+          this.sub.blur();
+          const mine = new Set(learnedAbilities(c));
+          const list = DUAL_ORDER.filter((id) => DUAL_TECHS[id].need.some((grp) => grp.some((k) => mine.has(k))))
+            .map((id) => ({ label: DUAL_TECHS[id].name, value: id, right: bs.autoDual === id ? '★' : '' }));
+          const t = await this.pick('オートでねらう合体技（仲間のゲージが半分たまったらいっしょに出す）', [{ label: '使わない', value: '__none' }, ...list, { label: 'やめる', value: null }]);
+          if (t) g.net.send({ t: 'menu', action: 'settings', autoDual: t === '__none' ? null : t });
         } else {
           this.sub.blur();
           const list = Object.entries(TACTICS).filter(([k]) => v.key !== 'self' || k !== 'manual').map(([k, x]) => ({ label: x.name, value: k }));
@@ -762,15 +896,19 @@ export class FieldMenu {
       box.append(el('h3', { text: `${leader.name}の目標（いっしょに冒険中）` }), el('div', { text: this.game.party.objective || '（特になし）' }));
       box.append(el('div', { class: 'detail', text: `${leader.name}の冒険を手伝っているあいだは、自分のストーリーは進みません。\nレベル・お金・道具はそのままもらえるよ。パーティーをぬけると、自分の冒険の場所にもどります。` }));
     }
-    box.append(el('h3', { text: leader ? '自分の目標' : '今の目標' }), el('div', { text: c.objective || '（特になし）' }));
-    const q = [];
+    box.append(el('h3', { text: leader ? '自分の目標' : '今の目標' }), el('div', { class: 'q-main' }, el('i', { class: 'qdot main' }), c.objective || '（特になし）'));
+    const tgt = OBJECTIVE_TARGETS[c.objective || ''];
+    if (tgt) box.append(el('div', { class: 'small muted', text: `行き先: ${whereName(tgt[tgt.length - 1])}（地図のピンクのしるし）` }));
+    // たのまれごと（報告する 人は 地図に 水色・報告できる ときは みどり）
     const f = (k) => !!c.flags[k];
-    if (f('q_mike_start')) q.push(['迷子のねこミケ', f('q_mike_done') ? 'クリア！' : f('q_mike_found') ? 'リリに報告しよう' : '星見の丘で探そう']);
-    if (f('q_jelly_start')) q.push(['コックの特製ゼリー', f('q_jelly_done') ? 'クリア！' : `ぷるりんゼリー ${Math.min(3, (c.items.find((i) => i.id === 'jelly')?.n) || 0)}/3`]);
-    if (f('q_wolf_start')) q.push(['ウルフ退治', f('q_wolf_done') ? 'クリア！' : `${Math.max(0, (c.kills?.wolf || 0) - (c.quests?.wolfBase || 0))}/5ひき`]);
+    const active = subQuests(c);
+    const done = [['q_mike_done', '迷子のねこミケ'], ['q_jelly_done', 'コックの特製ゼリー'], ['q_wolf_done', 'ウルフ退治'], ['q_bottle_done', 'びんの手紙']].filter(([k]) => f(k));
     box.append(el('h3', { style: { marginTop: '0.6em' }, text: 'たのまれごと' }));
-    if (!q.length) box.append(el('div', { class: 'muted small', text: 'まだない。町の人に話しかけてみよう。' }));
-    for (const [n, s] of q) box.append(el('div', { class: 'kv' }, el('span', { text: n }), el('span', { class: s === 'クリア！' ? 'good' : 'muted', text: s })));
+    if (!active.length && !done.length) box.append(el('div', { class: 'muted small', text: 'まだない。町の人の話を聞くと、たのまれごとが見つかることがある。' }));
+    for (const q of active) {
+      box.append(el('div', { class: 'kv' }, el('span', {}, el('i', { class: `qdot ${q.ready ? 'ready' : 'sub'}` }), q.name), el('span', { class: q.ready ? 'good' : 'muted', text: q.text })));
+    }
+    for (const [, n] of done) box.append(el('div', { class: 'kv' }, el('span', { class: 'muted', text: n }), el('span', { class: 'good', text: 'クリア！' })));
     const chests = Object.keys(c.chests || {}).length;
     const total = Object.values(MAPS).reduce((s, m) => s + m.chests.length, 0);
     box.append(el('div', { class: 'detail', text: `宝箱 ${chests}/${total}　倒した魔物 ${Object.values(c.kills || {}).reduce((s, x) => s + x, 0)}ひき` }));
@@ -781,16 +919,25 @@ export class FieldMenu {
   settingsView(active) {
     const g = this.game;
     const c = g.me;
-    const bs = c.battleSettings || { speed: 1, wait: false };
-    const sp = { 0.75: 'ゆっくり', 1: 'ふつう', 1.35: '速い' }[bs.speed || 1];
+    const bs = c.battleSettings || { wait: false };
+    const cur = normBattleSettings(bs);
+    const STEP = ['とてもゆっくり', 'ゆっくり', 'ふつう', '速い', 'とても速い'];
+    const sp = STEP[BATTLE_SPEEDS.indexOf(cur.speed)] || 'ふつう';
+    const tsp = STEP[TEXT_SPEEDS.indexOf(cur.textSpeed)] || 'ふつう';
+    const bfs = { s: '小さい', m: 'ふつう', l: '大きい' }[battleFontPref()];
+    const bden = { 1: '少なめ（大きく）', 2: 'ふつう', 3: '多め（3列）' }[battleDensityPref()];
     const vol = (v) => '■'.repeat(Math.round(v * 5)) + '□'.repeat(5 - Math.round(v * 5));
+    const send = (patch) => g.net.send({ t: 'menu', action: 'settings', speed: cur.speed, textSpeed: cur.textSpeed, wait: !!bs.wait, auto: !!bs.auto, ...patch });
     const items = [
-      { label: `戦いの速さ：${sp}`, value: 'speed' },
+      { label: `戦いの速さ（エフェクト）：${sp}`, value: 'speed' },
+      { label: `文字の速さ：${tsp}`, value: 'textSpeed' },
+      { label: `戦いの文字の大きさ：${bfs}`, value: 'bfont' },
+      { label: `戦いのコマンドの数：${bden}`, value: 'bdense' },
       { label: `選ぶ間は止まる（ウェイト）：${bs.wait ? 'ON' : 'OFF'}`, value: 'wait' },
       { label: `音楽：${vol(g.audio.musicVol)}`, value: 'music' },
       { label: `効果音：${vol(g.audio.sfxVol)}`, value: 'sfx' },
       { label: `文字の大きさ：${document.body.classList.contains('big-text') ? '大きい' : 'ふつう'}`, value: 'text' },
-      { label: `字の形：${document.body.classList.contains('dot-font') ? 'ドット' : 'なめらか'}`, value: 'font' },
+      { label: `字の形：${UI_FONTS[uiFontPref()]}`, value: 'font' },
     ];
     if (g.field.constructor.webgl2()) items.unshift({ label: `画面：${g.field.view === '3d' ? '2.5D（立体）' : '2D（ドット）'}`, value: 'view' });
     if (g.input.touch) {
@@ -804,7 +951,7 @@ export class FieldMenu {
       box.append(el('div', {
         class: 'detail',
         text: g.input.touch
-          ? '操作: 画面の左側をさわるとそこにスティックが出るよ（指を動かして移動）。「走る」ボタンで走る／歩くを切りかえ。Aで話す・決定、Bでメニュー。メニューは右上の「✕ 閉じる」か、外をタップで閉じる\nメニューやお店などのウインドウは、直接タップするほかに、十字キー（▲▼◀▶）とA・Bでも選べるよ（「ウインドウの十字キー」で出さないこともできる）'
+          ? '操作: 画面の左側をさわるとそこにスティックが出る（指を動かして移動）。「走る」ボタンで走る／歩くを切りかえ。Aで話す・決定、Bでメニュー。メニューは右上の「✕ 閉じる」か、外をタップで閉じる\nメニューやお店などのウインドウは、直接タップするほかに、十字キー（▲▼◀▶）とA・Bでも選べる（「ウインドウの十字キー」で出さないこともできる）'
           : '操作: 矢印/WASDで移動、Shiftをおしながらで走る、Z/Enterで話す・決定、X/Escでメニュー・もどる、Mでマップ、Cでチャット',
       }));
       return box;
@@ -813,11 +960,15 @@ export class FieldMenu {
       items,
       onSelect: (it) => {
         if (it.value === 'speed') {
-          const order = [0.75, 1, 1.35];
-          const next = order[(order.indexOf(bs.speed || 1) + 1) % 3];
-          g.net.send({ t: 'menu', action: 'settings', speed: next, wait: !!bs.wait, auto: !!bs.auto });
+          send({ speed: BATTLE_SPEEDS[(BATTLE_SPEEDS.indexOf(cur.speed) + 1) % BATTLE_SPEEDS.length] });
+        } else if (it.value === 'textSpeed') {
+          send({ textSpeed: TEXT_SPEEDS[(TEXT_SPEEDS.indexOf(cur.textSpeed) + 1) % TEXT_SPEEDS.length] });
+        } else if (it.value === 'bfont') {
+          setBattleFontPref({ s: 'm', m: 'l', l: 's' }[battleFontPref()]);
+        } else if (it.value === 'bdense') {
+          setBattleDensityPref({ 1: 2, 2: 3, 3: 1 }[battleDensityPref()]);
         } else if (it.value === 'wait') {
-          g.net.send({ t: 'menu', action: 'settings', speed: bs.speed || 1, wait: !bs.wait, auto: !!bs.auto });
+          send({ wait: !bs.wait });
         } else if (it.value === 'music') {
           g.audio.setVolumes((Math.round(g.audio.musicVol * 5) + 1) % 6 / 5, g.audio.sfxVol);
         } else if (it.value === 'sfx') {
@@ -827,8 +978,8 @@ export class FieldMenu {
           document.body.classList.toggle('big-text');
           try { localStorage.setItem('kizuna_bigtext', document.body.classList.contains('big-text') ? '1' : ''); } catch { /* */ }
         } else if (it.value === 'font') {
-          document.body.classList.toggle('dot-font');
-          try { localStorage.setItem('kizuna_font', document.body.classList.contains('dot-font') ? 'dot' : ''); } catch { /* */ }
+          const keys = Object.keys(UI_FONTS);
+          setUiFontPref(keys[(keys.indexOf(uiFontPref()) + 1) % keys.length]);
         } else if (it.value === 'view') {
           g.field.setView(g.field.view === '3d' ? '2d' : '3d', true).then((v) => {
             toast(v === '3d' ? '画面を2.5D（立体）にしました' : '画面を2D（ドット）にしました');
@@ -846,14 +997,14 @@ export class FieldMenu {
         setTimeout(() => { if (this.root) this.focusSub(this.settingsView(true)); }, 200);
       },
     });
-    box.append(m.root, el('div', { class: 'detail', text: 'ウェイトをONにすると、コマンドを選ぶ間は戦いの時間が止まるよ（小さい子どもにおすすめ）' + (g.input.touch ? '\n画面が消えると家族との通信がとぎれやすいので「画面を消さない」はONがおすすめ' : '') }));
+    box.append(m.root, el('div', { class: 'detail', text: 'ウェイトをONにすると、コマンドを選ぶ間は戦いの時間が止まる（じっくり考えたい人におすすめ）' + (g.input.touch ? '\n画面が消えると家族との通信がとぎれやすいので「画面を消さない」はONがおすすめ' : '') }));
     return box;
   }
 }
 
 // キャンバスの 字（設定の「字の形」に あわせる。まだ 読みこんで いない 字は 読みこんでおく）
 function canvasFont(px, text) {
-  const fam = document.body.classList.contains('dot-font') ? 'KizunaDot' : 'KizunaRound';
+  const fam = uiFontFamily();
   const f = `${px}px ${fam}, sans-serif`;
   try { document.fonts?.load(f, text).catch(() => {}); } catch { /* */ }
   return f;
@@ -920,9 +1071,85 @@ export function renderMiniMap(game, canvas, full = false) {
     if (px + ic.width < 0 || py + ic.height < 0 || px > canvas.width || py > canvas.height) continue;
     ctx.drawImage(ic, px, py);
   }
+  drawQuestMarks(game, ctx, canvas, x0, y0, pxPer, full);
   for (const o of f.others.values()) dot(o.x, o.y, o.partyId === game.party?.id ? '#ffd66b' : '#8fd0ff', full ? 3 : 2);
   const blink = Math.floor(performance.now() / 300) % 2;
   dot(f.me.x, f.me.y, blink ? '#ff5a5a' : '#ffffff', full ? 3 : 2);
+}
+
+// 目標の しるし: ピンク＝次の 行き先、水色＝たのまれごと、みどり＝報告できる。
+// 小さい 地図の 外に ある ときは ふちに 矢じるし
+const QUEST_COLORS = { main: '#ff5fd2', sub: '#5fd8ff', subReady: '#7dff8a' };
+export function currentObjective(game) {
+  return game.visitingLeader?.() ? game.party?.objective : game.me?.objective;
+}
+function drawQuestMarks(game, ctx, canvas, x0, y0, pxPer, full) {
+  const marks = questMarks(game.me, game.field.mapId, currentObjective(game));
+  const t = performance.now();
+  const pulse = 0.5 + 0.5 * Math.sin(t / 220);
+  // 下から メインが いちばん うえに なるように
+  marks.sort((a, b) => (b.kind === 'main') - (a.kind === 'main'));
+  for (const m of marks.reverse()) {
+    const col = QUEST_COLORS[m.kind];
+    let px = (m.x + 0.5 - x0) * pxPer, py = (m.y + 0.5 - y0) * pxPer;
+    const r = full ? Math.max(5, pxPer * 1.6) : 4;
+    const out = px < r || py < r || px > canvas.width - r || py > canvas.height - r;
+    if (out) {
+      if (full) continue;
+      // ふちの 矢じるし（中心から その 向きへ）
+      const cx = canvas.width / 2, cy = canvas.height / 2;
+      const ang = Math.atan2(py - cy, px - cx);
+      const k = Math.min((cx - 5) / Math.max(1e-6, Math.abs(Math.cos(ang))), (cy - 5) / Math.max(1e-6, Math.abs(Math.sin(ang))));
+      px = cx + Math.cos(ang) * k;
+      py = cy + Math.sin(ang) * k;
+      ctx.save();
+      ctx.translate(px, py);
+      ctx.rotate(ang);
+      ctx.fillStyle = '#000';
+      ctx.beginPath(); ctx.moveTo(6, 0); ctx.lineTo(-4, -5); ctx.lineTo(-4, 5); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = col;
+      ctx.beginPath(); ctx.moveTo(4.5, 0); ctx.lineTo(-3, -3.5); ctx.lineTo(-3, 3.5); ctx.closePath(); ctx.fill();
+      ctx.restore();
+      continue;
+    }
+    ctx.save();
+    ctx.translate(px, py);
+    if (m.kind === 'main') {
+      // ひし形（ドラクエの 目的地の ように 光る）
+      ctx.globalAlpha = 0.35 + 0.4 * pulse;
+      ctx.fillStyle = col;
+      ctx.beginPath(); ctx.arc(0, 0, r * (1.5 + 0.5 * pulse), 0, Math.PI * 2); ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = '#000';
+      ctx.beginPath(); ctx.moveTo(0, -r - 1.5); ctx.lineTo(r + 1.5, 0); ctx.lineTo(0, r + 1.5); ctx.lineTo(-r - 1.5, 0); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = col;
+      ctx.beginPath(); ctx.moveTo(0, -r); ctx.lineTo(r, 0); ctx.lineTo(0, r); ctx.lineTo(-r, 0); ctx.closePath(); ctx.fill();
+    } else {
+      ctx.fillStyle = '#000';
+      ctx.beginPath(); ctx.arc(0, 0, r * 0.85 + 1.5, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = col;
+      ctx.beginPath(); ctx.arc(0, 0, r * 0.85, 0, Math.PI * 2); ctx.fill();
+      if (full && m.kind === 'subReady') {
+        ctx.fillStyle = '#000';
+        ctx.font = canvasFont(Math.max(9, r * 1.5), '!');
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('!', 0, 0.5);
+      }
+    }
+    ctx.restore();
+    if (full) {
+      const label = m.via ? `${m.label}（この先）` : m.label;
+      ctx.font = canvasFont(Math.max(10, pxPer * 3.4), label);
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = '#000';
+      ctx.fillStyle = col;
+      const tx = Math.min(canvas.width - ctx.measureText(label).width - 2, Math.max(2, px + r + 3));
+      const ty = Math.max(12, py - r - 2);
+      ctx.strokeText(label, tx, ty);
+      ctx.fillText(label, tx, ty);
+    }
+  }
 }
 
 // 地図の しるしの せつめい（行ったことが ある お店 だけ）
@@ -943,11 +1170,15 @@ export function openWorldMap(game) {
   const cv = makeCanvas(10, 10);
   const head = el('div', { class: 'wm-head' }, el('span', { class: 'gold', text: game.field.map.name }),
     el('button', { class: 'btn closebtn', text: '✕ 閉じる', 'aria-label': '地図を閉じる' }));
-  box.append(head, cv, mapLegend(game), el('div', { class: 'small muted', text: `赤い点: 自分　黄色: パーティー　青: 家族　（${game.input.touch ? 'タップで閉じる' : 'B/Xで閉じる'}）` }));
+  const qlg = el('div', { class: 'map-legend small' },
+    el('span', { class: 'lg' }, el('i', { class: 'qdot main' }), '次の行き先'),
+    el('span', { class: 'lg' }, el('i', { class: 'qdot sub' }), 'たのまれごと'),
+    el('span', { class: 'lg' }, el('i', { class: 'qdot ready' }), '報告できる'));
+  box.append(...[head, cv, qlg, mapLegend(game)].filter(Boolean), el('div', { class: 'small muted', text: `赤い点: 自分　黄色: パーティー　青: 家族　（${game.input.touch ? 'タップで閉じる' : 'B/Xで閉じる'}）` }));
   document.getElementById('ui').append(back, box);
   renderMiniMap(game, cv, true);
   const iv = setInterval(() => renderMiniMap(game, cv, true), 400);
-  const h = { onNav: (a) => { if (a === 'b' || a === 'a' || a === 'map') close(); } };
+  const h = { el: box, onNav: (a) => { if (a === 'b' || a === 'a' || a === 'map') close(); } };
   const close = () => {
     clearInterval(iv);
     game.input.pop(h);

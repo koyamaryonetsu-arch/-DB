@@ -12,8 +12,8 @@
 //   ・レアの 装備は「店で 買えない ★の 品」か「その地方の 店より 少し 先の 品」
 //   ・種は その魔物に 合った もの（かたい→守り、はやい→素早さ、呪文→かしこさ、大きい→命、力じまん→力）
 //   ・図鑑に 落とす 物が のる（手に入れるまでは ？？？）
-import { ITEMS } from './items.js?v=28ae91202741';
-import { MONSTERS } from './monsters.js?v=28ae91202741';
+import { ITEMS } from './items.js?v=80fa5367005a';
+import { MONSTERS } from './monsters.js?v=80fa5367005a';
 
 export const DROP_N = { common: 8, rare: 64 };
 // ぬすむ ときは レアが 出やすい（この 倍。でも 半分まで）

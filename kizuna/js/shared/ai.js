@@ -1,6 +1,6 @@
 // たたかいの AI（モンスター と サポートなかま）
-import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=28ae91202741';
-import { mpCost, penaltyFor, weaponOk, comboAllowed } from './stats.js?v=28ae91202741';
+import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=80fa5367005a';
+import { mpCost, penaltyFor, weaponOk, comboAllowed } from './stats.js?v=80fa5367005a';
 
 // さくせん
 export const TACTICS = {
@@ -51,9 +51,19 @@ export function decideMonster(b, m) {
   return { type: 'ability', id: choice.id, target };
 }
 
+// 敵が ねらう 相手: ドラクエと おなじく 先頭ほど ねらわれやすい（ならびかえの 意味）
+const FRONT_WEIGHT = [1.45, 1.15, 0.95, 0.8];
 function pickFoe(b, foes) {
   if (!foes.length) return null;
-  return b.rng.pick(foes);
+  if (foes.length === 1 || foes[0].side !== 'ally') return b.rng.pick(foes);
+  const row = foes.slice().sort((x, y) => (x.slot ?? 0) - (y.slot ?? 0));
+  const ws = row.map((_, i) => FRONT_WEIGHT[Math.min(i, FRONT_WEIGHT.length - 1)]);
+  let r = b.rng.next() * ws.reduce((a, x) => a + x, 0);
+  for (let i = 0; i < row.length; i++) {
+    r -= ws[i];
+    if (r < 0) return row[i];
+  }
+  return row[row.length - 1];
 }
 
 // ───────────── サポートなかま・オート ─────────────

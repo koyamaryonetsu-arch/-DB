@@ -5,11 +5,11 @@
 // ・家族サーバーを 開いた とき … ときどき サイトへ ちょっと 行って、スマホの データを 持って もどってくる
 //   （家族サーバーで 遊ぶ まえに、ひとりで 進めた ぶんが かならず 家族サーバーに 入る）
 // どちらで 遊んだ ぶんも なくならない ように、合わせかたは shared/world/sync.js・merge.js
-import { el, toast, confirmBox, askText } from './dom.js?v=28ae91202741';
+import { el, toast, confirmBox, askText } from './dom.js?v=80fa5367005a';
 import {
   DEFAULT_SITE, familyServer, setFamilyServer, normalizeServer, serverAddress, siteServerAddress, isHomeAddress, takeAskServer,
   pendingSync, clearPendingSync, syncLink, mineIds, rememberMine,
-} from '../links.js?v=28ae91202741';
+} from '../links.js?v=80fa5367005a';
 
 const LINKED_KEY = 'kizuna_site_linked';
 const TRIP_KEY = 'kizuna_trip_at';
@@ -109,7 +109,7 @@ export function showServerDown(game, on) {
   const site = siteBase(game);
   const box = el('div', { class: 'win server-down col' },
     el('div', { class: 'gold', text: '家族サーバーにつながりません' }),
-    el('div', { class: 'small', text: '家のPCの電源と、家族サーバー（黒い画面）が動いているか見てね。\nPCが使えない時は、ひとりで遊ぶサイトで遊べます（あとで家族サーバーに合わせられます）。' }),
+    el('div', { class: 'small', text: '家のPCの電源と、家族サーバー（黒い画面）が動いているか確かめてください。\nPCが使えない時は、ひとりで遊ぶサイトで遊べます（あとで家族サーバーに合わせられます）。' }),
     el('div', { class: 'row', style: { gap: '0.5em', flexWrap: 'wrap' } },
       el('a', { class: 'btn primary', href: site, text: '📱 ひとりで遊ぶサイトへ' }),
       el('button', { class: 'btn', text: 'もう一度つなぐ', onclick: () => location.reload() })),
@@ -160,7 +160,7 @@ export async function syncOnSite(game) {
 export async function goFamilyServer(game) {
   let server = familyServer();
   if (!server) {
-    const typed = await askText(game.input, { title: '家族サーバーのアドレスを入れてね（PCの画面の「同じWi-Fiのスマホから」のアドレス）', placeholder: '192.168.1.23:3000', max: 80, initial: '' });
+    const typed = await askText(game.input, { title: '家族サーバーのアドレスを入れてください（PCの画面の「同じWi-Fiのスマホから」のアドレス）', placeholder: '192.168.1.23:3000', max: 80, initial: '' });
     if (typed === null) return false;
     server = setFamilyServer(typed);
     if (!server) {
@@ -168,7 +168,7 @@ export async function goFamilyServer(game) {
       return false;
     }
   }
-  overlay('このスマホで進めたキャラを持って、家族サーバーへ行きます…\n（家族サーバーが開かないときは、家のWi-Fiにつながっているか、PCがついているか見てね）');
+  overlay('このスマホで進めたキャラを持って、家族サーバーへ行きます…\n（家族サーバーが開かないときは、家のWi-Fiにつながっているか、PCがついているか確かめてください）');
   const out = await request(game, { t: 'syncOut', onlyChanged: true }, 'syncPayload', 20000);
   const url = out.text ? syncLink(server, { text: out.text }) : `${server}/`;
   if (game.net.local?.cloud?.inViewer) {

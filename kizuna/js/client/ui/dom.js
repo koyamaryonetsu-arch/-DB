@@ -29,7 +29,8 @@ export function esc(s) {
 // back: タッチでも もどれるように リストの うえに だす ボタンの もじ（null で なし）
 export class ListMenu {
   // press: えらんだ ボタンを この ミリ秒 光らせてから すすむ（どれを おしたか わかるように）
-  constructor(input, { items = [], cols = 1, onSelect, onCancel, onMove, sound, className = '', back, press = 0 } = {}) {
+  // start: はじめに カーソルを おく ばんごう（まえに えらんだ ところ など）
+  constructor(input, { items = [], cols = 1, onSelect, onCancel, onMove, sound, className = '', back, press = 0, start = -1 } = {}) {
     this.input = input;
     this.press = press;
     this.pressing = false;
@@ -42,9 +43,10 @@ export class ListMenu {
     this.back = back === undefined ? (onCancel ? 'もどる' : null) : back;
     this.idx = Math.max(0, items.findIndex((i) => !i.disabled && !i.header));
     if (this.idx < 0) this.idx = 0;
+    if (start >= 0 && start < items.length && !items[start].header) this.idx = start;
     this.root = el('ul', { class: `menu ${cols === 2 ? 'cols2' : ''} ${className}`, role: 'listbox' });
     // pad: スマホでは 十字キーの パッドも 出す
-    this.handler = { onNav: (a, rep) => this.nav(a, rep), pad: true };
+    this.handler = { onNav: (a, rep) => this.nav(a, rep), pad: true, el: this.root, onGone: () => { this.active = false; } };
     this.active = false;
     this.render();
   }

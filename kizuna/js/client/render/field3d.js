@@ -3,13 +3,13 @@
 // ・ひと・まもの・もの は ドット絵を カメラに むけて たてる（ビルボード）
 // ・カメラは ななめ うえから みおろす（うごかすのは いち だけ。むきは かわらない）
 // あるく・ぶつかる などの きまりは 2D と おなじ（Field が きめる）。ここでは かく だけ。
-import * as THREE from '../../../vendor/three.min.js?v=28ae91202741';
-import { T } from '../../shared/tiles.js?v=28ae91202741';
-import { effectiveTile } from '../../shared/maps/index.js?v=28ae91202741';
-import { hash2 } from '../../shared/rng.js?v=28ae91202741';
-import { Atlas, extraCanvas, propCanvas, PROP_TILES, leafCanvas, roofCanvas, tileArt } from './tex3d.js?v=28ae91202741';
-import { tileCanvas } from './tiles.js?v=28ae91202741';
-import { flipCanvas, makeCanvas, ctxOf, whiteCopy } from './pixel.js?v=28ae91202741';
+import * as THREE from '../../../vendor/three.min.js?v=80fa5367005a';
+import { T } from '../../shared/tiles.js?v=80fa5367005a';
+import { effectiveTile } from '../../shared/maps/index.js?v=80fa5367005a';
+import { hash2 } from '../../shared/rng.js?v=80fa5367005a';
+import { Atlas, extraCanvas, propCanvas, PROP_TILES, leafCanvas, roofCanvas, tileArt } from './tex3d.js?v=80fa5367005a';
+import { tileCanvas } from './tiles.js?v=80fa5367005a';
+import { flipCanvas, makeCanvas, ctxOf, whiteCopy } from './pixel.js?v=80fa5367005a';
 
 const PITCH = 55 * Math.PI / 180;
 const SIN = Math.sin(PITCH), COS = Math.cos(PITCH);
@@ -144,8 +144,10 @@ export class Field3D {
     if (!t) {
       t = new THREE.CanvasTexture(canvas);
       t.magFilter = THREE.NearestFilter;
-      t.minFilter = THREE.NearestFilter;
-      t.generateMipmaps = false;
+      // こまかい え（res 4 の 人・モンスター）は ちいさく うつる とき ドットが ぬけて ちらつかないように ミップマップ
+      const fine = (canvas.res || 1) >= 3;
+      t.minFilter = fine ? THREE.LinearMipmapLinearFilter : THREE.NearestFilter;
+      t.generateMipmaps = fine;
       t.colorSpace = THREE.SRGBColorSpace;
       texCache.set(canvas, t);
     }
@@ -497,7 +499,7 @@ export class Field3D {
       }
       mat.opacity = alpha;
       const k = e.scale || 1;
-      // こまかい え（res 2）も 見た目の 大きさは おなじ
+      // こまかい え（res 4 など）も 見た目の 大きさは おなじ
       const lw = canvas.width / (canvas.res || 1), lh = canvas.height / (canvas.res || 1);
       sp.scale.set(lw * k / 16, lh * k / 16, 1);
       sp.center.set(0.5, (e.anchor ?? 3) / lh);

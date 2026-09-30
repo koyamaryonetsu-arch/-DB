@@ -1,15 +1,16 @@
 // ゲーム ぜんたいの しんこう
-import { Input } from './input.js?v=28ae91202741';
-import { GameAudio } from './audio.js?v=28ae91202741';
-import { Field } from './field.js?v=28ae91202741';
-import { Hud, STAMPS } from './ui/hud.js?v=28ae91202741';
-import { FieldMenu, openWorldMap } from './ui/menu.js?v=28ae91202741';
-import { ScriptPlayer, wait } from './ui/script.js?v=28ae91202741';
-import { BattleScene } from './battle.js?v=28ae91202741';
-import { showTitle, showLogin, showSelect, showCreate, showLoading, saveWhere } from './ui/title.js?v=28ae91202741';
-import { showServerDown } from './ui/syncui.js?v=28ae91202741';
-import { toast, confirmBox, el } from './ui/dom.js?v=28ae91202741';
-import { MAPS } from '../shared/maps/index.js?v=28ae91202741';
+import { Input } from './input.js?v=80fa5367005a';
+import { GameAudio } from './audio.js?v=80fa5367005a';
+import { Field } from './field.js?v=80fa5367005a';
+import { Hud, STAMPS } from './ui/hud.js?v=80fa5367005a';
+import { FieldMenu, openWorldMap } from './ui/menu.js?v=80fa5367005a';
+import { ScriptPlayer, wait } from './ui/script.js?v=80fa5367005a';
+import { BattleScene } from './battle.js?v=80fa5367005a';
+import { showTitle, showLogin, showSelect, showCreate, showLoading, saveWhere } from './ui/title.js?v=80fa5367005a';
+import { showServerDown } from './ui/syncui.js?v=80fa5367005a';
+import { toast, confirmBox, el } from './ui/dom.js?v=80fa5367005a';
+import { MAPS } from '../shared/maps/index.js?v=80fa5367005a';
+import { applyBattlePrefs, applyUiFont } from './prefs.js?v=80fa5367005a';
 
 export class Game {
   constructor(net) {
@@ -44,7 +45,8 @@ export class Game {
     // クラウドセーブの ようすが かわったら 画面に 出す（ひとりモード）
     net.local?.cloud?.onChange((st) => this.onCloudState(st));
     try { if (localStorage.getItem('kizuna_bigtext')) document.body.classList.add('big-text'); } catch { /* */ }
-    try { if (localStorage.getItem('kizuna_font') === 'dot') document.body.classList.add('dot-font'); } catch { /* */ }
+    applyUiFont();
+    applyBattlePrefs();
     // iPhone: さわったら おとを もどす・もどってきたら がめんを つけたままに する
     const kick = () => this.audio.resumeIfNeeded();
     addEventListener('touchend', kick, { passive: true });
@@ -170,6 +172,7 @@ export class Game {
   // ───────────── まいフレーム ─────────────
   frame(dt) {
     this.input.update();
+    this.input.prune();
     const inField = this.state === 'field';
     const touchEl = document.getElementById('touch');
     this.updatePad();
@@ -528,18 +531,18 @@ export class Game {
     this.refreshObjective();
     this.audio.play(this.field.areaBgm());
     this.keepAwake(true);
-    if (m.resumed) toast('つなぎ直しました！続きから遊べるよ');
+    if (m.resumed) toast('つなぎ直しました。続きから遊べます');
     for (const log of m.supportLog || []) {
       toast(`${log.helper}の冒険を${log.count}回手伝って\n経験値${log.exp}と${log.gold}ゴールドをもらった！${log.level ? `\nレベルが${log.level}に上がった！` : ''}`, 6000);
     }
     if (this.net.mode === 'offline' && !this.saveWarned) {
       this.saveWarned = true;
       const cloud = this.net.local?.cloud;
-      import('./offline.js?v=28ae91202741').then(({ offlineStorage }) => {
+      import('./offline.js?v=80fa5367005a').then(({ offlineStorage }) => {
         offlineStorage.load();
         if (cloud?.state === 'on') return;
         if (!offlineStorage.ok) toast('このブラウザではセーブができないかもしれません', 5000);
-        else if (cloud?.inViewer && cloud.state === 'off') toast('claude.aiにセーブできないので、このブラウザだけにセーブします。ブラウザを閉じると消えることがあるので、大事なキャラは引っこしコードをメモにとっておいてね', 8000);
+        else if (cloud?.inViewer && cloud.state === 'off') toast('claude.aiにセーブできないので、このブラウザだけにセーブします。ブラウザを閉じると消えることがあるので、大事なキャラは引っこしコードをメモしておいてください', 8000);
       });
     }
   }

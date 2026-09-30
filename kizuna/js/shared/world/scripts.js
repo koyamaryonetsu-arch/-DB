@@ -1,10 +1,10 @@
 // だいほん（イベント）を すすめる しくみ
-import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js?v=28ae91202741';
-import { ITEMS } from '../data/items.js?v=28ae91202741';
-import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js?v=28ae91202741';
-import { startFixedBattle } from './battles.js?v=28ae91202741';
-import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion } from './party.js?v=28ae91202741';
-import { openService } from './services.js?v=28ae91202741';
+import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js?v=80fa5367005a';
+import { ITEMS } from '../data/items.js?v=80fa5367005a';
+import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js?v=80fa5367005a';
+import { startFixedBattle } from './battles.js?v=80fa5367005a';
+import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion } from './party.js?v=80fa5367005a';
+import { openService } from './services.js?v=80fa5367005a';
 
 let runSeq = 1;
 
@@ -279,7 +279,7 @@ export class ScriptRun {
           this.batch.push(['sfx', 'join']);
           if (r.joined) this.say(`${r.name}が仲間に加わった！`);
           else this.say(`${r.name}が仲間になった！\n${r.name}はルミナの町の酒場で待っている。`);
-          if (r.benchedName) this.say(`${r.benchedName}は酒場へもどった。`);
+          if (r.benchedName) this.say(`${r.benchedName}は酒場へもどった。${r.stowed?.length ? '\n（装備はふくろにしまった）' : ''}`);
           this.say(`（名前は酒場で変えられるよ）`);
           w.sendSelf(s);
           break;

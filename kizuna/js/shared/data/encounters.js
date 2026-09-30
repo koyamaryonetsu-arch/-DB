@@ -2,7 +2,7 @@
 // group: [[モンスターID, 最小数, 最大数], ...]
 // フィールドでは 先頭の モンスターの すがたで うろうろしている（シンボルエンカウント）
 
-import { ENCOUNTERS_CH2, FIXED_CH2, ZONE_BG_CH2 } from './encounters-ch2.js?v=28ae91202741';
+import { ENCOUNTERS_CH2, FIXED_CH2, ZONE_BG_CH2 } from './encounters-ch2.js?v=80fa5367005a';
 
 export const ENCOUNTER_TABLES = {
   outskirts: [

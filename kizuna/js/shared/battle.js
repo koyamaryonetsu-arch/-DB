@@ -7,17 +7,23 @@
 //
 // サーバー（家族サーバー）でも ブラウザ（ひとりモード）でも おなじ コードが うごく
 
-import { makeRng } from './rng.js?v=28ae91202741';
-import { ABILITIES } from './data/abilities.js?v=28ae91202741';
-import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=28ae91202741';
-import { DUAL_TECHS, dualOptions } from './data/dual.js?v=28ae91202741';
-import { MONSTERS } from './data/monsters.js?v=28ae91202741';
-import { ITEMS } from './data/items.js?v=28ae91202741';
-import { JOBS } from './data/jobs.js?v=28ae91202741';
-import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed } from './stats.js?v=28ae91202741';
-import { decideMonster, decideAlly } from './ai.js?v=28ae91202741';
+import { makeRng } from './rng.js?v=80fa5367005a';
+import { ABILITIES } from './data/abilities.js?v=80fa5367005a';
+import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=80fa5367005a';
+import { DUAL_TECHS, dualOptions, DUAL_GAUGE } from './data/dual.js?v=80fa5367005a';
+import { MONSTERS } from './data/monsters.js?v=80fa5367005a';
+import { ITEMS } from './data/items.js?v=80fa5367005a';
+import { JOBS } from './data/jobs.js?v=80fa5367005a';
+import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed } from './stats.js?v=80fa5367005a';
+import { decideMonster, decideAlly } from './ai.js?v=80fa5367005a';
 
 export const BOND_MAX = 100;
+// きずなゲージの たまりやすさ（1 … はじめの 版。ちいさいほど たまりにくい）
+export const BOND_GAIN = 0.35;
+// 合体技の 強さ（2人の 番を 使うので、2人ぶん より 少し 強い くらい）
+export const DUAL_MAGIC = 1.15; // 1体を ねらう 呪文の 合体技: 2人の 呪文の 合計 × これ
+export const DUAL_SPREAD = 0.7; // 全体を ねらう 合体技は この 倍
+export const DUAL_PHYS = 0.75; // 物理の 合体技の 倍率に かける 数
 // 合体技に さそわれた 家族が こたえるまで まつ 時間（ミリびょう）
 export const DUAL_ASK_MS = 7000;
 const COMBO_WINDOW = 6000;
@@ -25,6 +31,48 @@ const LETTERS = 'ABCDEFGH';
 
 // すばやさ → ゲージが たまるまでの じかん（ミリびょう）
 // すばやさ10で 約5.8びょう、20で 4びょう、40で 2.5びょう、80で 1.4びょう
+// 合体技の 1つの こうか。呪文・回復の 強さは 2人が 出した 技から きめる（すすむほど 強くなる）
+export function dualPartEffect(t, part, skills = []) {
+  const eff = { ...part };
+  const spread = (part.target || t.target) === 'enemies' || (part.target || t.target) === 'allies';
+  if ((part.type === 'magic' || part.type === 'heal') && part.base) {
+    const avg = (e) => (e.base[0] + e.base[1]) / 2;
+    const src = skills.map((id) => ABILITIES[id]?.effect).filter((e) => e?.type === part.type && Array.isArray(e.base));
+    if (src.length) {
+      let sum = src.reduce((a, e) => a + avg(e), 0);
+      if (src.length === 1) sum *= 2;
+      const mid = sum * DUAL_MAGIC * (spread ? DUAL_SPREAD : 1);
+      eff.base = [Math.max(1, Math.round(mid * 0.9)), Math.max(1, Math.round(mid * 1.1))];
+      eff.thr = Math.min(...src.map((e) => e.thr ?? 20));
+    } else {
+      eff.base = part.base.map((v) => Math.round(v * 0.6));
+    }
+  }
+  if (part.type === 'phys') eff.mult = (part.mult ?? 1) * DUAL_PHYS;
+  return eff;
+}
+
+// 戦いの 速さ（ゲージと エフェクト）と 文字の 速さ。5だん。まんなかが ふつう（前の 版より すこし ゆっくり）
+export const BATTLE_SPEEDS = [0.6, 0.75, 0.85, 1, 1.25];
+export const TEXT_SPEEDS = [0.55, 0.7, 0.8, 1, 1.25];
+export const DEFAULT_BATTLE_SPEED = 0.85;
+export const DEFAULT_TEXT_SPEED = 0.8;
+// セーブの 設定を 今の 形に（前の 版の「ふつう」1 は 新しい ふつうに）
+export function normBattleSettings(bs = {}) {
+  const near = (list, v, d) => (Number.isFinite(v) ? list.reduce((a, b) => (Math.abs(b - v) < Math.abs(a - v) ? b : a)) : d);
+  const v2 = bs.sv === 2;
+  return {
+    speed: v2 ? near(BATTLE_SPEEDS, bs.speed, DEFAULT_BATTLE_SPEED) : (bs.speed && bs.speed < 1 ? 0.75 : bs.speed > 1 ? 1.25 : DEFAULT_BATTLE_SPEED),
+    textSpeed: near(TEXT_SPEEDS, bs.textSpeed, DEFAULT_TEXT_SPEED),
+  };
+}
+
+// 敵の 呪文・息・回復は 数が きまっているので、みかたの HP の のび（レベルでは ひかえめ）に あわせて よわめる
+export function enemyFixedScale(c) {
+  if (c?.side !== 'enemy' || !c.species) return 1;
+  return clamp(1 - 0.016 * ((c.lv || 1) - 4), 0.7, 1);
+}
+
 export function fillTime(agi) {
   return 128000 / (Math.max(1, agi) + 12);
 }
@@ -49,6 +97,7 @@ export class Battle {
     this.result = null;
     this.pendingEnd = null;
     this.speed = opts.speed || 1;
+    this.textSpeed = opts.textSpeed || 1;
     this.wait = !!opts.wait;
     this.canFlee = opts.canFlee !== false;
     this.boss = !!opts.boss;
@@ -174,7 +223,7 @@ export class Battle {
       return this.flush();
     }
     if (this.lock > 0) {
-      this.lock -= dt;
+      this.lock -= dtReal;
       if (this.lock > 0) return this.flush();
       this.lock = 0;
     }
@@ -195,6 +244,11 @@ export class Battle {
       this.emitGauges();
     }
     return this.flush();
+  }
+
+  // えんしゅつの じかん: エフェクトは 戦いの 速さ、文字は 文字の 速さで
+  pace(fxMs, lineMs, lines, min = 0) {
+    return Math.round(Math.max(min / this.speed, fxMs / this.speed + (lineMs * lines) / this.textSpeed));
   }
 
   emitGauges() {
@@ -236,19 +290,21 @@ export class Battle {
       }
       if (lines.length) {
         this.emit({ t: 'msg', lines, upd, fx: { type: 'poison' } });
-        this.lock = 500 + 300 * lines.length;
+        this.lock = this.pace(500, 300, lines.length);
         this.checkEnd();
       }
     }
     // ゲージ
     for (const c of this.combatants) {
-      if (!c.alive || c.fled || c.ready || c.queued) continue;
+      if (!c.alive || c.fled || c.ready || c.queued || c.waitDual) continue;
       c.atb += (100 / fillTime(effAgi(c))) * dt;
       if (c.atb >= 100) {
         c.atb = 100;
         this.onReady(c);
       }
     }
+    // 合体技の よやく
+    this.checkWaits();
   }
 
   onReady(c) {
@@ -257,6 +313,8 @@ export class Battle {
       this.enqueue(c, { type: 'incapacitated' });
       return;
     }
+    // オートで えらんで おいた 合体技
+    if (c.side === 'ally' && c.autoDual && (!c.controller || c.auto) && !c.status.confuse && this.tryAutoDual(c)) return;
     if (c.side === 'enemy') {
       const n = c.turns || 1;
       for (let i = 0; i < n; i++) this.enqueue(c, { type: 'ai' }, i === n - 1);
@@ -284,6 +342,18 @@ export class Battle {
     if (controller !== undefined && c.controller !== controller) return { ok: false, reason: 'notyours' };
     if (cmd?.type === 'bondJoin') return this.bondJoin(actorId) ? { ok: true } : { ok: false };
     if (cmd?.type === 'dualAnswer') return this.answerDual(actorId, cmd);
+    // オートの ときに 使う 合体技を えらぶ（いつでも）
+    if (cmd?.type === 'setAutoDual') {
+      c.autoDual = cmd.id && DUAL_TECHS[cmd.id] ? cmd.id : null;
+      this.emit({ t: 'autoDual', id: c.id, tech: c.autoDual });
+      return { ok: true };
+    }
+    // 合体技の よやくを やめる
+    if (cmd?.type === 'dualCancel') {
+      if (!c.waitDual) return { ok: false, reason: 'no' };
+      this.endWait(c, null);
+      return { ok: true };
+    }
     if (!c.ready) return { ok: false, reason: 'notready' };
     const v = this.validate(c, cmd);
     if (!v.ok) return v;
@@ -315,7 +385,7 @@ export class Battle {
     }
     if (c.auto && c.ready) {
       c.ready = false;
-      this.enqueue(c, { type: 'ai' });
+      this.onReady(c);
     }
     this.emit({ t: 'auto', id: c.id, auto: c.auto });
   }
@@ -356,7 +426,7 @@ export class Battle {
         if (this.bond < BOND_MAX) return { ok: false, reason: 'きずなゲージが足りない' };
         return { ok: true };
       case 'dual': {
-        const o = this.dualOptionsFor(c).find((x) => x.id === cmd.id && x.partner === cmd.partner);
+        const o = this.dualOptionsFor(c, null, false, true).find((x) => x.id === cmd.id && x.partner === cmd.partner);
         return o ? { ok: true } : { ok: false, reason: '合体技は出せない' };
       }
       default: return { ok: false, reason: 'bad' };
@@ -435,7 +505,7 @@ export class Battle {
     if (!ev.upd.includes(c)) ev.upd.push(c);
     ev.upd = [...new Set(ev.upd)].map((x) => (x.id ? pub(x) : x));
     ev.bond = this.bond;
-    this.lock = Math.max(900, 450 + 380 * ev.lines.length) + (ev.extraLock || 0);
+    this.lock = this.pace(450, 380, ev.lines.length, 900) + (ev.extraLock || 0) / this.speed;
     ev.dur = this.lock;
     delete ev.extraLock;
     delete ev.atbAfter;
@@ -985,7 +1055,7 @@ export class Battle {
     const [mn, mx] = eff.base;
     const base = estimate ? (mn + mx) / 2 : this.rng.int(mn, mx);
     const scale = 1 + clamp(((c.mag || 0) - (eff.thr ?? 20)) / 150, 0, 1);
-    let dmg = base * scale * powMult;
+    let dmg = base * scale * powMult * enemyFixedScale(c);
     const r = eff.element ? (t.resist[eff.element] ?? 1) : 1;
     dmg *= r;
     if (t.defending) dmg *= 0.75;
@@ -1076,7 +1146,7 @@ export class Battle {
     const [mn, mx] = eff.base;
     let amt = this.rng.int(mn, mx);
     if (!eff.fixed) amt *= 1 + clamp(((c.healPow || 0) - (eff.thr ?? 20)) / 150, 0, 1);
-    amt = Math.round(amt * powMult);
+    amt = Math.round(amt * powMult * enemyFixedScale(c));
     const real = Math.min(t.maxHp - t.hp, amt);
     t.hp += real;
     ev.results = ev.results || [];
@@ -1158,7 +1228,8 @@ export class Battle {
   }
 
   addBond(n) {
-    this.bond = Math.max(0, Math.min(BOND_MAX, this.bond + n));
+    const add = n > 0 ? n * BOND_GAIN : n;
+    this.bond = Math.max(0, Math.min(BOND_MAX, Math.round((this.bond + add) * 100) / 100));
   }
 
   // ───────────── ひらめき ─────────────
@@ -1230,25 +1301,30 @@ export class Battle {
 
   // ───────────── 合体技 ─────────────
   // c が 今 出せる 合体技（exec: 出す しゅんかんの たしかめ。よやくした 相手も かぞえる）
-  dualOptionsFor(c, others = null, exec = false) {
+  // anyGauge: 仲間の ゲージが まだでも よやく できる ものも かぞえる
+  dualOptionsFor(c, others = null, exec = false, anyGauge = false) {
     if (!c || c.side !== 'ally' || c.mon) return [];
     const list = (others || this.allies.filter((x) => x !== c)).filter((x) => x.side === 'ally' && !x.mon);
     const info = (x) => ({
       id: x.id, name: x.name, alive: x.alive, abilities: x.abilities || [], mp: x.mp, atb: x.atb, ready: x.ready,
       queued: exec && x.dualWith === c.id ? false : !!x.queued,
       inviting: !exec && x !== c && !!(x.inviting || x.invited),
+      // ほかの 人の 合体技を まっている・まって もらって いる
+      waiting: x !== c && (!!x.waitDual || (!!x.dualTarget && x.dualTarget !== c.id)),
       statuses: Object.keys(x.status || {}), weaponCat: x.weaponCat,
       usable: (id) => {
         const a = ABILITIES[id];
         return !!a && (a.kind !== 'combo' || comboAllowed(x.penChar, id)) && weaponOk(a, x.weaponCat);
       },
     });
-    return dualOptions(info(c), list.map(info), weaponOk);
+    return dualOptions(info(c), list.map(info), weaponOk, { anyGauge });
   }
 
   // 合体技を はじめる（相手が 家族なら さそう。AI・自分の 仲間なら すぐ）
+  // 相手の ゲージが まだ 半分 たまって いなければ「よやく」して まつ
   startDual(c, cmd) {
     const p = this.get(cmd.partner);
+    if (!(p.ready || p.atb >= DUAL_GAUGE)) return this.waitForPartner(c, cmd);
     const ask = p.controller && !p.auto && p.controller !== c.controller;
     if (!ask) {
       this.reserveDual(c, p, cmd);
@@ -1260,6 +1336,79 @@ export class Battle {
     p.invited = inv.id;
     this.emit({ t: 'dualInvite', invite: inv.id, from: c.id, to: p.id, tech: cmd.id, fromName: c.name, toName: p.name, ms: DUAL_ASK_MS });
     return { ok: true, pending: true };
+  }
+
+  // よやく: 自分の 番を とっておき、仲間の ゲージが 半分 たまったら いっしょに 出す
+  waitForPartner(c, cmd) {
+    const p = this.get(cmd.partner);
+    c.ready = false;
+    c.waitDual = { id: cmd.id, partner: p.id, target: cmd.target };
+    p.dualTarget = c.id;
+    const t = DUAL_TECHS[cmd.id];
+    this.emit({ t: 'dualWait', id: c.id, partner: p.id, tech: cmd.id, lines: [`${c.name}は${p.name}と「${t?.name || '合体技'}」を出すため、力をためている！`] });
+    return { ok: true, waiting: true };
+  }
+
+  // まっている 人を しらべる（仲間の ゲージが たまった・出せなく なった）
+  checkWaits() {
+    for (const c of this.allies) {
+      const w = c.waitDual;
+      if (!w) continue;
+      const p = this.get(w.partner);
+      if (!c.alive) {
+        this.endWait(c, null, false);
+        continue;
+      }
+      const st = p?.status || {};
+      if (!p || !p.alive || st.sleep || st.paralyze || st.confuse) {
+        this.endWait(c, `${p?.name || '仲間'}は合体技に参加できなくなった…`);
+        continue;
+      }
+      if (!this.dualOptionsFor(c, [p], true, true).some((o) => o.id === w.id)) {
+        this.endWait(c, '合体技は出せなくなった…');
+        continue;
+      }
+      if (p.ready || p.atb >= DUAL_GAUGE) {
+        c.waitDual = null;
+        p.dualTarget = null;
+        c.ready = true;
+        this.startDual(c, { type: 'dual', id: w.id, partner: p.id, target: w.target });
+      }
+    }
+  }
+
+  // よやくを おわりに して、自分の 番に もどす
+  endWait(c, msg, back = true) {
+    const w = c.waitDual;
+    c.waitDual = null;
+    const p = w && this.get(w.partner);
+    if (p && p.dualTarget === c.id) p.dualTarget = null;
+    this.emit({ t: 'dualWaitEnd', id: c.id, lines: msg ? [msg] : [] });
+    if (back && c.alive) this.onReady(c);
+  }
+
+  // オート: えらんで おいた 合体技を よやく する（出せない ときは ふつうに 動く）
+  tryAutoDual(c) {
+    if ((c.autoDualWait || 0) > this.time) return false;
+    if (!this.aliveEnemies().length) return false;
+    const opts = this.dualOptionsFor(c, null, false, true).filter((o) => o.id === c.autoDual);
+    if (!opts.length) return false;
+    // ゲージが いちばん たまっている 仲間と
+    opts.sort((x, y) => (this.get(y.partner).atb || 0) - (this.get(x.partner).atb || 0));
+    const o = opts[0];
+    const t = DUAL_TECHS[o.id];
+    let target;
+    if (t.target === 'enemy' || t.target === 'group') {
+      const es = this.aliveEnemies().slice().sort((x, y) => (y.boss ? 1 : 0) - (x.boss ? 1 : 0) || x.hp - y.hp);
+      target = es[0]?.id;
+    }
+    c.ready = true;
+    const r = this.startDual(c, { type: 'dual', id: o.id, partner: o.partner, target });
+    if (!r?.ok) {
+      c.ready = false;
+      return false;
+    }
+    return true;
   }
 
   // 2人の 番を おさえて、合体技を 出す じゅんばんに ならべる
@@ -1312,6 +1461,12 @@ export class Battle {
     if (c && c.inviting === inv.id) c.inviting = null;
     if (p && p.invited === inv.id) p.invited = null;
     this.emit({ t: 'dualAnswer', invite: inv.id, ok: false, from: inv.from, to: inv.to, reason });
+    // オートの 人は しばらく 合体技を よやく しない で ふつうに 動く
+    if (c && c.alive && c.ready && (!c.controller || c.auto)) {
+      c.autoDualWait = this.time + 12000;
+      c.ready = false;
+      this.onReady(c);
+    } else if (c && c.alive && c.ready) this.emit({ t: 'ready', id: c.id });
   }
 
   // 合体技を 出す（2人の 強さを 合わせる）
@@ -1337,13 +1492,13 @@ export class Battle {
     // 2人の 力を 合わせた かげ（強さだけ 合わせて、あとは c の まま）
     const proxy = Object.create(c);
     const mix = (x, y, k) => Math.round(Math.max(x || 0, y || 0) + Math.min(x || 0, y || 0) * k);
-    proxy.atk = mix(c.atk, p.atk, 0.5);
-    proxy.mag = mix(c.mag, p.mag, 0.6);
-    proxy.healPow = mix(c.healPow, p.healPow, 0.6);
+    proxy.atk = mix(c.atk, p.atk, 0.3);
+    proxy.mag = Math.max(c.mag || 0, p.mag || 0);
+    proxy.healPow = Math.max(c.healPow || 0, p.healPow || 0);
     proxy.charge = 1;
     const hit = new Set();
     for (const part of t.parts) {
-      const eff = { ...part };
+      const eff = dualPartEffect(t, part, opt.skills);
       if (eff.elementFrom !== undefined) {
         eff.element = opt.element || undefined;
         delete eff.elementFrom;
@@ -1364,6 +1519,7 @@ export class Battle {
   }
 
   // ───────────── 魔法剣 ─────────────
+
   // free: ひらめいた ときの はじめの 1回（MP いらず）
   doMahouken(c, cmd, ev, free = false) {
     const sp = ABILITIES[cmd.spell], sk = ABILITIES[cmd.skill];
@@ -1442,8 +1598,8 @@ export class Battle {
     ev.lines.push(n >= 4 ? 'みんなの心が一つになった！' : `${n}人の力が一つになった！`);
     ev.lines.push('ミナデイン！！');
     let power = 0;
-    for (const j of joined) power += j.atk * 0.35 + j.mag * 0.35 + j.lv * 2;
-    power *= 1 + 0.15 * (n - 1);
+    for (const j of joined) power += (j.atk || 0) * 0.35 + (j.mag || 0) * 0.35;
+    power *= 1 + 0.1 * (n - 1);
     let main = this.get(bc.target);
     if (!main || !main.alive) main = this.aliveEnemies()[0];
     ev.fx = { type: 'ability', anim: 'minadein', actor: bc.actor, targets: this.aliveEnemies().map((x) => x.id), side: 'ally', element: 'bolt' };
@@ -1464,7 +1620,7 @@ export class Battle {
     delete ev.postLines;
     ev.upd = [...new Set(ev.upd)].map(pub);
     ev.bond = this.bond;
-    this.lock = 800 + 380 * ev.lines.length;
+    this.lock = this.pace(800, 380, ev.lines.length);
     ev.dur = this.lock;
     this.emit(ev);
     this.cur = null;
@@ -1597,6 +1753,7 @@ export class Battle {
       canFlee: this.canFlee,
       bond: this.bond,
       speed: this.speed,
+      textSpeed: this.textSpeed,
       wait: this.wait,
       combatants: this.combatants.filter((c) => !c.fled).map(pub),
     };
@@ -1614,6 +1771,8 @@ export function allyFromCharacter(char, init = {}) {
     charId: char.id,
     controller: init.controller || null,
     auto: !!init.auto,
+    // オートの ときに よやく する 合体技（主人公が えらんで おく）
+    autoDual: init.autoDual || char.battleSettings?.autoDual || null,
     tactics: init.tactics || char.tactics || 'balanced',
     look: char.look,
     job: char.job,
@@ -1631,6 +1790,8 @@ export function allyFromCharacter(char, init = {}) {
     race: char.species ? (MONSTERS[char.species]?.race || 'beast') : 'human',
     abilities,
     penChar: { job: char.job, jobs: char.jobs },
+    // お気に入りの 技（ならび じゅん）
+    favs: char.species ? [] : (Array.isArray(char.favorites) ? char.favorites.slice(0, 30) : []),
     // 技を 使った 回数（ひらめきの もと）と、この たたかいで ひらめいた 技
     use: char.species ? null : { ...(char.skillUse || {}) },
     hiraNew: [],
@@ -1680,6 +1841,7 @@ export function pub(c) {
   return {
     id: c.id, side: c.side, kind: c.kind, name: c.name, species: c.species, charId: c.charId,
     controller: c.controller, auto: c.auto, look: c.look, job: c.job, eq: c.eq, mon: c.mon, lv: c.lv,
+    waitDual: c.waitDual ? { id: c.waitDual.id, partner: c.waitDual.partner } : null, autoDual: c.autoDual || null, dualTarget: c.dualTarget || null,
     hp: c.hp, maxHp: c.maxHp, mp: c.mp, maxMp: c.maxMp,
     atb: Math.round(c.atb * 10) / 10, rate: 100 / fillTime(effAgi(c)),
     ready: !!c.ready, queued: !!c.queued, alive: !!c.alive, fled: !!c.fled, status: st, buffs,
@@ -1687,6 +1849,7 @@ export function pub(c) {
     abilities: c.side === 'ally' ? c.abilities : undefined,
     weaponCat: c.side === 'ally' ? c.weaponCat : undefined,
     pc: c.side === 'ally' ? c.penChar : undefined,
+    favs: c.side === 'ally' ? c.favs : undefined,
     covering: c.cover ? c.cover.target : null,
   };
 }

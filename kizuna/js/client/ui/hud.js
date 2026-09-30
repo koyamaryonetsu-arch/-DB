@@ -1,11 +1,34 @@
 // フィールドの がめんの かざり（HP・ばしょ・もくひょう・ちず・チャット）
-import { el, bar, askText, ListMenu } from './dom.js?v=28ae91202741';
-import { computeStats } from '../../shared/stats.js?v=28ae91202741';
-import { JOBS } from '../../shared/data/jobs.js?v=28ae91202741';
-import { renderMiniMap, openWorldMap } from './menu.js?v=28ae91202741';
-import { makeCanvas } from '../render/pixel.js?v=28ae91202741';
+import { el, bar, askText, ListMenu } from './dom.js?v=80fa5367005a';
+import { computeStats } from '../../shared/stats.js?v=80fa5367005a';
+import { JOBS } from '../../shared/data/jobs.js?v=80fa5367005a';
+import { renderMiniMap, openWorldMap } from './menu.js?v=80fa5367005a';
+import { makeCanvas } from '../render/pixel.js?v=80fa5367005a';
 
 export const STAMPS = ['よろしく！', 'ありがとう！', '行くよー！', '助けて！', '待ってて！', 'やったね！', 'おつかれさま', 'ご飯だよ〜'];
+
+// パーティーの ならび（じぶん → 家族 → 仲間 → ゲスト）。HUD と メニューで つかう
+export function partyRows(g) {
+  const c = g.me;
+  if (!c) return [];
+  const p = g.party;
+  const people = [];
+  const sups = [];
+  const guests = [];
+  const add = (to, name, level, hp, maxHp, mp, maxMp, tag, away = false, player = false, ref = null) => {
+    const r = Math.max(0, hp) / Math.max(1, maxHp);
+    const hpCls = hp <= 0 ? 'dead' : r <= 0.1 ? 'red' : r <= 0.5 ? 'orange' : '';
+    to.push({ name, level, hp, maxHp, mp, maxMp, tag, away, player, hpCls, ref });
+  };
+  const st = computeStats(c);
+  add(people, c.name, c.level, c.hp, st.maxHp, c.mp, st.maxMp, '', false, true, 'self');
+  for (const m of p?.members || []) if (m.sid !== g.sid) add(people, m.name, m.level, m.hp, m.maxHp, m.mp, m.maxMp, '家族', m.away, true);
+  for (const s of p?.supports || []) add(sups, s.name, s.level, s.hp, s.maxHp, s.mp, s.maxMp, s.family ? '家族サポート' : s.species ? 'モンスター' : '仲間', false, false, s.key);
+  for (const gu of p?.guests || []) add(guests, gu.name, gu.level, gu.hp, gu.maxHp, gu.mp ?? 0, gu.maxMp || 1, 'ゲスト');
+  // ならびかえ（リーダーが きめた じゅんばん）
+  const pos = Math.max(0, Math.min(sups.length, p?.selfPos || 0));
+  return [...sups.slice(0, pos), ...people, ...sups.slice(pos), ...guests];
+}
 
 export class Hud {
   constructor(game) {
@@ -50,33 +73,24 @@ export class Hud {
 
   renderParty() {
     const g = this.game;
-    const c = g.me;
-    if (!c) return;
+    if (!g.me) return;
     this.party.innerHTML = '';
-    const p = g.party;
     // 家族と いっしょ（マルチ）の ときは、人が 動かしている キャラの 名前を 黄緑に。HP が へると オレンジ・赤
-    const multi = (p?.members?.length || 1) >= 2;
-    const add = (name, lv, job, hp, maxHp, mp, maxMp, tag, away = false, mon = null, player = false) => {
-      const r = Math.max(0, hp) / Math.max(1, maxHp);
-      const hpCls = hp <= 0 ? 'dead' : r <= 0.1 ? 'red' : r <= 0.5 ? 'orange' : '';
-      const box = el('div', { class: `win hud-mem ${hp <= 0 ? 'dead' : ''} ${away ? 'away' : ''}` },
-        el('div', { class: 'nm' }, el('span', { class: `n ${multi && player ? 'player' : ''} ${hpCls}`, text: name }), el('span', { class: 'lv', text: `Lv${lv}` })),
-        el('div', { class: `small hn ${hpCls}`, text: away ? '通信待ち…' : `H${Math.max(0, hp)} M${mp}` }),
-        bar(r, hpCls ? `hp ${hpCls}` : 'hp'), bar(mp / Math.max(1, maxMp), 'mp'));
-      if (tag) box.title = tag;
+    const multi = (g.party?.members?.length || 1) >= 2;
+    for (const m of partyRows(g)) {
+      const box = el('div', { class: `win hud-mem ${m.hp <= 0 ? 'dead' : ''} ${m.away ? 'away' : ''}` },
+        el('div', { class: 'nm' }, el('span', { class: `n ${multi && m.player ? 'player' : ''} ${m.hpCls}`, text: m.name }), el('span', { class: 'lv', text: `Lv${m.level}` })),
+        el('div', { class: `small hn ${m.hpCls}`, text: m.away ? '通信待ち…' : `H${Math.max(0, m.hp)} M${m.mp}` }),
+        bar(Math.max(0, m.hp) / Math.max(1, m.maxHp), m.hpCls ? `hp ${m.hpCls}` : 'hp'), bar(m.mp / Math.max(1, m.maxMp), 'mp'));
+      if (m.tag) box.title = m.tag;
       this.party.append(box);
-    };
-    const st = computeStats(c);
-    add(c.name, c.level, c.job, c.hp, st.maxHp, c.mp, st.maxMp, '', false, null, true);
-    for (const m of p?.members || []) if (m.sid !== g.sid) add(m.name, m.level, m.job, m.hp, m.maxHp, m.mp, m.maxMp, '家族', m.away, null, true);
-    for (const s of p?.supports || []) add(s.name, s.level, s.job, s.hp, s.maxHp, s.mp, s.maxMp, s.family ? '家族サポート' : s.species ? 'モンスター' : '仲間', false, s.species);
-    for (const gu of p?.guests || []) add(gu.name, gu.level, gu.job, gu.hp, gu.maxHp, gu.mp ?? 0, gu.maxMp || 1, 'ゲスト');
+    }
   }
 
   // leader … さそわれて 手伝っている リーダーの 名前（その人の 目標を 出す）
   setObjective(text, leader = '') {
     this.obj.innerHTML = '';
-    this.obj.append(el('b', { text: leader ? `${leader}の目標　` : '目標　' }), document.createTextNode(text || '（自由に冒険しよう）'));
+    this.obj.append(el('b', { text: leader ? `${leader}の目標　` : '目標　' }), document.createTextNode(text || '（自由に冒険できる）'));
   }
 
   addChat(from, text, stamp) {
