@@ -1163,7 +1163,7 @@ export function openWorldMap(game) {
     el('span', { class: 'lg' }, el('i', { class: 'qdot main' }), '次の行き先'),
     el('span', { class: 'lg' }, el('i', { class: 'qdot sub' }), 'たのまれごと'),
     el('span', { class: 'lg' }, el('i', { class: 'qdot ready' }), '報告できる'));
-  box.append(head, cv, qlg, mapLegend(game), el('div', { class: 'small muted', text: `赤い点: 自分　黄色: パーティー　青: 家族　（${game.input.touch ? 'タップで閉じる' : 'B/Xで閉じる'}）` }));
+  box.append(...[head, cv, qlg, mapLegend(game)].filter(Boolean), el('div', { class: 'small muted', text: `赤い点: 自分　黄色: パーティー　青: 家族　（${game.input.touch ? 'タップで閉じる' : 'B/Xで閉じる'}）` }));
   document.getElementById('ui').append(back, box);
   renderMiniMap(game, cv, true);
   const iv = setInterval(() => renderMiniMap(game, cv, true), 400);

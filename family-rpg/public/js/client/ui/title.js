@@ -88,14 +88,14 @@ export function showTitle(game) {
   const start = el('button', { class: 'bigbtn sel', text: '▶ 始める' });
   // ひとりで遊ぶサイト: 家族サーバーを 知っていれば、そちらへも 1タップで（この スマホの データも 持っていく）
   const home = game.net.mode !== 'server' && familyServer() && !game.net.local?.cloud?.inViewer
-    ? el('button', { class: 'bigbtn home-btn', text: '🏠 家族サーバーで遊ぶ', onclick: () => { game.audio.unlock(); goFamilyServer(game); } })
+    ? el('button', { class: 'bigbtn home-btn', text: '家族サーバーで遊ぶ', onclick: () => { game.audio.unlock(); goFamilyServer(game); } })
     : null;
   const homeNote = home ? el('div', { class: 'small muted', text: 'このスマホで進めたキャラも、家族サーバーに保存されます' }) : null;
   // 外出先から つながる（https の）家族サーバーなら、動いているか 見る
   if (home) {
     familyServerUp().then((up) => {
       if (up === null || !home.isConnected) return;
-      home.textContent = up ? '🏠 家族サーバーで遊ぶ（動いています）' : '🏠 家族サーバー（今はお休み中）';
+      home.textContent = up ? '家族サーバーで遊ぶ（動いています）' : '家族サーバー（今はお休み中）';
       home.classList.toggle('down', !up);
       if (!up) {
         homeNote.textContent = '家族サーバーのPCが動いていないみたい。「▶ 始める」でひとりで遊べます（あとで家族サーバーに合わせられます）';
@@ -172,7 +172,7 @@ export function showSelect(game, chars) {
   newBtn.addEventListener('click', () => { cleanup(); showCreate(game); });
   grid.append(newBtn);
   const foot = el('div', { class: 'win row', style: { marginTop: '6px', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.4em' } },
-    el('span', { class: 'small muted', text: chars.length ? 'カードを選んでね（矢印キーでも動かせる）' : 'まずはキャラクターを作ろう！' }),
+    el('span', { class: 'small muted', text: chars.length ? 'カードを選ぶ（矢印キーでも動かせる）' : 'まずはキャラクターを作ろう' }),
     el('span', { class: 'row', style: { gap: '0.4em', flexWrap: 'wrap' } },
       ...syncButtons(game, () => cleanup()),
       el('button', { class: 'btn', text: '引っこしコード', onclick: () => { cleanup(); showTransfer(game, chars); } }),
@@ -243,7 +243,7 @@ function syncButtons(game, cleanup) {
       el('button', { class: 'btn', text: '🔄 スマホと合わせる', onclick: go(roundTrip) }),
     ];
   }
-  const out = [el('button', { class: 'btn primary', text: '🏠 家族サーバーで遊ぶ', onclick: go(goFamilyServer) })];
+  const out = [el('button', { class: 'btn primary', text: '家族サーバーで遊ぶ', onclick: go(goFamilyServer) })];
   if (familyServer()) out.push(el('button', { class: 'btn', text: 'アドレス', 'aria-label': '家族サーバーのアドレスを変える', onclick: () => changeServer(game) }));
   return out;
 }
@@ -422,7 +422,7 @@ export function showTransfer(game, chars) {
         }
         goTo(game, linkToFamilyServer(server, r.code));
       };
-      jump.push(el('button', { class: 'btn primary', text: '🏠 家族サーバーへ連れていく', onclick: toServer }));
+      jump.push(el('button', { class: 'btn primary', text: '家族サーバーへ連れていく', onclick: toServer }));
       if (familyServer()) jump.push(el('button', { class: 'btn', text: 'アドレスを変える', onclick: async () => {
         const typed = await askText(game.input, { title: '家族サーバーのアドレス', placeholder: '192.168.1.23:3000', max: 60, initial: familyServer().replace(/^https?:\/\//, '') });
         if (typed !== null && !setFamilyServer(typed)) toast('アドレスの形がちがうみたい', 4000);
@@ -505,7 +505,7 @@ export function showCreate(game) {
     });
     return o;
   };
-  const bodyOpt = opts(['男の子', '女の子'], look.body, (i) => { look.body = i; }, (v) => el('button', { class: 'btn', text: v }));
+  const bodyOpt = opts(['男性', '女性'], look.body, (i) => { look.body = i; }, (v) => el('button', { class: 'btn', text: v }));
   const hairOpt = opts(HAIR_NAMES, look.hair, (i) => { look.hair = i; }, (v) => el('button', { class: 'btn', text: v }));
   const hairCol = opts(HAIR, look.hairColor, (i) => { look.hairColor = i; }, (v) => el('button', { class: 'swatch', style: { background: v }, 'aria-label': 'かみの色' }));
   const skinOpt = opts(SKIN, look.skin, (i) => { look.skin = i; }, (v) => el('button', { class: 'swatch', style: { background: v }, 'aria-label': 'はだの色' }));
