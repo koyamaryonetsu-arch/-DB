@@ -34,3 +34,23 @@ export function applyBattlePrefs() {
   for (const k of ['s', 'm', 'l']) b.classList.toggle(`bf-${k}`, battleFontPref() === k);
   for (const n of [1, 2, 3]) b.classList.toggle(`bd-${n}`, battleDensityPref() === n);
 }
+
+// 字の形: gothic（くっきり・ふだん）/ round（丸ゴシック）/ dot（ドット）
+export const UI_FONTS = { gothic: 'ゴシック', round: '丸ゴシック', dot: 'ドット' };
+export function uiFontPref() {
+  const v = get('kizuna_font', 'gothic');
+  return UI_FONTS[v] ? v : 'gothic';
+}
+export function setUiFontPref(v) {
+  set('kizuna_font', v);
+  applyUiFont();
+}
+export function applyUiFont() {
+  const f = uiFontPref();
+  document.body.classList.toggle('dot-font', f === 'dot');
+  document.body.classList.toggle('round-font', f === 'round');
+}
+// キャンバスに 書く 字の なまえ
+export function uiFontFamily() {
+  return { gothic: 'KizunaGothic', round: 'KizunaRound', dot: 'KizunaDot' }[uiFontPref()];
+}

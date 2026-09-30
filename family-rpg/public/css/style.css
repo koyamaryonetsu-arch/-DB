@@ -1331,3 +1331,57 @@ body.menu-open #hud { visibility: hidden; }
 .qdot.ready { background: #7dff8a; }
 .q-main { display: flex; gap: 0.45em; align-items: baseline; }
 .kv .qdot, .q-main .qdot { margin-right: 0.4em; vertical-align: -0.05em; flex: none; }
+/* お店の くらべ: パーティー 全員を 1人 1行で（装備できない 人も 変化なしで 出す） */
+.cmp-list { display: flex; flex-direction: column; }
+.cmp-list .cmp-row { display: grid; grid-template-columns: 4.6em minmax(0, 1fr) auto; align-items: baseline; column-gap: 0.5em; padding: 0.1em 0; border-bottom: 1px solid rgba(255, 255, 255, 0.07); flex-wrap: nowrap; }
+.cmp-list .cmp-row .nm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.cmp-list .cmp-row .st { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.cmp-list .cmp-row .st .cmp-sub { margin-left: 0.6em; }
+.cmp-list .cmp-row .no { grid-column: 2 / -1; color: #7a7990; }
+.cmp-list .cmp-row .tag.e { justify-self: start; }
+@media (max-width: 700px) {
+  .ct-body { grid-template-rows: minmax(0, 1.2fr) minmax(0, 1fr); }
+  .ct-item .detail { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+}
+body:has(#ui .counter-panel) #hud, body:has(#ui .worldmap) #hud { visibility: hidden; }
+
+/* ═════ おとなも 子どもも なじめる 見ため（ドラクエ風） ═════
+   細い 白わく・小さい 角・ひかえめな 色・白い カーソル。字は くっきりした ゴシック（設定で 丸ゴシック・ドット） */
+:root {
+  --win: rgba(5, 7, 22, 0.9);
+  --win-solid: #06081a;
+  --line: #ecebf3;
+  --muted: #a4a3bd;
+  --radius: 6px;
+  --font-ui: 'KizunaGothic', 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif;
+}
+body.round-font { --font-ui: 'KizunaRound', 'Hiragino Maru Gothic ProN', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif; }
+body.dot-font { --font-ui: 'KizunaDot', 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif; }
+.win {
+  border-width: 2px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.85), inset 0 0 0 1px rgba(0, 0, 0, 0.75), 0 4px 16px rgba(0, 0, 0, 0.42);
+}
+.win h2, .win h3 { letter-spacing: 0.08em; }
+.btn { border-width: 1px; border-radius: 4px; background: #0e1030; }
+.btn.sel { background: #22254f; }
+.closebtn { border-width: 1px; border-radius: 4px; min-height: 36px; }
+.menu .item { border-radius: 3px; }
+.menu .item.sel { background: rgba(255, 255, 255, 0.07); }
+.menu .item.sel::before { border-left-color: #ffffff; }
+.menu .backchip { border-width: 1px; border-radius: 4px; min-height: 34px; }
+.menu .backchip:hover, .menu .backchip:active { border-color: #fff; color: #fff; }
+/* たたかいの コマンド: 細い わく。えらんでいる ものは 白く 光る */
+.b-cmd .menu .item { border-width: 1px; border-radius: 4px; background: rgba(255, 255, 255, 0.03); }
+.b-cmd .menu .item.sel { background: rgba(255, 255, 255, 0.11); box-shadow: 0 0 0 1px #fff; border-color: #fff; }
+.b-cmd .menu .item.sel.k-dmg, .b-cmd .menu .item.sel.k-heal, .b-cmd .menu .item.sel.k-sup { border-color: #fff; }
+.b-cmd .menu .item.press { background: rgba(255, 255, 255, 0.28); }
+.b-cmd .menu .item.k-dmg { border-color: rgba(255, 128, 104, 0.55); }
+.b-cmd .menu .item.k-heal { border-color: rgba(112, 224, 136, 0.55); }
+.b-cmd .menu .item.k-sup { border-color: rgba(112, 176, 255, 0.55); }
+.b-cmd .menu .item.k-bond { border-color: rgba(255, 214, 107, 0.8); }
+.b-cmd .menu .backchip { border-radius: 4px; }
+.b-mem.ready { box-shadow: 0 0 0 1px #000, 0 0 0 3px rgba(255, 255, 255, 0.35); }
+.b-bond.full { animation: none; box-shadow: 0 0 0 1px #000, 0 0 10px rgba(255, 214, 107, 0.55); }
+.hud-btn { border-radius: 4px; }
+.favbtn, .sort-tabs .btn { border-radius: 4px; }
+.sort-tabs .btn.on, .b-msg .favbtn.on { border-color: #fff; color: #fff; background: rgba(255, 255, 255, 0.1); }

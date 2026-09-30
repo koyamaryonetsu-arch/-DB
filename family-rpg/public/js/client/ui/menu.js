@@ -3,7 +3,7 @@ import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js';
 import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js';
 import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js';
 import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS } from '../../shared/battle.js';
-import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref } from '../prefs.js';
+import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily } from '../prefs.js';
 import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, TIER_NAMES } from '../../shared/data/jobs.js';
 import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress } from '../../shared/stats.js';
 import { HIRAMEKI } from '../../shared/data/hirameki.js';
@@ -152,7 +152,7 @@ export class FieldMenu {
       case 'party': this.main.append(this.partyView(false)); break;
       case 'tactics': this.main.append(this.tacticsView(false)); break;
       case 'zukan': this.main.append(this.zukanView(false)); break;
-      case 'map': this.main.append(el('div', { class: 'muted', text: '探検した場所の地図を見る。（Mキーでも開けるよ）' })); break;
+      case 'map': this.main.append(el('div', { class: 'muted', text: '探検した場所の地図を見る。（Mキーでも開ける）\n次の行き先はピンク、たのまれごとは水色、報告できるときはみどりのしるし。' })); break;
       case 'quest': this.main.append(this.questView()); break;
       case 'settings': this.main.append(this.settingsView(false)); break;
       case 'quit': {
@@ -424,7 +424,7 @@ export class FieldMenu {
           el('div', { class: 'small gold', text: who }),
           ok ? el('div', { class: 'small muted', text: a.desc }) : null));
       }
-      box.append(el('div', { class: 'detail', text: '技を使うたびに回数がふえる。書いてある回数をこえると、その技を使ったしゅんかんに、ひらめくことがある（ひらめいた技がそのまま出る）。\n掛け合わせ技は、元になった職業を合わせ持つ上級職からひらめく。神殿の「ひらめきの賢者」にヒントを聞いてみよう。' }));
+      box.append(el('div', { class: 'detail', text: '技を使うたびに回数がふえる。書いてある回数をこえると、その技を使ったしゅんかんに、ひらめくことがある（ひらめいた技がそのまま出る）。\n掛け合わせ技は、元になった職業を合わせ持つ上級職からひらめく。神殿の「ひらめきの賢者」がヒントを教えてくれる。' }));
       backBtn();
       return box;
     }
@@ -687,7 +687,7 @@ export class FieldMenu {
     for (const gu of p?.guests || []) rows.push(row(gu, gu.name, 'ゲスト'));
     box.append(...rows);
     if (!active) {
-      box.append(el('div', { class: 'detail', text: '遊んでいる家族をパーティーにさそえるよ。仲間はルミナの町の酒場で探したり入れかえたりできる。\n近くにいる仲間はいっしょに戦う。はなれている仲間も、戦っているところへかけつけると、とちゅうから参加できるよ。' }));
+      box.append(el('div', { class: 'detail', text: '遊んでいる家族をパーティーにさそえる。仲間はルミナの町の酒場で探したり入れかえたりできる。\n近くにいる仲間はいっしょに戦う。はなれている仲間も、戦っている場所へかけつけると、とちゅうから参加できる。\n「ならびを変える」で順番を変えられる（先頭ほど敵にねらわれやすい）。' }));
       return box;
     }
     const acts = [];
@@ -755,7 +755,7 @@ export class FieldMenu {
     const count = (k) => order.filter((sp) => st(sp)[k]).length;
     box.append(el('div', { class: 'small gold', text: `見つけた ${count('seen')}/${order.length}　仲間にした ${count('friend')}　配合で生んだ ${count('bred')}` }));
     if (!active) {
-      box.append(el('div', { class: 'detail', text: '出会ったモンスターがのる図鑑。\n仲間にしたモンスターや、配合で生まれたモンスターも記録されるよ。\n配合でしか生まれないモンスターもいるらしい…' }));
+      box.append(el('div', { class: 'detail', text: '出会ったモンスターがのる図鑑。\n仲間にしたモンスターや、配合で生まれたモンスターも記録される。\n配合でしか生まれないモンスターもいるらしい…' }));
       return box;
     }
     const detail = el('div', { class: 'detail zukan-detail' });
@@ -893,7 +893,7 @@ export class FieldMenu {
     const active = subQuests(c);
     const done = [['q_mike_done', '迷子のねこミケ'], ['q_jelly_done', 'コックの特製ゼリー'], ['q_wolf_done', 'ウルフ退治'], ['q_bottle_done', 'びんの手紙']].filter(([k]) => f(k));
     box.append(el('h3', { style: { marginTop: '0.6em' }, text: 'たのまれごと' }));
-    if (!active.length && !done.length) box.append(el('div', { class: 'muted small', text: 'まだない。町の人に話しかけてみよう。' }));
+    if (!active.length && !done.length) box.append(el('div', { class: 'muted small', text: 'まだない。町の人の話を聞くと、たのまれごとが見つかることがある。' }));
     for (const q of active) {
       box.append(el('div', { class: 'kv' }, el('span', {}, el('i', { class: `qdot ${q.ready ? 'ready' : 'sub'}` }), q.name), el('span', { class: q.ready ? 'good' : 'muted', text: q.text })));
     }
@@ -926,7 +926,7 @@ export class FieldMenu {
       { label: `音楽：${vol(g.audio.musicVol)}`, value: 'music' },
       { label: `効果音：${vol(g.audio.sfxVol)}`, value: 'sfx' },
       { label: `文字の大きさ：${document.body.classList.contains('big-text') ? '大きい' : 'ふつう'}`, value: 'text' },
-      { label: `字の形：${document.body.classList.contains('dot-font') ? 'ドット' : 'なめらか'}`, value: 'font' },
+      { label: `字の形：${UI_FONTS[uiFontPref()]}`, value: 'font' },
     ];
     if (g.field.constructor.webgl2()) items.unshift({ label: `画面：${g.field.view === '3d' ? '2.5D（立体）' : '2D（ドット）'}`, value: 'view' });
     if (g.input.touch) {
@@ -940,7 +940,7 @@ export class FieldMenu {
       box.append(el('div', {
         class: 'detail',
         text: g.input.touch
-          ? '操作: 画面の左側をさわるとそこにスティックが出るよ（指を動かして移動）。「走る」ボタンで走る／歩くを切りかえ。Aで話す・決定、Bでメニュー。メニューは右上の「✕ 閉じる」か、外をタップで閉じる\nメニューやお店などのウインドウは、直接タップするほかに、十字キー（▲▼◀▶）とA・Bでも選べるよ（「ウインドウの十字キー」で出さないこともできる）'
+          ? '操作: 画面の左側をさわるとそこにスティックが出る（指を動かして移動）。「走る」ボタンで走る／歩くを切りかえ。Aで話す・決定、Bでメニュー。メニューは右上の「✕ 閉じる」か、外をタップで閉じる\nメニューやお店などのウインドウは、直接タップするほかに、十字キー（▲▼◀▶）とA・Bでも選べる（「ウインドウの十字キー」で出さないこともできる）'
           : '操作: 矢印/WASDで移動、Shiftをおしながらで走る、Z/Enterで話す・決定、X/Escでメニュー・もどる、Mでマップ、Cでチャット',
       }));
       return box;
@@ -967,8 +967,8 @@ export class FieldMenu {
           document.body.classList.toggle('big-text');
           try { localStorage.setItem('kizuna_bigtext', document.body.classList.contains('big-text') ? '1' : ''); } catch { /* */ }
         } else if (it.value === 'font') {
-          document.body.classList.toggle('dot-font');
-          try { localStorage.setItem('kizuna_font', document.body.classList.contains('dot-font') ? 'dot' : ''); } catch { /* */ }
+          const keys = Object.keys(UI_FONTS);
+          setUiFontPref(keys[(keys.indexOf(uiFontPref()) + 1) % keys.length]);
         } else if (it.value === 'view') {
           g.field.setView(g.field.view === '3d' ? '2d' : '3d', true).then((v) => {
             toast(v === '3d' ? '画面を2.5D（立体）にしました' : '画面を2D（ドット）にしました');
@@ -986,14 +986,14 @@ export class FieldMenu {
         setTimeout(() => { if (this.root) this.focusSub(this.settingsView(true)); }, 200);
       },
     });
-    box.append(m.root, el('div', { class: 'detail', text: 'ウェイトをONにすると、コマンドを選ぶ間は戦いの時間が止まるよ（小さい子どもにおすすめ）' + (g.input.touch ? '\n画面が消えると家族との通信がとぎれやすいので「画面を消さない」はONがおすすめ' : '') }));
+    box.append(m.root, el('div', { class: 'detail', text: 'ウェイトをONにすると、コマンドを選ぶ間は戦いの時間が止まる（じっくり考えたい人におすすめ）' + (g.input.touch ? '\n画面が消えると家族との通信がとぎれやすいので「画面を消さない」はONがおすすめ' : '') }));
     return box;
   }
 }
 
 // キャンバスの 字（設定の「字の形」に あわせる。まだ 読みこんで いない 字は 読みこんでおく）
 function canvasFont(px, text) {
-  const fam = document.body.classList.contains('dot-font') ? 'KizunaDot' : 'KizunaRound';
+  const fam = uiFontFamily();
   const f = `${px}px ${fam}, sans-serif`;
   try { document.fonts?.load(f, text).catch(() => {}); } catch { /* */ }
   return f;

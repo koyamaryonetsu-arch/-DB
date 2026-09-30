@@ -159,7 +159,7 @@ function jobUI(game) {
         main.append(whoRow);
         renderWho();
         main.append(el('h3', { text: '？？？' }), el('div', { class: 'small gold', text: TIER_NAMES[2] }),
-          el('div', { class: 'detail', text: 'まだだれも知らない、ひみつの職業。\n上級職をマスターすると、その先の職業のヒントがここに出てくるよ。' }));
+          el('div', { class: 'detail', text: 'まだだれも知らない、ひみつの職業。\n上級職をマスターすると、その先の職業のヒントがここに出てくる。' }));
         return;
       }
       const job = JOBS[j];
@@ -285,7 +285,7 @@ function tavernUI(game, data) {
       }
       const e = entries.get(key);
       if (!e) {
-        main.append(el('div', { class: 'detail', text: '仲間を連れていくといっしょに戦ってくれるよ。\n連れていけるのは3人まで。待っている仲間とはいつでも入れかえられる。\nモンスターの仲間もここで待っているよ。' }));
+        main.append(el('div', { class: 'detail', text: '仲間を連れていくといっしょに戦ってくれる。\n連れていけるのは3人まで。待っている仲間とはいつでも入れかえられる（待っている間の装備はふくろにもどる）。\nモンスターの仲間もここで待っている。' }));
         return;
       }
       const pv = e.species ? followerSprite({ mon: e.species }, 'down', 0) : playerSprite(e.look, e.job, 'down', 0, e.equip);
@@ -516,7 +516,7 @@ function boardUI(game, data) {
     let posts = data.posts || [];
     const render = () => {
       main.innerHTML = '';
-      if (!posts.length) main.append(el('div', { class: 'muted', text: 'まだ何も書かれていない。最初のメッセージを書いてみよう！' }));
+      if (!posts.length) main.append(el('div', { class: 'muted', text: 'まだ何も書かれていない。' }));
       for (const p of posts.slice(0, 20)) {
         main.append(el('div', { class: 'combo-row' }, el('span', { class: 'gold', text: p.from }), el('span', { class: 'muted small', text: `　${ago(p.time)}` }), el('div', { text: p.text })));
       }

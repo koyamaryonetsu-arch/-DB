@@ -10,7 +10,7 @@ import { showTitle, showLogin, showSelect, showCreate, showLoading, saveWhere } 
 import { showServerDown } from './ui/syncui.js';
 import { toast, confirmBox, el } from './ui/dom.js';
 import { MAPS } from '../shared/maps/index.js';
-import { applyBattlePrefs } from './prefs.js';
+import { applyBattlePrefs, applyUiFont } from './prefs.js';
 
 export class Game {
   constructor(net) {
@@ -45,7 +45,7 @@ export class Game {
     // クラウドセーブの ようすが かわったら 画面に 出す（ひとりモード）
     net.local?.cloud?.onChange((st) => this.onCloudState(st));
     try { if (localStorage.getItem('kizuna_bigtext')) document.body.classList.add('big-text'); } catch { /* */ }
-    try { if (localStorage.getItem('kizuna_font') === 'dot') document.body.classList.add('dot-font'); } catch { /* */ }
+    applyUiFont();
     applyBattlePrefs();
     // iPhone: さわったら おとを もどす・もどってきたら がめんを つけたままに する
     const kick = () => this.audio.resumeIfNeeded();
@@ -531,7 +531,7 @@ export class Game {
     this.refreshObjective();
     this.audio.play(this.field.areaBgm());
     this.keepAwake(true);
-    if (m.resumed) toast('つなぎ直しました！続きから遊べるよ');
+    if (m.resumed) toast('つなぎ直しました。続きから遊べます');
     for (const log of m.supportLog || []) {
       toast(`${log.helper}の冒険を${log.count}回手伝って\n経験値${log.exp}と${log.gold}ゴールドをもらった！${log.level ? `\nレベルが${log.level}に上がった！` : ''}`, 6000);
     }
@@ -542,7 +542,7 @@ export class Game {
         offlineStorage.load();
         if (cloud?.state === 'on') return;
         if (!offlineStorage.ok) toast('このブラウザではセーブができないかもしれません', 5000);
-        else if (cloud?.inViewer && cloud.state === 'off') toast('claude.aiにセーブできないので、このブラウザだけにセーブします。ブラウザを閉じると消えることがあるので、大事なキャラは引っこしコードをメモにとっておいてね', 8000);
+        else if (cloud?.inViewer && cloud.state === 'off') toast('claude.aiにセーブできないので、このブラウザだけにセーブします。ブラウザを閉じると消えることがあるので、大事なキャラは引っこしコードをメモしておいてください', 8000);
       });
     }
   }

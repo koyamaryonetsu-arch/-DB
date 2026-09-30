@@ -90,7 +90,7 @@ export class Hud {
   // leader … さそわれて 手伝っている リーダーの 名前（その人の 目標を 出す）
   setObjective(text, leader = '') {
     this.obj.innerHTML = '';
-    this.obj.append(el('b', { text: leader ? `${leader}の目標　` : '目標　' }), document.createTextNode(text || '（自由に冒険しよう）'));
+    this.obj.append(el('b', { text: leader ? `${leader}の目標　` : '目標　' }), document.createTextNode(text || '（自由に冒険できる）'));
   }
 
   addChat(from, text, stamp) {

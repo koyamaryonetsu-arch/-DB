@@ -773,7 +773,7 @@ export class BattleScene {
         }
       }
     }
-    if (fx.type === 'telegraph') { g.audio.sfx('warn'); this.banner('！大技が来る！防御しよう！', 'danger'); }
+    if (fx.type === 'telegraph') { g.audio.sfx('warn'); this.banner('！大技が来る！防御で身を守れ！', 'danger'); }
     if (fx.type === 'bondStart') this.startBondPrompt(ev);
     if (fx.type === 'flee') g.audio.sfx('flee');
     if (ev.combo >= 2 && !ev.dual) this.banner(`れんけい ${ev.combo}！`, 'combo');

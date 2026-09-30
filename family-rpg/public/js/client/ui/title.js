@@ -76,7 +76,7 @@ export function showLoading(game) {
   ui.append(el('div', { class: 'panel center-panel', style: { width: 'min(90vw, 460px)' } },
     el('div', { class: 'win col' },
       el('div', { class: 'gold', text: asking ? '☁ クラウドセーブの確認' : '☁ セーブを読みこんでいます…' }),
-      el('div', { class: 'small', text: asking ? 'claude.aiの画面に出ている確認で「許可」を選ぶと、ブラウザを閉じてもセーブが消えなくなります。' : 'ちょっと待ってね。' }))));
+      el('div', { class: 'small', text: asking ? 'claude.aiの画面に出ている確認で「許可」を選ぶと、ブラウザを閉じてもセーブが消えなくなります。' : '少しお待ちください。' }))));
 }
 
 export function showTitle(game) {
@@ -134,7 +134,7 @@ export async function showLogin(game, failed, code = '') {
     game.net.send({ t: 'hello', pw: saved });
     return;
   }
-  const title = code ? failed : failed ? `合言葉がちがうみたい…（${failed}）` : '家族の合言葉を入れてね';
+  const title = code ? failed : failed ? `合言葉がちがうみたい…（${failed}）` : '家族の合言葉を入れてください';
   const pw = await askText(game.input, { title, placeholder: 'サーバーの画面に出ている合言葉', max: 60, initial: code ? saved : '' });
   if (pw === null) return showLogin(game, failed, code);
   try { localStorage.setItem('kizuna_pw', pw); } catch { /* */ }
@@ -220,7 +220,7 @@ export function showSelect(game, chars) {
   }, 0);
   const delFlow = async () => {
     cleanup();
-    const name = await askText(game.input, { title: '消すキャラクターの名前を入れてね（元にもどせません）', max: 8 });
+    const name = await askText(game.input, { title: '消すキャラクターの名前を入れてください（元にもどせません）', max: 8 });
     const c = chars.find((x) => x.name === name);
     if (c && await confirmBox(game.input, `${c.name}を本当に消しますか？\n（セーブも全て消えます）`, '消す', 'やめる', (x) => game.audio.sfx(x))) {
       game.net.send({ t: 'deleteChar', id: c.id, confirm: c.name });
@@ -389,12 +389,12 @@ export function showTransfer(game, chars) {
         toast('コピーしました！');
         game.audio.sfx('confirm');
         hint.className = 'small good';
-        hint.textContent = 'コピーしました！　連れていく先で「② コードから連れてくる」を開いて、はりつけてね。\n（同じスマホなら、そのまま連れていく先をブラウザで開いて、はりつけるだけ）';
+        hint.textContent = 'コピーしました！　連れていく先で「② コードから連れてくる」を開いて、はりつけてください。\n（同じスマホなら、そのまま連れていく先をブラウザで開いて、はりつけるだけ）';
       };
       const manual = () => {
         selectAllText(ta);
         hint.className = 'small warn';
-        hint.textContent = '自動でコピーできませんでした。コードを全部選んであるので、青いところを長おし →「コピー」してね。';
+        hint.textContent = '自動でコピーできませんでした。コードを全部選んであるので、青いところを長おし →「コピー」してください。';
       };
       // http の 家族サーバーや アプリの 中でも コピーできる やりかたから ためす
       if (copyBySelect(ta)) return copied();
@@ -403,7 +403,7 @@ export function showTransfer(game, chars) {
     });
     const send = r.code.length < LINE_MAX
       ? 'べつのスマホへは、LINE・メッセージ・AirDrop・メモなどで送れます。'
-      : '長いので、LINEでは送れません。メッセージ・AirDrop・メモなどで送ってね。';
+      : '長いので、LINEでは送れません。メッセージ・AirDrop・メモなどで送ってください。';
     // 1タップで 連れていく（リンクで 開くと、むこうで「連れてきますか？」と 聞かれる）
     const jump = [];
     if (game.net.mode === 'server') {
@@ -412,7 +412,7 @@ export function showTransfer(game, chars) {
       const toServer = async () => {
         let server = familyServer();
         if (!server) {
-          const typed = await askText(game.input, { title: '家族サーバーのアドレスを入れてね（PCの画面に出ている「同じWi-Fiのスマホから」のアドレス）', placeholder: '192.168.1.23:3000', max: 60, initial: '' });
+          const typed = await askText(game.input, { title: '家族サーバーのアドレスを入れてください（PCの画面に出ている「同じWi-Fiのスマホから」のアドレス）', placeholder: '192.168.1.23:3000', max: 60, initial: '' });
           if (typed === null) return;
           server = setFamilyServer(typed);
           if (!server) {
@@ -430,7 +430,7 @@ export function showTransfer(game, chars) {
     }
     body.append(
       el('div', { class: 'gold', text: `${r.name}の引っこしコード` }),
-      el('div', { class: 'small', text: '連れていく先の「だれで遊ぶ？」→「引っこしコード」→「② コードから連れてくる」で、このコードをはりつけてね。' }),
+      el('div', { class: 'small', text: '連れていく先の「だれで遊ぶ？」→「引っこしコード」→「② コードから連れてくる」で、このコードをはりつけてください。' }),
       el('div', { class: 'row', style: { gap: '0.5em', flexWrap: 'wrap' } }, ...jump),
       el('div', { class: 'small muted', text: game.net.mode === 'server' ? '同じスマホなら、このボタンだけでOK（ひとりで遊ぶサイトが開いて、連れていくか聞かれます）。' : '家に帰ってPCがついていれば、このボタンだけでOK（家族サーバーが開いて、連れていくか聞かれます）。' }),
       ta,
@@ -447,7 +447,7 @@ export function showTransfer(game, chars) {
     go.addEventListener('click', async () => {
       const code = ta.value.trim();
       if (!code) {
-        toast('コードをはりつけてね');
+        toast('コードをはりつけてください');
         return;
       }
       go.disabled = true;
@@ -540,7 +540,7 @@ export function showCreate(game) {
         row('かみの色', hairCol),
         row('はだの色', skinOpt),
         row('服の色', clothOpt),
-        row('最初の職業（後で転職できるよ）', jobsEl),
+        row('最初の職業（後で転職できる）', jobsEl),
         jobDesc,
         el('div', { class: 'row end' }, back, ok))),
   );
@@ -561,7 +561,7 @@ export function showCreate(game) {
   ok.addEventListener('click', () => {
     const n = name.value.trim();
     if (!n) {
-      toast('名前を入れてね');
+      toast('名前を入れてください');
       name.focus();
       return;
     }

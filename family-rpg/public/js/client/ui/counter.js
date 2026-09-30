@@ -12,6 +12,7 @@ import { computeStats, canEquipChar, itemCount } from '../../shared/stats.js';
 import { itemStats, whoCanEquip, rankText } from './info.js';
 import { faceURL } from '../field.js';
 import { boardIconURL } from '../render/boards.js';
+import { partyRows } from './hud.js';
 
 const TYPE_MS = 18;
 export const EQUIP_TYPES = ['weapon', 'armor', 'shield', 'head', 'acc'];
@@ -267,7 +268,32 @@ export function myTeam(game) {
   return out;
 }
 
-// 1人ぶん: 装備したら どう なるか
+// パーティー みんな（ならびの じゅん）。家族の キャラも 見るだけ 出す（mine: false）
+export function partyTeam(game) {
+  const mine = new Map(myTeam(game).map((m) => [m.key, { ...m, mine: true }]));
+  const p = game.party;
+  const supports = new Map((p?.supports || []).map((x) => [x.key, x]));
+  const other = (x, tag) => ({
+    key: null, mine: false, tag, name: x.name,
+    char: { name: x.name, level: x.level, job: x.job, jobs: x.jobs || {}, equip: x.equip || {}, seeds: x.seeds || {}, species: x.species || undefined, plus: x.plus || 0 },
+    realSt: x.st ? { ...x.st, maxHp: x.maxHp, maxMp: x.maxMp } : null,
+  });
+  const out = [];
+  let humansDone = false;
+  for (const r of partyRows(game)) {
+    if (r.ref === 'self' || (!r.ref && r.player)) {
+      if (humansDone) continue;
+      humansDone = true;
+      out.push(mine.get('self'));
+      for (const m of p?.members || []) if (m.sid !== game.sid) out.push(other(m, '家族'));
+    } else if (r.ref && mine.has(r.ref)) out.push(mine.get(r.ref));
+    else if (r.ref && supports.has(r.ref)) out.push(other(supports.get(r.ref), supports.get(r.ref).family ? '家族' : '仲間'));
+  }
+  if (!humansDone) out.unshift(mine.get('self'));
+  return out.filter(Boolean);
+}
+
+// 1人ぶん: 装備したら どう なるか（realSt が あれば その 強さから の 変化）
 export function compareOne(member, id) {
   const it = ITEMS[id];
   const c = member.char;
@@ -277,7 +303,8 @@ export function compareOne(member, id) {
   if (!can) return { ...member, can: false, same: false, cur };
   const before = computeStats(c);
   const after = computeStats({ ...c, equip: { ...(c.equip || {}), [slot]: id } });
-  const diffs = STAT_NAMES.map(([k, n]) => ({ k, n, b: before[k], a: after[k], d: after[k] - before[k] }));
+  const base = (k) => (member.realSt && Number.isFinite(member.realSt[k]) ? member.realSt[k] : before[k]);
+  const diffs = STAT_NAMES.map(([k, n]) => ({ k, n, b: base(k), a: base(k) + after[k] - before[k], d: after[k] - before[k] }));
   let mainKey = slot === 'weapon' ? 'atk' : 'dfn';
   if (slot === 'acc') mainKey = [...diffs].filter((x) => x.d).sort((p, q) => Math.abs(q.d) - Math.abs(p.d))[0]?.k || 'atk';
   const main = diffs.find((x) => x.k === mainKey);
@@ -292,16 +319,23 @@ export function compareTeam(game, id) {
 const arrow = (d) => (d > 0 ? `↑${d}` : d < 0 ? `↓${-d}` : '＝');
 const arrowCls = (d) => (d > 0 ? 'up' : d < 0 ? 'down' : 'muted');
 
-// ならびの 1行（みるだけ）: なまえ・かわる 強さ（文字だけ。2れつに ならぶ）
+// パーティーの 1人ぶんの 行: 名前・変わる 強さ（装備できない 人は「装備できない（変化なし）」）
 function compareRow(r) {
-  const row = el('div', { class: 'cmp-row' }, el('span', { class: 'nm', text: r.name }));
-  if (r.same) row.append(el('span', { class: 'tag e', text: 'E' }), el('span', { class: 'muted', text: '装備中' }));
-  else {
-    row.append(el('span', { class: 'st', text: `${r.main.n} ${r.main.b}→${r.main.a}` }), el('span', { class: `ar ${arrowCls(r.main.d)}`, text: arrow(r.main.d) }));
-    const sub = r.extras.map((x) => `${x.n}${x.d > 0 ? '+' : ''}${x.d}`);
-    sub.push(`今: ${r.cur ? ITEMS[r.cur].name : 'なし'}`);
-    row.append(el('span', { class: 'cmp-sub', text: sub.join('　') }));
+  const row = el('div', { class: `cmp-row ${r.can ? '' : 'dis'}` }, el('span', { class: 'nm', text: r.name }));
+  if (!r.can) {
+    row.append(el('span', { class: 'no', text: '装備できない（変化なし）' }));
+    return row;
   }
+  if (r.same) {
+    row.append(el('span', { class: 'tag e', text: 'E' }), el('span', { class: 'muted', text: '装備している' }));
+    return row;
+  }
+  // 1行に: 強さの 変化（大事な ものから）・今の 装備
+  const sub = r.extras.map((x) => `${x.n}${x.d > 0 ? '+' : ''}${x.d}`);
+  sub.push(`今:${r.cur ? ITEMS[r.cur].name : 'なし'}`);
+  if (r.tag) sub.push(r.tag);
+  row.append(el('span', { class: 'st' }, `${r.main.n} ${r.main.b}→${r.main.a}`, el('span', { class: 'cmp-sub', text: sub.join('　') })),
+    el('span', { class: `ar ${arrowCls(r.main.d)}`, text: arrow(r.main.d) }));
   return row;
 }
 
@@ -313,14 +347,11 @@ export function itemInfo(game, id, { sell = false } = {}) {
   box.append(el('div', { class: 'hd' }, el('span', { class: 'gold', text: it.name }), el('span', { class: 'st', text: itemStats(id) }), el('span', { class: 'rk', text: rankText(id) })));
   box.append(el('div', { class: 'detail', text: it.desc || '' }));
   if (EQUIP_TYPES.includes(it.type) && !sell) {
-    const team = compareTeam(game, id);
+    // パーティー 全員を ならびの じゅんに（装備できない 人も「変化なし」で 出す）
+    const team = partyTeam(game).map((m) => compareOne(m, id));
     box.append(el('div', { class: 'cmp-head', text: '装備すると、こう変わる' }));
-    const can = team.filter((r) => r.can);
-    const cannot = team.filter((r) => !r.can);
-    if (can.length) box.append(el('div', { class: 'cmp-grid' }, ...can.map(compareRow)));
-    // 装備できない 人は 1行に まとめる（強さが かわる 人を 見やすく）
-    if (cannot.length) box.append(el('div', { class: 'cmp-row dis' }, el('span', { text: `装備できない: ${cannot.map((r) => r.name).join('、')}` })));
-    if (!can.length) box.append(el('div', { class: 'detail', text: whoCanEquip(id) }));
+    box.append(el('div', { class: 'cmp-list' }, ...team.map(compareRow)));
+    if (!team.some((r) => r.can)) box.append(el('div', { class: 'detail', text: whoCanEquip(id) }));
   } else {
     box.append(el('div', { class: 'small', text: `持っている数: ${itemCount(game.me, id)}` }));
     if (sell && sellPrice(id) <= 0) box.append(el('div', { class: 'small warn', text: 'これは引き取ってもらえない' }));
