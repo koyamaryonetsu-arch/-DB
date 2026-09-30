@@ -1,7 +1,7 @@
 // タイトル・ログイン・キャラクターえらび・キャラクターづくり
 import { el, ListMenu, toast, askText, confirmBox } from './dom.js';
 import { JOBS, JOB_ORDER } from '../../shared/data/jobs.js';
-import { HAIR, CLOTH, SKIN, HAIR_NAMES, HW, HH } from '../render/chars.js';
+import { HAIR, CLOTH, SKIN, HAIR_NAMES, CW, CH, HRES } from '../render/chars.js';
 import { playerSprite } from '../field.js';
 import { makeCanvas, ctxOf } from '../render/pixel.js';
 import { ago } from './services.js';
@@ -479,13 +479,13 @@ export function showCreate(game) {
   const dirs = ['down', 'left', 'up', 'right'];
   const wrap = el('div', { class: 'panel center-panel', style: { width: 'min(96vw, 860px)' } });
   const box = el('div', { class: 'win scroll', style: { maxHeight: 'calc(86vh - var(--pad-h))' } });
-  const preview = makeCanvas(HW, HH);
+  const preview = makeCanvas(CW * HRES, CH * HRES);
   const name = el('input', { class: 'textin', id: 'cname', maxlength: '8', placeholder: '名前（8文字まで）', autocomplete: 'off' });
   const jobDesc = el('div', { class: 'jobdesc' });
   const draw = () => {
     const x = ctxOf(preview);
-    x.clearRect(0, 0, HW, HH);
-    x.drawImage(playerSprite(look, job, dirs[dirI], Math.floor(performance.now() / 300) % 2), 0, 0);
+    x.clearRect(0, 0, preview.width, preview.height);
+    x.drawImage(playerSprite(look, job, dirs[dirI], Math.floor(performance.now() / 300) % 2), 0, 0, preview.width, preview.height);
   };
   const timer = setInterval(draw, 150);
   setTimeout(() => { dirI = 0; }, 0);

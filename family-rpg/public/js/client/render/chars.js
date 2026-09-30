@@ -1,7 +1,8 @@
 // キャラクターの ドットえを プログラムで くみたてる
 // みため（かみがた・いろ）と そうび（ぶき・よろい・たて・かぶと）で かわる
-// 人は 32×42（res 2: せかいでは 16×21 の 大きさに かく）。どうぶつ・船は 16×21 など（res 1）
-import { Painter, shade } from './pixel.js';
+// 人は 32×42 で くみたてて、2ばいの 64×84 に して こまかく かきたす（res 4: せかいでは 16×21 の 大きさに かく）
+// どうぶつ・船は 16×21 など
+import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js';
 import { ITEMS } from '../../shared/data/items.js';
 import { STARTER_EQUIP } from '../../shared/stats.js';
 
@@ -9,6 +10,7 @@ export const CW = 16;
 export const CH = 21;
 export const HW = 32;
 export const HH = 42;
+export const HRES = 4; // できあがりの こまかさ（せかいの 1ドットを 4×4 で かく）
 
 export const SKIN = ['#f7d4ae', '#e0ae80', '#b27a50'];
 export const HAIR = ['#2d2330', '#6b4226', '#e9c25e', '#c8452f', '#3c64c8', '#dcdcec', '#f08cc0', '#3fa066'];
@@ -122,7 +124,7 @@ const WEAPON_LOOK = {
 const SHIELD_LOOK = {
   leather_shield: { main: '#9a6a3a', rim: '#6a4422', boss: '#d8b070' },
   scale_shield: { main: '#4a9a6a', rim: '#2e6a46', boss: '#bfe6c8' },
-  iron_shield: { main: '#b8bccb', rim: '#6d7184', boss: '#f2c14e' },
+  iron_shield: { main: '#b8bccb', rim: '#6d7184', boss: '#f2c14e', metal: true },
   briefcase: { main: '#4a3226', rim: '#22160f', boss: '#c8a040' },
 };
 
@@ -241,7 +243,7 @@ export function npcOpts(kind) {
   };
 }
 
-// ───────────── 人の ドットえ（32×42。まえの 版の 2倍の こまかさ） ─────────────
+// ───────────── 人の ドットえ（32×42 で くみたて → 64×84。はじめの 版の 4倍の こまかさ） ─────────────
 // まえ（down）・うしろ（up）・よこ（side = ひだりむき。みぎむきは はんてん）× あるく 2コマ
 // ならび: からだ → あたま（かお・かみ）→ ぶき・たて → ぼうし → ふちどり
 
@@ -291,24 +293,28 @@ function drawBody(p, dir, f, o) {
       // ふみだす あし（まえ）・うしろの あし
       const [fx, bx] = f === 0 ? [8, 18] : [12, 16];
       const [fl, bl] = f === 0 ? [6, 4] : [6, 5];
-      p.rect(bx, 34, 4, bl, pantsD); p.rect(bx - 1, 34 + bl, 5, 2, shade(shoe, -0.15));
+      p.rect(bx, 34, 4, bl, pantsD); p.tag = 'shoe'; p.rect(bx - 1, 34 + bl, 5, 2, shade(shoe, -0.15)); p.tag = 'cloth';
       p.rect(fx, 34, 4, fl, pants); p.vline(fx + 3, 34, 33 + fl, pantsD);
-      p.rect(fx - 2, 34 + fl, 6, 2, shoe); p.hline(fx - 2, fx, 34 + fl, shoeL);
+      p.tag = 'shoe'; p.rect(fx - 2, 34 + fl, 6, 2, shoe); p.hline(fx - 2, fx, 34 + fl, shoeL); p.tag = 'cloth';
     } else {
       const lUp = f === 1, rUp = f === 0;
       const ll = lUp ? 4 : 6, rl = rUp ? 4 : 6;
       p.rect(10, 34, 4, ll, pants); p.vline(13, 34, 33 + ll, pantsD);
       p.rect(18, 34, 4, rl, pants); p.vline(21, 34, 33 + rl, pantsD);
+      p.tag = 'shoe';
       p.rect(9, 34 + ll, 5, 2, shoe); p.hline(9, 11, 34 + ll, shoeL);
       p.rect(18, 34 + rl, 5, 2, shoe); p.hline(18, 20, 34 + rl, shoeL);
     }
   } else if (dir === 'side') {
+    p.tag = 'shoe';
     p.rect(f === 0 ? 6 : 10, 38, 6, 2, shoe);
     p.rect(f === 0 ? 18 : 16, 38, 5, 2, shade(shoe, -0.15));
   } else {
+    p.tag = 'shoe';
     p.rect(10, f === 1 ? 38 : 39, 4, 2, shoe);
     p.rect(18, f === 0 ? 38 : 39, 4, 2, shoe);
   }
+  p.tag = 'cloth';
 
   // どう
   if (dir === 'side') {
@@ -336,19 +342,24 @@ function drawBody(p, dir, f, o) {
   // ふくの もよう
   const trim = o.robeTrim || '#f2c14e';
   const belt = (c = '#5a3a22', buckle = null) => {
+    p.tag = 'belt';
     if (dir === 'side') p.rect(10, 32, 12, 2, c);
     else {
       p.rect(8, 32, 16, 2, c);
-      if (buckle && dir === 'down') { p.rect(14, 32, 4, 2, buckle); p.set(15, 32, shade(buckle, 0.4)); p.set(16, 33, shade(buckle, -0.3)); }
+      p.tag = 'cloth';
+      if (buckle && dir === 'down') { p.tag = 'gold'; p.rect(14, 32, 4, 2, buckle); p.set(15, 32, shade(buckle, 0.4)); p.set(16, 33, shade(buckle, -0.3)); }
     }
+    p.tag = 'cloth';
   };
   switch (o.outfit) {
     case 'armor': {
       const m = '#b8bccb', mD = '#7d8194', mL = '#e2e5ef';
+      p.tag = 'metal';
       if (dir === 'side') {
         p.rect(10, 22, 12, 8, m); p.vline(20, 22, 29, mD); p.vline(21, 22, 29, mD); p.hline(10, 18, 22, mL); p.vline(10, 23, 28, mL);
-        p.hline(10, 21, 29, mD); p.rect(10, 30, 12, 2, o.cloth); p.rect(10, 32, 12, 2, shade(o.cloth, -0.25));
+        p.hline(10, 21, 29, mD); p.tag = 'cloth'; p.rect(10, 30, 12, 2, o.cloth); p.rect(10, 32, 12, 2, shade(o.cloth, -0.25));
         // かたあて
+        p.tag = 'metal';
         p.rect(13, 21, 7, 4, m); p.hline(13, 18, 21, mL); p.hline(13, 19, 24, mD);
       } else {
         p.rect(8, 24, 16, 8, m); p.hline(8, 23, 24, mL); p.vline(8, 25, 30, mL); p.vline(22, 24, 31, mD); p.vline(23, 24, 31, mD);
@@ -356,13 +367,18 @@ function drawBody(p, dir, f, o) {
         p.hline(8, 23, 31, mD);
         if (dir === 'down') {
           // むねの しるし
+          p.tag = 'cloth';
           p.rect(14, 26, 4, 4, o.cloth); p.set(14, 26, shade(o.cloth, 0.3)); p.set(17, 29, shade(o.cloth, -0.3));
+          p.tag = 'metal';
           p.vline(15, 25, 30, mD);
         } else p.vline(15, 25, 30, mD), p.vline(16, 25, 30, mL);
+        p.tag = 'cloth';
         p.rect(8, 32, 16, 2, o.cloth); p.hline(8, 23, 33, shade(o.cloth, -0.25));
         // かたあて（まるい）
+        p.tag = 'metal';
         srect(p, 5, 21, 5, 4, m, m); srect(p, 5, 21, 5, 1, mL, mL); srect(p, 5, 24, 5, 1, mD, mD);
       }
+      p.tag = 'cloth';
       break;
     }
     case 'gi': {
@@ -397,7 +413,7 @@ function drawBody(p, dir, f, o) {
       if (dir === 'down') {
         p.hline(11, 20, 22, col); p.hline(12, 19, 23, col); p.rect(14, 24, 4, 2, col);
         p.rect(7, 22, 3, 12, cape); p.vline(7, 23, 33, capeL); p.rect(22, 22, 3, 12, capeD);
-        p.set(10, 23, '#e0b050'); p.set(21, 23, '#e0b050');
+        p.tag = 'gold'; p.set(10, 23, '#e0b050'); p.set(21, 23, '#e0b050'); p.tag = 'cloth';
         belt('#5a3a22', '#e0b050');
       } else if (dir === 'up') {
         p.rect(8, 22, 16, 13, cape); p.hline(8, 23, 34, capeD); p.vline(22, 22, 34, capeD); p.vline(23, 22, 34, capeD); p.vline(8, 23, 33, capeL);
@@ -446,10 +462,12 @@ function drawBody(p, dir, f, o) {
       // くさりかたびら: こまかい あみめ
       const m1 = '#a8aebe', m2 = '#7d8394', m3 = '#c8ccd8';
       const x0 = dir === 'side' ? 10 : 8, x1 = dir === 'side' ? 21 : 23;
+      p.tag = 'mail';
       for (let y = 22; y <= 31; y++) for (let x = x0; x <= x1; x++) {
         if (dir !== 'side' && y < 24 && (x < 10 || x > 21)) continue;
         p.set(x, y, (x + y) % 2 ? m2 : (y % 4 === 0 ? m3 : m1));
       }
+      p.tag = 'cloth';
       if (dir === 'down') { p.hline(11, 20, 22, o.cloth); p.hline(12, 19, 23, shade(o.cloth, -0.2)); }
       belt('#5a3a22', '#b8bccb');
       break;
@@ -459,15 +477,19 @@ function drawBody(p, dir, f, o) {
       const b = '#2a3a8a', bL = '#4a5ab8', bD = '#1a2560', st = '#ffe98a', sv = '#dfe4f0';
       if (dir === 'side') {
         p.rect(10, 22, 12, 12, b); p.hline(10, 18, 22, bL); p.vline(20, 22, 33, bD); p.vline(21, 22, 33, bD);
-        p.set(14, 26, st); p.set(17, 30, st); p.set(13, 29, '#ffffff'); p.rect(14, 22, 6, 2, sv);
+        p.tag = 'gem'; p.set(14, 26, st); p.set(17, 30, st); p.set(13, 29, '#ffffff'); p.tag = 'metal'; p.rect(14, 22, 6, 2, sv); p.tag = 'cloth';
       } else {
         p.rect(8, 22, 16, 12, b); p.hline(10, 21, 22, bL); p.vline(22, 23, 33, bD); p.vline(23, 23, 33, bD);
+        p.tag = 'metal';
         srect(p, 5, 22, 5, 4, sv, sv); srect(p, 5, 22, 5, 1, '#ffffff', '#ffffff');
+        p.tag = 'gem';
         if (dir === 'down') {
           p.set(15, 26, st); p.set(16, 26, st); p.set(15, 25, '#ffffff'); p.set(14, 26, st); p.set(17, 26, st); p.set(15, 27, st); p.set(16, 27, st);
           p.set(11, 30, st); p.set(20, 28, st); p.set(12, 27, '#ffffff');
         } else { p.set(12, 28, st); p.set(19, 26, st); p.set(17, 30, '#ffffff'); }
+        p.tag = 'gold';
         p.rect(8, 32, 16, 2, '#c8a040'); p.hline(8, 23, 33, '#8a6a20');
+        p.tag = 'cloth';
       }
       break;
     }
@@ -554,8 +576,10 @@ function drawBody(p, dir, f, o) {
       if (dir === 'down') {
         p.rect(13, 22, 6, 2, '#f4f4f4'); p.set(15, 24, '#2a2a2a'); p.set(16, 24, '#2a2a2a');
         p.vline(15, 25, 33, mainD);
+        p.tag = 'gold';
         for (const y of [26, 29, 32]) { p.set(13, y, gold); p.set(18, y, gold); }
         p.set(10, 23, gold); p.set(21, 23, gold);
+        p.tag = 'cloth';
       } else if (dir === 'side') {
         p.rect(10, 22, 2, 2, '#f4f4f4');
         for (const y of [26, 29, 32]) p.set(12, y, gold);
@@ -612,7 +636,9 @@ function drawBody(p, dir, f, o) {
       } else {
         p.rect(8, 22, 16, 10, r); p.vline(8, 23, 30, rL);
         for (const y of [24, 27, 30]) p.hline(8, 23, y, lace);
+        p.tag = 'gold';
         if (dir === 'down') for (const x of [11, 15, 19]) for (const y of [25, 28]) p.set(x, y, gold);
+        p.tag = 'cloth';
         srect(p, 4, 21, 5, 7, rD, rD);
         for (const y of [23, 25]) { p.hline(4, 8, y, lace); p.hline(23, 27, y, lace); }
         p.rect(8, 32, 16, 3, rD); for (const x of [12, 16, 20]) p.vline(x, 32, 34, lace);
@@ -630,13 +656,13 @@ function drawBody(p, dir, f, o) {
   if (dir === 'side') {
     const ax = f === 0 ? 12 : 16;
     p.rect(ax, 23, 4, 7, sleeve); p.vline(ax + 3, 23, 29, sleeveD); p.vline(ax, 24, 28, shade(sleeve, 0.15));
-    p.rect(ax, 30, 4, 3, sk); p.hline(ax, ax + 3, 32, skD);
+    p.tag = 'skin'; p.rect(ax, 30, 4, 3, sk); p.hline(ax, ax + 3, 32, skD); p.tag = 'cloth';
   } else {
     const la = f === 0 ? 0 : -2, ra = f === 0 ? -2 : 0;
     p.rect(5, 24 + la, 3, 7, sleeve); p.vline(5, 25 + la, 29 + la, shade(sleeve, 0.15));
-    p.rect(5, 31 + la, 3, 3, sk); p.hline(5, 7, 33 + la, skD);
+    p.tag = 'skin'; p.rect(5, 31 + la, 3, 3, sk); p.hline(5, 7, 33 + la, skD); p.tag = 'cloth';
     p.rect(24, 24 + ra, 3, 7, sleeveD);
-    p.rect(24, 31 + ra, 3, 3, skD);
+    p.tag = 'skin'; p.rect(24, 31 + ra, 3, 3, skD); p.tag = 'cloth';
   }
   // どうぐ（つえ・やり。NPC）
   if (o.cane) {
@@ -647,8 +673,11 @@ function drawBody(p, dir, f, o) {
   if (o.spear) {
     const sx = dir === 'side' ? 6 : 27;
     p.vline(sx, 8, 41, '#7a4a22'); p.vline(sx + 1, 8, 41, '#5a3a18');
+    p.tag = 'blade';
     p.rect(sx, 2, 2, 6, '#d8dce8'); p.vline(sx, 2, 7, '#ffffff'); p.set(sx, 0, '#ffffff'); p.set(sx, 1, '#d8dce8'); p.set(sx + 1, 1, '#d8dce8');
+    p.tag = 'gold';
     p.hline(sx - 1, sx + 2, 8, '#c8a040');
+    p.tag = 'cloth';
   }
 }
 
@@ -657,23 +686,26 @@ function drawGear(p, dir, f, o) {
   const w = o.weapon, sh = o.shield;
   const la = f === 0 ? 0 : -2, ra = f === 0 ? -2 : 0;
   if (sh) {
+    p.tag = sh.metal ? 'metal' : 'cloth';
     const mainL = shade(sh.main, 0.2);
     if (dir === 'side') {
       const ax = f === 0 ? 12 : 16;
       p.rect(ax - 4, 24, 6, 8, sh.main); p.vline(ax - 4, 24, 31, sh.rim); p.hline(ax - 4, ax + 1, 31, sh.rim); p.hline(ax - 4, ax + 1, 24, sh.rim);
-      p.vline(ax - 3, 25, 30, mainL); p.rect(ax - 2, 26, 2, 3, sh.boss);
+      p.vline(ax - 3, 25, 30, mainL); p.tag = 'gold'; p.rect(ax - 2, 26, 2, 3, sh.boss);
     } else {
       const x = dir === 'down' ? 1 : 24, y = 24 + (dir === 'down' ? la : ra);
       p.rect(x, y, 7, 9, sh.main);
       p.hline(x, x + 6, y, sh.rim); p.hline(x, x + 6, y + 8, sh.rim); p.vline(x, y, y + 8, sh.rim); p.vline(x + 6, y, y + 8, sh.rim);
       if (dir === 'down') {
         p.vline(x + 1, y + 1, y + 7, mainL);
-        p.rect(x + 2, y + 3, 3, 3, sh.boss); p.set(x + 2, y + 3, shade(sh.boss, 0.4)); p.set(x + 4, y + 5, shade(sh.boss, -0.3));
+        p.tag = 'gold'; p.rect(x + 2, y + 3, 3, 3, sh.boss); p.set(x + 2, y + 3, shade(sh.boss, 0.4)); p.set(x + 4, y + 5, shade(sh.boss, -0.3));
       } else { p.vline(x + 3, y + 1, y + 7, sh.rim); p.hline(x + 1, x + 5, y + 4, sh.rim); }
     }
   }
+  p.tag = 'cloth';
   if (!w) return;
   const bl = w.blade, blL = shade(bl, 0.45), blD = shade(bl, -0.25), gd = w.guard || '#7a4a22', grip = '#5a3a22';
+  p.tag = w.cat === 'fan' || w.cat === 'whip' ? 'cloth' : 'blade';
   if (dir === 'side') {
     // まえに かまえる
     switch (w.cat) {
@@ -692,6 +724,7 @@ function drawGear(p, dir, f, o) {
         break;
       case 'staff':
         p.rect(4, 14, 2, 27, bl); p.vline(4, 14, 40, shade(bl, 0.2));
+        p.tag = 'gem';
         p.rect(2, 9, 6, 5, w.orb); p.rect(3, 8, 4, 1, w.orb); p.rect(3, 14, 4, 1, shade(w.orb, -0.3));
         p.set(3, 10, shade(w.orb, 0.6)); p.set(4, 9, '#ffffff');
         break;
@@ -747,6 +780,7 @@ function drawGear(p, dir, f, o) {
       break;
     case 'staff':
       p.rect(hx, 12, 2, 29, bl); p.vline(hx, 12, 40, shade(bl, 0.2));
+      p.tag = 'gem';
       p.rect(hx - 2, 7, 6, 5, w.orb); p.rect(hx - 1, 6, 4, 1, w.orb); p.rect(hx - 1, 12, 4, 1, shade(w.orb, -0.3));
       p.set(hx - 1, 8, shade(w.orb, 0.6)); p.set(hx, 7, '#ffffff');
       break;
@@ -807,7 +841,10 @@ function drawHead(p, dir, f, o) {
   const bald = style === 'bald';
   const eyeC = o.glowEyes ? '#ff4a4a' : EYE;
 
-  // ─ かお ─
+  // ─ かお ─（こまかい め・くち は あとで 2ばいの え に かきなおす。marks に ばしょを のこす）
+  const mk = p.marks || {};
+  const face = (t) => { p.tag = t; };
+  face('skin');
   if (dir === 'down') {
     spans(p, FACE_DOWN, sk);
     for (const [y, , x1] of FACE_DOWN) if (y >= 9 && y <= 19) { p.set(x1, y, skD); if (y >= 12 && y <= 17) p.set(x1 - 1, y, skD); }
@@ -815,33 +852,48 @@ function drawHead(p, dir, f, o) {
     // みみ
     p.rect(5, 12, 1, 3, sk); p.rect(26, 12, 1, 3, skD);
     // め
+    face('eye');
     for (const ex of [10, 20]) {
       p.rect(ex, 12, 2, 3, eyeC);
       p.set(ex, 12, o.glowEyes ? '#ffb0a0' : EYE_W);
     }
+    mk.eyes = [{ x: 10, y: 12, out: -1 }, { x: 20, y: 12, out: 1 }];
+    face('lash');
     if (o.female) { p.hline(9, 11, 11, EYE); p.hline(20, 22, 11, EYE); p.set(9, 12, EYE); p.set(22, 12, EYE); }
-    if (o.female || o.small) { p.hline(7, 8, 15, BLUSH); p.hline(23, 24, 15, BLUSH); }
+    face('blush');
+    if (o.female || o.small) { p.hline(7, 8, 15, BLUSH); p.hline(23, 24, 15, BLUSH); mk.blush = [[7, 15], [23, 15]]; }
+    face('nose');
     p.set(16, 15, skD);
-    if (!o.beard) { p.set(15, 17, MOUTH); p.set(16, 17, MOUTH); }
+    mk.nose = [16, 15];
+    face('mouth');
+    if (!o.beard) { p.set(15, 17, MOUTH); p.set(16, 17, MOUTH); mk.mouth = [15, 17, 2]; }
   } else if (dir === 'side') {
     spans(p, FACE_SIDE, sk);
     for (const [y, , x1] of FACE_SIDE) if (y >= 8 && y <= 19) p.set(x1, y, skD);
     p.hline(9, 18, 20, skD); p.hline(11, 16, 21, skDD);
     p.set(3, 14, sk); p.set(3, 15, skD); p.set(4, 15, skD);
+    face('eye');
     p.rect(7, 12, 2, 3, eyeC);
     p.set(8, 12, o.glowEyes ? '#ffb0a0' : EYE_W);
+    mk.eyes = [{ x: 7, y: 12, out: -1, side: true }];
+    face('lash');
     if (o.female) { p.hline(6, 8, 11, EYE); p.set(6, 12, EYE); }
-    if (o.female || o.small) p.hline(8, 9, 16, BLUSH);
-    if (!o.beard) p.hline(5, 6, 18, MOUTH);
+    face('blush');
+    if (o.female || o.small) { p.hline(8, 9, 16, BLUSH); mk.blush = [[8, 16]]; }
+    face('mouth');
+    if (!o.beard) { p.hline(5, 6, 18, MOUTH); mk.mouth = [5, 18, 2, true]; }
     // みみ（かみの すぐ まえ）
+    face('skin');
     p.rect(16, 12, 3, 4, sk); p.set(17, 13, skD); p.set(17, 14, skD); p.vline(18, 12, 15, skD);
   } else {
     spans(p, HEAD_UP, sk);
     p.rect(13, 20, 6, 2, skD);
     p.rect(4, 12, 1, 3, sk); p.rect(27, 12, 1, 3, skD);
   }
+  mk.glow = !!o.glowEyes;
 
   // ─ ひげ ─
+  p.tag = 'beard';
   if (o.beard && dir !== 'up') {
     const bc = o.hair === HAIR[5] ? '#f0f0f6' : shade(hair, 0.1), bcD = shade(bc, -0.22);
     if (dir === 'down') {
@@ -858,6 +910,7 @@ function drawHead(p, dir, f, o) {
   }
 
   // ─ かみ ─
+  p.tag = 'hair';
   if (bald) {
     if (dir === 'down') { p.rect(5, 9, 3, 6, hair); p.rect(24, 9, 3, 6, hair); p.vline(5, 10, 14, hairD); p.vline(26, 10, 14, hairD); p.hline(10, 13, 6, shade(sk, 0.25)); }
     else if (dir === 'side') { p.rect(16, 9, 7, 7, hair); p.vline(22, 10, 15, hairD); p.rect(16, 12, 3, 4, sk); p.set(17, 13, skD); p.set(17, 14, skD); p.hline(9, 13, 5, shade(sk, 0.25)); }
@@ -874,6 +927,7 @@ function drawHead(p, dir, f, o) {
       p.vline(x, 8, y1, hair);
       p.set(x, y1, hairD);
     }
+    mk.fringe = { x0: 7, ys: fringe };
     p.vline(5, 8, 14, hair); p.vline(6, 8, 15, hair); p.vline(25, 8, 15, hairD); p.vline(26, 8, 14, hairD);
     p.set(6, 15, hairD); p.set(25, 15, hairDD);
     // つや
@@ -891,12 +945,12 @@ function drawHead(p, dir, f, o) {
         p.hline(3, 5, 27, hairD); p.hline(26, 28, 27, hairDD);
         break;
       case 'pony':
-        p.rect(26, 7, 3, 9, hairD); p.vline(28, 9, 14, hairDD); p.rect(26, 6, 2, 2, '#e46fa8');
+        p.rect(26, 7, 3, 9, hairD); p.vline(28, 9, 14, hairDD); p.tag = 'cloth'; p.rect(26, 6, 2, 2, '#e46fa8'); p.tag = 'hair';
         break;
       case 'twin':
         for (const [x, c1, c2] of [[2, hair, hairD], [27, hairD, hairDD]]) {
           p.rect(x, 11, 3, 10, c1); p.rect(x + 1, 21, 2, 2, c1); p.vline(x === 2 ? 3 : 28, 12, 20, c2);
-          p.rect(x, 9, 3, 2, '#e46fa8');
+          p.tag = 'cloth'; p.rect(x, 9, 3, 2, '#e46fa8'); p.tag = 'hair';
         }
         break;
       case 'bun':
@@ -911,6 +965,7 @@ function drawHead(p, dir, f, o) {
     // まえがみ（ひたいに かかる）
     const fr = style === 'spiky' ? [10, 12, 9, 11, 13, 10, 11, 12] : [9, 11, 10, 11, 12, 10, 11, 11];
     for (let x = 5; x <= 12; x++) { p.vline(x, 8, fr[x - 5], hair); p.set(x, fr[x - 5], hairD); }
+    mk.fringe = { x0: 5, ys: fr };
     p.hline(9, 13, 3, hairL); p.hline(7, 9, 4, hairL); p.set(6, 5, hairL);
     p.vline(24, 5, 11, hairD); p.vline(23, 12, 15, hairD); p.set(22, 16, hairDD);
     p.set(15, 11, hairD); p.set(19, 16, hairD);
@@ -925,10 +980,10 @@ function drawHead(p, dir, f, o) {
         break;
       case 'pony':
         spans(p, [[7, 23, 26], [8, 24, 27], [9, 24, 27], [10, 25, 28], [11, 25, 28], [12, 25, 28], [13, 25, 28], [14, 25, 27], [15, 25, 27], [16, 24, 27], [17, 24, 26], [18, 24, 26], [19, 23, 25], [20, 23, 24]], hair);
-        p.vline(27, 9, 15, hairD); p.rect(23, 7, 2, 2, '#e46fa8');
+        p.vline(27, 9, 15, hairD); p.tag = 'cloth'; p.rect(23, 7, 2, 2, '#e46fa8'); p.tag = 'hair';
         break;
       case 'twin':
-        p.rect(20, 11, 4, 11, hairD); p.rect(21, 22, 2, 2, hairD); p.vline(23, 12, 21, hairDD); p.rect(20, 9, 4, 2, '#e46fa8');
+        p.rect(20, 11, 4, 11, hairD); p.rect(21, 22, 2, 2, hairD); p.vline(23, 12, 21, hairDD); p.tag = 'cloth'; p.rect(20, 9, 4, 2, '#e46fa8'); p.tag = 'hair';
         break;
       case 'bun':
         p.ellipse(21, 2, 3.4, 3, hair); p.hline(19, 21, 0, hairL); p.hline(19, 23, 4, hairD);
@@ -945,7 +1000,9 @@ function drawHead(p, dir, f, o) {
     p.hline(8, 23, 18, hairD); p.hline(10, 21, 19, hairDD);
     p.vline(26, 7, 14, hairD); p.vline(25, 15, 16, hairD);
     // みみ（かみの よこ）
+    p.tag = 'skin';
     p.rect(4, 12, 1, 3, sk); p.rect(27, 12, 1, 3, skD);
+    p.tag = 'hair';
     switch (style) {
       case 'spiky':
         for (const [x, h] of [[8, 3], [12, 4], [16, 4], [20, 3], [24, 2]]) for (let i = 0; i < h; i++) p.hline(x - Math.floor((h - i) / 2), x + Math.floor((h - i) / 2), 2 - i, hair);
@@ -957,10 +1014,10 @@ function drawHead(p, dir, f, o) {
         p.hline(9, 22, 27, hairDD);
         break;
       case 'pony':
-        p.rect(14, 19, 4, 11, hair); p.vline(17, 20, 29, hairD); p.rect(15, 30, 2, 1, hairD); p.rect(14, 18, 4, 2, '#e46fa8');
+        p.rect(14, 19, 4, 11, hair); p.vline(17, 20, 29, hairD); p.rect(15, 30, 2, 1, hairD); p.tag = 'cloth'; p.rect(14, 18, 4, 2, '#e46fa8'); p.tag = 'hair';
         break;
       case 'twin':
-        p.rect(1, 11, 3, 11, hair); p.rect(28, 11, 3, 11, hairD); p.vline(2, 12, 21, hairD); p.rect(1, 9, 3, 2, '#e46fa8'); p.rect(28, 9, 3, 2, '#e46fa8');
+        p.rect(1, 11, 3, 11, hair); p.rect(28, 11, 3, 11, hairD); p.vline(2, 12, 21, hairD); p.tag = 'cloth'; p.rect(1, 9, 3, 2, '#e46fa8'); p.rect(28, 9, 3, 2, '#e46fa8'); p.tag = 'hair';
         break;
       case 'bun':
         p.ellipse(16, 1.5, 4.2, 3.2, hair); p.hline(13, 16, -1, hairL); p.hline(13, 18, 3, hairD);
@@ -974,6 +1031,7 @@ function drawHead(p, dir, f, o) {
 function drawHat(p, dir, f, o) {
   const hc = o.hatColor;
   const side = dir === 'side';
+  p.tag = o.hat === 'helmet' || o.hat === 'kabuto' ? 'metal' : 'hat';
   switch (o.hat) {
     case 'bbcap': {
       // 野球ぼう（つばは まえ）
@@ -1029,13 +1087,14 @@ function drawHat(p, dir, f, o) {
         spans(p, [[1, 10, 19], [2, 8, 21], [3, 7, 22], [4, 7, 23], [5, 7, 23], [6, 7, 23], [7, 6, 24]], c);
         p.hline(10, 16, 2, cL);
         spans(p, [[8, 12, 26], [9, 14, 27], [10, 16, 28], [11, 18, 28]], cD);
-        p.set(6, 3, g); p.set(5, 2, g); p.set(4, 1, g); p.set(4, 0, g); p.set(7, 4, gD);
+        p.tag = 'gold'; p.set(6, 3, g); p.set(5, 2, g); p.set(4, 1, g); p.set(4, 0, g); p.set(7, 4, gD);
       } else {
         spans(p, [[1, 11, 20], [2, 9, 22], [3, 8, 23], [4, 7, 24], [5, 7, 24], [6, 7, 24], [7, 6, 25]], c);
         p.hline(11, 18, 2, cL);
         spans(p, [[8, 3, 28], [9, 2, 29], [10, 2, 8], [10, 23, 29], [11, 2, 6], [11, 25, 29]], cD);
         if (dir === 'down') {
           // くわがた（V の かたち）
+          p.tag = 'gold';
           for (let i = 0; i < 5; i++) { p.set(13 - i, 5 - i, g); p.set(18 + i, 5 - i, g); p.set(14 - i, 5 - i, gD); p.set(17 + i, 5 - i, gD); }
           p.rect(14, 5, 4, 3, g); p.set(15, 6, '#fff0b0');
         }
@@ -1049,12 +1108,12 @@ function drawHat(p, dir, f, o) {
         p.hline(9, 16, 1, mL); p.hline(7, 10, 3, mL); p.vline(22, 3, 8, mD); p.vline(23, 4, 8, mD);
         p.rect(6, 9, 18, 2, mD); p.hline(6, 23, 9, m);
         p.rect(18, 11, 5, 6, m); p.vline(22, 11, 16, mD);
-        p.set(24, 0, g); p.set(23, 1, g); p.set(22, 2, g);
+        p.tag = 'gold'; p.set(24, 0, g); p.set(23, 1, g); p.set(22, 2, g);
       } else {
         spans(p, [[0, 11, 20], [1, 9, 22], [2, 7, 24], [3, 6, 25], [4, 6, 25], [5, 6, 25], [6, 6, 25], [7, 6, 25], [8, 6, 25]], m);
         p.hline(10, 18, 1, mL); p.hline(8, 11, 3, mL); p.vline(24, 3, 8, mD); p.vline(25, 4, 8, mD);
         p.rect(6, 9, 20, 2, mD); p.hline(6, 25, 9, m);
-        if (dir === 'down') { p.rect(15, 0, 2, 9, g); p.set(15, 0, shade(g, 0.4)); p.rect(14, 9, 4, 1, g); }
+        if (dir === 'down') { p.tag = 'gold'; p.rect(15, 0, 2, 9, g); p.set(15, 0, shade(g, 0.4)); p.rect(14, 9, 4, 1, g); p.tag = 'metal'; }
         // つの
         sset(p, 4, 2, '#f4f4f4'); sset(p, 3, 1, '#f4f4f4'); sset(p, 2, 0, '#f4f4f4'); sset(p, 5, 3, '#dcdce6');
         if (dir === 'up') { p.vline(15, 1, 8, mD); p.vline(16, 1, 8, mL); }
@@ -1139,12 +1198,14 @@ function drawHat(p, dir, f, o) {
         for (let y = 8; y <= 21; y++) { p.hline(5, 7, y, c); p.hline(24, 26, y, cD); }
         p.vline(8, 8, 12, cD); p.vline(23, 8, 12, cD);
         // フードの なかは まっくら
+        p.tag = 'void';
         p.rect(8, 8, 16, 13, '#120a18');
+        p.tag = 'glow';
         p.rect(11, 12, 2, 2, '#ff4a4a'); p.rect(19, 12, 2, 2, '#ff4a4a'); p.set(11, 12, '#ffb0a0'); p.set(19, 12, '#ffb0a0');
       } else {
         spans(p, [[0, 9, 20], [1, 7, 22], [2, 6, 23], [3, 5, 24], [4, 5, 24], [5, 5, 24], [6, 5, 24], [7, 5, 24]], c);
         p.rect(15, 8, 9, 14, c); p.vline(23, 8, 21, cD);
-        p.rect(5, 8, 10, 12, '#120a18'); p.rect(7, 12, 2, 2, '#ff4a4a');
+        p.tag = 'void'; p.rect(5, 8, 10, 12, '#120a18'); p.tag = 'glow'; p.rect(7, 12, 2, 2, '#ff4a4a');
       }
       break;
     }
@@ -1204,7 +1265,7 @@ function drawHat(p, dir, f, o) {
   }
 }
 
-// からだ ぜんたい（ドットは 32×42。res: 2 … まえの 16×21 の 2倍）
+// からだ ぜんたい（32×42 で かいて 2ばいに → 64×84・res 4）
 // マント（ソードマスター）
 function drawCape(p, dir, f, o) {
   const c = o.cape, cD = shade(c, -0.3), cL = shade(c, 0.2);
@@ -1233,6 +1294,7 @@ function drawCape(p, dir, f, o) {
 // めがね（部長・社長）
 function drawGlasses(p, dir) {
   const g = '#2a2a3a';
+  p.tag = 'glass';
   if (dir === 'down') {
     for (const x0 of [8, 18]) {
       p.hline(x0 + 1, x0 + 4, 11, g); p.hline(x0 + 1, x0 + 4, 15, g);
@@ -1246,17 +1308,23 @@ function drawGlasses(p, dir) {
 }
 
 export function paintHuman(dir, f, o) {
-  const p = new Painter(HW, HH);
+  // まず これまでの 32×42 で かいて、2ばいの こまかさ（64×84）に してから こまかい ところを かきたす
+  const p = new Painter(HW, HH, true);
   p.res = 2;
+  p.tag = 'cloth';
+  p.marks = {};
   const vdir = dir === 'left' || dir === 'right' ? 'side' : dir;
+  let q;
   if (o.outfit === 'shadow') {
     const c = '#1a1026', cD = '#0a0612', cL = '#2a1a3a';
     p.ellipse(16, 12, 10, 9.5, c);
     spans(p, Array.from({ length: 18 }, (_, i) => [20 + i, 6 - Math.floor(i / 4), 25 + Math.floor(i / 4)]), c);
     p.rect(2, 30, 28, 8, cD); p.vline(8, 10, 30, cL);
     for (let x = 3; x < 29; x += 4) p.rect(x + (f ? 1 : 0), 38, 2, 2, cD);
+    p.tag = 'glow';
     if (vdir !== 'up') { p.rect(11, 12, 3, 2, '#ff4a4a'); p.rect(19, 12, 3, 2, '#ff4a4a'); p.set(11, 12, '#ffb0a0'); p.set(19, 12, '#ffb0a0'); }
-    p.outline('#6a3a8a');
+    q = scale2x(p);
+    outline2(q, '#6a3a8a', 0);
   } else {
     // マント（まえ・よこ むきは からだの うしろ）
     if (o.cape && vdir !== 'up') drawCape(p, vdir, f, o);
@@ -1266,31 +1334,342 @@ export function paintHuman(dir, f, o) {
     if (o.glasses) drawGlasses(p, vdir);
     drawGear(p, vdir, f, o);
     drawHat(p, vdir, f, o);
-    p.outline(OUT);
+    q = scale2x(p);
+    p.marks.f = f;
+    detailHuman(q, vdir, o, p.marks);
+    if (o.small) q = shrinkKid(q);
+    outline2(q, OUT, 0.42);
   }
-  let out = p;
-  if (dir === 'right') {
-    out = p.flipX();
-    out.res = 2;
+  if (dir === 'right') q = q.flipX();
+  return q;
+}
+
+// ───── 2ばいの え に こまかい ところを かきたす ─────
+// め の いろ（かみの いろ に あわせる）
+const IRIS = { '#2d2330': '#5a4a8a', '#6b4226': '#8a5a2e', '#e9c25e': '#3a78c8', '#c8452f': '#a8402e', '#3c64c8': '#3a64d0', '#dcdcec': '#6a88c0', '#f08cc0': '#c8487a', '#3fa066': '#2a8a5a' };
+// め（4×6）: L まつげ・P くろめ・I め の いろ・J あかるい め・W ひかり・. はだ
+const EYE_ART = ['LLLL', 'WWPP', 'WPPP', 'PIIP', 'IJJI', '.II.'];
+
+function detailHuman(q, dir, o, mk) {
+  const W = q.w, H = q.h;
+  const px = q.px, tg = q.tg;
+  const at = (x, y) => (x < 0 || y < 0 || x >= W || y >= H ? -1 : y * W + x);
+  const tagOf = (x, y) => { const i = at(x, y); return i < 0 ? null : tg[i]; };
+  const colOf = (x, y) => { const i = at(x, y); return i < 0 ? null : px[i]; };
+  const put = (x, y, c, t) => { const i = at(x, y); if (i < 0 || !c) return; px[i] = c; if (t) tg[i] = t; };
+  const sk = o.skin, skD = shade(sk, -0.14);
+  const hair = o.hair, hairD = shade(hair, -0.3), hairL = shade(hair, 0.28);
+  const HEAD = new Set(['skin', 'hair', 'beard', 'hat', 'eye', 'lash', 'blush', 'nose', 'mouth', 'glass']);
+
+  // はだ: かみ・ぼうしの すぐ したに かげ
+  for (let y = 1; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      const i = y * W + x;
+      if (tg[i] !== 'skin') continue;
+      const up = tg[i - W];
+      if (up === 'hair' || up === 'hat' || up === 'metal') px[i] = shade(px[i], -0.12);
+    }
   }
-  if (o.small) {
-    // こどもは すこし ちいさく（したに よせる）
-    const q = new Painter(HW, HH);
-    q.res = 2;
-    for (let y = 0; y < HH; y++) {
-      for (let x = 0; x < HW; x++) {
-        const sx = Math.round(15.5 + (x - 15.5) / 0.86), sy = Math.round(41 - (41 - y) / 0.86);
-        q.set(x, y, out.get(sx, sy));
+
+  // かみ: あたまの まるみに そった わっかの つや（すじで とぎれる）と、したへ ながれる すじ
+  const hairSet = new Set([hair, hairL, hairD]);
+  const skull = dir === 'side' ? [31, 21, 21, 20] : [32, 21, 22, 20]; // まんなか x, y と はば rx, ry
+  const crown = dir === 'up' ? [32, 5] : [32, -4];
+  const hairM = mix(hair, hairL, 0.55), hairS = mix(hair, hairD, 0.5), hairG = shade(hair, 0.5);
+  const hash = (a, b) => { let h = (a * 374761393 + b * 668265263) >>> 0; h = ((h ^ (h >>> 13)) * 1274126177) >>> 0; return (h >>> 8) / 16777216; };
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      const i = y * W + x;
+      if (tg[i] !== 'hair') continue;
+      if (px[i] === hairL) px[i] = hair;
+      if (px[i] !== hair) continue;
+      // すじの むき（つむじから）
+      const dx = x + 0.5 - crown[0], dy = y + 0.5 - crown[1];
+      const th = Math.atan2(dx, Math.max(0.5, dy));
+      const ph = th / 0.3 + 0.5, k = Math.floor(ph), fr = ph - k;
+      // あたまの まるみ（まんなか から の だえんの きょり）
+      const ex = (x + 0.5 - skull[0]) / skull[2], ey = (y + 0.5 - skull[1]) / skull[3];
+      const e = Math.hypot(ex, ey), up = ey < -0.2;
+      // わっか（うえの ほう だけ。ひだりほど あかるい）
+      if (up && e > 0.7 && e < 0.84 && fr > 0.1 && fr < 0.9) {
+        px[i] = e > 0.77 && ex < -0.1 && ex > -0.6 ? hairG : e > 0.76 && ex < 0.3 ? hairL : hairM;
+        continue;
+      }
+      // すじ（わっかの した・よこ だけ。ところどころ）
+      if ((!up || e < 0.62) && fr < 0.13 && hash(k + 50, Math.floor((y + k * 5) / 9)) > 0.3) px[i] = e > 0.95 || y > 34 ? hairD : hairS;
+    }
+  }
+  if (mk.fringe) {
+    const { x0, ys } = mk.fringe;
+    for (let k = 1; k < ys.length - 1; k++) {
+      const X = (x0 + k) * 2;
+      if (ys[k] < ys[k - 1] && ys[k] <= ys[k + 1]) {
+        // くぼみ: うえに むかって くらい すじ
+        const lean = X < 32 ? -1 : 1;
+        for (let j = 0; j < 6; j++) {
+          const xx = X + (j >= 3 ? lean : 0), yy = ys[k] * 2 + 1 - j;
+          if (tagOf(xx, yy) === 'hair' && hairSet.has(colOf(xx, yy))) put(xx, yy, j < 2 ? hairD : mix(hair, hairD, 0.6));
+        }
+      } else if (ys[k] > ys[k - 1] && ys[k] >= ys[k + 1]) {
+        // たばの さき: すこし ひかる
+        for (let j = 3; j < 6; j++) {
+          const yy = ys[k] * 2 - j;
+          if (tagOf(X, yy) === 'hair' && colOf(X, yy) === hair) put(X, yy, mix(hair, hairL, 0.55));
+        }
       }
     }
-    out = q;
   }
-  return out;
+
+  // ひげの すじ
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      const i = y * W + x;
+      if (tg[i] === 'beard' && (x + Math.floor(y / 5)) % 4 === 0 && tg[i - W] === 'beard') px[i] = shade(px[i], -0.16);
+    }
+  }
+
+  // め
+  if (mk.eyes && !mk.glow) {
+    const iris = IRIS[hair] || '#5a4a8a';
+    const pal = { L: EYE, P: mix(EYE, iris, 0.25), I: iris, J: shade(iris, 0.35), W: '#ffffff' };
+    for (const e of mk.eyes) {
+      const X = e.x * 2, Y = e.y * 2;
+      EYE_ART.forEach((row, j) => {
+        for (let i = 0; i < 4; i++) {
+          const ch = row[i];
+          if (tagOf(X + i, Y + j) !== 'eye') continue;
+          put(X + i, Y + j, ch === '.' ? sk : pal[ch], ch === '.' ? 'skin' : 'eye');
+        }
+      });
+    }
+  }
+  // まつげ（おんなのこ）: ほそい せんと はねた さき
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (tg[y * W + x] === 'lash') { px[y * W + x] = sk; tg[y * W + x] = 'skin'; }
+  if (o.female && mk.eyes && !mk.glow) {
+    for (const e of mk.eyes) {
+      const X = e.x * 2, Y = e.y * 2;
+      const pts = e.out < 0 ? [[-1, 0], [-2, -1], [0, -1], [1, -1], [2, -1]] : [[4, 0], [5, -1], [3, -1], [2, -1], [1, -1]];
+      for (const [dx, dy] of pts) if (tagOf(X + dx, Y + dy) === 'skin') put(X + dx, Y + dy, EYE, 'lash');
+    }
+  }
+  // ほお・はな・くち
+  const clearTag = (t) => { for (let i = 0; i < px.length; i++) if (tg[i] === t) { px[i] = sk; tg[i] = 'skin'; } };
+  clearTag('blush');
+  clearTag('nose');
+  clearTag('mouth');
+  const onSkin = (x, y, c, t) => { if (tagOf(x, y) === 'skin') put(x, y, c, t); };
+  for (const [bx, by] of mk.blush || []) {
+    const X = bx * 2, Y = by * 2, m = mix(sk, BLUSH, 0.55);
+    onSkin(X + 1, Y, m, 'blush'); onSkin(X + 2, Y, m, 'blush');
+    onSkin(X, Y + 1, m, 'blush'); onSkin(X + 1, Y + 1, BLUSH, 'blush'); onSkin(X + 2, Y + 1, BLUSH, 'blush'); onSkin(X + 3, Y + 1, m, 'blush');
+  }
+  if (mk.nose) onSkin(mk.nose[0] * 2 + 1, mk.nose[1] * 2 + 1, skD, 'nose');
+  if (mk.mouth) {
+    const [mx, my, mw, side] = mk.mouth;
+    const X = mx * 2, Y = my * 2, soft = mix(MOUTH, sk, 0.35);
+    if (side) { onSkin(X, Y + 1, soft, 'mouth'); onSkin(X + 1, Y + 1, MOUTH, 'mouth'); onSkin(X + 2, Y + 1, MOUTH, 'mouth'); onSkin(X + 3, Y, soft, 'mouth'); }
+    else { onSkin(X, Y, soft, 'mouth'); onSkin(X + 1, Y + 1, MOUTH, 'mouth'); onSkin(X + 2, Y + 1, MOUTH, 'mouth'); onSkin(X + 3, Y, soft, 'mouth'); }
+  }
+
+  // くさりかたびら: こまかい わ の もよう
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      const i = y * W + x;
+      if (tg[i] !== 'mail') continue;
+      const r = y % 3, k = (x + (Math.floor(y / 3) % 2) * 2) % 4;
+      px[i] = r === 2 || k === 0 ? '#6d7384' : r === 0 && k !== 3 ? '#d4d8e4' : '#a4aaba';
+    }
+  }
+
+  // ほそい せん（もとは 1ドット → 2ばいで 2ドット）を 1ドットに
+  thinLines(q);
+  // ふくの しわ
+  clothFolds(q, dir, mk.f || 0, o);
+
+  // ほうせき・たま: まるく ひかる
+  gems(q);
+
+  // ひかりと かげ（ひだりうえ から ひかり）
+  const empty = (x, y) => at(x, y) < 0 || !px[at(x, y)];
+  // きんぞくの たての ながさ（うえから なんばんめ か）
+  const mTop = new Int16Array(W * H), mLen = new Int16Array(W * H);
+  for (let x = 0; x < W; x++) {
+    for (let y = 0; y < H;) {
+      if (tg[y * W + x] !== 'metal') { y++; continue; }
+      let e = y;
+      while (e < H && tg[e * W + x] === 'metal') e++;
+      for (let k = y; k < e; k++) { mTop[k * W + x] = k - y; mLen[k * W + x] = e - y; }
+      y = e;
+    }
+  }
+  const out = px.slice();
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      const i = y * W + x;
+      const t = tg[i], c = px[i];
+      if (!c) continue;
+      const up = tagOf(x, y - 1), left = tagOf(x - 1, y), down = tagOf(x, y + 1), right = tagOf(x + 1, y);
+      const eU = empty(x, y - 1), eL = empty(x - 1, y);
+      if (t === 'metal') {
+        const len = mLen[i], k = mTop[i] / len;
+        if (up !== 'metal' && left !== 'metal') out[i] = '#ffffff';
+        else if (up !== 'metal') out[i] = shade(c, 0.4);
+        else if (down !== 'metal') out[i] = shade(c, -0.12);
+        else if (eL) out[i] = shade(c, 0.25);
+        // みがいた きんぞく: まんなかに くらい おび、その したに てりかえし
+        else if (len >= 8 && k > 0.42 && k < 0.6) out[i] = shade(c, -0.14);
+        else if (len >= 8 && k >= 0.6 && k < 0.7) out[i] = shade(c, 0.22);
+      } else if (t === 'blade') {
+        if (up !== 'blade' && left !== 'blade' && y > 0) out[i] = shade(c, 0.7);
+        else if (left !== 'blade') out[i] = shade(c, 0.5);
+        else if (right !== 'blade') out[i] = shade(c, -0.18);
+      } else if (t === 'shoe') {
+        // くつ: うえの ふちが つやつや、そこは くらく
+        if (up !== 'shoe' && left !== 'shoe') out[i] = shade(c, 0.55);
+        else if (up !== 'shoe') out[i] = shade(c, 0.22);
+        else if (down !== 'shoe') out[i] = shade(c, -0.3);
+      } else if (t === 'belt') {
+        if (up !== 'belt') out[i] = shade(c, 0.2);
+        else if (down !== 'belt') out[i] = shade(c, -0.18);
+        else if (x % 6 === 2) out[i] = shade(c, 0.12);
+      } else if (t === 'gold') {
+        if (up !== 'gold' && left !== 'gold') out[i] = '#fff6c8';
+        else if (down !== 'gold') out[i] = shade(c, -0.18);
+      } else if (t === 'cloth' || t === 'hat' || t === 'mail') {
+        // あたまの かげ
+        let head = false;
+        for (let d = 1; d <= 2 && !head; d++) head = HEAD.has(tagOf(x, y - d)) && y - d < 44;
+        if (head && y < 48) out[i] = shade(c, -0.16);
+        else if (eU || eL) out[i] = shade(c, 0.16);
+      }
+    }
+  }
+  for (let i = 0; i < px.length; i++) px[i] = out[i];
+}
+
+// ほうせき・たま（つえの たま・ほしの かざり）
+function gems(q) {
+  const { w: W, h: H } = q;
+  const seen = new Uint8Array(W * H);
+  for (let i = 0; i < W * H; i++) {
+    if (seen[i] || q.tg[i] !== 'gem') continue;
+    // つながった ところを あつめる
+    const st = [i], pts = [];
+    seen[i] = 1;
+    while (st.length) {
+      const j = st.pop();
+      pts.push(j);
+      const x = j % W, y = (j / W) | 0;
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        const X = x + dx, Y = y + dy, k = Y * W + X;
+        if (X >= 0 && Y >= 0 && X < W && Y < H && !seen[k] && q.tg[k] === 'gem') { seen[k] = 1; st.push(k); }
+      }
+    }
+    let x0 = W, y0 = H, x1 = 0, y1 = 0;
+    const cnt = new Map();
+    for (const j of pts) {
+      const x = j % W, y = (j / W) | 0;
+      x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y);
+      const c = q.px[j];
+      if (c !== '#ffffff') cnt.set(c, (cnt.get(c) || 0) + 1);
+    }
+    const base = [...cnt.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] || '#ffe98a';
+    const bw = x1 - x0 + 1, bh = y1 - y0 + 1;
+    if (bw >= 7 && bh >= 7) {
+      // まるい たま: ひかり → いろ → かげ
+      const cx = x0 + bw * 0.34, cy = y0 + bh * 0.3, R = Math.max(bw, bh);
+      for (const j of pts) {
+        const x = j % W, y = (j / W) | 0;
+        const d = Math.hypot(x + 0.5 - cx, y + 0.5 - cy) / R;
+        q.px[j] = d < 0.14 ? '#ffffff' : d < 0.3 ? shade(base, 0.45) : d < 0.62 ? base : d < 0.8 ? shade(base, -0.22) : shade(base, -0.4);
+      }
+      const rx = x0 + Math.round(bw * 0.72), ry = y0 + Math.round(bh * 0.74);
+      if (q.tagAt(rx, ry) === 'gem') q.px[ry * W + rx] = shade(base, 0.3);
+    } else {
+      // ちいさな ほし: まんなか しろ、まわり いろ
+      for (const j of pts) q.px[j] = base;
+      const cx = (x0 + x1) >> 1, cy = (y0 + y1) >> 1;
+      q.px[cy * W + cx] = '#ffffff';
+    }
+  }
+}
+
+// ふくの しわ（2ばいの ざひょう。ふくの いろの ところ だけ）
+const LONG = new Set(['robe', 'dress', 'hakama']);
+function clothFolds(q, dir, f, o) {
+  const main = o.outfit === 'robe' ? o.robeMain : o.cloth;
+  if (!main || o.outfit === 'armor' || o.outfit === 'chain' || o.outfit === 'starmail' || o.outfit === 'yoroi') return;
+  const crease = mix(main, shade(main, -0.3), 0.8), soft = mix(main, shade(main, -0.3), 0.45), hl = shade(main, 0.14);
+  const ok = (x, y) => q.tagAt(x, y) === 'cloth' && q.get(x, y) === main;
+  const dot = (x, y, c) => { if (ok(x, y)) { q.tag = 'cloth'; q.set(x, y, c); } };
+  // x0,y0 → x1,y1 の せん と、ひかりの がわ（hx,hy）に あかるい ふち
+  const fold = (x0, y0, x1, y1, c = crease, hx = 1, hy = 0) => {
+    const n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0));
+    const pts = [];
+    for (let k = 0; k <= n; k++) pts.push([Math.round(x0 + (x1 - x0) * k / n), Math.round(y0 + (y1 - y0) * k / n)]);
+    for (const [x, y] of pts) dot(x + hx, y + hy, hl);
+    pts.forEach(([x, y], k) => dot(x, y, k === 0 || k === n ? soft : c));
+  };
+  const la = f === 0 ? 0 : -2, ra = f === 0 ? -2 : 0;
+  if (dir === 'down') {
+    fold(17, 50, 20, 55, soft, -1, 0); fold(46, 50, 43, 55, soft, 1, 0);
+    fold(27, 63, 28, 60, soft, -1, 0); fold(37, 63, 36, 60, soft);
+    // うで と どうの さかい・ひじの しわ
+    for (let y = 48; y < 62; y++) { if (q.tagAt(15, y + la * 2) === 'cloth') dot(16, y + la * 2, soft); }
+    fold(11, 57 + la * 2, 14, 56 + la * 2, soft, 0, -1); fold(49, 56 + ra * 2, 52, 57 + ra * 2, soft, 0, -1);
+    if (LONG.has(o.outfit)) { fold(21, 67, 18, 74, crease, 1, 0); fold(43, 67, 46, 74, soft, -1, 0); fold(27, 69, 26, 74, soft); fold(37, 69, 38, 74, soft); }
+  } else if (dir === 'up') {
+    fold(22, 50, 27, 48, soft, 0, 1); fold(42, 50, 37, 48, soft, 0, 1);
+    fold(32, 50, 32, 60, soft, -1, 0);
+    fold(27, 63, 28, 60, soft, -1, 0); fold(37, 63, 36, 60, soft);
+    if (LONG.has(o.outfit)) { fold(20, 67, 17, 74); fold(44, 67, 47, 74, soft, -1, 0); fold(32, 66, 32, 74, soft); }
+  } else {
+    const ax = (f === 0 ? 12 : 16) * 2;
+    fold(ax + 1, 55, ax + 6, 54, soft, 0, -1);
+    fold(ax + 9, 50, ax + 11, 60, soft);
+    fold(40, 48, 41, 60, soft, -1, 0);
+    if (LONG.has(o.outfit)) { fold(20, 66, 17, 74); fold(33, 67, 34, 74, soft); fold(42, 66, 45, 74, soft, -1, 0); }
+  }
+}
+
+// ほそい せんを もっと ほそく（2ドットの せんの みぎ・した がわを まわりの いろに もどす）
+const THIN = new Set(['cloth', 'hat', 'hair', 'beard', 'metal', 'gold', 'skin', 'mail']);
+function thinLines(q) {
+  const { w: W, h: H } = q;
+  for (const [sx, sy] of [[1, 0], [0, 1]]) {
+    const src = q.px.slice();
+    const step = sy * W + sx;
+    for (let y = sy; y < H - 2 * sy; y++) {
+      for (let x = sx; x < W - 2 * sx; x++) {
+        const i = y * W + x;
+        const a = src[i - step], b = src[i], c = src[i + step], d = src[i + 2 * step];
+        if (!a || !b || b !== c || a !== d || a === b) continue;
+        if (!THIN.has(q.tg[i]) || q.tg[i + step] !== q.tg[i]) continue;
+        q.px[i + step] = d;
+      }
+    }
+  }
+}
+
+// こどもは すこし ちいさく（したに よせる）
+function shrinkKid(src) {
+  const q = new Painter(src.w, src.h, !!src.tg);
+  q.res = src.res;
+  const cx = (src.w - 1) / 2, by = src.h - 1;
+  for (let y = 0; y < src.h; y++) {
+    for (let x = 0; x < src.w; x++) {
+      const sx = Math.round(cx + (x - cx) / 0.86), sy = Math.round(by - (by - y) / 0.86);
+      q.tag = src.tagAt(sx, sy);
+      q.set(x, y, src.get(sx, sy));
+    }
+  }
+  return q;
 }
 
 // どうぶつ・とくべつな もの
 export function paintSpecial(kind, dir, f) {
   const p = new Painter(CW, CH);
+  let oc = null; // ふちどりの いろ（4ばいに してから つける）
   switch (kind) {
     case 'dog': {
       const c = '#c8904a', cD = '#9a6a32';
@@ -1304,7 +1683,7 @@ export function paintSpecial(kind, dir, f) {
         if (dir === 'down') { p.set(6, 11, '#231a2e'); p.set(9, 11, '#231a2e'); p.rect(7, 13, 2, 1, '#231a2e'); }
         p.rect(5, 18, 2, 2 - f, cD); p.rect(9, 18, 2, 1 + f, cD);
       }
-      p.outline(OUT);
+      oc = OUT;
       break;
     }
     case 'cat': {
@@ -1313,7 +1692,7 @@ export function paintSpecial(kind, dir, f) {
       if (dir === 'down') { p.set(6, 10, '#3a8a3a'); p.set(9, 10, '#3a8a3a'); p.set(7, 11, '#f3a6a6'); }
       p.vline(12, 10 + f, 14, c);
       p.rect(5, 17, 2, 2, c); p.rect(9, 17, 2, 2, c);
-      p.outline(OUT);
+      oc = OUT;
       break;
     }
     case 'flower': {
@@ -1322,7 +1701,7 @@ export function paintSpecial(kind, dir, f) {
       for (const [dx, dy] of [[0, -2], [2, 0], [0, 2], [-2, 0], [1, -1], [1, 1], [-1, 1], [-1, -1]]) p.set(8 + dx, 10 + dy, pet);
       p.set(8, 10, '#ffffff');
       if (f) { p.set(3, 6, '#fff6b0'); p.set(13, 8, '#fff6b0'); }
-      p.outline('#6a5a1a');
+      oc = '#6a5a1a';
       break;
     }
     case 'starstone':
@@ -1333,13 +1712,13 @@ export function paintSpecial(kind, dir, f) {
       p.rect(6, 5, 4, 12, a); p.rect(5, 7, 6, 8, a); p.vline(7, 5, 15, b); p.vline(9, 7, 14, c);
       p.set(7, 4, a); p.set(8, 4, a); p.set(7, 3, b);
       if (f) { p.set(3, 4, '#ffffff'); p.set(12, 9, '#ffffff'); p.set(4, 14, '#fff6b0'); }
-      p.outline(wind ? '#1f6a48' : '#2a4a7a');
+      oc = wind ? '#1f6a48' : '#2a4a7a';
       break;
     }
     case 'spring': {
       p.ellipse(8, 15, 7, 4, '#8a8aa0'); p.ellipse(8, 14.5, 6, 3, '#6ab8f0'); p.ellipse(8, 14, 3.5, 1.5, '#b8e4ff');
       if (f) { p.set(6, 11, '#e0f4ff'); p.set(10, 10, '#e0f4ff'); } else { p.set(8, 10, '#e0f4ff'); }
-      p.outline(OUT);
+      oc = OUT;
       break;
     }
     case 'none':
@@ -1349,7 +1728,15 @@ export function paintSpecial(kind, dir, f) {
     default:
       return null;
   }
-  return p;
+  return fine(p, oc);
+}
+
+// どうぶつ・船: Scale2x を 2かい で 4ばいの こまかさ（res 4）に して、ひかりと ふちどり
+function fine(p, oc) {
+  const q = scale2x(scale2x(p));
+  rimShade(q, 0.2, 0.16);
+  if (oc) outline2(q, oc, 0.4);
+  return q;
 }
 
 // 船（しおかぜ号）。よこむきは left を かく（right は はんてんして つかう）
@@ -1391,6 +1778,5 @@ export function paintShip(dir, f) {
     p.rect(16, 1 + b, 3, 2, flag); p.set(f ? 19 : 18, 3 + b, flag);
     p.set(7 + f, 22 + b, foam); p.set(22 - f, 22 + b, foam);
   }
-  p.outline(OUT);
-  return p;
+  return fine(p, OUT);
 }

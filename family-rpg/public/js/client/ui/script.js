@@ -149,9 +149,11 @@ export class ScriptPlayer {
     c.width = src.width;
     c.height = src.height;
     c.getContext('2d').drawImage(src, 0, 0);
-    const k = Math.max(2, Math.min(5, Math.floor(160 / Math.max(src.width, src.height))));
-    c.style.width = `${src.width * k}px`;
-    c.style.height = `${src.height * k}px`;
+    // こまかい え（res 4）も 見た目の 大きさで
+    const r = src.res || 1, w = src.width / r, h = src.height / r;
+    const k = Math.max(2, Math.min(5, Math.floor(160 / Math.max(w, h))));
+    c.style.width = `${w * k}px`;
+    c.style.height = `${h * k}px`;
     this.monBox = el('div', { class: 'win mon-pop' }, c);
     document.getElementById('ui').append(this.monBox);
   }

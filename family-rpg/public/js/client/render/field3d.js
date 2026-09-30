@@ -144,8 +144,10 @@ export class Field3D {
     if (!t) {
       t = new THREE.CanvasTexture(canvas);
       t.magFilter = THREE.NearestFilter;
-      t.minFilter = THREE.NearestFilter;
-      t.generateMipmaps = false;
+      // こまかい え（res 4 の 人・モンスター）は ちいさく うつる とき ドットが ぬけて ちらつかないように ミップマップ
+      const fine = (canvas.res || 1) >= 3;
+      t.minFilter = fine ? THREE.LinearMipmapLinearFilter : THREE.NearestFilter;
+      t.generateMipmaps = fine;
       t.colorSpace = THREE.SRGBColorSpace;
       texCache.set(canvas, t);
     }
@@ -497,7 +499,7 @@ export class Field3D {
       }
       mat.opacity = alpha;
       const k = e.scale || 1;
-      // こまかい え（res 2）も 見た目の 大きさは おなじ
+      // こまかい え（res 4 など）も 見た目の 大きさは おなじ
       const lw = canvas.width / (canvas.res || 1), lh = canvas.height / (canvas.res || 1);
       sp.scale.set(lw * k / 16, lh * k / 16, 1);
       sp.center.set(0.5, (e.anchor ?? 3) / lh);

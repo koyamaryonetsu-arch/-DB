@@ -15,7 +15,10 @@ const SPEED = 4.6; // マス/びょう
 const RUN = 1.65; // はしると この ばい
 const SHIP = 1.25; // 船は すこし はやい
 const DAY_MS = 24 * 60 * 1000;
-const RES = 2; // がめんの こまかさ（せかいの 1ドットを 2×2 で かく）
+// がめんの こまかさ（せかいの 1ドットを なんドットで かくか）
+// 人・モンスターの え は res 4 なので、2D では がめんも 4ばいに する（がめんが おおきすぎる とき・2.5D の ときは 2）
+const RES_LO = 2, RES_HI = 4;
+const RES_HI_MAX_PX = 2.4e6; // これより おおきい がめんは 4ばいに しない（おそく なるので）
 
 const spriteCache = new Map();
 function charSprite(key, opts, dir, frame) {
@@ -170,6 +173,7 @@ export class Field {
       this.r3d = null;
     }
     this.view = mode;
+    this.resize();
     if (cv) cv.hidden = mode !== '3d';
     document.body.classList.toggle('view3d', mode === '3d');
     return mode;
@@ -182,11 +186,15 @@ export class Field {
     if (Math.min(w, h) / this.scale < 16 * 9) this.scale = Math.max(1, this.scale - 1);
     this.vw = Math.ceil(w / this.scale);
     this.vh = Math.ceil(h / this.scale);
-    // 人の ドット絵が こまかい（res 2）ので、がめんは 2ばいの こまかさで かく。ざひょうは これまでと おなじ
-    this.canvas.width = this.vw * RES;
-    this.canvas.height = this.vh * RES;
+    // 人の ドット絵が こまかい（res 4）ので、がめんも こまかく かく。ざひょうは これまでと おなじ
+    // （2.5D の ときは うえに かさねる しるし だけ なので 2 で よい）
+    const dpr = window.devicePixelRatio || 1;
+    const hi = this.view !== '3d' && !this.resCap && this.scale * dpr >= 3 && this.vw * this.vh * RES_HI * RES_HI <= RES_HI_MAX_PX;
+    this.res = hi ? RES_HI : RES_LO;
+    this.canvas.width = this.vw * this.res;
+    this.canvas.height = this.vh * this.res;
     this.ctx = ctxOf(this.canvas);
-    this.ctx.setTransform(RES, 0, 0, RES, 0, 0);
+    this.ctx.setTransform(this.res, 0, 0, this.res, 0, 0);
     this.darkCanvas.width = this.vw;
     this.darkCanvas.height = this.vh;
   }
@@ -669,8 +677,23 @@ export class Field {
   }
 
   // ───────────── かく ─────────────
+  // 2D が おそい きかいでは がめんの こまかさを 2 に もどす（150コマの うち 3/4 が 28ms より おそい とき）
+  watchSpeed() {
+    if (this.res !== RES_HI) return;
+    this.speedN = (this.speedN || 0) + 1;
+    if ((this.lastDt || 0) > 28) this.slowN = (this.slowN || 0) + 1;
+    if (this.speedN < 150) return;
+    if (this.slowN > 112) {
+      this.resCap = true;
+      this.resize();
+    }
+    this.speedN = 0;
+    this.slowN = 0;
+  }
+
   render() {
     if (this.r3d && this.map) return this.render3d();
+    this.watchSpeed();
     const ctx = this.ctx;
     const m = this.map;
     if (!m) return;
@@ -998,7 +1021,7 @@ export class Field {
 
   drawAt(c, x, y, camX, camY, shadow = true) {
     if (!c) return;
-    // こまかい え（res 2）は 見た目の 大きさで おく
+    // こまかい え（res 4 など）は 見た目の 大きさで おく
     const r = c.res || 1;
     const w = c.width / r, h = c.height / r;
     const px = Math.round(x * TS - w / 2 - camX);
@@ -1008,7 +1031,16 @@ export class Field {
       this.ctx.fillStyle = 'rgba(0,0,0,0.22)';
       this.ctx.fillRect(px + 4, py + h - 3, w - 8, 2);
     }
-    this.ctx.drawImage(c, px, py, w, h);
+    this.drawFine(c, px, py, w, h);
+  }
+
+  // がめんより こまかい え は なめらかに ちぢめる（ドットが ぬけて ギザギザに ならないように）
+  drawFine(c, x, y, w, h) {
+    const ctx = this.ctx;
+    const soft = (c.res || 1) > this.res;
+    if (soft) { ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high'; }
+    ctx.drawImage(c, x, y, w, h);
+    if (soft) ctx.imageSmoothingEnabled = false;
   }
 
   drawPlayer(o, camX, camY, look, job, mine = false, eq = undefined) {
@@ -1061,9 +1093,9 @@ export class Field {
     if (n.big) {
       const c = bigNpcCanvas(n.sprite, Math.floor(this.time / 600) % 2);
       if (!c) return;
-      const k = bigScale(n.sprite);
+      const k = bigScale(n.sprite) / (c.res || 1);
       const w = Math.round(c.width * k), h = Math.round(c.height * k);
-      this.ctx.drawImage(c, Math.round(s.x * TS - w / 2 - camX), Math.round(s.y * TS - h + 6 - camY), w, h);
+      this.drawFine(c, Math.round(s.x * TS - w / 2 - camX), Math.round(s.y * TS - h + 6 - camY), w, h);
       return;
     }
     if (n.sprite === 'ship') {
@@ -1077,21 +1109,23 @@ export class Field {
   drawSym(s, camX, camY) {
     const c = monsterCanvas(s.sp, Math.floor(this.time / 300 + (s.id.length % 2)) % 2, true);
     const bob = isFlying(s.sp) ? Math.round(Math.sin(this.time / 200) * 2) - 4 : 0;
-    const px = Math.round(s.x * TS - c.width / 2 - camX);
-    const py = Math.round(s.y * TS - c.height + 2 - camY + bob);
+    const r = c.res || 1;
+    const w = c.width / r, h = c.height / r;
+    const px = Math.round(s.x * TS - w / 2 - camX);
+    const py = Math.round(s.y * TS - h + 2 - camY + bob);
     this.ctx.fillStyle = 'rgba(0,0,0,0.25)';
-    this.ctx.fillRect(px + 3, Math.round(s.y * TS - camY), c.width - 6, 2);
+    this.ctx.fillRect(px + 3, Math.round(s.y * TS - camY), w - 6, 2);
     if (s.dir === 'right') {
       this.ctx.save();
-      this.ctx.translate(px + c.width, py);
+      this.ctx.translate(px + w, py);
       this.ctx.scale(-1, 1);
-      this.ctx.drawImage(c, 0, 0);
+      this.drawFine(c, 0, 0, w, h);
       this.ctx.restore();
-    } else this.ctx.drawImage(c, px, py);
+    } else this.drawFine(c, px, py, w, h);
     if (s.st) {
       this.ctx.fillStyle = '#ff5a5a';
-      this.ctx.fillRect(px + c.width / 2 - 1, py - 6, 2, 3);
-      this.ctx.fillRect(px + c.width / 2 - 1, py - 2, 2, 1);
+      this.ctx.fillRect(px + w / 2 - 1, py - 6, 2, 3);
+      this.ctx.fillRect(px + w / 2 - 1, py - 2, 2, 1);
     }
   }
 
