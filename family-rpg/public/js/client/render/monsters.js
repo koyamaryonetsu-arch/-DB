@@ -1,6 +1,10 @@
 // モンスターの え（ベクターで かいて ドットえに へんかん）
 // すべて オリジナルの デザイン
-import { makeCanvas, ctxOf, pixelize, shade } from './pixel.js';
+// 2ばいの こまかさで かいて ドットえに → Scale2x で 4ばい → ひかり・かげ・ふちどり（res 4）
+import { makeCanvas, ctxOf, pixelize, shade, painterFrom, scale2x, outline2, volumeShade } from './pixel.js';
+
+export const MRES = 4; // できあがりの こまかさ（せかいの 1ドットを 4×4 で かく）
+const OUT = '#130d24';
 
 // かく ための べんりな かんすう（w,h は 0〜1 の わりあいで しめす）
 function G(ctx, w, h) {
@@ -802,7 +806,7 @@ function lighthouse(g, lit, f) {
 
 const cache = new Map();
 
-// たたかい用の え（scale=ドットの おおきさ）
+// たたかい用の え（small … フィールド用の ちいさい え）
 export function monsterCanvas(sp, frame = 0, small = false) {
   const key = `${sp}:${frame}:${small ? 1 : 0}`;
   let c = cache.get(key);
@@ -815,12 +819,20 @@ export function monsterCanvas(sp, frame = 0, small = false) {
     w = Math.max(10, Math.round(w * k));
     h = Math.max(10, Math.round(h * k));
   }
-  c = makeCanvas(w + 2, h + 2);
-  const ctx = ctxOf(c);
-  ctx.translate(1, 1);
+  // 2ばいで かいて、いろを パレットに よせる（ふちどりは あとで）
+  const K = MRES / 2;
+  const src = makeCanvas((w + 2) * K, (h + 2) * K);
+  const ctx = ctxOf(src);
+  ctx.setTransform(K, 0, 0, K, K, K);
   def.draw(G(ctx, w, h), frame);
   ctx.setTransform(1, 0, 0, 1, 0, 0);
-  pixelize(c, { palette: def.pal.concat(['#000000']), outline: '#130d24' });
+  pixelize(src, { palette: def.pal.concat(['#000000']), outline: null, alphaCut: 150 });
+  const lo = painterFrom(src);
+  lo.res = K;
+  const q = scale2x(lo);
+  volumeShade(q);
+  outline2(q, OUT, 0.42, 3);
+  c = q.toCanvas();
   cache.set(key, c);
   return c;
 }
@@ -840,6 +852,7 @@ export function bigNpcCanvas(kind, frame = 0) {
     if (cache.has(key)) return cache.get(key);
     const src = monsterCanvas('dark_treant', frame);
     const c = makeCanvas(src.width, src.height);
+    c.res = src.res;
     const x = ctxOf(c);
     x.filter = 'hue-rotate(60deg) saturate(1.3) brightness(1.15)';
     x.drawImage(src, 0, 0);
@@ -851,6 +864,7 @@ export function bigNpcCanvas(kind, frame = 0) {
     if (cache.has(key)) return cache.get(key);
     const src = monsterCanvas('goldoon', 0);
     const c = makeCanvas(src.width, src.height);
+    c.res = src.res;
     const x = ctxOf(c);
     x.filter = 'grayscale(0.7) brightness(0.8)';
     x.drawImage(src, 0, 0);

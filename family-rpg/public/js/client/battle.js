@@ -1131,12 +1131,14 @@ export class BattleScene {
     const list = this.enemies().filter((c) => !(c.dead >= 2));
     const sprites = list.map((c) => ({ c, img: monsterCanvas(c.species, Math.floor(this.time / 420 + (c.slot || 0)) % 2) }));
     let scale = 1;
-    const totalW = () => sprites.reduce((s, x) => s + x.img.width * scale + 6, 0);
+    // こまかい え（res 4）も 見た目の 大きさで ならべる
+    const lw = (img) => img.width / (img.res || 1), lh = (img) => img.height / (img.res || 1);
+    const totalW = () => sprites.reduce((s, x) => s + lw(x.img) * scale + 6, 0);
     while (totalW() > BW - 12 && scale > 0.55) scale -= 0.05;
     let x = (BW - totalW()) / 2 + 3;
     const baseY = 124;
     return sprites.map(({ c, img }) => {
-      const w = img.width * scale, h = img.height * scale;
+      const w = lw(img) * scale, h = lh(img) * scale;
       const out = { c, img, x, y: baseY - h, w, h };
       x += w + 6;
       return out;
@@ -1163,6 +1165,9 @@ export class BattleScene {
       if (c.dead > 0 && c.dead < 1.2 && Math.floor(this.time / 60) % 2) continue;
       x.globalAlpha = c.dead > 1 ? alpha : 1;
       if (c.appear > 0) x.globalAlpha = 1 - c.appear;
+      // がめんより こまかい え は なめらかに ちぢめる（ドットが ぬけないように）
+      x.imageSmoothingEnabled = (m.img.res || 1) > x.getTransform().a * 1.01;
+      x.imageSmoothingQuality = 'high';
       // ためこみ中の ボスは あかく ひかる
       if (c.telegraph && c.alive) {
         const pulse = 0.4 + Math.sin(this.time / 90) * 0.3;
@@ -1174,6 +1179,7 @@ export class BattleScene {
       const lunge = c.lunge > 0 ? 1.08 : 1;
       const w = m.w * lunge, h = m.h * lunge;
       x.drawImage(img, Math.round(m.x + dx - (w - m.w) / 2), Math.round(m.y + dy - (h - m.h)), Math.round(w), Math.round(h));
+      x.imageSmoothingEnabled = false;
       x.globalAlpha = 1;
       // ねらい
       if (this.targeting?.side === 'enemy' && this.hover === c.id && c.alive) {
