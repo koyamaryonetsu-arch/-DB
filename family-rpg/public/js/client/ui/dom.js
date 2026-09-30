@@ -46,7 +46,7 @@ export class ListMenu {
     if (start >= 0 && start < items.length && !items[start].header) this.idx = start;
     this.root = el('ul', { class: `menu ${cols === 2 ? 'cols2' : ''} ${className}`, role: 'listbox' });
     // pad: スマホでは 十字キーの パッドも 出す
-    this.handler = { onNav: (a, rep) => this.nav(a, rep), pad: true };
+    this.handler = { onNav: (a, rep) => this.nav(a, rep), pad: true, el: this.root, onGone: () => { this.active = false; } };
     this.active = false;
     this.render();
   }

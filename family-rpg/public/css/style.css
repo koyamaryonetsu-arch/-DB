@@ -724,6 +724,7 @@ body.touch .textin { font-size: max(16px, 1em); }
 img.face { image-rendering: pixelated; }
 .party-row .face { height: 1.8em; width: auto; vertical-align: middle; margin-right: 0.35em; }
 .party-row > span:first-child { display: flex; align-items: center; }
+.party-row .ord { display: inline-block; min-width: 1.3em; color: var(--muted); font-size: 0.85em; }
 
 /* 神殿（転職） */
 .job-panel .job-list { max-height: min(calc(72vh - var(--pad-h)), 620px); }
@@ -744,7 +745,7 @@ img.face { image-rendering: pixelated; }
   .fmenu { grid-template-columns: 1fr; }
   .fmenu .side .menu { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .fmenu .main { max-height: calc(60vh - var(--pad-h)); }
-  .fmenu-panel .fmenu .main { height: calc(60vh - var(--pad-h)); }
+  .fmenu-panel .fmenu .main { height: calc(54vh - var(--pad-h)); }
   /* リストと せつめいで のこりの 高さを 分ける（十字キーが 出ても どちらも つぶれない） */
   .job-panel .side .menu { display: flex; flex-direction: column; }
   .job-panel .job-list { max-height: calc((78vh - var(--pad-h)) * 0.48); }
@@ -1295,3 +1296,38 @@ body.bd-3 #battle .b-cmd .menu .item { font-size: calc(var(--bcmd-fs) * 0.9); pa
 .b-cmd .menu .item.later { opacity: 0.85; border-style: dashed; }
 .b-cmd .menu .item.auto-dual { grid-column: 1 / -1; min-height: 1.8em; }
 .b-cmd .dual-cancel { margin-top: 0.4em; align-self: flex-start; }
+
+/* ───── メニューの 上: パーティーの HP・MP・Lv と 所持金（ドラクエ風。重ならない） ───── */
+body.menu-open #hud { visibility: hidden; }
+.fm-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: "party close" "party gold";
+  align-items: start;
+  gap: 0.25em 0.8em;
+  padding-right: 0.7em;
+}
+.fmenu-panel .fm-head { flex: none; }
+.fmenu-panel .fmenu { min-height: 0; flex: 1 1 auto; }
+.fm-head .closebtn { position: static; transform: none; grid-area: close; justify-self: end; }
+.fm-party { grid-area: party; display: grid; grid-template-columns: repeat(auto-fill, minmax(4.8em, 1fr)); gap: 0.15em 0; font-size: var(--fs-small); min-width: 0; line-height: 1.35; }
+.fm-mem { min-width: 0; padding: 0 0.55em; border-left: 1px solid rgba(255, 255, 255, 0.16); }
+.fm-mem:first-child { border-left: 0; padding-left: 0.1em; }
+.fm-mem .n { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
+.fm-mem .v { display: flex; justify-content: space-between; gap: 0.3em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.fm-mem .k { color: var(--muted); }
+.fm-mem .orange { color: #ffa53a; }
+.fm-mem .red { color: #ff5a5a; }
+.fm-mem.dead .n, .fm-mem.dead .v { color: #8a8aa0; }
+.fm-gold { grid-area: gold; justify-self: end; align-self: end; white-space: nowrap; font-size: var(--fs-small); font-variant-numeric: tabular-nums; }
+.fm-gold .k { color: var(--muted); margin-right: 0.5em; }
+.fm-gold .g { color: var(--accent); }
+.sort-tabs { align-items: center; }
+.sort-tabs .btn { padding: 0.1em 0.7em; min-height: 32px; }
+.sort-tabs .btn.on { border-color: var(--accent); color: var(--accent); }
+.qdot { display: inline-block; width: 0.8em; height: 0.8em; border: 2px solid #000; border-radius: 50%; }
+.qdot.main { background: #ff5fd2; transform: rotate(45deg); border-radius: 2px; }
+.qdot.sub { background: #5fd8ff; }
+.qdot.ready { background: #7dff8a; }
+.q-main { display: flex; gap: 0.45em; align-items: baseline; }
+.kv .qdot, .q-main .qdot { margin-right: 0.4em; vertical-align: -0.05em; flex: none; }

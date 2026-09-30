@@ -769,7 +769,7 @@ export class GameWorld {
         // なかまに 酒場で まっていて もらう
         if (p.leader !== s.id || s.busy) return;
         const r = companionWait(this, s, String(msg.key || ''));
-        if (r.ok) this.send(s, { t: 'toast', text: `${r.name}は酒場へもどった。\n（ルミナの町の酒場でまた連れていけるよ）` });
+        if (r.ok) this.send(s, { t: 'toast', text: `${r.name}は酒場へもどった。${r.stowed?.length ? `\n（装備はふくろにしまった）` : ''}\n（ルミナの町の酒場でまた連れていけるよ）` });
         return;
       }
       default:

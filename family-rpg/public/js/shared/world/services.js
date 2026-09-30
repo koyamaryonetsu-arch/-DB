@@ -5,7 +5,7 @@ import { JOBS, ALL_JOBS, jobReqText } from '../data/jobs.js';
 import { ABILITIES } from '../data/abilities.js';
 import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js';
 import { TACTICS } from '../ai.js';
-import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf } from './party.js';
+import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js';
 import { breedMonsters, breedPreview } from './breed.js';
 import { MONSTERS } from '../data/monsters.js';
 import { DUAL_TECHS } from '../data/dual.js';
@@ -155,15 +155,15 @@ export function serviceAction(world, s, msg) {
       switch (msg.action) {
         case 'recruit':
           r = recruitNpc(world, s, String(msg.key || ''), { swap: msg.swap, join: msg.join !== false });
-          if (r.ok) text = r.joined ? `${r.name}が仲間に加わった！` : `${r.name}が仲間になった！\n（今は酒場で待っている）`;
+          if (r.ok) text = r.joined ? `${r.name}が仲間に加わった！${r.benchedName ? `\n${r.benchedName}は酒場で待っている。` : ''}${stowText(r.stowed)}` : `${r.name}が仲間になった！\n（今は酒場で待っている）`;
           break;
         case 'join':
           r = companionJoin(world, s, String(msg.key || ''), msg.swap);
-          if (r.ok) text = `${r.name}がパーティーに加わった！${r.benchedName ? `\n${r.benchedName}は酒場で待っている。` : ''}`;
+          if (r.ok) text = `${r.name}がパーティーに加わった！${r.benchedName ? `\n${r.benchedName}は酒場で待っている。` : ''}${stowText(r.stowed)}`;
           break;
         case 'wait':
           r = companionWait(world, s, String(msg.key || ''));
-          if (r.ok) text = `${r.name}は酒場で待っている。`;
+          if (r.ok) text = `${r.name}は酒場で待っている。${stowText(r.stowed)}`;
           break;
         case 'release':
           r = companionRelease(world, s, String(msg.key || ''));
@@ -267,6 +267,11 @@ export function equipItem(c, id, bag = c) {
 }
 
 // メニュー（フィールドで つかう どうぐ・じゅもん・そうび）
+// 酒場で まつ なかまの 装備を ふくろに しまった ことを 知らせる
+function stowText(list) {
+  return list?.length ? `\n（装備していた${list.slice(0, 3).join('・')}${list.length > 3 ? 'など' : ''}はふくろにしまった）` : '';
+}
+
 export function menuAction(world, s, msg) {
   const c = s.char;
   const reply = (ok, text) => {
@@ -368,6 +373,16 @@ export function menuAction(world, s, msg) {
       target.tactics = t;
       return reply(true, `${target.name}の作戦を「${TACTICS[t].name}」にした。`);
     }
+    // まんたん: 呪文で（MPの むだが 少ない じゅんに）か 道具で、みんなの HPを 満タンに
+    case 'fullHeal': {
+      const r = msg.mode === 'item' ? fullHealByItems(world, s) : fullHealBySpells(world, s);
+      return reply(r.ok, r.text);
+    }
+    // パーティーの ならびかえ（先頭ほど 敵に ねらわれやすい）
+    case 'order': {
+      const r = setPartyOrder(world, s, msg.order);
+      return reply(r.ok, r.ok ? 'ならびを変えた。' : r.reason);
+    }
     // 技の お気に入り（ならびも おぼえる）。who: 'self' か 自分の 仲間
     case 'favorite': {
       const who = ownChar(s, msg.who || 'self');
@@ -401,6 +416,111 @@ export function menuAction(world, s, msg) {
     default:
       return reply(false, '');
   }
+}
+
+// ───── まんたん ─────
+// 回復の 見こみ（applyFieldEffect と おなじ 式の まんなか）
+function expectedHeal(user, eff, powMult = 1) {
+  let amt = (eff.base[0] + eff.base[1]) / 2;
+  if (!eff.fixed) amt *= 1 + Math.max(0, Math.min(1, (computeStats(user).heal - (eff.thr ?? 20)) / 150));
+  return amt * powMult;
+}
+
+// HPが へっている 生きた 仲間
+function hurtRefs(world, s) {
+  return allRefs(world, s).map((ref) => ({ ref, ch: refChar(world, s, ref) })).filter(({ ch }) => ch && ch.hp > 0 && ch.hp < computeStats(ch).maxHp);
+}
+const lack = (ch) => computeStats(ch).maxHp - ch.hp;
+
+function fullHealSummary(world, s, used) {
+  const left = hurtRefs(world, s);
+  const lines = [];
+  if (used.length) lines.push(used.join('、'));
+  if (!left.length) lines.push('みんなのHPが満タンになった！');
+  else lines.push(`まだ回復しきれていない: ${left.slice(0, 3).map(({ ch }) => `${ch.name} ${ch.hp}/${computeStats(ch).maxHp}`).join('、')}`);
+  return lines.join('\n');
+}
+
+function fullHealBySpells(world, s) {
+  if (!hurtRefs(world, s).length) return { ok: false, text: 'みんなのHPは満タンだ' };
+  const p = partyOf(world, s);
+  const casters = [s.char, ...(p?.supports || []).filter((x) => x.owner === s.char.id && x.kind !== 'family').map((x) => x.char)].filter((ch) => ch.hp > 0);
+  const count = new Map(); // 「名前|呪文」→ 回数
+  const mpUsed = new Map();
+  let any = false;
+  for (let guard = 0; guard < 80; guard++) {
+    const hurt = hurtRefs(world, s);
+    if (!hurt.length) break;
+    // 1ばん へっている 人から
+    hurt.sort((a, b) => lack(b.ch) - lack(a.ch));
+    const tgt = hurt[0];
+    const need = lack(tgt.ch);
+    const totalNeed = hurt.reduce((a, h) => a + lack(h.ch), 0);
+    let best = null;
+    for (const ch of casters) {
+      for (const id of learnedAbilities(ch)) {
+        const a = ABILITIES[id];
+        if (!a?.field || a.effect?.type !== 'heal' || !['ally', 'allies'].includes(a.target)) continue;
+        const cost = mpCost(ch, id);
+        if (ch.mp < cost) continue;
+        const pen = penaltyFor(ch, id);
+        const amt = expectedHeal(ch, a.effect, pen.powMult);
+        // 役に立つ 回復量（あふれた ぶんは むだ）
+        const useful = a.target === 'allies' ? hurt.reduce((x, h) => x + Math.min(lack(h.ch), amt), 0) : Math.min(need, amt);
+        if (a.target === 'allies' && hurt.length < 2) continue;
+        // MPあたりの 回復が 多い もの。1回で たりる なら 少ない MPの ものを えらぶ
+        const enough = a.target === 'allies' ? useful >= totalNeed * 0.8 : amt >= need;
+        const score = useful / Math.max(1, cost) + (enough ? 1000 / Math.max(1, cost) : 0);
+        if (!best || score > best.score) best = { ch, id, a, cost, pen, score };
+      }
+    }
+    if (!best) break;
+    const targets = best.a.target === 'allies' ? hurt.map((h) => h.ch) : [tgt.ch];
+    let ok = false;
+    for (const t of targets) if (applyFieldEffect(world, best.ch, t, best.a.effect, best.pen.powMult).ok) ok = true;
+    if (!ok) break;
+    best.ch.mp -= best.cost;
+    any = true;
+    const key = `${best.ch.name}|${best.a.name}`;
+    count.set(key, (count.get(key) || 0) + 1);
+    mpUsed.set(best.ch.name, (mpUsed.get(best.ch.name) || 0) + best.cost);
+  }
+  if (!any) return { ok: false, text: 'HPを回復できる呪文を使える人がいない…\n（MPが足りないか、回復の呪文をおぼえていない）' };
+  const byWho = new Map();
+  for (const [k, n] of count) {
+    const [who, sp] = k.split('|');
+    if (!byWho.has(who)) byWho.set(who, []);
+    byWho.get(who).push(`${sp}×${n}`);
+  }
+  const used = [...byWho].map(([who, list]) => `${who}: ${list.join('・')}（MP${mpUsed.get(who)}）`);
+  return { ok: true, text: fullHealSummary(world, s, used) };
+}
+
+function fullHealByItems(world, s) {
+  if (!hurtRefs(world, s).length) return { ok: false, text: 'みんなのHPは満タンだ' };
+  const c = s.char;
+  const count = new Map();
+  let any = false;
+  for (let guard = 0; guard < 99; guard++) {
+    const hurt = hurtRefs(world, s);
+    if (!hurt.length) break;
+    hurt.sort((a, b) => lack(b.ch) - lack(a.ch));
+    const tgt = hurt[0];
+    const need = lack(tgt.ch);
+    // たりる 中で いちばん 小さい 薬。たりなければ いちばん 大きい 薬
+    const heals = c.items.filter((e) => e.n > 0 && ITEMS[e.id]?.type === 'use' && ITEMS[e.id].field && ITEMS[e.id].effect?.type === 'heal' && ITEMS[e.id].target === 'ally')
+      .map((e) => ({ id: e.id, amt: expectedHeal(c, ITEMS[e.id].effect) }));
+    if (!heals.length) break;
+    const enough = heals.filter((h) => h.amt >= need).sort((a, b) => a.amt - b.amt);
+    const pick = enough[0] || heals.sort((a, b) => b.amt - a.amt)[0];
+    if (!applyFieldEffect(world, c, tgt.ch, ITEMS[pick.id].effect).ok) break;
+    removeItem(c, pick.id, 1);
+    any = true;
+    count.set(pick.id, (count.get(pick.id) || 0) + 1);
+  }
+  if (!any) return { ok: false, text: 'HPを回復する道具を持っていない…' };
+  const used = [`${[...count].map(([id, n]) => `${ITEMS[id].name}×${n}`).join('・')}を使った`];
+  return { ok: true, text: fullHealSummary(world, s, used) };
 }
 
 function allRefs(world, s) {

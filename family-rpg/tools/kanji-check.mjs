@@ -161,7 +161,7 @@ export function gameFiles() {
     'public/js/shared/data/monsters.js', 'public/js/shared/data/shops.js', 'public/js/shared/data/story.js',
     'public/js/shared/maps/index.js', 'public/js/shared/maps/overworld.js', 'public/js/shared/maps/ch2.js', 'public/js/shared/maps/sea.js',
     'public/js/shared/data/abilities-ch2.js', 'public/js/shared/data/companions-ch2.js', 'public/js/shared/data/items-ch2.js',
-    'public/js/shared/data/monsters-ch2.js', 'public/js/shared/data/story-ch2.js',
+    'public/js/shared/data/monsters-ch2.js', 'public/js/shared/data/story-ch2.js', 'public/js/shared/data/quest-targets.js', 'public/js/client/prefs.js',
     'public/js/shared/world/battles.js', 'public/js/shared/world/breed.js', 'public/js/shared/world/monsters.js',
     'public/js/shared/world/party.js', 'public/js/shared/world/scripts.js', 'public/js/shared/world/services.js',
     'public/js/shared/world/world.js', 'public/js/shared/world/save.js', 'public/js/shared/world/transfer.js',
@@ -185,9 +185,20 @@ export function checkFile(file) {
     });
     return res;
   }
+  // よみがなの 表（ITEM_KANA = { … }）の 中は ひらがなのままで よい
+  const lines = src.split('\n');
+  const kanaBlock = new Set();
+  lines.forEach((l, i) => {
+    if (!/_KANA\s*=\s*\{\s*$/.test(l)) return;
+    for (let j = i + 1; j < lines.length && !/^\};/.test(lines[j]); j++) kanaBlock.add(j + 1);
+  });
   for (const { s, line } of jsStrings(src)) {
     if (!JP.test(s)) continue;
-    const at = src.split('\n')[line - 1] || '';
+    const at = lines[line - 1] || '';
+    if (kanaBlock.has(line)) {
+      for (const p of checkText(s).filter((x) => x.kind === 'kanji')) res.push({ line, text: s, ...p });
+      continue;
+    }
     const before = at.slice(0, Math.max(0, at.indexOf(s.slice(0, 8))));
     const probs = checkText(s).filter((p) => !(SKIP_BEFORE.test(before) && p.kind !== 'kanji'));
     for (const p of probs) res.push({ line, text: s.length > 70 ? s.slice(0, 70) + '…' : s, ...p });

@@ -7,7 +7,7 @@ import { JOBS } from '../data/jobs.js';
 import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js';
 import { gainExp, gainJobBattles, jobTrainable, itemCount, removeItem, addItem, ownsItem, computeStats, STAT_NAMES, fullHeal } from '../stats.js';
 import { JOB_MAX_LEVEL } from '../data/jobs.js';
-import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendLevel, noteSeen, noteTried, noteDrop } from './party.js';
+import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf } from './party.js';
 import { rollDrops, stealPick } from '../data/loot.js';
 import { MAPS } from '../maps/index.js';
 
@@ -74,21 +74,27 @@ function makeBattle(world, sessions, party, enemies, opts) {
   const settings = leader.char.battleSettings || {};
   const allies = [];
   const actorMap = {};
-  for (const m of sessions) {
-    allies.push({ char: m.char, kind: 'player', controller: m.id, auto: !!m.char.battleSettings?.auto });
-  }
+  const entries = []; // ならびの じゅん（先頭ほど 敵に ねらわれやすい）
   // なかま: さくせんが「めいれいさせろ」なら もちぬしが コマンドを えらぶ（もちぬしが いない ときは AI）
-  const supInfo = [];
-  for (const sup of party.supports) {
+  const sups = party.supports.map((sup) => {
     const tac = sup.char.tactics || 'balanced';
     const owner = tac === 'manual' ? sessions.find((m) => m.charId === sup.owner) : null;
-    supInfo.push({ manual: tac === 'manual' });
-    allies.push({
-      char: sup.char, kind: sup.kind === 'monster' ? 'monster' : 'support',
-      controller: owner ? owner.id : null, auto: owner ? !!owner.char.battleSettings?.auto : true,
-      tactics: tac === 'manual' ? 'balanced' : tac,
-    });
-  }
+    return {
+      map: { type: 'support', key: sup.key, owner: sup.owner, kind: sup.kind, char: sup.char, manual: tac === 'manual' },
+      ally: {
+        char: sup.char, kind: sup.kind === 'monster' ? 'monster' : 'support',
+        controller: owner ? owner.id : null, auto: owner ? !!owner.char.battleSettings?.auto : true,
+        tactics: tac === 'manual' ? 'balanced' : tac,
+      },
+    };
+  });
+  const humans = sessions.map((m) => ({
+    map: { type: 'human', sid: m.id, char: m.char },
+    ally: { char: m.char, kind: 'player', controller: m.id, auto: !!m.char.battleSettings?.auto },
+  }));
+  const pos = Math.max(0, Math.min(sups.length, selfPosOf(world, party)));
+  entries.push(...sups.slice(0, pos), ...humans, ...sups.slice(pos));
+  for (const e of entries) allies.push(e.ally);
   for (const g of party.guests) allies.push({ char: g.char, kind: 'guest', auto: true, tactics: g.char.tactics });
   const b = new Battle({
     id: 'b' + (battleSeq++),
@@ -147,10 +153,7 @@ function makeBattle(world, sessions, party, enemies, opts) {
   });
   // だれが どの キャラか
   let i = 0;
-  for (const m of sessions) actorMap[b.allies[i++].id] = { type: 'human', sid: m.id, char: m.char };
-  party.supports.forEach((sup, k) => {
-    actorMap[b.allies[i++].id] = { type: 'support', key: sup.key, owner: sup.owner, kind: sup.kind, char: sup.char, manual: supInfo[k].manual };
-  });
+  for (const e of entries) actorMap[b.allies[i++].id] = e.map;
   for (const g of party.guests) actorMap[b.allies[i++].id] = { type: 'guest', id: g.id, char: g.char };
   // モンスターマスターが いると なかまの まものが つよくなる
   const boost = Math.max(1, ...sessions.map((m) => JOBS[m.char.job]?.passive?.monsterBoost || 1));

@@ -279,7 +279,7 @@ export class ScriptRun {
           this.batch.push(['sfx', 'join']);
           if (r.joined) this.say(`${r.name}が仲間に加わった！`);
           else this.say(`${r.name}が仲間になった！\n${r.name}はルミナの町の酒場で待っている。`);
-          if (r.benchedName) this.say(`${r.benchedName}は酒場へもどった。`);
+          if (r.benchedName) this.say(`${r.benchedName}は酒場へもどった。${r.stowed?.length ? '\n（装備はふくろにしまった）' : ''}`);
           this.say(`（名前は酒場で変えられるよ）`);
           w.sendSelf(s);
           break;

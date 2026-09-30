@@ -12,7 +12,7 @@ import { boardCanvas } from './render/boards.js';
 import { el } from './ui/dom.js';
 
 const SPEED = 4.6; // マス/びょう
-const RUN = 1.65; // はしると この ばい
+const RUN = 1.35; // はしると この ばい（はやすぎない ように）
 const SHIP = 1.25; // 船は すこし はやい
 const DAY_MS = 24 * 60 * 1000;
 const RES = 2; // がめんの こまかさ（せかいの 1ドットを 2×2 で かく）

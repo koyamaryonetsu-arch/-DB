@@ -10,7 +10,7 @@ import { jobBattlesForLevel } from '../data/jobs.js';
 import { NPC_SUPPORTS, GUESTS } from '../data/shops.js';
 import { MONSTERS } from '../data/monsters.js';
 import { MONSTER_FRIENDS, ROSTER_MAX, COMPANION_SLOTS } from '../data/companions.js';
-import { SLOTS } from '../data/items.js';
+import { SLOTS, ITEMS } from '../data/items.js';
 
 export const PARTY_MAX = 4;
 // パーティーの だれかが もっていれば みんなが とおれる フラグ
@@ -171,6 +171,26 @@ export function makeNpcSupportChar(def, level) {
   return c;
 }
 
+// 酒場で まつ なかまの 装備は ふくろに もどす（家族の キャラは その人の ものなので そのまま）
+export function stowGear(c, key) {
+  const e = companionOf(c, key);
+  if (!e?.char?.equip) return [];
+  const out = [];
+  for (const slot of SLOTS) {
+    const id = e.char.equip[slot];
+    if (!id) continue;
+    addItem(c, id, 1);
+    e.char.equip[slot] = null;
+    out.push(ITEMS[id]?.name || id);
+  }
+  if (out.length) {
+    const st = computeStats(e.char);
+    e.char.hp = Math.min(e.char.hp, st.maxHp);
+    e.char.mp = Math.min(e.char.mp, st.maxMp);
+  }
+  return out;
+}
+
 // なかまを パーティーに いれる（いっぱいなら swapKey の なかまを 酒場へ）
 export function putInParty(c, key, swapKey) {
   if (c.partyKeys.includes(key)) return { ok: true };
@@ -181,7 +201,7 @@ export function putInParty(c, key, swapKey) {
   const i = swapKey ? c.partyKeys.indexOf(swapKey) : -1;
   if (i < 0) return { ok: false, full: true, reason: 'パーティーがいっぱいです。だれかに酒場で待っていてもらおう' };
   c.partyKeys[i] = key;
-  return { ok: true, benched: swapKey };
+  return { ok: true, benched: swapKey, stowed: stowGear(c, swapKey) };
 }
 
 export function nameOfKey(world, c, key) {
@@ -210,13 +230,15 @@ export function recruitNpc(world, s, npcId, opts = {}) {
   const ch = makeNpcSupportChar(def, npcStartLevel(c));
   ch.id = `${c.id}:${def.id}`;
   c.companions.push({ key: def.id, kind: 'npc', char: ch });
-  let joined = false;
+  let joined = false, benchedName = '', stowed = [];
   if (opts.join !== false) {
     const r = putInParty(c, def.id, opts.swap);
     joined = r.ok;
+    if (r.benched) benchedName = nameOfKey(world, c, r.benched);
+    stowed = r.stowed || [];
   }
   afterRosterChange(world, s);
-  return { ok: true, name: ch.name, joined };
+  return { ok: true, name: ch.name, joined, benchedName, stowed };
 }
 
 // 酒場で まっている なかまを つれていく
@@ -232,7 +254,7 @@ export function companionJoin(world, s, key, swapKey) {
   const e = companionOf(c, key);
   if (e) fullHeal(e.char);
   afterRosterChange(world, s);
-  return { ok: true, name: nameOfKey(world, c, key), benchedName: nameOfKey(world, c, r.benched) };
+  return { ok: true, name: nameOfKey(world, c, key), benchedName: nameOfKey(world, c, r.benched), stowed: r.stowed || [] };
 }
 
 // 酒場で まっていて もらう
@@ -241,8 +263,9 @@ export function companionWait(world, s, key) {
   const i = c.partyKeys.indexOf(key);
   if (i < 0) return { ok: false, reason: 'パーティーにいません' };
   c.partyKeys.splice(i, 1);
+  const stowed = stowGear(c, key);
   afterRosterChange(world, s);
-  return { ok: true, name: nameOfKey(world, c, key) };
+  return { ok: true, name: nameOfKey(world, c, key), stowed };
 }
 
 // わかれる（モンスターの なかま だけ。そうびは ふくろに もどる）
@@ -342,14 +365,15 @@ export function addMonsterCompanion(world, s, species, level, bench) {
   c.bestiary = c.bestiary || {};
   const b = c.bestiary[species] || (c.bestiary[species] = {});
   b.friend = (b.friend || 0) + 1;
-  let joined = false, benchedName = '';
+  let joined = false, benchedName = '', stowed = [];
   if (bench !== '__tavern') {
     const r = putInParty(c, key, bench);
     joined = r.ok;
     if (r.benched) benchedName = nameOfKey(world, c, r.benched);
+    stowed = r.stowed || [];
   }
   afterRosterChange(world, s);
-  return { ok: true, key, name: ch.name, joined, benchedName };
+  return { ok: true, key, name: ch.name, joined, benchedName, stowed };
 }
 
 // ───────────── ゲスト ─────────────
@@ -396,6 +420,32 @@ export function creditSupportOwner(world, ownerId, exp, gold, helperName) {
   }
 }
 
+// ならびかえ: リーダーの c.selfPos（人の まとまりの 場所）と c.partyKeys（なかまの じゅんばん）
+export function selfPosOf(world, p) {
+  const lc = world.sessions.get(p.leader)?.char;
+  const n = Number.isInteger(lc?.selfPos) ? lc.selfPos : 0;
+  return Math.max(0, Math.min(p.supports.length, n));
+}
+
+// ならびを 変える（order: 'self' と なかまの key の じゅんばん）
+export function setPartyOrder(world, s, order) {
+  const c = ensureCompanions(s.char);
+  const p = partyOf(world, s);
+  if (p && p.leader !== s.id) return { ok: false, reason: 'ならびはリーダーが決めます' };
+  if (!Array.isArray(order) || !order.includes('self')) return { ok: false, reason: '' };
+  const keys = order.filter((k) => k !== 'self' && c.partyKeys.includes(k));
+  if (new Set(keys).size !== keys.length) return { ok: false, reason: '' };
+  const active = new Set((p?.supports || []).map((x) => x.key));
+  c.selfPos = order.filter((k) => k === 'self' || keys.includes(k)).indexOf('self');
+  c.partyKeys = [...keys, ...c.partyKeys.filter((k) => !keys.includes(k))];
+  if (p) {
+    // うごかした あとも 今の なかまは そのまま（ならびだけ かわる）
+    p.supports.sort((a, b) => c.partyKeys.indexOf(a.key) - c.partyKeys.indexOf(b.key));
+    if (active.size !== p.supports.length) syncParty(world, p);
+  }
+  return { ok: true };
+}
+
 // メニューの「全員の強さ」に 出す 強さ
 const statsOf = (st) => ({ str: st.str, def: st.def, agi: st.agi, mag: st.mag, heal: st.heal, atk: st.atk, dfn: st.dfn });
 
@@ -411,6 +461,8 @@ export function partyState(world, p) {
     // リーダーの 目標（さそわれて 来ている 人の 画面に 出す）
     objective: world.sessions.get(p.leader)?.char?.objective || '',
     bond: p.bond,
+    // ならび: 人（家族）の まとまりが なかまの 何番目に 入るか
+    selfPos: selfPosOf(world, p),
     gateFlags: GATE_FLAGS.filter((f) => lflags[f]),
     members: p.members.map((sid) => {
       const m = world.sessions.get(sid);

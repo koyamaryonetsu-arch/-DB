@@ -1079,7 +1079,7 @@ export class BattleScene {
       btn.remove();
       this.game.input.pop(h);
     };
-    const h = { onNav: (x) => { if (x === 'a') join(); } };
+    const h = { el: btn, onNav: (x) => { if (x === 'a') join(); } };
     btn.addEventListener('click', join);
     this.stage.append(btn);
     this.game.input.push(h);

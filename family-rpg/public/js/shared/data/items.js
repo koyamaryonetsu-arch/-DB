@@ -194,3 +194,58 @@ export function sellPrice(id) {
   if (it.sell !== undefined) return it.sell;
   return Math.floor((it.price || 0) * 3 / 4);
 }
+
+// ───── 読みがな（道具の「あいうえお順」ならべかえ）─────
+// 新しい 道具を 作ったら ここにも 読みを 足す（ない ときは 名前の カタカナを ひらがなに して ならべる）
+export const ITEM_KANA = {
+  herb: 'やくそう', antidote: 'どくけしそう', moonherb: 'まんげつそう', magic_water: 'まほうのせいすい', holy_water: 'せいすい',
+  return_wing: 'かえりみちのはね', smoke_ball: 'けむりだま', revive_flower: 'よみがえりのはな', star_shard: 'ほしのかけら',
+  seed_str: 'ちからのたね', seed_def: 'まもりのたね', seed_agi: 'すばやさのたね', seed_mag: 'かしこさのたね', seed_hp: 'いのちのきのみ',
+  wood_sword: 'きのけん', bronze_sword: 'どうのけん', iron_sword: 'てつのけん', stardust_sword: 'ほしくずのけん',
+  stone_axe: 'いしのおの', iron_axe: 'てつのおの', bronze_knife: 'どうのないふ', poison_knife: 'どくのないふ',
+  wizard_staff: 'まどうしのつえ', bronze_spear: 'どうのやり', iron_spear: 'てつのやり', iron_claw: 'てつのつめ',
+  leather_whip: 'かわのむち', thorn_whip: 'いばらのむち', flame_whip: 'ほのおのむち', feather_fan: 'はねのおうぎ', dancer_fan: 'おどりこのおうぎ',
+  signal_flag: 'てばた', wood_bat: 'きのばっと', bamboo_bat: 'たけのばっと', metal_bat: 'きんぞくばっと', katana: 'かたな',
+  cloth: 'ぬののふく', travel_clothes: 'たびびとのふく', leather_armor: 'かわのよろい', wind_clothes: 'かぜのふく', iron_armor: 'てつのよろい',
+  wizard_robe: 'まどうしのろーぶ', holy_robe: 'せいなるろーぶ', martial_gi: 'ぶどうぎ', dragon_gi: 'りゅうのどうぎ', star_mail: 'ほしのよろい',
+  leather_shield: 'かわのたて', iron_shield: 'てつのたて', leather_hat: 'かわのぼうし', iron_helm: 'てつかぶと',
+  power_ring: 'ちからのゆびわ', guard_ring: 'まもりのゆびわ', star_charm: 'ほしのおまもり', mage_earring: 'まほうのいやりんぐ',
+  forest_necklace: 'もりのくびかざり', rock_bangle: 'いわのうでわ', star_flower: 'ほしのはな', spirit_wood: 'せいれいのき',
+  cave_key: 'どうくつのかぎ', guardian_stone: 'まもりぼしのいし',
+  silver_sword: 'ぎんのけん', pirate_axe: 'かいぞくのおの', silver_dagger: 'ぎんのないふ', wave_staff: 'なみのつえ', sea_fan: 'うみかぜのおうぎ',
+  storm_whip: 'あらしのむち', thunder_sword: 'いかずちのけん', silver_mail: 'ぎんのよろい', sailor_clothes: 'ふなのりのふく', wave_gi: 'なみのどうぎ',
+  silver_shield: 'ぎんのたて', shell_shield: 'かいのたて', silver_helm: 'ぎんのかぶと', captain_hat: 'せんちょうのぼうし',
+  wind_ring: 'かぜのゆびわ', deep_ring: 'しんかいのゆびわ', storm_bangle: 'あらしのうでわ', sea_charm: 'うみのおまもり',
+  light_orb: 'ひかりのたま', wind_star: 'かぜのまもりぼし', bottle_letter: 'びんのてがみ',
+};
+
+export function itemKana(id) {
+  const k = ITEM_KANA[id];
+  if (k) return k;
+  // カタカナ → ひらがな（「ー」は そのまま）
+  return String(ITEMS[id]?.name || id).replace(/[ァ-ヶ]/g, (ch) => String.fromCharCode(ch.charCodeAt(0) - 0x60));
+}
+
+// 道具の 種類の じゅん（ならべかえ）: 回復 → 状態 → 生き返り → 種 → ほかの 道具 → 武器 → よろい → たて → かぶと → アクセサリー
+const TYPE_ORDER = ['weapon', 'armor', 'shield', 'head', 'acc'];
+const USE_ORDER = ['heal', 'mpHeal', 'cure', 'revive', 'seed'];
+export function itemTypeRank(id) {
+  const it = ITEMS[id];
+  if (!it) return 999;
+  if (it.type === 'use') {
+    const u = USE_ORDER.indexOf(it.effect?.type);
+    return u >= 0 ? u : USE_ORDER.length;
+  }
+  const t = TYPE_ORDER.indexOf(it.type);
+  return t >= 0 ? 10 + t : 20;
+}
+
+// ならべかえ: 'got'（手に入れた順）/ 'kana'（あいうえお順）/ 'type'（種類順）
+export const ITEM_SORTS = { got: '手に入れた順', kana: 'あいうえお順', type: '種類順' };
+const ITEM_POS = new Map(Object.keys(ITEMS).map((id, i) => [id, i]));
+export function sortItemIds(ids, mode) {
+  const list = ids.slice();
+  if (mode === 'kana') list.sort((a, b) => itemKana(a).localeCompare(itemKana(b), 'ja'));
+  else if (mode === 'type') list.sort((a, b) => itemTypeRank(a) - itemTypeRank(b) || (ITEMS[a].rank || 0) - (ITEMS[b].rank || 0) || (ITEM_POS.get(a) ?? 0) - (ITEM_POS.get(b) ?? 0));
+  return list;
+}

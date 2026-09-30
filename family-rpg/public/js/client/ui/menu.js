@@ -1,6 +1,6 @@
 // フィールドの メニュー
 import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js';
-import { ITEMS, SLOTS, SLOT_NAMES } from '../../shared/data/items.js';
+import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js';
 import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js';
 import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS } from '../../shared/battle.js';
 import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref } from '../prefs.js';
@@ -22,10 +22,13 @@ import { monsterCanvas } from '../render/monsters.js';
 import { mapIconCanvas, boardIconURL } from '../render/boards.js';
 import { compareOne, compareTeam, whoItems } from './counter.js';
 import { faceURL } from '../field.js';
+import { partyRows } from './hud.js';
+import { questMarks, subQuests, OBJECTIVE_TARGETS, whereName } from '../../shared/data/quest-targets.js';
 
 const MAIN = [
   { label: '道具', value: 'items' },
   { label: '呪文', value: 'skills' },
+  { label: 'まんたん', value: 'fullheal' },
   { label: '装備', value: 'equip' },
   { label: '強さ', value: 'status' },
   { label: '仲間', value: 'party' },
@@ -36,6 +39,14 @@ const MAIN = [
   { label: '設定', value: 'settings' },
   { label: '終わる', value: 'quit' },
 ];
+
+// 道具の ならべかえ（この 端末に おぼえる）
+function itemSortPref() {
+  try { return ITEM_SORTS[localStorage.getItem('kizuna_isort')] ? localStorage.getItem('kizuna_isort') : 'got'; } catch { return 'got'; }
+}
+function setItemSortPref(k) {
+  try { localStorage.setItem('kizuna_isort', k); } catch { /* */ }
+}
 
 // ずかんの ならび: ふつうの まもの（つよさじゅん）→ はいごう だけの まもの → ボス
 function zukanOrder() {
@@ -58,11 +69,13 @@ export class FieldMenu {
     // そとを タップしても とじる
     this.backdrop = el('div', { class: 'modal-back', onclick: () => this.closeByUser() });
     this.root = el('div', { class: 'panel fmenu-panel' });
+    // ドラクエの ように: パーティー みんなの HP・MP・Lv と、所持金
     const head = el('div', { class: 'win fm-head' });
-    this.headL = el('span', { class: 'gold' });
-    this.headR = el('span', { class: 'fm-stat' });
+    this.headParty = el('div', { class: 'fm-party' });
+    this.headGold = el('div', { class: 'fm-gold' });
     const closeBtn = el('button', { class: 'btn closebtn', text: '✕ 閉じる', 'aria-label': 'メニューを閉じる', onclick: () => this.closeByUser() });
-    head.append(this.headL, this.headR, closeBtn);
+    head.append(this.headParty, this.headGold, closeBtn);
+    document.body.classList.add('menu-open');
     this.side = el('div', { class: 'win side' });
     this.main = el('div', { class: 'win main scroll' });
     this.root.append(head, el('div', { class: 'fmenu' }, this.side, this.main));
@@ -82,9 +95,16 @@ export class FieldMenu {
 
   updateHead() {
     const c = this.game.me;
-    const st = computeStats(c);
-    this.headL.textContent = `${c.name}　${JOBS[c.job].name} Lv${c.level}`;
-    this.headR.textContent = `HP ${c.hp}/${st.maxHp}　MP ${c.mp}/${st.maxMp}　${c.gold}G`;
+    this.headParty.innerHTML = '';
+    for (const m of partyRows(this.game)) {
+      this.headParty.append(el('div', { class: `fm-mem ${m.hp <= 0 ? 'dead' : ''}` },
+        el('div', { class: `n ${m.hpCls}`, text: m.name }),
+        el('div', { class: `v ${m.hpCls}` }, el('span', { class: 'k', text: 'H' }), `${Math.max(0, m.hp)}`),
+        el('div', { class: 'v' }, el('span', { class: 'k', text: 'M' }), `${m.mp}`),
+        el('div', { class: 'v lv' }, el('span', { class: 'k', text: 'Lv' }), `${m.level}`)));
+    }
+    this.headGold.innerHTML = '';
+    this.headGold.append(el('span', { class: 'k', text: '所持金' }), el('span', { class: 'g', text: `${c.gold.toLocaleString('ja-JP')} G` }));
   }
 
   close() {
@@ -95,6 +115,7 @@ export class FieldMenu {
     this.root = null;
     this.backdrop = null;
     this.game.menuOpen = false;
+    document.body.classList.remove('menu-open');
   }
 
   // ✕ボタン・そとを タップ（えらんでいる とちゅうの ウィンドウが あれば そちらが さき）
@@ -113,6 +134,7 @@ export class FieldMenu {
   back() {
     this.sub?.blur();
     this.sub = null;
+    if (!this.root) return; // もう とじている（おくれて よばれた とき）
     this.menu.focus();
     this.preview(this.current);
   }
@@ -123,6 +145,7 @@ export class FieldMenu {
     const g = this.game;
     switch (v) {
       case 'items': this.main.append(this.itemsList(false)); break;
+      case 'fullheal': this.main.append(el('div', { class: 'muted', text: 'みんなのHPを満タンにする。\n「呪文で」…回復の呪文を、MPのむだが少ない順に使う。\n「道具で」…薬草などを、むだが少ない順に使う。' })); break;
       case 'skills': this.main.append(this.skillsView(false)); break;
       case 'equip': this.main.append(this.equipView(false)); break;
       case 'status': this.main.append(this.statusView()); break;
@@ -204,6 +227,12 @@ export class FieldMenu {
       case 'tactics': return this.focusSub(this.tacticsView(true));
       case 'zukan': return this.focusSub(this.zukanView(true));
       case 'settings': return this.focusSub(this.settingsView(true));
+      case 'fullheal':
+        this.menu.blur();
+        return this.pick('どうやって満タンにする？', [{ label: '呪文で', value: 'spell' }, { label: '道具で', value: 'item' }, { label: 'やめる', value: null }]).then((mode) => {
+          if (mode) g.net.send({ t: 'menu', action: 'fullHeal', mode });
+          if (this.root) this.menu.focus();
+        });
       case 'map':
         this.close();
         return openWorldMap(g);
@@ -220,6 +249,7 @@ export class FieldMenu {
   }
 
   focusSub(node) {
+    if (!this.root) { this.sub?.blur(); return; }
     this.main.innerHTML = '';
     this.main.append(node);
     if (this.sub) {
@@ -239,10 +269,9 @@ export class FieldMenu {
     const c = g.me;
     const box = el('div');
     const detail = el('div', { class: 'detail' });
-    const items = c.items.map((e) => {
-      const it = ITEMS[e.id];
-      return { label: `${it.name}`, right: `×${e.n}`, value: e.id };
-    });
+    const mode = itemSortPref();
+    const counts = new Map(c.items.map((e) => [e.id, e.n]));
+    const items = sortItemIds(c.items.map((e) => e.id), mode).map((id) => ({ label: ITEMS[id].name, right: `×${counts.get(id)}`, value: id }));
     for (const k of c.keyItems) items.push({ html: `${ITEMS[k].name}<span class="tag gold">大事</span>`, value: k, key: true });
     if (!items.length) {
       box.append(el('div', { class: 'muted', text: '何も持っていない。' }));
@@ -253,12 +282,23 @@ export class FieldMenu {
       box.append(el('div', { class: 'small', text: items.map((i) => i.label || ITEMS[i.value].name).join('、') }));
       return box;
     }
+    // ならべかえ（あいうえお順・種類順・手に入れた順）
+    const tabs = el('div', { class: 'tabs sort-tabs' }, el('span', { class: 'small muted', text: 'ならべかえ' }),
+      ...Object.entries(ITEM_SORTS).map(([k, label]) => el('button', {
+        class: `btn ${k === mode ? 'on' : ''}`,
+        text: label,
+        onclick: () => {
+          setItemSortPref(k);
+          this.sfx('cursor');
+          this.focusSub(this.itemsList(true));
+        },
+      })));
     const m = this.mkSub({
       items,
       onMove: (it) => { detail.textContent = it ? itemDetail(it.value) : ''; },
       onSelect: (it) => this.itemAction(it),
     });
-    box.append(m.root, detail);
+    box.append(tabs, m.root, detail);
     return box;
   }
 
@@ -635,11 +675,15 @@ export class FieldMenu {
     const rows = [];
     const face = (x) => el('img', { class: 'face', src: faceURL({ look: x.look, job: x.job, eq: x.equip, mon: x.species || undefined }), alt: '' });
     const row = (x, name, tag, cls = '') => el('div', { class: 'kv party-row' }, el('span', { class: cls }, face(x), name), el('span', { class: 'small muted', text: tag }));
-    for (const m of p?.members || []) rows.push(row(m, `${m.sid === p.leader ? '★' : ''}${m.name}（${JOBS[m.job].name} Lv${m.level}）`, `HP ${m.hp}/${m.maxHp}`, m.sid === p.leader ? 'gold' : ''));
-    for (const s of p?.supports || []) {
+    // ならびの じゅん（リーダーが きめる。先頭ほど 敵に ねらわれやすい）
+    const memRows = (p?.members || []).map((m) => row(m, `${m.sid === p.leader ? '★' : ''}${m.name}（${JOBS[m.job].name} Lv${m.level}）`, `HP ${m.hp}/${m.maxHp}`, m.sid === p.leader ? 'gold' : ''));
+    const supRows = (p?.supports || []).map((s) => {
       const kind = s.species ? `${MONSTERS[s.species]?.name}${s.plus ? `＋${s.plus}` : ''} Lv${s.level}` : `${JOBS[s.job]?.name} Lv${s.level}`;
-      rows.push(row(s, `${s.name}（${kind}）`, s.family ? '家族サポート' : s.species ? 'モンスター' : '仲間'));
-    }
+      return row(s, `${s.name}（${kind}）`, s.family ? '家族サポート' : s.species ? 'モンスター' : '仲間');
+    });
+    const pos = Math.max(0, Math.min(supRows.length, p?.selfPos || 0));
+    rows.push(...supRows.slice(0, pos), ...memRows, ...supRows.slice(pos));
+    rows.forEach((r, i) => r.firstChild.prepend(el('span', { class: 'ord', text: `${i + 1}` })));
     for (const gu of p?.guests || []) rows.push(row(gu, gu.name, 'ゲスト'));
     box.append(...rows);
     if (!active) {
@@ -647,6 +691,7 @@ export class FieldMenu {
       return box;
     }
     const acts = [];
+    if (iAmLeader && (p?.supports?.length || 0) >= 1) acts.push({ label: 'ならびを変える', value: { a: 'order' } });
     const others = (g.players || []).filter((x) => x.sid !== g.sid && x.partyId !== p?.id && !x.away);
     if (iAmLeader) for (const o of others) acts.push({ label: `${o.name}をさそう`, value: { a: 'invite', sid: o.sid } });
     if (iAmLeader) for (const s of p?.supports || []) acts.push({ label: `${s.name}に酒場で待っていてもらう`, value: { a: 'dismiss', key: s.key, name: s.name } });
@@ -659,7 +704,11 @@ export class FieldMenu {
       onSelect: async (it) => {
         const v = it.value;
         if (!v) return;
-        if (v.a === 'follow') {
+        if (v.a === 'order') {
+          this.sub.blur();
+          const order = await this.pickOrder();
+          if (order) g.net.send({ t: 'menu', action: 'order', order });
+        } else if (v.a === 'follow') {
           g.follow = !g.follow;
           toast(g.follow ? 'リーダーについていきます' : '自分で歩きます');
         } else if (v.a === 'dismiss') {
@@ -672,6 +721,22 @@ export class FieldMenu {
     });
     box.append(el('div', { style: { marginTop: '0.5em' } }, m.root));
     return box;
+  }
+
+  // ドラクエの ならびかえ: 1番目から じゅんに えらぶ（人の まとまりは いっしょに うごく）
+  async pickOrder() {
+    const p = this.game.party;
+    const people = (p?.members || []).map((m) => m.name).join('・') || this.game.me.name;
+    const pool = [{ label: people, value: 'self' }, ...(p?.supports || []).map((s) => ({ label: s.name, value: s.key }))];
+    const order = [];
+    while (pool.length > 1) {
+      const v = await this.pick(`${order.length + 1}番目はだれにする？（先頭ほど敵にねらわれやすい）`, [...pool, { label: 'やめる', value: null }]);
+      if (!v) return null;
+      order.push(v);
+      pool.splice(pool.findIndex((x) => x.value === v), 1);
+    }
+    order.push(pool[0].value);
+    return order;
   }
 
   // ───── ずかん ─────
@@ -820,15 +885,19 @@ export class FieldMenu {
       box.append(el('h3', { text: `${leader.name}の目標（いっしょに冒険中）` }), el('div', { text: this.game.party.objective || '（特になし）' }));
       box.append(el('div', { class: 'detail', text: `${leader.name}の冒険を手伝っているあいだは、自分のストーリーは進みません。\nレベル・お金・道具はそのままもらえるよ。パーティーをぬけると、自分の冒険の場所にもどります。` }));
     }
-    box.append(el('h3', { text: leader ? '自分の目標' : '今の目標' }), el('div', { text: c.objective || '（特になし）' }));
-    const q = [];
+    box.append(el('h3', { text: leader ? '自分の目標' : '今の目標' }), el('div', { class: 'q-main' }, el('i', { class: 'qdot main' }), c.objective || '（特になし）'));
+    const tgt = OBJECTIVE_TARGETS[c.objective || ''];
+    if (tgt) box.append(el('div', { class: 'small muted', text: `行き先: ${whereName(tgt[tgt.length - 1])}（地図のピンクのしるし）` }));
+    // たのまれごと（報告する 人は 地図に 水色・報告できる ときは みどり）
     const f = (k) => !!c.flags[k];
-    if (f('q_mike_start')) q.push(['迷子のねこミケ', f('q_mike_done') ? 'クリア！' : f('q_mike_found') ? 'リリに報告しよう' : '星見の丘で探そう']);
-    if (f('q_jelly_start')) q.push(['コックの特製ゼリー', f('q_jelly_done') ? 'クリア！' : `ぷるりんゼリー ${Math.min(3, (c.items.find((i) => i.id === 'jelly')?.n) || 0)}/3`]);
-    if (f('q_wolf_start')) q.push(['ウルフ退治', f('q_wolf_done') ? 'クリア！' : `${Math.max(0, (c.kills?.wolf || 0) - (c.quests?.wolfBase || 0))}/5ひき`]);
+    const active = subQuests(c);
+    const done = [['q_mike_done', '迷子のねこミケ'], ['q_jelly_done', 'コックの特製ゼリー'], ['q_wolf_done', 'ウルフ退治'], ['q_bottle_done', 'びんの手紙']].filter(([k]) => f(k));
     box.append(el('h3', { style: { marginTop: '0.6em' }, text: 'たのまれごと' }));
-    if (!q.length) box.append(el('div', { class: 'muted small', text: 'まだない。町の人に話しかけてみよう。' }));
-    for (const [n, s] of q) box.append(el('div', { class: 'kv' }, el('span', { text: n }), el('span', { class: s === 'クリア！' ? 'good' : 'muted', text: s })));
+    if (!active.length && !done.length) box.append(el('div', { class: 'muted small', text: 'まだない。町の人に話しかけてみよう。' }));
+    for (const q of active) {
+      box.append(el('div', { class: 'kv' }, el('span', {}, el('i', { class: `qdot ${q.ready ? 'ready' : 'sub'}` }), q.name), el('span', { class: q.ready ? 'good' : 'muted', text: q.text })));
+    }
+    for (const [, n] of done) box.append(el('div', { class: 'kv' }, el('span', { class: 'muted', text: n }), el('span', { class: 'good', text: 'クリア！' })));
     const chests = Object.keys(c.chests || {}).length;
     const total = Object.values(MAPS).reduce((s, m) => s + m.chests.length, 0);
     box.append(el('div', { class: 'detail', text: `宝箱 ${chests}/${total}　倒した魔物 ${Object.values(c.kills || {}).reduce((s, x) => s + x, 0)}ひき` }));
@@ -991,9 +1060,85 @@ export function renderMiniMap(game, canvas, full = false) {
     if (px + ic.width < 0 || py + ic.height < 0 || px > canvas.width || py > canvas.height) continue;
     ctx.drawImage(ic, px, py);
   }
+  drawQuestMarks(game, ctx, canvas, x0, y0, pxPer, full);
   for (const o of f.others.values()) dot(o.x, o.y, o.partyId === game.party?.id ? '#ffd66b' : '#8fd0ff', full ? 3 : 2);
   const blink = Math.floor(performance.now() / 300) % 2;
   dot(f.me.x, f.me.y, blink ? '#ff5a5a' : '#ffffff', full ? 3 : 2);
+}
+
+// 目標の しるし: ピンク＝次の 行き先、水色＝たのまれごと、みどり＝報告できる。
+// 小さい 地図の 外に ある ときは ふちに 矢じるし
+const QUEST_COLORS = { main: '#ff5fd2', sub: '#5fd8ff', subReady: '#7dff8a' };
+export function currentObjective(game) {
+  return game.visitingLeader?.() ? game.party?.objective : game.me?.objective;
+}
+function drawQuestMarks(game, ctx, canvas, x0, y0, pxPer, full) {
+  const marks = questMarks(game.me, game.field.mapId, currentObjective(game));
+  const t = performance.now();
+  const pulse = 0.5 + 0.5 * Math.sin(t / 220);
+  // 下から メインが いちばん うえに なるように
+  marks.sort((a, b) => (b.kind === 'main') - (a.kind === 'main'));
+  for (const m of marks.reverse()) {
+    const col = QUEST_COLORS[m.kind];
+    let px = (m.x + 0.5 - x0) * pxPer, py = (m.y + 0.5 - y0) * pxPer;
+    const r = full ? Math.max(5, pxPer * 1.6) : 4;
+    const out = px < r || py < r || px > canvas.width - r || py > canvas.height - r;
+    if (out) {
+      if (full) continue;
+      // ふちの 矢じるし（中心から その 向きへ）
+      const cx = canvas.width / 2, cy = canvas.height / 2;
+      const ang = Math.atan2(py - cy, px - cx);
+      const k = Math.min((cx - 5) / Math.max(1e-6, Math.abs(Math.cos(ang))), (cy - 5) / Math.max(1e-6, Math.abs(Math.sin(ang))));
+      px = cx + Math.cos(ang) * k;
+      py = cy + Math.sin(ang) * k;
+      ctx.save();
+      ctx.translate(px, py);
+      ctx.rotate(ang);
+      ctx.fillStyle = '#000';
+      ctx.beginPath(); ctx.moveTo(6, 0); ctx.lineTo(-4, -5); ctx.lineTo(-4, 5); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = col;
+      ctx.beginPath(); ctx.moveTo(4.5, 0); ctx.lineTo(-3, -3.5); ctx.lineTo(-3, 3.5); ctx.closePath(); ctx.fill();
+      ctx.restore();
+      continue;
+    }
+    ctx.save();
+    ctx.translate(px, py);
+    if (m.kind === 'main') {
+      // ひし形（ドラクエの 目的地の ように 光る）
+      ctx.globalAlpha = 0.35 + 0.4 * pulse;
+      ctx.fillStyle = col;
+      ctx.beginPath(); ctx.arc(0, 0, r * (1.5 + 0.5 * pulse), 0, Math.PI * 2); ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = '#000';
+      ctx.beginPath(); ctx.moveTo(0, -r - 1.5); ctx.lineTo(r + 1.5, 0); ctx.lineTo(0, r + 1.5); ctx.lineTo(-r - 1.5, 0); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = col;
+      ctx.beginPath(); ctx.moveTo(0, -r); ctx.lineTo(r, 0); ctx.lineTo(0, r); ctx.lineTo(-r, 0); ctx.closePath(); ctx.fill();
+    } else {
+      ctx.fillStyle = '#000';
+      ctx.beginPath(); ctx.arc(0, 0, r * 0.85 + 1.5, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = col;
+      ctx.beginPath(); ctx.arc(0, 0, r * 0.85, 0, Math.PI * 2); ctx.fill();
+      if (full && m.kind === 'subReady') {
+        ctx.fillStyle = '#000';
+        ctx.font = canvasFont(Math.max(9, r * 1.5), '!');
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('!', 0, 0.5);
+      }
+    }
+    ctx.restore();
+    if (full) {
+      const label = m.via ? `${m.label}（この先）` : m.label;
+      ctx.font = canvasFont(Math.max(10, pxPer * 3.4), label);
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = '#000';
+      ctx.fillStyle = col;
+      const tx = Math.min(canvas.width - ctx.measureText(label).width - 2, Math.max(2, px + r + 3));
+      const ty = Math.max(12, py - r - 2);
+      ctx.strokeText(label, tx, ty);
+      ctx.fillText(label, tx, ty);
+    }
+  }
 }
 
 // 地図の しるしの せつめい（行ったことが ある お店 だけ）
@@ -1014,11 +1159,15 @@ export function openWorldMap(game) {
   const cv = makeCanvas(10, 10);
   const head = el('div', { class: 'wm-head' }, el('span', { class: 'gold', text: game.field.map.name }),
     el('button', { class: 'btn closebtn', text: '✕ 閉じる', 'aria-label': '地図を閉じる' }));
-  box.append(head, cv, mapLegend(game), el('div', { class: 'small muted', text: `赤い点: 自分　黄色: パーティー　青: 家族　（${game.input.touch ? 'タップで閉じる' : 'B/Xで閉じる'}）` }));
+  const qlg = el('div', { class: 'map-legend small' },
+    el('span', { class: 'lg' }, el('i', { class: 'qdot main' }), '次の行き先'),
+    el('span', { class: 'lg' }, el('i', { class: 'qdot sub' }), 'たのまれごと'),
+    el('span', { class: 'lg' }, el('i', { class: 'qdot ready' }), '報告できる'));
+  box.append(head, cv, qlg, mapLegend(game), el('div', { class: 'small muted', text: `赤い点: 自分　黄色: パーティー　青: 家族　（${game.input.touch ? 'タップで閉じる' : 'B/Xで閉じる'}）` }));
   document.getElementById('ui').append(back, box);
   renderMiniMap(game, cv, true);
   const iv = setInterval(() => renderMiniMap(game, cv, true), 400);
-  const h = { onNav: (a) => { if (a === 'b' || a === 'a' || a === 'map') close(); } };
+  const h = { el: box, onNav: (a) => { if (a === 'b' || a === 'a' || a === 'map') close(); } };
   const close = () => {
     clearInterval(iv);
     game.input.pop(h);

@@ -172,6 +172,7 @@ export class Game {
   // ───────────── まいフレーム ─────────────
   frame(dt) {
     this.input.update();
+    this.input.prune();
     const inField = this.state === 'field';
     const touchEl = document.getElementById('touch');
     this.updatePad();
