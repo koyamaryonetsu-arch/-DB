@@ -373,6 +373,18 @@ export function menuAction(world, s, msg) {
       target.tactics = t;
       return reply(true, `${target.name}の作戦を「${TACTICS[t].name}」にした。`);
     }
+    // さいきょう装備（ドラクエ風）: ふくろの 中から 攻撃力・守備力が いちばん 上がる ものを 装備する
+    case 'bestEquip': {
+      const team = msg.who === 'all' ? ownTeamChars(world, s) : [ownChar(s, msg.who || 'self')].filter(Boolean);
+      const lines = [];
+      for (const who of team) {
+        if (who.species) continue;
+        const got = bestEquipFor(who, c);
+        if (got.length) lines.push(`${who.name}: ${got.join('・')}`);
+      }
+      if (!lines.length) return reply(false, 'もういちばん強い装備をしている');
+      return reply(true, `さいきょう装備にした！\n${lines.slice(0, 4).join('\n')}`);
+    }
     // まんたん: 呪文で（MPの むだが 少ない じゅんに）か 道具で、みんなの HPを 満タンに
     case 'fullHeal': {
       const r = msg.mode === 'item' ? fullHealByItems(world, s) : fullHealBySpells(world, s);
@@ -416,6 +428,38 @@ export function menuAction(world, s, msg) {
     default:
       return reply(false, '');
   }
+}
+
+// ───── さいきょう装備 ─────
+// 自分と 自分の 仲間（ならびの じゅん）
+function ownTeamChars(world, s) {
+  const p = partyOf(world, s);
+  const sups = (p?.supports || []).filter((x) => x.owner === s.char.id && x.kind !== 'family').map((x) => x.char);
+  const pos = Math.max(0, Math.min(sups.length, Number.isInteger(s.char.selfPos) ? s.char.selfPos : 0));
+  return [...sups.slice(0, pos), s.char, ...sups.slice(pos)];
+}
+
+const BEST_SLOTS = ['weapon', 'armor', 'shield', 'head'];
+function bestEquipFor(ch, bag) {
+  const changed = [];
+  for (const slot of BEST_SLOTS) {
+    const key = slot === 'weapon' ? 'atk' : 'dfn';
+    // 大事な 強さ（攻撃力・守備力）→ ほかの 強さの 合計 の じゅんで くらべる
+    const score = (id) => {
+      const st = computeStats({ ...ch, equip: { ...ch.equip, [slot]: id } });
+      return st[key] * 10000 + st.str + st.def + st.agi + st.mag + st.heal + st.maxHp + st.maxMp;
+    };
+    const cur = ch.equip?.[slot] || null;
+    let best = cur;
+    let bestScore = score(cur);
+    for (const e of bag.items) {
+      if (e.n < 1 || ITEMS[e.id]?.type !== slot || !canEquipChar(ch, e.id)) continue;
+      const sc = score(e.id);
+      if (sc > bestScore) { best = e.id; bestScore = sc; }
+    }
+    if (best && best !== cur && equipItem(ch, best, bag)) changed.push(ITEMS[best].name);
+  }
+  return changed;
 }
 
 // ───── まんたん ─────

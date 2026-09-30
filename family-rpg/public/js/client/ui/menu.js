@@ -541,6 +541,8 @@ export class FieldMenu {
     const stats = el('div', { class: 'small', text: `攻撃 ${st.atk}　守備 ${st.dfn}　素早さ ${st.agi}　魔力 ${st.mag}　回復 ${st.heal}` });
     const slots = c.species ? ['acc'] : SLOTS;
     const items = slots.map((sl) => ({ label: `${SLOT_NAMES[sl]}：${c.equip?.[sl] ? ITEMS[c.equip[sl]].name : 'なし'}`, value: sl }));
+    // ドラクエの「さいきょう装備」: ふくろの 中で いちばん 強い ものを まとめて 装備
+    if (!c.species) items.push({ label: 'さいきょう装備', value: '__best' }, ...(this.myMates().some((m) => !m.species) ? [{ label: 'みんなさいきょう装備', value: '__bestAll' }] : []));
     if (c.companion) box.append(el('div', { class: 'gold small', text: `${c.name}の装備${c.species ? '（モンスターはアクセサリーだけ）' : ''}` }));
     if (!active) {
       for (const it of items) box.append(el('div', { text: it.label }));
@@ -549,9 +551,18 @@ export class FieldMenu {
     }
     const m = this.mkSub({
       items,
-      onMove: (it) => { detail.textContent = c.equip?.[it.value] ? `E ${ITEMS[c.equip[it.value]].name}（装備している）\n${itemDetail(c.equip[it.value])}` : ''; },
+      onMove: (it) => {
+        if (it.value === '__best') detail.textContent = 'ふくろの中から、攻撃力・守備力がいちばん上がる武器・よろい・たて・かぶとを装備する（アクセサリーはそのまま）';
+        else if (it.value === '__bestAll') detail.textContent = '自分と仲間みんなを、ならびの順にさいきょう装備にする';
+        else detail.textContent = c.equip?.[it.value] ? `E ${ITEMS[c.equip[it.value]].name}（装備している）\n${itemDetail(c.equip[it.value])}` : '';
+      },
       onSelect: async (it) => {
         const slot = it.value;
+        if (slot === '__best' || slot === '__bestAll') {
+          g.net.send({ t: 'menu', action: 'bestEquip', who: slot === '__bestAll' ? 'all' : who });
+          setTimeout(() => { if (this.root) this.focusSub(this.equipView(true, who)); }, 250);
+          return;
+        }
         const cands = g.me.items.filter((e) => ITEMS[e.id]?.type === slot);
         // お店と おなじ 見せかた（攻撃力 52→66 ↑14）
         const opts = cands.map((e) => {

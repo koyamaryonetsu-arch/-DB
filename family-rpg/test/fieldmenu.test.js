@@ -157,3 +157,25 @@ test('まものは かたよらずに ちらばる', () => {
     if (n >= 6) assert.ok(cells.size >= Math.ceil(n / 3), `${zone}は いくつもの 区画に いる`);
   }
 });
+
+test('さいきょう装備: ふくろの 中で いちばん 強い ものを 装備（みんなも）', async () => {
+  const { world, bot, s } = await hero('warrior');
+  recruitNpc(world, s, 'npc_gard', { force: true });
+  const me = s.char;
+  me.equip.weapon = 'wood_sword';
+  me.items = [{ id: 'bronze_sword', n: 1 }, { id: 'iron_sword', n: 1 }, { id: 'iron_armor', n: 1 }, { id: 'oak_staff', n: 1 }];
+  bot.send({ t: 'menu', action: 'bestEquip', who: 'self' });
+  const r = lastMenu(bot);
+  assert.equal(r.ok, true, r.text);
+  assert.equal(me.equip.weapon, 'iron_sword');
+  assert.equal(me.equip.armor, 'iron_armor');
+  assert.ok(itemCount(me, 'wood_sword') === 1 && itemCount(me, 'bronze_sword') === 1, '外した 物は ふくろへ');
+  // もう 強い ものが ない
+  bot.send({ t: 'menu', action: 'bestEquip', who: 'self' });
+  assert.equal(lastMenu(bot).ok, false);
+  // みんな: ガルドは 銅の剣
+  const gard = s.char.companions.find((e) => e.key === 'npc_gard').char;
+  gard.equip.weapon = 'wood_sword';
+  bot.send({ t: 'menu', action: 'bestEquip', who: 'all' });
+  assert.equal(gard.equip.weapon, 'bronze_sword');
+});
