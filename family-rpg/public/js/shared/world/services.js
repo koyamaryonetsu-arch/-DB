@@ -529,7 +529,7 @@ function fullHealBySpells(world, s) {
     count.set(key, (count.get(key) || 0) + 1);
     mpUsed.set(best.ch.name, (mpUsed.get(best.ch.name) || 0) + best.cost);
   }
-  if (!any) return { ok: false, text: 'HPを回復できる呪文を使える人がいない…\n（MPが足りないか、回復の呪文をおぼえていない）' };
+  if (!any) return { ok: false, text: 'HPを回復できる呪文を使える人がいない…\n（MPが足りないか、回復の呪文を覚えていない）' };
   const byWho = new Map();
   for (const [k, n] of count) {
     const [who, sp] = k.split('|');

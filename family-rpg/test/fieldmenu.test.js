@@ -179,3 +179,15 @@ test('さいきょう装備: ふくろの 中で いちばん 強い ものを �
   bot.send({ t: 'menu', action: 'bestEquip', who: 'all' });
   assert.equal(gard.equip.weapon, 'bronze_sword');
 });
+
+test('仲間会話: すべての 目標に 4つの 話し方の ヒントが ある', async () => {
+  const { OBJECTIVE_TALK, talkFor, memberTalk } = await import('../public/js/shared/data/party-talk.js');
+  for (const obj of Object.keys(OBJECTIVE_TARGETS)) {
+    const t = OBJECTIVE_TALK[obj];
+    assert.ok(t, `目標「${obj}」の 会話`);
+    for (const k of ['self', 'bold', 'kind', 'kid']) assert.ok(t[k] && t[k].length > 8, `${obj} の ${k}`);
+  }
+  assert.ok(talkFor('しらない目標', 'bold').includes('しらない目標'), '表に ない 目標は そのまま 話す');
+  assert.equal(memberTalk({ key: 'npc_gard', name: 'ガルド' }, 'おくの部屋へ進もう（泉で回復してから行こう）').text, OBJECTIVE_TALK['おくの部屋へ進もう（泉で回復してから行こう）'].bold);
+  assert.ok(memberTalk({ key: 'm1', name: 'ぷるる', species: 'pururin' }, '').mon, 'モンスターは しぐさ');
+});

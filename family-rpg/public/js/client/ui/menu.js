@@ -24,8 +24,10 @@ import { compareOne, compareTeam, whoItems } from './counter.js';
 import { faceURL } from '../field.js';
 import { partyRows } from './hud.js';
 import { questMarks, subQuests, OBJECTIVE_TARGETS, whereName } from '../../shared/data/quest-targets.js';
+import { memberTalk, talkFor } from '../../shared/data/party-talk.js';
 
 const MAIN = [
+  { label: 'はなす', value: 'talk' },
   { label: '道具', value: 'items' },
   { label: '呪文', value: 'skills' },
   { label: 'まんたん', value: 'fullheal' },
@@ -145,6 +147,7 @@ export class FieldMenu {
     const g = this.game;
     switch (v) {
       case 'items': this.main.append(this.itemsList(false)); break;
+      case 'talk': this.main.append(el('div', { class: 'muted', text: '仲間と話す。次にどこへ行けばいいか、仲間がヒントをくれる。' })); break;
       case 'fullheal': this.main.append(el('div', { class: 'muted', text: 'みんなのHPを満タンにする。\n「呪文で」…回復の呪文を、MPのむだが少ない順に使う。\n「道具で」…薬草などを、むだが少ない順に使う。' })); break;
       case 'skills': this.main.append(this.skillsView(false)); break;
       case 'equip': this.main.append(this.equipView(false)); break;
@@ -227,6 +230,9 @@ export class FieldMenu {
       case 'tactics': return this.focusSub(this.tacticsView(true));
       case 'zukan': return this.focusSub(this.zukanView(true));
       case 'settings': return this.focusSub(this.settingsView(true));
+      case 'talk':
+        this.close();
+        return partyTalk(g);
       case 'fullheal':
         this.menu.blur();
         return this.pick('どうやって満タンにする？', [{ label: '呪文で', value: 'spell' }, { label: '道具で', value: 'item' }, { label: 'やめる', value: null }]).then((mode) => {
@@ -1075,6 +1081,34 @@ export function renderMiniMap(game, canvas, full = false) {
   for (const o of f.others.values()) dot(o.x, o.y, o.partyId === game.party?.id ? '#ffd66b' : '#8fd0ff', full ? 3 : 2);
   const blink = Math.floor(performance.now() / 300) % 2;
   dot(f.me.x, f.me.y, blink ? '#ff5a5a' : '#ffffff', full ? 3 : 2);
+}
+
+// 仲間会話（はなす）: 仲間が 1人ずつ 今の 目標の ヒントを 話す。さいごに 行き先の 方角
+const DIR8 = ['東', '南東', '南', '南西', '西', '北西', '北', '北東'];
+export function questDirection(game) {
+  const f = game.field;
+  const m = questMarks(game.me, f.mapId, currentObjective(game)).find((x) => x.kind === 'main');
+  if (!m) return '';
+  const dx = m.x + 0.5 - f.me.x, dy = m.y + 0.5 - f.me.y;
+  const dist = Math.hypot(dx, dy);
+  if (dist < 3) return m.via ? '次の行き先へは、すぐそこの出入り口から行ける。' : '次の行き先は、すぐ近くだ。';
+  const i = ((Math.round(Math.atan2(dy, dx) / (Math.PI / 4)) % 8) + 8) % 8;
+  const where = `ここから${DIR8[i]}${dist > 40 ? 'のずっと先' : 'のほう'}`;
+  return m.via ? `次の行き先へは、${where}にある出入り口から行ける。` : `次の行き先は、${where}。`;
+}
+export async function partyTalk(game) {
+  const g = game;
+  const obj = currentObjective(g);
+  const p = g.party;
+  const speakers = [];
+  for (const s of p?.supports || []) speakers.push(memberTalk({ key: s.key, name: s.name, species: s.species }, obj));
+  for (const gu of p?.guests || []) speakers.push(memberTalk({ key: gu.id, name: gu.name }, obj));
+  g.audio.sfx('confirm');
+  if (!speakers.length) await g.script.say(g.me.name, talkFor(obj, 'self'));
+  for (const sp of speakers.slice(0, 4)) await g.script.say(sp.mon ? '' : sp.name, sp.text);
+  const dir = questDirection(g);
+  if (dir) await g.script.say('', `――${dir}`);
+  g.script.closeDialog();
 }
 
 // 目標の しるし: ピンク＝次の 行き先、水色＝たのまれごと、みどり＝報告できる。
