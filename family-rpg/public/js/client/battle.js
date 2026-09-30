@@ -10,8 +10,12 @@ import { DUAL_TECHS, dualOptions } from '../shared/data/dual.js';
 import { faceURL } from './field.js';
 import { monsterCanvas } from './render/monsters.js';
 import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js';
-import { battleBackground, Effects, BW, BH } from './render/battlefx.js';
+import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js';
+import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js';
 import { abilityDetail, statusNames, buffNames } from './ui/info.js';
+
+// たたかいの え の こまかさ（おもい きかいで さげたら、その あいだは さげた まま）
+let battleRes = BRES;
 
 const whiteCache = new WeakMap();
 function white(img, color = '#ffffff') {
@@ -171,7 +175,8 @@ export class BattleScene {
     this.statusEl = el('div', { class: 'b-status' });
     this.bondEl = el('div', { class: 'win b-bond' }, el('span', { text: 'きずな' }), el('div', { class: 'bb' }, el('i')));
     const top = el('div', { class: 'b-top' }, this.statusEl, this.bondEl);
-    this.canvas = makeCanvas(BW, BH);
+    this.res = battleRes;
+    this.canvas = makeCanvas(BW * this.res, BH * this.res);
     this.ctx = ctxOf(this.canvas);
     this.floatEl = el('div', { class: 'b-float' });
     this.autoBtn = el('button', { class: 'btn', text: 'オート', onclick: () => this.toggleAuto() });
@@ -710,6 +715,7 @@ export class BattleScene {
 
   presentBody(ev) {
     const g = this.game;
+    const wasTele = !!this.c.get(ev.id)?.telegraph;
     for (const u of ev.upd || []) {
       const c = this.c.get(u.id);
       if (c) Object.assign(c, u, { ready: u.ready });
@@ -720,8 +726,6 @@ export class BattleScene {
     this.say(ev.lines || [], ev.dur || 1000);
     const actor = this.c.get(ev.id);
     const fx = ev.fx || {};
-    // こうどうした ひと
-    if (actor && actor.side === 'enemy' && ev.t === 'act') actor.lunge = 260;
     if (actor && this.mine.includes(actor.id) && !this.cur) this.renderCmdIdle();
     // エフェクト
     const targets = (fx.targets || []).map((id) => this.c.get(id)).filter(Boolean);
@@ -730,32 +734,46 @@ export class BattleScene {
     const crit = (ev.results || []).some((r) => r.crit);
     const fromAlly = fx.side === 'ally';
     const ab = ev.ability ? ABILITIES[ev.ability] : null;
+    const tempo = this.fxTempo();
+    const allyTargets = targets.filter((t) => t.side === 'ally');
+    // こうどうした てきが うごく（こうげき・じゅもん・ブレス…）。lead: みかたに とどく じかん
+    const lead = actor && actor.side === 'enemy' && ev.t === 'act' ? this.enemyAct(actor, fx, ab, allyTargets, wasTele) : 0;
     let hitDelay = 0;
-    if (anim && enemyPts.length) {
+    if (anim && anim !== 'none' && enemyPts.length) {
       if (fx.type === 'attack' && fromAlly) {
-        this.fx.weaponHit(enemyPts, fx.weapon, crit);
+        // ぶきごとの エフェクト（あたる じかんが かえってくる）
+        hitDelay = this.fx.weaponHit(enemyPts, fx.weapon, crit, { id: fx.weaponId, mon: actor?.mon });
         if (fx.weapon === 'bat') g.audio.sfx('bat');
         else if (fx.weapon === 'axe') g.audio.sfx('smash');
+      } else {
+        this.fx.play(anim, enemyPts, fx.element, { crit, fromAlly });
+        hitDelay = HIT_DELAY[anim] || 0;
       }
-      else this.fx.play(anim, enemyPts, fx.element, { crit, fromAlly });
-      hitDelay = HIT_DELAY[anim] || 0;
     }
     // 味方に かける 合体技（回復・ステージ）は、たたかいの 画面にも 大きく
     if (fx.type === 'dual' && anim && !enemyPts.length) this.fx.play(anim, [{ x: BW / 2, y: BH * 0.55 }], fx.element, { fromAlly: true });
     // みかたへの えんしゅつ（てきの じゅもんは たまが とんでくる）
-    const allyTargets = targets.filter((t) => t.side === 'ally');
     if (anim && anim !== 'none' && allyTargets.length) {
       const kind = allyFxKind(anim, fx, ab);
-      let d = 0;
-      if (!fromAlly && SPELL_ANIMS.has(anim) && actor) {
+      let d = lead;
+      if (!fromAlly && SPELL_ANIMS.has(anim) && !/^wind/.test(anim) && actor) {
         const from = this.center(actor);
         if (from) {
-          this.fx.proj(BW / 2, BH + 8, ELEM_COLORS[fx.element] || ELEM_COLORS.dark, { from, travel: 260 });
-          d = 260;
+          this.fx.proj(this.allyPt(allyTargets[0]).x, BH + 8, ELEM_COLORS[fx.element] || ELEM_COLORS.dark, { from, travel: 240, delay: lead, size: 4.5 });
+          d = lead + 240;
         }
       }
-      if (!fromAlly && anim === 'breath') this.fx.tintAt(fx.element === 'fire' ? 'rgba(255, 120, 40, 0.28)' : 'rgba(200, 230, 255, 0.25)', 500);
-      allyTargets.forEach((t, i) => this.allyFx(t.id, kind, d + (allyTargets.length > 1 ? i * 60 : 0)));
+      if (!fromAlly && anim === 'breath') this.fx.tintAt(fx.element === 'fire' ? 'rgba(255, 120, 40, 0.16)' : 'rgba(200, 230, 255, 0.14)', 500 + lead);
+      // てきの こうげきが こちらに あたる（がめんの てまえに 大きく）
+      if (actor?.side === 'enemy') {
+        const style = hitStyle(fx, ab, actor);
+        const col = actColor('shimmy', fx, ab);
+        allyTargets.forEach((t, i) => {
+          const r = (ev.results || []).find((x) => x.id === t.id);
+          if (!r?.miss) closeUp(this.fx, this.allyPt(t), style, (r?.dmg || 0) / (t.maxHp || 1), d + i * 60, col);
+        });
+      }
+      allyTargets.forEach((t, i) => this.allyFx(t.id, kind, (d + (allyTargets.length > 1 ? i * 60 : 0)) / tempo));
       if (!hitDelay) hitDelay = d;
     }
     // じゅもんを となえた みかたは すこし ひかる
@@ -780,7 +798,11 @@ export class BattleScene {
     if (anim === 'minadein') g.audio.sfx('bolt');
     if (anim && ANIM_SFX[anim]) g.audio.sfx(ANIM_SFX[anim]);
     else if (fx.type === 'ability' && fromAlly && !ANIM_SFX[anim]) g.audio.sfx('spell');
-    if (fx.anim === 'quake') this.shake(500);
+    if (fx.anim === 'quake') {
+      const q = () => { if (!this.destroyed) this.shake(500, 7); };
+      if (lead) setTimeout(q, lead / tempo);
+      else q();
+    }
     // けっか（じゅもんは あたった ときに）
     const apply = () => {
       if (this.destroyed) return;
@@ -798,7 +820,7 @@ export class BattleScene {
             if (!fx.anim || fx.type === 'attack' || hitDelay) g.audio.sfx(r.crit ? 'crit' : 'hit');
           } else {
             hurtAlly = true;
-            this.hitStatus(t.id);
+            this.hitStatus(t.id, r.dmg / (t.maxHp || 1));
             g.audio.sfx(r.crit ? 'crit' : 'hurt');
           }
           this.floatNum(t, String(r.dmg), r.crit ? 'crit' : '');
@@ -812,9 +834,15 @@ export class BattleScene {
       }
       // 味方が 大きな ダメージを 受けた（HPの 2わりいじょう・つうこん・ボス）: 画面が ゆれて 赤く 光る
       const bigHurt = (ev.results || []).some((r) => r.dmg > 0 && this.c.get(r.id)?.side === 'ally' && r.dmg >= (this.c.get(r.id).maxHp || 1) * 0.2);
+      // いたみの 大きさで がめんが ゆれて、ふちが あかく なる
+      const worst = Math.min(1, Math.max(0, ...(ev.results || []).filter((r) => r.dmg > 0 && this.c.get(r.id)?.side === 'ally').map((r) => r.dmg / (this.c.get(r.id).maxHp || 1))));
+      if (hurtAlly && actor?.side === 'enemy') {
+        this.fx.hitStop(120 + worst * 260, 0, 0.7 + worst * 3.5);
+        this.fx.vignette('#ff2020', 460, Math.min(0.55, 0.2 + worst * 0.8));
+      }
       if (hurtAlly && actor?.side === 'enemy' && (actor.boss || bigHurt || (ev.results || []).some((r) => r.crit))) {
-        this.shake(bigHurt || actor.boss ? 380 : 300);
-        this.fx.flash = 170;
+        this.shake(bigHurt || actor.boss ? 380 : 300, 4 + worst * 8);
+        this.fx.flash = 80;
         this.fx.flashColor = '#ff5a5a';
       }
       for (const c of this.c.values()) {
@@ -824,7 +852,7 @@ export class BattleScene {
         }
       }
     };
-    if (hitDelay > 0) setTimeout(apply, hitDelay / this.fxSpeed);
+    if (hitDelay > 0) setTimeout(apply, hitDelay / tempo);
     else apply();
     // えらんでいる とちゅうで たおれた・ねむった など
     const cur = this.cur && this.c.get(this.cur);
@@ -1001,7 +1029,42 @@ export class BattleScene {
   center(t) {
     const m = (this.layout || []).find((l) => l.c === t || l.c.id === t.id);
     if (!m) return null;
-    return { x: m.x + m.w / 2, y: m.y + m.h / 2 };
+    return { x: m.x + m.w / 2, y: m.y + m.h / 2, w: m.w, h: m.h, foot: m.y + m.h };
+  }
+
+  // みかたの いち（がめんの てまえ・したの ほう。まどの じゅんばん）
+  allyPt(t) {
+    const list = this.allies();
+    const n = Math.max(1, list.length);
+    const i = Math.max(0, list.findIndex((a) => a.id === t.id));
+    return { x: BW / 2 + (i - (n - 1) / 2) * Math.min(58, (BW * 0.8) / n), y: BH - 22 };
+  }
+
+  // てきの うごき（こうげき・じゅもん・ブレス…）。へんじ: みかたに とどく じかん
+  enemyAct(actor, fx, ab, allyTargets, finisher) {
+    const kind = enemyActKind(fx, ab, actor);
+    const pt = kind && this.center(actor);
+    if (!pt) return 0;
+    const to = allyTargets.map((t) => this.allyPt(t));
+    return startEnemyAct(this.fx, actor, pt, kind, to, { fx, ab, finisher: finisher && kind !== 'charge' });
+  }
+
+  // おもくて カクカク する きかいでは え の こまかさを 1だんずつ さげる（3ばい → 2ばい → 1ばい）
+  checkQuality(dt) {
+    this.avgDt = this.avgDt ? this.avgDt * 0.9 + dt * 0.1 : 16;
+    if (this.res > 1 && this.time > 2500 && this.time - (this.resAt || 0) > 1500 && this.avgDt > 38) {
+      this.res = battleRes = this.res - 1;
+      this.resAt = this.time;
+      this.avgDt = 16;
+      this.canvas.width = BW * this.res;
+      this.canvas.height = BH * this.res;
+    }
+  }
+
+  // たたかいの はやさ（せっていの はやさに エフェクトも あわせる）
+  fxTempo() {
+    // サーバーから きた「戦いの速さ（エフェクト）」（前の セーブも ならした あと の あたい）
+    return Math.max(0.5, Math.min(2, this.fxSpeed || 1));
   }
 
   floatNum(t, text, cls) {
@@ -1025,12 +1088,25 @@ export class BattleScene {
     }
   }
 
-  hitStatus(id) {
+  // power: HPに たいする ダメージの わりあい（大きいほど 大きく ゆれて あかく ひかる）
+  hitStatus(id, power = 0) {
     const s = this.statusBoxes.get(id);
     if (!s) return;
     s.box.classList.remove('hit');
     void s.box.offsetWidth;
     s.box.classList.add('hit');
+    if (power > 0 && s.box.animate) {
+      const k = Math.min(1, power * 2.5);
+      const px = Math.round(3 + k * 6);
+      const red = `0 0 0 2px #000, 0 0 ${Math.round(8 + k * 14)}px rgba(255, 50, 50, ${(0.5 + k * 0.45).toFixed(2)})`;
+      s.box.animate([
+        { transform: 'translate(0, 0)', boxShadow: red },
+        { transform: `translate(${-px}px, 1px)` },
+        { transform: `translate(${px}px, -1px)` },
+        { transform: `translate(${-Math.round(px / 2)}px, 0)` },
+        { transform: 'translate(0, 0)', boxShadow: '0 0 0 2px #000' },
+      ], { duration: 300 + k * 200, easing: 'ease-out' });
+    }
   }
 
   // みかたの まどの うえの えんしゅつ（ひっかき・ほのお・こおり・かいふく・↑↓ など）
@@ -1062,8 +1138,9 @@ export class BattleScene {
     setTimeout(() => b.remove(), 1600);
   }
 
-  shake(ms) {
-    this.stage.animate([{ transform: 'translate(0,0)' }, { transform: 'translate(-5px,2px)' }, { transform: 'translate(5px,-2px)' }, { transform: 'translate(-3px,1px)' }, { transform: 'translate(0,0)' }], { duration: ms });
+  shake(ms, px = 5) {
+    const a = Math.round(px), b = Math.round(px * 0.4), c = Math.round(px * 0.6);
+    this.stage.animate([{ transform: 'translate(0,0)' }, { transform: `translate(${-a}px,${b}px)` }, { transform: `translate(${a}px,${-b}px)` }, { transform: `translate(${-c}px,${Math.round(b / 2)}px)` }, { transform: 'translate(0,0)' }], { duration: ms });
   }
 
   // きずな技: みんなで ボタンを おす
@@ -1094,6 +1171,8 @@ export class BattleScene {
   // ───────────── まいフレーム ─────────────
   update(dt) {
     this.time += dt;
+    this.fx.tempo = this.fxTempo();
+    this.checkQuality(dt);
     // メッセージの じゅんばん
     if (this.showing) {
       this.showing.left -= dt;
@@ -1112,7 +1191,7 @@ export class BattleScene {
     const locked = !!this.showing;
     for (const c of this.c.values()) {
       if (!c.alive || c.ready || locked) continue;
-      if (c.rate && c.atb < 100) c.atb = Math.min(99.5, c.atb + c.rate * dt * (this.game.me.battleSettings?.speed || 1) * 0.6);
+      if (c.rate && c.atb < 100) c.atb = Math.min(99.5, c.atb + c.rate * dt * (this.fxSpeed || 1) * 0.6);
       if (c.flash > 0) c.flash -= dt;
       if (c.lunge > 0) c.lunge -= dt;
     }
@@ -1121,24 +1200,28 @@ export class BattleScene {
       if (c.lunge > 0) c.lunge -= dt;
       if (c.dead > 0 && c.dead < 2) c.dead += dt / 500;
       if (c.appear > 0) c.appear -= dt / 400;
+      if (c.act && (c.act.age += dt * this.fx.tempo) >= c.act.dur) c.act = null;
     }
-    this.fx.update(dt * this.fxSpeed);
+    this.fx.update(dt); // はやさは fx.tempo で かける
     this.updateGauges();
     this.draw();
   }
 
   computeLayout() {
     const list = this.enemies().filter((c) => !(c.dead >= 2));
-    const sprites = list.map((c) => ({ c, img: monsterCanvas(c.species, Math.floor(this.time / 420 + (c.slot || 0)) % 2) }));
+    // え の 大きさは res（こまかさ）で わって ほんとうの 大きさに
+    const sprites = list.map((c) => {
+      const img = monsterCanvas(c.species, Math.floor(this.time / 420 + (c.slot || 0)) % 2);
+      const r = img.res || 1;
+      return { c, img, iw: img.width / r, ih: img.height / r };
+    });
     let scale = 1;
-    // こまかい え（res 4）も 見た目の 大きさで ならべる
-    const lw = (img) => img.width / (img.res || 1), lh = (img) => img.height / (img.res || 1);
-    const totalW = () => sprites.reduce((s, x) => s + lw(x.img) * scale + 6, 0);
+    const totalW = () => sprites.reduce((s, x) => s + x.iw * scale + 6, 0);
     while (totalW() > BW - 12 && scale > 0.55) scale -= 0.05;
     let x = (BW - totalW()) / 2 + 3;
     const baseY = 124;
-    return sprites.map(({ c, img }) => {
-      const w = lw(img) * scale, h = lh(img) * scale;
+    return sprites.map(({ c, img, iw, ih }) => {
+      const w = iw * scale, h = ih * scale;
       const out = { c, img, x, y: baseY - h, w, h };
       x += w + 6;
       return out;
@@ -1151,20 +1234,29 @@ export class BattleScene {
     const so = this.fx.shakeOffset;
     if (so.x || so.y) {
       x.fillStyle = '#000';
-      x.fillRect(0, 0, BW, BH);
+      x.fillRect(0, 0, this.canvas.width, this.canvas.height);
     }
-    x.setTransform(1, 0, 0, 1, so.x, so.y);
-    x.drawImage(this.bg, 0, 0);
+    // なかみは BW×BH の まま、res ばい（ふつうは BRES）の こまかさで かく
+    const R = this.res;
+    // はいけいは こまかさに あわせて 1かいだけ 大きく しておく（まいかい のばすと おもい）
+    if (!this.bgHi || this.bgHi.width !== BW * R) {
+      this.bgHi = makeCanvas(BW * R, BH * R);
+      const bx = ctxOf(this.bgHi);
+      bx.drawImage(this.bg, 0, 0, BW * R, BH * R);
+    }
+    x.setTransform(1, 0, 0, 1, Math.round(so.x * R), Math.round(so.y * R));
+    x.drawImage(this.bgHi, 0, 0);
+    x.setTransform(R, 0, 0, R, so.x * R, so.y * R);
+    const snap = (v) => Math.round(v * R) / R;
     this.layout = this.computeLayout();
     for (const m of this.layout) {
       const c = m.c;
       let dx = 0, dy = Math.round(Math.sin(this.time / 300 + (c.slot || 0)) * 1);
-      if (c.lunge > 0) { dy += 4; }
       if (c.flash > 0) dx = Math.round(Math.sin(c.flash / 20) * 2);
       const alpha = c.dead > 0 ? Math.max(0, 1 - (c.dead - 1)) : 1;
       if (c.dead > 0 && c.dead < 1.2 && Math.floor(this.time / 60) % 2) continue;
-      x.globalAlpha = c.dead > 1 ? alpha : 1;
-      if (c.appear > 0) x.globalAlpha = 1 - c.appear;
+      const base = c.appear > 0 ? 1 - c.appear : c.dead > 1 ? alpha : 1;
+      x.globalAlpha = base;
       // がめんより こまかい え は なめらかに ちぢめる（ドットが ぬけないように）
       x.imageSmoothingEnabled = (m.img.res || 1) > x.getTransform().a * 1.01;
       x.imageSmoothingQuality = 'high';
@@ -1172,13 +1264,40 @@ export class BattleScene {
       if (c.telegraph && c.alive) {
         const pulse = 0.4 + Math.sin(this.time / 90) * 0.3;
         x.globalAlpha = pulse;
-        x.drawImage(white(m.img, '#ff3a3a'), Math.round(m.x + dx) - 2, Math.round(m.y + dy) - 2, Math.round(m.w) + 4, Math.round(m.h) + 4);
-        x.globalAlpha = 1;
+        x.drawImage(white(m.img, '#ff3a3a'), snap(m.x + dx) - 2, snap(m.y + dy) - 2, m.w + 4, m.h + 4);
+        x.globalAlpha = base;
       }
+      // こうどうちゅうの すがた（とびこむ・ためる・はく など。あしもとを きじゅんに のびちぢみ）
+      const P = c.act ? actPose(c.act) : null;
+      const sx = P ? P.sx : 1, sy = P ? P.sy : 1;
+      if (P) { dx += P.dx; dy += P.dy; }
+      const w = m.w * sx, h = m.h * sy;
+      const px = snap(m.x + m.w / 2 + dx - w / 2), py = snap(m.y + m.h + dy - h);
+      if (P && P.aura && P.auraA > 0) {
+        const r = Math.max(w, h) * 0.8;
+        x.globalCompositeOperation = 'lighter';
+        x.globalAlpha = P.auraA * 0.6 * base;
+        x.drawImage(glowSprite(P.aura), px + w / 2 - r, py + h / 2 - r, r * 2, r * 2);
+        x.globalCompositeOperation = 'source-over';
+        x.globalAlpha = P.auraA * 0.8 * base;
+        x.drawImage(white(m.img, P.aura), px - 1.5, py - 1.5, w + 3, h + 3);
+      }
+      if (P && P.ghost) {
+        // ざんぞう
+        for (const [lag, ga] of [[70, 0.18], [35, 0.3]]) {
+          const G = actPose(c.act, c.act.age - lag);
+          const gw = m.w * G.sx, gh = m.h * G.sy;
+          x.globalAlpha = ga * base;
+          x.drawImage(white(m.img, '#ffffff'), m.x + m.w / 2 + dx - P.dx + G.dx - gw / 2, m.y + m.h + dy - P.dy + G.dy - gh, gw, gh);
+        }
+      }
+      x.globalAlpha = base;
       const img = c.flash > 0 && Math.floor(c.flash / 60) % 2 === 0 ? white(m.img) : m.img;
-      const lunge = c.lunge > 0 ? 1.08 : 1;
-      const w = m.w * lunge, h = m.h * lunge;
-      x.drawImage(img, Math.round(m.x + dx - (w - m.w) / 2), Math.round(m.y + dy - (h - m.h)), Math.round(w), Math.round(h));
+      x.drawImage(img, px, py, w, h);
+      if (P && P.white > 0) {
+        x.globalAlpha = P.white * base;
+        x.drawImage(white(m.img), px, py, w, h);
+      }
       x.imageSmoothingEnabled = false;
       x.globalAlpha = 1;
       // ねらい

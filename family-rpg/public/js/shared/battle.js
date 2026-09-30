@@ -570,7 +570,7 @@ export class Battle {
         const t = this.resolveTarget(c, 'enemy', cmd.target);
         this.pushCoverMsg(ev);
         if (!t) break;
-        ev.fx = { type: 'attack', actor: c.id, targets: [t.id], weapon: c.weaponCat, side: c.side };
+        ev.fx = { type: 'attack', actor: c.id, targets: [t.id], weapon: c.weaponCat, weaponId: c.weaponId || undefined, side: c.side };
         this.physHit(c, t, { mult: 1 }, ev, 'phys');
         if (c.onHit && t.alive) this.tryStatus(c, t, { status: c.onHit.status, chance: c.onHit.chance, turns: [2, 3] }, ev, 1);
         this.afterDamage(c, ev, 'phys');
@@ -1785,6 +1785,7 @@ export function allyFromCharacter(char, init = {}) {
     mp: Math.max(0, Math.min(st.maxMp, char.mp ?? st.maxMp)),
     atk: st.atk, dfn: st.dfn, agi: st.agi, mag: st.mag, healPow: st.heal,
     weaponCat: st.weaponCat,
+    weaponId: char.equip?.weapon || null, // エフェクト用（ぶきごとに みためを かえる）
     onHit: st.onHit,
     resist: { ...st.resist },
     race: char.species ? (MONSTERS[char.species]?.race || 'beast') : 'human',

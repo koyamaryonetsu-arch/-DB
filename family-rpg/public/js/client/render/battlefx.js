@@ -1,8 +1,52 @@
 // たたかいの はいけいと エフェクト
-import { makeCanvas, ctxOf } from './pixel.js';
+import { makeCanvas, ctxOf, hexToRgb } from './pixel.js';
+import { weaponLook, playWeapon } from './weaponfx.js';
 
 export const BW = 256;
 export const BH = 144;
+// たたかいの え の こまかさ（なかみは BW×BH の まま、3ばいの こまかさで かく）
+export const BRES = 3;
+
+const clamp01 = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
+const easeOut = (t) => 1 - (1 - t) * (1 - t) * (1 - t);
+const easeIn = (t) => t * t * t;
+
+// ぼんやり ひかる まるの え（いろごとに 1まいだけ つくる）
+// dense: けむりの ように ふちまで こい
+const glowCache = new Map();
+export function glowSprite(color, dense = false) {
+  const key = dense ? color + '|d' : color;
+  let c = glowCache.get(key);
+  if (c) return c;
+  c = makeCanvas(64, 64);
+  const x = c.getContext('2d');
+  const [r, g, b] = /^#[0-9a-f]{3,6}$/i.test(color) ? hexToRgb(color) : [255, 255, 255];
+  const gr = x.createRadialGradient(32, 32, 0, 32, 32, 32);
+  const stops = dense ? [[0, 1], [0.45, 0.85], [0.8, 0.3], [1, 0]] : [[0, 1], [0.22, 0.75], [0.55, 0.22], [1, 0]];
+  for (const [o, a] of stops) gr.addColorStop(o, `rgba(${r},${g},${b},${a})`);
+  x.fillStyle = gr;
+  x.fillRect(0, 0, 64, 64);
+  glowCache.set(key, c);
+  return c;
+}
+
+// 3つの てんを とおる 円（きりさきの みちすじ）。a0 → a1 の むきで b を とおる
+export function arcThrough(ax, ay, bx, by, cx, cy) {
+  const d = 2 * (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by));
+  if (Math.abs(d) < 1e-6) return null;
+  const A = ax * ax + ay * ay, B = bx * bx + by * by, C = cx * cx + cy * cy;
+  const ux = (A * (by - cy) + B * (cy - ay) + C * (ay - by)) / d;
+  const uy = (A * (cx - bx) + B * (ax - cx) + C * (bx - ax)) / d;
+  const TAU = Math.PI * 2;
+  const norm = (a) => ((a % TAU) + TAU) % TAU;
+  const a0 = Math.atan2(ay - uy, ax - ux);
+  const am = Math.atan2(by - uy, bx - ux);
+  const ac = Math.atan2(cy - uy, cx - ux);
+  const pos = norm(am - a0) < norm(ac - a0);
+  const a1 = pos ? a0 + norm(ac - a0) : a0 - norm(a0 - ac);
+  const mid = pos ? norm(am - a0) : norm(a0 - am);
+  return { x: ux, y: uy, r: Math.hypot(ax - ux, ay - uy), a0, a1, f: mid / Math.abs(a1 - a0) };
+}
 
 const BG = {
   grass: { sky: ['#6fb7ff', '#a8d8ff', '#e0f2ff'], far: '#7fb86a', near: '#5aa84a', ground: ['#6cbb52', '#5aa84a'], deco: 'hills' },
@@ -160,6 +204,382 @@ const COL = {
   phys: ['#ffffff', '#ffd66b'],
 };
 
+// うごかない（かたちが じかんで かわるだけの）つぶ
+const STILL = new Set(['lash', 'beam', 'arc', 'impact', 'lines', 'crossflash', 'ellipse', 'spot', 'glow', 'trail', 'cut', 'shock', 'crack', 'lash2', 'spear', 'zap', 'fang', 'gust', 'fanshape', 'bigcut', 'rune']);
+
+// ムチの かたち（t: 0〜1）
+function lashPts(p, t) {
+  // とどいたら すぐ ひきもどす
+  const reach = t < p.snap ? easeOut(t / p.snap) : 1 - 0.75 * easeIn((t - p.snap) / (1 - p.snap));
+  const dx = p.x1 - p.x0, dy = p.y1 - p.y0;
+  const L = Math.hypot(dx, dy) || 1;
+  const nx = -dy / L, ny = dx / L;
+  const fade = t < p.snap ? 1 : 1 - (t - p.snap) / (1 - p.snap);
+  const out = [];
+  const N = 26;
+  for (let i = 0; i <= N; i++) {
+    const u = (i / N) * reach;
+    const bow = Math.sin(u * Math.PI) * p.bow;
+    const wave = Math.sin(u * Math.PI * 3 - t * 16 + p.phase) * p.amp * u * (1 - u) * 4 * (0.3 + 0.7 * fade);
+    out.push([p.x0 + dx * u + nx * (bow + wave), p.y0 + dy * u + ny * (bow + wave)]);
+  }
+  return out;
+}
+
+// 三日月の きせきの かたち（u0〜u1 の あいだ、あたまが ふとい）
+function trailPath(x, ah, at, rOut, thick) {
+  const N = 20;
+  x.beginPath();
+  for (let i = 0; i <= N; i++) {
+    const u = i / N;
+    const a = at + (ah - at) * u;
+    x.lineTo(Math.cos(a) * rOut, Math.sin(a) * rOut);
+  }
+  for (let i = N; i >= 0; i--) {
+    const u = i / N;
+    const a = at + (ah - at) * u;
+    const th = thick * Math.pow(u, 0.75) * (u > 0.9 ? 1 - (u - 0.9) * 5 : 1);
+    x.lineTo(Math.cos(a) * (rOut - th), Math.sin(a) * (rOut - th));
+  }
+  x.closePath();
+  x.fill();
+}
+
+function drawTrail(x, p, age, alpha, rShift = 0, aShift = 0) {
+  if (age <= 0) return;
+  const rest = Math.max(1, p.life - p.swing);
+  const span = 0.85;
+  let hu, tu;
+  if (age < p.swing) {
+    hu = Math.pow(age / p.swing, p.pow);
+    tu = Math.max(0, hu - span);
+  } else {
+    hu = 1;
+    tu = 1 - span + span * easeIn(clamp01((age - p.swing) / rest));
+  }
+  if (hu - tu <= 0.01) return;
+  const da = p.a1 - p.a0;
+  const ah = p.a0 + da * hu + aShift, at = p.a0 + da * tu + aShift;
+  const fade = age < p.swing ? 1 : 1 - clamp01((age - p.swing) / rest);
+  const w = p.w * (0.35 + 0.65 * fade);
+  const r = p.r + rShift;
+  x.save();
+  x.translate(p.x, p.y);
+  if (p.sy !== 1) x.scale(1, p.sy);
+  if (alpha < 1) {
+    // ざんぞうは 1まいだけ（かるく）
+    x.globalCompositeOperation = 'lighter';
+    x.globalAlpha = alpha * fade;
+    x.fillStyle = p.glow;
+    trailPath(x, ah, at, r, w * 1.2);
+    x.restore();
+    return;
+  }
+  x.globalCompositeOperation = 'lighter';
+  x.globalAlpha = alpha * 0.4 * fade;
+  x.fillStyle = p.glow;
+  trailPath(x, ah, at, r + w * 0.45, w * 2.1);
+  x.globalCompositeOperation = 'source-over';
+  x.globalAlpha = alpha * 0.9 * (0.4 + 0.6 * fade);
+  x.fillStyle = p.color;
+  trailPath(x, ah, at, r, w);
+  x.globalAlpha = alpha * fade;
+  x.fillStyle = p.core;
+  trailPath(x, ah, at, r - w * 0.08, w * 0.38);
+  // やいばの さき（ふっている あいだ ひかる）
+  if (alpha >= 1 && age < p.swing + 60) {
+    const hx = Math.cos(ah) * (r - w * 0.35), hy = Math.sin(ah) * (r - w * 0.35);
+    const k = 1 - clamp01((age - p.swing) / 60);
+    x.globalCompositeOperation = 'lighter';
+    x.globalAlpha = 0.8 * k;
+    const g = w * 1.9;
+    x.drawImage(glowSprite(p.glow), hx - g, hy - g, g * 2, g * 2);
+    x.globalAlpha = k;
+    x.drawImage(glowSprite('#ffffff'), hx - g * 0.45, hy - g * 0.45, g * 0.9, g * 0.9);
+  }
+  x.restore();
+}
+
+// ギザギザの せん（いなずま）
+function zapPts(x0, y0, x1, y1, n = 8) {
+  const dx = x1 - x0, dy = y1 - y0;
+  const L = Math.hypot(dx, dy) || 1;
+  const nx = -dy / L, ny = dx / L;
+  const out = [[x0, y0]];
+  for (let i = 1; i < n; i++) {
+    const u = i / n;
+    const j = (Math.random() - 0.5) * L * 0.22 * Math.sin(u * Math.PI);
+    out.push([x0 + dx * u + nx * j, y0 + dy * u + ny * j]);
+  }
+  out.push([x1, y1]);
+  return out;
+}
+
+function polyline(x, pts) {
+  x.beginPath();
+  pts.forEach(([a, b], i) => (i ? x.lineTo(a, b) : x.moveTo(a, b)));
+  x.stroke();
+}
+
+// こまかい つぶの かきかた（しゅるいごと）
+const FINE = {
+  glow(x, p, t) {
+    const r = p.r * (1 - p.grow + p.grow * easeOut(clamp01(t * 2.5)));
+    x.globalAlpha = p.a * Math.pow(1 - t, 1.4);
+    x.drawImage(glowSprite(p.color), p.x - r, p.y - r, r * 2, r * 2);
+  },
+  puff(x, p, t) {
+    const r = p.r0 + (p.r1 - p.r0) * easeOut(t);
+    x.globalAlpha = p.a * (t < 0.15 ? t / 0.15 : 1 - (t - 0.15) / 0.85);
+    x.drawImage(glowSprite(p.color, !p.add), p.x - r, p.y - r, r * 2, r * 2);
+  },
+  trail(x, p) {
+    // ざんぞう: すこし おくれて、すこし うちがわに（ずらす はばは ながさで きめる）
+    const back = p.a1 > p.a0 ? -1 : 1;
+    const da = Math.min(0.16, 7 / p.r);
+    for (let k = p.after; k >= 1; k--) drawTrail(x, p, p.age - k * 24, 0.5 / k, -k * 2.2, back * k * da);
+    drawTrail(x, p, p.age, 1);
+  },
+  cut(x, p) {
+    const e = easeOut(clamp01(p.age / p.speed));
+    const tu = clamp01((p.age - p.speed) / Math.max(1, p.life - p.speed));
+    const c = Math.cos(p.ang), s = Math.sin(p.ang);
+    const x0 = p.x - c * p.len / 2, y0 = p.y - s * p.len / 2;
+    const head = p.len * e, tail = head * easeIn(tu);
+    const hx = x0 + c * head, hy = y0 + s * head, tx = x0 + c * tail, ty = y0 + s * tail;
+    const mx = tx + (hx - tx) * 0.62, my = ty + (hy - ty) * 0.62;
+    const dia = (w) => {
+      x.beginPath();
+      x.moveTo(tx, ty); x.lineTo(mx - s * w / 2, my + c * w / 2); x.lineTo(hx, hy); x.lineTo(mx + s * w / 2, my - c * w / 2);
+      x.closePath(); x.fill();
+    };
+    const k = 1 - tu;
+    x.globalAlpha = 0.45 * k; x.fillStyle = p.glow; dia(p.w * 3.4);
+    x.globalAlpha = 0.95 * k; x.fillStyle = p.color; dia(p.w);
+    x.globalAlpha = k; x.fillStyle = '#ffffff'; dia(p.w * 0.35);
+  },
+  shock(x, p, t) {
+    const r = p.r0 + (p.r1 - p.r0) * easeOut(t);
+    x.globalAlpha = Math.max(0, 1 - t) * 0.95;
+    x.lineWidth = Math.max(0.3, p.w * (1 - t));
+    x.beginPath(); x.ellipse(p.x, p.y, r, r * p.sy, 0, 0, Math.PI * 2); x.stroke();
+  },
+  crack(x, p, t) {
+    const show = clamp01(t * 5);
+    const a = t < 0.6 ? 1 : 1 - (t - 0.6) / 0.4;
+    for (const pass of [0, 1]) {
+      x.globalCompositeOperation = pass ? 'lighter' : 'source-over';
+      x.globalAlpha = pass ? a * (1 - t) : a;
+      x.strokeStyle = pass ? p.hi : p.color;
+      x.lineWidth = pass ? 0.8 : 1.8;
+      x.beginPath();
+      for (const ln of p.lines) {
+        const n = Math.max(1, Math.ceil((ln.length - 1) * show));
+        x.moveTo(p.x + ln[0][0], p.y + ln[0][1]);
+        for (let i = 1; i <= n; i++) x.lineTo(p.x + ln[i][0], p.y + ln[i][1]);
+      }
+      x.stroke();
+    }
+  },
+  lash2(x, p, t) {
+    const pts = lashPts(p, t);
+    const fade = t < p.snap ? 1 : 1 - (t - p.snap) / (1 - p.snap);
+    const n = pts.length - 1;
+    if (p.glow) {
+      x.strokeStyle = p.glow; x.globalAlpha = 0.35 * fade; x.lineWidth = p.w * 2;
+      polyline(x, pts);
+    }
+    x.globalCompositeOperation = 'source-over';
+    x.strokeStyle = p.color; x.globalAlpha = fade;
+    for (let i = 1; i <= n; i++) {
+      x.lineWidth = Math.max(0.4, p.w * (1 - (i / n) * 0.75));
+      x.beginPath(); x.moveTo(pts[i - 1][0], pts[i - 1][1]); x.lineTo(pts[i][0], pts[i][1]); x.stroke();
+    }
+    if (p.links) {
+      // くさりの わ
+      x.fillStyle = '#ffffff';
+      for (let i = 2; i <= n; i += 2) x.fillRect(pts[i][0] - 0.6, pts[i][1] - 0.6, 1.2, 1.2);
+    }
+    const [ex, ey] = pts[n];
+    x.fillStyle = '#ffffff';
+    x.beginPath(); x.arc(ex, ey, p.w * 0.45, 0, Math.PI * 2); x.fill();
+  },
+  spear(x, p) {
+    const e = easeOut(clamp01(p.age / p.travel));
+    const back = clamp01((p.age - p.travel - p.hold) / Math.max(1, p.life - p.travel - p.hold));
+    const dx = p.x1 - p.x0, dy = p.y1 - p.y0, L = Math.hypot(dx, dy) || 1;
+    const ux = dx / L, uy = dy / L, nx = -uy, ny = ux;
+    const D = (L + p.over) * e;
+    const hx = p.x0 + ux * D, hy = p.y0 + uy * D;
+    const tl = p.len * (1 - back) * Math.min(1, e * 1.5);
+    const tx = hx - ux * tl, ty = hy - uy * tl;
+    const k = 1 - back;
+    const streak = (w, col, a) => {
+      x.globalAlpha = a; x.fillStyle = col;
+      x.beginPath(); x.moveTo(tx, ty); x.lineTo(hx + nx * w / 2, hy + ny * w / 2); x.lineTo(hx - nx * w / 2, hy - ny * w / 2); x.closePath(); x.fill();
+    };
+    streak(p.w * 3, p.glow, 0.4 * k);
+    streak(p.w, p.color, 0.9 * k);
+    streak(p.w * 0.35, '#ffffff', k);
+    const tipL = p.w * 3.2, tipW = p.w * 1.2;
+    x.globalAlpha = k; x.fillStyle = p.tip;
+    x.beginPath(); x.moveTo(hx + ux * tipL, hy + uy * tipL); x.lineTo(hx + nx * tipW, hy + ny * tipW); x.lineTo(hx - nx * tipW, hy - ny * tipW); x.closePath(); x.fill();
+  },
+  twinkle(x, p, t) {
+    const s = p.size * Math.sin(Math.PI * Math.min(1, t * 1.1 + 0.08));
+    if (s <= 0.05) return;
+    const rot = p.spin * p.age / 1000;
+    x.globalAlpha = 0.55 * (1 - t);
+    x.drawImage(glowSprite(p.color), p.x - s * 1.4, p.y - s * 1.4, s * 2.8, s * 2.8);
+    x.globalAlpha = 1 - t * 0.4;
+    x.beginPath();
+    for (let i = 0; i < 8; i++) {
+      const rr = i % 2 ? s * 0.16 : s;
+      const a = rot + (i / 8) * Math.PI * 2;
+      x.lineTo(p.x + Math.cos(a) * rr, p.y + Math.sin(a) * rr);
+    }
+    x.closePath(); x.fill();
+  },
+  drop(x, p, t) {
+    x.globalAlpha = 1 - t * t;
+    const sp = Math.hypot(p.vx, p.vy) || 1;
+    const ux = p.vx / sp, uy = p.vy / sp, r = p.size;
+    x.beginPath(); x.arc(p.x, p.y, r, 0, Math.PI * 2); x.fill();
+    x.beginPath(); x.moveTo(p.x - ux * r * 2.6, p.y - uy * r * 2.6); x.lineTo(p.x - uy * r, p.y + ux * r); x.lineTo(p.x + uy * r, p.y - ux * r); x.closePath(); x.fill();
+    x.fillStyle = '#ffffff';
+    x.globalAlpha *= 0.7;
+    x.fillRect(p.x - r * 0.55, p.y - r * 0.55, r * 0.5, r * 0.5);
+  },
+  bubble(x, p, t) {
+    x.globalAlpha = t > 0.85 ? (1 - t) / 0.15 : 0.9;
+    x.lineWidth = 0.5;
+    const bx = p.x + Math.sin(p.age / 90 + p.phase) * 1.5;
+    x.beginPath(); x.arc(bx, p.y, p.size * (1 + t * 0.3), 0, Math.PI * 2); x.stroke();
+    x.fillStyle = '#ffffff';
+    x.fillRect(bx - p.size * 0.55, p.y - p.size * 0.55, p.size * 0.45, p.size * 0.45);
+  },
+  zap(x, p, t) {
+    const step = Math.floor(p.age / 45);
+    if (step !== p.step) {
+      p.step = step;
+      p.pts = zapPts(p.x0, p.y0, p.x1, p.y1, 9);
+      p.fk = [];
+      for (let i = 0; i < p.forks; i++) {
+        const [fx0, fy0] = p.pts[2 + Math.floor(Math.random() * (p.pts.length - 4))];
+        p.fk.push(zapPts(fx0, fy0, fx0 + (Math.random() - 0.5) * 30, fy0 + 6 + Math.random() * 14, 4));
+      }
+    }
+    const k = (1 - t) * (step % 2 ? 0.6 : 1);
+    for (const pts of [p.pts, ...p.fk]) {
+      x.globalAlpha = 0.35 * k; x.strokeStyle = p.glow; x.lineWidth = p.w * 4; polyline(x, pts);
+      x.globalAlpha = k; x.strokeStyle = p.color; x.lineWidth = p.w; polyline(x, pts);
+      x.strokeStyle = '#ffffff'; x.lineWidth = p.w * 0.4; polyline(x, pts);
+    }
+  },
+  fang(x, p, t) {
+    const close = easeIn(clamp01(t * 3.2));
+    const s = p.size;
+    const gap = 16 * s * (1 - close);
+    const jit = t > 0.31 && t < 0.5 ? (Math.random() - 0.5) * 1.6 : 0;
+    const a = t < 0.6 ? 1 : 1 - (t - 0.6) / 0.4;
+    for (const dir of [-1, 1]) {
+      const by = p.y + dir * gap + jit;
+      x.globalCompositeOperation = 'lighter';
+      x.globalAlpha = 0.6 * a; x.strokeStyle = p.glow; x.lineWidth = 2.4 * s;
+      x.beginPath();
+      for (let i = -3; i <= 3; i++) x.lineTo(p.x + i * 5 * s, by + dir * (2 + i * i * 0.45) * s);
+      x.stroke();
+      x.globalCompositeOperation = 'source-over';
+      x.globalAlpha = a; x.fillStyle = p.color;
+      x.beginPath();
+      for (let i = -3; i <= 3; i++) {
+        const tx = p.x + i * 5 * s, ty = by + dir * (2 + i * i * 0.45) * s;
+        const L = 6.5 * s * (1 - Math.abs(i) * 0.1);
+        x.moveTo(tx - 2.1 * s, ty); x.lineTo(tx, ty - dir * L); x.lineTo(tx + 2.1 * s, ty);
+      }
+      x.fill();
+    }
+  },
+  gust(x, p, t) {
+    const head = easeOut(clamp01(t * 1.5));
+    const tail = easeIn(clamp01(t * 1.5 - 0.3));
+    if (head - tail < 0.01) return;
+    x.globalAlpha = 0.9 * (1 - t * 0.6);
+    x.lineWidth = p.w;
+    x.beginPath();
+    let hx = 0, hy = 0;
+    for (let i = 0; i <= 14; i++) {
+      const u = tail + (head - tail) * (i / 14);
+      hx = p.x + p.dir * (u - 0.5) * p.len;
+      hy = p.y + Math.sin(u * Math.PI * 2 + p.phase) * p.amp;
+      if (i) x.lineTo(hx, hy); else x.moveTo(hx, hy);
+    }
+    // さきっぽが くるりと まく
+    if (head > 0.45) {
+      const cr = 2.2 + p.amp * 0.3;
+      x.arc(hx, hy - cr, cr, Math.PI / 2, Math.PI / 2 - p.dir * 4.2, p.dir > 0);
+    }
+    x.stroke();
+  },
+  fanshape(x, p, t) {
+    const open = easeOut(clamp01(t * 3));
+    const A = p.spread * open;
+    const r = p.r * (0.8 + 0.2 * open);
+    const k = t < 0.5 ? 1 : 1 - (t - 0.5) / 0.5;
+    x.globalAlpha = 0.55 * k;
+    x.beginPath(); x.moveTo(p.x, p.y); x.arc(p.x, p.y, r, p.a - A / 2, p.a + A / 2); x.closePath(); x.fill();
+    x.globalAlpha = 0.9 * k; x.strokeStyle = p.rib; x.lineWidth = 0.6;
+    x.beginPath();
+    for (let i = 0; i <= p.ribs; i++) {
+      const a = p.a - A / 2 + (A * i) / p.ribs;
+      x.moveTo(p.x, p.y); x.lineTo(p.x + Math.cos(a) * r, p.y + Math.sin(a) * r);
+    }
+    x.stroke();
+    x.lineWidth = 1.4;
+    x.beginPath(); x.arc(p.x, p.y, r, p.a - A / 2, p.a + A / 2); x.stroke();
+  },
+  bigcut(x, p, t) {
+    const e = easeOut(clamp01(t * 4));
+    const w = p.w * (t < 0.2 ? 1 : 1 - (t - 0.2) / 0.8);
+    const c = Math.cos(p.ang), s = Math.sin(p.ang);
+    const x0 = p.x - c * 300, y0 = p.y - s * 300;
+    const x1 = x0 + c * 600 * e, y1 = y0 + s * 600 * e;
+    x.globalAlpha = 0.5 * (1 - t); x.strokeStyle = p.glow; x.lineWidth = w * 4;
+    x.beginPath(); x.moveTo(x0, y0); x.lineTo(x1, y1); x.stroke();
+    x.globalAlpha = 1 - t * 0.7; x.strokeStyle = p.color; x.lineWidth = w;
+    x.beginPath(); x.moveTo(x0, y0); x.lineTo(x1, y1); x.stroke();
+  },
+  petal2(x, p, t) {
+    x.globalAlpha = t > 0.7 ? (1 - t) / 0.3 : 1;
+    x.save();
+    x.translate(p.x, p.y);
+    x.rotate(p.rot + (p.spin * p.age) / 1000);
+    x.scale(1, Math.abs(Math.sin(p.age / 140 + p.phase)) * 0.8 + 0.2);
+    x.beginPath(); x.ellipse(0, 0, p.size, p.size * 0.5, 0, 0, Math.PI * 2); x.fill();
+    x.restore();
+  },
+  rune(x, p, t) {
+    const r = p.r * easeOut(clamp01(t * 3));
+    const a = (t < 0.6 ? 1 : 1 - (t - 0.6) / 0.4) * 0.9;
+    x.globalAlpha = a;
+    x.lineWidth = 0.7;
+    x.beginPath(); x.ellipse(p.x, p.y, r, r * 0.32, 0, 0, Math.PI * 2); x.stroke();
+    x.beginPath(); x.ellipse(p.x, p.y, r * 0.72, r * 0.23, 0, 0, Math.PI * 2); x.stroke();
+    const rot = p.age / 300;
+    for (const off of [0, Math.PI / 3]) {
+      x.beginPath();
+      for (let i = 0; i <= 3; i++) {
+        const an = rot + off + (i * Math.PI * 2) / 3;
+        const px = p.x + Math.cos(an) * r * 0.72, py = p.y + Math.sin(an) * r * 0.23;
+        if (i) x.lineTo(px, py); else x.moveTo(px, py);
+      }
+      x.stroke();
+    }
+    x.globalAlpha = a * 0.4;
+    x.drawImage(glowSprite(p.color), p.x - r, p.y - r * 0.7, r * 2, r * 1.4);
+  },
+};
+
 export class Effects {
   constructor() {
     this.parts = [];
@@ -168,6 +588,12 @@ export class Effects {
     this.flashColor = '#fff';
     this.tint = null;
     this.shakeT = 0;
+    this.shakeAmp = 1;
+    this.vig = null;
+    // じかんの はやさ（たたかいの はやさ せってい）
+    this.tempo = 1;
+    this.W = BW;
+    this.H = BH;
   }
 
   add(p) { this.parts.push({ life: 600, age: 0, size: 2, vx: 0, vy: 0, g: 0, ...p }); }
@@ -260,6 +686,155 @@ export class Effects {
     this.burst(x, y, ['#ffffff', color], crit ? 22 : 14, crit ? 130 : 95, { delay: delay + 20 });
     if (crit || heavy) this.speedLines(x, y, { delay, r1: crit ? 110 : 80, color: crit ? '#fff6b0' : '#ffffff' });
     if (crit) { this.flashAt(150, '#ffffff', delay); this.hitStop(200, delay); } else if (heavy) this.hitStop(110, delay);
+  }
+
+  // ───────────── こまかい エフェクト（ぶき・てきの うごき） ─────────────
+  // ぼんやり ひかる（add: かさねると あかるく なる）
+  glow(x, y, { color = '#ffffff', r = 16, delay = 0, life = 260, alpha = 1, add = true, grow = 0.5 } = {}) {
+    this.add({ kind: 'glow', x, y, color, r, delay, life, a: alpha, add, grow });
+  }
+
+  // うごく けむり・ひかりの たま（ブレス など）。r0 → r1 に ふくらむ
+  puff(x, y, { color = '#ffffff', vx = 0, vy = 0, r0 = 4, r1 = 14, delay = 0, life = 500, alpha = 0.8, add = false, drag = 1 } = {}) {
+    this.add({ kind: 'puff', x, y, vx, vy, r0, r1, color, delay, life, a: alpha, add, drag });
+  }
+
+  // ふりぬく きせき（三日月）。S → P → E を とおる。w: ふとさ、after: ざんぞうの かず
+  swipe(S, P, E, { w = 5, color = '#ffffff', glow = '#9ad8ff', core = '#ffffff', delay = 0, swing = 170, life = 380, after = 0, pow = 1.6, sy = 1 } = {}) {
+    const c = arcThrough(S[0], S[1], P[0], P[1], E[0], E[1]);
+    if (!c) return delay;
+    this.add({ kind: 'trail', x: c.x, y: c.y, r: c.r, a0: c.a0, a1: c.a1, w, color, glow, core, delay, swing, life, after, pow, sy });
+    // P を とおる じかん
+    return delay + swing * Math.pow(c.f, 1 / pow);
+  }
+
+  // まっすぐな ほそい きりさき（ang: むき、len: ながさ、speed: のびる じかん）
+  cut(x, y, { ang = 0.8, len = 34, w = 2, color = '#ffffff', glow = '#9ad8ff', delay = 0, life = 260, speed = 60 } = {}) {
+    this.add({ kind: 'cut', x, y, ang, len, w, color, glow, delay, life, speed: Math.min(speed, life * 0.6), add: true });
+  }
+
+  // ひばな（すじに なって とぶ）。ang/spread で むきを しぼる
+  sparks(x, y, { colors = ['#ffffff'], n = 10, speed = 90, ang = null, spread = Math.PI, life = 380, delay = 0, g = 60, size = 0.8, drag = 0.9, len = 7, add = true } = {}) {
+    for (let i = 0; i < n; i++) {
+      const a = ang === null ? Math.random() * Math.PI * 2 : ang + (Math.random() - 0.5) * spread * 2;
+      const s = speed * (0.45 + Math.random() * 0.8);
+      this.add({ kind: 'spark', x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, g, drag, len, color: colors[i % colors.length], size: size * (0.6 + Math.random() * 0.7), life: life * (0.6 + Math.random() * 0.6), delay, add });
+    }
+  }
+
+  // ひろがる わ（sy: たてに つぶす。じめんの しょうげきは 0.3 くらい）
+  shock(x, y, { r0 = 3, r1 = 30, color = '#ffffff', w = 1.5, delay = 0, life = 300, sy = 1, add = true } = {}) {
+    this.add({ kind: 'shock', x, y, r0, r1, color, w, delay, life, sy, add });
+  }
+
+  // じめんの ひびわれ
+  crack(x, y, { n = 5, len = 26, color = '#2a1a10', hi = '#ffd66b', delay = 0, life = 760, sy = 0.38 } = {}) {
+    const lines = [];
+    for (let i = 0; i < n; i++) {
+      const a = (i / n) * Math.PI * 2 + Math.random() * 0.8;
+      const L = len * (0.6 + Math.random() * 0.6);
+      let px = 0, py = 0;
+      const pts = [[0, 0]];
+      for (let k = 1; k <= 4; k++) {
+        const aa = a + (Math.random() - 0.5) * 0.9;
+        px += Math.cos(aa) * L / 4;
+        py += Math.sin(aa) * L / 4 * sy;
+        pts.push([px, py]);
+        if (k === 2 && Math.random() < 0.6) {
+          const ba = aa + (Math.random() < 0.5 ? -0.8 : 0.8);
+          lines.push([[px, py], [px + Math.cos(ba) * L / 4, py + Math.sin(ba) * L / 4 * sy]]);
+        }
+      }
+      lines.push(pts);
+    }
+    this.add({ kind: 'crack', x, y, lines, color, hi, delay, life });
+  }
+
+  // ムチ（x0,y0 から x1,y1 へ しなって とどく。snap: とどく わりあい）
+  lash(x0, y0, x1, y1, { color = '#e8c89a', glow = null, w = 2.4, delay = 0, life = 380, snap = 0.45, bow = -22, amp = 9, emit = null, links = false } = {}) {
+    this.add({ kind: 'lash2', x0, y0, x1, y1, x: x1, y: y1, color, glow, w, delay, life, snap, bow, amp, emit, links, phase: Math.random() * 6, add: !!glow });
+    return delay + life * snap;
+  }
+
+  // やりの つき（x0,y0 から x,y へ）。over: つきぬける ながさ
+  spear(x0, y0, x, y, { len = 60, w = 2.5, color = '#ffffff', glow = '#9ad8ff', tip = '#ffffff', delay = 0, travel = 80, hold = 50, life = 260, over = 10 } = {}) {
+    this.add({ kind: 'spear', x0, y0, x1: x, y1: y, x, y, len, w, color, glow, tip, delay, travel, hold, life, over, add: true });
+    return delay + travel;
+  }
+
+  // きらり（4ほんの ひかりの ほし）
+  twinkle(x, y, { color = '#ffffff', size = 6, delay = 0, life = 360, vx = 0, vy = 0, g = 0, spin = 0, drag = 1 } = {}) {
+    this.add({ kind: 'twinkle', x, y, vx, vy, g, color, size, delay, life, spin, drag, add: true });
+  }
+
+  // しずく（どく・みず）
+  drop(x, y, { color = '#b06ae0', vx = 0, vy = 0, g = 260, size = 1.4, delay = 0, life = 600 } = {}) {
+    this.add({ kind: 'drop', x, y, vx, vy, g, color, size, delay, life });
+  }
+
+  // あわ
+  bubble(x, y, { color = '#bfe6ff', size = 1.6, vy = -30, delay = 0, life = 700 } = {}) {
+    this.add({ kind: 'bubble', x, y, vx: 0, vy, color, size, delay, life, phase: Math.random() * 6 });
+  }
+
+  // いなずま（x0,y0 から x1,y1 へ ギザギザ）
+  zap(x0, y0, x1, y1, { color = '#fff6b0', glow = '#9ad8ff', w = 1.2, delay = 0, life = 300, forks = 1 } = {}) {
+    this.add({ kind: 'zap', x0, y0, x1, y1, x: x1, y: y1, color, glow, w, delay, life, forks, step: -1, add: true });
+  }
+
+  // キバが とじる（サメのキバ・かみつき）
+  fang(x, y, { color = '#ffffff', glow = '#5ab8e8', size = 1, delay = 0, life = 380 } = {}) {
+    this.add({ kind: 'fang', x, y, color, glow, size, delay, life });
+  }
+
+  // かぜの すじ（dir: 1=みぎへ -1=ひだりへ）
+  gust(x, y, { len = 60, amp = 4, color = '#e8fff0', w = 1, dir = 1, delay = 0, life = 380 } = {}) {
+    this.add({ kind: 'gust', x, y, len, amp, color, w, dir, delay, life, phase: Math.random() * 6, add: true });
+  }
+
+  // ひらく おうぎ（かなめ x,y。a: むき、spread: ひらく はば）
+  fanShape(x, y, { r = 30, a = -Math.PI / 2, spread = 1.6, color = '#ffe0f0', rib = '#ffffff', delay = 0, life = 360, ribs = 7 } = {}) {
+    this.add({ kind: 'fanshape', x, y, r, a, spread, color, rib, delay, life, ribs });
+  }
+
+  // がめんを よこぎる 大きな きりさき（かいしん）
+  bigCut(x, y, { ang = 0.5, color = '#ffffff', glow = '#9ad8ff', w = 2.5, delay = 0, life = 300 } = {}) {
+    this.add({ kind: 'bigcut', x, y, ang, color, glow, w, delay, life, add: true });
+  }
+
+  // はなびら・はね・は（くるくる まう）
+  petal(x, y, { color = '#f7a1c4', vx = 0, vy = 0, size = 1.8, delay = 0, life = 800, g = 30 } = {}) {
+    this.add({ kind: 'petal2', x, y, vx, vy, g, color, size, delay, life, rot: Math.random() * 6, spin: (Math.random() - 0.5) * 16, phase: Math.random() * 6 });
+  }
+
+  // まほうじん（じめんに ひろがる）
+  rune(x, y, { color = '#c8a8ff', r = 20, delay = 0, life = 520 } = {}) {
+    this.add({ kind: 'rune', x, y, color, r, delay, life, add: true });
+  }
+
+  // あつまる ひかり（ためる）
+  converge(x, y, { colors = ['#ffffff'], n = 12, r = 30, delay = 0, life = 300, size = 0.9, sy = 0.8 } = {}) {
+    for (let i = 0; i < n; i++) {
+      const a = (i / n) * Math.PI * 2 + Math.random() * 0.5;
+      const rr = r * (0.7 + Math.random() * 0.5);
+      const lf = life * (0.7 + Math.random() * 0.3);
+      const sx = x + Math.cos(a) * rr, sy2 = y + Math.sin(a) * rr * sy;
+      this.add({ kind: 'spark', x: sx, y: sy2, vx: (x - sx) / (lf / 1000), vy: (y - sy2) / (lf / 1000), g: 0, drag: 1, len: 6, color: colors[i % colors.length], size, life: lf, delay: delay + Math.random() * 60, add: true });
+    }
+  }
+
+  // がめんの ふちが そまる（みかたが いたい とき）
+  vignette(color = '#ff2a2a', ms = 380, a = 0.5) {
+    this.vig = { color, life: ms, age: 0, a };
+  }
+
+  // ぶきの こうげき（id が あれば ぶきごとに かわる）
+  // へんじ: あたる までの じかん（ms）
+  weaponStrike(targets, cat, crit, id = null, mon = null) {
+    const look = weaponLook(id, cat, mon);
+    let hit = 0;
+    targets.forEach((t, i) => { hit = Math.max(hit, playWeapon(this, t, look, crit, i * 70)); });
+    return hit;
   }
 
   // anim の しゅるいで エフェクトを だす
@@ -625,60 +1200,10 @@ export class Effects {
     });
   }
 
-  // ふつうの こうげき（ぶきの しゅるいで かわる）
-  // 武器ごとに 形と 色を かえる（剣は 三日月・オノは 重い 一撃・やりは つき・バットは カキーン など）
-  weaponHit(targets, weapon, crit) {
-    for (const t of targets) {
-      const { x, y } = t;
-      switch (weapon) {
-        case 'none': // こぶし
-          this.impact(x, y, { r: crit ? 20 : 14 });
-          this.ring(x, y, '#ffd66b', 3, 0, 260, crit ? 40 : 28);
-          this.bigHit(x, y, { crit, delay: 30, color: '#ffd66b' });
-          break;
-        case 'claw': // ツメ: 3本の ひっかき
-          for (let k = 0; k < 3; k++) this.add({ kind: 'slash', x: x + (k - 1) * 7, y, color: '#ffffff', life: 240, delay: k * 35, len: 34, ang: 1.15, w: 3, glow: '#ff8a8a' });
-          this.bigHit(x, y, { crit, delay: 120, color: '#ffc8c8' });
-          break;
-        case 'spear': // やり: 下から まっすぐ つく
-          this.add({ kind: 'thrust', x, y, color: '#ffffff', life: 220, w: 4 });
-          this.add({ kind: 'thrust', x: x + 1, y, color: '#fff6b0', life: 220, w: 2 });
-          this.speedLines(x, y, { delay: 90, r0: 12, r1: 60, n: 10 });
-          this.bigHit(x, y, { crit, delay: 110, color: '#fff6b0' });
-          break;
-        case 'staff': // つえ: ポカッ
-          this.arc(x, y - 6, { r: 20, a0: -2.2, a1: -0.4, w: 4, glow: '#9ad8ff', life: 200 });
-          this.bigHit(x, y, { crit, delay: 100, color: '#9ad8ff' });
-          for (let k = 0; k < 3; k++) this.star(x + Math.cos(k * 2.1) * 14, y - 16 + Math.sin(k * 2.1) * 4, '#fff6b0', 5, 200 + k * 60, 320);
-          break;
-        case 'axe': // オノ: 重い 一撃
-          this.arc(x, y - 4, { r: 34, a0: -2.0, a1: 1.1, w: 8, glow: '#ff9a3a', life: 240 });
-          this.bigHit(x, y, { crit, heavy: true, delay: 130, color: '#ffb070' });
-          this.debris(x, y + 10, ['#a08060', '#d8c0a0', '#ffd66b'], 8, 130, 110);
-          this.hitStop(crit ? 240 : 160, 130);
-          break;
-        case 'fan': // おうぎ: 風と 花びら
-          this.arc(x, y, { r: 26, a0: -2.8, a1: -0.2, w: 4, color: '#ffe0f0', glow: '#f7a1c4', life: 260 });
-          for (let k = 0; k < 12; k++) this.add({ kind: 'petal', x: x + (Math.random() - 0.5) * 30, y: y - 18, vx: (Math.random() - 0.5) * 50, vy: 20 + Math.random() * 30, color: k % 2 ? '#f7a1c4' : '#ffffff', life: 800, delay: 80 });
-          this.bigHit(x, y, { crit, delay: 120, color: '#ffc8e8' });
-          break;
-        case 'dagger': // ナイフ: すばやく 2回
-          this.arc(x - 3, y, { r: 20, a0: -2.4, a1: 0.2, w: 3, glow: '#bfe6ff', life: 160 });
-          this.arc(x + 3, y, { r: 20, a0: -0.8, a1: 2.3, w: 3, glow: '#bfe6ff', delay: 90, life: 160 });
-          this.bigHit(x, y, { crit, delay: 150, color: '#bfe6ff' });
-          break;
-        case 'whip':
-          this.play('whip', [t], null, { crit });
-          this.bigHit(x, y, { crit, delay: 200, color: '#e8c89a' });
-          break;
-        case 'bat': // バット: カキーン
-          this.play('bat_swing', [t], null, { crit });
-          break;
-        default: // 剣: 三日月の きりさき
-          this.arc(x, y, { r: crit ? 36 : 30, a0: -2.6, a1: 0.6, w: crit ? 7 : 5, glow: '#ffd66b', life: 260 });
-          this.bigHit(x, y, { crit, delay: 110, color: '#fff6b0' });
-      }
-    }
+  // ふつうの こうげき（ぶきの しゅるいで かわる。opts.id: ぶきの ID、opts.mon: まものの なかまの しゅるい）
+  // へんじ: ダメージが でる までの じかん（ms）
+  weaponHit(targets, weapon, crit, opts = {}) {
+    return this.weaponStrike(targets, weapon || 'none', crit, opts.id || null, opts.mon || null);
   }
 
   // ほのおが たちのぼる
@@ -695,11 +1220,13 @@ export class Effects {
   }
 
   // こうげきが あたった しゅんかんに がめんが ゆれる
-  hitStop(ms, delay = 0) {
-    this.add({ kind: 'shake', x: 0, y: 0, color: '#000', life: 1, delay, dur: ms });
+  // amp: ゆれの 大きさ（1 が ふつう）
+  hitStop(ms, delay = 0, amp = 1) {
+    this.add({ kind: 'shake', x: 0, y: 0, color: '#000', life: 1, delay, dur: ms, amp });
   }
 
   update(dt) {
+    dt *= this.tempo || 1;
     for (const p of this.parts) {
       if (p.delay > 0) { p.delay -= dt; continue; }
       p.age += dt;
@@ -744,8 +1271,27 @@ export class Effects {
       }
       if (p.kind === 'shake' && !p.done) {
         p.done = true;
+        this.shakeAmp = this.shakeT > 0 ? Math.max(this.shakeAmp, p.amp || 1) : (p.amp || 1);
         this.shakeT = Math.max(this.shakeT, p.dur);
         continue;
+      }
+      if (STILL.has(p.kind)) {
+        if (p.kind === 'lash2' && p.emit && p.age < p.life * 0.8 && Math.random() < 0.8) {
+          const pts = lashPts(p, p.age / p.life);
+          const [ex, ey] = pts[Math.floor(pts.length * (0.4 + Math.random() * 0.6)) - 1] || pts[pts.length - 1];
+          this.add({ kind: 'spark', x: ex, y: ey, vx: (Math.random() - 0.5) * 30, vy: -20 - Math.random() * 40, g: -40, drag: 0.96, len: 4, color: p.emit[Math.floor(Math.random() * p.emit.length)], size: 0.9 + Math.random() * 0.8, life: 300 + Math.random() * 200, add: true });
+        }
+        continue;
+      }
+      if (p.drag && p.drag !== 1) {
+        const k = Math.pow(p.drag, dt / 16);
+        p.vx *= k;
+        p.vy *= k;
+      }
+      if (p.kind === 'petal2') {
+        p.x += Math.sin(p.age / 110 + p.phase) * 18 * dt / 1000;
+        p.vx *= Math.pow(0.94, dt / 16);
+        p.vy = Math.min(p.vy, 40);
       }
       p.x += p.vx * dt / 1000;
       p.y += p.vy * dt / 1000;
@@ -760,26 +1306,77 @@ export class Effects {
       this.tint.age += dt;
       if (this.tint.age > this.tint.life) this.tint = null;
     }
+    if (this.vig) {
+      this.vig.age += dt;
+      if (this.vig.age > this.vig.life) this.vig = null;
+    }
   }
 
-  // ゆれの ずれ（がめんに つかう）
+  // ゆれの ずれ（がめんに つかう。こまかく かくので はんぱな かずも OK）
   get shakeOffset() {
     if (this.shakeT <= 0) return { x: 0, y: 0 };
-    const k = Math.min(1, this.shakeT / 120);
-    return { x: Math.round((Math.random() - 0.5) * 6 * k), y: Math.round((Math.random() - 0.5) * 4 * k) };
+    const k = Math.min(1, this.shakeT / 120) * (this.shakeAmp || 1);
+    return { x: (Math.random() - 0.5) * 6 * k, y: (Math.random() - 0.5) * 4 * k };
   }
 
   get busy() {
     return this.parts.length > 0 || this.bolts.length > 0;
   }
 
+  // がめん ぜんたいの いろ（つぶより したに かく: こうげきの えが かくれない ように）
+  drawOverlay(x) {
+    if (this.tint) {
+      x.fillStyle = this.tint.color;
+      x.fillRect(-8, -8, BW + 16, BH + 16);
+    }
+    if (this.vig) {
+      // がめんの ふちを そめる
+      const v = this.vig;
+      const k = 1 - v.age / v.life;
+      const [r, g, b] = hexToRgb(v.color);
+      const gr = x.createRadialGradient(BW / 2, BH / 2, BH * 0.32, BW / 2, BH / 2, BW * 0.62);
+      gr.addColorStop(0, `rgba(${r},${g},${b},0)`);
+      gr.addColorStop(1, `rgba(${r},${g},${b},${(v.a * k).toFixed(3)})`);
+      x.fillStyle = gr;
+      x.fillRect(-8, -8, BW + 16, BH + 16);
+    }
+    if (this.flash > 0) {
+      x.globalAlpha = Math.min(0.8, this.flash / 200);
+      x.fillStyle = this.flashColor;
+      x.fillRect(-8, -8, BW + 16, BH + 16);
+      x.globalAlpha = 1;
+      if (this.flash <= 0) this.flashColor = '#fff';
+    }
+  }
+
   draw(x) {
+    this.drawOverlay(x);
+    x.lineCap = 'round';
+    x.lineJoin = 'round';
+    // ひばなは いろ・ふとさ・こさ ごとに まとめて 1かいで かく（かるく する）
+    const sparks = new Map();
     for (const p of this.parts) {
       if (p.delay > 0 || p.kind === 'flash' || p.kind === 'shake') continue;
       const t = Math.min(1, p.age / p.life);
+      if (p.kind === 'spark') {
+        const a = Math.ceil(Math.max(0, 1 - t * t) * 4) / 4;
+        if (a <= 0) continue;
+        const key = `${p.color}|${Math.round(p.size * 4) / 4}|${a}|${p.add ? 1 : 0}`;
+        let arr = sparks.get(key);
+        if (!arr) sparks.set(key, (arr = []));
+        const sp = Math.hypot(p.vx, p.vy) || 1;
+        const L = Math.min(p.len, sp * 0.035 + 0.4);
+        arr.push(p.x, p.y, p.x - (p.vx / sp) * L, p.y - (p.vy / sp) * L);
+        continue;
+      }
+      x.globalCompositeOperation = p.add ? 'lighter' : 'source-over';
       x.globalAlpha = Math.max(0, 1 - t * 0.9);
       x.fillStyle = p.color;
       x.strokeStyle = p.color;
+      if (FINE[p.kind]) {
+        FINE[p.kind](x, p, t, this);
+        continue;
+      }
       switch (p.kind) {
         case 'slash': {
           // のびて きえる ななめの せん（まわりに ひかり）
@@ -822,6 +1419,10 @@ export class Effects {
         }
         case 'proj': {
           const r = p.size;
+          // まわりの ひかり
+          x.globalCompositeOperation = 'lighter';
+          x.drawImage(glowSprite(p.colors[2] || p.colors[0]), p.x - r * 4, p.y - r * 4, r * 8, r * 8);
+          x.globalCompositeOperation = 'source-over';
           x.fillStyle = p.colors[2] || '#fff';
           x.beginPath(); x.arc(p.x, p.y, r + 1.5, 0, Math.PI * 2); x.fill();
           x.fillStyle = p.colors[0];
@@ -1062,7 +1663,19 @@ export class Effects {
           x.fillRect(Math.round(p.x - p.size / 2), Math.round(p.y - p.size / 2), Math.ceil(p.size), Math.ceil(p.size));
       }
     }
+    for (const [key, arr] of sparks) {
+      const [color, w, a, add] = key.split('|');
+      x.globalCompositeOperation = add === '1' ? 'lighter' : 'source-over';
+      x.globalAlpha = +a;
+      x.strokeStyle = color;
+      x.lineWidth = +w || 0.5;
+      x.beginPath();
+      for (let i = 0; i < arr.length; i += 4) { x.moveTo(arr[i], arr[i + 1]); x.lineTo(arr[i + 2], arr[i + 3]); }
+      x.stroke();
+    }
     x.globalAlpha = 1;
+    x.globalCompositeOperation = 'source-over';
+    x.lineCap = 'butt';
     for (const b of this.bolts) {
       if (b.age < 0) continue;
       x.strokeStyle = b.age % 100 < 50 ? '#ffffff' : (b.color || '#fff6b0');
@@ -1078,17 +1691,6 @@ export class Effects {
       }
       x.stroke();
       x.lineWidth = 1;
-    }
-    if (this.tint) {
-      x.fillStyle = this.tint.color;
-      x.fillRect(0, 0, BW, BH);
-    }
-    if (this.flash > 0) {
-      x.globalAlpha = Math.min(0.8, this.flash / 200);
-      x.fillStyle = this.flashColor;
-      x.fillRect(0, 0, BW, BH);
-      x.globalAlpha = 1;
-      if (this.flash <= 0) this.flashColor = '#fff';
     }
   }
 }
