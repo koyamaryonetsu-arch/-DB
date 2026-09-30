@@ -53,10 +53,10 @@ test('職業レベルは かった たたかいの かずで あがる（さい�
 
 test('よわすぎる てきとの たたかいは しゅぎょうに ならない', () => {
   const c = newCharacter({ id: 'a', name: 'a', job: 'monk' });
-  gainExp(c, expForLevel(12));
-  assert.equal(c.level >= 12, true);
+  gainExp(c, expForLevel(20));
+  assert.equal(c.level >= 20, true);
   assert.equal(jobTrainable(c, 1), false, 'ぷるりん（Lv1）は よわすぎる');
-  assert.equal(jobTrainable(c, c.level - 4), true, '4つ ひくい くらいなら しゅぎょうに なる');
+  assert.equal(jobTrainable(c, c.level - 12), true, '12 ひくい くらいまでなら しゅぎょうに なる（ゆるめ）');
   assert.equal(jobTrainable(c, c.level + 3), true);
 });
 
@@ -154,11 +154,11 @@ test('ワールド: かった たたかいで 職業レベルが すすみ、よ
   const r1 = await fight(['tsunousagi']); // Lv2 は Lv4 から みて しゅぎょうに なる
   assert.equal(r1.outcome, 'win');
   assert.equal(c.jobs.warrior.b, b0 + 1);
-  gainExp(c, expForLevel(10) - c.exp);
+  gainExp(c, expForLevel(16) - c.exp);
   fullHeal(c);
   const r2 = await fight(['pururin']);
   assert.equal(r2.outcome, 'win');
-  assert.equal(c.jobs.warrior.b, b0 + 1, 'Lv10 で ぷるりんは しゅぎょうに ならない');
+  assert.equal(c.jobs.warrior.b, b0 + 1, 'Lv16 で ぷるりん（Lv1）は しゅぎょうに ならない');
   assert.ok(r2.lines.some((l) => l.includes('修行にならなかった')));
 });
 

@@ -91,6 +91,8 @@ function boost(bot, level) {
   c.equip.weapon = 'silver_sword';
   c.equip.armor = 'silver_mail';
   c.equip.shield = 'silver_shield';
+  // レベルだけでは 強く ならない ので、職業も マスター（ひとりで ボスまで とおす テスト）
+  c.jobs[c.job] = { lv: 10, b: 999 };
   c.hp = 9999;
   c.mp = 9999;
   bot.world.sendSelf(bot.s);
@@ -106,7 +108,7 @@ test('第2章を はじめから さいごまで とおして あそべる', { t
   const c = world.data.characters[bot.char.id];
   for (const f of STORY_STEPS.slice(0, STORY_STEPS.indexOf('c1_clear') + 1)) c.flags[f] = true;
   c.objective = '第1章クリア！自由に冒険しよう（続きはアップデートで！）';
-  boost(bot, 34);
+  boost(bot, 50); // レベルで 強く なりにくい ので、ひとりで 大王イカに 勝てる くらいに
 
   // ばあちゃん → 第2章
   await bot.walkTo(...V(24, 18));

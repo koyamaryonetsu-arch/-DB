@@ -16,6 +16,8 @@ function boost(bot, level) {
   gainExp(c, expForLevel(level) - c.exp);
   c.equip.weapon = 'iron_sword';
   c.equip.armor = 'iron_armor';
+  // レベルだけでは 強く ならない ので、職業も マスター（ひとりで ボスまで とおす テスト）
+  c.jobs[c.job] = { lv: 10, b: 999 };
   c.hp = 9999;
   c.mp = 9999;
   const st = { hp: 0 };

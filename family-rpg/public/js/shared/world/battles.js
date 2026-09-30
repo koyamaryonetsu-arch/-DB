@@ -393,6 +393,9 @@ function finishBattle(world, ctx) {
 // 職業レベルが あがった ときの メッセージ
 function jobUpLines(c, u) {
   const out = [`${c.name}の${JOBS[u.job].name}の職業レベルが${u.lv}に上がった！`];
+  const g = Object.entries(u.gains || {}).map(([k, v]) => `${statShort(k)}+${v}`).join('　');
+  if (g) out.push(g);
+  out.push(`${JOBS[u.job].name}の技の威力が上がった！`);
   if (u.lv >= JOB_MAX_LEVEL) out.push(`${c.name}は${JOBS[u.job].name}をマスターした！`);
   for (const id of u.learned) out.push(learnLine(c, id));
   for (const id of u.unlocked || []) out.push(`★ ${c.name}は${JOBS[id].name}になれるようになった！（ルミナの町の神殿で転職できる）`);

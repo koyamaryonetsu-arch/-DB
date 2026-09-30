@@ -47,10 +47,10 @@ function act(b, cmd) {
   return ev;
 }
 
-test('職業レベルは 前の 1.3倍 たたかう', () => {
-  assert.equal(jobBattlesForLevel(10, 0), Math.round(98 * 1.3));
-  assert.equal(jobBattlesForLevel(10, 1), Math.round(98 * 1.4 * 1.3));
-  assert.equal(jobBattlesForLevel(10, 2), Math.round(98 * 1.8 * 1.3));
+test('職業レベルは はじめの 版の 0.8倍 たたかえば 上がる（上がりやすく した）', () => {
+  assert.equal(jobBattlesForLevel(10, 0), Math.round(98 * 0.8));
+  assert.equal(jobBattlesForLevel(10, 1), Math.round(98 * 1.4 * 0.8));
+  assert.equal(jobBattlesForLevel(10, 2), Math.round(98 * 1.8 * 0.8));
   assert.equal(jobBattlesForLevel(1, 0), 0);
 });
 

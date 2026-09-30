@@ -84,13 +84,14 @@ const PARTY = (lv, jlv) => [
 // 第2章: node tools/sim.js [回数] ch2
 if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'ch2') {
   const rng = makeRng(777);
-  for (const [table, lv, jlv] of [['sea', 12, 5], ['sea', 14, 6], ['isle', 12, 5], ['isle', 14, 6], ['seacave', 14, 6], ['seacave', 16, 6], ['storm', 16, 6], ['storm', 18, 7], ['tower', 17, 7], ['tower', 19, 7]]) {
+  // 職業レベルは 上がりやすく した ので、第2章では 基本職を ほぼ マスター している めやす
+  for (const [table, lv, jlv] of [['sea', 12, 7], ['sea', 14, 8], ['isle', 12, 7], ['isle', 14, 8], ['seacave', 14, 8], ['seacave', 16, 9], ['storm', 16, 9], ['storm', 18, 10], ['tower', 17, 9], ['tower', 19, 10]]) {
     const res = [];
     for (let i = 0; i < N; i++) res.push(runBattle(PARTY(lv, jlv), rollGroup(table, rng), { seed: i }));
     summarize(`${table} Lv${lv}`, res);
   }
-  for (const [enc, lv, jlv] of [['giant_squid', 13, 5], ['giant_squid', 14, 6], ['giant_squid', 15, 6], ['giant_squid', 16, 6], ['giant_squid', 17, 7],
-    ['storm_general', 17, 7], ['storm_general', 18, 7], ['storm_general', 19, 7], ['storm_general', 20, 8], ['storm_general', 21, 8], ['storm_general', 23, 8]]) {
+  for (const [enc, lv, jlv] of [['giant_squid', 13, 7], ['giant_squid', 14, 8], ['giant_squid', 15, 8], ['giant_squid', 16, 9], ['giant_squid', 17, 9],
+    ['storm_general', 17, 9], ['storm_general', 18, 10], ['storm_general', 19, 10], ['storm_general', 20, 10], ['storm_general', 21, 10], ['storm_general', 23, 10]]) {
     const res = [];
     const group = FIXED_ENCOUNTERS[enc].group.flatMap(([sp, n]) => Array(n).fill(sp));
     for (let i = 0; i < Math.min(N, 20); i++) res.push(runBattle(PARTY(lv, jlv), group, { seed: i, boss: true }));
@@ -100,8 +101,8 @@ if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'ch2') {
 } else if (process.argv[1].endsWith('sim.js')) {
   const rng = makeRng(12345);
   const plan = [
-    ['outskirts', 1, 1], ['outskirts', 2, 1], ['plains', 3, 1], ['plains', 5, 2], ['forest', 5, 2], ['forest', 7, 3],
-    ['swamp', 6, 3], ['east', 7, 3], ['east', 9, 4], ['cave1', 9, 4], ['cave1', 11, 4], ['cave2', 10, 4], ['cave2', 12, 5],
+    ['outskirts', 1, 1], ['outskirts', 2, 1], ['plains', 3, 2], ['plains', 5, 3], ['forest', 5, 3], ['forest', 7, 4],
+    ['swamp', 6, 4], ['east', 7, 4], ['east', 9, 5], ['cave1', 9, 5], ['cave1', 11, 6], ['cave2', 10, 6], ['cave2', 12, 7],
   ];
   for (const [table, lv, jlv] of plan) {
     const res = [];
@@ -109,14 +110,15 @@ if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'ch2') {
     summarize(`${table} Lv${lv}`, res);
   }
   // ソロ（1人）
-  for (const [table, lv, jlv, job] of [['outskirts', 1, 1, 'warrior'], ['outskirts', 1, 1, 'mage'], ['plains', 4, 2, 'warrior']]) {
+  for (const [table, lv, jlv, job] of [['outskirts', 1, 1, 'warrior'], ['outskirts', 1, 1, 'mage'], ['plains', 4, 3, 'warrior']]) {
     const res = [];
     for (let i = 0; i < N; i++) res.push(runBattle([makeChar(job, lv, jlv, 'ソロ')], rollGroup(table, rng), { seed: i }));
     summarize(`ソロ ${job} ${table} Lv${lv}`, res);
   }
   // ボス
   // 職業レベルは 1〜10（かった たたかいの かずで あがる）
-  for (const [enc, lv, jlv] of [['treant', 5, 2], ['treant', 6, 3], ['treant', 7, 3], ['goldoon', 9, 4], ['goldoon', 10, 4], ['goldoon', 11, 5], ['goldoon', 12, 5]]) {
+  for (const [enc, lv, jlv] of [['treant', 5, 3], ['treant', 6, 3], ['treant', 7, 4], ['goldoon', 9, 5], ['goldoon', 10, 6], ['goldoon', 11, 6], ['goldoon', 12, 7],
+    ['goldoon', 16, 7], ['goldoon', 20, 7]]) {
     const res = [];
     const group = FIXED_ENCOUNTERS[enc].group.flatMap(([sp, n]) => Array(n).fill(sp));
     for (let i = 0; i < Math.min(N, 20); i++) res.push(runBattle(PARTY(lv, jlv), group, { seed: i, boss: true }));

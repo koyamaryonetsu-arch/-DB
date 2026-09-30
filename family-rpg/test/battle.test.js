@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { Battle, fillTime } from '../public/js/shared/battle.js';
-import { newCharacter, learnedAbilities, mpCost, penaltyFor, changeJob, gainExp, computeStats, mahoukenOptions, fullHeal, oldComboUnlocks } from '../public/js/shared/stats.js';
+import { newCharacter, learnedAbilities, mpCost, penaltyFor, changeJob, gainExp, computeStats, mahoukenOptions, fullHeal, oldComboUnlocks, jobPower, JOB_POWER } from '../public/js/shared/stats.js';
 import { JOBS, jobBattlesForLevel } from '../public/js/shared/data/jobs.js';
 import { makeRng } from '../public/js/shared/rng.js';
 
@@ -73,13 +73,16 @@ test('転職すると まえの職業の 呪文は MPが ふえて いりょく�
   assert.ok(learnedAbilities(c).includes('mera'), 'まえの呪文も つかえる');
   const p = penaltyFor(c, 'mera');
   assert.equal(mpCost(c, 'mera'), 3);
-  assert.equal(p.powMult, 0.75);
+  // 魔法使いLv3 の 威力（+8%）× 本職で ない ペナルティ
+  const jp = jobPower(c, 'mera');
+  assert.equal(jp, 1 + JOB_POWER * 2);
+  assert.ok(Math.abs(p.powMult - 0.75 * jp) < 1e-9);
   // おなじ系統（僧侶）なら かるい
   changeJob(c, 'priest');
-  assert.equal(penaltyFor(c, 'mera').powMult, 0.9);
+  assert.ok(Math.abs(penaltyFor(c, 'mera').powMult - 0.9 * jp) < 1e-9);
   // 旅芸人は きよう
   changeJob(c, 'performer');
-  assert.equal(penaltyFor(c, 'mera').powMult, 0.9);
+  assert.ok(Math.abs(penaltyFor(c, 'mera').powMult - 0.9 * jp) < 1e-9);
 });
 
 test('掛け合わせ技は 技を 覚えただけでは 覚えない（ひらめいた ものだけ）', () => {

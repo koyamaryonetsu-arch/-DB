@@ -6,7 +6,8 @@ import { MONSTERS } from './data/monsters.js';
 import { MONSTER_FRIENDS, monsterNatural } from './data/companions.js';
 import { HIRAMEKI, hiraRatio } from './data/hirameki.js';
 
-export const MAX_LEVEL = 50;
+// 長い 物語に なるので レベルは 99まで（レベルで ふえる つよさは ひかえめ）
+export const MAX_LEVEL = 99;
 export const STAT_KEYS = ['hp', 'mp', 'str', 'def', 'agi', 'mag', 'heal'];
 export const STAT_NAMES = {
   hp: '最大HP', mp: '最大MP', str: '力', def: '身の守り', agi: '素早さ',
@@ -22,17 +23,32 @@ export function expForLevel(lv) {
 }
 
 // レベルごとの 基本ステータス（職業の倍率を かける前）
+// レベルで ふえる ぶんは ひかえめ。つよさは 職業レベル（ボーナス・技の 威力）と 装備で のばす
 export function baseStats(level) {
   const L = level - 1;
   return {
-    hp: 18 + 6.5 * L + 0.05 * L * L,
-    mp: 8 + 3 * L,
-    str: 10 + 2.4 * L,
-    def: 6 + 1.6 * L,
-    agi: 10 + 2.0 * L,
-    mag: 10 + 2.4 * L,
-    heal: 10 + 2.4 * L,
+    hp: 26 + 3.6 * L + 0.015 * L * L,
+    mp: 12 + 1.5 * L,
+    str: 13 + 1.0 * L,
+    def: 8 + 0.7 * L,
+    agi: 13 + 0.9 * L,
+    mag: 13 + 1.0 * L,
+    heal: 13 + 1.0 * L,
   };
+}
+
+// 職業レベル 1つで ふえる 得意な つよさ（倍率が 1いじょうの もの）の わりあい
+export const JOB_BOOST = 0.05;
+// 職業の「ずっと残る ボーナス」（perLv）に かける 数
+export const PER_LV_MULT = 2;
+// 職業レベル 1つで ふえる、その 職業の 技の 威力
+export const JOB_POWER = 0.04;
+
+// その 技の 職業の レベルで 上がる 威力（マスターで +36%）
+export function jobPower(char, abilityId) {
+  const a = ABILITIES[abilityId];
+  if (!a?.job || !JOBS[a.job] || !char?.jobs) return 1;
+  return 1 + JOB_POWER * (jobLevel(char, a.job) - 1);
 }
 
 export function jobLevel(char, jobId = char.job) {
@@ -69,19 +85,19 @@ export function computeStats(char) {
   const job = JOBS[char.job];
   const b = baseStats(char.level);
   const jl = jobLevel(char);
-  const boost = 1 + 0.03 * (jl - 1);
+  const boost = 1 + JOB_BOOST * (jl - 1);
   const s = {};
   for (const k of STAT_KEYS) {
     const m = job.mods[k];
     let v = b[k] * m;
-    if (m > 1) v *= boost;
+    if (m >= 1) v *= boost;
     s[k] = v;
   }
-  // すべての職業の レベルから もらえる ずっと残るボーナス
+  // すべての職業の レベルから もらえる ずっと残るボーナス（転職しても のこる）
   for (const [jid, info] of Object.entries(char.jobs || {})) {
     const per = JOBS[jid]?.perLv;
     if (!per) continue;
-    for (const [k, v] of Object.entries(per)) s[k] += v * ((info.lv || 1) - 1);
+    for (const [k, v] of Object.entries(per)) s[k] += v * PER_LV_MULT * ((info.lv || 1) - 1);
   }
   // たねで ふえた ぶん
   for (const [k, v] of Object.entries(char.seeds || {})) s[k] = (s[k] || 0) + v;
@@ -239,6 +255,13 @@ export function weaponOk(ability, weaponCat) {
 // 転職ペナルティ
 // いまの職業 以外で おぼえた 技を つかうと MPが ふえたり いりょくが さがったりする
 export function penaltyFor(char, abilityId) {
+  const p = basePenalty(char, abilityId);
+  const jp = jobPower(char, abilityId);
+  return jp === 1 ? p : { ...p, powMult: p.powMult * jp, jobPow: jp };
+}
+
+// 本職で ない 技の ペナルティ（職業レベルの 威力を かける まえ）
+function basePenalty(char, abilityId) {
   const a = ABILITIES[abilityId];
   const none = { mpMult: 1, powMult: 1, penalized: false, label: '' };
   if (!a) return none;
@@ -449,7 +472,7 @@ export function jobProgress(char, jobId = char.job) {
   return { lv: info.lv, next: Math.max(1, jobBattlesForLevel(info.lv + 1, j.tier || 0) - (info.b || 0)), done: false };
 }
 
-// てきが よわすぎると しゅぎょうに ならない（じぶんより レベルが 5いじょう ひくい てきだけ の とき）
+// てきが よわすぎると しゅぎょうに ならない（じぶんより レベルが JOB_TRAIN_GAP より ひくい てきだけ の とき）
 export function jobTrainable(char, maxEnemyLv) {
   return maxEnemyLv >= (char.level || 1) - JOB_TRAIN_GAP;
 }
@@ -475,7 +498,10 @@ export function gainJobBattles(char, n = 1) {
     const unlocked = lockedBefore.filter((id) => jobUnlocked(char, id));
     // 新しく ヒントが 出た 超級職（まだ なれない もの）
     const hinted = hiddenBefore.filter((id) => jobKnown(char, id) && !jobUnlocked(char, id));
-    ups.push({ job: char.job, lv: info.lv, learned, unlocked, hinted });
+    // ふえた つよさ（職業の 得意な つよさ・ずっと残る ボーナス）
+    const gains = {};
+    for (const k of ['maxHp', 'maxMp', 'str', 'def', 'agi', 'mag', 'heal']) if (after[k] > before[k]) gains[k] = after[k] - before[k];
+    ups.push({ job: char.job, lv: info.lv, learned, unlocked, hinted, gains });
   }
   return ups;
 }

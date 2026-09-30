@@ -18,6 +18,12 @@ import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllo
 import { decideMonster, decideAlly } from './ai.js';
 
 export const BOND_MAX = 100;
+// きずなゲージの たまりやすさ（1 … はじめの 版。ちいさいほど たまりにくい）
+export const BOND_GAIN = 0.35;
+// 合体技の 強さ（2人の 番を 使うので、2人ぶん より 少し 強い くらい）
+export const DUAL_MAGIC = 1.15; // 1体を ねらう 呪文の 合体技: 2人の 呪文の 合計 × これ
+export const DUAL_SPREAD = 0.7; // 全体を ねらう 合体技は この 倍
+export const DUAL_PHYS = 0.75; // 物理の 合体技の 倍率に かける 数
 // 合体技に さそわれた 家族が こたえるまで まつ 時間（ミリびょう）
 export const DUAL_ASK_MS = 7000;
 const COMBO_WINDOW = 6000;
@@ -25,6 +31,33 @@ const LETTERS = 'ABCDEFGH';
 
 // すばやさ → ゲージが たまるまでの じかん（ミリびょう）
 // すばやさ10で 約5.8びょう、20で 4びょう、40で 2.5びょう、80で 1.4びょう
+// 合体技の 1つの こうか。呪文・回復の 強さは 2人が 出した 技から きめる（すすむほど 強くなる）
+export function dualPartEffect(t, part, skills = []) {
+  const eff = { ...part };
+  const spread = (part.target || t.target) === 'enemies' || (part.target || t.target) === 'allies';
+  if ((part.type === 'magic' || part.type === 'heal') && part.base) {
+    const avg = (e) => (e.base[0] + e.base[1]) / 2;
+    const src = skills.map((id) => ABILITIES[id]?.effect).filter((e) => e?.type === part.type && Array.isArray(e.base));
+    if (src.length) {
+      let sum = src.reduce((a, e) => a + avg(e), 0);
+      if (src.length === 1) sum *= 2;
+      const mid = sum * DUAL_MAGIC * (spread ? DUAL_SPREAD : 1);
+      eff.base = [Math.max(1, Math.round(mid * 0.9)), Math.max(1, Math.round(mid * 1.1))];
+      eff.thr = Math.min(...src.map((e) => e.thr ?? 20));
+    } else {
+      eff.base = part.base.map((v) => Math.round(v * 0.6));
+    }
+  }
+  if (part.type === 'phys') eff.mult = (part.mult ?? 1) * DUAL_PHYS;
+  return eff;
+}
+
+// 敵の 呪文・息・回復は 数が きまっているので、みかたの HP の のび（レベルでは ひかえめ）に あわせて よわめる
+export function enemyFixedScale(c) {
+  if (c?.side !== 'enemy' || !c.species) return 1;
+  return clamp(1 - 0.016 * ((c.lv || 1) - 4), 0.7, 1);
+}
+
 export function fillTime(agi) {
   return 128000 / (Math.max(1, agi) + 12);
 }
@@ -985,7 +1018,7 @@ export class Battle {
     const [mn, mx] = eff.base;
     const base = estimate ? (mn + mx) / 2 : this.rng.int(mn, mx);
     const scale = 1 + clamp(((c.mag || 0) - (eff.thr ?? 20)) / 150, 0, 1);
-    let dmg = base * scale * powMult;
+    let dmg = base * scale * powMult * enemyFixedScale(c);
     const r = eff.element ? (t.resist[eff.element] ?? 1) : 1;
     dmg *= r;
     if (t.defending) dmg *= 0.75;
@@ -1076,7 +1109,7 @@ export class Battle {
     const [mn, mx] = eff.base;
     let amt = this.rng.int(mn, mx);
     if (!eff.fixed) amt *= 1 + clamp(((c.healPow || 0) - (eff.thr ?? 20)) / 150, 0, 1);
-    amt = Math.round(amt * powMult);
+    amt = Math.round(amt * powMult * enemyFixedScale(c));
     const real = Math.min(t.maxHp - t.hp, amt);
     t.hp += real;
     ev.results = ev.results || [];
@@ -1158,7 +1191,8 @@ export class Battle {
   }
 
   addBond(n) {
-    this.bond = Math.max(0, Math.min(BOND_MAX, this.bond + n));
+    const add = n > 0 ? n * BOND_GAIN : n;
+    this.bond = Math.max(0, Math.min(BOND_MAX, Math.round((this.bond + add) * 100) / 100));
   }
 
   // ───────────── ひらめき ─────────────
@@ -1337,13 +1371,13 @@ export class Battle {
     // 2人の 力を 合わせた かげ（強さだけ 合わせて、あとは c の まま）
     const proxy = Object.create(c);
     const mix = (x, y, k) => Math.round(Math.max(x || 0, y || 0) + Math.min(x || 0, y || 0) * k);
-    proxy.atk = mix(c.atk, p.atk, 0.5);
-    proxy.mag = mix(c.mag, p.mag, 0.6);
-    proxy.healPow = mix(c.healPow, p.healPow, 0.6);
+    proxy.atk = mix(c.atk, p.atk, 0.3);
+    proxy.mag = Math.max(c.mag || 0, p.mag || 0);
+    proxy.healPow = Math.max(c.healPow || 0, p.healPow || 0);
     proxy.charge = 1;
     const hit = new Set();
     for (const part of t.parts) {
-      const eff = { ...part };
+      const eff = dualPartEffect(t, part, opt.skills);
       if (eff.elementFrom !== undefined) {
         eff.element = opt.element || undefined;
         delete eff.elementFrom;
@@ -1364,6 +1398,7 @@ export class Battle {
   }
 
   // ───────────── 魔法剣 ─────────────
+
   // free: ひらめいた ときの はじめの 1回（MP いらず）
   doMahouken(c, cmd, ev, free = false) {
     const sp = ABILITIES[cmd.spell], sk = ABILITIES[cmd.skill];
@@ -1442,8 +1477,8 @@ export class Battle {
     ev.lines.push(n >= 4 ? 'みんなの心が一つになった！' : `${n}人の力が一つになった！`);
     ev.lines.push('ミナデイン！！');
     let power = 0;
-    for (const j of joined) power += j.atk * 0.35 + j.mag * 0.35 + j.lv * 2;
-    power *= 1 + 0.15 * (n - 1);
+    for (const j of joined) power += (j.atk || 0) * 0.35 + (j.mag || 0) * 0.35;
+    power *= 1 + 0.1 * (n - 1);
     let main = this.get(bc.target);
     if (!main || !main.alive) main = this.aliveEnemies()[0];
     ev.fx = { type: 'ability', anim: 'minadein', actor: bc.actor, targets: this.aliveEnemies().map((x) => x.id), side: 'ally', element: 'bolt' };
