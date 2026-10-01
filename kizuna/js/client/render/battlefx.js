@@ -1,7 +1,7 @@
 // たたかいの はいけいと エフェクト
-import { makeCanvas, ctxOf, hexToRgb } from './pixel.js?v=fd14dc666f0e';
-import { weaponLook, playWeapon } from './weaponfx.js?v=fd14dc666f0e';
-import { nightBg, drawNightSky } from './night-art.js?v=fd14dc666f0e';
+import { makeCanvas, ctxOf, hexToRgb } from './pixel.js?v=f05b52911d0e';
+import { weaponLook, playWeapon } from './weaponfx.js?v=f05b52911d0e';
+import { nightBg, drawNightSky } from './night-art.js?v=f05b52911d0e';
 
 export const BW = 256;
 export const BH = 144;

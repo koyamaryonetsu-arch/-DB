@@ -12,19 +12,19 @@
 //   ['teleport', 'map', x, y, 'dir']  ['spawn', 'map', x, y]  ['chapter', 'だい1しょう', 'サブタイトル']
 //
 // x（じょうほう）: x.name x.flag('f') x.has('item') x.count('item') x.kills('monster') x.quest('key')
-import { POS } from '../maps/index.js?v=fd14dc666f0e';
-import { PLACES } from '../maps/overworld.js?v=fd14dc666f0e';
-import { ABILITIES } from './abilities.js?v=fd14dc666f0e';
-import { learnedAbilities, comboUnlocked, hiraAllowed } from '../stats.js?v=fd14dc666f0e';
-import { HIRAMEKI, hiraRatio } from './hirameki.js?v=fd14dc666f0e';
-import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js?v=fd14dc666f0e';
-import { TM_SCRIPTS, TM_STORY_SCRIPTS } from './story-tm.js?v=fd14dc666f0e';
-import { CASINO_SCRIPTS } from './story-casino.js?v=fd14dc666f0e';
-import { innSteps } from './inn.js?v=fd14dc666f0e';
-import { NIGHT_SCRIPTS } from './night.js?v=fd14dc666f0e';
-import { skyScripts } from './sky.js?v=fd14dc666f0e';
-import { FACILITY_SCRIPTS } from './facilities.js?v=fd14dc666f0e';
-import { wagonEventSteps } from './wagon.js?v=fd14dc666f0e';
+import { POS } from '../maps/index.js?v=f05b52911d0e';
+import { PLACES } from '../maps/overworld.js?v=f05b52911d0e';
+import { ABILITIES } from './abilities.js?v=f05b52911d0e';
+import { learnedAbilities, comboUnlocked, hiraAllowed } from '../stats.js?v=f05b52911d0e';
+import { HIRAMEKI, hiraRatio } from './hirameki.js?v=f05b52911d0e';
+import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js?v=f05b52911d0e';
+import { TM_SCRIPTS, TM_STORY_SCRIPTS } from './story-tm.js?v=f05b52911d0e';
+import { CASINO_SCRIPTS } from './story-casino.js?v=f05b52911d0e';
+import { innSteps } from './inn.js?v=f05b52911d0e';
+import { NIGHT_SCRIPTS } from './night.js?v=f05b52911d0e';
+import { skyScripts } from './sky.js?v=f05b52911d0e';
+import { FACILITY_SCRIPTS } from './facilities.js?v=f05b52911d0e';
+import { wagonEventSteps } from './wagon.js?v=f05b52911d0e';
 
 const V = (x, y) => [PLACES.village.x + x + 0.5, PLACES.village.y + y + 0.5];
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);

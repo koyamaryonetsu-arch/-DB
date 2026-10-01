@@ -2,13 +2,13 @@
 // みため（体・かみがた・かみの色・はだ・目もと）と、しょくぎょう・そうび（ぶき・よろい・たて・かぶと）から かく
 //   heroImage(look, job, equip, dir, frame, res) → { w, h, res, rgba }
 // res 4: 64×84（フィールド）  res 8: 128×168（大きな みほん）
-import { HeroCanvas, mat, ramp, TH, mixC, rgbaCanvas } from './hero-raster.js?v=fd14dc666f0e';
-import { faceFront, faceSide } from './hero-face.js?v=fd14dc666f0e';
-import { drawHair } from './hero-hair.js?v=fd14dc666f0e';
-import { outfitOf, drawTorsoFront, drawTorsoBack, drawTorsoSide, drawSkirt, drawCape, drawPauldron, drawBelt } from './hero-outfit.js?v=fd14dc666f0e';
-import { weaponOf, shieldOf, headOf, drawWeapon, drawShield, drawHeadgear, isLongSide } from './hero-gear.js?v=fd14dc666f0e';
-import { lookIds, HCOL_BY_ID, TONE_BY_ID, CLOTH_COLORS } from '../../shared/data/looks.js?v=fd14dc666f0e';
-import { STARTER_EQUIP } from '../../shared/stats.js?v=fd14dc666f0e';
+import { HeroCanvas, mat, ramp, TH, mixC, rgbaCanvas } from './hero-raster.js?v=f05b52911d0e';
+import { faceFront, faceSide } from './hero-face.js?v=f05b52911d0e';
+import { drawHair } from './hero-hair.js?v=f05b52911d0e';
+import { outfitOf, drawTorsoFront, drawTorsoBack, drawTorsoSide, drawSkirt, drawCape, drawPauldron, drawBelt } from './hero-outfit.js?v=f05b52911d0e';
+import { weaponOf, shieldOf, headOf, drawWeapon, drawShield, drawHeadgear, isLongSide } from './hero-gear.js?v=f05b52911d0e';
+import { lookIds, HCOL_BY_ID, TONE_BY_ID, CLOTH_COLORS } from '../../shared/data/looks.js?v=f05b52911d0e';
+import { STARTER_EQUIP } from '../../shared/stats.js?v=f05b52911d0e';
 
 // そうびの かきかた: 'ぶき,よろい,たて,あたま' の もじれつ か { weapon, armor, shield, head }（ない ときは しょくぎょうの はじめの そうび）
 export function parseEquip(eq, job) {

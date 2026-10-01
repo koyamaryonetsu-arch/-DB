@@ -1,17 +1,17 @@
 // ゲーム ぜんたいの しんこう
-import { Input } from './input.js?v=fd14dc666f0e';
-import { GameAudio } from './audio.js?v=fd14dc666f0e';
-import { Field } from './field.js?v=fd14dc666f0e';
-import { Hud, STAMPS } from './ui/hud.js?v=fd14dc666f0e';
-import { FieldMenu, openWorldMap } from './ui/menu.js?v=fd14dc666f0e';
-import { ScriptPlayer, wait } from './ui/script.js?v=fd14dc666f0e';
-import { BattleScene } from './battle.js?v=fd14dc666f0e';
-import { showTitle, showLogin, showSelect, showCreate, showLoading, saveWhere } from './ui/title.js?v=fd14dc666f0e';
-import { showServerDown } from './ui/syncui.js?v=fd14dc666f0e';
-import { toast, confirmBox, el } from './ui/dom.js?v=fd14dc666f0e';
-import { MAPS } from '../shared/maps/index.js?v=fd14dc666f0e';
-import { applyBattlePrefs, applyUiFont } from './prefs.js?v=fd14dc666f0e';
-import { SkyClient } from './sky.js?v=fd14dc666f0e';
+import { Input } from './input.js?v=f05b52911d0e';
+import { GameAudio } from './audio.js?v=f05b52911d0e';
+import { Field } from './field.js?v=f05b52911d0e';
+import { Hud, STAMPS } from './ui/hud.js?v=f05b52911d0e';
+import { FieldMenu, openWorldMap } from './ui/menu.js?v=f05b52911d0e';
+import { ScriptPlayer, wait } from './ui/script.js?v=f05b52911d0e';
+import { BattleScene } from './battle.js?v=f05b52911d0e';
+import { showTitle, showLogin, showSelect, showCreate, showLoading, saveWhere } from './ui/title.js?v=f05b52911d0e';
+import { showServerDown } from './ui/syncui.js?v=f05b52911d0e';
+import { toast, confirmBox, el } from './ui/dom.js?v=f05b52911d0e';
+import { MAPS } from '../shared/maps/index.js?v=f05b52911d0e';
+import { applyBattlePrefs, applyUiFont } from './prefs.js?v=f05b52911d0e';
+import { SkyClient } from './sky.js?v=f05b52911d0e';
 
 export class Game {
   constructor(net) {
@@ -449,7 +449,9 @@ export class Game {
         break;
       case 'battleStart': return this.onBattleStart(m);
       case 'battleEv':
-        this.battle?.onEvents(m.evs);
+        // はじまりの えんしゅつ中は とっておいて、戦いの 画面が できてから わたす
+        if (this.battleEvBuf) this.battleEvBuf.push(m);
+        else this.battle?.onEvents(m.evs);
         break;
       case 'battleRej':
         toast(m.reason);
@@ -557,7 +559,7 @@ export class Game {
     if (this.net.mode === 'offline' && !this.saveWarned) {
       this.saveWarned = true;
       const cloud = this.net.local?.cloud;
-      import('./offline.js?v=fd14dc666f0e').then(({ offlineStorage }) => {
+      import('./offline.js?v=f05b52911d0e').then(({ offlineStorage }) => {
         offlineStorage.load();
         if (cloud?.state === 'on') return;
         if (!offlineStorage.ok) toast('このブラウザではセーブができないかもしれません', 5000);
@@ -573,15 +575,21 @@ export class Game {
       this.battle.destroy();
       this.battle = null;
     }
+    // フラッシュの 間に とどいた できごと（自分の 番が きた など）を 落とさないように とっておく
+    const buf = [];
+    this.battleEvBuf = buf;
     if (!m.resume) {
       this.audio.sfx('encounter');
       this.state = 'battle-intro';
       await this.flash();
     }
+    if (this.battleEvBuf !== buf) return; // その 間に べつの 戦いが はじまった
+    this.battleEvBuf = null;
     this.hud.show(false);
     this.field.clearLabels();
     this.state = 'battle';
     this.battle = new BattleScene(this, m);
+    for (const x of buf) if (!x.id || x.id === this.battle.id) this.battle.onEvents(x.evs);
   }
 
   closeFieldUI() {
@@ -592,6 +600,8 @@ export class Game {
   }
 
   async onBattleEnd(m) {
+    // はじまりの えんしゅつ中に おわった ときは、画面が できるのを まつ
+    for (let i = 0; i < 40 && this.battleEvBuf && !this.battle; i++) await wait(50);
     const b = this.battle;
     if (!b) return;
     this.battleClosing = true;

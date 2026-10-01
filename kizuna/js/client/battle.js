@@ -1,19 +1,19 @@
 // たたかいの がめん（むかしの RPG ふう 1がめん）
-import { el, esc, ListMenu, toast } from './ui/dom.js?v=fd14dc666f0e';
-import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js?v=fd14dc666f0e';
-import { ITEMS } from '../shared/data/items.js?v=fd14dc666f0e';
-import { JOBS } from '../shared/data/jobs.js?v=fd14dc666f0e';
-import { MONSTERS } from '../shared/data/monsters.js?v=fd14dc666f0e';
-import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed } from '../shared/stats.js?v=fd14dc666f0e';
-import { affinityOf } from '../shared/battle.js?v=fd14dc666f0e';
-import { DUAL_TECHS, dualOptions, dualKnown } from '../shared/data/dual.js?v=fd14dc666f0e';
-import { faceURL } from './field.js?v=fd14dc666f0e';
-import { monsterCanvas } from './render/monsters.js?v=fd14dc666f0e';
-import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=fd14dc666f0e';
-import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js?v=fd14dc666f0e';
-import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js?v=fd14dc666f0e';
-import { abilityDetail, statusNames, buffNames } from './ui/info.js?v=fd14dc666f0e';
-import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js?v=fd14dc666f0e';
+import { el, esc, ListMenu, toast } from './ui/dom.js?v=f05b52911d0e';
+import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js?v=f05b52911d0e';
+import { ITEMS } from '../shared/data/items.js?v=f05b52911d0e';
+import { JOBS } from '../shared/data/jobs.js?v=f05b52911d0e';
+import { MONSTERS } from '../shared/data/monsters.js?v=f05b52911d0e';
+import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed } from '../shared/stats.js?v=f05b52911d0e';
+import { affinityOf } from '../shared/battle.js?v=f05b52911d0e';
+import { DUAL_TECHS, dualOptions, dualKnown } from '../shared/data/dual.js?v=f05b52911d0e';
+import { faceURL } from './field.js?v=f05b52911d0e';
+import { monsterCanvas } from './render/monsters.js?v=f05b52911d0e';
+import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=f05b52911d0e';
+import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js?v=f05b52911d0e';
+import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js?v=f05b52911d0e';
+import { abilityDetail, statusNames, buffNames } from './ui/info.js?v=f05b52911d0e';
+import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js?v=f05b52911d0e';
 
 // たたかいの え の こまかさ（おもい きかいで さげたら、その あいだは さげた まま）
 let battleRes = BRES;
@@ -116,6 +116,12 @@ export class BattleScene {
     if (msg.resume) this.say(['つなぎ直した！戦いの続きだ！']);
     else if (msg.joined) this.say([`${names}との戦いにかけつけた！`]);
     else this.say([msg.preemptive === 'ally' ? '魔物はまだこちらに気づいていない！' : msg.preemptive === 'enemy' ? '魔物たちがいきなりおそいかかってきた！' : `${names}が現れた！`]);
+    // はじまった ときに もう 番が きている 自分の キャラ（つなぎ直し・かけつけ など）
+    for (const id of this.mine) {
+      const c = this.c.get(id);
+      if (c?.ready && c.alive && !c.auto && !this.readyQ.includes(id)) this.readyQ.push(id);
+    }
+    if (this.readyQ.length) this.nextCommand();
   }
 
   enemyNames() {

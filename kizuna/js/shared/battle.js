@@ -7,15 +7,15 @@
 //
 // サーバー（家族サーバー）でも ブラウザ（ひとりモード）でも おなじ コードが うごく
 
-import { makeRng } from './rng.js?v=fd14dc666f0e';
-import { ABILITIES } from './data/abilities.js?v=fd14dc666f0e';
-import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=fd14dc666f0e';
-import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js?v=fd14dc666f0e';
-import { MONSTERS } from './data/monsters.js?v=fd14dc666f0e';
-import { ITEMS } from './data/items.js?v=fd14dc666f0e';
-import { JOBS } from './data/jobs.js?v=fd14dc666f0e';
-import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed } from './stats.js?v=fd14dc666f0e';
-import { decideMonster, decideAlly } from './ai.js?v=fd14dc666f0e';
+import { makeRng } from './rng.js?v=f05b52911d0e';
+import { ABILITIES } from './data/abilities.js?v=f05b52911d0e';
+import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=f05b52911d0e';
+import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js?v=f05b52911d0e';
+import { MONSTERS } from './data/monsters.js?v=f05b52911d0e';
+import { ITEMS } from './data/items.js?v=f05b52911d0e';
+import { JOBS } from './data/jobs.js?v=f05b52911d0e';
+import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed } from './stats.js?v=f05b52911d0e';
+import { decideMonster, decideAlly } from './ai.js?v=f05b52911d0e';
 
 export const BOND_MAX = 100;
 // きずなゲージの たまりやすさ（1 … はじめの 版。ちいさいほど たまりにくい）
