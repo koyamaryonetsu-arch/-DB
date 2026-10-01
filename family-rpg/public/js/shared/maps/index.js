@@ -58,7 +58,7 @@ const OVERWORLD_NPCS = [
   npc('armor_keeper', '防具屋のおねえさん', TW(6, 22), 'woman', 'shop_armor'),
   npc('item_keeper', '道具屋のむすめ', TW(41, 13), 'girl', 'shop_item'),
   npc('innkeeper', '宿屋のおかみ', TW(41, 23), 'woman', 'inn'),
-  npc('salon_keeper', '美容師のアンナ', TW(29, 24), 'stylist', 'salon', { dir: 'down' }),
+  npc('salon_keeper', '美容師のアンナ', TW(18, 24), 'stylist', 'salon', { dir: 'down' }),
   npc('t_priest', '神父さま', TW(7, 30), 'priest', 'church'),
   npc('carpenter', '大工のガンテツ', TW(38, 31), 'carpenter', 'carpenter'),
   npc('star_granny', '星集めのおばあさん', TW(17, 31), 'elder', 'star_granny'),
@@ -126,7 +126,7 @@ const OVERWORLD_BOARDS = [
   board(TW(41, 17), 'item'),
   board(TW(8, 26), 'armor'),
   board(TW(41, 26), 'inn'),
-  board(TW(30, 26), 'salon'),
+  board(TW(19, 26), 'salon'),
   board(TW(40, 9), 'bar'),
   board(TW(8, 33), 'church'),
   board(TW(25, 9), 'temple'),
@@ -176,8 +176,8 @@ function buildMaps() {
     triggers: OVERWORLD_TRIGGERS,
     sparkles: makeSparkles(ow.tiles, ow.w, ow.h),
     roofs: [
-      // 美容室（ルミナの町。南の 広場の すぐ 下）
-      { x: PLACES.town.x + 26, y: PLACES.town.y + 23, w: 7, h: 4, color: 'pink' },
+      // 美容室（ルミナの町。南の 広場の 下、西がわ）
+      { x: PLACES.town.x + 15, y: PLACES.town.y + 23, w: 7, h: 4, color: 'pink' },
       // 村
       ...[[3, 2, 7, 5, 'red'], [22, 2, 7, 5, 'blue'], [3, 16, 7, 5, 'purple'], [22, 16, 7, 5, 'green']]
         .map(([x, y, w, h, color]) => ({ x: PLACES.village.x + x, y: PLACES.village.y + y, w, h, color })),
