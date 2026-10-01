@@ -147,5 +147,8 @@ export function questMarks(c, mapId, objective = c?.objective) {
 // 目標の 場所の 名前（クエストの 画面に 出す）
 export function whereName(spec) {
   const p = resolve(spec);
-  return p ? MAPS[p.map]?.name || '' : '';
+  const m = p && MAPS[p.map];
+  if (!m) return '';
+  // 村・町・港・森などの 名前（なければ マップの 名前）
+  return m.areaName?.(Math.floor(p.x), Math.floor(p.y)) || m.name || '';
 }

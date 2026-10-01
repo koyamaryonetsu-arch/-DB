@@ -952,7 +952,7 @@ export class FieldMenu {
       box.append(el('h3', { text: `${leader.name}の目標（いっしょに冒険中）` }), el('div', { text: this.game.party.objective || '（特になし）' }));
       box.append(el('div', { class: 'detail', text: `${leader.name}の冒険を手伝っているあいだは、自分のストーリーは進みません。\nレベル・お金・道具はそのままもらえるよ。パーティーをぬけると、自分の冒険の場所にもどります。` }));
     }
-    box.append(el('h3', { text: leader ? '自分の目標' : '今の目標' }), el('div', { class: 'q-main' }, el('i', { class: 'qdot main' }), c.objective || '（特になし）'));
+    box.append(el('h3', { text: leader ? '自分の目標' : '今の目標' }), el('div', { class: 'q-main' }, el('i', { class: 'qdot qmain' }), c.objective || '（特になし）'));
     const tgt = OBJECTIVE_TARGETS[c.objective || ''];
     if (tgt) box.append(el('div', { class: 'small muted', text: `行き先: ${whereName(tgt[tgt.length - 1])}（地図のピンクのしるし）` }));
     // たのまれごと（報告する 人は 地図に 水色・報告できる ときは みどり）
@@ -1257,7 +1257,7 @@ export function openWorldMap(game) {
   const head = el('div', { class: 'wm-head' }, el('span', { class: 'gold', text: game.field.map.name }),
     el('button', { class: 'btn closebtn', text: '✕ 閉じる', 'aria-label': '地図を閉じる' }));
   const qlg = el('div', { class: 'map-legend small' },
-    el('span', { class: 'lg' }, el('i', { class: 'qdot main' }), '次の行き先'),
+    el('span', { class: 'lg' }, el('i', { class: 'qdot qmain' }), '次の行き先'),
     el('span', { class: 'lg' }, el('i', { class: 'qdot sub' }), 'たのまれごと'),
     el('span', { class: 'lg' }, el('i', { class: 'qdot ready' }), '報告できる'));
   box.append(...[head, cv, qlg, mapLegend(game)].filter(Boolean), el('div', { class: 'small muted', text: `赤い点: 自分　黄色: パーティー　青: 家族　（${game.input.touch ? 'タップで閉じる' : 'B/Xで閉じる'}）` }));

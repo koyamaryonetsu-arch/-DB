@@ -1347,9 +1347,7 @@ body.menu-open #hud { visibility: hidden; }
 .sort-tabs .btn { padding: 0.1em 0.7em; min-height: 32px; }
 .sort-tabs .btn.on { border-color: var(--accent); color: var(--accent); }
 .qdot { display: inline-block; width: 0.8em; height: 0.8em; border: 2px solid #000; border-radius: 50%; }
-.qdot.main { background: #ff5fd2; transform: rotate(45deg); border-radius: 2px; }
-/* メニューの 右の わく（.fmenu .main）の 高さを もらわないように */
-.fmenu .qdot.main { height: 0.8em; min-height: 0; max-height: none; }
+.qdot.qmain { background: #ff5fd2; transform: rotate(45deg); border-radius: 2px; }
 .qdot.sub { background: #5fd8ff; }
 .qdot.ready { background: #7dff8a; }
 .q-main { display: flex; gap: 0.45em; align-items: baseline; }
