@@ -1,8 +1,8 @@
 // せつめい文を つくる
-import { ITEMS, SLOT_NAMES, WEAPON_CAT_NAMES } from '../../shared/data/items.js?v=e65131463bfb';
-import { ABILITIES, abilityTypeText } from '../../shared/data/abilities.js?v=e65131463bfb';
-import { JOBS, ALL_JOBS } from '../../shared/data/jobs.js?v=e65131463bfb';
-import { computeStats, canEquip, penaltyFor, mpCost, comboJobNames, comboAllowed, jobPower } from '../../shared/stats.js?v=e65131463bfb';
+import { ITEMS, SLOT_NAMES, WEAPON_CAT_NAMES } from '../../shared/data/items.js?v=7dce3e047133';
+import { ABILITIES, abilityTypeText } from '../../shared/data/abilities.js?v=7dce3e047133';
+import { JOBS, ALL_JOBS } from '../../shared/data/jobs.js?v=7dce3e047133';
+import { computeStats, canEquip, penaltyFor, mpCost, comboJobNames, comboAllowed, jobPower } from '../../shared/stats.js?v=7dce3e047133';
 
 const TARGET_NAMES = { enemy: '敵1体', group: '敵1グループ', enemies: '敵全体', ally: '味方1人', allies: '味方全員', self: '自分', deadAlly: '死んだ味方' };
 const BONUS_NAMES = { str: '力', def: '身の守り', agi: '素早さ', mag: '魔力', heal: '回復', hp: 'HP', mp: 'MP' };
@@ -75,6 +75,12 @@ export function diffText(diffs) {
 }
 
 // brief: 戦いの 小さな まど よう（見出し・MP・せつめい・ペナルティ だけ）
+// 技の みじかい せつめい（メニューの リストで 名前の 下に 出す）
+export function skillBrief(a) {
+  if (!a) return '';
+  return a.desc || `${abilityTypeText(a)}（${TARGET_NAMES[a.target] || ''}）`;
+}
+
 export function abilityDetail(id, char, { brief = false } = {}) {
   const a = ABILITIES[id];
   if (!a) return '';

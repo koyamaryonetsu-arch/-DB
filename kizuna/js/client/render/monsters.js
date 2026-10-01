@@ -1,10 +1,10 @@
 // モンスターの え（ベクターで かいて ドットえに へんかん）
 // すべて オリジナルの デザイン
 // 2ばいの こまかさで かいて ドットえに → Scale2x で 4ばい → ひかり・かげ・ふちどり（res 4）
-import { makeCanvas, ctxOf, pixelize, shade, painterFrom, scale2x, outline2, volumeShade } from './pixel.js?v=e65131463bfb';
-import { MONSTERS } from '../../shared/data/monsters.js?v=e65131463bfb';
-import { tintCanvas } from './themes.js?v=e65131463bfb';
-import { addNightArt } from './night-art.js?v=e65131463bfb';
+import { makeCanvas, ctxOf, pixelize, shade, painterFrom, scale2x, outline2, volumeShade } from './pixel.js?v=7dce3e047133';
+import { MONSTERS } from '../../shared/data/monsters.js?v=7dce3e047133';
+import { tintCanvas } from './themes.js?v=7dce3e047133';
+import { addNightArt } from './night-art.js?v=7dce3e047133';
 
 export const MRES = 4; // できあがりの こまかさ（せかいの 1ドットを 4×4 で かく）
 const OUT = '#130d24';

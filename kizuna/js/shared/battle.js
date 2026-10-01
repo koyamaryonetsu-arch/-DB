@@ -7,15 +7,15 @@
 //
 // サーバー（家族サーバー）でも ブラウザ（ひとりモード）でも おなじ コードが うごく
 
-import { makeRng } from './rng.js?v=e65131463bfb';
-import { ABILITIES } from './data/abilities.js?v=e65131463bfb';
-import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=e65131463bfb';
-import { DUAL_TECHS, dualOptions, DUAL_GAUGE } from './data/dual.js?v=e65131463bfb';
-import { MONSTERS } from './data/monsters.js?v=e65131463bfb';
-import { ITEMS } from './data/items.js?v=e65131463bfb';
-import { JOBS } from './data/jobs.js?v=e65131463bfb';
-import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed } from './stats.js?v=e65131463bfb';
-import { decideMonster, decideAlly } from './ai.js?v=e65131463bfb';
+import { makeRng } from './rng.js?v=7dce3e047133';
+import { ABILITIES } from './data/abilities.js?v=7dce3e047133';
+import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=7dce3e047133';
+import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js?v=7dce3e047133';
+import { MONSTERS } from './data/monsters.js?v=7dce3e047133';
+import { ITEMS } from './data/items.js?v=7dce3e047133';
+import { JOBS } from './data/jobs.js?v=7dce3e047133';
+import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed } from './stats.js?v=7dce3e047133';
+import { decideMonster, decideAlly } from './ai.js?v=7dce3e047133';
 
 export const BOND_MAX = 100;
 // きずなゲージの たまりやすさ（1 … はじめの 版。ちいさいほど たまりにくい）
@@ -316,6 +316,8 @@ export class Battle {
       c.atb += (100 / fillTime(effAgi(c))) * dt;
       if (c.atb >= 100) {
         c.atb = 100;
+        // 合体技を よやくして まっている 仲間が いれば、この 番で いっしょに 出す
+        if (c.dualTarget && this.fireWait(this.get(c.dualTarget), c)) continue;
         this.onReady(c);
       }
     }
@@ -329,8 +331,6 @@ export class Battle {
       this.enqueue(c, { type: 'incapacitated' });
       return;
     }
-    // オートで えらんで おいた 合体技
-    if (c.side === 'ally' && c.autoDual && (!c.controller || c.auto) && !c.status.confuse && this.tryAutoDual(c)) return;
     if (c.side === 'enemy') {
       const n = c.turns || 1;
       for (let i = 0; i < n; i++) this.enqueue(c, { type: 'ai' }, i === n - 1);
@@ -358,12 +358,6 @@ export class Battle {
     if (controller !== undefined && c.controller !== controller) return { ok: false, reason: 'notyours' };
     if (cmd?.type === 'bondJoin') return this.bondJoin(actorId) ? { ok: true } : { ok: false };
     if (cmd?.type === 'dualAnswer') return this.answerDual(actorId, cmd);
-    // オートの ときに 使う 合体技を えらぶ（いつでも）
-    if (cmd?.type === 'setAutoDual') {
-      c.autoDual = cmd.id && DUAL_TECHS[cmd.id] ? cmd.id : null;
-      this.emit({ t: 'autoDual', id: c.id, tech: c.autoDual });
-      return { ok: true };
-    }
     // 合体技の よやくを やめる
     if (cmd?.type === 'dualCancel') {
       if (!c.waitDual) return { ok: false, reason: 'no' };
@@ -1324,6 +1318,8 @@ export class Battle {
     const info = (x) => ({
       id: x.id, name: x.name, alive: x.alive, abilities: x.abilities || [], mp: x.mp, atb: x.atb, ready: x.ready,
       queued: exec && x.dualWith === c.id ? false : !!x.queued,
+      // ほかの 人の 合体技に 入る ことに なっている
+      busy: !!x.dualWith && x.dualWith !== c.id,
       inviting: !exec && x !== c && !!(x.inviting || x.invited),
       // ほかの 人の 合体技を まっている・まって もらって いる
       waiting: x !== c && (!!x.waitDual || (!!x.dualTarget && x.dualTarget !== c.id)),
@@ -1337,10 +1333,10 @@ export class Battle {
   }
 
   // 合体技を はじめる（相手が 家族なら さそう。AI・自分の 仲間なら すぐ）
-  // 相手の ゲージが まだ 半分 たまって いなければ「よやく」して まつ
+  // 相手の ゲージが まだ たまって いなければ「よやく」して まつ（たまった しゅんかんに 出す）
   startDual(c, cmd) {
     const p = this.get(cmd.partner);
-    if (!(p.ready || p.atb >= DUAL_GAUGE)) return this.waitForPartner(c, cmd);
+    if (!partnerNow(p)) return this.waitForPartner(c, cmd);
     const ask = p.controller && !p.auto && p.controller !== c.controller;
     if (!ask) {
       this.reserveDual(c, p, cmd);
@@ -1354,7 +1350,7 @@ export class Battle {
     return { ok: true, pending: true };
   }
 
-  // よやく: 自分の 番を とっておき、仲間の ゲージが 半分 たまったら いっしょに 出す
+  // よやく: 自分の 番を とっておき、仲間の ゲージが たまったら いっしょに 出す
   waitForPartner(c, cmd) {
     const p = this.get(cmd.partner);
     c.ready = false;
@@ -1365,32 +1361,46 @@ export class Battle {
     return { ok: true, waiting: true };
   }
 
-  // まっている 人を しらべる（仲間の ゲージが たまった・出せなく なった）
+  // まっている 人を しらべる（仲間が 出られなく なった・出せなく なった・もう 番が 来ている）
   checkWaits() {
     for (const c of this.allies) {
       const w = c.waitDual;
       if (!w) continue;
       const p = this.get(w.partner);
-      if (!c.alive) {
-        this.endWait(c, null, false);
-        continue;
-      }
-      const st = p?.status || {};
-      if (!p || !p.alive || st.sleep || st.paralyze || st.confuse) {
-        this.endWait(c, `${p?.name || '仲間'}は合体技に参加できなくなった…`);
-        continue;
-      }
-      if (!this.dualOptionsFor(c, [p], true, true).some((o) => o.id === w.id)) {
-        this.endWait(c, '合体技は出せなくなった…');
-        continue;
-      }
-      if (p.ready || p.atb >= DUAL_GAUGE) {
-        c.waitDual = null;
-        p.dualTarget = null;
-        c.ready = true;
-        this.startDual(c, { type: 'dual', id: w.id, partner: p.id, target: w.target });
-      }
+      if (!this.waitStillOk(c, p)) continue;
+      // 仲間が もう 自分の 番で コマンドを えらんでいる（ゲージが たまっている）
+      if (p.ready && !p.queued) this.fireWait(c, p);
     }
+  }
+
+  // よやくが まだ 出せるか（だめなら よやくを 終わりに して false）
+  waitStillOk(c, p) {
+    if (!c.alive) {
+      this.endWait(c, null, false);
+      return false;
+    }
+    const st = p?.status || {};
+    if (!p || !p.alive || st.sleep || st.paralyze || st.confuse) {
+      this.endWait(c, `${p?.name || '仲間'}は合体技に参加できなくなった…`);
+      return false;
+    }
+    if (!this.dualOptionsFor(c, [p], true, true).some((o) => o.id === c.waitDual.id)) {
+      this.endWait(c, '合体技は出せなくなった…');
+      return false;
+    }
+    return true;
+  }
+
+  // よやくした 合体技を 出す（相手の ゲージが たまった とき）。相手の 番を 使ったら true
+  fireWait(c, p) {
+    const w = c?.waitDual;
+    if (!w || w.partner !== p.id || !this.waitStillOk(c, p)) return false;
+    c.waitDual = null;
+    p.dualTarget = null;
+    c.ready = true;
+    const r = this.startDual(c, { type: 'dual', id: w.id, partner: p.id, target: w.target });
+    // 家族に「参加する？」と 聞いている ときは、相手の 番は ふつうに 来る（参加すると その 番を 使う）
+    return !!r?.ok && !r.pending && !r.waiting;
   }
 
   // よやくを おわりに して、自分の 番に もどす
@@ -1401,30 +1411,6 @@ export class Battle {
     if (p && p.dualTarget === c.id) p.dualTarget = null;
     this.emit({ t: 'dualWaitEnd', id: c.id, lines: msg ? [msg] : [] });
     if (back && c.alive) this.onReady(c);
-  }
-
-  // オート: えらんで おいた 合体技を よやく する（出せない ときは ふつうに 動く）
-  tryAutoDual(c) {
-    if ((c.autoDualWait || 0) > this.time) return false;
-    if (!this.aliveEnemies().length) return false;
-    const opts = this.dualOptionsFor(c, null, false, true).filter((o) => o.id === c.autoDual);
-    if (!opts.length) return false;
-    // ゲージが いちばん たまっている 仲間と
-    opts.sort((x, y) => (this.get(y.partner).atb || 0) - (this.get(x.partner).atb || 0));
-    const o = opts[0];
-    const t = DUAL_TECHS[o.id];
-    let target;
-    if (t.target === 'enemy' || t.target === 'group') {
-      const es = this.aliveEnemies().slice().sort((x, y) => (y.boss ? 1 : 0) - (x.boss ? 1 : 0) || x.hp - y.hp);
-      target = es[0]?.id;
-    }
-    c.ready = true;
-    const r = this.startDual(c, { type: 'dual', id: o.id, partner: o.partner, target });
-    if (!r?.ok) {
-      c.ready = false;
-      return false;
-    }
-    return true;
   }
 
   // 2人の 番を おさえて、合体技を 出す じゅんばんに ならべる
@@ -1477,9 +1463,8 @@ export class Battle {
     if (c && c.inviting === inv.id) c.inviting = null;
     if (p && p.invited === inv.id) p.invited = null;
     this.emit({ t: 'dualAnswer', invite: inv.id, ok: false, from: inv.from, to: inv.to, reason });
-    // オートの 人は しばらく 合体技を よやく しない で ふつうに 動く
+    // オートの 人は ふつうに 動く
     if (c && c.alive && c.ready && (!c.controller || c.auto)) {
-      c.autoDualWait = this.time + 12000;
       c.ready = false;
       this.onReady(c);
     } else if (c && c.alive && c.ready) this.emit({ t: 'ready', id: c.id });
@@ -1787,8 +1772,6 @@ export function allyFromCharacter(char, init = {}) {
     charId: char.id,
     controller: init.controller || null,
     auto: !!init.auto,
-    // オートの ときに よやく する 合体技（主人公が えらんで おく）
-    autoDual: init.autoDual || char.battleSettings?.autoDual || null,
     tactics: init.tactics || char.tactics || 'balanced',
     look: char.look,
     job: char.job,
@@ -1858,7 +1841,7 @@ export function pub(c) {
   return {
     id: c.id, side: c.side, kind: c.kind, name: c.name, species: c.species, charId: c.charId,
     controller: c.controller, auto: c.auto, look: c.look, job: c.job, eq: c.eq, mon: c.mon, lv: c.lv,
-    waitDual: c.waitDual ? { id: c.waitDual.id, partner: c.waitDual.partner } : null, autoDual: c.autoDual || null, dualTarget: c.dualTarget || null,
+    waitDual: c.waitDual ? { id: c.waitDual.id, partner: c.waitDual.partner } : null, dualTarget: c.dualTarget || null, dualWith: c.dualWith || null,
     hp: c.hp, maxHp: c.maxHp, mp: c.mp, maxMp: c.maxMp,
     atb: Math.round(c.atb * 10) / 10, rate: 100 / fillTime(effAgi(c)),
     ready: !!c.ready, queued: !!c.queued, alive: !!c.alive, fled: !!c.fled, status: st, buffs,

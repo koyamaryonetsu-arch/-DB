@@ -1,39 +1,43 @@
 // フィールドの メニュー
-import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js?v=e65131463bfb';
-import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js?v=e65131463bfb';
-import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js?v=e65131463bfb';
-import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS } from '../../shared/battle.js?v=e65131463bfb';
-import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily } from '../prefs.js?v=e65131463bfb';
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_TRAIN_GAP, TIER_NAMES } from '../../shared/data/jobs.js?v=e65131463bfb';
-import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress } from '../../shared/stats.js?v=e65131463bfb';
-import { HIRAMEKI } from '../../shared/data/hirameki.js?v=e65131463bfb';
-import { DUAL_TECHS, DUAL_ORDER, groupName } from '../../shared/data/dual.js?v=e65131463bfb';
-import { MONSTERS } from '../../shared/data/monsters.js?v=e65131463bfb';
-import { monsterDrops } from '../../shared/data/loot.js?v=e65131463bfb';
-import { MONSTER_FRIENDS, RACE_NAMES, recipeHint } from '../../shared/data/companions.js?v=e65131463bfb';
-import { TACTICS } from '../../shared/ai.js?v=e65131463bfb';
-import { PLACES } from '../../shared/maps/overworld.js?v=e65131463bfb';
-import { SEA_PLACES } from '../../shared/maps/ch2.js?v=e65131463bfb';
-import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js?v=e65131463bfb';
-import { T } from '../../shared/tiles.js?v=e65131463bfb';
-import { itemDetail, abilityDetail } from './info.js?v=e65131463bfb';
-import { makeCanvas, ctxOf } from '../render/pixel.js?v=e65131463bfb';
-import { monsterCanvas } from '../render/monsters.js?v=e65131463bfb';
-import { mapIconCanvas, boardIconURL } from '../render/boards.js?v=e65131463bfb';
-import { medalItemRow, walletView } from './casino.js?v=e65131463bfb';
-import { compareOne, compareTeam, whoItems } from './counter.js?v=e65131463bfb';
-import { faceURL } from '../field.js?v=e65131463bfb';
-import { partyRows } from './hud.js?v=e65131463bfb';
-import { questMarks, subQuests, OBJECTIVE_TARGETS, whereName } from '../../shared/data/quest-targets.js?v=e65131463bfb';
-import { memberTalk, talkFor } from '../../shared/data/party-talk.js?v=e65131463bfb';
-import { treasureRows, treasureDetail, openTreasureMap } from './treasure.js?v=e65131463bfb';
-import { themeHex } from '../render/themes.js?v=e65131463bfb';
-import { wagonMenuView } from './wagon.js?v=e65131463bfb';
+import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js?v=7dce3e047133';
+import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js?v=7dce3e047133';
+import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js?v=7dce3e047133';
+import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS } from '../../shared/battle.js?v=7dce3e047133';
+import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily } from '../prefs.js?v=7dce3e047133';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_TRAIN_GAP, TIER_NAMES } from '../../shared/data/jobs.js?v=7dce3e047133';
+import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress } from '../../shared/stats.js?v=7dce3e047133';
+import { HIRAMEKI } from '../../shared/data/hirameki.js?v=7dce3e047133';
+import { DUAL_TECHS, DUAL_ORDER, groupName, dualKnown } from '../../shared/data/dual.js?v=7dce3e047133';
+import { MONSTERS } from '../../shared/data/monsters.js?v=7dce3e047133';
+import { monsterDrops } from '../../shared/data/loot.js?v=7dce3e047133';
+import { MONSTER_FRIENDS, RACE_NAMES, recipeHint } from '../../shared/data/companions.js?v=7dce3e047133';
+import { TACTICS } from '../../shared/ai.js?v=7dce3e047133';
+import { PLACES } from '../../shared/maps/overworld.js?v=7dce3e047133';
+import { SEA_PLACES } from '../../shared/maps/ch2.js?v=7dce3e047133';
+import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js?v=7dce3e047133';
+import { T } from '../../shared/tiles.js?v=7dce3e047133';
+import { itemDetail, abilityDetail, skillBrief } from './info.js?v=7dce3e047133';
+import { makeCanvas, ctxOf } from '../render/pixel.js?v=7dce3e047133';
+import { monsterCanvas } from '../render/monsters.js?v=7dce3e047133';
+import { mapIconCanvas, boardIconURL } from '../render/boards.js?v=7dce3e047133';
+import { medalItemRow, walletView } from './casino.js?v=7dce3e047133';
+import { compareOne, compareTeam, whoItems } from './counter.js?v=7dce3e047133';
+import { faceURL } from '../field.js?v=7dce3e047133';
+import { partyRows } from './hud.js?v=7dce3e047133';
+import { questMarks, subQuests, OBJECTIVE_TARGETS, whereName } from '../../shared/data/quest-targets.js?v=7dce3e047133';
+import { difficultyOf, visibleMarks, EXP_RATES, EXP_RATE_NAMES } from '../../shared/data/difficulty.js?v=7dce3e047133';
+import { memberTalk, talkFor } from '../../shared/data/party-talk.js?v=7dce3e047133';
+import { treasureRows, treasureDetail, openTreasureMap } from './treasure.js?v=7dce3e047133';
+import { themeHex } from '../render/themes.js?v=7dce3e047133';
+import { wagonMenuView } from './wagon.js?v=7dce3e047133';
+
+// 呪文・技の タブ（左右で じゅんに かわる）
+const SKILL_TABS = [['list', '覚えた技'], ['fav', 'お気に入り'], ['combo', 'ひらめき'], ['dual', '合体技']];
 
 const MAIN = [
   { label: 'はなす', value: 'talk' },
   { label: '道具', value: 'items' },
-  { label: '呪文', value: 'skills' },
+  { label: '呪文・技', value: 'skills' },
   { label: 'まんたん', value: 'fullheal' },
   { label: '装備', value: 'equip' },
   { label: '強さ', value: 'status' },
@@ -196,7 +200,7 @@ export class FieldMenu {
     const g = this.game;
     const box = el('div');
     const mates = this.myMates();
-    const title = { skills: 'だれの呪文？', equip: 'だれの装備？', status: 'だれの強さ？' }[next] || 'だれ？';
+    const title = { skills: 'だれの呪文・技？', equip: 'だれの装備？', status: 'だれの強さ？' }[next] || 'だれ？';
     const items = [{ label: `${g.me.name}（自分）`, value: 'self', face: faceURL({ look: g.me.look, job: g.me.job, eq: g.me.equip }) },
       ...mates.map((m) => ({ label: `${m.name}（${m.species ? MONSTERS[m.species]?.name : JOBS[m.job]?.name} Lv${m.level}${m.wagon ? '・馬車' : ''}）`, value: m.key, face: faceURL({ look: m.look, job: m.job, eq: m.equip, mon: m.species || undefined }) }))];
     // 強さは「全員」を 一覧で くらべられる
@@ -416,31 +420,45 @@ export class FieldMenu {
   }
 
   // ───── じゅもん・とくぎ ─────
+  // 呪文・技: 「覚えた技・お気に入り・ひらめき・合体技」の タブ。上下で えらび、左右で タブを かえる
   skillsView(active, who = 'self') {
     const g = this.game;
     const c = this.charOf(who) || g.me;
-    const box = el('div');
-    if (c.companion) box.append(el('div', { class: 'gold small', text: `${c.name}の技　MP ${c.mp}` }));
+    const box = el('div', { class: 'skills-view' });
+    if (c.companion) box.append(el('div', { class: 'gold small', text: `${c.name}の呪文・技　MP ${c.mp}` }));
     const learned = learnedAbilities(c);
     const detail = el('div', { class: 'detail' });
-    const tabs = el('div', { class: 'tabs' });
-    let mode = this.skillMode || 'list';
-    const tabBtn = (id, label) => el('button', { class: `btn ${mode === id ? 'sel' : ''}`, text: label, onclick: () => { this.skillMode = id; this.focusSub(this.skillsView(true, who)); } });
-    tabs.append(tabBtn('list', '覚えた技'), tabBtn('fav', 'お気に入り'), tabBtn('combo', 'ひらめき'), tabBtn('dual', '合体技'));
-    box.append(tabs);
-    const backBtn = () => {
-      if (!active) return;
-      this.mkSub({ items: [{ label: 'もどる', value: 'back' }], onSelect: () => this.back() });
-      box.append(this.sub.root);
+    const mode = SKILL_TABS.some(([k]) => k === this.skillMode) ? this.skillMode : 'list';
+    const go = (m) => { this.skillMode = m; this.focusSub(this.skillsView(true, who)); };
+    const side = (d) => {
+      const i = SKILL_TABS.findIndex(([k]) => k === mode);
+      this.sfx?.('cursor');
+      go(SKILL_TABS[(i + d + SKILL_TABS.length) % SKILL_TABS.length][0]);
+    };
+    // タブは スクロールしても 上に のこる
+    box.append(el('div', { class: 'sk-head' },
+      el('div', { class: 'tabs' }, ...SKILL_TABS.map(([id, label]) => el('button', { class: `btn ${mode === id ? 'sel' : ''}`, text: label, onclick: () => go(id) }))),
+      active ? el('div', { class: 'tab-hint', text: '◀ ▶（左右）でタブを切りかえ' }) : null));
+    // 上下で えらぶ リスト（左右で タブ）
+    const list = (items, opts = {}) => {
+      const m = this.mkSub({ items, onSide: side, ...opts });
+      box.append(m.root);
+      return m;
+    };
+    const backOnly = () => list([{ label: 'もどる', value: 'back' }], { onSelect: () => this.back() });
+    // ひらめき・合体技: 1つずつ 上下で 見られる（えらんでも なにも しない）
+    const rows = (rs) => {
+      if (active && rs.length) list(rs.map((r) => ({ html: r.html, value: r.id, cls: `sk-row ${r.cls || ''}` })), { onSelect: () => {} });
+      else for (const r of rs) box.append(el('div', { class: `combo-row ${r.cls || ''}`, html: r.html }));
+      if (active && !rs.length) backOnly();
     };
     if (mode === 'combo') {
       // ひらめき: 関係する 技を 何回も 使うと、使った しゅんかんに ひらめく
       const known = new Set(learned);
       const use = c.skillUse || {};
-      const order = Object.keys(HIRAMEKI).sort((x, y) => (known.has(y) ? 1 : 0) - (known.has(x) ? 1 : 0));
-      for (const id of order) {
+      const order = Object.keys(HIRAMEKI).filter((id) => ABILITIES[id]).sort((x, y) => (known.has(y) ? 1 : 0) - (known.has(x) ? 1 : 0));
+      rows(order.map((id) => {
         const a = ABILITIES[id];
-        if (!a) continue;
         const ok = known.has(id);
         const reqs = Object.entries(HIRAMEKI[id].from).map(([k, n]) => {
           const seen = k === '@atk' || known.has(k) || use[k] > 0;
@@ -448,16 +466,14 @@ export class FieldMenu {
           return `${nm} ${seen ? Math.min(use[k] || 0, n) : '?'}/${n}回`;
         }).join('　');
         const prog = hiraProgress(c, id);
-        const who = a.kind === 'combo' ? `使える職業: ${comboJobNames(id).join('・')}（とその超級職）` : `${JOBS[a.job]?.name || ''}の技（${JOBS[a.job]?.name || ''}とそこから進んだ職業でひらめく）`;
-        box.append(el('div', { class: `combo-row ${ok ? '' : 'locked'}` },
-          el('span', { class: 'nm', text: ok ? a.name : '？？？？' }),
-          ok ? el('span', { class: 'tag good', text: 'ひらめいた' }) : prog >= 1 ? el('span', { class: 'tag gold', text: 'もうすぐ！' }) : null,
-          el('div', { class: 'small', text: reqs }),
-          el('div', { class: 'small gold', text: who }),
-          ok ? el('div', { class: 'small muted', text: a.desc }) : null));
-      }
+        const whoText = a.kind === 'combo' ? `使える職業: ${comboJobNames(id).join('・')}（とその超級職）` : `${JOBS[a.job]?.name || ''}の技（${JOBS[a.job]?.name || ''}とそこから進んだ職業でひらめく）`;
+        const tag = ok ? '<span class="tag good">ひらめいた</span>' : prog >= 1 ? '<span class="tag gold">もうすぐ！</span>' : '';
+        return {
+          id, cls: ok ? '' : 'locked',
+          html: `<span class="nm">${ok ? esc(a.name) : '？？？？'}</span>${tag}<span class="ln">${esc(reqs)}</span><span class="ln gold">${esc(whoText)}</span>${ok ? `<span class="ln muted">${esc(skillBrief(a))}</span>` : ''}`,
+        };
+      }));
       box.append(el('div', { class: 'detail', text: '技を使うたびに回数がふえる。書いてある回数をこえると、その技を使ったしゅんかんに、ひらめくことがある（ひらめいた技がそのまま出る）。\n掛け合わせ技は、元になった職業を合わせ持つ上級職からひらめく。神殿の「ひらめきの賢者」がヒントを教えてくれる。' }));
-      backBtn();
       return box;
     }
     if (mode === 'fav') {
@@ -465,8 +481,7 @@ export class FieldMenu {
       const favs = (c.favorites || []).filter((id) => ABILITIES[id] && learned.includes(id));
       if (!favs.length) box.append(el('div', { class: 'muted', text: 'まだお気に入りはない。「覚えた技」で技を選んで「お気に入りに入れる」を選ぼう。' }));
       if (active && favs.length) {
-        const m = this.mkSub({
-          items: favs.map((id, i) => ({ html: `<span class="muted small">${i + 1}.</span> ${esc(ABILITIES[id].name)}`, value: id, right: ABILITIES[id].kind === 'spell' ? '呪文' : '特技' })),
+        list(favs.map((id, i) => ({ html: `<span class="muted small">${i + 1}.</span> ${esc(ABILITIES[id].name)}<span class="sk-desc">${esc(skillBrief(ABILITIES[id]))}</span>`, value: id, right: ABILITIES[id].kind === 'spell' ? '呪文' : '特技', cls: 'sk' })), {
           onSelect: async (it) => {
             this.sub.blur();
             const op = await this.pick(`${ABILITIES[it.value].name}`, [{ label: '▲ 上へ', value: 'up' }, { label: '▼ 下へ', value: 'down' }, { label: 'お気に入りからはずす', value: 'remove' }, { label: 'やめる', value: null }]);
@@ -474,24 +489,23 @@ export class FieldMenu {
             setTimeout(() => { if (this.root) this.focusSub(this.skillsView(true, who)); }, 200);
           },
         });
-        box.append(m.root);
       } else if (favs.length) box.append(el('div', { class: 'small', text: favs.map((id) => ABILITIES[id].name).join('、') }));
+      else if (active) backOnly();
       box.append(el('div', { class: 'detail', text: '戦いで呪文・特技を開くと、いちばん上の「お気に入り」の窓にこのじゅんで出る。選ぶと、上へ・下へでならびを変えられる。' }));
-      backBtn();
       return box;
     }
     if (mode === 'dual') {
       // 合体技: 2人の 番を 使う 技
-      for (const id of DUAL_ORDER) {
+      rows(DUAL_ORDER.map((id) => {
         const t = DUAL_TECHS[id];
-        box.append(el('div', { class: 'combo-row' },
-          el('span', { class: 'nm', text: t.name }),
-          el('span', { class: 'tag gold', text: `MP ${t.mp[0]}＋${t.mp[1]}` }),
-          el('div', { class: 'small', text: `${groupName(t.need[0])} ＋ ${groupName(t.need[1])}（2人で1つずつ）` }),
-          el('div', { class: 'small muted', text: t.desc })));
-      }
-      box.append(el('div', { class: 'detail', text: '合体技は、2人の番を使う技。自分のゲージがたまった時に「合体技」から選ぶ。仲間のゲージが半分いじょうならすぐ出る。まだの時は「よやく」して、仲間のゲージが半分たまったらいっしょに出す。\nオートで戦う時にねらう合体技は「作戦」で決められる。家族のキャラと出す時は、相手の画面に「参加する？」と出る。' }));
-      backBtn();
+        // はじめて 使う までは 効果は ひみつ
+        const known = dualKnown(c, id) || dualKnown(g.me, id);
+        return {
+          id, cls: known ? '' : 'unknown',
+          html: `<span class="nm">${esc(t.name)}</span><span class="tag gold">MP ${t.mp[0]}＋${t.mp[1]}</span>${known ? '' : '<span class="tag muted">まだ使っていない</span>'}<span class="ln">${esc(`${groupName(t.need[0])} ＋ ${groupName(t.need[1])}（2人で1つずつ）`)}</span><span class="ln muted">${known ? esc(t.desc) : '効果は？？？（一度使うとわかる）'}</span>`,
+        };
+      }));
+      box.append(el('div', { class: 'detail', text: '合体技は、2人の番を使う技。自分のゲージがたまった時に「合体技」から選んでおく。いっしょに出す仲間のゲージがたまっていればすぐ、まだの時は「よやく」して、仲間のゲージがたまった時にいっしょに出す。\nどんな効果かは、一度使うまでわからない。家族のキャラと出す時は、相手の画面に「参加する？」と出る。' }));
       return box;
     }
     const items = learned.map((id) => {
@@ -500,26 +514,28 @@ export class FieldMenu {
       const locked = a.kind === 'combo' && !comboAllowed(c, id);
       const elm = a.effect?.element;
       return {
-        html: `${ELEMENT_NAMES[elm] ? `<span class="elem e-${elm}">${ELEMENT_NAMES[elm]}</span>` : ''}${a.name}${a.kind === 'combo' ? `<span class="tag ${locked ? 'muted' : 'gold'}">掛け合わせ${locked ? '（上級職で）' : ''}</span>` : a.hirameki ? '<span class="tag hira">ひらめき</span>' : ''}${p.penalized ? '<span class="tag warn">他</span>' : ''}`,
+        html: `${ELEMENT_NAMES[elm] ? `<span class="elem e-${elm}">${ELEMENT_NAMES[elm]}</span>` : ''}${esc(a.name)}${a.kind === 'combo' ? `<span class="tag ${locked ? 'muted' : 'gold'}">掛け合わせ${locked ? '（上級職で）' : ''}</span>` : a.hirameki ? '<span class="tag hira">ひらめき</span>' : ''}${p.penalized ? '<span class="tag warn">他</span>' : ''}<span class="sk-desc">${esc(skillBrief(a))}</span>`,
         right: a.effect.type === 'mahouken' ? '' : `MP${mpCost(c, id)}`,
         rightCls: p.penalized ? 'pen' : '',
         value: id,
-        cls: `k-${abilityRole(a)}`,
+        cls: `k-${abilityRole(a)} sk`,
         disabled: false,
       };
     });
     if (!items.length) {
       box.append(el('div', { class: 'muted', text: 'まだ何も覚えていない。' }));
+      if (active) backOnly();
       return box;
     }
     if (!active) {
-      box.append(el('div', { class: 'small', text: items.map((i) => ABILITIES[i.value].name).join('、') }));
+      for (const id of learned.slice(0, 12)) box.append(el('div', { class: 'sk-mini' }, el('span', { class: 'nm', text: ABILITIES[id].name }), el('span', { class: 'muted small', text: `　${skillBrief(ABILITIES[id])}` })));
+      if (learned.length > 12) box.append(el('div', { class: 'small muted', text: `ほか${learned.length - 12}こ` }));
       box.append(el('div', { class: 'detail', text: '「他」は今の職業以外で覚えた技。MPが増えたり、威力が下がったりする。' }));
       return box;
     }
-    const m = this.mkSub({
-      items,
-      onMove: (it) => { detail.textContent = it ? `${abilityDetail(it.value, c)}\n使った回数: ${c.skillUse?.[it.value] || 0}回` : ''; },
+    const showDetail = (it) => { detail.textContent = it ? `${abilityDetail(it.value, c)}\n使った回数: ${c.skillUse?.[it.value] || 0}回` : ''; };
+    const m = list(items, {
+      onMove: showDetail,
       onSelect: async (it) => {
         const a = ABILITIES[it.value];
         const locked = a.kind === 'combo' && !comboAllowed(c, it.value);
@@ -557,7 +573,8 @@ export class FieldMenu {
         setTimeout(() => { if (this.root) this.focusSub(this.skillsView(true, who)); }, 200);
       },
     });
-    box.append(el('div', { class: 'small muted', text: '選ぶと「使う（フィールドで使える技）」「お気に入り」を選べる' }), m.root, detail);
+    showDetail(m.current);
+    box.append(el('div', { class: 'small muted', text: '選ぶと「使う（フィールドで使える技）」「お気に入り」を選べる' }), detail);
     return box;
   }
 
@@ -910,7 +927,6 @@ export class FieldMenu {
       items.push({ label: `${s.name}：${tname(s.tactics)}`, value: { key: s.key, name: s.name }, face: faceURL({ look: s.look, job: s.job, eq: s.equip, mon: s.species || undefined }) });
     }
     items.push({ label: `戦いの初めからオート：${bs.auto ? 'ON' : 'OFF'}`, value: { toggle: 'auto' } });
-    items.push({ label: `オートでねらう合体技：${DUAL_TECHS[bs.autoDual]?.name || 'なし'}`, value: { toggle: 'autoDual' } });
     if (!active) {
       for (const it of items) box.append(el('div', { text: it.label }));
       box.append(el('div', { class: 'detail', text: '仲間やオートのときの戦い方を決める。\n仲間を「めいれいさせろ」にすると、仲間のコマンドも自分で選べる。' }));
@@ -922,14 +938,6 @@ export class FieldMenu {
         const v = it.value;
         if (v.toggle === 'auto') {
           g.net.send({ t: 'menu', action: 'settings', auto: !bs.auto });
-        } else if (v.toggle === 'autoDual') {
-          // 自分が 片方の 技を 覚えている 合体技
-          this.sub.blur();
-          const mine = new Set(learnedAbilities(c));
-          const list = DUAL_ORDER.filter((id) => DUAL_TECHS[id].need.some((grp) => grp.some((k) => mine.has(k))))
-            .map((id) => ({ label: DUAL_TECHS[id].name, value: id, right: bs.autoDual === id ? '★' : '' }));
-          const t = await this.pick('オートでねらう合体技（仲間のゲージが半分たまったらいっしょに出す）', [{ label: '使わない', value: '__none' }, ...list, { label: 'やめる', value: null }]);
-          if (t) g.net.send({ t: 'menu', action: 'settings', autoDual: t === '__none' ? null : t });
         } else {
           this.sub.blur();
           const list = Object.entries(TACTICS).filter(([k]) => v.key !== 'self' || k !== 'manual').map(([k, x]) => ({ label: x.name, value: k }));
@@ -953,7 +961,7 @@ export class FieldMenu {
       box.append(el('div', { class: 'detail', text: `${leader.name}の冒険を手伝っているあいだは、自分のストーリーは進みません。\nレベル・お金・道具はそのままもらえるよ。パーティーをぬけると、自分の冒険の場所にもどります。` }));
     }
     box.append(el('h3', { text: leader ? '自分の目標' : '今の目標' }), el('div', { class: 'q-main' }, el('i', { class: 'qdot qmain' }), c.objective || '（特になし）'));
-    const tgt = OBJECTIVE_TARGETS[c.objective || ''];
+    const tgt = difficultyOf(c).mainMarks && OBJECTIVE_TARGETS[c.objective || ''];
     if (tgt) box.append(el('div', { class: 'small muted', text: `行き先: ${whereName(tgt[tgt.length - 1])}（地図のピンクのしるし）` }));
     // たのまれごと（報告する 人は 地図に 水色・報告できる ときは みどり）
     const f = (k) => !!c.flags[k];
@@ -986,7 +994,15 @@ export class FieldMenu {
     const bden = { 1: '少なめ（大きく）', 2: 'ふつう', 3: '多め（3列）' }[battleDensityPref()];
     const vol = (v) => '■'.repeat(Math.round(v * 5)) + '□'.repeat(5 - Math.round(v * 5));
     const send = (patch) => g.net.send({ t: 'menu', action: 'settings', speed: cur.speed, textSpeed: cur.textSpeed, wait: !!bs.wait, auto: !!bs.auto, ...patch });
+    // ゲームの 難しさ（キャラごと。difficulty.js）
+    const dif = difficultyOf(c);
+    const sendDif = (patch) => g.net.send({ t: 'menu', action: 'settings', difficulty: patch });
     const items = [
+      { header: true, label: 'ゲームの難しさ', cls: 'set-hdr' },
+      { label: `目的地のしるし（メイン）：${dif.mainMarks ? '出す' : '出さない'}`, value: 'dMain' },
+      { label: `目的地のしるし（たのまれごと）：${dif.subMarks ? '出す' : '出さない'}`, value: 'dSub' },
+      { label: `もらえる経験値：${EXP_RATE_NAMES[dif.exp]}`, value: 'dExp' },
+      { header: true, label: '画面と音・戦い', cls: 'set-hdr' },
       { label: `戦いの速さ（エフェクト）：${sp}`, value: 'speed' },
       { label: `文字の速さ：${tsp}`, value: 'textSpeed' },
       { label: `戦いの文字の大きさ：${bfs}`, value: 'bfont' },
@@ -997,7 +1013,7 @@ export class FieldMenu {
       { label: `文字の大きさ：${document.body.classList.contains('big-text') ? '大きい' : 'ふつう'}`, value: 'text' },
       { label: `字の形：${UI_FONTS[uiFontPref()]}`, value: 'font' },
     ];
-    if (g.field.constructor.webgl2()) items.unshift({ label: `画面：${g.field.view === '3d' ? '2.5D（立体）' : '2D（ドット）'}`, value: 'view' });
+    if (g.field.constructor.webgl2()) items.splice(items.findIndex((x) => x.value === 'speed'), 0, { label: `画面：${g.field.view === '3d' ? '2.5D（立体）' : '2D（ドット）'}`, value: 'view' });
     if (g.input.touch) {
       items.push({ label: `ウインドウの十字キー：${g.input.padOn ? '出す' : '出さない'}`, value: 'pad' });
       items.push({ label: `遊んでいる間は画面を消さない：${g.awakeOn ? 'ON' : 'OFF'}`, value: 'awake' });
@@ -1005,7 +1021,7 @@ export class FieldMenu {
     }
     const box = el('div');
     if (!active) {
-      for (const it of items) box.append(el('div', { text: it.label }));
+      for (const it of items) box.append(el('div', { class: it.header ? 'gold small' : '', text: it.label }));
       box.append(el('div', {
         class: 'detail',
         text: g.input.touch
@@ -1017,7 +1033,13 @@ export class FieldMenu {
     const m = this.mkSub({
       items,
       onSelect: (it) => {
-        if (it.value === 'speed') {
+        if (it.value === 'dMain') {
+          sendDif({ mainMarks: !dif.mainMarks });
+        } else if (it.value === 'dSub') {
+          sendDif({ subMarks: !dif.subMarks });
+        } else if (it.value === 'dExp') {
+          sendDif({ exp: EXP_RATES[(EXP_RATES.indexOf(dif.exp) + 1) % EXP_RATES.length] });
+        } else if (it.value === 'speed') {
           send({ speed: BATTLE_SPEEDS[(BATTLE_SPEEDS.indexOf(cur.speed) + 1) % BATTLE_SPEEDS.length] });
         } else if (it.value === 'textSpeed') {
           send({ textSpeed: TEXT_SPEEDS[(TEXT_SPEEDS.indexOf(cur.textSpeed) + 1) % TEXT_SPEEDS.length] });
@@ -1055,7 +1077,7 @@ export class FieldMenu {
         setTimeout(() => { if (this.root) this.focusSub(this.settingsView(true)); }, 200);
       },
     });
-    box.append(m.root, el('div', { class: 'detail', text: 'ウェイトをONにすると、コマンドを選ぶ間は戦いの時間が止まる（じっくり考えたい人におすすめ）' + (g.input.touch ? '\n画面が消えると家族との通信がとぎれやすいので「画面を消さない」はONがおすすめ' : '') }));
+    box.append(m.root, el('div', { class: 'detail', text: 'ゲームの難しさ: 目的地のしるしを「出さない」にすると、地図のしるしと仲間の「行き先は〇〇のほう」が出なくなる。経験値を0.75倍・0.5倍にすると、レベルが上がりにくくなる（仲間・馬車の仲間も同じ）。\nウェイトをONにすると、コマンドを選ぶ間は戦いの時間が止まる（じっくり考えたい人におすすめ）' + (g.input.touch ? '\n画面が消えると家族との通信がとぎれやすいので「画面を消さない」はONがおすすめ' : '') }));
     return box;
   }
 }
@@ -1139,7 +1161,7 @@ export function renderMiniMap(game, canvas, full = false) {
 const DIR8 = ['東', '南東', '南', '南西', '西', '北西', '北', '北東'];
 export function questDirection(game) {
   const f = game.field;
-  const m = questMarks(game.me, f.mapId, currentObjective(game)).find((x) => x.kind === 'main');
+  const m = visibleMarks(game.me, questMarks(game.me, f.mapId, currentObjective(game))).find((x) => x.kind === 'main');
   if (!m) return '';
   const dx = m.x + 0.5 - f.me.x, dy = m.y + 0.5 - f.me.y;
   const dist = Math.hypot(dx, dy);
@@ -1170,7 +1192,8 @@ export function currentObjective(game) {
   return game.visitingLeader?.() ? game.party?.objective : game.me?.objective;
 }
 function drawQuestMarks(game, ctx, canvas, x0, y0, pxPer, full) {
-  const marks = questMarks(game.me, game.field.mapId, currentObjective(game));
+  // ゲームの 難しさで 出さない しるしは かかない
+  const marks = visibleMarks(game.me, questMarks(game.me, game.field.mapId, currentObjective(game)));
   const t = performance.now();
   const pulse = 0.5 + 0.5 * Math.sin(t / 220);
   // 下から メインが いちばん うえに なるように
@@ -1256,10 +1279,12 @@ export function openWorldMap(game) {
   const cv = makeCanvas(10, 10);
   const head = el('div', { class: 'wm-head' }, el('span', { class: 'gold', text: game.field.map.name }),
     el('button', { class: 'btn closebtn', text: '✕ 閉じる', 'aria-label': '地図を閉じる' }));
-  const qlg = el('div', { class: 'map-legend small' },
-    el('span', { class: 'lg' }, el('i', { class: 'qdot qmain' }), '次の行き先'),
-    el('span', { class: 'lg' }, el('i', { class: 'qdot sub' }), 'たのまれごと'),
-    el('span', { class: 'lg' }, el('i', { class: 'qdot ready' }), '報告できる'));
+  // しるしの せつめい（ゲームの 難しさで 出さない しるしは のせない）
+  const dif = difficultyOf(game.me);
+  const qlg = dif.mainMarks || dif.subMarks ? el('div', { class: 'map-legend small' },
+    dif.mainMarks ? el('span', { class: 'lg' }, el('i', { class: 'qdot qmain' }), '次の行き先') : null,
+    dif.subMarks ? el('span', { class: 'lg' }, el('i', { class: 'qdot sub' }), 'たのまれごと') : null,
+    dif.subMarks ? el('span', { class: 'lg' }, el('i', { class: 'qdot ready' }), '報告できる') : null) : null;
   box.append(...[head, cv, qlg, mapLegend(game)].filter(Boolean), el('div', { class: 'small muted', text: `赤い点: 自分　黄色: パーティー　青: 家族　（${game.input.touch ? 'タップで閉じる' : 'B/Xで閉じる'}）` }));
   document.getElementById('ui').append(back, box);
   renderMiniMap(game, cv, true);

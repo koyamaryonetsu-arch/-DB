@@ -1,19 +1,20 @@
 // たたかいの はじまりと おわり（ほうしゅう・ぜんめつ）
-import { Battle, normBattleSettings } from '../battle.js?v=e65131463bfb';
-import { MONSTERS } from '../data/monsters.js?v=e65131463bfb';
-import { ITEMS } from '../data/items.js?v=e65131463bfb';
-import { ABILITIES } from '../data/abilities.js?v=e65131463bfb';
-import { JOBS } from '../data/jobs.js?v=e65131463bfb';
-import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=e65131463bfb';
-import { gainExp, gainJobBattles, jobTrainable, itemCount, removeItem, addItem, ownsItem, computeStats, STAT_NAMES, fullHeal } from '../stats.js?v=e65131463bfb';
-import { JOB_MAX_LEVEL } from '../data/jobs.js?v=e65131463bfb';
-import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf } from './party.js?v=e65131463bfb';
-import { rollDrops, stealPick } from '../data/loot.js?v=e65131463bfb';
-import { MAPS } from '../maps/index.js?v=e65131463bfb';
-import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js?v=e65131463bfb';
-import { treasureAfterBattle } from './treasure.js?v=e65131463bfb';
-import { wipeGoldLoss, bankGold } from './bank.js?v=e65131463bfb';
-import { wagonShare, wagonBattleSwap } from './wagon.js?v=e65131463bfb';
+import { Battle, normBattleSettings } from '../battle.js?v=7dce3e047133';
+import { scaleExp } from '../data/difficulty.js?v=7dce3e047133';
+import { MONSTERS } from '../data/monsters.js?v=7dce3e047133';
+import { ITEMS } from '../data/items.js?v=7dce3e047133';
+import { ABILITIES } from '../data/abilities.js?v=7dce3e047133';
+import { JOBS } from '../data/jobs.js?v=7dce3e047133';
+import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=7dce3e047133';
+import { gainExp, gainJobBattles, jobTrainable, itemCount, removeItem, addItem, ownsItem, computeStats, STAT_NAMES, fullHeal } from '../stats.js?v=7dce3e047133';
+import { JOB_MAX_LEVEL } from '../data/jobs.js?v=7dce3e047133';
+import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf } from './party.js?v=7dce3e047133';
+import { rollDrops, stealPick } from '../data/loot.js?v=7dce3e047133';
+import { MAPS } from '../maps/index.js?v=7dce3e047133';
+import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js?v=7dce3e047133';
+import { treasureAfterBattle } from './treasure.js?v=7dce3e047133';
+import { wipeGoldLoss, bankGold } from './bank.js?v=7dce3e047133';
+import { wagonShare, wagonBattleSwap } from './wagon.js?v=7dce3e047133';
 
 let battleSeq = 1;
 
@@ -220,12 +221,26 @@ export function startFixedBattle(world, initiator, participants, encId) {
 export function battleTick(world, ctx, dt) {
   const evs = ctx.battle.tick(dt);
   if (evs.length) {
+    markDuals(world, ctx, evs);
     for (const sid of ctx.sids) {
       const m = world.sessions.get(sid);
       if (m) world.send(m, { t: 'battleEv', id: ctx.id, evs });
     }
   }
   if (ctx.battle.over) finishBattle(world, ctx);
+}
+
+// 合体技は 一度 使うと 効果が わかる（出した 2人の もちぬしの キャラに char.dualSeen）
+function markDuals(world, ctx, evs) {
+  for (const ev of evs) {
+    const d = ev.dual;
+    if (!d?.id) continue;
+    for (const id of [d.a, d.b]) {
+      const who = ctx.actorMap[id];
+      const ch = who?.type === 'human' ? who.char : who?.type === 'support' ? world.data.characters[who.owner] : null;
+      if (ch && !ch.dualSeen?.[d.id]) ch.dualSeen = { ...(ch.dualSeen || {}), [d.id]: 1 };
+    }
+  }
 }
 
 export function battleCommand(world, s, msg) {
@@ -244,10 +259,6 @@ export function battleCommand(world, s, msg) {
   if (msg.cmd?.type === 'swap') return wagonBattleSwap(world, s, ctx, msg);
   const r = b.command(msg.actor, msg.cmd, s.id);
   if (!r.ok) world.send(s, { t: 'battleRej', reason: r.reason || 'できません' });
-  // オートの 合体技は つぎの 戦いでも おぼえておく
-  else if (msg.cmd?.type === 'setAutoDual' && b.get(msg.actor)?.kind === 'player') {
-    s.char.battleSettings = { ...(s.char.battleSettings || {}), autoDual: b.get(msg.actor).autoDual || null };
-  }
 }
 
 // サーバーから プレイヤーが ぬけたとき
@@ -308,9 +319,11 @@ function finishBattle(world, ctx) {
     const leaderName = sessions[0]?.char.name || '';
     for (const m of sessions) {
       const c = m.char;
+      // ゲームの むずかしさ（設定）で 経験値が へる（difficulty.js）
+      const myExp = scaleExp(c, exp);
       const lines = [];
       lines.push(res.killed.length ? '魔物たちをやっつけた！' : '戦いに勝った！');
-      if (exp > 0) lines.push(`${c.name}は${exp}ポイントの経験値をかくとく！`);
+      if (myExp > 0) lines.push(`${c.name}は${myExp}ポイントの経験値をかくとく！`);
       if (gold > 0) lines.push(`${gold}ゴールドを手に入れた！`);
       c.gold = Math.min(9999999, c.gold + gold);
       for (const sp of res.killed) c.kills[sp] = (c.kills[sp] || 0) + 1;
@@ -325,7 +338,7 @@ function finishBattle(world, ctx) {
           lines.push(`${MONSTERS[sp].name}は${ITEMS[id].name}を持っていた！`, `${c.name}は${ITEMS[id].name}を手に入れた！`);
         }
       }
-      const ups = gainExp(c, exp);
+      const ups = gainExp(c, myExp);
       for (const u of ups) {
         lines.push(`${c.name}のレベルが${u.level}に上がった！`);
         const g = Object.entries(u.gains).map(([k, v]) => `${statShort(k)}+${v}`).join('　');
@@ -353,11 +366,12 @@ function finishBattle(world, ctx) {
       const who = ctx.actorMap[a.id];
       if (who?.type !== 'support' || !who.char) continue;
       if (who.kind === 'family') {
-        if (who.char.ownerId) creditSupportOwner(world, who.char.ownerId, exp, gold, leaderName);
+        if (who.char.ownerId) creditSupportOwner(world, who.char.ownerId, scaleExp(world.data.characters[who.char.ownerId], exp), gold, leaderName);
         continue;
       }
       const trains = !who.char.species && jobTrainable(who.char, maxEnemyLv) ? trainN : 0;
-      grow(who.char, exp, trains);
+      // 仲間は もちぬしの むずかしさ
+      grow(who.char, scaleExp(world.data.characters[who.owner], exp), trains);
     }
     // 馬車の 仲間は 半分（world/wagon.js）
     wagonShare(world, ctx, { exp, trainN, maxEnemyLv, grow, say: (l) => compLines.push(l) });

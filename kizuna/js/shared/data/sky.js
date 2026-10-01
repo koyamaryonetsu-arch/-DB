@@ -1,8 +1,8 @@
 // 空の 旅（第2章クリアの あと）と 移動の 呪文ルーラ の データ
 // ・風の大鳥フウラ: カモメ港の 風のさいだんで「風の笛」を もらうと、フィールドで 呼べる（world/travel.js）
 // ・ルーラ: 魔法使い・賢者が 覚える。行った ことの ある 町へ 仲間と いっしょに 飛ぶ（洞窟や 塔の 中では 使えない）
-import { OW_W, OW_H } from '../maps/overworld.js?v=e65131463bfb';
-import { SEA_W, SEA_H, PORT, SEA_POS } from '../maps/sea.js?v=e65131463bfb';
+import { OW_W, OW_H } from '../maps/overworld.js?v=7dce3e047133';
+import { SEA_W, SEA_H, PORT, SEA_POS } from '../maps/sea.js?v=7dce3e047133';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

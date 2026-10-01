@@ -2,8 +2,8 @@
 // group: [[モンスターID, 最小数, 最大数], ...]
 // フィールドでは 先頭の モンスターの すがたで うろうろしている（シンボルエンカウント）
 
-import { ENCOUNTERS_CH2, FIXED_CH2, ZONE_BG_CH2 } from './encounters-ch2.js?v=e65131463bfb';
-import { NIGHT_ENCOUNTERS, NIGHT_ZONE_BG } from './night.js?v=e65131463bfb';
+import { ENCOUNTERS_CH2, FIXED_CH2, ZONE_BG_CH2 } from './encounters-ch2.js?v=7dce3e047133';
+import { NIGHT_ENCOUNTERS, NIGHT_ZONE_BG } from './night.js?v=7dce3e047133';
 
 export const ENCOUNTER_TABLES = {
   outskirts: [

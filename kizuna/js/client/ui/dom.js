@@ -130,7 +130,22 @@ export class ListMenu {
 
   scrollToSel() {
     const li = this.root.children[this.idx];
-    if (li && li.scrollIntoView) li.scrollIntoView({ block: 'nearest' });
+    if (!li || !li.scrollIntoView) return;
+    // 上に 固定した 見出し（タブなど）が ある ときは、CSS の scroll-margin-top の ぶん 下に 出す
+    // （ブラウザの nearest は 見出しの 下に かくれた 行を「見えている」と みなして うごかない）
+    const mt = parseFloat(getComputedStyle(li).scrollMarginTop) || 0;
+    if (mt > 0) {
+      let sc = li.parentElement;
+      while (sc && !(sc.scrollHeight > sc.clientHeight && /auto|scroll/.test(getComputedStyle(sc).overflowY))) sc = sc.parentElement;
+      if (sc) {
+        const top = li.getBoundingClientRect().top - sc.getBoundingClientRect().top - sc.clientTop;
+        if (top < mt) {
+          sc.scrollTop += top - mt;
+          return;
+        }
+      }
+    }
+    li.scrollIntoView({ block: 'nearest' });
   }
 
   get current() { return this.items[this.idx]; }

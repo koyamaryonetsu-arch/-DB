@@ -1,14 +1,14 @@
 // 馬車の がめん: たたかいの「いれかえ」・メニューの「仲間」→「馬車」・酒場の 乗りかえ
 //   きまりは shared/data/wagon.js と shared/world/wagon.js
-import { el, esc, toast } from './dom.js?v=e65131463bfb';
-import { WAGON_SLOTS } from '../../shared/data/wagon.js?v=e65131463bfb';
-import { COMPANION_SLOTS } from '../../shared/data/companions.js?v=e65131463bfb';
-import { MAPS } from '../../shared/maps/index.js?v=e65131463bfb';
-import { JOBS } from '../../shared/data/jobs.js?v=e65131463bfb';
-import { MONSTERS } from '../../shared/data/monsters.js?v=e65131463bfb';
-import { computeStats } from '../../shared/stats.js?v=e65131463bfb';
-import { faceURL } from '../field.js?v=e65131463bfb';
-import { wagonSprite } from '../render/wagon.js?v=e65131463bfb';
+import { el, esc, toast } from './dom.js?v=7dce3e047133';
+import { WAGON_SLOTS } from '../../shared/data/wagon.js?v=7dce3e047133';
+import { COMPANION_SLOTS } from '../../shared/data/companions.js?v=7dce3e047133';
+import { MAPS } from '../../shared/maps/index.js?v=7dce3e047133';
+import { JOBS } from '../../shared/data/jobs.js?v=7dce3e047133';
+import { MONSTERS } from '../../shared/data/monsters.js?v=7dce3e047133';
+import { computeStats } from '../../shared/stats.js?v=7dce3e047133';
+import { faceURL } from '../field.js?v=7dce3e047133';
+import { wagonSprite } from '../render/wagon.js?v=7dce3e047133';
 
 // ───────────── みため ─────────────
 let styled = false;

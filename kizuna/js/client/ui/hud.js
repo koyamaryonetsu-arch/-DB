@@ -1,10 +1,10 @@
 // フィールドの がめんの かざり（HP・ばしょ・もくひょう・ちず・チャット）
-import { el, bar, askText, ListMenu } from './dom.js?v=e65131463bfb';
-import { computeStats } from '../../shared/stats.js?v=e65131463bfb';
-import { JOBS } from '../../shared/data/jobs.js?v=e65131463bfb';
-import { renderMiniMap, openWorldMap } from './menu.js?v=e65131463bfb';
-import { makeCanvas } from '../render/pixel.js?v=e65131463bfb';
-import { ClockBadge } from './clock.js?v=e65131463bfb';
+import { el, bar, askText, ListMenu } from './dom.js?v=7dce3e047133';
+import { computeStats } from '../../shared/stats.js?v=7dce3e047133';
+import { JOBS } from '../../shared/data/jobs.js?v=7dce3e047133';
+import { renderMiniMap, openWorldMap } from './menu.js?v=7dce3e047133';
+import { makeCanvas } from '../render/pixel.js?v=7dce3e047133';
+import { ClockBadge } from './clock.js?v=7dce3e047133';
 
 export const STAMPS = ['よろしく！', 'ありがとう！', '行くよー！', '助けて！', '待ってて！', 'やったね！', 'おつかれさま', 'ご飯だよ〜'];
 
