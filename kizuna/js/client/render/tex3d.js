@@ -2,9 +2,9 @@
 // ・タイルの え を 1まいに ならべた「アトラス」
 // ・かべの よこ・うえ、やま、はし など 3D だけで つかう え
 // ・つぼ・さく・かんばん など たてて みせる「もの」の え（せなかは とうめい）
-import { T } from '../../shared/tiles.js?v=1fa5f2a06827';
-import { tileCanvas } from './tiles.js?v=1fa5f2a06827';
-import { Painter, prand, makeCanvas, ctxOf } from './pixel.js?v=1fa5f2a06827';
+import { T } from '../../shared/tiles.js?v=007288b252c5';
+import { tileCanvas } from './tiles.js?v=007288b252c5';
+import { Painter, prand, makeCanvas, ctxOf } from './pixel.js?v=007288b252c5';
 
 // ───────────── アトラス ─────────────
 export class Atlas {

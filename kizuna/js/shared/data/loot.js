@@ -13,8 +13,8 @@
 //   ・種は その魔物に 合った もの（かたい→守り、はやい→素早さ、呪文→かしこさ、大きい→命、力じまん→力）
 //   ・素材（ふしぎなかじ で 使う）は MAT_DROPS に 書く。レアも よく落とす 物も 出なかった ときに 出る
 //   ・図鑑に 落とす 物が のる（手に入れるまでは ？？？）
-import { ITEMS } from './items.js?v=1fa5f2a06827';
-import { MONSTERS } from './monsters.js?v=1fa5f2a06827';
+import { ITEMS } from './items.js?v=007288b252c5';
+import { MONSTERS } from './monsters.js?v=007288b252c5';
 
 export const DROP_N = { common: 8, rare: 64, mat: 8 };
 
