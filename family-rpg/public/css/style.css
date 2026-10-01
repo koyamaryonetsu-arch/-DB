@@ -1300,7 +1300,7 @@ body.bd-3 #battle .b-cmd .menu .item { font-size: calc(var(--bcmd-fs) * 0.9); pa
 
 /* 行動ゲージは モノクロ（HP・MP の 色と まざらない） */
 .atb { background: #16161c; }
-.atb i { background: linear-gradient(90deg, #8c8c96, #dadae2); }
+.atb i { background: linear-gradient(90deg, #8e8e8e, #dcdcdc); }
 .atb.full i { background: #ffffff; box-shadow: 0 0 6px rgba(255, 255, 255, 0.7); }
 
 /* お気に入りの まど（戦いの 呪文・特技） */
