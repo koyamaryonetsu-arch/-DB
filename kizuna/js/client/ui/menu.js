@@ -1,33 +1,34 @@
 // フィールドの メニュー
-import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js?v=e2673ecbb09d';
-import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js?v=e2673ecbb09d';
-import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js?v=e2673ecbb09d';
-import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS } from '../../shared/battle.js?v=e2673ecbb09d';
-import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily } from '../prefs.js?v=e2673ecbb09d';
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, TIER_NAMES } from '../../shared/data/jobs.js?v=e2673ecbb09d';
-import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress } from '../../shared/stats.js?v=e2673ecbb09d';
-import { HIRAMEKI } from '../../shared/data/hirameki.js?v=e2673ecbb09d';
-import { DUAL_TECHS, DUAL_ORDER, groupName } from '../../shared/data/dual.js?v=e2673ecbb09d';
-import { MONSTERS } from '../../shared/data/monsters.js?v=e2673ecbb09d';
-import { monsterDrops } from '../../shared/data/loot.js?v=e2673ecbb09d';
-import { MONSTER_FRIENDS, RACE_NAMES, recipeHint } from '../../shared/data/companions.js?v=e2673ecbb09d';
-import { TACTICS } from '../../shared/ai.js?v=e2673ecbb09d';
-import { PLACES } from '../../shared/maps/overworld.js?v=e2673ecbb09d';
-import { SEA_PLACES } from '../../shared/maps/ch2.js?v=e2673ecbb09d';
-import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js?v=e2673ecbb09d';
-import { T } from '../../shared/tiles.js?v=e2673ecbb09d';
-import { itemDetail, abilityDetail } from './info.js?v=e2673ecbb09d';
-import { makeCanvas, ctxOf } from '../render/pixel.js?v=e2673ecbb09d';
-import { monsterCanvas } from '../render/monsters.js?v=e2673ecbb09d';
-import { mapIconCanvas, boardIconURL } from '../render/boards.js?v=e2673ecbb09d';
-import { compareOne, compareTeam, whoItems } from './counter.js?v=e2673ecbb09d';
-import { faceURL } from '../field.js?v=e2673ecbb09d';
-import { partyRows } from './hud.js?v=e2673ecbb09d';
-import { questMarks, subQuests, OBJECTIVE_TARGETS, whereName } from '../../shared/data/quest-targets.js?v=e2673ecbb09d';
-import { memberTalk, talkFor } from '../../shared/data/party-talk.js?v=e2673ecbb09d';
-import { treasureRows, treasureDetail, openTreasureMap } from './treasure.js?v=e2673ecbb09d';
-import { themeHex } from '../render/themes.js?v=e2673ecbb09d';
-import { wagonMenuView } from './wagon.js?v=e2673ecbb09d';
+import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js?v=e65131463bfb';
+import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js?v=e65131463bfb';
+import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js?v=e65131463bfb';
+import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS } from '../../shared/battle.js?v=e65131463bfb';
+import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily } from '../prefs.js?v=e65131463bfb';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_TRAIN_GAP, TIER_NAMES } from '../../shared/data/jobs.js?v=e65131463bfb';
+import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress } from '../../shared/stats.js?v=e65131463bfb';
+import { HIRAMEKI } from '../../shared/data/hirameki.js?v=e65131463bfb';
+import { DUAL_TECHS, DUAL_ORDER, groupName } from '../../shared/data/dual.js?v=e65131463bfb';
+import { MONSTERS } from '../../shared/data/monsters.js?v=e65131463bfb';
+import { monsterDrops } from '../../shared/data/loot.js?v=e65131463bfb';
+import { MONSTER_FRIENDS, RACE_NAMES, recipeHint } from '../../shared/data/companions.js?v=e65131463bfb';
+import { TACTICS } from '../../shared/ai.js?v=e65131463bfb';
+import { PLACES } from '../../shared/maps/overworld.js?v=e65131463bfb';
+import { SEA_PLACES } from '../../shared/maps/ch2.js?v=e65131463bfb';
+import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js?v=e65131463bfb';
+import { T } from '../../shared/tiles.js?v=e65131463bfb';
+import { itemDetail, abilityDetail } from './info.js?v=e65131463bfb';
+import { makeCanvas, ctxOf } from '../render/pixel.js?v=e65131463bfb';
+import { monsterCanvas } from '../render/monsters.js?v=e65131463bfb';
+import { mapIconCanvas, boardIconURL } from '../render/boards.js?v=e65131463bfb';
+import { medalItemRow, walletView } from './casino.js?v=e65131463bfb';
+import { compareOne, compareTeam, whoItems } from './counter.js?v=e65131463bfb';
+import { faceURL } from '../field.js?v=e65131463bfb';
+import { partyRows } from './hud.js?v=e65131463bfb';
+import { questMarks, subQuests, OBJECTIVE_TARGETS, whereName } from '../../shared/data/quest-targets.js?v=e65131463bfb';
+import { memberTalk, talkFor } from '../../shared/data/party-talk.js?v=e65131463bfb';
+import { treasureRows, treasureDetail, openTreasureMap } from './treasure.js?v=e65131463bfb';
+import { themeHex } from '../render/themes.js?v=e65131463bfb';
+import { wagonMenuView } from './wagon.js?v=e65131463bfb';
 
 const MAIN = [
   { label: 'はなす', value: 'talk' },
@@ -284,6 +285,8 @@ export class FieldMenu {
     const items = sortItemIds(c.items.map((e) => e.id), mode).map((id) => ({ label: ITEMS[id].name, html: ITEMS[id].type === 'mat' ? `${esc(ITEMS[id].name)}<span class="tag mat">素材</span>` : undefined, right: `×${counts.get(id)}`, value: id }));
     for (const k of c.keyItems) items.push({ html: `${ITEMS[k].name}<span class="tag gold">大事</span>`, value: k, key: true });
     items.push(...treasureRows(c)); // 宝の地図
+    const medal = medalItemRow(c);
+    if (medal) items.push(medal);
     if (!items.length) {
       box.append(el('div', { class: 'muted', text: '何も持っていない。' }));
       if (active) setTimeout(() => this.back(), 600);
@@ -659,7 +662,7 @@ export class FieldMenu {
           el('span', { class: j === c.job ? 'good' : '', text: `${JOBS[j].name}${JOBS[j].tier ? `（${TIER_NAMES[JOBS[j].tier]}）` : ''}` }),
           el('span', { class: pg.done ? 'gold' : '', text: pg.done ? `Lv${JOB_MAX_LEVEL} ★マスター` : `Lv${info.lv}（あと${pg.next}回）` })));
       }
-      box.append(jobs, el('div', { class: 'detail', text: '自分よりレベルが5以上低い敵との戦いは、職業の修行にならないよ。' }));
+      box.append(jobs, el('div', { class: 'detail', text: `自分よりレベルが${JOB_TRAIN_GAP + 1}以上低い敵ばかりだと、職業の修行にならない。` }));
     }
     const speedNote = el('div', { class: 'detail', text: `素早さ ${st.agi}…戦いで約${(128000 / (st.agi + 12) / 1000).toFixed(1)}秒ごとに順番が来る` });
     box.append(speedNote);
@@ -949,7 +952,7 @@ export class FieldMenu {
       box.append(el('h3', { text: `${leader.name}の目標（いっしょに冒険中）` }), el('div', { text: this.game.party.objective || '（特になし）' }));
       box.append(el('div', { class: 'detail', text: `${leader.name}の冒険を手伝っているあいだは、自分のストーリーは進みません。\nレベル・お金・道具はそのままもらえるよ。パーティーをぬけると、自分の冒険の場所にもどります。` }));
     }
-    box.append(el('h3', { text: leader ? '自分の目標' : '今の目標' }), el('div', { class: 'q-main' }, el('i', { class: 'qdot main' }), c.objective || '（特になし）'));
+    box.append(el('h3', { text: leader ? '自分の目標' : '今の目標' }), el('div', { class: 'q-main' }, el('i', { class: 'qdot qmain' }), c.objective || '（特になし）'));
     const tgt = OBJECTIVE_TARGETS[c.objective || ''];
     if (tgt) box.append(el('div', { class: 'small muted', text: `行き先: ${whereName(tgt[tgt.length - 1])}（地図のピンクのしるし）` }));
     // たのまれごと（報告する 人は 地図に 水色・報告できる ときは みどり）
@@ -965,6 +968,8 @@ export class FieldMenu {
     const chests = Object.keys(c.chests || {}).length;
     const total = Object.values(MAPS).reduce((s, m) => s + m.chests.length, 0);
     box.append(el('div', { class: 'detail', text: `宝箱 ${chests}/${total}　倒した魔物 ${Object.values(c.kills || {}).reduce((s, x) => s + x, 0)}ひき` }));
+    const wallet = walletView(c);
+    if (wallet) box.append(wallet);
     return box;
   }
 
@@ -1252,7 +1257,7 @@ export function openWorldMap(game) {
   const head = el('div', { class: 'wm-head' }, el('span', { class: 'gold', text: game.field.map.name }),
     el('button', { class: 'btn closebtn', text: '✕ 閉じる', 'aria-label': '地図を閉じる' }));
   const qlg = el('div', { class: 'map-legend small' },
-    el('span', { class: 'lg' }, el('i', { class: 'qdot main' }), '次の行き先'),
+    el('span', { class: 'lg' }, el('i', { class: 'qdot qmain' }), '次の行き先'),
     el('span', { class: 'lg' }, el('i', { class: 'qdot sub' }), 'たのまれごと'),
     el('span', { class: 'lg' }, el('i', { class: 'qdot ready' }), '報告できる'));
   box.append(...[head, cv, qlg, mapLegend(game)].filter(Boolean), el('div', { class: 'small muted', text: `赤い点: 自分　黄色: パーティー　青: 家族　（${game.input.touch ? 'タップで閉じる' : 'B/Xで閉じる'}）` }));

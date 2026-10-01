@@ -1,13 +1,13 @@
 // だいほん（イベント）を すすめる しくみ
-import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js?v=e2673ecbb09d';
-import { ITEMS } from '../data/items.js?v=e2673ecbb09d';
-import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js?v=e2673ecbb09d';
-import { startFixedBattle } from './battles.js?v=e2673ecbb09d';
-import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=e2673ecbb09d';
-import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion } from './party.js?v=e2673ecbb09d';
-import { openService } from './services.js?v=e2673ecbb09d';
-import { isNightFor, advanceClock } from './clock.js?v=e2673ecbb09d';
-import { grantWagon, wagonChars } from './wagon.js?v=e2673ecbb09d';
+import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js?v=e65131463bfb';
+import { ITEMS } from '../data/items.js?v=e65131463bfb';
+import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js?v=e65131463bfb';
+import { startFixedBattle } from './battles.js?v=e65131463bfb';
+import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=e65131463bfb';
+import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion } from './party.js?v=e65131463bfb';
+import { openService } from './services.js?v=e65131463bfb';
+import { isNightFor, advanceClock } from './clock.js?v=e65131463bfb';
+import { grantWagon, wagonChars } from './wagon.js?v=e65131463bfb';
 
 let runSeq = 1;
 
@@ -337,7 +337,7 @@ export class ScriptRun {
           this.owner.char.spawn = { map, x, y };
           break;
         }
-        case 'shop': case 'jobChange': case 'tavern': case 'board': case 'starTrade': case 'church': case 'bank': case 'forge': {
+        case 'shop': case 'jobChange': case 'tavern': case 'board': case 'starTrade': case 'church': case 'bank': case 'forge': case 'casino': case 'medalKing': {
           const r = await this.flush();
           if (r.aborted) return this.abort();
           const ui = openService(w, this.init, op, a[0]);

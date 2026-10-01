@@ -9,16 +9,16 @@
 // ・ミドリナ地方の 南の はし ⇄ 風の海の 北の はしで、となりの 地方へ とんでいける（「別の地方へ飛ぶ」でも）
 // ・パーティーで「ついていく」に している なかまは いっしょに のる
 // ・サーバーは とんでいない 人が 歩けない ところへ 入るのを みとめない（world.js の onMove）
-import { MAPS, isBlocked, onWater, condOk } from '../maps/index.js?v=e2673ecbb09d';
-import { PLACES } from '../maps/overworld.js?v=e2673ecbb09d';
-import { SEA_PLACES } from '../maps/ch2.js?v=e2673ecbb09d';
-import { ABILITIES } from '../data/abilities.js?v=e2673ecbb09d';
-import { ITEMS } from '../data/items.js?v=e2673ecbb09d';
-import { hasKeyItem, mpCost, removeItem, itemCount } from '../stats.js?v=e2673ecbb09d';
-import { SKY_MAPS, SKY_BIRD, FLUTE_ID, regionHop, atEdge } from '../data/sky.js?v=e2673ecbb09d';
-import { partyOf } from './party.js?v=e2673ecbb09d';
-import { warpDest } from './services.js?v=e2673ecbb09d';
-import { advanceClock, clockOwner } from './clock.js?v=e2673ecbb09d';
+import { MAPS, isBlocked, onWater, condOk } from '../maps/index.js?v=e65131463bfb';
+import { PLACES } from '../maps/overworld.js?v=e65131463bfb';
+import { SEA_PLACES } from '../maps/ch2.js?v=e65131463bfb';
+import { ABILITIES } from '../data/abilities.js?v=e65131463bfb';
+import { ITEMS } from '../data/items.js?v=e65131463bfb';
+import { hasKeyItem, mpCost, removeItem, itemCount } from '../stats.js?v=e65131463bfb';
+import { SKY_MAPS, SKY_BIRD, FLUTE_ID, regionHop, atEdge } from '../data/sky.js?v=e65131463bfb';
+import { partyOf } from './party.js?v=e65131463bfb';
+import { warpDest } from './services.js?v=e65131463bfb';
+import { advanceClock, clockOwner } from './clock.js?v=e65131463bfb';
 
 const FOLLOW_RANGE = 12;
 

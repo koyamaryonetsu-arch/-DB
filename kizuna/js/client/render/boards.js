@@ -1,5 +1,5 @@
 // お店の かんばん（たてものに かける）と、地図の しるし
-import { Painter, makeCanvas, ctxOf } from './pixel.js?v=e2673ecbb09d';
+import { Painter, makeCanvas, ctxOf } from './pixel.js?v=e65131463bfb';
 
 // しるしの え（9×9。'.' は とうめい）
 const ICONS = {
@@ -168,6 +168,36 @@ const ICONS = {
     ],
     pal: { h: '#dfe4f0', w: '#a0703a', a: '#3a3a4a', s: '#ffd66b' },
   },
+  // 7（カジノ）
+  casino: {
+    rows: [
+      '.YYYYYYY.',
+      '.yyyyyyY.',
+      '......yY.',
+      '.....yY..',
+      '....yY...',
+      '....yY...',
+      '...yY....',
+      '...yY....',
+      '...yY....',
+    ],
+    pal: { Y: '#ffd84a', y: '#fff4b0' },
+  },
+  // 小さなメダル（メダル王の城）
+  medal: {
+    rows: [
+      '..bb.rr..',
+      '...brr...',
+      '...rrb...',
+      '..ooooo..',
+      '.oYYYYYo.',
+      '.oYWYYYo.',
+      '.oYYWYYo.',
+      '.oYYYYYo.',
+      '..ooooo..',
+    ],
+    pal: { b: '#3a64c8', r: '#e8303a', o: '#7a4a12', Y: '#f2c14e', W: '#fff6c0' },
+  },
 };
 
 ICONS.general = ICONS.item;
@@ -200,6 +230,8 @@ const BOARD = {
   harbor: ['#2a7a8a', '#123a44', '#5aaab8'],
   bank: ['#7a5a2a', '#3a2610', '#b08a4a'],
   smith: ['#8a4a2a', '#3a1e10', '#c8703a'],
+  casino: ['#7a2a7a', '#3a0f3a', '#a84aa8'],
+  medal: ['#2a3a8a', '#101a44', '#5a6ac8'],
 };
 
 // たてものに かける かんばん（16×15）

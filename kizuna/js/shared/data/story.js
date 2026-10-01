@@ -12,18 +12,19 @@
 //   ['teleport', 'map', x, y, 'dir']  ['spawn', 'map', x, y]  ['chapter', 'だい1しょう', 'サブタイトル']
 //
 // x（じょうほう）: x.name x.flag('f') x.has('item') x.count('item') x.kills('monster') x.quest('key')
-import { POS } from '../maps/index.js?v=e2673ecbb09d';
-import { PLACES } from '../maps/overworld.js?v=e2673ecbb09d';
-import { ABILITIES } from './abilities.js?v=e2673ecbb09d';
-import { learnedAbilities, comboUnlocked, hiraAllowed } from '../stats.js?v=e2673ecbb09d';
-import { HIRAMEKI, hiraRatio } from './hirameki.js?v=e2673ecbb09d';
-import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js?v=e2673ecbb09d';
-import { TM_SCRIPTS, TM_STORY_SCRIPTS } from './story-tm.js?v=e2673ecbb09d';
-import { innSteps } from './inn.js?v=e2673ecbb09d';
-import { NIGHT_SCRIPTS } from './night.js?v=e2673ecbb09d';
-import { skyScripts } from './sky.js?v=e2673ecbb09d';
-import { FACILITY_SCRIPTS } from './facilities.js?v=e2673ecbb09d';
-import { wagonEventSteps } from './wagon.js?v=e2673ecbb09d';
+import { POS } from '../maps/index.js?v=e65131463bfb';
+import { PLACES } from '../maps/overworld.js?v=e65131463bfb';
+import { ABILITIES } from './abilities.js?v=e65131463bfb';
+import { learnedAbilities, comboUnlocked, hiraAllowed } from '../stats.js?v=e65131463bfb';
+import { HIRAMEKI, hiraRatio } from './hirameki.js?v=e65131463bfb';
+import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js?v=e65131463bfb';
+import { TM_SCRIPTS, TM_STORY_SCRIPTS } from './story-tm.js?v=e65131463bfb';
+import { CASINO_SCRIPTS } from './story-casino.js?v=e65131463bfb';
+import { innSteps } from './inn.js?v=e65131463bfb';
+import { NIGHT_SCRIPTS } from './night.js?v=e65131463bfb';
+import { skyScripts } from './sky.js?v=e65131463bfb';
+import { FACILITY_SCRIPTS } from './facilities.js?v=e65131463bfb';
+import { wagonEventSteps } from './wagon.js?v=e65131463bfb';
 
 const V = (x, y) => [PLACES.village.x + x + 0.5, PLACES.village.y + y + 0.5];
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
@@ -581,5 +582,7 @@ Object.assign(SCRIPTS, NIGHT_SCRIPTS);
 Object.assign(SCRIPTS, skyScripts(SCRIPTS));
 // 預かり所・ふしぎなかじ屋（facilities.js）
 Object.assign(SCRIPTS, FACILITY_SCRIPTS);
+// カジノ・メダル王・小さなメダル（story-casino.js）
+Object.assign(SCRIPTS, CASINO_SCRIPTS);
 
 export { comboUnlocked };

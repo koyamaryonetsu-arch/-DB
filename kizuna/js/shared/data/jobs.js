@@ -13,8 +13,8 @@
 // じぶんより レベルが とても ひくい てき だけ との たたかいは しゅぎょうに ならない。
 
 export const JOB_MAX_LEVEL = 10;
-// てきの レベルが「じぶんの レベル − この かず」より ひくいと しゅぎょうに ならない（ゆるめ）
-export const JOB_TRAIN_GAP = 12;
+// てきの レベルが「じぶんの レベル − この かず」より ひくいと しゅぎょうに ならない（10以上 ひくい てき だけだと ならない）
+export const JOB_TRAIN_GAP = 9;
 
 const W_ALL = ['sword', 'axe', 'dagger', 'spear', 'claw', 'staff', 'fan', 'whip'];
 
@@ -375,8 +375,8 @@ export const TIER_NAMES = ['基本職', '上級職', '超級職'];
 // 職業レベルに ひつような たたかいの かず（るいけい。上級・超級は すこし おおい）
 const BATTLES = [0, 3, 7, 13, 21, 31, 43, 58, 76, 98];
 const TIER_MULT = [1, 1.4, 1.8];
-// 職業レベルの 上がりにくさ（0.8 … はじめの 版の 0.8倍 たたかえば よい）。上がった レベルは そのまま
-export const JOB_RATE = 0.8;
+// 職業レベルの 上がりにくさ（1.4 … はじめの 版の 1.4倍 たたかう ひつようが ある）。上がった レベルは そのまま
+export const JOB_RATE = 1.4;
 export function jobBattlesForLevel(lv, tier = 0) {
   if (lv <= 1) return 0;
   return Math.round(BATTLES[Math.min(JOB_MAX_LEVEL, lv) - 1] * (TIER_MULT[tier] || 1) * JOB_RATE);

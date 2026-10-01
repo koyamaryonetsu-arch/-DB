@@ -1,12 +1,12 @@
 // 馬車（サーバーの きまり）: もらう・乗りかえ・経験値の おすそわけ・たたかいでの いれかえ
 //   きまりの せつめいは data/wagon.js
-import { MAPS } from '../maps/index.js?v=e2673ecbb09d';
-import { COMPANION_SLOTS } from '../data/companions.js?v=e2673ecbb09d';
-import { JOBS } from '../data/jobs.js?v=e2673ecbb09d';
-import { WAGON_SLOTS, WAGON_EXP_RATE, hasWagon, cleanWagon } from '../data/wagon.js?v=e2673ecbb09d';
-import { computeStats, fullHeal, jobTrainable } from '../stats.js?v=e2673ecbb09d';
-import { pub } from '../battle.js?v=e2673ecbb09d';
-import { partyOf, companionOf, ensureCompanions, stowGear, afterRosterChange, syncParty, nameOfKey, supportInfo } from './party.js?v=e2673ecbb09d';
+import { MAPS } from '../maps/index.js?v=e65131463bfb';
+import { COMPANION_SLOTS } from '../data/companions.js?v=e65131463bfb';
+import { JOBS } from '../data/jobs.js?v=e65131463bfb';
+import { WAGON_SLOTS, WAGON_EXP_RATE, hasWagon, cleanWagon } from '../data/wagon.js?v=e65131463bfb';
+import { computeStats, fullHeal, jobTrainable } from '../stats.js?v=e65131463bfb';
+import { pub } from '../battle.js?v=e65131463bfb';
+import { partyOf, companionOf, ensureCompanions, stowGear, afterRosterChange, syncParty, nameOfKey, supportInfo } from './party.js?v=e65131463bfb';
 
 const fail = (reason, extra = {}) => ({ ok: false, reason, ...extra });
 

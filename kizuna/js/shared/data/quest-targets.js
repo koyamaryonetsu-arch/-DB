@@ -3,8 +3,8 @@
 // ・たのまれごとは 報告する 人（と さがす 物）
 // 行き先の 書き方: { npc: 'NPCのID' }（その 人の いる 場所）か { map, x, y }
 // 新しい 目標を 作ったら、ここにも 行き先を 足す
-import { MAPS } from '../maps/index.js?v=e2673ecbb09d';
-import { SKY_OBJECTIVE_TARGETS } from './sky.js?v=e2673ecbb09d';
+import { MAPS } from '../maps/index.js?v=e65131463bfb';
+import { SKY_OBJECTIVE_TARGETS } from './sky.js?v=e65131463bfb';
 
 export const OBJECTIVE_TARGETS = {
   'ホシミばあちゃんの家（村の南東）へ行こう': [{ npc: 'elder' }],
@@ -147,5 +147,8 @@ export function questMarks(c, mapId, objective = c?.objective) {
 // 目標の 場所の 名前（クエストの 画面に 出す）
 export function whereName(spec) {
   const p = resolve(spec);
-  return p ? MAPS[p.map]?.name || '' : '';
+  const m = p && MAPS[p.map];
+  if (!m) return '';
+  // 村・町・港・森などの 名前（なければ マップの 名前）
+  return m.areaName?.(Math.floor(p.x), Math.floor(p.y)) || m.name || '';
 }

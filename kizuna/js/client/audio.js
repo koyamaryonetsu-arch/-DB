@@ -126,6 +126,16 @@ const TRACKS = {
       { drums: true, v: 0.45, n: 'k:2 h:2 h:2 s:2 h:2 h:2 '.repeat(8) },
     ],
   },
+  // カジノ（はずむ リズム）
+  casino: {
+    bpm: 138,
+    ch: [
+      { w: 'pulse', v: 0.09, n: 'F5:2 A5:2 C6:2 A5:2 F5:4 r:2 E5:2 D5:2 F5:2 A5:2 F5:2 D5:4 r:4 G5:2 Bb5:2 D6:2 Bb5:2 G5:3 F5:1 E5:4 F5:4 A5:4 C6:8 C6:2 A5:2 F5:2 A5:2 Bb5:2 G5:2 E5:2 G5:2 A5:2 F5:2 D5:2 F5:2 G5:4 r:4 E5:2 G5:2 C6:2 E6:2 D6:2 C6:2 Bb5:2 G5:2 F5:6 C5:2 F5:8' },
+      { w: 'triangle', v: 0.22, n: 'F2:4 A2:4 C3:4 A2:4 D2:4 F2:4 A2:4 F2:4 G2:4 Bb2:4 D3:4 Bb2:4 F2:4 A2:4 C3:4 E3:4 F2:4 A2:4 Bb2:4 G2:4 D2:4 F2:4 G2:4 B2:4 C3:4 E3:4 G2:4 Bb2:4 F2:4 C3:4 F2:8' },
+      { w: 'square', v: 0.03, n: 'A4:16 F4:16 Bb4:16 A4:16 C5:8 D5:8 F4:8 B4:8 E4:8 Bb4:8 A4:16' },
+      { drums: true, v: 0.42, n: 'k:2 h:2 s:2 h:2 '.repeat(16) },
+    ],
+  },
   danger: {
     bpm: 70,
     ch: [
@@ -163,6 +173,15 @@ const TRACKS = {
       { w: 'pulse', v: 0.12, n: 'G4:3 G4:1 G4:4 C5:8 E5:4 D5:4 C5:8 G5:16' },
       { w: 'triangle', v: 0.22, n: 'C3:16 A2:8 F2:8 G2:8 C3:8' },
       { w: 'square', v: 0.04, n: 'E4:16 C4:8 A3:8 B3:8 E4:8' },
+    ],
+  },
+  // カジノの 大当たり
+  jackpot: {
+    bpm: 150, once: true,
+    ch: [
+      { w: 'pulse', v: 0.12, n: 'G4:2 C5:2 E5:2 G5:2 E5:2 G5:2 C6:4 A5:2 C6:2 E6:10' },
+      { w: 'triangle', v: 0.22, n: 'C3:4 G2:4 C3:4 F2:4 C3:14' },
+      { w: 'square', v: 0.05, n: 'E4:8 G4:8 A4:4 G4:10' },
     ],
   },
   lose: {
@@ -460,6 +479,12 @@ export class GameAudio {
       // 電車（ガタンゴトン）
       case 'train': [0, 0.18, 0.36, 0.54].forEach((d) => this.noise(0.1, { vol: 0.3, delay: d, from: 900, to: 200 })); T(660, 0.4, { vol: 0.06, delay: 0.1, type: 'square' }); break;
       case 'stamp': T(1047, 0.06, { vol: 0.07, type: 'triangle' }); T(1319, 0.08, { vol: 0.07, delay: 0.06, type: 'triangle' }); break;
+      // カジノ: コイン（チャリン）・リールが 止まる（カタン）・当たり・カードを めくる
+      case 'coin': T(1568, 0.05, { vol: 0.07 }); T(2093, 0.14, { vol: 0.06, delay: 0.05 }); break;
+      case 'reel': this.noise(0.06, { vol: 0.25, from: 2500, to: 400 }); T(196, 0.06, { vol: 0.1, type: 'triangle' }); break;
+      case 'win': [784, 988, 1175, 1568].forEach((f, i) => T(f, 0.1, { vol: 0.08, delay: i * 0.07, type: 'pulse' })); break;
+      case 'card': this.noise(0.05, { vol: 0.18, type: 'highpass', from: 3000, to: 6000 }); break;
+      case 'reach': [988, 1175, 988, 1175].forEach((f, i) => T(f, 0.07, { vol: 0.06, delay: i * 0.09, type: 'square' })); break;
       default:
     }
   }

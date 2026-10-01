@@ -1,10 +1,10 @@
 // まものの はいごう（ドラゴンクエストモンスターズ ふう）
-import { MONSTERS } from '../data/monsters.js?v=e2673ecbb09d';
-import { ABILITIES } from '../data/abilities.js?v=e2673ecbb09d';
-import { SLOTS } from '../data/items.js?v=e2673ecbb09d';
-import { MONSTER_FRIENDS, BREED_MIN_LEVEL, BREED_INHERIT_MAX, breedResult, breedPlus } from '../data/companions.js?v=e2673ecbb09d';
-import { computeStats, learnedAbilities, newMonsterCompanion, addItem, STAT_KEYS } from '../stats.js?v=e2673ecbb09d';
-import { ensureCompanions, companionOf, putInParty, afterRosterChange } from './party.js?v=e2673ecbb09d';
+import { MONSTERS } from '../data/monsters.js?v=e65131463bfb';
+import { ABILITIES } from '../data/abilities.js?v=e65131463bfb';
+import { SLOTS } from '../data/items.js?v=e65131463bfb';
+import { MONSTER_FRIENDS, BREED_MIN_LEVEL, BREED_INHERIT_MAX, breedResult, breedPlus } from '../data/companions.js?v=e65131463bfb';
+import { computeStats, learnedAbilities, newMonsterCompanion, addItem, STAT_KEYS } from '../stats.js?v=e65131463bfb';
+import { ensureCompanions, companionOf, putInParty, afterRosterChange } from './party.js?v=e65131463bfb';
 
 // おやから うけつげる わざ（かくれた わざは のぞく）
 export function inheritableSkills(A, B) {

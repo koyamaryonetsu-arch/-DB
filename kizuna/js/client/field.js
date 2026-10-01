@@ -1,18 +1,18 @@
 // フィールド（あるく・はなす・みる）
-import { MAPS, isBlocked, effectiveTile, condOk, tileAt, onWater } from '../shared/maps/index.js?v=e2673ecbb09d';
-import { T, TILE_INFO } from '../shared/tiles.js?v=e2673ecbb09d';
-import { PLACES } from '../shared/maps/overworld.js?v=e2673ecbb09d';
-import { TS, tileCanvas, frameOf, prepareMap } from './render/tiles.js?v=e2673ecbb09d';
-import { paintHuman, lookToOpts, npcOpts, paintSpecial, paintShip, equipKey, CW, CH } from './render/chars.js?v=e2673ecbb09d';
-import { monsterCanvas, bigNpcCanvas } from './render/monsters.js?v=e2673ecbb09d';
-import { MONSTERS } from '../shared/data/monsters.js?v=e2673ecbb09d';
-import { makeCanvas, ctxOf, shade, flipCanvas } from './render/pixel.js?v=e2673ecbb09d';
-import { chestCanvas as chestCanvas3d } from './render/tex3d.js?v=e2673ecbb09d';
-import { boardCanvas } from './render/boards.js?v=e2673ecbb09d';
-import { el } from './ui/dom.js?v=e2673ecbb09d';
-import { syncTreasureGates } from './ui/treasure.js?v=e2673ecbb09d';
-import { skyNpcSprite } from './render/sky-art.js?v=e2673ecbb09d';
-import { wagonDraws } from './render/wagon.js?v=e2673ecbb09d';
+import { MAPS, isBlocked, effectiveTile, condOk, tileAt, onWater } from '../shared/maps/index.js?v=e65131463bfb';
+import { T, TILE_INFO } from '../shared/tiles.js?v=e65131463bfb';
+import { PLACES } from '../shared/maps/overworld.js?v=e65131463bfb';
+import { TS, tileCanvas, frameOf, prepareMap } from './render/tiles.js?v=e65131463bfb';
+import { paintHuman, lookToOpts, npcOpts, paintSpecial, paintShip, equipKey, CW, CH } from './render/chars.js?v=e65131463bfb';
+import { monsterCanvas, bigNpcCanvas } from './render/monsters.js?v=e65131463bfb';
+import { MONSTERS } from '../shared/data/monsters.js?v=e65131463bfb';
+import { makeCanvas, ctxOf, shade, flipCanvas } from './render/pixel.js?v=e65131463bfb';
+import { chestCanvas as chestCanvas3d } from './render/tex3d.js?v=e65131463bfb';
+import { boardCanvas } from './render/boards.js?v=e65131463bfb';
+import { el } from './ui/dom.js?v=e65131463bfb';
+import { syncTreasureGates } from './ui/treasure.js?v=e65131463bfb';
+import { skyNpcSprite } from './render/sky-art.js?v=e65131463bfb';
+import { wagonDraws } from './render/wagon.js?v=e65131463bfb';
 
 const SPEED = 4.6; // マス/びょう
 const RUN = 1.35; // はしると この ばい（はやすぎない ように）
@@ -168,7 +168,7 @@ export class Field {
     if (mode === '3d' && Field.webgl2() && cv) {
       if (!this.r3d) {
         try {
-          const { Field3D } = await import('./render/field3d.js?v=e2673ecbb09d');
+          const { Field3D } = await import('./render/field3d.js?v=e65131463bfb');
           this.r3d = new Field3D(this, cv);
         } catch (e) {
           console.warn('2.5Dにできませんでした', e);
@@ -610,7 +610,7 @@ export class Field {
     const npc = this.npcNear(fx, fy) || (TILE_INFO[tileAt(this.map, tx, ty)]?.talkThrough ? this.npcNear(fx + d[0], fy + d[1]) : null);
     if (npc) {
       const s = this.npcState.get(npc.id);
-      if (s && !npc.big && !['none', 'flower', 'starstone', 'windstone', 'spring', 'ship'].includes(npc.sprite)) {
+      if (s && !npc.big && !['none', 'flower', 'starstone', 'windstone', 'spring', 'ship', 'slot'].includes(npc.sprite)) {
         s.dir = { up: 'down', down: 'up', left: 'right', right: 'left' }[me.dir];
         s.moving = false;
         s.goal = null;

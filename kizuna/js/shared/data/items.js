@@ -6,11 +6,12 @@
 // rank: 装備の ランク（1〜10。下の EQUIP_RANKS）。star: 店では 買えない 1つ上の 品（宝箱・レアドロップ）
 // unique: 1人 1つの 品（ボスが 落とす 物）。データを 合わせる ときに ふえすぎない
 
-import { ITEMS_CH2 } from './items-ch2.js?v=e2673ecbb09d';
-import { ITEMS_TM } from './items-tm.js?v=e2673ecbb09d';
-import { NIGHT_ITEMS, NIGHT_ITEM_KANA } from './night.js?v=e2673ecbb09d';
-import { SKY_ITEMS, SKY_ITEM_KANA } from './sky.js?v=e2673ecbb09d';
-import { ITEMS_FORGE, FORGE_KANA, addUpgradeItems } from './items-forge.js?v=e2673ecbb09d';
+import { ITEMS_CH2 } from './items-ch2.js?v=e65131463bfb';
+import { ITEMS_TM } from './items-tm.js?v=e65131463bfb';
+import { NIGHT_ITEMS, NIGHT_ITEM_KANA } from './night.js?v=e65131463bfb';
+import { SKY_ITEMS, SKY_ITEM_KANA } from './sky.js?v=e65131463bfb';
+import { ITEMS_FORGE, FORGE_KANA, addUpgradeItems } from './items-forge.js?v=e65131463bfb';
+import { ITEMS_CASINO, CASINO_KANA } from './items-casino.js?v=e65131463bfb';
 
 export const ITEMS = {
   // ───── つかう どうぐ ─────
@@ -165,6 +166,8 @@ Object.assign(ITEMS, ITEMS_CH2, ITEMS_TM);
 Object.assign(ITEMS, NIGHT_ITEMS, SKY_ITEMS);
 // ふしぎなかじの 素材と 作れる 装備（items-forge.js）
 Object.assign(ITEMS, ITEMS_FORGE);
+// カジノの 景品・メダル王の ごほうび（items-casino.js）
+Object.assign(ITEMS, ITEMS_CASINO);
 // きたえた 装備（'iron_sword+1'〜'+3'）。新しい 装備を 足す ときは この 行より 上で
 addUpgradeItems(ITEMS);
 
@@ -237,6 +240,7 @@ export const ITEM_KANA = {
 
 Object.assign(ITEM_KANA, NIGHT_ITEM_KANA, SKY_ITEM_KANA);
 Object.assign(ITEM_KANA, FORGE_KANA);
+Object.assign(ITEM_KANA, CASINO_KANA);
 
 export function itemKana(id) {
   // きたえた 装備は もとの 装備の 読み ＋ 回数（鉄の剣 → 鉄の剣+1 の じゅん）
