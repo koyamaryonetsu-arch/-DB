@@ -1,13 +1,13 @@
 // だいほん（イベント）を すすめる しくみ
-import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js?v=98d662fd6fa3';
-import { ITEMS } from '../data/items.js?v=98d662fd6fa3';
-import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js?v=98d662fd6fa3';
-import { startFixedBattle } from './battles.js?v=98d662fd6fa3';
-import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=98d662fd6fa3';
-import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion } from './party.js?v=98d662fd6fa3';
-import { openService } from './services.js?v=98d662fd6fa3';
-import { isNightFor, advanceClock } from './clock.js?v=98d662fd6fa3';
-import { grantWagon, wagonChars } from './wagon.js?v=98d662fd6fa3';
+import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js?v=fd14dc666f0e';
+import { ITEMS } from '../data/items.js?v=fd14dc666f0e';
+import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js?v=fd14dc666f0e';
+import { startFixedBattle } from './battles.js?v=fd14dc666f0e';
+import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=fd14dc666f0e';
+import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion } from './party.js?v=fd14dc666f0e';
+import { openService } from './services.js?v=fd14dc666f0e';
+import { isNightFor, advanceClock } from './clock.js?v=fd14dc666f0e';
+import { grantWagon, wagonChars } from './wagon.js?v=fd14dc666f0e';
 
 let runSeq = 1;
 
@@ -337,7 +337,7 @@ export class ScriptRun {
           this.owner.char.spawn = { map, x, y };
           break;
         }
-        case 'shop': case 'jobChange': case 'tavern': case 'board': case 'starTrade': case 'church': case 'bank': case 'forge': case 'casino': case 'medalKing': {
+        case 'shop': case 'jobChange': case 'tavern': case 'board': case 'starTrade': case 'church': case 'bank': case 'forge': case 'casino': case 'medalKing': case 'salon': {
           const r = await this.flush();
           if (r.aborted) return this.abort();
           const ui = openService(w, this.init, op, a[0]);

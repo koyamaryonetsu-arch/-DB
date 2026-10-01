@@ -1,10 +1,11 @@
 // キャラクターの つよさ計算・レベルアップ・転職ペナルティ
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_TRAIN_GAP, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets } from './data/jobs.js?v=98d662fd6fa3';
-import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=98d662fd6fa3';
-import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=98d662fd6fa3';
-import { MONSTERS } from './data/monsters.js?v=98d662fd6fa3';
-import { MONSTER_FRIENDS, monsterNatural, gearOf } from './data/companions.js?v=98d662fd6fa3';
-import { HIRAMEKI, hiraRatio } from './data/hirameki.js?v=98d662fd6fa3';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_TRAIN_GAP, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets } from './data/jobs.js?v=fd14dc666f0e';
+import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=fd14dc666f0e';
+import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=fd14dc666f0e';
+import { MONSTERS } from './data/monsters.js?v=fd14dc666f0e';
+import { MONSTER_FRIENDS, monsterNatural, gearOf } from './data/companions.js?v=fd14dc666f0e';
+import { HIRAMEKI, hiraRatio } from './data/hirameki.js?v=fd14dc666f0e';
+import { cleanLook } from './data/looks.js?v=fd14dc666f0e';
 
 // 長い 物語に なるので レベルは 99まで（レベルで ふえる つよさは ひかえめ）
 export const MAX_LEVEL = 99;
@@ -389,15 +390,9 @@ export const STARTER_EQUIP = {
   ballplayer: { weapon: 'wood_bat', armor: 'cloth', shield: null, head: null, acc: null },
 };
 
+// みため（むかしの 項目は いつも のこす。かみがた・色・目もとの あたらしい 項目は data/looks.js）
 export function sanitizeLook(look = {}) {
-  const clampInt = (v, max) => Math.max(0, Math.min(max, Math.floor(Number(v) || 0)));
-  return {
-    body: clampInt(look.body, 1),
-    hair: clampInt(look.hair, 3),
-    hairColor: clampInt(look.hairColor, 7),
-    skin: clampInt(look.skin, 2),
-    color: clampInt(look.color, 7),
-  };
+  return cleanLook(look);
 }
 
 export function newCharacter({ id, name, look, job }) {

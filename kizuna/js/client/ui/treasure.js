@@ -1,10 +1,10 @@
 // 宝の地図（メニューの「道具」に ならぶ・地図の 絵・ほる・見つけた 穴）
-import { el, ListMenu, confirmBox, esc } from './dom.js?v=98d662fd6fa3';
-import { MAPS, tileAt } from '../../shared/maps/index.js?v=98d662fd6fa3';
-import { T } from '../../shared/tiles.js?v=98d662fd6fa3';
-import { hash2 } from '../../shared/rng.js?v=98d662fd6fa3';
-import { caveInfo, tmTitle, foundFlag, TM_THEMES } from '../../shared/data/treasure.js?v=98d662fd6fa3';
-import { makeCanvas, ctxOf } from '../render/pixel.js?v=98d662fd6fa3';
+import { el, ListMenu, confirmBox, esc } from './dom.js?v=fd14dc666f0e';
+import { MAPS, tileAt } from '../../shared/maps/index.js?v=fd14dc666f0e';
+import { T } from '../../shared/tiles.js?v=fd14dc666f0e';
+import { hash2 } from '../../shared/rng.js?v=fd14dc666f0e';
+import { caveInfo, tmTitle, foundFlag, TM_THEMES } from '../../shared/data/treasure.js?v=fd14dc666f0e';
+import { makeCanvas, ctxOf } from '../render/pixel.js?v=fd14dc666f0e';
 
 const CSS = `
 .tmap-view { width: min(92vw, 440px); z-index: 5; background: var(--win-solid); align-items: center; gap: 0.35em; }

@@ -1,17 +1,17 @@
 // ゲーム ぜんたいの しんこう
-import { Input } from './input.js?v=98d662fd6fa3';
-import { GameAudio } from './audio.js?v=98d662fd6fa3';
-import { Field } from './field.js?v=98d662fd6fa3';
-import { Hud, STAMPS } from './ui/hud.js?v=98d662fd6fa3';
-import { FieldMenu, openWorldMap } from './ui/menu.js?v=98d662fd6fa3';
-import { ScriptPlayer, wait } from './ui/script.js?v=98d662fd6fa3';
-import { BattleScene } from './battle.js?v=98d662fd6fa3';
-import { showTitle, showLogin, showSelect, showCreate, showLoading, saveWhere } from './ui/title.js?v=98d662fd6fa3';
-import { showServerDown } from './ui/syncui.js?v=98d662fd6fa3';
-import { toast, confirmBox, el } from './ui/dom.js?v=98d662fd6fa3';
-import { MAPS } from '../shared/maps/index.js?v=98d662fd6fa3';
-import { applyBattlePrefs, applyUiFont } from './prefs.js?v=98d662fd6fa3';
-import { SkyClient } from './sky.js?v=98d662fd6fa3';
+import { Input } from './input.js?v=fd14dc666f0e';
+import { GameAudio } from './audio.js?v=fd14dc666f0e';
+import { Field } from './field.js?v=fd14dc666f0e';
+import { Hud, STAMPS } from './ui/hud.js?v=fd14dc666f0e';
+import { FieldMenu, openWorldMap } from './ui/menu.js?v=fd14dc666f0e';
+import { ScriptPlayer, wait } from './ui/script.js?v=fd14dc666f0e';
+import { BattleScene } from './battle.js?v=fd14dc666f0e';
+import { showTitle, showLogin, showSelect, showCreate, showLoading, saveWhere } from './ui/title.js?v=fd14dc666f0e';
+import { showServerDown } from './ui/syncui.js?v=fd14dc666f0e';
+import { toast, confirmBox, el } from './ui/dom.js?v=fd14dc666f0e';
+import { MAPS } from '../shared/maps/index.js?v=fd14dc666f0e';
+import { applyBattlePrefs, applyUiFont } from './prefs.js?v=fd14dc666f0e';
+import { SkyClient } from './sky.js?v=fd14dc666f0e';
 
 export class Game {
   constructor(net) {
@@ -557,7 +557,7 @@ export class Game {
     if (this.net.mode === 'offline' && !this.saveWarned) {
       this.saveWarned = true;
       const cloud = this.net.local?.cloud;
-      import('./offline.js?v=98d662fd6fa3').then(({ offlineStorage }) => {
+      import('./offline.js?v=fd14dc666f0e').then(({ offlineStorage }) => {
         offlineStorage.load();
         if (cloud?.state === 'on') return;
         if (!offlineStorage.ok) toast('このブラウザではセーブができないかもしれません', 5000);

@@ -1,13 +1,14 @@
 // タイトル・ログイン・キャラクターえらび・キャラクターづくり
-import { el, ListMenu, toast, askText, confirmBox } from './dom.js?v=98d662fd6fa3';
-import { JOBS, JOB_ORDER } from '../../shared/data/jobs.js?v=98d662fd6fa3';
-import { HAIR, CLOTH, SKIN, HAIR_NAMES, CW, CH, HRES } from '../render/chars.js?v=98d662fd6fa3';
-import { playerSprite } from '../field.js?v=98d662fd6fa3';
-import { makeCanvas, ctxOf } from '../render/pixel.js?v=98d662fd6fa3';
-import { ago } from './services.js?v=98d662fd6fa3';
-import { LINE_MAX, parseCode } from '../../shared/world/transfer.js?v=98d662fd6fa3';
-import { DEFAULT_SITE, pendingImport, clearPendingImport, familyServer, setFamilyServer, linkToFamilyServer, linkToSite, siteServerAddress } from '../links.js?v=98d662fd6fa3';
-import { goFamilyServer, goSite, roundTrip, changeServer, syncOnServer, maybeRoundTrip, notePlayed, familyServerUp } from './syncui.js?v=98d662fd6fa3';
+import { el, ListMenu, toast, askText, confirmBox } from './dom.js?v=fd14dc666f0e';
+import { JOBS, JOB_ORDER } from '../../shared/data/jobs.js?v=fd14dc666f0e';
+import { HAIR_STYLES, HAIR_COLORS, SKIN_TONES, FACES, FACE_BY_ID, CLOTH_COLORS, cleanLook } from '../../shared/data/looks.js?v=fd14dc666f0e';
+import { previewCache } from '../render/hero.js?v=fd14dc666f0e';
+import { playerSprite } from '../field.js?v=fd14dc666f0e';
+import { makeCanvas, ctxOf } from '../render/pixel.js?v=fd14dc666f0e';
+import { ago } from './services.js?v=fd14dc666f0e';
+import { LINE_MAX, parseCode } from '../../shared/world/transfer.js?v=fd14dc666f0e';
+import { DEFAULT_SITE, pendingImport, clearPendingImport, familyServer, setFamilyServer, linkToFamilyServer, linkToSite, siteServerAddress } from '../links.js?v=fd14dc666f0e';
+import { goFamilyServer, goSite, roundTrip, changeServer, syncOnServer, maybeRoundTrip, notePlayed, familyServerUp } from './syncui.js?v=fd14dc666f0e';
 
 function clearUI() {
   document.getElementById('ui').innerHTML = '';
@@ -473,43 +474,84 @@ export function showTransfer(game, chars) {
 export function showCreate(game) {
   clearUI();
   const ui = document.getElementById('ui');
-  const look = { body: 0, hair: 0, hairColor: 1, skin: 0, color: 1 };
+  // あたらしい みため（style / hcol / tone / face）。むかしの 番号（hair など）は サーバーが あわせて つける
+  const look = { body: 0, style: 'short', hcol: 'brown', tone: 'light', face: 'std', color: 1 };
   let job = 'warrior';
   let dirI = 0;
   const dirs = ['down', 'left', 'up', 'right'];
   const wrap = el('div', { class: 'panel center-panel', style: { width: 'min(96vw, 860px)' } });
   const box = el('div', { class: 'win scroll', style: { maxHeight: 'calc(86vh - var(--pad-h))' } });
-  const preview = makeCanvas(CW * HRES, CH * HRES);
+  const preview = makeCanvas(128, 168);
+  const sprite = previewCache(16);
   const name = el('input', { class: 'textin', id: 'cname', maxlength: '8', placeholder: '名前（8文字まで）', autocomplete: 'off' });
   const jobDesc = el('div', { class: 'jobdesc' });
   const draw = () => {
     const x = ctxOf(preview);
     x.clearRect(0, 0, preview.width, preview.height);
-    x.drawImage(playerSprite(look, job, dirs[dirI], Math.floor(performance.now() / 300) % 2), 0, 0, preview.width, preview.height);
+    x.drawImage(sprite(look, job, undefined, dirs[dirI], Math.floor(performance.now() / 300) % 2, 8), 0, 0);
   };
   const timer = setInterval(draw, 150);
-  setTimeout(() => { dirI = 0; }, 0);
-  const row = (label, node) => el('div', { class: 'col', style: { gap: '0.2em' } }, el('span', { class: 'small gold', text: label }), node);
-  const opts = (values, cur, onPick, render) => {
+  const upd = [];
+  const refresh = () => { upd.forEach((f) => f()); draw(); };
+  const row = (label, node, note) => el('div', { class: 'col', style: { gap: '0.2em' } },
+    el('span', { class: 'small gold' }, label, note ? el('span', { class: 'muted cr-note' }, note) : ''), node);
+  // ボタンを ならべる（えらんだ ものに しるし）
+  const opts = (values, get, set, render) => {
     const o = el('div', { class: 'opt' });
-    values.forEach((v, i) => {
-      const b = render(v, i);
+    values.forEach((v) => {
+      const b = render(v);
       b.addEventListener('click', () => {
-        onPick(i);
-        [...o.children].forEach((x, j) => x.classList.toggle('sel', j === i));
+        set(v);
         game.audio.sfx('cursor');
-        draw();
+        refresh();
       });
-      if (i === cur) b.classList.add('sel');
       o.append(b);
     });
+    upd.push(() => values.forEach((v, i) => o.children[i].classList.toggle('sel', get() === v)));
     return o;
   };
-  const bodyOpt = opts(['男性', '女性'], look.body, (i) => { look.body = i; }, (v) => el('button', { class: 'btn', text: v }));
-  const hairOpt = opts(HAIR_NAMES, look.hair, (i) => { look.hair = i; }, (v) => el('button', { class: 'btn', text: v }));
-  const hairCol = opts(HAIR, look.hairColor, (i) => { look.hairColor = i; }, (v) => el('button', { class: 'swatch', style: { background: v }, 'aria-label': 'かみの色' }));
-  const skinOpt = opts(SKIN, look.skin, (i) => { look.skin = i; }, (v) => el('button', { class: 'swatch', style: { background: v }, 'aria-label': 'はだの色' }));
-  const clothOpt = opts(CLOTH, look.color, (i) => { look.color = i; }, (v) => el('button', { class: 'swatch', style: { background: v }, 'aria-label': '服の色' }));
+  // ◀ なまえ ▶（数が 多い ものは じゅんばんに めくる）
+  const stepper = (list, key) => {
+    const nm = el('span', { class: 'step-name' });
+    const no = el('span', { class: 'small muted step-no' });
+    const go = (d) => {
+      const i = list.findIndex((x) => x.id === look[key]);
+      look[key] = list[(i + d + list.length) % list.length].id;
+      game.audio.sfx('cursor');
+      refresh();
+    };
+    upd.push(() => {
+      const i = list.findIndex((x) => x.id === look[key]);
+      nm.textContent = list[i]?.name || '';
+      no.textContent = `${i + 1}/${list.length}`;
+    });
+    return el('div', { class: 'stepper' },
+      el('button', { class: 'btn', text: '◀', 'aria-label': 'まえ', onclick: () => go(-1) }), nm, no,
+      el('button', { class: 'btn', text: '▶', 'aria-label': 'つぎ', onclick: () => go(1) }));
+  };
+  const swatches = (list, key, label) => opts(list.map((x) => x.id), () => look[key], (v) => { look[key] = v; },
+    (v) => el('button', { class: 'swatch', style: { background: list.find((x) => x.id === v).hex }, 'aria-label': label }));
+  const nameOf = (list, key) => {
+    const s = el('span');
+    upd.push(() => { s.textContent = `　${list.find((x) => x.id === look[key])?.name || ''}`; });
+    return s;
+  };
+  const bodyOpt = opts([0, 1], () => look.body, (v) => { look.body = v; }, (v) => el('button', { class: 'btn', text: v ? '女性' : '男性' }));
+  const hairOpt = stepper(HAIR_STYLES, 'style');
+  const hairCol = swatches(HAIR_COLORS, 'hcol', 'かみの色');
+  const faceOpt = opts(FACES.map((x) => x.id), () => look.face, (v) => { look.face = v; }, (v) => el('button', { class: 'btn', text: FACE_BY_ID.get(v).name }));
+  const skinOpt = swatches(SKIN_TONES, 'tone', 'はだの色');
+  const clothOpt = opts(CLOTH_COLORS.map((_, i) => i), () => look.color, (v) => { look.color = v; }, (v) => el('button', { class: 'swatch', style: { background: CLOTH_COLORS[v] }, 'aria-label': '服の色' }));
+  const pick = (list) => list[Math.floor(Math.random() * list.length)].id;
+  const rnd = el('button', { class: 'btn', text: 'おまかせ', onclick: () => {
+    look.style = pick(HAIR_STYLES);
+    look.hcol = pick(HAIR_COLORS);
+    look.face = pick(FACES);
+    look.tone = pick(SKIN_TONES);
+    look.color = Math.floor(Math.random() * CLOTH_COLORS.length);
+    game.audio.sfx('cursor');
+    refresh();
+  } });
   const jobsEl = el('div', { class: 'jobs' });
   JOB_ORDER.forEach((j) => {
     const b = el('button', { class: `btn jobbtn ${j === job ? 'sel' : ''}` }, el('span', { class: 'jn', text: JOBS[j].name }), el('span', { class: 'jd', text: {
@@ -532,13 +574,14 @@ export function showCreate(game) {
   box.append(
     el('h2', { text: 'キャラクターを作る' }),
     el('div', { class: 'create' },
-      el('div', { class: 'preview' }, preview, turn),
+      el('div', { class: 'preview' }, preview, el('div', { class: 'col pv-btns' }, turn, rnd)),
       el('div', { class: 'col' },
         row('名前', name),
         row('体', bodyOpt),
         row('かみがた', hairOpt),
-        row('かみの色', hairCol),
-        row('はだの色', skinOpt),
+        row('かみの色', hairCol, nameOf(HAIR_COLORS, 'hcol')),
+        row('目もと', faceOpt),
+        row('はだの色', skinOpt, nameOf(SKIN_TONES, 'tone')),
         row('服の色', clothOpt),
         row('最初の職業（後で転職できる）', jobsEl),
         jobDesc,
@@ -546,7 +589,7 @@ export function showCreate(game) {
   );
   wrap.append(box);
   ui.append(wrap);
-  draw();
+  refresh();
   const h = { onNav: (a) => { if (a === 'b') doBack(); } };
   game.input.push(h);
   const cleanup = () => {
@@ -568,7 +611,7 @@ export function showCreate(game) {
     cleanup();
     game.audio.sfx('join');
     game.pendingPlay = true;
-    game.net.send({ t: 'createChar', name: n, look, job });
+    game.net.send({ t: 'createChar', name: n, look: cleanLook(look), job });
   });
   setTimeout(() => name.focus(), 50);
 }
