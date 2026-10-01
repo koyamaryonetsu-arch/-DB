@@ -1,22 +1,22 @@
 // お店・やどや・きょうかい・転職・酒場・でんごんばん・メニュー操作
-import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js?v=007288b252c5';
-import { normDifficulty } from '../data/difficulty.js?v=007288b252c5';
-import { ITEMS, sellPrice, SLOTS } from '../data/items.js?v=007288b252c5';
-import { JOBS, ALL_JOBS, jobReqText } from '../data/jobs.js?v=007288b252c5';
-import { ABILITIES } from '../data/abilities.js?v=007288b252c5';
-import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=007288b252c5';
-import { TACTICS } from '../ai.js?v=007288b252c5';
-import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js?v=007288b252c5';
-import { breedMonsters, breedPreview } from './breed.js?v=007288b252c5';
-import { MONSTERS } from '../data/monsters.js?v=007288b252c5';
-import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings } from '../battle.js?v=007288b252c5';
-import { PLACES } from '../maps/overworld.js?v=007288b252c5';
-import { POS, SEA_PLACES } from '../maps/index.js?v=007288b252c5';
-import { castRura, warpParty, useTimeBell } from './travel.js?v=007288b252c5';
-import { bankInfo, bankAction } from './bank.js?v=007288b252c5';
-import { forgeInfo, forgeAction } from './forge.js?v=007288b252c5';
-import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction } from './wagon.js?v=007288b252c5';
-import { casinoOpen, casinoAction } from './casino.js?v=007288b252c5';
+import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js?v=f30f56257291';
+import { normDifficulty } from '../data/difficulty.js?v=f30f56257291';
+import { ITEMS, sellPrice, SLOTS } from '../data/items.js?v=f30f56257291';
+import { JOBS, ALL_JOBS, jobReqText } from '../data/jobs.js?v=f30f56257291';
+import { ABILITIES } from '../data/abilities.js?v=f30f56257291';
+import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=f30f56257291';
+import { TACTICS } from '../ai.js?v=f30f56257291';
+import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js?v=f30f56257291';
+import { breedMonsters, breedPreview } from './breed.js?v=f30f56257291';
+import { MONSTERS } from '../data/monsters.js?v=f30f56257291';
+import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings } from '../battle.js?v=f30f56257291';
+import { PLACES } from '../maps/overworld.js?v=f30f56257291';
+import { POS, SEA_PLACES } from '../maps/index.js?v=f30f56257291';
+import { castRura, warpParty, useTimeBell } from './travel.js?v=f30f56257291';
+import { bankInfo, bankAction } from './bank.js?v=f30f56257291';
+import { forgeInfo, forgeAction } from './forge.js?v=f30f56257291';
+import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction } from './wagon.js?v=f30f56257291';
+import { casinoOpen, casinoAction } from './casino.js?v=f30f56257291';
 
 export function openService(world, s, kind, arg) {
   switch (kind) {
@@ -306,7 +306,7 @@ export function menuAction(world, s, msg) {
     case 'equip': {
       const who = ownChar(s, msg.who);
       if (!who) return reply(false, '');
-      if (!equipItem(who, msg.id, c)) return reply(false, who.species ? 'モンスターはアクセサリーだけ装備できる' : 'その職業では装備できない');
+      if (!equipItem(who, msg.id, c)) return reply(false, who.species ? `${who.name}には装備できない` : 'その職業では装備できない');
       return reply(true, `${who === c ? '' : who.name + 'は'}${ITEMS[msg.id].name}を装備した！`);
     }
     case 'unequip': {
@@ -397,11 +397,11 @@ export function menuAction(world, s, msg) {
       return reply(true, `${target.name}の作戦を「${TACTICS[t].name}」にした。`);
     }
     // さいきょう装備（ドラクエ風）: ふくろの 中から 攻撃力・守備力が いちばん 上がる ものを 装備する
+    // モンスターの なかまも（しゅぞくで 装備できる 物だけ）
     case 'bestEquip': {
       const team = msg.who === 'all' ? ownTeamChars(world, s) : [ownChar(s, msg.who || 'self')].filter(Boolean);
       const lines = [];
       for (const who of team) {
-        if (who.species) continue;
         const got = bestEquipFor(who, c);
         if (got.length) lines.push(`${who.name}: ${got.join('・')}`);
       }

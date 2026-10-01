@@ -3,15 +3,17 @@
 // resist: 属性や 状態異常の ききやすさ（1=ふつう 0=きかない 1.5=よわい）
 // actions: [{w:重み, id:技ID or 'attack', cond:じょうけん}]
 // turns: 1回の じゅんばんで こうどうする 回数（ボス用）
-// race: slime beast plant spirit undead material demon
+// race: slime beast plant spirit undead material demon dragon（仲間に なった ときの 装備は companions.js の RACE_GEAR）
+// hit: ふつうの 攻撃の みため（'slash' など。書かなければ 種族で きまる。render/enemyfx.js）
 // drops: 落とす 物 { common: [品物, N], rare: [品物, N], boss: [品物] }（N回に 1回。くわしくは loot.js）
 
 const ROCK_RESIST = { fire: 0.5, ice: 0.7, wind: 0.6, blast: 1.5, poison: 0, sleep: 0, confuse: 0.3, paralyze: 0.2 };
 const METAL_RESIST = { fire: 0, ice: 0, wind: 0, blast: 0, bolt: 0, light: 0, dark: 0, void: 0.5, sleep: 0, poison: 0, confuse: 0, blind: 0, silence: 0, paralyze: 0, debuff: 0 };
 
-import { MONSTERS_CH2 } from './monsters-ch2.js?v=007288b252c5';
-import { MONSTERS_TM } from './monsters-tm.js?v=007288b252c5';
-import { NIGHT_MONSTERS } from './night.js?v=007288b252c5';
+import { MONSTERS_CH2 } from './monsters-ch2.js?v=f30f56257291';
+import { MONSTERS_TM } from './monsters-tm.js?v=f30f56257291';
+import { NIGHT_MONSTERS } from './night.js?v=f30f56257291';
+import { MONSTERS_RARE } from './monsters-rare.js?v=f30f56257291';
 
 export const MONSTERS = {
   pururin: {
@@ -216,3 +218,5 @@ export const MONSTERS = {
 Object.assign(MONSTERS, MONSTERS_CH2, MONSTERS_TM);
 // 夜の 魔物（night.js）
 Object.assign(MONSTERS, NIGHT_MONSTERS);
+// めずらしい 強い 魔物（monsters-rare.js: ぷるりん騎士・ヴァルドラゴン など）
+Object.assign(MONSTERS, MONSTERS_RARE);

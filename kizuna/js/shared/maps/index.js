@@ -1,13 +1,13 @@
 // マップの ぜんたい（フィールド・どうくつ）と、そこに いる 人や たからばこ
-import { T, parseRows, TILE_INFO } from '../tiles.js?v=007288b252c5';
-import { makeRng, hash2 } from '../rng.js?v=007288b252c5';
-import { buildOverworld, PLACES, zoneAt, areaName, OW_W, OW_H, CAVE_ENTRANCE, FOREST_CLEARING, LAKE, SWAMP } from './overworld.js?v=007288b252c5';
-import { CAVE_B1_ROWS, CAVE_B2_ROWS } from './cave-rows.js?v=007288b252c5';
-import { npc } from './npc.js?v=007288b252c5';
-import { buildCh2Maps, SEA_PLACES } from './ch2.js?v=007288b252c5';
-import { buildTreasureFloor } from './treasure-cave.js?v=007288b252c5';
-import { addNightNpcs } from './night-npcs.js?v=007288b252c5';
-import { attachCasino } from './casino.js?v=007288b252c5';
+import { T, parseRows, TILE_INFO } from '../tiles.js?v=f30f56257291';
+import { makeRng, hash2 } from '../rng.js?v=f30f56257291';
+import { buildOverworld, PLACES, zoneAt, areaName, OW_W, OW_H, CAVE_ENTRANCE, FOREST_CLEARING, LAKE, SWAMP } from './overworld.js?v=f30f56257291';
+import { CAVE_B1_ROWS, CAVE_B2_ROWS } from './cave-rows.js?v=f30f56257291';
+import { npc } from './npc.js?v=f30f56257291';
+import { buildCh2Maps, SEA_PLACES } from './ch2.js?v=f30f56257291';
+import { buildTreasureFloor } from './treasure-cave.js?v=f30f56257291';
+import { addNightNpcs } from './night-npcs.js?v=f30f56257291';
+import { attachCasino } from './casino.js?v=f30f56257291';
 
 const V = (x, y) => [PLACES.village.x + x, PLACES.village.y + y];
 const TW = (x, y) => [PLACES.town.x + x, PLACES.town.y + y];

@@ -17,11 +17,12 @@
 // 名前の一部は「ダイの大冒険」「ロトの紋章」へのオマージュです。
 // 上級職・超級職の 技は abilities-adv.js（さいごに まぜる）
 
-import { ADV_ABILITIES } from './abilities-adv.js?v=007288b252c5';
-import { CH2_ABILITIES } from './abilities-ch2.js?v=007288b252c5';
-import { JOB_ABILITIES } from './abilities-jobs.js?v=007288b252c5';
-import { HIRA_ABILITIES } from './hirameki.js?v=007288b252c5';
-import { TRAVEL_ABILITIES } from './sky.js?v=007288b252c5';
+import { ADV_ABILITIES } from './abilities-adv.js?v=f30f56257291';
+import { CH2_ABILITIES } from './abilities-ch2.js?v=f30f56257291';
+import { JOB_ABILITIES } from './abilities-jobs.js?v=f30f56257291';
+import { HIRA_ABILITIES } from './hirameki.js?v=f30f56257291';
+import { TRAVEL_ABILITIES } from './sky.js?v=f30f56257291';
+import { RARE_ABILITIES } from './monsters-rare.js?v=f30f56257291';
 
 export const ABILITIES = {
   // ───────────── 戦士 ─────────────
@@ -576,6 +577,8 @@ export const ABILITIES = {
 Object.assign(ABILITIES, ADV_ABILITIES, CH2_ABILITIES, JOB_ABILITIES, HIRA_ABILITIES);
 // 移動の 呪文ルーラ（sky.js。フィールドで だけ 使う）
 Object.assign(ABILITIES, TRAVEL_ABILITIES);
+// めずらしい 魔物の 技（monsters-rare.js）
+Object.assign(ABILITIES, RARE_ABILITIES);
 
 // 攻撃呪文かどうか（魔法剣で使える）
 export function isAttackSpell(id) {

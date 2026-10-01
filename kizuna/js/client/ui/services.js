@@ -1,19 +1,19 @@
 // お店・転職・酒場・でんごんばん・ほしのかけら・きょうかい の がめん
-import { el, ListMenu, toast, askText, confirmBox, esc } from './dom.js?v=007288b252c5';
-import { ITEMS } from '../../shared/data/items.js?v=007288b252c5';
-import { JOBS, JOB_ORDER, ADVANCED_ORDER, SUPER_ORDER, TIER_NAMES, JOB_MAX_LEVEL, JOB_TRAIN_GAP, jobReqText, jobReqSets } from '../../shared/data/jobs.js?v=007288b252c5';
-import { ABILITIES } from '../../shared/data/abilities.js?v=007288b252c5';
-import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered } from '../../shared/stats.js?v=007288b252c5';
-import { MONSTERS } from '../../shared/data/monsters.js?v=007288b252c5';
-import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES } from '../../shared/data/companions.js?v=007288b252c5';
-import { TACTICS } from '../../shared/ai.js?v=007288b252c5';
-import { itemDetail } from './info.js?v=007288b252c5';
-import { playerSprite, followerSprite, faceURL } from '../field.js?v=007288b252c5';
-import { shopUI, churchUI } from './shop.js?v=007288b252c5';
-import { bankUI } from './bank.js?v=007288b252c5';
-import { forgeUI } from './forge.js?v=007288b252c5';
-import { tavernWagonItems, tavernWagonOpts, tavernWagonAct } from './wagon.js?v=007288b252c5';
-import { casinoUI } from './casino.js?v=007288b252c5';
+import { el, ListMenu, toast, askText, confirmBox, esc } from './dom.js?v=f30f56257291';
+import { ITEMS } from '../../shared/data/items.js?v=f30f56257291';
+import { JOBS, JOB_ORDER, ADVANCED_ORDER, SUPER_ORDER, TIER_NAMES, JOB_MAX_LEVEL, JOB_TRAIN_GAP, jobReqText, jobReqSets } from '../../shared/data/jobs.js?v=f30f56257291';
+import { ABILITIES } from '../../shared/data/abilities.js?v=f30f56257291';
+import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered } from '../../shared/stats.js?v=f30f56257291';
+import { MONSTERS } from '../../shared/data/monsters.js?v=f30f56257291';
+import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES } from '../../shared/data/companions.js?v=f30f56257291';
+import { TACTICS } from '../../shared/ai.js?v=f30f56257291';
+import { itemDetail, gearText } from './info.js?v=f30f56257291';
+import { playerSprite, followerSprite, faceURL } from '../field.js?v=f30f56257291';
+import { shopUI, churchUI } from './shop.js?v=f30f56257291';
+import { bankUI } from './bank.js?v=f30f56257291';
+import { forgeUI } from './forge.js?v=f30f56257291';
+import { tavernWagonItems, tavernWagonOpts, tavernWagonAct } from './wagon.js?v=f30f56257291';
+import { casinoUI } from './casino.js?v=f30f56257291';
 
 export function openServiceUI(game, kind, data) {
   switch (kind) {
@@ -320,6 +320,7 @@ function tavernUI(game, data) {
       if (e.sec === 'roster' && e.species) {
         const learned = e.abilities || learnedAbilities({ species: e.species, level: e.level });
         main.append(el('div', { class: 'small', text: `技: ${learned.map((id) => ABILITIES[id]?.name).filter(Boolean).join('・') || 'なし'}` }));
+        main.append(el('div', { class: 'small', text: `装備できる物: ${gearText(e.species)}` }));
         if (e.parents) main.append(el('div', { class: 'small muted', text: `親: ${e.parents.join(' ＋ ')}` }));
         if (e.level < BREED_MIN_LEVEL) main.append(el('div', { class: 'small muted', text: `レベル${BREED_MIN_LEVEL}になると配合できる` }));
       }
@@ -373,7 +374,8 @@ function tavernUI(game, data) {
         el('div', { style: { display: 'flex', gap: '0.6em', alignItems: 'flex-start' } },
           el('div', { style: { flex: '1', minWidth: '0' } },
             el('div', { class: 'small gold', style: { whiteSpace: 'pre-line' }, text: `生まれる子: ${pv.childName}（${RACE_NAMES[MONSTERS[pv.child]?.race] || ''}）＋${pv.plus}${pv.special ? '\n★ めずらしい組み合わせ！' : ''}` }),
-            el('div', { class: 'small muted', text: `自分で覚える技: ${own || 'なし'}` })),
+            el('div', { class: 'small muted', text: `自分で覚える技: ${own || 'なし'}` }),
+            el('div', { class: 'small muted', text: `装備できる物: ${gearText(pv.child)}` })),
           img),
         el('div', { class: 'small', text: `親から受けつぐ技を${pv.max}つまで選んでね` }));
       const desc = el('div', { class: 'small detail', style: { minHeight: '2.4em' } });

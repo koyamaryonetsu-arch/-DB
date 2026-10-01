@@ -2,8 +2,8 @@
 // group: [[モンスターID, 最小数, 最大数], ...]
 // フィールドでは 先頭の モンスターの すがたで うろうろしている（シンボルエンカウント）
 
-import { ENCOUNTERS_CH2, FIXED_CH2, ZONE_BG_CH2 } from './encounters-ch2.js?v=007288b252c5';
-import { NIGHT_ENCOUNTERS, NIGHT_ZONE_BG } from './night.js?v=007288b252c5';
+import { ENCOUNTERS_CH2, FIXED_CH2, ZONE_BG_CH2 } from './encounters-ch2.js?v=f30f56257291';
+import { NIGHT_ENCOUNTERS, NIGHT_ZONE_BG } from './night.js?v=f30f56257291';
 
 export const ENCOUNTER_TABLES = {
   outskirts: [
@@ -38,6 +38,8 @@ export const ENCOUNTER_TABLES = {
     { w: 3, group: [['crow', 2, 3]] },
     { w: 2, group: [['wolf', 2, 3]] },
     { w: 2, group: [['crow', 1, 2], ['armor_crab', 1, 2]] },
+    // めずらしい: ぷるりん騎士（monsters-rare.js）
+    { w: 1, group: [['pururin_knight', 1, 1], ['ice_pururin', 0, 2]] },
   ],
   cave1: [
     { w: 4, group: [['skeleton', 2, 3]] },

@@ -8,8 +8,10 @@
 // learn:  [レベル, わざID] … レベルが あがると おぼえる
 // names:  なかまに なった ときの なまえ（じゅんばんに つかう。酒場で かえられる）
 // resist: たいせい（しゅぞくの たいせいを つかう。ここに かけば うわがき）
+// gear:   装備できる 物（しゅぞくの けいの RACE_GEAR を うわがき。下の RACE_GEAR を 見てね）
 
-import { FRIENDS_CH2 } from './companions-ch2.js?v=007288b252c5';
+import { FRIENDS_CH2 } from './companions-ch2.js?v=f30f56257291';
+import { FRIENDS_RARE } from './monsters-rare.js?v=f30f56257291';
 
 export const MONSTER_FRIENDS = {
   pururin: {
@@ -129,12 +131,72 @@ export const MONSTER_FRIENDS = {
   },
 };
 
+// ───────────── モンスターの なかまの 装備（ドラクエ5 ふう）─────────────
+// しゅぞくの けい（monsters.js の race）ごとに 装備できる 物。しゅぞくごとの ちがいは MONSTER_FRIENDS の gear で うわがき
+//   weapons: 持てる 武器の 種類（items.js の cat）。[] は 武器を 持たない（からだで たたかう）
+//   armor:   着られる よろいの 種類（items.js の armorType。cloth=服 heavy=重いよろい robe=ローブ gi=道着）
+//   shield:  たてを 持てるか
+//   head:    頭の 装備（false: なし / 'hat': ぼうし だけ / 'helm': かぶとも）
+//   アクセサリーは だれでも
+export const RACE_GEAR = {
+  slime: { weapons: [], armor: ['cloth'], shield: false, head: 'hat' },
+  beast: { weapons: ['claw'], armor: ['cloth'], shield: false, head: 'hat' },
+  plant: { weapons: ['whip', 'staff'], armor: ['cloth', 'robe'], shield: false, head: 'hat' },
+  spirit: { weapons: ['staff', 'fan'], armor: ['cloth', 'robe'], shield: false, head: 'hat' },
+  undead: { weapons: ['sword', 'dagger', 'axe'], armor: ['cloth', 'heavy'], shield: true, head: 'helm' },
+  material: { weapons: ['axe', 'claw'], armor: ['cloth', 'heavy'], shield: true, head: 'helm' },
+  demon: { weapons: ['sword', 'axe', 'spear', 'dagger'], armor: ['cloth', 'heavy'], shield: true, head: 'helm' },
+  dragon: { weapons: ['claw'], armor: ['cloth', 'heavy'], shield: false, head: 'helm' },
+};
+// 知らない しゅぞく（アクセサリー だけ）
+const NO_GEAR = { weapons: [], armor: [], shield: false, head: false };
+
+// しゅぞくごとの うわがき（ぜんぶ 書かなくても よい）。ファイルの さいごで MONSTER_FRIENDS の gear に 入れる
+// （あたらしい しゅぞくは MONSTER_FRIENDS の gear に じかに 書いても よい: monsters-rare.js）
+const GEAR = {
+  // 呪文の とくいな ぷるりんは ローブも
+  pururin_beth: { armor: ['cloth', 'robe'] },
+  ice_pururin: { armor: ['cloth', 'robe'] },
+  marine_slime: { armor: ['cloth', 'robe'] },
+  fuwari: { armor: ['cloth', 'robe'] },
+  // キングぷるりんは かんむりが あるので 頭は なし。大きな からだに 重いよろい
+  king_pururin: { armor: ['cloth', 'heavy'], head: false },
+  // こぶしで たたかう キノコ（こぶしの 技が つかえる ツメ だけ）
+  kobushi: { weapons: ['claw'], armor: ['cloth', 'gi'] },
+  // ゴブリンは 石の オノや ナイフ
+  goblin: { weapons: ['axe', 'dagger', 'claw'], armor: ['cloth', 'gi'], head: 'hat' },
+  // かたい こうらの カニ: ハサミ（ツメ）と たて・重いよろい
+  armor_crab: { armor: ['cloth', 'heavy'], shield: true, head: false },
+  // まほうつかい
+  shadow_mage: { weapons: ['staff', 'dagger'], armor: ['cloth', 'robe'], shield: false, head: 'hat' },
+  // ほしの もようの けもの: 道着も
+  star_panther: { armor: ['cloth', 'gi'] },
+  // 悪魔の騎士: 剣・オノ・やりと たて・かぶと・重いよろい
+  demon_knight: { weapons: ['sword', 'axe', 'spear'] },
+  // ヤドカリの 騎士: やりと ハサミ・たて・かぶと・重いよろい
+  shell_knight: { weapons: ['spear', 'claw'], armor: ['cloth', 'heavy'], shield: true, head: 'helm' },
+  // 海へびは 手が ないので 武器は もたない
+  sea_serpent: { weapons: [] },
+  // 海賊の ゆうれい: 船長の ぼうし
+  ghost_pirate: { armor: ['cloth'], shield: false, head: 'hat' },
+  // 嵐の兵: 剣と やり
+  storm_soldier: { weapons: ['sword', 'spear'] },
+};
+
+// その しゅぞくが 装備できる 物（race: その しゅぞくの けい。data どうしの じゅんかんを さける ため MONSTERS は よまない）
+// 知らない しゅぞく（MONSTER_FRIENDS に ない）は アクセサリー だけ
+export function gearOf(species, race) {
+  const f = MONSTER_FRIENDS[species];
+  if (!f) return { ...NO_GEAR };
+  return { ...(RACE_GEAR[race] || NO_GEAR), ...(f.gear || {}) };
+}
+
 // なかまに できる かず（酒場で まっている なかまも ふくむ）
 export const ROSTER_MAX = 24;
 // いっしょに ぼうけんできる なかまの かず（じぶんを のぞく）
 export const COMPANION_SLOTS = 3;
 
-// モンスターの なかまの 「からだの つよさ」（ぶきや よろい・つえの かわり）
+// モンスターの なかまの 「からだの つよさ」（ぶきや よろいが なくても たたかえる。装備の ぶんは この 上に たす）
 export function monsterNatural(level) {
   const L = level - 1;
   return { atk: 4 + 1.4 * L, dfn: 4 + 1.5 * L, mag: 1.5 + 1.0 * L, heal: 1.5 + 1.0 * L };
@@ -194,6 +256,10 @@ Object.assign(MONSTER_FRIENDS, {
 // ・とくべつな くみあわせでは あたらしい まものが うまれる（それいがいは さいしょに えらんだ おやと おなじ しゅるい）
 // 第2章の なかま
 Object.assign(MONSTER_FRIENDS, FRIENDS_CH2);
+// めずらしい 強い 魔物（ぷるりん騎士・ヴァルドラゴン など。gear も そこに ある）
+Object.assign(MONSTER_FRIENDS, FRIENDS_RARE);
+// しゅぞくごとの 装備の うわがき（上の GEAR）
+for (const [sp, g] of Object.entries(GEAR)) if (MONSTER_FRIENDS[sp]) MONSTER_FRIENDS[sp].gear = { ...g, ...(MONSTER_FRIENDS[sp].gear || {}) };
 
 export const BREED_MIN_LEVEL = 10;
 export const BREED_INHERIT_MAX = 4;
@@ -207,6 +273,12 @@ export const RACE_NAMES = {
 export const BREED_RECIPES = [
   { a: 'wolf', b: 'kirakira', child: 'star_panther' },
   { a: 'rockman', b: 'armor_crab', child: 'golem' },
+  // めずらしい 強い 魔物（monsters-rare.js）。きまった 組み合わせを 先に
+  { a: 'chibi_dragon', b: { race: 'dragon' }, child: 'great_dragon' },
+  { a: 'demon_knight', b: { race: 'dragon' }, child: 'axe_rider' },
+  { a: 'star_panther', b: 'thunder_imp', child: 'ikazuchi_tiger' },
+  { a: { race: 'slime' }, b: 'skeleton', child: 'pururin_knight' },
+  { a: { race: 'material' }, b: 'skeleton', child: 'clockwork_knight' },
   { a: { race: 'material' }, b: { race: 'material' }, child: 'golem' },
   { a: 'pururin', b: { flying: true }, child: 'fuwari' },
   { a: { race: 'beast', flying: false }, b: 'lamp', child: 'chibi_dragon' },

@@ -6,12 +6,13 @@
 // rank: 装備の ランク（1〜10。下の EQUIP_RANKS）。star: 店では 買えない 1つ上の 品（宝箱・レアドロップ）
 // unique: 1人 1つの 品（ボスが 落とす 物）。データを 合わせる ときに ふえすぎない
 
-import { ITEMS_CH2 } from './items-ch2.js?v=007288b252c5';
-import { ITEMS_TM } from './items-tm.js?v=007288b252c5';
-import { NIGHT_ITEMS, NIGHT_ITEM_KANA } from './night.js?v=007288b252c5';
-import { SKY_ITEMS, SKY_ITEM_KANA } from './sky.js?v=007288b252c5';
-import { ITEMS_FORGE, FORGE_KANA, addUpgradeItems } from './items-forge.js?v=007288b252c5';
-import { ITEMS_CASINO, CASINO_KANA } from './items-casino.js?v=007288b252c5';
+import { ITEMS_CH2 } from './items-ch2.js?v=f30f56257291';
+import { ITEMS_TM } from './items-tm.js?v=f30f56257291';
+import { NIGHT_ITEMS, NIGHT_ITEM_KANA } from './night.js?v=f30f56257291';
+import { SKY_ITEMS, SKY_ITEM_KANA } from './sky.js?v=f30f56257291';
+import { ITEMS_FORGE, FORGE_KANA, addUpgradeItems } from './items-forge.js?v=f30f56257291';
+import { ITEMS_CASINO, CASINO_KANA } from './items-casino.js?v=f30f56257291';
+import { RARE_ITEMS, RARE_ITEM_KANA } from './monsters-rare.js?v=f30f56257291';
 
 export const ITEMS = {
   // ───── つかう どうぐ ─────
@@ -168,6 +169,8 @@ Object.assign(ITEMS, NIGHT_ITEMS, SKY_ITEMS);
 Object.assign(ITEMS, ITEMS_FORGE);
 // カジノの 景品・メダル王の ごほうび（items-casino.js）
 Object.assign(ITEMS, ITEMS_CASINO);
+// めずらしい 魔物が 落とす 物（monsters-rare.js）
+Object.assign(ITEMS, RARE_ITEMS);
 // きたえた 装備（'iron_sword+1'〜'+3'）。新しい 装備を 足す ときは この 行より 上で
 addUpgradeItems(ITEMS);
 
@@ -239,7 +242,7 @@ export const ITEM_KANA = {
 };
 
 Object.assign(ITEM_KANA, NIGHT_ITEM_KANA, SKY_ITEM_KANA);
-Object.assign(ITEM_KANA, FORGE_KANA);
+Object.assign(ITEM_KANA, FORGE_KANA, RARE_ITEM_KANA);
 Object.assign(ITEM_KANA, CASINO_KANA);
 
 export function itemKana(id) {

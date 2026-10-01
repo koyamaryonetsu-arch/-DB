@@ -1,10 +1,11 @@
 // モンスターの え（ベクターで かいて ドットえに へんかん）
 // すべて オリジナルの デザイン
 // 2ばいの こまかさで かいて ドットえに → Scale2x で 4ばい → ひかり・かげ・ふちどり（res 4）
-import { makeCanvas, ctxOf, pixelize, shade, painterFrom, scale2x, outline2, volumeShade } from './pixel.js?v=007288b252c5';
-import { MONSTERS } from '../../shared/data/monsters.js?v=007288b252c5';
-import { tintCanvas } from './themes.js?v=007288b252c5';
-import { addNightArt } from './night-art.js?v=007288b252c5';
+import { makeCanvas, ctxOf, pixelize, shade, painterFrom, scale2x, outline2, volumeShade } from './pixel.js?v=f30f56257291';
+import { MONSTERS } from '../../shared/data/monsters.js?v=f30f56257291';
+import { tintCanvas } from './themes.js?v=f30f56257291';
+import { addNightArt } from './night-art.js?v=f30f56257291';
+import { addRareArt } from './rare-art.js?v=f30f56257291';
 
 export const MRES = 4; // できあがりの こまかさ（せかいの 1ドットを 4×4 で かく）
 const OUT = '#130d24';
@@ -809,6 +810,8 @@ function lighthouse(g, lit, f) {
 
 // 夜の 魔物（いまの 魔物の いろがえ。night-art.js）
 addNightArt(MONSTER_ART);
+// めずらしい 強い 魔物（ぷるりん騎士・ヴァルドラゴン など。rare-art.js）
+addRareArt(MONSTER_ART);
 
 const cache = new Map();
 
@@ -822,16 +825,17 @@ function artOf(sp) {
   return { def: { ...base, size: base.size.map((v) => Math.round(v * k)) }, tint: md.tint };
 }
 
-// たたかい用の え（small … フィールド用の ちいさい え）
+// たたかい用の え（small … フィールド用の ちいさい え。数なら その 大きさまで: ついてくる なかま など）
 export function monsterCanvas(sp, frame = 0, small = false) {
-  const key = `${sp}:${frame}:${small ? 1 : 0}`;
+  const key = `${sp}:${frame}:${small ? (small === true ? 1 : small) : 0}`;
   let c = cache.get(key);
   if (c) return c;
   const { def, tint } = artOf(sp);
   let [w, h] = def.size;
   if (small) {
-    // フィールド用の ちいさい え
-    const k = Math.min(1, 20 / Math.max(w, h));
+    // フィールド用の ちいさい え（ふつうは 20ドットまで。とくべつな 大きい 魔物は def.field で すこし 大きく）
+    const lim = Math.min(def.field || 20, small === true ? 99 : small);
+    const k = Math.min(1, lim / Math.max(w, h));
     w = Math.max(10, Math.round(w * k));
     h = Math.max(10, Math.round(h * k));
   }
