@@ -855,18 +855,18 @@
     </div>
     <div class="task-modal-body">
       <div class="task-add-row">
-        <select id="taskNewPriority" class="task-prio-select" title="優先度（高＝赤 / 中＝オレンジ / 低＝黒）">
+        <select id="taskNewPriority" class="task-prio-select ti-prio" title="優先度（高＝赤 / 中＝オレンジ / 低＝黒）" aria-label="優先度">
           <option value="high">高</option>
           <option value="mid">中</option>
           <option value="low" selected>低</option>
         </select>
-        <input type="text" id="taskNewInput" placeholder="タスクを入力して追加（Enter）">
-        <input type="date" id="taskNewDue" class="task-due-input" title="期限（いつまでに終わらせるか）※空欄でもOK">
-        <button type="button" id="taskAddBtn" class="primary">追加</button>
+        <input type="text" id="taskNewInput" class="ti-text" placeholder="タスクを入力して追加（Enter）" aria-label="新しいタスク">
+        <input type="date" id="taskNewDue" class="task-due-input ti-due" title="期限（いつまでに終わらせるか）※空欄でもOK" aria-label="期限">
+        <button type="button" id="taskAddBtn" class="primary ti-add">追加</button>
       </div>
       <div class="task-list-tools">
         <span class="task-list-hint">文字をクリックすると書き直せます／文字をつかんで上下に動かすと並べ替え／チェックで完了</span>
-        <button type="button" id="taskSortDueBtn" class="zoom-btn" title="期限の近い順に並べ替えます（期限なしは後ろ）">期限順に並べる</button>
+        <button type="button" id="taskSortDueBtn" class="mini-btn" title="期限の近い順に並べ替えます（期限なしは後ろ）">期限順に並べる</button>
       </div>
       <ul id="taskList" class="task-list"></ul>
     </div>
