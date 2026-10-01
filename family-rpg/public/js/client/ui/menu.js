@@ -7,7 +7,7 @@ import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityP
 import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_TRAIN_GAP, TIER_NAMES } from '../../shared/data/jobs.js';
 import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress } from '../../shared/stats.js';
 import { HIRAMEKI } from '../../shared/data/hirameki.js';
-import { DUAL_TECHS, DUAL_ORDER, groupName } from '../../shared/data/dual.js';
+import { DUAL_TECHS, DUAL_ORDER, groupName, dualKnown } from '../../shared/data/dual.js';
 import { MONSTERS } from '../../shared/data/monsters.js';
 import { monsterDrops } from '../../shared/data/loot.js';
 import { MONSTER_FRIENDS, RACE_NAMES, recipeHint } from '../../shared/data/companions.js';
@@ -497,12 +497,14 @@ export class FieldMenu {
       // 合体技: 2人の 番を 使う 技
       rows(DUAL_ORDER.map((id) => {
         const t = DUAL_TECHS[id];
+        // はじめて 使う までは 効果は ひみつ
+        const known = dualKnown(c, id) || dualKnown(g.me, id);
         return {
-          id,
-          html: `<span class="nm">${esc(t.name)}</span><span class="tag gold">MP ${t.mp[0]}＋${t.mp[1]}</span><span class="ln">${esc(`${groupName(t.need[0])} ＋ ${groupName(t.need[1])}（2人で1つずつ）`)}</span><span class="ln muted">${esc(t.desc)}</span>`,
+          id, cls: known ? '' : 'unknown',
+          html: `<span class="nm">${esc(t.name)}</span><span class="tag gold">MP ${t.mp[0]}＋${t.mp[1]}</span>${known ? '' : '<span class="tag muted">まだ使っていない</span>'}<span class="ln">${esc(`${groupName(t.need[0])} ＋ ${groupName(t.need[1])}（2人で1つずつ）`)}</span><span class="ln muted">${known ? esc(t.desc) : '効果は？？？（一度使うとわかる）'}</span>`,
         };
       }));
-      box.append(el('div', { class: 'detail', text: '合体技は、2人の番を使う技。自分のゲージがたまった時に「合体技」から選ぶ。仲間のゲージが半分いじょうならすぐ出る。まだの時は「よやく」して、仲間のゲージが半分たまったらいっしょに出す。\nオートで戦う時にねらう合体技は「作戦」で決められる。家族のキャラと出す時は、相手の画面に「参加する？」と出る。' }));
+      box.append(el('div', { class: 'detail', text: '合体技は、2人の番を使う技。自分のゲージがたまった時に「合体技」から選んでおく。いっしょに出す仲間のゲージがたまっていればすぐ、まだの時は「よやく」して、仲間のゲージがたまった時にいっしょに出す。\nどんな効果かは、一度使うまでわからない。家族のキャラと出す時は、相手の画面に「参加する？」と出る。' }));
       return box;
     }
     const items = learned.map((id) => {
@@ -924,7 +926,6 @@ export class FieldMenu {
       items.push({ label: `${s.name}：${tname(s.tactics)}`, value: { key: s.key, name: s.name }, face: faceURL({ look: s.look, job: s.job, eq: s.equip, mon: s.species || undefined }) });
     }
     items.push({ label: `戦いの初めからオート：${bs.auto ? 'ON' : 'OFF'}`, value: { toggle: 'auto' } });
-    items.push({ label: `オートでねらう合体技：${DUAL_TECHS[bs.autoDual]?.name || 'なし'}`, value: { toggle: 'autoDual' } });
     if (!active) {
       for (const it of items) box.append(el('div', { text: it.label }));
       box.append(el('div', { class: 'detail', text: '仲間やオートのときの戦い方を決める。\n仲間を「めいれいさせろ」にすると、仲間のコマンドも自分で選べる。' }));
@@ -936,14 +937,6 @@ export class FieldMenu {
         const v = it.value;
         if (v.toggle === 'auto') {
           g.net.send({ t: 'menu', action: 'settings', auto: !bs.auto });
-        } else if (v.toggle === 'autoDual') {
-          // 自分が 片方の 技を 覚えている 合体技
-          this.sub.blur();
-          const mine = new Set(learnedAbilities(c));
-          const list = DUAL_ORDER.filter((id) => DUAL_TECHS[id].need.some((grp) => grp.some((k) => mine.has(k))))
-            .map((id) => ({ label: DUAL_TECHS[id].name, value: id, right: bs.autoDual === id ? '★' : '' }));
-          const t = await this.pick('オートでねらう合体技（仲間のゲージが半分たまったらいっしょに出す）', [{ label: '使わない', value: '__none' }, ...list, { label: 'やめる', value: null }]);
-          if (t) g.net.send({ t: 'menu', action: 'settings', autoDual: t === '__none' ? null : t });
         } else {
           this.sub.blur();
           const list = Object.entries(TACTICS).filter(([k]) => v.key !== 'self' || k !== 'manual').map(([k, x]) => ({ label: x.name, value: k }));

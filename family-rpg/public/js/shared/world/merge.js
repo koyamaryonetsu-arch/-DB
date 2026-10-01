@@ -148,7 +148,7 @@ function mergeBody(b, a, t, tLater) {
       case 'jobs': out.jobs = mergeJobs(vb, va, vt); break;
       case 'bestiary': out.bestiary = mergeBestiary(vb, va, vt); break;
       case 'bank': out.bank = mergeBank(vb, va, vt); break;
-      case 'flags': case 'chests': case 'visited': case 'searched':
+      case 'flags': case 'chests': case 'visited': case 'searched': case 'dualSeen':
         out[k] = eachKey(vb, va, vt, (x, y, z) => pick(x, y, z, tLater));
         break;
       case 'quests': out.quests = eachKey(vb, va, vt, (x, y, z) => pick(x, y, z, tLater)); break;

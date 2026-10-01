@@ -1,8 +1,8 @@
 // 合体技（2人で 力を 合わせる 技）
 //
 // ・自分の 行動ゲージが たまって コマンドを えらぶ とき、仲間と 出せる。
-//   仲間の ゲージが 半分 いじょう なら すぐ。まだ なら「よやく」して、仲間の ゲージが 半分 たまったら いっしょに 出す
-// ・オートの ときは、主人公が えらんで おいた 合体技を つかう（battleSettings.autoDual）
+//   仲間の ゲージが たまって いれば すぐ。まだ なら「よやく」して、仲間の ゲージが たまった ときに いっしょに 出す
+// ・はじめて 使う までは 効果が わからない（char.dualSeen。使うと わかる）
 // ・need の 2つの 組の 技を、2人が 1つずつ 覚えていれば 出せる（どちらが どちらでも よい）
 // ・2人の 番（行動ゲージ）と、それぞれの MP（mp[0]・mp[1]）を 使う
 // ・相手が 家族（人が 動かしている キャラ）の ときは、相手に「参加する？」と 聞く
@@ -131,14 +131,15 @@ function findSkill(who, list) {
   return null;
 }
 
-// 相手が 合体技に 入れるか（生きていて、ねむり・マヒ・混乱で なく、ゲージが 半分 いじょう）
-// anyGauge: よやく できるか（ゲージは まだ たまって いなくて よい）
-export const DUAL_GAUGE = 50;
+// 相手が 合体技に 入れるか（生きていて、ねむり・マヒ・混乱で なく、ゲージが たまっている）
+// anyGauge: よやく できるか（ゲージは まだ たまって いなくて よい。ほかの 行動を まっている 仲間とも、つぎの 番で 出す）
+export const DUAL_GAUGE = 100;
 export function partnerNow(p) {
-  return !!p?.ready || (p?.atb || 0) >= DUAL_GAUGE;
+  return !p?.queued && (!!p?.ready || (p?.atb || 0) >= DUAL_GAUGE);
 }
 export function partnerFree(p, anyGauge = false) {
-  if (!p || !p.alive || p.queued || p.inviting || p.waiting) return false;
+  if (!p || !p.alive || p.busy || p.inviting || p.waiting) return false;
+  if (p.queued && !anyGauge) return false;
   const st = p.statuses || [];
   if (st.includes('sleep') || st.includes('paralyze') || st.includes('confuse')) return false;
   return anyGauge || partnerNow(p);
@@ -176,4 +177,9 @@ export function dualOptions(actor, others, weaponOk, { anyGauge = false } = {}) 
     }
   }
   return out;
+}
+
+// その 合体技の 効果を 知っているか（一度 使うと わかる）
+export function dualKnown(char, id) {
+  return !!char?.dualSeen?.[id];
 }

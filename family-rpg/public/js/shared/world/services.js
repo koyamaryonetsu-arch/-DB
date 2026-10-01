@@ -8,7 +8,6 @@ import { TACTICS } from '../ai.js';
 import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js';
 import { breedMonsters, breedPreview } from './breed.js';
 import { MONSTERS } from '../data/monsters.js';
-import { DUAL_TECHS } from '../data/dual.js';
 import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings } from '../battle.js';
 import { PLACES } from '../maps/overworld.js';
 import { POS, SEA_PLACES } from '../maps/index.js';
@@ -450,7 +449,6 @@ export function menuAction(world, s, msg) {
         wait: msg.wait === undefined ? !!old.wait : !!msg.wait,
         auto: msg.auto === undefined ? !!old.auto : !!msg.auto,
       };
-      if (msg.autoDual !== undefined) c.battleSettings.autoDual = typeof msg.autoDual === 'string' && DUAL_TECHS[msg.autoDual] ? msg.autoDual : null;
       return reply(true, '設定を変えた。');
     }
     default:

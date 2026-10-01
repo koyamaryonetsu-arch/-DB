@@ -6,7 +6,7 @@ import { JOBS } from '../shared/data/jobs.js';
 import { MONSTERS } from '../shared/data/monsters.js';
 import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed } from '../shared/stats.js';
 import { affinityOf } from '../shared/battle.js';
-import { DUAL_TECHS, dualOptions } from '../shared/data/dual.js';
+import { DUAL_TECHS, dualOptions, dualKnown } from '../shared/data/dual.js';
 import { faceURL } from './field.js';
 import { monsterCanvas } from './render/monsters.js';
 import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js';
@@ -328,13 +328,12 @@ export class BattleScene {
       const t = DUAL_TECHS[a.waitDual.id];
       this.cmdEl.append(
         el('div', { class: 'who', text: a.name }),
-        el('div', { class: 'wait', text: `${p?.name || '仲間'}のゲージが半分たまったら「${t?.name || '合体技'}」を出す。力をためている…` }),
+        el('div', { class: 'wait', text: `${p?.name || '仲間'}のゲージがたまったら「${t?.name || '合体技'}」を出す。力をためている…` }),
         el('button', { class: 'btn dual-cancel', text: 'よやくをやめる', onclick: () => this.game.net.send({ t: 'battle', actor: a.id, cmd: { type: 'dualCancel' } }) }),
       );
       return;
     }
-    const autoNote = a.auto && a.autoDual && DUAL_TECHS[a.autoDual] ? `（合体技「${DUAL_TECHS[a.autoDual].name}」をねらう）` : '';
-    this.cmdEl.append(el('div', { class: 'who', text: a.name }), el('div', { class: 'wait', text: text || (a.alive ? (a.auto ? `オートで戦っている${autoNote}` : '行動ゲージがたまるのを待っている…') : '死んでしまった…') }));
+    this.cmdEl.append(el('div', { class: 'who', text: a.name }), el('div', { class: 'wait', text: text || (a.alive ? (a.auto ? 'オートで戦っている' : '行動ゲージがたまるのを待っている…') : '死んでしまった…') }));
   }
 
   closeMenus() {
@@ -678,12 +677,6 @@ export class BattleScene {
           this.renderStatus();
           break;
         }
-        case 'autoDual': {
-          const c = this.c.get(ev.id);
-          if (c) c.autoDual = ev.tech;
-          if (this.mine.includes(ev.id) && !this.cur) this.renderCmdIdle();
-          break;
-        }
         case 'dualAnswer': {
           if (this.invite?.invite === ev.invite) this.closeInvite();
           if (this.mine.includes(ev.from) && !ev.ok) {
@@ -712,6 +705,11 @@ export class BattleScene {
 
   present(ev) {
     if (ev.t === 'act') this.plate(ev);
+    // 合体技を 使ったら、自分の キャラは 効果が わかる（サーバーでも おぼえる）
+    if (ev.dual?.id && [ev.dual.a, ev.dual.b].some((id) => this.mine.includes(id))) {
+      const me = this.game.me;
+      if (me) me.dualSeen = { ...(me.dualSeen || {}), [ev.dual.id]: 1 };
+    }
     // 合体技・ひらめきは さきに 大きく 見せてから
     const pre = (ev.dual ? 820 : ev.hirameki ? 700 : 0) / this.fxSpeed;
     if (pre) {
@@ -891,24 +889,6 @@ export class BattleScene {
     return dualOptions(info(a), others.map(info), weaponOk, { anyGauge: true });
   }
 
-  // オートの ときに ねらう 合体技を えらぶ
-  autoDualMenu(opts) {
-    const a = this.myActor;
-    const seen = new Set();
-    const items = [{ label: '使わない', value: null }];
-    for (const o of opts) {
-      if (seen.has(o.id)) continue;
-      seen.add(o.id);
-      items.push({ html: `${esc(DUAL_TECHS[o.id].name)}<span class="with-line">${esc(o.partnerName)}など</span>`, value: o.id, right: a.autoDual === o.id ? '★' : '' });
-    }
-    this.showMenu(items, (it) => {
-      this.game.net.send({ t: 'battle', actor: a.id, cmd: { type: 'setAutoDual', id: it.value } });
-      a.autoDual = it.value;
-      toast(it.value ? `オートの時は「${DUAL_TECHS[it.value].name}」をねらう` : 'オートの時は合体技を使わない');
-      this.dualMenu(this.myDualOptions(a));
-    }, () => this.dualMenu(this.myDualOptions(a)), 'オートの時にねらう合体技');
-  }
-
   dualMenu(opts) {
     if (!opts.length) {
       toast('今は合体技を出せる仲間がいない');
@@ -924,10 +904,7 @@ export class BattleScene {
         right: `${o.mp[0]}`, value: o, cls: `k-${role(t)}${o.now ? '' : ' later'}`,
       };
     });
-    const autoName = a?.autoDual && DUAL_TECHS[a.autoDual] ? DUAL_TECHS[a.autoDual].name : 'なし';
-    items.push({ html: `<span class="muted">オートでねらう：${esc(autoName)}</span>`, value: '__auto', cls: 'k-sup auto-dual' });
     this.showMenu(items, (it) => {
-      if (it.value === '__auto') return this.autoDualMenu(opts);
       const o = it.value;
       const t = DUAL_TECHS[o.id];
       const go = (target) => this.send({ type: 'dual', id: o.id, partner: o.partner, target });
@@ -935,11 +912,12 @@ export class BattleScene {
       return go();
     }, () => this.openCommand(), '合体技（2人の番を使う）', (it) => {
       if (!it) return;
-      if (it.value === '__auto') return this.info('オートで戦う時にねらう合体技を決めておくと、仲間のゲージが半分たまった時にいっしょに出します。');
       const o = it.value;
       const t = DUAL_TECHS[o.id];
-      const when = o.now ? '' : `\n${o.partnerName}のゲージが半分たまったら出す（それまで力をためて待つ）`;
-      this.info(`【合体技】${o.partnerName}といっしょに　MP ${o.mp[0]}＋${o.mp[1]}\n${t.desc}\n（${ABILITIES[o.skills[0]]?.name}＋${ABILITIES[o.skills[1]]?.name}）${when}`);
+      // はじめて 使う までは 効果は ひみつ。よやくは 仲間の ゲージが たまったら 出す（まどは 3行に おさめる）
+      const desc = dualKnown(this.game.me, o.id) ? t.desc : '効果は？？？（一度使うとわかる）';
+      const when = o.now ? '' : `\n${o.partnerName}のゲージがたまったら出す（よやく）`;
+      this.info(`【合体技】${o.partnerName}と（${ABILITIES[o.skills[0]]?.name}＋${ABILITIES[o.skills[1]]?.name}）MP ${o.mp[0]}＋${o.mp[1]}\n${desc}${when}`);
     });
   }
 
@@ -951,7 +929,7 @@ export class BattleScene {
     const box = el('div', { class: 'win dual-invite' },
       el('div', { class: 'di-t', text: `${ev.fromName}が合体技にさそっている！` }),
       el('div', { class: 'di-n', text: `「${t?.name || '合体技'}」` }),
-      el('div', { class: 'di-d', text: t?.desc || '' }), bar);
+      el('div', { class: 'di-d', text: t && dualKnown(this.game.me, ev.tech) ? t.desc : '効果は？？？（一度使うとわかる）' }), bar);
     const answer = (ok) => {
       this.game.net.send({ t: 'battle', actor: ev.to, cmd: { type: 'dualAnswer', invite: ev.invite, ok } });
       this.closeInvite();

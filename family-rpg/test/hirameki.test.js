@@ -165,15 +165,15 @@ function duo({ mateHuman = false, seed = 3 } = {}) {
   return b;
 }
 
-test('合体技: 2人の 技が そろい、相手の ゲージが 半分いじょうで 出せる', () => {
+test('合体技: 2人の 技が そろい、相手の ゲージが たまっていれば すぐ 出せる', () => {
   const b = duo();
   const [a, m] = b.allies;
   readyUp(b, a);
   b.queue = b.queue.filter((q) => q.id !== m.id);
   m.queued = false;
-  m.atb = 20;
-  assert.equal(b.dualOptionsFor(a).length, 0, 'ゲージが 半分 ない');
   m.atb = 60;
+  assert.equal(b.dualOptionsFor(a).length, 0, 'ゲージが まだ たまって いない（よやく だけ）');
+  m.atb = 100;
   const ids = b.dualOptionsFor(a).map((o) => o.id);
   assert.ok(ids.includes('dt_honoo_tatsumaki'), 'メラ＋バギ＝炎の竜巻');
   assert.ok(ids.includes('dt_blizzard'), 'ヒャド＋バギ＝ブリザード');
@@ -188,7 +188,7 @@ test('合体技: AIの 仲間なら すぐ 出る（2人の MPと 番を 使う�
   readyUp(b, a);
   b.queue = b.queue.filter((q) => q.id !== m.id);
   m.queued = false;
-  m.atb = 80;
+  m.atb = 100;
   const mpA = a.mp, mpM = m.mp;
   const r = b.command(a.id, { type: 'dual', id: 'dt_honoo_tatsumaki', partner: m.id, target: b.enemies[0].id }, 's1');
   assert.deepEqual(r, { ok: true });
@@ -211,7 +211,7 @@ test('合体技: 家族には「参加する？」と 聞く（OK で 出る・�
   let b = duo({ mateHuman: true });
   let [a, m] = b.allies;
   readyUp(b, a);
-  m.atb = 70;
+  m.atb = 100;
   let r = b.command(a.id, { type: 'dual', id: 'dt_honoo_tatsumaki', partner: m.id, target: b.enemies[0].id }, 's1');
   assert.equal(r.pending, true);
   let evs = b.tick(10);
@@ -226,7 +226,7 @@ test('合体技: 家族には「参加する？」と 聞く（OK で 出る・�
   b = duo({ mateHuman: true });
   [a, m] = b.allies;
   readyUp(b, a);
-  m.atb = 70;
+  m.atb = 100;
   b.command(a.id, { type: 'dual', id: 'dt_blizzard', partner: m.id, target: b.enemies[0].id }, 's1');
   const inv2 = b.tick(10).find((e) => e.t === 'dualInvite');
   b.command(m.id, { type: 'dualAnswer', invite: inv2.invite, ok: false }, 's2');
@@ -240,7 +240,7 @@ test('合体技: 家族には「参加する？」と 聞く（OK で 出る・�
   b = duo({ mateHuman: true });
   [a, m] = b.allies;
   readyUp(b, a);
-  m.atb = 70;
+  m.atb = 100;
   b.command(a.id, { type: 'dual', id: 'dt_blizzard', partner: m.id, target: b.enemies[0].id }, 's1');
   evs = [];
   for (let t = 0; t < DUAL_ASK_MS + 500; t += 100) evs.push(...b.tick(100));
@@ -257,7 +257,7 @@ test('合体技の データ: 技の 組が そろっていて、出せる 組�
     assert.ok(t.parts.length > 0);
   }
   const a = { id: 'a', name: 'A', alive: true, abilities: ['daichi'], mp: 20, atb: 100, ready: true, weaponCat: 'sword' };
-  const p = { id: 'b', name: 'B', alive: true, abilities: ['mera'], mp: 20, atb: 60, weaponCat: 'staff' };
+  const p = { id: 'b', name: 'B', alive: true, abilities: ['mera'], mp: 20, atb: 100, weaponCat: 'staff' };
   const opts = dualOptions(a, [p], weaponOk);
   const cm = opts.find((o) => o.id === 'dt_cross_mahouken');
   assert.ok(cm, '剣技＋呪文＝クロス魔法剣');

@@ -220,12 +220,26 @@ export function startFixedBattle(world, initiator, participants, encId) {
 export function battleTick(world, ctx, dt) {
   const evs = ctx.battle.tick(dt);
   if (evs.length) {
+    markDuals(world, ctx, evs);
     for (const sid of ctx.sids) {
       const m = world.sessions.get(sid);
       if (m) world.send(m, { t: 'battleEv', id: ctx.id, evs });
     }
   }
   if (ctx.battle.over) finishBattle(world, ctx);
+}
+
+// 合体技は 一度 使うと 効果が わかる（出した 2人の もちぬしの キャラに char.dualSeen）
+function markDuals(world, ctx, evs) {
+  for (const ev of evs) {
+    const d = ev.dual;
+    if (!d?.id) continue;
+    for (const id of [d.a, d.b]) {
+      const who = ctx.actorMap[id];
+      const ch = who?.type === 'human' ? who.char : who?.type === 'support' ? world.data.characters[who.owner] : null;
+      if (ch && !ch.dualSeen?.[d.id]) ch.dualSeen = { ...(ch.dualSeen || {}), [d.id]: 1 };
+    }
+  }
 }
 
 export function battleCommand(world, s, msg) {
@@ -244,10 +258,6 @@ export function battleCommand(world, s, msg) {
   if (msg.cmd?.type === 'swap') return wagonBattleSwap(world, s, ctx, msg);
   const r = b.command(msg.actor, msg.cmd, s.id);
   if (!r.ok) world.send(s, { t: 'battleRej', reason: r.reason || 'できません' });
-  // オートの 合体技は つぎの 戦いでも おぼえておく
-  else if (msg.cmd?.type === 'setAutoDual' && b.get(msg.actor)?.kind === 'player') {
-    s.char.battleSettings = { ...(s.char.battleSettings || {}), autoDual: b.get(msg.actor).autoDual || null };
-  }
 }
 
 // サーバーから プレイヤーが ぬけたとき

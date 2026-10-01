@@ -975,6 +975,8 @@ function normalizeChar(c) {
   if (!JOBS[c.job]) c.job = 'warrior';
   if (!c.jobs[c.job]) c.jobs[c.job] = { lv: 1, b: 0 };
   c.battleSettings = c.battleSettings || { speed: 1, wait: false, auto: false };
+  // オートで ねらう 合体技は なくなった（合体技は 戦いの 中で えらんで よやく する）
+  delete c.battleSettings.autoDual;
   // 第1章クリアの あとの もくひょう（第2章が できた ので あんない を かえる）
   if (c.flags.c1_clear && !c.flags.c2_start && /続きはアップデート/.test(c.objective || '')) c.objective = CH1_CLEAR_OBJECTIVE;
   // 第2章クリアずみで 風の笛を まだ もらっていない 人に 知らせる（sky.js）
