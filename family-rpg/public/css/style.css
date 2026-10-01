@@ -618,14 +618,20 @@ body.touch .textin { font-size: max(16px, 1em); }
 
 .chars { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 15em), 1fr)); gap: 0.6em; }
 .charcard { display: flex; gap: 0.7em; align-items: center; padding: 0.5em 0.7em; text-align: left; cursor: pointer; }
-.charcard canvas { width: 48px; height: 63px; image-rendering: pixelated; flex: none; }
+.charcard canvas { width: 64px; height: 84px; image-rendering: pixelated; flex: none; }
 .charcard.sel { border-color: var(--accent); }
 .charcard .meta { font-size: var(--fs-small); color: var(--muted); line-height: 1.35; }
 .charcard .on { color: var(--good); }
 
 .create { display: grid; grid-template-columns: auto 1fr; gap: 1em; align-items: start; }
 .create .preview { display: flex; flex-direction: column; align-items: center; gap: 0.4em; }
-.create .preview canvas { width: 96px; height: 126px; image-rendering: pixelated; }
+.create .preview canvas { width: 128px; height: 168px; image-rendering: pixelated; }
+.create .pv-btns { gap: 0.35em; align-items: stretch; }
+.stepper { display: flex; align-items: center; gap: 0.4em; }
+.stepper .btn { min-width: 2.4em; }
+.stepper .step-name { min-width: 8.5em; text-align: center; }
+.stepper .step-no { min-width: 2.8em; text-align: right; }
+.cr-note { font-weight: normal; }
 .opt { display: flex; flex-wrap: wrap; gap: 0.35em; }
 .opt button { min-width: 2.4em; }
 .swatch { width: 2em; height: 2em; border-radius: 50%; border: 3px solid #333; padding: 0; }
@@ -638,7 +644,31 @@ body.touch .textin { font-size: max(16px, 1em); }
 
 @media (max-width: 640px) {
   .create { grid-template-columns: 1fr; }
-  .create .preview { flex-direction: row; justify-content: center; }
+  .create .preview { flex-direction: row; justify-content: center; position: sticky; top: -0.55em; z-index: 2; background: var(--win-solid); margin-top: -0.55em; padding: 0.55em 0 0.3em; }
+}
+/* よこむきの スマホ: みほんを ひだりに のこしたまま えらべる */
+@media (max-height: 520px) and (orientation: landscape) {
+  .create .preview { position: sticky; top: 0; }
+}
+
+/* ───── 美容室（ui/salon.js） ───── */
+.salon-panel .ct-body { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); grid-template-rows: none; }
+.salon-info { display: flex; flex-direction: column; align-items: center; gap: 0.25em; }
+.salon-pv { display: flex; align-items: flex-end; justify-content: center; gap: 0.7em; }
+.salon-col { display: flex; flex-direction: column; align-items: center; gap: 0.1em; }
+.salon-big { width: 128px; height: 168px; image-rendering: pixelated; }
+.salon-now { width: 48px; height: 63px; }
+.salon-names { font-size: var(--fs-small); align-self: stretch; line-height: 1.35; }
+.salon-sw { display: inline-block; width: 0.95em; height: 0.95em; border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.8); margin-right: 0.4em; vertical-align: -0.12em; }
+@media (max-width: 700px) {
+  .salon-panel .ct-body { grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); grid-template-rows: none; }
+  .salon-big { width: 112px; height: 147px; }
+  .salon-now { width: 40px; height: 52px; }
+}
+@media (max-height: 520px) and (orientation: landscape) {
+  .salon-big { width: 88px; height: 115px; }
+  .salon-now { width: 36px; height: 47px; }
+  .salon-note { display: none; }
 }
 
 /* ───── とじる・もどる（タッチでも わかるように） ───── */
@@ -739,6 +769,7 @@ img.face { image-rendering: pixelated; }
 .zukan-mon { float: right; height: 5em; width: auto; image-rendering: pixelated; margin: 0 0 0.3em 0.5em; }
 .plus { color: var(--accent); font-size: 0.85em; margin-left: 0.15em; }
 .tv-face { float: right; height: 3.6em; width: auto; image-rendering: pixelated; margin: 0 0 0.3em 0.5em; }
+.tv-face.hero { width: 64px; height: 84px; }
 .choose-pop .menu { max-height: calc(60vh - var(--pad-h)); overflow-y: auto; }
 
 @media (max-width: 700px) {

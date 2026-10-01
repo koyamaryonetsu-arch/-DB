@@ -5,6 +5,7 @@ import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js';
 import { MONSTERS } from './data/monsters.js';
 import { MONSTER_FRIENDS, monsterNatural } from './data/companions.js';
 import { HIRAMEKI, hiraRatio } from './data/hirameki.js';
+import { cleanLook } from './data/looks.js';
 
 // 長い 物語に なるので レベルは 99まで（レベルで ふえる つよさは ひかえめ）
 export const MAX_LEVEL = 99;
@@ -355,15 +356,9 @@ export const STARTER_EQUIP = {
   ballplayer: { weapon: 'wood_bat', armor: 'cloth', shield: null, head: null, acc: null },
 };
 
+// みため（むかしの 項目は いつも のこす。かみがた・色・目もとの あたらしい 項目は data/looks.js）
 export function sanitizeLook(look = {}) {
-  const clampInt = (v, max) => Math.max(0, Math.min(max, Math.floor(Number(v) || 0)));
-  return {
-    body: clampInt(look.body, 1),
-    hair: clampInt(look.hair, 3),
-    hairColor: clampInt(look.hairColor, 7),
-    skin: clampInt(look.skin, 2),
-    color: clampInt(look.color, 7),
-  };
+  return cleanLook(look);
 }
 
 export function newCharacter({ id, name, look, job }) {

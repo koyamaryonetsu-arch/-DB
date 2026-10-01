@@ -298,6 +298,7 @@ export const SCRIPTS = {
 
   // ───────────── おみせ・しせつ ─────────────
   // お店は カウンターの まどで 店の人が 話す（ui/shop.js）
+  salon: () => [['salon']], // 美容室（ui/salon.js）
   shop_village: () => [['shop', 'village']],
   shop_weapon: () => [['shop', 'weapon']],
   shop_armor: () => [['shop', 'armor']],

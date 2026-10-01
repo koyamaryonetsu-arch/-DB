@@ -149,6 +149,8 @@ const NPC_LOOKS = {
   bard: { hair: 2, hairStyle: 'short', skin: 0, outfit: 'tunic', cloth: '#3fa35a', hat: 'feather' },
   zarba: { hair: 0, skin: 2, outfit: 'robe', robeMain: '#2a1a3a', robeTrim: '#8a2a5a', hat: 'hood', hatColor: '#2a1a3a', glowEyes: true },
   shadow: { hair: 0, skin: 2, outfit: 'shadow', hat: 'hood', hatColor: '#1a1026', glowEyes: true },
+  // 美容室（ルミナの町）
+  stylist: { hair: 6, hairStyle: 'pony', skin: 0, outfit: 'apron', cloth: '#e46fa8', female: true },
   // 第2章（カモメ港）
   captain: { hair: 3, hairStyle: 'pony', skin: 1, outfit: 'vest', cloth: '#2a4a8a', hat: 'bandana', hatColor: '#c83a3a', female: true },
   sailor: { hair: 0, hairStyle: 'short', skin: 1, outfit: 'tunic', cloth: '#3f7fd0', hat: 'bandana', hatColor: '#f4f4f4' },

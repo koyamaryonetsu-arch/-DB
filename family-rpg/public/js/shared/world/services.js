@@ -6,6 +6,7 @@ import { ABILITIES } from '../data/abilities.js';
 import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js';
 import { TACTICS } from '../ai.js';
 import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js';
+import { salonInfo, salonAction } from './salon.js';
 import { breedMonsters, breedPreview } from './breed.js';
 import { MONSTERS } from '../data/monsters.js';
 import { DUAL_TECHS } from '../data/dual.js';
@@ -24,6 +25,7 @@ export function openService(world, s, kind, arg) {
     }
     case 'jobChange': return { jobs: ALL_JOBS };
     case 'tavern': return tavernInfo(world, s);
+    case 'salon': return salonInfo(world, s);
     case 'board': return { posts: world.data.board || [] };
     case 'starTrade': return { trades: STAR_TRADES };
     case 'church': return churchInfo(world, s);
@@ -201,6 +203,7 @@ export function serviceAction(world, s, msg) {
       }
       return;
     }
+    case 'salon': return salonAction(world, s, msg, reply);
     case 'starTrade': {
       const tr = STAR_TRADES[msg.index];
       if (!tr) return reply(false, '');
