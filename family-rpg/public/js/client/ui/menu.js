@@ -4,7 +4,7 @@ import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/
 import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js';
 import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS } from '../../shared/battle.js';
 import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily } from '../prefs.js';
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, TIER_NAMES } from '../../shared/data/jobs.js';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_TRAIN_GAP, TIER_NAMES } from '../../shared/data/jobs.js';
 import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress } from '../../shared/stats.js';
 import { HIRAMEKI } from '../../shared/data/hirameki.js';
 import { DUAL_TECHS, DUAL_ORDER, groupName } from '../../shared/data/dual.js';
@@ -659,7 +659,7 @@ export class FieldMenu {
           el('span', { class: j === c.job ? 'good' : '', text: `${JOBS[j].name}${JOBS[j].tier ? `（${TIER_NAMES[JOBS[j].tier]}）` : ''}` }),
           el('span', { class: pg.done ? 'gold' : '', text: pg.done ? `Lv${JOB_MAX_LEVEL} ★マスター` : `Lv${info.lv}（あと${pg.next}回）` })));
       }
-      box.append(jobs, el('div', { class: 'detail', text: '自分よりレベルが5以上低い敵との戦いは、職業の修行にならないよ。' }));
+      box.append(jobs, el('div', { class: 'detail', text: `自分よりレベルが${JOB_TRAIN_GAP + 1}以上低い敵ばかりだと、職業の修行にならない。` }));
     }
     const speedNote = el('div', { class: 'detail', text: `素早さ ${st.agi}…戦いで約${(128000 / (st.agi + 12) / 1000).toFixed(1)}秒ごとに順番が来る` });
     box.append(speedNote);

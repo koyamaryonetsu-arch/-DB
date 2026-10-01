@@ -56,7 +56,8 @@ test('よわすぎる てきとの たたかいは しゅぎょうに ならな�
   gainExp(c, expForLevel(20));
   assert.equal(c.level >= 20, true);
   assert.equal(jobTrainable(c, 1), false, 'ぷるりん（Lv1）は よわすぎる');
-  assert.equal(jobTrainable(c, c.level - 12), true, '12 ひくい くらいまでなら しゅぎょうに なる（ゆるめ）');
+  assert.equal(jobTrainable(c, c.level - 9), true, '9 ひくい くらいまでなら しゅぎょうに なる');
+  assert.equal(jobTrainable(c, c.level - 10), false, '10 ひくいと しゅぎょうに ならない');
   assert.equal(jobTrainable(c, c.level + 3), true);
 });
 

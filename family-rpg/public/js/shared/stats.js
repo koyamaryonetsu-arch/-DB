@@ -14,8 +14,8 @@ export const STAT_NAMES = {
   mag: '攻撃魔力', heal: '回復魔力', atk: '攻撃力', dfn: '守備力',
 };
 
-// レベルに必要な 累計けいけんち（EXP_RATE: レベル上げの むずかしさ。1.5 = はじめの 版の 1.5倍 ひつよう）
-export const EXP_RATE = 1.5;
+// レベルに必要な 累計けいけんち（EXP_RATE: レベル上げの むずかしさ。2.25 = はじめの 版の 2.25倍 ひつよう）
+export const EXP_RATE = 2.25;
 export function expForLevel(lv) {
   if (lv <= 1) return 0;
   const n = lv - 1;
