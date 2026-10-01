@@ -13,6 +13,7 @@ import { exportCode, parseCode, importChar } from '../public/js/shared/world/tra
 import { upgradeSave } from '../public/js/shared/world/save.js';
 import { WAGON_SLOTS, cleanWagon } from '../public/js/shared/data/wagon.js';
 import { wagonHere } from '../public/js/shared/world/wagon.js';
+import { DAY_MS } from '../public/js/shared/world/clock.js';
 import { Bot, tickN } from './helpers.js';
 
 const FIELD = { x: PLACES.village.x + 40, y: PLACES.village.y + 12 };
@@ -301,7 +302,9 @@ test('馬車: 洞窟では いれかえられない・オートは かってに 
 });
 
 test('馬車: マルチでは リーダーの 馬車（家族の 仲間は 乗らない・リーダーだけ いれかえ）', { timeout: 60000 }, async () => {
-  const world = new GameWorld({ offline: false, rng: makeRng(26), checkPassword: () => true, rateLimit: false });
+  // 時計は 昼に そろえる（夜は 魔物の 出かたが かわって 乱数が ずれる）
+  const t0 = Date.now();
+  const world = new GameWorld({ offline: false, rng: makeRng(26), checkPassword: () => true, rateLimit: false, now: () => 0.3 * DAY_MS + (Date.now() - t0) });
   const papa = new Bot(world, 'パパ');
   const kid = new Bot(world, 'ユイ');
   await papa.login();
@@ -310,6 +313,9 @@ test('馬車: マルチでは リーダーの 馬車（家族の 仲間は 乗�
   await kid.createAndPlay('mage');
   await papa.settle();
   await kid.settle();
+  // ゴーレムに ひと息で やられないように
+  level(world, papa, 12);
+  level(world, kid, 12);
   const pc = world.data.characters[papa.char.id];
   const kc = world.data.characters[kid.char.id];
   papa.send({ t: 'svc', kind: 'tavern', action: 'recruit', key: 'npc_gard' });
