@@ -460,6 +460,8 @@ export function partyState(world, p) {
     worldFlags,
     // リーダーの 目標（さそわれて 来ている 人の 画面に 出す）
     objective: world.sessions.get(p.leader)?.char?.objective || '',
+    // パーティーの 時計（リーダーの 時間の ずれ。world/clock.js）
+    clockShift: Number(world.sessions.get(p.leader)?.char?.timeShift) || 0,
     bond: p.bond,
     // ならび: 人（家族）の まとまりが なかまの 何番目に 入るか
     selfPos: selfPosOf(world, p),

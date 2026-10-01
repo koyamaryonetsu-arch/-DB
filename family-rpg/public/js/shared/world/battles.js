@@ -27,7 +27,8 @@ export function battleSessions(world, s) {
   for (const sid of p?.members || []) {
     if (sid === s.id) continue;
     const m = world.sessions.get(sid);
-    if (!m || !m.inWorld || m.busy || m.away || m.map !== s.map) continue;
+    // 大鳥で 空を とんでいる 人は まきこまれない（travel.js）
+    if (!m || !m.inWorld || m.busy || m.away || m.flying || m.map !== s.map) continue;
     if (Math.hypot(m.x - s.x, m.y - s.y) > JOIN_RADIUS) continue;
     out.push(m);
   }
@@ -36,7 +37,7 @@ export function battleSessions(world, s) {
 
 // たたかっている なかまの ところへ かけつけて さんかする（ふつうの たたかい だけ）
 export function joinBattle(world, s, targetSid) {
-  if (s.busy || s.away || !s.inWorld) return { ok: false };
+  if (s.busy || s.away || s.flying || !s.inWorld) return { ok: false };
   const t = world.sessions.get(targetSid);
   if (!t || t === s || t.busy !== 'battle' || t.partyId !== s.partyId || t.map !== s.map) return { ok: false };
   const ctx = world.battles.get(t.battleId);

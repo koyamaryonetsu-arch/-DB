@@ -171,6 +171,10 @@ export function gameFiles() {
     // 宝の地図
     'public/js/shared/data/treasure.js', 'public/js/shared/data/items-tm.js', 'public/js/shared/data/monsters-tm.js', 'public/js/shared/data/story-tm.js',
     'public/js/shared/maps/treasure-cave.js', 'public/js/shared/world/treasure.js', 'public/js/client/ui/treasure.js', 'public/js/client/render/themes.js',
+    // 昼と夜・ルーラ・空の旅
+    'public/js/shared/world/clock.js', 'public/js/shared/world/travel.js', 'public/js/shared/data/night.js', 'public/js/shared/data/sky.js',
+    'public/js/shared/maps/night-npcs.js', 'public/js/client/sky.js', 'public/js/client/ui/clock.js',
+    'public/js/client/render/sky-art.js', 'public/js/client/render/night-art.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

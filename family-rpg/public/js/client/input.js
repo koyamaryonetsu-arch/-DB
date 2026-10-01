@@ -6,7 +6,7 @@
 const KEYMAP = {
   ArrowUp: 'up', KeyW: 'up', ArrowDown: 'down', KeyS: 'down', ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right',
   KeyZ: 'a', Enter: 'a', Space: 'a', NumpadEnter: 'a', KeyX: 'b', Escape: 'b', Backspace: 'b',
-  KeyM: 'map', KeyC: 'chat', Tab: 'menu',
+  KeyM: 'map', KeyC: 'chat', Tab: 'menu', KeyF: 'fly',
 };
 
 export class Input {

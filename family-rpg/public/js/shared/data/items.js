@@ -8,6 +8,8 @@
 
 import { ITEMS_CH2 } from './items-ch2.js';
 import { ITEMS_TM } from './items-tm.js';
+import { NIGHT_ITEMS, NIGHT_ITEM_KANA } from './night.js';
+import { SKY_ITEMS, SKY_ITEM_KANA } from './sky.js';
 
 export const ITEMS = {
   // ───── つかう どうぐ ─────
@@ -158,6 +160,8 @@ export const ITEMS = {
   mike_bell: { name: 'ミケのすず', type: 'key', desc: '迷子のねこミケの首輪に付いていたすず。' },
 };
 Object.assign(ITEMS, ITEMS_CH2, ITEMS_TM);
+// 夜の 品物（night.js）・空の 旅（sky.js）
+Object.assign(ITEMS, NIGHT_ITEMS, SKY_ITEMS);
 
 // ───── 装備の ランク（長い 物語の ための ものさし）─────
 // 1つの 章で 1〜2ランク すすむ。新しい 章を 作る ときは、その章の 町で 次の ランクを 売る。
@@ -220,6 +224,8 @@ export const ITEM_KANA = {
   light_orb: 'ひかりのたま', wind_star: 'かぜのまもりぼし', bottle_letter: 'びんのてがみ',
   tm_gold_bangle: 'おうごんのうでわ', tm_gem_ring: 'ほうせきのゆびわ', tm_dragon_scale: 'えんりゅうのうろこ', tm_dark_ring: 'やみのゆびわ', tm_ice_pendant: 'こおりのぺんだんと', tm_shadow_anklet: 'かげのあんくれっと',
 };
+
+Object.assign(ITEM_KANA, NIGHT_ITEM_KANA, SKY_ITEM_KANA);
 
 export function itemKana(id) {
   const k = ITEM_KANA[id];

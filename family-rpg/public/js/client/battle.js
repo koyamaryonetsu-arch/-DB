@@ -349,7 +349,8 @@ export class BattleScene {
     this.game.audio.sfx('warn');
     // 今の 職業で 使えない 掛け合わせ技は 出さない
     const pc = a.pc || { job: a.job, jobs: {} };
-    const learned = (a.abilities || []).filter((id) => ABILITIES[id] && !(ABILITIES[id].kind === 'combo' && !comboAllowed(pc, id)));
+    // フィールドだけの 呪文（ルーラ）は 出さない
+    const learned = (a.abilities || []).filter((id) => ABILITIES[id] && !ABILITIES[id].fieldOnly && !(ABILITIES[id].kind === 'combo' && !comboAllowed(pc, id)));
     const spells = learned.filter((id) => ABILITIES[id].kind === 'spell' || ABILITIES[id].spellLike);
     const skills = learned.filter((id) => ABILITIES[id].kind === 'skill' || ABILITIES[id].kind === 'monster' || (ABILITIES[id].kind === 'combo' && !ABILITIES[id].spellLike));
     const duals = this.myDualOptions(a);

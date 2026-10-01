@@ -11,11 +11,12 @@ import { chestCanvas as chestCanvas3d } from './render/tex3d.js';
 import { boardCanvas } from './render/boards.js';
 import { el } from './ui/dom.js';
 import { syncTreasureGates } from './ui/treasure.js';
+import { skyNpcSprite } from './render/sky-art.js';
 
 const SPEED = 4.6; // マス/びょう
 const RUN = 1.35; // はしると この ばい（はやすぎない ように）
 const SHIP = 1.25; // 船は すこし はやい
-const DAY_MS = 24 * 60 * 1000;
+const FLY = 1.9; // 大鳥は もっと はやい（sky.js）
 // がめんの こまかさ（せかいの 1ドットを なんドットで かくか）
 // 人・モンスターの え は res 4 なので、2D では がめんも 4ばいに する（がめんが おおきすぎる とき・2.5D の ときは 2）
 const RES_LO = 2, RES_HI = 4;
@@ -48,6 +49,9 @@ export function shipSprite(dir, frame) {
   spriteCache.set(k, c);
   return c;
 }
+
+// 夜に 光る もの（町の あかり・だんろ・さいだん・家の 入り口から もれる 光）と その 大きさ
+const NIGHT_GLOW = { [T.LAMP]: 1, [T.FIREPLACE]: 1, [T.STAR_ALTAR]: 1, [T.DOOR]: 0.55 };
 
 // 2.5D の 船は 水に すこし しずめる（かげ なし）
 const SHIP3D = { lift: -0.26, shadow: false };
@@ -94,6 +98,9 @@ export function faceURL(f) {
   return u;
 }
 export function npcSprite(kind, dir, frame) {
+  // 大鳥・夜の 人（render/sky-art.js）
+  const sky = skyNpcSprite(kind, dir, frame);
+  if (sky) return sky;
   const o = npcOpts(kind);
   if (o) return charSprite(`n:${kind}`, o, dir, frame);
   return specialSprite(kind, dir, frame);
@@ -240,6 +247,8 @@ export class Field {
 
   // 世界の フラグ（人の いち・橋・とびら など）。さそわれて 手伝っている ときは リーダーの ものがたりの 世界
   hasFlag(f) {
+    // 夜の あいだ（夜だけ 出る 人・夜は 家に 帰る 人）
+    if (f === '@night') return !!this.game.sky?.isNight();
     const world = this.game.worldFlagSet;
     if (world && this.game.visitingLeader()) return world.has(f);
     const c = this.game.me;
@@ -287,7 +296,9 @@ export class Field {
     const me = this.me;
     // じぶんの いどう
     let { x: ix, y: iy } = controls.dir;
-    const canMove = controls.canMove;
+    const sky = this.game.sky;
+    const flying = !!sky?.flying;
+    const canMove = controls.canMove && !sky?.blocksMove();
     if (!canMove) { ix = 0; iy = 0; }
     // ついていく（リーダーの とおった みちを たどる。はなれたら はしって おいつく）
     let run = !!controls.run;
@@ -301,14 +312,18 @@ export class Field {
     if (me.moving) {
       if (Math.abs(ix) > Math.abs(iy)) me.dir = ix > 0 ? 'right' : 'left';
       else me.dir = iy > 0 ? 'down' : 'up';
-      const sp = SPEED * sec * (mag > 0.4 ? 1 : 0.6) * (run ? RUN : 1) * (this.isOnWater(me.x, me.y) ? SHIP : 1);
+      const sp = SPEED * sec * (mag > 0.4 ? 1 : 0.6) * (run ? RUN : 1) * (flying ? FLY : this.isOnWater(me.x, me.y) ? SHIP : 1);
       const nx = me.x + (ix / (Math.hypot(ix, iy) || 1)) * sp;
       const ny = me.y + (iy / (Math.hypot(ix, iy) || 1)) * sp;
       let moved = false;
-      if (this.boxFree(nx, me.y)) { me.x = nx; moved = true; }
-      else if (Math.abs(iy) < 0.3) moved = this.nudge('y', me, ix > 0 ? 1 : -1, sp) || moved;
-      if (this.boxFree(me.x, ny)) { me.y = ny; moved = true; }
-      else if (Math.abs(ix) < 0.3) moved = this.nudge('x', me, iy > 0 ? 1 : -1, sp) || moved;
+      // 大鳥で とんでいる ときは マップの はし まで どこでも（sky.js）
+      if (flying) moved = sky.flyStep(me, nx, ny, iy, dt);
+      else {
+        if (this.boxFree(nx, me.y)) { me.x = nx; moved = true; }
+        else if (Math.abs(iy) < 0.3) moved = this.nudge('y', me, ix > 0 ? 1 : -1, sp) || moved;
+        if (this.boxFree(me.x, ny)) { me.y = ny; moved = true; }
+        else if (Math.abs(ix) < 0.3) moved = this.nudge('x', me, iy > 0 ? 1 : -1, sp) || moved;
+      }
       if (moved) this.pushTrail(me);
     }
     // しゃしんきの いち
@@ -340,7 +355,7 @@ export class Field {
       this.game.net.send({ t: 'move', x: +me.x.toFixed(3), y: +me.y.toFixed(3), dir: me.dir, moving: me.moving, seq: this.game.posSeq, follow: !!this.game.follow });
     }
     // モンスターに ふれた？・たたかっている なかまの ところに きた？
-    if (canMove) {
+    if (canMove && !flying) {
       this.checkJoin();
       this.checkTouch();
     }
@@ -554,7 +569,7 @@ export class Field {
         o = { sid: p.sid, x: p.x, y: p.y, trail: [] };
         this.others.set(p.sid, o);
       }
-      Object.assign(o, { name: p.name, look: p.look, job: p.job, eq: p.eq, tx: p.x, ty: p.y, dir: p.dir, moving: !!p.mv, battle: !!p.b, away: !!p.aw, partyId: p.pid, fl: p.fl || [] });
+      Object.assign(o, { name: p.name, look: p.look, job: p.job, eq: p.eq, tx: p.x, ty: p.y, dir: p.dir, moving: !!p.mv, battle: !!p.b, away: !!p.aw, partyId: p.pid, fl: p.fl || [], air: !!p.air, ride: !!p.ride });
       // リーダーの とおった みちを おぼえる（ついていく ため）
       if (this.game.follow && p.sid === this.game.party?.leader) {
         const tr = this.leaderCrumbs;
@@ -581,6 +596,11 @@ export class Field {
 
   // ───────────── しらべる ─────────────
   interact() {
+    // 空の 上では おりる
+    if (this.game.sky?.flying) {
+      this.game.sky.land();
+      return true;
+    }
     const me = this.me;
     const d = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[me.dir];
     const fx = me.x + d[0] * 0.75, fy = me.y - 0.12 + d[1] * 0.75;
@@ -667,15 +687,11 @@ export class Field {
   }
 
   // ───────────── よる ─────────────
+  // くらさ: サーバーの 時計（パーティーの 時間。shared/world/clock.js）。どうくつ・塔の 中は かわらない
   nightAlpha() {
     if (this.nightOverride !== null) return this.nightOverride ? 0.5 : 0;
     if (this.map.kind !== 'field') return 0;
-    const t = ((Date.now() + (this.game.timeOffset || 0)) % DAY_MS) / DAY_MS;
-    // 0.0〜0.6 ひる、0.6〜0.7 ゆうがた、0.7〜0.95 よる、0.95〜1.0 あさ
-    if (t < 0.6) return 0;
-    if (t < 0.7) return (t - 0.6) / 0.1 * 0.42;
-    if (t < 0.95) return 0.42;
-    return (1 - t) / 0.05 * 0.42;
+    return (this.game.sky?.darkness() || 0) * 0.5;
   }
 
   // ───────────── かく ─────────────
@@ -754,17 +770,17 @@ export class Field {
       o.fl.forEach((f, i) => {
         if (this.hideGuests && f.guest) return;
         const tp = this.trailPos(o, i + 1);
-        if (tp && !this.isOnWater(tp.x, tp.y)) objs.push({ y: tp.y, draw: () => this.drawAt(followerSprite(f, tp.dir, this.walkFrame(o.moving)), tp.x, tp.y, camX, camY) });
+        if (tp && !o.air && !this.isOnWater(tp.x, tp.y)) objs.push({ y: tp.y, draw: () => this.drawAt(followerSprite(f, tp.dir, this.walkFrame(o.moving)), tp.x, tp.y, camX, camY) });
       });
     }
     // じぶんの なかま（酒場の なかま・モンスター・ゲスト）
     const fl = this.myFollowers();
     fl.forEach((f, i) => {
       const tp = this.trailPos(this.me, i + 1);
-      if (tp && !this.isOnWater(tp.x, tp.y)) objs.push({ y: tp.y, draw: () => this.drawAt(followerSprite(f, tp.dir, this.walkFrame(this.myStep)), tp.x, tp.y, camX, camY) });
+      if (tp && !this.game.sky?.hidesFollowers() && !this.isOnWater(tp.x, tp.y)) objs.push({ y: tp.y, draw: () => this.drawAt(followerSprite(f, tp.dir, this.walkFrame(this.myStep)), tp.x, tp.y, camX, camY) });
     });
     for (const a of this.actors.values()) {
-      objs.push({ y: a.y, draw: () => this.drawAt(npcSprite(a.sprite, a.dir, this.walkFrame(true)), a.x, a.y, camX, camY) });
+      objs.push({ y: a.y, draw: () => this.game.sky?.drawActor2D(this, a, camX, camY) || this.drawAt(npcSprite(a.sprite, a.dir, this.walkFrame(true)), a.x, a.y, camX, camY) });
     }
     if (!this.hideMe) objs.push({ y: this.me.y, draw: () => this.drawPlayer(this.me, camX, camY, this.game.me.look, this.game.me.job, true, this.game.me.equip) });
     objs.sort((a, b) => a.y - b.y);
@@ -787,12 +803,16 @@ export class Field {
       ctx.globalCompositeOperation = 'lighter';
       for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
         const id = m.tiles[y * m.w + x];
-        if (id === T.LAMP || id === T.FIREPLACE || id === T.STAR_ALTAR) {
-          const g = ctx.createRadialGradient(x * TS + 8 - camX, y * TS + 6 - camY, 1, x * TS + 8 - camX, y * TS + 6 - camY, 40);
-          g.addColorStop(0, `rgba(255, 200, 110, ${na * 0.55})`);
+        // 町の あかり・家の 入り口から もれる 光
+        const rr = NIGHT_GLOW[id];
+        if (rr) {
+          const R = rr * 40;
+          const g = ctx.createRadialGradient(x * TS + 8 - camX, y * TS + 6 - camY, 1, x * TS + 8 - camX, y * TS + 6 - camY, R);
+          g.addColorStop(0, `rgba(255, 214, 130, ${na * (rr < 1 ? 0.7 : 1.4)})`);
+          g.addColorStop(0.18, `rgba(255, 200, 110, ${na * 0.7})`);
           g.addColorStop(1, 'rgba(255, 200, 110, 0)');
           ctx.fillStyle = g;
-          ctx.fillRect(x * TS - 40 - camX, y * TS - 40 - camY, 96, 96);
+          ctx.fillRect(x * TS + 8 - R - camX, y * TS + 6 - R - camY, R * 2, R * 2);
         }
       }
       ctx.globalCompositeOperation = 'source-over';
@@ -904,11 +924,13 @@ export class Field {
       const y0 = Math.max(0, Math.floor(this.me.y - 14)), y1 = Math.min(m.h - 1, Math.floor(this.me.y + 20));
       for (let yy = y0; yy <= y1; yy++) for (let xx = x0; xx <= x1; xx++) {
         const id = m.tiles[yy * m.w + xx];
-        if (id === T.LAMP || id === T.FIREPLACE || id === T.STAR_ALTAR) {
-          const p = P(xx + 0.5, yy + 0.7, 1);
-          const r = 2.6 * p.k;
+        const rr = NIGHT_GLOW[id];
+        if (rr) {
+          const p = P(xx + 0.5, yy + 0.7, id === T.DOOR ? 0.6 : 1);
+          const r = 2.6 * rr * p.k;
           const g = ctx.createRadialGradient(p.x, p.y, 1, p.x, p.y, r);
-          g.addColorStop(0, `rgba(255, 200, 110, ${na * 0.55})`);
+          g.addColorStop(0, `rgba(255, 214, 130, ${na * (rr < 1 ? 0.7 : 1.4)})`);
+          g.addColorStop(0.18, `rgba(255, 200, 110, ${na * 0.7})`);
           g.addColorStop(1, 'rgba(255, 200, 110, 0)');
           ctx.fillStyle = g;
           ctx.fillRect(p.x - r, p.y - r, r * 2, r * 2);
@@ -956,6 +978,8 @@ export class Field {
       out.push({ key: 's:' + s.id, canvas: c, x: s.x, y: s.y, flip: s.dir === 'right', anchor: 2, lift: fly ? 0.35 + Math.sin(this.time / 200) * 0.12 : 0 });
     }
     for (const o of this.others.values()) {
+      // 大鳥に のっている 人（sky.js）
+      if (this.game.sky?.entity3d(this, o, false, out, o.look, o.job, o.eq)) continue;
       const mate = o.partyId === this.game.party?.id;
       const oShip = this.isOnWater(o.x, o.y);
       const oc = oShip ? shipSprite(o.dir || 'down', this.shipFrame()) : playerSprite(o.look, o.job, o.dir || 'down', this.walkFrame(o.moving), o.eq);
@@ -968,11 +992,13 @@ export class Field {
     }
     this.myFollowers().forEach((f, i) => {
       const tp = this.trailPos(this.me, i + 1);
-      if (tp && !this.isOnWater(tp.x, tp.y)) out.push({ key: 'mf:' + i, canvas: followerSprite(f, tp.dir, this.walkFrame(this.myStep)), x: tp.x, y: tp.y, anchor: f.mon ? 2 : undefined });
+      if (tp && !this.game.sky?.hidesFollowers() && !this.isOnWater(tp.x, tp.y)) out.push({ key: 'mf:' + i, canvas: followerSprite(f, tp.dir, this.walkFrame(this.myStep)), x: tp.x, y: tp.y, anchor: f.mon ? 2 : undefined });
     });
     for (const a of this.actors.values()) {
-      out.push({ key: 'a:' + a.id, canvas: npcSprite(a.sprite, a.dir, this.walkFrame(true)), x: a.x, y: a.y });
+      out.push(this.game.sky?.actor3d(a, this) || { key: 'a:' + a.id, canvas: npcSprite(a.sprite, a.dir, this.walkFrame(true)), x: a.x, y: a.y });
     }
+    this.game.sky?.extra3d(this, out);
+    if (!this.hideMe && this.game.me && this.game.sky?.entity3d(this, this.me, true, out, this.game.me.look, this.game.me.job, this.game.me.equip)) return out;
     if (!this.hideMe && this.game.me) {
       const ship = this.isOnWater(this.me.x, this.me.y);
       const mc = ship ? shipSprite(this.me.dir || 'down', this.shipFrame())
@@ -1048,6 +1074,12 @@ export class Field {
 
   drawPlayer(o, camX, camY, look, job, mine = false, eq = undefined) {
     if (!look) return;
+    // 大鳥に のっている（sky.js）
+    if (this.game.sky?.draw2D(this, o, camX, camY, look, job, mine, eq)) return;
+    this.drawPlayerOnFoot(o, camX, camY, look, job, mine, eq);
+  }
+
+  drawPlayerOnFoot(o, camX, camY, look, job, mine = false, eq = undefined) {
     const ship = this.isOnWater(o.x, o.y);
     const c = ship ? shipSprite(o.dir || 'down', this.shipFrame())
       : playerSprite(look, job, o.dir || 'down', this.walkFrame(mine ? this.myStep : o.moving), eq);
@@ -1149,7 +1181,7 @@ export class Field {
 
   drawRoof(roof, camX, camY) {
     const me = this.me;
-    const inside = me.x >= roof.x + 1 && me.x < roof.x + roof.w - 1 && me.y >= roof.y + 1 && me.y < roof.y + roof.h;
+    const inside = !this.game.sky?.flying && me.x >= roof.x + 1 && me.x < roof.x + roof.w - 1 && me.y >= roof.y + 1 && me.y < roof.y + roof.h;
     if (inside) return;
     const key = `${roof.x},${roof.y}`;
     let c = this.roofCache.get(key);

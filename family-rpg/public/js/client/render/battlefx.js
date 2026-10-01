@@ -1,6 +1,7 @@
 // たたかいの はいけいと エフェクト
 import { makeCanvas, ctxOf, hexToRgb } from './pixel.js';
 import { weaponLook, playWeapon } from './weaponfx.js';
+import { nightBg, drawNightSky } from './night-art.js';
 
 export const BW = 256;
 export const BH = 144;
@@ -69,7 +70,8 @@ const BG = {
 };
 
 export function battleBackground(id) {
-  const d = BG[id] || BG.grass;
+  // 〜_night は 夜空の はいけい（night-art.js）
+  const d = BG[id] || nightBg(BG, id) || BG.grass;
   const c = makeCanvas(BW, BH);
   const x = ctxOf(c);
   const hor = 78;
@@ -86,6 +88,7 @@ export function battleBackground(id) {
       for (let k = y % 8 ? 0 : 2; k < BW; k += 4) x.fillRect(k, y, 1, 1);
     }
   }
+  if (d.night) drawNightSky(x, BW, hor);
   if (id === 'village_night' || id === 'cave_boss') {
     x.fillStyle = '#ffffff';
     for (let i = 0; i < 30; i++) x.fillRect((i * 97) % BW, (i * 53) % (hor - 10), 1, 1);

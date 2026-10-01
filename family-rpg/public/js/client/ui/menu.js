@@ -315,6 +315,18 @@ export class FieldMenu {
     const g = this.game;
     if (entry.tmap) return openTreasureMap(this, entry.tmap);
     const it = ITEMS[entry.value];
+    // 風の笛（大鳥フウラを 呼ぶ。sky.js）
+    if (it.flute) {
+      this.sub.blur();
+      const act = await this.pick(`${it.name}をどうする？`, [{ label: 'ふく', value: 'use' }, { label: 'やめる', value: null }]);
+      if (act === 'use') {
+        this.close();
+        g.sky.call();
+        return;
+      }
+      setTimeout(() => { if (this.root) this.focusSub(this.itemsList(true)); }, 150);
+      return;
+    }
     if (entry.key || it.type === 'key') return;
     const acts = [];
     if (it.type === 'use' && it.field) acts.push({ label: '使う', value: 'use' });
@@ -325,8 +337,7 @@ export class FieldMenu {
     const act = await this.pick(`${it.name}をどうする？`, acts);
     if (act === 'use') {
       if (it.effect.type === 'warp') {
-        const places = Object.entries({ ...PLACES, ...SEA_PLACES }).filter(([id]) => g.me.visited?.[id] && id !== 'shrine').map(([id, p]) => ({ label: p.name, value: id }));
-        const place = await this.pick('どこへ飛ぶ？', [...places, { label: 'やめる', value: null }]);
+        const place = await this.pick('どこへ飛ぶ？', [...this.warpChoices(), { label: 'やめる', value: null }]);
         if (place) {
           g.net.send({ t: 'menu', action: 'useItem', id: entry.value, place });
           this.close();
@@ -347,6 +358,12 @@ export class FieldMenu {
       if (await confirmBox(g.input, `${it.name}を捨てますか？`, '捨てる', 'やめる', this.sfx)) g.net.send({ t: 'menu', action: 'discard', id: entry.value, n: 1 });
     }
     setTimeout(() => { if (this.root) this.focusSub(this.itemsList(true)); }, 150);
+  }
+
+  // 帰り道の羽・ルーラの 行き先（行った ことの ある 町・村・港）
+  warpChoices() {
+    const g = this.game;
+    return Object.entries({ ...PLACES, ...SEA_PLACES }).filter(([id]) => g.me.visited?.[id] && id !== 'shrine').map(([id, p]) => ({ label: p.name, value: id }));
   }
 
   pick(title, items, { wide = false } = {}) {
@@ -514,6 +531,17 @@ export class FieldMenu {
           return;
         }
         if (act !== 'use') {
+          if (this.root) this.focusSub(this.skillsView(true, who));
+          return;
+        }
+        // ルーラ: 行き先を えらぶ（洞窟や 塔の 中では そのまま 唱えて 天井に ぶつかる）
+        if (a.effect?.type === 'warp') {
+          const inField = g.field.map?.kind === 'field';
+          const place = inField ? await this.pick(`${a.name}：どこへ飛ぶ？`, [...this.warpChoices(), { label: 'やめる', value: null }]) : '';
+          if (place !== null) {
+            g.net.send({ t: 'menu', action: 'cast', id: it.value, place, who });
+            if (place) { this.close(); return; }
+          }
           if (this.root) this.focusSub(this.skillsView(true, who));
           return;
         }

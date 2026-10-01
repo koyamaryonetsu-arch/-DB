@@ -11,6 +11,7 @@ const METAL_RESIST = { fire: 0, ice: 0, wind: 0, blast: 0, bolt: 0, light: 0, da
 
 import { MONSTERS_CH2 } from './monsters-ch2.js';
 import { MONSTERS_TM } from './monsters-tm.js';
+import { NIGHT_MONSTERS } from './night.js';
 
 export const MONSTERS = {
   pururin: {
@@ -213,3 +214,5 @@ export const MONSTERS = {
   },
 };
 Object.assign(MONSTERS, MONSTERS_CH2, MONSTERS_TM);
+// 夜の 魔物（night.js）
+Object.assign(MONSTERS, NIGHT_MONSTERS);
