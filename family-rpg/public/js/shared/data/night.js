@@ -91,6 +91,8 @@ export const NIGHT_ENCOUNTERS = {
     { w: 4, group: [['ghost_pirate', 1, 3]] },
     { w: 3, group: [['wind_imp', 2, 3]] },
     { w: 2, group: [['glow_jelly', 1, 2], ['coconut', 1, 1]] },
+    // めずらしい: いかずちタイガー（夜だけ。monsters-rare.js）
+    { w: 1, group: [['ikazuchi_tiger', 1, 1]] },
   ],
 };
 

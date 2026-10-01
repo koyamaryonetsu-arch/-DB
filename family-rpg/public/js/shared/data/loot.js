@@ -15,6 +15,7 @@
 //   ・図鑑に 落とす 物が のる（手に入れるまでは ？？？）
 import { ITEMS } from './items.js';
 import { MONSTERS } from './monsters.js';
+import { RARE_MAT_DROPS } from './monsters-rare.js';
 
 export const DROP_N = { common: 8, rare: 64, mat: 8 };
 
@@ -46,6 +47,8 @@ export const MAT_DROPS = {
   storm_bird: ['wind_feather', 4],
   coral_golem: ['silver_shard', 5],
   storm_soldier: ['silver_shard', 5],
+  // めずらしい 魔物（monsters-rare.js）
+  ...RARE_MAT_DROPS,
 };
 // ぬすむ ときは レアが 出やすい（この 倍。でも 半分まで）
 export const STEAL_RARE_MULT = 8;

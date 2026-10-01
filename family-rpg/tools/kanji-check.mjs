@@ -181,6 +181,8 @@ export function gameFiles() {
     'public/js/client/ui/bank.js', 'public/js/client/ui/forge.js',
     // 馬車
     'public/js/shared/data/wagon.js', 'public/js/shared/world/wagon.js', 'public/js/client/ui/wagon.js', 'public/js/client/render/wagon.js',
+    // めずらしい 強い 魔物（ぷるりん騎士・ヴァルドラゴン など）
+    'public/js/shared/data/monsters-rare.js', 'public/js/client/render/rare-art.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

@@ -302,7 +302,7 @@ export function menuAction(world, s, msg) {
     case 'equip': {
       const who = ownChar(s, msg.who);
       if (!who) return reply(false, '');
-      if (!equipItem(who, msg.id, c)) return reply(false, who.species ? 'モンスターはアクセサリーだけ装備できる' : 'その職業では装備できない');
+      if (!equipItem(who, msg.id, c)) return reply(false, who.species ? `${who.name}には装備できない` : 'その職業では装備できない');
       return reply(true, `${who === c ? '' : who.name + 'は'}${ITEMS[msg.id].name}を装備した！`);
     }
     case 'unequip': {
@@ -393,11 +393,11 @@ export function menuAction(world, s, msg) {
       return reply(true, `${target.name}の作戦を「${TACTICS[t].name}」にした。`);
     }
     // さいきょう装備（ドラクエ風）: ふくろの 中から 攻撃力・守備力が いちばん 上がる ものを 装備する
+    // モンスターの なかまも（しゅぞくで 装備できる 物だけ）
     case 'bestEquip': {
       const team = msg.who === 'all' ? ownTeamChars(world, s) : [ownChar(s, msg.who || 'self')].filter(Boolean);
       const lines = [];
       for (const who of team) {
-        if (who.species) continue;
         const got = bestEquipFor(who, c);
         if (got.length) lines.push(`${who.name}: ${got.join('・')}`);
       }

@@ -342,6 +342,8 @@ test('馬車: マルチでは リーダーの 馬車（家族の 仲間は 乗�
   // たたかい: リーダーだけ いれかえ できる
   for (const b of [papa, kid]) { b.s.map = 'overworld'; b.s.x = FIELD.x; b.s.y = FIELD.y; }
   const ctx = fieldBattle(world, papa, ['golem']);
+  // Lv1 の 2人が 先に やられない ように（らんすうの ながれに よらず いれかえを ためせる）
+  for (const e of ctx.battle.enemies) e.atk = 1;
   papa.queue = [];
   kid.queue = [];
   const kidId = kid.msgs.filter((m) => m.t === 'battleStart').pop().mine[0];

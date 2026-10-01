@@ -11,6 +11,7 @@ import { ITEMS_TM } from './items-tm.js';
 import { NIGHT_ITEMS, NIGHT_ITEM_KANA } from './night.js';
 import { SKY_ITEMS, SKY_ITEM_KANA } from './sky.js';
 import { ITEMS_FORGE, FORGE_KANA, addUpgradeItems } from './items-forge.js';
+import { RARE_ITEMS, RARE_ITEM_KANA } from './monsters-rare.js';
 
 export const ITEMS = {
   // ───── つかう どうぐ ─────
@@ -165,6 +166,8 @@ Object.assign(ITEMS, ITEMS_CH2, ITEMS_TM);
 Object.assign(ITEMS, NIGHT_ITEMS, SKY_ITEMS);
 // ふしぎなかじの 素材と 作れる 装備（items-forge.js）
 Object.assign(ITEMS, ITEMS_FORGE);
+// めずらしい 魔物が 落とす 物（monsters-rare.js）
+Object.assign(ITEMS, RARE_ITEMS);
 // きたえた 装備（'iron_sword+1'〜'+3'）。新しい 装備を 足す ときは この 行より 上で
 addUpgradeItems(ITEMS);
 
@@ -236,7 +239,7 @@ export const ITEM_KANA = {
 };
 
 Object.assign(ITEM_KANA, NIGHT_ITEM_KANA, SKY_ITEM_KANA);
-Object.assign(ITEM_KANA, FORGE_KANA);
+Object.assign(ITEM_KANA, FORGE_KANA, RARE_ITEM_KANA);
 
 export function itemKana(id) {
   // きたえた 装備は もとの 装備の 読み ＋ 回数（鉄の剣 → 鉄の剣+1 の じゅん）
