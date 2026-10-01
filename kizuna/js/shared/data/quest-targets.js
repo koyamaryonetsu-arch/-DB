@@ -3,8 +3,8 @@
 // ・たのまれごとは 報告する 人（と さがす 物）
 // 行き先の 書き方: { npc: 'NPCのID' }（その 人の いる 場所）か { map, x, y }
 // 新しい 目標を 作ったら、ここにも 行き先を 足す
-import { MAPS } from '../maps/index.js?v=f05b52911d0e';
-import { SKY_OBJECTIVE_TARGETS } from './sky.js?v=f05b52911d0e';
+import { MAPS } from '../maps/index.js?v=3f43270b2d54';
+import { SKY_OBJECTIVE_TARGETS } from './sky.js?v=3f43270b2d54';
 
 export const OBJECTIVE_TARGETS = {
   'ホシミばあちゃんの家（村の南東）へ行こう': [{ npc: 'elder' }],

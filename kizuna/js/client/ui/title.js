@@ -1,14 +1,14 @@
 // タイトル・ログイン・キャラクターえらび・キャラクターづくり
-import { el, ListMenu, toast, askText, confirmBox } from './dom.js?v=f05b52911d0e';
-import { JOBS, JOB_ORDER } from '../../shared/data/jobs.js?v=f05b52911d0e';
-import { HAIR_STYLES, HAIR_COLORS, SKIN_TONES, FACES, FACE_BY_ID, CLOTH_COLORS, cleanLook } from '../../shared/data/looks.js?v=f05b52911d0e';
-import { previewCache } from '../render/hero.js?v=f05b52911d0e';
-import { playerSprite } from '../field.js?v=f05b52911d0e';
-import { makeCanvas, ctxOf } from '../render/pixel.js?v=f05b52911d0e';
-import { ago } from './services.js?v=f05b52911d0e';
-import { LINE_MAX, parseCode } from '../../shared/world/transfer.js?v=f05b52911d0e';
-import { DEFAULT_SITE, pendingImport, clearPendingImport, familyServer, setFamilyServer, linkToFamilyServer, linkToSite, siteServerAddress } from '../links.js?v=f05b52911d0e';
-import { goFamilyServer, goSite, roundTrip, changeServer, syncOnServer, maybeRoundTrip, notePlayed, familyServerUp } from './syncui.js?v=f05b52911d0e';
+import { el, ListMenu, toast, askText, confirmBox } from './dom.js?v=3f43270b2d54';
+import { JOBS, JOB_ORDER } from '../../shared/data/jobs.js?v=3f43270b2d54';
+import { HAIR_STYLES, HAIR_COLORS, SKIN_TONES, FACES, FACE_BY_ID, CLOTH_COLORS, cleanLook } from '../../shared/data/looks.js?v=3f43270b2d54';
+import { previewCache } from '../render/hero.js?v=3f43270b2d54';
+import { playerSprite } from '../field.js?v=3f43270b2d54';
+import { makeCanvas, ctxOf } from '../render/pixel.js?v=3f43270b2d54';
+import { ago } from './services.js?v=3f43270b2d54';
+import { LINE_MAX, parseCode } from '../../shared/world/transfer.js?v=3f43270b2d54';
+import { DEFAULT_SITE, pendingImport, clearPendingImport, familyServer, setFamilyServer, linkToFamilyServer, linkToSite, siteServerAddress } from '../links.js?v=3f43270b2d54';
+import { goFamilyServer, goSite, roundTrip, changeServer, syncOnServer, maybeRoundTrip, notePlayed, familyServerUp } from './syncui.js?v=3f43270b2d54';
 
 function clearUI() {
   document.getElementById('ui').innerHTML = '';

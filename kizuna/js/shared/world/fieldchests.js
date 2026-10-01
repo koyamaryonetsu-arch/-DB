@@ -2,11 +2,11 @@
 // ・マップの じょうたい（monsters.js の mapState）に もつ。サーバーに 1つ（家族で 見る ものは おなじ。先に 開けた 人が もらう）
 // ・プレイヤーが その マップに いる ときだけ ふえる。開けられない まま 古く なった ものは べつの 場所へ
 // ・クライアントへは snap の fc（かわった ときだけ）
-import { MAPS, isBlocked } from '../maps/index.js?v=f05b52911d0e';
-import { T } from '../tiles.js?v=f05b52911d0e';
-import { ITEMS } from '../data/items.js?v=f05b52911d0e';
-import { addItem } from '../stats.js?v=f05b52911d0e';
-import { FIELD_CHEST_COUNT, FIELD_CHEST_RESPAWN_MS, FIELD_CHEST_LIFE_MS, fieldChestLoot } from '../data/fieldchests.js?v=f05b52911d0e';
+import { MAPS, isBlocked } from '../maps/index.js?v=3f43270b2d54';
+import { T } from '../tiles.js?v=3f43270b2d54';
+import { ITEMS } from '../data/items.js?v=3f43270b2d54';
+import { addItem } from '../stats.js?v=3f43270b2d54';
+import { FIELD_CHEST_COUNT, FIELD_CHEST_RESPAWN_MS, FIELD_CHEST_LIFE_MS, fieldChestLoot } from '../data/fieldchests.js?v=3f43270b2d54';
 
 const GROUND = new Set([T.GRASS, T.FLOWERS, T.TALLGRASS, T.FOREST_FLOOR, T.SAND, T.HILL, T.DIRT]);
 const SPACING = 10; // ほかの 宝箱との あいだ（マス）

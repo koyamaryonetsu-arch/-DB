@@ -2,12 +2,12 @@
 // ・時計: サーバーの 時こく（game.timeOffset）＋ パーティーの 時計の ずれ（party.clockShift）。宿屋の だいほんの とちゅうは
 //   えんしゅつ（['clock', ずれ]）まで 前の 空の まま
 // ・大鳥フウラ: サーバー（shared/world/travel.js）が きめた flying を うけて、とぶ・おりる えんしゅつと え を かく
-import { el, toast } from './ui/dom.js?v=f05b52911d0e';
-import { dayFrac, isNightFrac, darkness } from '../shared/world/clock.js?v=f05b52911d0e';
-import { SKY_MAPS, FLUTE_ID, atEdge } from '../shared/data/sky.js?v=f05b52911d0e';
-import { birdCanvas, birdRideCanvas, BIRD_W, BIRD_H, RIDE_TOP } from './render/sky-art.js?v=f05b52911d0e';
-import { playerSprite } from './field.js?v=f05b52911d0e';
-import { equipKey } from './render/chars.js?v=f05b52911d0e';
+import { el, toast } from './ui/dom.js?v=3f43270b2d54';
+import { dayFrac, isNightFrac, darkness } from '../shared/world/clock.js?v=3f43270b2d54';
+import { SKY_MAPS, FLUTE_ID, atEdge } from '../shared/data/sky.js?v=3f43270b2d54';
+import { birdCanvas, birdRideCanvas, BIRD_W, BIRD_H, RIDE_TOP } from './render/sky-art.js?v=3f43270b2d54';
+import { playerSprite } from './field.js?v=3f43270b2d54';
+import { equipKey } from './render/chars.js?v=3f43270b2d54';
 
 export const FLY_SPEED = 1.9; // 歩く はやさの この ばい
 const CRUISE = 1.45; // とんでいる たかさ（マス）

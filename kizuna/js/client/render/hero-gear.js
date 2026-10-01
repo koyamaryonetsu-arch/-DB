@@ -1,7 +1,7 @@
 // ぶき・たて・かぶと（そうびの ID から みためを きめて かく）
 // 知らない 品（これからの もの）は、種類・ランク・名前の ことば から きめる
-import { mat, ramp, TH, mixC, HeroCanvas } from './hero-raster.js?v=f05b52911d0e';
-import { metal, metalRamp, cloth, leather, gem, glow, metalOfName, baseItem } from './hero-outfit.js?v=f05b52911d0e';
+import { mat, ramp, TH, mixC, HeroCanvas } from './hero-raster.js?v=3f43270b2d54';
+import { metal, metalRamp, cloth, leather, gem, glow, metalOfName, baseItem } from './hero-outfit.js?v=3f43270b2d54';
 
 const D = Math.PI / 180;
 
