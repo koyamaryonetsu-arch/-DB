@@ -118,6 +118,7 @@ export class Battle {
     this.turnCount = 0;
     this.preemptive = opts.preemptive || null;
     for (const a of opts.allies || []) this.addAlly(a);
+    this.enemyMod = opts.enemyMod || null; // 敵の 強さを かえる（宝の洞窟）
     this.addEnemies(opts.enemies || []);
     this.initAtb();
   }
@@ -148,6 +149,7 @@ export class Battle {
     const added = [];
     for (const sp of list) {
       const m = enemyFromSpecies(sp);
+      if (this.enemyMod) this.enemyMod(m);
       const total = (counts[sp] || 0) + (used[sp] || 0);
       const idx = used[sp] || 0;
       used[sp] = idx + 1;

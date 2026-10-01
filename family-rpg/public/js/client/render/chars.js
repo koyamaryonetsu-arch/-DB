@@ -157,6 +157,8 @@ const NPC_LOOKS = {
   fisher: { hair: 1, hairStyle: 'short', skin: 1, outfit: 'apron', cloth: '#8a6a3a', hat: 'straw' },
   lh_keeper: { hair: 5, hairStyle: 'short', skin: 0, outfit: 'robe', robeMain: '#3a4a6a', robeTrim: '#f2c14e', beard: true, hat: 'cap' },
   mina: { hair: 3, hairStyle: 'twin', skin: 0, outfit: 'dress', cloth: '#5ac8b4', female: true, small: true },
+  // 宝探しのダイゴ（ルミナの町）
+  treasure_hunter: { hair: 5, hairStyle: 'short', skin: 1, outfit: 'vest', cloth: '#8a5a2a', beard: true, hat: 'bandana', hatColor: '#d0a040' },
 };
 
 // そうびの かきかた: 'ぶき,よろい,たて,あたま' の もじれつ か { weapon, armor, shield, head }

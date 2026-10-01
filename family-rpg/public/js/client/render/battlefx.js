@@ -63,6 +63,9 @@ const BG = {
   sea_cave: { sky: ['#061014', '#0e2026', '#16303a'], far: '#163640', near: '#22505a', ground: ['#2a4a50', '#223c42'], deco: 'stalactite' },
   tower: { sky: ['#16162a', '#24243c', '#32324e'], far: '#4a4a62', near: '#5a5a70', ground: ['#77788a', '#686a7e'], deco: 'pillars' },
   tower_top: { sky: ['#1a1a28', '#2e2e46', '#46466a'], far: '#3a3a52', near: '#5a5a70', ground: ['#77788a', '#686a7e'], deco: 'storm' },
+  // 宝の洞窟（氷・炎）
+  tm_ice: { sky: ['#0a1a30', '#16304e', '#28507a'], far: '#3a6a9a', near: '#7ea2cf', ground: ['#a8c8e8', '#8aaed6'], deco: 'crystal' },
+  tm_lava: { sky: ['#1a0604', '#3a0e06', '#6a1a08'], far: '#4a1a0e', near: '#8a2a0a', ground: ['#4a2216', '#3a1a10'], deco: 'stalactite' },
 };
 
 export function battleBackground(id) {

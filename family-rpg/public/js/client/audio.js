@@ -441,6 +441,7 @@ export class GameAudio {
       case 'leave': [784, 659, 523].forEach((f, i) => T(f, 0.12, { vol: 0.08, delay: i * 0.1, type: 'pulse' })); break;
       case 'sparkle': [1568, 2093, 2637, 3136].forEach((f, i) => T(f, 0.2, { vol: 0.05, delay: i * 0.07, type: 'sine' })); break;
       case 'rumble': this.noise(1.2, { vol: 0.5, from: 300, to: 40 }); break;
+      case 'dig': [0, 0.32, 0.64].forEach((d) => { this.noise(0.14, { vol: 0.35, delay: d, from: 1400, to: 180 }); T(140, 0.1, { vol: 0.12, delay: d, slide: 70, type: 'triangle' }); }); break;
       case 'thunder': this.noise(0.1, { vol: 0.6, type: 'highpass', from: 2000, to: 2000 }); this.noise(1.4, { vol: 0.5, delay: 0.08, from: 800, to: 30 }); break;
       case 'hammer': [0, 0.28, 0.56].forEach((d) => { T(1400, 0.08, { vol: 0.12, delay: d }); this.noise(0.06, { vol: 0.2, delay: d, from: 4000, to: 2000 }); }); break;
       case 'flee': this.noise(0.3, { vol: 0.2, type: 'bandpass', from: 2000, to: 400, q: 2 }); break;

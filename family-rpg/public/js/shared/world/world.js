@@ -20,6 +20,7 @@ import { CH1_CLEAR_OBJECTIVE } from '../data/story.js';
 import { upgradeSave, repairChar } from './save.js';
 import { exportCode, parseCode, importChar } from './transfer.js';
 import { memorySyncStore, buildSyncOut, applySyncIn, encodeSync, decodeSync, syncSummary } from './sync.js';
+import { tryTreasureDig, treasureMenu, fixTreasurePos, normalizeTreasure, pruneTreasureStates } from './treasure.js';
 
 export const PROTOCOL_VERSION = 1;
 const SPARKLE_RESPAWN_MS = 20 * 60 * 1000;
@@ -609,6 +610,8 @@ export class GameWorld {
     // きらきら
     const sp = map.sparkles?.find((k) => k.x === tx && k.y === ty);
     if (sp) return this.pickSparkle(s, sp);
+    // 宝の地図の 場所（ほる）
+    if (tryTreasureDig(this, s, tx, ty)) return;
     const tile = effectiveTile(map, tx, ty, this.hasFlagFn(s));
     // かんばん
     if (tile === T.SIGN) {
@@ -692,6 +695,7 @@ export class GameWorld {
 
   // ───────────── メニュー ─────────────
   onMenu(s, msg) {
+    if (msg.action === 'tmap') return treasureMenu(this, s, msg);
     menuAction(this, s, msg);
   }
 
@@ -861,6 +865,7 @@ export class GameWorld {
       spawnSymbols(this, ms, dt, players);
       moveSymbols(this, ms, dt, players.filter((p) => !p.away));
     }
+    pruneTreasureStates(this, byMap);
     // いちを おくる（10かい/びょう）
     this.snapTimer += dt;
     if (this.snapTimer >= 100) {
@@ -921,6 +926,7 @@ export function equipLook(c) {
 
 // セーブの 場所が つかえるか（知らない マップ・マップの 外なら null）
 function validPos(pos) {
+  if (typeof pos?.map === 'string' && pos.map.startsWith('tm_')) return fixTreasurePos(pos); // 宝の洞窟
   const pm = pos && typeof pos.map === 'string' && Object.prototype.hasOwnProperty.call(MAPS, pos.map) ? MAPS[pos.map] : null;
   const inside = pm && Number.isFinite(pos.x) && Number.isFinite(pos.y) && pos.x >= 0 && pos.y >= 0 && pos.x < pm.w && pos.y < pm.h;
   return inside ? pos : null;
@@ -945,4 +951,5 @@ function normalizeChar(c) {
   // 第1章クリアの あとの もくひょう（第2章が できた ので あんない を かえる）
   if (c.flags.c1_clear && !c.flags.c2_start && /続きはアップデート/.test(c.objective || '')) c.objective = CH1_CLEAR_OBJECTIVE;
   ensureCompanions(c);
+  normalizeTreasure(c);
 }

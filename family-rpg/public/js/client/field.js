@@ -10,6 +10,7 @@ import { makeCanvas, ctxOf, shade, flipCanvas } from './render/pixel.js';
 import { chestCanvas as chestCanvas3d } from './render/tex3d.js';
 import { boardCanvas } from './render/boards.js';
 import { el } from './ui/dom.js';
+import { syncTreasureGates } from './ui/treasure.js';
 
 const SPEED = 4.6; // マス/びょう
 const RUN = 1.35; // はしると この ばい（はやすぎない ように）
@@ -202,6 +203,7 @@ export class Field {
   // ───────────── マップ ─────────────
   setMap(mapId, x, y, dir) {
     const changed = this.mapId !== mapId;
+    syncTreasureGates(this.game); // 見つけた 宝の地図の 穴
     this.mapId = mapId;
     this.map = MAPS[mapId];
     prepareMap(this.map);
@@ -713,7 +715,7 @@ export class Field {
       for (let x = x0; x <= x1; x++) {
         const i = y * m.w + x;
         const id = m.gates.length ? effectiveTile(m, x, y, gate) : m.tiles[i];
-        const c = tileCanvas(id, r.variant[i], frameOf(id, t), r.mask[i]);
+        const c = tileCanvas(id, r.variant[i], frameOf(id, t), r.mask[i], m.theme);
         ctx.drawImage(c, x * TS - camX, y * TS - camY);
       }
     }
@@ -887,6 +889,7 @@ export class Field {
         const id = tileAt(m, xx, yy);
         if (id === T.TORCH) { const p = P(xx + 0.5, yy + 1.05, 0.9); light(p, 2.8 * p.k * flick, 0.9); }
         else if (id === T.CRYSTAL) { const p = P(xx + 0.5, yy + 0.8, 0.5); light(p, 2 * p.k, 0.7); }
+        else if (id === T.CAVE_WATER && m.theme === 'lava' && (xx + yy) % 2 === 0) { const p = P(xx + 0.5, yy + 0.5, 0); light(p, 1.6 * p.k * flick, 0.55); }
       }
       x.globalCompositeOperation = 'source-over';
       ctx.drawImage(d, 0, 0);
@@ -1197,7 +1200,7 @@ export class Field {
       const id = tileAt(m, xx, yy);
       if (id === T.TORCH) light(xx * TS + 8 - camX, yy * TS + 6 - camY, 44 * flick, 0.9);
       else if (id === T.CRYSTAL) light(xx * TS + 8 - camX, yy * TS + 8 - camY, 30, 0.7);
-      else if (id === T.CAVE_WATER && (xx + yy) % 5 === 0) light(xx * TS + 8 - camX, yy * TS + 8 - camY, 14, 0.3);
+      else if (id === T.CAVE_WATER && (xx + yy) % (m.theme === 'lava' ? 2 : 5) === 0) light(xx * TS + 8 - camX, yy * TS + 8 - camY, m.theme === 'lava' ? 26 : 14, m.theme === 'lava' ? 0.55 : 0.3);
     }
     for (const a of this.actors.values()) light(a.x * TS - camX, (a.y - 0.5) * TS - camY, 50, 0.8);
     this.ctx.drawImage(d, 0, 0);

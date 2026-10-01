@@ -5,6 +5,7 @@ import { buildOverworld, PLACES, zoneAt, areaName, OW_W, OW_H, CAVE_ENTRANCE, FO
 import { CAVE_B1_ROWS, CAVE_B2_ROWS } from './cave-rows.js';
 import { npc } from './npc.js';
 import { buildCh2Maps, SEA_PLACES } from './ch2.js';
+import { buildTreasureFloor } from './treasure-cave.js';
 
 const V = (x, y) => [PLACES.village.x + x, PLACES.village.y + y];
 const TW = (x, y) => [PLACES.town.x + x, PLACES.town.y + y];
@@ -70,6 +71,7 @@ const OVERWORLD_NPCS = [
   npc('t_lady', '町のおばさん', TW(34, 24), 'woman', 't_lady', { wander: 2 }),
   npc('t_oldman', '物知りじいさん', TW(12, 10), 'oldman', 't_oldman', { wander: 2 }),
   npc('t_drinker', 'よっぱらい', TW(42, 8), 'farmer', 't_drinker'),
+  npc('tm_hunter', '宝探しのダイゴ', TW(31, 29), 'treasure_hunter', 'tm_hunter', { show: { all: ['c1_clear'] } }),
 
   // フィールド
   npc('bridge_worker', '橋の番人', [123, 61], 'carpenter', 'bridge_worker'),
@@ -243,16 +245,34 @@ function buildMaps() {
     spawnCounts: { cave2: 10 },
   };
   Object.assign(maps, buildCh2Maps());
-  for (const m of Object.values(maps)) {
-    m.npcById = Object.fromEntries(m.npcs.map((n) => [n.id, n]));
-    m.chestAt = new Map(m.chests.map((c) => [c.y * m.w + c.x, c]));
-    m.signAt = new Map((m.signs || []).map((s) => [s.y * m.w + s.x, s]));
-    m.warpAt = new Map(m.warps.map((w) => [w.y * m.w + w.x, w]));
-  }
+  for (const m of Object.values(maps)) finishMap(m);
   return maps;
 }
 
-export const MAPS = buildMaps();
+function finishMap(m) {
+  m.npcById = Object.fromEntries(m.npcs.map((n) => [n.id, n]));
+  m.chestAt = new Map(m.chests.map((c) => [c.y * m.w + c.x, c]));
+  m.signAt = new Map((m.signs || []).map((s) => [s.y * m.w + s.x, s]));
+  m.warpAt = new Map(m.warps.map((w) => [w.y * m.w + w.x, w]));
+}
+
+// 宝の洞窟（'tm_…'）は はじめて さわった ときに ID から つくる（maps/treasure-cave.js）。
+// Object.values(MAPS) には 出さない。たくさん たまったら 古い ものから わすれる（また おなじ 形に つくれる）
+const lazyIds = [];
+function lazyMap(t, k) {
+  if (typeof k !== 'string' || !k.startsWith('tm_') || Object.prototype.hasOwnProperty.call(t, k)) return;
+  const m = buildTreasureFloor(k);
+  if (!m) return;
+  finishMap(m);
+  Object.defineProperty(t, k, { value: m, enumerable: false, configurable: true, writable: true });
+  lazyIds.push(k);
+  if (lazyIds.length > 160) delete t[lazyIds.shift()];
+}
+export const MAPS = new Proxy(buildMaps(), {
+  get(t, k, r) { lazyMap(t, k); return Reflect.get(t, k, r); },
+  has(t, k) { lazyMap(t, k); return Reflect.has(t, k); },
+  getOwnPropertyDescriptor(t, k) { lazyMap(t, k); return Reflect.getOwnPropertyDescriptor(t, k); },
+});
 
 // ───────────── べんりな かんすう ─────────────
 export function tileAt(map, x, y) {

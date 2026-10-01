@@ -2,6 +2,7 @@
 import { T, TILE_INFO } from '../../shared/tiles.js';
 import { hash2 } from '../../shared/rng.js';
 import { Painter, shade, prand } from './pixel.js';
+import { themedCanvas, partOfTile } from './themes.js';
 
 export const TS = 16;
 
@@ -493,15 +494,17 @@ export function frameOf(id, t) {
 }
 
 const cache = new Map();
-export function tileCanvas(id, variant, frame, mask) {
+// theme … 宝の洞窟の しゅるい（'ice' 'lava'。色だけ かえる。render/themes.js）
+export function tileCanvas(id, variant, frame, mask, theme) {
   const key = (id << 16) | (variant << 12) | (frame << 8) | mask;
   let c = cache.get(key);
-  if (c) return c;
-  const p = new Painter(TS, TS);
-  (painters[id] || painters[T.VOID])(p, variant, frame, mask);
-  c = p.toCanvas();
-  cache.set(key, c);
-  return c;
+  if (!c) {
+    const p = new Painter(TS, TS);
+    (painters[id] || painters[T.VOID])(p, variant, frame, mask);
+    c = p.toCanvas();
+    cache.set(key, c);
+  }
+  return theme ? themedCanvas(c, theme, partOfTile(id)) : c;
 }
 
 const WATERY = new Set([T.WATER, T.DEEP, T.BROKEN_BRIDGE, T.STEPPING, T.PIER, T.BRIDGE_H, T.BRIDGE_V, T.WHIRLPOOL]);
