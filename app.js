@@ -3580,9 +3580,8 @@
       const tr = document.createElement('tr');
       tr.dataset.person = p;
       tr.innerHTML = `
-        <td class="ptp-person">${escapeHtml(p)}</td>
-        <td class="task-col">
-          <button type="button" class="task-open-btn" data-persontaskopen="${escapeHtml(p)}" title="${escapeHtml(p)}さんのタスクを追加・編集">＋ 追加</button>
+        <td class="ptp-person"><span class="ptp-name">${escapeHtml(p)}</span><button type="button" class="task-open-btn" data-persontaskopen="${escapeHtml(p)}" title="${escapeHtml(p)}さんのタスクを追加・編集">＋ 追加</button></td>
+        <td class="task-col ptp-tasks">
           ${taskCellHtml(personTasks(p), 'data-persontaskcell')}
         </td>`;
       tbody.appendChild(tr);
@@ -3722,13 +3721,17 @@
       const p = taskPrio(t);
       const sel = ['high', 'mid', 'low'].map((v) =>
         `<option value="${v}"${v === p ? ' selected' : ''}>${v === 'high' ? '高' : v === 'mid' ? '中' : '低'}</option>`).join('');
+      // 期限の色（過ぎている＝赤／3日以内＝オレンジ）は日付の欄そのものに付ける
+      const due = taskDue(t);
+      const left = (due && !t.done) ? daysBetween(todayStr(), due) : null;
+      const dueCls = left === null ? '' : (left < 0 ? ' due-over' : (left <= 3 ? ' due-soon' : ''));
+      const dueTitle = left !== null && left < 0 ? '期限を過ぎています' : '期限（いつまで）';
       return `<li class="task-item ${t.done ? 'done' : ''}" draggable="true" data-tidx="${i}">
-        <select class="task-prio-select" data-taskprio="${i}" title="優先度">${sel}</select>
-        <input type="checkbox" data-taskmodal="${i}" ${t.done ? 'checked' : ''} title="チェックすると完了になります">
-        <span class="task-text ${taskPrioClass(t)}" data-tedit="${i}" title="クリックで書き直し／つかんで上下に動かすと並べ替え">${escapeHtml(t.text)}</span>
-        ${taskDueHtml(t)}
-        <input type="date" class="task-due-input" data-taskdue="${i}" value="${escapeHtml(taskDue(t))}" title="期限（いつまで）">
-        <button type="button" class="task-del" data-taskdel="${i}" aria-label="削除">×</button>
+        <select class="task-prio-select ti-prio" data-taskprio="${i}" title="優先度" aria-label="優先度">${sel}</select>
+        <input type="checkbox" class="ti-check" data-taskmodal="${i}" ${t.done ? 'checked' : ''} title="チェックすると完了になります" aria-label="完了">
+        <span class="task-text ti-text ${taskPrioClass(t)}" data-tedit="${i}" title="クリックで書き直し／つかんで上下に動かすと並べ替え">${escapeHtml(t.text)}</span>
+        <input type="date" class="task-due-input ti-due${dueCls}" data-taskdue="${i}" value="${escapeHtml(due)}" title="${dueTitle}" aria-label="期限">
+        <button type="button" class="task-del ti-del" data-taskdel="${i}" aria-label="削除" title="このタスクを削除">×</button>
       </li>`;
     }).join('');
   }

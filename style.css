@@ -2313,3 +2313,64 @@ body.booting #loginScreen { display: none !important; }
   header .hdr-btn .tb-sh { display: inline; }
 }
 .hdr-btn .tb-sh { display: none; }
+
+/* ============================================================
+   タスクの追加画面: 列をそろえる（優先度｜チェック｜タスク｜期限｜×）
+   上の入力欄も同じ列幅にして、下の一覧とそろえる
+   ============================================================ */
+#taskModal .modal-content { max-width: 680px; }
+#taskModal .task-add-row,
+#taskModal .task-item {
+  display: grid; grid-template-columns: 52px 22px minmax(0, 1fr) 140px 28px;
+  column-gap: 8px; align-items: center; justify-content: stretch;
+}
+#taskModal .task-add-row { margin-bottom: 10px; padding: 0 4px; } /* 下の一覧の行と同じ左右の余白（列をそろえる） */
+/* 入力欄の行: 優先度｜（チェックの列＋タスクの列）｜期限｜追加 */
+#taskModal .task-add-row #taskNewInput { grid-column: 2 / 4; min-width: 0; height: 36px; }
+#taskModal .task-add-row .ti-add { grid-column: 5 / 6; width: auto; min-width: 0; justify-self: stretch; padding: 0; height: 36px; margin-right: -2px; }
+#taskModal .task-add-row { grid-template-columns: 52px 22px minmax(0, 1fr) 140px 52px; }
+#taskModal .task-item { grid-template-columns: 52px 22px minmax(0, 1fr) 140px 52px; padding: 7px 4px; }
+#taskModal .ti-prio { width: 100%; height: 32px; margin: 0; font-size: 13px; padding: 0 4px; border: 1px solid #cbd5e1; border-radius: 6px; background: #fff; }
+#taskModal .task-add-row .ti-prio { height: 36px; }
+#taskModal .ti-check { justify-self: center; width: 16px; height: 16px; margin: 0; }
+#taskModal .ti-text { min-width: 0; overflow-wrap: anywhere; line-height: 1.5; }
+#taskModal .task-item .ti-text { flex: none; }
+#taskModal .ti-due { width: 100%; height: 32px; margin: 0; font-size: 13px; padding: 0 6px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; }
+#taskModal .task-add-row .ti-due { height: 36px; }
+#taskModal .ti-due.due-over { border-color: #f3a5a5; background: #fff1f1; color: #b91c1c; font-weight: 700; }
+#taskModal .ti-due.due-soon { border-color: #f6c58f; background: #fff7ed; color: #c2410c; font-weight: 700; }
+#taskModal .ti-del { justify-self: center; width: 28px; height: 28px; padding: 0; border-radius: 6px; }
+#taskModal .ti-del:hover { background: #fee2e2; }
+#taskModal .task-item .task-text-edit { min-width: 0; }
+#taskModal .task-list-tools { justify-content: space-between; }
+@media (max-width: 600px) {
+  /* スマホ: 1段目＝チェック｜タスク｜× ／ 2段目＝優先度｜期限 */
+  #taskModal .task-item {
+    grid-template-columns: 22px minmax(0, 1fr) 30px;
+    grid-template-areas: "check text del" ". meta meta"; row-gap: 6px; padding: 10px 2px;
+  }
+  #taskModal .task-item .ti-check { grid-area: check; }
+  #taskModal .task-item .ti-text, #taskModal .task-item .task-text-edit { grid-area: text; }
+  #taskModal .task-item .ti-del { grid-area: del; }
+  #taskModal .task-item .ti-prio { grid-area: meta; width: 60px; justify-self: start; }
+  #taskModal .task-item .ti-due { grid-area: meta; width: calc(100% - 68px); justify-self: end; }
+  /* 入力欄: 1段目＝タスク ／ 2段目＝優先度｜期限｜追加 */
+  #taskModal .task-add-row { grid-template-columns: 60px minmax(0, 1fr) 64px; grid-template-areas: "text text text" "prio due add"; gap: 8px; }
+  #taskModal .task-add-row #taskNewInput { grid-column: 1 / -1; grid-row: 1; font-size: 16px; }
+  #taskModal .task-add-row .ti-prio { grid-column: 1; grid-row: 2; }
+  #taskModal .task-add-row .ti-due { grid-column: 2; grid-row: 2; }
+  #taskModal .task-add-row .ti-add { grid-column: 3; grid-row: 2; margin: 0; }
+  #taskModal .task-list { max-height: none; }
+  #taskModal .task-modal-body { padding: 12px 14px; overflow-y: auto; }
+}
+
+/* 個人タスク: 「＋ 追加」は名前のすぐ右 */
+.ptp-person { white-space: nowrap; }
+.ptp-person .ptp-name { margin-right: 8px; vertical-align: middle; }
+.ptp-person .task-open-btn {
+  position: static; vertical-align: middle; height: 24px; padding: 0 8px; line-height: 22px; margin: 0;
+  border-radius: 6px; color: #2563eb; border: 1px solid #bfd3fb; background: #fff; font-weight: 600; font-size: 12px;
+}
+.ptp-person .task-open-btn:hover { background: #eff6ff; }
+td.task-col.ptp-tasks { padding-right: 12px !important; }
+.ptp-th-person, .ptp-person { width: 170px; }
