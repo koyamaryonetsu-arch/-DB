@@ -3582,7 +3582,7 @@
       tr.innerHTML = `
         <td class="ptp-person">${escapeHtml(p)}</td>
         <td class="task-col">
-          <button type="button" class="task-open-btn" data-persontaskopen="${escapeHtml(p)}" title="${escapeHtml(p)}さんのタスクを編集">✎</button>
+          <button type="button" class="task-open-btn" data-persontaskopen="${escapeHtml(p)}" title="${escapeHtml(p)}さんのタスクを追加・編集">＋ 追加</button>
           ${taskCellHtml(personTasks(p), 'data-persontaskcell')}
         </td>`;
       tbody.appendChild(tr);
@@ -3617,7 +3617,7 @@
         ${editableTd(c, 'content', dupBadgeHtml(c) + escapeHtml(c.content), 'content-cell')}
         ${editableTd(c, 'memo', escapeHtml(c.memo), 'col-memo')}
         <td class="task-col" data-colkey="tasks">
-          <button type="button" class="task-open-btn" data-taskopen="${escapeHtml(c.id)}" title="タスク編集">✎</button>
+          <button type="button" class="task-open-btn" data-taskopen="${escapeHtml(c.id)}" title="タスクを追加・編集">＋ 追加</button>
           ${taskListHtml}
         </td>`;
       tbody.appendChild(tr);
@@ -5178,7 +5178,11 @@
     const te = e.target.closest('[data-tedit]');
     if (te) { editTaskText(te); return; }
     const po = e.target.closest('[data-persontaskopen]');
-    if (po) openPersonTaskModal(po.dataset.persontaskopen);
+    if (po) { openPersonTaskModal(po.dataset.persontaskopen); return; }
+    // 「（なし）」を押しても追加画面を開く
+    const em = e.target.closest('td.task-col .task-empty');
+    const tr = em && em.closest('tr[data-person]');
+    if (tr) openPersonTaskModal(tr.dataset.person);
   });
   $('personTaskBody').addEventListener('change', (e) => {
     const cb = e.target.closest('[data-persontaskcell]');
@@ -5432,6 +5436,9 @@
     // タスク管理モード: 「タスク編集」ボタン
     const to = e.target.closest('[data-taskopen]');
     if (to) { const c = cases.find((x) => x.id === to.dataset.taskopen); if (c) openTaskModal(c); return; }
+    // タスク管理モード: 「（なし）」を押しても追加画面を開く
+    const em = taskMode && e.target.closest('td.task-col .task-empty');
+    if (em) { const tr = em.closest('tr[data-case-id]'); const c = tr && cases.find((x) => x.id === tr.dataset.caseId); if (c) openTaskModal(c); return; }
     // ⑦ 編集パネルを開いている間は、一覧側では編集しない（✎ で別の案件へ切り替えるだけ）。
     // 同じ案件を一覧とパネルの両方で直すと、パネルの保存で一覧側の変更が上書きされてしまうため
     if (!$('modal').classList.contains('hidden')) {
