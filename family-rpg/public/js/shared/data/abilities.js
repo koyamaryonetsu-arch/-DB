@@ -21,6 +21,7 @@ import { ADV_ABILITIES } from './abilities-adv.js';
 import { CH2_ABILITIES } from './abilities-ch2.js';
 import { JOB_ABILITIES } from './abilities-jobs.js';
 import { HIRA_ABILITIES } from './hirameki.js';
+import { TRAVEL_ABILITIES } from './sky.js';
 
 export const ABILITIES = {
   // ───────────── 戦士 ─────────────
@@ -573,6 +574,8 @@ export const ABILITIES = {
   },
 };
 Object.assign(ABILITIES, ADV_ABILITIES, CH2_ABILITIES, JOB_ABILITIES, HIRA_ABILITIES);
+// 移動の 呪文ルーラ（sky.js。フィールドで だけ 使う）
+Object.assign(ABILITIES, TRAVEL_ABILITIES);
 
 // 攻撃呪文かどうか（魔法剣で使える）
 export function isAttackSpell(id) {

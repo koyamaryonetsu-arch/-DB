@@ -168,6 +168,10 @@ export function gameFiles() {
     'public/js/shared/world/sync.js', 'public/js/shared/world/merge.js', 'server/syncstore.js',
     'server/guard.js', 'server/funnel.js', 'server/funnel-cli.js',
     'server/index.js', 'server/main.js', 'server/update.js', 'server/storage.js', 'server/savedir.js',
+    // 昼と夜・ルーラ・空の旅
+    'public/js/shared/world/clock.js', 'public/js/shared/world/travel.js', 'public/js/shared/data/night.js', 'public/js/shared/data/sky.js',
+    'public/js/shared/maps/night-npcs.js', 'public/js/client/sky.js', 'public/js/client/ui/clock.js',
+    'public/js/client/render/sky-art.js', 'public/js/client/render/night-art.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

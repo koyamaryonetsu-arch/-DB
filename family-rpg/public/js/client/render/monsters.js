@@ -2,6 +2,7 @@
 // すべて オリジナルの デザイン
 // 2ばいの こまかさで かいて ドットえに → Scale2x で 4ばい → ひかり・かげ・ふちどり（res 4）
 import { makeCanvas, ctxOf, pixelize, shade, painterFrom, scale2x, outline2, volumeShade } from './pixel.js';
+import { addNightArt } from './night-art.js';
 
 export const MRES = 4; // できあがりの こまかさ（せかいの 1ドットを 4×4 で かく）
 const OUT = '#130d24';
@@ -803,6 +804,9 @@ function lighthouse(g, lit, f) {
   g.poly([[0.3, 0.08], [0.5, 0.0], [0.7, 0.08]], lit ? '#c83a3a' : '#8a2a26');
   g.rect(0.44, 0.84, 0.12, 0.12, '#6a5a4a');
 }
+
+// 夜の 魔物（いまの 魔物の いろがえ。night-art.js）
+addNightArt(MONSTER_ART);
 
 const cache = new Map();
 

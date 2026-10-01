@@ -100,7 +100,7 @@ export const CH2_SCRIPTS = {
     return S('船長マリナ', '次はどこへ行くんだい？\nしおかぜ号なら、どこへだって行けるさ！');
   },
 
-  port_inn: () => innSteps('宿屋のおかみ', 20),
+  port_inn: (x) => innSteps('宿屋のおかみ', 20, x),
   port_arms: () => [['shop', 'port_arms']],
   port_items: () => [['shop', 'port_item']],
   port_church: () => [['church']],

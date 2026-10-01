@@ -9,7 +9,7 @@ import { T, TILE_INFO } from '../tiles.js';
 import { ITEMS } from '../data/items.js';
 import { JOBS } from '../data/jobs.js';
 import { newCharacter, computeStats, addItem, fullHeal, migrateJobs } from '../stats.js';
-import { mapState, spawnSymbols, moveSymbols, symbolSnapshot } from './monsters.js';
+import { mapState, spawnSymbols, moveSymbols, symbolSnapshot, symbolVisible } from './monsters.js';
 import { startFieldBattle, battleTick, battleCommand, battleLeave, joinBattle } from './battles.js';
 import { runScript, runSteps } from './scripts.js';
 import { serviceAction, menuAction } from './services.js';
@@ -20,6 +20,9 @@ import { CH1_CLEAR_OBJECTIVE } from '../data/story.js';
 import { upgradeSave, repairChar } from './save.js';
 import { exportCode, parseCode, importChar } from './transfer.js';
 import { memorySyncStore, buildSyncOut, applySyncIn, encodeSync, decodeSync, syncSummary } from './sync.js';
+import { isNightFor } from './clock.js';
+import { onFly, setFlying, moveAllowed, ridingAlong, canFlyMap } from './travel.js';
+import { migrateSky } from '../data/sky.js';
 
 export const PROTOCOL_VERSION = 1;
 const SPARKLE_RESPAWN_MS = 20 * 60 * 1000;
@@ -131,7 +134,7 @@ export class GameWorld {
     this.send(t, {
       t: 'enter', sid: t.id, char: t.char, map: t.map, x: t.x, y: t.y, dir: t.dir, posSeq: t.posSeq,
       party: p ? partyState(this, p) : null, board: this.data.board || [], supportLog: [], serverTime: this.now(),
-      players: this.playerList(t), resumed: true,
+      players: this.playerList(t), resumed: true, fly: !!t.flying,
     });
     if (ctx && !ctx.battle.over) {
       const mine = Object.entries(ctx.actorMap).filter(([, v]) => v.type === 'human' && v.sid === t.id).map(([k]) => k);
@@ -219,6 +222,7 @@ export class GameWorld {
       case 'chat': return this.onChat(s, msg);
       case 'explored': return this.onExplored(s, msg);
       case 'warpTo': return this.onMenu(s, { t: 'menu', action: 'useItem', id: 'return_wing', place: msg.place });
+      case 'fly': return onFly(this, s, msg); // 風の大鳥（travel.js）
       case 'joinBattle': {
         const r = joinBattle(this, s, msg.sid);
         if (!r.ok && r.reason) this.send(s, { t: 'toast', text: r.reason });
@@ -376,6 +380,8 @@ export class GameWorld {
     s.inWorld = true;
     s.busy = null;
     s.level = c.level;
+    // 大鳥に のったまま 終わった ときは 空から つづける
+    setFlying(s, canFlyMap(pos.map) && (home ? !!home.fly : pos === c.pos && !!c.riding));
     const p = newParty(this, s.id);
     s.partyId = p.id;
     syncParty(this, p);
@@ -385,7 +391,7 @@ export class GameWorld {
     this.send(s, {
       t: 'enter', sid: s.id, char: c, map: s.map, x: s.x, y: s.y, dir: s.dir, posSeq: s.posSeq,
       party: partyState(this, p), board: this.data.board || [], supportLog, serverTime: this.now(),
-      players: this.playerList(s),
+      players: this.playerList(s), fly: !!s.flying,
     });
     this.broadcast({ t: 'joined', sid: s.id, name: c.name }, s);
     this.broadcast({ t: 'chars', chars: this.charList() });
@@ -448,8 +454,9 @@ export class GameWorld {
     if (!Number.isFinite(x) || !Number.isFinite(y)) return;
     const map = MAPS[s.map];
     if (x < 0 || y < 0 || x >= map.w || y >= map.h) return;
-    // あまりに とおくへの いどうは みとめない（ワープ いがい）
-    if (Math.hypot(x - s.x, y - s.y) > 6) {
+    // あまりに とおくへの いどうは みとめない（ワープ いがい）。
+    // 歩けない ところ（山・海 など）は 大鳥で とんでいる ときだけ（travel.js）
+    if (Math.hypot(x - s.x, y - s.y) > 6 || !moveAllowed(this, s, map, x, y)) {
       this.send(s, { t: 'setPos', map: s.map, x: s.x, y: s.y, dir: s.dir, seq: s.posSeq });
       return;
     }
@@ -468,12 +475,15 @@ export class GameWorld {
     return (this.hostOf(s) || s).char?.flags || {};
   }
 
+  // '@night' … 夜の あいだ（夜だけ 出る 人・夜は 家に 帰る 人。パーティーの 時計で）
   hasFlagFn(s) {
     const flags = this.worldFlags(s);
-    return (f) => !!flags[f];
+    return (f) => (f === '@night' ? isNightFor(this, s) : !!flags[f]);
   }
 
   onEnterTile(s, tx, ty) {
+    // 空の 上: 出入り口・イベント・ばしょの きろくは なし
+    if (s.flying) return;
     const map = MAPS[s.map];
     const warp = map.warpAt.get(ty * map.w + tx);
     if (warp) {
@@ -531,15 +541,16 @@ export class GameWorld {
     return false;
   }
 
-  // サーバーが いちを きめる（テレポート・ワープ）
-  placeSession(s, mapId, x, y, dir, notify = true) {
+  // サーバーが いちを きめる（テレポート・ワープ）。opts.fly … 大鳥に のったまま（ほかは おりる）
+  placeSession(s, mapId, x, y, dir, notify = true, opts = {}) {
     s.map = mapId;
     s.x = x;
     s.y = y;
     s.dir = dir || s.dir;
     s.posSeq++;
     s.invuln = 1500;
-    if (notify) this.send(s, { t: 'setPos', map: mapId, x, y, dir: s.dir, seq: s.posSeq });
+    setFlying(s, !!opts.fly && canFlyMap(mapId));
+    if (notify) this.send(s, { t: 'setPos', map: mapId, x, y, dir: s.dir, seq: s.posSeq, fly: !!s.flying });
     this.markDirty();
   }
 
@@ -557,7 +568,7 @@ export class GameWorld {
     delete s.char.soloPos;
     this.markDirty();
     if (!pos || (pos.map === s.map && Math.hypot(pos.x - s.x, pos.y - s.y) < 1)) return;
-    this.placeSession(s, pos.map, pos.x, pos.y, pos.dir || s.dir, true);
+    this.placeSession(s, pos.map, pos.x, pos.y, pos.dir || s.dir, true, { fly: !!pos.fly });
     this.send(s, { t: 'toast', text: `${s.char.name}は自分の冒険にもどった！\n（パーティーに入る前の場所へ）` });
     this.broadcastPlayers();
   }
@@ -575,10 +586,12 @@ export class GameWorld {
 
   // ───────────── モンスターに ふれた ─────────────
   onTouch(s, msg) {
-    if (s.busy || s.invuln > 0) return;
+    if (s.busy || s.invuln > 0 || s.flying) return;
     const ms = this.mapStates.get(s.map);
     const sym = ms?.symbols.get(msg.id);
     if (!sym || sym.busy || sym.stun > 0) return;
+    // 昼の 人には 夜の まものは 見えない（その ぎゃくも）
+    if (!symbolVisible(sym, isNightFor(this, s))) return;
     if (Math.hypot(sym.x - s.x, sym.y - s.y) > 2.5) return;
     const zone = MAPS[s.map].zoneAt(Math.floor(s.x), Math.floor(s.y));
     if (zone.startsWith('safe')) return;
@@ -587,7 +600,7 @@ export class GameWorld {
 
   // ───────────── しらべる・はなす ─────────────
   onInteract(s, msg) {
-    if (s.busy) return;
+    if (s.busy || s.flying) return;
     const map = MAPS[s.map];
     // 人・宝箱が 出ているかは 世界の フラグで（手伝っている ときは リーダーの 世界）
     const hasFlag = this.hasFlagFn(s);
@@ -721,7 +734,7 @@ export class GameWorld {
         // じぶんの パーティーを ぬける
         this.leaveParty(s, true);
         // 自分の 冒険の 場所を おぼえておく（パーティーが おわったら ここへ もどる）
-        if (!s.char.soloPos) s.char.soloPos = { map: s.map, x: s.x, y: s.y, dir: s.dir };
+        if (!s.char.soloPos) s.char.soloPos = { map: s.map, x: s.x, y: s.y, dir: s.dir, ...(s.flying ? { fly: true } : {}) };
         const own = this.parties.get(s.partyId);
         if (own) this.parties.delete(own.id);
         target.members.push(s.id);
@@ -733,7 +746,7 @@ export class GameWorld {
         // さそってくれた リーダーの ところへ（ひとりで きたえた キャラも すぐ いっしょに 冒険できる）
         const leader = this.sessions.get(target.leader);
         if (leader && leader !== s && leader.inWorld && (leader.map !== s.map || Math.hypot(leader.x - s.x, leader.y - s.y) > 6)) {
-          this.placeSession(s, leader.map, leader.x, leader.y, leader.dir, true);
+          this.placeSession(s, leader.map, leader.x, leader.y, leader.dir, true, { fly: !!leader.flying });
           this.send(s, { t: 'toast', text: `${leader.char.name}のところへ移動した！` });
           this.broadcastPlayers();
         }
@@ -850,6 +863,8 @@ export class GameWorld {
     for (const s of this.sessions.values()) {
       if (!s.inWorld) continue;
       if (s.invuln > 0) s.invuln -= dt;
+      // 夜か（パーティーの 時計。夜の まものが 見える）
+      s.night = isNightFor(this, s);
       // さそわれて 来ていた 人が ひとりに なった → 自分の 冒険の 場所へ
       if (s.char?.soloPos && !s.busy && !s.away && (partyOf(this, s)?.members.length || 1) < 2) this.returnHome(s);
       if (!byMap.has(s.map)) byMap.set(s.map, []);
@@ -867,13 +882,16 @@ export class GameWorld {
       this.snapTimer = 0;
       for (const [mapId, players] of byMap) {
         const ms = mapState(this, mapId);
-        const syms = symbolSnapshot(ms);
+        // 昼の 人・夜の 人で 見える まものが ちがう
+        const syms = { day: symbolSnapshot(ms, false), night: symbolSnapshot(ms, true) };
         const ps = players.map((p) => ({
           sid: p.id, name: p.char.name, look: p.char.look, job: p.char.job, eq: equipLook(p.char), x: Math.round(p.x * 100) / 100, y: Math.round(p.y * 100) / 100,
           dir: p.dir, mv: p.moving ? 1 : 0, b: p.busy === 'battle' ? 1 : 0, pid: p.partyId, aw: p.away ? 1 : 0,
           fl: this.followerLooks(p),
+          // 大鳥で とんでいる / なかまの 大鳥に いっしょに のっている
+          ...(p.flying ? { air: 1, ride: ridingAlong(this, p) ? 1 : 0 } : {}),
         }));
-        for (const p of players) this.send(p, { t: 'snap', map: mapId, players: ps.filter((x) => x.sid !== p.id), syms });
+        for (const p of players) this.send(p, { t: 'snap', map: mapId, players: ps.filter((x) => x.sid !== p.id), syms: p.night ? syms.night : syms.day });
       }
     }
     // セーブ
@@ -944,5 +962,7 @@ function normalizeChar(c) {
   c.battleSettings = c.battleSettings || { speed: 1, wait: false, auto: false };
   // 第1章クリアの あとの もくひょう（第2章が できた ので あんない を かえる）
   if (c.flags.c1_clear && !c.flags.c2_start && /続きはアップデート/.test(c.objective || '')) c.objective = CH1_CLEAR_OBJECTIVE;
+  // 第2章クリアずみで 風の笛を まだ もらっていない 人に 知らせる（sky.js）
+  migrateSky(c);
   ensureCompanions(c);
 }

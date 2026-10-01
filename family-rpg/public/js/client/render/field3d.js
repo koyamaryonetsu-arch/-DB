@@ -438,7 +438,14 @@ export class Field3D {
       this.target.y = 0.6;
     }
     const cam = this.camera;
-    cam.position.copy(this.target).addScaledVector(BACK, this.dist);
+    // 大鳥で とんでいる ときは カメラを すこし 高く（とおくまで 見える）
+    const zoom = f.game.sky?.flying ? 1.35 : 1;
+    this.zoom = (this.zoom || 1) + (zoom - (this.zoom || 1)) * Math.min(1, dt / 400);
+    cam.position.copy(this.target).addScaledVector(BACK, this.dist * this.zoom);
+    if (this.scene.fog && !this.dark) {
+      this.scene.fog.near = this.dist * this.zoom + 8;
+      this.scene.fog.far = this.dist * this.zoom + 34;
+    }
     if (f.shakeT > 0) {
       cam.position.x += (Math.random() - 0.5) * 0.35;
       cam.position.y += (Math.random() - 0.5) * 0.35;
@@ -447,9 +454,10 @@ export class Field3D {
     cam.updateMatrixWorld();
     // たてものの なかに いる？（やねを はずして かべを ひくく）
     this.inside = null;
+    const air = !!f.game.sky?.flying;
     for (const b of this.buildings || []) {
       const r = b.r;
-      const inside = me.x >= r.x + 1 && me.x < r.x + r.w - 1 && me.y >= r.y + 1 && me.y < r.y + r.h;
+      const inside = !air && me.x >= r.x + 1 && me.x < r.x + r.w - 1 && me.y >= r.y + 1 && me.y < r.y + r.h;
       b.roof.visible = !inside;
       b.walls.scale.y = inside ? 0.28 : 1;
       if (inside) this.inside = r;
@@ -475,7 +483,7 @@ export class Field3D {
     };
     for (const e of f.entities3d()) {
       if (!e.canvas) continue;
-      if (this.hiddenByRoof(e.x, e.y)) continue;
+      if (!e.air && this.hiddenByRoof(e.x, e.y)) continue;
       used.add(e.key);
       let sp = this.sprites.get(e.key);
       if (!sp) {

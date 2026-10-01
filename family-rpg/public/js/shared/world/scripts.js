@@ -5,18 +5,22 @@ import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.j
 import { startFixedBattle } from './battles.js';
 import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion } from './party.js';
 import { openService } from './services.js';
+import { isNightFor, advanceClock } from './clock.js';
 
 let runSeq = 1;
 
 // だいほんに わたす じょうほう
 //  s … 話しかけた 人 / owner … その 世界の もちぬし（さそわれて 手伝っている ときは リーダー）
 //  ものがたりの すすみぐあい（フラグ・大事な物・たのまれごと）は owner、ふつうの 道具は 話しかけた 人
-export function scriptCtx(s, owner = s) {
+//  night … 夜か（パーティーの 時計。world/clock.js）/ helper … さそわれて 手伝っている 人
+export function scriptCtx(s, owner = s, world = null) {
   const c = s.char;
   const o = owner.char;
   return {
     c,
     name: c.name,
+    night: world ? isNightFor(world, owner) : false,
+    helper: s !== owner,
     flag: (f) => !!o.flags[f],
     has: (id) => hasKeyItem(o, id) || (ITEMS[id]?.type !== 'key' && itemCount(c, id) > 0),
     count: (id) => (ITEMS[id]?.type === 'key' ? (hasKeyItem(o, id) ? 1 : 0) : itemCount(c, id)),
@@ -144,7 +148,7 @@ export class ScriptRun {
       const all = this.everyone;
       switch (op) {
         case 'if': {
-          const ok = a[0](scriptCtx(this.init, this.owner));
+          const ok = a[0](scriptCtx(this.init, this.owner, w));
           await this.runSteps(ok ? a[1] || [] : a[2] || []);
           break;
         }
@@ -206,9 +210,10 @@ export class ScriptRun {
           break;
         }
         case 'inn': {
-          // ['inn', ねだん, 宿屋の人]（ねだん 0 は 家の ベッド）
+          // ['inn', ねだん, 宿屋の人, 'morning'|'night']（ねだん 0 は 家の ベッド。宿屋は ふつう 朝まで）
           const price = a[0] || 0;
           const keeper = a[1] || null;
+          const until = a[2] || (price ? 'morning' : null);
           const c = this.init.char;
           if (c.gold < price) {
             this.say('おや？ゴールドが足りないようですね。', keeper);
@@ -220,8 +225,15 @@ export class ScriptRun {
           for (const sup of p?.supports || []) fullHeal(sup.char);
           for (const g of p?.guests || []) fullHeal(g.char);
           if (price) this.say('では、ごゆっくりお休みください。', keeper);
-          this.batch.push(['fade', 'out'], ['bgm', 'inn'], ['wait', 2200], ['bgm', 'resume'], ['fade', 'in']);
-          if (price) {
+          this.batch.push(['fade', 'out'], ['bgm', 'inn'], ['wait', 2200]);
+          // 時間を すすめる（パーティーの 時計。さそわれて 手伝っている 人は かえない）
+          if (until && this.owner === this.init) this.batch.push(['clock', advanceClock(w, this.init, until)]);
+          this.batch.push(['bgm', 'resume'], ['fade', 'in']);
+          if (price && until === 'night') {
+            this.say('こんばんは。\nよくお休みになれましたか？', keeper);
+            this.say('HPとMPがすっかり回復した！');
+            this.say('外はもう夜です。夜は魔物が強くなりますから、お気を付けて。', keeper);
+          } else if (price) {
             this.say('おはようございます。\nゆうべは、よくねむれましたか？', keeper);
             this.say('HPとMPがすっかり回復した！');
             this.say('では、いってらっしゃいませ。', keeper);
@@ -357,7 +369,7 @@ export function runScript(world, s, scriptId, opts = {}) {
   }
   // さそわれて 手伝っている 人が 町の 人に 話しかけた ときも、リーダーの 世界（ものがたり）で
   const owner = story ? init : (world.hostOf?.(init) || init);
-  const steps = fn(scriptCtx(init, owner));
+  const steps = fn(scriptCtx(init, owner, world));
   if (!steps || !steps.length) return false;
   const participants = [init];
   if (init !== s && !s.busy) participants.push(s);

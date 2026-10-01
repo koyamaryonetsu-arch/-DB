@@ -55,12 +55,12 @@ export const JOBS = {
   },
   mage: {
     id: 'mage', name: '魔法使い', kana: 'まほうつかい', short: '魔法', tier: 0, family: 'magic', color: '#9a6ad0',
-    desc: '攻撃呪文「メラ」「ヒャド」で敵をやっつける。体は弱いので守ってもらおう。',
+    desc: '攻撃呪文「メラ」「ヒャド」で敵をやっつける。行った町へ飛べる「ルーラ」も覚える。体は弱いので守ってもらおう。',
     mods: { hp: 0.8, mp: 1.4, str: 0.7, def: 0.8, agi: 1.0, mag: 1.45, heal: 0.8 },
     weapons: ['staff', 'dagger'], shield: false, armor: ['cloth', 'robe'], helm: false,
     perLv: { mag: 1, mp: 0.6 },
     learn: [
-      [1, 'mera'], [2, 'hyado'], [2, 'gira'], [3, 'rukani'], [4, 'rariho'],
+      [1, 'mera'], [2, 'hyado'], [2, 'gira'], [2, 'rura'], [3, 'rukani'], [4, 'rariho'],
       [5, 'io'], [6, 'merami'], [7, 'hyadaruko'], [8, 'begirama'], [9, 'iora'], [10, 'merazoma'],
     ],
   },
@@ -195,11 +195,11 @@ export const JOBS = {
   },
   sage: {
     id: 'sage', name: '賢者', kana: 'けんじゃ', short: '賢者', tier: 1, req: ['priest', 'mage'], reqAlt: [['jester']], family: 'magic', color: '#3fa35a',
-    desc: '回復と攻撃、両方の呪文を極めた者。ベホマやマヒャドを覚える。',
+    desc: '回復と攻撃、両方の呪文を極めた者。ベホマやマヒャド、移動の呪文ルーラを覚える。',
     mods: { hp: 0.95, mp: 1.5, str: 0.75, def: 0.95, agi: 1.05, mag: 1.4, heal: 1.4 },
     weapons: ['staff', 'spear', 'dagger'], shield: true, armor: ['cloth', 'robe'], helm: false,
     perLv: { mp: 1, mag: 0.5, heal: 0.5 },
-    learn: [[1, 'sg_behoma'], [3, 'sg_bagikurosu'], [5, 'sg_zaoral'], [7, 'sg_mahyado'], [10, 'sg_inori']],
+    learn: [[1, 'sg_behoma'], [1, 'rura'], [3, 'sg_bagikurosu'], [5, 'sg_zaoral'], [7, 'sg_mahyado'], [10, 'sg_inori']],
   },
   superstar: {
     id: 'superstar', name: 'スーパースター', kana: 'すーぱーすたー', short: 'スタ', tier: 1, req: ['priest', 'performer'], reqAlt: [['idol']], family: 'tech', color: '#e46fa8',

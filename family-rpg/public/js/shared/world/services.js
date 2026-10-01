@@ -12,6 +12,7 @@ import { DUAL_TECHS } from '../data/dual.js';
 import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings } from '../battle.js';
 import { PLACES } from '../maps/overworld.js';
 import { POS, SEA_PLACES } from '../maps/index.js';
+import { castRura, warpParty, useTimeBell } from './travel.js';
 
 export function openService(world, s, kind, arg) {
   switch (kind) {
@@ -324,10 +325,12 @@ export function menuAction(world, s, msg) {
         const kind = world.mapKind(s.map);
         if (kind !== 'field' && kind !== 'dungeon') return reply(false, '');
         removeItem(c, msg.id, 1);
-        const to = warpDest(dest);
-        world.placeSession(s, to.map, to.x, to.y, 'down', true);
+        // 「ついていく」なかまも いっしょに（travel.js。ルーラと おなじ）
+        warpParty(world, s, warpDest(dest));
         return reply(true, `${c.name}は帰り道の羽を空に投げた！`);
       }
+      // 夜明けのすず・夕焼けのすず（travel.js）
+      if (eff.type === 'timeBell') return useTimeBell(world, s, msg.id, reply);
       const target = refChar(world, s, msg.ref);
       if (!target) return reply(false, '');
       const r = applyFieldEffect(world, c, target, eff);
@@ -341,6 +344,8 @@ export function menuAction(world, s, msg) {
       if (caster.hp <= 0) return reply(false, `${caster.name}は死んでいる…`);
       const a = ABILITIES[msg.id];
       if (!a || !a.field || !learnedAbilities(caster).includes(msg.id)) return reply(false, '今は使えない');
+      // ルーラ（行った 町へ 仲間と 飛ぶ。travel.js）
+      if (a.effect?.type === 'warp') return castRura(world, s, caster, msg.id, msg, reply);
       const cost = mpCost(caster, msg.id);
       if (caster.mp < cost) return reply(false, 'MPが足りない！');
       const pen = penaltyFor(caster, msg.id);

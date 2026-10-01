@@ -298,6 +298,11 @@ button:focus-visible, input:focus-visible, .item:focus-visible { outline: 3px so
   cursor: pointer;
 }
 .hud-map canvas { width: clamp(90px, 18vmin, 170px); height: clamp(90px, 18vmin, 170px); image-rendering: pixelated; border-radius: 5px; }
+/* 昼・夜の 時計（ちずの 左下に かさねる。ui/clock.js） */
+.hud-clock { position: absolute; left: -10px; bottom: -10px; width: clamp(30px, 6.5vmin, 42px); height: clamp(30px, 6.5vmin, 42px); pointer-events: none; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.6)); }
+.hud-map .hud-clock canvas { width: 100%; height: 100%; border-radius: 0; image-rendering: pixelated; }
+/* 大鳥フウラの ボタン（sky.js） */
+.hud-btn.hud-sky, .hud-btn.hud-sky2 { color: #bff0e0; border-color: #5ec8b0; }
 
 .hud-btns {
   position: absolute;

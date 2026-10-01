@@ -4,6 +4,7 @@
 // 行き先の 書き方: { npc: 'NPCのID' }（その 人の いる 場所）か { map, x, y }
 // 新しい 目標を 作ったら、ここにも 行き先を 足す
 import { MAPS } from '../maps/index.js';
+import { SKY_OBJECTIVE_TARGETS } from './sky.js';
 
 export const OBJECTIVE_TARGETS = {
   'ホシミばあちゃんの家（村の南東）へ行こう': [{ npc: 'elder' }],
@@ -29,6 +30,8 @@ export const OBJECTIVE_TARGETS = {
   '嵐の塔のてっぺんへのぼり、嵐の将軍をたおそう': [{ npc: 'storm_general_npc' }],
   '風の守り星を、カモメ港の北の「風のさいだん」にもどそう': [{ map: 'sea', x: 24, y: 29 }],
 };
+// 風の笛（sky.js）
+Object.assign(OBJECTIVE_TARGETS, SKY_OBJECTIVE_TARGETS);
 
 // たのまれごと（name … クエストの 名前、who … 報告する 人、ready … もう 報告できる）
 export function subQuests(c) {
@@ -48,6 +51,11 @@ export function subQuests(c) {
     out.push({ name: 'ウルフ退治', who: 'farmer_wolf', ready: n >= 5, text: n >= 5 ? '牧場のおじさんに報告しよう' : `${Math.min(5, n)}/5ひき` });
   }
   if (has('bottle_letter') && !f('q_bottle_done')) out.push({ name: 'びんの手紙', who: 'mina', ready: true, text: 'カモメ港のミナにわたそう' });
+  // 夜だけの たのまれごと（night.js）
+  if (f('q_ghost_start') && !f('q_ghost_done')) {
+    if (has('music_box')) out.push({ name: 'ゆうれいのオルゴール', who: 'night_ghost', ready: true, text: '夜のホシフル村で、ゆうれいの女の子にわたそう' });
+    else out.push({ name: 'ゆうれいのオルゴール', who: 'night_ghost', find: 'night_glint', ready: false, text: '夜の星見の丘で探そう' });
+  }
   return out;
 }
 

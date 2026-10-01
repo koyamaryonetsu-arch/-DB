@@ -19,6 +19,8 @@ import { learnedAbilities, comboUnlocked, hiraAllowed } from '../stats.js';
 import { HIRAMEKI, hiraRatio } from './hirameki.js';
 import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js';
 import { innSteps } from './inn.js';
+import { NIGHT_SCRIPTS } from './night.js';
+import { skyScripts } from './sky.js';
 
 const V = (x, y) => [PLACES.village.x + x + 0.5, PLACES.village.y + y + 0.5];
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
@@ -301,7 +303,7 @@ export const SCRIPTS = {
   shop_weapon: () => [['shop', 'weapon']],
   shop_armor: () => [['shop', 'armor']],
   shop_item: () => [['shop', 'item']],
-  inn: () => innSteps('宿屋のおかみ', 12),
+  inn: (x) => innSteps('宿屋のおかみ', 12, x),
   home_bed: (x) => [
     ['choice', 'ベッドで休む？', ['はい', 'いいえ'], [
       [['inn', 0]],
@@ -569,5 +571,8 @@ function sageHints(x) {
 }
 
 Object.assign(SCRIPTS, CH2_SCRIPTS);
+// 夜の 人（night.js）と、風のさいだんの 笛の イベント（sky.js）
+Object.assign(SCRIPTS, NIGHT_SCRIPTS);
+Object.assign(SCRIPTS, skyScripts(SCRIPTS));
 
 export { comboUnlocked };

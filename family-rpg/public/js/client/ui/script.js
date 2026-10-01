@@ -66,6 +66,10 @@ export class ScriptPlayer {
       case 'night':
         g.field.nightOverride = a[0] ? true : null;
         return null;
+      case 'clock':
+        // 宿屋で ねている あいだに 時間が すすんだ（sky.js）
+        g.sky?.scriptClock(a[0]);
+        return null;
       case 'bgm':
         if (a[0] === null) g.audio.stop(0.4);
         else if (a[0] === 'resume') g.audio.play(g.field.areaBgm());

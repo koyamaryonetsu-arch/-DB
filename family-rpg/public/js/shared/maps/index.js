@@ -5,6 +5,7 @@ import { buildOverworld, PLACES, zoneAt, areaName, OW_W, OW_H, CAVE_ENTRANCE, FO
 import { CAVE_B1_ROWS, CAVE_B2_ROWS } from './cave-rows.js';
 import { npc } from './npc.js';
 import { buildCh2Maps, SEA_PLACES } from './ch2.js';
+import { addNightNpcs } from './night-npcs.js';
 
 const V = (x, y) => [PLACES.village.x + x, PLACES.village.y + y];
 const TW = (x, y) => [PLACES.town.x + x, PLACES.town.y + y];
@@ -243,6 +244,8 @@ function buildMaps() {
     spawnCounts: { cave2: 10 },
   };
   Object.assign(maps, buildCh2Maps());
+  // 夜の 町・村（夜だけ 出る 人・夜は 家に 帰る 人）
+  addNightNpcs(maps);
   for (const m of Object.values(maps)) {
     m.npcById = Object.fromEntries(m.npcs.map((n) => [n.id, n]));
     m.chestAt = new Map(m.chests.map((c) => [c.y * m.w + c.x, c]));

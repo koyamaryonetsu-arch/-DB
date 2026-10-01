@@ -4,6 +4,7 @@ import { computeStats } from '../../shared/stats.js';
 import { JOBS } from '../../shared/data/jobs.js';
 import { renderMiniMap, openWorldMap } from './menu.js';
 import { makeCanvas } from '../render/pixel.js';
+import { ClockBadge } from './clock.js';
 
 export const STAMPS = ['よろしく！', 'ありがとう！', '行くよー！', '助けて！', '待ってて！', 'やったね！', 'おつかれさま', 'ご飯だよ〜'];
 
@@ -39,7 +40,9 @@ export class Hud {
     this.obj = el('div', { class: 'win hud-obj', onclick: () => this.game.openMenu('quest') });
     this.mapBox = el('div', { class: 'win hud-map', onclick: () => openWorldMap(game), title: '地図' });
     this.mini = makeCanvas(84, 84);
-    this.mapBox.append(this.mini);
+    // 昼・夜の 時計（ちずの 左下）
+    this.clock = new ClockBadge(game);
+    this.mapBox.append(this.mini, this.clock.el);
     this.btns = el('div', { class: 'hud-btns' },
       el('button', { class: 'win hud-btn', text: 'メニュー', onclick: () => game.openMenu() }),
       el('button', { class: 'win hud-btn', text: 'チャット', onclick: () => this.chatInput() }),
@@ -58,6 +61,7 @@ export class Hud {
     if (this.miniTimer <= 0) {
       this.miniTimer = 250;
       renderMiniMap(this.game, this.mini, false);
+      this.clock.update();
     }
     const f = this.game.field;
     if (!f.map) return;
