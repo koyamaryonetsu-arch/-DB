@@ -1,10 +1,10 @@
 // だいほん（イベント）を すすめる しくみ
-import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js?v=4deb19092b33';
-import { ITEMS } from '../data/items.js?v=4deb19092b33';
-import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js?v=4deb19092b33';
-import { startFixedBattle } from './battles.js?v=4deb19092b33';
-import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion } from './party.js?v=4deb19092b33';
-import { openService } from './services.js?v=4deb19092b33';
+import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js?v=d695815c3edd';
+import { ITEMS } from '../data/items.js?v=d695815c3edd';
+import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js?v=d695815c3edd';
+import { startFixedBattle } from './battles.js?v=d695815c3edd';
+import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion } from './party.js?v=d695815c3edd';
+import { openService } from './services.js?v=d695815c3edd';
 
 let runSeq = 1;
 
@@ -291,6 +291,10 @@ export class ScriptRun {
           if (res !== 'win') return this.abort();
           break;
         }
+        case 'call':
+          // ほかの しくみの しょり（宝の地図など）。a[0](run) を まつ
+          await a[0](this);
+          break;
         case 'teleport': {
           const [map, x, y, dir] = a;
           const offs = [[0, 0], [-1, 0], [1, 0], [0, 1], [-1, 1], [1, 1]];

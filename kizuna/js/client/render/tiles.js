@@ -1,7 +1,8 @@
 // マップの タイル（16×16 ドット）を プログラムで かく
-import { T, TILE_INFO } from '../../shared/tiles.js?v=4deb19092b33';
-import { hash2 } from '../../shared/rng.js?v=4deb19092b33';
-import { Painter, shade, prand } from './pixel.js?v=4deb19092b33';
+import { T, TILE_INFO } from '../../shared/tiles.js?v=d695815c3edd';
+import { hash2 } from '../../shared/rng.js?v=d695815c3edd';
+import { Painter, shade, prand } from './pixel.js?v=d695815c3edd';
+import { themedCanvas, partOfTile } from './themes.js?v=d695815c3edd';
 
 export const TS = 16;
 
@@ -493,15 +494,17 @@ export function frameOf(id, t) {
 }
 
 const cache = new Map();
-export function tileCanvas(id, variant, frame, mask) {
+// theme … 宝の洞窟の しゅるい（'ice' 'lava'。色だけ かえる。render/themes.js）
+export function tileCanvas(id, variant, frame, mask, theme) {
   const key = (id << 16) | (variant << 12) | (frame << 8) | mask;
   let c = cache.get(key);
-  if (c) return c;
-  const p = new Painter(TS, TS);
-  (painters[id] || painters[T.VOID])(p, variant, frame, mask);
-  c = p.toCanvas();
-  cache.set(key, c);
-  return c;
+  if (!c) {
+    const p = new Painter(TS, TS);
+    (painters[id] || painters[T.VOID])(p, variant, frame, mask);
+    c = p.toCanvas();
+    cache.set(key, c);
+  }
+  return theme ? themedCanvas(c, theme, partOfTile(id)) : c;
 }
 
 const WATERY = new Set([T.WATER, T.DEEP, T.BROKEN_BRIDGE, T.STEPPING, T.PIER, T.BRIDGE_H, T.BRIDGE_V, T.WHIRLPOOL]);

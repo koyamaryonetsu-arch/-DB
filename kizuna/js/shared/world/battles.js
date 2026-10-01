@@ -1,15 +1,17 @@
 // たたかいの はじまりと おわり（ほうしゅう・ぜんめつ）
-import { Battle, normBattleSettings } from '../battle.js?v=4deb19092b33';
-import { MONSTERS } from '../data/monsters.js?v=4deb19092b33';
-import { ITEMS } from '../data/items.js?v=4deb19092b33';
-import { ABILITIES } from '../data/abilities.js?v=4deb19092b33';
-import { JOBS } from '../data/jobs.js?v=4deb19092b33';
-import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=4deb19092b33';
-import { gainExp, gainJobBattles, jobTrainable, itemCount, removeItem, addItem, ownsItem, computeStats, STAT_NAMES, fullHeal } from '../stats.js?v=4deb19092b33';
-import { JOB_MAX_LEVEL } from '../data/jobs.js?v=4deb19092b33';
-import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf } from './party.js?v=4deb19092b33';
-import { rollDrops, stealPick } from '../data/loot.js?v=4deb19092b33';
-import { MAPS } from '../maps/index.js?v=4deb19092b33';
+import { Battle, normBattleSettings } from '../battle.js?v=d695815c3edd';
+import { MONSTERS } from '../data/monsters.js?v=d695815c3edd';
+import { ITEMS } from '../data/items.js?v=d695815c3edd';
+import { ABILITIES } from '../data/abilities.js?v=d695815c3edd';
+import { JOBS } from '../data/jobs.js?v=d695815c3edd';
+import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=d695815c3edd';
+import { gainExp, gainJobBattles, jobTrainable, itemCount, removeItem, addItem, ownsItem, computeStats, STAT_NAMES, fullHeal } from '../stats.js?v=d695815c3edd';
+import { JOB_MAX_LEVEL } from '../data/jobs.js?v=d695815c3edd';
+import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf } from './party.js?v=d695815c3edd';
+import { rollDrops, stealPick } from '../data/loot.js?v=d695815c3edd';
+import { MAPS } from '../maps/index.js?v=d695815c3edd';
+import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js?v=d695815c3edd';
+import { treasureAfterBattle } from './treasure.js?v=d695815c3edd';
 
 let battleSeq = 1;
 
@@ -109,6 +111,8 @@ function makeBattle(world, sessions, party, enemies, opts) {
     bgm: opts.bgm,
     bond: party.bond || 0,
     preemptive: opts.preemptive || null,
+    // 宝の洞窟: 魔物を 地図の レベルに あわせて 強くする
+    enemyMod: opts.enemyLv ? (m) => scaleEnemy(m, opts.enemyLv) : null,
     hooks: {
       hasItem: (actor, id) => {
         const m = actor.controller && world.sessions.get(actor.controller);
@@ -191,6 +195,7 @@ export function startFieldBattle(world, s, sym) {
     preemptive,
     symbolId: sym.id,
     mapId: s.map,
+    enemyLv: MAPS[s.map].enemyLv,
   });
   return ctx;
 }
@@ -204,7 +209,7 @@ export function startFixedBattle(world, initiator, participants, encId) {
   for (const [sp, mn] of enc.group) for (let i = 0; i < mn; i++) enemies.push(sp);
   return new Promise((resolve) => {
     for (const m of sessions) m.busy = null; // だいほんの あいだは busy='script' だが たたかいに きりかえる
-    const ctx = makeBattle(world, sessions, party, enemies, { bg: enc.bg, bgm: enc.bgm, canFlee: enc.canFlee, boss: enc.boss, fixed: encId });
+    const ctx = makeBattle(world, sessions, party, enemies, { bg: enc.bg, bgm: enc.bgm, canFlee: enc.canFlee, boss: enc.boss, fixed: encId, enemyLv: enc.enemyLv });
     ctx.resolve = resolve;
   });
 }
@@ -286,11 +291,14 @@ function finishBattle(world, ctx) {
       exp += m.exp;
       gold += m.gold;
     }
+    const bonus = scaledRewardBonus(b); // 強くした 魔物の ぶん
+    exp += bonus.exp;
+    gold += bonus.gold;
     // 海賊・会社員など: お金が ふえる 職業が いると ゴールドが ふえる
     const goldMult = Math.max(1, ...Object.values(ctx.actorMap).map((w) => JOBS[w?.char?.job]?.passive?.gold || 1));
     gold = Math.round(gold * goldMult);
     // 職業の しゅぎょう: かった たたかい 1かい（ボスは 3かいぶん）。てきが よわすぎると ならない
-    const maxEnemyLv = Math.max(1, ...b.combatants.filter((x) => x.side === 'enemy').map((x) => MONSTERS[x.species]?.lv || 1));
+    const maxEnemyLv = Math.max(1, ...b.combatants.filter((x) => x.side === 'enemy').map((x) => x.lv || MONSTERS[x.species]?.lv || 1));
     const trainN = b.boss ? 3 : 1;
     const leaderName = sessions[0]?.char.name || '';
     for (const m of sessions) {
@@ -361,6 +369,8 @@ function finishBattle(world, ctx) {
   }
 
   if (hiraLines.length) for (const m of sessions) (perSession[m.id] = perSession[m.id] || { lines: [] }).lines.push(...hiraLines);
+  // 宝の地図を 拾う（第1章クリアの あと）
+  treasureAfterBattle(world, ctx, sessions, perSession);
 
   // シンボル
   if (ctx.opts.symbolId) {

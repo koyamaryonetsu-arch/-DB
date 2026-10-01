@@ -5,10 +5,11 @@
 // ・知らない 項目や 知らない 品物・職業・モンスターは けさずに とっておく（stash）。
 //   あとで その ゲームが 知っている ものに なったら もとに もどす
 // ・品物・職業・モンスター・マップの ID は けさない・なまえを かえない
-import { ITEMS, SLOTS } from '../data/items.js?v=4deb19092b33';
-import { JOBS } from '../data/jobs.js?v=4deb19092b33';
-import { MONSTERS } from '../data/monsters.js?v=4deb19092b33';
-import { migrateJobs, oldComboUnlocks, addItem } from '../stats.js?v=4deb19092b33';
+import { ITEMS, SLOTS } from '../data/items.js?v=d695815c3edd';
+import { JOBS } from '../data/jobs.js?v=d695815c3edd';
+import { MONSTERS } from '../data/monsters.js?v=d695815c3edd';
+import { migrateJobs, oldComboUnlocks, addItem } from '../stats.js?v=d695815c3edd';
+import { repairTreasureMaps } from '../data/treasure.js?v=d695815c3edd';
 
 export const SAVE_VERSION = 4;
 
@@ -148,6 +149,7 @@ export function repairChar(c, id) {
       }
     }
   }
+  repairTreasureMaps(c); // 宝の地図（なくても よい）
   cleanStash(c);
   return c;
 }

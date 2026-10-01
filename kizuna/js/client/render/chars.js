@@ -2,9 +2,9 @@
 // みため（かみがた・いろ）と そうび（ぶき・よろい・たて・かぶと）で かわる
 // 人は 32×42 で くみたてて、2ばいの 64×84 に して こまかく かきたす（res 4: せかいでは 16×21 の 大きさに かく）
 // どうぶつ・船は 16×21 など
-import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=4deb19092b33';
-import { ITEMS } from '../../shared/data/items.js?v=4deb19092b33';
-import { STARTER_EQUIP } from '../../shared/stats.js?v=4deb19092b33';
+import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=d695815c3edd';
+import { ITEMS } from '../../shared/data/items.js?v=d695815c3edd';
+import { STARTER_EQUIP } from '../../shared/stats.js?v=d695815c3edd';
 
 export const CW = 16;
 export const CH = 21;
@@ -157,6 +157,8 @@ const NPC_LOOKS = {
   fisher: { hair: 1, hairStyle: 'short', skin: 1, outfit: 'apron', cloth: '#8a6a3a', hat: 'straw' },
   lh_keeper: { hair: 5, hairStyle: 'short', skin: 0, outfit: 'robe', robeMain: '#3a4a6a', robeTrim: '#f2c14e', beard: true, hat: 'cap' },
   mina: { hair: 3, hairStyle: 'twin', skin: 0, outfit: 'dress', cloth: '#5ac8b4', female: true, small: true },
+  // 宝探しのダイゴ（ルミナの町）
+  treasure_hunter: { hair: 5, hairStyle: 'short', skin: 1, outfit: 'vest', cloth: '#8a5a2a', beard: true, hat: 'bandana', hatColor: '#d0a040' },
 };
 
 // そうびの かきかた: 'ぶき,よろい,たて,あたま' の もじれつ か { weapon, armor, shield, head }

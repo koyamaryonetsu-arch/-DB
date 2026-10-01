@@ -1,30 +1,32 @@
 // フィールドの メニュー
-import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js?v=4deb19092b33';
-import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js?v=4deb19092b33';
-import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js?v=4deb19092b33';
-import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS } from '../../shared/battle.js?v=4deb19092b33';
-import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily } from '../prefs.js?v=4deb19092b33';
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, TIER_NAMES } from '../../shared/data/jobs.js?v=4deb19092b33';
-import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress } from '../../shared/stats.js?v=4deb19092b33';
-import { HIRAMEKI } from '../../shared/data/hirameki.js?v=4deb19092b33';
-import { DUAL_TECHS, DUAL_ORDER, groupName } from '../../shared/data/dual.js?v=4deb19092b33';
-import { MONSTERS } from '../../shared/data/monsters.js?v=4deb19092b33';
-import { monsterDrops } from '../../shared/data/loot.js?v=4deb19092b33';
-import { MONSTER_FRIENDS, RACE_NAMES, recipeHint } from '../../shared/data/companions.js?v=4deb19092b33';
-import { TACTICS } from '../../shared/ai.js?v=4deb19092b33';
-import { PLACES } from '../../shared/maps/overworld.js?v=4deb19092b33';
-import { SEA_PLACES } from '../../shared/maps/ch2.js?v=4deb19092b33';
-import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js?v=4deb19092b33';
-import { T } from '../../shared/tiles.js?v=4deb19092b33';
-import { itemDetail, abilityDetail } from './info.js?v=4deb19092b33';
-import { makeCanvas, ctxOf } from '../render/pixel.js?v=4deb19092b33';
-import { monsterCanvas } from '../render/monsters.js?v=4deb19092b33';
-import { mapIconCanvas, boardIconURL } from '../render/boards.js?v=4deb19092b33';
-import { compareOne, compareTeam, whoItems } from './counter.js?v=4deb19092b33';
-import { faceURL } from '../field.js?v=4deb19092b33';
-import { partyRows } from './hud.js?v=4deb19092b33';
-import { questMarks, subQuests, OBJECTIVE_TARGETS, whereName } from '../../shared/data/quest-targets.js?v=4deb19092b33';
-import { memberTalk, talkFor } from '../../shared/data/party-talk.js?v=4deb19092b33';
+import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js?v=d695815c3edd';
+import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js?v=d695815c3edd';
+import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js?v=d695815c3edd';
+import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS } from '../../shared/battle.js?v=d695815c3edd';
+import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily } from '../prefs.js?v=d695815c3edd';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, TIER_NAMES } from '../../shared/data/jobs.js?v=d695815c3edd';
+import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress } from '../../shared/stats.js?v=d695815c3edd';
+import { HIRAMEKI } from '../../shared/data/hirameki.js?v=d695815c3edd';
+import { DUAL_TECHS, DUAL_ORDER, groupName } from '../../shared/data/dual.js?v=d695815c3edd';
+import { MONSTERS } from '../../shared/data/monsters.js?v=d695815c3edd';
+import { monsterDrops } from '../../shared/data/loot.js?v=d695815c3edd';
+import { MONSTER_FRIENDS, RACE_NAMES, recipeHint } from '../../shared/data/companions.js?v=d695815c3edd';
+import { TACTICS } from '../../shared/ai.js?v=d695815c3edd';
+import { PLACES } from '../../shared/maps/overworld.js?v=d695815c3edd';
+import { SEA_PLACES } from '../../shared/maps/ch2.js?v=d695815c3edd';
+import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js?v=d695815c3edd';
+import { T } from '../../shared/tiles.js?v=d695815c3edd';
+import { itemDetail, abilityDetail } from './info.js?v=d695815c3edd';
+import { makeCanvas, ctxOf } from '../render/pixel.js?v=d695815c3edd';
+import { monsterCanvas } from '../render/monsters.js?v=d695815c3edd';
+import { mapIconCanvas, boardIconURL } from '../render/boards.js?v=d695815c3edd';
+import { compareOne, compareTeam, whoItems } from './counter.js?v=d695815c3edd';
+import { faceURL } from '../field.js?v=d695815c3edd';
+import { partyRows } from './hud.js?v=d695815c3edd';
+import { questMarks, subQuests, OBJECTIVE_TARGETS, whereName } from '../../shared/data/quest-targets.js?v=d695815c3edd';
+import { memberTalk, talkFor } from '../../shared/data/party-talk.js?v=d695815c3edd';
+import { treasureRows, treasureDetail, openTreasureMap } from './treasure.js?v=d695815c3edd';
+import { themeHex } from '../render/themes.js?v=d695815c3edd';
 
 const MAIN = [
   { label: 'はなす', value: 'talk' },
@@ -279,6 +281,7 @@ export class FieldMenu {
     const counts = new Map(c.items.map((e) => [e.id, e.n]));
     const items = sortItemIds(c.items.map((e) => e.id), mode).map((id) => ({ label: ITEMS[id].name, right: `×${counts.get(id)}`, value: id }));
     for (const k of c.keyItems) items.push({ html: `${ITEMS[k].name}<span class="tag gold">大事</span>`, value: k, key: true });
+    items.push(...treasureRows(c)); // 宝の地図
     if (!items.length) {
       box.append(el('div', { class: 'muted', text: '何も持っていない。' }));
       if (active) setTimeout(() => this.back(), 600);
@@ -301,7 +304,7 @@ export class FieldMenu {
       })));
     const m = this.mkSub({
       items,
-      onMove: (it) => { detail.textContent = it ? itemDetail(it.value) : ''; },
+      onMove: (it) => { detail.textContent = it ? (it.tmap ? treasureDetail(g, it.tmap) : itemDetail(it.value)) : ''; },
       onSelect: (it) => this.itemAction(it),
     });
     box.append(tabs, m.root, detail);
@@ -310,6 +313,7 @@ export class FieldMenu {
 
   async itemAction(entry) {
     const g = this.game;
+    if (entry.tmap) return openTreasureMap(this, entry.tmap);
     const it = ITEMS[entry.value];
     if (entry.key || it.type === 'key') return;
     const acts = [];
@@ -1049,7 +1053,7 @@ export function renderMiniMap(game, canvas, full = false) {
       if (mx < 0 || my < 0 || mx >= m.w || my >= m.h) continue;
       if (!f.isExplored(mx, my)) continue;
       const t = m.gates.length ? effectiveTile(m, mx, my, (fl) => f.gateFlag(fl)) : tileAt(m, mx, my);
-      ctx.fillStyle = MAP_COLORS[t] || (t >= 30 && t < 70 ? '#c8bfae' : '#555');
+      ctx.fillStyle = themeHex(MAP_COLORS[t] || (t >= 30 && t < 70 ? '#c8bfae' : '#555'), m.theme, t);
       ctx.fillRect(x * pxPer, y * pxPer, pxPer, pxPer);
     }
   }

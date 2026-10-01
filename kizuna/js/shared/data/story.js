@@ -12,13 +12,14 @@
 //   ['teleport', 'map', x, y, 'dir']  ['spawn', 'map', x, y]  ['chapter', 'だい1しょう', 'サブタイトル']
 //
 // x（じょうほう）: x.name x.flag('f') x.has('item') x.count('item') x.kills('monster') x.quest('key')
-import { POS } from '../maps/index.js?v=4deb19092b33';
-import { PLACES } from '../maps/overworld.js?v=4deb19092b33';
-import { ABILITIES } from './abilities.js?v=4deb19092b33';
-import { learnedAbilities, comboUnlocked, hiraAllowed } from '../stats.js?v=4deb19092b33';
-import { HIRAMEKI, hiraRatio } from './hirameki.js?v=4deb19092b33';
-import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js?v=4deb19092b33';
-import { innSteps } from './inn.js?v=4deb19092b33';
+import { POS } from '../maps/index.js?v=d695815c3edd';
+import { PLACES } from '../maps/overworld.js?v=d695815c3edd';
+import { ABILITIES } from './abilities.js?v=d695815c3edd';
+import { learnedAbilities, comboUnlocked, hiraAllowed } from '../stats.js?v=d695815c3edd';
+import { HIRAMEKI, hiraRatio } from './hirameki.js?v=d695815c3edd';
+import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js?v=d695815c3edd';
+import { TM_SCRIPTS, TM_STORY_SCRIPTS } from './story-tm.js?v=d695815c3edd';
+import { innSteps } from './inn.js?v=d695815c3edd';
 
 const V = (x, y) => [PLACES.village.x + x + 0.5, PLACES.village.y + y + 0.5];
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
@@ -32,7 +33,7 @@ export const STORY_STEPS = [
 ];
 
 // パーティー全員で みる ストーリーイベント
-export const STORY_SCRIPTS = new Set(['elder', 'star_flower', 'treant', 'carpenter', 'boss_event', 'mayor', 'opening', 'town_arrive', 'cave_enter', 'locked_door', ...CH2_STORY_SCRIPTS]);
+export const STORY_SCRIPTS = new Set(['elder', 'star_flower', 'treant', 'carpenter', 'boss_event', 'mayor', 'opening', 'town_arrive', 'cave_enter', 'locked_door', ...CH2_STORY_SCRIPTS, ...TM_STORY_SCRIPTS]);
 
 export const SCRIPTS = {
   // ───────────── じょしょう ─────────────
@@ -568,6 +569,6 @@ function sageHints(x) {
   return lines;
 }
 
-Object.assign(SCRIPTS, CH2_SCRIPTS);
+Object.assign(SCRIPTS, CH2_SCRIPTS, TM_SCRIPTS);
 
 export { comboUnlocked };

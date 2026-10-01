@@ -10,12 +10,13 @@
 // ・道具と そうび … 品物ごとに 両方で ふえた・へった 数を たす（そうびは 手もとに ある ものだけ。ボスの 品は 1つまで）
 // ・仲間 … 両方の 仲間を のこす（べつべつに 仲間に なった まものは 両方とも）
 // ・いる場所・HP・作戦 など … 両方で かわって いたら、あとで 遊んだ ほう
-import { expForLevel, MAX_LEVEL, computeStats } from '../stats.js?v=4deb19092b33';
-import { JOBS, JOB_MAX_LEVEL, jobBattlesForLevel } from '../data/jobs.js?v=4deb19092b33';
-import { ITEMS, SLOTS } from '../data/items.js?v=4deb19092b33';
-import { STORY_STEPS } from '../data/story.js?v=4deb19092b33';
-import { COMPANION_SLOTS } from '../data/companions.js?v=4deb19092b33';
-import { repairChar } from './save.js?v=4deb19092b33';
+import { expForLevel, MAX_LEVEL, computeStats } from '../stats.js?v=d695815c3edd';
+import { JOBS, JOB_MAX_LEVEL, jobBattlesForLevel } from '../data/jobs.js?v=d695815c3edd';
+import { ITEMS, SLOTS } from '../data/items.js?v=d695815c3edd';
+import { STORY_STEPS } from '../data/story.js?v=d695815c3edd';
+import { COMPANION_SLOTS } from '../data/companions.js?v=d695815c3edd';
+import { repairChar } from './save.js?v=d695815c3edd';
+import { mergeTreasureMaps } from '../data/treasure.js?v=d695815c3edd';
 
 const GOLD_MAX = 9999999;
 const clone = (x) => (x === undefined ? undefined : JSON.parse(JSON.stringify(x)));
@@ -138,6 +139,7 @@ function mergeBody(b, a, t, tLater) {
       case 'sparkles': out.sparkles = eachKey(vb, va, vt, (x, y, z) => Math.max(num(y), num(z)) || undefined); break;
       case 'explored': out.explored = eachKey(vb, va, vt, (x, y, z) => orBits(y, z)); break;
       case 'keyItems': out.keyItems = mergeSet(vb, va, vt); break;
+      case 'treasureMaps': out.treasureMaps = mergeTreasureMaps(vb, va, vt); break;
       case 'supportLog': {
         const seen = new Set((vb || []).map(canon));
         out.supportLog = [...clone(va || []), ...clone((vt || []).filter((e) => !seen.has(canon(e))))].slice(-10);

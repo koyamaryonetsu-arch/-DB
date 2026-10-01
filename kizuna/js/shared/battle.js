@@ -7,15 +7,15 @@
 //
 // サーバー（家族サーバー）でも ブラウザ（ひとりモード）でも おなじ コードが うごく
 
-import { makeRng } from './rng.js?v=4deb19092b33';
-import { ABILITIES } from './data/abilities.js?v=4deb19092b33';
-import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=4deb19092b33';
-import { DUAL_TECHS, dualOptions, DUAL_GAUGE } from './data/dual.js?v=4deb19092b33';
-import { MONSTERS } from './data/monsters.js?v=4deb19092b33';
-import { ITEMS } from './data/items.js?v=4deb19092b33';
-import { JOBS } from './data/jobs.js?v=4deb19092b33';
-import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed } from './stats.js?v=4deb19092b33';
-import { decideMonster, decideAlly } from './ai.js?v=4deb19092b33';
+import { makeRng } from './rng.js?v=d695815c3edd';
+import { ABILITIES } from './data/abilities.js?v=d695815c3edd';
+import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=d695815c3edd';
+import { DUAL_TECHS, dualOptions, DUAL_GAUGE } from './data/dual.js?v=d695815c3edd';
+import { MONSTERS } from './data/monsters.js?v=d695815c3edd';
+import { ITEMS } from './data/items.js?v=d695815c3edd';
+import { JOBS } from './data/jobs.js?v=d695815c3edd';
+import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed } from './stats.js?v=d695815c3edd';
+import { decideMonster, decideAlly } from './ai.js?v=d695815c3edd';
 
 export const BOND_MAX = 100;
 // きずなゲージの たまりやすさ（1 … はじめの 版。ちいさいほど たまりにくい）
@@ -118,6 +118,7 @@ export class Battle {
     this.turnCount = 0;
     this.preemptive = opts.preemptive || null;
     for (const a of opts.allies || []) this.addAlly(a);
+    this.enemyMod = opts.enemyMod || null; // 敵の 強さを かえる（宝の洞窟）
     this.addEnemies(opts.enemies || []);
     this.initAtb();
   }
@@ -148,6 +149,7 @@ export class Battle {
     const added = [];
     for (const sp of list) {
       const m = enemyFromSpecies(sp);
+      if (this.enemyMod) this.enemyMod(m);
       const total = (counts[sp] || 0) + (used[sp] || 0);
       const idx = used[sp] || 0;
       used[sp] = idx + 1;

@@ -1,18 +1,18 @@
 // たたかいの がめん（むかしの RPG ふう 1がめん）
-import { el, esc, ListMenu, toast } from './ui/dom.js?v=4deb19092b33';
-import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js?v=4deb19092b33';
-import { ITEMS } from '../shared/data/items.js?v=4deb19092b33';
-import { JOBS } from '../shared/data/jobs.js?v=4deb19092b33';
-import { MONSTERS } from '../shared/data/monsters.js?v=4deb19092b33';
-import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed } from '../shared/stats.js?v=4deb19092b33';
-import { affinityOf } from '../shared/battle.js?v=4deb19092b33';
-import { DUAL_TECHS, dualOptions } from '../shared/data/dual.js?v=4deb19092b33';
-import { faceURL } from './field.js?v=4deb19092b33';
-import { monsterCanvas } from './render/monsters.js?v=4deb19092b33';
-import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=4deb19092b33';
-import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js?v=4deb19092b33';
-import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js?v=4deb19092b33';
-import { abilityDetail, statusNames, buffNames } from './ui/info.js?v=4deb19092b33';
+import { el, esc, ListMenu, toast } from './ui/dom.js?v=d695815c3edd';
+import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js?v=d695815c3edd';
+import { ITEMS } from '../shared/data/items.js?v=d695815c3edd';
+import { JOBS } from '../shared/data/jobs.js?v=d695815c3edd';
+import { MONSTERS } from '../shared/data/monsters.js?v=d695815c3edd';
+import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed } from '../shared/stats.js?v=d695815c3edd';
+import { affinityOf } from '../shared/battle.js?v=d695815c3edd';
+import { DUAL_TECHS, dualOptions } from '../shared/data/dual.js?v=d695815c3edd';
+import { faceURL } from './field.js?v=d695815c3edd';
+import { monsterCanvas } from './render/monsters.js?v=d695815c3edd';
+import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=d695815c3edd';
+import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js?v=d695815c3edd';
+import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js?v=d695815c3edd';
+import { abilityDetail, statusNames, buffNames } from './ui/info.js?v=d695815c3edd';
 
 // たたかいの え の こまかさ（おもい きかいで さげたら、その あいだは さげた まま）
 let battleRes = BRES;
@@ -100,6 +100,8 @@ export class BattleScene {
     // 戦いの 速さ（エフェクト）と 文字の 速さ（サーバーと おなじ あたい）
     this.fxSpeed = msg.snap.speed || 1;
     this.textSpeed = msg.snap.textSpeed || 1;
+    // ウェイト: だれか（人）が コマンドを えらんでいる 間は ゲージが 止まる（サーバーと おなじ きまり）
+    this.waitMode = !!msg.snap.wait;
     this.fx = new Effects();
     this.bg = battleBackground(msg.snap.bg);
     this.queue = [];
@@ -1187,8 +1189,8 @@ export class BattleScene {
       this.ended = true;
       this.closeMenus();
     }
-    // ゲージを なめらかに
-    const locked = !!this.showing;
+    // ゲージを なめらかに（ウェイトで だれかが えらんでいる 間は 1ミリも うごかさない）
+    const locked = !!this.showing || this.choosingPause();
     for (const c of this.c.values()) {
       if (!c.alive || c.ready || locked) continue;
       if (c.rate && c.atb < 100) c.atb = Math.min(99.5, c.atb + c.rate * dt * (this.fxSpeed || 1) * 0.6);
@@ -1205,6 +1207,13 @@ export class BattleScene {
     this.fx.update(dt); // はやさは fx.tempo で かける
     this.updateGauges();
     this.draw();
+  }
+
+  // サーバーの「ウェイトモードで 止まっている」と おなじ かんがえかた
+  choosingPause() {
+    if (!this.waitMode) return false;
+    for (const c of this.c.values()) if (c.side === 'ally' && c.controller && !c.auto && c.alive && c.ready) return true;
+    return false;
   }
 
   computeLayout() {

@@ -1,7 +1,9 @@
 // モンスターの え（ベクターで かいて ドットえに へんかん）
 // すべて オリジナルの デザイン
 // 2ばいの こまかさで かいて ドットえに → Scale2x で 4ばい → ひかり・かげ・ふちどり（res 4）
-import { makeCanvas, ctxOf, pixelize, shade, painterFrom, scale2x, outline2, volumeShade } from './pixel.js?v=4deb19092b33';
+import { makeCanvas, ctxOf, pixelize, shade, painterFrom, scale2x, outline2, volumeShade } from './pixel.js?v=d695815c3edd';
+import { MONSTERS } from '../../shared/data/monsters.js?v=d695815c3edd';
+import { tintCanvas } from './themes.js?v=d695815c3edd';
 
 export const MRES = 4; // できあがりの こまかさ（せかいの 1ドットを 4×4 で かく）
 const OUT = '#130d24';
@@ -806,12 +808,22 @@ function lighthouse(g, lit, f) {
 
 const cache = new Map();
 
+// え の きまり。宝の洞窟の 主は ほかの 魔物の え を 大きくして 色がえ（monsters-tm.js の art・artScale・tint）
+function artOf(sp) {
+  if (MONSTER_ART[sp]) return { def: MONSTER_ART[sp] };
+  const md = MONSTERS[sp];
+  const base = md?.art && MONSTER_ART[md.art];
+  if (!base) return { def: MONSTER_ART.pururin };
+  const k = md.artScale || 1;
+  return { def: { ...base, size: base.size.map((v) => Math.round(v * k)) }, tint: md.tint };
+}
+
 // たたかい用の え（small … フィールド用の ちいさい え）
 export function monsterCanvas(sp, frame = 0, small = false) {
   const key = `${sp}:${frame}:${small ? 1 : 0}`;
   let c = cache.get(key);
   if (c) return c;
-  const def = MONSTER_ART[sp] || MONSTER_ART.pururin;
+  const { def, tint } = artOf(sp);
   let [w, h] = def.size;
   if (small) {
     // フィールド用の ちいさい え
@@ -833,17 +845,18 @@ export function monsterCanvas(sp, frame = 0, small = false) {
   volumeShade(q);
   outline2(q, OUT, 0.42, 3);
   c = q.toCanvas();
+  if (tint) c = tintCanvas(c, tint);
   cache.set(key, c);
   return c;
 }
 
 export function monsterSize(sp) {
-  const def = MONSTER_ART[sp] || MONSTER_ART.pururin;
-  return def.size;
+  return artOf(sp).def.size;
 }
 
 // フィールドの おおきな NPC（ボスの すがた など）
 export function bigNpcCanvas(kind, frame = 0) {
+  if (kind.startsWith('mon:')) return monsterCanvas(kind.slice(4), frame); // 宝の洞窟の 主
   if (kind === 'treant') return monsterCanvas('dark_treant', frame);
   if (kind === 'squid_boss') return monsterCanvas('giant_squid', frame);
   if (['storm_general', 'lighthouse_dark', 'lighthouse_lit', 'storm_tower'].includes(kind)) return monsterCanvas(kind, frame);

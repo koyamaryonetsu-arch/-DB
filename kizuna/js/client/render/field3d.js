@@ -3,13 +3,14 @@
 // ・ひと・まもの・もの は ドット絵を カメラに むけて たてる（ビルボード）
 // ・カメラは ななめ うえから みおろす（うごかすのは いち だけ。むきは かわらない）
 // あるく・ぶつかる などの きまりは 2D と おなじ（Field が きめる）。ここでは かく だけ。
-import * as THREE from '../../../vendor/three.min.js?v=4deb19092b33';
-import { T } from '../../shared/tiles.js?v=4deb19092b33';
-import { effectiveTile } from '../../shared/maps/index.js?v=4deb19092b33';
-import { hash2 } from '../../shared/rng.js?v=4deb19092b33';
-import { Atlas, extraCanvas, propCanvas, PROP_TILES, leafCanvas, roofCanvas, tileArt } from './tex3d.js?v=4deb19092b33';
-import { tileCanvas } from './tiles.js?v=4deb19092b33';
-import { flipCanvas, makeCanvas, ctxOf, whiteCopy } from './pixel.js?v=4deb19092b33';
+import * as THREE from '../../../vendor/three.min.js?v=d695815c3edd';
+import { T } from '../../shared/tiles.js?v=d695815c3edd';
+import { effectiveTile } from '../../shared/maps/index.js?v=d695815c3edd';
+import { hash2 } from '../../shared/rng.js?v=d695815c3edd';
+import { Atlas, extraCanvas, propCanvas, PROP_TILES, leafCanvas, roofCanvas, tileArt } from './tex3d.js?v=d695815c3edd';
+import { tileCanvas } from './tiles.js?v=d695815c3edd';
+import { flipCanvas, makeCanvas, ctxOf, whiteCopy } from './pixel.js?v=d695815c3edd';
+import { themedCanvas, partOfTile, partOfExtra } from './themes.js?v=d695815c3edd';
 
 const PITCH = 55 * Math.PI / 180;
 const SIN = Math.sin(PITCH), COS = Math.cos(PITCH);
@@ -199,7 +200,10 @@ export class Field3D {
     const uvOf = (key) => {
       const [kind, a, b, c] = key;
       const name = kind === 't' ? `t:${a}:${b}:${c}` : `x:${a}:${b}`;
-      return atlas.uv(name, () => (kind === 't' ? tileArt(a, b, c) : extraCanvas(a, b)));
+      const art = () => (kind === 't' ? tileArt(a, b, c) : extraCanvas(a, b));
+      // 宝の洞窟は しゅるいで 色を かえる
+      if (map.theme) return atlas.uv(name, () => themedCanvas(art(), map.theme, kind === 't' ? partOfTile(a) : partOfExtra(a)));
+      return atlas.uv(name, art);
     };
 
     // たてもの（やねの した）: かべは べつの メッシュ（なかに はいったら ひくく する）
@@ -272,7 +276,7 @@ export class Field3D {
           sides(g, x, y, hh, (dx, dy) => topH(x + dx, y + dy), () => uvOf(['x', idAt(x, y) === T.SAND ? 'sand_side' : dungeon ? 'cave_side' : 'shore_side', 0]));
           if (PROP_TILES.has(id)) {
             const c = propCanvas(id);
-            if (c) this.addProp(props, c, x + 0.5, y + 0.78, id);
+            if (c) this.addProp(props, map.theme ? themedCanvas(c, map.theme, 'floor') : c, x + 0.5, y + 0.78, id);
           } else if (id === T.TREE) trees.push([x, y]);
           else if (id === T.PINE) pines.push([x, y]);
           // もんの うえの かべ（たてものの いりぐち）
@@ -334,7 +338,7 @@ export class Field3D {
     if (water.pos.length) {
       const wid = dungeon ? T.CAVE_WATER : T.WATER;
       for (let i = 0; i < 3; i++) {
-        const t = new THREE.CanvasTexture(tileCanvas(wid, 0, i, 0));
+        const t = new THREE.CanvasTexture(tileCanvas(wid, 0, i, 0, map.theme));
         t.magFilter = THREE.NearestFilter;
         t.minFilter = THREE.NearestFilter;
         t.generateMipmaps = false;
@@ -364,7 +368,7 @@ export class Field3D {
     }
     this.scene.add(group);
     this.static = { group, materials, waterFrames: frames };
-    this.scene.background = new THREE.Color(dungeon ? '#070505' : '#1c3d6e');
+    this.scene.background = new THREE.Color(dungeon ? (map.theme === 'ice' ? '#0d1a33' : '#070505') : '#1c3d6e');
     this.scene.fog = new THREE.Fog(dungeon ? 0x050304 : 0x9ec3e8, 10, 50);
     this.updateFog();
     this.mapId = f.mapId;
