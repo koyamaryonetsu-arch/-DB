@@ -1,20 +1,20 @@
 // たたかいの はじまりと おわり（ほうしゅう・ぜんめつ）
-import { Battle, normBattleSettings } from '../battle.js?v=7dce3e047133';
-import { scaleExp } from '../data/difficulty.js?v=7dce3e047133';
-import { MONSTERS } from '../data/monsters.js?v=7dce3e047133';
-import { ITEMS } from '../data/items.js?v=7dce3e047133';
-import { ABILITIES } from '../data/abilities.js?v=7dce3e047133';
-import { JOBS } from '../data/jobs.js?v=7dce3e047133';
-import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=7dce3e047133';
-import { gainExp, gainJobBattles, jobTrainable, itemCount, removeItem, addItem, ownsItem, computeStats, STAT_NAMES, fullHeal } from '../stats.js?v=7dce3e047133';
-import { JOB_MAX_LEVEL } from '../data/jobs.js?v=7dce3e047133';
-import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf } from './party.js?v=7dce3e047133';
-import { rollDrops, stealPick } from '../data/loot.js?v=7dce3e047133';
-import { MAPS } from '../maps/index.js?v=7dce3e047133';
-import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js?v=7dce3e047133';
-import { treasureAfterBattle } from './treasure.js?v=7dce3e047133';
-import { wipeGoldLoss, bankGold } from './bank.js?v=7dce3e047133';
-import { wagonShare, wagonBattleSwap } from './wagon.js?v=7dce3e047133';
+import { Battle, normBattleSettings } from '../battle.js?v=1fa5f2a06827';
+import { scaleExp } from '../data/difficulty.js?v=1fa5f2a06827';
+import { MONSTERS } from '../data/monsters.js?v=1fa5f2a06827';
+import { ITEMS } from '../data/items.js?v=1fa5f2a06827';
+import { ABILITIES } from '../data/abilities.js?v=1fa5f2a06827';
+import { JOBS } from '../data/jobs.js?v=1fa5f2a06827';
+import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=1fa5f2a06827';
+import { gainExp, gainJobBattles, jobTrainable, itemCount, removeItem, addItem, ownsItem, computeStats, STAT_NAMES, fullHeal } from '../stats.js?v=1fa5f2a06827';
+import { JOB_MAX_LEVEL } from '../data/jobs.js?v=1fa5f2a06827';
+import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf } from './party.js?v=1fa5f2a06827';
+import { rollDrops, stealPick } from '../data/loot.js?v=1fa5f2a06827';
+import { MAPS } from '../maps/index.js?v=1fa5f2a06827';
+import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js?v=1fa5f2a06827';
+import { treasureAfterBattle } from './treasure.js?v=1fa5f2a06827';
+import { wipeGoldLoss, bankGold } from './bank.js?v=1fa5f2a06827';
+import { wagonShare, wagonBattleSwap } from './wagon.js?v=1fa5f2a06827';
 
 let battleSeq = 1;
 

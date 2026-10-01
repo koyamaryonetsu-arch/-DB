@@ -2,31 +2,33 @@
 //
 // クライアントとは メッセージ（JSON）で やりとりする。
 // つなぎかたは なんでも よい（WebSocket でも ブラウザ内の ちょくせつ呼び出しでも）。
-import { makeRng } from '../rng.js?v=7dce3e047133';
-import { MAPS, isBlocked, effectiveTile, condOk, searchLoot, sparkleLoot, tileAt, POS, SEA_PLACES } from '../maps/index.js?v=7dce3e047133';
-import { PLACES } from '../maps/overworld.js?v=7dce3e047133';
-import { T, TILE_INFO } from '../tiles.js?v=7dce3e047133';
-import { ITEMS } from '../data/items.js?v=7dce3e047133';
-import { JOBS } from '../data/jobs.js?v=7dce3e047133';
-import { newCharacter, computeStats, addItem, fullHeal, migrateJobs } from '../stats.js?v=7dce3e047133';
-import { mapState, spawnSymbols, moveSymbols, symbolSnapshot, symbolVisible } from './monsters.js?v=7dce3e047133';
-import { startFieldBattle, battleTick, battleCommand, battleLeave, joinBattle, mineOf } from './battles.js?v=7dce3e047133';
-import { runScript, runSteps } from './scripts.js?v=7dce3e047133';
-import { serviceAction, menuAction } from './services.js?v=7dce3e047133';
-import { newParty, partyOf, partyState, syncParty, ensureCompanions, companionWait, PARTY_MAX } from './party.js?v=7dce3e047133';
-import { MONSTERS } from '../data/monsters.js?v=7dce3e047133';
-import { COMPANION_SLOTS } from '../data/companions.js?v=7dce3e047133';
-import { CH1_CLEAR_OBJECTIVE } from '../data/story.js?v=7dce3e047133';
-import { upgradeSave, repairChar } from './save.js?v=7dce3e047133';
-import { exportCode, parseCode, importChar } from './transfer.js?v=7dce3e047133';
-import { memorySyncStore, buildSyncOut, applySyncIn, encodeSync, decodeSync, syncSummary } from './sync.js?v=7dce3e047133';
-import { tryTreasureDig, treasureMenu, fixTreasurePos, normalizeTreasure, pruneTreasureStates } from './treasure.js?v=7dce3e047133';
-import { isNightFor } from './clock.js?v=7dce3e047133';
-import { onFly, setFlying, moveAllowed, ridingAlong, canFlyMap } from './travel.js?v=7dce3e047133';
-import { migrateSky } from '../data/sky.js?v=7dce3e047133';
-import { repairObjective } from '../data/progress.js?v=7dce3e047133';
-import { wagonLook } from './wagon.js?v=7dce3e047133';
-import { medalSearchSteps, medalChestSteps } from './casino.js?v=7dce3e047133';
+import { makeRng } from '../rng.js?v=1fa5f2a06827';
+import { MAPS, isBlocked, effectiveTile, condOk, searchLoot, sparkleLoot, tileAt, POS, SEA_PLACES } from '../maps/index.js?v=1fa5f2a06827';
+import { PLACES } from '../maps/overworld.js?v=1fa5f2a06827';
+import { T, TILE_INFO } from '../tiles.js?v=1fa5f2a06827';
+import { ITEMS } from '../data/items.js?v=1fa5f2a06827';
+import { JOBS } from '../data/jobs.js?v=1fa5f2a06827';
+import { newCharacter, computeStats, addItem, fullHeal, migrateJobs } from '../stats.js?v=1fa5f2a06827';
+import { mapState, spawnSymbols, moveSymbols, symbolSnapshot, symbolVisible } from './monsters.js?v=1fa5f2a06827';
+import { tickFieldChests, fieldChestSnap, fieldChestNear, openFieldChest } from './fieldchests.js?v=1fa5f2a06827';
+import { chestVanishes } from '../data/fieldchests.js?v=1fa5f2a06827';
+import { startFieldBattle, battleTick, battleCommand, battleLeave, joinBattle, mineOf } from './battles.js?v=1fa5f2a06827';
+import { runScript, runSteps } from './scripts.js?v=1fa5f2a06827';
+import { serviceAction, menuAction } from './services.js?v=1fa5f2a06827';
+import { newParty, partyOf, partyState, syncParty, ensureCompanions, companionWait, PARTY_MAX } from './party.js?v=1fa5f2a06827';
+import { MONSTERS } from '../data/monsters.js?v=1fa5f2a06827';
+import { COMPANION_SLOTS } from '../data/companions.js?v=1fa5f2a06827';
+import { CH1_CLEAR_OBJECTIVE } from '../data/story.js?v=1fa5f2a06827';
+import { upgradeSave, repairChar } from './save.js?v=1fa5f2a06827';
+import { exportCode, parseCode, importChar } from './transfer.js?v=1fa5f2a06827';
+import { memorySyncStore, buildSyncOut, applySyncIn, encodeSync, decodeSync, syncSummary } from './sync.js?v=1fa5f2a06827';
+import { tryTreasureDig, treasureMenu, fixTreasurePos, normalizeTreasure, pruneTreasureStates } from './treasure.js?v=1fa5f2a06827';
+import { isNightFor } from './clock.js?v=1fa5f2a06827';
+import { onFly, setFlying, moveAllowed, ridingAlong, canFlyMap } from './travel.js?v=1fa5f2a06827';
+import { migrateSky } from '../data/sky.js?v=1fa5f2a06827';
+import { repairObjective } from '../data/progress.js?v=1fa5f2a06827';
+import { wagonLook } from './wagon.js?v=1fa5f2a06827';
+import { medalSearchSteps, medalChestSteps } from './casino.js?v=1fa5f2a06827';
 
 export const PROTOCOL_VERSION = 1;
 const SPARKLE_RESPAWN_MS = 20 * 60 * 1000;
@@ -622,15 +624,21 @@ export class GameWorld {
     const tx = Math.floor(msg.x), ty = Math.floor(msg.y);
     if (Math.hypot(tx + 0.5 - s.x, ty + 0.5 - s.y) > 3) return;
     const key = ty * map.w + tx;
-    // たからばこ
+    // たからばこ（フィールドの 宝箱は 開けると きえる）
     const chest = map.chestAt.get(key);
-    if (chest && condOk(chest.show, hasFlag)) return this.openChest(s, chest);
+    if (chest && condOk(chest.show, hasFlag) && !(chestVanishes(map) && s.char.chests[chest.id])) return this.openChest(s, chest);
+    // フィールドに ランダムに 出る 宝箱（fieldchests.js）
+    const fc = fieldChestNear(this.mapStates.get(s.map), s, tx, ty);
+    if (fc) return runSteps(this, s, openFieldChest(this, s, mapState(this, s.map), fc));
     // 小さなメダル（つぼ・井戸・光る 場所 など。casino.js）
     const medal = medalSearchSteps(this, s, tx, ty);
     if (medal) return runSteps(this, s, medal);
-    // きらきら
-    const sp = map.sparkles?.find((k) => k.x === tx && k.y === ty);
-    if (sp) return this.pickSparkle(s, sp);
+    // きらきら（むいている マスの まわりと 自分の 足もとの、光っている もの）
+    const sp = this.sparkleNear(s, map, tx, ty);
+    if (sp?.medal) {
+      const st = medalSearchSteps(this, s, sp.x, sp.y);
+      if (st) return runSteps(this, s, st);
+    } else if (sp) return this.pickSparkle(s, sp);
     // 宝の地図の 場所（ほる）
     if (tryTreasureDig(this, s, tx, ty)) return;
     const tile = effectiveTile(map, tx, ty, this.hasFlagFn(s));
@@ -679,6 +687,25 @@ export class GameWorld {
     }
     this.markDirty();
     runSteps(this, s, steps);
+  }
+
+  // ひろえる きらきら（もう ひろって 光っていない ものは のぞく）。近い ものから
+  sparkleNear(s, map, tx, ty) {
+    const now = this.now();
+    let best = null, bd = Infinity;
+    for (const sp of map.sparkles || []) {
+      if (Math.abs(sp.x - tx) > 2 || Math.abs(sp.y - ty) > 2) continue;
+      if (now - (s.char.sparkles?.[sp.id] || 0) < SPARKLE_RESPAWN_MS) continue;
+      const dFace = Math.hypot(sp.x - tx, sp.y - ty);
+      const dMe = Math.hypot(sp.x + 0.5 - s.x, sp.y + 0.5 - s.y);
+      if (dFace > 1.01 && dMe > 1.6) continue;
+      const d = Math.min(dFace, dMe);
+      if (d < bd) {
+        bd = d;
+        best = sp;
+      }
+    }
+    return best;
   }
 
   pickSparkle(s, sp) {
@@ -888,6 +915,8 @@ export class GameWorld {
       const ms = mapState(this, mapId);
       spawnSymbols(this, ms, dt, players);
       moveSymbols(this, ms, dt, players.filter((p) => !p.away));
+      // フィールドの ランダムな 宝箱（fieldchests.js）
+      tickFieldChests(this, ms, dt, players);
     }
     pruneTreasureStates(this, byMap);
     // いちを おくる（10かい/びょう）
@@ -905,7 +934,10 @@ export class GameWorld {
           // 大鳥で とんでいる / なかまの 大鳥に いっしょに のっている
           ...(p.flying ? { air: 1, ride: ridingAlong(this, p) ? 1 : 0 } : {}),
         }));
-        for (const p of players) this.send(p, { t: 'snap', map: mapId, players: ps.filter((x) => x.sid !== p.id), syms: p.night ? syms.night : syms.day });
+        for (const p of players) {
+          const fc = fieldChestSnap(p, ms);
+          this.send(p, { t: 'snap', map: mapId, players: ps.filter((x) => x.sid !== p.id), syms: p.night ? syms.night : syms.day, ...(fc ? { fc } : {}) });
+        }
       }
     }
     // セーブ

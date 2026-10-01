@@ -9,7 +9,7 @@
 // names:  なかまに なった ときの なまえ（じゅんばんに つかう。酒場で かえられる）
 // resist: たいせい（しゅぞくの たいせいを つかう。ここに かけば うわがき）
 
-import { FRIENDS_CH2 } from './companions-ch2.js?v=7dce3e047133';
+import { FRIENDS_CH2 } from './companions-ch2.js?v=1fa5f2a06827';
 
 export const MONSTER_FRIENDS = {
   pururin: {
