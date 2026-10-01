@@ -467,7 +467,9 @@ export class Game {
         break;
       }
       case 'toast':
-        toast(m.text);
+        // afterBattle: たたかいの けっかを とじてから 出す（全滅して 目を覚ました ときなど）
+        if (m.afterBattle && (this.state === 'battle' || this.battleClosing)) this.waitBattleClosed().then(() => toast(m.text, 6000));
+        else toast(m.text, m.afterBattle ? 6000 : undefined);
         break;
       case 'chat':
         this.hud.addChat(m.from, m.text, m.stamp);

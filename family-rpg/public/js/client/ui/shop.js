@@ -156,7 +156,7 @@ async function sellLoop(game, ct) {
     const rows = bag.map((e) => ({
       value: e.id,
       label: ITEMS[e.id].name,
-      html: `${esc(ITEMS[e.id].name)}<span class="cnt">×${e.n}</span>`,
+      html: `${esc(ITEMS[e.id].name)}${ITEMS[e.id].type === 'mat' ? '<span class="tag mat">素材</span>' : ''}<span class="cnt">×${e.n}</span>`,
       right: sellPrice(e.id) > 0 ? `${sellPrice(e.id)}G` : '―',
       rightCls: 'gold',
       disabled: sellPrice(e.id) <= 0,

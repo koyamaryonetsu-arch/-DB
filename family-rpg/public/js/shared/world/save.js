@@ -10,6 +10,7 @@ import { JOBS } from '../data/jobs.js';
 import { MONSTERS } from '../data/monsters.js';
 import { migrateJobs, oldComboUnlocks, addItem } from '../stats.js';
 import { repairTreasureMaps } from '../data/treasure.js';
+import { normBank } from './bank.js';
 
 export const SAVE_VERSION = 4;
 
@@ -112,6 +113,9 @@ export function repairChar(c, id) {
     if (typeof k !== 'string' || c.keyItems.includes(k) || st.keyItems.includes(k)) continue;
     (known(ITEMS, k) ? c.keyItems : st.keyItems).push(k);
   }
+
+  // 預かり所（ある ときだけ。知らない 品物も 預けた まま のこす）
+  if (c.bank !== undefined) c.bank = normBank(c.bank);
 
   // そうび（知らない そうびは ふくろの かわりに しまう）
   c.equip = obj(c.equip);

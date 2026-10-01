@@ -72,7 +72,10 @@ const OVERWORLD_NPCS = [
   npc('t_lady', '町のおばさん', TW(34, 24), 'woman', 't_lady', { wander: 2 }),
   npc('t_oldman', '物知りじいさん', TW(12, 10), 'oldman', 't_oldman', { wander: 2 }),
   npc('t_drinker', 'よっぱらい', TW(42, 8), 'farmer', 't_drinker'),
-  npc('tm_hunter', '宝探しのダイゴ', TW(31, 29), 'treasure_hunter', 'tm_hunter', { show: { all: ['c1_clear'] } }),
+  npc('tm_hunter', '宝探しのダイゴ', TW(34, 27), 'treasure_hunter', 'tm_hunter', { show: { all: ['c1_clear'] } }),
+  // 預かり所と ふしぎなかじ屋（南門の 東の たてもの。facilities.js）
+  npc('town_banker', '預かり所のおねえさん', TW(27, 29), 'banker', 'bank_town'),
+  npc('town_smith', 'かじ屋の親方', TW(31, 29), 'smith', 'forge_town'),
 
   // フィールド
   npc('bridge_worker', '橋の番人', [123, 61], 'carpenter', 'bridge_worker'),
@@ -116,6 +119,7 @@ const OVERWORLD_SIGNS = [
 export const BOARD_NAMES = {
   general: 'よろず屋', weapon: '武器屋', armor: '防具屋', arms: '武器と防具の店', item: '道具屋', inn: '宿屋',
   church: '教会', bar: '酒場', temple: '星の神殿', harbor: '港長の家',
+  bank: '預かり所', smith: 'かじ屋',
 };
 const board = ([x, y], kind) => ({ x, y, kind, name: BOARD_NAMES[kind] });
 const OVERWORLD_BOARDS = [
@@ -128,6 +132,8 @@ const OVERWORLD_BOARDS = [
   board(TW(40, 9), 'bar'),
   board(TW(8, 33), 'church'),
   board(TW(25, 9), 'temple'),
+  board(TW(28, 32), 'bank'),
+  board(TW(30, 32), 'smith'),
 ];
 
 // ───────────── ワープ（出入り口） ─────────────
@@ -179,7 +185,8 @@ function buildMaps() {
         .map(([x, y, w, h, color]) => ({ x: PLACES.village.x + x, y: PLACES.village.y + y, w, h, color })),
       // 町
       ...[[3, 2, 9, 7, 'green'], [17, 2, 14, 8, 'white'], [35, 2, 10, 8, 'orange'], [3, 12, 8, 6, 'red'], [37, 12, 8, 6, 'blue'],
-        [3, 21, 8, 6, 'teal'], [37, 21, 8, 6, 'brown'], [3, 28, 9, 6, 'purple'], [14, 29, 7, 5, 'pink'], [36, 29, 9, 5, 'brown']]
+        [3, 21, 8, 6, 'teal'], [37, 21, 8, 6, 'brown'], [3, 28, 9, 6, 'purple'], [14, 29, 7, 5, 'pink'], [36, 29, 9, 5, 'brown'],
+        [26, 28, 7, 5, 'orange']]
         .map(([x, y, w, h, color]) => ({ x: PLACES.town.x + x, y: PLACES.town.y + y, w, h, color })),
     ],
     zoneAt, areaName,
@@ -195,6 +202,7 @@ function buildMaps() {
       { id: 'b1_a', x: 9, y: 13, item: 'magic_water' },
       { id: 'b1_b', x: 43, y: 22, item: 'scale_shield' },
       { id: 'b1_c', x: 11, y: 5, item: 'seed_str' },
+      { id: 'b1_mat', x: 10, y: 2, item: 'iron_shard', n: 3 },
     ],
     signs: [],
     warps: [
@@ -229,6 +237,7 @@ function buildMaps() {
       { id: 'b2_key', x: 6, y: 26, item: 'cave_key' },
       { id: 'b2_a', x: 9, y: 15, item: 'healing_staff' },
       { id: 'b2_b', x: 42, y: 17, item: 'mage_earring' },
+      { id: 'b2_mat', x: 43, y: 12, item: 'magic_powder', n: 3 },
       { id: 'b2_boss1', x: 21, y: 3, item: 'stardust_sword', show: { all: ['c1_boss'] } },
       { id: 'b2_boss2', x: 26, y: 3, item: 'star_mail', show: { all: ['c1_boss'] } },
     ],
@@ -324,6 +333,11 @@ export function searchLoot(mapId, x, y) {
   if (r < 0.58) return { gold: 5 + Math.floor(hash2(x, y, 9) * 20) };
   if (r < 0.62) return { item: 'moonherb' };
   if (r < 0.64) return { item: 'magic_water' };
+  // ふしぎなかじの 素材（町・どうくつ・海で ちがう）
+  if (r < 0.74) {
+    const mats = mapId === 'sea' ? ['pretty_shell', 'wind_feather', 'iron_shard'] : mapId.startsWith('cave') ? ['iron_shard', 'magic_powder'] : ['beast_fang', 'iron_shard', 'magic_powder'];
+    return { item: mats[Math.floor(hash2(x, y, 17) * mats.length)] };
+  }
   return null;
 }
 

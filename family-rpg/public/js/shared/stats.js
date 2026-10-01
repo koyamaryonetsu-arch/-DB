@@ -1,6 +1,6 @@
 // キャラクターの つよさ計算・レベルアップ・転職ペナルティ
 import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_TRAIN_GAP, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets } from './data/jobs.js';
-import { ITEMS, SLOTS } from './data/items.js';
+import { ITEMS, SLOTS, baseItemId } from './data/items.js';
 import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js';
 import { MONSTERS } from './data/monsters.js';
 import { MONSTER_FRIENDS, monsterNatural } from './data/companions.js';
@@ -322,7 +322,8 @@ export function mahoukenOptions(char, learned = learnedAbilities(char)) {
 
 // そうびできるか
 export function canEquip(jobId, itemId) {
-  const it = ITEMS[itemId];
+  // きたえた 装備（+1〜+3）は もとの 装備と おなじ 職業が 装備できる
+  const it = ITEMS[baseItemId(itemId)];
   const job = JOBS[jobId];
   if (!it || !job) return false;
   switch (it.type) {
@@ -337,7 +338,8 @@ export function canEquip(jobId, itemId) {
 
 // その キャラクターが そうびできるか（モンスターの なかまは アクセサリー だけ）
 export function canEquipChar(char, itemId) {
-  if (char.species) return ITEMS[itemId]?.type === 'acc';
+  // きたえた 装備（+1〜+3）は もとの 装備で きめる（canEquip と おなじ）
+  if (char.species) return ITEMS[baseItemId(itemId)]?.type === 'acc';
   return canEquip(char.job, itemId);
 }
 
@@ -554,6 +556,8 @@ export function itemCount(char, id) {
 export function ownsItem(char, id) {
   if (itemCount(char, id) > 0) return true;
   if (Object.values(char.equip || {}).includes(id)) return true;
+  // 預かり所に 預けている 物も（ボスの 品が ふえない ように）
+  if ((Array.isArray(char.bank?.items) ? char.bank.items : []).some((e) => e?.id === id && e.n > 0)) return true;
   return (char.companions || []).some((e) => Object.values(e?.char?.equip || {}).includes(id));
 }
 

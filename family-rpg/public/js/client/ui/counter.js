@@ -184,7 +184,8 @@ export class Counter {
       if (!done) return 0;
       let q = 1;
       const val = el('div', { class: 'ct-qty-val' });
-      const upd = () => { val.textContent = `◀ ${q}個 ▶　${price * q}G`; };
+      // price が null なら ねだんは 出さない（預かり所など）
+      const upd = () => { val.textContent = price === null ? `◀ ${q}個 ▶` : `◀ ${q}個 ▶　${price * q}G`; };
       const minus = el('button', { class: 'btn', text: '－', onclick: () => { q = q > 1 ? q - 1 : max; this.game.audio.sfx('cursor'); upd(); } });
       const plus = el('button', { class: 'btn', text: '＋', onclick: () => { q = q < max ? q + 1 : 1; this.game.audio.sfx('cursor'); upd(); } });
       const ok = el('button', { class: 'btn primary', text: '決定', onclick: () => finish(q) });

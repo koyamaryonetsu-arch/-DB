@@ -9,6 +9,7 @@
 // ・フラグ・宝箱・行った 場所・大事な物 … 両方を 合わせる（どちらかで 使った 大事な物は なくなる）
 // ・道具と そうび … 品物ごとに 両方で ふえた・へった 数を たす（そうびは 手もとに ある ものだけ。ボスの 品は 1つまで）
 // ・仲間 … 両方の 仲間を のこす（べつべつに 仲間に なった まものは 両方とも）
+// ・預かり所 … お金も 品物も、両方で 預けた・引き出した ぶんを たす
 // ・いる場所・HP・作戦 など … 両方で かわって いたら、あとで 遊んだ ほう
 import { expForLevel, MAX_LEVEL, computeStats } from '../stats.js';
 import { JOBS, JOB_MAX_LEVEL, jobBattlesForLevel } from '../data/jobs.js';
@@ -119,6 +120,18 @@ function mergeBestiary(b = {}, a = {}, t = {}) {
   });
 }
 
+// 預かり所（お金・品物ごとに 両方で ふえた・へった ぶんを たす）
+function mergeBank(b, a, t) {
+  const count = (x) => new Map((Array.isArray(x?.items) ? x.items : []).filter((e) => e && typeof e.id === 'string').map((e) => [e.id, num(e.n)]));
+  const B = count(b), A = count(a), T = count(t);
+  const items = [];
+  for (const id of new Set([...A.keys(), ...T.keys(), ...B.keys()])) {
+    const n = add(B.get(id), A.get(id), T.get(id));
+    if (n > 0) items.push({ id, n });
+  }
+  return { gold: Math.min(GOLD_MAX, add(b?.gold, a?.gold, t?.gold)), items };
+}
+
 // キャラの 中みを まとめる（主人公・仲間 どちらも）。道具は あとで まとめて 数える
 function mergeBody(b, a, t, tLater) {
   const out = {};
@@ -132,6 +145,7 @@ function mergeBody(b, a, t, tLater) {
       case 'hirameki': out.hirameki = [...new Set([...(Array.isArray(va) ? va : []), ...(Array.isArray(vt) ? vt : [])])]; break;
       case 'jobs': out.jobs = mergeJobs(vb, va, vt); break;
       case 'bestiary': out.bestiary = mergeBestiary(vb, va, vt); break;
+      case 'bank': out.bank = mergeBank(vb, va, vt); break;
       case 'flags': case 'chests': case 'visited': case 'searched':
         out[k] = eachKey(vb, va, vt, (x, y, z) => pick(x, y, z, tLater));
         break;

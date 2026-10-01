@@ -3,7 +3,7 @@
 // 人は 32×42 で くみたてて、2ばいの 64×84 に して こまかく かきたす（res 4: せかいでは 16×21 の 大きさに かく）
 // どうぶつ・船は 16×21 など
 import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js';
-import { ITEMS } from '../../shared/data/items.js';
+import { ITEMS, baseItemId } from '../../shared/data/items.js';
 import { STARTER_EQUIP } from '../../shared/stats.js';
 
 export const CW = 16;
@@ -77,6 +77,10 @@ const ARMOR_LOOK = {
   dragon_gi: { outfit: 'gi', cloth: '#c83a3a', giTrim: '#f2c14e' },
   star_mail: { outfit: 'starmail' },
   suit: { outfit: 'suit', cloth: '#34405e', tie: '#c83a3a' },
+  // ふしぎなかじで 作る 装備
+  jelly_robe: { outfit: 'robe', robeMain: '#5ab8f0', robeTrim: '#e0f4ff' },
+  shell_mail: { outfit: 'chain', cloth: '#f0b8a8' },
+  dragon_mail: { outfit: 'armor', cloth: '#2aa06a' },
 };
 
 // かぶと・ぼうしの みため
@@ -86,6 +90,7 @@ const HEAD_LOOK = {
   bandana: { hat: 'bandana', hatColor: 'cloth' },
   iron_helm: { hat: 'helmet' },
   bb_helmet: { hat: 'bbcap', hatColor: '#2a3a8a' },
+  feather_hat: { hat: 'feather' },
 };
 
 // ぶきの いろ
@@ -118,6 +123,12 @@ const WEAPON_LOOK = {
   metal_bat: { blade: '#c8ccd8', guard: '#2a2a3a' },
   legend_bat: { blade: '#f2c14e', guard: '#8a2a2a', glow: '#ffffff' },
   katana: { blade: '#e8ecf4', guard: '#2a2a2a' },
+  // ふしぎなかじで 作る 武器
+  fang_spear: { blade: '#f4ecd8', guard: '#7a4a22' },
+  wolf_claw: { blade: '#ece6dc' },
+  flame_sword: { blade: '#ff8a4a', guard: '#8a2a1a', glow: '#ffe07a' },
+  thunder_staff: { blade: '#3a3a5a', orb: '#ffe066' },
+  storm_sword: { blade: '#bff0e0', guard: '#2a8a6a', glow: '#ffffff' },
 };
 
 // たての いろ
@@ -126,6 +137,7 @@ const SHIELD_LOOK = {
   scale_shield: { main: '#4a9a6a', rim: '#2e6a46', boss: '#bfe6c8' },
   iron_shield: { main: '#b8bccb', rim: '#6d7184', boss: '#f2c14e', metal: true },
   briefcase: { main: '#4a3226', rim: '#22160f', boss: '#c8a040' },
+  dragon_shield: { main: '#2aa06a', rim: '#14603a', boss: '#f2c14e', metal: true },
 };
 
 // NPCの みため
@@ -159,6 +171,11 @@ const NPC_LOOKS = {
   mina: { hair: 3, hairStyle: 'twin', skin: 0, outfit: 'dress', cloth: '#5ac8b4', female: true, small: true },
   // 宝探しのダイゴ（ルミナの町）
   treasure_hunter: { hair: 5, hairStyle: 'short', skin: 1, outfit: 'vest', cloth: '#8a5a2a', beard: true, hat: 'bandana', hatColor: '#d0a040' },
+  // 預かり所・ふしぎなかじ屋
+  banker: { hair: 1, hairStyle: 'bun', skin: 0, outfit: 'suit', cloth: '#2a4a6a', tie: '#f2c14e', female: true },
+  banker_m: { hair: 5, hairStyle: 'short', skin: 0, outfit: 'vest', cloth: '#3a4a6a', glasses: true, beard: true },
+  smith: { hair: 0, hairStyle: 'bald', skin: 1, outfit: 'apron', cloth: '#5a3a2a', beard: true, hat: 'headband', hatColor: '#c83a3a' },
+  apprentice: { hair: 3, hairStyle: 'spiky', skin: 1, outfit: 'apron', cloth: '#6a4a2a', hat: 'bandana', hatColor: '#3f7fd0' },
 };
 
 // そうびの かきかた: 'ぶき,よろい,たて,あたま' の もじれつ か { weapon, armor, shield, head }
@@ -179,7 +196,9 @@ export function equipKey(eq, job) {
 // みため・しょくぎょう・そうび → パーツの せってい
 export function lookToOpts(look = {}, job = 'warrior', eq = undefined) {
   const cloth = CLOTH[look.color ?? 0];
-  const e = parseEquip(eq, job);
+  // きたえた 装備（鉄の剣+2 など）は もとの 装備の みため
+  const e0 = parseEquip(eq, job);
+  const e = { weapon: baseItemId(e0.weapon) || null, armor: baseItemId(e0.armor) || null, shield: baseItemId(e0.shield) || null, head: baseItemId(e0.head) || null };
   const res = (v) => (v === 'cloth' ? cloth : v);
   const o = {
     skin: SKIN[look.skin ?? 0],
@@ -242,6 +261,8 @@ export function npcOpts(kind) {
     hunch: n.hunch,
     small: n.small,
     glowEyes: n.glowEyes,
+    tie: n.tie,
+    glasses: n.glasses,
   };
 }
 

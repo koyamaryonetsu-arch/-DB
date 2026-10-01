@@ -175,6 +175,10 @@ export function gameFiles() {
     'public/js/shared/world/clock.js', 'public/js/shared/world/travel.js', 'public/js/shared/data/night.js', 'public/js/shared/data/sky.js',
     'public/js/shared/maps/night-npcs.js', 'public/js/client/sky.js', 'public/js/client/ui/clock.js',
     'public/js/client/render/sky-art.js', 'public/js/client/render/night-art.js',
+    // 預かり所・ふしぎなかじ屋
+    'public/js/shared/data/items-forge.js', 'public/js/shared/data/forge.js', 'public/js/shared/data/facilities.js',
+    'public/js/shared/world/bank.js', 'public/js/shared/world/forge.js',
+    'public/js/client/ui/bank.js', 'public/js/client/ui/forge.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

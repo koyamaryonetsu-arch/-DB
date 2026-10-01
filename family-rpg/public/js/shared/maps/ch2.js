@@ -24,6 +24,9 @@ const PORT_NPCS = [
   npc('sailor', '船乗り', P(27, 18), 'sailor', 'sailor', { wander: 1 }),
   npc('port_kid', '港の子ども', P(9, 10), 'boy', 'port_kid', { wander: 2 }),
   npc('mina', 'ミナ', P(18, 7), 'mina', 'mina', { wander: 1 }),
+  // 預かり所（道具屋の おく）と かじ屋（武器と防具の店の おく）
+  npc('port_banker', '預かり所のおじさん', P(8, 3), 'banker_m', 'bank_port'),
+  npc('port_smith', 'かじ屋の弟子', P(9, 13), 'apprentice', 'forge_port'),
   // 風の祭壇に もどった 守り星
   npc('wind_star', '風の守り星', [PORT.x + 15.5, PORT.y + 2], 'windstone', 'wind_altar', { solid: false, show: { all: ['c2_clear'] } }),
 ];
@@ -45,6 +48,8 @@ const SEA_BOARDS = [
   [P(7, 17), 'arms', '武器と防具の店'],
   [P(26, 17), 'church', '教会'],
   [P(16, 16), 'harbor', '港長の家'],
+  [P(4, 7), 'bank', '預かり所'],
+  [P(5, 17), 'smith', 'かじ屋'],
 ].map(([[x, y], kind, name]) => ({ x, y, kind, name }));
 
 const SEA_CHESTS = [
@@ -112,6 +117,8 @@ export function buildCh2Maps() {
       { id: 'sc_b', x: 35, y: 17, item: 'shell_shield' },
       { id: 'sc_c', x: 18, y: 11, item: 'seed_def' },
       { id: 'sc_boss', x: 24, y: 4, item: 'seed_str', show: { all: ['c2_kraken'] } },
+      { id: 'sc_mat', x: 36, y: 6, item: 'pretty_shell', n: 3 },
+      { id: 'sc_scale', x: 4, y: 8, item: 'dragon_scale' },
     ],
     signs: [],
     warps: [
@@ -160,6 +167,7 @@ export function buildCh2Maps() {
       { id: 'tw2_a', x: 3, y: 18, item: 'thunder_sword' },
       { id: 'tw2_b', x: 18, y: 18, item: 'moonherb', n: 2 },
       { id: 'tw2_c', x: 7, y: 3, item: 'seed_mag' },
+      { id: 'tw2_mat', x: 20, y: 8, item: 'silver_shard', n: 2 },
     ],
     warps: [
       { x: 19, y: 2, to: { map: 'tower_1f', x: 19.5, y: 3.6, dir: 'down' } },

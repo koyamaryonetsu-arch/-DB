@@ -22,6 +22,7 @@ import { TM_SCRIPTS, TM_STORY_SCRIPTS } from './story-tm.js';
 import { innSteps } from './inn.js';
 import { NIGHT_SCRIPTS } from './night.js';
 import { skyScripts } from './sky.js';
+import { FACILITY_SCRIPTS } from './facilities.js';
 
 const V = (x, y) => [PLACES.village.x + x + 0.5, PLACES.village.y + y + 0.5];
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
@@ -575,5 +576,7 @@ Object.assign(SCRIPTS, CH2_SCRIPTS, TM_SCRIPTS);
 // 夜の 人（night.js）と、風のさいだんの 笛の イベント（sky.js）
 Object.assign(SCRIPTS, NIGHT_SCRIPTS);
 Object.assign(SCRIPTS, skyScripts(SCRIPTS));
+// 預かり所・ふしぎなかじ屋（facilities.js）
+Object.assign(SCRIPTS, FACILITY_SCRIPTS);
 
 export { comboUnlocked };

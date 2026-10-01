@@ -2,7 +2,7 @@
 // ・ぶきの しゅるい（剣・オノ・やり…）で うごきが かわる
 // ・おなじ しゅるいでも ぶきごとに いろや しかけが かわる（そざい・ぞくせい）
 // ・ランクが 高いほど（★は もっと）はでに なる
-import { ITEMS } from '../../shared/data/items.js';
+import { ITEMS, baseItemId } from '../../shared/data/items.js';
 import { MONSTERS } from '../../shared/data/monsters.js';
 
 // ───────────── いろ ─────────────
@@ -119,6 +119,12 @@ const ID_LOOK = {
   bamboo_bat: { mat: 'bamboo' },
   metal_bat: { mat: 'silver', trait: 'ring' },
   legend_bat: { mat: 'gold', trait: 'homerun' },
+  // ふしぎなかじで 作る 武器
+  fang_spear: { mat: 'stone', trait: null },
+  wolf_claw: { mat: 'iron', move: 'fang' },
+  flame_sword: { mat: 'iron', trait: 'fire' },
+  thunder_staff: { mat: 'magic', trait: 'bolt' },
+  storm_sword: { mat: 'steel', trait: 'wind' },
 };
 
 const MOVE_OF_CAT = { sword: 'sword', dagger: 'dagger', axe: 'axe', spear: 'spear', claw: 'claw', none: 'fist', whip: 'whip', fan: 'fan', staff: 'staff', bat: 'bat' };
@@ -133,7 +139,9 @@ const ruleOf = (rules, name) => {
 
 const looks = new Map();
 // ぶきの みため（id が ない ときは しゅるいの ふつうの みため）
-export function weaponLook(id, cat, mon = null) {
+export function weaponLook(id0, cat, mon = null) {
+  // きたえた 武器（鉄の剣+2 など）は もとの 武器と おなじ エフェクト
+  const id = baseItemId(id0);
   const key = `${id || ''}|${cat || ''}|${mon || ''}`;
   let L = looks.get(key);
   if (L) return L;
