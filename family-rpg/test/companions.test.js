@@ -219,14 +219,18 @@ test('紋章の ちから: たおした まものが なかまに なりたが�
   assert.ok(bot.party.supports.some((x) => x.species === 'pururin'));
   assert.ok(bot.msgs.some((m) => m.t === 'script' && m.steps.some((st) => st[0] === 'say' && /仲間になりたそう/.test(st[2]))));
   // モンスターの なかまは わかれられる（そうびは ふくろへ）
-  c.items.push({ id: 'power_ring', n: 1 });
+  c.items.push({ id: 'power_ring', n: 1 }, { id: 'travel_clothes', n: 1 }, { id: 'bronze_sword', n: 1 });
   bot.send({ t: 'menu', action: 'equip', id: 'power_ring', who: mon.key });
   assert.equal(mon.char.equip.acc, 'power_ring');
-  bot.send({ t: 'menu', action: 'equip', id: 'cloth', who: mon.key });
-  assert.ok(!mon.char.equip.armor, 'モンスターは アクセサリー だけ');
+  // しゅぞくで 装備できる 物が きまる（ぷるりんは 服は 着られるが 剣は もてない）
+  bot.send({ t: 'menu', action: 'equip', id: 'travel_clothes', who: mon.key });
+  assert.equal(mon.char.equip.armor, 'travel_clothes', 'ぷるりんは 服を 着られる');
+  bot.send({ t: 'menu', action: 'equip', id: 'bronze_sword', who: mon.key });
+  assert.ok(!mon.char.equip.weapon, 'ぷるりんは 剣を もてない');
   bot.send({ t: 'svc', kind: 'tavern', action: 'release', key: mon.key });
   assert.ok(!c.companions.some((e) => e.kind === 'monster'));
   assert.equal(c.items.find((e) => e.id === 'power_ring')?.n, 1, 'そうびは もどる');
+  assert.equal(c.items.find((e) => e.id === 'travel_clothes')?.n, 1, 'よろいも もどる');
 });
 
 test('ボスや ものがたりの たたかいでは なかまに ならない', () => {

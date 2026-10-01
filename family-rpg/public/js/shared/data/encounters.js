@@ -38,6 +38,8 @@ export const ENCOUNTER_TABLES = {
     { w: 3, group: [['crow', 2, 3]] },
     { w: 2, group: [['wolf', 2, 3]] },
     { w: 2, group: [['crow', 1, 2], ['armor_crab', 1, 2]] },
+    // めずらしい: ぷるりん騎士（monsters-rare.js）
+    { w: 1, group: [['pururin_knight', 1, 1], ['ice_pururin', 0, 2]] },
   ],
   cave1: [
     { w: 4, group: [['skeleton', 2, 3]] },

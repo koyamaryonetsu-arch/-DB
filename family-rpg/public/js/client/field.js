@@ -75,10 +75,12 @@ export function playerSprite(look, job, dir, frame, eq) {
 }
 
 // なかま（モンスターは ちいさい モンスターの え。みぎむきは はんてん）
+// 大きな 魔物（ヴァルドラゴン など）も、ついてくる ときは 主人公を かくさない ように 24ドットまで
 const monFlip = new WeakMap();
+const FOLLOW_MAX = 24;
 export function followerSprite(f, dir, frame) {
   if (f.mon) {
-    const c = monsterCanvas(f.mon, frame, true);
+    const c = monsterCanvas(f.mon, frame, FOLLOW_MAX);
     if (dir !== 'right') return c;
     let fc = monFlip.get(c);
     if (!fc) { fc = flipCanvas(c); monFlip.set(c, fc); }

@@ -3,7 +3,7 @@ import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_TRAIN_GAP, jobBattlesForLevel, jobBa
 import { ITEMS, SLOTS, baseItemId } from './data/items.js';
 import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js';
 import { MONSTERS } from './data/monsters.js';
-import { MONSTER_FRIENDS, monsterNatural } from './data/companions.js';
+import { MONSTER_FRIENDS, monsterNatural, gearOf } from './data/companions.js';
 import { HIRAMEKI, hiraRatio } from './data/hirameki.js';
 
 // 長い 物語に なるので レベルは 99まで（レベルで ふえる つよさは ひかえめ）
@@ -134,16 +134,19 @@ function monsterCompanionStats(char) {
   r.heal += Math.round(nat.heal * (g.heal ?? 1));
   r.maxHp = r.hp;
   r.maxMp = r.mp;
+  // からだの つよさ ＋ 装備（武器の 攻撃力・よろい・たて・かぶとの 守備力）
   r.atk = Math.round(r.str + nat.atk + eq.out.atk);
   r.dfn = Math.round(r.def + nat.dfn + eq.out.dfn);
-  r.weaponCat = 'none';
+  // 武器を もっていれば その 種類（剣の 技などが つかえる）。もっていなければ 'none'（こぶしの 技は つかえる）
+  r.weaponCat = eq.weaponCat;
   // しゅぞくの たいせい（つよすぎない ように ぞくせいは 0.3まで）
   const base = f.resist || MONSTERS[char.species]?.resist || {};
   const res = {};
   for (const [k, v] of Object.entries(base)) res[k] = ['fire', 'ice', 'wind', 'blast', 'bolt', 'light', 'dark', 'void'].includes(k) ? Math.max(0.3, v) : v;
   for (const [k, v] of Object.entries(eq.resist)) res[k] = (res[k] ?? 1) * v;
   r.resist = res;
-  r.onHit = null;
+  // 毒のナイフ など（武器の おまけ）
+  r.onHit = eq.onHit;
   return r;
 }
 
@@ -336,10 +339,39 @@ export function canEquip(jobId, itemId) {
   }
 }
 
-// その キャラクターが そうびできるか（モンスターの なかまは アクセサリー だけ）
-export function canEquipChar(char, itemId) {
+// モンスターの なかまが 装備できる 物（しゅぞくの けいの きまり ＋ しゅぞくごとの うわがき。companions.js の RACE_GEAR）
+//   { weapons: [武器の 種類], armor: [よろいの 種類], shield: true/false, head: false/'hat'/'helm' }
+export function monsterGear(species) {
+  return gearOf(species, MONSTERS[species]?.race);
+}
+
+// その まものが そうびできるか（アクセサリーは だれでも）
+export function canEquipMonster(species, itemId) {
   // きたえた 装備（+1〜+3）は もとの 装備で きめる（canEquip と おなじ）
-  if (char.species) return ITEMS[baseItemId(itemId)]?.type === 'acc';
+  const it = ITEMS[baseItemId(itemId)];
+  if (!it) return false;
+  if (it.type === 'acc') return true;
+  const g = monsterGear(species);
+  switch (it.type) {
+    case 'weapon': return g.weapons.includes(it.cat);
+    case 'armor': return g.armor.includes(it.armorType);
+    case 'shield': return !!g.shield;
+    // ぼうし（helm でない 物）は 'hat' でも 'helm' でも。かぶとは 'helm' だけ
+    case 'head': return g.head === 'helm' || (g.head === 'hat' && !it.helm);
+    default: return false;
+  }
+}
+
+// その まものが つかえる 装備の 部位（そうびできない 部位は メニューに 出さない）
+export function monsterSlots(species) {
+  const g = monsterGear(species);
+  const ok = { weapon: g.weapons.length > 0, armor: g.armor.length > 0, shield: !!g.shield, head: !!g.head, acc: true };
+  return SLOTS.filter((s) => ok[s]);
+}
+
+// その キャラクターが そうびできるか（モンスターの なかまは しゅぞくで きまる）
+export function canEquipChar(char, itemId) {
+  if (char.species) return canEquipMonster(char.species, itemId);
   return canEquip(char.job, itemId);
 }
 

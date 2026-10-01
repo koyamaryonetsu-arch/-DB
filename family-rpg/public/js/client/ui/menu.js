@@ -5,7 +5,7 @@ import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shar
 import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS } from '../../shared/battle.js';
 import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily } from '../prefs.js';
 import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_TRAIN_GAP, TIER_NAMES } from '../../shared/data/jobs.js';
-import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress } from '../../shared/stats.js';
+import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress, monsterSlots } from '../../shared/stats.js';
 import { HIRAMEKI } from '../../shared/data/hirameki.js';
 import { DUAL_TECHS, DUAL_ORDER, groupName, dualKnown } from '../../shared/data/dual.js';
 import { MONSTERS } from '../../shared/data/monsters.js';
@@ -16,7 +16,7 @@ import { PLACES } from '../../shared/maps/overworld.js';
 import { SEA_PLACES } from '../../shared/maps/ch2.js';
 import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js';
 import { T } from '../../shared/tiles.js';
-import { itemDetail, abilityDetail, skillBrief } from './info.js';
+import { itemDetail, abilityDetail, skillBrief, gearText } from './info.js';
 import { makeCanvas, ctxOf } from '../render/pixel.js';
 import { monsterCanvas } from '../render/monsters.js';
 import { mapIconCanvas, boardIconURL } from '../render/boards.js';
@@ -311,9 +311,11 @@ export class FieldMenu {
           this.focusSub(this.itemsList(true));
         },
       })));
+    // じぶんの モンスターの なかま（装備できる 子の 名前を せつめいに 出す）
+    const mons = this.myMates().filter((x) => x.species).map((x) => ({ name: x.name, species: x.species }));
     const m = this.mkSub({
       items,
-      onMove: (it) => { detail.textContent = it ? (it.tmap ? treasureDetail(g, it.tmap) : itemDetail(it.value)) : ''; },
+      onMove: (it) => { detail.textContent = it ? (it.tmap ? treasureDetail(g, it.tmap) : itemDetail(it.value, mons)) : ''; },
       onSelect: (it) => this.itemAction(it),
     });
     box.append(tabs, m.root, detail);
@@ -599,14 +601,18 @@ export class FieldMenu {
     const detail = el('div', { class: 'detail' });
     const st = computeStats(c);
     const stats = el('div', { class: 'small', text: `攻撃 ${st.atk}　守備 ${st.dfn}　素早さ ${st.agi}　魔力 ${st.mag}　回復 ${st.heal}` });
-    const slots = c.species ? ['acc'] : SLOTS;
+    const mons = this.myMates().filter((x) => x.species).map((x) => ({ name: x.name, species: x.species }));
+    // モンスターの なかまは しゅぞくで 装備できる 部位が きまる（ドラクエ5 ふう。今 何か 装備している 部位は 出す）
+    const slots = c.species ? SLOTS.filter((sl) => monsterSlots(c.species).includes(sl) || c.equip?.[sl]) : SLOTS;
     const items = slots.map((sl) => ({ label: `${SLOT_NAMES[sl]}：${c.equip?.[sl] ? ITEMS[c.equip[sl]].name : 'なし'}`, value: sl }));
     // ドラクエの「さいきょう装備」: ふくろの 中で いちばん 強い ものを まとめて 装備
-    if (!c.species) items.push({ label: 'さいきょう装備', value: '__best' }, ...(this.myMates().some((m) => !m.species) ? [{ label: 'みんなさいきょう装備', value: '__bestAll' }] : []));
-    if (c.companion) box.append(el('div', { class: 'gold small', text: `${c.name}の装備${c.species ? '（モンスターはアクセサリーだけ）' : ''}` }));
+    items.push({ label: 'さいきょう装備', value: '__best' }, ...(this.myMates().length ? [{ label: 'みんなさいきょう装備', value: '__bestAll' }] : []));
+    if (c.companion) box.append(el('div', { class: 'gold small', text: `${c.name}の装備` }));
+    // 魔物の 装備できる 物（リストの 下に。リストが 画面から はみ出さない ように）
+    const gear = c.species ? el('div', { class: 'small muted', text: `装備できる物: ${gearText(c.species)}` }) : null;
     if (!active) {
       for (const it of items) box.append(el('div', { text: it.label }));
-      box.append(stats);
+      box.append(stats, ...(gear ? [gear] : []));
       return box;
     }
     const m = this.mkSub({
@@ -614,7 +620,7 @@ export class FieldMenu {
       onMove: (it) => {
         if (it.value === '__best') detail.textContent = 'ふくろの中から、攻撃力・守備力がいちばん上がる武器・よろい・たて・かぶとを装備する（アクセサリーはそのまま）';
         else if (it.value === '__bestAll') detail.textContent = '自分と仲間みんなを、ならびの順にさいきょう装備にする';
-        else detail.textContent = c.equip?.[it.value] ? `E ${ITEMS[c.equip[it.value]].name}（装備している）\n${itemDetail(c.equip[it.value])}` : '';
+        else detail.textContent = c.equip?.[it.value] ? `E ${ITEMS[c.equip[it.value]].name}（装備している）\n${itemDetail(c.equip[it.value], mons)}` : '';
       },
       onSelect: async (it) => {
         const slot = it.value;
@@ -644,7 +650,7 @@ export class FieldMenu {
         setTimeout(() => { if (this.root) this.focusSub(this.equipView(true, who)); }, 200);
       },
     });
-    box.append(m.root, stats, detail);
+    box.append(m.root, stats, ...(gear ? [gear] : []), detail);
     return box;
   }
 
@@ -668,7 +674,7 @@ export class FieldMenu {
       const f = MONSTER_FRIENDS[c.species];
       const learnList = el('div', { style: { marginTop: '0.6em' } }, el('div', { class: 'gold small', text: '覚える技（レベル）' }));
       for (const [l, id] of f?.learn || []) learnList.append(el('div', { class: `small ${c.level >= l ? 'good' : 'muted'}`, text: `Lv${l}　${ABILITIES[id]?.name || id}` }));
-      box.append(learnList, el('div', { class: 'detail', text: f?.note || '' }));
+      box.append(learnList, el('div', { class: 'small', style: { marginTop: '0.4em' }, text: `装備できる物: ${gearText(c.species)}` }), el('div', { class: 'detail', text: f?.note || '' }));
     } else {
       const jobs = el('div', { style: { marginTop: '0.6em' } }, el('div', { class: 'gold small', text: '職業レベル（勝った戦いの数で上がる）' }));
       for (const j of ALL_JOBS) {
@@ -867,7 +873,9 @@ export class FieldMenu {
         return;
       }
       const fr = MONSTER_FRIENDS[sp];
-      const how = M.breedOnly ? `配合で生まれる（${recipeHint(sp, MONSTERS)}）` : fr && fr.rate > 0 ? '倒すと仲間になることがある' : '仲間にならない';
+      // 配合でも 生まれる 魔物は ヒントも（ぷるりん騎士 など）
+      const hint = recipeHint(sp, MONSTERS);
+      const how = M.breedOnly ? `配合で生まれる（${hint}）` : fr && fr.rate > 0 ? `倒すと仲間になることがある${hint ? `\n配合でも生まれる（${hint}）` : ''}` : '仲間にならない';
       detail.append(
         el('div', { class: 'gold', text: `${M.name}${M.boss ? '（ボス）' : ''}` }),
         el('div', { class: 'small muted', text: `${RACE_NAMES[M.race] || ''}${M.breedOnly ? '' : `　Lv${M.lv}`}　倒した数 ${s.kills}` }),

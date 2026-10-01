@@ -7,7 +7,7 @@ import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMas
 import { MONSTERS } from '../../shared/data/monsters.js';
 import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES } from '../../shared/data/companions.js';
 import { TACTICS } from '../../shared/ai.js';
-import { itemDetail } from './info.js';
+import { itemDetail, gearText } from './info.js';
 import { playerSprite, followerSprite, faceURL } from '../field.js';
 import { shopUI, churchUI } from './shop.js';
 import { bankUI } from './bank.js';
@@ -320,6 +320,7 @@ function tavernUI(game, data) {
       if (e.sec === 'roster' && e.species) {
         const learned = e.abilities || learnedAbilities({ species: e.species, level: e.level });
         main.append(el('div', { class: 'small', text: `技: ${learned.map((id) => ABILITIES[id]?.name).filter(Boolean).join('・') || 'なし'}` }));
+        main.append(el('div', { class: 'small', text: `装備できる物: ${gearText(e.species)}` }));
         if (e.parents) main.append(el('div', { class: 'small muted', text: `親: ${e.parents.join(' ＋ ')}` }));
         if (e.level < BREED_MIN_LEVEL) main.append(el('div', { class: 'small muted', text: `レベル${BREED_MIN_LEVEL}になると配合できる` }));
       }
@@ -373,7 +374,8 @@ function tavernUI(game, data) {
         el('div', { style: { display: 'flex', gap: '0.6em', alignItems: 'flex-start' } },
           el('div', { style: { flex: '1', minWidth: '0' } },
             el('div', { class: 'small gold', style: { whiteSpace: 'pre-line' }, text: `生まれる子: ${pv.childName}（${RACE_NAMES[MONSTERS[pv.child]?.race] || ''}）＋${pv.plus}${pv.special ? '\n★ めずらしい組み合わせ！' : ''}` }),
-            el('div', { class: 'small muted', text: `自分で覚える技: ${own || 'なし'}` })),
+            el('div', { class: 'small muted', text: `自分で覚える技: ${own || 'なし'}` }),
+            el('div', { class: 'small muted', text: `装備できる物: ${gearText(pv.child)}` })),
           img),
         el('div', { class: 'small', text: `親から受けつぐ技を${pv.max}つまで選んでね` }));
       const desc = el('div', { class: 'small detail', style: { minHeight: '2.4em' } });

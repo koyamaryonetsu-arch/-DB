@@ -2,7 +2,9 @@
 import { ITEMS, SLOT_NAMES, WEAPON_CAT_NAMES } from '../../shared/data/items.js';
 import { ABILITIES, abilityTypeText } from '../../shared/data/abilities.js';
 import { JOBS, ALL_JOBS } from '../../shared/data/jobs.js';
-import { computeStats, canEquip, penaltyFor, mpCost, comboJobNames, comboAllowed, jobPower } from '../../shared/stats.js';
+import { MONSTERS } from '../../shared/data/monsters.js';
+import { MONSTER_FRIENDS } from '../../shared/data/companions.js';
+import { computeStats, canEquip, canEquipMonster, monsterGear, penaltyFor, mpCost, comboJobNames, comboAllowed, jobPower } from '../../shared/stats.js';
 
 const TARGET_NAMES = { enemy: '敵1体', group: '敵1グループ', enemies: '敵全体', ally: '味方1人', allies: '味方全員', self: '自分', deadAlly: '死んだ味方' };
 const BONUS_NAMES = { str: '力', def: '身の守り', agi: '素早さ', mag: '魔力', heal: '回復', hp: 'HP', mp: 'MP' };
@@ -23,20 +25,45 @@ export function rankText(id) {
   return it?.rank ? `ランク${it.rank}${it.star ? '★' : ''}` : '';
 }
 
-export function whoCanEquip(id) {
+// mons: じぶんの モンスターの なかま [{ name, species }]（あれば「装備できる 魔物」に 名前を 出す）
+export function whoCanEquip(id, mons = null) {
   const it = ITEMS[id];
   if (!it || !['weapon', 'armor', 'shield', 'head', 'acc'].includes(it.type)) return '';
   const jobs = ALL_JOBS.filter((j) => canEquip(j, id));
-  if (jobs.length === ALL_JOBS.length) return 'だれでも装備できる';
+  // 仲間に なる 魔物（しゅぞくで きまる。ドラクエ5 ふう）
+  const species = Object.keys(MONSTER_FRIENDS).filter((sp) => MONSTERS[sp]);
+  const monOk = species.filter((sp) => canEquipMonster(sp, id));
+  let monText = '';
+  if (monOk.length < species.length) {
+    if (mons) {
+      // じぶんの 魔物の なかまの うち 装備できる 子の 名前
+      const mine = mons.filter((m) => canEquipMonster(m.species, id)).map((m) => m.name);
+      if (mons.length) monText = mine.length ? `仲間の魔物: ${mine.join('・')}` : '仲間の魔物は装備できない';
+    } else if (monOk.length) monText = `仲間の魔物 ${monOk.length}種類`;
+  }
+  if (jobs.length === ALL_JOBS.length) return monText ? `人はだれでも装備できる\n${monText}` : 'だれでも装備できる';
   const base = jobs.filter((j) => !JOBS[j].tier).map((j) => JOBS[j].name);
   const adv = jobs.filter((j) => JOBS[j].tier === 1);
   const advText = adv.length <= 4 ? adv.map((j) => JOBS[j].name).join('・') : `上級職 ${adv.length}種類`;
   // 超級職の なまえは 神殿で ヒントが 出るまで ひみつ
   const sup = jobs.filter((j) => JOBS[j].tier === 2).length;
-  return `装備: ${[base.join('・'), advText, sup ? `超級職 ${sup}種類` : ''].filter(Boolean).join(' ／ ')}`;
+  return `装備: ${[base.join('・'), advText, sup ? `超級職 ${sup}種類` : ''].filter(Boolean).join(' ／ ')}${monText ? `\n${monText}` : ''}`;
 }
 
-export function itemDetail(id) {
+// モンスターの なかまが 装備できる 物（例:「武器（剣・やり）・よろい（服・重いよろい）・たて・かぶと・アクセサリー」）
+const ARMOR_TYPE_NAMES = { cloth: '服', heavy: '重いよろい', robe: 'ローブ', gi: '道着' };
+export function gearText(species) {
+  const g = monsterGear(species);
+  const parts = [];
+  if (g.weapons.length) parts.push(`武器（${g.weapons.map((c) => WEAPON_CAT_NAMES[c] || c).join('・')}）`);
+  if (g.armor.length) parts.push(`よろい（${g.armor.map((a) => ARMOR_TYPE_NAMES[a] || a).join('・')}）`);
+  if (g.shield) parts.push('たて');
+  if (g.head) parts.push(g.head === 'helm' ? 'かぶと・ぼうし' : 'ぼうし');
+  parts.push('アクセサリー');
+  return parts.join('・');
+}
+
+export function itemDetail(id, mons = null) {
   const it = ITEMS[id];
   if (!it) return '';
   const lines = [it.desc || ''];
@@ -45,7 +72,7 @@ export function itemDetail(id) {
   const rk = rankText(id);
   if (it.type === 'weapon') lines.push(`種類: ${WEAPON_CAT_NAMES[it.cat] || it.cat}${rk ? `　${rk}` : ''}`);
   else if (rk) lines.push(rk);
-  const w = whoCanEquip(id);
+  const w = whoCanEquip(id, mons);
   if (w) lines.push(w);
   // ふしぎなかじ
   if (it.plus) lines.push(`ふしぎなかじで${it.plus}回きたえてある（+${it.plus}）`);
