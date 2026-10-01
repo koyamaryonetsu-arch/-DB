@@ -123,6 +123,21 @@ const ICONS = {
     ],
     pal: { y: '#f2c14e', Y: '#fff6b0' },
   },
+  // はさみ（美容室）
+  salon: {
+    rows: [
+      'Ws.....sW',
+      '.Ws...sW.',
+      '..Ws.sW..',
+      '...WsW...',
+      '....y....',
+      '...W.W...',
+      '.rrr.rrr.',
+      'r..r.r..r',
+      '.rrr.rrr.',
+    ],
+    pal: { W: '#ffffff', s: '#b8c0d0', y: '#f2c14e', r: '#ff6a9a' },
+  },
   // いかり（港長の家）
   harbor: {
     rows: [
@@ -223,6 +238,7 @@ const MAP_ICONS = {
 // かんばんの いろ（いた・ふち・うえの ひかり）
 const BOARD = {
   default: ['#c8904a', '#5a3a22', '#e8b878'],
+  salon: ['#c85a8e', '#5a1e3e', '#e886b6'],
   general: ['#4a9a5a', '#1f4a2a', '#78c888'],
   inn: ['#b83a3a', '#5a1a1a', '#e06a5a'],
   church: ['#4a4ab8', '#1e1e5a', '#7a7ae0'],

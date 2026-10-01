@@ -3,7 +3,8 @@ import { MAPS, isBlocked, effectiveTile, condOk, tileAt, onWater } from '../shar
 import { T, TILE_INFO } from '../shared/tiles.js';
 import { PLACES } from '../shared/maps/overworld.js';
 import { TS, tileCanvas, frameOf, prepareMap } from './render/tiles.js';
-import { paintHuman, lookToOpts, npcOpts, paintSpecial, paintShip, equipKey, CW, CH } from './render/chars.js';
+import { paintHuman, npcOpts, paintSpecial, paintShip, equipKey, CW, CH } from './render/chars.js';
+import { heroCanvas, heroLookKey } from './render/hero.js';
 import { monsterCanvas, bigNpcCanvas } from './render/monsters.js';
 import { MONSTERS } from '../shared/data/monsters.js';
 import { makeCanvas, ctxOf, shade, flipCanvas } from './render/pixel.js';
@@ -66,12 +67,16 @@ const BIG_SCALE = { goldoon_sleep: 0.6, lighthouse_dark: 1, lighthouse_lit: 1, s
 const bigScale = (sprite) => BIG_SCALE[sprite] || 0.5;
 
 // eq: そうび（'ぶき,よろい,たて,あたま' か { weapon, armor, … }）。ないときは しょくぎょうの はじめの そうび
-export function playerSprite(look, job, dir, frame, eq) {
+// 人（プレイヤー・なかま）は render/hero.js で こまかく かく。res 4: フィールド / res 8: 大きな みほん
+export function playerSprite(look, job, dir, frame, eq, res = 4) {
   const ek = equipKey(eq, job);
-  const k = `p:${JSON.stringify(look)}:${job}:${ek}`;
-  const ck = `${k}|${dir}|${frame}`;
-  if (spriteCache.has(ck)) return spriteCache.get(ck);
-  return charSprite(k, lookToOpts(look, job, ek), dir, frame);
+  const ck = `h:${heroLookKey(look)}:${job}:${ek}|${dir}|${frame}|${res}`;
+  let c = spriteCache.get(ck);
+  if (!c) {
+    c = heroCanvas(look, job, ek, dir, frame, res);
+    spriteCache.set(ck, c);
+  }
+  return c;
 }
 
 // なかま（モンスターは ちいさい モンスターの え。みぎむきは はんてん）
@@ -92,7 +97,7 @@ export function followerSprite(f, dir, frame) {
 // メニューなどに だす かお（えの データURL）
 const faceCache = new Map();
 export function faceURL(f) {
-  const k = f.mon ? `m:${f.mon}` : `p:${JSON.stringify(f.look)}:${f.job}:${equipKey(f.eq, f.job)}`;
+  const k = f.mon ? `m:${f.mon}` : `h:${heroLookKey(f.look)}:${f.job}:${equipKey(f.eq, f.job)}`;
   let u = faceCache.get(k);
   if (!u) {
     const c = followerSprite(f, 'down', 0);

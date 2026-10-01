@@ -3,6 +3,7 @@ import { el, ListMenu, toast, askText, confirmBox, esc } from './dom.js';
 import { ITEMS } from '../../shared/data/items.js';
 import { JOBS, JOB_ORDER, ADVANCED_ORDER, SUPER_ORDER, TIER_NAMES, JOB_MAX_LEVEL, JOB_TRAIN_GAP, jobReqText, jobReqSets } from '../../shared/data/jobs.js';
 import { ABILITIES } from '../../shared/data/abilities.js';
+import { salonUI } from './salon.js';
 import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered } from '../../shared/stats.js';
 import { MONSTERS } from '../../shared/data/monsters.js';
 import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES } from '../../shared/data/companions.js';
@@ -20,6 +21,7 @@ export function openServiceUI(game, kind, data) {
     case 'shop': return shopUI(game, data);
     case 'jobChange': return jobUI(game);
     case 'tavern': return tavernUI(game, data);
+    case 'salon': return salonUI(game, data);
     case 'board': return boardUI(game, data);
     case 'starTrade': return starUI(game, data);
     case 'church': return churchUI(game, data);
@@ -180,7 +182,7 @@ function jobUI(game) {
       main.append(whoRow);
       renderWho();
       const pv = playerSprite(c.look, j, 'down', 0, c.equip);
-      const img = el('canvas', { width: pv.width, height: pv.height, style: { width: '48px', height: '63px', imageRendering: 'pixelated', float: 'right', opacity: open ? '1' : '0.45' } });
+      const img = el('canvas', { width: pv.width, height: pv.height, style: { width: '64px', height: '84px', imageRendering: 'pixelated', float: 'right', opacity: open ? '1' : '0.45' } });
       img.getContext('2d').drawImage(pv, 0, 0);
       main.append(img, el('h3', { text: `${job.name}（${job.kana}）` }), el('div', { class: 'small gold', text: TIER_NAMES[job.tier || 0] }), el('div', { class: 'detail', text: job.desc }));
       // なる ための じょうけん・しゅぎょうの すすみぐあい
@@ -313,7 +315,7 @@ function tavernUI(game, data) {
         return;
       }
       const pv = e.species ? followerSprite({ mon: e.species }, 'down', 0) : playerSprite(e.look, e.job, 'down', 0, e.equip);
-      const img = el('canvas', { width: pv.width, height: pv.height, class: 'tv-face' });
+      const img = el('canvas', { width: pv.width, height: pv.height, class: e.species ? 'tv-face' : 'tv-face hero' });
       img.getContext('2d').drawImage(pv, 0, 0);
       main.append(img, el('h3', { text: `${e.name}${e.plus ? ` ＋${e.plus}` : ''}` }), el('div', { class: 'small gold', text: e.sec === 'recruit' ? `${who(e)}（仲間になるとこのレベル）` : who(e) }));
       if (e.maxHp) main.append(el('div', { class: 'small', text: `HP ${Math.max(0, e.hp)}/${e.maxHp}　MP ${e.mp}/${e.maxMp}${e.tactics ? `　作戦: ${TACTICS[e.tactics]?.name || ''}` : ''}` }));
