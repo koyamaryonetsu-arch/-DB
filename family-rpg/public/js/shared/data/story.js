@@ -19,6 +19,7 @@ import { learnedAbilities, comboUnlocked, hiraAllowed } from '../stats.js';
 import { HIRAMEKI, hiraRatio } from './hirameki.js';
 import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js';
 import { innSteps } from './inn.js';
+import { wagonEventSteps } from './wagon.js';
 
 const V = (x, y) => [PLACES.village.x + x + 0.5, PLACES.village.y + y + 0.5];
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
@@ -318,6 +319,8 @@ export const SCRIPTS = {
     ['jobChange'],
   ],
   tavern: (x) => [
+    // 第1章の あと: 馬車を もらう（data/wagon.js）
+    ...(x.c?.flags?.c1_clear && !x.c.wagon ? wagonEventSteps() : []),
     ...S('酒場のマスター', 'いらっしゃい！ここは仲間の酒場だ。', '家族のキャラクターや、旅の仲間を「サポート仲間」として\n連れていけるよ。',
       ...(x.flag('monster_bond') ? ['モンスターの仲間が育ったら「配合」もできるぞ。\n親の技を受けついだ子が生まれるんだ。'] : [])),
     ['tavern'],

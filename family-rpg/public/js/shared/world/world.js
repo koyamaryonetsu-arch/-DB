@@ -10,7 +10,7 @@ import { ITEMS } from '../data/items.js';
 import { JOBS } from '../data/jobs.js';
 import { newCharacter, computeStats, addItem, fullHeal, migrateJobs } from '../stats.js';
 import { mapState, spawnSymbols, moveSymbols, symbolSnapshot } from './monsters.js';
-import { startFieldBattle, battleTick, battleCommand, battleLeave, joinBattle } from './battles.js';
+import { startFieldBattle, battleTick, battleCommand, battleLeave, joinBattle, mineOf } from './battles.js';
 import { runScript, runSteps } from './scripts.js';
 import { serviceAction, menuAction } from './services.js';
 import { newParty, partyOf, partyState, syncParty, ensureCompanions, companionWait, PARTY_MAX } from './party.js';
@@ -20,6 +20,7 @@ import { CH1_CLEAR_OBJECTIVE } from '../data/story.js';
 import { upgradeSave, repairChar } from './save.js';
 import { exportCode, parseCode, importChar } from './transfer.js';
 import { memorySyncStore, buildSyncOut, applySyncIn, encodeSync, decodeSync, syncSummary } from './sync.js';
+import { wagonLook } from './wagon.js';
 
 export const PROTOCOL_VERSION = 1;
 const SPARKLE_RESPAWN_MS = 20 * 60 * 1000;
@@ -134,7 +135,8 @@ export class GameWorld {
       players: this.playerList(t), resumed: true,
     });
     if (ctx && !ctx.battle.over) {
-      const mine = Object.entries(ctx.actorMap).filter(([, v]) => v.type === 'human' && v.sid === t.id).map(([k]) => k);
+      // 馬車に もどった 人は のぞく（その 人が うごかす キャラ）
+      const mine = mineOf(ctx, t.id);
       this.send(t, { t: 'battleStart', snap: ctx.battle.snapshot(), mine, boss: !!ctx.opts.boss, story: !!ctx.opts.fixed, resume: true });
     }
     const run = t.runId && this.runs.get(t.runId);
@@ -871,7 +873,7 @@ export class GameWorld {
         const ps = players.map((p) => ({
           sid: p.id, name: p.char.name, look: p.char.look, job: p.char.job, eq: equipLook(p.char), x: Math.round(p.x * 100) / 100, y: Math.round(p.y * 100) / 100,
           dir: p.dir, mv: p.moving ? 1 : 0, b: p.busy === 'battle' ? 1 : 0, pid: p.partyId, aw: p.away ? 1 : 0,
-          fl: this.followerLooks(p),
+          fl: this.followerLooks(p), wg: wagonLook(this, p),
         }));
         for (const p of players) this.send(p, { t: 'snap', map: mapId, players: ps.filter((x) => x.sid !== p.id), syms });
       }

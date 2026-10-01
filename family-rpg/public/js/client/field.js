@@ -10,6 +10,7 @@ import { makeCanvas, ctxOf, shade, flipCanvas } from './render/pixel.js';
 import { chestCanvas as chestCanvas3d } from './render/tex3d.js';
 import { boardCanvas } from './render/boards.js';
 import { el } from './ui/dom.js';
+import { wagonDraws } from './render/wagon.js';
 
 const SPEED = 4.6; // マス/びょう
 const RUN = 1.35; // はしると この ばい（はやすぎない ように）
@@ -552,7 +553,7 @@ export class Field {
         o = { sid: p.sid, x: p.x, y: p.y, trail: [] };
         this.others.set(p.sid, o);
       }
-      Object.assign(o, { name: p.name, look: p.look, job: p.job, eq: p.eq, tx: p.x, ty: p.y, dir: p.dir, moving: !!p.mv, battle: !!p.b, away: !!p.aw, partyId: p.pid, fl: p.fl || [] });
+      Object.assign(o, { name: p.name, look: p.look, job: p.job, eq: p.eq, tx: p.x, ty: p.y, dir: p.dir, moving: !!p.mv, battle: !!p.b, away: !!p.aw, partyId: p.pid, fl: p.fl || [], wg: !!p.wg });
       // リーダーの とおった みちを おぼえる（ついていく ため）
       if (this.game.follow && p.sid === this.game.party?.leader) {
         const tr = this.leaderCrumbs;
@@ -761,6 +762,8 @@ export class Field {
       const tp = this.trailPos(this.me, i + 1);
       if (tp && !this.isOnWater(tp.x, tp.y)) objs.push({ y: tp.y, draw: () => this.drawAt(followerSprite(f, tp.dir, this.walkFrame(this.myStep)), tp.x, tp.y, camX, camY) });
     });
+    // 馬車（render/wagon.js）
+    for (const w of wagonDraws(this)) objs.push({ y: w.y, draw: () => this.drawAt(w.canvas, w.x, w.y, camX, camY) });
     for (const a of this.actors.values()) {
       objs.push({ y: a.y, draw: () => this.drawAt(npcSprite(a.sprite, a.dir, this.walkFrame(true)), a.x, a.y, camX, camY) });
     }
@@ -967,6 +970,7 @@ export class Field {
       const tp = this.trailPos(this.me, i + 1);
       if (tp && !this.isOnWater(tp.x, tp.y)) out.push({ key: 'mf:' + i, canvas: followerSprite(f, tp.dir, this.walkFrame(this.myStep)), x: tp.x, y: tp.y, anchor: f.mon ? 2 : undefined });
     });
+    for (const w of wagonDraws(this)) out.push({ key: w.key, canvas: w.canvas, x: w.x, y: w.y, shadowScale: w.side ? 2.4 : 1.6 });
     for (const a of this.actors.values()) {
       out.push({ key: 'a:' + a.id, canvas: npcSprite(a.sprite, a.dir, this.walkFrame(true)), x: a.x, y: a.y });
     }

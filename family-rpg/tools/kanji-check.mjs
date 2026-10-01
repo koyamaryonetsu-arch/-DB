@@ -168,6 +168,8 @@ export function gameFiles() {
     'public/js/shared/world/sync.js', 'public/js/shared/world/merge.js', 'server/syncstore.js',
     'server/guard.js', 'server/funnel.js', 'server/funnel-cli.js',
     'server/index.js', 'server/main.js', 'server/update.js', 'server/storage.js', 'server/savedir.js',
+    // 馬車
+    'public/js/shared/data/wagon.js', 'public/js/shared/world/wagon.js', 'public/js/client/ui/wagon.js', 'public/js/client/render/wagon.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

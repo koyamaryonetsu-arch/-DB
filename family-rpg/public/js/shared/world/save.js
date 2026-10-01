@@ -9,6 +9,7 @@ import { ITEMS, SLOTS } from '../data/items.js';
 import { JOBS } from '../data/jobs.js';
 import { MONSTERS } from '../data/monsters.js';
 import { migrateJobs, oldComboUnlocks, addItem } from '../stats.js';
+import { cleanWagon } from '../data/wagon.js';
 
 export const SAVE_VERSION = 4;
 
@@ -148,6 +149,8 @@ export function repairChar(c, id) {
       }
     }
   }
+  // 馬車の 仲間（いなくなった 仲間の key は はずす）
+  cleanWagon(c);
   cleanStash(c);
   return c;
 }

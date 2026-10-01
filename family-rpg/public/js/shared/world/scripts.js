@@ -5,6 +5,7 @@ import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.j
 import { startFixedBattle } from './battles.js';
 import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion } from './party.js';
 import { openService } from './services.js';
+import { grantWagon, wagonChars } from './wagon.js';
 
 let runSeq = 1;
 
@@ -201,6 +202,7 @@ export class ScriptRun {
           const p = partyOf(w, this.init);
           for (const sup of p?.supports || []) fullHeal(sup.char);
           for (const g of p?.guests || []) fullHeal(g.char);
+          for (const ch of wagonChars(w, p)) fullHeal(ch);
           for (const m of all) w.sendSelf(m);
           if (p) w.sendParty(p);
           break;
@@ -219,6 +221,7 @@ export class ScriptRun {
           const p = partyOf(w, this.init);
           for (const sup of p?.supports || []) fullHeal(sup.char);
           for (const g of p?.guests || []) fullHeal(g.char);
+          for (const ch of wagonChars(w, p)) fullHeal(ch);
           if (price) this.say('では、ごゆっくりお休みください。', keeper);
           this.batch.push(['fade', 'out'], ['bgm', 'inn'], ['wait', 2200], ['bgm', 'resume'], ['fade', 'in']);
           if (price) {
@@ -262,6 +265,15 @@ export class ScriptRun {
             this.batch.push(['sfx', 'join']);
             this.say(r.joined ? `${r.name}が仲間に加わった！` : `${r.name}が仲間になった！\n（今はルミナの町の酒場で待っている）`);
           }
+          break;
+        }
+        case 'wagon': {
+          // 馬車を もらう（話しかけた 人の もの。data/wagon.js）
+          grantWagon(this.init.char);
+          const p = partyOf(w, this.init);
+          if (p) w.sendParty(p);
+          w.sendSelf(this.init);
+          w.markDirty();
           break;
         }
         case 'befriend': {

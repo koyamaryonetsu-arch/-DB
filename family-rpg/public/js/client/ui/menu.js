@@ -24,6 +24,7 @@ import { compareOne, compareTeam, whoItems } from './counter.js';
 import { faceURL } from '../field.js';
 import { partyRows } from './hud.js';
 import { questMarks, subQuests, OBJECTIVE_TARGETS, whereName } from '../../shared/data/quest-targets.js';
+import { wagonMenuView } from './wagon.js';
 
 const MAIN = [
   { label: '道具', value: 'items' },
@@ -164,17 +165,17 @@ export class FieldMenu {
     }
   }
 
-  // じぶんの なかま（酒場の なかま・モンスター）
+  // じぶんの なかま（酒場の なかま・モンスター。馬車の 仲間も）
   myMates() {
     const g = this.game;
-    return (g.party?.supports || []).filter((x) => x.owner === g.me.id && x.kind !== 'family');
+    return [...(g.party?.supports || []), ...(g.party?.wagon || [])].filter((x) => x.owner === g.me.id && x.kind !== 'family');
   }
 
   // key の キャラ（じぶん か なかま）を メニューで つかえる かたちに
   charOf(who) {
     const g = this.game;
     if (!who || who === 'self') return g.me;
-    const x = (g.party?.supports || []).find((m) => m.key === who && m.owner === g.me.id);
+    const x = [...(g.party?.supports || []), ...(g.party?.wagon || [])].find((m) => m.key === who && m.owner === g.me.id);
     if (!x) return null;
     return {
       key: x.key, name: x.name, level: x.level, exp: x.exp || 0, job: x.job, jobs: x.jobs || {}, equip: x.equip || {}, seeds: x.seeds || {},
@@ -191,7 +192,7 @@ export class FieldMenu {
     const mates = this.myMates();
     const title = { skills: 'だれの呪文？', equip: 'だれの装備？', status: 'だれの強さ？' }[next] || 'だれ？';
     const items = [{ label: `${g.me.name}（自分）`, value: 'self', face: faceURL({ look: g.me.look, job: g.me.job, eq: g.me.equip }) },
-      ...mates.map((m) => ({ label: `${m.name}（${m.species ? MONSTERS[m.species]?.name : JOBS[m.job]?.name} Lv${m.level}）`, value: m.key, face: faceURL({ look: m.look, job: m.job, eq: m.equip, mon: m.species || undefined }) }))];
+      ...mates.map((m) => ({ label: `${m.name}（${m.species ? MONSTERS[m.species]?.name : JOBS[m.job]?.name} Lv${m.level}${m.wagon ? '・馬車' : ''}）`, value: m.key, face: faceURL({ look: m.look, job: m.job, eq: m.equip, mon: m.species || undefined }) }))];
     // 強さは「全員」を 一覧で くらべられる
     if (next === 'status') items.unshift({ label: '全員（一覧でくらべる）', value: '__all' });
     const m = this.mkSub({
@@ -642,7 +643,7 @@ export class FieldMenu {
     add(g.me, computeStats(g.me), JOBS[g.me.job]?.name || '');
     for (const m of this.myMates()) {
       const c = this.charOf(m.key);
-      if (c) add(m, computeStats(c), m.species ? MONSTERS[m.species]?.name || '' : JOBS[m.job]?.name || '');
+      if (c) add(m, computeStats(c), `${m.wagon ? '馬車・' : ''}${m.species ? MONSTERS[m.species]?.name || '' : JOBS[m.job]?.name || ''}`);
     }
     // 家族（パーティーの ほかの 人）と その なかま、ゲスト
     for (const m of p.members || []) if (m.sid !== g.sid && m.st) add(m, m.st, JOBS[m.job]?.name || '');
@@ -696,6 +697,11 @@ export class FieldMenu {
     rows.push(...supRows.slice(0, pos), ...memRows, ...supRows.slice(pos));
     rows.forEach((r, i) => r.firstChild.prepend(el('span', { class: 'ord', text: `${i + 1}` })));
     for (const gu of p?.guests || []) rows.push(row(gu, gu.name, 'ゲスト'));
+    // 馬車（リーダーの もの。ui/wagon.js）
+    if (p?.wagon) {
+      rows.push(el('div', { class: 'small gold', style: { marginTop: '0.4em' }, text: `馬車（${p.wagon.length}人）` }));
+      for (const w of p.wagon) rows.push(row(w, `${w.name}（${w.species ? MONSTERS[w.species]?.name : JOBS[w.job]?.name} Lv${w.level}）`, w.hp > 0 ? `HP ${w.hp}/${w.maxHp}` : '死んでいる'));
+    }
     box.append(...rows);
     if (!active) {
       box.append(el('div', { class: 'detail', text: '遊んでいる家族をパーティーにさそえる。仲間はルミナの町の酒場で探したり入れかえたりできる。\n近くにいる仲間はいっしょに戦う。はなれている仲間も、戦っている場所へかけつけると、とちゅうから参加できる。\n「ならびを変える」で順番を変えられる（先頭ほど敵にねらわれやすい）。' }));
@@ -703,6 +709,7 @@ export class FieldMenu {
     }
     const acts = [];
     if (iAmLeader && (p?.supports?.length || 0) >= 1) acts.push({ label: 'ならびを変える', value: { a: 'order' } });
+    if (g.me.wagon) acts.push({ label: '馬車', value: { a: 'wagon' } });
     const others = (g.players || []).filter((x) => x.sid !== g.sid && x.partyId !== p?.id && !x.away);
     if (iAmLeader) for (const o of others) acts.push({ label: `${o.name}をさそう`, value: { a: 'invite', sid: o.sid } });
     if (iAmLeader) for (const s of p?.supports || []) acts.push({ label: `${s.name}に酒場で待っていてもらう`, value: { a: 'dismiss', key: s.key, name: s.name } });
@@ -715,6 +722,13 @@ export class FieldMenu {
       onSelect: async (it) => {
         const v = it.value;
         if (!v) return;
+        if (v.a === 'wagon') {
+          this.sub.blur();
+          this.sub = null;
+          this.focusSub(wagonMenuView(this, true));
+          this.main.scrollTop = 0;
+          return;
+        }
         if (v.a === 'order') {
           this.sub.blur();
           const order = await this.pickOrder();
