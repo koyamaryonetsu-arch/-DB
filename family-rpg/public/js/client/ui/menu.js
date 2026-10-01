@@ -587,10 +587,11 @@ export class FieldMenu {
     // ドラクエの「さいきょう装備」: ふくろの 中で いちばん 強い ものを まとめて 装備
     items.push({ label: 'さいきょう装備', value: '__best' }, ...(this.myMates().length ? [{ label: 'みんなさいきょう装備', value: '__bestAll' }] : []));
     if (c.companion) box.append(el('div', { class: 'gold small', text: `${c.name}の装備` }));
-    if (c.species) box.append(el('div', { class: 'small muted', text: `装備できる物: ${gearText(c.species)}` }));
+    // 魔物の 装備できる 物（リストの 下に。リストが 画面から はみ出さない ように）
+    const gear = c.species ? el('div', { class: 'small muted', text: `装備できる物: ${gearText(c.species)}` }) : null;
     if (!active) {
       for (const it of items) box.append(el('div', { text: it.label }));
-      box.append(stats);
+      box.append(stats, ...(gear ? [gear] : []));
       return box;
     }
     const m = this.mkSub({
@@ -628,7 +629,7 @@ export class FieldMenu {
         setTimeout(() => { if (this.root) this.focusSub(this.equipView(true, who)); }, 200);
       },
     });
-    box.append(m.root, stats, detail);
+    box.append(m.root, stats, ...(gear ? [gear] : []), detail);
     return box;
   }
 

@@ -825,16 +825,17 @@ function artOf(sp) {
   return { def: { ...base, size: base.size.map((v) => Math.round(v * k)) }, tint: md.tint };
 }
 
-// たたかい用の え（small … フィールド用の ちいさい え）
+// たたかい用の え（small … フィールド用の ちいさい え。数なら その 大きさまで: ついてくる なかま など）
 export function monsterCanvas(sp, frame = 0, small = false) {
-  const key = `${sp}:${frame}:${small ? 1 : 0}`;
+  const key = `${sp}:${frame}:${small ? (small === true ? 1 : small) : 0}`;
   let c = cache.get(key);
   if (c) return c;
   const { def, tint } = artOf(sp);
   let [w, h] = def.size;
   if (small) {
     // フィールド用の ちいさい え（ふつうは 20ドットまで。とくべつな 大きい 魔物は def.field で すこし 大きく）
-    const k = Math.min(1, (def.field || 20) / Math.max(w, h));
+    const lim = Math.min(def.field || 20, small === true ? 99 : small);
+    const k = Math.min(1, lim / Math.max(w, h));
     w = Math.max(10, Math.round(w * k));
     h = Math.max(10, Math.round(h * k));
   }
