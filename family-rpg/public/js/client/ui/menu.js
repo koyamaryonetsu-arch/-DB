@@ -20,6 +20,7 @@ import { itemDetail, abilityDetail } from './info.js';
 import { makeCanvas, ctxOf } from '../render/pixel.js';
 import { monsterCanvas } from '../render/monsters.js';
 import { mapIconCanvas, boardIconURL } from '../render/boards.js';
+import { medalItemRow, walletView } from './casino.js';
 import { compareOne, compareTeam, whoItems } from './counter.js';
 import { faceURL } from '../field.js';
 import { partyRows } from './hud.js';
@@ -273,6 +274,8 @@ export class FieldMenu {
     const counts = new Map(c.items.map((e) => [e.id, e.n]));
     const items = sortItemIds(c.items.map((e) => e.id), mode).map((id) => ({ label: ITEMS[id].name, right: `×${counts.get(id)}`, value: id }));
     for (const k of c.keyItems) items.push({ html: `${ITEMS[k].name}<span class="tag gold">大事</span>`, value: k, key: true });
+    const medal = medalItemRow(c);
+    if (medal) items.push(medal);
     if (!items.length) {
       box.append(el('div', { class: 'muted', text: '何も持っていない。' }));
       if (active) setTimeout(() => this.back(), 600);
@@ -912,6 +915,8 @@ export class FieldMenu {
     const chests = Object.keys(c.chests || {}).length;
     const total = Object.values(MAPS).reduce((s, m) => s + m.chests.length, 0);
     box.append(el('div', { class: 'detail', text: `宝箱 ${chests}/${total}　倒した魔物 ${Object.values(c.kills || {}).reduce((s, x) => s + x, 0)}ひき` }));
+    const wallet = walletView(c);
+    if (wallet) box.append(wallet);
     return box;
   }
 

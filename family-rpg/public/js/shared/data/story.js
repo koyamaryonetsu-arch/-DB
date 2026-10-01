@@ -18,6 +18,7 @@ import { ABILITIES } from './abilities.js';
 import { learnedAbilities, comboUnlocked, hiraAllowed } from '../stats.js';
 import { HIRAMEKI, hiraRatio } from './hirameki.js';
 import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js';
+import { CASINO_SCRIPTS } from './story-casino.js';
 import { innSteps } from './inn.js';
 
 const V = (x, y) => [PLACES.village.x + x + 0.5, PLACES.village.y + y + 0.5];
@@ -569,5 +570,7 @@ function sageHints(x) {
 }
 
 Object.assign(SCRIPTS, CH2_SCRIPTS);
+// カジノ・メダル王・小さなメダル（story-casino.js）
+Object.assign(SCRIPTS, CASINO_SCRIPTS);
 
 export { comboUnlocked };

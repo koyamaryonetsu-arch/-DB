@@ -168,6 +168,10 @@ export function gameFiles() {
     'public/js/shared/world/sync.js', 'public/js/shared/world/merge.js', 'server/syncstore.js',
     'server/guard.js', 'server/funnel.js', 'server/funnel-cli.js',
     'server/index.js', 'server/main.js', 'server/update.js', 'server/storage.js', 'server/savedir.js',
+    // カジノ・小さなメダル・メダル王
+    'public/js/shared/data/casino.js', 'public/js/shared/data/items-casino.js', 'public/js/shared/data/story-casino.js',
+    'public/js/shared/world/casino.js', 'public/js/shared/maps/casino.js',
+    'public/js/client/ui/casino.js', 'public/js/client/render/casino.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

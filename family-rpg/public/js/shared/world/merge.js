@@ -16,6 +16,7 @@ import { ITEMS, SLOTS } from '../data/items.js';
 import { STORY_STEPS } from '../data/story.js';
 import { COMPANION_SLOTS } from '../data/companions.js';
 import { repairChar } from './save.js';
+import { COIN_MAX } from '../data/casino.js';
 
 const GOLD_MAX = 9999999;
 const clone = (x) => (x === undefined ? undefined : JSON.parse(JSON.stringify(x)));
@@ -144,6 +145,10 @@ function mergeBody(b, a, t, tLater) {
         break;
       }
       case 'monsterSeq': out.monsterSeq = Math.max(num(va), num(vt), 1); break;
+      // カジノの コイン（ふえた・へった ぶんを たす）と 小さなメダル（見つけた 場所・もらった ごほうびは 両方を 合わせる）
+      case 'coins': out.coins = Math.min(COIN_MAX, add(vb, va, vt)); break;
+      case 'medalSpots': case 'medalRewards': out[k] = eachKey(vb, va, vt, (x, y, z) => y ?? z); break;
+      case 'medalsGiven': out.medalsGiven = Math.max(num(va), num(vt)); break;
       case 'jobSys': out.jobSys = Math.max(num(va), num(vt)) || undefined; break;
       case 'createdAt': {
         const ts = [va, vt].filter(Number.isFinite);

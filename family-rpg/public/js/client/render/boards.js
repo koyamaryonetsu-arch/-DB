@@ -138,6 +138,36 @@ const ICONS = {
     ],
     pal: { w: '#e8eef8' },
   },
+  // 7（カジノ）
+  casino: {
+    rows: [
+      '.YYYYYYY.',
+      '.yyyyyyY.',
+      '......yY.',
+      '.....yY..',
+      '....yY...',
+      '....yY...',
+      '...yY....',
+      '...yY....',
+      '...yY....',
+    ],
+    pal: { Y: '#ffd84a', y: '#fff4b0' },
+  },
+  // 小さなメダル（メダル王の城）
+  medal: {
+    rows: [
+      '..bb.rr..',
+      '...brr...',
+      '...rrb...',
+      '..ooooo..',
+      '.oYYYYYo.',
+      '.oYWYYYo.',
+      '.oYYWYYo.',
+      '.oYYYYYo.',
+      '..ooooo..',
+    ],
+    pal: { b: '#3a64c8', r: '#e8303a', o: '#7a4a12', Y: '#f2c14e', W: '#fff6c0' },
+  },
 };
 
 ICONS.general = ICONS.item;
@@ -168,6 +198,8 @@ const BOARD = {
   church: ['#4a4ab8', '#1e1e5a', '#7a7ae0'],
   temple: ['#3a3a8a', '#141440', '#6a6ac8'],
   harbor: ['#2a7a8a', '#123a44', '#5aaab8'],
+  casino: ['#7a2a7a', '#3a0f3a', '#a84aa8'],
+  medal: ['#2a3a8a', '#101a44', '#5a6ac8'],
 };
 
 // たてものに かける かんばん（16×15）

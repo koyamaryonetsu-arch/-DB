@@ -10,6 +10,7 @@ import { TACTICS } from '../../shared/ai.js';
 import { itemDetail } from './info.js';
 import { playerSprite, followerSprite, faceURL } from '../field.js';
 import { shopUI, churchUI } from './shop.js';
+import { casinoUI } from './casino.js';
 
 export function openServiceUI(game, kind, data) {
   switch (kind) {
@@ -19,6 +20,8 @@ export function openServiceUI(game, kind, data) {
     case 'board': return boardUI(game, data);
     case 'starTrade': return starUI(game, data);
     case 'church': return churchUI(game, data);
+    // カジノ・メダル王（ui/casino.js）
+    case 'casino': case 'medalKing': return casinoUI(game, kind, data);
     default: return Promise.resolve();
   }
 }

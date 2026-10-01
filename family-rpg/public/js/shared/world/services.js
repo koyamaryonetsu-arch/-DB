@@ -12,6 +12,7 @@ import { DUAL_TECHS } from '../data/dual.js';
 import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings } from '../battle.js';
 import { PLACES } from '../maps/overworld.js';
 import { POS, SEA_PLACES } from '../maps/index.js';
+import { casinoOpen, casinoAction } from './casino.js';
 
 export function openService(world, s, kind, arg) {
   switch (kind) {
@@ -27,6 +28,8 @@ export function openService(world, s, kind, arg) {
     case 'board': return { posts: world.data.board || [] };
     case 'starTrade': return { trades: STAR_TRADES };
     case 'church': return churchInfo(world, s);
+    // カジノ・メダル王（casino.js）
+    case 'casino': case 'medalKing': return casinoOpen(world, s, kind, arg);
     default: return null;
   }
 }
@@ -88,6 +91,7 @@ export function serviceAction(world, s, msg) {
     world.markDirty();
   };
   switch (msg.kind) {
+    case 'casino': case 'medal': return casinoAction(world, s, msg);
     case 'shop': {
       const shop = SHOPS[s.openShop];
       if (msg.action === 'buy') {
