@@ -10,6 +10,8 @@ import { ITEMS } from '../data/items.js';
 import { JOBS } from '../data/jobs.js';
 import { newCharacter, computeStats, addItem, fullHeal, migrateJobs } from '../stats.js';
 import { mapState, spawnSymbols, moveSymbols, symbolSnapshot, symbolVisible } from './monsters.js';
+import { tickFieldChests, fieldChestSnap, fieldChestNear, openFieldChest } from './fieldchests.js';
+import { chestVanishes } from '../data/fieldchests.js';
 import { startFieldBattle, battleTick, battleCommand, battleLeave, joinBattle, mineOf } from './battles.js';
 import { runScript, runSteps } from './scripts.js';
 import { serviceAction, menuAction } from './services.js';
@@ -622,15 +624,21 @@ export class GameWorld {
     const tx = Math.floor(msg.x), ty = Math.floor(msg.y);
     if (Math.hypot(tx + 0.5 - s.x, ty + 0.5 - s.y) > 3) return;
     const key = ty * map.w + tx;
-    // たからばこ
+    // たからばこ（フィールドの 宝箱は 開けると きえる）
     const chest = map.chestAt.get(key);
-    if (chest && condOk(chest.show, hasFlag)) return this.openChest(s, chest);
+    if (chest && condOk(chest.show, hasFlag) && !(chestVanishes(map) && s.char.chests[chest.id])) return this.openChest(s, chest);
+    // フィールドに ランダムに 出る 宝箱（fieldchests.js）
+    const fc = fieldChestNear(this.mapStates.get(s.map), s, tx, ty);
+    if (fc) return runSteps(this, s, openFieldChest(this, s, mapState(this, s.map), fc));
     // 小さなメダル（つぼ・井戸・光る 場所 など。casino.js）
     const medal = medalSearchSteps(this, s, tx, ty);
     if (medal) return runSteps(this, s, medal);
-    // きらきら
-    const sp = map.sparkles?.find((k) => k.x === tx && k.y === ty);
-    if (sp) return this.pickSparkle(s, sp);
+    // きらきら（むいている マスの まわりと 自分の 足もとの、光っている もの）
+    const sp = this.sparkleNear(s, map, tx, ty);
+    if (sp?.medal) {
+      const st = medalSearchSteps(this, s, sp.x, sp.y);
+      if (st) return runSteps(this, s, st);
+    } else if (sp) return this.pickSparkle(s, sp);
     // 宝の地図の 場所（ほる）
     if (tryTreasureDig(this, s, tx, ty)) return;
     const tile = effectiveTile(map, tx, ty, this.hasFlagFn(s));
@@ -679,6 +687,25 @@ export class GameWorld {
     }
     this.markDirty();
     runSteps(this, s, steps);
+  }
+
+  // ひろえる きらきら（もう ひろって 光っていない ものは のぞく）。近い ものから
+  sparkleNear(s, map, tx, ty) {
+    const now = this.now();
+    let best = null, bd = Infinity;
+    for (const sp of map.sparkles || []) {
+      if (Math.abs(sp.x - tx) > 2 || Math.abs(sp.y - ty) > 2) continue;
+      if (now - (s.char.sparkles?.[sp.id] || 0) < SPARKLE_RESPAWN_MS) continue;
+      const dFace = Math.hypot(sp.x - tx, sp.y - ty);
+      const dMe = Math.hypot(sp.x + 0.5 - s.x, sp.y + 0.5 - s.y);
+      if (dFace > 1.01 && dMe > 1.6) continue;
+      const d = Math.min(dFace, dMe);
+      if (d < bd) {
+        bd = d;
+        best = sp;
+      }
+    }
+    return best;
   }
 
   pickSparkle(s, sp) {
@@ -888,6 +915,8 @@ export class GameWorld {
       const ms = mapState(this, mapId);
       spawnSymbols(this, ms, dt, players);
       moveSymbols(this, ms, dt, players.filter((p) => !p.away));
+      // フィールドの ランダムな 宝箱（fieldchests.js）
+      tickFieldChests(this, ms, dt, players);
     }
     pruneTreasureStates(this, byMap);
     // いちを おくる（10かい/びょう）
@@ -905,7 +934,10 @@ export class GameWorld {
           // 大鳥で とんでいる / なかまの 大鳥に いっしょに のっている
           ...(p.flying ? { air: 1, ride: ridingAlong(this, p) ? 1 : 0 } : {}),
         }));
-        for (const p of players) this.send(p, { t: 'snap', map: mapId, players: ps.filter((x) => x.sid !== p.id), syms: p.night ? syms.night : syms.day });
+        for (const p of players) {
+          const fc = fieldChestSnap(p, ms);
+          this.send(p, { t: 'snap', map: mapId, players: ps.filter((x) => x.sid !== p.id), syms: p.night ? syms.night : syms.day, ...(fc ? { fc } : {}) });
+        }
       }
     }
     // セーブ

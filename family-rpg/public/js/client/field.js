@@ -8,6 +8,7 @@ import { monsterCanvas, bigNpcCanvas } from './render/monsters.js';
 import { MONSTERS } from '../shared/data/monsters.js';
 import { makeCanvas, ctxOf, shade, flipCanvas } from './render/pixel.js';
 import { chestCanvas as chestCanvas3d } from './render/tex3d.js';
+import { chestVanishes } from '../shared/data/fieldchests.js';
 import { boardCanvas } from './render/boards.js';
 import { el } from './ui/dom.js';
 import { syncTreasureGates } from './ui/treasure.js';
@@ -122,6 +123,8 @@ export class Field {
     this.me = { x: 0, y: 0, dir: 'down', moving: false, trail: [], anim: 0 };
     this.others = new Map();
     this.syms = new Map();
+    // フィールドに ランダムに 出る 宝箱（サーバーの snap の fc）
+    this.fchests = [];
     this.actors = new Map();
     this.npcState = new Map();
     this.labels = new Map();
@@ -223,6 +226,7 @@ export class Field {
     if (changed) {
       this.scriptHidden.clear();
       this.syms.clear();
+      this.fchests = [];
       this.others.clear();
       this.npcState.clear();
       this.actors.clear();
@@ -272,7 +276,7 @@ export class Field {
     if (isBlocked(this.map, tx, ty, (f) => this.gateFlag(f))) return true;
     const key = ty * this.map.w + tx;
     const ch = this.map.chestAt.get(key);
-    if (ch && condOk(ch.show, (f) => this.hasFlag(f))) return true;
+    if (ch && condOk(ch.show, (f) => this.hasFlag(f)) && !this.chestGone(ch)) return true;
     for (const n of this.map.npcs) {
       if (!n.solid || n === forNpc || !this.npcVisible(n)) continue;
       const s = this.npcState.get(n.id);
@@ -562,6 +566,7 @@ export class Field {
   // ───────────── サーバーからの じょうほう ─────────────
   onSnap(msg) {
     if (msg.map !== this.mapId) return;
+    if (msg.fc) this.fchests = msg.fc.map(([id, x, y]) => ({ id, x, y }));
     const seen = new Set();
     for (const p of msg.players) {
       seen.add(p.sid);
@@ -743,21 +748,27 @@ export class Field {
         if (sp.x < x0 - 1 || sp.x > x1 + 1 || sp.y < y0 - 1 || sp.y > y1 + 1) continue;
         const last = this.game.me?.sparkles?.[sp.id] || 0;
         if (now - last < 20 * 60 * 1000) continue;
-        const ph = Math.floor(t / 180 + sp.x) % 6;
-        if (ph > 3) continue;
+        // いつも 見える（大きく・小さく またたく）
+        const ph = Math.floor(t / 170 + sp.x) % 6;
+        const L = ph === 1 || ph === 4 ? 5 : ph === 0 || ph === 3 ? 4 : 3;
         const px = sp.x * TS + 8 - camX, py = sp.y * TS + 8 - camY;
         ctx.fillStyle = ph % 2 ? '#ffffff' : '#fff6b0';
-        ctx.fillRect(px - 1, py - 3 + (ph === 2 ? 1 : 0), 2, 6);
-        ctx.fillRect(px - 3, py - 1, 6, 2);
+        ctx.fillRect(px - 1, py - L, 2, L * 2);
+        ctx.fillRect(px - L, py - 1, L * 2, 2);
+        if (L === 5) {
+          ctx.fillStyle = '#fff6b0';
+          for (const [dx, dy] of [[-3, -3], [2, -3], [-3, 2], [2, 2]]) ctx.fillRect(px + dx, py + dy, 1, 1);
+        }
       }
     }
     // ものを y の じゅんに ならべて かく
     const objs = [];
     const hasF = (f) => this.hasFlag(f);
     for (const ch of m.chests) {
-      if (!condOk(ch.show, hasF)) continue;
+      if (!condOk(ch.show, hasF) || this.chestGone(ch)) continue;
       objs.push({ y: ch.y + 0.95, draw: () => this.drawChest(ch, camX, camY) });
     }
+    for (const fc of this.fchests) objs.push({ y: fc.y + 0.95, draw: () => this.drawChest(fc, camX, camY) });
     for (const n of m.npcs) {
       if (!this.npcVisible(n) || n.sprite === 'none') continue;
       const s = this.npcState.get(n.id);
@@ -818,6 +829,16 @@ export class Field {
           ctx.fillRect(x * TS + 8 - R - camX, y * TS + 6 - R - camY, R * 2, R * 2);
         }
       }
+      // きらきらは 夜でも 光って 見える
+      for (const sp of this.litSparkles()) {
+        if (sp.x < x0 - 1 || sp.x > x1 + 1 || sp.y < y0 - 1 || sp.y > y1 + 1) continue;
+        const cx = sp.x * TS + 8 - camX, cy = sp.y * TS + 8 - camY;
+        const g = ctx.createRadialGradient(cx, cy, 1, cx, cy, 11);
+        g.addColorStop(0, `rgba(255, 246, 176, ${Math.min(1, na * 2.2)})`);
+        g.addColorStop(1, 'rgba(255, 246, 176, 0)');
+        ctx.fillStyle = g;
+        ctx.fillRect(cx - 11, cy - 11, 22, 22);
+      }
       ctx.globalCompositeOperation = 'source-over';
     }
     this.renderLabels(camX, camY);
@@ -843,13 +864,17 @@ export class Field {
         if (Math.abs(sp.x - this.me.x) > 24 || Math.abs(sp.y - this.me.y) > 24) continue;
         const last = this.game.me?.sparkles?.[sp.id] || 0;
         if (now - last < 20 * 60 * 1000) continue;
-        const ph = Math.floor(t / 180 + sp.x) % 6;
-        if (ph > 3) continue;
+        const ph = Math.floor(t / 170 + sp.x) % 6;
+        const L = ph === 1 || ph === 4 ? 5 : ph === 0 || ph === 3 ? 4 : 3;
         const p = P(sp.x + 0.5, sp.y + 0.5, 0.25);
         const k = Math.max(1, Math.round(p.k / 16));
         ctx.fillStyle = ph % 2 ? '#ffffff' : '#fff6b0';
-        ctx.fillRect(p.x - k, p.y - 3 * k + (ph === 2 ? k : 0), 2 * k, 6 * k);
-        ctx.fillRect(p.x - 3 * k, p.y - k, 6 * k, 2 * k);
+        ctx.fillRect(p.x - k, p.y - L * k, 2 * k, 2 * L * k);
+        ctx.fillRect(p.x - L * k, p.y - k, 2 * L * k, 2 * k);
+        if (L === 5) {
+          ctx.fillStyle = '#fff6b0';
+          for (const [dx, dy] of [[-3, -3], [2, -3], [-3, 2], [2, 2]]) ctx.fillRect(p.x + dx * k, p.y + dy * k, k, k);
+        }
       }
     }
     // なかまの しるし（たたかいちゅう・つうしんまち）
@@ -939,6 +964,17 @@ export class Field {
           ctx.fillRect(p.x - r, p.y - r, r * 2, r * 2);
         }
       }
+      // きらきらは 夜でも 光って 見える
+      for (const sp of this.litSparkles()) {
+        if (Math.abs(sp.x - this.me.x) > 24 || Math.abs(sp.y - this.me.y) > 24) continue;
+        const p = P(sp.x + 0.5, sp.y + 0.5, 0.25);
+        const r = 0.75 * p.k;
+        const g = ctx.createRadialGradient(p.x, p.y, 1, p.x, p.y, r);
+        g.addColorStop(0, `rgba(255, 246, 176, ${Math.min(1, na * 2.2)})`);
+        g.addColorStop(1, 'rgba(255, 246, 176, 0)');
+        ctx.fillStyle = g;
+        ctx.fillRect(p.x - r, p.y - r, r * 2, r * 2);
+      }
       ctx.globalCompositeOperation = 'source-over';
     }
     this.renderLabels(0, 0);
@@ -950,9 +986,10 @@ export class Field {
     const m = this.map;
     const hasF = (f) => this.hasFlag(f);
     for (const ch of m.chests) {
-      if (!condOk(ch.show, hasF)) continue;
+      if (!condOk(ch.show, hasF) || this.chestGone(ch)) continue;
       out.push({ key: 'c:' + ch.id, canvas: chestCanvas3d(!!this.game.me?.chests?.[ch.id]), x: ch.x + 0.5, y: ch.y + 0.8, anchor: 1, shadowScale: 1.3 });
     }
+    for (const fc of this.fchests) out.push({ key: 'f:' + fc.id, canvas: chestCanvas3d(false), x: fc.x + 0.5, y: fc.y + 0.8, anchor: 1, shadowScale: 1.3 });
     // お店の かんばん（かべの まえに うかべる。なかに いる たてものの かんばんは かくす）
     const inside = this.r3d?.inside;
     (m.boards || []).forEach((b, i) => {
@@ -1166,6 +1203,20 @@ export class Field {
       this.ctx.fillRect(px + w / 2 - 1, py - 6, 2, 3);
       this.ctx.fillRect(px + w / 2 - 1, py - 2, 2, 1);
     }
+  }
+
+  // まだ ひろって いない（光っている）きらきら
+  litSparkles() {
+    const list = this.map?.sparkles;
+    if (!list?.length) return [];
+    const now = Date.now();
+    const got = this.game.me?.sparkles || {};
+    return list.filter((sp) => now - (got[sp.id] || 0) >= 20 * 60 * 1000);
+  }
+
+  // フィールドの 宝箱は 開けると きえる（洞窟・塔・町の 宝箱は 開いた まま のこる）
+  chestGone(ch) {
+    return chestVanishes(this.map) && !!this.game.me?.chests?.[ch.id];
   }
 
   drawChest(ch, camX, camY) {

@@ -164,6 +164,8 @@ function mergeBody(b, a, t, tLater) {
       case 'monsterSeq': out.monsterSeq = Math.max(num(va), num(vt), 1); break;
       // カジノの コイン（ふえた・へった ぶんを たす）と 小さなメダル（見つけた 場所・もらった ごほうびは 両方を 合わせる）
       case 'coins': out.coins = Math.min(COIN_MAX, add(vb, va, vt)); break;
+      // フィールドの 宝箱を 開けた 数
+      case 'fieldChests': out.fieldChests = add(vb, va, vt) || undefined; break;
       case 'medalSpots': case 'medalRewards': out[k] = eachKey(vb, va, vt, (x, y, z) => y ?? z); break;
       case 'medalsGiven': out.medalsGiven = Math.max(num(va), num(vt)); break;
       case 'jobSys': out.jobSys = Math.max(num(va), num(vt)) || undefined; break;

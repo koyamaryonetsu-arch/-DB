@@ -975,7 +975,7 @@ export class FieldMenu {
     for (const [, n] of done) box.append(el('div', { class: 'kv' }, el('span', { class: 'muted', text: n }), el('span', { class: 'good', text: 'クリア！' })));
     const chests = Object.keys(c.chests || {}).length;
     const total = Object.values(MAPS).reduce((s, m) => s + m.chests.length, 0);
-    box.append(el('div', { class: 'detail', text: `宝箱 ${chests}/${total}　倒した魔物 ${Object.values(c.kills || {}).reduce((s, x) => s + x, 0)}ひき` }));
+    box.append(el('div', { class: 'detail', text: `宝箱 ${chests}/${total}　フィールドの宝箱 ${c.fieldChests || 0}こ　倒した魔物 ${Object.values(c.kills || {}).reduce((s, x) => s + x, 0)}ひき` }));
     const wallet = walletView(c);
     if (wallet) box.append(wallet);
     return box;
