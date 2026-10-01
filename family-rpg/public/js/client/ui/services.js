@@ -121,6 +121,8 @@ function jobUI(game) {
       items: render(),
       sound: (x) => game.audio.sfx(x),
       onMove: (it) => showJob(it.value),
+      // 左右で せつめいの まどを スクロール（覚える技を 最後まで 見られる）
+      onSide: (d) => { main.scrollBy({ top: d * main.clientHeight * 0.7, behavior: 'smooth' }); },
       onSelect: async (it) => {
         const c = target();
         if (!c) return;
@@ -194,20 +196,32 @@ function jobUI(game) {
         const pg = jobProgress(c, j);
         main.append(el('div', { class: 'small', text: pg.done ? `職業レベル ${lv}（★マスター）` : `職業レベル ${lv}　次まであと${pg.next}回勝つ` }));
       }
+      // 覚える技（全部。どんな 技か 短い せつめいつき）→ 強さの かたむき の じゅん
+      const learn = el('div', { class: 'small job-learn' });
+      learn.append(el('div', { class: 'gold', text: `覚える技（職業レベル）　全${job.learn.length}こ` }));
+      for (const [l, id] of job.learn) {
+        const a = ABILITIES[id];
+        const got = lv >= l;
+        const row = el('div', { class: `jl-row ${got ? 'good' : 'muted'}` },
+          el('span', { class: 'jl-lv', text: `Lv${l}` }),
+          el('span', { class: 'jl-name', text: `${secretReq ? '？？？' : a.name}${got ? '（覚えた）' : ''}` }));
+        if (!secretReq && a?.desc) row.append(el('div', { class: 'jl-desc', text: a.desc }));
+        learn.append(row);
+      }
+      main.append(learn);
       const bars = el('div', { class: 'statbars', style: { margin: '0.5em 0' } });
       for (const [k, n] of [['hp', 'HP'], ['mp', 'MP'], ['str', '力'], ['def', '身の守り'], ['agi', '素早さ'], ['mag', '魔力'], ['heal', '回復']]) {
         const v = job.mods[k];
         bars.append(el('span', { text: n }), el('div', { class: 'b' }, el('i', { style: { width: `${Math.min(100, v / 1.5 * 100)}%` } })), el('span', { class: v > 1 ? 'up' : v < 1 ? 'down' : '', text: `${Math.round(v * 100)}%` }));
       }
-      main.append(bars);
-      const learn = el('div', { class: 'small' });
-      learn.append(el('div', { class: 'gold', text: '覚える技（職業レベル）' }));
-      for (const [l, id] of job.learn) {
-        const a = ABILITIES[id];
-        learn.append(el('div', { class: lv >= l ? 'good' : 'muted', text: `Lv${l}　${secretReq ? '？？？' : a.name}${lv >= l ? '（覚えた）' : ''}` }));
-      }
-      main.append(learn);
-      main.append(el('div', { class: 'detail', text: `職業レベルは戦いに勝つと上がる（最大${JOB_MAX_LEVEL}）。ただし自分より${JOB_TRAIN_GAP + 1}つ以上レベルが低い敵ばかりだと修行にならない。\n基本職を2つマスターすると上級職、上級職をマスターすると超級職になれる（超級職は、上級職をマスターするとヒントが出る）。\n呪文の掛け合わせは、元の職業を合わせ持つ上級職以上で使える。\n他の職業で覚えた技も使えるが、MPが増えたり威力が下がることがある（元になった職業の技はだいじょうぶ）。\n酒場の仲間もここで転職できるよ。` }));
+      main.append(el('div', { class: 'small gold', text: '強さのかたむき' }), bars);
+      main.append(el('div', { class: 'detail', text: `職業レベルは戦いに勝つと上がる（最大${JOB_MAX_LEVEL}）。ただし、自分よりレベルが${JOB_TRAIN_GAP + 1}以上低い敵ばかりだと修行にならない。\n基本職を2つマスターすると上級職、上級職をマスターすると超級職になれる（超級職は、上級職をマスターするとヒントが出る）。\n呪文の掛け合わせは、元の職業を合わせ持つ上級職以上で使える。\n他の職業で覚えた技も使えるが、MPが増えたり威力が下がることがある（元になった職業の技はだいじょうぶ）。\n酒場の仲間もここで転職できる。\n（十字キーの左右で、このせつめいをスクロールできる）` }));
+      // 下に つづく ときの しるし
+      const more = el('div', { class: 'scroll-more', text: '▼ 下に続く' });
+      main.append(more);
+      const upd = () => { more.hidden = main.scrollTop + main.clientHeight >= main.scrollHeight - 4; };
+      main.onscroll = upd;
+      requestAnimationFrame(upd);
     };
     menu.focus();
   });

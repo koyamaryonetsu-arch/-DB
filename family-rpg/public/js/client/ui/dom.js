@@ -30,8 +30,10 @@ export function esc(s) {
 export class ListMenu {
   // press: えらんだ ボタンを この ミリ秒 光らせてから すすむ（どれを おしたか わかるように）
   // start: はじめに カーソルを おく ばんごう（まえに えらんだ ところ など）
-  constructor(input, { items = [], cols = 1, onSelect, onCancel, onMove, sound, className = '', back, press = 0, start = -1 } = {}) {
+  // onSide: 1れつの リストで 左右を おした とき（タブを かえる・せつめいを スクロール など）。-1 か 1
+  constructor(input, { items = [], cols = 1, onSelect, onCancel, onMove, onSide, sound, className = '', back, press = 0, start = -1 } = {}) {
     this.input = input;
+    this.onSide = onSide || null;
     this.press = press;
     this.pressing = false;
     this.items = items;
@@ -180,8 +182,8 @@ export class ListMenu {
     switch (a) {
       case 'up': step(-cols); break;
       case 'down': step(cols); break;
-      case 'left': if (cols > 1) step(-1); break;
-      case 'right': if (cols > 1) step(1); break;
+      case 'left': if (cols > 1) step(-1); else this.onSide?.(-1); break;
+      case 'right': if (cols > 1) step(1); else this.onSide?.(1); break;
       case 'a': this.choose(); break;
       case 'b': this.cancel(); break;
       default:
