@@ -449,7 +449,9 @@ export class Game {
         break;
       case 'battleStart': return this.onBattleStart(m);
       case 'battleEv':
-        this.battle?.onEvents(m.evs);
+        // はじまりの えんしゅつ中は とっておいて、戦いの 画面が できてから わたす
+        if (this.battleEvBuf) this.battleEvBuf.push(m);
+        else this.battle?.onEvents(m.evs);
         break;
       case 'battleRej':
         toast(m.reason);
@@ -573,15 +575,21 @@ export class Game {
       this.battle.destroy();
       this.battle = null;
     }
+    // フラッシュの 間に とどいた できごと（自分の 番が きた など）を 落とさないように とっておく
+    const buf = [];
+    this.battleEvBuf = buf;
     if (!m.resume) {
       this.audio.sfx('encounter');
       this.state = 'battle-intro';
       await this.flash();
     }
+    if (this.battleEvBuf !== buf) return; // その 間に べつの 戦いが はじまった
+    this.battleEvBuf = null;
     this.hud.show(false);
     this.field.clearLabels();
     this.state = 'battle';
     this.battle = new BattleScene(this, m);
+    for (const x of buf) if (!x.id || x.id === this.battle.id) this.battle.onEvents(x.evs);
   }
 
   closeFieldUI() {
@@ -592,6 +600,8 @@ export class Game {
   }
 
   async onBattleEnd(m) {
+    // はじまりの えんしゅつ中に おわった ときは、画面が できるのを まつ
+    for (let i = 0; i < 40 && this.battleEvBuf && !this.battle; i++) await wait(50);
     const b = this.battle;
     if (!b) return;
     this.battleClosing = true;

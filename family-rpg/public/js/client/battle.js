@@ -116,6 +116,12 @@ export class BattleScene {
     if (msg.resume) this.say(['つなぎ直した！戦いの続きだ！']);
     else if (msg.joined) this.say([`${names}との戦いにかけつけた！`]);
     else this.say([msg.preemptive === 'ally' ? '魔物はまだこちらに気づいていない！' : msg.preemptive === 'enemy' ? '魔物たちがいきなりおそいかかってきた！' : `${names}が現れた！`]);
+    // はじまった ときに もう 番が きている 自分の キャラ（つなぎ直し・かけつけ など）
+    for (const id of this.mine) {
+      const c = this.c.get(id);
+      if (c?.ready && c.alive && !c.auto && !this.readyQ.includes(id)) this.readyQ.push(id);
+    }
+    if (this.readyQ.length) this.nextCommand();
   }
 
   enemyNames() {
