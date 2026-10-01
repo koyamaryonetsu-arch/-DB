@@ -100,6 +100,8 @@ export class BattleScene {
     // 戦いの 速さ（エフェクト）と 文字の 速さ（サーバーと おなじ あたい）
     this.fxSpeed = msg.snap.speed || 1;
     this.textSpeed = msg.snap.textSpeed || 1;
+    // ウェイト: だれか（人）が コマンドを えらんでいる 間は ゲージが 止まる（サーバーと おなじ きまり）
+    this.waitMode = !!msg.snap.wait;
     this.fx = new Effects();
     this.bg = battleBackground(msg.snap.bg);
     this.queue = [];
@@ -1187,8 +1189,8 @@ export class BattleScene {
       this.ended = true;
       this.closeMenus();
     }
-    // ゲージを なめらかに
-    const locked = !!this.showing;
+    // ゲージを なめらかに（ウェイトで だれかが えらんでいる 間は 1ミリも うごかさない）
+    const locked = !!this.showing || this.choosingPause();
     for (const c of this.c.values()) {
       if (!c.alive || c.ready || locked) continue;
       if (c.rate && c.atb < 100) c.atb = Math.min(99.5, c.atb + c.rate * dt * (this.fxSpeed || 1) * 0.6);
@@ -1205,6 +1207,13 @@ export class BattleScene {
     this.fx.update(dt); // はやさは fx.tempo で かける
     this.updateGauges();
     this.draw();
+  }
+
+  // サーバーの「ウェイトモードで 止まっている」と おなじ かんがえかた
+  choosingPause() {
+    if (!this.waitMode) return false;
+    for (const c of this.c.values()) if (c.side === 'ally' && c.controller && !c.auto && c.alive && c.ready) return true;
+    return false;
   }
 
   computeLayout() {
