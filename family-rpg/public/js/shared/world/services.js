@@ -16,6 +16,7 @@ import { castRura, warpParty, useTimeBell } from './travel.js';
 import { bankInfo, bankAction } from './bank.js';
 import { forgeInfo, forgeAction } from './forge.js';
 import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction } from './wagon.js';
+import { casinoOpen, casinoAction } from './casino.js';
 
 export function openService(world, s, kind, arg) {
   switch (kind) {
@@ -33,6 +34,8 @@ export function openService(world, s, kind, arg) {
     case 'church': return churchInfo(world, s);
     case 'bank': return bankInfo(world, s, arg);
     case 'forge': return forgeInfo(world, s, arg);
+    // カジノ・メダル王（casino.js）
+    case 'casino': case 'medalKing': return casinoOpen(world, s, kind, arg);
     default: return null;
   }
 }
@@ -97,6 +100,7 @@ export function serviceAction(world, s, msg) {
     world.markDirty();
   };
   switch (msg.kind) {
+    case 'casino': case 'medal': return casinoAction(world, s, msg);
     case 'shop': {
       const shop = SHOPS[s.openShop];
       if (msg.action === 'buy') {

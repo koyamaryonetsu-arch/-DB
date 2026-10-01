@@ -25,6 +25,7 @@ import { isNightFor } from './clock.js';
 import { onFly, setFlying, moveAllowed, ridingAlong, canFlyMap } from './travel.js';
 import { migrateSky } from '../data/sky.js';
 import { wagonLook } from './wagon.js';
+import { medalSearchSteps, medalChestSteps } from './casino.js';
 
 export const PROTOCOL_VERSION = 1;
 const SPARKLE_RESPAWN_MS = 20 * 60 * 1000;
@@ -623,6 +624,9 @@ export class GameWorld {
     // たからばこ
     const chest = map.chestAt.get(key);
     if (chest && condOk(chest.show, hasFlag)) return this.openChest(s, chest);
+    // 小さなメダル（つぼ・井戸・光る 場所 など。casino.js）
+    const medal = medalSearchSteps(this, s, tx, ty);
+    if (medal) return runSteps(this, s, medal);
     // きらきら
     const sp = map.sparkles?.find((k) => k.x === tx && k.y === ty);
     if (sp) return this.pickSparkle(s, sp);
@@ -653,6 +657,7 @@ export class GameWorld {
   openChest(s, chest) {
     const c = s.char;
     if (c.chests[chest.id]) return runSteps(this, s, [['say', null, '宝箱は空っぽだ。']]);
+    if (chest.medal) return runSteps(this, s, medalChestSteps(this, s, chest));
     // 手伝いに 来ている ときは、ものがたりの 大事な物は とらない（自分の 冒険で）
     if (!chest.gold && ITEMS[chest.item]?.type === 'key' && this.hostOf(s)) {
       return runSteps(this, s, [['say', null, '宝箱には、大切な物が入っているみたいだ。\n自分の冒険のときに開けよう。']]);

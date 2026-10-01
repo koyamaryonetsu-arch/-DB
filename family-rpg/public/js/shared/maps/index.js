@@ -7,6 +7,7 @@ import { npc } from './npc.js';
 import { buildCh2Maps, SEA_PLACES } from './ch2.js';
 import { buildTreasureFloor } from './treasure-cave.js';
 import { addNightNpcs } from './night-npcs.js';
+import { attachCasino } from './casino.js';
 
 const V = (x, y) => [PLACES.village.x + x, PLACES.village.y + y];
 const TW = (x, y) => [PLACES.town.x + x, PLACES.town.y + y];
@@ -255,6 +256,8 @@ function buildMaps() {
     spawnCounts: { cave2: 10 },
   };
   Object.assign(maps, buildCh2Maps());
+  // カジノ・メダル王の城・小さなメダル（maps/casino.js）
+  attachCasino(maps);
   // 夜の 町・村（夜だけ 出る 人・夜は 家に 帰る 人）
   addNightNpcs(maps);
   for (const m of Object.values(maps)) finishMap(m);

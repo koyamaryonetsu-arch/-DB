@@ -610,7 +610,7 @@ export class Field {
     const npc = this.npcNear(fx, fy) || (TILE_INFO[tileAt(this.map, tx, ty)]?.talkThrough ? this.npcNear(fx + d[0], fy + d[1]) : null);
     if (npc) {
       const s = this.npcState.get(npc.id);
-      if (s && !npc.big && !['none', 'flower', 'starstone', 'windstone', 'spring', 'ship'].includes(npc.sprite)) {
+      if (s && !npc.big && !['none', 'flower', 'starstone', 'windstone', 'spring', 'ship', 'slot'].includes(npc.sprite)) {
         s.dir = { up: 'down', down: 'up', left: 'right', right: 'left' }[me.dir];
         s.moving = false;
         s.goal = null;

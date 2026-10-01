@@ -81,6 +81,9 @@ const ARMOR_LOOK = {
   jelly_robe: { outfit: 'robe', robeMain: '#5ab8f0', robeTrim: '#e0f4ff' },
   shell_mail: { outfit: 'chain', cloth: '#f0b8a8' },
   dragon_mail: { outfit: 'armor', cloth: '#2aa06a' },
+  // カジノ・メダル王
+  starry_cloak: { outfit: 'robe', robeMain: '#2a2e6a', robeTrim: '#f2c14e' },
+  kira_mail: { outfit: 'starmail' },
 };
 
 // かぶと・ぼうしの みため
@@ -91,6 +94,8 @@ const HEAD_LOOK = {
   iron_helm: { hat: 'helmet' },
   bb_helmet: { hat: 'bbcap', hatColor: '#2a3a8a' },
   feather_hat: { hat: 'feather' },
+  mystic_hat: { hat: 'wizard', hatColor: '#2a8a7a' },
+  medal_crown: { hat: 'crown' },
 };
 
 // ぶきの いろ
@@ -129,6 +134,8 @@ const WEAPON_LOOK = {
   flame_sword: { blade: '#ff8a4a', guard: '#8a2a1a', glow: '#ffe07a' },
   thunder_staff: { blade: '#3a3a5a', orb: '#ffe066' },
   storm_sword: { blade: '#bff0e0', guard: '#2a8a6a', glow: '#ffffff' },
+  hayabusa_sword: { blade: '#dff0ff', guard: '#3a7ad0' },
+  kira_sword: { blade: '#f4fbff', guard: '#f2c14e', glow: '#ffffff' },
 };
 
 // たての いろ
@@ -138,6 +145,8 @@ const SHIELD_LOOK = {
   iron_shield: { main: '#b8bccb', rim: '#6d7184', boss: '#f2c14e', metal: true },
   briefcase: { main: '#4a3226', rim: '#22160f', boss: '#c8a040' },
   dragon_shield: { main: '#2aa06a', rim: '#14603a', boss: '#f2c14e', metal: true },
+  pururin_shield: { main: '#4aa0e8', rim: '#2a5a9a', boss: '#e0f4ff' },
+  kira_shield: { main: '#d8e4f4', rim: '#8a9ab8', boss: '#f2c14e', metal: true },
 };
 
 // NPCの みため
@@ -176,6 +185,11 @@ const NPC_LOOKS = {
   banker_m: { hair: 5, hairStyle: 'short', skin: 0, outfit: 'vest', cloth: '#3a4a6a', glasses: true, beard: true },
   smith: { hair: 0, hairStyle: 'bald', skin: 1, outfit: 'apron', cloth: '#5a3a2a', beard: true, hat: 'headband', hatColor: '#c83a3a' },
   apprentice: { hair: 3, hairStyle: 'spiky', skin: 1, outfit: 'apron', cloth: '#6a4a2a', hat: 'bandana', hatColor: '#3f7fd0' },
+  // カジノ・メダル王の城
+  dealer: { hair: 0, hairStyle: 'short', skin: 0, outfit: 'vest', cloth: '#1e1e30' },
+  casino_clerk: { hair: 3, hairStyle: 'pony', skin: 0, outfit: 'vest', cloth: '#8a2a5a', female: true },
+  medal_king: { hair: 5, hairStyle: 'bald', skin: 0, outfit: 'robe', robeMain: '#c8303a', robeTrim: '#f2c14e', beard: true, hat: 'crown' },
+  minister: { hair: 5, hairStyle: 'short', skin: 0, outfit: 'robe', robeMain: '#3a5a9a', robeTrim: '#f2c14e', beard: true },
 };
 
 // そうびの かきかた: 'ぶき,よろい,たて,あたま' の もじれつ か { weapon, armor, shield, head }
@@ -1124,6 +1138,21 @@ function drawHat(p, dir, f, o) {
       }
       break;
     }
+    case 'crown': {
+      // 王さまの かんむり（金・赤と 青の 宝石）
+      const g = '#f2c14e', gD = '#b8862a', gL = '#fff0a0', j = '#e8303a', b = '#3a64c8';
+      p.tag = 'gold';
+      if (side) {
+        p.rect(8, 4, 14, 4, g); p.hline(8, 21, 4, gL); p.hline(8, 21, 7, gD);
+        for (const x of [8, 13, 19]) { p.rect(x, 1, 3, 3, g); p.set(x + 1, 0, gL); }
+        p.set(14, 5, j); p.set(15, 5, j);
+      } else {
+        p.rect(7, 4, 18, 4, g); p.hline(7, 24, 4, gL); p.hline(7, 24, 7, gD);
+        for (const x of [7, 12, 17, 22]) { p.rect(x, 1, 3, 3, g); p.set(x + 1, 0, gL); }
+        if (dir === 'down') { p.rect(15, 5, 2, 2, j); p.set(10, 5, b); p.set(21, 5, b); }
+      }
+      break;
+    }
     case 'helmet': {
       const m = '#b8bccb', mD = '#7d8194', mL = '#eef0f6', g = '#f2c14e';
       if (side) {
@@ -1741,6 +1770,35 @@ export function paintSpecial(kind, dir, f) {
     case 'spring': {
       p.ellipse(8, 15, 7, 4, '#8a8aa0'); p.ellipse(8, 14.5, 6, 3, '#6ab8f0'); p.ellipse(8, 14, 3.5, 1.5, '#b8e4ff');
       if (f) { p.set(6, 11, '#e0f4ff'); p.set(10, 10, '#e0f4ff'); } else { p.set(8, 10, '#e0f4ff'); }
+      oc = OUT;
+      break;
+    }
+    case 'slot': {
+      // スロットマシン（上の ランプが ちかちか 光る）
+      const [a, b] = f ? ['#ff5a5a', '#fff080'] : ['#fff080', '#ff5a5a'];
+      p.stamp(0, 0, [
+        '................',
+        '...gggggggggg...',
+        `..g${'ab'.repeat(5)}g..`,
+        '..gggggggggggg..',
+        '.MMMMMMMMMMMMMM.',
+        '.MmmmmmmmmmmmmM.',
+        '.MmKKKKKKKKKKmMo',
+        '.MmKWWKWWKWWKmMs',
+        '.MmKWrKWyKWcKmMs',
+        '.MmKWWKWWKWWKmMs',
+        '.MmKKKKKKKKKKmMs',
+        '.MmmmmmmmmmmmmMs',
+        '.MMMMMMMMMMMMMM.',
+        '.MggggggggggggM.',
+        '.MmmmmmmmmmmmmM.',
+        '.MmmmmyyyymmmmM.',
+        '.MmmmmKKKKmmmmM.',
+        '.MmmmmmmmmmmmmM.',
+        '.MMMMMMMMMMMMMM.',
+        '.DDDDDDDDDDDDDD.',
+        '................',
+      ], { g: '#f2c14e', a, b, M: '#6a2468', m: '#8e3a8a', K: '#1a1a2a', W: '#f4f2fa', r: '#e8303a', y: '#f2c14e', c: '#3a9a3a', D: '#2a1030', o: '#e8303a', s: '#c8c8d8' });
       oc = OUT;
       break;
     }

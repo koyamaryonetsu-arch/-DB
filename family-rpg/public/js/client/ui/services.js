@@ -13,6 +13,7 @@ import { shopUI, churchUI } from './shop.js';
 import { bankUI } from './bank.js';
 import { forgeUI } from './forge.js';
 import { tavernWagonItems, tavernWagonOpts, tavernWagonAct } from './wagon.js';
+import { casinoUI } from './casino.js';
 
 export function openServiceUI(game, kind, data) {
   switch (kind) {
@@ -24,6 +25,8 @@ export function openServiceUI(game, kind, data) {
     case 'church': return churchUI(game, data);
     case 'bank': return bankUI(game, data);
     case 'forge': return forgeUI(game, data);
+    // カジノ・メダル王（ui/casino.js）
+    case 'casino': case 'medalKing': return casinoUI(game, kind, data);
     default: return Promise.resolve();
   }
 }
