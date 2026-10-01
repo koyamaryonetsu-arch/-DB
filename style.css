@@ -2152,14 +2152,18 @@ body.user-privileged #casesTable { --col-status-w: 176px; }
    ============================================================ */
 /* ④ 期限は文字のすぐ右に（文字が横いっぱいに広がって期限が右端へ離れていた） */
 .cell-task-list .task-text, .task-item .task-text { flex: 0 1 auto; }
-/* ④ ✎ はマウスを乗せた時だけセルの右上に出す（今までは ✎ だけで1段使っていた） */
-td.task-col { position: relative; padding-right: 38px !important; }
+/* ④ 「＋ 追加」はセルの右上に重ねて常に出す（1段使わない）。
+   ※一時マウスを乗せた時だけ出していたが、追加の入口が見えず「追加できない」状態になったため常時表示に戻した */
+td.task-col { position: relative; padding-right: 78px !important; }
 td.task-col .task-open-btn {
-  position: absolute; top: 5px; right: 6px; margin: 0; width: 26px; height: 24px; padding: 0;
-  line-height: 22px; text-align: center; border-radius: 6px; opacity: 0; transition: opacity .1s;
+  position: absolute; top: 5px; right: 6px; margin: 0; height: 24px; padding: 0 8px;
+  line-height: 22px; text-align: center; border-radius: 6px; white-space: nowrap;
+  color: #2563eb; border-color: #bfd3fb; background: #fff; font-weight: 600;
 }
-tr:hover td.task-col .task-open-btn, td.task-col .task-open-btn:focus-visible { opacity: 1; }
-@media (hover: none) { td.task-col .task-open-btn { opacity: 1; } }
+td.task-col .task-open-btn:hover { background: #eff6ff; }
+/* 「（なし）」を押しても追加画面が開く */
+td.task-col .task-empty { cursor: pointer; }
+td.task-col .task-empty:hover { color: #2563eb; }
 /* ⑧ 「タスク管理」ボタンの未完了件数（期限切れがあると赤・無ければ黄） */
 .task-badge { margin-left: 5px; }
 .task-badge.ok { background: #f59e0b; color: #1f2a44; }
