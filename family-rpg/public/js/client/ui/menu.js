@@ -24,6 +24,8 @@ import { compareOne, compareTeam, whoItems } from './counter.js';
 import { faceURL } from '../field.js';
 import { partyRows } from './hud.js';
 import { questMarks, subQuests, OBJECTIVE_TARGETS, whereName } from '../../shared/data/quest-targets.js';
+import { treasureRows, treasureDetail, openTreasureMap } from './treasure.js';
+import { themeHex } from '../render/themes.js';
 
 const MAIN = [
   { label: '道具', value: 'items' },
@@ -273,6 +275,7 @@ export class FieldMenu {
     const counts = new Map(c.items.map((e) => [e.id, e.n]));
     const items = sortItemIds(c.items.map((e) => e.id), mode).map((id) => ({ label: ITEMS[id].name, right: `×${counts.get(id)}`, value: id }));
     for (const k of c.keyItems) items.push({ html: `${ITEMS[k].name}<span class="tag gold">大事</span>`, value: k, key: true });
+    items.push(...treasureRows(c)); // 宝の地図
     if (!items.length) {
       box.append(el('div', { class: 'muted', text: '何も持っていない。' }));
       if (active) setTimeout(() => this.back(), 600);
@@ -295,7 +298,7 @@ export class FieldMenu {
       })));
     const m = this.mkSub({
       items,
-      onMove: (it) => { detail.textContent = it ? itemDetail(it.value) : ''; },
+      onMove: (it) => { detail.textContent = it ? (it.tmap ? treasureDetail(g, it.tmap) : itemDetail(it.value)) : ''; },
       onSelect: (it) => this.itemAction(it),
     });
     box.append(tabs, m.root, detail);
@@ -304,6 +307,7 @@ export class FieldMenu {
 
   async itemAction(entry) {
     const g = this.game;
+    if (entry.tmap) return openTreasureMap(this, entry.tmap);
     const it = ITEMS[entry.value];
     if (entry.key || it.type === 'key') return;
     const acts = [];
@@ -1043,7 +1047,7 @@ export function renderMiniMap(game, canvas, full = false) {
       if (mx < 0 || my < 0 || mx >= m.w || my >= m.h) continue;
       if (!f.isExplored(mx, my)) continue;
       const t = m.gates.length ? effectiveTile(m, mx, my, (fl) => f.gateFlag(fl)) : tileAt(m, mx, my);
-      ctx.fillStyle = MAP_COLORS[t] || (t >= 30 && t < 70 ? '#c8bfae' : '#555');
+      ctx.fillStyle = themeHex(MAP_COLORS[t] || (t >= 30 && t < 70 ? '#c8bfae' : '#555'), m.theme, t);
       ctx.fillRect(x * pxPer, y * pxPer, pxPer, pxPer);
     }
   }

@@ -18,6 +18,7 @@ import { ABILITIES } from './abilities.js';
 import { learnedAbilities, comboUnlocked, hiraAllowed } from '../stats.js';
 import { HIRAMEKI, hiraRatio } from './hirameki.js';
 import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js';
+import { TM_SCRIPTS, TM_STORY_SCRIPTS } from './story-tm.js';
 import { innSteps } from './inn.js';
 
 const V = (x, y) => [PLACES.village.x + x + 0.5, PLACES.village.y + y + 0.5];
@@ -32,7 +33,7 @@ export const STORY_STEPS = [
 ];
 
 // パーティー全員で みる ストーリーイベント
-export const STORY_SCRIPTS = new Set(['elder', 'star_flower', 'treant', 'carpenter', 'boss_event', 'mayor', 'opening', 'town_arrive', 'cave_enter', 'locked_door', ...CH2_STORY_SCRIPTS]);
+export const STORY_SCRIPTS = new Set(['elder', 'star_flower', 'treant', 'carpenter', 'boss_event', 'mayor', 'opening', 'town_arrive', 'cave_enter', 'locked_door', ...CH2_STORY_SCRIPTS, ...TM_STORY_SCRIPTS]);
 
 export const SCRIPTS = {
   // ───────────── じょしょう ─────────────
@@ -568,6 +569,6 @@ function sageHints(x) {
   return lines;
 }
 
-Object.assign(SCRIPTS, CH2_SCRIPTS);
+Object.assign(SCRIPTS, CH2_SCRIPTS, TM_SCRIPTS);
 
 export { comboUnlocked };

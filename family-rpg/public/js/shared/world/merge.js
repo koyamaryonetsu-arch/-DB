@@ -16,6 +16,7 @@ import { ITEMS, SLOTS } from '../data/items.js';
 import { STORY_STEPS } from '../data/story.js';
 import { COMPANION_SLOTS } from '../data/companions.js';
 import { repairChar } from './save.js';
+import { mergeTreasureMaps } from '../data/treasure.js';
 
 const GOLD_MAX = 9999999;
 const clone = (x) => (x === undefined ? undefined : JSON.parse(JSON.stringify(x)));
@@ -138,6 +139,7 @@ function mergeBody(b, a, t, tLater) {
       case 'sparkles': out.sparkles = eachKey(vb, va, vt, (x, y, z) => Math.max(num(y), num(z)) || undefined); break;
       case 'explored': out.explored = eachKey(vb, va, vt, (x, y, z) => orBits(y, z)); break;
       case 'keyItems': out.keyItems = mergeSet(vb, va, vt); break;
+      case 'treasureMaps': out.treasureMaps = mergeTreasureMaps(vb, va, vt); break;
       case 'supportLog': {
         const seen = new Set((vb || []).map(canon));
         out.supportLog = [...clone(va || []), ...clone((vt || []).filter((e) => !seen.has(canon(e))))].slice(-10);

@@ -10,6 +10,7 @@ const ROCK_RESIST = { fire: 0.5, ice: 0.7, wind: 0.6, blast: 1.5, poison: 0, sle
 const METAL_RESIST = { fire: 0, ice: 0, wind: 0, blast: 0, bolt: 0, light: 0, dark: 0, void: 0.5, sleep: 0, poison: 0, confuse: 0, blind: 0, silence: 0, paralyze: 0, debuff: 0 };
 
 import { MONSTERS_CH2 } from './monsters-ch2.js';
+import { MONSTERS_TM } from './monsters-tm.js';
 
 export const MONSTERS = {
   pururin: {
@@ -211,4 +212,4 @@ export const MONSTERS = {
     desc: 'なげきの洞窟にねむっていた岩のまじゅう。守り星の石の力で目覚めさせられた。',
   },
 };
-Object.assign(MONSTERS, MONSTERS_CH2);
+Object.assign(MONSTERS, MONSTERS_CH2, MONSTERS_TM);

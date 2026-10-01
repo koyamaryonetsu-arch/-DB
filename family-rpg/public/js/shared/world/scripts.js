@@ -291,6 +291,10 @@ export class ScriptRun {
           if (res !== 'win') return this.abort();
           break;
         }
+        case 'call':
+          // ほかの しくみの しょり（宝の地図など）。a[0](run) を まつ
+          await a[0](this);
+          break;
         case 'teleport': {
           const [map, x, y, dir] = a;
           const offs = [[0, 0], [-1, 0], [1, 0], [0, 1], [-1, 1], [1, 1]];

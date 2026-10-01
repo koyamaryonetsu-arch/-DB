@@ -9,6 +9,7 @@ import { ITEMS, SLOTS } from '../data/items.js';
 import { JOBS } from '../data/jobs.js';
 import { MONSTERS } from '../data/monsters.js';
 import { migrateJobs, oldComboUnlocks, addItem } from '../stats.js';
+import { repairTreasureMaps } from '../data/treasure.js';
 
 export const SAVE_VERSION = 4;
 
@@ -148,6 +149,7 @@ export function repairChar(c, id) {
       }
     }
   }
+  repairTreasureMaps(c); // 宝の地図（なくても よい）
   cleanStash(c);
   return c;
 }
