@@ -13,7 +13,7 @@
 
 export const MONSTERS_RARE = {
   pururin_knight: {
-    name: 'ぷるりん騎士', lv: 10, hp: 66, mp: 16, str: 40, def: 30, agi: 20, mag: 16, exp: 46, gold: 40,
+    name: 'ぷるりん騎士', lv: 10, hp: 74, mp: 16, str: 41, def: 31, agi: 20, mag: 16, exp: 52, gold: 44,
     race: 'slime', size: 'm', hit: 'slash',
     resist: { bolt: 1.2, fire: 0.8, sleep: 0.5 },
     drops: { common: ['jelly', 3], rare: ['stardust_sword', 64] },
@@ -21,7 +21,7 @@ export const MONSTERS_RARE = {
     desc: 'ぷるりんにまたがった小さな騎士。ぷるりんと息を合わせ、はずむように切りかかってくる。',
   },
   clockwork_knight: {
-    name: 'からくり騎士', lv: 15, hp: 118, str: 54, def: 52, agi: 22, mag: 20, exp: 74, gold: 56,
+    name: 'からくり騎士', lv: 15, hp: 150, str: 56, def: 54, agi: 22, mag: 20, exp: 92, gold: 64,
     race: 'material', size: 'm', hit: 'slash',
     resist: { bolt: 1.5, fire: 0.8, ice: 0.8, poison: 0, sleep: 0, confuse: 0.3, paralyze: 0.5 },
     drops: { common: ['iron_shard', 4], rare: ['thunder_sword', 64] },
@@ -32,7 +32,7 @@ export const MONSTERS_RARE = {
     desc: '昔の人が作った、からくりの騎士。今も洞窟のおくを守り続けている。目から光を放つ。雷に弱い。',
   },
   axe_rider: {
-    name: 'アックスライダー', lv: 16, hp: 128, mp: 20, str: 58, def: 40, agi: 32, mag: 20, exp: 82, gold: 62,
+    name: 'アックスライダー', lv: 16, hp: 142, mp: 20, str: 59, def: 40, agi: 32, mag: 20, exp: 94, gold: 66,
     race: 'dragon', size: 'l', flying: true, hit: 'slash',
     resist: { fire: 0.6, wind: 0.8, ice: 1.3, sleep: 0.5 },
     drops: { common: ['moonherb', 8], rare: ['dragon_axe', 64] },
@@ -40,7 +40,7 @@ export const MONSTERS_RARE = {
     desc: '小さな竜にまたがり、大きなオノをふるう竜の騎兵。空高くまい上がり、急降下してくる。',
   },
   ikazuchi_tiger: {
-    name: 'いかずちタイガー', lv: 15, hp: 104, mp: 20, str: 56, def: 32, agi: 46, mag: 24, exp: 76, gold: 48,
+    name: 'いかずちタイガー', lv: 15, hp: 132, mp: 20, str: 58, def: 33, agi: 46, mag: 24, exp: 90, gold: 54,
     race: 'beast', size: 'l', night: true, hit: 'bite',
     resist: { bolt: 0.2, wind: 0.8, ice: 1.3, paralyze: 0.3 },
     drops: { common: ['herb', 6], rare: ['seed_agi', 32] },
@@ -48,7 +48,7 @@ export const MONSTERS_RARE = {
     desc: 'いなずまのもようの、白く大きな虎。夜の島にあらわれ、雷のような速さで飛びかかる。',
   },
   great_dragon: {
-    name: 'ヴァルドラゴン', lv: 19, hp: 240, mp: 60, str: 66, def: 50, agi: 26, mag: 44, exp: 150, gold: 120,
+    name: 'ヴァルドラゴン', lv: 19, hp: 320, mp: 60, str: 70, def: 52, agi: 26, mag: 44, exp: 190, gold: 150,
     race: 'dragon', size: 'l',
     resist: { fire: 0.3, ice: 1.2, bolt: 0.8, wind: 0.8, sleep: 0.3, poison: 0.5, confuse: 0.3, paralyze: 0.3 },
     drops: { common: ['dragon_scale', 4], rare: ['dragon_eye', 64] },
