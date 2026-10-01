@@ -16,6 +16,7 @@ import { JOBS, JOB_MAX_LEVEL, jobBattlesForLevel } from '../data/jobs.js';
 import { ITEMS, SLOTS } from '../data/items.js';
 import { STORY_STEPS } from '../data/story.js';
 import { COMPANION_SLOTS } from '../data/companions.js';
+import { WAGON_SLOTS } from '../data/wagon.js';
 import { repairChar } from './save.js';
 import { mergeTreasureMaps } from '../data/treasure.js';
 
@@ -167,7 +168,9 @@ function mergeBody(b, a, t, tLater) {
         break;
       }
       case 'lastPlayed': case 'savedAt': out[k] = Math.max(num(va), num(vt)) || undefined; break;
-      case 'level': case 'companions': case 'items': case 'equip': case 'partyKeys': break; // あとで
+      // 馬車は どちらかで もらって いれば もっている
+      case 'wagon': out.wagon = va || vt ? true : undefined; break;
+      case 'level': case 'companions': case 'items': case 'equip': case 'partyKeys': case 'wagonKeys': break; // あとで
       default: out[k] = pick(vb, va, vt, tLater);
     }
     if (out[k] === undefined) delete out[k];
@@ -267,6 +270,14 @@ export function mergeChars(base, ours, theirs) {
   const keys = pick(b.partyKeys, a.partyKeys, tKeys, tLater) || [];
   const have = new Set((out.companions || []).map((e) => e.key));
   out.partyKeys = [...new Set(keys)].filter((k) => String(k).startsWith('fam:') || have.has(k)).slice(0, COMPANION_SLOTS);
+  // 馬車の 仲間（まものの 番号が かわった ぶんも あわせる。パーティーに いる 仲間は のぞく）
+  if (a.wagonKeys || t.wagonKeys) {
+    // 馬車の きろくが ない ほう（馬車の ない 版で 遊んだ）は、かわって いない ものと する
+    const tw = Array.isArray(t.wagonKeys) ? t.wagonKeys.map((k) => renamed.get(k) || k) : b.wagonKeys;
+    const aw = Array.isArray(a.wagonKeys) ? a.wagonKeys : b.wagonKeys;
+    const wk = pick(b.wagonKeys, aw, tw, tLater) || [];
+    out.wagonKeys = [...new Set(wk)].filter((k) => have.has(k) && !out.partyKeys.includes(k)).slice(0, WAGON_SLOTS);
+  }
 
   // 道具と そうび: 品物ごとに ふえた・へった 数を たして、そうびの ぶんを のぞいた のこりが ふくろ
   const IB = inventory(b), IA = inventory(a), IT = inventory(t);

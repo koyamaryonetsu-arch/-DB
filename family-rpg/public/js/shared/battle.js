@@ -140,6 +140,19 @@ export class Battle {
     return c;
   }
 
+  // 馬車の 仲間と 入れかわる: outId の 人は 戦いから ぬけ（fled・out）、init の 人が おなじ 場所に 入る
+  // （メッセージは よびだす がわ。world/wagon.js）
+  swapAlly(outId, init) {
+    const t = this.get(outId);
+    if (!t || t.side !== 'ally' || t.fled) return null;
+    this.queue = this.queue.filter((q) => q.id !== t.id);
+    Object.assign(t, { fled: true, out: true, ready: false, queued: false, defending: false, cover: null });
+    const c = this.addAlly(init);
+    c.slot = t.slot;
+    c.atb = this.rng.float(0, 40);
+    return c;
+  }
+
   addEnemies(list) {
     // list: ['pururin', 'pururin', 'goblin']
     const counts = {};
@@ -186,7 +199,8 @@ export class Battle {
     }
   }
 
-  get allies() { return this.combatants.filter((c) => c.side === 'ally'); }
+  // 馬車に もどった 人（fled）は のぞく
+  get allies() { return this.combatants.filter((c) => c.side === 'ally' && !c.fled); }
   get enemies() { return this.combatants.filter((c) => c.side === 'enemy' && !c.fled); }
   aliveAllies() { return this.allies.filter((c) => c.alive); }
   aliveEnemies() { return this.enemies.filter((c) => c.alive); }

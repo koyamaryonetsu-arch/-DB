@@ -11,6 +11,7 @@ import { MONSTERS } from '../data/monsters.js';
 import { migrateJobs, oldComboUnlocks, addItem } from '../stats.js';
 import { repairTreasureMaps } from '../data/treasure.js';
 import { normBank } from './bank.js';
+import { cleanWagon } from '../data/wagon.js';
 
 export const SAVE_VERSION = 4;
 
@@ -154,6 +155,8 @@ export function repairChar(c, id) {
     }
   }
   repairTreasureMaps(c); // 宝の地図（なくても よい）
+  // 馬車の 仲間（いなくなった 仲間の key は はずす）
+  cleanWagon(c);
   cleanStash(c);
   return c;
 }

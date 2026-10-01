@@ -13,6 +13,7 @@ import { MAPS } from '../maps/index.js';
 import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js';
 import { treasureAfterBattle } from './treasure.js';
 import { wipeGoldLoss, bankGold } from './bank.js';
+import { wagonShare, wagonBattleSwap } from './wagon.js';
 
 let battleSeq = 1;
 
@@ -239,6 +240,8 @@ export function battleCommand(world, s, msg) {
     }
     return;
   }
+  // 馬車の 仲間と いれかえ（world/wagon.js）
+  if (msg.cmd?.type === 'swap') return wagonBattleSwap(world, s, ctx, msg);
   const r = b.command(msg.actor, msg.cmd, s.id);
   if (!r.ok) world.send(s, { t: 'battleRej', reason: r.reason || 'できません' });
   // オートの 合体技は つぎの 戦いでも おぼえておく
@@ -339,6 +342,13 @@ function finishBattle(world, ctx) {
     }
     // なかま: たたかいに でた なかまだけ そだつ。家族の キャラには おれいが とどく
     const compLines = [];
+    const grow = (ch, x, trains) => {
+      for (const l of growCompanion(ch, x, trains)) {
+        if (typeof l === 'string') compLines.push(l);
+        else if (l.learn) compLines.push(learnLine({ name: l.who }, l.learn));
+        else if (l.job) compLines.push(...jobUpLines(ch, l.job));
+      }
+    };
     for (const a of b.allies) {
       const who = ctx.actorMap[a.id];
       if (who?.type !== 'support' || !who.char) continue;
@@ -347,12 +357,10 @@ function finishBattle(world, ctx) {
         continue;
       }
       const trains = !who.char.species && jobTrainable(who.char, maxEnemyLv) ? trainN : 0;
-      for (const l of growCompanion(who.char, exp, trains)) {
-        if (typeof l === 'string') compLines.push(l);
-        else if (l.learn) compLines.push(learnLine({ name: l.who }, l.learn));
-        else if (l.job) compLines.push(...jobUpLines(who.char, l.job));
-      }
+      grow(who.char, exp, trains);
     }
+    // 馬車の 仲間は 半分（world/wagon.js）
+    wagonShare(world, ctx, { exp, trainN, maxEnemyLv, grow, say: (l) => compLines.push(l) });
     if (compLines.length) for (const m of sessions) perSession[m.id].lines.push(...compLines);
     // まものが なかまに なりたがる（ふつうの たたかい だけ）
     if (!ctx.resolve && !b.boss && res.killed.length) {

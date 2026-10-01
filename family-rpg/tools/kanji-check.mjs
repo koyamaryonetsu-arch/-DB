@@ -179,6 +179,8 @@ export function gameFiles() {
     'public/js/shared/data/items-forge.js', 'public/js/shared/data/forge.js', 'public/js/shared/data/facilities.js',
     'public/js/shared/world/bank.js', 'public/js/shared/world/forge.js',
     'public/js/client/ui/bank.js', 'public/js/client/ui/forge.js',
+    // 馬車
+    'public/js/shared/data/wagon.js', 'public/js/shared/world/wagon.js', 'public/js/client/ui/wagon.js', 'public/js/client/render/wagon.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

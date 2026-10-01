@@ -15,6 +15,7 @@ import { POS, SEA_PLACES } from '../maps/index.js';
 import { castRura, warpParty, useTimeBell } from './travel.js';
 import { bankInfo, bankAction } from './bank.js';
 import { forgeInfo, forgeAction } from './forge.js';
+import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction } from './wagon.js';
 
 export function openService(world, s, kind, arg) {
   switch (kind) {
@@ -54,6 +55,8 @@ function churchInfo(world, s) {
     if (g.char.hp <= 0) dead.push({ ref: 'guest:' + g.id, name: g.char.name, price: revivePrice(g.char.level) });
     else if (g.char.status?.poison) poisoned.push({ ref: 'guest:' + g.id, name: g.char.name, price: CURE_PRICE });
   }
+  // 馬車の 仲間も（world/wagon.js）
+  wagonChurch(world, s, dead, poisoned, revivePrice, CURE_PRICE);
   return { dead, poisoned };
 }
 
@@ -73,6 +76,7 @@ function refChar(world, s, ref) {
     const p = partyOf(world, s);
     return p?.guests.find((x) => x.id === ref.slice(6))?.char || null;
   }
+  if (ref.startsWith('wagon:')) return wagonRefChar(world, s, ref);
   return null;
 }
 
@@ -189,7 +193,10 @@ export function serviceAction(world, s, msg) {
           if (r.ok) text = `${r.name}（${MONSTERS[r.species].name}＋${r.plus}）が生まれた！${r.joined ? '' : `\n${r.name}は酒場で待っている。`}`;
           break;
         default:
-          return;
+          // 馬車の 乗りかえ（world/wagon.js）
+          r = wagonTavernAction(world, s, msg);
+          if (!r) return;
+          text = r.text;
       }
       if (!r.ok) return reply(false, r.reason || 'できません', { full: !!r.full, tavern: tavernInfo(world, s) });
       return reply(true, text, { tavern: tavernInfo(world, s) });
@@ -401,6 +408,11 @@ export function menuAction(world, s, msg) {
     case 'fullHeal': {
       const r = msg.mode === 'item' ? fullHealByItems(world, s) : fullHealBySpells(world, s);
       return reply(r.ok, r.text);
+    }
+    // 馬車の 乗りかえ（world/wagon.js）
+    case 'wagon': {
+      const r = wagonMenuAction(world, s, msg);
+      return reply(r.ok, r.ok ? r.text : r.reason);
     }
     // パーティーの ならびかえ（先頭ほど 敵に ねらわれやすい）
     case 'order': {

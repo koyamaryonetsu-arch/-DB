@@ -13,6 +13,7 @@ import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js';
 import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js';
 import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js';
 import { abilityDetail, statusNames, buffNames } from './ui/info.js';
+import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js';
 
 // たたかいの え の こまかさ（おもい きかいで さげたら、その あいだは さげた まま）
 let battleRes = BRES;
@@ -218,12 +219,13 @@ export class BattleScene {
     this.cssK = k;
   }
 
-  allies() { return [...this.c.values()].filter((c) => c.side === 'ally'); }
+  // 馬車に もどった 人（fled・benched）と、まだ 出てきて いない 人（pending）は のぞく。まどは 場所（slot）の じゅん
+  allies() { return [...this.c.values()].filter((c) => c.side === 'ally' && !c.fled && !c.benched && !c.pending).sort((a, b) => (a.slot ?? 0) - (b.slot ?? 0)); }
   enemies() { return [...this.c.values()].filter((c) => c.side === 'enemy' && !c.fled); }
 
   renderStatus(full = false) {
     const allies = this.allies();
-    if (full || this.statusBoxes.size !== allies.length) {
+    if (full || this.statusBoxes.size !== allies.length || allies.some((a) => !this.statusBoxes.has(a.id))) {
       this.statusEl.innerHTML = '';
       this.statusBoxes.clear();
       for (const a of allies) {
@@ -362,6 +364,9 @@ export class BattleScene {
       { label: '防御', value: 'defend' },
       { label: '逃げる', value: 'flee', disabled: !this.canFlee },
     ];
+    // 馬車の 仲間と いれかえ（馬車が いっしょの とき。ui/wagon.js）
+    const wagon = battleWagon(this);
+    if (wagon) items.splice(items.length - 1, 0, { label: 'いれかえ', value: 'wagon', disabled: !wagon.outs.length || !wagon.ins.some((x) => x.hp > 0) });
     if (duals.length) items.splice(3, 0, { html: '<span class="dual-cmd">合体技</span>', value: 'dual', cls: 'k-dual' });
     if (this.bond >= 100) items.unshift({ html: '<span class="gold">★ミナデイン</span>', value: 'bond', cls: 'k-bond' });
     this.showMenu(items, (it) => {
@@ -374,6 +379,7 @@ export class BattleScene {
         case 'defend': return this.send({ type: 'defend' });
         case 'flee': return this.send({ type: 'flee' });
         case 'bond': return this.pickEnemy((t) => this.send({ type: 'bond', target: t }), 'ミナデインでねらう相手');
+        case 'wagon': return battleSwapMenu(this);
         default:
       }
     }, null, `${a.name}はどうする？`);
@@ -636,6 +642,8 @@ export class BattleScene {
         }
         case 'act':
         case 'msg':
+          // 馬車との いれかえは すぐ まどに（メッセージは じゅんばんに）
+          if (ev.swap) applyBattleSwap(this, ev);
           this.queue.push(ev);
           break;
         case 'dualInvite': {
@@ -797,6 +805,7 @@ export class BattleScene {
     if (fx.type === 'telegraph') { g.audio.sfx('warn'); this.banner('！大技が来る！防御で身を守れ！', 'danger'); }
     if (fx.type === 'bondStart') this.startBondPrompt(ev);
     if (fx.type === 'flee') g.audio.sfx('flee');
+    if (fx.type === 'wagon') wagonSwapFx(this, ev);
     if (ev.combo >= 2 && !ev.dual) this.banner(`れんけい ${ev.combo}！`, 'combo');
     if (anim === 'minadein') g.audio.sfx('bolt');
     if (anim && ANIM_SFX[anim]) g.audio.sfx(ANIM_SFX[anim]);
