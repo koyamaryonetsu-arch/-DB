@@ -1,5 +1,6 @@
 // たたかいの はじまりと おわり（ほうしゅう・ぜんめつ）
 import { Battle, normBattleSettings } from '../battle.js';
+import { scaleExp } from '../data/difficulty.js';
 import { MONSTERS } from '../data/monsters.js';
 import { ITEMS } from '../data/items.js';
 import { ABILITIES } from '../data/abilities.js';
@@ -318,9 +319,11 @@ function finishBattle(world, ctx) {
     const leaderName = sessions[0]?.char.name || '';
     for (const m of sessions) {
       const c = m.char;
+      // ゲームの むずかしさ（設定）で 経験値が へる（difficulty.js）
+      const myExp = scaleExp(c, exp);
       const lines = [];
       lines.push(res.killed.length ? '魔物たちをやっつけた！' : '戦いに勝った！');
-      if (exp > 0) lines.push(`${c.name}は${exp}ポイントの経験値をかくとく！`);
+      if (myExp > 0) lines.push(`${c.name}は${myExp}ポイントの経験値をかくとく！`);
       if (gold > 0) lines.push(`${gold}ゴールドを手に入れた！`);
       c.gold = Math.min(9999999, c.gold + gold);
       for (const sp of res.killed) c.kills[sp] = (c.kills[sp] || 0) + 1;
@@ -335,7 +338,7 @@ function finishBattle(world, ctx) {
           lines.push(`${MONSTERS[sp].name}は${ITEMS[id].name}を持っていた！`, `${c.name}は${ITEMS[id].name}を手に入れた！`);
         }
       }
-      const ups = gainExp(c, exp);
+      const ups = gainExp(c, myExp);
       for (const u of ups) {
         lines.push(`${c.name}のレベルが${u.level}に上がった！`);
         const g = Object.entries(u.gains).map(([k, v]) => `${statShort(k)}+${v}`).join('　');
@@ -363,11 +366,12 @@ function finishBattle(world, ctx) {
       const who = ctx.actorMap[a.id];
       if (who?.type !== 'support' || !who.char) continue;
       if (who.kind === 'family') {
-        if (who.char.ownerId) creditSupportOwner(world, who.char.ownerId, exp, gold, leaderName);
+        if (who.char.ownerId) creditSupportOwner(world, who.char.ownerId, scaleExp(world.data.characters[who.char.ownerId], exp), gold, leaderName);
         continue;
       }
       const trains = !who.char.species && jobTrainable(who.char, maxEnemyLv) ? trainN : 0;
-      grow(who.char, exp, trains);
+      // 仲間は もちぬしの むずかしさ
+      grow(who.char, scaleExp(world.data.characters[who.owner], exp), trains);
     }
     // 馬車の 仲間は 半分（world/wagon.js）
     wagonShare(world, ctx, { exp, trainN, maxEnemyLv, grow, say: (l) => compLines.push(l) });

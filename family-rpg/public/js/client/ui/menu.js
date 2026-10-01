@@ -25,6 +25,7 @@ import { compareOne, compareTeam, whoItems } from './counter.js';
 import { faceURL } from '../field.js';
 import { partyRows } from './hud.js';
 import { questMarks, subQuests, OBJECTIVE_TARGETS, whereName } from '../../shared/data/quest-targets.js';
+import { difficultyOf, visibleMarks, EXP_RATES, EXP_RATE_NAMES } from '../../shared/data/difficulty.js';
 import { memberTalk, talkFor } from '../../shared/data/party-talk.js';
 import { treasureRows, treasureDetail, openTreasureMap } from './treasure.js';
 import { themeHex } from '../render/themes.js';
@@ -960,7 +961,7 @@ export class FieldMenu {
       box.append(el('div', { class: 'detail', text: `${leader.name}の冒険を手伝っているあいだは、自分のストーリーは進みません。\nレベル・お金・道具はそのままもらえるよ。パーティーをぬけると、自分の冒険の場所にもどります。` }));
     }
     box.append(el('h3', { text: leader ? '自分の目標' : '今の目標' }), el('div', { class: 'q-main' }, el('i', { class: 'qdot qmain' }), c.objective || '（特になし）'));
-    const tgt = OBJECTIVE_TARGETS[c.objective || ''];
+    const tgt = difficultyOf(c).mainMarks && OBJECTIVE_TARGETS[c.objective || ''];
     if (tgt) box.append(el('div', { class: 'small muted', text: `行き先: ${whereName(tgt[tgt.length - 1])}（地図のピンクのしるし）` }));
     // たのまれごと（報告する 人は 地図に 水色・報告できる ときは みどり）
     const f = (k) => !!c.flags[k];
@@ -993,7 +994,15 @@ export class FieldMenu {
     const bden = { 1: '少なめ（大きく）', 2: 'ふつう', 3: '多め（3列）' }[battleDensityPref()];
     const vol = (v) => '■'.repeat(Math.round(v * 5)) + '□'.repeat(5 - Math.round(v * 5));
     const send = (patch) => g.net.send({ t: 'menu', action: 'settings', speed: cur.speed, textSpeed: cur.textSpeed, wait: !!bs.wait, auto: !!bs.auto, ...patch });
+    // ゲームの 難しさ（キャラごと。difficulty.js）
+    const dif = difficultyOf(c);
+    const sendDif = (patch) => g.net.send({ t: 'menu', action: 'settings', difficulty: patch });
     const items = [
+      { header: true, label: 'ゲームの難しさ', cls: 'set-hdr' },
+      { label: `目的地のしるし（メイン）：${dif.mainMarks ? '出す' : '出さない'}`, value: 'dMain' },
+      { label: `目的地のしるし（たのまれごと）：${dif.subMarks ? '出す' : '出さない'}`, value: 'dSub' },
+      { label: `もらえる経験値：${EXP_RATE_NAMES[dif.exp]}`, value: 'dExp' },
+      { header: true, label: '画面と音・戦い', cls: 'set-hdr' },
       { label: `戦いの速さ（エフェクト）：${sp}`, value: 'speed' },
       { label: `文字の速さ：${tsp}`, value: 'textSpeed' },
       { label: `戦いの文字の大きさ：${bfs}`, value: 'bfont' },
@@ -1004,7 +1013,7 @@ export class FieldMenu {
       { label: `文字の大きさ：${document.body.classList.contains('big-text') ? '大きい' : 'ふつう'}`, value: 'text' },
       { label: `字の形：${UI_FONTS[uiFontPref()]}`, value: 'font' },
     ];
-    if (g.field.constructor.webgl2()) items.unshift({ label: `画面：${g.field.view === '3d' ? '2.5D（立体）' : '2D（ドット）'}`, value: 'view' });
+    if (g.field.constructor.webgl2()) items.splice(items.findIndex((x) => x.value === 'speed'), 0, { label: `画面：${g.field.view === '3d' ? '2.5D（立体）' : '2D（ドット）'}`, value: 'view' });
     if (g.input.touch) {
       items.push({ label: `ウインドウの十字キー：${g.input.padOn ? '出す' : '出さない'}`, value: 'pad' });
       items.push({ label: `遊んでいる間は画面を消さない：${g.awakeOn ? 'ON' : 'OFF'}`, value: 'awake' });
@@ -1012,7 +1021,7 @@ export class FieldMenu {
     }
     const box = el('div');
     if (!active) {
-      for (const it of items) box.append(el('div', { text: it.label }));
+      for (const it of items) box.append(el('div', { class: it.header ? 'gold small' : '', text: it.label }));
       box.append(el('div', {
         class: 'detail',
         text: g.input.touch
@@ -1024,7 +1033,13 @@ export class FieldMenu {
     const m = this.mkSub({
       items,
       onSelect: (it) => {
-        if (it.value === 'speed') {
+        if (it.value === 'dMain') {
+          sendDif({ mainMarks: !dif.mainMarks });
+        } else if (it.value === 'dSub') {
+          sendDif({ subMarks: !dif.subMarks });
+        } else if (it.value === 'dExp') {
+          sendDif({ exp: EXP_RATES[(EXP_RATES.indexOf(dif.exp) + 1) % EXP_RATES.length] });
+        } else if (it.value === 'speed') {
           send({ speed: BATTLE_SPEEDS[(BATTLE_SPEEDS.indexOf(cur.speed) + 1) % BATTLE_SPEEDS.length] });
         } else if (it.value === 'textSpeed') {
           send({ textSpeed: TEXT_SPEEDS[(TEXT_SPEEDS.indexOf(cur.textSpeed) + 1) % TEXT_SPEEDS.length] });
@@ -1062,7 +1077,7 @@ export class FieldMenu {
         setTimeout(() => { if (this.root) this.focusSub(this.settingsView(true)); }, 200);
       },
     });
-    box.append(m.root, el('div', { class: 'detail', text: 'ウェイトをONにすると、コマンドを選ぶ間は戦いの時間が止まる（じっくり考えたい人におすすめ）' + (g.input.touch ? '\n画面が消えると家族との通信がとぎれやすいので「画面を消さない」はONがおすすめ' : '') }));
+    box.append(m.root, el('div', { class: 'detail', text: 'ゲームの難しさ: 目的地のしるしを「出さない」にすると、地図のしるしと仲間の「行き先は〇〇のほう」が出なくなる。経験値を0.75倍・0.5倍にすると、レベルが上がりにくくなる（仲間・馬車の仲間も同じ）。\nウェイトをONにすると、コマンドを選ぶ間は戦いの時間が止まる（じっくり考えたい人におすすめ）' + (g.input.touch ? '\n画面が消えると家族との通信がとぎれやすいので「画面を消さない」はONがおすすめ' : '') }));
     return box;
   }
 }
@@ -1146,7 +1161,7 @@ export function renderMiniMap(game, canvas, full = false) {
 const DIR8 = ['東', '南東', '南', '南西', '西', '北西', '北', '北東'];
 export function questDirection(game) {
   const f = game.field;
-  const m = questMarks(game.me, f.mapId, currentObjective(game)).find((x) => x.kind === 'main');
+  const m = visibleMarks(game.me, questMarks(game.me, f.mapId, currentObjective(game))).find((x) => x.kind === 'main');
   if (!m) return '';
   const dx = m.x + 0.5 - f.me.x, dy = m.y + 0.5 - f.me.y;
   const dist = Math.hypot(dx, dy);
@@ -1177,7 +1192,8 @@ export function currentObjective(game) {
   return game.visitingLeader?.() ? game.party?.objective : game.me?.objective;
 }
 function drawQuestMarks(game, ctx, canvas, x0, y0, pxPer, full) {
-  const marks = questMarks(game.me, game.field.mapId, currentObjective(game));
+  // ゲームの 難しさで 出さない しるしは かかない
+  const marks = visibleMarks(game.me, questMarks(game.me, game.field.mapId, currentObjective(game)));
   const t = performance.now();
   const pulse = 0.5 + 0.5 * Math.sin(t / 220);
   // 下から メインが いちばん うえに なるように
@@ -1263,10 +1279,12 @@ export function openWorldMap(game) {
   const cv = makeCanvas(10, 10);
   const head = el('div', { class: 'wm-head' }, el('span', { class: 'gold', text: game.field.map.name }),
     el('button', { class: 'btn closebtn', text: '✕ 閉じる', 'aria-label': '地図を閉じる' }));
-  const qlg = el('div', { class: 'map-legend small' },
-    el('span', { class: 'lg' }, el('i', { class: 'qdot qmain' }), '次の行き先'),
-    el('span', { class: 'lg' }, el('i', { class: 'qdot sub' }), 'たのまれごと'),
-    el('span', { class: 'lg' }, el('i', { class: 'qdot ready' }), '報告できる'));
+  // しるしの せつめい（ゲームの 難しさで 出さない しるしは のせない）
+  const dif = difficultyOf(game.me);
+  const qlg = dif.mainMarks || dif.subMarks ? el('div', { class: 'map-legend small' },
+    dif.mainMarks ? el('span', { class: 'lg' }, el('i', { class: 'qdot qmain' }), '次の行き先') : null,
+    dif.subMarks ? el('span', { class: 'lg' }, el('i', { class: 'qdot sub' }), 'たのまれごと') : null,
+    dif.subMarks ? el('span', { class: 'lg' }, el('i', { class: 'qdot ready' }), '報告できる') : null) : null;
   box.append(...[head, cv, qlg, mapLegend(game)].filter(Boolean), el('div', { class: 'small muted', text: `赤い点: 自分　黄色: パーティー　青: 家族　（${game.input.touch ? 'タップで閉じる' : 'B/Xで閉じる'}）` }));
   document.getElementById('ui').append(back, box);
   renderMiniMap(game, cv, true);

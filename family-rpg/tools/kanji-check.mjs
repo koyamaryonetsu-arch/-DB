@@ -161,7 +161,7 @@ export function gameFiles() {
     'public/js/shared/data/monsters.js', 'public/js/shared/data/shops.js', 'public/js/shared/data/story.js',
     'public/js/shared/maps/index.js', 'public/js/shared/maps/overworld.js', 'public/js/shared/maps/ch2.js', 'public/js/shared/maps/sea.js',
     'public/js/shared/data/abilities-ch2.js', 'public/js/shared/data/companions-ch2.js', 'public/js/shared/data/items-ch2.js',
-    'public/js/shared/data/monsters-ch2.js', 'public/js/shared/data/story-ch2.js', 'public/js/shared/data/quest-targets.js', 'public/js/client/prefs.js', 'public/js/shared/data/party-talk.js', 'public/js/shared/data/progress.js',
+    'public/js/shared/data/monsters-ch2.js', 'public/js/shared/data/story-ch2.js', 'public/js/shared/data/quest-targets.js', 'public/js/client/prefs.js', 'public/js/shared/data/party-talk.js', 'public/js/shared/data/progress.js', 'public/js/shared/data/difficulty.js',
     'public/js/shared/world/battles.js', 'public/js/shared/world/breed.js', 'public/js/shared/world/monsters.js',
     'public/js/shared/world/party.js', 'public/js/shared/world/scripts.js', 'public/js/shared/world/services.js',
     'public/js/shared/world/world.js', 'public/js/shared/world/save.js', 'public/js/shared/world/transfer.js',

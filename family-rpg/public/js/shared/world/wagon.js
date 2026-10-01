@@ -1,6 +1,7 @@
 // 馬車（サーバーの きまり）: もらう・乗りかえ・経験値の おすそわけ・たたかいでの いれかえ
 //   きまりの せつめいは data/wagon.js
 import { MAPS } from '../maps/index.js';
+import { scaleExp } from '../data/difficulty.js';
 import { COMPANION_SLOTS } from '../data/companions.js';
 import { JOBS } from '../data/jobs.js';
 import { WAGON_SLOTS, WAGON_EXP_RATE, hasWagon, cleanWagon } from '../data/wagon.js';
@@ -204,7 +205,8 @@ export function wagonShare(world, ctx, { exp, trainN, maxEnemyLv, grow, say }) {
   if (!hasWagon(lc) || !wagonHere(ctx.map)) return 0;
   const active = new Set(ctx.battle.allies.map((a) => ctx.actorMap[a.id]?.char).filter(Boolean));
   const list = wagonEntries(lc).filter((e) => !active.has(e.char) && e.char.hp > 0);
-  const x = Math.floor(exp * WAGON_EXP_RATE);
+  // 馬車の もちぬし（リーダー）の むずかしさで へらしてから 半分
+  const x = Math.floor(scaleExp(lc, exp) * WAGON_EXP_RATE);
   if (!list.length || (x <= 0 && !trainN)) return 0;
   if (x > 0) say(`馬車の仲間は${x}ポイントの経験値をかくとく！`);
   for (const e of list) {

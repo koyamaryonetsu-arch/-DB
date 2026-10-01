@@ -1,5 +1,6 @@
 // お店・やどや・きょうかい・転職・酒場・でんごんばん・メニュー操作
 import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js';
+import { normDifficulty } from '../data/difficulty.js';
 import { ITEMS, sellPrice, SLOTS } from '../data/items.js';
 import { JOBS, ALL_JOBS, jobReqText } from '../data/jobs.js';
 import { ABILITIES } from '../data/abilities.js';
@@ -449,6 +450,12 @@ export function menuAction(world, s, msg) {
         wait: msg.wait === undefined ? !!old.wait : !!msg.wait,
         auto: msg.auto === undefined ? !!old.auto : !!msg.auto,
       };
+      // ゲームの むずかしさ（difficulty.js）。ぜんぶ ふつうなら のこさない
+      if (msg.difficulty && typeof msg.difficulty === 'object') {
+        const d = normDifficulty(c.difficulty, msg.difficulty);
+        if (d) c.difficulty = d;
+        else delete c.difficulty;
+      }
       return reply(true, '設定を変えた。');
     }
     default:
