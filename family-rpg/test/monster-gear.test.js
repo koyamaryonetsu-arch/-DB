@@ -322,3 +322,19 @@ test('めずらしい 魔物: 仲間に なると 強いが、強すぎない（
     assert.ok(sum > others.map((o) => o.maxHp / 3 + o.atk + o.dfn + o.agi).sort((x, y) => x - y)[Math.floor(others.length / 2)], `${sp}: ふつうより 強い`);
   }
 });
+
+test('せつめい: 魔物の 装備できる 物・その 品を 装備できる 仲間の 魔物の 名前', async () => {
+  const { whoCanEquip, gearText } = await import('../public/js/client/ui/info.js');
+  assert.match(gearText('pururin_knight'), /武器（剣・やり・短剣）/);
+  assert.match(gearText('pururin_knight'), /たて/);
+  assert.doesNotMatch(gearText('pururin'), /武器/);
+  assert.match(gearText('pururin'), /よろい（服）・ぼうし・アクセサリー/);
+  assert.equal(whoCanEquip('power_ring'), 'だれでも装備できる');
+  const mons = [{ name: 'ランス', species: 'pururin_knight' }, { name: 'ぷるる', species: 'pururin' }];
+  const sword = whoCanEquip('iron_sword', mons);
+  assert.match(sword, /^装備: 戦士/);
+  assert.match(sword, /仲間の魔物: ランス$/);
+  assert.match(whoCanEquip('wood_bat', mons), /仲間の魔物は装備できない/);
+  assert.match(whoCanEquip('iron_sword'), /仲間の魔物 \d+種類/, '名前が 分からない ときは 数');
+  assert.ok(!whoCanEquip('iron_sword', []).includes('魔物'), 'まだ 魔物の なかまが いない ときは 書かない');
+});
