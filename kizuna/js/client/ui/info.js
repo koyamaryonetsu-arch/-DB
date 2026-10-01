@@ -1,10 +1,10 @@
 // せつめい文を つくる
-import { ITEMS, SLOT_NAMES, WEAPON_CAT_NAMES } from '../../shared/data/items.js?v=f30f56257291';
-import { ABILITIES, abilityTypeText } from '../../shared/data/abilities.js?v=f30f56257291';
-import { JOBS, ALL_JOBS } from '../../shared/data/jobs.js?v=f30f56257291';
-import { MONSTERS } from '../../shared/data/monsters.js?v=f30f56257291';
-import { MONSTER_FRIENDS } from '../../shared/data/companions.js?v=f30f56257291';
-import { computeStats, canEquip, canEquipMonster, monsterGear, penaltyFor, mpCost, comboJobNames, comboAllowed, jobPower } from '../../shared/stats.js?v=f30f56257291';
+import { ITEMS, SLOT_NAMES, WEAPON_CAT_NAMES } from '../../shared/data/items.js?v=98d662fd6fa3';
+import { ABILITIES, abilityTypeText } from '../../shared/data/abilities.js?v=98d662fd6fa3';
+import { JOBS, ALL_JOBS } from '../../shared/data/jobs.js?v=98d662fd6fa3';
+import { MONSTERS } from '../../shared/data/monsters.js?v=98d662fd6fa3';
+import { MONSTER_FRIENDS } from '../../shared/data/companions.js?v=98d662fd6fa3';
+import { computeStats, canEquip, canEquipMonster, monsterGear, penaltyFor, mpCost, comboJobNames, comboAllowed, jobPower } from '../../shared/stats.js?v=98d662fd6fa3';
 
 const TARGET_NAMES = { enemy: '敵1体', group: '敵1グループ', enemies: '敵全体', ally: '味方1人', allies: '味方全員', self: '自分', deadAlly: '死んだ味方' };
 const BONUS_NAMES = { str: '力', def: '身の守り', agi: '素早さ', mag: '魔力', heal: '回復', hp: 'HP', mp: 'MP' };

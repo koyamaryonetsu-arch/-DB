@@ -6,7 +6,7 @@
 // ・馬車は パーティーの リーダーの もの（家族と いっしょの ときは リーダーの 馬車が ついてくる）
 // ・洞窟や 塔の 中には 入れない（入り口で 待つ）。町の 中にも 入らない（門の そとで 待つ）
 // ・馬車の 仲間は、たたかいに 出なくても 経験値と 職業の 修行を 半分 もらえる（馬車が いっしょの とき）
-import { COMPANION_SLOTS } from './companions.js?v=f30f56257291';
+import { COMPANION_SLOTS } from './companions.js?v=98d662fd6fa3';
 
 // 馬車に 乗れる 人数
 export const WAGON_SLOTS = 4;
