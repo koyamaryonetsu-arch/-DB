@@ -1,17 +1,19 @@
 // たたかいの はじまりと おわり（ほうしゅう・ぜんめつ）
-import { Battle, normBattleSettings } from '../battle.js?v=d695815c3edd';
-import { MONSTERS } from '../data/monsters.js?v=d695815c3edd';
-import { ITEMS } from '../data/items.js?v=d695815c3edd';
-import { ABILITIES } from '../data/abilities.js?v=d695815c3edd';
-import { JOBS } from '../data/jobs.js?v=d695815c3edd';
-import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=d695815c3edd';
-import { gainExp, gainJobBattles, jobTrainable, itemCount, removeItem, addItem, ownsItem, computeStats, STAT_NAMES, fullHeal } from '../stats.js?v=d695815c3edd';
-import { JOB_MAX_LEVEL } from '../data/jobs.js?v=d695815c3edd';
-import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf } from './party.js?v=d695815c3edd';
-import { rollDrops, stealPick } from '../data/loot.js?v=d695815c3edd';
-import { MAPS } from '../maps/index.js?v=d695815c3edd';
-import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js?v=d695815c3edd';
-import { treasureAfterBattle } from './treasure.js?v=d695815c3edd';
+import { Battle, normBattleSettings } from '../battle.js?v=e2673ecbb09d';
+import { MONSTERS } from '../data/monsters.js?v=e2673ecbb09d';
+import { ITEMS } from '../data/items.js?v=e2673ecbb09d';
+import { ABILITIES } from '../data/abilities.js?v=e2673ecbb09d';
+import { JOBS } from '../data/jobs.js?v=e2673ecbb09d';
+import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=e2673ecbb09d';
+import { gainExp, gainJobBattles, jobTrainable, itemCount, removeItem, addItem, ownsItem, computeStats, STAT_NAMES, fullHeal } from '../stats.js?v=e2673ecbb09d';
+import { JOB_MAX_LEVEL } from '../data/jobs.js?v=e2673ecbb09d';
+import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf } from './party.js?v=e2673ecbb09d';
+import { rollDrops, stealPick } from '../data/loot.js?v=e2673ecbb09d';
+import { MAPS } from '../maps/index.js?v=e2673ecbb09d';
+import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js?v=e2673ecbb09d';
+import { treasureAfterBattle } from './treasure.js?v=e2673ecbb09d';
+import { wipeGoldLoss, bankGold } from './bank.js?v=e2673ecbb09d';
+import { wagonShare, wagonBattleSwap } from './wagon.js?v=e2673ecbb09d';
 
 let battleSeq = 1;
 
@@ -27,7 +29,8 @@ export function battleSessions(world, s) {
   for (const sid of p?.members || []) {
     if (sid === s.id) continue;
     const m = world.sessions.get(sid);
-    if (!m || !m.inWorld || m.busy || m.away || m.map !== s.map) continue;
+    // 大鳥で 空を とんでいる 人は まきこまれない（travel.js）
+    if (!m || !m.inWorld || m.busy || m.away || m.flying || m.map !== s.map) continue;
     if (Math.hypot(m.x - s.x, m.y - s.y) > JOIN_RADIUS) continue;
     out.push(m);
   }
@@ -36,7 +39,7 @@ export function battleSessions(world, s) {
 
 // たたかっている なかまの ところへ かけつけて さんかする（ふつうの たたかい だけ）
 export function joinBattle(world, s, targetSid) {
-  if (s.busy || s.away || !s.inWorld) return { ok: false };
+  if (s.busy || s.away || s.flying || !s.inWorld) return { ok: false };
   const t = world.sessions.get(targetSid);
   if (!t || t === s || t.busy !== 'battle' || t.partyId !== s.partyId || t.map !== s.map) return { ok: false };
   const ctx = world.battles.get(t.battleId);
@@ -209,7 +212,7 @@ export function startFixedBattle(world, initiator, participants, encId) {
   for (const [sp, mn] of enc.group) for (let i = 0; i < mn; i++) enemies.push(sp);
   return new Promise((resolve) => {
     for (const m of sessions) m.busy = null; // だいほんの あいだは busy='script' だが たたかいに きりかえる
-    const ctx = makeBattle(world, sessions, party, enemies, { bg: enc.bg, bgm: enc.bgm, canFlee: enc.canFlee, boss: enc.boss, fixed: encId, enemyLv: enc.enemyLv });
+    const ctx = makeBattle(world, sessions, party, enemies, { bg: enc.bg, bgm: enc.bgm, canFlee: enc.canFlee, boss: enc.boss, fixed: encId, enemyLv: enc.enemyLv, loseOk: !!enc.loseOk });
     ctx.resolve = resolve;
   });
 }
@@ -237,6 +240,8 @@ export function battleCommand(world, s, msg) {
     }
     return;
   }
+  // 馬車の 仲間と いれかえ（world/wagon.js）
+  if (msg.cmd?.type === 'swap') return wagonBattleSwap(world, s, ctx, msg);
   const r = b.command(msg.actor, msg.cmd, s.id);
   if (!r.ok) world.send(s, { t: 'battleRej', reason: r.reason || 'できません' });
   // オートの 合体技は つぎの 戦いでも おぼえておく
@@ -337,6 +342,13 @@ function finishBattle(world, ctx) {
     }
     // なかま: たたかいに でた なかまだけ そだつ。家族の キャラには おれいが とどく
     const compLines = [];
+    const grow = (ch, x, trains) => {
+      for (const l of growCompanion(ch, x, trains)) {
+        if (typeof l === 'string') compLines.push(l);
+        else if (l.learn) compLines.push(learnLine({ name: l.who }, l.learn));
+        else if (l.job) compLines.push(...jobUpLines(ch, l.job));
+      }
+    };
     for (const a of b.allies) {
       const who = ctx.actorMap[a.id];
       if (who?.type !== 'support' || !who.char) continue;
@@ -345,12 +357,10 @@ function finishBattle(world, ctx) {
         continue;
       }
       const trains = !who.char.species && jobTrainable(who.char, maxEnemyLv) ? trainN : 0;
-      for (const l of growCompanion(who.char, exp, trains)) {
-        if (typeof l === 'string') compLines.push(l);
-        else if (l.learn) compLines.push(learnLine({ name: l.who }, l.learn));
-        else if (l.job) compLines.push(...jobUpLines(who.char, l.job));
-      }
+      grow(who.char, exp, trains);
     }
+    // 馬車の 仲間は 半分（world/wagon.js）
+    wagonShare(world, ctx, { exp, trainN, maxEnemyLv, grow, say: (l) => compLines.push(l) });
     if (compLines.length) for (const m of sessions) perSession[m.id].lines.push(...compLines);
     // まものが なかまに なりたがる（ふつうの たたかい だけ）
     if (!ctx.resolve && !b.boss && res.killed.length) {
@@ -361,8 +371,21 @@ function finishBattle(world, ctx) {
       if (sp) befriend = { s: target, species: sp, level: befriendLevel(target.char, sp) };
     }
   } else if (outcome === 'lose') {
+    // ほんとうの 全滅: それぞれ 自分の 持っている お金が 半分に（預かり所の お金は へらない）
+    // 負けても 物語が すすむ 戦い（encounters の loseOk）では へらない
     for (const m of sessions) {
-      perSession[m.id] = { lines: [`${m.char.name}たちは全滅してしまった…`] };
+      if (ctx.opts.loseOk) {
+        perSession[m.id] = { lines: [`${m.char.name}たちは力つきた…`] };
+        continue;
+      }
+      const lines = [`${m.char.name}たちは全滅してしまった…`];
+      const g = wipeGoldLoss(m.char);
+      let note = '';
+      if (g.lost > 0) {
+        note = `所持金が半分になってしまった…${bankGold(m.char) > 0 ? '\n（預かり所のお金は無事だ）' : ''}`;
+        lines.push(`所持金が半分になってしまった…（${g.before}G→${g.after}G）`);
+      }
+      perSession[m.id] = { lines, wipeNote: note };
     }
   } else if (outcome === 'flee') {
     for (const m of sessions) perSession[m.id] = { lines: [] };
@@ -392,7 +415,9 @@ function finishBattle(world, ctx) {
     world.send(m, { t: 'battleEnd', id: ctx.id, outcome, lines: r.lines, levelUp: !!r.levelUp, story: !!ctx.resolve });
   }
   if (outcome === 'lose') {
-    for (const m of sessions) world.respawn(m);
+    // 負けても よい 戦いは その場で 立ち上がって 物語の つづきへ
+    if (ctx.opts.loseOk) for (const m of sessions) fullHeal(m.char);
+    else for (const m of sessions) world.respawn(m, perSession[m.id]?.wipeNote);
     for (const a of b.allies) {
       const who = ctx.actorMap[a.id];
       if (who && who.type !== 'human' && who.char) fullHeal(who.char);

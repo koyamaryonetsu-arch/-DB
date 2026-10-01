@@ -5,11 +5,11 @@
 //         → 装備品なら「ここで装備していきますか？」→「どなたが装備しますか？」→「今までの〇〇は引き取りましょうか？」
 //   売る: 品物を えらぶ → いくつ？ →「〇〇ゴールドで引き取りましょう。よろしいですか？」はい／いいえ
 // 教会:  おいのりをする／生き返らせる／毒を治す／やめる（寄付の かくにん つき）
-import { esc } from './dom.js?v=d695815c3edd';
-import { Counter, EQUIP_TYPES, compareTeam, itemInfo, whoItems } from './counter.js?v=d695815c3edd';
-import { ITEMS, sellPrice } from '../../shared/data/items.js?v=d695815c3edd';
-import { itemCount } from '../../shared/stats.js?v=d695815c3edd';
-import { boardIconURL } from '../render/boards.js?v=d695815c3edd';
+import { esc } from './dom.js?v=e2673ecbb09d';
+import { Counter, EQUIP_TYPES, compareTeam, itemInfo, whoItems } from './counter.js?v=e2673ecbb09d';
+import { ITEMS, sellPrice } from '../../shared/data/items.js?v=e2673ecbb09d';
+import { itemCount } from '../../shared/stats.js?v=e2673ecbb09d';
+import { boardIconURL } from '../render/boards.js?v=e2673ecbb09d';
 
 // サーバーの へんじを まつ
 export function request(game, msg) {
@@ -156,7 +156,7 @@ async function sellLoop(game, ct) {
     const rows = bag.map((e) => ({
       value: e.id,
       label: ITEMS[e.id].name,
-      html: `${esc(ITEMS[e.id].name)}<span class="cnt">×${e.n}</span>`,
+      html: `${esc(ITEMS[e.id].name)}${ITEMS[e.id].type === 'mat' ? '<span class="tag mat">素材</span>' : ''}<span class="cnt">×${e.n}</span>`,
       right: sellPrice(e.id) > 0 ? `${sellPrice(e.id)}G` : '―',
       rightCls: 'gold',
       disabled: sellPrice(e.id) <= 0,

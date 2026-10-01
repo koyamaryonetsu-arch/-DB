@@ -1,15 +1,18 @@
 // お店・転職・酒場・でんごんばん・ほしのかけら・きょうかい の がめん
-import { el, ListMenu, toast, askText, confirmBox, esc } from './dom.js?v=d695815c3edd';
-import { ITEMS } from '../../shared/data/items.js?v=d695815c3edd';
-import { JOBS, JOB_ORDER, ADVANCED_ORDER, SUPER_ORDER, TIER_NAMES, JOB_MAX_LEVEL, JOB_TRAIN_GAP, jobReqText, jobReqSets } from '../../shared/data/jobs.js?v=d695815c3edd';
-import { ABILITIES } from '../../shared/data/abilities.js?v=d695815c3edd';
-import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered } from '../../shared/stats.js?v=d695815c3edd';
-import { MONSTERS } from '../../shared/data/monsters.js?v=d695815c3edd';
-import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES } from '../../shared/data/companions.js?v=d695815c3edd';
-import { TACTICS } from '../../shared/ai.js?v=d695815c3edd';
-import { itemDetail } from './info.js?v=d695815c3edd';
-import { playerSprite, followerSprite, faceURL } from '../field.js?v=d695815c3edd';
-import { shopUI, churchUI } from './shop.js?v=d695815c3edd';
+import { el, ListMenu, toast, askText, confirmBox, esc } from './dom.js?v=e2673ecbb09d';
+import { ITEMS } from '../../shared/data/items.js?v=e2673ecbb09d';
+import { JOBS, JOB_ORDER, ADVANCED_ORDER, SUPER_ORDER, TIER_NAMES, JOB_MAX_LEVEL, JOB_TRAIN_GAP, jobReqText, jobReqSets } from '../../shared/data/jobs.js?v=e2673ecbb09d';
+import { ABILITIES } from '../../shared/data/abilities.js?v=e2673ecbb09d';
+import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered } from '../../shared/stats.js?v=e2673ecbb09d';
+import { MONSTERS } from '../../shared/data/monsters.js?v=e2673ecbb09d';
+import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES } from '../../shared/data/companions.js?v=e2673ecbb09d';
+import { TACTICS } from '../../shared/ai.js?v=e2673ecbb09d';
+import { itemDetail } from './info.js?v=e2673ecbb09d';
+import { playerSprite, followerSprite, faceURL } from '../field.js?v=e2673ecbb09d';
+import { shopUI, churchUI } from './shop.js?v=e2673ecbb09d';
+import { bankUI } from './bank.js?v=e2673ecbb09d';
+import { forgeUI } from './forge.js?v=e2673ecbb09d';
+import { tavernWagonItems, tavernWagonOpts, tavernWagonAct } from './wagon.js?v=e2673ecbb09d';
 
 export function openServiceUI(game, kind, data) {
   switch (kind) {
@@ -19,6 +22,8 @@ export function openServiceUI(game, kind, data) {
     case 'board': return boardUI(game, data);
     case 'starTrade': return starUI(game, data);
     case 'church': return churchUI(game, data);
+    case 'bank': return bankUI(game, data);
+    case 'forge': return forgeUI(game, data);
     default: return Promise.resolve();
   }
 }
@@ -121,6 +126,8 @@ function jobUI(game) {
       items: render(),
       sound: (x) => game.audio.sfx(x),
       onMove: (it) => showJob(it.value),
+      // 左右で せつめいの まどを スクロール（覚える技を 最後まで 見られる）
+      onSide: (d) => { main.scrollBy({ top: d * main.clientHeight * 0.7, behavior: 'smooth' }); },
       onSelect: async (it) => {
         const c = target();
         if (!c) return;
@@ -194,20 +201,32 @@ function jobUI(game) {
         const pg = jobProgress(c, j);
         main.append(el('div', { class: 'small', text: pg.done ? `職業レベル ${lv}（★マスター）` : `職業レベル ${lv}　次まであと${pg.next}回勝つ` }));
       }
+      // 覚える技（全部。どんな 技か 短い せつめいつき）→ 強さの かたむき の じゅん
+      const learn = el('div', { class: 'small job-learn' });
+      learn.append(el('div', { class: 'gold', text: `覚える技（職業レベル）　全${job.learn.length}こ` }));
+      for (const [l, id] of job.learn) {
+        const a = ABILITIES[id];
+        const got = lv >= l;
+        const row = el('div', { class: `jl-row ${got ? 'good' : 'muted'}` },
+          el('span', { class: 'jl-lv', text: `Lv${l}` }),
+          el('span', { class: 'jl-name', text: `${secretReq ? '？？？' : a.name}${got ? '（覚えた）' : ''}` }));
+        if (!secretReq && a?.desc) row.append(el('div', { class: 'jl-desc', text: a.desc }));
+        learn.append(row);
+      }
+      main.append(learn);
       const bars = el('div', { class: 'statbars', style: { margin: '0.5em 0' } });
       for (const [k, n] of [['hp', 'HP'], ['mp', 'MP'], ['str', '力'], ['def', '身の守り'], ['agi', '素早さ'], ['mag', '魔力'], ['heal', '回復']]) {
         const v = job.mods[k];
         bars.append(el('span', { text: n }), el('div', { class: 'b' }, el('i', { style: { width: `${Math.min(100, v / 1.5 * 100)}%` } })), el('span', { class: v > 1 ? 'up' : v < 1 ? 'down' : '', text: `${Math.round(v * 100)}%` }));
       }
-      main.append(bars);
-      const learn = el('div', { class: 'small' });
-      learn.append(el('div', { class: 'gold', text: '覚える技（職業レベル）' }));
-      for (const [l, id] of job.learn) {
-        const a = ABILITIES[id];
-        learn.append(el('div', { class: lv >= l ? 'good' : 'muted', text: `Lv${l}　${secretReq ? '？？？' : a.name}${lv >= l ? '（覚えた）' : ''}` }));
-      }
-      main.append(learn);
-      main.append(el('div', { class: 'detail', text: `職業レベルは戦いに勝つと上がる（最大${JOB_MAX_LEVEL}）。ただし自分より${JOB_TRAIN_GAP + 1}つ以上レベルが低い敵ばかりだと修行にならない。\n基本職を2つマスターすると上級職、上級職をマスターすると超級職になれる（超級職は、上級職をマスターするとヒントが出る）。\n呪文の掛け合わせは、元の職業を合わせ持つ上級職以上で使える。\n他の職業で覚えた技も使えるが、MPが増えたり威力が下がることがある（元になった職業の技はだいじょうぶ）。\n酒場の仲間もここで転職できるよ。` }));
+      main.append(el('div', { class: 'small gold', text: '強さのかたむき' }), bars);
+      main.append(el('div', { class: 'detail', text: `職業レベルは戦いに勝つと上がる（最大${JOB_MAX_LEVEL}）。ただし、自分よりレベルが${JOB_TRAIN_GAP + 1}以上低い敵ばかりだと修行にならない。\n基本職を2つマスターすると上級職、上級職をマスターすると超級職になれる（超級職は、上級職をマスターするとヒントが出る）。\n呪文の掛け合わせは、元の職業を合わせ持つ上級職以上で使える。\n他の職業で覚えた技も使えるが、MPが増えたり威力が下がることがある（元になった職業の技はだいじょうぶ）。\n酒場の仲間もここで転職できる。\n（十字キーの左右で、このせつめいをスクロールできる）` }));
+      // 下に つづく ときの しるし
+      const more = el('div', { class: 'scroll-more', text: '▼ 下に続く' });
+      main.append(more);
+      const upd = () => { more.hidden = main.scrollTop + main.clientHeight >= main.scrollHeight - 4; };
+      main.onscroll = upd;
+      requestAnimationFrame(upd);
     };
     menu.focus();
   });
@@ -245,7 +264,9 @@ function tavernUI(game, data) {
       for (const e of inParty) {
         out.push({ face: face(e), html: `${esc(e.name)}${plusTag(e)} <span class="muted small">${who(e)}</span>${e.family ? '<span class="tag gold">家族</span>' : ''}${e.inParty && !e.active ? '<span class="tag muted">今は待つ</span>' : ''}`, value: e.key });
       }
-      const waiting = info.roster.filter((e) => !e.inParty);
+      // 馬車の 仲間（ui/wagon.js）
+      out.push(...tavernWagonItems(info, entries, { face, who, plusTag }));
+      const waiting = info.roster.filter((e) => !e.inParty && !e.inWagon);
       if (waiting.length) {
         out.push({ header: true, label: `酒場で待っている仲間（${waiting.length}）` });
         for (const e of waiting) out.push({ face: face(e), html: `${esc(e.name)}${plusTag(e)} <span class="muted small">${who(e)}</span>${e.hp <= 0 ? '<span class="tag warn">休んでいる</span>' : ''}`, value: e.key });
@@ -285,7 +306,7 @@ function tavernUI(game, data) {
       }
       const e = entries.get(key);
       if (!e) {
-        main.append(el('div', { class: 'detail', text: '仲間を連れていくといっしょに戦ってくれる。\n連れていけるのは3人まで。待っている仲間とはいつでも入れかえられる（待っている間の装備はふくろにもどる）。\nモンスターの仲間もここで待っている。' }));
+        main.append(el('div', { class: 'detail', text: `仲間を連れていくといっしょに戦ってくれる。\n連れていけるのは3人まで。待っている仲間とはいつでも入れかえられる（待っている間の装備はふくろにもどる）。\nモンスターの仲間もここで待っている。${info.wagon ? `\n馬車には${info.wagon.max}人まで乗れる（装備はそのまま。経験値は半分もらえる）。` : ''}` }));
         return;
       }
       const pv = e.species ? followerSprite({ mon: e.species }, 'down', 0) : playerSprite(e.look, e.job, 'down', 0, e.equip);
@@ -301,6 +322,7 @@ function tavernUI(game, data) {
       }
       main.append(el('div', { class: 'detail', text: e.desc || '' }));
       if (e.sec === 'roster' && e.inParty && !e.active) main.append(el('div', { class: 'detail', text: '今はパーティーの人数がいっぱいなので待っている。' }));
+      if (e.inWagon) main.append(el('div', { class: 'detail', text: '馬車に乗っている。戦いに出なくても経験値を半分もらえる。' }));
     };
     const menu = new ListMenu(game.input, {
       items: items(),
@@ -440,15 +462,26 @@ function tavernUI(game, data) {
           if (full) swap = await pickSwap(e.name);
           if (!full || swap) await doReq({ action: 'recruit', key, swap });
         } else if (a === 'wait') await doReq({ action: 'recruit', key, join: false });
+      } else if (e.inWagon) {
+        const opts = [...tavernWagonOpts(info, e), { label: '名前を変える', value: 'rename' }];
+        if (e.species) opts.push({ label: '別れる', value: 'release' });
+        opts.push({ label: 'やめる', value: null });
+        const a = await ask(`${e.name}をどうする？`, opts);
+        if (a === 'rename') await rename(e);
+        else if (a === 'release') {
+          const ok = await confirmBox(game.input, `本当に${e.name}と別れますか？\n（もう会えなくなるよ。装備はふくろにもどる）`, '別れる', 'やめる', sfx);
+          if (ok) await doReq({ action: 'release', key });
+        } else if (a) await tavernWagonAct(wagonCtx(), e, a);
       } else if (e.inParty) {
-        const opts = [{ label: '酒場で待っていてもらう', value: 'wait' }];
+        const opts = [{ label: '酒場で待っていてもらう', value: 'wait' }, ...tavernWagonOpts(info, e)];
         if (e.sec === 'roster') opts.push({ label: '名前を変える', value: 'rename' });
         opts.push({ label: 'やめる', value: null });
         const a = await ask(`${e.name}をどうする？`, opts);
         if (a === 'wait') await doReq({ action: 'wait', key });
         else if (a === 'rename') await rename(e);
+        else if (a) await tavernWagonAct(wagonCtx(), e, a);
       } else {
-        const opts = [{ label: full ? '連れていく（入れかわる）' : '連れていく', value: 'join' }];
+        const opts = [{ label: full ? '連れていく（入れかわる）' : '連れていく', value: 'join' }, ...tavernWagonOpts(info, e)];
         if (e.sec === 'roster') opts.push({ label: '名前を変える', value: 'rename' });
         if (e.species) opts.push({ label: '別れる', value: 'release' });
         opts.push({ label: 'やめる', value: null });
@@ -461,10 +494,11 @@ function tavernUI(game, data) {
         else if (a === 'release') {
           const ok = await confirmBox(game.input, `本当に${e.name}と別れますか？\n（もう会えなくなるよ。装備はふくろにもどる）`, '別れる', 'やめる', sfx);
           if (ok) await doReq({ action: 'release', key });
-        }
+        } else if (a) await tavernWagonAct(wagonCtx(), e, a);
       }
       menu.focus();
     };
+    const wagonCtx = () => ({ info, entries, ask, doReq, face, who });
     const rename = async (e) => {
       const nm = await askText(game.input, { title: `${e.name}の新しい名前`, max: 8, initial: e.name });
       if (nm) await doReq({ action: 'rename', key: e.key, name: nm });

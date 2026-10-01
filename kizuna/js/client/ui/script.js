@@ -1,8 +1,8 @@
 // だいほんの さいせい（メッセージ・えらぶ・えんしゅつ）
-import { el } from './dom.js?v=d695815c3edd';
-import { ListMenu } from './dom.js?v=d695815c3edd';
-import { openServiceUI } from './services.js?v=d695815c3edd';
-import { monsterCanvas } from '../render/monsters.js?v=d695815c3edd';
+import { el } from './dom.js?v=e2673ecbb09d';
+import { ListMenu } from './dom.js?v=e2673ecbb09d';
+import { openServiceUI } from './services.js?v=e2673ecbb09d';
+import { monsterCanvas } from '../render/monsters.js?v=e2673ecbb09d';
 
 const TYPE_MS = 28;
 
@@ -65,6 +65,10 @@ export class ScriptPlayer {
         return wait(500);
       case 'night':
         g.field.nightOverride = a[0] ? true : null;
+        return null;
+      case 'clock':
+        // 宿屋で ねている あいだに 時間が すすんだ（sky.js）
+        g.sky?.scriptClock(a[0]);
         return null;
       case 'bgm':
         if (a[0] === null) g.audio.stop(0.4);

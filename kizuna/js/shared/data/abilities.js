@@ -17,10 +17,11 @@
 // 名前の一部は「ダイの大冒険」「ロトの紋章」へのオマージュです。
 // 上級職・超級職の 技は abilities-adv.js（さいごに まぜる）
 
-import { ADV_ABILITIES } from './abilities-adv.js?v=d695815c3edd';
-import { CH2_ABILITIES } from './abilities-ch2.js?v=d695815c3edd';
-import { JOB_ABILITIES } from './abilities-jobs.js?v=d695815c3edd';
-import { HIRA_ABILITIES } from './hirameki.js?v=d695815c3edd';
+import { ADV_ABILITIES } from './abilities-adv.js?v=e2673ecbb09d';
+import { CH2_ABILITIES } from './abilities-ch2.js?v=e2673ecbb09d';
+import { JOB_ABILITIES } from './abilities-jobs.js?v=e2673ecbb09d';
+import { HIRA_ABILITIES } from './hirameki.js?v=e2673ecbb09d';
+import { TRAVEL_ABILITIES } from './sky.js?v=e2673ecbb09d';
 
 export const ABILITIES = {
   // ───────────── 戦士 ─────────────
@@ -573,6 +574,8 @@ export const ABILITIES = {
   },
 };
 Object.assign(ABILITIES, ADV_ABILITIES, CH2_ABILITIES, JOB_ABILITIES, HIRA_ABILITIES);
+// 移動の 呪文ルーラ（sky.js。フィールドで だけ 使う）
+Object.assign(ABILITIES, TRAVEL_ABILITIES);
 
 // 攻撃呪文かどうか（魔法剣で使える）
 export function isAttackSpell(id) {

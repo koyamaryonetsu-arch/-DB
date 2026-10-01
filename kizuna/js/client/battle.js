@@ -1,18 +1,19 @@
 // たたかいの がめん（むかしの RPG ふう 1がめん）
-import { el, esc, ListMenu, toast } from './ui/dom.js?v=d695815c3edd';
-import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js?v=d695815c3edd';
-import { ITEMS } from '../shared/data/items.js?v=d695815c3edd';
-import { JOBS } from '../shared/data/jobs.js?v=d695815c3edd';
-import { MONSTERS } from '../shared/data/monsters.js?v=d695815c3edd';
-import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed } from '../shared/stats.js?v=d695815c3edd';
-import { affinityOf } from '../shared/battle.js?v=d695815c3edd';
-import { DUAL_TECHS, dualOptions } from '../shared/data/dual.js?v=d695815c3edd';
-import { faceURL } from './field.js?v=d695815c3edd';
-import { monsterCanvas } from './render/monsters.js?v=d695815c3edd';
-import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=d695815c3edd';
-import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js?v=d695815c3edd';
-import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js?v=d695815c3edd';
-import { abilityDetail, statusNames, buffNames } from './ui/info.js?v=d695815c3edd';
+import { el, esc, ListMenu, toast } from './ui/dom.js?v=e2673ecbb09d';
+import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js?v=e2673ecbb09d';
+import { ITEMS } from '../shared/data/items.js?v=e2673ecbb09d';
+import { JOBS } from '../shared/data/jobs.js?v=e2673ecbb09d';
+import { MONSTERS } from '../shared/data/monsters.js?v=e2673ecbb09d';
+import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed } from '../shared/stats.js?v=e2673ecbb09d';
+import { affinityOf } from '../shared/battle.js?v=e2673ecbb09d';
+import { DUAL_TECHS, dualOptions } from '../shared/data/dual.js?v=e2673ecbb09d';
+import { faceURL } from './field.js?v=e2673ecbb09d';
+import { monsterCanvas } from './render/monsters.js?v=e2673ecbb09d';
+import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=e2673ecbb09d';
+import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js?v=e2673ecbb09d';
+import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js?v=e2673ecbb09d';
+import { abilityDetail, statusNames, buffNames } from './ui/info.js?v=e2673ecbb09d';
+import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js?v=e2673ecbb09d';
 
 // たたかいの え の こまかさ（おもい きかいで さげたら、その あいだは さげた まま）
 let battleRes = BRES;
@@ -218,12 +219,13 @@ export class BattleScene {
     this.cssK = k;
   }
 
-  allies() { return [...this.c.values()].filter((c) => c.side === 'ally'); }
+  // 馬車に もどった 人（fled・benched）と、まだ 出てきて いない 人（pending）は のぞく。まどは 場所（slot）の じゅん
+  allies() { return [...this.c.values()].filter((c) => c.side === 'ally' && !c.fled && !c.benched && !c.pending).sort((a, b) => (a.slot ?? 0) - (b.slot ?? 0)); }
   enemies() { return [...this.c.values()].filter((c) => c.side === 'enemy' && !c.fled); }
 
   renderStatus(full = false) {
     const allies = this.allies();
-    if (full || this.statusBoxes.size !== allies.length) {
+    if (full || this.statusBoxes.size !== allies.length || allies.some((a) => !this.statusBoxes.has(a.id))) {
       this.statusEl.innerHTML = '';
       this.statusBoxes.clear();
       for (const a of allies) {
@@ -349,7 +351,8 @@ export class BattleScene {
     this.game.audio.sfx('warn');
     // 今の 職業で 使えない 掛け合わせ技は 出さない
     const pc = a.pc || { job: a.job, jobs: {} };
-    const learned = (a.abilities || []).filter((id) => ABILITIES[id] && !(ABILITIES[id].kind === 'combo' && !comboAllowed(pc, id)));
+    // フィールドだけの 呪文（ルーラ）は 出さない
+    const learned = (a.abilities || []).filter((id) => ABILITIES[id] && !ABILITIES[id].fieldOnly && !(ABILITIES[id].kind === 'combo' && !comboAllowed(pc, id)));
     const spells = learned.filter((id) => ABILITIES[id].kind === 'spell' || ABILITIES[id].spellLike);
     const skills = learned.filter((id) => ABILITIES[id].kind === 'skill' || ABILITIES[id].kind === 'monster' || (ABILITIES[id].kind === 'combo' && !ABILITIES[id].spellLike));
     const duals = this.myDualOptions(a);
@@ -361,6 +364,9 @@ export class BattleScene {
       { label: '防御', value: 'defend' },
       { label: '逃げる', value: 'flee', disabled: !this.canFlee },
     ];
+    // 馬車の 仲間と いれかえ（馬車が いっしょの とき。ui/wagon.js）
+    const wagon = battleWagon(this);
+    if (wagon) items.splice(items.length - 1, 0, { label: 'いれかえ', value: 'wagon', disabled: !wagon.outs.length || !wagon.ins.some((x) => x.hp > 0) });
     if (duals.length) items.splice(3, 0, { html: '<span class="dual-cmd">合体技</span>', value: 'dual', cls: 'k-dual' });
     if (this.bond >= 100) items.unshift({ html: '<span class="gold">★ミナデイン</span>', value: 'bond', cls: 'k-bond' });
     this.showMenu(items, (it) => {
@@ -373,6 +379,7 @@ export class BattleScene {
         case 'defend': return this.send({ type: 'defend' });
         case 'flee': return this.send({ type: 'flee' });
         case 'bond': return this.pickEnemy((t) => this.send({ type: 'bond', target: t }), 'ミナデインでねらう相手');
+        case 'wagon': return battleSwapMenu(this);
         default:
       }
     }, null, `${a.name}はどうする？`);
@@ -635,6 +642,8 @@ export class BattleScene {
         }
         case 'act':
         case 'msg':
+          // 馬車との いれかえは すぐ まどに（メッセージは じゅんばんに）
+          if (ev.swap) applyBattleSwap(this, ev);
           this.queue.push(ev);
           break;
         case 'dualInvite': {
@@ -796,6 +805,7 @@ export class BattleScene {
     if (fx.type === 'telegraph') { g.audio.sfx('warn'); this.banner('！大技が来る！防御で身を守れ！', 'danger'); }
     if (fx.type === 'bondStart') this.startBondPrompt(ev);
     if (fx.type === 'flee') g.audio.sfx('flee');
+    if (fx.type === 'wagon') wagonSwapFx(this, ev);
     if (ev.combo >= 2 && !ev.dual) this.banner(`れんけい ${ev.combo}！`, 'combo');
     if (anim === 'minadein') g.audio.sfx('bolt');
     if (anim && ANIM_SFX[anim]) g.audio.sfx(ANIM_SFX[anim]);

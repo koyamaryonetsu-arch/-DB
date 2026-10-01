@@ -1,7 +1,8 @@
 // フィールドを うろうろする モンスター（シンボル）
-import { ENCOUNTER_TABLES } from '../data/encounters.js?v=d695815c3edd';
-import { MONSTERS } from '../data/monsters.js?v=d695815c3edd';
-import { MAPS, isBlocked } from '../maps/index.js?v=d695815c3edd';
+import { ENCOUNTER_TABLES } from '../data/encounters.js?v=e2673ecbb09d';
+import { MONSTERS } from '../data/monsters.js?v=e2673ecbb09d';
+import { MAPS, isBlocked } from '../maps/index.js?v=e2673ecbb09d';
+import { NIGHT_ZONES, NIGHT_MORE } from '../data/night.js?v=e2673ecbb09d';
 
 let symSeq = 1;
 
@@ -64,10 +65,10 @@ function zoneCells(ms) {
 }
 const cellKeyOf = (x, y) => `${Math.floor(x / CELL)},${Math.floor(y / CELL)}`;
 
-function cellLoad(ms, zone, cells) {
+function cellLoad(ms, zone, cells, tod = null) {
   const count = new Map(cells.map((c) => [c.key, 0]));
   for (const s of ms.symbols.values()) {
-    if (s.zone !== zone) continue;
+    if (s.zone !== zone || (s.tod || null) !== tod) continue;
     const k = cellKeyOf(s.hx, s.hy);
     if (count.has(k)) count.set(k, count.get(k) + 1);
   }
@@ -75,6 +76,17 @@ function cellLoad(ms, zone, cells) {
   return cells.map((c) => ({ c, n: count.get(c.key), load: count.get(c.key) / c.tiles.length }));
 }
 
+// 昼と 夜で 出る まものが かわる ちいきか（フィールドだけ。どうくつ・塔の 中は かわらない）
+export function hasNightSplit(map, zone) {
+  return map.kind === 'field' && !!NIGHT_ZONES[zone];
+}
+
+// その まものが 見えるか（night: 見る 人の 時計が 夜か）。tod の ない まものは いつでも
+export function symbolVisible(sym, night) {
+  return !sym.tod || sym.tod === (night ? 'night' : 'day');
+}
+
+// playersOnMap の p.night … その 人の 時計が 夜か（world.js の tick が きめる）
 export function spawnSymbols(world, ms, dt, playersOnMap) {
   const map = MAPS[ms.id];
   if (!map.spawnCounts) return;
@@ -82,28 +94,54 @@ export function spawnSymbols(world, ms, dt, playersOnMap) {
   if (ms.spawnTimer > 0) return;
   ms.spawnTimer = 700;
   const zc = zoneCells(ms);
+  const key = (zone, tod) => `${zone}|${tod || ''}`;
+  // 昼の 人・夜の 人が いるか（だれも 見ない ほうの まものは すこしずつ いなくなる）
+  const wantDay = playersOnMap.some((p) => !p.night), wantNight = playersOnMap.some((p) => p.night);
+  if (!wantDay || !wantNight) {
+    let n = 0;
+    for (const s of [...ms.symbols.values()]) {
+      if (n >= 3) break;
+      if (s.tod && !s.busy && (s.tod === 'day' ? !wantDay : !wantNight)) { ms.symbols.delete(s.id); n++; }
+    }
+  }
   const counts = {};
-  for (const s of ms.symbols.values()) counts[s.zone] = (counts[s.zone] || 0) + 1;
+  for (const s of ms.symbols.values()) counts[key(s.zone, s.tod)] = (counts[key(s.zone, s.tod)] || 0) + 1;
   const near = (x, y, r) => playersOnMap.some((p) => Math.hypot(p.x - x, p.y - y) < r);
-  // たりない ちいきの うち、いちばん 少ない ところから 1ぴき
-  const need = Object.entries(map.spawnCounts)
-    .filter(([zone, target]) => (counts[zone] || 0) < target && zc[zone]?.length)
-    .sort((a, b) => (counts[a[0]] || 0) / a[1] - (counts[b[0]] || 0) / b[1]);
+  // たりない ちいきの うち、いちばん 少ない ところから（夜が 来た すぐ あとは 3びきずつ）
+  const pools = [];
+  for (const [zone, target] of Object.entries(map.spawnCounts)) {
+    if (!zc[zone]?.length) continue;
+    if (!hasNightSplit(map, zone)) pools.push([zone, null, target]);
+    else {
+      if (wantDay) pools.push([zone, 'day', target]);
+      if (wantNight) pools.push([zone, 'night', Math.round(target * NIGHT_MORE)]);
+    }
+  }
+  const need = pools.filter(([zone, tod, target]) => (counts[key(zone, tod)] || 0) < target)
+    .sort((a, b) => (counts[key(a[0], a[1])] || 0) / a[2] - (counts[key(b[0], b[1])] || 0) / b[2]);
   if (!need.length) {
     rebalance(world, ms, zc, near);
     return;
   }
-  const zone = need[0][0];
-  const loads = cellLoad(ms, zone, zc[zone]).sort((a, b) => a.load - b.load || world.rng.next() - 0.5);
+  const [zone, tod, target] = need[0];
+  const burst = (counts[key(zone, tod)] || 0) < target / 2 ? 3 : 1;
+  for (let k = 0; k < burst; k++) {
+    const loads = cellLoad(ms, zone, zc[zone], tod).sort((a, b) => a.load - b.load || world.rng.next() - 0.5);
+    spawnIn(world, ms, zone, tod, loads, near);
+  }
+}
+
+function spawnIn(world, ms, zone, tod, loads, near) {
   for (const { c } of loads.slice(0, 2)) {
     for (let tries = 0; tries < 6; tries++) {
       const [x, y] = world.rng.pick(c.tiles);
       // プレイヤーの めの まえには でない
       if (near(x, y, 9)) continue;
-      ms.symbols.set(...newSymbol(world, zone, x, y));
-      return;
+      ms.symbols.set(...newSymbol(world, zone, x, y, tod));
+      return true;
     }
   }
+  return false;
 }
 
 // ぜんぶ いる ときは、こみあった 区画の まもの（だれも 見ていない もの）を ときどき 空いた 区画へ うつす
@@ -112,28 +150,30 @@ function rebalance(world, ms, zc, near) {
   if (ms.rebalanceT % 2) return;
   for (const [zone, cells] of Object.entries(zc)) {
     if (cells.length < 2) continue;
-    const loads = cellLoad(ms, zone, cells).sort((a, b) => a.load - b.load);
+    const tod = hasNightSplit(MAPS[ms.id], zone) ? (ms.rebalanceT % 4 ? 'night' : 'day') : null;
+    const loads = cellLoad(ms, zone, cells, tod).sort((a, b) => a.load - b.load);
     const low = loads[0], high = loads[loads.length - 1];
     if (high.n < 2 || high.load < low.load * 2 + 0.01 || high.n - low.n < 2) continue;
-    const mover = [...ms.symbols.values()].find((s) => s.zone === zone && !s.busy && s.state === 'wander' && cellKeyOf(s.hx, s.hy) === high.c.key && !near(s.x, s.y, 16));
+    const mover = [...ms.symbols.values()].find((s) => s.zone === zone && (s.tod || null) === tod && !s.busy && s.state === 'wander' && cellKeyOf(s.hx, s.hy) === high.c.key && !near(s.x, s.y, 16));
     if (!mover) continue;
     for (let tries = 0; tries < 6; tries++) {
       const [x, y] = world.rng.pick(low.c.tiles);
       if (near(x, y, 16)) continue;
       ms.symbols.delete(mover.id);
-      ms.symbols.set(...newSymbol(world, zone, x, y));
+      ms.symbols.set(...newSymbol(world, zone, x, y, mover.tod || null));
       return;
     }
   }
 }
 
-function newSymbol(world, zone, x, y) {
-  let table = zone;
-  if ((zone === 'plains' || zone === 'outskirts') && world.rng.chance(0.025)) table = 'rare';
+// tod: 'day' / 'night'（昼と 夜で かわる ちいき）/ null（いつでも）
+function newSymbol(world, zone, x, y, tod = null) {
+  let table = tod === 'night' ? NIGHT_ZONES[zone] || zone : zone;
+  if (tod !== 'night' && (zone === 'plains' || zone === 'outskirts') && world.rng.chance(0.025)) table = 'rare';
   const group = rollGroup(world.rng, table);
   const lead = group[0];
   const sym = {
-    id: 'm' + (symSeq++), sp: lead, group, table, zone,
+    id: 'm' + (symSeq++), sp: lead, group, table, zone, tod: tod || undefined,
     x: x + 0.5, y: y + 0.5, hx: x + 0.5, hy: y + 0.5, dir: 'down',
     vx: 0, vy: 0, t: 0, state: 'wander', busy: false, stun: 0,
     speed: lead === 'kirakira' ? 3.6 : 1.4 + Math.min(1.2, (MONSTERS[lead].agi || 10) / 40),
@@ -158,7 +198,8 @@ export function moveSymbols(world, ms, dt, players) {
     // いちばん ちかい プレイヤー
     let target = null, best = 6;
     for (const p of players) {
-      if (p.invuln > 0 || p.busy) continue;
+      // 空の 上の 人・その まものが 見えない（昼と 夜が ちがう）人は おいかけない
+      if (p.invuln > 0 || p.busy || p.flying || !symbolVisible(s, p.night)) continue;
       const d = Math.hypot(p.x - s.x, p.y - s.y);
       if (d < best) {
         best = d;
@@ -219,10 +260,11 @@ function canStand(map, x, y, zone) {
   return map.zoneAt(tx, ty) === zone;
 }
 
-export function symbolSnapshot(ms) {
+// night: 見る 人の 時計が 夜か（昼の まもの・夜の まものの どちらを 見せるか）
+export function symbolSnapshot(ms, night = false) {
   const out = [];
   for (const s of ms.symbols.values()) {
-    if (s.busy) continue;
+    if (s.busy || !symbolVisible(s, night)) continue;
     out.push({ id: s.id, sp: s.sp, x: Math.round(s.x * 100) / 100, y: Math.round(s.y * 100) / 100, dir: s.dir, st: s.state === 'chase' ? 1 : 0 });
   }
   return out;

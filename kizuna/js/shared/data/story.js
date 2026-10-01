@@ -12,14 +12,18 @@
 //   ['teleport', 'map', x, y, 'dir']  ['spawn', 'map', x, y]  ['chapter', 'だい1しょう', 'サブタイトル']
 //
 // x（じょうほう）: x.name x.flag('f') x.has('item') x.count('item') x.kills('monster') x.quest('key')
-import { POS } from '../maps/index.js?v=d695815c3edd';
-import { PLACES } from '../maps/overworld.js?v=d695815c3edd';
-import { ABILITIES } from './abilities.js?v=d695815c3edd';
-import { learnedAbilities, comboUnlocked, hiraAllowed } from '../stats.js?v=d695815c3edd';
-import { HIRAMEKI, hiraRatio } from './hirameki.js?v=d695815c3edd';
-import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js?v=d695815c3edd';
-import { TM_SCRIPTS, TM_STORY_SCRIPTS } from './story-tm.js?v=d695815c3edd';
-import { innSteps } from './inn.js?v=d695815c3edd';
+import { POS } from '../maps/index.js?v=e2673ecbb09d';
+import { PLACES } from '../maps/overworld.js?v=e2673ecbb09d';
+import { ABILITIES } from './abilities.js?v=e2673ecbb09d';
+import { learnedAbilities, comboUnlocked, hiraAllowed } from '../stats.js?v=e2673ecbb09d';
+import { HIRAMEKI, hiraRatio } from './hirameki.js?v=e2673ecbb09d';
+import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js?v=e2673ecbb09d';
+import { TM_SCRIPTS, TM_STORY_SCRIPTS } from './story-tm.js?v=e2673ecbb09d';
+import { innSteps } from './inn.js?v=e2673ecbb09d';
+import { NIGHT_SCRIPTS } from './night.js?v=e2673ecbb09d';
+import { skyScripts } from './sky.js?v=e2673ecbb09d';
+import { FACILITY_SCRIPTS } from './facilities.js?v=e2673ecbb09d';
+import { wagonEventSteps } from './wagon.js?v=e2673ecbb09d';
 
 const V = (x, y) => [PLACES.village.x + x + 0.5, PLACES.village.y + y + 0.5];
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
@@ -302,7 +306,7 @@ export const SCRIPTS = {
   shop_weapon: () => [['shop', 'weapon']],
   shop_armor: () => [['shop', 'armor']],
   shop_item: () => [['shop', 'item']],
-  inn: () => innSteps('宿屋のおかみ', 12),
+  inn: (x) => innSteps('宿屋のおかみ', 12, x),
   home_bed: (x) => [
     ['choice', 'ベッドで休む？', ['はい', 'いいえ'], [
       [['inn', 0]],
@@ -319,6 +323,8 @@ export const SCRIPTS = {
     ['jobChange'],
   ],
   tavern: (x) => [
+    // 第1章の あと: 馬車を もらう（data/wagon.js）
+    ...(x.c?.flags?.c1_clear && !x.c.wagon ? wagonEventSteps() : []),
     ...S('酒場のマスター', 'いらっしゃい！ここは仲間の酒場だ。', '家族のキャラクターや、旅の仲間を「サポート仲間」として\n連れていけるよ。',
       ...(x.flag('monster_bond') ? ['モンスターの仲間が育ったら「配合」もできるぞ。\n親の技を受けついだ子が生まれるんだ。'] : [])),
     ['tavern'],
@@ -570,5 +576,10 @@ function sageHints(x) {
 }
 
 Object.assign(SCRIPTS, CH2_SCRIPTS, TM_SCRIPTS);
+// 夜の 人（night.js）と、風のさいだんの 笛の イベント（sky.js）
+Object.assign(SCRIPTS, NIGHT_SCRIPTS);
+Object.assign(SCRIPTS, skyScripts(SCRIPTS));
+// 預かり所・ふしぎなかじ屋（facilities.js）
+Object.assign(SCRIPTS, FACILITY_SCRIPTS);
 
 export { comboUnlocked };

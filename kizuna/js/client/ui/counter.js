@@ -4,15 +4,15 @@
 //   うえ: 店の なまえ・所持金・✕閉じる
 //   まんなか: ひだり＝品物や コマンド、みぎ＝せつめいと「だれが どう かわるか」
 //   した: 店の人の ことば（はい／いいえ は ここの みぎに 出る）
-import { el, ListMenu } from './dom.js?v=d695815c3edd';
-import { ITEMS, sellPrice } from '../../shared/data/items.js?v=d695815c3edd';
-import { MONSTERS } from '../../shared/data/monsters.js?v=d695815c3edd';
-import { JOBS } from '../../shared/data/jobs.js?v=d695815c3edd';
-import { computeStats, canEquipChar, itemCount } from '../../shared/stats.js?v=d695815c3edd';
-import { itemStats, whoCanEquip, rankText } from './info.js?v=d695815c3edd';
-import { faceURL } from '../field.js?v=d695815c3edd';
-import { boardIconURL } from '../render/boards.js?v=d695815c3edd';
-import { partyRows } from './hud.js?v=d695815c3edd';
+import { el, ListMenu } from './dom.js?v=e2673ecbb09d';
+import { ITEMS, sellPrice } from '../../shared/data/items.js?v=e2673ecbb09d';
+import { MONSTERS } from '../../shared/data/monsters.js?v=e2673ecbb09d';
+import { JOBS } from '../../shared/data/jobs.js?v=e2673ecbb09d';
+import { computeStats, canEquipChar, itemCount } from '../../shared/stats.js?v=e2673ecbb09d';
+import { itemStats, whoCanEquip, rankText } from './info.js?v=e2673ecbb09d';
+import { faceURL } from '../field.js?v=e2673ecbb09d';
+import { boardIconURL } from '../render/boards.js?v=e2673ecbb09d';
+import { partyRows } from './hud.js?v=e2673ecbb09d';
 
 const TYPE_MS = 18;
 export const EQUIP_TYPES = ['weapon', 'armor', 'shield', 'head', 'acc'];
@@ -184,7 +184,8 @@ export class Counter {
       if (!done) return 0;
       let q = 1;
       const val = el('div', { class: 'ct-qty-val' });
-      const upd = () => { val.textContent = `◀ ${q}個 ▶　${price * q}G`; };
+      // price が null なら ねだんは 出さない（預かり所など）
+      const upd = () => { val.textContent = price === null ? `◀ ${q}個 ▶` : `◀ ${q}個 ▶　${price * q}G`; };
       const minus = el('button', { class: 'btn', text: '－', onclick: () => { q = q > 1 ? q - 1 : max; this.game.audio.sfx('cursor'); upd(); } });
       const plus = el('button', { class: 'btn', text: '＋', onclick: () => { q = q < max ? q + 1 : 1; this.game.audio.sfx('cursor'); upd(); } });
       const ok = el('button', { class: 'btn primary', text: '決定', onclick: () => finish(q) });

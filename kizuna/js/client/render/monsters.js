@@ -1,9 +1,10 @@
 // モンスターの え（ベクターで かいて ドットえに へんかん）
 // すべて オリジナルの デザイン
 // 2ばいの こまかさで かいて ドットえに → Scale2x で 4ばい → ひかり・かげ・ふちどり（res 4）
-import { makeCanvas, ctxOf, pixelize, shade, painterFrom, scale2x, outline2, volumeShade } from './pixel.js?v=d695815c3edd';
-import { MONSTERS } from '../../shared/data/monsters.js?v=d695815c3edd';
-import { tintCanvas } from './themes.js?v=d695815c3edd';
+import { makeCanvas, ctxOf, pixelize, shade, painterFrom, scale2x, outline2, volumeShade } from './pixel.js?v=e2673ecbb09d';
+import { MONSTERS } from '../../shared/data/monsters.js?v=e2673ecbb09d';
+import { tintCanvas } from './themes.js?v=e2673ecbb09d';
+import { addNightArt } from './night-art.js?v=e2673ecbb09d';
 
 export const MRES = 4; // できあがりの こまかさ（せかいの 1ドットを 4×4 で かく）
 const OUT = '#130d24';
@@ -805,6 +806,9 @@ function lighthouse(g, lit, f) {
   g.poly([[0.3, 0.08], [0.5, 0.0], [0.7, 0.08]], lit ? '#c83a3a' : '#8a2a26');
   g.rect(0.44, 0.84, 0.12, 0.12, '#6a5a4a');
 }
+
+// 夜の 魔物（いまの 魔物の いろがえ。night-art.js）
+addNightArt(MONSTER_ART);
 
 const cache = new Map();
 

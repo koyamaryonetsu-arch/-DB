@@ -1,16 +1,17 @@
 // ゲーム ぜんたいの しんこう
-import { Input } from './input.js?v=d695815c3edd';
-import { GameAudio } from './audio.js?v=d695815c3edd';
-import { Field } from './field.js?v=d695815c3edd';
-import { Hud, STAMPS } from './ui/hud.js?v=d695815c3edd';
-import { FieldMenu, openWorldMap } from './ui/menu.js?v=d695815c3edd';
-import { ScriptPlayer, wait } from './ui/script.js?v=d695815c3edd';
-import { BattleScene } from './battle.js?v=d695815c3edd';
-import { showTitle, showLogin, showSelect, showCreate, showLoading, saveWhere } from './ui/title.js?v=d695815c3edd';
-import { showServerDown } from './ui/syncui.js?v=d695815c3edd';
-import { toast, confirmBox, el } from './ui/dom.js?v=d695815c3edd';
-import { MAPS } from '../shared/maps/index.js?v=d695815c3edd';
-import { applyBattlePrefs, applyUiFont } from './prefs.js?v=d695815c3edd';
+import { Input } from './input.js?v=e2673ecbb09d';
+import { GameAudio } from './audio.js?v=e2673ecbb09d';
+import { Field } from './field.js?v=e2673ecbb09d';
+import { Hud, STAMPS } from './ui/hud.js?v=e2673ecbb09d';
+import { FieldMenu, openWorldMap } from './ui/menu.js?v=e2673ecbb09d';
+import { ScriptPlayer, wait } from './ui/script.js?v=e2673ecbb09d';
+import { BattleScene } from './battle.js?v=e2673ecbb09d';
+import { showTitle, showLogin, showSelect, showCreate, showLoading, saveWhere } from './ui/title.js?v=e2673ecbb09d';
+import { showServerDown } from './ui/syncui.js?v=e2673ecbb09d';
+import { toast, confirmBox, el } from './ui/dom.js?v=e2673ecbb09d';
+import { MAPS } from '../shared/maps/index.js?v=e2673ecbb09d';
+import { applyBattlePrefs, applyUiFont } from './prefs.js?v=e2673ecbb09d';
+import { SkyClient } from './sky.js?v=e2673ecbb09d';
 
 export class Game {
   constructor(net) {
@@ -19,6 +20,8 @@ export class Game {
     this.audio = new GameAudio();
     this.field = new Field(this);
     this.hud = new Hud(this);
+    // 昼・夜の 時計と 大鳥フウラ（sky.js）
+    this.sky = new SkyClient(this);
     this.menu = new FieldMenu(this);
     this.script = new ScriptPlayer(this);
     this.state = 'boot';
@@ -181,6 +184,7 @@ export class Game {
     touchEl.hidden = hideTouch;
     if (inField) {
       const canMove = !this.busy && !this.menuOpen && !this.input.busy;
+      this.sky.update(dt);
       this.field.update(dt, { dir: this.input.dir, canMove, run: this.input.run });
       this.field.render();
       this.hud.update(dt);
@@ -258,6 +262,7 @@ export class Game {
     else if (a === 'b' || a === 'menu') this.openMenu();
     else if (a === 'map') openWorldMap(this);
     else if (a === 'chat') this.hud.chatInput();
+    else if (a === 'fly') this.sky.toggle();
   }
 
   openMenu(section) {
@@ -293,8 +298,9 @@ export class Game {
     if (was) c.classList.add('on');
   }
 
-  applyPos(map, x, y, dir, seq) {
+  applyPos(map, x, y, dir, seq, fly = false) {
     if (seq !== undefined) this.posSeq = seq;
+    this.sky.setFlying(fly);
     const changed = this.field.mapId !== map;
     this.field.setMap(map, x, y, dir);
     this.field.lastSent = { x, y, moving: false };
@@ -400,6 +406,7 @@ export class Game {
       case 'party':
         this.party = m.party;
         this.worldFlagSet = Array.isArray(m.party?.worldFlags) ? new Set(m.party.worldFlags) : null;
+        this.sky.onParty(m.party);
         this.hud.renderParty();
         this.refreshObjective();
         this.menu.refresh();
@@ -408,7 +415,13 @@ export class Game {
         this.players = m.players;
         break;
       case 'setPos':
-        this.applyPos(m.map, m.x, m.y, m.dir, m.seq);
+        this.applyPos(m.map, m.x, m.y, m.dir, m.seq, m.fly);
+        break;
+      case 'fly':
+        this.sky.onFly(m);
+        break;
+      case 'clock':
+        this.sky.onClock(m);
         break;
       case 'snap':
         this.field.onSnap(m);
@@ -454,7 +467,9 @@ export class Game {
         break;
       }
       case 'toast':
-        toast(m.text);
+        // afterBattle: たたかいの けっかを とじてから 出す（全滅して 目を覚ました ときなど）
+        if (m.afterBattle && (this.state === 'battle' || this.battleClosing)) this.waitBattleClosed().then(() => toast(m.text, 6000));
+        else toast(m.text, m.afterBattle ? 6000 : undefined);
         break;
       case 'chat':
         this.hud.addChat(m.from, m.text, m.stamp);
@@ -487,6 +502,7 @@ export class Game {
 
   endScript() {
     this.busy = false;
+    this.sky.scriptEnd();
     this.scriptBgm = null;
     this.field.nightOverride = null;
     this.field.hideGuests = false;
@@ -523,6 +539,9 @@ export class Game {
     this.worldFlagSet = Array.isArray(m.party?.worldFlags) ? new Set(m.party.worldFlags) : null;
     this.players = m.players || [];
     this.posSeq = m.posSeq || 0;
+    // サーバーの 時こく（昼・夜の 時計を あわせる）
+    if (m.serverTime) this.timeOffset = m.serverTime - Date.now();
+    this.sky.onEnter(m);
     this.busy = false;
     this.state = 'field';
     this.field.setMap(m.map, m.x, m.y, m.dir);
@@ -538,7 +557,7 @@ export class Game {
     if (this.net.mode === 'offline' && !this.saveWarned) {
       this.saveWarned = true;
       const cloud = this.net.local?.cloud;
-      import('./offline.js?v=d695815c3edd').then(({ offlineStorage }) => {
+      import('./offline.js?v=e2673ecbb09d').then(({ offlineStorage }) => {
         offlineStorage.load();
         if (cloud?.state === 'on') return;
         if (!offlineStorage.ok) toast('このブラウザではセーブができないかもしれません', 5000);

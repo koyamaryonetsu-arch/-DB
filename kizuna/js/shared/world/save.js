@@ -5,11 +5,13 @@
 // ・知らない 項目や 知らない 品物・職業・モンスターは けさずに とっておく（stash）。
 //   あとで その ゲームが 知っている ものに なったら もとに もどす
 // ・品物・職業・モンスター・マップの ID は けさない・なまえを かえない
-import { ITEMS, SLOTS } from '../data/items.js?v=d695815c3edd';
-import { JOBS } from '../data/jobs.js?v=d695815c3edd';
-import { MONSTERS } from '../data/monsters.js?v=d695815c3edd';
-import { migrateJobs, oldComboUnlocks, addItem } from '../stats.js?v=d695815c3edd';
-import { repairTreasureMaps } from '../data/treasure.js?v=d695815c3edd';
+import { ITEMS, SLOTS } from '../data/items.js?v=e2673ecbb09d';
+import { JOBS } from '../data/jobs.js?v=e2673ecbb09d';
+import { MONSTERS } from '../data/monsters.js?v=e2673ecbb09d';
+import { migrateJobs, oldComboUnlocks, addItem } from '../stats.js?v=e2673ecbb09d';
+import { repairTreasureMaps } from '../data/treasure.js?v=e2673ecbb09d';
+import { normBank } from './bank.js?v=e2673ecbb09d';
+import { cleanWagon } from '../data/wagon.js?v=e2673ecbb09d';
 
 export const SAVE_VERSION = 4;
 
@@ -113,6 +115,9 @@ export function repairChar(c, id) {
     (known(ITEMS, k) ? c.keyItems : st.keyItems).push(k);
   }
 
+  // 預かり所（ある ときだけ。知らない 品物も 預けた まま のこす）
+  if (c.bank !== undefined) c.bank = normBank(c.bank);
+
   // そうび（知らない そうびは ふくろの かわりに しまう）
   c.equip = obj(c.equip);
   for (const slot of SLOTS) {
@@ -150,6 +155,8 @@ export function repairChar(c, id) {
     }
   }
   repairTreasureMaps(c); // 宝の地図（なくても よい）
+  // 馬車の 仲間（いなくなった 仲間の key は はずす）
+  cleanWagon(c);
   cleanStash(c);
   return c;
 }

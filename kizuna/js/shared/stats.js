@@ -1,10 +1,10 @@
 // キャラクターの つよさ計算・レベルアップ・転職ペナルティ
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_TRAIN_GAP, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets } from './data/jobs.js?v=d695815c3edd';
-import { ITEMS, SLOTS } from './data/items.js?v=d695815c3edd';
-import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=d695815c3edd';
-import { MONSTERS } from './data/monsters.js?v=d695815c3edd';
-import { MONSTER_FRIENDS, monsterNatural } from './data/companions.js?v=d695815c3edd';
-import { HIRAMEKI, hiraRatio } from './data/hirameki.js?v=d695815c3edd';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_TRAIN_GAP, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets } from './data/jobs.js?v=e2673ecbb09d';
+import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=e2673ecbb09d';
+import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=e2673ecbb09d';
+import { MONSTERS } from './data/monsters.js?v=e2673ecbb09d';
+import { MONSTER_FRIENDS, monsterNatural } from './data/companions.js?v=e2673ecbb09d';
+import { HIRAMEKI, hiraRatio } from './data/hirameki.js?v=e2673ecbb09d';
 
 // 長い 物語に なるので レベルは 99まで（レベルで ふえる つよさは ひかえめ）
 export const MAX_LEVEL = 99;
@@ -322,7 +322,8 @@ export function mahoukenOptions(char, learned = learnedAbilities(char)) {
 
 // そうびできるか
 export function canEquip(jobId, itemId) {
-  const it = ITEMS[itemId];
+  // きたえた 装備（+1〜+3）は もとの 装備と おなじ 職業が 装備できる
+  const it = ITEMS[baseItemId(itemId)];
   const job = JOBS[jobId];
   if (!it || !job) return false;
   switch (it.type) {
@@ -337,7 +338,8 @@ export function canEquip(jobId, itemId) {
 
 // その キャラクターが そうびできるか（モンスターの なかまは アクセサリー だけ）
 export function canEquipChar(char, itemId) {
-  if (char.species) return ITEMS[itemId]?.type === 'acc';
+  // きたえた 装備（+1〜+3）は もとの 装備で きめる（canEquip と おなじ）
+  if (char.species) return ITEMS[baseItemId(itemId)]?.type === 'acc';
   return canEquip(char.job, itemId);
 }
 
@@ -554,6 +556,8 @@ export function itemCount(char, id) {
 export function ownsItem(char, id) {
   if (itemCount(char, id) > 0) return true;
   if (Object.values(char.equip || {}).includes(id)) return true;
+  // 預かり所に 預けている 物も（ボスの 品が ふえない ように）
+  if ((Array.isArray(char.bank?.items) ? char.bank.items : []).some((e) => e?.id === id && e.n > 0)) return true;
   return (char.companions || []).some((e) => Object.values(e?.char?.equip || {}).includes(id));
 }
 

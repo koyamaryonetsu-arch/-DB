@@ -2,7 +2,8 @@
 // お店: name 店の なまえ / kind かんばんの しゅるい / keeper 店の人 / hello さいしょの ことば / items 売っている 品物
 //       more: 物語が すすむと ふえる 品物 [{ show: { all: [フラグ] }, items: [...], hello }]（show の 書き方は NPC と おなじ。hello が あれば あいさつも かわる）
 
-import { SHOPS_CH2 } from './items-ch2.js?v=d695815c3edd';
+import { SHOPS_CH2 } from './items-ch2.js?v=e2673ecbb09d';
+import { NIGHT_SHOPS } from './night.js?v=e2673ecbb09d';
 
 export const SHOPS = {
   village: {
@@ -48,6 +49,8 @@ export const SHOPS = {
   },
 };
 Object.assign(SHOPS, SHOPS_CH2);
+// 夜の 商人（night.js）
+Object.assign(SHOPS, NIGHT_SHOPS);
 
 // 物語で ふえた 品ぞろえ（hasFlag: その人の 世界の フラグ）
 function moreOpen(shop, hasFlag) {

@@ -5,12 +5,14 @@
 //   c.partyKeys  … いま いっしょに ぼうけんしている なかま（じゅんばん）。'fam:ID' は 家族の キャラ
 //   c.guests     … ものがたりで いっしょに いる ゲスト（ルカ など）
 // パーティーには リーダーの なかまが ついてくる（にんげんが ふえると、はいりきらない なかまは いったん まつ）
-import { newCharacter, computeStats, fullHeal, gainExp, gainJobBattles, migrateJobs, expForLevel, addItem, newMonsterCompanion, learnedAbilities } from '../stats.js?v=d695815c3edd';
-import { jobBattlesForLevel } from '../data/jobs.js?v=d695815c3edd';
-import { NPC_SUPPORTS, GUESTS } from '../data/shops.js?v=d695815c3edd';
-import { MONSTERS } from '../data/monsters.js?v=d695815c3edd';
-import { MONSTER_FRIENDS, ROSTER_MAX, COMPANION_SLOTS } from '../data/companions.js?v=d695815c3edd';
-import { SLOTS, ITEMS } from '../data/items.js?v=d695815c3edd';
+import { newCharacter, computeStats, fullHeal, gainExp, gainJobBattles, migrateJobs, expForLevel, addItem, newMonsterCompanion, learnedAbilities } from '../stats.js?v=e2673ecbb09d';
+import { jobBattlesForLevel } from '../data/jobs.js?v=e2673ecbb09d';
+import { NPC_SUPPORTS, GUESTS } from '../data/shops.js?v=e2673ecbb09d';
+import { MONSTERS } from '../data/monsters.js?v=e2673ecbb09d';
+import { MONSTER_FRIENDS, ROSTER_MAX, COMPANION_SLOTS } from '../data/companions.js?v=e2673ecbb09d';
+import { SLOTS, ITEMS } from '../data/items.js?v=e2673ecbb09d';
+import { cleanWagon } from '../data/wagon.js?v=e2673ecbb09d';
+import { wagonState, wagonTavernInfo } from './wagon.js?v=e2673ecbb09d';
 
 export const PARTY_MAX = 4;
 // パーティーの だれかが もっていれば みんなが とおれる フラグ
@@ -45,6 +47,8 @@ export function ensureCompanions(c) {
     c.guests = c.flags?.p_start && !c.flags?.p_attack ? ['luca'] : [];
   }
   c.monsterSeq = c.monsterSeq || 1;
+  // 馬車の 仲間（data/wagon.js）
+  cleanWagon(c);
   return c;
 }
 
@@ -139,10 +143,10 @@ export function tavernInfo(world, s) {
       inParty: c.partyKeys.includes(key), active: activeKeys.has(key),
     });
   }
-  return {
+  return wagonTavernInfo(c, {
     roster, recruits, family, slots: COMPANION_SLOTS, used: c.partyKeys.length,
     isLeader: !p || p.leader === s.id, rosterMax: ROSTER_MAX, humans: p?.members.length || 1,
-  };
+  });
 }
 
 // レベルに あった そうび（酒場の なかまが はじめから もっている もの）
@@ -449,6 +453,20 @@ export function setPartyOrder(world, s, order) {
 // メニューの「全員の強さ」に 出す 強さ
 const statsOf = (st) => ({ str: st.str, def: st.def, agi: st.agi, mag: st.mag, heal: st.heal, atk: st.atk, dfn: st.dfn });
 
+// パーティーの 仲間（馬車の 仲間も おなじ 形）を クライアントへ
+export function supportInfo(x) {
+  const st = computeStats(x.char);
+  return {
+    key: x.key, name: x.char.name, job: x.char.job, level: x.char.level, hp: x.char.hp, maxHp: st.maxHp, mp: x.char.mp, maxMp: st.maxMp, st: statsOf(st),
+    look: x.char.look, equip: x.char.equip, tactics: x.char.tactics || 'balanced', family: x.kind === 'family', kind: x.kind, species: x.char.species || null, owner: x.owner,
+    jobs: x.kind === 'npc' ? x.char.jobs : undefined, seeds: x.kind === 'family' ? undefined : x.char.seeds, exp: x.char.exp,
+    plus: x.char.plus || 0, bonus: x.char.bonus || undefined, inherit: x.char.inherit || undefined,
+    hirameki: x.kind === 'npc' ? x.char.hirameki || [] : undefined, skillUse: x.kind === 'npc' ? x.char.skillUse || {} : undefined,
+    favorites: x.kind === 'npc' ? x.char.favorites || [] : undefined,
+    status: x.char.status?.poison ? ['poison'] : [],
+  };
+}
+
 export function partyState(world, p) {
   if (!p) return null;
   // なかまは リーダーの ものがたりの 世界を 見る（人の いち・橋・とびら など）
@@ -460,6 +478,8 @@ export function partyState(world, p) {
     worldFlags,
     // リーダーの 目標（さそわれて 来ている 人の 画面に 出す）
     objective: world.sessions.get(p.leader)?.char?.objective || '',
+    // パーティーの 時計（リーダーの 時間の ずれ。world/clock.js）
+    clockShift: Number(world.sessions.get(p.leader)?.char?.timeShift) || 0,
     bond: p.bond,
     // ならび: 人（家族）の まとまりが なかまの 何番目に 入るか
     selfPos: selfPosOf(world, p),
@@ -470,18 +490,9 @@ export function partyState(world, p) {
       const st = computeStats(m.char);
       return { sid, charId: m.charId, name: m.char.name, job: m.char.job, level: m.char.level, hp: m.char.hp, maxHp: st.maxHp, mp: m.char.mp, maxMp: st.maxMp, st: statsOf(st), look: m.char.look, equip: m.char.equip, map: m.map, follow: !!m.follow, away: !!m.away };
     }).filter(Boolean),
-    supports: p.supports.map((x) => {
-      const st = computeStats(x.char);
-      return {
-        key: x.key, name: x.char.name, job: x.char.job, level: x.char.level, hp: x.char.hp, maxHp: st.maxHp, mp: x.char.mp, maxMp: st.maxMp, st: statsOf(st),
-        look: x.char.look, equip: x.char.equip, tactics: x.char.tactics || 'balanced', family: x.kind === 'family', kind: x.kind, species: x.char.species || null, owner: x.owner,
-        jobs: x.kind === 'npc' ? x.char.jobs : undefined, seeds: x.kind === 'family' ? undefined : x.char.seeds, exp: x.char.exp,
-        plus: x.char.plus || 0, bonus: x.char.bonus || undefined, inherit: x.char.inherit || undefined,
-        hirameki: x.kind === 'npc' ? x.char.hirameki || [] : undefined, skillUse: x.kind === 'npc' ? x.char.skillUse || {} : undefined,
-        favorites: x.kind === 'npc' ? x.char.favorites || [] : undefined,
-        status: x.char.status?.poison ? ['poison'] : [],
-      };
-    }),
+    supports: p.supports.map(supportInfo),
+    // リーダーの 馬車の 仲間（馬車が なければ null。world/wagon.js）
+    wagon: wagonState(world, p),
     guests: p.guests.map((g) => {
       const st = computeStats(g.char);
       return { id: g.id, name: g.char.name, job: g.char.job, level: g.char.level, look: g.char.look, equip: g.char.equip, hp: g.char.hp, maxHp: st.maxHp, mp: g.char.mp, maxMp: st.maxMp, st: statsOf(st) };

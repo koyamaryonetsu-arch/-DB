@@ -11,11 +11,42 @@
 //   ・1体から 落ちるのは 1つまで。さきに レア、だめなら よく落とす 物
 //   ・レアの 装備は「店で 買えない ★の 品」か「その地方の 店より 少し 先の 品」
 //   ・種は その魔物に 合った もの（かたい→守り、はやい→素早さ、呪文→かしこさ、大きい→命、力じまん→力）
+//   ・素材（ふしぎなかじ で 使う）は MAT_DROPS に 書く。レアも よく落とす 物も 出なかった ときに 出る
 //   ・図鑑に 落とす 物が のる（手に入れるまでは ？？？）
-import { ITEMS } from './items.js?v=d695815c3edd';
-import { MONSTERS } from './monsters.js?v=d695815c3edd';
+import { ITEMS } from './items.js?v=e2673ecbb09d';
+import { MONSTERS } from './monsters.js?v=e2673ecbb09d';
 
-export const DROP_N = { common: 8, rare: 64 };
+export const DROP_N = { common: 8, rare: 64, mat: 8 };
+
+// 素材の ドロップ（[素材, 何回に 1回]）。その魔物に 合った もの
+//   けもの→けもののキバ・鳥→風の羽・かたい 魔物や 剣士→鉄のかけら・呪文や キノコ→魔法の粉
+//   カニや 貝→きれいな貝がら・海賊や 嵐の兵→銀のかけら・海へび→竜のうろこ
+export const MAT_DROPS = {
+  tsunousagi: ['beast_fang', 8],
+  kobushi: ['magic_powder', 12],
+  koumorin: ['beast_fang', 10],
+  goblin: ['iron_shard', 8],
+  nemuri: ['magic_powder', 8],
+  wolf: ['beast_fang', 5],
+  lamp: ['magic_powder', 6],
+  armor_crab: ['pretty_shell', 5],
+  crow: ['wind_feather', 5],
+  skeleton: ['iron_shard', 6],
+  dark_bat: ['beast_fang', 6],
+  rockman: ['iron_shard', 3],
+  shadow_mage: ['magic_powder', 5],
+  // 第2章
+  marine_slime: ['pretty_shell', 6],
+  wild_gull: ['wind_feather', 4],
+  shell_knight: ['pretty_shell', 4],
+  sea_serpent: ['dragon_scale', 5],
+  wind_imp: ['wind_feather', 6],
+  ghost_pirate: ['silver_shard', 8],
+  thunder_imp: ['magic_powder', 5],
+  storm_bird: ['wind_feather', 4],
+  coral_golem: ['silver_shard', 5],
+  storm_soldier: ['silver_shard', 5],
+};
 // ぬすむ ときは レアが 出やすい（この 倍。でも 半分まで）
 export const STEAL_RARE_MULT = 8;
 
@@ -36,6 +67,7 @@ export function monsterDrops(species) {
   }
   if (d.rare) out.push(entry('rare', d.rare));
   if (d.common) out.push(entry('common', d.common));
+  if (MAT_DROPS[species]) out.push(entry('mat', MAT_DROPS[species]));
   return out.filter(Boolean);
 }
 
@@ -45,8 +77,10 @@ export function rollDrops(species, rng) {
   const out = list.filter((x) => x.kind === 'boss').map((x) => x.item);
   const rare = list.find((x) => x.kind === 'rare');
   const common = list.find((x) => x.kind === 'common');
+  const mat = list.find((x) => x.kind === 'mat');
   if (rare && rng.chance(rare.rate)) out.push(rare.item);
   else if (common && rng.chance(common.rate)) out.push(common.item);
+  else if (mat && rng.chance(mat.rate)) out.push(mat.item);
   return out;
 }
 

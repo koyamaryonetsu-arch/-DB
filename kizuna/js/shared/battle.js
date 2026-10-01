@@ -7,15 +7,15 @@
 //
 // サーバー（家族サーバー）でも ブラウザ（ひとりモード）でも おなじ コードが うごく
 
-import { makeRng } from './rng.js?v=d695815c3edd';
-import { ABILITIES } from './data/abilities.js?v=d695815c3edd';
-import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=d695815c3edd';
-import { DUAL_TECHS, dualOptions, DUAL_GAUGE } from './data/dual.js?v=d695815c3edd';
-import { MONSTERS } from './data/monsters.js?v=d695815c3edd';
-import { ITEMS } from './data/items.js?v=d695815c3edd';
-import { JOBS } from './data/jobs.js?v=d695815c3edd';
-import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed } from './stats.js?v=d695815c3edd';
-import { decideMonster, decideAlly } from './ai.js?v=d695815c3edd';
+import { makeRng } from './rng.js?v=e2673ecbb09d';
+import { ABILITIES } from './data/abilities.js?v=e2673ecbb09d';
+import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=e2673ecbb09d';
+import { DUAL_TECHS, dualOptions, DUAL_GAUGE } from './data/dual.js?v=e2673ecbb09d';
+import { MONSTERS } from './data/monsters.js?v=e2673ecbb09d';
+import { ITEMS } from './data/items.js?v=e2673ecbb09d';
+import { JOBS } from './data/jobs.js?v=e2673ecbb09d';
+import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed } from './stats.js?v=e2673ecbb09d';
+import { decideMonster, decideAlly } from './ai.js?v=e2673ecbb09d';
 
 export const BOND_MAX = 100;
 // きずなゲージの たまりやすさ（1 … はじめの 版。ちいさいほど たまりにくい）
@@ -140,6 +140,19 @@ export class Battle {
     return c;
   }
 
+  // 馬車の 仲間と 入れかわる: outId の 人は 戦いから ぬけ（fled・out）、init の 人が おなじ 場所に 入る
+  // （メッセージは よびだす がわ。world/wagon.js）
+  swapAlly(outId, init) {
+    const t = this.get(outId);
+    if (!t || t.side !== 'ally' || t.fled) return null;
+    this.queue = this.queue.filter((q) => q.id !== t.id);
+    Object.assign(t, { fled: true, out: true, ready: false, queued: false, defending: false, cover: null });
+    const c = this.addAlly(init);
+    c.slot = t.slot;
+    c.atb = this.rng.float(0, 40);
+    return c;
+  }
+
   addEnemies(list) {
     // list: ['pururin', 'pururin', 'goblin']
     const counts = {};
@@ -186,7 +199,8 @@ export class Battle {
     }
   }
 
-  get allies() { return this.combatants.filter((c) => c.side === 'ally'); }
+  // 馬車に もどった 人（fled）は のぞく
+  get allies() { return this.combatants.filter((c) => c.side === 'ally' && !c.fled); }
   get enemies() { return this.combatants.filter((c) => c.side === 'enemy' && !c.fled); }
   aliveAllies() { return this.allies.filter((c) => c.alive); }
   aliveEnemies() { return this.enemies.filter((c) => c.alive); }

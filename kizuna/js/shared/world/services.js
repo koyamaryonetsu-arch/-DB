@@ -1,17 +1,21 @@
 // お店・やどや・きょうかい・転職・酒場・でんごんばん・メニュー操作
-import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js?v=d695815c3edd';
-import { ITEMS, sellPrice, SLOTS } from '../data/items.js?v=d695815c3edd';
-import { JOBS, ALL_JOBS, jobReqText } from '../data/jobs.js?v=d695815c3edd';
-import { ABILITIES } from '../data/abilities.js?v=d695815c3edd';
-import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=d695815c3edd';
-import { TACTICS } from '../ai.js?v=d695815c3edd';
-import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js?v=d695815c3edd';
-import { breedMonsters, breedPreview } from './breed.js?v=d695815c3edd';
-import { MONSTERS } from '../data/monsters.js?v=d695815c3edd';
-import { DUAL_TECHS } from '../data/dual.js?v=d695815c3edd';
-import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings } from '../battle.js?v=d695815c3edd';
-import { PLACES } from '../maps/overworld.js?v=d695815c3edd';
-import { POS, SEA_PLACES } from '../maps/index.js?v=d695815c3edd';
+import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js?v=e2673ecbb09d';
+import { ITEMS, sellPrice, SLOTS } from '../data/items.js?v=e2673ecbb09d';
+import { JOBS, ALL_JOBS, jobReqText } from '../data/jobs.js?v=e2673ecbb09d';
+import { ABILITIES } from '../data/abilities.js?v=e2673ecbb09d';
+import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=e2673ecbb09d';
+import { TACTICS } from '../ai.js?v=e2673ecbb09d';
+import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js?v=e2673ecbb09d';
+import { breedMonsters, breedPreview } from './breed.js?v=e2673ecbb09d';
+import { MONSTERS } from '../data/monsters.js?v=e2673ecbb09d';
+import { DUAL_TECHS } from '../data/dual.js?v=e2673ecbb09d';
+import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings } from '../battle.js?v=e2673ecbb09d';
+import { PLACES } from '../maps/overworld.js?v=e2673ecbb09d';
+import { POS, SEA_PLACES } from '../maps/index.js?v=e2673ecbb09d';
+import { castRura, warpParty, useTimeBell } from './travel.js?v=e2673ecbb09d';
+import { bankInfo, bankAction } from './bank.js?v=e2673ecbb09d';
+import { forgeInfo, forgeAction } from './forge.js?v=e2673ecbb09d';
+import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction } from './wagon.js?v=e2673ecbb09d';
 
 export function openService(world, s, kind, arg) {
   switch (kind) {
@@ -27,6 +31,8 @@ export function openService(world, s, kind, arg) {
     case 'board': return { posts: world.data.board || [] };
     case 'starTrade': return { trades: STAR_TRADES };
     case 'church': return churchInfo(world, s);
+    case 'bank': return bankInfo(world, s, arg);
+    case 'forge': return forgeInfo(world, s, arg);
     default: return null;
   }
 }
@@ -49,6 +55,8 @@ function churchInfo(world, s) {
     if (g.char.hp <= 0) dead.push({ ref: 'guest:' + g.id, name: g.char.name, price: revivePrice(g.char.level) });
     else if (g.char.status?.poison) poisoned.push({ ref: 'guest:' + g.id, name: g.char.name, price: CURE_PRICE });
   }
+  // 馬車の 仲間も（world/wagon.js）
+  wagonChurch(world, s, dead, poisoned, revivePrice, CURE_PRICE);
   return { dead, poisoned };
 }
 
@@ -68,6 +76,7 @@ function refChar(world, s, ref) {
     const p = partyOf(world, s);
     return p?.guests.find((x) => x.id === ref.slice(6))?.char || null;
   }
+  if (ref.startsWith('wagon:')) return wagonRefChar(world, s, ref);
   return null;
 }
 
@@ -184,7 +193,10 @@ export function serviceAction(world, s, msg) {
           if (r.ok) text = `${r.name}（${MONSTERS[r.species].name}＋${r.plus}）が生まれた！${r.joined ? '' : `\n${r.name}は酒場で待っている。`}`;
           break;
         default:
-          return;
+          // 馬車の 乗りかえ（world/wagon.js）
+          r = wagonTavernAction(world, s, msg);
+          if (!r) return;
+          text = r.text;
       }
       if (!r.ok) return reply(false, r.reason || 'できません', { full: !!r.full, tavern: tavernInfo(world, s) });
       return reply(true, text, { tavern: tavernInfo(world, s) });
@@ -244,6 +256,9 @@ export function serviceAction(world, s, msg) {
       }
       return;
     }
+    // 預かり所（bank.js）・ふしぎなかじ屋（forge.js）
+    case 'bank': return bankAction(world, s, msg, reply);
+    case 'forge': return forgeAction(world, s, msg, reply, { equipItem, ownChar });
     default:
   }
 }
@@ -324,10 +339,12 @@ export function menuAction(world, s, msg) {
         const kind = world.mapKind(s.map);
         if (kind !== 'field' && kind !== 'dungeon') return reply(false, '');
         removeItem(c, msg.id, 1);
-        const to = warpDest(dest);
-        world.placeSession(s, to.map, to.x, to.y, 'down', true);
+        // 「ついていく」なかまも いっしょに（travel.js。ルーラと おなじ）
+        warpParty(world, s, warpDest(dest));
         return reply(true, `${c.name}は帰り道の羽を空に投げた！`);
       }
+      // 夜明けのすず・夕焼けのすず（travel.js）
+      if (eff.type === 'timeBell') return useTimeBell(world, s, msg.id, reply);
       const target = refChar(world, s, msg.ref);
       if (!target) return reply(false, '');
       const r = applyFieldEffect(world, c, target, eff);
@@ -341,6 +358,8 @@ export function menuAction(world, s, msg) {
       if (caster.hp <= 0) return reply(false, `${caster.name}は死んでいる…`);
       const a = ABILITIES[msg.id];
       if (!a || !a.field || !learnedAbilities(caster).includes(msg.id)) return reply(false, '今は使えない');
+      // ルーラ（行った 町へ 仲間と 飛ぶ。travel.js）
+      if (a.effect?.type === 'warp') return castRura(world, s, caster, msg.id, msg, reply);
       const cost = mpCost(caster, msg.id);
       if (caster.mp < cost) return reply(false, 'MPが足りない！');
       const pen = penaltyFor(caster, msg.id);
@@ -389,6 +408,11 @@ export function menuAction(world, s, msg) {
     case 'fullHeal': {
       const r = msg.mode === 'item' ? fullHealByItems(world, s) : fullHealBySpells(world, s);
       return reply(r.ok, r.text);
+    }
+    // 馬車の 乗りかえ（world/wagon.js）
+    case 'wagon': {
+      const r = wagonMenuAction(world, s, msg);
+      return reply(r.ok, r.ok ? r.text : r.reason);
     }
     // パーティーの ならびかえ（先頭ほど 敵に ねらわれやすい）
     case 'order': {

@@ -2,25 +2,29 @@
 //
 // クライアントとは メッセージ（JSON）で やりとりする。
 // つなぎかたは なんでも よい（WebSocket でも ブラウザ内の ちょくせつ呼び出しでも）。
-import { makeRng } from '../rng.js?v=d695815c3edd';
-import { MAPS, isBlocked, effectiveTile, condOk, searchLoot, sparkleLoot, tileAt, POS, SEA_PLACES } from '../maps/index.js?v=d695815c3edd';
-import { PLACES } from '../maps/overworld.js?v=d695815c3edd';
-import { T, TILE_INFO } from '../tiles.js?v=d695815c3edd';
-import { ITEMS } from '../data/items.js?v=d695815c3edd';
-import { JOBS } from '../data/jobs.js?v=d695815c3edd';
-import { newCharacter, computeStats, addItem, fullHeal, migrateJobs } from '../stats.js?v=d695815c3edd';
-import { mapState, spawnSymbols, moveSymbols, symbolSnapshot } from './monsters.js?v=d695815c3edd';
-import { startFieldBattle, battleTick, battleCommand, battleLeave, joinBattle } from './battles.js?v=d695815c3edd';
-import { runScript, runSteps } from './scripts.js?v=d695815c3edd';
-import { serviceAction, menuAction } from './services.js?v=d695815c3edd';
-import { newParty, partyOf, partyState, syncParty, ensureCompanions, companionWait, PARTY_MAX } from './party.js?v=d695815c3edd';
-import { MONSTERS } from '../data/monsters.js?v=d695815c3edd';
-import { COMPANION_SLOTS } from '../data/companions.js?v=d695815c3edd';
-import { CH1_CLEAR_OBJECTIVE } from '../data/story.js?v=d695815c3edd';
-import { upgradeSave, repairChar } from './save.js?v=d695815c3edd';
-import { exportCode, parseCode, importChar } from './transfer.js?v=d695815c3edd';
-import { memorySyncStore, buildSyncOut, applySyncIn, encodeSync, decodeSync, syncSummary } from './sync.js?v=d695815c3edd';
-import { tryTreasureDig, treasureMenu, fixTreasurePos, normalizeTreasure, pruneTreasureStates } from './treasure.js?v=d695815c3edd';
+import { makeRng } from '../rng.js?v=e2673ecbb09d';
+import { MAPS, isBlocked, effectiveTile, condOk, searchLoot, sparkleLoot, tileAt, POS, SEA_PLACES } from '../maps/index.js?v=e2673ecbb09d';
+import { PLACES } from '../maps/overworld.js?v=e2673ecbb09d';
+import { T, TILE_INFO } from '../tiles.js?v=e2673ecbb09d';
+import { ITEMS } from '../data/items.js?v=e2673ecbb09d';
+import { JOBS } from '../data/jobs.js?v=e2673ecbb09d';
+import { newCharacter, computeStats, addItem, fullHeal, migrateJobs } from '../stats.js?v=e2673ecbb09d';
+import { mapState, spawnSymbols, moveSymbols, symbolSnapshot, symbolVisible } from './monsters.js?v=e2673ecbb09d';
+import { startFieldBattle, battleTick, battleCommand, battleLeave, joinBattle, mineOf } from './battles.js?v=e2673ecbb09d';
+import { runScript, runSteps } from './scripts.js?v=e2673ecbb09d';
+import { serviceAction, menuAction } from './services.js?v=e2673ecbb09d';
+import { newParty, partyOf, partyState, syncParty, ensureCompanions, companionWait, PARTY_MAX } from './party.js?v=e2673ecbb09d';
+import { MONSTERS } from '../data/monsters.js?v=e2673ecbb09d';
+import { COMPANION_SLOTS } from '../data/companions.js?v=e2673ecbb09d';
+import { CH1_CLEAR_OBJECTIVE } from '../data/story.js?v=e2673ecbb09d';
+import { upgradeSave, repairChar } from './save.js?v=e2673ecbb09d';
+import { exportCode, parseCode, importChar } from './transfer.js?v=e2673ecbb09d';
+import { memorySyncStore, buildSyncOut, applySyncIn, encodeSync, decodeSync, syncSummary } from './sync.js?v=e2673ecbb09d';
+import { tryTreasureDig, treasureMenu, fixTreasurePos, normalizeTreasure, pruneTreasureStates } from './treasure.js?v=e2673ecbb09d';
+import { isNightFor } from './clock.js?v=e2673ecbb09d';
+import { onFly, setFlying, moveAllowed, ridingAlong, canFlyMap } from './travel.js?v=e2673ecbb09d';
+import { migrateSky } from '../data/sky.js?v=e2673ecbb09d';
+import { wagonLook } from './wagon.js?v=e2673ecbb09d';
 
 export const PROTOCOL_VERSION = 1;
 const SPARKLE_RESPAWN_MS = 20 * 60 * 1000;
@@ -132,10 +136,11 @@ export class GameWorld {
     this.send(t, {
       t: 'enter', sid: t.id, char: t.char, map: t.map, x: t.x, y: t.y, dir: t.dir, posSeq: t.posSeq,
       party: p ? partyState(this, p) : null, board: this.data.board || [], supportLog: [], serverTime: this.now(),
-      players: this.playerList(t), resumed: true,
+      players: this.playerList(t), resumed: true, fly: !!t.flying,
     });
     if (ctx && !ctx.battle.over) {
-      const mine = Object.entries(ctx.actorMap).filter(([, v]) => v.type === 'human' && v.sid === t.id).map(([k]) => k);
+      // 馬車に もどった 人は のぞく（その 人が うごかす キャラ）
+      const mine = mineOf(ctx, t.id);
       this.send(t, { t: 'battleStart', snap: ctx.battle.snapshot(), mine, boss: !!ctx.opts.boss, story: !!ctx.opts.fixed, resume: true });
     }
     const run = t.runId && this.runs.get(t.runId);
@@ -220,6 +225,7 @@ export class GameWorld {
       case 'chat': return this.onChat(s, msg);
       case 'explored': return this.onExplored(s, msg);
       case 'warpTo': return this.onMenu(s, { t: 'menu', action: 'useItem', id: 'return_wing', place: msg.place });
+      case 'fly': return onFly(this, s, msg); // 風の大鳥（travel.js）
       case 'joinBattle': {
         const r = joinBattle(this, s, msg.sid);
         if (!r.ok && r.reason) this.send(s, { t: 'toast', text: r.reason });
@@ -377,6 +383,8 @@ export class GameWorld {
     s.inWorld = true;
     s.busy = null;
     s.level = c.level;
+    // 大鳥に のったまま 終わった ときは 空から つづける
+    setFlying(s, canFlyMap(pos.map) && (home ? !!home.fly : pos === c.pos && !!c.riding));
     const p = newParty(this, s.id);
     s.partyId = p.id;
     syncParty(this, p);
@@ -386,7 +394,7 @@ export class GameWorld {
     this.send(s, {
       t: 'enter', sid: s.id, char: c, map: s.map, x: s.x, y: s.y, dir: s.dir, posSeq: s.posSeq,
       party: partyState(this, p), board: this.data.board || [], supportLog, serverTime: this.now(),
-      players: this.playerList(s),
+      players: this.playerList(s), fly: !!s.flying,
     });
     this.broadcast({ t: 'joined', sid: s.id, name: c.name }, s);
     this.broadcast({ t: 'chars', chars: this.charList() });
@@ -449,8 +457,9 @@ export class GameWorld {
     if (!Number.isFinite(x) || !Number.isFinite(y)) return;
     const map = MAPS[s.map];
     if (x < 0 || y < 0 || x >= map.w || y >= map.h) return;
-    // あまりに とおくへの いどうは みとめない（ワープ いがい）
-    if (Math.hypot(x - s.x, y - s.y) > 6) {
+    // あまりに とおくへの いどうは みとめない（ワープ いがい）。
+    // 歩けない ところ（山・海 など）は 大鳥で とんでいる ときだけ（travel.js）
+    if (Math.hypot(x - s.x, y - s.y) > 6 || !moveAllowed(this, s, map, x, y)) {
       this.send(s, { t: 'setPos', map: s.map, x: s.x, y: s.y, dir: s.dir, seq: s.posSeq });
       return;
     }
@@ -469,12 +478,15 @@ export class GameWorld {
     return (this.hostOf(s) || s).char?.flags || {};
   }
 
+  // '@night' … 夜の あいだ（夜だけ 出る 人・夜は 家に 帰る 人。パーティーの 時計で）
   hasFlagFn(s) {
     const flags = this.worldFlags(s);
-    return (f) => !!flags[f];
+    return (f) => (f === '@night' ? isNightFor(this, s) : !!flags[f]);
   }
 
   onEnterTile(s, tx, ty) {
+    // 空の 上: 出入り口・イベント・ばしょの きろくは なし
+    if (s.flying) return;
     const map = MAPS[s.map];
     const warp = map.warpAt.get(ty * map.w + tx);
     if (warp) {
@@ -532,15 +544,16 @@ export class GameWorld {
     return false;
   }
 
-  // サーバーが いちを きめる（テレポート・ワープ）
-  placeSession(s, mapId, x, y, dir, notify = true) {
+  // サーバーが いちを きめる（テレポート・ワープ）。opts.fly … 大鳥に のったまま（ほかは おりる）
+  placeSession(s, mapId, x, y, dir, notify = true, opts = {}) {
     s.map = mapId;
     s.x = x;
     s.y = y;
     s.dir = dir || s.dir;
     s.posSeq++;
     s.invuln = 1500;
-    if (notify) this.send(s, { t: 'setPos', map: mapId, x, y, dir: s.dir, seq: s.posSeq });
+    setFlying(s, !!opts.fly && canFlyMap(mapId));
+    if (notify) this.send(s, { t: 'setPos', map: mapId, x, y, dir: s.dir, seq: s.posSeq, fly: !!s.flying });
     this.markDirty();
   }
 
@@ -558,28 +571,31 @@ export class GameWorld {
     delete s.char.soloPos;
     this.markDirty();
     if (!pos || (pos.map === s.map && Math.hypot(pos.x - s.x, pos.y - s.y) < 1)) return;
-    this.placeSession(s, pos.map, pos.x, pos.y, pos.dir || s.dir, true);
+    this.placeSession(s, pos.map, pos.x, pos.y, pos.dir || s.dir, true, { fly: !!pos.fly });
     this.send(s, { t: 'toast', text: `${s.char.name}は自分の冒険にもどった！\n（パーティーに入る前の場所へ）` });
     this.broadcastPlayers();
   }
 
-  respawn(s) {
+  // note: 目を覚ました ときの おしらせに 足す ことば（全滅で お金が へった など）
+  respawn(s, note = '') {
     // さそわれて 来ている 人は リーダーの いのりの場所で（みんな いっしょに 目を覚ます）
     const own = this.hostOf(s)?.char.spawn || s.char.spawn;
     const sp = own && MAPS[own.map] ? own : { map: 'overworld', x: POS.villageChurch[0] + 0.5, y: POS.villageChurch[1] + 0.5 };
     fullHeal(s.char);
     this.placeSession(s, sp.map, sp.x, sp.y, 'down', true);
-    this.send(s, { t: 'toast', text: `${s.char.name}はいのりの場所で目を覚ました。\n「無理はいけませんよ」` });
+    this.send(s, { t: 'toast', text: `${s.char.name}はいのりの場所で目を覚ました。\n「無理はいけませんよ」${note ? `\n${note}` : ''}`, afterBattle: true });
   }
 
   mapKind(id) { return MAPS[id]?.kind; }
 
   // ───────────── モンスターに ふれた ─────────────
   onTouch(s, msg) {
-    if (s.busy || s.invuln > 0) return;
+    if (s.busy || s.invuln > 0 || s.flying) return;
     const ms = this.mapStates.get(s.map);
     const sym = ms?.symbols.get(msg.id);
     if (!sym || sym.busy || sym.stun > 0) return;
+    // 昼の 人には 夜の まものは 見えない（その ぎゃくも）
+    if (!symbolVisible(sym, isNightFor(this, s))) return;
     if (Math.hypot(sym.x - s.x, sym.y - s.y) > 2.5) return;
     const zone = MAPS[s.map].zoneAt(Math.floor(s.x), Math.floor(s.y));
     if (zone.startsWith('safe')) return;
@@ -588,7 +604,7 @@ export class GameWorld {
 
   // ───────────── しらべる・はなす ─────────────
   onInteract(s, msg) {
-    if (s.busy) return;
+    if (s.busy || s.flying) return;
     const map = MAPS[s.map];
     // 人・宝箱が 出ているかは 世界の フラグで（手伝っている ときは リーダーの 世界）
     const hasFlag = this.hasFlagFn(s);
@@ -725,7 +741,7 @@ export class GameWorld {
         // じぶんの パーティーを ぬける
         this.leaveParty(s, true);
         // 自分の 冒険の 場所を おぼえておく（パーティーが おわったら ここへ もどる）
-        if (!s.char.soloPos) s.char.soloPos = { map: s.map, x: s.x, y: s.y, dir: s.dir };
+        if (!s.char.soloPos) s.char.soloPos = { map: s.map, x: s.x, y: s.y, dir: s.dir, ...(s.flying ? { fly: true } : {}) };
         const own = this.parties.get(s.partyId);
         if (own) this.parties.delete(own.id);
         target.members.push(s.id);
@@ -737,7 +753,7 @@ export class GameWorld {
         // さそってくれた リーダーの ところへ（ひとりで きたえた キャラも すぐ いっしょに 冒険できる）
         const leader = this.sessions.get(target.leader);
         if (leader && leader !== s && leader.inWorld && (leader.map !== s.map || Math.hypot(leader.x - s.x, leader.y - s.y) > 6)) {
-          this.placeSession(s, leader.map, leader.x, leader.y, leader.dir, true);
+          this.placeSession(s, leader.map, leader.x, leader.y, leader.dir, true, { fly: !!leader.flying });
           this.send(s, { t: 'toast', text: `${leader.char.name}のところへ移動した！` });
           this.broadcastPlayers();
         }
@@ -854,6 +870,8 @@ export class GameWorld {
     for (const s of this.sessions.values()) {
       if (!s.inWorld) continue;
       if (s.invuln > 0) s.invuln -= dt;
+      // 夜か（パーティーの 時計。夜の まものが 見える）
+      s.night = isNightFor(this, s);
       // さそわれて 来ていた 人が ひとりに なった → 自分の 冒険の 場所へ
       if (s.char?.soloPos && !s.busy && !s.away && (partyOf(this, s)?.members.length || 1) < 2) this.returnHome(s);
       if (!byMap.has(s.map)) byMap.set(s.map, []);
@@ -872,13 +890,16 @@ export class GameWorld {
       this.snapTimer = 0;
       for (const [mapId, players] of byMap) {
         const ms = mapState(this, mapId);
-        const syms = symbolSnapshot(ms);
+        // 昼の 人・夜の 人で 見える まものが ちがう
+        const syms = { day: symbolSnapshot(ms, false), night: symbolSnapshot(ms, true) };
         const ps = players.map((p) => ({
           sid: p.id, name: p.char.name, look: p.char.look, job: p.char.job, eq: equipLook(p.char), x: Math.round(p.x * 100) / 100, y: Math.round(p.y * 100) / 100,
           dir: p.dir, mv: p.moving ? 1 : 0, b: p.busy === 'battle' ? 1 : 0, pid: p.partyId, aw: p.away ? 1 : 0,
-          fl: this.followerLooks(p),
+          fl: this.followerLooks(p), wg: wagonLook(this, p),
+          // 大鳥で とんでいる / なかまの 大鳥に いっしょに のっている
+          ...(p.flying ? { air: 1, ride: ridingAlong(this, p) ? 1 : 0 } : {}),
         }));
-        for (const p of players) this.send(p, { t: 'snap', map: mapId, players: ps.filter((x) => x.sid !== p.id), syms });
+        for (const p of players) this.send(p, { t: 'snap', map: mapId, players: ps.filter((x) => x.sid !== p.id), syms: p.night ? syms.night : syms.day });
       }
     }
     // セーブ
@@ -950,6 +971,8 @@ function normalizeChar(c) {
   c.battleSettings = c.battleSettings || { speed: 1, wait: false, auto: false };
   // 第1章クリアの あとの もくひょう（第2章が できた ので あんない を かえる）
   if (c.flags.c1_clear && !c.flags.c2_start && /続きはアップデート/.test(c.objective || '')) c.objective = CH1_CLEAR_OBJECTIVE;
+  // 第2章クリアずみで 風の笛を まだ もらっていない 人に 知らせる（sky.js）
+  migrateSky(c);
   ensureCompanions(c);
   normalizeTreasure(c);
 }

@@ -1,22 +1,28 @@
 // だいほん（イベント）を すすめる しくみ
-import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js?v=d695815c3edd';
-import { ITEMS } from '../data/items.js?v=d695815c3edd';
-import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js?v=d695815c3edd';
-import { startFixedBattle } from './battles.js?v=d695815c3edd';
-import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion } from './party.js?v=d695815c3edd';
-import { openService } from './services.js?v=d695815c3edd';
+import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js?v=e2673ecbb09d';
+import { ITEMS } from '../data/items.js?v=e2673ecbb09d';
+import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js?v=e2673ecbb09d';
+import { startFixedBattle } from './battles.js?v=e2673ecbb09d';
+import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=e2673ecbb09d';
+import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion } from './party.js?v=e2673ecbb09d';
+import { openService } from './services.js?v=e2673ecbb09d';
+import { isNightFor, advanceClock } from './clock.js?v=e2673ecbb09d';
+import { grantWagon, wagonChars } from './wagon.js?v=e2673ecbb09d';
 
 let runSeq = 1;
 
 // だいほんに わたす じょうほう
 //  s … 話しかけた 人 / owner … その 世界の もちぬし（さそわれて 手伝っている ときは リーダー）
 //  ものがたりの すすみぐあい（フラグ・大事な物・たのまれごと）は owner、ふつうの 道具は 話しかけた 人
-export function scriptCtx(s, owner = s) {
+//  night … 夜か（パーティーの 時計。world/clock.js）/ helper … さそわれて 手伝っている 人
+export function scriptCtx(s, owner = s, world = null) {
   const c = s.char;
   const o = owner.char;
   return {
     c,
     name: c.name,
+    night: world ? isNightFor(world, owner) : false,
+    helper: s !== owner,
     flag: (f) => !!o.flags[f],
     has: (id) => hasKeyItem(o, id) || (ITEMS[id]?.type !== 'key' && itemCount(c, id) > 0),
     count: (id) => (ITEMS[id]?.type === 'key' ? (hasKeyItem(o, id) ? 1 : 0) : itemCount(c, id)),
@@ -144,7 +150,7 @@ export class ScriptRun {
       const all = this.everyone;
       switch (op) {
         case 'if': {
-          const ok = a[0](scriptCtx(this.init, this.owner));
+          const ok = a[0](scriptCtx(this.init, this.owner, w));
           await this.runSteps(ok ? a[1] || [] : a[2] || []);
           break;
         }
@@ -201,14 +207,16 @@ export class ScriptRun {
           const p = partyOf(w, this.init);
           for (const sup of p?.supports || []) fullHeal(sup.char);
           for (const g of p?.guests || []) fullHeal(g.char);
+          for (const ch of wagonChars(w, p)) fullHeal(ch);
           for (const m of all) w.sendSelf(m);
           if (p) w.sendParty(p);
           break;
         }
         case 'inn': {
-          // ['inn', ねだん, 宿屋の人]（ねだん 0 は 家の ベッド）
+          // ['inn', ねだん, 宿屋の人, 'morning'|'night']（ねだん 0 は 家の ベッド。宿屋は ふつう 朝まで）
           const price = a[0] || 0;
           const keeper = a[1] || null;
+          const until = a[2] || (price ? 'morning' : null);
           const c = this.init.char;
           if (c.gold < price) {
             this.say('おや？ゴールドが足りないようですね。', keeper);
@@ -219,9 +227,17 @@ export class ScriptRun {
           const p = partyOf(w, this.init);
           for (const sup of p?.supports || []) fullHeal(sup.char);
           for (const g of p?.guests || []) fullHeal(g.char);
+          for (const ch of wagonChars(w, p)) fullHeal(ch);
           if (price) this.say('では、ごゆっくりお休みください。', keeper);
-          this.batch.push(['fade', 'out'], ['bgm', 'inn'], ['wait', 2200], ['bgm', 'resume'], ['fade', 'in']);
-          if (price) {
+          this.batch.push(['fade', 'out'], ['bgm', 'inn'], ['wait', 2200]);
+          // 時間を すすめる（パーティーの 時計。さそわれて 手伝っている 人は かえない）
+          if (until && this.owner === this.init) this.batch.push(['clock', advanceClock(w, this.init, until)]);
+          this.batch.push(['bgm', 'resume'], ['fade', 'in']);
+          if (price && until === 'night') {
+            this.say('こんばんは。\nよくお休みになれましたか？', keeper);
+            this.say('HPとMPがすっかり回復した！');
+            this.say('外はもう夜です。夜は魔物が強くなりますから、お気を付けて。', keeper);
+          } else if (price) {
             this.say('おはようございます。\nゆうべは、よくねむれましたか？', keeper);
             this.say('HPとMPがすっかり回復した！');
             this.say('では、いってらっしゃいませ。', keeper);
@@ -264,6 +280,15 @@ export class ScriptRun {
           }
           break;
         }
+        case 'wagon': {
+          // 馬車を もらう（話しかけた 人の もの。data/wagon.js）
+          grantWagon(this.init.char);
+          const p = partyOf(w, this.init);
+          if (p) w.sendParty(p);
+          w.sendSelf(this.init);
+          w.markDirty();
+          break;
+        }
         case 'befriend': {
           // たおした まものが なかまに なる（a[1]: 酒場へ もどる なかま / false: ことわった）
           const s = this.init;
@@ -288,7 +313,8 @@ export class ScriptRun {
           const r = await this.flush();
           if (r.aborted) return this.abort();
           const res = await startFixedBattle(w, this.init, this.everyone, a[0]);
-          if (res !== 'win') return this.abort();
+          // 負けても よい 戦い（loseOk）は 負けても 物語が つづく
+          if (res !== 'win' && !(res === 'lose' && FIXED_ENCOUNTERS[a[0]]?.loseOk)) return this.abort();
           break;
         }
         case 'call':
@@ -311,7 +337,7 @@ export class ScriptRun {
           this.owner.char.spawn = { map, x, y };
           break;
         }
-        case 'shop': case 'jobChange': case 'tavern': case 'board': case 'starTrade': case 'church': {
+        case 'shop': case 'jobChange': case 'tavern': case 'board': case 'starTrade': case 'church': case 'bank': case 'forge': {
           const r = await this.flush();
           if (r.aborted) return this.abort();
           const ui = openService(w, this.init, op, a[0]);
@@ -361,7 +387,7 @@ export function runScript(world, s, scriptId, opts = {}) {
   }
   // さそわれて 手伝っている 人が 町の 人に 話しかけた ときも、リーダーの 世界（ものがたり）で
   const owner = story ? init : (world.hostOf?.(init) || init);
-  const steps = fn(scriptCtx(init, owner));
+  const steps = fn(scriptCtx(init, owner, world));
   if (!steps || !steps.length) return false;
   const participants = [init];
   if (init !== s && !s.busy) participants.push(s);
