@@ -75,6 +75,12 @@ export function diffText(diffs) {
 }
 
 // brief: 戦いの 小さな まど よう（見出し・MP・せつめい・ペナルティ だけ）
+// 技の みじかい せつめい（メニューの リストで 名前の 下に 出す）
+export function skillBrief(a) {
+  if (!a) return '';
+  return a.desc || `${abilityTypeText(a)}（${TARGET_NAMES[a.target] || ''}）`;
+}
+
 export function abilityDetail(id, char, { brief = false } = {}) {
   const a = ABILITIES[id];
   if (!a) return '';
