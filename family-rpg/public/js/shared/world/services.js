@@ -12,6 +12,8 @@ import { DUAL_TECHS } from '../data/dual.js';
 import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings } from '../battle.js';
 import { PLACES } from '../maps/overworld.js';
 import { POS, SEA_PLACES } from '../maps/index.js';
+import { bankInfo, bankAction } from './bank.js';
+import { forgeInfo, forgeAction } from './forge.js';
 
 export function openService(world, s, kind, arg) {
   switch (kind) {
@@ -27,6 +29,8 @@ export function openService(world, s, kind, arg) {
     case 'board': return { posts: world.data.board || [] };
     case 'starTrade': return { trades: STAR_TRADES };
     case 'church': return churchInfo(world, s);
+    case 'bank': return bankInfo(world, s, arg);
+    case 'forge': return forgeInfo(world, s, arg);
     default: return null;
   }
 }
@@ -244,6 +248,9 @@ export function serviceAction(world, s, msg) {
       }
       return;
     }
+    // 預かり所（bank.js）・ふしぎなかじ屋（forge.js）
+    case 'bank': return bankAction(world, s, msg, reply);
+    case 'forge': return forgeAction(world, s, msg, reply, { equipItem, ownChar });
     default:
   }
 }

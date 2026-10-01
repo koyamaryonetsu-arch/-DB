@@ -10,6 +10,7 @@ import { JOB_MAX_LEVEL } from '../data/jobs.js';
 import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf } from './party.js';
 import { rollDrops, stealPick } from '../data/loot.js';
 import { MAPS } from '../maps/index.js';
+import { wipeGoldLoss, bankGold } from './bank.js';
 
 let battleSeq = 1;
 
@@ -204,7 +205,7 @@ export function startFixedBattle(world, initiator, participants, encId) {
   for (const [sp, mn] of enc.group) for (let i = 0; i < mn; i++) enemies.push(sp);
   return new Promise((resolve) => {
     for (const m of sessions) m.busy = null; // だいほんの あいだは busy='script' だが たたかいに きりかえる
-    const ctx = makeBattle(world, sessions, party, enemies, { bg: enc.bg, bgm: enc.bgm, canFlee: enc.canFlee, boss: enc.boss, fixed: encId });
+    const ctx = makeBattle(world, sessions, party, enemies, { bg: enc.bg, bgm: enc.bgm, canFlee: enc.canFlee, boss: enc.boss, fixed: encId, loseOk: !!enc.loseOk });
     ctx.resolve = resolve;
   });
 }
@@ -353,8 +354,21 @@ function finishBattle(world, ctx) {
       if (sp) befriend = { s: target, species: sp, level: befriendLevel(target.char, sp) };
     }
   } else if (outcome === 'lose') {
+    // ほんとうの 全滅: それぞれ 自分の 持っている お金が 半分に（預かり所の お金は へらない）
+    // 負けても 物語が すすむ 戦い（encounters の loseOk）では へらない
     for (const m of sessions) {
-      perSession[m.id] = { lines: [`${m.char.name}たちは全滅してしまった…`] };
+      if (ctx.opts.loseOk) {
+        perSession[m.id] = { lines: [`${m.char.name}たちは力つきた…`] };
+        continue;
+      }
+      const lines = [`${m.char.name}たちは全滅してしまった…`];
+      const g = wipeGoldLoss(m.char);
+      let note = '';
+      if (g.lost > 0) {
+        note = `所持金が半分になってしまった…${bankGold(m.char) > 0 ? '\n（預かり所のお金は無事だ）' : ''}`;
+        lines.push(`所持金が半分になってしまった…（${g.before}G→${g.after}G）`);
+      }
+      perSession[m.id] = { lines, wipeNote: note };
     }
   } else if (outcome === 'flee') {
     for (const m of sessions) perSession[m.id] = { lines: [] };
@@ -382,7 +396,9 @@ function finishBattle(world, ctx) {
     world.send(m, { t: 'battleEnd', id: ctx.id, outcome, lines: r.lines, levelUp: !!r.levelUp, story: !!ctx.resolve });
   }
   if (outcome === 'lose') {
-    for (const m of sessions) world.respawn(m);
+    // 負けても よい 戦いは その場で 立ち上がって 物語の つづきへ
+    if (ctx.opts.loseOk) for (const m of sessions) fullHeal(m.char);
+    else for (const m of sessions) world.respawn(m, perSession[m.id]?.wipeNote);
     for (const a of b.allies) {
       const who = ctx.actorMap[a.id];
       if (who && who.type !== 'human' && who.char) fullHeal(who.char);

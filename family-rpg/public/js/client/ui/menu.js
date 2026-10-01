@@ -271,7 +271,8 @@ export class FieldMenu {
     const detail = el('div', { class: 'detail' });
     const mode = itemSortPref();
     const counts = new Map(c.items.map((e) => [e.id, e.n]));
-    const items = sortItemIds(c.items.map((e) => e.id), mode).map((id) => ({ label: ITEMS[id].name, right: `×${counts.get(id)}`, value: id }));
+    // 素材（ふしぎなかじで 使う）には しるし
+    const items = sortItemIds(c.items.map((e) => e.id), mode).map((id) => ({ label: ITEMS[id].name, html: ITEMS[id].type === 'mat' ? `${esc(ITEMS[id].name)}<span class="tag mat">素材</span>` : undefined, right: `×${counts.get(id)}`, value: id }));
     for (const k of c.keyItems) items.push({ html: `${ITEMS[k].name}<span class="tag gold">大事</span>`, value: k, key: true });
     if (!items.length) {
       box.append(el('div', { class: 'muted', text: '何も持っていない。' }));
@@ -811,10 +812,10 @@ export class FieldMenu {
       }
       detail.append(affRow, el('div', { class: 'small muted', text: '◎弱点 ○ふつう △効きにくい ×効かない ？まだためしていない' }));
       // 落とす 物（手に 入れた ものだけ 名前が 分かる）
-      const ORDER = { common: 0, rare: 1, boss: 2 };
+      const ORDER = { common: 0, mat: 0.5, rare: 1, boss: 2 };
       const drops = monsterDrops(sp).sort((p, q) => ORDER[p.kind] - ORDER[q.kind]);
       if (drops.length) {
-        const KIND = { boss: 'かならず', rare: 'レア', common: 'よく' };
+        const KIND = { boss: 'かならず', rare: 'レア', common: 'よく', mat: '素材' };
         const row = el('div', { class: 'small zukan-drops' }, el('span', { class: 'muted', text: '落とす物 ' }));
         for (const d of drops) {
           const known = !!s.raw[`drop_${d.item}`];

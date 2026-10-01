@@ -19,6 +19,7 @@ import { learnedAbilities, comboUnlocked, hiraAllowed } from '../stats.js';
 import { HIRAMEKI, hiraRatio } from './hirameki.js';
 import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js';
 import { innSteps } from './inn.js';
+import { FACILITY_SCRIPTS } from './facilities.js';
 
 const V = (x, y) => [PLACES.village.x + x + 0.5, PLACES.village.y + y + 0.5];
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
@@ -569,5 +570,7 @@ function sageHints(x) {
 }
 
 Object.assign(SCRIPTS, CH2_SCRIPTS);
+// 預かり所・ふしぎなかじ屋（facilities.js）
+Object.assign(SCRIPTS, FACILITY_SCRIPTS);
 
 export { comboUnlocked };

@@ -562,13 +562,14 @@ export class GameWorld {
     this.broadcastPlayers();
   }
 
-  respawn(s) {
+  // note: 目を覚ました ときの おしらせに 足す ことば（全滅で お金が へった など）
+  respawn(s, note = '') {
     // さそわれて 来ている 人は リーダーの いのりの場所で（みんな いっしょに 目を覚ます）
     const own = this.hostOf(s)?.char.spawn || s.char.spawn;
     const sp = own && MAPS[own.map] ? own : { map: 'overworld', x: POS.villageChurch[0] + 0.5, y: POS.villageChurch[1] + 0.5 };
     fullHeal(s.char);
     this.placeSession(s, sp.map, sp.x, sp.y, 'down', true);
-    this.send(s, { t: 'toast', text: `${s.char.name}はいのりの場所で目を覚ました。\n「無理はいけませんよ」` });
+    this.send(s, { t: 'toast', text: `${s.char.name}はいのりの場所で目を覚ました。\n「無理はいけませんよ」${note ? `\n${note}` : ''}`, afterBattle: true });
   }
 
   mapKind(id) { return MAPS[id]?.kind; }

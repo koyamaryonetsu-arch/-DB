@@ -10,6 +10,8 @@ import { TACTICS } from '../../shared/ai.js';
 import { itemDetail } from './info.js';
 import { playerSprite, followerSprite, faceURL } from '../field.js';
 import { shopUI, churchUI } from './shop.js';
+import { bankUI } from './bank.js';
+import { forgeUI } from './forge.js';
 
 export function openServiceUI(game, kind, data) {
   switch (kind) {
@@ -19,6 +21,8 @@ export function openServiceUI(game, kind, data) {
     case 'board': return boardUI(game, data);
     case 'starTrade': return starUI(game, data);
     case 'church': return churchUI(game, data);
+    case 'bank': return bankUI(game, data);
+    case 'forge': return forgeUI(game, data);
     default: return Promise.resolve();
   }
 }

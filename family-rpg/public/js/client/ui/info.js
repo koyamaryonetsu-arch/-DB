@@ -47,6 +47,9 @@ export function itemDetail(id) {
   else if (rk) lines.push(rk);
   const w = whoCanEquip(id);
   if (w) lines.push(w);
+  // ふしぎなかじ
+  if (it.plus) lines.push(`ふしぎなかじで${it.plus}回きたえてある（+${it.plus}）`);
+  if (it.type === 'mat') lines.push('ふしぎなかじの素材（ルミナの町・カモメ港のかじ屋で使う）');
   return lines.filter(Boolean).join('\n');
 }
 

@@ -7,6 +7,7 @@
 // unique: 1人 1つの 品（ボスが 落とす 物）。データを 合わせる ときに ふえすぎない
 
 import { ITEMS_CH2 } from './items-ch2.js';
+import { ITEMS_FORGE, FORGE_KANA, addUpgradeItems } from './items-forge.js';
 
 export const ITEMS = {
   // ───── つかう どうぐ ─────
@@ -157,6 +158,10 @@ export const ITEMS = {
   mike_bell: { name: 'ミケのすず', type: 'key', desc: '迷子のねこミケの首輪に付いていたすず。' },
 };
 Object.assign(ITEMS, ITEMS_CH2);
+// ふしぎなかじの 素材と 作れる 装備（items-forge.js）
+Object.assign(ITEMS, ITEMS_FORGE);
+// きたえた 装備（'iron_sword+1'〜'+3'）。新しい 装備を 足す ときは この 行より 上で
+addUpgradeItems(ITEMS);
 
 // ───── 装備の ランク（長い 物語の ための ものさし）─────
 // 1つの 章で 1〜2ランク すすむ。新しい 章を 作る ときは、その章の 町で 次の ランクを 売る。
@@ -187,6 +192,11 @@ export const SLOT_OF_TYPE = { weapon: 'weapon', armor: 'armor', shield: 'shield'
 export const WEAPON_CAT_NAMES = {
   sword: '剣', dagger: '短剣', axe: 'オノ', staff: 'つえ', spear: 'やり', claw: 'ツメ', fan: 'おうぎ', whip: 'ムチ', bat: 'バット', none: '素手',
 };
+
+// きたえた 装備（'iron_sword+2'）の もとの 装備（みため・エフェクト・装備できる 職業は もとと おなじ）
+export function baseItemId(id) {
+  return (id && ITEMS[id]?.base) || id;
+}
 
 export function sellPrice(id) {
   const it = ITEMS[id];
@@ -219,7 +229,12 @@ export const ITEM_KANA = {
   light_orb: 'ひかりのたま', wind_star: 'かぜのまもりぼし', bottle_letter: 'びんのてがみ',
 };
 
+Object.assign(ITEM_KANA, FORGE_KANA);
+
 export function itemKana(id) {
+  // きたえた 装備は もとの 装備の 読み ＋ 回数（鉄の剣 → 鉄の剣+1 の じゅん）
+  const up = ITEMS[id];
+  if (up?.base && ITEMS[up.base]) return `${itemKana(up.base)}+${up.plus}`;
   const k = ITEM_KANA[id];
   if (k) return k;
   // カタカナ → ひらがな（「ー」は そのまま）
@@ -243,9 +258,11 @@ export function itemTypeRank(id) {
 // ならべかえ: 'got'（手に入れた順）/ 'kana'（あいうえお順）/ 'type'（種類順）
 export const ITEM_SORTS = { got: '手に入れた順', kana: 'あいうえお順', type: '種類順' };
 const ITEM_POS = new Map(Object.keys(ITEMS).map((id, i) => [id, i]));
+// きたえた 装備は もとの 装備の すぐ うしろ
+const itemPos = (id) => (ITEMS[id]?.base ? (ITEM_POS.get(ITEMS[id].base) ?? 0) + ITEMS[id].plus / 10 : ITEM_POS.get(id) ?? 0);
 export function sortItemIds(ids, mode) {
   const list = ids.slice();
   if (mode === 'kana') list.sort((a, b) => itemKana(a).localeCompare(itemKana(b), 'ja'));
-  else if (mode === 'type') list.sort((a, b) => itemTypeRank(a) - itemTypeRank(b) || (ITEMS[a].rank || 0) - (ITEMS[b].rank || 0) || (ITEM_POS.get(a) ?? 0) - (ITEM_POS.get(b) ?? 0));
+  else if (mode === 'type') list.sort((a, b) => itemTypeRank(a) - itemTypeRank(b) || (ITEMS[a].rank || 0) - (ITEMS[b].rank || 0) || itemPos(a) - itemPos(b));
   return list;
 }

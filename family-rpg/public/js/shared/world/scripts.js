@@ -3,6 +3,7 @@ import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js';
 import { ITEMS } from '../data/items.js';
 import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js';
 import { startFixedBattle } from './battles.js';
+import { FIXED_ENCOUNTERS } from '../data/encounters.js';
 import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion } from './party.js';
 import { openService } from './services.js';
 
@@ -288,7 +289,8 @@ export class ScriptRun {
           const r = await this.flush();
           if (r.aborted) return this.abort();
           const res = await startFixedBattle(w, this.init, this.everyone, a[0]);
-          if (res !== 'win') return this.abort();
+          // 負けても よい 戦い（loseOk）は 負けても 物語が つづく
+          if (res !== 'win' && !(res === 'lose' && FIXED_ENCOUNTERS[a[0]]?.loseOk)) return this.abort();
           break;
         }
         case 'teleport': {
@@ -307,7 +309,7 @@ export class ScriptRun {
           this.owner.char.spawn = { map, x, y };
           break;
         }
-        case 'shop': case 'jobChange': case 'tavern': case 'board': case 'starTrade': case 'church': {
+        case 'shop': case 'jobChange': case 'tavern': case 'board': case 'starTrade': case 'church': case 'bank': case 'forge': {
           const r = await this.flush();
           if (r.aborted) return this.abort();
           const ui = openService(w, this.init, op, a[0]);

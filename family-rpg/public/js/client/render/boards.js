@@ -138,6 +138,36 @@ const ICONS = {
     ],
     pal: { w: '#e8eef8' },
   },
+  // 金貨（預かり所）
+  bank: {
+    rows: [
+      '..yyyyy..',
+      '.yYYYYYy.',
+      'yYYgggYYy',
+      'yYgYYYYYy',
+      'yYgYYggYy',
+      'yYgYYYgYy',
+      'yYYgggYYy',
+      '.yYYYYYy.',
+      '..yyyyy..',
+    ],
+    pal: { y: '#a8740a', Y: '#f2c14e', g: '#7a4a08' },
+  },
+  // かなづちと かなとこ（かじ屋）
+  smith: {
+    rows: [
+      '....hhh..',
+      '...hhhhh.',
+      '....hhh..',
+      '...w.....',
+      '..w...s..',
+      '.w..s....',
+      'aaaaaaaa.',
+      '..aaaa...',
+      '.aaaaaa..',
+    ],
+    pal: { h: '#dfe4f0', w: '#a0703a', a: '#3a3a4a', s: '#ffd66b' },
+  },
 };
 
 ICONS.general = ICONS.item;
@@ -168,6 +198,8 @@ const BOARD = {
   church: ['#4a4ab8', '#1e1e5a', '#7a7ae0'],
   temple: ['#3a3a8a', '#141440', '#6a6ac8'],
   harbor: ['#2a7a8a', '#123a44', '#5aaab8'],
+  bank: ['#7a5a2a', '#3a2610', '#b08a4a'],
+  smith: ['#8a4a2a', '#3a1e10', '#c8703a'],
 };
 
 // たてものに かける かんばん（16×15）

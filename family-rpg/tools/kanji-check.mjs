@@ -168,6 +168,10 @@ export function gameFiles() {
     'public/js/shared/world/sync.js', 'public/js/shared/world/merge.js', 'server/syncstore.js',
     'server/guard.js', 'server/funnel.js', 'server/funnel-cli.js',
     'server/index.js', 'server/main.js', 'server/update.js', 'server/storage.js', 'server/savedir.js',
+    // 預かり所・ふしぎなかじ屋
+    'public/js/shared/data/items-forge.js', 'public/js/shared/data/forge.js', 'public/js/shared/data/facilities.js',
+    'public/js/shared/world/bank.js', 'public/js/shared/world/forge.js',
+    'public/js/client/ui/bank.js', 'public/js/client/ui/forge.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

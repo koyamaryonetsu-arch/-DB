@@ -843,6 +843,22 @@ img.face { image-rendering: pixelated; }
 .menu .item .r.dis { color: #6d6c88; }
 .menu .item .r.up { color: var(--good); }
 .menu .item .r.down { color: var(--danger); }
+/* 預かり所・ふしぎなかじ屋（ui/bank.js・ui/forge.js） */
+.menu .tag.mat { color: #9ad8ff; }
+.zdrop.mat .tag { color: #9ad8ff; border-color: rgba(154, 216, 255, 0.55); }
+.bank-row { display: flex; justify-content: space-between; gap: 1em; padding: 0.1em 0; border-bottom: 1px solid rgba(255, 255, 255, 0.07); font-variant-numeric: tabular-nums; }
+.bank-list { margin-top: 0.3em; }
+.forge-cost { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; column-gap: 1.1em; margin-top: 0.35em; font-size: var(--fs-small); font-variant-numeric: tabular-nums; line-height: 1.45; }
+.forge-cost .hd { color: var(--accent); border-bottom: 1px dashed rgba(255, 214, 107, 0.35); margin-bottom: 0.1em; }
+.forge-cost .n { text-align: right; }
+.forge-cost .ok { color: var(--good); }
+.forge-cost .ng { color: var(--danger); }
+.forge-stats { display: grid; grid-template-columns: repeat(4, auto); justify-content: start; column-gap: 0.7em; margin: 0.2em 0; font-variant-numeric: tabular-nums; }
+.forge-stat { display: contents; }
+.forge-stat .nm { color: var(--muted); }
+.forge-stat .b, .forge-stat .a { text-align: right; }
+.forge-stat.chg .a { font-weight: bold; }
+.forge-who { margin: 0.1em 0 0.2em; }
 @media (max-width: 700px) {
   .ct-body { grid-template-columns: 1fr; grid-template-rows: minmax(0, 1.7fr) minmax(0, 1fr); }
   .ct-msg { min-height: 3.3em; margin-top: 0.9em; padding-top: 0.5em; padding-bottom: 0.45em; }
