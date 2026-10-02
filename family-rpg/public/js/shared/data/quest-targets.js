@@ -4,7 +4,8 @@
 // 行き先の 書き方: { npc: 'NPCのID' }（その 人の いる 場所）か { map, x, y }
 // 新しい 目標を 作ったら、ここにも 行き先を 足す
 import { MAPS } from '../maps/index.js';
-import { SKY_OBJECTIVE_TARGETS } from './sky.js';
+import { SKY_OBJECTIVE_TARGETS, C3_LEAD_OBJECTIVE } from './sky.js';
+import { CH3_OBJECTIVE_TARGETS, ch3SubQuests } from './story-ch3.js';
 
 export const OBJECTIVE_TARGETS = {
   'ホシミばあちゃんの家（村の南東）へ行こう': [{ npc: 'elder' }],
@@ -32,6 +33,9 @@ export const OBJECTIVE_TARGETS = {
 };
 // 風の笛（sky.js）
 Object.assign(OBJECTIVE_TARGETS, SKY_OBJECTIVE_TARGETS);
+// 第3章（story-ch3.js）
+OBJECTIVE_TARGETS[C3_LEAD_OBJECTIVE] = [{ npc: 'elder' }];
+Object.assign(OBJECTIVE_TARGETS, CH3_OBJECTIVE_TARGETS);
 
 // たのまれごと（name … クエストの 名前、who … 報告する 人、ready … もう 報告できる）
 export function subQuests(c) {
@@ -56,6 +60,9 @@ export function subQuests(c) {
     if (has('music_box')) out.push({ name: 'ゆうれいのオルゴール', who: 'night_ghost', ready: true, text: '夜のホシフル村で、ゆうれいの女の子にわたそう' });
     else out.push({ name: 'ゆうれいのオルゴール', who: 'night_ghost', find: 'night_glint', ready: false, text: '夜の星見の丘で探そう' });
   }
+  // 第3章（story-ch3.js）
+  const count = (id) => (c.items || []).filter((i) => i.id === id).reduce((s, i) => s + (i.n || 0), 0);
+  out.push(...ch3SubQuests(c, f, has, count));
   return out;
 }
 

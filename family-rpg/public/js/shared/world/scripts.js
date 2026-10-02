@@ -10,7 +10,7 @@ import { isNightFor, advanceClock } from './clock.js';
 import { grantWagon, wagonChars } from './wagon.js';
 import { GUESTS } from '../data/shops.js';
 import { unstickAll } from './hazards.js';
-import { MAPS } from '../maps/index.js';
+import { MAPS, isBlocked } from '../maps/index.js';
 
 let runSeq = 1;
 
@@ -137,6 +137,16 @@ export class ScriptRun {
   resend(m) {
     if (!this.waiting || !this.lastSteps) return;
     this.world.send(m, { t: 'script', runId: this.id, steps: this.lastSteps, spectator: m.id !== this.init.id, who: this.init.char.name });
+  }
+
+  // パーティーの いま（だいほんの 'call' から つかう。第3章の きずなの間）
+  //  people: いっしょに いる 人（セッション）/ helpers: サポート・ゲスト・馬車の なかまの キャラ
+  partyNow() {
+    const w = this.world;
+    const p = partyOf(w, this.init);
+    const people = (p ? p.members : [this.init.id]).map((id) => w.sessions.get(id)).filter(Boolean);
+    const helpers = p ? [...p.supports.map((x) => x.char), ...p.guests.map((g) => g.char), ...wagonChars(w, p)].filter(Boolean) : [];
+    return { people, helpers };
   }
 
   say(text, who = null) {
@@ -359,12 +369,19 @@ export class ScriptRun {
         case 'teleport': {
           const [map, x, y, dir] = a;
           const offs = [[0, 0], [-1, 0], [1, 0], [0, 1], [-1, 1], [1, 1]];
-          all.forEach((m, i) => {
+          const dest = MAPS[map];
+          const has = w.hasFlagFn(this.owner);
+          // かべの 中には おかない（ふさがって いたら まん中に）
+          const pos = all.map((m, i) => {
             const [ox, oy] = offs[i % offs.length];
-            w.placeSession(m, map, x + ox, y + oy, dir || m.dir, false);
+            return !dest || isBlocked(dest, Math.floor(x + ox), Math.floor(y + oy), has) ? [x, y] : [x + ox, y + oy];
           });
+          const from = { map: this.init.map, x: this.init.x, y: this.init.y };
+          all.forEach((m, i) => w.placeSession(m, map, pos[i][0], pos[i][1], dir || m.dir, false));
+          // 「ついていく」なかまも いっしょに（トロッコ・船 など。だいほんに 入っていない 人）
+          if (all.includes(this.init)) w.warpFollowers(this.init, from.map, from.x, from.y, { map, x, y, dir: dir || 'down' });
           // それぞれの いちを つたえる
-          this.batch.push(['teleport', map, x, y, dir || 'down', all.map((m, i) => [m.id, x + offs[i % offs.length][0], y + offs[i % offs.length][1], m.posSeq])]);
+          this.batch.push(['teleport', map, x, y, dir || 'down', all.map((m, i) => [m.id, pos[i][0], pos[i][1], m.posSeq])]);
           break;
         }
         case 'spawn': {

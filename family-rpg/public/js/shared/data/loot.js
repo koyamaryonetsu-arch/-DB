@@ -16,6 +16,7 @@
 import { ITEMS } from './items.js';
 import { MONSTERS } from './monsters.js';
 import { RARE_MAT_DROPS } from './monsters-rare.js';
+import { CH3_MAT_DROPS } from './monsters-ch3.js';
 
 export const DROP_N = { common: 8, rare: 64, mat: 8 };
 
@@ -49,6 +50,8 @@ export const MAT_DROPS = {
   storm_soldier: ['silver_shard', 5],
   // めずらしい 魔物（monsters-rare.js）
   ...RARE_MAT_DROPS,
+  // 第3章（monsters-ch3.js）
+  ...CH3_MAT_DROPS,
 };
 // ぬすむ ときは レアが 出やすい（この 倍。でも 半分まで）
 export const STEAL_RARE_MULT = 8;

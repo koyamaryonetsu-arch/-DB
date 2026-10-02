@@ -18,12 +18,21 @@ export const BANKS = {
     name: 'カモメ港の預かり所', keeper: '預かり所のおじさん',
     hello: 'カモメ港の預かり所へ、ようこそ。\nルミナの町で預けた物も、ここで出し入れできますよ。\nどんなご用でしょう？',
   },
+  // 第3章: 鉱山の町カナトコ
+  kanatoko: {
+    name: 'カナトコの預かり所', keeper: '預かり所のおじさん',
+    hello: 'カナトコの預かり所へ、ようこそ。\nどこの預かり所で預けた物も、ここで出し入れできますぞ。\nどんなご用ですかな？',
+  },
 };
 
 export const FORGES = {
   town: {
     name: 'ふしぎなかじ屋', keeper: 'かじ屋の親方',
     hello: 'おう、ここはふしぎなかじ屋だ。\n素材とゴールドがあれば、装備を作ったり、\nきたえたりできるぞ。今日は何をする？',
+  },
+  kanatoko: {
+    name: 'テツジイのかじ屋', keeper: 'かじ屋のテツジイ',
+    hello: 'ふぉっふぉっ、わしはテツジイ。\nこの町いちばんのかじ屋じゃ。\n何を作る？それとも、きたえるかの？',
   },
   port: {
     name: 'カモメ港のかじ屋', keeper: 'かじ屋の弟子',
@@ -37,4 +46,7 @@ export const FACILITY_SCRIPTS = {
   bank_port: () => [['bank', 'port']],
   forge_town: () => [['forge', 'town']],
   forge_port: () => [['forge', 'port']],
+  // 第3章: 鉱山の町カナトコ（テツジイは story-ch3.js）
+  bank_kanatoko: () => [['bank', 'kanatoko']],
+  forge_kanatoko: () => [['forge', 'kanatoko']],
 };

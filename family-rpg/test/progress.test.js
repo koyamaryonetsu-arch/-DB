@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { objectiveFromFlags, repairObjective, KNOWN_OBJECTIVES } from '../public/js/shared/data/progress.js';
 import { OBJECTIVE_TALK } from '../public/js/shared/data/party-talk.js';
 import { CH1_CLEAR_OBJECTIVE } from '../public/js/shared/data/story.js';
-import { SKY_FLAG, SKY_OBJECTIVE } from '../public/js/shared/data/sky.js';
+import { SKY_FLAG, SKY_OBJECTIVE, C3_LEAD_OBJECTIVE } from '../public/js/shared/data/sky.js';
 import { GameWorld } from '../public/js/shared/world/world.js';
 import { makeRng } from '../public/js/shared/rng.js';
 import { Bot } from './helpers.js';
@@ -25,7 +25,9 @@ test('フラグから 今の 目標が わかる', () => {
   assert.equal(objectiveFromFlags({ flags: flags('c1_cave', 'c1_door'), chests: { b2_key: true } }), 'おくの部屋へ進もう（泉で回復してから行こう）');
   assert.equal(objectiveFromFlags({ flags: flags('c1_clear') }), CH1_CLEAR_OBJECTIVE);
   assert.equal(objectiveFromFlags({ flags: flags('c1_clear', 'c2_start', 'c2_ship', 'c2_port_seen', 'c2_port') }), '南の小島の「海鳴りの洞窟」で、光の玉を取りもどそう');
-  assert.equal(objectiveFromFlags({ flags: flags('c2_clear', SKY_FLAG) }), SKY_OBJECTIVE);
+  // 風の笛を もらったら 第3章の 入り口（ホシミばあちゃん）。むかしの 文も 知っている 文の まま
+  assert.equal(objectiveFromFlags({ flags: flags('c2_clear', SKY_FLAG) }), C3_LEAD_OBJECTIVE);
+  assert.ok(KNOWN_OBJECTIVES.has(SKY_OBJECTIVE));
 });
 
 test('古い 文・からっぽの 目標だけ なおす（今の 文は そのまま）', () => {

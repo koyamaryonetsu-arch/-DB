@@ -1,7 +1,7 @@
 // 第3章「星の竜がねむる山」の マップ
 // シロガネ地方（フィールド）・氷の洞窟・鉱山・炎の山・竜の試練の神殿・星竜山
 // 町や 村の 形は north-rows.js、ダンジョンの 形は ch3-rows.js（1文字 = 1マス）
-import { T, parseRows } from '../tiles.js';
+import { T, TILE_INFO, parseRows } from '../tiles.js';
 import { makeRng } from '../rng.js';
 import { npc } from './npc.js';
 import { SEA_PLACES } from './ch2.js';
@@ -100,7 +100,7 @@ const NORTH_NPCS = [
   npc('fire_star', '炎の守り星', [V(25, 3)[0] + 0.5, V(25, 3)[1] - 0.2], 'firestone', 'c3_fire_altar', { solid: false, show: { all: ['c3_clear'] } }),
   npc('c3_v_inn', '宿屋のおかみ', V(3, 18), 'snow_f', 'c3_inn_village', { dir: 'down' }),
   npc('c3_v_shop', 'よろず屋のおじさん', V(24, 18), 'snow_m', 'c3_shop_village', { dir: 'down' }),
-  npc('c3_v_hunter', '狩人のトウマ', V(13, 13), 'snow_hunter', 'c3_v_hunter', { wander: 2 }),
+  npc('c3_v_hunter', 'かりゅうどのトウマ', V(13, 13), 'snow_hunter', 'c3_v_hunter', { wander: 2 }),
   npc('c3_v_girl', 'コユキ', V(11, 14), 'snow_girl', 'c3_fox_girl', { wander: 1 }),
   npc('c3_v_kid', 'ユタ', V(17, 14), 'snow_kid', 'c3_snow_kid', { wander: 1 }),
   npc('c3_v_woman', '村のおくさん', V(4, 13), 'snow_f', 'c3_v_woman'),
@@ -116,7 +116,7 @@ const NORTH_NPCS = [
   // 鉱山の町カナトコ
   npc('donga', '親方ドンガ', K(6, 4), 'miner_boss', 'c3_donga'),
   npc('pikke', 'ピッケ', K(13, 8), 'pikke', 'c3_pikke', { show: { not: ['c3_mine'] }, wander: 1 }),
-  npc('pikke_home', 'ピッケ', K(4, 5), 'pikke', 'c3_pikke', { show: { all: ['c3_mine'] } }),
+  npc('pikke_home', 'ピッケ', K(3, 5), 'pikke', 'c3_pikke', { show: { all: ['c3_mine'] } }),
   npc('ganji', '鉱夫ガンジ', K(3, 4), 'miner', 'c3_ganji', { show: { all: ['c3_mine'] } }),
   npc('c3_k_weapon', '武器屋のおやじ', K(25, 4), 'miner2', 'c3_shop_weapon', { dir: 'down' }),
   npc('c3_k_item', '道具屋のおかみ', K(4, 12), 'mine_wife', 'c3_shop_item', { dir: 'down' }),
@@ -144,10 +144,10 @@ const NORTH_NPCS = [
   npc('c3_y_monkey', '温泉のサル', Y(4, 11), 'monkey', 'c3_monkey', { solid: true }),
 
   // フィールド
-  npc('c3_landing_guide', '旅の狩人', [62, 93], 'snow_hunter', 'c3_landing_guide', { wander: 1 }),
+  npc('c3_landing_guide', '旅のかりゅうど', [62, 93], 'snow_hunter', 'c3_landing_guide', { wander: 1 }),
   npc('c3_fisher', '氷つりのおじさん', [41, 56], 'snow_m', 'c3_fisher', { dir: 'left' }),
   npc('fox', 'ユキマル', [P.fox.x, P.fox.y], 'fox', 'c3_fox', { show: { all: ['q_fox_start'], not: ['q_fox_found'] }, wander: 1 }),
-  npc('c3_hermit', '温泉の仙人', [P.spa.x + 4, P.spa.y - 4], 'snow_m', 'c3_hermit'),
+  npc('c3_hermit', 'ふしぎな老人', [P.spa.x + 4, P.spa.y - 4], 'snow_m', 'c3_hermit'),
   npc('c3_spa_monkey', 'ひみつの温泉のサル', [P.spa.x + 1, P.spa.y + 1], 'monkey', 'c3_monkey', { solid: true }),
   npc('star_iron', '光る石', [P.crater.x, P.crater.y], 'night_glint', 'c3_star_iron', { show: { not: ['q_star_iron'] }, solid: false }),
   // なだれの そばで まっている ブリザマンモス（おとなしく なった あと）
@@ -157,15 +157,15 @@ const NORTH_NPCS = [
 // 宝箱（フィールドの 宝箱は 開けると きえる）
 const NORTH_CHESTS = [
   { id: 'n_lake', x: LAKE3.x, y: LAKE3.y, item: 'frost_ring' },
-  { id: 'n_fox', x: P.fox.x + 3, y: P.fox.y + 1, item: 'seed_agi' },
+  { id: 'n_fox', x: P.fox.x - 2, y: P.fox.y + 1, item: 'seed_agi' },
   { id: 'n_spa', x: P.spa.x + 4, y: P.spa.y + 3, item: 'seed_hp' },
   { id: 'n_crater', x: P.crater.x - 2, y: P.crater.y - 1, item: 'magic_water', n: 2 },
   { id: 'n_temple', x: 37, y: 37, item: 'seed_mag' },
   { id: 'n_valley', x: 66, y: 16, item: 'seed_str' },
-  { id: 'n_yuvalley', x: 97, y: 103, item: 'silver_shard', n: 2 },
-  { id: 'n_ash', x: 124, y: 79, gold: 900 },
+  { id: 'n_yuvalley', x: 96, y: 103, item: 'silver_shard', n: 2 },
+  { id: 'n_ash', x: 122, y: 79, gold: 900 },
   { id: 'n_minestrip', x: 128, y: 35, item: 'revive_flower' },
-  { id: 'n_westpath', x: 4, y: 34, item: 'moonherb', n: 3 },
+  { id: 'n_westpath', x: 3, y: 34, item: 'moonherb', n: 3 },
 ];
 
 // かんばん
@@ -241,8 +241,15 @@ function buildField() {
     else if (g.flag === 'c3_gate') actions.push({ x: g.x, y: g.y, script: 'c3_dragon_gate', show: { not: ['c3_gate'] } });
     else if (g.flag === 'c3_flare') actions.push({ x: g.x, y: g.y, script: 'c3_seal', show: { not: ['c3_flare'] } });
   }
+  // 湯ぶねの ふち（となりに 立てる マス）だけ しらべられる
+  const floorAt = (x, y) => x >= 0 && y >= 0 && x < nb.w && y < nb.h && !TILE_INFO[nb.tiles[y * nb.w + x]]?.solid;
   const spring = (x0, y0, x1, y1, script) => {
-    for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) if (nb.tiles[y * nb.w + x] === T.HOT_SPRING) actions.push({ x, y, script });
+    for (let y = y0; y <= y1; y++) {
+      for (let x = x0; x <= x1; x++) {
+        if (nb.tiles[y * nb.w + x] !== T.HOT_SPRING) continue;
+        if ([[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => floorAt(x + dx, y + dy))) actions.push({ x, y, script });
+      }
+    }
   };
   // カナトコの 宿屋の 大浴場・ユノハの 外の 温泉・ひみつの温泉
   spring(...K(8, 19), ...K(10, 20), 'c3_kan_bath');
@@ -304,8 +311,14 @@ function dungeon(id, name, rows, opts = {}) {
 }
 
 // マスの まとまりを しかけに する（closed → open。invert: フラグが たつと しまる）
-function gates(list, x0, y0, x1, y1, closed, open, flag, invert = false) {
-  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) list.push(invert ? { x, y, closed, open, flag, invert: true } : { x, y, closed, open, flag });
+// もとの マスは はじめ（フラグが ない とき）の すがたに しておく
+function gates(m, x0, y0, x1, y1, closed, open, flag, invert = false) {
+  for (let y = y0; y <= y1; y++) {
+    for (let x = x0; x <= x1; x++) {
+      m.tiles[y * m.w + x] = invert ? open : closed;
+      m.gates.push(invert ? { x, y, closed, open, flag, invert: true } : { x, y, closed, open, flag });
+    }
+  }
 }
 const lever = (x, y, flag, script) => ({ gate: { x, y, closed: T.LEVER, open: T.LEVER_ON, flag }, action: { x, y, script } });
 
@@ -445,8 +458,8 @@ function volcano() {
     spawnCounts: { n_volc: 8 },
   });
   // レバーで ようがんの 川の 一部が ひえて 道に なる（西の わたりは かわりに ようがんが 流れる）
-  gates(v1.gates, 7, 18, 18, 18, T.LAVA, T.OBSIDIAN, VOLCANO_LEVERS.v1);
-  gates(v1.gates, 5, 17, 6, 17, T.LAVA, T.OBSIDIAN, VOLCANO_LEVERS.v1, true);
+  gates(v1, 7, 18, 18, 18, T.LAVA, T.OBSIDIAN, VOLCANO_LEVERS.v1);
+  gates(v1, 5, 17, 6, 17, T.LAVA, T.OBSIDIAN, VOLCANO_LEVERS.v1, true);
   const l1 = lever(24, 24, VOLCANO_LEVERS.v1, 'c3_v1_lever');
   v1.gates.push(l1.gate);
   v1.actions.push(l1.action);
@@ -468,10 +481,10 @@ function volcano() {
     spawnCounts: { n_volc: 10 },
   });
   // 下の 川: P1（西）は レバー1で ひえる、Q1（東）は レバー1で ようがんが 流れる。上の 川の P2・Q2 は レバー2
-  gates(v2.gates, 9, 25, 11, 27, T.LAVA, T.OBSIDIAN, VOLCANO_LEVERS.v2a);
-  gates(v2.gates, 32, 25, 34, 27, T.LAVA, T.OBSIDIAN, VOLCANO_LEVERS.v2a, true);
-  gates(v2.gates, 9, 12, 11, 14, T.LAVA, T.OBSIDIAN, VOLCANO_LEVERS.v2b);
-  gates(v2.gates, 32, 12, 34, 14, T.LAVA, T.OBSIDIAN, VOLCANO_LEVERS.v2b, true);
+  gates(v2, 9, 25, 11, 27, T.LAVA, T.OBSIDIAN, VOLCANO_LEVERS.v2a);
+  gates(v2, 32, 25, 34, 27, T.LAVA, T.OBSIDIAN, VOLCANO_LEVERS.v2a, true);
+  gates(v2, 9, 12, 11, 14, T.LAVA, T.OBSIDIAN, VOLCANO_LEVERS.v2b);
+  gates(v2, 32, 12, 34, 14, T.LAVA, T.OBSIDIAN, VOLCANO_LEVERS.v2b, true);
   for (const lv of [lever(26, 31, VOLCANO_LEVERS.v2a, 'c3_v2a_lever'), lever(36, 22, VOLCANO_LEVERS.v2b, 'c3_v2b_lever')]) {
     v2.gates.push(lv.gate);
     v2.actions.push(lv.action);
@@ -499,7 +512,7 @@ function temple() {
     ],
     signs: [
       { x: 13, y: 1, text: '↑ 勇気の間\n「おそれを知る者こそ、まことの勇者なり」' },
-      { x: 1, y: 10, text: '← 知恵の間\n「日と星の道すじを知る者よ、来たれ」' },
+      { x: 1, y: 10, text: '← ちえの間\n「日と星の道すじを知る者よ、来たれ」' },
       { x: 27, y: 10, text: '→ きずなの間\n「心を合わせし者たちよ、来たれ」' },
     ],
     warps: [
@@ -526,7 +539,7 @@ function temple() {
     actions: [7, 13].flatMap((x) => [12, 15, 18, 21].map((y) => ({ x, y, script: 'c3_courage_statue' }))),
     zoneAt: () => 'safe:trial',
   });
-  const wisdom = dungeon('trial_wisdom', '知恵の間', TEMPLE_WISDOM_ROWS, {
+  const wisdom = dungeon('trial_wisdom', 'ちえの間', TEMPLE_WISDOM_ROWS, {
     bgm: 'temple', sky3d: { bg: '#141a33', fog: 0x101428 },
     altarScript: 'c3_wz_altar',
     chests: [{ id: 'tw_a', x: 2, y: 4, item: 'seed_mag', show: { all: ['c3_wisdom'] } }, { id: 'tw_b', x: 20, y: 4, item: 'sage_hat', show: { all: ['c3_wisdom'] } }],
@@ -588,7 +601,7 @@ function peak() {
     bgmAt: (x, y) => (x >= 9 && y >= 8 && x < 25 && y < 17 ? 'snowtown' : 'temple'),
     zoneAt: () => 'safe:hut',
   });
-  const p4 = dungeon('peak4', '星竜山　水晶のほらあな', PEAK4_ROWS, {
+  const p4 = dungeon('peak4', '星竜山　すいしょうのほらあな', PEAK4_ROWS, {
     bgm: 'temple', theme: 'ice',
     chests: [{ id: 'p4_a', x: 3, y: 5, item: 'star_robe' }, { id: 'p4_b', x: 22, y: 12, item: 'magic_water', n: 2 }],
     warps: [

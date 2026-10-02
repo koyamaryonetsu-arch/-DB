@@ -15,6 +15,7 @@ import { MONSTERS_CH2 } from './monsters-ch2.js';
 import { MONSTERS_TM } from './monsters-tm.js';
 import { NIGHT_MONSTERS } from './night.js';
 import { MONSTERS_RARE } from './monsters-rare.js';
+import { MONSTERS_CH3 } from './monsters-ch3.js';
 
 export const MONSTERS = {
   pururin: {
@@ -221,3 +222,5 @@ Object.assign(MONSTERS, MONSTERS_CH2, MONSTERS_TM);
 Object.assign(MONSTERS, NIGHT_MONSTERS);
 // めずらしい 強い 魔物（monsters-rare.js: ぷるりん騎士・ヴァルドラゴン など）
 Object.assign(MONSTERS, MONSTERS_RARE);
+// 第3章「星の竜がねむる山」
+Object.assign(MONSTERS, MONSTERS_CH3);

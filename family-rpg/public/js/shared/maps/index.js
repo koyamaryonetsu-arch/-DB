@@ -8,6 +8,7 @@ import { buildCh2Maps, SEA_PLACES } from './ch2.js';
 import { buildTreasureFloor } from './treasure-cave.js';
 import { addNightNpcs } from './night-npcs.js';
 import { attachCasino } from './casino.js';
+import { buildCh3Maps, ch3SearchMats, NORTH_SPARKLE_LOOT } from './ch3.js';
 
 const V = (x, y) => [PLACES.village.x + x, PLACES.village.y + y];
 const TW = (x, y) => [PLACES.town.x + x, PLACES.town.y + y];
@@ -261,6 +262,8 @@ function buildMaps() {
     spawnCounts: { cave2: 10 },
   };
   Object.assign(maps, buildCh2Maps());
+  // 第3章「星の竜がねむる山」（maps/ch3.js）
+  Object.assign(maps, buildCh3Maps());
   // カジノ・メダル王の城・小さなメダル（maps/casino.js）
   attachCasino(maps);
   // 夜の 町・村（夜だけ 出る 人・夜は 家に 帰る 人）
@@ -351,7 +354,7 @@ export function searchLoot(mapId, x, y) {
   if (r < 0.64) return { item: 'magic_water' };
   // ふしぎなかじの 素材（町・どうくつ・海で ちがう）
   if (r < 0.74) {
-    const mats = mapId === 'sea' ? ['pretty_shell', 'wind_feather', 'iron_shard'] : mapId.startsWith('cave') ? ['iron_shard', 'magic_powder'] : ['beast_fang', 'iron_shard', 'magic_powder'];
+    const mats = ch3SearchMats(mapId) || (mapId === 'sea' ? ['pretty_shell', 'wind_feather', 'iron_shard'] : mapId.startsWith('cave') ? ['iron_shard', 'magic_powder'] : ['beast_fang', 'iron_shard', 'magic_powder']);
     return { item: mats[Math.floor(hash2(x, y, 17) * mats.length)] };
   }
   return null;
@@ -365,7 +368,7 @@ export function sparkleLoot(zone, roll) {
     swamp: [['antidote', 4], ['star_shard', 3], ['seed_def', 0.4]],
     east: [['herb', 3], ['star_shard', 4], ['magic_water', 0.6], ['seed_str', 0.4]],
   };
-  const t = tables[zone] || tables.plains;
+  const t = tables[zone] || NORTH_SPARKLE_LOOT[zone] || tables.plains;
   const total = t.reduce((s, e) => s + e[1], 0);
   let r = roll * total;
   for (const [id, w] of t) {

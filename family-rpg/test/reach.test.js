@@ -241,7 +241,7 @@ test('ブーメラン: 道具・お店・職業・名前', () => {
   walk(SHOPS);
   assert.ok(sold.has('wood_boomerang'), '木の ブーメランは 最初の 町で 買える');
   assert.ok(sold.has('iron_boomerang'));
-  assert.ok(!sold.has('steel_boomerang'), 'はがねの ブーメランは まだ 売っていない（第3章）');
+  assert.ok(sold.has('steel_boomerang'), 'はがねの ブーメランは 第3章の 鉱山の町で 買える');
   assert.ok(!sold.has('gale_boomerang'), 'はやての ブーメランは まれな おとしもの');
   // 旅芸人・遊び人・忍者などは もてる。戦士は もてない
   const who = (job) => canEquip(job, 'wood_boomerang');

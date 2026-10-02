@@ -7,6 +7,7 @@
 // バランス: 作った 物・きたえた 物を 売っても、かかった ゴールドと 素材より 高くは ならない（テストで たしかめる）
 import { ITEMS, sellPrice } from './items.js';
 import { UPGRADE_MAX, UPGRADE_TYPES, upgradeId, addUpgradeItems } from './items-forge.js';
+import { CH3_RECIPES } from './items-ch3.js';
 
 // ほかの ファイルで あとから 足された 装備にも +1〜+3 を 作る（なんど よんでも おなじ）
 addUpgradeItems(ITEMS);
@@ -33,6 +34,8 @@ export const RECIPES = [
   // ランク5（第2章を クリアしたら）
   { id: 'storm_sword', gold: 3200, mats: [['silver_shard', 5], ['iron_shard', 8], ['wind_feather', 5]] },
   { id: 'dragon_mail', gold: 3600, mats: [['dragon_scale', 5], ['silver_shard', 4]] },
+  // 第3章（カナトコの かじ屋 テツジイ。open の フラグで 作れるように なる）
+  ...CH3_RECIPES,
 ];
 
 export function recipeOf(id) {
@@ -41,6 +44,8 @@ export function recipeOf(id) {
 
 // その レシピが 作れる ころか（hasFlag: その 世界の フラグ）
 export function recipeOpen(recipe, hasFlag = () => false) {
+  // レシピごとの しるし（第3章の 星の鉄 など）
+  if (recipe?.open) return hasFlag(recipe.open);
   const flag = RECIPE_OPEN[ITEMS[recipe?.id]?.rank];
   if (flag === undefined) return false;
   return !flag || hasFlag(flag);
