@@ -1,5 +1,5 @@
 // フィールド（あるく・はなす・みる）
-import { MAPS, isBlocked, effectiveTile, condOk, tileAt, onWater } from '../shared/maps/index.js';
+import { MAPS, isBlocked, effectiveTile, condOk, tileAt, onWater, slidesAt } from '../shared/maps/index.js';
 import { T, TILE_INFO } from '../shared/tiles.js';
 import { PLACES } from '../shared/maps/overworld.js';
 import { TS, tileCanvas, frameOf, prepareMap } from './render/tiles.js';
@@ -15,11 +15,14 @@ import { el } from './ui/dom.js';
 import { syncTreasureGates } from './ui/treasure.js';
 import { skyNpcSprite } from './render/sky-art.js';
 import { wagonDraws } from './render/wagon.js';
+import { Weather } from './render/weather.js';
+import { flySpeed } from '../shared/data/sky.js';
 
 const SPEED = 4.6; // マス/びょう
 const RUN = 1.35; // はしると この ばい（はやすぎない ように）
 const SHIP = 1.25; // 船は すこし はやい
-const FLY = 1.9; // 大鳥は もっと はやい（sky.js）
+const ICE_SPEED = 7.2; // 氷の 上を すべる はやさ（マス/びょう）
+const CART_SPEED = 7.5; // トロッコの はやさ（マス/びょう）
 // がめんの こまかさ（せかいの 1ドットを なんドットで かくか）
 // 人・モンスターの え は res 4 なので、2D では がめんも 4ばいに する（がめんが おおきすぎる とき・2.5D の ときは 2）
 const RES_LO = 2, RES_HI = 4;
@@ -63,7 +66,11 @@ const SHIP3D = { lift: -0.26, shadow: false };
 const isFlying = (sp) => !!MONSTERS[sp]?.flying;
 
 // 大きな NPC（ボス・たてもの）の 大きさ
-const BIG_SCALE = { goldoon_sleep: 0.6, lighthouse_dark: 1, lighthouse_lit: 1, storm_tower: 1 };
+const BIG_SCALE = {
+  goldoon_sleep: 0.6, lighthouse_dark: 1, lighthouse_lit: 1, storm_tower: 1,
+  // 第3章: 星の竜・ブリザマンモス
+  'mon:star_dragon': 0.95, 'mon:star_dragon_sleep': 0.95, 'mon:blizzard_mammoth': 0.62, 'mon:flame_witch_true': 0.7,
+};
 const bigScale = (sprite) => BIG_SCALE[sprite] || 0.5;
 
 // eq: そうび（'ぶき,よろい,たて,あたま' か { weapon, armor, … }）。ないときは しょくぎょうの はじめの そうび
@@ -110,6 +117,14 @@ export function npcSprite(kind, dir, frame) {
   // 大鳥・夜の 人（render/sky-art.js）
   const sky = skyNpcSprite(kind, dir, frame);
   if (sky) return sky;
+  // 魔物の すがたの 人（'mon:ID'。ペンギン騎士 など。第3章）
+  if (kind.startsWith('mon:')) {
+    const c = monsterCanvas(kind.slice(4), frame, true);
+    if (dir !== 'right') return c;
+    let fc = monFlip.get(c);
+    if (!fc) { fc = flipCanvas(c); monFlip.set(c, fc); }
+    return fc;
+  }
   const o = npcOpts(kind);
   if (o) return charSprite(`n:${kind}`, o, dir, frame);
   return specialSprite(kind, dir, frame);
@@ -119,6 +134,9 @@ const ROOF = {
   red: ['#b8403a', '#8a2a26', '#d8605a'], blue: ['#3a64b0', '#264a8a', '#5a84d0'], green: ['#3a8a4a', '#276a36', '#5aaa6a'],
   purple: ['#6a4a9a', '#4e3478', '#8a6aba'], white: ['#d8d4e8', '#aaa6c0', '#f4f2ff'], orange: ['#d0782e', '#a45a1e', '#ec9a4e'],
   teal: ['#2a8a8a', '#1e6a6a', '#4aaaaa'], brown: ['#8a5a32', '#6a4222', '#aa7a4e'], pink: ['#d06a9a', '#aa4a7a', '#ec8aba'],
+  // 第3章: 雪の つもった やね・鉱山の 町の 石の やね
+  snow: ['#e4ecf8', '#a8b4c8', '#ffffff'], snowred: ['#b8403a', '#8a2a26', '#f4f8ff'], snowblue: ['#3a64b0', '#264a8a', '#f4f8ff'],
+  snowgreen: ['#3a7a5a', '#26583e', '#f4f8ff'], slate: ['#5a6078', '#3a3e52', '#8a90b0'], rust: ['#9a5a3a', '#6a3a22', '#c88a5a'],
 };
 
 export class Field {
@@ -151,6 +169,12 @@ export class Field {
     this.time = 0;
     this.r3d = null;
     this.view = '2d';
+    // 氷の 上を すべっている（{ dx, dy, tx, ty }）・トロッコに のっている
+    this.slide = null;
+    this.riding = null;
+    this.hideMe = false;
+    // 雪・ふぶき・火の粉（render/weather.js）
+    this.weather = new Weather();
     addEventListener('resize', () => this.resize());
     this.resize();
   }
@@ -230,6 +254,7 @@ export class Field {
     this.me.dir = dir || this.me.dir;
     this.me.trail = [];
     this.leaderCrumbs = [];
+    this.slide = null;
     if (changed) {
       this.scriptHidden.clear();
       this.syms.clear();
@@ -311,7 +336,7 @@ export class Field {
     const sky = this.game.sky;
     const flying = !!sky?.flying;
     const canMove = controls.canMove && !sky?.blocksMove();
-    if (!canMove) { ix = 0; iy = 0; }
+    if (!canMove || this.riding) { ix = 0; iy = 0; }
     // ついていく（リーダーの とおった みちを たどる。はなれたら はしって おいつく）
     let run = !!controls.run;
     if (canMove && ix === 0 && iy === 0 && this.game.follow) {
@@ -319,24 +344,48 @@ export class Field {
       if (d) { ix = d.x; iy = d.y; run = run || d.far; }
     } else this.followStuck = 0;
     const mag = Math.min(1, Math.hypot(ix, iy));
-    me.moving = mag > 0.05;
-    me.running = me.moving && run;
-    if (me.moving) {
+    // 氷（すべる）: ついていく ときは リーダーの 足あとを そのまま 歩く（すべらない）
+    const iceOn = !flying && !(this.game.follow && this.leaderPos());
+    if (this.riding) {
+      // トロッコ（だいほんの えんしゅつ）
+      this.rideStep(sec);
+      me.moving = false;
+      me.running = false;
+    } else if (iceOn && this.slide) {
+      // すべっている あいだは とまれない（だいほん・たたかいの あいだは まつ）
+      if (canMove) this.slideStep(sec);
+      me.moving = false;
+      me.running = false;
+    } else {
+      me.moving = mag > 0.05;
+      me.running = me.moving && run;
+    }
+    if (me.moving && !this.riding && !(iceOn && this.slide)) {
       if (Math.abs(ix) > Math.abs(iy)) me.dir = ix > 0 ? 'right' : 'left';
       else me.dir = iy > 0 ? 'down' : 'up';
-      const sp = SPEED * sec * (mag > 0.4 ? 1 : 0.6) * (run ? RUN : 1) * (flying ? FLY : this.isOnWater(me.x, me.y) ? SHIP : 1);
-      const nx = me.x + (ix / (Math.hypot(ix, iy) || 1)) * sp;
-      const ny = me.y + (iy / (Math.hypot(ix, iy) || 1)) * sp;
-      let moved = false;
-      // 大鳥で とんでいる ときは マップの はし まで どこでも（sky.js）
-      if (flying) moved = sky.flyStep(me, nx, ny, iy, dt);
-      else {
-        if (this.boxFree(nx, me.y)) { me.x = nx; moved = true; }
-        else if (Math.abs(iy) < 0.3) moved = this.nudge('y', me, ix > 0 ? 1 : -1, sp) || moved;
-        if (this.boxFree(me.x, ny)) { me.y = ny; moved = true; }
-        else if (Math.abs(ix) < 0.3) moved = this.nudge('x', me, iy > 0 ? 1 : -1, sp) || moved;
+      const d = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[me.dir];
+      const onIce = iceOn && this.isIce(Math.floor(me.x), Math.floor(me.y));
+      if (onIce) {
+        // 氷の 上で とまっている: むいた ほうへ すべりだす（すぐ前が かべなら むきだけ かえる）
+        if (!this.solidAt(Math.floor(me.x) + d[0], Math.floor(me.y) + d[1])) this.startSlide(d[0], d[1]);
+        me.moving = false;
+      } else {
+        const sp = SPEED * sec * (mag > 0.4 ? 1 : 0.6) * (run ? RUN : 1) * (flying ? flySpeed(this.game.me?.flags) : this.isOnWater(me.x, me.y) ? SHIP : 1);
+        const nx = me.x + (ix / (Math.hypot(ix, iy) || 1)) * sp;
+        const ny = me.y + (iy / (Math.hypot(ix, iy) || 1)) * sp;
+        let moved = false;
+        // 大鳥で とんでいる ときは マップの はし まで どこでも（sky.js）
+        if (flying) moved = sky.flyStep(me, nx, ny, iy, dt);
+        else {
+          if (this.boxFree(nx, me.y)) { me.x = nx; moved = true; }
+          else if (Math.abs(iy) < 0.3) moved = this.nudge('y', me, ix > 0 ? 1 : -1, sp) || moved;
+          if (this.boxFree(me.x, ny)) { me.y = ny; moved = true; }
+          else if (Math.abs(ix) < 0.3) moved = this.nudge('x', me, iy > 0 ? 1 : -1, sp) || moved;
+        }
+        if (moved) this.pushTrail(me);
+        // 氷に 足を のせた: その まま すべりだす
+        if (moved && iceOn && this.isIce(Math.floor(me.x), Math.floor(me.y))) this.startSlide(d[0], d[1]);
       }
-      if (moved) this.pushTrail(me);
     }
     // しゃしんきの いち
     const tc = this.targetCam();
@@ -400,6 +449,79 @@ export class Field {
       }
     }
     return false;
+  }
+
+  // ───────────── 氷（第3章）─────────────
+  // すべる きまり（ポケモンの 氷の ゆかと おなじ）:
+  //  ・氷の マスに 入ると、むいた ほうへ 1マスずつ すべる
+  //  ・つぎの マスが かべ・岩・人・宝箱 なら その マスで とまる。氷では ない ゆかに 着いたら とまる
+  //  ・すべっている あいだは 向きを かえられない
+  // マップの しかけは test/ch3-puzzles.test.js が 「どこで とまっても 入口へ もどれる」ことを たしかめる
+  isIce(tx, ty) {
+    return slidesAt(this.map, tx, ty, (f) => this.gateFlag(f));
+  }
+
+  startSlide(dx, dy) {
+    this.slide = { dx, dy, tx: Math.floor(this.me.x), ty: Math.floor(this.me.y) };
+  }
+
+  slideStep(sec) {
+    const s = this.slide, me = this.me;
+    let budget = ICE_SPEED * sec;
+    for (let guard = 0; guard < 8 && budget > 0 && this.slide; guard++) {
+      const gx = s.tx + 0.5, gy = s.ty + 0.5;
+      const dx = gx - me.x, dy = gy - me.y, d = Math.hypot(dx, dy);
+      if (d > budget) {
+        me.x += (dx / d) * budget;
+        me.y += (dy / d) * budget;
+        budget = 0;
+        break;
+      }
+      me.x = gx;
+      me.y = gy;
+      budget -= d;
+      // マスの まんなかに 着いた: ゆかなら とまる・前が ふさがって いたら とまる
+      if (!this.isIce(s.tx, s.ty) || this.solidAt(s.tx + s.dx, s.ty + s.dy)) {
+        this.slide = null;
+        break;
+      }
+      s.tx += s.dx;
+      s.ty += s.dy;
+    }
+    this.pushTrail(me);
+  }
+
+  // ───────────── トロッコ（第3章。だいほんの ['ride', [[x, y], ...]]）─────────────
+  ride(points, speed = CART_SPEED) {
+    return new Promise((resolve) => {
+      this.slide = null;
+      this.riding = { pts: points.map(([x, y]) => ({ x, y })), speed, resolve };
+    });
+  }
+
+  rideStep(sec) {
+    const r = this.riding, me = this.me;
+    let budget = r.speed * sec;
+    while (budget > 0 && r.pts.length) {
+      const g = r.pts[0];
+      const dx = g.x - me.x, dy = g.y - me.y, d = Math.hypot(dx, dy);
+      if (d > 0.001) me.dir = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up');
+      if (d > budget) {
+        me.x += (dx / d) * budget;
+        me.y += (dy / d) * budget;
+        budget = 0;
+      } else {
+        me.x = g.x;
+        me.y = g.y;
+        budget -= d;
+        r.pts.shift();
+      }
+    }
+    this.pushTrail(me);
+    if (!r.pts.length) {
+      this.riding = null;
+      r.resolve();
+    }
   }
 
   pushTrail(o) {
@@ -622,7 +744,7 @@ export class Field {
     const npc = this.npcNear(fx, fy) || (TILE_INFO[tileAt(this.map, tx, ty)]?.talkThrough ? this.npcNear(fx + d[0], fy + d[1]) : null);
     if (npc) {
       const s = this.npcState.get(npc.id);
-      if (s && !npc.big && !['none', 'flower', 'starstone', 'windstone', 'spring', 'ship', 'slot'].includes(npc.sprite)) {
+      if (s && !npc.big && !['none', 'flower', 'starstone', 'windstone', 'firestone', 'spring', 'ship', 'slot', 'minecart', 'snowman'].includes(npc.sprite)) {
         s.dir = { up: 'down', down: 'up', left: 'right', right: 'left' }[me.dir];
         s.moving = false;
         s.goal = null;
@@ -734,7 +856,7 @@ export class Field {
       camX += Math.round((Math.random() - 0.5) * 6);
       camY += Math.round((Math.random() - 0.5) * 6);
     }
-    ctx.fillStyle = m.kind === 'dungeon' ? '#0a0806' : '#1c3d6e';
+    ctx.fillStyle = m.bg2d || (m.kind === 'dungeon' ? '#0a0806' : '#1c3d6e');
     ctx.fillRect(0, 0, this.vw, this.vh);
     const r = prepareMap(m);
     const x0 = Math.max(0, Math.floor(camX / TS)), y0 = Math.max(0, Math.floor(camY / TS));
@@ -796,7 +918,7 @@ export class Field {
     const fl = this.myFollowers();
     fl.forEach((f, i) => {
       const tp = this.trailPos(this.me, i + 1);
-      if (tp && !this.game.sky?.hidesFollowers() && !this.isOnWater(tp.x, tp.y)) objs.push({ y: tp.y, draw: () => this.drawAt(followerSprite(f, tp.dir, this.walkFrame(this.myStep)), tp.x, tp.y, camX, camY) });
+      if (tp && !this.riding && !this.game.sky?.hidesFollowers() && !this.isOnWater(tp.x, tp.y)) objs.push({ y: tp.y, draw: () => this.drawAt(followerSprite(f, tp.dir, this.walkFrame(this.myStep)), tp.x, tp.y, camX, camY) });
     });
     // 馬車（render/wagon.js）
     for (const w of wagonDraws(this)) objs.push({ y: w.y, draw: () => this.drawAt(w.canvas, w.x, w.y, camX, camY) });
@@ -848,7 +970,18 @@ export class Field {
       }
       ctx.globalCompositeOperation = 'source-over';
     }
+    // 雪・ふぶき・火の粉（第3章。render/weather.js）
+    this.weather.draw(ctx, this.vw, this.vh, this.lastDt || 16, this.weatherKind(), camX, camY);
     this.renderLabels(camX, camY);
+  }
+
+  // いまの 天気（マップの weatherAt / weather。だいほんの ['weather', …] が あれば それ）
+  weatherKind() {
+    if (this.weatherOverride !== undefined && this.weatherOverride !== null) return this.weatherOverride || null;
+    const m = this.map;
+    if (!m) return null;
+    if (m.weatherAt) return m.weatherAt(Math.floor(this.me.x), Math.floor(this.me.y));
+    return m.weather || null;
   }
 
   // ───────────── 2.5D で かく ─────────────
@@ -984,6 +1117,7 @@ export class Field {
       }
       ctx.globalCompositeOperation = 'source-over';
     }
+    this.weather.draw(ctx, this.vw, this.vh, this.lastDt || 16, this.weatherKind(), this.me.x * TS, this.me.y * TS);
     this.renderLabels(0, 0);
   }
 
@@ -1017,7 +1151,7 @@ export class Field {
         out.push({ key: 'n:' + n.id, canvas: npcSprite('ship', s.dir, this.shipFrame()), x: s.x, y: s.y, ...SHIP3D });
         continue;
       }
-      out.push({ key: 'n:' + n.id, canvas: npcSprite(n.sprite, s.dir, frame), x: s.x, y: s.y, shadow: n.sprite !== 'starstone' && n.sprite !== 'windstone' });
+      out.push({ key: 'n:' + n.id, canvas: npcSprite(n.sprite, s.dir, frame), x: s.x, y: s.y, shadow: !['starstone', 'windstone', 'firestone'].includes(n.sprite), anchor: n.sprite.startsWith('mon:') ? 2 : undefined });
     }
     for (const s of this.syms.values()) {
       const c = monsterCanvas(s.sp, Math.floor(this.time / 300 + (s.id.length % 2)) % 2, true);
@@ -1039,7 +1173,7 @@ export class Field {
     }
     this.myFollowers().forEach((f, i) => {
       const tp = this.trailPos(this.me, i + 1);
-      if (tp && !this.game.sky?.hidesFollowers() && !this.isOnWater(tp.x, tp.y)) out.push({ key: 'mf:' + i, canvas: followerSprite(f, tp.dir, this.walkFrame(this.myStep)), x: tp.x, y: tp.y, anchor: f.mon ? 2 : undefined });
+      if (tp && !this.riding && !this.game.sky?.hidesFollowers() && !this.isOnWater(tp.x, tp.y)) out.push({ key: 'mf:' + i, canvas: followerSprite(f, tp.dir, this.walkFrame(this.myStep)), x: tp.x, y: tp.y, anchor: f.mon ? 2 : undefined });
     });
     for (const w of wagonDraws(this)) out.push({ key: w.key, canvas: w.canvas, x: w.x, y: w.y, shadowScale: w.side ? 2.4 : 1.6 });
     for (const a of this.actors.values()) {
@@ -1052,6 +1186,8 @@ export class Field {
       const mc = ship ? shipSprite(this.me.dir || 'down', this.shipFrame())
         : playerSprite(this.game.me.look, this.game.me.job, this.me.dir || 'down', this.walkFrame(this.myStep), this.game.me.equip);
       out.push({ key: 'me', canvas: mc, x: this.me.x, y: this.me.y, ghost: '#9fd6ff', ...(ship ? SHIP3D : {}) });
+      // トロッコに のっている（第3章）
+      if (this.riding) out.push({ key: 'me:cart', canvas: npcSprite('minecart', this.me.dir, this.walkFrame(true)), x: this.me.x, y: this.me.y + 0.06, shadow: false });
     }
     return out;
   }
@@ -1148,6 +1284,8 @@ export class Field {
     if (o.away) ctx.globalAlpha = 0.45;
     this.drawAt(c, o.x, o.y + (ship ? 0.2 : 0), camX, camY, !ship);
     ctx.globalAlpha = 1;
+    // トロッコに のっている（第3章）: 足もとを トロッコで かくす
+    if (mine && this.riding) this.drawAt(npcSprite('minecart', o.dir || 'down', this.walkFrame(true)), o.x, o.y + 0.06, camX, camY, false);
     if (o.battle) {
       // ⚔ の しるし
       const px = Math.round(o.x * TS - camX), py = Math.round(o.y * TS - 27 - camY);

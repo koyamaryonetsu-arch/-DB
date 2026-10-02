@@ -274,6 +274,8 @@ function finishMap(m) {
   m.chestAt = new Map(m.chests.map((c) => [c.y * m.w + c.x, c]));
   m.signAt = new Map((m.signs || []).map((s) => [s.y * m.w + s.x, s]));
   m.warpAt = new Map(m.warps.map((w) => [w.y * m.w + w.x, w]));
+  // しらべると だいほんが はじまる マス（レバー・かがり火・温泉 など。第3章）
+  m.actionAt = new Map((m.actions || []).map((a) => [a.y * m.w + a.x, a]));
 }
 
 // 宝の洞窟（'tm_…'）は はじめて さわった ときに ID から つくる（maps/treasure-cave.js）。
@@ -301,12 +303,18 @@ export function tileAt(map, x, y) {
 }
 
 // フラグで かわる タイル（こわれた橋・カギの とびら）
+// invert: フラグが たつと しまる（レバーで ようがんの 流れを かえる など。第3章）
 export function effectiveTile(map, x, y, hasFlag) {
   const t = tileAt(map, x, y);
   if (map.gateAt === undefined) map.gateAt = new Map(map.gates.map((g) => [g.y * map.w + g.x, g]));
   const g = map.gateAt.get(y * map.w + x);
-  if (g && hasFlag(g.flag)) return g.open;
-  return t;
+  if (g && (g.invert ? !hasFlag(g.flag) : hasFlag(g.flag))) return g.open;
+  return g?.invert ? g.closed : t;
+}
+
+// すべる 氷の マスか（client/field.js）
+export function slidesAt(map, x, y, hasFlag) {
+  return !!TILE_INFO[effectiveTile(map, Math.floor(x), Math.floor(y), hasFlag)]?.slide;
 }
 
 export function isBlocked(map, x, y, hasFlag) {

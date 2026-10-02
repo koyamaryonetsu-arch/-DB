@@ -8,6 +8,8 @@ import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion }
 import { openService } from './services.js';
 import { isNightFor, advanceClock } from './clock.js';
 import { grantWagon, wagonChars } from './wagon.js';
+import { GUESTS } from '../data/shops.js';
+import { unstickAll } from './hazards.js';
 
 let runSeq = 1;
 
@@ -95,6 +97,8 @@ export class ScriptRun {
         this.world.sendSelf(m);
       }
     }
+    // 手伝いの 人が リーダーの 世界を かえた（レバー など）: リーダーの 画面も あわせる
+    if (this.owner !== this.init && !this.everyone.includes(this.owner) && this.world.sessions.has(this.owner.id)) this.world.sendSelf(this.owner);
     this.world.markDirty();
   }
 
@@ -165,6 +169,28 @@ export class ScriptRun {
         case 'flag':
           setStoryFlag(this.owner.char, a[0]);
           break;
+        case 'unflag':
+          // フラグを もどす（しかけの やりなおし など。ものがたりの すすみぐあいの フラグには つかわない）
+          delete this.owner.char.flags[a[0]];
+          break;
+        case 'toggle': {
+          // レバー: フラグを 入れかえる。かわった マスに 立っている 人は となりへ よける（world/hazards.js）
+          const c = this.owner.char;
+          if (c.flags[a[0]]) delete c.flags[a[0]];
+          else c.flags[a[0]] = true;
+          unstickAll(w, this.owner);
+          break;
+        }
+        case 'sync': {
+          // ここまでの えんしゅつを 見せてから、フラグの かわった 世界（とびら・橋）を 画面に 出す
+          const r = await this.flush();
+          if (r.aborted) return this.abort();
+          for (const m of this.everyone) w.sendSelf(m);
+          if (!this.everyone.includes(this.owner)) w.sendSelf(this.owner);
+          const p = partyOf(w, this.owner);
+          if (p && p.members.length > 1) w.sendParty(p);
+          break;
+        }
         case 'questBase': {
           const c = this.owner.char;
           c.quests = c.quests || {};
@@ -252,16 +278,20 @@ export class ScriptRun {
           w.saveNow({ urgent: true });
           break;
         }
-        case 'guest': {
+        case 'guest': case 'unguest': {
           // ゲストは セーブデータに のこす（アプリを おとしても いなくならない）。リーダーだけ
+          // ['guest', id] くわわる / ['guest', null] みんな はなれる / ['unguest', id] その 人だけ はなれる
           const gc = this.owner.char;
           ensureCompanions(gc);
-          if (a[0]) {
+          const before = gc.guests.slice();
+          if (op === 'guest' && a[0]) {
             if (!gc.guests.includes(a[0])) gc.guests.push(a[0]);
-          } else gc.guests = [];
-          if (!a[0]) {
+          } else if (op === 'unguest') gc.guests = gc.guests.filter((g) => g !== a[0]);
+          else gc.guests = [];
+          const left = before.filter((g) => !gc.guests.includes(g));
+          if (left.length) {
             this.batch.push(['sfx', 'leave']);
-            this.say('ルカはパーティーからはなれた。');
+            this.say(`${left.map((g) => GUESTS[g]?.name || g).join('と')}はパーティーからはなれた。`);
           }
           const p = partyOf(w, this.owner);
           if (p) {
@@ -350,6 +380,8 @@ export class ScriptRun {
         case 'say':
         case 'fade': case 'flash': case 'shake': case 'night': case 'bgm': case 'sfx': case 'wait':
         case 'actor': case 'move': case 'face': case 'remove': case 'chapter': case 'guestHide': case 'chestOpen': case 'hideNpc': case 'showMon': case 'crest':
+        // 第3章: トロッコに のる・自分を かくす・天気・大きな 役者
+        case 'ride': case 'hideMe': case 'weather':
           this.batch.push(step);
           break;
         default:

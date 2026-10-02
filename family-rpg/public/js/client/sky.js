@@ -2,9 +2,9 @@
 // ・時計: サーバーの 時こく（game.timeOffset）＋ パーティーの 時計の ずれ（party.clockShift）。宿屋の だいほんの とちゅうは
 //   えんしゅつ（['clock', ずれ]）まで 前の 空の まま
 // ・大鳥フウラ: サーバー（shared/world/travel.js）が きめた flying を うけて、とぶ・おりる えんしゅつと え を かく
-import { el, toast } from './ui/dom.js';
+import { el, toast, ListMenu } from './ui/dom.js';
 import { dayFrac, isNightFrac, darkness } from '../shared/world/clock.js';
-import { SKY_MAPS, FLUTE_ID, atEdge } from '../shared/data/sky.js';
+import { SKY_MAPS, FLUTE_ID, edgeAt, regionsFrom, skyBox, clampSkyBox, mountOf } from '../shared/data/sky.js';
 import { birdCanvas, birdRideCanvas, BIRD_W, BIRD_H, RIDE_TOP } from './render/sky-art.js';
 import { playerSprite } from './field.js';
 import { equipKey } from './render/chars.js';
@@ -28,7 +28,7 @@ export class SkyClient {
     this.edgeCool = 0;
     this.sentAt = 0;
     this.btn = el('button', { class: 'win hud-btn hud-sky', text: '大鳥', onclick: () => this.onButton() });
-    this.btn2 = el('button', { class: 'win hud-btn hud-sky2', text: '別の地方へ', onclick: () => this.region(false) });
+    this.btn2 = el('button', { class: 'win hud-btn hud-sky2', text: '別の地方へ', onclick: () => this.regionButton() });
     this.btn.hidden = true;
     this.btn2.hidden = true;
     game.hud.btns.append(this.btn, this.btn2);
@@ -89,8 +89,9 @@ export class SkyClient {
       this.anim = { kind: m.anim, t: 0, dur: m.anim === 'call' ? 1300 : 1100, x: me.x, y: me.y, dir: me.dir };
       this.game.audio.sfx(m.anim === 'call' ? 'sparkle' : 'stairs');
     }
-    if (m.anim === 'call' && !m.ride) toast('風の笛をふいた！\n大鳥フウラが空からおりてきた！');
-    else if (m.on && m.ride) toast('リーダーといっしょに、大鳥フウラに乗った！');
+    const mount = this.mount();
+    if (m.anim === 'call' && !m.ride) toast(`風の笛をふいた！\n${mount.title}${mount.name}が空からおりてきた！`);
+    else if (m.on && m.ride) toast(`リーダーといっしょに、${mount.title}${mount.name}に乗った！`);
   }
 
   send(action, extra = {}) {
@@ -110,10 +111,48 @@ export class SkyClient {
     this.send('land');
   }
 
-  region(edge) {
+  region(edge, to = null) {
     if (!this.flying || this.anim) return;
     this.game.audio.sfx('confirm');
-    this.send('region', { edge: !!edge });
+    this.send('region', { edge: !!edge, ...(to ? { to } : {}) });
+  }
+
+  // 世界の フラグ（さそわれて 手伝っている ときは リーダーの 世界）
+  hasFlag(f) { return this.game.field.hasFlag(f); }
+
+  // のりもの（大鳥フウラ・星の竜アステル）
+  mount() {
+    return mountOf({ c3_dragon: this.hasFlag('c3_dragon') });
+  }
+
+  // 行ける 地方
+  regions() { return regionsFrom(this.game.field.mapId, (f) => this.hasFlag(f)); }
+
+  // 「別の地方へ」ボタン: 行き先が 2つ 以上なら えらぶ
+  regionButton() {
+    const g = this.game;
+    if (!this.flying || this.anim || g.busy || g.menuOpen || document.querySelector('.sky-choice')) return;
+    const list = this.regions();
+    if (list.length <= 1) return this.region(false, list[0]);
+    g.audio.sfx('confirm');
+    const box = el('div', { class: 'win choice sky-choice' }, el('div', { class: 'q', text: 'どの地方へ飛ぶ？' }));
+    const menu = new ListMenu(g.input, {
+      items: [...list.map((id) => ({ label: SKY_MAPS[id].name, value: id })), { label: 'やめる', value: null }],
+      sound: (x) => g.audio.sfx(x),
+      back: null,
+      onSelect: (it) => finish(it.value),
+      onCancel: () => finish(null),
+    });
+    box.append(menu.root);
+    document.getElementById('ui').append(box);
+    g.menuOpen = true;
+    menu.focus();
+    const finish = (v) => {
+      menu.blur();
+      box.remove();
+      g.menuOpen = false;
+      if (v) this.region(false, v);
+    };
   }
 
   onButton() {
@@ -152,12 +191,13 @@ export class SkyClient {
     const show = g.state === 'field' && !!region && (this.flying || this.hasFlute);
     this.btn.hidden = !show;
     if (show) {
-      const label = this.flying ? '降りる' : '大鳥';
+      const label = this.flying ? '降りる' : this.mount().btn;
       if (this.btn.textContent !== label) this.btn.textContent = label;
     }
-    this.btn2.hidden = !(show && this.flying);
+    const list = show && this.flying ? this.regions() : [];
+    this.btn2.hidden = !list.length;
     if (!this.btn2.hidden) {
-      const label = `${region.short || region.name}へ`;
+      const label = list.length > 1 ? '別の地方へ' : `${SKY_MAPS[list[0]].short}へ`;
       if (this.btn2.textContent !== label) this.btn2.textContent = label;
     }
   }
@@ -165,13 +205,17 @@ export class SkyClient {
   // とんでいる ときの 1歩（マップの はし まで。はしを こえようと すると となりの 地方へ）
   flyStep(me, nx, ny, iy, dt) {
     const m = this.game.field.map;
-    const x = Math.max(0.3, Math.min(m.w - 0.3, nx));
-    const y = Math.max(0.6, Math.min(m.h - 0.2, ny));
+    let x = Math.max(0.3, Math.min(m.w - 0.3, nx));
+    let y = Math.max(0.6, Math.min(m.h - 0.2, ny));
+    // ふぶきの 地方は とべる 場所の 中だけ（data/sky.js の box）
+    const box = skyBox(m.id, (f) => this.hasFlag(f));
+    if (box) ({ x, y } = clampSkyBox(box, x, y));
     const moved = Math.abs(x - me.x) > 1e-4 || Math.abs(y - me.y) > 1e-4;
     me.x = x;
     me.y = y;
-    const r = SKY_MAPS[m.id];
-    const pushing = r && atEdge(m.id, me.y, m.h) && (r.edge === 'south' ? iy > 0.5 : iy < -0.5);
+    const e = edgeAt(m.id, me.y, m.h);
+    // 行けない 地方の はしでも おくる（サーバーが「ふぶきで 進めない」と 知らせる）
+    const pushing = e && (e === 'south' ? iy > 0.5 : iy < -0.5);
     this.edgeT = pushing ? this.edgeT + dt : 0;
     if (this.edgeT > 380 && !this.edgeCool) {
       this.edgeT = 0;

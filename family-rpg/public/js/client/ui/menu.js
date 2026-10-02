@@ -15,7 +15,7 @@ import { TACTICS } from '../../shared/ai.js';
 import { PLACES } from '../../shared/maps/overworld.js';
 import { SEA_PLACES } from '../../shared/maps/ch2.js';
 import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js';
-import { T } from '../../shared/tiles.js';
+import { T, TILE_INFO } from '../../shared/tiles.js';
 import { itemDetail, abilityDetail, skillBrief, gearText } from './info.js';
 import { makeCanvas, ctxOf } from '../render/pixel.js';
 import { monsterCanvas } from '../render/monsters.js';
@@ -1131,7 +1131,7 @@ export function renderMiniMap(game, canvas, full = false) {
       if (mx < 0 || my < 0 || mx >= m.w || my >= m.h) continue;
       if (!f.isExplored(mx, my)) continue;
       const t = m.gates.length ? effectiveTile(m, mx, my, (fl) => f.gateFlag(fl)) : tileAt(m, mx, my);
-      ctx.fillStyle = themeHex(MAP_COLORS[t] || (t >= 30 && t < 70 ? '#c8bfae' : '#555'), m.theme, t);
+      ctx.fillStyle = themeHex(MAP_COLORS[t] || TILE_INFO[t]?.mapColor || (t >= 30 && t < 70 ? '#c8bfae' : '#555'), m.theme, t);
       ctx.fillRect(x * pxPer, y * pxPer, pxPer, pxPer);
     }
   }
