@@ -55,6 +55,6 @@ export const SHOPS_CH2 = {
     kind: 'item',
     keeper: '道具屋のおねえさん',
     hello: 'いらっしゃいませ！\n船旅には、薬草をたくさん持っていってね。\nどんなご用？',
-    items: ['herb', 'antidote', 'moonherb', 'holy_water', 'return_wing', 'smoke_ball'],
+    items: ['herb', 'antidote', 'moonherb', 'holy_water', 'return_wing', 'guide_thread', 'smoke_ball'],
   },
 };

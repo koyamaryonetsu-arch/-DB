@@ -18,6 +18,7 @@ import { bankInfo, bankAction } from './bank.js';
 import { forgeInfo, forgeAction } from './forge.js';
 import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction } from './wagon.js';
 import { casinoOpen, casinoAction } from './casino.js';
+import { useEscapeItem } from './escape.js';
 
 export function openService(world, s, kind, arg) {
   switch (kind) {
@@ -169,12 +170,13 @@ export function serviceAction(world, s, msg) {
       let text = '';
       switch (msg.action) {
         case 'recruit':
-          r = recruitNpc(world, s, String(msg.key || ''), { swap: msg.swap, join: msg.join !== false });
-          if (r.ok) text = r.joined ? `${r.name}が仲間に加わった！${r.benchedName ? `\n${r.benchedName}は酒場で待っている。` : ''}${stowText(r.stowed)}` : `${r.name}が仲間になった！\n（今は酒場で待っている）`;
+          // パーティー → 馬車 → 入れかわり（party.js の placeMember）
+          r = recruitNpc(world, s, String(msg.key || ''), { swap: msg.swap ? String(msg.swap) : null, join: msg.join !== false });
+          if (r.ok) text = r.joined ? `${r.name}が仲間に加わった！${r.where === 'wagon' ? `\n${r.name}は馬車に乗りこんだ。` : ''}${r.benchedName ? `\n${r.benchedName}は酒場で待っている。` : ''}${stowText(r.stowed)}` : `${r.name}が仲間になった！\n（今は酒場で待っている）`;
           break;
         case 'join':
-          r = companionJoin(world, s, String(msg.key || ''), msg.swap);
-          if (r.ok) text = `${r.name}がパーティーに加わった！${r.benchedName ? `\n${r.benchedName}は酒場で待っている。` : ''}${stowText(r.stowed)}`;
+          r = companionJoin(world, s, String(msg.key || ''), msg.swap ? String(msg.swap) : null);
+          if (r.ok) text = `${r.where === 'wagon' ? `${r.name}が仲間に加わって、馬車に乗りこんだ！` : `${r.name}がパーティーに加わった！`}${r.benchedName ? `\n${r.benchedName}は酒場で待っている。` : ''}${stowText(r.stowed)}`;
           break;
         case 'wait':
           r = companionWait(world, s, String(msg.key || ''));
@@ -352,6 +354,8 @@ export function menuAction(world, s, msg) {
       }
       // 夜明けのすず・夕焼けのすず（travel.js）
       if (eff.type === 'timeBell') return useTimeBell(world, s, msg.id, reply);
+      // みちびきの糸（洞窟・塔から 入り口の 外へ。escape.js）
+      if (eff.type === 'exit') return useEscapeItem(world, s, msg.id, reply);
       const target = refChar(world, s, msg.ref);
       if (!target) return reply(false, '');
       const r = applyFieldEffect(world, c, target, eff);

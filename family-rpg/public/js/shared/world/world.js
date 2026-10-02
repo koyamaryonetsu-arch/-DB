@@ -15,9 +15,9 @@ import { chestVanishes } from '../data/fieldchests.js';
 import { startFieldBattle, battleTick, battleCommand, battleLeave, joinBattle, mineOf } from './battles.js';
 import { runScript, runSteps } from './scripts.js';
 import { serviceAction, menuAction } from './services.js';
-import { newParty, partyOf, partyState, syncParty, ensureCompanions, companionWait, PARTY_MAX } from './party.js';
+import { newParty, partyOf, partyState, syncParty, ensureCompanions, companionWait, PARTY_MAX, befriendLevel, rosterFull, nameOfKey, dropMissingFam } from './party.js';
+import { hasWagon } from '../data/wagon.js';
 import { MONSTERS } from '../data/monsters.js';
-import { COMPANION_SLOTS } from '../data/companions.js';
 import { CH1_CLEAR_OBJECTIVE } from '../data/story.js';
 import { upgradeSave, repairChar } from './save.js';
 import { exportCode, parseCode, importChar } from './transfer.js';
@@ -29,6 +29,7 @@ import { migrateSky } from '../data/sky.js';
 import { repairObjective } from '../data/progress.js';
 import { wagonLook } from './wagon.js';
 import { medalSearchSteps, medalChestSteps } from './casino.js';
+import { noteDungeonEntry } from './escape.js';
 
 export const PROTOCOL_VERSION = 1;
 const SPARKLE_RESPAWN_MS = 20 * 60 * 1000;
@@ -410,25 +411,28 @@ export class GameWorld {
     else if (c.flags.c1_treant && !c.flags.monster_bond) runScript(this, s, 'bond_dream');
   }
 
-  // たおした まものが なかまに なりたがっている
-  offerBefriend(s, species, level) {
+  // たおした まものが なかまに なりたがっている（レベルは いつも 1。party.js の befriendLevel）
+  //   パーティーが あいていれば パーティー、いっぱいなら あいている 馬車、どちらも いっぱいの ときだけ だれが 酒場へ もどるか えらぶ
+  offerBefriend(s, species, level = befriendLevel()) {
     const m = MONSTERS[species];
     if (!m || s.busy) return;
     const c = s.char;
     ensureCompanions(c);
+    dropMissingFam(this, c);
     const id = 'o' + (++this.offerSeq || (this.offerSeq = 1)) + Math.floor(this.rng.next() * 1e6).toString(36);
     s.befriendOffer = { id, species, level };
     const p = partyOf(this, s);
-    const slotsFree = c.partyKeys.length < COMPANION_SLOTS;
     let yes;
-    if (slotsFree) {
+    if (!rosterFull(c)) {
       yes = [['befriend', id, null]];
     } else {
-      const names = c.partyKeys.map((k) => (k.startsWith('fam:') ? this.data.characters[k.slice(4)]?.name : c.companions.find((e) => e.key === k)?.char.name) || '？');
+      const wagon = hasWagon(c) ? c.wagonKeys : [];
+      const name = (k) => nameOfKey(this, c, k) || '？';
+      const keys = [...c.partyKeys, ...wagon];
       yes = [
-        ['say', null, 'パーティーがいっぱいだ。\nだれかに酒場で待っていてもらおう。'],
-        ['choice', 'だれが酒場へもどる？', [...names, `${m.name}が酒場で待つ`],
-          [...c.partyKeys.map((k) => [['befriend', id, k]]), [['befriend', id, '__tavern']]]],
+        ['say', null, wagon.length ? 'パーティーも馬車もいっぱいだ。\nだれかに酒場で待っていてもらおう。' : 'パーティーがいっぱいだ。\nだれかに酒場で待っていてもらおう。'],
+        ['choice', 'だれが酒場へもどる？', [...c.partyKeys.map((k) => (wagon.length ? `${name(k)}（パーティー）` : name(k))), ...wagon.map((k) => `${name(k)}（馬車）`), `${m.name}が酒場で待つ`],
+          [...keys.map((k) => [['befriend', id, k]]), [['befriend', id, '__tavern']]]],
       ];
     }
     runSteps(this, s, [
@@ -550,6 +554,8 @@ export class GameWorld {
 
   // サーバーが いちを きめる（テレポート・ワープ）。opts.fly … 大鳥に のったまま（ほかは おりる）
   placeSession(s, mapId, x, y, dir, notify = true, opts = {}) {
+    // 洞窟に 入った 場所を おぼえる（みちびきの糸。escape.js）
+    noteDungeonEntry(s, { map: s.map, x: s.x, y: s.y, dir: s.dir }, mapId);
     s.map = mapId;
     s.x = x;
     s.y = y;

@@ -7,6 +7,7 @@
 //   （LINE で 送れるように。LINE は 1回に 1万文字まで。仲間が いっぱいでも 7千文字ほど）
 // むかしの KIZUNA-1-<しるし>-<base64> も 読める
 import { repairChar, upgradeSave, SAVE_VERSION } from './save.js';
+import { dropGoneFamily } from '../data/wagon.js';
 
 const PREFIX = 'KIZUNA-2-';
 const PREFIX_V1 = 'KIZUNA-1-';
@@ -168,8 +169,8 @@ export function importChar(data, incoming, { online = () => false } = {}) {
   if (!c || !validId(c.id)) return { ok: false, reason: 'キャラクターが読めませんでした' };
   c.name = String(c.name).replace(/[<>&"'\s]/g, '').slice(0, 8) || '勇者';
   const chars = data.characters;
-  // 家族の キャラを つれていく しるし（fam:）は、この セーブに いない 人の ぶんを はずす
-  if (Array.isArray(c.partyKeys)) c.partyKeys = c.partyKeys.filter((k) => !String(k).startsWith('fam:') || chars[String(k).slice(4)]);
+  // 家族の キャラを つれていく しるし（fam:）は、この セーブに いない 人の ぶんを はずす（パーティーと 馬車）
+  dropGoneFamily(c, chars);
   const mine = chars[c.id];
   if (mine) {
     if (online(c.id)) return { ok: false, reason: `${mine.name}は今遊んでいるので、終わってからにしてね` };
