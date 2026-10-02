@@ -1,7 +1,7 @@
 // ぶき・たて・かぶと（そうびの ID から みためを きめて かく）
 // 知らない 品（これからの もの）は、種類・ランク・名前の ことば から きめる
 import { mat, ramp, TH, mixC, HeroCanvas } from './hero-raster.js';
-import { metal, metalRamp, cloth, leather, gem, glow, metalOfName, baseItem } from './hero-outfit.js';
+import { metal, metalRamp, cloth, leather, gem, glow, metalOfName, baseItem, fruitIcon } from './hero-outfit.js';
 
 const D = Math.PI / 180;
 
@@ -748,6 +748,13 @@ const JOB_HAT = {
   nitoryu: { kind: 'bbcap', c: '#1a2a5a', hides: 'top' },
   shogun: { kind: 'kabuto', c: '#2a2a32', hides: 'top' },
   sword_master: { kind: 'circlet', mk: 'silver', gemc: '#4a9aff' },
+  // 学校・公務員・町の みかた・アイドル
+  schoolkid: { kind: 'kidhat', c: '#f6cf2e', hides: 'top' },
+  civil_local: { kind: 'hardhat', c: '#f6f6f2', cross: '#2aa04a', hides: 'top' },
+  police: { kind: 'conductor', c: '#1a2442', band: '#16141e', hides: 'top' },
+  firefighter: { kind: 'firehelmet', c: '#e8eaf2', hides: 'top' },
+  fruit_idol: { kind: 'fruitbow', c: '#ff6aa8' },
+  storm_idol: { kind: 'headset', c: '#2a2a36' },
 };
 function guessHead(it) {
   const name = it.name || '';
@@ -1043,8 +1050,10 @@ export function drawHeadgear(cv, P, H, G, view) {
       if (side) hpoly(cv, H, [[6.4, -3.0], [6.6, -8.4], [-7.6, -9.6], [-8.2, -3.0]], m, { su: 0, sv: -6, cx: 0.6 });
       else hpoly(cv, H, [[-8.2, -3.0], [-8.6, -9.0], [8.6, -9.0], [8.2, -3.0]], m, { sv: -6, cx: 0.6 });
       cv.part({ ol: 'soft' });
-      if (side) cv.poly(TS(H, [[6.4, -4.8], [6.5, -3.6], [-8.0, -3.6], [-8.0, -4.8]]), metal('gold'), { n: 'bevel', bw: 0.3 });
-      else cv.poly(TS(H, [[-8.2, -4.8], [8.2, -4.8], [8.2, -3.6], [-8.2, -3.6]]), metal('gold'), { n: 'bevel', bw: 0.3 });
+      // おび（警察官の ぼうしは 黒い おび）
+      const bandM = G.band ? cloth(G.band) : metal('gold');
+      if (side) cv.poly(TS(H, [[6.4, -4.8], [6.5, -3.6], [-8.0, -3.6], [-8.0, -4.8]]), bandM, { n: 'bevel', bw: 0.3 });
+      else cv.poly(TS(H, [[-8.2, -4.8], [8.2, -4.8], [8.2, -3.6], [-8.2, -3.6]]), bandM, { n: 'bevel', bw: 0.3 });
       if (!back) {
         cv.part({ ol: 'line' });
         if (side) cv.poly(TS(H, [[6.0, -3.4], [10.0, -2.6], [9.6, -1.6], [5.8, -2.2]]), cloth('#14121c'), { cx: 0.5, cy: 0.6 });
@@ -1073,6 +1082,128 @@ export function drawHeadgear(cv, P, H, G, view) {
         else for (const s of [-1, 1]) cv.lock([H.X(s * 1.2), H.y - 3.8], [H.X(s * 5.6), H.y - 6.6], [H.X(s * 7.6), H.y - 12.0], 0.75, 0.25, g);
         cv.part({ ol: 'line' });
         cv.ell(H.X(side ? 5.4 : 0), H.y - 3.6, 1.1, 1.0, g, { bulge: 0.9 });
+      }
+      break;
+    }
+    case 'kidhat': {
+      // 小学生の 黄色い ぼうし（まるい つば）
+      const c = col(G.c, '#f6cf2e');
+      const m = cloth(c);
+      const band = cloth(mixC(c, '#c07a10', 0.25));
+      cv.part({ ol: 'line' });
+      if (side) {
+        hpoly(cv, H, [[6.4, -2.6], ...arcP(-0.4, -2.2, 7.0, 7.8, -20, -190, 14), [-7.6, -2.6]], m, { su: 0.2 });
+        cv.part({ ol: 'soft' });
+        cv.poly(TS(H, [[6.6, -3.6], [6.7, -2.6], [-7.6, -2.6], [-7.6, -3.6]]), band, { cx: 0.6 });
+        cv.part({ ol: 'line' });
+        cv.poly(TS(H, [[10.2, -2.9], [9.4, -1.8], [0, -1.5], [-9.8, -1.9], [-10.6, -2.9], [0, -3.4]]), m, { cx: 0.7, cy: 0.6 });
+      } else {
+        hpoly(cv, H, [[-7.6, -2.4], ...arcP(0, -2.2, 7.6, 7.8, 180, 360, 16), [7.6, -2.4]], m);
+        const id = cv.cur;
+        cv.crease(TS(H, [[0, -9.6], [0, -3.4]]), 0.24, -0.3, { parts: [id] });
+        cv.part({ ol: 'soft' });
+        cv.poly(TS(H, [[-7.7, -3.6], [7.7, -3.6], [7.8, -2.4], [-7.8, -2.4]]), band, { cx: 0.8 });
+        cv.part({ ol: 'line' });
+        cv.poly(TS(H, [[-10.6, -2.6], ...arcP(0, -3.2, 10.4, 1.4, 185, 355, 10), [10.6, -2.6], [10.0, -1.7], ...arcP(0, -2.0, 10.0, 1.3, 355, 185, 10), [-10.0, -1.7]]), m, { cx: 0.85, cy: 0.6 });
+      }
+      break;
+    }
+    case 'hardhat': {
+      // 地方公務員の 白い ヘルメット（みどりの 十字）
+      const m = mat({ r: ramp(col(G.c, '#f6f6f2'), 5, { light: 1.1 }), th: TH.metal, spec: 0.95 });
+      cv.part({ ol: 'line' });
+      if (side) {
+        hpoly(cv, H, [[6.2, -2.4], ...arcP(-0.6, -1.8, 7.8, 8.2, -20, -190, 16), [-8.4, -2.0], [2.0, -2.2]], m, { su: 0.4 });
+        cv.part({ ol: 'line' });
+        cv.poly(TS(H, [[5.6, -2.8], [10.4, -2.4], [10.2, -1.5], [-8.6, -1.6], [-8.8, -2.6]]), m, { cx: 0.6, cy: 0.6 });
+        cv.crease(TS(H, [[2.0, -9.6], [-5.0, -7.6]]), 0.3, 0.4, { parts: [cv.cur - 1] });
+      } else {
+        hpoly(cv, H, [[-8.2, -1.8], ...arcP(0, -1.8, 8.0, 8.2, 180, 360, 16), [8.2, -1.8]], m);
+        const id = cv.cur;
+        cv.crease(TS(H, [[0, -9.8], [0, -2.4]]), 0.5, 0.35, { parts: [id] });
+        cv.part({ ol: 'line' });
+        cv.poly(TS(H, [[-8.8, -2.6], [8.8, -2.6], [9.2, -1.4], [-9.2, -1.4]]), m, { cx: 0.85, cy: 0.6 });
+        if (!back) {
+          cv.part({ ol: 'soft' });
+          const g = cloth(G.cross || '#2aa04a');
+          cv.poly(TS(H, [[-0.5, -7.0], [0.5, -7.0], [0.5, -5.9], [1.6, -5.9], [1.6, -4.9], [0.5, -4.9], [0.5, -3.8], [-0.5, -3.8], [-0.5, -4.9], [-1.6, -4.9], [-1.6, -5.9], [-0.5, -5.9]]), g, { n: [0, 0] });
+        }
+      }
+      break;
+    }
+    case 'firehelmet': {
+      // 消防士の ヘルメット（くびを 守る しころに ひかる 線、まえに オレンジの しるし）
+      const m = mat({ r: ramp(col(G.c, '#e8eaf2'), 5, { light: 1.1 }), th: TH.metal, spec: 0.95 });
+      const flap = cloth('#22305a');
+      const ref = mat({ r: ramp('#f2e86a', 4, { light: 1.2 }), th: TH.cloth, spec: 0.94 });
+      cv.part({ ol: 'line' });
+      if (side) cv.poly(TS(H, [[-1.6, -2.6], [-8.8, -2.6], [-10.2, 3.6], [-6.4, 5.0], [-2.6, 2.8]]), flap, { cx: 0.6 });
+      else if (back) cv.poly(TS(H, [[-8.6, -2.6], [8.6, -2.6], [9.4, 4.0], [0, 4.8], [-9.4, 4.0]]), flap, { cx: 0.6 });
+      else cv.poly(TS(H, [[-8.6, -2.6], [8.6, -2.6], [10.0, 3.0], [7.2, 3.6], [6.8, -0.6], [-6.8, -0.6], [-7.2, 3.6], [-10.0, 3.0]]), flap, { cx: 0.6 });
+      const fid = cv.cur;
+      cv.part({ ol: 'none', clip: fid });
+      cv.stroke(TS(H, side ? [[-2.4, 1.6], [-9.6, 2.0]] : [[-10, 1.8], [10, 1.8]]), 0.45, ref, { n: [0, 0] });
+      cv.part({ ol: 'line' });
+      if (side) hpoly(cv, H, [[6.4, -2.4], ...arcP(-0.6, -1.8, 7.8, 8.4, -20, -190, 16), [-8.4, -2.2], [2.0, -2.4]], m, { su: 0.4 });
+      else hpoly(cv, H, [[-8.2, -2.0], ...arcP(0, -1.8, 8.0, 8.4, 180, 360, 16), [8.2, -2.0]], m);
+      const id = cv.cur;
+      cv.crease(TS(H, side ? [[1.6, -10.0], [-6.4, -6.8]] : [[0, -10.0], [0, -2.6]]), 0.55, 0.3, { parts: [id] });
+      cv.part({ ol: 'line' });
+      if (side) cv.poly(TS(H, [[6.0, -3.0], [10.0, -2.4], [9.8, -1.6], [5.8, -1.8]]), m, { cx: 0.5, cy: 0.6 });
+      else if (!back) cv.poly(TS(H, [[-7.0, -3.2], [7.0, -3.2], [7.8, -1.4], [-7.8, -1.4]]), m, { cx: 0.7, cy: 0.7 });
+      if (!back) {
+        cv.part({ ol: 'line' });
+        const gx = side ? 4.6 : 0;
+        cv.ell(H.X(gx), H.y - 5.6, 1.15, 1.05, cloth('#f07a2a'), { bulge: 0.6 });
+        cv.part({ ol: 'none' });
+        cv.ell(H.X(gx), H.y - 5.6, 0.5, 0.5, metal('gold'), { bulge: 0.9 });
+      }
+      break;
+    }
+    case 'fruitbow': {
+      // フルーツジッパー: 大きな リボンと フルーツの かみどめ
+      const m = cloth(G.c || '#ff6aa8');
+      const mm = cloth('#ffffff');
+      if (side) {
+        cv.part({ ol: 'line' });
+        cv.poly(TS(H, [[-4.8, -9.4], [-8.8, -12.6], [-10.2, -8.8], [-8.4, -6.4]]), m, { cx: 0.6 });
+        cv.part({ ol: 'line' });
+        cv.ell(H.X(-5.2), H.y - 8.8, 1.2, 1.1, mm, { bulge: 0.7 });
+        fruitIcon(cv, H.X(1.6), H.y - 7.6, 'berry', 1.1);
+      } else {
+        for (const s of [-1, 1]) { cv.part({ ol: 'line' }); cv.poly(TS(H, [[0, -9.8], [s * 5.2, -12.8], [s * 6.0, -8.8], [s * 4.0, -7.6]]), m, { cx: 0.6 }); }
+        cv.part({ ol: 'line' });
+        cv.ell(H.X(0), H.y - 9.6, 1.3, 1.2, mm, { bulge: 0.7 });
+        if (!back) {
+          fruitIcon(cv, H.X(6.6), H.y - 5.6, 'berry', 1.1);
+          fruitIcon(cv, H.X(-6.8), H.y - 5.4, 'orange', 1.0);
+        }
+      }
+      break;
+    }
+    case 'headset': {
+      // アラシ: ヘッドセットの マイク
+      const m = mat({ r: ramp(col(G.c, '#2a2a36'), 4, { light: 1.2 }), th: TH.metal, spec: 0.95 });
+      const bandM = mat({ r: ramp('#4a4a5c', 4), th: TH.matte });
+      const mic = metal('silver');
+      cv.part({ ol: 'soft' });
+      if (side) {
+        cv.stroke(TS(H, [[-1.0, -0.6], [-0.4, -6.0], [0.4, -9.0]]), 0.34, bandM, { n: [0, 0] });
+        cv.part({ ol: 'line' });
+        cv.ell(H.X(-1.1), H.y + 0.6, 1.25, 1.45, m, { bulge: 0.8 });
+        cv.part({ ol: 'line' });
+        cv.stroke(TS(H, [[-0.6, 1.4], [2.6, 3.8], [5.2, 4.6]]), 0.24, m, { n: [0, 0] });
+        cv.part({ ol: 'line' });
+        cv.ell(H.X(5.6), H.y + 4.6, 0.6, 0.55, mic, { bulge: 0.9 });
+      } else {
+        cv.stroke(TS(H, arcP(0, -0.6, 8.0, 9.0, 192, 348, 12)), 0.34, bandM, { n: [0, 0] });
+        for (const s of [-1, 1]) { cv.part({ ol: 'line' }); cv.ell(H.X(s * 7.9), H.y + 0.8, 1.1, 1.5, m, { bulge: 0.8 }); }
+        if (!back) {
+          cv.part({ ol: 'line' });
+          cv.stroke(TS(H, [[-7.6, 2.0], [-6.0, 4.6], [-3.0, 5.0]]), 0.24, m, { n: [0, 0] });
+          cv.part({ ol: 'line' });
+          cv.ell(H.X(-2.6), H.y + 5.0, 0.6, 0.55, mic, { bulge: 0.9 });
+        }
       }
       break;
     }

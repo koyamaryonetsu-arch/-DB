@@ -14,8 +14,8 @@ import { Bot } from './helpers.js';
 const master = (c, ...jobs) => { for (const j of jobs) c.jobs[j] = { lv: JOB_MAX_LEVEL, b: 999 }; };
 
 test('職業データ: 上級職は 基本職 2つ（新しい 職業は 1つの ものも）、わざは ぜんぶ ある', () => {
-  assert.equal(JOB_ORDER.length, 10);
-  assert.equal(ADVANCED_ORDER.length, 13);
+  assert.equal(JOB_ORDER.length, 12);
+  assert.equal(ADVANCED_ORDER.length, 17);
   assert.ok(SUPER_ORDER.length >= 14);
   // はじめの 基本職 5つの くみあわせ 10とおりに 1つずつ 上級職
   const pairs = new Set(ADVANCED_ORDER.slice(0, 10).map((j) => JOBS[j].req.slice().sort().join('+')));
@@ -168,6 +168,8 @@ test('上級職・超級職・新しい 基本職の わざは ぜんぶ たた�
   let used = 0;
   for (const jid of ids) {
     const c = newCharacter({ id: jid, name: jid, job: 'warrior' });
+    // フルーツジッパーは 女性、アラシは 男性だけ
+    if (JOBS[jid].body !== undefined) c.look.body = JOBS[jid].body;
     gainExp(c, expForLevel(40));
     for (const r of [...(JOBS[jid].req || [])]) master(c, r);
     for (const r of JOBS[jid].req || []) for (const rr of JOBS[r].req || []) master(c, rr);

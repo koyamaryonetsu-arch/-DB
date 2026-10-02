@@ -8,7 +8,7 @@ import { PLACES } from '../maps/overworld.js';
 import { T, TILE_INFO } from '../tiles.js';
 import { ITEMS } from '../data/items.js';
 import { JOBS } from '../data/jobs.js';
-import { newCharacter, computeStats, addItem, fullHeal, migrateJobs } from '../stats.js';
+import { newCharacter, computeStats, addItem, fullHeal, migrateJobs, fixBodyJob } from '../stats.js';
 import { mapState, spawnSymbols, moveSymbols, symbolSnapshot, symbolVisible } from './monsters.js';
 import { tickFieldChests, fieldChestSnap, fieldChestNear, openFieldChest } from './fieldchests.js';
 import { chestVanishes } from '../data/fieldchests.js';
@@ -1030,5 +1030,8 @@ function normalizeChar(c) {
   // 目標の 文が 古い 版の まま・からっぽ なら、ストーリーの すすみぐあいから なおす（progress.js）
   repairObjective(c);
   ensureCompanions(c);
+  // 体で なれない 職業（フルーツジッパー・アラシ）に なっていたら もとに もどす（stats.js）
+  fixBodyJob(c);
+  for (const e of c.companions || []) fixBodyJob(e?.char);
   normalizeTreasure(c);
 }

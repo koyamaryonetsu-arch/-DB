@@ -140,6 +140,32 @@ export const HIRA_ABILITIES = {
     desc: 'だれにも打てない、ゆれながら飛ぶ球。とても大きなダメージ。',
     cast: '{a}は魔球を投げた！', anim: 'ball',
   },
+  // ───────────── 小学生 ─────────────
+  hk_randoseru_rocket: {
+    name: 'ランドセルロケット', kana: 'らんどせるろけっと', kind: 'skill', job: 'schoolkid', mp: 5, target: 'enemy', hirameki: true,
+    effect: { type: 'phys', mult: 2.0, atbAfter: 50 },
+    desc: 'ランドセルをせおって、ロケットのように飛んでいく。敵1体に大きなダメージ。打ったあと、早めに次の順番が来る。',
+    cast: '{a}はランドセルロケットで飛んでいった！', anim: 'tackle',
+  },
+  hk_radio_taiso: {
+    name: 'ラジオ体操', kana: 'らじおたいそう', kind: 'skill', job: 'schoolkid', mp: 5, target: 'allies', hirameki: true,
+    effect: { type: 'buff', stats: ['def', 'agi'], mult: 1.2, dur: 30 },
+    desc: 'みんなでラジオ体操！仲間全員の守備力と素早さが上がる。',
+    cast: '「いち、に、さん、し！」{a}たちはラジオ体操をした！', anim: 'buff',
+  },
+  // ───────────── 地方公務員 ─────────────
+  hk_yukigassen: {
+    name: '雪合戦', kana: 'ゆきがっせん', kind: 'skill', job: 'civil_local', mp: 6, target: 'enemies', hirameki: true,
+    effect: { type: 'phys', mult: 0.6, hits: 5, random: true, element: 'ice' },
+    desc: '集めた雪で、雪合戦！5回、敵にランダムで氷のダメージ。',
+    cast: '{a}は雪玉を次から次へと投げた！', anim: 'ice1',
+  },
+  hk_kairanban: {
+    name: '回覧板', kana: 'かいらんばん', kind: 'skill', job: 'civil_local', mp: 4, target: 'allies', hirameki: true,
+    effect: { type: 'cure', statuses: ['poison', 'sleep', 'confuse', 'paralyze'] },
+    desc: '大事なお知らせを回覧板で回す。仲間全員の毒・ねむり・混乱・マヒを治す。',
+    cast: '{a}は回覧板を回した！「みなさん、気をつけて！」', anim: 'heal1',
+  },
 };
 
 // ひらめきの じょうけん（技 → 使った 回数）。'@atk' は ふつうの 攻撃
@@ -165,6 +191,10 @@ export const HIRAMEKI = {
   hk_tokkyu: { from: { rw_teikoku: 15, rw_shuppatsu: 8 } },
   hk_nagashi: { from: { bb_hit: 20 } },
   hk_makyuu: { from: { bb_fastball: 20, '@atk': 30 } },
+  hk_randoseru_rocket: { from: { es_randoseru: 20 } },
+  hk_radio_taiso: { from: { es_aisatsu: 10, es_kakekko: 8 } },
+  hk_yukigassen: { from: { lc_josetsu: 15 } },
+  hk_kairanban: { from: { lc_madoguchi: 15, lc_bousai: 6 } },
   // 掛け合わせ技（ちがう 職業の 技を 何回も 使うと ひらめく。使えるのは 上級職から）
   mahouken: { from: { daichi: 15, mera: 15 } },
   senka: { from: { seiken: 15, hoimi: 15 } },

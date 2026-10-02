@@ -2,7 +2,7 @@
 import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js';
 import { normDifficulty } from '../data/difficulty.js';
 import { ITEMS, sellPrice, SLOTS } from '../data/items.js';
-import { JOBS, ALL_JOBS, jobReqText } from '../data/jobs.js';
+import { JOBS, ALL_JOBS, jobReqText, BODY_NAMES } from '../data/jobs.js';
 import { ABILITIES } from '../data/abilities.js';
 import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js';
 import { TACTICS } from '../ai.js';
@@ -154,6 +154,8 @@ export function serviceAction(world, s, msg) {
       if (!who || who.species) return reply(false, 'モンスターは転職できない');
       if (who.job === msg.job) return reply(false, '今の職業と同じです');
       const r = changeJob(who, msg.job);
+      // 体で なれない 職業（フルーツジッパーは 女性、アラシは 男性だけ）
+      if (r.body !== undefined) return reply(false, `${JOBS[msg.job].name}には、${BODY_NAMES[r.body]}しかなれない…`);
       if (r.locked) return reply(false, `まだ${JOBS[msg.job].name}にはなれない…\n（${jobReqText(msg.job)}が必要）`);
       if (!r.ok) return reply(false, '');
       // なかまが はずした そうびは ふくろへ

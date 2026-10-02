@@ -1,10 +1,10 @@
 // お店・転職・酒場・でんごんばん・ほしのかけら・きょうかい の がめん
 import { el, ListMenu, toast, askText, confirmBox, esc } from './dom.js';
 import { ITEMS } from '../../shared/data/items.js';
-import { JOBS, JOB_ORDER, ADVANCED_ORDER, SUPER_ORDER, TIER_NAMES, JOB_MAX_LEVEL, JOB_TRAIN_GAP, jobReqText, jobReqSets } from '../../shared/data/jobs.js';
+import { JOBS, JOB_ORDER, ADVANCED_ORDER, SUPER_ORDER, TIER_NAMES, JOB_MAX_LEVEL, JOB_TRAIN_GAP, jobReqText, jobReqSets, jobBodyOk, BODY_NAMES, JOB_HINTS } from '../../shared/data/jobs.js';
 import { ABILITIES } from '../../shared/data/abilities.js';
 import { salonUI } from './salon.js';
-import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered } from '../../shared/stats.js';
+import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered, canEquip } from '../../shared/stats.js';
 import { MONSTERS } from '../../shared/data/monsters.js';
 import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES } from '../../shared/data/companions.js';
 import { TACTICS } from '../../shared/ai.js';
@@ -105,7 +105,9 @@ function jobUI(game) {
       const c = target();
       s.right.textContent = `${c.name}: ${JOBS[c.job]?.name || ''}`;
       const out = [];
-      [JOB_ORDER, ADVANCED_ORDER, SUPER_ORDER].forEach((order, tier) => {
+      [JOB_ORDER, ADVANCED_ORDER, SUPER_ORDER].forEach((all, tier) => {
+        // 体で なれない 職業（フルーツジッパー・アラシ）は 出さない
+        const order = all.filter((j) => jobBodyOk(j, c.look));
         const open = order.filter((j) => jobUnlocked(c, j)).length;
         out.push({ header: true, label: tier ? `${TIER_NAMES[tier]}（なれる ${open}/${order.length}）` : TIER_NAMES[tier] });
         // 超級職は ヒントが 出るまで ひみつ
@@ -172,6 +174,14 @@ function jobUI(game) {
         renderWho();
         main.append(el('h3', { text: '？？？' }), el('div', { class: 'small gold', text: TIER_NAMES[2] }),
           el('div', { class: 'detail', text: 'まだだれも知らない、ひみつの職業。\n上級職をマスターすると、その先の職業のヒントがここに出てくる。' }));
+        // うわさ: もとの 職業を はじめた ひみつの 職業だけ（名前は ださない）
+        const rumors = SUPER_ORDER.filter((s) => JOB_HINTS[s] && jobBodyOk(s, c.look) && !jobKnown(c, s)
+          && jobReqSets(s).some((set) => set.some((r) => c.jobs?.[r])));
+        if (rumors.length) {
+          const box = el('div', { class: 'small job-rumor' }, el('div', { class: 'gold', text: '神殿のうわさ' }));
+          for (const s of rumors) box.append(el('div', { class: 'jl-desc', text: `・${JOB_HINTS[s]}` }));
+          main.append(box);
+        }
         return;
       }
       const job = JOBS[j];
@@ -181,7 +191,9 @@ function jobUI(game) {
       main.innerHTML = '';
       main.append(whoRow);
       renderWho();
-      const pv = playerSprite(c.look, j, 'down', 0, c.equip);
+      // その 職業で そうびできない ものは はずした すがた（転職した あとの みため）
+      const eq = Object.fromEntries(Object.entries(c.equip || {}).map(([k, v]) => [k, v && canEquip(j, v) ? v : null]));
+      const pv = playerSprite(c.look, j, 'down', 0, eq);
       const img = el('canvas', { width: pv.width, height: pv.height, style: { width: '64px', height: '84px', imageRendering: 'pixelated', float: 'right', opacity: open ? '1' : '0.45' } });
       img.getContext('2d').drawImage(pv, 0, 0);
       main.append(img, el('h3', { text: `${job.name}（${job.kana}）` }), el('div', { class: 'small gold', text: TIER_NAMES[job.tier || 0] }), el('div', { class: 'detail', text: job.desc }));
@@ -192,6 +204,7 @@ function jobUI(game) {
       if (job.req) {
         const req = el('div', { class: 'small', style: { margin: '0.4em 0' } });
         req.append(el('div', { class: open ? 'good' : 'warn', text: open ? `なれる！（${jobReqText(j)}）` : `なるには: ${jobReqText(j, reqName)}` }));
+        if (job.body !== undefined) req.append(el('div', { class: 'muted', text: `（${BODY_NAMES[job.body]}だけがなれる職業）` }));
         jobReqSets(j).forEach((set, i) => {
           if (i) req.append(el('div', { class: 'muted', text: '　または' }));
           for (const r of set) {
@@ -206,6 +219,8 @@ function jobUI(game) {
         const pg = jobProgress(c, j);
         main.append(el('div', { class: 'small', text: pg.done ? `職業レベル ${lv}（★マスター）` : `職業レベル ${lv}　次まであと${pg.next}回勝つ` }));
       }
+      // のびざかり（学校の 職業）
+      if (job.passive?.train > 1) main.append(el('div', { class: 'small good', text: `のびざかり：戦いに1回勝つと、${job.passive.train}回分の修行になる` }));
       // 覚える技（全部。どんな 技か 短い せつめいつき）→ 強さの かたむき の じゅん
       const learn = el('div', { class: 'small job-learn' });
       learn.append(el('div', { class: 'gold', text: `覚える技（職業レベル）　全${job.learn.length}こ` }));
