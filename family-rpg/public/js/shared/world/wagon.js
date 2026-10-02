@@ -173,8 +173,7 @@ export function arrangeWagon(world, s, msg) {
   if (JSON.stringify([c.selfPos, c.partyKeys, c.wagonKeys]) === before) return { ok: true, same: true, text: 'ならびはそのままにした。' };
   // パーティーの 仲間は ならびの じゅんに 入りなおす（syncParty）
   afterRosterChange(world, s);
-  const names = (list) => list.map((k) => (k === 'self' ? c.name : memberName(world, c, k))).filter(Boolean).join('・');
-  return { ok: true, text: `総入れかえをした！\n戦う仲間: ${names(party)}${wagon.length ? `\n馬車: ${names(wagon)}` : ''}` };
+  return { ok: true, text: '総入れかえをした！' };
 }
 
 const stowText = (list) => (list?.length ? `\n（装備していた${list.slice(0, 3).join('・')}${list.length > 3 ? 'など' : ''}はふくろにしまった）` : '');

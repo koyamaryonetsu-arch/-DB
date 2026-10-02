@@ -29,7 +29,7 @@ import { difficultyOf, visibleMarks, EXP_RATES, EXP_RATE_NAMES } from '../../sha
 import { memberTalk, talkFor } from '../../shared/data/party-talk.js';
 import { treasureRows, treasureDetail, openTreasureMap } from './treasure.js';
 import { themeHex } from '../render/themes.js';
-import { wagonMenuView } from './wagon.js';
+import { wagonMenuView, wagonHereClient, menuArrange } from './wagon.js';
 
 // 呪文・技の タブ（左右で じゅんに かわる）
 const SKILL_TABS = [['list', '覚えた技'], ['fav', 'お気に入り'], ['combo', 'ひらめき'], ['dual', '合体技']];
@@ -351,6 +351,14 @@ export class FieldMenu {
         const place = await this.pick('どこへ飛ぶ？', [...this.warpChoices(), { label: 'やめる', value: null }]);
         if (place) {
           g.net.send({ t: 'menu', action: 'useItem', id: entry.value, place });
+          this.close();
+          return;
+        }
+      } else if (it.effect.type === 'exit') {
+        // みちびきの糸: 洞窟の 中なら 入り口の 外へ（メニューを とじて 外を 見せる）
+        g.net.send({ t: 'menu', action: 'useItem', id: entry.value });
+        const m = MAPS[g.field?.mapId];
+        if (m?.kind === 'dungeon' && !m.indoor) {
           this.close();
           return;
         }
@@ -769,10 +777,13 @@ export class FieldMenu {
     }
     box.append(...rows);
     if (!active) {
-      box.append(el('div', { class: 'detail', text: '遊んでいる家族をパーティーにさそえる。仲間はルミナの町の酒場で探したり入れかえたりできる。\n近くにいる仲間はいっしょに戦う。はなれている仲間も、戦っている場所へかけつけると、とちゅうから参加できる。\n「ならびを変える」で順番を変えられる（先頭ほど敵にねらわれやすい）。' }));
+      box.append(el('div', { class: 'detail', text: `遊んでいる家族をパーティーにさそえる。仲間はルミナの町の酒場で探したり入れかえたりできる。\n近くにいる仲間はいっしょに戦う。はなれている仲間も、戦っている場所へかけつけると、とちゅうから参加できる。\n「ならびを変える」で順番を変えられる（先頭ほど敵にねらわれやすい）。${g.me.wagon ? '\n「総入れかえ」で、戦う仲間（1〜4番目）と馬車の仲間（5〜8番目）をまとめて決められる。' : ''}` }));
       return box;
     }
     const acts = [];
+    // 総入れかえ（1〜4番目が 戦う 仲間、5〜8番目が 馬車。ui/wagon.js）
+    const mates = (g.me.partyKeys || []).length + (g.me.wagonKeys || []).length;
+    if (g.me.wagon && (iAmLeader || !p) && mates) acts.push({ label: '総入れかえ', value: { a: 'arrange' } });
     if (iAmLeader && (p?.supports?.length || 0) >= 1) acts.push({ label: 'ならびを変える', value: { a: 'order' } });
     if (g.me.wagon) acts.push({ label: '馬車', value: { a: 'wagon' } });
     const others = (g.players || []).filter((x) => x.sid !== g.sid && x.partyId !== p?.id && !x.away);
@@ -794,7 +805,17 @@ export class FieldMenu {
           this.main.scrollTop = 0;
           return;
         }
-        if (v.a === 'order') {
+        if (v.a === 'arrange') {
+          if (!wagonHereClient(g)) {
+            toast('馬車は入り口で待っている。\n（洞窟や塔の中では乗りかえられない）');
+            this.sfx('buzz');
+            return;
+          }
+          this.sub.blur();
+          const r = await menuArrange(this);
+          // あたらしい ならびを 上から 見せる
+          if (r) setTimeout(() => { if (this.root) this.main.scrollTop = 0; }, 300);
+        } else if (v.a === 'order') {
           this.sub.blur();
           const order = await this.pickOrder();
           if (order) g.net.send({ t: 'menu', action: 'order', order });

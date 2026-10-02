@@ -222,6 +222,12 @@ export function serviceAction(world, s, msg) {
       return;
     }
     case 'salon': return salonAction(world, s, msg, reply);
+    // 馬車の 総入れかえ（メニューから。へんじを まてるように お店と おなじ 形で。world/wagon.js）
+    case 'wagon': {
+      if (s.busy) return reply(false, '今はできません');
+      const r = wagonMenuAction(world, s, msg);
+      return reply(r.ok, r.ok ? r.text : r.reason, { same: !!r.same });
+    }
     case 'starTrade': {
       const tr = STAR_TRADES[msg.index];
       if (!tr) return reply(false, '');

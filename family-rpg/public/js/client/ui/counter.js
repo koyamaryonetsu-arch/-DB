@@ -4,7 +4,7 @@
 //   うえ: 店の なまえ・所持金・✕閉じる
 //   まんなか: ひだり＝品物や コマンド、みぎ＝せつめいと「だれが どう かわるか」
 //   した: 店の人の ことば（はい／いいえ は ここの みぎに 出る）
-import { el, ListMenu } from './dom.js';
+import { el, ListMenu, esc } from './dom.js';
 import { ITEMS, sellPrice } from '../../shared/data/items.js';
 import { MONSTERS } from '../../shared/data/monsters.js';
 import { JOBS } from '../../shared/data/jobs.js';
@@ -15,6 +15,19 @@ import { boardIconURL } from '../render/boards.js';
 import { partyRows } from './hud.js';
 
 const TYPE_MS = 18;
+
+// 馬車の しるし（くらべの 行と「どなたが」の えらびし）
+let cmpStyled = false;
+function cmpStyles() {
+  if (cmpStyled || typeof document === 'undefined') return;
+  cmpStyled = true;
+  document.head.append(el('style', { id: 'cmp-wagon-css', text: `
+.menu .tag.wg { color: #9ad8ff; border-color: rgba(154, 216, 255, 0.6); }
+.cmp-wg-h { color: #9ad8ff; font-size: var(--fs-small); margin-top: 0.3em; padding-bottom: 0.05em; border-bottom: 1px dashed rgba(154, 216, 255, 0.4); }
+.cmp-row.wg .nm { color: #cfe9ff; }
+.cmp-row.wg.dis .nm { color: #6d6c88; }
+` }));
+}
 export const EQUIP_TYPES = ['weapon', 'armor', 'shield', 'head', 'acc'];
 
 export class Counter {
@@ -149,6 +162,9 @@ export class Counter {
       target.classList.add('active');
       target.append(m.root);
       m.focus();
+      // えらべる 行が 下の ほう（馬車の 仲間 など）でも 見える ように（スマホの 十字キーが 出て まどが ちぢんだ あとで）
+      const raf = typeof requestAnimationFrame === 'function' ? requestAnimationFrame : (f) => setTimeout(f, 16);
+      raf(() => raf(() => { if (m.active) m.scrollToSel(); }));
     });
   }
 
@@ -250,22 +266,25 @@ export class Counter {
 // ───────────── だれが どう かわるか ─────────────
 const STAT_NAMES = [['atk', '攻撃力'], ['dfn', '守備力'], ['agi', '素早さ'], ['mag', '攻撃魔力'], ['heal', '回復魔力'], ['maxHp', '最大HP'], ['maxMp', '最大MP']];
 
-// じぶんと じぶんの なかま（いま パーティーに いる）。家族の キャラは じぶんで 買いものを する
+// じぶんと じぶんの なかま（いま パーティーに いる 仲間と、馬車の 仲間）。家族の キャラは じぶんで 買いものを する
 export function myTeam(game) {
   const me = game.me;
   const out = [{ key: 'self', name: me.name, char: me, face: faceURL({ look: me.look, job: me.job, eq: me.equip }), kind: JOBS[me.job]?.name || '' }];
-  for (const x of game.party?.supports || []) {
-    if (x.owner !== me.id || x.kind === 'family') continue;
+  const add = (x, wagon) => {
+    if (x.owner !== me.id || x.kind === 'family' || out.some((m) => m.key === x.key)) return;
     const char = {
       name: x.name, level: x.level, job: x.job, jobs: x.jobs || {}, equip: x.equip || {}, seeds: x.seeds || {},
       species: x.species || undefined, plus: x.plus || 0, bonus: x.bonus || undefined,
     };
     out.push({
-      key: x.key, name: x.name, char,
+      key: x.key, name: x.name, char, wagon,
       face: faceURL({ look: x.look, job: x.job, eq: x.equip, mon: x.species || undefined }),
       kind: x.species ? MONSTERS[x.species]?.name || '' : JOBS[x.job]?.name || '',
     });
-  }
+  };
+  for (const x of game.party?.supports || []) add(x, false);
+  // 馬車の 仲間（リーダーの 馬車。ui/wagon.js）
+  for (const x of game.party?.wagon || []) add(x, true);
   return out;
 }
 
@@ -291,6 +310,12 @@ export function partyTeam(game) {
     else if (r.ref && supports.has(r.ref)) out.push(other(supports.get(r.ref), supports.get(r.ref).family ? '家族' : '仲間'));
   }
   if (!humansDone) out.unshift(mine.get('self'));
+  // 馬車の 仲間（しるし「馬車」。自分の 仲間は その場で 装備できる。家族の うつしは 見るだけ）
+  for (const w of p?.wagon || []) {
+    if (out.some((m) => m && m.key === w.key)) continue;
+    if (mine.has(w.key)) out.push(mine.get(w.key));
+    else out.push({ ...other(w, w.family ? '家族' : '仲間'), wagon: true });
+  }
   return out.filter(Boolean);
 }
 
@@ -322,7 +347,7 @@ const arrowCls = (d) => (d > 0 ? 'up' : d < 0 ? 'down' : 'muted');
 
 // パーティーの 1人ぶんの 行: 名前・変わる 強さ（装備できない 人は「装備できない（変化なし）」）
 function compareRow(r) {
-  const row = el('div', { class: `cmp-row ${r.can ? '' : 'dis'}` }, el('span', { class: 'nm', text: r.name }));
+  const row = el('div', { class: `cmp-row ${r.can ? '' : 'dis'} ${r.wagon ? 'wg' : ''}` }, el('span', { class: 'nm', text: r.name }));
   if (!r.can) {
     row.append(el('span', { class: 'no', text: '装備できない（変化なし）' }));
     return row;
@@ -344,6 +369,7 @@ function compareRow(r) {
 export function itemInfo(game, id, { sell = false } = {}) {
   const it = ITEMS[id];
   if (!it) return null;
+  cmpStyles();
   const box = el('div', { class: 'ct-item' });
   box.append(el('div', { class: 'hd' }, el('span', { class: 'gold', text: it.name }), el('span', { class: 'st', text: itemStats(id) }), el('span', { class: 'rk', text: rankText(id) })));
   box.append(el('div', { class: 'detail', text: it.desc || '' }));
@@ -351,7 +377,10 @@ export function itemInfo(game, id, { sell = false } = {}) {
     // パーティー 全員を ならびの じゅんに（装備できない 人も「変化なし」で 出す）
     const team = partyTeam(game).map((m) => compareOne(m, id));
     box.append(el('div', { class: 'cmp-head', text: '装備すると、こう変わる' }));
-    box.append(el('div', { class: 'cmp-list' }, ...team.map(compareRow)));
+    // 馬車の 仲間は「馬車の仲間」の みだしの 下に
+    const wagon = team.filter((r) => r.wagon);
+    box.append(el('div', { class: 'cmp-list' }, ...team.filter((r) => !r.wagon).map(compareRow),
+      wagon.length ? el('div', { class: 'cmp-wg-h', text: `馬車の仲間（${wagon.length}人）` }) : null, ...wagon.map(compareRow)));
     if (!team.some((r) => r.can)) box.append(el('div', { class: 'detail', text: whoCanEquip(id) }));
   } else {
     box.append(el('div', { class: 'small', text: `持っている数: ${itemCount(game.me, id)}` }));
@@ -360,11 +389,13 @@ export function itemInfo(game, id, { sell = false } = {}) {
   return box;
 }
 
-// 「どなたが 装備しますか？」の えらびし
+// 「どなたが 装備しますか？」の えらびし（馬車の 仲間には しるし）
 export function whoItems(rows) {
+  cmpStyles();
   return rows.map((r) => ({
     value: r.key,
     label: r.name,
+    html: r.wagon ? `${esc(r.name)}<span class="tag wg">馬車</span>` : undefined,
     disabled: !r.can || r.same,
     right: !r.can ? '装備できない' : r.same ? 'E 装備している' : `${r.main.n} ${r.main.b}→${r.main.a} ${arrow(r.main.d)}`,
     rightCls: r.can && !r.same ? arrowCls(r.main.d) : '',
