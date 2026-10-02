@@ -639,6 +639,7 @@
 - ミドリナ地方の **南のはし** をこえると 風の海の北のはしへ（その反対も）。「風の海へ」「ミドリナへ」ボタンでも 別の地方へひとっ飛び
 - 「**降りる**」ボタン（空の上ではAボタンでも）で 歩ける地面に降ります。水の上・建物の中・出入り口の上には降りられません（すぐそばに地面があれば、そこへ降ります）
 - パーティーで「ついていく」にしている仲間も いっしょに乗ります。乗ったままセーブしても、次は空からつづけられます
+- 第3章のさいごで **星の竜アステル** に乗せてもらえるようになると、空の旅はフウラのかわりに星の竜の背中になります（大きなつばさで ゆったりはばたきます）。家族サーバーでは、ほかの人の画面でも 竜に乗った姿で見えます
 
 ---
 
@@ -790,6 +791,12 @@ npm start                 # 家族サーバー
   - `shared/world/monsters.js` … シンボルは `tod: 'day' | 'night'` を持ち、見る人の時計で 見える・おいかける・さわれるが決まる（`symbolVisible`）
   - `shared/data/sky.js`・`shared/world/travel.js` … ルーラ（`castRura`）と 大鳥（`s.flying`／セーブは `char.riding`）。とんでいない人が 歩けないマスへ入るのは サーバーがみとめない（`moveAllowed`）。降りる場所は `landingOk`
   - `client/sky.js`（とぶ動き・えんしゅつ・ボタン）、`client/render/sky-art.js`（大鳥・ゆうれいの絵）、`client/render/night-art.js`（夜の魔物の色がえと夜の戦いの背景）、`client/ui/clock.js`（ちずの横の時計）
+  - 星の竜に乗る絵は `client/render/dragon-art.js`（`dragonCanvas`・`dragonRideCanvas`。だいほんの役者 `'sky_dragon'` も）。`client/sky.js` の `mountOf` が、自分はキャラのフラグ `c3_dragon`、ほかの人は位置の情報 `mt: 'dragon'`（`world.js` が とんでいる人に つける）で 竜の絵にする
+- 第3章の絵と音楽
+  - `client/render/ch3-art.js`（ふつうの魔物22種）・`ch3-boss-art.js`（ボス6体と星の竜アステル。起きた姿 `star_dragon`・ねむる姿 `star_dragon_sleep`）・`ch3-draw.js`（ほのお・つらら・キバ・雪の結晶などの道具）。`render/monsters.js` の `addCh3Art` で登録します（`MONSTER_ART` にあれば、データの仮の `art` より こちらが使われる）
+  - フィールドの大きなNPC `'mon:<魔物のID>'` は、絵に `npc`（大きさ。ふつうは 0.5）があれば その大きさでかきます（`render/monsters.js` の `bigNpcScale`。星の竜は 0.6）
+  - BGM（`client/audio.js`）: `snow`（シロガネ地方）・`snowtown`（竜守りの村・温泉の里のワルツ）・`mine`（鉱山。かなづちの音）・`volcano`（炎の山）・`temple`（竜の試練の神殿・星竜山）・`boss3`（炎の魔女イグニアとの戦い）・`dragon`（星の竜アステル）。どれも16小節で、パートの長さがそろっています
+  - `test/ch3-art.test.js` … 第3章の魔物の絵が全部あるか、色がパレットの中か、絵の外にはみ出さないか（2コマ・戦いとフィールドの大きさ）、星の竜に乗る絵の4方向。`test/audio.test.js` … 第3章の7曲と、音の名前の書きまちがい
 
 ---
 
