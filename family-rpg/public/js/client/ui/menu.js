@@ -422,6 +422,8 @@ export class FieldMenu {
     for (const m of p?.members || []) if (m.sid !== g.sid) out.push({ label: fmt(m.name, m.hp, m.maxHp, m.mp, m.maxMp), value: 'sid:' + m.sid, hp: m.hp });
     for (const s of p?.supports || []) out.push({ label: fmt(s.name, s.hp, s.maxHp, s.mp, s.maxMp), value: 'sup:' + s.key, hp: s.hp });
     for (const gu of p?.guests || []) out.push({ label: `${gu.name}　HP ${gu.hp}/${gu.maxHp}`, value: 'guest:' + gu.id, hp: gu.hp });
+    // 馬車の 仲間（馬車が いっしょの とき。洞窟・塔の 中では 入り口で 待っている）
+    if (wagonHereClient(g)) for (const w of p?.wagon || []) out.push({ label: fmt(`${w.name}（馬車）`, w.hp, w.maxHp, w.mp, w.maxMp), value: 'wagon:' + w.key, hp: w.hp });
     return out.map((o) => ({ ...o, disabled: dead ? o.hp > 0 : o.hp <= 0 }));
   }
 

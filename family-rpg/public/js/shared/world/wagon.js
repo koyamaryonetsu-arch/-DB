@@ -255,6 +255,15 @@ export function wagonChurch(world, s, dead, poisoned, priceOf, curePrice) {
   }
 }
 
+// フィールドで 回復できる 馬車の 仲間（馬車が いっしょの とき だけ。洞窟・塔の 中では 入り口で 待っている）
+//   own … 自分の 仲間だけ（呪文を 唱える 人。家族の うつしは のぞく）
+export function wagonHealEntries(world, s, own = false) {
+  if (!wagonHere(s.map)) return [];
+  const p = partyOf(world, s);
+  const lc = leaderChar(world, p) || (!p ? s.char : null);
+  return wagonEntries(world, lc, p).filter((e) => !own || (lc === s.char && e.kind !== 'family'));
+}
+
 export function wagonRefChar(world, s, ref) {
   if (!ref?.startsWith('wagon:')) return null;
   const p = partyOf(world, s);

@@ -748,3 +748,42 @@ test('家族の キャラを 消すと、ほかの 人の パーティー・馬�
   assert.deepEqual(c.wagonKeys, [], '馬車の しるしも はずれる');
   assert.deepEqual(ken.party.wagon, [], 'クライアントの 馬車も すぐ かわる');
 });
+
+// ───────────── フィールドの 回復と 馬車 ─────────────
+test('フィールドの 回復: 馬車の 仲間にも 薬草・回復呪文・まんたんが とどく（洞窟の 中では 入り口で 待つ）', { timeout: 60000 }, async () => {
+  const { world, ken, c } = await family(81);
+  for (const k of ['npc_gard', 'npc_mina', 'npc_poporo', 'npc_rin']) tavern(ken, { action: 'recruit', key: k });
+  assert.deepEqual(c.wagonKeys, ['npc_rin']);
+  const rin = c.companions.find((e) => e.key === 'npc_rin').char;
+  const mina = c.companions.find((e) => e.key === 'npc_mina').char;
+  const max = computeStats(rin).maxHp;
+  // 薬草（だれに 使う？で 馬車の 仲間を えらぶ）
+  rin.hp = 5;
+  c.items.push({ id: 'herb', n: 5 });
+  let r = menu(ken, { action: 'useItem', id: 'herb', ref: 'wagon:npc_rin' });
+  assert.ok(r.ok, r.text);
+  assert.ok(rin.hp > 5, '馬車の 仲間の HPが ふえた');
+  // 回復呪文（僧侶の ミーナが 馬車の リンに）
+  rin.hp = 5;
+  mina.mp = 99;
+  const heal = ['hoimi', 'behoimi'].find((id) => (mina.abilities || []).includes(id)) || 'hoimi';
+  r = menu(ken, { action: 'cast', who: 'npc_mina', id: heal, ref: 'wagon:npc_rin' });
+  assert.ok(r.ok, r.text);
+  assert.ok(rin.hp > 5);
+  // まんたん（呪文）: 馬車の 仲間も 満タン
+  rin.hp = 3;
+  mina.mp = 99;
+  r = menu(ken, { action: 'fullHeal', mode: 'spell' });
+  assert.ok(r.ok, r.text);
+  assert.equal(rin.hp, max, r.text);
+  // 洞窟の 中では 馬車は 入り口で 待っている（とどかない・へらない）
+  rin.hp = 5;
+  world.placeSession(ken.s, 'cave_b1', 24.5, 30.5, 'up', true);
+  const herbs = itemCount(c, 'herb');
+  r = menu(ken, { action: 'useItem', id: 'herb', ref: 'wagon:npc_rin' });
+  assert.equal(r.ok, false);
+  assert.match(r.text, /馬車は入り口で待っている/);
+  assert.equal(itemCount(c, 'herb'), herbs);
+  r = menu(ken, { action: 'fullHeal', mode: 'item' });
+  assert.equal(rin.hp, 5, 'まんたんでも 馬車の 仲間は そのまま');
+});

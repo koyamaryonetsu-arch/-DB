@@ -80,6 +80,9 @@ const ANIM_SFX = {
   bolt1: 'bolt', bolt2: 'thunder', gigabreak: 'thunder', whip: 'hit', shuriken: 'miss', dragon_beam: 'void', summon: 'fire', meteor: 'blast', dark_slash: 'dark',
   bat_swing: 'bat', train: 'train', cards: 'miss', hearts: 'buff', coins: 'item', laugh: 'buff', ice_arrow: 'ice', holy: 'heal', blizzard: 'ice',
   heal_ring: 'heal', stage: 'buff', cross_slash: 'smash', rock_smash: 'smash', ball: 'miss',
+  // 学校・公務員・アイドルの 技（render/battlefx-jobs.js）
+  notes: 'sleep', odama: 'smash', pillow: 'hit', camera: 'sparkle', stamp: 'stamp', siren: 'warn', water: 'wind',
+  fruits: 'debuff', fruits_big: 'blast', storm: 'wind',
 };
 
 // ひらめきの 電球（ドット絵ふう）
@@ -361,6 +364,9 @@ export class BattleScene {
     const pc = a.pc || { job: a.job, jobs: {} };
     // フィールドだけの 呪文（ルーラ）は 出さない
     const learned = (a.abilities || []).filter((id) => ABILITIES[id] && !ABILITIES[id].fieldOnly && !(ABILITIES[id].kind === 'combo' && !comboAllowed(pc, id)));
+    // 今の 職業の 技を さきに（あとは おぼえた じゅん）
+    const nowJob = (id) => (ABILITIES[id].job === pc.job ? 0 : 1);
+    learned.sort((x, y) => nowJob(x) - nowJob(y));
     const spells = learned.filter((id) => ABILITIES[id].kind === 'spell' || ABILITIES[id].spellLike);
     const skills = learned.filter((id) => ABILITIES[id].kind === 'skill' || ABILITIES[id].kind === 'monster' || (ABILITIES[id].kind === 'combo' && !ABILITIES[id].spellLike));
     const duals = this.myDualOptions(a);
