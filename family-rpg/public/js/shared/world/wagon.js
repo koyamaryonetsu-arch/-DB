@@ -153,6 +153,7 @@ export function arrangeWagon(world, s, msg) {
   const p = partyOf(world, s);
   if (p && p.leader !== s.id) return fail('パーティーの馬車はリーダーのものです');
   if (!wagonHere(s.map)) return fail('馬車は入り口で待っている。\n（洞窟や塔の中では乗りかえられない）');
+  const before = JSON.stringify([c.selfPos || 0, c.partyKeys, c.wagonKeys]);
   dropMissingFam(world, c);
   const gone = (k) => isFam(k) && !memberName(world, c, k);
   const party = Array.isArray(msg.party) ? msg.party.map(String).filter((k) => !gone(k)) : null;
@@ -166,7 +167,6 @@ export function arrangeWagon(world, s, msg) {
   if (new Set(keys).size !== keys.length || keys.length !== now.length || keys.some((k) => !now.includes(k))) {
     return fail('仲間をみんな1回ずつならべてね');
   }
-  const before = JSON.stringify([c.selfPos || 0, c.partyKeys, c.wagonKeys]);
   c.selfPos = party.indexOf('self');
   c.partyKeys = party.filter((k) => k !== 'self');
   c.wagonKeys = wagon;

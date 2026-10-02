@@ -277,7 +277,7 @@ export class ScriptRun {
           const r = recruitNpc(w, this.owner, a[0], { force: true });
           if (r.ok) {
             this.batch.push(['sfx', 'join']);
-            this.say(r.joined ? `${r.name}が仲間に加わった！` : `${r.name}が仲間になった！\n（今はルミナの町の酒場で待っている）`);
+            this.say(r.joined ? `${r.name}が仲間に加わった！${r.where === 'wagon' ? `\n${r.name}は馬車に乗りこんだ。` : ''}` : `${r.name}が仲間になった！\n（今はルミナの町の酒場で待っている）`);
           }
           break;
         }

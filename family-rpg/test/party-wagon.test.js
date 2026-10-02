@@ -738,3 +738,13 @@ test('みちびきの糸: 嵐の塔の 屋上・宝の洞窟・読みこみな�
     for (const k of Object.keys(tmp)) delete MAPS[k];
   }
 });
+
+test('家族の キャラを 消すと、ほかの 人の パーティー・馬車からも はずれる（見えない 席が のこらない）', { timeout: 60000 }, async () => {
+  const { world, mama, ken, c, fam, mamaId } = await family(74);
+  tavern(ken, { action: 'toWagon', key: fam });
+  assert.deepEqual(ken.party.wagon.map((x) => x.key), [fam]);
+  mama.send({ t: 'deleteChar', id: mamaId, confirm: 'ママ' });
+  assert.ok(!world.data.characters[mamaId]);
+  assert.deepEqual(c.wagonKeys, [], '馬車の しるしも はずれる');
+  assert.deepEqual(ken.party.wagon, [], 'クライアントの 馬車も すぐ かわる');
+});

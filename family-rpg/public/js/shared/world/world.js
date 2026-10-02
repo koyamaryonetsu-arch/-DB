@@ -16,7 +16,7 @@ import { startFieldBattle, battleTick, battleCommand, battleLeave, joinBattle, m
 import { runScript, runSteps } from './scripts.js';
 import { serviceAction, menuAction } from './services.js';
 import { newParty, partyOf, partyState, syncParty, ensureCompanions, companionWait, PARTY_MAX, befriendLevel, rosterFull, nameOfKey, dropMissingFam } from './party.js';
-import { hasWagon } from '../data/wagon.js';
+import { hasWagon, dropGoneFamily } from '../data/wagon.js';
 import { MONSTERS } from '../data/monsters.js';
 import { CH1_CLEAR_OBJECTIVE } from '../data/story.js';
 import { upgradeSave, repairChar } from './save.js';
@@ -352,6 +352,12 @@ export class GameWorld {
     // 消した しるし（スマホから おなじ キャラが もどってこない ように）
     this.data.deleted = this.data.deleted || {};
     this.data.deleted[msg.id] = this.now();
+    // ほかの 人の パーティー・馬車に いた この 人の うつしも はずす（data/wagon.js）
+    for (const other of Object.values(this.data.characters)) dropGoneFamily(other, this.data.characters);
+    for (const p of this.parties.values()) {
+      syncParty(this, p);
+      this.sendParty(p);
+    }
     this.markDirty();
     this.saveNow({ urgent: true });
     this.broadcast({ t: 'chars', chars: this.charList() });
