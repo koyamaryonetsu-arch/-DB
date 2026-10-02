@@ -3,6 +3,7 @@
 // ・ゆうれいの 女の子・星見の丘で 光る もの
 import { Painter, scale2x, rimShade, outline2, makeCanvas, ctxOf, flipCanvas } from './pixel.js';
 import { paintHuman, npcOpts, CW, CH } from './chars.js';
+import { dragonCanvas } from './dragon-art.js';
 
 const OUT = '#1b1330';
 export const BIRD_W = 44;
@@ -219,6 +220,8 @@ function glintCanvas(frame) {
 export function skyNpcSprite(kind, dir, frame) {
   switch (kind) {
     case 'sky_bird': return birdCanvas(dir, frame);
+    // 星の竜アステル（第3章。render/dragon-art.js）
+    case 'sky_dragon': return dragonCanvas(dir, frame);
     case 'ghost_girl': return ghostCanvas(dir, frame);
     case 'night_glint': return glintCanvas(frame);
     default: return null;
