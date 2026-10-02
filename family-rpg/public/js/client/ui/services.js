@@ -13,7 +13,7 @@ import { playerSprite, followerSprite, faceURL } from '../field.js';
 import { shopUI, churchUI } from './shop.js';
 import { bankUI } from './bank.js';
 import { forgeUI } from './forge.js';
-import { tavernWagonItems, tavernWagonOpts, tavernWagonAct } from './wagon.js';
+import { tavernWagonItems, tavernWagonOpts, tavernWagonAct, tavernPlace, arrangeUI } from './wagon.js';
 import { casinoUI } from './casino.js';
 
 export function openServiceUI(game, kind, data) {
@@ -252,6 +252,7 @@ function tavernUI(game, data) {
     const who = (e) => (e.species ? `${MONSTERS[e.species]?.name || ''} Lv${e.level}` : `${JOBS[e.job]?.name || ''} Lv${e.level}`);
     const plusTag = (e) => (e.plus ? `<span class="plus">+${e.plus}</span>` : '');
     const BREED_KEY = '#breed';
+    const ARRANGE_KEY = '#arrange';
     const byKey = () => {
       const m = new Map();
       for (const e of info.roster) m.set(e.key, { ...e, sec: 'roster' });
@@ -264,10 +265,14 @@ function tavernUI(game, data) {
     const items = () => {
       const out = [];
       const inParty = [...entries.values()].filter((e) => e.inParty);
+      // 総入れかえ（パーティーと 馬車の ならびを まとめて 決める。ui/wagon.js）
+      if (info.wagon && info.isLeader && inParty.length + info.wagon.keys.length > 0) {
+        out.push({ html: '<span class="gold">総入れかえ</span> <span class="muted small">（まとめて決める）</span>', value: ARRANGE_KEY });
+      }
       out.push({ header: true, label: `いっしょにいる仲間（${inParty.length}/${info.slots}）` });
       if (!inParty.length) out.push({ label: '（まだだれもいない）', value: null, disabled: true });
       for (const e of inParty) {
-        out.push({ face: face(e), html: `${esc(e.name)}${plusTag(e)} <span class="muted small">${who(e)}</span>${e.family ? '<span class="tag gold">家族</span>' : ''}${e.inParty && !e.active ? '<span class="tag muted">今は待つ</span>' : ''}`, value: e.key });
+        out.push({ face: face(e), html: `${esc(e.name)}${plusTag(e)} <span class="muted small">${who(e)}</span>${e.family ? `<span class="tag gold">${e.here ? '本人がいっしょ' : '家族'}</span>` : ''}${e.inParty && !e.active && !e.here ? '<span class="tag muted">今は待つ</span>' : ''}`, value: e.key });
       }
       // 馬車の 仲間（ui/wagon.js）
       out.push(...tavernWagonItems(info, entries, { face, who, plusTag }));
@@ -286,7 +291,7 @@ function tavernUI(game, data) {
         out.push({ header: true, label: '新しい仲間を探す' });
         for (const e of info.recruits) out.push({ face: face(e), html: `${esc(e.name)} <span class="muted small">${who(e)}</span><span class="tag good">NEW</span>`, value: e.key });
       }
-      const fam = info.family.filter((e) => !e.inParty);
+      const fam = info.family.filter((e) => !e.inParty && !e.inWagon);
       if (fam.length) {
         out.push({ header: true, label: '家族のキャラクター（サポート）' });
         for (const e of fam) out.push({ face: face(e), html: `${esc(e.name)} <span class="muted small">${who(e)}</span>`, value: e.key });
@@ -295,10 +300,20 @@ function tavernUI(game, data) {
     };
     const partyText = () => {
       const n = Math.min(4, (info.humans || 1) + info.used);
-      return `パーティー ${n}/4人${info.isLeader ? '' : '（リーダーの仲間がついてくる）'}`;
+      const wg = info.wagon ? `　馬車 ${info.wagon.keys.length}/${info.wagon.max}人` : '';
+      return `パーティー ${n}/4人${wg}${info.isLeader ? '' : '（リーダーの仲間がついてくる）'}`;
     };
     const show = (key) => {
       main.innerHTML = '';
+      if (key === ARRANGE_KEY) {
+        main.append(el('h3', { text: '総入れかえ' }), el('div', { class: 'detail', text: [
+          'パーティーと馬車にいるみんなを、1番目から順番に選びなおす。',
+          '・1〜4番目が戦う仲間（自分はかならずここに入る）',
+          '・5〜8番目は馬車で待つ仲間（戦わなくても経験値を半分もらえる）',
+          '・酒場で待っている仲間とは、ひとりずつ入れかえよう',
+        ].join('\n') }));
+        return;
+      }
       if (key === BREED_KEY) {
         main.append(el('h3', { text: '魔物の配合' }), el('div', { class: 'detail', text: [
           `レベル${BREED_MIN_LEVEL}以上のモンスター2ひきを掛け合わせて、新しいモンスターを生み出す。`,
@@ -311,7 +326,7 @@ function tavernUI(game, data) {
       }
       const e = entries.get(key);
       if (!e) {
-        main.append(el('div', { class: 'detail', text: `仲間を連れていくといっしょに戦ってくれる。\n連れていけるのは3人まで。待っている仲間とはいつでも入れかえられる（待っている間の装備はふくろにもどる）。\nモンスターの仲間もここで待っている。${info.wagon ? `\n馬車には${info.wagon.max}人まで乗れる（装備はそのまま。経験値は半分もらえる）。` : ''}` }));
+        main.append(el('div', { class: 'detail', text: `仲間を連れていくといっしょに戦ってくれる。\n連れていけるのは3人まで。待っている仲間とはいつでも入れかえられる（待っている間の装備はふくろにもどる）。\nモンスターの仲間もここで待っている。${info.wagon ? `\n馬車には${info.wagon.max}人まで乗れる（装備はそのまま。経験値は半分もらえる）。家族のキャラも乗れる。\nパーティーがいっぱいの時は、連れていく仲間は馬車に乗る。` : ''}` }));
         return;
       }
       const pv = e.species ? followerSprite({ mon: e.species }, 'down', 0) : playerSprite(e.look, e.job, 'down', 0, e.equip);
@@ -328,7 +343,8 @@ function tavernUI(game, data) {
       }
       main.append(el('div', { class: 'detail', text: e.desc || '' }));
       if (e.sec === 'roster' && e.inParty && !e.active) main.append(el('div', { class: 'detail', text: '今はパーティーの人数がいっぱいなので待っている。' }));
-      if (e.inWagon) main.append(el('div', { class: 'detail', text: '馬車に乗っている。戦いに出なくても経験値を半分もらえる。' }));
+      if (e.inWagon) main.append(el('div', { class: 'detail', text: e.family ? '馬車に乗っている。本人にも経験値のおすそわけが少し届く。' : '馬車に乗っている。戦いに出なくても経験値を半分もらえる。' }));
+      if (e.here) main.append(el('div', { class: 'detail', text: '今は本人がいっしょに遊んでいるので、うつしは待っている。' }));
     };
     const menu = new ListMenu(game.input, {
       items: items(),
@@ -355,13 +371,21 @@ function tavernUI(game, data) {
       refresh(r);
       return r;
     };
-    // いっぱいの ときは だれと いれかわるか えらぶ
+    // パーティーも 馬車も いっぱいの ときは だれと いれかわるか えらぶ（その 人は 酒場へ）
     const pickSwap = async (name) => {
       const cur = partyKeys().map((k) => entries.get(k)).filter(Boolean);
-      return ask(`パーティーがいっぱい！\n${name}と入れかわりにだれが酒場で待つ？`, [
-        ...cur.map((e) => ({ face: face(e), label: `${e.name}（${who(e)}）`, value: e.key })),
+      const wg = (info.wagon?.keys || []).map((k) => entries.get(k)).filter(Boolean);
+      const where = (w) => (info.wagon ? `・${w}` : '');
+      return ask(`${info.wagon ? 'パーティーも馬車もいっぱい！' : 'パーティーがいっぱい！'}\n${name}と入れかわりにだれが酒場で待つ？`, [
+        ...cur.map((e) => ({ face: face(e), label: `${e.name}（${who(e)}${where('パーティー')}）`, value: e.key })),
+        ...wg.map((e) => ({ face: face(e), label: `${e.name}（${who(e)}${where('馬車')}）`, value: e.key })),
         { label: 'やめる', value: null },
       ]);
+    };
+    // 総入れかえ（ui/wagon.js の arrangeUI。酒場からも サーバーの へんじを まつ）
+    const arrange = async () => {
+      const r = await arrangeUI(game, { send: (party, wagon) => request(game, { kind: 'tavern', action: 'arrange', party, wagon }) });
+      if (r) refresh(r);
     };
     // はいごう: おやを 2ひき えらぶ → うまれる こを みる → うけつぐ わざ → なまえ
     const pickSkills = (pv) => new Promise((resolve) => {
@@ -454,13 +478,21 @@ function tavernUI(game, data) {
         menu.focus();
         return;
       }
+      if (key === ARRANGE_KEY) {
+        menu.blur();
+        await arrange();
+        menu.focus();
+        return;
+      }
       const e = entries.get(key);
       if (!e) return;
       menu.blur();
-      const full = partyKeys().length >= info.slots;
+      // つれていく ところ: パーティー → 馬車 → どちらも いっぱいなら 入れかわり（ui/wagon.js）
+      const place = tavernPlace(info, partyKeys().length);
+      const full = place.full;
       if (e.sec === 'recruit') {
         const a = await ask(`${e.name}（${who(e)}）を仲間にする？`, [
-          { label: full ? '仲間にして入れかわる' : '仲間にして連れていく', value: 'join' },
+          { label: full ? '仲間にして入れかわる' : `仲間にして連れていく${place.note}`, value: 'join' },
           { label: '仲間にして酒場で待ってもらう', value: 'wait' },
           { label: 'やめる', value: null },
         ]);
@@ -470,7 +502,8 @@ function tavernUI(game, data) {
           if (!full || swap) await doReq({ action: 'recruit', key, swap });
         } else if (a === 'wait') await doReq({ action: 'recruit', key, join: false });
       } else if (e.inWagon) {
-        const opts = [...tavernWagonOpts(info, e), { label: '名前を変える', value: 'rename' }];
+        const opts = [...tavernWagonOpts(info, e)];
+        if (e.sec === 'roster') opts.push({ label: '名前を変える', value: 'rename' });
         if (e.species) opts.push({ label: '別れる', value: 'release' });
         opts.push({ label: 'やめる', value: null });
         const a = await ask(`${e.name}をどうする？`, opts);
@@ -480,7 +513,7 @@ function tavernUI(game, data) {
           if (ok) await doReq({ action: 'release', key });
         } else if (a) await tavernWagonAct(wagonCtx(), e, a);
       } else if (e.inParty) {
-        const opts = [{ label: '酒場で待っていてもらう', value: 'wait' }, ...tavernWagonOpts(info, e)];
+        const opts = [...tavernWagonOpts(info, e), { label: '酒場で待っていてもらう', value: 'wait' }];
         if (e.sec === 'roster') opts.push({ label: '名前を変える', value: 'rename' });
         opts.push({ label: 'やめる', value: null });
         const a = await ask(`${e.name}をどうする？`, opts);
@@ -488,7 +521,7 @@ function tavernUI(game, data) {
         else if (a === 'rename') await rename(e);
         else if (a) await tavernWagonAct(wagonCtx(), e, a);
       } else {
-        const opts = [{ label: full ? '連れていく（入れかわる）' : '連れていく', value: 'join' }, ...tavernWagonOpts(info, e)];
+        const opts = [{ label: `連れていく${place.note}`, value: 'join' }, ...tavernWagonOpts(info, e)];
         if (e.sec === 'roster') opts.push({ label: '名前を変える', value: 'rename' });
         if (e.species) opts.push({ label: '別れる', value: 'release' });
         opts.push({ label: 'やめる', value: null });

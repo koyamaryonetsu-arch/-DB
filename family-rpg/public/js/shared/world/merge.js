@@ -283,7 +283,8 @@ export function mergeChars(base, ours, theirs) {
     const tw = Array.isArray(t.wagonKeys) ? t.wagonKeys.map((k) => renamed.get(k) || k) : b.wagonKeys;
     const aw = Array.isArray(a.wagonKeys) ? a.wagonKeys : b.wagonKeys;
     const wk = pick(b.wagonKeys, aw, tw, tLater) || [];
-    out.wagonKeys = [...new Set(wk)].filter((k) => have.has(k) && !out.partyKeys.includes(k)).slice(0, WAGON_SLOTS);
+    // 家族の キャラ（fam:）も 乗れる。いるかどうかは データを 合わせた あとで（sync.js の fixPartyKeys）
+    out.wagonKeys = [...new Set(wk)].filter((k) => (String(k).startsWith('fam:') || have.has(k)) && !out.partyKeys.includes(k)).slice(0, WAGON_SLOTS);
   }
 
   // 道具と そうび: 品物ごとに ふえた・へった 数を たして、そうびの ぶんを のぞいた のこりが ふくろ

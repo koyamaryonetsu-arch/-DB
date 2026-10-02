@@ -183,6 +183,8 @@ export function gameFiles() {
     'public/js/client/ui/bank.js', 'public/js/client/ui/forge.js',
     // 馬車
     'public/js/shared/data/wagon.js', 'public/js/shared/world/wagon.js', 'public/js/client/ui/wagon.js', 'public/js/client/render/wagon.js',
+    // みちびきの糸（洞窟から 入り口へ）
+    'public/js/shared/data/escape.js', 'public/js/shared/world/escape.js',
     // カジノ・小さなメダル・メダル王
     'public/js/shared/data/casino.js', 'public/js/shared/data/items-casino.js', 'public/js/shared/data/story-casino.js',
     'public/js/shared/world/casino.js', 'public/js/shared/maps/casino.js',

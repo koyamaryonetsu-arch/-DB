@@ -11,7 +11,7 @@ export const SHOPS = {
     kind: 'general',
     keeper: 'よろず屋のおじさん',
     hello: 'いらっしゃい！ホシフル村のよろず屋だよ。\n薬草から剣まで、何でもそろってるよ。\n今日はどんなご用だい？',
-    items: ['herb', 'antidote', 'holy_water', 'wood_sword', 'oak_staff', 'bronze_knife', 'feather_fan', 'harisen', 'ballpen', 'signal_flag', 'wood_bat', 'cloth', 'leather_hat', 'leather_shield'],
+    items: ['herb', 'antidote', 'holy_water', 'guide_thread', 'wood_sword', 'oak_staff', 'bronze_knife', 'feather_fan', 'harisen', 'ballpen', 'signal_flag', 'wood_bat', 'cloth', 'leather_hat', 'leather_shield'],
   },
   weapon: {
     name: 'ルミナの武器屋',
@@ -45,7 +45,7 @@ export const SHOPS = {
     kind: 'item',
     keeper: '道具屋のむすめ',
     hello: 'いらっしゃいませ！道具屋です。\n旅のおともに、薬草はいかがですか？\nどんなご用でしょう？',
-    items: ['herb', 'antidote', 'moonherb', 'holy_water', 'return_wing', 'smoke_ball'],
+    items: ['herb', 'antidote', 'moonherb', 'holy_water', 'return_wing', 'guide_thread', 'smoke_ball'],
   },
 };
 Object.assign(SHOPS, SHOPS_CH2);
