@@ -567,9 +567,18 @@ export class BattleScene {
       this.hover = it?.value;
       this.hoverGroup = groups ? this.c.get(it?.value)?.species || null : null;
     };
-    this.showMenu(items, (it) => done(it.value), back || (() => this.openCommand()), title, hover, 0);
+    // まえに ねらった 敵（グループなら おなじ 種類）から カーソルを はじめる（この 戦いの あいだ）
+    const prev = this.c.get(this.lastFoe);
+    const start = !prev ? 0 : Math.max(0, groups
+      ? groups.findIndex((gp) => gp.members[0].species === prev.species)
+      : Math.max(list.findIndex((e) => e.id === prev.id), list.findIndex((e) => e.species === prev.species)));
+    const pick = (v) => {
+      if (v != null) this.lastFoe = v;
+      done(v);
+    };
+    this.showMenu(items, (it) => pick(it.value), back || (() => this.openCommand()), title, hover, start);
     // ねらっている あいだ（showMenu の あとで。スプライトを さわっても えらべる）
-    this.targeting = { side: 'enemy', mode, done };
+    this.targeting = { side: 'enemy', mode, done: pick };
   }
 
   // 1体を ねらう（むかしの よびかた）
