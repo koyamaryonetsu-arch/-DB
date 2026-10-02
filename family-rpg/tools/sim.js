@@ -16,14 +16,19 @@ const GEAR = {
   10: { warrior: ['iron_sword', 'iron_armor', 'iron_shield', 'iron_helm'], monk: ['iron_claw', 'dragon_gi', null, 'bandana'], priest: ['healing_staff', 'holy_robe', 'scale_shield', 'leather_hat'], mage: ['wizard_staff', 'wizard_robe', null, 'pointy_hat'], performer: ['dancer_fan', 'leather_armor', 'scale_shield', 'bandana'] },
   // 第2章（カモメ港の お店）
   14: { warrior: ['silver_sword', 'silver_mail', 'silver_shield', 'silver_helm'], monk: ['shark_fang', 'wave_gi', null, 'captain_hat'], priest: ['coral_spear', 'coral_robe', 'shell_shield', 'captain_hat'], mage: ['wave_staff', 'coral_robe', null, 'pointy_hat'], performer: ['sea_fan', 'sailor_clothes', 'shell_shield', 'captain_hat'] },
+  // 第3章: 鉱山を 取りもどす まえ（カナトコで 買える 分だけ はがね・雪の 装備）
+  20: { warrior: ['silver_sword', 'silver_mail', 'silver_shield', 'fur_hat'], monk: ['steel_claw', 'snow_gi', null, 'fur_hat'], priest: ['coral_spear', 'snow_robe', 'silver_shield', 'fur_hat'], mage: ['snow_staff', 'snow_robe', null, 'fur_hat'], performer: ['ice_fan', 'snow_gi', 'silver_shield', 'fur_hat'] },
+  // 第3章: 鉱山の あと（はがねの 装備）
+  23: { warrior: ['steel_sword', 'steel_mail', 'steel_shield', 'steel_helm'], monk: ['steel_claw', 'snow_gi', null, 'fur_hat'], priest: ['steel_spear', 'snow_robe', 'steel_shield', 'fur_hat'], mage: ['snow_staff', 'snow_robe', null, 'fur_hat'], performer: ['ice_fan', 'snow_gi', 'steel_shield', 'fur_hat'] },
 };
 
-export function makeChar(job, level, jobLv, name) {
+// gearTier: そうびの だんかい（GEAR の キー。ないときは レベルで きめる。第3章は 20 / 23 を 指定する）
+export function makeChar(job, level, jobLv, name, gearTier = null) {
   const c = newCharacter({ id: name, name, look: {}, job });
   c.exp = expForLevel(level);
   c.level = level;
   c.jobs[job] = { lv: jobLv, b: jobBattlesForLevel(jobLv, JOBS[job].tier) };
-  const tier = level >= 14 ? 14 : level >= 10 ? 10 : level >= 7 ? 7 : level >= 4 ? 4 : 1;
+  const tier = gearTier || (level >= 14 ? 14 : level >= 10 ? 10 : level >= 7 ? 7 : level >= 4 ? 4 : 1);
   const [w, a, s, h] = GEAR[tier][job];
   c.equip = { weapon: w, armor: a, shield: s || null, head: h || null, acc: null };
   fullHeal(c);
@@ -34,7 +39,7 @@ export function runBattle(party, enemyList, opts = {}) {
   const rng = makeRng(opts.seed ?? Math.floor(Math.random() * 1e9));
   const b = new Battle({
     rng,
-    allies: party.map((c) => ({ char: c, kind: 'support', auto: true, tactics: opts.tactics || 'balanced' })),
+    allies: party.map((c) => ({ char: c, kind: 'support', auto: true, tactics: c.tactics || opts.tactics || 'balanced' })),
     enemies: enemyList,
     boss: !!opts.boss,
     canFlee: false,
@@ -74,12 +79,34 @@ function summarize(label, results) {
   console.log(`${label.padEnd(34)} 勝率 ${String(Math.round(wins / results.length * 100)).padStart(3)}%  平均${avg('seconds').toFixed(0).padStart(4)}秒  HP残${(avg('hpLeft') * 100).toFixed(0).padStart(3)}%  死者${avg('deaths').toFixed(2)}  MP消費${avg('mpUsed').toFixed(0)}`);
 }
 
-const PARTY = (lv, jlv) => [
-  makeChar('warrior', lv, jlv, 'せんし'),
-  makeChar('priest', lv, jlv, 'そうりょ'),
-  makeChar('mage', lv, jlv, 'まほう'),
-  makeChar('monk', lv, jlv, 'ぶとう'),
+const PARTY = (lv, jlv, tier = null) => [
+  makeChar('warrior', lv, jlv, 'せんし', tier),
+  makeChar('priest', lv, jlv, 'そうりょ', tier),
+  makeChar('mage', lv, jlv, 'まほう', tier),
+  makeChar('monk', lv, jlv, 'ぶとう', tier),
 ];
+
+// 第3章: node tools/sim.js [回数] ch3
+// [出現表, レベル, 装備の だんかい]・[ボス, レベル, 装備, ユキナ（ゲスト）が いるか]
+// さいごの イグニアは 2つの すがたを つづけて たたかう（あいだで ユキナが 回復）
+export const CH3_ZONES = [
+  ['n_snow', 19, 14], ['n_snow', 21, 14], ['n_forest', 20, 14], ['n_lake', 20, 14], ['n_ice', 20, 14], ['n_ice', 22, 14],
+  ['n_mine', 22, 20], ['n_mine1', 22, 20], ['n_mine2', 23, 20], ['n_volcano', 24, 23], ['n_volc', 24, 23], ['n_volc', 26, 23],
+  ['n_temple', 26, 23], ['n_peak', 25, 23], ['n_peak_out', 27, 23], ['n_peak_in', 28, 23],
+];
+export const CH3_BOSSES = [
+  ['blizzard_mammoth', 19, 14, true], ['blizzard_mammoth', 20, 14, true], ['blizzard_mammoth', 21, 14, true],
+  ['magma_golem', 22, 20], ['magma_golem', 23, 20], ['magma_golem', 24, 20],
+  ['flame_knight', 24, 23], ['flame_knight', 25, 23], ['flame_knight', 26, 23],
+  ['trial_guardian', 26, 23], ['trial_guardian', 27, 23], ['trial_guardian', 28, 23],
+  ['flame_witch', 28, 23, true], ['flame_witch', 29, 23, true], ['flame_witch', 30, 23, true],
+];
+// ゲストの ユキナ（僧侶・いのちだいじに）
+function withYukina(party, lv, tier) {
+  const y = makeChar('priest', lv, 7, 'ユキナ', tier);
+  y.tactics = 'heal';
+  return [...party, y];
+}
 
 // 第2章: node tools/sim.js [回数] ch2
 if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'ch2') {
@@ -98,6 +125,28 @@ if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'ch2') {
     summarize(`BOSS ${enc} Lv${lv}`, res);
   }
   if (process.env.LOG) runBattle(PARTY(19, 7), [process.env.LOG], { seed: 1, boss: true, log: true });
+} else if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'ch3') {
+  const rng = makeRng(333);
+  for (const [table, lv, tier] of CH3_ZONES) {
+    const res = [];
+    for (let i = 0; i < N; i++) res.push(runBattle(PARTY(lv, 10, tier), rollGroup(table, rng), { seed: i }));
+    summarize(`${table} Lv${lv}`, res);
+  }
+  for (const [enc, lv, tier, guest] of CH3_BOSSES) {
+    const res = [];
+    for (let i = 0; i < Math.min(N, 30); i++) {
+      const party = guest ? withYukina(PARTY(lv, 10, tier), lv, tier) : PARTY(lv, 10, tier);
+      const group = FIXED_ENCOUNTERS[enc].group.flatMap(([sp, n]) => Array(n).fill(sp));
+      let r = runBattle(party, group, { seed: i, boss: true });
+      // イグニアは 真の すがたへ（ユキナの いのりで 全回復）
+      if (enc === 'flame_witch' && r.outcome === 'win') {
+        for (const c of party) fullHeal(c);
+        r = runBattle(party, ['flame_witch_true'], { seed: i + 1000, boss: true });
+      }
+      res.push(r);
+    }
+    summarize(`BOSS ${enc} Lv${lv}${guest ? '＋ユキナ' : ''}`, res);
+  }
 } else if (process.argv[1].endsWith('sim.js')) {
   const rng = makeRng(12345);
   const plan = [

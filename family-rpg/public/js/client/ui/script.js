@@ -121,6 +121,17 @@ export class ScriptPlayer {
         if (msg.spectator) return null;
         this.closeDialog();
         return openServiceUI(g, a[0], a[1]);
+      // 第3章: トロッコに のる（[[x, y], ...]）・自分を かくす・天気を かえる（null で もとに もどす）
+      case 'ride':
+        this.closeDialog();
+        g.audio.sfx('train');
+        return g.field.ride(a[0], a[1]);
+      case 'hideMe':
+        g.field.hideMe = !!a[0];
+        return null;
+      case 'weather':
+        g.field.weatherOverride = a[0] === undefined ? null : a[0];
+        return null;
       default:
         return null;
     }

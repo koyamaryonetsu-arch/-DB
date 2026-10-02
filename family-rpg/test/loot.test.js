@@ -48,9 +48,9 @@ test('装備: おなじ 種類なら ランクが 上がるほど 強い（店�
       }
     }
   }
-  // 竹のバットで 木→金属の あいだが うまる
+  // 竹のバットで 木→金属の あいだが うまる（第3章で はがねの バット）
   const bats = groups.get('weapon:bat').map((x) => x.rank).sort();
-  assert.deepEqual([...new Set(bats)], [1, 2, 3, 4]);
+  assert.deepEqual([...new Set(bats)], [1, 2, 3, 4, 5]);
 });
 
 test('お店: 売るのは その章の ランク。★や ボスの 品は 売らない', () => {

@@ -8,6 +8,11 @@ const PART_OF_TILE = {
   [T.CAVE_WALL]: 'wall', [T.TORCH]: 'wall', [T.CAVE_WATER]: 'water', [T.CAVE_BRIDGE]: 'water',
 };
 const PART_OF_EXTRA = { cave_top: 'wall', cave_side: 'wall', stone_top: 'floor', pillar_side: 'floor', cave_plank: 'floor', dark_hole: 'none' };
+// 第3章の タイル（氷・ようがん・レバー など）は 色を かえない（もとから その 場所の 色）
+for (const id of [T.SNOW, T.SNOW_PATH, T.DEEP_SNOW, T.SNOW_PINE, T.SNOW_ROCK, T.ICE, T.ICE_BLOCK, T.LAVA, T.LAVA_FLOOR, T.OBSIDIAN,
+  T.RAIL, T.LEVER, T.LEVER_ON, T.PLATE, T.PLATE_ON, T.BRAZIER, T.BRAZIER_LIT, T.HOT_SPRING, T.SNOW_WALL, T.FLAME_WALL, T.ASH,
+  T.MINE_BEAM, T.ICE_WALL, T.DRAGON_GATE, T.CHASM, T.RAIL_BRIDGE, T.RAIL_STOP, T.ASH_ROCK]) PART_OF_TILE[id] = 'none';
+for (const name of ['snow_top', 'snow_side', 'ice_top', 'ice_side', 'ash_top', 'ashrock_side', 'beam_side', 'gate_side', 'flame_side', 'snowrock_side']) PART_OF_EXTRA[name] = 'none';
 export const partOfTile = (id) => PART_OF_TILE[id] || 'floor';
 export const partOfExtra = (name) => PART_OF_EXTRA[name] || 'floor';
 

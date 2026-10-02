@@ -29,6 +29,7 @@ import { migrateSky } from '../data/sky.js';
 import { repairObjective } from '../data/progress.js';
 import { wagonLook } from './wagon.js';
 import { medalSearchSteps, medalChestSteps } from './casino.js';
+import { stepHazard } from './hazards.js';
 import { noteDungeonEntry } from './escape.js';
 
 export const PROTOCOL_VERSION = 1;
@@ -514,6 +515,8 @@ export class GameWorld {
       return;
     }
     if (this.checkTriggers(s, tx, ty)) return;
+    // ようがんの 地面（第3章。world/hazards.js）
+    stepHazard(this, s, tx, ty);
     // ばしょの きろく（きかんのはね）。リーダーの 冒険を 手伝っている あいだは 自分の きろくに しない
     if (this.hostOf(s)) return;
     for (const [id, p] of Object.entries(PLACES)) {
@@ -655,6 +658,9 @@ export class GameWorld {
     } else if (sp) return this.pickSparkle(s, sp);
     // 宝の地図の 場所（ほる）
     if (tryTreasureDig(this, s, tx, ty)) return;
+    // しかけの マス（レバー・かがり火・温泉 など。第3章）
+    const act = map.actionAt?.get(key);
+    if (act && condOk(act.show, hasFlag)) return runScript(this, s, act.script);
     const tile = effectiveTile(map, tx, ty, this.hasFlagFn(s));
     // かんばん
     if (tile === T.SIGN) {

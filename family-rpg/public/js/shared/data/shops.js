@@ -4,6 +4,7 @@
 
 import { SHOPS_CH2 } from './items-ch2.js';
 import { NIGHT_SHOPS } from './night.js';
+import { SHOPS_CH3, CH3_GUESTS } from './items-ch3.js';
 
 export const SHOPS = {
   village: {
@@ -51,6 +52,8 @@ export const SHOPS = {
 Object.assign(SHOPS, SHOPS_CH2);
 // 夜の 商人（night.js）
 Object.assign(SHOPS, NIGHT_SHOPS);
+// 第3章の お店（items-ch3.js）
+Object.assign(SHOPS, SHOPS_CH3);
 
 // 物語で ふえた 品ぞろえ（hasFlag: その人の 世界の フラグ）
 function moreOpen(shop, hasFlag) {
@@ -105,3 +108,5 @@ export const NPC_SUPPORTS = [
 export const GUESTS = {
   luca: { id: 'guest_luca', name: 'ルカ', job: 'monk', look: { body: 0, hair: 2, hairColor: 2, skin: 1, color: 5 }, tactics: 'aggressive', minLevel: 2 },
 };
+// 第3章: 竜のみこユキナ（items-ch3.js）
+Object.assign(GUESTS, CH3_GUESTS);

@@ -195,6 +195,10 @@ export function gameFiles() {
     'public/js/shared/data/monsters-rare.js', 'public/js/client/render/rare-art.js',
     // たたかいの けっかの まど（ボタンで 1行ずつ）
     'public/js/client/ui/result.js',
+    // 第3章「星の竜がねむる山」
+    'public/js/shared/maps/north.js', 'public/js/shared/world/hazards.js', 'public/js/shared/maps/ch3.js',
+    'public/js/shared/data/story-ch3.js', 'public/js/shared/data/monsters-ch3.js', 'public/js/shared/data/abilities-ch3.js',
+    'public/js/shared/data/items-ch3.js', 'public/js/shared/data/companions-ch3.js', 'public/js/shared/data/encounters-ch3.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

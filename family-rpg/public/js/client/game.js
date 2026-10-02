@@ -426,6 +426,10 @@ export class Game {
       case 'snap':
         this.field.onSnap(m);
         break;
+      case 'hurt':
+        // ようがんの 地面（第3章。shared/world/hazards.js）
+        this.onHurt(m);
+        break;
       case 'script':
         this.scriptEnded = false;
         await this.waitBattleClosed();
@@ -508,6 +512,22 @@ export class Game {
     this.scriptBgm = null;
     this.field.nightOverride = null;
     this.field.hideGuests = false;
+    this.field.hideMe = false;
+    this.field.weatherOverride = null;
+  }
+
+  // ようがんの 地面で ダメージ: 画面が 赤く 光る（はじめての ときだけ せつめい）
+  onHurt(m) {
+    this.audio.sfx('hurt');
+    const c = document.getElementById('curtain');
+    c.classList.add('hurt');
+    clearTimeout(this.hurtT);
+    this.hurtT = setTimeout(() => c.classList.remove('hurt'), 180);
+    const now = performance.now();
+    if (!(this.hurtToastAt > now - 20000)) {
+      this.hurtToastAt = now;
+      toast('あつい！ようがんの熱で、ダメージを受けた！\n（熱を防ぐ方法が、どこかにあるかもしれない…）', 4200);
+    }
   }
 
   onWelcomeReady() {

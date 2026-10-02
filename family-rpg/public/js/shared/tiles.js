@@ -14,6 +14,11 @@ export const T = {
   CAVE_FLOOR: 70, CAVE_WALL: 71, CAVE_WATER: 72, CRYSTAL: 73, TORCH: 74, PILLAR: 75, LOCKED_DOOR: 76,
   RUBBLE: 77, BOSS_FLOOR: 78, CAVE_BRIDGE: 79, PIER: 80, RUBBLE_WALL: 81,
   WHIRLPOOL: 82,
+  // 第3章（雪・氷・ようがん・鉱山・神殿）
+  SNOW: 90, SNOW_PATH: 91, DEEP_SNOW: 92, SNOW_PINE: 93, SNOW_ROCK: 94, ICE: 95, ICE_BLOCK: 96,
+  LAVA: 98, LAVA_FLOOR: 99, OBSIDIAN: 100, RAIL: 101, LEVER: 102, LEVER_ON: 103, PLATE: 104, PLATE_ON: 105,
+  BRAZIER: 106, BRAZIER_LIT: 107, HOT_SPRING: 108, SNOW_WALL: 109, FLAME_WALL: 110, ASH: 111, MINE_BEAM: 112,
+  ICE_WALL: 113, DRAGON_GATE: 114, CHASM: 115, RAIL_BRIDGE: 116, RAIL_STOP: 117, ASH_ROCK: 118,
 };
 
 export const TILE_INFO = {};
@@ -84,6 +89,38 @@ def(T.CAVE_BRIDGE, 'cave_bridge');
 def(T.PIER, 'pier');
 def(T.RUBBLE_WALL, 'rubble_wall', { solid: true });
 def(T.WHIRLPOOL, 'whirlpool', { solid: true, water: true, anim: true }); // 嵐の うず（船でも とおれない）
+// 第3章
+// slide: 氷（すべって、なにかに ぶつかるまで とまれない。client/field.js）
+// hurt: ようがんの 地面（熱を ふせぐ お守りが ないと ダメージ。world/hazards.js）
+// mapColor: 地図の 色（client/ui/menu.js）
+def(T.SNOW, 'snow', { mapColor: '#e8eef8' });
+def(T.SNOW_PATH, 'snow_path', { mapColor: '#c8c0b0' });
+def(T.DEEP_SNOW, 'deep_snow', { mapColor: '#f6f8ff' });
+def(T.SNOW_PINE, 'snow_pine', { solid: true, mapColor: '#3a6a5a' });
+def(T.SNOW_ROCK, 'snow_rock', { solid: true, mapColor: '#8a90a0' });
+def(T.ICE, 'ice', { slide: true, mapColor: '#9ad8f4' });
+def(T.ICE_BLOCK, 'ice_block', { solid: true, mapColor: '#5a9ac8' });
+def(T.LAVA, 'lava', { solid: true, anim: true, light: true, mapColor: '#ff6a1a' });
+def(T.LAVA_FLOOR, 'lava_floor', { hurt: true, anim: true, mapColor: '#c8401a' });
+def(T.OBSIDIAN, 'obsidian', { mapColor: '#3a2e3a' });
+def(T.RAIL, 'rail', { mapColor: '#8a7058' });
+def(T.LEVER, 'lever', { solid: true, mapColor: '#c8a040' });
+def(T.LEVER_ON, 'lever_on', { solid: true, mapColor: '#f2c14e' });
+def(T.PLATE, 'plate', { mapColor: '#8a8aa8' });
+def(T.PLATE_ON, 'plate_on', { mapColor: '#ffe680' });
+def(T.BRAZIER, 'brazier', { solid: true, mapColor: '#6a6a7a' });
+def(T.BRAZIER_LIT, 'brazier_lit', { solid: true, anim: true, light: true, mapColor: '#ffb040' });
+def(T.HOT_SPRING, 'hot_spring', { solid: true, water: true, anim: true, mapColor: '#6ad0d8' });
+def(T.SNOW_WALL, 'snow_wall', { solid: true, mapColor: '#ffffff' });
+def(T.FLAME_WALL, 'flame_wall', { solid: true, anim: true, light: true, mapColor: '#ff4a8a' });
+def(T.ASH, 'ash', { mapColor: '#6a5a5a' });
+def(T.MINE_BEAM, 'mine_beam', { solid: true, mapColor: '#7a5230' });
+def(T.ICE_WALL, 'ice_wall', { solid: true, mapColor: '#4a7ab8' });
+def(T.DRAGON_GATE, 'dragon_gate', { solid: true, mapColor: '#4a5a9a' });
+def(T.CHASM, 'chasm', { solid: true, mapColor: '#0a0806' });
+def(T.RAIL_BRIDGE, 'rail_bridge', { solid: true, mapColor: '#8a6a4a' });
+def(T.RAIL_STOP, 'rail_stop', { mapColor: '#c84a3a' });
+def(T.ASH_ROCK, 'ash_rock', { solid: true, mapColor: '#4a3a3a' });
 
 export function isSolid(id) {
   return TILE_INFO[id]?.solid ?? true;
@@ -102,6 +139,12 @@ export const LEGEND = {
   'g': T.CAVE_FLOOR, 'G': T.CAVE_WALL, 'v': T.CAVE_WATER, 'y': T.CRYSTAL, 'i': T.TORCH, 'p': T.PILLAR,
   'L': T.LOCKED_DOOR, 'u': T.RUBBLE, 'b': T.BOSS_FLOOR, 'n': T.CAVE_BRIDGE, 'U': T.RUBBLE_WALL,
   '@': T.WHIRLPOOL,
+  // 第3章（雪・氷・ようがん・鉱山・神殿）
+  'a': T.SNOW, 'd': T.SNOW_PATH, 'N': T.DEEP_SNOW, 'e': T.SNOW_PINE, 'K': T.SNOW_ROCK, 'I': T.ICE, 'Z': T.ICE_BLOCK,
+  'V': T.LAVA, '$': T.LAVA_FLOOR, '&': T.OBSIDIAN, '1': T.RAIL, '9': T.LEVER, '/': T.PLATE, '^': T.BRAZIER,
+  '(': T.HOT_SPRING, '?': T.SNOW_WALL, '{': T.FLAME_WALL, '}': T.ASH, '[': T.MINE_BEAM, ')': T.ICE_WALL,
+  ']': T.DRAGON_GATE, '`': T.CHASM, '2': T.RAIL_BRIDGE, '3': T.RAIL_STOP, 'm': T.ASH_ROCK,
+  '6': T.BRAZIER_LIT, '7': T.PLATE_ON, '8': T.LEVER_ON,
 };
 
 export function parseRows(rows) {
