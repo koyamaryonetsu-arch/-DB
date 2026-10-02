@@ -1,22 +1,27 @@
 // 第3章「星の竜がねむる山」の マップ: つながり・しかけ・人・宝箱・出現表
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { MAPS, isBlocked, effectiveTile } from '../public/js/shared/maps/index.js';
+import { MAPS, isBlocked, effectiveTile, slidesAt } from '../public/js/shared/maps/index.js';
 import { CH3_MAPS, CART_RIDES, VOLCANO_LEVERS, WISDOM_BRAZIERS, BOND_PLATES } from '../public/js/shared/maps/ch3.js';
 import { NORTH_POS, NORTH_ARRIVE, LAKE3, ROPE, DRAGON_GATE_X, DRAGON_GATE_Y } from '../public/js/shared/maps/north.js';
-import { slideReach, slideTraps, slideSteps, slideSolid } from '../public/js/shared/maps/slide.js';
+import { slideReach, slideTraps, slideSteps, slideSolid, slideMoves } from '../public/js/shared/maps/slide.js';
 import { SCRIPTS } from '../public/js/shared/data/story.js';
 import { ITEMS } from '../public/js/shared/data/items.js';
 import { MONSTERS } from '../public/js/shared/data/monsters.js';
 import { ENCOUNTER_TABLES, FIXED_ENCOUNTERS, ZONE_BG } from '../public/js/shared/data/encounters.js';
 import { T, TILE_INFO } from '../public/js/shared/tiles.js';
+import { dungeonExit, isDungeonMap } from '../public/js/shared/world/escape.js';
 
 const key = (x, y) => `${x},${y}`;
 const hasOf = (flags) => (f) => flags.includes(f);
 
 // 歩いて・すべって 行ける とまる マス（氷は slide.js の きまり）
+// ワープの マスは ふむと べつの 場所へ とぶので、その 先へは 歩いて いけない
 function reach(map, start, flags = []) {
-  const s = slideReach(map, start, hasOf(flags));
+  const has = hasOf(flags);
+  const base = slideSolid(map, has);
+  const warps = new Set(map.warps.map((w) => key(w.x, w.y)));
+  const s = slideReach(map, start, has, (x, y) => base(x, y) || warps.has(key(x, y)));
   return (x, y) => s.has(key(x, y));
 }
 // そばに 立てるか（たてよこ・ななめ 1マス。カウンターごしは 2マス）
@@ -72,6 +77,19 @@ test('シロガネ地方: 白銀の湖は すべって 小島の 宝箱へ 行�
   const base = slideSolid(m, has);
   const solid = (x, y) => !box(x, y) || base(x, y);
   assert.deepEqual(slideTraps(m, s0, has, solid), [], '湖の 上で とじこめられる 場所が ない');
+  // 岸から まっすぐ 1回 すべる だけでは 小島に 着かない（氷の岩で とまる なぞとき）
+  const island = (x, y) => Math.abs(x - LAKE3.x) <= 1 && Math.abs(y - LAKE3.y) <= 1;
+  let shores = 0;
+  for (let y = LAKE3.y - LAKE3.ry - 3; y <= LAKE3.y + LAKE3.ry + 3; y++) {
+    for (let x = LAKE3.x - LAKE3.rx - 3; x <= LAKE3.x + LAKE3.rx + 3; x++) {
+      if (island(x, y) || base(x, y) || slidesAt(m, x, y, has)) continue;
+      const moves = slideMoves(m, x, y, has, base);
+      if (moves.some(([nx, ny]) => slidesAt(m, x + Math.sign(nx - x), y + Math.sign(ny - y), has))) shores++;
+      for (const [nx, ny] of moves) assert.ok(!island(nx, ny), `${x},${y} から 1回で 小島へ 着いてしまう`);
+    }
+  }
+  assert.ok(shores > 40, '岸から すべりだせる');
+  assert.ok(slideSteps(m, [LAKE3.x + 5, LAKE3.y - 8], [LAKE3.x + 1, LAKE3.y], has) > 0, '北の 岸から 岩で とまって 左へ');
 });
 
 test('第3章のダンジョン: 氷の しかけは かならず とけて、とじこめられない', () => {
@@ -292,5 +310,18 @@ test('第3章: たてものの 入り口は 内がわも 外がわも ふさが�
         assert.ok(vertical || horizontal, `${id} とびら ${x},${y}`);
       }
     }
+  }
+});
+
+test('第3章: みちびきの糸は どの 階からでも その ダンジョンの 入り口の 外へ もどれる', () => {
+  const door = (id) => (id.startsWith('ice_cave') ? NORTH_POS.icecave : id.startsWith('mine') ? NORTH_POS.mine
+    : id.startsWith('volcano') ? NORTH_POS.volcano : id.startsWith('peak') ? NORTH_POS.peak : NORTH_POS.temple);
+  for (const id of CH3_MAPS.slice(1)) {
+    assert.ok(isDungeonMap(MAPS[id]), `${id}: 糸が 使える`);
+    const to = dungeonExit(null, { map: id, char: {} });
+    assert.equal(to?.map, 'north', `${id}: シロガネ地方へ`);
+    const d = door(id);
+    assert.ok(Math.hypot(to.x - (d.x + 0.5), to.y - (d.y + 0.5)) < 2, `${id}: 入り口の そば ${to.x},${to.y}`);
+    assert.ok(!isBlocked(MAPS.north, Math.floor(to.x), Math.floor(to.y), () => true), `${id}: 立てる 場所`);
   }
 });

@@ -257,6 +257,11 @@ function buildField() {
   spring(P.spa.x - 4, P.spa.y - 3, P.spa.x + 5, P.spa.y + 4, 'c3_secret_spa');
   // 村の 広場の 竜の像
   actions.push({ x: V(19, 12)[0], y: V(19, 12)[1], script: 'c3_dragon_statue' });
+  // ほかの 像（ほこら・カナトコと ユノハの 広場）
+  for (const [x, y, script] of [[...V(22, 7), 'c3_statue_shrine'], [...V(28, 7), 'c3_statue_shrine'],
+    [...K(19, 12), 'c3_statue_kanatoko'], [...Y(13, 12), 'c3_statue_yunoha']]) {
+    if (nb.tiles[y * nb.w + x] === T.STATUE) actions.push({ x, y, script });
+  }
   const m = {
     id: 'north', name: 'シロガネ地方', kind: 'field', bgm: 'snow', dark: false,
     altarScript: 'c3_fire_altar',

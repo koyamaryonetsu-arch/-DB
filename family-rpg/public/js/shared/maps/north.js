@@ -95,6 +95,16 @@ const volcD = (x, y) => Math.hypot((x + 0.5 - VOLCANO3.x) / VOLCANO3.rx, (y + 0.
 
 // 湖の 上の 岩（すべる 氷の しかけ。test/ch3-puzzles.test.js が とじこめられないか しらべる）
 export const LAKE_ROCKS = [[17, 56], [30, 55], [21, 63], [33, 62], [13, 61], [27, 66], [36, 58]];
+// 小島を かこむ 氷の岩（すき間は 東の 1か所だけ）と、すき間の 列で とまる ための 岩
+//   といかた: 北の 岸から 小島の 東の 岩の 列（x+5）を まっすぐ すべりおりて 岩で とまり、左へ すべる
+export const ISLAND_ROCKS = [
+  [0, -2], [1, -2], // 北（左上は もみの木）
+  [-1, 2], [0, 2], [1, 2], // 南
+  [-2, 0], [-2, 1], // 西
+  [2, -1], [2, 1], // 東（まん中が すき間）
+  [5, 1], // すき間の 列で とまる 岩
+  [10, 0], // 東の 岸から まっすぐ 入れない ように
+].map(([dx, dy]) => [LAKE3.x + dx, LAKE3.y + dy]);
 
 export function buildNorth() {
   const W = NORTH_W, H = NORTH_H;
@@ -156,7 +166,7 @@ export function buildNorth() {
   // 湖の まん中の 小島（宝箱）
   for (let y = LAKE3.y - 1; y <= LAKE3.y + 1; y++) for (let x = LAKE3.x - 1; x <= LAKE3.x + 1; x++) set(x, y, T.SNOW);
   set(LAKE3.x - 1, LAKE3.y - 1, T.SNOW_PINE);
-  for (const [x, y] of LAKE_ROCKS) set(x, y, T.ICE_BLOCK);
+  for (const [x, y] of [...LAKE_ROCKS, ...ISLAND_ROCKS]) set(x, y, T.ICE_BLOCK);
 
   // 4) 炎の山（南東）
   for (let y = VOLCANO3.y - VOLCANO3.ry - 4; y <= VOLCANO3.y + VOLCANO3.ry + 4; y++) {
@@ -265,6 +275,9 @@ export function buildNorth() {
   for (let y = NORTH_POS.volcano.y - 2; y <= NORTH_POS.volcano.y + 4; y++) for (let x = YUN.x + YUN.w; x <= NORTH_POS.volcano.x + 6; x++) set(x, y, T.ASH_ROCK);
   for (let x = YUN.x + YUN.w; x < NORTH_POS.volcano.x; x++) set(x, NORTH_POS.volcano.y, T.ASH);
   set(NORTH_POS.volcano.x, NORTH_POS.volcano.y, T.CAVE_ENTRANCE);
+  // 入り口の 前（南）を あけて、ほら穴の 口が 見えるように（さくの 東がわだけ）
+  set(NORTH_POS.volcano.x - 1, NORTH_POS.volcano.y + 1, T.ASH);
+  set(NORTH_POS.volcano.x, NORTH_POS.volcano.y + 1, T.ASH);
   // 南の はしは 山で ふさぐ（雪原から 温泉の里へ ぬけられないように）
   for (let x = 80; x <= 87; x++) set(x, H - 1, T.SNOW_ROCK);
   // 鉱山へ つづく レール（町の 北の 門から）
@@ -328,8 +341,9 @@ export function northAreaName(x, y) {
   return 'シロガネ雪原';
 }
 
-// 天気（雪・火の山の 火の粉）
+// 天気（雪・火の山の 火の粉・温泉の 湯けむり）
 export function northWeatherAt(x, y) {
+  if (inRect(x, y, YUN, 1) || Math.hypot(x - NORTH_POS.spa.x, y - NORTH_POS.spa.y) < 7) return 'steam';
   if (x >= 86 && y >= 62) return volcD(x, y) < 1.8 ? 'embers' : null;
   if (inRect(x, y, YUN, 4)) return null;
   return 'snow';

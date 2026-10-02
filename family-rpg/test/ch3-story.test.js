@@ -40,6 +40,9 @@ function boost(bot, level) {
   bot.world.sendSelf(bot.s);
 }
 
+// ボス戦は 長い（あたらしい 行動ゲージ）ので、おわるまで たっぷり まつ
+const BOSS_TICKS = 20000;
+
 const place = async (bot, map, x, y) => {
   bot.world.placeSession(bot.s, map, x + 0.5, y + 0.5, 'up', true);
   await bot.settle();
@@ -115,7 +118,7 @@ test('第3章を はじめから さいごまで とおして あそべる', { t
   await bot.walkTo(17, 2);
   assert.equal(bot.map, 'ice_cave2');
   await bot.walkTo(20, 8);
-  await bot.settle();
+  await bot.settle(BOSS_TICKS);
   assert.ok(bot.flag('c3_mammoth'), 'マンモスを しずめた');
   assert.deepEqual(c.guests, [], 'ユキナは 村へ 帰る');
   assert.ok(c.items.some((i) => i.id === 'ice_fang_charm'), 'ボスの アクセサリー');
@@ -155,7 +158,7 @@ test('第3章を はじめから さいごまで とおして あそべる', { t
   await bot.walkTo(21, 2);
   assert.equal(bot.map, 'mine3');
   await bot.walkTo(15, 12);
-  await bot.settle();
+  await bot.settle(BOSS_TICKS);
   assert.ok(bot.flag('c3_mine'), 'マグマゴーレムを たおした');
   assert.equal(bot.map, 'north', '町へ もどる');
 
@@ -184,7 +187,7 @@ test('第3章を はじめから さいごまで とおして あそべる', { t
   await bot.walkTo(12, 3);
   assert.equal(bot.map, 'volcano3');
   await bot.walkTo(14, 14);
-  await bot.settle();
+  await bot.settle(BOSS_TICKS);
   assert.ok(bot.flag('c3_flare'), 'フレアードを たおした');
   assert.equal(c.objective, C3_OBJ.flare);
 
@@ -197,7 +200,7 @@ test('第3章を はじめから さいごまで とおして あそべる', { t
   await bot.walkTo(14, 0);
   assert.equal(bot.map, 'trial_courage');
   await bot.walkTo(10, 11);
-  await bot.settle();
+  await bot.settle(BOSS_TICKS);
   assert.ok(bot.flag('c3_courage'), '勇気の試練');
   await bot.walkTo(10, 26);
   // ちえ（まちがえると 消える → 東 南 西 北）
@@ -253,7 +256,7 @@ test('第3章を はじめから さいごまで とおして あそべる', { t
   assert.equal(bot.map, 'peak5');
   await bot.walkTo(14, 1);
   assert.equal(bot.map, 'peak_top');
-  await bot.settle();
+  await bot.settle(BOSS_TICKS * 2);
   assert.ok(bot.flag('c3_ignia'), 'イグニアを たおした');
   assert.ok(bot.flag('c3_dragon'), '星の竜が 目覚めた');
   assert.ok(bot.flag('c3_clear'), '第3章 クリア！');

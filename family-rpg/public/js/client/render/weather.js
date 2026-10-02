@@ -1,5 +1,5 @@
-// 天気（第3章）: 雪・ふぶき・火の粉を フィールドの 上に かさねて かく（2D・2.5D とも）
-// マップの weather（'snow' 'blizzard' 'embers'）か weatherAt(x, y) で きまる
+// 天気（第3章）: 雪・ふぶき・火の粉・湯けむりを フィールドの 上に かさねて かく（2D・2.5D とも）
+// マップの weather（'snow' 'blizzard' 'embers' 'steam'）か weatherAt(x, y) で きまる
 const KINDS = {
   // しんしんと ふる 雪
   snow: { n: 70, vy: [12, 24], wind: 6, sway: 6, size: [1, 2], cols: ['#ffffff', '#eef4ff', '#dce8ff'], haze: 0 },
@@ -7,6 +7,8 @@ const KINDS = {
   blizzard: { n: 240, vy: [46, 84], wind: 70, sway: 10, size: [1, 2], cols: ['#ffffff', '#f0f6ff', '#d8e6ff'], haze: 0.16, gust: true },
   // 火の山の 火の粉（下から 上へ）
   embers: { n: 36, vy: [-22, -9], wind: 4, sway: 8, size: [1, 2], cols: ['#ffb040', '#ff7a2a', '#ffe08a'], haze: 0, flicker: true },
+  // 温泉の 湯けむり（ふわふわ 上へ。うっすら 白く かすむ）
+  steam: { n: 40, vy: [-15, -6], wind: 2, sway: 12, size: [2, 3], cols: ['rgba(255,255,255,0.55)', 'rgba(255,250,240,0.45)', 'rgba(236,242,255,0.5)'], haze: 0.05 },
 };
 
 const rnd = (a, b) => a + Math.random() * (b - a);
