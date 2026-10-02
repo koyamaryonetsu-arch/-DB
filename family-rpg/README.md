@@ -945,7 +945,7 @@ npm start                 # 家族サーバー
 - 第3章の物語とマップ
   - `shared/maps/north.js`（シロガネ地方のフィールド。町・湖・炎の山・竜の門の場所は `NORTH_PLACES`・`NORTH_POS`、天気は `northWeatherAt`）・`north-rows.js`（町の中）・`ch3-rows.js`（ダンジョンの形）・`ch3.js`（人・宝箱・しかけ・ワープ。`CART_RIDES`・`VOLCANO_LEVERS`・`WISDOM_ORDER`・`BOND_PLATES`）・`slide.js`（氷の床のきまり。テストとしかけ作りで使う）
   - `shared/data/story-ch3.js`（台本・目標 `C3_OBJ`・たのまれごと・仲間会話・地図のしるし）・`monsters-ch3.js`・`abilities-ch3.js`・`encounters-ch3.js`・`items-ch3.js`（はがねの品・★・アクセサリー・店・かじ屋）・`companions-ch3.js`
-  - 第3章でふえた台本の命令：`['teleport', マップ, x, y, 向き]`（パーティーみんなで）・`['ride', 道すじ]`（トロッコ）・`['toggle', フラグ]`（レバー）・`['weather', 天気]`・`['call', 関数]`（きずなの間のように、その場の人数を見て決める）
+  - 第3章でふえた台本の命令：`['teleport', マップ, x, y, 向き]`（パーティーみんなで）・`['ride', 道すじ]`（トロッコ）・`['toggle', フラグ]`（レバー）・`['weather', 天気]`・`['call', 関数]`（きずなの間のように、その場の人数を見て決める）・`['look', x, y]`（カメラをその場所へ向ける。`['look']` か台本のおわりで自分にもどる。大きな竜を画面に入れる時など）
   - `test/ch3-maps.test.js`（つながり・しかけでとじこめられないか・人や宝箱に全部行けるか・みちびきの糸）・`test/ch3-story.test.js`（はじめからさいごまで・むかしのセーブ・家族3人のきずなの間・やけど・空の箱）
   - ボスのバランスは `node tools/sim.js 30 ch3`（第3章の地域とボス。ユキナがいる戦いは ゲストも入れて ためす）
 
