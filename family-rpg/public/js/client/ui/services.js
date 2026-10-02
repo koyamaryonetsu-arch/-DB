@@ -267,7 +267,7 @@ function tavernUI(game, data) {
       const inParty = [...entries.values()].filter((e) => e.inParty);
       // 総入れかえ（パーティーと 馬車の ならびを まとめて 決める。ui/wagon.js）
       if (info.wagon && info.isLeader && inParty.length + info.wagon.keys.length > 0) {
-        out.push({ html: '<span class="gold">総入れかえ</span> <span class="muted small">（戦う仲間と馬車の仲間をまとめて決める）</span>', value: ARRANGE_KEY });
+        out.push({ html: '<span class="gold">総入れかえ</span> <span class="muted small">（まとめて決める）</span>', value: ARRANGE_KEY });
       }
       out.push({ header: true, label: `いっしょにいる仲間（${inParty.length}/${info.slots}）` });
       if (!inParty.length) out.push({ label: '（まだだれもいない）', value: null, disabled: true });

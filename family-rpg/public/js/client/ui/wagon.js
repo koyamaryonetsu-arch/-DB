@@ -461,7 +461,7 @@ export function wagonMenuView(menu, active) {
     value: x.key,
   });
   const items = [];
-  if (lead && here && wagon.length + party.length > 0) items.push({ html: '<span class="gold">総入れかえ</span> <span class="muted small">（みんなのならびを1番目から決める）</span>', value: '#arrange' });
+  if (lead && here && wagon.length + party.length > 0) items.push({ html: '<span class="gold">総入れかえ</span> <span class="muted small">（まとめて決める）</span>', value: '#arrange' });
   items.push({ header: true, label: `馬車に乗っている仲間（${wagon.length}/${WAGON_SLOTS}）` });
   if (!wagon.length) items.push({ label: '（だれも乗っていない）', value: null, disabled: true });
   items.push(...wagon.map((x) => ({ ...row(x), sec: 'wagon', label: x.name })));
