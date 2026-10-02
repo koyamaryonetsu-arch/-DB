@@ -1,6 +1,6 @@
 // たたかいの AI（モンスター と サポートなかま）
-import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=3f43270b2d54';
-import { mpCost, penaltyFor, weaponOk, comboAllowed } from './stats.js?v=3f43270b2d54';
+import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=50cb6b27c5a9';
+import { mpCost, penaltyFor, weaponOk, comboAllowed } from './stats.js?v=50cb6b27c5a9';
 
 // さくせん
 export const TACTICS = {
@@ -230,10 +230,14 @@ function chooseAttack(b, c, tac, foes) {
     const eff = Math.min(dmg, t.hp);
     return eff + (dmg >= t.hp ? 8 + t.atk / 3 : 0) + (t.boss ? eff * 0.2 : 0);
   };
-  // ふつうの こうげき
+  // ふつうの こうげき（ムチは グループ、ブーメランは 全体に とどく。battle.js の attackPlan）
   for (const t of foes) {
-    const r = b.calcPhys(c, t, { mult: 1 }, 1, 'phys', true);
-    opts.push({ cmd: { type: 'attack', target: t.id }, score: value(t, r.dmg * r.hit), mp: 0 });
+    const plan = b.attackPlan ? b.attackPlan(c, t.id) : [{ t, mult: 1 }];
+    const score = plan.reduce((s, p) => {
+      const r = b.calcPhys(c, p.t, { mult: p.mult }, 1, 'phys', true);
+      return s + value(p.t, r.dmg * r.hit);
+    }, 0);
+    opts.push({ cmd: { type: 'attack', target: t.id }, score, mp: 0 });
   }
   for (const id of c.abilities) {
     const a = ABILITIES[id];

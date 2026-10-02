@@ -7,27 +7,31 @@
 // ・2人の 番（行動ゲージ）と、それぞれの MP（mp[0]・mp[1]）を 使う
 // ・相手が 家族（人が 動かしている キャラ）の ときは、相手に「参加する？」と 聞く
 // ・技の 強さは 2人の 強さを 合わせて 決まる（battle.js の performDual）
-import { ABILITIES } from './abilities.js?v=3f43270b2d54';
+import { ABILITIES } from './abilities.js?v=50cb6b27c5a9';
 
 // 技の 組（どれか 1つを 覚えていれば よい）
 const FIRE = ['mera', 'merami', 'merazoma', 'gira', 'begirama', 'nj_katon', 'am_begiragon', 'am_meragaia', 'hk_triple_mera'];
 const ICE = ['hyado', 'hyadaruko', 'sg_mahyado', 'pr_uzushio', 'hk_koori_ya'];
-const WIND = ['bagi', 'bagima', 'sg_bagikurosu', 'nj_fuujin', 'hp_bagimuta', 'kamaitachi', 'hk_senpuukyaku'];
+const WIND = ['bagi', 'bagima', 'sg_bagikurosu', 'nj_fuujin', 'hp_bagimuta', 'kamaitachi', 'hk_senpuukyaku', 'ar_senpu'];
 const BLAST = ['io', 'iora', 'pr_cannon', 'ft_tower', 'am_ionazun'];
 const BOLT = ['mk_raiden', 'hr_gigadein', 'sm_raijin'];
-const LIGHT = ['hk_holy_light', 'ft_star', 'sd_comet', 'sd_meteor', 'hk_love_beam'];
+const LIGHT = ['hk_holy_light', 'ft_star', 'sd_comet', 'sd_meteor', 'hk_love_beam', 'fz_meteor'];
 const SWORD = ['daichi', 'kaiha', 'kuuretsu', 'kabutowari', 'majingiri', 'tamashii', 'bm_musou', 'bm_moroba', 'pr_kaizokugiri', 'sa_iai', 'sa_tsubame', 'sa_ittou', 'hk_midaregiri', 'hk_daichi_ikari', 'mk_kaengiri', 'mk_hyouketsu', 'mk_inazuma'];
 const FIST = ['seiken', 'bakuretsu', 'mouko', 'hyakuretsu', 'issen', 'hf_seikou', 'gh_shinsoku', 'hk_sandan'];
-const HEAL = ['hoimi', 'behoimi', 'behomara', 'sg_behoma', 'pl_hikari', 'id_fansa', 'id_kami', 'hk_iyashi_kaze', 'ss_stardance'];
-const DANCE = ['hustle', 'medapani', 'zameha_dance', 'ss_stardance', 'js_bakuten', 'hk_happy_step'];
-const SONG = ['ouen', 'tatakai_uta', 'pr_utage', 'bb_ouenka', 'id_penlight', 'hk_fan_cheer', 'sd_song'];
-const GUARD = ['kabau', 'sukara', 'sukuruto', 'pl_daibougyo', 'pl_aegis', 'gd_wall', 'id_center'];
+const HEAL = ['hoimi', 'behoimi', 'behomara', 'sg_behoma', 'pl_hikari', 'id_fansa', 'id_kami', 'hk_iyashi_kaze', 'ss_stardance', 'es_kyushoku', 'lc_jumin', 'ff_teate', 'fz_juice'];
+const DANCE = ['hustle', 'medapani', 'zameha_dance', 'ss_stardance', 'js_bakuten', 'hk_happy_step', 'ar_senpu'];
+const SONG = ['ouen', 'tatakai_uta', 'pr_utage', 'bb_ouenka', 'id_penlight', 'hk_fan_cheer', 'sd_song', 'es_recorder', 'jh_gassho', 'ar_harmony'];
+const GUARD = ['kabau', 'sukara', 'sukuruto', 'pl_daibougyo', 'pl_aegis', 'gd_wall', 'id_center', 'lc_bousai', 'cr_kiki', 'ff_hinoyoujin'];
 const RAIL = ['rw_manin', 'rw_teikoku', 'rw_shinkansen', 'rw_shuuden', 'hk_tokkyu'];
 const OFFICE = ['sm_meishi', 'sm_eigyo', 'sm_horenso', 'sm_present', 'hk_meishi_shuriken'];
 const BALL = ['bb_hit', 'bb_homerun', 'bb_fastball', 'hk_nagashi', 'hk_makyuu', 'ml_160'];
-const IDOL = ['id_kiss', 'id_wink', 'id_fansa', 'id_penlight', 'hk_love_beam'];
+const IDOL = ['id_kiss', 'id_wink', 'id_fansa', 'id_penlight', 'hk_love_beam', 'fz_basket', 'ar_manazashi'];
 const JESTER = ['js_asobu', 'js_gag', 'js_kusuguri', 'hk_daibakushou'];
-const PARTY = ['sm_nomikai', 'sm_present', 'sm_bonus', 'js_gag', 'id_penlight'];
+const PARTY = ['sm_nomikai', 'sm_present', 'sm_bonus', 'js_gag', 'id_penlight', 'es_aisatsu', 'hs_bunkasai', 'lc_yurukyara'];
+// 学校の 技・公務員の 技（授業参観: 子どもと 大人で 出す）
+const SCHOOL = ['es_randoseru', 'es_aisatsu', 'es_recorder', 'es_kakekko', 'es_dodge', 'hk_randoseru_rocket', 'jh_bukatsu', 'jh_test', 'jh_gassho', 'hs_seishun', 'hs_bunkasai'];
+const CIVIL = ['lc_madoguchi', 'lc_shorui', 'lc_jumin', 'nc_hanko', 'nc_yosan', 'cr_seisaku'];
+const WORK = [...OFFICE, ...CIVIL, 'bc_kessai', 'sh_meirei'];
 const ELEM_SPELLS = [...FIRE, ...ICE, ...WIND, ...BLAST, ...BOLT, ...LIGHT];
 const DANCE_SONG = [...DANCE, ...SONG];
 
@@ -36,6 +40,7 @@ export const DUAL_GROUP_NAMES = new Map([
   [FIRE, '炎の呪文'], [ICE, '氷の呪文'], [WIND, '風の技'], [BLAST, '爆発の呪文'], [BOLT, '雷の呪文'], [LIGHT, '光の技'],
   [SWORD, '剣の技'], [FIST, 'こぶしの技'], [HEAL, '回復の技'], [DANCE, 'おどり'], [SONG, '歌'], [GUARD, '守りの技'],
   [RAIL, '鉄道員の技'], [OFFICE, '会社員の技'], [BALL, '野球の技'], [IDOL, 'アイドルの技'], [JESTER, '遊び人の技'], [PARTY, 'もり上げる技'],
+  [SCHOOL, '学校の技'], [CIVIL, '公務員の技'], [WORK, 'お仕事の技'],
   [ELEM_SPELLS, '属性の技'], [DANCE_SONG, 'おどりか歌'],
 ]);
 
@@ -114,6 +119,11 @@ export const DUAL_TECHS = {
     name: 'かくし芸大会', kana: 'かくしげいたいかい', need: [JESTER, PARTY], mp: [3, 4], target: 'enemies',
     parts: [{ type: 'status', status: 'confuse', chance: 0.55, turns: [1, 3] }],
     desc: 'おどろきのかくし芸が大うけ！敵全体が笑いころげて、混乱することがある。', anim: 'laugh',
+  },
+  dt_jugyo_sankan: {
+    name: '授業参観', kana: 'じゅぎょうさんかん', need: [SCHOOL, WORK], mp: [3, 3], target: 'allies',
+    parts: [{ type: 'buff', stats: ['atk', 'agi'], mult: 1.3, dur: 30 }, { type: 'heal', base: [20, 26], thr: 18 }],
+    desc: '子どもががんばるすがたを、大人がうしろから見守る。みんながはりきって、仲間全員の攻撃力と素早さが上がり、HPも回復する。', anim: 'stage',
   },
 };
 

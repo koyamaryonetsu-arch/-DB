@@ -1,11 +1,12 @@
 // モンスターの え（ベクターで かいて ドットえに へんかん）
 // すべて オリジナルの デザイン
 // 2ばいの こまかさで かいて ドットえに → Scale2x で 4ばい → ひかり・かげ・ふちどり（res 4）
-import { makeCanvas, ctxOf, pixelize, shade, painterFrom, scale2x, outline2, volumeShade } from './pixel.js?v=3f43270b2d54';
-import { MONSTERS } from '../../shared/data/monsters.js?v=3f43270b2d54';
-import { tintCanvas } from './themes.js?v=3f43270b2d54';
-import { addNightArt } from './night-art.js?v=3f43270b2d54';
-import { addRareArt } from './rare-art.js?v=3f43270b2d54';
+import { makeCanvas, ctxOf, pixelize, shade, painterFrom, scale2x, outline2, volumeShade } from './pixel.js?v=50cb6b27c5a9';
+import { MONSTERS } from '../../shared/data/monsters.js?v=50cb6b27c5a9';
+import { tintCanvas } from './themes.js?v=50cb6b27c5a9';
+import { addNightArt } from './night-art.js?v=50cb6b27c5a9';
+import { addRareArt } from './rare-art.js?v=50cb6b27c5a9';
+import { addCh3Art } from './ch3-art.js?v=50cb6b27c5a9';
 
 export const MRES = 4; // できあがりの こまかさ（せかいの 1ドットを 4×4 で かく）
 const OUT = '#130d24';
@@ -812,6 +813,8 @@ function lighthouse(g, lit, f) {
 addNightArt(MONSTER_ART);
 // めずらしい 強い 魔物（ぷるりん騎士・ヴァルドラゴン など。rare-art.js）
 addRareArt(MONSTER_ART);
+// 第3章の 魔物と 星の竜（ch3-art.js）
+addCh3Art(MONSTER_ART);
 
 const cache = new Map();
 
@@ -839,27 +842,39 @@ export function monsterCanvas(sp, frame = 0, small = false) {
     w = Math.max(10, Math.round(w * k));
     h = Math.max(10, Math.round(h * k));
   }
-  // 2ばいで かいて、いろを パレットに よせる（ふちどりは あとで）
-  const K = MRES / 2;
-  const src = makeCanvas((w + 2) * K, (h + 2) * K);
-  const ctx = ctxOf(src);
-  ctx.setTransform(K, 0, 0, K, K, K);
-  def.draw(G(ctx, w, h), frame);
-  ctx.setTransform(1, 0, 0, 1, 0, 0);
-  pixelize(src, { palette: def.pal.concat(['#000000']), outline: null, alphaCut: 150 });
-  const lo = painterFrom(src);
-  lo.res = K;
-  const q = scale2x(lo);
-  volumeShade(q);
-  outline2(q, OUT, 0.42, 3);
-  c = q.toCanvas();
+  c = paintVector(w, h, def.pal, (g) => def.draw(g, frame));
   if (tint) c = tintCanvas(c, tint);
   cache.set(key, c);
   return c;
 }
 
+// ベクターの え を ドットえに（w×h の まわりに 1ドットの よはく。res 4。dragon-art.js でも つかう）
+export function paintVector(w, h, pal, draw) {
+  // 2ばいで かいて、いろを パレットに よせる（ふちどりは あとで）
+  const K = MRES / 2;
+  const src = makeCanvas((w + 2) * K, (h + 2) * K);
+  const ctx = ctxOf(src);
+  ctx.setTransform(K, 0, 0, K, K, K);
+  draw(G(ctx, w, h));
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  pixelize(src, { palette: pal.concat(['#000000']), outline: null, alphaCut: 150 });
+  const lo = painterFrom(src);
+  lo.res = K;
+  const q = scale2x(lo);
+  volumeShade(q);
+  outline2(q, OUT, 0.42, 3);
+  return q.toCanvas();
+}
+
 export function monsterSize(sp) {
   return artOf(sp).def.size;
+}
+
+// フィールドの おおきな NPC の 大きさ（'mon:<id>' の え に npc が あれば その ばい。ないときは null → field.js の きまり）
+// 星の竜の ような とても 大きな え は npc で すこし 大きく かく（ch3-boss-art.js）
+export function bigNpcScale(kind) {
+  if (!kind?.startsWith('mon:')) return null;
+  return MONSTER_ART[kind.slice(4)]?.npc || null;
 }
 
 // フィールドの おおきな NPC（ボスの すがた など）

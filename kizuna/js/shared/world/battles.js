@@ -1,25 +1,29 @@
 // たたかいの はじまりと おわり（ほうしゅう・ぜんめつ）
-import { Battle, normBattleSettings } from '../battle.js?v=3f43270b2d54';
-import { scaleExp } from '../data/difficulty.js?v=3f43270b2d54';
-import { MONSTERS } from '../data/monsters.js?v=3f43270b2d54';
-import { ITEMS } from '../data/items.js?v=3f43270b2d54';
-import { ABILITIES } from '../data/abilities.js?v=3f43270b2d54';
-import { JOBS } from '../data/jobs.js?v=3f43270b2d54';
-import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=3f43270b2d54';
-import { gainExp, gainJobBattles, jobTrainable, itemCount, removeItem, addItem, ownsItem, computeStats, STAT_NAMES, fullHeal } from '../stats.js?v=3f43270b2d54';
-import { JOB_MAX_LEVEL } from '../data/jobs.js?v=3f43270b2d54';
-import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf } from './party.js?v=3f43270b2d54';
-import { rollDrops, stealPick } from '../data/loot.js?v=3f43270b2d54';
-import { MAPS } from '../maps/index.js?v=3f43270b2d54';
-import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js?v=3f43270b2d54';
-import { treasureAfterBattle } from './treasure.js?v=3f43270b2d54';
-import { wipeGoldLoss, bankGold } from './bank.js?v=3f43270b2d54';
-import { wagonShare, wagonBattleSwap } from './wagon.js?v=3f43270b2d54';
+import { Battle, normBattleSettings } from '../battle.js?v=50cb6b27c5a9';
+import { scaleExp } from '../data/difficulty.js?v=50cb6b27c5a9';
+import { MONSTERS } from '../data/monsters.js?v=50cb6b27c5a9';
+import { ITEMS } from '../data/items.js?v=50cb6b27c5a9';
+import { ABILITIES } from '../data/abilities.js?v=50cb6b27c5a9';
+import { JOBS } from '../data/jobs.js?v=50cb6b27c5a9';
+import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=50cb6b27c5a9';
+import { gainExp, gainJobBattles, jobTrainable, itemCount, removeItem, addItem, ownsItem, computeStats, STAT_NAMES, fullHeal } from '../stats.js?v=50cb6b27c5a9';
+import { JOB_MAX_LEVEL } from '../data/jobs.js?v=50cb6b27c5a9';
+import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf } from './party.js?v=50cb6b27c5a9';
+import { rollDrops, stealPick } from '../data/loot.js?v=50cb6b27c5a9';
+import { MAPS } from '../maps/index.js?v=50cb6b27c5a9';
+import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js?v=50cb6b27c5a9';
+import { treasureAfterBattle } from './treasure.js?v=50cb6b27c5a9';
+import { wipeGoldLoss, bankGold } from './bank.js?v=50cb6b27c5a9';
+import { wagonShare, wagonBattleSwap } from './wagon.js?v=50cb6b27c5a9';
 
 let battleSeq = 1;
 
 // いっしょに たたかいを はじめる きょり（がめんに うつるくらい）
 export const JOIN_RADIUS = 10;
+// たたかいの けっか（ボタンで 1行ずつ すすむ）を 読んでいる あいだの むてき（ミリびょう。読みおわったら 'resultDone' で みじかく なる）
+// 読んでいる 人は つぎの たたかいに まきこまない（サーバーは またない。ほかの 人は そのまま あそべる）
+export const RESULT_MAX_MS = 120000;
+export const AFTER_RESULT_MS = 2500;
 // とちゅうから さんか できる きょり（たたかっている なかまに ちかづく）
 export const LATE_JOIN_RADIUS = 2.4;
 
@@ -30,8 +34,8 @@ export function battleSessions(world, s) {
   for (const sid of p?.members || []) {
     if (sid === s.id) continue;
     const m = world.sessions.get(sid);
-    // 大鳥で 空を とんでいる 人は まきこまれない（travel.js）
-    if (!m || !m.inWorld || m.busy || m.away || m.flying || m.map !== s.map) continue;
+    // 大鳥で 空を とんでいる 人・たたかいの けっかを 読んでいる 人は まきこまれない（travel.js）
+    if (!m || !m.inWorld || m.busy || m.away || m.flying || m.map !== s.map || readingResult(m)) continue;
     if (Math.hypot(m.x - s.x, m.y - s.y) > JOIN_RADIUS) continue;
     out.push(m);
   }
@@ -66,6 +70,18 @@ export function joinBattle(world, s, targetSid) {
   world.send(s, { t: 'battleStart', snap: ctx.battle.snapshot(), mine: mineOf(ctx, s.id), boss: !!ctx.opts.boss, story: false, joined: true });
   world.broadcastPositions = true;
   return { ok: true };
+}
+
+// たたかいの けっかを まだ 読んでいるか
+export function readingResult(s) {
+  return !!s.reading && s.invuln > 0;
+}
+
+// けっかを 読みおわった（クライアントから）: ここから すこしだけ むてき
+export function resultDone(world, s) {
+  if (!s.reading) return;
+  s.reading = false;
+  s.invuln = Math.min(s.invuln, AFTER_RESULT_MS);
 }
 
 // その 人が うごかす キャラ（じぶん＋「めいれいさせろ」の なかま）。じぶんが さいしょ
@@ -424,8 +440,10 @@ function finishBattle(world, ctx) {
   for (const m of sessions) {
     m.busy = ctx.resolve ? 'script' : null;
     m.battleId = null;
-    m.invuln = 3000;
     const r = perSession[m.id] || { lines: [] };
+    // けっかの まどを 読んでいる あいだは むてき（読みおわると AFTER_RESULT_MS だけ のこる）
+    m.reading = r.lines.length > 0;
+    m.invuln = m.reading ? RESULT_MAX_MS : 3000;
     world.send(m, { t: 'battleEnd', id: ctx.id, outcome, lines: r.lines, levelUp: !!r.levelUp, story: !!ctx.resolve });
   }
   if (outcome === 'lose') {

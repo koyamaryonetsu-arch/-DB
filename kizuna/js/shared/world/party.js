@@ -5,14 +5,14 @@
 //   c.partyKeys  … いま いっしょに ぼうけんしている なかま（じゅんばん）。'fam:ID' は 家族の キャラ
 //   c.guests     … ものがたりで いっしょに いる ゲスト（ルカ など）
 // パーティーには リーダーの なかまが ついてくる（にんげんが ふえると、はいりきらない なかまは いったん まつ）
-import { newCharacter, computeStats, fullHeal, gainExp, gainJobBattles, migrateJobs, expForLevel, addItem, newMonsterCompanion, learnedAbilities } from '../stats.js?v=3f43270b2d54';
-import { jobBattlesForLevel } from '../data/jobs.js?v=3f43270b2d54';
-import { NPC_SUPPORTS, GUESTS } from '../data/shops.js?v=3f43270b2d54';
-import { MONSTERS } from '../data/monsters.js?v=3f43270b2d54';
-import { MONSTER_FRIENDS, ROSTER_MAX, COMPANION_SLOTS } from '../data/companions.js?v=3f43270b2d54';
-import { SLOTS, ITEMS } from '../data/items.js?v=3f43270b2d54';
-import { cleanWagon } from '../data/wagon.js?v=3f43270b2d54';
-import { wagonState, wagonTavernInfo } from './wagon.js?v=3f43270b2d54';
+import { newCharacter, computeStats, fullHeal, gainExp, gainJobBattles, migrateJobs, expForLevel, addItem, newMonsterCompanion, learnedAbilities } from '../stats.js?v=50cb6b27c5a9';
+import { jobBattlesForLevel } from '../data/jobs.js?v=50cb6b27c5a9';
+import { NPC_SUPPORTS, GUESTS } from '../data/shops.js?v=50cb6b27c5a9';
+import { MONSTERS } from '../data/monsters.js?v=50cb6b27c5a9';
+import { MONSTER_FRIENDS, ROSTER_MAX, COMPANION_SLOTS } from '../data/companions.js?v=50cb6b27c5a9';
+import { SLOTS, ITEMS } from '../data/items.js?v=50cb6b27c5a9';
+import { cleanWagon, hasWagon, WAGON_SLOTS } from '../data/wagon.js?v=50cb6b27c5a9';
+import { wagonState, wagonTavernInfo } from './wagon.js?v=50cb6b27c5a9';
 
 export const PARTY_MAX = 4;
 // パーティーの だれかが もっていれば みんなが とおれる フラグ
@@ -57,6 +57,8 @@ export function companionOf(c, key) {
 }
 
 // 家族の キャラクターを サポートとして つれていく（その ときの すがたを うつす）
+//   うつしは パーティーと 馬車で おなじ ものを つかう（p.famCopies。セーブには のこらない）。
+//   パーティー ⇄ 馬車の 乗りかえでは HP・MPは そのまま。酒場に もどると わすれる（つぎは 元気いっぱい）
 function famSnapshot(other) {
   const snap = {
     id: other.id, name: other.name, look: other.look, job: other.job, jobs: JSON.parse(JSON.stringify(other.jobs || {})),
@@ -65,6 +67,32 @@ function famSnapshot(other) {
   };
   fullHeal(snap);
   return snap;
+}
+
+// 家族の キャラの うつし（lc … リーダー。いない 人・自分なら null）
+export function famCopy(world, p, lc, key) {
+  const other = String(key || '').startsWith('fam:') ? world.data.characters[key.slice(4)] : null;
+  if (!other || !lc || other.id === lc.id) return null;
+  const memo = p ? (p.famCopies || (p.famCopies = new Map())) : null;
+  const id = `${lc.id}|${key}`;
+  let snap = memo?.get(id);
+  if (!snap) {
+    snap = famSnapshot(other);
+    memo?.set(id, snap);
+  }
+  return snap;
+}
+
+// パーティーに いる 人（家族）の キャラの id（その 人の うつしは つれていかない）
+export function humanCharIds(world, p) {
+  return new Set((p?.members || []).map((sid) => world.sessions.get(sid)?.charId).filter(Boolean));
+}
+
+// いなくなった 家族の キャラ（消した・この セーブに いない）の しるしを はずす
+export function dropMissingFam(world, c) {
+  const ok = (k) => !String(k).startsWith('fam:') || !!world.data.characters[String(k).slice(4)];
+  if (Array.isArray(c?.partyKeys) && !c.partyKeys.every(ok)) c.partyKeys = c.partyKeys.filter(ok);
+  if (Array.isArray(c?.wagonKeys) && !c.wagonKeys.every(ok)) c.wagonKeys = c.wagonKeys.filter(ok);
 }
 
 // リーダーの なかまを パーティーに ならべなおす（ゲストは みんなの ぶんを あわせる）
@@ -76,7 +104,8 @@ export function syncParty(world, p) {
   const want = [];
   if (lc) {
     ensureCompanions(lc);
-    const onlineChars = new Set(p.members.map((sid) => world.sessions.get(sid)?.charId).filter(Boolean));
+    dropMissingFam(world, lc);
+    const onlineChars = humanCharIds(world, p);
     for (const key of lc.partyKeys) {
       if (want.length >= room) break;
       if (key.startsWith('fam:')) {
@@ -93,9 +122,14 @@ export function syncParty(world, p) {
   p.supports = want.map((w) => {
     const prev = old.get(`${lc.id}|${w.key}`);
     if (prev) return prev;
-    if (w.fam) return { key: w.key, owner: lc.id, kind: 'family', char: famSnapshot(w.fam) };
+    if (w.fam) return { key: w.key, owner: lc.id, kind: 'family', char: famCopy(world, p, lc, w.key) };
     return { key: w.key, owner: lc.id, kind: w.entry.kind, char: w.entry.char };
   });
+  // 家族の うつし: パーティーにも 馬車にも いない 人の ぶんは わすれる
+  if (p.famCopies) {
+    const keep = new Set(lc ? [...lc.partyKeys, ...(lc.wagonKeys || [])].map((k) => `${lc.id}|${k}`) : []);
+    for (const id of [...p.famCopies.keys()]) if (!keep.has(id)) p.famCopies.delete(id);
+  }
   // ゲスト
   const gids = [];
   for (const sid of p.members) for (const g of world.sessions.get(sid)?.char?.guests || []) if (!gids.includes(g) && GUESTS[g]) gids.push(g);
@@ -133,14 +167,22 @@ export function tavernInfo(world, s) {
     recruits.push({ key: n.id, name: n.name, job: n.job, level: npcStartLevel(c), look: n.look, desc: n.desc });
   }
   const family = [];
-  const onlineInParty = new Set((p?.members || []).map((sid) => world.sessions.get(sid)?.charId));
+  const onlineInParty = humanCharIds(world, p);
+  const wagonKeys = c.wagonKeys || [];
   for (const other of Object.values(world.data.characters)) {
-    if (other.id === c.id || onlineInParty.has(other.id)) continue;
+    if (other.id === c.id) continue;
     const key = 'fam:' + other.id;
+    const inParty = c.partyKeys.includes(key), inWagon = wagonKeys.includes(key);
+    // 本人が パーティーに いる ときは、つれている 人だけ 出す（席が 見えなく ならないように）
+    const here = onlineInParty.has(other.id);
+    if (here && !inParty && !inWagon) continue;
+    const copy = p?.famCopies?.get(`${c.id}|${key}`);
+    const st = computeStats(copy || other);
     family.push({
-      key, name: other.name, job: other.job, level: other.level, look: other.look, equip: other.equip,
-      desc: `家族のキャラクター（${other.name}）。連れていくと${other.name}にも経験値のおすそわけが届くよ。`,
-      inParty: c.partyKeys.includes(key), active: activeKeys.has(key),
+      key, name: other.name, job: other.job, level: other.level, look: other.look, equip: other.equip, family: true,
+      hp: copy ? copy.hp : st.maxHp, maxHp: st.maxHp, mp: copy ? copy.mp : st.maxMp, maxMp: st.maxMp, here,
+      desc: `家族のキャラクター（${other.name}）。連れていくと${other.name}にも経験値のおすそわけが届くよ（馬車に乗っているときは少しだけ）。`,
+      inParty, active: activeKeys.has(key),
     });
   }
   return wagonTavernInfo(c, {
@@ -208,6 +250,37 @@ export function putInParty(c, key, swapKey) {
   return { ok: true, benched: swapKey, stowed: stowGear(c, swapKey) };
 }
 
+// 仲間を つれていく（酒場・新しい 仲間・まもの）: あいている パーティー → あいている 馬車 → swapKey の 人と 入れかわる
+//   入れかわった 人（パーティーか 馬車に いた 人）は 酒場へ（装備は ふくろへ）。どちらも いっぱいで swapKey が なければ full
+export function placeMember(c, key, swapKey) {
+  ensureCompanions(c);
+  const wagon = hasWagon(c) ? c.wagonKeys : null;
+  if (c.partyKeys.includes(key)) return { ok: true, where: 'party' };
+  if (wagon?.includes(key)) return { ok: true, where: 'wagon' };
+  if (c.partyKeys.length < COMPANION_SLOTS) {
+    c.partyKeys.push(key);
+    return { ok: true, where: 'party' };
+  }
+  if (wagon && wagon.length < WAGON_SLOTS) {
+    wagon.push(key);
+    return { ok: true, where: 'wagon' };
+  }
+  const pi = swapKey ? c.partyKeys.indexOf(swapKey) : -1;
+  const wi = swapKey && wagon ? wagon.indexOf(swapKey) : -1;
+  if (pi < 0 && wi < 0) {
+    return { ok: false, full: true, reason: wagon ? 'パーティーも馬車もいっぱいです。だれかに酒場で待っていてもらおう' : 'パーティーがいっぱいです。だれかに酒場で待っていてもらおう' };
+  }
+  if (pi >= 0) c.partyKeys[pi] = key;
+  else wagon[wi] = key;
+  return { ok: true, where: pi >= 0 ? 'party' : 'wagon', benched: swapKey, stowed: stowGear(c, swapKey) };
+}
+
+// パーティーも 馬車も いっぱいか（つれていく ときに だれかと 入れかわる）
+export function rosterFull(c) {
+  ensureCompanions(c);
+  return c.partyKeys.length >= COMPANION_SLOTS && (!hasWagon(c) || c.wagonKeys.length >= WAGON_SLOTS);
+}
+
 export function nameOfKey(world, c, key) {
   if (!key) return '';
   if (key.startsWith('fam:')) return world.data.characters[key.slice(4)]?.name || '';
@@ -234,31 +307,34 @@ export function recruitNpc(world, s, npcId, opts = {}) {
   const ch = makeNpcSupportChar(def, npcStartLevel(c));
   ch.id = `${c.id}:${def.id}`;
   c.companions.push({ key: def.id, kind: 'npc', char: ch });
-  let joined = false, benchedName = '', stowed = [];
+  let joined = false, where = null, benchedName = '', stowed = [];
   if (opts.join !== false) {
-    const r = putInParty(c, def.id, opts.swap);
+    // パーティー → 馬車 → 入れかわり（placeMember）
+    const r = placeMember(c, def.id, opts.swap);
     joined = r.ok;
+    where = r.ok ? r.where : null;
     if (r.benched) benchedName = nameOfKey(world, c, r.benched);
     stowed = r.stowed || [];
   }
   afterRosterChange(world, s);
-  return { ok: true, name: ch.name, joined, benchedName, stowed };
+  return { ok: true, name: ch.name, joined, where, benchedName, stowed };
 }
 
-// 酒場で まっている なかまを つれていく
+// 酒場で まっている なかまを つれていく（パーティー → 馬車 → 入れかわり。placeMember）
 export function companionJoin(world, s, key, swapKey) {
   const c = ensureCompanions(s.char);
   if (key.startsWith('fam:')) {
     const other = world.data.characters[key.slice(4)];
     if (!other || other.id === c.id) return { ok: false, reason: '見つかりません' };
   } else if (!companionOf(c, key)) return { ok: false, reason: '見つかりません' };
-  const r = putInParty(c, key, swapKey);
+  if (c.partyKeys.includes(key) || (c.wagonKeys || []).includes(key)) return { ok: false, reason: 'もういっしょにいる' };
+  const r = placeMember(c, key, swapKey);
   if (!r.ok) return r;
   // 酒場で やすんでいたので げんき いっぱい
   const e = companionOf(c, key);
   if (e) fullHeal(e.char);
   afterRosterChange(world, s);
-  return { ok: true, name: nameOfKey(world, c, key), benchedName: nameOfKey(world, c, r.benched), stowed: r.stowed || [] };
+  return { ok: true, name: nameOfKey(world, c, key), where: r.where, benchedName: nameOfKey(world, c, r.benched), stowed: r.stowed || [] };
 }
 
 // 酒場で まっていて もらう
@@ -281,6 +357,7 @@ export function companionRelease(world, s, key) {
   for (const slot of SLOTS) if (e.char.equip?.[slot]) addItem(c, e.char.equip[slot], 1);
   c.companions = c.companions.filter((x) => x !== e);
   c.partyKeys = c.partyKeys.filter((k) => k !== key);
+  if (Array.isArray(c.wagonKeys)) c.wagonKeys = c.wagonKeys.filter((k) => k !== key);
   afterRosterChange(world, s);
   return { ok: true, name: e.char.name };
 }
@@ -344,9 +421,10 @@ export function noteDrop(c, species, item) {
   b[`drop_${item}`] = 1;
 }
 
-export function befriendLevel(c, species) {
-  const m = MONSTERS[species];
-  return Math.max(1, Math.min(c.level, Math.max(m?.lv || 1, c.level - 3)));
+// 仲間に なった まものは、主人公の レベルに かかわらず レベル1から（そだてる たのしみ）
+export const MONSTER_JOIN_LEVEL = 1;
+export function befriendLevel() {
+  return MONSTER_JOIN_LEVEL;
 }
 
 function monsterName(c, species) {
@@ -358,7 +436,9 @@ function monsterName(c, species) {
   return base;
 }
 
-// bench: 入れかわりに 酒場へ もどる なかま（'__tavern' なら あたらしい なかまが 酒場へ）
+// なかまに なった まものの いく ところ: あいている パーティー → あいている 馬車 → どちらも いっぱいなら bench の 人と 入れかわる
+// bench: 入れかわりに 酒場へ もどる なかま（パーティーか 馬車の 人）。'__tavern' なら あたらしい なかまが 酒場へ
+// level: たたかいで なかまに なった まものは befriendLevel()（いつも レベル1）。テストや 特別な ときだけ ほかの レベル
 export function addMonsterCompanion(world, s, species, level, bench) {
   const c = ensureCompanions(s.char);
   if (!MONSTER_FRIENDS[species]) return { ok: false, reason: 'この魔物は仲間にできない' };
@@ -369,15 +449,16 @@ export function addMonsterCompanion(world, s, species, level, bench) {
   c.bestiary = c.bestiary || {};
   const b = c.bestiary[species] || (c.bestiary[species] = {});
   b.friend = (b.friend || 0) + 1;
-  let joined = false, benchedName = '', stowed = [];
+  let joined = false, where = null, benchedName = '', stowed = [];
   if (bench !== '__tavern') {
-    const r = putInParty(c, key, bench);
+    const r = placeMember(c, key, typeof bench === 'string' ? bench : null);
     joined = r.ok;
+    where = r.ok ? r.where : null;
     if (r.benched) benchedName = nameOfKey(world, c, r.benched);
     stowed = r.stowed || [];
   }
   afterRosterChange(world, s);
-  return { ok: true, key, name: ch.name, joined, benchedName, stowed };
+  return { ok: true, key, name: ch.name, joined, where, benchedName, stowed };
 }
 
 // ───────────── ゲスト ─────────────

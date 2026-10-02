@@ -1,18 +1,20 @@
 // どうぐ・そうびの データ
 // type: use(つかう どうぐ) weapon armor shield head acc key(だいじなもの)
-// weapon.cat: sword dagger axe staff spear claw fan whip bat
+// weapon.cat: sword dagger axe staff spear claw fan whip bat boomerang
+//   ムチは ふつうの 攻撃で 敵1グループ、ブーメランは 敵全体（2体め からは 少し 弱く なる。shared/battle.js の WEAPON_REACH）
 // armor.armorType: cloth(だれでも) heavy(戦士) robe(僧侶/魔法使い/旅芸人) gi(武闘家/戦士/旅芸人)
 // head.helm: true だと 戦士だけ
 // rank: 装備の ランク（1〜10。下の EQUIP_RANKS）。star: 店では 買えない 1つ上の 品（宝箱・レアドロップ）
 // unique: 1人 1つの 品（ボスが 落とす 物）。データを 合わせる ときに ふえすぎない
 
-import { ITEMS_CH2 } from './items-ch2.js?v=3f43270b2d54';
-import { ITEMS_TM } from './items-tm.js?v=3f43270b2d54';
-import { NIGHT_ITEMS, NIGHT_ITEM_KANA } from './night.js?v=3f43270b2d54';
-import { SKY_ITEMS, SKY_ITEM_KANA } from './sky.js?v=3f43270b2d54';
-import { ITEMS_FORGE, FORGE_KANA, addUpgradeItems } from './items-forge.js?v=3f43270b2d54';
-import { ITEMS_CASINO, CASINO_KANA } from './items-casino.js?v=3f43270b2d54';
-import { RARE_ITEMS, RARE_ITEM_KANA } from './monsters-rare.js?v=3f43270b2d54';
+import { ITEMS_CH2 } from './items-ch2.js?v=50cb6b27c5a9';
+import { ITEMS_TM } from './items-tm.js?v=50cb6b27c5a9';
+import { NIGHT_ITEMS, NIGHT_ITEM_KANA } from './night.js?v=50cb6b27c5a9';
+import { SKY_ITEMS, SKY_ITEM_KANA } from './sky.js?v=50cb6b27c5a9';
+import { ITEMS_FORGE, FORGE_KANA, addUpgradeItems } from './items-forge.js?v=50cb6b27c5a9';
+import { ITEMS_CASINO, CASINO_KANA } from './items-casino.js?v=50cb6b27c5a9';
+import { RARE_ITEMS, RARE_ITEM_KANA } from './monsters-rare.js?v=50cb6b27c5a9';
+import { ESCAPE_ITEMS, ESCAPE_KANA } from './escape.js?v=50cb6b27c5a9';
 
 export const ITEMS = {
   // ───── つかう どうぐ ─────
@@ -117,6 +119,13 @@ export const ITEMS = {
   metal_bat: { name: '金属バット', type: 'weapon', rank: 3, cat: 'bat', atk: 19, price: 380, desc: 'カキーンといい音がするバット。' },
   legend_bat: { name: 'ホームランバット', type: 'weapon', rank: 4, cat: 'bat', atk: 31, bonus: { agi: 3 }, price: 1300, desc: '海の男たちが使う、よく飛ぶバット。当たれば場外ホームラン！' },
   katana: { name: '刀', type: 'weapon', rank: 3, cat: 'sword', atk: 24, bonus: { agi: 2 }, price: 760, desc: 'よく切れる刀。サムライのたましい。' },
+  // ブーメラン（ふつうの 攻撃で 敵全体に 当たる。何体にも 当たる ぶん、同じ ランクの 剣より 攻撃力は 低い）
+  wood_boomerang: { name: '木のブーメラン', type: 'weapon', rank: 1, cat: 'boomerang', atk: 5, price: 120, upMat: 'wind_feather', desc: '投げると敵全体に当たって、手もとにもどってくる木のブーメラン。' },
+  iron_boomerang: { name: '鉄のブーメラン', type: 'weapon', rank: 3, cat: 'boomerang', atk: 13, price: 620, desc: '重みのある鉄のブーメラン。敵全体をなぎはらって、もどってくる。' },
+  silver_boomerang: { name: '銀のブーメラン', type: 'weapon', rank: 4, cat: 'boomerang', atk: 19, price: 1250, desc: '銀でつくった、よく飛ぶブーメラン。' },
+  // はがねの ブーメランは 第3章の 店で 売る（店の 品ぞろえは 第3章で 足す）
+  steel_boomerang: { name: 'はがねのブーメラン', type: 'weapon', rank: 5, cat: 'boomerang', atk: 26, price: 2500, desc: 'はがねをきたえた、するどいブーメラン。' },
+  gale_boomerang: { name: 'はやてのブーメラン', type: 'weapon', rank: 4, star: true, cat: 'boomerang', atk: 24, bonus: { agi: 4 }, price: 0, sell: 820, upMat: 'wind_feather', desc: '風をまとって飛ぶブーメラン。ストームバードがごくまれに持っている。' },
 
   // ───── よろい・ふく ─────
   cloth: { name: '布の服', type: 'armor', rank: 1, armorType: 'cloth', def: 4, price: 10, desc: 'ふつうの布の服。' },
@@ -171,6 +180,8 @@ Object.assign(ITEMS, ITEMS_FORGE);
 Object.assign(ITEMS, ITEMS_CASINO);
 // めずらしい 魔物が 落とす 物（monsters-rare.js）
 Object.assign(ITEMS, RARE_ITEMS);
+// みちびきの糸（escape.js）
+Object.assign(ITEMS, ESCAPE_ITEMS);
 // きたえた 装備（'iron_sword+1'〜'+3'）。新しい 装備を 足す ときは この 行より 上で
 addUpgradeItems(ITEMS);
 
@@ -201,7 +212,7 @@ export const SLOT_NAMES = { weapon: '武器', armor: 'よろい', shield: 'た�
 export const SLOT_OF_TYPE = { weapon: 'weapon', armor: 'armor', shield: 'shield', head: 'head', acc: 'acc' };
 
 export const WEAPON_CAT_NAMES = {
-  sword: '剣', dagger: '短剣', axe: 'オノ', staff: 'つえ', spear: 'やり', claw: 'ツメ', fan: 'おうぎ', whip: 'ムチ', bat: 'バット', none: '素手',
+  sword: '剣', dagger: '短剣', axe: 'オノ', staff: 'つえ', spear: 'やり', claw: 'ツメ', fan: 'おうぎ', whip: 'ムチ', bat: 'バット', boomerang: 'ブーメラン', none: '素手',
 };
 
 // きたえた 装備（'iron_sword+2'）の もとの 装備（みため・エフェクト・装備できる 職業は もとと おなじ）
@@ -227,6 +238,7 @@ export const ITEM_KANA = {
   wizard_staff: 'まどうしのつえ', bronze_spear: 'どうのやり', iron_spear: 'てつのやり', iron_claw: 'てつのつめ',
   leather_whip: 'かわのむち', thorn_whip: 'いばらのむち', flame_whip: 'ほのおのむち', feather_fan: 'はねのおうぎ', dancer_fan: 'おどりこのおうぎ',
   signal_flag: 'てばた', wood_bat: 'きのばっと', bamboo_bat: 'たけのばっと', metal_bat: 'きんぞくばっと', katana: 'かたな',
+  wood_boomerang: 'きのぶーめらん', iron_boomerang: 'てつのぶーめらん', silver_boomerang: 'ぎんのぶーめらん', steel_boomerang: 'はがねのぶーめらん', gale_boomerang: 'はやてのぶーめらん',
   cloth: 'ぬののふく', travel_clothes: 'たびびとのふく', leather_armor: 'かわのよろい', wind_clothes: 'かぜのふく', iron_armor: 'てつのよろい',
   wizard_robe: 'まどうしのろーぶ', holy_robe: 'せいなるろーぶ', martial_gi: 'ぶどうぎ', dragon_gi: 'りゅうのどうぎ', star_mail: 'ほしのよろい',
   leather_shield: 'かわのたて', iron_shield: 'てつのたて', leather_hat: 'かわのぼうし', iron_helm: 'てつかぶと',
@@ -244,6 +256,7 @@ export const ITEM_KANA = {
 Object.assign(ITEM_KANA, NIGHT_ITEM_KANA, SKY_ITEM_KANA);
 Object.assign(ITEM_KANA, FORGE_KANA, RARE_ITEM_KANA);
 Object.assign(ITEM_KANA, CASINO_KANA);
+Object.assign(ITEM_KANA, ESCAPE_KANA);
 
 export function itemKana(id) {
   // きたえた 装備は もとの 装備の 読み ＋ 回数（鉄の剣 → 鉄の剣+1 の じゅん）

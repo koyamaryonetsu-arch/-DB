@@ -1,35 +1,35 @@
 // フィールドの メニュー
-import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js?v=3f43270b2d54';
-import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js?v=3f43270b2d54';
-import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js?v=3f43270b2d54';
-import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS } from '../../shared/battle.js?v=3f43270b2d54';
-import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily } from '../prefs.js?v=3f43270b2d54';
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_TRAIN_GAP, TIER_NAMES } from '../../shared/data/jobs.js?v=3f43270b2d54';
-import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress, monsterSlots } from '../../shared/stats.js?v=3f43270b2d54';
-import { HIRAMEKI } from '../../shared/data/hirameki.js?v=3f43270b2d54';
-import { DUAL_TECHS, DUAL_ORDER, groupName, dualKnown } from '../../shared/data/dual.js?v=3f43270b2d54';
-import { MONSTERS } from '../../shared/data/monsters.js?v=3f43270b2d54';
-import { monsterDrops } from '../../shared/data/loot.js?v=3f43270b2d54';
-import { MONSTER_FRIENDS, RACE_NAMES, recipeHint } from '../../shared/data/companions.js?v=3f43270b2d54';
-import { TACTICS } from '../../shared/ai.js?v=3f43270b2d54';
-import { PLACES } from '../../shared/maps/overworld.js?v=3f43270b2d54';
-import { SEA_PLACES } from '../../shared/maps/ch2.js?v=3f43270b2d54';
-import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js?v=3f43270b2d54';
-import { T } from '../../shared/tiles.js?v=3f43270b2d54';
-import { itemDetail, abilityDetail, skillBrief, gearText } from './info.js?v=3f43270b2d54';
-import { makeCanvas, ctxOf } from '../render/pixel.js?v=3f43270b2d54';
-import { monsterCanvas } from '../render/monsters.js?v=3f43270b2d54';
-import { mapIconCanvas, boardIconURL } from '../render/boards.js?v=3f43270b2d54';
-import { medalItemRow, walletView } from './casino.js?v=3f43270b2d54';
-import { compareOne, compareTeam, whoItems } from './counter.js?v=3f43270b2d54';
-import { faceURL } from '../field.js?v=3f43270b2d54';
-import { partyRows } from './hud.js?v=3f43270b2d54';
-import { questMarks, subQuests, OBJECTIVE_TARGETS, whereName } from '../../shared/data/quest-targets.js?v=3f43270b2d54';
-import { difficultyOf, visibleMarks, EXP_RATES, EXP_RATE_NAMES } from '../../shared/data/difficulty.js?v=3f43270b2d54';
-import { memberTalk, talkFor } from '../../shared/data/party-talk.js?v=3f43270b2d54';
-import { treasureRows, treasureDetail, openTreasureMap } from './treasure.js?v=3f43270b2d54';
-import { themeHex } from '../render/themes.js?v=3f43270b2d54';
-import { wagonMenuView } from './wagon.js?v=3f43270b2d54';
+import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js?v=50cb6b27c5a9';
+import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js?v=50cb6b27c5a9';
+import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js?v=50cb6b27c5a9';
+import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS, turnSeconds } from '../../shared/battle.js?v=50cb6b27c5a9';
+import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily } from '../prefs.js?v=50cb6b27c5a9';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_TRAIN_GAP, TIER_NAMES } from '../../shared/data/jobs.js?v=50cb6b27c5a9';
+import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress, monsterSlots } from '../../shared/stats.js?v=50cb6b27c5a9';
+import { HIRAMEKI } from '../../shared/data/hirameki.js?v=50cb6b27c5a9';
+import { DUAL_TECHS, DUAL_ORDER, groupName, dualKnown } from '../../shared/data/dual.js?v=50cb6b27c5a9';
+import { MONSTERS } from '../../shared/data/monsters.js?v=50cb6b27c5a9';
+import { monsterDrops } from '../../shared/data/loot.js?v=50cb6b27c5a9';
+import { MONSTER_FRIENDS, RACE_NAMES, recipeHint } from '../../shared/data/companions.js?v=50cb6b27c5a9';
+import { TACTICS } from '../../shared/ai.js?v=50cb6b27c5a9';
+import { PLACES } from '../../shared/maps/overworld.js?v=50cb6b27c5a9';
+import { SEA_PLACES } from '../../shared/maps/ch2.js?v=50cb6b27c5a9';
+import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js?v=50cb6b27c5a9';
+import { T } from '../../shared/tiles.js?v=50cb6b27c5a9';
+import { itemDetail, abilityDetail, skillBrief, gearText, targetTag } from './info.js?v=50cb6b27c5a9';
+import { makeCanvas, ctxOf } from '../render/pixel.js?v=50cb6b27c5a9';
+import { monsterCanvas } from '../render/monsters.js?v=50cb6b27c5a9';
+import { mapIconCanvas, boardIconURL } from '../render/boards.js?v=50cb6b27c5a9';
+import { medalItemRow, walletView } from './casino.js?v=50cb6b27c5a9';
+import { compareOne, compareTeam, whoItems } from './counter.js?v=50cb6b27c5a9';
+import { faceURL } from '../field.js?v=50cb6b27c5a9';
+import { partyRows } from './hud.js?v=50cb6b27c5a9';
+import { questMarks, subQuests, OBJECTIVE_TARGETS, whereName } from '../../shared/data/quest-targets.js?v=50cb6b27c5a9';
+import { difficultyOf, visibleMarks, EXP_RATES, EXP_RATE_NAMES } from '../../shared/data/difficulty.js?v=50cb6b27c5a9';
+import { memberTalk, talkFor } from '../../shared/data/party-talk.js?v=50cb6b27c5a9';
+import { treasureRows, treasureDetail, openTreasureMap } from './treasure.js?v=50cb6b27c5a9';
+import { themeHex } from '../render/themes.js?v=50cb6b27c5a9';
+import { wagonMenuView, wagonHereClient, menuArrange } from './wagon.js?v=50cb6b27c5a9';
 
 // 呪文・技の タブ（左右で じゅんに かわる）
 const SKILL_TABS = [['list', '覚えた技'], ['fav', 'お気に入り'], ['combo', 'ひらめき'], ['dual', '合体技']];
@@ -354,6 +354,14 @@ export class FieldMenu {
           this.close();
           return;
         }
+      } else if (it.effect.type === 'exit') {
+        // みちびきの糸: 洞窟の 中なら 入り口の 外へ（メニューを とじて 外を 見せる）
+        g.net.send({ t: 'menu', action: 'useItem', id: entry.value });
+        const m = MAPS[g.field?.mapId];
+        if (m?.kind === 'dungeon' && !m.indoor) {
+          this.close();
+          return;
+        }
       } else if (it.target === 'self') {
         g.net.send({ t: 'menu', action: 'useItem', id: entry.value, ref: 'self' });
       } else {
@@ -414,6 +422,8 @@ export class FieldMenu {
     for (const m of p?.members || []) if (m.sid !== g.sid) out.push({ label: fmt(m.name, m.hp, m.maxHp, m.mp, m.maxMp), value: 'sid:' + m.sid, hp: m.hp });
     for (const s of p?.supports || []) out.push({ label: fmt(s.name, s.hp, s.maxHp, s.mp, s.maxMp), value: 'sup:' + s.key, hp: s.hp });
     for (const gu of p?.guests || []) out.push({ label: `${gu.name}　HP ${gu.hp}/${gu.maxHp}`, value: 'guest:' + gu.id, hp: gu.hp });
+    // 馬車の 仲間（馬車が いっしょの とき。洞窟・塔の 中では 入り口で 待っている）
+    if (wagonHereClient(g)) for (const w of p?.wagon || []) out.push({ label: fmt(`${w.name}（馬車）`, w.hp, w.maxHp, w.mp, w.maxMp), value: 'wagon:' + w.key, hp: w.hp });
     return out.map((o) => ({ ...o, disabled: dead ? o.hp > 0 : o.hp <= 0 }));
   }
 
@@ -515,8 +525,10 @@ export class FieldMenu {
       const p = penaltyFor(c, id);
       const locked = a.kind === 'combo' && !comboAllowed(c, id);
       const elm = a.effect?.element;
+      // 相手の しるし（グループ・全体・全員・ランダム）
+      const tt = targetTag(a);
       return {
-        html: `${ELEMENT_NAMES[elm] ? `<span class="elem e-${elm}">${ELEMENT_NAMES[elm]}</span>` : ''}${esc(a.name)}${a.kind === 'combo' ? `<span class="tag ${locked ? 'muted' : 'gold'}">掛け合わせ${locked ? '（上級職で）' : ''}</span>` : a.hirameki ? '<span class="tag hira">ひらめき</span>' : ''}${p.penalized ? '<span class="tag warn">他</span>' : ''}<span class="sk-desc">${esc(skillBrief(a))}</span>`,
+        html: `${ELEMENT_NAMES[elm] ? `<span class="elem e-${elm}">${ELEMENT_NAMES[elm]}</span>` : ''}${esc(a.name)}${tt ? `<span class="tag tgt t-${a.effect?.random ? 'random' : a.target}">${tt}</span>` : ''}${a.kind === 'combo' ? `<span class="tag ${locked ? 'muted' : 'gold'}">掛け合わせ${locked ? '（上級職で）' : ''}</span>` : a.hirameki ? '<span class="tag hira">ひらめき</span>' : ''}${p.penalized ? '<span class="tag warn">他</span>' : ''}<span class="sk-desc">${esc(skillBrief(a))}</span>`,
         right: a.effect.type === 'mahouken' ? '' : `MP${mpCost(c, id)}`,
         rightCls: p.penalized ? 'pen' : '',
         value: id,
@@ -687,7 +699,9 @@ export class FieldMenu {
       }
       box.append(jobs, el('div', { class: 'detail', text: `自分よりレベルが${JOB_TRAIN_GAP + 1}以上低い敵ばかりだと、職業の修行にならない。` }));
     }
-    const speedNote = el('div', { class: 'detail', text: `素早さ ${st.agi}…戦いで約${(128000 / (st.agi + 12) / 1000).toFixed(1)}秒ごとに順番が来る` });
+    // 素早さの 差は すこしだけ（shared/battle.js の ATB）。戦いの 速さの 設定も かける
+    const bspeed = normBattleSettings(this.game.me?.battleSettings || {}).speed;
+    const speedNote = el('div', { class: 'detail', text: `素早さ ${st.agi}…戦いで約${turnSeconds(st.agi, bspeed).toFixed(1)}秒ごとに順番が来る\n素早さの差は少しだけ（3倍ちがっても約1.2倍）。ピオリムなどは約1.25倍` });
     box.append(speedNote);
     if (active) {
       this.mkSub({ items: [{ label: 'もどる', value: 'back' }], onSelect: () => this.back() });
@@ -769,10 +783,13 @@ export class FieldMenu {
     }
     box.append(...rows);
     if (!active) {
-      box.append(el('div', { class: 'detail', text: '遊んでいる家族をパーティーにさそえる。仲間はルミナの町の酒場で探したり入れかえたりできる。\n近くにいる仲間はいっしょに戦う。はなれている仲間も、戦っている場所へかけつけると、とちゅうから参加できる。\n「ならびを変える」で順番を変えられる（先頭ほど敵にねらわれやすい）。' }));
+      box.append(el('div', { class: 'detail', text: `遊んでいる家族をパーティーにさそえる。仲間はルミナの町の酒場で探したり入れかえたりできる。\n近くにいる仲間はいっしょに戦う。はなれている仲間も、戦っている場所へかけつけると、とちゅうから参加できる。\n「ならびを変える」で順番を変えられる（先頭ほど敵にねらわれやすい）。${g.me.wagon ? '\n「総入れかえ」で、戦う仲間（1〜4番目）と馬車の仲間（5〜8番目）をまとめて決められる。' : ''}` }));
       return box;
     }
     const acts = [];
+    // 総入れかえ（1〜4番目が 戦う 仲間、5〜8番目が 馬車。ui/wagon.js）
+    const mates = (g.me.partyKeys || []).length + (g.me.wagonKeys || []).length;
+    if (g.me.wagon && (iAmLeader || !p) && mates) acts.push({ label: '総入れかえ', value: { a: 'arrange' } });
     if (iAmLeader && (p?.supports?.length || 0) >= 1) acts.push({ label: 'ならびを変える', value: { a: 'order' } });
     if (g.me.wagon) acts.push({ label: '馬車', value: { a: 'wagon' } });
     const others = (g.players || []).filter((x) => x.sid !== g.sid && x.partyId !== p?.id && !x.away);
@@ -794,7 +811,17 @@ export class FieldMenu {
           this.main.scrollTop = 0;
           return;
         }
-        if (v.a === 'order') {
+        if (v.a === 'arrange') {
+          if (!wagonHereClient(g)) {
+            toast('馬車は入り口で待っている。\n（洞窟や塔の中では乗りかえられない）');
+            this.sfx('buzz');
+            return;
+          }
+          this.sub.blur();
+          const r = await menuArrange(this);
+          // あたらしい ならびを 上から 見せる
+          if (r) setTimeout(() => { if (this.root) this.main.scrollTop = 0; }, 300);
+        } else if (v.a === 'order') {
           this.sub.blur();
           const order = await this.pickOrder();
           if (order) g.net.send({ t: 'menu', action: 'order', order });

@@ -1,7 +1,7 @@
 // 色の かえかた（宝の洞窟の しゅるい・洞窟の 主の 色ちがい）
 // もとの ドット絵は そのままに、明るさを たもって 色だけ かえる
-import { T } from '../../shared/tiles.js?v=3f43270b2d54';
-import { makeCanvas, ctxOf } from './pixel.js?v=3f43270b2d54';
+import { T } from '../../shared/tiles.js?v=50cb6b27c5a9';
+import { makeCanvas, ctxOf } from './pixel.js?v=50cb6b27c5a9';
 
 // どの 部分か（ゆか・かべ・水）
 const PART_OF_TILE = {

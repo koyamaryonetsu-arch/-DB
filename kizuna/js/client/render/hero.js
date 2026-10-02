@@ -2,13 +2,13 @@
 // みため（体・かみがた・かみの色・はだ・目もと）と、しょくぎょう・そうび（ぶき・よろい・たて・かぶと）から かく
 //   heroImage(look, job, equip, dir, frame, res) → { w, h, res, rgba }
 // res 4: 64×84（フィールド）  res 8: 128×168（大きな みほん）
-import { HeroCanvas, mat, ramp, TH, mixC, rgbaCanvas } from './hero-raster.js?v=3f43270b2d54';
-import { faceFront, faceSide } from './hero-face.js?v=3f43270b2d54';
-import { drawHair } from './hero-hair.js?v=3f43270b2d54';
-import { outfitOf, drawTorsoFront, drawTorsoBack, drawTorsoSide, drawSkirt, drawCape, drawPauldron, drawBelt } from './hero-outfit.js?v=3f43270b2d54';
-import { weaponOf, shieldOf, headOf, drawWeapon, drawShield, drawHeadgear, isLongSide } from './hero-gear.js?v=3f43270b2d54';
-import { lookIds, HCOL_BY_ID, TONE_BY_ID, CLOTH_COLORS } from '../../shared/data/looks.js?v=3f43270b2d54';
-import { STARTER_EQUIP } from '../../shared/stats.js?v=3f43270b2d54';
+import { HeroCanvas, mat, ramp, TH, mixC, rgbaCanvas } from './hero-raster.js?v=50cb6b27c5a9';
+import { faceFront, faceSide } from './hero-face.js?v=50cb6b27c5a9';
+import { drawHair } from './hero-hair.js?v=50cb6b27c5a9';
+import { outfitOf, drawTorsoFront, drawTorsoBack, drawTorsoSide, drawSkirt, drawCape, drawPauldron, drawBelt, drawNeckwear, drawPack } from './hero-outfit.js?v=50cb6b27c5a9';
+import { weaponOf, shieldOf, headOf, drawWeapon, drawShield, drawHeadgear, isLongSide } from './hero-gear.js?v=50cb6b27c5a9';
+import { lookIds, HCOL_BY_ID, TONE_BY_ID, CLOTH_COLORS } from '../../shared/data/looks.js?v=50cb6b27c5a9';
+import { STARTER_EQUIP } from '../../shared/stats.js?v=50cb6b27c5a9';
 
 // そうびの かきかた: 'ぶき,よろい,たて,あたま' の もじれつ か { weapon, armor, shield, head }（ない ときは しょくぎょうの はじめの そうび）
 export function parseEquip(eq, job) {
@@ -124,19 +124,38 @@ function hairRamp(hc) {
 function legShape(cv, L, P, O) {
   const fem = P.fem;
   const t0 = (fem ? 1.85 : 2.05) * (O.legW || 1), t1 = (fem ? 1.5 : 1.7) * (O.legW || 1), t2 = fem ? 1.25 : 1.4;
-  cv.cap(L.hip[0], L.hip[1], t0, L.knee[0], L.knee[1], t1, O.pants);
-  cv.cap(L.knee[0], L.knee[1], t1, L.ankle[0], L.ankle[1], t2 * (O.legW || 1), O.pants);
+  if (O.shorts) {
+    // 半ズボン: あしは はだ、ももの うえだけ ズボン（すこし ひろがる）
+    const f = O.shorts;
+    const mid = [L.hip[0] + (L.knee[0] - L.hip[0]) * f, L.hip[1] + (L.knee[1] - L.hip[1]) * f];
+    cv.cap(L.hip[0], L.hip[1], t0 * 0.92, L.knee[0], L.knee[1], t1 * 0.88, O.skin);
+    cv.cap(L.knee[0], L.knee[1], t1 * 0.88, L.ankle[0], L.ankle[1], t2 * 0.95, O.skin);
+    cv.part({ ol: 'soft' });
+    cv.cap(L.hip[0], L.hip[1], t0 * 1.08, mid[0], mid[1], (t0 + (t1 - t0) * f) * 1.2, O.pants, { cap1: false });
+    return;
+  }
+  const tx = O.pantsTex ? O.pantsTex(cv.k) : null;
+  cv.cap(L.hip[0], L.hip[1], t0, L.knee[0], L.knee[1], t1, O.pants, { tex: tx });
+  cv.cap(L.knee[0], L.knee[1], t1, L.ankle[0], L.ankle[1], t2 * (O.legW || 1), O.pants, { tex: tx });
+  if (O.pantsBand) {
+    // ひかる おび（消防士の ズボン）
+    const a = 0.14, c = 0.3;
+    const p = (t) => [L.knee[0] + (L.ankle[0] - L.knee[0]) * t, L.knee[1] + (L.ankle[1] - L.knee[1]) * t];
+    cv.part({ ol: 'none', clip: cv.cur });
+    cv.cap(...p(a), t1 * 1.1, ...p(c), t2 * 1.1, O.pantsBand, { cap: false, n: [0, -0.1] });
+  }
 }
 
 function bootShape(cv, L, P, O) {
   const B = O.boots;
   const [fx, fy] = L.foot;
   const fem = P.fem;
-  // ブーツの つつ（ひざ まで など）
+  // ブーツの つつ（ひざ まで など）。shaft: くつした（くつと ちがう 色）
   if (B.h > 0) {
     cv.part({ ol: 'soft' });
     const top = [L.ankle[0] + (L.knee[0] - L.ankle[0]) * B.h, L.ankle[1] + (L.knee[1] - L.ankle[1]) * B.h];
-    cv.cap(top[0], top[1], (fem ? 1.55 : 1.75) * (B.wide || 1), L.ankle[0], L.ankle[1], (fem ? 1.35 : 1.5) * (B.wide || 1), B.m, { cap0: false });
+    const sock = B.shaft ? 0.9 : 1;
+    cv.cap(top[0], top[1], (fem ? 1.55 : 1.75) * (B.wide || 1) * sock, L.ankle[0], L.ankle[1], (fem ? 1.35 : 1.5) * (B.wide || 1) * sock, B.shaft || B.m, { cap0: false });
     if (B.cuff) {
       cv.part({ ol: 'soft' });
       cv.cap(top[0], top[1] - 0.15, (fem ? 1.68 : 1.88) * (B.wide || 1), top[0], top[1] + 0.75, (fem ? 1.62 : 1.82) * (B.wide || 1), B.cuff, { n: [0, -0.2], cap: false });
@@ -164,6 +183,16 @@ function armShape(cv, A, P, O, { hand = true, sleeveOnly = false } = {}) {
     const cw = S.cuffW || 1.12;
     const cx = A.el[0] + (A.wr[0] - A.el[0]) * 0.72, cy = A.el[1] + (A.wr[1] - A.el[1]) * 0.72;
     cv.cap(cx, cy, r2 * wide * cw, A.wr[0], A.wr[1], r2 * wide * (cw + 0.03), S.cuff, { cap1: false });
+  }
+  // ひかる おび（そでの まんなか）・うでしょう（ひだりうでの 上）
+  const lerp = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
+  if (S.band) {
+    cv.part({ ol: 'none' });
+    cv.cap(...lerp(A.el, A.wr, 0.3), r1 * 1.08, ...lerp(A.el, A.wr, 0.48), r2 * 1.1, S.band, { cap: false, n: [0, -0.1] });
+  }
+  if (S.armband && !A.right) {
+    cv.part({ ol: 'soft' });
+    cv.cap(...lerp(A.sh, A.el, 0.38), r0 * 1.06, ...lerp(A.sh, A.el, 0.72), r1 * 1.08, S.armband, { cap: false });
   }
   if (hand) handShape(cv, A, P, O);
 }
@@ -318,6 +347,7 @@ export function paintHero(look, job, equip, dir, f, res = 4) {
   if (view === 'front') {
     body();
     if (O.cape) drawCape(cv, P, O, 'behind');
+    if (O.pack) drawPack(cv, P, O, 'behind');
     head();
     cv.part();
     drawHair(cv, H, 'behind', 'front', Lk.style, Lk.hair, hairO);
@@ -328,6 +358,8 @@ export function paintHero(look, job, equip, dir, f, res = 4) {
     if (O.skirt?.over) drawSkirt(cv, P, O);
     if (O.belt) drawBelt(cv, P, O);
     neckShape(cv, P, O);
+    drawNeckwear(cv, P, O);
+    if (O.pack) drawPack(cv, P, O, 'straps');
     for (const A of P.arms) {
       cv.part();
       armShape(cv, A, P, O, { hand: false });
@@ -356,6 +388,8 @@ export function paintHero(look, job, equip, dir, f, res = 4) {
     if (O.cape) drawCape(cv, P, O, 'back');
     for (const A of P.arms) if (O.pauldron) drawPauldron(cv, P, A, O);
     neckShape(cv, P, O);
+    drawNeckwear(cv, P, O);
+    if (O.pack) drawPack(cv, P, O, 'back');
     head();
     headBack(cv, P, O);
     cv.part();
@@ -369,6 +403,7 @@ export function paintHero(look, job, equip, dir, f, res = 4) {
     arm(far);
     legs([P.legs[0]]);
     if (O.cape) drawCape(cv, P, O, 'side');
+    if (O.pack) drawPack(cv, P, O, 'side');
     head();
     cv.part();
     drawHair(cv, H, 'behind', 'side', Lk.style, Lk.hair, hairO);
@@ -379,6 +414,8 @@ export function paintHero(look, job, equip, dir, f, res = 4) {
     if (O.skirt?.over) drawSkirt(cv, P, O);
     if (O.belt) drawBelt(cv, P, O);
     neckShape(cv, P, O);
+    drawNeckwear(cv, P, O);
+    if (O.pack) drawPack(cv, P, O, 'sideStrap');
     head();
     headSide(cv, P, O);
     faceSide(cv, H, faceO);

@@ -1,20 +1,20 @@
 // フィールド（あるく・はなす・みる）
-import { MAPS, isBlocked, effectiveTile, condOk, tileAt, onWater } from '../shared/maps/index.js?v=3f43270b2d54';
-import { T, TILE_INFO } from '../shared/tiles.js?v=3f43270b2d54';
-import { PLACES } from '../shared/maps/overworld.js?v=3f43270b2d54';
-import { TS, tileCanvas, frameOf, prepareMap } from './render/tiles.js?v=3f43270b2d54';
-import { paintHuman, npcOpts, paintSpecial, paintShip, equipKey, CW, CH } from './render/chars.js?v=3f43270b2d54';
-import { heroCanvas, heroLookKey } from './render/hero.js?v=3f43270b2d54';
-import { monsterCanvas, bigNpcCanvas } from './render/monsters.js?v=3f43270b2d54';
-import { MONSTERS } from '../shared/data/monsters.js?v=3f43270b2d54';
-import { makeCanvas, ctxOf, shade, flipCanvas } from './render/pixel.js?v=3f43270b2d54';
-import { chestCanvas as chestCanvas3d } from './render/tex3d.js?v=3f43270b2d54';
-import { chestVanishes } from '../shared/data/fieldchests.js?v=3f43270b2d54';
-import { boardCanvas } from './render/boards.js?v=3f43270b2d54';
-import { el } from './ui/dom.js?v=3f43270b2d54';
-import { syncTreasureGates } from './ui/treasure.js?v=3f43270b2d54';
-import { skyNpcSprite } from './render/sky-art.js?v=3f43270b2d54';
-import { wagonDraws } from './render/wagon.js?v=3f43270b2d54';
+import { MAPS, isBlocked, effectiveTile, condOk, tileAt, onWater } from '../shared/maps/index.js?v=50cb6b27c5a9';
+import { T, TILE_INFO } from '../shared/tiles.js?v=50cb6b27c5a9';
+import { PLACES } from '../shared/maps/overworld.js?v=50cb6b27c5a9';
+import { TS, tileCanvas, frameOf, prepareMap } from './render/tiles.js?v=50cb6b27c5a9';
+import { paintHuman, npcOpts, paintSpecial, paintShip, equipKey, CW, CH } from './render/chars.js?v=50cb6b27c5a9';
+import { heroCanvas, heroLookKey } from './render/hero.js?v=50cb6b27c5a9';
+import { monsterCanvas, bigNpcCanvas, bigNpcScale } from './render/monsters.js?v=50cb6b27c5a9';
+import { MONSTERS } from '../shared/data/monsters.js?v=50cb6b27c5a9';
+import { makeCanvas, ctxOf, shade, flipCanvas } from './render/pixel.js?v=50cb6b27c5a9';
+import { chestCanvas as chestCanvas3d } from './render/tex3d.js?v=50cb6b27c5a9';
+import { chestVanishes } from '../shared/data/fieldchests.js?v=50cb6b27c5a9';
+import { boardCanvas } from './render/boards.js?v=50cb6b27c5a9';
+import { el } from './ui/dom.js?v=50cb6b27c5a9';
+import { syncTreasureGates } from './ui/treasure.js?v=50cb6b27c5a9';
+import { skyNpcSprite } from './render/sky-art.js?v=50cb6b27c5a9';
+import { wagonDraws } from './render/wagon.js?v=50cb6b27c5a9';
 
 const SPEED = 4.6; // マス/びょう
 const RUN = 1.35; // はしると この ばい（はやすぎない ように）
@@ -62,9 +62,9 @@ const SHIP3D = { lift: -0.26, shadow: false };
 // 空を とぶ モンスター（フィールドで ふわふわ うかぶ）
 const isFlying = (sp) => !!MONSTERS[sp]?.flying;
 
-// 大きな NPC（ボス・たてもの）の 大きさ
+// 大きな NPC（ボス・たてもの）の 大きさ（'mon:<id>' は え の npc の あたい も つかう。render/monsters.js の bigNpcScale）
 const BIG_SCALE = { goldoon_sleep: 0.6, lighthouse_dark: 1, lighthouse_lit: 1, storm_tower: 1 };
-const bigScale = (sprite) => BIG_SCALE[sprite] || 0.5;
+const bigScale = (sprite) => BIG_SCALE[sprite] || bigNpcScale(sprite) || 0.5;
 
 // eq: そうび（'ぶき,よろい,たて,あたま' か { weapon, armor, … }）。ないときは しょくぎょうの はじめの そうび
 // 人（プレイヤー・なかま）は render/hero.js で こまかく かく。res 4: フィールド / res 8: 大きな みほん
@@ -178,7 +178,7 @@ export class Field {
     if (mode === '3d' && Field.webgl2() && cv) {
       if (!this.r3d) {
         try {
-          const { Field3D } = await import('./render/field3d.js?v=3f43270b2d54');
+          const { Field3D } = await import('./render/field3d.js?v=50cb6b27c5a9');
           this.r3d = new Field3D(this, cv);
         } catch (e) {
           console.warn('2.5Dにできませんでした', e);
@@ -583,6 +583,7 @@ export class Field {
         this.others.set(p.sid, o);
       }
       Object.assign(o, { name: p.name, look: p.look, job: p.job, eq: p.eq, tx: p.x, ty: p.y, dir: p.dir, moving: !!p.mv, battle: !!p.b, away: !!p.aw, partyId: p.pid, fl: p.fl || [], air: !!p.air, ride: !!p.ride, wg: !!p.wg });
+      o.mt = p.mt || null; // のりもの（'dragon' … 星の竜。sky.js）
       // リーダーの とおった みちを おぼえる（ついていく ため）
       if (this.game.follow && p.sid === this.game.party?.leader) {
         const tr = this.leaderCrumbs;

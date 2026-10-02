@@ -403,7 +403,7 @@ export const JOB_ABILITIES = {
   },
   swm_zenken: {
     name: '全剣技', kana: 'ぜんけんぎ', kind: 'skill', job: 'sword_master', mp: 20, target: 'enemies', weapon: 'blade',
-    effect: { type: 'phys', mult: 1.5, hits: 2, ignoreDef: 0.3 },
+    effect: { type: 'phys', mult: 1.25, hits: 2, ignoreDef: 0.3 },
     desc: 'あらゆる剣技を一度にふるう、剣聖のひっさつ技。敵全体を2回斬る。', cast: '{a}の全剣技！光と雷と闇の剣がおどる！', anim: 'slash_multi', sword: true,
   },
 

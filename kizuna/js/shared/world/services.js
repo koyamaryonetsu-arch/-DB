@@ -1,23 +1,24 @@
 // お店・やどや・きょうかい・転職・酒場・でんごんばん・メニュー操作
-import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js?v=3f43270b2d54';
-import { normDifficulty } from '../data/difficulty.js?v=3f43270b2d54';
-import { ITEMS, sellPrice, SLOTS } from '../data/items.js?v=3f43270b2d54';
-import { JOBS, ALL_JOBS, jobReqText } from '../data/jobs.js?v=3f43270b2d54';
-import { ABILITIES } from '../data/abilities.js?v=3f43270b2d54';
-import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=3f43270b2d54';
-import { TACTICS } from '../ai.js?v=3f43270b2d54';
-import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js?v=3f43270b2d54';
-import { salonInfo, salonAction } from './salon.js?v=3f43270b2d54';
-import { breedMonsters, breedPreview } from './breed.js?v=3f43270b2d54';
-import { MONSTERS } from '../data/monsters.js?v=3f43270b2d54';
-import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings } from '../battle.js?v=3f43270b2d54';
-import { PLACES } from '../maps/overworld.js?v=3f43270b2d54';
-import { POS, SEA_PLACES } from '../maps/index.js?v=3f43270b2d54';
-import { castRura, warpParty, useTimeBell } from './travel.js?v=3f43270b2d54';
-import { bankInfo, bankAction } from './bank.js?v=3f43270b2d54';
-import { forgeInfo, forgeAction } from './forge.js?v=3f43270b2d54';
-import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction } from './wagon.js?v=3f43270b2d54';
-import { casinoOpen, casinoAction } from './casino.js?v=3f43270b2d54';
+import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js?v=50cb6b27c5a9';
+import { normDifficulty } from '../data/difficulty.js?v=50cb6b27c5a9';
+import { ITEMS, sellPrice, SLOTS } from '../data/items.js?v=50cb6b27c5a9';
+import { JOBS, ALL_JOBS, jobReqText, BODY_NAMES } from '../data/jobs.js?v=50cb6b27c5a9';
+import { ABILITIES } from '../data/abilities.js?v=50cb6b27c5a9';
+import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=50cb6b27c5a9';
+import { TACTICS } from '../ai.js?v=50cb6b27c5a9';
+import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js?v=50cb6b27c5a9';
+import { salonInfo, salonAction } from './salon.js?v=50cb6b27c5a9';
+import { breedMonsters, breedPreview } from './breed.js?v=50cb6b27c5a9';
+import { MONSTERS } from '../data/monsters.js?v=50cb6b27c5a9';
+import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings } from '../battle.js?v=50cb6b27c5a9';
+import { PLACES } from '../maps/overworld.js?v=50cb6b27c5a9';
+import { POS, SEA_PLACES } from '../maps/index.js?v=50cb6b27c5a9';
+import { castRura, warpParty, useTimeBell } from './travel.js?v=50cb6b27c5a9';
+import { bankInfo, bankAction } from './bank.js?v=50cb6b27c5a9';
+import { forgeInfo, forgeAction } from './forge.js?v=50cb6b27c5a9';
+import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction, wagonHere, wagonHealEntries } from './wagon.js?v=50cb6b27c5a9';
+import { casinoOpen, casinoAction } from './casino.js?v=50cb6b27c5a9';
+import { useEscapeItem } from './escape.js?v=50cb6b27c5a9';
 
 export function openService(world, s, kind, arg) {
   switch (kind) {
@@ -153,6 +154,8 @@ export function serviceAction(world, s, msg) {
       if (!who || who.species) return reply(false, 'モンスターは転職できない');
       if (who.job === msg.job) return reply(false, '今の職業と同じです');
       const r = changeJob(who, msg.job);
+      // 体で なれない 職業（フルーツジッパーは 女性、アラシは 男性だけ）
+      if (r.body !== undefined) return reply(false, `${JOBS[msg.job].name}には、${BODY_NAMES[r.body]}しかなれない…`);
       if (r.locked) return reply(false, `まだ${JOBS[msg.job].name}にはなれない…\n（${jobReqText(msg.job)}が必要）`);
       if (!r.ok) return reply(false, '');
       // なかまが はずした そうびは ふくろへ
@@ -169,12 +172,13 @@ export function serviceAction(world, s, msg) {
       let text = '';
       switch (msg.action) {
         case 'recruit':
-          r = recruitNpc(world, s, String(msg.key || ''), { swap: msg.swap, join: msg.join !== false });
-          if (r.ok) text = r.joined ? `${r.name}が仲間に加わった！${r.benchedName ? `\n${r.benchedName}は酒場で待っている。` : ''}${stowText(r.stowed)}` : `${r.name}が仲間になった！\n（今は酒場で待っている）`;
+          // パーティー → 馬車 → 入れかわり（party.js の placeMember）
+          r = recruitNpc(world, s, String(msg.key || ''), { swap: msg.swap ? String(msg.swap) : null, join: msg.join !== false });
+          if (r.ok) text = r.joined ? `${r.name}が仲間に加わった！${r.where === 'wagon' ? `\n${r.name}は馬車に乗りこんだ。` : ''}${r.benchedName ? `\n${r.benchedName}は酒場で待っている。` : ''}${stowText(r.stowed)}` : `${r.name}が仲間になった！\n（今は酒場で待っている）`;
           break;
         case 'join':
-          r = companionJoin(world, s, String(msg.key || ''), msg.swap);
-          if (r.ok) text = `${r.name}がパーティーに加わった！${r.benchedName ? `\n${r.benchedName}は酒場で待っている。` : ''}${stowText(r.stowed)}`;
+          r = companionJoin(world, s, String(msg.key || ''), msg.swap ? String(msg.swap) : null);
+          if (r.ok) text = `${r.where === 'wagon' ? `${r.name}が仲間に加わって、馬車に乗りこんだ！` : `${r.name}がパーティーに加わった！`}${r.benchedName ? `\n${r.benchedName}は酒場で待っている。` : ''}${stowText(r.stowed)}`;
           break;
         case 'wait':
           r = companionWait(world, s, String(msg.key || ''));
@@ -220,6 +224,12 @@ export function serviceAction(world, s, msg) {
       return;
     }
     case 'salon': return salonAction(world, s, msg, reply);
+    // 馬車の 総入れかえ（メニューから。へんじを まてるように お店と おなじ 形で。world/wagon.js）
+    case 'wagon': {
+      if (s.busy) return reply(false, '今はできません');
+      const r = wagonMenuAction(world, s, msg);
+      return reply(r.ok, r.ok ? r.text : r.reason, { same: !!r.same });
+    }
     case 'starTrade': {
       const tr = STAR_TRADES[msg.index];
       if (!tr) return reply(false, '');
@@ -352,6 +362,9 @@ export function menuAction(world, s, msg) {
       }
       // 夜明けのすず・夕焼けのすず（travel.js）
       if (eff.type === 'timeBell') return useTimeBell(world, s, msg.id, reply);
+      // みちびきの糸（洞窟・塔から 入り口の 外へ。escape.js）
+      if (eff.type === 'exit') return useEscapeItem(world, s, msg.id, reply);
+      if (String(msg.ref || '').startsWith('wagon:') && !wagonHere(s.map)) return reply(false, '馬車は入り口で待っている…');
       const target = refChar(world, s, msg.ref);
       if (!target) return reply(false, '');
       const r = applyFieldEffect(world, c, target, eff);
@@ -363,6 +376,9 @@ export function menuAction(world, s, msg) {
       const caster = ownChar(s, msg.who);
       if (!caster) return reply(false, '');
       if (caster.hp <= 0) return reply(false, `${caster.name}は死んでいる…`);
+      // 馬車の 仲間が 唱えるのも、相手が 馬車の 仲間なのも、馬車が いっしょの ときだけ
+      const inWagon = (c.wagonKeys || []).includes(msg.who) || String(msg.ref || '').startsWith('wagon:');
+      if (inWagon && !wagonHere(s.map)) return reply(false, '馬車は入り口で待っている…');
       const a = ABILITIES[msg.id];
       if (!a || !a.field || !learnedAbilities(caster).includes(msg.id)) return reply(false, '今は使えない');
       // ルーラ（行った 町へ 仲間と 飛ぶ。travel.js）
@@ -524,7 +540,8 @@ function fullHealSummary(world, s, used) {
 function fullHealBySpells(world, s) {
   if (!hurtRefs(world, s).length) return { ok: false, text: 'みんなのHPは満タンだ' };
   const p = partyOf(world, s);
-  const casters = [s.char, ...(p?.supports || []).filter((x) => x.owner === s.char.id && x.kind !== 'family').map((x) => x.char)].filter((ch) => ch.hp > 0);
+  const casters = [s.char, ...(p?.supports || []).filter((x) => x.owner === s.char.id && x.kind !== 'family').map((x) => x.char),
+    ...wagonHealEntries(world, s, true).map((e) => e.char)].filter((ch) => ch.hp > 0);
   const count = new Map(); // 「名前|呪文」→ 回数
   const mpUsed = new Map();
   let any = false;
@@ -609,6 +626,8 @@ function allRefs(world, s) {
   for (const sid of p?.members || []) if (sid !== s.id) refs.push('sid:' + sid);
   for (const sup of p?.supports || []) refs.push('sup:' + sup.key);
   for (const g of p?.guests || []) refs.push('guest:' + g.id);
+  // 馬車の 仲間（馬車が いっしょの とき）
+  for (const e of wagonHealEntries(world, s)) refs.push('wagon:' + e.key);
   return refs;
 }
 

@@ -5,15 +5,15 @@
 //             →「すぐに装備するか？」→「だれが装備する？」
 //   きたえる: 装備を えらぶ（E は 装備している 物）→ みぎに きたえる 前→あとの 強さと 素材
 //             →「〇〇にきたえるには〇〇がいる。きたえるか？」→ カン！カン！カン！
-import { el, esc } from './dom.js?v=3f43270b2d54';
-import { Counter, compareTeam, itemInfo, whoItems, myTeam } from './counter.js?v=3f43270b2d54';
-import { request } from './shop.js?v=3f43270b2d54';
-import { rankText } from './info.js?v=3f43270b2d54';
-import { ITEMS } from '../../shared/data/items.js?v=3f43270b2d54';
-import { UPGRADE_TYPES, UPGRADE_MAX } from '../../shared/data/items-forge.js?v=3f43270b2d54';
-import { recipeOf, upgradeCost, lackOf, canUpgrade } from '../../shared/data/forge.js?v=3f43270b2d54';
-import { computeStats, itemCount } from '../../shared/stats.js?v=3f43270b2d54';
-import { boardIconURL } from '../render/boards.js?v=3f43270b2d54';
+import { el, esc } from './dom.js?v=50cb6b27c5a9';
+import { Counter, compareTeam, itemInfo, whoItems, myTeam } from './counter.js?v=50cb6b27c5a9';
+import { request } from './shop.js?v=50cb6b27c5a9';
+import { rankText } from './info.js?v=50cb6b27c5a9';
+import { ITEMS } from '../../shared/data/items.js?v=50cb6b27c5a9';
+import { UPGRADE_TYPES, UPGRADE_MAX } from '../../shared/data/items-forge.js?v=50cb6b27c5a9';
+import { recipeOf, upgradeCost, lackOf, canUpgrade } from '../../shared/data/forge.js?v=50cb6b27c5a9';
+import { computeStats, itemCount } from '../../shared/stats.js?v=50cb6b27c5a9';
+import { boardIconURL } from '../render/boards.js?v=50cb6b27c5a9';
 
 const BONUS_NAMES = { str: '力', def: '身の守り', agi: '素早さ', mag: '攻撃魔力', heal: '回復魔力', hp: '最大HP', mp: '最大MP' };
 

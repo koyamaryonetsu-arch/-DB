@@ -5,13 +5,13 @@
 // ・知らない 項目や 知らない 品物・職業・モンスターは けさずに とっておく（stash）。
 //   あとで その ゲームが 知っている ものに なったら もとに もどす
 // ・品物・職業・モンスター・マップの ID は けさない・なまえを かえない
-import { ITEMS, SLOTS } from '../data/items.js?v=3f43270b2d54';
-import { JOBS } from '../data/jobs.js?v=3f43270b2d54';
-import { MONSTERS } from '../data/monsters.js?v=3f43270b2d54';
-import { migrateJobs, oldComboUnlocks, addItem } from '../stats.js?v=3f43270b2d54';
-import { repairTreasureMaps } from '../data/treasure.js?v=3f43270b2d54';
-import { normBank } from './bank.js?v=3f43270b2d54';
-import { cleanWagon } from '../data/wagon.js?v=3f43270b2d54';
+import { ITEMS, SLOTS } from '../data/items.js?v=50cb6b27c5a9';
+import { JOBS } from '../data/jobs.js?v=50cb6b27c5a9';
+import { MONSTERS } from '../data/monsters.js?v=50cb6b27c5a9';
+import { migrateJobs, oldComboUnlocks, addItem, fixBodyJob } from '../stats.js?v=50cb6b27c5a9';
+import { repairTreasureMaps } from '../data/treasure.js?v=50cb6b27c5a9';
+import { normBank } from './bank.js?v=50cb6b27c5a9';
+import { cleanWagon } from '../data/wagon.js?v=50cb6b27c5a9';
 
 export const SAVE_VERSION = 4;
 
@@ -173,7 +173,12 @@ export function upgradeSave(raw) {
   for (let v = from; v < SAVE_VERSION; v++) UPGRADES[v]?.(d);
   for (const [id, c] of Object.entries(d.characters)) {
     if (!repairChar(c, id)) delete d.characters[id];
-    else migrateJobs(c);
+    else {
+      migrateJobs(c);
+      // 体で なれない 職業（フルーツジッパー・アラシ）に なっていたら もとに もどす
+      fixBodyJob(c);
+      for (const e of Array.isArray(c.companions) ? c.companions : []) fixBodyJob(e?.char);
+    }
   }
   // あたらしい ゲームで 作った セーブを 読んだ ときは、バージョンを 下げない
   d.version = Math.max(from, SAVE_VERSION);

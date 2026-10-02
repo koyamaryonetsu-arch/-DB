@@ -10,8 +10,8 @@
 // resist: たいせい（しゅぞくの たいせいを つかう。ここに かけば うわがき）
 // gear:   装備できる 物（しゅぞくの けいの RACE_GEAR を うわがき。下の RACE_GEAR を 見てね）
 
-import { FRIENDS_CH2 } from './companions-ch2.js?v=3f43270b2d54';
-import { FRIENDS_RARE } from './monsters-rare.js?v=3f43270b2d54';
+import { FRIENDS_CH2 } from './companions-ch2.js?v=50cb6b27c5a9';
+import { FRIENDS_RARE } from './monsters-rare.js?v=50cb6b27c5a9';
 
 export const MONSTER_FRIENDS = {
   pururin: {
@@ -142,7 +142,7 @@ export const RACE_GEAR = {
   slime: { weapons: [], armor: ['cloth'], shield: false, head: 'hat' },
   beast: { weapons: ['claw'], armor: ['cloth'], shield: false, head: 'hat' },
   plant: { weapons: ['whip', 'staff'], armor: ['cloth', 'robe'], shield: false, head: 'hat' },
-  spirit: { weapons: ['staff', 'fan'], armor: ['cloth', 'robe'], shield: false, head: 'hat' },
+  spirit: { weapons: ['staff', 'fan', 'boomerang'], armor: ['cloth', 'robe'], shield: false, head: 'hat' },
   undead: { weapons: ['sword', 'dagger', 'axe'], armor: ['cloth', 'heavy'], shield: true, head: 'helm' },
   material: { weapons: ['axe', 'claw'], armor: ['cloth', 'heavy'], shield: true, head: 'helm' },
   demon: { weapons: ['sword', 'axe', 'spear', 'dagger'], armor: ['cloth', 'heavy'], shield: true, head: 'helm' },
@@ -164,7 +164,7 @@ const GEAR = {
   // こぶしで たたかう キノコ（こぶしの 技が つかえる ツメ だけ）
   kobushi: { weapons: ['claw'], armor: ['cloth', 'gi'] },
   // ゴブリンは 石の オノや ナイフ
-  goblin: { weapons: ['axe', 'dagger', 'claw'], armor: ['cloth', 'gi'], head: 'hat' },
+  goblin: { weapons: ['axe', 'dagger', 'claw', 'boomerang'], armor: ['cloth', 'gi'], head: 'hat' },
   // かたい こうらの カニ: ハサミ（ツメ）と たて・重いよろい
   armor_crab: { armor: ['cloth', 'heavy'], shield: true, head: false },
   // まほうつかい
