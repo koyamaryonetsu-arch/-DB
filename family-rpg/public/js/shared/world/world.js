@@ -12,7 +12,7 @@ import { newCharacter, computeStats, addItem, fullHeal, migrateJobs } from '../s
 import { mapState, spawnSymbols, moveSymbols, symbolSnapshot, symbolVisible } from './monsters.js';
 import { tickFieldChests, fieldChestSnap, fieldChestNear, openFieldChest } from './fieldchests.js';
 import { chestVanishes } from '../data/fieldchests.js';
-import { startFieldBattle, battleTick, battleCommand, battleLeave, joinBattle, mineOf } from './battles.js';
+import { startFieldBattle, battleTick, battleCommand, battleLeave, joinBattle, mineOf, resultDone } from './battles.js';
 import { runScript, runSteps } from './scripts.js';
 import { serviceAction, menuAction } from './services.js';
 import { newParty, partyOf, partyState, syncParty, ensureCompanions, companionWait, PARTY_MAX } from './party.js';
@@ -225,6 +225,8 @@ export class GameWorld {
       case 'svc': return serviceAction(this, s, msg);
       case 'menu': return this.onMenu(s, msg);
       case 'battle': return battleCommand(this, s, msg);
+      // たたかいの けっかを 読みおわった（battles.js）
+      case 'resultDone': return resultDone(this, s);
       case 'party': return this.onParty(s, msg);
       case 'chat': return this.onChat(s, msg);
       case 'explored': return this.onExplored(s, msg);

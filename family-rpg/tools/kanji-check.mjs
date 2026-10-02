@@ -189,6 +189,8 @@ export function gameFiles() {
     'public/js/client/ui/casino.js', 'public/js/client/render/casino.js',
     // めずらしい 強い 魔物（ぷるりん騎士・ヴァルドラゴン など）
     'public/js/shared/data/monsters-rare.js', 'public/js/client/render/rare-art.js',
+    // たたかいの けっかの まど（ボタンで 1行ずつ）
+    'public/js/client/ui/result.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

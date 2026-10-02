@@ -6,7 +6,12 @@ import { MONSTERS } from '../../shared/data/monsters.js';
 import { MONSTER_FRIENDS } from '../../shared/data/companions.js';
 import { computeStats, canEquip, canEquipMonster, monsterGear, penaltyFor, mpCost, comboJobNames, comboAllowed, jobPower } from '../../shared/stats.js';
 
-const TARGET_NAMES = { enemy: '敵1体', group: '敵1グループ', enemies: '敵全体', ally: '味方1人', allies: '味方全員', self: '自分', deadAlly: '死んだ味方' };
+const TARGET_NAMES = { enemy: '敵1体', group: '敵1グループ', enemies: '敵全体', ally: '味方1人', allies: '味方全員', self: '自分', deadAlly: '死んだ味方', deadAllies: '死んだ味方全員' };
+// 技の リストに つける みじかい しるし（1体・1人・自分は つけない）
+const TARGET_TAGS = { group: 'グループ', enemies: '全体', allies: '全員', deadAllies: '全員' };
+export function targetTag(target) {
+  return TARGET_TAGS[target] || '';
+}
 const BONUS_NAMES = { str: '力', def: '身の守り', agi: '素早さ', mag: '魔力', heal: '回復', hp: 'HP', mp: 'MP' };
 
 export function itemStats(id) {

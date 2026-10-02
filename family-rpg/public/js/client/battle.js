@@ -5,15 +5,16 @@ import { ITEMS } from '../shared/data/items.js';
 import { JOBS } from '../shared/data/jobs.js';
 import { MONSTERS } from '../shared/data/monsters.js';
 import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed } from '../shared/stats.js';
-import { affinityOf } from '../shared/battle.js';
+import { affinityOf, attackReach } from '../shared/battle.js';
 import { DUAL_TECHS, dualOptions, dualKnown } from '../shared/data/dual.js';
 import { faceURL } from './field.js';
 import { monsterCanvas } from './render/monsters.js';
 import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js';
 import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js';
 import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js';
-import { abilityDetail, statusNames, buffNames } from './ui/info.js';
+import { abilityDetail, statusNames, buffNames, targetTag } from './ui/info.js';
 import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js';
+import { ResultPager, levelUpName } from './ui/result.js';
 
 // たたかいの え の こまかさ（おもい きかいで さげたら、その あいだは さげた まま）
 let battleRes = BRES;
@@ -346,6 +347,7 @@ export class BattleScene {
     this.menu?.blur();
     this.menu = null;
     this.targeting = null;
+    this.hoverGroup = null;
   }
 
   openCommand() {
@@ -376,7 +378,11 @@ export class BattleScene {
     if (this.bond >= 100) items.unshift({ html: '<span class="gold">★ミナデイン</span>', value: 'bond', cls: 'k-bond' });
     this.showMenu(items, (it) => {
       switch (it.value) {
-        case 'attack': return this.pickEnemy((t) => this.send({ type: 'attack', target: t }));
+        case 'attack': {
+          // ムチは グループ、ブーメランは 敵全体（えらばない）
+          const reach = attackReach(a.weaponCat);
+          return this.pickFoe(reach, (t) => this.send({ type: 'attack', target: t }), reach === 'group' ? 'どのグループをねらう？' : 'だれをねらう？');
+        }
         case 'spell': return this.abilityMenu(spells, 'spell');
         case 'skill': return this.abilityMenu(skills, 'skill');
         case 'dual': return this.dualMenu(this.myDualOptions(a));
@@ -447,8 +453,10 @@ export class BattleScene {
       const sil = silenced && (ab.kind === 'spell' || ab.spellLike);
       const locked = ab.kind === 'combo' && !comboAllowed(pc, id);
       const el = ab.effect?.element;
+      // 相手の しるし（グループ・全体・全員）
+      const tt = targetTag(ab.target);
       return {
-        html: `${ELEMENT_NAMES[el] ? `<span class="elem e-${el}">${ELEMENT_NAMES[el]}</span>` : ''}${ab.name}${pen ? '<span class="tag warn">他</span>' : ''}${ab.hirameki || ab.kind === 'combo' ? '<span class="tag hira">閃</span>' : ''}`,
+        html: `${ELEMENT_NAMES[el] ? `<span class="elem e-${el}">${ELEMENT_NAMES[el]}</span>` : ''}${ab.name}${tt ? `<span class="tag tgt t-${ab.target}">${tt}</span>` : ''}${pen ? '<span class="tag warn">他</span>' : ''}${ab.hirameki || ab.kind === 'combo' ? '<span class="tag hira">閃</span>' : ''}`,
         right: isMk ? '▶' : `${cost}`,
         rightCls: pen ? 'pen' : '',
         value: id,
@@ -488,8 +496,9 @@ export class BattleScene {
       this.rememberPick(a, page, it.value);
       if (ab.effect.type === 'mahouken') return this.mahoukenMenu();
       const t = ab.target;
-      if (t === 'enemy' || t === 'group') return this.pickEnemy((tid) => this.send({ type: 'ability', id: it.value, target: tid }), ab.name, ab.effect?.element);
-      if (t === 'ally' || t === 'deadAlly') return this.pickAlly((tid) => this.send({ type: 'ability', id: it.value, target: tid }), t === 'deadAlly', ab.name);
+      const back = () => this.abilityMenu(ids, page);
+      if (t === 'enemy' || t === 'group') return this.pickFoe(t, (tid) => this.send({ type: 'ability', id: it.value, target: tid }), ab.name, ab.effect?.element, back);
+      if (t === 'ally' || t === 'deadAlly') return this.pickAlly((tid) => this.send({ type: 'ability', id: it.value, target: tid }), t === 'deadAlly', ab.name, back);
       return this.send({ type: 'ability', id: it.value });
     }, () => this.openCommand(), null, detail, start);
   }
@@ -500,7 +509,7 @@ export class BattleScene {
     const items = opts.map((o) => ({ label: o.name, right: `${o.mp}`, value: o, disabled: o.mp > a.mp || !weaponOk({ weapon: 'blade' }, a.weaponCat) }));
     if (!items.length) return toast('魔法剣にできる技がない');
     this.showMenu(items, (it) => {
-      this.pickEnemy((tid) => this.send({ type: 'mahouken', spell: it.value.spell, skill: it.value.skill, target: tid }), it.value.name, ABILITIES[it.value.spell]?.effect?.element);
+      this.pickEnemy((tid) => this.send({ type: 'mahouken', spell: it.value.spell, skill: it.value.skill, target: tid }), it.value.name, ABILITIES[it.value.spell]?.effect?.element, () => this.mahoukenMenu());
     }, () => this.openCommand(), '魔法剣（呪文×剣技）', (it) => {
       if (!it) return;
       this.info(`${ABILITIES[it.value.spell].name}の力を${ABILITIES[it.value.skill].name}に宿らせる。\nMP ${it.value.mp}（剣が必要）`);
@@ -520,7 +529,7 @@ export class BattleScene {
       if (a) this.rememberPick(a, 'item', it.value);
       const item = ITEMS[it.value];
       if (item.target === 'self') return this.send({ type: 'item', id: it.value });
-      return this.pickAlly((tid) => this.send({ type: 'item', id: it.value, target: tid }), item.target === 'deadAlly', item.name);
+      return this.pickAlly((tid) => this.send({ type: 'item', id: it.value, target: tid }), item.target === 'deadAlly', item.name, () => this.itemMenu());
     }, () => this.openCommand(), '道具', (it) => {
       if (!it) return;
       this.info(ITEMS[it.value].desc);
@@ -535,25 +544,52 @@ export class BattleScene {
     return affinityOf(MONSTERS[e.species]?.resist?.[element] ?? 1);
   }
 
-  // element: 属性の 技で ねらう とき、ためした ことの ある 敵には 効きぐあいを 出す
-  pickEnemy(done, title = 'だれをねらう？', element = null) {
+  // ねらう 敵を えらぶ（ドラクエ ふう）
+  //   mode 'enemy' … 1体（おなじ 種類が いれば A・B…）/ 'group' …「ゴブリン（2ひき）」の グループ / 'enemies' … えらばない（敵全体）
+  //   element: 属性の 技で ねらう とき、ためした ことの ある 敵には 効きぐあいを 出す
+  //   back: もどる ボタン（えらぶ まえの メニューへ）
+  pickFoe(mode, done, title = 'だれをねらう？', element = null, back = null) {
     const list = this.enemies().filter((e) => e.alive);
-    if (list.length === 1) return done(list[0].id);
-    this.targeting = { side: 'enemy', done };
+    if (mode === 'enemies' || !list.length) return done(undefined);
+    const groups = mode === 'group' ? this.foeGroups(list) : null;
+    if (groups ? groups.length === 1 : list.length === 1) return done(groups ? groups[0].lead : list[0].id);
+    this.targeting = { side: 'enemy', mode, done };
     // 効きぐあいは 名前の 下に 小さく（名前が 2行に ならないように）
     const AFF = { weak: '弱点！', resist: '効きにくい', null: '効かない', normal: 'ふつう' };
-    const items = list.map((e) => {
+    const affTag = (e) => {
       const aff = element ? this.knownAffinity(e, element) : null;
-      const tag = aff ? `<span class="aff-line a-${aff}">${AFF[aff]}</span>` : element && ELEMENT_NAMES[element] ? '<span class="aff-line a-unknown">？</span>' : '';
-      return { html: `${esc(e.name)}${tag}`, value: e.id };
-    });
-    this.showMenu(items, (it) => done(it.value), () => this.openCommand(), title, (it) => { this.hover = it?.value; });
+      return aff ? `<span class="aff-line a-${aff}">${AFF[aff]}</span>` : element && ELEMENT_NAMES[element] ? '<span class="aff-line a-unknown">？</span>' : '';
+    };
+    const items = groups
+      ? groups.map((gp) => ({ html: `${esc(gp.name)}<span class="cnt">（${gp.members.length}ひき）</span>${affTag(gp.members[0])}`, value: gp.lead }))
+      : list.map((e) => ({ html: `${esc(e.name)}${affTag(e)}`, value: e.id }));
+    const hover = (it) => {
+      this.hover = it?.value;
+      this.hoverGroup = groups ? this.c.get(it?.value)?.species || null : null;
+    };
+    this.showMenu(items, (it) => done(it.value), back || (() => this.openCommand()), title, hover, 0);
   }
 
-  pickAlly(done, dead = false, title = 'だれに？') {
+  // 1体を ねらう（むかしの よびかた）
+  pickEnemy(done, title = 'だれをねらう？', element = null, back = null) {
+    return this.pickFoe('enemy', done, title, element, back);
+  }
+
+  // 敵の グループ（おなじ 種類。ならびは 左から）。lead: グループの いちばん 左（これを おくる）
+  foeGroups(list = this.enemies().filter((e) => e.alive)) {
+    const out = [];
+    for (const e of list) {
+      let gp = out.find((x) => x.species === e.species);
+      if (!gp) out.push((gp = { species: e.species, name: MONSTERS[e.species]?.name || e.baseName || e.name, members: [], lead: e.id }));
+      gp.members.push(e);
+    }
+    return out;
+  }
+
+  pickAlly(done, dead = false, title = 'だれに？', back = null) {
     const list = this.allies();
     this.targeting = { side: 'ally', done, dead };
-    this.showMenu(list.map((a) => ({ label: `${a.name}　HP${a.hp}`, value: a.id, disabled: dead ? a.alive : !a.alive })), (it) => done(it.value), () => this.openCommand(), title);
+    this.showMenu(list.map((a) => ({ label: `${a.name}　HP${a.hp}`, value: a.id, disabled: dead ? a.alive : !a.alive })), (it) => done(it.value), back || (() => this.openCommand()), title);
   }
 
   onCanvasClick(e) {
@@ -563,6 +599,11 @@ export class BattleScene {
     for (const m of this.layout || []) {
       if (x >= m.x && x <= m.x + m.w && y >= m.y && y <= m.y + m.h && m.c.alive) {
         this.game.audio.sfx('confirm');
+        // グループを えらぶ ときは、さわった 魔物の グループ（いちばん 左を おくる）
+        if (this.targeting.mode === 'group') {
+          const gp = this.foeGroups().find((g) => g.species === m.c.species);
+          return this.targeting.done(gp ? gp.lead : m.c.id);
+        }
         return this.targeting.done(m.c.id);
       }
     }
@@ -754,7 +795,16 @@ export class BattleScene {
     // こうどうした てきが うごく（こうげき・じゅもん・ブレス…）。lead: みかたに とどく じかん
     const lead = actor && actor.side === 'enemy' && ev.t === 'act' ? this.enemyAct(actor, fx, ab, allyTargets, wasTele) : 0;
     let hitDelay = 0;
-    if (anim && anim !== 'none' && enemyPts.length) {
+    // ムチ（グループ）・ブーメラン（全体）: 敵ごとに あたる じかんが ちがう（id → ms）
+    let perHit = null;
+    if (fx.type === 'attack' && fromAlly && fx.reach && enemyPts.length) {
+      const hitTs = targets.filter((t) => t.side === 'enemy' && this.center(t));
+      const crits = hitTs.map((t) => (ev.results || []).some((r) => r.id === t.id && r.crit));
+      const times = this.fx.weaponReach(hitTs.map((t) => this.center(t)), fx.weapon, crits, { id: fx.weaponId, mon: actor?.mon });
+      perHit = new Map(hitTs.map((t, i) => [t.id, times[i]]));
+      hitDelay = Math.min(...times);
+      g.audio.sfx(fx.weapon === 'boomerang' ? 'wind' : 'card');
+    } else if (anim && anim !== 'none' && enemyPts.length) {
       if (fx.type === 'attack' && fromAlly) {
         // ぶきごとの エフェクト（あたる じかんが かえってくる）
         hitDelay = this.fx.weaponHit(enemyPts, fx.weapon, crit, { id: fx.weaponId, mon: actor?.mon });
@@ -819,11 +869,12 @@ export class BattleScene {
       if (lead) setTimeout(q, lead / tempo);
       else q();
     }
-    // けっか（じゅもんは あたった ときに）
-    const apply = () => {
+    // けっか（じゅもんは あたった ときに）。only: その 敵の ぶん だけ（ムチ・ブーメラン）
+    const apply = (only = null) => {
       if (this.destroyed) return;
       let hurtAlly = false;
       for (const r of ev.results || []) {
+        if (only && r.id !== only) continue;
         const t = this.c.get(r.id);
         if (!t) continue;
         if (r.aff && r.element && t.species) {
@@ -862,13 +913,22 @@ export class BattleScene {
         this.fx.flashColor = '#ff5a5a';
       }
       for (const c of this.c.values()) {
-        if (c.side === 'enemy' && !c.alive && !c.dead) {
+        if (c.side === 'enemy' && !c.alive && !c.dead && (!only || c.id === only)) {
           c.dead = 1;
           g.audio.sfx('defeat');
         }
       }
     };
-    if (hitDelay > 0) setTimeout(apply, hitDelay / tempo);
+    if (perHit) {
+      // あたった じゅんに ダメージの かずを 出す（さいごに のこりも まとめて）
+      for (const [id, ms] of perHit) setTimeout(() => apply(id), ms / tempo);
+      const rest = (ev.results || []).some((r) => !perHit.has(r.id));
+      setTimeout(() => {
+        if (this.destroyed) return;
+        if (rest) for (const r of ev.results || []) if (!perHit.has(r.id)) apply(r.id);
+        for (const c of this.c.values()) if (c.side === 'enemy' && !c.alive && !c.dead) c.dead = 1;
+      }, (Math.max(...perHit.values()) + 30) / tempo);
+    } else if (hitDelay > 0) setTimeout(apply, hitDelay / tempo);
     else apply();
     // えらんでいる とちゅうで たおれた・ねむった など
     const cur = this.cur && this.c.get(this.cur);
@@ -905,8 +965,9 @@ export class BattleScene {
     const items = opts.map((o) => {
       const t = DUAL_TECHS[o.id];
       const e = o.element;
+      const tt = targetTag(t.target);
       return {
-        html: `${ELEMENT_NAMES[e] ? `<span class="elem e-${e}">${ELEMENT_NAMES[e]}</span>` : ''}${esc(t.name)}<span class="with-line">${esc(o.partnerName)}といっしょに${o.now ? '' : '（よやく）'}</span>`,
+        html: `${ELEMENT_NAMES[e] ? `<span class="elem e-${e}">${ELEMENT_NAMES[e]}</span>` : ''}${esc(t.name)}${tt ? `<span class="tag tgt t-${t.target}">${tt}</span>` : ''}<span class="with-line">${esc(o.partnerName)}といっしょに${o.now ? '' : '（よやく）'}</span>`,
         right: `${o.mp[0]}`, value: o, cls: `k-${role(t)}${o.now ? '' : ' later'}`,
       };
     });
@@ -914,7 +975,7 @@ export class BattleScene {
       const o = it.value;
       const t = DUAL_TECHS[o.id];
       const go = (target) => this.send({ type: 'dual', id: o.id, partner: o.partner, target });
-      if (t.target === 'enemy' || t.target === 'group') return this.pickEnemy((tid) => go(tid), t.name, o.element);
+      if (t.target === 'enemy' || t.target === 'group') return this.pickFoe(t.target, (tid) => go(tid), t.name, o.element, () => this.dualMenu(this.myDualOptions(this.myActor)));
       return go();
     }, () => this.openCommand(), '合体技（2人の番を使う）', (it) => {
       if (!it) return;
@@ -1301,10 +1362,16 @@ export class BattleScene {
         x.globalAlpha = P.white * base;
         x.drawImage(white(m.img), px, py, w, h);
       }
+      // ねらい（グループの ときは その グループ みんなに ▼。すこし しろく ひかる）
+      const tg = this.targeting;
+      const aimed = tg?.side === 'enemy' && c.alive && (tg.mode === 'group' ? !!this.hoverGroup && c.species === this.hoverGroup : this.hover === c.id);
+      if (aimed) {
+        x.globalAlpha = (0.16 + 0.12 * Math.sin(this.time / 110)) * base;
+        x.drawImage(white(m.img), px, py, w, h);
+      }
       x.imageSmoothingEnabled = false;
       x.globalAlpha = 1;
-      // ねらい
-      if (this.targeting?.side === 'enemy' && this.hover === c.id && c.alive) {
+      if (aimed) {
         x.fillStyle = '#ffd66b';
         const ax = Math.round(m.x + m.w / 2);
         const ay = Math.round(m.y - 6 + Math.sin(this.time / 120) * 2);
@@ -1327,59 +1394,90 @@ export class BattleScene {
   }
 
   // ───────────── おわり ─────────────
+  // けっか: ボタン（タップ・クリック・Z/Enter/スペース・ゲームパッドA）を おすと 1行ずつ すすむ（ui/result.js）
+  //   レベルが 上がった ときは レベルアップの きょく（よいんを のこして、つぎの 行は ボタンを まつ）
   showResult(msg) {
     return new Promise((resolve) => {
       this.closeMenus();
       const g = this.game;
-      if (msg.outcome === 'win') g.audio.play('victory');
-      else if (msg.outcome === 'lose') g.audio.play('lose');
-      else g.audio.stop(0.3);
+      const au = g.audio;
+      if (msg.outcome === 'win') au.play('victory', { force: true });
+      else if (msg.outcome === 'lose') au.play('lose', { force: true });
+      else au.stop(0.3);
+      // ジングルの あとに たたかいの きょくに もどらない（とじたら フィールドの きょく）
+      au.resumeTrack = null;
       const lines = msg.lines || [];
       if (!lines.length) return resolve();
-      const box = el('div', { class: 'win b-result scroll' });
+      const pager = new ResultPager(lines);
+      const list = el('div', { class: 'res-lines' });
+      const more = el('div', { class: 'res-more', text: '▼' });
+      const box = el('div', { class: 'win b-result scroll' }, list, more);
       this.root.append(box);
-      let i = 0;
-      const next = () => {
-        if (i >= lines.length) {
-          finish();
-          return;
-        }
-        const line = lines[i++];
-        box.append(el('div', { text: line }));
+      this.resultBox = box;
+      let moreT = null;
+      let finished = false;
+      const waitMark = () => {
+        more.classList.remove('on');
+        clearTimeout(moreT);
+        moreT = setTimeout(() => { if (!finished) more.classList.add('on'); }, pager.waitLeft(performance.now()));
+      };
+      const show = (step) => {
+        const row = el('div', { class: `res-${step.kind}`, text: step.line });
+        list.append(row);
         box.scrollTop = box.scrollHeight;
-        if (line.includes('レベルが')) {
-          g.audio.play('levelup', { force: true });
-          box.lastChild.classList.add('gold');
+        switch (step.kind) {
+          case 'level': {
+            row.classList.add('gold', 'lvup');
+            // レベルアップの きょく（なりおわる まえに つぎの 人が 上がったら、きょくは そのまま きらきらだけ）
+            if (au.music?.id === 'levelup') au.sfx('sparkle');
+            else au.play('levelup', { force: true });
+            au.resumeTrack = null;
+            const who = levelUpName(step.line);
+            const a = who && this.allies().find((x) => x.name === who);
+            if (a) this.glowStatus(a.id, '#ffd66b');
+            break;
+          }
+          case 'job': row.classList.add('gold'); au.sfx('key'); break;
+          case 'learn': row.classList.add('good'); au.sfx('sparkle'); break;
+          case 'item': row.classList.add('good'); au.sfx('item'); break;
+          case 'gold': au.sfx('coin'); break;
+          default:
         }
-        if (line.includes('ひらめいた') || line.includes('覚えた')) {
-          box.lastChild.classList.add('good');
-          g.audio.sfx('sparkle');
-        }
+        waitMark();
       };
-      let timer = setInterval(next, 420);
-      next();
-      const h = {
-        onNav: (a) => {
-          if (a !== 'a' && a !== 'b') return;
-          if (i < lines.length) {
-            while (i < lines.length) next();
-          } else finish();
-        },
+      const advance = () => {
+        if (finished) return;
+        const step = pager.advance(performance.now());
+        if (!step) return;
+        if (step.close) return finish();
+        show(step);
       };
-      box.addEventListener('click', () => h.onNav('a'));
+      const h = { el: box, onNav: (a) => { if (a === 'a' || a === 'b') advance(); } };
+      // がめんの どこを さわっても すすむ
+      const onTap = (e) => {
+        e.preventDefault();
+        advance();
+      };
+      this.root.addEventListener('click', onTap);
       g.input.push(h);
       const finish = () => {
-        clearInterval(timer);
+        if (finished) return;
+        finished = true;
+        clearTimeout(moreT);
         g.input.pop(h);
+        this.root.removeEventListener('click', onTap);
+        this.closeResult = null;
         resolve();
       };
-      // じどうで とじる（スペクテーターの とき など）
-      setTimeout(() => { if (i >= lines.length) finish(); }, 15000);
+      // 画面が こわされた（つぎの たたかいが はじまった など）ときも とじる
+      this.closeResult = finish;
+      advance();
     });
   }
 
   destroy() {
     this.destroyed = true;
+    this.closeResult?.();
     this.closeMenus();
     removeEventListener('resize', this.onResize);
     this.ro?.disconnect();

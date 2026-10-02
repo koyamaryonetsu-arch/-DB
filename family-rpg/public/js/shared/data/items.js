@@ -1,6 +1,7 @@
 // どうぐ・そうびの データ
 // type: use(つかう どうぐ) weapon armor shield head acc key(だいじなもの)
-// weapon.cat: sword dagger axe staff spear claw fan whip bat
+// weapon.cat: sword dagger axe staff spear claw fan whip bat boomerang
+//   ムチは ふつうの 攻撃で 敵1グループ、ブーメランは 敵全体（2体め からは 少し 弱く なる。shared/battle.js の WEAPON_REACH）
 // armor.armorType: cloth(だれでも) heavy(戦士) robe(僧侶/魔法使い/旅芸人) gi(武闘家/戦士/旅芸人)
 // head.helm: true だと 戦士だけ
 // rank: 装備の ランク（1〜10。下の EQUIP_RANKS）。star: 店では 買えない 1つ上の 品（宝箱・レアドロップ）
@@ -117,6 +118,13 @@ export const ITEMS = {
   metal_bat: { name: '金属バット', type: 'weapon', rank: 3, cat: 'bat', atk: 19, price: 380, desc: 'カキーンといい音がするバット。' },
   legend_bat: { name: 'ホームランバット', type: 'weapon', rank: 4, cat: 'bat', atk: 31, bonus: { agi: 3 }, price: 1300, desc: '海の男たちが使う、よく飛ぶバット。当たれば場外ホームラン！' },
   katana: { name: '刀', type: 'weapon', rank: 3, cat: 'sword', atk: 24, bonus: { agi: 2 }, price: 760, desc: 'よく切れる刀。サムライのたましい。' },
+  // ブーメラン（ふつうの 攻撃で 敵全体に 当たる。何体にも 当たる ぶん、同じ ランクの 剣より 攻撃力は 低い）
+  wood_boomerang: { name: '木のブーメラン', type: 'weapon', rank: 1, cat: 'boomerang', atk: 5, price: 120, upMat: 'wind_feather', desc: '投げると敵全体に当たって、手もとにもどってくる木のブーメラン。' },
+  iron_boomerang: { name: '鉄のブーメラン', type: 'weapon', rank: 3, cat: 'boomerang', atk: 13, price: 620, desc: '重みのある鉄のブーメラン。敵全体をなぎはらって、もどってくる。' },
+  silver_boomerang: { name: '銀のブーメラン', type: 'weapon', rank: 4, cat: 'boomerang', atk: 19, price: 1250, desc: '銀でつくった、よく飛ぶブーメラン。' },
+  // はがねの ブーメランは 第3章の 店で 売る（店の 品ぞろえは 第3章で 足す）
+  steel_boomerang: { name: 'はがねのブーメラン', type: 'weapon', rank: 5, cat: 'boomerang', atk: 26, price: 2500, desc: 'はがねをきたえた、するどいブーメラン。' },
+  gale_boomerang: { name: 'はやてのブーメラン', type: 'weapon', rank: 4, star: true, cat: 'boomerang', atk: 24, bonus: { agi: 4 }, price: 0, sell: 820, upMat: 'wind_feather', desc: '風をまとって飛ぶブーメラン。ストームバードがごくまれに持っている。' },
 
   // ───── よろい・ふく ─────
   cloth: { name: '布の服', type: 'armor', rank: 1, armorType: 'cloth', def: 4, price: 10, desc: 'ふつうの布の服。' },
@@ -201,7 +209,7 @@ export const SLOT_NAMES = { weapon: '武器', armor: 'よろい', shield: 'た�
 export const SLOT_OF_TYPE = { weapon: 'weapon', armor: 'armor', shield: 'shield', head: 'head', acc: 'acc' };
 
 export const WEAPON_CAT_NAMES = {
-  sword: '剣', dagger: '短剣', axe: 'オノ', staff: 'つえ', spear: 'やり', claw: 'ツメ', fan: 'おうぎ', whip: 'ムチ', bat: 'バット', none: '素手',
+  sword: '剣', dagger: '短剣', axe: 'オノ', staff: 'つえ', spear: 'やり', claw: 'ツメ', fan: 'おうぎ', whip: 'ムチ', bat: 'バット', boomerang: 'ブーメラン', none: '素手',
 };
 
 // きたえた 装備（'iron_sword+2'）の もとの 装備（みため・エフェクト・装備できる 職業は もとと おなじ）
@@ -227,6 +235,7 @@ export const ITEM_KANA = {
   wizard_staff: 'まどうしのつえ', bronze_spear: 'どうのやり', iron_spear: 'てつのやり', iron_claw: 'てつのつめ',
   leather_whip: 'かわのむち', thorn_whip: 'いばらのむち', flame_whip: 'ほのおのむち', feather_fan: 'はねのおうぎ', dancer_fan: 'おどりこのおうぎ',
   signal_flag: 'てばた', wood_bat: 'きのばっと', bamboo_bat: 'たけのばっと', metal_bat: 'きんぞくばっと', katana: 'かたな',
+  wood_boomerang: 'きのぶーめらん', iron_boomerang: 'てつのぶーめらん', silver_boomerang: 'ぎんのぶーめらん', steel_boomerang: 'はがねのぶーめらん', gale_boomerang: 'はやてのぶーめらん',
   cloth: 'ぬののふく', travel_clothes: 'たびびとのふく', leather_armor: 'かわのよろい', wind_clothes: 'かぜのふく', iron_armor: 'てつのよろい',
   wizard_robe: 'まどうしのろーぶ', holy_robe: 'せいなるろーぶ', martial_gi: 'ぶどうぎ', dragon_gi: 'りゅうのどうぎ', star_mail: 'ほしのよろい',
   leather_shield: 'かわのたて', iron_shield: 'てつのたて', leather_hat: 'かわのぼうし', iron_helm: 'てつかぶと',

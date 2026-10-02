@@ -47,6 +47,12 @@ const WEAPON_LOOK = {
   bamboo_bat: { shape: 'bamboo', c: '#a8c86a', len: 11.5 },
   metal_bat: { shape: 'mbat', len: 11.8 },
   legend_bat: { shape: 'gbat', len: 12.4, fx: 'star' },
+  // ブーメラン（くの字）
+  wood_boomerang: { shape: 'boomer', c: '#c8904e', wrap: '#3a8ac8' },
+  iron_boomerang: { shape: 'boomer', mk: 'iron', wrap: '#c83a3a' },
+  silver_boomerang: { shape: 'boomer', mk: 'silver', wrap: '#2a6ad0' },
+  steel_boomerang: { shape: 'boomer', mk: 'steel', wrap: '#e0a830' },
+  gale_boomerang: { shape: 'boomer', c: '#3ac8a0', wrap: '#ffffff', fx: 'wind' },
 };
 
 // 名前から ぶきの とくちょう
@@ -72,6 +78,7 @@ function guessWeapon(it) {
     case 'fan': return { shape: 'fan', len: 7.4, c1: '#fff0f8', c2: FX_COL[fx] || '#c83a3a', fx };
     case 'whip': return { shape: 'whip', c: FX_COL[fx] || '#a0703a', fx };
     case 'bat': return { shape: rank >= 4 ? 'gbat' : 'mbat', len: 12, fx };
+    case 'boomerang': return { shape: 'boomer', mk: rank >= 2 ? mk : null, c: FX_COL[fx] || '#c8904e', fx };
     default: return { shape: 'broad', mk, len: 12, fx };
   }
 }
@@ -87,8 +94,8 @@ export function weaponOf(id) {
 // ぶきを もつ むき（ど）。まえ: がめんの ひだりの て / うしろ: みぎの て / よこ: まえへ
 // よこ むきの ながい ぶき（やり・つえ・はた）は まえに たおして かおの まえに さきが くる ように
 const HOLD = {
-  front: { sword: -110, dagger: -116, axe: -98, spear: -100, staff: -100, bat: -110, fan: -108, flag: -97, pen: -116, light: -112, claw: 98, whip: 0 },
-  side: { sword: -128, dagger: -132, axe: -118, spear: -114, staff: -113, bat: -124, fan: -130, flag: -114, pen: -130, light: -126, claw: 80, whip: 0 },
+  front: { sword: -110, dagger: -116, axe: -98, spear: -100, staff: -100, bat: -110, fan: -108, flag: -97, pen: -116, light: -112, claw: 98, whip: 0, boomerang: -112 },
+  side: { sword: -128, dagger: -132, axe: -118, spear: -114, staff: -113, bat: -124, fan: -130, flag: -114, pen: -130, light: -126, claw: 80, whip: 0, boomerang: -128 },
 };
 const LONG = new Set(['spear', 'staff', 'flag']);
 function holdAngle(P, cat) {
@@ -182,6 +189,7 @@ function drawWeaponNow(cv, P, A, W, g) {
     case 'harisen': return harisen(cv, F, W);
     case 'flag': return flag(cv, F, W, P.side ? -P.facing : outward, P);
     case 'bat': case 'bamboo': case 'mbat': case 'gbat': return bat(cv, F, W);
+    case 'boomer': return boomer(cv, F, W, outward);
     default: return sword(cv, F, W);
   }
 }
@@ -470,6 +478,25 @@ function bat(cv, F, W) {
   cv.part({ ol: 'line' });
   cv.ell(...F.T(-2.2, 0), 0.95, 0.95, m, { bulge: 0.8 });
   if (shape === 'gbat' || W.fx) sparkles(cv, F, [[L - 1.2, 1.8], [L * 0.6, -1.6]], '#ffffff', '#fff6b0');
+}
+
+// ブーメラン: くの字（にぎった 先で まがって、そとがわへ もどる）。にぎりに いろの ひも
+function boomer(cv, F, W, outward) {
+  const o = outward;
+  const metalM = W.mk ? metal(W.mk) : null;
+  const m = metalM || mat({ r: ramp(W.c || '#c8904e', 4), th: TH.matte, spec: 0.97 });
+  cv.part({ ol: 'line' });
+  cv.stroke(F.P([[-1.6, 0.1 * o], [4.9, -0.15 * o], [2.5, 4.6 * o]]), [0.6, 0.82, 0.6], m, { n: 'cyl' });
+  const id = cv.cur;
+  // ふちの ひかり と すじ
+  cv.crease(F.P([[-0.8, -0.38 * o], [4.3, -0.62 * o]]), 0.2, 0.45, { parts: [id] });
+  if (!metalM) cv.crease(F.P([[1.2, 0.05 * o], [3.9, -0.05 * o], [2.9, 3.4 * o]]), 0.15, -0.35, { parts: [id] });
+  // にぎりの ひも
+  cv.part({ ol: 'none', clip: id });
+  cv.poly(F.P([[-1.8, -1.0], [0.6, -1.0], [0.6, 1.0], [-1.8, 1.0]]), cloth(W.wrap || '#c83a3a'), { n: 'row', cx: 0.6 });
+  // きんぞくは まがりかどに びょう
+  if (metalM) { cv.part({ ol: 'soft' }); cv.ell(...F.T(4.4, 0.25 * o), 0.42, 0.42, metal('gold'), { bulge: 0.9 }); }
+  if (W.fx || W.star || W.plus) sparkles(cv, F, [[5.0, 1.4 * o], [2.4, 4.8 * o]], '#ffffff', FX_COL[W.fx] || '#fff6b0');
 }
 
 function drawClaw(cv, P, A, W) {

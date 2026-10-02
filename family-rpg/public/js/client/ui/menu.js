@@ -2,7 +2,7 @@
 import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js';
 import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js';
 import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js';
-import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS } from '../../shared/battle.js';
+import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS, turnSeconds } from '../../shared/battle.js';
 import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily } from '../prefs.js';
 import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_TRAIN_GAP, TIER_NAMES } from '../../shared/data/jobs.js';
 import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress, monsterSlots } from '../../shared/stats.js';
@@ -687,7 +687,9 @@ export class FieldMenu {
       }
       box.append(jobs, el('div', { class: 'detail', text: `自分よりレベルが${JOB_TRAIN_GAP + 1}以上低い敵ばかりだと、職業の修行にならない。` }));
     }
-    const speedNote = el('div', { class: 'detail', text: `素早さ ${st.agi}…戦いで約${(128000 / (st.agi + 12) / 1000).toFixed(1)}秒ごとに順番が来る` });
+    // 素早さの 差は すこしだけ（shared/battle.js の ATB）。戦いの 速さの 設定も かける
+    const bspeed = normBattleSettings(this.game.me?.battleSettings || {}).speed;
+    const speedNote = el('div', { class: 'detail', text: `素早さ ${st.agi}…戦いで約${turnSeconds(st.agi, bspeed).toFixed(1)}秒ごとに順番が来る\n素早さの差は少しだけ（3倍ちがっても約1.2倍）。ピオリムなどは約1.25倍` });
     box.append(speedNote);
     if (active) {
       this.mkSub({ items: [{ label: 'もどる', value: 'back' }], onSelect: () => this.back() });

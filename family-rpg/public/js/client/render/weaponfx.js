@@ -119,6 +119,12 @@ const ID_LOOK = {
   bamboo_bat: { mat: 'bamboo' },
   metal_bat: { mat: 'silver', trait: 'ring' },
   legend_bat: { mat: 'gold', trait: 'homerun' },
+  // ブーメラン（ふつうの こうげきで 敵全体）
+  wood_boomerang: { mat: 'wood' },
+  iron_boomerang: { mat: 'iron' },
+  silver_boomerang: { mat: 'silver' },
+  steel_boomerang: { mat: 'steel' },
+  gale_boomerang: { mat: 'silver', trait: 'wind' },
   // ふしぎなかじで 作る 武器
   fang_spear: { mat: 'stone', trait: null },
   wolf_claw: { mat: 'iron', move: 'fang' },
@@ -127,7 +133,14 @@ const ID_LOOK = {
   storm_sword: { mat: 'steel', trait: 'wind' },
 };
 
-const MOVE_OF_CAT = { sword: 'sword', dagger: 'dagger', axe: 'axe', spear: 'spear', claw: 'claw', none: 'fist', whip: 'whip', fan: 'fan', staff: 'staff', bat: 'bat' };
+const MOVE_OF_CAT = { sword: 'sword', dagger: 'dagger', axe: 'axe', spear: 'spear', claw: 'claw', none: 'fist', whip: 'whip', fan: 'fan', staff: 'staff', bat: 'bat', boomerang: 'boomerang' };
+
+// ブーメランの からだの いろ（そざいごと）[からだ, ひかり]
+const BOOMER_BODY = {
+  wood: ['#c8904e', '#fff0d0'], bronze: ['#c27c44', '#ffe0b0'], iron: ['#8a90a4', '#ffffff'], steel: ['#6a80b0', '#eef4ff'],
+  silver: ['#c6cede', '#ffffff'], gold: ['#e0a830', '#fff6cc'], magic: ['#8a5ae8', '#f0e2ff'], dragon: ['#3c945c', '#d8ffd8'],
+  light: ['#ece0ae', '#ffffff'], platinum: ['#d6dcee', '#ffffff'], legend: ['#ffd24a', '#ffffff'],
+};
 
 // まものの なかま（ぶきを もたない）: しゅぞくで うごきを かえる
 const RACE_MOVE = { slime: ['slime', 'slime'], plant: ['vine', 'bamboo'], material: ['rock', 'stone'], spirit: ['ghost', 'ghost'], undead: ['ghost', 'ghost'] };
@@ -435,6 +448,11 @@ const MOVES = {
     return hit;
   },
 
+  // ブーメラン（1体だけの とき・こんらん など）: その 敵を まわって もどってくる
+  boomerang(fx, t, L, crit, d, s) {
+    return boomerangFlight(fx, [t], L, [crit], d)[0];
+  },
+
   // ── まものの なかま ──
   beast(fx, t, L, crit, d, s) { return MOVES.claw(fx, t, L, crit, d, s); },
   ghost(fx, t, L, crit, d, s) { return MOVES.claw(fx, t, L, crit, d, s); },
@@ -620,4 +638,74 @@ export function playWeapon(fx, t, look, crit, delay = 0) {
   const s = scaleOf(t, look, crit);
   const f = MOVES[look.move] || MOVES.sword;
   return f(fx, t, look, !!crit, delay, s);
+}
+
+// ───────────── 何体にも あたる ふつうの こうげき ─────────────
+// ts: あたる じゅんの 敵（{x, y, w, h, foot}）、crits: それぞれ かいしんか
+// へんじ: それぞれの 敵に あたる じかん（ms。ts と おなじ じゅん）
+export function playReach(fx, ts, look, crits = []) {
+  if (!ts.length) return [];
+  if (look.move === 'boomerang') return boomerangFlight(fx, ts, look, crits);
+  return whipSweep(fx, ts, look, crits);
+}
+
+// ムチ: おなじ 手もとから、グループの 敵を じゅんばんに ピシッ・ピシッと なぎはらう
+function whipSweep(fx, ts, L, crits) {
+  const emit = L.trait === 'fire' ? FIRE : null;
+  const hue = L.trait && L.trait !== 'chain' ? L.glow : null;
+  const w = 2 + L.lv * 0.35;
+  const xs = ts.map((t) => t.x);
+  const left = Math.min(...xs), right = Math.max(...xs);
+  // ムチを ふる 手（がめんの ひだり した。グループが 右に よっていても とどく）
+  const x0 = Math.max(-30, left - 92), y0 = fx.H + 30;
+  const times = ts.map((t, i) => {
+    const crit = !!crits[i];
+    const s = scaleOf(t, L, crit);
+    const d = i * 115;
+    const snap = fx.lash(x0, y0, t.x + 2 * s, t.y, { color: L.edge, glow: hue, w: w * (1 - i * 0.05), delay: d, life: 360, snap: 0.46, bow: (-28 + i * 12) * s, amp: 8, emit, links: L.trait === 'chain' });
+    fx.twinkle(t.x, t.y, { color: L.core, size: (8 + L.lv) * s, delay: snap, life: 200, spin: 5 });
+    fx.shock(t.x, t.y, { r0: 2, r1: 16 * s, color: '#ffffff', w: 1.2, delay: snap, life: 200 });
+    impact(fx, t, L, crit, snap, s, { weight: 0.7 });
+    return snap;
+  });
+  // グループを よこに なぎはらう かぜの すじ
+  if (ts.length > 1) {
+    const y = ts.reduce((a, t) => a + t.y, 0) / ts.length;
+    const len = right - left + 40;
+    for (let k = 0; k < 3; k++) fx.gust((left + right) / 2, y - 8 + k * 8, { len, amp: 3, color: L.edge, w: 0.9, dir: 1, delay: times[0] + k * 40, life: 420 + ts.length * 60 });
+  }
+  return times;
+}
+
+// ブーメラン: みかたの ところから なげて、左の 敵から じゅんに ぜんぶ とおり、くるっと もどってくる
+function boomerangFlight(fx, ts, L, crits, delay = 60) {
+  const order = ts.map((t, i) => ({ t, i })).sort((a, b) => a.t.x - b.t.x);
+  const first = order[0].t, last = order[order.length - 1].t;
+  const sx = fx.W / 2 + 6, sy = fx.H + 12;
+  const ctrl = [
+    [sx, sy],
+    [Math.max(4, first.x - 30), first.y + 16],
+    ...order.map(({ t }) => [t.x, t.y - 2]),
+    [Math.min(fx.W - 4, last.x + 30), last.y - 12],
+    [sx + 14, sy - 6],
+  ];
+  const [body, hi] = BOOMER_BODY[L.mat] || BOOMER_BODY.wood;
+  const at = fx.boomerang(ctrl, {
+    speed: 0.36 + Math.min(0.08, L.lv * 0.01), delay, size: 5.2 + Math.min(2.5, L.lv * 0.3), w: 2 + L.lv * 0.08,
+    color: body, hi, glow: L.glow, spin: 22 + L.lv, star: L.star || L.lv >= 6,
+  });
+  const times = new Array(ts.length);
+  order.forEach(({ t, i }, k) => {
+    const hit = at[k + 2];
+    const crit = !!crits[i];
+    const s = scaleOf(t, L, crit);
+    // とおりぬける きりさき ＋ ひばな
+    fx.cut(t.x, t.y, { ang: -0.15 + (k % 2 ? 0.25 : -0.1), len: 30 * s, w: 1.6 + L.lv * 0.2, color: L.edge, glow: L.glow, delay: hit - 10, life: 240, speed: 40 });
+    fx.sparks(t.x, t.y, { colors: L.spark, n: 4 + L.lv, speed: 100, ang: 0, spread: 0.6, delay: hit, life: 300 });
+    impact(fx, t, L, crit, hit, s, { ang: 0, weight: 0.6, noSparks: true });
+    times[i] = hit;
+  });
+  // もどってきて キャッチ（がめんの した）
+  fx.twinkle(sx + 14, sy - 10, { color: '#ffffff', size: 6, delay: at[at.length - 1] - 30, life: 260, spin: 4 });
+  return times;
 }
