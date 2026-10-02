@@ -6,6 +6,7 @@ import { el, toast } from './ui/dom.js';
 import { dayFrac, isNightFrac, darkness } from '../shared/world/clock.js';
 import { SKY_MAPS, FLUTE_ID, atEdge } from '../shared/data/sky.js';
 import { birdCanvas, birdRideCanvas, BIRD_W, BIRD_H, RIDE_TOP } from './render/sky-art.js';
+import { dragonCanvas, dragonRideCanvas } from './render/dragon-art.js';
 import { playerSprite } from './field.js';
 import { equipKey } from './render/chars.js';
 
@@ -16,6 +17,16 @@ const BIG = 1.3; // 大鳥は 大きく かく
 const ACTOR_LIFT = 1.1; // イベントの 大鳥の たかさ
 const TS = 16;
 const ease = (t) => 1 - (1 - t) * (1 - t);
+
+// のりもの の え（大鳥フウラ・星の竜アステル）
+// only … のりもの だけの え、ride … 人を のせた え、flap … はばたきの はやさ（ミリびょう）
+// big … 大きさ、shadow … 2D の かげの はば、anchor・anchorOnly・shadowScale … 2.5D の たてた え
+const MOUNTS = {
+  bird: { only: birdCanvas, ride: birdRideCanvas, flap: 170, big: BIG, shadow: 13, anchor: 14, anchorOnly: 16, shadowScale: 2.4 },
+  dragon: { only: dragonCanvas, ride: dragonRideCanvas, flap: 240, big: 1.15, shadow: 17, anchor: 17, anchorOnly: 19, shadowScale: 3 },
+};
+// イベントの 役者（'sky_bird' … 大鳥、'sky_dragon' … 星の竜）
+const ACTOR_MOUNT = { sky_bird: 'bird', sky_dragon: 'dragon' };
 
 export class SkyClient {
   constructor(game) {
@@ -184,9 +195,16 @@ export class SkyClient {
   // ───────────── え ─────────────
   lift(time) { return CRUISE + Math.sin(time / 320) * 0.08; }
 
-  riderCanvas(look, job, dir, frame, eq) {
+  riderCanvas(look, job, dir, frame, eq, mount = 'bird') {
     const rider = playerSprite(look, job, dir, frame, eq);
-    return birdRideCanvas(`${JSON.stringify(look)}:${job}:${equipKey(eq, job)}`, rider, dir, frame);
+    return MOUNTS[mount].ride(`${JSON.stringify(look)}:${job}:${equipKey(eq, job)}`, rider, dir, frame);
+  }
+
+  // のりもの（星の竜に のせて もらった 人 … フラグ c3_dragon … は 竜。ほかは 大鳥フウラ）
+  // じぶん は キャラの フラグ。ほかの 人 は サーバーの いちの じょうほう（mt）
+  mountOf(o, mine) {
+    if (mine) return this.game.me?.flags?.c3_dragon ? 'dragon' : 'bird';
+    return o?.mt === 'dragon' ? 'dragon' : 'bird';
   }
 
   // いま どう かくか（mine … じぶん）。null なら ふつうに 歩く すがた
@@ -215,18 +233,19 @@ export class SkyClient {
     const ps = this.pose(o, mine, field.time);
     if (!ps) return false;
     if (ps.hide) return true;
-    const frame = Math.floor(field.time / 170) % 2;
+    const mount = this.mountOf(o, mine), M = MOUNTS[mount];
+    const frame = Math.floor(field.time / M.flap) % 2;
     const ctx = field.ctx;
     const shadow = (x, y, lift) => {
       const k = Math.max(0.35, 1 - lift / 12);
       ctx.fillStyle = `rgba(0,0,0,${0.3 * k})`;
       ctx.beginPath();
-      ctx.ellipse(Math.round(x * TS - camX), Math.round(y * TS - camY - 1), 13 * k, 4 * k, 0, 0, Math.PI * 2);
+      ctx.ellipse(Math.round(x * TS - camX), Math.round(y * TS - camY - 1), M.shadow * k, 4 * k, 0, 0, Math.PI * 2);
       ctx.fill();
     };
     const put = (c, x, y, lift, alpha = 1) => {
       const r = c.res || 1;
-      const w = (c.width / r) * BIG, h = (c.height / r) * BIG;
+      const w = (c.width / r) * M.big, h = (c.height / r) * M.big;
       const px = Math.round(x * TS - w / 2 - camX);
       const py = Math.round((y - lift) * TS - h + 8 - camY);
       if (alpha < 1) ctx.globalAlpha = Math.max(0, alpha);
@@ -236,11 +255,11 @@ export class SkyClient {
     if (ps.bird) {
       shadow(ps.bird.x, ps.bird.y, ps.bird.lift);
       if (ps.walk) field.drawPlayerOnFoot(o, camX, camY, look, job, mine, eq);
-      put(birdCanvas(ps.bird.dir, frame), ps.bird.x, ps.bird.y, ps.bird.lift, ps.bird.alpha ?? 1);
+      put(M.only(ps.bird.dir, frame), ps.bird.x, ps.bird.y, ps.bird.lift, ps.bird.alpha ?? 1);
       return true;
     }
     shadow(o.x, o.y, ps.lift);
-    put(this.riderCanvas(look, job, o.dir || 'down', frame, eq), o.x, o.y, ps.lift);
+    put(this.riderCanvas(look, job, o.dir || 'down', frame, eq, mount), o.x, o.y, ps.lift);
     return true;
   }
 
@@ -249,42 +268,46 @@ export class SkyClient {
     const ps = this.pose(o, mine, field.time);
     if (!ps) return false;
     if (ps.hide) return true;
-    const frame = Math.floor(field.time / 170) % 2;
+    const mount = this.mountOf(o, mine), M = MOUNTS[mount];
+    const frame = Math.floor(field.time / M.flap) % 2;
     const key = mine ? 'me' : 'p:' + o.sid;
     if (ps.bird) {
       if (ps.walk) return false; // 人は ふつうに（鳥は extra3d で）
     }
-    const c = this.riderCanvas(look, job, o.dir || 'down', frame, eq);
-    out.push({ key: key + ':sky', canvas: c, x: o.x, y: o.y, lift: ps.lift, anchor: 14, scale: BIG, shadowScale: 2.4, air: true, ghost: mine ? '#9fd6ff' : null });
+    const c = this.riderCanvas(look, job, o.dir || 'down', frame, eq, mount);
+    out.push({ key: key + ':sky', canvas: c, x: o.x, y: o.y, lift: ps.lift, anchor: M.anchor, scale: M.big, shadowScale: M.shadowScale, air: true, ghost: mine ? '#9fd6ff' : null });
     return true;
   }
 
-  // 2.5D: よぶ・かえる ときの 鳥だけの え
+  // 2.5D: よぶ・かえる ときの 鳥（竜）だけの え
   extra3d(field, out) {
     const ps = this.pose(field.me, true, field.time);
     if (!ps?.bird) return;
-    const frame = Math.floor(field.time / 170) % 2;
-    out.push({ key: 'sky:bird', canvas: birdCanvas(ps.bird.dir, frame), x: ps.bird.x, y: ps.bird.y, lift: ps.bird.lift, anchor: 16, scale: BIG, shadowScale: 2.2, air: true, alpha: ps.bird.alpha ?? 1 });
+    const M = MOUNTS[this.mountOf(field.me, true)];
+    const frame = Math.floor(field.time / M.flap) % 2;
+    out.push({ key: 'sky:bird', canvas: M.only(ps.bird.dir, frame), x: ps.bird.x, y: ps.bird.y, lift: ps.bird.lift, anchor: M.anchorOnly, scale: M.big, shadowScale: M.shadowScale * 0.92, air: true, alpha: ps.bird.alpha ?? 1 });
   }
 
-  // イベントの 役者の 大鳥（風のさいだん）: 空に うかべて かく
+  // イベントの 役者の 大鳥（風のさいだん）・星の竜: 空に うかべて かく
   drawActor2D(field, a, camX, camY) {
-    if (a.sprite !== 'sky_bird') return false;
-    const c = birdCanvas(a.dir, Math.floor(field.time / 170) % 2);
+    const M = MOUNTS[ACTOR_MOUNT[a.sprite]];
+    if (!M) return false;
+    const c = M.only(a.dir, Math.floor(field.time / M.flap) % 2);
     const r = c.res || 1;
-    const w = (c.width / r) * BIG, h = (c.height / r) * BIG;
+    const w = (c.width / r) * M.big, h = (c.height / r) * M.big;
     const ctx = field.ctx;
     ctx.fillStyle = 'rgba(0,0,0,0.22)';
     ctx.beginPath();
-    ctx.ellipse(Math.round(a.x * TS - camX), Math.round(a.y * TS - camY - 1), 12, 3.5, 0, 0, Math.PI * 2);
+    ctx.ellipse(Math.round(a.x * TS - camX), Math.round(a.y * TS - camY - 1), M.shadow - 1, 3.5, 0, 0, Math.PI * 2);
     ctx.fill();
     field.drawFine(c, Math.round(a.x * TS - w / 2 - camX), Math.round((a.y - ACTOR_LIFT) * TS - h + 8 - camY), w, h);
     return true;
   }
 
   actor3d(a, field) {
-    if (a.sprite !== 'sky_bird') return null;
-    return { key: 'a:' + a.id, canvas: birdCanvas(a.dir, Math.floor(field.time / 170) % 2), x: a.x, y: a.y, lift: ACTOR_LIFT, anchor: 16, scale: BIG, shadowScale: 2.2, air: true };
+    const M = MOUNTS[ACTOR_MOUNT[a.sprite]];
+    if (!M) return null;
+    return { key: 'a:' + a.id, canvas: M.only(a.dir, Math.floor(field.time / M.flap) % 2), x: a.x, y: a.y, lift: ACTOR_LIFT, anchor: M.anchorOnly, scale: M.big, shadowScale: M.shadowScale * 0.92, air: true };
   }
 
   // じぶんの なかま（酒場の なかま など）は 鳥の 上

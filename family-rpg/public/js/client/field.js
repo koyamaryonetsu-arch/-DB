@@ -583,6 +583,7 @@ export class Field {
         this.others.set(p.sid, o);
       }
       Object.assign(o, { name: p.name, look: p.look, job: p.job, eq: p.eq, tx: p.x, ty: p.y, dir: p.dir, moving: !!p.mv, battle: !!p.b, away: !!p.aw, partyId: p.pid, fl: p.fl || [], air: !!p.air, ride: !!p.ride, wg: !!p.wg });
+      o.mt = p.mt || null; // のりもの（'dragon' … 星の竜。sky.js）
       // リーダーの とおった みちを おぼえる（ついていく ため）
       if (this.game.follow && p.sid === this.game.party?.leader) {
         const tr = this.leaderCrumbs;
