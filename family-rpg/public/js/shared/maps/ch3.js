@@ -107,6 +107,8 @@ const NORTH_NPCS = [
   npc('c3_v_oldman', '物知りのおじいさん', V(27, 13), 'snow_m', 'c3_v_oldman'),
   npc('c3_v_guard', '門番のゴウ', V(14, 1), 'snow_hunter', 'c3_v_guard'),
   npc('c3_v_mom', 'コユキのお母さん', V(19, 21), 'snow_f', 'c3_v_mom', { wander: 1 }),
+  // 夜だけ: 広場で 星を 見る おばあさん（竜の 星座）
+  npc('c3_n_stargazer', '星見のおばあさん', V(16, 12), 'snow_f', 'c3_n_stargazer', { show: { all: ['@night'] }, dir: 'up' }),
   // 雪だるま（雪だるまコンテスト）
   npc('snowman_small', '小さな雪だるま', V(18, 12), 'snowman', 'c3_snowman', { show: { not: ['q_snow_done'] } }),
   npc('snowman_big', '大きな雪だるま', V(18, 12), 'snowman', 'c3_snowman', { show: { all: ['q_snow_done'] }, big: true }),
@@ -131,6 +133,8 @@ const NORTH_NPCS = [
   npc('town_cart', 'トロッコ', K(17, 6), 'minecart', 'c3_town_cart'),
   // 鉱山から もどった 鉱夫たち（鉱山の 親分を たおした あと）
   npc('c3_k_miner3', '鉱夫', K(14, 10), 'miner', 'c3_k_miner3', { show: { all: ['c3_mine'] }, wander: 2 }),
+  // 夜だけ: 夜番の 鉱夫
+  npc('c3_n_watch', '夜番の鉱夫', K(15, 13), 'miner2', 'c3_n_watch', { show: { all: ['@night'] }, wander: 1 }),
 
   // 温泉の里ユノハ
   npc('obaba', '湯守りのおばば', Y(5, 4), 'onsen_granny', 'c3_obaba'),
@@ -139,7 +143,9 @@ const NORTH_NPCS = [
   npc('c3_y_armor', '防具屋', Y(4, 15), 'onsen_f', 'c3_shop_yunoha_armor', { dir: 'down' }),
   npc('c3_y_guard', '里の見張り', Y(24, 15), 'onsen_m', 'c3_rope_guard', { show: { not: ['c3_onsen'] }, dir: 'right' }),
   npc('c3_y_man', '湯治の旅人', Y(10, 13), 'onsen_m', 'c3_y_man', { wander: 2 }),
-  npc('c3_y_girl', '里の女の子', Y(14, 18), 'snow_girl', 'c3_y_girl', { wander: 2 }),
+  npc('c3_y_girl', '里の女の子', Y(14, 18), 'snow_girl', 'c3_y_girl', { wander: 2, show: { not: ['@night'] } }),
+  // 夜だけ: 星空を 見ながら 湯に つかりに きた 人
+  npc('c3_n_bather', '夜の湯治客', Y(8, 12), 'onsen_m', 'c3_n_bather', { show: { all: ['@night'] }, dir: 'left' }),
   npc('c3_y_woman', '温泉のおねえさん', Y(16, 9), 'onsen_f', 'c3_y_woman'),
   npc('c3_y_monkey', '温泉のサル', Y(4, 11), 'monkey', 'c3_monkey', { solid: true }),
 
