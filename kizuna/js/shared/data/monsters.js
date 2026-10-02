@@ -11,10 +11,11 @@
 const ROCK_RESIST = { fire: 0.5, ice: 0.7, wind: 0.6, blast: 1.5, poison: 0, sleep: 0, confuse: 0.3, paralyze: 0.2 };
 const METAL_RESIST = { fire: 0, ice: 0, wind: 0, blast: 0, bolt: 0, light: 0, dark: 0, void: 0.5, sleep: 0, poison: 0, confuse: 0, blind: 0, silence: 0, paralyze: 0, debuff: 0 };
 
-import { MONSTERS_CH2 } from './monsters-ch2.js?v=50cb6b27c5a9';
-import { MONSTERS_TM } from './monsters-tm.js?v=50cb6b27c5a9';
-import { NIGHT_MONSTERS } from './night.js?v=50cb6b27c5a9';
-import { MONSTERS_RARE } from './monsters-rare.js?v=50cb6b27c5a9';
+import { MONSTERS_CH2 } from './monsters-ch2.js?v=cd338033c896';
+import { MONSTERS_TM } from './monsters-tm.js?v=cd338033c896';
+import { NIGHT_MONSTERS } from './night.js?v=cd338033c896';
+import { MONSTERS_RARE } from './monsters-rare.js?v=cd338033c896';
+import { MONSTERS_CH3 } from './monsters-ch3.js?v=cd338033c896';
 
 export const MONSTERS = {
   pururin: {
@@ -221,3 +222,5 @@ Object.assign(MONSTERS, MONSTERS_CH2, MONSTERS_TM);
 Object.assign(MONSTERS, NIGHT_MONSTERS);
 // めずらしい 強い 魔物（monsters-rare.js: ぷるりん騎士・ヴァルドラゴン など）
 Object.assign(MONSTERS, MONSTERS_RARE);
+// 第3章「星の竜がねむる山」
+Object.assign(MONSTERS, MONSTERS_CH3);

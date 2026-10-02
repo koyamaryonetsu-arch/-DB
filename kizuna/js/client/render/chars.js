@@ -2,9 +2,9 @@
 // みため（かみがた・いろ）と そうび（ぶき・よろい・たて・かぶと）で かわる
 // 人は 32×42 で くみたてて、2ばいの 64×84 に して こまかく かきたす（res 4: せかいでは 16×21 の 大きさに かく）
 // どうぶつ・船は 16×21 など
-import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=50cb6b27c5a9';
-import { ITEMS, baseItemId } from '../../shared/data/items.js?v=50cb6b27c5a9';
-import { STARTER_EQUIP } from '../../shared/stats.js?v=50cb6b27c5a9';
+import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=cd338033c896';
+import { ITEMS, baseItemId } from '../../shared/data/items.js?v=cd338033c896';
+import { STARTER_EQUIP } from '../../shared/stats.js?v=cd338033c896';
 
 export const CW = 16;
 export const CH = 21;
@@ -192,6 +192,29 @@ const NPC_LOOKS = {
   casino_clerk: { hair: 3, hairStyle: 'pony', skin: 0, outfit: 'vest', cloth: '#8a2a5a', female: true },
   medal_king: { hair: 5, hairStyle: 'bald', skin: 0, outfit: 'robe', robeMain: '#c8303a', robeTrim: '#f2c14e', beard: true, hat: 'crown' },
   minister: { hair: 5, hairStyle: 'short', skin: 0, outfit: 'robe', robeMain: '#3a5a9a', robeTrim: '#f2c14e', beard: true },
+  // ───── 第3章（シロガネ地方）─────
+  // 竜守りの村: 長老ハクゲン・竜のみこユキナ・村の 人
+  dragon_elder: { hair: 5, hairStyle: 'long', skin: 0, outfit: 'robe', robeMain: '#2a4a7a', robeTrim: '#e8eef8', beard: true, cane: true, hunch: true, hat: 'cowl', hatColor: '#e8eef8' },
+  yukina: { hair: 5, hairStyle: 'long', skin: 0, outfit: 'hakama', cloth: '#f4f4fa', hakama: '#4a6ad8', female: true },
+  snow_m: { hair: 1, hairStyle: 'short', skin: 1, outfit: 'tunic', cloth: '#7a4a3a', beard: true, hat: 'cowl', hatColor: '#e4e8f0' },
+  snow_f: { hair: 0, hairStyle: 'bun', skin: 0, outfit: 'dress', cloth: '#3a6a9a', female: true, hat: 'cowl', hatColor: '#f0f2fa' },
+  snow_kid: { hair: 1, hairStyle: 'short', skin: 0, outfit: 'tunic', cloth: '#c84a3a', small: true, hat: 'cowl', hatColor: '#ffffff' },
+  snow_girl: { hair: 3, hairStyle: 'twin', skin: 0, outfit: 'dress', cloth: '#5ac8b4', female: true, small: true, hat: 'cowl', hatColor: '#ffe0f0' },
+  snow_hunter: { hair: 0, hairStyle: 'short', skin: 1, outfit: 'vest', cloth: '#5a4a3a', beard: true, hat: 'cowl', hatColor: '#d8d0c0', spear: true },
+  shrine_priest: { hair: 5, hairStyle: 'short', skin: 0, outfit: 'robe', robeMain: '#f4f4fa', robeTrim: '#4a6ad8', hat: 'mitre' },
+  // 鉱山の町カナトコ: 親方ドンガ・ピッケ・鉱夫・かじ屋の テツジイ
+  miner_boss: { hair: 0, hairStyle: 'bald', skin: 1, outfit: 'vest', cloth: '#5a3a2a', beard: true, hat: 'miner' },
+  pikke: { hair: 3, hairStyle: 'pony', skin: 1, outfit: 'tunic', cloth: '#c8702a', female: true, small: true, hat: 'miner' },
+  miner: { hair: 1, hairStyle: 'short', skin: 1, outfit: 'tunic', cloth: '#6a5a4a', hat: 'miner' },
+  miner2: { hair: 0, hairStyle: 'short', skin: 2, outfit: 'apron', cloth: '#4a4a5a', beard: true, hat: 'miner' },
+  old_smith: { hair: 5, hairStyle: 'bald', skin: 1, outfit: 'apron', cloth: '#4a3a2a', beard: true, hunch: true, hat: 'headband', hatColor: '#f4f4f4' },
+  mine_wife: { hair: 1, hairStyle: 'bun', skin: 1, outfit: 'apron', cloth: '#8a6a4a', female: true },
+  // 温泉の里ユノハ・山小屋
+  onsen_granny: { hair: 5, hairStyle: 'bun', skin: 0, outfit: 'robe', robeMain: '#c85a6a', robeTrim: '#f4f4f4', cane: true, hunch: true, female: true },
+  onsen_m: { hair: 0, hairStyle: 'short', skin: 1, outfit: 'robe', robeMain: '#4a6a9a', robeTrim: '#f4f4f4', hat: 'headband', hatColor: '#f4f4f4' },
+  onsen_f: { hair: 1, hairStyle: 'pony', skin: 0, outfit: 'robe', robeMain: '#e08aa8', robeTrim: '#ffffff', female: true },
+  hut_keeper: { hair: 1, hairStyle: 'short', skin: 1, outfit: 'vest', cloth: '#8a3a2a', beard: true, hat: 'cowl', hatColor: '#8a3a2a' },
+  peddler: { hair: 6, hairStyle: 'pony', skin: 0, outfit: 'traveler', cloth: '#6a8a3a', female: true, hat: 'cowl', hatColor: '#d8e0c8' },
 };
 
 // そうびの かきかた: 'ぶき,よろい,たて,あたま' の もじれつ か { weapon, armor, shield, head }
@@ -279,6 +302,8 @@ export function npcOpts(kind) {
     glowEyes: n.glowEyes,
     tie: n.tie,
     glasses: n.glasses,
+    hakama: n.hakama,
+    giTrim: n.giTrim,
   };
 }
 
@@ -1090,6 +1115,22 @@ function drawHat(p, dir, f, o) {
       }
       break;
     }
+    case 'miner': {
+      // 鉱夫の ヘルメット（きいろ・まえに ランプ。第3章）
+      const c = hc || '#e8b830', cD = shade(c, -0.3), cL = shade(c, 0.3);
+      if (side) {
+        spans(p, [[0, 10, 18], [1, 8, 20], [2, 7, 22], [3, 6, 23], [4, 6, 23], [5, 6, 23], [6, 6, 23], [7, 6, 23]], c);
+        p.hline(9, 16, 1, cL); p.vline(22, 3, 7, cD);
+        p.rect(4, 8, 21, 2, cD); p.hline(4, 24, 8, c);
+        p.rect(4, 3, 3, 3, '#5a5a6a'); p.rect(4, 4, 2, 1, '#fff6a0');
+      } else {
+        spans(p, [[0, 11, 20], [1, 9, 22], [2, 7, 24], [3, 6, 25], [4, 6, 25], [5, 6, 25], [6, 6, 25], [7, 6, 25]], c);
+        p.hline(10, 19, 1, cL); p.vline(24, 3, 7, cD); p.vline(25, 4, 7, cD);
+        p.rect(5, 8, 22, 2, cD); p.hline(5, 26, 8, c);
+        if (dir === 'down') { p.rect(13, 2, 6, 5, '#4a4a58'); p.rect(14, 3, 4, 3, '#fff6a0'); p.set(15, 3, '#ffffff'); }
+      }
+      break;
+    }
     case 'conductor': {
       // 鉄道員の ぼうし（上が たいら・金の おび・くろい つば）
       const c = hc || '#1f2f5a', cD = shade(c, -0.3), cL = shade(c, 0.25), g = '#f2c14e';
@@ -1759,14 +1800,75 @@ export function paintSpecial(kind, dir, f) {
       break;
     }
     case 'starstone':
-    case 'windstone': {
-      // 守り星（村の 星は 青、風の 星は みどり）
-      const wind = kind === 'windstone';
-      const a = wind ? '#9af0c0' : '#9ad8ff', b = wind ? '#eafff2' : '#e6f6ff', c = wind ? '#4ac88a' : '#5aa8e8';
+    case 'windstone':
+    case 'firestone': {
+      // 守り星（村の 星は 青、風の 星は みどり、炎の 星は 赤）
+      const wind = kind === 'windstone', fire = kind === 'firestone';
+      const a = fire ? '#ffa860' : wind ? '#9af0c0' : '#9ad8ff', b = fire ? '#fff0c8' : wind ? '#eafff2' : '#e6f6ff', c = fire ? '#e8502a' : wind ? '#4ac88a' : '#5aa8e8';
       p.rect(6, 5, 4, 12, a); p.rect(5, 7, 6, 8, a); p.vline(7, 5, 15, b); p.vline(9, 7, 14, c);
       p.set(7, 4, a); p.set(8, 4, a); p.set(7, 3, b);
       if (f) { p.set(3, 4, '#ffffff'); p.set(12, 9, '#ffffff'); p.set(4, 14, '#fff6b0'); }
-      oc = wind ? '#1f6a48' : '#2a4a7a';
+      oc = fire ? '#7a2a10' : wind ? '#1f6a48' : '#2a4a7a';
+      break;
+    }
+    case 'minecart': {
+      // トロッコ（第3章。てつの はこに 木の ふち・くろい 車輪）
+      const iron = '#6a6a7a', ironD = '#44444f', ironL = '#9a9aaa', wood = '#8a5a2e';
+      const side = dir === 'left' || dir === 'right';
+      if (side) {
+        p.rect(1, 10, 14, 7, iron); p.hline(1, 14, 10, ironL); p.hline(1, 14, 16, ironD);
+        p.rect(0, 9, 16, 2, wood); p.hline(0, 15, 9, '#b07a44');
+        for (const x of [3, 8, 12]) p.set(x, 13, ironL);
+        p.rect(2, 17, 3, 3, '#2a2a32'); p.rect(11, 17, 3, 3, '#2a2a32'); p.set(3, 18, '#8a8a9a'); p.set(12, 18, '#8a8a9a');
+      } else {
+        p.rect(2, 10, 12, 7, iron); p.hline(2, 13, 10, ironL); p.hline(2, 13, 16, ironD); p.vline(13, 10, 16, ironD);
+        p.rect(1, 9, 14, 2, wood); p.hline(1, 14, 9, '#b07a44');
+        p.set(5, 13, ironL); p.set(10, 13, ironL);
+        p.rect(3, 17, 2, 3, '#2a2a32'); p.rect(11, 17, 2, 3, '#2a2a32');
+      }
+      oc = OUT;
+      break;
+    }
+    case 'fox': {
+      // 雪の 子ギツネ（白い 毛・ふさふさの しっぽ）
+      const c = '#f4f6fc', cD = '#c8d0e4', ear = '#e8a0a8';
+      const side = dir === 'left' || dir === 'right';
+      if (side) {
+        p.rect(4, 12, 8, 5, c); p.rect(1, 9, 5, 5, c); p.set(1, 8, c); p.set(4, 8, c); p.set(2, 8, ear);
+        p.set(2, 11, '#231a2e'); p.set(0, 12, '#231a2e');
+        p.ellipse(13, 12 - f, 3, 2.5, c); p.set(15, 11 - f, cD);
+        p.rect(5, 17, 1, 2 + f, cD); p.rect(10, 17, 1, 3 - f, cD);
+      } else {
+        p.rect(5, 12, 6, 5, c); p.rect(4, 7, 8, 6, c); p.set(4, 5, c); p.set(4, 6, c); p.set(11, 5, c); p.set(11, 6, c);
+        p.set(4, 6, ear); p.set(11, 6, ear);
+        if (dir === 'down') { p.set(6, 9, '#231a2e'); p.set(9, 9, '#231a2e'); p.set(7, 11, '#231a2e'); p.set(8, 11, '#e88a9a'); }
+        else p.ellipse(8, 14 - f, 3, 2.5, cD);
+        p.rect(5, 17, 2, 2, cD); p.rect(9, 17, 2, 2, cD);
+      }
+      oc = '#5a6a8a';
+      break;
+    }
+    case 'snowman': {
+      // 子どもたちの 大きな 雪だるま（雪だるまコンテスト）
+      p.ellipse(8, 15, 6, 5, '#f4f8ff'); p.ellipse(8, 7.5, 4.5, 4, '#ffffff');
+      p.set(3, 16, '#c8d4ea'); p.set(12, 17, '#c8d4ea');
+      p.rect(5, 2, 7, 3, '#c83a3a'); p.rect(4, 4, 9, 1, '#a82a2a');
+      p.set(6, 7, '#231a2e'); p.set(10, 7, '#231a2e'); p.rect(8, 8, 2, 1, '#ff8a2a');
+      p.set(7, 13, '#231a2e'); p.set(8, 15, '#231a2e');
+      if (f) { p.set(1, 3, '#ffffff'); p.set(14, 6, '#ffffff'); }
+      oc = '#6a7a9a';
+      break;
+    }
+    case 'monkey': {
+      // 温泉の サル（ゆけむりの 中で 気もちよさそう）
+      const fur = '#a8846a', furD = '#7a5a44', face = '#e88a7a';
+      p.ellipse(8, 14, 6, 4, fur); p.ellipse(8, 9, 4.5, 4, fur);
+      p.ellipse(8, 9.5, 2.6, 2.4, face);
+      if (dir !== 'up') { p.set(7, 9, '#231a2e'); p.set(9, 9, '#231a2e'); p.set(8, 11, '#a84a4a'); }
+      p.set(3, 9, furD); p.set(13, 9, furD);
+      p.rect(2, 17, 12, 2, '#7ad8e0'); p.hline(2, 13, 17, '#b8f0f4');
+      if (f) { p.set(5, 3, '#ffffff'); p.set(11, 2, '#f0f8ff'); }
+      oc = OUT;
       break;
     }
     case 'spring': {

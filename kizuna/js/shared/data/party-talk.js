@@ -5,11 +5,15 @@
 //     kid  … ポポロ（元気な 子ども）
 //   self … だれも いない ときの 主人公の ひとりごと
 // ・新しい 目標を 作ったら、ここにも 1つ 足す（ない ときは 目標の 文を そのまま 話す）
-import { MONSTERS } from './monsters.js?v=50cb6b27c5a9';
+import { MONSTERS } from './monsters.js?v=cd338033c896';
+import { C3_LEAD_OBJECTIVE } from './sky.js?v=cd338033c896';
+import { CH3_OBJECTIVE_TALK } from './story-ch3.js?v=cd338033c896';
 
 // 仲間の key（NPC の id）→ 話し方
 export const TALK_STYLE = {
   npc_gard: 'bold', npc_rin: 'bold', npc_luca: 'bold', luca: 'bold', guest_luca: 'bold',
+  // 第3章: 竜のみこユキナ
+  yukina: 'kind', guest_yukina: 'kind',
   npc_mina: 'kind', npc_tina: 'kind',
   npc_poporo: 'kid',
 };
@@ -166,6 +170,15 @@ export const OBJECTIVE_TALK = {
     kid: 'まだ行ってないところ、いっぱいあるよ！全部見に行こう！',
   },
 };
+
+// 第3章（story-ch3.js）
+OBJECTIVE_TALK[C3_LEAD_OBJECTIVE] = {
+  self: '守り星の石が光っているらしい。ホシフル村のホシミばあちゃんに会いに行こう。',
+  bold: '村の守り星が光ってるって？ばあちゃんに話を聞きに行こうぜ。',
+  kind: 'ホシミおばあさんが、待っているかもしれません。ホシフル村へもどりましょう。',
+  kid: '守り星の石、キラキラしてるのかなあ！ばあちゃんに会いに行こう！',
+};
+Object.assign(OBJECTIVE_TALK, CH3_OBJECTIVE_TALK);
 
 // 話す 内容（目標が 表に ない ときは 目標の 文を そのまま）
 export function talkFor(objective, style) {

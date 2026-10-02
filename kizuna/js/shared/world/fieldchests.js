@@ -2,13 +2,13 @@
 // ・マップの じょうたい（monsters.js の mapState）に もつ。サーバーに 1つ（家族で 見る ものは おなじ。先に 開けた 人が もらう）
 // ・プレイヤーが その マップに いる ときだけ ふえる。開けられない まま 古く なった ものは べつの 場所へ
 // ・クライアントへは snap の fc（かわった ときだけ）
-import { MAPS, isBlocked } from '../maps/index.js?v=50cb6b27c5a9';
-import { T } from '../tiles.js?v=50cb6b27c5a9';
-import { ITEMS } from '../data/items.js?v=50cb6b27c5a9';
-import { addItem } from '../stats.js?v=50cb6b27c5a9';
-import { FIELD_CHEST_COUNT, FIELD_CHEST_RESPAWN_MS, FIELD_CHEST_LIFE_MS, fieldChestLoot } from '../data/fieldchests.js?v=50cb6b27c5a9';
+import { MAPS, isBlocked } from '../maps/index.js?v=cd338033c896';
+import { T } from '../tiles.js?v=cd338033c896';
+import { ITEMS } from '../data/items.js?v=cd338033c896';
+import { addItem } from '../stats.js?v=cd338033c896';
+import { FIELD_CHEST_COUNT, FIELD_CHEST_RESPAWN_MS, FIELD_CHEST_LIFE_MS, fieldChestLoot } from '../data/fieldchests.js?v=cd338033c896';
 
-const GROUND = new Set([T.GRASS, T.FLOWERS, T.TALLGRASS, T.FOREST_FLOOR, T.SAND, T.HILL, T.DIRT]);
+const GROUND = new Set([T.GRASS, T.FLOWERS, T.TALLGRASS, T.FOREST_FLOOR, T.SAND, T.HILL, T.DIRT, T.SNOW, T.DEEP_SNOW, T.ASH]);
 const SPACING = 10; // ほかの 宝箱との あいだ（マス）
 const AWAY = 5; // プレイヤーの すぐ 近くには 出さない
 
@@ -24,9 +24,12 @@ function spots(ms) {
   for (const c of map.chests) mark(c.x, c.y, 1);
   for (const s of map.signs || []) mark(s.x, s.y, 1);
   for (const s of map.sparkles || []) mark(s.x, s.y, 0);
+  // fcStart が ある マップは、そこから 歩いて 行ける ところ だけ（山の 中の すきま などに 出さない）
+  const reach = map.fcStart ? walkable(map, map.fcStart) : null;
   for (let y = 2; y < map.h - 2; y++) {
     for (let x = 2; x < map.w - 2; x++) {
       if (!GROUND.has(map.tiles[y * map.w + x]) || near.has(`${x},${y}`)) continue;
+      if (reach && !reach[y * map.w + x]) continue;
       if (isBlocked(map, x, y, () => true) || isBlocked(map, x, y, () => false)) continue;
       // 町・村の 中と その まわり 2マスは だめ
       let safe = false;
@@ -37,6 +40,25 @@ function spots(ms) {
   }
   ms.fcSpots = out;
   return out;
+}
+
+// start から 歩いて 行ける マス（しかけは ぜんぶ ひらいた として）
+function walkable(map, start) {
+  const seen = new Uint8Array(map.w * map.h);
+  const q = [start];
+  seen[start[1] * map.w + start[0]] = 1;
+  for (let h = 0; h < q.length; h++) {
+    const [x, y] = q[h];
+    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+      const nx = x + dx, ny = y + dy;
+      if (nx < 0 || ny < 0 || nx >= map.w || ny >= map.h) continue;
+      const k = ny * map.w + nx;
+      if (seen[k] || isBlocked(map, nx, ny, () => true)) continue;
+      seen[k] = 1;
+      q.push([nx, ny]);
+    }
+  }
+  return seen;
 }
 
 function chestsOf(ms) {

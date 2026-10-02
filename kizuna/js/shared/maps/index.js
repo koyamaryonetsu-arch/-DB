@@ -1,13 +1,14 @@
 // マップの ぜんたい（フィールド・どうくつ）と、そこに いる 人や たからばこ
-import { T, parseRows, TILE_INFO } from '../tiles.js?v=50cb6b27c5a9';
-import { makeRng, hash2 } from '../rng.js?v=50cb6b27c5a9';
-import { buildOverworld, PLACES, zoneAt, areaName, OW_W, OW_H, CAVE_ENTRANCE, FOREST_CLEARING, LAKE, SWAMP } from './overworld.js?v=50cb6b27c5a9';
-import { CAVE_B1_ROWS, CAVE_B2_ROWS } from './cave-rows.js?v=50cb6b27c5a9';
-import { npc } from './npc.js?v=50cb6b27c5a9';
-import { buildCh2Maps, SEA_PLACES } from './ch2.js?v=50cb6b27c5a9';
-import { buildTreasureFloor } from './treasure-cave.js?v=50cb6b27c5a9';
-import { addNightNpcs } from './night-npcs.js?v=50cb6b27c5a9';
-import { attachCasino } from './casino.js?v=50cb6b27c5a9';
+import { T, parseRows, TILE_INFO } from '../tiles.js?v=cd338033c896';
+import { makeRng, hash2 } from '../rng.js?v=cd338033c896';
+import { buildOverworld, PLACES, zoneAt, areaName, OW_W, OW_H, CAVE_ENTRANCE, FOREST_CLEARING, LAKE, SWAMP } from './overworld.js?v=cd338033c896';
+import { CAVE_B1_ROWS, CAVE_B2_ROWS } from './cave-rows.js?v=cd338033c896';
+import { npc } from './npc.js?v=cd338033c896';
+import { buildCh2Maps, SEA_PLACES } from './ch2.js?v=cd338033c896';
+import { buildTreasureFloor } from './treasure-cave.js?v=cd338033c896';
+import { addNightNpcs } from './night-npcs.js?v=cd338033c896';
+import { attachCasino } from './casino.js?v=cd338033c896';
+import { buildCh3Maps, ch3SearchMats, NORTH_SPARKLE_LOOT } from './ch3.js?v=cd338033c896';
 
 const V = (x, y) => [PLACES.village.x + x, PLACES.village.y + y];
 const TW = (x, y) => [PLACES.town.x + x, PLACES.town.y + y];
@@ -261,6 +262,8 @@ function buildMaps() {
     spawnCounts: { cave2: 10 },
   };
   Object.assign(maps, buildCh2Maps());
+  // 第3章「星の竜がねむる山」（maps/ch3.js）
+  Object.assign(maps, buildCh3Maps());
   // カジノ・メダル王の城・小さなメダル（maps/casino.js）
   attachCasino(maps);
   // 夜の 町・村（夜だけ 出る 人・夜は 家に 帰る 人）
@@ -274,6 +277,8 @@ function finishMap(m) {
   m.chestAt = new Map(m.chests.map((c) => [c.y * m.w + c.x, c]));
   m.signAt = new Map((m.signs || []).map((s) => [s.y * m.w + s.x, s]));
   m.warpAt = new Map(m.warps.map((w) => [w.y * m.w + w.x, w]));
+  // しらべると だいほんが はじまる マス（レバー・かがり火・温泉 など。第3章）
+  m.actionAt = new Map((m.actions || []).map((a) => [a.y * m.w + a.x, a]));
 }
 
 // 宝の洞窟（'tm_…'）は はじめて さわった ときに ID から つくる（maps/treasure-cave.js）。
@@ -301,12 +306,18 @@ export function tileAt(map, x, y) {
 }
 
 // フラグで かわる タイル（こわれた橋・カギの とびら）
+// invert: フラグが たつと しまる（レバーで ようがんの 流れを かえる など。第3章）
 export function effectiveTile(map, x, y, hasFlag) {
   const t = tileAt(map, x, y);
   if (map.gateAt === undefined) map.gateAt = new Map(map.gates.map((g) => [g.y * map.w + g.x, g]));
   const g = map.gateAt.get(y * map.w + x);
-  if (g && hasFlag(g.flag)) return g.open;
-  return t;
+  if (g && (g.invert ? !hasFlag(g.flag) : hasFlag(g.flag))) return g.open;
+  return g?.invert ? g.closed : t;
+}
+
+// すべる 氷の マスか（client/field.js）
+export function slidesAt(map, x, y, hasFlag) {
+  return !!TILE_INFO[effectiveTile(map, Math.floor(x), Math.floor(y), hasFlag)]?.slide;
 }
 
 export function isBlocked(map, x, y, hasFlag) {
@@ -343,7 +354,7 @@ export function searchLoot(mapId, x, y) {
   if (r < 0.64) return { item: 'magic_water' };
   // ふしぎなかじの 素材（町・どうくつ・海で ちがう）
   if (r < 0.74) {
-    const mats = mapId === 'sea' ? ['pretty_shell', 'wind_feather', 'iron_shard'] : mapId.startsWith('cave') ? ['iron_shard', 'magic_powder'] : ['beast_fang', 'iron_shard', 'magic_powder'];
+    const mats = ch3SearchMats(mapId) || (mapId === 'sea' ? ['pretty_shell', 'wind_feather', 'iron_shard'] : mapId.startsWith('cave') ? ['iron_shard', 'magic_powder'] : ['beast_fang', 'iron_shard', 'magic_powder']);
     return { item: mats[Math.floor(hash2(x, y, 17) * mats.length)] };
   }
   return null;
@@ -357,7 +368,7 @@ export function sparkleLoot(zone, roll) {
     swamp: [['antidote', 4], ['star_shard', 3], ['seed_def', 0.4]],
     east: [['herb', 3], ['star_shard', 4], ['magic_water', 0.6], ['seed_str', 0.4]],
   };
-  const t = tables[zone] || tables.plains;
+  const t = tables[zone] || NORTH_SPARKLE_LOOT[zone] || tables.plains;
   const total = t.reduce((s, e) => s + e[1], 0);
   let r = roll * total;
   for (const [id, w] of t) {

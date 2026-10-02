@@ -7,14 +7,15 @@
 // rank: 装備の ランク（1〜10。下の EQUIP_RANKS）。star: 店では 買えない 1つ上の 品（宝箱・レアドロップ）
 // unique: 1人 1つの 品（ボスが 落とす 物）。データを 合わせる ときに ふえすぎない
 
-import { ITEMS_CH2 } from './items-ch2.js?v=50cb6b27c5a9';
-import { ITEMS_TM } from './items-tm.js?v=50cb6b27c5a9';
-import { NIGHT_ITEMS, NIGHT_ITEM_KANA } from './night.js?v=50cb6b27c5a9';
-import { SKY_ITEMS, SKY_ITEM_KANA } from './sky.js?v=50cb6b27c5a9';
-import { ITEMS_FORGE, FORGE_KANA, addUpgradeItems } from './items-forge.js?v=50cb6b27c5a9';
-import { ITEMS_CASINO, CASINO_KANA } from './items-casino.js?v=50cb6b27c5a9';
-import { RARE_ITEMS, RARE_ITEM_KANA } from './monsters-rare.js?v=50cb6b27c5a9';
-import { ESCAPE_ITEMS, ESCAPE_KANA } from './escape.js?v=50cb6b27c5a9';
+import { ITEMS_CH2 } from './items-ch2.js?v=cd338033c896';
+import { ITEMS_TM } from './items-tm.js?v=cd338033c896';
+import { NIGHT_ITEMS, NIGHT_ITEM_KANA } from './night.js?v=cd338033c896';
+import { SKY_ITEMS, SKY_ITEM_KANA } from './sky.js?v=cd338033c896';
+import { ITEMS_FORGE, FORGE_KANA, addUpgradeItems } from './items-forge.js?v=cd338033c896';
+import { ITEMS_CASINO, CASINO_KANA } from './items-casino.js?v=cd338033c896';
+import { RARE_ITEMS, RARE_ITEM_KANA } from './monsters-rare.js?v=cd338033c896';
+import { ESCAPE_ITEMS, ESCAPE_KANA } from './escape.js?v=cd338033c896';
+import { ITEMS_CH3, CH3_ITEM_KANA } from './items-ch3.js?v=cd338033c896';
 
 export const ITEMS = {
   // ───── つかう どうぐ ─────
@@ -182,6 +183,8 @@ Object.assign(ITEMS, ITEMS_CASINO);
 Object.assign(ITEMS, RARE_ITEMS);
 // みちびきの糸（escape.js）
 Object.assign(ITEMS, ESCAPE_ITEMS);
+// 第3章「星の竜がねむる山」（items-ch3.js）
+Object.assign(ITEMS, ITEMS_CH3);
 // きたえた 装備（'iron_sword+1'〜'+3'）。新しい 装備を 足す ときは この 行より 上で
 addUpgradeItems(ITEMS);
 
@@ -197,7 +200,7 @@ export const EQUIP_RANKS = [
   { rank: 2, name: '銅と石', where: '第1章のルミナの町', sword: 12, cloth: 10 },
   { rank: 3, name: '鉄', where: '第1章のルミナの町（森の主を助けたあと）', sword: 20, cloth: 14 },
   { rank: 4, name: '銀と海', where: '第2章のカモメ港', sword: 30, cloth: 17 },
-  { rank: 5, name: 'はがね', where: '第3章「星の竜がねむる山」（これから）', sword: 40, cloth: 22 },
+  { rank: 5, name: 'はがね', where: '第3章の鉱山の町カナトコ（鉱山を取りもどすと品ぞろえがふえる）', sword: 40, cloth: 22 },
   { rank: 6, name: '魔法', where: '第4章（これから）', sword: 50, cloth: 27 },
   { rank: 7, name: 'プラチナ', where: '第5章（これから）', sword: 61, cloth: 33 },
   { rank: 8, name: '光', where: '第6章（これから）', sword: 72, cloth: 39 },
@@ -257,6 +260,7 @@ Object.assign(ITEM_KANA, NIGHT_ITEM_KANA, SKY_ITEM_KANA);
 Object.assign(ITEM_KANA, FORGE_KANA, RARE_ITEM_KANA);
 Object.assign(ITEM_KANA, CASINO_KANA);
 Object.assign(ITEM_KANA, ESCAPE_KANA);
+Object.assign(ITEM_KANA, CH3_ITEM_KANA);
 
 export function itemKana(id) {
   // きたえた 装備は もとの 装備の 読み ＋ 回数（鉄の剣 → 鉄の剣+1 の じゅん）

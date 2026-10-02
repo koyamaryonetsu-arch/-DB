@@ -1,14 +1,16 @@
 // だいほん（イベント）を すすめる しくみ
-import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js?v=50cb6b27c5a9';
-import { ITEMS } from '../data/items.js?v=50cb6b27c5a9';
-import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js?v=50cb6b27c5a9';
-import { startFixedBattle } from './battles.js?v=50cb6b27c5a9';
-import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=50cb6b27c5a9';
-import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion, befriendLevel } from './party.js?v=50cb6b27c5a9';
-import { openService } from './services.js?v=50cb6b27c5a9';
-import { isNightFor, advanceClock } from './clock.js?v=50cb6b27c5a9';
-import { grantWagon, wagonChars } from './wagon.js?v=50cb6b27c5a9';
-import { MAPS } from '../maps/index.js?v=50cb6b27c5a9';
+import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js?v=cd338033c896';
+import { ITEMS } from '../data/items.js?v=cd338033c896';
+import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js?v=cd338033c896';
+import { startFixedBattle } from './battles.js?v=cd338033c896';
+import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=cd338033c896';
+import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion, befriendLevel } from './party.js?v=cd338033c896';
+import { openService } from './services.js?v=cd338033c896';
+import { isNightFor, advanceClock } from './clock.js?v=cd338033c896';
+import { grantWagon, wagonChars } from './wagon.js?v=cd338033c896';
+import { GUESTS } from '../data/shops.js?v=cd338033c896';
+import { unstickAll } from './hazards.js?v=cd338033c896';
+import { MAPS, isBlocked } from '../maps/index.js?v=cd338033c896';
 
 let runSeq = 1;
 
@@ -96,6 +98,8 @@ export class ScriptRun {
         this.world.sendSelf(m);
       }
     }
+    // 手伝いの 人が リーダーの 世界を かえた（レバー など）: リーダーの 画面も あわせる
+    if (this.owner !== this.init && !this.everyone.includes(this.owner) && this.world.sessions.has(this.owner.id)) this.world.sendSelf(this.owner);
     this.world.markDirty();
   }
 
@@ -135,6 +139,16 @@ export class ScriptRun {
     this.world.send(m, { t: 'script', runId: this.id, steps: this.lastSteps, spectator: m.id !== this.init.id, who: this.init.char.name });
   }
 
+  // パーティーの いま（だいほんの 'call' から つかう。第3章の きずなの間）
+  //  people: いっしょに いる 人（セッション）/ helpers: サポート・ゲスト・馬車の なかまの キャラ
+  partyNow() {
+    const w = this.world;
+    const p = partyOf(w, this.init);
+    const people = (p ? p.members : [this.init.id]).map((id) => w.sessions.get(id)).filter(Boolean);
+    const helpers = p ? [...p.supports.map((x) => x.char), ...p.guests.map((g) => g.char), ...wagonChars(w, p)].filter(Boolean) : [];
+    return { people, helpers };
+  }
+
   say(text, who = null) {
     this.batch.push(['say', who, text]);
   }
@@ -166,6 +180,28 @@ export class ScriptRun {
         case 'flag':
           setStoryFlag(this.owner.char, a[0]);
           break;
+        case 'unflag':
+          // フラグを もどす（しかけの やりなおし など。ものがたりの すすみぐあいの フラグには つかわない）
+          delete this.owner.char.flags[a[0]];
+          break;
+        case 'toggle': {
+          // レバー: フラグを 入れかえる。かわった マスに 立っている 人は となりへ よける（world/hazards.js）
+          const c = this.owner.char;
+          if (c.flags[a[0]]) delete c.flags[a[0]];
+          else c.flags[a[0]] = true;
+          unstickAll(w, this.owner);
+          break;
+        }
+        case 'sync': {
+          // ここまでの えんしゅつを 見せてから、フラグの かわった 世界（とびら・橋）を 画面に 出す
+          const r = await this.flush();
+          if (r.aborted) return this.abort();
+          for (const m of this.everyone) w.sendSelf(m);
+          if (!this.everyone.includes(this.owner)) w.sendSelf(this.owner);
+          const p = partyOf(w, this.owner);
+          if (p && p.members.length > 1) w.sendParty(p);
+          break;
+        }
         case 'questBase': {
           const c = this.owner.char;
           c.quests = c.quests || {};
@@ -253,16 +289,20 @@ export class ScriptRun {
           w.saveNow({ urgent: true });
           break;
         }
-        case 'guest': {
+        case 'guest': case 'unguest': {
           // ゲストは セーブデータに のこす（アプリを おとしても いなくならない）。リーダーだけ
+          // ['guest', id] くわわる / ['guest', null] みんな はなれる / ['unguest', id] その 人だけ はなれる
           const gc = this.owner.char;
           ensureCompanions(gc);
-          if (a[0]) {
+          const before = gc.guests.slice();
+          if (op === 'guest' && a[0]) {
             if (!gc.guests.includes(a[0])) gc.guests.push(a[0]);
-          } else gc.guests = [];
-          if (!a[0]) {
+          } else if (op === 'unguest') gc.guests = gc.guests.filter((g) => g !== a[0]);
+          else gc.guests = [];
+          const left = before.filter((g) => !gc.guests.includes(g));
+          if (left.length) {
             this.batch.push(['sfx', 'leave']);
-            this.say('ルカはパーティーからはなれた。');
+            this.say(`${left.map((g) => GUESTS[g]?.name || g).join('と')}はパーティーからはなれた。`);
           }
           const p = partyOf(w, this.owner);
           if (p) {
@@ -329,12 +369,19 @@ export class ScriptRun {
         case 'teleport': {
           const [map, x, y, dir] = a;
           const offs = [[0, 0], [-1, 0], [1, 0], [0, 1], [-1, 1], [1, 1]];
-          all.forEach((m, i) => {
+          const dest = MAPS[map];
+          const has = w.hasFlagFn(this.owner);
+          // かべの 中には おかない（ふさがって いたら まん中に）
+          const pos = all.map((m, i) => {
             const [ox, oy] = offs[i % offs.length];
-            w.placeSession(m, map, x + ox, y + oy, dir || m.dir, false);
+            return !dest || isBlocked(dest, Math.floor(x + ox), Math.floor(y + oy), has) ? [x, y] : [x + ox, y + oy];
           });
+          const from = { map: this.init.map, x: this.init.x, y: this.init.y };
+          all.forEach((m, i) => w.placeSession(m, map, pos[i][0], pos[i][1], dir || m.dir, false));
+          // 「ついていく」なかまも いっしょに（トロッコ・船 など。だいほんに 入っていない 人）
+          if (all.includes(this.init)) w.warpFollowers(this.init, from.map, from.x, from.y, { map, x, y, dir: dir || 'down' });
           // それぞれの いちを つたえる
-          this.batch.push(['teleport', map, x, y, dir || 'down', all.map((m, i) => [m.id, x + offs[i % offs.length][0], y + offs[i % offs.length][1], m.posSeq])]);
+          this.batch.push(['teleport', map, x, y, dir || 'down', all.map((m, i) => [m.id, pos[i][0], pos[i][1], m.posSeq])]);
           break;
         }
         case 'spawn': {
@@ -355,6 +402,10 @@ export class ScriptRun {
         case 'say':
         case 'fade': case 'flash': case 'shake': case 'night': case 'bgm': case 'sfx': case 'wait':
         case 'actor': case 'move': case 'face': case 'remove': case 'chapter': case 'guestHide': case 'chestOpen': case 'hideNpc': case 'showMon': case 'crest':
+        // 第3章: トロッコに のる・自分を かくす・天気・大きな 役者
+        case 'ride': case 'hideMe': case 'weather':
+        // カメラを その 場所へ（['look', x, y]）・自分に もどす（['look']）
+        case 'look':
           this.batch.push(step);
           break;
         default:

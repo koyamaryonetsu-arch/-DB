@@ -1,8 +1,8 @@
 // だいほんの さいせい（メッセージ・えらぶ・えんしゅつ）
-import { el } from './dom.js?v=50cb6b27c5a9';
-import { ListMenu } from './dom.js?v=50cb6b27c5a9';
-import { openServiceUI } from './services.js?v=50cb6b27c5a9';
-import { monsterCanvas } from '../render/monsters.js?v=50cb6b27c5a9';
+import { el } from './dom.js?v=cd338033c896';
+import { ListMenu } from './dom.js?v=cd338033c896';
+import { openServiceUI } from './services.js?v=cd338033c896';
+import { monsterCanvas } from '../render/monsters.js?v=cd338033c896';
 
 const TYPE_MS = 28;
 
@@ -93,6 +93,7 @@ export class ScriptPlayer {
         return null;
       case 'chapter': return this.chapter(a[0], a[1]);
       case 'teleport': {
+        g.field.lookAt = null;
         const mine = (a[4] || []).find((e) => e[0] === g.sid);
         if (mine) g.applyPos(a[0], mine[1], mine[2], a[3], mine[3]);
         return null;
@@ -121,6 +122,21 @@ export class ScriptPlayer {
         if (msg.spectator) return null;
         this.closeDialog();
         return openServiceUI(g, a[0], a[1]);
+      // 第3章: トロッコに のる（[[x, y], ...]）・自分を かくす・天気を かえる（null で もとに もどす）
+      case 'ride':
+        this.closeDialog();
+        g.audio.sfx('train');
+        return g.field.ride(a[0], a[1]);
+      case 'hideMe':
+        g.field.hideMe = !!a[0];
+        return null;
+      case 'weather':
+        g.field.weatherOverride = a[0] === undefined ? null : a[0];
+        return null;
+      // カメラを その 場所へ ゆっくり 向ける（大きな 竜が 画面に 入るように）。['look'] で 自分に もどす
+      case 'look':
+        g.field.lookAt = a.length >= 2 ? { x: a[0], y: a[1] } : null;
+        return wait(a.length >= 2 ? 650 : 250);
       default:
         return null;
     }

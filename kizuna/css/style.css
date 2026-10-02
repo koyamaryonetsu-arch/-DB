@@ -506,6 +506,8 @@ body.touch .hud-chat { bottom: calc(230px + var(--safe-b)); }
 }
 #curtain.on { opacity: 1; }
 #curtain.flash { background: #fff; transition: opacity 0.12s; }
+/* ようがんの 地面で ダメージ（第3章） */
+#curtain.hurt { background: #ff2a1a; opacity: 0.32; transition: opacity 0.1s; }
 
 #fx { position: absolute; inset: 0; pointer-events: none; z-index: 55; }
 .chapter {

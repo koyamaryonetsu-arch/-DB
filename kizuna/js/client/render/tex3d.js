@@ -2,9 +2,9 @@
 // ・タイルの え を 1まいに ならべた「アトラス」
 // ・かべの よこ・うえ、やま、はし など 3D だけで つかう え
 // ・つぼ・さく・かんばん など たてて みせる「もの」の え（せなかは とうめい）
-import { T } from '../../shared/tiles.js?v=50cb6b27c5a9';
-import { tileCanvas } from './tiles.js?v=50cb6b27c5a9';
-import { Painter, prand, makeCanvas, ctxOf } from './pixel.js?v=50cb6b27c5a9';
+import { T } from '../../shared/tiles.js?v=cd338033c896';
+import { tileCanvas } from './tiles.js?v=cd338033c896';
+import { Painter, prand, makeCanvas, ctxOf } from './pixel.js?v=cd338033c896';
 
 // ───────────── アトラス ─────────────
 export class Atlas {
@@ -97,6 +97,42 @@ const EXTRA = {
   lintel: (p) => { p.rect(0, 0, 16, 16, '#5b3a1e'); p.hline(0, 15, 15, '#3a2410'); p.hline(0, 15, 1, '#8a5a2e'); },
   lintel_stone: (p) => { p.rect(0, 0, 16, 16, C.stoneD); p.hline(0, 15, 15, '#55566a'); p.hline(0, 15, 1, C.stoneL); },
   dark_hole: (p) => { p.rect(0, 0, 16, 16, '#0c0808'); p.set(4, 5, '#1c1414'); p.set(11, 9, '#1c1414'); },
+  // ───── 第3章 ─────
+  snow_side: (p, v) => { noise(p, '#c8d4ea', ['#e4ecf8', '#aab8d4'], v * 19 + 8, 12); p.hline(0, 15, 0, '#ffffff'); },
+  snowrock_side: (p, v) => {
+    p.rect(0, 0, 16, 16, '#5c6272');
+    const r = prand(v * 13 + 5);
+    for (let y = 1; y < 16; y += 4) p.hline(0, 15, y, '#7a8092');
+    for (let i = 0; i < 8; i++) p.set(Math.floor(r() * 16), Math.floor(r() * 16), i % 2 ? '#a0a6b8' : '#464c5a');
+    // 雪の すじ
+    for (let i = 0; i < 3; i++) { const x = Math.floor(r() * 13); p.hline(x, x + 2, Math.floor(r() * 14), '#e8eef8'); }
+    p.hline(0, 15, 0, '#f4f8ff'); p.hline(0, 15, 1, '#dce6f4');
+  },
+  ice_top: (p, v) => { noise(p, '#9ad2f0', ['#e6f8ff', '#7ab8e0'], v * 23 + 4, 10); for (let i = 0; i < 5; i++) p.set(3 + i, 4 + i, '#ffffff'); },
+  ice_side: (p, v) => {
+    p.rect(0, 0, 16, 16, '#5a9ad0');
+    const r = prand(v * 31 + 2);
+    for (let i = 0; i < 4; i++) { const x = Math.floor(r() * 14); p.vline(x, 1, 14, '#7ab8e8'); p.set(x + 1, 2, '#e0f4ff'); }
+    p.hline(0, 15, 0, '#c8ecff'); p.hline(0, 15, 15, '#2a5a90');
+  },
+  ash_top: (p, v) => noise(p, '#4a3a3e', ['#2e2428', '#6a5658', '#c8401a'], v * 17 + 3, 12),
+  ashrock_side: (p, v) => {
+    p.rect(0, 0, 16, 16, '#3a2e32');
+    const r = prand(v * 11 + 9);
+    for (let y = 2; y < 16; y += 4) p.hline(0, 15, y, '#4e4044');
+    for (let i = 0; i < 7; i++) p.set(Math.floor(r() * 16), Math.floor(r() * 16), i % 3 ? '#241c20' : '#ff6a1a');
+  },
+  beam_side: (p) => { p.rect(0, 0, 16, 16, '#6a4422'); for (let x = 1; x < 16; x += 5) p.vline(x, 0, 15, '#8a5a2e'); p.hline(0, 15, 0, '#9a6a3a'); },
+  gate_side: (p) => {
+    p.rect(0, 0, 16, 16, '#4a5a8a');
+    for (let y = 0; y < 16; y += 5) { p.hline(0, 15, y, '#33406a'); const o = (y / 5) % 2 ? 4 : 0; for (let x = o; x < 16; x += 8) p.vline(x, y, Math.min(15, y + 4), '#33406a'); }
+    p.hline(0, 15, 7, '#f2c14e');
+  },
+  flame_side: (p, v) => {
+    p.rect(0, 0, 16, 16, '#3a0a24');
+    const r = prand(v * 7 + 1);
+    for (let i = 0; i < 5; i++) { const x = Math.floor(r() * 14); const h = 6 + Math.floor(r() * 8); p.vline(x, 16 - h, 15, '#c8206a'); p.vline(x + 1, 18 - h, 15, '#ff5a9a'); p.set(x + 1, 17 - h, '#ffd0e8'); }
+  },
 };
 
 export function extraCanvas(name, v = 0) {
@@ -145,6 +181,26 @@ const PROPS = {
     p.vline(7, 1, 14, c2); p.vline(4, 6, 14, c2); p.vline(11, 4, 14, c2); p.set(7, 2, '#ffffff');
   }],
   [T.CAVE_ENTRANCE]: null,
+  // 第3章: レバー・かがり火
+  [T.LEVER]: [16, 14, (p) => {
+    p.rect(2, 8, 12, 6, '#3a3a48'); p.rect(3, 9, 10, 4, '#5a5a6e'); p.hline(3, 12, 9, '#7a7a8e');
+    for (let i = 0; i < 7; i++) p.set(7 - i, 8 - i, '#8a8a9a');
+    p.rect(0, 0, 3, 3, '#d8403a');
+  }],
+  [T.LEVER_ON]: [16, 14, (p) => {
+    p.rect(2, 8, 12, 6, '#3a3a48'); p.rect(3, 9, 10, 4, '#5a5a6e'); p.hline(3, 12, 9, '#7a7a8e');
+    for (let i = 0; i < 7; i++) p.set(8 + i, 8 - i, '#8a8a9a');
+    p.rect(13, 0, 3, 3, '#4ac86a');
+  }],
+  [T.BRAZIER]: [16, 16, (p) => {
+    p.rect(7, 8, 2, 6, '#5a5a6a'); p.rect(4, 13, 8, 3, '#4a4a58');
+    p.rect(2, 4, 12, 4, '#4a4a58'); p.rect(3, 5, 10, 2, '#2a2a32'); p.hline(2, 13, 4, '#7a7a8a');
+  }],
+  [T.BRAZIER_LIT]: [16, 22, (p) => {
+    p.rect(7, 14, 2, 6, '#5a5a6a'); p.rect(4, 19, 8, 3, '#4a4a58');
+    p.rect(2, 10, 12, 4, '#4a4a58'); p.rect(3, 11, 10, 2, '#2a2a32'); p.hline(2, 13, 10, '#7a7a8a');
+    p.rect(4, 3, 8, 8, '#ff7a2a'); p.rect(5, 1, 6, 9, '#ffb13a'); p.rect(7, 0, 2, 2, '#ffb13a'); p.rect(6, 5, 4, 5, '#fff0a0');
+  }],
 };
 
 const propCache = new Map();
@@ -184,6 +240,8 @@ export function chestCanvas(opened) {
 export function leafCanvas(kind = 'tree') {
   const p = new Painter(16, 16);
   if (kind === 'pine') noise(p, C.pine, [C.pineD, C.pineL], 77, 40);
+  // 雪の つもった もみの木（第3章）
+  else if (kind === 'snowpine') { noise(p, '#2a6048', ['#1b4434', '#3a7a5a'], 79, 30); for (let i = 0; i < 26; i++) p.set((i * 7) % 16, (i * 5 + (i >> 2)) % 16, i % 3 ? '#f4f8ff' : '#d8e4f4'); }
   else if (kind === 'trunk') { p.rect(0, 0, 16, 16, C.trunk); for (let x = 1; x < 16; x += 4) p.vline(x, 0, 15, '#553820'); }
   else noise(p, C.leaf, [C.leafD, C.leafL, '#3a9a44'], 55, 44);
   return p.toCanvas();

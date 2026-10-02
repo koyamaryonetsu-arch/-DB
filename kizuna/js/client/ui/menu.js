@@ -1,35 +1,35 @@
 // フィールドの メニュー
-import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js?v=50cb6b27c5a9';
-import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js?v=50cb6b27c5a9';
-import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js?v=50cb6b27c5a9';
-import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS, turnSeconds } from '../../shared/battle.js?v=50cb6b27c5a9';
-import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily } from '../prefs.js?v=50cb6b27c5a9';
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_TRAIN_GAP, TIER_NAMES } from '../../shared/data/jobs.js?v=50cb6b27c5a9';
-import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress, monsterSlots } from '../../shared/stats.js?v=50cb6b27c5a9';
-import { HIRAMEKI } from '../../shared/data/hirameki.js?v=50cb6b27c5a9';
-import { DUAL_TECHS, DUAL_ORDER, groupName, dualKnown } from '../../shared/data/dual.js?v=50cb6b27c5a9';
-import { MONSTERS } from '../../shared/data/monsters.js?v=50cb6b27c5a9';
-import { monsterDrops } from '../../shared/data/loot.js?v=50cb6b27c5a9';
-import { MONSTER_FRIENDS, RACE_NAMES, recipeHint } from '../../shared/data/companions.js?v=50cb6b27c5a9';
-import { TACTICS } from '../../shared/ai.js?v=50cb6b27c5a9';
-import { PLACES } from '../../shared/maps/overworld.js?v=50cb6b27c5a9';
-import { SEA_PLACES } from '../../shared/maps/ch2.js?v=50cb6b27c5a9';
-import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js?v=50cb6b27c5a9';
-import { T } from '../../shared/tiles.js?v=50cb6b27c5a9';
-import { itemDetail, abilityDetail, skillBrief, gearText, targetTag } from './info.js?v=50cb6b27c5a9';
-import { makeCanvas, ctxOf } from '../render/pixel.js?v=50cb6b27c5a9';
-import { monsterCanvas } from '../render/monsters.js?v=50cb6b27c5a9';
-import { mapIconCanvas, boardIconURL } from '../render/boards.js?v=50cb6b27c5a9';
-import { medalItemRow, walletView } from './casino.js?v=50cb6b27c5a9';
-import { compareOne, compareTeam, whoItems } from './counter.js?v=50cb6b27c5a9';
-import { faceURL } from '../field.js?v=50cb6b27c5a9';
-import { partyRows } from './hud.js?v=50cb6b27c5a9';
-import { questMarks, subQuests, OBJECTIVE_TARGETS, whereName } from '../../shared/data/quest-targets.js?v=50cb6b27c5a9';
-import { difficultyOf, visibleMarks, EXP_RATES, EXP_RATE_NAMES } from '../../shared/data/difficulty.js?v=50cb6b27c5a9';
-import { memberTalk, talkFor } from '../../shared/data/party-talk.js?v=50cb6b27c5a9';
-import { treasureRows, treasureDetail, openTreasureMap } from './treasure.js?v=50cb6b27c5a9';
-import { themeHex } from '../render/themes.js?v=50cb6b27c5a9';
-import { wagonMenuView, wagonHereClient, menuArrange } from './wagon.js?v=50cb6b27c5a9';
+import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js?v=cd338033c896';
+import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js?v=cd338033c896';
+import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js?v=cd338033c896';
+import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS, turnSeconds } from '../../shared/battle.js?v=cd338033c896';
+import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily } from '../prefs.js?v=cd338033c896';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_TRAIN_GAP, TIER_NAMES } from '../../shared/data/jobs.js?v=cd338033c896';
+import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress, monsterSlots } from '../../shared/stats.js?v=cd338033c896';
+import { HIRAMEKI } from '../../shared/data/hirameki.js?v=cd338033c896';
+import { DUAL_TECHS, DUAL_ORDER, groupName, dualKnown } from '../../shared/data/dual.js?v=cd338033c896';
+import { MONSTERS } from '../../shared/data/monsters.js?v=cd338033c896';
+import { monsterDrops } from '../../shared/data/loot.js?v=cd338033c896';
+import { MONSTER_FRIENDS, RACE_NAMES, recipeHint } from '../../shared/data/companions.js?v=cd338033c896';
+import { TACTICS } from '../../shared/ai.js?v=cd338033c896';
+import { PLACES } from '../../shared/maps/overworld.js?v=cd338033c896';
+import { SEA_PLACES } from '../../shared/maps/ch2.js?v=cd338033c896';
+import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js?v=cd338033c896';
+import { T, TILE_INFO } from '../../shared/tiles.js?v=cd338033c896';
+import { itemDetail, abilityDetail, skillBrief, gearText, targetTag } from './info.js?v=cd338033c896';
+import { makeCanvas, ctxOf } from '../render/pixel.js?v=cd338033c896';
+import { monsterCanvas } from '../render/monsters.js?v=cd338033c896';
+import { mapIconCanvas, boardIconURL } from '../render/boards.js?v=cd338033c896';
+import { medalItemRow, walletView } from './casino.js?v=cd338033c896';
+import { compareOne, compareTeam, whoItems } from './counter.js?v=cd338033c896';
+import { faceURL } from '../field.js?v=cd338033c896';
+import { partyRows } from './hud.js?v=cd338033c896';
+import { questMarks, subQuests, OBJECTIVE_TARGETS, whereName } from '../../shared/data/quest-targets.js?v=cd338033c896';
+import { difficultyOf, visibleMarks, EXP_RATES, EXP_RATE_NAMES } from '../../shared/data/difficulty.js?v=cd338033c896';
+import { memberTalk, talkFor } from '../../shared/data/party-talk.js?v=cd338033c896';
+import { treasureRows, treasureDetail, openTreasureMap } from './treasure.js?v=cd338033c896';
+import { themeHex } from '../render/themes.js?v=cd338033c896';
+import { wagonMenuView, wagonHereClient, menuArrange } from './wagon.js?v=cd338033c896';
 
 // 呪文・技の タブ（左右で じゅんに かわる）
 const SKILL_TABS = [['list', '覚えた技'], ['fav', 'お気に入り'], ['combo', 'ひらめき'], ['dual', '合体技']];
@@ -1158,7 +1158,7 @@ export function renderMiniMap(game, canvas, full = false) {
       if (mx < 0 || my < 0 || mx >= m.w || my >= m.h) continue;
       if (!f.isExplored(mx, my)) continue;
       const t = m.gates.length ? effectiveTile(m, mx, my, (fl) => f.gateFlag(fl)) : tileAt(m, mx, my);
-      ctx.fillStyle = themeHex(MAP_COLORS[t] || (t >= 30 && t < 70 ? '#c8bfae' : '#555'), m.theme, t);
+      ctx.fillStyle = themeHex(MAP_COLORS[t] || TILE_INFO[t]?.mapColor || (t >= 30 && t < 70 ? '#c8bfae' : '#555'), m.theme, t);
       ctx.fillRect(x * pxPer, y * pxPer, pxPer, pxPer);
     }
   }

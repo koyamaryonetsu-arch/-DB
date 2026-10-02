@@ -1,8 +1,9 @@
 // マップの タイル（16×16 ドット）を プログラムで かく
-import { T, TILE_INFO } from '../../shared/tiles.js?v=50cb6b27c5a9';
-import { hash2 } from '../../shared/rng.js?v=50cb6b27c5a9';
-import { Painter, shade, prand } from './pixel.js?v=50cb6b27c5a9';
-import { themedCanvas, partOfTile } from './themes.js?v=50cb6b27c5a9';
+import { T, TILE_INFO } from '../../shared/tiles.js?v=cd338033c896';
+import { hash2 } from '../../shared/rng.js?v=cd338033c896';
+import { Painter, shade, prand } from './pixel.js?v=cd338033c896';
+import { themedCanvas, partOfTile } from './themes.js?v=cd338033c896';
+import { CH3_PAINTERS, CH3_FRAMES, CH3_SPEED, RAIL_TILES, CH3_WALLS } from './tiles-ch3.js?v=cd338033c896';
 
 export const TS = 16;
 
@@ -479,13 +480,17 @@ const painters = {
   },
 };
 
+// 第3章の タイル（雪・氷・ようがん・鉱山・神殿。render/tiles-ch3.js）
+Object.assign(painters, CH3_PAINTERS);
+
 // アニメーションする タイルの コマ数
 const FRAMES = {
   [T.WATER]: 3, [T.DEEP]: 3, [T.SWAMP]: 3, [T.FOUNTAIN]: 2, [T.FIREPLACE]: 2, [T.CAVE_WATER]: 3, [T.CRYSTAL]: 3,
   [T.TORCH]: 3, [T.LAMP]: 2, [T.STEPPING]: 3, [T.BRIDGE_H]: 3, [T.BRIDGE_V]: 3, [T.BROKEN_BRIDGE]: 3, [T.CAVE_BRIDGE]: 3, [T.PIER]: 3,
   [T.WHIRLPOOL]: 3,
+  ...CH3_FRAMES,
 };
-const SPEED = { [T.TORCH]: 140, [T.FIREPLACE]: 180, [T.CRYSTAL]: 500, [T.LAMP]: 700 };
+const SPEED = { [T.TORCH]: 140, [T.FIREPLACE]: 180, [T.CRYSTAL]: 500, [T.LAMP]: 700, ...CH3_SPEED };
 
 export function frameOf(id, t) {
   const n = FRAMES[id];
@@ -508,7 +513,7 @@ export function tileCanvas(id, variant, frame, mask, theme) {
 }
 
 const WATERY = new Set([T.WATER, T.DEEP, T.BROKEN_BRIDGE, T.STEPPING, T.PIER, T.BRIDGE_H, T.BRIDGE_V, T.WHIRLPOOL]);
-const WALLS = new Set([T.WALL_STONE, T.WALL_WOOD, T.CAVE_WALL, T.TORCH]);
+const WALLS = new Set([T.WALL_STONE, T.WALL_WOOD, T.CAVE_WALL, T.TORCH, ...CH3_WALLS]);
 
 // マップごとに いちど だけ けいさん（となりの タイルで かわる みため）
 export function prepareMap(map) {
@@ -533,6 +538,14 @@ export function prepareMap(map) {
       } else if (WALLS.has(t)) {
         const below = at(x, y + 1);
         if (!WALLS.has(below)) mask[i] = 1;
+      } else if (RAIL_TILES.has(t)) {
+        // レールの つながり（北=1 東=2 南=4 西=8）
+        let m = 0;
+        if (RAIL_TILES.has(at(x, y - 1))) m |= 1;
+        if (RAIL_TILES.has(at(x + 1, y))) m |= 2;
+        if (RAIL_TILES.has(at(x, y + 1))) m |= 4;
+        if (RAIL_TILES.has(at(x - 1, y))) m |= 8;
+        mask[i] = m;
       }
     }
   }

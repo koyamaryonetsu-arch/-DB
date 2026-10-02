@@ -1,17 +1,17 @@
 // ゲーム ぜんたいの しんこう
-import { Input } from './input.js?v=50cb6b27c5a9';
-import { GameAudio } from './audio.js?v=50cb6b27c5a9';
-import { Field } from './field.js?v=50cb6b27c5a9';
-import { Hud, STAMPS } from './ui/hud.js?v=50cb6b27c5a9';
-import { FieldMenu, openWorldMap } from './ui/menu.js?v=50cb6b27c5a9';
-import { ScriptPlayer, wait } from './ui/script.js?v=50cb6b27c5a9';
-import { BattleScene } from './battle.js?v=50cb6b27c5a9';
-import { showTitle, showLogin, showSelect, showCreate, showLoading, saveWhere } from './ui/title.js?v=50cb6b27c5a9';
-import { showServerDown } from './ui/syncui.js?v=50cb6b27c5a9';
-import { toast, confirmBox, el } from './ui/dom.js?v=50cb6b27c5a9';
-import { MAPS } from '../shared/maps/index.js?v=50cb6b27c5a9';
-import { applyBattlePrefs, applyUiFont } from './prefs.js?v=50cb6b27c5a9';
-import { SkyClient } from './sky.js?v=50cb6b27c5a9';
+import { Input } from './input.js?v=cd338033c896';
+import { GameAudio } from './audio.js?v=cd338033c896';
+import { Field } from './field.js?v=cd338033c896';
+import { Hud, STAMPS } from './ui/hud.js?v=cd338033c896';
+import { FieldMenu, openWorldMap } from './ui/menu.js?v=cd338033c896';
+import { ScriptPlayer, wait } from './ui/script.js?v=cd338033c896';
+import { BattleScene } from './battle.js?v=cd338033c896';
+import { showTitle, showLogin, showSelect, showCreate, showLoading, saveWhere } from './ui/title.js?v=cd338033c896';
+import { showServerDown } from './ui/syncui.js?v=cd338033c896';
+import { toast, confirmBox, el } from './ui/dom.js?v=cd338033c896';
+import { MAPS } from '../shared/maps/index.js?v=cd338033c896';
+import { applyBattlePrefs, applyUiFont } from './prefs.js?v=cd338033c896';
+import { SkyClient } from './sky.js?v=cd338033c896';
 
 export class Game {
   constructor(net) {
@@ -426,6 +426,10 @@ export class Game {
       case 'snap':
         this.field.onSnap(m);
         break;
+      case 'hurt':
+        // ようがんの 地面（第3章。shared/world/hazards.js）
+        this.onHurt(m);
+        break;
       case 'script':
         this.scriptEnded = false;
         await this.waitBattleClosed();
@@ -504,10 +508,27 @@ export class Game {
 
   endScript() {
     this.busy = false;
+    if (this.field) this.field.lookAt = null;
     this.sky.scriptEnd();
     this.scriptBgm = null;
     this.field.nightOverride = null;
     this.field.hideGuests = false;
+    this.field.hideMe = false;
+    this.field.weatherOverride = null;
+  }
+
+  // ようがんの 地面で ダメージ: 画面が 赤く 光る（はじめての ときだけ せつめい）
+  onHurt(m) {
+    this.audio.sfx('hurt');
+    const c = document.getElementById('curtain');
+    c.classList.add('hurt');
+    clearTimeout(this.hurtT);
+    this.hurtT = setTimeout(() => c.classList.remove('hurt'), 180);
+    const now = performance.now();
+    if (!(this.hurtToastAt > now - 20000)) {
+      this.hurtToastAt = now;
+      toast('あつい！ようがんの熱で、ダメージを受けた！\n（熱を防ぐ方法が、どこかにあるかもしれない…）', 4200);
+    }
   }
 
   onWelcomeReady() {
@@ -559,7 +580,7 @@ export class Game {
     if (this.net.mode === 'offline' && !this.saveWarned) {
       this.saveWarned = true;
       const cloud = this.net.local?.cloud;
-      import('./offline.js?v=50cb6b27c5a9').then(({ offlineStorage }) => {
+      import('./offline.js?v=cd338033c896').then(({ offlineStorage }) => {
         offlineStorage.load();
         if (cloud?.state === 'on') return;
         if (!offlineStorage.ok) toast('このブラウザではセーブができないかもしれません', 5000);

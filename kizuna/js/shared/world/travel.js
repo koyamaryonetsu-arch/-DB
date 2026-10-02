@@ -7,18 +7,21 @@
 //   出入り口（洞窟・塔）・イベントの 場所・たてものには 入れない。人とも 話せない
 // ・おりられるのは、歩ける 地面（水・たてものの 中・出入り口・人の そば では ない ところ）
 // ・ミドリナ地方の 南の はし ⇄ 風の海の 北の はしで、となりの 地方へ とんでいける（「別の地方へ飛ぶ」でも）
+// ・第3章: ミドリナ地方の 北の はし ⇄ シロガネ地方の 南の はし（c3_start から）。
+//   シロガネ地方は 星の竜が 目覚める（c3_dragon）まで ふぶきで、南の 雪原の 上しか とべない（data/sky.js の box）
+// ・星の竜が 目覚めたら 竜に のって とぶ（すこし はやい。data/sky.js の flySpeed）
 // ・パーティーで「ついていく」に している なかまは いっしょに のる
 // ・サーバーは とんでいない 人が 歩けない ところへ 入るのを みとめない（world.js の onMove）
-import { MAPS, isBlocked, onWater, condOk } from '../maps/index.js?v=50cb6b27c5a9';
-import { PLACES } from '../maps/overworld.js?v=50cb6b27c5a9';
-import { SEA_PLACES } from '../maps/ch2.js?v=50cb6b27c5a9';
-import { ABILITIES } from '../data/abilities.js?v=50cb6b27c5a9';
-import { ITEMS } from '../data/items.js?v=50cb6b27c5a9';
-import { hasKeyItem, mpCost, removeItem, itemCount } from '../stats.js?v=50cb6b27c5a9';
-import { SKY_MAPS, SKY_BIRD, FLUTE_ID, regionHop, atEdge } from '../data/sky.js?v=50cb6b27c5a9';
-import { partyOf } from './party.js?v=50cb6b27c5a9';
-import { warpDest } from './services.js?v=50cb6b27c5a9';
-import { advanceClock, clockOwner } from './clock.js?v=50cb6b27c5a9';
+import { MAPS, isBlocked, onWater, condOk } from '../maps/index.js?v=cd338033c896';
+import { PLACES } from '../maps/overworld.js?v=cd338033c896';
+import { SEA_PLACES } from '../maps/ch2.js?v=cd338033c896';
+import { ABILITIES } from '../data/abilities.js?v=cd338033c896';
+import { ITEMS } from '../data/items.js?v=cd338033c896';
+import { hasKeyItem, mpCost, removeItem, itemCount } from '../stats.js?v=cd338033c896';
+import { SKY_MAPS, FLUTE_ID, regionHop, edgeAt, edgeTarget, regionsFrom, skyBox, inSkyBox, mountOf, flySpeed } from '../data/sky.js?v=cd338033c896';
+import { partyOf } from './party.js?v=cd338033c896';
+import { warpDest } from './services.js?v=cd338033c896';
+import { advanceClock, clockOwner } from './clock.js?v=cd338033c896';
 
 const FOLLOW_RANGE = 12;
 
@@ -70,6 +73,10 @@ export function useTimeBell(world, s, itemId, reply) {
 
 // ───────────── 空を とぶ ─────────────
 export const canFlyMap = (mapId) => !!SKY_MAPS[mapId];
+// のりもの（大鳥フウラ か 星の竜アステル）。手伝っている ときは リーダーの 世界の もの
+const mountFor = (world, s) => mountOf(world.worldFlags?.(s) || s.char?.flags);
+// 空を とぶ はやさ（歩く はやさの ばい）
+export const flySpeedFor = (world, s) => flySpeed(world.worldFlags?.(s) || s.char?.flags);
 
 // とんでいる かどうかを きめる（キャラにも のこす: セーブから つづける ため）
 export function setFlying(s, on) {
@@ -94,8 +101,13 @@ export function canCall(world, s) {
   if (!own && !hosted) return { ok: false, reason: '' };
   if (s.flying) return { ok: false, reason: 'もう空を飛んでいる。' };
   if (s.busy) return { ok: false, reason: '今はできません' };
-  if (!canFlyMap(s.map)) return { ok: false, reason: `${ITEMS[FLUTE_ID].name}をふいた！\nしかし何も起こらなかった…\n（洞窟や塔の中では、大鳥は来られない）` };
-  if (inTown(s.map, s.x, s.y)) return { ok: false, reason: `${ITEMS[FLUTE_ID].name}をふいた！\nしかし${SKY_BIRD.name}は町の中にはおりられない。\n（町の外でふこう）` };
+  const mount = mountFor(world, s);
+  if (!canFlyMap(s.map)) return { ok: false, reason: `${ITEMS[FLUTE_ID].name}をふいた！\nしかし何も起こらなかった…\n（洞窟や塔の中では、${mount.btn}は来られない）` };
+  if (inTown(s.map, s.x, s.y)) return { ok: false, reason: `${ITEMS[FLUTE_ID].name}をふいた！\nしかし${mount.name}は町の中にはおりられない。\n（町の外でふこう）` };
+  // ふぶきの 地方（シロガネ地方。星の竜が 目覚めるまで）: 南の 雪原でしか よべない
+  if (!inSkyBox(skyBox(s.map, world.hasFlagFn(s)), s.x, s.y)) {
+    return { ok: false, reason: `${ITEMS[FLUTE_ID].name}をふいた！\nしかし、はげしいふぶきで${mount.name}はここまでおりてこられない…\n（南の雪原の広場でふこう）` };
+  }
   return { ok: true };
 }
 
@@ -191,17 +203,31 @@ export function landBird(world, s) {
   return true;
 }
 
-// となりの 地方へ（edge: マップの はしを こえた）
-export function flyRegion(world, s, edge) {
+// となりの 地方へ（edge: マップの はしを こえた / dest: 「別の地方へ飛ぶ」で えらんだ 地方）
+export function flyRegion(world, s, edge, dest = null) {
   if (!s.flying || s.busy) return false;
   const map = MAPS[s.map];
-  if (edge && !atEdge(s.map, s.y, map.h)) return false;
-  const to = regionHop(s.map, s.x, s.y, edge);
+  const has = world.hasFlagFn(s);
+  let to;
+  if (edge) {
+    const e = edgeAt(s.map, s.y, map.h);
+    if (!e) return false;
+    if (!edgeTarget(s.map, e, has)) {
+      world.send(s, { t: 'toast', text: 'この先の空は、はげしいふぶきで進めない…\n（ホシフル村のホシミばあちゃんに、話を聞いてみよう）' });
+      return false;
+    }
+    to = regionHop(s.map, s.x, s.y, e, null, has);
+  } else {
+    const list = regionsFrom(s.map, has);
+    const pick = typeof dest === 'string' && list.includes(dest) ? dest : list[0];
+    if (!pick) return false;
+    to = regionHop(s.map, s.x, s.y, null, pick, has);
+  }
   if (!to || !MAPS[to.map]) return false;
   const riders = followers(world, s).filter((m) => m.flying);
   world.placeSession(s, to.map, to.x, to.y, to.dir, true, { fly: true });
   riders.forEach((m, i) => world.placeSession(m, to.map, to.x + (i % 2 ? 1 : -1) * (1 + (i >> 1)) * 0.8, to.y, to.dir, true, { fly: true }));
-  world.send(s, { t: 'toast', text: `${SKY_BIRD.name}は${MAPS[to.map].name}へ飛んでいく！` });
+  world.send(s, { t: 'toast', text: `${mountFor(world, s).name}は${MAPS[to.map].name}へ飛んでいく！` });
   world.broadcastPlayers();
   return true;
 }
@@ -219,14 +245,20 @@ export function onFly(world, s, msg) {
   switch (msg.action) {
     case 'call': return callBird(world, s);
     case 'land': return landBird(world, s);
-    case 'region': return flyRegion(world, s, !!msg.edge);
+    case 'region': return flyRegion(world, s, !!msg.edge, msg.to);
     default: return false;
   }
 }
 
 // とんでいない 人は、歩けない ところへ 入れない（とんでいる 人は とべる マップの 中なら どこでも）
 export function moveAllowed(world, s, map, x, y) {
-  if (s.flying) return canFlyMap(map.id);
+  // とんでいる 人は とべる マップの 中（ふぶきの 地方は とべる 場所の 中）なら どこでも
+  if (s.flying) {
+    if (!canFlyMap(map.id)) return false;
+    const box = skyBox(map.id, world.hasFlagFn(s));
+    // 外に いる ときは とじこめない（外へ 出る 動きだけ だめ）
+    return inSkyBox(box, x, y) || !inSkyBox(box, s.x, s.y);
+  }
   const tx = Math.floor(x), ty = Math.floor(y);
   const ox = Math.floor(s.x), oy = Math.floor(s.y);
   if (tx === ox && ty === oy) return true;

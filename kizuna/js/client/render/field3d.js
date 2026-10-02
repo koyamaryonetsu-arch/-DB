@@ -3,14 +3,14 @@
 // ・ひと・まもの・もの は ドット絵を カメラに むけて たてる（ビルボード）
 // ・カメラは ななめ うえから みおろす（うごかすのは いち だけ。むきは かわらない）
 // あるく・ぶつかる などの きまりは 2D と おなじ（Field が きめる）。ここでは かく だけ。
-import * as THREE from '../../../vendor/three.min.js?v=50cb6b27c5a9';
-import { T } from '../../shared/tiles.js?v=50cb6b27c5a9';
-import { effectiveTile } from '../../shared/maps/index.js?v=50cb6b27c5a9';
-import { hash2 } from '../../shared/rng.js?v=50cb6b27c5a9';
-import { Atlas, extraCanvas, propCanvas, PROP_TILES, leafCanvas, roofCanvas, tileArt } from './tex3d.js?v=50cb6b27c5a9';
-import { tileCanvas } from './tiles.js?v=50cb6b27c5a9';
-import { flipCanvas, makeCanvas, ctxOf, whiteCopy } from './pixel.js?v=50cb6b27c5a9';
-import { themedCanvas, partOfTile, partOfExtra } from './themes.js?v=50cb6b27c5a9';
+import * as THREE from '../../../vendor/three.min.js?v=cd338033c896';
+import { T } from '../../shared/tiles.js?v=cd338033c896';
+import { effectiveTile } from '../../shared/maps/index.js?v=cd338033c896';
+import { hash2 } from '../../shared/rng.js?v=cd338033c896';
+import { Atlas, extraCanvas, propCanvas, PROP_TILES, leafCanvas, roofCanvas, tileArt } from './tex3d.js?v=cd338033c896';
+import { tileCanvas } from './tiles.js?v=cd338033c896';
+import { flipCanvas, makeCanvas, ctxOf, whiteCopy } from './pixel.js?v=cd338033c896';
+import { themedCanvas, partOfTile, partOfExtra } from './themes.js?v=cd338033c896';
 
 const PITCH = 55 * Math.PI / 180;
 const SIN = Math.sin(PITCH), COS = Math.cos(PITCH);
@@ -25,7 +25,13 @@ const FLOOR = 1, WATER = 2, BLOCK = 3;
 
 const WATER_TILES = new Set([T.WATER, T.DEEP, T.CAVE_WATER, T.BROKEN_BRIDGE]);
 const WALL_TILES = new Set([T.WALL_STONE, T.WALL_WOOD]);
-const TREE_TILES = new Set([T.TREE, T.PINE]);
+const TREE_TILES = new Set([T.TREE, T.PINE, T.SNOW_PINE]);
+// 第3章: ようがん・温泉（水と おなじ ひくさに、うごく え を はる）
+const LIQUID_TILES = { [T.LAVA]: { name: 'lava', y: WATER_Y + 0.06, speed: 380 }, [T.HOT_SPRING]: { name: 'spring', y: -0.2, speed: 520 } };
+// 地面の たかさ（深い 雪は すこし 高く・谷は ふかく）
+const FLOOR_H = { [T.STEPPING]: -0.16, [T.DEEP_SNOW]: 0.14, [T.CHASM]: -0.8 };
+// 雪・氷の 地面の よこの え
+const SIDE_OF = { [T.SAND]: 'sand_side', [T.SNOW]: 'snow_side', [T.SNOW_PATH]: 'snow_side', [T.DEEP_SNOW]: 'snow_side', [T.ICE]: 'ice_side' };
 
 // かべ・かぐ などの たかさと え
 function blockSpec(id, x, y) {
@@ -55,6 +61,21 @@ function blockSpec(id, x, y) {
     case T.FOUNTAIN: return { h: 0.35, top: ['t', T.FOUNTAIN, 0, 0], side: ['x', 'stone_side', 0] };
     case T.PILLAR: return { h: 1.7, top: ['x', 'stone_top', 0], side: ['x', 'pillar_side', 0] };
     case T.CRATE: return { h: 0.65, top: ['x', 'wood_top', 0], side: ['x', 'wood_side', 0] };
+    // 第3章
+    case T.SNOW_ROCK: {
+      const h = 1.1 + hash2(x, y, 5) * 0.8;
+      return { h, top: ['x', 'snow_top', v], side: ['x', 'snowrock_side', v] };
+    }
+    case T.ASH_ROCK: {
+      const h = 1.0 + hash2(x, y, 5) * 0.7;
+      return { h, top: ['x', 'ash_top', v], side: ['x', 'ashrock_side', v] };
+    }
+    case T.ICE_BLOCK: return { h: 0.85, top: ['x', 'ice_top', v], side: ['x', 'ice_side', v] };
+    case T.SNOW_WALL: return { h: 1.0, top: ['x', 'snow_top', v], side: ['x', 'snow_side', v] };
+    case T.ICE_WALL: return { h: 1.6, top: ['x', 'ice_top', v], side: ['x', 'ice_side', v], south: ['t', T.ICE_WALL, v, 1] };
+    case T.DRAGON_GATE: return { h: 2.0, top: ['x', 'stone_top', 0], side: ['x', 'gate_side', 0], south: ['t', T.DRAGON_GATE, v === 0 ? 0 : 1, 0] };
+    case T.MINE_BEAM: return { h: 1.6, top: ['x', 'wood_top', 0], side: ['x', 'beam_side', 0] };
+    case T.FLAME_WALL: return { h: 1.3, top: ['x', 'flame_side', v], side: ['x', 'flame_side', v] };
     default: return null;
   }
 }
@@ -62,7 +83,7 @@ function blockSpec(id, x, y) {
 // タイルの しゅるい: FLOOR / WATER / BLOCK（もの・き は FLOOR の うえに たてる）
 function kindOf(id) {
   if (id === T.VOID) return 0;
-  if (WATER_TILES.has(id)) return WATER;
+  if (WATER_TILES.has(id) || LIQUID_TILES[id]) return WATER;
   if (blockSpec(id, 0, 0)) return BLOCK;
   return FLOOR;
 }
@@ -167,6 +188,7 @@ export class Field3D {
       m.dispose();
     }
     for (const t of this.static.waterFrames || []) t.dispose();
+    for (const t of this.static.liquidFrames || []) t.dispose();
     this.static = null;
   }
 
@@ -190,9 +212,9 @@ export class Field3D {
       const id = idAt(x, y);
       if (id === -1 || id === T.VOID) return null;
       const k = kindOf(id);
-      if (k === WATER || id === T.WHIRLPOOL) return WATER_Y;
+      if (k === WATER || id === T.WHIRLPOOL) return LIQUID_TILES[id]?.y ?? WATER_Y;
       if (k === BLOCK) return spec(x, y).h;
-      return id === T.STEPPING ? -0.16 : 0;
+      return FLOOR_H[id] ?? 0;
     };
     this.topH = topH;
 
@@ -231,7 +253,7 @@ export class Field3D {
           if (n === -1 || kindOf(n) !== FLOOR || PROP_TILES.has(n) || TREE_TILES.has(n) || n === T.DOOR) continue;
           cnt.set(n, (cnt.get(n) || 0) + 1);
         }
-        let best = dungeon ? T.CAVE_FLOOR : T.GRASS, bn = 0;
+        let best = dungeon ? T.CAVE_FLOOR : map.ground || T.GRASS, bn = 0;
         for (const [n, c] of cnt) if (c > bn) { bn = c; best = n; }
         return ['t', best, Math.floor(hash2(x, y, 17) * 4), 0];
       }
@@ -245,7 +267,8 @@ export class Field3D {
     for (let i = 0; i < cw * chh; i++) chunks.push(newGeo());
     const props = newGeo();
     const water = newGeo();
-    const trees = [], pines = [];
+    const liquids = {};
+    const trees = [], pines = [], snowPines = [];
     const isBlockAt = (x, y) => {
       const id = idAt(x, y);
       return id !== -1 && kindOf(id) === BLOCK && spec(x, y).h > 0.55;
@@ -264,6 +287,13 @@ export class Field3D {
           quad(g, [x, wy, y], [x, wy, y + 1], [x + 1, wy, y + 1], [x + 1, wy, y], uvOf(['t', T.WHIRLPOOL, Math.floor(hash2(x, y, 17) * 4), 0]), 1);
           continue;
         }
+        if (kind === WATER && LIQUID_TILES[id]) {
+          // ようがん・温泉
+          const L = LIQUID_TILES[id];
+          const lg = liquids[id] || (liquids[id] = newGeo());
+          quad(lg, [x, L.y, y], [x, L.y, y + 1], [x + 1, L.y, y + 1], [x + 1, L.y, y], { u0: x, u1: x + 1, v0: -y - 1, v1: -y }, 1);
+          continue;
+        }
         if (kind === WATER) {
           const deep = id === T.DEEP ? 0.72 : id === T.CAVE_WATER ? 0.9 : 1;
           quad(water, [x, WATER_Y, y], [x, WATER_Y, y + 1], [x + 1, WATER_Y, y + 1], [x + 1, WATER_Y, y], { u0: x, u1: x + 1, v0: -y - 1, v1: -y }, deep);
@@ -273,12 +303,13 @@ export class Field3D {
           // かどの かげ（かべの ちかくは すこし くらい）
           const ao = (cx, cy) => (isBlockAt(cx - 1, cy - 1) || isBlockAt(cx, cy - 1) || isBlockAt(cx - 1, cy) || isBlockAt(cx, cy) ? 0.8 : 1);
           quad(g, [x, hh, y], [x, hh, y + 1], [x + 1, hh, y + 1], [x + 1, hh, y], uvOf(floorKey(x, y, id)), [ao(x, y), ao(x, y + 1), ao(x + 1, y + 1), ao(x + 1, y)]);
-          sides(g, x, y, hh, (dx, dy) => topH(x + dx, y + dy), () => uvOf(['x', idAt(x, y) === T.SAND ? 'sand_side' : dungeon ? 'cave_side' : 'shore_side', 0]));
+          sides(g, x, y, hh, (dx, dy) => topH(x + dx, y + dy), () => uvOf(['x', SIDE_OF[idAt(x, y)] || (dungeon ? 'cave_side' : 'shore_side'), 0]));
           if (PROP_TILES.has(id)) {
             const c = propCanvas(id);
             if (c) this.addProp(props, map.theme ? themedCanvas(c, map.theme, 'floor') : c, x + 0.5, y + 0.78, id);
           } else if (id === T.TREE) trees.push([x, y]);
           else if (id === T.PINE) pines.push([x, y]);
+          else if (id === T.SNOW_PINE) snowPines.push([x, y]);
           // もんの うえの かべ（たてものの いりぐち）
           if (id === T.DOOR) {
             const rr = roofOf(x, y);
@@ -333,6 +364,38 @@ export class Field3D {
       if (trees.length) group.add(instanced(treeGeometry(), tm, trees, 0.55));
       if (pines.length) group.add(instanced(pineGeometry(), tm, pines, 0.6));
     }
+    // 雪の つもった もみの木（第3章）
+    if (snowPines.length) {
+      const st = makeCanvas(48, 16);
+      const sc = ctxOf(st);
+      sc.drawImage(leafCanvas('snowpine'), 0, 0);
+      sc.drawImage(leafCanvas('snowpine'), 16, 0);
+      sc.drawImage(leafCanvas('trunk'), 32, 0);
+      const sm = new THREE.MeshBasicMaterial({ map: this.tex(st), vertexColors: true });
+      materials.push(sm);
+      group.add(instanced(pineGeometry(), sm, snowPines, 0.6));
+    }
+    // ようがん・温泉（うごく え）
+    this.liquids = [];
+    const liquidFrames = [];
+    for (const [id, lg] of Object.entries(liquids)) {
+      const L = LIQUID_TILES[id];
+      const fr = [];
+      for (let i = 0; i < 3; i++) {
+        const t = new THREE.CanvasTexture(tileCanvas(Number(id), 0, i, 0));
+        t.magFilter = THREE.NearestFilter;
+        t.minFilter = THREE.NearestFilter;
+        t.generateMipmaps = false;
+        t.wrapS = t.wrapT = THREE.RepeatWrapping;
+        t.colorSpace = THREE.SRGBColorSpace;
+        fr.push(t);
+        liquidFrames.push(t);
+      }
+      const lm = new THREE.MeshBasicMaterial({ map: fr[0], vertexColors: true });
+      materials.push(lm);
+      group.add(new THREE.Mesh(toGeometry(lg), lm));
+      this.liquids.push({ mat: lm, frames: fr, speed: L.speed });
+    }
     // みず
     const frames = [];
     if (water.pos.length) {
@@ -351,12 +414,14 @@ export class Field3D {
       group.add(new THREE.Mesh(toGeometry(water), wm));
       this.waterMat = wm;
     } else this.waterMat = null;
-    // マップの そとの うみ（フィールドだけ）
+    // マップの そとの うみ（フィールドだけ。雪の 地方は 雪の 野原）
     if (!dungeon) {
       const sea = newGeo();
       const M = 90;
-      quad(sea, [-M, WATER_Y - 0.03, -M], [-M, WATER_Y - 0.03, h + M], [w + M, WATER_Y - 0.03, h + M], [w + M, WATER_Y - 0.03, -M], { u0: -M, u1: w + M, v0: -h - M, v1: M }, 0.62);
-      const seaTex = new THREE.CanvasTexture(tileCanvas(T.DEEP, 0, 0, 0));
+      const snowy = map.outside === 'snow';
+      const oy = snowy ? -0.05 : WATER_Y - 0.03;
+      quad(sea, [-M, oy, -M], [-M, oy, h + M], [w + M, oy, h + M], [w + M, oy, -M], { u0: -M, u1: w + M, v0: -h - M, v1: M }, snowy ? 0.86 : 0.62);
+      const seaTex = new THREE.CanvasTexture(tileCanvas(snowy ? T.SNOW : T.DEEP, 0, 0, 0));
       seaTex.magFilter = THREE.NearestFilter;
       seaTex.minFilter = THREE.NearestFilter;
       seaTex.generateMipmaps = false;
@@ -367,9 +432,10 @@ export class Field3D {
       group.add(new THREE.Mesh(toGeometry(sea), sm));
     }
     this.scene.add(group);
-    this.static = { group, materials, waterFrames: frames };
-    this.scene.background = new THREE.Color(dungeon ? (map.theme === 'ice' ? '#0d1a33' : '#070505') : '#1c3d6e');
-    this.scene.fog = new THREE.Fog(dungeon ? 0x050304 : 0x9ec3e8, 10, 50);
+    this.static = { group, materials, waterFrames: frames, liquidFrames };
+    // 空と きりの 色（マップの sky3d で かえられる。雪の 地方は 白っぽい）
+    this.scene.background = new THREE.Color(map.sky3d?.bg || (dungeon ? (map.theme === 'ice' ? '#0d1a33' : '#070505') : '#1c3d6e'));
+    this.scene.fog = new THREE.Fog(map.sky3d?.fog ?? (dungeon ? 0x050304 : 0x9ec3e8), 10, 50);
     this.updateFog();
     this.mapId = f.mapId;
     this.lastBuildMs = Math.round(performance.now() - t0);
@@ -391,6 +457,9 @@ export class Field3D {
       red: ['#b8403a', '#8a2a26', '#d8605a'], blue: ['#3a64b0', '#264a8a', '#5a84d0'], green: ['#3a8a4a', '#276a36', '#5aaa6a'],
       purple: ['#6a4a9a', '#4e3478', '#8a6aba'], white: ['#d8d4e8', '#aaa6c0', '#f4f2ff'], orange: ['#d0782e', '#a45a1e', '#ec9a4e'],
       teal: ['#2a8a8a', '#1e6a6a', '#4aaaaa'], brown: ['#8a5a32', '#6a4222', '#aa7a4e'], pink: ['#d06a9a', '#aa4a7a', '#ec8aba'],
+      // 第3章: 雪の つもった やね・鉱山の 町の 石の やね
+      snow: ['#e4ecf8', '#a8b4c8', '#ffffff'], snowred: ['#b8403a', '#8a2a26', '#f4f8ff'], snowblue: ['#3a64b0', '#264a8a', '#f4f8ff'],
+      snowgreen: ['#3a7a5a', '#26583e', '#f4f8ff'], slate: ['#5a6078', '#3a3e52', '#8a90b0'], rust: ['#9a5a3a', '#6a3a22', '#c88a5a'],
     };
     const t = new THREE.CanvasTexture(roofCanvas(colors[r.color] || colors.red));
     t.magFilter = THREE.NearestFilter;
@@ -429,7 +498,7 @@ export class Field3D {
       this.snap = true;
     }
     // カメラ
-    const me = f.me;
+    const me = f.lookAt || f.me; // だいほんの ['look', x, y] の 間は その 場所を 見る
     const tx = Math.max(3, Math.min(m.w - 3, me.x));
     const tz = Math.max(2, Math.min(m.h - 1, me.y - 0.3));
     if (this.snap || Math.hypot(this.target.x - tx, this.target.z - tz) > 12) {
@@ -470,6 +539,10 @@ export class Field3D {
     if (this.waterMat) {
       const fr = this.static.waterFrames[Math.floor(this.time / 420) % 3];
       if (this.waterMat.map !== fr) this.waterMat.map = fr;
+    }
+    for (const l of this.liquids || []) {
+      const fr = l.frames[Math.floor(this.time / l.speed) % l.frames.length];
+      if (l.mat.map !== fr) l.mat.map = fr;
     }
     this.updateSprites();
     this.renderer.render(this.scene, cam);

@@ -12,19 +12,20 @@
 //   ['teleport', 'map', x, y, 'dir']  ['spawn', 'map', x, y]  ['chapter', 'だい1しょう', 'サブタイトル']
 //
 // x（じょうほう）: x.name x.flag('f') x.has('item') x.count('item') x.kills('monster') x.quest('key')
-import { POS } from '../maps/index.js?v=50cb6b27c5a9';
-import { PLACES } from '../maps/overworld.js?v=50cb6b27c5a9';
-import { ABILITIES } from './abilities.js?v=50cb6b27c5a9';
-import { learnedAbilities, comboUnlocked, hiraAllowed } from '../stats.js?v=50cb6b27c5a9';
-import { HIRAMEKI, hiraRatio } from './hirameki.js?v=50cb6b27c5a9';
-import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js?v=50cb6b27c5a9';
-import { TM_SCRIPTS, TM_STORY_SCRIPTS } from './story-tm.js?v=50cb6b27c5a9';
-import { CASINO_SCRIPTS } from './story-casino.js?v=50cb6b27c5a9';
-import { innSteps } from './inn.js?v=50cb6b27c5a9';
-import { NIGHT_SCRIPTS } from './night.js?v=50cb6b27c5a9';
-import { skyScripts } from './sky.js?v=50cb6b27c5a9';
-import { FACILITY_SCRIPTS } from './facilities.js?v=50cb6b27c5a9';
-import { wagonEventSteps } from './wagon.js?v=50cb6b27c5a9';
+import { POS } from '../maps/index.js?v=cd338033c896';
+import { PLACES } from '../maps/overworld.js?v=cd338033c896';
+import { ABILITIES } from './abilities.js?v=cd338033c896';
+import { learnedAbilities, comboUnlocked, hiraAllowed } from '../stats.js?v=cd338033c896';
+import { HIRAMEKI, hiraRatio } from './hirameki.js?v=cd338033c896';
+import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js?v=cd338033c896';
+import { CH3_STEPS, CH3_STORY_SCRIPTS, CH3_SCRIPTS, elderCh3 } from './story-ch3.js?v=cd338033c896';
+import { TM_SCRIPTS, TM_STORY_SCRIPTS } from './story-tm.js?v=cd338033c896';
+import { CASINO_SCRIPTS } from './story-casino.js?v=cd338033c896';
+import { innSteps } from './inn.js?v=cd338033c896';
+import { NIGHT_SCRIPTS } from './night.js?v=cd338033c896';
+import { skyScripts } from './sky.js?v=cd338033c896';
+import { FACILITY_SCRIPTS } from './facilities.js?v=cd338033c896';
+import { wagonEventSteps } from './wagon.js?v=cd338033c896';
 
 const V = (x, y) => [PLACES.village.x + x + 0.5, PLACES.village.y + y + 0.5];
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
@@ -35,10 +36,11 @@ export const STORY_STEPS = [
   'p_opening', 'p_start', 'p_flower', 'p_attack', 'c1_town', 'c1_mayor', 'c1_wood_quest', 'c1_treant', 'bridge_fixed',
   'c1_cave', 'c1_door', 'c1_boss', 'c1_clear',
   ...CH2_STEPS,
+  ...CH3_STEPS,
 ];
 
 // パーティー全員で みる ストーリーイベント
-export const STORY_SCRIPTS = new Set(['elder', 'star_flower', 'treant', 'carpenter', 'boss_event', 'mayor', 'opening', 'town_arrive', 'cave_enter', 'locked_door', ...CH2_STORY_SCRIPTS, ...TM_STORY_SCRIPTS]);
+export const STORY_SCRIPTS = new Set(['elder', 'star_flower', 'treant', 'carpenter', 'boss_event', 'mayor', 'opening', 'town_arrive', 'cave_enter', 'locked_door', ...CH2_STORY_SCRIPTS, ...TM_STORY_SCRIPTS, ...CH3_STORY_SCRIPTS]);
 
 export const SCRIPTS = {
   // ───────────── じょしょう ─────────────
@@ -78,6 +80,8 @@ export const SCRIPTS = {
             ['actor', 'luca', { sprite: 'luca', x: V(23, 19)[0], y: V(23, 19)[1], dir: 'up' }],
             ...S('ルカ', 'へへっ、任せとけって！{name}、いっしょに行こうぜ！'),
             ['remove', 'luca'],
+            // ここまでの せりふを 見せてから パーティーの らんに ルカを 出す
+            ['sync'],
             ['guest', 'luca'],
             ['sfx', 'join'],
             ...N('ルカが仲間に加わった！'),
@@ -101,6 +105,8 @@ export const SCRIPTS = {
     if (x.flag('c1_clear')) {
       if (!x.flag('c2_start')) return SCRIPTS.ch2_intro(x);
       if (!x.flag('c2_clear')) return S('ホシミばあちゃん', '風の島へは、村の南のさんばしから船で行けるよ。', '{name}、気を付けて行っておいで。');
+      // 第3章（風の笛を もらった あと。story-ch3.js）
+      if (x.flag('sky_flute')) return elderCh3(x);
       return S('ホシミばあちゃん', '風の守り星がもどって、海もおだやかになったようじゃね。',
         '星の竜の話は、わしも子どものころに聞いたことがある。\n北の山の上に、竜がねむっておるとな…');
     }
@@ -285,6 +291,9 @@ export const SCRIPTS = {
   star_stone: (x) => {
     if (!x.flag('p_attack')) return N('守り星の石が優しくかがやいている。');
     if (!x.flag('c1_clear')) return N('さいだんには何もない…', '守り星の石を取りもどさなければ。');
+    // 第3章: 風の笛を もらうと 北の 空を 指して 光る
+    if (x.flag('sky_flute') && !x.flag('c3_start')) return N('守り星の石が、北の空を指すように光っている…！', '（ホシミばあちゃんに、話を聞いてみよう）');
+    if (x.flag('c3_clear')) return N('守り星の石が、遠くの守り星たちと\nひびき合うように、かがやいている。');
     return N('守り星の石が再びかがやいている。\n温かい光だ。');
   },
 
@@ -467,6 +476,7 @@ function festival(x) {
     ...N('ザルバは守り星の石をうばって消えてしまった…'),
     ...S('ルカ', 'くそっ…{name}、だいじょうぶか…？', 'う…いてて…ちょっと無理しすぎたかな…'),
     ...S('ホシミばあちゃん', 'ルカ！…だれかルカをわしの家へ！'),
+    ['sync'],
     ['guest', null],
     ['guestHide', false],
     ['fade', 'out'],
@@ -578,6 +588,8 @@ function sageHints(x) {
 }
 
 Object.assign(SCRIPTS, CH2_SCRIPTS, TM_SCRIPTS);
+// 第3章「星の竜がねむる山」（story-ch3.js）
+Object.assign(SCRIPTS, CH3_SCRIPTS);
 // 夜の 人（night.js）と、風のさいだんの 笛の イベント（sky.js）
 Object.assign(SCRIPTS, NIGHT_SCRIPTS);
 Object.assign(SCRIPTS, skyScripts(SCRIPTS));

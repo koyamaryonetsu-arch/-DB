@@ -1,8 +1,8 @@
 // たたかいの はいけいと エフェクト
-import { makeCanvas, ctxOf, hexToRgb } from './pixel.js?v=50cb6b27c5a9';
-import { weaponLook, playWeapon, playReach } from './weaponfx.js?v=50cb6b27c5a9';
-import { nightBg, drawNightSky } from './night-art.js?v=50cb6b27c5a9';
-import { playJobFx, JOB_FINE } from './battlefx-jobs.js?v=50cb6b27c5a9';
+import { makeCanvas, ctxOf, hexToRgb } from './pixel.js?v=cd338033c896';
+import { weaponLook, playWeapon, playReach } from './weaponfx.js?v=cd338033c896';
+import { nightBg, drawNightSky } from './night-art.js?v=cd338033c896';
+import { playJobFx, JOB_FINE } from './battlefx-jobs.js?v=cd338033c896';
 
 export const BW = 256;
 export const BH = 144;
@@ -68,6 +68,16 @@ const BG = {
   // 宝の洞窟（氷・炎）
   tm_ice: { sky: ['#0a1a30', '#16304e', '#28507a'], far: '#3a6a9a', near: '#7ea2cf', ground: ['#a8c8e8', '#8aaed6'], deco: 'crystal' },
   tm_lava: { sky: ['#1a0604', '#3a0e06', '#6a1a08'], far: '#4a1a0e', near: '#8a2a0a', ground: ['#4a2216', '#3a1a10'], deco: 'stalactite' },
+  // 第3章（シロガネ地方）。snow: 雪が ちらつく / embers: 火の粉
+  snowfield: { sky: ['#8ab4e0', '#b8d4f0', '#e4eefa'], far: '#c8d6ea', near: '#dce6f4', ground: ['#eef3fb', '#dfe8f5'], deco: 'hills', snow: true },
+  snowforest: { sky: ['#6a8ab0', '#8aa8c8', '#c0d4ea'], far: '#2e5a4a', near: '#d8e2f0', ground: ['#e8eef8', '#d6e0ee'], deco: 'trees', snow: true },
+  ice_cave: { sky: ['#0a1a30', '#16304e', '#28507a'], far: '#3a6a9a', near: '#7ea2cf', ground: ['#a8c8e8', '#8aaed6'], deco: 'crystal' },
+  mine: { sky: ['#0e0a08', '#1e1610', '#2e2218'], far: '#3a2c1e', near: '#5a4430', ground: ['#5a4632', '#4a3a28'], deco: 'stalactite', beams: true },
+  ashland: { sky: ['#4a2a2a', '#7a4a3a', '#b0745a'], far: '#3a2626', near: '#5a4444', ground: ['#6a5656', '#5a4848'], deco: 'rocks', embers: true },
+  volcano: { sky: ['#1a0604', '#3a0e06', '#6a1a08'], far: '#4a1a0e', near: '#8a2a0a', ground: ['#4a2216', '#3a1a10'], deco: 'rocks', embers: true },
+  temple3: { sky: ['#141a33', '#20284a', '#2e3a66'], far: '#4a5478', near: '#6a7498', ground: ['#8a90aa', '#7a8098'], deco: 'pillars' },
+  peak: { sky: ['#a8b4c8', '#c8d2e2', '#e8eef6'], far: '#8a96ac', near: '#e0e8f4', ground: ['#f0f4fa', '#e2e8f2'], deco: 'rocks', snow: true },
+  summit: { sky: ['#0a1030', '#1a2450', '#2a3470'], far: '#3a4a7a', near: '#c8d4ea', ground: ['#dfe6f2', '#ccd6e8'], deco: 'rocks', stars: true },
 };
 
 export function battleBackground(id) {
@@ -90,7 +100,7 @@ export function battleBackground(id) {
     }
   }
   if (d.night) drawNightSky(x, BW, hor);
-  if (id === 'village_night' || id === 'cave_boss') {
+  if (id === 'village_night' || id === 'cave_boss' || d.stars) {
     x.fillStyle = '#ffffff';
     for (let i = 0; i < 30; i++) x.fillRect((i * 97) % BW, (i * 53) % (hor - 10), 1, 1);
   }
@@ -184,6 +194,17 @@ export function battleBackground(id) {
   for (let i = 0; i < 6; i++) {
     const y = hor + 6 + i * i * 2;
     if (y < BH) x.fillRect(0, y, BW, 1);
+  }
+  // 第3章: 雪・火の粉・鉱山の はしら
+  if (d.snow || d.embers) {
+    for (let i = 0; i < 46; i++) {
+      x.fillStyle = d.snow ? (i % 3 ? '#ffffff' : '#dce8ff') : (i % 2 ? '#ffb040' : '#ff7a2a');
+      x.fillRect((i * 89 + 17) % BW, (i * 37 + 11) % (BH - 10), i % 4 ? 1 : 2, i % 4 ? 1 : 2);
+    }
+  }
+  if (d.beams) {
+    x.fillStyle = '#6a4a2a';
+    for (let k = 18; k < BW; k += 96) { x.fillRect(k, 0, 6, hor); x.fillRect(k - 10, 6, 26, 5); }
   }
   // モンスターの たつ ばしょ
   x.fillStyle = 'rgba(0,0,0,0.10)';
