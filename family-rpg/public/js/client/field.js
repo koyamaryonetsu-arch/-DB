@@ -271,8 +271,10 @@ export class Field {
 
   targetCam() {
     const mw = this.map.w * TS, mh = this.map.h * TS;
-    let cx = this.me.x * TS - this.vw / 2;
-    let cy = (this.me.y - 0.5) * TS - this.vh / 2;
+    // だいほんの ['look', x, y] の 間は その 場所を 見る
+    const at = this.lookAt || this.me;
+    let cx = at.x * TS - this.vw / 2;
+    let cy = (at.y - 0.5) * TS - this.vh / 2;
     if (mw > this.vw) cx = Math.max(0, Math.min(mw - this.vw, cx)); else cx = (mw - this.vw) / 2;
     if (mh > this.vh) cy = Math.max(0, Math.min(mh - this.vh, cy)); else cy = (mh - this.vh) / 2;
     return { x: cx, y: cy };

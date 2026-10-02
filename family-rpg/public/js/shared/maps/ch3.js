@@ -637,7 +637,8 @@ function peak() {
     npcs: [
       npc('dragon_sleep', '星の竜', [13.5, 7], 'mon:star_dragon_sleep', 'c3_dragon_sleep', { big: true, show: { not: ['c3_dragon'] } }),
       npc('dragon_awake', '星の竜アステル', [13.5, 7], 'mon:star_dragon', 'c3_dragon_awake', { big: true, show: { all: ['c3_dragon'] } }),
-      npc('ignia', '炎の魔女イグニア', [13.5, 12], 'mon:flame_witch', 'c3_ignia_event', { big: true, show: { not: ['c3_ignia'] } }),
+      // イグニアは「そのとき――」の ほのおと いっしょに あらわれる（c3_ignia_here）
+      npc('ignia', '炎の魔女イグニア', [13.5, 12], 'mon:flame_witch', 'c3_ignia_event', { big: true, show: { all: ['c3_ignia_here'], not: ['c3_ignia'] } }),
     ],
     warps: [{ x: 13, y: 22, to: { map: 'peak5', x: 14.5, y: 2.4, dir: 'down' } }],
     triggers: [{ id: 'summit', x: 9, y: 15, w: 9, h: 6, script: 'c3_ignia_event', show: { not: ['c3_ignia'] } }],

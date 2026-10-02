@@ -508,6 +508,7 @@ export class Game {
 
   endScript() {
     this.busy = false;
+    if (this.field) this.field.lookAt = null;
     this.sky.scriptEnd();
     this.scriptBgm = null;
     this.field.nightOverride = null;

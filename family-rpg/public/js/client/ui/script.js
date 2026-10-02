@@ -93,6 +93,7 @@ export class ScriptPlayer {
         return null;
       case 'chapter': return this.chapter(a[0], a[1]);
       case 'teleport': {
+        g.field.lookAt = null;
         const mine = (a[4] || []).find((e) => e[0] === g.sid);
         if (mine) g.applyPos(a[0], mine[1], mine[2], a[3], mine[3]);
         return null;
@@ -132,6 +133,10 @@ export class ScriptPlayer {
       case 'weather':
         g.field.weatherOverride = a[0] === undefined ? null : a[0];
         return null;
+      // カメラを その 場所へ ゆっくり 向ける（大きな 竜が 画面に 入るように）。['look'] で 自分に もどす
+      case 'look':
+        g.field.lookAt = a.length >= 2 ? { x: a[0], y: a[1] } : null;
+        return wait(a.length >= 2 ? 650 : 250);
       default:
         return null;
     }

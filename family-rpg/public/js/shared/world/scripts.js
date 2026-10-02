@@ -404,6 +404,8 @@ export class ScriptRun {
         case 'actor': case 'move': case 'face': case 'remove': case 'chapter': case 'guestHide': case 'chestOpen': case 'hideNpc': case 'showMon': case 'crest':
         // 第3章: トロッコに のる・自分を かくす・天気・大きな 役者
         case 'ride': case 'hideMe': case 'weather':
+        // カメラを その 場所へ（['look', x, y]）・自分に もどす（['look']）
+        case 'look':
           this.batch.push(step);
           break;
         default:

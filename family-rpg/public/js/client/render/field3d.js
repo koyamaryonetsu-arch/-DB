@@ -498,7 +498,7 @@ export class Field3D {
       this.snap = true;
     }
     // カメラ
-    const me = f.me;
+    const me = f.lookAt || f.me; // だいほんの ['look', x, y] の 間は その 場所を 見る
     const tx = Math.max(3, Math.min(m.w - 3, me.x));
     const tz = Math.max(2, Math.min(m.h - 1, me.y - 0.3));
     if (this.snap || Math.hypot(this.target.x - tx, this.target.z - tz) > 12) {
