@@ -31,7 +31,7 @@ export const VOLCANO3 = { x: 123, y: 99, rx: 10, ry: 11 };
 export const NORTH_POS = {
   icecave: { x: 24, y: 47 },
   mine: { x: 114, y: 30 },
-  volcano: { x: 118, y: 89 },
+  volcano: { x: 118, y: 90 },
   peak: { x: 64, y: 12 },
   temple: { x: 46, y: 29 },
   spa: { x: 8, y: 13 },
@@ -47,9 +47,9 @@ export const SEAL = { y: 30, x: [44, 49] };
 // なだれ（東の 道。ブリザマンモスが おとなしく なると どかしてくれる）
 export const AVALANCHE_X = [87, 88];
 // くずれた トンネル（鉱夫を 助けると ほりなおして くれる）
-export const TUNNEL = { x: [111, 112], y: [66, 67] };
-// 炎の山への 立ち入り禁止の さく（氷のお守りを もらうと 通れる）
-export const ROPE = { x: 115, y: [89, 91] };
+export const TUNNEL = { x: [110, 112], y: [66, 67] };
+// 炎の山への 立ち入り禁止の さく（温泉の里の 湯守りのおばばに ゆるして もらうと 通れる）
+export const ROPE = { x: 115, y: [90, 90] };
 
 // 道（雪を ふみかためた 道）
 const ROADS = [
@@ -206,8 +206,12 @@ export function buildNorth() {
       }
     }
   }
-  // 竜の門の 谷（星竜山の 中へ）
+  // 竜の門の 谷（星竜山の 中へ）。谷の 両がわは 切り立った 岩山（竜の門を 通らないと 山へ 行けない）
   for (let y = 12; y <= 41; y++) for (let x = DRAGON_GATE_X[0]; x <= DRAGON_GATE_X[1]; x++) if (get(x, y) !== T.SNOW_PATH) set(x, y, T.SNOW);
+  for (let y = 10; y <= DRAGON_GATE_Y; y++) {
+    set(DRAGON_GATE_X[0] - 1, y, T.SNOW_ROCK);
+    set(DRAGON_GATE_X[1] + 1, y, T.SNOW_ROCK);
+  }
   // 神殿の まわりを ひらく
   for (let y = TEMPLE_AREA.y - 2; y < TEMPLE_AREA.y + TEMPLE_AREA.h + 4; y++) {
     for (let x = TEMPLE_AREA.x - 2; x < TEMPLE_AREA.x + TEMPLE_AREA.w + 2; x++) {
@@ -257,8 +261,12 @@ export function buildNorth() {
   door(NORTH_POS.icecave);
   door(NORTH_POS.mine);
   door(NORTH_POS.peak);
-  door(NORTH_POS.volcano, T.ASH_ROCK);
-  set(NORTH_POS.volcano.x, NORTH_POS.volcano.y + 1, T.ASH);
+  // 炎の山の 入り口（温泉の里の 東の 門から 岩の あいだを 東へ。さくを こえないと 入れない）
+  for (let y = NORTH_POS.volcano.y - 2; y <= NORTH_POS.volcano.y + 4; y++) for (let x = YUN.x + YUN.w; x <= NORTH_POS.volcano.x + 6; x++) set(x, y, T.ASH_ROCK);
+  for (let x = YUN.x + YUN.w; x < NORTH_POS.volcano.x; x++) set(x, NORTH_POS.volcano.y, T.ASH);
+  set(NORTH_POS.volcano.x, NORTH_POS.volcano.y, T.CAVE_ENTRANCE);
+  // 南の はしは 山で ふさぐ（雪原から 温泉の里へ ぬけられないように）
+  for (let x = 80; x <= 87; x++) set(x, H - 1, T.SNOW_ROCK);
   // 鉱山へ つづく レール（町の 北の 門から）
   for (let y = NORTH_POS.mine.y + 1; y < KAN.y; y++) set(NORTH_POS.mine.x + 1, y, T.RAIL);
 
@@ -285,7 +293,7 @@ export function buildNorth() {
   // 炎の山の さく
   for (let y = ROPE.y[0]; y <= ROPE.y[1]; y++) {
     const cur = get(ROPE.x, y);
-    if (![T.ASH_ROCK, T.SNOW_ROCK].includes(cur)) gate(ROPE.x, y, T.FENCE, cur === T.FENCE ? T.ASH : cur, 'c3_heatguard');
+    if (![T.ASH_ROCK, T.SNOW_ROCK].includes(cur)) gate(ROPE.x, y, T.FENCE, cur === T.FENCE ? T.ASH : cur, 'c3_onsen');
   }
   return { w: W, h: H, tiles: t, gates };
 }
