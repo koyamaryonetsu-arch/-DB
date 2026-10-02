@@ -170,6 +170,12 @@ export function fixTreasurePos(pos) {
   return { ...exitPoint(p.spot), dir: 'down' };
 }
 
+// 洞窟の 外の 出口（みちびきの糸。world/escape.js）。宝の洞窟で ないと null
+export function treasureExitPoint(mapId) {
+  const p = parseFloorId(mapId);
+  return p ? { ...exitPoint(p.spot), dir: 'down' } : null;
+}
+
 function moveParty(world, s, to) {
   const from = { map: s.map, x: s.x, y: s.y };
   world.placeSession(s, to.map, to.x, to.y, to.dir || 'down', true);

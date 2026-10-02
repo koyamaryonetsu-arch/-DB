@@ -301,7 +301,7 @@ test('馬車: 洞窟では いれかえられない・オートは かってに 
   assert.deepEqual(c.wagonKeys, ['npc_rin']);
 });
 
-test('馬車: マルチでは リーダーの 馬車（家族の 仲間は 乗らない・リーダーだけ いれかえ）', { timeout: 60000 }, async () => {
+test('馬車: マルチでは リーダーの 馬車（いっしょに 遊ぶ 家族は 乗らない・リーダーだけ いれかえ）', { timeout: 60000 }, async () => {
   // 時計は 昼に そろえる（夜は 魔物の 出かたが かわって 乱数が ずれる）
   const t0 = Date.now();
   const world = new GameWorld({ offline: false, rng: makeRng(26), checkPassword: () => true, rateLimit: false, now: () => 0.3 * DAY_MS + (Date.now() - t0) });
@@ -330,7 +330,7 @@ test('馬車: マルチでは リーダーの 馬車（家族の 仲間は 乗�
   papa.send({ t: 'svc', kind: 'tavern', action: 'toWagon', key: 'npc_rin' });
   kid.send({ t: 'svc', kind: 'tavern', action: 'toWagon', key: 'npc_mina' });
   kid.send({ t: 'svc', kind: 'tavern', action: 'toWagon', key: 'fam:' + papa.char.id });
-  assert.deepEqual(kc.wagonKeys, ['npc_mina'], '家族の キャラは 乗れない');
+  assert.deepEqual(kc.wagonKeys, ['npc_mina', 'fam:' + papa.char.id], '家族の キャラ（うつし）も 乗れる');
   // いっしょに 冒険
   papa.send({ t: 'party', action: 'invite', sid: kid.s.id });
   kid.send({ t: 'party', action: 'accept' });
@@ -366,7 +366,7 @@ test('馬車: マルチでは リーダーの 馬車（家族の 仲間は 乗�
   papa.send({ t: 'battle', actor: papaId, cmd: { type: 'swap', out: gard.id, key: 'npc_rin' } });
   assert.ok(ctx.battle.allies.some((a) => a.name === 'リン'));
   assert.deepEqual(pc.wagonKeys, ['npc_gard']);
-  assert.deepEqual(kc.wagonKeys, ['npc_mina'], 'ユイの 馬車は そのまま');
+  assert.deepEqual(kc.wagonKeys, ['npc_mina', 'fam:' + papa.char.id], 'ユイの 馬車は そのまま');
   // つなぎなおし（mine は 今 戦っている キャラ）
   for (const b of [papa, kid]) for (const a of ctx.battle.allies) if (a.controller === b.s.id) b.send({ t: 'battle', actor: a.id, auto: true });
   await winNow(world, papa, ctx);
@@ -422,11 +422,11 @@ test('馬車: つなぎなおしても いれかえた 戦いが つづく（う
 test('馬車: セーブ・引っこしコード・データ合わせで 馬車の 仲間を ととのえる', () => {
   // cleanWagon
   const c = {
-    wagon: true, partyKeys: ['a'], wagonKeys: ['a', 'b', 'b', 'gone', 'fam:x', 'c', 'd', 'e', 'f', 7],
+    id: 'me', wagon: true, partyKeys: ['a'], wagonKeys: ['a', 'b', 'b', 'gone', 'fam:me', 'fam:x', 'c', 'd', 'e', 'f', 7],
     companions: ['a', 'b', 'c', 'd', 'e', 'f'].map((k) => ({ key: k, kind: 'npc', char: { name: k } })),
   };
   cleanWagon(c);
-  assert.deepEqual(c.wagonKeys, ['b', 'c', 'd', 'e'], 'いない 仲間・家族・パーティーの 仲間・かさなりを はずし 4人まで');
+  assert.deepEqual(c.wagonKeys, ['b', 'fam:x', 'c', 'd'], 'いない 仲間・自分・パーティーの 仲間・かさなりを はずし 4人まで（家族の キャラは のこす）');
   const old = { companions: [], partyKeys: [] };
   cleanWagon(old);
   assert.ok(!('wagonKeys' in old), 'ふるい セーブには たさない');

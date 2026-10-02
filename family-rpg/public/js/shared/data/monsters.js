@@ -3,6 +3,7 @@
 // resist: 属性や 状態異常の ききやすさ（1=ふつう 0=きかない 1.5=よわい）
 // actions: [{w:重み, id:技ID or 'attack', cond:じょうけん}]
 // turns: 1回の じゅんばんで こうどうする 回数（ボス用）
+// speed: こうどうゲージの 速さの 倍率（ボス用。書かなければ ボスは 0.7。shared/battle.js の ATB）
 // race: slime beast plant spirit undead material demon dragon（仲間に なった ときの 装備は companions.js の RACE_GEAR）
 // hit: ふつうの 攻撃の みため（'slash' など。書かなければ 種族で きまる。render/enemyfx.js）
 // drops: 落とす 物 { common: [品物, N], rare: [品物, N], boss: [品物] }（N回に 1回。くわしくは loot.js）
@@ -190,7 +191,7 @@ export const MONSTERS = {
   // ───── ボス ─────
   dark_treant: {
     name: 'ダークトレント', lv: 8, hp: 461, str: 33, def: 18, agi: 10, mag: 20, exp: 300, gold: 150,
-    race: 'plant', size: 'xl', boss: true, turns: 1, drops: { boss: ['forest_necklace'] },
+    race: 'plant', size: 'xl', boss: true, turns: 1, speed: 0.75, drops: { boss: ['forest_necklace'] },
     resist: { fire: 1.5, wind: 0.7, sleep: 0, poison: 0.5, confuse: 0.2, blind: 0.5, silence: 0, paralyze: 0.2 },
     actions: [
       { w: 3, id: 'attack' }, { w: 2, id: 'm_branch_whip' }, { w: 1, id: 'm_pollen' },
@@ -203,7 +204,7 @@ export const MONSTERS = {
   },
   goldoon: {
     name: 'ゴルドーン', lv: 12, hp: 1299, str: 45, def: 27, agi: 14, mag: 25, exp: 1200, gold: 600,
-    race: 'material', size: 'xl', boss: true, turns: 2, drops: { boss: ['rock_bangle'] },
+    race: 'material', size: 'xl', boss: true, turns: 2, speed: 0.74, drops: { boss: ['rock_bangle'] },
     resist: { fire: 0.5, ice: 1.0, wind: 0.75, blast: 1.5, bolt: 1.0, sleep: 0, poison: 0, confuse: 0.1, blind: 0.3, silence: 0, paralyze: 0 },
     actions: [
       { w: 3, id: 'attack' }, { w: 2, id: 'm_rock_crush' }, { w: 2, id: 'm_stomp' }, { w: 1, id: 'm_inhale', cond: 'notRecent:m_inhale' },

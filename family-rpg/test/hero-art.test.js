@@ -105,6 +105,41 @@ test('主人公の え: きたえた そうび（iron_sword+2）は もとの �
   }
 });
 
+test('主人公の え: 学校・公務員・町の みかた・アイドルの 服（男女・4方向・はみ出さない・それぞれ ちがう え）', () => {
+  const NEW = ['schoolkid', 'middleschooler', 'highschooler', 'civil_local', 'civil_national', 'career', 'police', 'firefighter', 'fruit_idol', 'storm_idol'];
+  const pics = new Map();
+  for (const job of NEW) {
+    for (const body of [0, 1]) {
+      for (const dir of DIRS) {
+        for (const style of ['short', 'afro', 'long', 'mohawk']) {
+          for (const res of [4, 8]) {
+            const img = paintHero({ body, style, hcol: 'black' }, job, undefined, dir, 1, res);
+            const r = inspect(img);
+            assert.ok(r.n > img.w * img.h * 0.12, `${job} ${body} ${dir} ${style} res${res} が かけている`);
+            assert.ok(!r.edge, `${job} ${body} ${dir} ${style} res${res} が ふちに さわる`);
+          }
+        }
+        pics.set(`${job}|${body}|${dir}`, Buffer.from(paintHero({ body, style: 'short' }, job, undefined, dir, 0, 4).rgba).toString('base64'));
+      }
+    }
+  }
+  // どの 職業も 戦士（よろいの ない ときの ふつうの 服）とも、ほかの 新しい 職業とも ちがう
+  for (const body of [0, 1]) {
+    for (const dir of DIRS) {
+      const seen = new Set([Buffer.from(paintHero({ body, style: 'short' }, 'warrior', '', dir, 0, 4).rgba).toString('base64')]);
+      for (const job of NEW) {
+        const k = pics.get(`${job}|${body}|${dir}`);
+        assert.ok(!seen.has(k), `${job} body${body} ${dir} が ほかと おなじ え`);
+        seen.add(k);
+      }
+    }
+  }
+  // 中学生は 男の子が 学ラン、女の子が セーラー服（体で ちがう え）・小学生の ランドセルも 男女で 色が ちがう
+  for (const job of ['middleschooler', 'highschooler', 'schoolkid']) {
+    assert.notEqual(pics.get(`${job}|0|up`), pics.get(`${job}|1|up`), job);
+  }
+});
+
 test('主人公の え: 同じ 入力なら いつも 同じ え', () => {
   const look = { body: 1, style: 'twin', hcol: 'pink', tone: 'fair', face: 'smile', color: 6 };
   const a = Buffer.from(paintHero(look, 'idol', undefined, 'left', 1, 8).rgba);

@@ -45,8 +45,8 @@ test('ひらめきの データ: 技と 回数が そろっている', () => {
       assert.ok(n > 0);
     }
   }
-  // 基本職 10こ × 2 と 掛け合わせ技 9こ
-  assert.equal(Object.keys(HIRAMEKI).filter((id) => ABILITIES[id].hirameki).length, 20);
+  // 基本職 12こ × 2 と 掛け合わせ技 9こ
+  assert.equal(Object.keys(HIRAMEKI).filter((id) => ABILITIES[id].hirameki).length, 24);
   assert.equal(Object.keys(HIRAMEKI).filter((id) => ABILITIES[id].kind === 'combo').length, 9);
   assert.equal(hiraChance(0.99), 0);
   assert.equal(hiraChance(1), 0.2);

@@ -8,7 +8,7 @@
 import { ITEMS, SLOTS } from '../data/items.js';
 import { JOBS } from '../data/jobs.js';
 import { MONSTERS } from '../data/monsters.js';
-import { migrateJobs, oldComboUnlocks, addItem } from '../stats.js';
+import { migrateJobs, oldComboUnlocks, addItem, fixBodyJob } from '../stats.js';
 import { repairTreasureMaps } from '../data/treasure.js';
 import { normBank } from './bank.js';
 import { cleanWagon } from '../data/wagon.js';
@@ -173,7 +173,12 @@ export function upgradeSave(raw) {
   for (let v = from; v < SAVE_VERSION; v++) UPGRADES[v]?.(d);
   for (const [id, c] of Object.entries(d.characters)) {
     if (!repairChar(c, id)) delete d.characters[id];
-    else migrateJobs(c);
+    else {
+      migrateJobs(c);
+      // 体で なれない 職業（フルーツジッパー・アラシ）に なっていたら もとに もどす
+      fixBodyJob(c);
+      for (const e of Array.isArray(c.companions) ? c.companions : []) fixBodyJob(e?.char);
+    }
   }
   // あたらしい ゲームで 作った セーブを 読んだ ときは、バージョンを 下げない
   d.version = Math.max(from, SAVE_VERSION);

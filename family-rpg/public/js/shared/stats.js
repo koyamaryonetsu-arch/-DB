@@ -1,5 +1,5 @@
 // キャラクターの つよさ計算・レベルアップ・転職ペナルティ
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_TRAIN_GAP, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets } from './data/jobs.js';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_TRAIN_GAP, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets, jobBodyOk } from './data/jobs.js';
 import { ITEMS, SLOTS, baseItemId } from './data/items.js';
 import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js';
 import { MONSTERS } from './data/monsters.js';
@@ -388,6 +388,8 @@ export const STARTER_EQUIP = {
   idol: { weapon: 'feather_fan', armor: 'cloth', shield: null, head: null, acc: null },
   railman: { weapon: 'signal_flag', armor: 'cloth', shield: null, head: null, acc: null },
   ballplayer: { weapon: 'wood_bat', armor: 'cloth', shield: null, head: null, acc: null },
+  schoolkid: { weapon: 'wood_sword', armor: 'cloth', shield: null, head: null, acc: null },
+  civil_local: { weapon: 'ballpen', armor: 'cloth', shield: null, head: null, acc: null },
 };
 
 // みため（むかしの 項目は いつも のこす。かみがた・色・目もとの あたらしい 項目は data/looks.js）
@@ -481,16 +483,24 @@ export function jobMastered(char, jobId) {
 export function jobUnlocked(char, jobId) {
   const j = JOBS[jobId];
   if (!j) return false;
+  // フルーツジッパーは 女性、アラシは 男性だけ（体が ちがうと、じょうけんを みたしても なれない）
+  if (!jobBodyOk(jobId, char?.look)) return false;
   if (!j.req) return true;
   return jobReqSets(jobId).some((set) => set.every((r) => jobMastered(char, r)));
 }
 
 // 神殿で 見える 職業か。超級職は、じょうけんの 職業を 1つでも マスターすると 出てくる（ほかの じょうけんは ？？？？）
+// 体で なれない 職業は 見えない（ひみつの かずにも 入らない）
 export function jobKnown(char, jobId) {
   const j = JOBS[jobId];
-  if (!j) return false;
+  if (!j || !jobBodyOk(jobId, char?.look)) return false;
   if ((j.tier || 0) < 2 || char.jobs?.[jobId]) return true;
   return jobReqSets(jobId).some((set) => set.some((r) => jobMastered(char, r)));
+}
+
+// 勝った たたかい 1回が 何回ぶんの 修行に なるか（学校の 職業は のびざかり）
+export function jobTrainRate(jobId) {
+  return JOBS[jobId]?.passive?.train || 1;
 }
 
 export function jobProgress(char, jobId = char.job) {
@@ -498,7 +508,8 @@ export function jobProgress(char, jobId = char.job) {
   const info = char.jobs?.[jobId] || { lv: 1, b: 0 };
   if (!j) return { lv: 1, next: 0, done: false };
   if (info.lv >= JOB_MAX_LEVEL) return { lv: info.lv, next: 0, done: true };
-  return { lv: info.lv, next: Math.max(1, jobBattlesForLevel(info.lv + 1, j.tier || 0) - (info.b || 0)), done: false };
+  const rest = jobBattlesForLevel(info.lv + 1, j.tier || 0) - (info.b || 0);
+  return { lv: info.lv, next: Math.max(1, Math.ceil(rest / jobTrainRate(jobId) - 1e-9)), done: false };
 }
 
 // てきが よわすぎると しゅぎょうに ならない（じぶんより レベルが JOB_TRAIN_GAP より ひくい てきだけ の とき）
@@ -513,7 +524,8 @@ export function gainJobBattles(char, n = 1) {
   if (n <= 0 || char.species || !j) return ups;
   const info = char.jobs[char.job] || (char.jobs[char.job] = { lv: 1, b: 0 });
   if (info.lv >= JOB_MAX_LEVEL) return ups;
-  info.b = (info.b || 0) + n;
+  // のびざかり（小学生など）は 1回の 勝ちが 1.25回ぶん
+  info.b = (info.b || 0) + n * jobTrainRate(char.job);
   while (info.lv < JOB_MAX_LEVEL && info.b >= jobBattlesForLevel(info.lv + 1, j.tier || 0)) {
     const learnedBefore = new Set(learnedAbilities(char));
     const lockedBefore = ALL_JOBS.filter((id) => !jobUnlocked(char, id));
@@ -551,9 +563,30 @@ export function migrateJobs(char) {
   return char;
 }
 
+// 体で なれない 職業に なっていたら（ふつうは おきない。データを かえた ときなど）、もとの 職業に もどす
+// もどりち: もどした ときは true
+export function fixBodyJob(char) {
+  if (!char || char.species || !JOBS[char.job] || jobBodyOk(char.job, char.look)) return false;
+  const back = (JOBS[char.job].req || []).find((r) => JOBS[r] && jobBodyOk(r, char.look)) || 'warrior';
+  char.job = back;
+  if (!char.jobs) char.jobs = {};
+  if (!char.jobs[back]) char.jobs[back] = { lv: 1, b: 0 };
+  // そうびできない ものは はずして ふくろへ
+  for (const slot of SLOTS) {
+    const id = char.equip?.[slot];
+    if (id && !canEquip(back, id)) {
+      char.equip[slot] = null;
+      if (Array.isArray(char.items)) addItem(char, id, 1);
+    }
+  }
+  return true;
+}
+
 // 転職
 export function changeJob(char, jobId) {
   if (!JOBS[jobId] || char.job === jobId) return { ok: false };
+  // 体で なれない 職業（サーバーでも ことわる）
+  if (!jobBodyOk(jobId, char.look)) return { ok: false, locked: true, body: JOBS[jobId].body };
   if (!jobUnlocked(char, jobId)) return { ok: false, locked: true };
   char.job = jobId;
   if (!char.jobs[jobId]) char.jobs[jobId] = { lv: 1, b: 0 };

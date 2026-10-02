@@ -603,12 +603,20 @@ export class Game {
     // はじまりの えんしゅつ中に おわった ときは、画面が できるのを まつ
     for (let i = 0; i < 40 && this.battleEvBuf && !this.battle; i++) await wait(50);
     const b = this.battle;
-    if (!b) return;
+    if (!b) {
+      this.net.send({ t: 'resultDone' });
+      return;
+    }
     this.battleClosing = true;
     // のこりの えんしゅつを まつ
     for (let i = 0; i < 100 && (b.queue.length || b.showing); i++) await wait(100);
     await wait(300);
+    // けっかは ボタンで 1行ずつ（そのあいだ フィールドは うごかない。サーバーは またない）
     await b.showResult(m);
+    // 読みおわった（サーバー: つぎの たたかいに まきこめる ように なる・すこしだけ むてき）
+    this.net.send({ t: 'resultDone' });
+    // 読んでいる あいだに つぎの たたかいが はじまった（ものがたりの つづき など）: その 画面は そのまま
+    if (this.battle !== b) return;
     await this.fade(true);
     b.destroy();
     this.battle = null;

@@ -23,6 +23,7 @@ import { JOB_ABILITIES } from './abilities-jobs.js';
 import { HIRA_ABILITIES } from './hirameki.js';
 import { TRAVEL_ABILITIES } from './sky.js';
 import { RARE_ABILITIES } from './monsters-rare.js';
+import { JOB2_ABILITIES } from './abilities-jobs2.js';
 
 export const ABILITIES = {
   // ───────────── 戦士 ─────────────
@@ -579,6 +580,8 @@ Object.assign(ABILITIES, ADV_ABILITIES, CH2_ABILITIES, JOB_ABILITIES, HIRA_ABILI
 Object.assign(ABILITIES, TRAVEL_ABILITIES);
 // めずらしい 魔物の 技（monsters-rare.js）
 Object.assign(ABILITIES, RARE_ABILITIES);
+// 学校・公務員・町の みかた・アイドルの 職業の 技（abilities-jobs2.js）
+Object.assign(ABILITIES, JOB2_ABILITIES);
 
 // 攻撃呪文かどうか（魔法剣で使える）
 export function isAttackSpell(id) {
