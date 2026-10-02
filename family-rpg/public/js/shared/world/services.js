@@ -16,7 +16,7 @@ import { POS, SEA_PLACES } from '../maps/index.js';
 import { castRura, warpParty, useTimeBell } from './travel.js';
 import { bankInfo, bankAction } from './bank.js';
 import { forgeInfo, forgeAction } from './forge.js';
-import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction } from './wagon.js';
+import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction, wagonHere, wagonHealEntries } from './wagon.js';
 import { casinoOpen, casinoAction } from './casino.js';
 import { useEscapeItem } from './escape.js';
 
@@ -364,6 +364,7 @@ export function menuAction(world, s, msg) {
       if (eff.type === 'timeBell') return useTimeBell(world, s, msg.id, reply);
       // みちびきの糸（洞窟・塔から 入り口の 外へ。escape.js）
       if (eff.type === 'exit') return useEscapeItem(world, s, msg.id, reply);
+      if (String(msg.ref || '').startsWith('wagon:') && !wagonHere(s.map)) return reply(false, '馬車は入り口で待っている…');
       const target = refChar(world, s, msg.ref);
       if (!target) return reply(false, '');
       const r = applyFieldEffect(world, c, target, eff);
@@ -375,6 +376,9 @@ export function menuAction(world, s, msg) {
       const caster = ownChar(s, msg.who);
       if (!caster) return reply(false, '');
       if (caster.hp <= 0) return reply(false, `${caster.name}は死んでいる…`);
+      // 馬車の 仲間が 唱えるのも、相手が 馬車の 仲間なのも、馬車が いっしょの ときだけ
+      const inWagon = (c.wagonKeys || []).includes(msg.who) || String(msg.ref || '').startsWith('wagon:');
+      if (inWagon && !wagonHere(s.map)) return reply(false, '馬車は入り口で待っている…');
       const a = ABILITIES[msg.id];
       if (!a || !a.field || !learnedAbilities(caster).includes(msg.id)) return reply(false, '今は使えない');
       // ルーラ（行った 町へ 仲間と 飛ぶ。travel.js）
@@ -536,7 +540,8 @@ function fullHealSummary(world, s, used) {
 function fullHealBySpells(world, s) {
   if (!hurtRefs(world, s).length) return { ok: false, text: 'みんなのHPは満タンだ' };
   const p = partyOf(world, s);
-  const casters = [s.char, ...(p?.supports || []).filter((x) => x.owner === s.char.id && x.kind !== 'family').map((x) => x.char)].filter((ch) => ch.hp > 0);
+  const casters = [s.char, ...(p?.supports || []).filter((x) => x.owner === s.char.id && x.kind !== 'family').map((x) => x.char),
+    ...wagonHealEntries(world, s, true).map((e) => e.char)].filter((ch) => ch.hp > 0);
   const count = new Map(); // 「名前|呪文」→ 回数
   const mpUsed = new Map();
   let any = false;
@@ -621,6 +626,8 @@ function allRefs(world, s) {
   for (const sid of p?.members || []) if (sid !== s.id) refs.push('sid:' + sid);
   for (const sup of p?.supports || []) refs.push('sup:' + sup.key);
   for (const g of p?.guests || []) refs.push('guest:' + g.id);
+  // 馬車の 仲間（馬車が いっしょの とき）
+  for (const e of wagonHealEntries(world, s)) refs.push('wagon:' + e.key);
   return refs;
 }
 
