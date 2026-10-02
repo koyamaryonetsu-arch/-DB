@@ -69,9 +69,22 @@ export class Hud {
     if (name !== this.lastArea) {
       this.lastArea = name;
       this.area.textContent = name;
+      this.placeArea();
       this.area.classList.add('show');
       clearTimeout(this.areaT);
       this.areaT = setTimeout(() => this.area.classList.remove('show'), 2800);
+    }
+  }
+
+  // 場所の なまえは 仲間の まどと かさならない ように（人数が 多い とき・たての 画面では 下へ ずらす）
+  placeArea() {
+    this.area.style.top = '';
+    const pr = this.party.getBoundingClientRect();
+    const ar = this.area.getBoundingClientRect();
+    if (!pr.height || !ar.width) return;
+    if (ar.left < pr.right && ar.right > pr.left && ar.top < pr.bottom) {
+      const top = this.root.getBoundingClientRect().top;
+      this.area.style.top = `${Math.round(pr.bottom - top + 6)}px`;
     }
   }
 
