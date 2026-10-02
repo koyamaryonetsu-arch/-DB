@@ -114,8 +114,8 @@ const TRACKS = {
   snowtown: {
     bpm: 92,
     ch: [
-      { w: 'triangle', v: 0.17, n: 'C5:4 F5:4 A5:4 G5:6 F5:2 D5:4 F5:4 D5:4 Bb4:4 C5:6 D5:2 E5:4 C5:4 F5:4 A5:4 C6:8 A5:4 G5:4 F5:4 D5:4 F5:8 E5:4 D5:4 F5:4 A5:4 Bb5:6 A5:2 G5:4 A5:4 G5:4 F5:4 E5:8 C5:4 D5:4 F5:4 Bb5:4 A5:6 G5:2 E5:4 F5:4 A4:4 D5:4 E5:6 D5:2 C5:4' },
-      { w: 'triangle', v: 0.2, n: 'F2:4 C3:4 A2:4 D2:4 A2:4 F2:4 Bb1:4 F2:4 D2:4 C2:4 G2:4 E2:4 F2:4 C3:4 A2:4 A1:4 E2:4 C3:4 Bb1:4 F2:4 D2:4 C2:4 G2:4 E2:4 D2:4 A2:4 F2:4 Bb1:4 F2:4 D2:4 F2:4 C3:4 A2:4 C2:4 G2:4 E2:4 Bb1:4 F2:4 D2:4 C2:4 G2:4 E2:4 D2:4 A2:4 F2:4 C2:4 G2:4 Bb2:4' },
+      { w: 'triangle', v: 0.15, n: 'C5:4 F5:4 A5:4 G5:6 F5:2 D5:4 F5:4 D5:4 Bb4:4 C5:6 D5:2 E5:4 C5:4 F5:4 A5:4 C6:8 A5:4 G5:4 F5:4 D5:4 F5:8 E5:4 D5:4 F5:4 A5:4 Bb5:6 A5:2 G5:4 A5:4 G5:4 F5:4 E5:8 C5:4 D5:4 F5:4 Bb5:4 A5:6 G5:2 E5:4 F5:4 A4:4 D5:4 E5:6 D5:2 C5:4' },
+      { w: 'triangle', v: 0.17, n: 'F2:4 C3:4 A2:4 D2:4 A2:4 F2:4 Bb1:4 F2:4 D2:4 C2:4 G2:4 E2:4 F2:4 C3:4 A2:4 A1:4 E2:4 C3:4 Bb1:4 F2:4 D2:4 C2:4 G2:4 E2:4 D2:4 A2:4 F2:4 Bb1:4 F2:4 D2:4 F2:4 C3:4 A2:4 C2:4 G2:4 E2:4 Bb1:4 F2:4 D2:4 C2:4 G2:4 E2:4 D2:4 A2:4 F2:4 C2:4 G2:4 Bb2:4' },
       { w: 'square', v: 0.028, n: 'r:4 A3:4 C4:4 r:4 F3:4 A3:4 r:4 Bb3:4 D4:4 r:4 G3:4 C4:4 r:4 A3:4 C4:4 r:4 A3:4 E4:4 r:4 Bb3:4 D4:4 r:4 G3:4 E4:4 r:4 F3:4 A3:4 r:4 Bb3:4 F4:4 r:4 A3:4 C4:4 r:4 G3:4 E4:4 r:4 D4:4 F4:4 r:4 E4:4 G4:4 r:4 F3:4 A3:4 r:4 E3:4 G3:4' },
       { drums: true, v: 0.18, n: 'k:4 h:4 h:4 '.repeat(16) },
     ],
@@ -137,7 +137,7 @@ const TRACKS = {
       { w: 'pulse', v: 0.09, n: 'C5:2 r:2 C5:2 Eb5:2 G5:4 F5:2 Eb5:2 D5:2 Eb5:2 C5:4 G4:8 Db5:2 r:2 Db5:2 F5:2 Ab5:4 G5:2 F5:2 Eb5:2 F5:2 Db5:4 Ab4:8 G5:4 Ab5:2 G5:2 Eb5:4 C5:4 D5:4 Eb5:2 D5:2 B4:8 Bb4:4 D5:4 F5:4 Bb5:4 Ab5:6 G5:2 B4:4 D5:4 C6:4 Ab5:2 F5:2 C5:4 F5:4 G5:2 Ab5:2 G5:2 F5:2 Eb5:4 C5:4 Db6:4 Ab5:2 F5:2 Db5:4 F5:4 Ab5:2 Bb5:2 Ab5:2 F5:2 Eb5:4 Db5:4 C5:4 Eb5:4 Ab5:4 C6:4 D6:4 Bb5:4 F5:4 D5:4 B5:6 G5:2 D5:4 B4:4 G5:2 F5:2 Eb5:2 D5:2 B4:8' },
       { w: 'triangle', v: 0.25, n: ('C2:2 C2:2 C3:2 C2:2 C2:2 Bb2:2 C2:2 G2:2 '.repeat(2) + 'Db2:2 Db2:2 Db3:2 Db2:2 Db2:2 C3:2 Db2:2 Ab2:2 '.repeat(2) + 'C2:2 C2:2 C3:2 C2:2 C2:2 Bb2:2 C2:2 G2:2 '.repeat(2) + 'Bb1:2 Bb1:2 Bb2:2 Bb1:2 Bb1:2 Ab2:2 Bb1:2 F2:2 ' + 'Ab1:2 Ab1:2 Ab2:2 Ab1:2 G1:2 G1:2 G2:2 G1:2 ' + 'F1:2 F1:2 F2:2 F1:2 F1:2 Eb2:2 F1:2 C2:2 '.repeat(2) + 'Db2:2 Db2:2 Db3:2 Db2:2 Db2:2 C3:2 Db2:2 Ab2:2 '.repeat(2) + 'Ab1:2 Ab1:2 Ab2:2 Ab1:2 Ab1:2 G2:2 Ab1:2 Eb2:2 ' + 'Bb1:2 Bb1:2 Bb2:2 Bb1:2 Bb1:2 Ab2:2 Bb1:2 F2:2 ' + 'G1:2 G1:2 G2:2 G1:2 G1:2 F2:2 G1:2 D2:2 '.repeat(2)) },
       { w: 'saw', v: 0.026, n: 'G4:16 G4:16 Ab4:16 F4:16 Eb4:16 G4:16 F4:16 Eb4:8 D4:8 F4:16 Ab4:16 F4:16 Ab4:16 Eb4:16 F4:16 D4:16 B3:16' },
-      { drums: true, v: 0.5, n: 'k:2 h:1 h:1 s:2 h:2 k:2 k:1 h:1 s:2 k:2 '.repeat(15) + 'k:2 s:1 s:1 s:2 s:1 s:1 k:2 s:1 s:1 s:2 s:2 ' },
+      { drums: true, v: 0.44, n: 'k:2 h:1 h:1 s:2 h:2 k:2 k:1 h:1 s:2 k:2 '.repeat(15) + 'k:2 s:1 s:1 s:2 s:1 s:1 k:2 s:1 s:1 s:2 s:2 ' },
     ],
   },
   // 第3章: 竜の試練の神殿・星竜山（おごそかで ふしぎ。たかい ところ）
