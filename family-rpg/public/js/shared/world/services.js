@@ -2,7 +2,7 @@
 import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js';
 import { normDifficulty } from '../data/difficulty.js';
 import { ITEMS, sellPrice, SLOTS } from '../data/items.js';
-import { JOBS, ALL_JOBS, jobReqText } from '../data/jobs.js';
+import { JOBS, ALL_JOBS, jobReqText, BODY_NAMES } from '../data/jobs.js';
 import { ABILITIES } from '../data/abilities.js';
 import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js';
 import { TACTICS } from '../ai.js';
@@ -18,6 +18,7 @@ import { bankInfo, bankAction } from './bank.js';
 import { forgeInfo, forgeAction } from './forge.js';
 import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction } from './wagon.js';
 import { casinoOpen, casinoAction } from './casino.js';
+import { useEscapeItem } from './escape.js';
 
 export function openService(world, s, kind, arg) {
   switch (kind) {
@@ -153,6 +154,8 @@ export function serviceAction(world, s, msg) {
       if (!who || who.species) return reply(false, 'モンスターは転職できない');
       if (who.job === msg.job) return reply(false, '今の職業と同じです');
       const r = changeJob(who, msg.job);
+      // 体で なれない 職業（フルーツジッパーは 女性、アラシは 男性だけ）
+      if (r.body !== undefined) return reply(false, `${JOBS[msg.job].name}には、${BODY_NAMES[r.body]}しかなれない…`);
       if (r.locked) return reply(false, `まだ${JOBS[msg.job].name}にはなれない…\n（${jobReqText(msg.job)}が必要）`);
       if (!r.ok) return reply(false, '');
       // なかまが はずした そうびは ふくろへ
@@ -169,12 +172,13 @@ export function serviceAction(world, s, msg) {
       let text = '';
       switch (msg.action) {
         case 'recruit':
-          r = recruitNpc(world, s, String(msg.key || ''), { swap: msg.swap, join: msg.join !== false });
-          if (r.ok) text = r.joined ? `${r.name}が仲間に加わった！${r.benchedName ? `\n${r.benchedName}は酒場で待っている。` : ''}${stowText(r.stowed)}` : `${r.name}が仲間になった！\n（今は酒場で待っている）`;
+          // パーティー → 馬車 → 入れかわり（party.js の placeMember）
+          r = recruitNpc(world, s, String(msg.key || ''), { swap: msg.swap ? String(msg.swap) : null, join: msg.join !== false });
+          if (r.ok) text = r.joined ? `${r.name}が仲間に加わった！${r.where === 'wagon' ? `\n${r.name}は馬車に乗りこんだ。` : ''}${r.benchedName ? `\n${r.benchedName}は酒場で待っている。` : ''}${stowText(r.stowed)}` : `${r.name}が仲間になった！\n（今は酒場で待っている）`;
           break;
         case 'join':
-          r = companionJoin(world, s, String(msg.key || ''), msg.swap);
-          if (r.ok) text = `${r.name}がパーティーに加わった！${r.benchedName ? `\n${r.benchedName}は酒場で待っている。` : ''}${stowText(r.stowed)}`;
+          r = companionJoin(world, s, String(msg.key || ''), msg.swap ? String(msg.swap) : null);
+          if (r.ok) text = `${r.where === 'wagon' ? `${r.name}が仲間に加わって、馬車に乗りこんだ！` : `${r.name}がパーティーに加わった！`}${r.benchedName ? `\n${r.benchedName}は酒場で待っている。` : ''}${stowText(r.stowed)}`;
           break;
         case 'wait':
           r = companionWait(world, s, String(msg.key || ''));
@@ -220,6 +224,12 @@ export function serviceAction(world, s, msg) {
       return;
     }
     case 'salon': return salonAction(world, s, msg, reply);
+    // 馬車の 総入れかえ（メニューから。へんじを まてるように お店と おなじ 形で。world/wagon.js）
+    case 'wagon': {
+      if (s.busy) return reply(false, '今はできません');
+      const r = wagonMenuAction(world, s, msg);
+      return reply(r.ok, r.ok ? r.text : r.reason, { same: !!r.same });
+    }
     case 'starTrade': {
       const tr = STAR_TRADES[msg.index];
       if (!tr) return reply(false, '');
@@ -352,6 +362,8 @@ export function menuAction(world, s, msg) {
       }
       // 夜明けのすず・夕焼けのすず（travel.js）
       if (eff.type === 'timeBell') return useTimeBell(world, s, msg.id, reply);
+      // みちびきの糸（洞窟・塔から 入り口の 外へ。escape.js）
+      if (eff.type === 'exit') return useEscapeItem(world, s, msg.id, reply);
       const target = refChar(world, s, msg.ref);
       if (!target) return reply(false, '');
       const r = applyFieldEffect(world, c, target, eff);

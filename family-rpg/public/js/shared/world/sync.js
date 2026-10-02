@@ -8,6 +8,7 @@
 import { SAVE_VERSION, upgradeSave } from './save.js';
 import { pack, unpack, hash, validId, CHAR_MAX } from './transfer.js';
 import { mergeChars, canon, charTime } from './merge.js';
+import { dropGoneFamily } from '../data/wagon.js';
 
 const PREFIX = 'KIZUNA-S1-';
 export const SYNC_MAX = 1500000;
@@ -155,6 +156,7 @@ export function applySyncIn(world, data, { online = () => false, now = Date.now(
   const chars = world.data.characters;
   const deleted = world.data.deleted || {};
   const results = [];
+  const fixLater = []; // 家族の しるしは さいごに（おなじ ときに とどいた 家族の キャラも 数える）
   for (const entry of (data?.chars || []).slice(0, CHAR_MAX * 2)) {
     const inc = readChar(entry?.char, data.sv);
     if (!inc || !validVid(entry.vid)) {
@@ -186,7 +188,7 @@ export function applySyncIn(world, data, { online = () => false, now = Date.now(
           }
         }
       }
-      fixPartyKeys(inc, chars);
+      fixLater.push(inc);
       chars[id] = inc;
       if (deleted[id]) delete deleted[id];
       remember();
@@ -212,18 +214,19 @@ export function applySyncIn(world, data, { online = () => false, now = Date.now(
     }
     if (next) {
       next.name = mine.name;
-      fixPartyKeys(next, chars);
+      fixLater.push(next);
       chars[id] = next;
     }
     remember();
     results.push({ ...res, level: (next || mine).level, mode });
   }
+  for (const c of fixLater) fixPartyKeys(c, chars);
   return results;
 }
 
-// 家族の キャラを つれていく しるし（fam:）は、ここに いない 人の ぶんを はずす
+// 家族の キャラを つれていく しるし（fam:）は、ここに いない 人の ぶんを はずす（パーティーと 馬車。data/wagon.js）
 function fixPartyKeys(c, chars) {
-  if (Array.isArray(c.partyKeys)) c.partyKeys = c.partyKeys.filter((k) => !String(k).startsWith('fam:') || chars[String(k).slice(4)]);
+  dropGoneFamily(c, chars);
 }
 
 // 結果を ことばに（画面に 出す）

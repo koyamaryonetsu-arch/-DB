@@ -165,9 +165,9 @@ export const ADV_ABILITIES = {
     desc: '敵の影をぬいつけて動けなくする。', cast: '{a}の影ぬい！', anim: 'debuff',
   },
   nj_fuujin: {
-    name: '風神の術', kana: 'ふうじんのじゅつ', kind: 'skill', job: 'ninja', mp: 9, target: 'enemies', spellLike: true,
-    effect: { type: 'magic', element: 'wind', base: [45, 60], thr: 40 },
-    desc: '風の神を呼び、敵全体を切り裂く。', cast: '{a}の風神の術！', anim: 'wind2',
+    name: '風神の術', kana: 'ふうじんのじゅつ', kind: 'skill', job: 'ninja', mp: 9, target: 'group', spellLike: true,
+    effect: { type: 'magic', element: 'wind', base: [52, 68], thr: 40 },
+    desc: '風の神を呼び、同じ種類の敵を切り裂く。', cast: '{a}の風神の術！', anim: 'wind2',
   },
 
   // ───────────── まもの使い ─────────────
@@ -323,9 +323,9 @@ export const ADV_ABILITIES = {
 
   // ───────────── 大魔道士 ─────────────
   am_begiragon: {
-    name: 'ベギラゴン', kana: 'べぎらごん', kind: 'spell', job: 'archmage', mp: 14, target: 'enemies',
-    effect: { type: 'magic', element: 'fire', base: [80, 100], thr: 70 },
-    desc: '炎の波で敵全体を焼きはらう。', cast: '{a}はベギラゴンを唱えた！', anim: 'fire_wave', attackSpell: true,
+    name: 'ベギラゴン', kana: 'べぎらごん', kind: 'spell', job: 'archmage', mp: 14, target: 'group',
+    effect: { type: 'magic', element: 'fire', base: [90, 112], thr: 70 },
+    desc: '炎の波で同じ種類の敵を焼きはらう。', cast: '{a}はベギラゴンを唱えた！', anim: 'fire_wave', attackSpell: true,
   },
   am_manaheal: {
     name: '魔力の泉', kana: 'まりょくのいずみ', kind: 'skill', job: 'archmage', mp: 0, target: 'self',
@@ -360,9 +360,9 @@ export const ADV_ABILITIES = {
     desc: '死んでしまった仲間を完全に生き返らせる。', cast: '{a}はザオリクを唱えた！', anim: 'revive',
   },
   hp_bagimuta: {
-    name: 'バギムーチョ', kana: 'ばぎむーちょ', kind: 'spell', job: 'high_priest', mp: 18, target: 'enemies',
-    effect: { type: 'magic', element: 'wind', base: [110, 130], thr: 80 },
-    desc: 'きょだいな竜巻で敵全体を切り裂く。', cast: '{a}はバギムーチョを唱えた！', anim: 'wind2', attackSpell: true,
+    name: 'バギムーチョ', kana: 'ばぎむーちょ', kind: 'spell', job: 'high_priest', mp: 18, target: 'group',
+    effect: { type: 'magic', element: 'wind', base: [120, 145], thr: 80 },
+    desc: 'きょだいな竜巻で同じ種類の敵を切り裂く。', cast: '{a}はバギムーチョを唱えた！', anim: 'wind2', attackSpell: true,
   },
   hp_behomazun: {
     name: 'ベホマズン', kana: 'べほまずん', kind: 'spell', job: 'high_priest', mp: 30, target: 'allies', field: true,

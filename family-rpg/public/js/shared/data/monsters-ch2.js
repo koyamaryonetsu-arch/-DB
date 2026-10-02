@@ -55,7 +55,7 @@ export const MONSTERS_CH2 = {
   },
   storm_bird: {
     name: 'ストームバード', lv: 16, hp: 91, str: 50, def: 27, agi: 43, exp: 62, gold: 36,
-    race: 'beast', size: 'm', flying: true, resist: { wind: 0.3, bolt: 0.8, ice: 1.3 }, drops: { common: ['herb', 6], rare: ['seed_agi', 48] },
+    race: 'beast', size: 'm', flying: true, resist: { wind: 0.3, bolt: 0.8, ice: 1.3 }, drops: { common: ['herb', 6], rare: ['gale_boomerang', 64] },
     actions: [{ w: 3, id: 'attack' }, { w: 2, id: 'm_dive' }, { w: 2, id: 'm_storm_wing' }],
     desc: '嵐の中を平気でとぶ大きな鳥。つばさで風のやいばをおこす。',
   },
@@ -77,7 +77,7 @@ export const MONSTERS_CH2 = {
   // ── ボス ──
   giant_squid: {
     name: '大王イカ', lv: 15, hp: 2712, str: 62, def: 29, agi: 17, mag: 30, exp: 1600, gold: 700,
-    race: 'beast', size: 'xl', boss: true, turns: 2, drops: { boss: ['deep_ring'] },
+    race: 'beast', size: 'xl', boss: true, turns: 2, speed: 0.68, drops: { boss: ['deep_ring'] },
     resist: { fire: 1.2, ice: 0.6, wind: 1.0, blast: 1.0, bolt: 1.5, sleep: 0.1, poison: 0.3, confuse: 0.1, blind: 0.2, silence: 0, paralyze: 0.1 },
     actions: [
       { w: 3, id: 'attack' }, { w: 3, id: 'm_tentacle' }, { w: 2, id: 'm_ink' }, { w: 2, id: 'm_squeeze' },
@@ -91,7 +91,7 @@ export const MONSTERS_CH2 = {
   },
   storm_general: {
     name: '嵐の将軍ストルム', lv: 20, hp: 3520, str: 65, def: 38, agi: 28, mag: 50, exp: 3600, gold: 1500,
-    race: 'demon', size: 'xl', boss: true, turns: 2, drops: { boss: ['storm_bangle'] },
+    race: 'demon', size: 'xl', boss: true, turns: 2, speed: 0.88, drops: { boss: ['storm_bangle'] },
     resist: { fire: 1.0, ice: 1.0, wind: 0.3, blast: 1.0, bolt: 0.6, light: 1.3, dark: 0.8, sleep: 0, poison: 0.2, confuse: 0.1, blind: 0.3, silence: 0.3, paralyze: 0 },
     actions: [
       { w: 3, id: 'attack' }, { w: 3, id: 'm_storm_blade' }, { w: 2, id: 'm_thunder_call' }, { w: 1, id: 'm_warcry', cond: 'notRecent:m_warcry' },

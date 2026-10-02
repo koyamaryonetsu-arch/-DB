@@ -158,6 +158,8 @@ export function gameFiles() {
     'public/js/shared/data/looks.js', 'public/js/shared/world/salon.js', 'public/js/client/ui/salon.js',
     'public/js/shared/ai.js', 'public/js/shared/battle.js', 'public/js/shared/stats.js',
     'public/js/shared/data/abilities.js', 'public/js/shared/data/abilities-adv.js', 'public/js/shared/data/abilities-jobs.js', 'public/js/shared/data/companions.js',
+    // 学校・公務員・町の みかた・アイドルの 職業の 技
+    'public/js/shared/data/abilities-jobs2.js',
     'public/js/shared/data/hirameki.js', 'public/js/shared/data/dual.js', 'public/js/shared/data/loot.js',
     'public/js/shared/data/encounters.js', 'public/js/shared/data/items.js', 'public/js/shared/data/jobs.js',
     'public/js/shared/data/monsters.js', 'public/js/shared/data/shops.js', 'public/js/shared/data/story.js',
@@ -183,12 +185,16 @@ export function gameFiles() {
     'public/js/client/ui/bank.js', 'public/js/client/ui/forge.js',
     // 馬車
     'public/js/shared/data/wagon.js', 'public/js/shared/world/wagon.js', 'public/js/client/ui/wagon.js', 'public/js/client/render/wagon.js',
+    // みちびきの糸（洞窟から 入り口へ）
+    'public/js/shared/data/escape.js', 'public/js/shared/world/escape.js',
     // カジノ・小さなメダル・メダル王
     'public/js/shared/data/casino.js', 'public/js/shared/data/items-casino.js', 'public/js/shared/data/story-casino.js',
     'public/js/shared/world/casino.js', 'public/js/shared/maps/casino.js',
     'public/js/client/ui/casino.js', 'public/js/client/render/casino.js',
     // めずらしい 強い 魔物（ぷるりん騎士・ヴァルドラゴン など）
     'public/js/shared/data/monsters-rare.js', 'public/js/client/render/rare-art.js',
+    // たたかいの けっかの まど（ボタンで 1行ずつ）
+    'public/js/client/ui/result.js',
     // 第3章「星の竜がねむる山」
     'public/js/shared/maps/north.js', 'public/js/shared/world/hazards.js',
   ];

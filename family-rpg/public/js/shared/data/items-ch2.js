@@ -46,7 +46,7 @@ export const SHOPS_CH2 = {
     // 大王イカを たおすと 船が 行き来して 銀の 品が とどく
     more: [{
       show: { all: ['c2_kraken'] },
-      items: ['silver_sword', 'pirate_axe', 'legend_bat', 'silver_mail', 'silver_shield', 'silver_helm'],
+      items: ['silver_sword', 'pirate_axe', 'legend_bat', 'silver_boomerang', 'silver_mail', 'silver_shield', 'silver_helm'],
       hello: 'いらっしゃい！\n大王イカがいなくなって、銀の品が船でとどいたよ！\n今日はどうする？',
     }],
   },
@@ -55,6 +55,6 @@ export const SHOPS_CH2 = {
     kind: 'item',
     keeper: '道具屋のおねえさん',
     hello: 'いらっしゃいませ！\n船旅には、薬草をたくさん持っていってね。\nどんなご用？',
-    items: ['herb', 'antidote', 'moonherb', 'holy_water', 'return_wing', 'smoke_ball'],
+    items: ['herb', 'antidote', 'moonherb', 'holy_water', 'return_wing', 'guide_thread', 'smoke_ball'],
   },
 };

@@ -7,7 +7,8 @@
 // family: 系統（同じ系統どうしは転職ペナルティが軽い）
 // learn: [職業レベル, 技ID]（職業レベルは 1〜10）
 // perLv: その職業のレベル1つにつき、どの職業でも有効な「ずっと残るボーナス」
-// passive: その職業で いる あいだの とくべつな ちから
+// passive: その職業で いる あいだの とくべつな ちから（train: 勝った たたかいが 何回ぶんの 修行に なるか）
+// body: その 体の 人だけ なれる（0=男性 1=女性。look.body が ない 人は 男性 あつかい）
 //
 // 職業レベルは「たたかいに かった かず」で あがる（けいけんちとは べつ）。
 // じぶんより レベルが とても ひくい てき だけ との たたかいは しゅぎょうに ならない。
@@ -68,7 +69,7 @@ export const JOBS = {
     id: 'performer', name: '旅芸人', kana: 'たびげいにん', short: '旅芸', tier: 0, family: 'tech', color: '#4fb880',
     desc: 'おどりや歌で仲間を盛り上げる。器用なので、他の職業の技もうまく使える。',
     mods: { hp: 1.0, mp: 1.0, str: 0.95, def: 0.95, agi: 1.15, mag: 1.0, heal: 1.0 },
-    weapons: ['dagger', 'fan', 'whip'], shield: true, armor: ['cloth', 'robe', 'gi'], helm: false,
+    weapons: ['dagger', 'fan', 'whip', 'boomerang'], shield: true, armor: ['cloth', 'robe', 'gi'], helm: false,
     perLv: { mp: 0.6, agi: 0.4 },
     versatile: true, // 旅芸人は転職ペナルティが軽い
     learn: [
@@ -80,7 +81,7 @@ export const JOBS = {
     id: 'jester', name: '遊び人', kana: 'あそびにん', short: '遊び', tier: 0, family: 'tech', color: '#b04ad0',
     desc: 'いつも遊んでばかり。何が起こるか分からない技を使い、時々勝手に遊び出す。マスターすると、なんと賢者になれるらしい…',
     mods: { hp: 0.95, mp: 0.9, str: 0.85, def: 0.85, agi: 1.3, mag: 0.95, heal: 0.9 },
-    weapons: ['fan', 'whip', 'dagger', 'none'], shield: false, armor: ['cloth', 'robe', 'gi'], helm: false,
+    weapons: ['fan', 'whip', 'dagger', 'boomerang', 'none'], shield: false, armor: ['cloth', 'robe', 'gi'], helm: false,
     perLv: { agi: 0.5, mp: 0.4 },
     passive: { goof: 0.08 },
     learn: [
@@ -180,7 +181,7 @@ export const JOBS = {
     id: 'ninja', name: '忍者', kana: 'にんじゃ', short: '忍者', tier: 1, req: ['monk', 'mage'], family: 'tech', color: '#3a3a6a',
     desc: '影のように素早い。手裏剣と忍法（かとん・風神）で敵をほんろうする。',
     mods: { hp: 0.95, mp: 0.9, str: 1.1, def: 0.85, agi: 1.7, mag: 1.1, heal: 0.6 },
-    weapons: ['dagger', 'claw', 'sword', 'none'], shield: false, armor: ['cloth', 'gi'], helm: false,
+    weapons: ['dagger', 'claw', 'sword', 'boomerang', 'none'], shield: false, armor: ['cloth', 'gi'], helm: false,
     perLv: { agi: 1 },
     learn: [[1, 'nj_shuriken'], [3, 'nj_katon'], [5, 'nj_bunshin'], [7, 'nj_kagenui'], [10, 'nj_fuujin']],
   },
@@ -205,7 +206,7 @@ export const JOBS = {
     id: 'superstar', name: 'スーパースター', kana: 'すーぱーすたー', short: 'スタ', tier: 1, req: ['priest', 'performer'], reqAlt: [['idol']], family: 'tech', color: '#e46fa8',
     desc: 'みんなのあこがれ。おどりで回復し、スポットライトで敵の目を引きつける。',
     mods: { hp: 1.0, mp: 1.2, str: 0.9, def: 1.0, agi: 1.3, mag: 1.1, heal: 1.3 },
-    weapons: ['fan', 'whip', 'dagger'], shield: true, armor: ['cloth', 'robe', 'gi'], helm: false,
+    weapons: ['fan', 'whip', 'dagger', 'boomerang'], shield: true, armor: ['cloth', 'robe', 'gi'], helm: false,
     perLv: { mp: 0.5, heal: 0.5 },
     versatile: true,
     learn: [[1, 'ss_stardance'], [3, 'ss_spotlight'], [5, 'ss_charm'], [7, 'ss_happy'], [10, 'ss_encore']],
@@ -305,7 +306,7 @@ export const JOBS = {
     id: 'hero', name: '勇者', kana: 'ゆうしゃ', short: '勇者', tier: 2, req: ['battlemaster', 'sage', 'paladin'], family: 'phys', color: '#3f7fd0',
     desc: 'きずなの紋章に認められた本当の勇者。ギガスラッシュとギガデインで闇をはらう。',
     mods: { hp: 1.4, mp: 1.2, str: 1.35, def: 1.3, agi: 1.2, mag: 1.3, heal: 1.3 },
-    weapons: ['sword', 'spear', 'axe', 'staff'], shield: true, armor: ['cloth', 'heavy', 'robe', 'gi'], helm: true,
+    weapons: ['sword', 'spear', 'axe', 'staff', 'boomerang'], shield: true, armor: ['cloth', 'heavy', 'robe', 'gi'], helm: true,
     perLv: { hp: 1, str: 0.5, mag: 0.5, heal: 0.5 },
     versatile: true,
     learn: [[1, 'hr_gigaslash'], [3, 'hr_kizuna'], [5, 'hr_inori'], [7, 'hr_gigadein'], [10, 'hr_kizunaken']],
@@ -361,14 +362,114 @@ export const JOBS = {
     perLv: { str: 1, agi: 1 },
     learn: [[1, 'nt_nitoryu'], [3, 'nt_5050'], [5, 'nt_nemuri'], [7, 'nt_mvp'], [10, 'nt_real']],
   },
+
+  // ───────────── 学校の 職業（小学生 → 中学生 → 高校生）。のびざかりで 職業レベルが 上がりやすい ─────────────
+  schoolkid: {
+    id: 'schoolkid', name: '小学生', kana: 'しょうがくせい', short: '小学', tier: 0, family: 'tech', color: '#f2c84e',
+    desc: '元気いっぱいの小学生。すばしっこくて運がよく、のびざかりなので職業レベルが上がりやすい。ランドセルアタックやリコーダー、じゃんけんで戦う。',
+    mods: { hp: 0.9, mp: 0.9, str: 0.9, def: 0.85, agi: 1.35, mag: 0.95, heal: 1.0 },
+    weapons: ['sword', 'staff', 'boomerang', 'none'], shield: true, armor: ['cloth', 'gi'], helm: false,
+    perLv: { hp: 1, agi: 0.4, str: 0.3 },
+    passive: { train: 1.25 },
+    learn: [
+      [1, 'es_randoseru'], [2, 'es_aisatsu'], [3, 'es_recorder'], [4, 'es_kyushoku'], [5, 'es_kakekko'],
+      [6, 'es_janken'], [7, 'es_odama'], [8, 'es_dodge'], [10, 'es_yume'],
+    ],
+  },
+  middleschooler: {
+    id: 'middleschooler', name: '中学生', kana: 'ちゅうがくせい', short: '中学', tier: 1, req: ['schoolkid'], family: 'tech', color: '#3a4a7a',
+    desc: '部活にテストに大いそがしの中学生。特訓で強くなり、合唱コンクールで仲間をいやす。職業レベルが上がりやすい。',
+    mods: { hp: 1.1, mp: 1.0, str: 1.15, def: 1.0, agi: 1.3, mag: 1.0, heal: 1.0 },
+    weapons: ['sword', 'staff', 'bat', 'boomerang', 'none'], shield: true, armor: ['cloth', 'gi', 'robe'], helm: true,
+    perLv: { str: 0.5, agi: 0.5 },
+    passive: { train: 1.25 },
+    learn: [[1, 'jh_bukatsu'], [3, 'jh_test'], [5, 'jh_hankou'], [7, 'jh_gassho'], [10, 'jh_zenkoku']],
+  },
+  highschooler: {
+    id: 'highschooler', name: '高校生', kana: 'こうこうせい', short: '高校', tier: 2, req: ['middleschooler'], family: 'tech', color: '#4a7ad0',
+    desc: '青春まっただ中の高校生。青春アタックで敵を打ちくだき、文化祭で仲間をもり上げる。何でもこなせる、学校の職業の頂点。',
+    mods: { hp: 1.3, mp: 1.2, str: 1.35, def: 1.15, agi: 1.45, mag: 1.2, heal: 1.2 },
+    weapons: ['sword', 'staff', 'bat', 'boomerang', 'none'], shield: true, armor: ['cloth', 'gi', 'robe'], helm: true,
+    perLv: { hp: 1, str: 0.5, agi: 0.5, mag: 0.5 },
+    passive: { train: 1.25 },
+    learn: [[1, 'hs_seishun'], [3, 'hs_bunkasai'], [5, 'hs_shuugaku'], [7, 'hs_yuujou'], [10, 'hs_mirai']],
+  },
+
+  // ───────────── 公務員の 職業（地方公務員 → 国家公務員 → キャリア組）。町と 国を 守る ささえ役 ─────────────
+  civil_local: {
+    id: 'civil_local', name: '地方公務員', kana: 'ちほうこうむいん', short: '地方', tier: 0, family: 'tech', color: '#5a8a6a',
+    desc: '町のために働く公務員。防災訓練で仲間を守り、窓口対応や通行止めで敵の動きを止める。体がじょうぶ。',
+    mods: { hp: 1.15, mp: 1.0, str: 0.95, def: 1.2, agi: 0.9, mag: 0.85, heal: 1.05 },
+    weapons: ['dagger', 'staff', 'spear', 'none'], shield: true, armor: ['cloth', 'robe', 'heavy'], helm: true,
+    perLv: { def: 0.5, heal: 0.5 },
+    learn: [
+      [1, 'lc_madoguchi'], [2, 'lc_bousai'], [3, 'lc_josetsu'], [4, 'lc_jumin'], [5, 'lc_tsuukou'],
+      [6, 'lc_yurukyara'], [7, 'lc_takidashi'], [8, 'lc_shorui'], [10, 'lc_machiokoshi'],
+    ],
+  },
+  civil_national: {
+    id: 'civil_national', name: '国家公務員', kana: 'こっかこうむいん', short: '国家', tier: 1, req: ['civil_local'], family: 'tech', color: '#2a5a4a',
+    desc: '国のために働く公務員。法律の力で敵の呪文をふうじ、予算会議で仲間のMPを回復する。ハンコの連打も得意。',
+    mods: { hp: 1.2, mp: 1.1, str: 1.0, def: 1.3, agi: 0.95, mag: 1.05, heal: 1.15 },
+    weapons: ['dagger', 'staff', 'spear', 'none'], shield: true, armor: ['cloth', 'robe', 'heavy'], helm: true,
+    perLv: { def: 1, mp: 0.5 },
+    learn: [[1, 'nc_houritsu'], [3, 'nc_yosan'], [5, 'nc_kisha'], [7, 'nc_hanko'], [10, 'nc_project']],
+  },
+  career: {
+    id: 'career', name: 'キャリア組', kana: 'きゃりあぐみ', short: 'キャ', tier: 2, req: ['civil_national'], family: 'tech', color: '#1e2a3a',
+    desc: '国を動かすエリート公務員。政策決定で仲間を強くし、危機管理でみんなを守る。最後は大改革で敵をふきとばす。',
+    mods: { hp: 1.35, mp: 1.35, str: 1.15, def: 1.4, agi: 1.05, mag: 1.25, heal: 1.3 },
+    weapons: ['dagger', 'staff', 'spear', 'sword', 'none'], shield: true, armor: ['cloth', 'robe', 'heavy'], helm: true,
+    perLv: { def: 1, mp: 0.5, heal: 0.5 },
+    learn: [[1, 'cr_seisaku'], [3, 'cr_nemawashi'], [5, 'cr_kiki'], [7, 'cr_houkaisei'], [10, 'cr_daikaikaku']],
+  },
+
+  // ───────────── 町の みかた（地方公務員と 戦士・僧侶を マスターすると なれる） ─────────────
+  police: {
+    id: 'police', name: '警察官', kana: 'けいさつかん', short: '警察', tier: 1, req: ['civil_local', 'warrior'], family: 'phys', color: '#2a3a7a',
+    desc: '町の平和を守るおまわりさん。「たいほだ！」で敵を動けなくし、職務質問で持ち物をあずかる。正義の一撃は強力。',
+    mods: { hp: 1.3, mp: 0.7, str: 1.3, def: 1.3, agi: 1.1, mag: 0.55, heal: 0.75 },
+    weapons: ['sword', 'staff', 'spear', 'none'], shield: true, armor: ['cloth', 'heavy'], helm: true,
+    perLv: { def: 1, str: 0.5 },
+    learn: [[1, 'po_taiho'], [3, 'po_shokumu'], [5, 'po_koutsuu'], [7, 'po_patocar'], [10, 'po_seigi']],
+  },
+  firefighter: {
+    id: 'firefighter', name: '消防士', kana: 'しょうぼうし', short: '消防', tier: 1, req: ['civil_local', 'priest'], family: 'phys', color: '#c83a2a',
+    desc: '火事と事故から町を守る。放水で炎の敵をけし、救急手当や救助で仲間を助ける。体がとてもじょうぶ。',
+    mods: { hp: 1.4, mp: 0.85, str: 1.2, def: 1.25, agi: 0.95, mag: 0.6, heal: 1.2 },
+    weapons: ['axe', 'spear', 'staff', 'none'], shield: true, armor: ['cloth', 'heavy'], helm: true,
+    perLv: { hp: 1, heal: 0.5 },
+    learn: [[1, 'ff_housui'], [3, 'ff_teate'], [5, 'ff_kyujo'], [7, 'ff_hinoyoujin'], [10, 'ff_issei']],
+  },
+
+  // ───────────── スーパースターの 先（体で なれる 職業が ちがう） ─────────────
+  fruit_idol: {
+    id: 'fruit_idol', name: 'フルーツジッパー', kana: 'ふるーつじっぱー', short: 'フル', tier: 2, req: ['superstar'], body: 1, family: 'magic', color: '#ff6aa8',
+    desc: '女性だけがなれる、フルーツみたいにカラフルでかわいいアイドル。ミックスジュースでみんなをいやし、フルーツバスケットで敵を大さわぎさせる。',
+    mods: { hp: 1.05, mp: 1.45, str: 0.85, def: 1.0, agi: 1.45, mag: 1.35, heal: 1.45 },
+    weapons: ['fan', 'whip', 'staff', 'none'], shield: false, armor: ['cloth', 'robe'], helm: false,
+    perLv: { heal: 0.5, agi: 0.5, mp: 0.5 },
+    versatile: true,
+    learn: [[1, 'fz_juice'], [3, 'fz_banana'], [5, 'fz_basket'], [7, 'fz_tropical'], [10, 'fz_meteor']],
+  },
+  storm_idol: {
+    id: 'storm_idol', name: 'アラシ', kana: 'あらし', short: 'アラ', tier: 2, req: ['superstar'], body: 0, family: 'magic', color: '#3a8ad8',
+    desc: '男性だけがなれる、嵐のようにかっこいいアイドル。旋風ステップで敵をきりさき、5人のハーモニーでみんなをいやす。',
+    mods: { hp: 1.15, mp: 1.4, str: 1.1, def: 1.05, agi: 1.45, mag: 1.35, heal: 1.2 },
+    weapons: ['fan', 'whip', 'staff', 'none'], shield: false, armor: ['cloth', 'robe'], helm: false,
+    perLv: { mag: 0.5, agi: 0.5, mp: 0.5 },
+    versatile: true,
+    learn: [[1, 'ar_senpu'], [3, 'ar_manazashi'], [5, 'ar_harmony'], [7, 'ar_stage'], [10, 'ar_live']],
+  },
 };
 
 // はじめに えらべる 職業（基本職）
-export const JOB_ORDER = ['warrior', 'monk', 'priest', 'mage', 'performer', 'jester', 'salaryman', 'idol', 'railman', 'ballplayer'];
+export const JOB_ORDER = ['warrior', 'monk', 'priest', 'mage', 'performer', 'jester', 'salaryman', 'idol', 'railman', 'ballplayer',
+  'schoolkid', 'civil_local'];
 export const ADVANCED_ORDER = ['battlemaster', 'paladin', 'magic_knight', 'pirate', 'holyfist', 'ninja', 'tamer', 'sage', 'superstar', 'fortune',
-  'samurai', 'bucho', 'major_leaguer'];
+  'samurai', 'bucho', 'major_leaguer', 'middleschooler', 'civil_national', 'police', 'firefighter'];
 export const SUPER_ORDER = ['dragon_knight', 'archmage', 'high_priest', 'god_hand', 'summoner', 'magic_swordsman', 'guardian', 'hero', 'monster_master', 'star_diva',
-  'sword_master', 'shogun', 'shacho', 'nitoryu'];
+  'sword_master', 'shogun', 'shacho', 'nitoryu', 'highschooler', 'career', 'fruit_idol', 'storm_idol'];
 export const ALL_JOBS = [...JOB_ORDER, ...ADVANCED_ORDER, ...SUPER_ORDER];
 export const TIER_NAMES = ['基本職', '上級職', '超級職'];
 
@@ -419,3 +520,34 @@ export function jobAncestry(id) {
 export function jobReqText(id, name = (r) => JOBS[r].name) {
   return jobReqSets(id).map((set) => set.map((r) => `${name(r)}Lv${JOB_MAX_LEVEL}`).join('＋')).join(' または ');
 }
+
+// 体で なれるか（フルーツジッパーは 女性だけ、アラシは 男性だけ）
+// look.body が ない・ふつうで ない 人は 男性 あつかい（えも 男性で かく。looks.js の lookIds と おなじ）
+export const BODY_NAMES = ['男性', '女性'];
+export function jobBodyOk(id, look) {
+  const need = JOBS[id]?.body;
+  if (need === undefined) return true;
+  return (look?.body === 1 ? 1 : 0) === need;
+}
+
+// 神殿の うわさ（まだ ひみつの 超級職。もとの 職業を はじめた 人に だけ、名前を ださずに 聞こえる）
+export const JOB_HINTS = {
+  dragon_knight: '剣と呪文、両方をきわめた戦士には、伝説の竜の力が目ざめるらしい…',
+  archmage: '呪文と魔法の剣をきわめた者だけが、消滅の呪文を使えるらしい…',
+  high_priest: '回復の呪文と聖なる守りをきわめた者は、神に選ばれるらしい…',
+  god_hand: '戦いの達人が聖なるこぶしもきわめると、神のこぶしを手にするらしい…',
+  summoner: 'タロットと呪文をきわめた者は、天地のせいれいを呼べるらしい…',
+  magic_swordsman: '魔法の剣と忍びのわざをきわめると、闇の剣が使えるらしい…',
+  guardian: '聖なる騎士と海の男、2つの道をきわめると、守りの頂点に立てるらしい…',
+  hero: '3つの上級職をきわめた者だけが、本当の勇者になれるらしい…',
+  monster_master: '魔物と心を通わせ、呪文もきわめた者は、魔物の王になれるらしい…',
+  star_diva: 'スターのかがやきと占いの力を合わせると、星の歌が歌えるらしい…',
+  sword_master: 'たくさんの剣の道をきわめた者は、剣聖とよばれるらしい…',
+  shogun: 'サムライと忍びをしたがえる者は、天下人になれるらしい…',
+  shacho: '部長をきわめると、ついに会社のトップになれるらしい…',
+  nitoryu: '海の向こうで大活やくした選手は、投げても打っても世界一になれるらしい…',
+  highschooler: '中学生をきわめると、青春いっぱいの高校に進めるらしい…',
+  career: '国家公務員をきわめたエリートは、国を動かす仕事につけるらしい…',
+  fruit_idol: 'スーパースターをきわめた女性は、フルーツのようにカラフルなアイドルになれるらしい…',
+  storm_idol: 'スーパースターをきわめた男性は、嵐のようにかっこいいアイドルになれるらしい…',
+};

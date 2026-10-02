@@ -1025,6 +1025,17 @@ img.face { image-rendering: pixelated; }
   animation: glow 0.5s infinite alternate;
 }
 .b-result { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(92vw, 640px); max-height: 80%; z-index: 6; }
+.win.b-result { background: var(--win-solid); box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.85), 0 0 0 100vmax rgba(0, 0, 0, 0.38); }
+.b-result .res-lines > div { padding: 0.06em 0; transform-origin: left center; }
+.b-result .res-lines > div:last-child { animation: res-in 0.16s ease-out; }
+/* レベルアップの 行: きんいろに ぱっと ひかって、すこし 大きく */
+.b-result .res-lines > .lvup { font-weight: bold; text-shadow: 0 0 10px rgba(255, 214, 107, 0.7); animation: lv-pop 0.9s ease-out; }
+.b-result .res-lines > .res-stats { color: #ffe9b0; font-size: 0.92em; padding-left: 0.8em; }
+/* つぎの 行は ボタンを おすと 出る（▼ が ちかちか） */
+.b-result .res-more { text-align: center; color: var(--accent); line-height: 1; height: 1em; font-size: 0.85em; opacity: 0; }
+.b-result .res-more.on { opacity: 1; animation: blink 0.9s steps(2) infinite; }
+@keyframes res-in { from { opacity: 0; transform: translateY(4px); } }
+@keyframes lv-pop { 0% { transform: scale(1.22); filter: brightness(1.9); } 40% { transform: scale(0.98); } 100% { transform: none; filter: none; } }
 
 /* たてむき（スマホを たてに もつ）: え は よこいっぱい、メッセージは まんなか、コマンドは したで おおきく */
 @media (max-aspect-ratio: 1/1) {
@@ -1196,6 +1207,12 @@ body.talking .mon-pop { top: 26%; }
 /* コマンドの わくの 中では 属性・「他」の しるしを 小さめに（名前が 2行に なりにくい） */
 .b-cmd .menu .elem { font-size: 0.64em; padding: 0 0.22em; margin-right: 0.22em; }
 .b-cmd .menu .tag { margin-left: 0.18em; padding: 0 0.22em; }
+/* 相手の しるし（グループ・全体・全員）と グループの かず */
+.menu .tag.tgt { color: #9ad8ff; font-size: 0.62em; }
+.menu .tag.tgt.t-enemies { color: #ffb4a3; }
+.menu .tag.tgt.t-allies, .menu .tag.tgt.t-deadAllies { color: #9af0b0; }
+.menu .tag.tgt.t-random { color: #e4c2ff; }
+.b-cmd .menu .cnt { font-size: 0.8em; color: var(--muted); margin-left: 0.1em; display: inline-block; white-space: nowrap; }
 .b-cmd .menu .item.sel { background: rgba(255, 214, 107, 0.16); box-shadow: 0 0 0 2px var(--accent); border-color: var(--accent); }
 .b-cmd .menu .item.press { background: rgba(255, 214, 107, 0.45); transform: scale(0.95); }
 .b-cmd .menu .item.dis { border-style: dashed; border-color: rgba(255, 255, 255, 0.15); }

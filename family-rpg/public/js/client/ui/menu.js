@@ -2,7 +2,7 @@
 import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js';
 import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js';
 import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js';
-import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS } from '../../shared/battle.js';
+import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS, turnSeconds } from '../../shared/battle.js';
 import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily } from '../prefs.js';
 import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_TRAIN_GAP, TIER_NAMES } from '../../shared/data/jobs.js';
 import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress, monsterSlots } from '../../shared/stats.js';
@@ -16,7 +16,7 @@ import { PLACES } from '../../shared/maps/overworld.js';
 import { SEA_PLACES } from '../../shared/maps/ch2.js';
 import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js';
 import { T, TILE_INFO } from '../../shared/tiles.js';
-import { itemDetail, abilityDetail, skillBrief, gearText } from './info.js';
+import { itemDetail, abilityDetail, skillBrief, gearText, targetTag } from './info.js';
 import { makeCanvas, ctxOf } from '../render/pixel.js';
 import { monsterCanvas } from '../render/monsters.js';
 import { mapIconCanvas, boardIconURL } from '../render/boards.js';
@@ -29,7 +29,7 @@ import { difficultyOf, visibleMarks, EXP_RATES, EXP_RATE_NAMES } from '../../sha
 import { memberTalk, talkFor } from '../../shared/data/party-talk.js';
 import { treasureRows, treasureDetail, openTreasureMap } from './treasure.js';
 import { themeHex } from '../render/themes.js';
-import { wagonMenuView } from './wagon.js';
+import { wagonMenuView, wagonHereClient, menuArrange } from './wagon.js';
 
 // 呪文・技の タブ（左右で じゅんに かわる）
 const SKILL_TABS = [['list', '覚えた技'], ['fav', 'お気に入り'], ['combo', 'ひらめき'], ['dual', '合体技']];
@@ -354,6 +354,14 @@ export class FieldMenu {
           this.close();
           return;
         }
+      } else if (it.effect.type === 'exit') {
+        // みちびきの糸: 洞窟の 中なら 入り口の 外へ（メニューを とじて 外を 見せる）
+        g.net.send({ t: 'menu', action: 'useItem', id: entry.value });
+        const m = MAPS[g.field?.mapId];
+        if (m?.kind === 'dungeon' && !m.indoor) {
+          this.close();
+          return;
+        }
       } else if (it.target === 'self') {
         g.net.send({ t: 'menu', action: 'useItem', id: entry.value, ref: 'self' });
       } else {
@@ -515,8 +523,10 @@ export class FieldMenu {
       const p = penaltyFor(c, id);
       const locked = a.kind === 'combo' && !comboAllowed(c, id);
       const elm = a.effect?.element;
+      // 相手の しるし（グループ・全体・全員・ランダム）
+      const tt = targetTag(a);
       return {
-        html: `${ELEMENT_NAMES[elm] ? `<span class="elem e-${elm}">${ELEMENT_NAMES[elm]}</span>` : ''}${esc(a.name)}${a.kind === 'combo' ? `<span class="tag ${locked ? 'muted' : 'gold'}">掛け合わせ${locked ? '（上級職で）' : ''}</span>` : a.hirameki ? '<span class="tag hira">ひらめき</span>' : ''}${p.penalized ? '<span class="tag warn">他</span>' : ''}<span class="sk-desc">${esc(skillBrief(a))}</span>`,
+        html: `${ELEMENT_NAMES[elm] ? `<span class="elem e-${elm}">${ELEMENT_NAMES[elm]}</span>` : ''}${esc(a.name)}${tt ? `<span class="tag tgt t-${a.effect?.random ? 'random' : a.target}">${tt}</span>` : ''}${a.kind === 'combo' ? `<span class="tag ${locked ? 'muted' : 'gold'}">掛け合わせ${locked ? '（上級職で）' : ''}</span>` : a.hirameki ? '<span class="tag hira">ひらめき</span>' : ''}${p.penalized ? '<span class="tag warn">他</span>' : ''}<span class="sk-desc">${esc(skillBrief(a))}</span>`,
         right: a.effect.type === 'mahouken' ? '' : `MP${mpCost(c, id)}`,
         rightCls: p.penalized ? 'pen' : '',
         value: id,
@@ -687,7 +697,9 @@ export class FieldMenu {
       }
       box.append(jobs, el('div', { class: 'detail', text: `自分よりレベルが${JOB_TRAIN_GAP + 1}以上低い敵ばかりだと、職業の修行にならない。` }));
     }
-    const speedNote = el('div', { class: 'detail', text: `素早さ ${st.agi}…戦いで約${(128000 / (st.agi + 12) / 1000).toFixed(1)}秒ごとに順番が来る` });
+    // 素早さの 差は すこしだけ（shared/battle.js の ATB）。戦いの 速さの 設定も かける
+    const bspeed = normBattleSettings(this.game.me?.battleSettings || {}).speed;
+    const speedNote = el('div', { class: 'detail', text: `素早さ ${st.agi}…戦いで約${turnSeconds(st.agi, bspeed).toFixed(1)}秒ごとに順番が来る\n素早さの差は少しだけ（3倍ちがっても約1.2倍）。ピオリムなどは約1.25倍` });
     box.append(speedNote);
     if (active) {
       this.mkSub({ items: [{ label: 'もどる', value: 'back' }], onSelect: () => this.back() });
@@ -769,10 +781,13 @@ export class FieldMenu {
     }
     box.append(...rows);
     if (!active) {
-      box.append(el('div', { class: 'detail', text: '遊んでいる家族をパーティーにさそえる。仲間はルミナの町の酒場で探したり入れかえたりできる。\n近くにいる仲間はいっしょに戦う。はなれている仲間も、戦っている場所へかけつけると、とちゅうから参加できる。\n「ならびを変える」で順番を変えられる（先頭ほど敵にねらわれやすい）。' }));
+      box.append(el('div', { class: 'detail', text: `遊んでいる家族をパーティーにさそえる。仲間はルミナの町の酒場で探したり入れかえたりできる。\n近くにいる仲間はいっしょに戦う。はなれている仲間も、戦っている場所へかけつけると、とちゅうから参加できる。\n「ならびを変える」で順番を変えられる（先頭ほど敵にねらわれやすい）。${g.me.wagon ? '\n「総入れかえ」で、戦う仲間（1〜4番目）と馬車の仲間（5〜8番目）をまとめて決められる。' : ''}` }));
       return box;
     }
     const acts = [];
+    // 総入れかえ（1〜4番目が 戦う 仲間、5〜8番目が 馬車。ui/wagon.js）
+    const mates = (g.me.partyKeys || []).length + (g.me.wagonKeys || []).length;
+    if (g.me.wagon && (iAmLeader || !p) && mates) acts.push({ label: '総入れかえ', value: { a: 'arrange' } });
     if (iAmLeader && (p?.supports?.length || 0) >= 1) acts.push({ label: 'ならびを変える', value: { a: 'order' } });
     if (g.me.wagon) acts.push({ label: '馬車', value: { a: 'wagon' } });
     const others = (g.players || []).filter((x) => x.sid !== g.sid && x.partyId !== p?.id && !x.away);
@@ -794,7 +809,17 @@ export class FieldMenu {
           this.main.scrollTop = 0;
           return;
         }
-        if (v.a === 'order') {
+        if (v.a === 'arrange') {
+          if (!wagonHereClient(g)) {
+            toast('馬車は入り口で待っている。\n（洞窟や塔の中では乗りかえられない）');
+            this.sfx('buzz');
+            return;
+          }
+          this.sub.blur();
+          const r = await menuArrange(this);
+          // あたらしい ならびを 上から 見せる
+          if (r) setTimeout(() => { if (this.root) this.main.scrollTop = 0; }, 300);
+        } else if (v.a === 'order') {
           this.sub.blur();
           const order = await this.pickOrder();
           if (order) g.net.send({ t: 'menu', action: 'order', order });

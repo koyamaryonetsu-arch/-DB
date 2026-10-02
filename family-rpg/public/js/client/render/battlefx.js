@@ -1,7 +1,8 @@
 // たたかいの はいけいと エフェクト
 import { makeCanvas, ctxOf, hexToRgb } from './pixel.js';
-import { weaponLook, playWeapon } from './weaponfx.js';
+import { weaponLook, playWeapon, playReach } from './weaponfx.js';
 import { nightBg, drawNightSky } from './night-art.js';
+import { playJobFx, JOB_FINE } from './battlefx-jobs.js';
 
 export const BW = 256;
 export const BH = 144;
@@ -211,7 +212,37 @@ const COL = {
 };
 
 // うごかない（かたちが じかんで かわるだけの）つぶ
-const STILL = new Set(['lash', 'beam', 'arc', 'impact', 'lines', 'crossflash', 'ellipse', 'spot', 'glow', 'trail', 'cut', 'shock', 'crack', 'lash2', 'spear', 'zap', 'fang', 'gust', 'fanshape', 'bigcut', 'rune']);
+const STILL = new Set(['lash', 'beam', 'arc', 'impact', 'lines', 'crossflash', 'ellipse', 'spot', 'glow', 'trail', 'cut', 'shock', 'crack', 'lash2', 'spear', 'zap', 'fang', 'gust', 'fanshape', 'bigcut', 'rune', 'boomer']);
+
+// てんを なめらかに つなぐ みち（カトマル・ロム）。steps: てんと てんの あいだの こまかさ
+// へんじ: { pts, cum（はじめからの ながさ）, total }。ctrl[k] は pts[k * steps]
+export function smoothPath(ctrl, steps = 10) {
+  const pts = [];
+  const P = (i) => ctrl[Math.max(0, Math.min(ctrl.length - 1, i))];
+  for (let i = 0; i < ctrl.length - 1; i++) {
+    const [p0, p1, p2, p3] = [P(i - 1), P(i), P(i + 1), P(i + 2)];
+    for (let k = 0; k < steps; k++) {
+      const t = k / steps, t2 = t * t, t3 = t2 * t;
+      const f = (a, b, c, d) => 0.5 * (2 * b + (-a + c) * t + (2 * a - 5 * b + 4 * c - d) * t2 + (-a + 3 * b - 3 * c + d) * t3);
+      pts.push([f(p0[0], p1[0], p2[0], p3[0]), f(p0[1], p1[1], p2[1], p3[1])]);
+    }
+  }
+  pts.push(ctrl[ctrl.length - 1].slice());
+  const cum = [0];
+  for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+  return { pts, cum, total: cum[cum.length - 1] || 1 };
+}
+
+// みちの とちゅう（u: 0〜1。ながさで わる ので はやさが いちじょう）
+function pathAt(p, u) {
+  const d = Math.max(0, Math.min(1, u)) * p.total;
+  let i = 1;
+  while (i < p.cum.length - 1 && p.cum[i] < d) i++;
+  const a = p.pts[i - 1], b = p.pts[i];
+  const seg = p.cum[i] - p.cum[i - 1] || 1;
+  const k = (d - p.cum[i - 1]) / seg;
+  return [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k];
+}
 
 // ムチの かたち（t: 0〜1）
 function lashPts(p, t) {
@@ -584,7 +615,66 @@ const FINE = {
     x.globalAlpha = a * 0.4;
     x.drawImage(glowSprite(p.color), p.x - r, p.y - r * 0.7, r * 2, r * 1.4);
   },
+  // ブーメラン: くるくる まわりながら みちを とんで、ひかりの おびを のこす
+  boomer(x, p, t) {
+    const [px, py] = pathAt(p, t);
+    p.x = px;
+    p.y = py;
+    const fade = t > 0.9 ? (1 - t) / 0.1 : 1;
+    // とんできた みち（うしろほど うすい ひかりの すじ）
+    x.globalCompositeOperation = 'lighter';
+    const N = 12, back = 34 / p.total;
+    let prev = pathAt(p, t - back);
+    for (let k = 1; k <= N; k++) {
+      const u = t - back + (back * k) / N;
+      if (u <= 0) { prev = pathAt(p, u); continue; }
+      const cur = pathAt(p, u);
+      x.globalAlpha = 0.45 * (k / N) * fade;
+      x.strokeStyle = p.glow;
+      x.lineWidth = 0.6 + 2.2 * (k / N);
+      x.beginPath(); x.moveTo(prev[0], prev[1]); x.lineTo(cur[0], cur[1]); x.stroke();
+      prev = cur;
+    }
+    // おび（すこし まえの いちに ひかり）
+    for (let k = 7; k >= 1; k--) {
+      const u = t - k * p.gap;
+      if (u <= 0) continue;
+      const [tx, ty] = pathAt(p, u);
+      const r = p.size * (1.15 - k * 0.07);
+      x.globalAlpha = 0.11 * (8 - k) / 7 * fade;
+      x.drawImage(glowSprite(p.glow), tx - r, ty - r, r * 2, r * 2);
+    }
+    x.globalAlpha = 0.5 * fade;
+    x.drawImage(glowSprite(p.glow), px - p.size * 1.6, py - p.size * 1.6, p.size * 3.2, p.size * 3.2);
+    x.globalCompositeOperation = 'source-over';
+    // くの字の かたち（まんなかを 中心に まわる）
+    const rot = p.rot0 + (p.age * p.spin) / 1000;
+    const c = Math.cos(rot), s = Math.sin(rot), L = p.size;
+    const P = ([a, b]) => [px + a * c - b * s, py + a * s + b * c];
+    const pts = [[L * 0.62, -L * 0.8], [-L * 0.48, 0], [L * 0.62, L * 0.8]].map(P);
+    x.globalAlpha = fade;
+    x.lineCap = 'round';
+    x.lineJoin = 'round';
+    for (const [w, col] of [[p.w + 1.4, p.outline], [p.w, p.color], [p.w * 0.38, p.hi]]) {
+      x.strokeStyle = col;
+      x.lineWidth = w;
+      x.beginPath();
+      x.moveTo(pts[0][0], pts[0][1]);
+      x.lineTo(pts[1][0], pts[1][1]);
+      x.lineTo(pts[2][0], pts[2][1]);
+      x.stroke();
+    }
+    // ★の ブーメラン: さきっぽが きらり
+    if (p.star && Math.floor(p.age / 70) % 2) {
+      x.fillStyle = '#ffffff';
+      x.fillRect(pts[0][0] - 0.5, pts[0][1] - 0.5, 1, 1);
+      x.fillRect(pts[2][0] - 0.5, pts[2][1] - 0.5, 1, 1);
+    }
+  },
 };
+
+// 学校・公務員・アイドルの 職業の つぶ（battlefx-jobs.js）
+Object.assign(FINE, JOB_FINE);
 
 export class Effects {
   constructor() {
@@ -846,6 +936,8 @@ export class Effects {
   // anim の しゅるいで エフェクトを だす
   // opts: { crit, element, fromAlly }
   play(anim, targets, element, opts = {}) {
+    // 学校・公務員・町の みかた・アイドルの 技（battlefx-jobs.js）
+    if (playJobFx(this, anim, targets, element, opts, BW, BH)) return;
     const crit = !!opts.crit;
     const ec = COL[element] || null;
     const spell = /^(fire|ice|wind|blast|void|dark1|minadein|bolt|meteor)/.test(anim);
@@ -1212,6 +1304,26 @@ export class Effects {
     return this.weaponStrike(targets, weapon || 'none', crit, opts.id || null, opts.mon || null);
   }
 
+  // ムチ（グループを なぎはらう）・ブーメラン（全体を とんで もどる）の ふつうの こうげき
+  // targets: あたる じゅんの 敵の いち、crits: それぞれ かいしんか。へんじ: それぞれに あたる じかん（ms）
+  weaponReach(targets, weapon, crits, opts = {}) {
+    const look = weaponLook(opts.id || null, weapon || 'none', opts.mon || null);
+    return playReach(this, targets, look, crits || []);
+  }
+
+  // エフェクトの 時計で ms あとに fn を よぶ（え と おなじ はやさで すすむ）
+  at(ms, fn) {
+    this.add({ kind: 'call', x: 0, y: 0, delay: Math.max(0.001, ms), life: 1, fn });
+  }
+
+  // ブーメランが とぶ（ctrl の てんを なめらかに とおる）。へんじ: それぞれの てんに つく じかん（ms）
+  boomerang(ctrl, { speed = 0.38, delay = 0, size = 5.5, w = 2.1, color = '#c08a50', hi = '#fff4e0', outline = '#2a1a10', glow = '#ffd66b', spin = 24, star = false, steps = 10 } = {}) {
+    const path = smoothPath(ctrl, steps);
+    const life = path.total / speed;
+    this.add({ kind: 'boomer', ...path, x: ctrl[0][0], y: ctrl[0][1], life, delay, size, w, color, hi, outline, glow, spin, star, rot0: Math.random() * 6, gap: 9 / path.total });
+    return ctrl.map((_, k) => delay + (path.cum[k * steps] / path.total) * life);
+  }
+
   // ほのおが たちのぼる
   fireUp(x, y, n, delay) {
     for (let k = 0; k < n; k++) this.add({ x: x + (Math.random() - 0.5) * 20, y: y + 10, vx: (Math.random() - 0.5) * 20, vy: -30 - Math.random() * 50, color: COL.fire[k % 3], life: 500 + Math.random() * 300, size: 2 + Math.random() * 2, delay });
@@ -1267,6 +1379,14 @@ export class Effects {
         const a = p.ang + t * 9;
         p.x = p.cx + Math.cos(a) * p.rad * (1 - t * 0.3);
         p.y = p.cy - t * p.rise + Math.sin(a) * p.rad * 0.3;
+        continue;
+      }
+      // エフェクトの 時計で よぶ（おもい きかいで え が おくれても ダメージの かずが ずれない）
+      if (p.kind === 'call') {
+        if (!p.done) {
+          p.done = true;
+          try { p.fn(); } catch (e) { console.error(e); }
+        }
         continue;
       }
       if (p.kind === 'flash' && p.age >= 0 && !p.done) {
@@ -1362,7 +1482,7 @@ export class Effects {
     // ひばなは いろ・ふとさ・こさ ごとに まとめて 1かいで かく（かるく する）
     const sparks = new Map();
     for (const p of this.parts) {
-      if (p.delay > 0 || p.kind === 'flash' || p.kind === 'shake') continue;
+      if (p.delay > 0 || p.kind === 'flash' || p.kind === 'shake' || p.kind === 'call') continue;
       const t = Math.min(1, p.age / p.life);
       if (p.kind === 'spark') {
         const a = Math.ceil(Math.max(0, 1 - t * t) * 4) / 4;

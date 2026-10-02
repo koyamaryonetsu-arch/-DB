@@ -53,7 +53,12 @@ export class Bot {
         this.inBattle = true;
         for (const id of m.mine) this.queue.push(() => this.world.handle(this.s, { t: 'battle', actor: id, auto: true }, this.conn));
         break;
-      case 'battleEnd': this.inBattle = false; this.battles.push(m); break;
+      case 'battleEnd':
+        this.inBattle = false;
+        this.battles.push(m);
+        // けっかの まどを とじた（ほんとうの クライアントと おなじ）
+        if (!this.keepResult) this.queue.push(() => this.world.handle(this.s, { t: 'resultDone' }, this.conn));
+        break;
       default:
     }
   }
