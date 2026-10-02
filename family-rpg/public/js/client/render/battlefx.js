@@ -2,6 +2,7 @@
 import { makeCanvas, ctxOf, hexToRgb } from './pixel.js';
 import { weaponLook, playWeapon } from './weaponfx.js';
 import { nightBg, drawNightSky } from './night-art.js';
+import { playJobFx, JOB_FINE } from './battlefx-jobs.js';
 
 export const BW = 256;
 export const BH = 144;
@@ -586,6 +587,9 @@ const FINE = {
   },
 };
 
+// 学校・公務員・アイドルの 職業の つぶ（battlefx-jobs.js）
+Object.assign(FINE, JOB_FINE);
+
 export class Effects {
   constructor() {
     this.parts = [];
@@ -846,6 +850,8 @@ export class Effects {
   // anim の しゅるいで エフェクトを だす
   // opts: { crit, element, fromAlly }
   play(anim, targets, element, opts = {}) {
+    // 学校・公務員・町の みかた・アイドルの 技（battlefx-jobs.js）
+    if (playJobFx(this, anim, targets, element, opts, BW, BH)) return;
     const crit = !!opts.crit;
     const ec = COL[element] || null;
     const spell = /^(fire|ice|wind|blast|void|dark1|minadein|bolt|meteor)/.test(anim);

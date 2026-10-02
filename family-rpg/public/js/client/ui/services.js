@@ -4,7 +4,7 @@ import { ITEMS } from '../../shared/data/items.js';
 import { JOBS, JOB_ORDER, ADVANCED_ORDER, SUPER_ORDER, TIER_NAMES, JOB_MAX_LEVEL, JOB_TRAIN_GAP, jobReqText, jobReqSets, jobBodyOk, BODY_NAMES, JOB_HINTS } from '../../shared/data/jobs.js';
 import { ABILITIES } from '../../shared/data/abilities.js';
 import { salonUI } from './salon.js';
-import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered } from '../../shared/stats.js';
+import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered, canEquip } from '../../shared/stats.js';
 import { MONSTERS } from '../../shared/data/monsters.js';
 import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES } from '../../shared/data/companions.js';
 import { TACTICS } from '../../shared/ai.js';
@@ -191,7 +191,9 @@ function jobUI(game) {
       main.innerHTML = '';
       main.append(whoRow);
       renderWho();
-      const pv = playerSprite(c.look, j, 'down', 0, c.equip);
+      // その 職業で そうびできない ものは はずした すがた（転職した あとの みため）
+      const eq = Object.fromEntries(Object.entries(c.equip || {}).map(([k, v]) => [k, v && canEquip(j, v) ? v : null]));
+      const pv = playerSprite(c.look, j, 'down', 0, eq);
       const img = el('canvas', { width: pv.width, height: pv.height, style: { width: '64px', height: '84px', imageRendering: 'pixelated', float: 'right', opacity: open ? '1' : '0.45' } });
       img.getContext('2d').drawImage(pv, 0, 0);
       main.append(img, el('h3', { text: `${job.name}（${job.kana}）` }), el('div', { class: 'small gold', text: TIER_NAMES[job.tier || 0] }), el('div', { class: 'detail', text: job.desc }));
