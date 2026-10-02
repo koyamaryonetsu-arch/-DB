@@ -5,7 +5,7 @@ import { PLACES } from '../shared/maps/overworld.js';
 import { TS, tileCanvas, frameOf, prepareMap } from './render/tiles.js';
 import { paintHuman, npcOpts, paintSpecial, paintShip, equipKey, CW, CH } from './render/chars.js';
 import { heroCanvas, heroLookKey } from './render/hero.js';
-import { monsterCanvas, bigNpcCanvas } from './render/monsters.js';
+import { monsterCanvas, bigNpcCanvas, bigNpcScale } from './render/monsters.js';
 import { MONSTERS } from '../shared/data/monsters.js';
 import { makeCanvas, ctxOf, shade, flipCanvas } from './render/pixel.js';
 import { chestCanvas as chestCanvas3d } from './render/tex3d.js';
@@ -62,9 +62,9 @@ const SHIP3D = { lift: -0.26, shadow: false };
 // 空を とぶ モンスター（フィールドで ふわふわ うかぶ）
 const isFlying = (sp) => !!MONSTERS[sp]?.flying;
 
-// 大きな NPC（ボス・たてもの）の 大きさ
+// 大きな NPC（ボス・たてもの）の 大きさ（'mon:<id>' は え の npc の あたい も つかう。render/monsters.js の bigNpcScale）
 const BIG_SCALE = { goldoon_sleep: 0.6, lighthouse_dark: 1, lighthouse_lit: 1, storm_tower: 1 };
-const bigScale = (sprite) => BIG_SCALE[sprite] || 0.5;
+const bigScale = (sprite) => BIG_SCALE[sprite] || bigNpcScale(sprite) || 0.5;
 
 // eq: そうび（'ぶき,よろい,たて,あたま' か { weapon, armor, … }）。ないときは しょくぎょうの はじめの そうび
 // 人（プレイヤー・なかま）は render/hero.js で こまかく かく。res 4: フィールド / res 8: 大きな みほん
