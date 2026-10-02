@@ -192,9 +192,17 @@ function paintFront(g0, f, layer, facing) {
   }
 }
 
-function paint(dir, f, layer) {
+// え の なかみ（g … かく どうぐ。dir … 'left'・'right'・'up'・'down'。layer … 'back'・'front'・'all'。テストでも つかう）
+export function drawDragon(g, dir, f, layer = 'all') {
   const d = dir === 'right' ? 'left' : dir;
-  return paintVector(DRAGON_W, DRAGON_H, PAL, (g) => (d === 'left' ? paintSide(g, f, layer) : paintFront(g, f, layer, d === 'up' ? 'up' : 'down')));
+  if (d === 'left') paintSide(g, f, layer);
+  else paintFront(g, f, layer, d === 'up' ? 'up' : 'down');
+}
+export const DRAGON_PAL = PAL;
+export { SEAT as DRAGON_SEAT };
+
+function paint(dir, f, layer) {
+  return paintVector(DRAGON_W, DRAGON_H, PAL, (g) => drawDragon(g, dir, f, layer));
 }
 
 const cache = new Map();
