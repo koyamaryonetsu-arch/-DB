@@ -46,7 +46,7 @@ export const SHOPS_CH2 = {
     // 大王イカを たおすと 船が 行き来して 銀の 品が とどく
     more: [{
       show: { all: ['c2_kraken'] },
-      items: ['silver_sword', 'pirate_axe', 'legend_bat', 'silver_mail', 'silver_shield', 'silver_helm'],
+      items: ['silver_sword', 'pirate_axe', 'legend_bat', 'silver_boomerang', 'silver_mail', 'silver_shield', 'silver_helm'],
       hello: 'いらっしゃい！\n大王イカがいなくなって、銀の品が船でとどいたよ！\n今日はどうする？',
     }],
   },

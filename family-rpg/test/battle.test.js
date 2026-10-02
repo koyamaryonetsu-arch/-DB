@@ -19,10 +19,10 @@ function run(b, ms, step = 50) {
   return out;
 }
 
-test('すばやさが 高いほど ゲージが はやく たまる', () => {
+test('すばやさが 高いほど ゲージが はやく たまる（でも 差は すこしだけ）', () => {
   assert.ok(fillTime(60) < fillTime(20));
   assert.ok(fillTime(20) < fillTime(5));
-  // 武闘家(はやい) と 戦士(おそい) の こうどう回数を くらべる
+  // 武闘家(はやい) と 戦士(おそい) の こうどう回数を くらべる（はやい ほうが すこし 多い。2倍には ならない）
   const fast = char('monk', 10, 1, 'はやい');
   const slow = char('warrior', 10, 1, 'おそい');
   const b = new Battle({
@@ -34,11 +34,15 @@ test('すばやさが 高いほど ゲージが はやく たまる', () => {
   // ボスの こうげきで しなないように する
   b.enemies[0].atk = 0;
   b.enemies[0].actions = [{ w: 1, id: 'm_nothing' }];
-  const evs = run(b, 60000);
+  // すばやさ 45 と 15（3ばい）で くらべる
+  b.allies.find((a) => a.name === 'はやい').agi = 45;
+  b.allies.find((a) => a.name === 'おそい').agi = 15;
+  const evs = run(b, 300000);
   const count = (id) => evs.filter((e) => e.t === 'act' && e.id === id).length;
   const monkId = b.allies.find((a) => a.name === 'はやい').id;
   const warId = b.allies.find((a) => a.name === 'おそい').id;
-  assert.ok(count(monkId) > count(warId) * 1.3, `monk ${count(monkId)} warrior ${count(warId)}`);
+  assert.ok(count(monkId) > count(warId), `monk ${count(monkId)} warrior ${count(warId)}`);
+  assert.ok(count(monkId) < count(warId) * 1.3, `monk ${count(monkId)} warrior ${count(warId)}`);
 });
 
 test('プレイヤーは ゲージが たまると コマンドを えらべる', () => {

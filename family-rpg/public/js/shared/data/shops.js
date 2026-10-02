@@ -19,11 +19,11 @@ export const SHOPS = {
     keeper: '武器屋のおやじ',
     hello: 'ここは武器屋だ。\n強い武器がなけりゃ、魔物とは戦えねえぞ。\nどんな用だい？',
     items: ['bronze_sword', 'stone_axe', 'bronze_knife', 'bronze_spear', 'bronze_knuckle', 'feather_fan', 'oak_staff',
-      'poison_knife', 'leather_whip', 'penlight', 'bamboo_bat'],
+      'poison_knife', 'leather_whip', 'penlight', 'bamboo_bat', 'wood_boomerang'],
     // 森の主を 助けると 鉄の 武器が とどく
     more: [{
       show: { all: ['c1_treant'] },
-      items: ['iron_sword', 'iron_axe', 'iron_spear', 'iron_claw', 'dancer_fan', 'wizard_staff', 'healing_staff', 'thorn_whip', 'metal_bat', 'katana'],
+      items: ['iron_sword', 'iron_axe', 'iron_spear', 'iron_claw', 'dancer_fan', 'wizard_staff', 'healing_staff', 'thorn_whip', 'metal_bat', 'katana', 'iron_boomerang'],
       hello: 'ここは武器屋だ。\n森が元にもどって、鉄の武器がとどくようになったぞ！\nどんな用だい？',
     }],
   },

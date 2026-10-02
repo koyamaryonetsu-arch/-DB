@@ -29,8 +29,6 @@ export const DUAL_ASK_MS = 7000;
 const COMBO_WINDOW = 6000;
 const LETTERS = 'ABCDEFGH';
 
-// すばやさ → ゲージが たまるまでの じかん（ミリびょう）
-// すばやさ10で 約5.8びょう、20で 4びょう、40で 2.5びょう、80で 1.4びょう
 // 合体技の 1つの こうか。呪文・回復の 強さは 2人が 出した 技から きめる（すすむほど 強くなる）
 export function dualPartEffect(t, part, skills = []) {
   const eff = { ...part };
@@ -73,8 +71,57 @@ export function enemyFixedScale(c) {
   return clamp(1 - 0.016 * ((c.lv || 1) - 4), 0.7, 1);
 }
 
-export function fillTime(agi) {
-  return 128000 / (Math.max(1, agi) + 12);
+// ───────────── こうどうゲージの はやさ ─────────────
+// すばやさの 差は「すこしだけ」効く（すばやさ 15 と 45 で 約1.2倍。素早い 人ばかりが 動く ことに ならない）
+//   ゲージが たまる 時間 = base ÷（すばやさの 倍率 × ピオリムなどの 倍率）
+//   すばやさの 倍率 = (すばやさ ÷ ref) の power じょう（すばやさ 30 で 1）
+//   ピオリムなどは すばやさとは べつに 倍率で かける（buff: 1.35 → 約1.25倍、0.7 → 約0.8倍）
+//   head: たたかいの はじめの ゲージ（素早い 人は すこしだけ 先に 動きやすい）
+//   boss: ボスの ゲージの 速さ（ボスは 2回 動いたり 強い 技が あるので すこし ゆっくり。monsters の speed で うわがき できる）
+export const ATB = { base: 3300, ref: 30, power: 0.17, buff: 0.72, head: 20, headMax: 12, boss: 0.7 };
+
+export function agiFactor(agi) {
+  return Math.pow(Math.max(1, agi || 0) / ATB.ref, ATB.power);
+}
+
+// すばやさ いがいの はやさの 倍率（ピオリム・ボスの とくべつな 速さ など）
+export function speedMult(c) {
+  let m = c?.speed || 1;
+  if (c?.buffs?.agi) m *= 1 + (c.buffs.agi.mult - 1) * ATB.buff;
+  if (c?.debuffs?.agi) m *= 1 - (1 - c.debuffs.agi.mult) * ATB.buff;
+  return m;
+}
+
+// ゲージが たまるまでの じかん（ミリびょう。戦いの 速さの 設定を かける まえ）
+export function fillTime(agi, mult = 1) {
+  return ATB.base / (agiFactor(agi) * mult);
+}
+
+// 1ミリびょうで たまる ゲージ（100で まんたん）
+export function atbRate(c) {
+  return 100 / fillTime(c.agi, speedMult(c));
+}
+
+// つよさの 画面の「約〇びょうごとに 順番が 来る」（戦いの 速さの 設定も かける）
+export function turnSeconds(agi, battleSpeed = DEFAULT_BATTLE_SPEED) {
+  return fillTime(agi) / 1000 / (battleSpeed || 1);
+}
+
+// ───────────── ぶきで かわる ふつうの 攻撃の 相手 ─────────────
+// ムチ: えらんだ 敵の グループ（えらんだ 1体から じゅんに）。ブーメラン: 敵全体（左から じゅんに）
+// 2体め いこうは ダメージが へる（会心は 1体ずつ きまる）
+export const WEAPON_REACH = { whip: 'group', boomerang: 'enemies' };
+export const REACH_FALLOFF = {
+  whip: [1, 0.85, 0.7, 0.55, 0.45],
+  boomerang: [1, 0.8, 0.65, 0.5, 0.4],
+};
+export function attackReach(weaponCat) {
+  return WEAPON_REACH[weaponCat] || 'enemy';
+}
+// i 体めの ダメージの 倍率（0 から かぞえる）
+export function reachFalloff(weaponCat, i) {
+  const f = REACH_FALLOFF[weaponCat];
+  return f ? f[Math.min(i, f.length - 1)] : 1;
 }
 
 const STATUS_NAMES = {
@@ -192,7 +239,8 @@ export class Battle {
 
   initAtb() {
     for (const c of this.combatants) {
-      c.atb = this.rng.float(0, 35) + Math.min(30, c.agi / 3);
+      // はじめの ゲージ: 運しだい ＋ 素早い 人は すこしだけ 先に
+      c.atb = this.rng.float(0, 35) + clamp(ATB.head * (agiFactor(effAgi(c)) - 0.8), 0, ATB.headMax);
       if (this.preemptive === 'ally' && c.side === 'ally') c.atb = 100;
       if (this.preemptive === 'enemy' && c.side === 'enemy') c.atb = 100;
       if (c.atb >= 100) c.atb = 99.9;
@@ -313,7 +361,7 @@ export class Battle {
     // ゲージ
     for (const c of this.combatants) {
       if (!c.alive || c.fled || c.ready || c.queued || c.waitDual) continue;
-      c.atb += (100 / fillTime(effAgi(c))) * dt;
+      c.atb += atbRate(c) * dt;
       if (c.atb >= 100) {
         c.atb = 100;
         // 合体技を よやくして まっている 仲間が いれば、この 番で いっしょに 出す
@@ -576,6 +624,12 @@ export class Battle {
           }
         }
         ev.name = cmd.confused ? '混乱' : '攻撃';
+        // ムチ（グループ）・ブーメラン（全体）
+        const reach = cmd.confused || c.side !== 'ally' ? 'enemy' : attackReach(c.weaponCat);
+        if (reach !== 'enemy') {
+          this.multiAttack(c, cmd, ev, reach);
+          break;
+        }
         ev.lines.push(`${c.name}の攻撃！`);
         const t = this.resolveTarget(c, 'enemy', cmd.target);
         this.pushCoverMsg(ev);
@@ -659,6 +713,45 @@ export class Battle {
     }
   }
 
+  // ムチ・ブーメランの ふつうの 攻撃（何体にも あたる。じゅんに ダメージが へる）
+  multiAttack(c, cmd, ev, reach) {
+    ev.lines.push(reach === 'enemies' ? `${c.name}はブーメランを投げた！` : `${c.name}はムチをふるった！`);
+    const plan = this.attackPlan(c, cmd.target);
+    if (!plan.length) return;
+    ev.fx = { type: 'attack', actor: c.id, targets: plan.map((p) => p.t.id), weapon: c.weaponCat, weaponId: c.weaponId || undefined, side: c.side, reach };
+    // 力ため・気合いためは あたる 敵 みんなに のる（ぜんぶ よけられたら のこる）
+    const charge = c.charge || 1;
+    let used = false;
+    for (const { t, mult } of plan) {
+      if (!t.alive) continue;
+      c.charge = charge;
+      this.physHit(c, t, { mult }, ev, 'phys');
+      if (charge > 1 && c.charge === 1) used = true;
+      if (c.onHit && t.alive) this.tryStatus(c, t, { status: c.onHit.status, chance: c.onHit.chance, turns: [2, 3], quiet: true }, ev, 1);
+    }
+    c.charge = used ? 1 : charge;
+    this.afterDamage(c, ev, 'phys');
+  }
+
+  // ふつうの 攻撃で あたる 敵と ダメージの 倍率 [{ t, mult }]（ムチ＝えらんだ 敵の グループ、ブーメラン＝全体）
+  attackPlan(c, wanted) {
+    const reach = c.side === 'ally' ? attackReach(c.weaponCat) : 'enemy';
+    const foes = this.sideOf(c, false).filter((x) => x.alive);
+    let list;
+    if (reach === 'enemies') list = foes;
+    else {
+      const t = this.peekTarget(c, 'enemy', wanted);
+      list = !t ? [] : reach === 'group' ? this.groupOf(c, t) : [t];
+    }
+    return list.map((t, i) => ({ t, mult: reach === 'enemy' ? 1 : reachFalloff(c.weaponCat, i) }));
+  }
+
+  // t と おなじ グループ（おなじ 種類）の 敵。t が さいしょ、あとは 左から
+  groupOf(c, t) {
+    const same = this.sideOf(c, false).filter((x) => x.alive && x !== t && x.species && x.species === t.species);
+    return [t, ...same];
+  }
+
   // ねらいの きめかた
   peekTarget(c, kind, wanted) {
     const t = this.get(wanted);
@@ -716,7 +809,7 @@ export class Battle {
       if (c.side === 'enemy') return this.sideOf(c, false).filter((x) => x.alive);
       const t = this.peekTarget(c, 'enemy', cmd.target);
       if (!t) return [];
-      return this.sideOf(c, false).filter((x) => x.alive && x.species === t.species);
+      return this.groupOf(c, t);
     }
     const t = this.resolveTarget(c, 'enemy', cmd.target);
     return t ? [t] : [];
@@ -1813,6 +1906,8 @@ export function enemyFromSpecies(sp) {
     atk: m.str, dfn: m.def, agi: m.agi, mag: m.mag || 0, healPow: m.mag || 0,
     resist: { ...(m.resist || {}) }, race: m.race, metal: !!m.metal, flying: !!m.flying, boss: !!m.boss,
     turns: m.turns || 1, size: m.size,
+    // こうどうゲージの とくべつな 速さ（ボスは ATB.boss。monsters の speed が あれば そちら）
+    speed: m.speed || (m.boss ? ATB.boss : 1),
     actions: m.actions.slice(),
     abilities: [],
     atb: 0, ready: false, queued: false,
@@ -1843,7 +1938,7 @@ export function pub(c) {
     controller: c.controller, auto: c.auto, look: c.look, job: c.job, eq: c.eq, mon: c.mon, lv: c.lv,
     waitDual: c.waitDual ? { id: c.waitDual.id, partner: c.waitDual.partner } : null, dualTarget: c.dualTarget || null, dualWith: c.dualWith || null,
     hp: c.hp, maxHp: c.maxHp, mp: c.mp, maxMp: c.maxMp,
-    atb: Math.round(c.atb * 10) / 10, rate: 100 / fillTime(effAgi(c)),
+    atb: Math.round(c.atb * 10) / 10, rate: atbRate(c),
     ready: !!c.ready, queued: !!c.queued, alive: !!c.alive, fled: !!c.fled, status: st, buffs,
     defending: !!c.defending, telegraph: !!c.telegraph, boss: !!c.boss, size: c.size, slot: c.slot,
     abilities: c.side === 'ally' ? c.abilities : undefined,

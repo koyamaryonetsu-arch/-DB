@@ -145,19 +145,24 @@ const TRACKS = {
     ],
   },
   // ジングル（くりかえさない）
+  // 勝利: のぼって もどって、さいごに ドーン（約3.3びょう）
   victory: {
-    bpm: 150, once: true,
+    bpm: 144, once: true,
     ch: [
-      { w: 'pulse', v: 0.12, n: 'C5:2 E5:2 G5:2 C6:6 G5:2 C6:10' },
-      { w: 'triangle', v: 0.22, n: 'C3:12 C3:12' },
-      { w: 'square', v: 0.05, n: 'G4:6 E5:6 C5:12' },
+      { w: 'pulse', v: 0.12, n: 'E5:2 G5:2 C6:4 B5:1 C6:1 D6:2 E6:4 D6:2 C6:2 G5:2 C6:10' },
+      { w: 'square', v: 0.05, n: 'C5:4 E5:4 D5:4 C5:4 B4:4 E5:2 D5:2 E5:8' },
+      { w: 'triangle', v: 0.22, n: 'C3:4 G2:4 C3:4 E3:4 G2:4 G2:4 C3:8' },
+      { drums: true, v: 0.4, n: 'k:4 h:4 s:4 h:4 k:4 s:2 s:2 k:8' },
     ],
   },
+  // レベルアップ: かけあがる アルペジオから あかるい 和音に ついて、さいごの 音を ながく のこす（約3.9びょう）
   levelup: {
-    bpm: 160, once: true,
+    bpm: 116, once: true,
     ch: [
-      { w: 'pulse', v: 0.12, n: 'C5:2 E5:2 G5:2 C6:2 G5:2 C6:8' },
-      { w: 'triangle', v: 0.2, n: 'C3:18' },
+      { w: 'pulse', v: 0.12, n: 'C5:1 F5:1 A5:1 C6:1 F6:4 E6:2 D6:2 C6:2 D6:1 E6:1 F6:14' },
+      { w: 'square', v: 0.05, n: 'A4:4 C5:4 Bb4:4 G4:2 Bb4:2 A4:14' },
+      { w: 'triangle', v: 0.22, n: 'F2:4 F3:4 Bb2:4 C3:4 F2:14' },
+      { w: 'triangle', v: 0.06, n: 'r:16 A6:1 C7:1 F7:2 C7:1 A6:1 F6:8' },
     ],
   },
   inn: {
