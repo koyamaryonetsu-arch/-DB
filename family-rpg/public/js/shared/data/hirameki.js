@@ -13,7 +13,7 @@ export const HIRA_ABILITIES = {
   // ───────────── 戦士 ─────────────
   hk_daichi_ikari: {
     name: '大地のいかり', kana: 'だいちのいかり', kind: 'skill', job: 'warrior', mp: 6, target: 'group', weapon: 'blade', hirameki: true,
-    effect: { type: 'phys', mult: 1.5, ignoreDef: 0.25 },
+    effect: { type: 'phys', mult: 1.2, ignoreDef: 0.25 },
     desc: '大地斬をきわめた先の一撃。地面ごと、同じ種類の敵をまとめて打ち上げる。',
     cast: '{a}は剣を大地にたたきつけた！', anim: 'rock_smash',
   },

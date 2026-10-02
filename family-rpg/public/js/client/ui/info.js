@@ -5,12 +5,19 @@ import { JOBS, ALL_JOBS } from '../../shared/data/jobs.js';
 import { MONSTERS } from '../../shared/data/monsters.js';
 import { MONSTER_FRIENDS } from '../../shared/data/companions.js';
 import { computeStats, canEquip, canEquipMonster, monsterGear, penaltyFor, mpCost, comboJobNames, comboAllowed, jobPower } from '../../shared/stats.js';
+import { attackReach } from '../../shared/battle.js';
 
 const TARGET_NAMES = { enemy: '敵1体', group: '敵1グループ', enemies: '敵全体', ally: '味方1人', allies: '味方全員', self: '自分', deadAlly: '死んだ味方', deadAllies: '死んだ味方全員' };
-// 技の リストに つける みじかい しるし（1体・1人・自分は つけない）
+// 技の リストに つける みじかい しるし（1体・1人・自分は つけない）。a: 技（または 相手の しゅるい）
 const TARGET_TAGS = { group: 'グループ', enemies: '全体', allies: '全員', deadAllies: '全員' };
-export function targetTag(target) {
-  return TARGET_TAGS[target] || '';
+export function targetTag(a) {
+  if (a && typeof a === 'object') return a.effect?.random ? 'ランダム' : TARGET_TAGS[a.target] || '';
+  return TARGET_TAGS[a] || '';
+}
+// 相手の なまえ（せつめい よう。ランダムに 何回も あたる 技は その 回数）
+export function targetText(a) {
+  if (a?.effect?.random) return `敵にランダム${a.effect.hits || 1}回`;
+  return TARGET_NAMES[a?.target] || '';
 }
 const BONUS_NAMES = { str: '力', def: '身の守り', agi: '素早さ', mag: '魔力', heal: '回復', hp: 'HP', mp: 'MP' };
 
@@ -77,6 +84,9 @@ export function itemDetail(id, mons = null) {
   const rk = rankText(id);
   if (it.type === 'weapon') lines.push(`種類: ${WEAPON_CAT_NAMES[it.cat] || it.cat}${rk ? `　${rk}` : ''}`);
   else if (rk) lines.push(rk);
+  // ムチ・ブーメラン: ふつうの 攻撃が 何体にも 当たる
+  const reach = it.type === 'weapon' ? attackReach(it.cat) : 'enemy';
+  if (reach !== 'enemy') lines.push(`${reach === 'group' ? '攻撃で同じ種類の敵みんなに当たる' : '攻撃で敵全体に当たる'}（2体目から少しずつ弱くなる）`);
   const w = whoCanEquip(id, mons);
   if (w) lines.push(w);
   // ふしぎなかじ
@@ -110,7 +120,7 @@ export function diffText(diffs) {
 // 技の みじかい せつめい（メニューの リストで 名前の 下に 出す）
 export function skillBrief(a) {
   if (!a) return '';
-  return a.desc || `${abilityTypeText(a)}（${TARGET_NAMES[a.target] || ''}）`;
+  return a.desc || `${abilityTypeText(a)}（${targetText(a)}）`;
 }
 
 export function abilityDetail(id, char, { brief = false } = {}) {
@@ -119,7 +129,7 @@ export function abilityDetail(id, char, { brief = false } = {}) {
   const lines = [];
   const cost = char ? mpCost(char, id) : a.mp;
   if (brief) {
-    lines.push(`【${abilityTypeText(a)}】MP${cost}・${TARGET_NAMES[a.target] || ''}`);
+    lines.push(`【${abilityTypeText(a)}】MP${cost}・${targetText(a)}`);
     lines.push(a.desc || '');
     if (a.kind === 'combo' && char?.job && !comboAllowed(char, id)) lines.push('⚠ 今の職業では使えない');
     else if (char) {
@@ -129,7 +139,7 @@ export function abilityDetail(id, char, { brief = false } = {}) {
     return lines.filter(Boolean).join('\n');
   }
   lines.push(`【${abilityTypeText(a)}】`);
-  lines.push(`消費MP ${cost}${char && cost !== (a.mp || 0) ? `（元は${a.mp}）` : ''}　相手: ${TARGET_NAMES[a.target] || ''}`);
+  lines.push(`消費MP ${cost}${char && cost !== (a.mp || 0) ? `（元は${a.mp}）` : ''}　相手: ${targetText(a)}`);
   lines.push(a.desc || '');
   if (a.kind === 'combo') {
     lines.push(`掛け合わせ: ${a.requires.map((r) => ABILITIES[r]?.name).join(' ＋ ')}`);
