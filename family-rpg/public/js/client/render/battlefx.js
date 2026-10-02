@@ -620,8 +620,21 @@ const FINE = {
     p.x = px;
     p.y = py;
     const fade = t > 0.9 ? (1 - t) / 0.1 : 1;
-    // おび（すこし まえの いちに ひかり）
+    // とんできた みち（うしろほど うすい ひかりの すじ）
     x.globalCompositeOperation = 'lighter';
+    const N = 12, back = 34 / p.total;
+    let prev = pathAt(p, t - back);
+    for (let k = 1; k <= N; k++) {
+      const u = t - back + (back * k) / N;
+      if (u <= 0) { prev = pathAt(p, u); continue; }
+      const cur = pathAt(p, u);
+      x.globalAlpha = 0.45 * (k / N) * fade;
+      x.strokeStyle = p.glow;
+      x.lineWidth = 0.6 + 2.2 * (k / N);
+      x.beginPath(); x.moveTo(prev[0], prev[1]); x.lineTo(cur[0], cur[1]); x.stroke();
+      prev = cur;
+    }
+    // おび（すこし まえの いちに ひかり）
     for (let k = 7; k >= 1; k--) {
       const u = t - k * p.gap;
       if (u <= 0) continue;
@@ -1292,6 +1305,11 @@ export class Effects {
     return playReach(this, targets, look, crits || []);
   }
 
+  // エフェクトの 時計で ms あとに fn を よぶ（え と おなじ はやさで すすむ）
+  at(ms, fn) {
+    this.add({ kind: 'call', x: 0, y: 0, delay: Math.max(0.001, ms), life: 1, fn });
+  }
+
   // ブーメランが とぶ（ctrl の てんを なめらかに とおる）。へんじ: それぞれの てんに つく じかん（ms）
   boomerang(ctrl, { speed = 0.38, delay = 0, size = 5.5, w = 2.1, color = '#c08a50', hi = '#fff4e0', outline = '#2a1a10', glow = '#ffd66b', spin = 24, star = false, steps = 10 } = {}) {
     const path = smoothPath(ctrl, steps);
@@ -1355,6 +1373,14 @@ export class Effects {
         const a = p.ang + t * 9;
         p.x = p.cx + Math.cos(a) * p.rad * (1 - t * 0.3);
         p.y = p.cy - t * p.rise + Math.sin(a) * p.rad * 0.3;
+        continue;
+      }
+      // エフェクトの 時計で よぶ（おもい きかいで え が おくれても ダメージの かずが ずれない）
+      if (p.kind === 'call') {
+        if (!p.done) {
+          p.done = true;
+          try { p.fn(); } catch (e) { console.error(e); }
+        }
         continue;
       }
       if (p.kind === 'flash' && p.age >= 0 && !p.done) {
@@ -1450,7 +1476,7 @@ export class Effects {
     // ひばなは いろ・ふとさ・こさ ごとに まとめて 1かいで かく（かるく する）
     const sparks = new Map();
     for (const p of this.parts) {
-      if (p.delay > 0 || p.kind === 'flash' || p.kind === 'shake') continue;
+      if (p.delay > 0 || p.kind === 'flash' || p.kind === 'shake' || p.kind === 'call') continue;
       const t = Math.min(1, p.age / p.life);
       if (p.kind === 'spark') {
         const a = Math.ceil(Math.max(0, 1 - t * t) * 4) / 4;

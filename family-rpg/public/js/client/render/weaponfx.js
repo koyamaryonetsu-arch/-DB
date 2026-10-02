@@ -691,7 +691,7 @@ function boomerangFlight(fx, ts, L, crits, delay = 60) {
   ];
   const [body, hi] = BOOMER_BODY[L.mat] || BOOMER_BODY.wood;
   const at = fx.boomerang(ctrl, {
-    speed: 0.36 + Math.min(0.08, L.lv * 0.01), delay, size: 5.2 + Math.min(2.5, L.lv * 0.3), w: 2 + L.lv * 0.08,
+    speed: 0.36 + Math.min(0.08, L.lv * 0.01), delay, size: 6.6 + Math.min(2.4, L.lv * 0.3), w: 2.5 + L.lv * 0.08,
     color: body, hi, glow: L.glow, spin: 22 + L.lv, star: L.star || L.lv >= 6,
   });
   const times = new Array(ts.length);

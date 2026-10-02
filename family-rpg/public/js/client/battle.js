@@ -300,16 +300,17 @@ export class BattleScene {
     this.msgEl.classList.remove('info');
     const els = lines.map((l) => el('div', { class: 'ln', text: l }));
     const per = Math.max(90, Math.min(260 / this.textSpeed, (dur * 0.8) / Math.max(1, lines.length)));
+    // まだ 出していない 行は ばしょも とらない（まどは した ぞろえ。行が おおい ときに さいしょの 行が 上に かくれない ように）
     els.forEach((e, i) => {
-      e.style.visibility = 'hidden';
+      if (i) e.style.display = 'none';
       this.msgEl.append(e);
-      setTimeout(() => { e.style.visibility = ''; }, i * per);
+      if (i) setTimeout(() => { e.style.display = ''; }, i * per);
     });
     while (this.msgEl.children.length > 7) this.msgEl.firstChild.remove();
   }
 
   skipMsg() {
-    for (const e of this.msgEl.children) e.style.visibility = '';
+    for (const e of this.msgEl.children) e.style.display = '';
   }
 
   // えらんでいる 技・道具の せつめい（上から 見せる。長くても 1行めが かくれない）
@@ -454,9 +455,9 @@ export class BattleScene {
       const locked = ab.kind === 'combo' && !comboAllowed(pc, id);
       const el = ab.effect?.element;
       // 相手の しるし（グループ・全体・全員）
-      const tt = targetTag(ab.target);
+      const tt = targetTag(ab);
       return {
-        html: `${ELEMENT_NAMES[el] ? `<span class="elem e-${el}">${ELEMENT_NAMES[el]}</span>` : ''}${ab.name}${tt ? `<span class="tag tgt t-${ab.target}">${tt}</span>` : ''}${pen ? '<span class="tag warn">他</span>' : ''}${ab.hirameki || ab.kind === 'combo' ? '<span class="tag hira">閃</span>' : ''}`,
+        html: `${ELEMENT_NAMES[el] ? `<span class="elem e-${el}">${ELEMENT_NAMES[el]}</span>` : ''}${ab.name}${tt ? `<span class="tag tgt t-${ab.effect?.random ? 'random' : ab.target}">${tt}</span>` : ''}${pen ? '<span class="tag warn">他</span>' : ''}${ab.hirameki || ab.kind === 'combo' ? '<span class="tag hira">閃</span>' : ''}`,
         right: isMk ? '▶' : `${cost}`,
         rightCls: pen ? 'pen' : '',
         value: id,
@@ -553,7 +554,6 @@ export class BattleScene {
     if (mode === 'enemies' || !list.length) return done(undefined);
     const groups = mode === 'group' ? this.foeGroups(list) : null;
     if (groups ? groups.length === 1 : list.length === 1) return done(groups ? groups[0].lead : list[0].id);
-    this.targeting = { side: 'enemy', mode, done };
     // 効きぐあいは 名前の 下に 小さく（名前が 2行に ならないように）
     const AFF = { weak: '弱点！', resist: '効きにくい', null: '効かない', normal: 'ふつう' };
     const affTag = (e) => {
@@ -568,6 +568,8 @@ export class BattleScene {
       this.hoverGroup = groups ? this.c.get(it?.value)?.species || null : null;
     };
     this.showMenu(items, (it) => done(it.value), back || (() => this.openCommand()), title, hover, 0);
+    // ねらっている あいだ（showMenu の あとで。スプライトを さわっても えらべる）
+    this.targeting = { side: 'enemy', mode, done };
   }
 
   // 1体を ねらう（むかしの よびかた）
@@ -588,8 +590,8 @@ export class BattleScene {
 
   pickAlly(done, dead = false, title = 'だれに？', back = null) {
     const list = this.allies();
-    this.targeting = { side: 'ally', done, dead };
     this.showMenu(list.map((a) => ({ label: `${a.name}　HP${a.hp}`, value: a.id, disabled: dead ? a.alive : !a.alive })), (it) => done(it.value), back || (() => this.openCommand()), title);
+    this.targeting = { side: 'ally', done, dead };
   }
 
   onCanvasClick(e) {
@@ -920,14 +922,14 @@ export class BattleScene {
       }
     };
     if (perHit) {
-      // あたった じゅんに ダメージの かずを 出す（さいごに のこりも まとめて）
-      for (const [id, ms] of perHit) setTimeout(() => apply(id), ms / tempo);
+      // あたった じゅんに ダメージの かずを 出す（エフェクトの 時計で。さいごに のこりも まとめて）
+      for (const [id, ms] of perHit) this.fx.at(ms, () => apply(id));
       const rest = (ev.results || []).some((r) => !perHit.has(r.id));
-      setTimeout(() => {
+      this.fx.at(Math.max(...perHit.values()) + 30, () => {
         if (this.destroyed) return;
         if (rest) for (const r of ev.results || []) if (!perHit.has(r.id)) apply(r.id);
         for (const c of this.c.values()) if (c.side === 'enemy' && !c.alive && !c.dead) c.dead = 1;
-      }, (Math.max(...perHit.values()) + 30) / tempo);
+      });
     } else if (hitDelay > 0) setTimeout(apply, hitDelay / tempo);
     else apply();
     // えらんでいる とちゅうで たおれた・ねむった など
@@ -1408,6 +1410,9 @@ export class BattleScene {
       au.resumeTrack = null;
       const lines = msg.lines || [];
       if (!lines.length) return resolve();
+      // うしろの まど（たたかいの メッセージ・コマンド）は からに して、けっかだけを 見せる
+      this.cmdEl.innerHTML = '';
+      this.msgEl.innerHTML = '';
       const pager = new ResultPager(lines);
       const list = el('div', { class: 'res-lines' });
       const more = el('div', { class: 'res-more', text: '▼' });

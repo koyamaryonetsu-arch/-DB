@@ -486,7 +486,7 @@ function boomer(cv, F, W, outward) {
   const metalM = W.mk ? metal(W.mk) : null;
   const m = metalM || mat({ r: ramp(W.c || '#c8904e', 4), th: TH.matte, spec: 0.97 });
   cv.part({ ol: 'line' });
-  cv.stroke(F.P([[-1.6, 0.1 * o], [4.9, -0.15 * o], [2.5, 4.6 * o]]), [0.6, 0.82, 0.6], m, { n: 'cyl' });
+  cv.stroke(F.P([[-1.6, 0.1 * o], [5.4, -0.15 * o], [2.7, 5.0 * o]]), [0.62, 0.86, 0.62], m, { n: 'cyl' });
   const id = cv.cur;
   // ふちの ひかり と すじ
   cv.crease(F.P([[-0.8, -0.38 * o], [4.3, -0.62 * o]]), 0.2, 0.45, { parts: [id] });
