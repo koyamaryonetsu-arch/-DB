@@ -146,8 +146,8 @@ export const MONSTERS_CH3 = {
 
   // ── ボス ──
   blizzard_mammoth: {
-    name: 'ブリザマンモス', lv: 21, hp: 4300, str: 74, def: 44, agi: 20, mag: 40, exp: 3800, gold: 1600,
-    race: 'beast', size: 'xl', boss: true, turns: 2, speed: 0.78, drops: { boss: ['ice_fang_charm'] },
+    name: 'ブリザマンモス', lv: 21, hp: 4600, str: 80, def: 44, agi: 20, mag: 40, exp: 3800, gold: 1600,
+    race: 'beast', size: 'xl', boss: true, turns: 2, speed: 0.86, drops: { boss: ['ice_fang_charm'] },
     resist: { ...BOSS_STATUS, ice: 0.2, fire: 1.4, bolt: 1.0, wind: 1.0, blast: 1.0 },
     actions: [
       { w: 3, id: 'attack' }, { w: 3, id: 'm_tusk_charge' }, { w: 2, id: 'm_blizzard_breath' }, { w: 2, id: 'm_stomp' },
@@ -160,7 +160,7 @@ export const MONSTERS_CH3 = {
     desc: '氷の洞窟の主。氷がとけていく山のいたみに、心をみだされていた。鼻を高く上げたら、なだれが来る。',
   },
   magma_golem: {
-    name: 'マグマゴーレム', lv: 23, hp: 5000, mp: 40, str: 82, def: 60, agi: 14, mag: 44, exp: 4400, gold: 1900,
+    name: 'マグマゴーレム', lv: 23, hp: 4600, mp: 40, str: 82, def: 60, agi: 14, mag: 44, exp: 4400, gold: 1900,
     race: 'material', size: 'xl', boss: true, turns: 2, speed: 0.74, drops: { boss: ['magma_bangle'] },
     resist: { ...BOSS_STATUS, fire: 0, ice: 1.5, blast: 1.3, bolt: 1.0, poison: 0, sleep: 0 },
     actions: [
@@ -174,8 +174,8 @@ export const MONSTERS_CH3 = {
     desc: '鉱山のおくで炎の石を集めていた、イグニアの手下のゴーレム。息を吸いこんだら、岩なだれが来る。',
   },
   flame_knight: {
-    name: '炎の騎士フレアード', lv: 25, hp: 5800, mp: 60, str: 88, def: 56, agi: 40, mag: 60, exp: 5200, gold: 2200,
-    race: 'demon', size: 'xl', boss: true, turns: 2, speed: 0.82, hit: 'slash', drops: { boss: ['flare_brooch'] },
+    name: '炎の騎士フレアード', lv: 25, hp: 5000, mp: 60, str: 88, def: 56, agi: 40, mag: 60, exp: 5200, gold: 2200,
+    race: 'demon', size: 'xl', boss: true, turns: 2, speed: 0.78, hit: 'slash', drops: { boss: ['flare_brooch'] },
     resist: { ...BOSS_STATUS, fire: 0.1, ice: 1.3, light: 1.1, dark: 0.8 },
     actions: [
       { w: 3, id: 'attack' }, { w: 3, id: 'm_flame_sword' }, { w: 2, id: 'm_flame_wave' }, { w: 1, id: 'm_warcry', cond: 'notRecent:m_warcry' },
@@ -188,8 +188,8 @@ export const MONSTERS_CH3 = {
     desc: 'イグニアの副官。炎の剣をふるう、まっかなよろいの騎士。マントがふくらんだら、炎の竜巻が来る。',
   },
   trial_guardian: {
-    name: '竜の番人', lv: 27, hp: 6400, mp: 60, str: 92, def: 64, agi: 30, mag: 60, exp: 6000, gold: 2400,
-    race: 'material', size: 'xl', boss: true, turns: 2, speed: 0.78, hit: 'slash', drops: { boss: ['courage_emblem'] },
+    name: '竜の番人', lv: 27, hp: 5600, mp: 60, str: 92, def: 64, agi: 30, mag: 60, exp: 6000, gold: 2400,
+    race: 'material', size: 'xl', boss: true, turns: 2, speed: 0.86, hit: 'slash', drops: { boss: ['courage_emblem'] },
     resist: { ...BOSS_STATUS, sleep: 0, poison: 0, fire: 0.9, ice: 0.9, light: 0.7, dark: 1.2, blast: 1.2 },
     actions: [
       { w: 3, id: 'attack' }, { w: 2, id: 'm_halberd_thrust' }, { w: 2, id: 'm_halberd_sweep' }, { w: 1, id: 'm_rune_beam' },
@@ -202,8 +202,8 @@ export const MONSTERS_CH3 = {
     desc: '勇気の試練を守る、石の竜人。古い文字がきざまれたほこをふるう。体が光ったら、さばきの光が来る。',
   },
   flame_witch: {
-    name: '炎の魔女イグニア', lv: 29, hp: 6000, mp: 200, str: 72, def: 56, agi: 44, mag: 90, exp: 5000, gold: 2000,
-    race: 'demon', size: 'xl', boss: true, turns: 2, speed: 0.84, drops: { boss: ['flame_earring'] },
+    name: '炎の魔女イグニア', lv: 29, hp: 5000, mp: 200, str: 72, def: 56, agi: 44, mag: 90, exp: 5000, gold: 2000,
+    race: 'demon', size: 'xl', boss: true, turns: 2, speed: 0.8, drops: { boss: ['flame_earring'] },
     resist: { ...BOSS_STATUS, fire: 0, ice: 1.2, light: 1.2, dark: 0.6 },
     actions: [
       { w: 3, id: 'm_witch_fire' }, { w: 2, id: 'm_hellfire' }, { w: 2, id: 'attack' }, { w: 1, id: 'm_heat_haze', cond: 'notRecent:m_heat_haze' },
@@ -216,11 +216,11 @@ export const MONSTERS_CH3 = {
     desc: '四ツ影の1人、炎の魔女。炎の守り星をうばい、星竜山の氷をとかしていた。',
   },
   flame_witch_true: {
-    name: 'イグニア（真の姿）', lv: 30, hp: 7600, mp: 300, str: 96, def: 60, agi: 46, mag: 100, exp: 7000, gold: 3000,
-    race: 'demon', size: 'xl', boss: true, turns: 2, speed: 0.86, drops: { boss: ['witch_ring'] },
+    name: 'イグニア（真の姿）', lv: 30, hp: 5800, mp: 300, str: 96, def: 60, agi: 46, mag: 100, exp: 7000, gold: 3000,
+    race: 'demon', size: 'xl', boss: true, turns: 2, speed: 0.82, drops: { boss: ['witch_ring'] },
     resist: { ...BOSS_STATUS, fire: 0, ice: 1.2, light: 1.25, dark: 0.5, sleep: 0, confuse: 0 },
     actions: [
-      { w: 3, id: 'attack' }, { w: 3, id: 'm_flame_wing' }, { w: 2, id: 'm_crown_flare' }, { w: 2, id: 'm_dark_flame' },
+      { w: 3, id: 'attack' }, { w: 2, id: 'm_flame_wing' }, { w: 2, id: 'm_crown_flare' }, { w: 1, id: 'm_dark_flame' },
       { w: 1, id: 'm_inferno_charge', cond: 'notRecent:m_inferno_charge' },
     ],
     phases: [

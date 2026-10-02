@@ -278,3 +278,19 @@ test('第3章: 出現表・ボス・素材が そろっている', () => {
   for (const [x, y] of BOND_PLATES) assert.equal(MAPS.trial_bond.tiles[y * MAPS.trial_bond.w + x], T.PLATE);
   assert.ok(TILE_INFO[T.LAVA_FLOOR].hurt);
 });
+
+test('第3章: たてものの 入り口は 内がわも 外がわも ふさがっていない', () => {
+  for (const id of CH3_MAPS) {
+    const m = MAPS[id];
+    for (let y = 0; y < m.h; y++) {
+      for (let x = 0; x < m.w; x++) {
+        if (m.tiles[y * m.w + x] !== T.DOOR) continue;
+        const open = (dx, dy) => !isBlocked(m, x + dx, y + dy, () => true);
+        // たて向きの とびら（上と 下）か、よこ向きの とびら（左と 右。神殿の 左右の 出入り口）
+        const vertical = (open(0, -1) || y === 0) && (open(0, 1) || y === m.h - 1);
+        const horizontal = (open(-1, 0) || x === 0) && (open(1, 0) || x === m.w - 1);
+        assert.ok(vertical || horizontal, `${id} とびら ${x},${y}`);
+      }
+    }
+  }
+});

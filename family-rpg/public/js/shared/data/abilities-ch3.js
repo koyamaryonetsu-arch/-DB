@@ -136,7 +136,7 @@ export const CH3_ABILITIES = {
   },
   m_blizzard_breath: {
     name: 'ふぶきの息', kind: 'monster', mp: 8, target: 'enemies',
-    effect: { type: 'magic', element: 'ice', base: [44, 56], thr: 99, breath: true }, cast: '{a}はこおりつくふぶきの息をはいた！', anim: 'blizzard',
+    effect: { type: 'magic', element: 'ice', base: [48, 60], thr: 99, breath: true }, cast: '{a}はこおりつくふぶきの息をはいた！', anim: 'blizzard',
     desc: 'はげしいふぶきの息で敵みんなをこおらせる。',
   },
 
@@ -161,7 +161,7 @@ export const CH3_ABILITIES = {
   },
   m_lava_burst: {
     name: 'ようがんふん出', kind: 'monster', mp: 8, target: 'enemies',
-    effect: { type: 'magic', element: 'fire', base: [42, 54], thr: 99 }, cast: '{a}の体のひびから、ようがんがふき出した！', anim: 'fire_wave',
+    effect: { type: 'magic', element: 'fire', base: [32, 42], thr: 99 }, cast: '{a}の体のひびから、ようがんがふき出した！', anim: 'fire_wave',
     desc: 'ようがんをふき出して敵みんなを焼く。',
   },
   // ── 炎の騎士フレアード ──
@@ -171,7 +171,7 @@ export const CH3_ABILITIES = {
   },
   m_flame_wave: {
     name: '炎の波', kind: 'monster', mp: 8, target: 'enemies',
-    effect: { type: 'magic', element: 'fire', base: [46, 58], thr: 99 }, cast: '{a}は剣をふり、炎の波をおこした！', anim: 'fire_wave',
+    effect: { type: 'magic', element: 'fire', base: [34, 44], thr: 99 }, cast: '{a}は剣をふり、炎の波をおこした！', anim: 'fire_wave',
     desc: '炎の波で敵みんなを焼く。',
   },
   m_blaze_charge: {
@@ -180,7 +180,7 @@ export const CH3_ABILITIES = {
   },
   m_flame_tornado: {
     name: '炎の竜巻', kind: 'monster', target: 'enemies',
-    effect: { type: 'magic', element: 'fire', base: [70, 84], thr: 99 }, cast: '{a}の炎の竜巻！もえさかる風がすべてをのみこむ！', anim: 'fire_tornado',
+    effect: { type: 'magic', element: 'fire', base: [56, 68], thr: 99 }, cast: '{a}の炎の竜巻！もえさかる風がすべてをのみこむ！', anim: 'fire_tornado',
     desc: '炎の竜巻で敵みんなに大ダメージ。',
   },
   // ── 竜の番人 ──
@@ -194,7 +194,7 @@ export const CH3_ABILITIES = {
   },
   m_rune_beam: {
     name: '古代文字の光', kind: 'monster', mp: 6, target: 'enemy',
-    effect: { type: 'magic', element: 'light', base: [64, 78], thr: 99 }, cast: '{a}の体の古い文字が光り、光線がはなたれた！', anim: 'dragon_beam',
+    effect: { type: 'magic', element: 'light', base: [52, 62], thr: 99 }, cast: '{a}の体の古い文字が光り、光線がはなたれた！', anim: 'dragon_beam',
   },
   m_guard_stance: {
     name: '守りのかまえ', kind: 'monster', target: 'self',
@@ -206,17 +206,17 @@ export const CH3_ABILITIES = {
   },
   m_judgment: {
     name: 'さばきの光', kind: 'monster', target: 'enemies',
-    effect: { type: 'magic', element: 'light', base: [70, 84], thr: 99 }, cast: '{a}のさばきの光！まっ白な光が、すべてをてらす！', anim: 'holy',
+    effect: { type: 'magic', element: 'light', base: [56, 66], thr: 99 }, cast: '{a}のさばきの光！まっ白な光が、すべてをてらす！', anim: 'holy',
     desc: 'さばきの光で敵みんなに大ダメージ。',
   },
   // ── 炎の魔女イグニア ──
   m_witch_fire: {
     name: '魔女の炎', kind: 'monster', mp: 6, target: 'enemy',
-    effect: { type: 'magic', element: 'fire', base: [64, 80], thr: 99 }, cast: '{a}はつえの宝石から、大きな火の玉をはなった！', anim: 'fire3',
+    effect: { type: 'magic', element: 'fire', base: [50, 62], thr: 99 }, cast: '{a}はつえの宝石から、大きな火の玉をはなった！', anim: 'fire3',
   },
   m_hellfire: {
     name: 'ごうかの炎', kind: 'monster', mp: 10, target: 'enemies',
-    effect: { type: 'magic', element: 'fire', base: [48, 60], thr: 99 }, cast: '{a}はつえをふりかざした！ごうかの炎がうずまく！', anim: 'fire_wave',
+    effect: { type: 'magic', element: 'fire', base: [36, 46], thr: 99 }, cast: '{a}はつえをふりかざした！ごうかの炎がうずまく！', anim: 'fire_wave',
   },
   m_heat_haze: {
     name: 'かげろう', kind: 'monster', mp: 6, target: 'enemies',
@@ -229,15 +229,15 @@ export const CH3_ABILITIES = {
   },
   m_flame_wing: {
     name: '炎のつばさ', kind: 'monster', mp: 8, target: 'enemies',
-    effect: { type: 'magic', element: 'fire', base: [54, 66], thr: 99 }, cast: '{a}は炎のつばさを大きくはばたかせた！', anim: 'fire_wave',
+    effect: { type: 'magic', element: 'fire', base: [40, 50], thr: 99 }, cast: '{a}は炎のつばさを大きくはばたかせた！', anim: 'fire_wave',
   },
   m_crown_flare: {
     name: '炎のかんむり', kind: 'monster', mp: 10, target: 'enemy',
-    effect: { type: 'magic', element: 'fire', base: [84, 100], thr: 99 }, cast: '{a}の炎のかんむりから、白い炎がほとばしった！', anim: 'fire3',
+    effect: { type: 'magic', element: 'fire', base: [64, 78], thr: 99 }, cast: '{a}の炎のかんむりから、白い炎がほとばしった！', anim: 'fire3',
   },
   m_dark_flame: {
     name: 'やみの炎', kind: 'monster', mp: 10, target: 'enemies',
-    effect: { type: 'magic', element: 'dark', base: [48, 60], thr: 99 }, cast: '{a}は黒い炎をまきちらした！', anim: 'dark1',
+    effect: { type: 'magic', element: 'dark', base: [38, 48], thr: 99 }, cast: '{a}は黒い炎をまきちらした！', anim: 'dark1',
   },
   m_inferno_charge: {
     name: '大炎をためる', kind: 'monster', target: 'self',
@@ -245,7 +245,7 @@ export const CH3_ABILITIES = {
   },
   m_inferno: {
     name: '大炎', kind: 'monster', target: 'enemies',
-    effect: { type: 'magic', element: 'fire', base: [86, 100], thr: 99 }, cast: '{a}の大炎！山をつつむほどの炎が、すべてをのみこむ！', anim: 'fire_tornado',
+    effect: { type: 'magic', element: 'fire', base: [64, 76], thr: 99 }, cast: '{a}の大炎！山をつつむほどの炎が、すべてをのみこむ！', anim: 'fire_tornado',
     desc: 'すべてをやく大炎。敵みんなに大ダメージ。',
   },
 };
