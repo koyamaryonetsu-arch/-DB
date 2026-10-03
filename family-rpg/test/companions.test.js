@@ -4,7 +4,7 @@ import { GameWorld } from '../public/js/shared/world/world.js';
 import { makeRng } from '../public/js/shared/rng.js';
 import { PLACES } from '../public/js/shared/maps/overworld.js';
 import { gainExp, expForLevel, computeStats, learnedAbilities, newMonsterCompanion, mpCost } from '../public/js/shared/stats.js';
-import { MONSTER_FRIENDS } from '../public/js/shared/data/companions.js';
+import { MONSTER_FRIENDS, JOIN_TIERS, joinTier } from '../public/js/shared/data/companions.js';
 import { MONSTERS } from '../public/js/shared/data/monsters.js';
 import { ABILITIES } from '../public/js/shared/data/abilities.js';
 import { startFieldBattle } from '../public/js/shared/world/battles.js';
@@ -290,4 +290,26 @@ test('はいごう: レベル10いじょうの 2ひきから レベル1の こ�
   const pmsg = bot.msgs.filter((m) => m.t === 'party').pop();
   const sup = pmsg?.party?.supports.find((x) => x.key === kid.key);
   assert.ok(sup && sup.plus === kid.char.plus && sup.inherit.includes('m_drain'), 'パーティーの じょうほう');
+});
+
+test('図鑑の「仲間になりやすさ」: 仲間に なりたがる かくりつ から 4段階（なりやすい ほど 上）', () => {
+  const lv = (sp) => joinTier(sp)?.level ?? null;
+  assert.equal(lv('pururin'), 4, 'ぷるりん（1/10）は なりやすい');
+  assert.equal(joinTier('pururin').text, '仲間になりやすい');
+  assert.equal(lv('koumorin'), 3, 'こうもりん（1/14）は ときどき');
+  assert.equal(lv('armor_crab'), 2, 'よろいガニ（1/20）は なかなか ならない');
+  assert.equal(joinTier('armor_crab').text, 'なかなか仲間にならない');
+  assert.equal(lv('shadow_mage'), 1, '影の魔道士（1/32）は 滅多に ならない');
+  assert.equal(joinTier('great_dragon').text, '滅多に仲間にならない');
+  assert.equal(joinTier('king_pururin'), null, '配合でしか 生まれない 魔物は 仲間に ならない');
+  assert.equal(joinTier('goldoon'), null, 'ボスは 仲間に ならない');
+  // なかまに なる 魔物は みんな どこかの 段階に 入る。かくりつが 高い ほど 段階も 高い（ぎゃくに ならない）
+  const friends = Object.entries(MONSTER_FRIENDS).filter(([, f]) => !f.breedOnly && f.rate > 0);
+  assert.ok(friends.length > 40);
+  for (const [sp] of friends) assert.ok(joinTier(sp), `${sp} に 段階が ある`);
+  const sorted = friends.sort((a, b) => b[1].rate - a[1].rate);
+  for (let i = 1; i < sorted.length; i++) assert.ok(lv(sorted[i][0]) <= lv(sorted[i - 1][0]), `${sorted[i][0]} が ${sorted[i - 1][0]} より 上に ならない`);
+  // 4段階 すべて 使われている
+  assert.deepEqual([...new Set(friends.map(([sp]) => lv(sp)))].sort(), [1, 2, 3, 4]);
+  assert.equal(JOIN_TIERS.length, 4);
 });

@@ -10,7 +10,7 @@ import { HIRAMEKI } from '../../shared/data/hirameki.js';
 import { DUAL_TECHS, DUAL_ORDER, groupName, dualKnown } from '../../shared/data/dual.js';
 import { MONSTERS } from '../../shared/data/monsters.js';
 import { monsterDrops } from '../../shared/data/loot.js';
-import { MONSTER_FRIENDS, RACE_NAMES, recipeHint } from '../../shared/data/companions.js';
+import { MONSTER_FRIENDS, RACE_NAMES, recipeHint, joinTier } from '../../shared/data/companions.js';
 import { TACTICS } from '../../shared/ai.js';
 import { PLACES } from '../../shared/maps/overworld.js';
 import { SEA_PLACES } from '../../shared/maps/ch2.js';
@@ -923,12 +923,13 @@ export class FieldMenu {
     const count = (k) => order.filter((sp) => st(sp)[k]).length;
     box.append(el('div', { class: 'small gold', text: `見つけた ${count('seen')}/${order.length}　仲間にした ${count('friend')}　配合で生んだ ${count('bred')}` }));
     if (!active) {
-      box.append(el('div', { class: 'detail', text: '出会ったモンスターがのる図鑑。\n仲間にしたモンスターや、配合で生まれたモンスターも記録される。\n配合でしか生まれないモンスターもいるらしい…' }));
+      box.append(el('div', { class: 'detail', text: '出会ったモンスターがのる図鑑。\n仲間にしたモンスターや、配合で生まれたモンスターも記録される。\n「仲間になりやすさ」は4段階。魔物使いやモンスターマスターがいると、もっと仲間になりやすい。\n配合でしか生まれないモンスターもいるらしい…' }));
       return box;
     }
     const detail = el('div', { class: 'detail zukan-detail' });
     const showMon = (sp) => {
       detail.innerHTML = '';
+      detail.scrollTop = 0;
       const M = MONSTERS[sp];
       if (!M) return;
       const s = st(sp);
@@ -950,15 +951,33 @@ export class FieldMenu {
         else detail.append(el('div', { class: 'small muted', text: M.boss ? 'どこかにいる大きな魔物…' : 'まだ出会っていない' }));
         return;
       }
-      const fr = MONSTER_FRIENDS[sp];
       // 配合でも 生まれる 魔物は ヒントも（ぷるりん騎士 など）
       const hint = recipeHint(sp, MONSTERS);
-      const how = M.breedOnly ? `配合で生まれる（${hint}）` : fr && fr.rate > 0 ? `倒すと仲間になることがある${hint ? `\n配合でも生まれる（${hint}）` : ''}` : '仲間にならない';
+      // 仲間に なりやすさ（4段階。companions.js の JOIN_TIERS）。スマホでも 見えるように 名前の すぐ 下に 1行で
+      const tier = M.boss ? null : joinTier(sp);
+      const join = el('div', { class: 'small zukan-join' });
+      if (M.breedOnly) join.append(el('span', { text: `配合で生まれる（${hint}）` }));
+      else if (tier) {
+        join.append(
+          el('span', { class: 'muted', text: '仲間になりやすさ' }),
+          el('span', { class: 'join-meter', 'aria-hidden': 'true' }, [1, 2, 3, 4].map((i) => el('i', { class: i <= tier.level ? 'on' : '' }))),
+          el('span', { class: `join-t j${tier.level}`, text: tier.text }),
+        );
+      } else join.append(el('span', { text: '仲間にならない' }));
+      if (s.friend) join.append(el('span', { class: 'good', text: '★仲間にした' }));
+      if (s.bred) join.append(el('span', { class: 'good', text: '★配合で生んだ' }));
+      const notes = [
+        tier && hint ? `配合でも生まれる（${hint}）` : '',
+        // 森の主の あとの 夢（魔物の心）より 前
+        tier && !c.flags?.monster_bond ? '今はまだ、魔物は仲間にならないようだ…' : '',
+      ].filter(Boolean);
       detail.append(
-        el('div', { class: 'gold', text: `${M.name}${M.boss ? '（ボス）' : ''}` }),
-        el('div', { class: 'small muted', text: `${RACE_NAMES[M.race] || ''}${M.breedOnly ? '' : `　Lv${M.lv}`}　倒した数 ${s.kills}` }),
+        el('div', { class: 'zukan-title' },
+          el('span', { class: 'gold', text: `${M.name}${M.boss ? '（ボス）' : ''}` }),
+          el('span', { class: 'small muted', text: `${RACE_NAMES[M.race] || ''}${M.breedOnly ? '' : `　Lv${M.lv}`}　倒した数 ${s.kills}` })),
+        join,
+        ...notes.map((t) => el('div', { class: 'small', text: t })),
         el('div', { class: 'small', text: M.desc || '' }),
-        el('div', { class: 'small', text: `${how}${s.friend ? '　★仲間にした' : ''}${s.bred ? '　★配合で生んだ' : ''}` }),
       );
       // 属性の 得手不得手（戦いで ためした ものだけ 分かる）
       const MARK = { weak: '◎', normal: '○', resist: '△', null: '×' };

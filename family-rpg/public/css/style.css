@@ -771,8 +771,12 @@ img.face { image-rendering: pixelated; }
 .tavern-panel .fmenu { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); }
 .tavern-panel .tavern-list { max-height: min(calc(72vh - var(--pad-h)), 620px); }
 .zukan-box { display: flex; flex-direction: column; height: 100%; min-height: 0; }
-.zukan-detail { flex: none; min-height: 7.6em; margin: 0.3em 0 0.4em; padding-bottom: 0.3em; border-bottom: 1px dashed rgba(255, 214, 107, 0.35); white-space: pre-line; }
+/* せつめいは 高さを きめて、あふれたら この 中で スクロール（スマホでも 下の リストが つぶれない・ゆびの 下で うごかない） */
+.zukan-detail { flex: none; height: min(12em, 52%); overflow-y: auto; overscroll-behavior: contain; margin: 0.3em 0 0.4em; padding-bottom: 0.3em; border-bottom: 1px dashed rgba(255, 214, 107, 0.35); white-space: pre-line; }
+.zukan-title { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 0.6em; }
 .zukan-list { flex: 1; min-height: 0; }
+/* 「← もどる」は リストと いっしょに 上へ ながれる（せまい スマホで えらんだ 行に かさならない） */
+.zukan-list .menu .backchip { position: static; }
 .zukan-mon { float: right; height: 5em; width: auto; image-rendering: pixelated; margin: 0 0 0.3em 0.5em; }
 .plus { color: var(--accent); font-size: 0.85em; margin-left: 0.15em; }
 .tv-face { float: right; height: 3.6em; width: auto; image-rendering: pixelated; margin: 0 0 0.3em 0.5em; }
@@ -1265,6 +1269,16 @@ body.talking .mon-pop { top: 26%; }
 .zdrop.rare .tag { color: #ffd66b; border-color: rgba(255, 214, 107, 0.6); }
 .zdrop.boss .tag { color: #ff9ad0; border-color: rgba(255, 154, 208, 0.6); }
 .zdrop.unk { color: #6d6c88; }
+/* 仲間に なりやすさ（4つの 目もりと ことば。なりにくい ほど 色が おちつく） */
+.zukan-join { display: flex; flex-wrap: wrap; align-items: center; gap: 0.2em 0.5em; margin-top: 0.25em; }
+.join-meter { display: inline-flex; gap: 0.2em; }
+.join-meter i { display: block; width: 0.62em; height: 0.62em; border-radius: 50%; border: 1px solid rgba(255, 214, 107, 0.7); box-sizing: border-box; }
+.join-meter i.on { background: var(--accent); border-color: var(--accent); }
+.join-t { white-space: nowrap; }
+.join-t.j4 { color: var(--good); }
+.join-t.j3 { color: var(--text); }
+.join-t.j2 { color: var(--warn); }
+.join-t.j1 { color: var(--danger); }
 
 /* ───── たたかい: だれが 何を したか（技の 名前の 札） ───── */
 .b-plate {

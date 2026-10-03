@@ -264,6 +264,22 @@ Object.assign(MONSTER_FRIENDS, FRIENDS_CH3);
 // しゅぞくごとの 装備の うわがき（上の GEAR）
 for (const [sp, g] of Object.entries(GEAR)) if (MONSTER_FRIENDS[sp]) MONSTER_FRIENDS[sp].gear = { ...g, ...(MONSTER_FRIENDS[sp].gear || {}) };
 
+// 図鑑の「仲間になりやすさ」: rate（1回の 戦いで 仲間に なりたがる かくりつ）を 4つに わける。
+// （はじめての 魔物の 仲間・魔物使いや モンスターマスターが いる ときは、ここより なりやすい。world/party.js の rollBefriend）
+export const JOIN_TIERS = [
+  { min: 1 / 12, level: 4, text: '仲間になりやすい' },
+  { min: 1 / 18, level: 3, text: 'ときどき仲間になる' },
+  { min: 1 / 28, level: 2, text: 'なかなか仲間にならない' },
+  { min: 0, level: 1, text: '滅多に仲間にならない' },
+];
+
+// その 魔物の 仲間に なりやすさ（仲間に ならない・配合でしか 生まれない ときは null）
+export function joinTier(species) {
+  const f = MONSTER_FRIENDS[species];
+  if (!f || f.breedOnly || !(f.rate > 0)) return null;
+  return JOIN_TIERS.find((t) => f.rate >= t.min - 1e-9);
+}
+
 export const BREED_MIN_LEVEL = 10;
 export const BREED_INHERIT_MAX = 4;
 
