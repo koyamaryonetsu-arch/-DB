@@ -12,16 +12,16 @@
 // ・星の竜が 目覚めたら 竜に のって とぶ（すこし はやい。data/sky.js の flySpeed）
 // ・パーティーで「ついていく」に している なかまは いっしょに のる
 // ・サーバーは とんでいない 人が 歩けない ところへ 入るのを みとめない（world.js の onMove）
-import { MAPS, isBlocked, onWater, condOk } from '../maps/index.js?v=b3525657622b';
-import { PLACES } from '../maps/overworld.js?v=b3525657622b';
-import { SEA_PLACES } from '../maps/ch2.js?v=b3525657622b';
-import { ABILITIES } from '../data/abilities.js?v=b3525657622b';
-import { ITEMS } from '../data/items.js?v=b3525657622b';
-import { hasKeyItem, mpCost, removeItem, itemCount } from '../stats.js?v=b3525657622b';
-import { SKY_MAPS, FLUTE_ID, regionHop, edgeAt, edgeTarget, regionsFrom, skyBox, inSkyBox, mountOf, flySpeed } from '../data/sky.js?v=b3525657622b';
-import { partyOf } from './party.js?v=b3525657622b';
-import { warpDest } from './services.js?v=b3525657622b';
-import { advanceClock, clockOwner } from './clock.js?v=b3525657622b';
+import { MAPS, isBlocked, onWater, condOk } from '../maps/index.js?v=0fa8b6566138';
+import { PLACES } from '../maps/overworld.js?v=0fa8b6566138';
+import { SEA_PLACES } from '../maps/ch2.js?v=0fa8b6566138';
+import { ABILITIES } from '../data/abilities.js?v=0fa8b6566138';
+import { ITEMS } from '../data/items.js?v=0fa8b6566138';
+import { hasKeyItem, mpCost, removeItem, itemCount } from '../stats.js?v=0fa8b6566138';
+import { SKY_MAPS, FLUTE_ID, regionHop, edgeAt, edgeTarget, regionsFrom, skyBox, inSkyBox, mountOf, flySpeed } from '../data/sky.js?v=0fa8b6566138';
+import { partyOf } from './party.js?v=0fa8b6566138';
+import { warpDest } from './services.js?v=0fa8b6566138';
+import { advanceClock, clockOwner } from './clock.js?v=0fa8b6566138';
 
 const FOLLOW_RANGE = 12;
 

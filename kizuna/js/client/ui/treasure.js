@@ -1,10 +1,10 @@
 // 宝の地図（メニューの「道具」に ならぶ・地図の 絵・ほる・見つけた 穴）
-import { el, ListMenu, confirmBox, esc } from './dom.js?v=b3525657622b';
-import { MAPS, tileAt } from '../../shared/maps/index.js?v=b3525657622b';
-import { T } from '../../shared/tiles.js?v=b3525657622b';
-import { hash2 } from '../../shared/rng.js?v=b3525657622b';
-import { caveInfo, tmTitle, foundFlag, TM_THEMES } from '../../shared/data/treasure.js?v=b3525657622b';
-import { makeCanvas, ctxOf } from '../render/pixel.js?v=b3525657622b';
+import { el, ListMenu, confirmBox, esc } from './dom.js?v=0fa8b6566138';
+import { MAPS, tileAt } from '../../shared/maps/index.js?v=0fa8b6566138';
+import { T } from '../../shared/tiles.js?v=0fa8b6566138';
+import { hash2 } from '../../shared/rng.js?v=0fa8b6566138';
+import { caveInfo, tmTitle, foundFlag, TM_THEMES } from '../../shared/data/treasure.js?v=0fa8b6566138';
+import { makeCanvas, ctxOf } from '../render/pixel.js?v=0fa8b6566138';
 
 const CSS = `
 .tmap-view { width: min(92vw, 440px); z-index: 5; background: var(--win-solid); align-items: center; gap: 0.35em; }
