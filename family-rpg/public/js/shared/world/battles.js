@@ -246,6 +246,31 @@ export function battleTick(world, ctx, dt) {
   if (ctx.battle.over) finishBattle(world, ctx);
 }
 
+// たたかいが こわれて すすまない（まいフレーム エラー）: にげた ことに して みんなを フィールドへ もどす
+// （物語の たたかいは だいほんが そこで おわる。もう一度 話しかければ やりなおせる）
+export function abortBattle(world, ctx) {
+  try {
+    if (!ctx.battle.over) ctx.battle.endBattle({ outcome: 'flee' });
+    finishBattle(world, ctx);
+    return;
+  } catch (e) {
+    console.error('battle abort error', e);
+  }
+  // さいごの 手だて: たたかいを けして「たたかい中」の しるしを とく
+  world.battles.delete(ctx.id);
+  for (const sid of ctx.sids) {
+    const m = world.sessions.get(sid);
+    if (!m || m.battleId !== ctx.id) continue;
+    m.busy = ctx.resolve ? 'script' : null;
+    m.battleId = null;
+    m.reading = false;
+    m.invuln = 3000;
+    world.send(m, { t: 'battleEnd', id: ctx.id, outcome: 'flee', lines: [], levelUp: false, story: !!ctx.resolve });
+    world.sendSelf(m);
+  }
+  if (ctx.resolve) ctx.resolve('flee');
+}
+
 // 合体技は 一度 使うと 効果が わかる（出した 2人の もちぬしの キャラに char.dualSeen）
 function markDuals(world, ctx, evs) {
   for (const ev of evs) {

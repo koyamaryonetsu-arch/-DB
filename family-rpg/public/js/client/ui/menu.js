@@ -30,6 +30,7 @@ import { memberTalk, talkFor } from '../../shared/data/party-talk.js';
 import { treasureRows, treasureDetail, openTreasureMap } from './treasure.js';
 import { themeHex } from '../render/themes.js';
 import { wagonMenuView, wagonHereClient, menuArrange } from './wagon.js';
+import { readErrLog, errLogText, clearErrLog } from '../errlog.js';
 
 // 呪文・技の タブ（左右で じゅんに かわる）
 const SKILL_TABS = [['list', '覚えた技'], ['fav', 'お気に入り'], ['combo', 'ひらめき'], ['dual', '合体技']];
@@ -383,6 +384,56 @@ export class FieldMenu {
   warpChoices() {
     const g = this.game;
     return Object.entries({ ...PLACES, ...SEA_PLACES }).filter(([id]) => g.me.visited?.[id] && id !== 'shrine').map(([id, p]) => ({ label: p.name, value: id }));
+  }
+
+  // 不具合の 記録（この 端末の さいきんの もの）。コピーして 家族に 送れる
+  errLogPopup() {
+    const g = this.game;
+    return new Promise((resolve) => {
+      const text = errLogText();
+      const back = el('div', { class: 'modal-back', style: { zIndex: 4 }, onclick: () => done() });
+      const ta = el('textarea', { class: 'errlog-text', readonly: true });
+      ta.value = text || '記録はありません（不具合はおきていません）';
+      const box = el('div', { class: 'win panel center-panel', style: { width: 'min(94vw, 560px)', zIndex: 5, background: 'var(--win-solid)' } },
+        el('div', { class: 'small gold', text: '不具合の記録（動けなくなった時などに、家族に送ってください）' }), ta);
+      const copy = () => {
+        const ok = () => toast('コピーしました。LINEなどにはりつけて送れます');
+        const manual = () => {
+          ta.focus({ preventScroll: true });
+          ta.select();
+          let r = false;
+          try { r = document.execCommand('copy'); } catch { /* */ }
+          toast(r ? 'コピーしました。LINEなどにはりつけて送れます' : '文字を長おしして、コピーしてください');
+        };
+        if (navigator.clipboard?.writeText) navigator.clipboard.writeText(ta.value).then(ok, manual);
+        else manual();
+      };
+      const m = new ListMenu(g.input, {
+        items: [{ label: 'コピーする', value: 'copy', disabled: !text }, { label: '記録を消す', value: 'clear', disabled: !text }, { label: '閉じる', value: null }],
+        sound: this.sfx,
+        back: null,
+        onSelect: (it) => {
+          if (it.value === 'copy') return copy();
+          if (it.value === 'clear') {
+            clearErrLog();
+            toast('記録を消しました');
+          }
+          done();
+        },
+        onCancel: () => done(),
+      });
+      box.append(m.root);
+      document.getElementById('ui').append(back, box);
+      this.popupOpen = true;
+      m.focus();
+      const done = () => {
+        m.blur();
+        back.remove();
+        box.remove();
+        this.popupOpen = false;
+        resolve();
+      };
+    });
   }
 
   pick(title, items, { wide = false } = {}) {
@@ -1049,6 +1100,10 @@ export class FieldMenu {
       { label: `字の形：${UI_FONTS[uiFontPref()]}`, value: 'font' },
     ];
     if (g.field.constructor.webgl2()) items.splice(items.findIndex((x) => x.value === 'speed'), 0, { label: `画面：${g.field.view === '3d' ? '2.5D（立体）' : '2D（ドット）'}`, value: 'view' });
+    // こまった とき（動けない・画面が 止まった）。不具合の 記録は 家族に コピーして 送れる
+    items.push({ header: true, label: 'こまった時', cls: 'set-hdr' },
+      { label: '動けない・画面が止まった時は（立てなおす）', value: 'rescue' },
+      { label: `不具合の記録（${readErrLog().length}件）`, value: 'errlog' });
     if (g.input.touch) {
       items.push({ label: `ウインドウの十字キー：${g.input.padOn ? '出す' : '出さない'}`, value: 'pad' });
       items.push({ label: `遊んでいる間は画面を消さない：${g.awakeOn ? 'ON' : 'OFF'}`, value: 'awake' });
@@ -1108,6 +1163,13 @@ export class FieldMenu {
         } else if (it.value === 'silent') {
           g.audio.silentPlay = !g.audio.silentPlay;
           g.audio.sfx('confirm');
+        } else if (it.value === 'rescue') {
+          this.close();
+          g.rescue();
+          return;
+        } else if (it.value === 'errlog') {
+          this.errLogPopup().then(() => { if (this.root) this.focusSub(this.settingsView(true)); });
+          return;
         }
         setTimeout(() => { if (this.root) this.focusSub(this.settingsView(true)); }, 200);
       },

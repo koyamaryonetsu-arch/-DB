@@ -12,7 +12,7 @@ import { newCharacter, computeStats, addItem, fullHeal, migrateJobs, fixBodyJob 
 import { mapState, spawnSymbols, moveSymbols, symbolSnapshot, symbolVisible } from './monsters.js';
 import { tickFieldChests, fieldChestSnap, fieldChestNear, openFieldChest } from './fieldchests.js';
 import { chestVanishes } from '../data/fieldchests.js';
-import { startFieldBattle, battleTick, battleCommand, battleLeave, joinBattle, mineOf, resultDone } from './battles.js';
+import { startFieldBattle, battleTick, abortBattle, battleCommand, battleLeave, joinBattle, mineOf, resultDone } from './battles.js';
 import { runScript, runSteps } from './scripts.js';
 import { serviceAction, menuAction } from './services.js';
 import { newParty, partyOf, partyState, syncParty, ensureCompanions, companionWait, PARTY_MAX, befriendLevel, rosterFull, nameOfKey, dropMissingFam } from './party.js';
@@ -34,6 +34,8 @@ import { noteDungeonEntry } from './escape.js';
 
 export const PROTOCOL_VERSION = 1;
 const SPARKLE_RESPAWN_MS = 20 * 60 * 1000;
+// まいフレーム エラーが この 回数 つづいた たたかいは おわらせる（tick は 1びょうに 20回くらい）
+const BATTLE_ERROR_LIMIT = 20;
 const START_POS = POS.heroHome;
 
 let sessSeq = 1;
@@ -115,6 +117,49 @@ export class GameWorld {
     this.broadcastPlayers();
     this.markDirty();
     this.saveNow();
+  }
+
+  // 立てなおし: のこった「とちゅう」の しるし（もう ない だいほん・たたかい）を かたづけて、
+  // いまの ようす（いち・パーティー・たたかい・まっている だいほん）を つなぎなおしと おなじように おくりなおす
+  resync(s) {
+    if (!s.inWorld || !s.char) return;
+    const now = this.now();
+    if (s.lastResync && now - s.lastResync < 1500) return;
+    s.lastResync = now;
+    if (s.busy === 'script' && !(s.runId && this.runs.get(s.runId))) {
+      s.busy = null;
+      s.runId = null;
+    }
+    if (s.busy === 'battle' && !(s.battleId && this.battles.get(s.battleId))) {
+      s.busy = null;
+      s.battleId = null;
+    }
+    s.posSeq++;
+    const p = partyOf(this, s);
+    this.send(s, {
+      t: 'enter', sid: s.id, char: s.char, map: s.map, x: s.x, y: s.y, dir: s.dir, posSeq: s.posSeq,
+      party: p ? partyState(this, p) : null, board: this.data.board || [], supportLog: [], serverTime: this.now(),
+      players: this.playerList(s), resumed: true, rescued: true, fly: !!s.flying,
+    });
+    const ctx = s.battleId && this.battles.get(s.battleId);
+    if (ctx && !ctx.battle.over) {
+      this.send(s, { t: 'battleStart', snap: ctx.battle.snapshot(), mine: mineOf(ctx, s.id), boss: !!ctx.opts.boss, story: !!ctx.opts.fixed, resume: true });
+    }
+    const run = s.runId && this.runs.get(s.runId);
+    if (run) run.resend(s);
+  }
+
+  // クライアントの エラー: セーブの errorLog に さいきんの 30こ（家族サーバーの 画面にも 出す）
+  onClientError(s, msg) {
+    const log = Array.isArray(this.data.errorLog) ? this.data.errorLog : (this.data.errorLog = []);
+    const str = (v, n) => String(v ?? '').slice(0, n);
+    log.push({
+      at: this.now(), who: str(s.char?.name, 20), map: str(s.map, 30), state: str(msg.state, 20),
+      where: str(msg.where, 40), msg: str(msg.msg, 300), stack: str(msg.stack, 900),
+    });
+    if (log.length > 30) log.splice(0, log.length - 30);
+    if (!this.offline) console.warn('[クライアントのエラー]', s.char?.name || '?', msg.where, msg.msg);
+    this.markDirty();
   }
 
   // おなじ キャラクターで つなぎなおした: まえの セッションを そのまま ひきつぐ
@@ -234,6 +279,10 @@ export class GameWorld {
       case 'explored': return this.onExplored(s, msg);
       case 'warpTo': return this.onMenu(s, { t: 'menu', action: 'useItem', id: 'return_wing', place: msg.place });
       case 'fly': return onFly(this, s, msg); // 風の大鳥（travel.js）
+      // 動けなく なった 人の 立てなおし（client の rescue）
+      case 'resync': return this.resync(s);
+      // クライアントで おきた エラー（ふぐあいの きろく）
+      case 'clientError': return this.onClientError(s, msg);
       case 'joinBattle': {
         const r = joinBattle(this, s, msg.sid);
         if (!r.ok && r.reason) this.send(s, { t: 'toast', text: r.reason });
@@ -909,7 +958,17 @@ export class GameWorld {
   // ───────────── まいフレーム ─────────────
   tick(dt) {
     // バトル
-    for (const ctx of [...this.battles.values()]) battleTick(this, ctx, dt);
+    for (const ctx of [...this.battles.values()]) {
+      try {
+        battleTick(this, ctx, dt);
+        ctx.errors = 0;
+      } catch (e) {
+        // 1つの たたかいが こわれても 世界は とめない。なんども こわれる ときは おわらせて フィールドへ
+        ctx.errors = (ctx.errors || 0) + 1;
+        if (ctx.errors === 1) console.error('battle error', e);
+        if (ctx.errors >= BATTLE_ERROR_LIMIT && this.battles.get(ctx.id) === ctx) abortBattle(this, ctx);
+      }
+    }
     // つうしんが とぎれた まま もどってこない人
     const now = this.now();
     for (const s of [...this.sessions.values()]) {

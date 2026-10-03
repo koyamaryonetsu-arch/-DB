@@ -1204,6 +1204,11 @@ body.talking .mon-pop { top: 26%; }
   transition: background 0.08s, transform 0.08s;
 }
 .b-cmd .menu .item::before { display: none; }
+/* なまえは 1行（入りきらない ときは ListMenu の fit が 文字を 小さく する。2行に なって わくから はみ出さない） */
+.menu.fit .item > .l { white-space: nowrap; overflow: hidden; min-width: 0; flex: 1 1 auto; }
+.menu.fit .item > .l.wf { flex-wrap: nowrap; }
+.menu.fit .item > .r { flex: none; }
+.menu.fit .item .tag, .menu.fit .item .elem, .menu.fit .item .cnt { white-space: nowrap; }
 /* コマンドの わくの 中では 属性・「他」の しるしを 小さめに（名前が 2行に なりにくい） */
 .b-cmd .menu .elem { font-size: 0.64em; padding: 0 0.22em; margin-right: 0.22em; }
 .b-cmd .menu .tag { margin-left: 0.18em; padding: 0 0.22em; }
@@ -1485,3 +1490,12 @@ body.dot-font { --font-ui: 'KizunaDot', 'Hiragino Kaku Gothic ProN', 'Hiragino S
 
 /* 設定の みだし（ゲームの難しさ／画面と音・戦い） */
 .menu .hdr.set-hdr { color: var(--accent); font-size: var(--fs-small); margin-top: 0.35em; padding-left: 0.2em; }
+
+/* 「動けない時はここをタップ」（client/game.js の 見張り。まっくらの 上にも 出す） */
+.rescue-btn {
+  position: absolute; left: 50%; top: calc(34% + var(--safe-t)); transform: translateX(-50%); z-index: 70;
+  padding: 0.55em 1.2em; font: inherit; font-size: var(--fs); color: var(--accent); border-color: var(--accent); white-space: nowrap; max-width: 94vw;
+  cursor: pointer; animation: rescuePulse 1.2s ease-in-out infinite alternate;
+}
+@keyframes rescuePulse { from { box-shadow: 0 0 0 0 rgba(255, 214, 107, 0.65); } to { box-shadow: 0 0 0 8px rgba(255, 214, 107, 0); } }
+.errlog-text { width: 100%; height: min(42vh, 20em); margin: 0.4em 0; font-size: 0.72em; line-height: 1.35; background: rgba(0, 0, 0, 0.35); color: var(--text); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 6px; resize: none; }

@@ -31,8 +31,10 @@ export class ListMenu {
   // press: えらんだ ボタンを この ミリ秒 光らせてから すすむ（どれを おしたか わかるように）
   // start: はじめに カーソルを おく ばんごう（まえに えらんだ ところ など）
   // onSide: 1れつの リストで 左右を おした とき（タブを かえる・せつめいを スクロール など）。-1 か 1
-  constructor(input, { items = [], cols = 1, onSelect, onCancel, onMove, onSide, sound, className = '', back, press = 0, start = -1 } = {}) {
+  // fit: なまえは 1行で。入りきらない ときは 文字を 小さく して ぜんぶ 見せる（せまい ボタンの たたかいの コマンド）
+  constructor(input, { items = [], cols = 1, onSelect, onCancel, onMove, onSide, sound, className = '', back, press = 0, start = -1, fit = false } = {}) {
     this.input = input;
+    this.fitText = fit;
     this.onSide = onSide || null;
     this.press = press;
     this.pressing = false;
@@ -46,7 +48,7 @@ export class ListMenu {
     this.idx = Math.max(0, items.findIndex((i) => !i.disabled && !i.header));
     if (this.idx < 0) this.idx = 0;
     if (start >= 0 && start < items.length && !items[start].header) this.idx = start;
-    this.root = el('ul', { class: `menu ${cols === 2 ? 'cols2' : ''} ${className}`, role: 'listbox' });
+    this.root = el('ul', { class: `menu ${cols === 2 ? 'cols2' : ''} ${fit ? 'fit' : ''} ${className}`, role: 'listbox' });
     // pad: スマホでは 十字キーの パッドも 出す
     this.handler = { onNav: (a, rep) => this.nav(a, rep), pad: true, el: this.root, onGone: () => { this.active = false; } };
     this.active = false;
@@ -115,6 +117,29 @@ export class ListMenu {
       }));
     }
     this.scrollToSel();
+    // 画面に 出てから はかる（まだ ならんで いない ときは 0 なので つぎの コマで）。
+    // 文字（ウェブフォント）の よみこみが おわったら もう一度（はばが かわる）
+    if (this.fitText) {
+      requestAnimationFrame(() => this.fit());
+      document.fonts?.ready?.then(() => this.fit());
+    }
+  }
+
+  // 入りきらない なまえの 文字を 小さく（いちばん 小さくて 0.6 ばい）。
+  // scrollWidth は 1ピクセル みまんの はみ出しを 見のがすので、中みの はばを 小数まで はかる
+  fit() {
+    const range = document.createRange();
+    for (const lab of this.root.querySelectorAll('.item > .l')) {
+      lab.style.fontSize = '';
+      const box = lab.clientWidth;
+      if (!box) continue;
+      const need = () => { range.selectNodeContents(lab); return range.getBoundingClientRect().width; };
+      let k = 1;
+      while (need() > box - 0.5 && k > 0.6) {
+        k -= 0.05;
+        lab.style.fontSize = `${k.toFixed(2)}em`;
+      }
+    }
   }
 
   cancel() {

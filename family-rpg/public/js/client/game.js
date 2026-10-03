@@ -12,6 +12,7 @@ import { toast, confirmBox, el } from './ui/dom.js';
 import { MAPS } from '../shared/maps/index.js';
 import { applyBattlePrefs, applyUiFont } from './prefs.js';
 import { SkyClient } from './sky.js';
+import { reportError } from './errlog.js';
 
 export class Game {
   constructor(net) {
@@ -107,11 +108,14 @@ export class Game {
       try {
         this.frame(dt);
       } catch (e) {
-        console.error(e);
+        reportError(this, e, `frame:${this.state}`);
       }
       requestAnimationFrame(loop);
     };
     requestAnimationFrame(loop);
+    // どこかで おきた エラーも きろく（うごけなく なった ときの 原因さがし。errlog.js）
+    addEventListener('error', (ev) => reportError(this, ev.error || ev.message, 'window'));
+    addEventListener('unhandledrejection', (ev) => reportError(this, ev.reason, 'promise'));
     // テスト・デバッグ用
     window.__game = this;
   }
@@ -184,6 +188,7 @@ export class Game {
     touchEl.hidden = hideTouch;
     if (inField) {
       const canMove = !this.busy && !this.menuOpen && !this.input.busy;
+      this.watchStuck(dt, canMove);
       this.sky.update(dt);
       this.field.update(dt, { dir: this.input.dir, canMove, run: this.input.run });
       this.field.render();
@@ -199,8 +204,16 @@ export class Game {
         this.field.exploredDirty = false;
         this.net.send({ t: 'explored', map: this.field.mapId, data: this.field.exploredB64() });
       }
-    } else if (this.state === 'battle') {
+    } else if (this.state === 'battle' || this.state === 'battle-intro') {
       this.battle?.update(dt);
+      this.watchBattle();
+      // 戦いの 画面が できない まま（こわれた など）: 立てなおす
+      this.noBattleT = this.battle ? 0 : (this.noBattleT || 0) + dt;
+      if (this.noBattleT > 8000) {
+        this.noBattleT = 0;
+        reportError(this, new Error('battle state without scene'), 'stuck:battle');
+        this.rescue();
+      }
     } else {
       this.drawTitleBg(dt);
     }
@@ -257,6 +270,11 @@ export class Game {
 
   // ───────────── ボタン ─────────────
   onFieldAction(a) {
+    // 会話の まどが 出ているのに ボタンを うけとる ものが ない（たたかいの はじまりで けされた など）: A・B で すすめる
+    if (this.state === 'field' && this.busy && (a === 'a' || a === 'b') && this.script.advance) {
+      this.script.advance();
+      return;
+    }
     if (this.state !== 'field' || this.busy || this.menuOpen) return;
     if (a === 'a') this.field.interact();
     else if (a === 'b' || a === 'menu') this.openMenu();
@@ -506,6 +524,112 @@ export class Game {
     }
   }
 
+  // ───────────── うごけない まま に ならない ための 見張り ─────────────
+  // フィールドで 3びょう いじょう つづいたら なおす:
+  //  ・だいほんが おわって いるのに「だいほん中」 ・何も 出ていないのに ボタンを うけとる ものが のこっている
+  //  ・メニューが ないのに「メニュー中」 ・だいほんの そとで トロッコに のったまま ・まっくらの まま
+  // なおせない（だいほんの とちゅうで まっている）ときは「動けない時はここ」ボタンを 出す（rescue）
+  watchStuck(dt, canMove) {
+    // 時計で はかる（画面の コマが おそい 端末でも おなじ 3びょう）
+    const now = performance.now();
+    const w = this.stuckT || (this.stuckT = {});
+    const ui = document.getElementById('ui');
+    // 見えている まど（会話・メニュー・お店・えらぶ ところ など）
+    const shown = [...ui.children].some((x) => !x.hidden && x.id !== 'rescue' && x.getClientRects().length > 0);
+    const curtain = document.getElementById('curtain');
+    const dark = curtain?.classList.contains('on');
+    const since = (k, on) => { w[k] = on ? (w[k] || now) : 0; return w[k] ? now - w[k] : 0; };
+    if (since('busy', this.busy && !this.script.running && !this.battleClosing) > 3000) {
+      w.busy = 0;
+      reportError(this, new Error('busy without script'), 'stuck:busy');
+      this.endScript();
+    }
+    if (since('input', !this.busy && this.input.busy && !shown) > 3000) {
+      w.input = 0;
+      reportError(this, new Error('input handler without window'), 'stuck:input');
+      this.input.stack.length = 0;
+    }
+    if (since('menu', this.menuOpen && !shown) > 3000) {
+      w.menu = 0;
+      reportError(this, new Error('menu flag without window'), 'stuck:menu');
+      this.menu.close();
+      this.menuOpen = false;
+    }
+    if (since('ride', !!this.field.riding && !this.busy) > 3000) {
+      w.ride = 0;
+      reportError(this, new Error('cart ride outside script'), 'stuck:ride');
+      const r = this.field.riding;
+      this.field.riding = null;
+      r?.resolve?.();
+    }
+    if (since('dark', dark && !this.busy && !this.battleClosing) > 3000) {
+      w.dark = 0;
+      curtain.classList.remove('on', 'flash');
+    }
+    // だいほんの とちゅうで 何も 出ないまま 長く とまっている・うごこうと しても うごけない: たすけの ボタン
+    const still = since('still', this.busy && this.script.running && !shown);
+    const push = since('push', !canMove && !shown && !!(this.input.dir.x || this.input.dir.y));
+    if (still > 15000 || push > 4000) this.showRescue();
+    else if (canMove && this.rescueBtn && !this.rescueBtn.hidden) this.rescueBtn.hidden = true;
+  }
+
+  // 戦いの 見張り: 自分の 番なのに コマンドの まどが 出ない まま → 出しなおす。それでも だめなら 立てなおす
+  watchBattle() {
+    const b = this.battle;
+    const lost = !!b && !b.ended && !b.destroyed && !this.battleClosing && !b.menu && !b.invite && b.readyQ.some((id) => {
+      const a = b.c.get(id);
+      return a && a.alive && a.ready && !a.auto && !(a.status || []).some((x) => x === 'sleep' || x === 'paralyze');
+    });
+    if (!lost) {
+      this.cmdLostAt = 0;
+      this.cmdRetried = false;
+      return;
+    }
+    const now = performance.now();
+    if (!this.cmdLostAt) this.cmdLostAt = now;
+    const t = now - this.cmdLostAt;
+    if (t > 8000) {
+      this.cmdLostAt = 0;
+      this.cmdRetried = false;
+      this.rescue();
+    } else if (t > 2500 && !this.cmdRetried) {
+      this.cmdRetried = true;
+      reportError(this, new Error('command window lost'), 'stuck:battlecmd');
+      b.nextCommand();
+    }
+  }
+
+  // 「動けない時はここ」ボタン（見張りが 出す・メニューの 設定からも）
+  showRescue() {
+    if (!this.rescueBtn) {
+      this.rescueBtn = el('button', { id: 'rescue', class: 'win rescue-btn', text: '動けない時はここをタップ', onclick: () => this.rescue() });
+      document.getElementById('app').append(this.rescueBtn);
+    }
+    this.rescueBtn.hidden = false;
+  }
+
+  // 立てなおす: 画面の「とちゅう」を ぜんぶ かたづけて、サーバーから いまの ようすを もらいなおす
+  // （つなぎなおしと おなじ。だいほんの とちゅう なら そこから もう一度。world.js の resync）
+  rescue() {
+    reportError(this, new Error(`rescue busy=${this.busy} menu=${this.menuOpen} input=${this.input.stack.length} script=${this.script.running}`), 'rescue');
+    if (this.rescueBtn) this.rescueBtn.hidden = true;
+    this.stuckT = null;
+    const f = this.field;
+    if (f) {
+      const r = f.riding;
+      f.riding = null;
+      r?.resolve?.();
+      f.slide = null;
+      f.lookAt = null;
+      f.hideMe = false;
+      f.weatherOverride = null;
+    }
+    document.getElementById('curtain')?.classList.remove('on', 'flash');
+    this.resetUI();
+    if (this.state === 'field' || this.state === 'battle') this.net.send({ t: 'resync' });
+    toast('立てなおしています…');
+  }
+
   endScript() {
     this.busy = false;
     if (this.field) this.field.lookAt = null;
@@ -542,7 +666,11 @@ export class Game {
     this.script.reset();
     this.input.stack.length = 0;
     if (this.battle) {
-      this.battle.destroy();
+      try {
+        this.battle.destroy();
+      } catch (e) {
+        reportError(this, e, 'battle destroy');
+      }
       this.battle = null;
     }
     this.battleClosing = false;
@@ -573,7 +701,8 @@ export class Game {
     this.refreshObjective();
     this.audio.play(this.field.areaBgm());
     this.keepAwake(true);
-    if (m.resumed) toast('つなぎ直しました。続きから遊べます');
+    if (m.rescued) toast('立てなおしました。動けるか、ためしてみてね', 5000);
+    else if (m.resumed) toast('つなぎ直しました。続きから遊べます');
     for (const log of m.supportLog || []) {
       toast(`${log.helper}の冒険を${log.count}回手伝って\n経験値${log.exp}と${log.gold}ゴールドをもらった！${log.level ? `\nレベルが${log.level}に上がった！` : ''}`, 6000);
     }
@@ -633,13 +762,22 @@ export class Game {
     for (let i = 0; i < 100 && (b.queue.length || b.showing); i++) await wait(100);
     await wait(300);
     // けっかは ボタンで 1行ずつ（そのあいだ フィールドは うごかない。サーバーは またない）
-    await b.showResult(m);
+    // まどが こわれても フィールドへ もどる（とまった まま に しない）
+    try {
+      await b.showResult(m);
+    } catch (e) {
+      reportError(this, e, 'result');
+    }
     // 読みおわった（サーバー: つぎの たたかいに まきこめる ように なる・すこしだけ むてき）
     this.net.send({ t: 'resultDone' });
     // 読んでいる あいだに つぎの たたかいが はじまった（ものがたりの つづき など）: その 画面は そのまま
     if (this.battle !== b) return;
     await this.fade(true);
-    b.destroy();
+    try {
+      b.destroy();
+    } catch (e) {
+      reportError(this, e, 'battle destroy');
+    }
     this.battle = null;
     this.state = 'field';
     this.hud.show(true);

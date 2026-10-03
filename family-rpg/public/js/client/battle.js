@@ -207,11 +207,15 @@ export class BattleScene {
     this.renderCmdIdle();
     this.updateAutoBtn();
     this.resizeCanvas();
-    this.onResize = () => this.resizeCanvas();
+    // コマンドの なまえの 大きさも あわせなおす（ListMenu の fit）
+    this.onResize = () => { this.resizeCanvas(); this.menu?.fitText && this.menu.fit(); };
     addEventListener('resize', this.onResize);
+    // 文字（ウェブフォントの つづき）が とどいたら、コマンドの なまえの 大きさを あわせなおす
+    this.onFonts = () => { this.menu?.fitText && this.menu.fit(); };
+    document.fonts?.addEventListener?.('loadingdone', this.onFonts);
     // がめんの むきが かわった・もじが よみこまれた ときも あわせる
     if (window.ResizeObserver) {
-      this.ro = new ResizeObserver(() => this.resizeCanvas());
+      this.ro = new ResizeObserver(() => { this.resizeCanvas(); this.menu?.fitText && this.menu.fit(); });
       this.ro.observe(this.stage);
     }
   }
@@ -415,6 +419,7 @@ export class BattleScene {
       onMove: detailFn ? (it) => detailFn(it) : null,
       press: 130,
       start,
+      fit: true,
     });
     this.cmdEl.append(m.root);
     this.menu = m;
@@ -1500,6 +1505,7 @@ export class BattleScene {
     this.closeResult?.();
     this.closeMenus();
     removeEventListener('resize', this.onResize);
+    document.fonts?.removeEventListener?.('loadingdone', this.onFonts);
     this.ro?.disconnect();
     this.root.innerHTML = '';
     this.root.hidden = true;

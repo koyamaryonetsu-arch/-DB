@@ -3,6 +3,7 @@ import { el } from './dom.js';
 import { ListMenu } from './dom.js';
 import { openServiceUI } from './services.js';
 import { monsterCanvas } from '../render/monsters.js';
+import { reportError } from '../errlog.js';
 
 const TYPE_MS = 28;
 
@@ -23,19 +24,31 @@ export class ScriptPlayer {
     const gen = this.gen;
     this.running = true;
     this.game.busy = true;
-    while (this.queue.length) {
-      const msg = this.queue.shift();
-      let choice;
-      for (const step of msg.steps) {
-        const r = await this.step(step, msg);
-        if (gen !== this.gen) return; // とちゅうで リセットされた
-        if (step[0] === 'choice') choice = r;
+    try {
+      while (this.queue.length) {
+        const msg = this.queue.shift();
+        let choice;
+        for (const step of msg.steps) {
+          let r;
+          try {
+            r = await this.step(step, msg);
+          } catch (e) {
+            // 1つの えんしゅつが こわれても とまらない（「だいほん中」の まま うごけなく ならない ように つぎへ）
+            reportError(this.game, e, `script:${step?.[0]}`);
+            this.closeDialog();
+          }
+          if (gen !== this.gen) return; // とちゅうで リセットされた
+          if (step[0] === 'choice') choice = r;
+        }
+        if (!msg.spectator) this.game.net.send({ t: 'ack', runId: msg.runId, choice });
       }
-      if (!msg.spectator) this.game.net.send({ t: 'ack', runId: msg.runId, choice });
+    } finally {
+      if (gen === this.gen) {
+        this.running = false;
+        this.closeDialog();
+        if (this.game.scriptEnded) this.game.endScript();
+      }
     }
-    this.running = false;
-    this.closeDialog();
-    if (this.game.scriptEnded) this.game.endScript();
   }
 
   // つなぎなおした ときなど: いま とちゅうの だいほんを すてる
