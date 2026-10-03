@@ -960,6 +960,8 @@ npm start                 # 家族サーバー
   - 第3章でふえた台本の命令：`['teleport', マップ, x, y, 向き]`（パーティーみんなで）・`['ride', 道すじ]`（トロッコ）・`['toggle', フラグ]`（レバー）・`['weather', 天気]`・`['call', 関数]`（きずなの間のように、その場の人数を見て決める）・`['look', x, y]`（カメラをその場所へ向ける。`['look']` か台本のおわりで自分にもどる。大きな竜を画面に入れる時など）
   - `test/ch3-maps.test.js`（つながり・しかけでとじこめられないか・人や宝箱に全部行けるか・みちびきの糸）・`test/ch3-story.test.js`（はじめからさいごまで・むかしのセーブ・家族3人のきずなの間・やけど・空の箱）
   - ボスのバランスは `node tools/sim.js 30 ch3`（第3章の地域とボス。ユキナがいる戦いは ゲストも入れて ためす）
+- 第4章の設計書：`docs/plan-ch4.md`（**ネタバレ注意**。物語・難しさのしかけ・ボス・作る順番 Step 1〜8）
+- 動けなくなった時のしくみ：画面の見張りは `client/game.js` の `watchStuck`・`watchBattle`・`rescue`、不具合の記録は `client/errlog.js`。サーバーの立てなおしは `world.js` の `resync`、こわれた戦いを終わらせるのは `world/battles.js` の `abortBattle`（`test/stuck.test.js`）
 
 ---
 
