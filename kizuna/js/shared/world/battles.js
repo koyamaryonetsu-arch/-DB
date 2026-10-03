@@ -1,20 +1,20 @@
 // たたかいの はじまりと おわり（ほうしゅう・ぜんめつ）
-import { Battle, normBattleSettings } from '../battle.js?v=cd338033c896';
-import { scaleExp } from '../data/difficulty.js?v=cd338033c896';
-import { MONSTERS } from '../data/monsters.js?v=cd338033c896';
-import { ITEMS } from '../data/items.js?v=cd338033c896';
-import { ABILITIES } from '../data/abilities.js?v=cd338033c896';
-import { JOBS } from '../data/jobs.js?v=cd338033c896';
-import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=cd338033c896';
-import { gainExp, gainJobBattles, jobTrainable, itemCount, removeItem, addItem, ownsItem, computeStats, STAT_NAMES, fullHeal } from '../stats.js?v=cd338033c896';
-import { JOB_MAX_LEVEL } from '../data/jobs.js?v=cd338033c896';
-import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf } from './party.js?v=cd338033c896';
-import { rollDrops, stealPick } from '../data/loot.js?v=cd338033c896';
-import { MAPS } from '../maps/index.js?v=cd338033c896';
-import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js?v=cd338033c896';
-import { treasureAfterBattle } from './treasure.js?v=cd338033c896';
-import { wipeGoldLoss, bankGold } from './bank.js?v=cd338033c896';
-import { wagonShare, wagonBattleSwap } from './wagon.js?v=cd338033c896';
+import { Battle, normBattleSettings } from '../battle.js?v=804e06950049';
+import { scaleExp } from '../data/difficulty.js?v=804e06950049';
+import { MONSTERS } from '../data/monsters.js?v=804e06950049';
+import { ITEMS } from '../data/items.js?v=804e06950049';
+import { ABILITIES } from '../data/abilities.js?v=804e06950049';
+import { JOBS } from '../data/jobs.js?v=804e06950049';
+import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=804e06950049';
+import { gainExp, gainJobBattles, jobTrainable, itemCount, removeItem, addItem, ownsItem, computeStats, STAT_NAMES, fullHeal } from '../stats.js?v=804e06950049';
+import { JOB_MAX_LEVEL } from '../data/jobs.js?v=804e06950049';
+import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf } from './party.js?v=804e06950049';
+import { rollDrops, stealPick } from '../data/loot.js?v=804e06950049';
+import { MAPS } from '../maps/index.js?v=804e06950049';
+import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js?v=804e06950049';
+import { treasureAfterBattle } from './treasure.js?v=804e06950049';
+import { wipeGoldLoss, bankGold } from './bank.js?v=804e06950049';
+import { wagonShare, wagonBattleSwap } from './wagon.js?v=804e06950049';
 
 let battleSeq = 1;
 
@@ -244,6 +244,31 @@ export function battleTick(world, ctx, dt) {
     }
   }
   if (ctx.battle.over) finishBattle(world, ctx);
+}
+
+// たたかいが こわれて すすまない（まいフレーム エラー）: にげた ことに して みんなを フィールドへ もどす
+// （物語の たたかいは だいほんが そこで おわる。もう一度 話しかければ やりなおせる）
+export function abortBattle(world, ctx) {
+  try {
+    if (!ctx.battle.over) ctx.battle.endBattle({ outcome: 'flee' });
+    finishBattle(world, ctx);
+    return;
+  } catch (e) {
+    console.error('battle abort error', e);
+  }
+  // さいごの 手だて: たたかいを けして「たたかい中」の しるしを とく
+  world.battles.delete(ctx.id);
+  for (const sid of ctx.sids) {
+    const m = world.sessions.get(sid);
+    if (!m || m.battleId !== ctx.id) continue;
+    m.busy = ctx.resolve ? 'script' : null;
+    m.battleId = null;
+    m.reading = false;
+    m.invuln = 3000;
+    world.send(m, { t: 'battleEnd', id: ctx.id, outcome: 'flee', lines: [], levelUp: false, story: !!ctx.resolve });
+    world.sendSelf(m);
+  }
+  if (ctx.resolve) ctx.resolve('flee');
 }
 
 // 合体技は 一度 使うと 効果が わかる（出した 2人の もちぬしの キャラに char.dualSeen）

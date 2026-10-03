@@ -1,35 +1,36 @@
 // フィールドの メニュー
-import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js?v=cd338033c896';
-import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js?v=cd338033c896';
-import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js?v=cd338033c896';
-import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS, turnSeconds } from '../../shared/battle.js?v=cd338033c896';
-import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily } from '../prefs.js?v=cd338033c896';
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_TRAIN_GAP, TIER_NAMES } from '../../shared/data/jobs.js?v=cd338033c896';
-import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress, monsterSlots } from '../../shared/stats.js?v=cd338033c896';
-import { HIRAMEKI } from '../../shared/data/hirameki.js?v=cd338033c896';
-import { DUAL_TECHS, DUAL_ORDER, groupName, dualKnown } from '../../shared/data/dual.js?v=cd338033c896';
-import { MONSTERS } from '../../shared/data/monsters.js?v=cd338033c896';
-import { monsterDrops } from '../../shared/data/loot.js?v=cd338033c896';
-import { MONSTER_FRIENDS, RACE_NAMES, recipeHint } from '../../shared/data/companions.js?v=cd338033c896';
-import { TACTICS } from '../../shared/ai.js?v=cd338033c896';
-import { PLACES } from '../../shared/maps/overworld.js?v=cd338033c896';
-import { SEA_PLACES } from '../../shared/maps/ch2.js?v=cd338033c896';
-import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js?v=cd338033c896';
-import { T, TILE_INFO } from '../../shared/tiles.js?v=cd338033c896';
-import { itemDetail, abilityDetail, skillBrief, gearText, targetTag } from './info.js?v=cd338033c896';
-import { makeCanvas, ctxOf } from '../render/pixel.js?v=cd338033c896';
-import { monsterCanvas } from '../render/monsters.js?v=cd338033c896';
-import { mapIconCanvas, boardIconURL } from '../render/boards.js?v=cd338033c896';
-import { medalItemRow, walletView } from './casino.js?v=cd338033c896';
-import { compareOne, compareTeam, whoItems } from './counter.js?v=cd338033c896';
-import { faceURL } from '../field.js?v=cd338033c896';
-import { partyRows } from './hud.js?v=cd338033c896';
-import { questMarks, subQuests, OBJECTIVE_TARGETS, whereName } from '../../shared/data/quest-targets.js?v=cd338033c896';
-import { difficultyOf, visibleMarks, EXP_RATES, EXP_RATE_NAMES } from '../../shared/data/difficulty.js?v=cd338033c896';
-import { memberTalk, talkFor } from '../../shared/data/party-talk.js?v=cd338033c896';
-import { treasureRows, treasureDetail, openTreasureMap } from './treasure.js?v=cd338033c896';
-import { themeHex } from '../render/themes.js?v=cd338033c896';
-import { wagonMenuView, wagonHereClient, menuArrange } from './wagon.js?v=cd338033c896';
+import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js?v=804e06950049';
+import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js?v=804e06950049';
+import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js?v=804e06950049';
+import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS, turnSeconds } from '../../shared/battle.js?v=804e06950049';
+import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily } from '../prefs.js?v=804e06950049';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_TRAIN_GAP, TIER_NAMES } from '../../shared/data/jobs.js?v=804e06950049';
+import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress, monsterSlots } from '../../shared/stats.js?v=804e06950049';
+import { HIRAMEKI } from '../../shared/data/hirameki.js?v=804e06950049';
+import { DUAL_TECHS, DUAL_ORDER, groupName, dualKnown } from '../../shared/data/dual.js?v=804e06950049';
+import { MONSTERS } from '../../shared/data/monsters.js?v=804e06950049';
+import { monsterDrops } from '../../shared/data/loot.js?v=804e06950049';
+import { MONSTER_FRIENDS, RACE_NAMES, recipeHint } from '../../shared/data/companions.js?v=804e06950049';
+import { TACTICS } from '../../shared/ai.js?v=804e06950049';
+import { PLACES } from '../../shared/maps/overworld.js?v=804e06950049';
+import { SEA_PLACES } from '../../shared/maps/ch2.js?v=804e06950049';
+import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js?v=804e06950049';
+import { T, TILE_INFO } from '../../shared/tiles.js?v=804e06950049';
+import { itemDetail, abilityDetail, skillBrief, gearText, targetTag } from './info.js?v=804e06950049';
+import { makeCanvas, ctxOf } from '../render/pixel.js?v=804e06950049';
+import { monsterCanvas } from '../render/monsters.js?v=804e06950049';
+import { mapIconCanvas, boardIconURL } from '../render/boards.js?v=804e06950049';
+import { medalItemRow, walletView } from './casino.js?v=804e06950049';
+import { compareOne, compareTeam, whoItems } from './counter.js?v=804e06950049';
+import { faceURL } from '../field.js?v=804e06950049';
+import { partyRows } from './hud.js?v=804e06950049';
+import { questMarks, subQuests, OBJECTIVE_TARGETS, whereName } from '../../shared/data/quest-targets.js?v=804e06950049';
+import { difficultyOf, visibleMarks, EXP_RATES, EXP_RATE_NAMES } from '../../shared/data/difficulty.js?v=804e06950049';
+import { memberTalk, talkFor } from '../../shared/data/party-talk.js?v=804e06950049';
+import { treasureRows, treasureDetail, openTreasureMap } from './treasure.js?v=804e06950049';
+import { themeHex } from '../render/themes.js?v=804e06950049';
+import { wagonMenuView, wagonHereClient, menuArrange } from './wagon.js?v=804e06950049';
+import { readErrLog, errLogText, clearErrLog } from '../errlog.js?v=804e06950049';
 
 // 呪文・技の タブ（左右で じゅんに かわる）
 const SKILL_TABS = [['list', '覚えた技'], ['fav', 'お気に入り'], ['combo', 'ひらめき'], ['dual', '合体技']];
@@ -383,6 +384,56 @@ export class FieldMenu {
   warpChoices() {
     const g = this.game;
     return Object.entries({ ...PLACES, ...SEA_PLACES }).filter(([id]) => g.me.visited?.[id] && id !== 'shrine').map(([id, p]) => ({ label: p.name, value: id }));
+  }
+
+  // 不具合の 記録（この 端末の さいきんの もの）。コピーして 家族に 送れる
+  errLogPopup() {
+    const g = this.game;
+    return new Promise((resolve) => {
+      const text = errLogText();
+      const back = el('div', { class: 'modal-back', style: { zIndex: 4 }, onclick: () => done() });
+      const ta = el('textarea', { class: 'errlog-text', readonly: true });
+      ta.value = text || '記録はありません（不具合はおきていません）';
+      const box = el('div', { class: 'win panel center-panel', style: { width: 'min(94vw, 560px)', zIndex: 5, background: 'var(--win-solid)' } },
+        el('div', { class: 'small gold', text: '不具合の記録（動けなくなった時などに、家族に送ってください）' }), ta);
+      const copy = () => {
+        const ok = () => toast('コピーしました。LINEなどにはりつけて送れます');
+        const manual = () => {
+          ta.focus({ preventScroll: true });
+          ta.select();
+          let r = false;
+          try { r = document.execCommand('copy'); } catch { /* */ }
+          toast(r ? 'コピーしました。LINEなどにはりつけて送れます' : '文字を長おしして、コピーしてください');
+        };
+        if (navigator.clipboard?.writeText) navigator.clipboard.writeText(ta.value).then(ok, manual);
+        else manual();
+      };
+      const m = new ListMenu(g.input, {
+        items: [{ label: 'コピーする', value: 'copy', disabled: !text }, { label: '記録を消す', value: 'clear', disabled: !text }, { label: '閉じる', value: null }],
+        sound: this.sfx,
+        back: null,
+        onSelect: (it) => {
+          if (it.value === 'copy') return copy();
+          if (it.value === 'clear') {
+            clearErrLog();
+            toast('記録を消しました');
+          }
+          done();
+        },
+        onCancel: () => done(),
+      });
+      box.append(m.root);
+      document.getElementById('ui').append(back, box);
+      this.popupOpen = true;
+      m.focus();
+      const done = () => {
+        m.blur();
+        back.remove();
+        box.remove();
+        this.popupOpen = false;
+        resolve();
+      };
+    });
   }
 
   pick(title, items, { wide = false } = {}) {
@@ -1049,6 +1100,10 @@ export class FieldMenu {
       { label: `字の形：${UI_FONTS[uiFontPref()]}`, value: 'font' },
     ];
     if (g.field.constructor.webgl2()) items.splice(items.findIndex((x) => x.value === 'speed'), 0, { label: `画面：${g.field.view === '3d' ? '2.5D（立体）' : '2D（ドット）'}`, value: 'view' });
+    // こまった とき（動けない・画面が 止まった）。不具合の 記録は 家族に コピーして 送れる
+    items.push({ header: true, label: 'こまった時', cls: 'set-hdr' },
+      { label: '動けない・画面が止まった時は（立てなおす）', value: 'rescue' },
+      { label: `不具合の記録（${readErrLog().length}件）`, value: 'errlog' });
     if (g.input.touch) {
       items.push({ label: `ウインドウの十字キー：${g.input.padOn ? '出す' : '出さない'}`, value: 'pad' });
       items.push({ label: `遊んでいる間は画面を消さない：${g.awakeOn ? 'ON' : 'OFF'}`, value: 'awake' });
@@ -1108,6 +1163,13 @@ export class FieldMenu {
         } else if (it.value === 'silent') {
           g.audio.silentPlay = !g.audio.silentPlay;
           g.audio.sfx('confirm');
+        } else if (it.value === 'rescue') {
+          this.close();
+          g.rescue();
+          return;
+        } else if (it.value === 'errlog') {
+          this.errLogPopup().then(() => { if (this.root) this.focusSub(this.settingsView(true)); });
+          return;
         }
         setTimeout(() => { if (this.root) this.focusSub(this.settingsView(true)); }, 200);
       },

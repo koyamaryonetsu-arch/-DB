@@ -1,20 +1,20 @@
 // たたかいの がめん（むかしの RPG ふう 1がめん）
-import { el, esc, ListMenu, toast } from './ui/dom.js?v=cd338033c896';
-import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js?v=cd338033c896';
-import { ITEMS } from '../shared/data/items.js?v=cd338033c896';
-import { JOBS } from '../shared/data/jobs.js?v=cd338033c896';
-import { MONSTERS } from '../shared/data/monsters.js?v=cd338033c896';
-import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed } from '../shared/stats.js?v=cd338033c896';
-import { affinityOf, attackReach } from '../shared/battle.js?v=cd338033c896';
-import { DUAL_TECHS, dualOptions, dualKnown } from '../shared/data/dual.js?v=cd338033c896';
-import { faceURL } from './field.js?v=cd338033c896';
-import { monsterCanvas } from './render/monsters.js?v=cd338033c896';
-import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=cd338033c896';
-import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js?v=cd338033c896';
-import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js?v=cd338033c896';
-import { abilityDetail, statusNames, buffNames, targetTag } from './ui/info.js?v=cd338033c896';
-import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js?v=cd338033c896';
-import { ResultPager, levelUpName } from './ui/result.js?v=cd338033c896';
+import { el, esc, ListMenu, toast } from './ui/dom.js?v=804e06950049';
+import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js?v=804e06950049';
+import { ITEMS } from '../shared/data/items.js?v=804e06950049';
+import { JOBS } from '../shared/data/jobs.js?v=804e06950049';
+import { MONSTERS } from '../shared/data/monsters.js?v=804e06950049';
+import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed } from '../shared/stats.js?v=804e06950049';
+import { affinityOf, attackReach } from '../shared/battle.js?v=804e06950049';
+import { DUAL_TECHS, dualOptions, dualKnown } from '../shared/data/dual.js?v=804e06950049';
+import { faceURL } from './field.js?v=804e06950049';
+import { monsterCanvas } from './render/monsters.js?v=804e06950049';
+import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=804e06950049';
+import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js?v=804e06950049';
+import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js?v=804e06950049';
+import { abilityDetail, statusNames, buffNames, targetTag } from './ui/info.js?v=804e06950049';
+import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js?v=804e06950049';
+import { ResultPager, levelUpName } from './ui/result.js?v=804e06950049';
 
 // たたかいの え の こまかさ（おもい きかいで さげたら、その あいだは さげた まま）
 let battleRes = BRES;
@@ -207,11 +207,15 @@ export class BattleScene {
     this.renderCmdIdle();
     this.updateAutoBtn();
     this.resizeCanvas();
-    this.onResize = () => this.resizeCanvas();
+    // コマンドの なまえの 大きさも あわせなおす（ListMenu の fit）
+    this.onResize = () => { this.resizeCanvas(); this.menu?.fitText && this.menu.fit(); };
     addEventListener('resize', this.onResize);
+    // 文字（ウェブフォントの つづき）が とどいたら、コマンドの なまえの 大きさを あわせなおす
+    this.onFonts = () => { this.menu?.fitText && this.menu.fit(); };
+    document.fonts?.addEventListener?.('loadingdone', this.onFonts);
     // がめんの むきが かわった・もじが よみこまれた ときも あわせる
     if (window.ResizeObserver) {
-      this.ro = new ResizeObserver(() => this.resizeCanvas());
+      this.ro = new ResizeObserver(() => { this.resizeCanvas(); this.menu?.fitText && this.menu.fit(); });
       this.ro.observe(this.stage);
     }
   }
@@ -415,6 +419,7 @@ export class BattleScene {
       onMove: detailFn ? (it) => detailFn(it) : null,
       press: 130,
       start,
+      fit: true,
     });
     this.cmdEl.append(m.root);
     this.menu = m;
@@ -1500,6 +1505,7 @@ export class BattleScene {
     this.closeResult?.();
     this.closeMenus();
     removeEventListener('resize', this.onResize);
+    document.fonts?.removeEventListener?.('loadingdone', this.onFonts);
     this.ro?.disconnect();
     this.root.innerHTML = '';
     this.root.hidden = true;

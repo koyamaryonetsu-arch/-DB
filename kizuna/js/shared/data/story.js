@@ -12,20 +12,20 @@
 //   ['teleport', 'map', x, y, 'dir']  ['spawn', 'map', x, y]  ['chapter', 'だい1しょう', 'サブタイトル']
 //
 // x（じょうほう）: x.name x.flag('f') x.has('item') x.count('item') x.kills('monster') x.quest('key')
-import { POS } from '../maps/index.js?v=cd338033c896';
-import { PLACES } from '../maps/overworld.js?v=cd338033c896';
-import { ABILITIES } from './abilities.js?v=cd338033c896';
-import { learnedAbilities, comboUnlocked, hiraAllowed } from '../stats.js?v=cd338033c896';
-import { HIRAMEKI, hiraRatio } from './hirameki.js?v=cd338033c896';
-import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js?v=cd338033c896';
-import { CH3_STEPS, CH3_STORY_SCRIPTS, CH3_SCRIPTS, elderCh3 } from './story-ch3.js?v=cd338033c896';
-import { TM_SCRIPTS, TM_STORY_SCRIPTS } from './story-tm.js?v=cd338033c896';
-import { CASINO_SCRIPTS } from './story-casino.js?v=cd338033c896';
-import { innSteps } from './inn.js?v=cd338033c896';
-import { NIGHT_SCRIPTS } from './night.js?v=cd338033c896';
-import { skyScripts } from './sky.js?v=cd338033c896';
-import { FACILITY_SCRIPTS } from './facilities.js?v=cd338033c896';
-import { wagonEventSteps } from './wagon.js?v=cd338033c896';
+import { POS } from '../maps/index.js?v=804e06950049';
+import { PLACES } from '../maps/overworld.js?v=804e06950049';
+import { ABILITIES } from './abilities.js?v=804e06950049';
+import { learnedAbilities, comboUnlocked, hiraAllowed } from '../stats.js?v=804e06950049';
+import { HIRAMEKI, hiraRatio } from './hirameki.js?v=804e06950049';
+import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js?v=804e06950049';
+import { CH3_STEPS, CH3_STORY_SCRIPTS, CH3_SCRIPTS, elderCh3 } from './story-ch3.js?v=804e06950049';
+import { TM_SCRIPTS, TM_STORY_SCRIPTS } from './story-tm.js?v=804e06950049';
+import { CASINO_SCRIPTS } from './story-casino.js?v=804e06950049';
+import { innSteps } from './inn.js?v=804e06950049';
+import { NIGHT_SCRIPTS } from './night.js?v=804e06950049';
+import { skyScripts } from './sky.js?v=804e06950049';
+import { FACILITY_SCRIPTS } from './facilities.js?v=804e06950049';
+import { wagonEventSteps } from './wagon.js?v=804e06950049';
 
 const V = (x, y) => [PLACES.village.x + x + 0.5, PLACES.village.y + y + 0.5];
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);

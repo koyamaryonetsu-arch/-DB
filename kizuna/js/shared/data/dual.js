@@ -7,7 +7,7 @@
 // ・2人の 番（行動ゲージ）と、それぞれの MP（mp[0]・mp[1]）を 使う
 // ・相手が 家族（人が 動かしている キャラ）の ときは、相手に「参加する？」と 聞く
 // ・技の 強さは 2人の 強さを 合わせて 決まる（battle.js の performDual）
-import { ABILITIES } from './abilities.js?v=cd338033c896';
+import { ABILITIES } from './abilities.js?v=804e06950049';
 
 // 技の 組（どれか 1つを 覚えていれば よい）
 const FIRE = ['mera', 'merami', 'merazoma', 'gira', 'begirama', 'nj_katon', 'am_begiragon', 'am_meragaia', 'hk_triple_mera'];
