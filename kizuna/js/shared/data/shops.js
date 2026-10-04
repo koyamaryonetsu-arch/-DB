@@ -2,10 +2,10 @@
 // お店: name 店の なまえ / kind かんばんの しゅるい / keeper 店の人 / hello さいしょの ことば / items 売っている 品物
 //       more: 物語が すすむと ふえる 品物 [{ show: { all: [フラグ] }, items: [...], hello }]（show の 書き方は NPC と おなじ。hello が あれば あいさつも かわる）
 
-import { SHOPS_CH2 } from './items-ch2.js?v=47a7fac81d44';
-import { NIGHT_SHOPS } from './night.js?v=47a7fac81d44';
-import { SHOPS_CH3, CH3_GUESTS } from './items-ch3.js?v=47a7fac81d44';
-import { SHOPS_CH4 } from './items-ch4.js?v=47a7fac81d44';
+import { SHOPS_CH2 } from './items-ch2.js?v=3285de757165';
+import { NIGHT_SHOPS } from './night.js?v=3285de757165';
+import { SHOPS_CH3, CH3_GUESTS } from './items-ch3.js?v=3285de757165';
+import { SHOPS_CH4 } from './items-ch4.js?v=3285de757165';
 
 export const SHOPS = {
   village: {

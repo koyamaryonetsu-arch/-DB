@@ -10,18 +10,19 @@
 // ・第3章: ミドリナ地方の 北の はし ⇄ シロガネ地方の 南の はし（c3_start から）。
 //   シロガネ地方は 星の竜が 目覚める（c3_dragon）まで ふぶきで、南の 雪原の 上しか とべない（data/sky.js の box）
 // ・星の竜が 目覚めたら 竜に のって とぶ（すこし はやい。data/sky.js の flySpeed）
-// ・パーティーで「ついていく」に している なかまは いっしょに のる
+// ・パーティーの リーダーが よぶと、なかまに「いっしょに 乗る？」と きく（askRiders）。乗る なかまは リーダーの そばへ、
+//   「ついていく」に なって いっしょに とび、いっしょに おりる・となりの 地方へ いく。乗らない なかまは 地上に のこる
 // ・サーバーは とんでいない 人が 歩けない ところへ 入るのを みとめない（world.js の onMove）
-import { MAPS, isBlocked, onWater, condOk } from '../maps/index.js?v=47a7fac81d44';
-import { PLACES } from '../maps/overworld.js?v=47a7fac81d44';
-import { SEA_PLACES } from '../maps/ch2.js?v=47a7fac81d44';
-import { ABILITIES } from '../data/abilities.js?v=47a7fac81d44';
-import { ITEMS } from '../data/items.js?v=47a7fac81d44';
-import { hasKeyItem, mpCost, removeItem, itemCount } from '../stats.js?v=47a7fac81d44';
-import { SKY_MAPS, FLUTE_ID, regionHop, edgeAt, edgeTarget, regionsFrom, skyBox, inSkyBox, mountOf, flySpeed, edgeLockedText, boxLockedText } from '../data/sky.js?v=47a7fac81d44';
-import { partyOf } from './party.js?v=47a7fac81d44';
-import { warpDest } from './services.js?v=47a7fac81d44';
-import { advanceClock, clockOwner } from './clock.js?v=47a7fac81d44';
+import { MAPS, isBlocked, onWater, condOk } from '../maps/index.js?v=3285de757165';
+import { PLACES } from '../maps/overworld.js?v=3285de757165';
+import { SEA_PLACES } from '../maps/ch2.js?v=3285de757165';
+import { ABILITIES } from '../data/abilities.js?v=3285de757165';
+import { ITEMS } from '../data/items.js?v=3285de757165';
+import { hasKeyItem, mpCost, removeItem, itemCount } from '../stats.js?v=3285de757165';
+import { SKY_MAPS, FLUTE_ID, RIDE_ASK_MS, regionHop, edgeAt, edgeTarget, regionsFrom, skyBox, inSkyBox, mountOf, flySpeed, edgeLockedText, boxLockedText } from '../data/sky.js?v=3285de757165';
+import { partyOf } from './party.js?v=3285de757165';
+import { warpDest } from './services.js?v=3285de757165';
+import { advanceClock, clockOwner } from './clock.js?v=3285de757165';
 
 const FOLLOW_RANGE = 12;
 
@@ -29,6 +30,11 @@ const FOLLOW_RANGE = 12;
 // 行った ことの ある 町・村・港（星見の丘は のぞく）
 export function warpPlaces(c) {
   return Object.keys({ ...PLACES, ...SEA_PLACES }).filter((id) => id !== 'shrine' && c?.visited?.[id]);
+}
+
+// 行き先を きめる 人: パーティーで リーダーの 冒険に 来ている ときは リーダー（リーダーと おなじ 行き先に なる）
+export function warpOwner(world, s) {
+  return (world.hostOf?.(s) || s).char;
 }
 
 export function placeName(id) {
@@ -49,7 +55,7 @@ export function castRura(world, s, caster, id, msg, reply) {
   // 洞窟や 塔の 中では 天井に 頭を ぶつける（MPは へらない）
   if (world.mapKind(s.map) !== 'field') return reply(false, `${caster.name}は${a.name}を唱えた！\nしかし天井に頭をぶつけた！\n（洞窟や塔の中では使えない）`);
   const place = typeof msg.place === 'string' ? msg.place : '';
-  if (!warpPlaces(s.char).includes(place)) return reply(false, 'どこへ行く？');
+  if (!warpPlaces(warpOwner(world, s)).includes(place)) return reply(false, 'どこへ行く？');
   const cost = mpCost(caster, id);
   if (caster.mp < cost) return reply(false, 'MPが足りない！');
   caster.mp -= cost;
@@ -163,10 +169,70 @@ export function callBird(world, s) {
   setFlying(s, true);
   s.moving = false;
   world.send(s, { t: 'fly', on: true, anim: 'call' });
-  for (const m of followers(world, s)) {
-    setFlying(m, true);
-    world.send(m, { t: 'fly', on: true, ride: true });
+  askRiders(world, s);
+  world.markDirty();
+  return true;
+}
+
+// ───────────── なかまも いっしょに 乗る？ ─────────────
+// リーダーが 大鳥（竜）を よんだ: なかま みんなに「いっしょに 乗る？」を きく
+// こたえは { t: 'fly', action: 'ride', id, yes }。きいてから RIDE_ASK_MS たつと むこう
+function askRiders(world, s) {
+  const p = partyOf(world, s);
+  if (!p || p.leader !== s.id || p.members.length < 2) return;
+  const mount = mountFor(world, s);
+  world.flyAsks = world.flyAsks || new Map();
+  world.flyAskSeq = (world.flyAskSeq || 0) + 1;
+  const id = `${s.id}:${world.flyAskSeq}`;
+  for (const sid of p.members) {
+    const m = world.sessions.get(sid);
+    if (!m || m === s || m.away || m.flying) continue;
+    world.flyAsks.set(m.id, { id, leader: s.id, until: world.now() + RIDE_ASK_MS });
+    world.send(m, { t: 'flyAsk', id, name: s.char.name, mount: mount.name, title: mount.title });
   }
+}
+
+// きいている ことを とりけす（リーダーが おりた など）
+function endAsks(world, leader) {
+  for (const [sid, a] of world.flyAsks || []) {
+    if (a.leader !== leader.id) continue;
+    world.flyAsks.delete(sid);
+    const m = world.sessions.get(sid);
+    if (m) world.send(m, { t: 'flyAskEnd', id: a.id });
+  }
+}
+
+// なかまの こたえ
+export function answerRide(world, m, msg) {
+  const a = world.flyAsks?.get(m.id);
+  if (!a || a.id !== msg.id) return false;
+  world.flyAsks.delete(m.id);
+  const L = world.sessions.get(a.leader);
+  const p = partyOf(world, m);
+  const mount = L ? mountFor(world, L) : null;
+  if (!msg.yes) {
+    // 乗らない: 地上に のこる（「ついていく」も やめる。空の リーダーを 追いかけない）
+    m.follow = false;
+    if (L && p && p.leader === L.id) world.send(L, { t: 'toast', text: `${m.char.name}は乗らずに、地上にのこった。` });
+    return true;
+  }
+  if (!L || !p || p.leader !== L.id || !L.flying || world.now() > a.until) {
+    world.send(m, { t: 'toast', text: 'リーダーは、もう行ってしまった…' });
+    return false;
+  }
+  if (m.busy || m.flying) {
+    world.send(m, { t: 'toast', text: '今は乗れない…' });
+    return false;
+  }
+  // リーダーの そばの 空へ（ほかに 乗っている なかまと 重ならない ように ならべる）
+  const n = followers(world, L).filter((x) => x.flying).length;
+  const ox = (n % 2 ? 1 : -1) * (0.6 + 0.5 * (n >> 1));
+  world.placeSession(m, L.map, L.x + ox, L.y + 0.6, L.dir, true, { fly: true });
+  m.follow = true;
+  m.moving = false;
+  world.send(m, { t: 'fly', on: true, ride: true });
+  world.send(L, { t: 'toast', text: `${m.char.name}も${mount.name}に乗った！` });
+  world.broadcastPlayers();
   world.markDirty();
   return true;
 }
@@ -182,6 +248,7 @@ export function landBird(world, s) {
     return false;
   }
   const riders = followers(world, s).filter((m) => m.flying);
+  endAsks(world, s);
   setFlying(s, false);
   world.placeSession(s, s.map, spot.x, spot.y, s.dir, true);
   world.send(s, { t: 'fly', on: false, anim: 'land' });
@@ -246,6 +313,7 @@ export function onFly(world, s, msg) {
     case 'call': return callBird(world, s);
     case 'land': return landBird(world, s);
     case 'region': return flyRegion(world, s, !!msg.edge, msg.to);
+    case 'ride': return answerRide(world, s, msg);
     default: return false;
   }
 }

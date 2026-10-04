@@ -2,9 +2,9 @@
 // みため（かみがた・いろ）と そうび（ぶき・よろい・たて・かぶと）で かわる
 // 人は 32×42 で くみたてて、2ばいの 64×84 に して こまかく かきたす（res 4: せかいでは 16×21 の 大きさに かく）
 // どうぶつ・船は 16×21 など
-import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=47a7fac81d44';
-import { ITEMS, baseItemId } from '../../shared/data/items.js?v=47a7fac81d44';
-import { STARTER_EQUIP } from '../../shared/stats.js?v=47a7fac81d44';
+import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=3285de757165';
+import { ITEMS, baseItemId } from '../../shared/data/items.js?v=3285de757165';
+import { STARTER_EQUIP } from '../../shared/stats.js?v=3285de757165';
 
 export const CW = 16;
 export const CH = 21;
@@ -62,6 +62,8 @@ const JOB_LOOK = {
   shogun: { outfit: 'yoroi', cloth: '#8a2a2a', hat: 'kabuto', hatColor: '#2a2a32' },
   shacho: { outfit: 'suit', cloth: '#22222c', tie: '#f2c14e', glasses: true },
   nitoryu: { outfit: 'baseball', cloth: '#f4f4f4', trim: '#c83a3a', hat: 'bbcap', hatColor: '#1a2a5a' },
+  train_driver: { outfit: 'uniform', cloth: '#2c3a5c', hat: 'conductor', hatColor: '#2c3a5c' },
+  keikyu_driver: { outfit: 'uniform', cloth: '#1c2444', hat: 'conductor', hatColor: '#d8202c' },
 };
 
 // よろい・ふくの みため（'cloth' は じぶんで えらんだ いろ）

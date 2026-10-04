@@ -1,24 +1,24 @@
 // お店・やどや・きょうかい・転職・酒場・でんごんばん・メニュー操作
-import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js?v=47a7fac81d44';
-import { normDifficulty } from '../data/difficulty.js?v=47a7fac81d44';
-import { ITEMS, sellPrice, SLOTS } from '../data/items.js?v=47a7fac81d44';
-import { JOBS, ALL_JOBS, jobReqText, BODY_NAMES } from '../data/jobs.js?v=47a7fac81d44';
-import { ABILITIES } from '../data/abilities.js?v=47a7fac81d44';
-import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=47a7fac81d44';
-import { TACTICS } from '../ai.js?v=47a7fac81d44';
-import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js?v=47a7fac81d44';
-import { salonInfo, salonAction } from './salon.js?v=47a7fac81d44';
-import { breedMonsters, breedPreview } from './breed.js?v=47a7fac81d44';
-import { MONSTERS } from '../data/monsters.js?v=47a7fac81d44';
-import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings } from '../battle.js?v=47a7fac81d44';
-import { PLACES } from '../maps/overworld.js?v=47a7fac81d44';
-import { POS, SEA_PLACES } from '../maps/index.js?v=47a7fac81d44';
-import { castRura, warpParty, useTimeBell } from './travel.js?v=47a7fac81d44';
-import { bankInfo, bankAction } from './bank.js?v=47a7fac81d44';
-import { forgeInfo, forgeAction } from './forge.js?v=47a7fac81d44';
-import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction, wagonHere, wagonHealEntries } from './wagon.js?v=47a7fac81d44';
-import { casinoOpen, casinoAction } from './casino.js?v=47a7fac81d44';
-import { useEscapeItem } from './escape.js?v=47a7fac81d44';
+import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js?v=3285de757165';
+import { normDifficulty } from '../data/difficulty.js?v=3285de757165';
+import { ITEMS, sellPrice, SLOTS } from '../data/items.js?v=3285de757165';
+import { JOBS, ALL_JOBS, jobReqText, BODY_NAMES } from '../data/jobs.js?v=3285de757165';
+import { ABILITIES } from '../data/abilities.js?v=3285de757165';
+import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=3285de757165';
+import { TACTICS } from '../ai.js?v=3285de757165';
+import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js?v=3285de757165';
+import { salonInfo, salonAction } from './salon.js?v=3285de757165';
+import { breedMonsters, breedPreview } from './breed.js?v=3285de757165';
+import { MONSTERS } from '../data/monsters.js?v=3285de757165';
+import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings } from '../battle.js?v=3285de757165';
+import { PLACES } from '../maps/overworld.js?v=3285de757165';
+import { POS, SEA_PLACES } from '../maps/index.js?v=3285de757165';
+import { castRura, warpParty, useTimeBell, warpPlaces, warpOwner } from './travel.js?v=3285de757165';
+import { bankInfo, bankAction } from './bank.js?v=3285de757165';
+import { forgeInfo, forgeAction } from './forge.js?v=3285de757165';
+import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction, wagonHere, wagonHealEntries } from './wagon.js?v=3285de757165';
+import { casinoOpen, casinoAction } from './casino.js?v=3285de757165';
+import { useEscapeItem } from './escape.js?v=3285de757165';
 
 export function openService(world, s, kind, arg) {
   switch (kind) {
@@ -351,7 +351,8 @@ export function menuAction(world, s, msg) {
         return reply(true, `${c.name}は聖水をふりまいた！\nしばらく弱い魔物が寄ってこない。`);
       }
       if (eff.type === 'warp') {
-        const dest = msg.place && (PLACES[msg.place] || SEA_PLACES[msg.place]) && c.visited?.[msg.place] ? msg.place : null;
+        // 行き先は リーダーと おなじ（パーティーで リーダーの 冒険に 来ている ときは リーダーの きろく。travel.js）
+        const dest = msg.place && warpPlaces(warpOwner(world, s)).includes(msg.place) ? msg.place : null;
         if (!dest) return reply(false, 'どこへ行く？');
         const kind = world.mapKind(s.map);
         if (kind !== 'field' && kind !== 'dungeon') return reply(false, '');

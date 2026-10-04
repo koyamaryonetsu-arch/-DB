@@ -1,10 +1,10 @@
 // ふしぎなかじ屋（作る・きたえる）の そうさ
-import { ITEMS } from '../data/items.js?v=47a7fac81d44';
-import { FORGES } from '../data/facilities.js?v=47a7fac81d44';
-import { RECIPES, recipeOf, recipeOpen, openRecipes, upgradeCost, lackOf } from '../data/forge.js?v=47a7fac81d44';
-import { addItem, removeItem, itemCount, canEquipChar, computeStats } from '../stats.js?v=47a7fac81d44';
-import { partyOf } from './party.js?v=47a7fac81d44';
-import { BAG_STACK } from './bank.js?v=47a7fac81d44';
+import { ITEMS } from '../data/items.js?v=3285de757165';
+import { FORGES } from '../data/facilities.js?v=3285de757165';
+import { RECIPES, recipeOf, recipeOpen, openRecipes, upgradeCost, lackOf, maxPlus } from '../data/forge.js?v=3285de757165';
+import { addItem, removeItem, itemCount, canEquipChar, computeStats } from '../stats.js?v=3285de757165';
+import { partyOf } from './party.js?v=3285de757165';
+import { BAG_STACK } from './bank.js?v=3285de757165';
 
 export function forgeInfo(world, s, place) {
   const f = FORGES[place] || FORGES.town;
@@ -48,7 +48,10 @@ export function forgeAction(world, s, msg, reply, { equipItem, ownChar }) {
     }
     case 'upgrade': {
       const cost = upgradeCost(msg.id);
-      if (!cost) return reply(false, 'それは、これ以上きたえられないな。');
+      if (!cost) {
+        const top = maxPlus(msg.id);
+        return reply(false, top ? `それは、これ以上きたえられないな。\n（その装備は+${top}まで。ランクが高い装備ほど、たくさんきたえられる）` : 'それは、きたえられないな。');
+      }
       // who … 装備している 人（じぶん か じぶんの 仲間）。ない ときは ふくろの 品
       const owner = msg.who ? ownChar(s, msg.who) : null;
       const slot = ITEMS[msg.id].type;

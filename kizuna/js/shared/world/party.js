@@ -5,14 +5,14 @@
 //   c.partyKeys  … いま いっしょに ぼうけんしている なかま（じゅんばん）。'fam:ID' は 家族の キャラ
 //   c.guests     … ものがたりで いっしょに いる ゲスト（ルカ など）
 // パーティーには リーダーの なかまが ついてくる（にんげんが ふえると、はいりきらない なかまは いったん まつ）
-import { newCharacter, computeStats, fullHeal, gainExp, gainJobBattles, migrateJobs, expForLevel, addItem, newMonsterCompanion, learnedAbilities } from '../stats.js?v=47a7fac81d44';
-import { jobBattlesForLevel } from '../data/jobs.js?v=47a7fac81d44';
-import { NPC_SUPPORTS, GUESTS } from '../data/shops.js?v=47a7fac81d44';
-import { MONSTERS } from '../data/monsters.js?v=47a7fac81d44';
-import { MONSTER_FRIENDS, ROSTER_MAX, COMPANION_SLOTS } from '../data/companions.js?v=47a7fac81d44';
-import { SLOTS, ITEMS } from '../data/items.js?v=47a7fac81d44';
-import { cleanWagon, hasWagon, WAGON_SLOTS } from '../data/wagon.js?v=47a7fac81d44';
-import { wagonState, wagonTavernInfo } from './wagon.js?v=47a7fac81d44';
+import { newCharacter, computeStats, fullHeal, gainExp, gainJobBattles, migrateJobs, expForLevel, addItem, newMonsterCompanion, learnedAbilities } from '../stats.js?v=3285de757165';
+import { jobBattlesForLevel } from '../data/jobs.js?v=3285de757165';
+import { NPC_SUPPORTS, GUESTS } from '../data/shops.js?v=3285de757165';
+import { MONSTERS } from '../data/monsters.js?v=3285de757165';
+import { MONSTER_FRIENDS, ROSTER_MAX, COMPANION_SLOTS } from '../data/companions.js?v=3285de757165';
+import { SLOTS, ITEMS } from '../data/items.js?v=3285de757165';
+import { cleanWagon, hasWagon, WAGON_SLOTS } from '../data/wagon.js?v=3285de757165';
+import { wagonState, wagonTavernInfo } from './wagon.js?v=3285de757165';
 
 export const PARTY_MAX = 4;
 // パーティーの だれかが もっていれば みんなが とおれる フラグ
@@ -553,10 +553,13 @@ export function partyState(world, p) {
   // なかまは リーダーの ものがたりの 世界を 見る（人の いち・橋・とびら など）
   const lflags = world.sessions.get(p.leader)?.char?.flags || {};
   const worldFlags = Object.keys(lflags).filter((f) => lflags[f]);
+  // 帰り道の羽・ルーラの 行き先も リーダーの 行った ことの ある 場所（world/travel.js の warpOwner）
+  const lvisited = world.sessions.get(p.leader)?.char?.visited || {};
   return {
     id: p.id,
     leader: p.leader,
     worldFlags,
+    worldVisited: Object.keys(lvisited).filter((k) => lvisited[k]),
     // リーダーの 目標（さそわれて 来ている 人の 画面に 出す）
     objective: world.sessions.get(p.leader)?.char?.objective || '',
     // パーティーの 時計（リーダーの 時間の ずれ。world/clock.js）

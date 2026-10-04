@@ -1,7 +1,7 @@
 // ぶき・たて・かぶと（そうびの ID から みためを きめて かく）
 // 知らない 品（これからの もの）は、種類・ランク・名前の ことば から きめる
-import { mat, ramp, TH, mixC, HeroCanvas } from './hero-raster.js?v=47a7fac81d44';
-import { metal, metalRamp, cloth, leather, gem, glow, metalOfName, baseItem, fruitIcon } from './hero-outfit.js?v=47a7fac81d44';
+import { mat, ramp, TH, mixC, HeroCanvas } from './hero-raster.js?v=3285de757165';
+import { metal, metalRamp, cloth, leather, gem, glow, metalOfName, baseItem, fruitIcon } from './hero-outfit.js?v=3285de757165';
 
 const D = Math.PI / 180;
 
@@ -755,6 +755,8 @@ const JOB_HAT = {
   firefighter: { kind: 'firehelmet', c: '#e8eaf2', hides: 'top' },
   fruit_idol: { kind: 'fruitbow', c: '#ff6aa8' },
   storm_idol: { kind: 'headset', c: '#2a2a36' },
+  train_driver: { kind: 'conductor', c: '#2c3a5c', hides: 'top' },
+  keikyu_driver: { kind: 'conductor', c: '#1c2444', band: '#d8202c', hides: 'top' },
 };
 function guessHead(it) {
   const name = it.name || '';

@@ -1,5 +1,5 @@
 // 学校・公務員・町の みかた・スーパースターの 先の 職業の 技
-// （小学生・中学生・高校生／地方公務員・国家公務員・キャリア組／警察官・消防士／フルーツジッパー・アラシ）
+// （小学生・中学生・高校生／地方公務員・国家公務員・キャリア組／警察官・消防士／フルーツジッパー・アラシ／運転士・京急の運転士）
 //
 // 書きかたは abilities.js と おなじ。新しい 効き目は ない（いまの 効き目を くみあわせる）
 // ねらい: enemy=敵1体 group=敵1グループ enemies=敵全体 ally=仲間1人 allies=仲間全員 self=自分 deadAlly=死んだ仲間1人
@@ -339,5 +339,59 @@ export const JOB2_ABILITIES = {
     name: '雷鳴ライブ', kana: 'らいめいらいぶ', kind: 'skill', job: 'storm_idol', mp: 26, target: 'enemies',
     effect: { type: 'magic', element: 'bolt', base: [150, 180], thr: 80 },
     desc: '空が光り、雷鳴とともに最後のライブが始まる。敵全体に雷の大ダメージ。', cast: '空が光った！{a}の雷鳴ライブが始まる！', anim: 'bolt2',
+  },
+
+  // ───────────── 運転士（鉄道員の 上級職） ─────────────
+  dv_kiteki: {
+    name: '警笛', kana: 'けいてき', kind: 'skill', job: 'train_driver', mp: 4, target: 'enemies',
+    effect: { type: 'debuff', stat: 'agi', mult: 0.75, dur: 35, chance: 0.8 },
+    desc: 'ファーン！大きな警笛で敵全体をおどろかせ、素早さを下げる。', cast: '{a}は警笛を鳴らした！ファーン！', anim: 'horn',
+  },
+  dv_anzen: {
+    name: '安全運転', kana: 'あんぜんうんてん', kind: 'skill', job: 'train_driver', mp: 8, target: 'allies',
+    effect: { type: 'buff', stat: 'def', mult: 1.3, dur: 40 },
+    desc: '「安全第一！」ていねいな運転で、仲間全員の守備力が上がる。', cast: '「安全第一！」{a}は安全運転を心がけた！', anim: 'buff',
+  },
+  dv_tsuuka: {
+    name: '通過列車', kana: 'つうかれっしゃ', kind: 'skill', job: 'train_driver', mp: 7, target: 'enemy',
+    effect: { type: 'phys', mult: 1.9, atbAfter: 60 },
+    desc: '駅を通過する列車のように、敵1体にするどく体当たり。すぐに次の順番が回ってくる。', cast: '列車が通過します！{a}がかけぬけた！', anim: 'train',
+  },
+  dv_renketsu: {
+    name: '連結', kana: 'れんけつ', kind: 'skill', job: 'train_driver', mp: 10, target: 'enemies',
+    effect: { type: 'phys', mult: 0.95, hits: 4, random: true },
+    desc: '車両をつぎつぎつないで体当たり。4回、敵にランダムで当たる。', cast: 'ガッチャン！{a}は車両を連結した！', anim: 'train',
+  },
+  dv_saikou: {
+    name: '最高速度', kana: 'さいこうそくど', kind: 'skill', job: 'train_driver', mp: 15, target: 'enemies',
+    effect: { type: 'phys', mult: 1.9, ignoreDef: 0.25 },
+    desc: '最高速度で走りぬけ、敵全体をはねとばす。守りの固い敵にもよく効く。', cast: '{a}は最高速度で走りだした！', anim: 'train',
+  },
+
+  // ───────────── 京急の運転士（運転士の 超級職） ─────────────
+  kq_doremi: {
+    name: 'ドレミファ発車', kana: 'どれみふぁはっしゃ', kind: 'skill', job: 'keikyu_driver', mp: 8, target: 'allies',
+    effect: { type: 'buff', stats: ['atk', 'agi'], mult: 1.3, dur: 40 },
+    desc: '「ドレミファソラシド〜♪」歌う電車の音で、仲間全員の攻撃力と素早さが上がる。', cast: '♪ドレミファソラシド〜♪{a}の電車が歌いながら走りだした！', anim: 'notes',
+  },
+  kq_120: {
+    name: '120キロ運転', kana: 'ひゃくにじっきろうんてん', kind: 'skill', job: 'keikyu_driver', mp: 9, target: 'enemy',
+    effect: { type: 'phys', mult: 2.4, atbAfter: 80, critBonus: 0.1 },
+    desc: 'ものすごい速さで走りぬける一撃。敵1体に大ダメージをあたえ、すぐに次の順番が回ってくる。', cast: 'びゅーん！{a}の120キロ運転！', anim: 'redtrain',
+  },
+  kq_sentou: {
+    name: 'がんじょうな先頭車', kana: 'がんじょうなせんとうしゃ', kind: 'skill', job: 'keikyu_driver', mp: 8, target: 'self',
+    effect: { type: 'cover', dur: 25, all: true, defMult: 1.8 },
+    desc: '重くてじょうぶな先頭車で前に立ち、仲間全員への攻撃を引き受ける。守備力も上がる。', cast: '{a}はがんじょうな先頭車で、みんなの前に立ちはだかった！', anim: 'guard',
+  },
+  kq_daiya: {
+    name: 'ダイヤ回復', kana: 'だいやかいふく', kind: 'skill', job: 'keikyu_driver', mp: 12, target: 'allies',
+    effect: { type: 'atbSet', add: 60, msg: '{t}はおくれを取りもどした！' },
+    desc: 'みだれたダイヤを、すばやく立て直す。仲間全員の行動ゲージを大きくためる。', cast: '「おくれを取りもどすぞ！」{a}はダイヤを立て直した！', anim: 'buff',
+  },
+  kq_kaitoku: {
+    name: '赤い快特', kana: 'あかいかいとく', kind: 'skill', job: 'keikyu_driver', mp: 20, target: 'enemies',
+    effect: { type: 'phys', mult: 2.4, ignoreDef: 0.3 },
+    desc: '赤い電車が、ものすごい速さで駅を通過する。敵全体に大ダメージ。守りの固い敵にもよく効く。', cast: '{a}の赤い快特が、ものすごい速さでかけぬけた！', anim: 'redtrain',
   },
 };

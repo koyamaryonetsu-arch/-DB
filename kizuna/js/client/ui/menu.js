@@ -1,36 +1,36 @@
 // フィールドの メニュー
-import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js?v=47a7fac81d44';
-import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js?v=47a7fac81d44';
-import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js?v=47a7fac81d44';
-import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS, turnSeconds } from '../../shared/battle.js?v=47a7fac81d44';
-import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily } from '../prefs.js?v=47a7fac81d44';
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_TRAIN_GAP, TIER_NAMES } from '../../shared/data/jobs.js?v=47a7fac81d44';
-import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress, monsterSlots } from '../../shared/stats.js?v=47a7fac81d44';
-import { HIRAMEKI } from '../../shared/data/hirameki.js?v=47a7fac81d44';
-import { DUAL_TECHS, DUAL_ORDER, groupName, dualKnown } from '../../shared/data/dual.js?v=47a7fac81d44';
-import { MONSTERS } from '../../shared/data/monsters.js?v=47a7fac81d44';
-import { monsterDrops } from '../../shared/data/loot.js?v=47a7fac81d44';
-import { MONSTER_FRIENDS, RACE_NAMES, recipeHint, joinTier } from '../../shared/data/companions.js?v=47a7fac81d44';
-import { TACTICS } from '../../shared/ai.js?v=47a7fac81d44';
-import { PLACES } from '../../shared/maps/overworld.js?v=47a7fac81d44';
-import { SEA_PLACES } from '../../shared/maps/ch2.js?v=47a7fac81d44';
-import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js?v=47a7fac81d44';
-import { T, TILE_INFO } from '../../shared/tiles.js?v=47a7fac81d44';
-import { itemDetail, abilityDetail, skillBrief, gearText, targetTag } from './info.js?v=47a7fac81d44';
-import { makeCanvas, ctxOf } from '../render/pixel.js?v=47a7fac81d44';
-import { monsterCanvas } from '../render/monsters.js?v=47a7fac81d44';
-import { mapIconCanvas, boardIconURL } from '../render/boards.js?v=47a7fac81d44';
-import { medalItemRow, walletView } from './casino.js?v=47a7fac81d44';
-import { compareOne, compareTeam, whoItems } from './counter.js?v=47a7fac81d44';
-import { faceURL } from '../field.js?v=47a7fac81d44';
-import { partyRows } from './hud.js?v=47a7fac81d44';
-import { questMarks, subQuests, OBJECTIVE_TARGETS, whereName } from '../../shared/data/quest-targets.js?v=47a7fac81d44';
-import { difficultyOf, visibleMarks, EXP_RATES, EXP_RATE_NAMES } from '../../shared/data/difficulty.js?v=47a7fac81d44';
-import { memberTalk, talkFor } from '../../shared/data/party-talk.js?v=47a7fac81d44';
-import { treasureRows, treasureDetail, openTreasureMap } from './treasure.js?v=47a7fac81d44';
-import { themeHex } from '../render/themes.js?v=47a7fac81d44';
-import { wagonMenuView, wagonHereClient, menuArrange } from './wagon.js?v=47a7fac81d44';
-import { readErrLog, errLogText, clearErrLog } from '../errlog.js?v=47a7fac81d44';
+import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js?v=3285de757165';
+import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js?v=3285de757165';
+import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js?v=3285de757165';
+import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS, turnSeconds } from '../../shared/battle.js?v=3285de757165';
+import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily } from '../prefs.js?v=3285de757165';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_TRAIN_GAP, TIER_NAMES } from '../../shared/data/jobs.js?v=3285de757165';
+import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress, monsterSlots } from '../../shared/stats.js?v=3285de757165';
+import { HIRAMEKI } from '../../shared/data/hirameki.js?v=3285de757165';
+import { DUAL_TECHS, DUAL_ORDER, groupName, dualKnown } from '../../shared/data/dual.js?v=3285de757165';
+import { MONSTERS } from '../../shared/data/monsters.js?v=3285de757165';
+import { monsterDrops } from '../../shared/data/loot.js?v=3285de757165';
+import { MONSTER_FRIENDS, RACE_NAMES, recipeHint, joinTier } from '../../shared/data/companions.js?v=3285de757165';
+import { TACTICS } from '../../shared/ai.js?v=3285de757165';
+import { PLACES } from '../../shared/maps/overworld.js?v=3285de757165';
+import { SEA_PLACES } from '../../shared/maps/ch2.js?v=3285de757165';
+import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js?v=3285de757165';
+import { T, TILE_INFO } from '../../shared/tiles.js?v=3285de757165';
+import { itemDetail, abilityDetail, skillBrief, gearText, targetTag } from './info.js?v=3285de757165';
+import { makeCanvas, ctxOf } from '../render/pixel.js?v=3285de757165';
+import { monsterCanvas } from '../render/monsters.js?v=3285de757165';
+import { mapIconCanvas, boardIconURL } from '../render/boards.js?v=3285de757165';
+import { medalItemRow, walletView } from './casino.js?v=3285de757165';
+import { compareOne, compareTeam, whoItems } from './counter.js?v=3285de757165';
+import { faceURL } from '../field.js?v=3285de757165';
+import { partyRows } from './hud.js?v=3285de757165';
+import { questMarks, subQuests, OBJECTIVE_TARGETS, whereName } from '../../shared/data/quest-targets.js?v=3285de757165';
+import { difficultyOf, visibleMarks, EXP_RATES, EXP_RATE_NAMES } from '../../shared/data/difficulty.js?v=3285de757165';
+import { memberTalk, talkFor } from '../../shared/data/party-talk.js?v=3285de757165';
+import { treasureRows, treasureDetail, openTreasureMap } from './treasure.js?v=3285de757165';
+import { themeHex } from '../render/themes.js?v=3285de757165';
+import { wagonMenuView, wagonHereClient, menuArrange } from './wagon.js?v=3285de757165';
+import { readErrLog, errLogText, clearErrLog } from '../errlog.js?v=3285de757165';
 
 // 呪文・技の タブ（左右で じゅんに かわる）
 const SKILL_TABS = [['list', '覚えた技'], ['fav', 'お気に入り'], ['combo', 'ひらめき'], ['dual', '合体技']];
@@ -381,9 +381,12 @@ export class FieldMenu {
   }
 
   // 帰り道の羽・ルーラの 行き先（行った ことの ある 町・村・港）
+  // パーティーの ときは リーダーが 行った ことの ある 場所（リーダーと おなじ。サーバーの world/travel.js warpOwner）
   warpChoices() {
     const g = this.game;
-    return Object.entries({ ...PLACES, ...SEA_PLACES }).filter(([id]) => g.me.visited?.[id] && id !== 'shrine').map(([id, p]) => ({ label: p.name, value: id }));
+    const helper = g.worldVisited && g.party && g.party.leader !== g.sid;
+    const been = helper ? g.worldVisited : new Set(Object.keys(g.me.visited || {}).filter((k) => g.me.visited[k]));
+    return Object.entries({ ...PLACES, ...SEA_PLACES }).filter(([id]) => been.has(id) && id !== 'shrine').map(([id, p]) => ({ label: p.name, value: id }));
   }
 
   // 不具合の 記録（この 端末の さいきんの もの）。コピーして 家族に 送れる

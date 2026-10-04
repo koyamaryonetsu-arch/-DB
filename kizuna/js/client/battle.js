@@ -1,20 +1,20 @@
 // たたかいの がめん（むかしの RPG ふう 1がめん）
-import { el, esc, ListMenu, toast } from './ui/dom.js?v=47a7fac81d44';
-import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js?v=47a7fac81d44';
-import { ITEMS } from '../shared/data/items.js?v=47a7fac81d44';
-import { JOBS } from '../shared/data/jobs.js?v=47a7fac81d44';
-import { MONSTERS } from '../shared/data/monsters.js?v=47a7fac81d44';
-import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed } from '../shared/stats.js?v=47a7fac81d44';
-import { affinityOf, attackReach } from '../shared/battle.js?v=47a7fac81d44';
-import { DUAL_TECHS, dualOptions, dualKnown } from '../shared/data/dual.js?v=47a7fac81d44';
-import { faceURL } from './field.js?v=47a7fac81d44';
-import { monsterCanvas } from './render/monsters.js?v=47a7fac81d44';
-import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=47a7fac81d44';
-import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js?v=47a7fac81d44';
-import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js?v=47a7fac81d44';
-import { abilityDetail, statusNames, buffNames, targetTag } from './ui/info.js?v=47a7fac81d44';
-import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js?v=47a7fac81d44';
-import { ResultPager, levelUpName } from './ui/result.js?v=47a7fac81d44';
+import { el, esc, ListMenu, toast } from './ui/dom.js?v=3285de757165';
+import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js?v=3285de757165';
+import { ITEMS } from '../shared/data/items.js?v=3285de757165';
+import { JOBS } from '../shared/data/jobs.js?v=3285de757165';
+import { MONSTERS } from '../shared/data/monsters.js?v=3285de757165';
+import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed } from '../shared/stats.js?v=3285de757165';
+import { affinityOf, attackReach } from '../shared/battle.js?v=3285de757165';
+import { DUAL_TECHS, dualOptions, dualKnown } from '../shared/data/dual.js?v=3285de757165';
+import { faceURL } from './field.js?v=3285de757165';
+import { monsterCanvas } from './render/monsters.js?v=3285de757165';
+import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=3285de757165';
+import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js?v=3285de757165';
+import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js?v=3285de757165';
+import { abilityDetail, statusNames, buffNames, targetTag } from './ui/info.js?v=3285de757165';
+import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js?v=3285de757165';
+import { ResultPager, levelUpName } from './ui/result.js?v=3285de757165';
 
 // たたかいの え の こまかさ（おもい きかいで さげたら、その あいだは さげた まま）
 let battleRes = BRES;
@@ -82,7 +82,7 @@ const ANIM_SFX = {
   heal_ring: 'heal', stage: 'buff', cross_slash: 'smash', rock_smash: 'smash', ball: 'miss',
   // 学校・公務員・アイドルの 技（render/battlefx-jobs.js）
   notes: 'sleep', odama: 'smash', pillow: 'hit', camera: 'sparkle', stamp: 'stamp', siren: 'warn', water: 'wind',
-  fruits: 'debuff', fruits_big: 'blast', storm: 'wind',
+  fruits: 'debuff', fruits_big: 'blast', storm: 'wind', horn: 'warn', redtrain: 'train',
 };
 
 // ひらめきの 電球（ドット絵ふう）

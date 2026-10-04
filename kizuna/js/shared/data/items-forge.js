@@ -2,7 +2,8 @@
 //
 // 素材（type: 'mat'）… 魔物が 落とす（loot.js）・宝箱・つぼや たるを 調べる と 手に入る。店で 売れる
 // 作れる 装備（forge: true）… 店では 売っていない。ふしぎなかじで 素材と ゴールドで 作る（forge.js の RECIPES）
-// きたえた 装備 … 'iron_sword+1' 〜 'iron_sword+3'。ゲームが 読みこむ ときに ぜんぶ 作っておく（addUpgradeItems）
+// きたえた 装備 … 'iron_sword+1' 〜。ゲームが 読みこむ ときに ぜんぶ 作っておく（addUpgradeItems）
+//   きたえられる 回数は 装備の ランクで きまる（upgradeLimit。ランクが 高いほど たくさん きたえられる）
 //   base: もとの 装備の ID / plus: きたえた 回数。みため・エフェクト・読みがなは もとの 装備と おなじ
 
 export const ITEMS_FORGE = {
@@ -41,8 +42,20 @@ export const FORGE_KANA = {
   storm_sword: 'あらしのけん', dragon_mail: 'りゅうのうろこのよろい',
 };
 
-// ───── きたえる（+1 〜 +3）─────
-export const UPGRADE_MAX = 3;
+// ───── きたえる ─────
+// きたえられる 回数は 装備の ランクで きまる（ランクが 高い 装備ほど たくさん きたえられる）
+//   ランク1（木と皮）+1・ランク2（銅と石）+2・ランク3〜4（鉄・銀）+3・ランク5〜6（はがね・魔法）+4・ランク7〜（プラチナ〜伝説）+5
+export const UPGRADE_BY_RANK = [0, 1, 2, 3, 3, 4, 4, 5, 5, 5, 5];
+// いちばん 多い 回数（ランク7〜）
+export const UPGRADE_MAX = Math.max(...UPGRADE_BY_RANK);
+// むかしは どの 装備も +3 まで きたえられた。むかしの セーブの +3 の 装備が きえない ように、+3 までは どの 装備にも 作っておく
+const KEEP_MAX = 3;
+
+// その 装備を 何回まで きたえられるか（きたえた 装備は もとの 装備の ランクで）
+export function upgradeLimit(it) {
+  const rank = Math.max(1, Math.min(UPGRADE_BY_RANK.length - 1, it?.rank || 1));
+  return UPGRADE_BY_RANK[rank];
+}
 // きたえられる 部位（アクセサリーは きたえられない）
 export const UPGRADE_TYPES = ['weapon', 'armor', 'shield', 'head'];
 // 1回 きたえると ふえる 大事な 強さ（武器は 攻撃力・ほかは 守備力）の わりあい。少なくても 1
@@ -61,7 +74,7 @@ function baseSell(it) {
 // n回 きたえた 装備（base: もとの 装備）
 //  ・攻撃力（守備力）… 1回ごとに もとの 1わり（少なくても 1）
 //  ・プラスの ボーナス（魔力・素早さ など）… 1回ごとに もとの 1わり（小さい ものは +2 か +3 で ふえる）
-//  ・マイナスの ボーナス（重い 装備の 素早さ など）… +3 で 1 だけ 軽くなる
+//  ・マイナスの ボーナス（重い 装備の 素早さ など）… +3 から 1 だけ 軽くなる
 export function upgradedItem(baseId, base, n) {
   const main = base.type === 'weapon' ? 'atk' : 'def';
   const step = Math.max(1, Math.round((base[main] || 0) * UPGRADE_STEP));
@@ -77,7 +90,7 @@ export function upgradedItem(baseId, base, n) {
   if (base.bonus) {
     const b = {};
     for (const [k, v] of Object.entries(base.bonus)) {
-      const nv = v > 0 ? v + Math.round(v * UPGRADE_STEP * n) : n >= UPGRADE_MAX ? Math.min(0, v + 1) : v;
+      const nv = v > 0 ? v + Math.round(v * UPGRADE_STEP * n) : n >= 3 ? Math.min(0, v + 1) : v;
       if (nv) b[k] = nv;
     }
     if (Object.keys(b).length) it.bonus = b;
@@ -87,11 +100,13 @@ export function upgradedItem(baseId, base, n) {
   return it;
 }
 
-// table（ITEMS）の きたえられる 装備 ぜんぶに +1〜+3 を 足す（なんど よんでも おなじ）
+// table（ITEMS）の きたえられる 装備 ぜんぶに +1〜 を 足す（なんど よんでも おなじ）
+// ランクで きまる 回数まで（むかしの セーブの ために +3 までは どれにも）
 export function addUpgradeItems(table) {
   for (const [id, it] of Object.entries(table)) {
     if (!it || it.base || !UPGRADE_TYPES.includes(it.type)) continue;
-    for (let n = 1; n <= UPGRADE_MAX; n++) {
+    const top = Math.max(KEEP_MAX, upgradeLimit(it));
+    for (let n = 1; n <= top; n++) {
       const uid = upgradeId(id, n);
       if (!table[uid]) table[uid] = upgradedItem(id, it, n);
     }

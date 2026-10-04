@@ -1,18 +1,18 @@
 // ゲーム ぜんたいの しんこう
-import { Input } from './input.js?v=47a7fac81d44';
-import { GameAudio } from './audio.js?v=47a7fac81d44';
-import { Field } from './field.js?v=47a7fac81d44';
-import { Hud, STAMPS } from './ui/hud.js?v=47a7fac81d44';
-import { FieldMenu, openWorldMap } from './ui/menu.js?v=47a7fac81d44';
-import { ScriptPlayer, wait } from './ui/script.js?v=47a7fac81d44';
-import { BattleScene } from './battle.js?v=47a7fac81d44';
-import { showTitle, showLogin, showSelect, showCreate, showLoading, saveWhere } from './ui/title.js?v=47a7fac81d44';
-import { showServerDown } from './ui/syncui.js?v=47a7fac81d44';
-import { toast, confirmBox, el } from './ui/dom.js?v=47a7fac81d44';
-import { MAPS } from '../shared/maps/index.js?v=47a7fac81d44';
-import { applyBattlePrefs, applyUiFont } from './prefs.js?v=47a7fac81d44';
-import { SkyClient } from './sky.js?v=47a7fac81d44';
-import { reportError } from './errlog.js?v=47a7fac81d44';
+import { Input } from './input.js?v=3285de757165';
+import { GameAudio } from './audio.js?v=3285de757165';
+import { Field } from './field.js?v=3285de757165';
+import { Hud, STAMPS } from './ui/hud.js?v=3285de757165';
+import { FieldMenu, openWorldMap } from './ui/menu.js?v=3285de757165';
+import { ScriptPlayer, wait } from './ui/script.js?v=3285de757165';
+import { BattleScene } from './battle.js?v=3285de757165';
+import { showTitle, showLogin, showSelect, showCreate, showLoading, saveWhere } from './ui/title.js?v=3285de757165';
+import { showServerDown } from './ui/syncui.js?v=3285de757165';
+import { toast, confirmBox, el } from './ui/dom.js?v=3285de757165';
+import { MAPS } from '../shared/maps/index.js?v=3285de757165';
+import { applyBattlePrefs, applyUiFont } from './prefs.js?v=3285de757165';
+import { SkyClient } from './sky.js?v=3285de757165';
+import { reportError } from './errlog.js?v=3285de757165';
 
 export class Game {
   constructor(net) {
@@ -424,6 +424,7 @@ export class Game {
       case 'party':
         this.party = m.party;
         this.worldFlagSet = Array.isArray(m.party?.worldFlags) ? new Set(m.party.worldFlags) : null;
+        this.worldVisited = Array.isArray(m.party?.worldVisited) ? new Set(m.party.worldVisited) : null;
         this.sky.onParty(m.party);
         this.hud.renderParty();
         this.refreshObjective();
@@ -437,6 +438,12 @@ export class Game {
         break;
       case 'fly':
         this.sky.onFly(m);
+        break;
+      case 'flyAsk':
+        this.sky.onAsk(m);
+        break;
+      case 'flyAskEnd':
+        this.sky.onAskEnd(m);
         break;
       case 'clock':
         this.sky.onClock(m);
@@ -688,6 +695,7 @@ export class Game {
     this.lastCharId = m.char.id;
     this.party = m.party;
     this.worldFlagSet = Array.isArray(m.party?.worldFlags) ? new Set(m.party.worldFlags) : null;
+    this.worldVisited = Array.isArray(m.party?.worldVisited) ? new Set(m.party.worldVisited) : null;
     this.players = m.players || [];
     this.posSeq = m.posSeq || 0;
     // サーバーの 時こく（昼・夜の 時計を あわせる）
@@ -709,7 +717,7 @@ export class Game {
     if (this.net.mode === 'offline' && !this.saveWarned) {
       this.saveWarned = true;
       const cloud = this.net.local?.cloud;
-      import('./offline.js?v=47a7fac81d44').then(({ offlineStorage }) => {
+      import('./offline.js?v=3285de757165').then(({ offlineStorage }) => {
         offlineStorage.load();
         if (cloud?.state === 'on') return;
         if (!offlineStorage.ok) toast('このブラウザではセーブができないかもしれません', 5000);
