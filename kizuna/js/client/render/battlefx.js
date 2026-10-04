@@ -1,8 +1,8 @@
 // たたかいの はいけいと エフェクト
-import { makeCanvas, ctxOf, hexToRgb } from './pixel.js?v=35500ffb819e';
-import { weaponLook, playWeapon, playReach } from './weaponfx.js?v=35500ffb819e';
-import { nightBg, drawNightSky } from './night-art.js?v=35500ffb819e';
-import { playJobFx, JOB_FINE } from './battlefx-jobs.js?v=35500ffb819e';
+import { makeCanvas, ctxOf, hexToRgb, mix } from './pixel.js?v=e73ea3162cdf';
+import { weaponLook, playWeapon, playReach } from './weaponfx.js?v=e73ea3162cdf';
+import { nightBg, drawNightSky } from './night-art.js?v=e73ea3162cdf';
+import { playJobFx, JOB_FINE } from './battlefx-jobs.js?v=e73ea3162cdf';
 
 export const BW = 256;
 export const BH = 144;
@@ -78,11 +78,18 @@ const BG = {
   temple3: { sky: ['#141a33', '#20284a', '#2e3a66'], far: '#4a5478', near: '#6a7498', ground: ['#8a90aa', '#7a8098'], deco: 'pillars' },
   peak: { sky: ['#a8b4c8', '#c8d2e2', '#e8eef6'], far: '#8a96ac', near: '#e0e8f4', ground: ['#f0f4fa', '#e2e8f2'], deco: 'rocks', snow: true },
   summit: { sky: ['#0a1030', '#1a2450', '#2a3470'], far: '#3a4a7a', near: '#c8d4ea', ground: ['#dfe6f2', '#ccd6e8'], deco: 'rocks', stars: true },
+  // 第4章（砂の国コガネ地方）。sun: ぎらぎらの 太陽 / sand: 風で とぶ 砂 / trickle: 天井から こぼれる 砂
+  desert: { sky: ['#3a86d8', '#7ab8ea', '#c8e2f2', '#f6e6b8'], far: '#b86c40', near: '#d8a456', ground: ['#e8c47a', '#dcb46a'], deco: 'dunes', sun: true, sand: true },
+  sand_cave: { sky: ['#120a06', '#22140c', '#362212'], far: '#4e321a', near: '#8a6034', ground: ['#a8804a', '#94703e'], deco: 'stalactite', trickle: true },
 };
 
+// はいけいの データ（〜_night は 夜空の はいけい。night-art.js）。ない ときは null
+export function battleBgSpec(id) {
+  return BG[id] || nightBg(BG, id) || null;
+}
+
 export function battleBackground(id) {
-  // 〜_night は 夜空の はいけい（night-art.js）
-  const d = BG[id] || nightBg(BG, id) || BG.grass;
+  const d = battleBgSpec(id) || BG.grass;
   const c = makeCanvas(BW, BH);
   const x = ctxOf(c);
   const hor = 78;
@@ -138,6 +145,7 @@ export function battleBackground(id) {
       case 'sea': case 'palms': h = 7 + Math.abs(Math.sin(px * 0.3)) * 2; break;
       case 'storm': h = 9 + Math.abs(Math.sin(px * 0.22) * 7) + (px % 17 < 3 ? 3 : 0); break;
       case 'pillars': h = px % 48 < 10 ? 78 : 14 + (px % 48 > 20 && px % 48 < 38 ? 10 : 0); break;
+      case 'dunes': h = 0; break; // 砂ばくは あとで（drawDesert）
       default: h = 10 + Math.abs(Math.sin(px * 0.035) * 14) + Math.abs(Math.sin(px * 0.11) * 4);
     }
     if (d.deco === 'stalactite' || d.deco === 'crystal') {
@@ -145,6 +153,7 @@ export function battleBackground(id) {
       x.fillRect(px, hor - h * 0.5, 1, h * 0.5);
     } else x.fillRect(px, hor - h, 1, h);
   }
+  if (d.deco === 'dunes') drawDesert(x, d, hor);
   if (d.deco === 'houses') {
     x.fillStyle = '#ffd66b';
     for (let k = 10; k < BW; k += 48) x.fillRect(k + 8, hor - 12, 3, 3);
@@ -202,6 +211,23 @@ export function battleBackground(id) {
       x.fillRect((i * 89 + 17) % BW, (i * 37 + 11) % (BH - 10), i % 4 ? 1 : 2, i % 4 ? 1 : 2);
     }
   }
+  // 第4章: 風で とぶ 砂（よこに ながい つぶ）・天井から こぼれる 砂
+  if (d.sand) {
+    for (let i = 0; i < 40; i++) {
+      x.fillStyle = d.night ? (i % 3 ? 'rgba(200,190,170,0.5)' : 'rgba(150,140,130,0.5)') : (i % 3 ? 'rgba(255,236,190,0.8)' : 'rgba(214,170,104,0.8)');
+      x.fillRect((i * 83 + 29) % BW, hor - 30 + ((i * 41 + 7) % (BH - hor + 26)), i % 5 ? 2 : 4, 1);
+    }
+  }
+  if (d.trickle) {
+    for (const [tx, ty] of [[38, 112], [134, 104], [212, 116]]) {
+      x.fillStyle = 'rgba(232,192,124,0.75)';
+      for (let y = 0; y < ty; y += 3) x.fillRect(tx + ((y >> 3) % 2), y, 1, 2);
+      x.fillStyle = '#c8985a';
+      x.fillRect(tx - 4, ty - 1, 10, 2); x.fillRect(tx - 2, ty - 3, 6, 2);
+      x.fillStyle = '#e2b878';
+      x.fillRect(tx - 1, ty - 3, 3, 1);
+    }
+  }
   if (d.beams) {
     x.fillStyle = '#6a4a2a';
     for (let k = 18; k < BW; k += 96) { x.fillRect(k, 0, 6, hor); x.fillRect(k - 10, 6, 26, 5); }
@@ -212,6 +238,62 @@ export function battleBackground(id) {
   x.ellipse(BW / 2, 118, 118, 14, 0, 0, Math.PI * 2);
   x.fill();
   return c;
+}
+
+// 砂ばくの けしき（第4章）: ぎらぎらの 太陽・とおくの 赤い 岩山（上が たいらな メサ）・なだらかな 砂丘・地面の 風紋
+// 夜（nightBg）は d.far などが くらく なって、太陽の かわりに 月と 星（drawNightSky）
+function drawDesert(x, d, hor) {
+  if (d.sun && !d.night) {
+    // 太陽（まわりが ぼんやり 光る）
+    const sx = 196, sy = 22;
+    for (const [r, c] of [[22, 'rgba(255,244,200,0.18)'], [16, 'rgba(255,240,190,0.3)'], [11, '#fff6d4'], [8, '#ffffff']]) {
+      x.fillStyle = c;
+      x.beginPath(); x.arc(sx, sy, r, 0, Math.PI * 2); x.fill();
+    }
+    // かげろう（地平線の ゆらゆら）
+    x.fillStyle = 'rgba(255,248,220,0.35)';
+    for (let k = 0; k < 7; k++) x.fillRect((k * 41 + 9) % BW, hor - 14 + (k % 3) * 3, 18 + (k % 4) * 6, 1);
+  }
+  // とおくの メサ（上が たいらで、よこに しま）
+  const mesa = d.far, band = mix(d.far, d.near, 0.35), dark = mix(d.far, '#000000', 0.18);
+  for (const [mx, mw, mh] of [[8, 30, 22], [62, 14, 13], [150, 40, 28], [214, 18, 15]]) {
+    for (let k = -6; k < mw + 6; k++) {
+      const edge = k < 0 ? -k : k >= mw ? k - mw + 1 : 0;
+      const h = Math.max(0, mh - edge * (edge < 3 ? 2 : 4));
+      if (!h) continue;
+      x.fillStyle = k > mw - 4 ? dark : mesa;
+      x.fillRect(mx + k, hor - 10 - h, 1, h + 10);
+      // しま
+      x.fillStyle = band;
+      if (h > 8) x.fillRect(mx + k, hor - 10 - h + 4, 1, 2);
+      if (h > 16) x.fillRect(mx + k, hor - 10 - h + 11, 1, 1);
+    }
+  }
+  // 砂丘（2だん。おくは 赤っぽく、手前は 金色）
+  const back = mix(d.far, d.near, 0.6), front = d.near, crest = mix(d.near, '#ffffff', d.night ? 0.08 : 0.32);
+  for (let px = 0; px < BW; px++) {
+    const h1 = 13 + Math.sin(px * 0.041 + 0.6) * 5 + Math.sin(px * 0.11 + 2) * 2;
+    x.fillStyle = back;
+    x.fillRect(px, hor - h1, 1, h1);
+    const h2 = 7 + Math.sin(px * 0.057 + 2.4) * 4 + Math.sin(px * 0.16) * 1.5;
+    x.fillStyle = front;
+    x.fillRect(px, hor - h2, 1, h2);
+    // ひかりの あたる 砂丘の ふち
+    const slope = Math.cos(px * 0.057 + 2.4) * 0.057 * 4 + Math.cos(px * 0.16) * 0.16 * 1.5;
+    if (slope > 0) { x.fillStyle = crest; x.fillRect(px, hor - h2, 1, 1); }
+  }
+  // 地面の 風紋
+  x.fillStyle = d.night ? 'rgba(0,0,0,0.14)' : 'rgba(150,96,40,0.18)';
+  for (let k = 0; k < 26; k++) {
+    const y = hor + 8 + ((k * 23) % (BH - hor - 12)), x0 = (k * 61 + 13) % BW, len = 10 + (k % 4) * 5;
+    x.fillRect(x0, y, len, 1);
+    x.fillRect(x0 + 2, y - 1, len - 4, 1);
+  }
+  x.fillStyle = d.night ? 'rgba(255,255,255,0.05)' : 'rgba(255,246,214,0.35)';
+  for (let k = 0; k < 26; k++) {
+    const y = hor + 7 + ((k * 23) % (BH - hor - 12)), x0 = (k * 61 + 15) % BW, len = 8 + (k % 4) * 5;
+    x.fillRect(x0, y - 1, len - 4, 1);
+  }
 }
 
 // ───────────── つぶつぶ エフェクト ─────────────

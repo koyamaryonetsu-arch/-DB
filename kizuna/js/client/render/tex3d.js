@@ -2,9 +2,12 @@
 // ・タイルの え を 1まいに ならべた「アトラス」
 // ・かべの よこ・うえ、やま、はし など 3D だけで つかう え
 // ・つぼ・さく・かんばん など たてて みせる「もの」の え（せなかは とうめい）
-import { T } from '../../shared/tiles.js?v=35500ffb819e';
-import { tileCanvas } from './tiles.js?v=35500ffb819e';
-import { Painter, prand, makeCanvas, ctxOf } from './pixel.js?v=35500ffb819e';
+import { T } from '../../shared/tiles.js?v=e73ea3162cdf';
+import { tileCanvas } from './tiles.js?v=e73ea3162cdf';
+import { Painter, prand, makeCanvas, ctxOf, shade } from './pixel.js?v=e73ea3162cdf';
+import { paintStorm } from './tiles-ch4.js?v=e73ea3162cdf';
+
+const TAU = Math.PI * 2;
 
 // ───────────── アトラス ─────────────
 export class Atlas {
@@ -133,12 +136,69 @@ const EXTRA = {
     const r = prand(v * 7 + 1);
     for (let i = 0; i < 5; i++) { const x = Math.floor(r() * 14); const h = 6 + Math.floor(r() * 8); p.vline(x, 16 - h, 15, '#c8206a'); p.vline(x + 1, 18 - h, 15, '#ff5a9a'); p.set(x + 1, 17 - h, '#ffd0e8'); }
   },
+  // ───── 第4章（砂の国）─────
+  // 砂岩の 岩山の うえ（赤茶の 岩。白っぽく かわいた ところ・ひび・小石）
+  sandstone_top: (p, v) => {
+    noise(p, '#c27a4c', ['#b46e44', '#cc875a', '#ba7248'], v * 61 + 7, 26);
+    const r = prand(v * 13 + 29);
+    // 白っぽく かわいた ところ と、うすい ひび
+    p.ellipse(3 + r() * 10, 3 + r() * 10, 2.8, 1.9, '#cc8a5c');
+    p.ellipse(3 + r() * 10, 3 + r() * 10, 1.8, 1.2, '#d29262');
+    let x = 2 + Math.floor(r() * 10), y = 2 + Math.floor(r() * 9);
+    for (let i = 0; i < 4; i++) { p.set(x, y, '#a2603a'); if (i % 2) x++; else y++; }
+    p.set(Math.floor(r() * 16), Math.floor(r() * 16), '#e2a676'); p.set(Math.floor(r() * 16), Math.floor(r() * 16), '#9c5a36');
+  },
+  // 砂岩の よこ（赤・だいだい・クリーム色の しま。となりの めんと しまが つながる）
+  sandstone_side: (p, v) => {
+    const bands = ['#e8b282', '#d08a58', '#c27448', '#dc9a68', '#b0603a', '#cc8452', '#a45632', '#c27a4c', '#8e4a2c'];
+    const hs = [2, 2, 1, 2, 2, 1, 2, 2, 2];
+    p.rect(0, 0, 16, 16, bands[bands.length - 1]);
+    let y = 0;
+    for (let b = 0; b < bands.length; b++) {
+      for (let k = 0; k < hs[b]; k++, y++) {
+        for (let x = 0; x < 16; x++) {
+          const yy = y + Math.round(Math.sin(TAU * (x + v * 4) / 16) * 0.6);
+          if (yy >= 0 && yy < 16) p.set(x, yy, bands[b]);
+        }
+      }
+    }
+    p.hline(0, 15, 0, '#f2c49a');
+    const r = prand(v * 7 + 3);
+    for (let i = 0; i < 3; i++) { const x = 1 + Math.floor(r() * 14), y0 = 3 + Math.floor(r() * 8); p.vline(x, y0, y0 + 2 + Math.floor(r() * 3), '#7a3e24'); }
+    for (let i = 0; i < 8; i++) p.set(Math.floor(r() * 16), 1 + Math.floor(r() * 15), i % 2 ? '#f0c08e' : '#8e4a2c');
+  },
+  // 砂丘の うえ（2.5D。かたちの かげは 3D で つける ので、うすい 風紋と 砂つぶ だけ）
+  dune_top: (p, v) => {
+    noise(p, '#dcb26c', ['#d2a660', '#e6c27e', '#d8ac66'], v * 47 + 11, 22);
+    const r = prand(v * 29 + 3);
+    for (let k = 0; k < 2; k++) {
+      const len = 5 + Math.floor(r() * 5), x = 1 + Math.floor(r() * (14 - len)), y = 2 + k * 7 + Math.floor(r() * 4);
+      for (let i = 0; i < len; i++) {
+        const yy = y + (i === 0 || i === len - 1 ? 1 : 0);
+        p.set(x + i, yy + 1, '#c99c5a');
+        if (i && i < len - 1) p.set(x + i, yy, '#ecca88');
+      }
+    }
+    p.set(Math.floor(r() * 16), Math.floor(r() * 16), '#f6dca0');
+  },
+  // 日干しれんがの かべの よこ・うえ
+  adobe_side: (p) => {
+    noise(p, '#cc9a6a', ['#d8aa7a', '#bc8a5c'], 91, 10);
+    p.hline(0, 15, 0, '#e8c292'); p.hline(0, 15, 1, '#dcb282'); p.hline(0, 15, 2, '#b88454');
+    p.hline(0, 15, 13, '#b48252'); p.hline(0, 15, 14, '#a07048'); p.hline(0, 15, 15, '#80583a');
+  },
+  wall_top_adobe: (p) => { p.rect(0, 0, 16, 16, '#a87446'); p.rect(1, 1, 14, 14, '#c08a5a'); p.hline(1, 14, 1, '#d8a672'); p.vline(1, 1, 14, '#d8a672'); p.set(5, 6, '#d8a672'); },
 };
 
-export function extraCanvas(name, v = 0) {
+// 3D だけの え を ペインターに かく（テストでも つかう）
+export function extraPainter(name, v = 0) {
   const p = new Painter(16, 16);
   EXTRA[name](p, v);
-  return p.toCanvas();
+  return p;
+}
+export const hasExtra = (name) => typeof EXTRA[name] === 'function';
+export function extraCanvas(name, v = 0) {
+  return extraPainter(name, v).toCanvas();
 }
 
 // ───────────── たてて みせる もの（うしろは とうめい）─────────────
@@ -196,6 +256,23 @@ const PROPS = {
     p.rect(7, 8, 2, 6, '#5a5a6a'); p.rect(4, 13, 8, 3, '#4a4a58');
     p.rect(2, 4, 12, 4, '#4a4a58'); p.rect(3, 5, 10, 2, '#2a2a32'); p.hline(2, 13, 4, '#7a7a8a');
   }],
+  // 第4章: サボテン（はしらの 形。左に ひかり）
+  [T.CACTUS]: [16, 20, (p) => {
+    const g = '#5a9a4e', gD = '#3a7034', gL = '#86c46c', gH = '#b4e08c';
+    const col = (x0, y0, y1) => {
+      p.rect(x0, y0 + 1, 4, y1 - y0, g);
+      p.hline(x0 + 1, x0 + 2, y0, g);
+      p.vline(x0, y0 + 1, y1, gL); p.vline(x0 + 3, y0 + 1, y1, gD); p.vline(x0 + 2, y0 + 2, y1, shade(g, -0.14));
+      p.set(x0 + 1, y0, gH);
+    };
+    col(6, 1, 19);
+    p.rect(2, 11, 4, 3, g); p.hline(2, 5, 11, gL); p.hline(2, 5, 13, gD);
+    col(2, 5, 12);
+    p.rect(10, 8, 3, 3, g); p.hline(10, 12, 8, gL); p.hline(10, 12, 10, gD);
+    col(11, 3, 9);
+    for (const [x, y] of [[5, 7], [10, 13], [7, 16], [1, 8], [15, 5], [10, 4], [8, 10]]) p.set(x, y, '#f4f0d8');
+    p.set(7, 0, '#f27a9a'); p.set(8, 0, '#f8b4c8');
+  }],
   [T.BRAZIER_LIT]: [16, 22, (p) => {
     p.rect(7, 14, 2, 6, '#5a5a6a'); p.rect(4, 19, 8, 3, '#4a4a58');
     p.rect(2, 10, 12, 4, '#4a4a58'); p.rect(3, 11, 10, 2, '#2a2a32'); p.hline(2, 13, 10, '#7a7a8a');
@@ -206,17 +283,20 @@ const PROPS = {
 const propCache = new Map();
 export function propCanvas(id) {
   if (propCache.has(id)) return propCache.get(id);
-  const d = PROPS[id];
-  let c = null;
-  if (d) {
-    const [w, h, fn] = d;
-    const p = new Painter(w, h);
-    fn(p);
-    p.outline('#1b1330');
-    c = p.toCanvas();
-  }
+  const p = propPainter(id);
+  const c = p ? p.toCanvas() : null;
   propCache.set(id, c);
   return c;
+}
+// もの の え を ペインターに（ふちどり つき。ない ときは null）
+export function propPainter(id) {
+  const d = PROPS[id];
+  if (!d) return null;
+  const [w, h, fn] = d;
+  const p = new Painter(w, h);
+  fn(p);
+  p.outline('#1b1330');
+  return p;
 }
 export const PROP_TILES = new Set(Object.keys(PROPS).map(Number).filter((k) => PROPS[k]));
 
@@ -238,13 +318,31 @@ export function chestCanvas(opened) {
 
 // ───────────── き・やね ─────────────
 export function leafCanvas(kind = 'tree') {
+  return leafPainter(kind).toCanvas();
+}
+export function leafPainter(kind = 'tree') {
   const p = new Painter(16, 16);
-  if (kind === 'pine') noise(p, C.pine, [C.pineD, C.pineL], 77, 40);
+  // ヤシの 葉（第4章）: まんなかの すじから こまかい 葉が ななめに のびる。すきまは とうめい（v=0 が 根もと → 下）
+  if (kind === 'palm') {
+    for (let y = 0; y < 16; y++) {
+      for (let k = 1; k < 8; k++) {
+        // 葉の さきへ むかって ななめ 上に
+        const ly = y - Math.floor(k / 2);
+        if ((y + 16) % 3 === 0 && ly >= 0) { p.set(7 - k, ly, k < 3 ? '#4a9a46' : '#3f8a46'); p.set(8 + k, ly, k < 3 ? '#3a7a3c' : '#2f6c36'); }
+      }
+      p.set(7, y, '#9ad47a'); p.set(8, y, '#6cba5a');
+    }
+  } else if (kind === 'palmtrunk') {
+    p.rect(0, 0, 16, 16, '#8e6a3a');
+    for (let y = 1; y < 16; y += 3) { p.hline(0, 15, y, '#6a4a26'); p.hline(0, 15, y + 1, '#a8824c'); }
+    for (let x = 0; x < 16; x += 5) p.vline(x, 0, 15, '#7a5a30');
+  } else if (kind === 'coconut') noise(p, '#6a4422', ['#5a3a1c', '#82562e'], 83, 20);
+  else if (kind === 'pine') noise(p, C.pine, [C.pineD, C.pineL], 77, 40);
   // 雪の つもった もみの木（第3章）
   else if (kind === 'snowpine') { noise(p, '#2a6048', ['#1b4434', '#3a7a5a'], 79, 30); for (let i = 0; i < 26; i++) p.set((i * 7) % 16, (i * 5 + (i >> 2)) % 16, i % 3 ? '#f4f8ff' : '#d8e4f4'); }
   else if (kind === 'trunk') { p.rect(0, 0, 16, 16, C.trunk); for (let x = 1; x < 16; x += 4) p.vline(x, 0, 15, '#553820'); }
   else noise(p, C.leaf, [C.leafD, C.leafL, '#3a9a44'], 55, 44);
-  return p.toCanvas();
+  return p;
 }
 
 export function roofCanvas([base, dark, light]) {
@@ -256,6 +354,88 @@ export function roofCanvas([base, dark, light]) {
   }
   p.hline(0, 15, 0, light);
   return p.toCanvas();
+}
+
+// ───────────── 砂嵐の かべ（第4章）─────────────
+// 2D の 砂嵐と おなじ もようの 64×64 の え（4×4 マスぶん。くりかえすと つなぎめが ない。f … コマ 0〜15）
+export function stormPainter(f) {
+  const p = new Painter(64, 64);
+  paintStorm(p, 0, 0, f, 64, 64);
+  return p;
+}
+export function stormCanvas(f) {
+  return stormPainter(f).toCanvas();
+}
+
+// 砂嵐の まく（64×32。たてに たてて なんまいも かさねる）: 下ほど こく、上は ちぎれた 砂けむりで とうめいに。よこに くりかえす
+const CURTAIN = [[94, 60, 32], [120, 80, 44], [146, 102, 58], [172, 128, 76], [200, 156, 98], [226, 188, 132]];
+export function curtainPainter(seed = 0) {
+  const p = new Painter(64, 32);
+  const r = prand(seed * 977 + 31);
+  for (let x = 0; x < 64; x++) {
+    // 上の ふちの でこぼこ（タイルの はしで つながる）
+    const top = 3 + 4 * (1 + Math.sin(TAU * (x / 32 + seed * 0.29))) + 3 * (1 + Math.sin(TAU * (x * 3 / 64 + seed * 0.61))) + 1.5 * Math.sin(TAU * x * 7 / 64);
+    for (let y = Math.max(0, Math.floor(top)); y < 32; y++) {
+      const t = (y - top) / (32 - top); // 0 = 上の ふち, 1 = 下
+      if (t < 0.12 && (x + y) % 2) continue; // ふちは ふわっと
+      const a = t < 0.12 ? 0.3 : t < 0.3 ? 0.46 : t < 0.55 ? 0.62 : 0.8;
+      // 風の しま（よこに ながい）と、下ほど くらい
+      const band = Math.sin(TAU * (y / 9 + 0.18 * Math.sin(TAU * (x / 64 + seed * 0.13)))) * 0.5 + 0.5;
+      let k = Math.round(1 + band * 2.4 + (1 - t) * 1.6 + (r() - 0.5) * 0.9);
+      k = Math.max(0, Math.min(CURTAIN.length - 1, k));
+      const [cr, cg, cb] = CURTAIN[k];
+      p.set(x, y, `rgba(${cr},${cg},${cb},${a})`);
+    }
+  }
+  return p;
+}
+export function curtainCanvas(seed = 0) {
+  return curtainPainter(seed).toCanvas();
+}
+
+// 砂嵐の 砂けむりの かたまり（32×32 が 4しゅるい。f … コマ 0〜3。もこもこ うごく）
+// 左上から ひかり（上が 明るい 黄土色、下が こげ茶）。ふちは ドットで ちぎれる
+const PUFF = ['#68442a', '#865a34', '#a27042', '#bc8a52', '#d4a666', '#eac488'];
+const PUFF_BLOBS = [
+  [[16, 18, 9], [9, 21, 6], [23, 21, 7], [13, 12, 6], [21, 13, 5]],
+  [[15, 19, 10], [24, 22, 6], [7, 23, 5], [18, 11, 6]],
+  [[10, 20, 8], [21, 19, 8], [15, 13, 7], [26, 24, 4], [5, 25, 4]],
+  [[16, 20, 9], [8, 18, 6], [24, 17, 6], [16, 10, 5], [11, 25, 5], [22, 25, 5]],
+];
+const BAYER4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5].map((n) => (n + 0.5) / 16);
+export function puffPainter(f = 0) {
+  const p = new Painter(128, 32);
+  PUFF_BLOBS.forEach((blobs, vi) => {
+    const bs = blobs.map(([x, y, r], i) => {
+      const ph = TAU * (f / 4) + i * 1.7 + vi;
+      return [x + Math.round(Math.sin(ph)), y + Math.round(Math.cos(ph * 0.7) * 0.6), r + Math.sin(ph + 0.8) * 0.9];
+    });
+    for (let y = 0; y < 32; y++) {
+      for (let x = 0; x < 32; x++) {
+        // いちばん 中に いる まる（そこから の むきで 明るさ）
+        let best = null, bd = -1;
+        for (const [cx, cy, r] of bs) {
+          const d = 1 - Math.hypot(x + 0.5 - cx, y + 0.5 - cy) / r;
+          if (d > bd) { bd = d; best = [cx, cy, r]; }
+        }
+        if (bd <= 0) continue;
+        const dith = BAYER4[(y & 3) * 4 + (x & 3)];
+        if (bd < 0.12 && dith > bd / 0.12) continue; // ふちは ちぎれる
+        const [cx, cy, r] = best;
+        const nx = (x + 0.5 - cx) / r, ny = (y + 0.5 - cy) / r;
+        const nz = Math.sqrt(Math.max(0, 1 - nx * nx - ny * ny));
+        const lum = (-nx * 0.55 - ny * 0.7 + nz * 0.45) * 0.5 + 0.5 - (y / 32) * 0.25;
+        const t = Math.max(0, Math.min(PUFF.length - 1.001, lum * (PUFF.length - 0.6)));
+        let k = Math.floor(t);
+        if (t - k > dith) k++;
+        p.set(vi * 32 + x, y, PUFF[Math.min(PUFF.length - 1, k)]);
+      }
+    }
+  });
+  return p;
+}
+export function puffCanvas(f = 0) {
+  return puffPainter(f).toCanvas();
 }
 
 // タイルの え（16×16）を そのまま

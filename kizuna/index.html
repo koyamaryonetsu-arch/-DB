@@ -14,7 +14,7 @@
 <link rel="icon" type="image/png" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/icon-180.png">
 <link rel="stylesheet" href="css/fonts.css">
-<link rel="stylesheet" href="css/style.css?v=35500ffb819e">
+<link rel="stylesheet" href="css/style.css?v=e73ea3162cdf">
 </head>
 <body>
 <div id="app">
@@ -37,13 +37,13 @@
 <noscript>このゲームはJavaScriptが必要です。</noscript>
 <script>
   // サイトの 版（タイトル画面に 出す）
-  window.KIZUNA_VERSION = {"v":"35500ffb819e","date":"2026-10-04T01:21:17Z"};
+  window.KIZUNA_VERSION = {"v":"e73ea3162cdf","date":"2026-10-04T01:31:30Z"};
   // 新しい 版に なった 直後など、読みこみに しっぱいしたら 1回だけ 読みこみ直す
   function kizunaBootFail() {
     try { if (sessionStorage.getItem('kizuna_reload')) return; sessionStorage.setItem('kizuna_reload', '1'); } catch (e) {}
     setTimeout(function () { location.reload(); }, 1500);
   }
 </script>
-<script type="module" src="js/main.js?v=35500ffb819e" onerror="kizunaBootFail()"></script>
+<script type="module" src="js/main.js?v=e73ea3162cdf" onerror="kizunaBootFail()"></script>
 </body>
 </html>

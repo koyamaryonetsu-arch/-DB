@@ -3,14 +3,15 @@
 // ・ひと・まもの・もの は ドット絵を カメラに むけて たてる（ビルボード）
 // ・カメラは ななめ うえから みおろす（うごかすのは いち だけ。むきは かわらない）
 // あるく・ぶつかる などの きまりは 2D と おなじ（Field が きめる）。ここでは かく だけ。
-import * as THREE from '../../../vendor/three.min.js?v=35500ffb819e';
-import { T } from '../../shared/tiles.js?v=35500ffb819e';
-import { effectiveTile } from '../../shared/maps/index.js?v=35500ffb819e';
-import { hash2 } from '../../shared/rng.js?v=35500ffb819e';
-import { Atlas, extraCanvas, propCanvas, PROP_TILES, leafCanvas, roofCanvas, tileArt } from './tex3d.js?v=35500ffb819e';
-import { tileCanvas } from './tiles.js?v=35500ffb819e';
-import { flipCanvas, makeCanvas, ctxOf, whiteCopy } from './pixel.js?v=35500ffb819e';
-import { themedCanvas, partOfTile, partOfExtra } from './themes.js?v=35500ffb819e';
+import * as THREE from '../../../vendor/three.min.js?v=e73ea3162cdf';
+import { T } from '../../shared/tiles.js?v=e73ea3162cdf';
+import { effectiveTile } from '../../shared/maps/index.js?v=e73ea3162cdf';
+import { hash2, valueNoise } from '../../shared/rng.js?v=e73ea3162cdf';
+import { Atlas, extraCanvas, propCanvas, PROP_TILES, leafCanvas, roofCanvas, tileArt, stormCanvas, curtainCanvas, puffCanvas } from './tex3d.js?v=e73ea3162cdf';
+import { tileCanvas } from './tiles.js?v=e73ea3162cdf';
+import { duneShape, ch4Mask, onDesert } from './tiles-ch4.js?v=e73ea3162cdf';
+import { flipCanvas, makeCanvas, ctxOf, whiteCopy } from './pixel.js?v=e73ea3162cdf';
+import { themedCanvas, partOfTile, partOfExtra } from './themes.js?v=e73ea3162cdf';
 
 const PITCH = 55 * Math.PI / 180;
 const SIN = Math.sin(PITCH), COS = Math.cos(PITCH);
@@ -23,15 +24,28 @@ const PULL = 0.8; // たてた え を カメラの ほうへ ちかづける（
 
 const FLOOR = 1, WATER = 2, BLOCK = 3;
 
+// 天気で かわる きり（第4章の 砂ぼこり・砂嵐。カメラからの きょりに たす 近い・遠い）
+const WEATHER_FOG = {
+  sand: { near: 5, far: 30, color: new THREE.Color(0xe2c48e) },
+  sandstorm: { near: 0.5, far: 12, color: new THREE.Color(0xb8875a) },
+};
+
 const WATER_TILES = new Set([T.WATER, T.DEEP, T.CAVE_WATER, T.BROKEN_BRIDGE]);
-const WALL_TILES = new Set([T.WALL_STONE, T.WALL_WOOD]);
-const TREE_TILES = new Set([T.TREE, T.PINE, T.SNOW_PINE]);
+const WALL_TILES = new Set([T.WALL_STONE, T.WALL_WOOD, T.ADOBE]);
+const TREE_TILES = new Set([T.TREE, T.PINE, T.SNOW_PINE, T.PALM]);
 // 第3章: ようがん・温泉（水と おなじ ひくさに、うごく え を はる）
 const LIQUID_TILES = { [T.LAVA]: { name: 'lava', y: WATER_Y + 0.06, speed: 380 }, [T.HOT_SPRING]: { name: 'spring', y: -0.2, speed: 520 } };
 // 地面の たかさ（深い 雪は すこし 高く・谷は ふかく）
 const FLOOR_H = { [T.STEPPING]: -0.16, [T.DEEP_SNOW]: 0.14, [T.CHASM]: -0.8 };
-// 雪・氷の 地面の よこの え
-const SIDE_OF = { [T.SAND]: 'sand_side', [T.SNOW]: 'snow_side', [T.SNOW_PATH]: 'snow_side', [T.DEEP_SNOW]: 'snow_side', [T.ICE]: 'ice_side' };
+// 雪・氷・砂ばくの 地面の よこの え
+const SIDE_OF = {
+  [T.SAND]: 'sand_side', [T.SNOW]: 'snow_side', [T.SNOW_PATH]: 'snow_side', [T.DEEP_SNOW]: 'snow_side', [T.ICE]: 'ice_side',
+  [T.DESERT]: 'sand_side', [T.DUNE]: 'sand_side',
+};
+// 第4章: 砂嵐の まくの 高さ・砂丘の 高さ（大きな 砂丘ほど まんなかが 高い。山 1.1〜 より ひくい）
+const STORM_H = 2.1;
+const WELL_RIM_H = 0.6;
+const DUNE_H = 0.46, DUNE_DOME = 0.15;
 
 // かべ・かぐ などの たかさと え
 function blockSpec(id, x, y) {
@@ -76,9 +90,19 @@ function blockSpec(id, x, y) {
     case T.DRAGON_GATE: return { h: 2.0, top: ['x', 'stone_top', 0], side: ['x', 'gate_side', 0], south: ['t', T.DRAGON_GATE, v === 0 ? 0 : 1, 0] };
     case T.MINE_BEAM: return { h: 1.6, top: ['x', 'wood_top', 0], side: ['x', 'beam_side', 0] };
     case T.FLAME_WALL: return { h: 1.3, top: ['x', 'flame_side', v], side: ['x', 'flame_side', v] };
+    // 第4章
+    case T.SANDSTONE: {
+      // となりと 高さが そろう 段々の 岩山（メサ）
+      const h = 1.1 + Math.round(valueNoise(x * 0.3, y * 0.3, 21) * 4) / 4 * 0.7;
+      return { h, top: ['x', 'sandstone_top', v], side: ['x', 'sandstone_side', v] };
+    }
+    case T.ADOBE: return { h: WALL_H, top: ['x', 'wall_top_adobe', 0], side: ['x', 'adobe_side', 0], south: ['t', T.ADOBE, v, 1] };
     default: return null;
   }
 }
+
+// テストで しらべる ため（かべ・き・地面の よこの え・ブロックの たかさ）
+export { blockSpec, WALL_TILES, TREE_TILES, SIDE_OF };
 
 // タイルの しゅるい: FLOOR / WATER / BLOCK（もの・き は FLOOR の うえに たてる）
 function kindOf(id) {
@@ -190,6 +214,7 @@ export class Field3D {
     for (const t of this.static.waterFrames || []) t.dispose();
     for (const t of this.static.liquidFrames || []) t.dispose();
     this.static = null;
+    this.storm = null;
   }
 
   build(map) {
@@ -204,8 +229,18 @@ export class Field3D {
     const specs = new Map();
     const spec = (x, y) => {
       const k = y * w + x;
-      if (!specs.has(k)) specs.set(k, blockSpec(idAt(x, y), x, y));
+      if (!specs.has(k)) specs.set(k, wellRim(blockSpec(idAt(x, y), x, y), x, y));
       return specs.get(k);
+    };
+    // 第4章: 古井戸の あなを かこむ 日干しれんがは ひくい ふち（あなが 見える ように。やねの ある 家の かべは そのまま）。
+    // 砂ばくの 村の 井戸は 砂の 上
+    const wellRim = (s, x, y) => {
+      if (!s) return s;
+      const id = idAt(x, y);
+      if (id === T.WELL && onDesert(idAt, x, y)) return { ...s, top: ['t', T.WELL, s.top[2], 2] };
+      if (id !== T.ADOBE || (map.roofs || []).some((r) => x >= r.x && y >= r.y && x < r.x + r.w && y < r.y + r.h)) return s;
+      for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) if (idAt(x + dx, y + dy) === T.WELL_HOLE) return { ...s, h: WELL_RIM_H };
+      return s;
     };
     // タイルの いちばん うえの たかさ
     const topH = (x, y) => {
@@ -249,7 +284,8 @@ export class Field3D {
       if (PROP_TILES.has(id) || TREE_TILES.has(id)) {
         const cnt = new Map();
         for (const [dx, dy] of [[0, -1], [1, 0], [0, 1], [-1, 0], [1, 1], [-1, -1], [1, -1], [-1, 1]]) {
-          const n = idAt(x + dx, y + dy);
+          // 砂丘・砂嵐の となりは 砂ばくの 地面（第4章）
+          const n0 = idAt(x + dx, y + dy), n = n0 === T.DUNE || n0 === T.SANDSTORM ? T.DESERT : n0;
           if (n === -1 || kindOf(n) !== FLOOR || PROP_TILES.has(n) || TREE_TILES.has(n) || n === T.DOOR) continue;
           cnt.set(n, (cnt.get(n) || 0) + 1);
         }
@@ -268,7 +304,8 @@ export class Field3D {
     const props = newGeo();
     const water = newGeo();
     const liquids = {};
-    const trees = [], pines = [], snowPines = [];
+    const trees = [], pines = [], snowPines = [], palms = [];
+    const dunes = [], storm = [];
     const isBlockAt = (x, y) => {
       const id = idAt(x, y);
       return id !== -1 && kindOf(id) === BLOCK && spec(x, y).h > 0.55;
@@ -300,6 +337,9 @@ export class Field3D {
           continue;
         }
         if (kind === FLOOR) {
+          // 砂丘は あとで まとめて（なめらかな 山）。砂嵐の かべも（うごく え）
+          if (id === T.DUNE) { dunes.push([x, y]); continue; }
+          if (id === T.SANDSTORM) { storm.push([x, y]); continue; }
           // かどの かげ（かべの ちかくは すこし くらい）
           const ao = (cx, cy) => (isBlockAt(cx - 1, cy - 1) || isBlockAt(cx, cy - 1) || isBlockAt(cx - 1, cy) || isBlockAt(cx, cy) ? 0.8 : 1);
           quad(g, [x, hh, y], [x, hh, y + 1], [x + 1, hh, y + 1], [x + 1, hh, y], uvOf(floorKey(x, y, id)), [ao(x, y), ao(x, y + 1), ao(x + 1, y + 1), ao(x + 1, y)]);
@@ -310,6 +350,7 @@ export class Field3D {
           } else if (id === T.TREE) trees.push([x, y]);
           else if (id === T.PINE) pines.push([x, y]);
           else if (id === T.SNOW_PINE) snowPines.push([x, y]);
+          else if (id === T.PALM) palms.push([x, y]);
           // もんの うえの かべ（たてものの いりぐち）
           if (id === T.DOOR) {
             const rr = roofOf(x, y);
@@ -329,6 +370,9 @@ export class Field3D {
       }
     }
 
+    // 砂丘（第4章）: 2D と おなじ かたち（duneShape）を 高さに した なめらかな 山
+    const duneGeos = dunes.length ? addDunes(dunes, idAt, w, h, (x, y) => chunks[Math.floor(y / CH) * cw + Math.floor(x / CH)], uvOf, topH) : [];
+
     // ───── メッシュに する ─────
     const group = new THREE.Group();
     const materials = [];
@@ -336,6 +380,7 @@ export class Field3D {
     const worldMat = new THREE.MeshBasicMaterial({ map: atlasTex, vertexColors: true });
     materials.push(worldMat);
     for (const g of chunks) if (g.pos.length) group.add(new THREE.Mesh(toGeometry(g), worldMat));
+    for (const g of duneGeos) group.add(new THREE.Mesh(toGeometry(g), worldMat));
     // たてもの
     this.buildings = [];
     for (const { r, geo } of roofs) {
@@ -375,6 +420,17 @@ export class Field3D {
       materials.push(sm);
       group.add(instanced(pineGeometry(), sm, snowPines, 0.6));
     }
+    // ヤシの木（第4章。葉は すきまの ある え）
+    if (palms.length) {
+      const pt = makeCanvas(48, 16);
+      const pc = ctxOf(pt);
+      pc.drawImage(leafCanvas('palm'), 0, 0);
+      pc.drawImage(leafCanvas('coconut'), 16, 0);
+      pc.drawImage(leafCanvas('palmtrunk'), 32, 0);
+      const pm = new THREE.MeshBasicMaterial({ map: this.tex(pt), vertexColors: true, alphaTest: 0.5, side: THREE.DoubleSide });
+      materials.push(pm);
+      group.add(instanced(palmGeometry(), pm, palms, 0.5));
+    }
     // ようがん・温泉（うごく え）
     this.liquids = [];
     const liquidFrames = [];
@@ -395,6 +451,77 @@ export class Field3D {
       materials.push(lm);
       group.add(new THREE.Mesh(toGeometry(lg), lm));
       this.liquids.push({ mat: lm, frames: fr, speed: L.speed });
+    }
+    // 砂嵐の かべ（第4章）: こい 砂の 地面（うごく え）・もこもこ うごく 砂けむりの かたまり（カメラに むけて たてる）・
+    // その 上を 東へ ながれる うすい 砂の まく。とおれない ことが ひとめで わかる
+    this.storm = null;
+    if (storm.length) {
+      const S = 0.25; // 64ドット = 4マス
+      const tex = (c, wrap) => {
+        const t = new THREE.CanvasTexture(c);
+        t.magFilter = THREE.NearestFilter;
+        t.minFilter = THREE.NearestFilter;
+        t.generateMipmaps = false;
+        if (wrap) t.wrapS = t.wrapT = THREE.RepeatWrapping;
+        t.colorSpace = THREE.SRGBColorSpace;
+        liquidFrames.push(t);
+        return t;
+      };
+      // 地面
+      const fg = newGeo();
+      for (const [x, y] of storm) quad(fg, [x, 0, y], [x, 0, y + 1], [x + 1, 0, y + 1], [x + 1, 0, y], { u0: x * S, u1: (x + 1) * S, v0: -(y + 1) * S, v1: -y * S }, 0.9);
+      // 16コマ（はじめは 1コマだけ。のこりは うごかす ときに 1まいずつ つくる → 入った ときに 止まらない）
+      const sf = new Array(16).fill(null);
+      sf[0] = tex(stormCanvas(0), true);
+      const sm = new THREE.MeshBasicMaterial({ map: sf[0], vertexColors: true });
+      materials.push(sm);
+      group.add(new THREE.Mesh(toGeometry(fg), sm));
+      // 砂けむりの かたまり（1マスに 2つ。北の れつから じゅんに）
+      const pg = newGeo();
+      const cells = storm.slice().sort((a, b) => a[1] - b[1] || a[0] - b[0]);
+      for (const [x, y] of cells) {
+        for (let k = 0; k < 2; k++) {
+          const r1 = hash2(x, y, 41 + k), r2 = hash2(x, y, 53 + k), r3 = hash2(x, y, 67 + k);
+          const size = 1.45 + r1 * 0.7;
+          const b = new THREE.Vector3(x + 0.5 + (r2 - 0.5) * 0.9, k ? 0.2 + r3 * 0.5 : r3 * 0.15, y + 0.3 + k * 0.42);
+          const P = (dx, up) => b.clone().add(new THREE.Vector3(dx, 0, 0)).addScaledVector(UP, up).toArray();
+          const vi = Math.floor(hash2(x, y, 71 + k) * 4), flip = hash2(x, y, 83 + k) < 0.5;
+          const u0 = vi / 4 + 0.003, u1 = (vi + 1) / 4 - 0.003;
+          quad(pg, P(-size / 2, size), P(-size / 2, 0), P(size / 2, 0), P(size / 2, size), { u0: flip ? u1 : u0, u1: flip ? u0 : u1, v0: 0.01, v1: 0.99 }, 0.84 + r3 * 0.16);
+        }
+      }
+      const pf = [0, 1, 2, 3].map((f) => tex(puffCanvas(f), false));
+      const pm = new THREE.MeshBasicMaterial({ map: pf[0], vertexColors: true, alphaTest: 0.5 });
+      materials.push(pm);
+      group.add(new THREE.Mesh(toGeometry(pg), pm));
+      // うすい 砂の まく（1れつ おきに。それぞれ ちがう はやさで 東へ）
+      const inStorm = new Set(storm.map(([x, y]) => y * w + x));
+      const curtains = [];
+      const rows = [...new Set(storm.map(([, y]) => y))].sort((a, b) => a - b);
+      rows.forEach((y, k) => {
+        if (k % 2 && k !== rows.length - 1) return;
+        const g = newGeo();
+        let x0 = -1;
+        const hh = STORM_H + 0.3 - (k % 3) * 0.2, uo = k * 0.37, z = y + 0.5;
+        for (let x = 0; x <= w; x++) {
+          const on = x < w && inStorm.has(y * w + x);
+          if (on && x0 < 0) x0 = x;
+          if (!on && x0 >= 0) {
+            quad(g, [x0, hh, z], [x0, 0.2, z], [x, 0.2, z], [x, hh, z], { u0: x0 * S + uo, u1: x * S + uo, v0: 0, v1: 1 }, 1);
+            x0 = -1;
+          }
+        }
+        if (!g.pos.length) return;
+        const t = tex(curtainCanvas(k % 3), false);
+        t.wrapS = THREE.RepeatWrapping;
+        const m = new THREE.MeshBasicMaterial({ map: t, transparent: true, opacity: 0.85, depthWrite: false, side: THREE.DoubleSide });
+        materials.push(m);
+        const mesh = new THREE.Mesh(toGeometry(g), m);
+        mesh.renderOrder = 2;
+        group.add(mesh);
+        curtains.push({ tex: t, speed: 0.3 + (k % 3) * 0.14 });
+      });
+      this.storm = { mat: sm, frames: sf, puff: pm, puffs: pf, curtains, make: (i) => tex(stormCanvas(i), true) };
     }
     // みず
     const frames = [];
@@ -434,8 +561,10 @@ export class Field3D {
     this.scene.add(group);
     this.static = { group, materials, waterFrames: frames, liquidFrames };
     // 空と きりの 色（マップの sky3d で かえられる。雪の 地方は 白っぽい）
-    this.scene.background = new THREE.Color(map.sky3d?.bg || (dungeon ? (map.theme === 'ice' ? '#0d1a33' : '#070505') : '#1c3d6e'));
+    this.scene.background = new THREE.Color(map.sky3d?.bg || (dungeon ? ({ ice: '#0d1a33', sand: '#140c06' }[map.theme] || '#070505') : '#1c3d6e'));
     this.scene.fog = new THREE.Fog(map.sky3d?.fog ?? (dungeon ? 0x050304 : 0x9ec3e8), 10, 50);
+    this.fogBase = { near: 8, far: 34, color: this.scene.fog.color.clone() };
+    this.fogNow = null;
     this.updateFog();
     this.mapId = f.mapId;
     this.lastBuildMs = Math.round(performance.now() - t0);
@@ -518,8 +647,17 @@ export class Field3D {
     this.zoom = (this.zoom || 1) + (zoom - (this.zoom || 1)) * Math.min(1, dt / 400);
     cam.position.copy(this.target).addScaledVector(BACK, this.dist * this.zoom);
     if (this.scene.fog && !this.dark) {
-      this.scene.fog.near = this.dist * this.zoom + 8;
-      this.scene.fog.far = this.dist * this.zoom + 34;
+      // 砂ぼこり・砂嵐の 中は 黄土色に かすむ（遠くは 見えにくい。自分の まわりは 見える。ほかの 天気は そのまま）
+      const base = this.fogBase;
+      const want = WEATHER_FOG[f.weatherKind?.()] || base;
+      const fn = this.fogNow || (this.fogNow = { near: want.near, far: want.far, color: want.color.clone() });
+      const k = Math.min(1, dt / 700);
+      fn.near += (want.near - fn.near) * k;
+      fn.far += (want.far - fn.far) * k;
+      fn.color.lerp(want.color, k);
+      this.scene.fog.near = this.dist * this.zoom + fn.near;
+      this.scene.fog.far = this.dist * this.zoom + fn.far;
+      this.scene.fog.color.copy(fn.color);
     }
     if (f.shakeT > 0) {
       cam.position.x += (Math.random() - 0.5) * 0.35;
@@ -545,6 +683,17 @@ export class Field3D {
     for (const l of this.liquids || []) {
       const fr = l.frames[Math.floor(this.time / l.speed) % l.frames.length];
       if (l.mat.map !== fr) l.mat.map = fr;
+    }
+    // 砂嵐の かべ: 16コマで 64ドット（4マス）東へ。コマの あいだも すこしずつ ずらして なめらかに
+    if (this.storm) {
+      const st = this.storm, sp = 75;
+      const fi = Math.floor(this.time / sp) % st.frames.length;
+      const fr = st.frames[fi] || (st.frames[fi] = st.make(fi));
+      if (st.mat.map !== fr) st.mat.map = fr;
+      fr.offset.x = -((this.time % sp) / sp) * (4 / 64);
+      const pf = st.puffs[Math.floor(this.time / 230) % st.puffs.length];
+      if (st.puff.map !== pf) st.puff.map = pf;
+      for (const c of st.curtains) c.tex.offset.x = -((this.time / 1000) * c.speed) % 1;
     }
     this.updateSprites();
     this.renderer.render(this.scene, cam);
@@ -747,6 +896,133 @@ class PropAtlas {
   }
 }
 
+// ───────────── 砂丘（第4章）─────────────
+// 2D の 砂丘と おなじ かたち（duneShape）を 高さに する（となりの 砂丘と さかいで おなじ 高さ → すきまが ない）。
+// 大きな 砂丘ほど まんなかが 高い（ふちからの マス数。かどの 高さを なめらかに つなぐ）。
+// え は うすい 風紋（tex3d.js の dune_top）。ひかりは 左上から。かげは すこし 赤っぽい 茶色
+const DUNE_LIGHT = new THREE.Vector3(-0.35, 1, -0.3).normalize();
+function addDunes(list, idAt, w, h, geoAt, uvOf, topH) {
+  const dune = new Uint8Array(w * h);
+  for (const [x, y] of list) dune[y * w + x] = 1;
+  const isDune = (x, y) => x >= 0 && y >= 0 && x < w && y < h && dune[y * w + x] === 1;
+  // ふちからの マス数（ふち = 1）
+  const depth = new Uint8Array(w * h);
+  const q = [];
+  for (const [x, y] of list) {
+    if ([[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => { const n = idAt(x + dx, y + dy); return n !== -1 && n !== T.DUNE; })) {
+      depth[y * w + x] = 1;
+      q.push(y * w + x);
+    }
+  }
+  for (let i = 0; i < q.length; i++) {
+    const k = q[i], x = k % w, y = (k - x) / w;
+    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+      const nx = x + dx, ny = y + dy;
+      if (!isDune(nx, ny) || depth[ny * w + nx]) continue;
+      depth[ny * w + nx] = depth[k] + 1;
+      q.push(ny * w + nx);
+    }
+  }
+  const tileD = (x, y) => (x < 0 || y < 0 || x >= w || y >= h ? 3 : !dune[y * w + x] ? 0 : Math.min(3, depth[y * w + x] || 3));
+  const corners = new Int8Array((w + 1) * (h + 1)).fill(-1);
+  const cornerD = (cx, cy) => {
+    const k = cy * (w + 1) + cx;
+    if (corners[k] < 0) corners[k] = Math.min(tileD(cx - 1, cy - 1), tileD(cx, cy - 1), tileD(cx - 1, cy), tileD(cx, cy));
+    return corners[k];
+  };
+  const masks = new Int16Array(w * h).fill(-1);
+  const maskAt = (x, y) => {
+    const k = y * w + x;
+    if (masks[k] < 0) masks[k] = ch4Mask(T.DUNE, idAt, x, y);
+    return masks[k];
+  };
+  // 世界の いち → 砂丘の 高さ
+  const H = (wx, wz) => {
+    const tx = Math.floor(wx), tz = Math.floor(wz);
+    if (!isDune(tx, tz)) return 0;
+    const s = duneShape(maskAt(tx, tz), (wx - tx) * 16, (wz - tz) * 16);
+    if (s <= 0) return 0;
+    const fx = wx - tx, fz = wz - tz;
+    const dome = (cornerD(tx, tz) * (1 - fx) + cornerD(tx + 1, tz) * fx) * (1 - fz) + (cornerD(tx, tz + 1) * (1 - fx) + cornerD(tx + 1, tz + 1) * fx) * fz;
+    return s * (DUNE_H + dome * DUNE_DOME);
+  };
+  // ちょうてん（4分の1マスごと。となりの タイルと つかいまわす）の 高さと いろ（むきで 明るさ。高い ところは すこし あたたかい 金色）
+  const L = DUNE_LIGHT, GW = w * 4 + 1, GH = h * 4 + 1;
+  // 4分の1マスごとの 高さ（1かいだけ はかる）
+  const hGrid = new Float32Array(GW * GH).fill(-1);
+  const Hg = (gx, gz) => {
+    if (gx < 0 || gz < 0 || gx >= GW || gz >= GH) return 0;
+    const k = gz * GW + gx;
+    if (hGrid[k] < 0) hGrid[k] = H(gx / 4, gz / 4);
+    return hGrid[k];
+  };
+  const vIndex = new Int32Array(GW * GH).fill(-1);
+  let vH = new Float32Array(4096), vC = new Float32Array(4096 * 3), vN = 0;
+  const vert = (gx, gz) => {
+    const key = gz * GW + gx;
+    let i = vIndex[key];
+    if (i >= 0) return i;
+    i = vN++;
+    if (i >= vH.length) {
+      const nh = new Float32Array(vH.length * 2), nc = new Float32Array(vC.length * 2);
+      nh.set(vH); nc.set(vC);
+      vH = nh; vC = nc;
+    }
+    const hh = Hg(gx, gz);
+    const dx = (Hg(gx + 1, gz) - Hg(gx - 1, gz)) * 2, dz = (Hg(gx, gz + 1) - Hg(gx, gz - 1)) * 2;
+    const d = (-dx * L.x + L.y - dz * L.z) / Math.sqrt(dx * dx + 1 + dz * dz);
+    const sh = Math.max(0.5, Math.min(1.06, 1 + (d - L.y) * 0.8));
+    const t = Math.min(1, hh / 0.8);
+    vH[i] = hh;
+    vC[i * 3] = sh;
+    vC[i * 3 + 1] = Math.pow(sh, 1.12) * (1 - 0.02 * t);
+    vC[i * 3 + 2] = Math.pow(sh, 1.35) * (1 - 0.07 * t);
+    vIndex[key] = i;
+    return i;
+  };
+  // チャンクごとに まとめて、はじめから 大きさの きまった はこに 書く（たくさん あるので はやく）
+  const byChunk = new Map();
+  for (const [x, y] of list) {
+    const g = geoAt(x, y);
+    let c = byChunk.get(g);
+    if (!c) { c = { tiles: [], quads: 0 }; byChunk.set(g, c); }
+    const N = maskAt(x, y) === 255 ? 1 : 4;
+    c.tiles.push(x, y, N);
+    c.quads += N * N;
+    // 水に せっする ところは 砂の よこの かべ
+    sides(g, x, y, 0, (dx, dy) => topH(x + dx, y + dy), () => uvOf(['x', 'sand_side', 0]));
+  }
+  const out = [];
+  for (const c of byChunk.values()) {
+    const pos = new Float32Array(c.quads * 18), uvs = new Float32Array(c.quads * 12), col = new Float32Array(c.quads * 18);
+    let o = 0;
+    const put = (vi, gx, gz, u, v) => {
+      pos[o * 3] = gx / 4; pos[o * 3 + 1] = vH[vi]; pos[o * 3 + 2] = gz / 4;
+      uvs[o * 2] = u; uvs[o * 2 + 1] = v;
+      col[o * 3] = vC[vi * 3]; col[o * 3 + 1] = vC[vi * 3 + 1]; col[o * 3 + 2] = vC[vi * 3 + 2];
+      o++;
+    };
+    for (let k = 0; k < c.tiles.length; k += 3) {
+      const x = c.tiles[k], y = c.tiles[k + 1], N = c.tiles[k + 2], st = 4 / N;
+      // え は うすい 風紋（ふちの かげは 3D の かたむきで つける）
+      const uv = uvOf(['x', 'dune_top', Math.floor(hash2(x, y, 17) * 4)]);
+      const du = (uv.u1 - uv.u0) / N, dv = (uv.v1 - uv.v0) / N;
+      for (let j = 0; j < N; j++) {
+        for (let i = 0; i < N; i++) {
+          const gx = x * 4 + i * st, gz = y * 4 + j * st;
+          const a = vert(gx, gz), b = vert(gx, gz + st), cc = vert(gx + st, gz + st), d = vert(gx + st, gz);
+          const u0 = uv.u0 + du * i, u1 = u0 + du, v1 = uv.v1 - dv * j, v0 = v1 - dv;
+          // A=北西 B=南西 C=南東 D=北東（quad と おなじ むき）
+          put(a, gx, gz, u0, v1); put(b, gx, gz + st, u0, v0); put(cc, gx + st, gz + st, u1, v0);
+          put(a, gx, gz, u0, v1); put(cc, gx + st, gz + st, u1, v0); put(d, gx + st, gz, u1, v1);
+        }
+      }
+    }
+    out.push({ pos, uv: uvs, col });
+  }
+  return out;
+}
+
 // ───────────── き ─────────────
 const LIGHT = new THREE.Vector3(-0.45, 0.8, 0.4).normalize();
 
@@ -796,6 +1072,52 @@ function pineGeometry() {
   const trunk = new THREE.CylinderGeometry(0.08, 0.12, 0.45, 5).toNonIndexed();
   trunk.translate(0, 0.22, 0);
   return merge([shadeFaces(c1, 1 / 3), shadeFaces(c2, 1 / 3), shadeFaces(trunk, 2 / 3, 0.5)]);
+}
+
+// ヤシの木（第4章）: すこし まがった みき・ヤシの み・たれさがる 7まいの 葉（葉の え は すきまが とうめい）
+function palmGeometry() {
+  const parts = [];
+  const pts = [[0, 0], [0.03, 0.42], [0.1, 0.84], [0.2, 1.22]];
+  for (let i = 0; i < 3; i++) {
+    const [x0, y0] = pts[i], [x1, y1] = pts[i + 1];
+    const seg = new THREE.CylinderGeometry(0.075 - i * 0.012, 0.095 - i * 0.012, Math.hypot(x1 - x0, y1 - y0), 6, 1, true).toNonIndexed();
+    seg.rotateZ(-Math.atan2(x1 - x0, y1 - y0));
+    seg.translate((x0 + x1) / 2, (y0 + y1) / 2, 0);
+    parts.push(shadeFaces(seg, 2 / 3, 0.5));
+  }
+  for (const [dx, dz] of [[0.06, 0.05], [-0.05, 0.05], [0.01, -0.07]]) {
+    const c = new THREE.IcosahedronGeometry(0.055, 0);
+    c.translate(0.2 + dx, 1.15, dz);
+    parts.push(shadeFaces(c, 1 / 3, 0.45));
+  }
+  const crown = new THREE.Vector3(0.2, 1.24, 0);
+  const up = new THREE.Vector3(0, 1, 0);
+  const pos = [], uv = [];
+  const tri = (A, ua, B, ub, C, uc) => {
+    // 上むきの めんに そろえる（下から 見ても おなじ 明るさ）
+    const n = new THREE.Vector3().subVectors(C, B).cross(new THREE.Vector3().subVectors(A, B));
+    if (n.y < 0) { [B, C] = [C, B]; [ub, uc] = [uc, ub]; }
+    for (const [P, U] of [[A, ua], [B, ub], [C, uc]]) { pos.push(P.x, P.y, P.z); uv.push(U[0], U[1]); }
+  };
+  for (let k = 0; k < 7; k++) {
+    const a = (k / 7) * Math.PI * 2 + 0.35;
+    const dir = new THREE.Vector3(Math.cos(a), 0, Math.sin(a));
+    const side = new THREE.Vector3(-dir.z, 0, dir.x);
+    const len = 0.74 + (k % 3) * 0.07;
+    const M = crown.clone().addScaledVector(dir, len * 0.46).addScaledVector(up, 0.13);
+    const Tp = crown.clone().addScaledVector(dir, len).addScaledVector(up, -0.36);
+    const S1 = M.clone().addScaledVector(side, 0.18).addScaledVector(up, -0.07);
+    const S2 = M.clone().addScaledVector(side, -0.18).addScaledVector(up, -0.07);
+    tri(crown, [0.5, 0], S1, [0, 0.5], M, [0.5, 0.5]);
+    tri(crown, [0.5, 0], M, [0.5, 0.5], S2, [1, 0.5]);
+    tri(M, [0.5, 0.5], S1, [0, 0.5], Tp, [0.5, 1]);
+    tri(M, [0.5, 0.5], Tp, [0.5, 1], S2, [1, 0.5]);
+  }
+  const fg = new THREE.BufferGeometry();
+  fg.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  fg.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+  parts.push(shadeFaces(fg, 0, 0.62));
+  return merge(parts);
 }
 
 function instanced(geo, mat, list, zoff) {

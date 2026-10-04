@@ -1,10 +1,10 @@
 // 馬車（ほろ馬車と 馬）の ドット絵と、パーティーの うしろを ついてくる うごき
 //   よこむきは left を かく（right は はんてん）。down は 馬が てまえ、up は 馬車の うしろが てまえ
-import { Painter, scale2x, rimShade, outline2, flipCanvas } from './pixel.js?v=35500ffb819e';
-import { MAPS, tileAt, onWater } from '../../shared/maps/index.js?v=35500ffb819e';
-import { PLACES } from '../../shared/maps/overworld.js?v=35500ffb819e';
-import { SEA_PLACES } from '../../shared/maps/ch2.js?v=35500ffb819e';
-import { T } from '../../shared/tiles.js?v=35500ffb819e';
+import { Painter, scale2x, rimShade, outline2, flipCanvas } from './pixel.js?v=e73ea3162cdf';
+import { MAPS, tileAt, onWater } from '../../shared/maps/index.js?v=e73ea3162cdf';
+import { PLACES } from '../../shared/maps/overworld.js?v=e73ea3162cdf';
+import { SEA_PLACES } from '../../shared/maps/ch2.js?v=e73ea3162cdf';
+import { T } from '../../shared/tiles.js?v=e73ea3162cdf';
 
 const OUT = '#1b1330';
 const C = {

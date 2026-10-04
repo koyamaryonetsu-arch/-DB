@@ -1,22 +1,22 @@
 // フィールド（あるく・はなす・みる）
-import { MAPS, isBlocked, effectiveTile, condOk, tileAt, onWater, slidesAt } from '../shared/maps/index.js?v=35500ffb819e';
-import { T, TILE_INFO } from '../shared/tiles.js?v=35500ffb819e';
-import { PLACES } from '../shared/maps/overworld.js?v=35500ffb819e';
-import { TS, tileCanvas, frameOf, prepareMap } from './render/tiles.js?v=35500ffb819e';
-import { paintHuman, npcOpts, paintSpecial, paintShip, equipKey, CW, CH } from './render/chars.js?v=35500ffb819e';
-import { heroCanvas, heroLookKey } from './render/hero.js?v=35500ffb819e';
-import { monsterCanvas, bigNpcCanvas, bigNpcScale } from './render/monsters.js?v=35500ffb819e';
-import { MONSTERS } from '../shared/data/monsters.js?v=35500ffb819e';
-import { makeCanvas, ctxOf, shade, flipCanvas } from './render/pixel.js?v=35500ffb819e';
-import { chestCanvas as chestCanvas3d } from './render/tex3d.js?v=35500ffb819e';
-import { chestVanishes } from '../shared/data/fieldchests.js?v=35500ffb819e';
-import { boardCanvas } from './render/boards.js?v=35500ffb819e';
-import { el } from './ui/dom.js?v=35500ffb819e';
-import { syncTreasureGates } from './ui/treasure.js?v=35500ffb819e';
-import { skyNpcSprite } from './render/sky-art.js?v=35500ffb819e';
-import { wagonDraws } from './render/wagon.js?v=35500ffb819e';
-import { Weather } from './render/weather.js?v=35500ffb819e';
-import { flySpeed } from '../shared/data/sky.js?v=35500ffb819e';
+import { MAPS, isBlocked, effectiveTile, condOk, tileAt, onWater, slidesAt } from '../shared/maps/index.js?v=e73ea3162cdf';
+import { T, TILE_INFO } from '../shared/tiles.js?v=e73ea3162cdf';
+import { PLACES } from '../shared/maps/overworld.js?v=e73ea3162cdf';
+import { TS, tileCanvas, frameOf, prepareMap } from './render/tiles.js?v=e73ea3162cdf';
+import { paintHuman, npcOpts, paintSpecial, paintShip, equipKey, CW, CH } from './render/chars.js?v=e73ea3162cdf';
+import { heroCanvas, heroLookKey } from './render/hero.js?v=e73ea3162cdf';
+import { monsterCanvas, bigNpcCanvas, bigNpcScale } from './render/monsters.js?v=e73ea3162cdf';
+import { MONSTERS } from '../shared/data/monsters.js?v=e73ea3162cdf';
+import { makeCanvas, ctxOf, shade, flipCanvas } from './render/pixel.js?v=e73ea3162cdf';
+import { chestCanvas as chestCanvas3d } from './render/tex3d.js?v=e73ea3162cdf';
+import { chestVanishes } from '../shared/data/fieldchests.js?v=e73ea3162cdf';
+import { boardCanvas } from './render/boards.js?v=e73ea3162cdf';
+import { el } from './ui/dom.js?v=e73ea3162cdf';
+import { syncTreasureGates } from './ui/treasure.js?v=e73ea3162cdf';
+import { skyNpcSprite } from './render/sky-art.js?v=e73ea3162cdf';
+import { wagonDraws } from './render/wagon.js?v=e73ea3162cdf';
+import { Weather } from './render/weather.js?v=e73ea3162cdf';
+import { flySpeed } from '../shared/data/sky.js?v=e73ea3162cdf';
 
 const SPEED = 4.6; // マス/びょう
 const RUN = 1.35; // はしると この ばい（はやすぎない ように）
@@ -200,7 +200,7 @@ export class Field {
     if (mode === '3d' && Field.webgl2() && cv) {
       if (!this.r3d) {
         try {
-          const { Field3D } = await import('./render/field3d.js?v=35500ffb819e');
+          const { Field3D } = await import('./render/field3d.js?v=e73ea3162cdf');
           this.r3d = new Field3D(this, cv);
         } catch (e) {
           console.warn('2.5Dにできませんでした', e);
@@ -971,8 +971,8 @@ export class Field {
       }
       ctx.globalCompositeOperation = 'source-over';
     }
-    // 雪・ふぶき・火の粉（第3章。render/weather.js）
-    this.weather.draw(ctx, this.vw, this.vh, this.lastDt || 16, this.weatherKind(), camX, camY);
+    // 雪・ふぶき・火の粉（第3章）・砂ぼこり・砂嵐（第4章。夜は かすみを くらく）。render/weather.js
+    this.weather.draw(ctx, this.vw, this.vh, this.lastDt || 16, this.weatherKind(), camX, camY, na);
     this.renderLabels(camX, camY);
   }
 
@@ -1118,7 +1118,7 @@ export class Field {
       }
       ctx.globalCompositeOperation = 'source-over';
     }
-    this.weather.draw(ctx, this.vw, this.vh, this.lastDt || 16, this.weatherKind(), this.me.x * TS, this.me.y * TS);
+    this.weather.draw(ctx, this.vw, this.vh, this.lastDt || 16, this.weatherKind(), this.me.x * TS, this.me.y * TS, na);
     this.renderLabels(0, 0);
   }
 
