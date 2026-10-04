@@ -121,6 +121,9 @@ const JOB_OUTFIT = {
   firefighter: { kind: 'work', main: '#22305a', band: '#f2e86a', fire: true },
   fruit_idol: { kind: 'dress', main: '#ff7ab8', trim: '#ffffff', pop: true },
   storm_idol: { kind: 'stage', main: '#283c8e' },
+  // 鉄道の 職業（白い 手ぶくろ。京急は 赤い ネクタイ）
+  train_driver: { kind: 'uniform', main: '#2c3a5c', tie: '#2a6ad0', gloves: '#f6f6fa' },
+  keikyu_driver: { kind: 'uniform', main: '#1c2444', tie: '#d8202c', gloves: '#f6f6fa' },
 };
 // ランドセルの 色（男の子は 黒、女の子は 赤）
 const PACK_COLORS = ['#26222e', '#d0303c'];
@@ -440,6 +443,9 @@ export function outfitOf(Lk, job, armorId, fem) {
         O.sleeve.cuff = cloth(mixC(main, '#000000', 0.25));
         O.belt = { m: leather('#16141c'), buckle: metal('silver'), y: 28.5, pouch: leather('#24222c') };
       }
+      // 運転士: えりを ひらいて ネクタイ、白い 手ぶくろ
+      if (S.tie && !S.police) O.torso = { ...O.torso, tie: cloth(S.tie) };
+      if (S.gloves) O.glove = cloth(S.gloves);
       break;
     }
     case 'baseball': {
@@ -771,7 +777,7 @@ export function drawTorsoFront(cv, P, O) {
     case 'uniform': {
       cv.part({ ol: 'line' });
       // 警察官は えりを ひらいて、水色の シャツと ネクタイが 見える
-      if (T.police) cv.poly([[14.2, 21.0], [17.8, 21.0], [17.0, 23.8], [16, 24.8], [15.0, 23.8]], T.shirt, { n: [0, -0.1] });
+      if (T.police || T.tie) cv.poly([[14.2, 21.0], [17.8, 21.0], [17.0, 23.8], [16, 24.8], [15.0, 23.8]], T.shirt, { n: [0, -0.1] });
       else cv.poly([[14.8, 21.0], [17.2, 21.0], [16, 22.8]], T.shirt, { n: [0, -0.1] });
       if (T.tie) { cv.part({ ol: 'soft' }); cv.poly([[15.6, 21.4], [16.4, 21.4], [16.55, 23.6], [16, 24.5], [15.45, 23.6]], T.tie, { cx: 0.5 }); }
       cv.crease([[16, 22.8], [16, 30.8]], 0.25, -0.35, { parts: [base] });

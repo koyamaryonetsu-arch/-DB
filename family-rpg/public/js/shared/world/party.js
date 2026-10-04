@@ -553,10 +553,13 @@ export function partyState(world, p) {
   // なかまは リーダーの ものがたりの 世界を 見る（人の いち・橋・とびら など）
   const lflags = world.sessions.get(p.leader)?.char?.flags || {};
   const worldFlags = Object.keys(lflags).filter((f) => lflags[f]);
+  // 帰り道の羽・ルーラの 行き先も リーダーの 行った ことの ある 場所（world/travel.js の warpOwner）
+  const lvisited = world.sessions.get(p.leader)?.char?.visited || {};
   return {
     id: p.id,
     leader: p.leader,
     worldFlags,
+    worldVisited: Object.keys(lvisited).filter((k) => lvisited[k]),
     // リーダーの 目標（さそわれて 来ている 人の 画面に 出す）
     objective: world.sessions.get(p.leader)?.char?.objective || '',
     // パーティーの 時計（リーダーの 時間の ずれ。world/clock.js）

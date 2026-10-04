@@ -62,6 +62,8 @@ const JOB_LOOK = {
   shogun: { outfit: 'yoroi', cloth: '#8a2a2a', hat: 'kabuto', hatColor: '#2a2a32' },
   shacho: { outfit: 'suit', cloth: '#22222c', tie: '#f2c14e', glasses: true },
   nitoryu: { outfit: 'baseball', cloth: '#f4f4f4', trim: '#c83a3a', hat: 'bbcap', hatColor: '#1a2a5a' },
+  train_driver: { outfit: 'uniform', cloth: '#2c3a5c', hat: 'conductor', hatColor: '#2c3a5c' },
+  keikyu_driver: { outfit: 'uniform', cloth: '#1c2444', hat: 'conductor', hatColor: '#d8202c' },
 };
 
 // よろい・ふくの みため（'cloth' は じぶんで えらんだ いろ）

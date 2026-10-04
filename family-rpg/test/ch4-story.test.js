@@ -254,7 +254,7 @@ test('砂ばくの 夜: 夜は 月のゆうれいが うろうろ。昼は い�
   assert.ok(day.every((s) => !MONSTERS[s.sp].night));
 });
 
-test('家族で: リーダーの 世界で 南へ 飛べて、ついていく なかまも いっしょ（なかまの 物語は そのまま）', { timeout: 60000 }, async () => {
+test('家族で: リーダーの 世界で 南へ 飛べて、いっしょに 乗った なかまも いっしょ（なかまの 物語は そのまま）', { timeout: 60000 }, async () => {
   const world = new GameWorld({ offline: false, rng: makeRng(45), checkPassword: () => true, rateLimit: false, now: () => at(DAY) });
   const papa = new Bot(world, 'パパ');
   const kid = new Bot(world, 'ユイ');
@@ -274,6 +274,10 @@ test('家族で: リーダーの 世界で 南へ 飛べて、ついていく �
   world.placeSession(kid.s, 'north', 64.5, 76.5, 'up', true);
   kid.send({ t: 'move', x: 64.5, y: 76.55, dir: 'up', moving: false, seq: kid.seq, follow: true });
   papa.send({ t: 'fly', action: 'call' });
+  // ユイは「いっしょに 乗る」を えらぶ
+  const ask = kid.msgs.filter((m) => m.t === 'flyAsk').pop();
+  assert.equal(ask?.mount, 'アステル', '星の竜に 乗るか きかれる');
+  kid.send({ t: 'fly', action: 'ride', id: ask.id, yes: true });
   assert.ok(papa.s.flying && kid.s.flying, '竜に みんなで 乗った');
   papa.send({ t: 'fly', action: 'region', to: 'south' });
   assert.equal(papa.s.map, 'south');

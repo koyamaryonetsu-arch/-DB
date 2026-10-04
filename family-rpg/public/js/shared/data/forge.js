@@ -1,15 +1,16 @@
-// ふしぎなかじ: 作る（レシピ）と きたえる（+1〜+3）の きまり
+// ふしぎなかじ: 作る（レシピ）と きたえる（+1〜）の きまり
 //
 // 作る   … 素材 ＋ ゴールドで、店では 売っていない 装備を 作る。物語が すすむと 作れる 物が ふえる
-// きたえる … 武器・よろい・たて・頭の 装備を +1 → +2 → +3 に する（アクセサリーは できない）
+// きたえる … 武器・よろい・たて・頭の 装備を +1 → +2 → … に する（アクセサリーは できない）
+//            きたえられる 回数は 装備の ランクで きまる（items-forge.js の upgradeLimit。ランク1は +1、ランク7からは +5）
 //            1回ごとに 攻撃力（守備力）が もとの 1わり（少なくても 1）上がる（items-forge.js の upgradedItem）
-//            素材と ゴールドは 回数が すすむほど ふえる。+3 には 星のかけらも いる
+//            素材と ゴールドは 回数が すすむほど ふえる。+3 からは 星のかけらも いる
 // バランス: 作った 物・きたえた 物を 売っても、かかった ゴールドと 素材より 高くは ならない（テストで たしかめる）
 import { ITEMS, sellPrice } from './items.js';
-import { UPGRADE_MAX, UPGRADE_TYPES, upgradeId, addUpgradeItems } from './items-forge.js';
+import { UPGRADE_TYPES, upgradeId, upgradeLimit, addUpgradeItems } from './items-forge.js';
 import { CH3_RECIPES } from './items-ch3.js';
 
-// ほかの ファイルで あとから 足された 装備にも +1〜+3 を 作る（なんど よんでも おなじ）
+// ほかの ファイルで あとから 足された 装備にも +1〜 を 作る（なんど よんでも おなじ）
 addUpgradeItems(ITEMS);
 
 // ランクごとに 作れるように なる 物語の しるし（店の 品ぞろえと おなじ ころ）
@@ -56,8 +57,8 @@ export function openRecipes(hasFlag = () => false) {
 }
 
 // ───── きたえる ─────
-// 1回ごとの ゴールド（もとの 値段の わりあい）
-const UP_GOLD = [0.25, 0.5, 0.8];
+// 1回ごとの ゴールド（もとの 値段の わりあい。+1・+2・+3・+4・+5）
+const UP_GOLD = [0.25, 0.5, 0.8, 1.1, 1.5];
 
 // きたえるのに 使う 素材（武器の 種類・よろいの 種類で きまる。upMat が あれば それ）
 export function upgradeMat(it) {
@@ -76,9 +77,16 @@ function worth(id) {
   return Math.max(20 * (it.rank || 1), it.price > 0 ? it.price : Math.round(sellPrice(id) * 4 / 3));
 }
 
+// その 装備を 何回まで きたえられるか（ランクで きまる。きたえられない 物は 0）
+export function maxPlus(id) {
+  const it = ITEMS[id];
+  if (!it || !UPGRADE_TYPES.includes(it.type)) return 0;
+  return upgradeLimit(ITEMS[it.base || id] || it);
+}
+
 export function canUpgrade(id) {
   const it = ITEMS[id];
-  return !!it && UPGRADE_TYPES.includes(it.type) && (it.plus || 0) < UPGRADE_MAX && !!ITEMS[upgradeId(it.base || id, (it.plus || 0) + 1)];
+  return !!it && UPGRADE_TYPES.includes(it.type) && (it.plus || 0) < maxPlus(id) && !!ITEMS[upgradeId(it.base || id, (it.plus || 0) + 1)];
 }
 
 // id を 1回 きたえる ための もの（きたえられない ときは null）
@@ -93,7 +101,8 @@ export function upgradeCost(id) {
   const gold = Math.max(10 * n * rank, Math.round((worth(base) * UP_GOLD[n - 1]) / 10) * 10);
   const mats = [[upgradeMat(b), n + Math.floor((rank - 1) / 2)]];
   if (rank >= 4) mats.push(['silver_shard', n]);
-  if (n >= UPGRADE_MAX) mats.push(['star_shard', rank >= 4 ? 2 : 1]);
+  // +3 からは 星のかけら（回数が すすむほど・ランクが 高いほど 多く）
+  if (n >= 3) mats.push(['star_shard', n - 2 + (rank >= 4 ? 1 : 0)]);
   return { from: id, to: upgradeId(base, n), base, n, gold, mats };
 }
 

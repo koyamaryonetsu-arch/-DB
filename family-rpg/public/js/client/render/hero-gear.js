@@ -755,6 +755,8 @@ const JOB_HAT = {
   firefighter: { kind: 'firehelmet', c: '#e8eaf2', hides: 'top' },
   fruit_idol: { kind: 'fruitbow', c: '#ff6aa8' },
   storm_idol: { kind: 'headset', c: '#2a2a36' },
+  train_driver: { kind: 'conductor', c: '#2c3a5c', hides: 'top' },
+  keikyu_driver: { kind: 'conductor', c: '#1c2444', band: '#d8202c', hides: 'top' },
 };
 function guessHead(it) {
   const name = it.name || '';

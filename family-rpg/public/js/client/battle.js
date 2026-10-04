@@ -82,7 +82,7 @@ const ANIM_SFX = {
   heal_ring: 'heal', stage: 'buff', cross_slash: 'smash', rock_smash: 'smash', ball: 'miss',
   // 学校・公務員・アイドルの 技（render/battlefx-jobs.js）
   notes: 'sleep', odama: 'smash', pillow: 'hit', camera: 'sparkle', stamp: 'stamp', siren: 'warn', water: 'wind',
-  fruits: 'debuff', fruits_big: 'blast', storm: 'wind',
+  fruits: 'debuff', fruits_big: 'blast', storm: 'wind', horn: 'warn', redtrain: 'train',
 };
 
 // ひらめきの 電球（ドット絵ふう）

@@ -424,6 +424,7 @@ export class Game {
       case 'party':
         this.party = m.party;
         this.worldFlagSet = Array.isArray(m.party?.worldFlags) ? new Set(m.party.worldFlags) : null;
+        this.worldVisited = Array.isArray(m.party?.worldVisited) ? new Set(m.party.worldVisited) : null;
         this.sky.onParty(m.party);
         this.hud.renderParty();
         this.refreshObjective();
@@ -437,6 +438,12 @@ export class Game {
         break;
       case 'fly':
         this.sky.onFly(m);
+        break;
+      case 'flyAsk':
+        this.sky.onAsk(m);
+        break;
+      case 'flyAskEnd':
+        this.sky.onAskEnd(m);
         break;
       case 'clock':
         this.sky.onClock(m);
@@ -688,6 +695,7 @@ export class Game {
     this.lastCharId = m.char.id;
     this.party = m.party;
     this.worldFlagSet = Array.isArray(m.party?.worldFlags) ? new Set(m.party.worldFlags) : null;
+    this.worldVisited = Array.isArray(m.party?.worldVisited) ? new Set(m.party.worldVisited) : null;
     this.players = m.players || [];
     this.posSeq = m.posSeq || 0;
     // サーバーの 時こく（昼・夜の 時計を あわせる）

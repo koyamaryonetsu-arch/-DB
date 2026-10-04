@@ -2017,11 +2017,12 @@ export class Effects {
           // 電車（先頭車両の 横から 見た 形）
           const tx = Math.round(p.x), ty = Math.round(p.y);
           x.globalAlpha = 1;
-          x.fillStyle = '#e8ecf4'; x.fillRect(tx, ty - 18, 88, 18);
+          // body: 車体の 色（京急は 赤）。color: おびの 色
+          x.fillStyle = p.body || '#e8ecf4'; x.fillRect(tx, ty - 18, 88, 18);
           x.fillStyle = p.color; x.fillRect(tx, ty - 8, 88, 4);
           x.fillStyle = '#2a3a5a';
           for (let i = 0; i < 5; i++) x.fillRect(tx + 8 + i * 15, ty - 15, 10, 6);
-          x.fillStyle = '#e8ecf4'; x.beginPath(); x.moveTo(tx + 88, ty - 18); x.lineTo(tx + 100, ty - 4); x.lineTo(tx + 88, ty); x.fill();
+          x.fillStyle = p.body || '#e8ecf4'; x.beginPath(); x.moveTo(tx + 88, ty - 18); x.lineTo(tx + 100, ty - 4); x.lineTo(tx + 88, ty); x.fill();
           x.fillStyle = '#2a2a3a'; for (let i = 0; i < 4; i++) x.fillRect(tx + 10 + i * 22, ty, 6, 3);
           x.fillStyle = '#ffffff'; x.globalAlpha = 0.6;
           for (let i = 0; i < 4; i++) x.fillRect(tx - 20 - i * 14, ty - 14 + i * 4, 14, 1);

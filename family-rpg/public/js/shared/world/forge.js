@@ -1,7 +1,7 @@
 // ふしぎなかじ屋（作る・きたえる）の そうさ
 import { ITEMS } from '../data/items.js';
 import { FORGES } from '../data/facilities.js';
-import { RECIPES, recipeOf, recipeOpen, openRecipes, upgradeCost, lackOf } from '../data/forge.js';
+import { RECIPES, recipeOf, recipeOpen, openRecipes, upgradeCost, lackOf, maxPlus } from '../data/forge.js';
 import { addItem, removeItem, itemCount, canEquipChar, computeStats } from '../stats.js';
 import { partyOf } from './party.js';
 import { BAG_STACK } from './bank.js';
@@ -48,7 +48,10 @@ export function forgeAction(world, s, msg, reply, { equipItem, ownChar }) {
     }
     case 'upgrade': {
       const cost = upgradeCost(msg.id);
-      if (!cost) return reply(false, 'それは、これ以上きたえられないな。');
+      if (!cost) {
+        const top = maxPlus(msg.id);
+        return reply(false, top ? `それは、これ以上きたえられないな。\n（その装備は+${top}まで。ランクが高い装備ほど、たくさんきたえられる）` : 'それは、きたえられないな。');
+      }
       // who … 装備している 人（じぶん か じぶんの 仲間）。ない ときは ふくろの 品
       const owner = msg.who ? ownChar(s, msg.who) : null;
       const slot = ITEMS[msg.id].type;

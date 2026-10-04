@@ -569,10 +569,12 @@ export class GameWorld {
     stepHazard(this, s, tx, ty);
     // ばしょの きろく（きかんのはね）。リーダーの 冒険を 手伝っている あいだは 自分の きろくに しない
     if (this.hostOf(s)) return;
+    let found = false;
     for (const [id, p] of Object.entries(PLACES)) {
       if (s.map === 'overworld' && tx >= p.x && ty >= p.y && tx < p.x + p.w && ty < p.y + p.h && !s.char.visited?.[id]) {
         s.char.visited = s.char.visited || {};
         s.char.visited[id] = true;
+        found = true;
       }
     }
     for (const [id, p] of Object.entries(SEA_PLACES)) {
@@ -580,8 +582,12 @@ export class GameWorld {
       if (s.map === p.map && tx >= rx && ty >= ry && tx < rx + rw && ty < ry + rh && !s.char.visited?.[id]) {
         s.char.visited = s.char.visited || {};
         s.char.visited[id] = true;
+        found = true;
       }
     }
+    // リーダーが 新しい 場所に 来たら、なかまの 行き先（帰り道の羽・ルーラ）も ふえる
+    const party = found && partyOf(this, s);
+    if (party && party.members.length > 1) this.sendParty(party);
   }
 
   // リーダーに「ついていく」に している なかまは、でいりぐちも いっしょに とおる

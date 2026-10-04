@@ -13,7 +13,7 @@ import { MONSTERS } from '../data/monsters.js';
 import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings } from '../battle.js';
 import { PLACES } from '../maps/overworld.js';
 import { POS, SEA_PLACES } from '../maps/index.js';
-import { castRura, warpParty, useTimeBell } from './travel.js';
+import { castRura, warpParty, useTimeBell, warpPlaces, warpOwner } from './travel.js';
 import { bankInfo, bankAction } from './bank.js';
 import { forgeInfo, forgeAction } from './forge.js';
 import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction, wagonHere, wagonHealEntries } from './wagon.js';
@@ -351,7 +351,8 @@ export function menuAction(world, s, msg) {
         return reply(true, `${c.name}は聖水をふりまいた！\nしばらく弱い魔物が寄ってこない。`);
       }
       if (eff.type === 'warp') {
-        const dest = msg.place && (PLACES[msg.place] || SEA_PLACES[msg.place]) && c.visited?.[msg.place] ? msg.place : null;
+        // 行き先は リーダーと おなじ（パーティーで リーダーの 冒険に 来ている ときは リーダーの きろく。travel.js）
+        const dest = msg.place && warpPlaces(warpOwner(world, s)).includes(msg.place) ? msg.place : null;
         if (!dest) return reply(false, 'どこへ行く？');
         const kind = world.mapKind(s.map);
         if (kind !== 'field' && kind !== 'dungeon') return reply(false, '');

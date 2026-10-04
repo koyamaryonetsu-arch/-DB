@@ -1,4 +1,4 @@
-// 学校・公務員・町の みかた・アイドルの 技の エフェクト
+// 学校・公務員・町の みかた・アイドル・運転士の 技の エフェクト
 // battlefx.js の play() の さいしょに よばれる（ここに ない anim なら false を かえす）
 // どれも あたる しゅんかんが すぐ（ダメージの 数字と ずれない）
 
@@ -170,6 +170,23 @@ export function playJobFx(fx, anim, targets, element, opts = {}, W = 256, H = 14
         fx.burst(x, y, ['#ffffff', '#d8ffe0', '#9af0b0'], 14, 80, { delay: d });
       });
       return true;
+    case 'horn': // 警笛: ファーン！と 音の わが ひろがる
+      fx.flashAt(60, '#fff6c8', 0);
+      each((x, y, d) => {
+        for (let k = 0; k < 3; k++) fx.ring(x, y, k % 2 ? '#ffffff' : '#ffe066', 2, d + k * 110, 340, 26 + k * 12);
+        fx.speedLines(x, y, { delay: d + 60, r1: 70 });
+      });
+      return true;
+    case 'redtrain': { // 京急の 赤い電車（白い おび）が 走りぬける
+      const y0 = Math.min(H - 30, Math.max(...targets.map((t) => t.y)) + 6);
+      fx.add({ kind: 'train', x: -100, y: y0, vx: 640, vy: 0, color: '#f4f4f4', body: '#d8202c', life: 620 });
+      fx.flashAt(70, '#ffd0d0', 120);
+      each((x, y, d, ti) => {
+        fx.speedLines(x, y, { delay: d + 120, r1: 96 });
+        fx.bigHit(x, y, { crit, heavy: true, delay: d + 150 + ti * 30, color: '#ff8a8a' });
+      });
+      return true;
+    }
     default:
       return false;
   }

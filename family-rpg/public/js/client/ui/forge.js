@@ -11,7 +11,7 @@ import { request } from './shop.js';
 import { rankText } from './info.js';
 import { ITEMS } from '../../shared/data/items.js';
 import { UPGRADE_TYPES, UPGRADE_MAX } from '../../shared/data/items-forge.js';
-import { recipeOf, upgradeCost, lackOf, canUpgrade } from '../../shared/data/forge.js';
+import { recipeOf, upgradeCost, lackOf, canUpgrade, maxPlus } from '../../shared/data/forge.js';
 import { computeStats, itemCount } from '../../shared/stats.js';
 import { boardIconURL } from '../render/boards.js';
 
@@ -19,7 +19,7 @@ const BONUS_NAMES = { str: '力', def: '身の守り', agi: '素早さ', mag: '�
 
 const HINTS = {
   craft: '素材とゴールドで、店では売っていない装備を作る。\n物語が進むと、作れる物がふえる。',
-  upgrade: `武器・よろい・たて・頭の装備を、+1から+${UPGRADE_MAX}まできたえる。\n1回ごとに攻撃力や守備力が上がる。\n+${UPGRADE_MAX}には星のかけらもいる。`,
+  upgrade: `武器・よろい・たて・頭の装備をきたえる。1回ごとに攻撃力や守備力が上がる。\nきたえられる回数は、装備のランクで決まる。\n（ランク1は+1まで。ランクが高いほど多く、最大+${UPGRADE_MAX}）\n+3からは星のかけらもいる。`,
   exit: '',
 };
 
@@ -185,9 +185,11 @@ function upgradeBox(game, cand) {
   box.append(el('div', { class: 'hd' }, el('span', { class: 'gold', text: title }), el('span', { class: 'rk', text: rankText(cand.id) })));
   if (!cost) {
     if (cand.who) box.append(el('div', { class: 'small muted', text: `${cand.whoName}が装備している` }));
-    box.append(el('div', { class: 'detail', text: UPGRADE_TYPES.includes(it.type) ? `これ以上はきたえられない。（+${UPGRADE_MAX}が最大）` : 'これはきたえられない。' }));
+    box.append(el('div', { class: 'detail', text: UPGRADE_TYPES.includes(it.type) ? `これ以上はきたえられない。\n（この装備は+${maxPlus(cand.id)}まで。ランクが高い装備ほど、たくさんきたえられる）` : 'これはきたえられない。' }));
     return box;
   }
+  // きたえられる 回数（ランクで きまる）
+  box.append(el('div', { class: 'small muted forge-limit', text: `この装備は+${maxPlus(cand.id)}まできたえられる。（今は+${it.plus || 0}）` }));
   const before = statLines(cand.id);
   const after = statLines(cost.to);
   const tbl = el('div', { class: 'forge-stats' });

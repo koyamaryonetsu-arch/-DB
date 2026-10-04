@@ -114,7 +114,7 @@ export const JOBS = {
   },
   railman: {
     id: 'railman', name: '鉄道員', kana: 'てつどういん', short: '鉄道', tier: 0, family: 'phys', color: '#2a4a8a',
-    desc: '時間を守る鉄道員。指さし確認と非常ブレーキで、戦いの流れをととのえる。体がじょうぶ。',
+    desc: '時間を守る鉄道員。指さし確認と非常ブレーキで、戦いの流れをととのえる。体がじょうぶ。きわめると運転士になれる。',
     mods: { hp: 1.2, mp: 0.8, str: 1.1, def: 1.2, agi: 1.0, mag: 0.7, heal: 0.9 },
     weapons: ['fan', 'staff', 'spear', 'none'], shield: true, armor: ['cloth', 'heavy'], helm: true,
     perLv: { hp: 1, def: 0.5 },
@@ -461,15 +461,33 @@ export const JOBS = {
     versatile: true,
     learn: [[1, 'ar_senpu'], [3, 'ar_manazashi'], [5, 'ar_harmony'], [7, 'ar_stage'], [10, 'ar_live']],
   },
+
+  // ───────────── 鉄道の 職業（鉄道員 → 運転士 → 京急の運転士） ─────────────
+  train_driver: {
+    id: 'train_driver', name: '運転士', kana: 'うんてんし', short: '運転', tier: 1, req: ['railman'], family: 'phys', color: '#3a5a9a',
+    desc: '白い手ぶくろで電車を動かす運転士。警笛で敵をおどろかせ、連結した車両で体当たりする。安全運転で仲間も守る。',
+    mods: { hp: 1.3, mp: 0.9, str: 1.25, def: 1.3, agi: 1.1, mag: 0.75, heal: 0.95 },
+    weapons: ['fan', 'staff', 'spear', 'none'], shield: true, armor: ['cloth', 'heavy'], helm: true,
+    perLv: { hp: 1, def: 0.5, str: 0.5 },
+    learn: [[1, 'dv_kiteki'], [3, 'dv_anzen'], [5, 'dv_tsuuka'], [7, 'dv_renketsu'], [10, 'dv_saikou']],
+  },
+  keikyu_driver: {
+    id: 'keikyu_driver', name: '京急の運転士', kana: 'けいきゅうのうんてんし', short: '京急', tier: 2, req: ['train_driver'], family: 'phys', color: '#d8202c',
+    desc: '赤い電車を120キロで走らせる、京急の運転士。歌う電車の音で仲間をはげまし、がんじょうな先頭車でみんなを守る。鉄道の職業の頂点。',
+    mods: { hp: 1.45, mp: 1.05, str: 1.45, def: 1.4, agi: 1.4, mag: 0.9, heal: 1.05 },
+    weapons: ['fan', 'staff', 'spear', 'sword', 'none'], shield: true, armor: ['cloth', 'heavy'], helm: true,
+    perLv: { hp: 1, str: 0.5, agi: 0.5, def: 0.5 },
+    learn: [[1, 'kq_doremi'], [3, 'kq_120'], [5, 'kq_sentou'], [7, 'kq_daiya'], [10, 'kq_kaitoku']],
+  },
 };
 
 // はじめに えらべる 職業（基本職）
 export const JOB_ORDER = ['warrior', 'monk', 'priest', 'mage', 'performer', 'jester', 'salaryman', 'idol', 'railman', 'ballplayer',
   'schoolkid', 'civil_local'];
 export const ADVANCED_ORDER = ['battlemaster', 'paladin', 'magic_knight', 'pirate', 'holyfist', 'ninja', 'tamer', 'sage', 'superstar', 'fortune',
-  'samurai', 'bucho', 'major_leaguer', 'middleschooler', 'civil_national', 'police', 'firefighter'];
+  'samurai', 'bucho', 'major_leaguer', 'middleschooler', 'civil_national', 'police', 'firefighter', 'train_driver'];
 export const SUPER_ORDER = ['dragon_knight', 'archmage', 'high_priest', 'god_hand', 'summoner', 'magic_swordsman', 'guardian', 'hero', 'monster_master', 'star_diva',
-  'sword_master', 'shogun', 'shacho', 'nitoryu', 'highschooler', 'career', 'fruit_idol', 'storm_idol'];
+  'sword_master', 'shogun', 'shacho', 'nitoryu', 'highschooler', 'career', 'fruit_idol', 'storm_idol', 'keikyu_driver'];
 export const ALL_JOBS = [...JOB_ORDER, ...ADVANCED_ORDER, ...SUPER_ORDER];
 export const TIER_NAMES = ['基本職', '上級職', '超級職'];
 
@@ -550,4 +568,5 @@ export const JOB_HINTS = {
   career: '国家公務員をきわめたエリートは、国を動かす仕事につけるらしい…',
   fruit_idol: 'スーパースターをきわめた女性は、フルーツのようにカラフルなアイドルになれるらしい…',
   storm_idol: 'スーパースターをきわめた男性は、嵐のようにかっこいいアイドルになれるらしい…',
+  keikyu_driver: '運転士をきわめると、赤い電車を120キロで走らせる運転士になれるらしい…',
 };

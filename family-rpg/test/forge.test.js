@@ -2,8 +2,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { ITEMS, SLOTS, sellPrice, baseItemId, itemKana, sortItemIds } from '../public/js/shared/data/items.js';
-import { UPGRADE_MAX, UPGRADE_TYPES, upgradeId } from '../public/js/shared/data/items-forge.js';
-import { RECIPES, RECIPE_OPEN, recipeOpen, upgradeCost, lackOf, canUpgrade } from '../public/js/shared/data/forge.js';
+import { UPGRADE_MAX, UPGRADE_TYPES, UPGRADE_BY_RANK, upgradeId, upgradeLimit } from '../public/js/shared/data/items-forge.js';
+import { RECIPES, RECIPE_OPEN, recipeOpen, upgradeCost, lackOf, canUpgrade, maxPlus } from '../public/js/shared/data/forge.js';
 import { BANK_KINDS, BANK_STACK } from '../public/js/shared/data/facilities.js';
 import { MAT_DROPS, monsterDrops, rollDrops } from '../public/js/shared/data/loot.js';
 import { MONSTERS } from '../public/js/shared/data/monsters.js';
@@ -290,7 +290,10 @@ test('きたえる: +1〜+3 で 攻撃力（守備力）が もとの 1わりず
   assert.equal(ITEMS['herb+1'], undefined);
   for (const [id, it] of Object.entries(ITEMS)) {
     if (it.base) continue;
-    for (let n = 1; n <= UPGRADE_MAX; n++) {
+    // ランクで きまる 回数まで（むかしの セーブの ため +3 までは どれにも ある）
+    const top = UPGRADE_TYPES.includes(it.type) ? Math.max(3, maxPlus(id)) : UPGRADE_MAX;
+    if (UPGRADE_TYPES.includes(it.type)) assert.equal(ITEMS[upgradeId(id, top + 1)], undefined, `${id}+${top + 1} は ない`);
+    for (let n = 1; n <= top; n++) {
       const up = ITEMS[upgradeId(id, n)];
       if (!UPGRADE_TYPES.includes(it.type)) { assert.equal(up, undefined); continue; }
       assert.ok(up, `${id}+${n}`);
@@ -305,6 +308,39 @@ test('きたえる: +1〜+3 で 攻撃力（守備力）が もとの 1わりず
       assert.ok(!/[一-龯]/.test(itemKana(upgradeId(id, n))), '読みがな');
     }
   }
+});
+
+test('きたえる: きたえられる 回数は ランクで きまる（ランク1 +1・2 +2・3〜4 +3・5〜6 +4・7〜 +5）', () => {
+  assert.deepEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((r) => upgradeLimit({ rank: r })), [1, 2, 3, 3, 4, 4, 5, 5, 5, 5]);
+  assert.equal(UPGRADE_MAX, 5);
+  assert.equal(upgradeLimit({}), 1, 'ランクが ない 物は ランク1');
+  assert.ok(UPGRADE_BY_RANK.every((v, i) => !i || v >= UPGRADE_BY_RANK[i - 1]), 'ランクが 高いほど 多い');
+  // 木の剣（ランク1）は +1 まで
+  assert.equal(ITEMS.wood_sword.rank, 1);
+  assert.equal(maxPlus('wood_sword'), 1);
+  assert.ok(canUpgrade('wood_sword'));
+  assert.ok(!canUpgrade('wood_sword+1'), '+1 で おしまい');
+  assert.equal(upgradeCost('wood_sword+1'), null);
+  // むかしの セーブで +3 に して あった 木の剣も きえない（使えるが、これ以上は きたえられない）
+  assert.equal(ITEMS['wood_sword+3'].atk, 9);
+  assert.ok(!canUpgrade('wood_sword+2') && !canUpgrade('wood_sword+3'));
+  // 鉄（ランク3）は +3、はがね（ランク5）は +4
+  assert.equal(maxPlus('iron_sword'), 3);
+  assert.equal(maxPlus('iron_sword+2'), 3, 'きたえた 物は もとの ランクで');
+  const r5 = Object.keys(ITEMS).find((id) => ITEMS[id].type === 'weapon' && ITEMS[id].rank === 5 && !ITEMS[id].base);
+  assert.equal(maxPlus(r5), 4);
+  assert.ok(ITEMS[upgradeId(r5, 4)], `${r5}+4`);
+  assert.equal(ITEMS[upgradeId(r5, 5)], undefined);
+  const c4 = upgradeCost(upgradeId(r5, 3));
+  assert.equal(c4.to, upgradeId(r5, 4));
+  assert.ok(c4.gold > upgradeCost(upgradeId(r5, 2)).gold, '+4 は もっと 高い');
+  assert.deepEqual(c4.mats.find(([m]) => m === 'star_shard'), ['star_shard', 3], '+4 には 星のかけら 3個（ランク4から 1個 ふえる）');
+  assert.equal(upgradeCost(upgradeId(r5, 4)), null, '+4 で おしまい');
+  // ランク7の 物が あれば +5 まで
+  const r7 = { name: 'テストの剣', type: 'weapon', rank: 7, cat: 'sword', atk: 61, price: 9000 };
+  assert.equal(upgradeLimit(r7), 5);
+  // アクセサリーは 0
+  assert.equal(maxPlus('power_ring'), 0);
 });
 
 test('きたえる: 素材と ゴールドは 回数が すすむほど ふえる・+3 には 星のかけら・売っても もうからない', () => {

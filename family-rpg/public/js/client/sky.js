@@ -4,7 +4,7 @@
 // ・大鳥フウラ: サーバー（shared/world/travel.js）が きめた flying を うけて、とぶ・おりる えんしゅつと え を かく
 import { el, toast, ListMenu } from './ui/dom.js';
 import { dayFrac, isNightFrac, darkness } from '../shared/world/clock.js';
-import { SKY_MAPS, FLUTE_ID, edgeAt, regionsFrom, skyBox, clampSkyBox, mountOf } from '../shared/data/sky.js';
+import { SKY_MAPS, FLUTE_ID, RIDE_ASK_MS, edgeAt, regionsFrom, skyBox, clampSkyBox, mountOf } from '../shared/data/sky.js';
 import { birdCanvas, birdRideCanvas, BIRD_W, BIRD_H, RIDE_TOP } from './render/sky-art.js';
 import { dragonCanvas, dragonRideCanvas } from './render/dragon-art.js';
 import { playerSprite } from './field.js';
@@ -102,7 +102,77 @@ export class SkyClient {
     }
     const mount = this.mount();
     if (m.anim === 'call' && !m.ride) toast(`風の笛をふいた！\n${mount.title}${mount.name}が空からおりてきた！`);
-    else if (m.on && m.ride) toast(`リーダーといっしょに、${mount.title}${mount.name}に乗った！`);
+    else if (m.on && m.ride) {
+      // リーダーの のりものに 乗った: リーダーに ついていく（いっしょに とんで、いっしょに おりる）
+      this.game.follow = true;
+      this.game.field.leaderCrumbs = [];
+      toast(`リーダーといっしょに、${mount.title}${mount.name}に乗った！`);
+    }
+  }
+
+  // ───────────── リーダーが 大鳥に 乗った:「いっしょに 乗る？」 ─────────────
+  // サーバー（world/travel.js の askRiders）から。たたかい・メニューの あいだは まって、あとで きく
+  onAsk(m) {
+    this.closeAsk();
+    this.ask = { ...m, at: performance.now() };
+  }
+
+  onAskEnd(m) {
+    if (!this.ask || (m.id && this.ask.id !== m.id)) return;
+    this.closeAsk();
+    this.ask = null;
+  }
+
+  closeAsk() {
+    if (!this.askBox) return;
+    this.askBox.menu.blur();
+    this.askBox.box.remove();
+    this.askBox = null;
+    this.game.menuOpen = false;
+  }
+
+  showAsk() {
+    const g = this.game;
+    const a = this.ask;
+    const box = el('div', { class: 'win choice sky-choice sky-ask' },
+      el('div', { class: 'q', text: `${a.name}が${a.title}${a.mount}に乗った！\nいっしょに乗る？` }));
+    const finish = (yes) => {
+      if (!this.askBox) return;
+      this.closeAsk();
+      this.ask = null;
+      g.audio.sfx('confirm');
+      g.net.send({ t: 'fly', action: 'ride', id: a.id, yes: !!yes });
+      if (!yes) {
+        // 乗らない: 地上に のこる（空の リーダーを 追いかけない）
+        if (g.follow) g.follow = false;
+        toast('地上にのこった。');
+      }
+    };
+    const menu = new ListMenu(g.input, {
+      items: [{ label: 'いっしょに乗る', value: true }, { label: '乗らない', value: false }],
+      sound: (x) => g.audio.sfx(x),
+      back: null,
+      onSelect: (it) => finish(it.value),
+      onCancel: () => finish(false),
+    });
+    box.append(menu.root);
+    document.getElementById('ui').append(box);
+    this.askBox = { box, menu };
+    g.menuOpen = true;
+    g.audio.sfx('sparkle');
+    menu.focus();
+  }
+
+  // まっている「いっしょに 乗る？」を 出す（フィールドで ほかの まどが ない とき）
+  updateAsk() {
+    const g = this.game;
+    if (!this.ask || this.askBox) return;
+    if (performance.now() - this.ask.at > RIDE_ASK_MS) {
+      this.ask = null;
+      return;
+    }
+    if (g.state !== 'field' || g.busy || g.menuOpen || document.querySelector('.sky-choice, .choice')) return;
+    this.showAsk();
   }
 
   send(action, extra = {}) {
@@ -198,6 +268,7 @@ export class SkyClient {
       if (this.anim.t >= this.anim.dur) this.anim = null;
     }
     this.edgeCool = Math.max(0, this.edgeCool - dt);
+    this.updateAsk();
     const region = SKY_MAPS[f.mapId];
     const show = g.state === 'field' && !!region && (this.flying || this.hasFlute);
     this.btn.hidden = !show;

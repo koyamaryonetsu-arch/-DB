@@ -381,9 +381,12 @@ export class FieldMenu {
   }
 
   // 帰り道の羽・ルーラの 行き先（行った ことの ある 町・村・港）
+  // パーティーの ときは リーダーが 行った ことの ある 場所（リーダーと おなじ。サーバーの world/travel.js warpOwner）
   warpChoices() {
     const g = this.game;
-    return Object.entries({ ...PLACES, ...SEA_PLACES }).filter(([id]) => g.me.visited?.[id] && id !== 'shrine').map(([id, p]) => ({ label: p.name, value: id }));
+    const helper = g.worldVisited && g.party && g.party.leader !== g.sid;
+    const been = helper ? g.worldVisited : new Set(Object.keys(g.me.visited || {}).filter((k) => g.me.visited[k]));
+    return Object.entries({ ...PLACES, ...SEA_PLACES }).filter(([id]) => been.has(id) && id !== 'shrine').map(([id, p]) => ({ label: p.name, value: id }));
   }
 
   // 不具合の 記録（この 端末の さいきんの もの）。コピーして 家族に 送れる

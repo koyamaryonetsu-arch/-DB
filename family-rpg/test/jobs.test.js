@@ -15,7 +15,7 @@ const master = (c, ...jobs) => { for (const j of jobs) c.jobs[j] = { lv: JOB_MAX
 
 test('職業データ: 上級職は 基本職 2つ（新しい 職業は 1つの ものも）、わざは ぜんぶ ある', () => {
   assert.equal(JOB_ORDER.length, 12);
-  assert.equal(ADVANCED_ORDER.length, 17);
+  assert.equal(ADVANCED_ORDER.length, 18);
   assert.ok(SUPER_ORDER.length >= 14);
   // はじめの 基本職 5つの くみあわせ 10とおりに 1つずつ 上級職
   const pairs = new Set(ADVANCED_ORDER.slice(0, 10).map((j) => JOBS[j].req.slice().sort().join('+')));

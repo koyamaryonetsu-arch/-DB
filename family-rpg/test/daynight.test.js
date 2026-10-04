@@ -514,7 +514,11 @@ test('大鳥: ミドリナ地方の 南の はし ⇄ 風の海の 北の はし
   world.placeSession(kid.s, 'overworld', g.x + 0.5, g.y + 1.5, 'up', true);
   kid.send({ t: 'move', x: g.x + 0.5, y: g.y + 1.55, dir: 'up', moving: false, seq: kid.seq, follow: true });
   papa.send({ t: 'fly', action: 'call' });
-  assert.ok(papa.s.flying && kid.s.flying, 'ついていく なかまも のる');
+  // なかまには「いっしょに 乗る？」と きく
+  const ask = kid.msgs.filter((m) => m.t === 'flyAsk').pop();
+  assert.ok(ask, 'のるか きかれる');
+  kid.send({ t: 'fly', action: 'ride', id: ask.id, yes: true });
+  assert.ok(papa.s.flying && kid.s.flying, '乗ると 答えた なかまも のる');
   assert.ok(kid.msgs.some((m) => m.t === 'fly' && m.on && m.ride));
   // はしで ない ところでは はしを こえられない
   papa.send({ t: 'fly', action: 'region', edge: true });

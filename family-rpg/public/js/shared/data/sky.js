@@ -27,6 +27,8 @@ export function flySpeed(flags) {
 // 笛を もらった しるし
 export const SKY_FLAG = 'sky_flute';
 export const FLUTE_ID = 'wind_flute';
+// リーダーが 大鳥に 乗った とき、なかまに「いっしょに 乗る？」と きいて まつ じかん（ミリびょう。world/travel.js）
+export const RIDE_ASK_MS = 60000;
 
 export const SKY_ITEMS = {
   wind_flute: {
