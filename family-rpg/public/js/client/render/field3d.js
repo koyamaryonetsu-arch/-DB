@@ -7,11 +7,14 @@ import * as THREE from '../../../vendor/three.min.js';
 import { T } from '../../shared/tiles.js';
 import { effectiveTile } from '../../shared/maps/index.js';
 import { hash2, valueNoise } from '../../shared/rng.js';
-import { Atlas, extraCanvas, propCanvas, PROP_TILES, leafCanvas, roofCanvas, tileArt, stormCanvas, curtainCanvas, puffCanvas } from './tex3d.js';
+import {
+  Atlas, extraCanvas, propCanvas, PROP_TILES, leafCanvas, roofCanvas, tileArt, stormCanvas, curtainCanvas, puffCanvas, canalWaterCanvas, rubbleCanvas,
+} from './tex3d.js';
 import { tileCanvas } from './tiles.js';
 import { duneShape, ch4Mask, onDesert } from './tiles-ch4.js';
+import { TROUGH, CANAL_CTX, CANAL_SUN, canalVariant, canalMask, canalFlow, damVertical } from './tiles-canal.js';
 import { flipCanvas, makeCanvas, ctxOf, whiteCopy } from './pixel.js';
-import { themedCanvas, partOfTile, partOfExtra } from './themes.js';
+import { themedCanvas, partOfTile, partOfExtra, partOfProp } from './themes.js';
 
 const PITCH = 55 * Math.PI / 180;
 const SIN = Math.sin(PITCH), COS = Math.cos(PITCH);
@@ -30,17 +33,19 @@ const WEATHER_FOG = {
   sandstorm: { near: 0.5, far: 12, color: new THREE.Color(0xb8875a) },
 };
 
-const WATER_TILES = new Set([T.WATER, T.DEEP, T.CAVE_WATER, T.BROKEN_BRIDGE]);
+const WATER_TILES = new Set([T.WATER, T.DEEP, T.CAVE_WATER, T.BROKEN_BRIDGE, T.CANAL_WATER]);
 const WALL_TILES = new Set([T.WALL_STONE, T.WALL_WOOD, T.ADOBE]);
 const TREE_TILES = new Set([T.TREE, T.PINE, T.SNOW_PINE, T.PALM]);
 // 第3章: ようがん・温泉（水と おなじ ひくさに、うごく え を はる）
 const LIQUID_TILES = { [T.LAVA]: { name: 'lava', y: WATER_Y + 0.06, speed: 380 }, [T.HOT_SPRING]: { name: 'spring', y: -0.2, speed: 520 } };
-// 地面の たかさ（深い 雪は すこし 高く・谷は ふかく）
-const FLOOR_H = { [T.STEPPING]: -0.16, [T.DEEP_SNOW]: 0.14, [T.CHASM]: -0.8 };
+// 第4章 Step 2（かれた地下水路）: 水路の 底・水の たかさ（通路より ひくい）・水門と こうしの とびらの たかさ・がれきの 山の たかさ
+const CANAL_BED_H = -0.42, CANAL_WATER_Y = -0.27, GATE_H = 1.05, DAM_H = 0.62;
+// 地面の たかさ（深い 雪は すこし 高く・谷は ふかく・水路の 底は ひくく）
+const FLOOR_H = { [T.STEPPING]: -0.16, [T.DEEP_SNOW]: 0.14, [T.CHASM]: -0.8, [T.CANAL_BED]: CANAL_BED_H, [T.DAM]: CANAL_BED_H };
 // 雪・氷・砂ばくの 地面の よこの え
 const SIDE_OF = {
   [T.SAND]: 'sand_side', [T.SNOW]: 'snow_side', [T.SNOW_PATH]: 'snow_side', [T.DEEP_SNOW]: 'snow_side', [T.ICE]: 'ice_side',
-  [T.DESERT]: 'sand_side', [T.DUNE]: 'sand_side',
+  [T.DESERT]: 'sand_side', [T.DUNE]: 'sand_side', [T.CANAL_FLOOR]: 'canal_side', [T.CANAL_BED]: 'canal_side',
 };
 // 第4章: 砂嵐の まくの 高さ・砂丘の 高さ（大きな 砂丘ほど まんなかが 高い。山 1.1〜 より ひくい）
 const STORM_H = 2.1;
@@ -97,12 +102,16 @@ function blockSpec(id, x, y) {
       return { h, top: ['x', 'sandstone_top', v], side: ['x', 'sandstone_side', v] };
     }
     case T.ADOBE: return { h: WALL_H, top: ['x', 'wall_top_adobe', 0], side: ['x', 'adobe_side', 0], south: ['t', T.ADOBE, v, 1] };
+    // 第4章 Step 2（かれた地下水路）: 切り石の かべ（洞窟の かべと おなじ 高さ）。水門・鉄の こうしは かべの 中の とびら（gate）
+    case T.CANAL_WALL: return { h: 1.6, top: ['x', 'canal_wall_top', v], side: ['x', 'canal_wall_side', v], south: ['t', T.CANAL_WALL, v, 1] };
+    case T.SLUICE: case T.SLUICE_OPEN: return { h: 1.6, top: ['x', 'sluice_top', v], side: ['x', 'canal_wall_side', v], south: ['t', id, 0, 0], gate: true };
+    case T.GRATE: return { h: 1.6, top: ['x', 'canal_wall_top', v], side: ['x', 'canal_wall_side', v], south: ['t', id, 0, 0], gate: true };
     default: return null;
   }
 }
 
-// テストで しらべる ため（かべ・き・地面の よこの え・ブロックの たかさ）
-export { blockSpec, WALL_TILES, TREE_TILES, SIDE_OF };
+// テストで しらべる ため（かべ・き・地面の よこの え・ブロックの たかさ・地下水路の 底と 水の たかさ）
+export { blockSpec, WALL_TILES, TREE_TILES, SIDE_OF, FLOOR_H, CANAL_WATER_Y, GATE_H };
 
 // タイルの しゅるい: FLOOR / WATER / BLOCK（もの・き は FLOOR の うえに たてる）
 function kindOf(id) {
@@ -229,8 +238,26 @@ export class Field3D {
     const specs = new Map();
     const spec = (x, y) => {
       const k = y * w + x;
-      if (!specs.has(k)) specs.set(k, wellRim(blockSpec(idAt(x, y), x, y), x, y));
+      if (!specs.has(k)) specs.set(k, canalSpec(wellRim(blockSpec(idAt(x, y), x, y), x, y), x, y));
       return specs.get(k);
+    };
+    // 第4章 Step 2: 地下水路の かべの たいまつは 切り石の かべ。水路の 上の かべの まえの かおは 水路の 底まで つづく
+    const canalSpec = (s, x, y) => {
+      if (!s) return s;
+      const id = idAt(x, y);
+      if (id === T.TORCH && canalMask(id, idAt, x, y) === CANAL_CTX) {
+        const v = s.top[2];
+        return { ...s, top: ['x', 'canal_wall_top', v], side: ['x', 'canal_wall_side', v], south: ['t', T.TORCH, v, CANAL_CTX | 1] };
+      }
+      if (id === T.CANAL_WALL && TROUGH.has(idAt(x, y + 1))) return { ...s, south: ['t', T.CANAL_WALL, s.south[2], 3] };
+      // 外（フィールドの 水路の 入り口）の かべは うえに 日が あたり、すそに 砂
+      if (!dungeon && (id === T.CANAL_WALL || id === T.GRATE)) {
+        const top = ['x', 'canal_wall_top_sun', s.top[2]];
+        return id === T.CANAL_WALL ? { ...s, top, south: ['t', T.CANAL_WALL, s.south[2], 1 | CANAL_SUN] } : { ...s, top };
+      }
+      // 地下水路の 柱は みぞの ある 砂岩の 柱
+      if (id === T.PILLAR && canalMask(id, idAt, x, y) === CANAL_CTX) return { ...s, top: ['x', 'canal_pillar_top', 0], side: ['x', 'canal_pillar_side', 0] };
+      return s;
     };
     // 第4章: 古井戸の あなを かこむ 日干しれんがは ひくい ふち（あなが 見える ように。やねの ある 家の かべは そのまま）。
     // 砂ばくの 村の 井戸は 砂の 上
@@ -247,6 +274,7 @@ export class Field3D {
       const id = idAt(x, y);
       if (id === -1 || id === T.VOID) return null;
       const k = kindOf(id);
+      if (id === T.CANAL_WATER) return CANAL_WATER_Y;
       if (k === WATER || id === T.WHIRLPOOL) return LIQUID_TILES[id]?.y ?? WATER_Y;
       if (k === BLOCK) return spec(x, y).h;
       return FLOOR_H[id] ?? 0;
@@ -259,7 +287,7 @@ export class Field3D {
       const name = kind === 't' ? `t:${a}:${b}:${c}` : `x:${a}:${b}`;
       const art = () => (kind === 't' ? tileArt(a, b, c) : extraCanvas(a, b));
       // 宝の洞窟は しゅるいで 色を かえる
-      if (map.theme) return atlas.uv(name, () => themedCanvas(art(), map.theme, kind === 't' ? partOfTile(a) : partOfExtra(a)));
+      if (map.theme) return atlas.uv(name, () => themedCanvas(art(), map.theme, kind === 't' ? partOfTile(a, c) : partOfExtra(a)));
       return atlas.uv(name, art);
     };
 
@@ -274,6 +302,9 @@ export class Field3D {
         case T.BRIDGE_V: case T.PIER: return ['x', 'plank_v', 0];
         case T.CAVE_BRIDGE: return ['x', 'cave_plank', 0];
         case T.CAVE_ENTRANCE: return ['x', 'dark_hole', 0];
+        // 地下水路: 水路の 底は ばしょと 流れの むき（2D と おなじ）、通路は 水路の ふちの 石
+        case T.CANAL_BED: return ['t', id, canalVariant(id, idAt, x, y, 0), 0];
+        case T.CANAL_FLOOR: return ['t', id, Math.floor(hash2(x, y, 17) * 4), Math.max(0, canalMask(id, idAt, x, y))];
         case T.DOOR: {
           const inner = idAt(x, y - 1);
           return ['t', inner === T.FLOOR_STONE || inner === T.CARPET ? T.FLOOR_STONE : T.FLOOR_WOOD, 0, 0];
@@ -286,14 +317,16 @@ export class Field3D {
         for (const [dx, dy] of [[0, -1], [1, 0], [0, 1], [-1, 0], [1, 1], [-1, -1], [1, -1], [-1, 1]]) {
           // 砂丘・砂嵐の となりは 砂ばくの 地面（第4章）
           const n0 = idAt(x + dx, y + dy), n = n0 === T.DUNE || n0 === T.SANDSTORM ? T.DESERT : n0;
-          if (n === -1 || kindOf(n) !== FLOOR || PROP_TILES.has(n) || TREE_TILES.has(n) || n === T.DOOR) continue;
+          if (n === -1 || kindOf(n) !== FLOOR || PROP_TILES.has(n) || TREE_TILES.has(n) || n === T.DOOR || TROUGH.has(n)) continue;
           cnt.set(n, (cnt.get(n) || 0) + 1);
         }
         let best = dungeon ? T.CAVE_FLOOR : map.ground || T.GRASS, bn = 0;
         for (const [n, c] of cnt) if (c > bn) { bn = c; best = n; }
         return ['t', best, Math.floor(hash2(x, y, 17) * 4), 0];
       }
-      return ['t', id, Math.floor(hash2(x, y, 17) * 4), 0];
+      // 地下水路の まわりの かいだん・がれき・ボスの ゆかは 水路の え（mask の CANAL_CTX）
+      const cm = canalMask(id, idAt, x, y);
+      return ['t', id, Math.floor(hash2(x, y, 17) * 4), cm === CANAL_CTX ? cm : 0];
     };
 
     // チャンク（16×16）ごとに まとめる
@@ -306,10 +339,13 @@ export class Field3D {
     const liquids = {};
     const trees = [], pines = [], snowPines = [], palms = [];
     const dunes = [], storm = [];
+    const canal = [], dams = [];
     const isBlockAt = (x, y) => {
       const id = idAt(x, y);
       return id !== -1 && kindOf(id) === BLOCK && spec(x, y).h > 0.55;
     };
+    // 南・東・西の となりが 地下水路の 中（底・水・せき）
+    const troughNear = (x, y) => TROUGH.has(idAt(x, y + 1)) || TROUGH.has(idAt(x + 1, y)) || TROUGH.has(idAt(x - 1, y));
 
     for (let y = 0; y < h; y++) {
       for (let x = 0; x < w; x++) {
@@ -324,6 +360,7 @@ export class Field3D {
           quad(g, [x, wy, y], [x, wy, y + 1], [x + 1, wy, y + 1], [x + 1, wy, y], uvOf(['t', T.WHIRLPOOL, Math.floor(hash2(x, y, 17) * 4), 0]), 1);
           continue;
         }
+        if (id === T.CANAL_WATER) { canal.push([x, y]); continue; } // 地下水路の 水（あとで まとめて）
         if (kind === WATER && LIQUID_TILES[id]) {
           // ようがん・温泉
           const L = LIQUID_TILES[id];
@@ -340,17 +377,31 @@ export class Field3D {
           // 砂丘は あとで まとめて（なめらかな 山）。砂嵐の かべも（うごく え）
           if (id === T.DUNE) { dunes.push([x, y]); continue; }
           if (id === T.SANDSTORM) { storm.push([x, y]); continue; }
-          // かどの かげ（かべの ちかくは すこし くらい）
-          const ao = (cx, cy) => (isBlockAt(cx - 1, cy - 1) || isBlockAt(cx, cy - 1) || isBlockAt(cx - 1, cy) || isBlockAt(cx, cy) ? 0.8 : 1);
+          if (id === T.DAM) { dams.push([x, y]); continue; } // がれきの せき（あとで まとめて 山に）
+          // かどの かげ（かべの ちかくは すこし くらい。水路の 底は 岸の ちかくも くらい）
+          const sunk = TROUGH.has(id);
+          const ao = (cx, cy) => {
+            const n = [[cx - 1, cy - 1], [cx, cy - 1], [cx - 1, cy], [cx, cy]];
+            if (n.some(([a, b]) => isBlockAt(a, b))) return 0.8;
+            if (sunk && n.some(([a, b]) => !TROUGH.has(idAt(a, b)) && (topH(a, b) ?? hh) > hh + 0.2)) return 0.74;
+            return 1;
+          };
           quad(g, [x, hh, y], [x, hh, y + 1], [x + 1, hh, y + 1], [x + 1, hh, y], uvOf(floorKey(x, y, id)), [ao(x, y), ao(x, y + 1), ao(x + 1, y + 1), ao(x + 1, y)]);
-          sides(g, x, y, hh, (dx, dy) => topH(x + dx, y + dy), () => uvOf(['x', SIDE_OF[idAt(x, y)] || (dungeon ? 'cave_side' : 'shore_side'), 0]));
+          // よこの め（水路の となりは 水路の 岸の 石）
+          const sideName = SIDE_OF[id] || (troughNear(x, y) ? 'canal_side' : dungeon ? 'cave_side' : 'shore_side');
+          sides(g, x, y, hh, (dx, dy) => topH(x + dx, y + dy), () => uvOf(['x', sideName, sideName === 'canal_side' ? (x * 3 + y) & 3 : 0]));
           if (PROP_TILES.has(id)) {
             const c = propCanvas(id);
-            if (c) this.addProp(props, map.theme ? themedCanvas(c, map.theme, 'floor') : c, x + 0.5, y + 0.78, id);
+            if (c) this.addProp(props, map.theme ? themedCanvas(c, map.theme, partOfProp(id, map.theme)) : c, x + 0.5, y + 0.78, id);
           } else if (id === T.TREE) trees.push([x, y]);
           else if (id === T.PINE) pines.push([x, y]);
           else if (id === T.SNOW_PINE) snowPines.push([x, y]);
           else if (id === T.PALM) palms.push([x, y]);
+          // 地下水路の 入り口（こうしが ひらいた あと）: かいだんの 上に 切り石の まぐさ
+          if (id === T.STAIRS_DOWN && idAt(x - 1, y) === T.CANAL_WALL && idAt(x + 1, y) === T.CANAL_WALL) {
+            const lu = uvOf(['x', 'canal_wall_side', 0]);
+            box(g, x, y, GATE_H, 1.6, uvOf(['x', dungeon ? 'canal_wall_top' : 'canal_wall_top_sun', 0]), lu, lu, () => GATE_H);
+          }
           // もんの うえの かべ（たてものの いりぐち）
           if (id === T.DOOR) {
             const rr = roofOf(x, y);
@@ -366,9 +417,29 @@ export class Field3D {
         const rr = WALL_TILES.has(id) ? roofOf(x, y) : null;
         const tgt = rr ? rr.geo : g;
         const top = uvOf(s.top), side = uvOf(s.side), south = s.south ? uvOf(s.south) : side;
-        box(tgt, x, y, 0, s.h, top, side, south, (dx, dy) => topH(x + dx, y + dy));
+        const hAt = (dx, dy) => topH(x + dx, y + dy);
+        if (s.gate) {
+          // 水門・鉄の こうし: ひくい がわの 下に とびら、上は 石の かべ
+          gateBox(tgt, x, y, s.h, top, side, south, hAt);
+          // 開いた 水門: 引き上げた 板が かべの 上に つきでる（かべの ならぶ むきに）
+          if (id === T.SLUICE_OPEN) {
+            const ns = (topH(x, y - 1) ?? 0) >= s.h - 0.01 || (topH(x, y + 1) ?? 0) >= s.h - 0.01;
+            const board = uvOf(['x', 'sluice_board', 0]);
+            if (ns) thinBox(tgt, x + 0.42, x + 0.58, y + 0.08, y + 0.92, s.h, s.h + 0.62, board, board);
+            else thinBox(tgt, x + 0.08, x + 0.92, y + 0.42, y + 0.58, s.h, s.h + 0.62, board, board);
+          }
+        } else if (troughNear(x, y)) {
+          // 水路の となりの かべ: 通路の たかさ（0）までは いつもの かべ、その 下は 水路の 岸の 石
+          box(tgt, x, y, 0, s.h, top, side, south, (dx, dy) => (TROUGH.has(idAt(x + dx, y + dy)) ? 0 : hAt(dx, dy)));
+          sides(tgt, x, y, 0, hAt, () => uvOf(['x', 'canal_side', (x * 3 + y) & 3]));
+        } else box(tgt, x, y, 0, s.h, top, side, south, hAt);
       }
     }
+
+    // 地下水路の 水（第4章 Step 2）: 流れの むきに え を まわす・水の ない 底との さかいに 水の よこの め・岸の ちかくは くらい
+    const canalGeo = canal.length ? addCanalWater(canal, idAt, topH) : null;
+    // がれきの せき: 水路の 底から もり上がる でこぼこの 山（上に 石と くずれた 切り石）
+    const dam = dams.length ? addDams(dams, idAt, uvOf) : null;
 
     // 砂丘（第4章）: 2D と おなじ かたち（duneShape）を 高さに した なめらかな 山
     const duneGeos = dunes.length ? addDunes(dunes, idAt, w, h, (x, y) => chunks[Math.floor(y / CH) * cw + Math.floor(x / CH)], uvOf, topH) : [];
@@ -381,6 +452,14 @@ export class Field3D {
     materials.push(worldMat);
     for (const g of chunks) if (g.pos.length) group.add(new THREE.Mesh(toGeometry(g), worldMat));
     for (const g of duneGeos) group.add(new THREE.Mesh(toGeometry(g), worldMat));
+    if (dam) {
+      group.add(new THREE.Mesh(toGeometry(dam.geo), worldMat));
+      const rm = new THREE.MeshBasicMaterial({ map: this.tex(rubbleCanvas()), vertexColors: true });
+      materials.push(rm);
+      const rocks = dam.rocks.filter((r) => !r[7]), blocks = dam.rocks.filter((r) => r[7]);
+      if (rocks.length) group.add(placed(rockGeometry(), rm, rocks));
+      if (blocks.length) group.add(placed(blockGeometry(), rm, blocks));
+    }
     // たてもの
     this.buildings = [];
     for (const { r, geo } of roofs) {
@@ -523,6 +602,28 @@ export class Field3D {
       });
       this.storm = { mat: sm, frames: sf, puff: pm, puffs: pf, curtains, make: (i) => tex(stormCanvas(i), true) };
     }
+    // 地下水路の 水（16コマ。32ドット = 2マスで くりかえす。東へ・南へ 流れる ところで べつの え）
+    this.canalWater = [];
+    if (canalGeo) {
+      [canalGeo.ew, canalGeo.ns].forEach((cg, flow) => {
+        if (!cg.pos.length) return;
+        const cf = [];
+        for (let i = 0; i < 16; i++) {
+          const t = new THREE.CanvasTexture(canalWaterCanvas(i, flow));
+          t.magFilter = THREE.NearestFilter;
+          t.minFilter = THREE.NearestFilter;
+          t.generateMipmaps = false;
+          t.wrapS = t.wrapT = THREE.RepeatWrapping;
+          t.colorSpace = THREE.SRGBColorSpace;
+          cf.push(t);
+          liquidFrames.push(t);
+        }
+        const cm = new THREE.MeshBasicMaterial({ map: cf[0], vertexColors: true });
+        materials.push(cm);
+        group.add(new THREE.Mesh(toGeometry(cg), cm));
+        this.canalWater.push({ mat: cm, frames: cf, speed: 110 });
+      });
+    }
     // みず
     const frames = [];
     if (water.pos.length) {
@@ -561,7 +662,7 @@ export class Field3D {
     this.scene.add(group);
     this.static = { group, materials, waterFrames: frames, liquidFrames };
     // 空と きりの 色（マップの sky3d で かえられる。雪の 地方は 白っぽい）
-    this.scene.background = new THREE.Color(map.sky3d?.bg || (dungeon ? ({ ice: '#0d1a33', sand: '#140c06' }[map.theme] || '#070505') : '#1c3d6e'));
+    this.scene.background = new THREE.Color(map.sky3d?.bg || (dungeon ? ({ ice: '#0d1a33', sand: '#140c06', canal: '#0e0a06' }[map.theme] || '#070505') : '#1c3d6e'));
     this.scene.fog = new THREE.Fog(map.sky3d?.fog ?? (dungeon ? 0x050304 : 0x9ec3e8), 10, 50);
     this.fogBase = { near: 8, far: 34, color: this.scene.fog.color.clone() };
     this.fogNow = null;
@@ -683,6 +784,11 @@ export class Field3D {
     for (const l of this.liquids || []) {
       const fr = l.frames[Math.floor(this.time / l.speed) % l.frames.length];
       if (l.mat.map !== fr) l.mat.map = fr;
+    }
+    // 地下水路の 水の 流れ
+    for (const c of this.canalWater || []) {
+      const fr = c.frames[Math.floor(this.time / c.speed) % c.frames.length];
+      if (c.mat.map !== fr) c.mat.map = fr;
     }
     // 砂嵐の かべ: 16コマで 64ドット（4マス）東へ。コマの あいだも すこしずつ ずらして なめらかに
     if (this.storm) {
@@ -864,6 +970,28 @@ function box(g, x, y, y0, y1, topUv, sideUv, southUv, hAt) {
   }
 }
 
+// 水門・鉄の こうし（第4章 Step 2）: うえ と、ひくい がわの めん（下から GATE_H は とびらの え、その 上は 石の かべ）
+function gateBox(g, x, y, h, topUv, sideUv, gateUv, hAt) {
+  quad(g, [x, h, y], [x, h, y + 1], [x + 1, h, y + 1], [x + 1, h, y], topUv, 1);
+  for (const [dx, dy, sh] of [[0, 1, 0.82], [1, 0, 0.68], [-1, 0, 0.62]]) {
+    let nh = hAt(dx, dy);
+    if (nh === null || nh === undefined) nh = 0;
+    if (nh >= h - 0.01) continue;
+    const gt = Math.min(h, nh + GATE_H);
+    wall(g, x, y, dx, dy, nh, gt, gateUv, sh);
+    if (gt < h - 0.01) wall(g, x, y, dx, dy, gt, h, sideUv, sh);
+  }
+}
+
+// うすい はこ（引き上げた 水門の 板）: x0〜x1・z0〜z1・y0〜y1
+function thinBox(g, x0, x1, z0, z1, y0, y1, sideUv, topUv) {
+  quad(g, [x0, y1, z0], [x0, y1, z1], [x1, y1, z1], [x1, y1, z0], topUv, 1);
+  quad(g, [x0, y1, z1], [x0, y0, z1], [x1, y0, z1], [x1, y1, z1], sideUv, 0.82);
+  quad(g, [x1, y1, z1], [x1, y0, z1], [x1, y0, z0], [x1, y1, z0], sideUv, 0.68);
+  quad(g, [x0, y1, z0], [x0, y0, z0], [x0, y0, z1], [x0, y1, z1], sideUv, 0.62);
+  quad(g, [x1, y1, z0], [x1, y0, z0], [x0, y0, z0], [x0, y1, z0], sideUv, 0.7);
+}
+
 function toGeometry(g) {
   const geo = new THREE.BufferGeometry();
   geo.setAttribute('position', new THREE.Float32BufferAttribute(g.pos, 3));
@@ -1021,6 +1149,127 @@ function addDunes(list, idAt, w, h, geoAt, uvOf, topH) {
     out.push({ pos, uv: uvs, col });
   }
   return out;
+}
+
+// ───────────── 地下水路の 水・がれきの せき（第4章 Step 2）─────────────
+// 水: 2D と おなじ もよう（32ドット = 2マス）。東へ 流れる ところ（ew）と 南へ 流れる ところ（ns）は べつの え。
+// 水の ない 底との さかいには 水の よこの め
+function addCanalWater(list, idAt, topH) {
+  const ew = newGeo(), ns = newGeo();
+  const S = 0.5, Y = CANAL_WATER_Y;
+  const bank = (x, y) => { const n = idAt(x, y); return n !== -1 && !TROUGH.has(n); };
+  // 岸の ちかくは くらい（4つの マスの どれかが 岸）
+  const ao = (cx, cy) => (bank(cx - 1, cy - 1) || bank(cx, cy - 1) || bank(cx - 1, cy) || bank(cx, cy) ? 0.72 : 1);
+  for (const [x, y] of list) {
+    const g = canalFlow(idAt, x, y) ? ns : ew;
+    quad(g, [x, Y, y], [x, Y, y + 1], [x + 1, Y, y + 1], [x + 1, Y, y], { u0: x * S, u1: (x + 1) * S, v0: -(y + 1) * S, v1: -y * S }, [ao(x, y), ao(x, y + 1), ao(x + 1, y + 1), ao(x + 1, y)]);
+    for (const [dx, dy] of [[0, 1], [1, 0], [-1, 0]]) {
+      const nh = topH(x + dx, y + dy);
+      if (nh === null || nh >= Y - 0.01) continue;
+      const uv = dy ? { u0: x * S, u1: (x + 1) * S, v0: 0, v1: S } : { u0: y * S, u1: (y + 1) * S, v0: 0, v1: S };
+      wall(g, x, y, dx, dy, nh, Y, uv, 0.7);
+    }
+  }
+  return { ew, ns };
+}
+
+// がれきの せき: 水路の 底から もり上がる 山（せきの ならぶ むきに せすじ。でこぼこ）。え は dam_top、かげは むきで つける
+const DAM_LIGHT = new THREE.Vector3(-0.35, 1, 0.2).normalize();
+function addDams(list, idAt, uvOf) {
+  const g = newGeo();
+  const isDam = (x, y) => idAt(x, y) === T.DAM;
+  const open = (x, y) => { const n = idAt(x, y); return n !== T.DAM && TROUGH.has(n); };
+  const vert = new Map(list.map(([x, y]) => [y * 100000 + x, damVertical(idAt, x, y)]));
+  const smooth = (t) => { const c = Math.max(0, Math.min(1, t)); return c * c * (3 - 2 * c); };
+  // 世界の いち → 山の 高さ（0〜1）
+  const shape = (wx, wz) => {
+    const tx = Math.floor(wx), tz = Math.floor(wz);
+    if (!isDam(tx, tz)) return 0;
+    const fx = wx - tx, fz = wz - tz, v = vert.get(tz * 100000 + tx);
+    const a = v ? fx : fz;
+    let s = smooth(1 - Math.abs(a - 0.5) / 0.5);
+    // せきの はしが 水路の 中で おわる ところは なだらかに
+    if (v) { if (open(tx, tz - 1)) s *= smooth(fz / 0.5); if (open(tx, tz + 1)) s *= smooth((1 - fz) / 0.5); }
+    else { if (open(tx - 1, tz)) s *= smooth(fx / 0.5); if (open(tx + 1, tz)) s *= smooth((1 - fx) / 0.5); }
+    return s;
+  };
+  const H = (wx, wz) => {
+    const s = shape(wx, wz);
+    if (s <= 0) return CANAL_BED_H;
+    return CANAL_BED_H + s * (DAM_H + (valueNoise(wx * 1.8, wz * 1.8, 31) - 0.5) * 0.24) + (valueNoise(wx * 5, wz * 5, 37) - 0.5) * 0.06 * s;
+  };
+  const N = 4, st = 1 / N;
+  // 上に のせる 石（[x, y, z, よこ, たて, おく, むき, 切り石か]）。山に すこし うめる
+  const rocks = [];
+  for (const [x, y] of list) {
+    const v = vert.get(y * 100000 + x);
+    for (let k = 0; k < 5; k++) {
+      const r1 = hash2(x, y, 101 + k), r2 = hash2(x, y, 113 + k), r3 = hash2(x, y, 127 + k);
+      const along = (k < 3 ? 0.17 + k * 0.33 : 0.33 + (k - 3) * 0.34) + (r1 - 0.5) * 0.14, across = k < 3 ? 0.36 + r2 * 0.22 : 0.62 + r2 * 0.16;
+      const px = x + (v ? across : along), pz = y + (v ? along : across), sz = (k < 3 ? 0.17 : 0.13) + r3 * 0.11;
+      rocks.push([px, H(px, pz) - sz * 0.35, pz, sz * 1.15, sz * 0.8, sz, r1 * Math.PI * 2, 0]);
+    }
+    if (hash2(x, y, 139) < 0.55) {
+      const r1 = hash2(x, y, 149), r2 = hash2(x, y, 151);
+      const px = x + 0.3 + r1 * 0.4, pz = y + 0.3 + r2 * 0.4;
+      rocks.push([px, H(px, pz) - 0.06, pz, 0.46, 0.26, 0.34, (r1 - 0.5) * 1.2 + (v ? Math.PI / 2 : 0), 1]);
+    }
+  }
+  const vtx = (wx, wz) => {
+    const h = H(wx, wz);
+    const dx = (H(wx + 0.12, wz) - H(wx - 0.12, wz)) / 0.24, dz = (H(wx, wz + 0.12) - H(wx, wz - 0.12)) / 0.24;
+    const d = (-dx * DAM_LIGHT.x + DAM_LIGHT.y - dz * DAM_LIGHT.z) / Math.sqrt(dx * dx + 1 + dz * dz);
+    const s = shape(wx, wz);
+    const l = Math.max(0.55, Math.min(1.1, 0.62 + d * 0.42)) * (0.84 + 0.16 * s);
+    return [[wx, h, wz], l];
+  };
+  for (const [x, y] of list) {
+    const uv = uvOf(['x', 'dam_top', Math.floor(hash2(x, y, 17) * 4)]);
+    const du = (uv.u1 - uv.u0) / N, dv = (uv.v1 - uv.v0) / N;
+    for (let j = 0; j < N; j++) {
+      for (let i = 0; i < N; i++) {
+        const x0 = x + i * st, z0 = y + j * st;
+        const [A, la] = vtx(x0, z0), [B, lb] = vtx(x0, z0 + st), [C, lc] = vtx(x0 + st, z0 + st), [D, ld] = vtx(x0 + st, z0);
+        const u0 = uv.u0 + du * i, v1 = uv.v1 - dv * j;
+        quad(g, A, B, C, D, { u0, u1: u0 + du, v0: v1 - dv, v1 }, [la, lb, lc, ld]);
+      }
+    }
+  }
+  return { geo: g, rocks };
+}
+
+// がれきの 石（かどの ある まるい 石）と くずれた 切り石（はこ）。ひかりは 木と おなじ
+function rockGeometry() {
+  const g = new THREE.IcosahedronGeometry(1, 0);
+  return merge([shadeFaces(g.index ? g.toNonIndexed() : g, 0, 0.5)]);
+}
+function blockGeometry() {
+  const g = new THREE.BoxGeometry(1, 1, 1).toNonIndexed();
+  const uv = g.getAttribute('uv');
+  // うえの めんは 明るい 切り石（え の 右の 3分の1）、よこは 切り石の よこ（まんなか）
+  const top = g.groups?.[2];
+  shadeFaces(g, 1 / 3, 0.55);
+  if (top) for (let i = top.start; i < top.start + top.count; i++) uv.setX(i, uv.getX(i) + 1 / 3);
+  return merge([g]);
+}
+// [x, y, z, よこ, たて, おく, むき] の ばしょに おく
+function placed(geo, mat, list) {
+  const mesh = new THREE.InstancedMesh(geo, mat, list.length);
+  const m = new THREE.Matrix4(), q = new THREE.Quaternion(), sc = new THREE.Vector3(), p = new THREE.Vector3(), e = new THREE.Euler();
+  const col = new THREE.Color();
+  list.forEach(([x, y, z, sx, sy, sz, yaw], i) => {
+    p.set(x, y, z);
+    q.setFromEuler(e.set(0, yaw, 0));
+    sc.set(sx, sy, sz);
+    m.compose(p, q, sc);
+    mesh.setMatrixAt(i, m);
+    const t = 0.86 + hash2(Math.round(x * 16), Math.round(z * 16), 7) * 0.18;
+    mesh.setColorAt(i, col.setRGB(t, t * 0.98, t * 0.95));
+  });
+  mesh.instanceMatrix.needsUpdate = true;
+  if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+  mesh.computeBoundingSphere?.();
+  return mesh;
 }
 
 // ───────────── き ─────────────
