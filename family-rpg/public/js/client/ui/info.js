@@ -171,7 +171,12 @@ export function statusNames(st) {
 
 export function buffNames(b) {
   const n = { '+atk': '攻↑', '+def': '守↑', '+agi': '速↑', '+eva': 'かわ↑', '-def': '守↓', '-atk': '攻↓', '-agi': '速↓' };
-  return (b || []).map((x) => n[x] || '').filter(Boolean).join(' ');
+  // 2だんかいめ（かさねがけ）は 矢じるしが 2つ（'+atk2' → 攻↑↑）
+  return (b || []).map((x) => {
+    const two = x.endsWith('2');
+    const t = n[two ? x.slice(0, -1) : x] || '';
+    return t && two ? t + t.slice(-1) : t;
+  }).filter(Boolean).join(' ');
 }
 
 export { TARGET_NAMES, SLOT_NAMES };

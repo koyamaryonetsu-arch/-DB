@@ -6,9 +6,9 @@ import { ITEMS } from '../data/items.js';
 import { ABILITIES } from '../data/abilities.js';
 import { JOBS } from '../data/jobs.js';
 import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js';
-import { gainExp, gainJobBattles, jobTrainable, itemCount, removeItem, addItem, ownsItem, computeStats, STAT_NAMES, fullHeal } from '../stats.js';
+import { gainExp, gainJobBattles, jobTrainMult, itemCount, removeItem, addItem, ownsItem, computeStats, STAT_NAMES, fullHeal } from '../stats.js';
 import { JOB_MAX_LEVEL } from '../data/jobs.js';
-import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf } from './party.js';
+import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf, PARTY_MAX } from './party.js';
 import { rollDrops, stealPick } from '../data/loot.js';
 import { MAPS } from '../maps/index.js';
 import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js';
@@ -51,7 +51,8 @@ export function joinBattle(world, s, targetSid) {
   if (!ctx || ctx.opts.fixed || ctx.battle.over || ctx.battle.pendingEnd) return { ok: false };
   if (Math.hypot(t.x - s.x, t.y - s.y) > LATE_JOIN_RADIUS) return { ok: false };
   if (ctx.sids.includes(s.id)) return { ok: false };
-  if (ctx.battle.allies.length >= 4) return { ok: false, reason: '戦いの場所がいっぱいだ…' };
+  // プレイヤーは 5人まで いっしょに 戦える（world/party.js の PARTY_MAX）
+  if (ctx.battle.allies.filter((a) => a.kind !== 'guest').length >= PARTY_MAX) return { ok: false, reason: '戦いの場所がいっぱいだ…' };
   const a = ctx.battle.joinAlly({ char: s.char, kind: 'player', controller: s.id, auto: !!s.char.battleSettings?.auto });
   ctx.actorMap[a.id] = { type: 'human', sid: s.id, char: s.char };
   noteSeen(s.char, [...new Set(ctx.battle.combatants.filter((x) => x.side === 'enemy').map((x) => x.species))]);
@@ -388,8 +389,10 @@ function finishBattle(world, ctx) {
       }
       let jups = [];
       if (JOBS[c.job] && (c.jobs[c.job]?.lv || 1) < JOB_MAX_LEVEL) {
-        if (jobTrainable(c, maxEnemyLv)) jups = gainJobBattles(c, trainN);
-        else lines.push('（敵が弱すぎて職業の修行にならなかった）');
+        // 10以上 レベルの ひくい てき だけだと、修行は 半分（0.5回ぶん）
+        const mult = jobTrainMult(c, maxEnemyLv);
+        jups = gainJobBattles(c, trainN * mult);
+        if (mult < 1) lines.push('（敵が弱いので、職業の修行は半分しか進まなかった）');
       }
       for (const u of jups) lines.push(...jobUpLines(c, u));
       perSession[m.id] = { lines, levelUp: ups.length > 0, jobUp: jups.length > 0, drops };
@@ -410,7 +413,7 @@ function finishBattle(world, ctx) {
         if (who.char.ownerId) creditSupportOwner(world, who.char.ownerId, scaleExp(world.data.characters[who.char.ownerId], exp), gold, leaderName);
         continue;
       }
-      const trains = !who.char.species && jobTrainable(who.char, maxEnemyLv) ? trainN : 0;
+      const trains = !who.char.species ? trainN * jobTrainMult(who.char, maxEnemyLv) : 0;
       // 仲間は もちぬしの むずかしさ
       grow(who.char, scaleExp(world.data.characters[who.owner], exp), trains);
     }

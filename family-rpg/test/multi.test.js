@@ -134,3 +134,43 @@ test('「ついていく」に している なかまは でいりぐちも い�
   assert.equal(world.sessions.get(kid.s.id).map, 'cave_b1', 'ついていく なかまも いっしょ');
   assert.ok(kid.msgs.some((m) => m.t === 'setPos' && m.map === 'cave_b1'));
 });
+
+test('5人まで: 家族 5人で パーティーを くんで、いっしょに 歩いて いっしょに 戦える（6人目は 入れない）', { timeout: 60000 }, async () => {
+  const world = new GameWorld({ offline: false, rng: makeRng(31), checkPassword: () => true, rateLimit: false });
+  const names = ['パパ', 'ママ', 'ユイ', 'ソラ', 'ハル', 'ミオ'];
+  const bots = [];
+  for (const n of names) {
+    const b = new Bot(world, n);
+    await b.login('x');
+    await b.createAndPlay(['warrior', 'priest', 'mage', 'monk', 'performer', 'warrior'][bots.length]);
+    await b.settle();
+    bots.push(b);
+  }
+  const [papa, ...rest] = bots;
+  for (const b of rest.slice(0, 4)) {
+    papa.send({ t: 'party', action: 'invite', sid: b.s.id });
+    b.send({ t: 'party', action: 'accept' });
+  }
+  const p = world.parties.get(papa.s.partyId);
+  assert.equal(p.members.length, 5, '5人 そろった');
+  assert.equal(p.supports.length, 0, '酒場の なかまは 入らない（人で いっぱい）');
+  // 6人目は さそえない
+  const sixth = bots[5];
+  papa.send({ t: 'party', action: 'invite', sid: sixth.s.id });
+  assert.ok(papa.msgs.some((m) => m.t === 'toast' && /いっぱい/.test(m.text)));
+  sixth.send({ t: 'party', action: 'accept' });
+  assert.equal(p.members.length, 5);
+  // みんな ちかくに いて、まものに ふれると 5人で 戦う
+  bots.slice(0, 5).forEach((b, i) => { b.s.map = 'overworld'; b.s.x = FIELD.x + (i % 3) * 0.6; b.s.y = FIELD.y + Math.floor(i / 3) * 0.6; });
+  fightAt(world, papa, FIELD.x, FIELD.y);
+  const ctx = world.battles.get(papa.s.battleId);
+  assert.ok(ctx, 'たたかいが はじまった');
+  assert.equal(ctx.battle.allies.filter((a) => a.kind !== 'guest').length, 5, '5人で 戦う');
+  for (const b of bots.slice(0, 5)) assert.equal(b.s.busy, 'battle');
+});
+
+test('5人まで: 2人の パーティーでは 酒場の なかまは 今までどおり 4人に なるまで', { timeout: 60000 }, async () => {
+  const { world, papa } = await family();
+  const p = world.parties.get(papa.s.partyId);
+  assert.ok(p.members.length + p.supports.length <= 4);
+});

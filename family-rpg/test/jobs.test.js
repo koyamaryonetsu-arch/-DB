@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { JOBS, ALL_JOBS, JOB_ORDER, ADVANCED_ORDER, SUPER_ORDER, JOB_MAX_LEVEL, jobBattlesForLevel, jobBases } from '../public/js/shared/data/jobs.js';
 import { ABILITIES } from '../public/js/shared/data/abilities.js';
 import {
-  newCharacter, changeJob, jobUnlocked, gainJobBattles, jobTrainable, migrateJobs, comboAllowed, penaltyFor, learnedAbilities, fullHeal, gainExp, expForLevel,
+  newCharacter, changeJob, jobUnlocked, gainJobBattles, jobTrainable, jobTrainMult, migrateJobs, comboAllowed, penaltyFor, learnedAbilities, fullHeal, gainExp, expForLevel,
 } from '../public/js/shared/stats.js';
 import { Battle } from '../public/js/shared/battle.js';
 import { GameWorld } from '../public/js/shared/world/world.js';
@@ -51,14 +51,20 @@ test('職業レベルは かった たたかいの かずで あがる（さい�
   assert.equal(gainJobBattles(c, 5).length, 0, 'マスターした あとは あがらない');
 });
 
-test('よわすぎる てきとの たたかいは しゅぎょうに ならない', () => {
+test('よわい てきとの たたかいは しゅぎょうが 半分（レベル差 10 以上で 0.5回ぶん）', () => {
   const c = newCharacter({ id: 'a', name: 'a', job: 'monk' });
   gainExp(c, expForLevel(20));
   assert.equal(c.level >= 20, true);
-  assert.equal(jobTrainable(c, 1), false, 'ぷるりん（Lv1）は よわすぎる');
-  assert.equal(jobTrainable(c, c.level - 9), true, '9 ひくい くらいまでなら しゅぎょうに なる');
-  assert.equal(jobTrainable(c, c.level - 10), false, '10 ひくいと しゅぎょうに ならない');
-  assert.equal(jobTrainable(c, c.level + 3), true);
+  assert.equal(jobTrainMult(c, 1), 0.5, 'ぷるりん（Lv1）は よわいので 半分');
+  assert.equal(jobTrainMult(c, c.level - 9), 1, '9 ひくい くらいまでなら まるごと');
+  assert.equal(jobTrainMult(c, c.level - 10), 0.5, '10 ひくいと 半分');
+  assert.equal(jobTrainMult(c, c.level - 30), 0.5, 'どんなに よわくても 0 には ならない');
+  assert.equal(jobTrainMult(c, c.level + 3), 1);
+  assert.equal(jobTrainable(c, c.level - 10), false);
+  // 半分ずつでも たまって レベルが 上がる
+  const lv0 = c.jobs.monk.lv;
+  for (let i = 0; i < 2 * jobBattlesForLevel(lv0 + 1); i++) gainJobBattles(c, jobTrainMult(c, 1));
+  assert.ok(c.jobs.monk.lv > lv0);
 });
 
 test('基本職を 2つ マスターすると 上級職に なれる（どうぐは いらない）', () => {
@@ -159,8 +165,8 @@ test('ワールド: かった たたかいで 職業レベルが すすみ、よ
   fullHeal(c);
   const r2 = await fight(['pururin']);
   assert.equal(r2.outcome, 'win');
-  assert.equal(c.jobs.warrior.b, b0 + 1, 'Lv16 で ぷるりん（Lv1）は しゅぎょうに ならない');
-  assert.ok(r2.lines.some((l) => l.includes('修行にならなかった')));
+  assert.equal(c.jobs.warrior.b, b0 + 1.5, 'Lv16 で ぷるりん（Lv1）は しゅぎょうが 半分');
+  assert.ok(r2.lines.some((l) => l.includes('半分しか進まなかった')));
 });
 
 test('上級職・超級職・新しい 基本職の わざは ぜんぶ たたかいで つかえる（エラーが でない）', () => {

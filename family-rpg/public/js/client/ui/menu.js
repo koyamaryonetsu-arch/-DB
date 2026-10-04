@@ -751,7 +751,7 @@ export class FieldMenu {
           el('span', { class: j === c.job ? 'good' : '', text: `${JOBS[j].name}${JOBS[j].tier ? `（${TIER_NAMES[JOBS[j].tier]}）` : ''}` }),
           el('span', { class: pg.done ? 'gold' : '', text: pg.done ? `Lv${JOB_MAX_LEVEL} ★マスター` : `Lv${info.lv}（あと${pg.next}回）` })));
       }
-      box.append(jobs, el('div', { class: 'detail', text: `自分よりレベルが${JOB_TRAIN_GAP + 1}以上低い敵ばかりだと、職業の修行にならない。` }));
+      box.append(jobs, el('div', { class: 'detail', text: `自分よりレベルが${JOB_TRAIN_GAP + 1}以上低い敵ばかりだと、職業の修行は半分しか進まない。` }));
     }
     // 素早さの 差は すこしだけ（shared/battle.js の ATB）。戦いの 速さの 設定も かける
     const bspeed = normBattleSettings(this.game.me?.battleSettings || {}).speed;

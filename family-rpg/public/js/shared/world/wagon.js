@@ -5,11 +5,11 @@ import { scaleExp } from '../data/difficulty.js';
 import { COMPANION_SLOTS } from '../data/companions.js';
 import { JOBS } from '../data/jobs.js';
 import { WAGON_SLOTS, WAGON_EXP_RATE, hasWagon, cleanWagon } from '../data/wagon.js';
-import { computeStats, fullHeal, jobTrainable } from '../stats.js';
+import { computeStats, fullHeal, jobTrainMult } from '../stats.js';
 import { pub } from '../battle.js';
 import {
   partyOf, companionOf, ensureCompanions, stowGear, afterRosterChange, syncParty, nameOfKey, supportInfo,
-  famCopy, humanCharIds, dropMissingFam, creditSupportOwner, PARTY_MAX,
+  famCopy, humanCharIds, dropMissingFam, creditSupportOwner, PARTY_MAX, BATTLE_FILL,
 } from './party.js';
 
 const fail = (reason, extra = {}) => ({ ok: false, reason, ...extra });
@@ -294,8 +294,8 @@ export function wagonShare(world, ctx, { exp, trainN, maxEnemyLv, grow, say }) {
     }
     let trains = 0;
     // 職業の 修行も 半分（はんぱは 次の 戦いに もちこす）
-    if (!ch.species && trainN > 0 && jobTrainable(ch, maxEnemyLv)) {
-      const carry = (ch.wagonTrain || 0) + trainN * WAGON_EXP_RATE;
+    if (!ch.species && trainN > 0) {
+      const carry = (ch.wagonTrain || 0) + trainN * WAGON_EXP_RATE * jobTrainMult(ch, maxEnemyLv);
       trains = Math.floor(carry);
       ch.wagonTrain = carry - trains;
       if (!ch.wagonTrain) delete ch.wagonTrain;
@@ -393,7 +393,7 @@ function swapAll(world, s, ctx, actor, all, no) {
   const seats = b.allies.filter((a) => ownKeyOf(ctx, c, a)).sort((x, y) => (x.slot ?? 0) - (y.slot ?? 0));
   const seatKeys = seats.map((a) => ctx.actorMap[a.id].key);
   const wagon = new Map(wagonEntries(world, c, p).map((e) => [e.key, e]));
-  const room = Math.max(0, Math.min(COMPANION_SLOTS - c.partyKeys.length, PARTY_MAX - b.allies.filter((a) => a.kind !== 'guest').length));
+  const room = Math.max(0, Math.min(COMPANION_SLOTS - c.partyKeys.length, BATTLE_FILL - b.allies.filter((a) => a.kind !== 'guest').length));
   if (new Set(want).size !== want.length || want.length < seats.length || want.length > seats.length + room) return no('ならべかたがおかしいみたい');
   for (const k of want) if (!seatKeys.includes(k) && !wagon.has(k)) return no('その仲間は選べない');
   const ins = want.filter((k) => !seatKeys.includes(k));

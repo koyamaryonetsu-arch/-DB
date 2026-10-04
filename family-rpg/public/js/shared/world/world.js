@@ -834,7 +834,7 @@ export class GameWorld {
         const t = this.sessions.get(msg.sid);
         if (!t || !t.inWorld || t === s) return;
         if (p.leader !== s.id) return this.send(s, { t: 'toast', text: 'さそえるのはリーダーだけです' });
-        if (p.members.length + p.supports.length >= PARTY_MAX && !p.supports.length) return this.send(s, { t: 'toast', text: 'パーティーがいっぱいです' });
+        if (p.members.length >= PARTY_MAX) return this.send(s, { t: 'toast', text: `パーティーがいっぱいです（${PARTY_MAX}人まで）` });
         t.invitedBy = { sid: s.id, partyId: p.id, at: this.now() };
         this.send(t, { t: 'invite', from: s.char.name, sid: s.id });
         this.send(s, { t: 'toast', text: `${t.char.name}をパーティーにさそった！` });
@@ -848,7 +848,7 @@ export class GameWorld {
         const inviter = this.sessions.get(inv.sid);
         if (!target || !inviter) return this.send(s, { t: 'toast', text: 'さそいが切れてしまった…' });
         if (s.busy) return this.send(s, { t: 'toast', text: '今はパーティーに入れません' });
-        if (target.members.length >= PARTY_MAX) return this.send(s, { t: 'toast', text: 'パーティーがいっぱいです' });
+        if (target.members.length >= PARTY_MAX) return this.send(s, { t: 'toast', text: `パーティーがいっぱいです（${PARTY_MAX}人まで）` });
         // じぶんの パーティーを ぬける
         this.leaveParty(s, true);
         // 自分の 冒険の 場所を おぼえておく（パーティーが おわったら ここへ もどる）

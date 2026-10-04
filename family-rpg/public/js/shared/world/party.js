@@ -14,7 +14,10 @@ import { SLOTS, ITEMS } from '../data/items.js';
 import { cleanWagon, hasWagon, WAGON_SLOTS } from '../data/wagon.js';
 import { wagonState, wagonTavernInfo } from './wagon.js';
 
-export const PARTY_MAX = 4;
+// パーティーに 入れる 人（家族の プレイヤー）は 5人まで。いっしょに フィールドを 歩いて、いっしょに 戦う
+export const PARTY_MAX = 5;
+// 酒場の なかまが 入るのは、人と あわせて 4人に なるまで（5人で 戦うのは プレイヤーが 5人 そろった ときだけ）
+export const BATTLE_FILL = 4;
 // パーティーの だれかが もっていれば みんなが とおれる フラグ
 export const GATE_FLAGS = ['bridge_fixed', 'c1_door', 'c2_light', 'c2_boss'];
 
@@ -100,7 +103,7 @@ export function syncParty(world, p) {
   if (!p) return;
   const leader = world.sessions.get(p.leader);
   const lc = leader?.char;
-  const room = Math.max(0, PARTY_MAX - p.members.length);
+  const room = Math.max(0, BATTLE_FILL - p.members.length);
   const want = [];
   if (lc) {
     ensureCompanions(lc);
