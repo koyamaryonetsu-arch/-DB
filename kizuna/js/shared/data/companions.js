@@ -10,9 +10,9 @@
 // resist: たいせい（しゅぞくの たいせいを つかう。ここに かけば うわがき）
 // gear:   装備できる 物（しゅぞくの けいの RACE_GEAR を うわがき。下の RACE_GEAR を 見てね）
 
-import { FRIENDS_CH2 } from './companions-ch2.js?v=a4aa89e14206';
-import { FRIENDS_RARE } from './monsters-rare.js?v=a4aa89e14206';
-import { FRIENDS_CH3 } from './companions-ch3.js?v=a4aa89e14206';
+import { FRIENDS_CH2 } from './companions-ch2.js?v=af8614e78ff4';
+import { FRIENDS_RARE } from './monsters-rare.js?v=af8614e78ff4';
+import { FRIENDS_CH3 } from './companions-ch3.js?v=af8614e78ff4';
 
 export const MONSTER_FRIENDS = {
   pururin: {
@@ -334,4 +334,11 @@ export function recipeHint(child, MONSTERS) {
 // うまれる こどもの「＋」
 export function breedPlus(a, b) {
   return Math.min(99, Math.floor(((a.plus || 0) + (b.plus || 0)) / 2) + Math.max(1, Math.floor((a.level + b.level) / 10)));
+}
+
+// うまれる こ（しゅぞく・「＋」・めずらしい くみあわせ か）。a・b は { species, level, plus }
+// サーバーの はいごう（world/breed.js）と、酒場で 2ひきめに カーソルを あわせた ときの みほん（client/ui/services.js）で つかう
+export function breedOutcome(a, b, MONSTERS) {
+  const child = breedResult(a.species, b.species, MONSTERS);
+  return { child, plus: breedPlus(a, b), special: child !== a.species && child !== b.species };
 }

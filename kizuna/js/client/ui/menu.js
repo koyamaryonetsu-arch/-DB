@@ -1,40 +1,42 @@
 // フィールドの メニュー
-import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js?v=a4aa89e14206';
-import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js?v=a4aa89e14206';
-import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js?v=a4aa89e14206';
-import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS, turnSeconds } from '../../shared/battle.js?v=a4aa89e14206';
-import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily } from '../prefs.js?v=a4aa89e14206';
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_TRAIN_GAP, TIER_NAMES } from '../../shared/data/jobs.js?v=a4aa89e14206';
-import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress, monsterSlots } from '../../shared/stats.js?v=a4aa89e14206';
-import { HIRAMEKI } from '../../shared/data/hirameki.js?v=a4aa89e14206';
-import { DUAL_TECHS, DUAL_ORDER, groupName, dualKnown } from '../../shared/data/dual.js?v=a4aa89e14206';
-import { MONSTERS } from '../../shared/data/monsters.js?v=a4aa89e14206';
-import { monsterDrops } from '../../shared/data/loot.js?v=a4aa89e14206';
-import { MONSTER_FRIENDS, RACE_NAMES, recipeHint, joinTier } from '../../shared/data/companions.js?v=a4aa89e14206';
-import { TACTICS } from '../../shared/ai.js?v=a4aa89e14206';
-import { PLACES } from '../../shared/maps/overworld.js?v=a4aa89e14206';
-import { SEA_PLACES } from '../../shared/maps/ch2.js?v=a4aa89e14206';
-import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js?v=a4aa89e14206';
-import { T, TILE_INFO } from '../../shared/tiles.js?v=a4aa89e14206';
-import { itemDetail, abilityDetail, skillBrief, gearText, targetTag, statChanges, statChangesHtml } from './info.js?v=a4aa89e14206';
-import { bestEquipPlan } from '../../shared/equip-plan.js?v=a4aa89e14206';
-import { makeCanvas, ctxOf } from '../render/pixel.js?v=a4aa89e14206';
-import { monsterCanvas } from '../render/monsters.js?v=a4aa89e14206';
-import { mapIconCanvas, boardIconURL } from '../render/boards.js?v=a4aa89e14206';
-import { medalItemRow, walletView } from './casino.js?v=a4aa89e14206';
-import { compareOne, compareTeam, whoItems } from './counter.js?v=a4aa89e14206';
-import { faceURL } from '../field.js?v=a4aa89e14206';
-import { partyRows } from './hud.js?v=a4aa89e14206';
-import { questMarks, subQuests, OBJECTIVE_TARGETS, whereName } from '../../shared/data/quest-targets.js?v=a4aa89e14206';
-import { difficultyOf, visibleMarks, EXP_RATES, EXP_RATE_NAMES } from '../../shared/data/difficulty.js?v=a4aa89e14206';
-import { memberTalk, talkFor } from '../../shared/data/party-talk.js?v=a4aa89e14206';
-import { treasureRows, treasureDetail, openTreasureMap } from './treasure.js?v=a4aa89e14206';
-import { themeHex } from '../render/themes.js?v=a4aa89e14206';
-import { wagonMenuView, wagonHereClient, menuArrange } from './wagon.js?v=a4aa89e14206';
-import { readErrLog, errLogText, clearErrLog } from '../errlog.js?v=a4aa89e14206';
+import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js?v=af8614e78ff4';
+import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js?v=af8614e78ff4';
+import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js?v=af8614e78ff4';
+import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS, turnSeconds } from '../../shared/battle.js?v=af8614e78ff4';
+import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily } from '../prefs.js?v=af8614e78ff4';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_TRAIN_GAP, TIER_NAMES } from '../../shared/data/jobs.js?v=af8614e78ff4';
+import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress, monsterSlots } from '../../shared/stats.js?v=af8614e78ff4';
+import { HIRAMEKI } from '../../shared/data/hirameki.js?v=af8614e78ff4';
+import { DUAL_TECHS, DUAL_ORDER, groupName, dualKnown } from '../../shared/data/dual.js?v=af8614e78ff4';
+import { MONSTERS } from '../../shared/data/monsters.js?v=af8614e78ff4';
+import { monsterDrops } from '../../shared/data/loot.js?v=af8614e78ff4';
+import { MONSTER_FRIENDS, RACE_NAMES, recipeHint, joinTier } from '../../shared/data/companions.js?v=af8614e78ff4';
+import { TACTICS } from '../../shared/ai.js?v=af8614e78ff4';
+import { PLACES } from '../../shared/maps/overworld.js?v=af8614e78ff4';
+import { SEA_PLACES } from '../../shared/maps/ch2.js?v=af8614e78ff4';
+import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js?v=af8614e78ff4';
+import { T, TILE_INFO } from '../../shared/tiles.js?v=af8614e78ff4';
+import { itemDetail, abilityDetail, skillBrief, gearText, targetTag, statChanges, statChangesHtml } from './info.js?v=af8614e78ff4';
+import { bestEquipPlan } from '../../shared/equip-plan.js?v=af8614e78ff4';
+import { makeCanvas, ctxOf } from '../render/pixel.js?v=af8614e78ff4';
+import { monsterCanvas } from '../render/monsters.js?v=af8614e78ff4';
+import { mapIconCanvas, boardIconURL } from '../render/boards.js?v=af8614e78ff4';
+import { medalItemRow, walletView } from './casino.js?v=af8614e78ff4';
+import { compareOne, compareTeam, whoItems } from './counter.js?v=af8614e78ff4';
+import { faceURL } from '../field.js?v=af8614e78ff4';
+import { partyRows } from './hud.js?v=af8614e78ff4';
+import { questMarks, subQuests, OBJECTIVE_TARGETS, whereName } from '../../shared/data/quest-targets.js?v=af8614e78ff4';
+import { difficultyOf, visibleMarks, EXP_RATES, EXP_RATE_NAMES } from '../../shared/data/difficulty.js?v=af8614e78ff4';
+import { memberTalk, talkFor } from '../../shared/data/party-talk.js?v=af8614e78ff4';
+import { treasureRows, treasureDetail, openTreasureMap } from './treasure.js?v=af8614e78ff4';
+import { themeHex } from '../render/themes.js?v=af8614e78ff4';
+import { wagonMenuView, wagonHereClient, menuArrange } from './wagon.js?v=af8614e78ff4';
+import { readErrLog, errLogText, clearErrLog } from '../errlog.js?v=af8614e78ff4';
+import { fieldUsableAbilities } from '../../shared/fieldskills.js?v=af8614e78ff4';
 
 // 呪文・技の タブ（左右で じゅんに かわる）
-const SKILL_TABS = [['list', '覚えた技'], ['fav', 'お気に入り'], ['combo', 'ひらめき'], ['dual', '合体技']];
+// 今使える: フィールドで 使える 技だけ（回復・ルーラ など。えらぶと すぐ 使う）
+const SKILL_TABS = [['list', '覚えた技'], ['now', '今使える'], ['fav', 'お気に入り'], ['combo', 'ひらめき'], ['dual', '合体技']];
 
 const MAIN = [
   { label: 'はなす', value: 'talk' },
@@ -541,7 +543,7 @@ export class FieldMenu {
   }
 
   // ───── じゅもん・とくぎ ─────
-  // 呪文・技: 「覚えた技・お気に入り・ひらめき・合体技」の タブ。上下で えらび、左右で タブを かえる
+  // 呪文・技: 「覚えた技・今使える・お気に入り・ひらめき・合体技」の タブ。上下で えらび、左右で タブを かえる
   skillsView(active, who = 'self') {
     const g = this.game;
     const c = this.charOf(who) || g.me;
@@ -557,9 +559,14 @@ export class FieldMenu {
       go(SKILL_TABS[(i + d + SKILL_TABS.length) % SKILL_TABS.length][0]);
     };
     // タブは スクロールしても 上に のこる
-    box.append(el('div', { class: 'sk-head' },
+    const head = el('div', { class: 'sk-head' },
       el('div', { class: 'tabs' }, ...SKILL_TABS.map(([id, label]) => el('button', { class: `btn ${mode === id ? 'sel' : ''}`, text: label, onclick: () => go(id) }))),
-      active ? el('div', { class: 'tab-hint', text: '◀ ▶（左右）でタブを切りかえ' }) : null));
+      active ? el('div', { class: 'tab-hint', text: '◀ ▶（左右）でタブを切りかえ' }) : null);
+    box.append(head);
+    // タブが 2行に なっても（せまい スマホ）えらんだ 行が タブの 下に かくれないように、見出しの 高さを はかる（CSS の scroll-margin-top）
+    if (active && typeof ResizeObserver === 'function') {
+      new ResizeObserver(() => { if (head.offsetHeight) box.style.setProperty('--sk-head-h', `${head.offsetHeight + 12}px`); }).observe(head);
+    }
     // 上下で えらぶ リスト（左右で タブ）
     const list = (items, opts = {}) => {
       const m = this.mkSub({ items, onSide: side, ...opts });
@@ -573,6 +580,65 @@ export class FieldMenu {
       else for (const r of rs) box.append(el('div', { class: `combo-row ${r.cls || ''}`, html: r.html }));
       if (active && !rs.length) backOnly();
     };
+    // 使う（ルーラは 行き先、回復などは だれに を えらんで サーバーへ）。おわったら この タブに もどる
+    const useSkill = async (id) => {
+      const a = ABILITIES[id];
+      // ルーラ: 行き先を えらぶ（洞窟や 塔の 中では そのまま 唱えて 天井に ぶつかる）
+      if (a.effect?.type === 'warp') {
+        const inField = g.field.map?.kind === 'field';
+        const place = inField ? await this.pick(`${a.name}：どこへ飛ぶ？`, [...this.warpChoices(), { label: 'やめる', value: null }]) : '';
+        if (place !== null) {
+          g.net.send({ t: 'menu', action: 'cast', id, place, who });
+          if (place) { this.close(); return; }
+        }
+        if (this.root) this.focusSub(this.skillsView(true, who));
+        return;
+      }
+      let ref = 'self';
+      if (a.target === 'self' && c.companion) ref = 'sup:' + c.key;
+      else if (a.target !== 'allies' && a.target !== 'self') ref = await this.pickTarget(`だれに${a.name}？`, a.target === 'deadAlly');
+      if (ref) g.net.send({ t: 'menu', action: 'cast', id, ref, who });
+      setTimeout(() => { if (this.root) this.focusSub(this.skillsView(true, who)); }, 200);
+    };
+    if (mode === 'now') {
+      // 今使える: フィールドで 使える 技だけ（shared/fieldskills.js）。MPが 足りない 技は 出すが えらべない。えらぶと すぐ 使う
+      const now = fieldUsableAbilities(c, { mapKind: g.field?.map?.kind });
+      const why = { mp: 'MPが足りない', dead: '死んでいる' };
+      if (!now.length) {
+        box.append(el('div', { class: 'muted', text: '今ここで使える呪文・技はない。\n回復の呪文などを覚えると、ここからすぐ使える。' }));
+        if (active) backOnly();
+        return box;
+      }
+      if (!active) {
+        for (const x of now) box.append(el('div', { class: 'sk-mini' }, el('span', { class: x.ok ? 'nm' : 'nm muted', text: ABILITIES[x.id].name }), el('span', { class: 'muted small', text: `　MP${x.cost}　${skillBrief(ABILITIES[x.id])}` })));
+        return box;
+      }
+      const showNow = (it) => {
+        const x = now.find((n) => n.id === it?.value);
+        detail.textContent = x ? `${abilityDetail(x.id, c)}${x.ok ? '' : `\n（${why[x.why]}）`}` : '';
+      };
+      const m = list(now.map((x) => {
+        const a = ABILITIES[x.id];
+        const tt = targetTag(a);
+        return {
+          html: `${esc(a.name)}${tt ? `<span class="tag tgt t-${a.target}">${tt}</span>` : ''}${x.ok ? '' : `<span class="tag muted">${why[x.why]}</span>`}<span class="sk-desc">${esc(skillBrief(a))}</span>`,
+          right: `MP${x.cost}`,
+          rightCls: x.ok ? '' : 'dis',
+          value: x.id,
+          cls: `k-${abilityRole(a)} sk`,
+          disabled: !x.ok,
+        };
+      }), {
+        onMove: showNow,
+        onSelect: (it) => {
+          this.sub.blur();
+          useSkill(it.value);
+        },
+      });
+      showNow(m.current);
+      box.append(el('div', { class: 'small muted', text: `${c.name}のMP ${c.mp}　選ぶとすぐ使う` }), detail);
+      return box;
+    }
     if (mode === 'combo') {
       // ひらめき: 関係する 技を 何回も 使うと、使った しゅんかんに ひらめく
       const known = new Set(learned);
@@ -678,22 +744,7 @@ export class FieldMenu {
           if (this.root) this.focusSub(this.skillsView(true, who));
           return;
         }
-        // ルーラ: 行き先を えらぶ（洞窟や 塔の 中では そのまま 唱えて 天井に ぶつかる）
-        if (a.effect?.type === 'warp') {
-          const inField = g.field.map?.kind === 'field';
-          const place = inField ? await this.pick(`${a.name}：どこへ飛ぶ？`, [...this.warpChoices(), { label: 'やめる', value: null }]) : '';
-          if (place !== null) {
-            g.net.send({ t: 'menu', action: 'cast', id: it.value, place, who });
-            if (place) { this.close(); return; }
-          }
-          if (this.root) this.focusSub(this.skillsView(true, who));
-          return;
-        }
-        let ref = 'self';
-        if (a.target === 'self' && c.companion) ref = 'sup:' + c.key;
-        else if (a.target !== 'allies' && a.target !== 'self') ref = await this.pickTarget(`だれに${a.name}？`, a.target === 'deadAlly');
-        if (ref) g.net.send({ t: 'menu', action: 'cast', id: it.value, ref, who });
-        setTimeout(() => { if (this.root) this.focusSub(this.skillsView(true, who)); }, 200);
+        await useSkill(it.value);
       },
     });
     showDetail(m.current);

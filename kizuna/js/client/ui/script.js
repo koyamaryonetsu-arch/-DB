@@ -1,9 +1,9 @@
 // だいほんの さいせい（メッセージ・えらぶ・えんしゅつ）
-import { el } from './dom.js?v=a4aa89e14206';
-import { ListMenu } from './dom.js?v=a4aa89e14206';
-import { openServiceUI } from './services.js?v=a4aa89e14206';
-import { monsterCanvas } from '../render/monsters.js?v=a4aa89e14206';
-import { reportError } from '../errlog.js?v=a4aa89e14206';
+import { el } from './dom.js?v=af8614e78ff4';
+import { ListMenu } from './dom.js?v=af8614e78ff4';
+import { openServiceUI } from './services.js?v=af8614e78ff4';
+import { monsterCanvas } from '../render/monsters.js?v=af8614e78ff4';
+import { reportError } from '../errlog.js?v=af8614e78ff4';
 
 const TYPE_MS = 28;
 

@@ -1,11 +1,11 @@
 // マップの タイル（16×16 ドット）を プログラムで かく
-import { T, TILE_INFO } from '../../shared/tiles.js?v=a4aa89e14206';
-import { hash2 } from '../../shared/rng.js?v=a4aa89e14206';
-import { Painter, shade, prand } from './pixel.js?v=a4aa89e14206';
-import { themedCanvas, partOfTile } from './themes.js?v=a4aa89e14206';
-import { CH3_PAINTERS, CH3_FRAMES, CH3_SPEED, RAIL_TILES, CH3_WALLS } from './tiles-ch3.js?v=a4aa89e14206';
-import { CH4_PAINTERS, CH4_FRAMES, CH4_SPEED, CH4_WALLS, ch4Mask, desertBase } from './tiles-ch4.js?v=a4aa89e14206';
-import { CANAL_CTX, CANAL_CTX_PAINTERS, canalVariant, canalBaseBits, canalWallBits } from './tiles-canal.js?v=a4aa89e14206';
+import { T, TILE_INFO } from '../../shared/tiles.js?v=af8614e78ff4';
+import { hash2 } from '../../shared/rng.js?v=af8614e78ff4';
+import { Painter, shade, prand } from './pixel.js?v=af8614e78ff4';
+import { themedCanvas, partOfTile } from './themes.js?v=af8614e78ff4';
+import { CH3_PAINTERS, CH3_FRAMES, CH3_SPEED, RAIL_TILES, CH3_WALLS } from './tiles-ch3.js?v=af8614e78ff4';
+import { CH4_PAINTERS, CH4_FRAMES, CH4_SPEED, CH4_WALLS, ch4Mask, desertBase } from './tiles-ch4.js?v=af8614e78ff4';
+import { CANAL_CTX, CANAL_CTX_PAINTERS, canalVariant, canalBaseBits, canalWallBits } from './tiles-canal.js?v=af8614e78ff4';
 
 export const TS = 16;
 

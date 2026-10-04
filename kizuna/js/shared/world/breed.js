@@ -1,10 +1,10 @@
 // まものの はいごう（ドラゴンクエストモンスターズ ふう）
-import { MONSTERS } from '../data/monsters.js?v=a4aa89e14206';
-import { ABILITIES } from '../data/abilities.js?v=a4aa89e14206';
-import { SLOTS } from '../data/items.js?v=a4aa89e14206';
-import { MONSTER_FRIENDS, BREED_MIN_LEVEL, BREED_INHERIT_MAX, breedResult, breedPlus } from '../data/companions.js?v=a4aa89e14206';
-import { computeStats, learnedAbilities, newMonsterCompanion, addItem, STAT_KEYS } from '../stats.js?v=a4aa89e14206';
-import { ensureCompanions, companionOf, putInParty, afterRosterChange } from './party.js?v=a4aa89e14206';
+import { MONSTERS } from '../data/monsters.js?v=af8614e78ff4';
+import { ABILITIES } from '../data/abilities.js?v=af8614e78ff4';
+import { SLOTS } from '../data/items.js?v=af8614e78ff4';
+import { MONSTER_FRIENDS, BREED_MIN_LEVEL, BREED_INHERIT_MAX, breedOutcome } from '../data/companions.js?v=af8614e78ff4';
+import { computeStats, learnedAbilities, newMonsterCompanion, addItem, STAT_KEYS } from '../stats.js?v=af8614e78ff4';
+import { ensureCompanions, companionOf, putInParty, afterRosterChange } from './party.js?v=af8614e78ff4';
 
 // おやから うけつげる わざ（かくれた わざは のぞく）
 export function inheritableSkills(A, B) {
@@ -29,9 +29,9 @@ export function breedPreview(c, keyA, keyB) {
   if (!A || !B || A === B) return { ok: false, reason: '魔物を2ひき選んでね' };
   if (A.kind !== 'monster' || B.kind !== 'monster') return { ok: false, reason: '配合できるのはモンスターの仲間だけ' };
   if (A.char.level < BREED_MIN_LEVEL || B.char.level < BREED_MIN_LEVEL) return { ok: false, reason: `レベル${BREED_MIN_LEVEL}以上の魔物同士でないと配合できない` };
-  const child = breedResult(A.species, B.species, MONSTERS);
+  const { child, plus, special } = breedOutcome({ ...A.char, species: A.species }, { ...B.char, species: B.species }, MONSTERS);
   return {
-    ok: true, child, childName: MONSTERS[child].name, plus: breedPlus(A.char, B.char), special: child !== A.species && child !== B.species,
+    ok: true, child, childName: MONSTERS[child].name, plus, special,
     skills: inheritableSkills(A, B), auto: autoInherit(A, B, child), max: BREED_INHERIT_MAX,
   };
 }

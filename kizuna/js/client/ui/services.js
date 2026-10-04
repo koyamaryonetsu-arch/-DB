@@ -1,20 +1,20 @@
 // お店・転職・酒場・でんごんばん・ほしのかけら・きょうかい の がめん
-import { el, ListMenu, toast, askText, confirmBox, esc } from './dom.js?v=a4aa89e14206';
-import { ITEMS } from '../../shared/data/items.js?v=a4aa89e14206';
-import { JOBS, JOB_ORDER, ADVANCED_ORDER, SUPER_ORDER, TIER_NAMES, JOB_MAX_LEVEL, JOB_TRAIN_GAP, jobReqText, jobReqSets, jobBodyOk, BODY_NAMES, JOB_HINTS } from '../../shared/data/jobs.js?v=a4aa89e14206';
-import { ABILITIES } from '../../shared/data/abilities.js?v=a4aa89e14206';
-import { salonUI } from './salon.js?v=a4aa89e14206';
-import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered, canEquip } from '../../shared/stats.js?v=a4aa89e14206';
-import { MONSTERS } from '../../shared/data/monsters.js?v=a4aa89e14206';
-import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES } from '../../shared/data/companions.js?v=a4aa89e14206';
-import { TACTICS } from '../../shared/ai.js?v=a4aa89e14206';
-import { itemDetail, gearText } from './info.js?v=a4aa89e14206';
-import { playerSprite, followerSprite, faceURL } from '../field.js?v=a4aa89e14206';
-import { shopUI, churchUI } from './shop.js?v=a4aa89e14206';
-import { bankUI } from './bank.js?v=a4aa89e14206';
-import { forgeUI } from './forge.js?v=a4aa89e14206';
-import { tavernWagonItems, tavernWagonOpts, tavernWagonAct, tavernPlace, arrangeUI } from './wagon.js?v=a4aa89e14206';
-import { casinoUI } from './casino.js?v=a4aa89e14206';
+import { el, ListMenu, toast, askText, confirmBox, esc } from './dom.js?v=af8614e78ff4';
+import { ITEMS } from '../../shared/data/items.js?v=af8614e78ff4';
+import { JOBS, JOB_ORDER, ADVANCED_ORDER, SUPER_ORDER, TIER_NAMES, JOB_MAX_LEVEL, JOB_TRAIN_GAP, jobReqText, jobReqSets, jobBodyOk, BODY_NAMES, JOB_HINTS } from '../../shared/data/jobs.js?v=af8614e78ff4';
+import { ABILITIES } from '../../shared/data/abilities.js?v=af8614e78ff4';
+import { salonUI } from './salon.js?v=af8614e78ff4';
+import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered, canEquip } from '../../shared/stats.js?v=af8614e78ff4';
+import { MONSTERS } from '../../shared/data/monsters.js?v=af8614e78ff4';
+import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES, breedOutcome } from '../../shared/data/companions.js?v=af8614e78ff4';
+import { TACTICS } from '../../shared/ai.js?v=af8614e78ff4';
+import { itemDetail, gearText } from './info.js?v=af8614e78ff4';
+import { playerSprite, followerSprite, faceURL } from '../field.js?v=af8614e78ff4';
+import { shopUI, churchUI } from './shop.js?v=af8614e78ff4';
+import { bankUI } from './bank.js?v=af8614e78ff4';
+import { forgeUI } from './forge.js?v=af8614e78ff4';
+import { tavernWagonItems, tavernWagonOpts, tavernWagonAct, tavernPlace, arrangeUI } from './wagon.js?v=af8614e78ff4';
+import { casinoUI } from './casino.js?v=af8614e78ff4';
 
 export function openServiceUI(game, kind, data) {
   switch (kind) {
@@ -460,16 +460,41 @@ function tavernUI(game, data) {
         toast(`レベル${BREED_MIN_LEVEL}以上のモンスターが2ひき必要だよ`);
         return;
       }
-      const pick = (title, exclude) => ask(title, [
+      const pick = (title, exclude, opts) => choose(game, title, [
         ...mons.filter((x) => x.key !== exclude).map((x) => ({
           face: face(x), html: `${esc(x.name)}${plusTag(x)} <span class="muted small">${who(x)}</span>`, value: x.key,
           disabled: x.level < BREED_MIN_LEVEL, right: x.level < BREED_MIN_LEVEL ? `Lv${BREED_MIN_LEVEL}から` : '',
         })),
         { label: 'やめる', value: null },
-      ]);
+      ], opts);
       const a = await pick('配合: 1ぴきめの親を選んでね\n（生まれる子はふつう1ぴきめと同じ種族）');
       if (!a) return;
-      const b = await pick(`${entries.get(a)?.name}の相手を選んでね`, a);
+      // 2ひきめ: カーソルを あわせる だけで 生まれる 子を 見せる（決定の あとの 見せかたと おなじ 中み）
+      const A0 = mons.find((x) => x.key === a);
+      const top = el('div', { class: 'breed-pv' });
+      const showChild = (it) => {
+        top.innerHTML = '';
+        const B0 = mons.find((x) => x.key === it?.value);
+        if (!A0 || !B0) {
+          top.append(el('div', { class: 'small muted', text: '相手にカーソルを合わせると、生まれる子がここに出る' }));
+          return;
+        }
+        if (B0.level < BREED_MIN_LEVEL) {
+          top.append(el('div', { class: 'small muted', text: `${B0.name}はレベル${BREED_MIN_LEVEL}になると配合できる` }));
+          return;
+        }
+        const o = breedOutcome(A0, B0, MONSTERS);
+        const cv = followerSprite({ mon: o.child }, 'down', 0);
+        const img = el('canvas', { width: cv.width, height: cv.height, class: 'breed-pv-img' });
+        img.getContext('2d').drawImage(cv, 0, 0);
+        top.append(img, el('div', { class: 'breed-pv-txt' },
+          // 「（しゅぞく）＋3」は 行の とちゅうで わかれない ように
+          el('div', { class: 'small gold' }, `生まれる子: ${MONSTERS[o.child]?.name || ''}`,
+            el('span', { style: { whiteSpace: 'nowrap' }, text: `（${RACE_NAMES[MONSTERS[o.child]?.race] || ''}）＋${o.plus}` })),
+          o.special ? el('div', { class: 'small good', text: '★ めずらしい組み合わせ！' }) : null,
+          el('div', { class: 'small muted', text: `装備できる物: ${gearText(o.child)}` })));
+      };
+      const b = await pick(`${entries.get(a)?.name}の相手を選んでね`, a, { top, onMove: showChild });
       if (!b) return;
       const r = await request(game, { kind: 'tavern', action: 'breedPreview', a, b });
       if (!r.ok || !r.preview) {
@@ -571,15 +596,17 @@ function tavernUI(game, data) {
 }
 
 // ちいさな えらぶ まど（Promise で えらんだ value。やめたら null）
-export function choose(game, title, items) {
+// top: タイトルの 下に 出す まど（えらぶ 前の みほん など）、onMove: カーソルを うごかした とき
+export function choose(game, title, items, { top = null, onMove = null } = {}) {
   return new Promise((resolve) => {
     const back = el('div', { class: 'modal-back', style: { zIndex: 6 }, onclick: () => { game.audio.sfx('cancel'); done(null); } });
-    const box = el('div', { class: 'win panel center-panel choose-pop', style: { width: 'min(90vw, 440px)', zIndex: 7 } }, el('div', { class: 'small gold', style: { whiteSpace: 'pre-line' }, text: title }));
+    const box = el('div', { class: 'win panel center-panel choose-pop', style: { width: 'min(90vw, 440px)', zIndex: 7 } }, el('div', { class: 'small gold', style: { whiteSpace: 'pre-line' }, text: title }), top);
     const hasCancel = items.some((i) => i.value === null);
     const m = new ListMenu(game.input, {
       items,
       sound: (x) => game.audio.sfx(x),
       back: hasCancel ? null : 'やめる',
+      onMove: onMove ? (it) => onMove(it) : undefined,
       onSelect: (it) => done(it.value),
       onCancel: () => done(null),
     });

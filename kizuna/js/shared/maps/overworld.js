@@ -1,9 +1,9 @@
 // フィールド（ミドリナ地方）を つくる
 // 毎回 おなじ形になるように、シード付きの ノイズで じめんを つくってから、
 // 村・町・ほこら を はめこむ。
-import { T, parseRows } from '../tiles.js?v=a4aa89e14206';
-import { fbm, hash2, makeRng } from '../rng.js?v=a4aa89e14206';
-import { VILLAGE_ROWS, TOWN_ROWS, SHRINE_ROWS } from './stamps.js?v=a4aa89e14206';
+import { T, parseRows } from '../tiles.js?v=af8614e78ff4';
+import { fbm, hash2, makeRng } from '../rng.js?v=af8614e78ff4';
+import { VILLAGE_ROWS, TOWN_ROWS, SHRINE_ROWS } from './stamps.js?v=af8614e78ff4';
 
 export const OW_W = 168;
 export const OW_H = 128;

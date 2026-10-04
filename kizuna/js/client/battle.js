@@ -1,20 +1,20 @@
 // たたかいの がめん（むかしの RPG ふう 1がめん）
-import { el, esc, ListMenu, toast } from './ui/dom.js?v=a4aa89e14206';
-import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js?v=a4aa89e14206';
-import { ITEMS } from '../shared/data/items.js?v=a4aa89e14206';
-import { JOBS } from '../shared/data/jobs.js?v=a4aa89e14206';
-import { MONSTERS } from '../shared/data/monsters.js?v=a4aa89e14206';
-import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed } from '../shared/stats.js?v=a4aa89e14206';
-import { affinityOf, attackReach } from '../shared/battle.js?v=a4aa89e14206';
-import { DUAL_TECHS, dualOptions, dualKnown } from '../shared/data/dual.js?v=a4aa89e14206';
-import { faceURL } from './field.js?v=a4aa89e14206';
-import { monsterCanvas } from './render/monsters.js?v=a4aa89e14206';
-import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=a4aa89e14206';
-import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js?v=a4aa89e14206';
-import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js?v=a4aa89e14206';
-import { abilityDetail, statusNames, buffNames, targetTag } from './ui/info.js?v=a4aa89e14206';
-import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js?v=a4aa89e14206';
-import { ResultPager, levelUpName } from './ui/result.js?v=a4aa89e14206';
+import { el, esc, ListMenu, toast } from './ui/dom.js?v=af8614e78ff4';
+import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js?v=af8614e78ff4';
+import { ITEMS } from '../shared/data/items.js?v=af8614e78ff4';
+import { JOBS } from '../shared/data/jobs.js?v=af8614e78ff4';
+import { MONSTERS } from '../shared/data/monsters.js?v=af8614e78ff4';
+import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed } from '../shared/stats.js?v=af8614e78ff4';
+import { affinityOf, attackReach } from '../shared/battle.js?v=af8614e78ff4';
+import { DUAL_TECHS, dualOptions, dualKnown } from '../shared/data/dual.js?v=af8614e78ff4';
+import { faceURL } from './field.js?v=af8614e78ff4';
+import { monsterCanvas } from './render/monsters.js?v=af8614e78ff4';
+import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=af8614e78ff4';
+import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js?v=af8614e78ff4';
+import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js?v=af8614e78ff4';
+import { abilityDetail, statusNames, buffNames, targetTag } from './ui/info.js?v=af8614e78ff4';
+import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js?v=af8614e78ff4';
+import { ResultPager, levelUpName } from './ui/result.js?v=af8614e78ff4';
 
 // たたかいの え の こまかさ（おもい きかいで さげたら、その あいだは さげた まま）
 let battleRes = BRES;
