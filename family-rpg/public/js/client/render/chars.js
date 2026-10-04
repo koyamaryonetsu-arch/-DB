@@ -217,16 +217,17 @@ const NPC_LOOKS = {
   peddler: { hair: 6, hairStyle: 'pony', skin: 0, outfit: 'traveler', cloth: '#6a8a3a', female: true, hat: 'cowl', hatColor: '#d8e0c8' },
   // ───── 第4章（砂の国コガネ地方）─────
   // オアシスの村ハミル: 村長ナディム・アミ・アミの お母さん・村の 人・キャラバンの 商人
-  desert_elder: { hair: 5, hairStyle: 'short', skin: 1, outfit: 'robe', robeMain: '#f0e6d0', robeTrim: '#b8662e', beard: true, cane: true, hat: 'bandana', hatColor: '#f4ecd8' },
-  desert_m: { hair: 0, hairStyle: 'short', skin: 2, outfit: 'robe', robeMain: '#e8dcc0', robeTrim: '#4a7ab0', hat: 'bandana', hatColor: '#f4f0e4' },
-  desert_m2: { hair: 0, hairStyle: 'short', skin: 1, outfit: 'vest', cloth: '#a8582e', beard: true, hat: 'bandana', hatColor: '#3a6aa8' },
-  desert_f: { hair: 0, hairStyle: 'long', skin: 1, outfit: 'dress', cloth: '#c8503a', female: true, hat: 'veil' },
-  desert_f2: { hair: 1, hairStyle: 'bun', skin: 2, outfit: 'dress', cloth: '#3a8a8a', female: true, hat: 'veil' },
-  desert_kid: { hair: 0, hairStyle: 'short', skin: 2, outfit: 'tunic', cloth: '#e8b84a', small: true, hat: 'bandana', hatColor: '#ffffff' },
-  ami: { hair: 0, hairStyle: 'twin', skin: 1, outfit: 'dress', cloth: '#e86a8a', female: true, small: true },
-  desert_merchant: { hair: 1, hairStyle: 'short', skin: 1, outfit: 'apron', cloth: '#6a8a3a', beard: true, hat: 'bandana', hatColor: '#c83a3a' },
+  // 男の人は ターバン（turban）か あたまから たれる 布（keffiyeh）、女の人は コインの スカーフ（shawl）、アミは 金の わ（circlet）
+  desert_elder: { hair: 5, hairStyle: 'short', skin: 1, outfit: 'robe', robeMain: '#f0e6d0', robeTrim: '#b8662e', beard: true, cane: true, hat: 'turban', hatColor: '#f8f2e2', hatGem: '#3ac8c0' },
+  desert_m: { hair: 0, hairStyle: 'short', skin: 2, outfit: 'robe', robeMain: '#e8dcc0', robeTrim: '#4a7ab0', hat: 'keffiyeh', hatColor: '#f4f0e4', hatTrim: '#c83a3a' },
+  desert_m2: { hair: 0, hairStyle: 'short', skin: 1, outfit: 'vest', cloth: '#a8582e', beard: true, hat: 'turban', hatColor: '#3a6aa8' },
+  desert_f: { hair: 0, hairStyle: 'long', skin: 1, outfit: 'dress', cloth: '#c8503a', female: true, hat: 'shawl', hatColor: '#3c4c94' },
+  desert_f2: { hair: 1, hairStyle: 'bun', skin: 2, outfit: 'dress', cloth: '#3a8a8a', female: true, hat: 'shawl', hatColor: '#a83a6a' },
+  desert_kid: { hair: 0, hairStyle: 'short', skin: 2, outfit: 'tunic', cloth: '#e8b84a', small: true, hat: 'turban', hatColor: '#ffffff' },
+  ami: { hair: 0, hairStyle: 'twin', skin: 1, outfit: 'dress', cloth: '#e86a8a', female: true, small: true, hat: 'circlet', hatGem: '#3ac8c0' },
+  desert_merchant: { hair: 1, hairStyle: 'short', skin: 1, outfit: 'apron', cloth: '#6a8a3a', beard: true, hat: 'turban', hatColor: '#c83a3a', hatGem: '#f2c14e' },
   desert_priest: { hair: 5, hairStyle: 'short', skin: 1, outfit: 'robe', robeMain: '#f8f4e8', robeTrim: '#3a8ac8', hat: 'mitre' },
-  caravan: { hair: 0, hairStyle: 'short', skin: 2, outfit: 'traveler', cloth: '#8a4a2a', beard: true, hat: 'bandana', hatColor: '#e8c050' },
+  caravan: { hair: 0, hairStyle: 'short', skin: 2, outfit: 'traveler', cloth: '#8a4a2a', beard: true, hat: 'keffiyeh', hatColor: '#e8d0a0', hatTrim: '#8a4a2a' },
 };
 
 // そうびの かきかた: 'ぶき,よろい,たて,あたま' の もじれつ か { weapon, armor, shield, head }
@@ -306,6 +307,8 @@ export function npcOpts(kind) {
     robeMain: n.robeMain,
     robeTrim: n.robeTrim,
     hatColor: n.hatColor || null,
+    hatGem: n.hatGem,
+    hatTrim: n.hatTrim,
     beard: n.beard,
     cane: n.cane,
     spear: n.spear,
@@ -1353,6 +1356,133 @@ function drawHat(p, dir, f, o) {
       }
       break;
     }
+    case 'turban': {
+      // ターバン（布を まいた 大きな ぼうし。hatGem … まえの ほうせき。第4章 砂の国）
+      const c = hc || '#f4f0e6', cD = shade(c, -0.24), cL = shade(c, 0.24), cDD = shade(c, -0.4);
+      if (side) {
+        spans(p, [[-3, 11, 18], [-2, 8, 21], [-1, 6, 23], [0, 5, 24], [1, 4, 25], [2, 3, 25], [3, 3, 26], [4, 3, 26], [5, 3, 26], [6, 3, 26], [7, 3, 25], [8, 4, 25], [9, 5, 23]], c);
+        // まいた 布の すじ（まえの したから うしろの うえへ）
+        for (const [x0, y0, x1, y1] of [[4, 5, 11, -2], [5, 8, 16, -2], [10, 9, 21, -1], [17, 9, 25, 2]]) { line(p, x0, y0, x1, y1, cD); line(p, x0 + 1, y0, x1 + 1, y1, cL); }
+        p.hline(6, 22, 9, cDD); p.vline(25, 3, 7, cD); p.vline(26, 3, 6, cDD);
+        // うしろに たれる 布の はし
+        p.rect(22, 10, 3, 4, cD); p.rect(23, 14, 2, 1 + f, cD); p.vline(22, 10, 13, c);
+        if (o.hatGem) { p.tag = 'gold'; p.rect(4, 2, 3, 5, '#e8c050'); p.tag = 'gem'; p.rect(4, 3, 2, 3, o.hatGem); }
+      } else if (dir === 'down') {
+        spans(p, [[-3, 12, 19], [-2, 9, 22], [-1, 7, 24], [0, 6, 25], [1, 5, 26], [2, 4, 27], [3, 4, 27], [4, 4, 27], [5, 4, 27], [6, 4, 27], [7, 4, 27], [8, 5, 26], [9, 6, 25]], c);
+        // まいた 布の すじ（まんなかで かさなる）
+        for (const [x0, y0, x1, y1] of [[5, 6, 11, 0], [7, 9, 14, 1], [11, 9, 15, 5]]) {
+          line(p, x0, y0, x1, y1, cD); line(p, mirror(x0), y0, mirror(x1), y1, cD);
+          line(p, x0, y0 - 1, x1, y1 - 1, cL); line(p, mirror(x0), y0 - 1, mirror(x1), y1 - 1, cL);
+        }
+        p.hline(7, 24, 9, cDD); p.vline(27, 2, 7, cD); p.vline(26, 8, 8, cD); p.hline(11, 15, -2, cL);
+        if (o.hatGem) { p.tag = 'gold'; p.rect(14, 3, 4, 5, '#e8c050'); p.set(14, 3, '#fff0b0'); p.tag = 'gem'; p.rect(15, 4, 2, 3, o.hatGem); }
+      } else {
+        spans(p, [[-3, 12, 19], [-2, 9, 22], [-1, 7, 24], [0, 6, 25], [1, 5, 26], [2, 4, 27], [3, 4, 27], [4, 4, 27], [5, 4, 27], [6, 4, 27], [7, 4, 27], [8, 4, 27], [9, 5, 26], [10, 6, 25]], c);
+        for (const [y0, y1] of [[8, 2], [10, 5]]) { line(p, 5, y0, 26, y1, cD); line(p, 5, y0 - 1, 26, y1 - 1, cL); }
+        line(p, 6, 3, 20, -2, cD);
+        p.vline(27, 2, 8, cD); p.hline(6, 25, 10, cDD);
+        // せなかに たれる 布の はし
+        p.rect(14, 11, 4, 4, cD); p.rect(15, 15, 2, 1 + f, cD); p.vline(14, 11, 14, c);
+      }
+      break;
+    }
+    case 'keffiyeh': {
+      // あたまから かたへ たれる 布（黒い ひもの わで とめる。hatTrim … しまの いろ。第4章 砂の国）
+      const c = hc || '#f4f0e6', cD = shade(c, -0.2), cL = shade(c, 0.22), t = o.hatTrim, tD = t && shade(t, -0.2), k = '#2a2228', kL = '#5a4e58';
+      if (dir === 'down') {
+        spans(p, [[-1, 11, 20], [0, 9, 22], [1, 7, 24], [2, 6, 25], [3, 5, 26], [4, 5, 26], [5, 5, 26], [6, 5, 26], [7, 5, 26], [8, 5, 26], [9, 6, 25]], c);
+        // かおの よこに たれる 布（かたの ところで そとへ ひろがる）
+        const fl = (y) => (y < 20 ? 0 : Math.min(2, y - 19));
+        for (let y = 10; y <= 23; y++) { p.hline(4 - fl(y), 6, y, c); p.hline(25, 27 + fl(y), y, cD); }
+        p.vline(6, 9, 20, cL); p.hline(7, 24, 9, cD); p.hline(9, 14, 0, cL);
+        p.hline(2, 6, 23, cD); p.hline(25, 29, 23, shade(c, -0.32));
+        if (t) {
+          p.hline(7, 24, 8, t);
+          for (const y of [14, 19]) { p.hline(4 - fl(y), 6, y, t); p.hline(25, 27 + fl(y), y, tD); }
+        }
+        // 黒い ひもの わ（2本）
+        p.hline(5, 26, 4, k); p.hline(5, 26, 6, k); p.hline(6, 25, 5, kL);
+      } else if (dir === 'up') {
+        const rows = [[-1, 11, 20], [0, 9, 22], [1, 7, 24], [2, 6, 25]];
+        for (let y = 3; y <= 22; y++) { const w = y < 19 ? 0 : Math.min(2, y - 18); rows.push([y, 5 - w, 26 + w]); }
+        // すそは まんなかが さがる
+        rows.push([23, 6, 25], [24, 10, 21], [25, 13, 18]);
+        spans(p, rows, c);
+        p.vline(26, 4, 18, cD); p.vline(6, 5, 18, cL);
+        for (const x of [11, 16, 21]) p.vline(x, 9, 23, cD);
+        p.hline(3, 5, 22, cD); p.hline(26, 28, 22, cD); p.hline(6, 9, 23, cD); p.hline(22, 25, 23, cD); p.hline(10, 12, 24, cD); p.hline(19, 21, 24, cD); p.hline(13, 18, 25, cD);
+        if (t) { p.hline(5, 26, 13, t); p.hline(4, 27, 19, t); }
+        p.hline(5, 26, 4, k); p.hline(5, 26, 6, k); p.hline(6, 25, 5, kL);
+      } else {
+        spans(p, [[-1, 10, 18], [0, 8, 21], [1, 6, 23], [2, 5, 24], [3, 4, 24], [4, 4, 25], [5, 4, 25], [6, 4, 25], [7, 4, 25], [8, 4, 25], [9, 5, 25]], c);
+        // うしろに たれる 布（せなかへ）
+        const fs = (y) => (y < 18 ? 0 : Math.min(4, y - 17));
+        for (let y = 10; y <= 23; y++) p.hline(16 - fs(y), 25 + Math.min(2, fs(y)), y, c);
+        p.vline(25, 6, 17, cD); p.vline(16, 10, 16, cD); p.vline(20, 12, 22, cD); p.hline(6, 15, 9, cD);
+        p.hline(12, 27, 23, cD);
+        if (t) { p.hline(5, 15, 8, t); for (const y of [14, 19]) p.hline(16 - fs(y), 25 + Math.min(2, fs(y)), y, t); }
+        p.hline(4, 24, 4, k); p.hline(4, 24, 6, k); p.hline(5, 24, 5, kL);
+      }
+      break;
+    }
+    case 'shawl': {
+      // かおを つつむ スカーフ（ひたいに 金の コイン・ふちに ししゅう。hatTrim … コインの いろ。第4章 砂の国の 女の人）
+      const c = hc || '#3c4c94', cD = shade(c, -0.25), cL = shade(c, 0.25), g = o.hatTrim || '#f2c14e', gD = shade(g, -0.28);
+      if (dir === 'down') {
+        spans(p, [[-1, 11, 20], [0, 9, 22], [1, 7, 24], [2, 6, 25], [3, 5, 26], [4, 5, 26], [5, 4, 27], [6, 4, 27], [7, 4, 27], [8, 4, 27]], c);
+        // かおの よこを つつんで、かたに かかる
+        for (let y = 9; y <= 23; y++) {
+          const w = y < 20 ? 0 : Math.min(2, y - 19);
+          p.hline(3 - w, 6, y, c); p.hline(25, 28 + w, y, cD);
+        }
+        p.hline(9, 14, 1, cL); p.vline(5, 10, 19, cL);
+        // かおの まわりの ふち（ししゅう）
+        p.tag = 'gold';
+        p.vline(6, 9, 21, gD); p.vline(25, 9, 21, gD);
+        p.hline(1, 6, 23, gD); p.hline(25, 30, 23, gD);
+        // ひたいの コイン
+        p.hline(6, 25, 7, gD);
+        for (let x = 7; x <= 23; x += 3) { p.rect(x, 8, 2, 2, g); p.set(x + 1, 9, gD); }
+        p.tag = 'hat';
+      } else if (dir === 'up') {
+        const rows = [[-1, 11, 20], [0, 9, 22], [1, 7, 24], [2, 6, 25]];
+        for (let y = 3; y <= 22; y++) { const w = y < 19 ? 0 : Math.min(2, y - 18); rows.push([y, 5 - w, 26 + w]); }
+        rows.push([23, 5, 26], [24, 9, 22], [25, 13, 18]);
+        spans(p, rows, c);
+        p.vline(26, 4, 18, cD); p.vline(6, 5, 18, cL);
+        for (const x of [12, 19]) p.vline(x, 9, 23, cD);
+        p.tag = 'gold';
+        p.hline(3, 4, 22, gD); p.hline(27, 28, 22, gD); p.hline(5, 8, 23, gD); p.hline(23, 26, 23, gD); p.hline(9, 12, 24, gD); p.hline(19, 22, 24, gD); p.hline(13, 18, 25, gD);
+        p.tag = 'hat';
+      } else {
+        spans(p, [[-1, 10, 18], [0, 8, 21], [1, 6, 23], [2, 5, 24], [3, 4, 24], [4, 4, 25], [5, 3, 25], [6, 3, 25], [7, 3, 25], [8, 3, 25]], c);
+        for (let y = 9; y <= 23; y++) { const w = y < 19 ? 0 : Math.min(3, y - 18); p.hline(14 - w, 25 + Math.min(2, w), y, c); }
+        p.vline(25, 6, 18, cD); p.vline(15, 10, 18, cL); p.vline(20, 12, 22, cD);
+        p.tag = 'gold';
+        p.vline(14, 9, 20, gD); p.hline(11, 27, 23, gD);
+        p.hline(3, 13, 7, gD);
+        for (let x = 4; x <= 12; x += 3) { p.rect(x, 8, 2, 2, g); p.set(x + 1, 9, gD); }
+        p.tag = 'hat';
+      }
+      break;
+    }
+    case 'circlet': {
+      // ほそい 金の わ（ひたいに コインが ゆれる。かみは みえる。hatGem … まんなかの ほうせき。第4章 砂の国の 子ども）
+      const g = '#f2c14e', gD = '#b8862a', gL = '#fff0a0', j = o.hatGem || '#e8303a';
+      p.tag = 'gold';
+      if (side) {
+        p.hline(5, 21, 7, g); p.hline(6, 12, 7, gL); p.set(21, 8, gD); p.set(22, 9, gD);
+        p.rect(5, 8, 2, 2, g); p.set(6, 9, gD);
+      } else if (dir === 'down') {
+        p.hline(6, 25, 7, g); p.hline(8, 12, 7, gL); p.set(6, 8, gD); p.set(25, 8, gD);
+        for (const x of [10, 21]) p.set(x, 8, gD);
+        p.rect(14, 8, 4, 2, g); p.set(17, 9, gD);
+        p.tag = 'gem'; p.rect(15, 6, 2, 2, j);
+      } else {
+        p.hline(5, 26, 8, gD); p.hline(6, 25, 7, g); p.hline(9, 13, 7, gL);
+      }
+      break;
+    }
     case 'chef': {
       const w = '#ffffff', wD = '#dadae6';
       spans(p, [[-2, 10, 21], [-1, 8, 23], [0, 7, 24], [1, 7, 24], [2, 7, 24], [3, 8, 23], [4, 8, 23], [5, 8, 23]], w);
@@ -1922,6 +2052,8 @@ export function paintSpecial(kind, dir, f) {
       break;
     case 'ship':
       return paintShip(dir, f);
+    case 'camel':
+      return paintCamel(dir, f);
     default:
       return null;
   }
@@ -1933,6 +2065,112 @@ function fine(p, oc) {
   const q = scale2x(scale2x(p));
   rimShade(q, 0.2, 0.16);
   if (oc) outline2(q, oc, 0.4);
+  return q;
+}
+
+// ラクダ（キャラバンの ラクダ。こぶに 赤い しきもの・よこに にもつ。第4章 砂の国）
+// 人より 大きい（よこむき 30×25・まえ うしろ 18×25）。よこむきは left を かいて、right は はんてん
+export function paintCamel(dir, f) {
+  const side = dir === 'left' || dir === 'right';
+  const p = new Painter(side ? 30 : 18, 25);
+  const C = '#d8a868', CD = '#a8783e', CDD = '#7a5228', CL = '#f0cc90';
+  const R = '#c83a3a', RD = '#8a2424', Y = '#f2c14e', B = '#3a64c8', BAG = '#8a5a32', BAGD = '#5e3c1e', EYE = '#231a2e';
+  // あし（x … ひだりはし、lift … あげる ドット、near … てまえの あし）
+  const leg = (x, lift, near) => {
+    const c = near ? C : CD;
+    p.rect(x, 16, 2, 7 - lift, c);
+    p.rect(x, 19 - lift, 3, 2, c); // ひざの こぶ
+    p.set(x + 2, 20 - lift, near ? CD : CDD);
+    p.rect(x - 1, 23 - lift, 3, 2, near ? CDD : shade(CDD, -0.2));
+    if (near) { p.vline(x + 1, 16, 18 - lift, CD); p.set(x, 19 - lift, CL); }
+  };
+  if (side) {
+    const b = f; // あるく ときに 頭が ゆれる
+    // むこうの あし
+    leg(8, f ? 1 : 0, false);
+    leg(21, f ? 0 : 1, false);
+    // しっぽ
+    p.vline(27, 11, 13, CD); p.rect(26, 14, 2, 2, CDD);
+    // からだ と こぶ
+    spans(p, [[10, 11, 22], [11, 9, 24], [12, 8, 25], [13, 8, 26], [14, 8, 26], [15, 9, 25], [16, 10, 24], [17, 12, 21]], C);
+    spans(p, [[5, 15, 18], [6, 14, 19], [7, 13, 20], [8, 12, 21], [9, 11, 22]], C);
+    p.hline(10, 23, 16, CD); p.hline(13, 20, 17, CDD); p.vline(25, 12, 15, CD);
+    p.hline(15, 17, 5, CL); p.set(14, 6, CL);
+    // こぶに かけた 赤い しきもの（しまと ふさ）
+    spans(p, [[6, 15, 18], [7, 14, 19], [8, 13, 20], [9, 12, 21], [10, 12, 21], [11, 12, 21], [12, 12, 21], [13, 12, 21], [14, 12, 21]], R);
+    p.hline(12, 21, 9, Y); p.hline(12, 21, 12, B); p.hline(12, 21, 13, Y);
+    p.vline(21, 9, 14, RD); p.hline(15, 18, 6, shade(R, 0.25));
+    for (let x = 12; x <= 21; x += 2) p.set(x, 15, x % 4 ? Y : B);
+    // よこの にもつ（ひもで つるす）
+    p.rect(19, 11, 5, 5, BAG); p.hline(19, 23, 11, shade(BAG, 0.25)); p.vline(23, 12, 15, BAGD); p.hline(19, 23, 15, BAGD);
+    p.vline(21, 8, 10, BAGD); p.set(21, 13, Y);
+    // くび（むねから まえへ のびて 頭へ）
+    spans(p, [[7, 4, 7], [8, 5, 8], [9, 6, 9], [10, 7, 10], [11, 7, 10], [12, 8, 10], [13, 8, 10]].map(([y, x0, x1]) => [y + (y < 10 ? b : 0), x0, x1]), C);
+    p.vline(4, 7 + b, 8 + b, CD); p.set(5, 9 + b, CD); p.set(6, 10, CD); p.vline(7, 11, 13, CD);
+    p.set(8, 8 + b, CL); p.set(9, 9 + b, CL);
+    // あたま（はなづらは ひだり）
+    spans(p, [[2, 3, 6], [3, 1, 6], [4, 0, 6], [5, 0, 5], [6, 1, 4]].map(([y, x0, x1]) => [y + b, x0, x1]), C);
+    p.set(5, 1 + b, CD); p.set(6, 1 + b, C); // みみ
+    p.hline(3, 5, 2 + b, CL);
+    p.set(3, 3 + b, EYE); p.set(4, 3 + b, CDD);
+    p.set(0, 4 + b, CDD); p.hline(0, 2, 5 + b, CD); p.hline(1, 3, 6 + b, CD);
+    // おもがい（あたまの ひも）と たづな
+    p.vline(3, 4 + b, 6 + b, R); p.set(2, 4 + b, Y);
+    p.set(3, 7 + b, RD); p.set(4, 8 + b, RD);
+    // てまえの あし
+    leg(11, f ? 0 : 1, true);
+    leg(23, f ? 1 : 0, true);
+  } else if (dir === 'down') {
+    const b = f;
+    // うしろの あし（からだの かげ）
+    p.rect(3, 16, 2, 6, CD); p.rect(13, 16, 2, 6, CD);
+    // からだ（こぶに しきもの）
+    spans(p, [[8, 4, 13], [9, 3, 14], [10, 2, 15], [11, 2, 15], [12, 2, 15], [13, 2, 15], [14, 2, 15], [15, 3, 14], [16, 4, 13]], R);
+    p.hline(2, 15, 11, Y); p.hline(2, 15, 13, B); p.hline(2, 15, 14, Y);
+    p.vline(15, 10, 15, RD); p.vline(14, 9, 16, RD);
+    for (let x = 3; x <= 14; x += 2) p.set(x, 17, x % 4 === 1 ? Y : B);
+    p.rect(1, 11, 2, 4, BAG); p.rect(15, 11, 2, 4, BAGD);
+    // むね（まえの 毛）
+    spans(p, [[11, 6, 11], [12, 6, 11], [13, 6, 11], [14, 6, 11], [15, 6, 11], [16, 7, 10]], C);
+    p.vline(11, 11, 15, CD); p.vline(6, 12, 15, CL);
+    // まえあし
+    p.rect(5, 16, 2, 7 - (f ? 1 : 0), C); p.rect(11, 16, 2, 7 - (f ? 0 : 1), C);
+    p.hline(5, 7, 19 - (f ? 1 : 0), CL); p.hline(10, 12, 19 - (f ? 0 : 1), CL);
+    p.rect(4, 23 - (f ? 1 : 0), 4, 2, CDD); p.rect(10, 23 - (f ? 0 : 1), 4, 2, CDD);
+    p.vline(6, 16, 18, CD); p.vline(12, 16, 18, CD);
+    // くび
+    p.rect(7, 8 + b, 4, 4, C); p.vline(10, 8 + b, 11, CD); p.vline(7, 8 + b, 10, CL);
+    // あたま（こちらを むく。ほそながい かお と ふくらんだ はなさき）
+    spans(p, [[0, 7, 10], [1, 6, 11], [2, 6, 11], [3, 7, 10], [4, 7, 10], [5, 7, 10], [6, 6, 11], [7, 6, 11], [8, 7, 10]].map(([y, x0, x1]) => [y + b, x0, x1]), C);
+    p.set(5, 0 + b, CD); p.set(12, 0 + b, CD); // みみ
+    p.hline(8, 9, 0 + b, CL); p.vline(8, 3 + b, 5 + b, CL);
+    p.set(6, 2 + b, EYE); p.set(11, 2 + b, EYE); // 目は よこに
+    p.hline(6, 11, 7 + b, CL); p.set(7, 6 + b, CDD); p.set(10, 6 + b, CDD); p.hline(8, 9, 8 + b, CD);
+    p.set(6, 4 + b, R); p.set(11, 4 + b, R); p.hline(7, 10, 5 + b, R); p.set(8, 5 + b, Y);
+  } else {
+    const b = f;
+    // まえの 頭の うしろ（こぶの むこうに すこし みえる）
+    spans(p, [[2, 7, 10], [3, 7, 10], [4, 7, 10]].map(([y, x0, x1]) => [y + b, x0, x1]), CD);
+    p.set(6, 2 + b, CDD); p.set(11, 2 + b, CDD); p.hline(8, 9, 2 + b, C);
+    p.rect(7, 5 + b, 4, 3, CD);
+    // こぶと しきもの・からだ
+    spans(p, [[6, 6, 11], [7, 5, 12], [8, 4, 13], [9, 3, 14], [10, 2, 15], [11, 2, 15], [12, 2, 15], [13, 2, 15], [14, 2, 15], [15, 3, 14], [16, 4, 13]], C);
+    spans(p, [[7, 6, 11], [8, 5, 12], [9, 4, 13], [10, 3, 14], [11, 3, 14], [12, 3, 14], [13, 3, 14]], R);
+    p.hline(4, 13, 9, Y); p.hline(3, 14, 12, B); p.hline(3, 14, 13, Y);
+    for (let x = 3; x <= 14; x += 2) p.set(x, 14, x % 4 === 1 ? Y : B);
+    p.vline(14, 10, 13, RD); p.hline(6, 11, 7, shade(R, 0.25));
+    p.rect(1, 11, 2, 4, BAG); p.rect(15, 11, 2, 4, BAGD);
+    p.vline(15, 14, 15, CD); p.hline(5, 12, 16, CD);
+    // しっぽ
+    p.vline(8, 14, 17, CD); p.rect(8, 18, 2, 2, CDD);
+    // うしろあし
+    p.rect(5, 16, 2, 7 - (f ? 1 : 0), C); p.rect(11, 16, 2, 7 - (f ? 0 : 1), C);
+    p.hline(5, 7, 19 - (f ? 1 : 0), CL); p.hline(10, 12, 19 - (f ? 0 : 1), CL);
+    p.rect(4, 23 - (f ? 1 : 0), 4, 2, CDD); p.rect(10, 23 - (f ? 0 : 1), 4, 2, CDD);
+    p.vline(6, 16, 18, CD); p.vline(12, 16, 18, CD);
+  }
+  let q = fine(p, OUT);
+  if (dir === 'right') q = q.flipX();
   return q;
 }
 

@@ -7,6 +7,7 @@ import { tintCanvas } from './themes.js';
 import { addNightArt } from './night-art.js';
 import { addRareArt } from './rare-art.js';
 import { addCh3Art } from './ch3-art.js';
+import { addCh4Art } from './ch4-art.js';
 
 export const MRES = 4; // できあがりの こまかさ（せかいの 1ドットを 4×4 で かく）
 const OUT = '#130d24';
@@ -815,6 +816,8 @@ addNightArt(MONSTER_ART);
 addRareArt(MONSTER_ART);
 // 第3章の 魔物と 星の竜（ch3-art.js）
 addCh3Art(MONSTER_ART);
+// 第4章の 魔物（ch4-art.js）
+addCh4Art(MONSTER_ART);
 
 const cache = new Map();
 
@@ -843,9 +846,39 @@ export function monsterCanvas(sp, frame = 0, small = false) {
     h = Math.max(10, Math.round(h * k));
   }
   c = paintVector(w, h, def.pal, (g) => def.draw(g, frame));
+  if (def.fade) fadeCanvas(c, h, def.fade);
   if (tint) c = tintCanvas(c, tint);
   cache.set(key, c);
   return c;
+}
+
+// すきとおる え（ゆうれい など）: fade … [[y, こさ], …]（y は え の たかさの わりあい。あいだは なめらかに）
+// せかいの 1ドットごとに おなじ こさ（ドットえ らしく）
+function fadeCanvas(c, h, stops) {
+  const r = c.res || 1;
+  const x = ctxOf(c);
+  const img = x.getImageData(0, 0, c.width, c.height);
+  const d = img.data;
+  for (let py = 0; py < c.height; py++) {
+    const t = (Math.floor(py / r) + 0.5 - 1) / h;
+    const a = fadeAt(stops, t);
+    if (a >= 1) continue;
+    for (let i = py * c.width * 4 + 3, end = i + c.width * 4; i < end; i += 4) d[i] = Math.round(d[i] * a);
+  }
+  x.putImageData(img, 0, 0);
+}
+
+// fade の こさ（y … え の たかさの わりあい）
+export function fadeAt(stops, y) {
+  if (y <= stops[0][0]) return stops[0][1];
+  for (let i = 1; i < stops.length; i++) {
+    const [y1, a1] = stops[i];
+    if (y <= y1) {
+      const [y0, a0] = stops[i - 1];
+      return a0 + ((a1 - a0) * (y - y0)) / (y1 - y0 || 1);
+    }
+  }
+  return stops[stops.length - 1][1];
 }
 
 // ベクターの え を ドットえに（w×h の まわりに 1ドットの よはく。res 4。dragon-art.js でも つかう）
