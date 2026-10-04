@@ -1,24 +1,25 @@
 // お店・やどや・きょうかい・転職・酒場・でんごんばん・メニュー操作
-import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js?v=67d7c2d49719';
-import { normDifficulty } from '../data/difficulty.js?v=67d7c2d49719';
-import { ITEMS, sellPrice, SLOTS } from '../data/items.js?v=67d7c2d49719';
-import { JOBS, ALL_JOBS, jobReqText, BODY_NAMES } from '../data/jobs.js?v=67d7c2d49719';
-import { ABILITIES } from '../data/abilities.js?v=67d7c2d49719';
-import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=67d7c2d49719';
-import { TACTICS } from '../ai.js?v=67d7c2d49719';
-import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js?v=67d7c2d49719';
-import { salonInfo, salonAction } from './salon.js?v=67d7c2d49719';
-import { breedMonsters, breedPreview } from './breed.js?v=67d7c2d49719';
-import { MONSTERS } from '../data/monsters.js?v=67d7c2d49719';
-import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings } from '../battle.js?v=67d7c2d49719';
-import { PLACES } from '../maps/overworld.js?v=67d7c2d49719';
-import { POS, SEA_PLACES } from '../maps/index.js?v=67d7c2d49719';
-import { castRura, warpParty, useTimeBell, warpPlaces, warpOwner } from './travel.js?v=67d7c2d49719';
-import { bankInfo, bankAction } from './bank.js?v=67d7c2d49719';
-import { forgeInfo, forgeAction } from './forge.js?v=67d7c2d49719';
-import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction, wagonHere, wagonHealEntries } from './wagon.js?v=67d7c2d49719';
-import { casinoOpen, casinoAction } from './casino.js?v=67d7c2d49719';
-import { useEscapeItem } from './escape.js?v=67d7c2d49719';
+import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js?v=a4aa89e14206';
+import { normDifficulty } from '../data/difficulty.js?v=a4aa89e14206';
+import { ITEMS, sellPrice, SLOTS } from '../data/items.js?v=a4aa89e14206';
+import { JOBS, ALL_JOBS, jobReqText, BODY_NAMES } from '../data/jobs.js?v=a4aa89e14206';
+import { ABILITIES } from '../data/abilities.js?v=a4aa89e14206';
+import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=a4aa89e14206';
+import { TACTICS } from '../ai.js?v=a4aa89e14206';
+import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js?v=a4aa89e14206';
+import { salonInfo, salonAction } from './salon.js?v=a4aa89e14206';
+import { breedMonsters, breedPreview } from './breed.js?v=a4aa89e14206';
+import { MONSTERS } from '../data/monsters.js?v=a4aa89e14206';
+import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings } from '../battle.js?v=a4aa89e14206';
+import { PLACES } from '../maps/overworld.js?v=a4aa89e14206';
+import { POS, SEA_PLACES } from '../maps/index.js?v=a4aa89e14206';
+import { castRura, warpParty, useTimeBell, warpPlaces, warpOwner } from './travel.js?v=a4aa89e14206';
+import { bankInfo, bankAction } from './bank.js?v=a4aa89e14206';
+import { forgeInfo, forgeAction } from './forge.js?v=a4aa89e14206';
+import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction, wagonHere, wagonHealEntries } from './wagon.js?v=a4aa89e14206';
+import { casinoOpen, casinoAction } from './casino.js?v=a4aa89e14206';
+import { useEscapeItem } from './escape.js?v=a4aa89e14206';
+import { bestEquipPlan } from '../equip-plan.js?v=a4aa89e14206';
 
 export function openService(world, s, kind, arg) {
   switch (kind) {
@@ -420,9 +421,12 @@ export function menuAction(world, s, msg) {
     // モンスターの なかまも（しゅぞくで 装備できる 物だけ）
     case 'bestEquip': {
       const team = msg.who === 'all' ? ownTeamChars(world, s) : [ownChar(s, msg.who || 'self')].filter(Boolean);
+      // equip-plan.js で 見こみを 出して、その とおりに 装備する（メニューの「何が 何に 変わるか」と おなじ 計算）
+      const plan = bestEquipPlan(team.map((ch, i) => ({ key: i, char: ch })), c);
       const lines = [];
-      for (const who of team) {
-        const got = bestEquipFor(who, c);
+      for (const p of plan) {
+        const who = team[p.key];
+        const got = p.changes.filter((x) => equipItem(who, x.to, c)).map((x) => ITEMS[x.to].name);
         if (got.length) lines.push(`${who.name}: ${got.join('・')}`);
       }
       if (!lines.length) return reply(false, 'もういちばん強い装備をしている');
@@ -490,29 +494,6 @@ function ownTeamChars(world, s) {
   const sups = (p?.supports || []).filter((x) => x.owner === s.char.id && x.kind !== 'family').map((x) => x.char);
   const pos = Math.max(0, Math.min(sups.length, Number.isInteger(s.char.selfPos) ? s.char.selfPos : 0));
   return [...sups.slice(0, pos), s.char, ...sups.slice(pos)];
-}
-
-const BEST_SLOTS = ['weapon', 'armor', 'shield', 'head'];
-function bestEquipFor(ch, bag) {
-  const changed = [];
-  for (const slot of BEST_SLOTS) {
-    const key = slot === 'weapon' ? 'atk' : 'dfn';
-    // 大事な 強さ（攻撃力・守備力）→ ほかの 強さの 合計 の じゅんで くらべる
-    const score = (id) => {
-      const st = computeStats({ ...ch, equip: { ...ch.equip, [slot]: id } });
-      return st[key] * 10000 + st.str + st.def + st.agi + st.mag + st.heal + st.maxHp + st.maxMp;
-    };
-    const cur = ch.equip?.[slot] || null;
-    let best = cur;
-    let bestScore = score(cur);
-    for (const e of bag.items) {
-      if (e.n < 1 || ITEMS[e.id]?.type !== slot || !canEquipChar(ch, e.id)) continue;
-      const sc = score(e.id);
-      if (sc > bestScore) { best = e.id; bestScore = sc; }
-    }
-    if (best && best !== cur && equipItem(ch, best, bag)) changed.push(ITEMS[best].name);
-  }
-  return changed;
 }
 
 // ───── まんたん ─────

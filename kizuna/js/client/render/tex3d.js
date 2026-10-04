@@ -2,14 +2,14 @@
 // ・タイルの え を 1まいに ならべた「アトラス」
 // ・かべの よこ・うえ、やま、はし など 3D だけで つかう え
 // ・つぼ・さく・かんばん など たてて みせる「もの」の え（せなかは とうめい）
-import { T } from '../../shared/tiles.js?v=67d7c2d49719';
-import { tileCanvas } from './tiles.js?v=67d7c2d49719';
-import { Painter, prand, makeCanvas, ctxOf, shade } from './pixel.js?v=67d7c2d49719';
-import { paintStorm } from './tiles-ch4.js?v=67d7c2d49719';
+import { T } from '../../shared/tiles.js?v=a4aa89e14206';
+import { tileCanvas } from './tiles.js?v=a4aa89e14206';
+import { Painter, prand, makeCanvas, ctxOf, shade } from './pixel.js?v=a4aa89e14206';
+import { paintStorm } from './tiles-ch4.js?v=a4aa89e14206';
 import {
   canalWallFace, canalWallTop, canalSidePaint, damTopPaint, paintCanalWater, sluiceTopPaint, sluiceBoardPaint, pillarSidePaint, pillarTopPaint, rubbleAtlasPaint,
   CANAL_SUN,
-} from './tiles-canal.js?v=67d7c2d49719';
+} from './tiles-canal.js?v=a4aa89e14206';
 
 const TAU = Math.PI * 2;
 

@@ -1,36 +1,37 @@
 // フィールドの メニュー
-import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js?v=67d7c2d49719';
-import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js?v=67d7c2d49719';
-import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js?v=67d7c2d49719';
-import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS, turnSeconds } from '../../shared/battle.js?v=67d7c2d49719';
-import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily } from '../prefs.js?v=67d7c2d49719';
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_TRAIN_GAP, TIER_NAMES } from '../../shared/data/jobs.js?v=67d7c2d49719';
-import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress, monsterSlots } from '../../shared/stats.js?v=67d7c2d49719';
-import { HIRAMEKI } from '../../shared/data/hirameki.js?v=67d7c2d49719';
-import { DUAL_TECHS, DUAL_ORDER, groupName, dualKnown } from '../../shared/data/dual.js?v=67d7c2d49719';
-import { MONSTERS } from '../../shared/data/monsters.js?v=67d7c2d49719';
-import { monsterDrops } from '../../shared/data/loot.js?v=67d7c2d49719';
-import { MONSTER_FRIENDS, RACE_NAMES, recipeHint, joinTier } from '../../shared/data/companions.js?v=67d7c2d49719';
-import { TACTICS } from '../../shared/ai.js?v=67d7c2d49719';
-import { PLACES } from '../../shared/maps/overworld.js?v=67d7c2d49719';
-import { SEA_PLACES } from '../../shared/maps/ch2.js?v=67d7c2d49719';
-import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js?v=67d7c2d49719';
-import { T, TILE_INFO } from '../../shared/tiles.js?v=67d7c2d49719';
-import { itemDetail, abilityDetail, skillBrief, gearText, targetTag } from './info.js?v=67d7c2d49719';
-import { makeCanvas, ctxOf } from '../render/pixel.js?v=67d7c2d49719';
-import { monsterCanvas } from '../render/monsters.js?v=67d7c2d49719';
-import { mapIconCanvas, boardIconURL } from '../render/boards.js?v=67d7c2d49719';
-import { medalItemRow, walletView } from './casino.js?v=67d7c2d49719';
-import { compareOne, compareTeam, whoItems } from './counter.js?v=67d7c2d49719';
-import { faceURL } from '../field.js?v=67d7c2d49719';
-import { partyRows } from './hud.js?v=67d7c2d49719';
-import { questMarks, subQuests, OBJECTIVE_TARGETS, whereName } from '../../shared/data/quest-targets.js?v=67d7c2d49719';
-import { difficultyOf, visibleMarks, EXP_RATES, EXP_RATE_NAMES } from '../../shared/data/difficulty.js?v=67d7c2d49719';
-import { memberTalk, talkFor } from '../../shared/data/party-talk.js?v=67d7c2d49719';
-import { treasureRows, treasureDetail, openTreasureMap } from './treasure.js?v=67d7c2d49719';
-import { themeHex } from '../render/themes.js?v=67d7c2d49719';
-import { wagonMenuView, wagonHereClient, menuArrange } from './wagon.js?v=67d7c2d49719';
-import { readErrLog, errLogText, clearErrLog } from '../errlog.js?v=67d7c2d49719';
+import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js?v=a4aa89e14206';
+import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js?v=a4aa89e14206';
+import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js?v=a4aa89e14206';
+import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS, turnSeconds } from '../../shared/battle.js?v=a4aa89e14206';
+import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily } from '../prefs.js?v=a4aa89e14206';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_TRAIN_GAP, TIER_NAMES } from '../../shared/data/jobs.js?v=a4aa89e14206';
+import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress, monsterSlots } from '../../shared/stats.js?v=a4aa89e14206';
+import { HIRAMEKI } from '../../shared/data/hirameki.js?v=a4aa89e14206';
+import { DUAL_TECHS, DUAL_ORDER, groupName, dualKnown } from '../../shared/data/dual.js?v=a4aa89e14206';
+import { MONSTERS } from '../../shared/data/monsters.js?v=a4aa89e14206';
+import { monsterDrops } from '../../shared/data/loot.js?v=a4aa89e14206';
+import { MONSTER_FRIENDS, RACE_NAMES, recipeHint, joinTier } from '../../shared/data/companions.js?v=a4aa89e14206';
+import { TACTICS } from '../../shared/ai.js?v=a4aa89e14206';
+import { PLACES } from '../../shared/maps/overworld.js?v=a4aa89e14206';
+import { SEA_PLACES } from '../../shared/maps/ch2.js?v=a4aa89e14206';
+import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js?v=a4aa89e14206';
+import { T, TILE_INFO } from '../../shared/tiles.js?v=a4aa89e14206';
+import { itemDetail, abilityDetail, skillBrief, gearText, targetTag, statChanges, statChangesHtml } from './info.js?v=a4aa89e14206';
+import { bestEquipPlan } from '../../shared/equip-plan.js?v=a4aa89e14206';
+import { makeCanvas, ctxOf } from '../render/pixel.js?v=a4aa89e14206';
+import { monsterCanvas } from '../render/monsters.js?v=a4aa89e14206';
+import { mapIconCanvas, boardIconURL } from '../render/boards.js?v=a4aa89e14206';
+import { medalItemRow, walletView } from './casino.js?v=a4aa89e14206';
+import { compareOne, compareTeam, whoItems } from './counter.js?v=a4aa89e14206';
+import { faceURL } from '../field.js?v=a4aa89e14206';
+import { partyRows } from './hud.js?v=a4aa89e14206';
+import { questMarks, subQuests, OBJECTIVE_TARGETS, whereName } from '../../shared/data/quest-targets.js?v=a4aa89e14206';
+import { difficultyOf, visibleMarks, EXP_RATES, EXP_RATE_NAMES } from '../../shared/data/difficulty.js?v=a4aa89e14206';
+import { memberTalk, talkFor } from '../../shared/data/party-talk.js?v=a4aa89e14206';
+import { treasureRows, treasureDetail, openTreasureMap } from './treasure.js?v=a4aa89e14206';
+import { themeHex } from '../render/themes.js?v=a4aa89e14206';
+import { wagonMenuView, wagonHereClient, menuArrange } from './wagon.js?v=a4aa89e14206';
+import { readErrLog, errLogText, clearErrLog } from '../errlog.js?v=a4aa89e14206';
 
 // 呪文・技の タブ（左右で じゅんに かわる）
 const SKILL_TABS = [['list', '覚えた技'], ['fav', 'お気に入り'], ['combo', 'ひらめき'], ['dual', '合体技']];
@@ -77,6 +78,8 @@ export class FieldMenu {
     const g = this.game;
     if (this.root) return;
     g.menuOpen = true;
+    this.trail = [];
+    this.view = null;
     // そとを タップしても とじる
     this.backdrop = el('div', { class: 'modal-back', onclick: () => this.closeByUser() });
     this.root = el('div', { class: 'panel fmenu-panel' });
@@ -139,15 +142,57 @@ export class FieldMenu {
   refresh() {
     if (!this.root) return;
     this.updateHead();
-    if (this.current && !this.sub?.active) this.preview(this.current);
+    // みぎの 見本を かきなおすのは、ひだりの メニューを えらんでいる ときだけ
+    // （装備・強さ・仲間の 中の 画面や、えらぶ まどが 出ている ときに、自分の 見本に かわって しまわないように）
+    if (this.current && this.menu?.active) this.preview(this.current);
+  }
+
+  // ───── 画面の つみかさね（もどる で 一つ前の 画面へ。カーソルと スクロールも もとどおり） ─────
+  // make: 画面を つくる 関数（えらべる 画面を かえす）。this.view が 今の 画面、this.trail が 前の 画面たち
+  showView(make, start = -1, top = 0) {
+    this.sub?.blur();
+    this.sub = null;
+    this.view = make;
+    this.startIdx = start;
+    const node = make();
+    this.startIdx = -1;
+    this.focusSub(node);
+    if (this.root) this.main.scrollTop = top;
+  }
+
+  // ひだりの メニューから 入る（前の 画面は わすれる）
+  openView(make) {
+    this.trail = [];
+    this.showView(make);
+  }
+
+  // 今の 画面の 上に つぎの 画面を のせる（もどる で 今の 画面に もどれる）
+  pushView(make) {
+    if (this.view) this.trail.push({ make: this.view, idx: this.sub ? this.sub.idx : -1, top: this.main.scrollTop });
+    this.showView(make);
+  }
+
+  // 今の 画面を つくりなおす（装備を かえた あと など。カーソルの 場所は そのまま）
+  redraw() {
+    if (!this.root) return;
+    if (!this.view) {
+      if (this.menu.active) this.preview(this.current);
+      return;
+    }
+    this.showView(this.view, this.sub ? this.sub.idx : -1, this.main.scrollTop);
   }
 
   back() {
     this.sub?.blur();
     this.sub = null;
     if (!this.root) return; // もう とじている（おくれて よばれた とき）
+    // 一つ前の 画面が あれば そこへ（えらんでいた 人・スクロールも もとどおり）
+    const prev = this.trail?.pop();
+    if (prev) return this.showView(prev.make, prev.idx, prev.top);
+    this.view = null;
     this.menu.focus();
     this.preview(this.current);
+    this.main.scrollTop = 0;
   }
 
   preview(v) {
@@ -208,14 +253,9 @@ export class FieldMenu {
     if (next === 'status') items.unshift({ label: '全員（一覧でくらべる）', value: '__all' });
     const m = this.mkSub({
       items,
-      onSelect: (it) => {
-        this.who = it.value === '__all' ? 'self' : it.value;
-        this.sub.blur();
-        this.sub = null;
-        const view = it.value === '__all' ? this.allStatusView(true)
-          : next === 'skills' ? this.skillsView(true, it.value) : next === 'equip' ? this.equipView(true, it.value) : this.statusView(it.value, true);
-        this.focusSub(view);
-      },
+      // つぎの 画面は 上に のせる（もどる で この リストの おなじ 人に もどる）
+      onSelect: (it) => this.pushView(() => (it.value === '__all' ? this.allStatusView(true)
+        : next === 'skills' ? this.skillsView(true, it.value) : next === 'equip' ? this.equipView(true, it.value) : this.statusView(it.value, true))),
     });
     box.append(el('div', { class: 'small gold', text: title }), m.root);
     return box;
@@ -229,13 +269,15 @@ export class FieldMenu {
 
   select(v) {
     const g = this.game;
-    if (['skills', 'equip'].includes(v) && this.myMates().length) return this.focusSub(this.whoView(v));
-    if (v === 'status' && (this.myMates().length || this.hasOthers())) return this.focusSub(this.whoView(v));
+    this.trail = [];
+    this.view = null;
+    if (['skills', 'equip'].includes(v) && this.myMates().length) return this.openView(() => this.whoView(v));
+    if (v === 'status' && (this.myMates().length || this.hasOthers())) return this.openView(() => this.whoView(v));
     switch (v) {
       case 'items': return this.focusSub(this.itemsList(true));
       case 'skills': return this.focusSub(this.skillsView(true));
-      case 'equip': return this.focusSub(this.equipView(true));
-      case 'party': return this.focusSub(this.partyView(true));
+      case 'equip': return this.openView(() => this.equipView(true));
+      case 'party': return this.openView(() => this.partyView(true));
       case 'tactics': return this.focusSub(this.tacticsView(true));
       case 'zukan': return this.focusSub(this.zukanView(true));
       case 'settings': return this.focusSub(this.settingsView(true));
@@ -274,7 +316,10 @@ export class FieldMenu {
   }
 
   mkSub(opts) {
-    this.sub = new ListMenu(this.game.input, { sound: this.sfx, onCancel: () => this.back(), ...opts });
+    // 画面を つくりなおす ときは まえの カーソルの 場所から（showView の start）
+    const start = this.startIdx ?? -1;
+    this.startIdx = -1;
+    this.sub = new ListMenu(this.game.input, { sound: this.sfx, onCancel: () => this.back(), start, ...opts });
     return this.sub;
   }
 
@@ -439,19 +484,29 @@ export class FieldMenu {
     });
   }
 
-  pick(title, items, { wide = false } = {}) {
+  // body: リストの 上に 出す 中み（さいきょう装備の 見こみ など）。その ときは えらびしを 横に ならべ、上下で 中みを スクロール
+  pick(title, items, { wide = false, cls = '', body = null } = {}) {
     const g = this.game;
     return new Promise((resolve) => {
       const hasCancel = items.some((i) => i.value === null || i.value === 'cancel');
       const back = el('div', { class: 'modal-back', style: { zIndex: 4 }, onclick: () => { this.sfx('cancel'); done(null); } });
-      const box = el('div', { class: 'win panel center-panel', style: { width: wide ? 'min(94vw, 560px)' : 'min(86vw, 380px)', zIndex: 5, background: 'var(--win-solid)' } }, el('div', { class: 'small gold', text: title }));
+      const box = el('div', { class: `win panel center-panel ${cls}`, style: { width: wide ? 'min(94vw, 560px)' : 'min(86vw, 380px)', zIndex: 5, background: 'var(--win-solid)' } }, el('div', { class: 'small gold', text: title }));
       const m = new ListMenu(g.input, {
         items,
+        cols: body ? 2 : 1,
         sound: this.sfx,
         back: hasCancel ? null : 'やめる',
         onSelect: (it) => done(it.value),
         onCancel: () => done(null),
       });
+      if (body) {
+        const nav = m.nav.bind(m);
+        m.nav = (a, rep) => {
+          if (a !== 'up' && a !== 'down') return nav(a, rep);
+          body.scrollTop += (a === 'up' ? -1 : 1) * Math.max(40, body.clientHeight * 0.6);
+        };
+        box.append(body);
+      }
       box.append(m.root);
       document.getElementById('ui').append(back, box);
       this.popupOpen = true;
@@ -684,40 +739,78 @@ export class FieldMenu {
     const m = this.mkSub({
       items,
       onMove: (it) => {
-        if (it.value === '__best') detail.textContent = 'ふくろの中から、攻撃力・守備力がいちばん上がる武器・よろい・たて・かぶとを装備する（アクセサリーはそのまま）';
-        else if (it.value === '__bestAll') detail.textContent = '自分と仲間みんなを、ならびの順にさいきょう装備にする';
+        if (it.value === '__best') detail.textContent = 'ふくろの中から、攻撃力・守備力がいちばん上がる武器・よろい・たて・かぶとを選ぶ（アクセサリーはそのまま）\n何が何に変わるかを見てから、決められる';
+        else if (it.value === '__bestAll') detail.textContent = '自分と仲間みんなを、ならびの順にさいきょう装備にする\n何が何に変わるかを見てから、決められる';
         else detail.textContent = c.equip?.[it.value] ? `E ${ITEMS[c.equip[it.value]].name}（装備している）\n${itemDetail(c.equip[it.value], mons)}` : '';
       },
       onSelect: async (it) => {
         const slot = it.value;
         if (slot === '__best' || slot === '__bestAll') {
-          g.net.send({ t: 'menu', action: 'bestEquip', who: slot === '__bestAll' ? 'all' : who });
-          setTimeout(() => { if (this.root) this.focusSub(this.equipView(true, who)); }, 250);
+          // いきなり 変えずに「何が 何に 変わるか」を 見せてから えらぶ
+          this.sub.blur();
+          const done = await this.bestEquipAsk(slot === '__bestAll' ? 'all' : who);
+          setTimeout(() => this.redraw(), done ? 250 : 0);
           return;
         }
         const cands = g.me.items.filter((e) => ITEMS[e.id]?.type === slot);
-        // お店と おなじ 見せかた（攻撃力 52→66 ↑14）
+        const cur = c.equip?.[slot] || null;
+        // 上がる 強さも 下がる 強さも ぜんぶ 出す（攻撃力 46→66↑20　素早さ 26→24↓2）
+        const row = (name, list) => `<span class="eq-nm">${esc(name)}</span><span class="eq-sc">${statChangesHtml(list)}</span>`;
         const opts = cands.map((e) => {
           const r = compareOne({ key: who, name: c.name, char: c }, e.id);
           if (!r.can) return { label: ITEMS[e.id].name, right: '装備できない', value: e.id, disabled: true };
-          const d = r.main.d;
-          return {
-            label: ITEMS[e.id].name, value: e.id,
-            right: `${r.main.n} ${r.main.b}→${r.main.a} ${d > 0 ? `↑${d}` : d < 0 ? `↓${-d}` : '＝'}`,
-            rightCls: d > 0 ? 'up' : d < 0 ? 'down' : '',
-          };
+          return { html: row(ITEMS[e.id].name, [r.main, ...r.extras]), value: e.id, cls: 'eq-opt' };
         });
-        if (c.equip?.[slot]) opts.push({ label: '外す', value: '__off' });
+        if (cur) opts.push({ html: row('外す', statChanges(computeStats(c), computeStats({ ...c, equip: { ...c.equip, [slot]: null } }))), value: '__off', cls: 'eq-opt' });
         opts.push({ label: 'やめる', value: null });
         this.sub.blur();
-        const pick = await this.pick(`${c.companion ? c.name + 'の' : ''}${SLOT_NAMES[slot]}を選ぶ`, opts);
+        const pick = await this.pick(`${c.companion ? c.name + 'の' : ''}${SLOT_NAMES[slot]}を選ぶ（今：${cur ? ITEMS[cur].name : 'なし'}）`, opts, { wide: true, cls: 'eq-pick' });
         if (pick === '__off') g.net.send({ t: 'menu', action: 'unequip', slot, who });
         else if (pick) g.net.send({ t: 'menu', action: 'equip', id: pick, who });
-        setTimeout(() => { if (this.root) this.focusSub(this.equipView(true, who)); }, 200);
+        // おなじ 部位に カーソルを おいた まま つくりなおす
+        setTimeout(() => this.redraw(), pick ? 200 : 0);
       },
     });
     box.append(m.root, stats, ...(gear ? [gear] : []), detail);
     return box;
+  }
+
+  // さいきょう装備で きめる じゅんばん（サーバーの ownTeamChars と おなじ: ならびの じゅん。馬車の 仲間は 入らない）
+  bestTeam() {
+    const g = this.game;
+    const sups = (g.party?.supports || []).filter((x) => x.owner === g.me.id && x.kind !== 'family')
+      .map((x) => ({ key: x.key, char: this.charOf(x.key) })).filter((m) => m.char);
+    const pos = Math.max(0, Math.min(sups.length, Number.isInteger(g.me.selfPos) ? g.me.selfPos : 0));
+    return [...sups.slice(0, pos), { key: 'self', char: g.me }, ...sups.slice(pos)];
+  }
+
+  // さいきょう装備: 何が 何に 変わるかを 見せてから「これにする／変えない」（shared/equip-plan.js）。変えたら true
+  async bestEquipAsk(who) {
+    const g = this.game;
+    const all = who === 'all';
+    const team = all ? this.bestTeam() : [{ key: who, char: this.charOf(who) || g.me }];
+    const plan = bestEquipPlan(team, g.me);
+    if (!plan.length) {
+      await this.pick(all ? 'みんな、もういちばん強い装備をしている。\n（変わる物はない）' : `${team[0].char.name}は、もういちばん強い装備をしている。\n（変わる物はない）`, [{ label: 'もどる', value: null }]);
+      return false;
+    }
+    const body = el('div', { class: 'bp-body scroll' });
+    for (const p of plan) {
+      const sec = el('div', { class: 'bp-who' }, el('div', { class: 'bp-name', text: p.name }));
+      // 武器：鉄の剣 → はがねの剣
+      for (const x of p.changes) {
+        sec.append(el('div', { class: 'bp-ch' }, el('span', { class: 'k', text: `${SLOT_NAMES[x.slot]}：` }),
+          el('span', { class: 'from', text: x.from ? ITEMS[x.from].name : 'なし' }), el('span', { class: 'ar', text: '→' }), el('span', { class: 'to', text: ITEMS[x.to].name })));
+      }
+      // 強さ: 上がる ものも 下がる ものも
+      sec.append(el('div', { class: 'bp-st', html: statChangesHtml(statChanges(p.before, p.after)) }));
+      body.append(sec);
+    }
+    const ok = await this.pick(all ? 'みんなをさいきょう装備にすると、こう変わる' : `${team[0].char.name}をさいきょう装備にすると、こう変わる`,
+      [{ label: 'これにする', value: 'ok' }, { label: '変えない', value: null }], { wide: true, cls: 'bp-pop', body });
+    if (ok !== 'ok') return false;
+    g.net.send({ t: 'menu', action: 'bestEquip', who });
+    return true;
   }
 
   // ───── つよさ ─────
@@ -858,13 +951,8 @@ export class FieldMenu {
       onSelect: async (it) => {
         const v = it.value;
         if (!v) return;
-        if (v.a === 'wagon') {
-          this.sub.blur();
-          this.sub = null;
-          this.focusSub(wagonMenuView(this, true));
-          this.main.scrollTop = 0;
-          return;
-        }
+        // 馬車: 上に のせる（もどる で この リストの「馬車」に もどる）
+        if (v.a === 'wagon') return this.pushView(() => wagonMenuView(this, true));
         if (v.a === 'arrange') {
           if (!wagonHereClient(g)) {
             toast('馬車は入り口で待っている。\n（洞窟や塔の中では乗りかえられない）');
@@ -887,7 +975,8 @@ export class FieldMenu {
           const ok = await confirmBox(g.input, `${v.name}にルミナの町の酒場で待っていてもらう？\n（酒場でまた連れていけるよ）`, 'はい', 'いいえ', this.sfx);
           if (ok) g.net.send({ t: 'party', action: 'dismiss', key: v.key });
         } else g.net.send({ t: 'party', action: v.a, sid: v.sid, key: v.key });
-        setTimeout(() => { if (this.root) this.focusSub(this.partyView(true)); }, 250);
+        // カーソルは えらんだ ところの まま
+        setTimeout(() => this.redraw(), 250);
       },
     });
     box.append(el('div', { style: { marginTop: '0.5em' } }, m.root));

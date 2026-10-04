@@ -1,15 +1,15 @@
 // 馬車の がめん: たたかいの「いれかえ」「総入れかえ」・メニューの「仲間」→「総入れかえ」「馬車」・酒場の 乗りかえ
 //   きまりは shared/data/wagon.js と shared/world/wagon.js
-import { el, esc, toast, ListMenu } from './dom.js?v=67d7c2d49719';
-import { WAGON_SLOTS } from '../../shared/data/wagon.js?v=67d7c2d49719';
-import { COMPANION_SLOTS } from '../../shared/data/companions.js?v=67d7c2d49719';
-import { MAPS } from '../../shared/maps/index.js?v=67d7c2d49719';
-import { JOBS } from '../../shared/data/jobs.js?v=67d7c2d49719';
-import { MONSTERS } from '../../shared/data/monsters.js?v=67d7c2d49719';
-import { computeStats } from '../../shared/stats.js?v=67d7c2d49719';
-import { faceURL } from '../field.js?v=67d7c2d49719';
-import { wagonSprite } from '../render/wagon.js?v=67d7c2d49719';
-import { request } from './shop.js?v=67d7c2d49719';
+import { el, esc, toast, ListMenu } from './dom.js?v=a4aa89e14206';
+import { WAGON_SLOTS } from '../../shared/data/wagon.js?v=a4aa89e14206';
+import { COMPANION_SLOTS } from '../../shared/data/companions.js?v=a4aa89e14206';
+import { MAPS } from '../../shared/maps/index.js?v=a4aa89e14206';
+import { JOBS } from '../../shared/data/jobs.js?v=a4aa89e14206';
+import { MONSTERS } from '../../shared/data/monsters.js?v=a4aa89e14206';
+import { computeStats } from '../../shared/stats.js?v=a4aa89e14206';
+import { faceURL } from '../field.js?v=a4aa89e14206';
+import { wagonSprite } from '../render/wagon.js?v=a4aa89e14206';
+import { request } from './shop.js?v=a4aa89e14206';
 
 const isFam = (k) => String(k || '').startsWith('fam:');
 const BATTLE_MAX = 1 + COMPANION_SLOTS; // 戦う 仲間（自分を ふくめて）
@@ -491,7 +491,7 @@ export function wagonMenuView(menu, active) {
       menu.sub.blur();
       if (it.value === '#arrange') {
         await menuArrange(menu);
-        setTimeout(() => { if (menu.root) menu.focusSub(wagonMenuView(menu, true)); }, 250);
+        setTimeout(() => menu.redraw(), 250);
         return;
       }
       const send = (op, key, other) => g.net.send({ t: 'menu', action: 'wagon', op, key, with: other || undefined });
@@ -515,7 +515,8 @@ export function wagonMenuView(menu, active) {
         if (v === '#in') send('in', it.value);
         else if (v) send('out', v, it.value);
       }
-      setTimeout(() => { if (menu.root) menu.focusSub(wagonMenuView(menu, true)); }, 250);
+      // カーソルは えらんだ 仲間の ところの まま（menu.js の redraw）
+      setTimeout(() => menu.redraw(), 250);
     },
   });
   box.append(m.root, el('div', { class: 'wv-note', text: note }));
