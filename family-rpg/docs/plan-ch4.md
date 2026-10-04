@@ -301,6 +301,7 @@
 - **新しいしくみ**：砂嵐（竜で飛べる範囲と天気の絵。下の「新しいしくみ」の1）
 - **テスト**：竜で行ける範囲（砂嵐の間は北の海辺だけ）、夜だけの魔物、物語のフラグ
 - **遊べる所**：南へ飛んで、ハミルに着いて、アミを助けるまで
+- **できた**（2026年10月4日）
 
 ### Step 2：かれた地下水路とよろい大サソリ
 
@@ -379,11 +380,22 @@
 - 物語のすすみ（第3章の `CH3_STEPS` と同じ形）
 
   ```js
-  export const CH4_STEPS = ['c4_start', 'c4_arrive', 'c4_hamil', 'c4_well', 'c4_canal', 'c4_scorpion',
+  // Step 1 で決まったもの（もう変えない）: c4_start〜c4_ami
+  export const CH4_STEPS = ['c4_start', 'c4_arrive', 'c4_hamil', 'c4_nadim', 'c4_well', 'c4_ami',
+    // ここから先は案（Step 2 から、うしろにたしていく）
+    'c4_canal', 'c4_scorpion',
     'c4_capital', 'c4_queen', 'c4_fountain', 'c4_song', 'c4_pyramid', 'c4_anku', 'c4_mirror',
     'c4_zaid', 'c4_letter', 'c4_duna', 'c4_sara', 'c4_castle', 'c4_ship', 'c4_whale',
     'c4_temple', 'c4_morgana', 'c4_star', 'c4_clear'];
   ```
+
+- Step 1 で決まったこと（2026年10月4日）
+  - 入口：第3章クリアのあと、竜守りの村の長老ハクゲンに話しかける（目標 `C4_LEAD_OBJECTIVE`。`sky.js`）。アステルが広場におりてきて話す
+  - マップ：`south`（144×144）と `north_well`（北の古井戸）。砂嵐のかべは y=60〜63 の東西ぜんぶ。道の所（x=35〜38）は `c4_scorpion`、のこりは `c4_morgana` で晴れる
+  - 竜が飛べる所：北の海辺の上（`SOUTH_LANDING`）。`until: 'c4_zaid'`（大臣をたおすまで）。Step 5 で「王都・ドゥナの近くまで」の2だんかいにする時は、`box` を2つ持てるようにする
+  - 夜の出現表：`s_coast_night`・`s_dune_night`・`s_oasis_night`（月のゆうれい）。井戸の中は昼も夜も同じ
+  - Step 1 のさいごの目標は「第4章の続きはアップデートで！」。Step 2 で地下水路の目標に変える時は、古い文を知っている文にのこすか、`migrateCh4` でなおす
+  - かれた地下水路の入口の場所は、村の南東（`SOUTH_POS.canal`）にあけてある
 
 - 目標の文の例（`C4_OBJ`）
   - start：`星の竜アステルに乗って、風の海の南のはしから「砂の国」へ飛ぼう`
