@@ -1,9 +1,9 @@
 // マップの タイル（16×16 ドット）を プログラムで かく
-import { T, TILE_INFO } from '../../shared/tiles.js?v=b37608d5fdbd';
-import { hash2 } from '../../shared/rng.js?v=b37608d5fdbd';
-import { Painter, shade, prand } from './pixel.js?v=b37608d5fdbd';
-import { themedCanvas, partOfTile } from './themes.js?v=b37608d5fdbd';
-import { CH3_PAINTERS, CH3_FRAMES, CH3_SPEED, RAIL_TILES, CH3_WALLS } from './tiles-ch3.js?v=b37608d5fdbd';
+import { T, TILE_INFO } from '../../shared/tiles.js?v=35500ffb819e';
+import { hash2 } from '../../shared/rng.js?v=35500ffb819e';
+import { Painter, shade, prand } from './pixel.js?v=35500ffb819e';
+import { themedCanvas, partOfTile } from './themes.js?v=35500ffb819e';
+import { CH3_PAINTERS, CH3_FRAMES, CH3_SPEED, RAIL_TILES, CH3_WALLS } from './tiles-ch3.js?v=35500ffb819e';
 
 export const TS = 16;
 

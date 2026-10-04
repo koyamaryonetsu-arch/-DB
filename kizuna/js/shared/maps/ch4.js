@@ -1,15 +1,15 @@
 // 第4章「砂の海にしずむ星」の マップ
 // コガネ地方（フィールド）・北の古井戸。王都・ピラミッドなどは Step 3 から
 // 村の 形は south-rows.js（1文字 = 1マス）
-import { T, parseRows } from '../tiles.js?v=b37608d5fdbd';
-import { makeRng } from '../rng.js?v=b37608d5fdbd';
-import { npc } from './npc.js?v=b37608d5fdbd';
-import { SEA_PLACES } from './ch2.js?v=b37608d5fdbd';
+import { T, parseRows } from '../tiles.js?v=35500ffb819e';
+import { makeRng } from '../rng.js?v=35500ffb819e';
+import { npc } from './npc.js?v=35500ffb819e';
+import { SEA_PLACES } from './ch2.js?v=35500ffb819e';
 import {
   buildSouth, southZoneAt, southAreaName, southWeatherAt, southBgmAt, SOUTH_PLACES, SOUTH_POS, SOUTH_LANDING, LANDING_BEACH, OASIS2, OASIS_CAMP,
   STORM_Y, STORM_FLAG,
-} from './south.js?v=b37608d5fdbd';
-import { HAMIL_ROWS, WELL_ROWS } from './south-rows.js?v=b37608d5fdbd';
+} from './south.js?v=35500ffb819e';
+import { HAMIL_ROWS, WELL_ROWS } from './south-rows.js?v=35500ffb819e';
 
 const HAM = SOUTH_PLACES.hamil;
 const H = (x, y) => [HAM.x + x, HAM.y + y];
@@ -60,6 +60,10 @@ const SOUTH_NPCS = [
   npc('c4_beach_trader', '旅の商人', [64, 9], 'caravan', 'c4_beach_trader', { wander: 1 }),
   npc('c4_camp_leader', 'キャラバンのかしら', [OASIS_CAMP.x + 3, OASIS_CAMP.y + 3], 'desert_merchant', 'c4_camp_leader', { dir: 'down' }),
   npc('c4_camp_kid', 'キャラバンの子ども', [OASIS_CAMP.x + 9, OASIS_CAMP.y + 9], 'desert_kid', 'c4_camp_kid', { wander: 1 }),
+  // キャラバンの ラクダ
+  npc('c4_camel1', 'ラクダ', [OASIS_CAMP.x + 2, OASIS_CAMP.y + 8], 'camel', 'c4_camel', { dir: 'right' }),
+  npc('c4_camel2', 'ラクダ', [OASIS_CAMP.x + 8, OASIS_CAMP.y + 4], 'camel', 'c4_camel', { dir: 'left' }),
+  npc('c4_camel3', 'ラクダ', [62, 9], 'camel', 'c4_camel', { dir: 'right' }),
 ];
 
 // 宝箱（フィールドの 宝箱は 開けると きえる）
