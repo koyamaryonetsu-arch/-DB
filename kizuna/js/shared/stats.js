@@ -1,11 +1,11 @@
 // キャラクターの つよさ計算・レベルアップ・転職ペナルティ
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_TRAIN_GAP, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets, jobBodyOk } from './data/jobs.js?v=3285de757165';
-import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=3285de757165';
-import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=3285de757165';
-import { MONSTERS } from './data/monsters.js?v=3285de757165';
-import { MONSTER_FRIENDS, monsterNatural, gearOf } from './data/companions.js?v=3285de757165';
-import { HIRAMEKI, hiraRatio } from './data/hirameki.js?v=3285de757165';
-import { cleanLook } from './data/looks.js?v=3285de757165';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_TRAIN_GAP, JOB_WEAK_RATE, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets, jobBodyOk } from './data/jobs.js?v=67d7c2d49719';
+import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=67d7c2d49719';
+import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=67d7c2d49719';
+import { MONSTERS } from './data/monsters.js?v=67d7c2d49719';
+import { MONSTER_FRIENDS, monsterNatural, gearOf } from './data/companions.js?v=67d7c2d49719';
+import { HIRAMEKI, hiraRatio } from './data/hirameki.js?v=67d7c2d49719';
+import { cleanLook } from './data/looks.js?v=67d7c2d49719';
 
 // 長い 物語に なるので レベルは 99まで（レベルで ふえる つよさは ひかえめ）
 export const MAX_LEVEL = 99;
@@ -512,9 +512,15 @@ export function jobProgress(char, jobId = char.job) {
   return { lv: info.lv, next: Math.max(1, Math.ceil(rest / jobTrainRate(jobId) - 1e-9)), done: false };
 }
 
-// てきが よわすぎると しゅぎょうに ならない（じぶんより レベルが JOB_TRAIN_GAP より ひくい てきだけ の とき）
+// てきが よわい（じぶんより レベルが JOB_TRAIN_GAP より ひくい てきだけ）と、しゅぎょうは はんぶん（JOB_WEAK_RATE）
+// もどりち: 勝った たたかい 1回が 何回ぶんに なるか（1 か 0.5）
+export function jobTrainMult(char, maxEnemyLv) {
+  return maxEnemyLv >= (char.level || 1) - JOB_TRAIN_GAP ? 1 : JOB_WEAK_RATE;
+}
+
+// しゅぎょうが まるごと すすむ あいて か（よわい てき だけだと はんぶん。jobTrainMult）
 export function jobTrainable(char, maxEnemyLv) {
-  return maxEnemyLv >= (char.level || 1) - JOB_TRAIN_GAP;
+  return jobTrainMult(char, maxEnemyLv) >= 1;
 }
 
 // かった たたかいの かずを たす。もどりち: [{ job, lv, learned, unlocked }]

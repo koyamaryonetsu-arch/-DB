@@ -7,15 +7,15 @@
 //
 // サーバー（家族サーバー）でも ブラウザ（ひとりモード）でも おなじ コードが うごく
 
-import { makeRng } from './rng.js?v=3285de757165';
-import { ABILITIES } from './data/abilities.js?v=3285de757165';
-import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=3285de757165';
-import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js?v=3285de757165';
-import { MONSTERS } from './data/monsters.js?v=3285de757165';
-import { ITEMS } from './data/items.js?v=3285de757165';
-import { JOBS } from './data/jobs.js?v=3285de757165';
-import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed } from './stats.js?v=3285de757165';
-import { decideMonster, decideAlly } from './ai.js?v=3285de757165';
+import { makeRng } from './rng.js?v=67d7c2d49719';
+import { ABILITIES } from './data/abilities.js?v=67d7c2d49719';
+import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=67d7c2d49719';
+import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js?v=67d7c2d49719';
+import { MONSTERS } from './data/monsters.js?v=67d7c2d49719';
+import { ITEMS } from './data/items.js?v=67d7c2d49719';
+import { JOBS } from './data/jobs.js?v=67d7c2d49719';
+import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed } from './stats.js?v=67d7c2d49719';
+import { decideMonster, decideAlly } from './ai.js?v=67d7c2d49719';
 
 export const BOND_MAX = 100;
 // きずなゲージの たまりやすさ（1 … はじめの 版。ちいさいほど たまりにくい）
@@ -23,7 +23,11 @@ export const BOND_GAIN = 0.35;
 // 合体技の 強さ（2人の 番を 使うので、2人ぶん より 少し 強い くらい）
 export const DUAL_MAGIC = 1.15; // 1体を ねらう 呪文の 合体技: 2人の 呪文の 合計 × これ
 export const DUAL_SPREAD = 0.7; // 全体を ねらう 合体技は この 倍
-export const DUAL_PHYS = 0.75; // 物理の 合体技の 倍率に かける 数
+export const DUAL_PHYS = 0.7; // 物理の 合体技の 倍率に かける 数
+// 合体技の 2人の 強さの 合わせかた: 強い ほうの 強さ ＋ 弱い ほうの この わりあい（2人とも 強いほど 強い）
+export const DUAL_MIX = 0.5;
+// 合体技の 呪文・回復は、2人の 魔力が 高いほど ここまで 強くなる（ふつうの 呪文は 2倍まで。合体技は 2.6倍まで）
+export const DUAL_SCALE_CAP = 1.6;
 // 合体技に さそわれた 家族が こたえるまで まつ 時間（ミリびょう）
 export const DUAL_ASK_MS = 7000;
 const COMBO_WINDOW = 6000;
@@ -47,7 +51,46 @@ export function dualPartEffect(t, part, skills = []) {
     }
   }
   if (part.type === 'phys') eff.mult = (part.mult ?? 1) * DUAL_PHYS;
+  // 呪文・回復は 2人の 魔力（回復魔力）が 高いほど、ふつうの 呪文より 先まで 強くなる
+  if (part.type === 'magic' || part.type === 'heal') eff.scaleCap = DUAL_SCALE_CAP;
   return eff;
+}
+
+// ───────────── バフ・デバフの かさねがけ ─────────────
+// 同じ つよさを もう一度 上げる（下げる）と 2だんかいめ（効き目が 2倍）。それより 上は かさならない（時間だけ のびる）
+export const BUFF_STACK = 2;
+// base … 1回ぶんの 倍率（1.3 など。下げる ときは 0.75 など）、lv … だんかい
+// （大防御の ような とても 強い こうかは、2だんかいめで ふえる ぶんを ひかえめに: 上げる ときは +0.5、下げる ときは −0.25 まで）
+export function stackMult(base, lv) {
+  if (lv <= 1) return base;
+  return base >= 1 ? Math.min(1 + (base - 1) * lv, base + 0.5) : Math.max(0.25, 1 - (1 - base) * lv, base - 0.25);
+}
+// map（c.buffs か c.debuffs）の st に base の こうかを かさねる。もどりち: { lv, max }（max … もう かさならなかった）
+export function stackBuff(map, st, base, until) {
+  const cur = map[st];
+  // 前より 強い こうかなら そちらを もとに する（上げる ときは 大きい ほう、下げる ときは 小さい ほう）
+  const b0 = cur?.base ?? cur?.mult;
+  const keep = b0 !== undefined && (base >= 1 ? b0 >= base : b0 <= base);
+  const b = keep ? b0 : base;
+  const was = cur ? (cur.lv || 1) : 0;
+  const lv = Math.min(BUFF_STACK, was + 1);
+  map[st] = { mult: stackMult(b, lv), base: b, lv, until: Math.max(cur?.until || 0, until) };
+  return { lv, max: was >= BUFF_STACK };
+}
+
+// 合体技を 出す 2人の 力を 合わせた かげ: 攻撃力・魔力・回復魔力は「強い ほう ＋ 弱い ほうの 半分」
+// （2人の つよさ・かけている バフも そのまま 合わせる。強い 2人ほど 強い 合体技に なる）
+export function dualProxy(c, p) {
+  const proxy = Object.create(c);
+  const mix = (x, y) => Math.round(Math.max(x || 0, y || 0) + Math.min(x || 0, y || 0) * DUAL_MIX);
+  // 攻撃力は バフ・デバフを ふくめた 強さで 合わせる（effAtk）。合わせた あとに もう一度 かからない ように バフは けす
+  proxy.atk = mix(effAtk(c), effAtk(p));
+  proxy.mag = mix(c.mag, p.mag);
+  proxy.healPow = mix(c.healPow, p.healPow);
+  proxy.buffs = { ...c.buffs, atk: undefined };
+  proxy.debuffs = { ...c.debuffs, atk: undefined };
+  proxy.charge = 1;
+  return proxy;
 }
 
 // 戦いの 速さ（ゲージと エフェクト）と 文字の 速さ。5だん。まんなかが ふつう（前の 版より すこし ゆっくり）
@@ -919,11 +962,22 @@ export class Battle {
           if (!t.alive) continue;
           const dur = (eff.dur || 30) * 1000 * (0.5 + powMult / 2);
           const stats = eff.stats || [eff.stat];
+          // 2回目は さらに 上がる（2だんかいまで。stackBuff）
+          let top = 0, maxed = true;
           for (const st of stats) {
-            if (st === 'eva') t.buffs.eva = { add: eff.add, until: this.time + dur };
-            else t.buffs[st] = { mult: eff.mult, until: this.time + dur };
+            if (st === 'eva') {
+              const lv = Math.min(BUFF_STACK, (t.buffs.eva?.lv || 0) + 1);
+              if (!(t.buffs.eva?.lv >= BUFF_STACK)) maxed = false;
+              t.buffs.eva = { add: Math.min(0.6, (eff.add || 0) * lv), lv, until: Math.max(t.buffs.eva?.until || 0, this.time + dur) };
+              top = Math.max(top, lv);
+            } else {
+              const r = stackBuff(t.buffs, st, eff.mult, this.time + dur);
+              if (!r.max) maxed = false;
+              top = Math.max(top, r.lv);
+            }
           }
-          ev.lines.push(`${t.name}の${stats.map(statLabel).join('と')}が上がった！`);
+          const names = stats.map(statLabel).join('と');
+          ev.lines.push(maxed ? `${t.name}の${names}は、もうこれ以上上がらない！` : top >= 2 ? `${t.name}の${names}がさらに上がった！` : `${t.name}の${names}が上がった！`);
           ev.upd.push(t);
         }
         if (c.side === 'ally') this.addBond(1);
@@ -1206,7 +1260,7 @@ export class Battle {
   calcMagic(c, t, eff, powMult = 1, estimate = false) {
     const [mn, mx] = eff.base;
     const base = estimate ? (mn + mx) / 2 : this.rng.int(mn, mx);
-    const scale = 1 + clamp(((c.mag || 0) - (eff.thr ?? 20)) / 150, 0, 1);
+    const scale = 1 + clamp(((c.mag || 0) - (eff.thr ?? 20)) / 150, 0, eff.scaleCap ?? 1);
     let dmg = base * scale * powMult * enemyFixedScale(c);
     const r = eff.element ? (t.resist[eff.element] ?? 1) : 1;
     dmg *= r;
@@ -1298,7 +1352,7 @@ export class Battle {
     if (!t.alive) return;
     const [mn, mx] = eff.base;
     let amt = this.rng.int(mn, mx);
-    if (!eff.fixed) amt *= 1 + clamp(((c.healPow || 0) - (eff.thr ?? 20)) / 150, 0, 1);
+    if (!eff.fixed) amt *= 1 + clamp(((c.healPow || 0) - (eff.thr ?? 20)) / 150, 0, eff.scaleCap ?? 1);
     amt = Math.round(amt * powMult * enemyFixedScale(c));
     const real = Math.min(t.maxHp - t.hp, amt);
     t.hp += real;
@@ -1318,8 +1372,9 @@ export class Battle {
       ev.lines.push(`しかし${t.name}には効かなかった！`);
       return;
     }
-    t.debuffs[d.stat] = { mult: d.mult, until: this.time + (d.dur || 30) * 1000 };
-    ev.lines.push(`${t.name}の${statLabel(d.stat)}が下がった！`);
+    // 2回目は さらに 下がる（2だんかいまで。stackBuff）
+    const sb = stackBuff(t.debuffs, d.stat, d.mult, this.time + (d.dur || 30) * 1000);
+    ev.lines.push(sb.max ? `${t.name}の${statLabel(d.stat)}は、もうこれ以上下がらない！` : sb.lv >= 2 ? `${t.name}の${statLabel(d.stat)}がさらに下がった！` : `${t.name}の${statLabel(d.stat)}が下がった！`);
     ev.upd.push(t);
   }
 
@@ -1633,13 +1688,8 @@ export class Battle {
     p.mp -= opt.mp[1];
     ev.dual = { id: cmd.id, name: t.name, a: c.id, b: p.id };
     ev.lines.push(`${c.name}と${p.name}の合体技！`, `${t.name}！`);
-    // 2人の 力を 合わせた かげ（強さだけ 合わせて、あとは c の まま）
-    const proxy = Object.create(c);
-    const mix = (x, y, k) => Math.round(Math.max(x || 0, y || 0) + Math.min(x || 0, y || 0) * k);
-    proxy.atk = mix(c.atk, p.atk, 0.3);
-    proxy.mag = Math.max(c.mag || 0, p.mag || 0);
-    proxy.healPow = Math.max(c.healPow || 0, p.healPow || 0);
-    proxy.charge = 1;
+    // 2人の 力を 合わせた かげ（強さだけ 合わせて、あとは c の まま。dualProxy）
+    const proxy = dualProxy(c, p);
     const hit = new Set();
     for (const part of t.parts) {
       const eff = dualPartEffect(t, part, opt.skills);
@@ -1983,7 +2033,9 @@ export function affinityOf(r) {
 
 export function pub(c) {
   const st = Object.keys(c.status || {});
-  const buffs = [...Object.keys(c.buffs || {}).map((k) => '+' + k), ...Object.keys(c.debuffs || {}).map((k) => '-' + k)];
+  // 2だんかいめは '+atk2' など（client/ui/info.js の buffNames で ↑↑）
+  const lvTag = (b) => (b?.lv >= 2 ? '2' : '');
+  const buffs = [...Object.entries(c.buffs || {}).filter(([, b]) => b).map(([k, b]) => '+' + k + lvTag(b)), ...Object.entries(c.debuffs || {}).filter(([, b]) => b).map(([k, b]) => '-' + k + lvTag(b))];
   return {
     id: c.id, side: c.side, kind: c.kind, name: c.name, species: c.species, charId: c.charId,
     controller: c.controller, auto: c.auto, look: c.look, job: c.job, eq: c.eq, mon: c.mon, lv: c.lv,

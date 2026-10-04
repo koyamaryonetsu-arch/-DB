@@ -10,9 +10,9 @@
 // resist: たいせい（しゅぞくの たいせいを つかう。ここに かけば うわがき）
 // gear:   装備できる 物（しゅぞくの けいの RACE_GEAR を うわがき。下の RACE_GEAR を 見てね）
 
-import { FRIENDS_CH2 } from './companions-ch2.js?v=3285de757165';
-import { FRIENDS_RARE } from './monsters-rare.js?v=3285de757165';
-import { FRIENDS_CH3 } from './companions-ch3.js?v=3285de757165';
+import { FRIENDS_CH2 } from './companions-ch2.js?v=67d7c2d49719';
+import { FRIENDS_RARE } from './monsters-rare.js?v=67d7c2d49719';
+import { FRIENDS_CH3 } from './companions-ch3.js?v=67d7c2d49719';
 
 export const MONSTER_FRIENDS = {
   pururin: {

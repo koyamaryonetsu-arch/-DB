@@ -1,10 +1,10 @@
 // フィールドの がめんの かざり（HP・ばしょ・もくひょう・ちず・チャット）
-import { el, bar, askText, ListMenu } from './dom.js?v=3285de757165';
-import { computeStats } from '../../shared/stats.js?v=3285de757165';
-import { JOBS } from '../../shared/data/jobs.js?v=3285de757165';
-import { renderMiniMap, openWorldMap } from './menu.js?v=3285de757165';
-import { makeCanvas } from '../render/pixel.js?v=3285de757165';
-import { ClockBadge } from './clock.js?v=3285de757165';
+import { el, bar, askText, ListMenu } from './dom.js?v=67d7c2d49719';
+import { computeStats } from '../../shared/stats.js?v=67d7c2d49719';
+import { JOBS } from '../../shared/data/jobs.js?v=67d7c2d49719';
+import { renderMiniMap, openWorldMap } from './menu.js?v=67d7c2d49719';
+import { makeCanvas } from '../render/pixel.js?v=67d7c2d49719';
+import { ClockBadge } from './clock.js?v=67d7c2d49719';
 
 export const STAMPS = ['よろしく！', 'ありがとう！', '行くよー！', '助けて！', '待ってて！', 'やったね！', 'おつかれさま', 'ご飯だよ〜'];
 
@@ -94,7 +94,10 @@ export class Hud {
     this.party.innerHTML = '';
     // 家族と いっしょ（マルチ）の ときは、人が 動かしている キャラの 名前を 黄緑に。HP が へると オレンジ・赤
     const multi = (g.party?.members?.length || 1) >= 2;
-    for (const m of partyRows(g)) {
+    const rows = partyRows(g);
+    // 5人の ときは 小さめに（フィールドが かくれない ように）
+    this.party.classList.toggle('many', rows.length >= 5);
+    for (const m of rows) {
       const box = el('div', { class: `win hud-mem ${m.hp <= 0 ? 'dead' : ''} ${m.away ? 'away' : ''}` },
         el('div', { class: 'nm' }, el('span', { class: `n ${multi && m.player ? 'player' : ''} ${m.hpCls}`, text: m.name }), el('span', { class: 'lv', text: `Lv${m.level}` })),
         el('div', { class: `small hn ${m.hpCls}`, text: m.away ? '通信待ち…' : `H${Math.max(0, m.hp)} M${m.mp}` }),

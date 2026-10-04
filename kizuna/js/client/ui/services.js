@@ -1,20 +1,20 @@
 // お店・転職・酒場・でんごんばん・ほしのかけら・きょうかい の がめん
-import { el, ListMenu, toast, askText, confirmBox, esc } from './dom.js?v=3285de757165';
-import { ITEMS } from '../../shared/data/items.js?v=3285de757165';
-import { JOBS, JOB_ORDER, ADVANCED_ORDER, SUPER_ORDER, TIER_NAMES, JOB_MAX_LEVEL, JOB_TRAIN_GAP, jobReqText, jobReqSets, jobBodyOk, BODY_NAMES, JOB_HINTS } from '../../shared/data/jobs.js?v=3285de757165';
-import { ABILITIES } from '../../shared/data/abilities.js?v=3285de757165';
-import { salonUI } from './salon.js?v=3285de757165';
-import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered, canEquip } from '../../shared/stats.js?v=3285de757165';
-import { MONSTERS } from '../../shared/data/monsters.js?v=3285de757165';
-import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES } from '../../shared/data/companions.js?v=3285de757165';
-import { TACTICS } from '../../shared/ai.js?v=3285de757165';
-import { itemDetail, gearText } from './info.js?v=3285de757165';
-import { playerSprite, followerSprite, faceURL } from '../field.js?v=3285de757165';
-import { shopUI, churchUI } from './shop.js?v=3285de757165';
-import { bankUI } from './bank.js?v=3285de757165';
-import { forgeUI } from './forge.js?v=3285de757165';
-import { tavernWagonItems, tavernWagonOpts, tavernWagonAct, tavernPlace, arrangeUI } from './wagon.js?v=3285de757165';
-import { casinoUI } from './casino.js?v=3285de757165';
+import { el, ListMenu, toast, askText, confirmBox, esc } from './dom.js?v=67d7c2d49719';
+import { ITEMS } from '../../shared/data/items.js?v=67d7c2d49719';
+import { JOBS, JOB_ORDER, ADVANCED_ORDER, SUPER_ORDER, TIER_NAMES, JOB_MAX_LEVEL, JOB_TRAIN_GAP, jobReqText, jobReqSets, jobBodyOk, BODY_NAMES, JOB_HINTS } from '../../shared/data/jobs.js?v=67d7c2d49719';
+import { ABILITIES } from '../../shared/data/abilities.js?v=67d7c2d49719';
+import { salonUI } from './salon.js?v=67d7c2d49719';
+import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered, canEquip } from '../../shared/stats.js?v=67d7c2d49719';
+import { MONSTERS } from '../../shared/data/monsters.js?v=67d7c2d49719';
+import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES } from '../../shared/data/companions.js?v=67d7c2d49719';
+import { TACTICS } from '../../shared/ai.js?v=67d7c2d49719';
+import { itemDetail, gearText } from './info.js?v=67d7c2d49719';
+import { playerSprite, followerSprite, faceURL } from '../field.js?v=67d7c2d49719';
+import { shopUI, churchUI } from './shop.js?v=67d7c2d49719';
+import { bankUI } from './bank.js?v=67d7c2d49719';
+import { forgeUI } from './forge.js?v=67d7c2d49719';
+import { tavernWagonItems, tavernWagonOpts, tavernWagonAct, tavernPlace, arrangeUI } from './wagon.js?v=67d7c2d49719';
+import { casinoUI } from './casino.js?v=67d7c2d49719';
 
 export function openServiceUI(game, kind, data) {
   switch (kind) {
@@ -240,7 +240,7 @@ function jobUI(game) {
         bars.append(el('span', { text: n }), el('div', { class: 'b' }, el('i', { style: { width: `${Math.min(100, v / 1.5 * 100)}%` } })), el('span', { class: v > 1 ? 'up' : v < 1 ? 'down' : '', text: `${Math.round(v * 100)}%` }));
       }
       main.append(el('div', { class: 'small gold', text: '強さのかたむき' }), bars);
-      main.append(el('div', { class: 'detail', text: `職業レベルは戦いに勝つと上がる（最大${JOB_MAX_LEVEL}）。ただし、自分よりレベルが${JOB_TRAIN_GAP + 1}以上低い敵ばかりだと修行にならない。\n基本職を2つマスターすると上級職、上級職をマスターすると超級職になれる（超級職は、上級職をマスターするとヒントが出る）。\n呪文の掛け合わせは、元の職業を合わせ持つ上級職以上で使える。\n他の職業で覚えた技も使えるが、MPが増えたり威力が下がることがある（元になった職業の技はだいじょうぶ）。\n酒場の仲間もここで転職できる。\n（十字キーの左右で、このせつめいをスクロールできる）` }));
+      main.append(el('div', { class: 'detail', text: `職業レベルは戦いに勝つと上がる（最大${JOB_MAX_LEVEL}）。ただし、自分よりレベルが${JOB_TRAIN_GAP + 1}以上低い敵ばかりだと、修行は半分しか進まない。\n基本職を2つマスターすると上級職、上級職をマスターすると超級職になれる（超級職は、上級職をマスターするとヒントが出る）。\n呪文の掛け合わせは、元の職業を合わせ持つ上級職以上で使える。\n他の職業で覚えた技も使えるが、MPが増えたり威力が下がることがある（元になった職業の技はだいじょうぶ）。\n酒場の仲間もここで転職できる。\n（十字キーの左右で、このせつめいをスクロールできる）` }));
       // 下に つづく ときの しるし
       const more = el('div', { class: 'scroll-more', text: '▼ 下に続く' });
       main.append(more);

@@ -5,16 +5,19 @@
 //   c.partyKeys  … いま いっしょに ぼうけんしている なかま（じゅんばん）。'fam:ID' は 家族の キャラ
 //   c.guests     … ものがたりで いっしょに いる ゲスト（ルカ など）
 // パーティーには リーダーの なかまが ついてくる（にんげんが ふえると、はいりきらない なかまは いったん まつ）
-import { newCharacter, computeStats, fullHeal, gainExp, gainJobBattles, migrateJobs, expForLevel, addItem, newMonsterCompanion, learnedAbilities } from '../stats.js?v=3285de757165';
-import { jobBattlesForLevel } from '../data/jobs.js?v=3285de757165';
-import { NPC_SUPPORTS, GUESTS } from '../data/shops.js?v=3285de757165';
-import { MONSTERS } from '../data/monsters.js?v=3285de757165';
-import { MONSTER_FRIENDS, ROSTER_MAX, COMPANION_SLOTS } from '../data/companions.js?v=3285de757165';
-import { SLOTS, ITEMS } from '../data/items.js?v=3285de757165';
-import { cleanWagon, hasWagon, WAGON_SLOTS } from '../data/wagon.js?v=3285de757165';
-import { wagonState, wagonTavernInfo } from './wagon.js?v=3285de757165';
+import { newCharacter, computeStats, fullHeal, gainExp, gainJobBattles, migrateJobs, expForLevel, addItem, newMonsterCompanion, learnedAbilities } from '../stats.js?v=67d7c2d49719';
+import { jobBattlesForLevel } from '../data/jobs.js?v=67d7c2d49719';
+import { NPC_SUPPORTS, GUESTS } from '../data/shops.js?v=67d7c2d49719';
+import { MONSTERS } from '../data/monsters.js?v=67d7c2d49719';
+import { MONSTER_FRIENDS, ROSTER_MAX, COMPANION_SLOTS } from '../data/companions.js?v=67d7c2d49719';
+import { SLOTS, ITEMS } from '../data/items.js?v=67d7c2d49719';
+import { cleanWagon, hasWagon, WAGON_SLOTS } from '../data/wagon.js?v=67d7c2d49719';
+import { wagonState, wagonTavernInfo } from './wagon.js?v=67d7c2d49719';
 
-export const PARTY_MAX = 4;
+// パーティーに 入れる 人（家族の プレイヤー）は 5人まで。いっしょに フィールドを 歩いて、いっしょに 戦う
+export const PARTY_MAX = 5;
+// 酒場の なかまが 入るのは、人と あわせて 4人に なるまで（5人で 戦うのは プレイヤーが 5人 そろった ときだけ）
+export const BATTLE_FILL = 4;
 // パーティーの だれかが もっていれば みんなが とおれる フラグ
 export const GATE_FLAGS = ['bridge_fixed', 'c1_door', 'c2_light', 'c2_boss'];
 
@@ -100,7 +103,7 @@ export function syncParty(world, p) {
   if (!p) return;
   const leader = world.sessions.get(p.leader);
   const lc = leader?.char;
-  const room = Math.max(0, PARTY_MAX - p.members.length);
+  const room = Math.max(0, BATTLE_FILL - p.members.length);
   const want = [];
   if (lc) {
     ensureCompanions(lc);

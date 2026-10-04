@@ -2,36 +2,36 @@
 //
 // クライアントとは メッセージ（JSON）で やりとりする。
 // つなぎかたは なんでも よい（WebSocket でも ブラウザ内の ちょくせつ呼び出しでも）。
-import { makeRng } from '../rng.js?v=3285de757165';
-import { MAPS, isBlocked, effectiveTile, condOk, searchLoot, sparkleLoot, tileAt, POS, SEA_PLACES, standSpot } from '../maps/index.js?v=3285de757165';
-import { PLACES } from '../maps/overworld.js?v=3285de757165';
-import { T, TILE_INFO } from '../tiles.js?v=3285de757165';
-import { ITEMS } from '../data/items.js?v=3285de757165';
-import { JOBS } from '../data/jobs.js?v=3285de757165';
-import { newCharacter, computeStats, addItem, fullHeal, migrateJobs, fixBodyJob } from '../stats.js?v=3285de757165';
-import { mapState, spawnSymbols, moveSymbols, symbolSnapshot, symbolVisible } from './monsters.js?v=3285de757165';
-import { tickFieldChests, fieldChestSnap, fieldChestNear, openFieldChest } from './fieldchests.js?v=3285de757165';
-import { chestVanishes } from '../data/fieldchests.js?v=3285de757165';
-import { startFieldBattle, battleTick, abortBattle, battleCommand, battleLeave, joinBattle, mineOf, resultDone } from './battles.js?v=3285de757165';
-import { runScript, runSteps } from './scripts.js?v=3285de757165';
-import { serviceAction, menuAction } from './services.js?v=3285de757165';
-import { newParty, partyOf, partyState, syncParty, ensureCompanions, companionWait, PARTY_MAX, befriendLevel, rosterFull, nameOfKey, dropMissingFam } from './party.js?v=3285de757165';
-import { hasWagon, dropGoneFamily } from '../data/wagon.js?v=3285de757165';
-import { MONSTERS } from '../data/monsters.js?v=3285de757165';
-import { CH1_CLEAR_OBJECTIVE } from '../data/story.js?v=3285de757165';
-import { upgradeSave, repairChar } from './save.js?v=3285de757165';
-import { exportCode, parseCode, importChar } from './transfer.js?v=3285de757165';
-import { memorySyncStore, buildSyncOut, applySyncIn, encodeSync, decodeSync, syncSummary } from './sync.js?v=3285de757165';
-import { tryTreasureDig, treasureMenu, fixTreasurePos, normalizeTreasure, pruneTreasureStates } from './treasure.js?v=3285de757165';
-import { isNightFor } from './clock.js?v=3285de757165';
-import { onFly, setFlying, moveAllowed, ridingAlong, canFlyMap } from './travel.js?v=3285de757165';
-import { migrateSky } from '../data/sky.js?v=3285de757165';
-import { migrateCh4 } from '../data/story-ch4.js?v=3285de757165';
-import { repairObjective } from '../data/progress.js?v=3285de757165';
-import { wagonLook } from './wagon.js?v=3285de757165';
-import { medalSearchSteps, medalChestSteps } from './casino.js?v=3285de757165';
-import { stepHazard } from './hazards.js?v=3285de757165';
-import { noteDungeonEntry } from './escape.js?v=3285de757165';
+import { makeRng } from '../rng.js?v=67d7c2d49719';
+import { MAPS, isBlocked, effectiveTile, condOk, searchLoot, sparkleLoot, tileAt, POS, SEA_PLACES, standSpot } from '../maps/index.js?v=67d7c2d49719';
+import { PLACES } from '../maps/overworld.js?v=67d7c2d49719';
+import { T, TILE_INFO } from '../tiles.js?v=67d7c2d49719';
+import { ITEMS } from '../data/items.js?v=67d7c2d49719';
+import { JOBS } from '../data/jobs.js?v=67d7c2d49719';
+import { newCharacter, computeStats, addItem, fullHeal, migrateJobs, fixBodyJob } from '../stats.js?v=67d7c2d49719';
+import { mapState, spawnSymbols, moveSymbols, symbolSnapshot, symbolVisible } from './monsters.js?v=67d7c2d49719';
+import { tickFieldChests, fieldChestSnap, fieldChestNear, openFieldChest } from './fieldchests.js?v=67d7c2d49719';
+import { chestVanishes } from '../data/fieldchests.js?v=67d7c2d49719';
+import { startFieldBattle, battleTick, abortBattle, battleCommand, battleLeave, joinBattle, mineOf, resultDone } from './battles.js?v=67d7c2d49719';
+import { runScript, runSteps } from './scripts.js?v=67d7c2d49719';
+import { serviceAction, menuAction } from './services.js?v=67d7c2d49719';
+import { newParty, partyOf, partyState, syncParty, ensureCompanions, companionWait, PARTY_MAX, befriendLevel, rosterFull, nameOfKey, dropMissingFam } from './party.js?v=67d7c2d49719';
+import { hasWagon, dropGoneFamily } from '../data/wagon.js?v=67d7c2d49719';
+import { MONSTERS } from '../data/monsters.js?v=67d7c2d49719';
+import { CH1_CLEAR_OBJECTIVE } from '../data/story.js?v=67d7c2d49719';
+import { upgradeSave, repairChar } from './save.js?v=67d7c2d49719';
+import { exportCode, parseCode, importChar } from './transfer.js?v=67d7c2d49719';
+import { memorySyncStore, buildSyncOut, applySyncIn, encodeSync, decodeSync, syncSummary } from './sync.js?v=67d7c2d49719';
+import { tryTreasureDig, treasureMenu, fixTreasurePos, normalizeTreasure, pruneTreasureStates } from './treasure.js?v=67d7c2d49719';
+import { isNightFor } from './clock.js?v=67d7c2d49719';
+import { onFly, setFlying, moveAllowed, ridingAlong, canFlyMap } from './travel.js?v=67d7c2d49719';
+import { migrateSky } from '../data/sky.js?v=67d7c2d49719';
+import { migrateCh4 } from '../data/story-ch4.js?v=67d7c2d49719';
+import { repairObjective } from '../data/progress.js?v=67d7c2d49719';
+import { wagonLook } from './wagon.js?v=67d7c2d49719';
+import { medalSearchSteps, medalChestSteps } from './casino.js?v=67d7c2d49719';
+import { stepHazard } from './hazards.js?v=67d7c2d49719';
+import { noteDungeonEntry } from './escape.js?v=67d7c2d49719';
 
 export const PROTOCOL_VERSION = 1;
 const SPARKLE_RESPAWN_MS = 20 * 60 * 1000;
@@ -834,7 +834,7 @@ export class GameWorld {
         const t = this.sessions.get(msg.sid);
         if (!t || !t.inWorld || t === s) return;
         if (p.leader !== s.id) return this.send(s, { t: 'toast', text: 'さそえるのはリーダーだけです' });
-        if (p.members.length + p.supports.length >= PARTY_MAX && !p.supports.length) return this.send(s, { t: 'toast', text: 'パーティーがいっぱいです' });
+        if (p.members.length >= PARTY_MAX) return this.send(s, { t: 'toast', text: `パーティーがいっぱいです（${PARTY_MAX}人まで）` });
         t.invitedBy = { sid: s.id, partyId: p.id, at: this.now() };
         this.send(t, { t: 'invite', from: s.char.name, sid: s.id });
         this.send(s, { t: 'toast', text: `${t.char.name}をパーティーにさそった！` });
@@ -848,7 +848,7 @@ export class GameWorld {
         const inviter = this.sessions.get(inv.sid);
         if (!target || !inviter) return this.send(s, { t: 'toast', text: 'さそいが切れてしまった…' });
         if (s.busy) return this.send(s, { t: 'toast', text: '今はパーティーに入れません' });
-        if (target.members.length >= PARTY_MAX) return this.send(s, { t: 'toast', text: 'パーティーがいっぱいです' });
+        if (target.members.length >= PARTY_MAX) return this.send(s, { t: 'toast', text: `パーティーがいっぱいです（${PARTY_MAX}人まで）` });
         // じぶんの パーティーを ぬける
         this.leaveParty(s, true);
         // 自分の 冒険の 場所を おぼえておく（パーティーが おわったら ここへ もどる）

@@ -1,12 +1,12 @@
 // せつめい文を つくる
-import { ITEMS, SLOT_NAMES, WEAPON_CAT_NAMES } from '../../shared/data/items.js?v=3285de757165';
-import { ABILITIES, abilityTypeText } from '../../shared/data/abilities.js?v=3285de757165';
-import { JOBS, ALL_JOBS } from '../../shared/data/jobs.js?v=3285de757165';
-import { MONSTERS } from '../../shared/data/monsters.js?v=3285de757165';
-import { MONSTER_FRIENDS } from '../../shared/data/companions.js?v=3285de757165';
-import { computeStats, canEquip, canEquipMonster, monsterGear, penaltyFor, mpCost, comboJobNames, comboAllowed, jobPower } from '../../shared/stats.js?v=3285de757165';
-import { attackReach } from '../../shared/battle.js?v=3285de757165';
-import { maxPlus } from '../../shared/data/forge.js?v=3285de757165';
+import { ITEMS, SLOT_NAMES, WEAPON_CAT_NAMES } from '../../shared/data/items.js?v=67d7c2d49719';
+import { ABILITIES, abilityTypeText } from '../../shared/data/abilities.js?v=67d7c2d49719';
+import { JOBS, ALL_JOBS } from '../../shared/data/jobs.js?v=67d7c2d49719';
+import { MONSTERS } from '../../shared/data/monsters.js?v=67d7c2d49719';
+import { MONSTER_FRIENDS } from '../../shared/data/companions.js?v=67d7c2d49719';
+import { computeStats, canEquip, canEquipMonster, monsterGear, penaltyFor, mpCost, comboJobNames, comboAllowed, jobPower } from '../../shared/stats.js?v=67d7c2d49719';
+import { attackReach } from '../../shared/battle.js?v=67d7c2d49719';
+import { maxPlus } from '../../shared/data/forge.js?v=67d7c2d49719';
 
 const TARGET_NAMES = { enemy: '敵1体', group: '敵1グループ', enemies: '敵全体', ally: '味方1人', allies: '味方全員', self: '自分', deadAlly: '死んだ味方', deadAllies: '死んだ味方全員' };
 // 技の リストに つける みじかい しるし（1体・1人・自分は つけない）。a: 技（または 相手の しゅるい）
@@ -171,7 +171,12 @@ export function statusNames(st) {
 
 export function buffNames(b) {
   const n = { '+atk': '攻↑', '+def': '守↑', '+agi': '速↑', '+eva': 'かわ↑', '-def': '守↓', '-atk': '攻↓', '-agi': '速↓' };
-  return (b || []).map((x) => n[x] || '').filter(Boolean).join(' ');
+  // 2だんかいめ（かさねがけ）は 矢じるしが 2つ（'+atk2' → 攻↑↑）
+  return (b || []).map((x) => {
+    const two = x.endsWith('2');
+    const t = n[two ? x.slice(0, -1) : x] || '';
+    return t && two ? t + t.slice(-1) : t;
+  }).filter(Boolean).join(' ');
 }
 
 export { TARGET_NAMES, SLOT_NAMES };

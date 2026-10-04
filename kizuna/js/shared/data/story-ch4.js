@@ -4,13 +4,13 @@
 //         → 村長ナディム → 北の古井戸で アミを 助ける
 // Step 2: 村長の たのみ → かれた地下水路（水門の レバー）→ よろい大サソリ → 村に 水が 少し もどり、
 //         南の 砂嵐の 切れ目から 王都への 道が 開く（つづきは Step 3 の 王都サファラから）
-import { NORTH_PLACES } from '../maps/north.js?v=3285de757165';
-import { SOUTH_PLACES, SOUTH_POS, LANDING_BEACH, STORM_Y, STORM_GAP_X } from '../maps/south.js?v=3285de757165';
-import { CANAL_DOOR, CANAL_LEVERS } from '../maps/ch4.js?v=3285de757165';
-import { SEA_W, SEA_H } from '../maps/sea.js?v=3285de757165';
-import { innSteps } from './inn.js?v=3285de757165';
-import { C4_LEAD_OBJECTIVE } from './sky.js?v=3285de757165';
-import { C3_OBJ } from './story-ch3.js?v=3285de757165';
+import { NORTH_PLACES } from '../maps/north.js?v=67d7c2d49719';
+import { SOUTH_PLACES, SOUTH_POS, LANDING_BEACH, STORM_Y, STORM_GAP_X } from '../maps/south.js?v=67d7c2d49719';
+import { CANAL_DOOR, CANAL_LEVERS } from '../maps/ch4.js?v=67d7c2d49719';
+import { SEA_W, SEA_H } from '../maps/sea.js?v=67d7c2d49719';
+import { innSteps } from './inn.js?v=67d7c2d49719';
+import { C4_LEAD_OBJECTIVE } from './sky.js?v=67d7c2d49719';
+import { C3_OBJ } from './story-ch3.js?v=67d7c2d49719';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

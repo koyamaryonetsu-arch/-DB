@@ -1516,3 +1516,6 @@ body.dot-font { --font-ui: 'KizunaDot', 'Hiragino Kaku Gothic ProN', 'Hiragino S
 .errlog-text { width: 100%; height: min(42vh, 20em); margin: 0.4em 0; font-size: 0.72em; line-height: 1.35; background: rgba(0, 0, 0, 0.35); color: var(--text); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 6px; resize: none; }
 /* リーダーが 大鳥に 乗った:「いっしょに 乗る？」（client/sky.js） */
 .sky-ask .q { white-space: pre-line; color: var(--text, #fff); font-size: 1em; }
+/* 5人パーティーの ときの フィールドの 体力（小さめ。client/ui/hud.js） */
+.hud-party.many { gap: 4px; }
+.hud-party.many .hud-mem { min-width: 5.4em; padding: 0.1em 0.4em 0.18em; font-size: calc(var(--fs-small) * 0.9); }
