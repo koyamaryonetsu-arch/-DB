@@ -158,12 +158,23 @@ export class ListMenu {
     if (!li || !li.scrollIntoView) return;
     // 上に 固定した 見出し（タブなど）が ある ときは、CSS の scroll-margin-top の ぶん 下に 出す
     // （ブラウザの nearest は 見出しの 下に かくれた 行を「見えている」と みなして うごかない）
-    const mt = parseFloat(getComputedStyle(li).scrollMarginTop) || 0;
-    if (mt > 0) {
+    let mt = parseFloat(getComputedStyle(li).scrollMarginTop) || 0;
+    // 上に はりつく「← もどる」（.backchip が position: sticky の とき）の 下にも かくれないように。
+    // お店の 品物を 下から 上へ えらぶと、行が もどるの 下に もぐって 見えなかった
+    const chip = this.root.lastElementChild;
+    const sticky = chip?.classList.contains('backchip') && getComputedStyle(chip).position === 'sticky' ? chip : null;
+    if (mt > 0 || sticky) {
       let sc = li.parentElement;
       while (sc && !(sc.scrollHeight > sc.clientHeight && /auto|scroll/.test(getComputedStyle(sc).overflowY))) sc = sc.parentElement;
       if (sc) {
-        const top = li.getBoundingClientRect().top - sc.getBoundingClientRect().top - sc.clientTop;
+        const top0 = sc.getBoundingClientRect().top + sc.clientTop;
+        if (sticky) {
+          // もどるの 下はし（下の すきまと かげ の ぶんも すこし あける）
+          const cs = getComputedStyle(sticky);
+          const gap = Math.max(parseFloat(cs.marginBottom) || 0, (parseFloat(cs.fontSize) || 16) * 0.4);
+          mt = Math.max(mt, sticky.getBoundingClientRect().bottom - top0 + gap);
+        }
+        const top = li.getBoundingClientRect().top - top0;
         if (top < mt) {
           sc.scrollTop += top - mt;
           return;
