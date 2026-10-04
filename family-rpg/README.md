@@ -1020,7 +1020,10 @@ npm start                 # 家族サーバー
   - 新しいタイル：`CANAL_FLOOR`（通路）・`CANAL_WALL`（石のかべ）・`CANAL_BED`（かれた水路の底。歩ける）・`CANAL_WATER`（水路の水）・`SLUICE`／`SLUICE_OPEN`（水門）・`GRATE`（鉄のこうし）・`DAM`（がれきのせき）
   - **反撃の構え**（`battle.js`）：技の効果 `{ type: 'stance', stance: 'counter', mult, ignoreDef }`。使うとその番ののこりの行動をやめて、次の自分の番のはじめにとける。そのあいだに物理（攻撃・物理の技・魔法剣・合体技）で当てた相手に、行動の後で1回だけ反撃する（`noteCounter`・`resolveCounters`）。ねむり・マヒの間は反撃しない。画面には `pub().stance`（だいだい色に光る・＞＜のしるし・ねらう時の「反撃の構え」・反撃のえんしゅつ `counterFx`）。オートの仲間は構えている敵に物理を使わない（`ai.js` の `countering`）
   - ボスのバランス：`node tools/sim.js 30 ch4`（構えに気づく人と、気づかずになぐり続ける人を両方ためす。めやす：レベル30で 気づく人 8割・気づかない人 4〜5割）
-  - `test/ch4-canal.test.js`（反撃の構えのきまり・オートの仲間・水路のレバーでとじこめられないか・フィールドとオアシス・村長からサソリをたおして砂嵐の南へ歩くまでの通し・むかしのセーブ）
+  - `test/ch4-canal.test.js`（反撃の構えのきまり・オートの仲間・水路のレバーでとじこめられないか・フィールドとオアシス・村長からサソリをたおして砂嵐の南へ歩くまでの通し・家族でたおす時・むかしのセーブ）
+  - 絵：`client/render/tiles-canal.js`（水路のタイルの2Dの絵。水は16コマで流れ、流れる向きは水路の形で決まる。水 ⇄ かわいた底・せき → 水・こうし → 階段に変わっても、ふちの絵はつながったまま）。2.5Dは `render/field3d.js`（底は通路より低く、水はその間。水門・こうしはかべの中のとびら、せきは岩の山）。たいまつ・レバー・階段・柱などは、まわりが水路のタイルなら砂岩の見た目になる
+  - 洞窟の色 `canal`（`render/themes.js`）・戦いの背景 `canal`（`render/battlefx.js`。アーチの地下水路）。魔物の絵は `render/ch4-art.js`（からからガエル）と `render/ch4-boss-art.js`（よろい大サソリ。フィールドの大きな人 `mon:armor_scorpion` も同じ絵）
+  - 曲：`canal`（`client/audio.js`。かれた地下水路。砂ばくと同じ音の並びで、こだまと水のしずく）
 - 全滅して教会で目を覚ます時は、教会の人・かべ・宝箱と重ならない、いちばん近い所におく（`maps/index.js` の `standSpot`・`canStand`。体の大きさ `BODY` は画面のあたり判定と同じ）。もし人と重なっても、その人からはなれる方へは歩ける（`client/field.js` の `leavingNpcs`。`test/stuck.test.js`）
 - 動けなくなった時のしくみ：画面の見張りは `client/game.js` の `watchStuck`・`watchBattle`・`rescue`、不具合の記録は `client/errlog.js`。サーバーの立てなおしは `world.js` の `resync`、こわれた戦いを終わらせるのは `world/battles.js` の `abortBattle`（`test/stuck.test.js`）
 
