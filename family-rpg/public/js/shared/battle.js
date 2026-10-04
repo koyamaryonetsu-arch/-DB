@@ -14,7 +14,7 @@ import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js';
 import { MONSTERS } from './data/monsters.js';
 import { ITEMS } from './data/items.js';
 import { JOBS } from './data/jobs.js';
-import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed } from './stats.js';
+import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed, battleAbilityOk } from './stats.js';
 import { decideMonster, decideAlly } from './ai.js';
 
 export const BOND_MAX = 100;
@@ -462,6 +462,8 @@ export class Battle {
         if (a.effect.type === 'mahouken') return { ok: false, reason: 'bad' };
         if (a.kind === 'combo' && !comboAllowed(c.penChar, cmd.id)) return { ok: false, reason: '今の職業では使えない' };
         if (!weaponOk(a, c.weaponCat)) return { ok: false, reason: '武器が合わない' };
+        // フィールドだけの 呪文・かくれた 技（コマンドに 出す 技と おなじ きまり。stats.js の battleAbilityOk）
+        if (!battleAbilityOk(c.penChar, cmd.id, c.weaponCat)) return { ok: false, reason: '戦いでは使えない' };
         if (mpCost(c.penChar, cmd.id) > c.mp) return { ok: false, reason: 'MPが足りない' };
         return { ok: true };
       }
@@ -1917,6 +1919,9 @@ export function allyFromCharacter(char, init = {}) {
     controller: init.controller || null,
     auto: !!init.auto,
     tactics: init.tactics || char.tactics || 'balanced',
+    // たたかいの 中で さくせんを かえられる 人（キャラの id。じぶん＝その 人、なかま＝もちぬし）と「めいれいさせろ」か
+    tacBy: init.tacBy !== undefined ? init.tacBy : (init.kind || 'player') === 'player' ? char.id : null,
+    manualTac: !!init.manual,
     look: char.look,
     job: char.job,
     eq: char.equip ? [char.equip.weapon || '', char.equip.armor || '', char.equip.shield || '', char.equip.head || ''].join(',') : '',
@@ -1996,6 +2001,8 @@ export function pub(c) {
     weaponCat: c.side === 'ally' ? c.weaponCat : undefined,
     pc: c.side === 'ally' ? c.penChar : undefined,
     favs: c.side === 'ally' ? c.favs : undefined,
+    tactics: c.side === 'ally' ? (c.manualTac ? 'manual' : c.tactics) : undefined,
+    tacBy: c.side === 'ally' ? c.tacBy || null : undefined,
     covering: c.cover ? c.cover.target : null,
   };
 }

@@ -189,6 +189,11 @@ test('上級職・超級職・新しい 基本職の わざは ぜんぶ たた�
       const a = ABILITIES[aid];
       const target = ['ally', 'deadAlly'].includes(a.target) ? (a.target === 'deadAlly' ? b.allies[1].id : b.allies[0].id) : b.enemies[0].id;
       const r = b.command(b.allies[0].id, a.effect.type === 'mahouken' ? { type: 'mahouken', spell: 'mera', skill: 'daichi', target } : { type: 'ability', id: aid, target }, 's1');
+      // フィールドだけの 呪文（ルーラ）は たたかいでは つかえない（コマンドにも 出ない）
+      if (a.fieldOnly) {
+        assert.equal(r.ok, false, `${jid}: ${aid} は 戦いでは 使えない`);
+        continue;
+      }
       assert.equal(r.ok, true, `${jid}: ${aid} ${r.reason || ''}`);
       const evs = [];
       for (let i = 0; i < 200 && !evs.some((e) => e.t === 'act' && e.id === b.allies[0].id); i++) evs.push(...b.tick(50));

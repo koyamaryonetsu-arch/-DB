@@ -465,7 +465,7 @@ function joinInit(s, c, e, standIn) {
     init: {
       char: e.char, kind: e.kind === 'monster' ? 'monster' : 'support',
       controller: manual ? s.id : null, auto: manual ? !!c.battleSettings?.auto : true,
-      tactics: tac === 'manual' ? 'balanced' : tac,
+      tactics: tac === 'manual' ? 'balanced' : tac, tacBy: c.id, manual: tac === 'manual',
     },
     map: { type: 'support', key: e.key, owner: c.id, kind: e.kind, char: e.char, manual },
   };

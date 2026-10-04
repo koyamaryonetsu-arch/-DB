@@ -204,21 +204,56 @@ export class ListMenu {
     return Math.max(1, n);
   }
 
+  // 見出しの ある メニュー（たたかいの お気に入り＋ぜんぶ など）の 画面の ならび。
+  // 見出しは 1行 まるごと つかうので「何こ ずつ」では うごけない。行（たかさ）ごとに まとめる
+  gridRows() {
+    const lis = [...this.root.children];
+    const rows = [];
+    this.items.forEach((it, i) => {
+      const li = lis[i];
+      if (it.header || !li?.offsetParent) return;
+      const row = rows.find((r) => Math.abs(r.y - li.offsetTop) <= 3);
+      const p = { i, x: li.offsetLeft + li.offsetWidth / 2 };
+      if (row) row.list.push(p);
+      else rows.push({ y: li.offsetTop, list: [p] });
+    });
+    rows.sort((p, q) => p.y - q.y);
+    for (const r of rows) r.list.sort((p, q) => p.x - q.x);
+    return rows;
+  }
+
   nav(a) {
     const n = this.items.length;
     if (!n && a !== 'b') return;
-    const cols = ['up', 'down', 'left', 'right'].includes(a) && !this.items.some((it) => it.header) ? this.visualCols() : this.cols;
+    const arrow = ['up', 'down', 'left', 'right'].includes(a);
+    const hdr = arrow && this.items.some((it) => it.header);
+    const cols = arrow && !hdr ? this.visualCols() : this.cols;
+    const go = (i) => {
+      this.idx = i;
+      this.sound?.('cursor');
+      this.updateSel();
+      this.onMove?.(this.current, this.idx);
+    };
     const step = (d) => {
       let i = this.idx;
       for (let k = 0; k < n; k++) {
         i = (i + d + n) % n;
         if (!this.items[i].header) break;
       }
-      this.idx = i;
-      this.sound?.('cursor');
-      this.updateSel();
-      this.onMove?.(this.current, this.idx);
+      go(i);
     };
+    // 見出しの ある 2列・3列の メニュー: 上下は となりの 行の いちばん ちかい 場所へ、左右は となりへ（見出しは とばす）
+    if (hdr) {
+      const rows = this.gridRows();
+      const r = rows.findIndex((row) => row.list.some((p) => p.i === this.idx));
+      if (r >= 0 && rows.some((row) => row.list.length > 1)) {
+        if (a === 'left' || a === 'right') return step(a === 'left' ? -1 : 1);
+        const x = rows[r].list.find((p) => p.i === this.idx).x;
+        const to = rows[(r + (a === 'up' ? -1 : 1) + rows.length) % rows.length].list;
+        const best = to.reduce((p, q) => (Math.abs(q.x - x) < Math.abs(p.x - x) ? q : p));
+        return go(best.i);
+      }
+    }
     switch (a) {
       case 'up': step(-cols); break;
       case 'down': step(cols); break;
