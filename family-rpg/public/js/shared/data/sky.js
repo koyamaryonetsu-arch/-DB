@@ -5,6 +5,7 @@
 import { OW_W, OW_H } from '../maps/overworld.js';
 import { SEA_W, SEA_H, PORT, SEA_POS } from '../maps/sea.js';
 import { NORTH_W, NORTH_H, NORTH_LANDING, NORTH_ARRIVE } from '../maps/north.js';
+import { SOUTH_W, SOUTH_H, SOUTH_LANDING, SOUTH_ARRIVE } from '../maps/south.js';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -42,6 +43,8 @@ export const SKY_HINT_OBJECTIVE = '風の守り星（カモメ港の風のさい
 export const SKY_OBJECTIVE = '風の笛で大鳥フウラを呼んで、空の旅に出よう（続きはアップデートで！）';
 // 第3章の 入り口（笛を もらった あと。story-ch3.js）
 export const C3_LEAD_OBJECTIVE = '守り星の石が光っている…！ホシフル村のホシミばあちゃんに会いに行こう';
+// 第4章の 入り口（第3章クリアの あと。story-ch4.js）
+export const C4_LEAD_OBJECTIVE = '竜守りの村の長老ハクゲンに、もう一度話しかけてみよう';
 export const SKY_OBJECTIVE_TARGETS = {
   [SKY_HINT_OBJECTIVE]: [{ npc: 'wind_star' }],
 };
@@ -51,20 +54,32 @@ export const SKY_OBJECTIVE_TARGETS = {
 // need: その 地方へ 行ける ように なる フラグ（世界の フラグ）
 // box: 空を とべる 場所（{ x, y, w, h, until }）。until の フラグが たつまで、この 中だけ とべる
 //      シロガネ地方は 星の竜が 目覚めるまで ふぶきが はげしく、南の 雪原の 上しか とべない
+//      コガネ地方（第4章）は 砂嵐が はげしく、北の海辺の 上しか とべない（大臣ザイードを たおすまで）
+// storm: とべない わけ（ことば）/ boxHint: よべる 場所 / lockedHint: まだ 行けない ときの ヒント（hint の フラグが ある 人だけ）
 export const SKY_MAPS = {
   overworld: { name: 'ミドリナ地方', short: 'ミドリナ', edges: { south: 'sea', north: 'north' } },
-  sea: { name: '風の海', short: '風の海', edges: { north: 'overworld' } },
-  north: { name: 'シロガネ地方', short: 'シロガネ', edges: { south: 'overworld' }, need: 'c3_start', box: { ...NORTH_LANDING, until: DRAGON_FLAG } },
+  sea: { name: '風の海', short: '風の海', edges: { north: 'overworld', south: 'south' } },
+  north: {
+    name: 'シロガネ地方', short: 'シロガネ', edges: { south: 'overworld' }, need: 'c3_start', box: { ...NORTH_LANDING, until: DRAGON_FLAG },
+    storm: 'ふぶき', boxHint: '南の雪原の広場', lockedHint: { flag: 'c2_clear', text: 'ホシフル村のホシミばあちゃんに、話を聞いてみよう' },
+  },
+  south: {
+    name: 'コガネ地方', short: 'コガネ', edges: { north: 'sea' }, need: 'c4_start', box: { ...SOUTH_LANDING, until: 'c4_zaid' },
+    storm: '砂嵐', boxHint: '北の海辺', lockedHint: { flag: 'c3_clear', text: '竜守りの村の長老ハクゲンに、話を聞いてみよう' },
+  },
 };
 // 「別の地方へ飛ぶ」の じゅんばん（さいしょが ボタンの 行き先）
-const REGION_ORDER = { overworld: ['sea', 'north'], sea: ['overworld', 'north'], north: ['overworld', 'sea'] };
-// 「別の地方へ飛ぶ」で 着く ところ（さんばしの 上の 空・雪原の 上の 空）
+const REGION_ORDER = {
+  overworld: ['sea', 'north', 'south'], sea: ['overworld', 'north', 'south'], north: ['overworld', 'sea', 'south'], south: ['sea', 'overworld', 'north'],
+};
+// 「別の地方へ飛ぶ」で 着く ところ（さんばしの 上の 空・雪原の 上の 空・北の海辺の 上の 空）
 const ARRIVE = {
   sea: { x: SEA_POS.homePier.x + 1, y: 2.5, dir: 'down' },
   overworld: { x: 28, y: OW_H - 4.5, dir: 'up' },
   north: { ...NORTH_ARRIVE, dir: 'up' },
+  south: { ...SOUTH_ARRIVE, dir: 'down' },
 };
-const SIZE = { overworld: [OW_W, OW_H], sea: [SEA_W, SEA_H], north: [NORTH_W, NORTH_H] };
+const SIZE = { overworld: [OW_W, OW_H], sea: [SEA_W, SEA_H], north: [NORTH_W, NORTH_H], south: [SOUTH_W, SOUTH_H] };
 
 const okFlag = (hasFlag, f) => !f || (typeof hasFlag === 'function' ? hasFlag(f) : !!hasFlag?.[f]);
 
@@ -109,6 +124,20 @@ export function atEdge(mapId, y, h) {
 export function edgeTarget(mapId, edge, hasFlag) {
   const to = SKY_MAPS[mapId]?.edges?.[edge];
   return to && regionOpen(to, hasFlag) ? to : null;
+}
+
+// まだ 行けない 地方の はしで 出す ことば（ヒントは その 章の 入り口まで 来た 人だけ）
+export function edgeLockedText(mapId, edge, hasFlag) {
+  const r = SKY_MAPS[SKY_MAPS[mapId]?.edges?.[edge]];
+  const storm = r?.storm || 'ふぶき';
+  const hint = r?.lockedHint && okFlag(hasFlag, r.lockedHint.flag) ? `\n（${r.lockedHint.text}）` : '';
+  return `この先の空は、はげしい${storm}で進めない…${hint}`;
+}
+
+// とべる 場所の 外で 笛を ふいた ときの ことば
+export function boxLockedText(mapId, flute, mountName) {
+  const r = SKY_MAPS[mapId];
+  return `${flute}をふいた！\nしかし、はげしい${r?.storm || 'ふぶき'}で${mountName}はここまでおりてこられない…\n（${r?.boxHint || '南の雪原の広場'}でふこう）`;
 }
 
 // ホシフル村の さんばし（x=27.5）と 風の海の さんばし（x=10.5）が そろうように よこの いちを かえる

@@ -199,6 +199,10 @@ export function gameFiles() {
     'public/js/shared/maps/north.js', 'public/js/shared/world/hazards.js', 'public/js/shared/maps/ch3.js',
     'public/js/shared/data/story-ch3.js', 'public/js/shared/data/monsters-ch3.js', 'public/js/shared/data/abilities-ch3.js',
     'public/js/shared/data/items-ch3.js', 'public/js/shared/data/companions-ch3.js', 'public/js/shared/data/encounters-ch3.js',
+    // 第4章「砂の海にしずむ星」
+    'public/js/shared/maps/south.js', 'public/js/shared/maps/ch4.js', 'public/js/shared/data/story-ch4.js',
+    'public/js/shared/data/monsters-ch4.js', 'public/js/shared/data/abilities-ch4.js', 'public/js/shared/data/items-ch4.js',
+    'public/js/shared/data/encounters-ch4.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

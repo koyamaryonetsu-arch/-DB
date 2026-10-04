@@ -140,7 +140,8 @@ test('かんばん: お店の 入り口の よこの かべに ある', () => {
   for (const m of Object.values(MAPS)) {
     for (const b of m.boards || []) {
       const t = tileAt(m, b.x, b.y);
-      assert.ok(t === T.WALL_WOOD || t === T.WALL_STONE, `${m.id} ${b.kind} ${b.x},${b.y} is ${TILE_INFO[t]?.name}`);
+      // 第4章の 砂の国の 家は 日干しれんがの かべ
+      assert.ok(t === T.WALL_WOOD || t === T.WALL_STONE || t === T.ADOBE, `${m.id} ${b.kind} ${b.x},${b.y} is ${TILE_INFO[t]?.name}`);
       assert.ok([tileAt(m, b.x - 1, b.y), tileAt(m, b.x + 1, b.y)].includes(T.DOOR), `${m.id} ${b.kind} は 入り口の よこ`);
       assert.ok(b.name, 'なまえ');
     }

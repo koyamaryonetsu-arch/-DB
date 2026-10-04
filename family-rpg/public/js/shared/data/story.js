@@ -19,6 +19,7 @@ import { learnedAbilities, comboUnlocked, hiraAllowed } from '../stats.js';
 import { HIRAMEKI, hiraRatio } from './hirameki.js';
 import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js';
 import { CH3_STEPS, CH3_STORY_SCRIPTS, CH3_SCRIPTS, elderCh3 } from './story-ch3.js';
+import { CH4_STEPS, CH4_STORY_SCRIPTS, CH4_SCRIPTS, elderCh4 } from './story-ch4.js';
 import { TM_SCRIPTS, TM_STORY_SCRIPTS } from './story-tm.js';
 import { CASINO_SCRIPTS } from './story-casino.js';
 import { innSteps } from './inn.js';
@@ -37,10 +38,11 @@ export const STORY_STEPS = [
   'c1_cave', 'c1_door', 'c1_boss', 'c1_clear',
   ...CH2_STEPS,
   ...CH3_STEPS,
+  ...CH4_STEPS,
 ];
 
 // パーティー全員で みる ストーリーイベント
-export const STORY_SCRIPTS = new Set(['elder', 'star_flower', 'treant', 'carpenter', 'boss_event', 'mayor', 'opening', 'town_arrive', 'cave_enter', 'locked_door', ...CH2_STORY_SCRIPTS, ...TM_STORY_SCRIPTS, ...CH3_STORY_SCRIPTS]);
+export const STORY_SCRIPTS = new Set(['elder', 'star_flower', 'treant', 'carpenter', 'boss_event', 'mayor', 'opening', 'town_arrive', 'cave_enter', 'locked_door', ...CH2_STORY_SCRIPTS, ...TM_STORY_SCRIPTS, ...CH3_STORY_SCRIPTS, ...CH4_STORY_SCRIPTS]);
 
 export const SCRIPTS = {
   // ───────────── じょしょう ─────────────
@@ -590,6 +592,10 @@ function sageHints(x) {
 Object.assign(SCRIPTS, CH2_SCRIPTS, TM_SCRIPTS);
 // 第3章「星の竜がねむる山」（story-ch3.js）
 Object.assign(SCRIPTS, CH3_SCRIPTS);
+// 第4章「砂の海にしずむ星」（story-ch4.js）。第3章クリアの あとの 長老ハクゲンから はじまる
+Object.assign(SCRIPTS, CH4_SCRIPTS);
+const elderCh3Village = SCRIPTS.c3_elder;
+SCRIPTS.c3_elder = (x) => (x.flag('c3_clear') ? elderCh4(x) : elderCh3Village(x));
 // 夜の 人（night.js）と、風のさいだんの 笛の イベント（sky.js）
 Object.assign(SCRIPTS, NIGHT_SCRIPTS);
 Object.assign(SCRIPTS, skyScripts(SCRIPTS));

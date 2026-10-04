@@ -16,6 +16,7 @@ import { ITEMS_CASINO, CASINO_KANA } from './items-casino.js';
 import { RARE_ITEMS, RARE_ITEM_KANA } from './monsters-rare.js';
 import { ESCAPE_ITEMS, ESCAPE_KANA } from './escape.js';
 import { ITEMS_CH3, CH3_ITEM_KANA } from './items-ch3.js';
+import { ITEMS_CH4, CH4_ITEM_KANA } from './items-ch4.js';
 
 export const ITEMS = {
   // ───── つかう どうぐ ─────
@@ -185,6 +186,8 @@ Object.assign(ITEMS, RARE_ITEMS);
 Object.assign(ITEMS, ESCAPE_ITEMS);
 // 第3章「星の竜がねむる山」（items-ch3.js）
 Object.assign(ITEMS, ITEMS_CH3);
+// 第4章「砂の海にしずむ星」（items-ch4.js）
+Object.assign(ITEMS, ITEMS_CH4);
 // きたえた 装備（'iron_sword+1'〜'+3'）。新しい 装備を 足す ときは この 行より 上で
 addUpgradeItems(ITEMS);
 
@@ -261,6 +264,7 @@ Object.assign(ITEM_KANA, FORGE_KANA, RARE_ITEM_KANA);
 Object.assign(ITEM_KANA, CASINO_KANA);
 Object.assign(ITEM_KANA, ESCAPE_KANA);
 Object.assign(ITEM_KANA, CH3_ITEM_KANA);
+Object.assign(ITEM_KANA, CH4_ITEM_KANA);
 
 export function itemKana(id) {
   // きたえた 装備は もとの 装備の 読み ＋ 回数（鉄の剣 → 鉄の剣+1 の じゅん）

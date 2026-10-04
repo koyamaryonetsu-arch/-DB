@@ -26,6 +26,7 @@ import { tryTreasureDig, treasureMenu, fixTreasurePos, normalizeTreasure, pruneT
 import { isNightFor } from './clock.js';
 import { onFly, setFlying, moveAllowed, ridingAlong, canFlyMap } from './travel.js';
 import { migrateSky } from '../data/sky.js';
+import { migrateCh4 } from '../data/story-ch4.js';
 import { repairObjective } from '../data/progress.js';
 import { wagonLook } from './wagon.js';
 import { medalSearchSteps, medalChestSteps } from './casino.js';
@@ -1094,6 +1095,8 @@ function normalizeChar(c) {
   if (c.flags.c1_clear && !c.flags.c2_start && /続きはアップデート/.test(c.objective || '')) c.objective = CH1_CLEAR_OBJECTIVE;
   // 第2章クリアずみで 風の笛を まだ もらっていない 人に 知らせる（sky.js）
   migrateSky(c);
+  // 第3章クリアで「続きはアップデートで！」の ままの 人は、第4章の 入り口へ（story-ch4.js）
+  migrateCh4(c);
   // 目標の 文が 古い 版の まま・からっぽ なら、ストーリーの すすみぐあいから なおす（progress.js）
   repairObjective(c);
   ensureCompanions(c);

@@ -3,8 +3,9 @@
 // フィールドでは 先頭の モンスターの すがたで うろうろしている（シンボルエンカウント）
 
 import { ENCOUNTERS_CH2, FIXED_CH2, ZONE_BG_CH2 } from './encounters-ch2.js';
-import { NIGHT_ENCOUNTERS, NIGHT_ZONE_BG } from './night.js';
+import { NIGHT_ENCOUNTERS, NIGHT_ZONE_BG, NIGHT_ZONES } from './night.js';
 import { ENCOUNTERS_CH3, FIXED_CH3, ZONE_BG_CH3 } from './encounters-ch3.js';
+import { ENCOUNTERS_CH4, FIXED_CH4, ZONE_BG_CH4, NIGHT_ZONES_CH4 } from './encounters-ch4.js';
 
 export const ENCOUNTER_TABLES = {
   outskirts: [
@@ -84,3 +85,8 @@ Object.assign(ZONE_BG, NIGHT_ZONE_BG);
 Object.assign(ENCOUNTER_TABLES, ENCOUNTERS_CH3);
 Object.assign(FIXED_ENCOUNTERS, FIXED_CH3);
 Object.assign(ZONE_BG, ZONE_BG_CH3);
+// 第4章（昼と 夜で 出る 魔物が かわる ちいきも ある）
+Object.assign(ENCOUNTER_TABLES, ENCOUNTERS_CH4);
+Object.assign(FIXED_ENCOUNTERS, FIXED_CH4);
+Object.assign(ZONE_BG, ZONE_BG_CH4);
+Object.assign(NIGHT_ZONES, NIGHT_ZONES_CH4);

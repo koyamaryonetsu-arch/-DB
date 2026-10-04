@@ -8,6 +8,7 @@
 import { MONSTERS } from './monsters.js';
 import { C3_LEAD_OBJECTIVE } from './sky.js';
 import { CH3_OBJECTIVE_TALK } from './story-ch3.js';
+import { CH4_OBJECTIVE_TALK } from './story-ch4.js';
 
 // 仲間の key（NPC の id）→ 話し方
 export const TALK_STYLE = {
@@ -179,6 +180,7 @@ OBJECTIVE_TALK[C3_LEAD_OBJECTIVE] = {
   kid: '守り星の石、キラキラしてるのかなあ！ばあちゃんに会いに行こう！',
 };
 Object.assign(OBJECTIVE_TALK, CH3_OBJECTIVE_TALK);
+Object.assign(OBJECTIVE_TALK, CH4_OBJECTIVE_TALK);
 
 // 話す 内容（目標が 表に ない ときは 目標の 文を そのまま）
 export function talkFor(objective, style) {

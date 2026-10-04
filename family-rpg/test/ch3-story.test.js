@@ -8,7 +8,7 @@ import { PLACES } from '../public/js/shared/maps/overworld.js';
 import { NORTH_PLACES, NORTH_POS, NORTH_LANDING } from '../public/js/shared/maps/north.js';
 import { STORY_STEPS } from '../public/js/shared/data/story.js';
 import { C3_OBJ } from '../public/js/shared/data/story-ch3.js';
-import { SKY_FLAG, SKY_OBJECTIVE, C3_LEAD_OBJECTIVE, regionsFrom, skyBox, flySpeed, mountOf, DRAGON_FLY_MULT } from '../public/js/shared/data/sky.js';
+import { SKY_FLAG, SKY_OBJECTIVE, C3_LEAD_OBJECTIVE, C4_LEAD_OBJECTIVE, regionsFrom, skyBox, flySpeed, mountOf, DRAGON_FLY_MULT } from '../public/js/shared/data/sky.js';
 import { objectiveFromFlags } from '../public/js/shared/data/progress.js';
 import { questMarks } from '../public/js/shared/data/quest-targets.js';
 import { talkFor } from '../public/js/shared/data/party-talk.js';
@@ -260,7 +260,8 @@ test('第3章を はじめから さいごまで とおして あそべる', { t
   assert.ok(bot.flag('c3_ignia'), 'イグニアを たおした');
   assert.ok(bot.flag('c3_dragon'), '星の竜が 目覚めた');
   assert.ok(bot.flag('c3_clear'), '第3章 クリア！');
-  assert.equal(c.objective, C3_OBJ.clear);
+  // 第4章の 入り口（長老ハクゲンに もう一度 話す。story-ch4.js）
+  assert.equal(c.objective, C4_LEAD_OBJECTIVE);
   assert.deepEqual(c.guests, [], 'ユキナは 村に のこる');
   assert.ok(!c.keyItems.includes('fire_star'), '炎の守り星は ほこらへ');
   assert.ok(c.items.some((i) => i.id === 'witch_ring'), 'イグニアの 指輪');
@@ -303,7 +304,8 @@ test('むかしの セーブ: 笛を もらって「続きはアップデート�
   assert.equal(w2.data.characters[c.id].objective, C3_LEAD_OBJECTIVE);
   // 第3章の とちゅうの セーブは そのまま
   assert.equal(objectiveFromFlags({ flags: { c3_mine: true } }), C3_OBJ.mine);
-  assert.equal(objectiveFromFlags({ flags: { c3_clear: true } }), C3_OBJ.clear);
+  // 第3章クリアの あとは 第4章の 入り口へ（story-ch4.js）
+  assert.equal(objectiveFromFlags({ flags: { c3_clear: true } }), C4_LEAD_OBJECTIVE);
 });
 
 test('きずなの間: 家族 3人で 3つの スイッチに 乗ると ひらく。レバーは リーダーの 世界を かえる', { timeout: 60000 }, async () => {

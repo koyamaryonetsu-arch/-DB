@@ -5,6 +5,7 @@
 import { NORTH_PLACES } from '../maps/north.js';
 import { CART_RIDES, WISDOM_ORDER, WISDOM_FLAGS, BOND_PLATES, TRIAL_FLAGS, VOLCANO_LEVERS } from '../maps/ch3.js';
 import { innSteps } from './inn.js';
+import { C4_LEAD_OBJECTIVE } from './sky.js';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -841,7 +842,8 @@ export const CH3_SCRIPTS = {
       ['chapter', '第3章「星の竜がねむる山」', 'クリア！'],
       ...N('――次の冒険は第4章――'),
       ...N('（これからは、風の笛で星の竜アステルを呼べる！\n竜は大鳥より速く飛べて、シロガネ地方の山の上も、どこでも飛べるよ）'),
-      ['objective', C3_OBJ.clear],
+      // 第4章へ（長老ハクゲンに もう一度 話すと はじまる。story-ch4.js）
+      ['objective', C4_LEAD_OBJECTIVE],
     ];
   },
 };

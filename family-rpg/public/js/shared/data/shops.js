@@ -5,6 +5,7 @@
 import { SHOPS_CH2 } from './items-ch2.js';
 import { NIGHT_SHOPS } from './night.js';
 import { SHOPS_CH3, CH3_GUESTS } from './items-ch3.js';
+import { SHOPS_CH4 } from './items-ch4.js';
 
 export const SHOPS = {
   village: {
@@ -54,6 +55,8 @@ Object.assign(SHOPS, SHOPS_CH2);
 Object.assign(SHOPS, NIGHT_SHOPS);
 // 第3章の お店（items-ch3.js）
 Object.assign(SHOPS, SHOPS_CH3);
+// 第4章（items-ch4.js）
+Object.assign(SHOPS, SHOPS_CH4);
 
 // 物語で ふえた 品ぞろえ（hasFlag: その人の 世界の フラグ）
 function moreOpen(shop, hasFlag) {

@@ -6,6 +6,7 @@ import { OBJECTIVE_TARGETS } from './quest-targets.js';
 import { OBJECTIVE_TALK } from './party-talk.js';
 import { C3_LEAD_OBJECTIVE } from './sky.js';
 import { CH3_PROGRESS } from './story-ch3.js';
+import { CH4_PROGRESS } from './story-ch4.js';
 
 // ストーリーの じゅんばん。うしろから 見て、さいしょに 当てはまった ものが 今の 目標
 const PROGRESS = [
@@ -35,6 +36,7 @@ const PROGRESS = [
   // 風の笛を もらうと 第3章の 入り口へ（むかしの「続きはアップデートで！」の 文も 知っている 文に のこす）
   [SKY_FLAG, C3_LEAD_OBJECTIVE],
   ...CH3_PROGRESS,
+  ...CH4_PROGRESS,
 ];
 
 // 今の 版に ある 目標の 文

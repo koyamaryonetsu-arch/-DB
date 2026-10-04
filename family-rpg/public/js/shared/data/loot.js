@@ -17,6 +17,7 @@ import { ITEMS } from './items.js';
 import { MONSTERS } from './monsters.js';
 import { RARE_MAT_DROPS } from './monsters-rare.js';
 import { CH3_MAT_DROPS } from './monsters-ch3.js';
+import { CH4_MAT_DROPS } from './monsters-ch4.js';
 
 export const DROP_N = { common: 8, rare: 64, mat: 8 };
 
@@ -52,6 +53,8 @@ export const MAT_DROPS = {
   ...RARE_MAT_DROPS,
   // 第3章（monsters-ch3.js）
   ...CH3_MAT_DROPS,
+  // 第4章（monsters-ch4.js）
+  ...CH4_MAT_DROPS,
 };
 // ぬすむ ときは レアが 出やすい（この 倍。でも 半分まで）
 export const STEAL_RARE_MULT = 8;

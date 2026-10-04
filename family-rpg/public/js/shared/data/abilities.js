@@ -25,6 +25,7 @@ import { TRAVEL_ABILITIES } from './sky.js';
 import { RARE_ABILITIES } from './monsters-rare.js';
 import { JOB2_ABILITIES } from './abilities-jobs2.js';
 import { CH3_ABILITIES } from './abilities-ch3.js';
+import { CH4_ABILITIES } from './abilities-ch4.js';
 
 export const ABILITIES = {
   // ───────────── 戦士 ─────────────
@@ -585,6 +586,8 @@ Object.assign(ABILITIES, RARE_ABILITIES);
 Object.assign(ABILITIES, JOB2_ABILITIES);
 // 第3章の モンスターの 技
 Object.assign(ABILITIES, CH3_ABILITIES);
+// 第4章（abilities-ch4.js）
+Object.assign(ABILITIES, CH4_ABILITIES);
 
 // 攻撃呪文かどうか（魔法剣で使える）
 export function isAttackSpell(id) {

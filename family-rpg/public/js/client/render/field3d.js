@@ -460,6 +460,8 @@ export class Field3D {
       // 第3章: 雪の つもった やね・鉱山の 町の 石の やね
       snow: ['#e4ecf8', '#a8b4c8', '#ffffff'], snowred: ['#b8403a', '#8a2a26', '#f4f8ff'], snowblue: ['#3a64b0', '#264a8a', '#f4f8ff'],
       snowgreen: ['#3a7a5a', '#26583e', '#f4f8ff'], slate: ['#5a6078', '#3a3e52', '#8a90b0'], rust: ['#9a5a3a', '#6a3a22', '#c88a5a'],
+      // 第4章: 砂の国（日干しれんがの 白っぽい やね・赤い かわらの やね・布の やね）
+      sand: ['#d8b47a', '#a8844a', '#f0d6a2'], clay: ['#c8703a', '#9a4e22', '#e8986a'], canvas: ['#e8dcc4', '#bba98a', '#fff4e0'],
     };
     const t = new THREE.CanvasTexture(roofCanvas(colors[r.color] || colors.red));
     t.magFilter = THREE.NearestFilter;
