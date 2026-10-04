@@ -108,8 +108,30 @@ function withYukina(party, lv, tier) {
   return [...party, y];
 }
 
+// 第4章: node tools/sim.js [回数] ch4
+// Step 1 の 砂ばく（昼・夜）と 北の古井戸。装備は 第3章の はがね（ランク6は 王都で 買える Step 3 から）
+export const CH4_ZONES = [
+  ['s_coast', 29, 23], ['s_coast_night', 29, 23], ['s_dune', 30, 23], ['s_dune', 32, 23], ['s_oasis', 30, 23], ['s_well', 29, 23], ['s_well', 31, 23],
+  ['s_dune_night', 30, 23], ['s_dune_night', 32, 23], ['s_oasis_night', 30, 23],
+];
+// 北の古井戸の おく（アミを かこむ 魔物。にげられない）
+export const CH4_FIXED = [['well_ambush', 28, 23], ['well_ambush', 29, 23], ['well_ambush', 30, 23], ['well_ambush', 31, 23]];
+
 // 第2章: node tools/sim.js [回数] ch2
-if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'ch2') {
+if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'ch4') {
+  const rng = makeRng(444);
+  for (const [table, lv, tier] of CH4_ZONES) {
+    const res = [];
+    for (let i = 0; i < N; i++) res.push(runBattle(PARTY(lv, 10, tier), rollGroup(table, rng), { seed: i }));
+    summarize(`${table} Lv${lv}`, res);
+  }
+  for (const [enc, lv, tier] of CH4_FIXED) {
+    const res = [];
+    const group = FIXED_ENCOUNTERS[enc].group.flatMap(([sp, n]) => Array(n).fill(sp));
+    for (let i = 0; i < N; i++) res.push(runBattle(PARTY(lv, 10, tier), group, { seed: i }));
+    summarize(`${enc} Lv${lv}`, res);
+  }
+} else if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'ch2') {
   const rng = makeRng(777);
   // 職業レベルは 上がりやすく した ので、第2章では 基本職を ほぼ マスター している めやす
   for (const [table, lv, jlv] of [['sea', 12, 7], ['sea', 14, 8], ['isle', 12, 7], ['isle', 14, 8], ['seacave', 14, 8], ['seacave', 16, 9], ['storm', 16, 9], ['storm', 18, 10], ['tower', 17, 9], ['tower', 19, 10]]) {

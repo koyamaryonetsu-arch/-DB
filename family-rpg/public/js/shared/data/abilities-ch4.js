@@ -49,7 +49,7 @@ export const CH4_ABILITIES = {
   // ── 夜の 砂ばく ──
   m_moon_beam: {
     name: '月の光線', kind: 'monster', mp: 6, target: 'enemies',
-    effect: { type: 'magic', element: 'dark', base: [30, 40], thr: 99 }, cast: '{a}は青白い月の光を、あびせてきた！', anim: 'dark1',
+    effect: { type: 'magic', element: 'dark', base: [40, 52], thr: 99 }, cast: '{a}は青白い月の光を、あびせてきた！', anim: 'dark1',
     desc: '冷たい月の光で、敵みんなに闇のダメージ。',
   },
   m_soul_sip: {

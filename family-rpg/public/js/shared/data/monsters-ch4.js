@@ -8,19 +8,19 @@ const METAL_RESIST = { fire: 0, ice: 0, wind: 0, blast: 0, bolt: 0, light: 0, da
 export const MONSTERS_CH4 = {
   // ── 砂ばく・海辺 ──
   sand_slime: {
-    name: '砂ぷるりん', lv: 29, hp: 214, mp: 30, str: 86, def: 62, agi: 34, mag: 50, exp: 150, gold: 72,
+    name: '砂ぷるりん', lv: 29, hp: 250, mp: 30, str: 100, def: 66, agi: 38, mag: 56, exp: 150, gold: 72,
     race: 'slime', size: 's', resist: { wind: 0.6, ice: 1.4, blast: 1.2, blind: 0 }, drops: { common: ['herb', 6], rare: ['seed_agi', 64] },
     actions: [{ w: 4, id: 'attack' }, { w: 2, id: 'm_sand_throw' }, { w: 1, id: 'm_sand_call', cond: 'callHelp' }],
     desc: '砂つぶからできた、黄色いぷるりん。かわいた砂をまき上げて、目をくらませる。',
   },
   scorpion_soldier: {
-    name: 'サソリ兵', lv: 30, hp: 300, str: 98, def: 78, agi: 30, exp: 182, gold: 84,
+    name: 'サソリ兵', lv: 30, hp: 350, str: 116, def: 86, agi: 34, exp: 182, gold: 84,
     race: 'beast', size: 'm', hit: 'slash', resist: { ice: 1.35, bolt: 1.3, fire: 0.8, poison: 0 }, drops: { common: ['antidote', 4], rare: ['seed_def', 48] },
     actions: [{ w: 4, id: 'attack' }, { w: 3, id: 'm_poison_sting' }, { w: 2, id: 'm_scissor_combo' }, { w: 1, id: 'm_harden', cond: 'notRecent:m_harden' }],
     desc: 'かたいこうらに身をつつんだ、大きなサソリ。しっぽの毒ばりと、2本のはさみでおそってくる。',
   },
   sand_vulture: {
-    name: '砂ハゲタカ', lv: 30, hp: 236, str: 94, def: 48, agi: 66, exp: 172, gold: 80,
+    name: '砂ハゲタカ', lv: 30, hp: 270, str: 112, def: 52, agi: 74, exp: 172, gold: 80,
     race: 'beast', size: 'm', flying: true, hit: 'bite', resist: { wind: 0.5, bolt: 1.4, ice: 1.1 }, drops: { common: ['moonherb', 10], rare: ['seed_agi', 64] },
     actions: [{ w: 3, id: 'attack' }, { w: 3, id: 'm_double_peck' }, { w: 2, id: 'm_vulture_dive' }],
     desc: '砂ばくの空をぐるぐる回る、大きなハゲタカ。弱った旅人を見つけると、急降下してくる。',
@@ -32,14 +32,14 @@ export const MONSTERS_CH4 = {
     desc: '金色にかがやく、とても固い虫。すぐににげてしまうが、たおすとゴールドがたくさん手に入る。',
   },
   mirage_flower: {
-    name: 'まぼろしの花', lv: 31, hp: 228, mp: 60, str: 74, def: 54, agi: 40, mag: 82, exp: 176, gold: 82,
+    name: 'まぼろしの花', lv: 31, hp: 260, mp: 60, str: 86, def: 58, agi: 44, mag: 96, exp: 176, gold: 82,
     race: 'plant', size: 'm', resist: { fire: 1.5, ice: 0.8, wind: 1.2, confuse: 0, sleep: 0.5 }, drops: { common: ['moonherb', 8], rare: ['seed_mag', 48] },
     actions: [{ w: 3, id: 'm_sweet_scent', cond: 'notRecent:m_sweet_scent' }, { w: 2, id: 'm_mirage_pollen' }, { w: 2, id: 'attack' }, { w: 1, id: 'm_root_drain' }],
     desc: 'オアシスのそばにさく、ゆらゆら光る花の魔物。あまい香りで、旅人をまどわせる。',
   },
   // ── 夜の 砂ばく ──
   moon_ghost: {
-    name: '月のゆうれい', lv: 33, hp: 268, mp: 90, str: 84, def: 52, agi: 58, mag: 90, exp: 236, gold: 104,
+    name: '月のゆうれい', lv: 33, hp: 330, mp: 90, str: 104, def: 58, agi: 64, mag: 112, exp: 236, gold: 104,
     race: 'undead', size: 'm', night: true, resist: { light: 1.6, dark: 0.3, fire: 1.2, ice: 0.8, sleep: 0.2, poison: 0 }, drops: { common: ['moon_drop', 10], rare: ['seed_mag', 48] },
     actions: [
       { w: 3, id: 'm_moon_beam' }, { w: 2, id: 'm_soul_sip' }, { w: 2, id: 'attack' },
