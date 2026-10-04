@@ -7,15 +7,15 @@
 //
 // サーバー（家族サーバー）でも ブラウザ（ひとりモード）でも おなじ コードが うごく
 
-import { makeRng } from './rng.js?v=af8614e78ff4';
-import { ABILITIES } from './data/abilities.js?v=af8614e78ff4';
-import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=af8614e78ff4';
-import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js?v=af8614e78ff4';
-import { MONSTERS } from './data/monsters.js?v=af8614e78ff4';
-import { ITEMS } from './data/items.js?v=af8614e78ff4';
-import { JOBS } from './data/jobs.js?v=af8614e78ff4';
-import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed } from './stats.js?v=af8614e78ff4';
-import { decideMonster, decideAlly } from './ai.js?v=af8614e78ff4';
+import { makeRng } from './rng.js?v=e388712b9c60';
+import { ABILITIES } from './data/abilities.js?v=e388712b9c60';
+import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=e388712b9c60';
+import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js?v=e388712b9c60';
+import { MONSTERS } from './data/monsters.js?v=e388712b9c60';
+import { ITEMS } from './data/items.js?v=e388712b9c60';
+import { JOBS } from './data/jobs.js?v=e388712b9c60';
+import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed, battleAbilityOk } from './stats.js?v=e388712b9c60';
+import { decideMonster, decideAlly } from './ai.js?v=e388712b9c60';
 
 export const BOND_MAX = 100;
 // きずなゲージの たまりやすさ（1 … はじめの 版。ちいさいほど たまりにくい）
@@ -505,6 +505,8 @@ export class Battle {
         if (a.effect.type === 'mahouken') return { ok: false, reason: 'bad' };
         if (a.kind === 'combo' && !comboAllowed(c.penChar, cmd.id)) return { ok: false, reason: '今の職業では使えない' };
         if (!weaponOk(a, c.weaponCat)) return { ok: false, reason: '武器が合わない' };
+        // フィールドだけの 呪文・かくれた 技（コマンドに 出す 技と おなじ きまり。stats.js の battleAbilityOk）
+        if (!battleAbilityOk(c.penChar, cmd.id, c.weaponCat)) return { ok: false, reason: '戦いでは使えない' };
         if (mpCost(c.penChar, cmd.id) > c.mp) return { ok: false, reason: 'MPが足りない' };
         return { ok: true };
       }
@@ -1967,6 +1969,9 @@ export function allyFromCharacter(char, init = {}) {
     controller: init.controller || null,
     auto: !!init.auto,
     tactics: init.tactics || char.tactics || 'balanced',
+    // たたかいの 中で さくせんを かえられる 人（キャラの id。じぶん＝その 人、なかま＝もちぬし）と「めいれいさせろ」か
+    tacBy: init.tacBy !== undefined ? init.tacBy : (init.kind || 'player') === 'player' ? char.id : null,
+    manualTac: !!init.manual,
     look: char.look,
     job: char.job,
     eq: char.equip ? [char.equip.weapon || '', char.equip.armor || '', char.equip.shield || '', char.equip.head || ''].join(',') : '',
@@ -2048,6 +2053,8 @@ export function pub(c) {
     weaponCat: c.side === 'ally' ? c.weaponCat : undefined,
     pc: c.side === 'ally' ? c.penChar : undefined,
     favs: c.side === 'ally' ? c.favs : undefined,
+    tactics: c.side === 'ally' ? (c.manualTac ? 'manual' : c.tactics) : undefined,
+    tacBy: c.side === 'ally' ? c.tacBy || null : undefined,
     covering: c.cover ? c.cover.target : null,
   };
 }

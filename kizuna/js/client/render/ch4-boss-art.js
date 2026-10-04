@@ -1,7 +1,7 @@
 // 第4章の ボスの え（ch4-art.js の addCh4Art から addCh4BossArt を よぶ）
 // かきかたは monsters.js・ch3-boss-art.js と おなじ（g … w・h の わりあいで かく。f … 0 か 1 の コマ）
 // ボスは 大きく、かざりを ていねいに。動きは 小さく（たたかいで 0.4びょうごとに コマが かわる）
-import { fit, spark, bez, taper } from './ch3-draw.js?v=af8614e78ff4';
+import { fit, spark, bez, taper } from './ch3-draw.js?v=e388712b9c60';
 
 // ───── よろい大サソリ（かれた地下水路の ボス）─────
 const AS = {

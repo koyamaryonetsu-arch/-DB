@@ -1,11 +1,11 @@
 // キャラクターの つよさ計算・レベルアップ・転職ペナルティ
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_TRAIN_GAP, JOB_WEAK_RATE, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets, jobBodyOk } from './data/jobs.js?v=af8614e78ff4';
-import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=af8614e78ff4';
-import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=af8614e78ff4';
-import { MONSTERS } from './data/monsters.js?v=af8614e78ff4';
-import { MONSTER_FRIENDS, monsterNatural, gearOf } from './data/companions.js?v=af8614e78ff4';
-import { HIRAMEKI, hiraRatio } from './data/hirameki.js?v=af8614e78ff4';
-import { cleanLook } from './data/looks.js?v=af8614e78ff4';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_TRAIN_GAP, JOB_WEAK_RATE, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets, jobBodyOk } from './data/jobs.js?v=e388712b9c60';
+import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=e388712b9c60';
+import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=e388712b9c60';
+import { MONSTERS } from './data/monsters.js?v=e388712b9c60';
+import { MONSTER_FRIENDS, monsterNatural, gearOf } from './data/companions.js?v=e388712b9c60';
+import { HIRAMEKI, hiraRatio } from './data/hirameki.js?v=e388712b9c60';
+import { cleanLook } from './data/looks.js?v=e388712b9c60';
 
 // 長い 物語に なるので レベルは 99まで（レベルで ふえる つよさは ひかえめ）
 export const MAX_LEVEL = 99;
@@ -254,6 +254,16 @@ export function weaponOk(ability, weaponCat) {
   if (ability.weapon === 'blade') return ['sword', 'dagger', 'axe'].includes(weaponCat);
   if (ability.weapon === 'fist') return weaponCat === 'claw' || weaponCat === 'none';
   return ability.weapon === weaponCat;
+}
+
+// たたかいで 今の 職業・ぶきの まま つかえる 技か（MP・ふういん など その ときの ぐあいは みない）
+//   フィールドだけの 呪文・きずな技・かくれた 技・今の 職業で だせない 掛け合わせ技・ぶきが あわない 技は つかえない。
+//   たたかいの コマンドには つかえる 技だけ 出す（client/battle.js）。サーバーの たしかめ（battle.js の validate）も おなじ
+export function battleAbilityOk(char, id, weaponCat) {
+  const a = ABILITIES[id];
+  if (!a || a.fieldOnly || a.hidden || a.kind === 'bond') return false;
+  if (a.kind === 'combo' && !comboAllowed(char || {}, id)) return false;
+  return weaponOk(a, weaponCat);
 }
 
 // 転職ペナルティ

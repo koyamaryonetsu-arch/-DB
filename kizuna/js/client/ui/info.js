@@ -1,12 +1,12 @@
 // せつめい文を つくる
-import { ITEMS, SLOT_NAMES, WEAPON_CAT_NAMES } from '../../shared/data/items.js?v=af8614e78ff4';
-import { ABILITIES, abilityTypeText } from '../../shared/data/abilities.js?v=af8614e78ff4';
-import { JOBS, ALL_JOBS } from '../../shared/data/jobs.js?v=af8614e78ff4';
-import { MONSTERS } from '../../shared/data/monsters.js?v=af8614e78ff4';
-import { MONSTER_FRIENDS } from '../../shared/data/companions.js?v=af8614e78ff4';
-import { computeStats, canEquip, canEquipMonster, monsterGear, penaltyFor, mpCost, comboJobNames, comboAllowed, jobPower } from '../../shared/stats.js?v=af8614e78ff4';
-import { attackReach } from '../../shared/battle.js?v=af8614e78ff4';
-import { maxPlus } from '../../shared/data/forge.js?v=af8614e78ff4';
+import { ITEMS, SLOT_NAMES, WEAPON_CAT_NAMES } from '../../shared/data/items.js?v=e388712b9c60';
+import { ABILITIES, abilityTypeText } from '../../shared/data/abilities.js?v=e388712b9c60';
+import { JOBS, ALL_JOBS } from '../../shared/data/jobs.js?v=e388712b9c60';
+import { MONSTERS } from '../../shared/data/monsters.js?v=e388712b9c60';
+import { MONSTER_FRIENDS } from '../../shared/data/companions.js?v=e388712b9c60';
+import { computeStats, canEquip, canEquipMonster, monsterGear, penaltyFor, mpCost, comboJobNames, comboAllowed, jobPower } from '../../shared/stats.js?v=e388712b9c60';
+import { attackReach } from '../../shared/battle.js?v=e388712b9c60';
+import { maxPlus } from '../../shared/data/forge.js?v=e388712b9c60';
 
 const TARGET_NAMES = { enemy: '敵1体', group: '敵1グループ', enemies: '敵全体', ally: '味方1人', allies: '味方全員', self: '自分', deadAlly: '死んだ味方', deadAllies: '死んだ味方全員' };
 // 技の リストに つける みじかい しるし（1体・1人・自分は つけない）。a: 技（または 相手の しゅるい）
