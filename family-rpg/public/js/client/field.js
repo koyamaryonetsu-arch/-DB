@@ -971,8 +971,8 @@ export class Field {
       }
       ctx.globalCompositeOperation = 'source-over';
     }
-    // 雪・ふぶき・火の粉（第3章。render/weather.js）
-    this.weather.draw(ctx, this.vw, this.vh, this.lastDt || 16, this.weatherKind(), camX, camY);
+    // 雪・ふぶき・火の粉（第3章）・砂ぼこり・砂嵐（第4章。夜は かすみを くらく）。render/weather.js
+    this.weather.draw(ctx, this.vw, this.vh, this.lastDt || 16, this.weatherKind(), camX, camY, na);
     this.renderLabels(camX, camY);
   }
 
@@ -1118,7 +1118,7 @@ export class Field {
       }
       ctx.globalCompositeOperation = 'source-over';
     }
-    this.weather.draw(ctx, this.vw, this.vh, this.lastDt || 16, this.weatherKind(), this.me.x * TS, this.me.y * TS);
+    this.weather.draw(ctx, this.vw, this.vh, this.lastDt || 16, this.weatherKind(), this.me.x * TS, this.me.y * TS, na);
     this.renderLabels(0, 0);
   }
 

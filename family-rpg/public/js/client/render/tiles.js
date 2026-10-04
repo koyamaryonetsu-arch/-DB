@@ -4,6 +4,7 @@ import { hash2 } from '../../shared/rng.js';
 import { Painter, shade, prand } from './pixel.js';
 import { themedCanvas, partOfTile } from './themes.js';
 import { CH3_PAINTERS, CH3_FRAMES, CH3_SPEED, RAIL_TILES, CH3_WALLS } from './tiles-ch3.js';
+import { CH4_PAINTERS, CH4_FRAMES, CH4_SPEED, CH4_WALLS, ch4Mask, desertBase } from './tiles-ch4.js';
 
 export const TS = 16;
 
@@ -297,8 +298,9 @@ const painters = {
     p.hline(3, 12, 5, '#4a4a4a'); p.hline(3, 12, 11, '#4a4a4a');
     p.ellipse(8, 3, 4.5, 1.6, '#b87a42');
   },
-  [T.WELL]: (p, v) => {
-    grassBase(p, v, 41);
+  [T.WELL]: (p, v, f, m) => {
+    // 砂ばくの 村では 砂の 上（mask 2。tiles-ch4.js の ch4Mask）
+    (m & 2 ? desertBase : grassBase)(p, v, 41);
     p.ellipse(8, 9, 7, 6, C.stoneD);
     p.ellipse(8, 8.5, 6, 5, C.stone);
     p.ellipse(8, 8.5, 3.8, 3, '#1c3d6e');
@@ -318,8 +320,8 @@ const painters = {
     p.hline(0, 15, 5, '#b07a44');
     for (let x = 1; x < 16; x += 7) { p.rect(x, 3, 2, 11, '#7a4a22'); p.set(x, 3, '#b07a44'); }
   },
-  [T.SIGN]: (p, v) => {
-    grassBase(p, v, 47);
+  [T.SIGN]: (p, v, f, m) => {
+    (m & 2 ? desertBase : grassBase)(p, v, 47);
     p.rect(7, 8, 2, 7, '#6b4220');
     p.rect(2, 2, 12, 7, '#b8773a'); p.rect(3, 3, 10, 5, '#d49a5a');
     p.hline(4, 11, 4, '#6b4220'); p.hline(4, 9, 6, '#6b4220');
@@ -482,15 +484,17 @@ const painters = {
 
 // 第3章の タイル（雪・氷・ようがん・鉱山・神殿。render/tiles-ch3.js）
 Object.assign(painters, CH3_PAINTERS);
+// 第4章の タイル（砂ばく・砂丘・砂岩・ヤシ・サボテン・日干しれんが・砂嵐・古井戸。render/tiles-ch4.js）
+Object.assign(painters, CH4_PAINTERS);
 
 // アニメーションする タイルの コマ数
 const FRAMES = {
   [T.WATER]: 3, [T.DEEP]: 3, [T.SWAMP]: 3, [T.FOUNTAIN]: 2, [T.FIREPLACE]: 2, [T.CAVE_WATER]: 3, [T.CRYSTAL]: 3,
   [T.TORCH]: 3, [T.LAMP]: 2, [T.STEPPING]: 3, [T.BRIDGE_H]: 3, [T.BRIDGE_V]: 3, [T.BROKEN_BRIDGE]: 3, [T.CAVE_BRIDGE]: 3, [T.PIER]: 3,
   [T.WHIRLPOOL]: 3,
-  ...CH3_FRAMES,
+  ...CH3_FRAMES, ...CH4_FRAMES,
 };
-const SPEED = { [T.TORCH]: 140, [T.FIREPLACE]: 180, [T.CRYSTAL]: 500, [T.LAMP]: 700, ...CH3_SPEED };
+const SPEED = { [T.TORCH]: 140, [T.FIREPLACE]: 180, [T.CRYSTAL]: 500, [T.LAMP]: 700, ...CH3_SPEED, ...CH4_SPEED };
 
 export function frameOf(id, t) {
   const n = FRAMES[id];
@@ -498,22 +502,28 @@ export function frameOf(id, t) {
   return Math.floor(t / (SPEED[id] || 420)) % n;
 }
 
+// タイルの え を ペインターに かく（キャンバスに する まえ。テストでも つかう）
+export function paintTile(id, variant = 0, frame = 0, mask = 0) {
+  const p = new Painter(TS, TS);
+  (painters[id] || painters[T.VOID])(p, variant, frame, mask);
+  return p;
+}
+export const hasTileArt = (id) => !!painters[id];
+
 const cache = new Map();
-// theme … 宝の洞窟の しゅるい（'ice' 'lava'。色だけ かえる。render/themes.js）
+// theme … 宝の洞窟の しゅるい（'ice' 'lava' 'sand'。色だけ かえる。render/themes.js）
 export function tileCanvas(id, variant, frame, mask, theme) {
   const key = (id << 16) | (variant << 12) | (frame << 8) | mask;
   let c = cache.get(key);
   if (!c) {
-    const p = new Painter(TS, TS);
-    (painters[id] || painters[T.VOID])(p, variant, frame, mask);
-    c = p.toCanvas();
+    c = paintTile(id, variant, frame, mask).toCanvas();
     cache.set(key, c);
   }
   return theme ? themedCanvas(c, theme, partOfTile(id)) : c;
 }
 
 const WATERY = new Set([T.WATER, T.DEEP, T.BROKEN_BRIDGE, T.STEPPING, T.PIER, T.BRIDGE_H, T.BRIDGE_V, T.WHIRLPOOL]);
-const WALLS = new Set([T.WALL_STONE, T.WALL_WOOD, T.CAVE_WALL, T.TORCH, ...CH3_WALLS]);
+const WALLS = new Set([T.WALL_STONE, T.WALL_WOOD, T.CAVE_WALL, T.TORCH, ...CH3_WALLS, ...CH4_WALLS]);
 
 // マップごとに いちど だけ けいさん（となりの タイルで かわる みため）
 export function prepareMap(map) {
@@ -522,11 +532,17 @@ export function prepareMap(map) {
   const variant = new Uint8Array(w * h);
   const mask = new Uint8Array(w * h);
   const at = (x, y) => (x < 0 || y < 0 || x >= w || y >= h ? -1 : tiles[y * w + x]);
+  // 第4章: とびら（砂嵐のかべ）は ひらいた あとの タイルで つながりを 見る（砂丘が かべの 下まで つづく）
+  const opened = new Map();
+  for (const g of map.gates || []) if (!g.invert) opened.set(g.y * w + g.x, g.open);
+  const atOpen = (x, y) => (x < 0 || y < 0 || x >= w || y >= h ? -1 : opened.get(y * w + x) ?? tiles[y * w + x]);
   for (let y = 0; y < h; y++) {
     for (let x = 0; x < w; x++) {
       const i = y * w + x;
       const t = tiles[i];
       variant[i] = Math.floor(hash2(x, y, 17) * 4);
+      // 砂嵐は ばしょで もようを つなげる（4×4マスで ひとまわり）
+      if (t === T.SANDSTORM) variant[i] = (x & 3) | ((y & 3) << 2);
       if (t === T.WATER || t === T.DEEP) {
         let m = 0;
         const land = (tt) => tt !== -1 && !WATERY.has(tt);
@@ -546,6 +562,10 @@ export function prepareMap(map) {
         if (RAIL_TILES.has(at(x, y + 1))) m |= 4;
         if (RAIL_TILES.has(at(x - 1, y))) m |= 8;
         mask[i] = m;
+      } else {
+        // 第4章（砂丘の つながり・砂岩の がけ・ヤシと サボテンの 下の 草地）
+        const m4 = ch4Mask(opened.get(i) ?? t, atOpen, x, y);
+        if (m4 >= 0) mask[i] = m4;
       }
     }
   }

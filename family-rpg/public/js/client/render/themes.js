@@ -1,4 +1,4 @@
-// 色の かえかた（宝の洞窟の しゅるい・洞窟の 主の 色ちがい）
+// 色の かえかた（宝の洞窟の しゅるい・第3章の 氷と 火の 洞窟・第4章の 砂の 洞窟・洞窟の 主の 色ちがい）
 // もとの ドット絵は そのままに、明るさを たもって 色だけ かえる
 import { T } from '../../shared/tiles.js';
 import { makeCanvas, ctxOf } from './pixel.js';
@@ -13,6 +13,9 @@ for (const id of [T.SNOW, T.SNOW_PATH, T.DEEP_SNOW, T.SNOW_PINE, T.SNOW_ROCK, T.
   T.RAIL, T.LEVER, T.LEVER_ON, T.PLATE, T.PLATE_ON, T.BRAZIER, T.BRAZIER_LIT, T.HOT_SPRING, T.SNOW_WALL, T.FLAME_WALL, T.ASH,
   T.MINE_BEAM, T.ICE_WALL, T.DRAGON_GATE, T.CHASM, T.RAIL_BRIDGE, T.RAIL_STOP, T.ASH_ROCK]) PART_OF_TILE[id] = 'none';
 for (const name of ['snow_top', 'snow_side', 'ice_top', 'ice_side', 'ash_top', 'ashrock_side', 'beam_side', 'gate_side', 'flame_side', 'snowrock_side']) PART_OF_EXTRA[name] = 'none';
+// 第4章の タイル（砂ばく・砂丘・砂岩・ヤシ・サボテン・日干しれんが・砂嵐・古井戸）も もとの 色の まま
+for (const id of [T.DESERT, T.DUNE, T.SANDSTONE, T.PALM, T.CACTUS, T.ADOBE, T.SANDSTORM, T.WELL_HOLE]) PART_OF_TILE[id] = 'none';
+for (const name of ['sandstone_top', 'sandstone_side', 'adobe_side', 'wall_top_adobe', 'dune_top']) PART_OF_EXTRA[name] = 'none';
 export const partOfTile = (id) => PART_OF_TILE[id] || 'floor';
 export const partOfExtra = (name) => PART_OF_EXTRA[name] || 'floor';
 
@@ -45,7 +48,15 @@ const LAVA = {
   gem: G([0, '#8a1a06'], [0.5, '#ff6a1a'], [1, '#ffe8a0']),
   flame: null,
 };
-const THEMES = { ice: ICE, lava: LAVA };
+// 砂の 洞窟（第4章の 北の古井戸）: 赤茶の 砂岩の かべ・かわいた 砂の ゆか・にごった 緑の 水・こはく色の 石
+const SAND = {
+  floor: G([0, '#1a1006'], [0.15, '#4a3018'], [0.3, '#8a6034'], [0.5, '#c09050'], [0.75, '#e6c486'], [1, '#fff2d0']),
+  wall: G([0, '#0c0604'], [0.15, '#341c10'], [0.3, '#6e3e22'], [0.5, '#a8683c'], [1, '#e8b080']),
+  water: G([0, '#06201e'], [0.35, '#1c5a52'], [0.7, '#5aa890'], [1, '#e4fff0']),
+  gem: G([0, '#6a3a08'], [0.5, '#f0a830'], [1, '#fff4c8']),
+  flame: null,
+};
+const THEMES = { ice: ICE, lava: LAVA, sand: SAND };
 
 // 1つの 色を かえる
 export function themeRgb(r, g, b, theme, part) {
