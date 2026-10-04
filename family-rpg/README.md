@@ -1001,7 +1001,12 @@ npm start                 # 家族サーバー
   - `shared/data/monsters-ch4.js`・`abilities-ch4.js`・`encounters-ch4.js`（昼と夜の出現表。`NIGHT_ZONES_CH4` で夜の表へ）・`items-ch4.js`（砂よけのマント・ハミルのよろず屋）
   - 新しいタイル（`shared/tiles.js`）：砂ばく・砂丘・砂岩・ヤシの木・サボテン・日干しれんがのかべ・砂嵐・古井戸のあな。地図の文字は `0` `J` `q` `4` `5`
   - 空の地方 `south`（`data/sky.js`）：`storm`（とべない わけ）・`boxHint`（よべる場所）・`lockedHint`（まだ行けない時のヒント）を地方ごとに書く
-  - `test/ch4-maps.test.js`・`test/ch4-story.test.js`（はじめからアミを助けるまで・竜で飛べる所・夜だけの魔物・むかしのセーブ）。バランスは `node tools/sim.js 30 ch4`
+  - `test/ch4-maps.test.js`・`test/ch4-story.test.js`（はじめからアミを助けるまで・竜で飛べる所・夜だけの魔物・むかしのセーブ・家族で南へ）。バランスは `node tools/sim.js 30 ch4`
+  - 絵：`client/render/tiles-ch4.js`（砂ばくのタイルの2Dの絵。砂丘はとなりのマスを見てつなぐ・砂嵐は16コマで東へ流れる）。2.5Dは `render/field3d.js`（砂丘のもり上がり・砂岩の段・ヤシの木・砂嵐の砂けむり）と `render/tex3d.js`。日干しれんがは石や木のかべと同じあつかい（`WALL_TILES`。やね・かんばん）
+  - 洞窟の色 `sand`（`render/themes.js`。北の古井戸）・天気 `sand`／`sandstorm`（`render/weather.js`。かすみの色は天気ごと）・戦いの背景 `desert`／`sand_cave`（`render/battlefx.js`。夜は `nightBg` で `desert_night`）
+  - 魔物の絵：`client/render/ch4-art.js`（`addCh4Art`。月のゆうれい・まぼろしの花は、下の方がすけて見える `fade`）。砂の国の人の頭（`turban`・`keffiyeh`・`shawl`・`circlet`）とラクダ（`camel`）は `render/chars.js`
+  - 曲（`client/audio.js`）：`desert`（砂ばく・昼）・`desert_night`（砂ばく・夜）・`oasis`（ハミル）。ドラムのパートの `r` は休み（音を出さない）
+  - `test/ch4-art.test.js`（タイル・2.5D・天気・背景）・`test/ch4-monsters-art.test.js`（魔物の絵・人の見た目・ラクダ）・`test/audio.test.js`（第4章の3曲）
 - 動けなくなった時のしくみ：画面の見張りは `client/game.js` の `watchStuck`・`watchBattle`・`rescue`、不具合の記録は `client/errlog.js`。サーバーの立てなおしは `world.js` の `resync`、こわれた戦いを終わらせるのは `world/battles.js` の `abortBattle`（`test/stuck.test.js`）
 
 ---
