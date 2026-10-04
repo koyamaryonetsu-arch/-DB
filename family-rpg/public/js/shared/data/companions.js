@@ -335,3 +335,10 @@ export function recipeHint(child, MONSTERS) {
 export function breedPlus(a, b) {
   return Math.min(99, Math.floor(((a.plus || 0) + (b.plus || 0)) / 2) + Math.max(1, Math.floor((a.level + b.level) / 10)));
 }
+
+// うまれる こ（しゅぞく・「＋」・めずらしい くみあわせ か）。a・b は { species, level, plus }
+// サーバーの はいごう（world/breed.js）と、酒場で 2ひきめに カーソルを あわせた ときの みほん（client/ui/services.js）で つかう
+export function breedOutcome(a, b, MONSTERS) {
+  const child = breedResult(a.species, b.species, MONSTERS);
+  return { child, plus: breedPlus(a, b), special: child !== a.species && child !== b.species };
+}
