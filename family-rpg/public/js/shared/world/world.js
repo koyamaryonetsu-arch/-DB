@@ -3,7 +3,7 @@
 // クライアントとは メッセージ（JSON）で やりとりする。
 // つなぎかたは なんでも よい（WebSocket でも ブラウザ内の ちょくせつ呼び出しでも）。
 import { makeRng } from '../rng.js';
-import { MAPS, isBlocked, effectiveTile, condOk, searchLoot, sparkleLoot, tileAt, POS, SEA_PLACES } from '../maps/index.js';
+import { MAPS, isBlocked, effectiveTile, condOk, searchLoot, sparkleLoot, tileAt, POS, SEA_PLACES, standSpot } from '../maps/index.js';
 import { PLACES } from '../maps/overworld.js';
 import { T, TILE_INFO } from '../tiles.js';
 import { ITEMS } from '../data/items.js';
@@ -652,8 +652,10 @@ export class GameWorld {
     // さそわれて 来ている 人は リーダーの いのりの場所で（みんな いっしょに 目を覚ます）
     const own = this.hostOf(s)?.char.spawn || s.char.spawn;
     const sp = own && MAPS[own.map] ? own : { map: 'overworld', x: POS.villageChurch[0] + 0.5, y: POS.villageChurch[1] + 0.5 };
+    // 教会の 人・かべ・宝箱と 重ならない、いちばん ちかい ところで 目を覚ます（重なると 動けなく なる）
+    const at = standSpot(MAPS[sp.map], sp.x, sp.y, this.hasFlagFn(s));
     fullHeal(s.char);
-    this.placeSession(s, sp.map, sp.x, sp.y, 'down', true);
+    this.placeSession(s, sp.map, at.x, at.y, 'down', true);
     this.send(s, { t: 'toast', text: `${s.char.name}はいのりの場所で目を覚ました。\n「無理はいけませんよ」${note ? `\n${note}` : ''}`, afterBattle: true });
   }
 

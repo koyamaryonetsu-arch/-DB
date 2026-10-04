@@ -503,7 +503,7 @@ function festival(x) {
     ...S('ホシミばあちゃん', '…{name}、無事にもどってくるんじゃよ。'),
     ['chapter', '第1章', '始まりの星'],
     ['flag', 'p_attack'],
-    ['spawn', 'overworld', ...POS.villageChurch],
+    ['spawn', 'overworld', POS.villageChurch[0] + 0.5, POS.villageChurch[1] + 0.5],
     ['objective', '北のルミナの町へ行き、町長に会おう'],
   ];
 }

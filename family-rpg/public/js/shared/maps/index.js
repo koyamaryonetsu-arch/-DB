@@ -346,6 +346,58 @@ export function condOk(show, hasFlag) {
   return true;
 }
 
+// 人の 体の 大きさ（足もとが (x, y)。client/field.js の あたり判定と おなじ）
+export const BODY = { hw: 0.28, top: 0.3, bot: 0.08 };
+export function bodyPoints(x, y) {
+  const { hw, top, bot } = BODY;
+  return [[x - hw, y - top], [x + hw, y - top], [x - hw, y + bot], [x + hw, y + bot]];
+}
+
+// (cx, cy) に いる NPC が (tx, ty) の マスを ふさぐか（大きな 人は 横3マス・たて2マス）
+export function npcCovers(n, cx, cy, tx, ty) {
+  if (n.big) return Math.abs(tx + 0.5 - cx) < 1.5 && ty <= Math.floor(cy) && ty >= Math.floor(cy) - 1;
+  return Math.floor(cx) === tx && Math.floor(cy) === ty;
+}
+
+// (x, y) に 立てるか: 体が かべ・人・宝箱に かからず、ワープの 上でも ない（人は 家の いちで みる）
+export function canStand(map, x, y, hasFlag) {
+  for (const [px, py] of bodyPoints(x, y)) {
+    const tx = Math.floor(px), ty = Math.floor(py);
+    if (isBlocked(map, tx, ty, hasFlag)) return false;
+    const ch = map.chestAt?.get(ty * map.w + tx);
+    if (ch && condOk(ch.show, hasFlag)) return false;
+    for (const n of map.npcs) {
+      if (n.solid && condOk(n.show, hasFlag) && npcCovers(n, n.x + 0.5, n.y + 0.5, tx, ty)) return false;
+    }
+  }
+  return !map.warpAt?.has(Math.floor(y) * map.w + Math.floor(x));
+}
+
+// (x, y) の ちかくで 立てる ところ（そのままで よければ そのまま。だめなら いちばん ちかい マスの まん中。
+// 下 → 左 → 右 → 上 の じゅんに さがす）。全滅して 教会で 目を覚ます とき、教会の 人と 重ならないように
+export function standSpot(map, x, y, hasFlag, limit = 900) {
+  if (canStand(map, x, y, hasFlag)) return { x, y };
+  const sx = Math.floor(x), sy = Math.floor(y);
+  // かべの 中から さがす とき いがいは、かべを こえない（おなじ へやの 中で さがす）
+  const inWall = isBlocked(map, sx, sy, hasFlag);
+  const seen = new Set([sy * map.w + sx]);
+  const q = [[sx, sy]];
+  for (let head = 0; head < q.length && head < limit; head++) {
+    const [cx, cy] = q[head];
+    if (canStand(map, cx + 0.5, cy + 0.5, hasFlag)) return { x: cx + 0.5, y: cy + 0.5 };
+    for (const [dx, dy] of [[0, 1], [-1, 0], [1, 0], [0, -1]]) {
+      const nx = cx + dx, ny = cy + dy;
+      if (nx < 0 || ny < 0 || nx >= map.w || ny >= map.h) continue;
+      const k = ny * map.w + nx;
+      if (seen.has(k)) continue;
+      seen.add(k);
+      if (!inWall && isBlocked(map, nx, ny, hasFlag)) continue;
+      q.push([nx, ny]);
+    }
+  }
+  return { x, y };
+}
+
 export function searchLoot(mapId, x, y) {
   // つぼ・たる・たな などを しらべた ときに でる もの（ばしょで きまる）
   const r = hash2(x, y, mapId.length * 31);

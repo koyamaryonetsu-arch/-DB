@@ -1,5 +1,5 @@
 // フィールド（あるく・はなす・みる）
-import { MAPS, isBlocked, effectiveTile, condOk, tileAt, onWater, slidesAt } from '../shared/maps/index.js';
+import { MAPS, isBlocked, effectiveTile, condOk, tileAt, onWater, slidesAt, bodyPoints, npcCovers } from '../shared/maps/index.js';
 import { T, TILE_INFO } from '../shared/tiles.js';
 import { PLACES } from '../shared/maps/overworld.js';
 import { TS, tileCanvas, frameOf, prepareMap } from './render/tiles.js';
@@ -304,25 +304,40 @@ export class Field {
   }
 
   // ───────────── あたり判定 ─────────────
-  solidAt(tx, ty, forNpc = null) {
+  // pass: この 人たちは とおれる（いま 体が 重なっている 人から はなれる とき）
+  solidAt(tx, ty, forNpc = null, pass = null) {
     if (isBlocked(this.map, tx, ty, (f) => this.gateFlag(f))) return true;
     const key = ty * this.map.w + tx;
     const ch = this.map.chestAt.get(key);
     if (ch && condOk(ch.show, (f) => this.hasFlag(f)) && !this.chestGone(ch)) return true;
     for (const n of this.map.npcs) {
-      if (!n.solid || n === forNpc || !this.npcVisible(n)) continue;
+      if (!n.solid || n === forNpc || pass?.has(n) || !this.npcVisible(n)) continue;
       const s = this.npcState.get(n.id);
-      if (n.big) {
-        if (Math.abs(tx + 0.5 - s.x) < 1.5 && ty <= Math.floor(s.y) && ty >= Math.floor(s.y) - 1) return true;
-      } else if (Math.floor(s.x) === tx && Math.floor(s.y) === ty) return true;
+      if (s && npcCovers(n, s.x, s.y, tx, ty)) return true;
     }
     return false;
   }
 
+  // 自分の 体が (x, y) に 入れるか
   boxFree(x, y) {
-    const hw = 0.28, top = 0.3, bot = 0.08;
-    const pts = [[x - hw, y - top], [x + hw, y - top], [x - hw, y + bot], [x + hw, y + bot]];
-    return pts.every(([px, py]) => !this.solidAt(Math.floor(px), Math.floor(py)));
+    const pass = this.leavingNpcs(x, y);
+    return bodyPoints(x, y).every(([px, py]) => !this.solidAt(Math.floor(px), Math.floor(py), null, pass));
+  }
+
+  // いま 体が 重なっている 人（目を覚ました ところに 人が いた・歩く 人が 来た など）。
+  // その 人からは はなれる ほうへ だけ 歩ける（重なった まま 動けなく ならないように。近づく ほうへは とおれない）
+  leavingNpcs(x, y) {
+    const me = this.me;
+    let out = null, pts = null;
+    for (const n of this.map.npcs) {
+      if (!n.solid) continue;
+      const s = this.npcState.get(n.id);
+      if (!s || Math.abs(s.x - me.x) > 3 || Math.abs(s.y - me.y) > 3 || !this.npcVisible(n)) continue;
+      pts ||= bodyPoints(me.x, me.y);
+      if (!pts.some(([px, py]) => npcCovers(n, s.x, s.y, Math.floor(px), Math.floor(py)))) continue;
+      if (Math.hypot(x - s.x, y - s.y) > Math.hypot(me.x - s.x, me.y - s.y)) (out ||= new Set()).add(n);
+    }
+    return out;
   }
 
   // ───────────── まいフレーム ─────────────
@@ -639,8 +654,9 @@ export class Field {
         const [d, dx, dy] = dirs[Math.floor(Math.random() * 4)];
         const tx = Math.floor(s.x) + dx, ty = Math.floor(s.y) + dy;
         if (Math.abs(tx + 0.5 - s.hx) > n.wander || Math.abs(ty + 0.5 - s.hy) > n.wander) { s.moving = false; continue; }
-        const meT = [Math.floor(this.me.x), Math.floor(this.me.y)];
-        if (isBlocked(this.map, tx, ty, () => true) || (meT[0] === tx && meT[1] === ty) || this.map.chestAt.has(ty * this.map.w + tx)) { s.moving = false; continue; }
+        // 自分の 体が かかっている マスには 入らない
+        const onMe = bodyPoints(this.me.x, this.me.y).some(([px, py]) => Math.floor(px) === tx && Math.floor(py) === ty);
+        if (isBlocked(this.map, tx, ty, () => true) || onMe || this.map.chestAt.has(ty * this.map.w + tx)) { s.moving = false; continue; }
         s.dir = d;
         s.goal = { x: tx + 0.5, y: ty + 0.5 };
         s.moving = true;

@@ -5,6 +5,8 @@ import { GameWorld } from '../public/js/shared/world/world.js';
 import { makeRng } from '../public/js/shared/rng.js';
 import { runSteps } from '../public/js/shared/world/scripts.js';
 import { startFieldBattle } from '../public/js/shared/world/battles.js';
+import { MAPS, POS, canStand, standSpot, bodyPoints, npcCovers } from '../public/js/shared/maps/index.js';
+import { SCRIPTS, STORY_STEPS } from '../public/js/shared/data/story.js';
 import { Bot } from './helpers.js';
 
 async function solo(seed = 5) {
@@ -117,4 +119,92 @@ test('こわれた 物語の たたかい: だいほんは そこで おわり�
   assert.equal(s.busy, null);
   assert.equal(s.runId, null);
   assert.equal(s.char.flags.stuck_battle_after, undefined, 'たたかいの あとの 物語には すすまない');
+});
+
+// ───────────── 全滅して 教会で 目を覚ます とき、教会の 人と 重ならない ─────────────
+const PRIESTS = [['overworld', 'v_priest'], ['overworld', 't_priest'], ['sea', 'port_priest'], ['north', 'c3_priest'], ['north', 'c3_k_priest'], ['south', 'c4_h_priest']];
+const overlapsNpc = (map, x, y, n) => bodyPoints(x, y).some(([px, py]) => npcCovers(n, n.x + 0.5, n.y + 0.5, Math.floor(px), Math.floor(py)));
+
+test('全滅: いのりの場所が 教会の 人に かかって いても、重ならない ところで 目を覚ます', async () => {
+  const { world, bot } = await solo(7);
+  const s = bot.s;
+  const has = world.hasFlagFn(s);
+  const map = MAPS.overworld;
+  const pri = map.npcById.v_priest;
+  // 序章の おわりの 記録（マスの かど）: 体の 上が 村の 教会の 人に かかって 動けなかった
+  s.char.spawn = { map: 'overworld', x: POS.villageChurch[0], y: POS.villageChurch[1] };
+  assert.ok(overlapsNpc(map, s.char.spawn.x, s.char.spawn.y, pri), '（さいげん）そのままでは 教会の 人に 重なる');
+  world.respawn(s);
+  assert.equal(s.map, 'overworld');
+  assert.ok(canStand(map, s.x, s.y, has), `立てる ところ（${s.x}, ${s.y}）`);
+  assert.ok(!overlapsNpc(map, s.x, s.y, pri), '教会の 人と 重ならない');
+  assert.deepEqual([s.x, s.y], [pri.x + 0.5, pri.y + 1.5], '教会の 人の 前で');
+  const pos = bot.msgs.filter((m) => m.t === 'setPos').pop();
+  assert.deepEqual([pos.x, pos.y], [s.x, s.y], 'がめんにも おなじ いちが とどく');
+  // 記録の ばしょ（自分の いのりの場所）は そのまま
+  assert.deepEqual(s.char.spawn, { map: 'overworld', x: POS.villageChurch[0], y: POS.villageChurch[1] });
+});
+
+test('全滅: どの 教会でも、教会の 人の マスに 記録が あっても となりの 空いた マスで 目を覚ます', async () => {
+  const { world, bot } = await solo(8);
+  const s = bot.s;
+  // 物語を さいごまで すすめた ことに する（どの 地方にも 人が いる）
+  for (const f of STORY_STEPS) s.char.flags[f] = true;
+  const has = world.hasFlagFn(s);
+  for (const [mapId, id] of PRIESTS) {
+    const map = MAPS[mapId];
+    const pri = map.npcById[id];
+    assert.ok(pri && pri.solid, `${mapId}/${id}`);
+    // 教会の 人の 前で 記録した ときは、その ままの ばしょで 目を覚ます
+    s.char.spawn = { map: mapId, x: pri.x + 0.5, y: pri.y + 1.6 };
+    world.respawn(s);
+    assert.deepEqual([s.map, s.x, s.y], [mapId, pri.x + 0.5, pri.y + 1.6], `${id}: 記録した ばしょ`);
+    // 教会の 人の 真上に 記録が ある（こわれた 記録）
+    s.char.spawn = { map: mapId, x: pri.x + 0.5, y: pri.y + 0.5 };
+    world.respawn(s);
+    assert.equal(s.map, mapId);
+    assert.ok(canStand(map, s.x, s.y, has), `${id}: 立てる ところ（${s.x}, ${s.y}）`);
+    assert.ok(!overlapsNpc(map, s.x, s.y, pri), `${id}: 重ならない`);
+    assert.ok(Math.hypot(s.x - (pri.x + 0.5), s.y - (pri.y + 0.5)) <= 1.01, `${id}: となりの マス（${s.x}, ${s.y}）`);
+  }
+});
+
+test('立てる ところ: かべの 中なら いちばん ちかい 空いた マス、空いて いれば そのまま', () => {
+  const map = MAPS.south;
+  const no = () => false;
+  const pri = map.npcById.c4_h_priest;
+  assert.deepEqual(standSpot(map, pri.x + 0.5, pri.y + 1.5, no), { x: pri.x + 0.5, y: pri.y + 1.5 });
+  const at = standSpot(map, pri.x + 0.5, pri.y + 0.5, no);
+  assert.deepEqual(at, { x: pri.x + 0.5, y: pri.y + 1.5 }, '下が 空いて いれば 下へ');
+  // かべの 中（教会の 人の 上の かべ）
+  const wall = standSpot(map, pri.x + 0.5, pri.y - 0.5, no);
+  assert.ok(canStand(map, wall.x, wall.y, no), `${wall.x}, ${wall.y}`);
+});
+
+test('物語の 場面移動・いのりの場所の 記録は、かべ・人・宝箱に 体が かからない ところ', () => {
+  // いろいろな すすみぐあいで 台本を つくって、teleport と spawn の ばしょを あつめる
+  const spots = new Map();
+  const walk = (v, name, depth = 0) => {
+    if (depth > 12 || !v || typeof v !== 'object') return;
+    if (Array.isArray(v) && (v[0] === 'teleport' || v[0] === 'spawn') && typeof v[1] === 'string') spots.set(`${v[1]}:${v[2]}:${v[3]}`, [name, ...v.slice(0, 4)]);
+    for (const x of Array.isArray(v) ? v : Object.values(v)) walk(x, name, depth + 1);
+  };
+  for (let upto = 0; upto <= STORY_STEPS.length; upto++) {
+    const flags = Object.fromEntries(STORY_STEPS.slice(0, upto).map((f) => [f, true]));
+    for (const night of [false, true]) {
+      const c = { name: 'X', flags, items: [], keyItems: [], quests: {}, kills: {}, level: 30, job: 'warrior' };
+      const ctx = { c, name: 'X', night, helper: false, flag: (f) => !!flags[f], has: () => true, count: () => 1, kills: () => 0, quest: () => undefined };
+      for (const [k, fn] of Object.entries(SCRIPTS)) {
+        try { walk(fn(ctx), k); } catch { /* この すすみぐあいでは つくれない 台本 */ }
+      }
+    }
+  }
+  assert.ok(spots.size >= 10, `あつまった ばしょ ${spots.size}`);
+  for (const [name, op, mapId, x, y] of spots.values()) {
+    const map = MAPS[mapId];
+    assert.ok(map, `${name}: ${mapId}`);
+    for (const has of [() => false, () => true]) {
+      assert.ok(canStand(map, x, y, has), `${name} ${op} ${mapId} (${x}, ${y})`);
+    }
+  }
 });
