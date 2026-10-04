@@ -21,6 +21,8 @@ export const T = {
   ICE_WALL: 113, DRAGON_GATE: 114, CHASM: 115, RAIL_BRIDGE: 116, RAIL_STOP: 117, ASH_ROCK: 118,
   // 第4章（砂の国）
   DESERT: 119, DUNE: 120, SANDSTONE: 121, PALM: 122, CACTUS: 123, ADOBE: 124, SANDSTORM: 125, WELL_HOLE: 126,
+  // 第4章 Step 2（かれた地下水路）
+  CANAL_FLOOR: 127, CANAL_WALL: 128, CANAL_BED: 129, CANAL_WATER: 130, SLUICE: 131, SLUICE_OPEN: 132, GRATE: 133, DAM: 134,
 };
 
 export const TILE_INFO = {};
@@ -132,6 +134,15 @@ def(T.CACTUS, 'cactus', { solid: true, mapColor: '#5a9a4e' }); // サボテン
 def(T.ADOBE, 'adobe', { solid: true, mapColor: '#c89464' }); // 日干しれんがの かべ（砂の国の 家）
 def(T.SANDSTORM, 'sandstorm', { solid: true, anim: true, mapColor: '#a8784a' }); // 砂嵐の かべ（物語で 弱まる）
 def(T.WELL_HOLE, 'well_hole', { mapColor: '#6a6a7a' }); // 古い 井戸の 入り口（なわばしごで 下へ）
+// かれた地下水路（王国が 昔 つくった 石の 水路）
+def(T.CANAL_FLOOR, 'canal_floor', { mapColor: '#b7a07a' }); // 水路の わきの 石だたみの 通路
+def(T.CANAL_WALL, 'canal_wall', { solid: true, mapColor: '#6e5236' }); // 水路の 石の かべ（大きな 砂岩の ブロック）
+def(T.CANAL_BED, 'canal_bed', { mapColor: '#9a8158' }); // 水が かれた 水路の 底（ひびわれた どろ。歩ける）
+def(T.CANAL_WATER, 'canal_water', { solid: true, anim: true, mapColor: '#3d8db0' }); // 水路を 流れる 水
+def(T.SLUICE, 'sluice', { solid: true, mapColor: '#5e4a36' }); // しまった 水門（木と 鉄の とびら）
+def(T.SLUICE_OPEN, 'sluice_open', { solid: true, mapColor: '#8a7660' }); // 開いた 水門（とびらが 上がっている）
+def(T.GRATE, 'grate', { solid: true, mapColor: '#55555e' }); // 水路の 入り口の 鉄の こうし
+def(T.DAM, 'dam', { solid: true, mapColor: '#7e6044' }); // 魔物が つみ上げた がれきの せき
 
 export function isSolid(id) {
   return TILE_INFO[id]?.solid ?? true;
@@ -160,14 +171,15 @@ export const LEGEND = {
   '0': T.DESERT, 'J': T.ADOBE, 'q': T.SANDSTONE, '4': T.PALM, '5': T.CACTUS,
 };
 
-export function parseRows(rows) {
+// extra: その マップだけの 文字（LEGEND より 先に 見る。文字が 足りない 第4章からの ダンジョン）
+export function parseRows(rows, extra = null) {
   const h = rows.length;
   const w = Math.max(...rows.map((r) => r.length));
   const tiles = new Uint8Array(w * h);
   for (let y = 0; y < h; y++) {
     for (let x = 0; x < w; x++) {
       const ch = rows[y][x] ?? ' ';
-      tiles[y * w + x] = LEGEND[ch] ?? T.VOID;
+      tiles[y * w + x] = extra?.[ch] ?? LEGEND[ch] ?? T.VOID;
     }
   }
   return { w, h, tiles };

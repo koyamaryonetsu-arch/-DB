@@ -62,4 +62,36 @@ export const CH4_ABILITIES = {
     effect: { type: 'buff', stat: 'eva', add: 0.3, dur: 30 }, cast: '{a}の体が、月の光にすけていく…！', anim: 'buff',
     desc: '体がすけて、しばらく攻撃がすりぬけやすくなる。',
   },
+  // ── 反撃の構え（Step 2）: つぎの 自分の 番まで、物理で こうげきして きた 相手に やりかえす（battle.js の stance）──
+  m_claw_stance: {
+    name: '反撃の構え', kind: 'monster', target: 'self',
+    effect: { type: 'stance', stance: 'counter', mult: 1.4 }, cast: '{a}は、はさみを大きくひらいた！', anim: 'guard',
+    desc: 'はさみを大きくひらいて、反撃の構え。次の番まで、物理で攻撃してきた相手に反撃する。',
+  },
+  m_claw_guard: {
+    name: '反撃の構え', kind: 'monster', target: 'self',
+    effect: { type: 'stance', stance: 'counter', mult: 0.9 }, cast: '{a}は、はさみをかまえた！', anim: 'guard',
+    desc: 'はさみをかまえて、反撃の構え。次の番まで、物理で攻撃してきた相手に反撃する。',
+  },
+  m_poison_tail: {
+    name: '毒のしっぽ', kind: 'monster', mp: 3, target: 'enemies',
+    effect: { type: 'phys', mult: 0.7, status: { status: 'poison', chance: 0.5 } }, cast: '{a}は、毒のしっぽを大きくふり回した！', anim: 'hit_all',
+    desc: '毒のしっぽをふり回して、敵みんなを攻撃する。毒にすることがある。',
+  },
+  // ── かれた地下水路 ──
+  m_tongue_sip: {
+    name: '長い舌', kind: 'monster', mp: 2, target: 'enemy',
+    effect: { type: 'drainMp', amount: [10, 16] }, cast: '{a}は長い舌をのばして、{t}をぺろりとなめた！', anim: 'hit',
+    desc: '長い舌でなめて、MPを吸い取る。',
+  },
+  m_frog_jump: {
+    name: 'とびかかる', kind: 'monster', mp: 2, target: 'enemy',
+    effect: { type: 'phys', mult: 1.35, acc: 0.9 }, cast: '{a}は高くとび上がって、{t}にとびかかった！', anim: 'tackle',
+    desc: '高くとび上がって、体当たりする。',
+  },
+  m_dry_croak: {
+    name: 'かすれた鳴き声', kind: 'monster', mp: 3, target: 'enemies',
+    effect: { type: 'status', status: 'silence', chance: 0.25, turns: [2, 3] }, cast: '{a}は、かすれた声で「ゲロロ…」と鳴いた！', anim: 'debuff',
+    desc: 'かすれた鳴き声で、敵みんなの呪文をふうじることがある。',
+  },
 };
