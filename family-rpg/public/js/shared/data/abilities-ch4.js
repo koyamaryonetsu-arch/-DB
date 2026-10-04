@@ -65,12 +65,12 @@ export const CH4_ABILITIES = {
   // ── 反撃の構え（Step 2）: つぎの 自分の 番まで、物理で こうげきして きた 相手に やりかえす（battle.js の stance）──
   m_claw_stance: {
     name: '反撃の構え', kind: 'monster', target: 'self',
-    effect: { type: 'stance', stance: 'counter', mult: 1.4 }, cast: '{a}は、はさみを大きくひらいた！', anim: 'guard',
+    effect: { type: 'stance', stance: 'counter', mult: 2.6, ignoreDef: 0.35 }, cast: '{a}は、はさみを大きくひらいた！', anim: 'guard',
     desc: 'はさみを大きくひらいて、反撃の構え。次の番まで、物理で攻撃してきた相手に反撃する。',
   },
   m_claw_guard: {
     name: '反撃の構え', kind: 'monster', target: 'self',
-    effect: { type: 'stance', stance: 'counter', mult: 0.9 }, cast: '{a}は、はさみをかまえた！', anim: 'guard',
+    effect: { type: 'stance', stance: 'counter', mult: 1.1 }, cast: '{a}は、はさみをかまえた！', anim: 'guard',
     desc: 'はさみをかまえて、反撃の構え。次の番まで、物理で攻撃してきた相手に反撃する。',
   },
   m_poison_tail: {

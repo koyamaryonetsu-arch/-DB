@@ -1,6 +1,6 @@
 // 第4章「砂の海にしずむ星」の マップ
-// コガネ地方（フィールド）・北の古井戸。王都・ピラミッドなどは Step 3 から
-// 村の 形は south-rows.js（1文字 = 1マス）
+// コガネ地方（フィールド）・北の古井戸・かれた地下水路（Step 2）。王都・ピラミッドなどは Step 3 から
+// 村や ダンジョンの 形は south-rows.js（1文字 = 1マス）
 import { T, parseRows } from '../tiles.js';
 import { makeRng } from '../rng.js';
 import { npc } from './npc.js';
@@ -9,13 +9,22 @@ import {
   buildSouth, southZoneAt, southAreaName, southWeatherAt, southBgmAt, SOUTH_PLACES, SOUTH_POS, SOUTH_LANDING, LANDING_BEACH, OASIS2, OASIS_CAMP,
   STORM_Y, STORM_FLAG,
 } from './south.js';
-import { HAMIL_ROWS, WELL_ROWS } from './south-rows.js';
+import { HAMIL_ROWS, WELL_ROWS, CANAL1_ROWS, CANAL2_ROWS, CANAL3_ROWS } from './south-rows.js';
 
 const HAM = SOUTH_PLACES.hamil;
 const H = (x, y) => [HAM.x + x, HAM.y + y];
 
 // 第4章の マップの ID（セーブに のこるので かえない）
-export const CH4_MAPS = ['south', 'north_well'];
+export const CH4_MAPS = ['south', 'north_well', 'canal1', 'canal2', 'canal3'];
+
+// ───── かれた地下水路（Step 2）─────
+// 入り口（フィールド。村の 南東）: 鉄の こうしは 村長ナディムに たのまれると（c4_canal）開く
+export const CANAL_DOOR = { x: SOUTH_POS.canal.x, y: SOUTH_POS.canal.y - 1 };
+export const CANAL_FLAG = 'c4_canal';
+// 水門の レバー（フラグは しかけの もの。ものがたりの すすみぐあいでは ない）
+export const CANAL_LEVERS = { c1: 'c4_cn1', c2a: 'c4_cn2a', c2b: 'c4_cn2b' };
+// よろい大サソリを たおすと せきが くずれて、水路と 村の オアシスに 水が もどる
+export const SCORPION_FLAG = STORM_FLAG;
 
 // ルーラ・帰り道の羽で 行ける 第4章の 町と 村（村の 東の 門の 外に おりる）
 export const SOUTH_TOWNS = {
@@ -27,6 +36,7 @@ Object.assign(SEA_PLACES, SOUTH_TOWNS);
 export function ch4SearchMats(mapId) {
   if (mapId === 'south') return ['beast_fang', 'magic_powder', 'wind_feather'];
   if (mapId === 'north_well') return ['magic_powder', 'iron_shard'];
+  if (mapId.startsWith('canal')) return ['magic_powder', 'iron_shard', 'pretty_shell'];
   return null;
 }
 
@@ -82,6 +92,7 @@ const SOUTH_SIGNS = [
   { x: HAM.x + HAM.w + 2, y: HAM.y + 7, text: 'オアシスの村ハミル' },
   { x: SOUTH_POS.well.x + 3, y: SOUTH_POS.well.y + 3, text: '北の古井戸\n（水がかれて、今はだれも使っていない）' },
   { x: 34, y: 56, text: 'この先、砂嵐のかべ。\n風がおさまるまで、通りぬけることはできない。' },
+  { x: CANAL_DOOR.x - 3, y: CANAL_DOOR.y + 1, text: '王国の地下水路\n（王都サファラから、ハミルの村へ水を運ぶ水路）' },
 ];
 
 // お店の かんばん（入り口の よこの かべ）
@@ -102,6 +113,7 @@ const SOUTH_LABELS = [
   { name: LANDING_BEACH.name, x: LANDING_BEACH.x, y: LANDING_BEACH.y, w: LANDING_BEACH.w, h: LANDING_BEACH.h },
   { name: '北の古井戸', x: SOUTH_POS.well.x - 6, y: SOUTH_POS.well.y - 4, w: 12, h: 6 },
   { name: '小さなオアシス', x: OASIS_CAMP.x, y: OASIS_CAMP.y, w: OASIS_CAMP.w, h: OASIS_CAMP.h },
+  { name: 'かれた地下水路', x: CANAL_DOOR.x - 5, y: CANAL_DOOR.y - 4, w: 11, h: 5 },
   { name: 'コガネ砂丘', x: 60, y: 30, w: 70, h: 24 },
   { name: '砂嵐のかべ', x: 8, y: STORM_Y[0] - 1, w: 128, h: STORM_Y[1] - STORM_Y[0] + 3 },
 ];
@@ -123,8 +135,34 @@ function southSparkles(m) {
   return list;
 }
 
+// 地下水路の 入り口（砂岩の 岩の 中に 石の 門。こうしの 下が 階段）と、村の オアシスの 水
+function canalEntrance(sb) {
+  const set = (x, y, v) => { sb.tiles[y * sb.w + x] = v; };
+  const { x: dx, y: dy } = CANAL_DOOR;
+  for (let y = dy - 3; y <= dy; y++) {
+    for (let x = dx - 2; x <= dx + 2; x++) set(x, y, Math.abs(x - dx) === 2 || y === dy - 3 ? T.SANDSTONE : T.CANAL_WALL);
+  }
+  set(dx, dy, T.GRATE);
+  sb.gates.push({ x: dx, y: dy, closed: T.GRATE, open: T.STAIRS_DOWN, flag: CANAL_FLAG });
+  // 門の 前は 歩ける 砂（岩・サボテンを どける）
+  for (let y = dy + 1; y <= dy + 2; y++) for (let x = dx - 1; x <= dx + 1; x++) set(x, y, T.DESERT);
+}
+// よろい大サソリを たおすと、オアシスの かわいた どろ（水ぎわ）に 水が もどる
+function oasisRefill(sb) {
+  const out = [];
+  HAMIL_ROWS.forEach((row, y) => [...row].forEach((ch, x) => {
+    if (ch !== '=' || x < 11 || x > 18 || y < 10 || y > 16) return;
+    const [gx, gy] = H(x, y);
+    sb.gates.push({ x: gx, y: gy, closed: T.DIRT, open: T.WATER, flag: SCORPION_FLAG });
+    out.push([gx, gy]);
+  }));
+  return out;
+}
+
 function buildField() {
   const sb = buildSouth();
+  canalEntrance(sb);
+  const refill = oasisRefill(sb);
   for (const s of SOUTH_SIGNS) sb.tiles[s.y * sb.w + s.x] = T.SIGN;
   // 砂嵐のかべを しらべると だいほん（道の ところ）
   const actions = [];
@@ -138,6 +176,10 @@ function buildField() {
     const [ax, ay] = H(x, y);
     actions.push({ x: ax, y: ay, script: 'c4_oasis_water' });
   }
+  // 水が もどった あとの 水ぎわ（もとの かわいた どろ）
+  for (const [ax, ay] of refill) actions.push({ x: ax, y: ay, script: 'c4_oasis_water', show: { all: [SCORPION_FLAG] } });
+  // 地下水路の 入り口の 鉄の こうし（開く まで）
+  actions.push({ x: CANAL_DOOR.x, y: CANAL_DOOR.y, script: 'c4_canal_grate', show: { not: [CANAL_FLAG] } });
   const wl = SOUTH_POS.well;
   const m = {
     id: 'south', name: 'コガネ地方', kind: 'field', bgm: 'desert', dark: false,
@@ -145,6 +187,7 @@ function buildField() {
     npcs: SOUTH_NPCS, chests: SOUTH_CHESTS, signs: SOUTH_SIGNS, boards: SOUTH_BOARDS, actions,
     warps: [
       { x: wl.x, y: wl.y, to: { map: 'north_well', x: 4.5, y: 2.6, dir: 'down' } },
+      { x: CANAL_DOOR.x, y: CANAL_DOOR.y, to: { map: 'canal1', x: 14.5, y: 20.4, dir: 'up' } },
     ],
     triggers: [
       // 竜を おりた ところ（空を とべる 場所の 中なら どこでも）
@@ -203,8 +246,100 @@ function northWell() {
     spawnCounts: { s_well: 6 },
   };
 }
+// ───────────── かれた地下水路（Step 2）─────────────
+// この マップだけの 文字（tiles.js の LEGEND より 先に 見る）
+const CANAL_LEGEND = {
+  '#': T.CANAL_WALL, '.': T.CANAL_FLOOR, '_': T.CANAL_BED, '~': T.CANAL_WATER, 'H': T.SLUICE, 'h': T.SLUICE_OPEN, 'D': T.DAM,
+};
+// マスの まとまりを しかけに する（closed → open。invert: フラグが たつと しまる）。もとの マスは はじめの すがた
+function gateRect(m, x0, y0, x1, y1, closed, open, flag, invert = false) {
+  for (let y = y0; y <= y1; y++) {
+    for (let x = x0; x <= x1; x++) {
+      m.tiles[y * m.w + x] = invert ? open : closed;
+      m.gates.push(invert ? { x, y, closed, open, flag, invert: true } : { x, y, closed, open, flag });
+    }
+  }
+}
+// たまり水: フラグで 水 ⇄ かわいた 底（invert: はじめは かわいていて、フラグで 水が 入る）
+const pool = (m, x0, y0, x1, y1, flag, invert = false) => gateRect(m, x0, y0, x1, y1, T.CANAL_WATER, T.CANAL_BED, flag, invert);
+function lever(m, x, y, flag, script) {
+  m.gates.push({ x, y, closed: T.LEVER, open: T.LEVER_ON, flag });
+  m.actions.push({ x, y, script });
+}
+const zoneRect = (rects, fallback) => (x, y) => {
+  for (const [x0, y0, x1, y1, z] of rects) if (x >= x0 && y >= y0 && x <= x1 && y <= y1) return z;
+  return fallback;
+};
+function canalMap(id, name, rows, opts) {
+  const t = parseRows(rows, CANAL_LEGEND);
+  return {
+    id, name, kind: 'dungeon', bgm: 'canal', dark: true, theme: 'canal',
+    w: t.w, h: t.h, tiles: t.tiles, gates: [],
+    npcs: [], chests: [], signs: [], warps: [], triggers: [], actions: [], sparkles: [], roofs: [],
+    areaName: () => name,
+    spawnCounts: {},
+    ...opts,
+  };
+}
+
+function canal() {
+  const c1 = canalMap('canal1', 'かれた地下水路　1階', CANAL1_ROWS, {
+    chests: [
+      { id: 'cn1_ne', x: 26, y: 2, item: 'seed_def' },
+      { id: 'cn1_hall', x: 27, y: 18, item: 'magic_water' },
+      { id: 'cn1_nw', x: 8, y: 2, gold: 900 },
+    ],
+    warps: [
+      { x: 14, y: 21, to: { map: 'south', x: CANAL_DOOR.x + 0.5, y: CANAL_DOOR.y + 1.6, dir: 'down' } },
+      { x: 5, y: 3, to: { map: 'canal2', x: 21.5, y: 35.4, dir: 'up' } },
+    ],
+    triggers: [{ id: 'c4_canal_enter', x: 11, y: 16, w: 7, h: 4, script: 'c4_canal_enter', show: { not: ['c4_canal_seen'] } }],
+    zoneAt: zoneRect([[11, 17, 17, 21, 'safe:entry'], [2, 1, 9, 5, 'safe:stairs']], 's_canal'),
+    spawnCounts: { s_canal: 6 },
+  });
+  // 北の 2つの 通路の たまり水: レバーで 左が かわき、右に 水が 入る
+  pool(c1, 4, 6, 6, 8, CANAL_LEVERS.c1);
+  pool(c1, 21, 6, 23, 8, CANAL_LEVERS.c1, true);
+  lever(c1, 14, 11, CANAL_LEVERS.c1, 'c4_cn1_lever');
+
+  const c2 = canalMap('canal2', 'かれた地下水路　2階', CANAL2_ROWS, {
+    chests: [
+      { id: 'cn2_ne', x: 36, y: 8, item: 'sand_cloak' },
+      { id: 'cn2_w', x: 5, y: 22, item: 'seed_str' },
+      { id: 'cn2_e', x: 26, y: 23, item: 'moonherb', n: 3 },
+      { id: 'cn2_nw', x: 17, y: 9, item: 'revive_flower' },
+      { id: 'cn2_hall', x: 13, y: 33, gold: 1200 },
+    ],
+    warps: [
+      { x: 21, y: 36, to: { map: 'canal1', x: 5.5, y: 4.5, dir: 'down' } },
+      { x: 12, y: 3, to: { map: 'canal3', x: 11.5, y: 18.4, dir: 'up' } },
+    ],
+    triggers: [{ id: 'c4_canal2_enter', x: 18, y: 31, w: 9, h: 5, script: 'c4_canal2_enter', show: { not: ['c4_canal2_seen'] } }],
+    zoneAt: zoneRect([[18, 32, 25, 36, 'safe:stairs'], [6, 2, 18, 5, 'safe:stairs']], 's_canal2'),
+    spawnCounts: { s_canal2: 9 },
+  });
+  // 下の 水路: 左（P1）は レバー1で かわき、右（Q1）は レバー1で 水が 入る。上の 水路の P2・Q2 は レバー2
+  pool(c2, 9, 25, 11, 27, CANAL_LEVERS.c2a);
+  pool(c2, 32, 25, 34, 27, CANAL_LEVERS.c2a, true);
+  pool(c2, 9, 12, 11, 14, CANAL_LEVERS.c2b);
+  pool(c2, 32, 12, 34, 14, CANAL_LEVERS.c2b, true);
+  lever(c2, 26, 31, CANAL_LEVERS.c2a, 'c4_cn2a_lever');
+  lever(c2, 36, 22, CANAL_LEVERS.c2b, 'c4_cn2b_lever');
+
+  const c3 = canalMap('canal3', 'かれた地下水路　おく', CANAL3_ROWS, {
+    npcs: [npc('armor_scorpion', 'よろい大サソリ', [12, 6], 'mon:armor_scorpion', 'c4_scorpion_event', { big: true, show: { not: [SCORPION_FLAG] } })],
+    warps: [{ x: 11, y: 19, to: { map: 'canal2', x: 12.5, y: 4.5, dir: 'down' } }],
+    triggers: [{ id: 'c4_scorpion_room', x: 3, y: 9, w: 18, h: 4, script: 'c4_scorpion_event', show: { not: [SCORPION_FLAG] } }],
+    zoneAt: () => 'safe:boss',
+  });
+  // サソリを たおすと せきが くずれて、水路に 水が もどる
+  gateRect(c3, 4, 3, 19, 3, T.DAM, T.CANAL_WATER, SCORPION_FLAG);
+  gateRect(c3, 4, 4, 19, 12, T.CANAL_BED, T.CANAL_WATER, SCORPION_FLAG);
+  return { canal1: c1, canal2: c2, canal3: c3 };
+}
+
 export function buildCh4Maps() {
-  return { south: buildField(), north_well: northWell() };
+  return { south: buildField(), north_well: northWell(), ...canal() };
 }
 
 export { SOUTH_POS };

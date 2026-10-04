@@ -84,11 +84,18 @@ test('コガネ地方: 北の海辺から 村・井戸・小さな オアシス�
 });
 
 test('第4章: 人・宝箱・かんばん・しかけ・ワープが ただしく、ぜんぶ 行ける', () => {
-  const ALL = ['c4_start', 'c4_arrive', 'c4_hamil', 'c4_nadim', 'c4_well'];
+  const ALL = ['c4_start', 'c4_arrive', 'c4_hamil', 'c4_nadim', 'c4_well', 'c4_ami', 'c4_canal'];
   for (const id of CH4_MAPS) {
     const m = MAPS[id];
-    const starts = id === 'south' ? [ARRIVE] : [[4, 2]];
-    const r = reach(m, starts[0], ALL);
+    // ワープで 入って くる ところ（フィールドは 竜が おりる ところ）
+    const starts = id === 'south' ? [ARRIVE] : Object.values(MAPS).flatMap((o) => o.warps.filter((w) => w.to.map === id).map((w) => [Math.floor(w.to.x), Math.floor(w.to.y)]));
+    assert.ok(starts.length, `${id}: 入り口`);
+    // 水門の レバー（地下水路）は どちらでも 行けるように 両方 しらべる（つながりは test/ch4-canal.test.js）
+    const levers = [...new Set(m.gates.filter((g) => g.closed === T.LEVER).map((g) => g.flag))];
+    const sets = [ALL];
+    for (const lv of levers) for (const st of sets.slice()) sets.push([...st, lv]);
+    const rs = sets.flatMap((fl) => starts.map((s0) => reach(m, s0, fl)));
+    const r = (x, y) => rs.some((f) => f(x, y));
     for (const c of m.chests) {
       assert.ok(!isBlocked(m, c.x, c.y, () => true), `${id} chest ${c.id} の 下は ゆか`);
       assert.ok(near(r, c.x, c.y), `${id} chest ${c.id} に 行けない`);
@@ -96,8 +103,10 @@ test('第4章: 人・宝箱・かんばん・しかけ・ワープが ただし�
     }
     for (const n of m.npcs) {
       assert.ok(SCRIPTS[n.script], `${id} npc ${n.id} script ${n.script}`);
-      assert.ok(near(r, Math.floor(n.x), Math.floor(n.y), 2), `${id} npc ${n.id} に 行けない`);
-      assert.ok(!isBlocked(m, Math.floor(n.x), Math.floor(n.y), () => true), `${id} npc ${n.id} が かべの 中`);
+      assert.ok(near(r, Math.floor(n.x), Math.floor(n.y), n.big ? 3 : 2), `${id} npc ${n.id} に 行けない`);
+      // その 人が 見えている 時の マスで しらべる（サソリが いる 水路の 底は、たおすと 水に なる）
+      const seen = (f) => !(n.show?.not || []).includes(f);
+      assert.ok(!isBlocked(m, Math.floor(n.x), Math.floor(n.y), seen), `${id} npc ${n.id} が かべの 中`);
     }
     for (const s of m.signs) assert.ok(near(r, s.x, s.y), `${id} sign ${s.x},${s.y}`);
     for (const a of m.actions || []) {

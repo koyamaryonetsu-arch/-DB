@@ -221,6 +221,8 @@ export function southAreaName(x, y) {
   if (inRect(x, y, LANDING_BEACH) || y <= 12) return LANDING_BEACH.name;
   if (Math.hypot(x - SOUTH_POS.well.x, y - SOUTH_POS.well.y) < 7) return '北の古井戸';
   if (inRect(x, y, OASIS_CAMP, 3)) return '小さなオアシス';
+  if (Math.abs(x - SOUTH_POS.canal.x) <= 4 && Math.abs(y - SOUTH_POS.canal.y) <= 4) return 'かれた地下水路';
+  if (y > STORM_Y[1]) return 'サファラの砂ばく';
   if (y >= 54) return '砂嵐のかべ';
   return 'コガネ砂丘';
 }
@@ -228,7 +230,8 @@ export function southAreaName(x, y) {
 // 天気（砂ぼこり。砂嵐のかべの 近くは 砂嵐）
 export function southWeatherAt(x, y) {
   if (inRect(x, y, HAM, 1)) return null;
-  if (y >= 52) return 'sandstorm';
+  // 砂嵐の かべの 近く（南がわも すこし）は 砂嵐。はなれると 砂ぼこり
+  if (y >= 52 && y <= STORM_Y[1] + 7) return 'sandstorm';
   if (y <= 14 || inRect(x, y, OASIS_CAMP, 2)) return null;
   return 'sand';
 }

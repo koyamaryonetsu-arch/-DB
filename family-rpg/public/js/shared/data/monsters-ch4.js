@@ -61,7 +61,7 @@ export const MONSTERS_CH4 = {
   },
   // ── ボス（Step 2・かれた地下水路の おく）──
   armor_scorpion: {
-    name: 'よろい大サソリ', lv: 31, hp: 6000, mp: 60, str: 108, def: 94, agi: 30, mag: 50, exp: 7600, gold: 3200,
+    name: 'よろい大サソリ', lv: 31, hp: 5600, mp: 60, str: 108, def: 86, agi: 30, mag: 50, exp: 7600, gold: 3200,
     race: 'beast', size: 'xl', boss: true, turns: 2, speed: 0.74, hit: 'slash', drops: { boss: ['scorpion_brooch'] },
     resist: { ...BOSS_STATUS, poison: 0, fire: 0.75, ice: 1.3, bolt: 1.3 },
     actions: [

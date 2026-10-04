@@ -153,8 +153,9 @@ test('第4章 Step 1 を はじめから アミを 助けるまで とおして 
   assert.ok(condOk(MAPS.south.npcById.ami_mom.show, hasNow));
   assert.ok(!condOk(MAPS.south.npcById.ami_mom_gate.show, hasNow));
   for (const id of ['ami_well', 'well_scorp1', 'well_scorp2', 'well_slime']) assert.ok(!condOk(MAPS.north_well.npcById[id].show, hasNow), id);
-  // 物語の すすみぐあいの フラグが ぜんぶ たっている
-  for (const f of CH4_STEPS) assert.ok(c.flags[f], f);
+  // Step 1 の 物語の すすみぐあいの フラグが ぜんぶ たっている（Step 2 は test/ch4-canal.test.js）
+  for (const f of CH4_STEPS.slice(0, CH4_STEPS.indexOf('c4_ami') + 1)) assert.ok(c.flags[f], f);
+  assert.ok(!c.flags.c4_canal, 'つぎは 村長の たのみ');
 });
 
 test('第4章: 目標・仲間会話・地図の しるしが どの 目標にも ある', () => {

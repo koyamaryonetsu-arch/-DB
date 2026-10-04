@@ -223,7 +223,12 @@ function strongestFoe(foes) {
   return foes.slice().sort((x, y) => (y.boss - x.boss) || (y.hp - x.hp))[0];
 }
 
+// 反撃の構えを している 敵（物理で こうげきすると 反撃される。battle.js の stance）
+// b.ignoreStance: 構えを 気にしない（tools/sim.js で「気づかない 人」の つよさを はかる）
+const countering = (t, b) => !b?.ignoreStance && t?.stance?.kind === 'counter';
+
 // こうげきの えらびかた: きたいダメージ ÷ MPの おもさ
+// 反撃の構えの 敵に 物理で あたる こうげきは えらばない（呪文・ほかの 敵。なければ 防御して まつ）
 function chooseAttack(b, c, tac, foes) {
   const opts = [];
   const value = (t, dmg) => {
@@ -237,7 +242,7 @@ function chooseAttack(b, c, tac, foes) {
       const r = b.calcPhys(c, p.t, { mult: p.mult }, 1, 'phys', true);
       return s + value(p.t, r.dmg * r.hit);
     }, 0);
-    opts.push({ cmd: { type: 'attack', target: t.id }, score, mp: 0 });
+    opts.push({ cmd: { type: 'attack', target: t.id }, score, mp: 0, risky: plan.some((p) => countering(p.t, b)) });
   }
   for (const id of c.abilities) {
     const a = ABILITIES[id];
@@ -254,6 +259,7 @@ function chooseAttack(b, c, tac, foes) {
       }
       return b.calcMagic(c, t, eff, pow, true).dmg;
     };
+    const phys = eff.type === 'phys' || eff.type === 'drainHp';
     if (a.target === 'enemies') {
       let total = 0;
       if (eff.random) {
@@ -263,15 +269,15 @@ function chooseAttack(b, c, tac, foes) {
       } else {
         for (const t of foes) total += value(t, est(t));
       }
-      opts.push({ cmd: { type: 'ability', id, target: foes[0].id }, score: total, mp });
+      opts.push({ cmd: { type: 'ability', id, target: foes[0].id }, score: total, mp, risky: phys && foes.some((t) => countering(t, b)) });
     } else if (a.target === 'group') {
       for (const t of foes) {
         const grp = foes.filter((x) => x.species === t.species);
         const total = grp.reduce((s, g) => s + value(g, est(g)), 0);
-        opts.push({ cmd: { type: 'ability', id, target: t.id }, score: total, mp });
+        opts.push({ cmd: { type: 'ability', id, target: t.id }, score: total, mp, risky: phys && grp.some((g) => countering(g, b)) });
       }
     } else if (a.target === 'enemy') {
-      for (const t of foes) opts.push({ cmd: { type: 'ability', id, target: t.id }, score: value(t, est(t)), mp });
+      for (const t of foes) opts.push({ cmd: { type: 'ability', id, target: t.id }, score: value(t, est(t)), mp, risky: phys && countering(t, b) });
     }
   }
   // 魔法剣
@@ -285,7 +291,7 @@ function chooseAttack(b, c, tac, foes) {
         for (const t of foes) {
           const r = b.calcPhys(c, t, { ...skA.effect, element: spA.effect.element }, skPow, spA.effect.element, true);
           const m = b.calcMagic(c, t, spA.effect, spPow, true);
-          opts.push({ cmd: { type: 'mahouken', spell: sp, skill: sk, target: t.id }, score: value(t, r.dmg * r.hit + m.dmg * 0.6), mp });
+          opts.push({ cmd: { type: 'mahouken', spell: sp, skill: sk, target: t.id }, score: value(t, r.dmg * r.hit + m.dmg * 0.6), mp, risky: countering(t, b) });
         }
       }
     }
@@ -294,8 +300,10 @@ function chooseAttack(b, c, tac, foes) {
     const mpRatio = c.maxMp ? c.mp / c.maxMp : 0;
     // MPが すくない ときは より せつやく
     const w = tac.mpWeight * (mpRatio < 0.3 ? 3 : 1);
-    o.final = o.score / (1 + o.mp * w * 10) * b.rng.float(0.9, 1.1);
+    o.final = o.score / (1 + o.mp * w * 10) * b.rng.float(0.9, 1.1) * (o.risky ? 0.05 : 1);
   }
   opts.sort((x, y) => y.final - x.final);
+  // 物理しか ない ときに 反撃の構えの 敵しか いない: 防御して 構えが とけるのを まつ
+  if (opts[0]?.risky) return { type: 'defend' };
   return opts[0]?.cmd || { type: 'attack', target: foes[0].id };
 }

@@ -44,6 +44,8 @@ export function runBattle(party, enemyList, opts = {}) {
     boss: !!opts.boss,
     canFlee: false,
   });
+  // 反撃の構えに 気づかない（なぐり続ける）人の つよさを はかる
+  if (opts.ignoreStance) b.ignoreStance = true;
   let real = 0;
   let acts = 0;
   while (!b.over && real < 30 * 60 * 1000) {
@@ -116,6 +118,9 @@ export const CH4_ZONES = [
 ];
 // 北の古井戸の おく（アミを かこむ 魔物。にげられない）
 export const CH4_FIXED = [['well_ambush', 28, 23], ['well_ambush', 29, 23], ['well_ambush', 30, 23], ['well_ambush', 31, 23]];
+// Step 2: かれた地下水路（出現表）と、おくの よろい大サソリ
+export const CH4_CANAL = [['s_canal', 30, 23], ['s_canal', 31, 23], ['s_canal2', 30, 23], ['s_canal2', 32, 23]];
+export const CH4_BOSSES = [['armor_scorpion', 29, 23], ['armor_scorpion', 30, 23], ['armor_scorpion', 31, 23], ['armor_scorpion', 32, 23], ['armor_scorpion', 34, 23]];
 
 // 第2章: node tools/sim.js [回数] ch2
 if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'ch4') {
@@ -131,6 +136,21 @@ if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'ch4') {
     for (let i = 0; i < N; i++) res.push(runBattle(PARTY(lv, 10, tier), group, { seed: i }));
     summarize(`${enc} Lv${lv}`, res);
   }
+  for (const [table, lv, tier] of CH4_CANAL) {
+    const res = [];
+    for (let i = 0; i < N; i++) res.push(runBattle(PARTY(lv, 10, tier), rollGroup(table, rng), { seed: i }));
+    summarize(`${table} Lv${lv}`, res);
+  }
+  // ボス: 反撃の構えに 気づいて 呪文・防御で まつ（ふつうの オート）と、気づかずに なぐり続ける ばあい
+  for (const ignore of [false, true]) {
+    for (const [enc, lv, tier] of CH4_BOSSES) {
+      const res = [];
+      const group = FIXED_ENCOUNTERS[enc].group.flatMap(([sp, n]) => Array(n).fill(sp));
+      for (let i = 0; i < Math.min(N, 30); i++) res.push(runBattle(PARTY(lv, 10, tier), group, { seed: i, boss: true, ignoreStance: ignore }));
+      summarize(`BOSS ${enc} Lv${lv}${ignore ? '（構えを無視）' : ''}`, res);
+    }
+  }
+  if (process.env.LOG) runBattle(PARTY(31, 10, 23), [process.env.LOG], { seed: 1, boss: true, log: true });
 } else if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'ch2') {
   const rng = makeRng(777);
   // 職業レベルは 上がりやすく した ので、第2章では 基本職を ほぼ マスター している めやす
