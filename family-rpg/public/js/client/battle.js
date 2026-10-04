@@ -4,9 +4,10 @@ import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.
 import { ITEMS } from '../shared/data/items.js';
 import { JOBS } from '../shared/data/jobs.js';
 import { MONSTERS } from '../shared/data/monsters.js';
-import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed } from '../shared/stats.js';
+import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed, battleAbilityOk } from '../shared/stats.js';
 import { affinityOf, attackReach } from '../shared/battle.js';
 import { DUAL_TECHS, dualOptions, dualKnown } from '../shared/data/dual.js';
+import { TACTICS } from '../shared/ai.js';
 import { faceURL } from './field.js';
 import { monsterCanvas } from './render/monsters.js';
 import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js';
@@ -227,7 +228,8 @@ export class BattleScene {
     const dpr = window.devicePixelRatio || 1;
     const kmax = Math.min(r.width / BW, r.height / BH);
     let k = Math.floor(kmax * dpr) / dpr;
-    if (k < 0.5) k = kmax;
+    // こまかい がめん（スマホ。dpr 2いじょう）で わりきると 1わり ちかく 小さく なる ときは、いっぱいに（ドットの ずれは 見えない）
+    if (k < 0.5 || (dpr >= 2 && k < kmax * 0.94)) k = kmax;
     this.canvas.style.width = `${Math.round(BW * k)}px`;
     this.canvas.style.height = `${Math.round(BH * k)}px`;
     this.cssK = k;
@@ -242,6 +244,8 @@ export class BattleScene {
     if (full || this.statusBoxes.size !== allies.length || allies.some((a) => !this.statusBoxes.has(a.id))) {
       this.statusEl.innerHTML = '';
       this.statusBoxes.clear();
+      // 人数（たてむきの スマホで 5人の ときは 3人＋2人の 2だんに。CSS）
+      this.statusEl.dataset.n = String(allies.length);
       for (const a of allies) {
         const box = el('div', { class: 'win b-mem' });
         box.addEventListener('click', () => this.onAllyClick(a.id));
@@ -275,6 +279,8 @@ export class BattleScene {
       s.box.classList.toggle('me', this.mine.includes(a.id));
       s.box.classList.toggle('ready', !!a.ready && this.mine.includes(a.id));
       s.box.classList.toggle('cur', this.cur === a.id);
+      // さわると さくせんを かえられる（じぶんと じぶんの なかま）
+      s.box.classList.toggle('tac', this.canTactics(a));
       s.name.className = `n ${multi && a.kind === 'player' ? 'player' : ''} ${hpCls}`;
       s.lv.textContent = `Lv${a.lv}`;
       s.hp.row.className = `grow hp ${hpCls}`;
@@ -352,6 +358,7 @@ export class BattleScene {
   }
 
   closeMenus() {
+    if (this.ended) this.closeTactics();
     this.menu?.blur();
     this.menu = null;
     this.targeting = null;
@@ -364,10 +371,11 @@ export class BattleScene {
     this.cur = a.id;
     this.renderStatus();
     this.game.audio.sfx('warn');
-    // 今の 職業で 使えない 掛け合わせ技は 出さない
+    // 転職した あと 今の 職業・ぶきで 使えない 技（ほかの 職業の 掛け合わせ技・剣や ムチが いる 技 など）と
+    // フィールドだけの 呪文（ルーラ）は 出さない（shared/stats.js の battleAbilityOk。サーバーも おなじ きまり）。
+    // MPが 足りない・呪文を ふうじられた ときは 出して えらべない だけ
     const pc = a.pc || { job: a.job, jobs: {} };
-    // フィールドだけの 呪文（ルーラ）は 出さない
-    const learned = (a.abilities || []).filter((id) => ABILITIES[id] && !ABILITIES[id].fieldOnly && !(ABILITIES[id].kind === 'combo' && !comboAllowed(pc, id)));
+    const learned = (a.abilities || []).filter((id) => battleAbilityOk(pc, id, a.weaponCat) && (ABILITIES[id].effect?.type !== 'mahouken' || this.mahoukenOpts(a).length));
     // 今の 職業の 技を さきに（あとは おぼえた じゅん）
     const nowJob = (id) => (ABILITIES[id].job === pc.job ? 0 : 1);
     learned.sort((x, y) => nowJob(x) - nowJob(y));
@@ -407,7 +415,8 @@ export class BattleScene {
     }, null, `${a.name}はどうする？`);
   }
 
-  showMenu(items, onSelect, onCancel, title, detailFn, start = -1) {
+  // keep: { off } … まえに えらんだ 行が リストの 上から 何ピクセルの ところに 見えていたか（その まま の 場所に 出す）
+  showMenu(items, onSelect, onCancel, title, detailFn, start = -1, keep = null) {
     this.closeMenus();
     this.cmdEl.innerHTML = '';
     if (title) this.cmdEl.append(el('div', { class: 'who', text: title }));
@@ -423,8 +432,30 @@ export class BattleScene {
     });
     this.cmdEl.append(m.root);
     this.menu = m;
+    if (start >= 0) this.restoreScroll(m, keep);
     m.focus();
+    // さくせんの まどが ひらいている 間は、キーは そちらへ（とじたら こちらに もどる）
+    if (this.tac) m.blur();
     if (start >= 0 && detailFn) detailFn(items[m.idx]);
+  }
+
+  // えらんでいる 行が リストの 上から どこに 見えているか（ピクセル）
+  selOffset(m = this.menu) {
+    const li = m?.root.children[m.idx];
+    return li ? li.getBoundingClientRect().top - m.root.getBoundingClientRect().top : null;
+  }
+
+  // まえに えらんだ 行を、その ときと おなじ 場所に（入りきらない ときは 見える ところまで）
+  restoreScroll(m, keep) {
+    const box = m.root;
+    const li = box.children[m.idx];
+    if (!li) return;
+    if (keep && Number.isFinite(keep.off)) {
+      const top = li.getBoundingClientRect().top - box.getBoundingClientRect().top + box.scrollTop;
+      box.scrollTop = Math.max(0, top - keep.off);
+    }
+    const r = li.getBoundingClientRect(), br = box.getBoundingClientRect();
+    if (r.top < br.top || r.bottom > br.bottom) m.scrollToSel();
   }
 
   // まえに えらんだ 技（キャラ・ページごと。つぎの 戦いでも おぼえておく）
@@ -432,11 +463,26 @@ export class BattleScene {
     try { return JSON.parse(localStorage.getItem('kizuna_bcur') || '{}')[`${a.charId || a.id}:${page}`] || null; } catch { return null; }
   }
 
+  // その ときの リストの 見え方（えらんだ 行が 上から 何ピクセルの ところ）。もどった ときに おなじ 場所に 出す
+  lastScroll(a, page) {
+    try {
+      const v = JSON.parse(localStorage.getItem('kizuna_bscroll') || '{}')[`${a.charId || a.id}:${page}`];
+      return v && Number.isFinite(v.off) ? v : null;
+    } catch { return null; }
+  }
+
   rememberPick(a, page, value) {
+    const off = this.selOffset();
     try {
       const m = JSON.parse(localStorage.getItem('kizuna_bcur') || '{}');
       m[`${a.charId || a.id}:${page}`] = value;
       localStorage.setItem('kizuna_bcur', JSON.stringify(m));
+      if (off !== null) {
+        const sc = JSON.parse(localStorage.getItem('kizuna_bscroll') || '{}');
+        // fav: お気に入りの まどの 行か（おなじ 技が「ぜんぶ」にも ある）
+        sc[`${a.charId || a.id}:${page}`] = { off: Math.round(off), fav: !!this.menu?.current?.fav };
+        localStorage.setItem('kizuna_bscroll', JSON.stringify(sc));
+      }
     } catch { /* */ }
   }
 
@@ -451,7 +497,8 @@ export class BattleScene {
     this.game.net.send({ t: 'menu', action: 'favorite', who, id, op: on ? 'add' : 'remove' });
   }
 
-  abilityMenu(ids, page = 'spell') {
+  // keep: お気に入りを かえた ときなど、いまの カーソルと 見え方の まま 出しなおす（{ value, off }）
+  abilityMenu(ids, page = 'spell', keep = null) {
     const a = this.myActor;
     const pc = a.pc || { job: a.job, jobs: this.game.me.jobs };
     const silenced = (a.status || []).includes('silence');
@@ -461,9 +508,7 @@ export class BattleScene {
       const cost = isMk ? 0 : mpCost(pc, id);
       const pen = penaltyFor(pc, id).penalized;
       const noMp = !isMk && cost > a.mp;
-      const noWeapon = !weaponOk(ab, a.weaponCat);
       const sil = silenced && (ab.kind === 'spell' || ab.spellLike);
-      const locked = ab.kind === 'combo' && !comboAllowed(pc, id);
       const el = ab.effect?.element;
       // 相手の しるし（グループ・全体・全員）
       const tt = targetTag(ab);
@@ -473,7 +518,8 @@ export class BattleScene {
         rightCls: pen ? 'pen' : '',
         value: id,
         cls: `k-${abilityRole(ab)}${fav ? ' fav' : ''}`,
-        disabled: noMp || noWeapon || sil || locked,
+        fav: !!fav,
+        disabled: noMp || sil,
       };
     };
     // お気に入りの まど（ならびは メニューの「技」で かえられる）＋ ぜんぶ
@@ -484,9 +530,11 @@ export class BattleScene {
       items.push({ header: true, label: page === 'spell' ? '呪文（ぜんぶ）' : '特技（ぜんぶ）', cls: 'all-h' });
     }
     items.push(...ids.map((id) => row(id, false)));
-    // まえに えらんだ 技から はじめる
-    const last = this.lastPick(a, page);
-    const start = last ? items.findIndex((it) => it.value === last) : -1;
+    // まえに えらんだ 技から はじめる（リストの 見え方も その ときの まま）
+    const last = keep ? keep.value : this.lastPick(a, page);
+    const view = keep || this.lastScroll(a, page);
+    const find = (fav) => items.findIndex((it) => !it.header && it.value === last && (fav === undefined || !!it.fav === !!fav));
+    const start = !last ? -1 : find(view?.fav) >= 0 ? find(view?.fav) : find();
     const detail = (it) => {
       if (!it || it.header) return;
       this.info(abilityDetail(it.value, pc, { brief: true }));
@@ -498,8 +546,9 @@ export class BattleScene {
         title: on ? 'お気に入りからはずす' : 'お気に入りに入れる',
         onclick: (e) => {
           e.stopPropagation();
+          const off = this.selOffset();
           this.toggleFav(a, it.value);
-          this.abilityMenu(ids, page);
+          this.abilityMenu(ids, page, { value: it.value, off, fav: !!this.menu?.current?.fav });
         },
       }));
     };
@@ -512,12 +561,17 @@ export class BattleScene {
       if (t === 'enemy' || t === 'group') return this.pickFoe(t, (tid) => this.send({ type: 'ability', id: it.value, target: tid }), ab.name, ab.effect?.element, back);
       if (t === 'ally' || t === 'deadAlly') return this.pickAlly((tid) => this.send({ type: 'ability', id: it.value, target: tid }), t === 'deadAlly', ab.name, back);
       return this.send({ type: 'ability', id: it.value });
-    }, () => this.openCommand(), null, detail, start);
+    }, () => this.openCommand(), null, detail, start, view);
+  }
+
+  // 魔法剣の くみあわせ（ないときは コマンドにも 出さない）
+  mahoukenOpts(a) {
+    return mahoukenOptions({ ...(a.pc || this.game.me), job: a.job }, a.abilities || []);
   }
 
   mahoukenMenu() {
     const a = this.myActor;
-    const opts = mahoukenOptions({ ...(a.pc || this.game.me), job: a.job }, a.abilities);
+    const opts = this.mahoukenOpts(a);
     const items = opts.map((o) => ({ label: o.name, right: `${o.mp}`, value: o, disabled: o.mp > a.mp || !weaponOk({ weapon: 'blade' }, a.weaponCat) }));
     if (!items.length) return toast('魔法剣にできる技がない');
     this.showMenu(items, (it) => {
@@ -545,7 +599,7 @@ export class BattleScene {
     }, () => this.openCommand(), '道具', (it) => {
       if (!it) return;
       this.info(ITEMS[it.value].desc);
-    }, last ? bagItems.findIndex((x) => x.value === last) : -1);
+    }, last ? bagItems.findIndex((x) => x.value === last) : -1, a && this.lastScroll(a, 'item'));
   }
 
   // その 敵に その 属性が どれくらい 効くか（ためした ことが なければ null）
@@ -634,7 +688,8 @@ export class BattleScene {
   }
 
   onAllyClick(id) {
-    if (!this.targeting || this.targeting.side !== 'ally') return;
+    // ねらう 仲間を えらんでいる とき いがいは、さくせんを かえる まど
+    if (!this.targeting || this.targeting.side !== 'ally') return this.tacticsMenu(id);
     const a = this.c.get(id);
     if (!a || (this.targeting.dead ? a.alive : !a.alive)) return;
     this.game.audio.sfx('confirm');
@@ -766,6 +821,9 @@ export class BattleScene {
           this.game.audio.sfx('bond');
           break;
         }
+        case 'tactics':
+          this.onTactics(ev);
+          break;
         case 'end':
           this.endPending = ev.outcome;
           break;
@@ -966,6 +1024,76 @@ export class BattleScene {
     else if (!this.cur && this.menu && !this.targeting) this.renderCmdIdle();
     this.renderStatus();
     this.updateAutoBtn();
+  }
+
+  // ───────────── さくせん（つよさの まどを タップ） ─────────────
+  // かえられるのは じぶん（オートの ときの さくせん）と じぶんの なかま（サーバーも たしかめる。world/tactics.js）
+  canTactics(a) {
+    const me = this.game.me?.id;
+    return !!a && a.side === 'ally' && !a.fled && !!me && a.tacBy === me && !this.ended;
+  }
+
+  tacticsMenu(id) {
+    const a = this.c.get(id);
+    if (!this.canTactics(a) || this.destroyed) return;
+    this.closeTactics();
+    const self = a.kind === 'player';
+    const now = a.tactics || 'balanced';
+    // じぶんは「めいれいさせろ」なし（いつも じぶんで えらぶ）
+    const items = Object.entries(TACTICS).filter(([k]) => !self || k !== 'manual')
+      .map(([k, x]) => ({ label: x.name, value: k, right: k === now ? '今' : '', cls: k === now ? 'tac-now' : '' }));
+    const m = new ListMenu(this.game.input, {
+      items,
+      sound: (x) => this.game.audio.sfx(x),
+      start: Math.max(0, items.findIndex((it) => it.value === now)),
+      back: '閉じる',
+      onSelect: (it) => {
+        this.closeTactics();
+        if (it.value !== now) this.game.net.send({ t: 'battle', actor: id, tactics: it.value });
+      },
+      onCancel: () => this.closeTactics(),
+    });
+    const box = el('div', { class: 'win b-tactics' },
+      el('div', { class: 'bt-t', text: self ? `${a.name}の作戦（オートのとき）` : `${a.name}の作戦` }), m.root);
+    box.addEventListener('click', (e) => e.stopPropagation());
+    // 戦いの がめん ぜんたいの まんなか（えの ところが せまい スマホでも ぜんぶ 見える）
+    this.root.append(box);
+    this.menu?.blur();
+    m.focus();
+    this.tac = { id, box, menu: m };
+    this.game.audio.sfx('cursor');
+  }
+
+  closeTactics() {
+    const t = this.tac;
+    if (!t) return;
+    this.tac = null;
+    t.menu.blur();
+    t.box.remove();
+    if (!this.invite) this.menu?.focus();
+  }
+
+  // さくせんが かわった（サーバーから）。めいれいさせろ に なった なかまは じぶんが うごかす
+  onTactics(ev) {
+    const c = this.c.get(ev.id);
+    if (!c) return;
+    c.tactics = ev.tactics;
+    c.controller = ev.controller;
+    c.auto = ev.auto;
+    const mine = !!ev.controller && ev.controller === this.game.sid;
+    if (mine && !this.mine.includes(ev.id)) {
+      this.mine.push(ev.id);
+      this.mine.sort((x, y) => (this.c.get(x)?.kind === 'player' ? 0 : 1) - (this.c.get(y)?.kind === 'player' ? 0 : 1));
+      if (c.ready && c.alive && !c.auto && !this.readyQ.includes(ev.id)) {
+        this.readyQ.push(ev.id);
+        if (!this.cur) this.nextCommand();
+      }
+    } else if (!mine && this.mine.includes(ev.id)) {
+      this.mine = this.mine.filter((x) => x !== ev.id);
+      this.dropReady(ev.id);
+    }
+    if (this.tac?.id === ev.id) this.closeTactics();
+    this.renderStatus();
   }
 
   // ───────────── 合体技 ─────────────
@@ -1563,6 +1691,7 @@ export class BattleScene {
 
   destroy() {
     this.destroyed = true;
+    this.closeTactics();
     this.closeResult?.();
     this.closeMenus();
     removeEventListener('resize', this.onResize);

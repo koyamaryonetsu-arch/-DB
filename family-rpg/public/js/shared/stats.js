@@ -256,6 +256,16 @@ export function weaponOk(ability, weaponCat) {
   return ability.weapon === weaponCat;
 }
 
+// たたかいで 今の 職業・ぶきの まま つかえる 技か（MP・ふういん など その ときの ぐあいは みない）
+//   フィールドだけの 呪文・きずな技・かくれた 技・今の 職業で だせない 掛け合わせ技・ぶきが あわない 技は つかえない。
+//   たたかいの コマンドには つかえる 技だけ 出す（client/battle.js）。サーバーの たしかめ（battle.js の validate）も おなじ
+export function battleAbilityOk(char, id, weaponCat) {
+  const a = ABILITIES[id];
+  if (!a || a.fieldOnly || a.hidden || a.kind === 'bond') return false;
+  if (a.kind === 'combo' && !comboAllowed(char || {}, id)) return false;
+  return weaponOk(a, weaponCat);
+}
+
 // 転職ペナルティ
 // いまの職業 以外で おぼえた 技を つかうと MPが ふえたり いりょくが さがったりする
 export function penaltyFor(char, abilityId) {

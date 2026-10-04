@@ -15,6 +15,7 @@ import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js';
 import { treasureAfterBattle } from './treasure.js';
 import { wipeGoldLoss, bankGold } from './bank.js';
 import { wagonShare, wagonBattleSwap } from './wagon.js';
+import { battleTactics } from './tactics.js';
 
 let battleSeq = 1;
 
@@ -107,7 +108,7 @@ function makeBattle(world, sessions, party, enemies, opts) {
       ally: {
         char: sup.char, kind: sup.kind === 'monster' ? 'monster' : 'support',
         controller: owner ? owner.id : null, auto: owner ? !!owner.char.battleSettings?.auto : true,
-        tactics: tac === 'manual' ? 'balanced' : tac,
+        tactics: tac === 'manual' ? 'balanced' : tac, tacBy: sup.owner, manual: tac === 'manual',
       },
     };
   });
@@ -299,6 +300,8 @@ export function battleCommand(world, s, msg) {
   }
   // 馬車の 仲間と いれかえ（world/wagon.js）
   if (msg.cmd?.type === 'swap') return wagonBattleSwap(world, s, ctx, msg);
+  // なかまの さくせんを かえる（world/tactics.js）
+  if (msg.tactics !== undefined) return battleTactics(world, s, ctx, msg);
   const r = b.command(msg.actor, msg.cmd, s.id);
   if (!r.ok) world.send(s, { t: 'battleRej', reason: r.reason || 'できません' });
 }
