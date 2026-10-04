@@ -2,10 +2,10 @@
 // ・タイルの え を 1まいに ならべた「アトラス」
 // ・かべの よこ・うえ、やま、はし など 3D だけで つかう え
 // ・つぼ・さく・かんばん など たてて みせる「もの」の え（せなかは とうめい）
-import { T } from '../../shared/tiles.js?v=e73ea3162cdf';
-import { tileCanvas } from './tiles.js?v=e73ea3162cdf';
-import { Painter, prand, makeCanvas, ctxOf, shade } from './pixel.js?v=e73ea3162cdf';
-import { paintStorm } from './tiles-ch4.js?v=e73ea3162cdf';
+import { T } from '../../shared/tiles.js?v=d725a8c0cda9';
+import { tileCanvas } from './tiles.js?v=d725a8c0cda9';
+import { Painter, prand, makeCanvas, ctxOf, shade } from './pixel.js?v=d725a8c0cda9';
+import { paintStorm } from './tiles-ch4.js?v=d725a8c0cda9';
 
 const TAU = Math.PI * 2;
 

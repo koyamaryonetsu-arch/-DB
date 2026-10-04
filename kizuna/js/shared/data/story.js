@@ -12,21 +12,21 @@
 //   ['teleport', 'map', x, y, 'dir']  ['spawn', 'map', x, y]  ['chapter', 'だい1しょう', 'サブタイトル']
 //
 // x（じょうほう）: x.name x.flag('f') x.has('item') x.count('item') x.kills('monster') x.quest('key')
-import { POS } from '../maps/index.js?v=e73ea3162cdf';
-import { PLACES } from '../maps/overworld.js?v=e73ea3162cdf';
-import { ABILITIES } from './abilities.js?v=e73ea3162cdf';
-import { learnedAbilities, comboUnlocked, hiraAllowed } from '../stats.js?v=e73ea3162cdf';
-import { HIRAMEKI, hiraRatio } from './hirameki.js?v=e73ea3162cdf';
-import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js?v=e73ea3162cdf';
-import { CH3_STEPS, CH3_STORY_SCRIPTS, CH3_SCRIPTS, elderCh3 } from './story-ch3.js?v=e73ea3162cdf';
-import { CH4_STEPS, CH4_STORY_SCRIPTS, CH4_SCRIPTS, elderCh4 } from './story-ch4.js?v=e73ea3162cdf';
-import { TM_SCRIPTS, TM_STORY_SCRIPTS } from './story-tm.js?v=e73ea3162cdf';
-import { CASINO_SCRIPTS } from './story-casino.js?v=e73ea3162cdf';
-import { innSteps } from './inn.js?v=e73ea3162cdf';
-import { NIGHT_SCRIPTS } from './night.js?v=e73ea3162cdf';
-import { skyScripts } from './sky.js?v=e73ea3162cdf';
-import { FACILITY_SCRIPTS } from './facilities.js?v=e73ea3162cdf';
-import { wagonEventSteps } from './wagon.js?v=e73ea3162cdf';
+import { POS } from '../maps/index.js?v=d725a8c0cda9';
+import { PLACES } from '../maps/overworld.js?v=d725a8c0cda9';
+import { ABILITIES } from './abilities.js?v=d725a8c0cda9';
+import { learnedAbilities, comboUnlocked, hiraAllowed } from '../stats.js?v=d725a8c0cda9';
+import { HIRAMEKI, hiraRatio } from './hirameki.js?v=d725a8c0cda9';
+import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js?v=d725a8c0cda9';
+import { CH3_STEPS, CH3_STORY_SCRIPTS, CH3_SCRIPTS, elderCh3 } from './story-ch3.js?v=d725a8c0cda9';
+import { CH4_STEPS, CH4_STORY_SCRIPTS, CH4_SCRIPTS, elderCh4 } from './story-ch4.js?v=d725a8c0cda9';
+import { TM_SCRIPTS, TM_STORY_SCRIPTS } from './story-tm.js?v=d725a8c0cda9';
+import { CASINO_SCRIPTS } from './story-casino.js?v=d725a8c0cda9';
+import { innSteps } from './inn.js?v=d725a8c0cda9';
+import { NIGHT_SCRIPTS } from './night.js?v=d725a8c0cda9';
+import { skyScripts } from './sky.js?v=d725a8c0cda9';
+import { FACILITY_SCRIPTS } from './facilities.js?v=d725a8c0cda9';
+import { wagonEventSteps } from './wagon.js?v=d725a8c0cda9';
 
 const V = (x, y) => [PLACES.village.x + x + 0.5, PLACES.village.y + y + 0.5];
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
@@ -503,7 +503,7 @@ function festival(x) {
     ...S('ホシミばあちゃん', '…{name}、無事にもどってくるんじゃよ。'),
     ['chapter', '第1章', '始まりの星'],
     ['flag', 'p_attack'],
-    ['spawn', 'overworld', ...POS.villageChurch],
+    ['spawn', 'overworld', POS.villageChurch[0] + 0.5, POS.villageChurch[1] + 0.5],
     ['objective', '北のルミナの町へ行き、町長に会おう'],
   ];
 }

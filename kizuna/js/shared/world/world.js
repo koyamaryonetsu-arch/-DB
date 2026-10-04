@@ -2,36 +2,36 @@
 //
 // クライアントとは メッセージ（JSON）で やりとりする。
 // つなぎかたは なんでも よい（WebSocket でも ブラウザ内の ちょくせつ呼び出しでも）。
-import { makeRng } from '../rng.js?v=e73ea3162cdf';
-import { MAPS, isBlocked, effectiveTile, condOk, searchLoot, sparkleLoot, tileAt, POS, SEA_PLACES } from '../maps/index.js?v=e73ea3162cdf';
-import { PLACES } from '../maps/overworld.js?v=e73ea3162cdf';
-import { T, TILE_INFO } from '../tiles.js?v=e73ea3162cdf';
-import { ITEMS } from '../data/items.js?v=e73ea3162cdf';
-import { JOBS } from '../data/jobs.js?v=e73ea3162cdf';
-import { newCharacter, computeStats, addItem, fullHeal, migrateJobs, fixBodyJob } from '../stats.js?v=e73ea3162cdf';
-import { mapState, spawnSymbols, moveSymbols, symbolSnapshot, symbolVisible } from './monsters.js?v=e73ea3162cdf';
-import { tickFieldChests, fieldChestSnap, fieldChestNear, openFieldChest } from './fieldchests.js?v=e73ea3162cdf';
-import { chestVanishes } from '../data/fieldchests.js?v=e73ea3162cdf';
-import { startFieldBattle, battleTick, abortBattle, battleCommand, battleLeave, joinBattle, mineOf, resultDone } from './battles.js?v=e73ea3162cdf';
-import { runScript, runSteps } from './scripts.js?v=e73ea3162cdf';
-import { serviceAction, menuAction } from './services.js?v=e73ea3162cdf';
-import { newParty, partyOf, partyState, syncParty, ensureCompanions, companionWait, PARTY_MAX, befriendLevel, rosterFull, nameOfKey, dropMissingFam } from './party.js?v=e73ea3162cdf';
-import { hasWagon, dropGoneFamily } from '../data/wagon.js?v=e73ea3162cdf';
-import { MONSTERS } from '../data/monsters.js?v=e73ea3162cdf';
-import { CH1_CLEAR_OBJECTIVE } from '../data/story.js?v=e73ea3162cdf';
-import { upgradeSave, repairChar } from './save.js?v=e73ea3162cdf';
-import { exportCode, parseCode, importChar } from './transfer.js?v=e73ea3162cdf';
-import { memorySyncStore, buildSyncOut, applySyncIn, encodeSync, decodeSync, syncSummary } from './sync.js?v=e73ea3162cdf';
-import { tryTreasureDig, treasureMenu, fixTreasurePos, normalizeTreasure, pruneTreasureStates } from './treasure.js?v=e73ea3162cdf';
-import { isNightFor } from './clock.js?v=e73ea3162cdf';
-import { onFly, setFlying, moveAllowed, ridingAlong, canFlyMap } from './travel.js?v=e73ea3162cdf';
-import { migrateSky } from '../data/sky.js?v=e73ea3162cdf';
-import { migrateCh4 } from '../data/story-ch4.js?v=e73ea3162cdf';
-import { repairObjective } from '../data/progress.js?v=e73ea3162cdf';
-import { wagonLook } from './wagon.js?v=e73ea3162cdf';
-import { medalSearchSteps, medalChestSteps } from './casino.js?v=e73ea3162cdf';
-import { stepHazard } from './hazards.js?v=e73ea3162cdf';
-import { noteDungeonEntry } from './escape.js?v=e73ea3162cdf';
+import { makeRng } from '../rng.js?v=d725a8c0cda9';
+import { MAPS, isBlocked, effectiveTile, condOk, searchLoot, sparkleLoot, tileAt, POS, SEA_PLACES, standSpot } from '../maps/index.js?v=d725a8c0cda9';
+import { PLACES } from '../maps/overworld.js?v=d725a8c0cda9';
+import { T, TILE_INFO } from '../tiles.js?v=d725a8c0cda9';
+import { ITEMS } from '../data/items.js?v=d725a8c0cda9';
+import { JOBS } from '../data/jobs.js?v=d725a8c0cda9';
+import { newCharacter, computeStats, addItem, fullHeal, migrateJobs, fixBodyJob } from '../stats.js?v=d725a8c0cda9';
+import { mapState, spawnSymbols, moveSymbols, symbolSnapshot, symbolVisible } from './monsters.js?v=d725a8c0cda9';
+import { tickFieldChests, fieldChestSnap, fieldChestNear, openFieldChest } from './fieldchests.js?v=d725a8c0cda9';
+import { chestVanishes } from '../data/fieldchests.js?v=d725a8c0cda9';
+import { startFieldBattle, battleTick, abortBattle, battleCommand, battleLeave, joinBattle, mineOf, resultDone } from './battles.js?v=d725a8c0cda9';
+import { runScript, runSteps } from './scripts.js?v=d725a8c0cda9';
+import { serviceAction, menuAction } from './services.js?v=d725a8c0cda9';
+import { newParty, partyOf, partyState, syncParty, ensureCompanions, companionWait, PARTY_MAX, befriendLevel, rosterFull, nameOfKey, dropMissingFam } from './party.js?v=d725a8c0cda9';
+import { hasWagon, dropGoneFamily } from '../data/wagon.js?v=d725a8c0cda9';
+import { MONSTERS } from '../data/monsters.js?v=d725a8c0cda9';
+import { CH1_CLEAR_OBJECTIVE } from '../data/story.js?v=d725a8c0cda9';
+import { upgradeSave, repairChar } from './save.js?v=d725a8c0cda9';
+import { exportCode, parseCode, importChar } from './transfer.js?v=d725a8c0cda9';
+import { memorySyncStore, buildSyncOut, applySyncIn, encodeSync, decodeSync, syncSummary } from './sync.js?v=d725a8c0cda9';
+import { tryTreasureDig, treasureMenu, fixTreasurePos, normalizeTreasure, pruneTreasureStates } from './treasure.js?v=d725a8c0cda9';
+import { isNightFor } from './clock.js?v=d725a8c0cda9';
+import { onFly, setFlying, moveAllowed, ridingAlong, canFlyMap } from './travel.js?v=d725a8c0cda9';
+import { migrateSky } from '../data/sky.js?v=d725a8c0cda9';
+import { migrateCh4 } from '../data/story-ch4.js?v=d725a8c0cda9';
+import { repairObjective } from '../data/progress.js?v=d725a8c0cda9';
+import { wagonLook } from './wagon.js?v=d725a8c0cda9';
+import { medalSearchSteps, medalChestSteps } from './casino.js?v=d725a8c0cda9';
+import { stepHazard } from './hazards.js?v=d725a8c0cda9';
+import { noteDungeonEntry } from './escape.js?v=d725a8c0cda9';
 
 export const PROTOCOL_VERSION = 1;
 const SPARKLE_RESPAWN_MS = 20 * 60 * 1000;
@@ -652,8 +652,10 @@ export class GameWorld {
     // さそわれて 来ている 人は リーダーの いのりの場所で（みんな いっしょに 目を覚ます）
     const own = this.hostOf(s)?.char.spawn || s.char.spawn;
     const sp = own && MAPS[own.map] ? own : { map: 'overworld', x: POS.villageChurch[0] + 0.5, y: POS.villageChurch[1] + 0.5 };
+    // 教会の 人・かべ・宝箱と 重ならない、いちばん ちかい ところで 目を覚ます（重なると 動けなく なる）
+    const at = standSpot(MAPS[sp.map], sp.x, sp.y, this.hasFlagFn(s));
     fullHeal(s.char);
-    this.placeSession(s, sp.map, sp.x, sp.y, 'down', true);
+    this.placeSession(s, sp.map, at.x, at.y, 'down', true);
     this.send(s, { t: 'toast', text: `${s.char.name}はいのりの場所で目を覚ました。\n「無理はいけませんよ」${note ? `\n${note}` : ''}`, afterBattle: true });
   }
 

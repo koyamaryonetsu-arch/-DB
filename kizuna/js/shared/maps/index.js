@@ -1,15 +1,15 @@
 // マップの ぜんたい（フィールド・どうくつ）と、そこに いる 人や たからばこ
-import { T, parseRows, TILE_INFO } from '../tiles.js?v=e73ea3162cdf';
-import { makeRng, hash2 } from '../rng.js?v=e73ea3162cdf';
-import { buildOverworld, PLACES, zoneAt, areaName, OW_W, OW_H, CAVE_ENTRANCE, FOREST_CLEARING, LAKE, SWAMP } from './overworld.js?v=e73ea3162cdf';
-import { CAVE_B1_ROWS, CAVE_B2_ROWS } from './cave-rows.js?v=e73ea3162cdf';
-import { npc } from './npc.js?v=e73ea3162cdf';
-import { buildCh2Maps, SEA_PLACES } from './ch2.js?v=e73ea3162cdf';
-import { buildTreasureFloor } from './treasure-cave.js?v=e73ea3162cdf';
-import { addNightNpcs } from './night-npcs.js?v=e73ea3162cdf';
-import { attachCasino } from './casino.js?v=e73ea3162cdf';
-import { buildCh3Maps, ch3SearchMats, NORTH_SPARKLE_LOOT } from './ch3.js?v=e73ea3162cdf';
-import { buildCh4Maps, ch4SearchMats, SOUTH_SPARKLE_LOOT } from './ch4.js?v=e73ea3162cdf';
+import { T, parseRows, TILE_INFO } from '../tiles.js?v=d725a8c0cda9';
+import { makeRng, hash2 } from '../rng.js?v=d725a8c0cda9';
+import { buildOverworld, PLACES, zoneAt, areaName, OW_W, OW_H, CAVE_ENTRANCE, FOREST_CLEARING, LAKE, SWAMP } from './overworld.js?v=d725a8c0cda9';
+import { CAVE_B1_ROWS, CAVE_B2_ROWS } from './cave-rows.js?v=d725a8c0cda9';
+import { npc } from './npc.js?v=d725a8c0cda9';
+import { buildCh2Maps, SEA_PLACES } from './ch2.js?v=d725a8c0cda9';
+import { buildTreasureFloor } from './treasure-cave.js?v=d725a8c0cda9';
+import { addNightNpcs } from './night-npcs.js?v=d725a8c0cda9';
+import { attachCasino } from './casino.js?v=d725a8c0cda9';
+import { buildCh3Maps, ch3SearchMats, NORTH_SPARKLE_LOOT } from './ch3.js?v=d725a8c0cda9';
+import { buildCh4Maps, ch4SearchMats, SOUTH_SPARKLE_LOOT } from './ch4.js?v=d725a8c0cda9';
 
 const V = (x, y) => [PLACES.village.x + x, PLACES.village.y + y];
 const TW = (x, y) => [PLACES.town.x + x, PLACES.town.y + y];
@@ -344,6 +344,58 @@ export function condOk(show, hasFlag) {
   if (show.all && !show.all.every(hasFlag)) return false;
   if (show.not && show.not.some(hasFlag)) return false;
   return true;
+}
+
+// 人の 体の 大きさ（足もとが (x, y)。client/field.js の あたり判定と おなじ）
+export const BODY = { hw: 0.28, top: 0.3, bot: 0.08 };
+export function bodyPoints(x, y) {
+  const { hw, top, bot } = BODY;
+  return [[x - hw, y - top], [x + hw, y - top], [x - hw, y + bot], [x + hw, y + bot]];
+}
+
+// (cx, cy) に いる NPC が (tx, ty) の マスを ふさぐか（大きな 人は 横3マス・たて2マス）
+export function npcCovers(n, cx, cy, tx, ty) {
+  if (n.big) return Math.abs(tx + 0.5 - cx) < 1.5 && ty <= Math.floor(cy) && ty >= Math.floor(cy) - 1;
+  return Math.floor(cx) === tx && Math.floor(cy) === ty;
+}
+
+// (x, y) に 立てるか: 体が かべ・人・宝箱に かからず、ワープの 上でも ない（人は 家の いちで みる）
+export function canStand(map, x, y, hasFlag) {
+  for (const [px, py] of bodyPoints(x, y)) {
+    const tx = Math.floor(px), ty = Math.floor(py);
+    if (isBlocked(map, tx, ty, hasFlag)) return false;
+    const ch = map.chestAt?.get(ty * map.w + tx);
+    if (ch && condOk(ch.show, hasFlag)) return false;
+    for (const n of map.npcs) {
+      if (n.solid && condOk(n.show, hasFlag) && npcCovers(n, n.x + 0.5, n.y + 0.5, tx, ty)) return false;
+    }
+  }
+  return !map.warpAt?.has(Math.floor(y) * map.w + Math.floor(x));
+}
+
+// (x, y) の ちかくで 立てる ところ（そのままで よければ そのまま。だめなら いちばん ちかい マスの まん中。
+// 下 → 左 → 右 → 上 の じゅんに さがす）。全滅して 教会で 目を覚ます とき、教会の 人と 重ならないように
+export function standSpot(map, x, y, hasFlag, limit = 900) {
+  if (canStand(map, x, y, hasFlag)) return { x, y };
+  const sx = Math.floor(x), sy = Math.floor(y);
+  // かべの 中から さがす とき いがいは、かべを こえない（おなじ へやの 中で さがす）
+  const inWall = isBlocked(map, sx, sy, hasFlag);
+  const seen = new Set([sy * map.w + sx]);
+  const q = [[sx, sy]];
+  for (let head = 0; head < q.length && head < limit; head++) {
+    const [cx, cy] = q[head];
+    if (canStand(map, cx + 0.5, cy + 0.5, hasFlag)) return { x: cx + 0.5, y: cy + 0.5 };
+    for (const [dx, dy] of [[0, 1], [-1, 0], [1, 0], [0, -1]]) {
+      const nx = cx + dx, ny = cy + dy;
+      if (nx < 0 || ny < 0 || nx >= map.w || ny >= map.h) continue;
+      const k = ny * map.w + nx;
+      if (seen.has(k)) continue;
+      seen.add(k);
+      if (!inWall && isBlocked(map, nx, ny, hasFlag)) continue;
+      q.push([nx, ny]);
+    }
+  }
+  return { x, y };
 }
 
 export function searchLoot(mapId, x, y) {

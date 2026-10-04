@@ -1,8 +1,8 @@
 // 第4章の タイル（16×16 ドット）: 砂ばく・砂丘・砂岩・ヤシ・サボテン・日干しれんが・砂嵐・古井戸（render/tiles.js が まぜる）
 // (p, v, f, m) … Painter / ちがい（0〜3。砂嵐だけは ばしょ 0〜15）/ アニメの コマ / となりの ようす（mask。ch4Mask）
 // ひかりは 左上から
-import { T } from '../../shared/tiles.js?v=e73ea3162cdf';
-import { Painter, prand, shade } from './pixel.js?v=e73ea3162cdf';
+import { T } from '../../shared/tiles.js?v=d725a8c0cda9';
+import { Painter, prand, shade } from './pixel.js?v=d725a8c0cda9';
 
 const TAU = Math.PI * 2;
 // 4×4 の ディザ（だんだんの いろを まぜる）

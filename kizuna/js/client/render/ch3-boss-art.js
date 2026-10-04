@@ -1,7 +1,7 @@
 // 第3章の ボスと 星の竜アステル の え（ch3-art.js の addCh3Art から addCh3BossArt を よぶ）
 // かきかたは monsters.js と おなじ（g … w・h の わりあいで かく。f … 0 か 1 の コマ）
 // ボスは 大きく、かざりを ていねいに。動きは 小さく（たたかいで 0.4びょうごとに コマが かわる）
-import { fit, spark, flame, bez, taper } from './ch3-draw.js?v=e73ea3162cdf';
+import { fit, spark, flame, bez, taper } from './ch3-draw.js?v=d725a8c0cda9';
 
 // ───── ボス ─────
 
