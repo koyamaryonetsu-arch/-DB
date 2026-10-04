@@ -1,14 +1,15 @@
 // マップの ぜんたい（フィールド・どうくつ）と、そこに いる 人や たからばこ
-import { T, parseRows, TILE_INFO } from '../tiles.js?v=0fa8b6566138';
-import { makeRng, hash2 } from '../rng.js?v=0fa8b6566138';
-import { buildOverworld, PLACES, zoneAt, areaName, OW_W, OW_H, CAVE_ENTRANCE, FOREST_CLEARING, LAKE, SWAMP } from './overworld.js?v=0fa8b6566138';
-import { CAVE_B1_ROWS, CAVE_B2_ROWS } from './cave-rows.js?v=0fa8b6566138';
-import { npc } from './npc.js?v=0fa8b6566138';
-import { buildCh2Maps, SEA_PLACES } from './ch2.js?v=0fa8b6566138';
-import { buildTreasureFloor } from './treasure-cave.js?v=0fa8b6566138';
-import { addNightNpcs } from './night-npcs.js?v=0fa8b6566138';
-import { attachCasino } from './casino.js?v=0fa8b6566138';
-import { buildCh3Maps, ch3SearchMats, NORTH_SPARKLE_LOOT } from './ch3.js?v=0fa8b6566138';
+import { T, parseRows, TILE_INFO } from '../tiles.js?v=3aa373e94169';
+import { makeRng, hash2 } from '../rng.js?v=3aa373e94169';
+import { buildOverworld, PLACES, zoneAt, areaName, OW_W, OW_H, CAVE_ENTRANCE, FOREST_CLEARING, LAKE, SWAMP } from './overworld.js?v=3aa373e94169';
+import { CAVE_B1_ROWS, CAVE_B2_ROWS } from './cave-rows.js?v=3aa373e94169';
+import { npc } from './npc.js?v=3aa373e94169';
+import { buildCh2Maps, SEA_PLACES } from './ch2.js?v=3aa373e94169';
+import { buildTreasureFloor } from './treasure-cave.js?v=3aa373e94169';
+import { addNightNpcs } from './night-npcs.js?v=3aa373e94169';
+import { attachCasino } from './casino.js?v=3aa373e94169';
+import { buildCh3Maps, ch3SearchMats, NORTH_SPARKLE_LOOT } from './ch3.js?v=3aa373e94169';
+import { buildCh4Maps, ch4SearchMats, SOUTH_SPARKLE_LOOT } from './ch4.js?v=3aa373e94169';
 
 const V = (x, y) => [PLACES.village.x + x, PLACES.village.y + y];
 const TW = (x, y) => [PLACES.town.x + x, PLACES.town.y + y];
@@ -264,6 +265,8 @@ function buildMaps() {
   Object.assign(maps, buildCh2Maps());
   // 第3章「星の竜がねむる山」（maps/ch3.js）
   Object.assign(maps, buildCh3Maps());
+  // 第4章「砂の海にしずむ星」（maps/ch4.js）
+  Object.assign(maps, buildCh4Maps());
   // カジノ・メダル王の城・小さなメダル（maps/casino.js）
   attachCasino(maps);
   // 夜の 町・村（夜だけ 出る 人・夜は 家に 帰る 人）
@@ -354,7 +357,7 @@ export function searchLoot(mapId, x, y) {
   if (r < 0.64) return { item: 'magic_water' };
   // ふしぎなかじの 素材（町・どうくつ・海で ちがう）
   if (r < 0.74) {
-    const mats = ch3SearchMats(mapId) || (mapId === 'sea' ? ['pretty_shell', 'wind_feather', 'iron_shard'] : mapId.startsWith('cave') ? ['iron_shard', 'magic_powder'] : ['beast_fang', 'iron_shard', 'magic_powder']);
+    const mats = ch3SearchMats(mapId) || ch4SearchMats(mapId) || (mapId === 'sea' ? ['pretty_shell', 'wind_feather', 'iron_shard'] : mapId.startsWith('cave') ? ['iron_shard', 'magic_powder'] : ['beast_fang', 'iron_shard', 'magic_powder']);
     return { item: mats[Math.floor(hash2(x, y, 17) * mats.length)] };
   }
   return null;
@@ -368,7 +371,7 @@ export function sparkleLoot(zone, roll) {
     swamp: [['antidote', 4], ['star_shard', 3], ['seed_def', 0.4]],
     east: [['herb', 3], ['star_shard', 4], ['magic_water', 0.6], ['seed_str', 0.4]],
   };
-  const t = tables[zone] || NORTH_SPARKLE_LOOT[zone] || tables.plains;
+  const t = tables[zone] || NORTH_SPARKLE_LOOT[zone] || SOUTH_SPARKLE_LOOT[zone] || tables.plains;
   const total = t.reduce((s, e) => s + e[1], 0);
   let r = roll * total;
   for (const [id, w] of t) {

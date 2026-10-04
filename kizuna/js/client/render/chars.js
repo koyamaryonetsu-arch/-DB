@@ -2,9 +2,9 @@
 // みため（かみがた・いろ）と そうび（ぶき・よろい・たて・かぶと）で かわる
 // 人は 32×42 で くみたてて、2ばいの 64×84 に して こまかく かきたす（res 4: せかいでは 16×21 の 大きさに かく）
 // どうぶつ・船は 16×21 など
-import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=0fa8b6566138';
-import { ITEMS, baseItemId } from '../../shared/data/items.js?v=0fa8b6566138';
-import { STARTER_EQUIP } from '../../shared/stats.js?v=0fa8b6566138';
+import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=3aa373e94169';
+import { ITEMS, baseItemId } from '../../shared/data/items.js?v=3aa373e94169';
+import { STARTER_EQUIP } from '../../shared/stats.js?v=3aa373e94169';
 
 export const CW = 16;
 export const CH = 21;
@@ -215,6 +215,18 @@ const NPC_LOOKS = {
   onsen_f: { hair: 1, hairStyle: 'pony', skin: 0, outfit: 'robe', robeMain: '#e08aa8', robeTrim: '#ffffff', female: true },
   hut_keeper: { hair: 1, hairStyle: 'short', skin: 1, outfit: 'vest', cloth: '#8a3a2a', beard: true, hat: 'cowl', hatColor: '#8a3a2a' },
   peddler: { hair: 6, hairStyle: 'pony', skin: 0, outfit: 'traveler', cloth: '#6a8a3a', female: true, hat: 'cowl', hatColor: '#d8e0c8' },
+  // ───── 第4章（砂の国コガネ地方）─────
+  // オアシスの村ハミル: 村長ナディム・アミ・アミの お母さん・村の 人・キャラバンの 商人
+  desert_elder: { hair: 5, hairStyle: 'short', skin: 1, outfit: 'robe', robeMain: '#f0e6d0', robeTrim: '#b8662e', beard: true, cane: true, hat: 'bandana', hatColor: '#f4ecd8' },
+  desert_m: { hair: 0, hairStyle: 'short', skin: 2, outfit: 'robe', robeMain: '#e8dcc0', robeTrim: '#4a7ab0', hat: 'bandana', hatColor: '#f4f0e4' },
+  desert_m2: { hair: 0, hairStyle: 'short', skin: 1, outfit: 'vest', cloth: '#a8582e', beard: true, hat: 'bandana', hatColor: '#3a6aa8' },
+  desert_f: { hair: 0, hairStyle: 'long', skin: 1, outfit: 'dress', cloth: '#c8503a', female: true, hat: 'veil' },
+  desert_f2: { hair: 1, hairStyle: 'bun', skin: 2, outfit: 'dress', cloth: '#3a8a8a', female: true, hat: 'veil' },
+  desert_kid: { hair: 0, hairStyle: 'short', skin: 2, outfit: 'tunic', cloth: '#e8b84a', small: true, hat: 'bandana', hatColor: '#ffffff' },
+  ami: { hair: 0, hairStyle: 'twin', skin: 1, outfit: 'dress', cloth: '#e86a8a', female: true, small: true },
+  desert_merchant: { hair: 1, hairStyle: 'short', skin: 1, outfit: 'apron', cloth: '#6a8a3a', beard: true, hat: 'bandana', hatColor: '#c83a3a' },
+  desert_priest: { hair: 5, hairStyle: 'short', skin: 1, outfit: 'robe', robeMain: '#f8f4e8', robeTrim: '#3a8ac8', hat: 'mitre' },
+  caravan: { hair: 0, hairStyle: 'short', skin: 2, outfit: 'traveler', cloth: '#8a4a2a', beard: true, hat: 'bandana', hatColor: '#e8c050' },
 };
 
 // そうびの かきかた: 'ぶき,よろい,たて,あたま' の もじれつ か { weapon, armor, shield, head }

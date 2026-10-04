@@ -19,6 +19,8 @@ export const T = {
   LAVA: 98, LAVA_FLOOR: 99, OBSIDIAN: 100, RAIL: 101, LEVER: 102, LEVER_ON: 103, PLATE: 104, PLATE_ON: 105,
   BRAZIER: 106, BRAZIER_LIT: 107, HOT_SPRING: 108, SNOW_WALL: 109, FLAME_WALL: 110, ASH: 111, MINE_BEAM: 112,
   ICE_WALL: 113, DRAGON_GATE: 114, CHASM: 115, RAIL_BRIDGE: 116, RAIL_STOP: 117, ASH_ROCK: 118,
+  // 第4章（砂の国）
+  DESERT: 119, DUNE: 120, SANDSTONE: 121, PALM: 122, CACTUS: 123, ADOBE: 124, SANDSTORM: 125, WELL_HOLE: 126,
 };
 
 export const TILE_INFO = {};
@@ -121,6 +123,15 @@ def(T.CHASM, 'chasm', { solid: true, mapColor: '#0a0806' });
 def(T.RAIL_BRIDGE, 'rail_bridge', { solid: true, mapColor: '#8a6a4a' });
 def(T.RAIL_STOP, 'rail_stop', { mapColor: '#c84a3a' });
 def(T.ASH_ROCK, 'ash_rock', { solid: true, mapColor: '#4a3a3a' });
+// 第4章（砂の国）
+def(T.DESERT, 'desert', { mapColor: '#e2c27e' }); // 砂ばくの 地面（風もようの 砂）
+def(T.DUNE, 'dune', { solid: true, mapColor: '#c89a58' }); // 大きな 砂丘（こえられない）
+def(T.SANDSTONE, 'sandstone', { solid: true, mapColor: '#b0663e' }); // 赤茶色の 砂岩の がけ・岩山
+def(T.PALM, 'palm', { solid: true, mapColor: '#3f8a46' }); // ヤシの木
+def(T.CACTUS, 'cactus', { solid: true, mapColor: '#5a9a4e' }); // サボテン
+def(T.ADOBE, 'adobe', { solid: true, mapColor: '#c89464' }); // 日干しれんがの かべ（砂の国の 家）
+def(T.SANDSTORM, 'sandstorm', { solid: true, anim: true, mapColor: '#a8784a' }); // 砂嵐の かべ（物語で 弱まる）
+def(T.WELL_HOLE, 'well_hole', { mapColor: '#6a6a7a' }); // 古い 井戸の 入り口（なわばしごで 下へ）
 
 export function isSolid(id) {
   return TILE_INFO[id]?.solid ?? true;
@@ -145,6 +156,8 @@ export const LEGEND = {
   '(': T.HOT_SPRING, '?': T.SNOW_WALL, '{': T.FLAME_WALL, '}': T.ASH, '[': T.MINE_BEAM, ')': T.ICE_WALL,
   ']': T.DRAGON_GATE, '`': T.CHASM, '2': T.RAIL_BRIDGE, '3': T.RAIL_STOP, 'm': T.ASH_ROCK,
   '6': T.BRAZIER_LIT, '7': T.PLATE_ON, '8': T.LEVER_ON,
+  // 第4章（砂の国）: 0=砂ばく J=日干しれんがの かべ q=砂岩 4=ヤシの木 5=サボテン
+  '0': T.DESERT, 'J': T.ADOBE, 'q': T.SANDSTONE, '4': T.PALM, '5': T.CACTUS,
 };
 
 export function parseRows(rows) {

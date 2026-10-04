@@ -2,9 +2,10 @@
 // 四ツ影の1人「炎の魔女イグニア」が 竜守りの村の「炎の守り星」を うばい、星竜山の 万年氷を とかしている。
 // 氷の洞窟（ブリザマンモス）→ 鉱山の町カナトコ（マグマゴーレム）→ 温泉の里ユノハ → 炎の山（炎の騎士フレアード）
 // → 竜の試練の神殿（勇気・ちえ・きずな）→ 竜の門 → 星竜山 → 頂上で イグニアを たおすと 星の竜アステルが 目覚める
-import { NORTH_PLACES } from '../maps/north.js?v=0fa8b6566138';
-import { CART_RIDES, WISDOM_ORDER, WISDOM_FLAGS, BOND_PLATES, TRIAL_FLAGS, VOLCANO_LEVERS } from '../maps/ch3.js?v=0fa8b6566138';
-import { innSteps } from './inn.js?v=0fa8b6566138';
+import { NORTH_PLACES } from '../maps/north.js?v=3aa373e94169';
+import { CART_RIDES, WISDOM_ORDER, WISDOM_FLAGS, BOND_PLATES, TRIAL_FLAGS, VOLCANO_LEVERS } from '../maps/ch3.js?v=3aa373e94169';
+import { innSteps } from './inn.js?v=3aa373e94169';
+import { C4_LEAD_OBJECTIVE } from './sky.js?v=3aa373e94169';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -841,7 +842,8 @@ export const CH3_SCRIPTS = {
       ['chapter', '第3章「星の竜がねむる山」', 'クリア！'],
       ...N('――次の冒険は第4章――'),
       ...N('（これからは、風の笛で星の竜アステルを呼べる！\n竜は大鳥より速く飛べて、シロガネ地方の山の上も、どこでも飛べるよ）'),
-      ['objective', C3_OBJ.clear],
+      // 第4章へ（長老ハクゲンに もう一度 話すと はじまる。story-ch4.js）
+      ['objective', C4_LEAD_OBJECTIVE],
     ];
   },
 };

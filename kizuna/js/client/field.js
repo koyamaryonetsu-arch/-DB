@@ -1,22 +1,22 @@
 // フィールド（あるく・はなす・みる）
-import { MAPS, isBlocked, effectiveTile, condOk, tileAt, onWater, slidesAt } from '../shared/maps/index.js?v=0fa8b6566138';
-import { T, TILE_INFO } from '../shared/tiles.js?v=0fa8b6566138';
-import { PLACES } from '../shared/maps/overworld.js?v=0fa8b6566138';
-import { TS, tileCanvas, frameOf, prepareMap } from './render/tiles.js?v=0fa8b6566138';
-import { paintHuman, npcOpts, paintSpecial, paintShip, equipKey, CW, CH } from './render/chars.js?v=0fa8b6566138';
-import { heroCanvas, heroLookKey } from './render/hero.js?v=0fa8b6566138';
-import { monsterCanvas, bigNpcCanvas, bigNpcScale } from './render/monsters.js?v=0fa8b6566138';
-import { MONSTERS } from '../shared/data/monsters.js?v=0fa8b6566138';
-import { makeCanvas, ctxOf, shade, flipCanvas } from './render/pixel.js?v=0fa8b6566138';
-import { chestCanvas as chestCanvas3d } from './render/tex3d.js?v=0fa8b6566138';
-import { chestVanishes } from '../shared/data/fieldchests.js?v=0fa8b6566138';
-import { boardCanvas } from './render/boards.js?v=0fa8b6566138';
-import { el } from './ui/dom.js?v=0fa8b6566138';
-import { syncTreasureGates } from './ui/treasure.js?v=0fa8b6566138';
-import { skyNpcSprite } from './render/sky-art.js?v=0fa8b6566138';
-import { wagonDraws } from './render/wagon.js?v=0fa8b6566138';
-import { Weather } from './render/weather.js?v=0fa8b6566138';
-import { flySpeed } from '../shared/data/sky.js?v=0fa8b6566138';
+import { MAPS, isBlocked, effectiveTile, condOk, tileAt, onWater, slidesAt } from '../shared/maps/index.js?v=3aa373e94169';
+import { T, TILE_INFO } from '../shared/tiles.js?v=3aa373e94169';
+import { PLACES } from '../shared/maps/overworld.js?v=3aa373e94169';
+import { TS, tileCanvas, frameOf, prepareMap } from './render/tiles.js?v=3aa373e94169';
+import { paintHuman, npcOpts, paintSpecial, paintShip, equipKey, CW, CH } from './render/chars.js?v=3aa373e94169';
+import { heroCanvas, heroLookKey } from './render/hero.js?v=3aa373e94169';
+import { monsterCanvas, bigNpcCanvas, bigNpcScale } from './render/monsters.js?v=3aa373e94169';
+import { MONSTERS } from '../shared/data/monsters.js?v=3aa373e94169';
+import { makeCanvas, ctxOf, shade, flipCanvas } from './render/pixel.js?v=3aa373e94169';
+import { chestCanvas as chestCanvas3d } from './render/tex3d.js?v=3aa373e94169';
+import { chestVanishes } from '../shared/data/fieldchests.js?v=3aa373e94169';
+import { boardCanvas } from './render/boards.js?v=3aa373e94169';
+import { el } from './ui/dom.js?v=3aa373e94169';
+import { syncTreasureGates } from './ui/treasure.js?v=3aa373e94169';
+import { skyNpcSprite } from './render/sky-art.js?v=3aa373e94169';
+import { wagonDraws } from './render/wagon.js?v=3aa373e94169';
+import { Weather } from './render/weather.js?v=3aa373e94169';
+import { flySpeed } from '../shared/data/sky.js?v=3aa373e94169';
 
 const SPEED = 4.6; // マス/びょう
 const RUN = 1.35; // はしると この ばい（はやすぎない ように）
@@ -133,6 +133,8 @@ const ROOF = {
   // 第3章: 雪の つもった やね・鉱山の 町の 石の やね
   snow: ['#e4ecf8', '#a8b4c8', '#ffffff'], snowred: ['#b8403a', '#8a2a26', '#f4f8ff'], snowblue: ['#3a64b0', '#264a8a', '#f4f8ff'],
   snowgreen: ['#3a7a5a', '#26583e', '#f4f8ff'], slate: ['#5a6078', '#3a3e52', '#8a90b0'], rust: ['#9a5a3a', '#6a3a22', '#c88a5a'],
+  // 第4章: 砂の国（日干しれんがの 白っぽい やね・赤い かわらの やね・布の やね）
+  sand: ['#d8b47a', '#a8844a', '#f0d6a2'], clay: ['#c8703a', '#9a4e22', '#e8986a'], canvas: ['#e8dcc4', '#bba98a', '#fff4e0'],
 };
 
 export class Field {
@@ -198,7 +200,7 @@ export class Field {
     if (mode === '3d' && Field.webgl2() && cv) {
       if (!this.r3d) {
         try {
-          const { Field3D } = await import('./render/field3d.js?v=0fa8b6566138');
+          const { Field3D } = await import('./render/field3d.js?v=3aa373e94169');
           this.r3d = new Field3D(this, cv);
         } catch (e) {
           console.warn('2.5Dにできませんでした', e);
@@ -1499,7 +1501,8 @@ export class Field {
   }
 
   areaBgm() {
-    if (this.map.bgmAt) return this.map.bgmAt(Math.floor(this.me.x), Math.floor(this.me.y));
+    // 第4章の 砂ばくは 昼と 夜で 曲が かわる（maps/south.js の southBgmAt）
+    if (this.map.bgmAt) return this.map.bgmAt(Math.floor(this.me.x), Math.floor(this.me.y), !!this.game.sky?.isNight());
     if (this.map.kind === 'dungeon') return this.map.bgm || 'cave';
     const name = this.areaName();
     for (const p of Object.values(PLACES)) if (p.name === name) return p.bgm;

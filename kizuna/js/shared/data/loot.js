@@ -13,10 +13,11 @@
 //   ・種は その魔物に 合った もの（かたい→守り、はやい→素早さ、呪文→かしこさ、大きい→命、力じまん→力）
 //   ・素材（ふしぎなかじ で 使う）は MAT_DROPS に 書く。レアも よく落とす 物も 出なかった ときに 出る
 //   ・図鑑に 落とす 物が のる（手に入れるまでは ？？？）
-import { ITEMS } from './items.js?v=0fa8b6566138';
-import { MONSTERS } from './monsters.js?v=0fa8b6566138';
-import { RARE_MAT_DROPS } from './monsters-rare.js?v=0fa8b6566138';
-import { CH3_MAT_DROPS } from './monsters-ch3.js?v=0fa8b6566138';
+import { ITEMS } from './items.js?v=3aa373e94169';
+import { MONSTERS } from './monsters.js?v=3aa373e94169';
+import { RARE_MAT_DROPS } from './monsters-rare.js?v=3aa373e94169';
+import { CH3_MAT_DROPS } from './monsters-ch3.js?v=3aa373e94169';
+import { CH4_MAT_DROPS } from './monsters-ch4.js?v=3aa373e94169';
 
 export const DROP_N = { common: 8, rare: 64, mat: 8 };
 
@@ -52,6 +53,8 @@ export const MAT_DROPS = {
   ...RARE_MAT_DROPS,
   // 第3章（monsters-ch3.js）
   ...CH3_MAT_DROPS,
+  // 第4章（monsters-ch4.js）
+  ...CH4_MAT_DROPS,
 };
 // ぬすむ ときは レアが 出やすい（この 倍。でも 半分まで）
 export const STEAL_RARE_MULT = 8;

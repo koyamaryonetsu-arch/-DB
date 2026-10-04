@@ -12,16 +12,16 @@
 // ・星の竜が 目覚めたら 竜に のって とぶ（すこし はやい。data/sky.js の flySpeed）
 // ・パーティーで「ついていく」に している なかまは いっしょに のる
 // ・サーバーは とんでいない 人が 歩けない ところへ 入るのを みとめない（world.js の onMove）
-import { MAPS, isBlocked, onWater, condOk } from '../maps/index.js?v=0fa8b6566138';
-import { PLACES } from '../maps/overworld.js?v=0fa8b6566138';
-import { SEA_PLACES } from '../maps/ch2.js?v=0fa8b6566138';
-import { ABILITIES } from '../data/abilities.js?v=0fa8b6566138';
-import { ITEMS } from '../data/items.js?v=0fa8b6566138';
-import { hasKeyItem, mpCost, removeItem, itemCount } from '../stats.js?v=0fa8b6566138';
-import { SKY_MAPS, FLUTE_ID, regionHop, edgeAt, edgeTarget, regionsFrom, skyBox, inSkyBox, mountOf, flySpeed } from '../data/sky.js?v=0fa8b6566138';
-import { partyOf } from './party.js?v=0fa8b6566138';
-import { warpDest } from './services.js?v=0fa8b6566138';
-import { advanceClock, clockOwner } from './clock.js?v=0fa8b6566138';
+import { MAPS, isBlocked, onWater, condOk } from '../maps/index.js?v=3aa373e94169';
+import { PLACES } from '../maps/overworld.js?v=3aa373e94169';
+import { SEA_PLACES } from '../maps/ch2.js?v=3aa373e94169';
+import { ABILITIES } from '../data/abilities.js?v=3aa373e94169';
+import { ITEMS } from '../data/items.js?v=3aa373e94169';
+import { hasKeyItem, mpCost, removeItem, itemCount } from '../stats.js?v=3aa373e94169';
+import { SKY_MAPS, FLUTE_ID, regionHop, edgeAt, edgeTarget, regionsFrom, skyBox, inSkyBox, mountOf, flySpeed, edgeLockedText, boxLockedText } from '../data/sky.js?v=3aa373e94169';
+import { partyOf } from './party.js?v=3aa373e94169';
+import { warpDest } from './services.js?v=3aa373e94169';
+import { advanceClock, clockOwner } from './clock.js?v=3aa373e94169';
 
 const FOLLOW_RANGE = 12;
 
@@ -104,9 +104,9 @@ export function canCall(world, s) {
   const mount = mountFor(world, s);
   if (!canFlyMap(s.map)) return { ok: false, reason: `${ITEMS[FLUTE_ID].name}をふいた！\nしかし何も起こらなかった…\n（洞窟や塔の中では、${mount.btn}は来られない）` };
   if (inTown(s.map, s.x, s.y)) return { ok: false, reason: `${ITEMS[FLUTE_ID].name}をふいた！\nしかし${mount.name}は町の中にはおりられない。\n（町の外でふこう）` };
-  // ふぶきの 地方（シロガネ地方。星の竜が 目覚めるまで）: 南の 雪原でしか よべない
+  // ふぶき・砂嵐の 地方（シロガネ地方は 星の竜が 目覚めるまで・コガネ地方は 砂嵐の あいだ）: とべる 場所でしか よべない
   if (!inSkyBox(skyBox(s.map, world.hasFlagFn(s)), s.x, s.y)) {
-    return { ok: false, reason: `${ITEMS[FLUTE_ID].name}をふいた！\nしかし、はげしいふぶきで${mount.name}はここまでおりてこられない…\n（南の雪原の広場でふこう）` };
+    return { ok: false, reason: boxLockedText(s.map, ITEMS[FLUTE_ID].name, mount.name) };
   }
   return { ok: true };
 }
@@ -213,7 +213,7 @@ export function flyRegion(world, s, edge, dest = null) {
     const e = edgeAt(s.map, s.y, map.h);
     if (!e) return false;
     if (!edgeTarget(s.map, e, has)) {
-      world.send(s, { t: 'toast', text: 'この先の空は、はげしいふぶきで進めない…\n（ホシフル村のホシミばあちゃんに、話を聞いてみよう）' });
+      world.send(s, { t: 'toast', text: edgeLockedText(s.map, e, has) });
       return false;
     }
     to = regionHop(s.map, s.x, s.y, e, null, has);

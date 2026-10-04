@@ -5,9 +5,10 @@
 //     kid  … ポポロ（元気な 子ども）
 //   self … だれも いない ときの 主人公の ひとりごと
 // ・新しい 目標を 作ったら、ここにも 1つ 足す（ない ときは 目標の 文を そのまま 話す）
-import { MONSTERS } from './monsters.js?v=0fa8b6566138';
-import { C3_LEAD_OBJECTIVE } from './sky.js?v=0fa8b6566138';
-import { CH3_OBJECTIVE_TALK } from './story-ch3.js?v=0fa8b6566138';
+import { MONSTERS } from './monsters.js?v=3aa373e94169';
+import { C3_LEAD_OBJECTIVE } from './sky.js?v=3aa373e94169';
+import { CH3_OBJECTIVE_TALK } from './story-ch3.js?v=3aa373e94169';
+import { CH4_OBJECTIVE_TALK } from './story-ch4.js?v=3aa373e94169';
 
 // 仲間の key（NPC の id）→ 話し方
 export const TALK_STYLE = {
@@ -179,6 +180,7 @@ OBJECTIVE_TALK[C3_LEAD_OBJECTIVE] = {
   kid: '守り星の石、キラキラしてるのかなあ！ばあちゃんに会いに行こう！',
 };
 Object.assign(OBJECTIVE_TALK, CH3_OBJECTIVE_TALK);
+Object.assign(OBJECTIVE_TALK, CH4_OBJECTIVE_TALK);
 
 // 話す 内容（目標が 表に ない ときは 目標の 文を そのまま）
 export function talkFor(objective, style) {

@@ -4,7 +4,7 @@
 // ・地図に はじめから おいてある フィールドの 宝箱も、開けたら きえる（洞窟・塔・町の 宝箱は のこる）
 
 // マップごとに 同時に 出ている 数
-export const FIELD_CHEST_COUNT = { overworld: 7, sea: 5, north: 6 };
+export const FIELD_CHEST_COUNT = { overworld: 7, sea: 5, north: 6, south: 6 };
 // 1こ 開けられて から つぎが 出るまで・開けられない まま 場所が かわるまで
 export const FIELD_CHEST_RESPAWN_MS = 90 * 1000;
 export const FIELD_CHEST_LIFE_MS = 20 * 60 * 1000;
@@ -66,6 +66,19 @@ const LOOT = {
   n_volcano: [
     { w: 5, gold: [220, 450] }, { w: 3, item: 'flame_stone', n: [1, 2] }, { w: 2, item: 'herb', n: [2, 3] }, { w: 2, item: 'magic_water' },
     { w: 0.6, item: 'steel_shield' }, { w: 0.5, item: 'seed_str' }, { w: 0.5, item: 'seed_agi' },
+  ],
+  // 第4章（コガネ地方）
+  s_coast: [
+    { w: 5, gold: [220, 420] }, { w: 3, item: 'herb', n: [2, 3] }, { w: 2.5, item: 'moonherb', n: [1, 2] }, { w: 2, item: 'pretty_shell', n: [1, 2] },
+    { w: 1.5, item: 'magic_water' }, { w: 0.5, item: 'seed_agi' }, { w: 0.5, item: 'seed_hp' },
+  ],
+  s_dune: [
+    { w: 5, gold: [260, 500] }, { w: 3, item: 'antidote', n: [2, 3] }, { w: 2, item: 'magic_water', n: [1, 2] }, { w: 2, item: 'magic_powder', n: [1, 2] },
+    { w: 1.5, item: 'beast_fang', n: [1, 2] }, { w: 0.6, item: 'sand_cloak' }, { w: 0.5, item: 'seed_str' }, { w: 0.5, item: 'seed_def' },
+  ],
+  s_oasis: [
+    { w: 5, gold: [240, 460] }, { w: 3, item: 'moonherb', n: [1, 2] }, { w: 2, item: 'magic_water', n: [1, 2] }, { w: 2, item: 'star_shard', n: [1, 2] },
+    { w: 0.5, item: 'seed_mag' }, { w: 0.5, item: 'seed_hp' },
   ],
 };
 
