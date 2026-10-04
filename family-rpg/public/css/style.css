@@ -885,6 +885,24 @@ img.face { image-rendering: pixelated; }
 .menu .item .r.dis { color: #6d6c88; }
 .menu .item .r.up { color: var(--good); }
 .menu .item .r.down { color: var(--danger); }
+/* 装備を えらぶ まど（menu.js の equipView）: 上がる 強さ（みどり）も 下がる 強さ（赤）も、前→後で 出す */
+.eq-pick .menu { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+.menu .item.eq-opt { padding-top: 0.2em; padding-bottom: 0.2em; }
+.menu .item.eq-opt .l { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.05em 0.8em; }
+.eq-sc, .bp-st { display: inline-flex; flex-wrap: wrap; gap: 0 0.9em; font-size: var(--fs-small); font-variant-numeric: tabular-nums; line-height: 1.35; }
+.eq-sc .sc, .bp-st .sc { white-space: nowrap; }
+/* さいきょう装備の 見こみ（何が 何に 変わるか。「これにする／変えない」の 上） */
+.bp-pop .bp-body { flex: 1 1 auto; min-height: 0; margin: 0.35em 0 0.45em; padding-right: 0.2em; }
+.bp-pop .menu { flex: none; }
+.bp-pop .menu .item { justify-content: center; padding-left: 1.3em; border: 1px solid rgba(255, 255, 255, 0.18); }
+.bp-who { padding: 0.3em 0; border-bottom: 1px dashed rgba(255, 255, 255, 0.14); }
+.bp-who:last-child { border-bottom: 0; }
+.bp-name { color: var(--accent); }
+.bp-ch { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 0.45em; padding-left: 0.5em; }
+.bp-ch .k { color: var(--muted); min-width: 3.6em; }
+.bp-ch .from { color: var(--muted); }
+.bp-ch .ar { color: var(--accent); }
+.bp-st { padding-left: 0.5em; margin-top: 0.1em; }
 /* 預かり所・ふしぎなかじ屋（ui/bank.js・ui/forge.js） */
 .menu .tag.mat { color: #9ad8ff; }
 .zdrop.mat .tag { color: #9ad8ff; border-color: rgba(154, 216, 255, 0.55); }
