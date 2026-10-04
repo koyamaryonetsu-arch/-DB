@@ -252,3 +252,47 @@ test('砂ばくの 夜: 夜は 月のゆうれいが うろうろ。昼は い�
   assert.ok(day.every((s) => !s.group.includes('moon_ghost')), '昼は 月のゆうれいが いない');
   assert.ok(day.every((s) => !MONSTERS[s.sp].night));
 });
+
+test('家族で: リーダーの 世界で 南へ 飛べて、ついていく なかまも いっしょ（なかまの 物語は そのまま）', { timeout: 60000 }, async () => {
+  const world = new GameWorld({ offline: false, rng: makeRng(45), checkPassword: () => true, rateLimit: false, now: () => at(DAY) });
+  const papa = new Bot(world, 'パパ');
+  const kid = new Bot(world, 'ユイ');
+  await papa.login('x');
+  await kid.login('x');
+  await papa.createAndPlay('warrior');
+  await kid.createAndPlay('mage');
+  await papa.settle();
+  await kid.settle();
+  const c = papa.s.char;
+  for (const f of STORY_STEPS.slice(0, STORY_STEPS.indexOf('c4_start') + 1)) c.flags[f] = true;
+  c.flags[SKY_FLAG] = true;
+  c.keyItems.push(FLUTE_ID);
+  papa.send({ t: 'party', action: 'invite', sid: kid.s.id });
+  kid.send({ t: 'party', action: 'accept' });
+  world.placeSession(papa.s, 'north', 64.5, 75.5, 'down', true);
+  world.placeSession(kid.s, 'north', 64.5, 76.5, 'up', true);
+  kid.send({ t: 'move', x: 64.5, y: 76.55, dir: 'up', moving: false, seq: kid.seq, follow: true });
+  papa.send({ t: 'fly', action: 'call' });
+  assert.ok(papa.s.flying && kid.s.flying, '竜に みんなで 乗った');
+  papa.send({ t: 'fly', action: 'region', to: 'south' });
+  assert.equal(papa.s.map, 'south');
+  assert.equal(kid.s.map, 'south', 'ユイも いっしょに 砂の国へ');
+  assert.ok(inSkyBox(SOUTH_LANDING, papa.s.x, papa.s.y));
+  // ユイの 物語は すすまない（リーダーの 世界で 手伝っている）
+  assert.ok(!kid.s.char.flags.c4_start && !kid.s.char.flags.c3_clear, 'ユイの フラグは そのまま');
+  // おりると、北の海辺に 着いた イベント（リーダーの 物語）
+  world.placeSession(papa.s, 'south', SOUTH_ARRIVE.x, SOUTH_ARRIVE.y, 'down', true, { fly: true });
+  world.placeSession(kid.s, 'south', SOUTH_ARRIVE.x, SOUTH_ARRIVE.y + 1, 'down', true, { fly: true });
+  papa.send({ t: 'fly', action: 'land' });
+  assert.ok(!papa.s.flying && !kid.s.flying, 'みんな おりた');
+  await papa.walkTo(Math.floor(SOUTH_ARRIVE.x), Math.floor(SOUTH_ARRIVE.y) + 2);
+  await papa.settle();
+  await kid.settle();
+  assert.ok(c.flags.c4_arrive, 'パパの 物語が すすむ');
+  assert.ok(!kid.s.char.flags.c4_arrive);
+  // 手伝っている ユイが 砂ばくで 竜を 呼んでも、リーダーの 世界の 砂嵐で 来られない
+  world.placeSession(kid.s, 'south', 60.5, 28.5, 'down', true);
+  kid.send({ t: 'fly', action: 'call' });
+  assert.ok(!kid.s.flying);
+  assert.match(kid.msgs.filter((m) => m.t === 'toast').pop()?.text || '', /砂嵐/);
+});
