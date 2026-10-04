@@ -1,6 +1,20 @@
 // テスト用: サーバーに つながる ロボット
 import { MAPS, isBlocked } from '../public/js/shared/maps/index.js';
 
+// あいている ポート（テストを ならべて うごかしても サーバーどうしが ぶつからない）
+export async function freePort() {
+  const net = await import('node:net');
+  return new Promise((resolve, reject) => {
+    const srv = net.createServer();
+    srv.unref();
+    srv.on('error', reject);
+    srv.listen(0, '127.0.0.1', () => {
+      const { port } = srv.address();
+      srv.close(() => resolve(port));
+    });
+  });
+}
+
 export const tickN = async (world, n = 1, dt = 50) => {
   for (let i = 0; i < n; i++) {
     world.tick(dt);

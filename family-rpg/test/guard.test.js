@@ -10,6 +10,7 @@ import path from 'node:path';
 import { clientAddress, isPublicAddress, isFromInternet, inCidr, strongEnough, LoginGuard } from '../server/guard.js';
 import { findFunnelUrl } from '../server/funnel.js';
 import { siteServerAddress } from '../public/js/client/links.js';
+import { freePort } from './helpers.js';
 
 test('まもり: だれから の アクセスか（Funnel を 通った ときだけ X-Forwarded-For を 信じる）', () => {
   const req = (remote, xff) => ({ socket: { remoteAddress: remote }, headers: xff ? { 'x-forwarded-for': xff } : {} });
@@ -183,7 +184,7 @@ function rawWs(port, headers = {}) {
 async function startServer(password, config = null) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'kizuna-guard-'));
   if (config) fs.writeFileSync(path.join(dir, 'config.json'), JSON.stringify(config));
-  const port = 3700 + Math.floor(Math.random() * 90);
+  const port = await freePort();
   const proc = spawn(process.execPath, ['server/index.js'], {
     env: { ...process.env, DATA_DIR: dir, PORT: String(port), FAMILY_PASSWORD: password, HOST: '127.0.0.1' },
     stdio: ['ignore', 'pipe', 'pipe'],

@@ -12,7 +12,7 @@ import { ITEMS } from '../public/js/shared/data/items.js';
 import { computeStats } from '../public/js/shared/stats.js';
 import { handOverOldSaves, findOldSaves, NOTE_FILE } from '../server/savedir.js';
 import { FileStorage } from '../server/storage.js';
-import { Bot } from './helpers.js';
+import { Bot, freePort } from './helpers.js';
 
 // むかしの 版の セーブ（職業レベル 1〜20・仲間なし・版の しるし なし）
 function oldSave() {
@@ -202,7 +202,7 @@ test('セーブの場所: Windows の「すべて展開」（フォルダが 2�
 
 test('家族サーバー: セーブは ホームの kizuna-save に 作られる', { timeout: 30000 }, async () => {
   const home = fs.mkdtempSync(path.join(os.tmpdir(), 'kizuna-home-'));
-  const port = 3990 + Math.floor(Math.random() * 9);
+  const port = await freePort();
   const env = { ...process.env, HOME: home, USERPROFILE: home, PORT: String(port), HOST: '127.0.0.1' };
   delete env.DATA_DIR;
   const proc = spawn(process.execPath, ['server/index.js'], { env, stdio: ['ignore', 'pipe', 'pipe'] });

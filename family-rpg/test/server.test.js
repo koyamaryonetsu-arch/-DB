@@ -4,12 +4,13 @@ import { spawn } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { freePort } from './helpers.js';
 
 // ほんものの サーバーを うごかして、Node の WebSocket クライアントで つなぐ
 test('家族サーバー: 合言葉で ログインして キャラを つくれる', { timeout: 30000 }, async () => {
   if (typeof WebSocket === 'undefined') return; // Node 22 いじょうで テスト
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'kizuna-'));
-  const port = 3900 + Math.floor(Math.random() * 90);
+  const port = await freePort();
   const proc = spawn(process.execPath, ['server/index.js'], {
     env: { ...process.env, DATA_DIR: dir, PORT: String(port), FAMILY_PASSWORD: 'ほし123', HOST: '127.0.0.1' },
     stdio: ['ignore', 'pipe', 'pipe'],

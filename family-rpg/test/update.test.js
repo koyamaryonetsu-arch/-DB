@@ -9,6 +9,7 @@ import zlib from 'node:zlib';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { readTar, checkAndUpdate, rollback, readVersion, markExecutables, SOURCE } from '../server/update.js';
+import { freePort } from './helpers.js';
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -214,7 +215,7 @@ test('自動更新: 起動すると 新しい 版に なって そのまま 動�
   const state = { sha: 'good-1', tar: appTar('good-1', root, { 'family-rpg/public/NEW.txt': 'new version' }) };
   const gh = await fakeGitHub(state);
   try {
-    const out = await launch(root, home, gh, 3990 + Math.floor(Math.random() * 9));
+    const out = await launch(root, home, gh, await freePort());
     assert.ok(out.includes('新しい版にしました'), out);
     assert.ok(out.includes('終わるときは'), '新しい 版で 起動した');
     assert.ok(fs.existsSync(path.join(root, 'public/NEW.txt')));
@@ -222,7 +223,7 @@ test('自動更新: 起動すると 新しい 版に なって そのまま 動�
     // こわれた 版（main.js が 動かない）
     state.sha = 'bad-2';
     state.tar = appTar('bad-2', root, { 'family-rpg/server/main.js': 'throw new Error("broken")' });
-    const out2 = await launch(root, home, gh, 3990 + Math.floor(Math.random() * 9));
+    const out2 = await launch(root, home, gh, await freePort());
     assert.ok(out2.includes('前の版にもどします'), out2);
     assert.ok(out2.includes('終わるときは'), '前の 版で 起動した');
     assert.ok(!fs.readFileSync(path.join(root, 'server/main.js'), 'utf8').includes('broken'));
