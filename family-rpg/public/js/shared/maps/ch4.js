@@ -60,6 +60,10 @@ const SOUTH_NPCS = [
   npc('c4_beach_trader', '旅の商人', [64, 9], 'caravan', 'c4_beach_trader', { wander: 1 }),
   npc('c4_camp_leader', 'キャラバンのかしら', [OASIS_CAMP.x + 3, OASIS_CAMP.y + 3], 'desert_merchant', 'c4_camp_leader', { dir: 'down' }),
   npc('c4_camp_kid', 'キャラバンの子ども', [OASIS_CAMP.x + 9, OASIS_CAMP.y + 9], 'desert_kid', 'c4_camp_kid', { wander: 1 }),
+  // キャラバンの ラクダ
+  npc('c4_camel1', 'ラクダ', [OASIS_CAMP.x + 2, OASIS_CAMP.y + 8], 'camel', 'c4_camel', { dir: 'right' }),
+  npc('c4_camel2', 'ラクダ', [OASIS_CAMP.x + 8, OASIS_CAMP.y + 4], 'camel', 'c4_camel', { dir: 'left' }),
+  npc('c4_camel3', 'ラクダ', [62, 9], 'camel', 'c4_camel', { dir: 'right' }),
 ];
 
 // 宝箱（フィールドの 宝箱は 開けると きえる）
