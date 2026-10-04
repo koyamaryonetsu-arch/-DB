@@ -5,9 +5,9 @@
 //            1回ごとに 攻撃力（守備力）が もとの 1わり（少なくても 1）上がる（items-forge.js の upgradedItem）
 //            素材と ゴールドは 回数が すすむほど ふえる。+3 には 星のかけらも いる
 // バランス: 作った 物・きたえた 物を 売っても、かかった ゴールドと 素材より 高くは ならない（テストで たしかめる）
-import { ITEMS, sellPrice } from './items.js?v=3aa373e94169';
-import { UPGRADE_MAX, UPGRADE_TYPES, upgradeId, addUpgradeItems } from './items-forge.js?v=3aa373e94169';
-import { CH3_RECIPES } from './items-ch3.js?v=3aa373e94169';
+import { ITEMS, sellPrice } from './items.js?v=b37608d5fdbd';
+import { UPGRADE_MAX, UPGRADE_TYPES, upgradeId, addUpgradeItems } from './items-forge.js?v=b37608d5fdbd';
+import { CH3_RECIPES } from './items-ch3.js?v=b37608d5fdbd';
 
 // ほかの ファイルで あとから 足された 装備にも +1〜+3 を 作る（なんど よんでも おなじ）
 addUpgradeItems(ITEMS);

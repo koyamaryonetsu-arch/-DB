@@ -170,6 +170,38 @@ const TRACKS = {
       { drums: true, v: 0.36, n: 'k:4 h:2 h:2 s:4 h:2 k:2 '.repeat(15) + 'k:4 s:2 s:2 k:2 s:2 s:2 s:2 ' },
     ],
   },
+  // 第4章: 砂ばく（昼）・コガネ地方（あつくて ひろい 砂の 海。ラクダの あゆみの リズムに、ひくい 音が ずっと つづく）
+  // ※ たいこの パートに r を つかうと「s」の 音が 出るので、すきまは 前の 音を ながく して つくる
+  desert: {
+    bpm: 112,
+    ch: [
+      { w: 'pulse', v: 0.1, n: 'A4:2 D5:2 F#5:3 G5:1 A5:4 Bb5:2 A5:2 G5:2 F#5:2 Eb5:4 D5:8 C5:2 Eb5:2 G5:3 A5:1 Bb5:4 C6:2 Bb5:2 A5:4 F#5:2 G5:2 A5:8 A4:2 D5:2 F#5:3 G5:1 A5:4 Bb5:2 A5:2 C6:6 Bb5:2 A5:4 G5:4 Bb5:3 C6:1 Bb5:2 G5:2 Eb5:4 G5:4 F#5:3 G5:1 F#5:2 Eb5:2 D5:8 G5:4 Bb5:4 D6:8 C6:2 Bb5:2 A5:2 Bb5:2 G5:8 Eb5:4 G5:4 Bb5:6 C6:2 Bb5:2 A5:2 G5:2 A5:2 F#5:8 D5:2 G5:2 Bb5:3 C6:1 D6:4 C6:2 Bb5:2 C6:6 Bb5:2 G5:4 Eb5:4 Bb5:3 C6:1 Bb5:2 G5:2 Eb5:4 G5:4 F#5:3 G5:1 F#5:2 Eb5:2 D5:8' },
+      { w: 'triangle', v: 0.22, n: ('D2:3 A2:1 D2:4 '.repeat(4) + 'C2:3 G2:1 C2:4 '.repeat(2) + 'D2:3 A2:1 D2:4 '.repeat(6) + 'Eb2:3 Bb2:1 Eb2:4 '.repeat(2) + 'D2:3 A2:1 D2:4 '.repeat(2) + 'G2:3 D3:1 G2:4 '.repeat(4) + 'Eb2:3 Bb2:1 Eb2:4 '.repeat(2) + 'D2:3 A2:1 D2:4 '.repeat(2) + 'G2:3 D3:1 G2:4 '.repeat(2) + 'C2:3 G2:1 C2:4 '.repeat(2) + 'Eb2:3 Bb2:1 Eb2:4 '.repeat(2) + 'D2:3 A2:1 D2:4 '.repeat(2)) },
+      { w: 'saw', v: 0.025, n: 'F#3:32 G3:16 A3:32 C4:16 Bb3:16 A3:16 Bb3:16 D4:16 Eb4:16 D4:32 Eb4:16 Bb3:16 A3:16' },
+      { drums: true, v: 0.32, n: 'k:3 h:1 s:2 h:2 k:3 h:1 s:2 h:2 '.repeat(7) + 'k:3 h:1 s:2 h:2 k:3 h:1 s:1 s:1 s:2 ' + 'k:3 h:1 s:2 h:2 k:3 h:1 s:2 h:2 '.repeat(7) + 'k:3 h:1 s:2 h:2 k:2 s:1 s:1 k:2 s:1 s:1' },
+    ],
+  },
+  // 第4章: 砂ばく（夜）（つめたく しずかな 星空。昼の きょくの はじまりを ゆっくり やさしく。すこし さびしい）
+  desert_night: {
+    bpm: 76,
+    ch: [
+      { w: 'triangle', v: 0.14, n: 'A4:4 D5:4 F5:6 G5:2 A5:8 Bb5:4 A5:4 G5:4 F5:4 E5:8 D5:12 r:4 F5:4 Bb5:4 D6:8 C6:6 A5:2 F5:8 Bb5:6 A5:2 G5:8 F5:2 E5:2 C#5:4 E5:6 r:2 D6:8 Bb5:4 F5:4 E5:4 G5:4 C6:8 F5:4 A5:4 D6:8 C#6:4 Bb5:2 A5:2 E5:6 r:2 A4:4 D5:4 F5:6 G5:2 A5:8 Bb5:4 A5:4 G5:4 F5:4 E5:4 C#5:4 D5:12 r:4' },
+      // 星の またたき
+      { w: 'square', v: 0.022, n: 'r:2 D6:1 r:7 A5:1 r:5 r:5 F6:1 r:7 D6:1 r:2 r:2 D6:1 r:9 E6:1 r:3 r:5 A5:1 r:1 A5:1 r:4 F6:1 r:3 r:2 D6:1 r:7 F6:1 r:5 r:5 F6:1 r:7 C6:1 r:2 r:2 D6:1 r:9 Bb5:1 r:3 r:5 E6:1 r:1 E6:1 r:4 A5:1 r:3 r:2 F6:1 r:7 D6:1 r:5 r:5 E6:1 r:7 G5:1 r:2 r:2 D6:1 r:9 F6:1 r:3 r:6 E6:1 r:1 E6:1 r:3 A5:1 r:3 r:2 D6:1 r:7 A5:1 r:5 r:5 F6:1 r:7 D6:1 r:2 r:2 D6:1 r:9 E6:1 r:3 r:5 A5:1 r:1 A5:1 r:4 D6:1 r:3' },
+      { w: 'triangle', v: 0.18, n: 'D2:6 A2:2 D2:8 D2:6 A2:2 D2:8 G2:6 D3:2 A2:8 D2:6 A2:2 D2:8 Bb1:6 F2:2 Bb1:8 F2:6 C3:2 F2:8 G2:6 D3:2 G2:8 A2:6 E2:2 A2:8 Bb1:6 F2:2 Bb1:8 C2:6 G2:2 C2:8 D2:6 A2:2 D2:8 A2:6 E2:2 A2:8 D2:6 A2:2 D2:8 D2:6 A2:2 D2:8 G2:6 D3:2 A2:8 D2:6 A2:2 D2:8' },
+      { drums: true, v: 0.15, n: 'k:6 h:2 k:8 '.repeat(15) + 'k:6 h:2 k:4 h:2 h:2' },
+    ],
+  },
+  // 第4章: オアシスの村ハミル（あたたかく やさしい おどりの リズム。水が へっていく すこしの さびしさ）
+  oasis: {
+    bpm: 100,
+    ch: [
+      { w: 'triangle', v: 0.15, n: 'E5:6 C#5:2 D5:2 E5:2 A4:4 D5:6 B4:2 C#5:2 D5:2 G#4:4 C#5:4 D5:2 E5:2 F#5:4 A5:4 G#5:6 F5:2 E5:2 D5:2 B4:4 E5:3 F#5:1 E5:2 C#5:2 D5:2 E5:2 A5:4 A5:6 F#5:2 E5:2 F#5:2 D5:4 A5:6 F5:2 E5:2 F5:2 D5:4 C#5:6 B4:2 A4:8 F5:4 A5:4 D6:8 C6:6 B5:2 A5:8 C6:6 A5:2 F5:4 A5:4 G#5:6 F5:2 E5:2 D5:2 B4:4 F5:4 A5:4 D6:8 C6:6 B5:2 A5:4 E5:4 A5:6 G#5:2 F5:2 E5:2 D5:4 C#5:6 B4:2 A4:8' },
+      { w: 'square', v: 0.028, n: 'r:2 E4:2 C#4:2 r:2 E4:2 C#4:2 r:2 A4:2 r:2 B3:2 D4:2 r:2 B3:2 D4:2 r:2 G#4:2 r:2 C#4:2 A3:2 r:2 C#4:2 A3:2 r:2 F#4:2 r:2 B3:2 D4:2 r:2 B3:2 D4:2 r:2 G#4:2 r:2 E4:2 C#4:2 r:2 E4:2 C#4:2 r:2 A4:2 r:2 D4:2 F#4:2 r:2 D4:2 F#4:2 r:2 A4:2 r:2 D4:2 F4:2 r:2 D4:2 F4:2 r:2 A4:2 r:2 E4:2 C#4:2 r:2 E4:2 C#4:2 r:2 A4:2 r:2 D4:2 F4:2 r:2 D4:2 F4:2 r:2 A4:2 r:2 C4:2 E4:2 r:2 C4:2 E4:2 r:2 A4:2 r:2 C4:2 F4:2 r:2 C4:2 F4:2 r:2 A4:2 r:2 B3:2 D4:2 r:2 B3:2 D4:2 r:2 G#4:2 r:2 D4:2 F4:2 r:2 D4:2 F4:2 r:2 A4:2 r:2 C4:2 E4:2 r:2 C4:2 E4:2 r:2 A4:2 r:2 C4:2 F4:2 r:2 B3:2 D4:2 r:2 G#4:2 r:2 E4:2 C#4:2 r:2 E4:2 C#4:2 r:2 A4:2' },
+      { w: 'triangle', v: 0.2, n: 'A2:6 E2:6 A2:4 E2:6 B2:6 E2:4 F#2:6 C#2:6 F#2:4 E2:6 B2:6 E2:4 A2:6 E2:6 A2:4 D2:6 A2:6 D2:4 D2:6 A2:6 D2:4 A2:6 E2:6 A2:4 D2:6 A2:6 D2:4 A2:6 E2:6 A2:4 F2:6 C2:6 F2:4 E2:6 B2:6 E2:4 D2:6 A2:6 D2:4 A2:6 E2:6 A2:4 F2:6 E2:6 B2:4 A2:6 E2:6 A2:4' },
+      { drums: true, v: 0.26, n: 'k:4 h:2 k:4 h:2 s:2 h:2 '.repeat(7) + 'k:4 h:2 k:4 h:2 s:1 s:1 s:2 ' + 'k:4 h:2 k:4 h:2 s:2 h:2 '.repeat(7) + 'k:4 h:2 k:2 s:2 h:2 s:2 s:1 s:1' },
+    ],
+  },
   battle: {
     bpm: 152,
     ch: [
@@ -398,7 +430,8 @@ export class GameAudio {
         }
         const n = ch.seq[ch.i++];
         const dur = n.len * m.spb;
-        if (ch.drums) this.drum(n.drum, ch.t, ch.v, m.out);
+        // ドラムの パートの r は やすみ（音を 出さない）
+        if (ch.drums) { if (n.drum) this.drum(n.drum, ch.t, ch.v, m.out); }
         else if (n.f) this.note(n.f, ch.t, dur, ch.w, ch.v, m.out);
         ch.t += dur;
       }

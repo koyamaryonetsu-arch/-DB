@@ -12,21 +12,21 @@
 //   ['teleport', 'map', x, y, 'dir']  ['spawn', 'map', x, y]  ['chapter', 'だい1しょう', 'サブタイトル']
 //
 // x（じょうほう）: x.name x.flag('f') x.has('item') x.count('item') x.kills('monster') x.quest('key')
-import { POS } from '../maps/index.js?v=3aa373e94169';
-import { PLACES } from '../maps/overworld.js?v=3aa373e94169';
-import { ABILITIES } from './abilities.js?v=3aa373e94169';
-import { learnedAbilities, comboUnlocked, hiraAllowed } from '../stats.js?v=3aa373e94169';
-import { HIRAMEKI, hiraRatio } from './hirameki.js?v=3aa373e94169';
-import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js?v=3aa373e94169';
-import { CH3_STEPS, CH3_STORY_SCRIPTS, CH3_SCRIPTS, elderCh3 } from './story-ch3.js?v=3aa373e94169';
-import { CH4_STEPS, CH4_STORY_SCRIPTS, CH4_SCRIPTS, elderCh4 } from './story-ch4.js?v=3aa373e94169';
-import { TM_SCRIPTS, TM_STORY_SCRIPTS } from './story-tm.js?v=3aa373e94169';
-import { CASINO_SCRIPTS } from './story-casino.js?v=3aa373e94169';
-import { innSteps } from './inn.js?v=3aa373e94169';
-import { NIGHT_SCRIPTS } from './night.js?v=3aa373e94169';
-import { skyScripts } from './sky.js?v=3aa373e94169';
-import { FACILITY_SCRIPTS } from './facilities.js?v=3aa373e94169';
-import { wagonEventSteps } from './wagon.js?v=3aa373e94169';
+import { POS } from '../maps/index.js?v=b37608d5fdbd';
+import { PLACES } from '../maps/overworld.js?v=b37608d5fdbd';
+import { ABILITIES } from './abilities.js?v=b37608d5fdbd';
+import { learnedAbilities, comboUnlocked, hiraAllowed } from '../stats.js?v=b37608d5fdbd';
+import { HIRAMEKI, hiraRatio } from './hirameki.js?v=b37608d5fdbd';
+import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js?v=b37608d5fdbd';
+import { CH3_STEPS, CH3_STORY_SCRIPTS, CH3_SCRIPTS, elderCh3 } from './story-ch3.js?v=b37608d5fdbd';
+import { CH4_STEPS, CH4_STORY_SCRIPTS, CH4_SCRIPTS, elderCh4 } from './story-ch4.js?v=b37608d5fdbd';
+import { TM_SCRIPTS, TM_STORY_SCRIPTS } from './story-tm.js?v=b37608d5fdbd';
+import { CASINO_SCRIPTS } from './story-casino.js?v=b37608d5fdbd';
+import { innSteps } from './inn.js?v=b37608d5fdbd';
+import { NIGHT_SCRIPTS } from './night.js?v=b37608d5fdbd';
+import { skyScripts } from './sky.js?v=b37608d5fdbd';
+import { FACILITY_SCRIPTS } from './facilities.js?v=b37608d5fdbd';
+import { wagonEventSteps } from './wagon.js?v=b37608d5fdbd';
 
 const V = (x, y) => [PLACES.village.x + x + 0.5, PLACES.village.y + y + 0.5];
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);

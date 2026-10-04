@@ -1,15 +1,15 @@
 // 第4章「砂の海にしずむ星」の マップ
 // コガネ地方（フィールド）・北の古井戸。王都・ピラミッドなどは Step 3 から
 // 村の 形は south-rows.js（1文字 = 1マス）
-import { T, parseRows } from '../tiles.js?v=3aa373e94169';
-import { makeRng } from '../rng.js?v=3aa373e94169';
-import { npc } from './npc.js?v=3aa373e94169';
-import { SEA_PLACES } from './ch2.js?v=3aa373e94169';
+import { T, parseRows } from '../tiles.js?v=b37608d5fdbd';
+import { makeRng } from '../rng.js?v=b37608d5fdbd';
+import { npc } from './npc.js?v=b37608d5fdbd';
+import { SEA_PLACES } from './ch2.js?v=b37608d5fdbd';
 import {
   buildSouth, southZoneAt, southAreaName, southWeatherAt, southBgmAt, SOUTH_PLACES, SOUTH_POS, SOUTH_LANDING, LANDING_BEACH, OASIS2, OASIS_CAMP,
   STORM_Y, STORM_FLAG,
-} from './south.js?v=3aa373e94169';
-import { HAMIL_ROWS, WELL_ROWS } from './south-rows.js?v=3aa373e94169';
+} from './south.js?v=b37608d5fdbd';
+import { HAMIL_ROWS, WELL_ROWS } from './south-rows.js?v=b37608d5fdbd';
 
 const HAM = SOUTH_PLACES.hamil;
 const H = (x, y) => [HAM.x + x, HAM.y + y];

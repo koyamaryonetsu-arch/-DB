@@ -1,8 +1,8 @@
 // フィールドを うろうろする モンスター（シンボル）
-import { ENCOUNTER_TABLES } from '../data/encounters.js?v=3aa373e94169';
-import { MONSTERS } from '../data/monsters.js?v=3aa373e94169';
-import { MAPS, isBlocked } from '../maps/index.js?v=3aa373e94169';
-import { NIGHT_ZONES, NIGHT_MORE } from '../data/night.js?v=3aa373e94169';
+import { ENCOUNTER_TABLES } from '../data/encounters.js?v=b37608d5fdbd';
+import { MONSTERS } from '../data/monsters.js?v=b37608d5fdbd';
+import { MAPS, isBlocked } from '../maps/index.js?v=b37608d5fdbd';
+import { NIGHT_ZONES, NIGHT_MORE } from '../data/night.js?v=b37608d5fdbd';
 
 let symSeq = 1;
 

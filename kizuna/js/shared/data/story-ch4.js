@@ -2,12 +2,12 @@
 // 四ツ影の3人目「水鏡の魔人モルガナ」が、砂の国の「水の守り星」の 力で 国じゅうの 水を うばっている。
 // Step 1: 竜守りの村で アステルの 話 → 風の海の 南の はしから コガネ地方へ → オアシスの村ハミル
 //         → 村長ナディム → 北の古井戸で アミを 助ける（つづきは Step 2 の かれた地下水路から）
-import { NORTH_PLACES } from '../maps/north.js?v=3aa373e94169';
-import { SOUTH_PLACES, SOUTH_POS, LANDING_BEACH } from '../maps/south.js?v=3aa373e94169';
-import { SEA_W, SEA_H } from '../maps/sea.js?v=3aa373e94169';
-import { innSteps } from './inn.js?v=3aa373e94169';
-import { C4_LEAD_OBJECTIVE } from './sky.js?v=3aa373e94169';
-import { C3_OBJ } from './story-ch3.js?v=3aa373e94169';
+import { NORTH_PLACES } from '../maps/north.js?v=b37608d5fdbd';
+import { SOUTH_PLACES, SOUTH_POS, LANDING_BEACH } from '../maps/south.js?v=b37608d5fdbd';
+import { SEA_W, SEA_H } from '../maps/sea.js?v=b37608d5fdbd';
+import { innSteps } from './inn.js?v=b37608d5fdbd';
+import { C4_LEAD_OBJECTIVE } from './sky.js?v=b37608d5fdbd';
+import { C3_OBJ } from './story-ch3.js?v=b37608d5fdbd';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
