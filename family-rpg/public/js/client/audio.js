@@ -430,7 +430,8 @@ export class GameAudio {
         }
         const n = ch.seq[ch.i++];
         const dur = n.len * m.spb;
-        if (ch.drums) this.drum(n.drum, ch.t, ch.v, m.out);
+        // ドラムの パートの r は やすみ（音を 出さない）
+        if (ch.drums) { if (n.drum) this.drum(n.drum, ch.t, ch.v, m.out); }
         else if (n.f) this.note(n.f, ch.t, dur, ch.w, ch.v, m.out);
         ch.t += dur;
       }
