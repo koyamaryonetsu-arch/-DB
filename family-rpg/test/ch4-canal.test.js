@@ -387,3 +387,50 @@ test('第4章 Step 2: 目標・仲間会話・地図の しるし。むかしの
   assert.equal(old.objective, C4_OBJ.ami);
   assert.deepEqual(CH4_STEPS.slice(-2), ['c4_canal', 'c4_scorpion']);
 });
+
+test('家族で: パパの 世界で いっしょに よろい大サソリを たおすと、2人とも ハミルへ。ユイの 物語は そのまま', { timeout: 300000 }, async () => {
+  const world = new GameWorld({ offline: false, rng: makeRng(4403), checkPassword: (pw) => pw === 'ほし', rateLimit: false });
+  const papa = new Bot(world, 'パパ');
+  const yui = new Bot(world, 'ユイ');
+  await papa.login('ほし');
+  await yui.login('ほし');
+  await papa.createAndPlay('warrior');
+  await yui.createAndPlay('mage');
+  await papa.settle();
+  await yui.settle();
+  const P = world.sessions.get(papa.sid), Y = world.sessions.get(yui.sid);
+  for (const f of STORY_STEPS.slice(0, STORY_STEPS.indexOf('c4_canal') + 1)) P.char.flags[f] = true;
+  P.char.flags[CANAL_LEVERS.c2a] = true;
+  P.char.flags[CANAL_LEVERS.c2b] = true;
+  P.char.objective = C4_OBJ.canal;
+  // ここで たしかめるのは 物語の すすみかた（強さは tools/sim.js）。パパの 酒場の 仲間2人も いっしょ
+  boost(papa, 60);
+  boost(yui, 60);
+  for (const id of ['npc_gard', 'npc_mina']) assert.ok(recruitNpc(world, P, id, { force: true }).ok, id);
+  await papa.settle();
+  const yuiBefore = JSON.stringify({ flags: Y.char.flags, objective: Y.char.objective });
+  papa.send({ t: 'party', action: 'invite', sid: Y.id });
+  yui.send({ t: 'party', action: 'accept' });
+  await papa.settle();
+  await yui.settle();
+  // パパの 世界の 地下水路の おく（ユイも いっしょ）
+  world.placeSession(P, 'canal3', 11.5, 14.5, 'up', true);
+  world.placeSession(Y, 'canal3', 12.5, 14.5, 'up', true);
+  await papa.settle();
+  await yui.settle();
+  P.repelUntil = Y.repelUntil = 1e15;
+  await papa.walkTo(11, 12);
+  // たたかって、たおした あとの 場面（水路 → ハミル）が おわるまで
+  for (let i = 0; i < 60 && !(P.char.flags.c4_scorpion && !P.busy && !Y.busy); i++) {
+    await papa.settle(2000);
+    await yui.settle(2000);
+  }
+  assert.ok(P.char.flags.c4_scorpion, 'パパの 物語が すすむ');
+  assert.equal(P.char.objective, C4_OBJ.scorpion);
+  assert.equal(P.map, 'south');
+  assert.equal(Y.map, 'south', 'ユイも いっしょに ハミルへ');
+  assert.equal(JSON.stringify({ flags: Y.char.flags, objective: Y.char.objective }), yuiBefore, 'ユイの 物語は そのまま');
+  // ユイが 見る 世界も パパの もの（オアシスに 水）
+  const yHas = world.hasFlagFn(Y);
+  assert.ok(yHas('c4_scorpion'));
+});
