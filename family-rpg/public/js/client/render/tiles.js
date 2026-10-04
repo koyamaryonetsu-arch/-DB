@@ -5,6 +5,7 @@ import { Painter, shade, prand } from './pixel.js';
 import { themedCanvas, partOfTile } from './themes.js';
 import { CH3_PAINTERS, CH3_FRAMES, CH3_SPEED, RAIL_TILES, CH3_WALLS } from './tiles-ch3.js';
 import { CH4_PAINTERS, CH4_FRAMES, CH4_SPEED, CH4_WALLS, ch4Mask, desertBase } from './tiles-ch4.js';
+import { CANAL_CTX, CANAL_CTX_PAINTERS, canalVariant, canalBaseBits, canalWallBits } from './tiles-canal.js';
 
 export const TS = 16;
 
@@ -484,8 +485,13 @@ const painters = {
 
 // 第3章の タイル（雪・氷・ようがん・鉱山・神殿。render/tiles-ch3.js）
 Object.assign(painters, CH3_PAINTERS);
-// 第4章の タイル（砂ばく・砂丘・砂岩・ヤシ・サボテン・日干しれんが・砂嵐・古井戸。render/tiles-ch4.js）
+// 第4章の タイル（砂ばく・砂丘・砂岩・ヤシ・サボテン・日干しれんが・砂嵐・古井戸・かれた地下水路。render/tiles-ch4.js・tiles-canal.js）
 Object.assign(painters, CH4_PAINTERS);
+// 地下水路の まわりの たいまつ・レバー・かいだん・柱・がれき・ボスの ゆかは、水路の え で かく（mask の CANAL_CTX）
+for (const [id, canal] of Object.entries(CANAL_CTX_PAINTERS)) {
+  const base = painters[id];
+  painters[id] = (p, v, f, m) => (m & CANAL_CTX ? canal(p, v, f, m) : base(p, v, f, m));
+}
 
 // アニメーションする タイルの コマ数
 const FRAMES = {
@@ -511,15 +517,16 @@ export function paintTile(id, variant = 0, frame = 0, mask = 0) {
 export const hasTileArt = (id) => !!painters[id];
 
 const cache = new Map();
-// theme … 宝の洞窟の しゅるい（'ice' 'lava' 'sand'。色だけ かえる。render/themes.js）
+// theme … 宝の洞窟の しゅるい（'ice' 'lava' 'sand' 'canal'。色だけ かえる。render/themes.js）
+// variant … 0〜255（地下水路は ばしょと 流れの むき）、frame … 0〜15、mask … 0〜255
 export function tileCanvas(id, variant, frame, mask, theme) {
-  const key = (id << 16) | (variant << 12) | (frame << 8) | mask;
+  const key = ((id * 256 + variant) * 16 + frame) * 256 + mask;
   let c = cache.get(key);
   if (!c) {
     c = paintTile(id, variant, frame, mask).toCanvas();
     cache.set(key, c);
   }
-  return theme ? themedCanvas(c, theme, partOfTile(id)) : c;
+  return theme ? themedCanvas(c, theme, partOfTile(id, mask)) : c;
 }
 
 const WATERY = new Set([T.WATER, T.DEEP, T.BROKEN_BRIDGE, T.STEPPING, T.PIER, T.BRIDGE_H, T.BRIDGE_V, T.WHIRLPOOL]);
@@ -554,6 +561,8 @@ export function prepareMap(map) {
       } else if (WALLS.has(t)) {
         const below = at(x, y + 1);
         if (!WALLS.has(below)) mask[i] = 1;
+        // 第4章: 地下水路の かべ（下が 水路・はしの かど）と 水路の かべの たいまつ
+        mask[i] |= canalWallBits(t, at, x, y, map.kind !== 'dungeon');
       } else if (RAIL_TILES.has(t)) {
         // レールの つながり（北=1 東=2 南=4 西=8）
         let m = 0;
@@ -563,9 +572,11 @@ export function prepareMap(map) {
         if (RAIL_TILES.has(at(x - 1, y))) m |= 8;
         mask[i] = m;
       } else {
-        // 第4章（砂丘の つながり・砂岩の がけ・ヤシと サボテンの 下の 草地）
+        // 第4章（砂丘の つながり・砂岩の がけ・ヤシと サボテンの 下の 草地・地下水路の 岸）
         const m4 = ch4Mask(opened.get(i) ?? t, atOpen, x, y);
-        if (m4 >= 0) mask[i] = m4;
+        if (m4 >= 0) mask[i] = m4 | canalBaseBits(t, at, x, y);
+        // 地下水路: 水路の 中は ばしょと 流れの むき・通路は かべの かげ（とびらで 底 ⇔ 水 ⇔ せき が かわっても おなじ）
+        variant[i] = canalVariant(t, at, x, y, variant[i]);
       }
     }
   }

@@ -81,6 +81,8 @@ const BG = {
   // 第4章（砂の国コガネ地方）。sun: ぎらぎらの 太陽 / sand: 風で とぶ 砂 / trickle: 天井から こぼれる 砂
   desert: { sky: ['#3a86d8', '#7ab8ea', '#c8e2f2', '#f6e6b8'], far: '#b86c40', near: '#d8a456', ground: ['#e8c47a', '#dcb46a'], deco: 'dunes', sun: true, sand: true },
   sand_cave: { sky: ['#120a06', '#22140c', '#362212'], far: '#4e321a', near: '#8a6034', ground: ['#a8804a', '#94703e'], deco: 'stalactite', trickle: true },
+  // 第4章 Step 2: かれた地下水路の 広間（砂岩の かべと アーチ・おくへ のびる かれた 水路・ほそい 水の すじ・たいまつ）
+  canal: { sky: ['#120b06', '#1e140c', '#2a1d12'], far: '#5a4229', near: '#8a7250', ground: ['#9a8260', '#8c7452'], deco: 'canal' },
 };
 
 // はいけいの データ（〜_night は 夜空の はいけい。night-art.js）。ない ときは null
@@ -146,6 +148,7 @@ export function battleBackground(id) {
       case 'storm': h = 9 + Math.abs(Math.sin(px * 0.22) * 7) + (px % 17 < 3 ? 3 : 0); break;
       case 'pillars': h = px % 48 < 10 ? 78 : 14 + (px % 48 > 20 && px % 48 < 38 ? 10 : 0); break;
       case 'dunes': h = 0; break; // 砂ばくは あとで（drawDesert）
+      case 'canal': h = 0; break; // 地下水路は あとで（drawCanalHall・drawCanalFloor）
       default: h = 10 + Math.abs(Math.sin(px * 0.035) * 14) + Math.abs(Math.sin(px * 0.11) * 4);
     }
     if (d.deco === 'stalactite' || d.deco === 'crystal') {
@@ -154,6 +157,7 @@ export function battleBackground(id) {
     } else x.fillRect(px, hor - h, 1, h);
   }
   if (d.deco === 'dunes') drawDesert(x, d, hor);
+  if (d.deco === 'canal') drawCanalHall(x, hor);
   if (d.deco === 'houses') {
     x.fillStyle = '#ffd66b';
     for (let k = 10; k < BW; k += 48) x.fillRect(k + 8, hor - 12, 3, 3);
@@ -198,11 +202,14 @@ export function battleBackground(id) {
     for (let k = 4; k < BW; k += 16) x.fillRect(k, hor - 8, 2, 8);
     x.fillRect(0, hor - 9, BW, 2);
   }
-  // えんきんの せん
-  x.fillStyle = 'rgba(0,0,0,0.12)';
-  for (let i = 0; i < 6; i++) {
-    const y = hor + 6 + i * i * 2;
-    if (y < BH) x.fillRect(0, y, BW, 1);
+  // えんきんの せん（地下水路は 石だたみの めじ）
+  if (d.deco === 'canal') drawCanalFloor(x, hor);
+  else {
+    x.fillStyle = 'rgba(0,0,0,0.12)';
+    for (let i = 0; i < 6; i++) {
+      const y = hor + 6 + i * i * 2;
+      if (y < BH) x.fillRect(0, y, BW, 1);
+    }
   }
   // 第3章: 雪・火の粉・鉱山の はしら
   if (d.snow || d.embers) {
@@ -293,6 +300,204 @@ function drawDesert(x, d, hor) {
   for (let k = 0; k < 26; k++) {
     const y = hor + 7 + ((k * 23) % (BH - hor - 12)), x0 = (k * 61 + 15) % BW, len = 8 + (k % 4) * 5;
     x.fillRect(x0, y - 1, len - 4, 1);
+  }
+}
+
+// ───── かれた地下水路の 広間（第4章 Step 2）─────
+// おくの かべ: 大きな 切り石（上は くらやみに きえる）・アーチ（まんなかの 大きな アーチの おくへ 水路が つづく）・
+// むかしの 水の あと・たいまつ（まわりが ぼんやり 明るい）
+const CANAL_ARCHES = [[-4, 30, 38], [60, 34, 32], [128, 54, 20], [196, 34, 32], [260, 30, 38]]; // [まんなか x, はば, てっぺん y]
+const CANAL_TORCHES = [[94, 40], [162, 40], [26, 46], [230, 46]];
+function drawCanalHall(x, hor) {
+  // 切り石の だん（下ほど 明るい。たいまつの そばは あたたかい）
+  for (let y = 0; y < hor; y++) {
+    const t = Math.max(0, (y - 6) / (hor - 6));
+    x.fillStyle = mix('#120b06', '#6c4e32', Math.min(1, t * t * 1.4 + t * 0.2));
+    x.fillRect(0, y, BW, 1);
+  }
+  for (let r = 0, y0 = 12; y0 < hor; r++, y0 += 9) {
+    const t = Math.min(1, (y0 + 4) / hor);
+    const base = mix('#1c120a', '#7a5838', t * t * 1.2), lit = mix(base, '#d8aa74', 0.22), dark = mix(base, '#000000', 0.5);
+    x.fillStyle = base; x.fillRect(0, y0, BW, 9);
+    x.fillStyle = dark; x.fillRect(0, y0, BW, 1);
+    x.fillStyle = lit; x.fillRect(0, y0 + 1, BW, 1);
+    for (let bx = (r % 2) * 14 - 14; bx < BW; bx += 28) {
+      x.fillStyle = dark; x.fillRect(bx, y0, 1, 9);
+      x.fillStyle = lit; x.fillRect(bx + 1, y0 + 1, 1, 8);
+      // のみの あと
+      x.fillStyle = dark;
+      if ((bx + r * 7) % 3 === 0) x.fillRect(bx + 9, y0 + 4, 2, 1);
+    }
+  }
+  // むかしの 水の あと（白い 線と、下の しみ）
+  x.fillStyle = 'rgba(214,196,150,0.55)';
+  for (let k = 0; k < BW; k += 1) if ((k * 7) % 11) x.fillRect(k, 57 + ((k >> 4) % 2), 1, 1);
+  x.fillStyle = 'rgba(30,20,10,0.22)';
+  x.fillRect(0, 59, BW, hor - 59);
+  for (let k = 5; k < BW; k += 17) x.fillRect(k, 59, 2, 4 + (k % 5));
+  // アーチ（石の わく・おくは まっくら。まんなかは 水路の トンネル）
+  for (const [cx, w, top] of CANAL_ARCHES) {
+    const r = w / 2;
+    // わくの 石
+    x.fillStyle = '#9c7650';
+    x.beginPath(); x.arc(cx, top + r, r + 4, Math.PI, 0); x.fill();
+    x.fillRect(cx - r - 4, top + r, w + 8, hor - top - r);
+    x.fillStyle = '#b88c5c';
+    x.beginPath(); x.arc(cx - 1, top + r, r + 3, Math.PI, Math.PI * 1.5); x.fill();
+    x.fillRect(cx - r - 4, top + r, 2, hor - top - r);
+    // わくの めじ（放射状）
+    x.fillStyle = '#5a4028';
+    for (let i = 0; i <= 8; i++) {
+      const a = Math.PI + (i / 8) * Math.PI;
+      for (let d = r; d <= r + 4; d++) x.fillRect(Math.round(cx + Math.cos(a) * d), Math.round(top + r + Math.sin(a) * d), 1, 1);
+    }
+    for (let y = top + r + 8; y < hor; y += 9) { x.fillRect(cx - r - 4, y, 4, 1); x.fillRect(cx + r, y, 4, 1); }
+    // おくの くらやみ（上ほど くらい）
+    for (let y = top; y < hor; y++) {
+      const dy = top + r - y;
+      const half = y < top + r ? Math.sqrt(Math.max(0, r * r - dy * dy)) : r;
+      x.fillStyle = mix('#050302', '#1c120a', (y - top) / (hor - top));
+      x.fillRect(Math.round(cx - half), y, Math.round(half * 2), 1);
+    }
+  }
+  // まんなかの トンネル: おくへ つづく 水路と、ずっと おくの かすかな あかり
+  const g = x.createRadialGradient(128, hor - 10, 0, 128, hor - 10, 18);
+  g.addColorStop(0, 'rgba(120,180,170,0.35)');
+  g.addColorStop(1, 'rgba(120,180,170,0)');
+  x.fillStyle = g;
+  x.beginPath(); x.arc(128, hor - 10, 18, 0, Math.PI * 2); x.fill();
+  for (let y = hor - 12; y < hor; y++) {
+    const t = (y - (hor - 12)) / 12;
+    const hw = 3 + t * 6;
+    x.fillStyle = mix('#2a2014', '#5a4630', t);
+    x.fillRect(Math.round(128 - hw - 3), y, 3, 1); x.fillRect(Math.round(128 + hw), y, 3, 1);
+    x.fillStyle = mix('#1a140c', '#46382a', t);
+    x.fillRect(Math.round(128 - hw), y, Math.round(hw * 2), 1);
+    x.fillStyle = mix('#2a5a64', '#3a8bb0', t);
+    x.fillRect(127, y, 2, 1);
+  }
+  // たいまつ（まわりが ぼんやり 明るい）
+  for (const [tx, ty] of CANAL_TORCHES) {
+    const gl = x.createRadialGradient(tx, ty - 4, 0, tx, ty - 4, 30);
+    gl.addColorStop(0, 'rgba(255,190,110,0.42)');
+    gl.addColorStop(0.5, 'rgba(255,150,70,0.16)');
+    gl.addColorStop(1, 'rgba(255,150,70,0)');
+    x.fillStyle = gl;
+    x.beginPath(); x.arc(tx, ty - 4, 30, 0, Math.PI * 2); x.fill();
+    x.fillStyle = '#2a2a32'; x.fillRect(tx - 3, ty + 4, 6, 2); x.fillRect(tx - 1, ty + 6, 2, 3);
+    x.fillStyle = '#6b4220'; x.fillRect(tx - 1, ty - 1, 2, 6);
+    x.fillStyle = '#ff7a2a'; x.fillRect(tx - 3, ty - 7, 6, 6); x.fillRect(tx - 2, ty - 10, 4, 3); x.fillRect(tx - 1, ty - 12, 2, 2);
+    x.fillStyle = '#ffd66b'; x.fillRect(tx - 2, ty - 6, 4, 4); x.fillRect(tx - 1, ty - 9, 2, 3);
+    x.fillStyle = '#fff6d0'; x.fillRect(tx - 1, ty - 5, 2, 2);
+  }
+}
+
+// 地下水路の ゆか: 左右の 石だたみの 通路・まんなかの かれた 水路（おくへ のびる。ひびわれた どろ・ほそい 水の すじ）
+function drawCanalFloor(x, hor) {
+  const H = BH - hor, vx = 128;
+  const lerp = (a, b, t) => a + (b - a) * t;
+  // 水路の ふち（t … 0 地平線〜1 手前）
+  const curbL = (t) => lerp(vx - 9, 30, t), bedL = (t) => lerp(vx - 7, 52, t), bedR = (t) => lerp(vx + 7, 204, t), curbR = (t) => lerp(vx + 9, 226, t);
+  for (let y = hor; y < BH; y++) {
+    const t = (y - hor + 1) / H;
+    // 通路（おくは くらい）
+    x.fillStyle = mix('#3a2c1c', '#a48c66', Math.min(1, t * 1.25));
+    x.fillRect(0, y, BW, 1);
+    // ふちの 石（明るい）
+    const cw = 1 + t * 4;
+    x.fillStyle = mix('#5a4630', '#c8b088', Math.min(1, t * 1.2));
+    x.fillRect(Math.round(curbL(t) - cw), y, Math.round(cw), 1);
+    x.fillRect(Math.round(curbR(t)), y, Math.round(cw), 1);
+    // 水路の 内がわの かべ（左は 明るく、右は かげ）
+    x.fillStyle = mix('#2e2216', '#8c6c48', t);
+    x.fillRect(Math.round(curbL(t)), y, Math.round(bedL(t) - curbL(t)), 1);
+    x.fillStyle = mix('#1e160e', '#5e4630', t);
+    x.fillRect(Math.round(bedR(t)), y, Math.round(curbR(t) - bedR(t)), 1);
+    // かれた 底
+    x.fillStyle = mix('#2a2014', '#84694a', Math.min(1, t * 1.15));
+    x.fillRect(Math.round(bedL(t)), y, Math.round(bedR(t) - bedL(t)), 1);
+  }
+  // 石だたみの めじ（よこ: おくほど せまく、たて: 地平線の まんなかへ あつまる）
+  const rowT = [];
+  for (let i = 1; i < 9; i++) rowT.push(Math.pow(i / 9, 1.7));
+  x.fillStyle = 'rgba(40,28,16,0.45)';
+  for (const t of rowT) {
+    const y = Math.round(hor + t * H);
+    x.fillRect(0, y, Math.round(curbL(t) - 1 - t * 4), 1);
+    x.fillRect(Math.round(curbR(t) + 1 + t * 4), y, BW, 1);
+  }
+  for (let j = -6; j <= 6; j++) {
+    if (j === 0) continue;
+    for (let i = 0; i < rowT.length; i++) {
+      const t0 = i ? rowT[i - 1] : 0, t1 = rowT[i];
+      const off = i % 2 ? 0.5 : 0;
+      const X = (t) => vx + (j + off) * 22 * t * 1.6 + Math.sign(j) * t * 18;
+      for (let y = Math.round(hor + t0 * H) + 1; y < Math.round(hor + t1 * H); y++) {
+        const t = (y - hor) / H, xx = X(t), xp = X((y - 1 - hor) / H);
+        if (xx >= curbL(t) - 5 * t - 1 && xx <= curbR(t) + 5 * t + 1) continue;
+        // ななめの めじは となりの 行まで つなげる（とぎれない ように）
+        const a = Math.round(Math.min(xx, xp)), b = Math.round(Math.max(xx, xp));
+        x.fillRect(a, y, Math.max(1, b - a), 1);
+      }
+    }
+  }
+  // 底の ひびわれ（ゆかの 上で おなじ 大きさの 板 → おくほど こまかく 見える）
+  // がめんの (x, y) → ゆかの (X: よこ, Z: おく)。点は ゆかの 上に ならべて、2つの 点の まんなかの 線が ひび
+  let seed = 11;
+  const rnd = () => { seed = (seed * 16807) % 2147483647; return (seed % 1000) / 1000; };
+  const CS = 0.3, cells = new Map();
+  const cellPts = (i, j) => {
+    const key = i * 1000 + j;
+    if (!cells.has(key)) {
+      let h = (i * 73856093) ^ (j * 19349663);
+      const r = () => { h = (h * 1103515245 + 12345) & 0x7fffffff; return h / 0x7fffffff; };
+      cells.set(key, [(i + 0.15 + r() * 0.7) * CS, (j + 0.15 + r() * 0.7) * CS * 1.6, r()]);
+    }
+    return cells.get(key);
+  };
+  for (let y = hor + 2; y < BH; y++) {
+    const t = (y - hor + 1) / H;
+    const sc = t * 110; // ゆかの 1 = がめんの ドット
+    const Z = 3 / (t + 0.06);
+    const x0 = Math.ceil(bedL(t)), x1 = Math.floor(bedR(t));
+    for (let xx = x0; xx < x1; xx++) {
+      const X = (xx - vx) / sc;
+      const ci = Math.floor(X / CS), cj = Math.floor(Z / (CS * 1.6));
+      let d1 = 99, d2 = 99, a = null, bb = null;
+      for (let dj = -1; dj <= 1; dj++) {
+        for (let di = -1; di <= 1; di++) {
+          const q = cellPts(ci + di, cj + dj);
+          const d = Math.hypot(X - q[0], (Z - q[1]) * 0.55);
+          if (d < d1) { d2 = d1; bb = a; d1 = d; a = q; } else if (d < d2) { d2 = d; bb = q; }
+        }
+      }
+      const edge = (d2 - d1) * sc;
+      if (edge < 0.9) { x.fillStyle = t < 0.3 ? 'rgba(46,34,20,0.6)' : '#3e2e1c'; x.fillRect(xx, y, 1, 1); }
+      else if (edge < 2 && bb && bb[1] > a[1]) { x.fillStyle = 'rgba(200,170,120,0.28)'; x.fillRect(xx, y, 1, 1); }
+      else if (a[2] < 0.25) { x.fillStyle = 'rgba(30,20,10,0.12)'; x.fillRect(xx, y, 1, 1); }
+    }
+  }
+  // ほそい 水の すじ（まんなかを うねって 手前へ）と 小さな 水たまり
+  for (let y = hor; y < BH; y++) {
+    const t = (y - hor + 1) / H;
+    const u = 0.5 + Math.sin(t * 7 + 0.5) * 0.08 * t;
+    const xx = lerp(bedL(t), bedR(t), u), w = 1 + t * 3;
+    x.fillStyle = mix('#1c3a44', '#3a8bb0', Math.min(1, t * 1.3));
+    x.fillRect(Math.round(xx - w / 2), y, Math.max(1, Math.round(w)), 1);
+    if (t > 0.3 && y % 3 === 0) { x.fillStyle = '#7ac3d7'; x.fillRect(Math.round(xx - w / 4), y, Math.max(1, Math.round(w / 3)), 1); }
+  }
+  for (const [u, t, r] of [[0.42, 0.6, 5], [0.6, 0.88, 7], [0.55, 0.35, 3]]) {
+    const xx = lerp(bedL(t), bedR(t), u), y = hor + t * H;
+    x.fillStyle = '#2f7a9e';
+    x.beginPath(); x.ellipse(xx, y, r, r * 0.35, 0, 0, Math.PI * 2); x.fill();
+    x.fillStyle = '#7ac3d7'; x.fillRect(Math.round(xx - r * 0.4), Math.round(y - r * 0.12), Math.round(r * 0.6), 1);
+  }
+  // 小石
+  for (let i = 0; i < 14; i++) {
+    const t = 0.2 + rnd() * 0.8, u = 0.08 + rnd() * 0.84;
+    const xx = Math.round(lerp(bedL(t), bedR(t), u)), y = Math.round(hor + t * H);
+    x.fillStyle = '#5a4a38'; x.fillRect(xx, y, t > 0.6 ? 2 : 1, 1);
+    x.fillStyle = '#a8977c'; x.fillRect(xx, y - 1, 1, 1);
   }
 }
 

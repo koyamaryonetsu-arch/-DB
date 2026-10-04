@@ -6,6 +6,10 @@ import { T } from '../../shared/tiles.js';
 import { tileCanvas } from './tiles.js';
 import { Painter, prand, makeCanvas, ctxOf, shade } from './pixel.js';
 import { paintStorm } from './tiles-ch4.js';
+import {
+  canalWallFace, canalWallTop, canalSidePaint, damTopPaint, paintCanalWater, sluiceTopPaint, sluiceBoardPaint, pillarSidePaint, pillarTopPaint, rubbleAtlasPaint,
+  CANAL_SUN,
+} from './tiles-canal.js';
 
 const TAU = Math.PI * 2;
 
@@ -188,6 +192,20 @@ const EXTRA = {
     p.hline(0, 15, 13, '#b48252'); p.hline(0, 15, 14, '#a07048'); p.hline(0, 15, 15, '#80583a');
   },
   wall_top_adobe: (p) => { p.rect(0, 0, 16, 16, '#a87446'); p.rect(1, 1, 14, 14, '#c08a5a'); p.hline(1, 14, 1, '#d8a672'); p.vline(1, 1, 14, '#d8a672'); p.set(5, 6, '#d8a672'); },
+  // ───── 第4章 Step 2（かれた地下水路。render/tiles-canal.js）─────
+  // 水路の 岸の よこ（通路・かべの 下から 水路の 底まで。白い 水の あと）
+  canal_side: (p, v) => canalSidePaint(p, v),
+  // 切り石の かべの よこ（まえの かおと おなじ 石。下まで つづく）・うえ
+  canal_wall_side: (p, v) => canalWallFace(p, v, 1 | 2),
+  canal_wall_top: (p, v) => canalWallTop(p, v, 0),
+  canal_wall_top_sun: (p, v) => canalWallTop(p, v, CANAL_SUN), // 外（フィールドの 水路の 入り口）は 日が あたる
+  // がれきの 山の うえ（石と 砂）
+  dam_top: (p, v) => damTopPaint(p, v),
+  // 水門の うえ（鉄の 車）・引き上げた 水門の 板・地下水路の 柱
+  sluice_top: (p, v) => sluiceTopPaint(p, v),
+  sluice_board: (p) => sluiceBoardPaint(p),
+  canal_pillar_side: (p) => pillarSidePaint(p),
+  canal_pillar_top: (p) => pillarTopPaint(p),
 };
 
 // 3D だけの え を ペインターに かく（テストでも つかう）
@@ -436,6 +454,28 @@ export function puffPainter(f = 0) {
 }
 export function puffCanvas(f = 0) {
   return puffPainter(f).toCanvas();
+}
+
+// ───────────── 地下水路の 水（第4章 Step 2）─────────────
+// 2D の 水と おなじ もようの 32×32 の え（2マスぶん。くりかえすと つなぎめが ない。f … コマ 0〜15。flow … 0 東へ・1 南へ）
+export function canalWaterPainter(f, flow = 0) {
+  const p = new Painter(32, 32);
+  paintCanalWater(p, 0, 0, f, 32, 32, flow);
+  return p;
+}
+export function canalWaterCanvas(f, flow = 0) {
+  return canalWaterPainter(f, flow).toCanvas();
+}
+
+// がれきの 石と くずれた 切り石（たてた 石。48×16: 石 | 切り石の よこ | 切り石の うえ）
+let rubbleCache = null;
+export function rubblePainter() {
+  const p = new Painter(48, 16);
+  rubbleAtlasPaint(p);
+  return p;
+}
+export function rubbleCanvas() {
+  return rubbleCache || (rubbleCache = rubblePainter().toCanvas());
 }
 
 // タイルの え（16×16）を そのまま

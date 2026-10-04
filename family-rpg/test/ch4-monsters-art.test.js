@@ -1,15 +1,19 @@
-// 第4章の 魔物の え（render/ch4-art.js）と 砂の国の 人の みため（render/chars.js の NPC_LOOKS・ターバン・ずきん・スカーフ・金の わ・ラクダ）
-// ブラウザが なくても しらべられる ところだけ（え の かきかた・パレット・はみだし・NPC の みため）
+// 第4章の 魔物の え（render/ch4-art.js・ch4-boss-art.js）と 砂の国の 人の みため（render/chars.js の NPC_LOOKS・ターバン・ずきん・スカーフ・金の わ・ラクダ）
+// ブラウザが なくても しらべられる ところだけ（え の かきかた・パレット・はみだし・NPC の みため・ボスの 大きさ）
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { MONSTER_ART, bigNpcScale, fadeAt } from '../public/js/client/render/monsters.js';
 import { addCh4Art } from '../public/js/client/render/ch4-art.js';
 import { MONSTERS_CH4 } from '../public/js/shared/data/monsters-ch4.js';
+import { FIXED_CH4 } from '../public/js/shared/data/encounters-ch4.js';
 import { npcOpts, paintHuman, paintSpecial } from '../public/js/client/render/chars.js';
 import { MAPS } from '../public/js/shared/maps/index.js';
 import { CH4_MAPS } from '../public/js/shared/maps/ch4.js';
 
 const CH4_MONSTERS = Object.keys(MONSTERS_CH4);
+const CH4_BOSSES = CH4_MONSTERS.filter((id) => MONSTERS_CH4[id].boss);
+// たたかいの がめん（battlefx.js の BW×BH）・魔物の あしもと（client/battle.js の baseY）
+const BW = 256, BASE_Y = 124;
 
 // monsters.js の かく ための どうぐ の かわり: つかった いろ と はみだしを しらべる
 function stubG(w, h) {
@@ -41,12 +45,14 @@ function outside(pts, w, h, extra = 0.6) {
 
 const lower = (a) => new Set(a.map((c) => c.toLowerCase()));
 
-test('第4章の 魔物の え: monsters-ch4.js の 魔物が ぜんぶ ある（addCh4Art だけでも そろう）', () => {
-  assert.deepEqual(CH4_MONSTERS.sort(), ['gold_beetle', 'mirage_flower', 'moon_ghost', 'sand_slime', 'sand_vulture', 'scorpion_soldier']);
+test('第4章の 魔物の え: monsters-ch4.js の 魔物が ぜんぶ ある（addCh4Art だけでも そろう。ボスも）', () => {
+  assert.deepEqual([...CH4_MONSTERS].sort(), ['armor_scorpion', 'dry_frog', 'gold_beetle', 'mirage_flower', 'moon_ghost', 'sand_slime', 'sand_vulture', 'scorpion_soldier']);
+  assert.deepEqual(CH4_BOSSES, ['armor_scorpion']);
   for (const id of CH4_MONSTERS) {
     const d = MONSTER_ART[id];
     assert.ok(d, `${id} の え`);
-    assert.ok(Array.isArray(d.size) && d.size.length === 2 && d.size.every((v) => Number.isInteger(v) && v >= 20 && v <= 70), `${id}: size`);
+    const max = CH4_BOSSES.includes(id) ? 140 : 70;
+    assert.ok(Array.isArray(d.size) && d.size.length === 2 && d.size.every((v) => Number.isInteger(v) && v >= 20 && v <= max), `${id}: size`);
     assert.ok(Array.isArray(d.pal) && d.pal.length >= 4 && d.pal.every((c) => /^#[0-9a-f]{6}$/i.test(c)), `${id}: pal`);
     assert.equal(new Set(d.pal).size, d.pal.length, `${id}: pal に おなじ いろが ない`);
     assert.equal(typeof d.draw, 'function', `${id}: draw`);
@@ -63,11 +69,37 @@ test('第4章の 魔物の え: 大きさの きまり（s は m より 小さ�
   const small = CH4_MONSTERS.filter((id) => MONSTERS_CH4[id].size === 's');
   const mid = CH4_MONSTERS.filter((id) => MONSTERS_CH4[id].size === 'm');
   assert.deepEqual(small.sort(), ['gold_beetle', 'sand_slime']);
+  assert.ok(mid.includes('dry_frog'), 'からからガエルは m');
   for (const s of small) for (const m of mid) assert.ok(area(s) < area(m), `${s} < ${m}`);
   for (const id of CH4_MONSTERS.filter((x) => MONSTERS_CH4[x].flying)) {
     const [w, h] = MONSTER_ART[id].size;
     assert.ok(w > h, `${id}: つばさを ひろげる`);
   }
+});
+
+test('よろい大サソリ: ボスの 大きさ（第3章の ボスと おなじ くらい）。よばれた サソリ兵 2体と ならんでも がめんに はいる', () => {
+  const [w, h] = MONSTER_ART.armor_scorpion.size;
+  assert.ok(w >= 80 && h >= 80, 'ボスの 大きさ');
+  assert.ok(w <= 140 && h + 2 <= 120, `たたかいの がめんに はいる ${w}×${h}`);
+  assert.ok(w * h >= MONSTER_ART.flame_knight.size[0] * MONSTER_ART.flame_knight.size[1], '炎の騎士より 小さくない');
+  assert.ok(w > h, 'よこに ひろい（大きな はさみ）');
+  for (const id of CH4_MONSTERS.filter((x) => !CH4_BOSSES.includes(x))) assert.ok(w * h > MONSTER_ART[id].size[0] * MONSTER_ART[id].size[1] * 3, `${id} より ずっと 大きい`);
+  // HP が へると サソリ兵を 2体 よぶ（monsters-ch4.js の phases）。client/battle.js の ならべかたで ちぢめずに ならぶ
+  const summon = MONSTERS_CH4.armor_scorpion.phases.flatMap((p) => p.summon || []);
+  assert.deepEqual(summon, ['scorpion_soldier', 'scorpion_soldier']);
+  const row = [w, ...summon.map((id) => MONSTER_ART[id].size[0])].reduce((s, v) => s + v + 2 + 6, 0);
+  assert.ok(row <= BW - 12, `ならんだ はば ${row}`);
+  assert.ok(h + 2 <= BASE_Y, 'あたまが がめんの 上に はみださない');
+  // ボス戦は 地下水路の 背景
+  assert.equal(FIXED_CH4.armor_scorpion.bg, 'canal');
+  assert.equal(FIXED_CH4.armor_scorpion.group[0][0], 'armor_scorpion');
+});
+
+test('よろい大サソリ: フィールドの 大きな NPC（mon:armor_scorpion・big）は 第3章の ボスと おなじ きまりの 大きさ（4マス くらい）', () => {
+  assert.equal(bigNpcScale('mon:armor_scorpion'), null, 'field.js の きまり（0.5ばい）');
+  assert.equal(bigNpcScale('mon:flame_knight'), null);
+  const tiles = ((MONSTER_ART.armor_scorpion.size[0] + 2) * 0.5) / 16;
+  assert.ok(tiles > 3 && tiles < 4.5, `よこ ${tiles} マス`);
 });
 
 test('第4章の 魔物の え: 2コマ とも、たたかいの 大きさ でも フィールドの 小さな え でも かける（いろは パレットの なか・はみださない）', () => {
@@ -124,14 +156,15 @@ test('第4章の 魔物の え: すきとおるのは 月のゆうれい と ま
   for (const id of ['pururin', 'ghost_pirate', 'snow_slime', 'shadow_flame']) assert.equal(MONSTER_ART[id].fade, undefined, id);
 });
 
-test('北の古井戸: サソリ兵・砂ぷるりんは ちいさい NPC の え（大きな NPC では ない）。第4章の NPC は みんな え が ある', () => {
+test('北の古井戸: サソリ兵・砂ぷるりんは ちいさい NPC の え（大きな NPC では ない）。第4章の NPC は みんな え が ある（大きな NPC は ボスの すがた だけ）', () => {
   assert.equal(bigNpcScale('mon:scorpion_soldier'), null);
   assert.equal(bigNpcScale('mon:sand_slime'), null);
   const seen = new Set();
   for (const id of CH4_MAPS) {
     for (const n of MAPS[id].npcs) {
       seen.add(n.sprite);
-      assert.ok(!n.big, `${n.id}: ちいさい NPC`);
+      // 大きな NPC は ボスの すがた（地下水路の おくの よろい大サソリ など。monsters.js の bigNpcCanvas）
+      if (n.big) assert.ok(n.sprite.startsWith('mon:') && MONSTERS_CH4[n.sprite.slice(4)]?.boss, `${n.id}: 大きな NPC は ボスの すがた`);
       if (n.sprite.startsWith('mon:')) assert.ok(MONSTER_ART[n.sprite.slice(4)], `${n.id}: ${n.sprite} の え`);
       else assert.ok(npcOpts(n.sprite) || paintSpecial(n.sprite, 'down', 0), `${n.id}: ${n.sprite} の みため`);
     }

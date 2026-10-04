@@ -1,19 +1,21 @@
-// 第4章の フィールドの 絵（render/tiles-ch4.js・tiles.js・field3d.js・tex3d.js・themes.js・weather.js・battlefx.js）
+// 第4章の フィールドの 絵（render/tiles-ch4.js・tiles-canal.js・tiles.js・field3d.js・tex3d.js・themes.js・weather.js・battlefx.js）
 // ブラウザ なしで しらべられる こと: 2D の 絵が ぜんぶ あるか・つなぎめ・2.5D の かたち・洞窟の 色・天気・戦いの 背景
+// Step 2（かれた地下水路）: 水路の タイル・水の 流れ・水路の 底の ひびわれ・岸の ようす・2.5D の 高さ・地下水路の 色・広間の 背景
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { T, TILE_INFO } from '../public/js/shared/tiles.js';
+import { T, TILE_INFO, parseRows } from '../public/js/shared/tiles.js';
 import { MAPS } from '../public/js/shared/maps/index.js';
 import { southWeatherAt, SOUTH_W, SOUTH_H, SOUTH_POS, STORM_Y } from '../public/js/shared/maps/south.js';
 import { ZONE_BG_CH4, FIXED_CH4 } from '../public/js/shared/data/encounters-ch4.js';
 import { Painter } from '../public/js/client/render/pixel.js';
 import { paintTile, hasTileArt, isAnimated, frameOf, prepareMap } from '../public/js/client/render/tiles.js';
 import { ch4Mask, duneShape, paintStorm, onDesert, CH4_PAINTERS, CH4_FRAMES } from '../public/js/client/render/tiles-ch4.js';
+import { paintCanalWater, paintCanalBed, canalFlow, CANAL_CTX, CANAL_CTX_TILES, CANAL_SUN } from '../public/js/client/render/tiles-canal.js';
 import {
-  hasExtra, extraPainter, propPainter, PROP_TILES, leafPainter, puffPainter, curtainPainter, stormPainter,
+  hasExtra, extraPainter, propPainter, PROP_TILES, leafPainter, puffPainter, curtainPainter, stormPainter, canalWaterPainter, rubblePainter,
 } from '../public/js/client/render/tex3d.js';
-import { blockSpec, WALL_TILES, TREE_TILES, SIDE_OF } from '../public/js/client/render/field3d.js';
-import { partOfTile, partOfExtra, themeRgb } from '../public/js/client/render/themes.js';
+import { blockSpec, WALL_TILES, TREE_TILES, SIDE_OF, FLOOR_H, CANAL_WATER_Y, GATE_H } from '../public/js/client/render/field3d.js';
+import { partOfTile, partOfExtra, partOfProp, themeRgb } from '../public/js/client/render/themes.js';
 import { Weather, WEATHER_KINDS, hazeOf } from '../public/js/client/render/weather.js';
 import { battleBgSpec, battleBackground } from '../public/js/client/render/battlefx.js';
 
@@ -342,8 +344,12 @@ function withFakeDocument(fn) {
   try { return fn(calls); } finally { if (had) globalThis.document = prev; else delete globalThis.document; }
 }
 
-test('戦いの 背景: 砂ばく（昼・夜）・砂の 洞窟・海辺。出現表の 背景は ぜんぶ ある', () => {
-  for (const id of ['desert', 'desert_night', 'sand_cave', 'beach', 'beach_night']) assert.ok(battleBgSpec(id), id);
+test('戦いの 背景: 砂ばく（昼・夜）・砂の 洞窟・海辺・地下水路の 広間。出現表の 背景は ぜんぶ ある', () => {
+  for (const id of ['desert', 'desert_night', 'sand_cave', 'beach', 'beach_night', 'canal']) assert.ok(battleBgSpec(id), id);
+  // 地下水路の 出現表（s_canal・s_canal2）と ボス戦は 地下水路の 広間
+  assert.equal(ZONE_BG_CH4.s_canal, 'canal');
+  assert.equal(ZONE_BG_CH4.s_canal2, 'canal');
+  assert.equal(FIXED_CH4.armor_scorpion.bg, 'canal');
   for (const bg of Object.values(ZONE_BG_CH4)) assert.ok(battleBgSpec(bg), `出現表 ${bg}`);
   for (const f of Object.values(FIXED_CH4)) assert.ok(battleBgSpec(f.bg), `きまった 戦い ${f.bg}`);
   // 夜の 砂ばくは 昼の データから（night-art.js の nightBg）
@@ -354,7 +360,7 @@ test('戦いの 背景: 砂ばく（昼・夜）・砂の 洞窟・海辺。出�
   assert.equal(battleBgSpec('no_such_place'), null);
   // かいてみる（昼は 太陽、夜は 月）
   withFakeDocument((calls) => {
-    for (const id of ['desert', 'desert_night', 'sand_cave', 'beach', 'beach_night']) {
+    for (const id of ['desert', 'desert_night', 'sand_cave', 'beach', 'beach_night', 'canal']) {
       const before = calls.fillRect;
       const c = battleBackground(id);
       assert.ok(c && calls.fillRect - before > 300, `${id} を かいた`);
@@ -365,5 +371,226 @@ test('戦いの 背景: 砂ばく（昼・夜）・砂の 洞窟・海辺。出�
     const a1 = calls.arc;
     battleBackground('desert_night');
     assert.equal(calls.arc - a1, 1, '夜は 月 だけ');
+    // 地下水路: アーチ（5つ）・たいまつの あかり（4つ）・トンネルの おくの あかり
+    const a2 = calls.arc;
+    battleBackground('canal');
+    assert.ok(calls.arc - a2 >= 15, `アーチ と たいまつ ${calls.arc - a2}`);
   });
+});
+
+// ───────────── 第4章 Step 2: かれた地下水路 ─────────────
+const CANAL_TILES = [T.CANAL_FLOOR, T.CANAL_WALL, T.CANAL_BED, T.CANAL_WATER, T.SLUICE, T.SLUICE_OPEN, T.GRATE, T.DAM];
+const CANAL_EXTRAS = ['canal_side', 'canal_wall_side', 'canal_wall_top', 'canal_wall_top_sun', 'dam_top', 'sluice_top', 'sluice_board', 'canal_pillar_side', 'canal_pillar_top'];
+// ためす ようす（mask）と ちがい（variant。水路の 中は ばしょ 0〜15 と 流れの むき 16）
+const CANAL_MASKS = {
+  [T.CANAL_FLOOR]: [0, 1, 2, 4, 8, 5, 10, 15, 16, 32, 64, 128, 1 | 32 | 64, 255],
+  [T.CANAL_WALL]: [0, 1, 3, 5, 9, 13, 15, 16, 20, 28, 1 | 32, 13 | 32, 16 | 32],
+  [T.CANAL_BED]: [0, 1, 2, 4, 8, 9, 15, 128, 1 | 2 | 128],
+  [T.CANAL_WATER]: [0, 1, 2, 4, 8, 9, 15, 128],
+  [T.DAM]: [0, 16, 1, 9, 16 | 2 | 8, 1 | 4 | 16],
+};
+const CANAL_VARIANTS = {
+  [T.CANAL_FLOOR]: [...Array(16).keys()],
+  [T.CANAL_BED]: [...Array(32).keys()],
+  [T.CANAL_WATER]: [0, 1, 4, 5, 16, 17, 20, 21],
+  [T.DAM]: [...Array(32).keys()],
+};
+
+test('地下水路の 2D の 絵: 8しゅるいの タイルに 絵が あり、16×16 を ぜんぶ ぬる（ちがい・ようす・コマ）。水は 16コマで ながれる', () => {
+  for (const id of CANAL_TILES) {
+    assert.ok(hasTileArt(id) && CH4_PAINTERS[id], `${TILE_INFO[id].name} の 絵`);
+    const frames = id === T.CANAL_WATER ? [...Array(16).keys()] : [0];
+    for (const m of CANAL_MASKS[id] || [0]) {
+      for (const v of CANAL_VARIANTS[id] || [0, 1, 2, 3]) for (const f of frames) assertFull(paintTile(id, v, f, m), `${TILE_INFO[id].name} v${v} f${f} m${m}`);
+    }
+  }
+  // 水は ながれる（16コマ）
+  assert.ok(TILE_INFO[T.CANAL_WATER].anim && isAnimated(T.CANAL_WATER));
+  assert.equal(CH4_FRAMES[T.CANAL_WATER], 16);
+  const seen = new Set();
+  for (let t = 0; t < 4000; t += 37) seen.add(frameOf(T.CANAL_WATER, t));
+  assert.equal(seen.size, 16, 'コマが すすむ');
+  assert.notEqual(paintTile(T.CANAL_WATER, 0, 0).px.join(), paintTile(T.CANAL_WATER, 0, 3).px.join(), '水が ながれる');
+  // 水路の 底は ばしょで もようが ちがう・水門は しまった と 開いた で ちがう・こうしも ちがう
+  assert.notEqual(paintTile(T.CANAL_BED, 0).px.join(), paintTile(T.CANAL_BED, 1).px.join(), '底の もよう');
+  assert.notEqual(paintTile(T.SLUICE, 0).px.join(), paintTile(T.SLUICE_OPEN, 0).px.join(), '水門');
+  assert.notEqual(paintTile(T.GRATE, 0).px.join(), paintTile(T.SLUICE, 0).px.join(), 'こうし');
+  // 北の 岸は 石の かべの かお・かべの かお と うえ・通路の ふちの 石・かべの かげ
+  assert.notEqual(paintTile(T.CANAL_BED, 0, 0, 0).px.join(), paintTile(T.CANAL_BED, 0, 0, 1).px.join(), '北の 岸');
+  assert.notEqual(paintTile(T.CANAL_WATER, 0, 0, 0).px.join(), paintTile(T.CANAL_WATER, 0, 0, 1).px.join(), '水の 北の 岸');
+  assert.notEqual(paintTile(T.CANAL_WALL, 0, 0, 1).px.join(), paintTile(T.CANAL_WALL, 0, 0, 0).px.join(), 'かべの かお と うえ');
+  assert.notEqual(paintTile(T.CANAL_FLOOR, 0, 0, 0).px.join(), paintTile(T.CANAL_FLOOR, 0, 0, 1).px.join(), 'ふちの 石');
+  assert.notEqual(paintTile(T.CANAL_FLOOR, 0, 0, 0).px.join(), paintTile(T.CANAL_FLOOR, 4, 0, 0).px.join(), 'かべの かげ');
+  // 地下水路の マップ（theme 'canal'）で つかう タイルは ぜんぶ 絵が ある（とびらの 前と 後も）
+  for (const m of Object.values(MAPS).filter((mm) => mm.theme === 'canal')) {
+    const ids = new Set(m.tiles);
+    for (const g of m.gates || []) { ids.add(g.open); ids.add(g.closed); }
+    for (const t of ids) assert.ok(hasTileArt(t), `${m.id}: ${TILE_INFO[t]?.name ?? t}`);
+  }
+});
+
+test('地下水路の まわりの ふつうの タイル（たいまつ・レバー・かいだん・柱・がれき・ボスの ゆか）は 水路の え で かく（mask の CANAL_CTX）', () => {
+  for (const id of CANAL_CTX_TILES) {
+    const m = id === T.TORCH ? 1 | CANAL_CTX : CANAL_CTX;
+    const canal = paintTile(id, 1, 0, m), plain = paintTile(id, 1, 0, m & ~CANAL_CTX);
+    assertFull(canal, `${TILE_INFO[id].name}（水路）`);
+    assert.notEqual(canal.px.join(), plain.px.join(), `${TILE_INFO[id].name}: 水路の え`);
+  }
+  assert.notEqual(paintTile(T.TORCH, 0, 0, 1 | CANAL_CTX).px.join(), paintTile(T.TORCH, 0, 1, 1 | CANAL_CTX).px.join(), 'たいまつの ほのお');
+  // ほかの 章の レバーは いままで どおり
+  assert.equal(paintTile(T.LEVER, 2, 0, 0).px.join(), paintTile(T.LEVER, 2, 0, 2).px.join());
+});
+
+test('地下水路の 水: 32×32 の もようで となりの マスと つながる（東へ・南へ）・16コマで 32ドット ながれて もとに もどる・2.5D の 水も おなじ もよう', () => {
+  const diff = (a, b) => a.px.filter((c, k) => c !== b.px[k]).length;
+  for (const flow of [0, 1]) {
+    for (const f of [0, 5, 11]) {
+      const big = new Painter(32, 32);
+      paintCanalWater(big, 0, 0, f, 32, 32, flow);
+      for (let j = 0; j < 2; j++) {
+        for (let i = 0; i < 2; i++) {
+          const tile = paintTile(T.CANAL_WATER, i | (j << 2) | (flow << 4), f, 0);
+          for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) assert.equal(tile.get(x, y), big.get(i * 16 + x, j * 16 + y), `flow${flow} f${f} マス${i},${j} (${x},${y})`);
+        }
+      }
+      assert.equal(canalWaterPainter(f, flow).px.join(), big.px.join(), `2.5D の 水 flow${flow} f${f}`);
+    }
+    const p0 = new Painter(32, 32), p16 = new Painter(32, 32);
+    paintCanalWater(p0, 0, 0, 0, 32, 32, flow);
+    paintCanalWater(p16, 0, 0, 16, 32, 32, flow);
+    assert.ok(diff(p0, p16) < 32 * 32 * 0.01, `16コマで ひとまわり: ${diff(p0, p16)}`);
+  }
+  // 東へ・南へ で もようが ちがう（さざなみは どちらも よこ）
+  assert.notEqual(canalWaterPainter(0, 0).px.join(), canalWaterPainter(0, 1).px.join());
+});
+
+test('地下水路の 底: 64×64 の ひびわれ もようで となりの マスと つながる（風紋は 流れの むきで かわる）', () => {
+  for (const flow of [0, 1]) {
+    const big = new Painter(64, 64);
+    paintCanalBed(big, 0, 0, 64, 64, flow);
+    for (let j = 0; j < 4; j++) {
+      for (let i = 0; i < 4; i++) {
+        const tile = paintTile(T.CANAL_BED, i | (j << 2) | (flow << 4), 0, 0);
+        for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) assert.equal(tile.get(x, y), big.get(i * 16 + x, j * 16 + y), `flow${flow} マス${i},${j} (${x},${y})`);
+      }
+    }
+  }
+  assert.notEqual(paintTile(T.CANAL_BED, 5, 0, 0).px.join(), paintTile(T.CANAL_BED, 5 | 16, 0, 0).px.join(), '風紋の むき');
+});
+
+// ためしの 地下水路（# かべ . 通路 _ 底 ~ 水 H 水門 D せき 9 レバー i たいまつ）
+const CANAL_ROWS = [
+  '##########',
+  '#i..#~~~~#',
+  '#...#DDDD#',
+  '#.9.H____#',
+  '#........#',
+  '##########',
+];
+const CANAL_LEGEND = { '#': T.CANAL_WALL, '.': T.CANAL_FLOOR, _: T.CANAL_BED, '~': T.CANAL_WATER, H: T.SLUICE, D: T.DAM, 9: T.LEVER, i: T.TORCH };
+function canalTestMap(gates = []) {
+  const t = parseRows(CANAL_ROWS, CANAL_LEGEND);
+  return { id: 'canal_test', kind: 'dungeon', theme: 'canal', w: t.w, h: t.h, tiles: t.tiles, gates };
+}
+
+test('地下水路の となりの ようす（prepareMap）: 水路の 岸・通路の ふちの 石・かべの かお・水路の かべの たいまつ と レバー。とびらで 底 ⇔ 水 ⇔ せき が かわっても おなじ', () => {
+  const m = canalTestMap();
+  const r = prepareMap(m);
+  const i = (x, y) => y * m.w + x;
+  // 水路の 中: 1=北 2=東 4=南 8=西 が 岸
+  assert.equal(r.mask[i(5, 1)], 1 | 8, '水（北と 西は かべ。南は せき）');
+  assert.equal(r.mask[i(6, 3)], 4, '底（南は 通路）');
+  assert.equal(r.mask[i(5, 3)], 4 | 8, '底（西は 水門）');
+  assert.equal(r.mask[i(8, 3)], 2 | 4, '底（東は かべ）');
+  assert.equal(r.mask[i(5, 2)], 8, 'せき（よこに ならぶ）');
+  // 通路の ふちの 石（北が 水路）・ななめだけ 水路（北東）
+  assert.equal(r.mask[i(6, 4)], 1);
+  assert.equal(r.mask[i(4, 4)], 16);
+  // かべ: まえの かお（1）・下が 水路（2）・西 / 東が ひらいている（4 / 8）
+  assert.equal(r.mask[i(5, 0)], 1 | 2, '水路の 上の かべ');
+  assert.equal(r.mask[i(4, 2)], 1 | 4 | 8, '水門の 上の かべ');
+  assert.equal(r.mask[i(4, 1)] & 1, 0, '下も かべ なら うえ');
+  // 水路の かべの たいまつ・水路の レバー
+  assert.equal(r.mask[i(1, 1)] & (1 | CANAL_CTX), 1 | CANAL_CTX, 'たいまつ');
+  assert.equal(r.mask[i(2, 3)], CANAL_CTX, 'レバー');
+  // ちがい: 水路の 中は ばしょと 流れの むき、通路は かべの かげ（北が かべ 4・西が かべ 8）
+  assert.equal(r.variant[i(6, 3)], 2 | (3 << 2), '底（東西に 流れる）');
+  assert.equal(r.variant[i(1, 2)] & 12, 4 | 8, 'すみの 通路');
+  assert.equal(r.variant[i(6, 4)] & 12, 0);
+  // とびら（水門が 開く・底に 水が 来る・せきが くずれて 水に なる）でも mask と ちがい は おなじ
+  const gates = [
+    { x: 4, y: 3, closed: T.SLUICE, open: T.SLUICE_OPEN, flag: 'g1' },
+    ...[5, 6, 7, 8].map((x) => ({ x, y: 3, closed: T.CANAL_BED, open: T.CANAL_WATER, flag: 'g1' })),
+    ...[5, 6, 7, 8].map((x) => ({ x, y: 2, closed: T.DAM, open: T.CANAL_WATER, flag: 'g2' })),
+  ];
+  const g = prepareMap(canalTestMap(gates));
+  assert.deepEqual([...g.mask], [...r.mask], 'mask');
+  assert.deepEqual([...g.variant], [...r.variant], 'ちがい');
+  // 流れの むき: よこに ながい 水路は 東西、たてに ながい 水路は 南北
+  const at = (rows) => (x, y) => (y < 0 || y >= rows.length || x < 0 || x >= rows[0].length ? -1 : rows[y][x] === '_' ? T.CANAL_BED : T.CANAL_WALL);
+  assert.equal(canalFlow(at(['#######', '#_____#', '#_____#', '#######']), 3, 1), 0);
+  assert.equal(canalFlow(at(['####', '#__#', '#__#', '#__#', '#__#', '####']), 1, 2), 1);
+  // 外（フィールドの 水路の 入り口）の かべは 日が あたる（mask 32）。地下では つかない
+  const out = prepareMap({ ...canalTestMap(), id: 'canal_out', kind: 'field', theme: undefined });
+  assert.equal(out.mask[i(5, 0)], 1 | 2 | CANAL_SUN, '外の かべ');
+  assert.equal(r.mask[i(5, 0)] & CANAL_SUN, 0, '地下の かべ');
+  assert.notEqual(paintTile(T.CANAL_WALL, 0, 0, 1 | CANAL_SUN).px.join(), paintTile(T.CANAL_WALL, 0, 0, 1).px.join(), 'すその 砂');
+  assert.notEqual(extraPainter('canal_wall_top_sun', 0).px.join(), extraPainter('canal_wall_top', 0).px.join(), '日の あたる うえ');
+});
+
+test('地下水路の 2.5D: かべは 洞窟の かべと おなじ 高さ・水門と こうしは かべの 中の とびら・水路の 底と 水は 通路より ひくい', () => {
+  const cw = blockSpec(T.CANAL_WALL, 3, 4);
+  assert.equal(cw.h, blockSpec(T.CAVE_WALL, 3, 4).h, 'かべの 高さ');
+  assert.equal(cw.south[0], 't');
+  assert.equal(cw.south[1], T.CANAL_WALL);
+  assert.equal(cw.south[3], 1, 'まえの かお（2D の mask 1）');
+  for (const id of [T.SLUICE, T.SLUICE_OPEN, T.GRATE]) {
+    const sp = blockSpec(id, 2, 2);
+    assert.ok(sp.gate && sp.h === cw.h, `${TILE_INFO[id].name}: かべの 中の とびら`);
+    assert.deepEqual(sp.south, ['t', id, 0, 0], `${TILE_INFO[id].name}: とびらの え は 2D と おなじ`);
+  }
+  assert.ok(GATE_H > 0.8 && GATE_H < cw.h, 'とびらの 上は 石の かべ');
+  assert.equal(blockSpec(T.SLUICE, 0, 0).top[1], 'sluice_top', '水門の うえに 車');
+  for (const id of [T.CANAL_FLOOR, T.CANAL_BED, T.CANAL_WATER, T.DAM]) assert.equal(blockSpec(id, 0, 0), null, TILE_INFO[id].name);
+  // たかさ: 通路 0・水路の 底は ひくい・水は 底より 上で 通路より ひくい・せきは 底から もり上がる
+  assert.equal(FLOOR_H[T.CANAL_FLOOR], undefined);
+  assert.ok(FLOOR_H[T.CANAL_BED] < -0.25 && FLOOR_H[T.CANAL_BED] > -0.7, `底 ${FLOOR_H[T.CANAL_BED]}`);
+  assert.ok(CANAL_WATER_Y < -0.1 && CANAL_WATER_Y > FLOOR_H[T.CANAL_BED], `水 ${CANAL_WATER_Y}`);
+  assert.equal(FLOOR_H[T.DAM], FLOOR_H[T.CANAL_BED]);
+  assert.equal(SIDE_OF[T.CANAL_FLOOR], 'canal_side', '水路の 岸の よこ');
+  for (const id of [T.CANAL_WALL, T.SLUICE, T.SLUICE_OPEN, T.GRATE]) {
+    for (const key of ['top', 'side']) assert.ok(hasExtra(blockSpec(id, 5, 5)[key][1]), `${TILE_INFO[id].name}.${key}`);
+  }
+  for (const name of CANAL_EXTRAS) {
+    assert.ok(hasExtra(name), name);
+    for (const v of [0, 1, 2, 3]) assertFull(extraPainter(name, v), `${name} v${v}`);
+  }
+  // がれきの 石と 切り石（たてた 石の え。48×16）
+  const rb = rubblePainter();
+  assert.equal(rb.w, 48);
+  assertFull(rb, 'がれきの 石');
+});
+
+test('地下水路の 色（canal）: ふつうの ダンジョンの タイルは 黄土色の 石と 青緑の 水・地下水路の タイルは 色を かえない', () => {
+  for (const id of CANAL_TILES) assert.equal(partOfTile(id), 'none', TILE_INFO[id].name);
+  for (const name of CANAL_EXTRAS) assert.equal(partOfExtra(name), 'none', name);
+  // 水路の え で かいた たいまつ・かいだん などは 色を かえない（ふつうの ときは いままで どおり）
+  assert.equal(partOfTile(T.TORCH, 1 | CANAL_CTX), 'none');
+  assert.equal(partOfTile(T.TORCH, 1), 'wall');
+  assert.equal(partOfTile(T.STAIRS_UP, CANAL_CTX), 'none');
+  assert.equal(partOfTile(T.STAIRS_UP), 'floor');
+  // 2.5D の レバーは 地下水路では 色を かえない（ほかの 洞窟は いままで どおり）
+  assert.equal(partOfProp(T.LEVER, 'canal'), 'none');
+  assert.equal(partOfProp(T.LEVER, 'lava'), 'floor');
+  // 洞窟の ゆか（#4a4038）は 水路の 石だたみ（#b8a07a）くらいの 明るさの あたたかい 色・かべは こい 黄土色・水は 青緑
+  const lum = ([r, g, b]) => 0.299 * r + 0.587 * g + 0.114 * b;
+  const floor = themeRgb(0x4a, 0x40, 0x38, 'canal', 'floor');
+  const wall = themeRgb(0x4b, 0x3d, 0x33, 'canal', 'wall');
+  const water = themeRgb(0x1f, 0x3f, 0x6e, 'canal', 'water');
+  assert.ok(floor[0] > floor[2] + 30 && Math.abs(lum(floor) - lum([0xb8, 0xa0, 0x7a])) < 30, `ゆか ${floor}`);
+  assert.ok(wall[0] > wall[2] + 25 && lum(wall) < lum(floor), `かべ ${wall}`);
+  assert.ok(water[2] > water[0] + 40 && water[1] > water[0] + 30, `水 ${water}`);
+  // たいまつの 火は そのまま・砂の 洞窟とは ちがう 色
+  assert.deepEqual(themeRgb(0xff, 0x7a, 0x2a, 'canal', 'wall'), [0xff, 0x7a, 0x2a]);
+  assert.notDeepEqual(themeRgb(0x4a, 0x40, 0x38, 'sand', 'floor'), floor);
 });

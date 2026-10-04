@@ -1,7 +1,8 @@
-// 色の かえかた（宝の洞窟の しゅるい・第3章の 氷と 火の 洞窟・第4章の 砂の 洞窟・洞窟の 主の 色ちがい）
+// 色の かえかた（宝の洞窟の しゅるい・第3章の 氷と 火の 洞窟・第4章の 砂の 洞窟と 地下水路・洞窟の 主の 色ちがい）
 // もとの ドット絵は そのままに、明るさを たもって 色だけ かえる
 import { T } from '../../shared/tiles.js';
 import { makeCanvas, ctxOf } from './pixel.js';
+import { CANAL_CTX, CANAL_CTX_TILES } from './tiles-canal.js';
 
 // どの 部分か（ゆか・かべ・水）
 const PART_OF_TILE = {
@@ -16,8 +17,14 @@ for (const name of ['snow_top', 'snow_side', 'ice_top', 'ice_side', 'ash_top', '
 // 第4章の タイル（砂ばく・砂丘・砂岩・ヤシ・サボテン・日干しれんが・砂嵐・古井戸）も もとの 色の まま
 for (const id of [T.DESERT, T.DUNE, T.SANDSTONE, T.PALM, T.CACTUS, T.ADOBE, T.SANDSTORM, T.WELL_HOLE]) PART_OF_TILE[id] = 'none';
 for (const name of ['sandstone_top', 'sandstone_side', 'adobe_side', 'wall_top_adobe', 'dune_top']) PART_OF_EXTRA[name] = 'none';
-export const partOfTile = (id) => PART_OF_TILE[id] || 'floor';
+// 第4章 Step 2（かれた地下水路）の タイルと 2.5D の え も もとの 色の まま
+for (const id of [T.CANAL_FLOOR, T.CANAL_WALL, T.CANAL_BED, T.CANAL_WATER, T.SLUICE, T.SLUICE_OPEN, T.GRATE, T.DAM]) PART_OF_TILE[id] = 'none';
+for (const name of ['canal_side', 'canal_wall_side', 'canal_wall_top', 'canal_wall_top_sun', 'dam_top', 'sluice_top', 'sluice_board', 'canal_pillar_side', 'canal_pillar_top']) PART_OF_EXTRA[name] = 'none';
+// mask … 地下水路の え で かいた たいまつ・レバー・かいだん など（mask の CANAL_CTX）も 色を かえない
+export const partOfTile = (id, mask = 0) => (mask & CANAL_CTX && CANAL_CTX_TILES.has(id) ? 'none' : PART_OF_TILE[id] || 'floor');
 export const partOfExtra = (name) => PART_OF_EXTRA[name] || 'floor';
+// 2.5D の たてた もの（レバー など）。地下水路では 2D と おなじ ように レバーの 色を かえない
+export const partOfProp = (id, theme) => (theme === 'canal' ? partOfTile(id) : 'floor');
 
 const hex = (h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
 const G = (...stops) => stops.map(([p, h]) => [p, hex(h)]);
@@ -56,7 +63,16 @@ const SAND = {
   gem: G([0, '#6a3a08'], [0.5, '#f0a830'], [1, '#fff4c8']),
   flame: null,
 };
-const THEMES = { ice: ICE, lava: LAVA, sand: SAND };
+// 地下水路（第4章 Step 2）: 黄土色の 切り石・こい かげ・たいまつの あかり（火は そのまま）・すきとおった 青緑の 水・青い 石
+// 洞窟の ゆか（#4a4038）は 水路の 石だたみ（#b8a07a）くらいの 明るさに、かべは 水路の 切り石の 色に
+const CANAL = {
+  floor: G([0, '#1c1209'], [0.1, '#3e2e1c'], [0.2, '#7a6446'], [0.3, '#b09872'], [0.45, '#c6af88'], [0.7, '#ddc9a3'], [1, '#fff6e2']),
+  wall: G([0, '#0c0804'], [0.12, '#2c1f13'], [0.24, '#5a4229'], [0.36, '#866646'], [0.6, '#a8865c'], [1, '#e6c99c']),
+  water: G([0, '#06222e'], [0.35, '#1d6c8c'], [0.7, '#5cbad2'], [1, '#e8fcff']),
+  gem: G([0, '#0a4650'], [0.5, '#3fc6be'], [1, '#e6fff8']),
+  flame: null,
+};
+const THEMES = { ice: ICE, lava: LAVA, sand: SAND, canal: CANAL };
 
 // 1つの 色を かえる
 export function themeRgb(r, g, b, theme, part) {

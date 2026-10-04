@@ -1,8 +1,10 @@
 // 第4章の タイル（16×16 ドット）: 砂ばく・砂丘・砂岩・ヤシ・サボテン・日干しれんが・砂嵐・古井戸（render/tiles.js が まぜる）
-// (p, v, f, m) … Painter / ちがい（0〜3。砂嵐だけは ばしょ 0〜15）/ アニメの コマ / となりの ようす（mask。ch4Mask）
+// Step 2 の かれた地下水路（石だたみ・切り石の かべ・水路の 底と 水・水門・鉄の こうし・がれきの せき）は render/tiles-canal.js
+// (p, v, f, m) … Painter / ちがい（0〜3。砂嵐だけは ばしょ 0〜15。水路の 中は ばしょと 流れの むき）/ アニメの コマ / となりの ようす（mask。ch4Mask）
 // ひかりは 左上から
 import { T } from '../../shared/tiles.js';
 import { Painter, prand, shade } from './pixel.js';
+import { CANAL_PAINTERS, CANAL_FRAMES, CANAL_SPEED, CANAL_WALLS, canalMask } from './tiles-canal.js';
 
 const TAU = Math.PI * 2;
 // 4×4 の ディザ（だんだんの いろを まぜる）
@@ -362,11 +364,14 @@ export const CH4_PAINTERS = {
   },
 };
 
-// アニメーションする タイルの コマ数（砂嵐は 16コマで 64ドット すすんで もとに もどる）
-export const CH4_FRAMES = { [T.SANDSTORM]: 16 };
-export const CH4_SPEED = { [T.SANDSTORM]: 75 };
+// かれた地下水路（Step 2。render/tiles-canal.js）
+Object.assign(CH4_PAINTERS, CANAL_PAINTERS);
+
+// アニメーションする タイルの コマ数（砂嵐は 16コマで 64ドット すすんで もとに もどる。水路の 水は 16コマで 32ドット ながれる）
+export const CH4_FRAMES = { [T.SANDSTORM]: 16, ...CANAL_FRAMES };
+export const CH4_SPEED = { [T.SANDSTORM]: 75, ...CANAL_SPEED };
 // まえの かおが ある かべ（render/tiles.js の WALLS）
-export const CH4_WALLS = [T.ADOBE];
+export const CH4_WALLS = [T.ADOBE, ...CANAL_WALLS];
 
 // となりの ようす（render/tiles.js の prepareMap から）。t … その マスの タイル（とびらが ひらいた あとの もの）
 // at(x, y) … となりの タイル（とびらは ひらいた あとの もの。マップの そとは -1）。あてはまらない ときは -1
@@ -396,7 +401,8 @@ export function ch4Mask(t, at, x, y) {
   }
   // 井戸・かんばん（草の 上に かく タイル）は、まわりが 砂ばくなら 砂の 上に（2）
   if (t === T.WELL || t === T.SIGN) return onDesert(at, x, y) ? 2 : -1;
-  return -1;
+  // かれた地下水路（水路の 岸・通路の ふちの 石・水路の まわりの たいまつ や レバー）
+  return canalMask(t, at, x, y);
 }
 const NEIGHBORS8 = [[0, -1], [1, 0], [0, 1], [-1, 0], [1, 1], [-1, -1], [1, -1], [-1, 1]];
 // まわり 8マスに 砂ばくが 3マス いじょう（第4章の 砂ばくの 中。ほかの 章の マップは かわらない）
