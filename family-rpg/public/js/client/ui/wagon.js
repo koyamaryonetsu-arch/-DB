@@ -491,7 +491,7 @@ export function wagonMenuView(menu, active) {
       menu.sub.blur();
       if (it.value === '#arrange') {
         await menuArrange(menu);
-        setTimeout(() => { if (menu.root) menu.focusSub(wagonMenuView(menu, true)); }, 250);
+        setTimeout(() => menu.redraw(), 250);
         return;
       }
       const send = (op, key, other) => g.net.send({ t: 'menu', action: 'wagon', op, key, with: other || undefined });
@@ -515,7 +515,8 @@ export function wagonMenuView(menu, active) {
         if (v === '#in') send('in', it.value);
         else if (v) send('out', v, it.value);
       }
-      setTimeout(() => { if (menu.root) menu.focusSub(wagonMenuView(menu, true)); }, 250);
+      // カーソルは えらんだ 仲間の ところの まま（menu.js の redraw）
+      setTimeout(() => menu.redraw(), 250);
     },
   });
   box.append(m.root, el('div', { class: 'wv-note', text: note }));

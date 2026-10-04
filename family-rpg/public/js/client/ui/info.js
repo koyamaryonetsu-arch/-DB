@@ -99,20 +99,31 @@ export function itemDetail(id, mons = null) {
   return lines.filter(Boolean).join('\n');
 }
 
-// そうびを かえたら どうなるか
+// 装備で 変わる 強さ（お店の くらべ counter.js と おなじ ならび）
+export const STAT_LABELS = [['atk', '攻撃力'], ['dfn', '守備力'], ['agi', '素早さ'], ['mag', '攻撃魔力'], ['heal', '回復魔力'], ['maxHp', '最大HP'], ['maxMp', '最大MP']];
+
+// before・after（computeStats の 結果）で 変わる 強さを ぜんぶ（上がる ものも 下がる ものも）
+// かえす もの: [{ k, n: 名前, b: 前, a: 後, d: 差 }]
+export function statChanges(before, after) {
+  return STAT_LABELS.map(([k, n]) => ({ k, n, b: before?.[k] ?? 0, a: after?.[k] ?? 0, d: (after?.[k] ?? 0) - (before?.[k] ?? 0) })).filter((x) => x.d);
+}
+
+// 強さの 変化を 色つきで（上がる＝.up・下がる＝.down。例:「攻撃力 46→66↑20」「素早さ 26→24↓2」）
+export function statChangesHtml(list, { none = '強さは変わらない' } = {}) {
+  const ch = (list || []).filter((x) => x.d);
+  if (!ch.length) return `<span class="sc muted">${none}</span>`;
+  return ch.map((x) => `<span class="sc ${x.d > 0 ? 'up' : 'down'}">${x.n} ${x.b}→${x.a}${x.d > 0 ? `↑${x.d}` : `↓${-x.d}`}</span>`).join('');
+}
+
+// そうびを かえたら どうなるか（上がる ものも 下がる ものも。b・a は 前と 後）
 export function equipDiff(char, id) {
   const it = ITEMS[id];
   if (!it) return null;
   const before = computeStats(char);
   const c2 = JSON.parse(JSON.stringify(char));
-  c2.equip[it.type] = id;
+  c2.equip = { ...(c2.equip || {}), [it.type]: id };
   const after = computeStats(c2);
-  const out = [];
-  for (const [k, n] of [['atk', '攻撃'], ['dfn', '守備'], ['agi', '素早さ'], ['mag', '魔力'], ['heal', '回復'], ['maxHp', 'HP'], ['maxMp', 'MP']]) {
-    const d = after[k] - before[k];
-    if (d) out.push({ k, name: n, d });
-  }
-  return out;
+  return statChanges(before, after).map((x) => ({ ...x, name: x.n }));
 }
 
 export function diffText(diffs) {
