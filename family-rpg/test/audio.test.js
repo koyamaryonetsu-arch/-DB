@@ -37,10 +37,10 @@ test('第3章の きょく: けいやくの 7きょくが あって、くりか�
   assert.equal(new Set(mel).size, CH3_TRACKS.length);
 });
 
-// 第4章の きょく（コガネ地方の マップが つかう ID。砂ばくの 昼・夜と、オアシスの村ハミル）
-const CH4_TRACKS = ['desert', 'desert_night', 'oasis'];
+// 第4章の きょく（コガネ地方の マップが つかう ID。砂ばくの 昼・夜と、オアシスの村ハミル、かれた地下水路）
+const CH4_TRACKS = ['desert', 'desert_night', 'oasis', 'canal'];
 
-test('第4章の きょく: 砂ばくの 昼・夜と ハミルの 3きょくが あって、くりかえしても パートが ずれない', () => {
+test('第4章の きょく: 砂ばくの 昼・夜・ハミル・地下水路の 4きょくが あって、くりかえしても パートが ずれない', () => {
   for (const id of CH4_TRACKS) {
     const tr = _TRACKS[id];
     assert.ok(tr, `${id} が ない`);
