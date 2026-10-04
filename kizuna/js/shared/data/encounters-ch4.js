@@ -46,15 +46,30 @@ export const ENCOUNTERS_CH4 = {
     { w: 3, group: [['scorpion_soldier', 1, 2], ['sand_slime', 0, 1]] },
     { w: 2, group: [['sand_slime', 1, 2], ['scorpion_soldier', 1, 1]] },
   ],
+  // ── かれた地下水路（Step 2）。おくへ 行くほど サソリ兵が ふえる ──
+  s_canal: [
+    { w: 4, group: [['dry_frog', 1, 2], ['sand_slime', 0, 1]] },
+    { w: 3, group: [['scorpion_soldier', 1, 2], ['dry_frog', 0, 1]] },
+    { w: 2, group: [['sand_slime', 2, 3]] },
+    { w: 2, group: [['dry_frog', 2, 3]] },
+  ],
+  s_canal2: [
+    { w: 4, group: [['scorpion_soldier', 1, 2], ['dry_frog', 1, 1]] },
+    { w: 3, group: [['dry_frog', 2, 3]] },
+    { w: 2, group: [['scorpion_soldier', 2, 3]] },
+    { w: 2, group: [['dry_frog', 1, 2], ['sand_slime', 1, 2]] },
+  ],
 };
 
 export const FIXED_CH4 = {
   // 北の古井戸の おく: アミを かこんでいる 魔物たち（にげられない）
   well_ambush: { group: [['scorpion_soldier', 2, 2], ['sand_slime', 2, 2]], bg: 'sand_cave', bgm: 'battle', canFlee: false },
+  // かれた地下水路の おく: よろい大サソリ（ボス）
+  armor_scorpion: { group: [['armor_scorpion', 1, 1]], bg: 'canal', bgm: 'boss', canFlee: false, boss: true },
 };
 
 export const ZONE_BG_CH4 = {
-  s_coast: 'beach', s_dune: 'desert', s_oasis: 'desert', s_well: 'sand_cave',
+  s_coast: 'beach', s_dune: 'desert', s_oasis: 'desert', s_well: 'sand_cave', s_canal: 'canal', s_canal2: 'canal',
   s_coast_night: 'beach_night', s_dune_night: 'desert_night', s_oasis_night: 'desert_night',
 };
 

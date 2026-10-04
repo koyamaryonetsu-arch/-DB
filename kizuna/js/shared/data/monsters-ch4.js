@@ -2,6 +2,8 @@
 // え は render/ch4-art.js（ID で きまる）
 // s_coast=北の海辺 s_dune=砂ばく s_oasis=オアシスの まわり s_well=北の古井戸（夜は *_night。encounters-ch4.js）
 
+// ボスの じょうたい いじょうの 効きにくさ（第3章の ボスと おなじ）
+const BOSS_STATUS = { sleep: 0.1, poison: 0.3, confuse: 0.1, blind: 0.3, silence: 0.2, paralyze: 0.1 };
 // きらきらぷるりんと おなじ「とても かたい」魔物の たいせい（monsters.js の METAL_RESIST と おなじ）
 const METAL_RESIST = { fire: 0, ice: 0, wind: 0, blast: 0, bolt: 0, light: 0, dark: 0, void: 0.5, sleep: 0, poison: 0, confuse: 0, blind: 0, silence: 0, paralyze: 0, debuff: 0 };
 
@@ -16,8 +18,11 @@ export const MONSTERS_CH4 = {
   scorpion_soldier: {
     name: 'サソリ兵', lv: 30, hp: 350, str: 116, def: 86, agi: 34, exp: 182, gold: 84,
     race: 'beast', size: 'm', hit: 'slash', resist: { ice: 1.35, bolt: 1.3, fire: 0.8, poison: 0 }, drops: { common: ['antidote', 4], rare: ['seed_def', 48] },
-    actions: [{ w: 4, id: 'attack' }, { w: 3, id: 'm_poison_sting' }, { w: 2, id: 'm_scissor_combo' }, { w: 1, id: 'm_harden', cond: 'notRecent:m_harden' }],
-    desc: 'かたいこうらに身をつつんだ、大きなサソリ。しっぽの毒ばりと、2本のはさみでおそってくる。',
+    actions: [
+      { w: 4, id: 'attack' }, { w: 3, id: 'm_poison_sting' }, { w: 2, id: 'm_scissor_combo' }, { w: 1, id: 'm_harden', cond: 'notRecent:m_harden' },
+      { w: 1, id: 'm_claw_guard', cond: 'notRecent:m_claw_guard' },
+    ],
+    desc: 'かたいこうらに身をつつんだ、大きなサソリ。しっぽの毒ばりと、2本のはさみでおそってくる。はさみをかまえたら、なぐりかかると反撃される。',
   },
   sand_vulture: {
     name: '砂ハゲタカ', lv: 30, hp: 270, str: 112, def: 52, agi: 74, exp: 172, gold: 80,
@@ -47,6 +52,28 @@ export const MONSTERS_CH4 = {
     ],
     desc: '月の夜にだけ、砂ばくをさまようゆうれい。体がすけて、攻撃がすりぬけることがある。',
   },
+  // ── かれた地下水路（Step 2）──
+  dry_frog: {
+    name: 'からからガエル', lv: 30, hp: 310, mp: 40, str: 108, def: 60, agi: 52, mag: 70, exp: 176, gold: 80,
+    race: 'beast', size: 'm', hit: 'bite', resist: { fire: 1.4, wind: 1.2, ice: 0.7, poison: 0.5 }, drops: { common: ['magic_water', 24], rare: ['seed_mag', 48] },
+    actions: [{ w: 3, id: 'attack' }, { w: 3, id: 'm_tongue_sip' }, { w: 2, id: 'm_frog_jump' }, { w: 1, id: 'm_dry_croak', cond: 'notRecent:m_dry_croak' }],
+    desc: '水がかれた水路で、からからにひからびてしまったカエル。長い舌で、旅人のMPを吸い取る。',
+  },
+  // ── ボス（Step 2・かれた地下水路の おく）──
+  armor_scorpion: {
+    name: 'よろい大サソリ', lv: 31, hp: 5600, mp: 60, str: 108, def: 86, agi: 30, mag: 50, exp: 7600, gold: 3200,
+    race: 'beast', size: 'xl', boss: true, turns: 2, speed: 0.74, hit: 'slash', drops: { boss: ['scorpion_brooch'] },
+    resist: { ...BOSS_STATUS, poison: 0, fire: 0.75, ice: 1.3, bolt: 1.3 },
+    actions: [
+      { w: 3, id: 'attack' }, { w: 2, id: 'm_poison_sting' }, { w: 2, id: 'm_scissor_combo' }, { w: 1, id: 'm_sand_throw', cond: 'notRecent:m_sand_throw' },
+      { w: 2, id: 'm_claw_stance', cond: 'notRecent:m_claw_stance' },
+    ],
+    phases: [
+      { hpBelow: 0.5, msg: ['よろい大サソリは、しっぽを高くふり上げた！', 'キシャアアア…！水路のおくから、サソリ兵がかけつけてきた！'], summon: ['scorpion_soldier', 'scorpion_soldier'] },
+      { hpBelow: 0.25, msg: ['よろい大サソリのこうらが、まっかにそまった！', 'よろい大サソリは、いかりくるっている…！'], buff: { atk: 1.2 }, addActions: [{ w: 2, id: 'm_poison_tail' }] },
+    ],
+    desc: '地下水路のおくで、水をせき止めていた大きなサソリ。はさみを大きくひらいたら、反撃の構え。なぐらずに、呪文や防御で待とう。',
+  },
 };
 
 // 素材の ドロップ（loot.js の MAT_DROPS に まぜる）
@@ -56,4 +83,5 @@ export const CH4_MAT_DROPS = {
   sand_vulture: ['wind_feather', 4],
   gold_beetle: ['silver_shard', 3],
   mirage_flower: ['magic_powder', 4],
+  dry_frog: ['magic_powder', 5],
 };

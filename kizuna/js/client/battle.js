@@ -1,20 +1,20 @@
 // たたかいの がめん（むかしの RPG ふう 1がめん）
-import { el, esc, ListMenu, toast } from './ui/dom.js?v=d725a8c0cda9';
-import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js?v=d725a8c0cda9';
-import { ITEMS } from '../shared/data/items.js?v=d725a8c0cda9';
-import { JOBS } from '../shared/data/jobs.js?v=d725a8c0cda9';
-import { MONSTERS } from '../shared/data/monsters.js?v=d725a8c0cda9';
-import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed } from '../shared/stats.js?v=d725a8c0cda9';
-import { affinityOf, attackReach } from '../shared/battle.js?v=d725a8c0cda9';
-import { DUAL_TECHS, dualOptions, dualKnown } from '../shared/data/dual.js?v=d725a8c0cda9';
-import { faceURL } from './field.js?v=d725a8c0cda9';
-import { monsterCanvas } from './render/monsters.js?v=d725a8c0cda9';
-import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=d725a8c0cda9';
-import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js?v=d725a8c0cda9';
-import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js?v=d725a8c0cda9';
-import { abilityDetail, statusNames, buffNames, targetTag } from './ui/info.js?v=d725a8c0cda9';
-import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js?v=d725a8c0cda9';
-import { ResultPager, levelUpName } from './ui/result.js?v=d725a8c0cda9';
+import { el, esc, ListMenu, toast } from './ui/dom.js?v=47a7fac81d44';
+import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js?v=47a7fac81d44';
+import { ITEMS } from '../shared/data/items.js?v=47a7fac81d44';
+import { JOBS } from '../shared/data/jobs.js?v=47a7fac81d44';
+import { MONSTERS } from '../shared/data/monsters.js?v=47a7fac81d44';
+import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed } from '../shared/stats.js?v=47a7fac81d44';
+import { affinityOf, attackReach } from '../shared/battle.js?v=47a7fac81d44';
+import { DUAL_TECHS, dualOptions, dualKnown } from '../shared/data/dual.js?v=47a7fac81d44';
+import { faceURL } from './field.js?v=47a7fac81d44';
+import { monsterCanvas } from './render/monsters.js?v=47a7fac81d44';
+import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=47a7fac81d44';
+import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js?v=47a7fac81d44';
+import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js?v=47a7fac81d44';
+import { abilityDetail, statusNames, buffNames, targetTag } from './ui/info.js?v=47a7fac81d44';
+import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js?v=47a7fac81d44';
+import { ResultPager, levelUpName } from './ui/result.js?v=47a7fac81d44';
 
 // たたかいの え の こまかさ（おもい きかいで さげたら、その あいだは さげた まま）
 let battleRes = BRES;
@@ -571,9 +571,11 @@ export class BattleScene {
       const aff = element ? this.knownAffinity(e, element) : null;
       return aff ? `<span class="aff-line a-${aff}">${AFF[aff]}</span>` : element && ELEMENT_NAMES[element] ? '<span class="aff-line a-unknown">？</span>' : '';
     };
+    // 反撃の構えを している 敵（物理で こうげきすると 反撃される）
+    const stanceTag = (es) => (es.some((e) => e.stance === 'counter') ? '<span class="aff-line a-stance">反撃の構え</span>' : '');
     const items = groups
-      ? groups.map((gp) => ({ html: `${esc(gp.name)}<span class="cnt">（${gp.members.length}ひき）</span>${affTag(gp.members[0])}`, value: gp.lead }))
-      : list.map((e) => ({ html: `${esc(e.name)}${affTag(e)}`, value: e.id }));
+      ? groups.map((gp) => ({ html: `${esc(gp.name)}<span class="cnt">（${gp.members.length}ひき）</span>${affTag(gp.members[0])}${stanceTag(gp.members)}`, value: gp.lead }))
+      : list.map((e) => ({ html: `${esc(e.name)}${affTag(e)}${stanceTag([e])}`, value: e.id }));
     const hover = (it) => {
       this.hover = it?.value;
       this.hoverGroup = groups ? this.c.get(it?.value)?.species || null : null;
@@ -804,6 +806,10 @@ export class BattleScene {
     this.say(ev.lines || [], ev.dur || 1000);
     const actor = this.c.get(ev.id);
     const fx = ev.fx || {};
+    // 反撃の構え: やりかえされた 味方の ダメージは、こうげきが あたった あとで 見せる
+    const counterIds = new Set((ev.counter || []).map((k) => k.target));
+    const counterRes = counterIds.size ? (ev.results || []).filter((r) => counterIds.has(r.id)) : [];
+    if (counterIds.size) ev.results = (ev.results || []).filter((r) => !counterIds.has(r.id));
     if (actor && this.mine.includes(actor.id) && !this.cur) this.renderCmdIdle();
     // エフェクト
     const targets = (fx.targets || []).map((id) => this.c.get(id)).filter(Boolean);
@@ -879,6 +885,7 @@ export class BattleScene {
       }
     }
     if (fx.type === 'telegraph') { g.audio.sfx('warn'); this.banner('！大技が来る！防御で身を守れ！', 'danger'); }
+    if (fx.type === 'stance') { g.audio.sfx('warn'); this.banner('！反撃の構え！なぐると反撃される', 'danger'); }
     if (fx.type === 'bondStart') this.startBondPrompt(ev);
     if (fx.type === 'flee') g.audio.sfx('flee');
     if (fx.type === 'wagon') wagonSwapFx(this, ev);
@@ -952,6 +959,7 @@ export class BattleScene {
       });
     } else if (hitDelay > 0) setTimeout(apply, hitDelay / tempo);
     else apply();
+    if (ev.counter?.length) this.counterFx(ev.counter, counterRes, (perHit ? Math.max(...perHit.values()) : hitDelay) + 380);
     // えらんでいる とちゅうで たおれた・ねむった など
     const cur = this.cur && this.c.get(this.cur);
     if (cur && (!cur.alive || (cur.status || []).some((x) => x === 'sleep' || x === 'paralyze') || !cur.ready)) this.dropReady(cur.id);
@@ -1205,6 +1213,37 @@ export class BattleScene {
     else run();
   }
 
+  // 反撃の構えの 敵が、こうげきして きた 味方に やりかえす（delay: こうげきが あたった あと）
+  counterFx(list, results, delay) {
+    const g = this.game;
+    const tempo = this.fxTempo();
+    setTimeout(() => {
+      if (this.destroyed) return;
+      this.banner('反撃された！', 'danger');
+      list.forEach((k, i) => {
+        const by = this.c.get(k.actor), t = this.c.get(k.target);
+        if (!t) return;
+        const r = results.find((x) => x.id === t.id);
+        const lead = (by ? this.enemyAct(by, { type: 'attack' }, null, [t], false) : 0) + i * 120;
+        setTimeout(() => {
+          if (this.destroyed) return;
+          if (!r || r.miss || !(r.dmg > 0)) {
+            this.floatNum(t, 'ミス', 'miss');
+            g.audio.sfx('miss');
+            return;
+          }
+          const pow = r.dmg / (t.maxHp || 1);
+          closeUp(this.fx, this.allyPt(t), 'claw', pow, 0, '#ffa22a');
+          this.hitStatus(t.id, pow);
+          this.floatNum(t, String(r.dmg), r.crit ? 'crit' : '');
+          g.audio.sfx(r.crit ? 'crit' : 'hurt');
+          this.fx.vignette('#ff2020', 460, Math.min(0.5, 0.2 + pow * 0.8));
+          this.shake(320, 4 + pow * 8);
+        }, lead / tempo);
+      });
+    }, delay / tempo);
+  }
+
   glowStatus(id, color) {
     const s = this.statusBoxes.get(id);
     if (!s) return;
@@ -1353,6 +1392,13 @@ export class BattleScene {
         x.drawImage(white(m.img, '#ff3a3a'), snap(m.x + dx) - 2, snap(m.y + dy) - 2, m.w + 4, m.h + 4);
         x.globalAlpha = base;
       }
+      // 反撃の構え: だいだいいろに ひかる（物理で こうげきすると 反撃される）
+      if (c.stance && c.alive) {
+        const pulse = 0.45 + Math.sin(this.time / 140) * 0.25;
+        x.globalAlpha = pulse * base;
+        x.drawImage(white(m.img, '#ffa22a'), snap(m.x + dx) - 2, snap(m.y + dy) - 2, m.w + 4, m.h + 4);
+        x.globalAlpha = base;
+      }
       // こうどうちゅうの すがた（とびこむ・ためる・はく など。あしもとを きじゅんに のびちぢみ）
       const P = c.act ? actPose(c.act) : null;
       const sx = P ? P.sx : 1, sy = P ? P.sy : 1;
@@ -1398,6 +1444,21 @@ export class BattleScene {
         const ax = Math.round(m.x + m.w / 2);
         const ay = Math.round(m.y - 6 + Math.sin(this.time / 120) * 2);
         x.fillRect(ax - 3, ay - 3, 6, 2); x.fillRect(ax - 2, ay - 1, 4, 2); x.fillRect(ax - 1, ay + 1, 2, 2);
+      }
+      // 反撃の構えの しるし（頭の 上で ひらいた はさみ ＞＜ が ゆれる）
+      if (c.stance && c.alive) {
+        const sx0 = Math.round(m.x + m.w / 2), sy0 = Math.round(m.y - 4 + Math.sin(this.time / 160) * 1.5);
+        const open = Math.floor(this.time / 280) % 2;
+        x.fillStyle = '#2a1206';
+        x.fillRect(sx0 - 9, sy0 - 5, 18, 10);
+        x.fillStyle = '#ffb03a';
+        for (const sgn of [-1, 1]) {
+          // 左は ＞、右は ＜（まん中の 点が 内がわ）
+          const bx = sx0 + sgn * (5 + open);
+          x.fillRect(bx - 1, sy0 - 3, 2, 2); x.fillRect(bx - 1 - sgn * 2, sy0 - 1, 2, 2); x.fillRect(bx - 1, sy0 + 1, 2, 2);
+        }
+        x.fillStyle = '#ffe2a8';
+        x.fillRect(sx0 - 1, sy0 - 1, 2, 2);
       }
       // じょうたい いじょう
       if (c.alive && (c.status || []).includes('sleep') && Math.floor(this.time / 500) % 2) {

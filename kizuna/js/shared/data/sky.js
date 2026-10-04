@@ -2,10 +2,10 @@
 // ・風の大鳥フウラ: カモメ港の 風のさいだんで「風の笛」を もらうと、フィールドで 呼べる（world/travel.js）
 // ・ルーラ: 魔法使い・賢者が 覚える。行った ことの ある 町へ 仲間と いっしょに 飛ぶ（洞窟や 塔の 中では 使えない）
 // ・第3章: シロガネ地方（北）へも 飛べる。星の竜アステルが 目覚めると（c3_dragon）竜に のって もっと はやく 飛べる
-import { OW_W, OW_H } from '../maps/overworld.js?v=d725a8c0cda9';
-import { SEA_W, SEA_H, PORT, SEA_POS } from '../maps/sea.js?v=d725a8c0cda9';
-import { NORTH_W, NORTH_H, NORTH_LANDING, NORTH_ARRIVE } from '../maps/north.js?v=d725a8c0cda9';
-import { SOUTH_W, SOUTH_H, SOUTH_LANDING, SOUTH_ARRIVE } from '../maps/south.js?v=d725a8c0cda9';
+import { OW_W, OW_H } from '../maps/overworld.js?v=47a7fac81d44';
+import { SEA_W, SEA_H, PORT, SEA_POS } from '../maps/sea.js?v=47a7fac81d44';
+import { NORTH_W, NORTH_H, NORTH_LANDING, NORTH_ARRIVE } from '../maps/north.js?v=47a7fac81d44';
+import { SOUTH_W, SOUTH_H, SOUTH_LANDING, SOUTH_ARRIVE } from '../maps/south.js?v=47a7fac81d44';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

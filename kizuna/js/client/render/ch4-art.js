@@ -4,7 +4,8 @@
 // field … フィールドの シンボル（ちいさい え）の 大きさ（ないときは 20）
 // fade … すきとおる ところ（[[y, こさ], …]。y は え の たかさの わりあい。monsters.js の monsterCanvas が あとで うすく する）
 //        2.5D では こさ 0.5 より うすい ところが きえるので、いちばん うすくても 0.55 より こく
-import { fit, flipX, spark, bez, taper } from './ch3-draw.js?v=d725a8c0cda9';
+import { fit, flipX, spark, bez, taper } from './ch3-draw.js?v=47a7fac81d44';
+import { addCh4BossArt } from './ch4-boss-art.js?v=47a7fac81d44';
 
 // だえんの ふちの てん（a0 → a1 の むき。0 は みぎ、PI/2 は した）
 function ellArc(cx, cy, rx, ry, a0, a1, n = 10) {
@@ -500,6 +501,92 @@ function moonGhost(g0, f) {
   for (const [x, y, s] of sp) spark(g, x, y, s, VL, W);
 }
 
+// ───── からからガエル ─────
+const FROG = {
+  S: '#c9a266', SD: '#9c7442', SDD: '#6c4a26', SL: '#e0c088', SLL: '#f6e0b0', CR: '#563a1e',
+  BE: '#ead6a6', BED: '#c4a874', W: '#fff6dc', WH: '#ffffff', P: '#1a1026', LID: '#a87c46', LIDD: '#7e5a30',
+  TG: '#e8788c', TGD: '#a8465c', TGL: '#ffb4c0', MO: '#5a1a26', DU: '#dcc89e',
+};
+// からからガエル: 水が かれた 水路で ひからびた カエル。ひびわれた 黄土色の 皮・大きな まるい 目（ねむそうな まぶた）・
+// だらりと たれた 長い 舌（コマ1で ぺろりと のばす）。すこし まぬけ
+function dryFrog(g0, f) {
+  const g = fit(g0, 44);
+  const { S, SD, SDD, SL, SLL, CR, BE, BED, W, P, LID, LIDD, TG, TGD, TGL, MO, DU } = FROG;
+  const b = f ? 0.015 : 0;
+  // あしもとの 砂ぼこり
+  for (const [x, y, r] of f ? [[0.05, 0.93, 0.035], [0.95, 0.94, 0.03], [0.9, 0.86, 0.02]] : [[0.07, 0.95, 0.03], [0.93, 0.93, 0.035], [0.1, 0.87, 0.02]]) g.ell(x, y, r, r * 0.8, DU);
+  // うしろ あし（ふとい もも と ひらたい 足）
+  for (const s of [-1, 1]) {
+    const X = (x) => 0.5 + s * x;
+    g.ell(X(0.31), 0.74 + b, 0.17, 0.16, SDD);
+    g.ell(X(0.3), 0.73 + b, 0.155, 0.145, SD);
+    g.ell(X(0.29), 0.71 + b, 0.13, 0.12, S);
+    g.ell(X(0.27), 0.66 + b, 0.06, 0.045, SL);
+    g.ell(X(0.36), 0.935, 0.12, 0.045, SDD);
+    g.ell(X(0.36), 0.925, 0.11, 0.035, SD);
+    for (const k of [0, 1, 2]) g.ell(X(0.28 + k * 0.08), 0.935 - (k === 1 ? 0.01 : 0), 0.03, 0.025, k === 1 ? SL : S);
+    // もものの ひび
+    g.line([[X(0.22), 0.7 + b], [X(0.27), 0.74 + b], [X(0.25), 0.79 + b]], CR, 0.8);
+  }
+  // からだ
+  g.ell(0.5, 0.65 + b, 0.33, 0.25, SDD);
+  g.ell(0.5, 0.64 + b, 0.32, 0.24, S);
+  // おなか（かわいて ひびわれ）
+  g.ell(0.5, 0.74 + b, 0.2, 0.15, BED);
+  g.ell(0.5, 0.73 + b, 0.18, 0.13, BE);
+  g.line([[0.38, 0.72 + b], [0.45, 0.75 + b], [0.47, 0.82 + b]], BED, 0.9);
+  g.line([[0.45, 0.75 + b], [0.55, 0.73 + b], [0.62, 0.78 + b]], BED, 0.9);
+  g.line([[0.55, 0.73 + b], [0.56, 0.66 + b]], BED, 0.9);
+  // まえ あし（ほそい うで と 3本の ゆび）
+  for (const s of [-1, 1]) {
+    const X = (x) => 0.5 + s * x;
+    taper(g, [[X(0.21), 0.62 + b], [X(0.24), 0.74 + b], [X(0.22), 0.87]], 0.075, 0.05, SDD);
+    taper(g, [[X(0.21), 0.62 + b], [X(0.24), 0.74 + b], [X(0.22), 0.87]], 0.05, 0.034, S);
+    for (const k of [-1, 0, 1]) g.ell(X(0.22 + k * 0.045), 0.9, 0.026, 0.022, k ? SL : SLL);
+  }
+  // あたま（ひらたく 大きい）
+  g.ell(0.5, 0.43 + b, 0.38, 0.2, SDD);
+  g.ell(0.5, 0.42 + b, 0.37, 0.19, S);
+  g.ell(0.42, 0.36 + b, 0.18, 0.07, SL);
+  // 目の こぶ と 大きな まるい 目（ねむそうな まぶた。左右で すこし ちがう ところを 見る）
+  for (const s of [-1, 1]) {
+    const x = 0.5 + s * 0.2;
+    g.ell(x, 0.25 + b, 0.135, 0.16, SDD);
+    g.ell(x, 0.245 + b, 0.125, 0.15, S);
+    g.eye(x, 0.25 + b, 0.1, s < 0 ? 0.6 : -0.2, W, P);
+    const lid = f ? 0.035 : 0;
+    g.poly([[x - 0.11, 0.2 + b], [x - 0.08, 0.13 + b], [x, 0.11 + b], [x + 0.08, 0.13 + b], [x + 0.11, 0.2 + b], [x + 0.06, 0.205 + lid + b], [x, 0.21 + lid + b], [x - 0.06, 0.205 + lid + b]], LID);
+    g.line([[x - 0.1, 0.205 + lid * 0.8 + b], [x, 0.215 + lid + b], [x + 0.1, 0.205 + lid * 0.8 + b]], LIDD, 1);
+    g.ell(x - 0.04, 0.14 + b, 0.035, 0.015, SL);
+  }
+  // はなの あな
+  g.dot(0.46, 0.37 + b, SDD); g.dot(0.54, 0.37 + b, SDD);
+  // 大きな 口（へ の 字）
+  g.line([[0.16, 0.44 + b], [0.3, 0.5 + b], [0.5, 0.515 + b], [0.7, 0.5 + b], [0.84, 0.44 + b]], CR, 1.5);
+  g.ell(0.5, 0.505 + b, 0.075, 0.03, MO);
+  // 長い 舌（ふだんは だらりと たれる。コマ1で 右へ ぺろりと のばす）
+  const tg = f ? bez([[0.53, 0.5 + b], [0.68, 0.53], [0.8, 0.43], [0.93, 0.38]], 12) : bez([[0.5, 0.5], [0.47, 0.6], [0.55, 0.71], [0.64, 0.64]], 12);
+  taper(g, tg, 0.085, 0.06, TGD);
+  taper(g, tg, 0.06, 0.042, TG);
+  g.line(tg.slice(1, 8).map(([x, y]) => [x - 0.006, y - 0.012]), TGL, 0.8);
+  const [tx, ty] = tg[tg.length - 1];
+  g.ell(tx, ty, 0.045, 0.05, TGD);
+  g.ell(tx - 0.004, ty - 0.004, 0.033, 0.037, TG);
+  g.ell(tx - 0.012, ty - 0.014, 0.012, 0.012, TGL);
+  // かわいた 皮の ひび（明るい ふちつき）と はがれた かけら
+  const cracks = [
+    [[0.22, 0.38], [0.27, 0.42], [0.25, 0.47]], [[0.68, 0.34], [0.73, 0.38], [0.79, 0.37]], [[0.36, 0.33], [0.4, 0.37], [0.46, 0.36]],
+    [[0.24, 0.57], [0.3, 0.6], [0.29, 0.66]], [[0.7, 0.56], [0.75, 0.6], [0.8, 0.59]], [[0.6, 0.31], [0.63, 0.35]],
+  ];
+  for (const c of cracks) {
+    const pts = c.map(([x, y]) => [x, y + b]);
+    g.line(pts.map(([x, y]) => [x + 0.008, y + 0.012]), SLL, 0.7);
+    g.line(pts, CR, 0.9);
+  }
+  for (const [x, y] of [[0.3, 0.44], [0.66, 0.42], [0.57, 0.58], [0.38, 0.58]]) g.poly([[x, y + b], [x + 0.03, y - 0.012 + b], [x + 0.035, y + 0.014 + b]], SLL);
+}
+
+// ボス（よろい大サソリ）は ch4-boss-art.js
 export function addCh4Art(ART) {
   // ── 砂ばく・海辺 ──
   ART.sand_slime = { size: [32, 30], pal: Object.values(SAND), draw: sandSlime };
@@ -509,4 +596,7 @@ export function addCh4Art(ART) {
   ART.mirage_flower = { size: [42, 50], pal: Object.values(FLOWER), draw: mirageFlower, fade: [[0.58, 1], [0.8, 0.8], [1, 0.6]] };
   // ── 夜の 砂ばく ──
   ART.moon_ghost = { size: [40, 50], pal: Object.values(GHOST), draw: moonGhost, fade: [[0.55, 1], [1, 0.58]] };
+  // ── かれた地下水路（Step 2）──
+  ART.dry_frog = { size: [44, 38], pal: Object.values(FROG), draw: dryFrog };
+  addCh4BossArt(ART);
 }

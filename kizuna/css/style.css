@@ -1251,6 +1251,7 @@ body.talking .mon-pop { top: 26%; }
 .aff-line.a-weak { color: var(--accent); font-weight: bold; }
 .aff-line.a-null { color: var(--warn); }
 .aff-line.a-normal { color: var(--text); }
+.aff-line.a-stance { color: #ffa22a; font-weight: bold; }
 .aff.weak { color: var(--accent); font-weight: bold; }
 .aff.resist { color: var(--muted); }
 .aff.null { color: var(--warn); }

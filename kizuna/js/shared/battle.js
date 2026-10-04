@@ -7,15 +7,15 @@
 //
 // サーバー（家族サーバー）でも ブラウザ（ひとりモード）でも おなじ コードが うごく
 
-import { makeRng } from './rng.js?v=d725a8c0cda9';
-import { ABILITIES } from './data/abilities.js?v=d725a8c0cda9';
-import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=d725a8c0cda9';
-import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js?v=d725a8c0cda9';
-import { MONSTERS } from './data/monsters.js?v=d725a8c0cda9';
-import { ITEMS } from './data/items.js?v=d725a8c0cda9';
-import { JOBS } from './data/jobs.js?v=d725a8c0cda9';
-import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed } from './stats.js?v=d725a8c0cda9';
-import { decideMonster, decideAlly } from './ai.js?v=d725a8c0cda9';
+import { makeRng } from './rng.js?v=47a7fac81d44';
+import { ABILITIES } from './data/abilities.js?v=47a7fac81d44';
+import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=47a7fac81d44';
+import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js?v=47a7fac81d44';
+import { MONSTERS } from './data/monsters.js?v=47a7fac81d44';
+import { ITEMS } from './data/items.js?v=47a7fac81d44';
+import { JOBS } from './data/jobs.js?v=47a7fac81d44';
+import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed } from './stats.js?v=47a7fac81d44';
+import { decideMonster, decideAlly } from './ai.js?v=47a7fac81d44';
 
 export const BOND_MAX = 100;
 // きずなゲージの たまりやすさ（1 … はじめの 版。ちいさいほど たまりにくい）
@@ -518,6 +518,12 @@ export class Battle {
     const ev = { t: 'act', id: c.id, lines: [], upd: [], fx: null };
     this.cur = ev;
     this.turnCount++;
+    // 反撃の構えは つぎの 自分の 番で とける
+    if (c.stance) {
+      c.stance = null;
+      ev.lines.push(`${c.name}は、反撃の構えをといた。`);
+      ev.upd.push(c);
+    }
     if (cmd.type === 'incapacitated') {
       this.doIncapacitated(c, ev);
     } else {
@@ -547,6 +553,7 @@ export class Battle {
         ev.lines.push(`${c.name}は遊んでいる！`);
         this.applyAbility(c, ABILITIES.js_asobu, {}, ev, 1);
       } else this.perform(c, cmd, ev);
+      this.resolveCounters(ev);
       this.tickStatus(c, 'blind', ev);
       this.tickStatus(c, 'silence', ev);
     }
@@ -820,7 +827,7 @@ export class Battle {
     const targets = givenTargets || this.targetsFor(c, a, cmd);
     this.pushCoverMsg(ev);
     ev.fx = { type: 'ability', anim: a.anim, actor: c.id, targets: targets.map((t) => t.id), side: c.side, element: eff.element };
-    if (!targets.length && !['callHelp', 'flee', 'nothing', 'telegraph', 'charge', 'bondUp', 'escape', 'goldThrow'].includes(eff.type)) {
+    if (!targets.length && !['callHelp', 'flee', 'nothing', 'telegraph', 'stance', 'charge', 'bondUp', 'escape', 'goldThrow'].includes(eff.type)) {
       ev.lines.push('しかし効果がなかった！');
       return;
     }
@@ -1071,6 +1078,19 @@ export class Battle {
         this.callHelp(c, eff, ev);
         break;
       }
+      case 'stance': {
+        // 反撃の構え: つぎの 自分の 番まで、物理で こうげきして きた 相手に やりかえす（resolveCounters）
+        c.stance = { kind: eff.stance || 'counter', mult: eff.mult ?? 1.3, ignoreDef: eff.ignoreDef || 0 };
+        ev.fx = { type: 'stance', actor: c.id, stance: c.stance.kind };
+        ev.warn = true;
+        ev.lines.push('（今なぐりかかると、反撃されそうだ…！）');
+        // このターンの のこりの こうどうは とりやめ（構えて まつ。みんなが 作戦を かえる じかん）
+        this.queue = this.queue.filter((q) => q.id !== c.id);
+        ev.forceLast = true;
+        ev.atbAfter = 0;
+        ev.upd.push(c);
+        break;
+      }
       case 'telegraph': {
         c.telegraph = eff.next;
         ev.fx = { type: 'telegraph', actor: c.id };
@@ -1111,6 +1131,7 @@ export class Battle {
   // ───────────── ダメージ計算 ─────────────
   physHit(c, t, eff, ev, element, powMult = 1) {
     if (!t.alive) return 0;
+    this.noteCounter(c, t, ev);
     const res = this.calcPhys(c, t, eff, powMult, element);
     ev.fx = ev.fx || { type: 'attack', actor: c.id, targets: [t.id], side: c.side };
     if (res.miss) {
@@ -1123,6 +1144,34 @@ export class Battle {
     this.damage(c, t, res.dmg, ev, { crit: res.crit, element, nonLethal: eff.nonLethal });
     if (eff.forceCrit !== undefined || res.crit) { /* noop */ }
     return res.dmg;
+  }
+
+  // 反撃の構えの 相手を 物理で こうげきした（あたっても はずれても。1回の こうどうに 1回だけ やりかえされる）
+  noteCounter(c, t, ev) {
+    if (t.stance?.kind !== 'counter' || t.side === c.side) return;
+    ev.counters = ev.counters || [];
+    if (!ev.counters.some((k) => k.by === t.id && k.on === c.id)) ev.counters.push({ by: t.id, on: c.id });
+  }
+
+  // 反撃: こうどうの あとで まとめて やりかえす（ねむり・マヒの 間は できない）
+  resolveCounters(ev) {
+    const list = ev.counters;
+    delete ev.counters;
+    for (const { by, on } of list || []) {
+      const t = this.get(by), a = this.get(on);
+      if (!t?.alive || t.stance?.kind !== 'counter' || !a?.alive || t.status.sleep || t.status.paralyze) continue;
+      ev.lines.push(`${t.name}の反撃！`);
+      ev.counter = (ev.counter || []).concat({ actor: t.id, target: a.id });
+      const res = this.calcPhys(t, a, { mult: t.stance.mult, ignoreDef: t.stance.ignoreDef });
+      if (res.miss) {
+        ev.lines.push(`${a.name}はひらりと身をかわした！`);
+        ev.results = ev.results || [];
+        ev.results.push({ id: a.id, miss: true });
+        continue;
+      }
+      if (res.crit) ev.lines.push('つうこんの一撃！');
+      this.damage(t, a, res.dmg, ev, { crit: res.crit, element: 'phys' });
+    }
   }
 
   calcPhys(c, t, eff, powMult = 1, element = 'phys', estimate = false) {
@@ -1233,6 +1282,7 @@ export class Battle {
     t.debuffs = {};
     t.cover = null;
     t.telegraph = null;
+    t.stance = null;
     for (const q of this.queue) if (q.id === t.id && q.cmd?.type === 'dual') this.releasePartner(q.cmd.partner);
     this.queue = this.queue.filter((q) => q.id !== t.id);
     for (const inv of [...this.invites.values()]) if (inv.from === t.id || inv.to === t.id) this.endInvite(inv, '倒れた');
@@ -1635,6 +1685,7 @@ export class Battle {
     this.countUse(c, cmd.skill);
     const t = this.resolveTarget(c, 'enemy', cmd.target);
     if (!t) return;
+    this.noteCounter(c, t, ev);
     const spPen = penaltyFor(c.penChar, cmd.spell).powMult;
     const skPen = penaltyFor(c.penChar, cmd.skill).powMult;
     ev.fx = { type: 'ability', anim: 'mahouken', actor: c.id, targets: [t.id], side: 'ally', element: sp.effect.element };
@@ -1940,7 +1991,7 @@ export function pub(c) {
     hp: c.hp, maxHp: c.maxHp, mp: c.mp, maxMp: c.maxMp,
     atb: Math.round(c.atb * 10) / 10, rate: atbRate(c),
     ready: !!c.ready, queued: !!c.queued, alive: !!c.alive, fled: !!c.fled, status: st, buffs,
-    defending: !!c.defending, telegraph: !!c.telegraph, boss: !!c.boss, size: c.size, slot: c.slot,
+    defending: !!c.defending, telegraph: !!c.telegraph, stance: c.stance?.kind || null, boss: !!c.boss, size: c.size, slot: c.slot,
     abilities: c.side === 'ally' ? c.abilities : undefined,
     weaponCat: c.side === 'ally' ? c.weaponCat : undefined,
     pc: c.side === 'ally' ? c.penChar : undefined,

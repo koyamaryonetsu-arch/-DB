@@ -5,10 +5,16 @@ export const ITEMS_CH4 = {
     name: '砂よけのマント', type: 'acc', rank: 6, bonus: { def: 6 }, resist: { blind: 0.5 }, price: 2200,
     desc: '砂ばくの旅人がはおる、うすいマント。砂かけやマヌーサで、目をくらまされにくくなる。',
   },
+  // よろい大サソリが 落とす（Step 2）
+  scorpion_brooch: {
+    name: 'サソリのブローチ', type: 'acc', rank: 6, unique: true, bonus: { def: 8, hp: 20 }, resist: { poison: 0 }, price: 0, sell: 700,
+    desc: 'よろい大サソリのこうらで作られたブローチ。毒を受けなくなり、守りとHPが上がる。',
+  },
 };
 
 export const CH4_ITEM_KANA = {
   sand_cloak: 'すなよけのまんと',
+  scorpion_brooch: 'さそりのぶろーち',
 };
 
 export const SHOPS_CH4 = {
