@@ -20,6 +20,7 @@ import { ENCOUNTERS_CH4, NIGHT_ZONES_CH4 } from '../public/js/shared/data/encoun
 import { hasNightSplit } from '../public/js/shared/world/monsters.js';
 import { warpDest } from '../public/js/shared/world/services.js';
 import { T, TILE_INFO } from '../public/js/shared/tiles.js';
+import { FIELD_CHEST_COUNT, fieldChestLootTable } from '../public/js/shared/data/fieldchests.js';
 
 const key = (x, y) => `${x},${y}`;
 const hasOf = (flags) => (f) => flags.includes(f);
@@ -120,6 +121,13 @@ test('第4章: 人・宝箱・かんばん・しかけ・ワープが ただし�
   for (const it of SHOPS.hamil.items) assert.ok(ITEMS[it], it);
   const kinds = (MAPS.south.boards || []).map((b) => b.kind);
   for (const k of ['inn', 'general', 'church']) assert.ok(kinds.includes(k), k);
+  // フィールドの 宝箱（ランダム）も 出る。中みは ちいきに あわせる
+  assert.ok(FIELD_CHEST_COUNT.south > 0);
+  for (const z of Object.keys(MAPS.south.spawnCounts)) {
+    const t = fieldChestLootTable(z);
+    assert.ok(t?.length, `宝箱の 中み ${z}`);
+    for (const e of t) assert.ok(e.gold || ITEMS[e.item], `${z}: ${e.item}`);
+  }
   // アミの へやの まわりは 魔物が 出ない（イベントの 戦いだけ）
   assert.equal(MAPS.north_well.zoneAt(24, 22), 'safe:ami');
   assert.equal(MAPS.north_well.zoneAt(4, 3), 'safe:entry');

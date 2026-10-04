@@ -6,7 +6,7 @@ import { makeRng } from '../rng.js';
 import { npc } from './npc.js';
 import { SEA_PLACES } from './ch2.js';
 import {
-  buildSouth, southZoneAt, southAreaName, southWeatherAt, southBgmAt, SOUTH_PLACES, SOUTH_POS, LANDING_BEACH, OASIS2, OASIS_CAMP,
+  buildSouth, southZoneAt, southAreaName, southWeatherAt, southBgmAt, SOUTH_PLACES, SOUTH_POS, SOUTH_LANDING, LANDING_BEACH, OASIS2, OASIS_CAMP,
   STORM_Y, STORM_FLAG,
 } from './south.js';
 import { HAMIL_ROWS, WELL_ROWS } from './south-rows.js';
@@ -143,7 +143,8 @@ function buildField() {
       { x: wl.x, y: wl.y, to: { map: 'north_well', x: 4.5, y: 2.6, dir: 'down' } },
     ],
     triggers: [
-      { id: 'c4_arrive', x: LANDING_BEACH.x, y: LANDING_BEACH.y, w: LANDING_BEACH.w, h: LANDING_BEACH.h, script: 'c4_arrive', show: { all: ['c4_start'], not: ['c4_arrive'] } },
+      // 竜を おりた ところ（空を とべる 場所の 中なら どこでも）
+      { id: 'c4_arrive', x: SOUTH_LANDING.x, y: SOUTH_LANDING.y, w: SOUTH_LANDING.w, h: SOUTH_LANDING.h, script: 'c4_arrive', show: { all: ['c4_start'], not: ['c4_arrive'] } },
       { id: 'c4_hamil', x: HAM.x, y: HAM.y, w: HAM.w, h: HAM.h, script: 'c4_hamil_arrive', show: { all: ['c4_start'], not: ['c4_hamil'] } },
     ],
     roofs: SOUTH_ROOFS,
