@@ -4,10 +4,10 @@
 // ・北の海辺 … 星の竜アステルが おりる ところ（砂嵐が おさまるまで、空は この 上だけ。data/sky.js）
 // ・オアシスの村ハミル（西）… 北に 北の古井戸。南へ 行くと 砂嵐のかべ
 // ・砂嵐のかべ（y=60〜63）… 王都の 方へは まだ 行けない（道の ところは c4_scorpion、ほかは c4_morgana で はれる）
-// ・かべの 南（王都サファラ・ピラミッド・砂の港ドゥナ）は Step 3 から
+// ・かべの 南: 王都サファラ（Step 3。道の つきあたり）。ピラミッド・砂の港ドゥナは Step 4 から
 import { T, TILE_INFO, parseRows } from '../tiles.js';
 import { fbm, hash2 } from '../rng.js';
-import { HAMIL_ROWS } from './south-rows.js';
+import { HAMIL_ROWS, SAFARA_ROWS } from './south-rows.js';
 
 export const SOUTH_W = 144;
 export const SOUTH_H = 144;
@@ -15,8 +15,36 @@ export const SOUTH_H = 144;
 // 町・村（左上の マス）
 export const SOUTH_PLACES = {
   hamil: { x: 16, y: 24, w: 30, h: 24, name: 'オアシスの村ハミル', bgm: 'oasis' },
+  // 王都サファラ（Step 3）: 砂嵐の 切れ目から 南へ のびる 道の つきあたり（北の 門の まん中が 道の さき）
+  safara: { x: 15, y: 84, w: 51, h: 40, name: '王都サファラ', bgm: 'safara' },
 };
 const HAM = SOUTH_PLACES.hamil;
+const SAF = SOUTH_PLACES.safara;
+// 王都の 中の 場所（町の 左上からの マス → フィールドの マス）
+const SF = (x, y) => ({ x: SAF.x + x, y: SAF.y + y });
+// 王都の 町の 文字（south-rows.js の SAFARA_ROWS。ほかは tiles.js の LEGEND）
+export const SAFARA_LEGEND = { V: T.DRY_FOUNTAIN, '#': T.CANAL_WALL, '@': T.WELL_HOLE };
+export const SAFARA_POS = {
+  gate: SF(25, 0), // 北の 門（まん中）
+  eastGate: SF(50, 13), // 東の 門（東の 砂ばくへ。Step 4 から）
+  well: SF(13, 11), // 町の 井戸（東へ 行列）
+  fountain: SF(25, 18), // 宮殿の 前の かれた ふん水（まん中）
+  temple: SF(6, 15), // 水の神殿の とびら
+  pedestal: SF(6, 25), // 水の神殿の 守り星の 台座（からっぽ。2マス）
+  palaceDoor: SF(25, 22), // 宮殿の とびら（夜は しまる）
+  throne: SF(25, 25), // 王の間の 玉座（北の かべを せにして 南を むく。入り口の ろうかから 左右の すきまを 通って 前へ）
+  courtDoor: SF(25, 30), // 王の間 ⇔ 中庭の とびら（カギが かかっている）
+  jar: SF(25, 33), // 中庭の 水がめ（夜に 本当の 女王が うつる）
+  bench: SF(21, 35), // 中庭の ベンチ（女王の 絵日記）
+  courtWell: SF(18, 33), // 中庭の 古井戸（地下水路へ）
+  canal: SF(6, 32), // 宮殿の地下水路の 入り口（町の 南西。かいだん）
+  hassan: SF(42, 16), // 学者ハサンの 家の とびら
+  arena: SF(41, 24), // 闘技場の とびら
+  arenaGate: SF(44, 33), // 闘技場の 門（大会は お休み。Step 8）
+};
+// 王の間（宮殿の 中）と 中庭（王の間の うしろ。地下水路からしか 入れない）
+export const PALACE_HALL = { x: SAF.x + 15, y: SAF.y + 22, w: 21, h: 9 };
+export const PALACE_COURT = { x: SAF.x + 16, y: SAF.y + 31, w: 19, h: 8 };
 // 竜が おりる 北の海辺（空を とべる 場所。data/sky.js の box）
 export const SOUTH_LANDING = { x: 50, y: 2, w: 44, h: 16 };
 export const SOUTH_ARRIVE = { x: 72.5, y: 9.5 };
@@ -44,10 +72,12 @@ const ROADS = [
   [[72, 11], [70, 17], [62, 24], [52, 31], [HAM.x + HAM.w + 0.5, HAM.y + 10]],
   // 村の 北の 門 → 北の古井戸
   [[HAM.x + 15, HAM.y - 0.5], [HAM.x + 14, 18], [24, 14.5], [SOUTH_POS.well.x + 1, SOUTH_POS.well.y + 1.5]],
-  // 村の 南の 門 → 砂嵐のかべ → （王都へ。Step 3）
+  // 村の 南の 門 → 砂嵐のかべ → 王都サファラの 北の 門（Step 3）
   [[HAM.x + 15, HAM.y + HAM.h], [33, 54], [36.5, 59], [36.5, 72], [40, 84]],
   // 北の海辺 → 小さな オアシス
   [[78, 12], [88, 18], [100, 26], [OASIS2.x - 3, OASIS2.y]],
+  // 王都の 東の 門 → 東の 砂ばく（ピラミッドの 方。Step 4 で のばす）
+  [[SAF.x + SAF.w - 0.5, SAF.y + 14], [74, 98], [84, 101]],
 ];
 
 function distToSeg(px, py, ax, ay, bx, by) {
@@ -72,7 +102,7 @@ export function buildSouth() {
   const t = new Uint8Array(W * H).fill(T.DESERT);
   const set = (x, y, v) => { if (x >= 0 && y >= 0 && x < W && y < H) t[y * W + x] = v; };
   const get = (x, y) => (x >= 0 && y >= 0 && x < W && y < H ? t[y * W + x] : T.SANDSTONE);
-  const nearPlace = (x, y, pad) => [HAM, LANDING_BEACH, OASIS_CAMP].some((p) => inRect(x, y, p, pad));
+  const nearPlace = (x, y, pad) => [HAM, SAF, LANDING_BEACH, OASIS_CAMP].some((p) => inRect(x, y, p, pad));
   const nearRoad = (x, y, d) => ROADS.some((r) => distToPath(x + 0.5, y + 0.5, r) < d);
   const nearPos = (x, y, p, d) => Math.hypot(x - p.x, y - p.y) < d;
 
@@ -150,15 +180,18 @@ export function buildSouth() {
     }
   }
 
-  // 5) はめこみ（村）
-  const stamp = (place, rows) => {
-    const p = parseRows(rows);
+  // 5) はめこみ（村・王都）。まわり 1マスは 歩ける 砂に する
+  const stamp = (place, rows, extra = null) => {
+    const p = parseRows(rows, extra);
     for (let y = 0; y < p.h; y++) for (let x = 0; x < p.w; x++) set(place.x + x, place.y + y, p.tiles[y * p.w + x]);
   };
-  for (let y = HAM.y - 1; y < HAM.y + HAM.h + 1; y++) for (let x = HAM.x - 1; x < HAM.x + HAM.w + 1; x++) {
-    if ([T.DUNE, T.SANDSTONE, T.CACTUS, T.PALM].includes(get(x, y))) set(x, y, T.DESERT);
+  for (const pl of [HAM, SAF]) {
+    for (let y = pl.y - 1; y < pl.y + pl.h + 1; y++) for (let x = pl.x - 1; x < pl.x + pl.w + 1; x++) {
+      if ([T.DUNE, T.SANDSTONE, T.CACTUS, T.PALM].includes(get(x, y))) set(x, y, T.DESERT);
+    }
   }
   stamp(HAM, HAMIL_ROWS);
+  stamp(SAF, SAFARA_ROWS, SAFARA_LEGEND);
 
   // 6) 北の古井戸（日干しれんがの わくの 中の あな。南から 入る）
   const wl = SOUTH_POS.well;
@@ -173,6 +206,7 @@ export function buildSouth() {
 
   // 7) 歩いて 行けない すきま（砂丘や 岩に かこまれた 小さな 場所）は 砂丘で うめる
   //    （魔物や きらきらが 行けない 所に 出ない ように。砂嵐のかべの 南も ふくめて つながりを 見る）
+  //    村と 王都の 中は そのまま（王都の 中庭は 地下水路から、闘技場は カギの とびらの むこう）
   const seen = new Uint8Array(W * H);
   const open = (x, y) => x >= 0 && y >= 0 && x < W && y < H && !TILE_INFO[t[y * W + x]]?.solid;
   const q = [[Math.floor(SOUTH_ARRIVE.x), Math.floor(SOUTH_ARRIVE.y)]];
@@ -188,7 +222,7 @@ export function buildSouth() {
   }
   const FILL = new Set([T.DESERT, T.SAND, T.GRASS, T.TALLGRASS, T.DIRT]);
   for (let y = 0; y < H; y++) {
-    for (let x = 0; x < W; x++) if (!seen[y * W + x] && FILL.has(t[y * W + x]) && !inRect(x, y, HAM)) set(x, y, T.DUNE);
+    for (let x = 0; x < W; x++) if (!seen[y * W + x] && FILL.has(t[y * W + x]) && !inRect(x, y, HAM) && !inRect(x, y, SAF)) set(x, y, T.DUNE);
   }
 
   // 8) 砂嵐のかべ（東西 ぜんぶ。道の ところだけ さきに 弱まる）
@@ -217,6 +251,9 @@ export function southZoneAt(x, y) {
 
 // ばしょの なまえ（がめんの 左上に でる）
 export function southAreaName(x, y) {
+  // 王都の 中の 宮殿と 中庭
+  if (inRect(x, y, PALACE_COURT)) return '宮殿の中庭';
+  if (inRect(x, y, PALACE_HALL)) return 'サファラの宮殿';
   for (const p of Object.values(SOUTH_PLACES)) if (inRect(x, y, p)) return p.name;
   if (inRect(x, y, LANDING_BEACH) || y <= 12) return LANDING_BEACH.name;
   if (Math.hypot(x - SOUTH_POS.well.x, y - SOUTH_POS.well.y) < 7) return '北の古井戸';
@@ -229,7 +266,7 @@ export function southAreaName(x, y) {
 
 // 天気（砂ぼこり。砂嵐のかべの 近くは 砂嵐）
 export function southWeatherAt(x, y) {
-  if (inRect(x, y, HAM, 1)) return null;
+  if (inRect(x, y, HAM, 1) || inRect(x, y, SAF, 1)) return null;
   // 砂嵐の かべの 近く（南がわも すこし）は 砂嵐。はなれると 砂ぼこり
   if (y >= 52 && y <= STORM_Y[1] + 7) return 'sandstorm';
   if (y <= 14 || inRect(x, y, OASIS_CAMP, 2)) return null;

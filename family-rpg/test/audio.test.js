@@ -37,10 +37,10 @@ test('第3章の きょく: けいやくの 7きょくが あって、くりか�
   assert.equal(new Set(mel).size, CH3_TRACKS.length);
 });
 
-// 第4章の きょく（コガネ地方の マップが つかう ID。砂ばくの 昼・夜と、オアシスの村ハミル、かれた地下水路）
-const CH4_TRACKS = ['desert', 'desert_night', 'oasis', 'canal'];
+// 第4章の きょく（コガネ地方の マップが つかう ID。砂ばくの 昼・夜と、オアシスの村ハミル、かれた地下水路、王都サファラ）
+const CH4_TRACKS = ['desert', 'desert_night', 'oasis', 'canal', 'safara'];
 
-test('第4章の きょく: 砂ばくの 昼・夜・ハミル・地下水路の 4きょくが あって、くりかえしても パートが ずれない', () => {
+test('第4章の きょく: 砂ばくの 昼・夜・ハミル・地下水路・王都の 5きょくが あって、くりかえしても パートが ずれない', () => {
   for (const id of CH4_TRACKS) {
     const tr = _TRACKS[id];
     assert.ok(tr, `${id} が ない`);
@@ -63,6 +63,7 @@ test('第4章の きょく: 砂ばくの 昼・夜・ハミル・地下水路の
   assert.equal(southBgmAt(SOUTH_ARRIVE.x, SOUTH_ARRIVE.y, false), 'desert');
   assert.equal(southBgmAt(SOUTH_ARRIVE.x, SOUTH_ARRIVE.y, true), 'desert_night');
   assert.equal(SOUTH_PLACES.hamil.bgm, 'oasis');
+  assert.equal(SOUTH_PLACES.safara.bgm, 'safara');
   for (const p of Object.values(SOUTH_PLACES)) assert.ok(_TRACKS[p.bgm], `${p.name}: ${p.bgm}`);
 });
 

@@ -10,6 +10,7 @@ import { ITEMS } from '../public/js/shared/data/items.js';
 import { MONSTERS } from '../public/js/shared/data/monsters.js';
 import { ENCOUNTER_TABLES, FIXED_ENCOUNTERS } from '../public/js/shared/data/encounters.js';
 import { gainExp, expForLevel } from '../public/js/shared/stats.js';
+import { DAY_MS } from '../public/js/shared/world/clock.js';
 import { Bot } from './helpers.js';
 
 const V = (x, y) => [PLACES.village.x + x, PLACES.village.y + y];
@@ -99,7 +100,9 @@ function boost(bot, level) {
 }
 
 test('第2章を はじめから さいごまで とおして あそべる', { timeout: 240000 }, async () => {
-  const world = new GameWorld({ offline: true, rng: makeRng(2024), rateLimit: false });
+  // 時計は 昼から はじめる（げんじつの 時こくが 夜だと 夜の 魔物が 出て、乱数の ならびが かわり、ボス戦の けっかが かわる）
+  const t0 = Date.now();
+  const world = new GameWorld({ offline: true, rng: makeRng(2024), rateLimit: false, now: () => 50 * DAY_MS + Math.round(0.3 * DAY_MS) + (Date.now() - t0) });
   const bot = new Bot(world, 'ソラ');
   await bot.login();
   await bot.createAndPlay('warrior');

@@ -213,6 +213,52 @@ const ICONS = {
     ],
     pal: { b: '#3a64c8', r: '#e8303a', o: '#7a4a12', Y: '#f2c14e', W: '#fff6c0' },
   },
+  // ───── 第4章 王都サファラ ─────
+  // かんむり（宮殿）
+  palace: {
+    rows: [
+      '.........',
+      'y...y...y',
+      'yy.yYy.yy',
+      'yYyYYYyYy',
+      'yYYbYbYYy',
+      'yYYYrYYYy',
+      'yyyyyyyyy',
+      '.........',
+      '.........',
+    ],
+    pal: { y: '#c8902a', Y: '#f2c14e', r: '#e8303a', b: '#3ac8e8' },
+  },
+  // ぶっちがいの 剣（闘技場）
+  arena: {
+    rows: [
+      'w.......w',
+      '.w.....w.',
+      '..w...w..',
+      '...w.w...',
+      '....w....',
+      '...w.w...',
+      '.hw...wh.',
+      '.gh...hg.',
+      'g.......g',
+    ],
+    pal: { w: '#e8eef8', h: '#f2c14e', g: '#7a4a22' },
+  },
+  // ひらいた 本（学者の家）
+  scholar: {
+    rows: [
+      '.........',
+      '.bb...bb.',
+      'bWWb.bWWb',
+      'bWlWbWlWb',
+      'bWWWbWWWb',
+      'bWlWbWlWb',
+      'bWWWbWWWb',
+      '.bbbbbbb.',
+      '.........',
+    ],
+    pal: { b: '#5a3a22', W: '#fff6dc', l: '#8a98b0' },
+  },
 };
 
 ICONS.general = ICONS.item;
@@ -248,6 +294,9 @@ const BOARD = {
   smith: ['#8a4a2a', '#3a1e10', '#c8703a'],
   casino: ['#7a2a7a', '#3a0f3a', '#a84aa8'],
   medal: ['#2a3a8a', '#101a44', '#5a6ac8'],
+  palace: ['#3a64b0', '#162a5a', '#6a94e0'],
+  arena: ['#a83a2a', '#4a1a10', '#d8604a'],
+  scholar: ['#6a4a8a', '#2a1a40', '#9a7ab8'],
 };
 
 // たてものに かける かんばん（16×15）

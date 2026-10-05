@@ -14,8 +14,8 @@ export const DUSK_FROM = 0.6;
 export const NIGHT_FROM = 0.7;
 export const NIGHT_TO = 0.95;
 export const DAY_FROM = 0.05;
-// 宿屋で 休んだ あとの 時間
-export const REST_TO = { morning: 0.02, night: 0.72 };
+// 宿屋で 休んだ あとの 時間（noon … 昼の 12時の すこし 前。王都サファラの 宿屋の「昼まで休む」。第4章 Step 3）
+export const REST_TO = { morning: 0.02, night: 0.72, noon: 0.23 };
 
 export const PHASE_NAMES = { dawn: '明け方', day: '昼', dusk: '夕方', night: '夜' };
 
@@ -52,7 +52,7 @@ export function clockHour(frac) {
   return Math.floor(mod(6 + frac * 24, 24));
 }
 
-// until（'morning' か 'night'）まで 時間を すすめた あとの ずれ（かならず 先へ すすむ）
+// until（'morning'・'night'・'noon'）まで 時間を すすめた あとの ずれ（かならず 先へ すすむ）
 export function restShift(now, shift, until) {
   const target = REST_TO[until] ?? REST_TO.morning;
   const cur = dayFrac(now, shift);

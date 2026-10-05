@@ -250,7 +250,7 @@ export class ScriptRun {
           break;
         }
         case 'inn': {
-          // ['inn', ねだん, 宿屋の人, 'morning'|'night']（ねだん 0 は 家の ベッド。宿屋は ふつう 朝まで）
+          // ['inn', ねだん, 宿屋の人, 'morning'|'night'|'noon']（ねだん 0 は 家の ベッド。宿屋は ふつう 朝まで。昼までは 王都サファラの 宿屋）
           const price = a[0] || 0;
           const keeper = a[1] || null;
           const until = a[2] || (price ? 'morning' : null);
@@ -274,6 +274,10 @@ export class ScriptRun {
             this.say('こんばんは。\nよくお休みになれましたか？', keeper);
             this.say('HPとMPがすっかり回復した！');
             this.say('外はもう夜です。夜は魔物が強くなりますから、お気を付けて。', keeper);
+          } else if (price && until === 'noon') {
+            this.say('おはようございます…と言っても、\nもうすぐお昼ですよ。ずいぶん、よくおねむりでしたね。', keeper);
+            this.say('HPとMPがすっかり回復した！');
+            this.say('日が高くなってきました。では、いってらっしゃいませ。', keeper);
           } else if (price) {
             this.say('おはようございます。\nゆうべは、よくねむれましたか？', keeper);
             this.say('HPとMPがすっかり回復した！');

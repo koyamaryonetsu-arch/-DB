@@ -125,6 +125,8 @@ export const BOARD_NAMES = {
   general: 'よろず屋', weapon: '武器屋', armor: '防具屋', arms: '武器と防具の店', item: '道具屋', inn: '宿屋',
   church: '教会', bar: '酒場', temple: '星の神殿', harbor: '港長の家',
   bank: '預かり所', smith: 'かじ屋',
+  // 第4章 王都サファラ
+  palace: '宮殿', arena: '闘技場', scholar: '学者の家',
 };
 const board = ([x, y], kind) => ({ x, y, kind, name: BOARD_NAMES[kind] });
 const OVERWORLD_BOARDS = [
