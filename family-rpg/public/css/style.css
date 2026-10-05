@@ -1608,8 +1608,9 @@ body.dot-font { --font-ui: 'KizunaDot', 'Hiragino Kaku Gothic ProN', 'Hiragino S
 /* よこに ならぶ 画面（パソコン・よこむき）: コマンドの 一覧は うすく、えらんだ コマンドは 金色 */
 .fmenu-panel.sub-open .fmenu .side .menu .item:not(.sel) { opacity: 0.45; }
 .fmenu-panel.sub-open .fmenu .side .menu .item.sel { color: var(--accent); }
-/* スマホの たてむき: 画面が かわる（コマンドの 一覧を かくして 見出しだけ。中の 画面を 下まで 大きく） */
-@media (max-width: 700px) {
+/* スマホの たてむき: 画面が かわる（コマンドの 一覧を かくして 見出しだけ。中の 画面を 下まで 大きく）
+   よこむきの 小さい スマホ（はばが 700より せまい）は 左右に ならぶので、ここには 入れない */
+@media (max-width: 700px) and (orientation: portrait) {
   .fmenu-panel.sub-open { height: calc(100% - var(--safe-t) - max(8px, 4vh) - 10px - var(--safe-b)); }
   .fmenu-panel.sub-open .fmenu { grid-template-rows: auto minmax(0, 1fr); }
   .fmenu-panel.sub-open .fmenu .side { padding-top: 0.35em; padding-bottom: 0.35em; }
