@@ -1,7 +1,7 @@
 // お店・やどや・きょうかい・転職・酒場・でんごんばん・メニュー操作
 import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js';
 import { normDifficulty } from '../data/difficulty.js';
-import { ITEMS, sellPrice, SLOTS } from '../data/items.js';
+import { ITEMS, sellPrice, SLOTS, SLOT_NAMES } from '../data/items.js';
 import { JOBS, ALL_JOBS, jobReqText, BODY_NAMES } from '../data/jobs.js';
 import { ABILITIES } from '../data/abilities.js';
 import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js';
@@ -335,6 +335,35 @@ export function menuAction(world, s, msg) {
       who.mp = Math.min(who.mp, st.maxMp);
       return reply(true, `${who === c ? '' : who.name + 'の'}${ITEMS[id].name}を外した。`);
     }
+    // 仲間（自分も）が 装備している 物と 入れかえる（メニューの 装備。client/ui/menu.js の pickGear）
+    //   who が from の 装備を 受けとり、from は who の 今の 装備を 受けとる（装備できない ときは ふくろへ）
+    case 'swapEquip': {
+      const who = ownChar(s, msg.who);
+      const from = ownChar(s, msg.from);
+      const slot = msg.slot;
+      if (!who || !from || who === from || !SLOTS.includes(slot)) return reply(false, '');
+      const id = from.equip?.[slot];
+      if (!id || !ITEMS[id]) return reply(false, '');
+      if (!canEquipChar(who, id)) return reply(false, who.species ? `${who.name}には装備できない` : 'その職業では装備できない');
+      const mine = who.equip[slot] || null;
+      who.equip[slot] = id;
+      from.equip[slot] = null;
+      let note = '';
+      if (mine) {
+        if (canEquipChar(from, mine)) from.equip[slot] = mine;
+        else {
+          addItem(c, mine, 1);
+          note = `\n（${ITEMS[mine].name}は${from.name}には装備できないので、ふくろにしまった）`;
+        }
+      }
+      for (const x of [who, from]) {
+        const st = computeStats(x);
+        x.hp = Math.min(x.hp, st.maxHp);
+        x.mp = Math.min(x.mp, st.maxMp);
+      }
+      const text = mine && from.equip[slot] === mine ? `${who.name}と${from.name}の${SLOT_NAMES[slot]}を入れかえた！` : `${who.name}は${from.name}の${ITEMS[id].name}を装備した！`;
+      return reply(true, text + note);
+    }
     case 'discard': {
       const it = ITEMS[msg.id];
       if (!it || it.type === 'key') return reply(false, 'それは捨てられない');
@@ -416,6 +445,30 @@ export function menuAction(world, s, msg) {
       if (!target) return reply(false, '');
       target.tactics = t;
       return reply(true, `${target.name}の作戦を「${TACTICS[t].name}」にした。`);
+    }
+    // オートの ときに 使う 技・使わない 技（作戦の「オートで使う技」）。char.autoOff に 使わない 技を おぼえる（ai.js）
+    //   key: 'self' か 自分の 仲間 / op: 'on'（使う）・'off'（使わない）・'all'（全部 使う）
+    case 'autoSkill': {
+      const p = partyOf(world, s);
+      const own = msg.key === 'self' ? null : companionOf(ensureCompanions(c), msg.key);
+      const sup = msg.key === 'self' ? null : p?.supports.find((x) => x.key === msg.key && x.owner === c.id);
+      const targets = msg.key === 'self' ? [c] : [...new Set([own?.char, sup?.char].filter(Boolean))];
+      if (!targets.length) return reply(false, '');
+      const t0 = targets[0];
+      const off = new Set(Array.isArray(t0.autoOff) ? t0.autoOff : []);
+      if (msg.op === 'all') off.clear();
+      else {
+        const id = String(msg.id || '');
+        if (!ABILITIES[id] || !learnedAbilities(t0).includes(id)) return reply(false, '');
+        if (msg.op === 'off') off.add(id);
+        else off.delete(id);
+      }
+      const list = [...off].filter((x) => ABILITIES[x]).slice(0, 200);
+      for (const t of targets) {
+        if (list.length) t.autoOff = list;
+        else delete t.autoOff;
+      }
+      return reply(true, msg.op === 'all' ? `${t0.name}は、オートでどの技も使う。` : '');
     }
     // さいきょう装備（ドラクエ風）: ふくろの 中から 攻撃力・守備力が いちばん 上がる ものを 装備する
     // モンスターの なかまも（しゅぞくで 装備できる 物だけ）

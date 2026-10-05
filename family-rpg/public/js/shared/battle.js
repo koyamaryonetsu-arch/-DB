@@ -1991,6 +1991,8 @@ export function allyFromCharacter(char, init = {}) {
     resist: { ...st.resist },
     race: char.species ? (MONSTERS[char.species]?.race || 'beast') : 'human',
     abilities,
+    // オートの ときに 使わない 技（作戦の「オートで使う技」。ai.js）
+    autoOff: Array.isArray(char.autoOff) ? char.autoOff.filter((id) => abilities.includes(id)) : [],
     penChar: { job: char.job, jobs: char.jobs },
     // お気に入りの 技（ならび じゅん）
     favs: char.species ? [] : (Array.isArray(char.favorites) ? char.favorites.slice(0, 30) : []),

@@ -152,10 +152,13 @@ export function canUse(b, c, id) {
   return mpCost(c.penChar, id) <= c.mp;
 }
 
+// オートで 使って よい 技か（作戦の「オートで使う技」で「使わない」に した 技は えらばない）
+const autoOk = (c, id) => !c.autoOff?.includes(id);
+
 // いま つかえる わざ（{ id, a }）
 function usable(b, c) {
   const out = [];
-  for (const id of c.abilities || []) if (canUse(b, c, id)) out.push({ id, a: ABILITIES[id] });
+  for (const id of c.abilities || []) if (autoOk(c, id) && canUse(b, c, id)) out.push({ id, a: ABILITIES[id] });
   return out;
 }
 
@@ -246,7 +249,7 @@ function chooseAttack(b, c, tac, foes) {
   }
   for (const id of c.abilities) {
     const a = ABILITIES[id];
-    if (!a || !canUse(b, c, id)) continue;
+    if (!a || !autoOk(c, id) || !canUse(b, c, id)) continue;
     const eff = a.effect;
     if (eff.type !== 'phys' && eff.type !== 'magic' && eff.type !== 'drainHp') continue;
     if (eff.recoil && c.hp / c.maxHp < 0.5) continue; // もろばぎりは HPが すくない ときは つかわない
@@ -281,9 +284,9 @@ function chooseAttack(b, c, tac, foes) {
     }
   }
   // 魔法剣
-  if (c.abilities.includes('mahouken') && weaponOk({ weapon: 'blade' }, c.weaponCat) && !c.status.silence) {
-    for (const sp of c.abilities.filter(isAttackSpell)) {
-      for (const sk of c.abilities.filter(isSwordSkill)) {
+  if (c.abilities.includes('mahouken') && autoOk(c, 'mahouken') && weaponOk({ weapon: 'blade' }, c.weaponCat) && !c.status.silence) {
+    for (const sp of c.abilities.filter((id) => isAttackSpell(id) && autoOk(c, id))) {
+      for (const sk of c.abilities.filter((id) => isSwordSkill(id) && autoOk(c, id))) {
         const mp = mpCost(c.penChar, sp) + mpCost(c.penChar, sk);
         if (mp > c.mp) continue;
         const spA = ABILITIES[sp], skA = ABILITIES[sk];
