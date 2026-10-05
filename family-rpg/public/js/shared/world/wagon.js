@@ -5,7 +5,7 @@ import { scaleExp } from '../data/difficulty.js';
 import { COMPANION_SLOTS } from '../data/companions.js';
 import { JOBS } from '../data/jobs.js';
 import { WAGON_SLOTS, WAGON_EXP_RATE, hasWagon, cleanWagon } from '../data/wagon.js';
-import { computeStats, fullHeal, jobTrainMult } from '../stats.js';
+import { computeStats, fullHeal } from '../stats.js';
 import { pub } from '../battle.js';
 import {
   partyOf, companionOf, ensureCompanions, stowGear, afterRosterChange, syncParty, nameOfKey, supportInfo,
@@ -275,7 +275,7 @@ export function wagonRefChar(world, s, ref) {
 // 勝った たたかいの あとで。たたかいに 出ていない 馬車の 仲間（生きている 人）が 半分もらう
 //   家族の キャラ（うつし）は、本人に とどく おすそわけが パーティーで 戦った ときの 半分（お金は なし）
 //   grow(ch, exp, trains) … 仲間を そだてて メッセージを つくる（battles.js）  say(line) … メッセージ
-export function wagonShare(world, ctx, { exp, trainN, maxEnemyLv, grow, say }) {
+export function wagonShare(world, ctx, { exp, trainN, grow, say }) {
   const p = world.parties.get(ctx.partyId);
   const lc = leaderChar(world, p);
   if (!hasWagon(lc) || !wagonHere(ctx.map)) return 0;
@@ -295,7 +295,7 @@ export function wagonShare(world, ctx, { exp, trainN, maxEnemyLv, grow, say }) {
     let trains = 0;
     // 職業の 修行も 半分（はんぱは 次の 戦いに もちこす）
     if (!ch.species && trainN > 0) {
-      const carry = (ch.wagonTrain || 0) + trainN * WAGON_EXP_RATE * jobTrainMult(ch, maxEnemyLv);
+      const carry = (ch.wagonTrain || 0) + trainN * WAGON_EXP_RATE;
       trains = Math.floor(carry);
       ch.wagonTrain = carry - trains;
       if (!ch.wagonTrain) delete ch.wagonTrain;

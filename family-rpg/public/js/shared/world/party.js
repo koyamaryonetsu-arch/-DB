@@ -563,6 +563,8 @@ export function partyState(world, p) {
     leader: p.leader,
     worldFlags,
     worldVisited: Object.keys(lvisited).filter((k) => lvisited[k]),
+    // リーダーの 宝の地図の まだ ほっていない 場所（手伝っている なかまの 画面でも 光らせる）
+    worldTreasure: (world.sessions.get(p.leader)?.char?.treasureMaps || []).filter((t) => t && !t.found).map((t) => ({ map: t.map, x: t.x, y: t.y })),
     // リーダーの 目標（さそわれて 来ている 人の 画面に 出す）
     objective: world.sessions.get(p.leader)?.char?.objective || '',
     // パーティーの 時計（リーダーの 時間の ずれ。world/clock.js）

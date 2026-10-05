@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { JOBS, ALL_JOBS, JOB_ORDER, ADVANCED_ORDER, SUPER_ORDER, JOB_MAX_LEVEL, jobBattlesForLevel, jobBases } from '../public/js/shared/data/jobs.js';
 import { ABILITIES } from '../public/js/shared/data/abilities.js';
 import {
-  newCharacter, changeJob, jobUnlocked, gainJobBattles, jobTrainable, jobTrainMult, migrateJobs, comboAllowed, penaltyFor, learnedAbilities, fullHeal, gainExp, expForLevel,
+  newCharacter, changeJob, jobUnlocked, gainJobBattles, jobTrainMult, migrateJobs, comboAllowed, penaltyFor, learnedAbilities, fullHeal, gainExp, expForLevel,
 } from '../public/js/shared/stats.js';
 import { Battle } from '../public/js/shared/battle.js';
 import { GameWorld } from '../public/js/shared/world/world.js';
@@ -51,19 +51,13 @@ test('職業レベルは かった たたかいの かずで あがる（さい�
   assert.equal(gainJobBattles(c, 5).length, 0, 'マスターした あとは あがらない');
 });
 
-test('よわい てきとの たたかいは しゅぎょうが 半分（レベル差 10 以上で 0.5回ぶん）', () => {
-  const c = newCharacter({ id: 'a', name: 'a', job: 'monk' });
-  gainExp(c, expForLevel(20));
-  assert.equal(c.level >= 20, true);
-  assert.equal(jobTrainMult(c, 1), 0.5, 'ぷるりん（Lv1）は よわいので 半分');
-  assert.equal(jobTrainMult(c, c.level - 9), 1, '9 ひくい くらいまでなら まるごと');
-  assert.equal(jobTrainMult(c, c.level - 10), 0.5, '10 ひくいと 半分');
-  assert.equal(jobTrainMult(c, c.level - 30), 0.5, 'どんなに よわくても 0 には ならない');
-  assert.equal(jobTrainMult(c, c.level + 3), 1);
-  assert.equal(jobTrainable(c, c.level - 10), false);
+test('ワンパンチで おわった たたかいは しゅぎょうが 半分（ほかは まるごと 1回ぶん）', () => {
+  assert.equal(jobTrainMult(true), 0.5, 'ワンパンチは 半分');
+  assert.equal(jobTrainMult(false), 1, 'ほかは 1回ぶん');
   // 半分ずつでも たまって レベルが 上がる
+  const c = newCharacter({ id: 'a', name: 'a', job: 'monk' });
   const lv0 = c.jobs.monk.lv;
-  for (let i = 0; i < 2 * jobBattlesForLevel(lv0 + 1); i++) gainJobBattles(c, jobTrainMult(c, 1));
+  for (let i = 0; i < 2 * jobBattlesForLevel(lv0 + 1); i++) gainJobBattles(c, jobTrainMult(true));
   assert.ok(c.jobs.monk.lv > lv0);
 });
 
@@ -142,7 +136,7 @@ test('ワールド: ログインしていない 家族の キャラも よみこ
   assert.deepEqual(world.data.characters.fam1.jobs.mage, { lv: 8, b: jobBattlesForLevel(8) });
 });
 
-test('ワールド: かった たたかいで 職業レベルが すすみ、よわい てきでは すすまない', { timeout: 60000 }, async () => {
+test('ワールド: かった たたかいで 職業レベルが すすむ。ワンパンチで おわると 半分（てきの レベルは 見ない）', { timeout: 60000 }, async () => {
   const world = new GameWorld({ offline: true, rng: makeRng(21), rateLimit: false });
   const bot = new Bot(world, 'ソラ');
   await bot.login();
@@ -150,23 +144,40 @@ test('ワールド: かった たたかいで 職業レベルが すすみ、よ
   await bot.settle();
   const c = world.data.characters[bot.char.id];
   c.guests = [];
-  gainExp(c, expForLevel(4) - c.exp);
+  c.partyKeys = [];
+  gainExp(c, expForLevel(40) - c.exp);
   fullHeal(c);
+  // 1体ずつ 攻撃して 勝つ（Lv40 なので 1回の 攻撃で 1体 たおせる）
   const fight = async (group) => {
     startFieldBattle(world, bot.s, { id: 't' + Math.random(), sp: group[0], group, zone: 'outskirts', table: 'outskirts', busy: false });
+    const ctx = world.battles.get(bot.s.battleId);
+    const b = ctx.battle;
+    for (const e of b.enemies) e.actions = [{ w: 1, id: 'm_nothing' }];
+    const me = b.allies.find((a) => a.controller === bot.s.id);
+    for (let i = 0; i < 4000 && !b.over; i++) {
+      if (me.ready && !me.queued) {
+        const foe = b.enemies.find((e) => e.alive);
+        if (foe) b.command(me.id, { type: 'attack', target: foe.id }, bot.s.id);
+      }
+      world.tick(50);
+    }
     await bot.settle(8000);
-    return bot.battles[bot.battles.length - 1];
+    return { r: bot.battles[bot.battles.length - 1], acts: b.allyActs };
   };
-  const b0 = c.jobs.warrior.b;
-  const r1 = await fight(['tsunousagi']); // Lv2 は Lv4 から みて しゅぎょうに なる
-  assert.equal(r1.outcome, 'win');
-  assert.equal(c.jobs.warrior.b, b0 + 1);
-  gainExp(c, expForLevel(16) - c.exp);
-  fullHeal(c);
-  const r2 = await fight(['pururin']);
-  assert.equal(r2.outcome, 'win');
-  assert.equal(c.jobs.warrior.b, b0 + 1.5, 'Lv16 で ぷるりん（Lv1）は しゅぎょうが 半分');
-  assert.ok(r2.lines.some((l) => l.includes('半分しか進まなかった')));
+  // Lv40 で ぷるりん（Lv1）でも、2回 こうどうした たたかいは まるごと 1回ぶん（前は レベルの ちがいで 半分）
+  let b0 = c.jobs.warrior.b;
+  let f = await fight(['pururin', 'pururin']);
+  assert.equal(f.r.outcome, 'win');
+  assert.equal(f.acts, 2);
+  assert.equal(c.jobs.warrior.b, b0 + 1, '2回 こうどうした たたかいは 1回ぶん');
+  assert.ok(!f.r.lines.some((l) => l.includes('半分しか進まなかった')));
+  // ワンパンチ（1回めの 攻撃で おわった）は 半分
+  b0 = c.jobs.warrior.b;
+  f = await fight(['pururin']);
+  assert.equal(f.r.outcome, 'win');
+  assert.equal(f.acts, 1);
+  assert.equal(c.jobs.warrior.b, b0 + 0.5, 'ワンパンチは 半分');
+  assert.ok(f.r.lines.some((l) => l.includes('一撃で終わったので、職業の修行は半分しか進まなかった')));
 });
 
 test('上級職・超級職・新しい 基本職の わざは ぜんぶ たたかいで つかえる（エラーが でない）', () => {

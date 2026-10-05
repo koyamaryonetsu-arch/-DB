@@ -157,6 +157,10 @@ function fine(p) {
   return q;
 }
 
+// フィールドに かく 大きさ（キャラと あわせる。馬の 高さが 人より すこし ひくい くらい）
+//   え（ドット）は そのままで、res を 大きく して 小さく かく（drawAt・2.5D は 見た目の 大きさ＝ width / res）
+export const WAGON_SCALE = 0.68;
+
 const cache = new Map();
 export function wagonSprite(dir, frame) {
   const f = frame ? 1 : 0;
@@ -166,6 +170,7 @@ export function wagonSprite(dir, frame) {
     const side = dir === 'left' || dir === 'right';
     c = fine(side ? paintSide(f) : dir === 'up' ? paintUp(f) : paintDown(f)).toCanvas();
     if (dir === 'right') c = flipCanvas(c);
+    c.res = (c.res || 1) / WAGON_SCALE;
     cache.set(k, c);
   }
   return c;
@@ -230,17 +235,18 @@ export class WagonFollower {
       return null;
     }
     // よこむきは 絵が 長いので すこし はなれる。歩いた あとが まだ みじかい（マップに 来た ばかり）なら 止まった まま
-    const want = n + 2.1;
+    // （馬車の 大きさ WAGON_SCALE に あわせた きょり）
+    const want = n + 1.9;
     if (trailLen(o) < want * 0.95) {
       this.moving = false;
       return this.pos;
     }
     let tp = field.trailPos(o, want);
     if (!tp) return this.pos;
-    if (tp.dir === 'left' || tp.dir === 'right') tp = field.trailPos(o, n + 2.45) || tp;
+    if (tp.dir === 'left' || tp.dir === 'right') tp = field.trailPos(o, n + 1.85) || tp;
     const side = tp.dir === 'left' || tp.dir === 'right';
     // 絵の まんなかを 道に あわせる（たてむきは 絵が 長いので あしもとを さげる）
-    const gx = tp.x, gy = tp.y + (side ? 0.1 : 1.05);
+    const gx = tp.x, gy = tp.y + (side ? 0.07 : 0.72);
     const ok = wagonSpotOk(map, tp.x, tp.y, hasFlag) && wagonSpotOk(map, tp.x, gy - 0.2, hasFlag);
     if (!ok) {
       this.moving = false;

@@ -8,6 +8,7 @@ import { MONSTERS } from '../data/monsters.js';
 import { TM_HOOKS } from '../data/story-tm.js';
 import { FIXED_ENCOUNTERS } from '../data/encounters.js';
 import { ScriptRun } from './scripts.js';
+import { partyOf } from './party.js';
 import {
   TM_MAX, TM_THEMES, caveInfo, tmTitle, floorMapId, parseFloorId, isTreasureMapId, clearedFlag, foundFlag, seed36, bossLvOf,
   mapDropRate, dropMapLevel, nextMapLevel, repairTreasureMaps,
@@ -214,6 +215,9 @@ function digAt(world, s, owner, rec) {
     rec.found = true;
     owner.char.flags[foundFlag(rec.seed)] = true;
     world.markDirty();
+    // 手伝っている なかまの 画面の 光も けす（party.js の worldTreasure）
+    const party = partyOf(world, owner);
+    if (party && party.members.length > 1) world.sendParty(party);
     steps = [
       ['sfx', 'dig'],
       ['say', null, `${s.char.name}は地面をほった！`],

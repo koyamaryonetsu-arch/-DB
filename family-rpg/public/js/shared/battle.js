@@ -206,6 +206,8 @@ export class Battle {
     this.fledEnemies = [];
     this.nextId = 1;
     this.turnCount = 0;
+    // なかまが こうどうした 回数（ワンパンチで おわった たたかいは 職業の 修行が 半分。world/battles.js）
+    this.allyActs = 0;
     this.preemptive = opts.preemptive || null;
     for (const a of opts.allies || []) this.addAlly(a);
     this.enemyMod = opts.enemyMod || null; // 敵の 強さを かえる（宝の洞窟）
@@ -572,6 +574,7 @@ export class Battle {
     if (cmd.type === 'incapacitated') {
       this.doIncapacitated(c, ev);
     } else {
+      if (c.side === 'ally') this.allyActs++;
       // こんらん
       let confused = false;
       if (c.status.confuse) {

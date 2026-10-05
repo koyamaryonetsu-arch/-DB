@@ -57,6 +57,8 @@ function fieldBattle(world, bot, group = ['pururin']) {
 
 // てきを たおして かつ（ゲージを すすめて おわらせる）
 async function winNow(world, bot, ctx) {
+  // ふつうの たたかい（なかまが 2回 こうどうした）として 勝つ。ワンパンチの たたかいは 職業の 修行が 半分（battles.js）
+  ctx.battle.allyActs = 2;
   for (const e of ctx.battle.enemies) { e.hp = 0; e.alive = false; ctx.battle.killed.push(e.species); }
   ctx.battle.checkEnd();
   for (let i = 0; i < 200 && !ctx.battle.over; i++) await tickN(world, 1);

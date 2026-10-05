@@ -1,5 +1,5 @@
 // キャラクターの つよさ計算・レベルアップ・転職ペナルティ
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_TRAIN_GAP, JOB_WEAK_RATE, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets, jobBodyOk } from './data/jobs.js';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_EASY_RATE, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets, jobBodyOk } from './data/jobs.js';
 import { ITEMS, SLOTS, baseItemId } from './data/items.js';
 import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js';
 import { MONSTERS } from './data/monsters.js';
@@ -522,15 +522,11 @@ export function jobProgress(char, jobId = char.job) {
   return { lv: info.lv, next: Math.max(1, Math.ceil(rest / jobTrainRate(jobId) - 1e-9)), done: false };
 }
 
-// てきが よわい（じぶんより レベルが JOB_TRAIN_GAP より ひくい てきだけ）と、しゅぎょうは はんぶん（JOB_WEAK_RATE）
-// もどりち: 勝った たたかい 1回が 何回ぶんに なるか（1 か 0.5）
-export function jobTrainMult(char, maxEnemyLv) {
-  return maxEnemyLv >= (char.level || 1) - JOB_TRAIN_GAP ? 1 : JOB_WEAK_RATE;
-}
-
-// しゅぎょうが まるごと すすむ あいて か（よわい てき だけだと はんぶん。jobTrainMult）
-export function jobTrainable(char, maxEnemyLv) {
-  return jobTrainMult(char, maxEnemyLv) >= 1;
+// 勝った たたかい 1回が 何回ぶんの 修行に なるか
+// oneBlow … なかまの 1回めの こうどうで おわった（ワンパンチの）たたかい → 半分（JOB_EASY_RATE）。ほかは 1回ぶん
+// （てきとの レベルの ちがいは 見ない。今 すすんでいる 場所の たたかいで ちゃんと 職業レベルが 上がる ように）
+export function jobTrainMult(oneBlow) {
+  return oneBlow ? JOB_EASY_RATE : 1;
 }
 
 // かった たたかいの かずを たす。もどりち: [{ job, lv, learned, unlocked }]
