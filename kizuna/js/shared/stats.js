@@ -1,11 +1,11 @@
 // キャラクターの つよさ計算・レベルアップ・転職ペナルティ
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_TRAIN_GAP, JOB_WEAK_RATE, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets, jobBodyOk } from './data/jobs.js?v=e388712b9c60';
-import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=e388712b9c60';
-import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=e388712b9c60';
-import { MONSTERS } from './data/monsters.js?v=e388712b9c60';
-import { MONSTER_FRIENDS, monsterNatural, gearOf } from './data/companions.js?v=e388712b9c60';
-import { HIRAMEKI, hiraRatio } from './data/hirameki.js?v=e388712b9c60';
-import { cleanLook } from './data/looks.js?v=e388712b9c60';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_EASY_RATE, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets, jobBodyOk } from './data/jobs.js?v=630ae227a032';
+import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=630ae227a032';
+import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=630ae227a032';
+import { MONSTERS } from './data/monsters.js?v=630ae227a032';
+import { MONSTER_FRIENDS, monsterNatural, gearOf } from './data/companions.js?v=630ae227a032';
+import { HIRAMEKI, hiraRatio } from './data/hirameki.js?v=630ae227a032';
+import { cleanLook } from './data/looks.js?v=630ae227a032';
 
 // 長い 物語に なるので レベルは 99まで（レベルで ふえる つよさは ひかえめ）
 export const MAX_LEVEL = 99;
@@ -522,15 +522,11 @@ export function jobProgress(char, jobId = char.job) {
   return { lv: info.lv, next: Math.max(1, Math.ceil(rest / jobTrainRate(jobId) - 1e-9)), done: false };
 }
 
-// てきが よわい（じぶんより レベルが JOB_TRAIN_GAP より ひくい てきだけ）と、しゅぎょうは はんぶん（JOB_WEAK_RATE）
-// もどりち: 勝った たたかい 1回が 何回ぶんに なるか（1 か 0.5）
-export function jobTrainMult(char, maxEnemyLv) {
-  return maxEnemyLv >= (char.level || 1) - JOB_TRAIN_GAP ? 1 : JOB_WEAK_RATE;
-}
-
-// しゅぎょうが まるごと すすむ あいて か（よわい てき だけだと はんぶん。jobTrainMult）
-export function jobTrainable(char, maxEnemyLv) {
-  return jobTrainMult(char, maxEnemyLv) >= 1;
+// 勝った たたかい 1回が 何回ぶんの 修行に なるか
+// oneBlow … なかまの 1回めの こうどうで おわった（ワンパンチの）たたかい → 半分（JOB_EASY_RATE）。ほかは 1回ぶん
+// （てきとの レベルの ちがいは 見ない。今 すすんでいる 場所の たたかいで ちゃんと 職業レベルが 上がる ように）
+export function jobTrainMult(oneBlow) {
+  return oneBlow ? JOB_EASY_RATE : 1;
 }
 
 // かった たたかいの かずを たす。もどりち: [{ job, lv, learned, unlocked }]

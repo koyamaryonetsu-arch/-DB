@@ -5,14 +5,14 @@
 //   c.partyKeys  … いま いっしょに ぼうけんしている なかま（じゅんばん）。'fam:ID' は 家族の キャラ
 //   c.guests     … ものがたりで いっしょに いる ゲスト（ルカ など）
 // パーティーには リーダーの なかまが ついてくる（にんげんが ふえると、はいりきらない なかまは いったん まつ）
-import { newCharacter, computeStats, fullHeal, gainExp, gainJobBattles, migrateJobs, expForLevel, addItem, newMonsterCompanion, learnedAbilities } from '../stats.js?v=e388712b9c60';
-import { jobBattlesForLevel } from '../data/jobs.js?v=e388712b9c60';
-import { NPC_SUPPORTS, GUESTS } from '../data/shops.js?v=e388712b9c60';
-import { MONSTERS } from '../data/monsters.js?v=e388712b9c60';
-import { MONSTER_FRIENDS, ROSTER_MAX, COMPANION_SLOTS } from '../data/companions.js?v=e388712b9c60';
-import { SLOTS, ITEMS } from '../data/items.js?v=e388712b9c60';
-import { cleanWagon, hasWagon, WAGON_SLOTS } from '../data/wagon.js?v=e388712b9c60';
-import { wagonState, wagonTavernInfo } from './wagon.js?v=e388712b9c60';
+import { newCharacter, computeStats, fullHeal, gainExp, gainJobBattles, migrateJobs, expForLevel, addItem, newMonsterCompanion, learnedAbilities } from '../stats.js?v=630ae227a032';
+import { jobBattlesForLevel } from '../data/jobs.js?v=630ae227a032';
+import { NPC_SUPPORTS, GUESTS } from '../data/shops.js?v=630ae227a032';
+import { MONSTERS } from '../data/monsters.js?v=630ae227a032';
+import { MONSTER_FRIENDS, ROSTER_MAX, COMPANION_SLOTS } from '../data/companions.js?v=630ae227a032';
+import { SLOTS, ITEMS } from '../data/items.js?v=630ae227a032';
+import { cleanWagon, hasWagon, WAGON_SLOTS } from '../data/wagon.js?v=630ae227a032';
+import { wagonState, wagonTavernInfo } from './wagon.js?v=630ae227a032';
 
 // パーティーに 入れる 人（家族の プレイヤー）は 5人まで。いっしょに フィールドを 歩いて、いっしょに 戦う
 export const PARTY_MAX = 5;
@@ -563,6 +563,8 @@ export function partyState(world, p) {
     leader: p.leader,
     worldFlags,
     worldVisited: Object.keys(lvisited).filter((k) => lvisited[k]),
+    // リーダーの 宝の地図の まだ ほっていない 場所（手伝っている なかまの 画面でも 光らせる）
+    worldTreasure: (world.sessions.get(p.leader)?.char?.treasureMaps || []).filter((t) => t && !t.found).map((t) => ({ map: t.map, x: t.x, y: t.y })),
     // リーダーの 目標（さそわれて 来ている 人の 画面に 出す）
     objective: world.sessions.get(p.leader)?.char?.objective || '',
     // パーティーの 時計（リーダーの 時間の ずれ。world/clock.js）

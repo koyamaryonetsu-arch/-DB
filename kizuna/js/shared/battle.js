@@ -7,15 +7,15 @@
 //
 // サーバー（家族サーバー）でも ブラウザ（ひとりモード）でも おなじ コードが うごく
 
-import { makeRng } from './rng.js?v=e388712b9c60';
-import { ABILITIES } from './data/abilities.js?v=e388712b9c60';
-import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=e388712b9c60';
-import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js?v=e388712b9c60';
-import { MONSTERS } from './data/monsters.js?v=e388712b9c60';
-import { ITEMS } from './data/items.js?v=e388712b9c60';
-import { JOBS } from './data/jobs.js?v=e388712b9c60';
-import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed, battleAbilityOk } from './stats.js?v=e388712b9c60';
-import { decideMonster, decideAlly } from './ai.js?v=e388712b9c60';
+import { makeRng } from './rng.js?v=630ae227a032';
+import { ABILITIES } from './data/abilities.js?v=630ae227a032';
+import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=630ae227a032';
+import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js?v=630ae227a032';
+import { MONSTERS } from './data/monsters.js?v=630ae227a032';
+import { ITEMS } from './data/items.js?v=630ae227a032';
+import { JOBS } from './data/jobs.js?v=630ae227a032';
+import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed, battleAbilityOk } from './stats.js?v=630ae227a032';
+import { decideMonster, decideAlly } from './ai.js?v=630ae227a032';
 
 export const BOND_MAX = 100;
 // きずなゲージの たまりやすさ（1 … はじめの 版。ちいさいほど たまりにくい）
@@ -206,6 +206,8 @@ export class Battle {
     this.fledEnemies = [];
     this.nextId = 1;
     this.turnCount = 0;
+    // なかまが こうどうした 回数（ワンパンチで おわった たたかいは 職業の 修行が 半分。world/battles.js）
+    this.allyActs = 0;
     this.preemptive = opts.preemptive || null;
     for (const a of opts.allies || []) this.addAlly(a);
     this.enemyMod = opts.enemyMod || null; // 敵の 強さを かえる（宝の洞窟）
@@ -572,6 +574,7 @@ export class Battle {
     if (cmd.type === 'incapacitated') {
       this.doIncapacitated(c, ev);
     } else {
+      if (c.side === 'ally') this.allyActs++;
       // こんらん
       let confused = false;
       if (c.status.confuse) {

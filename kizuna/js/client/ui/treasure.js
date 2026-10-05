@@ -1,10 +1,11 @@
 // 宝の地図（メニューの「道具」に ならぶ・地図の 絵・ほる・見つけた 穴）
-import { el, ListMenu, confirmBox, esc } from './dom.js?v=e388712b9c60';
-import { MAPS, tileAt } from '../../shared/maps/index.js?v=e388712b9c60';
-import { T } from '../../shared/tiles.js?v=e388712b9c60';
-import { hash2 } from '../../shared/rng.js?v=e388712b9c60';
-import { caveInfo, tmTitle, foundFlag, TM_THEMES } from '../../shared/data/treasure.js?v=e388712b9c60';
-import { makeCanvas, ctxOf } from '../render/pixel.js?v=e388712b9c60';
+import { el, ListMenu, confirmBox, esc } from './dom.js?v=630ae227a032';
+import { MAPS, tileAt } from '../../shared/maps/index.js?v=630ae227a032';
+import { T } from '../../shared/tiles.js?v=630ae227a032';
+import { hash2 } from '../../shared/rng.js?v=630ae227a032';
+import { caveInfo, tmTitle, foundFlag, TM_THEMES } from '../../shared/data/treasure.js?v=630ae227a032';
+import { treasureHintLines, fromHereLine } from '../../shared/data/treasure-hint.js?v=630ae227a032';
+import { makeCanvas, ctxOf } from '../render/pixel.js?v=630ae227a032';
 
 const CSS = `
 .tmap-view { width: min(92vw, 440px); z-index: 5; background: var(--win-solid); align-items: center; gap: 0.35em; }
@@ -43,36 +44,30 @@ export function treasureRows(c) {
 
 const findMap = (game, id) => (game.me?.treasureMaps || []).find((t) => t.id === id);
 
-// どの あたりの 地図か（地方と 場所の なまえ）
+// どの あたりの 地図か（目じるしからの 方角と 歩数・まわりの 地形。data/treasure-hint.js）
 function whereText(tm) {
-  const m = MAPS[tm.map];
-  if (!m) return '';
-  return `${m.name}の「${m.areaName(tm.x, tm.y)}」あたり`;
+  return treasureHintLines(tm).join('\n');
 }
 
-// 今いる 場所から 近いか（同じ マップの ときだけ）
+// 今いる 場所から 何の 方角へ 何歩か（同じ マップの ときだけ）
 function nearHint(game, tm) {
-  if (tm.found || game.field?.mapId !== tm.map) return '';
-  const me = game.field.me;
-  const d = Math.hypot(tm.x + 0.5 - me.x, tm.y + 0.5 - me.y);
-  if (d <= 1.6) return '足もとがあやしい…！\nここを調べてみよう。';
-  if (d < 7) return 'この近くのようだ…！';
-  if (d < 18) return 'この辺りの地形とにている気がする。';
-  return '';
+  const f = game.field;
+  if (!f?.me) return '';
+  return fromHereLine(tm, f.mapId, f.me.x, f.me.y);
 }
 
 function stateText(tm) {
   const cave = caveInfo(tm.seed, tm.lv);
   if (tm.cleared) return `${cave.caveName}の主をたおした。\n（また入ることもできる）`;
   if (tm.found) return `${cave.caveName}の入り口を見つけた。\n（地下${cave.floors}階まである。いちばんおくに主がいる）`;
-  return 'まだ宝の場所を見つけていない。';
+  return 'まだ宝の場所を見つけていない。\n宝の場所は、地面が赤く光っている。';
 }
 
 export function treasureDetail(game, id) {
   const tm = findMap(game, id);
   if (!tm) return '';
   const hint = nearHint(game, tm);
-  return `${whereText(tm)}の地図。\n${stateText(tm)}${hint ? `\n${hint}` : ''}`;
+  return `${whereText(tm)}\n${stateText(tm)}${hint ? `\n${hint}` : ''}`;
 }
 
 // ───────────── 地図の 絵（地形だけ。宝の 場所の しるしは 見つけるまで かかない）─────────────
@@ -160,6 +155,23 @@ export function drawTreasurePicture(canvas, tm) {
       x.fillRect(cx + k - 1, cy - k - 1, 2, 2);
     }
   }
+  // 方角の しるし（北が 上。ヒントの「北へ」「南東へ」と あわせて 見る）
+  {
+    const cx = canvas.width - 10, cy = 5;
+    x.globalAlpha = 0.85;
+    x.fillStyle = INK;
+    x.beginPath();
+    x.moveTo(cx, cy);
+    x.lineTo(cx + 3.5, cy + 5);
+    x.lineTo(cx - 3.5, cy + 5);
+    x.closePath();
+    x.fill();
+    x.font = 'bold 9px sans-serif';
+    x.textAlign = 'center';
+    x.textBaseline = 'top';
+    x.fillText('北', cx, cy + 6);
+    x.globalAlpha = 1;
+  }
   // 古い 紙の ふち（こげた ような かげ）
   const g = x.createRadialGradient(canvas.width / 2, canvas.height / 2, canvas.height * 0.35, canvas.width / 2, canvas.height / 2, canvas.width * 0.62);
   g.addColorStop(0, 'rgba(120, 80, 30, 0)');
@@ -194,7 +206,7 @@ export function openTreasureMap(menu, id) {
   box.append(
     el('div', { class: 'gold tm-title', text: `${tmTitle(tm)}　（${TM_THEMES[cave.theme].label}の洞窟）` }),
     pic,
-    el('div', { class: 'small tm-info', text: `${whereText(tm)}の地図。\n${stateText(tm)}` }),
+    el('div', { class: 'small tm-info', text: `${whereText(tm)}\n${stateText(tm)}` }),
     ...(hint ? [el('div', { class: 'small tm-hint', text: hint })] : []),
   );
   const done = (next) => {

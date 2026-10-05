@@ -1,16 +1,16 @@
 // 馬車（サーバーの きまり）: もらう・乗りかえ・総入れかえ・経験値の おすそわけ・たたかいでの いれかえ
 //   きまりの せつめいは data/wagon.js
-import { MAPS } from '../maps/index.js?v=e388712b9c60';
-import { scaleExp } from '../data/difficulty.js?v=e388712b9c60';
-import { COMPANION_SLOTS } from '../data/companions.js?v=e388712b9c60';
-import { JOBS } from '../data/jobs.js?v=e388712b9c60';
-import { WAGON_SLOTS, WAGON_EXP_RATE, hasWagon, cleanWagon } from '../data/wagon.js?v=e388712b9c60';
-import { computeStats, fullHeal, jobTrainMult } from '../stats.js?v=e388712b9c60';
-import { pub } from '../battle.js?v=e388712b9c60';
+import { MAPS } from '../maps/index.js?v=630ae227a032';
+import { scaleExp } from '../data/difficulty.js?v=630ae227a032';
+import { COMPANION_SLOTS } from '../data/companions.js?v=630ae227a032';
+import { JOBS } from '../data/jobs.js?v=630ae227a032';
+import { WAGON_SLOTS, WAGON_EXP_RATE, hasWagon, cleanWagon } from '../data/wagon.js?v=630ae227a032';
+import { computeStats, fullHeal } from '../stats.js?v=630ae227a032';
+import { pub } from '../battle.js?v=630ae227a032';
 import {
   partyOf, companionOf, ensureCompanions, stowGear, afterRosterChange, syncParty, nameOfKey, supportInfo,
   famCopy, humanCharIds, dropMissingFam, creditSupportOwner, PARTY_MAX, BATTLE_FILL,
-} from './party.js?v=e388712b9c60';
+} from './party.js?v=630ae227a032';
 
 const fail = (reason, extra = {}) => ({ ok: false, reason, ...extra });
 const isFam = (k) => String(k || '').startsWith('fam:');
@@ -275,7 +275,7 @@ export function wagonRefChar(world, s, ref) {
 // 勝った たたかいの あとで。たたかいに 出ていない 馬車の 仲間（生きている 人）が 半分もらう
 //   家族の キャラ（うつし）は、本人に とどく おすそわけが パーティーで 戦った ときの 半分（お金は なし）
 //   grow(ch, exp, trains) … 仲間を そだてて メッセージを つくる（battles.js）  say(line) … メッセージ
-export function wagonShare(world, ctx, { exp, trainN, maxEnemyLv, grow, say }) {
+export function wagonShare(world, ctx, { exp, trainN, grow, say }) {
   const p = world.parties.get(ctx.partyId);
   const lc = leaderChar(world, p);
   if (!hasWagon(lc) || !wagonHere(ctx.map)) return 0;
@@ -295,7 +295,7 @@ export function wagonShare(world, ctx, { exp, trainN, maxEnemyLv, grow, say }) {
     let trains = 0;
     // 職業の 修行も 半分（はんぱは 次の 戦いに もちこす）
     if (!ch.species && trainN > 0) {
-      const carry = (ch.wagonTrain || 0) + trainN * WAGON_EXP_RATE * jobTrainMult(ch, maxEnemyLv);
+      const carry = (ch.wagonTrain || 0) + trainN * WAGON_EXP_RATE;
       trains = Math.floor(carry);
       ch.wagonTrain = carry - trains;
       if (!ch.wagonTrain) delete ch.wagonTrain;

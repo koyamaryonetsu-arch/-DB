@@ -3,10 +3,10 @@
 // ・たのまれごとは 報告する 人（と さがす 物）
 // 行き先の 書き方: { npc: 'NPCのID' }（その 人の いる 場所）か { map, x, y }
 // 新しい 目標を 作ったら、ここにも 行き先を 足す
-import { MAPS } from '../maps/index.js?v=e388712b9c60';
-import { SKY_OBJECTIVE_TARGETS, C3_LEAD_OBJECTIVE } from './sky.js?v=e388712b9c60';
-import { CH3_OBJECTIVE_TARGETS, ch3SubQuests } from './story-ch3.js?v=e388712b9c60';
-import { CH4_OBJECTIVE_TARGETS } from './story-ch4.js?v=e388712b9c60';
+import { MAPS } from '../maps/index.js?v=630ae227a032';
+import { SKY_OBJECTIVE_TARGETS, C3_LEAD_OBJECTIVE } from './sky.js?v=630ae227a032';
+import { CH3_OBJECTIVE_TARGETS, ch3SubQuests } from './story-ch3.js?v=630ae227a032';
+import { CH4_OBJECTIVE_TARGETS } from './story-ch4.js?v=630ae227a032';
 
 export const OBJECTIVE_TARGETS = {
   'ホシミばあちゃんの家（村の南東）へ行こう': [{ npc: 'elder' }],
