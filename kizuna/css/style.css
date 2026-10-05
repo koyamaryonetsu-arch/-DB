@@ -1598,3 +1598,54 @@ body.dot-font { --font-ui: 'KizunaDot', 'Hiragino Kaku Gothic ProN', 'Hiragino S
   #battle .b-cmd .menu .item { min-height: calc(var(--bcmd-h) * 0.95); padding: 0.1em 0.35em; }
   .b-plate { font-size: var(--fs-small); }
 }
+
+/* ───── メニュー: コマンドを えらんで 中の 画面に 入った とき（client/ui/menu.js の setSubOpen） ───── */
+/* 見出し（← もどる と、えらんだ コマンドの 名前）。ふだんは かくす */
+.fmenu-panel .fm-title { display: none; align-items: center; gap: 0.7em; min-height: 2.6em; }
+.fmenu-panel .fm-title .fm-back { min-height: 38px; padding: 0.05em 0.9em; font-size: var(--fs-small); color: var(--muted); border-color: var(--muted); }
+.fmenu-panel .fm-title .fm-back:hover, .fmenu-panel .fm-title .fm-back:active { color: #fff; border-color: #fff; }
+.fmenu-panel .fm-title .fm-tt { color: var(--accent); font-weight: bold; letter-spacing: 0.08em; }
+/* よこに ならぶ 画面（パソコン・よこむき）: コマンドの 一覧は うすく、えらんだ コマンドは 金色 */
+.fmenu-panel.sub-open .fmenu .side .menu .item:not(.sel) { opacity: 0.45; }
+.fmenu-panel.sub-open .fmenu .side .menu .item.sel { color: var(--accent); }
+/* スマホの たてむき: 画面が かわる（コマンドの 一覧を かくして 見出しだけ。中の 画面を 下まで 大きく）
+   よこむきの 小さい スマホ（はばが 700より せまい）は 左右に ならぶので、ここには 入れない */
+@media (max-width: 700px) and (orientation: portrait) {
+  .fmenu-panel.sub-open { height: calc(100% - var(--safe-t) - max(8px, 4vh) - 10px - var(--safe-b)); }
+  .fmenu-panel.sub-open .fmenu { grid-template-rows: auto minmax(0, 1fr); }
+  .fmenu-panel.sub-open .fmenu .side { padding-top: 0.35em; padding-bottom: 0.35em; }
+  .fmenu-panel.sub-open .fmenu .side .menu { display: none; }
+  .fmenu-panel.sub-open .fm-title { display: flex; }
+  .fmenu-panel.sub-open .fmenu .main { height: auto; max-height: none; min-height: 0; }
+  /* もどるは 見出しに ある（リストの 上の もどるは 出さない。行と かさならない） */
+  .fmenu-panel.sub-open .fmenu .main .menu .backchip { display: none; }
+}
+
+/* 「← もどる」が リストの 上に はりつく とき: はばいっぱいの 帯に して、下に もぐった 行が 横から 見えないように */
+.menu .backchip {
+  justify-self: stretch;
+  align-self: stretch;
+  /* 下の すきま（margin-bottom）も ぬりつぶす。上は スクロールの まどの はしに はりつくので いらない（上の 見出しに かぶらない） */
+  box-shadow: 0 0.3em 0 0 var(--win-solid);
+}
+.zukan-list .menu .backchip, .skills-view .menu .backchip { box-shadow: none; }
+
+/* 装備を えらぶ まど: 1つの 物を 2行で（名前 ／ 変わる 強さ）。強さは マスに ならべて 行ごとに そろえる */
+/* flex-shrink: 0 … まどの 高さが 足りない ときに 行が つぶれて、3行目が 次の 物に かさならないように（スクロールする） */
+.menu .item.eq-opt { flex-shrink: 0; align-items: flex-start; padding-top: 0.35em; padding-bottom: 0.4em; border-bottom: 1px dashed rgba(255, 255, 255, 0.14); border-radius: 0; }
+.menu .item.eq-opt.sel { border-radius: 3px; }
+/* .l は ブロック（flex の たて ならびの 中に グリッドを 入れると、行の 高さが 2ばいに なる ことが あった） */
+.menu .item.eq-opt .l { display: block; min-width: 0; flex: 1; }
+.menu .item.eq-opt .eq-nm { display: flex; align-items: baseline; flex-wrap: wrap; gap: 0 0.5em; }
+/* 強さは はばを そろえて ならべる（長い ものは そのぶん 広く。文字は きらない） */
+.menu .item.eq-opt .eq-sc { display: flex; flex-wrap: wrap; gap: 0 1em; margin-top: 0.1em; font-size: 0.8em; line-height: 1.4; }
+.menu .item.eq-opt .eq-sc .sc { flex: 0 0 auto; min-width: 10.5em; white-space: nowrap; }
+.menu .item .tag.eq-tag { font-size: 0.68em; border: 1px solid currentColor; border-radius: 4px; padding: 0 0.35em; color: var(--muted); }
+.menu .item.eq-swap .tag.eq-tag { color: #8fd0ff; }
+.menu .hdr.eq-none { color: var(--muted); font-size: var(--fs-small); padding: 0.3em 0.2em; }
+.eq-swap-body { display: flex; flex-direction: column; gap: 0.2em; margin: 0.4em 0 0.5em; line-height: 1.5; }
+/* えらぶ まどの 題に 改行（「〜が装備している。\n装備を入れかえる？」など） */
+.center-panel > .small.gold { white-space: pre-line; }
+/* 作戦: オートで 使わない 技 */
+.menu .item.auto-off .l { color: #8a8aa0; }
+.menu .item.best-all { color: var(--accent); }

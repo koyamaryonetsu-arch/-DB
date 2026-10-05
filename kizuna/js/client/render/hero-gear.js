@@ -1,7 +1,7 @@
 // ぶき・たて・かぶと（そうびの ID から みためを きめて かく）
 // 知らない 品（これからの もの）は、種類・ランク・名前の ことば から きめる
-import { mat, ramp, TH, mixC, HeroCanvas } from './hero-raster.js?v=630ae227a032';
-import { metal, metalRamp, cloth, leather, gem, glow, metalOfName, baseItem, fruitIcon } from './hero-outfit.js?v=630ae227a032';
+import { mat, ramp, TH, mixC, HeroCanvas } from './hero-raster.js?v=e1e09fce899d';
+import { metal, metalRamp, cloth, leather, gem, glow, metalOfName, baseItem, fruitIcon } from './hero-outfit.js?v=e1e09fce899d';
 
 const D = Math.PI / 180;
 
@@ -714,6 +714,8 @@ const HEAD_LOOK = {
   bb_helmet: { kind: 'bbhelmet', c: '#2a3a8a', hides: 'top' },
   silver_helm: { kind: 'winged', mk: 'silver', trim: 'gold', gemc: '#4a9aff', hides: 'top' },
   captain_hat: { kind: 'tricorne', c: '#24305a', trim: 'gold', hides: 'top' },
+  // 第4章: ターバン（白い 布を まいた ぼうし）
+  turban: { kind: 'bandana', c: '#f4f0e6', hides: 'top' },
 };
 // 布の服の ときの しょくぎょうの ぼうし
 const JOB_HAT = {

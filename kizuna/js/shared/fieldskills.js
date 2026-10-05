@@ -4,9 +4,9 @@
 //   ・掛け合わせ技を 今の 職業で 使えない とき・ぶきが 合わない ときは 出さない
 //   ・ルーラは 洞窟や 塔の 中では 出さない（天井に 頭を ぶつける だけ）
 //   ・MPが 足りない 技・唱える 人が 死んでいる ときは 出すが えらべない（why: 'mp' / 'dead'）
-import { ABILITIES } from './data/abilities.js?v=630ae227a032';
-import { ITEMS } from './data/items.js?v=630ae227a032';
-import { learnedAbilities, mpCost, comboAllowed, weaponOk } from './stats.js?v=630ae227a032';
+import { ABILITIES } from './data/abilities.js?v=e1e09fce899d';
+import { ITEMS } from './data/items.js?v=e1e09fce899d';
+import { learnedAbilities, mpCost, comboAllowed, weaponOk } from './stats.js?v=e1e09fce899d';
 
 // mapKind: 今いる マップの しゅるい（'field' なら そと）
 // へんじ: [{ id, cost, ok, why }]（覚えた じゅん）

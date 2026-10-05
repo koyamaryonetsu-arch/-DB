@@ -1,20 +1,20 @@
 // お店・転職・酒場・でんごんばん・ほしのかけら・きょうかい の がめん
-import { el, ListMenu, toast, askText, confirmBox, esc } from './dom.js?v=630ae227a032';
-import { ITEMS } from '../../shared/data/items.js?v=630ae227a032';
-import { JOBS, JOB_ORDER, ADVANCED_ORDER, SUPER_ORDER, TIER_NAMES, JOB_MAX_LEVEL, jobReqText, jobReqSets, jobBodyOk, BODY_NAMES, JOB_HINTS } from '../../shared/data/jobs.js?v=630ae227a032';
-import { ABILITIES } from '../../shared/data/abilities.js?v=630ae227a032';
-import { salonUI } from './salon.js?v=630ae227a032';
-import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered, canEquip } from '../../shared/stats.js?v=630ae227a032';
-import { MONSTERS } from '../../shared/data/monsters.js?v=630ae227a032';
-import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES, breedOutcome } from '../../shared/data/companions.js?v=630ae227a032';
-import { TACTICS } from '../../shared/ai.js?v=630ae227a032';
-import { itemDetail, gearText } from './info.js?v=630ae227a032';
-import { playerSprite, followerSprite, faceURL } from '../field.js?v=630ae227a032';
-import { shopUI, churchUI } from './shop.js?v=630ae227a032';
-import { bankUI } from './bank.js?v=630ae227a032';
-import { forgeUI } from './forge.js?v=630ae227a032';
-import { tavernWagonItems, tavernWagonOpts, tavernWagonAct, tavernPlace, arrangeUI } from './wagon.js?v=630ae227a032';
-import { casinoUI } from './casino.js?v=630ae227a032';
+import { el, ListMenu, toast, askText, confirmBox, esc } from './dom.js?v=e1e09fce899d';
+import { ITEMS } from '../../shared/data/items.js?v=e1e09fce899d';
+import { JOBS, JOB_ORDER, ADVANCED_ORDER, SUPER_ORDER, TIER_NAMES, JOB_MAX_LEVEL, jobReqText, jobReqSets, jobBodyOk, BODY_NAMES, JOB_HINTS } from '../../shared/data/jobs.js?v=e1e09fce899d';
+import { ABILITIES } from '../../shared/data/abilities.js?v=e1e09fce899d';
+import { salonUI } from './salon.js?v=e1e09fce899d';
+import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered, canEquip } from '../../shared/stats.js?v=e1e09fce899d';
+import { MONSTERS } from '../../shared/data/monsters.js?v=e1e09fce899d';
+import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES, breedOutcome } from '../../shared/data/companions.js?v=e1e09fce899d';
+import { TACTICS } from '../../shared/ai.js?v=e1e09fce899d';
+import { itemDetail, gearText } from './info.js?v=e1e09fce899d';
+import { playerSprite, followerSprite, faceURL } from '../field.js?v=e1e09fce899d';
+import { shopUI, churchUI } from './shop.js?v=e1e09fce899d';
+import { bankUI } from './bank.js?v=e1e09fce899d';
+import { forgeUI } from './forge.js?v=e1e09fce899d';
+import { tavernWagonItems, tavernWagonOpts, tavernWagonAct, tavernPlace, arrangeUI } from './wagon.js?v=e1e09fce899d';
+import { casinoUI } from './casino.js?v=e1e09fce899d';
 
 export function openServiceUI(game, kind, data) {
   switch (kind) {

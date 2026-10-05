@@ -1,16 +1,16 @@
 // だいほん（イベント）を すすめる しくみ
-import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js?v=630ae227a032';
-import { ITEMS } from '../data/items.js?v=630ae227a032';
-import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js?v=630ae227a032';
-import { startFixedBattle } from './battles.js?v=630ae227a032';
-import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=630ae227a032';
-import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion, befriendLevel } from './party.js?v=630ae227a032';
-import { openService } from './services.js?v=630ae227a032';
-import { isNightFor, advanceClock } from './clock.js?v=630ae227a032';
-import { grantWagon, wagonChars } from './wagon.js?v=630ae227a032';
-import { GUESTS } from '../data/shops.js?v=630ae227a032';
-import { unstickAll } from './hazards.js?v=630ae227a032';
-import { MAPS, isBlocked } from '../maps/index.js?v=630ae227a032';
+import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js?v=e1e09fce899d';
+import { ITEMS } from '../data/items.js?v=e1e09fce899d';
+import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js?v=e1e09fce899d';
+import { startFixedBattle } from './battles.js?v=e1e09fce899d';
+import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=e1e09fce899d';
+import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion, befriendLevel } from './party.js?v=e1e09fce899d';
+import { openService } from './services.js?v=e1e09fce899d';
+import { isNightFor, advanceClock } from './clock.js?v=e1e09fce899d';
+import { grantWagon, wagonChars } from './wagon.js?v=e1e09fce899d';
+import { GUESTS } from '../data/shops.js?v=e1e09fce899d';
+import { unstickAll } from './hazards.js?v=e1e09fce899d';
+import { MAPS, isBlocked } from '../maps/index.js?v=e1e09fce899d';
 
 let runSeq = 1;
 
@@ -250,7 +250,7 @@ export class ScriptRun {
           break;
         }
         case 'inn': {
-          // ['inn', ねだん, 宿屋の人, 'morning'|'night']（ねだん 0 は 家の ベッド。宿屋は ふつう 朝まで）
+          // ['inn', ねだん, 宿屋の人, 'morning'|'night'|'noon']（ねだん 0 は 家の ベッド。宿屋は ふつう 朝まで。昼までは 王都サファラの 宿屋）
           const price = a[0] || 0;
           const keeper = a[1] || null;
           const until = a[2] || (price ? 'morning' : null);
@@ -274,6 +274,10 @@ export class ScriptRun {
             this.say('こんばんは。\nよくお休みになれましたか？', keeper);
             this.say('HPとMPがすっかり回復した！');
             this.say('外はもう夜です。夜は魔物が強くなりますから、お気を付けて。', keeper);
+          } else if (price && until === 'noon') {
+            this.say('おはようございます…と言っても、\nもうすぐお昼ですよ。ずいぶん、よくおねむりでしたね。', keeper);
+            this.say('HPとMPがすっかり回復した！');
+            this.say('日が高くなってきました。では、いってらっしゃいませ。', keeper);
           } else if (price) {
             this.say('おはようございます。\nゆうべは、よくねむれましたか？', keeper);
             this.say('HPとMPがすっかり回復した！');

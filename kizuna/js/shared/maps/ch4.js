@@ -1,21 +1,31 @@
 // 第4章「砂の海にしずむ星」の マップ
-// コガネ地方（フィールド）・北の古井戸・かれた地下水路（Step 2）。王都・ピラミッドなどは Step 3 から
+// コガネ地方（フィールド）・北の古井戸・かれた地下水路（Step 2）・王都サファラと 宮殿の地下水路（Step 3）。ピラミッドなどは Step 4 から
 // 村や ダンジョンの 形は south-rows.js（1文字 = 1マス）
-import { T, parseRows } from '../tiles.js?v=630ae227a032';
-import { makeRng } from '../rng.js?v=630ae227a032';
-import { npc } from './npc.js?v=630ae227a032';
-import { SEA_PLACES } from './ch2.js?v=630ae227a032';
+import { T, parseRows } from '../tiles.js?v=e1e09fce899d';
+import { makeRng } from '../rng.js?v=e1e09fce899d';
+import { npc } from './npc.js?v=e1e09fce899d';
+import { SEA_PLACES } from './ch2.js?v=e1e09fce899d';
 import {
   buildSouth, southZoneAt, southAreaName, southWeatherAt, southBgmAt, SOUTH_PLACES, SOUTH_POS, SOUTH_LANDING, LANDING_BEACH, OASIS2, OASIS_CAMP,
-  STORM_Y, STORM_FLAG,
-} from './south.js?v=630ae227a032';
-import { HAMIL_ROWS, WELL_ROWS, CANAL1_ROWS, CANAL2_ROWS, CANAL3_ROWS } from './south-rows.js?v=630ae227a032';
+  STORM_Y, STORM_FLAG, SAFARA_POS, PALACE_HALL,
+} from './south.js?v=e1e09fce899d';
+import { HAMIL_ROWS, WELL_ROWS, CANAL1_ROWS, CANAL2_ROWS, CANAL3_ROWS, PALACE_CANAL_ROWS } from './south-rows.js?v=e1e09fce899d';
 
 const HAM = SOUTH_PLACES.hamil;
 const H = (x, y) => [HAM.x + x, HAM.y + y];
+const SAF = SOUTH_PLACES.safara;
+const S = (x, y) => [SAF.x + x, SAF.y + y];
+const NIGHT = { all: ['@night'] };
+const DAY = { not: ['@night'] };
 
 // 第4章の マップの ID（セーブに のこるので かえない）
-export const CH4_MAPS = ['south', 'north_well', 'canal1', 'canal2', 'canal3'];
+export const CH4_MAPS = ['south', 'north_well', 'canal1', 'canal2', 'canal3', 'palace_canal'];
+
+// ───── 王都サファラ（Step 3）─────
+// 子どもたちの わらべ歌（1人 1行。ピラミッドの ボタンの じゅん: 太陽 → 砂 → 月 → 星）
+export const SONG_FLAGS = ['c4_song_sun', 'c4_song_sand', 'c4_song_moon', 'c4_song_star'];
+// 宮殿の地下水路の 階段（町の 南西の 入り口から 来る ところ・中庭の 古井戸の 下）
+export const PALACE_CANAL_STAIRS = { town: { x: 5, y: 23 }, court: { x: 30, y: 2 } };
 
 // ───── かれた地下水路（Step 2）─────
 // 入り口（フィールド。村の 南東）: 鉄の こうしは 村長ナディムに たのまれると（c4_canal）開く
@@ -26,9 +36,10 @@ export const CANAL_LEVERS = { c1: 'c4_cn1', c2a: 'c4_cn2a', c2b: 'c4_cn2b' };
 // よろい大サソリを たおすと せきが くずれて、水路と 村の オアシスに 水が もどる
 export const SCORPION_FLAG = STORM_FLAG;
 
-// ルーラ・帰り道の羽で 行ける 第4章の 町と 村（村の 東の 門の 外に おりる）
+// ルーラ・帰り道の羽で 行ける 第4章の 町と 村（ハミルは 村の 東の 門の 外・王都は 北の 門の 外に おりる）
 export const SOUTH_TOWNS = {
   hamil: { name: HAM.name, map: 'south', x: HAM.x + HAM.w + 1, y: HAM.y + 9, rect: [HAM.x, HAM.y, HAM.w, HAM.h] },
+  safara: { name: SAF.name, map: 'south', x: SAFARA_POS.gate.x, y: SAF.y - 2, rect: [SAF.x, SAF.y, SAF.w, SAF.h] },
 };
 Object.assign(SEA_PLACES, SOUTH_TOWNS);
 
@@ -36,7 +47,7 @@ Object.assign(SEA_PLACES, SOUTH_TOWNS);
 export function ch4SearchMats(mapId) {
   if (mapId === 'south') return ['beast_fang', 'magic_powder', 'wind_feather'];
   if (mapId === 'north_well') return ['magic_powder', 'iron_shard'];
-  if (mapId.startsWith('canal')) return ['magic_powder', 'iron_shard', 'pretty_shell'];
+  if (mapId.startsWith('canal') || mapId === 'palace_canal') return ['magic_powder', 'iron_shard', 'pretty_shell'];
   return null;
 }
 
@@ -74,6 +85,57 @@ const SOUTH_NPCS = [
   npc('c4_camel1', 'ラクダ', [OASIS_CAMP.x + 2, OASIS_CAMP.y + 8], 'camel', 'c4_camel', { dir: 'right' }),
   npc('c4_camel2', 'ラクダ', [OASIS_CAMP.x + 8, OASIS_CAMP.y + 4], 'camel', 'c4_camel', { dir: 'left' }),
   npc('c4_camel3', 'ラクダ', [62, 9], 'camel', 'c4_camel', { dir: 'right' }),
+
+  // ───── 王都サファラ（Step 3）─────
+  // 北の 門
+  npc('c4_s_gate1', '門番', S(23, 1), 'safara_guard', 'c4_s_gate', { dir: 'down' }),
+  npc('c4_s_gate2', '門番', S(27, 1), 'safara_guard', 'c4_s_gate2', { dir: 'down' }),
+  // 井戸の 行列（井戸に 向かって 東から ならぶ。夜は 少し へる）
+  npc('c4_s_q1', '井戸の列のおばさん', S(14, 11), 'desert_f', 'c4_s_q1', { dir: 'left' }),
+  npc('c4_s_q2', '井戸の列のおじいさん', S(15, 11), 'desert_m2', 'c4_s_q2', { dir: 'left' }),
+  npc('c4_s_maid', '女官のジャミラ', S(16, 11), 'maid', 'c4_s_maid', { dir: 'left' }),
+  npc('c4_s_q3', '井戸の列の男', S(17, 11), 'desert_m', 'c4_s_q3', { dir: 'left', show: DAY }),
+  npc('c4_s_q4', '井戸の列のむすめ', S(18, 11), 'desert_f2', 'c4_s_q4', { dir: 'left', show: DAY }),
+  // 宿屋・教会
+  npc('c4_s_inn', '宿屋の主人', S(4, 5), 'desert_merchant', 'c4_inn_safara', { dir: 'down' }),
+  npc('c4_s_innguest', '旅の商人', S(9, 6), 'caravan', 'c4_s_innguest', { dir: 'left' }),
+  npc('c4_s_priest', '神父さま', S(17, 3), 'desert_priest', 'church', { dir: 'down' }),
+  // 市場の 屋台（店の 人は カウンターの 北）・武器と防具の店
+  npc('c4_s_fruit', 'くだもの売り', S(30, 3), 'desert_merchant', 'c4_s_fruit', { dir: 'down' }),
+  npc('c4_s_item', '道具屋のおばさん', S(35, 3), 'desert_f', 'c4_shop_safara_item', { dir: 'down' }),
+  npc('c4_s_rug', 'じゅうたん売り', S(30, 7), 'caravan', 'c4_s_rug', { dir: 'down' }),
+  npc('c4_s_pot', 'つぼ売り', S(35, 7), 'desert_m2', 'c4_s_pot', { dir: 'down' }),
+  npc('c4_s_weapon', '武器屋のおやじ', S(41, 4), 'desert_m', 'c4_shop_safara_weapon', { dir: 'down' }),
+  npc('c4_s_armor', '防具屋のおねえさん', S(46, 4), 'desert_f2', 'c4_shop_safara_armor', { dir: 'down' }),
+  // 水の神殿（守り星の 台座は からっぽ）
+  npc('c4_s_apprentice', 'みこ見習いのリタ', S(8, 24), 'w_priestess', 'c4_s_apprentice', { dir: 'left' }),
+  npc('c4_s_pray', 'いのる女の人', S(5, 19), 'desert_f2', 'c4_s_pray', { dir: 'down' }),
+  // 宮殿の 前の 広場
+  npc('c4_s_oldman', '物知りのおじいさん', S(21, 19), 'desert_elder', 'c4_s_oldman', { wander: 1 }),
+  npc('c4_p_gate1', '宮殿の門番', S(24, 21), 'palace_guard', 'c4_p_gate', { show: DAY }),
+  npc('c4_p_gate2', '宮殿の門番', S(26, 21), 'palace_guard', 'c4_p_gate', { show: DAY }),
+  // 夜は 宮殿の 門が しまる（夜番の 兵士）
+  npc('c4_p_ngate1', '宮殿の夜番', S(24, 21), 'palace_guard', 'c4_p_ngate', { show: NIGHT }),
+  npc('c4_p_ngate2', '宮殿の夜番', S(26, 21), 'palace_guard', 'c4_p_ngate', { show: NIGHT }),
+  // 宮殿の 王の間（女王ネフィ・大臣ザイード）
+  npc('nefi', '女王ネフィ', S(25, 25), 'nefi', 'c4_nefi', { dir: 'down' }),
+  npc('zaid', '大臣ザイード', S(27, 25), 'zaid', 'c4_zaid', { dir: 'down' }),
+  npc('c4_p_guard1', '宮殿の兵士', S(21, 26), 'palace_guard', 'c4_p_guard', { dir: 'right' }),
+  npc('c4_p_guard2', '宮殿の兵士', S(29, 26), 'palace_guard', 'c4_p_guard', { dir: 'left' }),
+  npc('c4_p_maid', '女官のハラ', S(19, 28), 'maid', 'c4_p_maid', { wander: 1 }),
+  // 学者ハサンの 家・闘技場
+  npc('hassan', '学者ハサン', S(41, 19), 'hassan', 'c4_hassan', { dir: 'down' }),
+  npc('c4_s_arena', '闘技場の受付', S(43, 30), 'arena_clerk', 'c4_s_arena', { dir: 'left' }),
+  npc('c4_s_fighter', '力じまんの戦士', S(41, 27), 'fighter', 'c4_s_fighter', { wander: 1 }),
+  // 宮殿の地下水路の 入り口の 水路番
+  npc('c4_s_canalman', '水路番のおじいさん', S(9, 33), 'desert_m2', 'c4_s_canalman', { dir: 'left' }),
+  // わらべ歌を 歌う 子どもたち（1人 1行。夜は 家に 帰る）
+  npc('c4_kid_sun', 'アリ', S(23, 6), 'desert_kid', 'c4_kid_sun', { wander: 1, show: DAY }),
+  npc('c4_kid_sand', 'ライラ', S(32, 10), 'desert_girl', 'c4_kid_sand', { wander: 1, show: DAY }),
+  npc('c4_kid_moon', 'サミル', S(13, 18), 'desert_kid2', 'c4_kid_moon', { wander: 1, show: DAY }),
+  npc('c4_kid_star', 'ナジャ', S(29, 19), 'desert_girl2', 'c4_kid_star', { wander: 1, show: DAY }),
+  // 夜だけ: 夜回りの 兵士（宮殿の地下水路の ヒント）
+  npc('c4_n_watch', '夜回りの兵士', S(25, 12), 'safara_guard', 'c4_n_watch', { show: NIGHT, wander: 1 }),
 ];
 
 // 宝箱（フィールドの 宝箱は 開けると きえる）
@@ -93,18 +155,31 @@ const SOUTH_SIGNS = [
   { x: SOUTH_POS.well.x + 3, y: SOUTH_POS.well.y + 3, text: '北の古井戸\n（水がかれて、今はだれも使っていない）' },
   { x: 34, y: 56, text: 'この先、砂嵐のかべ。\n風がおさまるまで、通りぬけることはできない。' },
   { x: CANAL_DOOR.x - 3, y: CANAL_DOOR.y + 1, text: '王国の地下水路\n（王都サファラから、ハミルの村へ水を運ぶ水路）' },
+  // 王都サファラ（Step 3）
+  { x: 34, y: 66, text: '↓ 王都サファラ' },
+  { x: SAF.x + 21, y: SAF.y - 1, text: 'ここは王都サファラ。\n砂の国の女王さまがおられる、水の都。' },
+  { x: SAF.x + 8, y: SAF.y + 33, text: '宮殿の地下水路\n（宮殿の水を町へ流していた水路。\n　水がかれて、今は使われていない）' },
+  { x: SAF.x + 40, y: SAF.y + 33, text: 'サファラ闘技場\n「水がもどるまで、大会はお休みします」' },
 ];
 
 // お店の かんばん（入り口の よこの かべ）
 const NB = ([x, y], kind, name) => ({ x, y, kind, name });
 const SOUTH_BOARDS = [
   NB(H(4, 15), 'inn', '宿屋'), NB(H(25, 14), 'general', 'よろず屋'), NB(H(22, 7), 'church', '教会'),
+  // 王都サファラ
+  NB(S(7, 9), 'inn', '宿屋'), NB(S(18, 8), 'church', '教会'), NB(S(44, 9), 'arms', '武器と防具の店'),
+  NB(S(7, 15), 'temple', '水の神殿'), NB(S(26, 22), 'palace', '宮殿'), NB(S(42, 24), 'arena', '闘技場'), NB(S(43, 16), 'scholar', '学者ハサンの家'),
 ];
 
 // やね
 const SOUTH_ROOFS = [
   ...[[2, 2, 9, 7, 'sand'], [19, 2, 9, 6, 'clay'], [2, 10, 8, 6, 'clay'], [21, 10, 7, 5, 'canvas'], [2, 18, 6, 4, 'sand'], [22, 18, 6, 4, 'sand']]
     .map(([x, y, w, h, color]) => ({ x: HAM.x + x, y: HAM.y + y, w, h, color })),
+  // 王都サファラ: 宿屋・教会・武器と防具の店・水の神殿・学者の家・闘技場（中庭は 空が 見える）
+  ...[[2, 2, 10, 8, 'clay'], [14, 2, 8, 7, 'white'], [39, 2, 10, 8, 'canvas'], [1, 15, 12, 13, 'teal'], [39, 16, 7, 6, 'sand'], [39, 24, 11, 14, 'clay']]
+    .map(([x, y, w, h, color]) => ({ x: SAF.x + x, y: SAF.y + y, w, h, color })),
+  // 宮殿の 王の間
+  { ...PALACE_HALL, color: 'blue' },
 ];
 
 // 地図に 出す なまえ
@@ -180,6 +255,18 @@ function buildField() {
   for (const [ax, ay] of refill) actions.push({ x: ax, y: ay, script: 'c4_oasis_water', show: { all: [SCORPION_FLAG] } });
   // 地下水路の 入り口の 鉄の こうし（開く まで）
   actions.push({ x: CANAL_DOOR.x, y: CANAL_DOOR.y, script: 'c4_canal_grate', show: { not: [CANAL_FLAG] } });
+  // 王都サファラ（Step 3）: かれた ふん水・守り星の 台座・町の 井戸・中庭の 水がめ と ベンチ と とびら・闘技場の 門
+  const P = SAFARA_POS;
+  // ふん水（3×3）は まわりの 8マスで しらべる
+  for (let y = P.fountain.y - 1; y <= P.fountain.y + 1; y++) {
+    for (let x = P.fountain.x - 1; x <= P.fountain.x + 1; x++) if (x !== P.fountain.x || y !== P.fountain.y) actions.push({ x, y, script: 'c4_s_fountain' });
+  }
+  for (const dx of [0, 1]) actions.push({ x: P.pedestal.x + dx, y: P.pedestal.y, script: 'c4_s_pedestal' });
+  actions.push({ x: P.well.x, y: P.well.y, script: 'c4_s_well' });
+  actions.push({ x: P.jar.x, y: P.jar.y, script: 'c4_court_jar' });
+  actions.push({ x: P.bench.x, y: P.bench.y, script: 'c4_court_diary' });
+  actions.push({ x: P.courtDoor.x, y: P.courtDoor.y, script: 'c4_court_door' });
+  actions.push({ x: P.arenaGate.x, y: P.arenaGate.y, script: 'c4_arena_gate' });
   const wl = SOUTH_POS.well;
   const m = {
     id: 'south', name: 'コガネ地方', kind: 'field', bgm: 'desert', dark: false,
@@ -188,11 +275,17 @@ function buildField() {
     warps: [
       { x: wl.x, y: wl.y, to: { map: 'north_well', x: 4.5, y: 2.6, dir: 'down' } },
       { x: CANAL_DOOR.x, y: CANAL_DOOR.y, to: { map: 'canal1', x: 14.5, y: 20.4, dir: 'up' } },
+      // 王都サファラ: 宮殿の地下水路（町の 南西の かいだん・中庭の 古井戸）
+      { x: P.canal.x, y: P.canal.y, to: { map: 'palace_canal', x: PALACE_CANAL_STAIRS.town.x + 0.5, y: PALACE_CANAL_STAIRS.town.y - 0.6, dir: 'up' } },
+      { x: P.courtWell.x, y: P.courtWell.y, to: { map: 'palace_canal', x: PALACE_CANAL_STAIRS.court.x + 0.5, y: PALACE_CANAL_STAIRS.court.y + 1.5, dir: 'down' } },
     ],
     triggers: [
       // 竜を おりた ところ（空を とべる 場所の 中なら どこでも）
       { id: 'c4_arrive', x: SOUTH_LANDING.x, y: SOUTH_LANDING.y, w: SOUTH_LANDING.w, h: SOUTH_LANDING.h, script: 'c4_arrive', show: { all: ['c4_start'], not: ['c4_arrive'] } },
       { id: 'c4_hamil', x: HAM.x, y: HAM.y, w: HAM.w, h: HAM.h, script: 'c4_hamil_arrive', show: { all: ['c4_start'], not: ['c4_hamil'] } },
+      // 王都サファラに 着いた（Step 3）・夜は 宮殿の とびらが しまる（入ろうと しても 出ようと しても、外へ）
+      { id: 'c4_capital', x: SAF.x, y: SAF.y, w: SAF.w, h: SAF.h, script: 'c4_capital_arrive', show: { all: ['c4_scorpion'], not: ['c4_capital'] } },
+      { id: 'c4_palace_night', x: P.palaceDoor.x, y: P.palaceDoor.y, w: 1, h: 1, script: 'c4_palace_closed', show: { all: ['@night'] } },
     ],
     roofs: SOUTH_ROOFS,
     zoneAt: southZoneAt, areaName: southAreaName, bgmAt: southBgmAt, weatherAt: southWeatherAt,
@@ -335,7 +428,30 @@ function canal() {
   // サソリを たおすと せきが くずれて、水路に 水が もどる
   gateRect(c3, 4, 3, 19, 3, T.DAM, T.CANAL_WATER, SCORPION_FLAG);
   gateRect(c3, 4, 4, 19, 12, T.CANAL_BED, T.CANAL_WATER, SCORPION_FLAG);
-  return { canal1: c1, canal2: c2, canal3: c3 };
+  return { canal1: c1, canal2: c2, canal3: c3, palace_canal: palaceCanal() };
+}
+
+// ───── 宮殿の地下水路（Step 3）─────
+// 夜は 宮殿の 門が しまるので、ここを 通って 中庭へ。昼でも 通れる（中庭の 水がめは 夜に ふしぎな ことが おきる）
+// 町の 南西の かいだん ⇔ 左下の へや、中庭の 古井戸 ⇔ 北東の へや
+function palaceCanal() {
+  const { town, court } = PALACE_CANAL_STAIRS;
+  return canalMap('palace_canal', '宮殿の地下水路', PALACE_CANAL_ROWS, {
+    chests: [
+      { id: 'pc_nw1', x: 4, y: 5, item: 'magic_water', n: 2 },
+      { id: 'pc_nw2', x: 9, y: 5, item: 'seed_agi' },
+      { id: 'pc_s1', x: 20, y: 22, item: 'crescent_blade' },
+      { id: 'pc_s2', x: 24, y: 22, gold: 1800 },
+      { id: 'pc_ne', x: 34, y: 4, item: 'revive_flower' },
+    ],
+    warps: [
+      { x: town.x, y: town.y, to: { map: 'south', x: SAFARA_POS.canal.x + 0.5, y: SAFARA_POS.canal.y + 1.6, dir: 'down' } },
+      { x: court.x, y: court.y, to: { map: 'south', x: SAFARA_POS.courtWell.x + 0.5, y: SAFARA_POS.courtWell.y + 1.6, dir: 'down' } },
+    ],
+    triggers: [{ id: 'c4_pcanal_enter', x: 2, y: 18, w: 8, h: 5, script: 'c4_pcanal_enter', show: { not: ['c4_pcanal_seen'] } }],
+    zoneAt: zoneRect([[2, 18, 9, 23, 'safe:entry'], [26, 1, 35, 4, 'safe:exit']], 's_pcanal'),
+    spawnCounts: { s_pcanal: 8 },
+  });
 }
 
 export function buildCh4Maps() {

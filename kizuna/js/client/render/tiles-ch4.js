@@ -2,9 +2,9 @@
 // Step 2 の かれた地下水路（石だたみ・切り石の かべ・水路の 底と 水・水門・鉄の こうし・がれきの せき）は render/tiles-canal.js
 // (p, v, f, m) … Painter / ちがい（0〜3。砂嵐だけは ばしょ 0〜15。水路の 中は ばしょと 流れの むき）/ アニメの コマ / となりの ようす（mask。ch4Mask）
 // ひかりは 左上から
-import { T } from '../../shared/tiles.js?v=630ae227a032';
-import { Painter, prand, shade } from './pixel.js?v=630ae227a032';
-import { CANAL_PAINTERS, CANAL_FRAMES, CANAL_SPEED, CANAL_WALLS, canalMask } from './tiles-canal.js?v=630ae227a032';
+import { T } from '../../shared/tiles.js?v=e1e09fce899d';
+import { Painter, prand, shade } from './pixel.js?v=e1e09fce899d';
+import { CANAL_PAINTERS, CANAL_FRAMES, CANAL_SPEED, CANAL_WALLS, canalMask } from './tiles-canal.js?v=e1e09fce899d';
 
 const TAU = Math.PI * 2;
 // 4×4 の ディザ（だんだんの いろを まぜる）
@@ -364,6 +364,61 @@ export const CH4_PAINTERS = {
   },
 };
 
+// ───── かれた ふん水（王都サファラ。Step 3）─────
+// m … ふちを かく がわ（1=北 2=東 4=南 8=西。となりが ふん水で ない がわ）。0 は まん中の ふき出し口
+const FT = {
+  rim: '#dccdaa', rimL: '#f0e4c6', rimD: '#ae9a74', face: '#94805c', faceD: '#76643f',
+  mud: '#a68d66', mudL: '#b9a178', mudD: '#8c7452', crack: '#6a5434', crackL: '#c8b088', peb: '#cfc4ac', pebD: '#8e8676', sand: '#dcc28c',
+};
+function paintDryFountain(p, v, f, m) {
+  // ひびわれた どろの 底（水が かれて、ところどころ 砂が たまっている）
+  p.rect(0, 0, 16, 16, FT.mud);
+  const r = prand(v * 53 + 11);
+  for (let i = 0; i < 16; i++) p.set(Math.floor(r() * 16), Math.floor(r() * 16), i % 3 ? FT.mudD : FT.mudL);
+  const cracks = [[[1, 5], [4, 6], [6, 9], [5, 12]], [[6, 9], [10, 8], [13, 10]], [[10, 8], [11, 4], [14, 3]], [[4, 6], [3, 2]]];
+  const flip = v & 1, turn = v & 2;
+  const tr = ([x, y]) => [flip ? 15 - x : x, turn ? 15 - y : y];
+  for (const path of cracks) {
+    for (let k = 0; k < path.length - 1; k++) {
+      const [x0, y0] = tr(path[k]), [x1, y1] = tr(path[k + 1]);
+      const n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0));
+      for (let i = 0; i <= n; i++) {
+        const x = Math.round(x0 + ((x1 - x0) * i) / (n || 1)), y = Math.round(y0 + ((y1 - y0) * i) / (n || 1));
+        p.set(x, y, FT.crack);
+        if (y + 1 < 16) p.set(x, y + 1, FT.crackL);
+      }
+    }
+  }
+  // 小石と 砂の ふきだまり
+  for (let i = 0; i < 3; i++) {
+    const x = 2 + Math.floor(r() * 12), y = 2 + Math.floor(r() * 12);
+    p.set(x, y, FT.peb); p.set(x + 1, y, FT.pebD);
+  }
+  for (let x = 0; x < 16; x++) if ((x + v) % 5 < 2) p.set(x, 15 - ((x * 7 + v) % 3), FT.sand);
+  // 石の ふち（北は 上から 見える ふちと、底へ おちる かげ）
+  if (m & 1) {
+    p.rect(0, 0, 16, 3, FT.rim); p.hline(0, 15, 0, FT.rimL); p.hline(0, 15, 3, FT.face); p.hline(0, 15, 4, FT.faceD);
+    for (let x = 3; x < 16; x += 6) p.set(x, 1, FT.rimD);
+  }
+  if (m & 4) { p.rect(0, 13, 16, 3, FT.rim); p.hline(0, 15, 13, FT.rimL); p.hline(0, 15, 15, FT.rimD); }
+  if (m & 8) { p.rect(0, 0, 3, 16, FT.rim); p.vline(0, 0, 15, FT.rimL); p.vline(3, (m & 1) ? 3 : 0, (m & 4) ? 12 : 15, FT.face); }
+  if (m & 2) { p.rect(13, 0, 3, 16, FT.rim); p.vline(15, 0, 15, FT.rimD); p.vline(12, (m & 1) ? 3 : 0, (m & 4) ? 12 : 15, FT.face); }
+  // かど（北西・北東は 明るく、南の かどは くらく）
+  if ((m & 1) && (m & 8)) p.set(0, 0, FT.rimL);
+  if ((m & 4) && (m & 2)) p.set(15, 15, FT.faceD);
+  if (m === 0) {
+    // まん中: 水が 出なくなった ふき出し口の 台（まるい 石の 皿と、かわいた ふき出し口）
+    p.ellipse(8, 10.5, 6.2, 3.6, FT.faceD);
+    p.ellipse(8, 9.6, 6, 3.4, FT.rim);
+    p.ellipse(8, 9.2, 4.6, 2.4, FT.mudD);
+    p.ellipse(8, 9.4, 3.6, 1.8, FT.mud);
+    p.rect(7, 2, 3, 7, FT.rim); p.vline(7, 2, 8, FT.rimL); p.vline(9, 3, 8, FT.rimD);
+    p.ellipse(8, 2.4, 2.4, 1.4, FT.rimL); p.set(8, 2, FT.faceD);
+    p.set(6, 11, FT.sand); p.set(10, 10, FT.sand);
+  }
+}
+CH4_PAINTERS[T.DRY_FOUNTAIN] = paintDryFountain;
+
 // かれた地下水路（Step 2。render/tiles-canal.js）
 Object.assign(CH4_PAINTERS, CANAL_PAINTERS);
 
@@ -401,6 +456,11 @@ export function ch4Mask(t, at, x, y) {
   }
   // 井戸・かんばん（草の 上に かく タイル）は、まわりが 砂ばくなら 砂の 上に（2）
   if (t === T.WELL || t === T.SIGN) return onDesert(at, x, y) ? 2 : -1;
+  // かれた ふん水（王都サファラ）: となりが ふん水で ない がわに 石の ふち（1=北 2=東 4=南 8=西）
+  if (t === T.DRY_FOUNTAIN) {
+    const ft = (dx, dy) => { const n = at(x + dx, y + dy); return n === T.DRY_FOUNTAIN || n === T.FOUNTAIN; };
+    return (ft(0, -1) ? 0 : 1) | (ft(1, 0) ? 0 : 2) | (ft(0, 1) ? 0 : 4) | (ft(-1, 0) ? 0 : 8);
+  }
   // かれた地下水路（水路の 岸・通路の ふちの 石・水路の まわりの たいまつ や レバー）
   return canalMask(t, at, x, y);
 }

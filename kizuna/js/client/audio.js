@@ -214,6 +214,16 @@ const TRACKS = {
       { drums: true, v: 0.15, n: ('k:8 k:8 '.repeat(3) + 'k:8 k:4 h:2 h:2 ').repeat(4) + ('k:8 k:6 h:2 '.repeat(3) + 'k:8 k:4 h:2 h:2 ').repeat(4) },
     ],
   },
+  // 第4章: 王都サファラ（砂の国の 都。おごそかな 宮殿の ファンファーレに、水の かれた 町の さびしさ）
+  safara: {
+    bpm: 96,
+    ch: [
+      { w: 'pulse', v: 0.1, n: 'D5:4 A4:2 D5:2 F5:4 E5:2 D5:2 C#5:6 D5:2 E5:8 F5:4 G5:2 A5:2 Bb5:4 A5:2 G5:2 A5:12 r:4 D6:4 C#6:2 Bb5:2 A5:4 G5:2 F5:2 G5:6 F5:2 E5:4 C#5:4 D5:4 E5:2 F5:2 E5:4 C#5:2 A4:2 D5:12 r:4 F5:6 E5:2 F5:4 A5:4 G5:6 F5:2 E5:8 Eb5:6 D5:2 Eb5:4 G5:4 F#5:12 r:4 G5:4 Bb5:4 D6:6 C6:2 Bb5:4 A5:4 G5:4 F5:4 E5:4 G5:2 F5:2 E5:4 C#5:4 D5:12 r:4' },
+      { w: 'square', v: 0.03, n: 'r:2 F4:2 A4:2 r:2 F4:2 A4:2 r:2 D5:2 r:2 E4:2 A4:2 r:2 E4:2 A4:2 r:2 C#5:2 r:2 F4:2 Bb4:2 r:2 F4:2 Bb4:2 r:2 D5:2 r:2 F4:2 A4:2 r:2 F4:2 A4:2 r:2 C5:2 r:2 G4:2 Bb4:2 r:2 G4:2 Bb4:2 r:2 D5:2 r:2 E4:2 A4:2 r:2 E4:2 A4:2 r:2 C#5:2 r:2 F4:2 A4:2 r:2 F4:2 A4:2 r:2 D5:2 r:2 F4:2 A4:2 r:2 F4:2 A4:2 r:2 D5:2 r:2 F4:2 A4:2 r:2 F4:2 A4:2 r:2 D5:2 r:2 E4:2 G4:2 r:2 E4:2 G4:2 r:2 C5:2 r:2 Eb4:2 G4:2 r:2 Eb4:2 G4:2 r:2 C5:2 r:2 F#4:2 A4:2 r:2 F#4:2 A4:2 r:2 D5:2 r:2 G4:2 Bb4:2 r:2 G4:2 Bb4:2 r:2 D5:2 r:2 G4:2 Bb4:2 r:2 G4:2 Bb4:2 r:2 D5:2 r:2 E4:2 A4:2 r:2 E4:2 A4:2 r:2 C#5:2 r:2 F4:2 A4:2 r:2 F4:2 A4:2 r:2 D5:2' },
+      { w: 'triangle', v: 0.21, n: 'D2:6 A2:2 D2:4 A2:4 A1:6 E2:2 A1:4 E2:4 Bb1:6 F2:2 Bb1:4 F2:4 F2:6 C3:2 F2:4 C3:4 G1:6 D2:2 G1:4 D2:4 A1:6 E2:2 A1:4 E2:4 D2:6 A2:2 D2:4 A2:4 D2:6 A2:2 D2:4 A2:4 D2:6 A2:2 D2:4 A2:4 C2:6 G2:2 C2:4 G2:4 C2:6 G2:2 C2:4 G2:4 D2:6 A2:2 D2:4 A2:4 G1:6 D2:2 G1:4 D2:4 G1:6 D2:2 G1:4 D2:4 A1:6 E2:2 A1:4 E2:4 D2:6 A2:2 D2:4 A2:4' },
+      { drums: true, v: 0.3, n: 'k:4 h:2 h:2 s:4 h:2 h:2 '.repeat(7) + 'k:4 h:2 k:2 s:2 s:2 s:2 s:2 ' + 'k:4 h:2 h:2 s:4 h:2 h:2 '.repeat(7) + 'k:4 h:2 k:2 s:2 s:2 s:2 s:2' },
+    ],
+  },
   battle: {
     bpm: 152,
     ch: [
@@ -605,6 +615,9 @@ export class GameAudio {
       case 'win': [784, 988, 1175, 1568].forEach((f, i) => T(f, 0.1, { vol: 0.08, delay: i * 0.07, type: 'pulse' })); break;
       case 'card': this.noise(0.05, { vol: 0.18, type: 'highpass', from: 3000, to: 6000 }); break;
       case 'reach': [988, 1175, 988, 1175].forEach((f, i) => T(f, 0.07, { vol: 0.06, delay: i * 0.09, type: 'square' })); break;
+      // 第4章 Step 3: 夜の 中庭の 足音（コツ…コツ…）・サラの ムチ
+      case 'steps': [0, 0.38, 0.76].forEach((d) => { this.noise(0.05, { vol: 0.22, delay: d, from: 900, to: 300 }); T(120, 0.05, { vol: 0.1, delay: d, type: 'triangle' }); }); break;
+      case 'whip': this.noise(0.05, { vol: 0.45, type: 'highpass', from: 4000, to: 6000 }); this.noise(0.12, { vol: 0.25, delay: 0.03, from: 3000, to: 600 }); T(1800, 0.06, { vol: 0.06, slide: 600, delay: 0.02 }); break;
       default:
     }
   }

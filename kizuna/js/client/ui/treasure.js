@@ -1,11 +1,11 @@
 // 宝の地図（メニューの「道具」に ならぶ・地図の 絵・ほる・見つけた 穴）
-import { el, ListMenu, confirmBox, esc } from './dom.js?v=630ae227a032';
-import { MAPS, tileAt } from '../../shared/maps/index.js?v=630ae227a032';
-import { T } from '../../shared/tiles.js?v=630ae227a032';
-import { hash2 } from '../../shared/rng.js?v=630ae227a032';
-import { caveInfo, tmTitle, foundFlag, TM_THEMES } from '../../shared/data/treasure.js?v=630ae227a032';
-import { treasureHintLines, fromHereLine } from '../../shared/data/treasure-hint.js?v=630ae227a032';
-import { makeCanvas, ctxOf } from '../render/pixel.js?v=630ae227a032';
+import { el, ListMenu, confirmBox, esc } from './dom.js?v=e1e09fce899d';
+import { MAPS, tileAt } from '../../shared/maps/index.js?v=e1e09fce899d';
+import { T } from '../../shared/tiles.js?v=e1e09fce899d';
+import { hash2 } from '../../shared/rng.js?v=e1e09fce899d';
+import { caveInfo, tmTitle, foundFlag, TM_THEMES } from '../../shared/data/treasure.js?v=e1e09fce899d';
+import { treasureHintLines, fromHereLine } from '../../shared/data/treasure-hint.js?v=e1e09fce899d';
+import { makeCanvas, ctxOf } from '../render/pixel.js?v=e1e09fce899d';
 
 const CSS = `
 .tmap-view { width: min(92vw, 440px); z-index: 5; background: var(--win-solid); align-items: center; gap: 0.35em; }

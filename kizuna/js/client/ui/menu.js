@@ -1,38 +1,38 @@
 // フィールドの メニュー
-import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js?v=630ae227a032';
-import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js?v=630ae227a032';
-import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js?v=630ae227a032';
-import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS, turnSeconds } from '../../shared/battle.js?v=630ae227a032';
-import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily } from '../prefs.js?v=630ae227a032';
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, TIER_NAMES } from '../../shared/data/jobs.js?v=630ae227a032';
-import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress, monsterSlots } from '../../shared/stats.js?v=630ae227a032';
-import { HIRAMEKI } from '../../shared/data/hirameki.js?v=630ae227a032';
-import { DUAL_TECHS, DUAL_ORDER, groupName, dualKnown } from '../../shared/data/dual.js?v=630ae227a032';
-import { MONSTERS } from '../../shared/data/monsters.js?v=630ae227a032';
-import { monsterDrops } from '../../shared/data/loot.js?v=630ae227a032';
-import { MONSTER_FRIENDS, RACE_NAMES, recipeHint, joinTier } from '../../shared/data/companions.js?v=630ae227a032';
-import { TACTICS } from '../../shared/ai.js?v=630ae227a032';
-import { PLACES } from '../../shared/maps/overworld.js?v=630ae227a032';
-import { SEA_PLACES } from '../../shared/maps/ch2.js?v=630ae227a032';
-import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js?v=630ae227a032';
-import { T, TILE_INFO } from '../../shared/tiles.js?v=630ae227a032';
-import { itemDetail, abilityDetail, skillBrief, gearText, targetTag, statChanges, statChangesHtml } from './info.js?v=630ae227a032';
-import { bestEquipPlan } from '../../shared/equip-plan.js?v=630ae227a032';
-import { makeCanvas, ctxOf } from '../render/pixel.js?v=630ae227a032';
-import { monsterCanvas } from '../render/monsters.js?v=630ae227a032';
-import { mapIconCanvas, boardIconURL } from '../render/boards.js?v=630ae227a032';
-import { medalItemRow, walletView } from './casino.js?v=630ae227a032';
-import { compareOne, compareTeam, whoItems } from './counter.js?v=630ae227a032';
-import { faceURL } from '../field.js?v=630ae227a032';
-import { partyRows } from './hud.js?v=630ae227a032';
-import { questMarks, subQuests, OBJECTIVE_TARGETS, whereName } from '../../shared/data/quest-targets.js?v=630ae227a032';
-import { difficultyOf, visibleMarks, EXP_RATES, EXP_RATE_NAMES } from '../../shared/data/difficulty.js?v=630ae227a032';
-import { memberTalk, talkFor } from '../../shared/data/party-talk.js?v=630ae227a032';
-import { treasureRows, treasureDetail, openTreasureMap } from './treasure.js?v=630ae227a032';
-import { themeHex } from '../render/themes.js?v=630ae227a032';
-import { wagonMenuView, wagonHereClient, menuArrange } from './wagon.js?v=630ae227a032';
-import { readErrLog, errLogText, clearErrLog } from '../errlog.js?v=630ae227a032';
-import { fieldUsableAbilities } from '../../shared/fieldskills.js?v=630ae227a032';
+import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js?v=e1e09fce899d';
+import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js?v=e1e09fce899d';
+import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js?v=e1e09fce899d';
+import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS, turnSeconds } from '../../shared/battle.js?v=e1e09fce899d';
+import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily } from '../prefs.js?v=e1e09fce899d';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, TIER_NAMES } from '../../shared/data/jobs.js?v=e1e09fce899d';
+import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress, monsterSlots, canEquipChar, MAX_LEVEL } from '../../shared/stats.js?v=e1e09fce899d';
+import { HIRAMEKI } from '../../shared/data/hirameki.js?v=e1e09fce899d';
+import { DUAL_TECHS, DUAL_ORDER, groupName, dualKnown } from '../../shared/data/dual.js?v=e1e09fce899d';
+import { MONSTERS } from '../../shared/data/monsters.js?v=e1e09fce899d';
+import { monsterDrops } from '../../shared/data/loot.js?v=e1e09fce899d';
+import { MONSTER_FRIENDS, RACE_NAMES, recipeHint, joinTier } from '../../shared/data/companions.js?v=e1e09fce899d';
+import { TACTICS } from '../../shared/ai.js?v=e1e09fce899d';
+import { PLACES } from '../../shared/maps/overworld.js?v=e1e09fce899d';
+import { SEA_PLACES } from '../../shared/maps/ch2.js?v=e1e09fce899d';
+import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js?v=e1e09fce899d';
+import { T, TILE_INFO } from '../../shared/tiles.js?v=e1e09fce899d';
+import { itemDetail, abilityDetail, skillBrief, gearText, targetTag, statChanges, statChangesHtml } from './info.js?v=e1e09fce899d';
+import { bestEquipPlan } from '../../shared/equip-plan.js?v=e1e09fce899d';
+import { makeCanvas, ctxOf } from '../render/pixel.js?v=e1e09fce899d';
+import { monsterCanvas } from '../render/monsters.js?v=e1e09fce899d';
+import { mapIconCanvas, boardIconURL } from '../render/boards.js?v=e1e09fce899d';
+import { medalItemRow, walletView } from './casino.js?v=e1e09fce899d';
+import { compareTeam, whoItems } from './counter.js?v=e1e09fce899d';
+import { faceURL } from '../field.js?v=e1e09fce899d';
+import { partyRows } from './hud.js?v=e1e09fce899d';
+import { questMarks, subQuests, OBJECTIVE_TARGETS, whereName } from '../../shared/data/quest-targets.js?v=e1e09fce899d';
+import { difficultyOf, visibleMarks, EXP_RATES, EXP_RATE_NAMES } from '../../shared/data/difficulty.js?v=e1e09fce899d';
+import { memberTalk, talkFor } from '../../shared/data/party-talk.js?v=e1e09fce899d';
+import { treasureRows, treasureDetail, openTreasureMap } from './treasure.js?v=e1e09fce899d';
+import { themeHex } from '../render/themes.js?v=e1e09fce899d';
+import { wagonMenuView, wagonHereClient, menuArrange } from './wagon.js?v=e1e09fce899d';
+import { readErrLog, errLogText, clearErrLog } from '../errlog.js?v=e1e09fce899d';
+import { fieldUsableAbilities } from '../../shared/fieldskills.js?v=e1e09fce899d';
 
 // 呪文・技の タブ（左右で じゅんに かわる）
 // 今使える: フィールドで 使える 技だけ（回復・ルーラ など。えらぶと すぐ 使う）
@@ -94,6 +94,12 @@ export class FieldMenu {
     document.body.classList.add('menu-open');
     this.side = el('div', { class: 'win side' });
     this.main = el('div', { class: 'win main scroll' });
+    // えらんだ コマンドの 見出し（スマホの たてむきでは、コマンドの かわりに これだけ 出る。CSS の .sub-open）
+    this.titleText = el('span', { class: 'fm-tt' });
+    this.titleBar = el('div', { class: 'fm-title' },
+      el('button', { class: 'btn fm-back', text: '← もどる', 'aria-label': 'もどる', onclick: (e) => { e.stopPropagation(); this.titleBack(); } }),
+      this.titleText);
+    this.side.append(this.titleBar);
     this.root.append(head, el('div', { class: 'fmenu' }, this.side, this.main));
     document.getElementById('ui').append(this.backdrop, this.root);
     this.updateHead();
@@ -107,6 +113,24 @@ export class FieldMenu {
     });
     this.side.append(this.menu.root);
     this.menu.focus();
+  }
+
+  // コマンドを えらんで 中の 画面に 入った（true）／コマンドの 一覧に もどった（false）
+  // スマホの たてむきでは 画面が かわる（コマンドの 一覧を かくして、見出しと もどる だけに）
+  setSubOpen(on) {
+    if (!this.root) return;
+    this.root.classList.toggle('sub-open', !!on);
+    if (on) this.titleText.textContent = MAIN.find((m) => m.value === this.current)?.label || '';
+  }
+
+  // 見出しの「← もどる」（Bボタンと おなじ。えらぶ まどが 出ている ときは そちらが さき）
+  titleBack() {
+    if (this.popupOpen) return;
+    if (this.sub?.active) this.sub.cancel();
+    else if (!this.menu?.active) {
+      this.sfx('cancel');
+      this.back();
+    }
   }
 
   updateHead() {
@@ -192,6 +216,7 @@ export class FieldMenu {
     const prev = this.trail?.pop();
     if (prev) return this.showView(prev.make, prev.idx, prev.top);
     this.view = null;
+    this.setSubOpen(false);
     this.menu.focus();
     this.preview(this.current);
     this.main.scrollTop = 0;
@@ -201,11 +226,12 @@ export class FieldMenu {
     this.current = v;
     this.main.innerHTML = '';
     const g = this.game;
+    // 道具・呪文・技の 中みは、えらんだ ときに はじめて 出す（カーソルを あわせた だけでは せつめいだけ）
     switch (v) {
-      case 'items': this.main.append(this.itemsList(false)); break;
+      case 'items': this.main.append(el('div', { class: 'muted', text: '持っている道具を見る。\n使う・装備する・捨てる。宝の地図もここから見る。' })); break;
       case 'talk': this.main.append(el('div', { class: 'muted', text: '仲間と話す。次にどこへ行けばいいか、仲間がヒントをくれる。' })); break;
       case 'fullheal': this.main.append(el('div', { class: 'muted', text: 'みんなのHPを満タンにする。\n「呪文で」…回復の呪文を、MPのむだが少ない順に使う。\n「道具で」…薬草などを、むだが少ない順に使う。' })); break;
-      case 'skills': this.main.append(this.skillsView(false)); break;
+      case 'skills': this.main.append(el('div', { class: 'muted', text: '覚えた呪文・技を見る。\n回復やルーラなど、ここで使える技は「今使える」からすぐ使える。お気に入りのならびも決められる。' })); break;
       case 'equip': this.main.append(this.equipView(false)); break;
       case 'status': this.main.append(this.statusView()); break;
       case 'party': this.main.append(this.partyView(false)); break;
@@ -240,6 +266,7 @@ export class FieldMenu {
       species: x.species || undefined, hp: x.hp, mp: x.mp, look: x.look, tactics: x.tactics, status: {}, companion: true,
       plus: x.plus || 0, bonus: x.bonus || undefined, inherit: x.inherit || undefined,
       hirameki: x.hirameki || [], skillUse: x.skillUse || {}, favorites: x.favorites || [],
+      autoOff: x.autoOff || [],
     };
   }
 
@@ -253,13 +280,25 @@ export class FieldMenu {
       ...mates.map((m) => ({ label: `${m.name}（${m.species ? MONSTERS[m.species]?.name : JOBS[m.job]?.name} Lv${m.level}${m.wagon ? '・馬車' : ''}）`, value: m.key, face: faceURL({ look: m.look, job: m.job, eq: m.equip, mon: m.species || undefined }) }))];
     // 強さは「全員」を 一覧で くらべられる
     if (next === 'status') items.unshift({ label: '全員（一覧でくらべる）', value: '__all' });
+    // 装備は「みんなさいきょう装備」も ここ（だれかを えらぶ ときと おなじ 場所）
+    if (next === 'equip' && mates.length) items.push({ label: 'みんなさいきょう装備', value: '__bestAll', cls: 'best-all' });
     const m = this.mkSub({
       items,
       // つぎの 画面は 上に のせる（もどる で この リストの おなじ 人に もどる）
-      onSelect: (it) => this.pushView(() => (it.value === '__all' ? this.allStatusView(true)
-        : next === 'skills' ? this.skillsView(true, it.value) : next === 'equip' ? this.equipView(true, it.value) : this.statusView(it.value, true))),
+      onSelect: async (it) => {
+        if (it.value === '__bestAll') {
+          // いきなり 変えずに「何が 何に 変わるか」を 見せてから えらぶ
+          this.sub.blur();
+          const done = await this.bestEquipAsk('all');
+          setTimeout(() => this.redraw(), done ? 250 : 0);
+          return;
+        }
+        this.pushView(() => (it.value === '__all' ? this.allStatusView(true)
+          : next === 'skills' ? this.skillsView(true, it.value) : next === 'equip' ? this.equipView(true, it.value) : this.statusView(it.value, true)));
+      },
     });
     box.append(el('div', { class: 'small gold', text: title }), m.root);
+    if (next === 'equip' && mates.length) box.append(el('div', { class: 'detail', text: '「みんなさいきょう装備」…自分と仲間みんなを、ならびの順にさいきょう装備にする（何が何に変わるかを見てから決められる）' }));
     return box;
   }
 
@@ -280,7 +319,7 @@ export class FieldMenu {
       case 'skills': return this.focusSub(this.skillsView(true));
       case 'equip': return this.openView(() => this.equipView(true));
       case 'party': return this.openView(() => this.partyView(true));
-      case 'tactics': return this.focusSub(this.tacticsView(true));
+      case 'tactics': return this.openView(() => this.tacticsView(true));
       case 'zukan': return this.focusSub(this.zukanView(true));
       case 'settings': return this.focusSub(this.settingsView(true));
       case 'talk':
@@ -313,6 +352,7 @@ export class FieldMenu {
     this.main.append(node);
     if (this.sub) {
       this.menu.blur();
+      this.setSubOpen(true);
       this.sub.focus();
     }
   }
@@ -778,7 +818,8 @@ export class FieldMenu {
     const slots = c.species ? SLOTS.filter((sl) => monsterSlots(c.species).includes(sl) || c.equip?.[sl]) : SLOTS;
     const items = slots.map((sl) => ({ label: `${SLOT_NAMES[sl]}：${c.equip?.[sl] ? ITEMS[c.equip[sl]].name : 'なし'}`, value: sl }));
     // ドラクエの「さいきょう装備」: ふくろの 中で いちばん 強い ものを まとめて 装備
-    items.push({ label: 'さいきょう装備', value: '__best' }, ...(this.myMates().length ? [{ label: 'みんなさいきょう装備', value: '__bestAll' }] : []));
+    // （「みんなさいきょう装備」は だれの装備？ の 一覧に ある。whoView）
+    items.push({ label: 'さいきょう装備', value: '__best' });
     if (c.companion) box.append(el('div', { class: 'gold small', text: `${c.name}の装備` }));
     // 魔物の 装備できる 物（リストの 下に。リストが 画面から はみ出さない ように）
     const gear = c.species ? el('div', { class: 'small muted', text: `装備できる物: ${gearText(c.species)}` }) : null;
@@ -791,39 +832,82 @@ export class FieldMenu {
       items,
       onMove: (it) => {
         if (it.value === '__best') detail.textContent = 'ふくろの中から、攻撃力・守備力がいちばん上がる武器・よろい・たて・かぶとを選ぶ（アクセサリーはそのまま）\n何が何に変わるかを見てから、決められる';
-        else if (it.value === '__bestAll') detail.textContent = '自分と仲間みんなを、ならびの順にさいきょう装備にする\n何が何に変わるかを見てから、決められる';
         else detail.textContent = c.equip?.[it.value] ? `E ${ITEMS[c.equip[it.value]].name}（装備している）\n${itemDetail(c.equip[it.value], mons)}` : '';
       },
       onSelect: async (it) => {
         const slot = it.value;
-        if (slot === '__best' || slot === '__bestAll') {
+        if (slot === '__best') {
           // いきなり 変えずに「何が 何に 変わるか」を 見せてから えらぶ
           this.sub.blur();
-          const done = await this.bestEquipAsk(slot === '__bestAll' ? 'all' : who);
+          const done = await this.bestEquipAsk(who);
           setTimeout(() => this.redraw(), done ? 250 : 0);
           return;
         }
-        const cands = g.me.items.filter((e) => ITEMS[e.id]?.type === slot);
-        const cur = c.equip?.[slot] || null;
-        // 上がる 強さも 下がる 強さも ぜんぶ 出す（攻撃力 46→66↑20　素早さ 26→24↓2）
-        const row = (name, list) => `<span class="eq-nm">${esc(name)}</span><span class="eq-sc">${statChangesHtml(list)}</span>`;
-        const opts = cands.map((e) => {
-          const r = compareOne({ key: who, name: c.name, char: c }, e.id);
-          if (!r.can) return { label: ITEMS[e.id].name, right: '装備できない', value: e.id, disabled: true };
-          return { html: row(ITEMS[e.id].name, [r.main, ...r.extras]), value: e.id, cls: 'eq-opt' };
-        });
-        if (cur) opts.push({ html: row('外す', statChanges(computeStats(c), computeStats({ ...c, equip: { ...c.equip, [slot]: null } }))), value: '__off', cls: 'eq-opt' });
-        opts.push({ label: 'やめる', value: null });
         this.sub.blur();
-        const pick = await this.pick(`${c.companion ? c.name + 'の' : ''}${SLOT_NAMES[slot]}を選ぶ（今：${cur ? ITEMS[cur].name : 'なし'}）`, opts, { wide: true, cls: 'eq-pick' });
-        if (pick === '__off') g.net.send({ t: 'menu', action: 'unequip', slot, who });
-        else if (pick) g.net.send({ t: 'menu', action: 'equip', id: pick, who });
+        const changed = await this.pickGear(c, who, slot);
         // おなじ 部位に カーソルを おいた まま つくりなおす
-        setTimeout(() => this.redraw(), pick ? 200 : 0);
+        setTimeout(() => this.redraw(), changed ? 200 : 0);
       },
     });
     box.append(m.root, stats, ...(gear ? [gear] : []), detail);
     return box;
+  }
+
+  // 1つの 部位を えらぶ まど。出すのは 装備できる 物だけ（ふくろの 物と、ほかの 仲間が 装備している 物）。
+  // 仲間が 装備している 物を えらぶと「装備を入れかえる？」→ はい で 入れかえ（サーバーの swapEquip）。
+  // 1つの 物を 2行で: 名前 ／ 変わる 強さ（上がる ものも 下がる ものも。いつも おなじ じゅん）。変えたら true
+  async pickGear(c, who, slot) {
+    const g = this.game;
+    const cur = c.equip?.[slot] || null;
+    const before = computeStats(c);
+    const changes = (id) => statChanges(before, computeStats({ ...c, equip: { ...(c.equip || {}), [slot]: id } }));
+    const row = (name, tag, list) => `<span class="eq-nm">${esc(name)}${tag ? `<span class="tag eq-tag">${esc(tag)}</span>` : ''}</span><span class="eq-sc">${statChangesHtml(list)}</span>`;
+    const opts = [];
+    const seen = new Set();
+    for (const e of g.me.items) {
+      const it = ITEMS[e.id];
+      if (it?.type !== slot || seen.has(e.id) || !canEquipChar(c, e.id)) continue;
+      seen.add(e.id);
+      opts.push({ html: row(it.name, e.n > 1 ? `×${e.n}` : '', changes(e.id)), value: e.id, cls: 'eq-opt' });
+    }
+    // 自分と 仲間（パーティー・馬車）が 装備している 物
+    const others = this.teamChars().filter((m) => m.key !== who);
+    for (const m of others) {
+      const id = m.char.equip?.[slot];
+      if (!id || !ITEMS[id] || !canEquipChar(c, id)) continue;
+      opts.push({ html: row(ITEMS[id].name, `${m.char.name}が装備中`, changes(id)), value: `swap:${m.key}`, cls: 'eq-opt eq-swap' });
+    }
+    if (!opts.length) opts.push({ header: true, label: '装備できる物を持っていない', cls: 'eq-none' });
+    if (cur) opts.push({ html: row('外す', '', changes(null)), value: '__off', cls: 'eq-opt' });
+    opts.push({ label: 'やめる', value: null });
+    const pick = await this.pick(`${c.companion ? c.name + 'の' : ''}${SLOT_NAMES[slot]}を選ぶ（今：${cur ? ITEMS[cur].name : 'なし'}）`, opts, { wide: true, cls: 'eq-pick' });
+    if (!pick) return false;
+    if (pick === '__off') {
+      g.net.send({ t: 'menu', action: 'unequip', slot, who });
+      return true;
+    }
+    if (pick.startsWith('swap:')) {
+      const m = others.find((x) => `swap:${x.key}` === pick);
+      const id = m?.char.equip?.[slot];
+      if (!id) return false;
+      // 相手は 自分の 今の 装備を 受けとる（装備できない ときは ふくろへ）
+      const back = !!cur && canEquipChar(m.char, cur);
+      const body = el('div', { class: 'eq-swap-body' },
+        el('div', { text: `${c.name}：${cur ? ITEMS[cur].name : 'なし'} → ${ITEMS[id].name}` }),
+        el('div', { text: `${m.char.name}：${ITEMS[id].name} → ${back ? ITEMS[cur].name : 'なし'}` }),
+        ...(cur && !back ? [el('div', { class: 'muted small', text: `（${ITEMS[cur].name}は${m.char.name}には装備できないので、ふくろにしまう）` })] : []));
+      const ok = await this.pick(`${m.char.name}が装備している。\n装備を入れかえる？`, [{ label: 'はい', value: 'yes' }, { label: 'いいえ', value: null }], { body, cls: 'eq-swap-pop' });
+      if (ok !== 'yes') return false;
+      g.net.send({ t: 'menu', action: 'swapEquip', slot, who, from: m.key });
+      return true;
+    }
+    g.net.send({ t: 'menu', action: 'equip', id: pick, who });
+    return true;
+  }
+
+  // 自分と 自分の 仲間（パーティー・馬車）。装備の 入れかえで 使う
+  teamChars() {
+    return [{ key: 'self', char: this.game.me }, ...this.myMates().map((x) => ({ key: x.key, char: this.charOf(x.key) })).filter((m) => m.char)];
   }
 
   // さいきょう装備で きめる じゅんばん（サーバーの ownTeamChars と おなじ: ならびの じゅん。馬車の 仲間は 入らない）
@@ -869,12 +953,13 @@ export class FieldMenu {
     const c = this.charOf(who) || this.game.me;
     const st = computeStats(c);
     const box = el('div');
-    const next = expForLevel(c.level + 1) - (c.exp || 0);
+    // レベルは 99まで（stats.js の MAX_LEVEL）
+    const next = c.level >= MAX_LEVEL ? null : expForLevel(c.level + 1) - (c.exp || 0);
     const kind = c.species ? `${MONSTERS[c.species]?.name || ''}（モンスター）` : JOBS[c.job]?.name || '';
     box.append(el('h3', { text: `${c.name}　${kind}` }));
     const kv = (k, v, cls = '') => el('div', { class: 'kv' }, el('span', { class: 'k', text: k }), el('span', { class: cls, text: String(v) }));
     box.append(el('div', { class: 'twocol' },
-      kv('レベル', c.level), kv('次のレベルまで', Math.max(0, next)),
+      kv('レベル', c.level), kv('次のレベルまで', next === null ? `最大（Lv${MAX_LEVEL}）` : Math.max(0, next)),
       kv('HP', `${Math.max(0, c.hp)}/${st.maxHp}`), kv('MP', `${c.mp}/${st.maxMp}`),
       kv('力', st.str), kv('身の守り', st.def),
       kv('素早さ', st.agi), kv('攻撃魔力', st.mag),
@@ -1169,15 +1254,17 @@ export class FieldMenu {
     const box = el('div');
     const bs = c.battleSettings || {};
     const tname = (t) => TACTICS[t]?.name || t;
-    const items = [{ label: `${c.name}（オートのとき）：${tname(c.tactics || 'balanced')}`, value: { key: 'self' } }];
-    for (const s of g.party?.supports || []) {
-      if (s.owner !== c.id) continue;
-      items.push({ label: `${s.name}：${tname(s.tactics)}`, value: { key: s.key, name: s.name }, face: faceURL({ look: s.look, job: s.job, eq: s.equip, mon: s.species || undefined }) });
+    const offN = (x) => (Array.isArray(x?.autoOff) ? x.autoOff.length : 0);
+    const offTag = (x) => (offN(x) ? `（使わない技 ${offN(x)}）` : '');
+    const items = [{ label: `${c.name}（オートのとき）：${tname(c.tactics || 'balanced')}${offTag(c)}`, value: { key: 'self', name: c.name } }];
+    // 自分の 仲間（パーティー・馬車）
+    for (const s of this.myMates()) {
+      items.push({ label: `${s.name}${s.wagon ? '（馬車）' : ''}：${tname(s.tactics)}${offTag(s)}`, value: { key: s.key, name: s.name }, face: faceURL({ look: s.look, job: s.job, eq: s.equip, mon: s.species || undefined }) });
     }
     items.push({ label: `戦いの初めからオート：${bs.auto ? 'ON' : 'OFF'}`, value: { toggle: 'auto' } });
     if (!active) {
       for (const it of items) box.append(el('div', { text: it.label }));
-      box.append(el('div', { class: 'detail', text: '仲間やオートのときの戦い方を決める。\n仲間を「めいれいさせろ」にすると、仲間のコマンドも自分で選べる。' }));
+      box.append(el('div', { class: 'detail', text: '仲間やオートのときの戦い方を決める。オートで使わない技も選べる。\n仲間を「めいれいさせろ」にすると、仲間のコマンドも自分で選べる。' }));
       return box;
     }
     const m = this.mkSub({
@@ -1186,16 +1273,84 @@ export class FieldMenu {
         const v = it.value;
         if (v.toggle === 'auto') {
           g.net.send({ t: 'menu', action: 'settings', auto: !bs.auto });
-        } else {
-          this.sub.blur();
+          setTimeout(() => this.redraw(), 250);
+          return;
+        }
+        this.sub.blur();
+        // 作戦を かえる か、オートで 使う 技を えらぶ か
+        const what = await this.pick(v.key === 'self' ? `${v.name}（オートのとき）` : v.name, [
+          { label: '作戦を変える', value: 'tac' },
+          { label: 'オートで使う技を選ぶ', value: 'skills' },
+          { label: 'やめる', value: null },
+        ]);
+        if (what === 'skills') return this.pushView(() => this.autoSkillsView(v.key));
+        if (what === 'tac') {
           const list = Object.entries(TACTICS).filter(([k]) => v.key !== 'self' || k !== 'manual').map(([k, x]) => ({ label: x.name, value: k }));
           const t = await this.pick(v.key === 'self' ? 'オートのときの作戦' : `${v.name}の作戦`, [...list, { label: 'やめる', value: null }]);
           if (t) g.net.send({ t: 'menu', action: 'tactics', key: v.key, tactics: t, label: TACTICS[t].name });
+          setTimeout(() => this.redraw(), t ? 250 : 0);
+          return;
         }
-        setTimeout(() => { if (this.root) this.focusSub(this.tacticsView(true)); }, 250);
+        this.redraw();
       },
     });
-    box.append(m.root, el('div', { class: 'detail', text: 'バッチリがんばれ: バランスよく / ガンガンいこうぜ: 攻撃中心 / いのちだいじに: 回復中心 / じゅもんせつやく: MPを使わない / めいれいさせろ: 自分でコマンドを選ぶ（仲間だけ）' }));
+    box.append(m.root, el('div', { class: 'detail', text: 'バッチリがんばれ: バランスよく / ガンガンいこうぜ: 攻撃中心 / いのちだいじに: 回復中心 / じゅもんせつやく: MPを使わない / めいれいさせろ: 自分でコマンドを選ぶ（仲間だけ）\n「オートで使う技を選ぶ」で、オートのときに使わない技を決められる。' }));
+    return box;
+  }
+
+  // オートで 使う 技・使わない 技（作戦）。えらぶ たびに「使う／使わない」が かわる（サーバーの autoSkill・ai.js）
+  autoSkillsView(key) {
+    const g = this.game;
+    const c = this.charOf(key) || g.me;
+    const box = el('div');
+    const off = new Set(Array.isArray(c.autoOff) ? c.autoOff : []);
+    // 戦いで 使える 技だけ（ルーラなど フィールドだけの 技・きずな技は のぞく）
+    const ids = learnedAbilities(c).filter((id) => {
+      const a = ABILITIES[id];
+      return a && !a.fieldOnly && !a.hidden && a.kind !== 'bond';
+    });
+    box.append(el('div', { class: 'gold small', text: `${c.name}がオートで使う技` }));
+    if (!ids.length) {
+      box.append(el('div', { class: 'muted', text: 'まだ技を覚えていない。' }));
+      this.mkSub({ items: [{ label: 'もどる', value: 'back' }], onSelect: () => this.back() });
+      box.append(this.sub.root);
+      return box;
+    }
+    // 画面の キャラにも すぐ 入れる（サーバーの 返事を またずに 見た目を かえる）
+    const setLocal = (list) => {
+      const src = key === 'self' ? g.me : [...(g.party?.supports || []), ...(g.party?.wagon || [])].find((x) => x.key === key && x.owner === g.me.id);
+      if (src) src.autoOff = list;
+    };
+    const items = [
+      { label: '全部使う', value: '__all', disabled: !off.size },
+      ...ids.map((id) => {
+        const a = ABILITIES[id];
+        const no = off.has(id);
+        return {
+          html: `${esc(a.name)}<span class="sk-desc">${esc(skillBrief(a))}</span>`,
+          right: no ? '使わない' : '使う',
+          rightCls: no ? 'dis' : 'up',
+          value: id,
+          cls: `k-${abilityRole(a)} sk ${no ? 'auto-off' : ''}`,
+        };
+      }),
+    ];
+    const m = this.mkSub({
+      items,
+      onSelect: (it) => {
+        if (it.value === '__all') {
+          setLocal([]);
+          g.net.send({ t: 'menu', action: 'autoSkill', key, op: 'all' });
+        } else {
+          const no = off.has(it.value);
+          const next = no ? [...off].filter((x) => x !== it.value) : [...off, it.value];
+          setLocal(next);
+          g.net.send({ t: 'menu', action: 'autoSkill', key, id: it.value, op: no ? 'on' : 'off' });
+        }
+        this.redraw();
+      },
+    });
+    box.append(m.root, el('div', { class: 'detail', text: '選ぶたびに「使う／使わない」が切りかわる。\n「使わない」にした技は、オートで戦うときに使わない（自分でコマンドを選ぶときは使える）。' }));
     return box;
   }
 

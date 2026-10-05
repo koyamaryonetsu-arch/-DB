@@ -5,14 +5,14 @@
 //   c.partyKeys  … いま いっしょに ぼうけんしている なかま（じゅんばん）。'fam:ID' は 家族の キャラ
 //   c.guests     … ものがたりで いっしょに いる ゲスト（ルカ など）
 // パーティーには リーダーの なかまが ついてくる（にんげんが ふえると、はいりきらない なかまは いったん まつ）
-import { newCharacter, computeStats, fullHeal, gainExp, gainJobBattles, migrateJobs, expForLevel, addItem, newMonsterCompanion, learnedAbilities } from '../stats.js?v=630ae227a032';
-import { jobBattlesForLevel } from '../data/jobs.js?v=630ae227a032';
-import { NPC_SUPPORTS, GUESTS } from '../data/shops.js?v=630ae227a032';
-import { MONSTERS } from '../data/monsters.js?v=630ae227a032';
-import { MONSTER_FRIENDS, ROSTER_MAX, COMPANION_SLOTS } from '../data/companions.js?v=630ae227a032';
-import { SLOTS, ITEMS } from '../data/items.js?v=630ae227a032';
-import { cleanWagon, hasWagon, WAGON_SLOTS } from '../data/wagon.js?v=630ae227a032';
-import { wagonState, wagonTavernInfo } from './wagon.js?v=630ae227a032';
+import { newCharacter, computeStats, fullHeal, gainExp, gainJobBattles, migrateJobs, expForLevel, addItem, newMonsterCompanion, learnedAbilities } from '../stats.js?v=e1e09fce899d';
+import { jobBattlesForLevel } from '../data/jobs.js?v=e1e09fce899d';
+import { NPC_SUPPORTS, GUESTS } from '../data/shops.js?v=e1e09fce899d';
+import { MONSTERS } from '../data/monsters.js?v=e1e09fce899d';
+import { MONSTER_FRIENDS, ROSTER_MAX, COMPANION_SLOTS } from '../data/companions.js?v=e1e09fce899d';
+import { SLOTS, ITEMS } from '../data/items.js?v=e1e09fce899d';
+import { cleanWagon, hasWagon, WAGON_SLOTS } from '../data/wagon.js?v=e1e09fce899d';
+import { wagonState, wagonTavernInfo } from './wagon.js?v=e1e09fce899d';
 
 // パーティーに 入れる 人（家族の プレイヤー）は 5人まで。いっしょに フィールドを 歩いて、いっしょに 戦う
 export const PARTY_MAX = 5;
@@ -547,6 +547,8 @@ export function supportInfo(x) {
     plus: x.char.plus || 0, bonus: x.char.bonus || undefined, inherit: x.char.inherit || undefined,
     hirameki: x.kind === 'npc' ? x.char.hirameki || [] : undefined, skillUse: x.kind === 'npc' ? x.char.skillUse || {} : undefined,
     favorites: x.kind === 'npc' ? x.char.favorites || [] : undefined,
+    // オートで 使わない 技（作戦。家族の キャラの ぶんは 出さない）
+    autoOff: x.kind !== 'family' && Array.isArray(x.char.autoOff) && x.char.autoOff.length ? x.char.autoOff : undefined,
     status: x.char.status?.poison ? ['poison'] : [],
   };
 }

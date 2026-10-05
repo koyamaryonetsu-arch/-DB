@@ -9,7 +9,7 @@
 // ・家族の キャラは パーティーと おなじ「うつし」が 乗る。本人に とどく 経験値の おすそわけは パーティーの ときの 半分（お金は なし）。
 //   本人が パーティーに 来ている ときは うつしは 出ない（パーティーの 'fam:' と おなじ きまり）
 // ・総入れかえ: 1〜4番目が 戦う 仲間（自分は かならず ここ）、5〜8番目が 馬車（world/wagon.js の arrangeWagon）
-import { COMPANION_SLOTS } from './companions.js?v=630ae227a032';
+import { COMPANION_SLOTS } from './companions.js?v=e1e09fce899d';
 
 // 馬車に 乗れる 人数
 export const WAGON_SLOTS = 4;

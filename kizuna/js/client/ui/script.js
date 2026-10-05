@@ -1,9 +1,10 @@
 // だいほんの さいせい（メッセージ・えらぶ・えんしゅつ）
-import { el } from './dom.js?v=630ae227a032';
-import { ListMenu } from './dom.js?v=630ae227a032';
-import { openServiceUI } from './services.js?v=630ae227a032';
-import { monsterCanvas } from '../render/monsters.js?v=630ae227a032';
-import { reportError } from '../errlog.js?v=630ae227a032';
+import { el } from './dom.js?v=e1e09fce899d';
+import { ListMenu } from './dom.js?v=e1e09fce899d';
+import { openServiceUI } from './services.js?v=e1e09fce899d';
+import { monsterCanvas } from '../render/monsters.js?v=e1e09fce899d';
+import { npcSprite } from '../field.js?v=e1e09fce899d';
+import { reportError } from '../errlog.js?v=e1e09fce899d';
 
 const TYPE_MS = 28;
 
@@ -172,12 +173,13 @@ export class ScriptPlayer {
     return this.dlg;
   }
 
-  // なかまに なりたそうな モンスター
+  // なかまに なりたそうな モンスター（'npc:<みため>' … 人の すがた。水がめに うつる 女王 など）
   showMon(sp) {
     this.monBox?.remove();
     this.monBox = null;
     if (!sp) return;
-    const src = monsterCanvas(sp, 0);
+    const src = sp.startsWith('npc:') ? npcSprite(sp.slice(4), 'down', 0) : monsterCanvas(sp, 0);
+    if (!src) return;
     const c = document.createElement('canvas');
     c.width = src.width;
     c.height = src.height;
