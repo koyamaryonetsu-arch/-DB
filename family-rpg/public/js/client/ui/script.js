@@ -3,6 +3,7 @@ import { el } from './dom.js';
 import { ListMenu } from './dom.js';
 import { openServiceUI } from './services.js';
 import { monsterCanvas } from '../render/monsters.js';
+import { npcSprite } from '../field.js';
 import { reportError } from '../errlog.js';
 
 const TYPE_MS = 28;
@@ -172,12 +173,13 @@ export class ScriptPlayer {
     return this.dlg;
   }
 
-  // なかまに なりたそうな モンスター
+  // なかまに なりたそうな モンスター（'npc:<みため>' … 人の すがた。水がめに うつる 女王 など）
   showMon(sp) {
     this.monBox?.remove();
     this.monBox = null;
     if (!sp) return;
-    const src = monsterCanvas(sp, 0);
+    const src = sp.startsWith('npc:') ? npcSprite(sp.slice(4), 'down', 0) : monsterCanvas(sp, 0);
+    if (!src) return;
     const c = document.createElement('canvas');
     c.width = src.width;
     c.height = src.height;

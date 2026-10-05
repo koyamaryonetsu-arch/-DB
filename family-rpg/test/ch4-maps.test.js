@@ -87,12 +87,15 @@ test('第4章: 人・宝箱・かんばん・しかけ・ワープが ただし�
   const ALL = ['c4_start', 'c4_arrive', 'c4_hamil', 'c4_nadim', 'c4_well', 'c4_ami', 'c4_canal'];
   for (const id of CH4_MAPS) {
     const m = MAPS[id];
-    // ワープで 入って くる ところ（フィールドは 竜が おりる ところ）
-    const starts = id === 'south' ? [ARRIVE] : Object.values(MAPS).flatMap((o) => o.warps.filter((w) => w.to.map === id).map((w) => [Math.floor(w.to.x), Math.floor(w.to.y)]));
+    // ワープで 入って くる ところ（フィールドは 竜が おりる ところと、ダンジョンから 出て くる ところ。
+    // 王都の 宮殿の 中庭は、宮殿の地下水路の 古井戸からだけ 入れる）
+    const warpIn = Object.values(MAPS).flatMap((o) => o.warps.filter((w) => w.to.map === id).map((w) => [Math.floor(w.to.x), Math.floor(w.to.y)]));
+    const starts = id === 'south' ? [ARRIVE, ...warpIn] : warpIn;
     assert.ok(starts.length, `${id}: 入り口`);
     // 水門の レバー（地下水路）は どちらでも 行けるように 両方 しらべる（つながりは test/ch4-canal.test.js）
+    // よろい大サソリの 前と あと（あとは 砂嵐の 切れ目の 南の 王都サファラへ 行ける。サソリの いた 水路の 底は 水に なる）
     const levers = [...new Set(m.gates.filter((g) => g.closed === T.LEVER).map((g) => g.flag))];
-    const sets = [ALL];
+    const sets = [ALL, [...ALL, 'c4_scorpion']];
     for (const lv of levers) for (const st of sets.slice()) sets.push([...st, lv]);
     const rs = sets.flatMap((fl) => starts.map((s0) => reach(m, s0, fl)));
     const r = (x, y) => rs.some((f) => f(x, y));

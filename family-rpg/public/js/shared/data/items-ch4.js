@@ -1,5 +1,6 @@
 // 第4章「砂の海にしずむ星」の 品物と お店（items.js・shops.js で まぜる）
-// 装備の ランク6・7は 王都サファラ・砂の港ドゥナ（Step 3・Step 6）で ふえる。ここは オアシスの村ハミルの ぶん
+// 装備の ランク6「魔法」は 王都サファラ（Step 3）、ランク7は 砂の港ドゥナ（Step 6）で ふえる
+// ランク6の 店の 品は、ランク5（カナトコの はがねの 品）より 少し 強い（items.js の EQUIP_RANKS: 剣 50・服 27）
 export const ITEMS_CH4 = {
   sand_cloak: {
     name: '砂よけのマント', type: 'acc', rank: 6, bonus: { def: 6 }, resist: { blind: 0.5 }, price: 2200,
@@ -10,11 +11,39 @@ export const ITEMS_CH4 = {
     name: 'サソリのブローチ', type: 'acc', rank: 6, unique: true, bonus: { def: 8, hp: 20 }, resist: { poison: 0 }, price: 0, sell: 700,
     desc: 'よろい大サソリのこうらで作られたブローチ。毒を受けなくなり、守りとHPが上がる。',
   },
+
+  // ───── ランク6「魔法」: 王都サファラの 武器と防具の店（Step 3）─────
+  shamshir: { name: 'シャムシール', type: 'weapon', rank: 6, cat: 'sword', atk: 50, price: 3600, desc: '三日月のようにそった、砂の国の剣。軽くて、よく切れる。' },
+  battle_axe: { name: 'バトルアックス', type: 'weapon', rank: 6, cat: 'axe', atk: 57, bonus: { agi: -3 }, price: 3900, desc: '両がわに大きなはのついた、重いオノ。一撃が強い。' },
+  jambiya: { name: 'ジャンビーヤ', type: 'weapon', rank: 6, cat: 'dagger', atk: 36, bonus: { agi: 5 }, price: 2700, desc: 'くの字にまがった、砂の国の短剣。素早くふるえる。' },
+  sand_lance: { name: '砂竜のやり', type: 'weapon', rank: 6, cat: 'spear', atk: 46, price: 3400, desc: '砂竜のキバを先に付けた、長いやり。' },
+  tiger_claw: { name: 'タイガークロー', type: 'weapon', rank: 6, cat: 'claw', atk: 45, bonus: { agi: 3 }, price: 3300, desc: '砂ばくのトラのツメのように、するどいツメ。' },
+  snake_whip: { name: 'ヘビ皮のムチ', type: 'weapon', rank: 6, cat: 'whip', atk: 43, price: 3300, desc: '砂ばくの大ヘビの皮であんだ、長いムチ。' },
+  oasis_staff: { name: 'オアシスのつえ', type: 'weapon', rank: 6, cat: 'staff', atk: 18, bonus: { mag: 22, heal: 12 }, price: 3200, desc: 'オアシスの水のような、青い玉がついたつえ。呪文の力が上がる。' },
+  sandwind_fan: { name: '砂風のおうぎ', type: 'weapon', rank: 6, cat: 'fan', atk: 33, bonus: { agi: 8 }, price: 2900, desc: 'ふると、さらさらと砂の音がする、まいのおうぎ。' },
+  crescent_boomerang: { name: '三日月のブーメラン', type: 'weapon', rank: 6, cat: 'boomerang', atk: 32, price: 3400, desc: '三日月の形をした、よく飛ぶブーメラン。' },
+  palm_bat: { name: 'ヤシの木のバット', type: 'weapon', rank: 6, cat: 'bat', atk: 48, bonus: { agi: 2 }, price: 3300, desc: '大きなヤシの木からけずり出した、よくしなるバット。' },
+  sand_mail: { name: '砂のよろい', type: 'armor', rank: 6, armorType: 'heavy', def: 46, bonus: { agi: -2 }, resist: { blind: 0.8 }, price: 3900, desc: '砂色の金属でできた、かたいよろい。砂かけに少し強い。' },
+  desert_garb: { name: '砂の衣', type: 'armor', rank: 6, armorType: 'cloth', def: 27, resist: { blind: 0.8 }, price: 2800, desc: '砂ばくの旅人が着る、うすい衣。だれでも装備でき、砂かけに少し強い。' },
+  moon_robe: { name: '月のローブ', type: 'armor', rank: 6, armorType: 'robe', def: 30, bonus: { mag: 7, heal: 6 }, price: 3200, desc: '月の光のように白いローブ。魔力が上がる。' },
+  sandstorm_gi: { name: '砂嵐の道着', type: 'armor', rank: 6, armorType: 'gi', def: 33, bonus: { agi: 8 }, price: 3200, desc: '砂嵐の中でも動きやすい道着。' },
+  crescent_shield: { name: '三日月のたて', type: 'shield', rank: 6, def: 27, price: 2900, desc: '三日月のかざりがついた、金属のたて。' },
+  sand_helm: { name: '砂のかぶと', type: 'head', rank: 6, helm: true, def: 16, price: 2300, desc: '砂色の金属でできたかぶと。戦士などが装備できる。' },
+  turban: { name: 'ターバン', type: 'head', rank: 6, def: 10, resist: { blind: 0.9 }, price: 1400, desc: '頭に長い布をまいた、砂の国のぼうし。だれでも装備できる。' },
+  // ★: 宮殿の地下水路の 宝箱（店では 買えない）
+  crescent_blade: {
+    name: '三日月の剣', type: 'weapon', rank: 6, star: true, cat: 'sword', atk: 56, bonus: { agi: 3 }, price: 0, sell: 1600,
+    desc: '宮殿の地下水路でねむっていた剣。三日月のように、するどくそっている。',
+  },
 };
 
 export const CH4_ITEM_KANA = {
   sand_cloak: 'すなよけのまんと',
   scorpion_brooch: 'さそりのぶろーち',
+  shamshir: 'しゃむしーる', battle_axe: 'ばとるあっくす', jambiya: 'じゃんびーや', sand_lance: 'すなりゅうのやり', tiger_claw: 'たいがーくろー',
+  snake_whip: 'へびがわのむち', oasis_staff: 'おあしすのつえ', sandwind_fan: 'すなかぜのおうぎ', crescent_boomerang: 'みかづきのぶーめらん', palm_bat: 'やしのきのばっと',
+  sand_mail: 'すなのよろい', desert_garb: 'すなのころも', moon_robe: 'つきのろーぶ', sandstorm_gi: 'すなあらしのどうぎ',
+  crescent_shield: 'みかづきのたて', sand_helm: 'すなのかぶと', turban: 'たーばん', crescent_blade: 'みかづきのけん',
 };
 
 export const SHOPS_CH4 = {
@@ -25,5 +54,27 @@ export const SHOPS_CH4 = {
     keeper: 'よろず屋のおじさん',
     hello: 'いらっしゃい。水がへって、品物も少なくなっちまったが…\n砂ばくの旅のそなえなら、ここでそろうよ。',
     items: ['herb', 'antidote', 'moonherb', 'holy_water', 'return_wing', 'guide_thread', 'sand_cloak'],
+  },
+  // 王都サファラ（Step 3）: 武器と防具の店（ランク6）・市場の 道具屋の 屋台
+  safara_weapon: {
+    name: 'サファラの武器屋',
+    kind: 'weapon',
+    keeper: '武器屋のおやじ',
+    hello: 'いらっしゃい！王都サファラの武器屋だ。\n砂の国の剣は、軽くてよく切れるぜ。\nどれにする？',
+    items: ['shamshir', 'battle_axe', 'jambiya', 'sand_lance', 'tiger_claw', 'snake_whip', 'oasis_staff', 'sandwind_fan', 'crescent_boomerang', 'palm_bat'],
+  },
+  safara_armor: {
+    name: 'サファラの防具屋',
+    kind: 'armor',
+    keeper: '防具屋のおねえさん',
+    hello: 'いらっしゃいませ。\n砂ばくの旅には、砂に強い防具がおすすめよ。\nどれになさいます？',
+    items: ['sand_mail', 'desert_garb', 'moon_robe', 'sandstorm_gi', 'crescent_shield', 'sand_helm', 'turban', 'sand_cloak'],
+  },
+  safara_item: {
+    name: 'サファラ市場の道具屋',
+    kind: 'item',
+    keeper: '道具屋のおばさん',
+    hello: 'いらっしゃい！市場の道具屋だよ。\n水はないけど、薬草ならあるよ。\n何にするんだい？',
+    items: ['herb', 'antidote', 'moonherb', 'holy_water', 'return_wing', 'guide_thread', 'smoke_ball'],
   },
 };

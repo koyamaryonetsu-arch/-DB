@@ -98,6 +98,8 @@ const HEAD_LOOK = {
   feather_hat: { hat: 'feather' },
   mystic_hat: { hat: 'wizard', hatColor: '#2a8a7a' },
   medal_crown: { hat: 'crown' },
+  // 第4章: 王都サファラの 防具屋
+  turban: { hat: 'turban', hatColor: '#f4f0e6' },
 };
 
 // ぶきの いろ
@@ -230,6 +232,28 @@ const NPC_LOOKS = {
   desert_merchant: { hair: 1, hairStyle: 'short', skin: 1, outfit: 'apron', cloth: '#6a8a3a', beard: true, hat: 'turban', hatColor: '#c83a3a', hatGem: '#f2c14e' },
   desert_priest: { hair: 5, hairStyle: 'short', skin: 1, outfit: 'robe', robeMain: '#f8f4e8', robeTrim: '#3a8ac8', hat: 'mitre' },
   caravan: { hair: 0, hairStyle: 'short', skin: 2, outfit: 'traveler', cloth: '#8a4a2a', beard: true, hat: 'keffiyeh', hatColor: '#e8d0a0', hatTrim: '#8a4a2a' },
+  // 王都サファラ（Step 3）
+  // 女王ネフィ（12さい。小さな かんむり tiara・水の 国の 青い マント）。nefi_mirror … 夜の 水がめに うつる すがた（はだや かみも 水の いろ）
+  nefi: { hair: 0, hairStyle: 'long', skin: 1, outfit: 'robe', robeMain: '#f4f0fa', robeTrim: '#3a8ac8', female: true, small: true, hat: 'tiara', hatGem: '#3ac8e8', cape: '#2a5ab0' },
+  nefi_mirror: { hair: '#4a6ab8', hairStyle: 'long', skin: '#c4e4f6', outfit: 'robe', robeMain: '#a8d8f4', robeTrim: '#5aa8e0', female: true, small: true, hat: 'tiara', hatGem: '#f0fbff', cape: '#6a9ad8' },
+  // 大臣ザイード（くらい 色の ローブと ターバン・赤い 宝石）
+  zaid: { hair: 0, hairStyle: 'short', skin: 2, outfit: 'robe', robeMain: '#2e2440', robeTrim: '#a8842e', beard: true, hat: 'turban', hatColor: '#3a2a4e', hatGem: '#d83a3a', cape: '#1e1628' },
+  // サラ（14さい。砂の 海賊。赤い バンダナと ムチ）
+  sara: { hair: 1, hairStyle: 'pony', skin: 1, outfit: 'vest', cloth: '#2a4a6a', female: true, hat: 'bandana', hatColor: '#d83a3a', weapon: { cat: 'whip', blade: '#a0703a', guard: '#5a3a22' } },
+  // 学者ハサン（白い ひげ・めがね・本の 色の ローブ）
+  hassan: { hair: 5, hairStyle: 'long', skin: 1, outfit: 'robe', robeMain: '#5a4a8a', robeTrim: '#f2c14e', beard: true, glasses: true, cane: true, hunch: true, hat: 'turban', hatColor: '#ece2c8' },
+  // 水の神殿の みこ見習い・宮殿の 兵士と 女官・町の 門番
+  w_priestess: { hair: 0, hairStyle: 'long', skin: 1, outfit: 'robe', robeMain: '#f4f8fc', robeTrim: '#2aa8c0', female: true, small: true, hat: 'veil' },
+  palace_guard: { hair: 0, skin: 2, outfit: 'armor', cloth: '#2a5aa8', hat: 'turban', hatColor: '#f4f0e6', hatGem: '#3ac8c0', spear: true },
+  safara_guard: { hair: 0, skin: 1, outfit: 'armor', cloth: '#a8582e', hat: 'keffiyeh', hatColor: '#f4f0e4', hatTrim: '#3a6aa8', spear: true },
+  maid: { hair: 0, hairStyle: 'bun', skin: 1, outfit: 'apron', cloth: '#3a6aa8', female: true, hat: 'shawl', hatColor: '#f4f0e6', hatTrim: '#3ac8c0' },
+  // わらべ歌の 子どもたち（アリは desert_kid）
+  desert_girl: { hair: 0, hairStyle: 'twin', skin: 2, outfit: 'dress', cloth: '#e8b84a', female: true, small: true, hat: 'circlet', hatGem: '#e8303a' },
+  desert_girl2: { hair: 1, hairStyle: 'pony', skin: 1, outfit: 'dress', cloth: '#8a5ac8', female: true, small: true, hat: 'shawl', hatColor: '#f08cc0' },
+  desert_kid2: { hair: 1, hairStyle: 'short', skin: 1, outfit: 'tunic', cloth: '#3a8a8a', small: true, hat: 'keffiyeh', hatColor: '#f4f0e4', hatTrim: '#3a8a8a' },
+  // 闘技場の 受付・力じまんの 戦士
+  arena_clerk: { hair: 0, hairStyle: 'short', skin: 2, outfit: 'vest', cloth: '#8a2a2a', beard: true, hat: 'turban', hatColor: '#f2c14e' },
+  fighter: { hair: 0, hairStyle: 'bald', skin: 2, outfit: 'gi', cloth: '#c8503a', beard: true, hat: 'headband', hatColor: '#f2c14e' },
 };
 
 // そうびの かきかた: 'ぶき,よろい,たて,あたま' の もじれつ か { weapon, armor, shield, head }
@@ -298,9 +322,11 @@ export function lookToOpts(look = {}, job = 'warrior', eq = undefined) {
 export function npcOpts(kind) {
   const n = NPC_LOOKS[kind];
   if (!n) return null;
+  // skin・hair は ばんごう（SKIN・HAIR の ならび）か、いろの もじれつ（水に うつる 女王など）
+  const pick = (v, list) => (typeof v === 'string' ? v : list[v ?? 0]);
   return {
-    skin: SKIN[n.skin ?? 0],
-    hair: HAIR[n.hair ?? 0],
+    skin: pick(n.skin, SKIN),
+    hair: pick(n.hair, HAIR),
     hairStyle: n.hairStyle || 'short',
     female: !!n.female,
     cloth: n.cloth || '#7a6a5a',
@@ -321,6 +347,9 @@ export function npcOpts(kind) {
     glasses: n.glasses,
     hakama: n.hakama,
     giTrim: n.giTrim,
+    // ムチを もつ 人（サラ）・マントの 人（女王ネフィ・大臣ザイード）
+    weapon: n.weapon,
+    cape: n.cape,
   };
 }
 
@@ -1468,6 +1497,21 @@ function drawHat(p, dir, f, o) {
       }
       break;
     }
+    case 'tiara': {
+      // 小さな かんむり（金の わに 3つの とがり。まんなかが 高い。hatGem … まんなかの ほうせき。女王ネフィ）
+      const g = '#f2c14e', gD = '#b8862a', gL = '#fff0a0', j = o.hatGem || '#3ac8e8';
+      p.tag = 'gold';
+      if (side) {
+        p.rect(8, 4, 13, 3, g); p.hline(8, 20, 4, gL); p.hline(8, 20, 6, gD);
+        p.rect(9, 2, 2, 2, g); p.rect(14, 0, 2, 4, g); p.set(14, 0, gL); p.rect(19, 2, 2, 2, g);
+        p.tag = 'gem'; p.set(9, 5, j);
+      } else {
+        p.rect(8, 4, 16, 3, g); p.hline(8, 23, 4, gL); p.hline(8, 23, 6, gD);
+        p.rect(9, 2, 2, 2, g); p.rect(21, 2, 2, 2, g); p.rect(15, 0, 2, 4, g); p.set(15, 0, gL);
+        if (dir === 'down') { p.tag = 'gem'; p.rect(15, 4, 2, 2, j); p.set(11, 5, '#e8303a'); p.set(20, 5, '#e8303a'); }
+      }
+      break;
+    }
     case 'circlet': {
       // ほそい 金の わ（ひたいに コインが ゆれる。かみは みえる。hatGem … まんなかの ほうせき。第4章 砂の国の 子ども）
       const g = '#f2c14e', gD = '#b8862a', gL = '#fff0a0', j = o.hatGem || '#e8303a';
@@ -2056,6 +2100,8 @@ export function paintSpecial(kind, dir, f) {
       return paintShip(dir, f);
     case 'camel':
       return paintCamel(dir, f);
+    case 'zaid_demon':
+      return paintSandDemon(f);
     default:
       return null;
   }
@@ -2068,6 +2114,42 @@ function fine(p, oc) {
   rimShade(q, 0.2, 0.16);
   if (oc) outline2(q, oc, 0.4);
   return q;
+}
+
+// 大臣ザイードの 影（月明かりに うつった、大きな 砂の 魔神の 形。第4章 Step 3 の 夜の 中庭。どの むきも おなじ）
+// 人より ずっと 大きい（36×44）。下は 砂の うず
+function paintSandDemon(f) {
+  const W = 36, p = new Painter(W, 44);
+  const B = '#25172f', BD = '#150b1f', BL = '#44305a', S = '#7a5e3a', SD = '#4e3a24', SL = '#a8865a';
+  const HORN = '#3a2848', HORNL = '#6a5084', EYE = '#ff4a3a', EYEL = '#ffd8a8', GEM = '#e8303a';
+  // 左右 おなじに かく
+  const sym = (y, x0, x1, c) => { p.hline(x0, x1, y, c); p.hline(W - 1 - x1, W - 1 - x0, y, c); };
+  // 砂の うず（下半身。下へ いくほど ほそく、まわる すじ）
+  for (let y = 29; y <= 43; y++) { const hw = Math.max(2, Math.round(9 - (y - 29) * 0.55)); p.hline(18 - hw, 17 + hw, y, SD); }
+  for (let y = 30; y <= 42; y += 3) {
+    const hw = Math.max(1, Math.round(8 - (y - 29) * 0.55)), sh = ((y + f * 2) % 4) - 1;
+    p.hline(18 - hw + sh, 17 + hw - 2 + sh, y, S); p.set(18 - hw + sh, y, SL);
+  }
+  // うで（かたから 下へ。先に ツメ）
+  for (let y = 15; y <= 27; y++) sym(y, 1 + Math.floor((y - 15) / 6), 8 - Math.floor((y - 15) / 5), B);
+  for (const x of [1, 3, 5]) { sym(28, x, x, BD); sym(29, x, x, BD); }
+  // からだ（かたが ひろく、こしへ ほそく）
+  for (let y = 14; y <= 31; y++) { const hw = y < 17 ? 9 + (y - 14) : Math.round(12 - (y - 17) * 0.45); p.hline(18 - hw, 17 + hw, y, B); }
+  // むねの すじ・月明かりの ふち（ひだりが 明るい）
+  sym(19, 11, 15, BD); sym(23, 12, 15, BD); p.vline(17, 18, 28, BD); p.vline(18, 18, 28, BD);
+  for (let y = 15; y <= 26; y++) p.set(1 + Math.floor((y - 15) / 6), y, BL);
+  p.hline(7, 12, 14, BL); p.vline(7, 16, 24, BL);
+  // あたま と つの
+  p.ellipse(17.5, 8.5, 6.5, 5.5, B);
+  for (let i = 0; i < 6; i++) { sym(6 - i, 10 - Math.floor(i * 0.7), 11 - Math.floor(i * 0.7), HORN); }
+  p.set(7, 0, HORNL); p.set(28, 0, HORNL);
+  p.hline(13, 16, 4, BL);
+  // ひたいの 赤い 宝石（大臣の ターバンと おなじ）
+  p.rect(17, 5, 2, 2, GEM);
+  // 光る 目と 口
+  sym(8, 13, 15, EYE); sym(9, 14, 15, EYE); sym(8, 14, 14, EYEL);
+  p.hline(15, 20, 11, BD); p.set(16, 12, BD); p.set(19, 12, BD); p.set(15, 11, EYE); p.set(20, 11, EYE);
+  return fine(p, '#6a3a8a');
 }
 
 // ラクダ（キャラバンの ラクダ。こぶに 赤い しきもの・よこに にもつ。第4章 砂の国）

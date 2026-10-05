@@ -12,7 +12,7 @@ import { GameWorld } from '../public/js/shared/world/world.js';
 import { makeRng } from '../public/js/shared/rng.js';
 import { MAPS, effectiveTile, isBlocked, condOk } from '../public/js/shared/maps/index.js';
 import { slideReach } from '../public/js/shared/maps/slide.js';
-import { SOUTH_PLACES, SOUTH_ARRIVE, STORM_Y, STORM_GAP_X } from '../public/js/shared/maps/south.js';
+import { SOUTH_PLACES, SOUTH_ARRIVE, STORM_Y, STORM_GAP_X, SAFARA_POS } from '../public/js/shared/maps/south.js';
 import { HAMIL_ROWS } from '../public/js/shared/maps/south-rows.js';
 import { CANAL_DOOR, CANAL_LEVERS, CH4_MAPS } from '../public/js/shared/maps/ch4.js';
 import { T } from '../public/js/shared/tiles.js';
@@ -283,7 +283,7 @@ test('フィールド: 地下水路の 入り口は 村長に たのまれると
   // 砂嵐の 切れ目の 南へ 行ける
   assert.ok(r2.has(key(STORM_GAP_X[0] + 1, STORM_Y[1] + 3)), '王都への 道');
   assert.ok(!r.has(key(STORM_GAP_X[0] + 1, STORM_Y[1] + 3)), 'サソリの 前は まだ')
-  assert.deepEqual(CH4_MAPS.slice(-3), ['canal1', 'canal2', 'canal3']);
+  assert.deepEqual(CH4_MAPS.slice(2, 5), ['canal1', 'canal2', 'canal3']);
 });
 
 // ───────────── 物語 ─────────────
@@ -362,11 +362,17 @@ test('第4章 Step 2 を とおして あそべる: 村長 → 地下水路 → 
   assert.equal(bot.map, 'south', '村へ もどった');
   assert.ok(bot.s.x >= HAM.x && bot.s.x < HAM.x + HAM.w && bot.s.y >= HAM.y && bot.s.y < HAM.y + HAM.h, 'ハミルの 中');
   assert.equal(c.objective, C4_OBJ.scorpion);
-  // 物語の すすみぐあいの フラグが ぜんぶ たっている
-  for (const f of CH4_STEPS) assert.ok(c.flags[f], f);
+  // 物語の すすみぐあいの フラグが ぜんぶ たっている（Step 2 の さいごまで）
+  for (const f of CH4_STEPS.slice(0, CH4_STEPS.indexOf('c4_scorpion') + 1)) assert.ok(c.flags[f], f);
+  assert.ok(!c.flags.c4_capital, '王都は まだ');
   // 砂嵐の 切れ目を とおって 南へ 歩ける
   await bot.walkTo(STORM_GAP_X[0] + 1, STORM_Y[1] + 3);
   assert.ok(bot.s.y > STORM_Y[1], '砂嵐の 南');
+  // そのまま 道ぞいに 王都サファラの 北の 門へ（Step 3 の はじまり。つづきは test/ch4-capital.test.js）
+  await bot.walkTo(SAFARA_POS.gate.x, SAFARA_POS.gate.y + 2);
+  await bot.settle();
+  assert.ok(bot.flag('c4_capital'), '王都サファラに 着いた');
+  assert.equal(c.objective, C4_OBJ.capital);
 });
 
 test('第4章 Step 2: 目標・仲間会話・地図の しるし。むかしの「続きはアップデートで！」は 村長の たのみに なおる', () => {
@@ -385,7 +391,7 @@ test('第4章 Step 2: 目標・仲間会話・地図の しるし。むかしの
   const old = { flags: Object.fromEntries(STORY_STEPS.slice(0, STORY_STEPS.indexOf('c4_ami') + 1).map((f) => [f, true])), objective: '第4章の続きはアップデートで！（それまで砂ばくを旅して、強くなっておこう）' };
   assert.ok(repairObjective(old));
   assert.equal(old.objective, C4_OBJ.ami);
-  assert.deepEqual(CH4_STEPS.slice(-2), ['c4_canal', 'c4_scorpion']);
+  assert.deepEqual(CH4_STEPS.slice(6, 8), ['c4_canal', 'c4_scorpion']);
 });
 
 test('家族で: パパの 世界で いっしょに よろい大サソリを たおすと、2人とも ハミルへ。ユイの 物語は そのまま', { timeout: 300000 }, async () => {

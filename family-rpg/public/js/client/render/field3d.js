@@ -106,6 +106,8 @@ function blockSpec(id, x, y) {
     case T.CANAL_WALL: return { h: 1.6, top: ['x', 'canal_wall_top', v], side: ['x', 'canal_wall_side', v], south: ['t', T.CANAL_WALL, v, 1] };
     case T.SLUICE: case T.SLUICE_OPEN: return { h: 1.6, top: ['x', 'sluice_top', v], side: ['x', 'canal_wall_side', v], south: ['t', id, 0, 0], gate: true };
     case T.GRATE: return { h: 1.6, top: ['x', 'canal_wall_top', v], side: ['x', 'canal_wall_side', v], south: ['t', id, 0, 0], gate: true };
+    // 第4章 Step 3（王都サファラ）: かれた ふん水（ふつうの ふん水と おなじ 高さ。ふちの 絵は となりを 見て きめる）
+    case T.DRY_FOUNTAIN: return { h: 0.35, top: ['t', T.DRY_FOUNTAIN, v, 0], side: ['x', 'stone_side', 0] };
     default: return null;
   }
 }
@@ -265,6 +267,11 @@ export class Field3D {
       if (!s) return s;
       const id = idAt(x, y);
       if (id === T.WELL && onDesert(idAt, x, y)) return { ...s, top: ['t', T.WELL, s.top[2], 2] };
+      // 王都サファラ（Step 3）: かれた ふん水の ふち・日干しれんがの かべの 中の カギの とびら（かべと おなじ 高さ。たてものの かべと いっしょに ひくく なる）
+      if (id === T.DRY_FOUNTAIN) return { ...s, top: ['t', T.DRY_FOUNTAIN, s.top[2], ch4Mask(id, idAt, x, y)] };
+      if (id === T.LOCKED_DOOR && [idAt(x - 1, y), idAt(x + 1, y), idAt(x, y - 1), idAt(x, y + 1)].includes(T.ADOBE)) {
+        return { ...s, h: WALL_H, top: ['x', 'wall_top_adobe', 0], side: ['x', 'adobe_side', 0], wall: true };
+      }
       if (id !== T.ADOBE || (map.roofs || []).some((r) => x >= r.x && y >= r.y && x < r.x + r.w && y < r.y + r.h)) return s;
       for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) if (idAt(x + dx, y + dy) === T.WELL_HOLE) return { ...s, h: WELL_RIM_H };
       return s;
@@ -414,7 +421,7 @@ export class Field3D {
         }
         // BLOCK
         const s = spec(x, y);
-        const rr = WALL_TILES.has(id) ? roofOf(x, y) : null;
+        const rr = WALL_TILES.has(id) || s.wall ? roofOf(x, y) : null;
         const tgt = rr ? rr.geo : g;
         const top = uvOf(s.top), side = uvOf(s.side), south = s.south ? uvOf(s.south) : side;
         const hAt = (dx, dy) => topH(x + dx, y + dy);

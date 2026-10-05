@@ -59,6 +59,14 @@ export const ENCOUNTERS_CH4 = {
     { w: 2, group: [['scorpion_soldier', 2, 3]] },
     { w: 2, group: [['dry_frog', 1, 2], ['sand_slime', 1, 2]] },
   ],
+  // ── 宮殿の地下水路（Step 3）。くらい 水路には 月のゆうれいも まよいこんでいる（Lv30〜33）──
+  s_pcanal: [
+    { w: 4, group: [['moon_ghost', 1, 2], ['dry_frog', 0, 1]] },
+    { w: 3, group: [['scorpion_soldier', 1, 2], ['moon_ghost', 1, 1]] },
+    { w: 3, group: [['dry_frog', 2, 3]] },
+    { w: 2, group: [['mirage_flower', 1, 2], ['moon_ghost', 0, 1]] },
+    { w: 1, group: [['gold_beetle', 1, 1]] },
+  ],
 };
 
 export const FIXED_CH4 = {
@@ -69,7 +77,7 @@ export const FIXED_CH4 = {
 };
 
 export const ZONE_BG_CH4 = {
-  s_coast: 'beach', s_dune: 'desert', s_oasis: 'desert', s_well: 'sand_cave', s_canal: 'canal', s_canal2: 'canal',
+  s_coast: 'beach', s_dune: 'desert', s_oasis: 'desert', s_well: 'sand_cave', s_canal: 'canal', s_canal2: 'canal', s_pcanal: 'canal',
   s_coast_night: 'beach_night', s_dune_night: 'desert_night', s_oasis_night: 'desert_night',
 };
 

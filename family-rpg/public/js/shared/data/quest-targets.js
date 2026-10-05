@@ -2,6 +2,7 @@
 // ・メインの 目標は objective の 文から 行き先を きめる（前の セーブでも そのまま 使える）
 // ・たのまれごとは 報告する 人（と さがす 物）
 // 行き先の 書き方: { npc: 'NPCのID' }（その 人の いる 場所）か { map, x, y }
+//   unless: 'フラグ' … その フラグが もう ある 人には 出さない（もう 話を 聞いた 人など。ぜんぶ 消えたら そのまま 出す）
 // 新しい 目標を 作ったら、ここにも 行き先を 足す
 import { MAPS } from '../maps/index.js';
 import { SKY_OBJECTIVE_TARGETS, C3_LEAD_OBJECTIVE } from './sky.js';
@@ -78,6 +79,12 @@ function npcPos(id) {
   return npcIndex.get(id) || null;
 }
 
+// unless の ついた 行き先を、もう すんだ ぶんだけ はぶく
+export function liveTargets(c, specs) {
+  const left = specs.filter((s) => !s.unless || !c?.flags?.[s.unless]);
+  return left.length ? left : specs;
+}
+
 function resolve(spec) {
   if (spec.npc) return npcPos(spec.npc);
   return MAPS[spec.map] ? { map: spec.map, x: spec.x, y: spec.y } : null;
@@ -139,7 +146,7 @@ export function questMarks(c, mapId, objective = c?.objective) {
     if (step) out.push({ x: step.x, y: step.y, kind, label, via: true });
   };
   const main = OBJECTIVE_TARGETS[objective || ''];
-  if (main) add(main, 'main', '次の行き先');
+  if (main) add(liveTargets(c, main), 'main', '次の行き先');
   for (const q of subQuests(c || {})) {
     if (q.find) add([{ npc: q.find }], 'sub', q.name);
     add([{ npc: q.who }], q.ready ? 'subReady' : 'sub', q.name);

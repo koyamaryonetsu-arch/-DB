@@ -163,7 +163,7 @@ test('第4章: 目標・仲間会話・地図の しるしが どの 目標に�
     assert.ok(KNOWN_OBJECTIVES.has(t), `しっている 目標: ${k}`);
     assert.ok(talkFor(t, 'kind') !== `次は「${t.replace(/\n/g, '')}」ですね。`, `仲間会話: ${k}`);
     if (k === 'ami') continue;
-    const marks = ['north', 'sea', 'south', 'north_well'].flatMap((m) => questMarks({ flags: {}, objective: t }, m));
+    const marks = ['north', 'sea', 'south', 'north_well', 'palace_canal'].flatMap((m) => questMarks({ flags: {}, objective: t }, m));
     assert.ok(marks.some((m) => m.kind === 'main'), `しるし: ${k}`);
   }
   // 南の はしの しるしは 風の海の いちばん 下

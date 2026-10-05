@@ -23,6 +23,8 @@ export const T = {
   DESERT: 119, DUNE: 120, SANDSTONE: 121, PALM: 122, CACTUS: 123, ADOBE: 124, SANDSTORM: 125, WELL_HOLE: 126,
   // 第4章 Step 2（かれた地下水路）
   CANAL_FLOOR: 127, CANAL_WALL: 128, CANAL_BED: 129, CANAL_WATER: 130, SLUICE: 131, SLUICE_OPEN: 132, GRATE: 133, DAM: 134,
+  // 第4章 Step 3（王都サファラ）
+  DRY_FOUNTAIN: 135,
 };
 
 export const TILE_INFO = {};
@@ -143,6 +145,8 @@ def(T.SLUICE, 'sluice', { solid: true, mapColor: '#5e4a36' }); // しまった �
 def(T.SLUICE_OPEN, 'sluice_open', { solid: true, mapColor: '#8a7660' }); // 開いた 水門（とびらが 上がっている）
 def(T.GRATE, 'grate', { solid: true, mapColor: '#55555e' }); // 水路の 入り口の 鉄の こうし
 def(T.DAM, 'dam', { solid: true, mapColor: '#7e6044' }); // 魔物が つみ上げた がれきの せき
+// 王都サファラ（Step 3）
+def(T.DRY_FOUNTAIN, 'dry_fountain', { solid: true, mapColor: '#bfae8c' }); // 水が かれた ふん水（石の ふちと ひびわれた 底。まん中は ふき出し口）
 
 export function isSolid(id) {
   return TILE_INFO[id]?.solid ?? true;
