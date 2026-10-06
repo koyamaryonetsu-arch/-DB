@@ -174,7 +174,7 @@ export const MONSTERS_CH3 = {
     desc: '鉱山のおくで炎の石を集めていた、イグニアの手下のゴーレム。息を吸いこんだら、岩なだれが来る。',
   },
   flame_knight: {
-    name: '炎の騎士フレアード', lv: 25, hp: 5000, mp: 60, str: 88, def: 56, agi: 40, mag: 60, exp: 5200, gold: 2200,
+    name: '炎の騎士フレアード', lv: 25, hp: 4400, mp: 60, str: 88, def: 56, agi: 40, mag: 60, exp: 5200, gold: 2200,
     race: 'demon', size: 'xl', boss: true, turns: 2, speed: 0.78, hit: 'slash', drops: { boss: ['flare_brooch'] },
     resist: { ...BOSS_STATUS, fire: 0.1, ice: 1.3, light: 1.1, dark: 0.8 },
     actions: [

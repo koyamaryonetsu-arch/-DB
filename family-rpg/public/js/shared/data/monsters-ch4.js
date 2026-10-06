@@ -181,7 +181,7 @@ export const MONSTERS_CH4 = {
     resist: { ...BOSS_STATUS, sleep: 0, confuse: 0, light: 1.2, dark: 0.5, fire: 0.8 },
     // cycle … 分身が 消えてから もどるまで、mirror … 月の鏡の 光が もどるまで（どちらも 本物の 番の かず）
     mirage: {
-      cycle: 3, mirror: 3, laugh: [8, 12], cloneAtk: 0.55, cloneActions: [{ w: 1, id: 'attack' }],
+      cycle: 3, mirror: 3, laugh: [6, 10], cloneAtk: 0.55, cloneActions: [{ w: 1, id: 'attack' }],
       remake: 'm_zaid_mirage', laughBy: 'ザイードのわらい声',
       intro: ['大臣ザイードのすがたが、3人にふえた！', '（どれが本物だ…？よく見ると、何かがちがうような…）'],
     },
@@ -193,7 +193,7 @@ export const MONSTERS_CH4 = {
   },
   // 砂の魔神ザイード（真の すがた）: 2回行動。砂嵐・魔神の大ぶり・砂の手。からだの まわりで 砂が うずを まいたら（前ぶれ）、つぎの 番に 砂の大うず
   zaid_demon: {
-    name: '砂の魔神ザイード', lv: 36, hp: 5800, mp: 300, str: 132, def: 82, agi: 50, mag: 132, exp: 9600, gold: 4200,
+    name: '砂の魔神ザイード', lv: 36, hp: 5400, mp: 300, str: 128, def: 82, agi: 50, mag: 128, exp: 9600, gold: 4200,
     race: 'demon', size: 'xl', boss: true, turns: 2, speed: 0.7, hit: 'smash', drops: { boss: ['majin_lamp'] },
     resist: { ...BOSS_STATUS, ice: 1.3, wind: 1.3, fire: 0.5, blast: 0.5, dark: 0.6, poison: 0.2 },
     actions: [
