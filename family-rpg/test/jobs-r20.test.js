@@ -313,3 +313,24 @@ test('新しい 職業の 技は ぜんぶ たたかいで 使える（ロトの
   }
   assert.ok(used >= 60, `使った 技 ${used}`);
 });
+
+test('新しい 技も、まぼろしの 分身（第4章 Step 5）に 当たると 消える（行動ゲージを へらす 技・強さを 消す 技）', () => {
+  const { b, me } = setup('railman', ['zaid_minister', 'zaid_minister', 'zaid_minister'], { lucky: true });
+  const clones = b.enemies.filter((e) => e.clone);
+  const real = b.enemies.find((e) => e.shade);
+  assert.equal(clones.length, 2);
+  // 非常ブレーキ（行動ゲージを へらす）
+  const ev = use(b, me, 'rw_brake', clones[0].id);
+  assert.ok(!clones[0].alive, '分身は 消えた');
+  assert.ok(ev.lines.some((l) => l.startsWith('まぼろしだった！')), ev.lines.join('/'));
+  // 強さを 消す 技（敵に）
+  const ev2 = { lines: [], upd: [] };
+  b.applyAbility(me, { name: 'テスト', target: 'enemy', effect: { type: 'dispel' } }, { target: clones[1].id }, ev2, 1);
+  assert.ok(!clones[1].alive, '分身は 消えた（強さを 消す 技）');
+  assert.ok(!ev2.lines.some((l) => l.includes('強くなっていた力')), ev2.lines.join('/'));
+  // 本物には ふつうに 効く（ツッコミ: ダメージ＋強さを 消す）
+  real.buffs = { atk: { mult: 1.3, lv: 1, until: 1e12 } };
+  const ev3 = use(b, me, 'cm_tsukkomi', real.id);
+  assert.ok(real.hp < real.maxHp, '本物に ダメージ');
+  assert.ok(ev3.lines.some((l) => l.includes('強くなっていた力が消えた')), ev3.lines.join('/'));
+});
