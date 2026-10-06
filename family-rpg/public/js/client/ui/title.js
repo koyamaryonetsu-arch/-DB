@@ -5,7 +5,6 @@ import { HAIR_STYLES, HAIR_COLORS, SKIN_TONES, FACES, FACE_BY_ID, CLOTH_COLORS, 
 import { previewCache } from '../render/hero.js';
 import { playerSprite } from '../field.js';
 import { makeCanvas, ctxOf } from '../render/pixel.js';
-import { ago } from './services.js';
 import { LINE_MAX, parseCode } from '../../shared/world/transfer.js';
 import { DEFAULT_SITE, pendingImport, clearPendingImport, familyServer, setFamilyServer, linkToFamilyServer, linkToSite, siteServerAddress } from '../links.js';
 import { goFamilyServer, goSite, roundTrip, changeServer, syncOnServer, maybeRoundTrip, notePlayed, familyServerUp } from './syncui.js';
@@ -162,8 +161,7 @@ export function showSelect(game, chars) {
     ctxOf(cv).drawImage(sp, 0, 0);
     const card = el('button', { class: 'win charcard' }, cv, el('div', {},
       el('div', { text: c.name }),
-      el('div', { class: 'meta', text: `${JOBS[c.job]?.name} Lv${c.level}${c.online ? '' : ''}` }),
-      c.online ? el('div', { class: 'meta on', text: '今遊んでいる' }) : el('div', { class: 'meta', text: c.lastPlayed ? playedAgo(c.lastPlayed) : '' }),
+      el('div', { class: 'meta', text: `${JOBS[c.job]?.name} Lv${c.level}` }),
       el('div', { class: 'meta', text: c.objective || '' })));
     card.addEventListener('click', () => choose(c));
     grid.append(card);
@@ -247,12 +245,6 @@ function syncButtons(game, cleanup) {
   const out = [el('button', { class: 'btn primary', text: '家族サーバーで遊ぶ', onclick: go(goFamilyServer) })];
   if (familyServer()) out.push(el('button', { class: 'btn', text: 'アドレス', 'aria-label': '家族サーバーのアドレスを変える', onclick: () => changeServer(game) }));
   return out;
-}
-
-// 「3分前に遊んだ」「たった今遊んだ」
-function playedAgo(t) {
-  const when = ago(t);
-  return when === 'たった今' ? 'たった今遊んだ' : `${when}に遊んだ`;
 }
 
 // ───────────── 行き来の リンク（ひとりで遊ぶサイト ⇄ 家族サーバー） ─────────────

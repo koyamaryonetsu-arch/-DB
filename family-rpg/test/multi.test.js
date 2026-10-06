@@ -174,3 +174,30 @@ test('5人まで: 2人の パーティーでは 酒場の なかまは 今まで
   const p = world.parties.get(papa.s.partyId);
   assert.ok(p.members.length + p.supports.length <= 4);
 });
+
+test('「だれで遊ぶ？」には いつ 遊んだか・今 遊んでいるかを 送らない（遊んでいる 間の「やって来た」などは 今までどおり）', { timeout: 60000 }, async () => {
+  const { world, papa, kid } = await family();
+  // ママが あとから つなぐ: パパと ユイは 遊んでいる とちゅう
+  const mama = new Bot(world, 'ママ');
+  await mama.login('ほし');
+  const noStatus = (chars, when) => {
+    for (const c of chars) {
+      assert.ok(!('online' in c), `${when}: ${c.name}の 今 遊んでいるか`);
+      assert.ok(!('lastPlayed' in c), `${when}: ${c.name}の いつ 遊んだか`);
+    }
+  };
+  assert.deepEqual(mama.welcome.chars.map((c) => c.name).sort(), ['パパ', 'ユイ'].sort());
+  noStatus(mama.welcome.chars, 'つないだ とき');
+  // ユイが やめた あと（セーブには いつ 遊んだかが 残る）も、一覧には 入れない
+  const kidId = kid.char.id;
+  kid.send({ t: 'quit' });
+  assert.ok(world.data.characters[kidId].lastPlayed > 0);
+  noStatus(kid.msgs.filter((m) => m.t === 'chars').pop().chars, 'やめた あと');
+  // 遊んでいる 間の お知らせは 今までどおり（やめた・やって来た・今 遊んでいる 家族）
+  assert.ok(papa.msgs.some((m) => m.t === 'left' && m.name === 'ユイ'));
+  await mama.createAndPlay('priest');
+  await mama.settle();
+  assert.ok(papa.msgs.some((m) => m.t === 'joined' && m.name === 'ママ'));
+  assert.ok(papa.msgs.filter((m) => m.t === 'players').pop().players.some((x) => x.name === 'ママ'));
+  noStatus(papa.msgs.filter((m) => m.t === 'chars').pop().chars, 'キャラを 作った とき');
+});

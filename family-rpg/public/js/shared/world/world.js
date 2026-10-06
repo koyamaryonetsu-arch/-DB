@@ -305,11 +305,11 @@ export class GameWorld {
     });
   }
 
+  // 「だれで遊ぶ？」の 一覧。いつ 遊んだか・今 遊んでいるかは 入れない（その 画面には 出さない）
   charList() {
-    const online = new Set([...this.sessions.values()].filter((x) => x.inWorld).map((x) => x.charId));
     return Object.values(this.data.characters)
       .sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0))
-      .map((c) => ({ id: c.id, name: c.name, job: c.job, level: c.level, look: c.look, equip: c.equip, online: online.has(c.id), objective: c.objective, lastPlayed: c.lastPlayed }));
+      .map((c) => ({ id: c.id, name: c.name, job: c.job, level: c.level, look: c.look, equip: c.equip, objective: c.objective }));
   }
 
   onCreateChar(s, msg) {
