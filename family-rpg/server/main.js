@@ -12,7 +12,7 @@ import { acceptUpgrade } from './ws.js';
 import { FileStorage } from './storage.js';
 import { fileSyncStore } from './syncstore.js';
 import { clientAddress, isFromInternet, strongEnough, LoginGuard } from './guard.js';
-import { findFunnelUrl, tailscaleState, tailscaleWarning } from './funnel.js';
+import { findFunnelUrl, tailscaleState, tailscaleWarning, funnelPublicDns, funnelDnsWarning } from './funnel.js';
 import { defaultDataDir, handOverOldSaves } from './savedir.js';
 import { readVersion } from './update.js';
 import { createErrorLog, captureConsole } from './errlog.js';
@@ -385,12 +385,17 @@ async function checkFunnel(print) {
   } catch {
     funnel = { installed: false, url: '' };
   }
-  // 外出先から つながる ようすか（Tailscale の ログインが 切れた・期限が ちかい など）
+  // 外出先から つながる ようすか（Tailscale の ログインが 切れた・期限が ちかい・Funnel の アドレスが インターネットに 出ていない など）
   let warn = [];
   try {
     warn = tailscaleWarning(await tailscaleState());
   } catch {
     warn = [];
+  }
+  if (funnel.url) {
+    try {
+      warn = [...warn, ...funnelDnsWarning(funnel.url, await funnelPublicDns(new URL(funnel.url).hostname))];
+    } catch { /* */ }
   }
   if (print) {
     const pub = publicUrl();
@@ -413,7 +418,7 @@ async function checkFunnel(print) {
     for (const line of warn) console.log(`  ${line}`);
     console.log('');
   } else if (!key && tsWarned && !print) {
-    console.log('\n  ★ 外出先から遊ぶ時のつながり（Tailscale）がもどりました\n');
+    console.log('\n  ★ 外出先から遊ぶ時のつながり（Tailscale）がもどりました。外出先から開けます\n');
   }
   tsWarned = key;
 }

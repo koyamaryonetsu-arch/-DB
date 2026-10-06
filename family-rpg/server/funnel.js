@@ -1,6 +1,7 @@
 // Tailscale Funnel（外出先から、スマホに アプリを 入れずに つながる https の アドレス）を しらべる
 // ・PC に Tailscale が 入っていて、funnel-on（tailscale funnel --bg 3000）を した ときに アドレスが わかる
 import { execFile } from 'node:child_process';
+import dns from 'node:dns';
 
 const CANDIDATES = process.platform === 'win32'
   ? ['tailscale', 'C:\\Program Files\\Tailscale\\tailscale.exe']
@@ -112,4 +113,39 @@ export function tailscaleWarning(st, now = Date.now()) {
     ];
   }
   return [];
+}
+
+// 外出先の アドレス（Funnel）が、インターネットの DNS に 出ているか
+// ・Funnel が Tailscale の がわで ほんとうに 有効なら、（PCの 名前）.….ts.net の 名前は だれからでも 引ける
+//   （PC の 中の 設定が「Funnel ON」でも、Tailscale の がわで 許可されていないと 名前が 出ない。外からは「見つからない」）
+// ・PC の 中では MagicDNS（Tailscale の 中だけの 名前）で 引けて しまうので、外の DNS（8.8.8.8・1.1.1.1）に じかに 聞く
+// もどりち: 'ok'（出ている）/ 'missing'（どちらの DNS も「ない」と 答えた）/ 'unknown'（しらべられない）
+export async function funnelPublicDns(host, {
+  servers = [['8.8.8.8', '8.8.4.4'], ['1.1.1.1', '1.0.0.1']],
+  resolverFactory = () => new dns.promises.Resolver({ timeout: 3000, tries: 2 }),
+} = {}) {
+  if (!/^[a-z0-9.-]+\.[a-z]+$/i.test(host || '')) return 'unknown';
+  let missing = 0;
+  for (const list of servers) {
+    try {
+      const r = resolverFactory();
+      r.setServers(list);
+      const [a4, a6] = await Promise.allSettled([r.resolve4(host), r.resolve6(host)]);
+      if ((a4.status === 'fulfilled' && a4.value.length) || (a6.status === 'fulfilled' && a6.value.length)) return 'ok';
+      const codes = [a4, a6].map((x) => x.reason?.code);
+      if (codes.every((c) => c === 'ENOTFOUND' || c === 'ENODATA')) missing++;
+    } catch { /* しらべられない */ }
+  }
+  return missing === servers.length ? 'missing' : 'unknown';
+}
+
+// 外出先の アドレスが インターネットに 出ていない ときに 黒い 画面に 出す 文（だいじょうぶな ときは []）
+export function funnelDnsWarning(url, state) {
+  if (state !== 'missing') return [];
+  return [
+    `★ 外出先からのアドレス（${url}）が、インターネットに公開されていません（Tailscale の Funnel が有効になっていません）。`,
+    '   このままでは、外出先のスマホから開けません（スマホの Tailscale アプリをONにした時だけ開けます）。',
+    '   funnel-on をもう一度ダブルクリックして、リンクが出たら開いて「Funnel」を許可してね。',
+    '   許可したあと、数分で使えるようになります（この画面にも「もどりました」と出ます）。',
+  ];
 }

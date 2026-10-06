@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { createErrorLog, captureConsole, ERROR_LOG } from '../server/errlog.js';
-import { tailscaleState, tailscaleWarning } from '../server/funnel.js';
+import { tailscaleState, tailscaleWarning, funnelPublicDns, funnelDnsWarning } from '../server/funnel.js';
 import { GameWorld } from '../public/js/shared/world/world.js';
 import { runSteps } from '../public/js/shared/world/scripts.js';
 import { makeRng } from '../public/js/shared/rng.js';
@@ -117,4 +117,36 @@ test('だいほん: おわりの かたづけで エラーが 出ても、動け
     console.error = origError;
     process.off('unhandledRejection', onRej);
   }
+});
+
+test('外出先の アドレス（Funnel）が インターネットの DNS に 出ているか: 出ていない ときだけ 注意する', async () => {
+  const err = (code) => Object.assign(new Error(code), { code });
+  // にせの DNS（servers ごとに 答えを かえる）
+  const fake = (answers) => () => {
+    let key = '';
+    return {
+      setServers(list) { key = list[0]; },
+      resolve4: async () => { const a = answers[key]?.a4; if (a instanceof Error) throw a; return a || []; },
+      resolve6: async () => { const a = answers[key]?.a6; if (a instanceof Error) throw a; return a || []; },
+    };
+  };
+  const servers = [['8.8.8.8'], ['1.1.1.1']];
+  // どちらも「ない」（NXDOMAIN）→ missing
+  const nx = { a4: err('ENOTFOUND'), a6: err('ENOTFOUND') };
+  assert.equal(await funnelPublicDns('pc.tailabcd.ts.net', { servers, resolverFactory: fake({ '8.8.8.8': nx, '1.1.1.1': nx }) }), 'missing');
+  // 片方でも 引ければ ok
+  assert.equal(await funnelPublicDns('pc.tailabcd.ts.net', { servers, resolverFactory: fake({ '8.8.8.8': nx, '1.1.1.1': { a4: ['192.0.2.1'], a6: err('ENODATA') } }) }), 'ok');
+  assert.equal(await funnelPublicDns('pc.tailabcd.ts.net', { servers, resolverFactory: fake({ '8.8.8.8': { a4: err('ENODATA'), a6: ['2001:db8::1'] }, '1.1.1.1': nx }) }), 'ok');
+  // DNS に とどかない（家の ネットワークで ふさがれている など）→ わからない（注意しない）
+  const to = { a4: err('ETIMEOUT'), a6: err('ETIMEOUT') };
+  assert.equal(await funnelPublicDns('pc.tailabcd.ts.net', { servers, resolverFactory: fake({ '8.8.8.8': nx, '1.1.1.1': to }) }), 'unknown');
+  assert.equal(await funnelPublicDns('', { servers, resolverFactory: fake({}) }), 'unknown');
+  assert.equal(await funnelPublicDns('not a host', { servers, resolverFactory: fake({}) }), 'unknown');
+  // 黒い 画面の 文
+  const w = funnelDnsWarning('https://pc.tailabcd.ts.net', 'missing');
+  assert.match(w[0], /https:\/\/pc\.tailabcd\.ts\.net/);
+  assert.match(w[0], /インターネットに公開されていません/);
+  assert.match(w.join('\n'), /funnel-on/);
+  assert.deepEqual(funnelDnsWarning('https://pc.tailabcd.ts.net', 'ok'), []);
+  assert.deepEqual(funnelDnsWarning('https://pc.tailabcd.ts.net', 'unknown'), []);
 });
