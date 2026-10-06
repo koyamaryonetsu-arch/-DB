@@ -10,18 +10,18 @@
 // Step 4: 昼の 12時ごろ、オベリスクの 影が さす 日時計の とびら → 王家のピラミッド（1階: 歌の ボタン・地下: ミイラのへや・
 //         2階: 呪文が ふうじられた 階・3階: ありじごくの 迷路・4階: 王のへや）→ ミイラの王アンク → 月の鏡
 //         （かくしべやに のろいの宝「王家の黄金の剣」。ピラミッドの 中では 糸・羽・ルーラが 使えない）
-import { NORTH_PLACES } from '../maps/north.js?v=cf427a2667f8';
-import { SOUTH_PLACES, SOUTH_POS, LANDING_BEACH, STORM_Y, STORM_GAP_X, SAFARA_POS } from '../maps/south.js?v=cf427a2667f8';
+import { NORTH_PLACES } from '../maps/north.js?v=bdbb714a315b';
+import { SOUTH_PLACES, SOUTH_POS, LANDING_BEACH, STORM_Y, STORM_GAP_X, SAFARA_POS } from '../maps/south.js?v=bdbb714a315b';
 import {
   CANAL_DOOR, CANAL_LEVERS, SONG_FLAGS, PALACE_CANAL_STAIRS,
   PYR_BUTTONS, PYR_DOOR_FLAG, PYR_LEVERS, PYR_CRACK_FLAG, GOLD_SWORD_FLAG, PYR_POTS, PYR_FALL, PYR_STAIRS, PYR4_POS,
-} from '../maps/ch4.js?v=cf427a2667f8';
-import { PYRAMID_POS } from '../maps/south.js?v=cf427a2667f8';
-import { sunSide, clockHour, isNoonFrac } from '../world/clock.js?v=cf427a2667f8';
-import { SEA_W, SEA_H } from '../maps/sea.js?v=cf427a2667f8';
-import { innSteps } from './inn.js?v=cf427a2667f8';
-import { C4_LEAD_OBJECTIVE } from './sky.js?v=cf427a2667f8';
-import { C3_OBJ } from './story-ch3.js?v=cf427a2667f8';
+} from '../maps/ch4.js?v=bdbb714a315b';
+import { PYRAMID_POS } from '../maps/south.js?v=bdbb714a315b';
+import { sunSide, clockHour, isNoonFrac } from '../world/clock.js?v=bdbb714a315b';
+import { SEA_W, SEA_H } from '../maps/sea.js?v=bdbb714a315b';
+import { innSteps } from './inn.js?v=bdbb714a315b';
+import { C4_LEAD_OBJECTIVE } from './sky.js?v=bdbb714a315b';
+import { C3_OBJ } from './story-ch3.js?v=bdbb714a315b';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

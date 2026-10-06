@@ -1,15 +1,15 @@
 // 馬車の がめん: たたかいの「いれかえ」「総入れかえ」・メニューの「仲間」→「総入れかえ」「馬車」・酒場の 乗りかえ
 //   きまりは shared/data/wagon.js と shared/world/wagon.js
-import { el, esc, toast, ListMenu } from './dom.js?v=cf427a2667f8';
-import { WAGON_SLOTS } from '../../shared/data/wagon.js?v=cf427a2667f8';
-import { COMPANION_SLOTS } from '../../shared/data/companions.js?v=cf427a2667f8';
-import { MAPS } from '../../shared/maps/index.js?v=cf427a2667f8';
-import { JOBS } from '../../shared/data/jobs.js?v=cf427a2667f8';
-import { MONSTERS } from '../../shared/data/monsters.js?v=cf427a2667f8';
-import { computeStats } from '../../shared/stats.js?v=cf427a2667f8';
-import { faceURL } from '../field.js?v=cf427a2667f8';
-import { wagonSprite } from '../render/wagon.js?v=cf427a2667f8';
-import { request } from './shop.js?v=cf427a2667f8';
+import { el, esc, toast, ListMenu } from './dom.js?v=bdbb714a315b';
+import { WAGON_SLOTS } from '../../shared/data/wagon.js?v=bdbb714a315b';
+import { COMPANION_SLOTS } from '../../shared/data/companions.js?v=bdbb714a315b';
+import { MAPS } from '../../shared/maps/index.js?v=bdbb714a315b';
+import { JOBS } from '../../shared/data/jobs.js?v=bdbb714a315b';
+import { MONSTERS } from '../../shared/data/monsters.js?v=bdbb714a315b';
+import { computeStats } from '../../shared/stats.js?v=bdbb714a315b';
+import { faceURL } from '../field.js?v=bdbb714a315b';
+import { wagonSprite } from '../render/wagon.js?v=bdbb714a315b';
+import { request } from './shop.js?v=bdbb714a315b';
 
 const isFam = (k) => String(k || '').startsWith('fam:');
 const BATTLE_MAX = 1 + COMPANION_SLOTS; // 戦う 仲間（自分を ふくめて）
