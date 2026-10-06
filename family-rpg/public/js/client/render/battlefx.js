@@ -3,6 +3,8 @@ import { makeCanvas, ctxOf, hexToRgb, mix } from './pixel.js';
 import { weaponLook, playWeapon, playReach } from './weaponfx.js';
 import { nightBg, drawNightSky } from './night-art.js';
 import { playJobFx, JOB_FINE } from './battlefx-jobs.js';
+import { drawPalaceHall, drawPalaceFloor } from './ch4-palace-bg.js';
+import { playCh4Fx } from './battlefx-ch4.js';
 
 export const BW = 256;
 export const BH = 144;
@@ -86,6 +88,8 @@ const BG = {
   // 第4章 Step 4: 王家のピラミッドの 中（金色の 砂岩の かべ・絵文字の おび・ハスの 柱・たいまつ）と 王のへや（金の ひつぎ・むらさきの かがり火）
   pyramid: { sky: ['#140c04', '#24180a', '#3a2810'], far: '#6e5028', near: '#a8844a', ground: ['#c09a5c', '#b08a50'], deco: 'pyramid' },
   pyramid_boss: { sky: ['#100814', '#1e1020', '#2e1a24'], far: '#5a3a24', near: '#a07a40', ground: ['#b89050', '#a88044'], deco: 'pyramid_boss' },
+  // 第4章 Step 5: 夜の 宮殿の 王の間（青い タイルの かべ・月明かりの 高い まど・玉座・青い 火の ランプ・赤い じゅうたん。ch4-palace-bg.js）
+  palace_night: { sky: ['#05071a', '#0e1434', '#18224a'], far: '#1e2c5e', near: '#3a4a7c', ground: ['#4a5a8c', '#3e4e80'], deco: 'palace' },
 };
 
 // はいけいの データ（〜_night は 夜空の はいけい。night-art.js）。ない ときは null
@@ -153,6 +157,7 @@ export function battleBackground(id) {
       case 'dunes': h = 0; break; // 砂ばくは あとで（drawDesert）
       case 'canal': h = 0; break; // 地下水路は あとで（drawCanalHall・drawCanalFloor）
       case 'pyramid': case 'pyramid_boss': h = 0; break; // ピラミッドは あとで（drawPyramidHall・drawPyramidFloor）
+      case 'palace': h = 0; break; // 夜の 王の間は あとで（ch4-palace-bg.js）
       default: h = 10 + Math.abs(Math.sin(px * 0.035) * 14) + Math.abs(Math.sin(px * 0.11) * 4);
     }
     if (d.deco === 'stalactite' || d.deco === 'crystal') {
@@ -163,6 +168,7 @@ export function battleBackground(id) {
   if (d.deco === 'dunes') drawDesert(x, d, hor);
   if (d.deco === 'canal') drawCanalHall(x, hor);
   if (d.deco === 'pyramid' || d.deco === 'pyramid_boss') drawPyramidHall(x, hor, d.deco === 'pyramid_boss');
+  if (d.deco === 'palace') drawPalaceHall(x, hor);
   if (d.deco === 'houses') {
     x.fillStyle = '#ffd66b';
     for (let k = 10; k < BW; k += 48) x.fillRect(k + 8, hor - 12, 3, 3);
@@ -210,6 +216,7 @@ export function battleBackground(id) {
   // えんきんの せん（地下水路は 石だたみの めじ）
   if (d.deco === 'canal') drawCanalFloor(x, hor);
   else if (d.deco === 'pyramid' || d.deco === 'pyramid_boss') drawPyramidFloor(x, hor, d.deco === 'pyramid_boss');
+  else if (d.deco === 'palace') drawPalaceFloor(x, hor);
   else {
     x.fillStyle = 'rgba(0,0,0,0.12)';
     for (let i = 0; i < 6; i++) {
@@ -1382,6 +1389,8 @@ export class Effects {
   play(anim, targets, element, opts = {}) {
     // 学校・公務員・町の みかた・アイドルの 技（battlefx-jobs.js）
     if (playJobFx(this, anim, targets, element, opts, BW, BH)) return;
+    // 第4章の ボスの 技・月の鏡（battlefx-ch4.js）
+    if (playCh4Fx(this, anim, targets, element, opts, BW, BH)) return;
     const crit = !!opts.crit;
     const ec = COL[element] || null;
     const spell = /^(fire|ice|wind|blast|void|dark1|minadein|bolt|meteor)/.test(anim);

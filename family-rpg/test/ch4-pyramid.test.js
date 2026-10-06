@@ -690,7 +690,9 @@ test('すすみぐあい: c4_pyramid → c4_anku → c4_mirror。目標・仲間
   assert.equal(objectiveFromFlags(f('c4_pyramid', 'c4_pb_star', 'c4_pyr2_seen', 'c4_pyr3_seen', 'c4_pyr4_seen')), C4_OBJ.pyr4);
   assert.equal(objectiveFromFlags(f('c4_pyramid', 'c4_pb_star', 'c4_pyr4_seen', 'c4_anku')), C4_OBJ.anku);
   assert.equal(objectiveFromFlags(f('c4_pyramid', 'c4_anku', 'c4_mirror')), C4_OBJ.mirror);
-  assert.ok(C4_OBJ.mirror.startsWith('第4章の続きはアップデートで！（') && C4_OBJ.mirror.includes('月の鏡'));
+  // Step 4 の さいごの 文（続きはアップデートで！）は OLD_C4_OBJ.mirror に のこり、Step 5 から 夜の 宮殿の 目標（test/ch4-zaid.test.js）
+  assert.ok(OLD_C4_OBJ.mirror.startsWith('第4章の続きはアップデートで！（') && OLD_C4_OBJ.mirror.includes('月の鏡'));
+  assert.ok(C4_OBJ.mirror.includes('月の鏡') && C4_OBJ.mirror.includes('夜'));
   for (const k of ['song', 'pyramid', 'pb', 'pyr2', 'pyr3', 'pyr4', 'anku', 'mirror']) {
     const t = C4_OBJ[k];
     assert.ok(KNOWN_OBJECTIVES.has(t), k);

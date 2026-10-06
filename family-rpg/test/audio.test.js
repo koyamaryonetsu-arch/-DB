@@ -38,10 +38,10 @@ test('第3章の きょく: けいやくの 7きょくが あって、くりか�
 });
 
 // 第4章の きょく（コガネ地方の マップが つかう ID。砂ばくの 昼・夜と、オアシスの村ハミル、かれた地下水路、王都サファラ、
-// 王家のピラミッド と ミイラの王アンクの ボス戦）
-const CH4_TRACKS = ['desert', 'desert_night', 'oasis', 'canal', 'safara', 'pyramid', 'pharaoh'];
+// 王家のピラミッド と ミイラの王アンクの ボス戦、夜の 王の間の 大臣ザイードの ボス戦）
+const CH4_TRACKS = ['desert', 'desert_night', 'oasis', 'canal', 'safara', 'pyramid', 'pharaoh', 'sand_demon'];
 
-test('第4章の きょく: 砂ばくの 昼・夜・ハミル・地下水路・王都・ピラミッド・アンクの 7きょくが あって、くりかえしても パートが ずれない', () => {
+test('第4章の きょく: 砂ばくの 昼・夜・ハミル・地下水路・王都・ピラミッド・アンク・ザイードの 8きょくが あって、くりかえしても パートが ずれない', () => {
   for (const id of CH4_TRACKS) {
     const tr = _TRACKS[id];
     assert.ok(tr, `${id} が ない`);

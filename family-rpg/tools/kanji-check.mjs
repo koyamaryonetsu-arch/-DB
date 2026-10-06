@@ -207,6 +207,8 @@ export function gameFiles() {
     'public/js/shared/data/encounters-ch4.js',
     // 第4章 Step 4「王家のピラミッド」（のろいの宝・流れる砂・階の レイアウト）
     'public/js/shared/world/pyramid.js', 'public/js/shared/maps/flow.js', 'public/js/shared/maps/pyramid-rows.js',
+    // 第4章 Step 5「月の鏡と大臣の正体」（まぼろしの分身・月の鏡・魔神のランプ）
+    'public/js/shared/battle-ch4.js', 'public/js/client/battle-ch4.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

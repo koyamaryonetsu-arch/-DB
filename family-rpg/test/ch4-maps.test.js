@@ -182,7 +182,8 @@ test('砂ばく: 夜だけ 月のゆうれいが 出る（昼の 出現表には
 test('第4章の 魔物: データ・技・出現表が そろっている', () => {
   for (const [id, mo] of Object.entries(MONSTERS_CH4)) {
     assert.equal(MONSTERS[id], mo, id);
-    assert.ok(mo.name && mo.desc && mo.lv >= 29 && mo.lv <= 34, `${id}: Lv${mo.lv}`);
+    // 第4章は Lv30〜40 の 章（Step 5 の 南の砂ばくと 大臣ザイードは Lv34〜36）
+    assert.ok(mo.name && mo.desc && mo.lv >= 29 && mo.lv <= 36, `${id}: Lv${mo.lv}`);
     for (const a of mo.actions) assert.ok(a.id === 'attack' || ABILITIES[a.id], `${id}: ${a.id}`);
     for (const d of Object.values(mo.drops || {})) assert.ok(ITEMS[d[0]], `${id}: ${d[0]}`);
   }

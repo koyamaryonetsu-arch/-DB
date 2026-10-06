@@ -54,6 +54,8 @@ export function runBattle(party, enemyList, opts = {}) {
   if (opts.ignoreChant) b.ignoreChant = true;
   // ボスを ねらう（ボスが たおれると 手下も くずれる ことを 知っている 人）
   if (opts.focusBoss) b.focusBoss = true;
+  // まぼろしの 分身を 見ぬく（月の鏡を 使い、足もとに 影の ある 本物を ねらう 人。battle-ch4.js）
+  if (opts.knowsMirage) b.knowsMirage = true;
   let real = 0;
   let acts = 0;
   while (!b.over && real < 30 * 60 * 1000) {
@@ -63,6 +65,13 @@ export function runBattle(party, enemyList, opts = {}) {
     if (opts.log) for (const e of evs) if (e.t === 'act' || e.t === 'msg') console.log('  ' + e.lines.join(' / '));
   }
   const allies = b.allies;
+  // carry … HP・MPを キャラに もどす（つづけて たたかう ボス。world/battles.js の finishBattle と おなじ）
+  if (opts.carry) {
+    allies.forEach((a, i) => {
+      party[i].hp = a.alive ? a.hp : 0;
+      party[i].mp = a.mp;
+    });
+  }
   return {
     outcome: b.result?.outcome || 'timeout',
     seconds: Math.round(real / 1000),
@@ -137,6 +146,31 @@ export const CH4_PYRAMID = [
 export const CH4_PYR_FIXED = [['pot_ambush', 31, 33], ['pot_ambush', 33, 33]];
 // ミイラの王アンク（王のミイラ兵 2体と）: レベル・装備
 export const CH4_ANKU = [['mummy_king', 31, 33], ['mummy_king', 32, 33], ['mummy_king', 33, 33], ['mummy_king', 34, 33], ['mummy_king', 35, 33]];
+// Step 5: 南の砂ばく（昼・夜。大臣ザイードを たおすと 行ける）と、夜の 王の間の 大臣ザイード → 砂の魔神ザイード（レベル）
+export const CH4_SOUTH = [['s_sdesert', 34, 33], ['s_sdesert', 36, 33], ['s_sdesert_night', 34, 33], ['s_sdesert_night', 36, 33]];
+export const CH4_ZAID = [33, 34, 35, 36, 37];
+
+// 大臣ザイード（まぼろしの 分身 2体と）→ 砂の魔神ザイード: あいだで 月の鏡の 光（HPは ぜんぶ・たおれた 人も 起きる。
+// MPは さいだいの 3わり だけ。だいほんの ['heal', { mp: 0.3 }]）。まぼろしに 使って しまった MPは もどりきらない。
+// know … 知っている 人（月の鏡を 使い、影の ある 本物だけを ねらう）。知らない 人は ふつうの オート（分身にも 当てて しまう）
+export function zaidFight(lv, seed, know, tier = 33) {
+  const party = PARTY(lv, 10, tier);
+  const g1 = FIXED_ENCOUNTERS.zaid.group.flatMap(([sp, n]) => Array(n).fill(sp));
+  const r1 = runBattle(party, g1, { seed, boss: true, knowsMirage: know, carry: true });
+  if (r1.outcome !== 'win') return { ...r1, phase: 1 };
+  // gap … 2だんめの はじめに たりない MP（2だんめの MP消費から のぞく）
+  let gap = 0;
+  for (const c of party) {
+    const mp = c.mp;
+    fullHeal(c);
+    const max = c.mp;
+    c.mp = Math.min(max, mp + Math.round(max * 0.3));
+    gap += max - c.mp;
+  }
+  const g2 = FIXED_ENCOUNTERS.zaid_demon.group.flatMap(([sp, n]) => Array(n).fill(sp));
+  const r2 = runBattle(party, g2, { seed: seed + 1, boss: true, carry: true });
+  return { ...r2, seconds: r1.seconds + r2.seconds, acts: r1.acts + r2.acts, mpUsed: r1.mpUsed + r2.mpUsed - gap, phase: 2, hp1: r1.hpLeft };
+}
 
 // 第2章: node tools/sim.js [回数] ch2
 if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'ch4') {
@@ -192,6 +226,33 @@ if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'ch4') {
     }
   }
   if (process.env.LOG) runBattle(PARTY(33, 10, 33), ['mummy_king', 'royal_mummy', 'royal_mummy'], { seed: Number(process.env.SEED || 1), boss: true, log: true, ignoreChant: !!process.env.IGNORE });
+} else if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'ch4zaid') {
+  // 第4章 Step 5: node tools/sim.js [回数] ch4zaid
+  const rng = makeRng(5555);
+  for (const [table, lv, tier] of CH4_SOUTH) {
+    const res = [];
+    for (let i = 0; i < N; i++) res.push(runBattle(PARTY(lv, 10, tier), rollGroup(table, rng), { seed: i }));
+    summarize(`${table} Lv${lv}`, res);
+  }
+  // 大臣ザイード → 砂の魔神ザイード（つづけて）。シードは ちらして。1だんめで 負けた わりあいも 出す
+  for (const know of [true, false]) {
+    for (const lv of CH4_ZAID) {
+      const res = [];
+      for (let i = 0; i < Math.max(N, 40); i++) res.push(zaidFight(lv, 777 + i * 7919, know));
+      summarize(`BOSS zaid→demon Lv${lv}${know ? '（知っている）' : '（知らない）'}`, res);
+      const lost1 = res.filter((r) => r.phase === 1).length;
+      const won1 = res.filter((r) => r.phase === 2);
+      const hp1 = won1.length ? won1.reduce((t, r) => t + r.hp1, 0) / won1.length : 0;
+      console.log(`${''.padEnd(36)}（1だんめで 負け ${Math.round((lost1 / res.length) * 100)}%・1だんめの あとの HP残 ${Math.round(hp1 * 100)}%）`);
+    }
+  }
+  if (process.env.LOG) {
+    const know = !process.env.IGNORE;
+    const party = PARTY(Number(process.env.LV || 35), 10, 33);
+    const seed = Number(process.env.SEED || 1);
+    runBattle(party, ['zaid_minister', 'zaid_minister', 'zaid_minister'], { seed, boss: true, log: true, knowsMirage: know, carry: true });
+    runBattle(party, ['zaid_demon'], { seed: seed + 1, boss: true, log: true, carry: true });
+  }
 } else if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'ch2') {
   const rng = makeRng(777);
   // 職業レベルは 上がりやすく した ので、第2章では 基本職を ほぼ マスター している めやす

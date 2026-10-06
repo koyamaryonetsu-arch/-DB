@@ -254,11 +254,18 @@ export class ScriptRun {
           break;
         }
         case 'heal': {
-          for (const m of all) fullHeal(m.char);
+          // ['heal', { mp: 0.3 }] … HPは ぜんぶ、MPは さいだいの 3わり だけ ふえる（大臣ザイードの あとの 月の光）
+          const [opt] = a;
+          const heal = (ch) => {
+            const mp = ch.mp;
+            fullHeal(ch);
+            if (opt?.mp !== undefined && Number.isFinite(mp)) ch.mp = Math.min(ch.mp, mp + Math.round(ch.mp * opt.mp));
+          };
+          for (const m of all) heal(m.char);
           const p = partyOf(w, this.init);
-          for (const sup of p?.supports || []) fullHeal(sup.char);
-          for (const g of p?.guests || []) fullHeal(g.char);
-          for (const ch of wagonChars(w, p)) fullHeal(ch);
+          for (const sup of p?.supports || []) heal(sup.char);
+          for (const g of p?.guests || []) heal(g.char);
+          for (const ch of wagonChars(w, p)) heal(ch);
           for (const m of all) w.sendSelf(m);
           if (p) w.sendParty(p);
           break;

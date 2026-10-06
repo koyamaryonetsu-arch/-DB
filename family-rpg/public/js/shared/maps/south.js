@@ -5,7 +5,9 @@
 // ・オアシスの村ハミル（西）… 北に 北の古井戸。南へ 行くと 砂嵐のかべ
 // ・砂嵐のかべ（y=60〜63）… 王都の 方へは まだ 行けない（道の ところは c4_scorpion、ほかは c4_morgana で はれる）
 // ・かべの 南: 王都サファラ（Step 3。道の つきあたり）
-// ・王都の 東の 門の 先: 王家のピラミッドと オベリスク（Step 4。昼の 12時ごろ、オベリスクの 影が とびらを さす）。砂の港ドゥナは Step 6 から
+// ・王都の 東の 門の 先: 王家のピラミッドと オベリスク（Step 4。昼の 12時ごろ、オベリスクの 影が とびらを さす）
+// ・王都の 南の 門の 先: 南の 砂嵐（Step 5。道の ところは 大臣ザイードを たおすと 弱まる）→ 南の砂ばく → 砂の港ドゥナへの 谷
+//   （谷は 砂の海賊が 木の さくで とざしている。ドゥナの 町は Step 6 から）
 import { T, TILE_INFO, parseRows } from '../tiles.js';
 import { fbm, hash2 } from '../rng.js';
 import { HAMIL_ROWS, SAFARA_ROWS } from './south-rows.js';
@@ -42,6 +44,7 @@ export const SAFARA_POS = {
   hassan: SF(42, 16), // 学者ハサンの 家の とびら
   arena: SF(41, 24), // 闘技場の とびら
   arenaGate: SF(44, 33), // 闘技場の 門（大会は お休み。Step 8）
+  southGate: SF(13, 39), // 南の 門（2マス。13・14。Step 5 から 南の 砂嵐の 切れ目へ）
 };
 // 王の間（宮殿の 中）と 中庭（王の間の うしろ。地下水路からしか 入れない）
 export const PALACE_HALL = { x: SAF.x + 15, y: SAF.y + 22, w: 21, h: 9 };
@@ -70,6 +73,9 @@ export function pyramidLevel(x, y) {
 
 // 竜が おりる 北の海辺（空を とべる 場所。data/sky.js の box）
 export const SOUTH_LANDING = { x: 50, y: 2, w: 44, h: 16 };
+// 大臣ザイードを たおした あと（Step 5）に 竜が 飛べる 所: 北の海辺から 王都サファラ・砂の港ドゥナの 近くまで
+// （ピラミッドも ふくむ。東の はしの 星読みの塔の あたりは、モルガナを たおすまで 砂嵐。data/sky.js の box の 2だんめ）
+export const SOUTH_SKY_ZAID = { x: 2, y: 2, w: 112, h: 139 };
 export const SOUTH_ARRIVE = { x: 72.5, y: 9.5 };
 export const LANDING_BEACH = { x: 56, y: 5, w: 32, h: 10, name: '北の海辺' };
 // 小さな オアシス（北東。旅の 商人が 休んでいる）
@@ -90,6 +96,15 @@ export const STORM_FLAG = 'c4_scorpion';
 export const STORM_END_FLAG = 'c4_morgana';
 // 日時計の とびらが 開いた（Step 4。物語の すすみぐあい CH4_STEPS の c4_pyramid）
 export const PYRAMID_FLAG = 'c4_pyramid';
+// 南の 砂嵐（Step 5。王都の 南の 東西 ぜんぶ）。道の ところ（SOUTH_STORM_GAP_X）は 大臣ザイードを たおすと（c4_zaid）弱まる。
+// のこりは 北の かべと おなじく c4_morgana で 晴れる
+export const SOUTH_STORM_Y = [126, 127];
+export const SOUTH_STORM_GAP_X = [27, 30];
+export const SOUTH_STORM_FLAG = 'c4_zaid';
+// 砂の港ドゥナへの 谷（南の がけの きれめ。Step 5 では 砂の海賊が 木の さくで とざしている。ドゥナの 町は Step 6）
+// DUNA_GATE … さくの 門（カギの かかった とびら）。DUNA_VALLEY … 谷の まわり（魔物が 出ない）
+export const DUNA_GATE = { x: 37, y: 140 };
+export const DUNA_VALLEY = { x: 32, y: 136, w: 11, h: 8, name: '砂の港ドゥナへの谷' };
 
 // 道（ふみかためた 砂の 道）
 const ROADS = [
@@ -103,6 +118,8 @@ const ROADS = [
   [[78, 12], [88, 18], [100, 26], [OASIS2.x - 3, OASIS2.y]],
   // 王都の 東の 門 → 東の 砂ばく → 王家のピラミッドの まえの 広場（Step 4）
   [[SAF.x + SAF.w - 0.5, SAF.y + 14], [74, 98], [84, 100.5], [91, 100.5]],
+  // 王都の 南の 門 → 南の 砂嵐の 切れ目 → 南の砂ばく → 砂の港ドゥナへの 谷（Step 5。谷は 南の がけを けずって 地図の はしまで）
+  [[SAF.x + 14, SAF.y + SAF.h - 0.5], [SAF.x + 14, 131.5], [DUNA_GATE.x + 0.5, 137], [DUNA_GATE.x + 0.5, SOUTH_H - 0.5]],
 ];
 
 function distToSeg(px, py, ax, ay, bx, by) {
@@ -273,6 +290,21 @@ export function buildSouth() {
       gates.push({ x, y, closed: T.SANDSTORM, open: cur, flag });
     }
   }
+  // 南の 砂嵐（Step 5。王都の 南。道の ところは 大臣ザイードを たおすと 弱まる）
+  for (let y = SOUTH_STORM_Y[0]; y <= SOUTH_STORM_Y[1]; y++) {
+    for (let x = 0; x < W; x++) {
+      const cur = get(x, y);
+      if (cur === T.SANDSTONE) continue;
+      const flag = x >= SOUTH_STORM_GAP_X[0] && x <= SOUTH_STORM_GAP_X[1] ? SOUTH_STORM_FLAG : STORM_END_FLAG;
+      set(x, y, T.SANDSTORM);
+      gates.push({ x, y, closed: T.SANDSTORM, open: cur, flag });
+    }
+  }
+  // 9) 砂の港ドゥナへの 谷の 木の さく（砂の海賊が とざしている。まん中は カギの かかった 門。開くのは Step 6）
+  for (let x = DUNA_GATE.x - 3; x <= DUNA_GATE.x + 3; x++) {
+    if (TILE_INFO[get(x, DUNA_GATE.y)]?.solid) continue;
+    set(x, DUNA_GATE.y, x === DUNA_GATE.x ? T.LOCKED_DOOR : T.FENCE);
+  }
   return { w: W, h: H, tiles: t, gates };
 }
 
@@ -280,6 +312,9 @@ export function buildSouth() {
 // 王都の 東の 砂ばく（ピラミッドの まわり）は s_pdesert（Step 4。岩の 魔物・夜は ランプの魔人も）
 export function southZoneAt(x, y) {
   for (const [id, p] of Object.entries(SOUTH_PLACES)) if (inRect(x, y, p)) return 'safe:' + id;
+  // 南の 砂嵐の 先（Step 5）: 南の砂ばく。ドゥナへの 谷の まわりは 魔物が 出ない
+  if (inRect(x, y, DUNA_VALLEY)) return 'safe:duna';
+  if (y >= SOUTH_STORM_Y[0]) return 's_sdesert';
   if (inRect(x, y, LANDING_BEACH)) return 'safe:landing';
   if (inRect(x, y, OASIS_CAMP, -2)) return 'safe:camp';
   if (inRect(x, y, PYRAMID_PLAZA) || inRect(x, y, PYRAMID, 1)) return 'safe:pyramid';
@@ -300,6 +335,8 @@ export function southAreaName(x, y) {
   if (inRect(x, y, OASIS_CAMP, 3)) return '小さなオアシス';
   if (Math.abs(x - SOUTH_POS.canal.x) <= 4 && Math.abs(y - SOUTH_POS.canal.y) <= 4) return 'かれた地下水路';
   if (inRect(x, y, PYRAMID, 2) || inRect(x, y, PYRAMID_PLAZA)) return PYRAMID.name;
+  if (inRect(x, y, DUNA_VALLEY)) return DUNA_VALLEY.name;
+  if (y >= SOUTH_STORM_Y[0]) return y <= SOUTH_STORM_Y[1] ? '南の砂嵐のかべ' : '南の砂ばく';
   if (y > STORM_Y[1] && x >= SAF.x + SAF.w) return '王家の墓の砂ばく';
   if (y > STORM_Y[1]) return 'サファラの砂ばく';
   if (y >= 54) return '砂嵐のかべ';
@@ -311,6 +348,8 @@ export function southWeatherAt(x, y) {
   if (inRect(x, y, HAM, 1) || inRect(x, y, SAF, 1)) return null;
   // 砂嵐の かべの 近く（南がわも すこし）は 砂嵐。はなれると 砂ぼこり
   if (y >= 52 && y <= STORM_Y[1] + 7) return 'sandstorm';
+  // 南の 砂嵐（Step 5）の 近くも
+  if (y >= SOUTH_STORM_Y[0] - 2 && y <= SOUTH_STORM_Y[1] + 3) return 'sandstorm';
   if (y <= 14 || inRect(x, y, OASIS_CAMP, 2)) return null;
   return 'sand';
 }
