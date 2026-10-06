@@ -125,6 +125,17 @@ const ID_LOOK = {
   silver_boomerang: { mat: 'silver' },
   steel_boomerang: { mat: 'steel' },
   gale_boomerang: { mat: 'silver', trait: 'wind' },
+  // 料理・そうじの どうぐと マイク（フライパン・中華なべは カーン！）
+  kitchen_knife: { mat: 'steel' },
+  chef_knife: { mat: 'platinum' },
+  frying_pan: { mat: 'iron', move: 'pan' },
+  chinese_wok: { mat: 'steel', move: 'pan' },
+  ladle: { mat: 'silver' },
+  whisk: { mat: 'silver' },
+  mop: { mat: 'silver', trait: 'water' },
+  deck_brush: { mat: 'sea', trait: 'water' },
+  center_mic: { mat: 'silver' },
+  gold_mic: { mat: 'gold' },
   // ふしぎなかじで 作る 武器
   fang_spear: { mat: 'stone', trait: null },
   wolf_claw: { mat: 'iron', move: 'fang' },
@@ -445,6 +456,22 @@ const MOVES = {
       fx.flashAt(120, '#fff6c0', hit);
     }
     impact(fx, t, L, crit, hit, s, { ang: 0, weight: 1.4, blunt: true });
+    return hit;
+  },
+
+  // フライパン・中華なべ: うえから ふりおろして カーン！（ひびく わ と、あたまの うえを まわる 星）
+  pan(fx, t, L, crit, d, s) {
+    const { x, y } = t;
+    const hit = fx.swipe([x - 16 * s, y - 46 * s], [x + 8 * s, y - 20 * s], [x + 2 * s, y + 4 * s], { w: (5 + L.lv * 0.6) * (crit ? 1.3 : 1), color: L.edge, glow: L.glow, core: L.core, delay: d, swing: 120, life: 360, pow: 2 });
+    fx.star(x, y - 4, '#fff6b0', (16 + L.lv * 1.5) * s, hit, 260);
+    fx.star(x, y - 4, '#ffffff', 9 * s, hit, 200);
+    for (let k = 0; k < 3; k++) fx.shock(x, y - 4, { r0: 4, r1: (30 + k * 12) * s, color: k % 2 ? '#ffe066' : '#ffffff', w: 1.8 - k * 0.4, delay: hit + k * 90, life: 380 });
+    for (let k = 0; k < 3; k++) {
+      const a = (k / 3) * Math.PI * 2;
+      fx.twinkle(x + Math.cos(a) * 12 * s, y - 18 * s + Math.sin(a) * 4 * s, { color: '#ffe066', size: 4, vx: -Math.sin(a) * 40, vy: Math.cos(a) * 14, delay: hit + 60, life: 560, spin: 6 });
+    }
+    impact(fx, t, L, crit, hit, s, { ang: Math.PI / 2, weight: 1.2, blunt: true });
+    fx.hitStop(90, hit, 0.9);
     return hit;
   },
 
