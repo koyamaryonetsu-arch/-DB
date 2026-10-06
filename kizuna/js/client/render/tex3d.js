@@ -2,14 +2,15 @@
 // ・タイルの え を 1まいに ならべた「アトラス」
 // ・かべの よこ・うえ、やま、はし など 3D だけで つかう え
 // ・つぼ・さく・かんばん など たてて みせる「もの」の え（せなかは とうめい）
-import { T } from '../../shared/tiles.js?v=b7ef3fbff3c8';
-import { tileCanvas } from './tiles.js?v=b7ef3fbff3c8';
-import { Painter, prand, makeCanvas, ctxOf, shade } from './pixel.js?v=b7ef3fbff3c8';
-import { paintStorm } from './tiles-ch4.js?v=b7ef3fbff3c8';
+import { T } from '../../shared/tiles.js?v=a976b8a231af';
+import { tileCanvas } from './tiles.js?v=a976b8a231af';
+import { Painter, prand, makeCanvas, ctxOf, shade } from './pixel.js?v=a976b8a231af';
+import { paintStorm } from './tiles-ch4.js?v=a976b8a231af';
+import { PYRAMID_EXTRAS } from './tiles-pyramid.js?v=a976b8a231af';
 import {
   canalWallFace, canalWallTop, canalSidePaint, damTopPaint, paintCanalWater, sluiceTopPaint, sluiceBoardPaint, pillarSidePaint, pillarTopPaint, rubbleAtlasPaint,
   CANAL_SUN,
-} from './tiles-canal.js?v=b7ef3fbff3c8';
+} from './tiles-canal.js?v=a976b8a231af';
 
 const TAU = Math.PI * 2;
 
@@ -206,6 +207,9 @@ const EXTRA = {
   sluice_board: (p) => sluiceBoardPaint(p),
   canal_pillar_side: (p) => pillarSidePaint(p),
   canal_pillar_top: (p) => pillarTopPaint(p),
+  // ───── 第4章 Step 4（王家のピラミッド。render/tiles-pyramid.js）─────
+  // ピラミッドの だんの うえ・よこ、歌の ボタンや 王の 台の よこ、金の ひつぎの よこ
+  ...PYRAMID_EXTRAS,
 };
 
 // 3D だけの え を ペインターに かく（テストでも つかう）

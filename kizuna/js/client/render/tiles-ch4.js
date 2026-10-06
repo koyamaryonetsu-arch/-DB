@@ -2,9 +2,11 @@
 // Step 2 の かれた地下水路（石だたみ・切り石の かべ・水路の 底と 水・水門・鉄の こうし・がれきの せき）は render/tiles-canal.js
 // (p, v, f, m) … Painter / ちがい（0〜3。砂嵐だけは ばしょ 0〜15。水路の 中は ばしょと 流れの むき）/ アニメの コマ / となりの ようす（mask。ch4Mask）
 // ひかりは 左上から
-import { T } from '../../shared/tiles.js?v=b7ef3fbff3c8';
-import { Painter, prand, shade } from './pixel.js?v=b7ef3fbff3c8';
-import { CANAL_PAINTERS, CANAL_FRAMES, CANAL_SPEED, CANAL_WALLS, canalMask } from './tiles-canal.js?v=b7ef3fbff3c8';
+import { T } from '../../shared/tiles.js?v=a976b8a231af';
+import { Painter, prand, shade } from './pixel.js?v=a976b8a231af';
+import { CANAL_PAINTERS, CANAL_FRAMES, CANAL_SPEED, CANAL_WALLS, canalMask } from './tiles-canal.js?v=a976b8a231af';
+// 王家のピラミッド（Step 4）の タイルの え は render/tiles-pyramid.js（render/tiles.js が まぜる）。ここでは となりの ようす だけ
+import { pyramidMask } from './tiles-pyramid.js?v=a976b8a231af';
 
 const TAU = Math.PI * 2;
 // 4×4 の ディザ（だんだんの いろを まぜる）
@@ -431,7 +433,8 @@ export const CH4_WALLS = [T.ADOBE, ...CANAL_WALLS];
 // となりの ようす（render/tiles.js の prepareMap から）。t … その マスの タイル（とびらが ひらいた あとの もの）
 // at(x, y) … となりの タイル（とびらは ひらいた あとの もの。マップの そとは -1）。あてはまらない ときは -1
 const GRASSY = new Set([T.GRASS, T.TALLGRASS, T.FLOWERS, T.FOREST_FLOOR]);
-export function ch4Mask(t, at, x, y) {
+// map … その マップ（王家のピラミッドの 中の かんばんは 石の 文字ばん）
+export function ch4Mask(t, at, x, y, map = null) {
   if (t === T.DUNE) {
     const d = (dx, dy) => { const n = at(x + dx, y + dy); return n === T.DUNE || n === -1; };
     let m = 0;
@@ -454,6 +457,8 @@ export function ch4Mask(t, at, x, y) {
     for (const [dx, dy] of NEIGHBORS8) if (GRASSY.has(at(x + dx, y + dy))) g++;
     return g >= 3 ? 1 : 0;
   }
+  // 王家のピラミッドの 中の かんばんは 石の 文字ばん・かがり火は 金色の 台（4）
+  if ((t === T.SIGN || t === T.BRAZIER || t === T.BRAZIER_LIT || t === T.LEVER || t === T.LEVER_ON) && map?.pyramid) return 4;
   // 井戸・かんばん（草の 上に かく タイル）は、まわりが 砂ばくなら 砂の 上に（2）
   if (t === T.WELL || t === T.SIGN) return onDesert(at, x, y) ? 2 : -1;
   // かれた ふん水（王都サファラ）: となりが ふん水で ない がわに 石の ふち（1=北 2=東 4=南 8=西）
@@ -461,6 +466,9 @@ export function ch4Mask(t, at, x, y) {
     const ft = (dx, dy) => { const n = at(x + dx, y + dy); return n === T.DRY_FOUNTAIN || n === T.FOUNTAIN; };
     return (ft(0, -1) ? 0 : 1) | (ft(1, 0) ? 0 : 2) | (ft(0, 1) ? 0 : 4) | (ft(-1, 0) ? 0 : 8);
   }
+  // 王家のピラミッド（Step 4）: ピラミッドの いち・オベリスクの 影の つながり・流れる 砂の ふち
+  const pm = pyramidMask(t, at, x, y);
+  if (pm >= 0) return pm;
   // かれた地下水路（水路の 岸・通路の ふちの 石・水路の まわりの たいまつ や レバー）
   return canalMask(t, at, x, y);
 }

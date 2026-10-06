@@ -1,21 +1,21 @@
 // たたかいの がめん（むかしの RPG ふう 1がめん）
-import { el, esc, ListMenu, toast } from './ui/dom.js?v=b7ef3fbff3c8';
-import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js?v=b7ef3fbff3c8';
-import { ITEMS } from '../shared/data/items.js?v=b7ef3fbff3c8';
-import { JOBS } from '../shared/data/jobs.js?v=b7ef3fbff3c8';
-import { MONSTERS } from '../shared/data/monsters.js?v=b7ef3fbff3c8';
-import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed, battleAbilityOk } from '../shared/stats.js?v=b7ef3fbff3c8';
-import { affinityOf, attackReach } from '../shared/battle.js?v=b7ef3fbff3c8';
-import { DUAL_TECHS, dualOptions, dualKnown } from '../shared/data/dual.js?v=b7ef3fbff3c8';
-import { TACTICS } from '../shared/ai.js?v=b7ef3fbff3c8';
-import { faceURL } from './field.js?v=b7ef3fbff3c8';
-import { monsterCanvas } from './render/monsters.js?v=b7ef3fbff3c8';
-import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=b7ef3fbff3c8';
-import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js?v=b7ef3fbff3c8';
-import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js?v=b7ef3fbff3c8';
-import { abilityDetail, statusNames, buffNames, targetTag } from './ui/info.js?v=b7ef3fbff3c8';
-import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js?v=b7ef3fbff3c8';
-import { ResultPager, levelUpName } from './ui/result.js?v=b7ef3fbff3c8';
+import { el, esc, ListMenu, toast } from './ui/dom.js?v=a976b8a231af';
+import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js?v=a976b8a231af';
+import { ITEMS } from '../shared/data/items.js?v=a976b8a231af';
+import { JOBS } from '../shared/data/jobs.js?v=a976b8a231af';
+import { MONSTERS } from '../shared/data/monsters.js?v=a976b8a231af';
+import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed, battleAbilityOk } from '../shared/stats.js?v=a976b8a231af';
+import { affinityOf, attackReach, spellSealed, SEALED_REASON } from '../shared/battle.js?v=a976b8a231af';
+import { DUAL_TECHS, dualOptions, dualKnown } from '../shared/data/dual.js?v=a976b8a231af';
+import { TACTICS } from '../shared/ai.js?v=a976b8a231af';
+import { faceURL } from './field.js?v=a976b8a231af';
+import { monsterCanvas } from './render/monsters.js?v=a976b8a231af';
+import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=a976b8a231af';
+import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js?v=a976b8a231af';
+import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js?v=a976b8a231af';
+import { abilityDetail, statusNames, buffNames, targetTag } from './ui/info.js?v=a976b8a231af';
+import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js?v=a976b8a231af';
+import { ResultPager, levelUpName } from './ui/result.js?v=a976b8a231af';
 
 // たたかいの え の こまかさ（おもい きかいで さげたら、その あいだは さげた まま）
 let battleRes = BRES;
@@ -98,6 +98,8 @@ export class BattleScene {
     this.cur = null; // いま コマンドを えらんでいる キャラ
     this.boss = !!msg.boss;
     this.canFlee = msg.snap.canFlee;
+    // 呪文が ふうじられた 場所（王家のピラミッド 2階）: 呪文の コマンドは 出すが えらべない（サーバーも ことわる）
+    this.noSpells = !!msg.snap.noSpells;
     this.c = new Map();
     for (const c of msg.snap.combatants) this.c.set(c.id, { ...c, flash: 0, dead: !c.alive ? 1 : 0, lunge: 0 });
     // この たたかいで ためした 属性（'まもの|属性'）。図鑑に のっている ぶんと あわせて ねらう ときに 見せる
@@ -375,7 +377,7 @@ export class BattleScene {
     // フィールドだけの 呪文（ルーラ）は 出さない（shared/stats.js の battleAbilityOk。サーバーも おなじ きまり）。
     // MPが 足りない・呪文を ふうじられた ときは 出して えらべない だけ
     const pc = a.pc || { job: a.job, jobs: {} };
-    const learned = (a.abilities || []).filter((id) => battleAbilityOk(pc, id, a.weaponCat) && (ABILITIES[id].effect?.type !== 'mahouken' || this.mahoukenOpts(a).length));
+    const learned = (a.abilities || []).filter((id) => battleAbilityOk(pc, id, a.weaponCat) && (ABILITIES[id].effect?.type !== 'mahouken' || (this.mahoukenOpts(a).length && !this.noSpells)));
     // 今の 職業の 技を さきに（あとは おぼえた じゅん）
     const nowJob = (id) => (ABILITIES[id].job === pc.job ? 0 : 1);
     learned.sort((x, y) => nowJob(x) - nowJob(y));
@@ -384,7 +386,9 @@ export class BattleScene {
     const duals = this.myDualOptions(a);
     const items = [
       { label: '戦う', value: 'attack' },
-      { label: '呪文', value: 'spell', disabled: !spells.length },
+      this.noSpells && spells.length
+        ? { html: '呪文<span class="tag muted">ふうじられた</span>', value: 'spell', disabled: true }
+        : { label: '呪文', value: 'spell', disabled: !spells.length },
       { label: '特技', value: 'skill', disabled: !skills.length },
       { label: '道具', value: 'item' },
       { label: '防御', value: 'defend' },
@@ -412,7 +416,11 @@ export class BattleScene {
         case 'wagon': return battleSwapMenu(this);
         default:
       }
-    }, null, `${a.name}はどうする？`);
+    }, null, this.noSpells ? `${a.name}はどうする？（ここでは呪文がふうじられている）` : `${a.name}はどうする？`);
+    if (this.noSpells && spells.length && !this.sealNoted) {
+      this.sealNoted = true;
+      this.info(`${SEALED_REASON}\n特技・道具・攻撃で戦おう。`);
+    }
   }
 
   // keep: { off } … まえに えらんだ 行が リストの 上から 何ピクセルの ところに 見えていたか（その まま の 場所に 出す）
@@ -508,7 +516,7 @@ export class BattleScene {
       const cost = isMk ? 0 : mpCost(pc, id);
       const pen = penaltyFor(pc, id).penalized;
       const noMp = !isMk && cost > a.mp;
-      const sil = silenced && (ab.kind === 'spell' || ab.spellLike);
+      const sil = (silenced || this.noSpells) && spellSealed(ab);
       const el = ab.effect?.element;
       // 相手の しるし（グループ・全体・全員）
       const tt = targetTag(ab);
@@ -856,8 +864,12 @@ export class BattleScene {
     const wasTele = !!this.c.get(ev.id)?.telegraph;
     for (const u of ev.upd || []) {
       const c = this.c.get(u.id);
-      if (c) Object.assign(c, u, { ready: u.ready });
-      else this.c.set(u.id, { ...u, flash: 0, dead: 0, lunge: 0 });
+      if (c) {
+        const was = c.alive;
+        Object.assign(c, u, { ready: u.ready });
+        // 生き返った 敵（ミイラの王アンクの よみがえりの呪文）: もう一度 すがたを あらわす
+        if (c.side === 'enemy' && c.alive && !was) { c.dead = 0; c.appear = 1; }
+      } else this.c.set(u.id, { ...u, flash: 0, dead: 0, lunge: 0 });
     }
     for (const j of ev.joined || []) if (!this.c.has(j.id)) this.c.set(j.id, { ...j, flash: 0, dead: 0, lunge: 0, appear: 1 });
     if (ev.bond !== undefined) this.bond = ev.bond;
@@ -942,7 +954,9 @@ export class BattleScene {
         }
       }
     }
-    if (fx.type === 'telegraph') { g.audio.sfx('warn'); this.banner('！大技が来る！防御で身を守れ！', 'danger'); }
+    if (fx.type === 'telegraph') { g.audio.sfx('warn'); this.banner(fx.chant ? '！呪文の前ぶれ！大きなダメージで止めろ！' : '！大技が来る！防御で身を守れ！', 'danger'); }
+    // よみがえりの呪文を 止めた
+    if (ev.chantBreak) { g.audio.sfx('crit'); this.banner('呪文を止めた！', 'combo'); }
     if (fx.type === 'stance') { g.audio.sfx('warn'); this.banner('！反撃の構え！なぐると反撃される', 'danger'); }
     if (fx.type === 'bondStart') this.startBondPrompt(ev);
     if (fx.type === 'flee') g.audio.sfx('flee');
@@ -1513,11 +1527,11 @@ export class BattleScene {
       // がめんより こまかい え は なめらかに ちぢめる（ドットが ぬけないように）
       x.imageSmoothingEnabled = (m.img.res || 1) > x.getTransform().a * 1.01;
       x.imageSmoothingQuality = 'high';
-      // ためこみ中の ボスは あかく ひかる
+      // ためこみ中の ボスは あかく ひかる（呪文を となえている ときは むらさき）
       if (c.telegraph && c.alive) {
         const pulse = 0.4 + Math.sin(this.time / 90) * 0.3;
         x.globalAlpha = pulse;
-        x.drawImage(white(m.img, '#ff3a3a'), snap(m.x + dx) - 2, snap(m.y + dy) - 2, m.w + 4, m.h + 4);
+        x.drawImage(white(m.img, c.chant !== null && c.chant !== undefined ? '#b07aff' : '#ff3a3a'), snap(m.x + dx) - 2, snap(m.y + dy) - 2, m.w + 4, m.h + 4);
         x.globalAlpha = base;
       }
       // 反撃の構え: だいだいいろに ひかる（物理で こうげきすると 反撃される）
@@ -1587,6 +1601,23 @@ export class BattleScene {
         }
         x.fillStyle = '#ffe2a8';
         x.fillRect(sx0 - 1, sy0 - 1, 2, 2);
+      }
+      // よみがえりの呪文を となえている（ミイラの王アンク）: 頭の 上に「止める まで」の ゲージ。
+      // ダメージが たまって 金色が いっぱいに なると とぎれる。まわりを 古い 文字の 光が まわる
+      if (c.chant !== null && c.chant !== undefined && c.alive) {
+        const gw = Math.min(48, Math.max(28, Math.round(m.w * 0.5)));
+        const gx = Math.round(m.x + m.w / 2 - gw / 2), gy = Math.max(3, Math.round(m.y - 8));
+        x.fillStyle = '#1a0a2a';
+        x.fillRect(gx - 1, gy - 1, gw + 2, 5);
+        x.fillStyle = '#5a2a9a';
+        x.fillRect(gx, gy, gw, 3);
+        x.fillStyle = Math.floor(this.time / 200) % 2 ? '#ffd66b' : '#fff0a8';
+        x.fillRect(gx, gy, Math.round(gw * Math.min(1, c.chant)), 3);
+        x.fillStyle = '#d8b8ff';
+        for (let k = 0; k < 4; k++) {
+          const ang = this.time / 260 + k * (Math.PI / 2);
+          x.fillRect(Math.round(m.x + m.w / 2 + Math.cos(ang) * m.w * 0.42), Math.round(m.y + m.h * 0.35 + Math.sin(ang) * 7), 2, 2);
+        }
       }
       // じょうたい いじょう
       if (c.alive && (c.status || []).includes('sleep') && Math.floor(this.time / 500) % 2) {

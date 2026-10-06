@@ -1,6 +1,6 @@
 // たたかいの AI（モンスター と サポートなかま）
-import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=b7ef3fbff3c8';
-import { mpCost, penaltyFor, weaponOk, comboAllowed } from './stats.js?v=b7ef3fbff3c8';
+import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=a976b8a231af';
+import { mpCost, penaltyFor, weaponOk, comboAllowed } from './stats.js?v=a976b8a231af';
 
 // さくせん
 export const TACTICS = {
@@ -18,6 +18,7 @@ export function decideMonster(b, m) {
   if (m.telegraph) {
     const id = m.telegraph;
     m.telegraph = null;
+    m.chant = null;
     return { type: 'ability', id, target: pickFoe(b, foes)?.id };
   }
   const friends = b.aliveEnemies();
@@ -27,14 +28,11 @@ export function decideMonster(b, m) {
       const ab = ABILITIES[a.id];
       if (!ab) return false;
       if (ab.kind !== 'monster' && (ab.mp || 0) > m.mp) return false;
-      if ((ab.kind === 'spell') && m.status.silence) return false;
+      if ((ab.kind === 'spell') && (m.status.silence || b.noSpells)) return false;
     }
     if (!a.cond) return true;
-    if (a.cond.startsWith('hpBelow:')) return m.hp / m.maxHp < parseFloat(a.cond.split(':')[1]);
-    if (a.cond === 'allyHurt') return friends.some((f) => f.hp / f.maxHp < 0.7);
-    if (a.cond === 'callHelp') return friends.length < 4 && (m.helpCalls || 0) < 2;
-    if (a.cond.startsWith('notRecent:')) return !m.recent.includes(a.cond.split(':')[1]);
-    return true;
+    // cond は 1つ か ならべた もの（ぜんぶ あてはまる とき）
+    return (Array.isArray(a.cond) ? a.cond : [a.cond]).every((cond) => condOk(b, m, friends, cond));
   });
   const choice = cands.length ? b.rng.weighted(cands) : { id: 'attack' };
   m.used[choice.id] = (m.used[choice.id] || 0) + 1;
@@ -49,6 +47,20 @@ export function decideMonster(b, m) {
     target = pickFoe(b, foes)?.id;
   }
   return { type: 'ability', id: choice.id, target };
+}
+
+// 魔物の こうどうの じょうけん
+function condOk(b, m, friends, cond) {
+  if (cond.startsWith('hpBelow:')) return m.hp / m.maxHp < parseFloat(cond.split(':')[1]);
+  if (cond === 'allyHurt') return friends.some((f) => f.hp / f.maxHp < 0.7);
+  if (cond === 'callHelp') return friends.length < 4 && (m.helpCalls || 0) < 2;
+  if (cond.startsWith('notRecent:')) return !m.recent.includes(cond.split(':')[1]);
+  // deadFriend:しゅるい … その しゅるいの なかまが たおれて いる（よみがえりの呪文）
+  if (cond.startsWith('deadFriend:')) {
+    const sp = cond.split(':')[1];
+    return b.enemies.some((e) => e !== m && !e.alive && !e.fled && e.species === sp);
+  }
+  return true;
 }
 
 // 敵が ねらう 相手: ドラクエと おなじく 先頭ほど ねらわれやすい（ならびかえの 意味）
@@ -147,6 +159,8 @@ export function canUse(b, c, id) {
   if (!a || !c.abilities.includes(id)) return false;
   if (a.hidden) return false;
   if ((a.kind === 'spell' || a.spellLike) && c.status.silence) return false;
+  // 呪文が ふうじられた 場所（王家のピラミッド 2階）
+  if ((a.kind === 'spell' || a.spellLike || a.effect?.type === 'mahouken') && b?.noSpells) return false;
   if (a.kind === 'combo' && c.side === 'ally' && c.penChar && !comboAllowed(c.penChar, id)) return false;
   if (!weaponOk(a, c.weaponCat)) return false;
   return mpCost(c.penChar, id) <= c.mp;
@@ -230,13 +244,20 @@ function strongestFoe(foes) {
 // b.ignoreStance: 構えを 気にしない（tools/sim.js で「気づかない 人」の つよさを はかる）
 const countering = (t, b) => !b?.ignoreStance && t?.stance?.kind === 'counter';
 
+// よみがえりの呪文を となえて いる 敵（ためた ダメージで 呪文が とぎれる。battle.js の chant）
+// b.ignoreChant: 呪文に 気づかない（tools/sim.js で「気づかない 人」の つよさを はかる）
+const chanting = (t, b) => !b?.ignoreChant && !!t?.chant;
+
 // こうげきの えらびかた: きたいダメージ ÷ MPの おもさ
 // 反撃の構えの 敵に 物理で あたる こうげきは えらばない（呪文・ほかの 敵。なければ 防御して まつ）
+// 呪文を となえて いる 敵は、とぎれさせる ために ねらう（オートの 仲間も かしこく）
 function chooseAttack(b, c, tac, foes) {
   const opts = [];
   const value = (t, dmg) => {
     const eff = Math.min(dmg, t.hp);
-    return eff + (dmg >= t.hp ? 8 + t.atk / 3 : 0) + (t.boss ? eff * 0.2 : 0);
+    const stop = chanting(t, b) ? Math.min(dmg, Math.max(0, t.chant.need - t.chant.dmg)) * 3 + 40 : 0;
+    // b.focusBoss … ボスを ねらう（ボスが たおれると 手下も くずれる ことを 知っている 人。tools/sim.js）
+    return eff + (dmg >= t.hp ? 8 + t.atk / 3 : 0) + (t.boss ? eff * (b.focusBoss ? 1.2 : 0.2) : 0) + stop;
   };
   // ふつうの こうげき（ムチは グループ、ブーメランは 全体に とどく。battle.js の attackPlan）
   for (const t of foes) {
@@ -284,7 +305,7 @@ function chooseAttack(b, c, tac, foes) {
     }
   }
   // 魔法剣
-  if (c.abilities.includes('mahouken') && autoOk(c, 'mahouken') && weaponOk({ weapon: 'blade' }, c.weaponCat) && !c.status.silence) {
+  if (c.abilities.includes('mahouken') && autoOk(c, 'mahouken') && weaponOk({ weapon: 'blade' }, c.weaponCat) && !c.status.silence && !b.noSpells) {
     for (const sp of c.abilities.filter((id) => isAttackSpell(id) && autoOk(c, id))) {
       for (const sk of c.abilities.filter((id) => isSwordSkill(id) && autoOk(c, id))) {
         const mp = mpCost(c.penChar, sp) + mpCost(c.penChar, sk);

@@ -35,6 +35,23 @@ export const ITEMS_CH4 = {
     name: '三日月の剣', type: 'weapon', rank: 6, star: true, cat: 'sword', atk: 56, bonus: { agi: 3 }, price: 0, sell: 1600,
     desc: '宮殿の地下水路でねむっていた剣。三日月のように、するどくそっている。',
   },
+
+  // ───── 王家のピラミッド（Step 4）─────
+  // だいじなもの: 月の鏡（4階の 王のへや。戦いで 使うのは Step 5 から）
+  moon_mirror: {
+    name: '月の鏡', type: 'key',
+    desc: '王家に伝わる、本当のすがたをうつす鏡。月の光のように、青白く光っている。まぼろしも、まやかしも、この鏡の前では本当のすがたをあらわすという。',
+  },
+  // のろいの宝（4階の かくしべや）: とても 強いが、とると ピラミッドの 外に 出るまで 魔物が ふえる（world/pyramid.js）
+  royal_gold_sword: {
+    name: '王家の黄金の剣', type: 'weapon', rank: 7, star: true, cat: 'sword', atk: 64, price: 0, sell: 2400,
+    desc: 'ピラミッドのかくしべやにねむっていた、のろいの宝。とても強い剣だが、ぬいた者のまわりに、ピラミッドの魔物がよってくるという。（のろいは、ピラミッドの外に出るととける）',
+  },
+  // ミイラの王アンクが 落とす（ボスの 品。1人 1つ）
+  royal_bracelet: {
+    name: '王家のうでわ', type: 'acc', rank: 6, unique: true, bonus: { def: 10, mag: 10 }, resist: { paralyze: 0.5, blind: 0.6 }, price: 0, sell: 900,
+    desc: 'ミイラの王アンクが身につけていた、金のうでわ。守りと魔力が上がり、マヒとマヌーサにかかりにくくなる。',
+  },
 };
 
 export const CH4_ITEM_KANA = {
@@ -44,6 +61,7 @@ export const CH4_ITEM_KANA = {
   snake_whip: 'へびがわのむち', oasis_staff: 'おあしすのつえ', sandwind_fan: 'すなかぜのおうぎ', crescent_boomerang: 'みかづきのぶーめらん', palm_bat: 'やしのきのばっと',
   sand_mail: 'すなのよろい', desert_garb: 'すなのころも', moon_robe: 'つきのろーぶ', sandstorm_gi: 'すなあらしのどうぎ',
   crescent_shield: 'みかづきのたて', sand_helm: 'すなのかぶと', turban: 'たーばん', crescent_blade: 'みかづきのけん',
+  moon_mirror: 'つきのかがみ', royal_gold_sword: 'おうけのおうごんのけん', royal_bracelet: 'おうけのうでわ',
 };
 
 export const SHOPS_CH4 = {

@@ -1,8 +1,9 @@
 // フィールドを うろうろする モンスター（シンボル）
-import { ENCOUNTER_TABLES } from '../data/encounters.js?v=b7ef3fbff3c8';
-import { MONSTERS } from '../data/monsters.js?v=b7ef3fbff3c8';
-import { MAPS, isBlocked } from '../maps/index.js?v=b7ef3fbff3c8';
-import { NIGHT_ZONES, NIGHT_MORE } from '../data/night.js?v=b7ef3fbff3c8';
+import { ENCOUNTER_TABLES } from '../data/encounters.js?v=a976b8a231af';
+import { MONSTERS } from '../data/monsters.js?v=a976b8a231af';
+import { MAPS, isBlocked } from '../maps/index.js?v=a976b8a231af';
+import { NIGHT_ZONES, NIGHT_MORE } from '../data/night.js?v=a976b8a231af';
+import { cursedOn, CURSE_SPAWN, CURSE_SPAWN_MS, CURSE_CHASE } from './pyramid.js?v=a976b8a231af';
 
 let symSeq = 1;
 
@@ -92,7 +93,9 @@ export function spawnSymbols(world, ms, dt, playersOnMap) {
   if (!map.spawnCounts) return;
   ms.spawnTimer -= dt;
   if (ms.spawnTimer > 0) return;
-  ms.spawnTimer = 700;
+  // のろいの宝（王家のピラミッド）: のろわれた 人が いると 魔物が ふえる（world/pyramid.js）
+  const curse = cursedOn(ms.id, playersOnMap);
+  ms.spawnTimer = curse ? CURSE_SPAWN_MS : 700;
   const zc = zoneCells(ms);
   const key = (zone, tod) => `${zone}|${tod || ''}`;
   // 昼の 人・夜の 人が いるか（だれも 見ない ほうの まものは すこしずつ いなくなる）
@@ -109,7 +112,8 @@ export function spawnSymbols(world, ms, dt, playersOnMap) {
   const near = (x, y, r) => playersOnMap.some((p) => Math.hypot(p.x - x, p.y - y) < r);
   // たりない ちいきの うち、いちばん 少ない ところから（夜が 来た すぐ あとは 3びきずつ）
   const pools = [];
-  for (const [zone, target] of Object.entries(map.spawnCounts)) {
+  for (const [zone, base] of Object.entries(map.spawnCounts)) {
+    const target = curse ? Math.round(base * CURSE_SPAWN) : base;
     if (!zc[zone]?.length) continue;
     if (!hasNightSplit(map, zone)) pools.push([zone, null, target]);
     else {
@@ -195,17 +199,20 @@ export function moveSymbols(world, ms, dt, players) {
       continue;
     }
     s.t -= dt;
-    // いちばん ちかい プレイヤー
-    let target = null, best = 6;
+    // いちばん ちかい プレイヤー（のろわれた 人は 遠くからでも 見つかる。world/pyramid.js）
+    let target = null, best = 6, near = 6;
     for (const p of players) {
       // 空の 上の 人・その まものが 見えない（昼と 夜が ちがう）人は おいかけない
       if (p.invuln > 0 || p.busy || p.flying || !symbolVisible(s, p.night)) continue;
       const d = Math.hypot(p.x - s.x, p.y - s.y);
-      if (d < best) {
+      const reach = cursedPlayer(map, p) ? CURSE_CHASE + 1.5 : 6;
+      if (d < reach && d - reach < best - near) {
         best = d;
+        near = reach;
         target = p;
       }
     }
+    const chaseR = target && cursedPlayer(map, target) ? CURSE_CHASE : 4.5;
     const repelled = target && target.repelUntil > world.now() && s.level <= target.level;
     if (s.sp === 'kirakira' && target && best < 4) {
       // きらきらぷるりんは にげる
@@ -213,7 +220,7 @@ export function moveSymbols(world, ms, dt, players) {
       const d = Math.max(0.01, best);
       s.vx = (s.x - target.x) / d;
       s.vy = (s.y - target.y) / d;
-    } else if (target && s.aggro && !repelled && best < 4.5) {
+    } else if (target && s.aggro && !repelled && best < chaseR) {
       s.state = 'chase';
       const d = Math.max(0.01, best);
       s.vx = (target.x - s.x) / d;
@@ -253,6 +260,9 @@ export function moveSymbols(world, ms, dt, players) {
     else if (Math.abs(s.vy) > 0.01) s.dir = s.vy > 0 ? 'down' : 'up';
   }
 }
+
+// のろわれた 人（王家のピラミッドの 中だけ）
+const cursedPlayer = (map, p) => !!map.pyramid && !!p.char?.pyrCurse;
 
 function canStand(map, x, y, zone) {
   const tx = Math.floor(x), ty = Math.floor(y);

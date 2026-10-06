@@ -1,15 +1,15 @@
 // マップの ぜんたい（フィールド・どうくつ）と、そこに いる 人や たからばこ
-import { T, parseRows, TILE_INFO } from '../tiles.js?v=b7ef3fbff3c8';
-import { makeRng, hash2 } from '../rng.js?v=b7ef3fbff3c8';
-import { buildOverworld, PLACES, zoneAt, areaName, OW_W, OW_H, CAVE_ENTRANCE, FOREST_CLEARING, LAKE, SWAMP } from './overworld.js?v=b7ef3fbff3c8';
-import { CAVE_B1_ROWS, CAVE_B2_ROWS } from './cave-rows.js?v=b7ef3fbff3c8';
-import { npc } from './npc.js?v=b7ef3fbff3c8';
-import { buildCh2Maps, SEA_PLACES } from './ch2.js?v=b7ef3fbff3c8';
-import { buildTreasureFloor } from './treasure-cave.js?v=b7ef3fbff3c8';
-import { addNightNpcs } from './night-npcs.js?v=b7ef3fbff3c8';
-import { attachCasino } from './casino.js?v=b7ef3fbff3c8';
-import { buildCh3Maps, ch3SearchMats, NORTH_SPARKLE_LOOT } from './ch3.js?v=b7ef3fbff3c8';
-import { buildCh4Maps, ch4SearchMats, SOUTH_SPARKLE_LOOT } from './ch4.js?v=b7ef3fbff3c8';
+import { T, parseRows, TILE_INFO } from '../tiles.js?v=a976b8a231af';
+import { makeRng, hash2 } from '../rng.js?v=a976b8a231af';
+import { buildOverworld, PLACES, zoneAt, areaName, OW_W, OW_H, CAVE_ENTRANCE, FOREST_CLEARING, LAKE, SWAMP } from './overworld.js?v=a976b8a231af';
+import { CAVE_B1_ROWS, CAVE_B2_ROWS } from './cave-rows.js?v=a976b8a231af';
+import { npc } from './npc.js?v=a976b8a231af';
+import { buildCh2Maps, SEA_PLACES } from './ch2.js?v=a976b8a231af';
+import { buildTreasureFloor } from './treasure-cave.js?v=a976b8a231af';
+import { addNightNpcs } from './night-npcs.js?v=a976b8a231af';
+import { attachCasino } from './casino.js?v=a976b8a231af';
+import { buildCh3Maps, ch3SearchMats, NORTH_SPARKLE_LOOT } from './ch3.js?v=a976b8a231af';
+import { buildCh4Maps, ch4SearchMats, SOUTH_SPARKLE_LOOT } from './ch4.js?v=a976b8a231af';
 
 const V = (x, y) => [PLACES.village.x + x, PLACES.village.y + y];
 const TW = (x, y) => [PLACES.town.x + x, PLACES.town.y + y];

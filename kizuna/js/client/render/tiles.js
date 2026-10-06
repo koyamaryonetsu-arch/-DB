@@ -1,11 +1,12 @@
 // マップの タイル（16×16 ドット）を プログラムで かく
-import { T, TILE_INFO } from '../../shared/tiles.js?v=b7ef3fbff3c8';
-import { hash2 } from '../../shared/rng.js?v=b7ef3fbff3c8';
-import { Painter, shade, prand } from './pixel.js?v=b7ef3fbff3c8';
-import { themedCanvas, partOfTile } from './themes.js?v=b7ef3fbff3c8';
-import { CH3_PAINTERS, CH3_FRAMES, CH3_SPEED, RAIL_TILES, CH3_WALLS } from './tiles-ch3.js?v=b7ef3fbff3c8';
-import { CH4_PAINTERS, CH4_FRAMES, CH4_SPEED, CH4_WALLS, ch4Mask, desertBase } from './tiles-ch4.js?v=b7ef3fbff3c8';
-import { CANAL_CTX, CANAL_CTX_PAINTERS, canalVariant, canalBaseBits, canalWallBits } from './tiles-canal.js?v=b7ef3fbff3c8';
+import { T, TILE_INFO } from '../../shared/tiles.js?v=a976b8a231af';
+import { hash2 } from '../../shared/rng.js?v=a976b8a231af';
+import { Painter, shade, prand } from './pixel.js?v=a976b8a231af';
+import { themedCanvas, partOfTile } from './themes.js?v=a976b8a231af';
+import { CH3_PAINTERS, CH3_FRAMES, CH3_SPEED, RAIL_TILES, CH3_WALLS } from './tiles-ch3.js?v=a976b8a231af';
+import { CH4_PAINTERS, CH4_FRAMES, CH4_SPEED, CH4_WALLS, ch4Mask, desertBase } from './tiles-ch4.js?v=a976b8a231af';
+import { CANAL_CTX, CANAL_CTX_PAINTERS, canalVariant, canalBaseBits, canalWallBits } from './tiles-canal.js?v=a976b8a231af';
+import { PYRAMID_PAINTERS, PYRAMID_FRAMES, PYRAMID_SPEED, PYRAMID_WALLS, paintTablet, paintPyrBrazier, paintPyrLever } from './tiles-pyramid.js?v=a976b8a231af';
 
 export const TS = 16;
 
@@ -322,6 +323,8 @@ const painters = {
     for (let x = 1; x < 16; x += 7) { p.rect(x, 3, 2, 11, '#7a4a22'); p.set(x, 3, '#b07a44'); }
   },
   [T.SIGN]: (p, v, f, m) => {
+    // 王家のピラミッドの 中は 石の 文字ばん（mask 4。tiles-ch4.js の ch4Mask）
+    if (m & 4) return paintTablet(p, v);
     (m & 2 ? desertBase : grassBase)(p, v, 47);
     p.rect(7, 8, 2, 7, '#6b4220');
     p.rect(2, 2, 12, 7, '#b8773a'); p.rect(3, 3, 10, 5, '#d49a5a');
@@ -487,6 +490,18 @@ const painters = {
 Object.assign(painters, CH3_PAINTERS);
 // 第4章の タイル（砂ばく・砂丘・砂岩・ヤシ・サボテン・日干しれんが・砂嵐・古井戸・かれた地下水路。render/tiles-ch4.js・tiles-canal.js）
 Object.assign(painters, CH4_PAINTERS);
+// 第4章 Step 4（王家のピラミッド・オベリスク・歌の ボタン・流れる 砂 など。render/tiles-pyramid.js）
+Object.assign(painters, PYRAMID_PAINTERS);
+// ピラミッドの 中の かがり火は 金色の 台（mask 4。tiles-ch4.js の ch4Mask）
+for (const [id, lit] of [[T.BRAZIER, false], [T.BRAZIER_LIT, true]]) {
+  const base = painters[id];
+  painters[id] = (p, v, f, m) => (m & 4 ? paintPyrBrazier(p, v, f, lit) : base(p, v, f, m));
+}
+// ピラミッドの 中の レバーは 砂岩の 台（mask 4。地下水路の レバーは mask の CANAL_CTX で べつの え）
+for (const [id, on] of [[T.LEVER, false], [T.LEVER_ON, true]]) {
+  const base = painters[id];
+  painters[id] = (p, v, f, m) => (m & 4 && !(m & CANAL_CTX) ? paintPyrLever(p, v, on) : base(p, v, f, m));
+}
 // 地下水路の まわりの たいまつ・レバー・かいだん・柱・がれき・ボスの ゆかは、水路の え で かく（mask の CANAL_CTX）
 for (const [id, canal] of Object.entries(CANAL_CTX_PAINTERS)) {
   const base = painters[id];
@@ -498,9 +513,9 @@ const FRAMES = {
   [T.WATER]: 3, [T.DEEP]: 3, [T.SWAMP]: 3, [T.FOUNTAIN]: 2, [T.FIREPLACE]: 2, [T.CAVE_WATER]: 3, [T.CRYSTAL]: 3,
   [T.TORCH]: 3, [T.LAMP]: 2, [T.STEPPING]: 3, [T.BRIDGE_H]: 3, [T.BRIDGE_V]: 3, [T.BROKEN_BRIDGE]: 3, [T.CAVE_BRIDGE]: 3, [T.PIER]: 3,
   [T.WHIRLPOOL]: 3,
-  ...CH3_FRAMES, ...CH4_FRAMES,
+  ...CH3_FRAMES, ...CH4_FRAMES, ...PYRAMID_FRAMES,
 };
-const SPEED = { [T.TORCH]: 140, [T.FIREPLACE]: 180, [T.CRYSTAL]: 500, [T.LAMP]: 700, ...CH3_SPEED, ...CH4_SPEED };
+const SPEED = { [T.TORCH]: 140, [T.FIREPLACE]: 180, [T.CRYSTAL]: 500, [T.LAMP]: 700, ...CH3_SPEED, ...CH4_SPEED, ...PYRAMID_SPEED };
 
 export function frameOf(id, t) {
   const n = FRAMES[id];
@@ -530,7 +545,7 @@ export function tileCanvas(id, variant, frame, mask, theme) {
 }
 
 const WATERY = new Set([T.WATER, T.DEEP, T.BROKEN_BRIDGE, T.STEPPING, T.PIER, T.BRIDGE_H, T.BRIDGE_V, T.WHIRLPOOL]);
-const WALLS = new Set([T.WALL_STONE, T.WALL_WOOD, T.CAVE_WALL, T.TORCH, ...CH3_WALLS, ...CH4_WALLS]);
+const WALLS = new Set([T.WALL_STONE, T.WALL_WOOD, T.CAVE_WALL, T.TORCH, ...CH3_WALLS, ...CH4_WALLS, ...PYRAMID_WALLS]);
 
 // マップごとに いちど だけ けいさん（となりの タイルで かわる みため）
 export function prepareMap(map) {
@@ -573,7 +588,7 @@ export function prepareMap(map) {
         mask[i] = m;
       } else {
         // 第4章（砂丘の つながり・砂岩の がけ・ヤシと サボテンの 下の 草地・地下水路の 岸）
-        const m4 = ch4Mask(opened.get(i) ?? t, atOpen, x, y);
+        const m4 = ch4Mask(opened.get(i) ?? t, atOpen, x, y, map);
         if (m4 >= 0) mask[i] = m4 | canalBaseBits(t, at, x, y);
         // 地下水路: 水路の 中は ばしょと 流れの むき・通路は かべの かげ（とびらで 底 ⇔ 水 ⇔ せき が かわっても おなじ）
         variant[i] = canalVariant(t, at, x, y, variant[i]);

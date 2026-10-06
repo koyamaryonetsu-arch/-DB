@@ -67,6 +67,48 @@ export const ENCOUNTERS_CH4 = {
     { w: 2, group: [['mirage_flower', 1, 2], ['moon_ghost', 0, 1]] },
     { w: 1, group: [['gold_beetle', 1, 1]] },
   ],
+  // ── 王家の墓の砂ばく（Step 4。王都の 東）: 岩の 魔物。夜は ランプの魔人と 月のゆうれい（Lv30〜34）──
+  s_pdesert: [
+    { w: 4, group: [['sandstone_golem', 1, 1], ['scorpion_soldier', 0, 1]] },
+    { w: 3, group: [['scorpion_soldier', 1, 2], ['sand_vulture', 1, 1]] },
+    { w: 3, group: [['sand_vulture', 2, 3]] },
+    { w: 2, group: [['sandstone_golem', 1, 1], ['sand_vulture', 1, 1]] },
+    { w: 1, group: [['gold_beetle', 1, 1]] },
+  ],
+  s_pdesert_night: [
+    { w: 4, group: [['lamp_genie', 1, 1], ['moon_ghost', 0, 1]] },
+    { w: 3, group: [['moon_ghost', 1, 2], ['sandstone_golem', 0, 1]] },
+    { w: 2, group: [['lamp_genie', 1, 1], ['scorpion_soldier', 1, 1]] },
+    { w: 1, group: [['gold_beetle', 1, 2]] },
+  ],
+  // ── 王家のピラミッド（Step 4）: ミイラ兵・のろいのつぼ・砂岩ゴーレム（Lv32〜33）──
+  s_pyr1: [
+    { w: 4, group: [['mummy_soldier', 1, 2]] },
+    { w: 3, group: [['mummy_soldier', 1, 1], ['cursed_pot', 1, 1]] },
+    { w: 2, group: [['scorpion_soldier', 1, 2], ['mummy_soldier', 0, 1]] },
+    { w: 2, group: [['moon_ghost', 1, 1], ['mummy_soldier', 1, 1]] },
+  ],
+  // 地下の ミイラのへや（ミイラ兵が たくさん）
+  s_pyr_b1: [
+    { w: 5, group: [['mummy_soldier', 2, 3]] },
+    { w: 2, group: [['mummy_soldier', 1, 2], ['cursed_pot', 1, 1]] },
+  ],
+  // 呪文の ふうじられた 2階（てきの 呪文も ふうじられる。とくぎと 道具で たたかう）
+  s_pyr2: [
+    { w: 4, group: [['sandstone_golem', 1, 1], ['mummy_soldier', 0, 1]] },
+    { w: 3, group: [['mummy_soldier', 2, 2]] },
+    { w: 2, group: [['cursed_pot', 1, 2]] },
+    { w: 2, group: [['sandstone_golem', 1, 1], ['cursed_pot', 1, 1]] },
+  ],
+  s_pyr3: [
+    { w: 4, group: [['mummy_soldier', 1, 2], ['moon_ghost', 0, 1]] },
+    { w: 3, group: [['sandstone_golem', 1, 1]] },
+    { w: 2, group: [['cursed_pot', 1, 1], ['mummy_soldier', 1, 1]] },
+  ],
+  s_pyr4: [
+    { w: 4, group: [['mummy_soldier', 2, 2], ['sandstone_golem', 0, 1]] },
+    { w: 2, group: [['sandstone_golem', 1, 1], ['cursed_pot', 1, 1]] },
+  ],
 };
 
 export const FIXED_CH4 = {
@@ -74,12 +116,19 @@ export const FIXED_CH4 = {
   well_ambush: { group: [['scorpion_soldier', 2, 2], ['sand_slime', 2, 2]], bg: 'sand_cave', bgm: 'battle', canFlee: false },
   // かれた地下水路の おく: よろい大サソリ（ボス）
   armor_scorpion: { group: [['armor_scorpion', 1, 1]], bg: 'canal', bgm: 'boss', canFlee: false, boss: true },
+  // 王家のピラミッドの 金色の つぼ（のろいのつぼ 2ひき。にげても よい。にげると つぼは そのまま）
+  pot_ambush: { group: [['cursed_pot', 2, 2]], bg: 'pyramid', bgm: 'battle', canFlee: true },
+  // 王のへや: ミイラの王アンク（ボス）と 王のミイラ兵 2体
+  mummy_king: { group: [['mummy_king', 1, 1], ['royal_mummy', 2, 2]], bg: 'pyramid_boss', bgm: 'pharaoh', canFlee: false, boss: true },
 };
 
 export const ZONE_BG_CH4 = {
   s_coast: 'beach', s_dune: 'desert', s_oasis: 'desert', s_well: 'sand_cave', s_canal: 'canal', s_canal2: 'canal', s_pcanal: 'canal',
   s_coast_night: 'beach_night', s_dune_night: 'desert_night', s_oasis_night: 'desert_night',
+  // Step 4
+  s_pdesert: 'desert', s_pdesert_night: 'desert_night',
+  s_pyr1: 'pyramid', s_pyr_b1: 'pyramid', s_pyr2: 'pyramid', s_pyr3: 'pyramid', s_pyr4: 'pyramid',
 };
 
 // 昼の ちいき → 夜の 出現表（night.js の NIGHT_ZONES に まぜる）
-export const NIGHT_ZONES_CH4 = { s_coast: 's_coast_night', s_dune: 's_dune_night', s_oasis: 's_oasis_night' };
+export const NIGHT_ZONES_CH4 = { s_coast: 's_coast_night', s_dune: 's_dune_night', s_oasis: 's_oasis_night', s_pdesert: 's_pdesert_night' };

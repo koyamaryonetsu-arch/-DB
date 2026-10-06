@@ -2,36 +2,37 @@
 //
 // クライアントとは メッセージ（JSON）で やりとりする。
 // つなぎかたは なんでも よい（WebSocket でも ブラウザ内の ちょくせつ呼び出しでも）。
-import { makeRng } from '../rng.js?v=b7ef3fbff3c8';
-import { MAPS, isBlocked, effectiveTile, condOk, searchLoot, sparkleLoot, tileAt, POS, SEA_PLACES, standSpot } from '../maps/index.js?v=b7ef3fbff3c8';
-import { PLACES } from '../maps/overworld.js?v=b7ef3fbff3c8';
-import { T, TILE_INFO } from '../tiles.js?v=b7ef3fbff3c8';
-import { ITEMS } from '../data/items.js?v=b7ef3fbff3c8';
-import { JOBS } from '../data/jobs.js?v=b7ef3fbff3c8';
-import { newCharacter, computeStats, addItem, fullHeal, migrateJobs, fixBodyJob } from '../stats.js?v=b7ef3fbff3c8';
-import { mapState, spawnSymbols, moveSymbols, symbolSnapshot, symbolVisible } from './monsters.js?v=b7ef3fbff3c8';
-import { tickFieldChests, fieldChestSnap, fieldChestNear, openFieldChest } from './fieldchests.js?v=b7ef3fbff3c8';
-import { chestVanishes } from '../data/fieldchests.js?v=b7ef3fbff3c8';
-import { startFieldBattle, battleTick, abortBattle, battleCommand, battleLeave, joinBattle, mineOf, resultDone } from './battles.js?v=b7ef3fbff3c8';
-import { runScript, runSteps } from './scripts.js?v=b7ef3fbff3c8';
-import { serviceAction, menuAction } from './services.js?v=b7ef3fbff3c8';
-import { newParty, partyOf, partyState, syncParty, ensureCompanions, companionWait, PARTY_MAX, befriendLevel, rosterFull, nameOfKey, dropMissingFam } from './party.js?v=b7ef3fbff3c8';
-import { hasWagon, dropGoneFamily } from '../data/wagon.js?v=b7ef3fbff3c8';
-import { MONSTERS } from '../data/monsters.js?v=b7ef3fbff3c8';
-import { CH1_CLEAR_OBJECTIVE } from '../data/story.js?v=b7ef3fbff3c8';
-import { upgradeSave, repairChar } from './save.js?v=b7ef3fbff3c8';
-import { exportCode, parseCode, importChar } from './transfer.js?v=b7ef3fbff3c8';
-import { memorySyncStore, buildSyncOut, applySyncIn, encodeSync, decodeSync, syncSummary } from './sync.js?v=b7ef3fbff3c8';
-import { tryTreasureDig, treasureMenu, fixTreasurePos, normalizeTreasure, pruneTreasureStates } from './treasure.js?v=b7ef3fbff3c8';
-import { isNightFor } from './clock.js?v=b7ef3fbff3c8';
-import { onFly, setFlying, moveAllowed, ridingAlong, canFlyMap } from './travel.js?v=b7ef3fbff3c8';
-import { migrateSky } from '../data/sky.js?v=b7ef3fbff3c8';
-import { migrateCh4 } from '../data/story-ch4.js?v=b7ef3fbff3c8';
-import { repairObjective } from '../data/progress.js?v=b7ef3fbff3c8';
-import { wagonLook } from './wagon.js?v=b7ef3fbff3c8';
-import { medalSearchSteps, medalChestSteps } from './casino.js?v=b7ef3fbff3c8';
-import { stepHazard } from './hazards.js?v=b7ef3fbff3c8';
-import { noteDungeonEntry } from './escape.js?v=b7ef3fbff3c8';
+import { makeRng } from '../rng.js?v=a976b8a231af';
+import { MAPS, isBlocked, effectiveTile, condOk, searchLoot, sparkleLoot, tileAt, POS, SEA_PLACES, standSpot } from '../maps/index.js?v=a976b8a231af';
+import { PLACES } from '../maps/overworld.js?v=a976b8a231af';
+import { T, TILE_INFO } from '../tiles.js?v=a976b8a231af';
+import { ITEMS } from '../data/items.js?v=a976b8a231af';
+import { JOBS } from '../data/jobs.js?v=a976b8a231af';
+import { newCharacter, computeStats, addItem, fullHeal, migrateJobs, fixBodyJob } from '../stats.js?v=a976b8a231af';
+import { mapState, spawnSymbols, moveSymbols, symbolSnapshot, symbolVisible } from './monsters.js?v=a976b8a231af';
+import { tickFieldChests, fieldChestSnap, fieldChestNear, openFieldChest } from './fieldchests.js?v=a976b8a231af';
+import { chestVanishes } from '../data/fieldchests.js?v=a976b8a231af';
+import { startFieldBattle, battleTick, abortBattle, battleCommand, battleLeave, joinBattle, mineOf, resultDone } from './battles.js?v=a976b8a231af';
+import { runScript, runSteps } from './scripts.js?v=a976b8a231af';
+import { serviceAction, menuAction } from './services.js?v=a976b8a231af';
+import { newParty, partyOf, partyState, syncParty, ensureCompanions, companionWait, PARTY_MAX, befriendLevel, rosterFull, nameOfKey, dropMissingFam } from './party.js?v=a976b8a231af';
+import { hasWagon, dropGoneFamily } from '../data/wagon.js?v=a976b8a231af';
+import { MONSTERS } from '../data/monsters.js?v=a976b8a231af';
+import { CH1_CLEAR_OBJECTIVE } from '../data/story.js?v=a976b8a231af';
+import { upgradeSave, repairChar } from './save.js?v=a976b8a231af';
+import { exportCode, parseCode, importChar } from './transfer.js?v=a976b8a231af';
+import { memorySyncStore, buildSyncOut, applySyncIn, encodeSync, decodeSync, syncSummary } from './sync.js?v=a976b8a231af';
+import { tryTreasureDig, treasureMenu, fixTreasurePos, normalizeTreasure, pruneTreasureStates } from './treasure.js?v=a976b8a231af';
+import { isNightFor, timeFlag, fracFor } from './clock.js?v=a976b8a231af';
+import { onFly, setFlying, moveAllowed, ridingAlong, canFlyMap } from './travel.js?v=a976b8a231af';
+import { migrateSky } from '../data/sky.js?v=a976b8a231af';
+import { migrateCh4 } from '../data/story-ch4.js?v=a976b8a231af';
+import { repairObjective } from '../data/progress.js?v=a976b8a231af';
+import { wagonLook } from './wagon.js?v=a976b8a231af';
+import { medalSearchSteps, medalChestSteps } from './casino.js?v=a976b8a231af';
+import { stepHazard } from './hazards.js?v=a976b8a231af';
+import { noteDungeonEntry } from './escape.js?v=a976b8a231af';
+import { notePyramidMove } from './pyramid.js?v=a976b8a231af';
 
 export const PROTOCOL_VERSION = 1;
 const SPARKLE_RESPAWN_MS = 20 * 60 * 1000;
@@ -546,9 +547,10 @@ export class GameWorld {
   }
 
   // '@night' … 夜の あいだ（夜だけ 出る 人・夜は 家に 帰る 人。パーティーの 時計で）
+  // '@noon'・'@am'・'@pm' … お日さまの むき（第4章の オベリスクの 影。clock.js の timeFlag）
   hasFlagFn(s) {
     const flags = this.worldFlags(s);
-    return (f) => (f === '@night' ? isNightFor(this, s) : !!flags[f]);
+    return (f) => (f[0] === '@' ? timeFlag(f, fracFor(this, s)) : !!flags[f]);
   }
 
   onEnterTile(s, tx, ty) {
@@ -623,6 +625,8 @@ export class GameWorld {
   placeSession(s, mapId, x, y, dir, notify = true, opts = {}) {
     // 洞窟に 入った 場所を おぼえる（みちびきの糸。escape.js）
     noteDungeonEntry(s, { map: s.map, x: s.x, y: s.y, dir: s.dir }, mapId);
+    // のろいの宝の のろいは ピラミッドの 外に 出ると とける（world/pyramid.js）
+    notePyramidMove(this, s, mapId);
     s.map = mapId;
     s.x = x;
     s.y = y;

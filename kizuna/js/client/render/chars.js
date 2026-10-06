@@ -2,9 +2,9 @@
 // みため（かみがた・いろ）と そうび（ぶき・よろい・たて・かぶと）で かわる
 // 人は 32×42 で くみたてて、2ばいの 64×84 に して こまかく かきたす（res 4: せかいでは 16×21 の 大きさに かく）
 // どうぶつ・船は 16×21 など
-import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=b7ef3fbff3c8';
-import { ITEMS, baseItemId } from '../../shared/data/items.js?v=b7ef3fbff3c8';
-import { STARTER_EQUIP } from '../../shared/stats.js?v=b7ef3fbff3c8';
+import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=a976b8a231af';
+import { ITEMS, baseItemId } from '../../shared/data/items.js?v=a976b8a231af';
+import { STARTER_EQUIP } from '../../shared/stats.js?v=a976b8a231af';
 
 export const CW = 16;
 export const CH = 21;
@@ -251,6 +251,8 @@ const NPC_LOOKS = {
   desert_girl: { hair: 0, hairStyle: 'twin', skin: 2, outfit: 'dress', cloth: '#e8b84a', female: true, small: true, hat: 'circlet', hatGem: '#e8303a' },
   desert_girl2: { hair: 1, hairStyle: 'pony', skin: 1, outfit: 'dress', cloth: '#8a5ac8', female: true, small: true, hat: 'shawl', hatColor: '#f08cc0' },
   desert_kid2: { hair: 1, hairStyle: 'short', skin: 1, outfit: 'tunic', cloth: '#3a8a8a', small: true, hat: 'keffiyeh', hatColor: '#f4f0e4', hatTrim: '#3a8a8a' },
+  // 王家のピラミッド（Step 4）: 2階の 入り口に いる 昔の 探検家の ゆうれい（青白い すがた）
+  explorer_ghost: { hair: '#b8c8e0', hairStyle: 'short', skin: '#d4e4f4', outfit: 'traveler', cloth: '#8aa4c4', beard: true, hat: 'keffiyeh', hatColor: '#e4eef8', hatTrim: '#9ab0cc' },
   // 闘技場の 受付・力じまんの 戦士
   arena_clerk: { hair: 0, hairStyle: 'short', skin: 2, outfit: 'vest', cloth: '#8a2a2a', beard: true, hat: 'turban', hatColor: '#f2c14e' },
   fighter: { hair: 0, hairStyle: 'bald', skin: 2, outfit: 'gi', cloth: '#c8503a', beard: true, hat: 'headband', hatColor: '#f2c14e' },
@@ -2094,6 +2096,59 @@ export function paintSpecial(kind, dir, f) {
       oc = OUT;
       break;
     }
+    // ───── 第4章 Step 4（王家のピラミッド）─────
+    case 'obelisk':
+      return paintObelisk();
+    case 'gold_pot': {
+      // 金色の つぼ（ほんとうは のろいのつぼ が 化けている。ときどき きらり）
+      const G = '#eab634', GL = '#ffe070', GD = '#a8700e', GH = '#fff6c0', L = '#2a54b0', LD = '#16306e';
+      p.ellipse(8, 14, 6, 5.5, GD); p.ellipse(7.6, 13.6, 5.6, 5.1, G);
+      p.rect(5, 6, 6, 3, G); p.hline(5, 10, 6, GL); p.vline(10, 6, 8, GD);
+      p.ellipse(8, 5.5, 4, 1.6, GD); p.ellipse(8, 5.2, 3.6, 1.2, GL);
+      p.rect(7, 3, 2, 2, G); p.set(7, 3, GH);
+      // 青い おび（ラピスラズリ）と 金の かざり
+      p.hline(2, 13, 12, L); p.hline(3, 12, 13, LD);
+      for (const x of [4, 7, 10]) p.set(x, 12, GL);
+      p.set(5, 10, GH); p.set(4, 11, GL); p.set(5, 16, GL);
+      // とって
+      p.set(2, 9, GD); p.set(1, 10, GD); p.set(1, 11, GD); p.set(13, 9, GD); p.set(14, 10, GD); p.set(14, 11, GD);
+      if (f) { p.set(12, 4, '#ffffff'); p.set(11, 3, GH); p.set(13, 3, GH); p.set(12, 2, GH); p.set(12, 5, GH); }
+      oc = '#5a3608';
+      break;
+    }
+    case 'moon_mirror': {
+      // 月の鏡（王の 台の 前に うかぶ。銀の わくに 月の 光）
+      const b = f; // ふわふわ
+      p.ellipse(8, 18.5, 4, 1.2, '#3a2a40');
+      p.ellipse(8, 9 - b, 6.4, 6.4, '#8a94b8');
+      p.ellipse(8, 9 - b, 5.6, 5.6, '#d8e0f4');
+      p.ellipse(8, 9 - b, 4.4, 4.4, '#7ab8e8');
+      p.ellipse(7.4, 8.4 - b, 3.4, 3.4, '#b8e4ff');
+      p.ellipse(6.8, 7.6 - b, 1.6, 1.6, '#f0fbff');
+      // 上の 三日月の かざり
+      p.set(7, 1 - b, '#fff2a0'); p.set(8, 1 - b, '#fff2a0'); p.set(6, 2 - b, '#fff2a0'); p.set(9, 2 - b, '#e8c050');
+      p.rect(7, 15 - b, 2, 2, '#8a94b8');
+      if (f) { p.set(2, 4, '#ffffff'); p.set(14, 10, '#e6f6ff'); } else { p.set(13, 3, '#ffffff'); p.set(3, 13, '#e6f6ff'); }
+      oc = '#2a3a6a';
+      break;
+    }
+    case 'gold_sword': {
+      // 王家の黄金の剣（石の 台に ささっている。まわりに 黒い もや）
+      const G = '#f2c14e', GL = '#fff0a0', GD = '#a8700e', S = '#c8ae78', SD = '#8a6e40', M = '#4a2a6a', MD = '#2a1640';
+      // 台
+      p.rect(3, 15, 10, 5, S); p.hline(3, 12, 15, '#e2cc98'); p.vline(12, 16, 19, SD); p.hline(3, 12, 19, SD);
+      // 刀身（金色。台に ささっている）
+      p.rect(7, 4, 2, 11, GL); p.vline(8, 4, 14, G); p.set(7, 3, GL);
+      // つば と つか
+      p.hline(4, 11, 3, GD); p.hline(5, 10, 2, G);
+      p.vline(7, 0, 1, '#8a3a1a'); p.vline(8, 0, 1, '#6a2a10');
+      p.set(7, 2, '#e8303a');
+      // のろいの 黒い もや（コマで うごく）
+      const mist = f ? [[2, 6], [13, 9], [3, 12], [12, 4], [1, 9]] : [[3, 5], [12, 7], [2, 11], [13, 12], [14, 5]];
+      for (const [x, y] of mist) { p.set(x, y, M); p.set(x + 1, y, MD); p.set(x, y + 1, MD); }
+      oc = '#3a2408';
+      break;
+    }
     case 'none':
       break;
     case 'ship':
@@ -2114,6 +2169,39 @@ function fine(p, oc) {
   rimShade(q, 0.2, 0.16);
   if (oc) outline2(q, oc, 0.4);
   return q;
+}
+
+// オベリスク（王家のピラミッドの 前の 大きな 石の 柱。てっぺんは 金色の 小さな ピラミッド。どの むきも おなじ）
+// 人より ずっと 高い（14×46）。ひかりは 左から。柱の まん中に たてに 絵文字
+function paintObelisk() {
+  const W = 14, H = 46, p = new Painter(W, H);
+  const S = '#d8c08c', SL = '#f2e0b4', SD = '#a88a58', SDD = '#86683c', GLY = '#7a6038', G = '#ffd84a', GL = '#fff4b8', GD = '#c88e1e';
+  // 柱（下が ふとく、上が ほそい）
+  for (let y = 6; y < H; y++) {
+    const half = 3 + Math.round(((y - 6) / (H - 6)) * 2.4);
+    const x0 = 7 - half, x1 = 6 + half;
+    p.hline(x0, x1, y, S);
+    p.set(x0, y, SL); p.set(x0 + 1, y, SL);
+    p.set(x1, y, SDD); p.set(x1 - 1, y, SD);
+  }
+  // てっぺんの 金の ピラミッド
+  for (let y = 0; y < 6; y++) {
+    const half = Math.round(y * 0.6) + 1;
+    p.hline(7 - half, 6 + half, y, G);
+    p.set(7 - half, y, GL);
+    p.set(6 + half, y, GD);
+  }
+  p.set(6, 0, GL); p.set(7, 0, G);
+  // 絵文字（上から 太陽・目・鳥・アンク・波）
+  const glyphs = [
+    [[6, 9], [7, 9], [5, 10], [8, 10], [6, 11], [7, 11]],
+    [[5, 15], [6, 15], [7, 15], [8, 15], [6, 16], [7, 16]],
+    [[6, 20], [7, 20], [5, 21], [6, 21], [7, 22], [6, 23]],
+    [[6, 27], [7, 27], [5, 28], [8, 28], [6, 29], [7, 29], [6, 30], [7, 30], [5, 31], [8, 31]],
+    [[5, 35], [7, 35], [6, 36], [8, 36], [5, 37], [7, 37]],
+  ];
+  for (const g of glyphs) for (const [x, y] of g) p.set(x, y, GLY);
+  return fine(p, '#4a3418');
 }
 
 // 大臣ザイードの 影（月明かりに うつった、大きな 砂の 魔神の 形。第4章 Step 3 の 夜の 中庭。どの むきも おなじ）

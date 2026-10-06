@@ -25,6 +25,11 @@ export const T = {
   CANAL_FLOOR: 127, CANAL_WALL: 128, CANAL_BED: 129, CANAL_WATER: 130, SLUICE: 131, SLUICE_OPEN: 132, GRATE: 133, DAM: 134,
   // 第4章 Step 3（王都サファラ）
   DRY_FOUNTAIN: 135,
+  // 第4章 Step 4（王家のピラミッド・オベリスク・日時計の とびら・歌の ボタン・流れる 砂・ありじごく）
+  PYRAMID: 136, PYR_DOOR: 137, PYR_GATE: 138, OBELISK_BASE: 139, SUN_SHADOW: 140,
+  BTN_SUN: 141, BTN_SAND: 142, BTN_MOON: 143, BTN_STAR: 144, BTN_SUN_ON: 145, BTN_SAND_ON: 146, BTN_MOON_ON: 147, BTN_STAR_ON: 148,
+  FLOW_N: 149, FLOW_E: 150, FLOW_S: 151, FLOW_W: 152, SAND_PIT: 153,
+  PYR_CRACK: 154, PYR_SLAB: 155, SARCOPHAGUS: 156, PYR_ALTAR: 157, PYR_GLYPH: 158, SEAL_RUNE: 159,
 };
 
 export const TILE_INFO = {};
@@ -147,6 +152,26 @@ def(T.GRATE, 'grate', { solid: true, mapColor: '#55555e' }); // 水路の 入り
 def(T.DAM, 'dam', { solid: true, mapColor: '#7e6044' }); // 魔物が つみ上げた がれきの せき
 // 王都サファラ（Step 3）
 def(T.DRY_FOUNTAIN, 'dry_fountain', { solid: true, mapColor: '#bfae8c' }); // 水が かれた ふん水（石の ふちと ひびわれた 底。まん中は ふき出し口）
+// 王家のピラミッド（Step 4）
+// flow: 流れる 砂（のると その むきへ 流される。client/field.js・maps/flow.js）/ pit: ありじごく（下の 階へ おちる。マップの ワープ）
+def(T.PYRAMID, 'pyramid', { solid: true, mapColor: '#dcb86c' }); // ピラミッド（フィールドの 大きな 石の 山。まん中ほど 高い）
+def(T.PYR_DOOR, 'pyr_door', { solid: true, mapColor: '#a8844a' }); // 日時計の とびら（しまった 大きな 石）
+def(T.PYR_GATE, 'pyr_gate', { mapColor: '#3a2a18' }); // 開いた とびら（ピラミッドの 中へ）
+def(T.OBELISK_BASE, 'obelisk_base', { mapColor: '#b89a6a' }); // オベリスクの 台（石の 柱は 人の え。client/render/chars.js）
+def(T.SUN_SHADOW, 'sun_shadow', { mapColor: '#b8945a' }); // オベリスクの 影（お日さまの むきで のびる）
+for (const [id, name] of [[T.BTN_SUN, 'btn_sun'], [T.BTN_SAND, 'btn_sand'], [T.BTN_MOON, 'btn_moon'], [T.BTN_STAR, 'btn_star']]) def(id, name, { solid: true, mapColor: '#b8985a' }); // 歌の ボタン（石の 台）
+for (const [id, name] of [[T.BTN_SUN_ON, 'btn_sun_on'], [T.BTN_SAND_ON, 'btn_sand_on'], [T.BTN_MOON_ON, 'btn_moon_on'], [T.BTN_STAR_ON, 'btn_star_on']]) def(id, name, { solid: true, light: true, mapColor: '#ffd66b' }); // 光った ボタン
+def(T.FLOW_N, 'flow_n', { flow: [0, -1], anim: true, mapColor: '#e6c27c' }); // 流れる 砂（北へ）
+def(T.FLOW_E, 'flow_e', { flow: [1, 0], anim: true, mapColor: '#e6c27c' }); // 流れる 砂（東へ）
+def(T.FLOW_S, 'flow_s', { flow: [0, 1], anim: true, mapColor: '#e6c27c' }); // 流れる 砂（南へ）
+def(T.FLOW_W, 'flow_w', { flow: [-1, 0], anim: true, mapColor: '#e6c27c' }); // 流れる 砂（西へ）
+def(T.SAND_PIT, 'sand_pit', { pit: true, anim: true, mapColor: '#5a3a1e' }); // ありじごく（砂が すいこまれる あな。下の 階へ）
+def(T.PYR_CRACK, 'pyr_crack', { solid: true, mapColor: '#8a6a40' }); // ひびの 入った かべ（かくしべやの 入り口）
+def(T.PYR_SLAB, 'pyr_slab', { solid: true, mapColor: '#9a7a4a' }); // 石の とびら（レバーで 開く ぬけ道）
+def(T.SARCOPHAGUS, 'sarcophagus', { solid: true, mapColor: '#c8a040' }); // 金の ひつぎ
+def(T.PYR_ALTAR, 'pyr_altar', { solid: true, talkThrough: true, mapColor: '#d8c070' }); // 王の 台（月の鏡）
+def(T.PYR_GLYPH, 'pyr_glyph', { solid: true, mapColor: '#8a6a3a' }); // 絵文字の きざまれた かべ
+def(T.SEAL_RUNE, 'seal_rune', { mapColor: '#8a6ab8' }); // 呪文を すいこむ もんしょう（2階の ゆか）
 
 export function isSolid(id) {
   return TILE_INFO[id]?.solid ?? true;

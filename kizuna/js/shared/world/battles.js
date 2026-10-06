@@ -1,21 +1,21 @@
 // たたかいの はじまりと おわり（ほうしゅう・ぜんめつ）
-import { Battle, normBattleSettings } from '../battle.js?v=b7ef3fbff3c8';
-import { scaleExp } from '../data/difficulty.js?v=b7ef3fbff3c8';
-import { MONSTERS } from '../data/monsters.js?v=b7ef3fbff3c8';
-import { ITEMS } from '../data/items.js?v=b7ef3fbff3c8';
-import { ABILITIES } from '../data/abilities.js?v=b7ef3fbff3c8';
-import { JOBS } from '../data/jobs.js?v=b7ef3fbff3c8';
-import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=b7ef3fbff3c8';
-import { gainExp, gainJobBattles, jobTrainMult, itemCount, removeItem, addItem, ownsItem, computeStats, STAT_NAMES, fullHeal } from '../stats.js?v=b7ef3fbff3c8';
-import { JOB_MAX_LEVEL } from '../data/jobs.js?v=b7ef3fbff3c8';
-import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf, PARTY_MAX } from './party.js?v=b7ef3fbff3c8';
-import { rollDrops, stealPick } from '../data/loot.js?v=b7ef3fbff3c8';
-import { MAPS } from '../maps/index.js?v=b7ef3fbff3c8';
-import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js?v=b7ef3fbff3c8';
-import { treasureAfterBattle } from './treasure.js?v=b7ef3fbff3c8';
-import { wipeGoldLoss, bankGold } from './bank.js?v=b7ef3fbff3c8';
-import { wagonShare, wagonBattleSwap } from './wagon.js?v=b7ef3fbff3c8';
-import { battleTactics } from './tactics.js?v=b7ef3fbff3c8';
+import { Battle, normBattleSettings } from '../battle.js?v=a976b8a231af';
+import { scaleExp } from '../data/difficulty.js?v=a976b8a231af';
+import { MONSTERS } from '../data/monsters.js?v=a976b8a231af';
+import { ITEMS } from '../data/items.js?v=a976b8a231af';
+import { ABILITIES } from '../data/abilities.js?v=a976b8a231af';
+import { JOBS } from '../data/jobs.js?v=a976b8a231af';
+import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=a976b8a231af';
+import { gainExp, gainJobBattles, jobTrainMult, itemCount, removeItem, addItem, ownsItem, computeStats, STAT_NAMES, fullHeal } from '../stats.js?v=a976b8a231af';
+import { JOB_MAX_LEVEL } from '../data/jobs.js?v=a976b8a231af';
+import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf, PARTY_MAX } from './party.js?v=a976b8a231af';
+import { rollDrops, stealPick } from '../data/loot.js?v=a976b8a231af';
+import { MAPS } from '../maps/index.js?v=a976b8a231af';
+import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js?v=a976b8a231af';
+import { treasureAfterBattle } from './treasure.js?v=a976b8a231af';
+import { wipeGoldLoss, bankGold } from './bank.js?v=a976b8a231af';
+import { wagonShare, wagonBattleSwap } from './wagon.js?v=a976b8a231af';
+import { battleTactics } from './tactics.js?v=a976b8a231af';
 
 let battleSeq = 1;
 
@@ -129,6 +129,8 @@ function makeBattle(world, sessions, party, enemies, opts) {
     wait: !!settings.wait,
     canFlee: opts.canFlee !== false,
     boss: !!opts.boss,
+    // 呪文が ふうじられた マップ（王家のピラミッド 2階）
+    noSpells: !!MAPS[sessions[0]?.map]?.noSpells,
     bg: opts.bg,
     bgm: opts.bgm,
     bond: party.bond || 0,

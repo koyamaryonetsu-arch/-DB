@@ -1,16 +1,16 @@
 // だいほん（イベント）を すすめる しくみ
-import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js?v=b7ef3fbff3c8';
-import { ITEMS } from '../data/items.js?v=b7ef3fbff3c8';
-import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js?v=b7ef3fbff3c8';
-import { startFixedBattle } from './battles.js?v=b7ef3fbff3c8';
-import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=b7ef3fbff3c8';
-import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion, befriendLevel } from './party.js?v=b7ef3fbff3c8';
-import { openService } from './services.js?v=b7ef3fbff3c8';
-import { isNightFor, advanceClock } from './clock.js?v=b7ef3fbff3c8';
-import { grantWagon, wagonChars } from './wagon.js?v=b7ef3fbff3c8';
-import { GUESTS } from '../data/shops.js?v=b7ef3fbff3c8';
-import { unstickAll } from './hazards.js?v=b7ef3fbff3c8';
-import { MAPS, isBlocked } from '../maps/index.js?v=b7ef3fbff3c8';
+import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js?v=a976b8a231af';
+import { ITEMS } from '../data/items.js?v=a976b8a231af';
+import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js?v=a976b8a231af';
+import { startFixedBattle } from './battles.js?v=a976b8a231af';
+import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=a976b8a231af';
+import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion, befriendLevel } from './party.js?v=a976b8a231af';
+import { openService } from './services.js?v=a976b8a231af';
+import { isNightFor, advanceClock, fracFor } from './clock.js?v=a976b8a231af';
+import { grantWagon, wagonChars } from './wagon.js?v=a976b8a231af';
+import { GUESTS } from '../data/shops.js?v=a976b8a231af';
+import { unstickAll } from './hazards.js?v=a976b8a231af';
+import { MAPS, isBlocked } from '../maps/index.js?v=a976b8a231af';
 
 let runSeq = 1;
 
@@ -18,6 +18,7 @@ let runSeq = 1;
 //  s … 話しかけた 人 / owner … その 世界の もちぬし（さそわれて 手伝っている ときは リーダー）
 //  ものがたりの すすみぐあい（フラグ・大事な物・たのまれごと）は owner、ふつうの 道具は 話しかけた 人
 //  night … 夜か（パーティーの 時計。world/clock.js）/ helper … さそわれて 手伝っている 人
+//  clock … 1日の わりあい（パーティーの 時計。0 が 朝6時。第4章の 日時計の とびら。ない ときは null）
 export function scriptCtx(s, owner = s, world = null) {
   const c = s.char;
   const o = owner.char;
@@ -25,6 +26,7 @@ export function scriptCtx(s, owner = s, world = null) {
     c,
     name: c.name,
     night: world ? isNightFor(world, owner) : false,
+    clock: world ? fracFor(world, owner) : null,
     helper: s !== owner,
     flag: (f) => !!o.flags[f],
     has: (id) => hasKeyItem(o, id) || (ITEMS[id]?.type !== 'key' && itemCount(c, id) > 0),
@@ -403,6 +405,14 @@ export class ScriptRun {
         case 'spawn': {
           const [map, x, y] = a;
           this.owner.char.spawn = { map, x, y };
+          break;
+        }
+        case 'curse': {
+          // のろいの宝（第4章の 王家のピラミッド）: いっしょに いる みんなに のろい。ピラミッドの 外に 出ると とける（world/pyramid.js）
+          for (const m of all) {
+            if (a[0]) m.char.pyrCurse = true;
+            else delete m.char.pyrCurse;
+          }
           break;
         }
         case 'shop': case 'jobChange': case 'tavern': case 'board': case 'starTrade': case 'church': case 'bank': case 'forge': case 'casino': case 'medalKing': case 'salon': {

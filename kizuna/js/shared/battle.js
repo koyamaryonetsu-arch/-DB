@@ -7,15 +7,15 @@
 //
 // サーバー（家族サーバー）でも ブラウザ（ひとりモード）でも おなじ コードが うごく
 
-import { makeRng } from './rng.js?v=b7ef3fbff3c8';
-import { ABILITIES } from './data/abilities.js?v=b7ef3fbff3c8';
-import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=b7ef3fbff3c8';
-import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js?v=b7ef3fbff3c8';
-import { MONSTERS } from './data/monsters.js?v=b7ef3fbff3c8';
-import { ITEMS } from './data/items.js?v=b7ef3fbff3c8';
-import { JOBS } from './data/jobs.js?v=b7ef3fbff3c8';
-import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed, battleAbilityOk } from './stats.js?v=b7ef3fbff3c8';
-import { decideMonster, decideAlly } from './ai.js?v=b7ef3fbff3c8';
+import { makeRng } from './rng.js?v=a976b8a231af';
+import { ABILITIES } from './data/abilities.js?v=a976b8a231af';
+import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=a976b8a231af';
+import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js?v=a976b8a231af';
+import { MONSTERS } from './data/monsters.js?v=a976b8a231af';
+import { ITEMS } from './data/items.js?v=a976b8a231af';
+import { JOBS } from './data/jobs.js?v=a976b8a231af';
+import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed, battleAbilityOk } from './stats.js?v=a976b8a231af';
+import { decideMonster, decideAlly } from './ai.js?v=a976b8a231af';
 
 export const BOND_MAX = 100;
 // きずなゲージの たまりやすさ（1 … はじめの 版。ちいさいほど たまりにくい）
@@ -191,6 +191,8 @@ export class Battle {
     this.wait = !!opts.wait;
     this.canFlee = opts.canFlee !== false;
     this.boss = !!opts.boss;
+    // 呪文が ふうじられた 場所（第4章 Step 4 の 王家のピラミッド 2階）: みかたも 敵も 呪文が 使えない（特技・道具は 使える）
+    this.noSpells = !!opts.noSpells;
     this.bg = opts.bg || 'grass';
     this.bgm = opts.bgm || 'battle';
     this.bond = Math.max(0, Math.min(BOND_MAX, opts.bond || 0));
@@ -509,11 +511,13 @@ export class Battle {
         if (!weaponOk(a, c.weaponCat)) return { ok: false, reason: '武器が合わない' };
         // フィールドだけの 呪文・かくれた 技（コマンドに 出す 技と おなじ きまり。stats.js の battleAbilityOk）
         if (!battleAbilityOk(c.penChar, cmd.id, c.weaponCat)) return { ok: false, reason: '戦いでは使えない' };
+        if (this.noSpells && spellSealed(a)) return { ok: false, reason: SEALED_REASON };
         if (mpCost(c.penChar, cmd.id) > c.mp) return { ok: false, reason: 'MPが足りない' };
         return { ok: true };
       }
       case 'mahouken': {
         if (!c.abilities.includes('mahouken')) return { ok: false, reason: 'まだ覚えていない' };
+        if (this.noSpells) return { ok: false, reason: SEALED_REASON };
         if (!comboAllowed(c.penChar, 'mahouken')) return { ok: false, reason: '今の職業では使えない' };
         const sp = ABILITIES[cmd.spell], sk = ABILITIES[cmd.skill];
         if (!sp?.attackSpell || !sk?.sword || !c.abilities.includes(cmd.spell) || !c.abilities.includes(cmd.skill)) return { ok: false, reason: 'bad' };
@@ -734,7 +738,7 @@ export class Battle {
         const targets = this.targetsFor(c, a, cmd);
         const firstTarget = ['enemy', 'group', 'ally', 'deadAlly'].includes(a.target) ? targets[0] : null;
         // 使った 回数を かぞえて、ひらめきの チャンス（ふうじられて いない・MP が たりる とき）
-        if (c.side === 'ally' && !(isSpell && c.status.silence) && cost <= c.mp) {
+        if (c.side === 'ally' && !(isSpell && (c.status.silence || this.noSpells)) && cost <= c.mp) {
           this.countUse(c, cmd.id);
           const hid = this.rollHirameki(c, cmd.id, cmd);
           if (hid) {
@@ -744,6 +748,11 @@ export class Battle {
         }
         ev.lines.push(cast(a.cast || `{a}は${a.name}を使った！`, firstTarget));
         this.pushCoverMsg(ev);
+        if (isSpell && this.noSpells) {
+          ev.lines.push('しかし呪文の力が、すいこまれてしまった！');
+          ev.fx = { type: 'fizzle', actor: c.id };
+          break;
+        }
         if (isSpell && c.status.silence) {
           ev.lines.push('しかし呪文はふうじこめられている！');
           ev.fx = { type: 'fizzle', actor: c.id };
@@ -875,7 +884,7 @@ export class Battle {
     const targets = givenTargets || this.targetsFor(c, a, cmd);
     this.pushCoverMsg(ev);
     ev.fx = { type: 'ability', anim: a.anim, actor: c.id, targets: targets.map((t) => t.id), side: c.side, element: eff.element };
-    if (!targets.length && !['callHelp', 'flee', 'nothing', 'telegraph', 'stance', 'charge', 'bondUp', 'escape', 'goldThrow'].includes(eff.type)) {
+    if (!targets.length && !['callHelp', 'flee', 'nothing', 'telegraph', 'stance', 'charge', 'bondUp', 'escape', 'goldThrow', 'reviveAll'].includes(eff.type)) {
       ev.lines.push('しかし効果がなかった！');
       return;
     }
@@ -993,7 +1002,11 @@ export class Battle {
         break;
       }
       case 'status': {
-        for (const t of targets) this.tryStatus(c, t, eff, ev, powMult);
+        // also … もう1つの じょうたい いじょう（王の呪い: 毒と マヌーサ）
+        for (const t of targets) {
+          this.tryStatus(c, t, eff, ev, powMult);
+          if (eff.also && t.alive) this.tryStatus(c, t, eff.also, ev, powMult);
+        }
         break;
       }
       case 'cure': {
@@ -1150,14 +1163,41 @@ export class Battle {
         ev.upd.push(c);
         break;
       }
+      case 'reviveAll': {
+        // よみがえりの呪文（ミイラの王アンク）: たおれた なかまの 魔物（species）が みんな 生き返る
+        const back = this.sideOf(c, true).filter((x) => !x.alive && !x.fled && x !== c && (!eff.species || x.species === eff.species));
+        if (!back.length) {
+          ev.lines.push('しかし、何も起こらなかった…。');
+          break;
+        }
+        for (const t of back) {
+          Object.assign(t, { alive: true, hp: Math.max(1, Math.round(t.maxHp * (eff.hpRatio ?? 1))), status: {}, buffs: {}, debuffs: {}, ready: false, queued: false, telegraph: null, stance: null, chant: null });
+          t.atb = this.rng.float(0, 30);
+          // 経験値は 1回 たおした ぶんだけ（生き返った ぶんは かぞえなおす）
+          const k = this.killed.lastIndexOf(t.species);
+          if (k >= 0) this.killed.splice(k, 1);
+          ev.upd.push(t);
+        }
+        ev.fx = { type: 'ability', anim: 'revive', actor: c.id, targets: back.map((t) => t.id), side: c.side, revive: true };
+        ev.lines.push(`${back.map((t) => t.name).join('と')}が生き返った！`);
+        break;
+      }
       case 'telegraph': {
         c.telegraph = eff.next;
         ev.fx = { type: 'telegraph', actor: c.id };
         ev.warn = true;
-        // このターンの のこりの こうどうは とりやめ（みんなが そなえる じかんを つくる）
+        // となえる 呪文（よみがえりの呪文）: つぎの 番までに 最大HPの eff.chant ぶんの ダメージで とぎれる（damage）
+        if (eff.chant) {
+          c.chant = { need: Math.max(1, Math.round(c.maxHp * eff.chant)), dmg: 0 };
+          ev.fx.chant = true;
+          ev.lines.push(`（${c.name}に大きなダメージをあたえれば、呪文を止められそうだ…！）`);
+          ev.upd.push(c);
+        }
+        // このターンの のこりの こうどうは とりやめ（みんなが そなえる じかんを つくる）。
+        // windup … つぎの 番までの ゲージを その ぶん ながく する（となえる 呪文を 止める じかん）
         this.queue = this.queue.filter((q) => q.id !== c.id);
         ev.forceLast = true;
-        ev.atbAfter = 0;
+        ev.atbAfter = -(eff.windup || 0);
         break;
       }
       case 'flee': {
@@ -1315,12 +1355,22 @@ export class Battle {
     ev.dealt = (ev.dealt || 0) + dmg;
     ev.lastTarget = t;
     if (t.side === 'ally' && dmg >= t.maxHp * 0.05) this.addBond(1);
+    // 呪文を となえて いる 敵（よみがえりの呪文）: ダメージが たまると とぎれる
+    if (t.chant && t.hp > 0) {
+      t.chant.dmg += dmg;
+      if (t.chant.dmg >= t.chant.need) {
+        t.chant = null;
+        t.telegraph = null;
+        ev.lines.push(`${t.name}の呪文がとぎれた！`);
+        ev.chantBreak = t.id;
+      }
+    }
     // ねむりは ダメージで おきることがある
     if (t.status.sleep && t.hp > 0 && this.rng.chance(0.5)) {
       delete t.status.sleep;
       ev.lines.push(`${t.name}は目を覚ました！`);
     }
-    if (t.hp <= 0) ev.lines.push(...this.kill(t));
+    if (t.hp <= 0) ev.lines.push(...this.kill(t, info.element, ev));
     else if (t.boss) this.checkPhase(t, ev);
   }
 
@@ -1331,7 +1381,18 @@ export class Battle {
     return affinityOf(t.resist?.[element] ?? 1);
   }
 
-  kill(t) {
+  // element … とどめの 属性（ミイラ兵は 炎・光で とどめを さされると 起き上がれない）
+  // ev … その こうどうの イベント（ボスと いっしょに くずれおちる 手下も ev.upd に のせる）
+  kill(t, element = null, ev = null) {
+    // 1回だけ 起き上がる 魔物（ミイラ兵。monsters の revive）
+    const rv = t.side === 'enemy' && !t.revived ? MONSTERS[t.species]?.revive : null;
+    if (rv && !(rv.not || []).includes(element)) {
+      t.revived = true;
+      t.hp = Math.max(1, Math.round(t.maxHp * (rv.hp ?? 0.5)));
+      t.status = {};
+      return [`${t.name}を倒した…と思ったら、ほうたいをまき直して起き上がった！`];
+    }
+    const blocked = rv && (rv.not || []).includes(element) ? [`${t.name}のほうたいが、${element === 'fire' ? 'もえつきた' : 'くずれさった'}！`] : [];
     t.alive = false;
     t.hp = 0;
     t.ready = false;
@@ -1342,12 +1403,22 @@ export class Battle {
     t.cover = null;
     t.telegraph = null;
     t.stance = null;
+    t.chant = null;
     for (const q of this.queue) if (q.id === t.id && q.cmd?.type === 'dual') this.releasePartner(q.cmd.partner);
     this.queue = this.queue.filter((q) => q.id !== t.id);
     for (const inv of [...this.invites.values()]) if (inv.from === t.id || inv.to === t.id) this.endInvite(inv, '倒れた');
     if (t.side === 'enemy') {
       this.killed.push(t.species);
-      return [`${t.name}を倒した！`];
+      const out = [...blocked, `${t.name}を倒した！`];
+      // ボスの 力で うごいていた 手下は、ボスが たおれると いっしょに くずれおちる（ミイラの王アンクと 王のミイラ兵。monsters の minionsFall）
+      const fall = MONSTERS[t.species]?.minionsFall;
+      const minions = fall ? this.enemies.filter((m) => m.alive && m !== t && fall.includes(m.species)) : [];
+      for (const m of minions) {
+        this.kill(m);
+        if (ev) ev.upd.push(m);
+      }
+      if (minions.length) out.push(MONSTERS[t.species].fallMsg || '手下の魔物たちも、くずれおちた！');
+      return out;
     }
     this.addBond(5);
     return [`${t.name}は死んでしまった！`];
@@ -1460,7 +1531,8 @@ export class Battle {
       const a = ABILITIES[id];
       if (!a || !hiraAllowed(c.penChar, id)) continue;
       if (a.weapon && !weaponOk(a, c.weaponCat)) continue;
-      if ((a.kind === 'spell' || a.spellLike) && c.status.silence) continue;
+      if ((a.kind === 'spell' || a.spellLike) && (c.status.silence || this.noSpells)) continue;
+      if (a.effect.type === 'mahouken' && this.noSpells) continue;
       if (a.effect.type !== 'mahouken' && !this.hiraTargets(c, a, cmd)) continue;
       const chance = hiraChance(hiraRatio(c.use, h.from));
       if (chance > 0 && this.rng.chance(chance)) return id;
@@ -1526,7 +1598,8 @@ export class Battle {
       inviting: !exec && x !== c && !!(x.inviting || x.invited),
       // ほかの 人の 合体技を まっている・まって もらって いる
       waiting: x !== c && (!!x.waitDual || (!!x.dualTarget && x.dualTarget !== c.id)),
-      statuses: Object.keys(x.status || {}), weaponCat: x.weaponCat,
+      // 呪文が ふうじられた 場所では、呪文の 合体技は 出せない（マホトーンと おなじ）
+      statuses: [...Object.keys(x.status || {}), ...(this.noSpells ? ['silence'] : [])], weaponCat: x.weaponCat,
       usable: (id) => {
         const a = ABILITIES[id];
         return !!a && (a.kind !== 'combo' || comboAllowed(x.penChar, id)) && weaponOk(a, x.weaponCat);
@@ -1726,6 +1799,10 @@ export class Battle {
     ev.name = name;
     ev.lines.push(`${c.name}は剣に${sp.name}を宿らせた！`);
     ev.lines.push(`${name}！`);
+    if (this.noSpells) {
+      ev.lines.push('しかし呪文の力が、すいこまれてしまった！');
+      return;
+    }
     if (c.status.silence) {
       ev.lines.push('しかし呪文はふうじこめられている！');
       return;
@@ -1951,6 +2028,7 @@ export class Battle {
       bgm: this.bgm,
       boss: this.boss,
       canFlee: this.canFlee,
+      noSpells: this.noSpells,
       bond: this.bond,
       speed: this.speed,
       textSpeed: this.textSpeed,
@@ -2054,6 +2132,8 @@ export function pub(c) {
     atb: Math.round(c.atb * 10) / 10, rate: atbRate(c),
     ready: !!c.ready, queued: !!c.queued, alive: !!c.alive, fled: !!c.fled, status: st, buffs,
     defending: !!c.defending, telegraph: !!c.telegraph, stance: c.stance?.kind || null, boss: !!c.boss, size: c.size, slot: c.slot,
+    // 呪文を となえて いる（よみがえりの呪文）: とぎれるまでの ダメージの たまりぐあい（0〜1）
+    chant: c.chant ? Math.min(1, Math.round((c.chant.dmg / c.chant.need) * 100) / 100) : null,
     abilities: c.side === 'ally' ? c.abilities : undefined,
     weaponCat: c.side === 'ally' ? c.weaponCat : undefined,
     pc: c.side === 'ally' ? c.penChar : undefined,
@@ -2082,6 +2162,12 @@ export function effDfn(c) {
   if (c.buffs?.def) v *= c.buffs.def.mult;
   if (c.debuffs?.def) v *= c.debuffs.def.mult;
   return v;
+}
+
+// 呪文が ふうじられた 場所で 使えない 技（呪文・呪文の ような 技・魔法剣）。client/battle.js の コマンドも おなじ きまり
+export const SEALED_REASON = 'ここでは呪文がふうじられている！';
+export function spellSealed(a) {
+  return !!a && (a.kind === 'spell' || !!a.spellLike || a.effect?.type === 'mahouken');
 }
 
 function statLabel(stat) {
