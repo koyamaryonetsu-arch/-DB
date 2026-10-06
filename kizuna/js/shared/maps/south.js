@@ -6,9 +6,9 @@
 // ・砂嵐のかべ（y=60〜63）… 王都の 方へは まだ 行けない（道の ところは c4_scorpion、ほかは c4_morgana で はれる）
 // ・かべの 南: 王都サファラ（Step 3。道の つきあたり）
 // ・王都の 東の 門の 先: 王家のピラミッドと オベリスク（Step 4。昼の 12時ごろ、オベリスクの 影が とびらを さす）。砂の港ドゥナは Step 6 から
-import { T, TILE_INFO, parseRows } from '../tiles.js?v=e75f2660bf18';
-import { fbm, hash2 } from '../rng.js?v=e75f2660bf18';
-import { HAMIL_ROWS, SAFARA_ROWS } from './south-rows.js?v=e75f2660bf18';
+import { T, TILE_INFO, parseRows } from '../tiles.js?v=882bfcc52306';
+import { fbm, hash2 } from '../rng.js?v=882bfcc52306';
+import { HAMIL_ROWS, SAFARA_ROWS } from './south-rows.js?v=882bfcc52306';
 
 export const SOUTH_W = 144;
 export const SOUTH_H = 144;

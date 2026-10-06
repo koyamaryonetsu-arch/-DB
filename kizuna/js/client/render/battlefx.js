@@ -1,8 +1,8 @@
 // たたかいの はいけいと エフェクト
-import { makeCanvas, ctxOf, hexToRgb, mix } from './pixel.js?v=e75f2660bf18';
-import { weaponLook, playWeapon, playReach } from './weaponfx.js?v=e75f2660bf18';
-import { nightBg, drawNightSky } from './night-art.js?v=e75f2660bf18';
-import { playJobFx, JOB_FINE } from './battlefx-jobs.js?v=e75f2660bf18';
+import { makeCanvas, ctxOf, hexToRgb, mix } from './pixel.js?v=882bfcc52306';
+import { weaponLook, playWeapon, playReach } from './weaponfx.js?v=882bfcc52306';
+import { nightBg, drawNightSky } from './night-art.js?v=882bfcc52306';
+import { playJobFx, JOB_FINE } from './battlefx-jobs.js?v=882bfcc52306';
 
 export const BW = 256;
 export const BH = 144;

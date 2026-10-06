@@ -37,7 +37,7 @@ function downPage(kind = 'pc') {
   <p class="small">・黒い画面が「続行するには…」で止まった時は、閉じて start.bat をもう一度開く<br>・黒い画面がない時は、start.bat を開く</p>`
     : `<div class="gold">家族サーバーにつながりません</div>
   <p>家のPCまで、通信がとどいていません。</p>
-  <p class="small">・PCの電源が入っているか、スリープしていないか<br>・PCの Tailscale がつながっているか（外からは、このスマホで <a href="https://login.tailscale.com/admin/machines">login.tailscale.com</a> を開くと、PCが「Connected」か見られます）</p>`;
+  <p class="small">・PCの電源が入っているか、スリープしていないか<br>・PCの Tailscale がつながっているか（外からは、このスマホで <a href="https://login.tailscale.com/admin/machines">login.tailscale.com</a> を開くと、PCが「Connected」か見られます）<br>・このページのアドレス（${esc(self.location.host)}）が、家族サーバーの黒い画面の「★外出先から」のアドレスと同じか（PCの名前を変えると、アドレスも変わります）</p>`;
   const html = `<!doctype html>
 <html lang="ja">
 <head>
