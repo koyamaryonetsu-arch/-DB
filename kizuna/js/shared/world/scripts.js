@@ -1,16 +1,16 @@
 // だいほん（イベント）を すすめる しくみ
-import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js?v=895729e9b2d0';
-import { ITEMS } from '../data/items.js?v=895729e9b2d0';
-import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js?v=895729e9b2d0';
-import { startFixedBattle } from './battles.js?v=895729e9b2d0';
-import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=895729e9b2d0';
-import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion, befriendLevel } from './party.js?v=895729e9b2d0';
-import { openService } from './services.js?v=895729e9b2d0';
-import { isNightFor, advanceClock, fracFor } from './clock.js?v=895729e9b2d0';
-import { grantWagon, wagonChars } from './wagon.js?v=895729e9b2d0';
-import { GUESTS } from '../data/shops.js?v=895729e9b2d0';
-import { unstickAll } from './hazards.js?v=895729e9b2d0';
-import { MAPS, isBlocked } from '../maps/index.js?v=895729e9b2d0';
+import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js?v=9147f12cace1';
+import { ITEMS } from '../data/items.js?v=9147f12cace1';
+import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js?v=9147f12cace1';
+import { startFixedBattle } from './battles.js?v=9147f12cace1';
+import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=9147f12cace1';
+import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion, befriendLevel } from './party.js?v=9147f12cace1';
+import { openService } from './services.js?v=9147f12cace1';
+import { isNightFor, advanceClock, fracFor } from './clock.js?v=9147f12cace1';
+import { grantWagon, wagonChars } from './wagon.js?v=9147f12cace1';
+import { GUESTS } from '../data/shops.js?v=9147f12cace1';
+import { unstickAll } from './hazards.js?v=9147f12cace1';
+import { MAPS, isBlocked } from '../maps/index.js?v=9147f12cace1';
 
 let runSeq = 1;
 

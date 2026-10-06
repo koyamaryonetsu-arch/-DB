@@ -2,37 +2,37 @@
 //
 // クライアントとは メッセージ（JSON）で やりとりする。
 // つなぎかたは なんでも よい（WebSocket でも ブラウザ内の ちょくせつ呼び出しでも）。
-import { makeRng } from '../rng.js?v=895729e9b2d0';
-import { MAPS, isBlocked, effectiveTile, condOk, searchLoot, sparkleLoot, tileAt, POS, SEA_PLACES, standSpot } from '../maps/index.js?v=895729e9b2d0';
-import { PLACES } from '../maps/overworld.js?v=895729e9b2d0';
-import { T, TILE_INFO } from '../tiles.js?v=895729e9b2d0';
-import { ITEMS } from '../data/items.js?v=895729e9b2d0';
-import { JOBS } from '../data/jobs.js?v=895729e9b2d0';
-import { newCharacter, computeStats, addItem, fullHeal, migrateJobs, fixBodyJob } from '../stats.js?v=895729e9b2d0';
-import { mapState, spawnSymbols, moveSymbols, symbolSnapshot, symbolVisible } from './monsters.js?v=895729e9b2d0';
-import { tickFieldChests, fieldChestSnap, fieldChestNear, openFieldChest } from './fieldchests.js?v=895729e9b2d0';
-import { chestVanishes } from '../data/fieldchests.js?v=895729e9b2d0';
-import { startFieldBattle, battleTick, abortBattle, battleCommand, battleLeave, joinBattle, mineOf, resultDone } from './battles.js?v=895729e9b2d0';
-import { runScript, runSteps } from './scripts.js?v=895729e9b2d0';
-import { serviceAction, menuAction } from './services.js?v=895729e9b2d0';
-import { newParty, partyOf, partyState, syncParty, ensureCompanions, companionWait, PARTY_MAX, befriendLevel, rosterFull, nameOfKey, dropMissingFam } from './party.js?v=895729e9b2d0';
-import { hasWagon, dropGoneFamily } from '../data/wagon.js?v=895729e9b2d0';
-import { MONSTERS } from '../data/monsters.js?v=895729e9b2d0';
-import { CH1_CLEAR_OBJECTIVE } from '../data/story.js?v=895729e9b2d0';
-import { upgradeSave, repairChar } from './save.js?v=895729e9b2d0';
-import { exportCode, parseCode, importChar } from './transfer.js?v=895729e9b2d0';
-import { memorySyncStore, buildSyncOut, applySyncIn, encodeSync, decodeSync, syncSummary } from './sync.js?v=895729e9b2d0';
-import { tryTreasureDig, treasureMenu, fixTreasurePos, normalizeTreasure, pruneTreasureStates } from './treasure.js?v=895729e9b2d0';
-import { isNightFor, timeFlag, fracFor } from './clock.js?v=895729e9b2d0';
-import { onFly, setFlying, moveAllowed, ridingAlong, canFlyMap } from './travel.js?v=895729e9b2d0';
-import { migrateSky } from '../data/sky.js?v=895729e9b2d0';
-import { migrateCh4 } from '../data/story-ch4.js?v=895729e9b2d0';
-import { repairObjective } from '../data/progress.js?v=895729e9b2d0';
-import { wagonLook } from './wagon.js?v=895729e9b2d0';
-import { medalSearchSteps, medalChestSteps } from './casino.js?v=895729e9b2d0';
-import { stepHazard } from './hazards.js?v=895729e9b2d0';
-import { noteDungeonEntry } from './escape.js?v=895729e9b2d0';
-import { notePyramidMove } from './pyramid.js?v=895729e9b2d0';
+import { makeRng } from '../rng.js?v=9147f12cace1';
+import { MAPS, isBlocked, effectiveTile, condOk, searchLoot, sparkleLoot, tileAt, POS, SEA_PLACES, standSpot } from '../maps/index.js?v=9147f12cace1';
+import { PLACES } from '../maps/overworld.js?v=9147f12cace1';
+import { T, TILE_INFO } from '../tiles.js?v=9147f12cace1';
+import { ITEMS } from '../data/items.js?v=9147f12cace1';
+import { JOBS } from '../data/jobs.js?v=9147f12cace1';
+import { newCharacter, computeStats, addItem, fullHeal, migrateJobs, fixBodyJob } from '../stats.js?v=9147f12cace1';
+import { mapState, spawnSymbols, moveSymbols, symbolSnapshot, symbolVisible } from './monsters.js?v=9147f12cace1';
+import { tickFieldChests, fieldChestSnap, fieldChestNear, openFieldChest } from './fieldchests.js?v=9147f12cace1';
+import { chestVanishes } from '../data/fieldchests.js?v=9147f12cace1';
+import { startFieldBattle, battleTick, abortBattle, battleCommand, battleLeave, joinBattle, mineOf, resultDone } from './battles.js?v=9147f12cace1';
+import { runScript, runSteps } from './scripts.js?v=9147f12cace1';
+import { serviceAction, menuAction } from './services.js?v=9147f12cace1';
+import { newParty, partyOf, partyState, syncParty, ensureCompanions, companionWait, PARTY_MAX, befriendLevel, rosterFull, nameOfKey, dropMissingFam } from './party.js?v=9147f12cace1';
+import { hasWagon, dropGoneFamily } from '../data/wagon.js?v=9147f12cace1';
+import { MONSTERS } from '../data/monsters.js?v=9147f12cace1';
+import { CH1_CLEAR_OBJECTIVE } from '../data/story.js?v=9147f12cace1';
+import { upgradeSave, repairChar } from './save.js?v=9147f12cace1';
+import { exportCode, parseCode, importChar } from './transfer.js?v=9147f12cace1';
+import { memorySyncStore, buildSyncOut, applySyncIn, encodeSync, decodeSync, syncSummary } from './sync.js?v=9147f12cace1';
+import { tryTreasureDig, treasureMenu, fixTreasurePos, normalizeTreasure, pruneTreasureStates } from './treasure.js?v=9147f12cace1';
+import { isNightFor, timeFlag, fracFor } from './clock.js?v=9147f12cace1';
+import { onFly, setFlying, moveAllowed, ridingAlong, canFlyMap } from './travel.js?v=9147f12cace1';
+import { migrateSky } from '../data/sky.js?v=9147f12cace1';
+import { migrateCh4 } from '../data/story-ch4.js?v=9147f12cace1';
+import { repairObjective } from '../data/progress.js?v=9147f12cace1';
+import { wagonLook } from './wagon.js?v=9147f12cace1';
+import { medalSearchSteps, medalChestSteps } from './casino.js?v=9147f12cace1';
+import { stepHazard } from './hazards.js?v=9147f12cace1';
+import { noteDungeonEntry } from './escape.js?v=9147f12cace1';
+import { notePyramidMove } from './pyramid.js?v=9147f12cace1';
 
 export const PROTOCOL_VERSION = 1;
 const SPARKLE_RESPAWN_MS = 20 * 60 * 1000;
@@ -305,11 +305,11 @@ export class GameWorld {
     });
   }
 
+  // 「だれで遊ぶ？」の 一覧。いつ 遊んだか・今 遊んでいるかは 入れない（その 画面には 出さない）
   charList() {
-    const online = new Set([...this.sessions.values()].filter((x) => x.inWorld).map((x) => x.charId));
     return Object.values(this.data.characters)
       .sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0))
-      .map((c) => ({ id: c.id, name: c.name, job: c.job, level: c.level, look: c.look, equip: c.equip, online: online.has(c.id), objective: c.objective, lastPlayed: c.lastPlayed }));
+      .map((c) => ({ id: c.id, name: c.name, job: c.job, level: c.level, look: c.look, equip: c.equip, objective: c.objective }));
   }
 
   onCreateChar(s, msg) {

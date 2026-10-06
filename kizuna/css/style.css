@@ -628,7 +628,6 @@ body.touch .textin { font-size: max(16px, 1em); }
 .charcard canvas { width: 64px; height: 84px; image-rendering: pixelated; flex: none; }
 .charcard.sel { border-color: var(--accent); }
 .charcard .meta { font-size: var(--fs-small); color: var(--muted); line-height: 1.35; }
-.charcard .on { color: var(--good); }
 
 .create { display: grid; grid-template-columns: auto 1fr; gap: 1em; align-items: start; }
 .create .preview { display: flex; flex-direction: column; align-items: center; gap: 0.4em; }
