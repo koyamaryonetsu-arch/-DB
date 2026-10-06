@@ -1,7 +1,7 @@
 // さいきょう装備の 見こみ（ドラクエ風。サーバーの 'bestEquip' と メニューの「何が 何に 変わるか」で おなじ 計算を 使う）
 // ふくろの 中から、攻撃力（武器）・守備力（よろい・たて・頭）が いちばん 上がる ものを えらぶ。アクセサリーは そのまま
-import { ITEMS } from './data/items.js?v=882bfcc52306';
-import { computeStats, canEquipChar, addItem, removeItem } from './stats.js?v=882bfcc52306';
+import { ITEMS } from './data/items.js?v=cf427a2667f8';
+import { computeStats, canEquipChar, addItem, removeItem } from './stats.js?v=cf427a2667f8';
 
 export const BEST_SLOTS = ['weapon', 'armor', 'shield', 'head'];
 

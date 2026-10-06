@@ -1,7 +1,7 @@
 // 第3章の タイル（16×16 ドット）: 雪・氷・ようがん・鉱山・神殿（render/tiles.js が まぜる）
 // (p, v, f, m) … Painter / ちがい（0〜3）/ アニメの コマ / となりの ようす（mask）
-import { T } from '../../shared/tiles.js?v=882bfcc52306';
-import { prand, shade } from './pixel.js?v=882bfcc52306';
+import { T } from '../../shared/tiles.js?v=cf427a2667f8';
+import { prand, shade } from './pixel.js?v=cf427a2667f8';
 
 const SN = { base: '#eef2fa', dot: '#dce4f2', lit: '#ffffff', blue: '#c4d2ea', deep: '#a8b8d6' };
 const ICE = { base: '#a6d8f2', lit: '#e6f8ff', dark: '#84bce0', crack: '#6aa4d0' };
