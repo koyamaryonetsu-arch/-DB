@@ -109,6 +109,21 @@ export const ENCOUNTERS_CH4 = {
     { w: 4, group: [['mummy_soldier', 2, 2], ['sandstone_golem', 0, 1]] },
     { w: 2, group: [['sandstone_golem', 1, 1], ['cursed_pot', 1, 1]] },
   ],
+  // ── 南の砂ばく（Step 5。王都の 南の 砂嵐の 切れ目の 先。Lv34〜36）: サンドワーム・砂嵐の精。夜は やみサソリ・月のゆうれい ──
+  s_sdesert: [
+    { w: 4, group: [['sand_worm', 1, 1], ['scorpion_soldier', 0, 1]] },
+    { w: 3, group: [['sandstorm_spirit', 1, 2]] },
+    { w: 3, group: [['sand_worm', 1, 1], ['sandstorm_spirit', 1, 1]] },
+    { w: 2, group: [['sand_vulture', 2, 3]] },
+    { w: 1, group: [['gold_beetle', 1, 1]] },
+  ],
+  s_sdesert_night: [
+    { w: 4, group: [['dark_scorpion', 1, 2], ['moon_ghost', 0, 1]] },
+    { w: 3, group: [['sand_worm', 1, 1], ['moon_ghost', 1, 1]] },
+    { w: 2, group: [['lamp_genie', 1, 1], ['dark_scorpion', 1, 1]] },
+    { w: 2, group: [['moon_ghost', 1, 2]] },
+    { w: 1, group: [['gold_beetle', 1, 2]] },
+  ],
 };
 
 export const FIXED_CH4 = {
@@ -120,6 +135,10 @@ export const FIXED_CH4 = {
   pot_ambush: { group: [['cursed_pot', 2, 2]], bg: 'pyramid', bgm: 'battle', canFlee: true },
   // 王のへや: ミイラの王アンク（ボス）と 王のミイラ兵 2体
   mummy_king: { group: [['mummy_king', 1, 1], ['royal_mummy', 2, 2]], bg: 'pyramid_boss', bgm: 'pharaoh', canFlee: false, boss: true },
+  // 夜の 宮殿の 王の間（Step 5）: 大臣ザイード（3体の うち 1体だけが 本物。のこりは まぼろしの 分身。shared/battle-ch4.js）
+  zaid: { group: [['zaid_minister', 3, 3]], bg: 'palace_night', bgm: 'sand_demon', canFlee: false, boss: true },
+  // そのまま つづけて 真の すがた（あいだに 月の鏡の 光: HPは ぜんぶ・MPは 少しだけ。story-ch4.js の zaidEvent）
+  zaid_demon: { group: [['zaid_demon', 1, 1]], bg: 'palace_night', bgm: 'sand_demon', canFlee: false, boss: true },
 };
 
 export const ZONE_BG_CH4 = {
@@ -128,7 +147,9 @@ export const ZONE_BG_CH4 = {
   // Step 4
   s_pdesert: 'desert', s_pdesert_night: 'desert_night',
   s_pyr1: 'pyramid', s_pyr_b1: 'pyramid', s_pyr2: 'pyramid', s_pyr3: 'pyramid', s_pyr4: 'pyramid',
+  // Step 5
+  s_sdesert: 'desert', s_sdesert_night: 'desert_night',
 };
 
 // 昼の ちいき → 夜の 出現表（night.js の NIGHT_ZONES に まぜる）
-export const NIGHT_ZONES_CH4 = { s_coast: 's_coast_night', s_dune: 's_dune_night', s_oasis: 's_oasis_night', s_pdesert: 's_pdesert_night' };
+export const NIGHT_ZONES_CH4 = { s_coast: 's_coast_night', s_dune: 's_dune_night', s_oasis: 's_oasis_night', s_pdesert: 's_pdesert_night', s_sdesert: 's_sdesert_night' };

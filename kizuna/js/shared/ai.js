@@ -1,6 +1,8 @@
 // たたかいの AI（モンスター と サポートなかま）
-import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=85276ba91554';
-import { mpCost, penaltyFor, weaponOk, comboAllowed } from './stats.js?v=85276ba91554';
+import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=1ba3e6f60a67';
+import { mpCost, penaltyFor, weaponOk, comboAllowed } from './stats.js?v=1ba3e6f60a67';
+// 第4章の まぼろしの分身と 月の鏡（battle-ch4.js）
+import { mirageAction, mirrorPlan } from './battle-ch4.js?v=1ba3e6f60a67';
 
 // さくせん
 export const TACTICS = {
@@ -14,6 +16,9 @@ export const TACTICS = {
 
 // ───────────── モンスター ─────────────
 export function decideMonster(b, m) {
+  // まぼろしの 分身の 本物: まぶしくて 動けない・まぼろしを 作りなおす（battle-ch4.js）
+  const forced = mirageAction(b, m);
+  if (forced) return forced;
   const foes = b.aliveAllies();
   if (m.telegraph) {
     const id = m.telegraph;
@@ -83,7 +88,8 @@ export function decideAlly(b, c) {
   const tac = TACTICS[c.tactics] || TACTICS.balanced;
   const allies = b.aliveAllies();
   const dead = b.allies.filter((x) => !x.alive && !x.fled);
-  const foes = b.aliveEnemies();
+  // b.knowsMirage … まぼろしの 分身を 見ぬける 人（足もとの 影を 見る。tools/sim.js の「知っている人」）
+  const foes = b.aliveEnemies().filter((f) => !(b.knowsMirage && f.clone));
   if (!foes.length) return { type: 'defend' };
   const mine = usable(b, c);
 
@@ -122,6 +128,12 @@ export function decideAlly(b, c) {
   if (poisoned && b.rng.chance(0.5)) {
     const cure = cures.find(({ a }) => a.target === 'ally' && needs(a, 'poison'));
     if (cure) return { type: 'ability', id: cure.id, target: poisoned.id };
+  }
+
+  // 4.5) 月の鏡（まぼろしの 分身を 知っている 人。光が もどったら すぐ 使う）
+  if (b.knowsMirage) {
+    const mc = mirrorPlan(b);
+    if (mc) return mc;
   }
 
   // 5) ボスの 大わざに そなえる

@@ -1,16 +1,17 @@
 // 第4章「砂の海にしずむ星」の マップ
 // コガネ地方（フィールド）・北の古井戸・かれた地下水路（Step 2）・王都サファラと 宮殿の地下水路（Step 3）・王家のピラミッド（Step 4）
 // 村や ダンジョンの 形は south-rows.js・pyramid-rows.js（1文字 = 1マス）
-import { T, parseRows } from '../tiles.js?v=85276ba91554';
-import { makeRng } from '../rng.js?v=85276ba91554';
-import { npc } from './npc.js?v=85276ba91554';
-import { SEA_PLACES } from './ch2.js?v=85276ba91554';
+import { T, parseRows } from '../tiles.js?v=1ba3e6f60a67';
+import { makeRng } from '../rng.js?v=1ba3e6f60a67';
+import { npc } from './npc.js?v=1ba3e6f60a67';
+import { SEA_PLACES } from './ch2.js?v=1ba3e6f60a67';
 import {
   buildSouth, southZoneAt, southAreaName, southWeatherAt, southBgmAt, SOUTH_PLACES, SOUTH_POS, SOUTH_LANDING, LANDING_BEACH, OASIS2, OASIS_CAMP,
   STORM_Y, STORM_FLAG, SAFARA_POS, PALACE_HALL, PYRAMID, PYRAMID_PLAZA, PYRAMID_POS, PYRAMID_FLAG,
-} from './south.js?v=85276ba91554';
-import { HAMIL_ROWS, WELL_ROWS, CANAL1_ROWS, CANAL2_ROWS, CANAL3_ROWS, PALACE_CANAL_ROWS } from './south-rows.js?v=85276ba91554';
-import { PYR1_ROWS, PYR_B1_ROWS, PYR2_ROWS, PYR3_ROWS, PYR4_ROWS } from './pyramid-rows.js?v=85276ba91554';
+  SOUTH_STORM_Y, SOUTH_STORM_FLAG, DUNA_GATE, DUNA_VALLEY,
+} from './south.js?v=1ba3e6f60a67';
+import { HAMIL_ROWS, WELL_ROWS, CANAL1_ROWS, CANAL2_ROWS, CANAL3_ROWS, PALACE_CANAL_ROWS } from './south-rows.js?v=1ba3e6f60a67';
+import { PYR1_ROWS, PYR_B1_ROWS, PYR2_ROWS, PYR3_ROWS, PYR4_ROWS } from './pyramid-rows.js?v=1ba3e6f60a67';
 
 const HAM = SOUTH_PLACES.hamil;
 const H = (x, y) => [HAM.x + x, HAM.y + y];
@@ -18,6 +19,11 @@ const SAF = SOUTH_PLACES.safara;
 const S = (x, y) => [SAF.x + x, SAF.y + y];
 const NIGHT = { all: ['@night'] };
 const DAY = { not: ['@night'] };
+
+// 大臣ザイードを たおした（Step 5。物語の すすみぐあい c4_zaid）: 中庭と 王の間の とびらの カギが あき、南の 砂嵐の 切れ目が 開く
+export const ZAID_FLAG = SOUTH_STORM_FLAG;
+// 砂の港ドゥナの 谷の 見張り（Step 5。門は 開けて くれない。ドゥナは Step 6）
+export const DUNA_LOOKOUTS = [{ id: 'c4_d_lookout1', x: DUNA_GATE.x - 1, y: DUNA_GATE.y - 1 }, { id: 'c4_d_lookout2', x: DUNA_GATE.x + 1, y: DUNA_GATE.y - 1 }];
 
 // 第4章の マップの ID（セーブに のこるので かえない）
 export const CH4_MAPS = ['south', 'north_well', 'canal1', 'canal2', 'canal3', 'palace_canal',
@@ -152,18 +158,22 @@ const SOUTH_NPCS = [
   // 夜は 宮殿の 門が しまる（夜番の 兵士）
   npc('c4_p_ngate1', '宮殿の夜番', S(24, 21), 'palace_guard', 'c4_p_ngate', { show: NIGHT }),
   npc('c4_p_ngate2', '宮殿の夜番', S(26, 21), 'palace_guard', 'c4_p_ngate', { show: NIGHT }),
-  // 宮殿の 王の間（女王ネフィ・大臣ザイード）
-  npc('nefi', '女王ネフィ', S(25, 25), 'nefi', 'c4_nefi', { dir: 'down' }),
-  npc('zaid', '大臣ザイード', S(27, 25), 'zaid', 'c4_zaid', { dir: 'down' }),
-  npc('c4_p_guard1', '宮殿の兵士', S(21, 26), 'palace_guard', 'c4_p_guard', { dir: 'right' }),
-  npc('c4_p_guard2', '宮殿の兵士', S(29, 26), 'palace_guard', 'c4_p_guard', { dir: 'left' }),
-  npc('c4_p_maid', '女官のハラ', S(19, 28), 'maid', 'c4_p_maid', { wander: 1 }),
+  // 宮殿の 王の間（女王ネフィ・大臣ザイード）。夜は 女王も 大臣も 兵士も いない（夜の 王の間の 2人は Step 5 の イベントの 役者）。
+  // 大臣ザイードを たおした あとは、夜も 女王が 王の間に いる（nefi_night）
+  npc('nefi', '女王ネフィ', S(25, 25), 'nefi', 'c4_nefi', { dir: 'down', show: DAY }),
+  npc('nefi_night', '女王ネフィ', S(25, 25), 'nefi', 'c4_nefi', { dir: 'down', show: { all: ['@night', ZAID_FLAG] } }),
+  npc('zaid', '大臣ザイード', S(27, 25), 'zaid', 'c4_zaid', { dir: 'down', show: { not: ['@night', ZAID_FLAG] } }),
+  npc('c4_p_guard1', '宮殿の兵士', S(21, 26), 'palace_guard', 'c4_p_guard', { dir: 'right', show: DAY }),
+  npc('c4_p_guard2', '宮殿の兵士', S(29, 26), 'palace_guard', 'c4_p_guard', { dir: 'left', show: DAY }),
+  npc('c4_p_maid', '女官のハラ', S(19, 28), 'maid', 'c4_p_maid', { wander: 1, show: DAY }),
   // 学者ハサンの 家・闘技場
   npc('hassan', '学者ハサン', S(41, 19), 'hassan', 'c4_hassan', { dir: 'down' }),
   npc('c4_s_arena', '闘技場の受付', S(43, 30), 'arena_clerk', 'c4_s_arena', { dir: 'left' }),
   npc('c4_s_fighter', '力じまんの戦士', S(41, 27), 'fighter', 'c4_s_fighter', { wander: 1 }),
   // 宮殿の地下水路の 入り口の 水路番
   npc('c4_s_canalman', '水路番のおじいさん', S(9, 33), 'desert_m2', 'c4_s_canalman', { dir: 'left' }),
+  // 南の 門の 門番（Step 5。南の 砂嵐と 砂の港ドゥナの 話）
+  npc('c4_s_sgate', '南の門の門番', S(12, 38), 'safara_guard', 'c4_s_sgate', { dir: 'right' }),
   // わらべ歌を 歌う 子どもたち（1人 1行。夜は 家に 帰る）
   npc('c4_kid_sun', 'アリ', S(23, 6), 'desert_kid', 'c4_kid_sun', { wander: 1, show: DAY }),
   npc('c4_kid_sand', 'ライラ', S(32, 10), 'desert_girl', 'c4_kid_sand', { wander: 1, show: DAY }),
@@ -176,6 +186,9 @@ const SOUTH_NPCS = [
   // オベリスク（大きな 石の 柱。影は お日さまの むきで のびる）・広場で 待っている 学者の 弟子（ハサンの なぞを 聞いた あと）
   npc('obelisk', 'オベリスク', [PYRAMID_POS.obelisk.x, PYRAMID_POS.obelisk.y], 'obelisk', 'c4_obelisk', { dir: 'down' }),
   npc('c4_p_student', '学者の弟子のユスフ', [PYRAMID_PLAZA.x + 4, PYRAMID_PLAZA.y + 6], 'desert_kid2', 'c4_p_student', { dir: 'right', show: { all: ['c4_hassan'] } }),
+
+  // ───── 砂の港ドゥナへの 谷（Step 5）: 砂の海賊の 見張り（門は 開けて くれない。ドゥナは Step 6）─────
+  ...DUNA_LOOKOUTS.map((p, i) => npc(p.id, '砂の海賊の見張り', [p.x, p.y], i ? 'sand_pirate2' : 'sand_pirate', 'c4_d_lookout', { dir: 'down' })),
 ];
 
 // 宝箱（フィールドの 宝箱は 開けると きえる）
@@ -202,6 +215,9 @@ const SOUTH_SIGNS = [
   { x: SAF.x + 40, y: SAF.y + 33, text: 'サファラ闘技場\n「水がもどるまで、大会はお休みします」' },
   // 王家のピラミッド（Step 4）
   { x: PYRAMID_PLAZA.x + 1, y: PYRAMID_PLAZA.y + 2, text: '王家のピラミッド\n「王のねむりを、さまたげることなかれ」' },
+  // 南の 門の 外・ドゥナへの 谷（Step 5）
+  { x: SAFARA_POS.southGate.x - 2, y: SAFARA_POS.southGate.y + 2, text: '↓ 南の砂嵐のかべ\nその先に、砂の港ドゥナ' },
+  { x: DUNA_GATE.x - 3, y: DUNA_GATE.y - 2, text: 'この先、砂の港ドゥナ\n「王国の者、立ち入るべからず　砂の海賊」' },
 ];
 
 // お店の かんばん（入り口の よこの かべ）
@@ -234,6 +250,10 @@ const SOUTH_LABELS = [
   { name: 'コガネ砂丘', x: 60, y: 30, w: 70, h: 24 },
   { name: '砂嵐のかべ', x: 8, y: STORM_Y[0] - 1, w: 128, h: STORM_Y[1] - STORM_Y[0] + 3 },
   { name: PYRAMID.name, x: PYRAMID.x, y: PYRAMID.y, w: PYRAMID.w, h: PYRAMID.h },
+  // Step 5
+  { name: '南の砂嵐', x: 8, y: SOUTH_STORM_Y[0] - 1, w: 80, h: SOUTH_STORM_Y[1] - SOUTH_STORM_Y[0] + 3 },
+  { name: '南の砂ばく', x: 50, y: SOUTH_STORM_Y[1] + 3, w: 36, h: 9 },
+  { name: DUNA_VALLEY.name, x: DUNA_VALLEY.x, y: DUNA_VALLEY.y, w: DUNA_VALLEY.w, h: DUNA_VALLEY.h },
 ];
 
 // きらきら（ひろえる 物）。砂ばく・海辺・オアシスの まわり（砂嵐のかべより 北）
@@ -308,7 +328,15 @@ function buildField() {
   actions.push({ x: P.well.x, y: P.well.y, script: 'c4_s_well' });
   actions.push({ x: P.jar.x, y: P.jar.y, script: 'c4_court_jar' });
   actions.push({ x: P.bench.x, y: P.bench.y, script: 'c4_court_diary' });
-  actions.push({ x: P.courtDoor.x, y: P.courtDoor.y, script: 'c4_court_door' });
+  // 中庭と 王の間の とびら（Step 5: 夜に 月の鏡で てらすと 大臣の イベント。ザイードを たおすと カギが あく）
+  actions.push({ x: P.courtDoor.x, y: P.courtDoor.y, script: 'c4_court_door', show: { not: [ZAID_FLAG] } });
+  sb.gates.push({ x: P.courtDoor.x, y: P.courtDoor.y, closed: T.LOCKED_DOOR, open: T.DOOR, flag: ZAID_FLAG });
+  // 南の 砂嵐（Step 5）: 道の ところを しらべると だいほん（大臣ザイードを たおすまで）
+  for (const g of sb.gates) if (g.flag === SOUTH_STORM_FLAG && g.y === SOUTH_STORM_Y[0]) actions.push({ x: g.x, y: g.y, script: 'c4_south_storm', show: { not: [SOUTH_STORM_FLAG] } });
+  // ドゥナへの 谷の 木の さくと 門（Step 5 では 開かない）
+  for (let x = DUNA_GATE.x - 3; x <= DUNA_GATE.x + 3; x++) {
+    if ([T.FENCE, T.LOCKED_DOOR].includes(sb.tiles[DUNA_GATE.y * sb.w + x])) actions.push({ x, y: DUNA_GATE.y, script: 'c4_duna_fence' });
+  }
   actions.push({ x: P.arenaGate.x, y: P.arenaGate.y, script: 'c4_arena_gate' });
   // 王家のピラミッド（Step 4）: 日時計の とびら（開く まで）
   const D = PYRAMID_POS.door;
@@ -333,12 +361,14 @@ function buildField() {
       { id: 'c4_hamil', x: HAM.x, y: HAM.y, w: HAM.w, h: HAM.h, script: 'c4_hamil_arrive', show: { all: ['c4_start'], not: ['c4_hamil'] } },
       // 王都サファラに 着いた（Step 3）・夜は 宮殿の とびらが しまる（入ろうと しても 出ようと しても、外へ）
       { id: 'c4_capital', x: SAF.x, y: SAF.y, w: SAF.w, h: SAF.h, script: 'c4_capital_arrive', show: { all: ['c4_scorpion'], not: ['c4_capital'] } },
-      { id: 'c4_palace_night', x: P.palaceDoor.x, y: P.palaceDoor.y, w: 1, h: 1, script: 'c4_palace_closed', show: { all: ['@night'] } },
+      // 大臣ザイードを たおした あと（Step 5）は、女王の 恩人なので 夜も 通れる
+      { id: 'c4_palace_night', x: P.palaceDoor.x, y: P.palaceDoor.y, w: 1, h: 1, script: 'c4_palace_closed', show: { all: ['@night'], not: [ZAID_FLAG] } },
     ],
     roofs: SOUTH_ROOFS,
     zoneAt: southZoneAt, areaName: southAreaName, bgmAt: southBgmAt, weatherAt: southWeatherAt,
     labels: SOUTH_LABELS,
-    spawnCounts: { s_coast: 6, s_dune: 16, s_oasis: 6 },
+    // s_pdesert … 王家の墓の砂ばく（Step 4 で 書きわすれて いて、魔物が 出なかった）・s_sdesert … 南の砂ばく（Step 5）
+    spawnCounts: { s_coast: 6, s_dune: 16, s_oasis: 6, s_pdesert: 8, s_sdesert: 6 },
     // フィールドの 宝箱が 出る ところ（ここから 歩いて 行ける ところだけ）
     fcStart: [72, 11],
   };

@@ -184,4 +184,106 @@ export const CH4_ABILITIES = {
     effect: { type: 'reviveAll', species: 'royal_mummy', hpRatio: 1 }, cast: '{a}の、よみがえりの呪文が、ひびきわたった！', anim: 'dark1',
     desc: 'たおれた王のミイラ兵を、みんな生き返らせる。',
   },
+
+  // ── 南の砂ばく（Step 5）──
+  m_worm_bite: {
+    name: 'くらいつく', kind: 'monster', mp: 2, target: 'enemy',
+    effect: { type: 'phys', mult: 1.3, acc: 0.95 }, cast: '{a}は、大きな口で{t}にくらいついた！', anim: 'bite',
+    desc: '大きな口でくらいつく。',
+  },
+  // 砂に もぐる（かんたんな 形: 前ぶれ → つぎの 番に 飛び出し。ねらえなく なるのは Step 6 の 砂クジラから）
+  m_worm_dive: {
+    name: '砂にもぐる', kind: 'monster', target: 'self',
+    effect: { type: 'telegraph', next: 'm_worm_burst' }, cast: '{a}は、砂の中にもぐった！\n足もとの砂が、もり上がっていく…！', anim: 'charge',
+    desc: '砂の中にもぐる。次の番に、砂の中から飛び出してくる。',
+  },
+  m_worm_burst: {
+    name: '飛び出し', kind: 'monster', target: 'enemy',
+    effect: { type: 'phys', mult: 2.0, acc: 0.9 }, cast: '{a}が、砂の中から飛び出して、{t}にかみついた！', anim: 'tackle',
+    desc: '砂の中から飛び出して、大きくかみつく。防御で受けよう。',
+  },
+  m_worm_spit: {
+    name: '砂はき', kind: 'monster', mp: 2, target: 'enemies',
+    effect: { type: 'status', status: 'blind', chance: 0.3, turns: [2, 3] }, cast: '{a}は、口から砂をはき出した！', anim: 'breath',
+    desc: '口から砂をはいて、敵みんなの目をくらませることがある。',
+  },
+  m_spirit_gust: {
+    name: '砂つむじ', kind: 'monster', mp: 6, target: 'enemies',
+    effect: { type: 'magic', element: 'wind', base: [36, 46], thr: 99 }, cast: '{a}は、ぐるぐる回って、砂つむじをおこした！', anim: 'wind2',
+    desc: '砂つむじで、敵みんなに風のダメージ。',
+  },
+  m_spirit_dust: {
+    name: '目つぶし', kind: 'monster', mp: 3, target: 'enemy',
+    effect: { type: 'status', status: 'blind', chance: 0.6, turns: [2, 3] }, cast: '{a}は、{t}の顔に、砂をふきつけた！', anim: 'breath',
+    desc: '砂をふきつけて、目をくらませる。',
+  },
+  m_spirit_whirl: {
+    name: 'まきこみ', kind: 'monster', mp: 3, target: 'enemy',
+    effect: { type: 'phys', mult: 0.75, hits: 2 }, cast: '{a}は、{t}をまきこんで、ぐるぐる回った！', anim: 'slash_fast',
+    desc: 'まきこんで、2回攻撃する。',
+  },
+  m_dark_sting: {
+    name: 'やみの毒ばり', kind: 'monster', mp: 2, target: 'enemy',
+    effect: { type: 'phys', mult: 1.2, status: { status: 'poison', chance: 0.55 } }, cast: '{a}は、黒く光る毒ばりをつき立てた！', anim: 'hit',
+    desc: '黒い毒ばりでさす。毒にすることがある。',
+  },
+  m_dark_stance: {
+    name: '反撃の構え', kind: 'monster', target: 'self',
+    effect: { type: 'stance', stance: 'counter', mult: 1.8, ignoreDef: 0.2 }, cast: '{a}は、黒いはさみを大きくひらいた！', anim: 'guard',
+    desc: '黒いはさみを大きくひらいて、反撃の構え。次の番まで、物理で攻撃してきた相手に反撃する。',
+  },
+
+  // ── 大臣ザイード（Step 5 の ボス。まぼろしの分身は battle-ch4.js）──
+  m_zaid_sandfire: {
+    name: '熱砂の呪文', kind: 'monster', mp: 8, target: 'enemies',
+    effect: { type: 'magic', element: 'fire', base: [42, 52], thr: 99 }, cast: '{a}は、あやしい呪文をとなえた！\n熱い砂が、うずをまいてふりそそぐ！', anim: 'fire_wave',
+    desc: '熱い砂の呪文で、敵みんなに炎のダメージ。',
+  },
+  m_zaid_sandshot: {
+    name: '砂のつぶて', kind: 'monster', mp: 4, target: 'enemy',
+    effect: { type: 'magic', base: [72, 86], thr: 99 }, cast: '{a}は、{t}に、かたい砂のつぶてをはなった！', anim: 'quake',
+    desc: 'かたい砂のつぶてで、1人にダメージ。',
+  },
+  m_zaid_whisper: {
+    name: 'あやしいささやき', kind: 'monster', mp: 4, target: 'enemy',
+    effect: { type: 'status', status: 'confuse', chance: 0.5, turns: [1, 2] }, cast: '{a}は、{t}の耳もとで、あやしくささやいた…！', anim: 'debuff',
+    desc: 'あやしいささやきで、混乱させることがある。',
+  },
+  // まぼろしを 作りなおす（分身が もどり、3人が 入れかわる。battle-ch4.js の mirageRemake）
+  m_zaid_mirage: {
+    name: 'まぼろしを作る', kind: 'monster', target: 'self',
+    effect: { type: 'mirage' }, cast: '{a}は、あやしい呪文をとなえた…！', anim: 'none',
+    desc: 'まぼろしの分身を作り出す。3人が、すばやく入れかわる。',
+  },
+  // 月の鏡の 光で まぶしい 番（battle-ch4.js の mirageAction）
+  m_mirage_dazzled: {
+    name: 'まぶしい', kind: 'monster', target: 'self',
+    effect: { type: 'nothing' }, cast: '{a}は、月の光がまぶしくて、動けない！', anim: 'none',
+  },
+  // ── 砂の魔神ザイード ──
+  m_demon_swing: {
+    name: '魔神の大ぶり', kind: 'monster', target: 'enemy',
+    effect: { type: 'phys', mult: 1.9, acc: 0.9 }, cast: '{a}は、大きなうでを{t}にふり下ろした！', anim: 'tackle',
+    desc: '大きなうでで、1人に大ダメージ。',
+  },
+  m_demon_storm: {
+    name: '砂嵐', kind: 'monster', mp: 8, target: 'enemies',
+    effect: { type: 'magic', base: [30, 38], thr: 99, status: { status: 'blind', chance: 0.45, turns: [2, 3] } }, cast: '{a}は、大きな口から、砂嵐をふき出した！', anim: 'sandstorm',
+    desc: '砂嵐で、敵みんなにダメージ。目をくらませることがある。',
+  },
+  m_demon_hand: {
+    name: '砂の手', kind: 'monster', mp: 4, target: 'enemy',
+    effect: { type: 'status', status: 'paralyze', chance: 0.7, turns: [1, 2] }, cast: '{a}の足もとから砂の手がのびて、{t}の足をつかんだ！', anim: 'quake',
+    desc: '砂の手で足をつかんで、動けなくする。',
+  },
+  m_demon_vortex_charge: {
+    name: '砂の大うずの前ぶれ', kind: 'monster', target: 'self',
+    effect: { type: 'telegraph', next: 'm_demon_vortex' }, cast: '{a}の体のまわりで、砂がうずをまき始めた…！', anim: 'charge',
+    desc: '次の番に「砂の大うず」。身を守ろう。',
+  },
+  m_demon_vortex: {
+    name: '砂の大うず', kind: 'monster', target: 'enemies',
+    effect: { type: 'phys', mult: 1.3, ignoreDef: 0.25 }, cast: '{a}の砂の大うず！\n王の間じゅうに、砂があれくるう！', anim: 'sand_vortex',
+    desc: '砂の大うずで、敵みんなに大ダメージ。防御で半分になる。',
+  },
 };

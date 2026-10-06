@@ -37,7 +37,7 @@ export const ITEMS_CH4 = {
   },
 
   // ───── 王家のピラミッド（Step 4）─────
-  // だいじなもの: 月の鏡（4階の 王のへや。戦いで 使うのは Step 5 から）
+  // だいじなもの: 月の鏡（4階の 王のへや。Step 5 から 戦いの「道具」でも 使える。まぼろしの 分身が いる 戦いだけ。shared/battle-ch4.js）
   moon_mirror: {
     name: '月の鏡', type: 'key',
     desc: '王家に伝わる、本当のすがたをうつす鏡。月の光のように、青白く光っている。まぼろしも、まやかしも、この鏡の前では本当のすがたをあらわすという。',
@@ -52,6 +52,25 @@ export const ITEMS_CH4 = {
     name: '王家のうでわ', type: 'acc', rank: 6, unique: true, bonus: { def: 10, mag: 10 }, resist: { paralyze: 0.5, blind: 0.6 }, price: 0, sell: 900,
     desc: 'ミイラの王アンクが身につけていた、金のうでわ。守りと魔力が上がり、マヒとマヌーサにかかりにくくなる。',
   },
+
+  // ───── 夜の 宮殿（Step 5）─────
+  // だいじなもの: 女王の手紙（砂の海賊の かしらに とどける。Step 6）
+  queen_letter: {
+    name: '女王の手紙', type: 'key',
+    desc: '女王ネフィが書いた、砂の海賊へのおわびの手紙。王家の印がおしてある。砂の港ドゥナの、海賊のかしらにとどけよう。',
+  },
+  // 大臣ザイード（1だんめ）が 落とす（ボスの 品）: 混乱しにくく なる 指輪（ザイードの あやしいささやき）
+  mirage_ring: {
+    name: 'まぼろしの指輪', type: 'acc', rank: 6, unique: true, bonus: { agi: 8, mag: 6 }, resist: { confuse: 0.5 }, price: 0, sell: 900,
+    desc: '大臣ザイードが指にはめていた、むらさきの宝石の指輪。素早さと魔力が上がり、混乱しにくくなる。',
+  },
+  // 砂の魔神ザイードが 落とす（ボスの 品）。そうびした まま、戦いの「道具」から 1回の 戦いで 1回 使える
+  // （みんなの MPを 少し 回復。shared/battle-ch4.js の equipUse）
+  majin_lamp: {
+    name: '魔神のランプ', type: 'acc', rank: 6, unique: true, bonus: { mag: 8, def: 6 }, resist: { blind: 0.7 }, price: 0, sell: 1000,
+    equipUse: { base: [16, 24], msg: 'ランプから、青いけむりがふき出した…！\nみんなの体に、ふしぎな力がしみこんでいく！' },
+    desc: '砂の魔神ザイードがのこした、古い金のランプ。装備していると、戦いの「道具」から使えて、みんなのMPを少し回復する（1回の戦いで1回）。魔力と守りも上がる。',
+  },
 };
 
 export const CH4_ITEM_KANA = {
@@ -62,6 +81,7 @@ export const CH4_ITEM_KANA = {
   sand_mail: 'すなのよろい', desert_garb: 'すなのころも', moon_robe: 'つきのろーぶ', sandstorm_gi: 'すなあらしのどうぎ',
   crescent_shield: 'みかづきのたて', sand_helm: 'すなのかぶと', turban: 'たーばん', crescent_blade: 'みかづきのけん',
   moon_mirror: 'つきのかがみ', royal_gold_sword: 'おうけのおうごんのけん', royal_bracelet: 'おうけのうでわ',
+  queen_letter: 'じょおうのてがみ', majin_lamp: 'まじんのらんぷ', mirage_ring: 'まぼろしのゆびわ',
 };
 
 export const SHOPS_CH4 = {

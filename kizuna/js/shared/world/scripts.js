@@ -1,16 +1,16 @@
 // だいほん（イベント）を すすめる しくみ
-import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js?v=85276ba91554';
-import { ITEMS } from '../data/items.js?v=85276ba91554';
-import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js?v=85276ba91554';
-import { startFixedBattle } from './battles.js?v=85276ba91554';
-import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=85276ba91554';
-import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion, befriendLevel } from './party.js?v=85276ba91554';
-import { openService } from './services.js?v=85276ba91554';
-import { isNightFor, advanceClock, fracFor } from './clock.js?v=85276ba91554';
-import { grantWagon, wagonChars } from './wagon.js?v=85276ba91554';
-import { GUESTS } from '../data/shops.js?v=85276ba91554';
-import { unstickAll } from './hazards.js?v=85276ba91554';
-import { MAPS, isBlocked } from '../maps/index.js?v=85276ba91554';
+import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js?v=1ba3e6f60a67';
+import { ITEMS } from '../data/items.js?v=1ba3e6f60a67';
+import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js?v=1ba3e6f60a67';
+import { startFixedBattle } from './battles.js?v=1ba3e6f60a67';
+import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=1ba3e6f60a67';
+import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion, befriendLevel } from './party.js?v=1ba3e6f60a67';
+import { openService } from './services.js?v=1ba3e6f60a67';
+import { isNightFor, advanceClock, fracFor } from './clock.js?v=1ba3e6f60a67';
+import { grantWagon, wagonChars } from './wagon.js?v=1ba3e6f60a67';
+import { GUESTS } from '../data/shops.js?v=1ba3e6f60a67';
+import { unstickAll } from './hazards.js?v=1ba3e6f60a67';
+import { MAPS, isBlocked } from '../maps/index.js?v=1ba3e6f60a67';
 
 let runSeq = 1;
 
@@ -254,11 +254,18 @@ export class ScriptRun {
           break;
         }
         case 'heal': {
-          for (const m of all) fullHeal(m.char);
+          // ['heal', { mp: 0.3 }] … HPは ぜんぶ、MPは さいだいの 3わり だけ ふえる（大臣ザイードの あとの 月の光）
+          const [opt] = a;
+          const heal = (ch) => {
+            const mp = ch.mp;
+            fullHeal(ch);
+            if (opt?.mp !== undefined && Number.isFinite(mp)) ch.mp = Math.min(ch.mp, mp + Math.round(ch.mp * opt.mp));
+          };
+          for (const m of all) heal(m.char);
           const p = partyOf(w, this.init);
-          for (const sup of p?.supports || []) fullHeal(sup.char);
-          for (const g of p?.guests || []) fullHeal(g.char);
-          for (const ch of wagonChars(w, p)) fullHeal(ch);
+          for (const sup of p?.supports || []) heal(sup.char);
+          for (const g of p?.guests || []) heal(g.char);
+          for (const ch of wagonChars(w, p)) heal(ch);
           for (const m of all) w.sendSelf(m);
           if (p) w.sendParty(p);
           break;
