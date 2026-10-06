@@ -1,12 +1,12 @@
 // せつめい文を つくる
-import { ITEMS, SLOT_NAMES, WEAPON_CAT_NAMES } from '../../shared/data/items.js?v=e3a05807fdd3';
-import { ABILITIES, abilityTypeText } from '../../shared/data/abilities.js?v=e3a05807fdd3';
-import { JOBS, ALL_JOBS } from '../../shared/data/jobs.js?v=e3a05807fdd3';
-import { MONSTERS } from '../../shared/data/monsters.js?v=e3a05807fdd3';
-import { MONSTER_FRIENDS } from '../../shared/data/companions.js?v=e3a05807fdd3';
-import { computeStats, canEquip, canEquipMonster, monsterGear, penaltyFor, mpCost, comboJobNames, comboAllowed, jobPower } from '../../shared/stats.js?v=e3a05807fdd3';
-import { attackReach } from '../../shared/battle.js?v=e3a05807fdd3';
-import { maxPlus } from '../../shared/data/forge.js?v=e3a05807fdd3';
+import { ITEMS, SLOT_NAMES, WEAPON_CAT_NAMES } from '../../shared/data/items.js?v=d2b7bf220f08';
+import { ABILITIES, abilityTypeText } from '../../shared/data/abilities.js?v=d2b7bf220f08';
+import { JOBS, ALL_JOBS } from '../../shared/data/jobs.js?v=d2b7bf220f08';
+import { MONSTERS } from '../../shared/data/monsters.js?v=d2b7bf220f08';
+import { MONSTER_FRIENDS } from '../../shared/data/companions.js?v=d2b7bf220f08';
+import { computeStats, canEquip, canEquipMonster, monsterGear, penaltyFor, mpCost, comboJobNames, comboAllowed, jobPower } from '../../shared/stats.js?v=d2b7bf220f08';
+import { attackReach } from '../../shared/battle.js?v=d2b7bf220f08';
+import { maxPlus } from '../../shared/data/forge.js?v=d2b7bf220f08';
 
 const TARGET_NAMES = { enemy: '敵1体', group: '敵1グループ', enemies: '敵全体', ally: '味方1人', allies: '味方全員', self: '自分', deadAlly: '死んだ味方', deadAllies: '死んだ味方全員' };
 // 技の リストに つける みじかい しるし（1体・1人・自分は つけない）。a: 技（または 相手の しゅるい）
@@ -59,7 +59,7 @@ export function whoCanEquip(id, mons = null) {
   const adv = jobs.filter((j) => JOBS[j].tier === 1);
   const advText = adv.length <= 4 ? adv.map((j) => JOBS[j].name).join('・') : `上級職 ${adv.length}種類`;
   // 超級職の なまえは 神殿で ヒントが 出るまで ひみつ
-  const sup = jobs.filter((j) => JOBS[j].tier === 2).length;
+  const sup = jobs.filter((j) => JOBS[j].tier >= 2).length;
   return `装備: ${[base.join('・'), advText, sup ? `超級職 ${sup}種類` : ''].filter(Boolean).join(' ／ ')}${monText ? `\n${monText}` : ''}`;
 }
 

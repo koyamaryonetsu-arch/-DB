@@ -2,7 +2,7 @@
 // かきかたは monsters.js・ch3-boss-art.js と おなじ（g … w・h の わりあいで かく。f … 0 か 1 の コマ）
 // よろい大サソリ（Step 2）・ミイラの王アンク（Step 4）
 // ボスは 大きく、かざりを ていねいに。動きは 小さく（たたかいで 0.4びょうごとに コマが かわる）
-import { fit, spark, bez, taper } from './ch3-draw.js?v=e3a05807fdd3';
+import { fit, spark, bez, taper } from './ch3-draw.js?v=d2b7bf220f08';
 
 // ───── よろい大サソリ（かれた地下水路の ボス）─────
 const AS = {

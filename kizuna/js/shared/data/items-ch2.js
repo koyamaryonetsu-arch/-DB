@@ -41,7 +41,7 @@ export const SHOPS_CH2 = {
     kind: 'arms',
     keeper: '店のおやじ',
     hello: 'いらっしゃい！海の男のための、\nじょうぶな武器と防具がそろってるよ！\n今日はどうする？',
-    items: ['silver_dagger', 'coral_spear', 'shark_fang', 'wave_staff', 'sea_fan', 'chain_whip',
+    items: ['silver_dagger', 'coral_spear', 'shark_fang', 'wave_staff', 'sea_fan', 'chain_whip', 'chinese_wok',
       'sailor_clothes', 'coral_robe', 'wave_gi', 'shell_shield', 'captain_hat'],
     // 大王イカを たおすと 船が 行き来して 銀の 品が とどく
     more: [{

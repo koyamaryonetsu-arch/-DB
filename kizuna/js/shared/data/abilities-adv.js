@@ -48,8 +48,8 @@ export const ADV_ABILITIES = {
   },
   pl_aegis: {
     name: 'アイギスの守り', kana: 'あいぎすのまもり', kind: 'spell', job: 'paladin', mp: 8, target: 'allies',
-    effect: { type: 'buff', stat: 'def', mult: 1.45, dur: 45 },
-    desc: '仲間全員の守備力を大きく上げる。', cast: '{a}はアイギスの守りを唱えた！', anim: 'guard',
+    effect: { type: 'buff', stat: 'def', mult: 1.25, dur: 40 },
+    desc: '仲間全員の守備力を上げる。', cast: '{a}はアイギスの守りを唱えた！', anim: 'guard',
   },
   pl_judgment: {
     name: 'ジャッジメント', kana: 'じゃっじめんと', kind: 'skill', job: 'paladin', mp: 10, target: 'enemy',
@@ -75,7 +75,7 @@ export const ADV_ABILITIES = {
   },
   mk_forcebreak: {
     name: 'フォースブレイク', kana: 'ふぉーすぶれいく', kind: 'skill', job: 'magic_knight', mp: 5, target: 'enemy',
-    effect: { type: 'debuff', stat: 'def', mult: 0.55, dur: 40, chance: 0.95 },
+    effect: { type: 'debuff', stat: 'def', mult: 0.65, dur: 40, chance: 0.9 },
     desc: '敵の守りの力を打ち砕く。守備力が大きく下がる。', cast: '{a}のフォースブレイク！', anim: 'debuff',
   },
   mk_raiden: {
@@ -107,7 +107,7 @@ export const ADV_ABILITIES = {
   },
   pr_utage: {
     name: 'うたげの歌', kana: 'うたげのうた', kind: 'skill', job: 'pirate', mp: 7, target: 'allies',
-    effect: { type: 'buff', stat: 'atk', mult: 1.3, dur: 35 },
+    effect: { type: 'buff', stat: 'atk', mult: 1.25, dur: 35 },
     desc: 'ごうかいな歌で仲間全員の攻撃力を上げる。', cast: '{a}はうたげの歌を歌った！', anim: 'dance',
   },
   pr_cannon: {
@@ -242,7 +242,7 @@ export const ADV_ABILITIES = {
   },
   ss_happy: {
     name: 'ハッピーパレード', kana: 'はっぴーぱれーど', kind: 'skill', job: 'superstar', mp: 10, target: 'allies',
-    effect: { type: 'buff', stats: ['atk', 'agi'], mult: 1.25, dur: 35 },
+    effect: { type: 'buff', stats: ['atk', 'agi'], mult: 1.2, dur: 35 },
     desc: '仲間全員の攻撃力と素早さを上げる。', cast: '{a}のハッピーパレード！', anim: 'dance',
   },
   ss_encore: {
@@ -479,8 +479,8 @@ export const ADV_ABILITIES = {
   },
   gd_fortress: {
     name: '不動のようさい', kana: 'ふどうのようさい', kind: 'skill', job: 'guardian', mp: 14, target: 'allies',
-    effect: { type: 'buff', stat: 'def', mult: 1.6, dur: 45 },
-    desc: '仲間全員の守備力をとても大きく上げる。', cast: '{a}の周りに光のようさいが現れた！', anim: 'guard',
+    effect: { type: 'buff', stat: 'def', mult: 1.4, dur: 45 },
+    desc: '仲間全員の守備力を大きく上げる。', cast: '{a}の周りに光のようさいが現れた！', anim: 'guard',
   },
 
   // ───────────── 勇者 ─────────────

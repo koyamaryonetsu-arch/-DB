@@ -113,7 +113,7 @@ export const SHOPS_CH3 = {
     kind: 'weapon',
     keeper: '武器屋のおやじ',
     hello: 'いらっしゃい…。\n鉱山を魔物に取られて、鉄がとどかねえんだ。\n今ある分だけで、すまねえな。',
-    items: ['steel_dagger', 'steel_claw', 'steel_whip', 'snow_staff', 'ice_fan'],
+    items: ['steel_dagger', 'steel_claw', 'steel_whip', 'snow_staff', 'ice_fan', 'gold_mic'],
     // 鉱山を 取りもどすと はがねの 品が そろう
     more: [{
       show: { all: ['c3_mine'] },

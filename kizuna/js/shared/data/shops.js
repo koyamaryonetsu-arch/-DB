@@ -2,10 +2,10 @@
 // お店: name 店の なまえ / kind かんばんの しゅるい / keeper 店の人 / hello さいしょの ことば / items 売っている 品物
 //       more: 物語が すすむと ふえる 品物 [{ show: { all: [フラグ] }, items: [...], hello }]（show の 書き方は NPC と おなじ。hello が あれば あいさつも かわる）
 
-import { SHOPS_CH2 } from './items-ch2.js?v=e3a05807fdd3';
-import { NIGHT_SHOPS } from './night.js?v=e3a05807fdd3';
-import { SHOPS_CH3, CH3_GUESTS } from './items-ch3.js?v=e3a05807fdd3';
-import { SHOPS_CH4 } from './items-ch4.js?v=e3a05807fdd3';
+import { SHOPS_CH2 } from './items-ch2.js?v=d2b7bf220f08';
+import { NIGHT_SHOPS } from './night.js?v=d2b7bf220f08';
+import { SHOPS_CH3, CH3_GUESTS } from './items-ch3.js?v=d2b7bf220f08';
+import { SHOPS_CH4 } from './items-ch4.js?v=d2b7bf220f08';
 
 export const SHOPS = {
   village: {
@@ -13,7 +13,8 @@ export const SHOPS = {
     kind: 'general',
     keeper: 'よろず屋のおじさん',
     hello: 'いらっしゃい！ホシフル村のよろず屋だよ。\n薬草から剣まで、何でもそろってるよ。\n今日はどんなご用だい？',
-    items: ['herb', 'antidote', 'holy_water', 'guide_thread', 'wood_sword', 'oak_staff', 'bronze_knife', 'feather_fan', 'harisen', 'ballpen', 'signal_flag', 'wood_bat', 'cloth', 'leather_hat', 'leather_shield'],
+    items: ['herb', 'antidote', 'holy_water', 'guide_thread', 'wood_sword', 'oak_staff', 'bronze_knife', 'feather_fan', 'harisen', 'ballpen', 'signal_flag', 'wood_bat',
+      'kitchen_knife', 'ladle', 'mop', 'cloth', 'leather_hat', 'leather_shield'],
   },
   weapon: {
     name: 'ルミナの武器屋',
@@ -21,11 +22,12 @@ export const SHOPS = {
     keeper: '武器屋のおやじ',
     hello: 'ここは武器屋だ。\n強い武器がなけりゃ、魔物とは戦えねえぞ。\nどんな用だい？',
     items: ['bronze_sword', 'stone_axe', 'bronze_knife', 'bronze_spear', 'bronze_knuckle', 'feather_fan', 'oak_staff',
-      'poison_knife', 'leather_whip', 'penlight', 'bamboo_bat', 'wood_boomerang'],
+      'poison_knife', 'leather_whip', 'penlight', 'bamboo_bat', 'wood_boomerang', 'kitchen_knife', 'frying_pan'],
     // 森の主を 助けると 鉄の 武器が とどく
     more: [{
       show: { all: ['c1_treant'] },
-      items: ['iron_sword', 'iron_axe', 'iron_spear', 'iron_claw', 'dancer_fan', 'wizard_staff', 'healing_staff', 'thorn_whip', 'metal_bat', 'katana', 'iron_boomerang'],
+      items: ['iron_sword', 'iron_axe', 'iron_spear', 'iron_claw', 'dancer_fan', 'wizard_staff', 'healing_staff', 'thorn_whip', 'metal_bat', 'katana', 'iron_boomerang',
+        'deck_brush', 'whisk', 'center_mic'],
       hello: 'ここは武器屋だ。\n森が元にもどって、鉄の武器がとどくようになったぞ！\nどんな用だい？',
     }],
   },

@@ -1,8 +1,8 @@
 // 色の かえかた（宝の洞窟の しゅるい・第3章の 氷と 火の 洞窟・第4章の 砂の 洞窟と 地下水路・洞窟の 主の 色ちがい）
 // もとの ドット絵は そのままに、明るさを たもって 色だけ かえる
-import { T } from '../../shared/tiles.js?v=e3a05807fdd3';
-import { makeCanvas, ctxOf } from './pixel.js?v=e3a05807fdd3';
-import { CANAL_CTX, CANAL_CTX_TILES } from './tiles-canal.js?v=e3a05807fdd3';
+import { T } from '../../shared/tiles.js?v=d2b7bf220f08';
+import { makeCanvas, ctxOf } from './pixel.js?v=d2b7bf220f08';
+import { CANAL_CTX, CANAL_CTX_TILES } from './tiles-canal.js?v=d2b7bf220f08';
 
 // どの 部分か（ゆか・かべ・水）
 const PART_OF_TILE = {

@@ -7,16 +7,16 @@
 // rank: 装備の ランク（1〜10。下の EQUIP_RANKS）。star: 店では 買えない 1つ上の 品（宝箱・レアドロップ）
 // unique: 1人 1つの 品（ボスが 落とす 物）。データを 合わせる ときに ふえすぎない
 
-import { ITEMS_CH2 } from './items-ch2.js?v=e3a05807fdd3';
-import { ITEMS_TM } from './items-tm.js?v=e3a05807fdd3';
-import { NIGHT_ITEMS, NIGHT_ITEM_KANA } from './night.js?v=e3a05807fdd3';
-import { SKY_ITEMS, SKY_ITEM_KANA } from './sky.js?v=e3a05807fdd3';
-import { ITEMS_FORGE, FORGE_KANA, addUpgradeItems } from './items-forge.js?v=e3a05807fdd3';
-import { ITEMS_CASINO, CASINO_KANA } from './items-casino.js?v=e3a05807fdd3';
-import { RARE_ITEMS, RARE_ITEM_KANA } from './monsters-rare.js?v=e3a05807fdd3';
-import { ESCAPE_ITEMS, ESCAPE_KANA } from './escape.js?v=e3a05807fdd3';
-import { ITEMS_CH3, CH3_ITEM_KANA } from './items-ch3.js?v=e3a05807fdd3';
-import { ITEMS_CH4, CH4_ITEM_KANA } from './items-ch4.js?v=e3a05807fdd3';
+import { ITEMS_CH2 } from './items-ch2.js?v=d2b7bf220f08';
+import { ITEMS_TM } from './items-tm.js?v=d2b7bf220f08';
+import { NIGHT_ITEMS, NIGHT_ITEM_KANA } from './night.js?v=d2b7bf220f08';
+import { SKY_ITEMS, SKY_ITEM_KANA } from './sky.js?v=d2b7bf220f08';
+import { ITEMS_FORGE, FORGE_KANA, addUpgradeItems } from './items-forge.js?v=d2b7bf220f08';
+import { ITEMS_CASINO, CASINO_KANA } from './items-casino.js?v=d2b7bf220f08';
+import { RARE_ITEMS, RARE_ITEM_KANA } from './monsters-rare.js?v=d2b7bf220f08';
+import { ESCAPE_ITEMS, ESCAPE_KANA } from './escape.js?v=d2b7bf220f08';
+import { ITEMS_CH3, CH3_ITEM_KANA } from './items-ch3.js?v=d2b7bf220f08';
+import { ITEMS_CH4, CH4_ITEM_KANA } from './items-ch4.js?v=d2b7bf220f08';
 
 export const ITEMS = {
   // ───── つかう どうぐ ─────
@@ -121,6 +121,17 @@ export const ITEMS = {
   metal_bat: { name: '金属バット', type: 'weapon', rank: 3, cat: 'bat', atk: 19, price: 380, desc: 'カキーンといい音がするバット。' },
   legend_bat: { name: 'ホームランバット', type: 'weapon', rank: 4, cat: 'bat', atk: 31, bonus: { agi: 3 }, price: 1300, desc: '海の男たちが使う、よく飛ぶバット。当たれば場外ホームラン！' },
   katana: { name: '刀', type: 'weapon', rank: 3, cat: 'sword', atk: 24, bonus: { agi: 2 }, price: 760, desc: 'よく切れる刀。サムライのたましい。' },
+  // 料理・仕事・お笑いの 職業の ぶき（2026年10月）
+  kitchen_knife: { name: '包丁', type: 'weapon', rank: 1, cat: 'dagger', atk: 9, bonus: { heal: 2 }, price: 80, desc: 'よく切れる包丁。料理人のあいぼう。' },
+  ladle: { name: 'おたま', type: 'weapon', rank: 1, cat: 'staff', atk: 5, bonus: { heal: 5 }, price: 50, desc: 'スープをすくうおたま。料理人の大切な道具。' },
+  mop: { name: 'モップ', type: 'weapon', rank: 1, cat: 'staff', atk: 6, bonus: { agi: 2 }, price: 40, desc: 'ゆかをぴかぴかにするモップ。アルバイトのあいぼう。' },
+  frying_pan: { name: 'フライパン', type: 'weapon', rank: 2, cat: 'axe', atk: 15, bonus: { def: 2 }, price: 220, desc: 'ふりまわすと「カーン！」といい音がするフライパン。' },
+  deck_brush: { name: 'デッキブラシ', type: 'weapon', rank: 3, cat: 'staff', atk: 11, bonus: { agi: 3, def: 2 }, price: 400, desc: '長い手の付いた、じょうぶなブラシ。' },
+  whisk: { name: 'あわだて器', type: 'weapon', rank: 3, cat: 'fan', atk: 15, bonus: { agi: 4, heal: 4 }, price: 480, desc: 'クリームをあわだてる道具。パティシエのあいぼう。' },
+  center_mic: { name: 'センターマイク', type: 'weapon', rank: 3, cat: 'staff', atk: 11, bonus: { mag: 6, agi: 2 }, price: 450, desc: 'まんざいのまん中に立つマイク。お笑い芸人のあいぼう。' },
+  chinese_wok: { name: '中華なべ', type: 'weapon', rank: 4, cat: 'axe', atk: 30, bonus: { def: 4 }, price: 1400, desc: '大きな鉄のなべ。重いが、たてにもなる。' },
+  gold_mic: { name: '金のマイク', type: 'weapon', rank: 5, cat: 'staff', atk: 16, bonus: { mag: 14, agi: 4 }, price: 2400, desc: '金色にかがやくマイク。話すとみんなが聞き入る。' },
+  chef_knife: { name: '三ツ星の包丁', type: 'weapon', rank: 6, cat: 'dagger', atk: 36, bonus: { agi: 3, heal: 8 }, price: 3600, desc: '世界一のシェフが使う包丁。金色の手もとがかがやく。' },
   // ブーメラン（ふつうの 攻撃で 敵全体に 当たる。何体にも 当たる ぶん、同じ ランクの 剣より 攻撃力は 低い）
   wood_boomerang: { name: '木のブーメラン', type: 'weapon', rank: 1, cat: 'boomerang', atk: 5, price: 120, upMat: 'wind_feather', desc: '投げると敵全体に当たって、手もとにもどってくる木のブーメラン。' },
   iron_boomerang: { name: '鉄のブーメラン', type: 'weapon', rank: 3, cat: 'boomerang', atk: 13, price: 620, desc: '重みのある鉄のブーメラン。敵全体をなぎはらって、もどってくる。' },
@@ -256,6 +267,7 @@ export const ITEM_KANA = {
   silver_shield: 'ぎんのたて', shell_shield: 'かいのたて', silver_helm: 'ぎんのかぶと', captain_hat: 'せんちょうのぼうし',
   wind_ring: 'かぜのゆびわ', deep_ring: 'しんかいのゆびわ', storm_bangle: 'あらしのうでわ', sea_charm: 'うみのおまもり',
   light_orb: 'ひかりのたま', wind_star: 'かぜのまもりぼし', bottle_letter: 'びんのてがみ',
+  kitchen_knife: 'ほうちょう', whisk: 'あわだてき', chinese_wok: 'ちゅうかなべ', gold_mic: 'きんのまいく', chef_knife: 'みつぼしのほうちょう',
   tm_gold_bangle: 'おうごんのうでわ', tm_gem_ring: 'ほうせきのゆびわ', tm_dragon_scale: 'えんりゅうのうろこ', tm_dark_ring: 'やみのゆびわ', tm_ice_pendant: 'こおりのぺんだんと', tm_shadow_anklet: 'かげのあんくれっと',
 };
 

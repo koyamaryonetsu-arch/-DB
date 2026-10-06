@@ -51,7 +51,7 @@ export const JOBS = {
     perLv: { heal: 1, mp: 0.6 },
     learn: [
       [1, 'hoimi'], [2, 'sukara'], [2, 'kiarii'], [3, 'bagi'], [4, 'mahoton'],
-      [5, 'behoimi'], [6, 'zao'], [7, 'sukuruto'], [8, 'kiariku'], [9, 'bagima'], [10, 'behomara'],
+      [5, 'behoimi'], [6, 'zao'], [6, 'sr_seikou'], [7, 'sukuruto'], [8, 'kiariku'], [9, 'bagima'], [10, 'behomara'],
     ],
   },
   mage: {
@@ -73,8 +73,8 @@ export const JOBS = {
     perLv: { mp: 0.6, agi: 0.4 },
     versatile: true, // 旅芸人は転職ペナルティが軽い
     learn: [
-      [1, 'hustle'], [2, 'piorimu'], [3, 'manusa'], [4, 'medapani'], [5, 'baikiruto'],
-      [6, 'juggling'], [7, 'ouen'], [8, 'tatakai_uta'], [10, 'zameha_dance'],
+      [1, 'hustle'], [1, 'pf_hifuki'], [2, 'piorimu'], [3, 'manusa'], [4, 'medapani'], [5, 'baikiruto'],
+      [6, 'juggling'], [7, 'ouen'], [8, 'tatakai_uta'], [9, 'pf_tamanori'], [10, 'zameha_dance'],
     ],
   },
   jester: {
@@ -86,7 +86,7 @@ export const JOBS = {
     passive: { goof: 0.08 },
     learn: [
       [1, 'js_asobu'], [2, 'js_gag'], [3, 'js_lucky'], [4, 'js_neru'], [5, 'js_kuchibue'],
-      [6, 'js_bakuten'], [7, 'js_kusuguri'], [8, 'js_darts'], [10, 'js_miracle'],
+      [6, 'js_bakuten'], [7, 'js_kusuguri'], [8, 'js_darts'], [9, 'js_pie'], [10, 'js_miracle'],
     ],
   },
   salaryman: {
@@ -97,8 +97,8 @@ export const JOBS = {
     perLv: { hp: 1, def: 0.3 },
     passive: { gold: 1.1 },
     learn: [
-      [1, 'sm_meishi'], [2, 'sm_horenso'], [3, 'sm_zangyo'], [4, 'sm_coffee'], [5, 'sm_teiji'],
-      [6, 'sm_present'], [7, 'sm_nomikai'], [8, 'sm_eigyo'], [10, 'sm_bonus'],
+      [1, 'sm_meishi'], [2, 'sm_horenso'], [2, 'sm_kaban'], [3, 'sm_zangyo'], [4, 'sm_coffee'], [5, 'sm_teiji'],
+      [6, 'sm_present'], [7, 'sm_nomikai'], [8, 'sm_eigyo'], [9, 'sm_nouki'], [10, 'sm_bonus'],
     ],
   },
   idol: {
@@ -108,8 +108,8 @@ export const JOBS = {
     weapons: ['fan', 'whip', 'staff', 'none'], shield: false, armor: ['cloth', 'robe'], helm: false,
     perLv: { heal: 0.5, agi: 0.5 },
     learn: [
-      [1, 'id_kiss'], [2, 'id_fansa'], [3, 'id_wink'], [4, 'id_hightouch'], [5, 'id_center'],
-      [6, 'id_penlight'], [7, 'id_encore'], [8, 'id_kami'], [10, 'id_senkyo'],
+      [1, 'id_kiss'], [2, 'id_fansa'], [2, 'id_beam'], [3, 'id_wink'], [4, 'id_hightouch'], [5, 'id_center'],
+      [6, 'id_penlight'], [6, 'id_shower'], [7, 'id_encore'], [8, 'id_kami'], [9, 'id_dome'], [10, 'id_senkyo'],
     ],
   },
   railman: {
@@ -150,7 +150,7 @@ export const JOBS = {
     mods: { hp: 1.4, mp: 0.85, str: 1.1, def: 1.5, agi: 0.8, mag: 0.6, heal: 1.2 },
     weapons: ['sword', 'spear', 'staff'], shield: true, armor: ['cloth', 'heavy', 'robe'], helm: true,
     perLv: { def: 1, hp: 1 },
-    learn: [[1, 'pl_daibougyo'], [3, 'pl_hikari'], [5, 'pl_grandcross'], [7, 'pl_aegis'], [10, 'pl_judgment']],
+    learn: [[1, 'pl_daibougyo'], [2, 'pl_seiken'], [3, 'pl_hikari'], [5, 'pl_grandcross'], [7, 'pl_aegis'], [10, 'pl_judgment']],
   },
   magic_knight: {
     id: 'magic_knight', name: '魔法戦士', kana: 'まほうせんし', short: '魔戦', tier: 1, req: ['warrior', 'mage'], family: 'phys', color: '#b05ad0',
@@ -192,7 +192,7 @@ export const JOBS = {
     weapons: ['whip', 'claw', 'axe', 'none'], shield: true, armor: ['cloth', 'gi', 'heavy'], helm: false,
     perLv: { hp: 1, agi: 0.3 },
     passive: { befriend: 1.5 },
-    learn: [[1, 'tm_shippu'], [3, 'tm_beast'], [5, 'tm_kemono'], [7, 'tm_kizuna'], [10, 'tm_majuu']],
+    learn: [[1, 'tm_shippu'], [3, 'tm_beast'], [4, 'tm_ranbu'], [5, 'tm_kemono'], [7, 'tm_kizuna'], [10, 'tm_majuu']],
   },
   sage: {
     id: 'sage', name: '賢者', kana: 'けんじゃ', short: '賢者', tier: 1, req: ['priest', 'mage'], reqAlt: [['jester']], family: 'magic', color: '#3fa35a',
@@ -209,7 +209,7 @@ export const JOBS = {
     weapons: ['fan', 'whip', 'dagger', 'boomerang'], shield: true, armor: ['cloth', 'robe', 'gi'], helm: false,
     perLv: { mp: 0.5, heal: 0.5 },
     versatile: true,
-    learn: [[1, 'ss_stardance'], [3, 'ss_spotlight'], [5, 'ss_charm'], [7, 'ss_happy'], [10, 'ss_encore']],
+    learn: [[1, 'ss_stardance'], [2, 'ss_stardust'], [3, 'ss_spotlight'], [5, 'ss_charm'], [7, 'ss_happy'], [8, 'ss_nova'], [10, 'ss_encore']],
   },
   fortune: {
     id: 'fortune', name: '占い師', kana: 'うらないし', short: '占い', tier: 1, req: ['mage', 'performer'], family: 'magic', color: '#7a4ab8',
@@ -234,7 +234,7 @@ export const JOBS = {
     weapons: ['dagger', 'staff', 'fan', 'none'], shield: true, armor: ['cloth', 'robe', 'heavy'], helm: false,
     perLv: { hp: 1, def: 0.5 },
     passive: { gold: 1.2 },
-    learn: [[1, 'bc_kaigi'], [3, 'bc_kessai'], [5, 'bc_homeru'], [7, 'bc_idou'], [10, 'bc_modoshi']],
+    learn: [[1, 'bc_kaigi'], [2, 'bc_golf'], [3, 'bc_kessai'], [5, 'bc_homeru'], [7, 'bc_idou'], [8, 'bc_shucchou'], [10, 'bc_modoshi']],
   },
   major_leaguer: {
     id: 'major_leaguer', name: 'メジャーリーガー', kana: 'めじゃーりーがー', short: 'メジ', tier: 1, req: ['ballplayer'], family: 'phys', color: '#2a5ab8',
@@ -268,7 +268,7 @@ export const JOBS = {
     mods: { hp: 1.1, mp: 1.6, str: 0.8, def: 1.15, agi: 1.0, mag: 1.0, heal: 1.75 },
     weapons: ['staff', 'spear'], shield: true, armor: ['cloth', 'robe'], helm: false,
     perLv: { heal: 1, mp: 1 },
-    learn: [[1, 'hp_seinaru'], [3, 'hp_zaoriku'], [5, 'hp_bagimuta'], [7, 'hp_behomazun'], [10, 'hp_tenshi']],
+    learn: [[1, 'hp_seinaru'], [2, 'hp_holy'], [3, 'hp_zaoriku'], [5, 'hp_bagimuta'], [7, 'hp_behomazun'], [8, 'hp_sabaki'], [10, 'hp_tenshi']],
   },
   god_hand: {
     id: 'god_hand', name: 'ゴッドハンド', kana: 'ごっどはんど', short: 'ゴッ', tier: 2, req: ['battlemaster', 'holyfist'], family: 'phys', color: '#ffb030',
@@ -300,7 +300,7 @@ export const JOBS = {
     mods: { hp: 1.6, mp: 0.8, str: 1.15, def: 1.75, agi: 0.8, mag: 0.6, heal: 1.1 },
     weapons: ['spear', 'sword', 'axe'], shield: true, armor: ['cloth', 'heavy'], helm: true,
     perLv: { def: 1, hp: 2 },
-    learn: [[1, 'gd_wall'], [3, 'gd_bash'], [5, 'gd_protect'], [7, 'gd_iyashi'], [10, 'gd_fortress']],
+    learn: [[1, 'gd_wall'], [2, 'gd_youzai'], [3, 'gd_bash'], [5, 'gd_protect'], [7, 'gd_iyashi'], [8, 'gd_daichi'], [10, 'gd_fortress']],
   },
   hero: {
     id: 'hero', name: '勇者', kana: 'ゆうしゃ', short: '勇者', tier: 2, req: ['battlemaster', 'sage', 'paladin'], family: 'phys', color: '#3f7fd0',
@@ -318,7 +318,7 @@ export const JOBS = {
     weapons: ['whip', 'claw', 'axe', 'staff', 'none'], shield: true, armor: ['cloth', 'gi', 'heavy'], helm: false,
     perLv: { hp: 1, heal: 0.5 },
     passive: { befriend: 2, monsterBoost: 1.12 },
-    learn: [[1, 'mm_whip'], [3, 'mm_iyashi'], [5, 'mm_howl'], [7, 'mm_kizuna'], [10, 'mm_king']],
+    learn: [[1, 'mm_whip'], [3, 'mm_iyashi'], [5, 'mm_howl'], [7, 'mm_kizuna'], [8, 'mm_daikoushin'], [10, 'mm_king']],
   },
   star_diva: {
     id: 'star_diva', name: '星の歌姫', kana: 'ほしのうたひめ', short: '歌姫', tier: 2, req: ['superstar', 'fortune'], family: 'magic', color: '#f7a1c4',
@@ -343,7 +343,7 @@ export const JOBS = {
     mods: { hp: 1.5, mp: 0.9, str: 1.55, def: 1.35, agi: 1.35, mag: 0.8, heal: 0.9 },
     weapons: ['sword', 'spear', 'dagger', 'none'], shield: true, armor: ['cloth', 'gi', 'heavy'], helm: true,
     perLv: { str: 1, hp: 1 },
-    learn: [[1, 'sg_gorei'], [3, 'sg_kagemusha'], [5, 'sg_oniwaban'], [7, 'sg_gunbai'], [10, 'sg_tenka']],
+    learn: [[1, 'sg_gorei'], [2, 'sg_ikkiuchi'], [3, 'sg_kagemusha'], [5, 'sg_oniwaban'], [7, 'sg_gunbai'], [10, 'sg_tenka']],
   },
   shacho: {
     id: 'shacho', name: '社長', kana: 'しゃちょう', short: '社長', tier: 2, req: ['bucho'], family: 'tech', color: '#3a3a4a',
@@ -352,7 +352,7 @@ export const JOBS = {
     weapons: ['dagger', 'staff', 'fan', 'sword', 'none'], shield: true, armor: ['cloth', 'robe', 'heavy'], helm: false,
     perLv: { hp: 1, mp: 0.5, def: 0.5 },
     passive: { gold: 1.5 },
-    learn: [[1, 'sh_tsuru'], [3, 'sh_meirei'], [5, 'sh_kabunushi'], [7, 'sh_baishu'], [10, 'sh_topdown']],
+    learn: [[1, 'sh_tsuru'], [2, 'sh_jet'], [3, 'sh_meirei'], [5, 'sh_kabunushi'], [7, 'sh_baishu'], [8, 'sh_oneman'], [10, 'sh_topdown']],
   },
   nitoryu: {
     id: 'nitoryu', name: '二刀流スター', kana: 'にとうりゅうすたー', short: '二刀', tier: 2, req: ['major_leaguer'], family: 'phys', color: '#c83a3a',
@@ -383,7 +383,7 @@ export const JOBS = {
     weapons: ['sword', 'staff', 'bat', 'boomerang', 'none'], shield: true, armor: ['cloth', 'gi', 'robe'], helm: true,
     perLv: { str: 0.5, agi: 0.5 },
     passive: { train: 1.25 },
-    learn: [[1, 'jh_bukatsu'], [3, 'jh_test'], [5, 'jh_hankou'], [7, 'jh_gassho'], [10, 'jh_zenkoku']],
+    learn: [[1, 'jh_bukatsu'], [2, 'jh_smash'], [3, 'jh_test'], [5, 'jh_hankou'], [7, 'jh_gassho'], [10, 'jh_zenkoku']],
   },
   highschooler: {
     id: 'highschooler', name: '高校生', kana: 'こうこうせい', short: '高校', tier: 2, req: ['middleschooler'], family: 'tech', color: '#4a7ad0',
@@ -404,7 +404,7 @@ export const JOBS = {
     perLv: { def: 0.5, heal: 0.5 },
     learn: [
       [1, 'lc_madoguchi'], [2, 'lc_bousai'], [3, 'lc_josetsu'], [4, 'lc_jumin'], [5, 'lc_tsuukou'],
-      [6, 'lc_yurukyara'], [7, 'lc_takidashi'], [8, 'lc_shorui'], [10, 'lc_machiokoshi'],
+      [6, 'lc_yurukyara'], [7, 'lc_takidashi'], [8, 'lc_shorui'], [9, 'lc_kouhou'], [10, 'lc_machiokoshi'],
     ],
   },
   civil_national: {
@@ -413,7 +413,7 @@ export const JOBS = {
     mods: { hp: 1.2, mp: 1.1, str: 1.0, def: 1.3, agi: 0.95, mag: 1.05, heal: 1.15 },
     weapons: ['dagger', 'staff', 'spear', 'none'], shield: true, armor: ['cloth', 'robe', 'heavy'], helm: true,
     perLv: { def: 1, mp: 0.5 },
-    learn: [[1, 'nc_houritsu'], [3, 'nc_yosan'], [5, 'nc_kisha'], [7, 'nc_hanko'], [10, 'nc_project']],
+    learn: [[1, 'nc_houritsu'], [2, 'nc_roppou'], [3, 'nc_yosan'], [5, 'nc_kisha'], [7, 'nc_hanko'], [10, 'nc_project']],
   },
   career: {
     id: 'career', name: 'キャリア組', kana: 'きゃりあぐみ', short: 'キャ', tier: 2, req: ['civil_national'], family: 'tech', color: '#1e2a3a',
@@ -421,7 +421,7 @@ export const JOBS = {
     mods: { hp: 1.35, mp: 1.35, str: 1.15, def: 1.4, agi: 1.05, mag: 1.25, heal: 1.3 },
     weapons: ['dagger', 'staff', 'spear', 'sword', 'none'], shield: true, armor: ['cloth', 'robe', 'heavy'], helm: true,
     perLv: { def: 1, mp: 0.5, heal: 0.5 },
-    learn: [[1, 'cr_seisaku'], [3, 'cr_nemawashi'], [5, 'cr_kiki'], [7, 'cr_houkaisei'], [10, 'cr_daikaikaku']],
+    learn: [[1, 'cr_seisaku'], [2, 'cr_ronpa'], [3, 'cr_nemawashi'], [5, 'cr_kiki'], [7, 'cr_houkaisei'], [8, 'cr_hakusho'], [10, 'cr_daikaikaku']],
   },
 
   // ───────────── 町の みかた（地方公務員と 戦士・僧侶を マスターすると なれる） ─────────────
@@ -431,7 +431,7 @@ export const JOBS = {
     mods: { hp: 1.3, mp: 0.7, str: 1.3, def: 1.3, agi: 1.1, mag: 0.55, heal: 0.75 },
     weapons: ['sword', 'staff', 'spear', 'none'], shield: true, armor: ['cloth', 'heavy'], helm: true,
     perLv: { def: 1, str: 0.5 },
-    learn: [[1, 'po_taiho'], [3, 'po_shokumu'], [5, 'po_koutsuu'], [7, 'po_patocar'], [10, 'po_seigi']],
+    learn: [[1, 'po_taiho'], [2, 'po_keibou'], [3, 'po_shokumu'], [5, 'po_koutsuu'], [7, 'po_patocar'], [10, 'po_seigi']],
   },
   firefighter: {
     id: 'firefighter', name: '消防士', kana: 'しょうぼうし', short: '消防', tier: 1, req: ['civil_local', 'priest'], family: 'phys', color: '#c83a2a',
@@ -439,7 +439,7 @@ export const JOBS = {
     mods: { hp: 1.4, mp: 0.85, str: 1.2, def: 1.25, agi: 0.95, mag: 0.6, heal: 1.2 },
     weapons: ['axe', 'spear', 'staff', 'none'], shield: true, armor: ['cloth', 'heavy'], helm: true,
     perLv: { hp: 1, heal: 0.5 },
-    learn: [[1, 'ff_housui'], [3, 'ff_teate'], [5, 'ff_kyujo'], [7, 'ff_hinoyoujin'], [10, 'ff_issei']],
+    learn: [[1, 'ff_housui'], [3, 'ff_teate'], [5, 'ff_kyujo'], [7, 'ff_hinoyoujin'], [8, 'ff_hashigo'], [10, 'ff_issei']],
   },
 
   // ───────────── スーパースターの 先（体で なれる 職業が ちがう） ─────────────
@@ -450,7 +450,7 @@ export const JOBS = {
     weapons: ['fan', 'whip', 'staff', 'none'], shield: false, armor: ['cloth', 'robe'], helm: false,
     perLv: { heal: 0.5, agi: 0.5, mp: 0.5 },
     versatile: true,
-    learn: [[1, 'fz_juice'], [3, 'fz_banana'], [5, 'fz_basket'], [7, 'fz_tropical'], [10, 'fz_meteor']],
+    learn: [[1, 'fz_juice'], [2, 'fz_cherry'], [3, 'fz_banana'], [5, 'fz_basket'], [7, 'fz_tropical'], [8, 'fz_pine'], [10, 'fz_meteor']],
   },
   storm_idol: {
     id: 'storm_idol', name: 'アラシ', kana: 'あらし', short: 'アラ', tier: 2, req: ['superstar'], body: 0, family: 'magic', color: '#3a8ad8',
@@ -459,7 +459,7 @@ export const JOBS = {
     weapons: ['fan', 'whip', 'staff', 'none'], shield: false, armor: ['cloth', 'robe'], helm: false,
     perLv: { mag: 0.5, agi: 0.5, mp: 0.5 },
     versatile: true,
-    learn: [[1, 'ar_senpu'], [3, 'ar_manazashi'], [5, 'ar_harmony'], [7, 'ar_stage'], [10, 'ar_live']],
+    learn: [[1, 'ar_senpu'], [2, 'ar_spin'], [3, 'ar_manazashi'], [5, 'ar_harmony'], [7, 'ar_stage'], [8, 'ar_inazuma'], [10, 'ar_live']],
   },
 
   // ───────────── 鉄道の 職業（鉄道員 → 運転士 → 京急の運転士） ─────────────
@@ -477,23 +477,132 @@ export const JOBS = {
     mods: { hp: 1.45, mp: 1.05, str: 1.45, def: 1.4, agi: 1.4, mag: 0.9, heal: 1.05 },
     weapons: ['fan', 'staff', 'spear', 'sword', 'none'], shield: true, armor: ['cloth', 'heavy'], helm: true,
     perLv: { hp: 1, str: 0.5, agi: 0.5, def: 0.5 },
-    learn: [[1, 'kq_doremi'], [3, 'kq_120'], [5, 'kq_sentou'], [7, 'kq_daiya'], [10, 'kq_kaitoku']],
+    learn: [[1, 'kq_doremi'], [3, 'kq_120'], [5, 'kq_sentou'], [7, 'kq_daiya'], [8, 'kq_renketsu'], [10, 'kq_kaitoku']],
+  },
+
+  // ───────────── 料理の 職業（料理人 → パティシエ → 三ツ星シェフ）。攻撃も 回復も できる ─────────────
+  cook: {
+    id: 'cook', name: '料理人', kana: 'りょうりにん', short: '料理', tier: 0, family: 'tech', color: '#d8cfb8',
+    desc: '料理のうでで仲間を元気にする。包丁さばきで切りつけ、強火で焼き、あったかいスープでじわじわ回復させる。',
+    mods: { hp: 1.1, mp: 0.95, str: 1.05, def: 1.0, agi: 1.0, mag: 0.95, heal: 1.2 },
+    weapons: ['dagger', 'axe', 'staff'], shield: true, armor: ['cloth', 'robe'], helm: false,
+    perLv: { hp: 1, heal: 0.5 },
+    learn: [
+      [1, 'ck_houchou'], [2, 'ck_soup'], [3, 'ck_tsuyobi'], [4, 'ck_spice'], [5, 'ck_stamina'],
+      [6, 'ck_mijin'], [7, 'ck_tsumami'], [8, 'ck_flambe'], [10, 'ck_fullcourse'],
+    ],
+  },
+  patissier: {
+    id: 'patissier', name: 'パティシエ', kana: 'ぱてぃしえ', short: 'パテ', tier: 1, req: ['cook'], family: 'tech', color: '#f4a6c0',
+    desc: 'あまいおかしの職人。ケーキで仲間をいやし、クリームやアメで敵をこまらせる。',
+    mods: { hp: 1.05, mp: 1.2, str: 0.95, def: 1.0, agi: 1.2, mag: 1.15, heal: 1.35 },
+    weapons: ['fan', 'dagger', 'staff'], shield: false, armor: ['cloth', 'robe'], helm: false,
+    perLv: { heal: 0.5, mp: 0.5 },
+    learn: [[1, 'pa_cream'], [2, 'pa_candy'], [3, 'pa_cake'], [4, 'pa_fondue'], [5, 'pa_macaron'], [7, 'pa_sugar'], [8, 'pa_kaori'], [10, 'pa_wedding']],
+  },
+  star_chef: {
+    id: 'star_chef', name: '三ツ星シェフ', kana: 'みつぼししぇふ', short: 'シェ', tier: 2, req: ['patissier'], family: 'tech', color: '#f2d06a',
+    desc: '世界一の料理人。鉄人の包丁さばきと炎のフライパンで敵をたおし、三ツ星のフルコースで仲間を元気にする。料理の職業の頂点。',
+    mods: { hp: 1.3, mp: 1.3, str: 1.3, def: 1.15, agi: 1.25, mag: 1.3, heal: 1.45 },
+    weapons: ['dagger', 'axe', 'fan', 'staff'], shield: true, armor: ['cloth', 'robe'], helm: false,
+    perLv: { hp: 1, str: 0.5, heal: 0.5 },
+    learn: [[1, 'sc_tetsujin'], [2, 'sc_ajimi'], [3, 'sc_honoo'], [5, 'sc_osusume'], [7, 'sc_fullcourse'], [10, 'sc_kyuukyoku']],
+  },
+
+  // ───────────── 仕事の 職業（アルバイト → 正社員 → たたき上げ社長）。戦いで 手に入る お金が ふえる ─────────────
+  parttimer: {
+    id: 'parttimer', name: 'アルバイト', kana: 'あるばいと', short: 'バイ', tier: 0, family: 'tech', color: '#3aa86a',
+    desc: 'いろいろなお店で働くアルバイト。ダンボール運びやレジうちで敵と戦い、シフトの交代で仲間を助ける。戦いで手に入るお金が少しふえる。',
+    mods: { hp: 1.05, mp: 0.85, str: 1.05, def: 1.0, agi: 1.15, mag: 0.85, heal: 0.95 },
+    weapons: ['dagger', 'staff', 'none'], shield: true, armor: ['cloth', 'robe', 'gi'], helm: false,
+    perLv: { hp: 1, agi: 0.5 },
+    passive: { gold: 1.1 },
+    learn: [
+      [1, 'ab_danboru'], [2, 'ab_irasshai'], [3, 'ab_reji'], [4, 'ab_makanai'], [5, 'ab_shift'],
+      [6, 'ab_shinadashi'], [7, 'ab_yakin'], [8, 'ab_tenchou'], [9, 'ab_kaikin'], [10, 'ab_nenmatsu'],
+    ],
+  },
+  seishain: {
+    id: 'seishain', name: '正社員', kana: 'せいしゃいん', short: '社員', tier: 1, req: ['parttimer'], family: 'tech', color: '#6a7a8a',
+    desc: 'アルバイトから正社員になった、たよれる仕事人。有給休かでしっかり回復し、朝礼でチームをまとめる。戦いで手に入るお金がふえる。',
+    mods: { hp: 1.25, mp: 1.0, str: 1.2, def: 1.2, agi: 1.1, mag: 0.95, heal: 1.05 },
+    weapons: ['dagger', 'staff', 'sword', 'none'], shield: true, armor: ['cloth', 'robe', 'heavy'], helm: false,
+    perLv: { hp: 1, str: 0.5, def: 0.5 },
+    passive: { gold: 1.2 },
+    learn: [[1, 'se_shainsho'], [2, 'se_chourei'], [3, 'se_yukyu'], [5, 'se_project'], [7, 'se_fukuri'], [8, 'se_ookuchi'], [10, 'se_shusse']],
+  },
+  tatakiage: {
+    id: 'tatakiage', name: 'たたき上げ社長', kana: 'たたきあげしゃちょう', short: 'たた', tier: 2, req: ['seishain'], family: 'tech', color: '#3a6a3a',
+    desc: 'アルバイトから会社を作るまでのぼりつめた社長。現場できたえた体で先頭に立ち、どんなピンチでもふんばる。戦いで手に入るお金がとてもふえる。',
+    mods: { hp: 1.45, mp: 1.15, str: 1.45, def: 1.35, agi: 1.2, mag: 1.05, heal: 1.15 },
+    weapons: ['dagger', 'staff', 'sword', 'axe', 'none'], shield: true, armor: ['cloth', 'robe', 'heavy', 'gi'], helm: true,
+    perLv: { hp: 1, str: 1 },
+    passive: { gold: 1.4 },
+    learn: [[1, 'tk_genba'], [3, 'tk_konjou'], [5, 'tk_zensha'], [7, 'tk_satsutaba'], [8, 'tk_ryokou'], [10, 'tk_tatakiage']],
+  },
+
+  // ───────────── お笑いの 職業（旅芸人・遊び人 → お笑い芸人 → M-1王者）。笑いで 敵の 動きを 止める ─────────────
+  comedian: {
+    id: 'comedian', name: 'お笑い芸人', kana: 'おわらいげいにん', short: '芸人', tier: 1, req: ['performer'], reqAlt: [['jester']], family: 'tech', color: '#f2b83a',
+    desc: 'みんなを笑わせるプロの芸人。ボケとツッコミで敵のペースをくずし、笑いで仲間を元気にする。旅芸人か遊び人をきわめるとなれる。',
+    mods: { hp: 1.1, mp: 1.1, str: 1.0, def: 1.0, agi: 1.3, mag: 1.15, heal: 1.1 },
+    weapons: ['fan', 'staff', 'whip', 'boomerang', 'none'], shield: false, armor: ['cloth', 'robe', 'gi'], helm: false,
+    perLv: { agi: 0.5, mp: 0.5 },
+    versatile: true,
+    learn: [[1, 'cm_tsukkomi'], [2, 'cm_boke'], [3, 'cm_gag'], [5, 'cm_conte'], [7, 'cm_warai'], [8, 'cm_monomane'], [10, 'cm_bakushou']],
+  },
+  m1_champion: {
+    id: 'm1_champion', name: 'M-1王者', kana: 'えむわんおうじゃ', short: 'M1', tier: 2, req: ['comedian'], family: 'tech', color: '#e0b030',
+    desc: '日本一のまんざい師。マシンガントークで敵をまくし立て、伝説のツッコミでどんな強がりもくずす。笑いの頂点。',
+    mods: { hp: 1.25, mp: 1.3, str: 1.2, def: 1.15, agi: 1.45, mag: 1.35, heal: 1.25 },
+    weapons: ['fan', 'staff', 'whip', 'boomerang', 'none'], shield: false, armor: ['cloth', 'robe', 'gi'], helm: false,
+    perLv: { agi: 0.5, mag: 0.5, mp: 0.5 },
+    versatile: true,
+    learn: [[1, 'm1_machinegun'], [3, 'm1_densetsu'], [5, 'm1_neta'], [7, 'm1_kansei'], [10, 'm1_yuushou']],
+  },
+
+  // ───────────── 大賢者（賢者を きわめた 者） ─────────────
+  daikenja: {
+    id: 'daikenja', name: '大賢者', kana: 'だいけんじゃ', short: '大賢', tier: 2, req: ['sage'], family: 'magic', color: '#4a4ab8',
+    desc: '回復と攻撃の呪文をすべてきわめた、賢者の頂点。のこりのMPを全て解き放つ呪文「マダンテ」を使える、ただ一つの職業。',
+    mods: { hp: 1.0, mp: 1.75, str: 0.75, def: 1.0, agi: 1.15, mag: 1.7, heal: 1.7 },
+    weapons: ['staff', 'spear', 'dagger'], shield: true, armor: ['cloth', 'robe'], helm: false,
+    perLv: { mp: 1, mag: 0.5, heal: 0.5 },
+    learn: [[1, 'dz_mahyadedos'], [2, 'dz_ishi'], [3, 'dz_zaoriku'], [5, 'dz_iogurande'], [7, 'dz_behomazun'], [8, 'dz_satori'], [10, 'dz_madante']],
+  },
+
+  // ───────────── 伝説の 職業（勇者と、ほかの 超級職 2つを マスターすると なれる） ─────────────
+  // reqSuper: req の ほかに、マスターしている 超級職の かず
+  loto_hero: {
+    id: 'loto_hero', name: 'ロトの勇者', kana: 'ろとのゆうしゃ', short: 'ロト', tier: 3, req: ['hero'], reqSuper: 2, family: 'phys', color: '#2a5ad8',
+    desc: '伝説の勇者ロトの名をつぐ者。勇者と、ほかの2つの超級職をきわめた者だけがなれる。ミナデインやロトの剣技で、どんな闇も切りひらく。',
+    mods: { hp: 1.55, mp: 1.35, str: 1.55, def: 1.45, agi: 1.35, mag: 1.45, heal: 1.45 },
+    weapons: ['sword', 'spear', 'axe', 'staff', 'boomerang'], shield: true, armor: ['cloth', 'heavy', 'robe', 'gi'], helm: true,
+    perLv: { hp: 2, str: 1, mag: 0.5, heal: 0.5 },
+    versatile: true,
+    learn: [[1, 'lt_ken'], [3, 'lt_shirushi'], [5, 'lt_inori'], [7, 'lt_gigacross'], [9, 'lt_kizuna'], [10, 'lt_minadein']],
   },
 };
 
 // はじめに えらべる 職業（基本職）
 export const JOB_ORDER = ['warrior', 'monk', 'priest', 'mage', 'performer', 'jester', 'salaryman', 'idol', 'railman', 'ballplayer',
-  'schoolkid', 'civil_local'];
+  'schoolkid', 'civil_local', 'cook', 'parttimer'];
 export const ADVANCED_ORDER = ['battlemaster', 'paladin', 'magic_knight', 'pirate', 'holyfist', 'ninja', 'tamer', 'sage', 'superstar', 'fortune',
-  'samurai', 'bucho', 'major_leaguer', 'middleschooler', 'civil_national', 'police', 'firefighter', 'train_driver'];
+  'samurai', 'bucho', 'major_leaguer', 'middleschooler', 'civil_national', 'police', 'firefighter', 'train_driver',
+  'patissier', 'seishain', 'comedian'];
 export const SUPER_ORDER = ['dragon_knight', 'archmage', 'high_priest', 'god_hand', 'summoner', 'magic_swordsman', 'guardian', 'hero', 'monster_master', 'star_diva',
-  'sword_master', 'shogun', 'shacho', 'nitoryu', 'highschooler', 'career', 'fruit_idol', 'storm_idol', 'keikyu_driver'];
-export const ALL_JOBS = [...JOB_ORDER, ...ADVANCED_ORDER, ...SUPER_ORDER];
-export const TIER_NAMES = ['基本職', '上級職', '超級職'];
+  'sword_master', 'shogun', 'shacho', 'nitoryu', 'highschooler', 'career', 'fruit_idol', 'storm_idol', 'keikyu_driver',
+  'star_chef', 'tatakiage', 'm1_champion', 'daikenja'];
+// 伝説の 職業（超級職の 先）
+export const LEGEND_ORDER = ['loto_hero'];
+export const ALL_JOBS = [...JOB_ORDER, ...ADVANCED_ORDER, ...SUPER_ORDER, ...LEGEND_ORDER];
+export const TIER_NAMES = ['基本職', '上級職', '超級職', '伝説の職業'];
+// 神殿で ならべる じゅん（ランクごと）
+export const TIER_ORDERS = [JOB_ORDER, ADVANCED_ORDER, SUPER_ORDER, LEGEND_ORDER];
 
 // 職業レベルに ひつような たたかいの かず（るいけい。上級・超級は すこし おおい）
 const BATTLES = [0, 3, 7, 13, 21, 31, 43, 58, 76, 98];
-const TIER_MULT = [1, 1.4, 1.8];
+const TIER_MULT = [1, 1.4, 1.8, 2.2];
 // 職業レベルの 上がりにくさ（1.4 … はじめの 版の 1.4倍 たたかう ひつようが ある）。上がった レベルは そのまま
 export const JOB_RATE = 1.4;
 export function jobBattlesForLevel(lv, tier = 0) {
@@ -536,7 +645,14 @@ export function jobAncestry(id) {
 // なる ための じょうけんの せつめい（例: 「戦士Lv10＋武闘家Lv10」「僧侶Lv10＋魔法使いLv10 または 遊び人Lv10」）
 // name: 職業の なまえの 出し方（まだ ひみつの 職業を「？？？？」に する ときなど）
 export function jobReqText(id, name = (r) => JOBS[r].name) {
-  return jobReqSets(id).map((set) => set.map((r) => `${name(r)}Lv${JOB_MAX_LEVEL}`).join('＋')).join(' または ');
+  const sup = JOBS[id]?.reqSuper ? `＋ほかの超級職${JOBS[id].reqSuper}つLv${JOB_MAX_LEVEL}` : '';
+  return jobReqSets(id).map((set) => set.map((r) => `${name(r)}Lv${JOB_MAX_LEVEL}`).join('＋') + sup).join(' または ');
+}
+
+// ロトの勇者の じょうけんの のこり: req の ほかに マスターしている 超級職の かず（jobs … char.jobs）
+export function superMasteredCount(jobs, id) {
+  const req = new Set(JOBS[id]?.req || []);
+  return SUPER_ORDER.filter((j) => !req.has(j) && (jobs?.[j]?.lv || 0) >= JOB_MAX_LEVEL).length;
 }
 
 // 体で なれるか（フルーツジッパーは 女性だけ、アラシは 男性だけ）
@@ -569,4 +685,9 @@ export const JOB_HINTS = {
   fruit_idol: 'スーパースターをきわめた女性は、フルーツのようにカラフルなアイドルになれるらしい…',
   storm_idol: 'スーパースターをきわめた男性は、嵐のようにかっこいいアイドルになれるらしい…',
   keikyu_driver: '運転士をきわめると、赤い電車を120キロで走らせる運転士になれるらしい…',
+  star_chef: 'パティシエをきわめた料理人は、世界一のシェフとよばれるらしい…',
+  tatakiage: '正社員をきわめた人は、自分の会社を作れるらしい…',
+  m1_champion: 'お笑い芸人をきわめた人は、日本一のまんざい師になれるらしい…',
+  daikenja: '賢者をきわめた者は、さらにその先の、大いなる賢者になれるらしい…',
+  loto_hero: '勇者と、ほかの2つの超級職をきわめた者は、伝説の勇者の名をつげるらしい…',
 };
