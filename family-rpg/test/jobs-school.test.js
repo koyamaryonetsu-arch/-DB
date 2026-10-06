@@ -258,8 +258,10 @@ test('覚える技: 数・レベル・強さが ほかの 同じ ランクの �
     const job = JOBS[j];
     const t = tierOf(j);
     const lvs = job.learn.map(([l]) => l);
-    if (t === 0) assert.deepEqual(lvs, [1, 2, 3, 4, 5, 6, 7, 8, 10], `${j}: 基本職は 9こ`);
-    else assert.deepEqual(lvs, [1, 3, 5, 7, 10], `${j}: 上級職・超級職は 5こ`);
+    // 決まった レベルで 覚える（攻撃技を 足した 職業は、ほかの レベルでも 覚える。2026年10月の 見なおし）
+    const need = t === 0 ? [1, 2, 3, 4, 5, 6, 7, 8, 10] : [1, 3, 5, 7, 10];
+    for (const l of need) assert.ok(lvs.includes(l), `${j}: Lv${l} の 技`);
+    assert.deepEqual(lvs, [...lvs].sort((a, b) => a - b), `${j}: レベルの じゅん`);
     const mps = job.learn.map(([, id]) => ABILITIES[id].mp);
     assert.equal(Math.max(...mps), mps[mps.length - 1], `${j}: Lv10 の 技が いちばん 大きい`);
     for (const [, id] of job.learn) {
@@ -279,7 +281,7 @@ test('覚える技: 数・レベル・強さが ほかの 同じ ランクの �
   // 超級職の 大技は 超級職の 強さ（ほかの 超級職の Lv10 と おなじ くらいの MP）
   const superMp = SUPER_ORDER.filter((j) => !NEW_JOBS.includes(j)).map((j) => ABILITIES[JOBS[j].learn[JOBS[j].learn.length - 1][1]].mp);
   for (const j of ['highschooler', 'career', 'fruit_idol', 'storm_idol']) {
-    const mp = ABILITIES[JOBS[j].learn[4][1]].mp;
+    const mp = ABILITIES[JOBS[j].learn[JOBS[j].learn.length - 1][1]].mp;
     assert.ok(mp >= Math.min(...superMp) && mp <= Math.max(...superMp), `${j} Lv10 MP ${mp}`);
   }
   // フルーツジッパーと アラシは おなじ くらいの 強さ（どちらの 子も くらべっこで こまらない）
@@ -343,12 +345,12 @@ test('ひらめきと 合体技: 小学生・地方公務員の ひらめき技�
 });
 
 test('たたかい: 新しい 技の 効き目（窓口対応・予算会議・じゃんけん・放水・バナナのかわ・救助）', () => {
-  // 窓口対応: 敵の ゲージが 0に
-  let { b } = setup('civil_local', ['rockman']);
+  // 窓口対応: 効くと 敵の ゲージが 50 へる（効かない ことも ある）
+  let { b } = setup('civil_local', ['rockman'], { lucky: true });
   b.enemies[0].atb = 90;
   let ev = act(b, { type: 'ability', id: 'lc_madoguchi', target: b.enemies[0].id });
   assert.ok(ev.lines.some((l) => l.includes('番号札')), ev.lines.join(' / '));
-  assert.ok(b.enemies[0].atb < 20);
+  assert.ok(b.enemies[0].atb <= 40, `ゲージ ${b.enemies[0].atb}`);
   // 予算会議: 仲間全員の MP
   ({ b } = setup('civil_national', ['rockman']));
   for (const a of b.allies) a.mp = 0;
@@ -373,12 +375,12 @@ test('たたかい: 新しい 技の 効き目（窓口対応・予算会議・�
   lamp.hp = lamp.maxHp = 99999;
   act(b, { type: 'ability', id: 'ff_housui', target: lamp.id });
   assert.ok(lamp.hp < 99999, '水びたし');
-  // バナナのかわ: 敵全体の ゲージが 0
-  ({ b } = setup('fruit_idol', ['rockman', 'skeleton']));
+  // バナナのかわ: 効くと 敵全体の ゲージが 60 へる
+  ({ b } = setup('fruit_idol', ['rockman', 'skeleton'], { lucky: true }));
   for (const e of b.enemies) e.atb = 95;
   ev = act(b, { type: 'ability', id: 'fz_banana' });
   assert.ok(ev.lines.some((l) => l.includes('すってんころりん')));
-  for (const e of b.enemies) assert.ok(e.atb < 20);
+  for (const e of b.enemies) assert.ok(e.atb <= 35, `ゲージ ${e.atb}`);
   // 救助: 死んだ 仲間を 生き返らせる
   ({ b } = setup('firefighter', ['rockman']));
   const mate = b.allies[1];

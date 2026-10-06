@@ -13,7 +13,7 @@ import { objectiveFromFlags } from '../public/js/shared/data/progress.js';
 import { questMarks } from '../public/js/shared/data/quest-targets.js';
 import { talkFor } from '../public/js/shared/data/party-talk.js';
 import { recruitNpc } from '../public/js/shared/world/party.js';
-import { gainExp, expForLevel, computeStats } from '../public/js/shared/stats.js';
+import { gainExp, expForLevel, computeStats, fullHeal } from '../public/js/shared/stats.js';
 import { Bot, tickN } from './helpers.js';
 
 const VIL = NORTH_PLACES.dragon_village, KAN = NORTH_PLACES.kanatoko, YUN = NORTH_PLACES.yunoha;
@@ -37,6 +37,14 @@ function boost(bot, level) {
   c.jobs[c.job] = { lv: 10, b: 999 };
   c.hp = 9999;
   c.mp = 9999;
+  bot.world.sendSelf(bot.s);
+}
+
+// 宿屋で 休んだ ことに する（自分と 仲間の HP・MPを まんたんに）
+function restAll(bot) {
+  const c = bot.world.data.characters[bot.char.id];
+  fullHeal(c);
+  for (const e of c.companions || []) fullHeal(e.char);
   bot.world.sendSelf(bot.s);
 }
 
@@ -196,7 +204,8 @@ test('第3章を はじめから さいごまで とおして あそべる', { t
   assert.equal(bot.map, 'dragon_temple');
   await bot.settle();
   assert.ok(bot.flag('c3_temple'));
-  // 勇気
+  // 勇気（フレアードの あとなので、宿屋で 休んだ ことに して 回復してから。物語の 通しの テスト）
+  restAll(bot);
   await bot.walkTo(14, 0);
   assert.equal(bot.map, 'trial_courage');
   await bot.walkTo(10, 11);

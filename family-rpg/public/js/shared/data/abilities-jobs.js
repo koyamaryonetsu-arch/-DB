@@ -19,8 +19,8 @@ export const JOB_ABILITIES = {
   },
   js_gag: {
     name: 'ギャグ', kana: 'ぎゃぐ', kind: 'skill', job: 'jester', mp: 3, target: 'group',
-    effect: { type: 'atbSet', value: 0, msg: '{t}は笑いころげている！' },
-    desc: 'とっておきのギャグ。敵のグループが笑いころげて、行動がおくれる。', cast: '{a}はとっておきのギャグを言った！', anim: 'laugh',
+    effect: { type: 'atbSet', sub: 45, chance: 0.55, msg: '{t}は笑いころげている！', failMsg: '{t}には、うけなかった…' },
+    desc: 'とっておきのギャグ。同じ種類の敵が笑いころげて、行動がおくれる（ボスには効きにくい）。', cast: '{a}はとっておきのギャグを言った！', anim: 'laugh',
   },
   js_lucky: {
     name: '運だめし', kana: 'うんだめし', kind: 'skill', job: 'jester', mp: 2, target: 'enemy',
@@ -39,12 +39,12 @@ export const JOB_ABILITIES = {
   },
   js_bakuten: {
     name: 'バク転', kana: 'ばくてん', kind: 'skill', job: 'jester', mp: 3, target: 'self',
-    effect: { type: 'buff', stats: ['eva', 'agi'], add: 0.25, mult: 1.3, dur: 30 },
+    effect: { type: 'buff', stats: ['eva', 'agi'], add: 0.2, mult: 1.2, dur: 30 },
     desc: 'くるくるバク転。自分の素早さと、身のかわしやすさが上がる。', cast: '{a}はくるくるとバク転した！', anim: 'buff',
   },
   js_kusuguri: {
     name: 'くすぐり', kana: 'くすぐり', kind: 'skill', job: 'jester', mp: 4, target: 'enemy',
-    effect: { type: 'status', status: 'confuse', chance: 0.65, turns: [1, 3] },
+    effect: { type: 'status', status: 'confuse', chance: 0.55, turns: [1, 3] },
     desc: 'こちょこちょくすぐって、敵1体を混乱させる。', cast: '{a}は{t}をこちょこちょくすぐった！', anim: 'laugh',
   },
   js_darts: {
@@ -102,12 +102,12 @@ export const JOB_ABILITIES = {
   // ───────────── 会社員 ─────────────
   sm_meishi: {
     name: 'めいしわたし', kana: 'めいしわたし', kind: 'skill', job: 'salaryman', mp: 2, target: 'enemy',
-    effect: { type: 'debuff', stat: 'def', mult: 0.75, dur: 30, chance: 0.9 },
+    effect: { type: 'debuff', stat: 'def', mult: 0.85, dur: 30, chance: 0.8 },
     desc: 'ていねいにめいしを差し出す。相手はゆだんして、守備力が下がる。', cast: '{a}はめいしを差し出した！「いつもお世話になっております」', anim: 'cards',
   },
   sm_horenso: {
     name: '報連相', kana: 'ほうれんそう', kind: 'skill', job: 'salaryman', mp: 5, target: 'allies',
-    effect: { type: 'buff', stats: ['atk', 'def'], mult: 1.15, dur: 35 },
+    effect: { type: 'buff', stats: ['atk', 'def'], mult: 1.1, dur: 30 },
     desc: 'ほうこく・れんらく・そうだん。チームワークで、仲間全員の攻撃力と守備力が少し上がる。', cast: '{a}のほうこく・れんらく・そうだん！チームの息がぴったり合った！', anim: 'buff',
   },
   sm_zangyo: {
@@ -127,7 +127,7 @@ export const JOB_ABILITIES = {
   },
   sm_present: {
     name: 'プレゼン', kana: 'ぷれぜん', kind: 'skill', job: 'salaryman', mp: 6, target: 'enemies',
-    effect: { type: 'status', status: 'sleep', chance: 0.45, turns: [1, 3] },
+    effect: { type: 'status', status: 'sleep', chance: 0.35, turns: [1, 3] },
     desc: '長い長いプレゼン。敵全体がねむくなる。', cast: '{a}のとても長いプレゼン！', anim: 'sleep',
   },
   sm_nomikai: {
@@ -142,14 +142,14 @@ export const JOB_ABILITIES = {
   },
   sm_bonus: {
     name: 'ボーナス支給', kana: 'ぼーなすしきゅう', kind: 'skill', job: 'salaryman', mp: 12, target: 'allies',
-    effect: { type: 'buff', stats: ['atk', 'def', 'agi'], mult: 1.2, dur: 40 },
-    desc: '待ちに待ったボーナス！仲間全員の攻撃力・守備力・素早さが上がる。', cast: 'ボーナスが出た！みんなのやる気が大きく上がった！', anim: 'warcry',
+    effect: { type: 'buff', stats: ['atk', 'def', 'agi'], mult: 1.12, dur: 30 },
+    desc: '待ちに待ったボーナス！仲間全員の攻撃力・守備力・素早さが少し上がる。', cast: 'ボーナスが出た！みんなのやる気が大きく上がった！', anim: 'warcry',
   },
 
   // ───────────── アイドル ─────────────
   id_kiss: {
     name: '投げキッス', kana: 'なげきっす', kind: 'skill', job: 'idol', mp: 3, target: 'enemy',
-    effect: { type: 'status', status: 'confuse', chance: 0.6, turns: [1, 3] },
+    effect: { type: 'status', status: 'confuse', chance: 0.55, turns: [1, 3] },
     desc: '敵1体をメロメロにして混乱させる。', cast: '{a}の投げキッス！{t}はメロメロになった？', anim: 'hearts',
   },
   id_fansa: {
@@ -159,8 +159,8 @@ export const JOB_ABILITIES = {
   },
   id_wink: {
     name: 'ウインク', kana: 'ういんく', kind: 'skill', job: 'idol', mp: 2, target: 'enemy',
-    effect: { type: 'atbSet', value: 0, msg: '{t}はドキッとして動けなくなった！' },
-    desc: 'ドキッとさせて、敵1体の行動をおくらせる。', cast: '{a}はパチッとウインクした！', anim: 'hearts',
+    effect: { type: 'atbSet', sub: 55, chance: 0.6, msg: '{t}はドキッとして動けなくなった！', failMsg: '{t}には、効かなかった…' },
+    desc: 'ドキッとさせて、敵1体の行動をおくらせる（ボスには効きにくい）。', cast: '{a}はパチッとウインクした！', anim: 'hearts',
   },
   id_hightouch: {
     name: 'ハイタッチ会', kana: 'はいたっちかい', kind: 'skill', job: 'idol', mp: 6, target: 'allies', field: true,
@@ -169,22 +169,22 @@ export const JOB_ABILITIES = {
   },
   id_center: {
     name: 'センター', kana: 'せんたー', kind: 'skill', job: 'idol', mp: 5, target: 'self',
-    effect: { type: 'cover', all: true, dur: 20, defMult: 1.4 },
+    effect: { type: 'cover', all: true, dur: 20, defMult: 1.25 },
     desc: 'ステージのまん中に立って、仲間全員への攻撃を代わりに受ける。守備力も上がる。', cast: '{a}がセンターに立った！', anim: 'guard',
   },
   id_penlight: {
     name: 'ペンライトの海', kana: 'ぺんらいとのうみ', kind: 'skill', job: 'idol', mp: 7, target: 'allies',
-    effect: { type: 'buff', stat: 'atk', mult: 1.25, dur: 40 },
-    desc: 'ペンライトの光の海。仲間全員の攻撃力が上がる。', cast: 'ペンライトの光が一面に広がった！', anim: 'dance',
+    effect: { type: 'buff', stat: 'atk', mult: 1.15, dur: 30 },
+    desc: 'ペンライトの光の海。仲間全員の攻撃力が少し上がる。', cast: 'ペンライトの光が一面に広がった！', anim: 'dance',
   },
   id_encore: {
     name: 'もう1曲', kana: 'もういっきょく', kind: 'skill', job: 'idol', mp: 8, target: 'allies',
-    effect: { type: 'atbSet', add: 50, msg: '{t}はすぐに動けそうだ！' },
-    desc: 'アンコールにこたえて、もう1曲！仲間全員の行動ゲージを半分ためる。', cast: '「アンコール！アンコール！」{a}はもう1曲歌った！', anim: 'dance',
+    effect: { type: 'atbSet', add: 30, msg: '{t}はすぐに動けそうだ！' },
+    desc: 'アンコールにこたえて、もう1曲！仲間全員の行動ゲージを少しためる。', cast: '「アンコール！アンコール！」{a}はもう1曲歌った！', anim: 'dance',
   },
   id_kami: {
     name: '神対応', kana: 'かみたいおう', kind: 'skill', job: 'idol', mp: 10, target: 'ally', field: true,
-    effect: { type: 'heal', base: [130, 160], thr: 40 },
+    effect: { type: 'heal', base: [100, 125], thr: 40 },
     desc: 'やさしさ100点満点。仲間1人のHPを大きく回復する。', cast: '{a}の神対応！{t}は感動した！', anim: 'heal2',
   },
   id_senkyo: {
@@ -213,8 +213,8 @@ export const JOB_ABILITIES = {
   },
   rw_shuppatsu: {
     name: '出発進行', kana: 'しゅっぱつしんこう', kind: 'skill', job: 'railman', mp: 4, target: 'allies',
-    effect: { type: 'buff', stat: 'agi', mult: 1.3, dur: 40 },
-    desc: '「出発進行！」仲間全員の素早さが上がる。', cast: '「出発進行！」{a}の声がひびいた！', anim: 'buff',
+    effect: { type: 'buff', stat: 'agi', mult: 1.15, dur: 30 },
+    desc: '「出発進行！」仲間全員の素早さが少し上がる。', cast: '「出発進行！」{a}の声がひびいた！', anim: 'buff',
   },
   rw_announce: {
     name: '車内アナウンス', kana: 'しゃないあなうんす', kind: 'skill', job: 'railman', mp: 3, target: 'allies',
@@ -228,8 +228,8 @@ export const JOB_ABILITIES = {
   },
   rw_brake: {
     name: '非常ブレーキ', kana: 'ひじょうぶれーき', kind: 'skill', job: 'railman', mp: 5, target: 'group',
-    effect: { type: 'atbSet', value: 0, msg: '{t}は急に止まった！' },
-    desc: 'キキーッ！敵のグループの行動ゲージを0にもどす。', cast: 'キキーッ！{a}は非常ブレーキをかけた！', anim: 'quake',
+    effect: { type: 'atbSet', sub: 50, chance: 0.55, msg: '{t}は急に止まった！', failMsg: '{t}は止まらなかった！' },
+    desc: 'キキーッ！同じ種類の敵の行動ゲージをへらす（ボスには効きにくい）。', cast: 'キキーッ！{a}は非常ブレーキをかけた！', anim: 'quake',
   },
   rw_teikoku: {
     name: '定刻運転', kana: 'ていこくうんてん', kind: 'skill', job: 'railman', mp: 3, target: 'enemy',
@@ -238,7 +238,7 @@ export const JOB_ABILITIES = {
   },
   rw_kaisou: {
     name: '回送電車', kana: 'かいそうでんしゃ', kind: 'skill', job: 'railman', mp: 7, target: 'enemy',
-    effect: { type: 'banish', chance: 0.55, msg: '{t}は回送電車に乗せられて、どこかへ行ってしまった！', failMsg: '{t}は電車に乗らなかった！' },
+    effect: { type: 'banish', chance: 0.4, msg: '{t}は回送電車に乗せられて、どこかへ行ってしまった！', failMsg: '{t}は電車に乗らなかった！' },
     desc: '「この電車は回送です」敵1体を戦いからおいだす。ボスには効かない。経験値はもらえない。', cast: '回送電車がやってきた！', anim: 'wind2',
   },
   rw_shinkansen: {
@@ -275,8 +275,8 @@ export const JOB_ABILITIES = {
   },
   bb_ouenka: {
     name: 'おうえん歌', kana: 'おうえんか', kind: 'skill', job: 'ballplayer', mp: 5, target: 'allies',
-    effect: { type: 'buff', stat: 'atk', mult: 1.25, dur: 40 },
-    desc: 'ファンのおうえん歌がひびく。仲間全員の攻撃力が上がる。', cast: 'スタンドから、おうえん歌が聞こえてきた！', anim: 'dance',
+    effect: { type: 'buff', stat: 'atk', mult: 1.15, dur: 30 },
+    desc: 'ファンのおうえん歌がひびく。仲間全員の攻撃力が少し上がる。', cast: 'スタンドから、おうえん歌が聞こえてきた！', anim: 'dance',
   },
   bb_headslide: {
     name: 'ヘッドスライディング', kana: 'へっどすらいでぃんぐ', kind: 'skill', job: 'ballplayer', mp: 4, target: 'enemy',
@@ -290,8 +290,8 @@ export const JOB_ABILITIES = {
   },
   bb_keien: {
     name: '敬遠', kana: 'けいえん', kind: 'skill', job: 'ballplayer', mp: 3, target: 'enemy',
-    effect: { type: 'atbSet', value: 0, msg: '{t}は勝負をさけられた！' },
-    desc: '勝負をさける。敵1体の行動ゲージを0にもどす。', cast: '{a}は{t}を敬遠した！', anim: 'none',
+    effect: { type: 'atbSet', value: 0, chance: 0.65, msg: '{t}は勝負をさけられた！', failMsg: '{t}は、勝負にのってこなかった！' },
+    desc: '勝負をさける。敵1体の行動ゲージを0にもどす（ボスには効きにくく、もどすのも半分だけ）。', cast: '{a}は{t}を敬遠した！', anim: 'none',
   },
   bb_sayonara: {
     name: 'サヨナラ打', kana: 'さよならだ', kind: 'skill', job: 'ballplayer', mp: 12, target: 'enemies', weapon: 'bat',
@@ -334,12 +334,12 @@ export const JOB_ABILITIES = {
   },
   bc_kessai: {
     name: '決さい', kana: 'けっさい', kind: 'skill', job: 'bucho', mp: 7, target: 'allies',
-    effect: { type: 'buff', stat: 'atk', mult: 1.3, dur: 40 },
+    effect: { type: 'buff', stat: 'atk', mult: 1.25, dur: 40 },
     desc: 'ハンコをポン！GOサインで仲間全員の攻撃力が上がる。', cast: '{a}はハンコをポンとおした！「GOだ！」', anim: 'buff',
   },
   bc_homeru: {
     name: '部下をほめる', kana: 'ぶかをほめる', kind: 'skill', job: 'bucho', mp: 4, target: 'ally',
-    effect: { type: 'buff', stats: ['atk', 'agi'], mult: 1.4, dur: 40 },
+    effect: { type: 'buff', stats: ['atk', 'agi'], mult: 1.35, dur: 40 },
     desc: '「よくやった！」仲間1人の攻撃力と素早さが大きく上がる。', cast: '{a}は{t}をほめた！「よくやったな！」', anim: 'buff',
   },
   bc_idou: {
@@ -349,8 +349,8 @@ export const JOB_ABILITIES = {
   },
   bc_modoshi: {
     name: '差しもどし', kana: 'さしもどし', kind: 'skill', job: 'bucho', mp: 12, target: 'enemies',
-    effect: { type: 'atbSet', value: 0, msg: '{t}はやり直しになった！' },
-    desc: '「全部やり直し！」敵全体の行動ゲージを0にもどす。', cast: '「全部やり直し！」{a}は書類を差しもどした！', anim: 'quake',
+    effect: { type: 'atbSet', sub: 60, chance: 0.6, msg: '{t}はやり直しになった！', failMsg: '{t}は、やり直しをことわった！' },
+    desc: '「全部やり直し！」敵全体の行動ゲージを大きくへらす（ボスには効きにくい）。', cast: '「全部やり直し！」{a}は書類を差しもどした！', anim: 'quake',
   },
 
   // ───────────── メジャーリーガー ─────────────
@@ -376,7 +376,7 @@ export const JOB_ABILITIES = {
   },
   ml_worldseries: {
     name: 'ワールドシリーズ', kana: 'わーるどしりーず', kind: 'skill', job: 'major_leaguer', mp: 14, target: 'allies',
-    effect: { type: 'buff', stats: ['atk', 'def', 'agi'], mult: 1.25, dur: 40 },
+    effect: { type: 'buff', stats: ['atk', 'def', 'agi'], mult: 1.2, dur: 40 },
     desc: '世界一をかけた大ぶたい。仲間全員の攻撃力・守備力・素早さが上がる。', cast: 'ワールドシリーズが始まった！みんなの力がみなぎる！', anim: 'warcry',
   },
 
@@ -410,7 +410,7 @@ export const JOB_ABILITIES = {
   // ───────────── 将軍 ─────────────
   sg_gorei: {
     name: '大号令', kana: 'だいごうれい', kind: 'skill', job: 'shogun', mp: 8, target: 'allies',
-    effect: { type: 'buff', stats: ['atk', 'agi'], mult: 1.35, dur: 40 },
+    effect: { type: 'buff', stats: ['atk', 'agi'], mult: 1.3, dur: 40 },
     desc: '「者ども、かかれ！」仲間全員の攻撃力と素早さが上がる。', cast: '「者ども、かかれ！」{a}の大号令！', anim: 'warcry',
   },
   sg_kagemusha: {
@@ -437,8 +437,8 @@ export const JOB_ABILITIES = {
   // ───────────── 社長 ─────────────
   sh_tsuru: {
     name: 'ツルの一声', kana: 'つるのひとこえ', kind: 'skill', job: 'shacho', mp: 10, target: 'allies',
-    effect: { type: 'atbSet', value: 100, msg: '{t}はすぐに動ける！' },
-    desc: '社長の一声でみんながすぐ動く。仲間全員の行動ゲージを満タンにする。', cast: '「やろう！」{a}のツルの一声！', anim: 'warcry',
+    effect: { type: 'atbSet', add: 60, msg: '{t}はすぐに動けそうだ！' },
+    desc: '社長の一声でみんながすぐ動く。仲間全員の行動ゲージを大きくためる。', cast: '「やろう！」{a}のツルの一声！', anim: 'warcry',
   },
   sh_meirei: {
     name: '社長命令', kana: 'しゃちょうめいれい', kind: 'skill', job: 'shacho', mp: 12, target: 'allies',
@@ -479,8 +479,8 @@ export const JOB_ABILITIES = {
   },
   nt_mvp: {
     name: '満票MVP', kana: 'まんぴょうえむぶいぴー', kind: 'skill', job: 'nitoryu', mp: 14, target: 'allies',
-    effect: { type: 'buff', stats: ['atk', 'def', 'agi'], mult: 1.35, dur: 45 },
-    desc: 'みんなが1位に選ぶ。仲間全員の攻撃力・守備力・素早さが大きく上がる。', cast: '{a}が満票でMVPにえらばれた！みんなの力がわいてくる！', anim: 'warcry',
+    effect: { type: 'buff', stats: ['atk', 'def', 'agi'], mult: 1.3, dur: 45 },
+    desc: 'みんなが1位に選ぶ。仲間全員の攻撃力・守備力・素早さが上がる。', cast: '{a}が満票でMVPにえらばれた！みんなの力がわいてくる！', anim: 'warcry',
   },
   nt_real: {
     name: 'リアル二刀流', kana: 'りあるにとうりゅう', kind: 'skill', job: 'nitoryu', mp: 20, target: 'enemies',

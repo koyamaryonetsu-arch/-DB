@@ -385,7 +385,7 @@ export class Battle {
       }
       if (c.cover && c.cover.until <= this.time) c.cover = null;
     }
-    // どく
+    // どく・じわじわ 回復（4びょうごと）
     this.poisonTimer += dt;
     if (this.poisonTimer >= 4000) {
       this.poisonTimer = 0;
@@ -397,6 +397,18 @@ export class Battle {
         c.hp = Math.max(0, c.hp - d);
         lines.push(c.side === 'ally' ? `${c.name}は毒で${d}のダメージを受けた！` : `${c.name}は毒で${d}のダメージ！`);
         if (c.hp <= 0) lines.push(...this.kill(c));
+        upd.push(pub(c));
+      }
+      for (const c of this.combatants) {
+        if (!c.regen) continue;
+        if (!c.alive || c.regen.until <= this.time) {
+          c.regen = null;
+          continue;
+        }
+        const h = Math.min(c.maxHp - c.hp, c.regen.amt);
+        if (h <= 0) continue;
+        c.hp += h;
+        lines.push(`${c.name}のHPが${h}回復した！`);
         upd.push(pub(c));
       }
       if (lines.length) {
@@ -884,7 +896,7 @@ export class Battle {
     const targets = givenTargets || this.targetsFor(c, a, cmd);
     this.pushCoverMsg(ev);
     ev.fx = { type: 'ability', anim: a.anim, actor: c.id, targets: targets.map((t) => t.id), side: c.side, element: eff.element };
-    if (!targets.length && !['callHelp', 'flee', 'nothing', 'telegraph', 'stance', 'charge', 'bondUp', 'escape', 'goldThrow', 'reviveAll'].includes(eff.type)) {
+    if (!targets.length && !['callHelp', 'flee', 'nothing', 'telegraph', 'stance', 'charge', 'bondUp', 'escape', 'goldThrow', 'reviveAll', 'multi'].includes(eff.type)) {
       ev.lines.push('しかし効果がなかった！');
       return;
     }
@@ -905,6 +917,7 @@ export class Battle {
             }
             if (eff.debuff && t.alive) this.applyDebuff(c, t, eff.debuff, ev, powMult);
             if (eff.status && t.alive) this.tryStatus(c, t, eff.status, ev, powMult);
+            if (eff.dispel && t.alive) this.dispel(t, ev);
           }
         }
         if (eff.atbAfter) ev.atbAfter = eff.atbAfter;
@@ -927,6 +940,8 @@ export class Battle {
         for (const t of targets) {
           this.magicHit(c, t, eff, ev, powMult);
           if (eff.status && t.alive) this.tryStatus(c, t, eff.status, ev, powMult);
+          if (eff.debuff && t.alive) this.applyDebuff(c, t, eff.debuff, ev, powMult);
+          if (eff.dispel && t.alive) this.dispel(t, ev);
         }
         this.afterDamage(c, ev, eff.element);
         break;
@@ -972,28 +987,7 @@ export class Battle {
         break;
       }
       case 'buff': {
-        for (const t of targets) {
-          if (!t.alive) continue;
-          const dur = (eff.dur || 30) * 1000 * (0.5 + powMult / 2);
-          const stats = eff.stats || [eff.stat];
-          // 2回目は さらに 上がる（2だんかいまで。stackBuff）
-          let top = 0, maxed = true;
-          for (const st of stats) {
-            if (st === 'eva') {
-              const lv = Math.min(BUFF_STACK, (t.buffs.eva?.lv || 0) + 1);
-              if (!(t.buffs.eva?.lv >= BUFF_STACK)) maxed = false;
-              t.buffs.eva = { add: Math.min(0.6, (eff.add || 0) * lv), lv, until: Math.max(t.buffs.eva?.until || 0, this.time + dur) };
-              top = Math.max(top, lv);
-            } else {
-              const r = stackBuff(t.buffs, st, eff.mult, this.time + dur);
-              if (!r.max) maxed = false;
-              top = Math.max(top, r.lv);
-            }
-          }
-          const names = stats.map(statLabel).join('と');
-          ev.lines.push(maxed ? `${t.name}の${names}は、もうこれ以上上がらない！` : top >= 2 ? `${t.name}の${names}がさらに上がった！` : `${t.name}の${names}が上がった！`);
-          ev.upd.push(t);
-        }
+        for (const t of targets) this.applyBuff(c, t, eff, ev, powMult);
         if (c.side === 'ally') this.addBond(1);
         break;
       }
@@ -1037,9 +1031,21 @@ export class Battle {
       }
       case 'atbSet': {
         // 行動ゲージを かえる（非常ブレーキ＝敵を 止める、鶴の一声＝味方が すぐ 動く）
+        // 敵には chance（成功の わりあい）・sub（ゲージを へらす 量）。ボスは 効きにくく、止まりかたも 半分（ゼロには ならない）
         for (const t of targets) {
           if (!t.alive || t.fled) continue;
-          const next = eff.value !== undefined ? eff.value : Math.min(100, (t.atb || 0) + (eff.add || 0));
+          const foe = t.side !== c.side;
+          if (foe && eff.chance !== undefined) {
+            const ch = eff.chance * (t.resist?.atb ?? 1) * (t.boss ? 0.5 : 1) * (0.6 + 0.4 * Math.min(1, powMult));
+            if (!this.rng.chance(ch)) {
+              ev.lines.push(fmtLine(eff.failMsg || 'しかし{t}には効かなかった！', c, t));
+              continue;
+            }
+          }
+          let next;
+          if (eff.sub !== undefined) next = Math.max(0, (t.atb || 0) - eff.sub * (foe && t.boss ? 0.5 : 1));
+          else if (eff.value !== undefined) next = foe && t.boss && eff.value === 0 ? Math.max(0, (t.atb || 0) - 50) : eff.value;
+          else next = Math.min(100, (t.atb || 0) + (eff.add || 0));
           if (t === c) ev.atbAfter = next;
           else if (t.side === 'enemy') {
             this.queue = this.queue.filter((q) => q.id !== t.id);
@@ -1122,6 +1128,79 @@ export class Battle {
       case 'bondUp': {
         this.addBond(Math.round(eff.amount * powMult));
         ev.lines.push('きずなゲージが増えた！');
+        break;
+      }
+      case 'regen': {
+        // じわじわ 回復（料理の スープ など）: REGEN_MS ごとに 少しずつ。強い ほうが のこる
+        for (const t of targets) {
+          if (!t.alive) continue;
+          const amt = this.healAmountOf(c, eff, powMult);
+          const until = this.time + (eff.dur || 24) * 1000;
+          if (!t.regen || t.regen.amt <= amt || t.regen.until < until) t.regen = { amt: Math.max(amt, t.regen?.amt || 0), until: Math.max(until, t.regen?.until || 0) };
+          ev.lines.push(`${t.name}は、少しずつ回復する力につつまれた！`);
+          ev.upd.push(t);
+        }
+        break;
+      }
+      case 'dispel': {
+        // 敵には つよく なる こうかを けす（ツッコミ）、みかたには よわく なる こうかを けす
+        for (const t of targets) {
+          if (!t.alive) continue;
+          if (t.side !== c.side) this.dispel(t, ev, true);
+          else if (Object.keys(t.debuffs || {}).length) {
+            t.debuffs = {};
+            ev.lines.push(`${t.name}の弱くなっていた力が元にもどった！`);
+            ev.upd.push(t);
+          } else if (targets.length === 1) ev.lines.push('しかし何も起こらなかった！');
+        }
+        break;
+      }
+      case 'multi': {
+        // いくつかの こうかを じゅんに（スタミナ料理＝回復＋攻撃力アップ など）。parts の target が ちがう ときは その あいて
+        const hit = new Set(targets.map((t) => t.id));
+        for (const part of eff.parts || []) {
+          const ab = { ...a, effect: part, target: part.target || a.target };
+          const ts = part.target && part.target !== a.target ? this.targetsFor(c, ab, cmd) : targets.filter((t) => t.alive || ['revive', 'reviveAll'].includes(part.type));
+          if (!ts.length && !['bondUp', 'charge', 'goldThrow'].includes(part.type)) continue;
+          this.applyAbility(c, ab, cmd, ev, powMult, ts);
+          for (const t of ts) hit.add(t.id);
+        }
+        ev.fx = { type: 'ability', anim: a.anim, actor: c.id, targets: [...hit], side: c.side, element: eff.parts?.[0]?.element };
+        break;
+      }
+      case 'allMp': {
+        // マダンテ: のこりの MPを ぜんぶ つかって、敵 みんなに 大きな ダメージ（守りも 属性も 関係ない）
+        // paid … となえる ときに 先に はらった MP（それも 力に なる）
+        const used = c.mp + (eff.paid || 0);
+        c.mp = 0;
+        ev.upd.push(c);
+        if (used < (eff.min || 1)) {
+          ev.lines.push('しかしMPが足りず、何も起こらなかった…');
+          break;
+        }
+        ev.lines.push(`${c.name}は、のこりのMPを全て解き放った！`);
+        for (const t of targets) {
+          if (!t.alive) continue;
+          const d = Math.max(1, Math.round(used * (eff.mult || 3) * Math.min(1.2, powMult) * this.rng.float(0.95, 1.05) * (t.metal ? 0 : 1)));
+          this.damage(c, t, t.metal ? this.rng.int(0, 1) : d, ev, { element: eff.element });
+        }
+        this.afterDamage(c, ev, eff.element);
+        break;
+      }
+      case 'gather': {
+        // ミナデイン: 生きている 仲間から MPを 少しずつ 集めて、1体に 大きな 雷（集まった 人数ぶん 強く なる）
+        let count = 0;
+        for (const x of this.sideOf(c, true)) {
+          if (!x.alive || x === c || x.mp < (eff.take || 10)) continue;
+          x.mp -= eff.take || 10;
+          count++;
+          ev.upd.push(x);
+        }
+        if (count) ev.lines.push(`仲間${count}人の力が集まった！`);
+        const more = (eff.per || 0) * count;
+        const boosted = { ...eff, type: 'magic', base: [eff.base[0] + more, eff.base[1] + more] };
+        for (const t of targets) this.magicHit(c, t, boosted, ev, powMult);
+        this.afterDamage(c, ev, eff.element);
         break;
       }
       case 'drainHp': {
@@ -1280,7 +1359,9 @@ export class Battle {
     if (!estimate && !this.rng.chance(hit)) return { miss: true, dmg: 0 };
     let critChance = (c.side === 'enemy' ? 1 / 64 : (c.job === 'monk' ? 1 / 14 : 1 / 28)) + (eff.critBonus || 0);
     const crit = !estimate && (eff.forceCrit || this.rng.chance(critChance));
-    const atk = effAtk(c) * (c.charge && c.charge > 1 ? c.charge : 1);
+    // atkFrom: 'def' … 攻撃力と 守備力の まんなかで なぐる（ガーディアンの ようさいの一撃 など。守りが かたいほど 強い）
+    const base0 = eff.atkFrom === 'def' ? (effAtk(c) + effDfn(c)) / 2 : effAtk(c);
+    const atk = base0 * (c.charge && c.charge > 1 ? c.charge : 1);
     if (!estimate && c.charge > 1) c.charge = 1;
     let dmg;
     if (crit) {
@@ -1305,7 +1386,9 @@ export class Battle {
   calcMagic(c, t, eff, powMult = 1, estimate = false) {
     const [mn, mx] = eff.base;
     const base = estimate ? (mn + mx) / 2 : this.rng.int(mn, mx);
-    const scale = 1 + clamp(((c.mag || 0) - (eff.thr ?? 20)) / 150, 0, eff.scaleCap ?? 1);
+    // stat: 'heal' … 回復魔力で 強く なる 光の 技（大神官の ホーリーライト など。いやし手の 攻撃）
+    const pow = eff.stat === 'heal' ? (c.healPow || 0) : (c.mag || 0);
+    const scale = 1 + clamp((pow - (eff.thr ?? 20)) / 150, 0, eff.scaleCap ?? 1);
     let dmg = base * scale * powMult * enemyFixedScale(c);
     const r = eff.element ? (t.resist[eff.element] ?? 1) : 1;
     dmg *= r;
@@ -1404,6 +1487,7 @@ export class Battle {
     t.telegraph = null;
     t.stance = null;
     t.chant = null;
+    t.regen = null;
     for (const q of this.queue) if (q.id === t.id && q.cmd?.type === 'dual') this.releasePartner(q.cmd.partner);
     this.queue = this.queue.filter((q) => q.id !== t.id);
     for (const inv of [...this.invites.values()]) if (inv.from === t.id || inv.to === t.id) this.endInvite(inv, '倒れた');
@@ -1438,6 +1522,55 @@ export class Battle {
     if (t.hp >= t.maxHp) ev.lines.push(`${t.name}のキズがすっかり回復した！`);
     else ev.lines.push(`${t.name}のHPが${real}回復した！`);
     if (c.side === 'ally' && t !== c && real > 0) this.addBond(2);
+  }
+
+  // つよく する こうか（バイキルト・スクルト など）
+  // 本職で ない 技（転職ペナルティ）で 使うと、上がりかたも へる（基本職の 補助技が いつまでも いちばん 強く ならない ように）
+  applyBuff(c, t, eff, ev, powMult = 1) {
+    if (!t.alive) return;
+    const k = Math.min(1, powMult);
+    const dur = (eff.dur || 30) * 1000 * (0.5 + powMult / 2);
+    const stats = eff.stats || [eff.stat];
+    const mult = eff.mult >= 1 ? 1 + (eff.mult - 1) * k : eff.mult;
+    // 2回目は さらに 上がる（2だんかいまで。stackBuff）
+    let top = 0, maxed = true;
+    for (const st of stats) {
+      if (st === 'eva') {
+        const lv = Math.min(BUFF_STACK, (t.buffs.eva?.lv || 0) + 1);
+        if (!(t.buffs.eva?.lv >= BUFF_STACK)) maxed = false;
+        t.buffs.eva = { add: Math.min(0.6, (eff.add || 0) * k * lv), lv, until: Math.max(t.buffs.eva?.until || 0, this.time + dur) };
+        top = Math.max(top, lv);
+      } else {
+        const r = stackBuff(t.buffs, st, mult, this.time + dur);
+        if (!r.max) maxed = false;
+        top = Math.max(top, r.lv);
+      }
+    }
+    const names = stats.map(statLabel).join('と');
+    ev.lines.push(maxed ? `${t.name}の${names}は、もうこれ以上上がらない！` : top >= 2 ? `${t.name}の${names}がさらに上がった！` : `${t.name}の${names}が上がった！`);
+    ev.upd.push(t);
+  }
+
+  // 敵の つよく なる こうかを けす（ツッコミ など）: バフと 力ため。前ぶれ・構え・呪文は けさない
+  dispel(t, ev, loud = false) {
+    const had = Object.keys(t.buffs || {}).length > 0 || t.charge > 1;
+    if (!had) {
+      if (loud) ev.lines.push(`しかし${t.name}には、消す力がなかった！`);
+      return false;
+    }
+    t.buffs = {};
+    t.charge = 1;
+    ev.lines.push(`${t.name}の強くなっていた力が消えた！`);
+    ev.upd.push(t);
+    return true;
+  }
+
+  // じわじわ 回復の 1回ぶん（heal と おなじ 式）
+  healAmountOf(c, eff, powMult = 1) {
+    const [mn, mx] = eff.base || [5, 8];
+    let amt = this.rng.int(mn, mx);
+    if (!eff.fixed) amt *= 1 + clamp(((c.healPow || 0) - (eff.thr ?? 20)) / 150, 0, eff.scaleCap ?? 1);
+    return Math.max(1, Math.round(amt * powMult * enemyFixedScale(c)));
   }
 
   applyDebuff(c, t, d, ev, powMult = 1) {
@@ -2132,6 +2265,8 @@ export function pub(c) {
     atb: Math.round(c.atb * 10) / 10, rate: atbRate(c),
     ready: !!c.ready, queued: !!c.queued, alive: !!c.alive, fled: !!c.fled, status: st, buffs,
     defending: !!c.defending, telegraph: !!c.telegraph, stance: c.stance?.kind || null, boss: !!c.boss, size: c.size, slot: c.slot,
+    // じわじわ 回復が かかっている
+    regen: c.regen ? true : undefined,
     // 呪文を となえて いる（よみがえりの呪文）: とぎれるまでの ダメージの たまりぐあい（0〜1）
     chant: c.chant ? Math.min(1, Math.round((c.chant.dmg / c.chant.need) * 100) / 100) : null,
     abilities: c.side === 'ally' ? c.abilities : undefined,

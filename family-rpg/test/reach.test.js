@@ -65,8 +65,9 @@ test('ATB: すばやさ 15 と 45（3ばい）でも たまる はやさは 1.15
 });
 
 test('ATB: ピオリムは やく 1.25ばい、すばやさを 下げられると やく 0.8ばい（すばやさとは べつの 倍率）', () => {
-  const piorim = Object.values(ABILITIES).find((a) => a.effect?.type === 'buff' && a.effect.stat === 'agi' && a.effect.mult >= 1.3 && a.target === 'allies');
-  assert.ok(piorim, 'ピオリム');
+  // ピオリムを 2回 かけた くらい（1.35ばい）。素早さの バフは どれも この 式（ピオリムは 1回 1.15ばい）
+  const piorim = { effect: { mult: 1.35 } };
+  assert.equal(ABILITIES.piorimu.effect.stat, 'agi');
   const base = { agi: 30, buffs: {}, debuffs: {} };
   const up = { agi: 30, buffs: { agi: { mult: piorim.effect.mult, turns: 9 } }, debuffs: {} };
   const down = { agi: 30, buffs: {}, debuffs: { agi: { mult: 0.72, turns: 9 } } };

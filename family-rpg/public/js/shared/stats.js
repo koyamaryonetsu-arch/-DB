@@ -1,5 +1,5 @@
 // キャラクターの つよさ計算・レベルアップ・転職ペナルティ
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_EASY_RATE, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets, jobBodyOk } from './data/jobs.js';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_EASY_RATE, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets, jobBodyOk, superMasteredCount } from './data/jobs.js';
 import { ITEMS, SLOTS, baseItemId } from './data/items.js';
 import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js';
 import { MONSTERS } from './data/monsters.js';
@@ -400,6 +400,8 @@ export const STARTER_EQUIP = {
   ballplayer: { weapon: 'wood_bat', armor: 'cloth', shield: null, head: null, acc: null },
   schoolkid: { weapon: 'wood_sword', armor: 'cloth', shield: null, head: null, acc: null },
   civil_local: { weapon: 'ballpen', armor: 'cloth', shield: null, head: null, acc: null },
+  cook: { weapon: 'kitchen_knife', armor: 'cloth', shield: null, head: null, acc: null },
+  parttimer: { weapon: 'mop', armor: 'cloth', shield: null, head: null, acc: null },
 };
 
 // みため（むかしの 項目は いつも のこす。かみがた・色・目もとの あたらしい 項目は data/looks.js）
@@ -496,6 +498,8 @@ export function jobUnlocked(char, jobId) {
   // フルーツジッパーは 女性、アラシは 男性だけ（体が ちがうと、じょうけんを みたしても なれない）
   if (!jobBodyOk(jobId, char?.look)) return false;
   if (!j.req) return true;
+  // ロトの勇者: 勇者の ほかに 超級職を reqSuper こ マスター
+  if (j.reqSuper && superMasteredCount(char.jobs, jobId) < j.reqSuper) return false;
   return jobReqSets(jobId).some((set) => set.every((r) => jobMastered(char, r)));
 }
 

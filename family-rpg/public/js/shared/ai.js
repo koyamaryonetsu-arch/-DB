@@ -134,6 +134,18 @@ export function decideAlly(b, c) {
     if (mpUp && b.rng.chance(0.6)) return { type: 'ability', id: mpUp.id };
   }
 
+  // 敵が つよく なっている（バイキルト・力ため）: 消す 技が あれば 消す（ツッコミ など）
+  const pumped = foes.filter((f) => Object.keys(f.buffs || {}).some((k) => k !== 'eva') || f.charge > 1);
+  if (pumped.length && b.rng.chance(0.6)) {
+    const dis = mine.find(({ a }) => (a.effect.type === 'dispel' || a.effect.dispel) && ['enemy', 'group', 'enemies'].includes(a.target));
+    if (dis) return { type: 'ability', id: dis.id, target: pumped.sort((x, y) => (y.boss - x.boss))[0].id };
+  }
+  // 仲間が よわく されている（ルカナン など）: 元に もどす 技
+  if (allies.some((x) => Object.keys(x.debuffs || {}).length) && b.rng.chance(0.4)) {
+    const fix = mine.find(({ a }) => a.effect.type === 'dispel' && ['ally', 'allies'].includes(a.target));
+    if (fix) return { type: 'ability', id: fix.id, target: allies.find((x) => Object.keys(x.debuffs || {}).length)?.id };
+  }
+
   // 6) ほじょ（つよい てきの とき）
   const tough = b.boss || foes.reduce((s, f) => s + f.hp, 0) > 180;
   if (tac.buffs && tough) {
@@ -166,8 +178,11 @@ export function canUse(b, c, id) {
   return mpCost(c.penChar, id) <= c.mp;
 }
 
-// オートで 使って よい 技か（作戦の「オートで使う技」で「使わない」に した 技は えらばない）
-const autoOk = (c, id) => !c.autoOff?.includes(id);
+// オートで 使って よい 技か（作戦の「オートで使う技」で「使わない」に した 技・noAuto の 技〈マダンテ など〉は えらばない）
+const autoOk = (c, id) => !c.autoOff?.includes(id) && !ABILITIES[id]?.noAuto;
+
+// 技の おもな こうか（いくつかの こうかを もつ 技〈multi〉は さいしょの こうかで えらぶ）
+export const prim = (a) => (a?.effect?.type === 'multi' ? a.effect.parts?.[0] || a.effect : a?.effect || {});
 
 // いま つかえる わざ（{ id, a }）
 function usable(b, c) {
@@ -178,16 +193,17 @@ function usable(b, c) {
 
 // だいたい どれくらい かいふくするか
 function healAmount(c, a) {
-  const [mn, mx] = a.effect.base;
+  const e = prim(a);
+  const [mn, mx] = e.base;
   const base = (mn + mx) / 2;
-  if (a.effect.fixed) return base;
-  return base * (1 + Math.max(0, Math.min(1, ((c.healPow || 0) - (a.effect.thr ?? 20)) / 150)));
+  if (e.fixed) return base;
+  return base * (1 + Math.max(0, Math.min(1, ((c.healPow || 0) - (e.thr ?? 20)) / 150)));
 }
 
 function chooseHeal(b, c, tac, allies, mine) {
   const hurt = allies.filter((a) => a.hp / a.maxHp < tac.healAt);
   if (!hurt.length) return null;
-  const heals = mine.filter(({ a }) => a.effect.type === 'heal');
+  const heals = mine.filter(({ a }) => prim(a).type === 'heal');
   if (!heals.length) return null;
   const mpw = (x) => 1 + mpCost(c.penChar, x.id) * tac.mpWeight;
   const partyHeals = heals.filter(({ a }) => a.target === 'allies');
@@ -214,8 +230,17 @@ function chooseHeal(b, c, tac, allies, mine) {
 // ほじょ: まだ かかっていない つよく なる わざを えらぶ
 function chooseBuff(b, c, allies, mine) {
   const rng = b.rng;
-  const buffs = mine.filter(({ a }) => a.effect.type === 'buff');
-  const stat = (a) => a.effect.stats || [a.effect.stat];
+  const buffs = mine.filter(({ a }) => prim(a).type === 'buff');
+  const stat = (a) => prim(a).stats || [prim(a).stat];
+  // じわじわ 回復: 少し へっている 仲間が いて、まだ かかっていない とき
+  const regen = mine.filter(({ a }) => prim(a).type === 'regen');
+  for (const { id, a } of regen) {
+    const pool = allies.filter((x) => !x.regen && x.hp / x.maxHp < 0.85);
+    if (!pool.length || !rng.chance(0.35)) continue;
+    if (a.target === 'allies' && pool.length >= 2) return { type: 'ability', id };
+    if (a.target === 'ally') return { type: 'ability', id, target: pool.sort((x, y) => x.hp / x.maxHp - y.hp / y.maxHp)[0].id };
+    if (a.target === 'self' && pool.includes(c)) return { type: 'ability', id };
+  }
   const lacking = (x, a) => stat(a).some((st) => !x.buffs[st]);
   for (const { id, a } of buffs.sort(() => rng.float(-1, 1))) {
     if (a.target === 'allies') {
@@ -271,7 +296,7 @@ function chooseAttack(b, c, tac, foes) {
   for (const id of c.abilities) {
     const a = ABILITIES[id];
     if (!a || !autoOk(c, id) || !canUse(b, c, id)) continue;
-    const eff = a.effect;
+    const eff = prim(a);
     if (eff.type !== 'phys' && eff.type !== 'magic' && eff.type !== 'drainHp') continue;
     if (eff.recoil && c.hp / c.maxHp < 0.5) continue; // もろばぎりは HPが すくない ときは つかわない
     const mp = mpCost(c.penChar, id);

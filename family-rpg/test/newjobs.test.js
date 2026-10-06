@@ -106,17 +106,36 @@ test('技の 種類と 属性の 見出し', () => {
   assert.equal(abilityTypeText(ABILITIES.sm_teiji), '補助の特技');
 });
 
-test('非常ブレーキ・ツルの一声: 行動ゲージを かえる', () => {
-  const b = battle(hero('railman', 'signal_flag'), ['rockman', 'rockman']);
+test('非常ブレーキ・ツルの一声: 行動ゲージを かえる（敵には 効く わりあいが あり、ボスには 半分）', () => {
+  // 効いた: ゲージが 50 へる
+  const b = battle(hero('railman', 'signal_flag'), ['rockman', 'rockman'], { lucky: true });
   for (const e of b.enemies) e.atb = 90;
   const ev = act(b, { type: 'ability', id: 'rw_brake', target: b.enemies[0].id });
   assert.ok(ev.lines.some((l) => l.includes('急に止まった')), ev.lines.join(' / '));
-  for (const e of b.enemies) assert.ok(e.atb < 30, `敵の ゲージ ${e.atb}`);
+  for (const e of b.enemies) assert.ok(e.atb <= 40, `敵の ゲージ ${e.atb}`);
+  // 効かなかった: ゲージは そのまま（技の こうかだけを ためす）
+  const bf = battle(hero('railman', 'signal_flag'), ['rockman'], { seed: 3 });
+  bf.rng.chance = () => false;
+  bf.enemies[0].atb = 90;
+  const evf = { lines: [], upd: [] };
+  bf.applyAbility(bf.allies[0], ABILITIES.rw_brake, { target: bf.enemies[0].id }, evf, 1);
+  assert.ok(evf.lines.some((l) => l.includes('止まらなかった')), evf.lines.join(' / '));
+  assert.equal(bf.enemies[0].atb, 90);
+  // ボス: へる 量も 半分（50 → 25）
+  const bb = battle(hero('railman', 'signal_flag'), ['goldoon'], { lucky: true });
+  bb.enemies[0].atb = 90;
+  bb.applyAbility(bb.allies[0], ABILITIES.rw_brake, { target: bb.enemies[0].id }, { lines: [], upd: [] }, 1);
+  assert.equal(bb.enemies[0].atb, 65, 'ボスの ゲージは 25 だけ へる');
+  // 0に もどす 技（敬遠）も、ボスには 50 だけ
+  bb.enemies[0].atb = 90;
+  bb.applyAbility(bb.allies[0], ABILITIES.bb_keien, { target: bb.enemies[0].id }, { lines: [], upd: [] }, 1);
+  assert.equal(bb.enemies[0].atb, 40);
+  // ツルの一声: 仲間全員の ゲージが 大きく たまる
   const b2 = battle(hero('shacho', 'ballpen'), ['rockman']);
   b2.allies[1].atb = 5;
   const ev2 = act(b2, { type: 'ability', id: 'sh_tsuru' });
-  assert.ok(ev2.lines.some((l) => l.includes('すぐに動ける')));
-  assert.ok(b2.allies[1].atb >= 100 || b2.allies[1].queued || b2.allies[1].ready, 'なかまが すぐ 動く');
+  assert.ok(ev2.lines.some((l) => l.includes('すぐに動けそう')));
+  assert.ok(b2.allies[1].atb >= 60 || b2.allies[1].queued || b2.allies[1].ready, 'なかまが すぐ 動く');
 });
 
 test('回送電車: 敵を おいだす（ボスには 効かない）', () => {

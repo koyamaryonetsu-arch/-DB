@@ -14,12 +14,12 @@ export const JOB2_ABILITIES = {
   },
   es_aisatsu: {
     name: '元気なあいさつ', kana: 'げんきなあいさつ', kind: 'skill', job: 'schoolkid', mp: 4, target: 'allies',
-    effect: { type: 'buff', stats: ['atk', 'agi'], mult: 1.15, dur: 30 },
+    effect: { type: 'buff', stats: ['atk', 'agi'], mult: 1.1, dur: 30 },
     desc: '「おはようございます！」大きな声のあいさつで、仲間全員の攻撃力と素早さが少し上がる。', cast: '「おはようございます！」{a}の元気なあいさつがひびきわたった！', anim: 'warcry',
   },
   es_recorder: {
     name: 'リコーダー', kana: 'りこーだー', kind: 'skill', job: 'schoolkid', mp: 3, target: 'group',
-    effect: { type: 'status', status: 'sleep', chance: 0.55, turns: [1, 3] },
+    effect: { type: 'status', status: 'sleep', chance: 0.45, turns: [1, 3] },
     desc: 'ピーヒャラ〜♪ちょっぴり音のはずれたリコーダー。同じ種類の敵がねむくなる。', cast: '{a}はリコーダーをふいた！ピーヒャラ〜♪', anim: 'notes',
   },
   es_kyushoku: {
@@ -86,8 +86,8 @@ export const JOB2_ABILITIES = {
   },
   jh_test: {
     name: 'テスト勉強', kana: 'てすとべんきょう', kind: 'skill', job: 'middleschooler', mp: 4, target: 'enemy',
-    effect: { type: 'debuff', stat: 'def', mult: 0.6, dur: 40, chance: 0.95 },
-    desc: 'テストに出るところをさがすように、敵1体をよく調べる。弱いところが分かって、守備力が大きく下がる。', cast: '{a}は{t}のことを、テスト勉強のように調べあげた！', anim: 'debuff',
+    effect: { type: 'debuff', stat: 'def', mult: 0.7, dur: 40, chance: 0.9 },
+    desc: 'テストに出るところをさがすように、敵1体をよく調べる。弱いところが分かって、守備力が下がる。', cast: '{a}は{t}のことを、テスト勉強のように調べあげた！', anim: 'debuff',
   },
   jh_hankou: {
     name: '反こう期', kana: 'はんこうき', kind: 'skill', job: 'middleschooler', mp: 7, target: 'enemies',
@@ -135,12 +135,12 @@ export const JOB2_ABILITIES = {
   // ───────────── 地方公務員（町を 守る ささえ役） ─────────────
   lc_madoguchi: {
     name: '窓口対応', kana: 'まどぐちたいおう', kind: 'skill', job: 'civil_local', mp: 2, target: 'enemy',
-    effect: { type: 'atbSet', value: 0, msg: '{t}は番号札を持って待っている…' },
-    desc: '「番号札をお取りください」敵1体を待たせて、行動ゲージを0にもどす。', cast: '{a}はていねいに窓口対応をした！', anim: 'cards',
+    effect: { type: 'atbSet', sub: 50, chance: 0.6, msg: '{t}は番号札を持って待っている…', failMsg: '{t}は順番を待たなかった！' },
+    desc: '「番号札をお取りください」敵1体を待たせて、行動ゲージをへらす（ボスには効きにくい）。', cast: '{a}はていねいに窓口対応をした！', anim: 'cards',
   },
   lc_bousai: {
     name: '防災訓練', kana: 'ぼうさいくんれん', kind: 'skill', job: 'civil_local', mp: 5, target: 'allies',
-    effect: { type: 'buff', stats: ['def', 'breath'], mult: 1.2, dur: 40 },
+    effect: { type: 'buff', stats: ['def', 'breath'], mult: 1.12, dur: 30 },
     desc: '「おさない、かけない、しゃべらない！」仲間全員の守備力が少し上がり、炎やふぶきの息のダメージが半分になる。', cast: '{a}の防災訓練！「おさない、かけない、しゃべらない！」', anim: 'guard',
   },
   lc_josetsu: {
@@ -155,12 +155,12 @@ export const JOB2_ABILITIES = {
   },
   lc_tsuukou: {
     name: '通行止め', kana: 'つうこうどめ', kind: 'skill', job: 'civil_local', mp: 5, target: 'group',
-    effect: { type: 'status', status: 'paralyze', chance: 0.45, turns: [1, 2] },
+    effect: { type: 'status', status: 'paralyze', chance: 0.4, turns: [1, 2] },
     desc: '「この先、通行止め！」同じ種類の敵を足止めして、動けなくすることがある。', cast: '{a}は通行止めのかんばんを立てた！', anim: 'debuff',
   },
   lc_yurukyara: {
     name: 'ゆるキャラ', kana: 'ゆるきゃら', kind: 'skill', job: 'civil_local', mp: 6, target: 'enemies',
-    effect: { type: 'status', status: 'confuse', chance: 0.45, turns: [1, 3] },
+    effect: { type: 'status', status: 'confuse', chance: 0.35, turns: [1, 3] },
     desc: '町のゆるキャラがおうえんに来る。あまりのかわいさに、敵全体が混乱することがある。', cast: '町のゆるキャラがかけつけた！「がんばるゆる〜」', anim: 'dance',
   },
   lc_takidashi: {
@@ -175,8 +175,8 @@ export const JOB2_ABILITIES = {
   },
   lc_machiokoshi: {
     name: '町おこし', kana: 'まちおこし', kind: 'skill', job: 'civil_local', mp: 12, target: 'allies',
-    effect: { type: 'buff', stats: ['atk', 'def', 'agi'], mult: 1.2, dur: 45 },
-    desc: '町じゅうで大もり上がり！仲間全員の攻撃力・守備力・素早さが上がる。', cast: '{a}の町おこし！町じゅうがお祭りさわぎだ！', anim: 'warcry',
+    effect: { type: 'buff', stats: ['atk', 'def', 'agi'], mult: 1.12, dur: 30 },
+    desc: '町じゅうで大もり上がり！仲間全員の攻撃力・守備力・素早さが少し上がる。', cast: '{a}の町おこし！町じゅうがお祭りさわぎだ！', anim: 'warcry',
   },
 
   // ───────────── 国家公務員（ルールと 予算で 戦いを ととのえる） ─────────────
@@ -202,15 +202,15 @@ export const JOB2_ABILITIES = {
   },
   nc_project: {
     name: '国家プロジェクト', kana: 'こっかぷろじぇくと', kind: 'skill', job: 'civil_national', mp: 14, target: 'allies',
-    effect: { type: 'buff', stats: ['atk', 'def', 'agi'], mult: 1.25, dur: 40 },
+    effect: { type: 'buff', stats: ['atk', 'def', 'agi'], mult: 1.2, dur: 40 },
     desc: '国をあげての大仕事。仲間全員の攻撃力・守備力・素早さが上がる。', cast: '{a}の国家プロジェクトが動き出した！', anim: 'warcry',
   },
 
   // ───────────── キャリア組（国を 動かす 司令塔） ─────────────
   cr_seisaku: {
     name: '政策決定', kana: 'せいさくけってい', kind: 'skill', job: 'career', mp: 10, target: 'allies',
-    effect: { type: 'buff', stats: ['atk', 'def'], mult: 1.4, dur: 45 },
-    desc: '「この方針でいきます！」仲間全員の攻撃力と守備力が大きく上がる。', cast: '「この方針でいきます！」{a}の政策決定！', anim: 'warcry',
+    effect: { type: 'buff', stats: ['atk', 'def'], mult: 1.3, dur: 45 },
+    desc: '「この方針でいきます！」仲間全員の攻撃力と守備力が上がる。', cast: '「この方針でいきます！」{a}の政策決定！', anim: 'warcry',
   },
   cr_nemawashi: {
     name: '根回し', kana: 'ねまわし', kind: 'skill', job: 'career', mp: 10, target: 'enemies',
@@ -224,8 +224,8 @@ export const JOB2_ABILITIES = {
   },
   cr_houkaisei: {
     name: '法改正', kana: 'ほうかいせい', kind: 'skill', job: 'career', mp: 12, target: 'enemies',
-    effect: { type: 'debuff', stat: 'def', mult: 0.6, dur: 40, chance: 0.9 },
-    desc: 'ルールを新しくする。敵全体の守備力が大きく下がる。', cast: '{a}の法改正！ルールが新しくなった！', anim: 'debuff',
+    effect: { type: 'debuff', stat: 'def', mult: 0.65, dur: 40, chance: 0.9 },
+    desc: 'ルールを新しくする。敵全体の守備力が下がる。', cast: '{a}の法改正！ルールが新しくなった！', anim: 'debuff',
   },
   cr_daikaikaku: {
     name: '大改革', kana: 'だいかいかく', kind: 'skill', job: 'career', mp: 24, target: 'enemies',
@@ -246,7 +246,7 @@ export const JOB2_ABILITIES = {
   },
   po_koutsuu: {
     name: '交通整理', kana: 'こうつうせいり', kind: 'skill', job: 'police', mp: 6, target: 'allies',
-    effect: { type: 'buff', stat: 'agi', mult: 1.35, dur: 40 },
+    effect: { type: 'buff', stat: 'agi', mult: 1.25, dur: 40 },
     desc: 'ピピーッ！道がすいすい進めるようになる。仲間全員の素早さが上がる。', cast: 'ピピーッ！{a}は交通整理を始めた！', anim: 'buff',
   },
   po_patocar: {
@@ -278,8 +278,8 @@ export const JOB2_ABILITIES = {
   },
   ff_hinoyoujin: {
     name: '火の用心', kana: 'ひのようじん', kind: 'skill', job: 'firefighter', mp: 8, target: 'allies',
-    effect: { type: 'buff', stat: 'def', mult: 1.4, dur: 45 },
-    desc: 'カチ、カチ！火の用心！仲間全員の守備力が大きく上がる。', cast: 'カチ、カチ！「火の用心！」', anim: 'guard',
+    effect: { type: 'buff', stat: 'def', mult: 1.25, dur: 40 },
+    desc: 'カチ、カチ！火の用心！仲間全員の守備力が上がる。', cast: 'カチ、カチ！「火の用心！」', anim: 'guard',
   },
   ff_issei: {
     name: 'いっせい放水', kana: 'いっせいほうすい', kind: 'skill', job: 'firefighter', mp: 14, target: 'enemies',
@@ -295,8 +295,8 @@ export const JOB2_ABILITIES = {
   },
   fz_banana: {
     name: 'バナナのかわ', kana: 'ばななのかわ', kind: 'skill', job: 'fruit_idol', mp: 10, target: 'enemies',
-    effect: { type: 'atbSet', value: 0, msg: '{t}はすってんころりん！' },
-    desc: 'バナナのかわをステージにばらまく。敵全体がすべって、行動ゲージが0にもどる。', cast: '{a}はバナナのかわをばらまいた！', anim: 'fruits',
+    effect: { type: 'atbSet', sub: 60, chance: 0.6, msg: '{t}はすってんころりん！', failMsg: '{t}はバナナをよけた！' },
+    desc: 'バナナのかわをステージにばらまく。敵全体がすべって、行動ゲージがへる（ボスには効きにくい）。', cast: '{a}はバナナのかわをばらまいた！', anim: 'fruits',
   },
   fz_basket: {
     name: 'フルーツバスケット', kana: 'ふるーつばすけっと', kind: 'skill', job: 'fruit_idol', mp: 10, target: 'enemies',
@@ -332,8 +332,8 @@ export const JOB2_ABILITIES = {
   },
   ar_stage: {
     name: '嵐を呼ぶステージ', kana: 'あらしをよぶすてーじ', kind: 'skill', job: 'storm_idol', mp: 12, target: 'allies',
-    effect: { type: 'buff', stats: ['atk', 'agi'], mult: 1.35, dur: 40 },
-    desc: 'ステージが嵐のようにもり上がる。仲間全員の攻撃力と素早さが大きく上がる。', cast: '{a}のステージに、嵐のような声えんがわき起こった！', anim: 'stage',
+    effect: { type: 'buff', stats: ['atk', 'agi'], mult: 1.3, dur: 40 },
+    desc: 'ステージが嵐のようにもり上がる。仲間全員の攻撃力と素早さが上がる。', cast: '{a}のステージに、嵐のような声えんがわき起こった！', anim: 'stage',
   },
   ar_live: {
     name: '雷鳴ライブ', kana: 'らいめいらいぶ', kind: 'skill', job: 'storm_idol', mp: 26, target: 'enemies',
@@ -349,7 +349,7 @@ export const JOB2_ABILITIES = {
   },
   dv_anzen: {
     name: '安全運転', kana: 'あんぜんうんてん', kind: 'skill', job: 'train_driver', mp: 8, target: 'allies',
-    effect: { type: 'buff', stat: 'def', mult: 1.3, dur: 40 },
+    effect: { type: 'buff', stat: 'def', mult: 1.25, dur: 40 },
     desc: '「安全第一！」ていねいな運転で、仲間全員の守備力が上がる。', cast: '「安全第一！」{a}は安全運転を心がけた！', anim: 'buff',
   },
   dv_tsuuka: {

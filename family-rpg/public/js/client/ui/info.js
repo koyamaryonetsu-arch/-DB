@@ -59,7 +59,7 @@ export function whoCanEquip(id, mons = null) {
   const adv = jobs.filter((j) => JOBS[j].tier === 1);
   const advText = adv.length <= 4 ? adv.map((j) => JOBS[j].name).join('・') : `上級職 ${adv.length}種類`;
   // 超級職の なまえは 神殿で ヒントが 出るまで ひみつ
-  const sup = jobs.filter((j) => JOBS[j].tier === 2).length;
+  const sup = jobs.filter((j) => JOBS[j].tier >= 2).length;
   return `装備: ${[base.join('・'), advText, sup ? `超級職 ${sup}種類` : ''].filter(Boolean).join(' ／ ')}${monText ? `\n${monText}` : ''}`;
 }
 

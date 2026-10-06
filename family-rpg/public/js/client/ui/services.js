@@ -1,7 +1,7 @@
 // お店・転職・酒場・でんごんばん・ほしのかけら・きょうかい の がめん
 import { el, ListMenu, toast, askText, confirmBox, esc } from './dom.js';
 import { ITEMS } from '../../shared/data/items.js';
-import { JOBS, JOB_ORDER, ADVANCED_ORDER, SUPER_ORDER, TIER_NAMES, JOB_MAX_LEVEL, jobReqText, jobReqSets, jobBodyOk, BODY_NAMES, JOB_HINTS } from '../../shared/data/jobs.js';
+import { JOBS, SUPER_ORDER, LEGEND_ORDER, TIER_ORDERS, TIER_NAMES, JOB_MAX_LEVEL, jobReqText, jobReqSets, jobBodyOk, BODY_NAMES, JOB_HINTS, superMasteredCount } from '../../shared/data/jobs.js';
 import { ABILITIES } from '../../shared/data/abilities.js';
 import { salonUI } from './salon.js';
 import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered, canEquip } from '../../shared/stats.js';
@@ -105,7 +105,7 @@ function jobUI(game) {
       const c = target();
       s.right.textContent = `${c.name}: ${JOBS[c.job]?.name || ''}`;
       const out = [];
-      [JOB_ORDER, ADVANCED_ORDER, SUPER_ORDER].forEach((all, tier) => {
+      TIER_ORDERS.forEach((all, tier) => {
         // 体で なれない 職業（フルーツジッパー・アラシ）は 出さない
         const order = all.filter((j) => jobBodyOk(j, c.look));
         const open = order.filter((j) => jobUnlocked(c, j)).length;
@@ -172,10 +172,10 @@ function jobUI(game) {
         main.innerHTML = '';
         main.append(whoRow);
         renderWho();
-        main.append(el('h3', { text: '？？？' }), el('div', { class: 'small gold', text: TIER_NAMES[2] }),
+        main.append(el('h3', { text: '？？？' }), el('div', { class: 'small gold', text: `${TIER_NAMES[2]}・${TIER_NAMES[3]}` }),
           el('div', { class: 'detail', text: 'まだだれも知らない、ひみつの職業。\n上級職をマスターすると、その先の職業のヒントがここに出てくる。' }));
         // うわさ: もとの 職業を はじめた ひみつの 職業だけ（名前は ださない）
-        const rumors = SUPER_ORDER.filter((s) => JOB_HINTS[s] && jobBodyOk(s, c.look) && !jobKnown(c, s)
+        const rumors = [...SUPER_ORDER, ...LEGEND_ORDER].filter((s) => JOB_HINTS[s] && jobBodyOk(s, c.look) && !jobKnown(c, s)
           && jobReqSets(s).some((set) => set.some((r) => c.jobs?.[r])));
         if (rumors.length) {
           const box = el('div', { class: 'small job-rumor' }, el('div', { class: 'gold', text: '神殿のうわさ' }));
@@ -213,6 +213,11 @@ function jobUI(game) {
             req.append(el('div', { class: rl >= JOB_MAX_LEVEL ? 'good' : 'muted', text: `　${reqName(r)}　${state}` }));
           }
         });
+        // ロトの勇者: ほかに マスターした 超級職の かず
+        if (job.reqSuper) {
+          const n = superMasteredCount(c.jobs, j);
+          req.append(el('div', { class: n >= job.reqSuper ? 'good' : 'muted', text: `　ほかの超級職のマスター　${Math.min(n, job.reqSuper)}/${job.reqSuper}` }));
+        }
         main.append(req);
       }
       if (open && lv) {
@@ -240,7 +245,7 @@ function jobUI(game) {
         bars.append(el('span', { text: n }), el('div', { class: 'b' }, el('i', { style: { width: `${Math.min(100, v / 1.5 * 100)}%` } })), el('span', { class: v > 1 ? 'up' : v < 1 ? 'down' : '', text: `${Math.round(v * 100)}%` }));
       }
       main.append(el('div', { class: 'small gold', text: '強さのかたむき' }), bars);
-      main.append(el('div', { class: 'detail', text: `職業レベルは戦いに勝つと上がる（最大${JOB_MAX_LEVEL}）。ただし、1回の攻撃で終わってしまう戦いでは、修行は半分しか進まない。\n基本職を2つマスターすると上級職、上級職をマスターすると超級職になれる（超級職は、上級職をマスターするとヒントが出る）。\n呪文の掛け合わせは、元の職業を合わせ持つ上級職以上で使える。\n他の職業で覚えた技も使えるが、MPが増えたり威力が下がることがある（元になった職業の技はだいじょうぶ）。\n酒場の仲間もここで転職できる。\n（十字キーの左右で、このせつめいをスクロールできる）` }));
+      main.append(el('div', { class: 'detail', text: `職業レベルは戦いに勝つと上がる（最大${JOB_MAX_LEVEL}）。ただし、1回の攻撃で終わってしまう戦いでは、修行は半分しか進まない。\n基本職を2つマスターすると上級職、上級職をマスターすると超級職になれる（超級職は、上級職をマスターするとヒントが出る）。勇者と、ほかの超級職を2つマスターすると、伝説の職業「ロトの勇者」になれる。\n呪文の掛け合わせは、元の職業を合わせ持つ上級職以上で使える。\n他の職業で覚えた技も使えるが、MPが増えたり威力が下がることがある（元になった職業の技はだいじょうぶ）。\n酒場の仲間もここで転職できる。\n（十字キーの左右で、このせつめいをスクロールできる）` }));
       // 下に つづく ときの しるし
       const more = el('div', { class: 'scroll-more', text: '▼ 下に続く' });
       main.append(more);

@@ -75,9 +75,10 @@ test('鉄道の 職業: 技の 数・強さ・文字が ほかの 職業と そ�
   const sum = (j) => Object.values(JOBS[j].mods).reduce((a, b) => a + b, 0);
   for (const j of RAIL) {
     const job = JOBS[j];
-    assert.deepEqual(job.learn.map(([l]) => l), [1, 3, 5, 7, 10], `${j}: 5こ`);
+    const lvs = job.learn.map(([l]) => l);
+    for (const l of [1, 3, 5, 7, 10]) assert.ok(lvs.includes(l), `${j}: Lv${l} の 技`);
     const mps = job.learn.map(([, id]) => ABILITIES[id].mp);
-    assert.equal(Math.max(...mps), mps[4], `${j}: Lv10 の 技が いちばん 大きい`);
+    assert.equal(Math.max(...mps), mps[mps.length - 1], `${j}: Lv10 の 技が いちばん 大きい`);
     const same = Object.keys(JOBS).filter((o) => !RAIL.includes(o) && (JOBS[o].tier || 0) === job.tier).map(sum);
     assert.ok(sum(j) >= Math.min(...same) - 1e-9 && sum(j) <= Math.max(...same) + 1e-9, `${j}: 倍率の 合計 ${sum(j).toFixed(2)}`);
     assert.ok(sum(j) > sum(job.req[0]), `${j} は もとの 職業より 強い`);

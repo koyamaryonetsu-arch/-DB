@@ -306,7 +306,8 @@ test('第4章 Step 2 を とおして あそべる: 村長 → 地下水路 → 
   const c = world.data.characters[bot.char.id];
   for (const f of STORY_STEPS.slice(0, STORY_STEPS.indexOf('c4_ami') + 1)) c.flags[f] = true;
   c.objective = C4_OBJ.ami;
-  boost(bot, 40);
+  // Lv40 の 4人でも ボスには だいたい 勝てる（くりかえすと 98%くらい）。たまたまの 負けで ぬけない ように 少し よゆうを もたせる
+  boost(bot, 42);
   for (const id of ['npc_gard', 'npc_mina', 'npc_poporo']) assert.ok(recruitNpc(world, bot.s, id, { force: true }).ok, id);
   await bot.settle();
   bot.s.repelUntil = 1e15;

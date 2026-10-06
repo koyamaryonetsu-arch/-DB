@@ -26,6 +26,7 @@ import { RARE_ABILITIES } from './monsters-rare.js';
 import { JOB2_ABILITIES } from './abilities-jobs2.js';
 import { CH3_ABILITIES } from './abilities-ch3.js';
 import { CH4_ABILITIES } from './abilities-ch4.js';
+import { JOB3_ABILITIES } from './abilities-jobs3.js';
 
 export const ABILITIES = {
   // ───────────── 戦士 ─────────────
@@ -55,7 +56,7 @@ export const ABILITIES = {
   },
   kabutowari: {
     name: 'かぶと割り', kana: 'かぶとわり', kind: 'skill', job: 'warrior', mp: 3, target: 'enemy', weapon: 'blade',
-    effect: { type: 'phys', mult: 1.1, debuff: { stat: 'def', mult: 0.7, dur: 30, chance: 0.8 } },
+    effect: { type: 'phys', mult: 1.1, debuff: { stat: 'def', mult: 0.8, dur: 30, chance: 0.8 } },
     desc: '敵の守備力を下げる一撃。',
     cast: '{a}のかぶと割り！', anim: 'slash_heavy', sword: true,
   },
@@ -93,7 +94,7 @@ export const ABILITIES = {
   },
   mikawashi: {
     name: 'みかわしきゃく', kana: 'みかわしきゃく', kind: 'skill', job: 'monk', mp: 3, target: 'self',
-    effect: { type: 'buff', stat: 'eva', add: 0.35, dur: 30 },
+    effect: { type: 'buff', stat: 'eva', add: 0.25, dur: 30 },
     desc: 'しばらく敵の攻撃をかわしやすくなる。',
     cast: '{a}は身軽なステップをふみ始めた！', anim: 'buff',
   },
@@ -149,7 +150,7 @@ export const ABILITIES = {
   },
   sukara: {
     name: 'スカラ', kana: 'すから', kind: 'spell', job: 'priest', mp: 2, target: 'ally',
-    effect: { type: 'buff', stat: 'def', mult: 1.5, dur: 40 },
+    effect: { type: 'buff', stat: 'def', mult: 1.3, dur: 30 },
     desc: '仲間1人の守備力を上げる。',
     cast: '{a}はスカラを唱えた！', anim: 'buff',
   },
@@ -167,7 +168,7 @@ export const ABILITIES = {
   },
   mahoton: {
     name: 'マホトーン', kana: 'まほとーん', kind: 'spell', job: 'priest', mp: 3, target: 'group',
-    effect: { type: 'status', status: 'silence', chance: 0.6, turns: [3, 5] },
+    effect: { type: 'status', status: 'silence', chance: 0.5, turns: [3, 5] },
     desc: '敵の呪文をふうじこめる。',
     cast: '{a}はマホトーンを唱えた！', anim: 'debuff',
   },
@@ -185,8 +186,8 @@ export const ABILITIES = {
   },
   sukuruto: {
     name: 'スクルト', kana: 'すくると', kind: 'spell', job: 'priest', mp: 6, target: 'allies',
-    effect: { type: 'buff', stat: 'def', mult: 1.35, dur: 40 },
-    desc: '仲間全員の守備力を上げる。',
+    effect: { type: 'buff', stat: 'def', mult: 1.15, dur: 30 },
+    desc: '仲間全員の守備力を少し上げる。',
     cast: '{a}はスクルトを唱えた！', anim: 'buff',
   },
   kiariku: {
@@ -229,13 +230,13 @@ export const ABILITIES = {
   },
   rukani: {
     name: 'ルカニ', kana: 'るかに', kind: 'spell', job: 'mage', mp: 3, target: 'enemy',
-    effect: { type: 'debuff', stat: 'def', mult: 0.6, dur: 35, chance: 0.85 },
+    effect: { type: 'debuff', stat: 'def', mult: 0.75, dur: 30, chance: 0.8 },
     desc: '敵1体の守備力を下げる。',
     cast: '{a}はルカニを唱えた！', anim: 'debuff',
   },
   rariho: {
     name: 'ラリホー', kana: 'らりほー', kind: 'spell', job: 'mage', mp: 3, target: 'group',
-    effect: { type: 'status', status: 'sleep', chance: 0.6, turns: [1, 3] },
+    effect: { type: 'status', status: 'sleep', chance: 0.5, turns: [1, 3] },
     desc: '同じ種類の敵をねむらせる。',
     cast: '{a}はラリホーを唱えた！', anim: 'sleep',
   },
@@ -285,13 +286,13 @@ export const ABILITIES = {
   },
   piorimu: {
     name: 'ピオリム', kana: 'ぴおりむ', kind: 'spell', job: 'performer', mp: 4, target: 'allies',
-    effect: { type: 'buff', stat: 'agi', mult: 1.35, dur: 40 },
-    desc: '仲間全員の素早さを上げる。行動の順番が早く来る。',
+    effect: { type: 'buff', stat: 'agi', mult: 1.15, dur: 30 },
+    desc: '仲間全員の素早さを少し上げる。行動の順番が早く来る。',
     cast: '{a}はピオリムを唱えた！', anim: 'buff',
   },
   manusa: {
     name: 'マヌーサ', kana: 'まぬーさ', kind: 'spell', job: 'performer', mp: 4, target: 'group',
-    effect: { type: 'status', status: 'blind', chance: 0.65, turns: [3, 5] },
+    effect: { type: 'status', status: 'blind', chance: 0.55, turns: [3, 5] },
     desc: 'まぼろしで包み、敵の攻撃を外れやすくする。',
     cast: '{a}はマヌーサを唱えた！', anim: 'debuff',
   },
@@ -303,8 +304,8 @@ export const ABILITIES = {
   },
   baikiruto: {
     name: 'バイキルト', kana: 'ばいきると', kind: 'spell', job: 'performer', mp: 5, target: 'ally',
-    effect: { type: 'buff', stat: 'atk', mult: 1.6, dur: 40 },
-    desc: '仲間1人の攻撃力を大きく上げる。',
+    effect: { type: 'buff', stat: 'atk', mult: 1.3, dur: 30 },
+    desc: '仲間1人の攻撃力を上げる。',
     cast: '{a}はバイキルトを唱えた！', anim: 'buff',
   },
   juggling: {
@@ -321,8 +322,8 @@ export const ABILITIES = {
   },
   tatakai_uta: {
     name: '戦いの歌', kana: 'たたかいのうた', kind: 'skill', job: 'performer', mp: 8, target: 'allies',
-    effect: { type: 'buff', stat: 'atk', mult: 1.25, dur: 35 },
-    desc: '仲間全員の攻撃力を上げる。',
+    effect: { type: 'buff', stat: 'atk', mult: 1.15, dur: 30 },
+    desc: '仲間全員の攻撃力を少し上げる。',
     cast: '{a}は戦いの歌を歌った！', anim: 'dance',
   },
   zameha_dance: {
@@ -588,6 +589,8 @@ Object.assign(ABILITIES, JOB2_ABILITIES);
 Object.assign(ABILITIES, CH3_ABILITIES);
 // 第4章（abilities-ch4.js）
 Object.assign(ABILITIES, CH4_ABILITIES);
+// 料理人・アルバイト・お笑い芸人の 系統、大賢者、ロトの勇者と、攻撃技を 足した 職業（abilities-jobs3.js）
+Object.assign(ABILITIES, JOB3_ABILITIES);
 
 // 攻撃呪文かどうか（魔法剣で使える）
 export function isAttackSpell(id) {
@@ -608,8 +611,8 @@ export const ELEMENT_NAMES = {
 export const ELEMENT_ORDER = ['fire', 'ice', 'wind', 'blast', 'bolt', 'light', 'dark'];
 
 // 技の 種類（色分け）: dmg=ダメージ heal=回復 sup=補助
-const DMG_TYPES = new Set(['phys', 'magic', 'drainHp', 'drainMp', 'mahouken', 'bond', 'telegraph', 'multi', 'goldThrow', 'gamble', 'fixed']);
-const HEAL_TYPES = new Set(['heal', 'revive', 'cure', 'mpHeal']);
+const DMG_TYPES = new Set(['phys', 'magic', 'drainHp', 'drainMp', 'mahouken', 'bond', 'telegraph', 'multi', 'goldThrow', 'gamble', 'fixed', 'allMp', 'gather']);
+const HEAL_TYPES = new Set(['heal', 'revive', 'cure', 'mpHeal', 'regen']);
 export const ROLE_NAMES = { dmg: 'ダメージ', heal: '回復', sup: '補助' };
 export function abilityRole(a) {
   const t = a?.effect?.type;
