@@ -17,6 +17,7 @@ import { defaultDataDir, handOverOldSaves } from './savedir.js';
 import { readVersion } from './update.js';
 import { createErrorLog, captureConsole } from './errlog.js';
 import { requestPath, decodePath } from './reqpath.js';
+import { sleepSetting, sleepWarning } from './power.js';
 import { GameWorld } from '../public/js/shared/world/world.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -363,8 +364,18 @@ server.listen(PORT, HOST, () => {
   }
   console.log('');
   // 外出先から（スマホに アプリなしで）つながるか: Tailscale Funnel を しらべる
-  checkFunnel(true);
+  checkFunnel(true).then(checkSleep);
 });
+
+// PC が スリープする 設定なら 知らせる（Windows。スリープ中は だれも つながれない）
+async function checkSleep() {
+  try {
+    const lines = sleepWarning(await sleepSetting());
+    if (!lines.length) return;
+    for (const line of lines) console.log(`  ${line}`);
+    console.log('');
+  } catch { /* */ }
+}
 
 // いま 黒い 画面に 出している Tailscale の 注意（かわった ときだけ 出しなおす）
 let tsWarned = '';

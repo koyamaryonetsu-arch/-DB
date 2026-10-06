@@ -6,6 +6,7 @@
 //   （家族サーバーで 遊ぶ まえに、ひとりで 進めた ぶんが かならず 家族サーバーに 入る）
 // どちらで 遊んだ ぶんも なくならない ように、合わせかたは shared/world/sync.js・merge.js
 import { el, toast, confirmBox, askText } from './dom.js';
+import { downReason, DOWN_TEXT } from '../downreason.js';
 import {
   DEFAULT_SITE, familyServer, setFamilyServer, normalizeServer, serverAddress, siteServerAddress, isHomeAddress, takeAskServer,
   pendingSync, clearPendingSync, syncLink, mineIds, rememberMine,
@@ -107,14 +108,20 @@ export function showServerDown(game, on) {
   }
   if (old) return;
   const site = siteBase(game);
+  // どこで 止まっているか（家の PC まで とどかない／PC には とどくが 家族サーバーが 動いていない）は、しらべてから 書きかえる
+  const why = el('div', { class: 'small', text: DOWN_TEXT.unknown });
   const box = el('div', { class: 'win server-down col' },
     el('div', { class: 'gold', text: '家族サーバーにつながりません' }),
-    el('div', { class: 'small', text: '家のPCの電源と、家族サーバー（黒い画面）が動いているか確かめてください。\n・黒い画面が「続行するには…」で止まった時は、閉じて start.bat をもう一度開く\n・外出先からの時は、PCの Tailscale がつながっているかも見る\nPCが使えない時は、ひとりで遊ぶサイトで遊べます（あとで家族サーバーに合わせられます）。' }),
+    why,
+    el('div', { class: 'small', text: 'PCが使えない時は、ひとりで遊ぶサイトで遊べます（あとで家族サーバーに合わせられます）。' }),
     el('div', { class: 'row', style: { gap: '0.5em', flexWrap: 'wrap' } },
       el('a', { class: 'btn primary', href: site, text: '📱 ひとりで遊ぶサイトへ' }),
       el('button', { class: 'btn', text: 'もう一度つなぐ', onclick: () => location.reload() })),
     el('div', { class: 'small muted', text: site }));
   document.getElementById('app').append(box);
+  downReason().then((r) => {
+    if (box.isConnected) why.textContent = DOWN_TEXT[r] || DOWN_TEXT.unknown;
+  });
 }
 
 // ─────────── ひとりで遊ぶサイトの がわ ───────────

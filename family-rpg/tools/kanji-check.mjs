@@ -172,7 +172,7 @@ export function gameFiles() {
     'public/js/shared/world/sync.js', 'public/js/shared/world/merge.js', 'server/syncstore.js',
     'server/guard.js', 'server/funnel.js', 'server/funnel-cli.js',
     'server/index.js', 'server/main.js', 'server/update.js', 'server/storage.js', 'server/savedir.js',
-    'server/supervisor.js', 'server/errlog.js', 'server/reqpath.js',
+    'server/supervisor.js', 'server/errlog.js', 'server/reqpath.js', 'server/power.js', 'public/js/client/downreason.js',
     // 宝の地図
     'public/js/shared/data/treasure.js', 'public/js/shared/data/items-tm.js', 'public/js/shared/data/monsters-tm.js', 'public/js/shared/data/story-tm.js',
     'public/js/shared/maps/treasure-cave.js', 'public/js/shared/world/treasure.js', 'public/js/client/ui/treasure.js', 'public/js/client/render/themes.js',
