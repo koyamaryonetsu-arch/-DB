@@ -1,13 +1,13 @@
 // タイトル・ログイン・キャラクターえらび・キャラクターづくり
-import { el, ListMenu, toast, askText, confirmBox } from './dom.js?v=d2b7bf220f08';
-import { JOBS, JOB_ORDER } from '../../shared/data/jobs.js?v=d2b7bf220f08';
-import { HAIR_STYLES, HAIR_COLORS, SKIN_TONES, FACES, FACE_BY_ID, CLOTH_COLORS, cleanLook } from '../../shared/data/looks.js?v=d2b7bf220f08';
-import { previewCache } from '../render/hero.js?v=d2b7bf220f08';
-import { playerSprite } from '../field.js?v=d2b7bf220f08';
-import { makeCanvas, ctxOf } from '../render/pixel.js?v=d2b7bf220f08';
-import { LINE_MAX, parseCode } from '../../shared/world/transfer.js?v=d2b7bf220f08';
-import { DEFAULT_SITE, pendingImport, clearPendingImport, familyServer, setFamilyServer, linkToFamilyServer, linkToSite, siteServerAddress } from '../links.js?v=d2b7bf220f08';
-import { goFamilyServer, goSite, roundTrip, changeServer, syncOnServer, maybeRoundTrip, notePlayed, familyServerUp } from './syncui.js?v=d2b7bf220f08';
+import { el, ListMenu, toast, askText, confirmBox } from './dom.js?v=85276ba91554';
+import { JOBS, JOB_ORDER } from '../../shared/data/jobs.js?v=85276ba91554';
+import { HAIR_STYLES, HAIR_COLORS, SKIN_TONES, FACES, FACE_BY_ID, CLOTH_COLORS, cleanLook } from '../../shared/data/looks.js?v=85276ba91554';
+import { previewCache } from '../render/hero.js?v=85276ba91554';
+import { playerSprite } from '../field.js?v=85276ba91554';
+import { makeCanvas, ctxOf } from '../render/pixel.js?v=85276ba91554';
+import { LINE_MAX, parseCode } from '../../shared/world/transfer.js?v=85276ba91554';
+import { DEFAULT_SITE, pendingImport, clearPendingImport, familyServer, setFamilyServer, linkToFamilyServer, linkToSite, siteServerAddress } from '../links.js?v=85276ba91554';
+import { goFamilyServer, goSite, roundTrip, changeServer, syncOnServer, maybeRoundTrip, notePlayed, familyServerUp } from './syncui.js?v=85276ba91554';
 
 function clearUI() {
   document.getElementById('ui').innerHTML = '';
@@ -549,7 +549,7 @@ export function showCreate(game) {
     const b = el('button', { class: `btn jobbtn ${j === job ? 'sel' : ''}` }, el('span', { class: 'jn', text: JOBS[j].name }), el('span', { class: 'jd', text: {
       warrior: '固くて強い', monk: 'とても素早い', priest: '回復の女神', mage: '攻撃呪文', performer: 'みんなをおうえん',
       jester: '何が起こるかな？', salaryman: 'チームを支える', idol: 'みんなの人気者', railman: '時間に正確', ballplayer: 'かっとばせ！',
-      schoolkid: 'のびざかり！', civil_local: '町を守る',
+      schoolkid: 'のびざかり！', civil_local: '町を守る', cook: '食べて元気に', parttimer: '何でもこなす',
     }[j] }));
     b.addEventListener('click', () => {
       job = j;

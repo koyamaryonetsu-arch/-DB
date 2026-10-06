@@ -1,5 +1,5 @@
 // お店の かんばん（たてものに かける）と、地図の しるし
-import { Painter, makeCanvas, ctxOf } from './pixel.js?v=d2b7bf220f08';
+import { Painter, makeCanvas, ctxOf } from './pixel.js?v=85276ba91554';
 
 // しるしの え（9×9。'.' は とうめい）
 const ICONS = {

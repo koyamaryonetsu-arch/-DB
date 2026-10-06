@@ -2,9 +2,9 @@
 // みため（かみがた・いろ）と そうび（ぶき・よろい・たて・かぶと）で かわる
 // 人は 32×42 で くみたてて、2ばいの 64×84 に して こまかく かきたす（res 4: せかいでは 16×21 の 大きさに かく）
 // どうぶつ・船は 16×21 など
-import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=d2b7bf220f08';
-import { ITEMS, baseItemId } from '../../shared/data/items.js?v=d2b7bf220f08';
-import { STARTER_EQUIP } from '../../shared/stats.js?v=d2b7bf220f08';
+import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=85276ba91554';
+import { ITEMS, baseItemId } from '../../shared/data/items.js?v=85276ba91554';
+import { STARTER_EQUIP } from '../../shared/stats.js?v=85276ba91554';
 
 export const CW = 16;
 export const CH = 21;
@@ -64,6 +64,17 @@ const JOB_LOOK = {
   nitoryu: { outfit: 'baseball', cloth: '#f4f4f4', trim: '#c83a3a', hat: 'bbcap', hatColor: '#1a2a5a' },
   train_driver: { outfit: 'uniform', cloth: '#2c3a5c', hat: 'conductor', hatColor: '#2c3a5c' },
   keikyu_driver: { outfit: 'uniform', cloth: '#1c2444', hat: 'conductor', hatColor: '#d8202c' },
+  // 料理人・パティシエ・三ツ星シェフ・アルバイト・正社員・たたき上げ社長・お笑い芸人・M-1王者・大賢者・ロトの勇者
+  cook: { outfit: 'apron', cloth: '#f4f4f4', hat: 'chef' },
+  patissier: { outfit: 'apron', cloth: '#f8bcd0', hat: 'chef' },
+  star_chef: { outfit: 'apron', cloth: '#fbfbff', hat: 'chef' },
+  parttimer: { outfit: 'vest', cloth: '#2a62c8', hat: 'bbcap', hatColor: '#2a62c8' },
+  seishain: { outfit: 'suit', cloth: '#aab0bc', tie: '#2a9a5a' },
+  tatakiage: { outfit: 'suit', cloth: '#36593e', tie: '#e8b830', hat: 'miner', hatColor: '#f6f6f2' },
+  comedian: { outfit: 'suit', cloth: '#f8a826', tie: '#e0202c' },
+  m1_champion: { outfit: 'suit', cloth: '#e8b52a', tie: '#e0202c' },
+  daikenja: { outfit: 'robe', robeMain: '#272c74', robeTrim: '#e4e8f4', hat: 'wizard', hatColor: '#272c74', cape: '#f6f6fb' },
+  loto_hero: { outfit: 'armor', cloth: '#2c62d6', hat: 'helmet', cape: '#d0202a' },
 };
 
 // よろい・ふくの みため（'cloth' は じぶんで えらんだ いろ）
@@ -140,6 +151,17 @@ const WEAPON_LOOK = {
   storm_sword: { blade: '#bff0e0', guard: '#2a8a6a', glow: '#ffffff' },
   hayabusa_sword: { blade: '#dff0ff', guard: '#3a7ad0' },
   kira_sword: { blade: '#f4fbff', guard: '#f2c14e', glow: '#ffffff' },
+  // 料理・そうじの どうぐと マイク（つえは blade が ぼう・orb が さき）
+  kitchen_knife: { blade: '#e8ecf4', guard: '#c08a50' },
+  chef_knife: { blade: '#f4f8ff', guard: '#f2c14e', glow: '#ffffff' },
+  frying_pan: { blade: '#2a2a34', guard: '#1a1a22' },
+  chinese_wok: { blade: '#8a90a4', guard: '#b07a44' },
+  ladle: { blade: '#c8ccd8', orb: '#e8ecf4' },
+  whisk: { blade: '#e8ecf4', guard: '#f29ab8' },
+  mop: { blade: '#c8ccd8', orb: '#e2e0d8' },
+  deck_brush: { blade: '#c8945c', orb: '#2a6ad0' },
+  center_mic: { blade: '#c8ccd8', orb: '#3a3646' },
+  gold_mic: { blade: '#f2c14e', orb: '#ffe98a', glow: '#ffffff' },
 };
 
 // たての いろ

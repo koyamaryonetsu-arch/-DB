@@ -2,13 +2,13 @@
 // みため（体・かみがた・かみの色・はだ・目もと）と、しょくぎょう・そうび（ぶき・よろい・たて・かぶと）から かく
 //   heroImage(look, job, equip, dir, frame, res) → { w, h, res, rgba }
 // res 4: 64×84（フィールド）  res 8: 128×168（大きな みほん）
-import { HeroCanvas, mat, ramp, TH, mixC, rgbaCanvas } from './hero-raster.js?v=d2b7bf220f08';
-import { faceFront, faceSide } from './hero-face.js?v=d2b7bf220f08';
-import { drawHair } from './hero-hair.js?v=d2b7bf220f08';
-import { outfitOf, drawTorsoFront, drawTorsoBack, drawTorsoSide, drawSkirt, drawCape, drawPauldron, drawBelt, drawNeckwear, drawPack } from './hero-outfit.js?v=d2b7bf220f08';
-import { weaponOf, shieldOf, headOf, drawWeapon, drawShield, drawHeadgear, isLongSide } from './hero-gear.js?v=d2b7bf220f08';
-import { lookIds, HCOL_BY_ID, TONE_BY_ID, CLOTH_COLORS } from '../../shared/data/looks.js?v=d2b7bf220f08';
-import { STARTER_EQUIP } from '../../shared/stats.js?v=d2b7bf220f08';
+import { HeroCanvas, mat, ramp, TH, mixC, rgbaCanvas } from './hero-raster.js?v=85276ba91554';
+import { faceFront, faceSide } from './hero-face.js?v=85276ba91554';
+import { drawHair } from './hero-hair.js?v=85276ba91554';
+import { outfitOf, drawTorsoFront, drawTorsoBack, drawTorsoSide, drawSkirt, drawCape, drawPauldron, drawBelt, drawNeckwear, drawPack, drawApron } from './hero-outfit.js?v=85276ba91554';
+import { weaponOf, shieldOf, headOf, drawWeapon, drawShield, drawHeadgear, isLongSide } from './hero-gear.js?v=85276ba91554';
+import { lookIds, HCOL_BY_ID, TONE_BY_ID, CLOTH_COLORS } from '../../shared/data/looks.js?v=85276ba91554';
+import { STARTER_EQUIP } from '../../shared/stats.js?v=85276ba91554';
 
 // そうびの かきかた: 'ぶき,よろい,たて,あたま' の もじれつ か { weapon, armor, shield, head }（ない ときは しょくぎょうの はじめの そうび）
 export function parseEquip(eq, job) {
@@ -175,9 +175,11 @@ function armShape(cv, A, P, O, { hand = true, sleeveOnly = false } = {}) {
   const r0 = fem ? 1.5 : 1.7, r1 = fem ? 1.32 : 1.5, r2 = fem ? 1.15 : 1.3;
   const S = O.sleeve;
   const wide = S.wide || 1;
-  cv.cap(A.sh[0], A.sh[1], r0 * (S.puff || 1), A.el[0], A.el[1], r1 * Math.min(wide, 1.15), S.upper);
+  // そでの もよう（チェック・ラメ。はだの ところには つけない）
+  const tx = S.tex ? S.tex(cv.k) : null;
+  cv.cap(A.sh[0], A.sh[1], r0 * (S.puff || 1), A.el[0], A.el[1], r1 * Math.min(wide, 1.15), S.upper, { tex: tx });
   if (sleeveOnly) return;
-  cv.cap(A.el[0], A.el[1], r1 * Math.min(wide, 1.2), A.wr[0], A.wr[1], r2 * wide, S.lower);
+  cv.cap(A.el[0], A.el[1], r1 * Math.min(wide, 1.2), A.wr[0], A.wr[1], r2 * wide, S.lower, { tex: S.lower === S.upper ? tx : null });
   if (S.cuff) {
     cv.part({ ol: 'soft' });
     const cw = S.cuffW || 1.12;
@@ -356,6 +358,7 @@ export function paintHero(look, job, equip, dir, f, res = 4) {
     if (O.skirt && !O.skirt.over) drawSkirt(cv, P, O);
     drawTorsoFront(cv, P, O);
     if (O.skirt?.over) drawSkirt(cv, P, O);
+    if (O.apron) drawApron(cv, P, O);
     if (O.belt) drawBelt(cv, P, O);
     neckShape(cv, P, O);
     drawNeckwear(cv, P, O);
@@ -380,6 +383,7 @@ export function paintHero(look, job, equip, dir, f, res = 4) {
     if (O.skirt && !O.skirt.over) drawSkirt(cv, P, O);
     drawTorsoBack(cv, P, O);
     if (O.skirt?.over) drawSkirt(cv, P, O);
+    if (O.apron) drawApron(cv, P, O);
     if (O.belt) drawBelt(cv, P, O);
     for (const A of P.arms) {
       cv.part();
@@ -412,6 +416,7 @@ export function paintHero(look, job, equip, dir, f, res = 4) {
     if (O.skirt && !O.skirt.over) drawSkirt(cv, P, O);
     drawTorsoSide(cv, P, O);
     if (O.skirt?.over) drawSkirt(cv, P, O);
+    if (O.apron) drawApron(cv, P, O);
     if (O.belt) drawBelt(cv, P, O);
     neckShape(cv, P, O);
     drawNeckwear(cv, P, O);
