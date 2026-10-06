@@ -97,6 +97,8 @@ test('第4章: 人・宝箱・かんばん・しかけ・ワープが ただし�
     const levers = [...new Set(m.gates.filter((g) => g.closed === T.LEVER).map((g) => g.flag))];
     const sets = [ALL, [...ALL, 'c4_scorpion']];
     for (const lv of levers) for (const st of sets.slice()) sets.push([...st, lv]);
+    // しかけを ぜんぶ といた あと（ピラミッドの 歌の ボタン・3階の 近道・4階の ひびの 入った かべ。お昼の 影も）
+    sets.push([...ALL, 'c4_scorpion', ...new Set(m.gates.map((g) => g.flag).filter(Boolean))]);
     const rs = sets.flatMap((fl) => starts.map((s0) => reach(m, s0, fl)));
     const r = (x, y) => rs.some((f) => f(x, y));
     for (const c of m.chests) {

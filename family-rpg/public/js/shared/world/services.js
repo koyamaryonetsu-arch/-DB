@@ -10,15 +10,15 @@ import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease,
 import { salonInfo, salonAction } from './salon.js';
 import { breedMonsters, breedPreview } from './breed.js';
 import { MONSTERS } from '../data/monsters.js';
-import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings } from '../battle.js';
+import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings, spellSealed } from '../battle.js';
 import { PLACES } from '../maps/overworld.js';
-import { POS, SEA_PLACES } from '../maps/index.js';
+import { POS, SEA_PLACES, MAPS } from '../maps/index.js';
 import { castRura, warpParty, useTimeBell, warpPlaces, warpOwner } from './travel.js';
 import { bankInfo, bankAction } from './bank.js';
 import { forgeInfo, forgeAction } from './forge.js';
 import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction, wagonHere, wagonHealEntries } from './wagon.js';
 import { casinoOpen, casinoAction } from './casino.js';
-import { useEscapeItem } from './escape.js';
+import { useEscapeItem, noEscapeText } from './escape.js';
 import { bestEquipPlan } from '../equip-plan.js';
 
 export function openService(world, s, kind, arg) {
@@ -381,6 +381,8 @@ export function menuAction(world, s, msg) {
         return reply(true, `${c.name}は聖水をふりまいた！\nしばらく弱い魔物が寄ってこない。`);
       }
       if (eff.type === 'warp') {
+        // 王家のピラミッド（第4章）: 帰り道の羽は 使えない（道具は へらない。行き先を えらぶ 前に 知らせる）
+        if (MAPS[s.map]?.noEscape) return reply(false, noEscapeText(it.name));
         // 行き先は リーダーと おなじ（パーティーで リーダーの 冒険に 来ている ときは リーダーの きろく。travel.js）
         const dest = msg.place && warpPlaces(warpOwner(world, s)).includes(msg.place) ? msg.place : null;
         if (!dest) return reply(false, 'どこへ行く？');
@@ -412,6 +414,8 @@ export function menuAction(world, s, msg) {
       if (inWagon && !wagonHere(s.map)) return reply(false, '馬車は入り口で待っている…');
       const a = ABILITIES[msg.id];
       if (!a || !a.field || !learnedAbilities(caster).includes(msg.id)) return reply(false, '今は使えない');
+      // 呪文が ふうじられた 場所（王家のピラミッド 2階）: 呪文は 使えない（MPは へらない。特技は 使える）
+      if (MAPS[s.map]?.noSpells && spellSealed(a)) return reply(false, `${caster.name}は${a.name}を唱えた！\nしかし呪文の力が、すいこまれてしまった…\n（ここでは呪文が使えない。特技や道具を使おう）`);
       // ルーラ（行った 町へ 仲間と 飛ぶ。travel.js）
       if (a.effect?.type === 'warp') return castRura(world, s, caster, msg.id, msg, reply);
       const cost = mpCost(caster, msg.id);
@@ -574,6 +578,8 @@ function fullHealSummary(world, s, used) {
 
 function fullHealBySpells(world, s) {
   if (!hurtRefs(world, s).length) return { ok: false, text: 'みんなのHPは満タンだ' };
+  // 呪文が ふうじられた 場所では 回復の 特技だけ（呪文は つかわない）
+  const sealed = !!MAPS[s.map]?.noSpells;
   const p = partyOf(world, s);
   const casters = [s.char, ...(p?.supports || []).filter((x) => x.owner === s.char.id && x.kind !== 'family').map((x) => x.char),
     ...wagonHealEntries(world, s, true).map((e) => e.char)].filter((ch) => ch.hp > 0);
@@ -593,6 +599,7 @@ function fullHealBySpells(world, s) {
       for (const id of learnedAbilities(ch)) {
         const a = ABILITIES[id];
         if (!a?.field || a.effect?.type !== 'heal' || !['ally', 'allies'].includes(a.target)) continue;
+        if (sealed && spellSealed(a)) continue;
         const cost = mpCost(ch, id);
         if (ch.mp < cost) continue;
         const pen = penaltyFor(ch, id);
@@ -617,6 +624,7 @@ function fullHealBySpells(world, s) {
     count.set(key, (count.get(key) || 0) + 1);
     mpUsed.set(best.ch.name, (mpUsed.get(best.ch.name) || 0) + best.cost);
   }
+  if (!any && sealed) return { ok: false, text: 'ここでは呪文がふうじられている…\n（回復の特技か、道具で回復しよう）' };
   if (!any) return { ok: false, text: 'HPを回復できる呪文を使える人がいない…\n（MPが足りないか、回復の呪文を覚えていない）' };
   const byWho = new Map();
   for (const [k, n] of count) {

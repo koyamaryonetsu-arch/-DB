@@ -23,7 +23,7 @@ import { upgradeSave, repairChar } from './save.js';
 import { exportCode, parseCode, importChar } from './transfer.js';
 import { memorySyncStore, buildSyncOut, applySyncIn, encodeSync, decodeSync, syncSummary } from './sync.js';
 import { tryTreasureDig, treasureMenu, fixTreasurePos, normalizeTreasure, pruneTreasureStates } from './treasure.js';
-import { isNightFor } from './clock.js';
+import { isNightFor, timeFlag, fracFor } from './clock.js';
 import { onFly, setFlying, moveAllowed, ridingAlong, canFlyMap } from './travel.js';
 import { migrateSky } from '../data/sky.js';
 import { migrateCh4 } from '../data/story-ch4.js';
@@ -32,6 +32,7 @@ import { wagonLook } from './wagon.js';
 import { medalSearchSteps, medalChestSteps } from './casino.js';
 import { stepHazard } from './hazards.js';
 import { noteDungeonEntry } from './escape.js';
+import { notePyramidMove } from './pyramid.js';
 
 export const PROTOCOL_VERSION = 1;
 const SPARKLE_RESPAWN_MS = 20 * 60 * 1000;
@@ -546,9 +547,10 @@ export class GameWorld {
   }
 
   // '@night' … 夜の あいだ（夜だけ 出る 人・夜は 家に 帰る 人。パーティーの 時計で）
+  // '@noon'・'@am'・'@pm' … お日さまの むき（第4章の オベリスクの 影。clock.js の timeFlag）
   hasFlagFn(s) {
     const flags = this.worldFlags(s);
-    return (f) => (f === '@night' ? isNightFor(this, s) : !!flags[f]);
+    return (f) => (f[0] === '@' ? timeFlag(f, fracFor(this, s)) : !!flags[f]);
   }
 
   onEnterTile(s, tx, ty) {
@@ -623,6 +625,8 @@ export class GameWorld {
   placeSession(s, mapId, x, y, dir, notify = true, opts = {}) {
     // 洞窟に 入った 場所を おぼえる（みちびきの糸。escape.js）
     noteDungeonEntry(s, { map: s.map, x: s.x, y: s.y, dir: s.dir }, mapId);
+    // のろいの宝の のろいは ピラミッドの 外に 出ると とける（world/pyramid.js）
+    notePyramidMove(this, s, mapId);
     s.map = mapId;
     s.x = x;
     s.y = y;

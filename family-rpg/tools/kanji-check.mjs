@@ -205,6 +205,8 @@ export function gameFiles() {
     'public/js/shared/maps/south.js', 'public/js/shared/maps/ch4.js', 'public/js/shared/data/story-ch4.js',
     'public/js/shared/data/monsters-ch4.js', 'public/js/shared/data/abilities-ch4.js', 'public/js/shared/data/items-ch4.js',
     'public/js/shared/data/encounters-ch4.js',
+    // 第4章 Step 4「王家のピラミッド」（のろいの宝・流れる砂・階の レイアウト）
+    'public/js/shared/world/pyramid.js', 'public/js/shared/maps/flow.js', 'public/js/shared/maps/pyramid-rows.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

@@ -129,6 +129,8 @@ function makeBattle(world, sessions, party, enemies, opts) {
     wait: !!settings.wait,
     canFlee: opts.canFlee !== false,
     boss: !!opts.boss,
+    // 呪文が ふうじられた マップ（王家のピラミッド 2階）
+    noSpells: !!MAPS[sessions[0]?.map]?.noSpells,
     bg: opts.bg,
     bgm: opts.bgm,
     bond: party.bond || 0,

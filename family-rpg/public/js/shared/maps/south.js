@@ -4,7 +4,8 @@
 // ・北の海辺 … 星の竜アステルが おりる ところ（砂嵐が おさまるまで、空は この 上だけ。data/sky.js）
 // ・オアシスの村ハミル（西）… 北に 北の古井戸。南へ 行くと 砂嵐のかべ
 // ・砂嵐のかべ（y=60〜63）… 王都の 方へは まだ 行けない（道の ところは c4_scorpion、ほかは c4_morgana で はれる）
-// ・かべの 南: 王都サファラ（Step 3。道の つきあたり）。ピラミッド・砂の港ドゥナは Step 4 から
+// ・かべの 南: 王都サファラ（Step 3。道の つきあたり）
+// ・王都の 東の 門の 先: 王家のピラミッドと オベリスク（Step 4。昼の 12時ごろ、オベリスクの 影が とびらを さす）。砂の港ドゥナは Step 6 から
 import { T, TILE_INFO, parseRows } from '../tiles.js';
 import { fbm, hash2 } from '../rng.js';
 import { HAMIL_ROWS, SAFARA_ROWS } from './south-rows.js';
@@ -45,6 +46,28 @@ export const SAFARA_POS = {
 // 王の間（宮殿の 中）と 中庭（王の間の うしろ。地下水路からしか 入れない）
 export const PALACE_HALL = { x: SAF.x + 15, y: SAF.y + 22, w: 21, h: 9 };
 export const PALACE_COURT = { x: SAF.x + 16, y: SAF.y + 31, w: 19, h: 8 };
+// ───── 王家のピラミッド（Step 4）─────
+// 王都の 東の 門から 道ぞいに 東へ。15×15 マスの 大きな ピラミッド（まん中ほど 高い。2.5D では だんだんの 山）
+// 南の かべの まん中に 日時計の とびら、その 5マス 南に オベリスク。まえの 広場は 魔物が 出ない
+export const PYRAMID = { x: 93, y: 81, w: 15, h: 15, name: '王家のピラミッド' };
+export const PYRAMID_PLAZA = { x: 88, y: 96, w: 25, h: 9 };
+export const PYRAMID_POS = {
+  door: { x: 100, y: 95 }, // 日時計の とびら（c4_pyramid で 開く）
+  obelisk: { x: 100, y: 100 }, // オベリスク（大きな 石の 柱。人の え は client/render/chars.js の obelisk）
+};
+// オベリスクの 影（お日さまの むきで のびる。昼の 12時ごろは 北へ のびて、とびらを さす）
+//   '@am' … 西へ 5マス / '@noon' … 北へ 4マス（とびらの 前まで）/ '@pm' … 東へ 5マス
+export const OBELISK_SHADOW = {
+  '@am': [1, 2, 3, 4, 5].map((d) => ({ x: PYRAMID_POS.obelisk.x - d, y: PYRAMID_POS.obelisk.y })),
+  '@noon': [1, 2, 3, 4].map((d) => ({ x: PYRAMID_POS.obelisk.x, y: PYRAMID_POS.obelisk.y - d })),
+  '@pm': [1, 2, 3, 4, 5].map((d) => ({ x: PYRAMID_POS.obelisk.x + d, y: PYRAMID_POS.obelisk.y })),
+};
+// ピラミッドの マスの 高さ（ふちから 何だん目か。0〜7）
+export function pyramidLevel(x, y) {
+  const P = PYRAMID;
+  return Math.max(0, Math.min(x - P.x, P.x + P.w - 1 - x, y - P.y, P.y + P.h - 1 - y));
+}
+
 // 竜が おりる 北の海辺（空を とべる 場所。data/sky.js の box）
 export const SOUTH_LANDING = { x: 50, y: 2, w: 44, h: 16 };
 export const SOUTH_ARRIVE = { x: 72.5, y: 9.5 };
@@ -65,6 +88,8 @@ export const STORM_Y = [60, 63];
 export const STORM_GAP_X = [35, 38];
 export const STORM_FLAG = 'c4_scorpion';
 export const STORM_END_FLAG = 'c4_morgana';
+// 日時計の とびらが 開いた（Step 4。物語の すすみぐあい CH4_STEPS の c4_pyramid）
+export const PYRAMID_FLAG = 'c4_pyramid';
 
 // 道（ふみかためた 砂の 道）
 const ROADS = [
@@ -76,8 +101,8 @@ const ROADS = [
   [[HAM.x + 15, HAM.y + HAM.h], [33, 54], [36.5, 59], [36.5, 72], [40, 84]],
   // 北の海辺 → 小さな オアシス
   [[78, 12], [88, 18], [100, 26], [OASIS2.x - 3, OASIS2.y]],
-  // 王都の 東の 門 → 東の 砂ばく（ピラミッドの 方。Step 4 で のばす）
-  [[SAF.x + SAF.w - 0.5, SAF.y + 14], [74, 98], [84, 101]],
+  // 王都の 東の 門 → 東の 砂ばく → 王家のピラミッドの まえの 広場（Step 4）
+  [[SAF.x + SAF.w - 0.5, SAF.y + 14], [74, 98], [84, 100.5], [91, 100.5]],
 ];
 
 function distToSeg(px, py, ax, ay, bx, by) {
@@ -102,7 +127,7 @@ export function buildSouth() {
   const t = new Uint8Array(W * H).fill(T.DESERT);
   const set = (x, y, v) => { if (x >= 0 && y >= 0 && x < W && y < H) t[y * W + x] = v; };
   const get = (x, y) => (x >= 0 && y >= 0 && x < W && y < H ? t[y * W + x] : T.SANDSTONE);
-  const nearPlace = (x, y, pad) => [HAM, SAF, LANDING_BEACH, OASIS_CAMP].some((p) => inRect(x, y, p, pad));
+  const nearPlace = (x, y, pad) => [HAM, SAF, LANDING_BEACH, OASIS_CAMP, PYRAMID, PYRAMID_PLAZA].some((p) => inRect(x, y, p, pad));
   const nearRoad = (x, y, d) => ROADS.some((r) => distToPath(x + 0.5, y + 0.5, r) < d);
   const nearPos = (x, y, p, d) => Math.hypot(x - p.x, y - p.y) < d;
 
@@ -193,6 +218,14 @@ export function buildSouth() {
   stamp(HAM, HAMIL_ROWS);
   stamp(SAF, SAFARA_ROWS, SAFARA_LEGEND);
 
+  // 5b) 王家のピラミッド（Step 4）: まえの 広場は 砂ばく、ピラミッドの 南の まん中に 日時計の とびら、オベリスクの 台
+  for (let y = PYRAMID_PLAZA.y; y < PYRAMID_PLAZA.y + PYRAMID_PLAZA.h; y++) {
+    for (let x = PYRAMID_PLAZA.x; x < PYRAMID_PLAZA.x + PYRAMID_PLAZA.w; x++) if (get(x, y) !== T.DIRT) set(x, y, T.DESERT);
+  }
+  for (let y = PYRAMID.y; y < PYRAMID.y + PYRAMID.h; y++) for (let x = PYRAMID.x; x < PYRAMID.x + PYRAMID.w; x++) set(x, y, T.PYRAMID);
+  set(PYRAMID_POS.door.x, PYRAMID_POS.door.y, T.PYR_DOOR);
+  set(PYRAMID_POS.obelisk.x, PYRAMID_POS.obelisk.y, T.OBELISK_BASE);
+
   // 6) 北の古井戸（日干しれんがの わくの 中の あな。南から 入る）
   const wl = SOUTH_POS.well;
   for (let y = wl.y - 3; y <= wl.y + 3; y++) for (let x = wl.x - 3; x <= wl.x + 3; x++) {
@@ -227,6 +260,10 @@ export function buildSouth() {
 
   // 8) 砂嵐のかべ（東西 ぜんぶ。道の ところだけ さきに 弱まる）
   const gates = [];
+  // 日時計の とびら（ピラミッドの 南の まん中。昼の 12時ごろに しらべると 開く: c4_pyramid）
+  gates.push({ x: PYRAMID_POS.door.x, y: PYRAMID_POS.door.y, closed: T.PYR_DOOR, open: T.PYR_GATE, flag: PYRAMID_FLAG });
+  // オベリスクの 影（お日さまの むきで のびる。とびらと ちがって フラグは 時間の しるし）
+  for (const [f, list] of Object.entries(OBELISK_SHADOW)) for (const p of list) gates.push({ x: p.x, y: p.y, closed: T.DESERT, open: T.SUN_SHADOW, flag: f });
   for (let y = STORM_Y[0]; y <= STORM_Y[1]; y++) {
     for (let x = 0; x < W; x++) {
       const cur = get(x, y);
@@ -240,12 +277,15 @@ export function buildSouth() {
 }
 
 // どの ちいき（出てくる モンスター）か
+// 王都の 東の 砂ばく（ピラミッドの まわり）は s_pdesert（Step 4。岩の 魔物・夜は ランプの魔人も）
 export function southZoneAt(x, y) {
   for (const [id, p] of Object.entries(SOUTH_PLACES)) if (inRect(x, y, p)) return 'safe:' + id;
   if (inRect(x, y, LANDING_BEACH)) return 'safe:landing';
   if (inRect(x, y, OASIS_CAMP, -2)) return 'safe:camp';
+  if (inRect(x, y, PYRAMID_PLAZA) || inRect(x, y, PYRAMID, 1)) return 'safe:pyramid';
   if (y <= 12) return 's_coast';
   if (inRect(x, y, HAM, 8) || inRect(x, y, OASIS_CAMP, 6)) return 's_oasis';
+  if (y > STORM_Y[1] && x >= SAF.x + SAF.w) return 's_pdesert';
   return 's_dune';
 }
 
@@ -259,6 +299,8 @@ export function southAreaName(x, y) {
   if (Math.hypot(x - SOUTH_POS.well.x, y - SOUTH_POS.well.y) < 7) return '北の古井戸';
   if (inRect(x, y, OASIS_CAMP, 3)) return '小さなオアシス';
   if (Math.abs(x - SOUTH_POS.canal.x) <= 4 && Math.abs(y - SOUTH_POS.canal.y) <= 4) return 'かれた地下水路';
+  if (inRect(x, y, PYRAMID, 2) || inRect(x, y, PYRAMID_PLAZA)) return PYRAMID.name;
+  if (y > STORM_Y[1] && x >= SAF.x + SAF.w) return '王家の墓の砂ばく';
   if (y > STORM_Y[1]) return 'サファラの砂ばく';
   if (y >= 54) return '砂嵐のかべ';
   return 'コガネ砂丘';

@@ -18,12 +18,14 @@ import { wagonDraws } from './render/wagon.js';
 import { drawTreasureGlow } from './render/treasure-glow.js';
 import { Weather } from './render/weather.js';
 import { flySpeed } from '../shared/data/sky.js';
+import { timeFlag } from '../shared/world/clock.js';
 
 const SPEED = 4.6; // マス/びょう
 const RUN = 1.35; // はしると この ばい（はやすぎない ように）
 const SHIP = 1.25; // 船は すこし はやい
 const ICE_SPEED = 7.2; // 氷の 上を すべる はやさ（マス/びょう）
 const CART_SPEED = 7.5; // トロッコの はやさ（マス/びょう）
+const FLOW_SPEED = 4.2; // 流れる 砂に 流される はやさ（マス/びょう。行き先が 目で おえる ように 歩くより ゆっくり）
 // がめんの こまかさ（せかいの 1ドットを なんドットで かくか）
 // 人・モンスターの え は res 4 なので、2D では がめんも 4ばいに する（がめんが おおきすぎる とき・2.5D の ときは 2）
 const RES_LO = 2, RES_HI = 4;
@@ -171,6 +173,8 @@ export class Field {
     // 氷の 上を すべっている（{ dx, dy, tx, ty }）・トロッコに のっている
     this.slide = null;
     this.riding = null;
+    // 流れる 砂に 流されている（{ tx, ty }。第4章の ピラミッド 3階）
+    this.flow = null;
     this.hideMe = false;
     // 雪・ふぶき・火の粉（render/weather.js）
     this.weather = new Weather();
@@ -254,6 +258,7 @@ export class Field {
     this.me.trail = [];
     this.leaderCrumbs = [];
     this.slide = null;
+    this.flow = null;
     if (changed) {
       this.scriptHidden.clear();
       this.syms.clear();
@@ -285,8 +290,8 @@ export class Field {
 
   // 世界の フラグ（人の いち・橋・とびら など）。さそわれて 手伝っている ときは リーダーの ものがたりの 世界
   hasFlag(f) {
-    // 夜の あいだ（夜だけ 出る 人・夜は 家に 帰る 人）
-    if (f === '@night') return !!this.game.sky?.isNight();
+    // 夜の あいだ（夜だけ 出る 人・夜は 家に 帰る 人）・お日さまの むき（'@noon' など。第4章の オベリスクの 影）
+    if (f[0] === '@') return this.game.sky ? timeFlag(f, this.game.sky.frac()) : false;
     const world = this.game.worldFlagSet;
     if (world && this.game.visitingLeader()) return world.has(f);
     const c = this.game.me;
@@ -372,11 +377,16 @@ export class Field {
       if (canMove) this.slideStep(sec);
       me.moving = false;
       me.running = false;
+    } else if (iceOn && (this.flow || (canMove && this.startFlow()))) {
+      // 流れる 砂: 流されている あいだは 歩けない（だいほん・たたかいの あいだは まつ）
+      if (canMove) this.flowStep(sec);
+      me.moving = false;
+      me.running = false;
     } else {
       me.moving = mag > 0.05;
       me.running = me.moving && run;
     }
-    if (me.moving && !this.riding && !(iceOn && this.slide)) {
+    if (me.moving && !this.riding && !(iceOn && (this.slide || this.flow))) {
       if (Math.abs(ix) > Math.abs(iy)) me.dir = ix > 0 ? 'right' : 'left';
       else me.dir = iy > 0 ? 'down' : 'up';
       const d = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] }[me.dir];
@@ -507,10 +517,55 @@ export class Field {
     this.pushTrail(me);
   }
 
+  // ───────────── 流れる 砂（第4章 Step 4。ピラミッド 3階の ありじごく）─────────────
+  // 流される きまり（shared/maps/flow.js の carry と おなじ）:
+  //  ・流れる 砂の マスに 立つと、その マスの 矢じるしの むきへ 1マスずつ 流される（とちゅうで 曲がる ことも ある）
+  //  ・流れる 砂では ない ゆかに 着いたら とまる。流れの 先が かべなら、その マスで とまる（そこからは 歩ける）
+  //  ・ありじごく（ワープの マス）に 着くと、サーバーが 下の 階へ おとす
+  flowDir(tx, ty) {
+    return TILE_INFO[effectiveTile(this.map, tx, ty, (f) => this.gateFlag(f))]?.flow || null;
+  }
+
+  startFlow() {
+    const tx = Math.floor(this.me.x), ty = Math.floor(this.me.y);
+    const d = this.flowDir(tx, ty);
+    if (!d || this.solidAt(tx + d[0], ty + d[1])) return false;
+    this.flow = { tx, ty };
+    return true;
+  }
+
+  flowStep(sec) {
+    const s = this.flow, me = this.me;
+    let budget = FLOW_SPEED * sec;
+    for (let guard = 0; guard < 8 && budget > 0 && this.flow; guard++) {
+      const gx = s.tx + 0.5, gy = s.ty + 0.5;
+      const dx = gx - me.x, dy = gy - me.y, d = Math.hypot(dx, dy);
+      if (d > budget) {
+        me.x += (dx / d) * budget;
+        me.y += (dy / d) * budget;
+        budget = 0;
+        break;
+      }
+      me.x = gx;
+      me.y = gy;
+      budget -= d;
+      // マスの まんなかに 着いた: その マスの 流れの むきへ（流れが ない・先が ふさがって いたら とまる）
+      const f = this.flowDir(s.tx, s.ty);
+      if (!f || this.solidAt(s.tx + f[0], s.ty + f[1])) {
+        this.flow = null;
+        break;
+      }
+      s.tx += f[0];
+      s.ty += f[1];
+    }
+    this.pushTrail(me);
+  }
+
   // ───────────── トロッコ（第3章。だいほんの ['ride', [[x, y], ...]]）─────────────
   ride(points, speed = CART_SPEED) {
     return new Promise((resolve) => {
       this.slide = null;
+      this.flow = null;
       this.riding = { pts: points.map(([x, y]) => ({ x, y })), speed, resolve };
     });
   }

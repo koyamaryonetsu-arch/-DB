@@ -83,6 +83,9 @@ const BG = {
   sand_cave: { sky: ['#120a06', '#22140c', '#362212'], far: '#4e321a', near: '#8a6034', ground: ['#a8804a', '#94703e'], deco: 'stalactite', trickle: true },
   // 第4章 Step 2: かれた地下水路の 広間（砂岩の かべと アーチ・おくへ のびる かれた 水路・ほそい 水の すじ・たいまつ）
   canal: { sky: ['#120b06', '#1e140c', '#2a1d12'], far: '#5a4229', near: '#8a7250', ground: ['#9a8260', '#8c7452'], deco: 'canal' },
+  // 第4章 Step 4: 王家のピラミッドの 中（金色の 砂岩の かべ・絵文字の おび・ハスの 柱・たいまつ）と 王のへや（金の ひつぎ・むらさきの かがり火）
+  pyramid: { sky: ['#140c04', '#24180a', '#3a2810'], far: '#6e5028', near: '#a8844a', ground: ['#c09a5c', '#b08a50'], deco: 'pyramid' },
+  pyramid_boss: { sky: ['#100814', '#1e1020', '#2e1a24'], far: '#5a3a24', near: '#a07a40', ground: ['#b89050', '#a88044'], deco: 'pyramid_boss' },
 };
 
 // はいけいの データ（〜_night は 夜空の はいけい。night-art.js）。ない ときは null
@@ -149,6 +152,7 @@ export function battleBackground(id) {
       case 'pillars': h = px % 48 < 10 ? 78 : 14 + (px % 48 > 20 && px % 48 < 38 ? 10 : 0); break;
       case 'dunes': h = 0; break; // 砂ばくは あとで（drawDesert）
       case 'canal': h = 0; break; // 地下水路は あとで（drawCanalHall・drawCanalFloor）
+      case 'pyramid': case 'pyramid_boss': h = 0; break; // ピラミッドは あとで（drawPyramidHall・drawPyramidFloor）
       default: h = 10 + Math.abs(Math.sin(px * 0.035) * 14) + Math.abs(Math.sin(px * 0.11) * 4);
     }
     if (d.deco === 'stalactite' || d.deco === 'crystal') {
@@ -158,6 +162,7 @@ export function battleBackground(id) {
   }
   if (d.deco === 'dunes') drawDesert(x, d, hor);
   if (d.deco === 'canal') drawCanalHall(x, hor);
+  if (d.deco === 'pyramid' || d.deco === 'pyramid_boss') drawPyramidHall(x, hor, d.deco === 'pyramid_boss');
   if (d.deco === 'houses') {
     x.fillStyle = '#ffd66b';
     for (let k = 10; k < BW; k += 48) x.fillRect(k + 8, hor - 12, 3, 3);
@@ -204,6 +209,7 @@ export function battleBackground(id) {
   }
   // えんきんの せん（地下水路は 石だたみの めじ）
   if (d.deco === 'canal') drawCanalFloor(x, hor);
+  else if (d.deco === 'pyramid' || d.deco === 'pyramid_boss') drawPyramidFloor(x, hor, d.deco === 'pyramid_boss');
   else {
     x.fillStyle = 'rgba(0,0,0,0.12)';
     for (let i = 0; i < 6; i++) {
@@ -300,6 +306,136 @@ function drawDesert(x, d, hor) {
   for (let k = 0; k < 26; k++) {
     const y = hor + 7 + ((k * 23) % (BH - hor - 12)), x0 = (k * 61 + 15) % BW, len = 8 + (k % 4) * 5;
     x.fillRect(x0, y - 1, len - 4, 1);
+  }
+}
+
+// ───── 王家のピラミッドの 中（第4章 Step 4）─────
+// おくの かべ: 金色の 砂岩の 切り石・青と 赤の 絵文字の おび・ハスの 花の 形の 柱・たいまつ。
+// boss … 王のへや（まん中に たてた 金の ひつぎ、上に つばさの ある 太陽、むらさきの 火の かがり火）
+const PYR_COLUMNS = [26, 90, 166, 230];
+function drawPyramidHall(x, hor, boss) {
+  for (let y = 0; y < hor; y++) {
+    const t = Math.max(0, y / hor);
+    x.fillStyle = mix(boss ? '#120a10' : '#140c04', '#8a6a3a', Math.min(1, t * t * 1.3 + t * 0.15));
+    x.fillRect(0, y, BW, 1);
+  }
+  // 切り石の だん（下ほど 明るい）
+  for (let r = 0, y0 = 6; y0 < hor; r++, y0 += 8) {
+    const t = Math.min(1, (y0 + 4) / hor);
+    const base = mix(boss ? '#1e1218' : '#24180a', '#b08a50', t * t * 1.15), lit = mix(base, '#f0d090', 0.25), dark = mix(base, '#000000', 0.45);
+    x.fillStyle = base; x.fillRect(0, y0, BW, 8);
+    x.fillStyle = dark; x.fillRect(0, y0, BW, 1);
+    x.fillStyle = lit; x.fillRect(0, y0 + 1, BW, 1);
+    for (let bx = (r % 2) * 12 - 12; bx < BW; bx += 24) {
+      x.fillStyle = dark; x.fillRect(bx, y0, 1, 8);
+      x.fillStyle = lit; x.fillRect(bx + 1, y0 + 1, 1, 7);
+    }
+  }
+  // 絵文字の おび（ぬりかべに 青・赤・黒の 小さな 絵）
+  const fy = boss ? 22 : 30;
+  x.fillStyle = '#c8a868'; x.fillRect(0, fy, BW, 13);
+  x.fillStyle = '#e8c87a'; x.fillRect(0, fy, BW, 1);
+  x.fillStyle = '#6e5028'; x.fillRect(0, fy + 12, BW, 1);
+  const GLYPH_COLS = ['#2a54b0', '#a8381c', '#2a1a0a', '#2a8a6a'];
+  for (let k = 0, gx = 4; gx < BW - 6; k++, gx += 11) {
+    x.fillStyle = GLYPH_COLS[k % 4];
+    switch (k % 5) {
+      case 0: x.beginPath(); x.arc(gx + 3, fy + 6, 3, 0, Math.PI * 2); x.fill(); break; // 太陽
+      case 1: x.fillRect(gx, fy + 5, 7, 2); x.fillRect(gx + 2, fy + 4, 3, 4); break; // 目
+      case 2: x.fillRect(gx + 2, fy + 2, 3, 3); x.fillRect(gx + 1, fy + 5, 4, 3); x.fillRect(gx + 3, fy + 8, 1, 3); break; // 鳥
+      case 3: x.fillRect(gx + 2, fy + 2, 3, 1); x.fillRect(gx + 1, fy + 3, 1, 2); x.fillRect(gx + 5, fy + 3, 1, 2); x.fillRect(gx, fy + 6, 7, 1); x.fillRect(gx + 3, fy + 6, 1, 5); break; // アンク
+      default: for (let i = 0; i < 7; i += 2) x.fillRect(gx + i, fy + 4 + (i % 4 ? 2 : 0), 2, 2); // 水
+    }
+  }
+  if (boss) {
+    // つばさの ある 太陽（まん中の 上）
+    x.fillStyle = '#b07a18';
+    x.beginPath(); x.arc(128, 12, 6, 0, Math.PI * 2); x.fill();
+    x.fillStyle = '#f0c040';
+    x.beginPath(); x.arc(128, 12, 4.5, 0, Math.PI * 2); x.fill();
+    for (let i = 0; i < 4; i++) {
+      x.fillStyle = i % 2 ? '#2a54b0' : '#f0c040';
+      x.fillRect(128 - 10 - i * 9, 9 + i, 9, 3);
+      x.fillRect(128 + 10 + i * 9 - 9 + 1, 9 + i, 9, 3);
+    }
+    // たてた 金の ひつぎ（王のへやの おく）
+    const cx = 128, top = 38;
+    x.fillStyle = '#6e4810'; x.fillRect(cx - 13, top, 26, hor - top + 2);
+    x.fillStyle = '#e0a82a'; x.fillRect(cx - 12, top + 1, 24, hor - top);
+    x.fillStyle = '#ffe070'; x.fillRect(cx - 12, top + 1, 4, hor - top);
+    x.beginPath(); x.ellipse(cx, top + 2, 13, 8, 0, Math.PI, 0); x.fill();
+    for (let y = top + 3; y < top + 16; y += 3) { x.fillStyle = '#2a54b0'; x.fillRect(cx - 12, y, 24, 1); }
+    x.fillStyle = '#c8902c'; x.fillRect(cx - 5, top + 4, 10, 9);
+    x.fillStyle = '#1a1020'; x.fillRect(cx - 3, top + 7, 2, 1); x.fillRect(cx + 1, top + 7, 2, 1);
+    x.fillStyle = '#b07a18';
+    for (let y = top + 20; y < hor; y += 6) x.fillRect(cx - 10, y, 20, 1);
+    x.fillStyle = '#2a54b0'; x.fillRect(cx - 9, top + 18, 18, 2);
+  }
+  // ハスの 花の 形の 柱（下は 明るく、上の 花は 青と みどり）
+  for (const cx of PYR_COLUMNS) {
+    const top = boss ? 4 : 10;
+    x.fillStyle = '#6e5028'; x.fillRect(cx - 8, top + 10, 16, hor - top - 10);
+    x.fillStyle = '#c8a060'; x.fillRect(cx - 7, top + 10, 14, hor - top - 10);
+    x.fillStyle = '#e8c888'; x.fillRect(cx - 7, top + 10, 3, hor - top - 10);
+    x.fillStyle = '#a07a40';
+    for (const dx of [-1, 3]) x.fillRect(cx + dx, top + 12, 1, hor - top - 14);
+    for (let y = top + 30; y < hor - 4; y += 14) { x.fillStyle = '#2a54b0'; x.fillRect(cx - 7, y, 14, 2); x.fillStyle = '#a8381c'; x.fillRect(cx - 7, y + 2, 14, 1); }
+    // 柱の 上の ハスの 花
+    x.fillStyle = '#6e5028';
+    x.beginPath(); x.ellipse(cx, top + 6, 12, 7, 0, 0, Math.PI * 2); x.fill();
+    x.fillStyle = '#2a8a6a';
+    x.beginPath(); x.ellipse(cx, top + 6, 11, 6, 0, 0, Math.PI * 2); x.fill();
+    x.fillStyle = '#5ab89a';
+    for (const dx of [-6, 0, 6]) x.fillRect(cx + dx - 1, top + 1, 2, 9);
+    x.fillStyle = '#2a54b0'; x.fillRect(cx - 9, top + 10, 18, 2);
+    x.fillStyle = '#c8a060'; x.fillRect(cx - 10, hor - 3, 20, 3);
+  }
+  // たいまつ・かがり火（まわりが ぼんやり 明るい。王のへやは むらさきの のろいの 火）
+  const fires = boss ? [[58, hor - 30], [198, hor - 30]] : [[58, 44], [198, 44], [128, 44]];
+  for (const [tx, ty] of fires) {
+    const g = x.createRadialGradient(tx, ty, 0, tx, ty, 22);
+    g.addColorStop(0, boss ? 'rgba(200,120,255,0.35)' : 'rgba(255,200,110,0.35)');
+    g.addColorStop(1, boss ? 'rgba(200,120,255,0)' : 'rgba(255,200,110,0)');
+    x.fillStyle = g;
+    x.beginPath(); x.arc(tx, ty, 22, 0, Math.PI * 2); x.fill();
+    x.fillStyle = '#5a3a14';
+    if (boss) { x.fillRect(tx - 1, ty + 4, 3, hor - ty - 4); x.fillRect(tx - 6, ty + 2, 13, 3); }
+    else { x.fillRect(tx - 1, ty + 2, 3, 9); x.fillRect(tx - 3, ty + 9, 7, 2); }
+    x.fillStyle = boss ? '#9a4aff' : '#ff8a2a';
+    x.beginPath(); x.ellipse(tx + 0.5, ty - 1, 3.5, 5, 0, 0, Math.PI * 2); x.fill();
+    x.fillStyle = boss ? '#e8c8ff' : '#ffe08a';
+    x.beginPath(); x.ellipse(tx + 0.5, ty, 1.6, 2.6, 0, 0, Math.PI * 2); x.fill();
+  }
+}
+// ピラミッドの ゆか: 大きな 切り石の めじ（おくへ むかって せまく なる）。王のへやは 金と 青の しきいし
+function drawPyramidFloor(x, hor, boss) {
+  x.fillStyle = 'rgba(0,0,0,0.16)';
+  for (let i = 0; i < 7; i++) {
+    const y = hor + 4 + i * i * 2;
+    if (y < BH) x.fillRect(0, y, BW, 1);
+  }
+  for (let k = -8; k <= 8; k++) {
+    for (let y = hor + 4; y < BH; y += 2) {
+      const t = (y - hor) / (BH - hor);
+      x.fillRect(Math.round(128 + k * (14 + t * 30)), y, 1, 2);
+    }
+  }
+  x.fillStyle = 'rgba(255,240,200,0.12)';
+  for (let i = 0; i < 6; i++) {
+    const y = hor + 5 + i * i * 2;
+    if (y < BH) x.fillRect(0, y, BW, 1);
+  }
+  if (!boss) {
+    // すみに たまった 砂
+    x.fillStyle = 'rgba(232,200,130,0.45)';
+    for (const [sx, sw] of [[0, 34], [222, 34]]) x.fillRect(sx, hor + 2, sw, 3);
+    return;
+  }
+  // 王のへやの しきいし（金と 青の ひしがた）
+  for (let k = -4; k <= 4; k++) {
+    const y = hor + 18, cx = 128 + k * 28;
+    x.fillStyle = k % 2 ? 'rgba(42,84,176,0.55)' : 'rgba(240,192,64,0.5)';
+    x.beginPath(); x.ellipse(cx, y, 6, 2, 0, 0, Math.PI * 2); x.fill();
   }
 }
 

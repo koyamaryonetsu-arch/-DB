@@ -6,6 +6,7 @@
 import * as THREE from '../../../vendor/three.min.js';
 import { T } from '../../shared/tiles.js';
 import { effectiveTile } from '../../shared/maps/index.js';
+import { pyramidLevel } from '../../shared/maps/south.js';
 import { hash2, valueNoise } from '../../shared/rng.js';
 import {
   Atlas, extraCanvas, propCanvas, PROP_TILES, leafCanvas, roofCanvas, tileArt, stormCanvas, curtainCanvas, puffCanvas, canalWaterCanvas, rubbleCanvas,
@@ -46,7 +47,10 @@ const FLOOR_H = { [T.STEPPING]: -0.16, [T.DEEP_SNOW]: 0.14, [T.CHASM]: -0.8, [T.
 const SIDE_OF = {
   [T.SAND]: 'sand_side', [T.SNOW]: 'snow_side', [T.SNOW_PATH]: 'snow_side', [T.DEEP_SNOW]: 'snow_side', [T.ICE]: 'ice_side',
   [T.DESERT]: 'sand_side', [T.DUNE]: 'sand_side', [T.CANAL_FLOOR]: 'canal_side', [T.CANAL_BED]: 'canal_side',
+  [T.SUN_SHADOW]: 'sand_side', [T.OBELISK_BASE]: 'sand_side',
 };
+// 第4章 Step 4: 王家のピラミッド（ふちの だんの 高さ・1だんごとに 高く なる ぶん。てっぺんは 1.3 + 7 × 0.36）
+const PYR_H0 = 1.3, PYR_STEP = 0.36;
 // 第4章: 砂嵐の まくの 高さ・砂丘の 高さ（大きな 砂丘ほど まんなかが 高い。山 1.1〜 より ひくい）
 const STORM_H = 2.1;
 const WELL_RIM_H = 0.6;
@@ -108,6 +112,18 @@ function blockSpec(id, x, y) {
     case T.GRATE: return { h: 1.6, top: ['x', 'canal_wall_top', v], side: ['x', 'canal_wall_side', v], south: ['t', id, 0, 0], gate: true };
     // 第4章 Step 3（王都サファラ）: かれた ふん水（ふつうの ふん水と おなじ 高さ。ふちの 絵は となりを 見て きめる）
     case T.DRY_FOUNTAIN: return { h: 0.35, top: ['t', T.DRY_FOUNTAIN, v, 0], side: ['x', 'stone_side', 0] };
+    // 第4章 Step 4（王家のピラミッド）: フィールドの ピラミッドは だんだんの 山（まん中ほど 高い）。日時計の とびらは いちばん 下の だん
+    case T.PYRAMID: return { h: PYR_H0 + pyramidLevel(x, y) * PYR_STEP, top: ['x', 'pyramid_top', v], side: ['x', 'pyramid_side', v] };
+    case T.PYR_DOOR: return { h: PYR_H0, top: ['x', 'pyramid_top', v], side: ['x', 'pyramid_side', v], south: ['t', T.PYR_DOOR, 0, 0] };
+    // ピラミッドの 中: 歌の ボタン（ひくい 石の 台）・金の ひつぎ・王の 台・絵文字の かべ・石の とびら・ひびの 入った かべ
+    case T.BTN_SUN: case T.BTN_SAND: case T.BTN_MOON: case T.BTN_STAR:
+    case T.BTN_SUN_ON: case T.BTN_SAND_ON: case T.BTN_MOON_ON: case T.BTN_STAR_ON:
+      return { h: 0.5, top: ['t', id, 0, 0], side: ['x', 'pyr_stone_side', 0] };
+    case T.SARCOPHAGUS: return { h: 0.45, top: ['t', T.SARCOPHAGUS, v, 0], side: ['x', 'pyr_gold_side', 0] };
+    case T.PYR_ALTAR: return { h: 0.6, top: ['t', T.PYR_ALTAR, 0, 0], side: ['x', 'pyr_stone_side', 0] };
+    case T.PYR_GLYPH: return { h: 1.6, top: ['x', 'cave_top', v], side: ['x', 'cave_side', v], south: ['t', T.PYR_GLYPH, v, 1] };
+    case T.PYR_SLAB: return { h: 1.6, top: ['x', 'cave_top', v], side: ['t', T.PYR_SLAB, v, 1], south: ['t', T.PYR_SLAB, v, 1] };
+    case T.PYR_CRACK: return { h: 1.6, top: ['x', 'cave_top', v], side: ['t', T.PYR_CRACK, v, 1], south: ['t', T.PYR_CRACK, v, 1] };
     default: return null;
   }
 }
@@ -257,8 +273,8 @@ export class Field3D {
         const top = ['x', 'canal_wall_top_sun', s.top[2]];
         return id === T.CANAL_WALL ? { ...s, top, south: ['t', T.CANAL_WALL, s.south[2], 1 | CANAL_SUN] } : { ...s, top };
       }
-      // 地下水路の 柱は みぞの ある 砂岩の 柱
-      if (id === T.PILLAR && canalMask(id, idAt, x, y) === CANAL_CTX) return { ...s, top: ['x', 'canal_pillar_top', 0], side: ['x', 'canal_pillar_side', 0] };
+      // 地下水路の 柱は みぞの ある 砂岩の 柱（王家のピラミッドの 柱も おなじ 砂岩の 柱）
+      if (id === T.PILLAR && (map.pyramid || canalMask(id, idAt, x, y) === CANAL_CTX)) return { ...s, top: ['x', 'canal_pillar_top', 0], side: ['x', 'canal_pillar_side', 0] };
       return s;
     };
     // 第4章: 古井戸の あなを かこむ 日干しれんがは ひくい ふち（あなが 見える ように。やねの ある 家の かべは そのまま）。
@@ -309,6 +325,10 @@ export class Field3D {
         case T.BRIDGE_V: case T.PIER: return ['x', 'plank_v', 0];
         case T.CAVE_BRIDGE: return ['x', 'cave_plank', 0];
         case T.CAVE_ENTRANCE: return ['x', 'dark_hole', 0];
+        // 第4章 Step 4: ピラミッドの 入り口（外は くらい あな、中は 外の 光）・オベリスクの 影・流れる 砂（となりを 見て ふちを かく）
+        case T.PYR_GATE: return dungeon ? ['t', id, 0, 0] : ['x', 'dark_hole', 0];
+        case T.SUN_SHADOW: case T.FLOW_N: case T.FLOW_E: case T.FLOW_S: case T.FLOW_W:
+          return ['t', id, Math.floor(hash2(x, y, 17) * 4), Math.max(0, ch4Mask(id, idAt, x, y, map))];
         // 地下水路: 水路の 底は ばしょと 流れの むき（2D と おなじ）、通路は 水路の ふちの 石
         case T.CANAL_BED: return ['t', id, canalVariant(id, idAt, x, y, 0), 0];
         case T.CANAL_FLOOR: return ['t', id, Math.floor(hash2(x, y, 17) * 4), Math.max(0, canalMask(id, idAt, x, y))];
@@ -408,6 +428,11 @@ export class Field3D {
           if (id === T.STAIRS_DOWN && idAt(x - 1, y) === T.CANAL_WALL && idAt(x + 1, y) === T.CANAL_WALL) {
             const lu = uvOf(['x', 'canal_wall_side', 0]);
             box(g, x, y, GATE_H, 1.6, uvOf(['x', dungeon ? 'canal_wall_top' : 'canal_wall_top_sun', 0]), lu, lu, () => GATE_H);
+          }
+          // ピラミッドの 入り口（日時計の とびらが 開いた あと）: 入り口の 上に 石の まぐさ
+          if (id === T.PYR_GATE && !dungeon) {
+            const lu = uvOf(['x', 'pyramid_side', 0]);
+            box(g, x, y, 1.0, PYR_H0, uvOf(['x', 'pyramid_top', 0]), lu, lu, () => 1.0);
           }
           // もんの うえの かべ（たてものの いりぐち）
           if (id === T.DOOR) {

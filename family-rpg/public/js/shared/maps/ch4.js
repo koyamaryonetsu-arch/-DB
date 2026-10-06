@@ -1,15 +1,16 @@
 // 第4章「砂の海にしずむ星」の マップ
-// コガネ地方（フィールド）・北の古井戸・かれた地下水路（Step 2）・王都サファラと 宮殿の地下水路（Step 3）。ピラミッドなどは Step 4 から
-// 村や ダンジョンの 形は south-rows.js（1文字 = 1マス）
+// コガネ地方（フィールド）・北の古井戸・かれた地下水路（Step 2）・王都サファラと 宮殿の地下水路（Step 3）・王家のピラミッド（Step 4）
+// 村や ダンジョンの 形は south-rows.js・pyramid-rows.js（1文字 = 1マス）
 import { T, parseRows } from '../tiles.js';
 import { makeRng } from '../rng.js';
 import { npc } from './npc.js';
 import { SEA_PLACES } from './ch2.js';
 import {
   buildSouth, southZoneAt, southAreaName, southWeatherAt, southBgmAt, SOUTH_PLACES, SOUTH_POS, SOUTH_LANDING, LANDING_BEACH, OASIS2, OASIS_CAMP,
-  STORM_Y, STORM_FLAG, SAFARA_POS, PALACE_HALL,
+  STORM_Y, STORM_FLAG, SAFARA_POS, PALACE_HALL, PYRAMID, PYRAMID_PLAZA, PYRAMID_POS, PYRAMID_FLAG,
 } from './south.js';
 import { HAMIL_ROWS, WELL_ROWS, CANAL1_ROWS, CANAL2_ROWS, CANAL3_ROWS, PALACE_CANAL_ROWS } from './south-rows.js';
+import { PYR1_ROWS, PYR_B1_ROWS, PYR2_ROWS, PYR3_ROWS, PYR4_ROWS } from './pyramid-rows.js';
 
 const HAM = SOUTH_PLACES.hamil;
 const H = (x, y) => [HAM.x + x, HAM.y + y];
@@ -19,7 +20,40 @@ const NIGHT = { all: ['@night'] };
 const DAY = { not: ['@night'] };
 
 // 第4章の マップの ID（セーブに のこるので かえない）
-export const CH4_MAPS = ['south', 'north_well', 'canal1', 'canal2', 'canal3', 'palace_canal'];
+export const CH4_MAPS = ['south', 'north_well', 'canal1', 'canal2', 'canal3', 'palace_canal',
+  // Step 4: 王家のピラミッド（1階・地下・2階・3階・4階）
+  'pyramid1', 'pyramid_b1', 'pyramid2', 'pyramid3', 'pyramid4'];
+export const PYRAMID_MAPS = ['pyramid1', 'pyramid_b1', 'pyramid2', 'pyramid3', 'pyramid4'];
+
+// ───── 王家のピラミッド（Step 4）─────
+// 1階の 歌の ボタン（石の 台）。わらべ歌の じゅん（太陽 → 砂 → 月 → 星）に おす。ならびは 左から 月・太陽・星・砂
+// flag … 光った ボタン（しかけの フラグ。物語の すすみぐあいでは ない）。さいごの 星が 光ると 北の 石の とびらが 開く
+export const PYR_BUTTONS = [
+  { key: 'sun', name: '太陽', flag: 'c4_pb_sun', x: 13, y: 12, tile: T.BTN_SUN, on: T.BTN_SUN_ON },
+  { key: 'sand', name: '砂', flag: 'c4_pb_sand', x: 21, y: 12, tile: T.BTN_SAND, on: T.BTN_SAND_ON },
+  { key: 'moon', name: '月', flag: 'c4_pb_moon', x: 9, y: 12, tile: T.BTN_MOON, on: T.BTN_MOON_ON },
+  { key: 'star', name: '星', flag: 'c4_pb_star', x: 17, y: 12, tile: T.BTN_STAR, on: T.BTN_STAR_ON },
+];
+export const PYR_BUTTON_FLAGS = PYR_BUTTONS.map((b) => b.flag);
+// 4つ そろうと 開く 1階の 北の 石の とびら（さいごの 星の フラグ）
+export const PYR_DOOR_FLAG = 'c4_pb_star';
+// 3階の 近道の レバー（入り口 ⇔ まん中の へや・まん中の へや ⇔ 4階への かいだんの へや）
+export const PYR_LEVERS = { l1: 'c4_pyr_l1', l2: 'c4_pyr_l2' };
+// 4階の ひびの 入った かべ（かくしべや）・のろいの宝「王家の黄金の剣」を とった
+export const PYR_CRACK_FLAG = 'c4_pyr_crack';
+export const GOLD_SWORD_FLAG = 'c4_gold_sword';
+// 金色の つぼ（のろいのつぼ が 化けている。たおすと 中の 宝が 手に入る）
+export const PYR_POTS = { pot1: 'c4_pot1', pot2: 'c4_pot2' };
+// ボタンを まちがえて おちる ところ（地下の まん中）・ありじごくに おちて 着く ところ（2階の 3階への かいだんの となりの 小べや）
+export const PYR_FALL = { map: 'pyramid_b1', x: 12.5, y: 6.5 };
+export const PYR_LANDING = { map: 'pyramid2', x: 16.5, y: 3.5 };
+// 階の 出入り口（ワープの マス）
+export const PYR_STAIRS = {
+  exit1: { x: 15, y: 25 }, up1: { x: 15, y: 3 }, hole1: { x: 27, y: 14 }, upB1: { x: 22, y: 6 },
+  down2: { x: 5, y: 23 }, up2: { x: 26, y: 1 }, down3: { x: 5, y: 25 }, up3: { x: 28, y: 1 }, down4: { x: 13, y: 19 },
+};
+// 4階の 王のへや（ミイラの王アンク・王の 台）と かくしべやの 剣
+export const PYR4_POS = { anku: { x: 13, y: 5 }, altar: { x: 13, y: 1 }, mirror: { x: 13, y: 2 }, crack: { x: 7, y: 15 }, sword: { x: 3, y: 14 } };
 
 // ───── 王都サファラ（Step 3）─────
 // 子どもたちの わらべ歌（1人 1行。ピラミッドの ボタンの じゅん: 太陽 → 砂 → 月 → 星）
@@ -48,6 +82,7 @@ export function ch4SearchMats(mapId) {
   if (mapId === 'south') return ['beast_fang', 'magic_powder', 'wind_feather'];
   if (mapId === 'north_well') return ['magic_powder', 'iron_shard'];
   if (mapId.startsWith('canal') || mapId === 'palace_canal') return ['magic_powder', 'iron_shard', 'pretty_shell'];
+  if (mapId.startsWith('pyramid')) return ['magic_powder', 'silver_shard', 'star_shard'];
   return null;
 }
 
@@ -136,6 +171,11 @@ const SOUTH_NPCS = [
   npc('c4_kid_star', 'ナジャ', S(29, 19), 'desert_girl2', 'c4_kid_star', { wander: 1, show: DAY }),
   // 夜だけ: 夜回りの 兵士（宮殿の地下水路の ヒント）
   npc('c4_n_watch', '夜回りの兵士', S(25, 12), 'safara_guard', 'c4_n_watch', { show: NIGHT, wander: 1 }),
+
+  // ───── 王家のピラミッド（Step 4）─────
+  // オベリスク（大きな 石の 柱。影は お日さまの むきで のびる）・広場で 待っている 学者の 弟子（ハサンの なぞを 聞いた あと）
+  npc('obelisk', 'オベリスク', [PYRAMID_POS.obelisk.x, PYRAMID_POS.obelisk.y], 'obelisk', 'c4_obelisk', { dir: 'down' }),
+  npc('c4_p_student', '学者の弟子のユスフ', [PYRAMID_PLAZA.x + 4, PYRAMID_PLAZA.y + 6], 'desert_kid2', 'c4_p_student', { dir: 'right', show: { all: ['c4_hassan'] } }),
 ];
 
 // 宝箱（フィールドの 宝箱は 開けると きえる）
@@ -160,6 +200,8 @@ const SOUTH_SIGNS = [
   { x: SAF.x + 21, y: SAF.y - 1, text: 'ここは王都サファラ。\n砂の国の女王さまがおられる、水の都。' },
   { x: SAF.x + 8, y: SAF.y + 33, text: '宮殿の地下水路\n（宮殿の水を町へ流していた水路。\n　水がかれて、今は使われていない）' },
   { x: SAF.x + 40, y: SAF.y + 33, text: 'サファラ闘技場\n「水がもどるまで、大会はお休みします」' },
+  // 王家のピラミッド（Step 4）
+  { x: PYRAMID_PLAZA.x + 1, y: PYRAMID_PLAZA.y + 2, text: '王家のピラミッド\n「王のねむりを、さまたげることなかれ」' },
 ];
 
 // お店の かんばん（入り口の よこの かべ）
@@ -191,6 +233,7 @@ const SOUTH_LABELS = [
   { name: 'かれた地下水路', x: CANAL_DOOR.x - 5, y: CANAL_DOOR.y - 4, w: 11, h: 5 },
   { name: 'コガネ砂丘', x: 60, y: 30, w: 70, h: 24 },
   { name: '砂嵐のかべ', x: 8, y: STORM_Y[0] - 1, w: 128, h: STORM_Y[1] - STORM_Y[0] + 3 },
+  { name: PYRAMID.name, x: PYRAMID.x, y: PYRAMID.y, w: PYRAMID.w, h: PYRAMID.h },
 ];
 
 // きらきら（ひろえる 物）。砂ばく・海辺・オアシスの まわり（砂嵐のかべより 北）
@@ -267,6 +310,9 @@ function buildField() {
   actions.push({ x: P.bench.x, y: P.bench.y, script: 'c4_court_diary' });
   actions.push({ x: P.courtDoor.x, y: P.courtDoor.y, script: 'c4_court_door' });
   actions.push({ x: P.arenaGate.x, y: P.arenaGate.y, script: 'c4_arena_gate' });
+  // 王家のピラミッド（Step 4）: 日時計の とびら（開く まで）
+  const D = PYRAMID_POS.door;
+  actions.push({ x: D.x, y: D.y, script: 'c4_pyr_door', show: { not: [PYRAMID_FLAG] } });
   const wl = SOUTH_POS.well;
   const m = {
     id: 'south', name: 'コガネ地方', kind: 'field', bgm: 'desert', dark: false,
@@ -278,6 +324,8 @@ function buildField() {
       // 王都サファラ: 宮殿の地下水路（町の 南西の かいだん・中庭の 古井戸）
       { x: P.canal.x, y: P.canal.y, to: { map: 'palace_canal', x: PALACE_CANAL_STAIRS.town.x + 0.5, y: PALACE_CANAL_STAIRS.town.y - 0.6, dir: 'up' } },
       { x: P.courtWell.x, y: P.courtWell.y, to: { map: 'palace_canal', x: PALACE_CANAL_STAIRS.court.x + 0.5, y: PALACE_CANAL_STAIRS.court.y + 1.5, dir: 'down' } },
+      // 王家のピラミッド（Step 4）: 日時計の とびら（開いた あと）→ 1階
+      { x: D.x, y: D.y, to: { map: 'pyramid1', x: PYR_STAIRS.exit1.x + 0.5, y: PYR_STAIRS.exit1.y - 0.5, dir: 'up' } },
     ],
     triggers: [
       // 竜を おりた ところ（空を とべる 場所の 中なら どこでも）
@@ -454,8 +502,166 @@ function palaceCanal() {
   });
 }
 
+// ───────────── 王家のピラミッド（Step 4）─────────────
+// この マップだけの 文字（tiles.js の LEGEND より 先に 見る）。かべ・ゆかは 洞窟の タイルを 金色の 石に 色がえ（theme 'pyramid'。render/themes.js）
+const PYR_LEGEND = {
+  '#': T.CAVE_WALL, '.': T.CAVE_FLOOR, X: T.PYR_GATE,
+  1: T.BTN_SUN, 2: T.BTN_SAND, 3: T.BTN_MOON, 4: T.BTN_STAR,
+  N: T.FLOW_N, E: T.FLOW_E, S: T.FLOW_S, W: T.FLOW_W, O: T.SAND_PIT,
+  C: T.PYR_CRACK, D: T.PYR_SLAB, K: T.SARCOPHAGUS, A: T.PYR_ALTAR, G: T.PYR_GLYPH, r: T.SEAL_RUNE,
+};
+// ピラミッドの 中の きまり: みちびきの糸・帰り道の羽は 使えない（noEscape。world/escape.js・services.js）。ルーラは 洞窟と おなじく 天井に ぶつかる
+// pyramid … のろいの宝の きまり（ピラミッドの 外に 出るまで 魔物が ふえる。world/monsters.js）
+function pyramidMap(id, name, rows, opts) {
+  const t = parseRows(rows, PYR_LEGEND);
+  return {
+    id, name, kind: 'dungeon', bgm: 'pyramid', dark: true, theme: 'pyramid', pyramid: true, noEscape: true,
+    w: t.w, h: t.h, tiles: t.tiles, gates: [],
+    npcs: [], chests: [], signs: [], warps: [], triggers: [], actions: [], sparkles: [], roofs: [],
+    areaName: () => name,
+    spawnCounts: {},
+    ...opts,
+  };
+}
+// ある マスを しかけに する（いまの タイル → open。フラグが たつと open）
+function gateAt(m, x, y, open, flag) {
+  m.gates.push({ x, y, closed: m.tiles[y * m.w + x], open, flag });
+}
+// かいだんの となりに 着く（dy … かいだんから 何マス 下か）
+const toward = (p, map, dy, dir = 'down') => ({ map, x: p.x + 0.5, y: p.y + 0.5 + dy, dir });
+
+function pyramid() {
+  const st = PYR_STAIRS;
+  // ───── 1階: 歌の ボタンの 大広間 ─────
+  const p1 = pyramidMap('pyramid1', '王家のピラミッド　1階', PYR1_ROWS, {
+    npcs: [
+      // 金色の つぼ（のろいのつぼ が 化けている）
+      npc('pyr_pot1', '金色のつぼ', [3, 13], 'gold_pot', 'c4_pyr_pot1', { show: { not: [PYR_POTS.pot1] }, dir: 'down' }),
+    ],
+    chests: [
+      { id: 'py1_w', x: 2, y: 10, item: 'magic_water', n: 2 },
+      { id: 'py1_e', x: 29, y: 15, item: 'seed_def' },
+    ],
+    signs: [{ x: 15, y: 10, text: '石の文字ばんに、こう書いてある。\n「王の歌を、王のじゅんに。\nまちがえし者は、ミイラのへやへ落ちる」' }],
+    warps: [
+      { x: st.exit1.x, y: st.exit1.y, to: { map: 'south', x: PYRAMID_POS.door.x + 0.5, y: PYRAMID_POS.door.y + 1.6, dir: 'down' } },
+      { x: st.up1.x, y: st.up1.y, to: toward(st.down2, 'pyramid2', -1, 'up') },
+      // 東の へやの 床の あな → 地下（ミイラのへや）
+      { x: st.hole1.x, y: st.hole1.y, to: { map: PYR_FALL.map, x: PYR_FALL.x, y: PYR_FALL.y, dir: 'down' } },
+    ],
+    triggers: [{ id: 'c4_pyr1_enter', x: 10, y: 20, w: 11, h: 5, script: 'c4_pyr1_enter', show: { not: ['c4_pyr1_seen'] } }],
+    actions: [
+      ...PYR_BUTTONS.map((b) => ({ x: b.x, y: b.y, script: `c4_pyr_btn_${b.key}` })),
+      // 北の かべの 絵文字（王の 歌の 絵）
+      ...[7, 8, 9, 21, 22, 23].map((x) => ({ x, y: 8, script: 'c4_pyr_glyph' })),
+      // しまった 石の とびら（ボタンの なぞを とく まで）
+      ...[14, 15, 16].map((x) => ({ x, y: 8, script: 'c4_pyr_slab', show: { not: [PYR_DOOR_FLAG] } })),
+    ],
+    zoneAt: zoneRect([[10, 20, 20, 24, 'safe:entry'], [11, 1, 19, 7, 'safe:stairs'], [25, 9, 29, 11, 'safe:stairs']], 's_pyr1'),
+    spawnCounts: { s_pyr1: 6 },
+  });
+  for (const b of PYR_BUTTONS) gateAt(p1, b.x, b.y, b.on, b.flag);
+  for (const x of [14, 15, 16]) gateAt(p1, x, 8, T.CAVE_FLOOR, PYR_DOOR_FLAG);
+
+  // ───── 地下: ミイラのへや（ボタンを まちがえると おちる）─────
+  const b1 = pyramidMap('pyramid_b1', '王家のピラミッド　地下', PYR_B1_ROWS, {
+    chests: [
+      { id: 'pyb_sw', x: 3, y: 10, item: 'seed_mag' },
+      { id: 'pyb_ne', x: 21, y: 2, gold: 2200 },
+    ],
+    warps: [{ x: st.upB1.x, y: st.upB1.y, to: { map: 'pyramid1', x: 27.5, y: 10.5, dir: 'down' } }],
+    triggers: [{ id: 'c4_pyrb1_enter', x: 9, y: 4, w: 7, h: 5, script: 'c4_pyrb1_enter', show: { not: ['c4_pyrb1_seen'] } }],
+    zoneAt: zoneRect([[10, 5, 14, 7, 'safe:landing'], [20, 5, 22, 7, 'safe:stairs']], 's_pyr_b1'),
+    spawnCounts: { s_pyr_b1: 6 },
+  });
+
+  // ───── 2階: 呪文が ふうじられた 階（noSpells。戦いでも フィールドでも 呪文は 使えない）─────
+  const p2 = pyramidMap('pyramid2', '王家のピラミッド　2階', PYR2_ROWS, {
+    noSpells: true,
+    npcs: [
+      // 昔の 探検家の ゆうれい（入り口で 呪文の ことを 教えてくれる）
+      npc('pyr_ghost', '探検家のゆうれい', [7, 18], 'explorer_ghost', 'c4_pyr_ghost', { dir: 'down' }),
+      npc('pyr_pot2', '金色のつぼ', [24, 12], 'gold_pot', 'c4_pyr_pot2', { show: { not: [PYR_POTS.pot2] }, dir: 'down' }),
+    ],
+    chests: [
+      { id: 'py2_h1', x: 2, y: 6, item: 'revive_flower' },
+      { id: 'py2_room', x: 13, y: 19, gold: 2600 },
+      { id: 'py2_t', x: 31, y: 2, item: 'magic_water', n: 2 },
+    ],
+    warps: [
+      { x: st.down2.x, y: st.down2.y, to: toward(st.up1, 'pyramid1', 1) },
+      { x: st.up2.x, y: st.up2.y, to: toward(st.down3, 'pyramid3', -1, 'up') },
+    ],
+    triggers: [{ id: 'c4_pyr2_enter', x: 2, y: 19, w: 7, h: 4, script: 'c4_pyr2_enter', show: { not: ['c4_pyr2_seen'] } }],
+    zoneAt: zoneRect([[2, 18, 8, 22, 'safe:entry'], [14, 2, 18, 5, 'safe:landing'], [24, 2, 28, 3, 'safe:stairs']], 's_pyr2'),
+    spawnCounts: { s_pyr2: 8 },
+  });
+
+  // ───── 3階: ありじごくの 迷路（流れる 砂。行き先を 目で たどれる ように 明るい）─────
+  const p3 = pyramidMap('pyramid3', '王家のピラミッド　3階', PYR3_ROWS, {
+    dark: false,
+    chests: [
+      { id: 'py3_a', x: 2, y: 11, item: 'seed_hp' },
+      { id: 'py3_b', x: 31, y: 2, item: 'star_shard', n: 3 },
+    ],
+    signs: [{ x: 2, y: 21, text: '石の文字ばんに、こう書いてある。\n「流れる砂は、矢じるしのむきへ人を運ぶ。\n砂の行き先を目でたどり、のる流れを選べ」' }],
+    warps: [
+      { x: st.down3.x, y: st.down3.y, to: toward(st.up2, 'pyramid2', 1) },
+      { x: st.up3.x, y: st.up3.y, to: toward(st.down4, 'pyramid4', -1, 'up') },
+    ],
+    triggers: [{ id: 'c4_pyr3_enter', x: 3, y: 21, w: 6, h: 4, script: 'c4_pyr3_enter', show: { not: ['c4_pyr3_seen'] } }],
+    actions: [
+      { x: 2, y: 8, script: 'c4_pyr_lever1' },
+      { x: 31, y: 6, script: 'c4_pyr_lever2' },
+    ],
+    spawnCounts: { s_pyr3: 5 },
+  });
+  // ありじごく（O）は みんな 2階の 小べやへ
+  p3.tiles.forEach((t, i) => {
+    if (t !== T.SAND_PIT) return;
+    p3.warps.push({ x: i % p3.w, y: Math.floor(i / p3.w), to: { map: PYR_LANDING.map, x: PYR_LANDING.x, y: PYR_LANDING.y, dir: 'down' } });
+  });
+  // 流れる 砂・ありじごくの 上は 魔物が 出ない。入り口の へやと 4階への かいだんの まわりも
+  const sandAt = (x, y) => { const t = p3.tiles[y * p3.w + x]; return t >= T.FLOW_N && t <= T.SAND_PIT; };
+  const z3 = zoneRect([[2, 20, 8, 24, 'safe:entry'], [26, 2, 30, 3, 'safe:stairs']], 's_pyr3');
+  p3.zoneAt = (x, y) => (sandAt(x, y) ? 'safe:flow' : z3(x, y));
+  // 近道の 石の とびらと レバー（1本目: 入り口 ⇔ まん中の へや、2本目: まん中の へや ⇔ 4階への かいだんの へや）
+  gateAt(p3, 1, 16, T.CAVE_FLOOR, PYR_LEVERS.l1);
+  gateAt(p3, 14, 1, T.CAVE_FLOOR, PYR_LEVERS.l2);
+  p3.gates.push({ x: 2, y: 8, closed: T.LEVER, open: T.LEVER_ON, flag: PYR_LEVERS.l1 });
+  p3.gates.push({ x: 31, y: 6, closed: T.LEVER, open: T.LEVER_ON, flag: PYR_LEVERS.l2 });
+
+  // ───── 4階: 王のへや（ミイラの王アンク）・かくしべや（のろいの宝）─────
+  const A4 = PYR4_POS;
+  const p4 = pyramidMap('pyramid4', '王家のピラミッド　4階', PYR4_ROWS, {
+    npcs: [
+      npc('mummy_king', 'ミイラの王アンク', [A4.anku.x, A4.anku.y], 'mon:mummy_king', 'c4_anku_event', { big: true, show: { not: ['c4_anku'] } }),
+      // 王の 台の まえに うかぶ 月の鏡（アンクを たおすと あらわれる）
+      npc('pyr_mirror', '月の鏡', [A4.mirror.x, A4.mirror.y], 'moon_mirror', 'c4_pyr_mirror', { show: { all: ['c4_anku'], not: ['c4_mirror'] }, dir: 'down' }),
+      // かくしべやの のろいの宝
+      npc('gold_sword', '王家の黄金の剣', [A4.sword.x, A4.sword.y], 'gold_sword', 'c4_gold_sword', { show: { not: [GOLD_SWORD_FLAG] }, dir: 'down' }),
+    ],
+    warps: [{ x: st.down4.x, y: st.down4.y, to: toward(st.up3, 'pyramid3', 1) }],
+    triggers: [
+      { id: 'c4_pyr4_enter', x: 8, y: 17, w: 11, h: 2, script: 'c4_pyr4_enter', show: { not: ['c4_pyr4_seen'] } },
+      // 王のへやに 入ると アンクが 目を覚ます
+      { id: 'c4_anku_room', x: 6, y: 7, w: 15, h: 2, script: 'c4_anku_event', show: { not: ['c4_anku'] } },
+    ],
+    actions: [
+      { x: A4.altar.x, y: A4.altar.y, script: 'c4_pyr_altar' },
+      { x: A4.crack.x, y: A4.crack.y, script: 'c4_pyr_crack', show: { not: [PYR_CRACK_FLAG] } },
+      ...[7, 8, 9, 17, 18, 19].map((x) => ({ x, y: 12, script: 'c4_pyr_glyph4' })),
+    ],
+    zoneAt: zoneRect([[5, 1, 21, 8, 'safe:boss'], [10, 9, 16, 11, 'safe:stairs'], [1, 13, 6, 17, 'safe:hidden'], [9, 17, 17, 18, 'safe:entry']], 's_pyr4'),
+    areaName: (x, y) => (y <= 8 ? '王のへや' : '王家のピラミッド　4階'),
+    spawnCounts: { s_pyr4: 3 },
+  });
+  gateAt(p4, A4.crack.x, A4.crack.y, T.CAVE_FLOOR, PYR_CRACK_FLAG);
+  return { pyramid1: p1, pyramid_b1: b1, pyramid2: p2, pyramid3: p3, pyramid4: p4 };
+}
+
 export function buildCh4Maps() {
-  return { south: buildField(), north_well: northWell(), ...canal() };
+  return { south: buildField(), north_well: northWell(), ...canal(), ...pyramid() };
 }
 
 export { SOUTH_POS };

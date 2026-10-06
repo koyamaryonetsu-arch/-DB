@@ -6,6 +6,7 @@ import { T } from '../../shared/tiles.js';
 import { tileCanvas } from './tiles.js';
 import { Painter, prand, makeCanvas, ctxOf, shade } from './pixel.js';
 import { paintStorm } from './tiles-ch4.js';
+import { PYRAMID_EXTRAS } from './tiles-pyramid.js';
 import {
   canalWallFace, canalWallTop, canalSidePaint, damTopPaint, paintCanalWater, sluiceTopPaint, sluiceBoardPaint, pillarSidePaint, pillarTopPaint, rubbleAtlasPaint,
   CANAL_SUN,
@@ -206,6 +207,9 @@ const EXTRA = {
   sluice_board: (p) => sluiceBoardPaint(p),
   canal_pillar_side: (p) => pillarSidePaint(p),
   canal_pillar_top: (p) => pillarTopPaint(p),
+  // ───── 第4章 Step 4（王家のピラミッド。render/tiles-pyramid.js）─────
+  // ピラミッドの だんの うえ・よこ、歌の ボタンや 王の 台の よこ、金の ひつぎの よこ
+  ...PYRAMID_EXTRAS,
 };
 
 // 3D だけの え を ペインターに かく（テストでも つかう）

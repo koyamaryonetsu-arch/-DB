@@ -46,8 +46,12 @@ function outside(pts, w, h, extra = 0.6) {
 const lower = (a) => new Set(a.map((c) => c.toLowerCase()));
 
 test('第4章の 魔物の え: monsters-ch4.js の 魔物が ぜんぶ ある（addCh4Art だけでも そろう。ボスも）', () => {
-  assert.deepEqual([...CH4_MONSTERS].sort(), ['armor_scorpion', 'dry_frog', 'gold_beetle', 'mirage_flower', 'moon_ghost', 'sand_slime', 'sand_vulture', 'scorpion_soldier']);
-  assert.deepEqual(CH4_BOSSES, ['armor_scorpion']);
+  assert.deepEqual([...CH4_MONSTERS].sort(), [
+    'armor_scorpion', 'cursed_pot', 'dry_frog', 'gold_beetle', 'lamp_genie', 'mirage_flower', 'moon_ghost', 'mummy_king', 'mummy_soldier',
+    'royal_mummy', 'sand_slime', 'sand_vulture', 'sandstone_golem', 'scorpion_soldier',
+  ]);
+  // Step 2 の よろい大サソリ・Step 4 の ミイラの王アンク
+  assert.deepEqual(CH4_BOSSES, ['armor_scorpion', 'mummy_king']);
   for (const id of CH4_MONSTERS) {
     const d = MONSTER_ART[id];
     assert.ok(d, `${id} の え`);
@@ -68,7 +72,7 @@ test('第4章の 魔物の え: 大きさの きまり（s は m より 小さ�
   const area = (id) => MONSTER_ART[id].size[0] * MONSTER_ART[id].size[1];
   const small = CH4_MONSTERS.filter((id) => MONSTERS_CH4[id].size === 's');
   const mid = CH4_MONSTERS.filter((id) => MONSTERS_CH4[id].size === 'm');
-  assert.deepEqual(small.sort(), ['gold_beetle', 'sand_slime']);
+  assert.deepEqual(small.sort(), ['cursed_pot', 'gold_beetle', 'sand_slime']);
   assert.ok(mid.includes('dry_frog'), 'からからガエルは m');
   for (const s of small) for (const m of mid) assert.ok(area(s) < area(m), `${s} < ${m}`);
   for (const id of CH4_MONSTERS.filter((x) => MONSTERS_CH4[x].flying)) {

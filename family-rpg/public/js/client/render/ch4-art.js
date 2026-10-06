@@ -6,6 +6,7 @@
 //        2.5D では こさ 0.5 より うすい ところが きえるので、いちばん うすくても 0.55 より こく
 import { fit, flipX, spark, bez, taper } from './ch3-draw.js';
 import { addCh4BossArt } from './ch4-boss-art.js';
+import { addPyramidArt } from './ch4-pyramid-art.js';
 
 // だえんの ふちの てん（a0 → a1 の むき。0 は みぎ、PI/2 は した）
 function ellArc(cx, cy, rx, ry, a0, a1, n = 10) {
@@ -598,5 +599,7 @@ export function addCh4Art(ART) {
   ART.moon_ghost = { size: [40, 50], pal: Object.values(GHOST), draw: moonGhost, fade: [[0.55, 1], [1, 0.58]] };
   // ── かれた地下水路（Step 2）──
   ART.dry_frog = { size: [44, 38], pal: Object.values(FROG), draw: dryFrog };
+  // ── 王家の墓の砂ばく・王家のピラミッド（Step 4。ch4-pyramid-art.js）──
+  addPyramidArt(ART);
   addCh4BossArt(ART);
 }

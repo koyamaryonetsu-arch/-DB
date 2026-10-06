@@ -435,7 +435,10 @@ export class FieldMenu {
     this.sub.blur();
     const act = await this.pick(`${it.name}をどうする？`, acts);
     if (act === 'use') {
-      if (it.effect.type === 'warp') {
+      if (it.effect.type === 'warp' && MAPS[g.field?.mapId]?.noEscape) {
+        // 王家のピラミッドの 中: 帰り道の羽は 使えない（行き先を えらばずに サーバーへ。わけを 出す）
+        g.net.send({ t: 'menu', action: 'useItem', id: entry.value });
+      } else if (it.effect.type === 'warp') {
         const place = await this.pick('どこへ飛ぶ？', [...this.warpChoices(), { label: 'やめる', value: null }]);
         if (place) {
           g.net.send({ t: 'menu', action: 'useItem', id: entry.value, place });
@@ -446,7 +449,7 @@ export class FieldMenu {
         // みちびきの糸: 洞窟の 中なら 入り口の 外へ（メニューを とじて 外を 見せる）
         g.net.send({ t: 'menu', action: 'useItem', id: entry.value });
         const m = MAPS[g.field?.mapId];
-        if (m?.kind === 'dungeon' && !m.indoor) {
+        if (m?.kind === 'dungeon' && !m.indoor && !m.noEscape) {
           this.close();
           return;
         }
@@ -642,8 +645,10 @@ export class FieldMenu {
     };
     if (mode === 'now') {
       // 今使える: フィールドで 使える 技だけ（shared/fieldskills.js）。MPが 足りない 技は 出すが えらべない。えらぶと すぐ 使う
-      const now = fieldUsableAbilities(c, { mapKind: g.field?.map?.kind });
-      const why = { mp: 'MPが足りない', dead: '死んでいる' };
+      // 呪文が ふうじられた 場所（王家のピラミッド 2階）: 呪文は 出すが えらべない（特技は 使える）
+      const sealed = !!g.field?.map?.noSpells;
+      const now = fieldUsableAbilities(c, { mapKind: g.field?.map?.kind, noSpells: sealed });
+      const why = { mp: 'MPが足りない', dead: '死んでいる', seal: '呪文がふうじられている' };
       if (!now.length) {
         box.append(el('div', { class: 'muted', text: '今ここで使える呪文・技はない。\n回復の呪文などを覚えると、ここからすぐ使える。' }));
         if (active) backOnly();
@@ -677,6 +682,7 @@ export class FieldMenu {
       });
       showNow(m.current);
       box.append(el('div', { class: 'small muted', text: `${c.name}のMP ${c.mp}　選ぶとすぐ使う` }), detail);
+      if (sealed) box.append(el('div', { class: 'small gold', text: 'ここでは呪文がふうじられている。特技と道具は使える。' }));
       return box;
     }
     if (mode === 'combo') {

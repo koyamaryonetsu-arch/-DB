@@ -80,6 +80,11 @@ const LOOT = {
     { w: 5, gold: [240, 460] }, { w: 3, item: 'moonherb', n: [1, 2] }, { w: 2, item: 'magic_water', n: [1, 2] }, { w: 2, item: 'star_shard', n: [1, 2] },
     { w: 0.5, item: 'seed_mag' }, { w: 0.5, item: 'seed_hp' },
   ],
+  // 第4章 Step 4（王家の墓の砂ばく）
+  s_pdesert: [
+    { w: 5, gold: [300, 560] }, { w: 3, item: 'herb', n: [2, 3] }, { w: 2, item: 'magic_water', n: [1, 2] }, { w: 2, item: 'silver_shard', n: [1, 2] },
+    { w: 1.5, item: 'antidote', n: [2, 3] }, { w: 0.5, item: 'seed_def' }, { w: 0.5, item: 'seed_str' },
+  ],
 };
 
 // 中みを きめる（{ gold } か { item, n }）

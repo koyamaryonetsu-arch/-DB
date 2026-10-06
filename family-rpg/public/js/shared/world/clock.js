@@ -37,6 +37,28 @@ export function isNightFrac(frac) {
   return frac >= NIGHT_FROM && frac < NIGHT_TO;
 }
 
+// ───── お日さまの むきと 昼の 12時ごろ（第4章 Step 4: オベリスクの 影と 日時計の とびら）─────
+// 昼の 12時ごろ … 11時〜13時（王都の 宿屋の「昼まで休む」は 11時半ごろ。休んで すぐ 歩いて 行ける）
+export const NOON_FROM = 5 / 24;
+export const NOON_TO = 7 / 24;
+export function isNoonFrac(frac) {
+  return frac >= NOON_FROM && frac < NOON_TO;
+}
+// お日さまの いる がわ: 'am'（朝。影は 西へ）/ 'noon'（真上。影は 北へ みじかく）/ 'pm'（午後。影は 東へ）/ null（夜・夕方・明け方）
+export function sunSide(frac) {
+  if (frac < DAY_FROM || frac >= DUSK_FROM) return null;
+  if (frac < NOON_FROM) return 'am';
+  if (frac < NOON_TO) return 'noon';
+  return 'pm';
+}
+// '@' で はじまる 時間の しるし（NPC・とびらの 表示じょうけん。world.js の hasFlagFn と client/field.js の hasFlag）
+//   '@night' … 夜 / '@noon' … 昼の 12時ごろ / '@am' … 朝の 日ざし / '@pm' … 午後の 日ざし
+export function timeFlag(f, frac) {
+  if (f === '@night') return isNightFrac(frac);
+  if (f === '@noon' || f === '@am' || f === '@pm') return sunSide(frac) === f.slice(1);
+  return false;
+}
+
 // くらさ（0＝昼 〜 1＝まよなか）。夕方と 明け方は だんだん
 export function darkness(frac) {
   if (frac >= DAY_FROM && frac < DUSK_FROM) return 0;
@@ -78,6 +100,11 @@ export function fracFor(world, s) {
 // どうくつ・塔の 中は 夜でも かわらない（夜の 魔物は フィールドだけ）
 export function isNightFor(world, s) {
   return isNightFrac(fracFor(world, s));
+}
+
+// 昼の 12時ごろか（パーティーの 時計。日時計の とびら）
+export function isNoonFor(world, s) {
+  return isNoonFrac(fracFor(world, s));
 }
 
 // 時計を すすめる（宿屋・夜明けのすず）。パーティーの 時計の もちぬしの ずれを かえる

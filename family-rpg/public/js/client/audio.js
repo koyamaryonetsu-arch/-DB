@@ -224,6 +224,27 @@ const TRACKS = {
       { drums: true, v: 0.3, n: 'k:4 h:2 h:2 s:4 h:2 h:2 '.repeat(7) + 'k:4 h:2 k:2 s:2 s:2 s:2 s:2 ' + 'k:4 h:2 h:2 s:4 h:2 h:2 '.repeat(7) + 'k:4 h:2 k:2 s:2 s:2 s:2 s:2' },
     ],
   },
+  // 第4章 Step 4: 王家のピラミッド（ふしぎで おごそかな 古い 王の 墓。とくべつな 音階の メロディーが、石の へやに ひびく）
+  // ※ たいこの パートに r を つかうと「s」の 音が 出るので、すきまは 前の 音を ながく して つくる
+  pyramid: {
+    bpm: 88,
+    ch: [
+      { w: 'pulse', v: 0.1, n: 'D5:4 Eb5:2 D5:2 C#5:4 Bb4:4 A4:6 Bb4:2 C#5:4 D5:4 Eb5:4 F#5:4 G5:3 F#5:1 Eb5:4 D5:12 r:4 A5:4 G5:2 F#5:2 G5:4 Eb5:4 F#5:6 Eb5:2 D5:4 C#5:4 D5:2 Eb5:2 F#5:2 G5:2 A5:4 Bb5:4 A5:12 r:4 Bb5:4 A5:2 G5:2 A5:4 F#5:4 G5:6 F#5:2 Eb5:4 D5:4 C#5:4 D5:2 Eb5:2 F#5:4 A5:4 G5:8 F#5:4 Eb5:4 D5:4 Eb5:2 D5:2 C#5:4 Bb4:4 A4:4 C#5:4 Eb5:4 F#5:4 G5:4 F#5:2 Eb5:2 D5:4 C#5:4 D5:16' },
+      { w: 'square', v: 0.028, n: 'D4:2 A4:2 D5:2 A4:2 F#4:2 A4:2 D5:2 A4:2 D4:2 A4:2 D5:2 A4:2 F#4:2 A4:2 D5:2 A4:2 Eb4:2 G4:2 Bb4:2 G4:2 Eb4:2 G4:2 Bb4:2 G4:2 D4:2 A4:2 D5:2 A4:2 F#4:2 A4:2 D5:2 A4:2 G4:2 Bb4:2 D5:2 Bb4:2 G4:2 Bb4:2 D5:2 Bb4:2 D4:2 A4:2 D5:2 A4:2 F#4:2 A4:2 D5:2 A4:2 G4:2 Bb4:2 D5:2 Bb4:2 G4:2 Bb4:2 D5:2 Bb4:2 A3:2 C#4:2 E4:2 C#4:2 A3:2 C#4:2 E4:2 C#4:2 G4:2 Bb4:2 D5:2 Bb4:2 G4:2 Bb4:2 D5:2 Bb4:2 Eb4:2 G4:2 Bb4:2 G4:2 Eb4:2 G4:2 Bb4:2 G4:2 A3:2 C#4:2 E4:2 C#4:2 A3:2 C#4:2 E4:2 C#4:2 G4:2 Bb4:2 D5:2 Bb4:2 G4:2 Bb4:2 D5:2 Bb4:2 D4:2 A4:2 D5:2 A4:2 F#4:2 A4:2 D5:2 A4:2 A3:2 C#4:2 E4:2 C#4:2 A3:2 C#4:2 E4:2 C#4:2 G4:2 Bb4:2 D5:2 Bb4:2 G4:2 Bb4:2 D5:2 Bb4:2 D4:2 A4:2 D5:2 A4:2 F#4:2 A4:2 D5:2 A4:2' },
+      { w: 'triangle', v: 0.2, n: 'D2:6 A2:2 D2:8 D2:6 A2:2 D2:8 Eb2:6 Bb2:2 Eb2:8 D2:6 A2:2 D2:8 G1:6 D2:2 G1:8 D2:6 A2:2 D2:8 G1:6 D2:2 G1:8 A1:6 E2:2 A1:8 G1:6 D2:2 G1:8 Eb2:6 Bb2:2 Eb2:8 A1:6 E2:2 A1:8 G1:6 D2:2 G1:8 D2:6 A2:2 D2:8 A1:6 E2:2 A1:8 G1:6 D2:2 G1:8 D2:6 A2:2 D2:8' },
+      { drums: true, v: 0.2, n: 'k:4 h:2 h:2 s:4 h:4 '.repeat(15) + 'k:4 h:2 h:2 s:2 s:2 s:2 s:2' },
+    ],
+  },
+  // 第4章 Step 4: ミイラの王アンク（王のへやの ボス戦。ピラミッドの 音階で はげしく）
+  pharaoh: {
+    bpm: 156,
+    ch: [
+      { w: 'pulse', v: 0.1, n: 'D5:2 Eb5:2 F#5:2 G5:2 A5:4 G5:2 F#5:2 Eb5:4 D5:2 C#5:2 D5:8 Bb5:2 A5:2 G5:2 F#5:2 G5:4 Eb5:4 F#5:12 A5:4 D6:4 C#6:2 Bb5:2 A5:4 G5:4 F#5:2 G5:2 A5:2 G5:2 F#5:4 Eb5:4 D5:2 F#5:2 A5:2 D6:2 C#6:4 Bb5:4 A5:16 G5:2 A5:2 Bb5:2 A5:2 G5:4 F#5:4 Eb5:2 F#5:2 G5:2 F#5:2 Eb5:4 D5:4 C#5:2 D5:2 Eb5:2 F#5:2 G5:4 A5:4 Bb5:8 A5:8 D6:2 C#6:2 Bb5:2 A5:2 G5:2 F#5:2 Eb5:2 D5:2 C#5:4 Eb5:4 F#5:4 A5:4 G5:4 F#5:4 Eb5:4 C#5:4 D5:12 r:4' },
+      { w: 'saw', v: 0.03, n: 'A4:16 A4:16 G4:16 A4:16 A4:16 G4:16 A4:16 C#5:16 Bb4:16 G4:16 C#5:16 Bb4:16 A4:16 C#5:16 Bb4:16 A4:16' },
+      { w: 'triangle', v: 0.25, n: 'D2:2 D2:2 D3:2 D2:2 D2:2 D2:2 D3:2 D2:2 D2:2 D2:2 D3:2 D2:2 D2:2 D2:2 D3:2 D2:2 Eb2:2 Eb2:2 Eb3:2 Eb2:2 Eb2:2 Eb2:2 Eb3:2 Eb2:2 D2:2 D2:2 D3:2 D2:2 D2:2 D2:2 D3:2 D2:2 D2:2 D2:2 D3:2 D2:2 D2:2 D2:2 D3:2 D2:2 Eb2:2 Eb2:2 Eb3:2 Eb2:2 Eb2:2 Eb2:2 Eb3:2 Eb2:2 D2:2 D2:2 D3:2 D2:2 D2:2 D2:2 D3:2 D2:2 A1:2 A1:2 A2:2 A1:2 A1:2 A1:2 A2:2 A1:2 G1:2 G1:2 G2:2 G1:2 G1:2 G1:2 G2:2 G1:2 Eb2:2 Eb2:2 Eb3:2 Eb2:2 Eb2:2 Eb2:2 Eb3:2 Eb2:2 A1:2 A1:2 A2:2 A1:2 A1:2 A1:2 A2:2 A1:2 G1:2 G1:2 G2:2 G1:2 G1:2 G1:2 G2:2 G1:2 D2:2 D2:2 D3:2 D2:2 D2:2 D2:2 D3:2 D2:2 A1:2 A1:2 A2:2 A1:2 A1:2 A1:2 A2:2 A1:2 G1:2 G1:2 G2:2 G1:2 G1:2 G1:2 G2:2 G1:2 D2:2 D2:2 D3:2 D2:2 D2:2 D2:2 D3:2 D2:2' },
+      { drums: true, v: 0.55, n: 'k:2 h:1 h:1 s:2 h:2 k:2 k:2 s:2 h:2 '.repeat(15) + 'k:2 s:1 s:1 s:2 s:1 s:1 k:2 s:2 s:2 s:2' },
+    ],
+  },
   battle: {
     bpm: 152,
     ch: [
@@ -618,6 +639,9 @@ export class GameAudio {
       // 第4章 Step 3: 夜の 中庭の 足音（コツ…コツ…）・サラの ムチ
       case 'steps': [0, 0.38, 0.76].forEach((d) => { this.noise(0.05, { vol: 0.22, delay: d, from: 900, to: 300 }); T(120, 0.05, { vol: 0.1, delay: d, type: 'triangle' }); }); break;
       case 'whip': this.noise(0.05, { vol: 0.45, type: 'highpass', from: 4000, to: 6000 }); this.noise(0.12, { vol: 0.25, delay: 0.03, from: 3000, to: 600 }); T(1800, 0.06, { vol: 0.06, slide: 600, delay: 0.02 }); break;
+      // 第4章 Step 4: 石の ボタンを おす（カチッ）・ゆかが ぬけて おちる（ヒューン…）
+      case 'click': T(1400, 0.03, { vol: 0.1, type: 'square' }); this.noise(0.04, { vol: 0.2, from: 3000, to: 1200 }); T(180, 0.06, { vol: 0.1, delay: 0.03, type: 'triangle' }); break;
+      case 'fall': T(900, 0.7, { vol: 0.1, slide: 120, type: 'triangle' }); this.noise(0.6, { vol: 0.2, type: 'bandpass', from: 1800, to: 300, q: 2 }); break;
       default:
     }
   }

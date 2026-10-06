@@ -341,7 +341,9 @@ test('学者ハサンと わらべ歌: なぞ（オベリスク）と 4人の �
   // さいごの 子の だいほんで、Step 3 の さいごの 目標
   const last = SCRIPTS.c4_kid_star(ctx([...base, 'c4_hassan', 'c4_song_sun', 'c4_song_sand', 'c4_song_moon']));
   assert.ok(last.some((s) => s[0] === 'objective' && s[1] === C4_OBJ.song));
-  assert.ok(C4_OBJ.song.startsWith('第4章の続きはアップデートで！（') && C4_OBJ.song.includes('昼の12時ごろ、オベリスクの影がさす所を調べよう'));
+  // Step 4 から「続きはアップデートで！」では ない（ピラミッドへ つづく）。Step 3 の 版の 文は OLD_C4_OBJ.song
+  assert.equal(C4_OBJ.song, '昼の12時ごろ、オベリスクの影がさす所を調べよう');
+  assert.ok(OLD_C4_OBJ.song.startsWith('第4章の続きはアップデートで！（') && OLD_C4_OBJ.song.includes(C4_OBJ.song));
   // 歌を 先に ぜんぶ 聞いて いても、ハサンの なぞを 聞いた ときに c4_song
   const early = SCRIPTS.c4_kid_star(ctx([...base, 'c4_song_sun', 'c4_song_sand', 'c4_song_moon']));
   assert.ok(!early.some((s) => s[0] === 'flag' && s[1] === 'c4_song'), 'ハサンの 前は まだ');
@@ -457,7 +459,8 @@ test('目標・仲間会話・地図の しるし（Step 3）。もう 聞いた
   assert.equal(objectiveFromFlags(f('c4_capital', 'c4_queen', 'c4_rumor', 'c4_fountain', 'c4_hassan')), C4_OBJ.hassan);
   assert.equal(objectiveFromFlags(f('c4_capital', 'c4_queen', 'c4_fountain', 'c4_hassan', 'c4_song')), C4_OBJ.song);
   // 物語の すすみぐあい（STORY_STEPS の うしろ）
-  assert.deepEqual(CH4_STEPS.slice(-4), ['c4_capital', 'c4_queen', 'c4_fountain', 'c4_song']);
+  const cap = CH4_STEPS.indexOf('c4_capital');
+  assert.deepEqual(CH4_STEPS.slice(cap, cap + 4), ['c4_capital', 'c4_queen', 'c4_fountain', 'c4_song']);
   assert.ok(!CH4_STEPS.includes('c4_temple'), 'c4_temple は Step 7 の ため');
   for (const k of CH4_STEPS) assert.ok(STORY_STEPS.includes(k), k);
 });
@@ -606,7 +609,10 @@ test('第4章 Step 3 を とおして あそべる: 王都 → 女王 → うわ
   }
   assert.ok(bot.flag('c4_song'), 'わらべ歌が そろった');
   assert.equal(c.objective, C4_OBJ.song);
-  for (const f of CH4_STEPS) assert.ok(c.flags[f], f);
+  // Step 3 までの すすみぐあいは ぜんぶ。ピラミッド（Step 4）は まだ
+  const upto = CH4_STEPS.indexOf('c4_song');
+  for (const f of CH4_STEPS.slice(0, upto + 1)) assert.ok(c.flags[f], f);
+  for (const f of CH4_STEPS.slice(upto + 1)) assert.ok(!c.flags[f], f);
 });
 
 test('家族で: 夜の 中庭は リーダーの 世界と 時計。手伝いの 人が 水がめを 調べても、リーダーの 物語が すすむ', { timeout: 120000 }, async () => {

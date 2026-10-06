@@ -6,7 +6,7 @@ import { startFixedBattle } from './battles.js';
 import { FIXED_ENCOUNTERS } from '../data/encounters.js';
 import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion, befriendLevel } from './party.js';
 import { openService } from './services.js';
-import { isNightFor, advanceClock } from './clock.js';
+import { isNightFor, advanceClock, fracFor } from './clock.js';
 import { grantWagon, wagonChars } from './wagon.js';
 import { GUESTS } from '../data/shops.js';
 import { unstickAll } from './hazards.js';
@@ -18,6 +18,7 @@ let runSeq = 1;
 //  s … 話しかけた 人 / owner … その 世界の もちぬし（さそわれて 手伝っている ときは リーダー）
 //  ものがたりの すすみぐあい（フラグ・大事な物・たのまれごと）は owner、ふつうの 道具は 話しかけた 人
 //  night … 夜か（パーティーの 時計。world/clock.js）/ helper … さそわれて 手伝っている 人
+//  clock … 1日の わりあい（パーティーの 時計。0 が 朝6時。第4章の 日時計の とびら。ない ときは null）
 export function scriptCtx(s, owner = s, world = null) {
   const c = s.char;
   const o = owner.char;
@@ -25,6 +26,7 @@ export function scriptCtx(s, owner = s, world = null) {
     c,
     name: c.name,
     night: world ? isNightFor(world, owner) : false,
+    clock: world ? fracFor(world, owner) : null,
     helper: s !== owner,
     flag: (f) => !!o.flags[f],
     has: (id) => hasKeyItem(o, id) || (ITEMS[id]?.type !== 'key' && itemCount(c, id) > 0),
@@ -403,6 +405,14 @@ export class ScriptRun {
         case 'spawn': {
           const [map, x, y] = a;
           this.owner.char.spawn = { map, x, y };
+          break;
+        }
+        case 'curse': {
+          // のろいの宝（第4章の 王家のピラミッド）: いっしょに いる みんなに のろい。ピラミッドの 外に 出ると とける（world/pyramid.js）
+          for (const m of all) {
+            if (a[0]) m.char.pyrCurse = true;
+            else delete m.char.pyrCurse;
+          }
           break;
         }
         case 'shop': case 'jobChange': case 'tavern': case 'board': case 'starTrade': case 'church': case 'bank': case 'forge': case 'casino': case 'medalKing': case 'salon': {

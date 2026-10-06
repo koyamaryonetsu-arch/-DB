@@ -1,7 +1,7 @@
 // 昼と 夜の 時計（ちずの よこの 小さな 丸。お日さま・お月さまが 空を うごく）
 import { el, toast } from './dom.js';
 import { makeCanvas, ctxOf } from '../render/pixel.js';
-import { phaseOf, darkness, PHASE_NAMES } from '../../shared/world/clock.js';
+import { phaseOf, darkness, PHASE_NAMES, clockHour } from '../../shared/world/clock.js';
 
 const S = 22;
 const mixHex = (a, b, t) => {
@@ -34,7 +34,8 @@ export class ClockBadge {
     const key = `${Math.round(frac * 180)}`;
     if (key === this.last.key) return;
     this.last.key = key;
-    this.el.title = `今は${PHASE_NAMES[phase]}`;
+    // 何時ごろか（第4章の 日時計の とびらは 昼の 12時ごろ。11時〜13時）
+    this.el.title = `今は${PHASE_NAMES[phase]}（${clockHour(frac)}時ごろ）`;
     this.el.dataset.phase = phase;
     this.draw(frac);
   }
