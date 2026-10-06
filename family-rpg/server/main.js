@@ -12,7 +12,7 @@ import { acceptUpgrade } from './ws.js';
 import { FileStorage } from './storage.js';
 import { fileSyncStore } from './syncstore.js';
 import { clientAddress, isFromInternet, strongEnough, LoginGuard } from './guard.js';
-import { findFunnelUrl, tailscaleState, tailscaleWarning, funnelPublicDns, funnelDnsWarning } from './funnel.js';
+import { findFunnelUrl, tailscaleState, tailscaleWarning, funnelPublicDns, funnelDnsWarning, funnelNameWarning } from './funnel.js';
 import { defaultDataDir, handOverOldSaves } from './savedir.js';
 import { readVersion } from './update.js';
 import { createErrorLog, captureConsole } from './errlog.js';
@@ -387,14 +387,19 @@ async function checkFunnel(print) {
   }
   // 外出先から つながる ようすか（Tailscale の ログインが 切れた・期限が ちかい・Funnel の アドレスが インターネットに 出ていない など）
   let warn = [];
+  let ts = null;
   try {
-    warn = tailscaleWarning(await tailscaleState());
+    ts = await tailscaleState();
+    warn = tailscaleWarning(ts);
   } catch {
     warn = [];
   }
   if (funnel.url) {
     try {
-      warn = [...warn, ...funnelDnsWarning(funnel.url, await funnelPublicDns(new URL(funnel.url).hostname))];
+      // PC の 名前が かわって、外出先用の 設定が 古い 名前の まま
+      const named = funnelNameWarning(funnel.url, ts?.dnsName);
+      // 名前は 同じなのに、アドレスが インターネットに 出ていない（Tailscale の がわで Funnel が 有効に なっていない）
+      warn = [...warn, ...(named.length ? named : funnelDnsWarning(funnel.url, await funnelPublicDns(new URL(funnel.url).hostname)))];
     } catch { /* */ }
   }
   if (print) {

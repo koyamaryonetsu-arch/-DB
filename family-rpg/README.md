@@ -152,6 +152,7 @@
     - Tailscale の管理画面の「DNS」で、MagicDNS と HTTPS Certificates が有効になっているかも見てください
     - 許可したあと、スマホでは5分くらいたってから開き直してください（「見つからない」を、しばらく覚えているため）。家族サーバーの黒い画面にも「もどりました」と出ます
   - スマホで本当のエラーを見たい時は、Safari の **プライベートタブ** でアドレスを開くと、案内ページではなく Safari のエラーが出ます（「サーバが見つからない」なら上の Funnel の問題です）
+  - **黒い画面に「★ 外出先用の設定のアドレス（…）が、今のPCの名前（…）と合っていません」と出ている時** は、Tailscale でPCの名前（またはネットワークの名前）を変えたために、外出先用の設定が古いアドレスのまま残っています。`funnel-off` → `funnel-on` の順にダブルクリックすると新しいアドレスで開けます。もとのアドレスのままにしたい時は、Tailscale の管理画面でPCの名前をもとにもどしてください
   - **開いているアドレスが、黒い画面の「★外出先から」のアドレスと同じか**。Tailscale の管理画面でPCの名前を変えると、アドレス（`https://（PCの名前）.….ts.net`）も変わります。古いアドレスのホーム画面のアイコンは使えなくなるので、新しいアドレスを開いて、ホーム画面に追加しなおしてください（iPhone の Safari は、アドレスの頭の「PCの名前」の部分をかくして表示します。アドレスの所をタップすると全部見えます）
   - PCの電源と、インターネット（ルーター）にも注意
 - **「家族サーバーが動いていません」** … 家のPCまではとどきましたが、家族サーバー（黒い画面）が止まっています
@@ -1058,7 +1059,7 @@ npm start                 # 家族サーバー
   - `server/power.js` … Windows のスリープの設定を読む（`powercfg /query SCHEME_CURRENT SUB_SLEEP STANDBYIDLE` の さいごの2つの `0x…` が AC・DC の秒）。電源に接続時にスリープする時は、起動の時に黒い画面に出す（設定はかえない）
   - `server/errlog.js` … `kizuna-save/error-log.txt`（`console.error`・`console.warn` も書く。同じエラーは1分に1回。512KB をこえたら `error-log.old.txt` へ）
   - `server/guard.js` … 外出先からのアクセスのまもり（Funnel を通った時だけ `X-Forwarded-For` を信じる・この PC と同じネットワークは家の中・外からは合言葉が長い時だけ・まちがいが続いたら待ち）
-  - `server/funnel.js` … Tailscale Funnel のアドレスを調べる（`tailscale serve status --json`）。`tailscale status --json` で、ログインが切れた・OFF・動いていない・ログインの期限が2週間以内の時に黒い画面に出す（起動の時と、5分ごとに変わった時）。Funnel のアドレスが外の DNS（8.8.8.8・1.1.1.1 にじかに聞く。PCの中は MagicDNS で引けてしまうため）に出ていない時も出す（`funnelPublicDns`。両方が「ない」と答えた時だけ。DNS にとどかない時は何も出さない）。`server/funnel-cli.js` は `funnel-on` / `funnel-off` から呼ばれる
+  - `server/funnel.js` … Tailscale Funnel のアドレスを調べる（`tailscale serve status --json`）。`tailscale status --json` で、ログインが切れた・OFF・動いていない・ログインの期限が2週間以内の時に黒い画面に出す（起動の時と、5分ごとに変わった時）。Funnel のアドレスが外の DNS（8.8.8.8・1.1.1.1 にじかに聞く。PCの中は MagicDNS で引けてしまうため）に出ていない時も出す（`funnelPublicDns`。両方が「ない」と答えた時だけ。DNS にとどかない時は何も出さない）。`tailscale serve status` の Funnel のアドレスが、今のPCの名前（`tailscale status --json` の `Self.DNSName`）とちがう時は、名前を変えたせいだと出す（`funnelNameWarning`。この時は DNS の注意は出さない）。`server/funnel-cli.js` は `funnel-on` / `funnel-off` から呼ばれる
 - `public/sw.js` … 家族サーバーが止まっている時に開いた時の案内ページ（https・localhost の時だけ。何もしまっておかない。ページを開く時だけ見る）。通信エラーは「家のPCまでとどかない」（PCの電源・スリープ・Tailscale。localhost では家族サーバーが止まっている）、502〜504 は「PCにはとどいたが家族サーバーが動いていない」（Tailscale Funnel が、うしろのサーバーにつながらない時に返す。家族サーバーはこの番号を返さない）。ゲームの中の案内も同じ考え方（`public/js/client/downreason.js`）
 - `tools/build-site.mjs` … ひとりで遊ぶサイトを作る（`?v=版` をつけて、新しくした直後に古いファイルとまざらないようにする）
 - `public/js/client/links.js` … ひとりで遊ぶサイトと家族サーバーを行き来するリンク（`#kizuna=コード&server=アドレス`、データを合わせる `#sync=データ&back=もどり先`）

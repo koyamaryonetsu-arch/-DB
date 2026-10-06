@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { createErrorLog, captureConsole, ERROR_LOG } from '../server/errlog.js';
-import { tailscaleState, tailscaleWarning, funnelPublicDns, funnelDnsWarning } from '../server/funnel.js';
+import { tailscaleState, tailscaleWarning, funnelPublicDns, funnelDnsWarning, funnelNameWarning } from '../server/funnel.js';
 import { GameWorld } from '../public/js/shared/world/world.js';
 import { runSteps } from '../public/js/shared/world/scripts.js';
 import { makeRng } from '../public/js/shared/rng.js';
@@ -149,4 +149,21 @@ test('外出先の アドレス（Funnel）が インターネットの DNS に 
   assert.match(w.join('\n'), /funnel-on/);
   assert.deepEqual(funnelDnsWarning('https://pc.tailabcd.ts.net', 'ok'), []);
   assert.deepEqual(funnelDnsWarning('https://pc.tailabcd.ts.net', 'unknown'), []);
+});
+
+test('外出先用の 設定の アドレスが、今の PC の 名前と ちがう（Tailscale で 名前を かえた）ときに 知らせる', async () => {
+  const st = await tailscaleState({ runImpl: async () => ({ out: JSON.stringify({ BackendState: 'Running', Self: { DNSName: 'Kizuna.tailabcd.ts.net.' } }) }), candidates: ['tailscale'] });
+  assert.equal(st.dnsName, 'kizuna.tailabcd.ts.net', 'さいごの 点を とって 小文字に');
+  const w = funnelNameWarning('https://pc.tailabcd.ts.net', st.dnsName);
+  assert.match(w[0], /https:\/\/pc\.tailabcd\.ts\.net/);
+  assert.match(w[0], /https:\/\/kizuna\.tailabcd\.ts\.net/);
+  assert.match(w.join('\n'), /funnel-off → funnel-on/);
+  assert.match(w.join('\n'), /「pc」にもどしてね（今は「kizuna」）/);
+  // 同じ 名前・わからない ときは 何も 出さない
+  assert.deepEqual(funnelNameWarning('https://pc.tailabcd.ts.net', 'pc.tailabcd.ts.net.'), []);
+  assert.deepEqual(funnelNameWarning('https://PC.tailabcd.ts.net', 'pc.tailabcd.ts.net'), []);
+  assert.deepEqual(funnelNameWarning('https://pc.tailabcd.ts.net', ''), []);
+  assert.deepEqual(funnelNameWarning('', 'pc.tailabcd.ts.net'), []);
+  // tailnet の 名前を かえた ときも
+  assert.ok(funnelNameWarning('https://pc.tailabcd.ts.net', 'pc.happy-cat.ts.net').length > 0);
 });

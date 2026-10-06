@@ -71,10 +71,35 @@ export async function tailscaleState({ runImpl = runOut, candidates = CANDIDATES
     } catch {
       j = null;
     }
-    if (!j || typeof j !== 'object') return { installed: true, state: 'NoDaemon', expiry: '', expired: false };
-    return { installed: true, state: String(j.BackendState || ''), expiry: String(j.Self?.KeyExpiry || ''), expired: !!j.Self?.Expired };
+    if (!j || typeof j !== 'object') return { installed: true, state: 'NoDaemon', expiry: '', expired: false, dnsName: '' };
+    return {
+      installed: true, state: String(j.BackendState || ''), expiry: String(j.Self?.KeyExpiry || ''), expired: !!j.Self?.Expired,
+      // 今の PC の 名前（pc.tailxxxx.ts.net。さいごの「.」は とる）
+      dnsName: String(j.Self?.DNSName || '').replace(/\.$/, '').toLowerCase(),
+    };
   }
-  return { installed: false, state: '', expiry: '', expired: false };
+  return { installed: false, state: '', expiry: '', expired: false, dnsName: '' };
+}
+
+// 外出先用の 設定（funnel-on）の アドレスが、今の PC の 名前と ちがう ときの 文（同じ・わからない ときは []）
+// ・Tailscale の 管理画面で PC の 名前（や tailnet の 名前）を かえると、funnel-on の 設定は 古い 名前の まま のこり、
+//   古い アドレスは インターネットから 消える（外からは「見つからない」）
+export function funnelNameWarning(url, dnsName) {
+  let host = '';
+  try {
+    host = new URL(url).hostname.toLowerCase();
+  } catch {
+    return [];
+  }
+  const now = String(dnsName || '').replace(/\.$/, '').toLowerCase();
+  if (!host || !now || host === now) return [];
+  const short = now.split('.')[0];
+  return [
+    `★ 外出先用の設定のアドレス（https://${host}）が、今のPCの名前（https://${now}）と合っていません。`,
+    '   Tailscale でPCの名前を変えると、外出先用の設定はやり直しが必要です（古いアドレスは外から開けません）。',
+    `   funnel-off → funnel-on の順にダブルクリックすると、新しいアドレス https://${now} で開けるようになります。`,
+    `   もとのアドレスのままにしたい時は、Tailscale の管理画面でPCの名前を「${host.split('.')[0]}」にもどしてね（今は「${short}」）。`,
+  ];
 }
 
 // 外出先から つながらない ようすの ときに 黒い 画面に 出す 文（だいじょうぶな ときは []）
