@@ -16,6 +16,8 @@ import { ITEMS } from './data/items.js';
 import { JOBS } from './data/jobs.js';
 import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed, battleAbilityOk } from './stats.js';
 import { decideMonster, decideAlly } from './ai.js';
+// 第4章の しかけ（まぼろしの分身・月の鏡・そうびしたまま 使う 道具）
+import { setupMirage, mirageHit, mirageVanish, mirageDown, mirageSync, mirageRemake, ch4ItemCheck, ch4UseItem, mirrorSnap } from './battle-ch4.js';
 
 export const BOND_MAX = 100;
 // きずなゲージの たまりやすさ（1 … はじめの 版。ちいさいほど たまりにくい）
@@ -214,6 +216,8 @@ export class Battle {
     for (const a of opts.allies || []) this.addAlly(a);
     this.enemyMod = opts.enemyMod || null; // 敵の 強さを かえる（宝の洞窟）
     this.addEnemies(opts.enemies || []);
+    // まぼろしの分身（おなじ 魔物の 1体だけが 本物。battle-ch4.js）
+    setupMirage(this);
     this.initAtb();
   }
 
@@ -526,6 +530,9 @@ export class Battle {
         return { ok: true };
       }
       case 'item': {
+        // 月の鏡・そうびしたまま 使う 道具（battle-ch4.js）
+        const special = ch4ItemCheck(this, c, cmd.id);
+        if (special) return special;
         const it = ITEMS[cmd.id];
         if (!it || it.type !== 'use' || !it.battle) return { ok: false, reason: '使えない' };
         if (this.hooks.hasItem && !this.hooks.hasItem(c, cmd.id)) return { ok: false, reason: '持っていない' };
@@ -884,7 +891,7 @@ export class Battle {
     const targets = givenTargets || this.targetsFor(c, a, cmd);
     this.pushCoverMsg(ev);
     ev.fx = { type: 'ability', anim: a.anim, actor: c.id, targets: targets.map((t) => t.id), side: c.side, element: eff.element };
-    if (!targets.length && !['callHelp', 'flee', 'nothing', 'telegraph', 'stance', 'charge', 'bondUp', 'escape', 'goldThrow', 'reviveAll'].includes(eff.type)) {
+    if (!targets.length && !['callHelp', 'flee', 'nothing', 'telegraph', 'stance', 'charge', 'bondUp', 'escape', 'goldThrow', 'reviveAll', 'mirage'].includes(eff.type)) {
       ev.lines.push('しかし効果がなかった！');
       return;
     }
@@ -1055,6 +1062,7 @@ export class Battle {
         // 回送電車・異動命令: 敵を 戦いから おいだす（ボスには 効かない）
         for (const t of targets) {
           if (!t.alive || t.fled) continue;
+          if (mirageHit(this, c, t, ev)) continue;
           if (t.boss || !this.rng.chance((eff.chance ?? 0.5) * (t.resist?.banish ?? 1))) {
             ev.lines.push(fmtLine(eff.failMsg || 'しかし{t}には効かなかった！', c, t));
             continue;
@@ -1140,6 +1148,7 @@ export class Battle {
       }
       case 'drainMp': {
         const t = targets[0];
+        if (mirageHit(this, c, t, ev)) break;
         const d = Math.min(t.mp, this.rng.int(eff.amount[0], eff.amount[1]));
         t.mp -= d;
         ev.lines.push(d > 0 ? `${t.name}のMPが${d}減った！` : `しかし${t.name}には効かなかった！`);
@@ -1182,6 +1191,11 @@ export class Battle {
         ev.lines.push(`${back.map((t) => t.name).join('と')}が生き返った！`);
         break;
       }
+      case 'mirage': {
+        // まぼろしを 作りなおす（分身が もどり、ならびが いれかわる。battle-ch4.js）
+        mirageRemake(this, c, ev);
+        break;
+      }
       case 'telegraph': {
         c.telegraph = eff.next;
         ev.fx = { type: 'telegraph', actor: c.id };
@@ -1216,6 +1230,7 @@ export class Battle {
   // ぬすむ（1体に つき 1回）
   trySteal(c, t, ev, chance = 0.6) {
     if (!t?.alive || t.side !== 'enemy') return;
+    if (mirageHit(this, c, t, ev)) return;
     if (t.stolen) {
       ev.lines.push(`${t.name}はもう何も持っていない。`);
       return;
@@ -1230,6 +1245,8 @@ export class Battle {
   // ───────────── ダメージ計算 ─────────────
   physHit(c, t, eff, ev, element, powMult = 1) {
     if (!t.alive) return 0;
+    // まぼろしの 分身は 当たると 消える（battle-ch4.js）
+    if (mirageHit(this, c, t, ev)) return 0;
     this.noteCounter(c, t, ev);
     const res = this.calcPhys(c, t, eff, powMult, element);
     ev.fx = ev.fx || { type: 'attack', actor: c.id, targets: [t.id], side: c.side };
@@ -1317,6 +1334,7 @@ export class Battle {
 
   magicHit(c, t, eff, ev, powMult) {
     if (!t.alive) return 0;
+    if (mirageHit(this, c, t, ev)) return 0;
     const res = this.calcMagic(c, t, eff, powMult);
     if (res.resisted || res.dmg === 0) {
       ev.lines.push(t.side === 'enemy' ? `しかし${t.name}には効かなかった！` : `${t.name}はダメージを受けない！`);
@@ -1330,6 +1348,7 @@ export class Battle {
 
   damage(c, t, dmg, ev, info = {}) {
     ev.results = ev.results || [];
+    if (mirageHit(this, c, t, ev)) return;
     // 峰打ち: たおさずに HP を 1 のこす
     if (info.nonLethal && dmg >= t.hp) {
       dmg = Math.max(0, t.hp - 1);
@@ -1345,6 +1364,7 @@ export class Battle {
       return;
     }
     t.hp = Math.max(0, t.hp - dmg);
+    if (t.shade) mirageSync(this, t);
     ev.lines.push(t.side === 'enemy' ? `${t.name}に${dmg}のダメージ！` : `${t.name}は${dmg}のダメージを受けた！`);
     // 属性の 効きぐあい（敵だけ。ためした 属性は 図鑑に のこる）
     const aff = this.noteTried(t, info.element);
@@ -1384,6 +1404,9 @@ export class Battle {
   // element … とどめの 属性（ミイラ兵は 炎・光で とどめを さされると 起き上がれない）
   // ev … その こうどうの イベント（ボスと いっしょに くずれおちる 手下も ev.upd に のせる）
   kill(t, element = null, ev = null) {
+    // まぼろしの 分身は 消えるだけ（たおした ことに ならない。battle-ch4.js）
+    const vanished = mirageVanish(this, t, ev);
+    if (vanished) return vanished;
     // 1回だけ 起き上がる 魔物（ミイラ兵。monsters の revive）
     const rv = t.side === 'enemy' && !t.revived ? MONSTERS[t.species]?.revive : null;
     if (rv && !(rv.not || []).includes(element)) {
@@ -1418,6 +1441,8 @@ export class Battle {
         if (ev) ev.upd.push(m);
       }
       if (minions.length) out.push(MONSTERS[t.species].fallMsg || '手下の魔物たちも、くずれおちた！');
+      // 本物が たおれると、まぼろしの 分身も 消える
+      out.push(...mirageDown(this, t, ev));
       return out;
     }
     this.addBond(5);
@@ -1442,6 +1467,7 @@ export class Battle {
 
   applyDebuff(c, t, d, ev, powMult = 1) {
     if (!t.alive) return;
+    if (mirageHit(this, c, t, ev)) return;
     const r = t.resist.debuff ?? 1;
     const chance = (d.chance ?? 0.9) * r * (0.6 + 0.4 * powMult) * (t.boss ? 0.7 : 1);
     if (!this.rng.chance(chance)) {
@@ -1456,6 +1482,7 @@ export class Battle {
 
   tryStatus(c, t, eff, ev, powMult = 1) {
     if (!t.alive) return false;
+    if (mirageHit(this, c, t, ev)) return false;
     const st = eff.status;
     const r = t.resist[st] ?? 1;
     const chance = (eff.chance ?? 0.5) * r * (0.6 + 0.4 * powMult);
@@ -1906,6 +1933,8 @@ export class Battle {
 
   // ───────────── どうぐ ─────────────
   useItem(c, cmd, ev) {
+    // 月の鏡・そうびしたまま 使う 道具（battle-ch4.js）
+    if (ch4UseItem(this, c, cmd, ev)) return;
     const it = ITEMS[cmd.id];
     ev.name = it.name;
     ev.lines.push(`${c.name}は${it.name}を使った！`);
@@ -2029,6 +2058,8 @@ export class Battle {
       boss: this.boss,
       canFlee: this.canFlee,
       noSpells: this.noSpells,
+      // 月の鏡の 光（まぼろしの 分身が いる たたかいだけ。battle-ch4.js）
+      mirror: mirrorSnap(this),
       bond: this.bond,
       speed: this.speed,
       textSpeed: this.textSpeed,
@@ -2065,6 +2096,8 @@ export function allyFromCharacter(char, init = {}) {
     atk: st.atk, dfn: st.dfn, agi: st.agi, mag: st.mag, healPow: st.heal,
     weaponCat: st.weaponCat,
     weaponId: char.equip?.weapon || null, // エフェクト用（ぶきごとに みためを かえる）
+    // アクセサリー（そうびしたまま 使える 道具。魔神のランプ。battle-ch4.js）
+    acc: char.equip?.acc || null,
     onHit: st.onHit,
     resist: { ...st.resist },
     race: char.species ? (MONSTERS[char.species]?.race || 'beast') : 'human',
@@ -2134,6 +2167,11 @@ export function pub(c) {
     defending: !!c.defending, telegraph: !!c.telegraph, stance: c.stance?.kind || null, boss: !!c.boss, size: c.size, slot: c.slot,
     // 呪文を となえて いる（よみがえりの呪文）: とぎれるまでの ダメージの たまりぐあい（0〜1）
     chant: c.chant ? Math.min(1, Math.round((c.chant.dmg / c.chant.need) * 100) / 100) : null,
+    // まぼろしの 分身の いる たたかいの 本物（足もとに 小さな 影。battle-ch4.js）
+    shade: !!c.shade,
+    // そうびしている アクセサリーと、この たたかいで もう 使ったか（魔神のランプ）
+    acc: c.side === 'ally' ? c.acc || null : undefined,
+    accUsed: c.side === 'ally' ? !!c.equipUsed?.length : undefined,
     abilities: c.side === 'ally' ? c.abilities : undefined,
     weaponCat: c.side === 'ally' ? c.weaponCat : undefined,
     pc: c.side === 'ally' ? c.penChar : undefined,

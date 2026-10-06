@@ -16,6 +16,8 @@ import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } fro
 import { abilityDetail, statusNames, buffNames, targetTag } from './ui/info.js';
 import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js';
 import { ResultPager, levelUpName } from './ui/result.js';
+// 第4章の しかけ（月の鏡・まぼろしの 分身・魔神のランプ・ボスの 大技）
+import { CH4_ALLY_FX, ch4ItemEntries, ch4ItemPick, ch4ItemInfo, ch4Present, vanishFx, drawShade } from './battle-ch4.js';
 
 // たたかいの え の こまかさ（おもい きかいで さげたら、その あいだは さげた まま）
 let battleRes = BRES;
@@ -55,6 +57,7 @@ function allyFxKind(anim, fx, ab) {
     if (eff.type === 'charge') return 'charge';
     if (eff.type === 'status') return eff.status === 'sleep' ? 'sleep' : eff.status === 'poison' ? 'poison' : 'dark';
   }
+  if (CH4_ALLY_FX[anim]) return CH4_ALLY_FX[anim];
   const el = fx.element;
   if (/^bolt|gigabreak|dragon_beam/.test(anim) || el === 'bolt') return 'bolt';
   if (anim === 'dark_slash') return 'dark';
@@ -84,6 +87,8 @@ const ANIM_SFX = {
   // 学校・公務員・アイドルの 技（render/battlefx-jobs.js）
   notes: 'sleep', odama: 'smash', pillow: 'hit', camera: 'sparkle', stamp: 'stamp', siren: 'warn', water: 'wind',
   fruits: 'debuff', fruits_big: 'blast', storm: 'wind', horn: 'warn', redtrain: 'train',
+  // 第4章の ボス（render/battlefx-ch4.js）
+  sandstorm: 'wind', sand_vortex: 'rumble', mirage: 'dark',
 };
 
 // ひらめきの 電球（ドット絵ふう）
@@ -100,6 +105,8 @@ export class BattleScene {
     this.canFlee = msg.snap.canFlee;
     // 呪文が ふうじられた 場所（王家のピラミッド 2階）: 呪文の コマンドは 出すが えらべない（サーバーも ことわる）
     this.noSpells = !!msg.snap.noSpells;
+    // 月の鏡の 光（まぼろしの 分身が いる 戦いだけ。{ cd … のこり, max }。battle-ch4.js）
+    this.mirror = msg.snap.mirror ? { ...msg.snap.mirror } : null;
     this.c = new Map();
     for (const c of msg.snap.combatants) this.c.set(c.id, { ...c, flash: 0, dead: !c.alive ? 1 : 0, lunge: 0 });
     // この たたかいで ためした 属性（'まもの|属性'）。図鑑に のっている ぶんと あわせて ねらう ときに 見せる
@@ -239,7 +246,7 @@ export class BattleScene {
 
   // 馬車に もどった 人（fled・benched）と、まだ 出てきて いない 人（pending）は のぞく。まどは 場所（slot）の じゅん
   allies() { return [...this.c.values()].filter((c) => c.side === 'ally' && !c.fled && !c.benched && !c.pending).sort((a, b) => (a.slot ?? 0) - (b.slot ?? 0)); }
-  enemies() { return [...this.c.values()].filter((c) => c.side === 'enemy' && !c.fled); }
+  enemies() { return [...this.c.values()].filter((c) => c.side === 'enemy' && !c.fled).sort((a, b) => (a.slot ?? 0) - (b.slot ?? 0)); }
 
   renderStatus(full = false) {
     const allies = this.allies();
@@ -592,21 +599,24 @@ export class BattleScene {
 
   itemMenu() {
     const bag = this.game.me.items.filter((e) => ITEMS[e.id]?.battle);
-    if (!bag.length) {
+    const a = this.myActor;
+    // 月の鏡・そうびしている 魔神のランプ（battle-ch4.js）
+    const special = ch4ItemEntries(this, a);
+    if (!bag.length && !special.length) {
       toast('戦いで使える道具がない');
       return this.openCommand();
     }
-    const bagItems = bag.map((e) => ({ label: ITEMS[e.id].name, right: `×${e.n}`, value: e.id }));
-    const a = this.myActor;
+    const bagItems = [...special, ...bag.map((e) => ({ label: ITEMS[e.id].name, right: `×${e.n}`, value: e.id }))];
     const last = a && this.lastPick(a, 'item');
     this.showMenu(bagItems, (it) => {
       if (a) this.rememberPick(a, 'item', it.value);
+      if (ch4ItemPick(this, it.value)) return;
       const item = ITEMS[it.value];
       if (item.target === 'self') return this.send({ type: 'item', id: it.value });
       return this.pickAlly((tid) => this.send({ type: 'item', id: it.value, target: tid }), item.target === 'deadAlly', item.name, () => this.itemMenu());
     }, () => this.openCommand(), '道具', (it) => {
       if (!it) return;
-      this.info(ITEMS[it.value].desc);
+      this.info(ch4ItemInfo(it.value));
     }, last ? bagItems.findIndex((x) => x.value === last) : -1, a && this.lastScroll(a, 'item'));
   }
 
@@ -868,7 +878,7 @@ export class BattleScene {
         const was = c.alive;
         Object.assign(c, u, { ready: u.ready });
         // 生き返った 敵（ミイラの王アンクの よみがえりの呪文）: もう一度 すがたを あらわす
-        if (c.side === 'enemy' && c.alive && !was) { c.dead = 0; c.appear = 1; }
+        if (c.side === 'enemy' && c.alive && !was) { c.dead = 0; c.appear = 1; c.vanished = false; }
       } else this.c.set(u.id, { ...u, flash: 0, dead: 0, lunge: 0 });
     }
     for (const j of ev.joined || []) if (!this.c.has(j.id)) this.c.set(j.id, { ...j, flash: 0, dead: 0, lunge: 0, appear: 1 });
@@ -961,6 +971,8 @@ export class BattleScene {
     if (fx.type === 'bondStart') this.startBondPrompt(ev);
     if (fx.type === 'flee') g.audio.sfx('flee');
     if (fx.type === 'wagon') wagonSwapFx(this, ev);
+    // 月の鏡・まぼろし・ボスの 大技（battle-ch4.js）
+    ch4Present(this, ev, fx, anim, actor, lead);
     if (ev.combo >= 2 && !ev.dual) this.banner(`れんけい ${ev.combo}！`, 'combo');
     if (anim === 'minadein') g.audio.sfx('bolt');
     if (anim && ANIM_SFX[anim]) g.audio.sfx(ANIM_SFX[anim]);
@@ -978,6 +990,8 @@ export class BattleScene {
         if (only && r.id !== only) continue;
         const t = this.c.get(r.id);
         if (!t) continue;
+        // まぼろしの 分身に 当たって 消えた（battle-ch4.js）
+        if (r.vanish) { vanishFx(this, t); continue; }
         if (r.aff && r.element && t.species) {
           this.tried.add(`${t.species}|${r.element}`);
           if (r.aff === 'weak' && r.dmg > 0) this.floatNum(t, '弱点！', 'weak');
@@ -1016,7 +1030,7 @@ export class BattleScene {
       for (const c of this.c.values()) {
         if (c.side === 'enemy' && !c.alive && !c.dead && (!only || c.id === only)) {
           c.dead = 1;
-          g.audio.sfx('defeat');
+          g.audio.sfx(c.vanished ? 'sparkle' : 'defeat');
         }
       }
     };
@@ -1521,9 +1535,11 @@ export class BattleScene {
       let dx = 0, dy = Math.round(Math.sin(this.time / 300 + (c.slot || 0)) * 1);
       if (c.flash > 0) dx = Math.round(Math.sin(c.flash / 20) * 2);
       const alpha = c.dead > 0 ? Math.max(0, 1 - (c.dead - 1)) : 1;
-      if (c.dead > 0 && c.dead < 1.2 && Math.floor(this.time / 60) % 2) continue;
+      if (c.dead > 0 && c.dead < 1.2 && !c.vanished && Math.floor(this.time / 60) % 2) continue;
       const base = c.appear > 0 ? 1 - c.appear : c.dead > 1 ? alpha : 1;
       x.globalAlpha = base;
+      // まぼろしの 分身が いる 戦いの 本物: 足もとに 小さな 影（battle-ch4.js）
+      if (c.shade && c.alive) drawShade(x, m, base);
       // がめんより こまかい え は なめらかに ちぢめる（ドットが ぬけないように）
       x.imageSmoothingEnabled = (m.img.res || 1) > x.getTransform().a * 1.01;
       x.imageSmoothingQuality = 'high';
@@ -1571,6 +1587,11 @@ export class BattleScene {
       if (P && P.white > 0) {
         x.globalAlpha = P.white * base;
         x.drawImage(white(m.img), px, py, w, h);
+      }
+      // まぼろしの 分身が 消える: むらさきに ゆらいで うすく なる
+      if (c.vanished && c.dead > 0) {
+        x.globalAlpha = 0.7 * base;
+        x.drawImage(white(m.img, '#c8a0ff'), px + Math.sin(this.time / 40) * 1.5, py, w, h);
       }
       // ねらい（グループの ときは その グループ みんなに ▼。すこし しろく ひかる）
       const tg = this.targeting;

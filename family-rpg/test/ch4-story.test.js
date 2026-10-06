@@ -218,11 +218,13 @@ test('空の旅: 風の海の 南の はし ⇄ コガネ地方の 北の はし
   const arrive = regionHop('north', 64, 50, null, 'south', has(f4));
   assert.deepEqual([arrive.map, arrive.x, arrive.y], ['south', SOUTH_ARRIVE.x, SOUTH_ARRIVE.y]);
   assert.ok(inSkyBox(LANDING_BEACH, arrive.x, arrive.y), '海辺の 上');
-  // 砂嵐の あいだは 北の海辺の 上だけ。大臣ザイード（Step 5）を たおすと 広がる
+  // 砂嵐の あいだは 北の海辺の 上だけ。大臣ザイード（Step 5）を たおすと 王都・ドゥナの 近くまで 広がり（test/ch4-zaid.test.js）、
+  // モルガナ（Step 7）を たおすと どこでも
   const box = skyBox('south', has(f4));
   assert.ok(box);
   assert.ok(!inSkyBox(box, HAM.x + 10, HAM.y + 10), '村の 上は 飛べない');
-  assert.equal(skyBox('south', has([...f4, 'c4_zaid'])), null);
+  assert.ok(inSkyBox(skyBox('south', has([...f4, 'c4_zaid'])), HAM.x + 10, HAM.y + 10), '大臣の あとは 村の 上も 飛べる');
+  assert.equal(skyBox('south', has([...f4, 'c4_zaid', 'c4_morgana'])), null);
   // 行ける 地方の じゅんばん
   assert.deepEqual(regionsFrom('south', has(f4)), ['sea', 'overworld', 'north']);
   assert.deepEqual(regionsFrom('overworld', has(['c3_start'])), ['sea', 'north'], '第4章の 前は 南へ 行けない');

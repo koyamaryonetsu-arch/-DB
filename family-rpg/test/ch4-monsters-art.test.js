@@ -47,11 +47,11 @@ const lower = (a) => new Set(a.map((c) => c.toLowerCase()));
 
 test('第4章の 魔物の え: monsters-ch4.js の 魔物が ぜんぶ ある（addCh4Art だけでも そろう。ボスも）', () => {
   assert.deepEqual([...CH4_MONSTERS].sort(), [
-    'armor_scorpion', 'cursed_pot', 'dry_frog', 'gold_beetle', 'lamp_genie', 'mirage_flower', 'moon_ghost', 'mummy_king', 'mummy_soldier',
-    'royal_mummy', 'sand_slime', 'sand_vulture', 'sandstone_golem', 'scorpion_soldier',
+    'armor_scorpion', 'cursed_pot', 'dark_scorpion', 'dry_frog', 'gold_beetle', 'lamp_genie', 'mirage_flower', 'moon_ghost', 'mummy_king', 'mummy_soldier',
+    'royal_mummy', 'sand_slime', 'sand_vulture', 'sand_worm', 'sandstone_golem', 'sandstorm_spirit', 'scorpion_soldier', 'zaid_demon', 'zaid_minister',
   ]);
-  // Step 2 の よろい大サソリ・Step 4 の ミイラの王アンク
-  assert.deepEqual(CH4_BOSSES, ['armor_scorpion', 'mummy_king']);
+  // Step 2 の よろい大サソリ・Step 4 の ミイラの王アンク・Step 5 の 大臣ザイード と 砂の魔神ザイード
+  assert.deepEqual(CH4_BOSSES, ['armor_scorpion', 'mummy_king', 'zaid_minister', 'zaid_demon']);
   for (const id of CH4_MONSTERS) {
     const d = MONSTER_ART[id];
     assert.ok(d, `${id} の え`);

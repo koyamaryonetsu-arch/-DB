@@ -2,6 +2,7 @@
 // え は render/ch4-art.js（ID で きまる）
 // s_coast=北の海辺 s_dune=砂ばく s_oasis=オアシスの まわり s_well=北の古井戸（夜は *_night。encounters-ch4.js）
 // Step 4: s_pdesert=王家の墓の砂ばく（王都の 東）s_pyr*=王家のピラミッドの 中
+// Step 5: s_sdesert=南の砂ばく（王都の 南。南の 砂嵐の 切れ目の 先）
 
 // ボスの じょうたい いじょうの 効きにくさ（第3章の ボスと おなじ）
 const BOSS_STATUS = { sleep: 0.1, poison: 0.3, confuse: 0.1, blind: 0.3, silence: 0.2, paralyze: 0.1 };
@@ -140,6 +141,70 @@ export const MONSTERS_CH4 = {
     ],
     desc: '王家のピラミッドの「王のへや」で、月の鏡を守るミイラの王。古い言葉をとなえ始めたら、よみがえりの呪文の前ぶれ。アンクに大きなダメージをあたえて止めよう。アンクをたおすと、王のミイラ兵もくずれおちる。',
   },
+
+  // ── 南の砂ばく（Step 5。南の 砂嵐の 切れ目の 先。Lv34〜36）──
+  // サンドワーム: 砂に もぐる（前ぶれ。つぎの 番に 砂の 中から 飛び出して 大きく かみつく）。
+  // ねらえなく なる ほんとうの「砂に もぐる」は Step 6 の 砂クジラと いっしょに 作る
+  sand_worm: {
+    name: 'サンドワーム', lv: 34, hp: 540, str: 132, def: 80, agi: 34, mag: 20, exp: 310, gold: 150,
+    race: 'beast', size: 'l', hit: 'bite',
+    resist: { bolt: 1.4, ice: 1.2, fire: 0.8, blast: 0.8, poison: 0.5, sleep: 0.4, confuse: 0.5 }, drops: { common: ['antidote', 5], rare: ['seed_hp', 48] },
+    actions: [{ w: 4, id: 'attack' }, { w: 2, id: 'm_worm_bite' }, { w: 2, id: 'm_worm_dive', cond: 'notRecent:m_worm_dive' }, { w: 1, id: 'm_worm_spit', cond: 'notRecent:m_worm_spit' }],
+    desc: '南の砂ばくの砂の中にすむ、大きなミミズの魔物。砂にもぐったら、次の番に砂の中から飛び出してくる。身を守ろう。雷がよく効く。',
+  },
+  // 砂嵐の精（昼）: 砂嵐から 生まれた つむじ風。風の 呪文と 目つぶし
+  sandstorm_spirit: {
+    name: '砂嵐の精', lv: 35, hp: 380, mp: 120, str: 100, def: 70, agi: 72, mag: 128, exp: 320, gold: 140,
+    race: 'spirit', size: 'm', flying: true,
+    resist: { wind: 0.2, ice: 1.4, bolt: 1.2, fire: 0.8, blind: 0, poison: 0, sleep: 0.3, confuse: 0.6 }, drops: { common: ['magic_water', 18], rare: ['seed_agi', 48] },
+    actions: [{ w: 3, id: 'm_spirit_gust' }, { w: 2, id: 'm_spirit_dust' }, { w: 2, id: 'm_spirit_whirl' }, { w: 2, id: 'attack' }],
+    desc: '南の砂嵐から生まれた、砂のつむじ風。砂つむじで敵みんなを風でおそい、目つぶしもしてくる。氷がよく効く。',
+  },
+  // やみサソリ（夜）: 黒い サソリ。毒ばりと 反撃の構え
+  dark_scorpion: {
+    name: 'やみサソリ', lv: 36, hp: 520, str: 138, def: 104, agi: 44, mag: 30, exp: 360, gold: 170,
+    race: 'beast', size: 'm', night: true, hit: 'slash',
+    resist: { ice: 1.35, bolt: 1.3, light: 1.2, fire: 0.8, dark: 0.5, poison: 0 }, drops: { common: ['antidote', 4], rare: ['seed_str', 48] },
+    actions: [
+      { w: 4, id: 'attack' }, { w: 3, id: 'm_dark_sting' }, { w: 2, id: 'm_scissor_combo' },
+      { w: 1, id: 'm_dark_stance', cond: 'notRecent:m_dark_stance' },
+    ],
+    desc: '夜の南の砂ばくにあらわれる、黒いサソリ。毒ばりでさしてくる。黒いはさみを大きくひらいたら、反撃の構え。氷と雷がよく効く。',
+  },
+
+  // ── ボス（Step 5・夜の 宮殿の 王の間）──
+  // 大臣ザイード: まぼろしの 分身 2体と いっしょに 出る（3体とも おなじ すがた・おなじ 名前。本物だけ 足もとに 影）。
+  // 分身に 当てると 消えて、まぼろしの わらいで MPが へる。月の鏡で 分身が 消え、本物は 1回 動けない（battle-ch4.js の mirage）
+  zaid_minister: {
+    name: '大臣ザイード', lv: 35, hp: 5000, mp: 400, str: 124, def: 72, agi: 52, mag: 128, exp: 5400, gold: 2200,
+    race: 'demon', size: 'l', boss: true, turns: 1, speed: 0.85, hit: 'slash', drops: { boss: ['mirage_ring'] },
+    resist: { ...BOSS_STATUS, sleep: 0, confuse: 0, light: 1.2, dark: 0.5, fire: 0.8 },
+    // cycle … 分身が 消えてから もどるまで、mirror … 月の鏡の 光が もどるまで（どちらも 本物の 番の かず）
+    mirage: {
+      cycle: 3, mirror: 3, laugh: [8, 12], cloneAtk: 0.55, cloneActions: [{ w: 1, id: 'attack' }],
+      remake: 'm_zaid_mirage', laughBy: 'ザイードのわらい声',
+      intro: ['大臣ザイードのすがたが、3人にふえた！', '（どれが本物だ…？よく見ると、何かがちがうような…）'],
+    },
+    actions: [
+      { w: 3, id: 'attack' }, { w: 3, id: 'm_zaid_sandfire' }, { w: 2, id: 'm_zaid_sandshot' },
+      { w: 2, id: 'm_zaid_whisper', cond: 'notRecent:m_zaid_whisper' },
+    ],
+    desc: '女王ネフィをあやつっていた大臣。まぼろしの分身をつれている。分身を攻撃すると消えるが、まぼろしのわらいでMPをへらされる。本物の足もとにだけ、小さな影がある。月の鏡（道具）をかざすと、分身が消えて、本物は1回動けなくなる。',
+  },
+  // 砂の魔神ザイード（真の すがた）: 2回行動。砂嵐・魔神の大ぶり・砂の手。からだの まわりで 砂が うずを まいたら（前ぶれ）、つぎの 番に 砂の大うず
+  zaid_demon: {
+    name: '砂の魔神ザイード', lv: 36, hp: 5800, mp: 300, str: 132, def: 82, agi: 50, mag: 132, exp: 9600, gold: 4200,
+    race: 'demon', size: 'xl', boss: true, turns: 2, speed: 0.7, hit: 'smash', drops: { boss: ['majin_lamp'] },
+    resist: { ...BOSS_STATUS, ice: 1.3, wind: 1.3, fire: 0.5, blast: 0.5, dark: 0.6, poison: 0.2 },
+    actions: [
+      { w: 3, id: 'attack' }, { w: 2, id: 'm_demon_swing' }, { w: 2, id: 'm_demon_storm', cond: 'notRecent:m_demon_storm' },
+      { w: 2, id: 'm_demon_hand', cond: 'notRecent:m_demon_hand' }, { w: 1, id: 'm_demon_vortex_charge', cond: 'notRecent:m_demon_vortex_charge' },
+    ],
+    phases: [
+      { hpBelow: 0.5, msg: ['ザイードの体の砂が、赤くもえ上がった！', '砂の魔神ザイードは、いかりくるっている…！'], buff: { atk: 1.15 } },
+    ],
+    desc: '大臣ザイードの本当のすがた。水鏡の魔人モルガナのしもべ。氷と風がよく効き、炎と爆発は効きにくい。体のまわりで砂がうずをまき始めたら、次の番に「砂の大うず」。身を守ろう。',
+  },
 };
 
 // 素材の ドロップ（loot.js の MAT_DROPS に まぜる）
@@ -155,4 +220,8 @@ export const CH4_MAT_DROPS = {
   cursed_pot: ['silver_shard', 5],
   sandstone_golem: ['iron_shard', 3],
   lamp_genie: ['magic_powder', 4],
+  // Step 5
+  sand_worm: ['beast_fang', 4],
+  sandstorm_spirit: ['wind_feather', 4],
+  dark_scorpion: ['beast_fang', 3],
 };

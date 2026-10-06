@@ -85,6 +85,11 @@ const LOOT = {
     { w: 5, gold: [300, 560] }, { w: 3, item: 'herb', n: [2, 3] }, { w: 2, item: 'magic_water', n: [1, 2] }, { w: 2, item: 'silver_shard', n: [1, 2] },
     { w: 1.5, item: 'antidote', n: [2, 3] }, { w: 0.5, item: 'seed_def' }, { w: 0.5, item: 'seed_str' },
   ],
+  // 第4章 Step 5（南の砂ばく）
+  s_sdesert: [
+    { w: 5, gold: [320, 600] }, { w: 3, item: 'moonherb', n: [1, 2] }, { w: 2, item: 'magic_water', n: [1, 2] }, { w: 2, item: 'antidote', n: [2, 3] },
+    { w: 1.5, item: 'wind_feather', n: [1, 2] }, { w: 0.5, item: 'seed_hp' }, { w: 0.5, item: 'seed_agi' },
+  ],
 };
 
 // 中みを きめる（{ gold } か { item, n }）

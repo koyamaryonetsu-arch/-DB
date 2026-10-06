@@ -7,6 +7,7 @@
 import { fit, flipX, spark, bez, taper } from './ch3-draw.js';
 import { addCh4BossArt } from './ch4-boss-art.js';
 import { addPyramidArt } from './ch4-pyramid-art.js';
+import { addSouthArt } from './ch4-south-art.js';
 
 // だえんの ふちの てん（a0 → a1 の むき。0 は みぎ、PI/2 は した）
 function ellArc(cx, cy, rx, ry, a0, a1, n = 10) {
@@ -601,5 +602,7 @@ export function addCh4Art(ART) {
   ART.dry_frog = { size: [44, 38], pal: Object.values(FROG), draw: dryFrog };
   // ── 王家の墓の砂ばく・王家のピラミッド（Step 4。ch4-pyramid-art.js）──
   addPyramidArt(ART);
+  // ── 南の砂ばく（Step 5。ch4-south-art.js）──
+  addSouthArt(ART);
   addCh4BossArt(ART);
 }

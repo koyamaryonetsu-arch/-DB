@@ -111,8 +111,9 @@ export function canCall(world, s) {
   if (!canFlyMap(s.map)) return { ok: false, reason: `${ITEMS[FLUTE_ID].name}をふいた！\nしかし何も起こらなかった…\n（洞窟や塔の中では、${mount.btn}は来られない）` };
   if (inTown(s.map, s.x, s.y)) return { ok: false, reason: `${ITEMS[FLUTE_ID].name}をふいた！\nしかし${mount.name}は町の中にはおりられない。\n（町の外でふこう）` };
   // ふぶき・砂嵐の 地方（シロガネ地方は 星の竜が 目覚めるまで・コガネ地方は 砂嵐の あいだ）: とべる 場所でしか よべない
-  if (!inSkyBox(skyBox(s.map, world.hasFlagFn(s)), s.x, s.y)) {
-    return { ok: false, reason: boxLockedText(s.map, ITEMS[FLUTE_ID].name, mount.name) };
+  const box = skyBox(s.map, world.hasFlagFn(s));
+  if (!inSkyBox(box, s.x, s.y)) {
+    return { ok: false, reason: boxLockedText(s.map, ITEMS[FLUTE_ID].name, mount.name, box) };
   }
   return { ok: true };
 }

@@ -256,6 +256,9 @@ const NPC_LOOKS = {
   // 闘技場の 受付・力じまんの 戦士
   arena_clerk: { hair: 0, hairStyle: 'short', skin: 2, outfit: 'vest', cloth: '#8a2a2a', beard: true, hat: 'turban', hatColor: '#f2c14e' },
   fighter: { hair: 0, hairStyle: 'bald', skin: 2, outfit: 'gi', cloth: '#c8503a', beard: true, hat: 'headband', hatColor: '#f2c14e' },
+  // 砂の海賊（Step 5: 砂の港ドゥナへの 谷の 見張り。サラと おなじ 赤い バンダナ・ベスト・まがった 剣と 短剣）
+  sand_pirate: { hair: 0, hairStyle: 'short', skin: 2, outfit: 'vest', cloth: '#6a3a2a', beard: true, hat: 'bandana', hatColor: '#d83a3a', weapon: { cat: 'sword', blade: '#e0e4ec', guard: '#c8a040' } },
+  sand_pirate2: { hair: 1, hairStyle: 'pony', skin: 1, outfit: 'vest', cloth: '#3a6a5a', female: true, hat: 'bandana', hatColor: '#d83a3a', weapon: { cat: 'dagger', blade: '#e0e4ec', guard: '#8a5a32' } },
 };
 
 // そうびの かきかた: 'ぶき,よろい,たて,あたま' の もじれつ か { weapon, armor, shield, head }
@@ -2157,6 +2160,8 @@ export function paintSpecial(kind, dir, f) {
       return paintCamel(dir, f);
     case 'zaid_demon':
       return paintSandDemon(f);
+    case 'zaid_demon_true':
+      return paintSandDemon(f, true);
     default:
       return null;
   }
@@ -2205,11 +2210,13 @@ function paintObelisk() {
 }
 
 // 大臣ザイードの 影（月明かりに うつった、大きな 砂の 魔神の 形。第4章 Step 3 の 夜の 中庭。どの むきも おなじ）
-// 人より ずっと 大きい（36×44）。下は 砂の うず
-function paintSandDemon(f) {
+// 人より ずっと 大きい（36×44）。下は 砂の うず。
+// lit … 本当の すがた（Step 5 の 夜の 王の間。たたかいの え（ch4-boss-art.js の zaidDemon）と おなじ いろ。金の うでわ・おび・白い ツメ）
+function paintSandDemon(f, lit = false) {
   const W = 36, p = new Painter(W, 44);
-  const B = '#25172f', BD = '#150b1f', BL = '#44305a', S = '#7a5e3a', SD = '#4e3a24', SL = '#a8865a';
-  const HORN = '#3a2848', HORNL = '#6a5084', EYE = '#ff4a3a', EYEL = '#ffd8a8', GEM = '#e8303a';
+  const B = lit ? '#352046' : '#25172f', BD = lit ? '#1a0d26' : '#150b1f', BL = lit ? '#5a3f7a' : '#44305a';
+  const S = '#7a5e3a', SD = '#4e3a24', SL = '#a8865a';
+  const HORN = lit ? '#4e3a5e' : '#3a2848', HORNL = lit ? '#7e6898' : '#6a5084', EYE = '#ff4a3a', EYEL = '#ffd8a8', GEM = '#e8303a';
   // 左右 おなじに かく
   const sym = (y, x0, x1, c) => { p.hline(x0, x1, y, c); p.hline(W - 1 - x1, W - 1 - x0, y, c); };
   // 砂の うず（下半身。下へ いくほど ほそく、まわる すじ）
@@ -2237,6 +2244,15 @@ function paintSandDemon(f) {
   // 光る 目と 口
   sym(8, 13, 15, EYE); sym(9, 14, 15, EYE); sym(8, 14, 14, EYEL);
   p.hline(15, 20, 11, BD); p.set(16, 12, BD); p.set(19, 12, BD); p.set(15, 11, EYE); p.set(20, 11, EYE);
+  if (lit) {
+    const G = '#c89a32', GL = '#f2d070', CL = '#efe4c8';
+    // 白い ツメ・金の うでわ・こしの 金の おび（赤い 宝石）
+    for (const x of [1, 3, 5]) { sym(28, x, x, CL); sym(29, x, x, CL); }
+    sym(25, 2, 7, G); sym(24, 3, 5, GL);
+    p.hline(12, 23, 30, G); p.hline(13, 18, 29, GL); p.rect(17, 30, 2, 1, GEM);
+    // かたの 月明かり
+    p.hline(9, 12, 15, BL); p.set(13, 16, BL);
+  }
   return fine(p, '#6a3a8a');
 }
 
