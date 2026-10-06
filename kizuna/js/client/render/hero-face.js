@@ -1,5 +1,5 @@
 // かお（め・まゆ・はな・くち・ほお）。res ごとに ドットで かく
-import { mixC } from './hero-raster.js?v=a976b8a231af';
+import { mixC } from './hero-raster.js?v=e75f2660bf18';
 
 // め の え（がめんの ひだりの め。みぎの め は はんてん。ひだりがわが 目じり）
 // K: りんかく  I: め の いろ  J: あかるい め  P: こい め  W: ひかり  L: まつげ  S: しろめ

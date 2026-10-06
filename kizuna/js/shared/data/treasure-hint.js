@@ -3,8 +3,8 @@
 //   ・ほる 場所の まわりの 地形（森の そば・水べ・岩山の ふもと など）
 //   ・今いる 場所から 何の 方角へ 何歩くらい か（同じ マップに いる とき）
 // 画面（client/ui/treasure.js）で 使う。サーバーの きまりには かかわらない
-import { MAPS, tileAt, PLACES, SEA_PLACES } from '../maps/index.js?v=a976b8a231af';
-import { T } from '../tiles.js?v=a976b8a231af';
+import { MAPS, tileAt, PLACES, SEA_PLACES } from '../maps/index.js?v=e75f2660bf18';
+import { T } from '../tiles.js?v=e75f2660bf18';
 
 // 8つの 方角（x は 右が +、y は 下が +）
 const DIRS = ['東', '南東', '南', '南西', '西', '北西', '北', '北東'];

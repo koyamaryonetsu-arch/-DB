@@ -10,17 +10,34 @@ function siteUrl() {
   return /^https:\/\/[^\s"'<>]+$/i.test(s) ? s : DEFAULT_SITE;
 }
 
+// どこで 止まっているか（client/downreason.js と おなじ 考え方）
+// ・通信エラー … 家の PC まで とどいていない（電源・スリープ・Tailscale）。この PC（localhost）では 家族サーバーが 止まっている
+// ・502〜504 … 家の PC（Tailscale Funnel）には とどいたが、家族サーバー（黒い 画面）が 動いていない
+//   （家族サーバーは この 番号を 返さない。Tailscale が「うしろの サーバーに つながらない」ときに 返す）
+const onThisPc = () => /^(localhost|127\.|\[::1\])/.test(self.location.hostname);
+
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
 self.addEventListener('fetch', (e) => {
   if (e.request.mode !== 'navigate') return;
-  e.respondWith(fetch(e.request).catch(() => downPage()));
+  e.respondWith(fetch(e.request).then(
+    (r) => (r.status >= 502 && r.status <= 504 ? downPage('server') : r),
+    () => downPage(onThisPc() ? 'server' : 'pc'),
+  ));
 });
 
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
-function downPage() {
+// kind: 'pc'（家の PC まで とどかない）/ 'server'（PC には とどくが 家族サーバーが 動いていない）
+function downPage(kind = 'pc') {
   const site = esc(siteUrl());
+  const what = kind === 'server'
+    ? `<div class="gold">家族サーバーが動いていません</div>
+  <p>家のPCにはつながりましたが、家族サーバー（黒い画面）が動いていません。</p>
+  <p class="small">・黒い画面が「続行するには…」で止まった時は、閉じて start.bat をもう一度開く<br>・黒い画面がない時は、start.bat を開く</p>`
+    : `<div class="gold">家族サーバーにつながりません</div>
+  <p>家のPCまで、通信がとどいていません。</p>
+  <p class="small">・PCの電源が入っているか、スリープしていないか<br>・PCの Tailscale がつながっているか（外からは、このスマホで <a href="https://login.tailscale.com/admin/machines">login.tailscale.com</a> を開くと、PCが「Connected」か見られます）</p>`;
   const html = `<!doctype html>
 <html lang="ja">
 <head>
@@ -51,14 +68,13 @@ function downPage() {
   }
   .btn.primary { border-color: #ffd66b; color: #ffd66b; }
   .small { font-size: 0.8em; color: #a9a6c9; word-break: break-all; }
+  .small a { color: #ffd66b; }
 </style>
 </head>
 <body>
 <div class="win">
   <div class="logo">きずなの紋章</div>
-  <div class="gold">家族サーバーにつながりません</div>
-  <p>家のPCの電源と、家族サーバー（黒い画面）が動いているか見てね。</p>
-  <p class="small">・黒い画面が「続行するには…」で止まった時は、閉じて start.bat をもう一度開く<br>・外出先からの時は、PCの Tailscale がつながっているかも見る</p>
+  ${what}
   <p>PCが使えない時は、ひとりで遊ぶサイトで遊べます（あとで家族サーバーに合わせられます）。</p>
   <div class="row">
     <a class="btn primary" href="${site}">📱 ひとりで遊ぶサイトへ</a>

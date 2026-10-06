@@ -8,16 +8,16 @@
 //   c.medalSpots   … 小さなメダルを 見つけた 場所 { id: 時こく }
 //   c.medalsGiven  … メダル王に わたした 数
 //   c.medalRewards … もらった ごほうび { 5: true, 10: true, … }
-import { ITEMS } from '../data/items.js?v=a976b8a231af';
-import { addItem, itemCount } from '../stats.js?v=a976b8a231af';
+import { ITEMS } from '../data/items.js?v=e75f2660bf18';
+import { addItem, itemCount } from '../stats.js?v=e75f2660bf18';
 import {
   COIN_PRICE, COIN_MAX, COIN_BUY_MAX, COIN_PACKS, coinsOf, SLOT_BETS, REELS, slotLine, slotPay,
   POKER_BETS, JOKER, DOUBLE_MAX, evalPoker, doubleOutcome, PRIZES, MEDAL_REWARDS,
   medalsFound, medalsGiven, medalsHeld,
-} from '../data/casino.js?v=a976b8a231af';
-import { MEDAL_SPOTS, MEDAL_SPOT_BY_ID, medalSparkleId } from '../maps/casino.js?v=a976b8a231af';
-import { MAPS, tileAt, condOk } from '../maps/index.js?v=a976b8a231af';
-import { T } from '../tiles.js?v=a976b8a231af';
+} from '../data/casino.js?v=e75f2660bf18';
+import { MEDAL_SPOTS, MEDAL_SPOT_BY_ID, medalSparkleId } from '../maps/casino.js?v=e75f2660bf18';
+import { MAPS, tileAt, condOk } from '../maps/index.js?v=e75f2660bf18';
+import { T } from '../tiles.js?v=e75f2660bf18';
 
 // 見つけた 光る 場所は もう 光らない（sparkles の 時こくを ずっと 先に）
 export const MEDAL_TAKEN_AT = 9e15;

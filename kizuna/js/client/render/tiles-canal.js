@@ -2,8 +2,8 @@
 // 水門（しまった・開いた）・鉄の こうし・がれきの せき（render/tiles-ch4.js が CH4_PAINTERS に まぜる）
 // (p, v, f, m) … Painter / ちがい / アニメの コマ / となりの ようす（mask）。ひかりは 左上から
 // 水路の 中（底・水・せき）は 通路より ひくい。2D では 北の 岸の 石の かべが 見えて、西の 岸の かげが おちる
-import { T } from '../../shared/tiles.js?v=a976b8a231af';
-import { prand, shade } from './pixel.js?v=a976b8a231af';
+import { T } from '../../shared/tiles.js?v=e75f2660bf18';
+import { prand, shade } from './pixel.js?v=e75f2660bf18';
 
 const TAU = Math.PI * 2;
 const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5].map((n) => (n + 0.5) / 16);
