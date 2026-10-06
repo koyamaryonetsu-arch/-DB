@@ -53,7 +53,32 @@ const WEAPON_LOOK = {
   silver_boomerang: { shape: 'boomer', mk: 'silver', wrap: '#2a6ad0' },
   steel_boomerang: { shape: 'boomer', mk: 'steel', wrap: '#e0a830' },
   gale_boomerang: { shape: 'boomer', c: '#3ac8a0', wrap: '#ffffff', fx: 'wind' },
+  // 料理の どうぐ（包丁・フライパン・中華なべ・おたま・泡だて器）
+  kitchen_knife: { shape: 'kitchen', len: 8.0 },
+  chef_knife: { shape: 'chefknife', len: 10.2, fx: 'shine' },
+  frying_pan: { shape: 'pan', len: 5.0, r: 3.0 },
+  chinese_wok: { shape: 'wok', len: 6.0, r: 3.5 },
+  ladle: { shape: 'ladle', len: 9.4 },
+  whisk: { shape: 'whisk', len: 8.4 },
+  // そうじの どうぐ（モップ・デッキブラシ）と マイク
+  mop: { shape: 'mop', len: 16.0 },
+  deck_brush: { shape: 'brush', len: 16.2, c: '#2a6ad0' },
+  center_mic: { shape: 'standmic', len: 15.6 },
+  gold_mic: { shape: 'mic', len: 7.6, mk: 'gold', fx: 'shine' },
 };
+
+// 名前で わかる 道具（これから ふえる 品も おなじ かたちに）
+const NAME_LOOK = [
+  [/中華なべ|なべ|鍋/, { shape: 'wok', len: 6.0, r: 3.5 }],
+  [/フライパン/, { shape: 'pan', len: 5.0, r: 3.0 }],
+  [/包丁/, { shape: 'kitchen', len: 8.0 }],
+  [/おたま/, { shape: 'ladle', len: 9.4 }],
+  [/泡だて/, { shape: 'whisk', len: 8.4 }],
+  [/モップ/, { shape: 'mop', len: 16.0 }],
+  [/ブラシ/, { shape: 'brush', len: 16.2 }],
+  [/スタンド|センター/, { shape: 'standmic', len: 15.6 }],
+  [/マイク/, { shape: 'mic', len: 7.6 }],
+];
 
 // 名前から ぶきの とくちょう
 const FX_RULES = [[/炎|火|ほのお|フレイム/, 'fire'], [/雷|いかずち|いなずま|サンダー/, 'bolt'], [/星/, 'star'], [/毒/, 'poison'], [/嵐|風|かぜ/, 'wind'], [/氷|こおり/, 'ice'], [/闇|やみ/, 'dark'], [/聖|光|ひかり/, 'holy']];
@@ -68,6 +93,12 @@ function guessWeapon(it) {
   const mk = metalOfName(it.name, rank);
   const fx = fxOf(it.name);
   const L = (n) => n + Math.min(3, Math.max(0, rank - 3) * 0.5);
+  for (const [re, look] of NAME_LOOK) {
+    if (!re.test(it.name || '')) continue;
+    // 包丁は ランクが 高いと 三ツ星の 包丁の かたち。マイクは 名前に 金・銀 などが あれば その いろ
+    if (look.shape === 'kitchen' && rank >= 5) return { shape: 'chefknife', len: 10.2, fx: fx || 'shine' };
+    return { ...look, mk: /金|銀|プラチナ/.test(it.name) ? mk : null, fx: fx || (rank >= 5 ? 'shine' : null) };
+  }
   switch (it.cat) {
     case 'sword': return { shape: rank >= 6 ? 'hero' : rank >= 4 ? 'long' : rank >= 3 ? 'broad' : 'leaf', mk, len: L(12.5), fx, gemc: rank >= 4 ? '#4a9aff' : null };
     case 'dagger': return { shape: rank >= 4 ? 'dirk' : 'knife', mk, len: 7, fx };
@@ -93,9 +124,10 @@ export function weaponOf(id) {
 
 // ぶきを もつ むき（ど）。まえ: がめんの ひだりの て / うしろ: みぎの て / よこ: まえへ
 // よこ むきの ながい ぶき（やり・つえ・はた）は まえに たおして かおの まえに さきが くる ように
+// pan: フライパン・中華なべ（オノより すこし そとへ たおして、なべが かおに かからない ように）
 const HOLD = {
-  front: { sword: -110, dagger: -116, axe: -98, spear: -100, staff: -100, bat: -110, fan: -108, flag: -97, pen: -116, light: -112, claw: 98, whip: 0, boomerang: -112 },
-  side: { sword: -128, dagger: -132, axe: -118, spear: -114, staff: -113, bat: -124, fan: -130, flag: -114, pen: -130, light: -126, claw: 80, whip: 0, boomerang: -128 },
+  front: { sword: -110, dagger: -116, axe: -98, spear: -100, staff: -100, bat: -110, fan: -108, flag: -97, pen: -116, light: -112, claw: 98, whip: 0, boomerang: -112, pan: -107 },
+  side: { sword: -128, dagger: -132, axe: -118, spear: -114, staff: -113, bat: -124, fan: -130, flag: -114, pen: -130, light: -126, claw: 80, whip: 0, boomerang: -128, pan: -124 },
 };
 const LONG = new Set(['spear', 'staff', 'flag']);
 function holdAngle(P, cat) {
@@ -108,13 +140,13 @@ function holdAngle(P, cat) {
   return a * D;
 }
 export const isLongSide = (W) => !!W && LONG.has(groupOf(W));
-const groupOf = (W) => {
-  if (W.shape === 'flag') return 'flag';
-  if (W.shape === 'pen') return 'pen';
-  if (W.shape === 'penlight') return 'light';
-  if (W.shape === 'harisen') return 'fan';
-  return W.cat || 'sword';
+// かたちで もちかたが きまる ぶき（種類が ちがっても おなじ もちかた）
+const SHAPE_GROUP = {
+  flag: 'flag', pen: 'pen', penlight: 'light', harisen: 'fan',
+  kitchen: 'dagger', chefknife: 'dagger', pan: 'pan', wok: 'pan', ladle: 'sword', whisk: 'fan',
+  mop: 'staff', brush: 'staff', standmic: 'staff', mic: 'light',
 };
+const groupOf = (W) => SHAPE_GROUP[W.shape] || W.cat || 'sword';
 
 // きょくの ざひょう（a: ぶきの むき、b: よこ）→ がめん
 function frame(hx, hy, ang) {
@@ -190,6 +222,14 @@ function drawWeaponNow(cv, P, A, W, g) {
     case 'flag': return flag(cv, F, W, P.side ? -P.facing : outward, P);
     case 'bat': case 'bamboo': case 'mbat': case 'gbat': return bat(cv, F, W);
     case 'boomer': return boomer(cv, F, W, outward);
+    case 'kitchen': case 'chefknife': return kitchenKnife(cv, F, W, outward);
+    case 'pan': case 'wok': return pan(cv, F, W, P);
+    case 'ladle': return ladle(cv, F, W, outward);
+    case 'whisk': return whisk(cv, F, W);
+    case 'mop': return mop(cv, F, W, P);
+    case 'brush': return brush(cv, F, W);
+    case 'standmic': return standMic(cv, F, W, outward);
+    case 'mic': return handMic(cv, F, W);
     default: return sword(cv, F, W);
   }
 }
@@ -499,6 +539,207 @@ function boomer(cv, F, W, outward) {
   if (W.fx || W.star || W.plus) sparkles(cv, F, [[5.0, 1.4 * o], [2.4, 4.8 * o]], '#ffffff', FX_COL[W.fx] || '#fff6b0');
 }
 
+// ───── 料理・そうじの どうぐ・マイク ─────
+// くろい ざいしつ（フライパン・マイクの え）。ざいしつの ばんごうが かわらない ように、つかう ときに つくる
+const black = () => mat({ r: ['#0c0c12', '#1c1a26', '#322e3e', '#5a5470', '#a8a4bc'], th: TH.metal, spec: 0.95, sc: '#e8e8f8' });
+const blackMatte = () => mat({ r: ['#100e16', '#221e2c', '#383246', '#5e5872'], th: TH.matte, spec: 0.96 });
+// マイクの あみ（こまかい ぶつぶつ）
+const mesh = (k) => (ix, iy) => ((ix + iy) % 2 ? -0.28 : 0.08) * (k >= 4 ? 1 : 0.6);
+
+// 包丁（はばの ひろい しかくい は・木の え）/ 三ツ星の包丁（ほそながく ひかる は・くろい えに 金の びょう）
+// e: はの がわ（そと）  s: みねの がわ
+function kitchenKnife(cv, F, W, outward) {
+  const chef = W.shape === 'chefknife';
+  const L = W.len || (chef ? 10.2 : 8.0);
+  const e = outward, s = -outward;
+  cv.part({ ol: 'line' });
+  cv.poly(F.P([[-2.9, -0.66], [1.2, -0.72], [1.2, 0.72], [-2.9, 0.66]]), chef ? blackMatte() : leather('#c08a50'), { n: 'row', cx: 0.7 });
+  const hid = cv.cur;
+  if (chef) {
+    for (const a of [-2.0, -0.7, 0.5]) { cv.part({ ol: 'none', cast: false }); cv.ell(...F.T(a, 0), 0.32, 0.32, metal('gold'), { bulge: 0.9 }); }
+  } else cv.crease(F.P([[-2.6, 0.15], [0.9, 0.15]]), 0.16, 0.3, { parts: [hid] });
+  // つばもと
+  cv.part({ ol: 'line' });
+  cv.poly(F.P([[1.1, -0.86], [2.0, -0.92], [2.0, 0.92], [1.1, 0.86]]), metal(chef ? 'gold' : 'silver'), { n: 'row', cx: 0.6 });
+  // は
+  const pts = chef
+    ? [[1.9, 0.62 * s], [L * 0.72, 0.55 * s], [L, 0.15 * s], [L - 1.7, 0.6 * e], [L * 0.55, 1.15 * e], [1.9, 1.3 * e]]
+    : [[1.9, 0.8 * s], [L - 0.3, 0.8 * s], [L - 1.6, 2.0 * e], [1.9, 2.15 * e]];
+  cv.part({ ol: 'line' });
+  const id = blade(cv, F, pts, metal(chef ? 'platinum' : 'silver'));
+  // はの ふちの ひかり・みねの かげ
+  cv.crease(F.P(chef ? [[2.4, 1.05 * e], [L * 0.55, 0.92 * e], [L - 1.5, 0.42 * e]] : [[2.4, 1.85 * e], [L - 1.8, 1.72 * e]]), 0.22, 0.55, { parts: [id, cv.cur] });
+  cv.crease(F.P([[2.4, 0.48 * s], [L - (chef ? 1.4 : 0.9), 0.48 * s]]), 0.18, -0.3, { parts: [id, cv.cur] });
+  if (chef || W.fx || W.star || W.plus) sparkles(cv, F, chef ? [[L * 0.62, 1.7 * e], [L + 0.2, -1.0 * e]] : [[L - 1.2, 2.6 * e]], '#ffffff', '#fff6b0');
+}
+
+// フライパン（くろい まるい なべ）/ 中華なべ（大きな はがねの なべ・ながい 木の え・はんたいがわに 小さな とって）
+// なべは まえから 見た まるい かたち（うしろむきは そこ）
+function pan(cv, F, W, P) {
+  const wok = W.shape === 'wok';
+  const L = W.len || (wok ? 6.0 : 5.0);
+  const R = W.r || (wok ? 3.5 : 3.0);
+  const body = W.mk ? metal(W.mk) : wok ? metal('iron') : black();
+  // え
+  cv.part({ ol: 'line' });
+  cv.poly(F.P([[-2.6, -0.6], [L - 0.4, -0.52], [L - 0.4, 0.52], [-2.6, 0.6]]), wok ? leather('#b07a44') : blackMatte(), { n: 'row', cx: 0.75 });
+  if (!wok) { cv.part({ ol: 'none', cast: false }); cv.ell(...F.T(-1.9, 0), 0.26, 0.26, cloth('#5a5470'), { n: [0, 0] }); }
+  // ねもと
+  cv.part({ ol: 'line' });
+  cv.poly(F.P([[L - 0.8, -0.42], [L + 1.0, -0.36], [L + 1.0, 0.36], [L - 0.8, 0.42]]), metal(wok ? 'iron' : 'steel'), { n: 'row', cx: 0.6 });
+  const [cx, cy] = F.T(L + 0.6 + R, 0);
+  if (wok) {
+    // はんたいがわの 小さな とって（わ）
+    const [hx, hy] = F.T(L + 0.6 + 2 * R + 0.5, 0);
+    cv.part({ ol: 'line' });
+    cv.ell(hx, hy, 0.85, 0.85, metal('iron'), { bulge: 0.8 });
+  }
+  cv.part({ ol: 'line' });
+  cv.ell(cx, cy, R, R, body, { bulge: 0.6 });
+  const rid = cv.cur;
+  if (P.back) {
+    // そこ（まるい みぞ）
+    const ring = [];
+    for (let i = 0; i <= 16; i++) { const a = (i / 16) * Math.PI * 2; ring.push([cx + Math.cos(a) * R * 0.62, cy + Math.sin(a) * R * 0.62]); }
+    cv.crease(ring, 0.16, -0.35, { parts: [rid] });
+  } else {
+    // うちがわ（くぼみ。中華なべは ふかく ひかる）
+    cv.part({ ol: 'soft', clip: rid });
+    cv.ell(cx, cy, R - 0.5, R - 0.5, wok ? metal('steel') : mat({ r: ['#101016', '#1c1c26', '#2a2a36', '#46465a'], th: TH.matte, spec: 0.975, sc: '#9a9ab8' }), { bulge: wok ? -0.9 : -0.25 });
+    // ふちの ひかり
+    cv.crease([[cx - R * 0.72, cy - R * 0.2], [cx - R * 0.55, cy - R * 0.55], [cx - R * 0.2, cy - R * 0.74]], 0.2, 0.6, { parts: [rid, cv.cur] });
+  }
+  if (W.star || W.plus || W.fx) sparkles(cv, null, [[cx + R * 0.7, cy - R * 0.7]], '#ffffff', FX_COL[W.fx] || '#fff6b0', true);
+}
+
+// おたま（ながい えの さきに まるい おわん。えの はしは フック）
+function ladle(cv, F, W, outward) {
+  const L = W.len || 9.4;
+  const o = outward;
+  const m = metal(W.mk || 'silver');
+  cv.part({ ol: 'line' });
+  cv.lock(F.T(-2.6, 0), F.T(-3.9, 0.1 * o), F.T(-3.6, 1.3 * o), 0.42, 0.32, m);
+  cv.part({ ol: 'line' });
+  cv.stroke(F.P([[-2.7, 0], [1.6, 0], [L - 1.4, 0.15 * o]]), [0.46, 0.42, 0.34], m);
+  // にぎりの ところ（くろい）
+  cv.part({ ol: 'soft' });
+  cv.stroke(F.P([[-2.2, 0], [1.2, 0]]), 0.5, blackMatte());
+  // おわん
+  const [cx, cy] = F.T(L + 0.5, 0.5 * o);
+  cv.part({ ol: 'line' });
+  cv.ell(cx, cy, 2.0, 2.0, m, { bulge: 0.8 });
+  const bid = cv.cur;
+  cv.part({ ol: 'soft', clip: bid });
+  cv.ell(cx, cy, 1.45, 1.45, m, { bulge: -0.85 });
+  if (W.star || W.plus || W.fx) sparkles(cv, null, [[cx + 1.6, cy - 1.6]], '#ffffff', FX_COL[W.fx] || '#fff6b0', true);
+}
+
+// 泡だて器（ピンクの えに、はりがねの わ）
+function whisk(cv, F, W) {
+  const L = W.len || 8.4;
+  const wire = metal(W.mk || 'silver');
+  cv.part({ ol: 'line' });
+  cv.poly(F.P([[-2.4, -0.62], [1.7, -0.58], [1.7, 0.58], [-2.4, 0.62]]), cloth('#f29ab8'), { n: 'row', cx: 0.7 });
+  cv.part({ ol: 'line' });
+  cv.poly(F.P([[1.6, -0.5], [2.6, -0.42], [2.6, 0.42], [1.6, 0.5]]), wire, { n: 'row', cx: 0.6 });
+  // はりがねの わ（ふくらんだ たまごの かたち。そとがわ から）
+  for (const w of [2.3, 1.45, 0.6]) {
+    for (const sg of [-1, 1]) {
+      const pts = [];
+      for (let i = 0; i <= 10; i++) { const t = i / 10; pts.push([2.5 + (L - 2.5) * t, sg * w * Math.sin(Math.PI * Math.pow(t, 1.45))]); }
+      cv.part({ ol: 'none' });
+      cv.stroke(F.P(pts), 0.22, wire);
+    }
+  }
+  if (W.star || W.plus || W.fx) sparkles(cv, F, [[L + 0.6, 1.4]], '#ffffff', FX_COL[W.fx] || '#fff6b0');
+}
+
+// モップ（ぎんいろの ぼうの さきに、はいいろと しろの ふさ）
+function mop(cv, F, W, P) {
+  const L = W.len || 16.0;
+  cv.part({ ol: 'line' });
+  cv.poly(F.P([[-10, -0.48], [L - 0.8, -0.48], [L - 0.8, 0.48], [-10, 0.48]]), metal('silver'), { n: 'row', cx: 0.75 });
+  cv.part({ ol: 'soft' });
+  cv.poly(F.P([[-10, -0.56], [-7.6, -0.56], [-7.6, 0.56], [-10, 0.56]]), cloth('#3a6ad0'), { n: 'row', cx: 0.6 });
+  // とめがね
+  cv.part({ ol: 'line' });
+  cv.poly(F.P([[L - 1.3, -1.6], [L + 0.1, -1.6], [L + 0.1, 1.6], [L - 1.3, 1.6]]), mat({ r: ramp('#6a6e80', 4), th: TH.matte, spec: 0.96 }), { n: 'row', cx: 0.5 });
+  // ふさ（もこもこの かたまりと、たれる ふさ）
+  const yarn = mat({ r: ramp('#e2e0d8', 4), th: TH.cloth });
+  const sw = P.f === 0 ? 0.3 : -0.3;
+  // たれる ふさ（すきまなく ならべて、ながさを すこし ずつ かえる）
+  for (let i = 0; i < 7; i++) {
+    const b = -2.55 + i * 0.85;
+    const [x0, y0] = F.T(L + 1.0, b);
+    const len = 3.0 + ((i * 5) % 3) * 0.45;
+    cv.part({ ol: 'soft' });
+    cv.lock([x0, y0], [x0 + b * 0.3 + sw, y0 + len * 0.5], [x0 + b * 0.42 + sw * 1.5, y0 + len], 0.6, 0.36, yarn);
+  }
+  // もこもこの かたまり
+  const ids = [];
+  for (const [a, b, r] of [[L + 1.2, -1.6, 1.6], [L + 1.2, 1.6, 1.6], [L + 1.6, 0, 1.9], [L + 2.9, -0.8, 1.5], [L + 2.9, 0.8, 1.5]]) {
+    cv.part({ ol: 'soft' });
+    cv.ell(...F.T(a, b), r, r, yarn, { bulge: 0.75 });
+    ids.push(cv.cur);
+  }
+  const [mx, my] = F.T(L + 2.0, 0);
+  cv.crease([[mx - 1.8, my - 0.4], [mx - 0.4, my + 1.2]], 0.18, -0.4, { parts: ids });
+  cv.crease([[mx + 0.2, my - 1.6], [mx + 1.4, my + 0.4]], 0.18, -0.4, { parts: ids });
+  if (W.star || W.plus || W.fx) sparkles(cv, null, [[mx + 2.2, my - 2.2]], '#ffffff', FX_COL[W.fx] || '#fff6b0', true);
+}
+
+// デッキブラシ（ながい 木の え・青い だいに しろっぽい け）
+function brush(cv, F, W) {
+  const L = W.len || 16.2;
+  const c = W.c || '#2a6ad0';
+  cv.part({ ol: 'line' });
+  cv.poly(F.P([[-10, -0.5], [L - 0.6, -0.5], [L - 0.6, 0.5], [-10, 0.5]]), leather('#c8945c'), { n: 'row', cx: 0.75 });
+  cv.part({ ol: 'line' });
+  cv.poly(F.P([[L - 0.9, -3.2], [L + 0.8, -3.3], [L + 0.8, 3.3], [L - 0.9, 3.2]]), mat({ r: ramp(c, 4, { light: 1.15 }), th: TH.cloth, spec: 0.95 }), { n: 'row', cx: 0.4, cy: 0.5 });
+  cv.part({ ol: 'line' });
+  cv.poly(F.P([[L + 0.7, -3.0], [L + 2.5, -3.1], [L + 2.5, 3.1], [L + 0.7, 3.0]]), cloth('#c8e4ff'), { n: 'row', cx: 0.35 });
+  const id = cv.cur;
+  for (let b = -2.4; b <= 2.5; b += 0.8) cv.crease(F.P([[L + 0.9, b], [L + 2.4, b]]), 0.16, -0.4, { parts: [id] });
+  if (W.star || W.plus || W.fx) sparkles(cv, F, [[L + 2.6, 3.4]], '#ffffff', FX_COL[W.fx] || '#fff6b0');
+}
+
+// センターマイク（ほそい スタンドの うえに マイク・したに まるい だい）
+function standMic(cv, F, W, outward) {
+  const L = W.len || 15.6;
+  const o = outward;
+  const pole = metal('silver');
+  // だい（ゆかに おく まるい おもり）
+  const [bx, by] = F.T(-10.4, 0);
+  cv.part({ ol: 'line' });
+  cv.ell(bx, by + 0.2, 2.3, 0.75, black(), { bulge: 0.7 });
+  cv.part({ ol: 'line' });
+  cv.poly(F.P([[-10.2, -0.3], [L - 0.4, -0.3], [L - 0.4, 0.3], [-10.2, 0.3]]), pole, { n: 'row', cx: 0.7 });
+  // ちょうせつの ねじ
+  cv.part({ ol: 'line' });
+  cv.poly(F.P([[2.4, -0.55], [3.4, -0.55], [3.4, 0.55], [2.4, 0.55]]), blackMatte(), { n: 'row', cx: 0.5 });
+  // マイク（ななめ まえ むき）と あみの たま
+  cv.part({ ol: 'line' });
+  cv.stroke(F.P([[L - 0.6, 0], [L + 0.9, 0.6 * o], [L + 2.1, 1.25 * o]]), [0.45, 0.55, 0.66], black());
+  const [mx, my] = F.T(L + 3.0, 1.8 * o);
+  cv.part({ ol: 'line' });
+  cv.ell(mx, my, 1.45, 1.45, metal(W.mk || 'silver'), { bulge: 0.9, tex: mesh(cv.k) });
+  if (W.star || W.plus || W.fx) sparkles(cv, null, [[mx + 1.4, my - 1.4]], '#ffffff', FX_COL[W.fx] || '#fff6b0', true);
+}
+
+// にぎる マイク（金の マイクは きらきら）
+function handMic(cv, F, W) {
+  const L = W.len || 7.6;
+  const m = W.mk ? metal(W.mk) : black();
+  cv.part({ ol: 'line' });
+  cv.poly(F.P([[-2.4, -0.5], [L - 2.8, -0.82], [L - 2.8, 0.82], [-2.4, 0.5]]), m, { n: 'row', cx: 0.8 });
+  cv.part({ ol: 'line' });
+  cv.poly(F.P([[L - 3.0, -1.0], [L - 2.2, -1.0], [L - 2.2, 1.0], [L - 3.0, 1.0]]), W.mk ? metal(W.mk === 'gold' ? 'bronze' : 'iron') : metal('silver'), { n: 'row', cx: 0.6 });
+  const [mx, my] = F.T(L - 0.8, 0);
+  cv.part({ ol: 'line' });
+  cv.ell(mx, my, 1.5, 1.5, W.mk ? metal(W.mk) : metal('silver'), { bulge: 0.95, tex: mesh(cv.k) });
+  if (W.fx || W.star || W.plus) sparkles(cv, F, [[L + 0.9, 1.6], [L * 0.35, -1.6]], '#ffffff', FX_COL[W.fx] || '#fff6b0');
+}
+
 function drawClaw(cv, P, A, W) {
   const [hx, hy] = A.hand;
   const ang = holdAngle(P, 'claw');
@@ -759,6 +1000,16 @@ const JOB_HAT = {
   storm_idol: { kind: 'headset', c: '#2a2a36' },
   train_driver: { kind: 'conductor', c: '#2c3a5c', hides: 'top' },
   keikyu_driver: { kind: 'conductor', c: '#1c2444', band: '#d8202c', hides: 'top' },
+  // 料理人・パティシエ・三ツ星シェフ（コック帽。h: たかさ 0〜2。三ツ星は 金の 星 3つ）
+  cook: { kind: 'toque', h: 0, hides: 'top' },
+  patissier: { kind: 'toque', h: 1, hides: 'top' },
+  star_chef: { kind: 'toque', h: 2, stars: 3, hides: 'top' },
+  // アルバイト（サンバイザー）・たたき上げ社長（白い ヘルメットに 金の ラインと バッジ）
+  parttimer: { kind: 'visor', c: '#2a62c8' },
+  tatakiage: { kind: 'hardhat', c: '#f6f6f2', stripe: 'gold', badge: 'gold', hides: 'top' },
+  // 大賢者（銀の おびと 大きな ひかる 星の ぼうし）・ロトの勇者（金の つばさの かぶと）
+  daikenja: { kind: 'wizard', c: '#272c74', band: 'silver', orb: '#9ae6ff', hides: 'top' },
+  loto_hero: { kind: 'winged', mk: 'gold', trim: 'royal', wing: 'gold', big: true, gemc: '#e8303a', hides: 'top' },
 };
 function guessHead(it) {
   const name = it.name || '';
@@ -895,13 +1146,20 @@ export function drawHeadgear(cv, P, H, G, view) {
         else for (const s of [-1, 1]) cv.lock([H.X(s * 6.8), H.y - 5.4], [H.X(s * 10.8), H.y - 6.4], [H.X(s * 10.4), H.y - 11.0], 1.1, 0.2, hm);
       }
       if (G.kind === 'winged') {
-        const wm = trim || metal('gold');
+        // wing: つばさの きんぞく（ない ときは ふちと おなじ）  big: 大きな つばさ（はねが 1まい おおい）
+        const wm = G.wing ? metal(G.wing) : trim || metal('gold');
+        const WING = G.big
+          ? [[0, 0], [1.2, -3.8], [3.4, -6.6], [3.3, -4.2], [4.9, -4.5], [3.8, -2.6], [5.0, -2.3], [3.5, -1.1], [4.1, -0.3], [1.6, 0.6]]
+          : [[0, 0], [1.4, -3.4], [3.6, -5.8], [3.2, -3.4], [4.4, -3.2], [3.0, -1.6], [3.8, -1.0], [1.6, 0.6]];
         for (const s of side ? [-1] : [-1, 1]) {
           cv.part({ ol: 'line' });
           const bx = side ? -3.6 : s * 6.8;
           const dir = side ? -1 : s;
-          cv.poly(TS(H, [[bx, -4.0], [bx + dir * 1.4, -7.4], [bx + dir * 3.6, -9.8], [bx + dir * 3.2, -7.4], [bx + dir * 4.4, -7.2], [bx + dir * 3.0, -5.6], [bx + dir * 3.8, -5.0], [bx + dir * 1.6, -3.4]]), wm, { n: 'bevel', bw: 0.4 });
+          cv.poly(TS(H, WING.map(([u, v]) => [bx + dir * u, -4.0 + v])), wm, { n: 'bevel', bw: 0.4 });
+          if (G.big) cv.crease(TS(H, [[bx + dir * 0.9, -3.6], [bx + dir * 3.0, -5.6]]), 0.18, 0.45, { parts: [cv.cur] });
         }
+        // 大きな つばさの かぶとは きらり（伝説の かぶと）
+        if (G.big && !back) sparkles(cv, null, [[H.X(side ? -6.2 : -9.0), H.y - 6.6]], '#ffffff', '#fff6b0', true);
       }
       if (G.crest) {
         cv.part({ ol: 'line' });
@@ -932,11 +1190,25 @@ export function drawHeadgear(cv, P, H, G, view) {
       cv.part({ ol: 'line' });
       if (side) cv.poly(TS(H, [[10.2, -4.2], [9.6, -3.0], [0, -2.6], [-10.8, -3.2], [-10.6, -4.6], [0, -5.8]]), m, { cx: 0.7, cy: 0.6 });
       else cv.poly(TS(H, [[-10.8, -3.6], ...arcP(0, -4.4, 10.6, 1.7, 185, 355, 10), [10.8, -3.6], [10.2, -2.6], ...arcP(0, -3.0, 10.2, 1.5, 355, 185, 10), [-10.2, -2.6]]), m, { cx: 0.85, cy: 0.6 });
-      // おび
+      // おび（band: きんぞくの しゅるい）
+      const bandM = metal(G.band || 'gold');
       cv.part({ ol: 'soft' });
-      if (side) cv.poly(TS(H, [[5.4, -5.8], [5.2, -4.8], [-6.6, -4.6], [-6.6, -5.6]]), metal('gold'), { n: 'bevel', bw: 0.3 });
-      else cv.poly(TS(H, [[-6.4, -5.8], [6.4, -5.8], [6.6, -4.6], [-6.6, -4.6]]), metal('gold'), { n: 'bevel', bw: 0.3 });
-      if (!back && !side) { cv.part({ ol: 'none', cast: false }); const X = cv.X(H.X(0)), Y = cv.Y(H.y - 8.0); cv.px(X, Y, '#ffe98a'); if (k >= 4) { cv.px(X - 1, Y, '#ffe98a'); cv.px(X + 1, Y, '#ffe98a'); cv.px(X, Y - 1, '#ffe98a'); cv.px(X, Y + 1, '#ffe98a'); } }
+      if (side) cv.poly(TS(H, [[5.4, -5.8], [5.2, -4.8], [-6.6, -4.6], [-6.6, -5.6]]), bandM, { n: 'bevel', bw: 0.3 });
+      else cv.poly(TS(H, [[-6.4, -5.8], [6.4, -5.8], [6.6, -4.6], [-6.6, -4.6]]), bandM, { n: 'bevel', bw: 0.3 });
+      if (G.orb && !back) {
+        // 大きな ひかる 星の 宝石（おびの まえ）
+        const gx = side ? 4.4 : 0, gy = -5.4, sx = side ? 0.7 : 1;
+        const pts = [];
+        for (let i = 0; i < 8; i++) { const a = -Math.PI / 2 + (i * Math.PI) / 4, rr = i % 2 ? 0.8 : 2.2; pts.push([gx + Math.cos(a) * rr * sx, gy + Math.sin(a) * rr]); }
+        cv.part({ ol: 'line' });
+        cv.poly(TS(H, pts), glow(G.orb), { n: [0, 0] });
+        cv.part({ ol: 'none' });
+        cv.ell(H.X(gx), H.y + gy, 0.8 * sx, 0.8, gem(G.orb), { bulge: 0.9 });
+        cv.part({ ol: 'none', cast: false });
+        const X = cv.X(H.X(gx + 2.4 * sx)), Y = cv.Y(H.y + gy - 2.0);
+        cv.px(X, Y, '#ffffff');
+        if (k >= 4) for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) cv.px(X + dx, Y + dy, G.orb);
+      } else if (!back && !side) { cv.part({ ol: 'none', cast: false }); const X = cv.X(H.X(0)), Y = cv.Y(H.y - 8.0); cv.px(X, Y, '#ffe98a'); if (k >= 4) { cv.px(X - 1, Y, '#ffe98a'); cv.px(X + 1, Y, '#ffe98a'); cv.px(X, Y - 1, '#ffe98a'); cv.px(X, Y + 1, '#ffe98a'); } }
       break;
     }
     case 'bbhelmet': case 'bbcap': {
@@ -1113,21 +1385,26 @@ export function drawHeadgear(cv, P, H, G, view) {
       break;
     }
     case 'hardhat': {
-      // 地方公務員の 白い ヘルメット（みどりの 十字）
+      // 地方公務員の 白い ヘルメット（みどりの 十字）・たたき上げ社長（stripe: 金の ライン  badge: 金の バッジ）
       const m = mat({ r: ramp(col(G.c, '#f6f6f2'), 5, { light: 1.1 }), th: TH.metal, spec: 0.95 });
       cv.part({ ol: 'line' });
       if (side) {
         hpoly(cv, H, [[6.2, -2.4], ...arcP(-0.6, -1.8, 7.8, 8.2, -20, -190, 16), [-8.4, -2.0], [2.0, -2.2]], m, { su: 0.4 });
+        const did = cv.cur;
+        if (G.stripe) { cv.part({ ol: 'none', clip: did }); cv.stroke(TS(H, [[7.0, -3.5], [3.0, -4.7], [-2.0, -5.0], [-9.0, -3.9]]), 0.45, metal(G.stripe), { n: [0, -0.2] }); }
         cv.part({ ol: 'line' });
         cv.poly(TS(H, [[5.6, -2.8], [10.4, -2.4], [10.2, -1.5], [-8.6, -1.6], [-8.8, -2.6]]), m, { cx: 0.6, cy: 0.6 });
-        cv.crease(TS(H, [[2.0, -9.6], [-5.0, -7.6]]), 0.3, 0.4, { parts: [cv.cur - 1] });
+        cv.crease(TS(H, [[2.0, -9.6], [-5.0, -7.6]]), 0.3, 0.4, { parts: [did] });
+        if (G.badge) badge(cv, H, 3.8, -6.6, metal(G.badge), 0.75);
       } else {
         hpoly(cv, H, [[-8.2, -1.8], ...arcP(0, -1.8, 8.0, 8.2, 180, 360, 16), [8.2, -1.8]], m);
         const id = cv.cur;
         cv.crease(TS(H, [[0, -9.8], [0, -2.4]]), 0.5, 0.35, { parts: [id] });
+        if (G.stripe) { cv.part({ ol: 'none', clip: id }); cv.stroke(TS(H, [[-8.6, -3.7], [-4.2, -4.6], [0, -4.85], [4.2, -4.6], [8.6, -3.7]]), 0.45, metal(G.stripe), { n: [0, -0.2] }); }
         cv.part({ ol: 'line' });
         cv.poly(TS(H, [[-8.8, -2.6], [8.8, -2.6], [9.2, -1.4], [-9.2, -1.4]]), m, { cx: 0.85, cy: 0.6 });
-        if (!back) {
+        if (!back && G.badge) badge(cv, H, 0, -6.6, metal(G.badge), 1);
+        else if (!back) {
           cv.part({ ol: 'soft' });
           const g = cloth(G.cross || '#2aa04a');
           cv.poly(TS(H, [[-0.5, -7.0], [0.5, -7.0], [0.5, -5.9], [1.6, -5.9], [1.6, -4.9], [0.5, -4.9], [0.5, -3.8], [-0.5, -3.8], [-0.5, -4.9], [-1.6, -4.9], [-1.6, -5.9], [-0.5, -5.9]]), g, { n: [0, 0] });
@@ -1185,6 +1462,68 @@ export function drawHeadgear(cv, P, H, G, view) {
       }
       break;
     }
+    case 'toque': {
+      // コック帽（ぬのを まいた つつと、ふくらんだ うえ。h: 0 ひくい / 1 ふつう / 2 たかい  stars: 金の 星）
+      // （あたまの うえは えの はしで ちぢむので、ひくい ぼうしは かみの てっぺん まで・たかい ぼうしは つつを ながく）
+      const m = cloth(G.c || '#fbfbfd', { light: 0.85 });
+      const h = G.h || 0;
+      const top = [-4.6, -6.0, -7.8][h]; // つつの うえの はし
+      const bw = [7.6, 7.2, 6.7][h]; // つつの はばの はんぶん（した）
+      const pw = [9.0, 8.7, 8.4][h], ph = [4.6, 4.1, 4.4][h]; // ふくらみの はば・たかさ
+      cv.part({ ol: 'line' });
+      if (side) cv.poly(TS(H, [[6.6, -2.3], [bw - 0.8, top], [-bw - 0.4, top], [-bw - 0.6, -2.1]]), m, { cx: 0.8, cy: 0.25 });
+      else cv.poly(TS(H, [[-bw, -2.0], [bw, -2.0], [bw + 0.4, top], [-bw - 0.4, top]]), m, { cx: 0.85, cy: 0.25 });
+      const bid = cv.cur;
+      for (const u of side ? [-4.2, -1.2, 1.8, 4.4] : [-4.6, -1.6, 1.6, 4.6]) cv.crease(TS(H, [[u * 1.05, top + 0.5], [u, -2.6]]), 0.18, -0.32, { parts: [bid] });
+      // ふくらんだ うえ（つつより はばが ひろく、3つの もこもこ）
+      cv.part({ ol: 'line' });
+      const cx0 = side ? -0.6 : 0, w = side ? pw * 0.95 : pw, base = top + 0.6;
+      const lobe = (t, s = 1) => {
+        const a = Math.PI * (1 + t), r = s * (1 + 0.07 * Math.abs(Math.sin(3 * Math.PI * t)));
+        return [cx0 + Math.cos(a) * w * r, base + Math.sin(a) * ph * r];
+      };
+      const dome = [];
+      for (let i = 0; i <= 24; i++) dome.push(lobe(i / 24));
+      cv.poly(TS(H, [...dome, [cx0 + w - 0.8, base + 0.5], [cx0, base + 0.8], [cx0 - w + 0.8, base + 0.5]]), m, { n: 'sphere', cx: 0.8, cy: 0.7 });
+      const pid = cv.cur;
+      for (const t of [1 / 3, 2 / 3]) cv.crease(TS(H, [lobe(t, 0.96), [cx0 + (t - 0.5) * w * 0.9, base + 0.6]]), 0.2, -0.4, { parts: [pid] });
+      if (G.stars && !back) {
+        const v = (top - 2.0) / 2;
+        for (const u of (side ? [1.6, 4.7] : [-3.3, 0, 3.3]).slice(0, G.stars)) star5(cv, H, u, v, side ? 0.95 : 1.1, metal('gold'), side ? 0.75 : 1);
+      }
+      break;
+    }
+    case 'visor': {
+      // サンバイザー（あたまの うえは あいていて、まえに つば。おびには しろい 線）
+      const c = col(G.c, '#2a62c8');
+      const m = mat({ r: ramp(c, 4, { light: 1.1 }), th: TH.cloth, spec: 0.96 });
+      const bandM = mat({ r: ramp(mixC(c, '#ffffff', 0.2), 4, { light: 1.1 }), th: TH.cloth, spec: 0.96 });
+      const line = mat({ r: ramp('#f6f8fc', 4), th: TH.cloth });
+      cv.part({ ol: 'line' });
+      if (side) {
+        cv.poly(TS(H, [[6.8, -4.1], [6.7, -2.5], [-7.6, -2.0], [-7.7, -3.6]]), bandM, { cx: 0.6, cy: 0.5 });
+        cv.part({ ol: 'none', clip: cv.cur });
+        cv.stroke(TS(H, [[6.9, -3.3], [-7.8, -2.8]]), 0.22, line, { n: [0, 0] });
+        cv.part({ ol: 'line' });
+        cv.poly(TS(H, [[5.8, -3.4], [11.0, -2.4], [10.7, -1.3], [5.6, -2.1]]), m, { cx: 0.5, cy: 0.6 });
+      } else {
+        cv.poly(TS(H, [[-8.1, -4.1], ...arcP(0, -2.7, 8.1, 1.4, 190, 350, 8), [8.1, -4.1], [8.2, -2.4], ...arcP(0, -1.2, 8.2, 1.4, 350, 190, 8), [-8.2, -2.4]]), bandM, { cx: 0.85, cy: 0.4 });
+        cv.part({ ol: 'none', clip: cv.cur });
+        cv.stroke(TS(H, arcP(0, -1.95, 8.2, 1.4, 188, 352, 10)), 0.22, line, { n: [0, 0] });
+        if (back) {
+          cv.part({ ol: 'soft' });
+          cv.rect(H.X(-1.0), H.y - 3.7, 2.0, 1.3, cloth(mixC(c, '#000000', 0.3)), { cx: 0.5 });
+        } else {
+          // まるく まがった つば（したの ふちは くらく）
+          cv.part({ ol: 'line' });
+          cv.poly(TS(H, [[-7.0, -3.0], [7.0, -3.0], [8.4, -1.8], [5.2, -0.9], [0, -0.55], [-5.2, -0.9], [-8.4, -1.8]]), m, { cx: 0.7, cy: 0.7 });
+          const bid = cv.cur;
+          cv.crease(TS(H, [[-7.8, -1.75], [-5.0, -1.05], [0, -0.75], [5.0, -1.05], [7.8, -1.75]]), 0.22, -0.55, { parts: [bid] });
+          cv.crease(TS(H, [[-6.4, -2.5], [0, -2.0], [6.4, -2.5]]), 0.2, 0.45, { parts: [bid] });
+        }
+      }
+      break;
+    }
     case 'headset': {
       // アラシ: ヘッドセットの マイク
       const m = mat({ r: ramp(col(G.c, '#2a2a36'), 4, { light: 1.2 }), th: TH.metal, spec: 0.95 });
@@ -1213,6 +1552,21 @@ export function drawHeadgear(cv, P, H, G, view) {
     }
     default:
   }
+}
+
+// 5つの かどの 星（コック帽の 三ツ星。sx: よこむきで ほそく）
+function star5(cv, H, u, v, r, m, sx = 1) {
+  const pts = [];
+  for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + (i * Math.PI) / 5, rr = i % 2 ? r * 0.45 : r; pts.push([u + Math.cos(a) * rr * sx, v + Math.sin(a) * rr]); }
+  cv.part({ ol: 'soft' });
+  cv.poly(TS(H, pts), m, { n: 'sphere', cx: 0.5 });
+}
+
+// ヘルメットの まえの 金の バッジ（小さな たての かたち）
+function badge(cv, H, u, v, m, sx) {
+  cv.part({ ol: 'line' });
+  cv.poly(TS(H, [[u - 1.25 * sx, v - 1.1], [u + 1.25 * sx, v - 1.1], [u + 1.25 * sx, v + 0.3], [u, v + 1.4], [u - 1.25 * sx, v + 0.3]]), m, { n: 'bevel', bw: 0.35 });
+  cv.crease(TS(H, [[u, v - 0.8], [u, v + 0.9]]), 0.16, -0.4, { parts: [cv.cur] });
 }
 
 function rivetRow(cv, H, list) {
