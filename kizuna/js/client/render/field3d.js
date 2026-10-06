@@ -3,18 +3,18 @@
 // ・ひと・まもの・もの は ドット絵を カメラに むけて たてる（ビルボード）
 // ・カメラは ななめ うえから みおろす（うごかすのは いち だけ。むきは かわらない）
 // あるく・ぶつかる などの きまりは 2D と おなじ（Field が きめる）。ここでは かく だけ。
-import * as THREE from '../../../vendor/three.min.js?v=e1e09fce899d';
-import { T } from '../../shared/tiles.js?v=e1e09fce899d';
-import { effectiveTile } from '../../shared/maps/index.js?v=e1e09fce899d';
-import { hash2, valueNoise } from '../../shared/rng.js?v=e1e09fce899d';
+import * as THREE from '../../../vendor/three.min.js?v=b7ef3fbff3c8';
+import { T } from '../../shared/tiles.js?v=b7ef3fbff3c8';
+import { effectiveTile } from '../../shared/maps/index.js?v=b7ef3fbff3c8';
+import { hash2, valueNoise } from '../../shared/rng.js?v=b7ef3fbff3c8';
 import {
   Atlas, extraCanvas, propCanvas, PROP_TILES, leafCanvas, roofCanvas, tileArt, stormCanvas, curtainCanvas, puffCanvas, canalWaterCanvas, rubbleCanvas,
-} from './tex3d.js?v=e1e09fce899d';
-import { tileCanvas } from './tiles.js?v=e1e09fce899d';
-import { duneShape, ch4Mask, onDesert } from './tiles-ch4.js?v=e1e09fce899d';
-import { TROUGH, CANAL_CTX, CANAL_SUN, canalVariant, canalMask, canalFlow, damVertical } from './tiles-canal.js?v=e1e09fce899d';
-import { flipCanvas, makeCanvas, ctxOf, whiteCopy } from './pixel.js?v=e1e09fce899d';
-import { themedCanvas, partOfTile, partOfExtra, partOfProp } from './themes.js?v=e1e09fce899d';
+} from './tex3d.js?v=b7ef3fbff3c8';
+import { tileCanvas } from './tiles.js?v=b7ef3fbff3c8';
+import { duneShape, ch4Mask, onDesert } from './tiles-ch4.js?v=b7ef3fbff3c8';
+import { TROUGH, CANAL_CTX, CANAL_SUN, canalVariant, canalMask, canalFlow, damVertical } from './tiles-canal.js?v=b7ef3fbff3c8';
+import { flipCanvas, makeCanvas, ctxOf, whiteCopy } from './pixel.js?v=b7ef3fbff3c8';
+import { themedCanvas, partOfTile, partOfExtra, partOfProp } from './themes.js?v=b7ef3fbff3c8';
 
 const PITCH = 55 * Math.PI / 180;
 const SIN = Math.sin(PITCH), COS = Math.cos(PITCH);

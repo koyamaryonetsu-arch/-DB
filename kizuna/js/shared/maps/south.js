@@ -5,9 +5,9 @@
 // ・オアシスの村ハミル（西）… 北に 北の古井戸。南へ 行くと 砂嵐のかべ
 // ・砂嵐のかべ（y=60〜63）… 王都の 方へは まだ 行けない（道の ところは c4_scorpion、ほかは c4_morgana で はれる）
 // ・かべの 南: 王都サファラ（Step 3。道の つきあたり）。ピラミッド・砂の港ドゥナは Step 4 から
-import { T, TILE_INFO, parseRows } from '../tiles.js?v=e1e09fce899d';
-import { fbm, hash2 } from '../rng.js?v=e1e09fce899d';
-import { HAMIL_ROWS, SAFARA_ROWS } from './south-rows.js?v=e1e09fce899d';
+import { T, TILE_INFO, parseRows } from '../tiles.js?v=b7ef3fbff3c8';
+import { fbm, hash2 } from '../rng.js?v=b7ef3fbff3c8';
+import { HAMIL_ROWS, SAFARA_ROWS } from './south-rows.js?v=b7ef3fbff3c8';
 
 export const SOUTH_W = 144;
 export const SOUTH_H = 144;

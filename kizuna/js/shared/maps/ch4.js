@@ -1,15 +1,15 @@
 // 第4章「砂の海にしずむ星」の マップ
 // コガネ地方（フィールド）・北の古井戸・かれた地下水路（Step 2）・王都サファラと 宮殿の地下水路（Step 3）。ピラミッドなどは Step 4 から
 // 村や ダンジョンの 形は south-rows.js（1文字 = 1マス）
-import { T, parseRows } from '../tiles.js?v=e1e09fce899d';
-import { makeRng } from '../rng.js?v=e1e09fce899d';
-import { npc } from './npc.js?v=e1e09fce899d';
-import { SEA_PLACES } from './ch2.js?v=e1e09fce899d';
+import { T, parseRows } from '../tiles.js?v=b7ef3fbff3c8';
+import { makeRng } from '../rng.js?v=b7ef3fbff3c8';
+import { npc } from './npc.js?v=b7ef3fbff3c8';
+import { SEA_PLACES } from './ch2.js?v=b7ef3fbff3c8';
 import {
   buildSouth, southZoneAt, southAreaName, southWeatherAt, southBgmAt, SOUTH_PLACES, SOUTH_POS, SOUTH_LANDING, LANDING_BEACH, OASIS2, OASIS_CAMP,
   STORM_Y, STORM_FLAG, SAFARA_POS, PALACE_HALL,
-} from './south.js?v=e1e09fce899d';
-import { HAMIL_ROWS, WELL_ROWS, CANAL1_ROWS, CANAL2_ROWS, CANAL3_ROWS, PALACE_CANAL_ROWS } from './south-rows.js?v=e1e09fce899d';
+} from './south.js?v=b7ef3fbff3c8';
+import { HAMIL_ROWS, WELL_ROWS, CANAL1_ROWS, CANAL2_ROWS, CANAL3_ROWS, PALACE_CANAL_ROWS } from './south-rows.js?v=b7ef3fbff3c8';
 
 const HAM = SOUTH_PLACES.hamil;
 const H = (x, y) => [HAM.x + x, HAM.y + y];

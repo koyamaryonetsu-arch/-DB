@@ -7,13 +7,13 @@
 // Step 3: 王都サファラ → 宮殿の 女王ネフィ（同じ 言葉しか 言わない）→ 町の うわさ（夜の 中庭の 水がめ）
 //         → 夜に 宮殿の地下水路から 中庭へ（本当の 女王・大臣の 影・絵日記）→ 帰りに サラ → 学者ハサン（月の鏡と オベリスク）
 //         → 子どもたち 4人の わらべ歌（つづきは Step 4 の 王家のピラミッドから）
-import { NORTH_PLACES } from '../maps/north.js?v=e1e09fce899d';
-import { SOUTH_PLACES, SOUTH_POS, LANDING_BEACH, STORM_Y, STORM_GAP_X, SAFARA_POS } from '../maps/south.js?v=e1e09fce899d';
-import { CANAL_DOOR, CANAL_LEVERS, SONG_FLAGS, PALACE_CANAL_STAIRS } from '../maps/ch4.js?v=e1e09fce899d';
-import { SEA_W, SEA_H } from '../maps/sea.js?v=e1e09fce899d';
-import { innSteps } from './inn.js?v=e1e09fce899d';
-import { C4_LEAD_OBJECTIVE } from './sky.js?v=e1e09fce899d';
-import { C3_OBJ } from './story-ch3.js?v=e1e09fce899d';
+import { NORTH_PLACES } from '../maps/north.js?v=b7ef3fbff3c8';
+import { SOUTH_PLACES, SOUTH_POS, LANDING_BEACH, STORM_Y, STORM_GAP_X, SAFARA_POS } from '../maps/south.js?v=b7ef3fbff3c8';
+import { CANAL_DOOR, CANAL_LEVERS, SONG_FLAGS, PALACE_CANAL_STAIRS } from '../maps/ch4.js?v=b7ef3fbff3c8';
+import { SEA_W, SEA_H } from '../maps/sea.js?v=b7ef3fbff3c8';
+import { innSteps } from './inn.js?v=b7ef3fbff3c8';
+import { C4_LEAD_OBJECTIVE } from './sky.js?v=b7ef3fbff3c8';
+import { C3_OBJ } from './story-ch3.js?v=b7ef3fbff3c8';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

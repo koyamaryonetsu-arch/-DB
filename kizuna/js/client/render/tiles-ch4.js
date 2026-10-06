@@ -2,9 +2,9 @@
 // Step 2 の かれた地下水路（石だたみ・切り石の かべ・水路の 底と 水・水門・鉄の こうし・がれきの せき）は render/tiles-canal.js
 // (p, v, f, m) … Painter / ちがい（0〜3。砂嵐だけは ばしょ 0〜15。水路の 中は ばしょと 流れの むき）/ アニメの コマ / となりの ようす（mask。ch4Mask）
 // ひかりは 左上から
-import { T } from '../../shared/tiles.js?v=e1e09fce899d';
-import { Painter, prand, shade } from './pixel.js?v=e1e09fce899d';
-import { CANAL_PAINTERS, CANAL_FRAMES, CANAL_SPEED, CANAL_WALLS, canalMask } from './tiles-canal.js?v=e1e09fce899d';
+import { T } from '../../shared/tiles.js?v=b7ef3fbff3c8';
+import { Painter, prand, shade } from './pixel.js?v=b7ef3fbff3c8';
+import { CANAL_PAINTERS, CANAL_FRAMES, CANAL_SPEED, CANAL_WALLS, canalMask } from './tiles-canal.js?v=b7ef3fbff3c8';
 
 const TAU = Math.PI * 2;
 // 4×4 の ディザ（だんだんの いろを まぜる）

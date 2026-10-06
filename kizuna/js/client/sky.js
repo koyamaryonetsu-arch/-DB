@@ -2,13 +2,13 @@
 // ・時計: サーバーの 時こく（game.timeOffset）＋ パーティーの 時計の ずれ（party.clockShift）。宿屋の だいほんの とちゅうは
 //   えんしゅつ（['clock', ずれ]）まで 前の 空の まま
 // ・大鳥フウラ: サーバー（shared/world/travel.js）が きめた flying を うけて、とぶ・おりる えんしゅつと え を かく
-import { el, toast, ListMenu } from './ui/dom.js?v=e1e09fce899d';
-import { dayFrac, isNightFrac, darkness } from '../shared/world/clock.js?v=e1e09fce899d';
-import { SKY_MAPS, FLUTE_ID, RIDE_ASK_MS, edgeAt, regionsFrom, skyBox, clampSkyBox, mountOf } from '../shared/data/sky.js?v=e1e09fce899d';
-import { birdCanvas, birdRideCanvas, BIRD_W, BIRD_H, RIDE_TOP } from './render/sky-art.js?v=e1e09fce899d';
-import { dragonCanvas, dragonRideCanvas } from './render/dragon-art.js?v=e1e09fce899d';
-import { playerSprite } from './field.js?v=e1e09fce899d';
-import { equipKey } from './render/chars.js?v=e1e09fce899d';
+import { el, toast, ListMenu } from './ui/dom.js?v=b7ef3fbff3c8';
+import { dayFrac, isNightFrac, darkness } from '../shared/world/clock.js?v=b7ef3fbff3c8';
+import { SKY_MAPS, FLUTE_ID, RIDE_ASK_MS, edgeAt, regionsFrom, skyBox, clampSkyBox, mountOf } from '../shared/data/sky.js?v=b7ef3fbff3c8';
+import { birdCanvas, birdRideCanvas, BIRD_W, BIRD_H, RIDE_TOP } from './render/sky-art.js?v=b7ef3fbff3c8';
+import { dragonCanvas, dragonRideCanvas } from './render/dragon-art.js?v=b7ef3fbff3c8';
+import { playerSprite } from './field.js?v=b7ef3fbff3c8';
+import { equipKey } from './render/chars.js?v=b7ef3fbff3c8';
 
 export const FLY_SPEED = 1.9; // 歩く はやさの この ばい
 const CRUISE = 1.45; // とんでいる たかさ（マス）

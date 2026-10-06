@@ -1,16 +1,16 @@
 // だいほん（イベント）を すすめる しくみ
-import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js?v=e1e09fce899d';
-import { ITEMS } from '../data/items.js?v=e1e09fce899d';
-import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js?v=e1e09fce899d';
-import { startFixedBattle } from './battles.js?v=e1e09fce899d';
-import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=e1e09fce899d';
-import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion, befriendLevel } from './party.js?v=e1e09fce899d';
-import { openService } from './services.js?v=e1e09fce899d';
-import { isNightFor, advanceClock } from './clock.js?v=e1e09fce899d';
-import { grantWagon, wagonChars } from './wagon.js?v=e1e09fce899d';
-import { GUESTS } from '../data/shops.js?v=e1e09fce899d';
-import { unstickAll } from './hazards.js?v=e1e09fce899d';
-import { MAPS, isBlocked } from '../maps/index.js?v=e1e09fce899d';
+import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js?v=b7ef3fbff3c8';
+import { ITEMS } from '../data/items.js?v=b7ef3fbff3c8';
+import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js?v=b7ef3fbff3c8';
+import { startFixedBattle } from './battles.js?v=b7ef3fbff3c8';
+import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=b7ef3fbff3c8';
+import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion, befriendLevel } from './party.js?v=b7ef3fbff3c8';
+import { openService } from './services.js?v=b7ef3fbff3c8';
+import { isNightFor, advanceClock } from './clock.js?v=b7ef3fbff3c8';
+import { grantWagon, wagonChars } from './wagon.js?v=b7ef3fbff3c8';
+import { GUESTS } from '../data/shops.js?v=b7ef3fbff3c8';
+import { unstickAll } from './hazards.js?v=b7ef3fbff3c8';
+import { MAPS, isBlocked } from '../maps/index.js?v=b7ef3fbff3c8';
 
 let runSeq = 1;
 
@@ -82,7 +82,19 @@ export class ScriptRun {
     } catch (e) {
       if (!this.aborted) console.error('script error', e);
     }
-    this.finish();
+    // おわりの かたづけで エラーが おきても、うごけなく ならない ように する
+    // （ここで エラーが 出ると、Promise の エラーで 家族サーバーが 止まる おそれが あった）
+    try {
+      this.finish();
+    } catch (e) {
+      console.error('script finish error', e);
+      this.world.runs.delete(this.id);
+      for (const m of this.parts) {
+        if (m.runId !== this.id) continue;
+        m.runId = null;
+        if (m.busy === 'script') m.busy = null;
+      }
+    }
   }
 
   finish() {
