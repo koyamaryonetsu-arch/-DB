@@ -399,7 +399,7 @@ async function checkFunnel(print) {
       // PC の 名前が かわって、外出先用の 設定が 古い 名前の まま
       const named = funnelNameWarning(funnel.url, ts?.dnsName);
       // 名前は 同じなのに、アドレスが インターネットに 出ていない（Tailscale の がわで Funnel が 有効に なっていない）
-      warn = [...warn, ...(named.length ? named : funnelDnsWarning(funnel.url, await funnelPublicDns(new URL(funnel.url).hostname)))];
+      warn = [...warn, ...(named.length ? named : funnelDnsWarning(funnel.url, await funnelPublicDns(new URL(funnel.url).hostname), ts))];
     } catch { /* */ }
   }
   if (print) {

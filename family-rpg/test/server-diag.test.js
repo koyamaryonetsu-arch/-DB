@@ -147,6 +147,30 @@ test('外出先の アドレス（Funnel）が インターネットの DNS に 
   assert.match(w[0], /https:\/\/pc\.tailabcd\.ts\.net/);
   assert.match(w[0], /インターネットに公開されていません/);
   assert.match(w.join('\n'), /funnel-on/);
+  // PC に 許されている こと（tailscale status --json の Self.CapMap）から、どこが 足りないかを 書く
+  const st = (self, extra = {}) => tailscaleState({ runImpl: async () => ({ out: JSON.stringify({ BackendState: 'Running', Self: self, ...extra }) }), candidates: ['tailscale'] });
+  const noHttps = await st({ CapMap: { funnel: null } });
+  assert.equal(noHttps.https, false);
+  assert.match(funnelDnsWarning('https://pc.tailabcd.ts.net', 'missing', noHttps).join('\n'), /HTTPS（証明書）が有効になっていません/);
+  const noFunnel = await st({ CapMap: { https: null, 'https://tailscale.com/cap/file-sharing': null } });
+  assert.equal(noFunnel.funnel, false);
+  assert.match(funnelDnsWarning('https://pc.tailabcd.ts.net', 'missing', noFunnel).join('\n'), /このPCに Funnel が許可されていません/);
+  const both = await st({ CapMap: { https: null, funnel: null, 'https://tailscale.com/cap/funnel-ports?ports=443,8443,10000': null } }, { Health: ['Tailscale could not connect to the  DERP relay'] });
+  assert.equal(both.https, true);
+  assert.equal(both.funnel, true);
+  const bw = funnelDnsWarning('https://pc.tailabcd.ts.net', 'missing', both).join('\n');
+  assert.match(bw, /許可（HTTPS・Funnel）はそろっています/);
+  assert.match(bw, /funnel-off → funnel-on/);
+  assert.match(bw, /Tailscale からの注意: Tailscale could not connect to the DERP relay/);
+  // 古い 版（Capabilities の 配列）
+  const old = await st({ Capabilities: ['https', 'https://tailscale.com/cap/is-admin'] });
+  assert.equal(old.https, true);
+  assert.equal(old.funnel, false);
+  // どちらも ない（わからない）ときは 決めつけない
+  const unknown = await st({ DNSName: 'pc.tailabcd.ts.net.' });
+  assert.equal(unknown.https, null);
+  assert.equal(unknown.funnel, null);
+  assert.doesNotMatch(funnelDnsWarning('https://pc.tailabcd.ts.net', 'missing', unknown).join('\n'), /原因：/);
   assert.deepEqual(funnelDnsWarning('https://pc.tailabcd.ts.net', 'ok'), []);
   assert.deepEqual(funnelDnsWarning('https://pc.tailabcd.ts.net', 'unknown'), []);
 });

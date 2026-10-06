@@ -72,10 +72,20 @@ export async function tailscaleState({ runImpl = runOut, candidates = CANDIDATES
       j = null;
     }
     if (!j || typeof j !== 'object') return { installed: true, state: 'NoDaemon', expiry: '', expired: false, dnsName: '' };
+    // この PC に Tailscale の アカウント側から 許されている こと（tailscale funnel が しらべるのと 同じ。"https"・"funnel"）
+    // CapMap（新しい 版）か Capabilities（古い 版）。どちらも ない ときは わからない（null）
+    const capKeys = j.Self?.CapMap && typeof j.Self.CapMap === 'object' ? Object.keys(j.Self.CapMap)
+      : Array.isArray(j.Self?.Capabilities) ? j.Self.Capabilities.map(String) : null;
+    const has = (name) => (capKeys ? capKeys.some((k) => k === name || k.endsWith(`/cap/${name}`)) : null);
     return {
       installed: true, state: String(j.BackendState || ''), expiry: String(j.Self?.KeyExpiry || ''), expired: !!j.Self?.Expired,
       // 今の PC の 名前（pc.tailxxxx.ts.net。さいごの「.」は とる）
       dnsName: String(j.Self?.DNSName || '').replace(/\.$/, '').toLowerCase(),
+      https: has('https'),
+      funnel: has('funnel'),
+      // Tailscale からの 注意（英語。つながりの 問題など）
+      health: Array.isArray(j.Health) ? j.Health.map((h) => String(h).replace(/\s+/g, ' ').trim()).filter(Boolean).slice(0, 5) : [],
+      version: String(j.Version || '').split('-')[0],
     };
   }
   return { installed: false, state: '', expiry: '', expired: false, dnsName: '' };
@@ -165,12 +175,25 @@ export async function funnelPublicDns(host, {
 }
 
 // 外出先の アドレスが インターネットに 出ていない ときに 黒い 画面に 出す 文（だいじょうぶな ときは []）
-export function funnelDnsWarning(url, state) {
+// ts … tailscaleState() の 答え（PC に 許されている こと・Tailscale からの 注意）。どこが 足りないかを 書く
+export function funnelDnsWarning(url, state, ts = null) {
   if (state !== 'missing') return [];
-  return [
-    `★ 外出先からのアドレス（${url}）が、インターネットに公開されていません（Tailscale の Funnel が有効になっていません）。`,
-    '   このままでは、外出先のスマホから開けません（スマホの Tailscale アプリをONにした時だけ開けます）。',
-    '   funnel-on をもう一度ダブルクリックして、リンクが出たら開いて「Funnel」を許可してね。',
-    '   許可したあと、数分で使えるようになります（この画面にも「もどりました」と出ます）。',
+  const lines = [
+    `★ 外出先からのアドレス（${url}）が、インターネットに公開されていません。外出先のスマホからは開けません。`,
   ];
+  if (ts?.https === false) {
+    lines.push('   原因：Tailscale のアカウント側で、HTTPS（証明書）が有効になっていません。',
+      '   Tailscale の管理画面の「DNS」→「HTTPS Certificates」を有効にしてから、funnel-on をダブルクリックしてね。');
+  } else if (ts?.funnel === false) {
+    lines.push('   原因：Tailscale のアカウント側で、このPCに Funnel が許可されていません（アクセス設定の nodeAttrs に funnel がない）。',
+      '   funnel-on をダブルクリックして、リンクが出たら開いて「Funnel」を許可してね。');
+  } else if (ts?.https === true && ts?.funnel === true) {
+    lines.push('   Tailscale のアカウント側の許可（HTTPS・Funnel）はそろっています。PCの Tailscale が、このアドレスを Tailscale に登録できていません。',
+      '   funnel-off → funnel-on の順にダブルクリックして、登録しなおしてね。');
+  } else {
+    lines.push('   funnel-on をもう一度ダブルクリックして、リンクが出たら開いて「Funnel」を許可してね。');
+  }
+  for (const h of ts?.health || []) lines.push(`   （Tailscale からの注意: ${h}）`);
+  lines.push('   直ったあと、数分で使えるようになります（この画面にも「もどりました」と出ます）。');
+  return lines;
 }
