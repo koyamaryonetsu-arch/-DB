@@ -39,6 +39,8 @@ test('止まっている 時の ページ: 家の PC まで とどかない（�
   assert.match(pc.text, /家のPCまで、通信がとどいていません/);
   assert.match(pc.text, /スリープしていないか/);
   assert.match(pc.text, /login\.tailscale\.com\/admin\/machines/);
+  // 開いている アドレス（PC の 名前を かえると アドレスも かわる）
+  assert.match(pc.text, /このページのアドレス（kizuna\.taile0000\.ts\.net）/);
   assert.match(pc.text, /example\.github\.io\/kizuna/, 'ひとりで遊ぶサイトへの ボタン');
   // PC には とどいたが、家族サーバーが 止まっている（Tailscale が 502 を 返す）
   for (const status of [502, 503, 504]) {
@@ -72,6 +74,7 @@ test('ゲームの 中の「家族サーバーにつながりません」: api/i
   assert.equal(await downReason({ fetchImpl: hang, loc: funnel, timeoutMs: 50 }), 'pc');
   for (const k of ['pc', 'server', 'up', 'unknown']) assert.ok(DOWN_TEXT[k], k);
   assert.match(DOWN_TEXT.pc, /スリープ/);
+  assert.match(DOWN_TEXT.pc, /「★外出先から」のアドレスと同じか/);
   assert.match(DOWN_TEXT.server, /start\.bat/);
 });
 
