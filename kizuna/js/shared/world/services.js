@@ -1,25 +1,25 @@
 // お店・やどや・きょうかい・転職・酒場・でんごんばん・メニュー操作
-import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js?v=9147f12cace1';
-import { normDifficulty } from '../data/difficulty.js?v=9147f12cace1';
-import { ITEMS, sellPrice, SLOTS, SLOT_NAMES } from '../data/items.js?v=9147f12cace1';
-import { JOBS, ALL_JOBS, jobReqText, BODY_NAMES } from '../data/jobs.js?v=9147f12cace1';
-import { ABILITIES } from '../data/abilities.js?v=9147f12cace1';
-import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=9147f12cace1';
-import { TACTICS } from '../ai.js?v=9147f12cace1';
-import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js?v=9147f12cace1';
-import { salonInfo, salonAction } from './salon.js?v=9147f12cace1';
-import { breedMonsters, breedPreview } from './breed.js?v=9147f12cace1';
-import { MONSTERS } from '../data/monsters.js?v=9147f12cace1';
-import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings, spellSealed } from '../battle.js?v=9147f12cace1';
-import { PLACES } from '../maps/overworld.js?v=9147f12cace1';
-import { POS, SEA_PLACES, MAPS } from '../maps/index.js?v=9147f12cace1';
-import { castRura, warpParty, useTimeBell, warpPlaces, warpOwner } from './travel.js?v=9147f12cace1';
-import { bankInfo, bankAction } from './bank.js?v=9147f12cace1';
-import { forgeInfo, forgeAction } from './forge.js?v=9147f12cace1';
-import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction, wagonHere, wagonHealEntries } from './wagon.js?v=9147f12cace1';
-import { casinoOpen, casinoAction } from './casino.js?v=9147f12cace1';
-import { useEscapeItem, noEscapeText } from './escape.js?v=9147f12cace1';
-import { bestEquipPlan } from '../equip-plan.js?v=9147f12cace1';
+import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js?v=e3a05807fdd3';
+import { normDifficulty } from '../data/difficulty.js?v=e3a05807fdd3';
+import { ITEMS, sellPrice, SLOTS, SLOT_NAMES } from '../data/items.js?v=e3a05807fdd3';
+import { JOBS, ALL_JOBS, jobReqText, BODY_NAMES } from '../data/jobs.js?v=e3a05807fdd3';
+import { ABILITIES } from '../data/abilities.js?v=e3a05807fdd3';
+import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=e3a05807fdd3';
+import { TACTICS } from '../ai.js?v=e3a05807fdd3';
+import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js?v=e3a05807fdd3';
+import { salonInfo, salonAction } from './salon.js?v=e3a05807fdd3';
+import { breedMonsters, breedPreview } from './breed.js?v=e3a05807fdd3';
+import { MONSTERS } from '../data/monsters.js?v=e3a05807fdd3';
+import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings, spellSealed } from '../battle.js?v=e3a05807fdd3';
+import { PLACES } from '../maps/overworld.js?v=e3a05807fdd3';
+import { POS, SEA_PLACES, MAPS } from '../maps/index.js?v=e3a05807fdd3';
+import { castRura, warpParty, useTimeBell, warpPlaces, warpOwner } from './travel.js?v=e3a05807fdd3';
+import { bankInfo, bankAction } from './bank.js?v=e3a05807fdd3';
+import { forgeInfo, forgeAction } from './forge.js?v=e3a05807fdd3';
+import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction, wagonHere, wagonHealEntries, ownWagonEntries } from './wagon.js?v=e3a05807fdd3';
+import { casinoOpen, casinoAction } from './casino.js?v=e3a05807fdd3';
+import { useEscapeItem, noEscapeText } from './escape.js?v=e3a05807fdd3';
+import { bestEquipPlan, bestTeamOrder } from '../equip-plan.js?v=e3a05807fdd3';
 
 export function openService(world, s, kind, arg) {
   switch (kind) {
@@ -545,12 +545,11 @@ export function menuAction(world, s, msg) {
 }
 
 // ───── さいきょう装備 ─────
-// 自分と 自分の 仲間（ならびの じゅん）
+// 自分と 自分の 仲間（戦う 仲間を ならびの じゅんに → 馬車の 仲間。equip-plan.js の bestTeamOrder）
 function ownTeamChars(world, s) {
   const p = partyOf(world, s);
   const sups = (p?.supports || []).filter((x) => x.owner === s.char.id && x.kind !== 'family').map((x) => x.char);
-  const pos = Math.max(0, Math.min(sups.length, Number.isInteger(s.char.selfPos) ? s.char.selfPos : 0));
-  return [...sups.slice(0, pos), s.char, ...sups.slice(pos)];
+  return bestTeamOrder(s.char, sups, ownWagonEntries(world, s).map((e) => e.char), s.char.selfPos);
 }
 
 // ───── まんたん ─────

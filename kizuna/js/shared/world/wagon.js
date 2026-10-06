@@ -1,16 +1,16 @@
 // 馬車（サーバーの きまり）: もらう・乗りかえ・総入れかえ・経験値の おすそわけ・たたかいでの いれかえ
 //   きまりの せつめいは data/wagon.js
-import { MAPS } from '../maps/index.js?v=9147f12cace1';
-import { scaleExp } from '../data/difficulty.js?v=9147f12cace1';
-import { COMPANION_SLOTS } from '../data/companions.js?v=9147f12cace1';
-import { JOBS } from '../data/jobs.js?v=9147f12cace1';
-import { WAGON_SLOTS, WAGON_EXP_RATE, hasWagon, cleanWagon } from '../data/wagon.js?v=9147f12cace1';
-import { computeStats, fullHeal } from '../stats.js?v=9147f12cace1';
-import { pub } from '../battle.js?v=9147f12cace1';
+import { MAPS } from '../maps/index.js?v=e3a05807fdd3';
+import { scaleExp } from '../data/difficulty.js?v=e3a05807fdd3';
+import { COMPANION_SLOTS } from '../data/companions.js?v=e3a05807fdd3';
+import { JOBS } from '../data/jobs.js?v=e3a05807fdd3';
+import { WAGON_SLOTS, WAGON_EXP_RATE, hasWagon, cleanWagon } from '../data/wagon.js?v=e3a05807fdd3';
+import { computeStats, fullHeal } from '../stats.js?v=e3a05807fdd3';
+import { pub } from '../battle.js?v=e3a05807fdd3';
 import {
   partyOf, companionOf, ensureCompanions, stowGear, afterRosterChange, syncParty, nameOfKey, supportInfo,
   famCopy, humanCharIds, dropMissingFam, creditSupportOwner, PARTY_MAX, BATTLE_FILL,
-} from './party.js?v=9147f12cace1';
+} from './party.js?v=e3a05807fdd3';
 
 const fail = (reason, extra = {}) => ({ ok: false, reason, ...extra });
 const isFam = (k) => String(k || '').startsWith('fam:');
@@ -257,6 +257,14 @@ export function wagonChurch(world, s, dead, poisoned, priceOf, curePrice) {
 
 // フィールドで 回復できる 馬車の 仲間（馬車が いっしょの とき だけ。洞窟・塔の 中では 入り口で 待っている）
 //   own … 自分の 仲間だけ（呪文を 唱える 人。家族の うつしは のぞく）
+// 自分の 馬車の 仲間（自分が リーダーか、ひとりの とき。家族の キャラは のぞく）。みんなさいきょう装備で 使う
+export function ownWagonEntries(world, s) {
+  const p = partyOf(world, s);
+  const lc = leaderChar(world, p) || (!p ? s.char : null);
+  if (!lc || lc !== s.char) return [];
+  return wagonEntries(world, lc, p).filter((e) => e.kind !== 'family');
+}
+
 export function wagonHealEntries(world, s, own = false) {
   if (!wagonHere(s.map)) return [];
   const p = partyOf(world, s);

@@ -3,19 +3,19 @@
 // ・ひと・まもの・もの は ドット絵を カメラに むけて たてる（ビルボード）
 // ・カメラは ななめ うえから みおろす（うごかすのは いち だけ。むきは かわらない）
 // あるく・ぶつかる などの きまりは 2D と おなじ（Field が きめる）。ここでは かく だけ。
-import * as THREE from '../../../vendor/three.min.js?v=9147f12cace1';
-import { T } from '../../shared/tiles.js?v=9147f12cace1';
-import { effectiveTile } from '../../shared/maps/index.js?v=9147f12cace1';
-import { pyramidLevel } from '../../shared/maps/south.js?v=9147f12cace1';
-import { hash2, valueNoise } from '../../shared/rng.js?v=9147f12cace1';
+import * as THREE from '../../../vendor/three.min.js?v=e3a05807fdd3';
+import { T } from '../../shared/tiles.js?v=e3a05807fdd3';
+import { effectiveTile } from '../../shared/maps/index.js?v=e3a05807fdd3';
+import { pyramidLevel } from '../../shared/maps/south.js?v=e3a05807fdd3';
+import { hash2, valueNoise } from '../../shared/rng.js?v=e3a05807fdd3';
 import {
   Atlas, extraCanvas, propCanvas, PROP_TILES, leafCanvas, roofCanvas, tileArt, stormCanvas, curtainCanvas, puffCanvas, canalWaterCanvas, rubbleCanvas,
-} from './tex3d.js?v=9147f12cace1';
-import { tileCanvas } from './tiles.js?v=9147f12cace1';
-import { duneShape, ch4Mask, onDesert } from './tiles-ch4.js?v=9147f12cace1';
-import { TROUGH, CANAL_CTX, CANAL_SUN, canalVariant, canalMask, canalFlow, damVertical } from './tiles-canal.js?v=9147f12cace1';
-import { flipCanvas, makeCanvas, ctxOf, whiteCopy } from './pixel.js?v=9147f12cace1';
-import { themedCanvas, partOfTile, partOfExtra, partOfProp } from './themes.js?v=9147f12cace1';
+} from './tex3d.js?v=e3a05807fdd3';
+import { tileCanvas } from './tiles.js?v=e3a05807fdd3';
+import { duneShape, ch4Mask, onDesert } from './tiles-ch4.js?v=e3a05807fdd3';
+import { TROUGH, CANAL_CTX, CANAL_SUN, canalVariant, canalMask, canalFlow, damVertical } from './tiles-canal.js?v=e3a05807fdd3';
+import { flipCanvas, makeCanvas, ctxOf, whiteCopy } from './pixel.js?v=e3a05807fdd3';
+import { themedCanvas, partOfTile, partOfExtra, partOfProp } from './themes.js?v=e3a05807fdd3';
 
 const PITCH = 55 * Math.PI / 180;
 const SIN = Math.sin(PITCH), COS = Math.cos(PITCH);
