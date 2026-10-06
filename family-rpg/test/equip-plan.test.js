@@ -5,7 +5,7 @@ import { GameWorld } from '../public/js/shared/world/world.js';
 import { makeRng } from '../public/js/shared/rng.js';
 import { gainExp, expForLevel, computeStats, itemCount } from '../public/js/shared/stats.js';
 import { recruitNpc } from '../public/js/shared/world/party.js';
-import { bestEquipPlan, BEST_SLOTS } from '../public/js/shared/equip-plan.js';
+import { bestEquipPlan, bestTeamOrder, weaponWeights, BEST_SLOTS } from '../public/js/shared/equip-plan.js';
 import { statChanges, statChangesHtml, equipDiff, diffText } from '../public/js/client/ui/info.js';
 import { Bot } from './helpers.js';
 
@@ -85,6 +85,46 @@ test('さいきょう装備: 見こみの とおりに 装備される（クラ�
   }
   assert.equal(gard.equip.weapon !== 'wood_sword', true, 'ガルドも 変わった');
   assert.equal(itemCount(me, 'iron_sword') + itemCount(me, 'bronze_sword') <= 1, true, '強い 剣は だれかが 装備した');
+});
+
+test('みんなさいきょう装備: 馬車の 仲間も 装備する（戦う 仲間が 先。クライアントの 見こみと おなじ）', async () => {
+  const { world, bot, s } = await hero('warrior');
+  const me = s.char;
+  me.wagon = true;
+  for (const id of ['npc_gard', 'npc_mina', 'npc_poporo', 'npc_rin', 'npc_tina']) recruitNpc(world, s, id, { force: true });
+  assert.deepEqual(me.partyKeys, ['npc_gard', 'npc_mina', 'npc_poporo']);
+  assert.deepEqual(me.wagonKeys, ['npc_rin', 'npc_tina'], '5人目からは 馬車');
+  const mate = (key) => me.companions.find((e) => e.key === key).char;
+  me.equip = { weapon: 'wood_sword', armor: 'cloth', shield: null, head: null, acc: null };
+  for (const e of me.companions) e.char.equip = { weapon: null, armor: 'cloth', shield: null, head: null, acc: null };
+  // たては 1つだけ（戦う 仲間が 先）。ツメと おうぎは 馬車の 2人だけが 装備できる
+  me.items = [{ id: 'iron_shield', n: 1 }, { id: 'iron_claw', n: 1 }, { id: 'feather_fan', n: 1 }, { id: 'leather_whip', n: 1 }];
+  world.sendSelf(s);
+  bot.send({ t: 'menu', action: 'fullHeal', mode: 'spell' }); // パーティーの じょうほうを とどける
+  // クライアント（menu.js の bestTeam・charOf）と おなじ 計算
+  const meC = bot.char;
+  const asChar = (x) => ({ name: x.name, level: x.level, job: x.job, jobs: x.jobs || {}, equip: x.equip || {}, seeds: x.seeds || {}, species: x.species || undefined, plus: x.plus || 0, bonus: x.bonus || undefined });
+  const mine = (list) => (list || []).filter((x) => x.owner === meC.id && x.kind !== 'family').map((x) => ({ key: x.key, char: asChar(x) }));
+  assert.equal(mine(bot.party.wagon).length, 2, 'クライアントにも 馬車の 仲間が とどいている');
+  const team = bestTeamOrder({ key: 'self', char: meC }, mine(bot.party.supports), mine(bot.party.wagon), meC.selfPos);
+  assert.deepEqual(team.map((m) => m.key), ['self', 'npc_gard', 'npc_mina', 'npc_poporo', 'npc_rin', 'npc_tina']);
+  const plan = bestEquipPlan(team, meC);
+  bot.send({ t: 'menu', action: 'bestEquip', who: 'all' });
+  assert.equal(lastMenu(bot).ok, true, lastMenu(bot).text);
+  assert.equal(me.equip.shield, 'iron_shield', 'たては 戦う 仲間（自分）が 先');
+  assert.equal(mate('npc_rin').equip.weapon, 'iron_claw', '馬車の 武闘家に ツメ');
+  assert.ok(['feather_fan', 'leather_whip'].includes(mate('npc_tina').equip.weapon), '馬車の 旅芸人にも 武器');
+  for (const p of plan) for (const x of p.changes) assert.equal((p.key === 'self' ? me : mate(p.key)).equip[x.slot], x.to, `${p.name}の ${x.slot}（見こみの とおり）`);
+});
+
+test('さいきょう装備の 武器: 呪文の 職業は 魔力の 上がる つえ、戦う 職業は 攻撃力', () => {
+  const bag = { items: [{ id: 'iron_spear', n: 1 }, { id: 'healing_staff', n: 1 }] };
+  const pick = (job, items) => bestEquipPlan([{ key: 'a', char: { name: 'A', job, level: 20, jobs: {}, equip: {}, seeds: {} } }], { items })[0]?.changes.find((x) => x.slot === 'weapon')?.to;
+  assert.equal(pick('priest', bag.items), 'healing_staff', '僧侶は 回復魔力の 上がる つえ（やりの ほうが 攻撃力は 高い）');
+  assert.equal(pick('mage', [{ id: 'poison_knife', n: 1 }, { id: 'wizard_staff', n: 1 }]), 'wizard_staff', '魔法使いは 攻撃魔力の つえ');
+  assert.equal(pick('paladin', bag.items), 'iron_spear', 'パラディンは 攻撃力');
+  assert.equal(pick('hero', [{ id: 'iron_sword', n: 1 }, { id: 'wizard_staff', n: 1 }]), 'iron_sword', '勇者は 剣');
+  assert.deepEqual(weaponWeights({ species: 'pururin' }), { atk: 1, mag: 0, heal: 0 }, '魔物は 攻撃力');
 });
 
 test('装備で 変わる 強さ: 上がる ものも 下がる ものも 色つきで 出す', () => {

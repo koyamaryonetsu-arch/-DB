@@ -16,10 +16,10 @@ import { POS, SEA_PLACES, MAPS } from '../maps/index.js';
 import { castRura, warpParty, useTimeBell, warpPlaces, warpOwner } from './travel.js';
 import { bankInfo, bankAction } from './bank.js';
 import { forgeInfo, forgeAction } from './forge.js';
-import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction, wagonHere, wagonHealEntries } from './wagon.js';
+import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction, wagonHere, wagonHealEntries, ownWagonEntries } from './wagon.js';
 import { casinoOpen, casinoAction } from './casino.js';
 import { useEscapeItem, noEscapeText } from './escape.js';
-import { bestEquipPlan } from '../equip-plan.js';
+import { bestEquipPlan, bestTeamOrder } from '../equip-plan.js';
 
 export function openService(world, s, kind, arg) {
   switch (kind) {
@@ -545,12 +545,11 @@ export function menuAction(world, s, msg) {
 }
 
 // ───── さいきょう装備 ─────
-// 自分と 自分の 仲間（ならびの じゅん）
+// 自分と 自分の 仲間（戦う 仲間を ならびの じゅんに → 馬車の 仲間。equip-plan.js の bestTeamOrder）
 function ownTeamChars(world, s) {
   const p = partyOf(world, s);
   const sups = (p?.supports || []).filter((x) => x.owner === s.char.id && x.kind !== 'family').map((x) => x.char);
-  const pos = Math.max(0, Math.min(sups.length, Number.isInteger(s.char.selfPos) ? s.char.selfPos : 0));
-  return [...sups.slice(0, pos), s.char, ...sups.slice(pos)];
+  return bestTeamOrder(s.char, sups, ownWagonEntries(world, s).map((e) => e.char), s.char.selfPos);
 }
 
 // ───── まんたん ─────

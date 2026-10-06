@@ -17,7 +17,7 @@ import { SEA_PLACES } from '../../shared/maps/ch2.js';
 import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js';
 import { T, TILE_INFO } from '../../shared/tiles.js';
 import { itemDetail, abilityDetail, skillBrief, gearText, targetTag, statChanges, statChangesHtml } from './info.js';
-import { bestEquipPlan } from '../../shared/equip-plan.js';
+import { bestEquipPlan, bestTeamOrder } from '../../shared/equip-plan.js';
 import { makeCanvas, ctxOf } from '../render/pixel.js';
 import { monsterCanvas } from '../render/monsters.js';
 import { mapIconCanvas, boardIconURL } from '../render/boards.js';
@@ -298,7 +298,7 @@ export class FieldMenu {
       },
     });
     box.append(el('div', { class: 'small gold', text: title }), m.root);
-    if (next === 'equip' && mates.length) box.append(el('div', { class: 'detail', text: '「みんなさいきょう装備」…自分と仲間みんなを、ならびの順にさいきょう装備にする（何が何に変わるかを見てから決められる）' }));
+    if (next === 'equip' && mates.length) box.append(el('div', { class: 'detail', text: '「みんなさいきょう装備」…自分と仲間みんな（馬車の仲間も）を、ならびの順にさいきょう装備にする。1つしかない物は、戦う仲間が先（何が何に変わるかを見てから決められる）' }));
     return box;
   }
 
@@ -916,13 +916,12 @@ export class FieldMenu {
     return [{ key: 'self', char: this.game.me }, ...this.myMates().map((x) => ({ key: x.key, char: this.charOf(x.key) })).filter((m) => m.char)];
   }
 
-  // さいきょう装備で きめる じゅんばん（サーバーの ownTeamChars と おなじ: ならびの じゅん。馬車の 仲間は 入らない）
+  // さいきょう装備で きめる じゅんばん（サーバーの ownTeamChars と おなじ: 戦う 仲間を ならびの じゅんに → 馬車の 仲間）
   bestTeam() {
     const g = this.game;
-    const sups = (g.party?.supports || []).filter((x) => x.owner === g.me.id && x.kind !== 'family')
+    const mine = (list) => (list || []).filter((x) => x.owner === g.me.id && x.kind !== 'family')
       .map((x) => ({ key: x.key, char: this.charOf(x.key) })).filter((m) => m.char);
-    const pos = Math.max(0, Math.min(sups.length, Number.isInteger(g.me.selfPos) ? g.me.selfPos : 0));
-    return [...sups.slice(0, pos), { key: 'self', char: g.me }, ...sups.slice(pos)];
+    return bestTeamOrder({ key: 'self', char: g.me }, mine(g.party?.supports), mine(g.party?.wagon), g.me.selfPos);
   }
 
   // さいきょう装備: 何が 何に 変わるかを 見せてから「これにする／変えない」（shared/equip-plan.js）。変えたら true
