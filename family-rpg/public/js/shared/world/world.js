@@ -936,7 +936,13 @@ export class GameWorld {
     const st = partyState(this, p);
     for (const sid of p.members) this.send(this.sessions.get(sid), { t: 'party', party: st });
     clearTimeout(this.playersTimer);
-    this.playersTimer = setTimeout(() => this.broadcastPlayers(), 50);
+    this.playersTimer = setTimeout(() => {
+      try {
+        this.broadcastPlayers();
+      } catch (e) {
+        console.error('players error', e);
+      }
+    }, 50);
   }
 
   broadcastToParty(p, msg) {

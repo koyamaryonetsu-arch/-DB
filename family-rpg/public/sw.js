@@ -58,6 +58,7 @@ function downPage() {
   <div class="logo">きずなの紋章</div>
   <div class="gold">家族サーバーにつながりません</div>
   <p>家のPCの電源と、家族サーバー（黒い画面）が動いているか見てね。</p>
+  <p class="small">・黒い画面が「続行するには…」で止まった時は、閉じて start.bat をもう一度開く<br>・外出先からの時は、PCの Tailscale がつながっているかも見る</p>
   <p>PCが使えない時は、ひとりで遊ぶサイトで遊べます（あとで家族サーバーに合わせられます）。</p>
   <div class="row">
     <a class="btn primary" href="${site}">📱 ひとりで遊ぶサイトへ</a>

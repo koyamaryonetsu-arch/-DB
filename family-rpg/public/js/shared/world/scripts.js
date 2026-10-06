@@ -82,7 +82,19 @@ export class ScriptRun {
     } catch (e) {
       if (!this.aborted) console.error('script error', e);
     }
-    this.finish();
+    // おわりの かたづけで エラーが おきても、うごけなく ならない ように する
+    // （ここで エラーが 出ると、Promise の エラーで 家族サーバーが 止まる おそれが あった）
+    try {
+      this.finish();
+    } catch (e) {
+      console.error('script finish error', e);
+      this.world.runs.delete(this.id);
+      for (const m of this.parts) {
+        if (m.runId !== this.id) continue;
+        m.runId = null;
+        if (m.busy === 'script') m.busy = null;
+      }
+    }
   }
 
   finish() {

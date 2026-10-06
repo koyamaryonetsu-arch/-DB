@@ -43,3 +43,73 @@ export async function findFunnelUrl(port, { runImpl = run, candidates = CANDIDAT
   }
   return { installed: false, url: '' };
 }
+
+// コマンドの 出力（コマンドが 見つからない ときは notFound）
+function runOut(bin, args, ms = 4000) {
+  return new Promise((resolve) => {
+    try {
+      execFile(bin, args, { timeout: ms, windowsHide: true }, (err, stdout) => {
+        if (err && err.code === 'ENOENT') resolve({ notFound: true });
+        else resolve({ out: String(stdout || ''), failed: !!err });
+      });
+    } catch {
+      resolve({ notFound: true });
+    }
+  });
+}
+
+// Tailscale の ようす（tailscale status --json）
+// もどりち: { installed, state: 'Running' | 'NeedsLogin' | 'Stopped' | 'NoDaemon'（動いていない）| …, expiry: ログインの 期限, expired }
+export async function tailscaleState({ runImpl = runOut, candidates = CANDIDATES } = {}) {
+  for (const bin of candidates) {
+    const r = await runImpl(bin, ['status', '--json']);
+    if (!r || r.notFound) continue;
+    let j = null;
+    try {
+      j = JSON.parse(r.out || '');
+    } catch {
+      j = null;
+    }
+    if (!j || typeof j !== 'object') return { installed: true, state: 'NoDaemon', expiry: '', expired: false };
+    return { installed: true, state: String(j.BackendState || ''), expiry: String(j.Self?.KeyExpiry || ''), expired: !!j.Self?.Expired };
+  }
+  return { installed: false, state: '', expiry: '', expired: false };
+}
+
+// 外出先から つながらない ようすの ときに 黒い 画面に 出す 文（だいじょうぶな ときは []）
+// ・Tailscale の ログインが 切れた・OFF・動いていない
+// ・ログインの 期限（ふつうは 180日）が 2週間 いないに 切れる
+export function tailscaleWarning(st, now = Date.now()) {
+  if (!st?.installed) return [];
+  const tail = '   （家のWi-Fiからは、いつも通り遊べます）';
+  if (st.state === 'NeedsLogin' || st.expired) {
+    return [
+      '★ 外出先から遊ぶ時のつながり（Tailscale）のログインが切れています。外出先からは開けません。',
+      '   PCのタスクバーの Tailscale のアイコンから、ログインしなおしてね。',
+      tail,
+    ];
+  }
+  if (st.state === 'Stopped') {
+    return [
+      '★ 外出先から遊ぶ時のつながり（Tailscale）が OFF です。外出先からは開けません。',
+      '   PCのタスクバーの Tailscale のアイコンから、Connect を選んでね。',
+      tail,
+    ];
+  }
+  if (st.state === 'NoDaemon') {
+    return [
+      '★ 外出先から遊ぶ時のつながり（Tailscale）が動いていないようです。外出先からは開けません。',
+      '   スタートメニューなどから Tailscale を起動してね。',
+      tail,
+    ];
+  }
+  const end = Date.parse(st.expiry);
+  if (st.state === 'Running' && Number.isFinite(end) && end > now && end - now < 14 * 86400000) {
+    const d = new Date(end);
+    return [
+      `★ Tailscale のログインの期限は${d.getMonth() + 1}月${d.getDate()}日までです。切れると、外出先からは開けなくなります。`,
+      '   https://login.tailscale.com/admin/machines で、このPCの「…」→「Disable key expiry」を選ぶと、期限がなくなります。',
+    ];
+  }
+  return [];
+}

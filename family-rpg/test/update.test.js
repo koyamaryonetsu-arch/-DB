@@ -6,7 +6,7 @@ import os from 'node:os';
 import path from 'node:path';
 import http from 'node:http';
 import zlib from 'node:zlib';
-import { spawn } from 'node:child_process';
+import { spawn, execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { readTar, checkAndUpdate, rollback, readVersion, markExecutables, SOURCE } from '../server/update.js';
 import { freePort } from './helpers.js';
@@ -229,6 +229,96 @@ test('自動更新: 起動すると 新しい 版に なって そのまま 動�
     assert.ok(!fs.readFileSync(path.join(root, 'server/main.js'), 'utf8').includes('broken'));
     assert.equal(readVersion(root).sha, 'good-1');
   } finally {
+    await gh.close();
+  }
+});
+
+// ───── 古い 見はり役（2026-09-27〜10-05 の index.js）から 新しい 版へ ─────
+// 家族の PC で 動いている のは 古い index.js。それが 新しい 版を 入れて、新しい index.js を 子どもと して 動かす
+function procTable() {
+  const out = execFileSync('ps', ['-eo', 'pid=,ppid=,args='], { encoding: 'utf8' });
+  return out.split('\n').map((l) => l.trim().match(/^(\d+)\s+(\d+)\s+(.*)$/)).filter(Boolean).map((m) => ({ pid: Number(m[1]), ppid: Number(m[2]), args: m[3] }));
+}
+function descendants(pid) {
+  const t = procTable();
+  const out = [];
+  const walk = (p) => {
+    for (const r of t) {
+      if (r.ppid !== p) continue;
+      out.push(r);
+      walk(r.pid);
+    }
+  };
+  walk(pid);
+  return out;
+}
+function startApp(root, home, gh, port) {
+  const env = { ...process.env, HOME: home, USERPROFILE: home, PORT: String(port), HOST: '127.0.0.1', KIZUNA_UPDATE_API: gh.base, KIZUNA_UPDATE_CODELOAD: gh.base };
+  delete env.DATA_DIR;
+  delete env.KIZUNA_NO_UPDATE;
+  delete env.KIZUNA_CHILD;
+  const proc = spawn(process.execPath, [path.join(root, 'server', 'index.js')], { env, stdio: ['ignore', 'pipe', 'pipe'] });
+  let out = '';
+  proc.stdout.on('data', (d) => { out += String(d); });
+  proc.stderr.on('data', (d) => { out += String(d); });
+  const exited = new Promise((r) => proc.on('exit', (code) => r(code)));
+  // from 文字 いこうに text が 出るまで まつ
+  const waitFor = async (text, from = 0, ms = 20000) => {
+    for (let t = 0; t < ms && !out.includes(text, from); t += 100) await new Promise((r) => setTimeout(r, 100));
+    assert.ok(out.includes(text, from), `「${text}」が 出ない:\n${out}`);
+    return out.indexOf(text, from);
+  };
+  return { proc, exited, waitFor, out: () => out };
+}
+
+test('自動更新: 古い 見はり役からでも 新しい 版で 動き、本体が 止まっても 自動で もう一度 動く', { timeout: 60000, skip: process.platform === 'win32' }, async () => {
+  const { home, root } = tmpApp({});
+  copyApp(root);
+  const newIndex = fs.readFileSync(path.join(root, 'server/index.js'));
+  fs.copyFileSync(path.join(APP, 'test/fixtures/index-2026-09-27.js'), path.join(root, 'server/index.js'));
+  const state = { sha: 'new-1', tar: appTar('new-1', root, { 'family-rpg/server/index.js': newIndex }) };
+  const gh = await fakeGitHub(state);
+  const port = await freePort();
+  const run = startApp(root, home, gh, port);
+  try {
+    await run.waitFor('終わるときは');
+    assert.ok(run.out().includes('新しい版にしました'), run.out());
+    assert.equal(fs.readFileSync(path.join(root, 'server/index.js'), 'utf8'), String(newIndex));
+    const main = descendants(run.proc.pid).find((r) => /server[\\/]main\.js/.test(r.args));
+    assert.ok(main, 'main.js が 動いている');
+    // 本体が 思いがけず 止まった → 見はり役（新しい index.js）が もう一度 動かす
+    const at = run.out().length;
+    process.kill(main.pid, 'SIGKILL');
+    await run.waitFor('自動でもう一度動かします', at);
+    await run.waitFor('終わるときは', at);
+    const info = await (await fetch(`http://127.0.0.1:${port}/api/info`)).json();
+    assert.equal(info.server, true);
+    assert.ok(fs.readFileSync(path.join(home, 'kizuna-save', 'error-log.txt'), 'utf8').includes('もう一度動かします'));
+  } finally {
+    run.proc.kill('SIGINT');
+    assert.equal(await run.exited, 0, 'Ctrl + C で ふつうに 終わる');
+    await gh.close();
+  }
+  assert.ok(!descendants(run.proc.pid).length);
+});
+
+test('自動更新: 古い 見はり役から 入れた 新しい 版が こわれていたら、前の 版に もどして 動く', { timeout: 60000, skip: process.platform === 'win32' }, async () => {
+  const { home, root } = tmpApp({});
+  copyApp(root);
+  const newIndex = fs.readFileSync(path.join(root, 'server/index.js'));
+  const oldIndex = fs.readFileSync(path.join(APP, 'test/fixtures/index-2026-09-27.js'), 'utf8');
+  fs.writeFileSync(path.join(root, 'server/index.js'), oldIndex);
+  const state = { sha: 'bad-1', tar: appTar('bad-1', root, { 'family-rpg/server/index.js': newIndex, 'family-rpg/server/main.js': 'throw new Error("broken")' }) };
+  const gh = await fakeGitHub(state);
+  const run = startApp(root, home, gh, await freePort());
+  try {
+    await run.waitFor('前の版にもどします');
+    await run.waitFor('終わるときは');
+    assert.equal(fs.readFileSync(path.join(root, 'server/index.js'), 'utf8'), oldIndex, '古い index.js に もどった');
+    assert.ok(!fs.readFileSync(path.join(root, 'server/main.js'), 'utf8').includes('broken'));
+  } finally {
+    run.proc.kill('SIGINT');
+    await run.exited;
     await gh.close();
   }
 });

@@ -6,14 +6,17 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import { pipeline } from 'node:stream';
 import { fileURLToPath } from 'node:url';
 import { acceptUpgrade } from './ws.js';
 import { FileStorage } from './storage.js';
 import { fileSyncStore } from './syncstore.js';
 import { clientAddress, isFromInternet, strongEnough, LoginGuard } from './guard.js';
-import { findFunnelUrl } from './funnel.js';
+import { findFunnelUrl, tailscaleState, tailscaleWarning } from './funnel.js';
 import { defaultDataDir, handOverOldSaves } from './savedir.js';
 import { readVersion } from './update.js';
+import { createErrorLog, captureConsole } from './errlog.js';
+import { requestPath, decodePath } from './reqpath.js';
 import { GameWorld } from '../public/js/shared/world/world.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -23,6 +26,11 @@ const CUSTOM_DIR = !!process.env.DATA_DIR;
 const DATA_DIR = path.resolve(process.env.DATA_DIR || defaultDataDir());
 
 fs.mkdirSync(DATA_DIR, { recursive: true });
+
+// エラーの きろく（セーブの 場所の error-log.txt）。console.error・console.warn も ここに 書く
+// （おなじ エラーが つづく ときは 1分に 1回だけ 黒い 画面に 出す）
+const errlog = createErrorLog(DATA_DIR, { version: String(readVersion(ROOT)?.date || '').slice(0, 10) });
+captureConsole(errlog);
 
 // むかしの 版の セーブ（アプリの フォルダの 中の data）を ひっこす
 let handOver = { moved: [], from: [], config: false };
@@ -77,6 +85,25 @@ function safeEqual(a, b) {
   return crypto.timingSafeEqual(ha, hb);
 }
 
+// 思いがけない エラー: きろくして、セーブして 終わる（見はり役の server/index.js が もう一度 動かす）
+let crashed = false;
+process.on('uncaughtException', (e) => {
+  console.error('★ 思いがけないエラーで止まりました', e);
+  if (crashed) process.exit(1);
+  crashed = true;
+  try {
+    world.markDirty();
+    world.saveNow();
+  } catch (e2) {
+    console.error('セーブに失敗しました', e2);
+  }
+  process.exit(1);
+});
+// Promise の エラーは きろくだけして 動きつづける
+process.on('unhandledRejection', (e) => {
+  console.error('★ 思いがけないエラー（そのまま続けます）', e);
+});
+
 let last = performance.now();
 setInterval(() => {
   const now = performance.now();
@@ -110,9 +137,32 @@ function siteOrigins() {
 let funnel = { installed: false, url: '' };
 const publicUrl = () => String(config.publicUrl || funnel.url || '').replace(/\/+$/, '');
 
+// へんじが できない ときの おわらせかた（エラーで 止まらない ように）
+function failHttp(res, code) {
+  try {
+    if (!res.headersSent) res.writeHead(code, { 'Content-Type': 'text/plain; charset=utf-8' });
+    res.end();
+  } catch { /* */ }
+}
+
+// 1つの アクセスで エラーが おきても、サーバーは 止めない
 const server = http.createServer((req, res) => {
-  const url = new URL(req.url, 'http://localhost');
-  if (url.pathname === '/api/info') {
+  try {
+    serveHttp(req, res);
+  } catch (e) {
+    console.error('http error', e);
+    failHttp(res, 500);
+  }
+});
+
+function serveHttp(req, res) {
+  // こわれた アドレス（//a:b・%00 など）は 400（前は ここで サーバーが 止まって いた）
+  const reqPath = requestPath(req.url);
+  if (reqPath === null) {
+    failHttp(res, 400);
+    return;
+  }
+  if (reqPath === '/api/info') {
     const headers = { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' };
     const origin = String(req.headers.origin || '');
     if (siteOrigins().has(origin)) {
@@ -126,37 +176,40 @@ const server = http.createServer((req, res) => {
     res.end(JSON.stringify({ app: 'kizuna', server: true, family: config.familyName, urls, public: strongEnough(PASSWORD) ? publicUrl() : '', site: config.siteUrl || '', version: readVersion(ROOT)?.date || '' }));
     return;
   }
-  let p;
-  try {
-    p = decodeURIComponent(url.pathname);
-  } catch {
-    res.writeHead(400);
-    res.end();
+  // %xx を もどす（読めない・%00 が ある ときは 400）
+  let p = decodePath(reqPath);
+  if (p === null) {
+    failHttp(res, 400);
     return;
   }
   if (p.endsWith('/')) p += 'index.html';
   const file = path.normalize(path.join(PUBLIC, p));
   if (!file.startsWith(PUBLIC + path.sep)) {
-    res.writeHead(403);
-    res.end();
+    failHttp(res, 403);
     return;
   }
   fs.stat(file, (err, st) => {
-    if (err || !st.isFile()) {
-      res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
-      res.end('見つかりません');
-      return;
+    try {
+      if (err || !st.isFile()) {
+        res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+        res.end('見つかりません');
+        return;
+      }
+      res.writeHead(200, {
+        'Content-Type': MIME[path.extname(file).toLowerCase()] || 'application/octet-stream',
+        'Content-Length': st.size,
+        // 字の ファイルは かわらないので、ブラウザに とっておいてもらう（ほかは 毎回 たしかめる）
+        'Cache-Control': file.includes(`${path.sep}fonts${path.sep}`) ? 'public, max-age=2592000' : 'no-cache',
+        'X-Content-Type-Options': 'nosniff',
+      });
+      // 読みこみの エラー・とちゅうで 切れた ときも 止まらない
+      pipeline(fs.createReadStream(file), res, () => {});
+    } catch (e) {
+      console.error('http error', e);
+      failHttp(res, 500);
     }
-    res.writeHead(200, {
-      'Content-Type': MIME[path.extname(file).toLowerCase()] || 'application/octet-stream',
-      'Content-Length': st.size,
-      // 字の ファイルは かわらないので、ブラウザに とっておいてもらう（ほかは 毎回 たしかめる）
-      'Cache-Control': file.includes(`${path.sep}fonts${path.sep}`) ? 'public, max-age=2592000' : 'no-cache',
-      'X-Content-Type-Options': 'nosniff',
-    });
-    fs.createReadStream(file).pipe(res);
   });
-});
+}
 
 // ───────────── WebSocket ─────────────
 // 合言葉の まちがいが 続いたら 待ってもらう（server/guard.js）。外からは きびしく、家の Wi-Fi からは やさしく
@@ -166,7 +219,18 @@ const sockets = new Set();
 let publicSeen = false;
 
 server.on('upgrade', (req, socket, head) => {
-  if (new URL(req.url, 'http://localhost').pathname !== '/ws') {
+  // Node は upgrade の とき、ソケットの エラーの うけとりを はずす（とちゅうで 切れても 止まらない ように）
+  socket.on('error', () => {});
+  try {
+    upgradeWs(req, socket, head);
+  } catch (e) {
+    console.error('upgrade error', e);
+    try { socket.destroy(); } catch { /* */ }
+  }
+});
+
+function upgradeWs(req, socket, head) {
+  if (requestPath(req.url) !== '/ws') {
     socket.destroy();
     return;
   }
@@ -183,8 +247,16 @@ server.on('upgrade', (req, socket, head) => {
         ws.send(JSON.stringify(msg));
       },
     };
-    const session = world.connect(conn);
-    ws.on('message', (text) => {
+    let session;
+    try {
+      session = world.connect(conn);
+    } catch (e) {
+      console.error('connect error', e);
+      sockets.delete(ws);
+      ws.close(1011);
+      return;
+    }
+    const onMessage = (text) => {
       let msg;
       try {
         msg = JSON.parse(text);
@@ -208,18 +280,26 @@ server.on('upgrade', (req, socket, head) => {
           return;
         }
       }
+      world.handle(session, msg, conn);
+    };
+    // 1つの メッセージで エラーが おきても、サーバーは 止めない
+    ws.on('message', (text) => {
       try {
-        world.handle(session, msg, conn);
+        onMessage(text);
       } catch (e) {
         console.error('message error', e);
       }
     });
     ws.on('close', () => {
       sockets.delete(ws);
-      world.disconnect(session, conn);
+      try {
+        world.disconnect(session, conn);
+      } catch (e) {
+        console.error('disconnect error', e);
+      }
     });
   });
-});
+}
 
 // きれた つなぎを かたづける（スマホが スリープしたとき など）
 setInterval(() => {
@@ -242,6 +322,10 @@ server.on('error', (e) => {
 });
 
 server.listen(PORT, HOST, () => {
+  // 見はり役（server/index.js）に「起動できた」と知らせる
+  try {
+    process.send?.({ t: 'ready' });
+  } catch { /* */ }
   const urls = lanAddresses().map((a) => `http://${a}:${PORT}`);
   console.log('');
   console.log('  ★☆★ 「きずなの紋章」家族サーバーが動きました ★☆★');
@@ -271,31 +355,56 @@ server.listen(PORT, HOST, () => {
   }
   console.log('');
   console.log('  終わるときはこの画面で Ctrl + C をおしてね（自動でセーブされます）');
+  if (process.platform === 'win32') {
+    console.log('  ※ この黒い画面の中をクリックすると、家族サーバーが一時停止することがあります。その時は Esc キーをおしてね');
+  }
+  if (Number(process.env.KIZUNA_RESTARTS) > 0) {
+    console.log(`  （エラーで止まったので、自動でもう一度動かしました。くわしくは ${errlog.file}）`);
+  }
   console.log('');
   // 外出先から（スマホに アプリなしで）つながるか: Tailscale Funnel を しらべる
   checkFunnel(true);
 });
 
+// いま 黒い 画面に 出している Tailscale の 注意（かわった ときだけ 出しなおす）
+let tsWarned = '';
 async function checkFunnel(print) {
   try {
     funnel = await findFunnelUrl(PORT);
   } catch {
     funnel = { installed: false, url: '' };
   }
-  if (!print) return;
-  const pub = publicUrl();
-  if (pub) {
-    console.log('  ★ 外出先から（スマホにアプリはいりません）:');
-    console.log(`     ${pub}`);
-    if (!strongEnough(PASSWORD)) {
-      console.log('     ※ いまの合言葉は短いので、外出先からは入れません。');
-      console.log(`       ${CONFIG_FILE} の password を 8文字以上（数字だけはだめ）に変えて、サーバーを再起動してね。`);
-    }
-    console.log('');
-  } else if (funnel.installed) {
-    console.log('  （外出先からも遊ぶ時は、funnel-on をダブルクリック → サーバーを再起動）');
-    console.log('');
+  // 外出先から つながる ようすか（Tailscale の ログインが 切れた・期限が ちかい など）
+  let warn = [];
+  try {
+    warn = tailscaleWarning(await tailscaleState());
+  } catch {
+    warn = [];
   }
+  if (print) {
+    const pub = publicUrl();
+    if (pub) {
+      console.log('  ★ 外出先から（スマホにアプリはいりません）:');
+      console.log(`     ${pub}`);
+      if (!strongEnough(PASSWORD)) {
+        console.log('     ※ いまの合言葉は短いので、外出先からは入れません。');
+        console.log(`       ${CONFIG_FILE} の password を 8文字以上（数字だけはだめ）に変えて、サーバーを再起動してね。`);
+      }
+      console.log('');
+    } else if (funnel.installed) {
+      console.log('  （外出先からも遊ぶ時は、funnel-on をダブルクリック → サーバーを再起動）');
+      console.log('');
+    }
+  }
+  const key = warn.join('\n');
+  if (key && (print || key !== tsWarned)) {
+    if (!print) console.log('');
+    for (const line of warn) console.log(`  ${line}`);
+    console.log('');
+  } else if (!key && tsWarned && !print) {
+    console.log('\n  ★ 外出先から遊ぶ時のつながり（Tailscale）がもどりました\n');
+  }
+  tsWarned = key;
 }
 // あとから Funnel を ON に した ときも わかる ように
 setInterval(() => checkFunnel(false), 5 * 60 * 1000).unref();
@@ -334,3 +443,5 @@ function shutdown() {
 }
 process.on('SIGINT', shutdown);
 process.on('SIGTERM', shutdown);
+// 黒い 画面を とじた（Windows）・ターミナルを とじた（Mac）ときも セーブしてから 終わる
+process.on('SIGHUP', shutdown);
