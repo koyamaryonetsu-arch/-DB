@@ -2,15 +2,15 @@
 // ・タイルの え を 1まいに ならべた「アトラス」
 // ・かべの よこ・うえ、やま、はし など 3D だけで つかう え
 // ・つぼ・さく・かんばん など たてて みせる「もの」の え（せなかは とうめい）
-import { T } from '../../shared/tiles.js?v=1712ace6c042';
-import { tileCanvas } from './tiles.js?v=1712ace6c042';
-import { Painter, prand, makeCanvas, ctxOf, shade } from './pixel.js?v=1712ace6c042';
-import { paintStorm } from './tiles-ch4.js?v=1712ace6c042';
-import { PYRAMID_EXTRAS } from './tiles-pyramid.js?v=1712ace6c042';
+import { T } from '../../shared/tiles.js?v=fd5519597012';
+import { tileCanvas } from './tiles.js?v=fd5519597012';
+import { Painter, prand, makeCanvas, ctxOf, shade } from './pixel.js?v=fd5519597012';
+import { paintStorm } from './tiles-ch4.js?v=fd5519597012';
+import { PYRAMID_EXTRAS } from './tiles-pyramid.js?v=fd5519597012';
 import {
   canalWallFace, canalWallTop, canalSidePaint, damTopPaint, paintCanalWater, sluiceTopPaint, sluiceBoardPaint, pillarSidePaint, pillarTopPaint, rubbleAtlasPaint,
   CANAL_SUN,
-} from './tiles-canal.js?v=1712ace6c042';
+} from './tiles-canal.js?v=fd5519597012';
 
 const TAU = Math.PI * 2;
 

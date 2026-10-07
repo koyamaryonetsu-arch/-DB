@@ -1,13 +1,13 @@
 // たたかいの はいけいと エフェクト
-import { makeCanvas, ctxOf, hexToRgb, mix } from './pixel.js?v=1712ace6c042';
-import { weaponLook, playWeapon, playReach } from './weaponfx.js?v=1712ace6c042';
-import { nightBg, drawNightSky } from './night-art.js?v=1712ace6c042';
-import { playJobFx, JOB_FINE } from './battlefx-jobs.js?v=1712ace6c042';
-import { playJob2Fx, JOB2_FINE } from './battlefx-jobs2.js?v=1712ace6c042';
-import { drawPalaceHall, drawPalaceFloor } from './ch4-palace-bg.js?v=1712ace6c042';
+import { makeCanvas, ctxOf, hexToRgb, mix } from './pixel.js?v=fd5519597012';
+import { weaponLook, playWeapon, playReach } from './weaponfx.js?v=fd5519597012';
+import { nightBg, drawNightSky } from './night-art.js?v=fd5519597012';
+import { playJobFx, JOB_FINE } from './battlefx-jobs.js?v=fd5519597012';
+import { playJob2Fx, JOB2_FINE } from './battlefx-jobs2.js?v=fd5519597012';
+import { drawPalaceHall, drawPalaceFloor } from './ch4-palace-bg.js?v=fd5519597012';
 // 第4章 Step 6: 砂の古城・砂の海（すなかぜ号の かんぱん）・砂クジラの ねどこ（ch4-duna-bg.js）
-import { drawCastleHall, drawCastleFloor, drawSandSea } from './ch4-duna-bg.js?v=1712ace6c042';
-import { playCh4Fx } from './battlefx-ch4.js?v=1712ace6c042';
+import { drawCastleHall, drawCastleFloor, drawSandSea } from './ch4-duna-bg.js?v=fd5519597012';
+import { playCh4Fx } from './battlefx-ch4.js?v=fd5519597012';
 
 export const BW = 256;
 export const BH = 144;

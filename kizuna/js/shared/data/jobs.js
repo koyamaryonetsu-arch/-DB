@@ -745,19 +745,83 @@ export const JOBS = {
     perLv: { hp: 2, mag: 1, str: 0.5 },
     learn: [[1, 'mo_kokuen'], [3, 'mo_hadou'], [5, 'mo_tsume'], [7, 'mo_iatsu'], [8, 'mo_koromo'], [10, 'mo_hametsu']],
   },
+
+  // ───────────── 2026年10月（第22回）の 新しい 職業（技は abilities-jobs5.js） ─────────────
+  // おかん → 最強のおかん
+  okan: {
+    id: 'okan', name: 'おかん', kana: 'おかん', short: 'おかん', tier: 0, family: 'tech', color: '#e87aa0',
+    desc: 'みんなのおかん。おたまやスリッパで戦い、ごはんで仲間を元気にする。「早くねなさい！」で敵もねむらせる。',
+    mods: { hp: 1.05, mp: 1.0, str: 1.0, def: 1.0, agi: 0.95, mag: 0.9, heal: 1.15 },
+    weapons: ['staff', 'axe', 'fan', 'none'], shield: true, armor: ['cloth', 'robe'], helm: true,
+    perLv: { hp: 1, heal: 0.5 },
+    learn: [
+      [1, 'ok_otama'], [2, 'ok_gohan'], [3, 'ok_nenasai'], [4, 'ok_negiri'], [5, 'ok_slipper'],
+      [6, 'ok_bentou'], [7, 'ok_katazuke'], [8, 'ok_ame'], [10, 'ok_ikari'],
+    ],
+  },
+  saikyo_okan: {
+    id: 'saikyo_okan', name: '最強のおかん', kana: 'さいきょうのおかん', short: '最強', tier: 1, req: ['okan'], family: 'tech', color: '#c8a020',
+    desc: 'だれも勝てない、最強のおかん。おかんの雷とスリッパで敵をたおし、おかわり自由のごはんとおかんの愛で、仲間を守りぬく。',
+    mods: { hp: 1.2, mp: 1.05, str: 1.1, def: 1.1, agi: 1.0, mag: 1.0, heal: 1.35 },
+    weapons: ['staff', 'axe', 'fan', 'none'], shield: true, armor: ['cloth', 'robe'], helm: true,
+    perLv: { hp: 1, heal: 1 },
+    learn: [[1, 'so_kaminari'], [2, 'so_okawari'], [4, 'so_osouji'], [5, 'so_slipper'], [6, 'so_ai'], [8, 'so_kaji'], [10, 'so_binta']],
+  },
+
+  // 会社員 → 社ちく → ブラックきぎょうの星（HPが 少ないほど 強い）
+  shachiku: {
+    id: 'shachiku', name: '社ちく', kana: 'しゃちく', short: '社ちく', tier: 1, req: ['salaryman'], family: 'tech', color: '#5a5a6a',
+    desc: '会社のために、毎日おそくまで働く。つかれればつかれるほど力が出て、HPが少ないほど攻撃が強くなる。サービス残業で、すぐにもう一度行動できる。',
+    mods: { hp: 1.3, mp: 0.85, str: 1.2, def: 1.15, agi: 1.0, mag: 0.8, heal: 0.9 },
+    weapons: ['dagger', 'staff', 'fan', 'axe', 'none'], shield: true, armor: ['cloth', 'robe'], helm: false,
+    perLv: { hp: 1.5, str: 0.5 },
+    passive: { grit: 0.5 },
+    learn: [[1, 'sk_tsukin'], [2, 'sk_zangyou'], [4, 'sk_eiyou'], [5, 'sk_kaigi'], [6, 'sk_iji'], [8, 'sk_pekopeko'], [10, 'sk_shuuden']],
+  },
+  black_star: {
+    id: 'black_star', name: 'ブラックきぎょうの星', kana: 'ぶらっくきぎょうのほし', short: 'ブラ星', tier: 2, req: ['shachiku'], family: 'tech', color: '#3a1a1a',
+    desc: '休みの日も会社にとまりこむ、社ちくの中の社ちく。HPが少ないほど、攻撃がとても強くなる。ネクタイのはちまきがトレードマーク。',
+    mods: { hp: 1.5, mp: 0.95, str: 1.45, def: 1.3, agi: 1.15, mag: 0.85, heal: 1.0 },
+    weapons: ['dagger', 'staff', 'fan', 'axe', 'none'], shield: true, armor: ['cloth', 'robe', 'heavy'], helm: false,
+    perLv: { hp: 2, str: 1 },
+    passive: { grit: 0.8 },
+    learn: [[1, 'bk_kyujitsu'], [3, 'bk_tomari'], [5, 'bk_norma'], [7, 'bk_24h'], [8, 'bk_ichigan'], [10, 'bk_star']],
+  },
+
+  // 天才しせつ管理者（伝説の職業。ryonetsu と、ほかの 超級職を 1つ きわめた 者）
+  facility_genius: {
+    id: 'facility_genius', name: '天才しせつ管理者', kana: 'てんさいしせつかんりしゃ', short: '天才', tier: 3, req: ['ryonetsu'], reqSuper: 1, family: 'tech', color: '#20a8c8',
+    desc: '建物のすべてを見守る、天才のしせつ管理者。ryonetsuと、ほかの超級職を1つきわめた者だけがなれる。敵の大技の予兆を見ぬいて、仲間みんなが受けるダメージを小さくする。戦いで手に入るお金もとてもふえる。',
+    mods: { hp: 1.45, mp: 1.45, str: 1.25, def: 1.4, agi: 1.2, mag: 1.45, heal: 1.5 },
+    weapons: ['axe', 'dagger', 'staff'], shield: true, armor: ['cloth', 'heavy', 'robe'], helm: true,
+    perLv: { hp: 1.5, mag: 1, heal: 1 },
+    passive: { foresee: 0.6, gold: 1.3 },
+    versatile: true,
+    learn: [[1, 'fg_mieruka'], [3, 'fg_yochou'], [5, 'fg_kuuchou'], [7, 'fg_demand'], [8, 'fg_hirameki'], [10, 'fg_saiteki']],
+  },
+
+  // はかい神（伝説の職業。魔王と ゴッドハンドを きわめた 者）
+  hakaishin: {
+    id: 'hakaishin', name: 'はかい神', kana: 'はかいしん', short: 'はかい', tier: 3, req: ['maou', 'god_hand'], family: 'phys', color: '#6a2a8a',
+    desc: 'すべてをはかいする神。魔王とゴッドハンドをきわめた者だけがなれる。「はかい」で敵を消し去り、はかい玉で何もかもふきとばす。気まぐれで、よく昼ねをする。',
+    mods: { hp: 1.7, mp: 1.25, str: 1.95, def: 1.45, agi: 1.55, mag: 1.45, heal: 0.85 },
+    weapons: ['none', 'claw', 'axe'], shield: false, armor: ['cloth', 'gi', 'robe'], helm: true,
+    perLv: { hp: 2, str: 1.5, agi: 0.5 },
+    learn: [[1, 'hk_hakai'], [3, 'hk_kimagure'], [5, 'hk_hirune'], [7, 'hk_kami'], [8, 'hk_ikari'], [10, 'hk_hakaidama']],
+  },
 };
 
 // はじめに えらべる 職業（基本職）
 export const JOB_ORDER = ['warrior', 'monk', 'priest', 'mage', 'performer', 'jester', 'salaryman', 'idol', 'railman', 'ballplayer',
-  'schoolkid', 'civil_local', 'cook', 'parttimer', 'neet', 'saiyan', 'youtuber', 'gamer'];
+  'schoolkid', 'civil_local', 'cook', 'parttimer', 'neet', 'saiyan', 'youtuber', 'gamer', 'okan'];
 export const ADVANCED_ORDER = ['battlemaster', 'paladin', 'magic_knight', 'pirate', 'holyfist', 'ninja', 'tamer', 'sage', 'superstar', 'fortune',
   'samurai', 'bucho', 'major_leaguer', 'middleschooler', 'civil_national', 'police', 'firefighter', 'train_driver',
-  'patissier', 'seishain', 'comedian', 'chuuni', 'super_saiyan', 'setsubiya', 'streamer', 'pro_gamer'];
+  'patissier', 'seishain', 'comedian', 'chuuni', 'super_saiyan', 'setsubiya', 'streamer', 'pro_gamer', 'saikyo_okan', 'shachiku'];
 export const SUPER_ORDER = ['dragon_knight', 'archmage', 'high_priest', 'god_hand', 'summoner', 'magic_swordsman', 'guardian', 'hero', 'monster_master', 'star_diva',
   'sword_master', 'shogun', 'shacho', 'nitoryu', 'highschooler', 'career', 'fruit_idol', 'storm_idol', 'keikyu_driver',
-  'star_chef', 'tatakiage', 'm1_champion', 'daikenja', 'datenshi', 'ss2', 'ryonetsu', 'rubber'];
+  'star_chef', 'tatakiage', 'm1_champion', 'daikenja', 'datenshi', 'ss2', 'ryonetsu', 'rubber', 'black_star'];
 // 伝説の 職業（超級職の 先）
-export const LEGEND_ORDER = ['loto_hero', 'ss3', 'nika', 'maou'];
+export const LEGEND_ORDER = ['loto_hero', 'ss3', 'nika', 'maou', 'facility_genius', 'hakaishin'];
 export const ALL_JOBS = [...JOB_ORDER, ...ADVANCED_ORDER, ...SUPER_ORDER, ...LEGEND_ORDER];
 export const TIER_NAMES = ['基本職', '上級職', '超級職', '伝説の職業'];
 // 神殿で ならべる じゅん（ランクごと）
@@ -860,4 +924,7 @@ export const JOB_HINTS = {
   ss3: 'スーパーサイヤ人2と、ほかの超級職を1つきわめた者は、長い金色のかみのすがたになれるらしい…',
   nika: 'ゴム人間と、ほかの超級職を1つきわめた者には、太陽の神の力が目ざめるらしい…',
   maou: '勇者とダ天使、光とやみの両方をきわめた者は、すべての魔物の王になるらしい…',
+  black_star: '社ちくをきわめた者は、休みの日も会社にいる、伝説の社員になれるらしい…',
+  facility_genius: 'ryonetsuと、ほかの超級職を1つきわめた者は、建物のすべてを見守る天才になれるらしい…',
+  hakaishin: '魔王とゴッドハンドをきわめた者は、すべてをはかいする神になれるらしい…',
 };

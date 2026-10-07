@@ -1,10 +1,10 @@
 // たたかいの AI（モンスター と サポートなかま）
-import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=1712ace6c042';
-import { mpCost, penaltyFor, weaponOk, comboAllowed } from './stats.js?v=1712ace6c042';
+import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=fd5519597012';
+import { mpCost, penaltyFor, weaponOk, comboAllowed } from './stats.js?v=fd5519597012';
 // 第4章の まぼろしの分身と 月の鏡（battle-ch4.js）
-import { mirageAction, mirrorPlan } from './battle-ch4.js?v=1712ace6c042';
+import { mirageAction, mirrorPlan } from './battle-ch4.js?v=fd5519597012';
 // 第4章 Step 6 の 砂に もぐる 魔物（battle-ch4.js）
-import { burrowSurface, burrowPlan } from './battle-ch4.js?v=1712ace6c042';
+import { burrowSurface, burrowPlan } from './battle-ch4.js?v=fd5519597012';
 
 // さくせん
 export const TACTICS = {
@@ -28,7 +28,8 @@ export function decideMonster(b, m) {
     const id = m.telegraph;
     m.telegraph = null;
     m.chant = null;
-    return { type: 'ability', id, target: pickFoe(b, foes)?.id };
+    // big … ためてから 出す 大技（天才しせつ管理者の 予兆保全で ダメージが へる。battle.js の foreseeCut）
+    return { type: 'ability', id, target: pickFoe(b, foes)?.id, big: true };
   }
   const friends = b.aliveEnemies();
   const cands = m.actions.filter((a) => {
@@ -318,10 +319,23 @@ function chooseAttack(b, c, tac, foes) {
     const a = ABILITIES[id];
     if (!a || !autoOk(c, id) || !canUse(b, c, id)) continue;
     const eff = prim(a);
-    if (eff.type !== 'phys' && eff.type !== 'magic' && eff.type !== 'drainHp') continue;
+    if (eff.type !== 'phys' && eff.type !== 'magic' && eff.type !== 'drainHp' && eff.type !== 'destroy') continue;
     if (eff.recoil && c.hp / c.maxHp < 0.5) continue; // もろばぎりは HPが すくない ときは つかわない
     const mp = mpCost(c.penChar, id);
     const pow = penaltyFor(c.penChar, id).powMult;
+    // はかい（destroy）: ボス・メタル いがいは けしさる（のこりの HP × 成功の わりあい）。ボス・メタルには 大きな ダメージ
+    if (eff.type === 'destroy') {
+      if (a.target !== 'enemy') continue;
+      for (const t of foes) {
+        let score;
+        if (t.boss || t.metal) {
+          const r = b.calcPhys(c, t, { mult: eff.bossMult || 2 }, pow, 'phys', true);
+          score = value(t, r.dmg * r.hit);
+        } else score = value(t, t.hp) * (eff.chance ?? 0.7);
+        opts.push({ cmd: { type: 'ability', id, target: t.id }, score, mp, risky: (t.boss || t.metal) && countering(t, b) });
+      }
+      continue;
+    }
     const est = (t) => {
       if (eff.type === 'phys' || eff.type === 'drainHp') {
         const r = b.calcPhys(c, t, eff, pow, eff.element || 'phys', true);

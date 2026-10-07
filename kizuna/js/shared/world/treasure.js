@@ -1,18 +1,18 @@
 // 宝の地図（せかいの しくみ）: 手に入れる・ほる・洞窟に 入る／出る・洞窟の 主・ごほうび
 // データと 洞窟の 形は data/treasure.js と maps/treasure-cave.js
-import { MAPS, isBlocked, tileAt, POS, PLACES } from '../maps/index.js?v=1712ace6c042';
-import { SEA_POS } from '../maps/sea.js?v=1712ace6c042';
-import { T, TILE_INFO } from '../tiles.js?v=1712ace6c042';
-import { makeRng } from '../rng.js?v=1712ace6c042';
-import { MONSTERS } from '../data/monsters.js?v=1712ace6c042';
-import { TM_HOOKS } from '../data/story-tm.js?v=1712ace6c042';
-import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=1712ace6c042';
-import { ScriptRun } from './scripts.js?v=1712ace6c042';
-import { partyOf } from './party.js?v=1712ace6c042';
+import { MAPS, isBlocked, tileAt, POS, PLACES } from '../maps/index.js?v=fd5519597012';
+import { SEA_POS } from '../maps/sea.js?v=fd5519597012';
+import { T, TILE_INFO } from '../tiles.js?v=fd5519597012';
+import { makeRng } from '../rng.js?v=fd5519597012';
+import { MONSTERS } from '../data/monsters.js?v=fd5519597012';
+import { TM_HOOKS } from '../data/story-tm.js?v=fd5519597012';
+import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=fd5519597012';
+import { ScriptRun } from './scripts.js?v=fd5519597012';
+import { partyOf } from './party.js?v=fd5519597012';
 import {
   TM_MAX, TM_THEMES, caveInfo, tmTitle, floorMapId, parseFloorId, isTreasureMapId, clearedFlag, foundFlag, seed36, bossLvOf,
   mapDropRate, dropMapLevel, nextMapLevel, repairTreasureMaps,
-} from '../data/treasure.js?v=1712ace6c042';
+} from '../data/treasure.js?v=fd5519597012';
 
 const HUNTER = '宝探しのダイゴ';
 

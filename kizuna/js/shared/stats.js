@@ -1,11 +1,11 @@
 // キャラクターの つよさ計算・レベルアップ・転職ペナルティ
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_EASY_RATE, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets, jobBodyOk, superMasteredCount } from './data/jobs.js?v=1712ace6c042';
-import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=1712ace6c042';
-import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=1712ace6c042';
-import { MONSTERS } from './data/monsters.js?v=1712ace6c042';
-import { MONSTER_FRIENDS, monsterNatural, gearOf } from './data/companions.js?v=1712ace6c042';
-import { HIRAMEKI, hiraRatio } from './data/hirameki.js?v=1712ace6c042';
-import { cleanLook } from './data/looks.js?v=1712ace6c042';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_EASY_RATE, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets, jobBodyOk, superMasteredCount } from './data/jobs.js?v=fd5519597012';
+import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=fd5519597012';
+import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=fd5519597012';
+import { MONSTERS } from './data/monsters.js?v=fd5519597012';
+import { MONSTER_FRIENDS, monsterNatural, gearOf } from './data/companions.js?v=fd5519597012';
+import { HIRAMEKI, hiraRatio } from './data/hirameki.js?v=fd5519597012';
+import { cleanLook } from './data/looks.js?v=fd5519597012';
 
 // 長い 物語に なるので レベルは 99まで（レベルで ふえる つよさは ひかえめ）
 export const MAX_LEVEL = 99;
@@ -408,6 +408,7 @@ export const STARTER_EQUIP = {
   saiyan: { weapon: null, armor: 'battle_suit', shield: null, head: null, acc: null },
   youtuber: { weapon: 'selfie_stick', armor: 'cloth', shield: null, head: null, acc: null },
   gamer: { weapon: 'game_controller', armor: 'cloth', shield: null, head: null, acc: null },
+  okan: { weapon: 'ladle', armor: 'cloth', shield: null, head: null, acc: null },
 };
 
 // みため（むかしの 項目は いつも のこす。かみがた・色・目もとの あたらしい 項目は data/looks.js）

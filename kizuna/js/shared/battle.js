@@ -7,20 +7,20 @@
 //
 // サーバー（家族サーバー）でも ブラウザ（ひとりモード）でも おなじ コードが うごく
 
-import { makeRng } from './rng.js?v=1712ace6c042';
-import { ABILITIES } from './data/abilities.js?v=1712ace6c042';
-import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=1712ace6c042';
-import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js?v=1712ace6c042';
-import { MONSTERS } from './data/monsters.js?v=1712ace6c042';
-import { ITEMS } from './data/items.js?v=1712ace6c042';
-import { JOBS } from './data/jobs.js?v=1712ace6c042';
-import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed, battleAbilityOk } from './stats.js?v=1712ace6c042';
-import { decideMonster, decideAlly } from './ai.js?v=1712ace6c042';
-import { ENEMY_RATES, strengthenEnemy } from './data/difficulty.js?v=1712ace6c042';
+import { makeRng } from './rng.js?v=fd5519597012';
+import { ABILITIES, ELEMENT_ORDER, ELEMENT_NAMES } from './data/abilities.js?v=fd5519597012';
+import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=fd5519597012';
+import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js?v=fd5519597012';
+import { MONSTERS } from './data/monsters.js?v=fd5519597012';
+import { ITEMS } from './data/items.js?v=fd5519597012';
+import { JOBS } from './data/jobs.js?v=fd5519597012';
+import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed, battleAbilityOk } from './stats.js?v=fd5519597012';
+import { decideMonster, decideAlly } from './ai.js?v=fd5519597012';
+import { ENEMY_RATES, strengthenEnemy } from './data/difficulty.js?v=fd5519597012';
 // 第4章の しかけ（まぼろしの分身・月の鏡・そうびしたまま 使う 道具）
-import { setupMirage, mirageHit, mirageVanish, mirageDown, mirageSync, mirageRemake, ch4ItemCheck, ch4UseItem, mirrorSnap } from './battle-ch4.js?v=1712ace6c042';
+import { setupMirage, mirageHit, mirageVanish, mirageDown, mirageSync, mirageRemake, ch4ItemCheck, ch4UseItem, mirrorSnap } from './battle-ch4.js?v=fd5519597012';
 // 第4章 Step 6 の 砂に もぐる（ねらえない。battle-ch4.js）
-import { burrowStart, burrowWarn, burrowBlock, hiddenFrom } from './battle-ch4.js?v=1712ace6c042';
+import { burrowStart, burrowWarn, burrowBlock, hiddenFrom } from './battle-ch4.js?v=fd5519597012';
 
 export const BOND_MAX = 100;
 // きずなゲージの たまりやすさ（1 … はじめの 版。ちいさいほど たまりにくい）
@@ -700,6 +700,8 @@ export class Battle {
   perform(c, cmd, ev) {
     // 敵が みんな 砂の 中に もぐっている（ねらえない。battle-ch4.js）
     if (burrowBlock(this, c, cmd, ev)) return;
+    // ためてから 出す 大技（ai.js の decideMonster が big を つける）。天才しせつ管理者が いると ダメージが へる（foreseeCut）
+    if (cmd.big && c.side === 'enemy') ev.big = true;
     const cast = (tmpl, t) => tmpl.replaceAll('{a}', c.name).replaceAll('{t}', t ? t.name : '');
     switch (cmd.type) {
       case 'attack': {
@@ -1078,6 +1080,65 @@ export class Battle {
         }
         break;
       }
+      case 'overtime': {
+        // サービス残業・休日出勤（社ちく）: 自分の HPを けずって、すぐに もう一度 動く（HPは 1より へらない）。
+        // HPが 1 なら もう けずれないので、つぎの 番も ふつうに まつ（ただで 何回も 動けない ように）
+        const d = Math.min(c.hp - 1, Math.max(1, Math.round(c.maxHp * (eff.hpCost ?? 0.1))));
+        if (d > 0) {
+          c.hp -= d;
+          (ev.results = ev.results || []).push({ id: c.id, dmg: d });
+          ev.lines.push(`${c.name}は${d}のダメージを受けた…`);
+          ev.lines.push(fmtLine(eff.msg || '{a}は、すぐに次の仕事に取りかかった！', c, c));
+          ev.atbAfter = eff.atb ?? 100;
+        } else ev.lines.push(`${c.name}は、もうへとへとだ…。少し休まないと動けない。`);
+        ev.upd.push(c);
+        break;
+      }
+      case 'destroy': {
+        // はかい（はかい神）: 敵を けしさる（たおした ことに なる。経験値も 入る）。
+        // ボスと メタルには 効かず、かわりに 大きな ダメージ（bossMult）
+        for (const t of targets) {
+          if (!t.alive || t.fled) continue;
+          if (mirageHit(this, c, t, ev)) continue;
+          if (t.boss || t.metal) {
+            ev.lines.push(fmtLine(eff.bossMsg || '{t}は、はかいの力にたえた！', c, t));
+            this.physHit(c, t, { mult: eff.bossMult || 2 }, ev, 'phys', powMult);
+            continue;
+          }
+          const chance = (eff.chance ?? 0.7) * (t.resist?.destroy ?? 1) * Math.min(1, 0.6 + 0.4 * powMult);
+          if (!this.rng.chance(chance)) {
+            ev.lines.push(fmtLine(eff.failMsg || 'しかし{t}は、はかいの力をはねかえした！', c, t));
+            continue;
+          }
+          const d = t.hp;
+          t.hp = 0;
+          ev.lines.push(fmtLine(eff.msg || '{t}は、ちりとなって消えた！', c, t));
+          (ev.results = ev.results || []).push({ id: t.id, dmg: d });
+          ev.lines.push(...this.kill(t, null, ev));
+          ev.upd.push(t);
+        }
+        this.afterDamage(c, ev, 'phys');
+        break;
+      }
+      case 'scan': {
+        // 見える化（天才しせつ管理者）: 敵の 弱点と 効かない 属性が ぜんぶ わかる。
+        // results の aff で 画面も おぼえ、図鑑にも のこる（tried）
+        const told = new Set();
+        for (const t of targets) {
+          if (!t.alive || !t.species) continue;
+          if (mirageHit(this, c, t, ev)) continue;
+          ev.results = ev.results || [];
+          for (const el of ELEMENT_ORDER) ev.results.push({ id: t.id, element: el, aff: this.noteTried(t, el), scan: true });
+          if (told.has(t.species)) continue;
+          told.add(t.species);
+          const name = MONSTERS[t.species]?.name || t.name;
+          const list = (kind) => ELEMENT_ORDER.filter((el) => affinityOf(t.resist?.[el] ?? 1) === kind).map((el) => ELEMENT_NAMES[el]);
+          const weak = list('weak'), none = list('null');
+          ev.lines.push(weak.length ? `${name}の弱点は、${weak.join('・')}！` : `${name}には、弱点がない…。`);
+          if (none.length) ev.lines.push(`${name}には、${none.join('・')}が効かない！`);
+        }
+        break;
+      }
       case 'banish': {
         // 回送電車・異動命令: 敵を 戦いから おいだす（ボスには 効かない）
         for (const t of targets) {
@@ -1412,7 +1473,8 @@ export class Battle {
     const crit = !estimate && (eff.forceCrit || this.rng.chance(critChance));
     // atkFrom: 'def' … 攻撃力と 守備力の まんなかで なぐる（ガーディアンの ようさいの一撃 など。守りが かたいほど 強い）
     const base0 = eff.atkFrom === 'def' ? (effAtk(c) + effDfn(c)) / 2 : effAtk(c);
-    const atk = base0 * (c.charge && c.charge > 1 ? c.charge : 1);
+    // HPが 少ないほど 強い（社ちく。gritMult）
+    const atk = base0 * (c.charge && c.charge > 1 ? c.charge : 1) * gritMult(c);
     if (!estimate && c.charge > 1) c.charge = 1;
     let dmg;
     if (crit) {
@@ -1441,7 +1503,7 @@ export class Battle {
     // 魔力は バフ・デバフ（魔力が 上がる 技）も かかる
     const pow = eff.stat === 'heal' ? (c.healPow || 0) : effMag(c);
     const scale = 1 + clamp((pow - (eff.thr ?? 20)) / 150, 0, eff.scaleCap ?? 1);
-    let dmg = base * scale * powMult * enemyFixedScale(c);
+    let dmg = base * scale * powMult * enemyFixedScale(c) * gritMult(c);
     const r = eff.element ? (t.resist[eff.element] ?? 1) : 1;
     dmg *= r;
     if (t.defending) dmg *= 0.75;
@@ -1467,6 +1529,8 @@ export class Battle {
   damage(c, t, dmg, ev, info = {}) {
     ev.results = ev.results || [];
     if (mirageHit(this, c, t, ev)) return;
+    // 天才しせつ管理者の 予兆保全: 敵の 大技の ダメージが 小さく なる（jobs.js の passive.foresee）
+    if (ev.big && c.side === 'enemy' && t.side === 'ally' && dmg > 0) dmg = this.foreseeCut(dmg, ev);
     // 峰打ち: たおさずに HP を 1 のこす
     if (info.nonLethal && dmg >= t.hp) {
       dmg = Math.max(0, t.hp - 1);
@@ -1510,6 +1574,17 @@ export class Battle {
     }
     if (t.hp <= 0) ev.lines.push(...this.kill(t, info.element, ev));
     else if (t.boss) this.checkPhase(t, ev);
+  }
+
+  // 大技の 予兆を 見ぬく 仲間（天才しせつ管理者）が 戦っていれば、ダメージを へらす（ことばは 1回の こうどうで 1回）
+  foreseeCut(dmg, ev) {
+    const g = this.allies.find((x) => x.alive && JOBS[x.job]?.passive?.foresee);
+    if (!g) return dmg;
+    if (!ev.foreseen) {
+      ev.foreseen = true;
+      ev.lines.push(`${g.name}は、大技の予兆を見ぬいていた！`);
+    }
+    return Math.max(1, Math.round(dmg * JOBS[g.job].passive.foresee));
   }
 
   // 敵に 属性の 技を あてた: 効きぐあいを かえす（weak / resist / null / normal）
@@ -2385,6 +2460,13 @@ export function effDfn(c) {
   if (c.buffs?.def) v *= c.buffs.def.mult;
   if (c.debuffs?.def) v *= c.debuffs.def.mult;
   return v;
+}
+// HPが 少ないほど 強く なる（社ちく・ブラックきぎょうの星。jobs.js の passive.grit）
+// HPが まんたんなら 1倍、HPが 0に ちかいほど 1 + grit 倍
+export function gritMult(c) {
+  const g = c?.side === 'ally' ? JOBS[c.job]?.passive?.grit : 0;
+  if (!g || !(c.maxHp > 0)) return 1;
+  return 1 + g * clamp(1 - c.hp / c.maxHp, 0, 1);
 }
 
 // 呪文が ふうじられた 場所で 使えない 技（呪文・呪文の ような 技・魔法剣）。client/battle.js の コマンドも おなじ きまり

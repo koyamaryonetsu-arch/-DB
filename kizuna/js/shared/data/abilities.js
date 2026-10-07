@@ -17,17 +17,19 @@
 // 名前の一部は「ダイの大冒険」「ロトの紋章」へのオマージュです。
 // 上級職・超級職の 技は abilities-adv.js（さいごに まぜる）
 
-import { ADV_ABILITIES } from './abilities-adv.js?v=1712ace6c042';
-import { CH2_ABILITIES } from './abilities-ch2.js?v=1712ace6c042';
-import { JOB_ABILITIES } from './abilities-jobs.js?v=1712ace6c042';
-import { HIRA_ABILITIES } from './hirameki.js?v=1712ace6c042';
-import { TRAVEL_ABILITIES } from './sky.js?v=1712ace6c042';
-import { RARE_ABILITIES } from './monsters-rare.js?v=1712ace6c042';
-import { JOB2_ABILITIES } from './abilities-jobs2.js?v=1712ace6c042';
-import { CH3_ABILITIES } from './abilities-ch3.js?v=1712ace6c042';
-import { CH4_ABILITIES } from './abilities-ch4.js?v=1712ace6c042';
-import { JOB3_ABILITIES } from './abilities-jobs3.js?v=1712ace6c042';
-import { JOB4_ABILITIES } from './abilities-jobs4.js?v=1712ace6c042';
+import { ADV_ABILITIES } from './abilities-adv.js?v=fd5519597012';
+import { CH2_ABILITIES } from './abilities-ch2.js?v=fd5519597012';
+import { JOB_ABILITIES } from './abilities-jobs.js?v=fd5519597012';
+import { HIRA_ABILITIES } from './hirameki.js?v=fd5519597012';
+import { TRAVEL_ABILITIES } from './sky.js?v=fd5519597012';
+import { RARE_ABILITIES } from './monsters-rare.js?v=fd5519597012';
+import { JOB2_ABILITIES } from './abilities-jobs2.js?v=fd5519597012';
+import { CH3_ABILITIES } from './abilities-ch3.js?v=fd5519597012';
+import { CH4_ABILITIES } from './abilities-ch4.js?v=fd5519597012';
+import { JOB3_ABILITIES } from './abilities-jobs3.js?v=fd5519597012';
+import { JOB4_ABILITIES } from './abilities-jobs4.js?v=fd5519597012';
+// 2026年10月（第22回）の 新しい 職業の 技（おかん・社ちく・天才しせつ管理者・はかい神 など）
+import { JOB5_ABILITIES } from './abilities-jobs5.js?v=fd5519597012';
 
 export const ABILITIES = {
   // ───────────── 戦士 ─────────────
@@ -594,6 +596,8 @@ Object.assign(ABILITIES, CH4_ABILITIES);
 Object.assign(ABILITIES, JOB3_ABILITIES);
 // ニート・サイヤ人・設備屋・ゴム人間・ユーチューバー・ゲーマーの 系統と 魔王（abilities-jobs4.js）
 Object.assign(ABILITIES, JOB4_ABILITIES);
+// おかん・社ちくの 系統と 天才しせつ管理者・はかい神（abilities-jobs5.js）
+Object.assign(ABILITIES, JOB5_ABILITIES);
 
 // 攻撃呪文かどうか（魔法剣で使える）
 export function isAttackSpell(id) {
@@ -614,7 +618,7 @@ export const ELEMENT_NAMES = {
 export const ELEMENT_ORDER = ['fire', 'ice', 'wind', 'blast', 'bolt', 'light', 'dark'];
 
 // 技の 種類（色分け）: dmg=ダメージ heal=回復 sup=補助
-const DMG_TYPES = new Set(['phys', 'magic', 'drainHp', 'drainMp', 'mahouken', 'bond', 'telegraph', 'multi', 'goldThrow', 'gamble', 'fixed', 'allMp', 'gather']);
+const DMG_TYPES = new Set(['phys', 'magic', 'drainHp', 'drainMp', 'mahouken', 'bond', 'telegraph', 'multi', 'goldThrow', 'gamble', 'fixed', 'allMp', 'gather', 'destroy']);
 const HEAL_TYPES = new Set(['heal', 'revive', 'cure', 'mpHeal', 'regen']);
 export const ROLE_NAMES = { dmg: 'ダメージ', heal: '回復', sup: '補助' };
 export function abilityRole(a) {
