@@ -191,3 +191,37 @@ test('仲間会話: すべての 目標に 4つの 話し方の ヒントが あ
   assert.equal(memberTalk({ key: 'npc_gard', name: 'ガルド' }, 'おくの部屋へ進もう（泉で回復してから行こう）').text, OBJECTIVE_TALK['おくの部屋へ進もう（泉で回復してから行こう）'].bold);
   assert.ok(memberTalk({ key: 'm1', name: 'ぷるる', species: 'pururin' }, '').mon, 'モンスターは しぐさ');
 });
+
+test('道具を 続けて 使う: 返事（menuRes）より 先に 自分と パーティーの 新しい ようす（HP・道具の 数）が とどく', async () => {
+  const { world, bot, s } = await hero('warrior');
+  recruitNpc(world, s, 'npc_gard', { force: true });
+  const me = s.char;
+  const gard = partyOf(world, s).supports.find((x) => x.key === 'npc_gard').char;
+  me.items = [{ id: 'herb', n: 2 }, { id: 'antidote', n: 1 }];
+  me.hp = 5;
+  gard.hp = 5;
+  world.sendSelf(s);
+  const use = (ref) => {
+    const from = bot.msgs.length;
+    bot.send({ t: 'menu', action: 'useItem', id: 'herb', ref });
+    const after = bot.msgs.slice(from);
+    const at = (t) => after.findIndex((m) => m.t === t);
+    assert.ok(at('self') >= 0 && at('party') >= 0 && at('menuRes') > at('self') && at('menuRes') > at('party'), after.map((m) => m.t).join(','));
+    return { self: after[at('self')].char, party: after[at('party')].party, res: after[at('menuRes')] };
+  };
+  // 1こめ: 自分に（返事の 前に HPと 薬草の 数が かわっている）
+  let r = use('self');
+  assert.equal(r.res.ok, true, r.res.text);
+  assert.ok(r.self.hp > 5, '自分の HP');
+  assert.equal(r.self.items.find((e) => e.id === 'herb').n, 1, 'のこり 1こ');
+  // 2こめ: 仲間に（パーティーの 知らせで 仲間の HPが かわっている）
+  r = use('sup:npc_gard');
+  assert.equal(r.res.ok, true, r.res.text);
+  assert.ok(r.party.supports.find((x) => x.key === 'npc_gard').hp > 5, '仲間の HP');
+  assert.equal(r.self.items.find((e) => e.id === 'herb'), undefined, 'なくなった');
+  assert.equal(itemCount(me, 'antidote'), 1, 'ほかの 道具は そのまま');
+  // もう ない
+  const from = bot.msgs.length;
+  bot.send({ t: 'menu', action: 'useItem', id: 'herb', ref: 'self' });
+  assert.equal(bot.msgs.slice(from).find((m) => m.t === 'menuRes').ok, false);
+});

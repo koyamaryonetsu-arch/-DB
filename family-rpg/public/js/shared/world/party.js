@@ -13,6 +13,7 @@ import { MONSTER_FRIENDS, ROSTER_MAX, COMPANION_SLOTS } from '../data/companions
 import { SLOTS, ITEMS } from '../data/items.js';
 import { cleanWagon, hasWagon, WAGON_SLOTS } from '../data/wagon.js';
 import { wagonState, wagonTavernInfo } from './wagon.js';
+import { difficultyOf } from '../data/difficulty.js';
 
 // パーティーに 入れる 人（家族の プレイヤー）は 5人まで。いっしょに フィールドを 歩いて、いっしょに 戦う
 export const PARTY_MAX = 5;
@@ -571,6 +572,8 @@ export function partyState(world, p) {
     objective: world.sessions.get(p.leader)?.char?.objective || '',
     // パーティーの 時計（リーダーの 時間の ずれ。world/clock.js）
     clockShift: Number(world.sessions.get(p.leader)?.char?.timeShift) || 0,
+    // 敵の 強さ（リーダーの 設定で 戦う。world/battles.js の enemyRateFor。設定の 画面に 出す）
+    enemyRate: difficultyOf(world.sessions.get(p.leader)?.char).enemy,
     bond: p.bond,
     // ならび: 人（家族）の まとまりが なかまの 何番目に 入るか
     selfPos: selfPosOf(world, p),

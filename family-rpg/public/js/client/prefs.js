@@ -35,6 +35,15 @@ export function applyBattlePrefs() {
   for (const n of [1, 2, 3]) b.classList.toggle(`bd-${n}`, battleDensityPref() === n);
 }
 
+// 装備を えらぶ まどの ならび: got（入手順）/ power（強さ順）。shared/equip-plan.js の GEAR_SORTS
+export function gearSortPref() {
+  const v = get('kizuna_gsort', 'got');
+  return ['got', 'power'].includes(v) ? v : 'got';
+}
+export function setGearSortPref(v) {
+  set('kizuna_gsort', v === 'power' ? 'power' : 'got');
+}
+
 // 字の形: gothic（くっきり・ふだん）/ round（丸ゴシック）/ dot（ドット）
 export const UI_FONTS = { gothic: 'ゴシック', round: '丸ゴシック', dot: 'ドット' };
 export function uiFontPref() {

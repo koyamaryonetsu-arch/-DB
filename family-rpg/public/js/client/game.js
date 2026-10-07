@@ -473,10 +473,16 @@ export class Game {
           w(m);
         }
         break;
-      case 'menuRes':
-        if (m.text) toast(m.text);
+      case 'menuRes': {
+        // メニューが 返事を まっている（道具を 続けて 使う。ui/menu.js の menuCall）: true なら 知らせは メニューの まどに 出す
+        const w = this.menuWaiter;
+        this.menuWaiter = null;
+        let shown = false;
+        try { shown = !!w?.(m); } catch (e) { console.error(e); }
+        if (m.text && !shown) toast(m.text);
         this.audio.sfx(m.ok ? 'confirm' : 'buzz');
         break;
+      }
       case 'battleStart': return this.onBattleStart(m);
       case 'battleEv':
         // はじまりの えんしゅつ中は とっておいて、戦いの 画面が できてから わたす

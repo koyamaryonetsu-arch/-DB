@@ -9,16 +9,16 @@ import { recruitNpc, afterRosterChange, partyOf } from '../public/js/shared/worl
 import { MONSTERS } from '../public/js/shared/data/monsters.js';
 import { Bot, tickN } from './helpers.js';
 
-test('難しさの 初めは ふつう（しるしは 出す・経験値 1倍）', () => {
-  assert.deepEqual(difficultyOf({}), { mainMarks: true, subMarks: true, exp: 1 });
-  assert.deepEqual(difficultyOf({ difficulty: { exp: 3, mainMarks: 'x' } }), { mainMarks: true, subMarks: true, exp: 1 }, '知らない 値は ふつう');
+test('難しさの 初めは ふつう（しるしは 出す・経験値 1倍・敵の強さ 1倍）', () => {
+  assert.deepEqual(difficultyOf({}), { mainMarks: true, subMarks: true, exp: 1, enemy: 1 });
+  assert.deepEqual(difficultyOf({ difficulty: { exp: 3, mainMarks: 'x' } }), { mainMarks: true, subMarks: true, exp: 1, enemy: 1 }, '知らない 値は ふつう');
   assert.deepEqual(EXP_RATES, [1, 0.75, 0.5]);
 });
 
 test('設定を ととのえる: ぜんぶ ふつうに もどすと のこさない', () => {
   const d = normDifficulty(undefined, { exp: 0.5, mainMarks: false });
-  assert.deepEqual(d, { mainMarks: false, subMarks: true, exp: 0.5 });
-  assert.deepEqual(normDifficulty(d, { subMarks: false }), { mainMarks: false, subMarks: false, exp: 0.5 });
+  assert.deepEqual(d, { mainMarks: false, subMarks: true, exp: 0.5, enemy: 1 });
+  assert.deepEqual(normDifficulty(d, { subMarks: false }), { mainMarks: false, subMarks: false, exp: 0.5, enemy: 1 });
   assert.equal(normDifficulty(d, { exp: 1, mainMarks: true }), undefined);
   assert.deepEqual(normDifficulty(d, { exp: 0.33 }), d, '知らない 倍率は かえない');
 });
@@ -65,7 +65,7 @@ test('戦いの 経験値: 0.5倍に すると 自分も 仲間も 半分', asyn
   assert.equal(normal.me, base);
   assert.equal(normal.gard, base);
   const half = await battleExp(0.5);
-  assert.deepEqual(half.diff, { mainMarks: true, subMarks: true, exp: 0.5 }, 'メニューの 設定で のこる');
+  assert.deepEqual(half.diff, { mainMarks: true, subMarks: true, exp: 0.5, enemy: 1 }, 'メニューの 設定で のこる');
   assert.equal(half.me, Math.round(base * 0.5));
   assert.equal(half.gard, Math.round(base * 0.5), '仲間も 半分');
   const q = await battleExp(0.75);
