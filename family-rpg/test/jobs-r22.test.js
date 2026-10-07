@@ -288,6 +288,18 @@ test('昼ね: HPが 全回復するが ねむって しまう', () => {
   assert.ok(ABILITIES.hk_hirune.noAuto);
 });
 
+test('回復して 治す 技: 治す ものが なくても「何も起こらなかった」とは 言わない', () => {
+  const { b, me, mate } = setup('black_star', ['rockman']);
+  me.hp = 10;
+  const ev = use(b, me, 'bk_tomari');
+  assert.ok(me.hp > 10, '回復した');
+  assert.ok(!ev.lines.some((l) => l.includes('何も起こらなかった')), ev.lines.join(' / '));
+  assert.equal(ev.inMulti, undefined);
+  // 治す だけの 技（キアリー）で 治す ものが ない ときは、今までどおり「何も起こらなかった」
+  const ev2 = use(b, me, 'kiarii', mate.id);
+  assert.ok(ev2.lines.some((l) => l.includes('何も起こらなかった')), ev2.lines.join(' / '));
+});
+
 test('運しだいの 技: 気まぐれ（パンチ・はかい・昼ね）', () => {
   const seen = new Set();
   for (let seed = 1; seed <= 40; seed++) {

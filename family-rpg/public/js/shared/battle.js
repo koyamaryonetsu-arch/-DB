@@ -1034,7 +1034,8 @@ export class Battle {
               ev.lines.push(`${t.name}の${STATUS_NAMES[st]}が治った！`);
             }
           }
-          if (!any && targets.length === 1) ev.lines.push('しかし何も起こらなかった！');
+          // いくつかの こうかの 技（回復＋治す など）の とちゅうでは 言わない（回復は できているので）
+          if (!any && targets.length === 1 && !ev.inMulti) ev.lines.push('しかし何も起こらなかった！');
           ev.upd.push(t);
         }
         break;
@@ -1259,6 +1260,8 @@ export class Battle {
       case 'multi': {
         // いくつかの こうかを じゅんに（スタミナ料理＝回復＋攻撃力アップ など）。parts の target が ちがう ときは その あいて
         const hit = new Set(targets.map((t) => t.id));
+        const outer = ev.inMulti;
+        ev.inMulti = true;
         for (const part of eff.parts || []) {
           const ab = { ...a, effect: part, target: part.target || a.target };
           const ts = part.target && part.target !== a.target ? this.targetsFor(c, ab, cmd) : targets.filter((t) => t.alive || ['revive', 'reviveAll'].includes(part.type));
@@ -1266,6 +1269,8 @@ export class Battle {
           this.applyAbility(c, ab, cmd, ev, powMult, ts);
           for (const t of ts) hit.add(t.id);
         }
+        if (outer) ev.inMulti = outer;
+        else delete ev.inMulti;
         ev.fx = { type: 'ability', anim: a.anim, actor: c.id, targets: [...hit], side: c.side, element: eff.parts?.[0]?.element };
         break;
       }

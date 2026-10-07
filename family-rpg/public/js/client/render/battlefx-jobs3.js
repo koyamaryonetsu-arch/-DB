@@ -920,8 +920,9 @@ export function playJob3Fx(fx, anim, targets, element, opts = {}, W = 256, H = 1
         fx.add({ kind: 'mark3', x: x + 12, y: y - 20, life: 700, delay: dd + 60 });
         if (ti === 0) fx.hitStop(200, dd + 20, 1.6);
       });
-      // ふきだしは いちばん うえに（いなずまは その うしろから おちる）
-      fx.add({ kind: 'bubble3', x: W / 2, y: 24, text: 'コラ!', life: 1100 });
+      // ふきだしは うえの ほうに（いなずまは その うしろから おちる）。
+      // がめんの いちばん うえは 技の 名前の 札が かさなるので、その すぐ 下に
+      fx.add({ kind: 'bubble3', x: W / 2, y: 46, text: 'コラ!', life: 1100 });
       return true;
     }
     // ── 社ちく・ブラックきぎょうの星 ──
