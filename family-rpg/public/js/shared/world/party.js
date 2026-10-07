@@ -6,7 +6,7 @@
 //   c.guests     … ものがたりで いっしょに いる ゲスト（ルカ など）
 // パーティーには リーダーの なかまが ついてくる（にんげんが ふえると、はいりきらない なかまは いったん まつ）
 import { newCharacter, computeStats, fullHeal, gainExp, gainJobBattles, migrateJobs, expForLevel, addItem, newMonsterCompanion, learnedAbilities } from '../stats.js';
-import { jobBattlesForLevel } from '../data/jobs.js';
+import { jobBattlesForLevel, JOBS } from '../data/jobs.js';
 import { NPC_SUPPORTS, GUESTS } from '../data/shops.js';
 import { MONSTERS } from '../data/monsters.js';
 import { MONSTER_FRIENDS, ROSTER_MAX, COMPANION_SLOTS } from '../data/companions.js';
@@ -204,14 +204,21 @@ const TIER_GEAR = [
 
 export function makeNpcSupportChar(def, level) {
   const c = newCharacter({ id: def.id, name: def.name, look: def.look, job: def.job });
+  // 上級職の ゲスト（第4章の サラは 海賊）。newCharacter は さいしょの 職業しか えらべないので ここで かえる
+  if (JOBS[def.job] && c.job !== def.job) {
+    delete c.jobs[c.job];
+    c.job = def.job;
+  }
   c.level = level;
   c.exp = expForLevel(level);
   const jl = Math.max(1, Math.min(7, Math.floor(level * 0.4)));
   c.jobs[def.job] = { lv: jl, b: jobBattlesForLevel(jl) };
   let gear = TIER_GEAR[0][1];
   for (const [lv, g] of TIER_GEAR) if (level >= lv) gear = g;
-  const [w, a, s, h] = gear[def.job];
+  const [w, a, s, h] = gear[def.job] || [];
   c.equip = { weapon: w || null, armor: a || null, shield: s || null, head: h || null, acc: null };
+  // ゲストの 装備（第4章の サラ: ムチと 砂の衣。def.gear が あれば それ）
+  if (def.gear) Object.assign(c.equip, def.gear);
   c.items = [];
   c.tactics = def.tactics || 'balanced';
   delete c.explored;

@@ -3,6 +3,7 @@
 // s_coast=北の海辺 s_dune=砂ばく s_oasis=オアシスの まわり s_well=北の古井戸（夜は *_night。encounters-ch4.js）
 // Step 4: s_pdesert=王家の墓の砂ばく（王都の 東）s_pyr*=王家のピラミッドの 中
 // Step 5: s_sdesert=南の砂ばく（王都の 南。南の 砂嵐の 切れ目の 先）
+// Step 6: s_duna=ドゥナの谷と 砂の古城への 道 s_castle・s_castle2=砂の古城 s_sandsea=砂の海（すなかぜ号）
 
 // ボスの じょうたい いじょうの 効きにくさ（第3章の ボスと おなじ）
 const BOSS_STATUS = { sleep: 0.1, poison: 0.3, confuse: 0.1, blind: 0.3, silence: 0.2, paralyze: 0.1 };
@@ -205,6 +206,43 @@ export const MONSTERS_CH4 = {
     ],
     desc: '大臣ザイードの本当のすがた。水鏡の魔人モルガナのしもべ。氷と風がよく効き、炎と爆発は効きにくい。体のまわりで砂がうずをまき始めたら、次の番に「砂の大うず」。身を守ろう。',
   },
+
+  // ── 砂の港ドゥナの 谷・砂の古城・砂の海（Step 6。Lv34〜36）──
+  // 砂ザメ（砂の海）: ひれだけ 出して 砂の 中を およぐ。2回 かみつく。雷が よく効く
+  sand_shark: {
+    name: '砂ザメ', lv: 35, hp: 470, str: 138, def: 82, agi: 70, mag: 20, exp: 340, gold: 150,
+    race: 'beast', size: 'm', hit: 'bite',
+    resist: { bolt: 1.4, ice: 1.2, fire: 0.8, wind: 0.8, poison: 0.5, sleep: 0.4, confuse: 0.6 }, drops: { common: ['moonherb', 8], rare: ['seed_str', 48] },
+    actions: [{ w: 3, id: 'attack' }, { w: 3, id: 'm_shark_double' }, { w: 2, id: 'm_shark_fin', cond: 'notRecent:m_shark_fin' }],
+    desc: '砂の海を、せびれだけ出して泳ぎ回るサメ。するどい歯で、2回続けてかみついてくる。雷がよく効く。',
+  },
+  // 古城のよろい（砂の古城）: からっぽの よろい。重い 剣で なぎはらう。たてを かまえると 守りが 上がる。雷と 爆発が よく効く
+  castle_armor: {
+    name: '古城のよろい', lv: 35, hp: 540, mp: 20, str: 140, def: 116, agi: 38, mag: 30, exp: 360, gold: 170,
+    race: 'material', size: 'm', hit: 'slash',
+    resist: { bolt: 1.4, blast: 1.25, fire: 0.8, ice: 0.9, poison: 0, sleep: 0, confuse: 0.3, blind: 0.5 }, drops: { common: ['silver_shard', 12], rare: ['seed_def', 40] },
+    actions: [{ w: 4, id: 'attack' }, { w: 2, id: 'm_armor_sweep' }, { w: 1, id: 'm_armor_guard', cond: 'notRecent:m_armor_guard' }],
+    desc: '砂の古城をさまよう、からっぽのよろい。重い剣で、まとめてなぎはらう。たてをかまえると、守りが上がる。雷と爆発がよく効く。',
+  },
+
+  // ── ボス（Step 6・砂の海の 上。すなかぜ号の かんぱんで たたかう）──
+  // 砂クジラ: 砂の 海の 主。2回行動・おそい。砂に もぐる（battle-ch4.js の burrow）:「砂の中に もぐった！」→ つぎの 番まで ねらえない。
+  // ゲージが たまってくると「砂が もり上がった…！」→ つぎの 番に 大ジャンプ（みんなに とても 大きい。防御で 半分）。
+  // HP50%で 砂ザメを 2ひき よぶ。25%で 少し 速く なる（phases の speed）
+  sand_whale: {
+    name: '砂クジラ', lv: 37, hp: 7800, mp: 120, str: 150, def: 90, agi: 40, mag: 100, exp: 12000, gold: 5000,
+    race: 'beast', size: 'xl', boss: true, turns: 2, speed: 0.6, hit: 'bite', drops: { boss: ['whale_charm'] },
+    resist: { ...BOSS_STATUS, bolt: 1.3, ice: 1.3, fire: 0.6, wind: 0.6, poison: 0.2 },
+    actions: [
+      { w: 3, id: 'm_whale_tackle' }, { w: 2, id: 'm_whale_gulp' }, { w: 2, id: 'm_whale_spray', cond: 'notRecent:m_whale_spray' },
+      { w: 2, id: 'm_whale_dive', cond: 'notRecent:m_whale_dive' },
+    ],
+    phases: [
+      { hpBelow: 0.5, msg: ['砂クジラは、せなかから高く砂をふき上げた！', '砂の海から、砂ザメたちがおしよせてきた！'], summon: ['sand_shark', 'sand_shark'] },
+      { hpBelow: 0.25, msg: ['砂クジラの赤い目が、ぎらりと光った！', '砂クジラの動きが、すばやくなった…！'], speed: 1.25 },
+    ],
+    desc: '砂の海の主。とても大きなクジラ。あやしい力で、あばれている。砂の中にもぐったら、次の番まで攻撃がとどかない。「砂がもり上がった」ら、大ジャンプが来る。身を守ろう。雷と氷がよく効き、炎と風は効きにくい。',
+  },
 };
 
 // 素材の ドロップ（loot.js の MAT_DROPS に まぜる）
@@ -224,4 +262,7 @@ export const CH4_MAT_DROPS = {
   sand_worm: ['beast_fang', 4],
   sandstorm_spirit: ['wind_feather', 4],
   dark_scorpion: ['beast_fang', 3],
+  // Step 6
+  sand_shark: ['beast_fang', 4],
+  castle_armor: ['iron_shard', 3],
 };

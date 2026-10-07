@@ -325,19 +325,22 @@ export function slidesAt(map, x, y, hasFlag) {
   return !!TILE_INFO[effectiveTile(map, Math.floor(x), Math.floor(y), hasFlag)]?.slide;
 }
 
+// 船で すすめる タイル（水・第4章の 砂の海。sail の ある タイル）
+const sailTile = (t) => t === T.WATER || t === T.DEEP || !!TILE_INFO[t]?.sail;
+
 export function isBlocked(map, x, y, hasFlag) {
   const t = effectiveTile(map, x, y, hasFlag);
-  // 海の マップでは 船で 水の 上を すすめる
-  if (map.sailable && (t === T.WATER || t === T.DEEP)) return false;
+  // 海の マップでは 船で 水の 上を すすめる（第4章の 砂の海は すなかぜ号で 砂の 上を）
+  if (map.sailable && sailTile(t)) return false;
   if (TILE_INFO[t]?.solid ?? true) return true;
   return false;
 }
 
-// 船に のっている（海の マップで 水の 上に いる）
+// 船に のっている（海の マップで 水の 上に いる。砂の海の 上も）
 export function onWater(map, x, y, hasFlag) {
   if (!map.sailable) return false;
   const t = effectiveTile(map, Math.floor(x), Math.floor(y), hasFlag);
-  return t === T.WATER || t === T.DEEP;
+  return sailTile(t);
 }
 
 // NPCや たからばこの 表示じょうけん

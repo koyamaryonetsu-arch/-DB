@@ -3,6 +3,8 @@ import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js';
 import { mpCost, penaltyFor, weaponOk, comboAllowed } from './stats.js';
 // 第4章の まぼろしの分身と 月の鏡（battle-ch4.js）
 import { mirageAction, mirrorPlan } from './battle-ch4.js';
+// 第4章 Step 6 の 砂に もぐる 魔物（battle-ch4.js）
+import { burrowSurface, burrowPlan } from './battle-ch4.js';
 
 // さくせん
 export const TACTICS = {
@@ -16,6 +18,8 @@ export const TACTICS = {
 
 // ───────────── モンスター ─────────────
 export function decideMonster(b, m) {
+  // 砂に もぐっていた: 出てくる（つぎは とび出す 技。battle-ch4.js）
+  burrowSurface(b, m);
   // まぼろしの 分身の 本物: まぶしくて 動けない・まぼろしを 作りなおす（battle-ch4.js）
   const forced = mirageAction(b, m);
   if (forced) return forced;
@@ -89,7 +93,11 @@ export function decideAlly(b, c) {
   const allies = b.aliveAllies();
   const dead = b.allies.filter((x) => !x.alive && !x.fled);
   // b.knowsMirage … まぼろしの 分身を 見ぬける 人（足もとの 影を 見る。tools/sim.js の「知っている人」）
-  const foes = b.aliveEnemies().filter((f) => !(b.knowsMirage && f.clone));
+  // 砂に もぐった 敵は ねらえない（battle-ch4.js）
+  const foes = b.aliveEnemies().filter((f) => !(b.knowsMirage && f.clone) && !f.burrow);
+  // 砂に もぐった 敵が とび出す 前に 身を 守る（知っている 人）・空ぶり（知らない 人）。battle-ch4.js
+  const bp = burrowPlan(b, c, foes);
+  if (bp) return bp;
   if (!foes.length) return { type: 'defend' };
   const mine = usable(b, c);
 
@@ -137,7 +145,8 @@ export function decideAlly(b, c) {
   }
 
   // 5) ボスの 大わざに そなえる
-  const telegraphing = foes.some((f) => f.telegraph);
+  // （砂に もぐった 敵の とび出しも。b.ignoreBurrow … 気づかない 人）
+  const telegraphing = b.aliveEnemies().some((f) => f.telegraph && !(b.ignoreBurrow && f.burrow));
   if (telegraphing && c.hp / c.maxHp < 0.6 && b.rng.chance(0.75)) return { type: 'defend' };
 
   // MPが へってきたら まりょくを あつめる

@@ -12,8 +12,15 @@
 //     本物が mirage.mirror 回 動くまで、鏡の 光は もどらない（「3ターンに1回」）
 //   ・本物が たおれると、分身も 消える
 // ・そうびしたまま 使える 道具（items の equipUse。魔神のランプ）: 道具の コマンドで 1回の たたかいに 1回 使える
+// ・砂に もぐる（Step 6 の 砂クジラ）: 技の 効果 { type: 'burrow', next: '<とび出す 技>' }。
+//   「砂の中に もぐった！」→ つぎの 自分の 番まで ねらえない（味方の 攻撃・呪文・特技の 的に ならない。全体の 呪文も 当たらない）。
+//   ゲージが たまってくると「砂が もり上がった…！」（前ぶれ。身を 守る じかん）→ つぎの 番に 出てきて とび出す 技（ai.js の telegraph）
 import { MONSTERS } from './data/monsters.js';
 import { ITEMS } from './data/items.js';
+import { ABILITIES } from './data/abilities.js';
+import { DUAL_TECHS } from './data/dual.js';
+// こうどうゲージの はやさ（battle.js。たがいに よびあうが、つかうのは たたかいの 中だけ）
+import { atbRate } from './battle.js';
 
 export const MIRROR_ID = 'moon_mirror';
 const LETTERS = 'ABCDEFGH';
@@ -278,4 +285,82 @@ export function ch4UseItem(b, c, cmd, ev) {
 // クライアントへ おくる 月の鏡の ようす（まぼろしの いない たたかいは null）
 export function mirrorSnap(b) {
   return b.mirage ? { cd: b.mirage.cd, max: b.mirage.mirror } : null;
+}
+
+// ───────────── 砂に もぐる（Step 6 の 砂クジラ）─────────────
+// warnAt … ゲージが ここまで たまると「砂がもり上がった…！」（前ぶれ。身を 守る じかん）
+export const BURROW_WARN = 60;
+
+// c から t を ねらえない（砂に もぐった 敵）。battle.js の sideOf・こんらんの 相手・きずな技
+export function hiddenFrom(c, t) {
+  return !!t?.burrow && !!c && t.side !== c.side;
+}
+
+// 技の 効果 { type: 'burrow', next, warnAt }（battle.js の applyAbility）
+export function burrowStart(b, c, eff, ev) {
+  c.burrow = { warnAt: eff.warnAt ?? BURROW_WARN, warned: false };
+  // つぎの 番は とび出す 技（ai.js の decideMonster の telegraph）
+  c.telegraph = eff.next || null;
+  c.stance = null;
+  c.chant = null;
+  // この 番の のこりの 行動は とりやめ（砂の 中で つぎの 番を まつ）
+  b.queue = b.queue.filter((q) => q.id !== c.id);
+  ev.forceLast = true;
+  ev.atbAfter = eff.atbAfter ?? 0;
+  ev.fx = { ...(ev.fx || {}), type: 'ability', actor: c.id, targets: [c.id], side: c.side, burrow: true };
+  ev.warn = true;
+  ev.lines.push(`（${c.name}には、攻撃がとどかない…！）`);
+  ev.upd.push(c);
+}
+
+// ゲージが たまってきた: 前ぶれ（battle.js の advance で よぶ。pub … クライアントへ おくる 形）
+export function burrowWarn(b, pub) {
+  for (const c of b.combatants) {
+    if (!c.burrow || c.burrow.warned || !c.alive || c.fled || c.atb < c.burrow.warnAt) continue;
+    c.burrow.warned = true;
+    const lines = ['砂がもり上がった…！', `${c.name}が、今にも飛び出してきそうだ…！`];
+    const dur = b.pace(500, 380, lines.length, 900);
+    b.emit({ t: 'msg', id: c.id, lines, upd: [pub(c)], fx: { type: 'burrowRise', actor: c.id }, warn: true, dur });
+    b.lock = Math.max(b.lock, dur);
+  }
+}
+
+// もぐっていた 魔物の 番（ai.js の decideMonster の はじめ）: 砂から 出てくる
+export function burrowSurface(b, m) {
+  if (!m.burrow) return;
+  m.burrow = null;
+  if (b.cur) b.cur.upd.push(m);
+}
+
+// 敵を ねらう 行動か（ねらえる 敵が いないと 空ぶり）
+function aimsAtFoes(cmd) {
+  if (['attack', 'mahouken', 'bond'].includes(cmd.type)) return true;
+  if (cmd.type === 'ability') return ['enemy', 'group', 'enemies'].includes(ABILITIES[cmd.id]?.target);
+  if (cmd.type === 'dual') return ['enemy', 'group', 'enemies'].includes(DUAL_TECHS[cmd.id]?.target);
+  return false;
+}
+
+// 味方が 敵を ねらう 行動を したが、敵が みんな 砂の 中（battle.js の perform の はじめ）。
+// 何も しないで おわる（MPも へらない）。ほかの ときは false
+export function burrowBlock(b, c, cmd, ev) {
+  if (c.side !== 'ally' || !cmd || cmd.confused) return false;
+  const foes = b.enemies.filter((e) => e.alive);
+  if (!foes.length || !foes.every((e) => e.burrow) || !aimsAtFoes(cmd)) return false;
+  ev.lines.push(`しかし、${foes[0].name}は砂の中にもぐっている！`, `${c.name}は、ねらいをつけられない…！`);
+  ev.fx = { type: 'burrowMiss', actor: c.id, side: 'ally' };
+  return true;
+}
+
+// 砂に もぐる 魔物を 知っている 人（tools/sim.js の「知っている人」。b.knowsBurrow）: とび出す 前に 身を 守る。
+// 知らない 人（b.ignoreBurrow）: ねらえる 敵が いなくても 攻撃しようと する（空ぶり）。ほかは null（ふつうの オート）
+export function burrowPlan(b, c, foes) {
+  const hidden = b.enemies.filter((e) => e.alive && e.burrow);
+  if (!hidden.length) return null;
+  if (b.knowsBurrow) {
+    // つぎの 自分の 番より 先に、もぐった 敵の 番が 来る（前ぶれが 出た ときも）
+    const mine = 100 / atbRate(c);
+    if (hidden.some((e) => e.burrow.warned || (100 - e.atb) / atbRate(e) <= mine)) return { type: 'defend' };
+  }
+  if (b.ignoreBurrow && !foes.length) return { type: 'attack', target: hidden[0].id };
+  return null;
 }

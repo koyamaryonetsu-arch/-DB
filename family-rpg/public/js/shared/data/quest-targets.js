@@ -96,6 +96,8 @@ function mapLinks() {
   if (links) return links;
   links = [];
   for (const m of Object.values(MAPS)) for (const w of m.warps || []) if (w.to?.map) links.push({ from: m.id, x: w.x, y: w.y, to: w.to.map });
+  // ほかの つながり（第4章の すなかぜ号: ドゥナの さんばしの 船 ⇔ 砂の海の さんばし。マップの links）
+  for (const m of Object.values(MAPS)) for (const l of m.links || []) links.push({ from: m.id, x: l.x, y: l.y, to: l.to });
   // 船: さんばしの しおかぜ号 ⇔ カモメ港の 船長
   const ship = npcPos('ship');
   const cap = npcPos('port_captain');
