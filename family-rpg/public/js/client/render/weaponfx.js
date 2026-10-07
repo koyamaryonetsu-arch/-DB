@@ -33,6 +33,10 @@ const MAT = {
   beast: { edge: '#ffffff', glow: '#ff5a5a', core: '#ffffff', spark: ['#ffc8c8', '#ffffff', '#ff8a8a'] },
   slime: { edge: '#e0f4ff', glow: '#4aa8f0', core: '#ffffff', spark: ['#9ad8ff', '#ffffff'] },
   ghost: { edge: '#e8d8ff', glow: '#8a4ae0', core: '#ffffff', spark: ['#c8a8f0', '#ffffff', '#8a5ac8'] },
+  // ゲームの コントローラー（ボタンの 4色）・ゲーミング キーボード（にじいろ）・まくら（しろい ぬの）
+  pad: { edge: '#e0e0f0', glow: '#8a8aff', core: '#ffffff', spark: ['#ff4a5a', '#4a8aff', '#4ad86a', '#ffd84a'] },
+  rgb: { edge: '#ffffff', glow: '#c86aff', core: '#ffffff', spark: ['#ff5a6a', '#ffa83a', '#ffe84a', '#6aea7a', '#4ad8ff', '#c86aff'] },
+  pillow: { edge: '#ffffff', glow: '#bfd0ff', core: '#ffffff', spark: ['#ffffff', '#e8eeff', '#d0dcff'] },
 };
 
 // ぞくせい・しかけの いろ（そざいの いろに うわがき）
@@ -47,6 +51,9 @@ const TRAIT_COL = {
   ice: { glow: '#5ab8e8', spark: ['#e6fbff', '#9ae6ff', '#ffffff'] },
   dark: { glow: '#7a3ac8', spark: ['#c8a8f0', '#8a5ac8', '#ffffff'] },
   holy: { glow: '#ffe07a', spark: ['#ffffff', '#fff6b0', '#ffd66b'] },
+  // 黒い 羽根（ダ天使の つえ）・カメラの フラッシュ（自どり棒）
+  blackfeather: { glow: '#7a3ac8', spark: ['#c8a8f0', '#3a2a5a', '#ffffff'] },
+  flash: { spark: ['#ffffff', '#bfe6ff', '#fff6b0'] },
 };
 
 const FIRE = ['#ffe07a', '#ff9a3a', '#ff5a2a', '#fff6c0'];
@@ -136,6 +143,16 @@ const ID_LOOK = {
   deck_brush: { mat: 'sea', trait: 'water' },
   center_mic: { mat: 'silver' },
   gold_mic: { mat: 'gold' },
+  // まくら（ぼふっ・はねが まう）・自どり棒（フラッシュ）・コントローラー（なげて もどる）・ふういんの 木刀（やみ）
+  // レンチ（カーン！）・キーボード（バットの ように よこに ふる・にじいろ）・黒い 羽根の つえ
+  pillow: { mat: 'pillow', move: 'pillow', trait: 'feather' },
+  selfie_stick: { mat: 'silver', trait: 'flash' },
+  game_controller: { mat: 'pad' },
+  chuuni_bokken: { mat: 'wood', trait: 'dark' },
+  monkey_wrench: { mat: 'steel', move: 'pan' },
+  gaming_keyboard: { mat: 'rgb', move: 'bat', trait: 'rainbow' },
+  pipe_wrench: { mat: 'iron', move: 'pan', glow: '#e04a3a' },
+  dark_feather_staff: { mat: 'ghost', trait: 'blackfeather' },
   // ふしぎなかじで 作る 武器
   fang_spear: { mat: 'stone', trait: null },
   wolf_claw: { mat: 'iron', move: 'fang' },
@@ -151,6 +168,8 @@ const BOOMER_BODY = {
   wood: ['#c8904e', '#fff0d0'], bronze: ['#c27c44', '#ffe0b0'], iron: ['#8a90a4', '#ffffff'], steel: ['#6a80b0', '#eef4ff'],
   silver: ['#c6cede', '#ffffff'], gold: ['#e0a830', '#fff6cc'], magic: ['#8a5ae8', '#f0e2ff'], dragon: ['#3c945c', '#d8ffd8'],
   light: ['#ece0ae', '#ffffff'], platinum: ['#d6dcee', '#ffffff'], legend: ['#ffd24a', '#ffffff'],
+  // ゲームの コントローラー（くろっぽい はいいろ）
+  pad: ['#3a3a4a', '#c8c8dc'],
 };
 
 // まものの なかま（ぶきを もたない）: しゅぞくで うごきを かえる
@@ -475,6 +494,17 @@ const MOVES = {
     return hit;
   },
 
+  // まくら: ぼふっと たたいて、しろい はねが まう
+  pillow(fx, t, L, crit, d, s) {
+    const { x, y } = t;
+    const hit = fx.swipe([x - 30 * s, y - 34 * s], [x - 2 * s, y - 12 * s], [x + 12 * s, y + 6 * s], { w: 7 * (crit ? 1.3 : 1), color: '#ffffff', glow: L.glow, core: '#ffffff', delay: d, swing: 140, life: 340, pow: 1.6 });
+    fx.add({ kind: 'pillow', x, y: y - 4, vx: 0, vy: -16, life: 380, delay: Math.max(0, hit - 40), rot: -0.5 });
+    fx.puff(x, y, { color: '#ffffff', r0: 6 * s, r1: 22 * s, life: 420, delay: hit, alpha: 0.85 });
+    for (let k = 0; k < 8 + L.lv; k++) fx.petal(x + rnd(-12, 12), y + rnd(-6, 6), { color: k % 3 ? '#ffffff' : '#e0e8ff', vx: rnd(-70, 70), vy: rnd(-90, -30), size: 2.6, delay: hit + k * 10, life: 900, g: 50 });
+    impact(fx, t, L, crit, hit, s, { weight: 0.6, soft: true });
+    return hit;
+  },
+
   // ブーメラン（1体だけの とき・こんらん など）: その 敵を まわって もどってくる
   boomerang(fx, t, L, crit, d, s) {
     return boomerangFlight(fx, [t], L, [crit], d)[0];
@@ -633,6 +663,18 @@ function traitFx(fx, t, L, at, s, o) {
     case 'holy':
       fx.add({ kind: 'crossflash', x, y, color: '#fffbe0', life: 360, delay: at });
       fx.pillar(x, y + 18, 'rgba(255,246,176,0.55)', { w: 10, h: 80, delay: at, life: 520 });
+      break;
+    case 'flash':
+      // パシャッ（カメラの フラッシュ）
+      fx.add({ kind: 'crossflash', x, y, color: '#ffffff', life: 260, delay: at });
+      fx.flashAt(60, '#ffffff', at + 20);
+      for (let k = 0; k < 4; k++) fx.twinkle(x + rnd(-14, 14), y + rnd(-10, 10), { color: '#ffffff', size: 5, delay: at + k * 40, life: 260, spin: 3 });
+      break;
+    case 'blackfeather':
+      // 黒い はねが まって、やみが ひろがる
+      fx.glow(x, y, { color: '#3a1a5a', r: 22 * s, delay: at, life: 460, add: false, alpha: 0.5 });
+      for (let k = 0; k < 7; k++) fx.petal(x + rnd(-12, 12), y - 8, { color: pick(['#1a1424', '#3a2a5a', '#5a4a7a']), vx: rnd(-40, 40), vy: rnd(-40, 10), size: 3, delay: at + 40 + k * 20, life: 900 });
+      fx.sparks(x, y, { colors: ['#c8a8f0', '#8a5ac8'], n: 8, speed: 70, ang: -Math.PI / 2, spread: 1, g: -50, delay: at, life: 520 });
       break;
     default:
   }
