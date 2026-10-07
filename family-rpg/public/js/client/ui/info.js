@@ -181,7 +181,7 @@ export function statusNames(st) {
 }
 
 export function buffNames(b) {
-  const n = { '+atk': '攻↑', '+def': '守↑', '+agi': '速↑', '+eva': 'かわ↑', '-def': '守↓', '-atk': '攻↓', '-agi': '速↓' };
+  const n = { '+atk': '攻↑', '+def': '守↑', '+agi': '速↑', '+mag': '魔↑', '+eva': 'かわ↑', '-def': '守↓', '-atk': '攻↓', '-agi': '速↓', '-mag': '魔↓' };
   // 2だんかいめ（かさねがけ）は 矢じるしが 2つ（'+atk2' → 攻↑↑）
   return (b || []).map((x) => {
     const two = x.endsWith('2');

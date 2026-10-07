@@ -47,7 +47,7 @@ test('新しい 職業: ならびと なる じょうけん（伝説の職業は
   for (const j of ['cook', 'parttimer']) assert.ok(JOB_ORDER.includes(j), j);
   for (const j of ['patissier', 'seishain', 'comedian']) assert.ok(ADVANCED_ORDER.includes(j), j);
   for (const j of ['star_chef', 'tatakiage', 'm1_champion', 'daikenja']) assert.ok(SUPER_ORDER.includes(j), j);
-  assert.deepEqual(LEGEND_ORDER, ['loto_hero']);
+  assert.equal(LEGEND_ORDER[0], 'loto_hero');
   assert.equal(TIER_NAMES[3], '伝説の職業');
   assert.equal(tierOf('loto_hero'), 3);
   assert.ok(jobBattlesForLevel(5, 3) > jobBattlesForLevel(5, 2), '伝説の 職業は 職業レベルが 上がりにくい');
@@ -159,6 +159,12 @@ test('見なおし: 補助の 強さは ランクで そろえる（基本職の
       const a = ABILITIES[id];
       if (a.job !== j) continue; // ほかの 職業の 技（賢者の ルーラ など）は その 職業で しらべる
       for (const eff of buffsOf(a)) {
+        // 身を かわしやすく する 補助（かいひりつを 足す）は 倍率では ない
+        if (eff.stat === 'eva' && !eff.stats) {
+          if (['allies', 'ally'].includes(a.target)) assert.ok(eff.add <= [0.25, 0.3, 0.35, 0.35][t] + 1e-9, `${JOBS[j].name} ${a.name}: かいひ +${eff.add}`);
+          checked++;
+          continue;
+        }
         const cap = (eff.stats || [eff.stat]).length > 1 ? ALL_MULTI_CAP[t] : ALL_CAP[t];
         if (a.target === 'allies') assert.ok(eff.mult <= cap + 1e-9, `${JOBS[j].name} ${a.name}: みんなに ${eff.mult}倍`);
         if (a.target === 'ally') assert.ok(eff.mult <= ONE_CAP[t] + 1e-9, `${JOBS[j].name} ${a.name}: 1人に ${eff.mult}倍`);

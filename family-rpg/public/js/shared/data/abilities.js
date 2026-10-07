@@ -27,6 +27,7 @@ import { JOB2_ABILITIES } from './abilities-jobs2.js';
 import { CH3_ABILITIES } from './abilities-ch3.js';
 import { CH4_ABILITIES } from './abilities-ch4.js';
 import { JOB3_ABILITIES } from './abilities-jobs3.js';
+import { JOB4_ABILITIES } from './abilities-jobs4.js';
 
 export const ABILITIES = {
   // ───────────── 戦士 ─────────────
@@ -591,6 +592,8 @@ Object.assign(ABILITIES, CH3_ABILITIES);
 Object.assign(ABILITIES, CH4_ABILITIES);
 // 料理人・アルバイト・お笑い芸人の 系統、大賢者、ロトの勇者と、攻撃技を 足した 職業（abilities-jobs3.js）
 Object.assign(ABILITIES, JOB3_ABILITIES);
+// ニート・サイヤ人・設備屋・ゴム人間・ユーチューバー・ゲーマーの 系統と 魔王（abilities-jobs4.js）
+Object.assign(ABILITIES, JOB4_ABILITIES);
 
 // 攻撃呪文かどうか（魔法剣で使える）
 export function isAttackSpell(id) {

@@ -112,6 +112,8 @@ export function computeStats(char) {
   r.dfn = r.def + eq.out.dfn;
   r.weaponCat = eq.weaponCat;
   r.resist = eq.resist;
+  // 職業の たいせい（ゴム人間・ニカは 雷が 効かない）
+  for (const [k, v] of Object.entries(JOBS[char.job]?.passive?.resist || {})) r.resist[k] = (r.resist[k] ?? 1) * v;
   r.onHit = eq.onHit;
   return r;
 }
@@ -402,6 +404,10 @@ export const STARTER_EQUIP = {
   civil_local: { weapon: 'ballpen', armor: 'cloth', shield: null, head: null, acc: null },
   cook: { weapon: 'kitchen_knife', armor: 'cloth', shield: null, head: null, acc: null },
   parttimer: { weapon: 'mop', armor: 'cloth', shield: null, head: null, acc: null },
+  neet: { weapon: 'pillow', armor: 'cloth', shield: null, head: null, acc: null },
+  saiyan: { weapon: null, armor: 'battle_suit', shield: null, head: null, acc: null },
+  youtuber: { weapon: 'selfie_stick', armor: 'cloth', shield: null, head: null, acc: null },
+  gamer: { weapon: 'game_controller', armor: 'cloth', shield: null, head: null, acc: null },
 };
 
 // みため（むかしの 項目は いつも のこす。かみがた・色・目もとの あたらしい 項目は data/looks.js）

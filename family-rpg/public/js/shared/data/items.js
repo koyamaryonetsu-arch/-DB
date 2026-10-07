@@ -132,6 +132,18 @@ export const ITEMS = {
   chinese_wok: { name: '中華なべ', type: 'weapon', rank: 4, cat: 'axe', atk: 30, bonus: { def: 4 }, price: 1400, desc: '大きな鉄のなべ。重いが、たてにもなる。' },
   gold_mic: { name: '金のマイク', type: 'weapon', rank: 5, cat: 'staff', atk: 16, bonus: { mag: 14, agi: 4 }, price: 2400, desc: '金色にかがやくマイク。話すとみんなが聞き入る。' },
   chef_knife: { name: '三ツ星の包丁', type: 'weapon', rank: 6, cat: 'dagger', atk: 36, bonus: { agi: 3, heal: 8 }, price: 3600, desc: '世界一のシェフが使う包丁。金色の手もとがかがやく。' },
+  // ニート・ユーチューバー・ゲーマー・サイヤ人・中二病・設備屋・ゴム人間などの 道具（2026年10月 第21回）
+  pillow: { name: 'まくら', type: 'weapon', rank: 1, cat: 'fan', atk: 4, bonus: { heal: 3, hp: 5 }, price: 30, desc: 'ふかふかのまくら。投げてよし、ねてよし。ニートのあいぼう。' },
+  selfie_stick: { name: '自どり棒', type: 'weapon', rank: 1, cat: 'staff', atk: 6, bonus: { mag: 2 }, price: 60, desc: 'スマホをつけてのばす棒。ユーチューバーのあいぼう。' },
+  game_controller: { name: 'ゲームのコントローラー', type: 'weapon', rank: 1, cat: 'boomerang', atk: 4, bonus: { agi: 3 }, price: 100, desc: 'コードの付いたコントローラー。ふり回して投げると、敵全体に当たる。ゲーマーのあいぼう。' },
+  battle_suit: { name: 'サイヤ人の戦闘服', type: 'armor', rank: 1, armorType: 'gi', def: 6, bonus: { agi: 1 }, price: 120, desc: 'かたの部分がじょうぶな、よくのびる戦闘服。サイヤ人の正装。' },
+  chuuni_bokken: { name: 'ふう印の木刀', type: 'weapon', rank: 2, cat: 'sword', atk: 13, bonus: { mag: 4 }, price: 260, desc: 'ふう印の紙と包帯をまいた木刀。本人いわく、やみの力がふう印されている。' },
+  monkey_wrench: { name: 'モンキーレンチ', type: 'weapon', rank: 3, cat: 'axe', atk: 22, bonus: { def: 2 }, price: 520, desc: 'ねじの大きさに合わせて口が開く、仕事道具のレンチ。' },
+  gaming_keyboard: { name: 'ゲーミングキーボード', type: 'weapon', rank: 4, cat: 'axe', atk: 28, bonus: { agi: 5 }, price: 1300, desc: 'にじ色に光るキーボード。ふり回すと、キーが飛び散る。' },
+  gold_button: { name: '金の記念たて', type: 'shield', rank: 5, def: 18, bonus: { mag: 4, heal: 4 }, price: 1800, desc: '登録者100万人の記念にもらった、金色にかがやくたて。' },
+  straw_hat: { name: '麦わらぼうし', type: 'head', rank: 4, def: 6, bonus: { agi: 3, hp: 10 }, price: 600, desc: '赤いリボンの麦わらぼうし。かぶると、なぜか元気がわいてくる。だれでも装備できる。' },
+  pipe_wrench: { name: 'パイプレンチ', type: 'weapon', rank: 6, cat: 'axe', atk: 54, bonus: { def: 4 }, price: 3800, desc: '太い配管もがっちりつかむ、赤い大きなレンチ。' },
+  dark_feather_staff: { name: '黒い羽根のつえ', type: 'weapon', rank: 6, cat: 'staff', atk: 17, bonus: { mag: 24, agi: 3 }, price: 3400, desc: '黒い羽根とむらさきの宝石のつえ。呪文の力が大きく上がる。' },
   // ブーメラン（ふつうの 攻撃で 敵全体に 当たる。何体にも 当たる ぶん、同じ ランクの 剣より 攻撃力は 低い）
   wood_boomerang: { name: '木のブーメラン', type: 'weapon', rank: 1, cat: 'boomerang', atk: 5, price: 120, upMat: 'wind_feather', desc: '投げると敵全体に当たって、手もとにもどってくる木のブーメラン。' },
   iron_boomerang: { name: '鉄のブーメラン', type: 'weapon', rank: 3, cat: 'boomerang', atk: 13, price: 620, desc: '重みのある鉄のブーメラン。敵全体をなぎはらって、もどってくる。' },
@@ -268,6 +280,9 @@ export const ITEM_KANA = {
   wind_ring: 'かぜのゆびわ', deep_ring: 'しんかいのゆびわ', storm_bangle: 'あらしのうでわ', sea_charm: 'うみのおまもり',
   light_orb: 'ひかりのたま', wind_star: 'かぜのまもりぼし', bottle_letter: 'びんのてがみ',
   kitchen_knife: 'ほうちょう', whisk: 'あわだてき', chinese_wok: 'ちゅうかなべ', gold_mic: 'きんのまいく', chef_knife: 'みつぼしのほうちょう',
+  pillow: 'まくら', selfie_stick: 'じどりぼう', game_controller: 'げーむのこんとろーらー', battle_suit: 'さいやじんのせんとうふく', chuuni_bokken: 'ふういんのぼくとう',
+  monkey_wrench: 'もんきーれんち', gaming_keyboard: 'げーみんぐきーぼーど', gold_button: 'きんのきねんたて', straw_hat: 'むぎわらぼうし', pipe_wrench: 'ぱいぷれんち',
+  dark_feather_staff: 'くろいはねのつえ',
   tm_gold_bangle: 'おうごんのうでわ', tm_gem_ring: 'ほうせきのゆびわ', tm_dragon_scale: 'えんりゅうのうろこ', tm_dark_ring: 'やみのゆびわ', tm_ice_pendant: 'こおりのぺんだんと', tm_shadow_anklet: 'かげのあんくれっと',
 };
 

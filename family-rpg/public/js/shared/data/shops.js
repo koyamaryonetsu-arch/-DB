@@ -14,7 +14,7 @@ export const SHOPS = {
     keeper: 'よろず屋のおじさん',
     hello: 'いらっしゃい！ホシフル村のよろず屋だよ。\n薬草から剣まで、何でもそろってるよ。\n今日はどんなご用だい？',
     items: ['herb', 'antidote', 'holy_water', 'guide_thread', 'wood_sword', 'oak_staff', 'bronze_knife', 'feather_fan', 'harisen', 'ballpen', 'signal_flag', 'wood_bat',
-      'kitchen_knife', 'ladle', 'mop', 'cloth', 'leather_hat', 'leather_shield'],
+      'kitchen_knife', 'ladle', 'mop', 'pillow', 'selfie_stick', 'game_controller', 'cloth', 'battle_suit', 'leather_hat', 'leather_shield'],
   },
   weapon: {
     name: 'ルミナの武器屋',
@@ -27,7 +27,7 @@ export const SHOPS = {
     more: [{
       show: { all: ['c1_treant'] },
       items: ['iron_sword', 'iron_axe', 'iron_spear', 'iron_claw', 'dancer_fan', 'wizard_staff', 'healing_staff', 'thorn_whip', 'metal_bat', 'katana', 'iron_boomerang',
-        'deck_brush', 'whisk', 'center_mic'],
+        'deck_brush', 'whisk', 'center_mic', 'chuuni_bokken', 'monkey_wrench'],
       hello: 'ここは武器屋だ。\n森が元にもどって、鉄の武器がとどくようになったぞ！\nどんな用だい？',
     }],
   },

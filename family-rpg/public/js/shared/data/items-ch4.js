@@ -99,7 +99,7 @@ export const SHOPS_CH4 = {
     kind: 'weapon',
     keeper: '武器屋のおやじ',
     hello: 'いらっしゃい！王都サファラの武器屋だ。\n砂の国の剣は、軽くてよく切れるぜ。\nどれにする？',
-    items: ['shamshir', 'battle_axe', 'jambiya', 'sand_lance', 'tiger_claw', 'snake_whip', 'oasis_staff', 'sandwind_fan', 'crescent_boomerang', 'palm_bat', 'chef_knife'],
+    items: ['shamshir', 'battle_axe', 'jambiya', 'sand_lance', 'tiger_claw', 'snake_whip', 'oasis_staff', 'sandwind_fan', 'crescent_boomerang', 'palm_bat', 'chef_knife', 'pipe_wrench', 'dark_feather_staff'],
   },
   safara_armor: {
     name: 'サファラの防具屋',
