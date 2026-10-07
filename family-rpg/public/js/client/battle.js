@@ -15,6 +15,7 @@ import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/ba
 import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js';
 import { abilityDetail, statusNames, buffNames, targetTag } from './ui/info.js';
 import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js';
+import { ENEMY_RATE_NAMES } from '../shared/data/difficulty.js';
 import { ResultPager, levelUpName } from './ui/result.js';
 // 第4章の しかけ（月の鏡・まぼろしの 分身・魔神のランプ・ボスの 大技）
 import { CH4_ALLY_FX, ch4ItemEntries, ch4ItemPick, ch4ItemInfo, ch4Present, vanishFx, drawShade } from './battle-ch4.js';
@@ -107,6 +108,8 @@ export class BattleScene {
     this.noSpells = !!msg.snap.noSpells;
     // 月の鏡の 光（まぼろしの 分身が いる 戦いだけ。{ cd … のこり, max }。battle-ch4.js）
     this.mirror = msg.snap.mirror ? { ...msg.snap.mirror } : null;
+    // 敵の 強さ（設定の「敵の強さ」。パーティーでは リーダーの 設定）。ふつう いがいは え の 左下に しるし
+    this.enemyRate = ENEMY_RATE_NAMES[msg.snap.enemyRate] ? msg.snap.enemyRate : 1;
     this.c = new Map();
     for (const c of msg.snap.combatants) this.c.set(c.id, { ...c, flash: 0, dead: !c.alive ? 1 : 0, lunge: 0 });
     // この たたかいで ためした 属性（'まもの|属性'）。図鑑に のっている ぶんと あわせて ねらう ときに 見せる
@@ -205,7 +208,11 @@ export class BattleScene {
     this.autoBtn = el('button', { class: 'btn', text: 'オート', onclick: () => this.toggleAuto() });
     this.speedHint = el('div');
     const tools = el('div', { class: 'b-tools' }, this.autoBtn);
-    this.stage = el('div', { class: 'b-stage' }, this.canvas, this.floatEl, tools);
+    // 敵の 強さ（ハード・ベリーハード・スーパーハード）の しるし
+    const foe = this.enemyRate > 1
+      ? el('div', { class: `b-foe r${String(this.enemyRate).replace('.', '')}`, text: ENEMY_RATE_NAMES[this.enemyRate], title: `敵の強さ：${this.enemyRate}倍` })
+      : null;
+    this.stage = el('div', { class: 'b-stage' }, this.canvas, this.floatEl, tools, foe);
     this.canvas.addEventListener('click', (e) => this.onCanvasClick(e));
     this.cmdEl = el('div', { class: 'win b-cmd' });
     this.msgEl = el('div', { class: 'win b-msg' });

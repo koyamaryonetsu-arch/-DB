@@ -22,17 +22,20 @@ export function weaponWeights(ch) {
   return { atk: 0.35, mag: m.mag / top, heal: m.heal / top };
 }
 
+// その 部位に id を 装備した ときの 強さ（大きいほど 強い。id が null なら 外した とき）。みんなさいきょう装備と 装備を えらぶ まどの「強さ順」で 使う
+//   大事な 強さ（武器は 攻撃力〈呪文の 職業は 魔力も〉、よろい・たて・頭は 守備力。アクセサリーは なし）→ 強さの 合計 の じゅんで くらべる
+export function gearScore(ch, slot, id, w = weaponWeights(ch)) {
+  const st = computeStats({ ...ch, equip: { ...(ch?.equip || {}), [slot]: id } });
+  const main = slot === 'weapon' ? st.atk * w.atk + st.mag * w.mag + st.heal * w.heal : slot === 'acc' ? 0 : st.dfn;
+  return Math.round(main * 100) * 10000 + st.str + st.def + st.agi + st.mag + st.heal + st.maxHp + st.maxMp;
+}
+
 // 1人ぶん: ch の 装備を bag から いれかえる（ch.equip と bag は かえる。変えた 部位を かえす）
 function bestFor(ch, bag) {
   const changes = [];
   const w = weaponWeights(ch);
   for (const slot of BEST_SLOTS) {
-    // 大事な 強さ（武器は 攻撃力〈呪文の 職業は 魔力も〉、ほかは 守備力）→ ほかの 強さの 合計 の じゅんで くらべる
-    const main = (st) => (slot === 'weapon' ? st.atk * w.atk + st.mag * w.mag + st.heal * w.heal : st.dfn);
-    const score = (id) => {
-      const st = computeStats({ ...ch, equip: { ...ch.equip, [slot]: id } });
-      return Math.round(main(st) * 100) * 10000 + st.str + st.def + st.agi + st.mag + st.heal + st.maxHp + st.maxMp;
-    };
+    const score = (id) => gearScore(ch, slot, id, w);
     const cur = ch.equip?.[slot] || null;
     let best = cur;
     let bestScore = score(cur);
@@ -64,4 +67,36 @@ export function bestEquipPlan(team, bag) {
     if (changes.length) out.push({ key: m.key, name: ch.name, changes, before, after: computeStats(ch) });
   }
   return out;
+}
+
+// ───── 装備を えらぶ まど（メニューの「装備」→ 部位。client/ui/menu.js の pickGear）─────
+// ならべかた: got … 入手順（ふくろの じゅん。手に 入れた じゅん）／ power … 強さ順（gearScore の 大きい じゅん）
+export const GEAR_SORTS = { got: '入手順', power: '強さ順' };
+
+// ch が その 部位に 装備できる 物（職業の 武器・よろい・たて・かぶとの きまり、魔物の しゅぞくの きまり。stats.js の canEquipChar）だけ。
+// bag … ふくろ（{ items: [{ id, n }] }）、others … ほかの 人 [{ key, char }]（その 人が 装備している 物も 入れかえの 候補）
+// かえす もの: [{ id, n, from: null（ふくろ）か 仲間の key, score }]。ふくろの じゅん → ほかの 人の じゅん
+export function gearChoices(ch, slot, bag, others = []) {
+  const w = weaponWeights(ch);
+  const out = [];
+  const seen = new Set();
+  for (const e of bag?.items || []) {
+    if (!(e?.n > 0) || ITEMS[e.id]?.type !== slot || seen.has(e.id) || !canEquipChar(ch, e.id)) continue;
+    seen.add(e.id);
+    out.push({ id: e.id, n: e.n, from: null, score: gearScore(ch, slot, e.id, w) });
+  }
+  for (const m of others || []) {
+    const id = m?.char?.equip?.[slot];
+    if (!id || ITEMS[id]?.type !== slot || !canEquipChar(ch, id)) continue;
+    out.push({ id, n: 1, from: m.key, score: gearScore(ch, slot, id, w) });
+  }
+  return out;
+}
+
+// 強さ順: ふくろの 物を 強い じゅんに（いちばん 上が みんなさいきょう装備で えらぶ 物）。おなじ 強さなら 入手順。
+// ほかの 人が 装備している 物は その あと（その 中も 強い じゅん）。入手順は そのまま
+export function sortGearChoices(list, mode) {
+  if (mode !== 'power') return list.slice();
+  const strong = (a, b) => b.score - a.score;
+  return [...list.filter((x) => !x.from).sort(strong), ...list.filter((x) => x.from).sort(strong)];
 }

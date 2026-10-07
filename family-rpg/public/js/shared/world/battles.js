@@ -1,6 +1,6 @@
 // たたかいの はじまりと おわり（ほうしゅう・ぜんめつ）
 import { Battle, normBattleSettings } from '../battle.js';
-import { scaleExp } from '../data/difficulty.js';
+import { scaleExp, difficultyOf } from '../data/difficulty.js';
 import { MONSTERS } from '../data/monsters.js';
 import { ITEMS } from '../data/items.js';
 import { ABILITIES } from '../data/abilities.js';
@@ -86,6 +86,12 @@ export function resultDone(world, s) {
   s.invuln = Math.min(s.invuln, AFTER_RESULT_MS);
 }
 
+// 敵の 強さ（設定の「敵の強さ」。data/difficulty.js）: パーティーでは リーダーの 設定（ものがたりと おなじ）。ひとりなら 自分の 設定
+export function enemyRateFor(world, party, sessions) {
+  const leader = (party && world.sessions.get(party.leader)) || sessions?.[0];
+  return difficultyOf(leader?.char).enemy;
+}
+
 // その 人が うごかす キャラ（じぶん＋「めいれいさせろ」の なかま）。じぶんが さいしょ
 export function mineOf(ctx, sid) {
   const out = ctx.battle.allies.filter((a) => a.controller === sid);
@@ -137,6 +143,8 @@ function makeBattle(world, sessions, party, enemies, opts) {
     preemptive: opts.preemptive || null,
     // 宝の洞窟: 魔物を 地図の レベルに あわせて 強くする
     enemyMod: opts.enemyLv ? (m) => scaleEnemy(m, opts.enemyLv) : null,
+    // 敵の 強さ（ハード 1.2倍 など）。リーダーの 設定。宝の洞窟の 強さの 上に かける（ほうしゅうは かわらない）
+    enemyRate: enemyRateFor(world, party, sessions),
     hooks: {
       hasItem: (actor, id) => {
         const m = actor.controller && world.sessions.get(actor.controller);

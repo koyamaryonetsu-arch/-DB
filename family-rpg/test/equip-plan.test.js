@@ -5,7 +5,7 @@ import { GameWorld } from '../public/js/shared/world/world.js';
 import { makeRng } from '../public/js/shared/rng.js';
 import { gainExp, expForLevel, computeStats, itemCount } from '../public/js/shared/stats.js';
 import { recruitNpc } from '../public/js/shared/world/party.js';
-import { bestEquipPlan, bestTeamOrder, weaponWeights, BEST_SLOTS } from '../public/js/shared/equip-plan.js';
+import { bestEquipPlan, bestTeamOrder, weaponWeights, BEST_SLOTS, gearChoices, sortGearChoices, gearScore, GEAR_SORTS } from '../public/js/shared/equip-plan.js';
 import { statChanges, statChangesHtml, equipDiff, diffText } from '../public/js/client/ui/info.js';
 import { Bot } from './helpers.js';
 
@@ -139,4 +139,74 @@ test('装備で 変わる 強さ: 上がる ものも 下がる ものも 色つ
   const d = equipDiff(c, 'iron_armor');
   assert.ok(d.some((x) => x.k === 'dfn' && x.d > 0) && d.some((x) => x.k === 'agi' && x.d < 0), JSON.stringify(d));
   assert.ok(diffText(d).includes('素早さ-2'), diffText(d));
+});
+
+// ───── 装備を えらぶ まど（メニューの「装備」→ 部位）: 装備できる 物だけ・入手順／強さ順 ─────
+const mkChar = (job, extra = {}) => ({ name: job, job, level: 20, jobs: {}, equip: { weapon: null, armor: 'cloth', shield: null, head: null, acc: null }, seeds: {}, ...extra });
+
+test('装備を えらぶ まど: その 人が 装備できる 物だけ（職業の 武器・よろい・たて・かぶと、魔物の しゅぞく）', () => {
+  const bag = { items: [
+    { id: 'iron_sword', n: 1 }, { id: 'oak_staff', n: 2 }, { id: 'iron_axe', n: 1 }, { id: 'iron_claw', n: 1 }, { id: 'herb', n: 5 },
+    { id: 'iron_armor', n: 1 }, { id: 'wizard_robe', n: 1 }, { id: 'martial_gi', n: 1 }, { id: 'travel_clothes', n: 1 },
+    { id: 'iron_shield', n: 1 }, { id: 'iron_helm', n: 1 }, { id: 'leather_hat', n: 1 }, { id: 'power_ring', n: 1 }, { id: 'bronze_sword', n: 0 },
+  ] };
+  const ids = (ch, slot, others) => gearChoices(ch, slot, bag, others).map((x) => (x.from ? `${x.from}:${x.id}` : x.id));
+  const warrior = mkChar('warrior'), mage = mkChar('mage'), monk = mkChar('monk');
+  assert.deepEqual(ids(warrior, 'weapon'), ['iron_sword', 'iron_axe'], '戦士: 剣・オノ（0こ の 物は 出さない）');
+  assert.deepEqual(ids(mage, 'weapon'), ['oak_staff'], '魔法使い: つえ');
+  assert.deepEqual(ids(monk, 'weapon'), ['iron_claw'], '武闘家: ツメ');
+  assert.deepEqual(ids(warrior, 'armor'), ['iron_armor', 'martial_gi', 'travel_clothes']);
+  assert.deepEqual(ids(mage, 'armor'), ['wizard_robe', 'travel_clothes'], '重いよろいは 出さない');
+  assert.deepEqual(ids(monk, 'armor'), ['martial_gi', 'travel_clothes']);
+  assert.deepEqual(ids(warrior, 'shield'), ['iron_shield']);
+  assert.deepEqual(ids(mage, 'shield'), [], 'たてを 持てない 職業');
+  assert.deepEqual(ids(warrior, 'head'), ['iron_helm', 'leather_hat']);
+  assert.deepEqual(ids(mage, 'head'), ['leather_hat'], 'かぶとは 出さない');
+  assert.deepEqual(ids(monk, 'acc'), ['power_ring'], 'アクセサリーは だれでも');
+  // モンスターの 仲間（しゅぞくの きまり）: ぷるりんは 武器・たてを 持てない。服と ぼうしだけ
+  const slime = mkChar('warrior', { species: 'pururin' });
+  assert.deepEqual(ids(slime, 'weapon'), []);
+  assert.deepEqual(ids(slime, 'shield'), []);
+  assert.deepEqual(ids(slime, 'armor'), ['travel_clothes']);
+  assert.deepEqual(ids(slime, 'head'), ['leather_hat']);
+  // 仲間が 装備している 物（入れかえ）も その 人が 装備できる 物だけ。ふくろの 物の あと
+  const others = [{ key: 'a', char: mkChar('mage', { equip: { weapon: 'wizard_staff' } }) }, { key: 'b', char: mkChar('warrior', { equip: { weapon: 'silver_sword' } }) }];
+  assert.deepEqual(ids(warrior, 'weapon', others), ['iron_sword', 'iron_axe', 'b:silver_sword']);
+  assert.deepEqual(ids(mage, 'weapon', others), ['oak_staff', 'a:wizard_staff']);
+  assert.deepEqual(ids(slime, 'weapon', others), []);
+});
+
+test('装備を えらぶ まど: 入手順は ふくろの じゅん、強さ順は みんなさいきょう装備と おなじ くらべかた（いちばん 上が さいきょう装備の 物）', () => {
+  assert.deepEqual(GEAR_SORTS, { got: '入手順', power: '強さ順' });
+  // 戦士の 武器: 攻撃力の 高い じゅん
+  const w = mkChar('warrior', { equip: { weapon: 'wood_sword', armor: 'cloth' } });
+  const bag = { items: [{ id: 'bronze_sword', n: 1 }, { id: 'stone_axe', n: 1 }, { id: 'silver_sword', n: 1 }, { id: 'iron_sword', n: 2 }, { id: 'iron_axe', n: 1 }] };
+  const list = gearChoices(w, 'weapon', bag);
+  assert.deepEqual(sortGearChoices(list, 'got').map((x) => x.id), bag.items.map((e) => e.id), '入手順');
+  const power = sortGearChoices(list, 'power').map((x) => x.id);
+  assert.deepEqual(power, ['silver_sword', 'iron_axe', 'iron_sword', 'stone_axe', 'bronze_sword'], '強さ順');
+  assert.equal(bestEquipPlan([{ key: 'w', char: w }], bag)[0].changes.find((x) => x.slot === 'weapon').to, power[0], 'いちばん 上は さいきょう装備と おなじ');
+  const atk = (id) => computeStats({ ...w, equip: { ...w.equip, weapon: id } }).atk;
+  for (let i = 1; i < power.length; i++) assert.ok(atk(power[i - 1]) >= atk(power[i]), `${power[i - 1]} の 攻撃力 >= ${power[i]}`);
+  assert.deepEqual(list.map((x) => x.id), bag.items.map((e) => e.id), 'もとの ならびは かえない');
+  // 呪文の 職業は 魔力の 上がる つえが 上（みんなさいきょう装備と おなじ）
+  const mage = mkChar('mage');
+  const bag2 = { items: [{ id: 'bronze_knife', n: 1 }, { id: 'oak_staff', n: 1 }, { id: 'wizard_staff', n: 1 }] };
+  const top = sortGearChoices(gearChoices(mage, 'weapon', bag2), 'power')[0].id;
+  assert.equal(top, 'wizard_staff');
+  assert.equal(top, bestEquipPlan([{ key: 'm', char: mage }], bag2)[0].changes[0].to);
+  // 大事な 強さ（守備力）が おなじ なら 強さの 合計が 多い 物が 上（みんなさいきょう装備と おなじ）
+  const bag3 = { items: [{ id: 'captain_hat', n: 1 }, { id: 'feather_hat', n: 1 }, { id: 'mystic_hat', n: 1 }] };
+  const hats = sortGearChoices(gearChoices(mage, 'head', bag3), 'power').map((x) => x.id);
+  assert.deepEqual(hats, ['mystic_hat', 'feather_hat', 'captain_hat']);
+  assert.equal(bestEquipPlan([{ key: 'm', char: mage }], bag3)[0].changes[0].to, hats[0]);
+  assert.ok(gearScore(mage, 'head', 'mystic_hat') > gearScore(mage, 'head', 'captain_hat'));
+  // まったく おなじ 強さなら 入手順のまま
+  const bag4 = { items: [{ id: 'flame_shield', n: 1 }, { id: 'ice_shield', n: 1 }] };
+  const sh = gearChoices(w, 'shield', bag4);
+  if (sh[0].score === sh[1].score) assert.deepEqual(sortGearChoices(sh, 'power').map((x) => x.id), ['flame_shield', 'ice_shield']);
+  // 仲間が 装備している 物は、強さ順でも ふくろの 物の あと（その 中も 強い じゅん）
+  const others = [{ key: 'a', char: mkChar('warrior', { equip: { weapon: 'bronze_sword' } }) }, { key: 'b', char: mkChar('warrior', { equip: { weapon: 'steel_sword' } }) }];
+  const mixed = sortGearChoices(gearChoices(w, 'weapon', bag, others), 'power').map((x) => (x.from ? `${x.from}:${x.id}` : x.id));
+  assert.deepEqual(mixed, [...power, 'b:steel_sword', 'a:bronze_sword']);
 });

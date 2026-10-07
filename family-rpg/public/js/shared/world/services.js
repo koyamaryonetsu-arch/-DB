@@ -307,11 +307,13 @@ function stowText(list) {
 
 export function menuAction(world, s, msg) {
   const c = s.char;
+  // 新しい ようす（自分・パーティー）を 先に おくってから 返事（menuRes）。
+  // メニューは 返事が とどいた ときに、新しい HP・MP・道具の 数で 画面を 作りなおす（client/ui/menu.js の 道具を 続けて 使う）
   const reply = (ok, text) => {
-    world.send(s, { t: 'menuRes', ok, text });
     world.sendSelf(s);
     const p = partyOf(world, s);
     if (p) world.sendParty(p);
+    world.send(s, { t: 'menuRes', ok, text });
     world.markDirty();
   };
   // お気に入りは 戦いの 中でも 変えられる
