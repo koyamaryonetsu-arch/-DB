@@ -3,9 +3,10 @@
 //   heroImage(look, job, equip, dir, frame, res) → { w, h, res, rgba }
 // res 4: 64×84（フィールド）  res 8: 128×168（大きな みほん）
 import { HeroCanvas, mat, ramp, TH, mixC, rgbaCanvas } from './hero-raster.js';
-import { faceFront, faceSide } from './hero-face.js';
+import { faceFront, faceSide, faceMarks } from './hero-face.js';
 import { drawHair } from './hero-hair.js';
-import { outfitOf, drawTorsoFront, drawTorsoBack, drawTorsoSide, drawSkirt, drawCape, drawPauldron, drawBelt, drawNeckwear, drawPack, drawApron } from './hero-outfit.js';
+import { outfitOf, drawTorsoFront, drawTorsoBack, drawTorsoSide, drawSkirt, drawCape, drawPauldron, drawBelt, drawNeckwear, drawPack, drawApron, drawWings, drawTail } from './hero-outfit.js';
+import { drawAura } from './hero-aura.js';
 import { weaponOf, shieldOf, headOf, drawWeapon, drawShield, drawHeadgear, isLongSide } from './hero-gear.js';
 import { lookIds, HCOL_BY_ID, TONE_BY_ID, CLOTH_COLORS } from '../../shared/data/looks.js';
 import { STARTER_EQUIP } from '../../shared/stats.js';
@@ -121,6 +122,25 @@ function hairRamp(hc) {
 }
 
 // ───────────── からだの パーツ ─────────────
+// うで・あしに そった 線（ジャージの 2本線・ネオンの 線）。out: そとがわの むき（よこむきは 0 で まんなかに）
+// path: [かた・ひじ・…]、clip: その パーツの うえ だけ
+function sideLines(cv, path, out, n, r, m, clip) {
+  for (let j = 0; j < n; j++) {
+    const off = out ? out * (r * 0.62 - j * 0.58) : (j - (n - 1) / 2) * 0.62;
+    const pts = path.map((p, i) => {
+      const a = path[Math.max(0, i - 1)], b = path[Math.min(path.length - 1, i + 1)];
+      const dx = b[0] - a[0], dy = b[1] - a[1], l = Math.hypot(dx, dy) || 1;
+      // ほうせん（よこむきの ときは どちらでも よい。まえ・うしろは x が そとがわの むき）
+      let nx = dy / l, ny = -dx / l;
+      if (out && Math.sign(nx || 1) !== Math.sign(out)) { nx = -nx; ny = -ny; }
+      const k = out ? Math.abs(off) : off;
+      return [p[0] + nx * k, p[1] + ny * k];
+    });
+    cv.part({ ol: 'none', clip });
+    cv.stroke(pts, 0.2, m, { n: [0, 0] });
+  }
+}
+
 function legShape(cv, L, P, O) {
   const fem = P.fem;
   const t0 = (fem ? 1.85 : 2.05) * (O.legW || 1), t1 = (fem ? 1.5 : 1.7) * (O.legW || 1), t2 = fem ? 1.25 : 1.4;
@@ -132,11 +152,21 @@ function legShape(cv, L, P, O) {
     cv.cap(L.knee[0], L.knee[1], t1 * 0.88, L.ankle[0], L.ankle[1], t2 * 0.95, O.skin);
     cv.part({ ol: 'soft' });
     cv.cap(L.hip[0], L.hip[1], t0 * 1.08, mid[0], mid[1], (t0 + (t1 - t0) * f) * 1.2, O.pants, { cap1: false });
+    if (O.shortsCuff) {
+      // すその おりかえし（ゴム人間の 半ズボン）
+      const g = f - 0.2;
+      const top = [L.hip[0] + (L.knee[0] - L.hip[0]) * g, L.hip[1] + (L.knee[1] - L.hip[1]) * g];
+      const w = (t0 + (t1 - t0) * f) * 1.24;
+      cv.part({ ol: 'soft' });
+      cv.cap(top[0], top[1], w * 0.97, mid[0], mid[1] + 0.15, w, O.shortsCuff, { cap: false, n: [0, -0.15] });
+    }
     return;
   }
+  const lid = cv.cur;
   const tx = O.pantsTex ? O.pantsTex(cv.k) : null;
   cv.cap(L.hip[0], L.hip[1], t0, L.knee[0], L.knee[1], t1, O.pants, { tex: tx });
   cv.cap(L.knee[0], L.knee[1], t1, L.ankle[0], L.ankle[1], t2 * (O.legW || 1), O.pants, { tex: tx });
+  if (O.pantsLines) sideLines(cv, [L.hip, L.knee, L.ankle], P.side ? 0 : L.s, O.pantsLines.n, t1, O.pantsLines.m, lid);
   if (O.pantsBand) {
     // ひかる おび（消防士の ズボン）
     const a = 0.14, c = 0.3;
@@ -162,11 +192,41 @@ function bootShape(cv, L, P, O) {
     }
   }
   cv.part({ ol: 'soft' });
+  if (B.sandal === 'strap') {
+    // サンダル（そこ・はだの あし・こうの ひも）
+    if (P.side) {
+      const d = P.facing;
+      cv.poly([[fx - d * 1.9, fy + 0.0], [fx + d * 2.3, fy + 0.0], [fx + d * 2.4, fy + 0.75], [fx - d * 2.0, fy + 0.75]], B.m, { cx: 0.5, cy: 0.6 });
+      cv.part({ ol: 'soft' });
+      cv.poly([[fx - d * 1.5, fy - 1.5], [fx + d * 0.4, fy - 1.6], [fx + d * 1.9, fy - 0.6], [fx + d * 2.1, fy + 0.1], [fx - d * 1.6, fy + 0.1]], O.skin, { cx: 0.5, cy: 0.8 });
+      cv.part({ ol: 'soft' });
+      cv.poly([[fx - d * 0.1, fy - 1.6], [fx + d * 0.8, fy - 1.3], [fx + d * 1.2, fy - 0.4], [fx + d * 0.3, fy - 0.5]], B.strap, { cx: 0.5 });
+    } else {
+      cv.ell(fx, fy + 0.4, fem ? 1.75 : 1.95, 0.62, B.m, { bulge: 0.6 });
+      cv.part({ ol: 'soft' });
+      cv.ell(fx, fy - 0.25, fem ? 1.4 : 1.55, 0.95, O.skin, { bulge: 0.85 });
+      cv.part({ ol: 'soft' });
+      cv.ell(fx, fy - 0.5, fem ? 1.2 : 1.35, 0.42, B.strap, { bulge: 0.6 });
+    }
+    return;
+  }
   if (P.side) {
     const d = P.facing;
     cv.poly([[fx - d * 1.7, fy - 1.7], [fx + d * 0.5, fy - 1.8], [fx + d * 2.1, fy - 0.7], [fx + d * 2.3, fy + 0.6], [fx - d * 1.9, fy + 0.6]], B.m, { cx: 0.5, cy: 0.8 });
   } else {
     cv.ell(fx, fy - 0.2, fem ? 1.7 : 1.9, 1.2, B.m, { bulge: 0.9 });
+  }
+  // つまさき（ちがう 色）・こうの おび（スリッパ）
+  const fid = cv.cur;
+  if (B.toe) {
+    cv.part({ ol: 'soft', clip: fid });
+    if (P.side) cv.poly([[fx + P.facing * 0.9, fy - 1.6], [fx + P.facing * 3.0, fy - 1.6], [fx + P.facing * 3.0, fy + 1.0], [fx + P.facing * 0.7, fy + 1.0]], B.toe, { cx: 0.5, cy: 0.6 });
+    else cv.ell(fx, fy + 0.45, fem ? 1.7 : 1.9, 0.8, B.toe, { bulge: 0.7 });
+  }
+  if (B.band) {
+    cv.part({ ol: 'soft' });
+    if (P.side) cv.poly([[fx - P.facing * 0.3, fy - 1.85], [fx + P.facing * 0.9, fy - 1.7], [fx + P.facing * 1.5, fy - 0.6], [fx - P.facing * 0.2, fy - 0.7]], B.band, { cx: 0.5 });
+    else cv.ell(fx, fy - 0.55, fem ? 1.5 : 1.7, 0.6, B.band, { bulge: 0.6 });
   }
 }
 
@@ -175,19 +235,33 @@ function armShape(cv, A, P, O, { hand = true, sleeveOnly = false } = {}) {
   const r0 = fem ? 1.5 : 1.7, r1 = fem ? 1.32 : 1.5, r2 = fem ? 1.15 : 1.3;
   const S = O.sleeve;
   const wide = S.wide || 1;
+  const sid = cv.cur;
   // そでの もよう（チェック・ラメ。はだの ところには つけない）
   const tx = S.tex ? S.tex(cv.k) : null;
   cv.cap(A.sh[0], A.sh[1], r0 * (S.puff || 1), A.el[0], A.el[1], r1 * Math.min(wide, 1.15), S.upper, { tex: tx });
   if (sleeveOnly) return;
   cv.cap(A.el[0], A.el[1], r1 * Math.min(wide, 1.2), A.wr[0], A.wr[1], r2 * wide, S.lower, { tex: S.lower === S.upper ? tx : null });
+  const lerp = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
+  // ライン（ジャージ・ネオン・ユニフォーム）: そでぐちの てまえまで
+  if (S.lines) sideLines(cv, [A.sh, A.el, lerp(A.el, A.wr, 0.66)], P.side ? 0 : A.s, S.lineN || 1, r1, S.lines, sid);
   if (S.cuff) {
     cv.part({ ol: 'soft' });
     const cw = S.cuffW || 1.12;
     const cx = A.el[0] + (A.wr[0] - A.el[0]) * 0.72, cy = A.el[1] + (A.wr[1] - A.el[1]) * 0.72;
     cv.cap(cx, cy, r2 * wide * cw, A.wr[0], A.wr[1], r2 * wide * (cw + 0.03), S.cuff, { cap1: false });
   }
+  // ほうたい（中二病の 右うで: ひじから てくびまで まいて、はしが たれる）
+  if (S.bandage && A.right) {
+    for (let j = 0; j < 5; j++) {
+      const t0 = 0.08 + j * 0.19;
+      cv.part({ ol: 'soft' });
+      cv.cap(...lerp(A.el, A.wr, t0), r2 * 1.16, ...lerp(A.el, A.wr, Math.min(1.04, t0 + 0.16)), r2 * 1.2, S.bandage, { cap: false, n: [-0.25, -0.1 + (j % 2) * 0.2] });
+    }
+    cv.part({ ol: 'soft' });
+    const sw = P.f === 0 ? 0.25 : -0.25;
+    cv.lock(lerp(A.el, A.wr, 0.9), [A.wr[0] + (P.side ? -P.facing * 0.9 : (A.s || 1) * 0.9) + sw, A.wr[1] + 1.2], [A.wr[0] + (P.side ? -P.facing * 1.1 : (A.s || 1) * 1.3), A.wr[1] + 2.6], 0.36, 0.22, S.bandage);
+  }
   // ひかる おび（そでの まんなか）・うでしょう（ひだりうでの 上）
-  const lerp = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
   if (S.band) {
     cv.part({ ol: 'none' });
     cv.cap(...lerp(A.el, A.wr, 0.3), r1 * 1.08, ...lerp(A.el, A.wr, 0.48), r2 * 1.1, S.band, { cap: false, n: [0, -0.1] });
@@ -203,6 +277,11 @@ function handShape(cv, A, P, O) {
   cv.part({ ol: 'soft' });
   const r = P.fem ? 1.22 : 1.38;
   cv.ell(A.hand[0], A.hand[1], r, r * 1.05, O.glove || O.skin, { bulge: 0.85 });
+  if (O.fingerless) {
+    // ゆびの ない 手ぶくろ（ゆびさきは はだ）
+    cv.part({ ol: 'soft', clip: cv.cur });
+    cv.ell(A.hand[0], A.hand[1] + r * 0.72, r * 0.95, r * 0.5, O.skin, { bulge: 0.8 });
+  }
 }
 
 function neckShape(cv, P, O) {
@@ -265,6 +344,22 @@ function headSide(cv, P, O) {
   cv.crease([[X(-1.0), y + 0.8], [X(-1.4), y + 1.6], [X(-1.0), y + 2.4]], 0.25, -0.5, { parts: [cv.cur] });
 }
 
+// 職業で かわる かみの いろ（スーパーサイヤ人の 金・ニカの しろ）。まゆも おなじ いろ
+const JOB_HAIR_RAMP = {
+  ssgold: ['#9a5410', '#e0961a', '#ffd034', '#fff07a', '#fffbd8'],
+  nikawhite: ['#9e9aba', '#d2d0e4', '#f6f5fb', '#ffffff', '#ffffff'],
+};
+const jobHairMemo = new Map();
+function jobHair(id) {
+  let v = jobHairMemo.get(id);
+  if (!v) {
+    const hr = JOB_HAIR_RAMP[id];
+    v = { hair: mat({ r: hr, th: TH.hair, ln: mixC(hr[0], '#1b1330', 0.5) }), brow: mixC(hr[1], '#21182c', 0.3) };
+    jobHairMemo.set(id, v);
+  }
+  return v;
+}
+
 // ───────────── みための じゅんび ─────────────
 const looksMemo = new Map();
 function looksOf(look) {
@@ -315,8 +410,13 @@ export function paintHero(look, job, equip, dir, f, res = 4) {
     facing: P.facing || 1, facing0: P.side ? P.facing : 1,
     X: P.side ? (u) => P.head.x + u * P.facing : (u) => P.head.x + u,
   };
+  // 職業の からだの とくちょう（スーパーサイヤ人・ニカの かみ・目の いろ・まゆ・わらい顔・眼帯・きず）
+  const B = O.body || null;
+  const JH = B?.hcol ? jobHair(B.hcol) : null;
+  const hairStyle = B?.hair || Lk.style;
+  const hairM = JH ? JH.hair : Lk.hair;
   const hairO = { hat, stubble: Lk.stubble, tie: O.tie || '#e04a6a' };
-  const faceO = { face: Lk.face, fem, iris: Lk.iris, skinBase: Lk.skinBase, skinD: Lk.skinD, browCol: Lk.brow };
+  const faceO = { face: Lk.face, fem, iris: B?.iris || Lk.iris, skinBase: Lk.skinBase, skinD: Lk.skinD, browCol: B?.noBrow ? null : JH ? JH.brow : Lk.brow, grin: !!B?.grin };
   const view = P.side ? 'side' : P.back ? 'back' : 'front';
   const weaponArm = P.arms.find((a) => a.right);
   const shieldArm = P.arms.find((a) => !a.right);
@@ -348,11 +448,13 @@ export function paintHero(look, job, equip, dir, f, res = 4) {
 
   if (view === 'front') {
     body();
+    if (O.wings) drawWings(cv, P, O, 'behind');
+    if (O.tail) drawTail(cv, P, O, 'behind');
     if (O.cape) drawCape(cv, P, O, 'behind');
     if (O.pack) drawPack(cv, P, O, 'behind');
     head();
     cv.part();
-    drawHair(cv, H, 'behind', 'front', Lk.style, Lk.hair, hairO);
+    drawHair(cv, H, 'behind', 'front', hairStyle, hairM, hairO);
     body();
     legs(P.legs);
     if (O.skirt && !O.skirt.over) drawSkirt(cv, P, O);
@@ -371,9 +473,10 @@ export function paintHero(look, job, equip, dir, f, res = 4) {
     head();
     headFront(cv, P, O);
     faceFront(cv, H, faceO);
+    if (B) faceMarks(cv, H, B, 'front');
     if (O.glasses) drawGlasses(cv, P, H);
     cv.part();
-    drawHair(cv, H, 'head', 'front', Lk.style, Lk.hair, hairO);
+    drawHair(cv, H, 'head', 'front', hairStyle, hairM, hairO);
     if (HD) drawHeadgear(cv, P, H, HD, 'front');
     body();
     hands();
@@ -385,11 +488,13 @@ export function paintHero(look, job, equip, dir, f, res = 4) {
     if (O.skirt?.over) drawSkirt(cv, P, O);
     if (O.apron) drawApron(cv, P, O);
     if (O.belt) drawBelt(cv, P, O);
+    if (O.tail) drawTail(cv, P, O, 'back');
     for (const A of P.arms) {
       cv.part();
       armShape(cv, A, P, O, { hand: false });
     }
     if (O.cape) drawCape(cv, P, O, 'back');
+    if (O.wings) drawWings(cv, P, O, 'back');
     for (const A of P.arms) if (O.pauldron) drawPauldron(cv, P, A, O);
     neckShape(cv, P, O);
     drawNeckwear(cv, P, O);
@@ -397,20 +502,24 @@ export function paintHero(look, job, equip, dir, f, res = 4) {
     head();
     headBack(cv, P, O);
     cv.part();
-    drawHair(cv, H, 'head', 'back', Lk.style, Lk.hair, hairO);
+    drawHair(cv, H, 'head', 'back', hairStyle, hairM, hairO);
+    if (B) faceMarks(cv, H, B, 'back');
     if (HD) drawHeadgear(cv, P, H, HD, 'back');
     body();
     hands();
   } else {
     const far = P.arms[0], near = P.arms[1];
     body();
+    if (O.wings) drawWings(cv, P, O, 'far');
     arm(far);
     legs([P.legs[0]]);
+    if (O.tail) drawTail(cv, P, O, 'side');
     if (O.cape) drawCape(cv, P, O, 'side');
+    if (O.wings) drawWings(cv, P, O, 'side');
     if (O.pack) drawPack(cv, P, O, 'side');
     head();
     cv.part();
-    drawHair(cv, H, 'behind', 'side', Lk.style, Lk.hair, hairO);
+    drawHair(cv, H, 'behind', 'side', hairStyle, hairM, hairO);
     body();
     legs([P.legs[1]]);
     if (O.skirt && !O.skirt.over) drawSkirt(cv, P, O);
@@ -424,15 +533,19 @@ export function paintHero(look, job, equip, dir, f, res = 4) {
     head();
     headSide(cv, P, O);
     faceSide(cv, H, faceO);
+    if (B) faceMarks(cv, H, B, 'side');
     if (O.glasses) drawGlasses(cv, P, H);
     cv.part();
-    drawHair(cv, H, 'head', 'side', Lk.style, Lk.hair, hairO);
+    drawHair(cv, H, 'head', 'side', hairStyle, hairM, hairO);
     if (HD) drawHeadgear(cv, P, H, HD, 'side');
     body();
     arm(near);
   }
   cv.xf(null);
-  return cv.finish({ outline: res >= 8 ? 2 : 1, cast: 0.8 });
+  const img = cv.finish({ outline: res >= 8 ? 2 : 1, cast: 0.8 });
+  // オーラ・いなずま（えの まわりの すきまに うすく。りんかくは つけない）
+  if (B?.aura || B?.spark) drawAura(img, B, f);
+  return img;
 }
 
 // めがね（部長・社長）
