@@ -311,6 +311,14 @@ const NPC_LOOKS = {
   // 砂の海賊（Step 5: 砂の港ドゥナへの 谷の 見張り。サラと おなじ 赤い バンダナ・ベスト・まがった 剣と 短剣）
   sand_pirate: { hair: 0, hairStyle: 'short', skin: 2, outfit: 'vest', cloth: '#6a3a2a', beard: true, hat: 'bandana', hatColor: '#d83a3a', weapon: { cat: 'sword', blade: '#e0e4ec', guard: '#c8a040' } },
   sand_pirate2: { hair: 1, hairStyle: 'pony', skin: 1, outfit: 'vest', cloth: '#3a6a5a', female: true, hat: 'bandana', hatColor: '#d83a3a', weapon: { cat: 'dagger', blade: '#e0e4ec', guard: '#8a5a32' } },
+  // 砂の港ドゥナ（Step 6）: かしらバルガ（こい ひげ・赤い ターバンに 金の かざり・こげ茶の マント・まがった 大きな 剣）
+  barga: { hair: 0, hairStyle: 'short', skin: 2, outfit: 'vest', cloth: '#5a2a1e', beard: true, hat: 'turban', hatColor: '#c83a3a', hatGem: '#f2c14e', cape: '#3a2418', weapon: { cat: 'sword', blade: '#e0e4ec', guard: '#c8a040' } },
+  // 宿屋の おかみ・漁師（青い バンダナ）・年よりの 海賊（つえ）・海賊の 子ども・船大工のドック（はちまき）・副長のガロ
+  pirate_f: { hair: 1, hairStyle: 'bun', skin: 2, outfit: 'apron', cloth: '#3a6a8a', female: true, hat: 'bandana', hatColor: '#2a8aa8' },
+  pirate_old: { hair: 5, hairStyle: 'bald', skin: 2, outfit: 'vest', cloth: '#5a4a3a', beard: true, cane: true, hunch: true, hat: 'bandana', hatColor: '#8a2a2a' },
+  pirate_kid: { hair: 0, hairStyle: 'spiky', skin: 2, outfit: 'tunic', cloth: '#c8503a', small: true, hat: 'bandana', hatColor: '#d83a3a' },
+  shipwright: { hair: 3, hairStyle: 'short', skin: 1, outfit: 'apron', cloth: '#6a4a2a', beard: true, hat: 'headband', hatColor: '#e8e0c8' },
+  pirate_mate: { hair: 0, hairStyle: 'short', skin: 1, outfit: 'vest', cloth: '#2a3a5a', hat: 'bandana', hatColor: '#3a3a4a', weapon: { cat: 'sword', blade: '#e0e4ec', guard: '#8a5a32' } },
 };
 
 // そうびの かきかた: 'ぶき,よろい,たて,あたま' の もじれつ か { weapon, armor, shield, head }
@@ -2208,6 +2216,11 @@ export function paintSpecial(kind, dir, f) {
       break;
     case 'ship':
       return paintShip(dir, f);
+    // 第4章 Step 6: 砂の船「すなかぜ号」・ぬすまれた 船のかじ
+    case 'sand_ship':
+      return paintSandShip(dir, f);
+    case 'rudder':
+      return paintRudder(f);
     case 'camel':
       return paintCamel(dir, f);
     case 'zaid_demon':
@@ -2415,6 +2428,74 @@ export function paintCamel(dir, f) {
 }
 
 // 船（しおかぜ号）。よこむきは left を かく（right は はんてんして つかう）
+// 砂の船「すなかぜ号」（第4章 Step 6。砂の 上を すべる 船。そこに すべり木・砂色の 帆に 赤い おびと 海賊の しるし。
+// 波の あわの かわりに 砂しぶき）。大きさと 形の きほんは しおかぜ号（paintShip）と おなじ
+export function paintSandShip(dir, f) {
+  const p = new Painter(30, 26);
+  const hull = '#a8744a', hullD = '#6a4428', hullL = '#d0a066', stripe = '#c83a3a';
+  const sail = '#f2e4c0', sailD = '#cdb88e', band = '#c83a3a', mast = '#5a3a22', flag = '#2a1a30', mark = '#3a2418', spray = '#f2d49a', ski = '#4a2e1a';
+  const b = f ? 1 : 0;
+  const markAt = (pts) => { for (const [x, y] of pts) p.set(x, y + b, mark); };
+  if (dir === 'left' || dir === 'right') {
+    for (let x = 2; x <= 27; x++) {
+      const top = (x < 6 ? 13 + Math.floor((x - 2) / 1.4) : 16) + b;
+      const bot = (x < 5 ? 17 : x < 7 ? 19 : x > 25 ? 19 : 20) + b;
+      for (let y = top; y <= bot; y++) p.set(x, y, y === top ? hullL : y === bot ? hullD : hull);
+      if (x >= 6 && x <= 25) p.set(x, 18 + b, stripe);
+    }
+    // すべり木（前が そり上がる）と ささえ
+    p.hline(4, 26, 22 + b, ski); p.set(3, 21 + b, ski); p.set(2, 20 + b, ski);
+    for (const x of [8, 14, 20]) p.set(x, 21 + b, hullD);
+    p.vline(15, 2 + b, 15 + b, mast);
+    for (let y = 4; y <= 12; y++) {
+      const bulge = Math.round(Math.sin(((y - 4) / 8) * Math.PI) * 2);
+      p.hline(9 - bulge, 21 - bulge, y + b, y === 10 || y === 11 ? band : sail);
+      p.set(21 - bulge, y + b, sailD);
+    }
+    markAt([[13, 5], [17, 5], [14, 6], [16, 6], [15, 7], [14, 8], [16, 8], [13, 9], [17, 9]]);
+    p.rect(16, 1 + b, 4, 2, flag); p.set(f ? 20 : 19, (f ? 1 : 3) + b, flag);
+    p.set(1 + f, 22, spray); p.set(27 - f, 23, spray); p.set(6, 24, spray); p.set(22, 24, spray); p.set(12, 23 + f, spray);
+  } else {
+    const back = dir === 'up';
+    for (let y = 15; y <= 21; y++) {
+      const half = back ? (y === 21 ? 6 : 7) : (y <= 18 ? 7 : y <= 20 ? 5 : 3);
+      for (let x = 15 - half; x <= 14 + half; x++) p.set(x, y + b, y === 15 ? hullL : y === 21 || (!back && y === 20 && Math.abs(x - 14.5) > 3) ? hullD : hull);
+    }
+    p.hline(8, 21, 17 + b, stripe);
+    // すべり木（左右の 2本）
+    p.vline(9, 18 + b, 22 + b, ski); p.vline(20, 18 + b, 22 + b, ski);
+    p.vline(14, 2 + b, 15 + b, mast); p.vline(15, 2 + b, 15 + b, mast);
+    for (let y = 4; y <= 12; y++) {
+      const w = 8 + Math.round(Math.sin(((y - 4) / 8) * Math.PI) * 1);
+      p.hline(15 - w, 14 + w, y + b, y === 10 || y === 11 ? band : back ? sailD : sail);
+    }
+    if (!back) markAt([[12, 5], [17, 5], [13, 6], [16, 6], [14, 7], [15, 7], [13, 8], [16, 8], [12, 9], [17, 9]]);
+    p.rect(16, 1 + b, 3, 2, flag); p.set(f ? 19 : 18, 3 + b, flag);
+    p.set(7 + f, 23 + b, spray); p.set(22 - f, 23 + b, spray); p.set(10, 24, spray); p.set(19, 24, spray);
+  }
+  return fine(p, OUT);
+}
+
+// 船のかじ（砂の古城の たからべやに 立てかけてある。木の わに 8本の とって・まん中に 金の じく。コマで きらり）
+function paintRudder(f) {
+  const p = new Painter(CW, CH);
+  const W = '#8a5a32', WL = '#c08a52', WD = '#5a3a1e', G = '#f2c14e', GL = '#fff0a0';
+  const cx = 8, cy = 10;
+  p.hline(3, 13, 19, '#3a2a1a');
+  for (let i = 0; i < 8; i++) {
+    const a = (i * Math.PI) / 4;
+    for (let r = 1; r <= 7; r++) p.set(Math.round(cx + Math.cos(a) * r), Math.round(cy + Math.sin(a) * r), r >= 6 ? WD : W);
+  }
+  for (let t = 0; t < 48; t++) {
+    const a = (t * Math.PI) / 24;
+    const lit = Math.cos(a - Math.PI * 1.25) > 0.2;
+    p.set(Math.round(cx + Math.cos(a) * 4.6), Math.round(cy + Math.sin(a) * 4.6), lit ? WL : W);
+  }
+  p.rect(7, 9, 3, 3, G); p.set(7, 9, GL);
+  if (f) { p.set(3, 4, '#ffffff'); p.set(13, 6, GL); } else { p.set(12, 3, '#ffffff'); p.set(3, 13, GL); }
+  return fine(p, '#2a1a0a');
+}
+
 export function paintShip(dir, f) {
   const p = new Painter(30, 26);
   const hull = '#8a5a32', hullD = '#5a3a22', hullL = '#b8864a', stripe = '#f4f2fa';

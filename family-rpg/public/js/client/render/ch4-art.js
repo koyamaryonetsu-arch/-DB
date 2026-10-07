@@ -8,6 +8,7 @@ import { fit, flipX, spark, bez, taper } from './ch3-draw.js';
 import { addCh4BossArt } from './ch4-boss-art.js';
 import { addPyramidArt } from './ch4-pyramid-art.js';
 import { addSouthArt } from './ch4-south-art.js';
+import { addSeaArt } from './ch4-sea-art.js';
 
 // だえんの ふちの てん（a0 → a1 の むき。0 は みぎ、PI/2 は した）
 function ellArc(cx, cy, rx, ry, a0, a1, n = 10) {
@@ -604,5 +605,7 @@ export function addCh4Art(ART) {
   addPyramidArt(ART);
   // ── 南の砂ばく（Step 5。ch4-south-art.js）──
   addSouthArt(ART);
+  // ── 砂の古城・砂の海（Step 6。砂ザメ・古城のよろい・ボスの 砂クジラ。ch4-sea-art.js）──
+  addSeaArt(ART);
   addCh4BossArt(ART);
 }

@@ -5,6 +5,9 @@ import { newCharacter, gainExp, expForLevel, computeStats, learnedAbilities, ful
 import { JOBS, jobBattlesForLevel } from '../public/js/shared/data/jobs.js';
 import { ENCOUNTER_TABLES, FIXED_ENCOUNTERS } from '../public/js/shared/data/encounters.js';
 import { makeRng } from '../public/js/shared/rng.js';
+// 第4章 Step 6: ゲストの サラ（world/party.js の makeNpcSupportChar と おなじ つくりかた）
+import { makeNpcSupportChar } from '../public/js/shared/world/party.js';
+import { CH4_GUESTS } from '../public/js/shared/data/items-ch4.js';
 
 const N = Number(process.argv[2] || 30);
 
@@ -56,6 +59,9 @@ export function runBattle(party, enemyList, opts = {}) {
   if (opts.focusBoss) b.focusBoss = true;
   // まぼろしの 分身を 見ぬく（月の鏡を 使い、足もとに 影の ある 本物を ねらう 人。battle-ch4.js）
   if (opts.knowsMirage) b.knowsMirage = true;
+  // 砂に もぐる 魔物を 知っている（とび出す 前に 身を 守る）/ 知らない（もぐっても 攻撃しようと して 空ぶり。前ぶれでも 守らない）。battle-ch4.js
+  if (opts.knowsBurrow) b.knowsBurrow = true;
+  if (opts.ignoreBurrow) b.ignoreBurrow = true;
   let real = 0;
   let acts = 0;
   while (!b.over && real < 30 * 60 * 1000) {
@@ -172,6 +178,23 @@ export function zaidFight(lv, seed, know, tier = 33) {
   return { ...r2, seconds: r1.seconds + r2.seconds, acts: r1.acts + r2.acts, mpUsed: r1.mpUsed + r2.mpUsed - gap, phase: 2, hp1: r1.hpLeft };
 }
 
+// Step 6: ドゥナの 谷（昼・夜）・砂の古城（1階・2階）・砂の海（昼・夜）・かじの 番の 古城の よろい。どれも サラ（ゲスト）と 5人
+export const CH4_DUNA = [
+  ['s_duna', 35, 33], ['s_duna_night', 35, 33], ['s_castle', 35, 33], ['s_castle2', 36, 33], ['s_sandsea', 36, 33], ['s_sandsea_night', 36, 33],
+];
+export const CH4_DUNA_FIXED = [['rudder_guard', 35, 33], ['rudder_guard', 36, 33]];
+// 砂クジラ（すなかぜ号の かんぱん）: レベル
+export const CH4_WHALE = [34, 35, 36, 37, 38];
+// ゲストの サラ（海賊・ガンガンいこうぜ。レベルは リーダーと おなじ）を くわえる
+export function withSara(party, lv) {
+  return [...party, makeNpcSupportChar({ ...CH4_GUESTS.sara }, lv)];
+}
+// 砂クジラ: know … 知っている 人（もぐったら、とび出す 前に 身を 守る）。知らない 人は ねらえなくても 攻撃しようと して、前ぶれでも 守らない
+export function whaleFight(lv, seed, know, tier = 33, log = false) {
+  const party = withSara(PARTY(lv, 10, tier), lv);
+  return runBattle(party, FIXED_ENCOUNTERS.sand_whale.group.flatMap(([sp, n]) => Array(n).fill(sp)), { seed, boss: true, knowsBurrow: know, ignoreBurrow: !know, log });
+}
+
 // 第2章: node tools/sim.js [回数] ch2
 if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'ch4') {
   const rng = makeRng(444);
@@ -253,6 +276,29 @@ if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'ch4') {
     runBattle(party, ['zaid_minister', 'zaid_minister', 'zaid_minister'], { seed, boss: true, log: true, knowsMirage: know, carry: true });
     runBattle(party, ['zaid_demon'], { seed: seed + 1, boss: true, log: true, carry: true });
   }
+} else if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'ch4whale') {
+  // 第4章 Step 6: node tools/sim.js [回数] ch4whale
+  const rng = makeRng(6666);
+  for (const [table, lv, tier] of CH4_DUNA) {
+    const res = [];
+    for (let i = 0; i < N; i++) res.push(runBattle(withSara(PARTY(lv, 10, tier), lv), rollGroup(table, rng), { seed: i }));
+    summarize(`${table} Lv${lv}＋サラ`, res);
+  }
+  for (const [enc, lv, tier] of CH4_DUNA_FIXED) {
+    const res = [];
+    const group = FIXED_ENCOUNTERS[enc].group.flatMap(([sp, n]) => Array(n).fill(sp));
+    for (let i = 0; i < N; i++) res.push(runBattle(withSara(PARTY(lv, 10, tier), lv), group, { seed: i }));
+    summarize(`${enc} Lv${lv}＋サラ`, res);
+  }
+  // 砂クジラ（シードは ちらして）
+  for (const know of [true, false]) {
+    for (const lv of CH4_WHALE) {
+      const res = [];
+      for (let i = 0; i < Math.max(N, 40); i++) res.push(whaleFight(lv, 777 + i * 7919, know));
+      summarize(`BOSS sand_whale Lv${lv}${know ? '（知っている）' : '（知らない）'}`, res);
+    }
+  }
+  if (process.env.LOG) whaleFight(Number(process.env.LV || 36), Number(process.env.SEED || 1), !process.env.IGNORE, 33, true);
 } else if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'ch2') {
   const rng = makeRng(777);
   // 職業レベルは 上がりやすく した ので、第2章では 基本職を ほぼ マスター している めやす

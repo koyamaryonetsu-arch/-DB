@@ -3,7 +3,7 @@ import { MAPS, isBlocked, effectiveTile, condOk, tileAt, onWater, slidesAt, body
 import { T, TILE_INFO } from '../shared/tiles.js';
 import { PLACES } from '../shared/maps/overworld.js';
 import { TS, tileCanvas, frameOf, prepareMap } from './render/tiles.js';
-import { paintHuman, npcOpts, paintSpecial, paintShip, equipKey, CW, CH } from './render/chars.js';
+import { paintHuman, npcOpts, paintSpecial, paintShip, paintSandShip, equipKey, CW, CH } from './render/chars.js';
 import { heroCanvas, heroLookKey } from './render/hero.js';
 import { monsterCanvas, bigNpcCanvas, bigNpcScale } from './render/monsters.js';
 import { MONSTERS } from '../shared/data/monsters.js';
@@ -50,10 +50,12 @@ function specialSprite(kind, dir, frame) {
   return c;
 }
 // 船（水の 上に いる ときの すがた。みぎむきは はんてん）
-export function shipSprite(dir, frame) {
-  const k = `ship|${dir}|${frame}`;
+// kind … マップの 船（map.ship。第4章の 砂の海は 砂の船「すなかぜ号」'sand_ship'）
+export function shipSprite(dir, frame, kind = null) {
+  const k = `ship|${kind || ''}|${dir}|${frame}`;
   if (spriteCache.has(k)) return spriteCache.get(k);
-  let c = paintShip(dir === 'right' ? 'left' : dir, frame).toCanvas();
+  const paint = kind === 'sand_ship' ? paintSandShip : paintShip;
+  let c = paint(dir === 'right' ? 'left' : dir, frame).toCanvas();
   if (dir === 'right') c = flipCanvas(c);
   spriteCache.set(k, c);
   return c;
@@ -64,6 +66,8 @@ const NIGHT_GLOW = { [T.LAMP]: 1, [T.FIREPLACE]: 1, [T.STAR_ALTAR]: 1, [T.DOOR]:
 
 // 2.5D の 船は 水に すこし しずめる（かげ なし）
 const SHIP3D = { lift: -0.26, shadow: false };
+// 砂の船（すなかぜ号）の NPC は さんばしの はしの マス。え は その 先の 砂の 海に かく
+const SAND_SHIP_DY = 0.85;
 
 // 空を とぶ モンスター（フィールドで ふわふわ うかぶ）
 const isFlying = (sp) => !!MONSTERS[sp]?.flying;
@@ -817,7 +821,7 @@ export class Field {
     const npc = this.npcNear(fx, fy) || (TILE_INFO[tileAt(this.map, tx, ty)]?.talkThrough ? this.npcNear(fx + d[0], fy + d[1]) : null);
     if (npc) {
       const s = this.npcState.get(npc.id);
-      if (s && !npc.big && !['none', 'flower', 'starstone', 'windstone', 'firestone', 'spring', 'ship', 'slot', 'minecart', 'snowman'].includes(npc.sprite)) {
+      if (s && !npc.big && !['none', 'flower', 'starstone', 'windstone', 'firestone', 'spring', 'ship', 'slot', 'minecart', 'snowman', 'sand_ship', 'rudder'].includes(npc.sprite)) {
         s.dir = { up: 'down', down: 'up', left: 'right', right: 'left' }[me.dir];
         s.moving = false;
         s.goal = null;
@@ -1235,6 +1239,11 @@ export class Field {
         out.push({ key: 'n:' + n.id, canvas: npcSprite('ship', s.dir, this.shipFrame()), x: s.x, y: s.y, ...SHIP3D });
         continue;
       }
+      // 砂の船（第4章の すなかぜ号）: さんばしの 先の 砂の 海に うかべる
+      if (n.sprite === 'sand_ship') {
+        out.push({ key: 'n:' + n.id, canvas: npcSprite('sand_ship', s.dir, this.shipFrame()), x: s.x, y: s.y + SAND_SHIP_DY, ...SHIP3D });
+        continue;
+      }
       out.push({ key: 'n:' + n.id, canvas: npcSprite(n.sprite, s.dir, frame), x: s.x, y: s.y, shadow: !['starstone', 'windstone', 'firestone'].includes(n.sprite), anchor: n.sprite.startsWith('mon:') ? 2 : undefined });
     }
     for (const s of this.syms.values()) {
@@ -1247,7 +1256,7 @@ export class Field {
       if (this.game.sky?.entity3d(this, o, false, out, o.look, o.job, o.eq)) continue;
       const mate = o.partyId === this.game.party?.id;
       const oShip = this.isOnWater(o.x, o.y);
-      const oc = oShip ? shipSprite(o.dir || 'down', this.shipFrame()) : playerSprite(o.look, o.job, o.dir || 'down', this.walkFrame(o.moving), o.eq);
+      const oc = oShip ? shipSprite(o.dir || 'down', this.shipFrame(), this.map.ship) : playerSprite(o.look, o.job, o.dir || 'down', this.walkFrame(o.moving), o.eq);
       out.push({ key: 'p:' + o.sid, canvas: oc, x: o.x, y: o.y, alpha: o.away ? 0.45 : 1, ghost: mate ? '#ffd66b' : null, ...(oShip ? SHIP3D : {}) });
       o.fl.forEach((f, i) => {
         if (this.hideGuests && f.guest) return;
@@ -1267,7 +1276,7 @@ export class Field {
     if (!this.hideMe && this.game.me && this.game.sky?.entity3d(this, this.me, true, out, this.game.me.look, this.game.me.job, this.game.me.equip)) return out;
     if (!this.hideMe && this.game.me) {
       const ship = this.isOnWater(this.me.x, this.me.y);
-      const mc = ship ? shipSprite(this.me.dir || 'down', this.shipFrame())
+      const mc = ship ? shipSprite(this.me.dir || 'down', this.shipFrame(), this.map.ship)
         : playerSprite(this.game.me.look, this.game.me.job, this.me.dir || 'down', this.walkFrame(this.myStep), this.game.me.equip);
       out.push({ key: 'me', canvas: mc, x: this.me.x, y: this.me.y, ghost: '#9fd6ff', ...(ship ? SHIP3D : {}) });
       // トロッコに のっている（第3章）
@@ -1349,7 +1358,7 @@ export class Field {
 
   drawPlayerOnFoot(o, camX, camY, look, job, mine = false, eq = undefined) {
     const ship = this.isOnWater(o.x, o.y);
-    const c = ship ? shipSprite(o.dir || 'down', this.shipFrame())
+    const c = ship ? shipSprite(o.dir || 'down', this.shipFrame(), this.map.ship)
       : playerSprite(look, job, o.dir || 'down', this.walkFrame(mine ? this.myStep : o.moving), eq);
     const ctx = this.ctx;
     const myParty = this.game.party?.id;
@@ -1405,6 +1414,10 @@ export class Field {
     }
     if (n.sprite === 'ship') {
       this.drawAt(npcSprite('ship', s.dir, this.shipFrame()), s.x, s.y + 0.2, camX, camY, false);
+      return;
+    }
+    if (n.sprite === 'sand_ship') {
+      this.drawAt(npcSprite('sand_ship', s.dir, this.shipFrame()), s.x, s.y + SAND_SHIP_DY, camX, camY, false);
       return;
     }
     const frame = n.wander ? this.walkFrame(s.moving) : Math.floor(this.time / 500) % 2;

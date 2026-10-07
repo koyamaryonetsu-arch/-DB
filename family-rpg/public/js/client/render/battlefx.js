@@ -5,6 +5,8 @@ import { nightBg, drawNightSky } from './night-art.js';
 import { playJobFx, JOB_FINE } from './battlefx-jobs.js';
 import { playJob2Fx, JOB2_FINE } from './battlefx-jobs2.js';
 import { drawPalaceHall, drawPalaceFloor } from './ch4-palace-bg.js';
+// 第4章 Step 6: 砂の古城・砂の海（すなかぜ号の かんぱん）・砂クジラの ねどこ（ch4-duna-bg.js）
+import { drawCastleHall, drawCastleFloor, drawSandSea } from './ch4-duna-bg.js';
 import { playCh4Fx } from './battlefx-ch4.js';
 
 export const BW = 256;
@@ -91,6 +93,11 @@ const BG = {
   pyramid_boss: { sky: ['#100814', '#1e1020', '#2e1a24'], far: '#5a3a24', near: '#a07a40', ground: ['#b89050', '#a88044'], deco: 'pyramid_boss' },
   // 第4章 Step 5: 夜の 宮殿の 王の間（青い タイルの かべ・月明かりの 高い まど・玉座・青い 火の ランプ・赤い じゅうたん。ch4-palace-bg.js）
   palace_night: { sky: ['#05071a', '#0e1434', '#18224a'], far: '#1e2c5e', near: '#3a4a7c', ground: ['#4a5a8c', '#3e4e80'], deco: 'palace' },
+  // 第4章 Step 6: 砂の古城の 中（ふるい 石の 広間。ch4-duna-bg.js）・砂の海（すなかぜ号の かんぱん。夜は sand_sea_night）・
+  // 砂クジラの ねどこ（遠くに 砂の うず・にごった 空）。far … 砂の 海の 色
+  sand_castle: { sky: ['#0e0a08', '#1c1610', '#2a2218'], far: '#5a4a38', near: '#8a765a', ground: ['#a8946e', '#988462'], deco: 'castle' },
+  sand_sea: { sky: ['#3a86d8', '#7ab8ea', '#c8e2f2', '#f6e6b8'], far: '#d8a456', near: '#6a4222', ground: ['#a8733e', '#96652f'], deco: 'sand_sea', deck: true },
+  whale_deck: { sky: ['#5a3a3a', '#8a5240', '#c27c4e', '#e6ae6e'], far: '#c8924c', near: '#6a4222', ground: ['#a8733e', '#96652f'], deco: 'sand_sea', deck: true, whirl: true },
 };
 
 // はいけいの データ（〜_night は 夜空の はいけい。night-art.js）。ない ときは null
@@ -159,6 +166,7 @@ export function battleBackground(id) {
       case 'canal': h = 0; break; // 地下水路は あとで（drawCanalHall・drawCanalFloor）
       case 'pyramid': case 'pyramid_boss': h = 0; break; // ピラミッドは あとで（drawPyramidHall・drawPyramidFloor）
       case 'palace': h = 0; break; // 夜の 王の間は あとで（ch4-palace-bg.js）
+      case 'castle': case 'sand_sea': h = 0; break; // 砂の古城・砂の海は あとで（ch4-duna-bg.js）
       default: h = 10 + Math.abs(Math.sin(px * 0.035) * 14) + Math.abs(Math.sin(px * 0.11) * 4);
     }
     if (d.deco === 'stalactite' || d.deco === 'crystal') {
@@ -170,6 +178,8 @@ export function battleBackground(id) {
   if (d.deco === 'canal') drawCanalHall(x, hor);
   if (d.deco === 'pyramid' || d.deco === 'pyramid_boss') drawPyramidHall(x, hor, d.deco === 'pyramid_boss');
   if (d.deco === 'palace') drawPalaceHall(x, hor);
+  if (d.deco === 'castle') drawCastleHall(x, hor);
+  if (d.deco === 'sand_sea') drawSandSea(x, d, hor);
   if (d.deco === 'houses') {
     x.fillStyle = '#ffd66b';
     for (let k = 10; k < BW; k += 48) x.fillRect(k + 8, hor - 12, 3, 3);
@@ -218,6 +228,7 @@ export function battleBackground(id) {
   if (d.deco === 'canal') drawCanalFloor(x, hor);
   else if (d.deco === 'pyramid' || d.deco === 'pyramid_boss') drawPyramidFloor(x, hor, d.deco === 'pyramid_boss');
   else if (d.deco === 'palace') drawPalaceFloor(x, hor);
+  else if (d.deco === 'castle') drawCastleFloor(x, hor);
   else {
     x.fillStyle = 'rgba(0,0,0,0.12)';
     for (let i = 0; i < 6; i++) {

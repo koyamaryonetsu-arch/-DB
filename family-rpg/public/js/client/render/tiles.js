@@ -7,6 +7,7 @@ import { CH3_PAINTERS, CH3_FRAMES, CH3_SPEED, RAIL_TILES, CH3_WALLS } from './ti
 import { CH4_PAINTERS, CH4_FRAMES, CH4_SPEED, CH4_WALLS, ch4Mask, desertBase } from './tiles-ch4.js';
 import { CANAL_CTX, CANAL_CTX_PAINTERS, canalVariant, canalBaseBits, canalWallBits } from './tiles-canal.js';
 import { PYRAMID_PAINTERS, PYRAMID_FRAMES, PYRAMID_SPEED, PYRAMID_WALLS, paintTablet, paintPyrBrazier, paintPyrLever } from './tiles-pyramid.js';
+import { whirlVariant } from './tiles-duna.js';
 
 export const TS = 16;
 
@@ -592,6 +593,8 @@ export function prepareMap(map) {
         if (m4 >= 0) mask[i] = m4 | canalBaseBits(t, at, x, y);
         // 地下水路: 水路の 中は ばしょと 流れの むき・通路は かべの かげ（とびらで 底 ⇔ 水 ⇔ せき が かわっても おなじ）
         variant[i] = canalVariant(t, at, x, y, variant[i]);
+        // 砂クジラの ねどこの 砂の うず: ねどこの まん中からの ずれ（render/tiles-duna.js）
+        variant[i] = whirlVariant(t, map, x, y, variant[i]);
       }
     }
   }

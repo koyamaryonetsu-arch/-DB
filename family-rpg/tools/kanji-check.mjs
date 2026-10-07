@@ -209,6 +209,8 @@ export function gameFiles() {
     'public/js/shared/world/pyramid.js', 'public/js/shared/maps/flow.js', 'public/js/shared/maps/pyramid-rows.js',
     // 第4章 Step 5「月の鏡と大臣の正体」（まぼろしの分身・月の鏡・魔神のランプ）
     'public/js/shared/battle-ch4.js', 'public/js/client/battle-ch4.js',
+    // 第4章 Step 6「砂の海賊と砂クジラ」（ドゥナ・砂の古城・すなかぜ号・砂の海・砂クジラ）
+    'public/js/shared/data/story-ch4-duna.js', 'public/js/shared/maps/duna.js', 'public/js/shared/maps/duna-rows.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

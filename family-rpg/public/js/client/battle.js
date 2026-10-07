@@ -19,7 +19,7 @@ import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/
 import { ENEMY_RATE_NAMES } from '../shared/data/difficulty.js';
 import { ResultPager, levelUpName } from './ui/result.js';
 // 第4章の しかけ（月の鏡・まぼろしの 分身・魔神のランプ・ボスの 大技）
-import { CH4_ALLY_FX, ch4ItemEntries, ch4ItemPick, ch4ItemInfo, ch4Present, vanishFx, drawShade } from './battle-ch4.js';
+import { CH4_ALLY_FX, ch4ItemEntries, ch4ItemPick, ch4ItemInfo, ch4Present, vanishFx, drawShade, drawBurrow } from './battle-ch4.js';
 
 // たたかいの え の こまかさ（おもい きかいで さげたら、その あいだは さげた まま）
 let battleRes = BRES;
@@ -643,7 +643,8 @@ export class BattleScene {
   //   element: 属性の 技で ねらう とき、ためした ことの ある 敵には 効きぐあいを 出す
   //   back: もどる ボタン（えらぶ まえの メニューへ）
   pickFoe(mode, done, title = 'だれをねらう？', element = null, back = null) {
-    const list = this.enemies().filter((e) => e.alive);
+    // 砂に もぐった 敵は ねらえない（battle-ch4.js。みんな もぐっていたら えらばずに おくる → サーバーが「もぐっている！」）
+    const list = this.enemies().filter((e) => e.alive && !e.burrow);
     if (mode === 'enemies' || !list.length) return done(undefined);
     const groups = mode === 'group' ? this.foeGroups(list) : null;
     if (groups ? groups.length === 1 : list.length === 1) return done(groups ? groups[0].lead : list[0].id);
@@ -682,7 +683,7 @@ export class BattleScene {
   }
 
   // 敵の グループ（おなじ 種類。ならびは 左から）。lead: グループの いちばん 左（これを おくる）
-  foeGroups(list = this.enemies().filter((e) => e.alive)) {
+  foeGroups(list = this.enemies().filter((e) => e.alive && !e.burrow)) {
     const out = [];
     for (const e of list) {
       let gp = out.find((x) => x.species === e.species);
@@ -703,7 +704,7 @@ export class BattleScene {
     const r = this.canvas.getBoundingClientRect();
     const x = (e.clientX - r.left) / r.width * BW, y = (e.clientY - r.top) / r.height * BH;
     for (const m of this.layout || []) {
-      if (x >= m.x && x <= m.x + m.w && y >= m.y && y <= m.y + m.h && m.c.alive) {
+      if (x >= m.x && x <= m.x + m.w && y >= m.y && y <= m.y + m.h && m.c.alive && !m.c.burrow) {
         this.game.audio.sfx('confirm');
         // グループを えらぶ ときは、さわった 魔物の グループ（いちばん 左を おくる）
         if (this.targeting.mode === 'group') {
@@ -1552,6 +1553,12 @@ export class BattleScene {
       x.globalAlpha = base;
       // まぼろしの 分身が いる 戦いの 本物: 足もとに 小さな 影（battle-ch4.js）
       if (c.shade && c.alive) drawShade(x, m, base);
+      // 砂に もぐっている（ねらえない）: すがたの かわりに 砂の 山（砂が もり上がると 大きく ゆれる。battle-ch4.js）
+      if (c.burrow && c.alive) {
+        drawBurrow(x, m, this.time, c.burrow === 2, base);
+        x.globalAlpha = 1;
+        continue;
+      }
       // がめんより こまかい え は なめらかに ちぢめる（ドットが ぬけないように）
       x.imageSmoothingEnabled = (m.img.res || 1) > x.getTransform().a * 1.01;
       x.imageSmoothingQuality = 'high';

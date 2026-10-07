@@ -1,7 +1,8 @@
 // 第4章の たたかいの がめんの しかけ（client/battle.js から よぶ。サーバーがわは shared/battle-ch4.js）
 // ・「道具」の コマンド: 月の鏡（まぼろしの 分身が いる 戦い）と、そうびしたまま 使う 道具（魔神のランプ）
 // ・まぼろしの 分身: 本物の 足もとの 小さな 影・分身が 消える ときの えんしゅつ・まぼろしが もどる 前ぶれ
-// ・ボスの 大技（砂嵐・砂の大うず）は、がめんの まん中に 大きく（render/battlefx-ch4.js）
+// ・ボスの 大技（砂嵐・砂の大うず・砂しぶき・大ジャンプ）は、がめんの まん中に 大きく（render/battlefx-ch4.js）
+// ・砂に もぐる（Step 6 の 砂クジラ）: もぐった 敵は 砂の 山に なって ねらえない。砂が もり上がると 山が ゆれて 前ぶれ
 import { ITEMS } from '../shared/data/items.js';
 import { BW, BH } from './render/battlefx.js';
 
@@ -9,9 +10,9 @@ export const MIRROR_ID = 'moon_mirror';
 const MIRROR_INFO = '月の光で、まぼろしの分身をすべて消す。本物は、まぶしくて1回動けなくなる。\n使うと、光がもどるまで少し時間がかかる。';
 
 // 敵が 使うと、がめんの まん中に 大きく 出す 技
-const SCREEN_ANIMS = new Set(['sandstorm', 'sand_vortex']);
+const SCREEN_ANIMS = new Set(['sandstorm', 'sand_vortex', 'sand_spray', 'whale_jump']);
 // 味方の まどに 出す えんしゅつ（client/battle.js の allyFxKind）
-export const CH4_ALLY_FX = { sandstorm: 'wind', sand_vortex: 'quake' };
+export const CH4_ALLY_FX = { sandstorm: 'wind', sand_vortex: 'quake', sand_spray: 'wind', whale_jump: 'quake' };
 
 // 「道具」の はじめに ならべる もの（a … コマンドを えらんでいる 味方）
 export function ch4ItemEntries(scene, a) {
@@ -49,6 +50,20 @@ export function ch4Present(scene, ev, fx, anim, actor, lead) {
     g.audio.sfx('warn');
     scene.banner('！まぼろしの分身があらわれた！', 'danger');
   }
+  // 砂に もぐった（つぎの 番まで ねらえない）・砂が もり上がった（前ぶれ）・もぐっていて とどかない
+  if (fx.burrow) {
+    g.audio.sfx('rumble');
+    scene.banner('！砂の中にもぐった！攻撃がとどかない', 'danger');
+  }
+  if (fx.type === 'burrowRise') {
+    const t = scene.c.get(fx.actor);
+    const pt = t && scene.center(t);
+    if (pt) scene.fx.play('burrow_rise', [pt]);
+    scene.shake(420, 3);
+    g.audio.sfx('warn');
+    scene.banner('！砂がもり上がった！身を守れ！', 'danger');
+  }
+  if (fx.type === 'burrowMiss') g.audio.sfx('miss');
   if (actor?.side === 'enemy' && SCREEN_ANIMS.has(anim)) {
     const go = () => { if (!scene.destroyed) scene.fx.play(anim, [{ x: BW / 2, y: BH * 0.62 }], null, { fromAlly: false }); };
     if (lead) scene.fx.at(lead, go);
@@ -72,4 +87,37 @@ export function drawShade(x, m, alpha) {
   x.ellipse(m.x + m.w / 2, m.y + m.h + 0.5, m.w * 0.3, 3.2, 0, 0, Math.PI * 2);
   x.fill();
   x.globalAlpha = alpha;
+}
+
+// 砂に もぐっている 敵（すがたの かわりに 砂の 山。rising … 砂が もり上がった〈前ぶれ〉: 山が 大きく なって ゆれ、砂が はねる）
+// m … computeLayout の 1つ、alpha … こさ
+export function drawBurrow(x, m, time, rising, alpha) {
+  const cx = m.x + m.w / 2, by = m.y + m.h;
+  const k = rising ? 1 + Math.sin(time / 70) * 0.06 : 1;
+  const jig = rising ? Math.round(Math.sin(time / 45) * 1.5) : 0;
+  const rx = Math.max(14, m.w * 0.42) * k, ry = (rising ? 13 : 7) * k;
+  x.globalAlpha = alpha;
+  x.fillStyle = '#7a5a30';
+  x.beginPath(); x.ellipse(cx + jig, by - 1, rx + 3, ry * 0.55 + 2, 0, 0, Math.PI * 2); x.fill();
+  x.fillStyle = '#c89a58';
+  x.beginPath(); x.ellipse(cx + jig, by - ry * 0.35, rx, ry, 0, Math.PI, 0); x.fill();
+  x.fillStyle = '#e8c486';
+  x.beginPath(); x.ellipse(cx + jig - rx * 0.25, by - ry * 0.75, rx * 0.4, ry * 0.3, 0, 0, Math.PI * 2); x.fill();
+  // 砂の 波もよう（まわる）
+  x.strokeStyle = 'rgba(255,236,190,0.7)';
+  x.lineWidth = 1;
+  for (let i = 0; i < 3; i++) {
+    const a = time / (rising ? 160 : 420) + i * 2.1;
+    x.beginPath(); x.ellipse(cx + jig, by - 1, rx * (0.5 + i * 0.22), ry * 0.3 + i, 0, a, a + 1.6); x.stroke();
+  }
+  // もり上がる ときは 砂つぶが はねる
+  if (rising) {
+    x.fillStyle = '#f2d49a';
+    for (let i = 0; i < 8; i++) {
+      const ph = (time / 260 + i * 0.37) % 1;
+      const px = cx + Math.cos(i * 2.4) * rx * 0.8, py = by - ry - ph * 18 + ph * ph * 22;
+      x.fillRect(Math.round(px), Math.round(py), 2, 2);
+    }
+  }
+  x.globalAlpha = 1;
 }

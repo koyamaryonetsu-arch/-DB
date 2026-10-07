@@ -307,14 +307,20 @@ test('中庭の とびら: 月の鏡が ないと カギが かかったまま�
 });
 
 test('すすみぐあい: c4_mirror → c4_zaid → c4_letter（→ c4_duna_gate）。目標・仲間会話・地図の しるし。Step 4 の さいごの 文も なおる', () => {
-  assert.deepEqual(CH4_STEPS.slice(-3), ['c4_mirror', 'c4_zaid', 'c4_letter']);
+  // Step 6 で うしろに たした（c4_duna 〜。test/ch4-duna.test.js）
+  const mi = CH4_STEPS.indexOf('c4_mirror');
+  assert.deepEqual(CH4_STEPS.slice(mi, mi + 3), ['c4_mirror', 'c4_zaid', 'c4_letter']);
   for (const f of ['c4_zaid', 'c4_letter']) assert.ok(STORY_STEPS.includes(f), f);
   const f = (...l) => ({ flags: Object.fromEntries([...UPTO('c4_mirror'), ...l].map((k) => [k, true])) });
   assert.equal(objectiveFromFlags(f()), C4_OBJ.mirror);
   assert.equal(objectiveFromFlags(f('c4_zaid')), C4_OBJ.zaid);
   assert.equal(objectiveFromFlags(f('c4_zaid', 'c4_letter')), C4_OBJ.letter);
   assert.equal(objectiveFromFlags(f('c4_zaid', 'c4_letter', 'c4_duna_gate')), C4_OBJ.dunagate);
-  assert.ok(C4_OBJ.dunagate.startsWith('第4章の続きはアップデートで！（'));
+  // Step 5 の さいごの「続きはアップデートで！」は、Step 6 で「見張りに もう一度 話しかけよう」に なおる
+  assert.ok(OLD_C4_OBJ.dunagate.startsWith('第4章の続きはアップデートで！（') && !KNOWN_OBJECTIVES.has(OLD_C4_OBJ.dunagate));
+  const old5 = { flags: f('c4_zaid', 'c4_letter', 'c4_duna_gate').flags, objective: OLD_C4_OBJ.dunagate };
+  assert.ok(repairObjective(old5));
+  assert.equal(old5.objective, C4_OBJ.dunagate);
   for (const k of ['mirror', 'zaid', 'letter', 'dunagate']) {
     const t = C4_OBJ[k];
     assert.ok(KNOWN_OBJECTIVES.has(t), k);
@@ -406,7 +412,8 @@ test('夜の 王の間: 月の鏡で とびらを てらす → 大臣ザイー�
   assert.ok(c.keyItems.includes('queen_letter'), '女王の手紙');
   assert.ok(ownsItem(c, 'majin_lamp'), '魔神のランプ');
   assert.equal(c.objective, C4_OBJ.letter);
-  for (const f of CH4_STEPS) assert.ok(c.flags[f], f);
+  for (const f of CH4_STEPS.slice(0, CH4_STEPS.indexOf('c4_letter') + 1)) assert.ok(c.flags[f], f);
+  assert.ok(!c.flags.c4_duna, 'ドゥナは まだ（Step 6）');
   assert.ok(said(bot, 'みこのミラ') && said(bot, '砂の港ドゥナ'), '女王の 本当の 話');
   // 中庭の とびらの カギが あく・夜の 王の間に 女王
   const has = (f) => !!c.flags[f];
@@ -480,16 +487,21 @@ test('竜で とべる 所: 大臣ザイードの 前は 北の海辺だけ。�
   assert.equal(skyBox('south', has('c4_start', 'c4_zaid', 'c4_morgana')), null, 'モルガナの あとは どこでも');
 });
 
-test('砂の港ドゥナへの 谷の 見張り: 手紙を 見せても 門は 開けない（c4_duna_gate・第4章の続きはアップデートで！）', () => {
+// Step 6 で かわった: 手紙を 見せると、見張りが かしらに 知らせて 門が 開く（c4_duna_gate → c4_duna。くわしくは test/ch4-duna.test.js）
+test('砂の港ドゥナへの 谷の 見張り: 手紙を 見せると かしらに 知らせて、門を 開ける（c4_duna_gate・c4_duna）', () => {
   const ctx = (flags) => ({ c: { name: 'ソラ' }, name: 'ソラ', night: false, flag: (f) => !!flags[f], has: () => false, count: () => 0 });
   const base = Object.fromEntries(UPTO('c4_mirror').map((f) => [f, true]));
   const no = SCRIPTS.c4_d_lookout(ctx(base));
   assert.ok(stepsOf(no).includes('一歩も通さねえ') && !no.some((s) => s[0] === 'flag'));
   const letter = SCRIPTS.c4_d_lookout(ctx({ ...base, c4_zaid: true, c4_letter: true }));
   assert.ok(letter.some((s) => s[0] === 'flag' && s[1] === 'c4_duna_gate'));
-  assert.ok(letter.some((s) => s[0] === 'objective' && s[1] === C4_OBJ.dunagate));
-  assert.ok(stepsOf(letter).includes('第4章の続きは、アップデートで！'));
-  const after = SCRIPTS.c4_d_lookout(ctx({ ...base, c4_zaid: true, c4_letter: true, c4_duna_gate: true }));
+  assert.ok(letter.some((s) => s[0] === 'flag' && s[1] === 'c4_duna'), '門が 開く');
+  assert.ok(letter.some((s) => s[0] === 'objective' && s[1] === C4_OBJ.duna));
+  assert.ok(!stepsOf(letter).includes('第4章の続きは、アップデートで！'));
+  // Step 5 の 版で 門を ことわられた 人は、もう一度 話しかけると 開く
+  const again = SCRIPTS.c4_d_lookout(ctx({ ...base, c4_zaid: true, c4_letter: true, c4_duna_gate: true }));
+  assert.ok(again.some((s) => s[0] === 'flag' && s[1] === 'c4_duna'));
+  const after = SCRIPTS.c4_d_lookout(ctx({ ...base, c4_zaid: true, c4_letter: true, c4_duna_gate: true, c4_duna: true }));
   assert.ok(!after.some((s) => s[0] === 'flag'));
   // さくと 門を しらべる
   assert.ok(stepsOf(SCRIPTS.c4_duna_fence({})).includes('カギがかかっている'));

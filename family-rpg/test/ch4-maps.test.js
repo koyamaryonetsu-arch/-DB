@@ -3,6 +3,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { MAPS, isBlocked, effectiveTile, SEA_PLACES } from '../public/js/shared/maps/index.js';
 import { CH4_MAPS, SOUTH_TOWNS } from '../public/js/shared/maps/ch4.js';
+import { SANDSEA_POS } from '../public/js/shared/maps/duna.js';
 import {
   SOUTH_W, SOUTH_H, SOUTH_PLACES, SOUTH_POS, SOUTH_LANDING, SOUTH_ARRIVE, LANDING_BEACH, OASIS_CAMP, STORM_Y, STORM_GAP_X, STORM_FLAG, STORM_END_FLAG,
   southBgmAt, southWeatherAt, southZoneAt,
@@ -88,9 +89,10 @@ test('第4章: 人・宝箱・かんばん・しかけ・ワープが ただし�
   for (const id of CH4_MAPS) {
     const m = MAPS[id];
     // ワープで 入って くる ところ（フィールドは 竜が おりる ところと、ダンジョンから 出て くる ところ。
-    // 王都の 宮殿の 中庭は、宮殿の地下水路の 古井戸からだけ 入れる）
+    // 王都の 宮殿の 中庭は、宮殿の地下水路の 古井戸からだけ 入れる。砂の海〈Step 6〉は すなかぜ号で 出航して 着く ところ）
     const warpIn = Object.values(MAPS).flatMap((o) => o.warps.filter((w) => w.to.map === id).map((w) => [Math.floor(w.to.x), Math.floor(w.to.y)]));
-    const starts = id === 'south' ? [ARRIVE, ...warpIn] : warpIn;
+    const sailIn = id === 'sand_sea' ? [[Math.floor(SANDSEA_POS.arrive.x), Math.floor(SANDSEA_POS.arrive.y)]] : [];
+    const starts = id === 'south' ? [ARRIVE, ...warpIn] : [...sailIn, ...warpIn];
     assert.ok(starts.length, `${id}: 入り口`);
     // 水門の レバー（地下水路）は どちらでも 行けるように 両方 しらべる（つながりは test/ch4-canal.test.js）
     // よろい大サソリの 前と あと（あとは 砂嵐の 切れ目の 南の 王都サファラへ 行ける。サソリの いた 水路の 底は 水に なる）
@@ -182,8 +184,8 @@ test('砂ばく: 夜だけ 月のゆうれいが 出る（昼の 出現表には
 test('第4章の 魔物: データ・技・出現表が そろっている', () => {
   for (const [id, mo] of Object.entries(MONSTERS_CH4)) {
     assert.equal(MONSTERS[id], mo, id);
-    // 第4章は Lv30〜40 の 章（Step 5 の 南の砂ばくと 大臣ザイードは Lv34〜36）
-    assert.ok(mo.name && mo.desc && mo.lv >= 29 && mo.lv <= 36, `${id}: Lv${mo.lv}`);
+    // 第4章は Lv30〜40 の 章（Step 5 の 南の砂ばくと 大臣ザイードは Lv34〜36、Step 6 の 砂クジラは Lv37）
+    assert.ok(mo.name && mo.desc && mo.lv >= 29 && mo.lv <= 37, `${id}: Lv${mo.lv}`);
     for (const a of mo.actions) assert.ok(a.id === 'attack' || ABILITIES[a.id], `${id}: ${a.id}`);
     for (const d of Object.values(mo.drops || {})) assert.ok(ITEMS[d[0]], `${id}: ${d[0]}`);
   }

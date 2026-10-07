@@ -124,6 +124,45 @@ export const ENCOUNTERS_CH4 = {
     { w: 2, group: [['moon_ghost', 1, 2]] },
     { w: 1, group: [['gold_beetle', 1, 2]] },
   ],
+  // ── 砂の港ドゥナの 谷と 砂の古城への 道（Step 6。Lv34〜36）: サンドワーム・砂嵐の精・古城から 出てきた よろい ──
+  s_duna: [
+    { w: 4, group: [['sand_worm', 1, 1], ['sand_vulture', 0, 1]] },
+    { w: 3, group: [['sandstorm_spirit', 1, 2]] },
+    { w: 2, group: [['castle_armor', 1, 1], ['sand_vulture', 1, 1]] },
+    { w: 2, group: [['sand_vulture', 2, 3]] },
+    { w: 1, group: [['gold_beetle', 1, 1]] },
+  ],
+  s_duna_night: [
+    { w: 4, group: [['dark_scorpion', 1, 2], ['moon_ghost', 0, 1]] },
+    { w: 3, group: [['castle_armor', 1, 1], ['moon_ghost', 1, 1]] },
+    { w: 2, group: [['lamp_genie', 1, 1], ['sand_worm', 0, 1]] },
+    { w: 1, group: [['gold_beetle', 1, 2]] },
+  ],
+  // ── 砂の古城（Step 6）: 古城の よろい・のろいのつぼ・月のゆうれい・砂岩ゴーレム。2階は よろいが ふえる ──
+  s_castle: [
+    { w: 4, group: [['castle_armor', 1, 1], ['cursed_pot', 0, 1]] },
+    { w: 3, group: [['moon_ghost', 1, 2], ['castle_armor', 0, 1]] },
+    { w: 2, group: [['sandstone_golem', 1, 1], ['moon_ghost', 0, 1]] },
+    { w: 2, group: [['cursed_pot', 2, 2]] },
+  ],
+  s_castle2: [
+    { w: 4, group: [['castle_armor', 2, 2]] },
+    { w: 3, group: [['castle_armor', 1, 1], ['moon_ghost', 1, 1]] },
+    { w: 2, group: [['sandstone_golem', 1, 1], ['cursed_pot', 1, 1]] },
+    { w: 2, group: [['dark_scorpion', 1, 2], ['castle_armor', 0, 1]] },
+  ],
+  // ── 砂の海（Step 6。すなかぜ号で すすむ）: 砂ザメ。夜は 月のゆうれいも ──
+  s_sandsea: [
+    { w: 5, group: [['sand_shark', 1, 2]] },
+    { w: 3, group: [['sand_shark', 1, 1], ['sand_vulture', 1, 2]] },
+    { w: 2, group: [['sandstorm_spirit', 1, 1], ['sand_shark', 1, 1]] },
+    { w: 1, group: [['sand_shark', 3, 3]] },
+  ],
+  s_sandsea_night: [
+    { w: 4, group: [['sand_shark', 1, 2], ['moon_ghost', 0, 1]] },
+    { w: 3, group: [['moon_ghost', 1, 2], ['sand_shark', 0, 1]] },
+    { w: 2, group: [['lamp_genie', 1, 1], ['sand_shark', 1, 1]] },
+  ],
 };
 
 export const FIXED_CH4 = {
@@ -139,6 +178,10 @@ export const FIXED_CH4 = {
   zaid: { group: [['zaid_minister', 3, 3]], bg: 'palace_night', bgm: 'sand_demon', canFlee: false, boss: true },
   // そのまま つづけて 真の すがた（あいだに 月の鏡の 光: HPは ぜんぶ・MPは 少しだけ。story-ch4.js の zaidEvent）
   zaid_demon: { group: [['zaid_demon', 1, 1]], bg: 'palace_night', bgm: 'sand_demon', canFlee: false, boss: true },
+  // 砂の古城 2階の たからべや（Step 6）: 船の かじの 番を している 古城の よろい 2体（にげられない）
+  rudder_guard: { group: [['castle_armor', 2, 2]], bg: 'sand_castle', bgm: 'boss', canFlee: false },
+  // 砂の海の まん中（クジラの ねどこ）: 砂クジラ（ボス。すなかぜ号の かんぱんで たたかう）
+  sand_whale: { group: [['sand_whale', 1, 1]], bg: 'whale_deck', bgm: 'whale', canFlee: false, boss: true },
 };
 
 export const ZONE_BG_CH4 = {
@@ -149,7 +192,14 @@ export const ZONE_BG_CH4 = {
   s_pyr1: 'pyramid', s_pyr_b1: 'pyramid', s_pyr2: 'pyramid', s_pyr3: 'pyramid', s_pyr4: 'pyramid',
   // Step 5
   s_sdesert: 'desert', s_sdesert_night: 'desert_night',
+  // Step 6（砂の海は すなかぜ号の かんぱん。render/ch4-duna-bg.js）
+  s_duna: 'desert', s_duna_night: 'desert_night', s_castle: 'sand_castle', s_castle2: 'sand_castle',
+  s_sandsea: 'sand_sea', s_sandsea_night: 'sand_sea_night',
 };
 
 // 昼の ちいき → 夜の 出現表（night.js の NIGHT_ZONES に まぜる）
-export const NIGHT_ZONES_CH4 = { s_coast: 's_coast_night', s_dune: 's_dune_night', s_oasis: 's_oasis_night', s_pdesert: 's_pdesert_night', s_sdesert: 's_sdesert_night' };
+export const NIGHT_ZONES_CH4 = {
+  s_coast: 's_coast_night', s_dune: 's_dune_night', s_oasis: 's_oasis_night', s_pdesert: 's_pdesert_night', s_sdesert: 's_sdesert_night',
+  // Step 6（ドゥナの 谷・砂の海）
+  s_duna: 's_duna_night', s_sandsea: 's_sandsea_night',
+};

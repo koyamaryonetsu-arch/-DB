@@ -462,7 +462,8 @@ export function runScript(world, s, scriptId, opts = {}) {
   if (p && p.leader !== s.id) {
     const leader = world.sessions.get(p.leader);
     if (leader?.inWorld) {
-      const near = leader.map === s.map && !leader.busy && !leader.away && Math.hypot(leader.x - s.x, leader.y - s.y) <= STORY_NEAR;
+      // fn.sameMap … 同じ マップなら 遠くても（第4章の 砂の古城の 2つの 石の 板。家族が はなれた 板を べつべつに ふむ）
+      const near = leader.map === s.map && !leader.busy && !leader.away && (fn.sameMap || Math.hypot(leader.x - s.x, leader.y - s.y) <= STORY_NEAR);
       if (!near) {
         const now = world.now();
         if (!(s.storyHintAt > now - 8000)) {

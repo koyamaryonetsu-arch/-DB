@@ -13,6 +13,8 @@ import {
 } from './tex3d.js';
 import { tileCanvas } from './tiles.js';
 import { duneShape, ch4Mask, onDesert } from './tiles-ch4.js';
+// 第4章 Step 6: 砂クジラの ねどこの 砂の うず（ねどこ ぜんたいで 1まいの え）
+import { whirlCanvas } from './tiles-duna.js';
 import { TROUGH, CANAL_CTX, CANAL_SUN, canalVariant, canalMask, canalFlow, damVertical } from './tiles-canal.js';
 import { flipCanvas, makeCanvas, ctxOf, whiteCopy } from './pixel.js';
 import { themedCanvas, partOfTile, partOfExtra, partOfProp } from './themes.js';
@@ -38,7 +40,9 @@ const WATER_TILES = new Set([T.WATER, T.DEEP, T.CAVE_WATER, T.BROKEN_BRIDGE, T.C
 const WALL_TILES = new Set([T.WALL_STONE, T.WALL_WOOD, T.ADOBE]);
 const TREE_TILES = new Set([T.TREE, T.PINE, T.SNOW_PINE, T.PALM]);
 // 第3章: ようがん・温泉（水と おなじ ひくさに、うごく え を はる）
-const LIQUID_TILES = { [T.LAVA]: { name: 'lava', y: WATER_Y + 0.06, speed: 380 }, [T.HOT_SPRING]: { name: 'spring', y: -0.2, speed: 520 } };
+const LIQUID_TILES = { [T.LAVA]: { name: 'lava', y: WATER_Y + 0.06, speed: 380 }, [T.HOT_SPRING]: { name: 'spring', y: -0.2, speed: 520 },
+  // 第4章 Step 6: 砂の海（すなかぜ号で すすむ。地面より すこし ひくい 砂の 波。4コマで 東へ ながれる）と 砂クジラの ねどこの 砂の うず
+  [T.SAND_SEA]: { name: 'sand_sea', y: -0.2, speed: 360, frames: 4 }, [T.SAND_WHIRL]: { name: 'sand_whirl', y: -0.22, speed: 130, frames: 8 } };
 // 第4章 Step 2（かれた地下水路）: 水路の 底・水の たかさ（通路より ひくい）・水門と こうしの とびらの たかさ・がれきの 山の たかさ
 const CANAL_BED_H = -0.42, CANAL_WATER_Y = -0.27, GATE_H = 1.05, DAM_H = 0.62;
 // 地面の たかさ（深い 雪は すこし 高く・谷は ふかく・水路の 底は ひくく）
@@ -367,6 +371,7 @@ export class Field3D {
     const trees = [], pines = [], snowPines = [], palms = [];
     const dunes = [], storm = [];
     const canal = [], dams = [];
+    const whirl = []; // 砂クジラの ねどこの 砂の うず（第4章 Step 6。あとで まとめて 1まいの え）
     const isBlockAt = (x, y) => {
       const id = idAt(x, y);
       return id !== -1 && kindOf(id) === BLOCK && spec(x, y).h > 0.55;
@@ -388,6 +393,7 @@ export class Field3D {
           continue;
         }
         if (id === T.CANAL_WATER) { canal.push([x, y]); continue; } // 地下水路の 水（あとで まとめて）
+        if (id === T.SAND_WHIRL) { whirl.push([x, y]); continue; } // 砂の うず（あとで まとめて）
         if (kind === WATER && LIQUID_TILES[id]) {
           // ようがん・温泉
           const L = LIQUID_TILES[id];
@@ -548,7 +554,7 @@ export class Field3D {
     for (const [id, lg] of Object.entries(liquids)) {
       const L = LIQUID_TILES[id];
       const fr = [];
-      for (let i = 0; i < 3; i++) {
+      for (let i = 0; i < (L.frames || 3); i++) {
         const t = new THREE.CanvasTexture(tileCanvas(Number(id), 0, i, 0));
         t.magFilter = THREE.NearestFilter;
         t.minFilter = THREE.NearestFilter;
@@ -562,6 +568,28 @@ export class Field3D {
       materials.push(lm);
       group.add(new THREE.Mesh(toGeometry(lg), lm));
       this.liquids.push({ mat: lm, frames: fr, speed: L.speed });
+    }
+    // 砂クジラの ねどこの 砂の うず（第4章 Step 6）: ねどこ ぜんたい（5×5マス）で 1まいの うずの え。8コマで まわる
+    if (whirl.length && map.whirl) {
+      const n = 5, x0 = map.whirl.x - 2, y0 = map.whirl.y - 2;
+      const wy = LIQUID_TILES[T.SAND_WHIRL].y;
+      const wg = newGeo();
+      for (const [x, y] of whirl) quad(wg, [x, wy, y], [x, wy, y + 1], [x + 1, wy, y + 1], [x + 1, wy, y], { u0: (x - x0) / n, u1: (x + 1 - x0) / n, v0: -(y + 1 - y0) / n, v1: -(y - y0) / n }, 1);
+      const wf = [];
+      for (let i = 0; i < 8; i++) {
+        const t = new THREE.CanvasTexture(whirlCanvas(i, n));
+        t.magFilter = THREE.NearestFilter;
+        t.minFilter = THREE.NearestFilter;
+        t.generateMipmaps = false;
+        t.wrapS = t.wrapT = THREE.RepeatWrapping;
+        t.colorSpace = THREE.SRGBColorSpace;
+        wf.push(t);
+        liquidFrames.push(t);
+      }
+      const wm = new THREE.MeshBasicMaterial({ map: wf[0], vertexColors: true });
+      materials.push(wm);
+      group.add(new THREE.Mesh(toGeometry(wg), wm));
+      this.liquids.push({ mat: wm, frames: wf, speed: 130 });
     }
     // 砂嵐の かべ（第4章）: こい 砂の 地面（うごく え）・もこもこ うごく 砂けむりの かたまり（カメラに むけて たてる）・
     // その 上を 東へ ながれる うすい 砂の まく。とおれない ことが ひとめで わかる
@@ -679,9 +707,11 @@ export class Field3D {
       const sea = newGeo();
       const M = 90;
       const snowy = map.outside === 'snow';
-      const oy = snowy ? -0.05 : WATER_Y - 0.03;
-      quad(sea, [-M, oy, -M], [-M, oy, h + M], [w + M, oy, h + M], [w + M, oy, -M], { u0: -M, u1: w + M, v0: -h - M, v1: M }, snowy ? 0.86 : 0.62);
-      const seaTex = new THREE.CanvasTexture(tileCanvas(snowy ? T.SNOW : T.DEEP, 0, 0, 0));
+      // 砂の 地方の 南（第4章 Step 6 の ドゥナ・砂の海）は 砂の海
+      const sandy = map.outside === 'sand';
+      const oy = snowy ? -0.05 : sandy ? LIQUID_TILES[T.SAND_SEA].y - 0.03 : WATER_Y - 0.03;
+      quad(sea, [-M, oy, -M], [-M, oy, h + M], [w + M, oy, h + M], [w + M, oy, -M], { u0: -M, u1: w + M, v0: -h - M, v1: M }, snowy ? 0.86 : sandy ? 0.8 : 0.62);
+      const seaTex = new THREE.CanvasTexture(tileCanvas(snowy ? T.SNOW : sandy ? T.SAND_SEA : T.DEEP, 0, 0, 0));
       seaTex.magFilter = THREE.NearestFilter;
       seaTex.minFilter = THREE.NearestFilter;
       seaTex.generateMipmaps = false;

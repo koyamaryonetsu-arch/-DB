@@ -13,7 +13,9 @@
 // Step 5: 夜の 宮殿の 中庭で、王の間への とびらを 月の鏡で てらす → 王の間で 女王を 鏡に うつすと、うしろに 砂の魔神
 //         → 大臣ザイード（まぼろしの 分身。月の鏡は 戦いの「道具」でも 使える）→ 砂の魔神ザイード（真の すがた）
 //         → 女王が 正気に もどって 本当の ことを 話す → 女王の手紙 → 砂嵐が 弱まる（竜で 王都・ドゥナの 近くまで 飛べる。
-//         南の 砂嵐の 切れ目も 開く）→ 王都の 南の 門から 南の砂ばくへ → 砂の港ドゥナへの 谷（海賊は 門を 開けない。ドゥナは Step 6）
+//         南の 砂嵐の 切れ目も 開く）→ 王都の 南の 門から 南の砂ばくへ → 砂の港ドゥナへの 谷（見張りに 手紙を 見せる）
+// Step 6: 谷の 門が 開いて 砂の港ドゥナ → かしらバルガ → サラ（ゲスト）→ 砂の古城の 船のかじ（2人スイッチ）→ すなかぜ号で 砂の海
+//         → 砂クジラ（砂に もぐる）→ 砂の底の神殿の 入口が 分かる（story-ch4-duna.js）
 import { NORTH_PLACES } from '../maps/north.js';
 import { SOUTH_PLACES, SOUTH_POS, LANDING_BEACH, STORM_Y, STORM_GAP_X, SAFARA_POS } from '../maps/south.js';
 import {
@@ -26,6 +28,8 @@ import { SEA_W, SEA_H } from '../maps/sea.js';
 import { innSteps } from './inn.js';
 import { C4_LEAD_OBJECTIVE } from './sky.js';
 import { C3_OBJ } from './story-ch3.js';
+// Step 6: 砂の海賊と 砂クジラ（ドゥナ・砂の古城・すなかぜ号・砂の海）
+import { DUNA_STEPS, DUNA_OBJ, DUNA_STORY_SCRIPTS, DUNA_SCRIPTS, DUNA_TARGETS, DUNA_TALK, DUNA_PROGRESS } from './story-ch4-duna.js';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -43,8 +47,10 @@ const C = (p) => [p.x + 0.5, p.y + 0.5];
 //         c4_song（ハサンの なぞと わらべ歌 4人ぶんが そろった）
 // Step 4: c4_pyramid（日時計の とびらが 開いた）・c4_anku（ミイラの王アンクを たおした）・c4_mirror（月の鏡を 手に入れた）
 // Step 5: c4_zaid（大臣ザイード〈砂の魔神〉を たおした）・c4_letter（女王の手紙を もらった）
+// Step 6: c4_duna（谷の 門が 開いた）・c4_sara（サラが 仲間に なった）・c4_castle（船のかじを 取りもどした）・
+//         c4_ship（すなかぜ号に かじが ついた）・c4_whale（砂クジラが 正気に もどった）。story-ch4-duna.js
 export const CH4_STEPS = ['c4_start', 'c4_arrive', 'c4_hamil', 'c4_nadim', 'c4_well', 'c4_ami', 'c4_canal', 'c4_scorpion',
-  'c4_capital', 'c4_queen', 'c4_fountain', 'c4_song', 'c4_pyramid', 'c4_anku', 'c4_mirror', 'c4_zaid', 'c4_letter'];
+  'c4_capital', 'c4_queen', 'c4_fountain', 'c4_song', 'c4_pyramid', 'c4_anku', 'c4_mirror', 'c4_zaid', 'c4_letter', ...DUNA_STEPS];
 
 // ───── 目標 ─────
 // 第3章クリアの あと（長老ハクゲンに もう一度 話す。sky.js）
@@ -80,8 +86,11 @@ export const C4_OBJ = {
   // Step 5（夜の 宮殿）。dunagate は 物語の すすみぐあいでは ない フラグ（c4_duna_gate）の あとの 目標
   zaid: '目を覚ました女王ネフィの話を聞こう（宮殿の王の間）',
   letter: '女王さまの手紙を持って、南の「砂の港ドゥナ」へ行こう（王都の南の門を出て、南の砂嵐の切れ目をぬける）',
-  // Step 5 の さいご（Step 6 で ドゥナの 目標に かえる。文を かえれば repairObjective で 今の 文に なおる）
-  dunagate: '第4章の続きはアップデートで！（砂の海賊は、門を開けてくれなかった…。それまで、南の砂ばくで強くなっておこう）',
+  // 見張りに 手紙を 見せた あと（Step 6 では そのまま 門が 開く。Step 5 で 止まっていた セーブの 人の 目標。
+  // Step 5 の 版の「続きはアップデートで！」（OLD_C4_OBJ.dunagate）は 今の 文に なおる）
+  dunagate: '砂の港ドゥナへの谷の見張りに、もう一度話しかけよう（かしらから、返事が来ているかもしれない）',
+  // Step 6（砂の港ドゥナ・砂の古城・砂の海。story-ch4-duna.js）
+  ...DUNA_OBJ,
 };
 // むかしの 版の 目標の 文（セーブに のこっている ことが ある。今は 知らない 文なので repairObjective が なおす）
 export const OLD_C4_OBJ = {
@@ -89,6 +98,7 @@ export const OLD_C4_OBJ = {
   scorpion: '第4章の続きはアップデートで！（砂嵐の切れ目から、南の王都サファラへ行けるようになった）',
   song: '第4章の続きはアップデートで！（昼の12時ごろ、オベリスクの影がさす所を調べよう）',
   mirror: '第4章の続きはアップデートで！（月の鏡を手に入れた。夜の宮殿で、女王さまを月の鏡にうつしてみよう）',
+  dunagate: '第4章の続きはアップデートで！（砂の海賊は、門を開けてくれなかった…。それまで、南の砂ばくで強くなっておこう）',
 };
 
 // パーティー全員で 見る イベント
@@ -100,8 +110,10 @@ export const CH4_STORY_SCRIPTS = ['c4_arrive', 'c4_hamil_arrive', 'c4_nadim', 'c
   'c4_pyr_door', 'c4_pyr1_enter', 'c4_pyrb1_enter', 'c4_pyr2_enter', 'c4_pyr3_enter', 'c4_pyr4_enter',
   'c4_pyr_btn_sun', 'c4_pyr_btn_sand', 'c4_pyr_btn_moon', 'c4_pyr_btn_star', 'c4_pyr_pot1', 'c4_pyr_pot2',
   'c4_pyr_crack', 'c4_gold_sword', 'c4_anku_event', 'c4_pyr_mirror',
-  // Step 5: 夜の 中庭の とびら（大臣ザイードの 2つの 戦いと 女王の 手紙まで）・ドゥナへの 谷の 見張り
-  'c4_court_door', 'c4_d_lookout'];
+  // Step 5: 夜の 中庭の とびら（大臣ザイードの 2つの 戦いと 女王の 手紙まで）・ドゥナへの 谷の 見張り（Step 6 で 門が 開く）
+  'c4_court_door', 'c4_d_lookout',
+  // Step 6: ドゥナに 着く・かしらバルガ・砂の古城（入る・2つの 石の 板・船のかじ）・すなかぜ号・砂クジラ（story-ch4-duna.js）
+  ...DUNA_STORY_SCRIPTS];
 
 // ───── Step 3 の ことば ─────
 // 女王ネフィは、何回 話しかけても この 言葉だけ（何かが おかしい、と 気づける）
@@ -716,19 +728,50 @@ function letterScene() {
   ];
 }
 
-// 大臣ザイードを たおした あとの 女王ネフィ
+// 大臣ザイードを たおした あとの 女王ネフィ（Step 6: ドゥナの 門が 開いた・サラ・砂クジラ）
 function queenAfter(x) {
+  if (x.flag('c4_whale')) {
+    return S('女王ネフィ', '砂クジラが正気にもどって、砂の底の神殿の入口が分かったのですね…！',
+      'ミラさまも、水の守り星も、きっとそこに…。\nどうか、サラといっしょに…ミラさまを助けてあげてください。');
+  }
+  if (x.flag('c4_sara')) {
+    return S('女王ネフィ', 'サラが…あなたたちといっしょに…？', '…よかった。サラ、元気そうでしたか？\nわたし、サラにも、ちゃんとあやまりたいのです…。');
+  }
+  if (x.flag('c4_duna')) {
+    return S('女王ネフィ', '砂の海賊のみなさんが、門を開けてくれたのですね…！', 'かしらのバルガさんは、サラのお父さまです。\nどうか、わたしの手紙を、とどけてください。');
+  }
   if (x.flag('c4_duna_gate')) {
-    return S('女王ネフィ', '砂の海賊のみなさんは、門を開けてくれなかったのですね…。',
+    return S('女王ネフィ', '砂の海賊のみなさんは、まだ門を開けてくれないのですね…。',
       'むりもありません…。わたしは、それだけのことをしてしまったのですから。', 'でも、サラなら…。サラなら、きっと…。');
   }
   return S('女王ネフィ', '砂の港ドゥナへは、王都の南の門を出て、\n南の砂嵐の切れ目をぬけた先です。', 'どうか、砂の海賊のかしらに、わたしの手紙を…。');
 }
 
-// 砂の港ドゥナへの 谷の 見張り（砂の海賊。門は 開けない。ドゥナは Step 6）
+// 谷の 門を 開ける（Step 6: かしらが 手紙を 持ってきた 者に 会うと 言った）
+function dunaGateOpen() {
+  return [
+    ['sfx', 'door'],
+    ...N('ギギギ…。見張りが、谷の門のカギを開けた！'),
+    ['flag', 'c4_duna'], ['sync'],
+    ...S('砂の海賊の見張り', 'この谷を下りれば、砂の港ドゥナだ。\nかしらの館は、広場の東。…へんなまねをしたら、ただじゃすまねえぞ。'),
+    ['bgm', 'resume'],
+    ['objective', C4_OBJ.duna],
+  ];
+}
+
+// 砂の港ドゥナへの 谷の 見張り（砂の海賊）。手紙を 見せると、かしらに 知らせに 行き、かしらの 返事で 門が 開く（c4_duna）
+// Step 5 の 版で「門は 開けねえ」と 言われた（c4_duna_gate）人は、もう一度 話しかけると 門が 開く
 function dunaLookout(x) {
+  if (x.flag('c4_duna')) {
+    if (x.flag('c4_whale')) return S('砂の海賊の見張り', '砂クジラを止めたのは、あんたたちなんだってな…！', '…王国の者も、すてたもんじゃねえな。');
+    return S('砂の海賊の見張り', 'かしらには、会えたか？\n…かしらは口は悪いが、なさけにあつい人なんだ。');
+  }
   if (x.flag('c4_duna_gate')) {
-    return S('砂の海賊の見張り', 'まだいたのか。かしらには、ちゃんと伝えてやったぜ。', '…返事はねえ。帰んな！');
+    return [
+      ['bgm', null],
+      ...S('砂の海賊の見張り', 'おう、また来たか。…かしらから、返事が来たぜ。', '「手紙を持ってきた者に、会ってやる」…だとさ。\nついて来な。'),
+      ...dunaGateOpen(),
+    ];
   }
   const stop = S('砂の海賊の見張り', '止まれ！ここから先は、おれたち砂の海賊の港、ドゥナだ。', '王国の者は、一歩も通さねえ！');
   if (!x.flag('c4_letter')) return stop;
@@ -737,11 +780,13 @@ function dunaLookout(x) {
     ...stop,
     ...N('（女王さまの手紙を見せた…）'),
     ...S('砂の海賊の見張り', '女王の手紙だと…？', '…フン。おれたちを国から追い出したのは、その女王じゃねえか。\n今さら、口だけなら何とでも言えるさ。'),
-    ...S('砂の海賊の見張り', '…まあいい。かしらには、いちおう伝えておいてやる。\nだが、門は開けねえ。帰んな！'),
+    ...S('砂の海賊の見張り', '…まあいい。かしらには、いちおう伝えてやる。\nそこで待ってな。'),
     ['flag', 'c4_duna_gate'],
-    ['bgm', 'resume'],
-    ['objective', C4_OBJ.dunagate],
-    ...N('（砂の海賊は、門を開けてくれなかった…）', '――第4章の続きは、アップデートで！――'),
+    ['fade', 'out'],
+    ...N('――しばらくして、見張りの1人が、谷の下からもどってきた。'),
+    ['fade', 'in'],
+    ...S('砂の海賊の見張り', '…かしらが、手紙を持ってきた者に会ってやるとさ。', '運がよかったな。…通りな。'),
+    ...dunaGateOpen(),
   ];
 }
 
@@ -1339,6 +1384,12 @@ export const CH4_SCRIPTS = {
 
   // ───────────── 南の 門・南の 砂嵐・砂の港ドゥナへの 谷（Step 5）─────────────
   c4_s_sgate: (x) => {
+    if (x.flag('c4_whale')) {
+      return S('南の門の門番', '砂の海の砂クジラが、しずかになったそうだな。\nドゥナから来た商人が、よろこんでいたよ。');
+    }
+    if (x.flag('c4_duna')) {
+      return S('南の門の門番', 'ドゥナの門を、開けてもらえたのか！', 'あの海賊たちと、王国が、また仲よくなれるといいんだがな…。');
+    }
     if (x.flag('c4_duna_gate')) {
       return S('南の門の門番', 'ドゥナの門は、開けてもらえなかったか…。', 'あの海賊たちを国から追い出したのは、王国なんだからな…。');
     }
@@ -1356,6 +1407,9 @@ export const CH4_SCRIPTS = {
   ],
   c4_duna_fence: () => N('木のさくで、谷がとざされている。', 'まん中の門には、がんじょうなカギがかかっている…。'),
   c4_d_lookout: (x) => dunaLookout(x),
+
+  // ───────────── 砂の港ドゥナ・砂の古城・砂の海（Step 6。story-ch4-duna.js）─────────────
+  ...DUNA_SCRIPTS,
 };
 
 // ───── 目標の 行き先（quest-targets.js）─────
@@ -1394,6 +1448,8 @@ export const CH4_OBJECTIVE_TARGETS = {
   [C4_OBJ.zaid]: [{ npc: 'nefi' }, { npc: 'nefi_night' }],
   [C4_OBJ.letter]: [{ map: 'south', x: SAFARA_POS.southGate.x, y: SAFARA_POS.southGate.y }, { npc: DUNA_LOOKOUTS[0].id }],
   [C4_OBJ.dunagate]: [{ npc: DUNA_LOOKOUTS[0].id }],
+  // Step 6（ドゥナ・砂の古城・砂の海。story-ch4-duna.js）
+  ...DUNA_TARGETS,
 };
 
 // ───── 仲間会話（party-talk.js）─────
@@ -1546,11 +1602,13 @@ export const CH4_OBJECTIVE_TALK = {
     kid: 'サラって、絵日記の女の子だよね？ドゥナで会えるかな！南の門から行こう！',
   },
   [C4_OBJ.dunagate]: {
-    self: 'ドゥナの門は開かなかった。続きが来るまで、南の砂ばくで強くなっておこう。',
-    bold: '海賊め、頭がかたいな…。まあいい、今はきたえておこうぜ。',
-    kind: '海賊のみなさんは、王国をとてもうらんでいるのですね…。いつか、分かってもらえるといいのですが。',
-    kid: 'ちぇー、入れてくれなかったー。でも、きっといつか分かってくれるよ！',
+    self: 'かしらの返事が、来ているかもしれない。ドゥナへの谷の見張りに、もう一度話しかけてみよう。',
+    bold: '海賊め、頭がかたいな…。もう一回、見張りに話してみようぜ。',
+    kind: '海賊のみなさんは、王国をとてもうらんでいるのですね…。もう一度、見張りさんに話してみましょう。',
+    kid: 'ちぇー、入れてくれなかったー。もう1回、お願いしてみよう！',
   },
+  // ───── Step 6（ドゥナ・砂の古城・砂の海。story-ch4-duna.js）─────
+  ...DUNA_TALK,
 };
 
 // ───── すすみぐあい（progress.js の PROGRESS の うしろに つづく）─────
@@ -1584,6 +1642,8 @@ export const CH4_PROGRESS = [
   ['c4_zaid', C4_OBJ.zaid],
   ['c4_letter', C4_OBJ.letter],
   ['c4_duna_gate', C4_OBJ.dunagate],
+  // Step 6（c4_castle_gate は 物語の すすみぐあいでは ない フラグ。story-ch4-duna.js）
+  ...DUNA_PROGRESS,
 ];
 
 // むかしの セーブ: 第3章クリアで「続きはアップデートで！」の ままの 人は、第4章の 入り口（長老ハクゲン）へ

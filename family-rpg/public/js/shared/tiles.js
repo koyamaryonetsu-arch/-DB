@@ -30,6 +30,8 @@ export const T = {
   BTN_SUN: 141, BTN_SAND: 142, BTN_MOON: 143, BTN_STAR: 144, BTN_SUN_ON: 145, BTN_SAND_ON: 146, BTN_MOON_ON: 147, BTN_STAR_ON: 148,
   FLOW_N: 149, FLOW_E: 150, FLOW_S: 151, FLOW_W: 152, SAND_PIT: 153,
   PYR_CRACK: 154, PYR_SLAB: 155, SARCOPHAGUS: 156, PYR_ALTAR: 157, PYR_GLYPH: 158, SEAL_RUNE: 159,
+  // 第4章 Step 6（砂の港ドゥナ・砂の海・砂クジラの ねどこ）
+  SAND_SEA: 160, SAND_WHIRL: 161,
 };
 
 export const TILE_INFO = {};
@@ -172,6 +174,10 @@ def(T.SARCOPHAGUS, 'sarcophagus', { solid: true, mapColor: '#c8a040' }); // 金�
 def(T.PYR_ALTAR, 'pyr_altar', { solid: true, talkThrough: true, mapColor: '#d8c070' }); // 王の 台（月の鏡）
 def(T.PYR_GLYPH, 'pyr_glyph', { solid: true, mapColor: '#8a6a3a' }); // 絵文字の きざまれた かべ
 def(T.SEAL_RUNE, 'seal_rune', { mapColor: '#8a6ab8' }); // 呪文を すいこむ もんしょう（2階の ゆか）
+// 砂の海（Step 6）
+// sail: 船で すすめる（sailable の マップだけ。maps/index.js の isBlocked・onWater）。ほかの マップでは 歩けない けしき
+def(T.SAND_SEA, 'sand_sea', { solid: true, sail: true, anim: true, mapColor: '#d8a456' }); // 砂の海（さらさら 流れる こまかい 砂。すなかぜ号で すすむ）
+def(T.SAND_WHIRL, 'sand_whirl', { solid: true, anim: true, mapColor: '#7a4e28' }); // 砂の うず（砂クジラの ねどこ。船でも 入れない）
 
 export function isSolid(id) {
   return TILE_INFO[id]?.solid ?? true;

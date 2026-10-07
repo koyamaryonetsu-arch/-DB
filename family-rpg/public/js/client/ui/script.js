@@ -123,7 +123,9 @@ export class ScriptPlayer {
         g.field.hideGuests = !!a[0];
         return null;
       case 'hideNpc':
-        g.field.scriptHidden.add(a[0]);
+        // ['hideNpc', id, false] … もう一度 見せる（イベントの さいごに、役者から 本物の NPC に もどす）
+        if (a[1] === false) g.field.scriptHidden.delete(a[0]);
+        else g.field.scriptHidden.add(a[0]);
         return null;
       case 'chestOpen':
         return null;

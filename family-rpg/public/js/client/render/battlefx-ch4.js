@@ -37,6 +37,41 @@ export function playCh4Fx(fx, anim, targets, element, opts = {}, W = 256, H = 14
         fx.star(t.x, t.y - 10, '#ffffff', 12, i * 60 + 140, 300);
       });
       return true;
+    // ── 第4章 Step 6: 砂クジラ ──
+    case 'burrow': // 砂に もぐる: 足もとから 砂が ふき上がって、体が 砂に しずむ
+      for (const t of targets) {
+        fx.debris(t.x, t.y + 22, SAND, 16, 0, 110);
+        fx.debris(t.x, t.y + 22, SAND, 12, 160, 80);
+        fx.burst(t.x, t.y + 20, SAND, 18, 70, { delay: 60, vy: -30 });
+        fx.shock(t.x, t.y + 24, { r0: 6, r1: 48, color: '#e8c88a', w: 2, delay: 80, life: 420, sy: 0.3, add: false });
+      }
+      return true;
+    case 'burrow_rise': // 砂が もり上がる（前ぶれ）: 地面が ゆれて、砂が ぼこぼこ わき上がる
+      fx.tintAt('rgba(160,110,50,0.18)', 600);
+      for (const t of targets) {
+        fx.debris(t.x, t.y + 24, SAND, 10, 0, 60);
+        fx.debris(t.x - 18, t.y + 26, SAND, 6, 180, 50);
+        fx.debris(t.x + 18, t.y + 26, SAND, 6, 320, 50);
+      }
+      fx.hitStop(160, 0, 0.8);
+      return true;
+    case 'sand_spray': // 砂しぶき: 上から 砂が ざあっと ふりそそぐ
+      fx.tintAt('rgba(220,180,110,0.22)', 700);
+      for (let k = 0; k < 44; k++) {
+        fx.add({ kind: 'streak', x: Math.random() * W, y: -10 - Math.random() * 40, vx: 30 + Math.random() * 30, vy: 220 + Math.random() * 120, color: SAND[k % 4], life: 620, delay: k * 9, w: 2 + Math.random() * 3 });
+      }
+      for (const t of targets) fx.burst(t.x, t.y, SAND, 10, 50, { delay: 240 });
+      return true;
+    case 'whale_jump': // 大ジャンプ: 大きな かげが 空を おおって、ずどんと 落ちてくる（画面が 大きく ゆれる）
+      fx.tintAt('rgba(40,20,10,0.42)', 900);
+      for (const t of targets) {
+        fx.shock(t.x, t.y + 16, { r0: 8, r1: 120, color: '#f2d49a', w: 3, delay: 420, life: 520, sy: 0.35, add: false });
+        fx.debris(t.x, t.y + 16, SAND, 22, 430, 150);
+        fx.burst(t.x, t.y, SAND, 24, 110, { delay: 440 });
+      }
+      fx.flashAt(160, '#fff2cc', 420);
+      fx.hitStop(300, 420, 2.2);
+      return true;
     default:
       return false;
   }

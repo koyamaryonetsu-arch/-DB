@@ -19,6 +19,8 @@ import { decideMonster, decideAlly } from './ai.js';
 import { ENEMY_RATES, strengthenEnemy } from './data/difficulty.js';
 // 第4章の しかけ（まぼろしの分身・月の鏡・そうびしたまま 使う 道具）
 import { setupMirage, mirageHit, mirageVanish, mirageDown, mirageSync, mirageRemake, ch4ItemCheck, ch4UseItem, mirrorSnap } from './battle-ch4.js';
+// 第4章 Step 6 の 砂に もぐる（ねらえない。battle-ch4.js）
+import { burrowStart, burrowWarn, burrowBlock, hiddenFrom } from './battle-ch4.js';
 
 export const BOND_MAX = 100;
 // きずなゲージの たまりやすさ（1 … はじめの 版。ちいさいほど たまりにくい）
@@ -437,6 +439,8 @@ export class Battle {
         this.onReady(c);
       }
     }
+    // 砂に もぐった 敵の 前ぶれ「砂がもり上がった…！」（battle-ch4.js）
+    burrowWarn(this, pub);
     // 合体技の よやく
     this.checkWaits();
   }
@@ -614,7 +618,7 @@ export class Battle {
         } else {
           confused = true;
           ev.lines.push(`${c.name}は混乱している！`);
-          const pool = this.combatants.filter((x) => x.alive && x !== c && !x.fled);
+          const pool = this.combatants.filter((x) => x.alive && x !== c && !x.fled && !hiddenFrom(c, x));
           cmd = { type: 'attack', target: this.rng.pick(pool)?.id, confused: true };
         }
       }
@@ -694,6 +698,8 @@ export class Battle {
   }
 
   perform(c, cmd, ev) {
+    // 敵が みんな 砂の 中に もぐっている（ねらえない。battle-ch4.js）
+    if (burrowBlock(this, c, cmd, ev)) return;
     const cast = (tmpl, t) => tmpl.replaceAll('{a}', c.name).replaceAll('{t}', t ? t.name : '');
     switch (cmd.type) {
       case 'attack': {
@@ -879,7 +885,8 @@ export class Battle {
   // side: true=みかた側 false=てき側（c から みて）
   sideOf(c, same) {
     const side = same ? c.side : (c.side === 'ally' ? 'enemy' : 'ally');
-    return this.combatants.filter((x) => x.side === side && !x.fled);
+    // 砂に もぐった 敵は ねらえない（battle-ch4.js）
+    return this.combatants.filter((x) => x.side === side && !x.fled && !hiddenFrom(c, x));
   }
 
   targetsFor(c, a, cmd) {
@@ -908,7 +915,7 @@ export class Battle {
     const targets = givenTargets || this.targetsFor(c, a, cmd);
     this.pushCoverMsg(ev);
     ev.fx = { type: 'ability', anim: a.anim, actor: c.id, targets: targets.map((t) => t.id), side: c.side, element: eff.element };
-    if (!targets.length && !['callHelp', 'flee', 'nothing', 'telegraph', 'stance', 'charge', 'bondUp', 'escape', 'goldThrow', 'reviveAll', 'multi', 'mirage'].includes(eff.type)) {
+    if (!targets.length && !['callHelp', 'flee', 'nothing', 'telegraph', 'stance', 'charge', 'bondUp', 'escape', 'goldThrow', 'reviveAll', 'multi', 'mirage', 'burrow'].includes(eff.type)) {
       ev.lines.push('しかし効果がなかった！');
       return;
     }
@@ -1300,6 +1307,8 @@ export class Battle {
         mirageRemake(this, c, ev);
         break;
       }
+      // 砂に もぐる（つぎの 番まで ねらえない。battle-ch4.js）
+      case 'burrow': burrowStart(this, c, eff, ev); break;
       case 'telegraph': {
         c.telegraph = eff.next;
         ev.fx = { type: 'telegraph', actor: c.id };
@@ -2063,10 +2072,13 @@ export class Battle {
     let power = 0;
     for (const j of joined) power += (j.atk || 0) * 0.35 + (j.mag || 0) * 0.35;
     power *= 1 + 0.1 * (n - 1);
+    // 砂に もぐった 敵には とどかない（battle-ch4.js）
+    const foes = this.aliveEnemies().filter((x) => !hiddenFrom(actor, x));
+    if (!foes.length) ev.lines.push('しかし、敵はみんな砂の中にもぐっている！');
     let main = this.get(bc.target);
-    if (!main || !main.alive) main = this.aliveEnemies()[0];
-    ev.fx = { type: 'ability', anim: 'minadein', actor: bc.actor, targets: this.aliveEnemies().map((x) => x.id), side: 'ally', element: 'bolt' };
-    for (const t of this.aliveEnemies()) {
+    if (!main || !foes.includes(main)) main = foes[0];
+    ev.fx = { type: 'ability', anim: 'minadein', actor: bc.actor, targets: foes.map((x) => x.id), side: 'ally', element: 'bolt' };
+    for (const t of foes) {
       let d = power * (t === main ? 1 : 0.5) * this.rng.float(0.95, 1.05);
       if (t.metal) d = this.rng.int(1, 3);
       this.damage(actor, t, Math.round(d), ev, { element: 'bolt' });
@@ -2162,6 +2174,8 @@ export class Battle {
         if (p.buff?.atk) t.buffs.atk = { mult: p.buff.atk, until: Infinity };
         if (p.debuff?.def) t.debuffs.def = { mult: p.debuff.def, until: Infinity };
         if (p.turns) t.turns = p.turns;
+        // 少し 速く なる（砂クジラ。ゲージの たまる はやさの 倍率）
+        if (p.speed) t.speed = (t.speed || 1) * p.speed;
         if (p.addActions) t.actions = t.actions.concat(p.addActions);
         if (p.summon) {
           const room = 7 - this.aliveEnemies().length;
@@ -2332,6 +2346,8 @@ export function pub(c) {
     chant: c.chant ? Math.min(1, Math.round((c.chant.dmg / c.chant.need) * 100) / 100) : null,
     // まぼろしの 分身の いる たたかいの 本物（足もとに 小さな 影。battle-ch4.js）
     shade: !!c.shade,
+    // 砂に もぐっている（ねらえない）: 1 … もぐった / 2 … 砂が もり上がった（つぎの 番に とび出す）。battle-ch4.js
+    burrow: c.burrow ? (c.burrow.warned ? 2 : 1) : 0,
     // そうびしている アクセサリーと、この たたかいで もう 使ったか（魔神のランプ）
     acc: c.side === 'ally' ? c.acc || null : undefined,
     accUsed: c.side === 'ally' ? !!c.equipUsed?.length : undefined,
