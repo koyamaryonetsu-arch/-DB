@@ -1,7 +1,7 @@
 // 第4章 Step 5「南の砂ばく」の 魔物の え（shared/data/monsters-ch4.js の サンドワーム・砂嵐の精・やみサソリ）
 // ch4-art.js の addCh4Art から addSouthArt を よぶ。かきかたは monsters.js・ch3-art.js と おなじ
 // （g … w・h の わりあいで かく。f … 0 か 1 の コマ）。ボス（大臣ザイード・砂の魔神ザイード）は ch4-boss-art.js
-import { fit, bez, taper, spark } from './ch3-draw.js?v=140b3d4eb1e5';
+import { fit, bez, taper, spark } from './ch3-draw.js?v=92b7832d9909';
 
 // ───── サンドワーム ─────
 const WORM = {

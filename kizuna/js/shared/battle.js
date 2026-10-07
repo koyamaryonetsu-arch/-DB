@@ -7,17 +7,17 @@
 //
 // サーバー（家族サーバー）でも ブラウザ（ひとりモード）でも おなじ コードが うごく
 
-import { makeRng } from './rng.js?v=140b3d4eb1e5';
-import { ABILITIES } from './data/abilities.js?v=140b3d4eb1e5';
-import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=140b3d4eb1e5';
-import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js?v=140b3d4eb1e5';
-import { MONSTERS } from './data/monsters.js?v=140b3d4eb1e5';
-import { ITEMS } from './data/items.js?v=140b3d4eb1e5';
-import { JOBS } from './data/jobs.js?v=140b3d4eb1e5';
-import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed, battleAbilityOk } from './stats.js?v=140b3d4eb1e5';
-import { decideMonster, decideAlly } from './ai.js?v=140b3d4eb1e5';
+import { makeRng } from './rng.js?v=92b7832d9909';
+import { ABILITIES } from './data/abilities.js?v=92b7832d9909';
+import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=92b7832d9909';
+import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js?v=92b7832d9909';
+import { MONSTERS } from './data/monsters.js?v=92b7832d9909';
+import { ITEMS } from './data/items.js?v=92b7832d9909';
+import { JOBS } from './data/jobs.js?v=92b7832d9909';
+import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed, battleAbilityOk } from './stats.js?v=92b7832d9909';
+import { decideMonster, decideAlly } from './ai.js?v=92b7832d9909';
 // 第4章の しかけ（まぼろしの分身・月の鏡・そうびしたまま 使う 道具）
-import { setupMirage, mirageHit, mirageVanish, mirageDown, mirageSync, mirageRemake, ch4ItemCheck, ch4UseItem, mirrorSnap } from './battle-ch4.js?v=140b3d4eb1e5';
+import { setupMirage, mirageHit, mirageVanish, mirageDown, mirageSync, mirageRemake, ch4ItemCheck, ch4UseItem, mirrorSnap } from './battle-ch4.js?v=92b7832d9909';
 
 export const BOND_MAX = 100;
 // きずなゲージの たまりやすさ（1 … はじめの 版。ちいさいほど たまりにくい）

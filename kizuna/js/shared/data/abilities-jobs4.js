@@ -179,7 +179,7 @@ export const JOB4_ABILITIES = {
   // ───────────── スーパーサイヤ人（上級職） ─────────────
   sz_kame: {
     name: '超かめはめ波', kana: 'ちょうかめはめは', kind: 'skill', job: 'super_saiyan', mp: 10, target: 'enemy',
-    effect: { type: 'phys', mult: 2.5 },
+    effect: { type: 'phys', mult: 2.3 },
     desc: '金色の気をこめたかめはめ波で、敵1体に大きなダメージ。', cast: '{a}「か…め…は…め…波ーっ！！」', anim: 'kamehameha',
   },
   sz_aura: {
@@ -204,7 +204,7 @@ export const JOB4_ABILITIES = {
   },
   sz_final: {
     name: 'ファイナルフラッシュ', kana: 'ふぁいなるふらっしゅ', kind: 'skill', job: 'super_saiyan', mp: 15, target: 'enemy',
-    effect: { type: 'phys', mult: 3.0, ignoreDef: 0.3 },
+    effect: { type: 'phys', mult: 2.7, ignoreDef: 0.25 },
     desc: 'りょう手を前につき出し、敵1体にまぶしい気のビーム。守りが固い敵にも強い。', cast: '{a}「ファイナルフラッシュ！」', anim: 'kamehameha',
   },
   sz_renzoku: {

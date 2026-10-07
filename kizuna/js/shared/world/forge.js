@@ -1,10 +1,10 @@
 // ふしぎなかじ屋（作る・きたえる）の そうさ
-import { ITEMS } from '../data/items.js?v=140b3d4eb1e5';
-import { FORGES } from '../data/facilities.js?v=140b3d4eb1e5';
-import { RECIPES, recipeOf, recipeOpen, openRecipes, upgradeCost, lackOf, maxPlus } from '../data/forge.js?v=140b3d4eb1e5';
-import { addItem, removeItem, itemCount, canEquipChar, computeStats } from '../stats.js?v=140b3d4eb1e5';
-import { partyOf } from './party.js?v=140b3d4eb1e5';
-import { BAG_STACK } from './bank.js?v=140b3d4eb1e5';
+import { ITEMS } from '../data/items.js?v=92b7832d9909';
+import { FORGES } from '../data/facilities.js?v=92b7832d9909';
+import { RECIPES, recipeOf, recipeOpen, openRecipes, upgradeCost, lackOf, maxPlus } from '../data/forge.js?v=92b7832d9909';
+import { addItem, removeItem, itemCount, canEquipChar, computeStats } from '../stats.js?v=92b7832d9909';
+import { partyOf } from './party.js?v=92b7832d9909';
+import { BAG_STACK } from './bank.js?v=92b7832d9909';
 
 export function forgeInfo(world, s, place) {
   const f = FORGES[place] || FORGES.town;
