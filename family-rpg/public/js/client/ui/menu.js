@@ -477,9 +477,9 @@ export class FieldMenu {
         return this.useOnTargets(entry.value, focus);
       }
     } else if (act === 'equip') {
-      // ドラクエと おなじ:「だれが 装備する？」（みんなの 強さが どう かわるか いっしょに 出す）
+      // ドラクエと おなじ:「だれが 装備する？」（みんなの 強さが どう かわるか いっしょに 出す）。装備できない 人は 出さない
       const who = team.length === 1 ? 'self'
-        : await this.pick(`だれが${it.name}を装備する？`, [...whoItems(team), { label: 'やめる', value: null }], { wide: true });
+        : await this.pick(`だれが${it.name}を装備する？`, [...whoItems(team.filter((r) => r.can)), { label: 'やめる', value: null }], { wide: true });
       if (who) await this.menuCall({ t: 'menu', action: 'equip', id: entry.value, who });
     } else if (act === 'drop') {
       if (await confirmBox(g.input, `${it.name}を捨てますか？`, '捨てる', 'やめる', this.sfx)) await this.menuCall({ t: 'menu', action: 'discard', id: entry.value, n: 1 });
