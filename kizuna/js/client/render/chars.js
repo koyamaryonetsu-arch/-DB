@@ -2,9 +2,9 @@
 // みため（かみがた・いろ）と そうび（ぶき・よろい・たて・かぶと）で かわる
 // 人は 32×42 で くみたてて、2ばいの 64×84 に して こまかく かきたす（res 4: せかいでは 16×21 の 大きさに かく）
 // どうぶつ・船は 16×21 など
-import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=fd5519597012';
-import { ITEMS, baseItemId } from '../../shared/data/items.js?v=fd5519597012';
-import { STARTER_EQUIP } from '../../shared/stats.js?v=fd5519597012';
+import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=1f8c4e9d1fb7';
+import { ITEMS, baseItemId } from '../../shared/data/items.js?v=1f8c4e9d1fb7';
+import { STARTER_EQUIP } from '../../shared/stats.js?v=1f8c4e9d1fb7';
 
 export const CW = 16;
 export const CH = 21;
@@ -92,6 +92,13 @@ const JOB_LOOK = {
   gamer: { outfit: 'vest', cloth: '#2e7a58' },
   pro_gamer: { outfit: 'baseball', cloth: '#17171f', trim: '#e0263a' },
   maou: { outfit: 'armor', cloth: '#4a1a60', hat: 'helmet', cape: '#7a1222' },
+  // おかん・最強のおかん・社ちく・ブラックきぎょうの星・天才しせつ管理者・はかい神（いまの えは render/hero.js）
+  okan: { outfit: 'apron', cloth: '#ec6a8c' },
+  saikyo_okan: { outfit: 'vest', cloth: '#d89a3a', hat: 'bbcap', hatColor: '#e8307e' },
+  shachiku: { outfit: 'suit', cloth: '#6c707c', tie: '#33406c' },
+  black_star: { outfit: 'suit', cloth: '#f6f7fa', tie: '#c8202c', hat: 'headband', hatColor: '#c8202c' },
+  facility_genius: { outfit: 'uniform', cloth: '#eef2f6', hat: 'miner', hatColor: '#f8f8f6' },
+  hakaishin: { outfit: 'gi', cloth: '#1e1a32', giTrim: '#d8a020', hat: 'crown' },
 };
 
 // よろい・ふくの みため（'cloth' は じぶんで えらんだ いろ）
@@ -116,6 +123,8 @@ const ARMOR_LOOK = {
   kira_mail: { outfit: 'starmail' },
   // サイヤ人の 戦闘服
   battle_suit: { outfit: 'armor', cloth: '#22306e' },
+  // ヒョウがらの服
+  leopard_shirt: { outfit: 'tunic', cloth: '#d89a3a' },
 };
 
 // かぶと・ぼうしの みため
@@ -191,6 +200,8 @@ const WEAPON_LOOK = {
   gaming_keyboard: { blade: '#2c2c3a', guard: '#ff5a6a', glow: '#ffffff' },
   pipe_wrench: { blade: '#d8302e', guard: '#7488b2' },
   dark_feather_staff: { blade: '#201a2c', orb: '#b450f0' },
+  // スリッパ
+  slipper: { blade: '#f48ab0', guard: '#c85a7a' },
 };
 
 // たての いろ

@@ -7,16 +7,16 @@
 // rank: 装備の ランク（1〜10。下の EQUIP_RANKS）。star: 店では 買えない 1つ上の 品（宝箱・レアドロップ）
 // unique: 1人 1つの 品（ボスが 落とす 物）。データを 合わせる ときに ふえすぎない
 
-import { ITEMS_CH2 } from './items-ch2.js?v=fd5519597012';
-import { ITEMS_TM } from './items-tm.js?v=fd5519597012';
-import { NIGHT_ITEMS, NIGHT_ITEM_KANA } from './night.js?v=fd5519597012';
-import { SKY_ITEMS, SKY_ITEM_KANA } from './sky.js?v=fd5519597012';
-import { ITEMS_FORGE, FORGE_KANA, addUpgradeItems } from './items-forge.js?v=fd5519597012';
-import { ITEMS_CASINO, CASINO_KANA } from './items-casino.js?v=fd5519597012';
-import { RARE_ITEMS, RARE_ITEM_KANA } from './monsters-rare.js?v=fd5519597012';
-import { ESCAPE_ITEMS, ESCAPE_KANA } from './escape.js?v=fd5519597012';
-import { ITEMS_CH3, CH3_ITEM_KANA } from './items-ch3.js?v=fd5519597012';
-import { ITEMS_CH4, CH4_ITEM_KANA } from './items-ch4.js?v=fd5519597012';
+import { ITEMS_CH2 } from './items-ch2.js?v=1f8c4e9d1fb7';
+import { ITEMS_TM } from './items-tm.js?v=1f8c4e9d1fb7';
+import { NIGHT_ITEMS, NIGHT_ITEM_KANA } from './night.js?v=1f8c4e9d1fb7';
+import { SKY_ITEMS, SKY_ITEM_KANA } from './sky.js?v=1f8c4e9d1fb7';
+import { ITEMS_FORGE, FORGE_KANA, addUpgradeItems } from './items-forge.js?v=1f8c4e9d1fb7';
+import { ITEMS_CASINO, CASINO_KANA } from './items-casino.js?v=1f8c4e9d1fb7';
+import { RARE_ITEMS, RARE_ITEM_KANA } from './monsters-rare.js?v=1f8c4e9d1fb7';
+import { ESCAPE_ITEMS, ESCAPE_KANA } from './escape.js?v=1f8c4e9d1fb7';
+import { ITEMS_CH3, CH3_ITEM_KANA } from './items-ch3.js?v=1f8c4e9d1fb7';
+import { ITEMS_CH4, CH4_ITEM_KANA } from './items-ch4.js?v=1f8c4e9d1fb7';
 
 export const ITEMS = {
   // ───── つかう どうぐ ─────

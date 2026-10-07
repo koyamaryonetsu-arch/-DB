@@ -7,20 +7,20 @@
 //
 // サーバー（家族サーバー）でも ブラウザ（ひとりモード）でも おなじ コードが うごく
 
-import { makeRng } from './rng.js?v=fd5519597012';
-import { ABILITIES, ELEMENT_ORDER, ELEMENT_NAMES } from './data/abilities.js?v=fd5519597012';
-import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=fd5519597012';
-import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js?v=fd5519597012';
-import { MONSTERS } from './data/monsters.js?v=fd5519597012';
-import { ITEMS } from './data/items.js?v=fd5519597012';
-import { JOBS } from './data/jobs.js?v=fd5519597012';
-import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed, battleAbilityOk } from './stats.js?v=fd5519597012';
-import { decideMonster, decideAlly } from './ai.js?v=fd5519597012';
-import { ENEMY_RATES, strengthenEnemy } from './data/difficulty.js?v=fd5519597012';
+import { makeRng } from './rng.js?v=1f8c4e9d1fb7';
+import { ABILITIES, ELEMENT_ORDER, ELEMENT_NAMES } from './data/abilities.js?v=1f8c4e9d1fb7';
+import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=1f8c4e9d1fb7';
+import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js?v=1f8c4e9d1fb7';
+import { MONSTERS } from './data/monsters.js?v=1f8c4e9d1fb7';
+import { ITEMS } from './data/items.js?v=1f8c4e9d1fb7';
+import { JOBS } from './data/jobs.js?v=1f8c4e9d1fb7';
+import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed, battleAbilityOk } from './stats.js?v=1f8c4e9d1fb7';
+import { decideMonster, decideAlly } from './ai.js?v=1f8c4e9d1fb7';
+import { ENEMY_RATES, strengthenEnemy } from './data/difficulty.js?v=1f8c4e9d1fb7';
 // 第4章の しかけ（まぼろしの分身・月の鏡・そうびしたまま 使う 道具）
-import { setupMirage, mirageHit, mirageVanish, mirageDown, mirageSync, mirageRemake, ch4ItemCheck, ch4UseItem, mirrorSnap } from './battle-ch4.js?v=fd5519597012';
+import { setupMirage, mirageHit, mirageVanish, mirageDown, mirageSync, mirageRemake, ch4ItemCheck, ch4UseItem, mirrorSnap } from './battle-ch4.js?v=1f8c4e9d1fb7';
 // 第4章 Step 6 の 砂に もぐる（ねらえない。battle-ch4.js）
-import { burrowStart, burrowWarn, burrowBlock, hiddenFrom } from './battle-ch4.js?v=fd5519597012';
+import { burrowStart, burrowWarn, burrowBlock, hiddenFrom } from './battle-ch4.js?v=1f8c4e9d1fb7';
 
 export const BOND_MAX = 100;
 // きずなゲージの たまりやすさ（1 … はじめの 版。ちいさいほど たまりにくい）
@@ -1034,7 +1034,8 @@ export class Battle {
               ev.lines.push(`${t.name}の${STATUS_NAMES[st]}が治った！`);
             }
           }
-          if (!any && targets.length === 1) ev.lines.push('しかし何も起こらなかった！');
+          // いくつかの こうかの 技（回復＋治す など）の とちゅうでは 言わない（回復は できているので）
+          if (!any && targets.length === 1 && !ev.inMulti) ev.lines.push('しかし何も起こらなかった！');
           ev.upd.push(t);
         }
         break;
@@ -1259,6 +1260,8 @@ export class Battle {
       case 'multi': {
         // いくつかの こうかを じゅんに（スタミナ料理＝回復＋攻撃力アップ など）。parts の target が ちがう ときは その あいて
         const hit = new Set(targets.map((t) => t.id));
+        const outer = ev.inMulti;
+        ev.inMulti = true;
         for (const part of eff.parts || []) {
           const ab = { ...a, effect: part, target: part.target || a.target };
           const ts = part.target && part.target !== a.target ? this.targetsFor(c, ab, cmd) : targets.filter((t) => t.alive || ['revive', 'reviveAll'].includes(part.type));
@@ -1266,6 +1269,8 @@ export class Battle {
           this.applyAbility(c, ab, cmd, ev, powMult, ts);
           for (const t of ts) hit.add(t.id);
         }
+        if (outer) ev.inMulti = outer;
+        else delete ev.inMulti;
         ev.fx = { type: 'ability', anim: a.anim, actor: c.id, targets: [...hit], side: c.side, element: eff.parts?.[0]?.element };
         break;
       }
