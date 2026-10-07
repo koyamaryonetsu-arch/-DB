@@ -12,6 +12,7 @@ import { faceURL } from './field.js';
 import { monsterCanvas } from './render/monsters.js';
 import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js';
 import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js';
+import { PARTY_ANIMS, JOB2_SFX } from './render/battlefx-jobs2.js';
 import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js';
 import { abilityDetail, statusNames, buffNames, targetTag } from './ui/info.js';
 import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js';
@@ -90,6 +91,8 @@ const ANIM_SFX = {
   fruits: 'debuff', fruits_big: 'blast', storm: 'wind', horn: 'warn', redtrain: 'train',
   // 第4章の ボス（render/battlefx-ch4.js）
   sandstorm: 'wind', sand_vortex: 'rumble', mirage: 'dark',
+  // サイヤ人・ゴム人間・ニカ・配信者・魔王などの 技（render/battlefx-jobs2.js）
+  ...JOB2_SFX,
 };
 
 // ひらめきの 電球（ドット絵ふう）
@@ -932,6 +935,8 @@ export class BattleScene {
     }
     // 味方に かける 合体技（回復・ステージ）は、たたかいの 画面にも 大きく
     if (fx.type === 'dual' && anim && !enemyPts.length) this.fx.play(anim, [{ x: BW / 2, y: BH * 0.55 }], fx.element, { fromAlly: true });
+    // 自分や 味方に かける 大わざ（金色のオーラ・解放のドラム・空調こう新）も、たたかいの 画面の 下（味方の いる ところ）に 大きく
+    else if (fromAlly && PARTY_ANIMS.has(anim) && !enemyPts.length) this.fx.play(anim, [{ x: BW / 2, y: BH * 0.62 }], fx.element, { fromAlly: true });
     // みかたへの えんしゅつ（てきの じゅもんは たまが とんでくる）
     if (anim && anim !== 'none' && allyTargets.length) {
       const kind = allyFxKind(anim, fx, ab);
