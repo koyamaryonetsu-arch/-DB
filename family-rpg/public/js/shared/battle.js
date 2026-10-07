@@ -1081,15 +1081,16 @@ export class Battle {
         break;
       }
       case 'overtime': {
-        // サービス残業・休日出勤（社ちく）: 自分の HPを けずって、すぐに もう一度 動く（HPは 1より へらない）
+        // サービス残業・休日出勤（社ちく）: 自分の HPを けずって、すぐに もう一度 動く（HPは 1より へらない）。
+        // HPが 1 なら もう けずれないので、つぎの 番も ふつうに まつ（ただで 何回も 動けない ように）
         const d = Math.min(c.hp - 1, Math.max(1, Math.round(c.maxHp * (eff.hpCost ?? 0.1))));
         if (d > 0) {
           c.hp -= d;
           (ev.results = ev.results || []).push({ id: c.id, dmg: d });
           ev.lines.push(`${c.name}は${d}のダメージを受けた…`);
-        }
-        ev.lines.push(fmtLine(eff.msg || '{a}は、すぐに次の仕事に取りかかった！', c, c));
-        ev.atbAfter = eff.atb ?? 100;
+          ev.lines.push(fmtLine(eff.msg || '{a}は、すぐに次の仕事に取りかかった！', c, c));
+          ev.atbAfter = eff.atb ?? 100;
+        } else ev.lines.push(`${c.name}は、もうへとへとだ…。少し休まないと動けない。`);
         ev.upd.push(c);
         break;
       }

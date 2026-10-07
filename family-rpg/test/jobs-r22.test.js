@@ -187,10 +187,14 @@ test('サービス残業: HPを けずって すぐに もう一度 動ける（
   let ready = false;
   for (let i = 0; i < 40 && !ready; i++) { b.tick(50); ready = me.ready; }
   assert.ok(ready, 'すぐに 次の 番が 来る');
-  // 何回 やっても たおれない
+  // 何回 やっても たおれない。HPが 1 なら もう すぐには 動けない（ただで 何回も 動けない）
   me.hp = 2;
   for (let i = 0; i < 5; i++) use(b, me, 'sk_zangyou');
   assert.ok(me.alive && me.hp === 1);
+  const tired = use(b, me, 'sk_zangyou');
+  assert.equal(tired.atbAfter, undefined, 'HPが 1 では すぐに 動けない');
+  assert.ok(tired.lines.some((l) => l.includes('へとへと')), tired.lines.join(' / '));
+  for (const l of tired.lines) assert.deepEqual(checkText(l), [], l);
   assert.ok(ABILITIES.sk_zangyou.noAuto && ABILITIES.bk_kyujitsu.noAuto, 'オートでは 使わない');
 });
 
