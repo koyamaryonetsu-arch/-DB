@@ -14,18 +14,18 @@
 //         → 大臣ザイード（まぼろしの 分身。月の鏡は 戦いの「道具」でも 使える）→ 砂の魔神ザイード（真の すがた）
 //         → 女王が 正気に もどって 本当の ことを 話す → 女王の手紙 → 砂嵐が 弱まる（竜で 王都・ドゥナの 近くまで 飛べる。
 //         南の 砂嵐の 切れ目も 開く）→ 王都の 南の 門から 南の砂ばくへ → 砂の港ドゥナへの 谷（海賊は 門を 開けない。ドゥナは Step 6）
-import { NORTH_PLACES } from '../maps/north.js?v=f8e8316730dd';
-import { SOUTH_PLACES, SOUTH_POS, LANDING_BEACH, STORM_Y, STORM_GAP_X, SAFARA_POS } from '../maps/south.js?v=f8e8316730dd';
+import { NORTH_PLACES } from '../maps/north.js?v=a39a58253380';
+import { SOUTH_PLACES, SOUTH_POS, LANDING_BEACH, STORM_Y, STORM_GAP_X, SAFARA_POS } from '../maps/south.js?v=a39a58253380';
 import {
   CANAL_DOOR, CANAL_LEVERS, SONG_FLAGS, PALACE_CANAL_STAIRS,
   PYR_BUTTONS, PYR_DOOR_FLAG, PYR_LEVERS, PYR_CRACK_FLAG, GOLD_SWORD_FLAG, PYR_POTS, PYR_FALL, PYR_STAIRS, PYR4_POS, DUNA_LOOKOUTS,
-} from '../maps/ch4.js?v=f8e8316730dd';
-import { PYRAMID_POS } from '../maps/south.js?v=f8e8316730dd';
-import { sunSide, clockHour, isNoonFrac } from '../world/clock.js?v=f8e8316730dd';
-import { SEA_W, SEA_H } from '../maps/sea.js?v=f8e8316730dd';
-import { innSteps } from './inn.js?v=f8e8316730dd';
-import { C4_LEAD_OBJECTIVE } from './sky.js?v=f8e8316730dd';
-import { C3_OBJ } from './story-ch3.js?v=f8e8316730dd';
+} from '../maps/ch4.js?v=a39a58253380';
+import { PYRAMID_POS } from '../maps/south.js?v=a39a58253380';
+import { sunSide, clockHour, isNoonFrac } from '../world/clock.js?v=a39a58253380';
+import { SEA_W, SEA_H } from '../maps/sea.js?v=a39a58253380';
+import { innSteps } from './inn.js?v=a39a58253380';
+import { C4_LEAD_OBJECTIVE } from './sky.js?v=a39a58253380';
+import { C3_OBJ } from './story-ch3.js?v=a39a58253380';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

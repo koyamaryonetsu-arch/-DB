@@ -1,24 +1,25 @@
 // たたかいの がめん（むかしの RPG ふう 1がめん）
-import { el, esc, ListMenu, toast } from './ui/dom.js?v=f8e8316730dd';
-import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js?v=f8e8316730dd';
-import { ITEMS } from '../shared/data/items.js?v=f8e8316730dd';
-import { JOBS } from '../shared/data/jobs.js?v=f8e8316730dd';
-import { MONSTERS } from '../shared/data/monsters.js?v=f8e8316730dd';
-import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed, battleAbilityOk } from '../shared/stats.js?v=f8e8316730dd';
-import { affinityOf, attackReach, spellSealed, SEALED_REASON } from '../shared/battle.js?v=f8e8316730dd';
-import { DUAL_TECHS, dualOptions, dualKnown } from '../shared/data/dual.js?v=f8e8316730dd';
-import { TACTICS } from '../shared/ai.js?v=f8e8316730dd';
-import { faceURL } from './field.js?v=f8e8316730dd';
-import { monsterCanvas } from './render/monsters.js?v=f8e8316730dd';
-import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=f8e8316730dd';
-import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js?v=f8e8316730dd';
-import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js?v=f8e8316730dd';
-import { abilityDetail, statusNames, buffNames, targetTag } from './ui/info.js?v=f8e8316730dd';
-import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js?v=f8e8316730dd';
-import { ENEMY_RATE_NAMES } from '../shared/data/difficulty.js?v=f8e8316730dd';
-import { ResultPager, levelUpName } from './ui/result.js?v=f8e8316730dd';
+import { el, esc, ListMenu, toast } from './ui/dom.js?v=a39a58253380';
+import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js?v=a39a58253380';
+import { ITEMS } from '../shared/data/items.js?v=a39a58253380';
+import { JOBS } from '../shared/data/jobs.js?v=a39a58253380';
+import { MONSTERS } from '../shared/data/monsters.js?v=a39a58253380';
+import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed, battleAbilityOk } from '../shared/stats.js?v=a39a58253380';
+import { affinityOf, attackReach, spellSealed, SEALED_REASON } from '../shared/battle.js?v=a39a58253380';
+import { DUAL_TECHS, dualOptions, dualKnown } from '../shared/data/dual.js?v=a39a58253380';
+import { TACTICS } from '../shared/ai.js?v=a39a58253380';
+import { faceURL } from './field.js?v=a39a58253380';
+import { monsterCanvas } from './render/monsters.js?v=a39a58253380';
+import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=a39a58253380';
+import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js?v=a39a58253380';
+import { PARTY_ANIMS, JOB2_SFX } from './render/battlefx-jobs2.js?v=a39a58253380';
+import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js?v=a39a58253380';
+import { abilityDetail, statusNames, buffNames, targetTag } from './ui/info.js?v=a39a58253380';
+import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js?v=a39a58253380';
+import { ENEMY_RATE_NAMES } from '../shared/data/difficulty.js?v=a39a58253380';
+import { ResultPager, levelUpName } from './ui/result.js?v=a39a58253380';
 // 第4章の しかけ（月の鏡・まぼろしの 分身・魔神のランプ・ボスの 大技）
-import { CH4_ALLY_FX, ch4ItemEntries, ch4ItemPick, ch4ItemInfo, ch4Present, vanishFx, drawShade } from './battle-ch4.js?v=f8e8316730dd';
+import { CH4_ALLY_FX, ch4ItemEntries, ch4ItemPick, ch4ItemInfo, ch4Present, vanishFx, drawShade } from './battle-ch4.js?v=a39a58253380';
 
 // たたかいの え の こまかさ（おもい きかいで さげたら、その あいだは さげた まま）
 let battleRes = BRES;
@@ -90,6 +91,8 @@ const ANIM_SFX = {
   fruits: 'debuff', fruits_big: 'blast', storm: 'wind', horn: 'warn', redtrain: 'train',
   // 第4章の ボス（render/battlefx-ch4.js）
   sandstorm: 'wind', sand_vortex: 'rumble', mirage: 'dark',
+  // サイヤ人・ゴム人間・ニカ・配信者・魔王などの 技（render/battlefx-jobs2.js）
+  ...JOB2_SFX,
 };
 
 // ひらめきの 電球（ドット絵ふう）
@@ -932,6 +935,8 @@ export class BattleScene {
     }
     // 味方に かける 合体技（回復・ステージ）は、たたかいの 画面にも 大きく
     if (fx.type === 'dual' && anim && !enemyPts.length) this.fx.play(anim, [{ x: BW / 2, y: BH * 0.55 }], fx.element, { fromAlly: true });
+    // 自分や 味方に かける 大わざ（金色のオーラ・解放のドラム・空調こう新）も、たたかいの 画面の 下（味方の いる ところ）に 大きく
+    else if (fromAlly && PARTY_ANIMS.has(anim) && !enemyPts.length) this.fx.play(anim, [{ x: BW / 2, y: BH * 0.62 }], fx.element, { fromAlly: true });
     // みかたへの えんしゅつ（てきの じゅもんは たまが とんでくる）
     if (anim && anim !== 'none' && allyTargets.length) {
       const kind = allyFxKind(anim, fx, ab);

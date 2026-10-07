@@ -17,17 +17,17 @@
 // 名前の一部は「ダイの大冒険」「ロトの紋章」へのオマージュです。
 // 上級職・超級職の 技は abilities-adv.js（さいごに まぜる）
 
-import { ADV_ABILITIES } from './abilities-adv.js?v=f8e8316730dd';
-import { CH2_ABILITIES } from './abilities-ch2.js?v=f8e8316730dd';
-import { JOB_ABILITIES } from './abilities-jobs.js?v=f8e8316730dd';
-import { HIRA_ABILITIES } from './hirameki.js?v=f8e8316730dd';
-import { TRAVEL_ABILITIES } from './sky.js?v=f8e8316730dd';
-import { RARE_ABILITIES } from './monsters-rare.js?v=f8e8316730dd';
-import { JOB2_ABILITIES } from './abilities-jobs2.js?v=f8e8316730dd';
-import { CH3_ABILITIES } from './abilities-ch3.js?v=f8e8316730dd';
-import { CH4_ABILITIES } from './abilities-ch4.js?v=f8e8316730dd';
-import { JOB3_ABILITIES } from './abilities-jobs3.js?v=f8e8316730dd';
-import { JOB4_ABILITIES } from './abilities-jobs4.js?v=f8e8316730dd';
+import { ADV_ABILITIES } from './abilities-adv.js?v=a39a58253380';
+import { CH2_ABILITIES } from './abilities-ch2.js?v=a39a58253380';
+import { JOB_ABILITIES } from './abilities-jobs.js?v=a39a58253380';
+import { HIRA_ABILITIES } from './hirameki.js?v=a39a58253380';
+import { TRAVEL_ABILITIES } from './sky.js?v=a39a58253380';
+import { RARE_ABILITIES } from './monsters-rare.js?v=a39a58253380';
+import { JOB2_ABILITIES } from './abilities-jobs2.js?v=a39a58253380';
+import { CH3_ABILITIES } from './abilities-ch3.js?v=a39a58253380';
+import { CH4_ABILITIES } from './abilities-ch4.js?v=a39a58253380';
+import { JOB3_ABILITIES } from './abilities-jobs3.js?v=a39a58253380';
+import { JOB4_ABILITIES } from './abilities-jobs4.js?v=a39a58253380';
 
 export const ABILITIES = {
   // ───────────── 戦士 ─────────────

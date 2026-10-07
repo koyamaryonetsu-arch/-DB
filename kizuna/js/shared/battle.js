@@ -7,18 +7,18 @@
 //
 // サーバー（家族サーバー）でも ブラウザ（ひとりモード）でも おなじ コードが うごく
 
-import { makeRng } from './rng.js?v=f8e8316730dd';
-import { ABILITIES } from './data/abilities.js?v=f8e8316730dd';
-import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=f8e8316730dd';
-import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js?v=f8e8316730dd';
-import { MONSTERS } from './data/monsters.js?v=f8e8316730dd';
-import { ITEMS } from './data/items.js?v=f8e8316730dd';
-import { JOBS } from './data/jobs.js?v=f8e8316730dd';
-import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed, battleAbilityOk } from './stats.js?v=f8e8316730dd';
-import { decideMonster, decideAlly } from './ai.js?v=f8e8316730dd';
-import { ENEMY_RATES, strengthenEnemy } from './data/difficulty.js?v=f8e8316730dd';
+import { makeRng } from './rng.js?v=a39a58253380';
+import { ABILITIES } from './data/abilities.js?v=a39a58253380';
+import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=a39a58253380';
+import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js?v=a39a58253380';
+import { MONSTERS } from './data/monsters.js?v=a39a58253380';
+import { ITEMS } from './data/items.js?v=a39a58253380';
+import { JOBS } from './data/jobs.js?v=a39a58253380';
+import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed, battleAbilityOk } from './stats.js?v=a39a58253380';
+import { decideMonster, decideAlly } from './ai.js?v=a39a58253380';
+import { ENEMY_RATES, strengthenEnemy } from './data/difficulty.js?v=a39a58253380';
 // 第4章の しかけ（まぼろしの分身・月の鏡・そうびしたまま 使う 道具）
-import { setupMirage, mirageHit, mirageVanish, mirageDown, mirageSync, mirageRemake, ch4ItemCheck, ch4UseItem, mirrorSnap } from './battle-ch4.js?v=f8e8316730dd';
+import { setupMirage, mirageHit, mirageVanish, mirageDown, mirageSync, mirageRemake, ch4ItemCheck, ch4UseItem, mirrorSnap } from './battle-ch4.js?v=a39a58253380';
 
 export const BOND_MAX = 100;
 // きずなゲージの たまりやすさ（1 … はじめの 版。ちいさいほど たまりにくい）

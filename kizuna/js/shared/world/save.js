@@ -5,13 +5,13 @@
 // ・知らない 項目や 知らない 品物・職業・モンスターは けさずに とっておく（stash）。
 //   あとで その ゲームが 知っている ものに なったら もとに もどす
 // ・品物・職業・モンスター・マップの ID は けさない・なまえを かえない
-import { ITEMS, SLOTS } from '../data/items.js?v=f8e8316730dd';
-import { JOBS } from '../data/jobs.js?v=f8e8316730dd';
-import { MONSTERS } from '../data/monsters.js?v=f8e8316730dd';
-import { migrateJobs, oldComboUnlocks, addItem, fixBodyJob } from '../stats.js?v=f8e8316730dd';
-import { repairTreasureMaps } from '../data/treasure.js?v=f8e8316730dd';
-import { normBank } from './bank.js?v=f8e8316730dd';
-import { cleanWagon } from '../data/wagon.js?v=f8e8316730dd';
+import { ITEMS, SLOTS } from '../data/items.js?v=a39a58253380';
+import { JOBS } from '../data/jobs.js?v=a39a58253380';
+import { MONSTERS } from '../data/monsters.js?v=a39a58253380';
+import { migrateJobs, oldComboUnlocks, addItem, fixBodyJob } from '../stats.js?v=a39a58253380';
+import { repairTreasureMaps } from '../data/treasure.js?v=a39a58253380';
+import { normBank } from './bank.js?v=a39a58253380';
+import { cleanWagon } from '../data/wagon.js?v=a39a58253380';
 
 export const SAVE_VERSION = 4;
 

@@ -2,9 +2,9 @@
 // みため（かみがた・いろ）と そうび（ぶき・よろい・たて・かぶと）で かわる
 // 人は 32×42 で くみたてて、2ばいの 64×84 に して こまかく かきたす（res 4: せかいでは 16×21 の 大きさに かく）
 // どうぶつ・船は 16×21 など
-import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=f8e8316730dd';
-import { ITEMS, baseItemId } from '../../shared/data/items.js?v=f8e8316730dd';
-import { STARTER_EQUIP } from '../../shared/stats.js?v=f8e8316730dd';
+import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=a39a58253380';
+import { ITEMS, baseItemId } from '../../shared/data/items.js?v=a39a58253380';
+import { STARTER_EQUIP } from '../../shared/stats.js?v=a39a58253380';
 
 export const CW = 16;
 export const CH = 21;
@@ -75,6 +75,23 @@ const JOB_LOOK = {
   m1_champion: { outfit: 'suit', cloth: '#e8b52a', tie: '#e0202c' },
   daikenja: { outfit: 'robe', robeMain: '#272c74', robeTrim: '#e4e8f4', hat: 'wizard', hatColor: '#272c74', cape: '#f6f6fb' },
   loto_hero: { outfit: 'armor', cloth: '#2c62d6', hat: 'helmet', cape: '#d0202a' },
+  // ニート・中二病・ダ天使・サイヤ人たち・設備屋・ryonetsu・ゴム人間・ニカ・配信者たち・魔王（いまの えは render/hero.js）
+  neet: { outfit: 'tunic', cloth: '#2e3a6c' },
+  chuuni: { outfit: 'robe', robeMain: '#1f1b29', robeTrim: '#c41e30' },
+  datenshi: { outfit: 'robe', robeMain: '#251a38', robeTrim: '#d4d6e8' },
+  saiyan: { outfit: 'armor', cloth: '#22306e' },
+  super_saiyan: { outfit: 'gi', cloth: '#f27a1c', giTrim: '#2a46b0' },
+  ss2: { outfit: 'gi', cloth: '#f27a1c', giTrim: '#2a46b0' },
+  ss3: { outfit: 'gi', cloth: '#f27a1c', giTrim: '#2a46b0' },
+  setsubiya: { outfit: 'tunic', cloth: '#687e98', hat: 'miner', hatColor: '#f4cc2a' },
+  ryonetsu: { outfit: 'uniform', cloth: '#1c2a58', hat: 'miner', hatColor: '#f8f8f6' },
+  rubber: { outfit: 'vest', cloth: '#d8302a', hat: 'straw' },
+  nika: { outfit: 'vest', cloth: '#f6f6fb' },
+  youtuber: { outfit: 'tunic', cloth: '#de2a2e', hat: 'bbcap', hatColor: '#24242e' },
+  streamer: { outfit: 'tunic', cloth: '#1d1c28' },
+  gamer: { outfit: 'vest', cloth: '#2e7a58' },
+  pro_gamer: { outfit: 'baseball', cloth: '#17171f', trim: '#e0263a' },
+  maou: { outfit: 'armor', cloth: '#4a1a60', hat: 'helmet', cape: '#7a1222' },
 };
 
 // よろい・ふくの みため（'cloth' は じぶんで えらんだ いろ）
@@ -97,6 +114,8 @@ const ARMOR_LOOK = {
   // カジノ・メダル王
   starry_cloak: { outfit: 'robe', robeMain: '#2a2e6a', robeTrim: '#f2c14e' },
   kira_mail: { outfit: 'starmail' },
+  // サイヤ人の 戦闘服
+  battle_suit: { outfit: 'armor', cloth: '#22306e' },
 };
 
 // かぶと・ぼうしの みため
@@ -111,6 +130,7 @@ const HEAD_LOOK = {
   medal_crown: { hat: 'crown' },
   // 第4章: 王都サファラの 防具屋
   turban: { hat: 'turban', hatColor: '#f4f0e6' },
+  straw_hat: { hat: 'straw' },
 };
 
 // ぶきの いろ
@@ -162,6 +182,15 @@ const WEAPON_LOOK = {
   deck_brush: { blade: '#c8945c', orb: '#2a6ad0' },
   center_mic: { blade: '#c8ccd8', orb: '#3a3646' },
   gold_mic: { blade: '#f2c14e', orb: '#ffe98a', glow: '#ffffff' },
+  // まくら・自どり棒・コントローラー・木刀・レンチ・キーボード・羽根の つえ
+  pillow: { blade: '#f6f8ff', guard: '#d6dcf2' },
+  selfie_stick: { blade: '#c8ccd8', orb: '#5ac4ff' },
+  game_controller: { blade: '#3a3a48', guard: '#2a2a36' },
+  chuuni_bokken: { blade: '#d8a868', guard: '#f2f0e8' },
+  monkey_wrench: { blade: '#b2c2e2', guard: '#43537a' },
+  gaming_keyboard: { blade: '#2c2c3a', guard: '#ff5a6a', glow: '#ffffff' },
+  pipe_wrench: { blade: '#d8302e', guard: '#7488b2' },
+  dark_feather_staff: { blade: '#201a2c', orb: '#b450f0' },
 };
 
 // たての いろ
@@ -173,6 +202,7 @@ const SHIELD_LOOK = {
   dragon_shield: { main: '#2aa06a', rim: '#14603a', boss: '#f2c14e', metal: true },
   pururin_shield: { main: '#4aa0e8', rim: '#2a5a9a', boss: '#e0f4ff' },
   kira_shield: { main: '#d8e4f4', rim: '#8a9ab8', boss: '#f2c14e', metal: true },
+  gold_button: { main: '#f2c14e', rim: '#9c5e1a', boss: '#fff6cc', metal: true },
 };
 
 // NPCの みため

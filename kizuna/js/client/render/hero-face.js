@@ -1,5 +1,5 @@
 // かお（め・まゆ・はな・くち・ほお）。res ごとに ドットで かく
-import { mixC } from './hero-raster.js?v=f8e8316730dd';
+import { mixC, mat, TH } from './hero-raster.js?v=a39a58253380';
 
 // め の え（がめんの ひだりの め。みぎの め は はんてん。ひだりがわが 目じり）
 // K: りんかく  I: め の いろ  J: あかるい め  P: こい め  W: ひかり  L: まつげ  S: しろめ
@@ -74,9 +74,9 @@ export function faceFront(cv, H, o) {
   const ey = H.y + EYE_V + (face === 'smile' ? 0.3 : 0);
   const gap = 2.95;
   cv.part({ ol: 'none', cast: false });
-  // まゆ（前がみで かくれる ことが 多い）
+  // まゆ（前がみで かくれる ことが 多い。browCol が ない ときは かかない）
   const thick = face === 'brave' ? 2 : 1;
-  for (const s of [-1, 1]) {
+  for (const s of o.browCol ? [-1, 1] : []) {
     const bx = cv.X(H.x + s * gap), by = cv.Y(H.y - 1.25 + (face === 'sharp' ? 0.15 : 0));
     const half = Math.round(1.25 * k);
     for (let i = -half; i <= half; i++) {
@@ -99,7 +99,12 @@ export function faceFront(cv, H, o) {
   const lip = o.fem ? '#c24a5c' : '#a8484e';
   const soft = mixC(lip, o.skinBase, 0.45);
   const tongue = mixC('#ff8a8a', lip, 0.3);
-  if (res >= 8) {
+  if (o.grin) {
+    // 大きな わらい顔（はが 見える。ニカ）
+    const pal = { K: mixC(lip, LINE, 0.45), W: '#ffffff', R: tongue };
+    if (res >= 8) cv.stamp(mx - 5, my - 1, ['K........K', '.KWWWWWWK.', '..KRRRRK..', '...KKKK...'], pal);
+    else cv.stamp(mx - 3, my, ['KWWWWK', '.KRRK.'], pal);
+  } else if (res >= 8) {
     if (face === 'smile' || face === 'brave') {
       cv.px(mx - 3, my - 1, soft); cv.px(mx - 2, my, lip); cv.px(mx - 1, my, lip); cv.px(mx, my, lip); cv.px(mx + 1, my, lip); cv.px(mx + 2, my - 1, soft);
       cv.px(mx - 1, my + 1, tongue); cv.px(mx, my + 1, tongue);
@@ -133,7 +138,7 @@ export function faceSide(cv, H, o) {
   cv.part({ ol: 'none', cast: false });
   // まゆ
   const by = cv.Y(H.y - 1.25);
-  for (let i = 0; i < Math.round(2.0 * k); i++) cv.px(cv.X(H.X(H.rx - 1.2)) + (H.facing < 0 ? i : -i), by, o.browCol);
+  if (o.browCol) for (let i = 0; i < Math.round(2.0 * k); i++) cv.px(cv.X(H.X(H.rx - 1.2)) + (H.facing < 0 ? i : -i), by, o.browCol);
   const ix = cv.X(ex) - Math.floor(w / 2);
   const iy = cv.Y(ey) - Math.floor(art.length / 2);
   cv.stamp(ix, iy, art, pal, H.facing > 0);
@@ -146,12 +151,58 @@ export function faceSide(cv, H, o) {
   // くち
   const my = cv.Y(H.y + EYE_V + 3.0), mx = cv.X(H.X(H.rx - 0.7));
   const lip = o.fem ? '#c24a5c' : '#a8484e';
-  cv.px(mx, my, lip);
-  if (res >= 8) { cv.px(mx - H.facing, my, mixC(lip, o.skinBase, 0.45)); if (face === 'smile' || face === 'brave') cv.px(mx - H.facing, my - 1, mixC(lip, o.skinBase, 0.6)); }
+  if (o.grin) {
+    // 大きな わらい顔（よこから）
+    const pal = { K: mixC(lip, LINE, 0.45), W: '#ffffff', R: mixC('#ff8a8a', lip, 0.3) };
+    const rows = res >= 8 ? ['....K', 'KWWWK', '.KRK.'] : ['..K', 'KWK'];
+    const wd = rows[0].length;
+    cv.stamp(H.facing < 0 ? mx : mx - wd + 1, my - 1, rows, pal, H.facing > 0);
+  } else {
+    cv.px(mx, my, lip);
+    if (res >= 8) { cv.px(mx - H.facing, my, mixC(lip, o.skinBase, 0.45)); if (face === 'smile' || face === 'brave') cv.px(mx - H.facing, my - 1, mixC(lip, o.skinBase, 0.6)); }
+  }
   if (o.fem || face === 'round' || face === 'smile') {
     const bc = mixC(o.skinBase, '#ff6a7a', 0.38);
     const bx = cv.X(H.X(H.rx - 3.3)), byy = cv.Y(H.y + EYE_V + 1.9);
     cv.px(bx, byy, bc);
     if (res >= 8) { cv.px(bx + 1, byy, bc); cv.px(bx - 1, byy, bc); }
+  }
+}
+
+// ───────────── かおの しるし（職業の とくちょう: 眼帯・目の したの きず） ─────────────
+// B: { eyepatch, scar }  view: 'front' | 'side' | 'back'（うしろは 眼帯の ひもを かみの うえに）
+// 眼帯は 右目（まえから 見て ひだり）、きずは 左目の した（まえから 見て みぎ）
+export function faceMarks(cv, H, B, view) {
+  const res = cv.res;
+  if (B.eyepatch) {
+    const pm = mat({ r: ['#0a0810', '#17131e', '#2a2434', '#4c4460'], th: TH.matte, spec: 0.97, sc: '#6a6280' });
+    const strap = (pts, r = 0.3) => { cv.part({ ol: 'none' }); cv.stroke(pts.map(([u, v]) => [H.X(u), H.y + v]), r, pm, { n: [0, -0.2] }); };
+    if (view === 'back') {
+      cv.part({ ol: 'line' });
+      cv.stroke([[-7.9, -1.2], [-4.0, -0.6], [0, -0.4], [4.0, -0.6], [7.9, -1.2]].map(([u, v]) => [H.X(u), H.y + v]), 0.32, pm, { n: [0, -0.3] });
+    } else if (view === 'front') {
+      strap([[-4.4, 1.0], [-6.2, 0.6], [-7.2, 0.4]]);
+      strap([[-1.8, 0.5], [1.0, -1.8], [4.6, -4.2]]);
+      cv.part({ ol: 'line' });
+      cv.ell(H.X(-2.95), H.y + EYE_V - 0.05, 1.75, 1.5, pm, { bulge: 0.75 });
+    } else if (H.facing > 0) {
+      strap([[4.0, 0.8], [1.0, -0.2], [-2.2, -1.0]]);
+      cv.part({ ol: 'line' });
+      cv.ell(H.X(H.rx - 2.0), H.y + EYE_V - 0.05, 1.3, 1.5, pm, { bulge: 0.75 });
+    } else strap([[H.rx - 1.2, -1.6], [2.0, -1.2], [-2.2, -0.8]]);
+  }
+  if (B.scar && (view === 'front' || (view === 'side' && H.facing < 0))) {
+    cv.part({ ol: 'none', cast: false });
+    const c = '#a8484c', d = '#74282e';
+    const sx = view === 'front' ? cv.X(H.X(2.95)) : cv.X(H.X(H.rx - 2.3));
+    const sy = cv.Y(H.y + EYE_V + 1.85);
+    const dir = view === 'front' ? 1 : -H.facing;
+    if (res >= 8) {
+      for (let i = -2; i <= 2; i++) cv.px(sx + i * dir, sy + (Math.abs(i) === 2 ? -1 : 0), c);
+      for (const i of [-1, 1]) { cv.px(sx + i * dir, sy - 1, d); cv.px(sx + i * dir, sy + 1, d); }
+    } else {
+      cv.px(sx, sy, c);
+      cv.px(sx + dir, sy, d);
+    }
   }
 }

@@ -4,15 +4,15 @@
 //   うえ: 店の なまえ・所持金・✕閉じる
 //   まんなか: ひだり＝品物や コマンド、みぎ＝せつめいと「だれが どう かわるか」
 //   した: 店の人の ことば（はい／いいえ は ここの みぎに 出る）
-import { el, ListMenu, esc } from './dom.js?v=f8e8316730dd';
-import { ITEMS, sellPrice } from '../../shared/data/items.js?v=f8e8316730dd';
-import { MONSTERS } from '../../shared/data/monsters.js?v=f8e8316730dd';
-import { JOBS } from '../../shared/data/jobs.js?v=f8e8316730dd';
-import { computeStats, canEquipChar, itemCount } from '../../shared/stats.js?v=f8e8316730dd';
-import { itemStats, whoCanEquip, rankText } from './info.js?v=f8e8316730dd';
-import { faceURL } from '../field.js?v=f8e8316730dd';
-import { boardIconURL } from '../render/boards.js?v=f8e8316730dd';
-import { partyRows } from './hud.js?v=f8e8316730dd';
+import { el, ListMenu, esc } from './dom.js?v=a39a58253380';
+import { ITEMS, sellPrice } from '../../shared/data/items.js?v=a39a58253380';
+import { MONSTERS } from '../../shared/data/monsters.js?v=a39a58253380';
+import { JOBS } from '../../shared/data/jobs.js?v=a39a58253380';
+import { computeStats, canEquipChar, itemCount } from '../../shared/stats.js?v=a39a58253380';
+import { itemStats, whoCanEquip, rankText } from './info.js?v=a39a58253380';
+import { faceURL } from '../field.js?v=a39a58253380';
+import { boardIconURL } from '../render/boards.js?v=a39a58253380';
+import { partyRows } from './hud.js?v=a39a58253380';
 
 const TYPE_MS = 18;
 

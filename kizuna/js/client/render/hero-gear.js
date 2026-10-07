@@ -1,7 +1,7 @@
 // ぶき・たて・かぶと（そうびの ID から みためを きめて かく）
 // 知らない 品（これからの もの）は、種類・ランク・名前の ことば から きめる
-import { mat, ramp, TH, mixC, HeroCanvas } from './hero-raster.js?v=f8e8316730dd';
-import { metal, metalRamp, cloth, leather, gem, glow, metalOfName, baseItem, fruitIcon } from './hero-outfit.js?v=f8e8316730dd';
+import { mat, ramp, TH, mixC, HeroCanvas } from './hero-raster.js?v=a39a58253380';
+import { metal, metalRamp, cloth, leather, gem, glow, neon, metalOfName, baseItem, fruitIcon } from './hero-outfit.js?v=a39a58253380';
 
 const D = Math.PI / 180;
 
@@ -65,6 +65,15 @@ const WEAPON_LOOK = {
   deck_brush: { shape: 'brush', len: 16.2, c: '#2a6ad0' },
   center_mic: { shape: 'standmic', len: 15.6 },
   gold_mic: { shape: 'mic', len: 7.6, mk: 'gold', fx: 'shine' },
+  // まくら・自どり棒・ゲームの コントローラー・ふういんの 木刀・レンチ・キーボード・黒い 羽根の つえ
+  pillow: { shape: 'pillow', len: 7.4 },
+  selfie_stick: { shape: 'selfie', len: 15.2 },
+  game_controller: { shape: 'pad' },
+  chuuni_bokken: { shape: 'bokken', len: 12.2 },
+  monkey_wrench: { shape: 'monkey', len: 9.2 },
+  gaming_keyboard: { shape: 'keyboard', len: 11.0 },
+  pipe_wrench: { shape: 'pipewrench', len: 10.6 },
+  dark_feather_staff: { shape: 'darkfeather', len: 17.6, orb: '#b450f0' },
 };
 
 // 名前で わかる 道具（これから ふえる 品も おなじ かたちに）
@@ -78,6 +87,12 @@ const NAME_LOOK = [
   [/ブラシ/, { shape: 'brush', len: 16.2 }],
   [/スタンド|センター/, { shape: 'standmic', len: 15.6 }],
   [/マイク/, { shape: 'mic', len: 7.6 }],
+  [/まくら|枕/, { shape: 'pillow', len: 7.4 }],
+  [/自どり|自撮り/, { shape: 'selfie', len: 15.2 }],
+  [/コントローラー/, { shape: 'pad' }],
+  [/パイプレンチ/, { shape: 'pipewrench', len: 10.6 }],
+  [/レンチ|スパナ/, { shape: 'monkey', len: 9.2 }],
+  [/キーボード/, { shape: 'keyboard', len: 11.0 }],
 ];
 
 // 名前から ぶきの とくちょう
@@ -145,6 +160,7 @@ const SHAPE_GROUP = {
   flag: 'flag', pen: 'pen', penlight: 'light', harisen: 'fan',
   kitchen: 'dagger', chefknife: 'dagger', pan: 'pan', wok: 'pan', ladle: 'sword', whisk: 'fan',
   mop: 'staff', brush: 'staff', standmic: 'staff', mic: 'light',
+  pillow: 'fan', selfie: 'staff', pad: 'boomerang', bokken: 'sword', monkey: 'axe', keyboard: 'axe', pipewrench: 'axe', darkfeather: 'staff',
 };
 const groupOf = (W) => SHAPE_GROUP[W.shape] || W.cat || 'sword';
 
@@ -230,6 +246,14 @@ function drawWeaponNow(cv, P, A, W, g) {
     case 'brush': return brush(cv, F, W);
     case 'standmic': return standMic(cv, F, W, outward);
     case 'mic': return handMic(cv, F, W);
+    case 'pillow': return pillowShape(cv, F, W);
+    case 'selfie': return selfieStick(cv, F, W);
+    case 'pad': return gamePad(cv, F, W, outward);
+    case 'bokken': return bokken(cv, F, W, P);
+    case 'monkey': return monkeyWrench(cv, F, W, outward);
+    case 'keyboard': return keyboard(cv, F, W);
+    case 'pipewrench': return pipeWrench(cv, F, W, outward);
+    case 'darkfeather': return darkFeatherStaff(cv, F, W, P);
     default: return sword(cv, F, W);
   }
 }
@@ -740,6 +764,217 @@ function handMic(cv, F, W) {
   if (W.fx || W.star || W.plus) sparkles(cv, F, [[L + 0.9, 1.6], [L * 0.35, -1.6]], '#ffffff', FX_COL[W.fx] || '#fff6b0');
 }
 
+// ───── まくら・自どり棒・コントローラー・木刀・レンチ・キーボード・羽根の つえ ─────
+// まくら（しろい ふかふかの ぬの。かどを にぎる。ふちの ぬいめと まんなかの くぼみ）
+function pillowShape(cv, F, W) {
+  const L = W.len || 7.4;
+  const m = mat({ r: ['#9ca4c8', '#d6dcf2', '#f6f8ff', '#ffffff'], th: TH.cloth });
+  cv.part({ ol: 'line' });
+  cv.poly(F.P([[0.3, -0.5], [1.1, -2.5], [L * 0.5, -3.0], [L - 0.6, -3.1], [L + 0.25, -2.4], [L + 0.45, 0], [L + 0.25, 2.4], [L - 0.6, 3.1], [L * 0.5, 3.0], [1.1, 2.5], [0.3, 0.5]]), m, { n: 'sphere', cx: 0.85 });
+  const id = cv.cur;
+  cv.crease(F.P([[1.5, -2.0], [L * 0.5, -2.45], [L - 0.5, -2.4], [L - 0.25, 0], [L - 0.5, 2.4], [L * 0.5, 2.45], [1.5, 2.0]]), 0.15, -0.3, { parts: [id] });
+  cv.crease(F.P([[L * 0.42, -0.9], [L * 0.6, 0.7]]), 0.24, -0.22, { parts: [id] });
+  if (W.star || W.plus || W.fx) sparkles(cv, F, [[L + 0.4, 2.8]], '#ffffff', FX_COL[W.fx] || '#fff6b0');
+}
+
+// 自どり棒（くろい にぎり・のびる ぎんの ぼう・さきに スマホ）
+function selfieStick(cv, F, W) {
+  const L = W.len || 15.2;
+  const grip = blackMatte(), rod = metal('silver');
+  cv.part({ ol: 'line' });
+  cv.poly(F.P([[-3.0, -0.66], [1.6, -0.66], [1.6, 0.66], [-3.0, 0.66]]), grip, { n: 'row', cx: 0.7 });
+  for (const [a0, a1, w] of [[1.6, L * 0.45, 0.42], [L * 0.45, L * 0.75, 0.34], [L * 0.75, L - 0.6, 0.27]]) {
+    cv.part({ ol: 'line' });
+    cv.poly(F.P([[a0, -w], [a1, -w], [a1, w], [a0, w]]), rod, { n: 'row', cx: 0.7 });
+    cv.part({ ol: 'soft' });
+    cv.poly(F.P([[a0 - 0.15, -w - 0.14], [a0 + 0.35, -w - 0.14], [a0 + 0.35, w + 0.14], [a0 - 0.15, w + 0.14]]), grip, { n: 'row', cx: 0.6 });
+  }
+  // スマホを はさむ ところ と スマホ（ひかる がめん）
+  const p0 = L - 0.7;
+  cv.part({ ol: 'line' });
+  cv.poly(F.P([[p0, -1.9], [p0 + 0.7, -1.9], [p0 + 0.7, 1.9], [p0, 1.9]]), grip, { n: 'row', cx: 0.6 });
+  cv.part({ ol: 'line' });
+  cv.poly(F.P([[p0 + 0.5, -1.75], [p0 + 4.9, -1.75], [p0 + 4.9, 1.75], [p0 + 0.5, 1.75]]), black(), { n: 'row', cx: 0.5 });
+  const pid = cv.cur;
+  // がめん（あおく ひかる）と カメラ
+  cv.part({ ol: 'none', cast: false, clip: pid });
+  cv.poly(F.P([[p0 + 0.85, -1.35], [p0 + 4.3, -1.35], [p0 + 4.3, 1.35], [p0 + 0.85, 1.35]]), neon('#5ac4ff'), { n: [0, 0] });
+  cv.part({ ol: 'none', cast: false, clip: pid });
+  cv.poly(F.P([[p0 + 1.6, -0.9], [p0 + 3.3, -0.9], [p0 + 3.3, 0.9], [p0 + 1.6, 0.9]]), glow('#bfe8ff'), { n: [0, 0] });
+  cv.part({ ol: 'none', cast: false });
+  cv.ell(...F.T(p0 + 4.6, 0), 0.22, 0.22, cloth('#2a2a3a'), { n: [0, 0] });
+  sparkles(cv, F, [[p0 + 5.5, -2.0]], '#ffffff', W.fx ? FX_COL[W.fx] : '#bfe6ff');
+}
+
+// ゲームの コントローラー（ながい ほうを ぶきの むきに。にぎり・十字キー・4つの ボタン・たれる コード）
+function gamePad(cv, F, W, outward) {
+  const o = outward;
+  const body = mat({ r: ['#16161e', '#2c2c3a', '#4a4a60', '#787896'], th: TH.matte, spec: 0.97, sc: '#b0b0d0' });
+  // コード（さきから うしろへ たれる）
+  cv.part({ ol: 'soft' });
+  cv.lock(F.T(6.4, 0.6 * o), F.T(8.0, 3.6 * o), F.T(4.6, 5.2 * o), 0.22, 0.2, cloth('#3a3a48'));
+  cv.part({ ol: 'line' });
+  const B = (list) => F.P(list.map(([a, b]) => [a, b * o]));
+  cv.poly(B([[-0.4, -1.4], [0.6, -1.9], [2.2, -1.7], [3.8, -1.7], [5.4, -1.9], [6.4, -1.4], [6.8, 0.2], [6.4, 2.0], [5.4, 2.7], [4.6, 2.0], [3.8, 1.2], [2.2, 1.2], [1.4, 2.0], [0.6, 2.7], [-0.4, 2.0], [-0.8, 0.2]]), body, { n: 'sphere', cx: 0.7 });
+  const id = cv.cur;
+  cv.crease(B([[0.4, -1.2], [3.0, -1.3], [5.6, -1.2]]), 0.2, 0.4, { parts: [id] });
+  // 十字キー
+  cv.part({ ol: 'none' });
+  cv.poly(B([[1.05, -0.95], [1.55, -0.95], [1.55, -0.45], [2.05, -0.45], [2.05, 0.05], [1.55, 0.05], [1.55, 0.55], [1.05, 0.55], [1.05, 0.05], [0.55, 0.05], [0.55, -0.45], [1.05, -0.45]]), cloth('#9a9ab4'), { n: [0, 0] });
+  // ボタン（あか・あお・みどり・きいろ）
+  for (const [a, b, c] of [[5.2, -0.9, '#ff4a5a'], [5.75, -0.25, '#4a8aff'], [5.2, 0.4, '#4ad86a'], [4.65, -0.25, '#ffd84a']]) {
+    cv.part({ ol: 'none', cast: false });
+    cv.ell(...F.T(a, b * o), 0.3, 0.3, neon(c), { n: [0, 0] });
+  }
+  cv.part({ ol: 'none', cast: false });
+  cv.ell(...F.T(3.4, -0.35 * o), 0.24, 0.2, cloth('#c8c8dc'), { n: [0, 0] });
+  if (W.star || W.plus || W.fx) sparkles(cv, F, [[6.8, -2.4 * o]], '#ffffff', FX_COL[W.fx] || '#fff6b0');
+}
+
+// ふういんの 木刀（すこし そった 木の は・ほうたいを ななめに まいて、お札が 2まい さがる）
+function bokken(cv, F, W, P) {
+  const L = W.len || 12.2;
+  const wood = mat({ r: ['#6a4024', '#a8723e', '#d8a868', '#f2d29a'], th: TH.matte });
+  const band = mat({ r: ramp('#f2f0e8', 4), th: TH.cloth });
+  cv.part({ ol: 'line' });
+  cv.poly(F.P([[-3.0, -0.64], [1.2, -0.64], [1.2, 0.64], [-3.0, 0.64]]), band, { n: 'row', cx: 0.6 });
+  const gid = cv.cur;
+  for (let a = -2.4; a < 1; a += 0.9) cv.crease(F.P([[a, -0.5], [a + 0.5, 0.5]]), 0.16, -0.4, { parts: [gid] });
+  cv.part({ ol: 'line' });
+  cv.ell(...F.T(1.5, 0), 1.3, 1.3, blackMatte(), { n: [F.nb[0] * 0.2, F.nb[1] * 0.2] });
+  const pts = [];
+  for (let i = 0; i <= 8; i++) { const t = i / 8; pts.push([2.0 + (L - 2.0) * t, -1.15 + 0.9 * t * t]); }
+  pts.push([L + 0.2, 0.3]);
+  for (let i = 8; i >= 0; i--) { const t = i / 8; pts.push([2.0 + (L - 2.0) * t, 1.05 + 0.45 * t * t - (t > 0.9 ? 0.5 : 0)]); }
+  cv.part({ ol: 'line' });
+  const id = blade(cv, F, pts, wood);
+  const ids = [id, cv.cur];
+  cv.crease(F.P([[2.6, 0.2], [L - 1.6, 0.55]]), 0.18, -0.3, { parts: ids });
+  // ななめの ほうたい
+  for (let a = 2.8; a < L - 2.2; a += 1.7) {
+    cv.part({ ol: 'soft', clip: ids });
+    cv.poly(F.P([[a, -2.2], [a + 0.75, -2.2], [a + 1.35, 2.2], [a + 0.6, 2.2]]), band, { n: 'row', cx: 0.5 });
+  }
+  // お札（つばと はの とちゅうから ひもで さがる。あるくと ゆれる）
+  const paper = mat({ r: ['#c8b890', '#e8dcb8', '#fbf4dc', '#ffffff'], th: TH.cloth });
+  const sw = P.f === 0 ? 0.35 : -0.35;
+  for (const [a, b, len] of [[2.2, -1.0, 2.6], [L * 0.62, 0.9, 2.2]]) {
+    const [x0, y0] = F.T(a, b);
+    cv.part({ ol: 'soft' });
+    cv.stroke([[x0, y0], [x0 + sw * 0.5, y0 + 0.9]], 0.12, cloth('#c8302a'), { n: [0, 0] });
+    const x1 = x0 + sw * 0.6, y1 = y0 + 0.9;
+    cv.part({ ol: 'line' });
+    cv.poly([[x1 - 0.55, y1], [x1 + 0.55, y1], [x1 + 0.55 + sw * 0.3, y1 + len], [x1 - 0.55 + sw * 0.3, y1 + len]], paper, { cx: 0.4, cy: 0.2 });
+    const pid = cv.cur;
+    cv.part({ ol: 'none', cast: false, clip: pid });
+    cv.stroke([[x1 + sw * 0.05, y1 + 0.4], [x1 + sw * 0.2, y1 + len - 0.35]], 0.16, cloth('#c8302a'), { n: [0, 0] });
+  }
+  if (W.star || W.plus || W.fx) sparkles(cv, F, [[L - 1.0, -1.8]], '#ffffff', FX_COL[W.fx] || '#c8a8ff');
+}
+
+// モンキーレンチ（ひらたい え・こていの あごと うごく あご・まわす ねじ）
+function monkeyWrench(cv, F, W, outward) {
+  const L = W.len || 9.2;
+  const o = outward;
+  const st = metal('steel');
+  const B = (list) => F.P(list.map(([a, b]) => [a, b * o]));
+  cv.part({ ol: 'line' });
+  cv.poly(F.P([[-2.8, -0.78], [L - 2.4, -0.64], [L - 2.4, 0.64], [-2.8, 0.78]]), st, { n: 'row', cx: 0.6 });
+  const hid = cv.cur;
+  cv.crease(F.P([[-2.2, -0.15], [L - 2.8, -0.15]]), 0.18, 0.35, { parts: [hid] });
+  cv.part({ ol: 'none', clip: hid });
+  cv.ell(...F.T(-2.0, 0), 0.32, 0.32, blackMatte(), { n: [0, 0] });
+  // あたま（こていの あご）
+  cv.part({ ol: 'line' });
+  cv.poly(B([[L - 2.9, -1.1], [L - 1.6, -2.1], [L + 0.9, -2.1], [L + 0.9, -0.55], [L - 0.5, -0.55], [L - 0.5, 0.45], [L - 2.9, 0.95]]), st, { n: 'bevel', bw: 0.45 });
+  // うごく あご と ねじ
+  cv.part({ ol: 'line' });
+  cv.poly(B([[L - 1.9, 0.45], [L + 0.7, 0.5], [L + 0.7, 1.5], [L - 1.9, 1.5]]), st, { n: 'bevel', bw: 0.35 });
+  cv.part({ ol: 'line' });
+  cv.poly(B([[L - 2.7, 1.1], [L - 1.4, 1.1], [L - 1.4, 2.1], [L - 2.7, 2.1]]), metal('iron'), { n: 'row', cx: 0.6 });
+  const nid = cv.cur;
+  for (const a of [L - 2.4, L - 2.05, L - 1.7]) cv.crease(B([[a, 1.15], [a, 2.05]]), 0.12, -0.45, { parts: [nid] });
+  if (W.star || W.plus || W.fx) sparkles(cv, F, [[L + 1.2, -2.4 * o]], '#ffffff', FX_COL[W.fx] || '#fff6b0');
+}
+
+// ゲーミング キーボード（くろい からだに キーが 3れつ。キーは にじいろに ひかる）
+const RAINBOW_KEYS = ['#ff5a6a', '#ffa83a', '#ffe84a', '#6aea7a', '#4ad8ff', '#6a8aff', '#c86aff'];
+function keyboard(cv, F, W) {
+  const L = W.len || 11.0;
+  cv.part({ ol: 'line' });
+  cv.poly(F.P([[-1.2, -2.0], [L, -2.0], [L + 0.4, -1.6], [L + 0.4, 1.6], [L, 2.0], [-1.2, 2.0], [-1.6, 1.6], [-1.6, -1.6]]), mat({ r: ['#0c0c12', '#1a1a24', '#2c2c3a', '#4c4c62'], th: TH.matte, spec: 0.985, sc: '#8a8aa8' }), { n: 'row', cx: 0.4, cy: 0.4 });
+  const id = cv.cur;
+  const n = Math.max(4, Math.floor((L - 0.2) / 1.05));
+  for (let i = 0; i < n; i++) {
+    for (let r = 0; r < 3; r++) {
+      const a = -0.6 + i * 1.05, b = -1.5 + r * 1.0;
+      cv.part({ ol: 'none', cast: false, clip: id });
+      cv.poly(F.P([[a, b], [a + 0.72, b], [a + 0.72, b + 0.72], [a, b + 0.72]]), neon(RAINBOW_KEYS[(i + r) % RAINBOW_KEYS.length]), { n: [0, 0] });
+    }
+  }
+  if (W.star || W.plus || W.fx) sparkles(cv, F, [[L + 0.6, -2.4]], '#ffffff', FX_COL[W.fx] || '#fff6b0');
+}
+
+// パイプレンチ（赤い え・はがねの じく・まわす わ・よこに ひらく 2つの あご）
+function pipeWrench(cv, F, W, outward) {
+  const L = W.len || 10.6;
+  const o = outward;
+  const red = mat({ r: ['#5a0e14', '#9e1c22', '#d8302e', '#f86a5a'], th: TH.metal.slice(0, 3), spec: 0.96, sc: '#ffd0c8' });
+  const st = metal('steel');
+  const B = (list) => F.P(list.map(([a, b]) => [a, b * o]));
+  cv.part({ ol: 'line' });
+  cv.poly(F.P([[-2.9, -0.9], [L - 2.4, -0.72], [L - 2.4, 0.72], [-2.9, 0.9]]), red, { n: 'row', cx: 0.6 });
+  const hid = cv.cur;
+  cv.crease(F.P([[-2.4, 0], [L - 2.8, 0]]), 0.18, -0.4, { parts: [hid] });
+  cv.part({ ol: 'none', clip: hid });
+  cv.ell(...F.T(-2.2, 0), 0.32, 0.32, blackMatte(), { n: [0, 0] });
+  // した の あご（わくと いっしょ）
+  cv.part({ ol: 'line' });
+  cv.poly(B([[L - 2.6, -0.85], [L - 0.7, -0.85], [L - 0.7, 2.7], [L - 1.6, 2.7], [L - 1.7, 0.85], [L - 2.6, 0.85]]), st, { n: 'bevel', bw: 0.4 });
+  // うえの フックの あご（じくが とおる）
+  cv.part({ ol: 'line' });
+  cv.poly(B([[L - 0.9, -0.5], [L + 1.6, -0.5], [L + 1.7, 3.0], [L + 0.8, 3.1], [L + 0.6, 0.5], [L - 0.9, 0.5]]), st, { n: 'bevel', bw: 0.4 });
+  const jid = cv.cur;
+  // は（ぎざぎざ）
+  for (let b = 1.0; b < 2.8; b += 0.5) cv.crease(B([[L + 0.65, b], [L + 0.9, b + 0.25]]), 0.12, -0.5, { parts: [jid] });
+  // まわす わ
+  cv.part({ ol: 'line' });
+  cv.poly(B([[L - 0.4, -1.15], [L + 0.4, -1.15], [L + 0.4, 1.15], [L - 0.4, 1.15]]), metal('iron'), { n: 'row', cx: 0.6 });
+  const nid = cv.cur;
+  for (const b of [-0.7, -0.2, 0.3, 0.8]) cv.crease(B([[L - 0.35, b], [L + 0.35, b]]), 0.1, -0.45, { parts: [nid] });
+  if (W.star || W.plus || W.fx) sparkles(cv, F, [[L + 2.2, 3.4 * o]], '#ffffff', FX_COL[W.fx] || '#fff6b0');
+}
+
+// 黒い 羽根の つえ（くろい ぼうに 銀の わ・むらさきの 宝石を くろい はねが かこむ・小さな はねが さがる）
+function darkFeatherStaff(cv, F, W, P) {
+  const L = W.len || 17.6;
+  const wood = mat({ r: ['#0e0a14', '#201a2c', '#382c4a', '#5c4e74'], th: TH.matte, spec: 0.97, sc: '#9a8ac0' });
+  const fm = mat({ r: ['#08060e', '#16121e', '#2a2236', '#463a5c', '#7a6a9a'], th: TH.hair, spec: 0.965, sc: '#8a7ab0' });
+  const orbC = W.orb || '#b450f0';
+  cv.part({ ol: 'line' });
+  cv.poly(F.P([[-10, -0.6], [L - 1.8, -0.6], [L - 1.8, 0.6], [-10, 0.6]]), wood, { n: 'row', cx: 0.75 });
+  for (const a of [L - 3.4, -1.6]) {
+    cv.part({ ol: 'soft' });
+    cv.poly(F.P([[a, -0.78], [a + 0.6, -0.78], [a + 0.6, 0.78], [a, 0.78]]), metal('silver'), { n: 'row', cx: 0.6 });
+  }
+  // はね（たまの うしろで 左右に ひらく）
+  for (const [s, a1, b1, r] of [[-1, L + 1.4, 3.6, 1.0], [1, L + 1.4, 3.6, 1.0], [-1, L - 1.0, 3.4, 0.9], [1, L - 1.0, 3.4, 0.9]]) {
+    cv.part({ ol: 'line' });
+    cv.lock(F.T(L - 1.2, s * 0.5), F.T((L - 1.2 + a1) / 2, s * (b1 * 0.85)), F.T(a1 + 1.0, s * b1), r, 0.2, fm);
+  }
+  cv.part({ ol: 'line' });
+  cv.ell(...F.T(L + 0.2, 0), 1.6, 1.6, gem(orbC), { bulge: 0.95 });
+  // ひもで さがる 小さな はね（がめんの したへ）
+  const [hx, hy] = F.T(L - 2.6, 0.6);
+  const sw = P.f === 0 ? 0.3 : -0.3;
+  cv.part({ ol: 'soft' });
+  cv.stroke([[hx, hy], [hx + sw * 0.4, hy + 1.2]], 0.1, cloth('#b8b0d0'), { n: [0, 0] });
+  cv.part({ ol: 'line' });
+  cv.lock([hx + sw * 0.4, hy + 1.1], [hx + sw * 0.9, hy + 2.2], [hx + sw * 0.6, hy + 3.4], 0.5, 0.15, fm);
+  sparkles(cv, F, [[L + 2.0, -2.4]], '#ffffff', orbC);
+  if (W.star || W.plus) sparkles(cv, F, [[L - 1.0, 2.6]], '#ffffff', '#fff6b0');
+}
+
 function drawClaw(cv, P, A, W) {
   const [hx, hy] = A.hand;
   const ang = holdAngle(P, 'claw');
@@ -812,6 +1047,8 @@ const SHIELD_LOOK = {
   silver_shield: { kind: 'heater', face: 'metal', mk: 'silver', rim: 'gold', emblem: 'gem', gemc: '#4a9aff', big: true },
   shell_shield: { kind: 'shell', face: 'shell' },
   briefcase: { kind: 'case' },
+  // 金の 記念たて（さいせいボタンの しるし）
+  gold_button: { kind: 'plaque' },
 };
 function guessShield(it) {
   const rank = it.rank || 2;
@@ -852,6 +1089,7 @@ export function drawShield(cv, P, A, S) {
   const sx = P.side ? 0.78 : 1;
   if (!P.side) cx += A.s * 0.9;
   if (S.kind === 'case') return briefcase(cv, P, A);
+  if (S.kind === 'plaque') return plaque(cv, P, A, S, cx, cy, sx);
   const pts = shieldOutline(S.kind, z).map(([u, v]) => [cx + u * sx, cy + v]);
   // うしろむき: たての うら
   if (P.back || (P.side && !A.near)) {
@@ -931,6 +1169,34 @@ function scaleTex(k) {
   };
 }
 
+// 金の 記念たて（金の わくの たての 板に、さいせいボタンの しるし。うらは くろい 板）
+function plaque(cv, P, A, S, cx, cy, sx) {
+  const w = 2.75 * sx, h = 3.6;
+  const box = (dw, dh) => [[cx - w + dw, cy - h + dh], [cx + w - dw, cy - h + dh], [cx + w - dw, cy + h - dh], [cx - w + dw, cy + h - dh]];
+  if (P.back || (P.side && !A.near)) {
+    cv.part({ ol: 'line' });
+    cv.poly(box(0, 0), mat({ r: ['#14121a', '#24202c', '#3a3446', '#5a5470'], th: TH.matte }), { cx: 0.7, cy: 0.4 });
+    const id = cv.cur;
+    cv.part({ ol: 'none', clip: id });
+    cv.stroke([...box(0.2, 0.2), box(0.2, 0.2)[0]], 0.4, metal('gold'), { n: [0, 0] });
+    return;
+  }
+  cv.part({ ol: 'line' });
+  cv.poly(box(0, 0), metal('gold'), { n: 'bevel', bw: 0.7, bs: 0.8 });
+  const id = cv.cur;
+  // うちがわの くぼんだ 板
+  cv.part({ ol: 'soft', clip: id });
+  cv.poly(box(0.75 * sx, 0.75), mat({ r: ['#5a3210', '#8e5418', '#c4862a', '#eabf5a', '#fff0b0'], th: TH.metal, spec: 0.97, sc: '#fffbe6' }), { n: 'sphere', cx: 0.35, cy: 0.35 });
+  // さいせいボタン（あかるい 金の かどの まるい しかくに さんかく）
+  const bw = 1.35 * sx, bh = 1.0, c = 0.35;
+  cv.part({ ol: 'line' });
+  cv.poly([[cx - bw + c, cy - bh], [cx + bw - c, cy - bh], [cx + bw, cy - bh + c], [cx + bw, cy + bh - c], [cx + bw - c, cy + bh], [cx - bw + c, cy + bh], [cx - bw, cy + bh - c], [cx - bw, cy - bh + c]], mat({ r: ['#a87420', '#e0b040', '#fbe08a', '#fff8d8'], th: TH.metal.slice(0, 3), spec: 0.95, sc: '#ffffff' }), { n: 'bevel', bw: 0.25 });
+  cv.part({ ol: 'none' });
+  cv.poly([[cx - 0.4 * sx, cy - 0.55], [cx + 0.55 * sx, cy], [cx - 0.4 * sx, cy + 0.55]], metal('bronze'), { n: [0, 0] });
+  sparkles(cv, null, [[cx + w - 0.4, cy - h + 0.4]], '#ffffff', '#fff6b0', true);
+  if (S.star || S.plus) sparkles(cv, null, [[cx - w + 0.6, cy + h - 0.6]], '#ffffff', '#fff6b0', true);
+}
+
 function briefcase(cv, P, A) {
   const [hx, hy] = A.hand;
   const sx = P.side ? 0.55 : 1;
@@ -957,6 +1223,8 @@ const HEAD_LOOK = {
   captain_hat: { kind: 'tricorne', c: '#24305a', trim: 'gold', hides: 'top' },
   // 第4章: ターバン（白い 布を まいた ぼうし）
   turban: { kind: 'bandana', c: '#f4f0e6', hides: 'top' },
+  // 麦わらぼうし（赤い リボン）
+  straw_hat: { kind: 'straw', c: '#ecc86c', band: '#d42c28', hides: 'top' },
 };
 // 布の服の ときの しょくぎょうの ぼうし
 const JOB_HAT = {
@@ -1010,6 +1278,17 @@ const JOB_HAT = {
   // 大賢者（銀の おびと 大きな ひかる 星の ぼうし）・ロトの勇者（金の つばさの かぶと）
   daikenja: { kind: 'wizard', c: '#272c74', band: 'silver', orb: '#9ae6ff', hides: 'top' },
   loto_hero: { kind: 'winged', mk: 'gold', trim: 'royal', wing: 'gold', big: true, gemc: '#e8303a', hides: 'top' },
+  // ダ天使（こわれた くろい 天使の 輪）・設備屋（きいろい ヘルメット）・ryonetsu（白い ヘルメットに 水色の 線と ひしがた）
+  datenshi: { kind: 'halo', c: '#3a2e52' },
+  setsubiya: { kind: 'hardhat', c: '#f4cc2a', cross: '#2a9a48', hides: 'top' },
+  ryonetsu: { kind: 'hardhat', c: '#f8f8f6', line: '#6cc0f0', mark: 'diamond', markC: '#3a9ae0', hides: 'top' },
+  // ゴム人間（麦わらぼうし）・ユーチューバー（うしろむきの キャップ）・配信者と プロゲーマー（マイクの ついた ヘッドセット）
+  rubber: { kind: 'straw', c: '#ecc86c', band: '#d42c28', hides: 'top' },
+  youtuber: { kind: 'revcap', c: '#24242e', hides: 'top' },
+  streamer: { kind: 'gameset', c: '#1d1c28', neon: '#ff48d8', neon2: '#38e8ff' },
+  pro_gamer: { kind: 'gameset', c: '#17171f', neon: '#e0263a', neon2: '#e0263a' },
+  // 魔王（くろい かぶとに 金の かんむりと 大きな つの）
+  maou: { kind: 'demoncrown', hides: 'top' },
 };
 function guessHead(it) {
   const name = it.name || '';
@@ -1392,18 +1671,22 @@ export function drawHeadgear(cv, P, H, G, view) {
         hpoly(cv, H, [[6.2, -2.4], ...arcP(-0.6, -1.8, 7.8, 8.2, -20, -190, 16), [-8.4, -2.0], [2.0, -2.2]], m, { su: 0.4 });
         const did = cv.cur;
         if (G.stripe) { cv.part({ ol: 'none', clip: did }); cv.stroke(TS(H, [[7.0, -3.5], [3.0, -4.7], [-2.0, -5.0], [-9.0, -3.9]]), 0.45, metal(G.stripe), { n: [0, -0.2] }); }
+        if (G.line) { cv.part({ ol: 'none', clip: did }); cv.stroke(TS(H, [[7.0, -3.5], [3.0, -4.7], [-2.0, -5.0], [-9.0, -3.9]]), 0.36, cloth(G.line), { n: [0, -0.2] }); }
         cv.part({ ol: 'line' });
         cv.poly(TS(H, [[5.6, -2.8], [10.4, -2.4], [10.2, -1.5], [-8.6, -1.6], [-8.8, -2.6]]), m, { cx: 0.6, cy: 0.6 });
         cv.crease(TS(H, [[2.0, -9.6], [-5.0, -7.6]]), 0.3, 0.4, { parts: [did] });
         if (G.badge) badge(cv, H, 3.8, -6.6, metal(G.badge), 0.75);
+        if (G.mark === 'diamond') hatDiamond(cv, H, 3.9, -6.8, 0.72, G.markC);
       } else {
         hpoly(cv, H, [[-8.2, -1.8], ...arcP(0, -1.8, 8.0, 8.2, 180, 360, 16), [8.2, -1.8]], m);
         const id = cv.cur;
         cv.crease(TS(H, [[0, -9.8], [0, -2.4]]), 0.5, 0.35, { parts: [id] });
         if (G.stripe) { cv.part({ ol: 'none', clip: id }); cv.stroke(TS(H, [[-8.6, -3.7], [-4.2, -4.6], [0, -4.85], [4.2, -4.6], [8.6, -3.7]]), 0.45, metal(G.stripe), { n: [0, -0.2] }); }
+        if (G.line) { cv.part({ ol: 'none', clip: id }); cv.stroke(TS(H, [[-8.6, -3.7], [-4.2, -4.6], [0, -4.85], [4.2, -4.6], [8.6, -3.7]]), 0.36, cloth(G.line), { n: [0, -0.2] }); }
         cv.part({ ol: 'line' });
         cv.poly(TS(H, [[-8.8, -2.6], [8.8, -2.6], [9.2, -1.4], [-9.2, -1.4]]), m, { cx: 0.85, cy: 0.6 });
         if (!back && G.badge) badge(cv, H, 0, -6.6, metal(G.badge), 1);
+        else if (!back && G.mark === 'diamond') hatDiamond(cv, H, 0, -6.8, 1, G.markC);
         else if (!back) {
           cv.part({ ol: 'soft' });
           const g = cloth(G.cross || '#2aa04a');
@@ -1550,8 +1833,156 @@ export function drawHeadgear(cv, P, H, G, view) {
       }
       break;
     }
+    case 'straw': {
+      // 麦わらぼうし（ひろい つば・まるい あたま・赤い リボン・あんだ すじ）
+      const m = mat({ r: ramp(col(G.c, '#ecc86c'), 4, { light: 1.12 }), th: TH.cloth, spec: 0.985, sc: '#fff6d6' });
+      const band = cloth(G.band || '#d42c28');
+      const weave = (pts, ids) => cv.crease(TS(H, pts), 0.16, -0.32, { parts: ids });
+      if (side) {
+        cv.part({ ol: 'line' });
+        cv.poly(TS(H, [[10.6, -3.5], [10.4, -2.3], [6.0, -1.5], [0, -1.6], [-6.0, -1.7], [-10.4, -2.5], [-10.6, -3.7], [-6.0, -4.5], [0, -4.4], [6.0, -4.3]]), m, { cx: 0.7, cy: 0.6 });
+        const bid = cv.cur;
+        weave([[9.0, -3.1], [0, -3.0], [-9.0, -3.3]], [bid]);
+        cv.part({ ol: 'line' });
+        hpoly(cv, H, [[5.8, -3.6], ...arcP(-0.2, -3.8, 6.0, 7.2, -10, -170, 12), [-6.2, -3.7]], m, { su: 0.4 });
+        const cid = cv.cur;
+        cv.part({ ol: 'none', clip: cid });
+        cv.poly(TS(H, [[6.4, -5.6], [6.4, -3.6], [-6.6, -3.6], [-6.6, -5.6]]), band, { cx: 0.6 });
+        weave([[3.0, -9.6], [0, -10.0], [-3.4, -9.4]], [cid]);
+        weave([[5.0, -7.4], [0, -8.0], [-5.2, -7.2]], [cid]);
+      } else {
+        cv.part({ ol: 'line' });
+        cv.poly(TS(H, [[-10.8, -3.0], ...arcP(0, -3.6, 10.8, 2.0, 185, 355, 12), [10.8, -3.0], [10.4, -1.9], ...arcP(0, -2.4, 10.4, 1.7, 355, 185, 12), [-10.4, -1.9]]), m, { cx: 0.85, cy: 0.6 });
+        const bid = cv.cur;
+        weave(arcP(0, -2.9, 9.4, 1.6, 190, 350, 10), [bid]);
+        cv.part({ ol: 'line' });
+        hpoly(cv, H, [[-6.6, -3.4], ...arcP(0, -3.6, 6.6, 7.4, 180, 360, 14), [6.6, -3.4]], m);
+        const cid = cv.cur;
+        cv.part({ ol: 'none', clip: cid });
+        cv.poly(TS(H, [[-7.0, -5.8], [7.0, -5.8], [7.0, -3.4], [-7.0, -3.4]]), band, { cx: 0.8 });
+        weave(arcP(0, -3.6, 4.4, 5.6, 200, 340, 8), [cid]);
+        weave(arcP(0, -3.6, 2.2, 6.6, 210, 330, 6), [cid]);
+      }
+      break;
+    }
+    case 'revcap': {
+      // うしろむきの キャップ（まえは うしろの あなと ベルト / うしろは つば / よこは つばが うしろへ）
+      const m = mat({ r: ramp(col(G.c, '#24242e'), 5, { light: 1.25 }), th: TH.cloth.concat([0.95]), spec: 0 });
+      cv.part({ ol: 'line' });
+      if (side) {
+        hpoly(cv, H, [[6.0, -2.6], ...arcP(-0.6, -1.2, 7.9, 8.0, -20, -185, 14), [-8.4, -1.4], [-6.0, -2.0], [2.4, -2.4]], m, { su: 0.4 });
+        cv.part({ ol: 'line' });
+        cv.poly(TS(H, [[-5.6, -2.9], [-10.4, -2.4], [-10.2, -1.5], [-5.4, -1.7]]), m, { cx: 0.5, cy: 0.6 });
+        cv.part({ ol: 'soft' });
+        cv.ell(H.X(4.6), H.y - 3.2, 0.6, 0.5, cloth('#d8d8e4'), { bulge: 0.6 });
+      } else if (back) {
+        hpoly(cv, H, [[-8.0, -1.2], ...arcP(0, -1.4, 8.0, 8.0, 180, 360, 16), [8.0, -1.2], [6.4, -2.2], [-6.4, -2.2]], m);
+        cv.part({ ol: 'line' });
+        cv.poly(TS(H, [[-6.6, -2.8], [6.6, -2.8], [7.4, -1.1], [-7.4, -1.1]]), m, { cx: 0.7, cy: 0.7 });
+      } else {
+        hpoly(cv, H, [[-8.0, -1.2], ...arcP(0, -1.4, 8.0, 8.0, 180, 360, 16), [8.0, -1.2], [6.4, -2.2], [2.4, -2.3], [2.0, -4.0], [0, -4.6], [-2.0, -4.0], [-2.4, -2.3], [-6.4, -2.2]], m);
+        const id = cv.cur;
+        for (const u of [-4.2, 4.2]) cv.crease(TS(H, [[u * 0.4, -9.0], [u, -2.6]]), 0.2, -0.4, { parts: [id] });
+        // ちょうせつの ベルト
+        cv.part({ ol: 'soft' });
+        cv.poly(TS(H, [[-2.4, -3.0], [2.4, -3.0], [2.4, -2.3], [-2.4, -2.3]]), m, { cx: 0.6 });
+        cv.part({ ol: 'none' });
+        cv.rect(H.X(-0.45), H.y - 3.0, 0.9, 0.7, metal('silver'), { n: [0, 0] });
+      }
+      break;
+    }
+    case 'gameset': {
+      // ゲーミング ヘッドセット（大きな みみあてに ひかる わ・あたまの ベルト・くちもとの マイク）
+      const m = mat({ r: ramp(col(G.c, '#1c1c26'), 4, { light: 1.35 }), th: TH.metal.slice(0, 3), spec: 0.975, sc: '#8a8aa8' });
+      const n1 = neon(G.neon || '#ff48d8'), n2 = neon(G.neon2 || G.neon || '#38e8ff');
+      const cup = (u, v, rx, ry, ring) => {
+        cv.part({ ol: 'line' });
+        cv.ell(H.X(u), H.y + v, rx, ry, m, { bulge: 0.8 });
+        const id = cv.cur;
+        cv.part({ ol: 'none', clip: id });
+        const pts = [];
+        for (let i = 0; i <= 16; i++) { const a = (i / 16) * Math.PI * 2; pts.push([H.X(u) + Math.cos(a) * rx * 0.62, H.y + v + Math.sin(a) * ry * 0.62]); }
+        cv.stroke(pts, 0.22, ring, { n: [0, 0] });
+      };
+      if (side) {
+        cv.part({ ol: 'line' });
+        cv.stroke(TS(H, [[-1.2, -1.0], [-0.6, -6.0], [0.4, -9.6]]), 0.5, m);
+        cup(-1.2, 0.6, 1.6, 2.0, n1);
+        cv.part({ ol: 'line' });
+        cv.stroke(TS(H, [[-0.4, 2.2], [2.4, 4.4], [5.4, 5.0]]), 0.26, m, { n: [0, 0] });
+        cv.part({ ol: 'none', cast: false });
+        cv.ell(H.X(5.7), H.y + 5.0, 0.55, 0.5, n2, { n: [0, 0] });
+      } else {
+        cv.part({ ol: 'line' });
+        cv.stroke(TS(H, arcP(0, -0.6, 8.3, 9.4, 194, 346, 12)), 0.55, m);
+        for (const s of [-1, 1]) cup(s * 8.1, 0.8, 1.45, 2.0, s < 0 ? n1 : n2);
+        if (!back) {
+          cv.part({ ol: 'line' });
+          cv.stroke(TS(H, [[-7.6, 2.4], [-6.2, 4.9], [-3.0, 5.4]]), 0.26, m, { n: [0, 0] });
+          cv.part({ ol: 'none', cast: false });
+          cv.ell(H.X(-2.6), H.y + 5.4, 0.55, 0.5, n2, { n: [0, 0] });
+        }
+      }
+      break;
+    }
+    case 'demoncrown': {
+      // 魔王の かぶと（くろい かぶと・金の かんむりの とげ・大きく まがった つの・赤い 宝石）
+      const m = metal('dark'), g = metal('gold');
+      const hm = mat({ r: ['#2a2032', '#54465e', '#8e8096', '#cfc6d4', '#fffaf2'], th: TH.metal, spec: 0.96 });
+      // つの（かぶとの うしろから）
+      cv.part({ ol: 'line' });
+      if (side) cv.lock([H.X(-3.0), H.y - 6.0], [H.X(-7.8), H.y - 7.6], [H.X(-8.6), H.y - 13.0], 1.35, 0.18, hm, { ease: 0.85 });
+      else for (const s of [-1, 1]) { cv.part({ ol: 'line' }); cv.lock([H.X(s * 6.2), H.y - 5.2], [H.X(s * 11.0), H.y - 6.0], [H.X(s * 10.2), H.y - 12.8], 1.35, 0.18, hm, { ease: 0.85 }); }
+      cv.part({ ol: 'line' });
+      if (side) hpoly(cv, H, [[6.2, -2.2], ...arcP(-0.6, -1.4, 8.0, 8.2, -20, -185, 14), [-8.6, -0.4], [-6.0, -1.8], [2.0, -2.4]], m, { su: 0.4 });
+      else hpoly(cv, H, [[-8.2, back ? 0.6 : -1.0], ...arcP(0, -1.4, 8.1, 8.2, 180, 360, 16), [8.2, back ? 0.6 : -1.0], [6.6, -2.2], [-6.6, -2.2]], m);
+      const id = cv.cur;
+      cv.crease(TS(H, side ? [[3.0, -8.6], [5.6, -4.6]] : [[-4.6, -7.6], [-6.2, -4.0]]), 0.34, 0.45, { parts: [id] });
+      // 金の かんむり（おびと とげ）
+      cv.part({ ol: 'line' });
+      if (side) cv.poly(TS(H, [[6.8, -3.6], [7.0, -2.0], [-8.4, -1.6], [-8.6, -3.2], [-6.4, -3.4], [-5.6, -5.6], [-4.4, -3.5], [-1.4, -3.6], [-0.4, -6.2], [0.8, -3.6], [3.4, -3.6], [4.4, -6.0], [5.4, -3.6]]), g, { n: 'bevel', bw: 0.35 });
+      else cv.poly(TS(H, [[-8.5, -3.4], [-6.6, -3.6], [-5.6, -6.2], [-4.4, -3.8], [-2.0, -3.9], [0, -7.4], [2.0, -3.9], [4.4, -3.8], [5.6, -6.2], [6.6, -3.6], [8.5, -3.4], [8.6, -1.8], ...arcP(0, -1.2, 8.6, 1.2, 350, 190, 8), [-8.6, -1.8]]), g, { n: 'bevel', bw: 0.35 });
+      if (!back) {
+        const gx = side ? 4.6 : 0;
+        cv.part({ ol: 'line' });
+        cv.ell(H.X(gx), H.y - 2.9, side ? 0.6 : 0.85, 0.8, gem('#e8203a'), { bulge: 0.9 });
+      }
+      break;
+    }
+    case 'halo': {
+      // こわれた くろい 天使の 輪（あたまの うえに うかぶ。かけた かけらが すこし はなれる）
+      const m = mat({ r: ['#120e1a', '#2a2238', '#4a3e62', '#7a6a9c', '#c4b4ec'], th: TH.metal, spec: 0.95, sc: '#e8dcff' });
+      const cy = -9.2, rx = side ? 4.6 : 6.2, ry = side ? 1.7 : 2.0, tilt = side ? -0.1 : -0.1;
+      const cxu = side ? -1.2 : 0;
+      const ring = (a0, a1, du = 0, dv = 0) => {
+        const o = arcP(cxu + du, cy + dv, rx, ry, a0, a1, 10), i = arcP(cxu + du, cy + dv, rx - 1.05, ry - 0.62, a1, a0, 10);
+        const rot = ([u, v]) => [u, v + (u - cxu) * tilt];
+        cv.part({ ol: 'line' });
+        cv.poly(TS(H, [...o, ...i].map(rot)), m, { n: 'bevel', bw: 0.3 });
+        return cv.cur;
+      };
+      const id = ring(20, 292);
+      cv.crease(TS(H, arcP(cxu, cy - 0.15, rx - 0.5, ry - 0.3, 200, 280, 6).map(([u, v]) => [u, v + (u - cxu) * tilt])), 0.16, 0.5, { parts: [id] });
+      ring(306, 344, 0.5, -0.7);
+      // むらさきに ひかる つぶ
+      cv.part({ ol: 'none', cast: false });
+      const X = cv.X(H.X(cxu + rx + 0.7)), Y = cv.Y(H.y + cy - 1.2);
+      cv.px(X, Y, '#d8b8ff');
+      if (k >= 4) for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) cv.px(X + dx, Y + dy, '#9a5ae8');
+      break;
+    }
     default:
   }
+}
+
+// ヘルメットの まえの ひしがた（ryonetsu。そとが 水色・なかが こん）
+function hatDiamond(cv, H, u, v, sx, c = '#3a9ae0') {
+  cv.part({ ol: 'line' });
+  const rx = 1.2 * sx, ry = 1.5;
+  cv.poly(TS(H, [[u, v - ry], [u + rx, v], [u, v + ry], [u - rx, v]]), mat({ r: ramp(c, 4, { light: 1.2 }), th: TH.cloth, spec: 0.96 }), { n: 'bevel', bw: 0.3 });
+  cv.part({ ol: 'none' });
+  const q = 0.45;
+  cv.poly(TS(H, [[u, v - ry * q], [u + rx * q, v], [u, v + ry * q], [u - rx * q, v]]), cloth('#1c2a58'), { n: [0, 0] });
 }
 
 // 5つの かどの 星（コック帽の 三ツ星。sx: よこむきで ほそく）

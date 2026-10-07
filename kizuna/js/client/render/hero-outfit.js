@@ -1,8 +1,8 @@
 // ふく・よろい（そうびの よろいと しょくぎょうで きまる）
 // outfitOf(みため, しょくぎょう, よろいの ID, おんな？) → かく ための せってい
 // 知らない よろい（これからの もの）は、種類（armorType）・ランク・名前の ことば から きめる
-import { mat, ramp, TH, mixC, HeroCanvas } from './hero-raster.js?v=f8e8316730dd';
-import { ITEMS } from '../../shared/data/items.js?v=f8e8316730dd';
+import { mat, ramp, TH, mixC, HeroCanvas } from './hero-raster.js?v=a39a58253380';
+import { ITEMS } from '../../shared/data/items.js?v=a39a58253380';
 
 // ───────────── ざいしつ ─────────────
 const METALS = {
@@ -47,6 +47,10 @@ export function gem(c) {
 }
 export function glow(c) {
   return once('e' + c, () => mat({ r: [mixC(c, '#ffffff', 0.15), mixC(c, '#ffffff', 0.45), mixC(c, '#ffffff', 0.8)], th: [0.1, 0.62], emit: true }));
+}
+// こい いろの まま ひかる（ネオン・にじいろの キー）
+export function neon(c) {
+  return once('n' + c, () => mat({ r: [mixC(c, '#000000', 0.12), c, mixC(c, '#ffffff', 0.5)], th: [0.2, 0.72], emit: true }));
 }
 // 名前の ことば → ざいしつ（weaponfx.js と おなじ かんがえ）
 const MAT_RULES = [
@@ -141,9 +145,51 @@ const JOB_OUTFIT = {
   // 大賢者（こい あいいろの ローブに 銀の ふち・白い ながい マント）・ロトの勇者（青と 金の よろい・ロトのしるし・赤い マント）
   daikenja: { kind: 'robe', main: '#272c74', trim: '#e4e8f4', trimMetal: 'silver', gem: '#8ad8ff', cape: '#f6f6fb', capeLen: 39.2 },
   loto_hero: { kind: 'plate', metal: 'royal', under: '#22328a', trim: 'gold', cape: '#d0202a', capeLen: 36.6, big: true, bird: true, rank: 6 },
+  // ニート（こんの ジャージに しろい 2本線・はんぶん あいた チャックから はいいろの Tシャツ・サンダル）
+  neet: { kind: 'jersey', main: '#2e3a6c', tee: '#a6a6b4', slipper: '#3a66c0' },
+  // 中二病（黒い ロングコート: たかい えり・赤い うら地・ぎんの くさり。右うでに ほうたい）
+  chuuni: { kind: 'coat', main: '#1f1b29', lining: '#c41e30' },
+  // ダ天使（黒と むらさきの ゴシックな ローブ・銀の ふち・むらさきの 宝石。はねと こわれた 輪）
+  datenshi: { kind: 'robe', main: '#251a38', trim: '#d4d6e8', trimMetal: 'silver', gem: '#c060ff', panel: '#47285e' },
+  // サイヤ人（こんの ぴったりした 服・クリーム色の むねあて・きいろっぽい 茶色の かたあてと こしの いた・白い 手ぶくろと ブーツ）
+  saiyan: { kind: 'saiyan' },
+  // スーパーサイヤ人 1〜3（オレンジの 道着・こんの したぎ・リストバンド・おび。かみと オーラは JOB_BODY）
+  super_saiyan: { kind: 'gi', main: '#f27a1c', under: '#2a46b0' },
+  ss2: { kind: 'gi', main: '#f27a1c', under: '#2a46b0' },
+  ss3: { kind: 'gi', main: '#f27a1c', under: '#2a46b0' },
+  // 設備屋（はいいろっぽい 青の 作業服・ひかる おび・こしの 道具ぶくろ）・ryonetsu（こんの 作業服に 水色の ふち・むねに ひしがたの マーク）
+  setsubiya: { kind: 'work', main: '#687e98', band: '#e6eef8', tools: true },
+  ryonetsu: { kind: 'work', main: '#1c2a58', piping: '#7cc8f2', mark: 'diamond' },
+  // ゴム人間（赤い ベストを はおって・青い ひざたけの 半ズボン・きいろの おび・サンダル）・ニカ（ぜんぶ しろ）
+  rubber: { kind: 'rubber', main: '#d8302a', sash: '#f2c82e', shorts: '#2e58b8', cuff: '#7ea6e6' },
+  nika: { kind: 'rubber', main: '#f6f6fb', sash: '#e6e0f6', shorts: '#f2f2f8', cuff: '#ffffff', loose: true },
+  // ユーチューバー（赤い パーカーに しろい さいせいボタン）・人気配信者（黒い パーカーに ピンクと 水色の ひかる 線）
+  youtuber: { kind: 'hoodie', main: '#de2a2e', logo: true, pants: '#2a3048' },
+  streamer: { kind: 'hoodie', main: '#1d1c28', neon: ['#ff48d8', '#38e8ff'], pants: '#1d1c28' },
+  // ゲーマー（ドットの ハートの Tシャツ・ひらいた チェックの シャツ・くびに ヘッドホン）・プロゲーマー（黒と 赤の チームの ユニフォーム）
+  gamer: { kind: 'gamer', tee: '#34343e', shirt: '#2e7a58', pants: '#3c5c90' },
+  pro_gamer: { kind: 'esports', main: '#17171f', trim: '#e0263a' },
+  // 魔王（黒と むらさきの よろいに 金の ふち・つのの しるし・ながい 赤黒い マント）
+  maou: { kind: 'plate', metal: 'dark', under: '#4a1a60', trim: 'gold', cape: '#7a1222', capeLen: 39.4, big: true, horn: true, rank: 6 },
 };
 // ランドセルの 色（男の子は 黒、女の子は 赤）
 const PACK_COLORS = ['#26222e', '#d0303c'];
+
+// 職業の からだの とくちょう（よろいを かえても のこる）
+// hair・hcol: かみがたと かみの いろ（えらんだ かみの かわりに。目の いろも かみに あわせて iris で きめる）  noBrow: まゆ なし  grin: わらい顔
+// aura: オーラ（gold / cloud / dark）  spark: いなずま  tail: しっぽ  wings: はね  eyepatch: 眼帯  scar: 目の したの きず
+const JOB_BODY = {
+  saiyan: { tail: true },
+  super_saiyan: { hair: 'ssj', hcol: 'ssgold', iris: '#169a8a', aura: 'gold' },
+  ss2: { hair: 'ssj2', hcol: 'ssgold', iris: '#169a8a', aura: 'gold', spark: true },
+  ss3: { hair: 'ssj3', hcol: 'ssgold', iris: '#169a8a', aura: 'gold', noBrow: true },
+  rubber: { scar: true },
+  nika: { hair: 'nika', hcol: 'nikawhite', iris: '#3e3460', aura: 'cloud', grin: true, scar: true },
+  chuuni: { eyepatch: true },
+  datenshi: { wings: true },
+  maou: { aura: 'dark' },
+};
+export const jobBody = (job) => JOB_BODY[job] || null;
 
 // よろいの みため（ID ごと）
 const ARMOR_OUTFIT = {
@@ -162,6 +208,8 @@ const ARMOR_OUTFIT = {
   sailor_clothes: { kind: 'sailor' },
   coral_robe: { kind: 'robe', main: '#e8607a', trim: '#fff0e0', coral: true },
   wave_gi: { kind: 'gi', main: '#2a6ab8', trim: '#e8f6ff', wave: true },
+  // サイヤ人の 戦闘服
+  battle_suit: { kind: 'saiyan' },
 };
 
 // 知らない よろい: 名前と 種類から
@@ -281,6 +329,8 @@ export function outfitOf(Lk, job, armorId, fem) {
       O.trim = S.trim ? metal(S.trim) : null;
       // bird: むねに 金の 鳥の しるし（ロトのしるし）
       O.torso = { kind: 'plate', hem: 31.6, flare: 0.6, rank, holy: S.holy, stars: S.stars, bird: S.bird, gemc: S.gemc || (rank >= 4 ? '#5ac8ff' : null) };
+      // horn: むねに 金の つのと 赤い 宝石の しるし（魔王）
+      if (S.horn) O.torso.horn = true;
       O.sleeve = { upper: cloth(under), lower: metal(mk), cuff: O.trim || null, cuffW: 1.15 };
       O.glove = metal(mk);
       O.pauldron = { m: metal(mk), trim: O.trim, size: S.big ? 1.25 : rank >= 4 ? 1.1 : 1.0, kind: 'plate', layers: rank >= 4 || S.big ? 2 : 1, spike: mk === 'dragon' || mk === 'dark' };
@@ -298,6 +348,11 @@ export function outfitOf(Lk, job, armorId, fem) {
       O.torso = { kind: 'robe', hem: 29.0, flare: 0, holy: S.holy, stars: S.stars, coral: S.coral, gem: S.gem || null };
       O.sleeve = { upper: cloth(main), lower: cloth(main), cuff: O.trimM, wide: 1.45, puff: 1.05 };
       O.skirt = { m: cloth(main), y0: 28.6, y1: 39.6, flare: 2.4, trim: O.trimM, kind: 'robe', front: O.trimM };
+      // panel: まえの おびの 色（ダ天使の むらさき。ふちは trim）
+      if (S.panel) {
+        O.torso.panel = cloth(S.panel);
+        O.skirt.front = O.torso.panel;
+      }
       O.belt = { m: S.holy || S.trimMetal ? O.trimM : cloth(mixC(trim, '#000000', 0.15)), buckle: gem(S.gem || (S.holy ? '#4a9aff' : S.coral ? '#ff8a9a' : '#c070ff')), y: 28.2, sash: true };
       O.boots = { m: leather('#5a3a4a'), h: 0 };
       O.pants = cloth(mixC(main, '#000000', 0.4));
@@ -312,6 +367,116 @@ export function outfitOf(Lk, job, armorId, fem) {
       O.pants = cloth(S.ninja ? main : mixC(main, '#000000', 0.2));
       O.legW = 1.16;
       O.boots = { m: cloth(S.ninja ? '#24202c' : '#3a3040'), h: 0.32, wrap: cloth('#f0ece0') };
+      if (S.under) {
+        // スーパーサイヤ人の 道着: こんの したぎ（V の えりと 半そで）・こんの リストバンドと おび・こんの ブーツ・むねの まるい しるし
+        const um = cloth(S.under);
+        O.torso = { ...O.torso, trim: null, under: um, mark: cloth('#f8f6f0') };
+        O.sleeve = { upper: um, lower: Lk.skin, cuff: um, cuffW: 1.26 };
+        O.belt = { m: um, y: 28.3, sash: true, obi: true };
+        O.pants = cloth(main);
+        O.boots = { m: cloth('#26306c'), h: 0.62, cuff: cloth('#e2a634') };
+      }
+      break;
+    }
+    case 'saiyan': {
+      // サイヤ人の 戦闘服: こんの ぴったりした 服・クリーム色の むねあて・きいろっぽい 茶色の かたあてと こしの いた・白い 手ぶくろと ブーツ
+      const suit = cloth('#22306e', { light: 0.9 });
+      const plate = mat({ r: ['#857c62', '#c4bea2', '#ece8d4', '#fbf9ef', '#ffffff'], th: TH.metal, spec: 0.955, sc: '#ffffff' });
+      const brown = mat({ r: ['#5e4012', '#9e701c', '#d2a034', '#f0ce72', '#fff2c4'], th: TH.metal, spec: 0.96, sc: '#fffbe6' });
+      const white = mat({ r: ['#8e8ca6', '#cac8da', '#f2f2f8', '#ffffff'], th: TH.cloth });
+      O.top = suit;
+      O.torso = { kind: 'saiyan', hem: 30.4, flare: 0.2, plate, brown };
+      O.sleeve = { upper: suit, lower: suit, cuff: null };
+      O.glove = white;
+      O.pauldron = { m: brown, size: 1.02, kind: 'plate', layers: 1 };
+      O.skirt = { m: brown, y0: 28.3, y1: 32.4, flare: 0.9, kind: 'flaps', over: true };
+      O.pants = suit;
+      O.legW = 1.04;
+      O.boots = { m: white, h: 0.72, cuff: brown, toe: brown };
+      O.belt = null;
+      break;
+    }
+    case 'jersey': {
+      // ジャージ: たての えり・はんぶん あいた チャックから Tシャツ・うでと あしに しろい 2本線・サンダル
+      const jm = cloth(main);
+      const line = cloth('#f4f4f8');
+      O.top = jm;
+      O.torso = { kind: 'jersey', hem: 31.0, flare: 0.5, tee: cloth(res(S.tee) || '#a6a6b4'), line, zip: metal('silver'), collar: cloth(mixC(main, '#000000', 0.12)) };
+      O.sleeve = { upper: jm, lower: jm, cuff: cloth(mixC(main, '#000000', 0.25)), cuffW: 1.16, lines: line, lineN: 2 };
+      O.pants = jm;
+      O.pantsLines = { m: line, n: 2 };
+      O.legW = 1.12;
+      O.boots = { m: mat({ r: ['#5a5e72', '#9a9eb2', '#d4d6e2', '#f2f2f8'], th: TH.matte }), h: 0, band: cloth(S.slipper || '#3a66c0') };
+      O.belt = null;
+      break;
+    }
+    case 'coat': {
+      // 中二病の 黒い ロングコート: たかい えり（うらは 赤）・まえの あわせに 赤い うら地・ぎんの くさり・右うでの ほうたい
+      const cm = cloth(main, { light: 0.9 });
+      const lin = cloth(res(S.lining) || '#c41e30');
+      O.top = cm;
+      O.torso = { kind: 'coat', hem: 30.0, flare: 0.3, lining: lin, chain: metal('silver'), collar: cm, shirt: cloth('#3a3446') };
+      O.sleeve = { upper: cm, lower: cm, cuff: lin, cuffW: 1.14, bandage: mat({ r: ramp('#f2f0ea', 4), th: TH.cloth }) };
+      O.skirt = { m: cm, y0: 28.4, y1: 37.4, flare: 1.7, kind: 'coat', lining: lin, over: true };
+      O.pants = cloth('#2a2634');
+      O.boots = { m: mat({ r: ['#0e0c14', '#1e1a26', '#34303e', '#6a6680'], th: TH.matte, spec: 0.95 }), h: 0.72, cuff: metal('silver') };
+      O.belt = { m: leather('#2a2430'), buckle: metal('silver'), y: 28.2 };
+      break;
+    }
+    case 'rubber': {
+      // ゴム人間: まえを あけた 半そでの ベスト（はだの むね）・おびを むすぶ・ひざたけの 半ズボン（すその おりかえし）・サンダル
+      // loose: ニカ（しろい だぼっと した 服）
+      const vm = cloth(main);
+      // 男の子は はだの むね、女の子は しろい タンクトップ
+      O.top = fem ? cloth(S.loose ? '#fdfdff' : '#f4f2ec') : Lk.skin;
+      O.torso = { kind: 'rubber', hem: 29.6, flare: 0.3, vest: vm, loose: !!S.loose, btn: cloth('#f2d23a') };
+      O.sleeve = { upper: vm, lower: Lk.skin, cuff: null, puff: S.loose ? 1.2 : 1.08 };
+      O.pants = cloth(S.shorts);
+      O.shorts = 0.88;
+      O.shortsCuff = cloth(S.cuff);
+      O.legW = S.loose ? 1.24 : 1.12;
+      O.boots = { m: leather('#7a4e2c'), h: 0, sandal: 'strap', strap: leather('#5a3420') };
+      O.belt = { m: cloth(S.sash), y: 28.0, sash: true, obi: true };
+      break;
+    }
+    case 'hoodie': {
+      // パーカー: うしろの フード・まえの ポケット・ひも（logo: しろい さいせいボタン  neon: ひかる 2色の 線）
+      const hm = cloth(main);
+      const neonM = S.neon ? S.neon.map((c) => neon(c)) : null;
+      O.top = hm;
+      O.torso = { kind: 'hoodie', hem: 31.2, flare: 0.4, hood: cloth(mixC(main, '#000000', 0.1)), inner: cloth(mixC(main, '#000000', 0.5)), string: cloth('#f2f2f6'), logo: !!S.logo, neon: neonM, rib: cloth(mixC(main, '#000000', 0.22)) };
+      O.sleeve = { upper: hm, lower: hm, cuff: O.torso.rib, cuffW: 1.16, lines: neonM ? neonM[1] : null, lineN: 1 };
+      O.pants = cloth(S.pants || '#2a3048');
+      if (neonM) O.pantsLines = { m: neonM[0], n: 1 };
+      O.boots = { m: mat({ r: ['#8a8a9e', '#c4c4d2', '#ececf2', '#ffffff'], th: TH.matte }), h: 0, toe: neonM ? neonM[0] : cloth('#de2a2e') };
+      O.belt = null;
+      break;
+    }
+    case 'gamer': {
+      // ゲーマー: ドットの ハートの Tシャツ・まえを あけた チェックの シャツ・ジーンズ・くびに かけた ヘッドホン
+      const tee = cloth(S.tee);
+      const sh = cloth(S.shirt);
+      O.top = tee;
+      O.torso = { kind: 'gamer', hem: 31.0, flare: 0.4, tee, shirt: sh, phones: mat({ r: ['#101018', '#22222e', '#3a3a4c', '#6a6a86'], th: TH.metal.slice(0, 3), spec: 0.95 }), cup: cloth('#e8384a') };
+      O.sleeve = { upper: sh, lower: sh, cuff: cloth(mixC(S.shirt, '#000000', 0.25)), cuffW: 1.16, tex: tex.plaid };
+      O.pants = cloth(S.pants);
+      O.boots = { m: mat({ r: ['#6a1a24', '#b02a36', '#e04a52', '#ff8a8a'], th: TH.matte }), h: 0, toe: cloth('#f4f4f6') };
+      O.belt = null;
+      break;
+    }
+    case 'esports': {
+      // プロゲーマー: チームの ユニフォーム（黒に 赤い わきの おびと ななめの 線・せなかに 番号）・ゆびの ない 手ぶくろ
+      const jm = cloth(main, { light: 0.95 });
+      const tr = cloth(S.trim);
+      O.top = jm;
+      O.torso = { kind: 'esports', hem: 31.0, flare: 0.3, trim: tr, white: cloth('#f4f4f8') };
+      O.sleeve = { upper: jm, lower: jm, cuff: tr, cuffW: 1.1, lines: tr, lineN: 1 };
+      O.glove = mat({ r: ['#0c0c12', '#1c1c26', '#34343e', '#5a5a6a'], th: TH.matte, spec: 0.96 });
+      O.fingerless = true;
+      O.pants = cloth('#1c1c24');
+      O.pantsLines = { m: tr, n: 1 };
+      O.boots = { m: mat({ r: ['#0e0c14', '#1e1a26', '#34303e', '#6a6680'], th: TH.matte, spec: 0.95 }), h: 0, toe: tr };
+      O.belt = null;
       break;
     }
     case 'suit': {
@@ -401,6 +566,18 @@ export function outfitOf(Lk, job, armorId, fem) {
       O.boots = { m: mat({ r: ['#12101a', '#26222e', '#3e3a48', '#6a6680'], th: TH.matte, spec: 0.96 }), h: S.fire ? 0.62 : 0.25 };
       O.belt = S.fire ? null : { m: leather('#2a2a34'), buckle: metal('silver'), y: 28.6 };
       if (S.fire) O.pantsBand = O.torso.band;
+      // piping: えり・あわせ・ポケット・そでぐちの 水色の ふち  mark: むね（と せなか）の ひしがたの マーク
+      if (S.piping) {
+        O.torso.piping = mat({ r: ramp(S.piping, 4, { light: 1.15 }), th: TH.cloth, spec: 0.97 });
+        O.torso.mark = S.mark || null;
+        O.sleeve.cuff = O.torso.piping;
+      }
+      // tools: こしの 道具ぶくろ（スパナ・ドライバー・メジャー）と あしの ひかる おび
+      if (S.tools) {
+        O.belt = { m: leather('#6a4426'), buckle: metal('silver'), y: 28.5, tools: true };
+        O.pantsBand = O.torso.band;
+        O.boots = { ...O.boots, h: 0.5 };
+      }
       break;
     }
     case 'stage': {
@@ -564,6 +741,13 @@ export function outfitOf(Lk, job, armorId, fem) {
     const pc = PACK_COLORS[fem ? 1 : 0];
     O.pack = { m: leather(pc), edge: leather(mixC(pc, '#000000', 0.32)), clasp: metal('gold'), strap: leather(mixC(pc, '#000000', 0.12)) };
   }
+  // 職業の からだの とくちょう（しっぽ・はね・かみ・オーラ・眼帯 など。よろいを かえても のこる）
+  const JB = JOB_BODY[job];
+  if (JB) {
+    O.body = JB;
+    if (JB.tail) O.tail = { m: mat({ r: ['#3e2414', '#6a4024', '#98633a', '#c08c5c'], th: TH.hair.slice(0, 3) }) };
+    if (JB.wings) O.wings = { m: mat({ r: ['#08060e', '#16121e', '#2a2236', '#463a5c', '#7a6a9a'], th: TH.hair, spec: 0.965, sc: '#8a7ab0' }) };
+  }
   // ★の 品・強化した 品は きらめく
   O.sparkle = !!S.star || (S.plus || 0) > 0;
   return O;
@@ -687,9 +871,14 @@ export function drawTorsoFront(cv, P, O) {
       plateFront(cv, P, O, T);
       break;
     case 'robe': {
-      // まえの おび（trim）・えり
+      // まえの おび（trim。panel が あれば その 色に trim の ふち）・えり
       cv.part({ ol: 'soft' });
-      cv.poly([[15.1, 21.0], [16.9, 21.0], [16.7, 28.8], [15.3, 28.8]], O.trimM, { cx: 0.5 });
+      cv.poly([[15.1, 21.0], [16.9, 21.0], [16.7, 28.8], [15.3, 28.8]], T.panel || O.trimM, { cx: 0.5 });
+      if (T.panel) {
+        const pid = cv.cur;
+        cv.part({ ol: 'none', clip: pid });
+        for (const s of [-1, 1]) cv.stroke([[16 + s * 0.85, 21.0], [16 + s * 0.65, 28.8]], 0.2, O.trimM, { n: [0, 0] });
+      }
       cv.part({ ol: 'line' });
       cv.poly([[13.4, 20.6], [18.6, 20.6], [19.4, 21.8], [16, 23.6], [12.6, 21.8]], O.trimM, { cx: 0.6, n: 'row' });
       cv.part({ ol: 'soft' });
@@ -701,6 +890,17 @@ export function drawTorsoFront(cv, P, O) {
       break;
     }
     case 'gi': {
+      if (T.under) {
+        // スーパーサイヤ人の 道着: ふかい V から こんの したぎ・あわせの すじ・むねの まるい しるし
+        cv.part({ ol: 'soft' });
+        cv.poly([[13.8, 21.0], [18.2, 21.0], [16.3, 25.4]], T.under, { n: [0, 0.15] });
+        cv.part({ ol: 'soft' });
+        cv.poly([[14.9, 21.0], [17.1, 21.0], [16.5, 21.9], [15.5, 21.9]], O.skin, { n: [0, 0.2] });
+        cv.crease([[13.7, 21.0], [16.3, 25.5], [18.8, 28.4]], 0.3, -0.5, { parts: [base] });
+        cv.crease([[13.4, 21.4], [15.9, 25.6]], 0.2, 0.35, { parts: [base] });
+        giMark(cv, 18.6, 23.7, 0.95, T.mark);
+        break;
+      }
       // うわぎの あわせ（ひだりが うえ）
       cv.part({ ol: 'soft' });
       cv.poly([[14.6, 21.0], [17.4, 21.0], [16.2, 24.2]], T.ninja ? O.top : O.skin, { n: [0, 0.2] });
@@ -799,11 +999,24 @@ export function drawTorsoFront(cv, P, O) {
         cv.part({ ol: 'line' });
         cv.poly([[13.2, 20.6], [15.0, 20.8], [16, 22.8], [17.0, 20.8], [18.8, 20.6], [19.6, 22.0], [16.4, 23.6], [15.6, 23.6], [12.4, 22.0]], T.collar, { cx: 0.6 });
       }
+      const colId = cv.cur;
       cv.part({ ol: 'none', clip: base });
       cv.stroke([[16, T.tie ? 25.9 : 23.2], [16, 31.2]], 0.22, T.zip, { n: [0, 0] });
       for (const s of [-1, 1]) {
         cv.crease([[16 + s * 1.2, 24.0], [16 + s * 3.8, 24.0]], 0.2, -0.45, { parts: [base] });
         cv.crease([[16 + s * 1.2, 24.0], [16 + s * 1.2, 26.2], [16 + s * 3.8, 26.2], [16 + s * 3.8, 24.0]], 0.16, -0.35, { parts: [base] });
+      }
+      if (T.piping) {
+        // 水色の ふち（えり・あわせの 2本・ポケットの ふた）と むねの ひしがた
+        cv.part({ ol: 'none', clip: colId });
+        cv.stroke([[12.5, 21.9], [15.7, 23.5]], 0.22, T.piping, { n: [0, 0] });
+        cv.stroke([[16.3, 23.5], [19.5, 21.9]], 0.22, T.piping, { n: [0, 0] });
+        cv.part({ ol: 'none', clip: base });
+        for (const s of [-1, 1]) {
+          cv.stroke([[16 + s * 0.55, 23.4], [16 + s * 0.55, 31.2]], 0.15, T.piping, { n: [0, 0] });
+          cv.stroke([[16 + s * 1.25, 24.1], [16 + s * 3.75, 24.1]], 0.17, T.piping, { n: [0, 0] });
+        }
+        if (T.mark === 'diamond') emblem(cv, 18.5, 25.25, 'diamond', O, false, null, T.piping);
       }
       if (T.band) {
         for (const y of [27.0, 29.4]) { cv.part({ ol: 'none', clip: base }); cv.rect(9, y, 14, 0.85, T.band, { n: [0, -0.2] }); }
@@ -940,10 +1153,185 @@ export function drawTorsoFront(cv, P, O) {
       nameTag(cv, 18.7, 24.8, T.tagc);
       break;
     }
+    case 'saiyan': {
+      // クリーム色の むねあて（むねの もりあがりと まんなかの すじ）・くびの まわりは こんの 服
+      const w = f ? 4.7 : 5.3;
+      cv.part({ ol: 'line' });
+      cv.poly([[16 - w + 0.7, 21.3], [16 - 1.9, 21.1], [16, 22.3], [16 + 1.9, 21.1], [16 + w - 0.7, 21.3], [16 + w + 0.5, 23.0], [16 + w + 0.2, 25.6], [16 + w - 0.5, 28.6], [16 - w + 0.5, 28.6], [16 - w - 0.2, 25.6], [16 - w - 0.5, 23.0]], T.plate, { n: 'bevel', bw: 1.0, bs: 0.7, tilt: [0, -0.04] });
+      const id = cv.cur;
+      cv.crease([[16, 22.6], [16, 28.3]], 0.26, -0.42, { parts: [id] });
+      cv.crease([[16 - w + 1.1, 25.2], [16 - 2.6, 25.9], [16 - 0.5, 25.6]], 0.24, -0.38, { parts: [id] });
+      cv.crease([[16 + 0.5, 25.6], [16 + 2.6, 25.9], [16 + w - 1.1, 25.2]], 0.24, -0.38, { parts: [id] });
+      cv.crease([[16 - w + 0.9, 23.2], [16 - 1.6, 22.8]], 0.34, 0.34, { parts: [id] });
+      // こしの ふちの ライン（きいろっぽい 茶色）
+      cv.part({ ol: 'none', clip: id });
+      cv.stroke([[16 - w + 0.4, 28.2], [16 + w - 0.4, 28.2]], 0.42, T.brown, { n: [0, 0.2] });
+      break;
+    }
+    case 'jersey': {
+      // はんぶん あけた チャック（うえは Tシャツ）・チャックの つまみ・よこの ポケット・だらっと した しわ
+      cv.part({ ol: 'line' });
+      cv.poly([[14.2, 21.0], [17.8, 21.0], [16.7, 25.3], [15.3, 25.3]], T.tee, { n: [0, -0.1] });
+      cv.crease([[15.0, 21.2], [16.0, 21.9], [17.0, 21.2]], 0.2, -0.4, { parts: [cv.cur] });
+      cv.part({ ol: 'none', clip: base });
+      cv.stroke([[16, 25.2], [16, 31.0]], 0.2, T.zip, { n: [0, 0] });
+      cv.part({ ol: 'soft' });
+      cv.rect(15.75, 25.3, 0.5, 1.15, T.zip, { n: [0, -0.2] });
+      for (const s of [-1, 1]) {
+        cv.crease([[16 + s * 3.0, 28.0], [16 + s * 4.0, 30.4]], 0.18, -0.45, { parts: [base] });
+        cv.crease([[16 + s * 1.2, 27.4], [16 + s * 2.6, 28.4]], 0.2, -0.3, { parts: [base] });
+      }
+      cv.crease([[12.2, 30.6], [19.8, 30.6]], 0.3, -0.35, { parts: [base] });
+      break;
+    }
+    case 'coat': {
+      // たかい えりの なか（くらい シャツ）・ダブルの まえあわせと ぎんの ボタン・むねの くさり
+      cv.part({ ol: 'line' });
+      cv.poly([[14.7, 21.0], [17.3, 21.0], [16.0, 22.9]], T.shirt, { n: [0, -0.1] });
+      cv.crease([[17.4, 21.6], [17.3, 28.2]], 0.26, -0.5, { parts: [base] });
+      cv.crease([[17.7, 21.6], [17.6, 28.2]], 0.16, 0.3, { parts: [base] });
+      buttons(cv, [[14.9, 23.4], [18.4, 23.4], [14.9, 25.6], [18.4, 25.6]], null, T.chain);
+      chain(cv, [[18.4, 25.6], [17.0, 27.0], [15.2, 27.3], [13.4, 26.4]], T.chain);
+      break;
+    }
+    case 'rubber': {
+      // はだの むね（男の子）・しろい タンクトップ（女の子）・まえを あけた ベスト
+      if (!f) {
+        cv.crease([[16, 23.6], [16, 27.4]], 0.2, -0.28, { parts: [base] });
+        for (const s of [-1, 1]) cv.crease([[16 + s * 0.6, 25.0], [16 + s * 2.4, 25.2]], 0.22, -0.3, { parts: [base] });
+      } else {
+        cv.part({ ol: 'soft' });
+        cv.poly([[14.2, 21.0], [17.8, 21.0], [17.2, 22.5], [14.8, 22.5]], O.skin, { cx: 0.4 });
+      }
+      const fl = T.loose ? 0.9 : 0;
+      const sw = P.f === 0 ? 0.2 : -0.2;
+      for (const s of [-1, 1]) {
+        cv.part({ ol: 'line' });
+        cv.poly([[16 + s * 2.0, 21.0], [16 + s * (f ? 4.7 : 5.2), 21.0], [16 + s * (f ? 5.8 : 6.4), 22.4], [16 + s * (f ? 5.1 : 5.7), 24.6], [16 + s * (f ? 4.5 : 5.0) + s * fl, 28.4], [16 + s * (f ? 4.9 : 5.4) + s * fl * 1.4 + sw, 30.0], [16 + s * (3.6 + fl * 0.6) + sw, 30.2], [16 + s * 3.0, 26.0]], T.vest, { cx: 0.6 });
+        const id = cv.cur;
+        cv.crease([[16 + s * 3.4, 22.6], [16 + s * 3.6, 29.4]], 0.18, -0.3, { parts: [id] });
+        if (!T.loose && s < 0) buttons(cv, [[16 + s * 3.0, 23.6], [16 + s * 3.15, 25.6], [16 + s * 3.35, 27.6]], null, T.btn);
+      }
+      break;
+    }
+    case 'hoodie': {
+      // すその リブ・まえの ポケット・ロゴ（しろい さいせいボタン）・ネオンの 線
+      cv.part({ ol: 'none', clip: base });
+      cv.rect(8, T.hem - 0.95, 16, 1.0, T.rib, { n: [0, 0.25] });
+      if (T.neon) {
+        for (const [j, m] of T.neon.entries()) {
+          cv.part({ ol: 'none', clip: base });
+          cv.stroke([[10.6, 23.0 + j * 1.25], [16.0, 24.7 + j * 1.25], [21.4, 23.0 + j * 1.25]], 0.3, m, { n: [0, 0] });
+        }
+      }
+      cv.part({ ol: 'line' });
+      cv.poly([[13.2, 27.0], [18.8, 27.0], [19.6, 29.9], [12.4, 29.9]], O.top, { cx: 0.75, cy: 0.3 });
+      const pid = cv.cur;
+      for (const s of [-1, 1]) cv.crease([[16 + s * 2.9, 27.2], [16 + s * 3.5, 29.7]], 0.2, -0.45, { parts: [pid] });
+      if (T.logo) playLogo(cv, 16, 24.0, 1);
+      break;
+    }
+    case 'gamer': {
+      // Tシャツの ドットの ハート・まえを あけた チェックの シャツ（えり つき）
+      pixelHeart(cv, 16, 24.6);
+      for (const s of [-1, 1]) {
+        cv.part({ ol: 'line' });
+        cv.poly([[16 + s * 2.3, 21.0], [16 + s * (f ? 4.7 : 5.2), 21.0], [16 + s * (f ? 5.7 : 6.3), 22.4], [16 + s * (f ? 5.0 : 5.6), 24.6], [16 + s * (f ? 4.3 : 4.9), 28.4], [16 + s * (f ? 5.0 : 5.5), 31.2], [16 + s * 3.0, 31.2], [16 + s * 2.6, 26.0]], T.shirt, { cx: 0.6, tex: tex.plaid(k) });
+        cv.part({ ol: 'line' });
+        cv.poly([[16 + s * 1.6, 20.7], [16 + s * 3.4, 20.8], [16 + s * 3.0, 23.0], [16 + s * 2.4, 22.6]], T.shirt, { n: [s * 0.3, -0.2] });
+      }
+      break;
+    }
+    case 'esports': {
+      // わきの 赤い おび・むねの ななめの 2本線・むねの チームの しるし（赤い やじるし）
+      for (const s of [-1, 1]) {
+        cv.part({ ol: 'none', clip: base });
+        cv.poly([[16 + s * 4.3, 22.0], [16 + s * 9, 22.0], [16 + s * 9, 32], [16 + s * 4.0, 32]], T.trim, { n: [s * 0.5, 0] });
+      }
+      for (const [j, m] of [T.trim, T.white].entries()) {
+        cv.part({ ol: 'none', clip: base });
+        cv.stroke([[10.0, 28.6 - j * 0.9], [22.0, 24.4 - j * 0.9]], j ? 0.2 : 0.42, m, { n: [0, 0] });
+      }
+      cv.part({ ol: 'line' });
+      cv.poly([[17.4, 22.4], [19.6, 22.4], [19.2, 23.4], [18.5, 24.4], [17.8, 23.4]], T.trim, { n: 'bevel', bw: 0.3 });
+      break;
+    }
     default:
   }
   if (O.mantle) mantleFront(cv, P, O);
   if (O.scarf) scarfFront(cv, P, O);
+}
+
+// スーパーサイヤ人の 道着の まるい しるし（しろい まる に くろい もじの かわり）
+function giMark(cv, x, y, r, m) {
+  cv.part({ ol: 'line' });
+  cv.ell(x, y, r, r, m, { bulge: 0.6 });
+  if (cv.k >= 4) {
+    cv.part({ ol: 'none', cast: false });
+    const X = cv.X(x), Y = cv.Y(y), q = Math.max(1, Math.round(r * cv.k * 0.45));
+    const c = '#2a2430';
+    for (let i = -q; i <= q; i++) cv.px(X + i, Y - 1, c);
+    for (let j = -q; j <= q; j++) cv.px(X, Y + j, c);
+    cv.px(X - q, Y + q - 1, c);
+    cv.px(X + q, Y + q - 1, c);
+  } else {
+    cv.part({ ol: 'none', cast: false });
+    cv.px(cv.X(x), cv.Y(y), '#2a2430');
+  }
+}
+
+// ぎんの くさり（わの つぶを ならべる）
+function chain(cv, pts, m) {
+  const path = HeroCanvas.bez(pts[0], pts[1], pts[pts.length - 1], 10);
+  void pts;
+  for (let i = 0; i < path.length; i += 2) {
+    cv.part({ ol: 'soft', cast: false });
+    cv.ell(path[i][0], path[i][1], 0.36, 0.3, m, { bulge: 0.9 });
+  }
+}
+
+// さいせいボタン（しろい かどの まるい しかくに 赤い さんかく。s: 大きさ）
+function playLogo(cv, x, y, s, tri = '#de2a2e') {
+  const w = 1.75 * s, h = 1.2 * s, c = 0.45 * s;
+  cv.part({ ol: 'line' });
+  cv.poly([[x - w + c, y - h], [x + w - c, y - h], [x + w, y - h + c], [x + w, y + h - c], [x + w - c, y + h], [x - w + c, y + h], [x - w, y + h - c], [x - w, y - h + c]], mat({ r: ramp('#fbfbfd', 4), th: TH.cloth }), { cx: 0.4, cy: 0.3 });
+  cv.part({ ol: 'none' });
+  cv.poly([[x - 0.55 * s, y - 0.7 * s], [x + 0.75 * s, y], [x - 0.55 * s, y + 0.7 * s]], cloth(tri), { n: [0, 0] });
+}
+
+// せなかの 番号（ドットの すうじ。col: もじ、edge: ふち）
+const DIGIT = {
+  0: ['111', '101', '101', '101', '111'], 1: ['010', '110', '010', '010', '111'], 2: ['111', '001', '111', '100', '111'], 3: ['111', '001', '011', '001', '111'],
+  4: ['101', '101', '111', '001', '001'], 5: ['111', '100', '111', '001', '111'], 6: ['111', '100', '111', '101', '111'], 7: ['111', '001', '001', '010', '010'],
+  8: ['111', '101', '111', '101', '111'], 9: ['111', '101', '111', '001', '111'],
+};
+function backNumber(cv, x, y, num, col, edge) {
+  const z = cv.k >= 4 ? 2 : 1;
+  const gw = 3 * z, gap = z;
+  const total = num.length * gw + (num.length - 1) * gap;
+  const X0 = cv.X(x) - Math.floor(total / 2), Y0 = cv.Y(y) - Math.floor((5 * z) / 2);
+  cv.part({ ol: 'none', cast: false });
+  for (const pass of [0, 1]) {
+    [...num].forEach((d, n) => {
+      const g = DIGIT[d] || DIGIT[0];
+      for (let r = 0; r < 5; r++) for (let c = 0; c < 3; c++) {
+        if (g[r][c] !== '1') continue;
+        for (let a = 0; a < z; a++) for (let b = 0; b < z; b++) {
+          const px = X0 + n * (gw + gap) + c * z + a, py = Y0 + r * z + b;
+          if (pass) cv.px(px, py, col);
+          else for (const [ox, oy] of [[1, 0], [0, 1], [1, 1]]) cv.px(px + ox, py + oy, edge);
+        }
+      }
+    });
+  }
+}
+
+// ドットの ハート（ゲームの ライフの しるし）
+function pixelHeart(cv, x, y) {
+  cv.part({ ol: 'none', cast: false });
+  const rows = cv.k >= 4 ? ['.RR.RR.', 'RWRRRRR', 'RRRRRRR', '.RRRRR.', '..RRR..', '...R...'] : ['RR.RR', 'RRRRR', '.RRR.', '..R..'];
+  const pal = { R: '#e8384a', W: '#ffd0d8' };
+  cv.stamp(cv.X(x) - Math.floor(rows[0].length / 2), cv.Y(y) - Math.floor(rows.length / 2), rows, pal);
 }
 
 function plateFront(cv, P, O, T) {
@@ -970,6 +1358,7 @@ function plateFront(cv, P, O, T) {
   cv.part({ ol: 'line' });
   cv.poly([[13.8, 20.4], [18.2, 20.4], [18.8, 21.6], [16, 22.4], [13.2, 21.6]], O.plate, { n: 'bevel', bw: 0.6, bs: 0.7 });
   if (T.holy) emblem(cv, 16, 25.2, 'cross', O);
+  else if (T.horn) emblem(cv, 16, 25.4, 'horn', O);
   else if (T.bird) emblem(cv, 16, 25.1, 'bird', O);
   else if (T.stars) emblem(cv, 16, 25.0, 'starbig', O);
   else if (T.gemc) emblem(cv, 16, 24.6, 'gem', O, false, T.gemc);
@@ -980,6 +1369,25 @@ function plateFront(cv, P, O, T) {
 
 function emblem(cv, x, y, kind, O, small = false, color = null, m = null) {
   const k = cv.k;
+  if (kind === 'diamond' || kind === 'diamondbig') {
+    // ひしがたの マーク（◇: そとの ひしがた ＋ なかの くらい ひしがた。よこは からだの はばで ひろがるので ほそめ）
+    const z = kind === 'diamondbig' ? 1.75 : 1;
+    const rx = 0.92 * z, ry = 1.22 * z;
+    cv.part({ ol: 'line' });
+    cv.poly([[x, y - ry], [x + rx, y], [x, y + ry], [x - rx, y]], m || metal('silver'), { n: 'bevel', bw: 0.3 * z });
+    cv.part({ ol: 'none' });
+    const q = kind === 'diamondbig' ? 0.5 : 0.42;
+    cv.poly([[x, y - ry * q], [x + rx * q, y], [x, y + ry * q], [x - rx * q, y]], O.top || cloth('#1c2a58'), { n: [0, 0], bias: -0.25 });
+    return;
+  }
+  if (kind === 'horn') {
+    // 魔王の しるし（金の つのが 2本 はえた かざりと 赤い 宝石）
+    cv.part({ ol: 'line' });
+    cv.poly([[x - 1.1, y + 0.4], [x - 1.9, y - 0.8], [x - 2.5, y - 2.9], [x - 1.2, y - 1.7], [x - 0.5, y - 1.1], [x, y - 1.5], [x + 0.5, y - 1.1], [x + 1.2, y - 1.7], [x + 2.5, y - 2.9], [x + 1.9, y - 0.8], [x + 1.1, y + 0.4], [x, y + 1.9]], m || O.trim || metal('gold'), { n: 'bevel', bw: 0.4 });
+    cv.part({ ol: 'none' });
+    cv.ell(x, y - 0.1, 0.72, 0.78, gem('#e8203a'), { bulge: 0.9 });
+    return;
+  }
   if (kind === 'school') {
     // 校章（小さな たての 形）
     cv.part({ ol: 'line' });
@@ -1237,6 +1645,106 @@ export function drawNeckwear(cv, P, O) {
     }
     return;
   }
+  if (T.kind === 'jersey') {
+    // ジャージの たての えり（まえは ひらいて おれる。うえの ふちに しろい 線）
+    cv.part({ ol: 'line' });
+    if (P.side) {
+      cv.poly([[X(-2.5), 19.8 + b], [X(1.0), 20.0 + b], [X(2.3), 21.8 + b], [X(-2.7), 21.8 + b]], T.collar, { cx: 0.6 });
+      cv.part({ ol: 'none' });
+      cv.stroke([[X(-2.4), 20.0 + b], [X(0.9), 20.2 + b]], 0.17, T.line, { n: [0, 0] });
+    } else if (P.back) {
+      cv.poly([[13.2, 19.9], [18.8, 19.9], [19.0, 21.6], [13.0, 21.6]], T.collar, { cx: 0.6 });
+      cv.part({ ol: 'none' });
+      cv.stroke([[13.3, 20.1], [18.7, 20.1]], 0.17, T.line, { n: [0, 0] });
+    } else {
+      for (const s of [-1, 1]) {
+        cv.part({ ol: 'line' });
+        cv.poly([[16 + s * 1.5, 20.4], [16 + s * 3.4, 19.9], [16 + s * 3.9, 21.6], [16 + s * 1.9, 23.2]], T.collar, { n: [s * 0.3, -0.2] });
+        cv.part({ ol: 'none' });
+        cv.stroke([[16 + s * 1.6, 20.5], [16 + s * 3.4, 20.05]], 0.17, T.line, { n: [0, 0] });
+      }
+    }
+    return;
+  }
+  if (T.kind === 'coat') {
+    // たかく たった えり（そとは 黒、うちがわは 赤い うら地）
+    if (P.side) {
+      cv.part({ ol: 'line' });
+      cv.poly([[X(1.2), 21.7 + b], [X(-2.3), 21.9 + b], [X(-3.9), 18.0 + b], [X(-2.0), 17.8 + b], [X(0.4), 19.8 + b]], T.collar, { cx: 0.6 });
+      const id = cv.cur;
+      cv.part({ ol: 'none', clip: id });
+      cv.stroke([[X(-1.9), 18.0 + b], [X(0.3), 19.9 + b], [X(1.0), 21.5 + b]], 0.38, T.lining, { n: [0, 0] });
+    } else if (P.back) {
+      cv.part({ ol: 'line' });
+      cv.poly([[12.4, 21.9], [11.4, 18.0], [13.8, 18.5], [16.0, 18.8], [18.2, 18.5], [20.6, 18.0], [19.6, 21.9]], T.collar, { cx: 0.6 });
+    } else {
+      for (const s of [-1, 1]) {
+        cv.part({ ol: 'line' });
+        cv.poly([[16 + s * 1.5, 21.9], [16 + s * 5.2, 21.5], [16 + s * 7.3, 18.2], [16 + s * 5.6, 18.6], [16 + s * 3.2, 19.8], [16 + s * 2.2, 20.6]], T.lining, { n: [s * 0.45, -0.2] });
+        const id = cv.cur;
+        cv.part({ ol: 'none', clip: id });
+        cv.stroke([[16 + s * 5.3, 21.6], [16 + s * 7.2, 18.3]], 0.6, T.collar, { n: [0, 0] });
+      }
+    }
+    return;
+  }
+  if (T.kind === 'hoodie') {
+    // フード（まえ: くびの まわりの ふち と ひも / うしろ: せなかに のる / よこ: くびの うしろの ふくらみ）
+    if (P.side) {
+      cv.part({ ol: 'line' });
+      cv.poly([[X(0.8), 20.2 + b], [X(-2.0), 19.4 + b], [X(-4.0), 20.6 + b], [X(-4.3), 23.4 + b], [X(-2.9), 24.8 + b], [X(-1.2), 23.0 + b], [X(0.9), 22.0 + b]], T.hood, { cx: 0.6 });
+      cv.crease([[X(-0.6), 20.2 + b], [X(-2.8), 21.6 + b], [X(-3.0), 24.0 + b]], 0.2, -0.4, { parts: [cv.cur] });
+      cv.part({ ol: 'soft' });
+      cv.stroke([[X(2.1), 22.0 + b], [X(2.4), 24.2 + b], [X(2.3), 25.4 + b]], 0.15, T.string, { n: [0, 0] });
+    } else if (P.back) {
+      cv.part({ ol: 'line' });
+      cv.poly([[12.0, 20.6], [20.0, 20.6], [20.5, 22.0], [19.3, 24.7], [16.0, 26.2], [12.7, 24.7], [11.5, 22.0]], T.hood, { cx: 0.7, cy: 0.4 });
+      const id = cv.cur;
+      cv.crease([[16, 21.2], [16, 25.8]], 0.2, -0.45, { parts: [id] });
+      cv.crease([[12.4, 21.2], [16.0, 22.0], [19.6, 21.2]], 0.24, -0.35, { parts: [id] });
+      if (T.neon) { cv.part({ ol: 'none', clip: id }); cv.stroke([[11.8, 22.2], [12.9, 24.7], [16.0, 26.0], [19.1, 24.7], [20.2, 22.2]], 0.26, T.neon[0], { n: [0, 0] }); }
+    } else {
+      for (const s of [-1, 1]) {
+        cv.part({ ol: 'line' });
+        cv.poly([[16 + s * 1.6, 23.0], [16 + s * 1.9, 21.2], [16 + s * 2.4, 19.9], [16 + s * 4.0, 20.1], [16 + s * 4.6, 21.4], [16 + s * 3.4, 22.6]], T.hood, { n: [s * 0.35, -0.25] });
+        if (T.neon) { cv.part({ ol: 'none', clip: cv.cur }); cv.stroke([[16 + s * 1.7, 22.8], [16 + s * 2.0, 21.2], [16 + s * 2.5, 20.0]], 0.24, T.neon[0], { n: [0, 0] }); }
+        cv.part({ ol: 'soft' });
+        cv.stroke([[16 + s * 1.15, 22.6], [16 + s * 1.25, 24.4], [16 + s * 1.15, 25.4]], 0.15, T.string, { n: [0, 0] });
+        cv.part({ ol: 'soft' });
+        cv.ell(16 + s * 1.15, 25.6, 0.27, 0.32, T.string, { bulge: 0.6 });
+      }
+    }
+    return;
+  }
+  if (T.kind === 'gamer') {
+    // くびに かけた ヘッドホン（くろに 赤い まんなか）
+    if (P.back) {
+      cv.part({ ol: 'line' });
+      cv.stroke([[12.4, 21.6], [13.8, 20.6], [16, 20.2], [18.2, 20.6], [19.6, 21.6]], 0.42, T.phones, { n: [0, -0.3] });
+    } else if (P.side) {
+      cv.part({ ol: 'line' });
+      cv.stroke([[X(1.4), 21.0 + b], [X(-0.6), 20.2 + b], [X(-2.6), 20.6 + b]], 0.36, T.phones, { n: [0, -0.3] });
+      cv.part({ ol: 'line' });
+      cv.ell(X(1.7), 21.7 + b, 1.0, 1.15, T.phones, { bulge: 0.8 });
+      cv.part({ ol: 'none' });
+      cv.ell(X(1.9), 21.7 + b, 0.45, 0.6, T.cup, { bulge: 0.6 });
+    } else {
+      for (const s of [-1, 1]) {
+        cv.part({ ol: 'line' });
+        cv.ell(16 + s * 2.5, 21.7, 1.15, 1.0, T.phones, { bulge: 0.8 });
+        cv.part({ ol: 'none' });
+        cv.ell(16 + s * 2.6, 21.75, 0.55, 0.45, T.cup, { bulge: 0.6 });
+      }
+    }
+    return;
+  }
+  if (T.kind === 'esports' && !P.side) {
+    // まるい えりの 赤い ふち
+    cv.part({ ol: 'soft' });
+    if (P.back) cv.stroke([[13.6, 20.9], [16, 21.3], [18.4, 20.9]], 0.32, T.trim, { n: [0, -0.2] });
+    else cv.stroke([[13.8, 20.9], [15.0, 21.9], [16, 22.1], [17.0, 21.9], [18.2, 20.9]], 0.32, T.trim, { n: [0, -0.2] });
+    return;
+  }
   if (T.kind === 'kid') {
     cv.part({ ol: 'line' });
     if (P.side) {
@@ -1440,6 +1948,15 @@ export function drawTorsoBack(cv, P, O) {
       cv.part({ ol: 'line' });
       cv.poly([[12.8, 20.6], [19.2, 20.6], [19.6, 22.0], [12.4, 22.0]], T.collar, { cx: 0.6 });
       cv.crease([[16, 22.4], [16, 28.0]], 0.22, -0.3, { parts: [base] });
+      if (T.piping) {
+        // えりの ふち・かたの きりかえ・せなかの 大きな ひしがた
+        const cid = cv.cur;
+        cv.part({ ol: 'none', clip: cid });
+        cv.stroke([[12.5, 21.8], [19.5, 21.8]], 0.2, T.piping, { n: [0, 0] });
+        cv.part({ ol: 'none', clip: base });
+        cv.stroke([[10.0, 23.0], [22.0, 23.0]], 0.17, T.piping, { n: [0, 0] });
+        if (T.mark === 'diamond') emblem(cv, 16, 26.0, 'diamondbig', O, false, null, T.piping);
+      }
       break;
     }
     case 'baseball': {
@@ -1463,7 +1980,57 @@ export function drawTorsoBack(cv, P, O) {
     case 'gi':
       if (T.dragon) emblem(cv, 16, 25.4, 'dragon', O);
       if (T.wave) emblem(cv, 16, 25.4, 'wave', O);
+      // スーパーサイヤ人: せなかの 大きな まるい しるし
+      if (T.under) giMark(cv, 16, 24.9, 1.85, T.mark);
       break;
+    case 'saiyan': {
+      // せなかの いた（クリーム色）と こしの ふち
+      const w = P.fem ? 4.7 : 5.3;
+      cv.part({ ol: 'line' });
+      cv.poly([[16 - w + 0.6, 21.3], [16 + w - 0.6, 21.3], [16 + w + 0.4, 23.0], [16 + w + 0.1, 25.6], [16 + w - 0.5, 28.6], [16 - w + 0.5, 28.6], [16 - w - 0.1, 25.6], [16 - w - 0.4, 23.0]], T.plate, { n: 'bevel', bw: 1.0, bs: 0.7 });
+      const id = cv.cur;
+      cv.crease([[16, 21.8], [16, 28.3]], 0.26, -0.42, { parts: [id] });
+      cv.part({ ol: 'none', clip: id });
+      cv.stroke([[16 - w + 0.4, 28.2], [16 + w - 0.4, 28.2]], 0.42, T.brown, { n: [0, 0.2] });
+      break;
+    }
+    case 'jersey':
+      cv.crease([[16, 22.0], [16, 28.4]], 0.24, -0.25, { parts: [base] });
+      cv.crease([[12.2, 30.6], [19.8, 30.6]], 0.3, -0.35, { parts: [base] });
+      break;
+    case 'coat':
+      cv.crease([[16, 22.0], [16, 30.0]], 0.26, -0.45, { parts: [base] });
+      break;
+    case 'rubber': {
+      // ベストの せなか（ぜんぶ おおう）
+      cv.part({ ol: 'line' });
+      cv.poly(torsoFrontPts(P, { ...T, hem: 30.0, flare: T.loose ? 1.4 : 0.4 }), T.vest, { cx: 0.85, cy: 0.25 });
+      cv.crease([[16, 22.0], [16, 29.6]], 0.22, -0.3, { parts: [cv.cur] });
+      break;
+    }
+    case 'hoodie':
+      cv.part({ ol: 'none', clip: base });
+      cv.rect(8, T.hem - 0.95, 16, 1.0, T.rib, { n: [0, 0.25] });
+      if (T.neon) {
+        for (const [j, m] of T.neon.entries()) { cv.part({ ol: 'none', clip: base }); cv.stroke([[10.6, 27.4 + j * 1.25], [21.4, 27.4 + j * 1.25]], 0.3, m, { n: [0, 0] }); }
+      }
+      break;
+    case 'gamer': {
+      // チェックの シャツの せなか
+      cv.part({ ol: 'line' });
+      cv.poly(torsoFrontPts(P, { ...T, hem: 31.2 }), T.shirt, { cx: 0.85, cy: 0.25, tex: tex.plaid(k) });
+      cv.crease([[16, 22.0], [16, 30.6]], 0.2, -0.3, { parts: [cv.cur] });
+      break;
+    }
+    case 'esports': {
+      // わきの 赤い おびと せなかの 大きな 番号
+      for (const s of [-1, 1]) {
+        cv.part({ ol: 'none', clip: base });
+        cv.poly([[16 + s * 4.3, 22.0], [16 + s * 9, 22.0], [16 + s * 9, 32], [16 + s * 4.0, 32]], T.trim, { n: [s * 0.5, 0] });
+      }
+      backNumber(cv, 16, 25.4, '21', '#f4f4f8', '#e0263a');
+      break;
+    }
     case 'vest': {
       cv.part({ ol: 'line' });
       cv.poly(torsoFrontPts(P, { ...T, hem: 31.0 }), T.vest, { cx: 0.85, cy: 0.25 });
@@ -1519,10 +2086,18 @@ export function drawTorsoSide(cv, P, O) {
         cv.part({ ol: 'line' });
         cv.poly([[X(-2.4), 20.6 + b], [X(1.2), 20.8 + b], [X(2.2), 22.0 + b], [X(1.7), 25.8 + b], [X(0.8), 22.6 + b], [X(-2.8), 22.2 + b]], T.collar, { cx: 0.6 });
       } else cv.poly([[X(-2.4), 20.6 + b], [X(1.4), 20.8 + b], [X(2.6), 22.2 + b], [X(1.2), 23.0 + b], [X(-2.8), 22.2 + b]], T.collar, { cx: 0.6 });
+      const colId = cv.cur;
       cv.part({ ol: 'none', clip: base });
       cv.stroke([[X(2.5), (T.tie ? 25.8 : 23.0) + b], [X(2.5), 31.0 + b]], 0.2, T.zip, { n: [0, 0] });
       if (T.band) for (const y of [27.0, 29.4]) { cv.part({ ol: 'none', clip: base }); cv.rect(8, y + b, 16, 0.85, T.band, { n: [0, -0.2] }); }
       if (T.tag) nameTag(cv, X(1.2), 23.6 + b, '#3aa060');
+      if (T.piping) {
+        cv.part({ ol: 'none', clip: colId });
+        cv.stroke([[X(-2.7), 22.0 + b], [X(1.2), 22.8 + b], [X(2.5), 22.1 + b]], 0.2, T.piping, { n: [0, 0] });
+        cv.part({ ol: 'none', clip: base });
+        cv.stroke([[X(2.05), 23.0 + b], [X(2.05), 31.0 + b]], 0.15, T.piping, { n: [0, 0] });
+        if (T.mark === 'diamond') emblem(cv, X(0.5), 25.0 + b, 'diamond', O, false, null, T.piping);
+      }
       break;
     }
     case 'stage': {
@@ -1556,16 +2131,65 @@ export function drawTorsoSide(cv, P, O) {
       break;
     case 'robe':
       cv.part({ ol: 'soft' });
-      cv.poly([[X(1.8), 21.0 + b], [X(2.9), 22.6 + b], [X(2.8), 28.8 + b], [X(2.0), 28.8 + b], [X(2.0), 22.6 + b]], O.trimM, { cx: 0.5 });
+      cv.poly([[X(1.8), 21.0 + b], [X(2.9), 22.6 + b], [X(2.8), 28.8 + b], [X(2.0), 28.8 + b], [X(2.0), 22.6 + b]], T.panel || O.trimM, { cx: 0.5 });
       cv.part({ ol: 'line' });
       cv.poly([[X(-2.4), 20.6 + b], [X(1.8), 20.6 + b], [X(2.6), 21.8 + b], [X(-2.8), 22.2 + b]], O.trimM, { cx: 0.6 });
       break;
     case 'gi': {
+      if (T.under) {
+        cv.part({ ol: 'soft' });
+        cv.poly([[X(0.3), 21.0 + b], [X(2.6), 21.2 + b], [X(2.6), 24.0 + b]], T.under, { n: [0, 0.1] });
+        cv.crease([[X(0.4), 21.0 + b], [X(2.5), 24.2 + b], [X(2.1), 28.0 + b]], 0.28, -0.5, { parts: [base] });
+        giMark(cv, X(0.9), 23.9 + b, 0.8, T.mark);
+        break;
+      }
       cv.part({ ol: 'line' });
       const ed = T.trim || mat({ r: ramp('#f4f2f6', 4), th: TH.cloth });
       cv.stroke([[X(0.6), 21.0 + b], [X(2.4), 23.6 + b], [X(2.0), 28.0 + b]], 0.55, ed, { n: [0, -0.1] });
       break;
     }
+    case 'saiyan': {
+      cv.part({ ol: 'line' });
+      cv.poly([[X(1.6), 21.4 + b], [X(-2.4), 21.4 + b], [X(-3.1), 23.0 + b], [X(-2.9), 28.6 + b], [X(2.5), 28.6 + b], [X(3.1), 25.4 + b], [X(3.2), 23.4 + b], [X(2.6), 22.0 + b]], T.plate, { n: 'bevel', bw: 1.0, bs: 0.7 });
+      const id = cv.cur;
+      cv.crease([[X(2.3), 22.8 + b], [X(2.6), 25.6 + b], [X(1.9), 28.2 + b]], 0.32, 0.4, { parts: [id] });
+      cv.part({ ol: 'none', clip: id });
+      cv.stroke([[X(-3.0), 28.2 + b], [X(2.6), 28.2 + b]], 0.42, T.brown, { n: [0, 0.2] });
+      break;
+    }
+    case 'jersey':
+      cv.part({ ol: 'line' });
+      cv.poly([[X(1.0), 21.0 + b], [X(2.6), 21.2 + b], [X(2.7), 25.2 + b], [X(2.1), 25.4 + b]], T.tee, { n: [0, 0] });
+      cv.part({ ol: 'none', clip: base });
+      cv.stroke([[X(2.5), 25.2 + b], [X(2.5), 31.0]], 0.2, T.zip, { n: [0, 0] });
+      cv.crease([[X(-2.6), 30.6], [X(2.8), 30.6]], 0.28, -0.35, { parts: [base] });
+      break;
+    case 'coat':
+      cv.crease([[X(2.4), 21.8 + b], [X(2.5), 28.2 + b]], 0.24, -0.45, { parts: [base] });
+      buttons(cv, [[X(1.8), 23.4 + b], [X(1.9), 25.6 + b]], null, T.chain);
+      chain(cv, [[X(1.9), 25.6 + b], [X(0.4), 27.0 + b], [X(-1.6), 26.4 + b]], T.chain);
+      break;
+    case 'rubber': {
+      // ベスト（せなかがわ。まえは はだ か しろい タンクトップ）
+      const lo = T.loose ? 0.7 : 0;
+      cv.part({ ol: 'line' });
+      cv.poly([[X(-2.3), 21.0 + b], [X(0.6), 21.0 + b], [X(1.2 + lo), 29.9 + b], [X(-3.4 - lo), 29.9 + b], [X(-3.3), 22.6 + b]], T.vest, { cx: 0.7 });
+      break;
+    }
+    case 'hoodie':
+      cv.part({ ol: 'none', clip: base });
+      cv.rect(8, T.hem - 0.95, 16, 1.0, T.rib, { n: [0, 0.25] });
+      cv.crease([[X(0.2), 27.2 + b], [X(2.6), 27.2 + b], [X(3.0), 29.6]], 0.2, -0.45, { parts: [base] });
+      if (T.neon) for (const [j, m] of T.neon.entries()) { cv.part({ ol: 'none', clip: base }); cv.stroke([[X(-3.4), 23.4 + j * 1.25 + b], [X(3.4), 24.4 + j * 1.25 + b]], 0.3, m, { n: [0, 0] }); }
+      break;
+    case 'gamer':
+      cv.part({ ol: 'line' });
+      cv.poly([[X(-2.3), 21.0 + b], [X(1.0), 21.0 + b], [X(1.5), 31.2], [X(-3.4), 31.2], [X(-3.3), 22.6 + b]], T.shirt, { cx: 0.7, tex: tex.plaid(k) });
+      break;
+    case 'esports':
+      cv.part({ ol: 'none', clip: base });
+      cv.poly([[X(-1.0), 22.0 + b], [X(1.0), 22.0 + b], [X(1.2), 32], [X(-1.3), 32]], T.trim, { n: [0, 0] });
+      break;
     case 'suit':
       cv.part({ ol: 'line' });
       cv.poly([[X(1.2), 21.0 + b], [X(2.6), 21.2 + b], [X(2.8), 25.0 + b], [X(2.2), 25.4 + b]], T.shirt, { n: [0, 0] });
@@ -1657,6 +2281,24 @@ export function drawSkirt(cv, P, O) {
     const y0 = S.y0 + b, y1 = S.y1;
     const back = -3.2 - S.flare * 0.5, front = 2.8 + S.flare * 0.45;
     const swing = P.f === 0 ? 0.6 : 0;
+    if (kind === 'flaps') {
+      // サイヤ人の こしの いた（よこの 1まい）
+      cv.part({ ol: 'line' });
+      cv.poly([[X(-2.4), y0], [X(1.9), y0], [X(2.2 + swing * 0.3), y1 - 0.7], [X(1.6 + swing * 0.3), y1], [X(-2.0), y1], [X(-2.8 - swing * 0.2), y1 - 0.7]], S.m, { n: 'bevel', bw: 0.6, bs: 0.7 });
+      const id = cv.cur;
+      cv.crease([[X(-2.4), y0 + 1.6], [X(2.0), y0 + 1.6]], 0.2, -0.45, { parts: [id] });
+      return;
+    }
+    if (kind === 'coat') {
+      // ロングコートの すそ（まえが ひらいて 赤い うら地が 見える）
+      cv.part({ ol: 'line' });
+      cv.poly([[X(-3.0), y0], [X(2.7), y0], [X(front * 0.72 + swing), y1 - 0.3], [X(back - swing * 0.5), y1]], S.m, { cx: 0.8, cy: 0.2 });
+      const id = cv.cur;
+      cv.crease([[X(-0.4), y0 + 1.0], [X(-0.6 - swing * 0.3), y1 - 0.4]], 0.22, -0.42, { parts: [id] });
+      cv.part({ ol: 'none', clip: id });
+      cv.stroke([[X(2.5), y0 + 0.6], [X(front * 0.72 + swing - 0.2), y1 - 0.4]], 0.45, S.lining, { n: [0, 0] });
+      return;
+    }
     cv.part({ ol: 'line' });
     const sideM = kind === 'tiers' ? S.tiers[S.tiers.length - 1] : S.m;
     cv.poly([[X(-3.0), y0], [X(2.7), y0], [X(front + swing), y1], [X(back - swing * 0.5), y1]], sideM, { cx: 0.8, cy: 0.2, tex: S.tex ? S.tex(cv.k) : null });
@@ -1688,6 +2330,29 @@ export function drawSkirt(cv, P, O) {
   const top = f ? 4.4 : 4.9, fl = S.flare;
   const y0 = S.y0, y1 = S.y1;
   const pts = [[16 - top, y0], [16 + top, y0], [16 + top + fl, y1], [16 - top - fl, y1]];
+  if (kind === 'flaps') {
+    // サイヤ人の こしの いた（左右に 1まいずつ。まんなかは あいている）
+    for (const s of [-1, 1]) {
+      cv.part({ ol: 'line' });
+      cv.poly([[16 + s * 1.3, y0], [16 + s * top, y0], [16 + s * (top + fl), y1 - 0.8], [16 + s * (top + fl - 0.7), y1], [16 + s * 1.9, y1], [16 + s * 1.5, y1 - 0.8]], S.m, { n: 'bevel', bw: 0.6, bs: 0.7 });
+      const id = cv.cur;
+      cv.crease([[16 + s * 1.4, y0 + 1.6], [16 + s * (top + fl * 0.5), y0 + 1.6]], 0.2, -0.45, { parts: [id] });
+    }
+    return;
+  }
+  if (kind === 'coat') {
+    // ロングコートの すそ（まえが ひらいて、うちがわの ふちに 赤い うら地。あるくと ゆれる）
+    for (const s of [-1, 1]) {
+      const swy = (P.f === 0 ? 0.35 : -0.35) * s;
+      cv.part({ ol: 'line' });
+      cv.poly([[16 + s * 0.3, y0], [16 + s * top, y0], [16 + s * (top + fl) + swy, y1], [16 + s * 2.0 + swy, y1 + 0.15], [16 + s * 0.8, y0 + 2.6]], S.m, { cx: 0.8, cy: 0.2 });
+      const id = cv.cur;
+      cv.crease([[16 + s * 2.8, y0 + 1.4], [16 + s * (3.4 + fl * 0.5) + swy, y1 - 0.4]], 0.22, -0.42, { parts: [id] });
+      cv.part({ ol: 'none', clip: id });
+      cv.stroke([[16 + s * 0.75, y0 + 2.4], [16 + s * 2.05 + swy, y1 + 0.1]], 0.5, S.lining, { n: [0, 0] });
+    }
+    return;
+  }
   if (kind === 'tiers') {
     // 3だんの フリル（いちばん したの だんから かく）。すそは 白い レースで なみうつ
     const n = S.tiers.length;
@@ -1746,6 +2411,11 @@ export function drawSkirt(cv, P, O) {
     for (const x of xs) cv.crease([[16 + x * 0.7, y0 + 1.0], [16 + x * 1.15 + sw * 0.25, y1 - 0.3]], 0.24, -0.42, { parts: [id] });
     if (kind === 'hakama') cv.crease([[16, y0 + 3], [16, y1]], 0.3, -0.6, { parts: [id] });
     if (S.front) { cv.part({ ol: 'soft', clip: id }); cv.poly([[15.2, y0], [16.8, y0], [17.2, y1], [14.8, y1]], S.front, { cx: 0.5 }); }
+    if (S.front && S.trim && S.front !== S.trim) {
+      // まえの おびの ふち（ダ天使: むらさきの おびに 銀の ふち）
+      cv.part({ ol: 'none', clip: id });
+      for (const s of [-1, 1]) cv.stroke([[16 + s * 0.85, y0], [16 + s * 1.25, y1]], 0.2, S.trim, { n: [0, 0] });
+    }
     if (S.trim) { cv.part({ ol: 'soft', clip: id }); cv.poly([[10, y1 - 1.0], [22, y1 - 1.0], [22, y1 + 1], [10, y1 + 1]], S.trim, { cx: 0.7 }); }
   } else if (kind === 'strips') {
     for (const x of [-2.6, 0, 2.6]) cv.crease([[16 + x, y0 + 0.6], [16 + x * 1.2, y1]], 0.24, -0.6, { parts: [id] });
@@ -1765,12 +2435,14 @@ export function drawBelt(cv, P, O) {
   if (P.side) {
     const X = P.X;
     cv.poly([[X(-3.1), y], [X(2.8), y], [X(2.8), y + h], [X(-3.1), y + h]], B.m, { cx: 0.8, cy: 0.5 });
+    if (B.tools) toolPouch(cv, P, y, h);
     if (B.sash) { cv.part({ ol: 'soft' }); cv.lock([X(-2.8), y + h * 0.6], [X(-3.8), y + 2.4], [X(-3.6), y + 4.4], 0.6, 0.35, B.m); }
     if (B.buckle) { cv.part({ ol: 'soft' }); cv.ell(X(2.6), y + h / 2, 0.55, 0.62, B.buckle, { bulge: 0.8 }); }
     return;
   }
   const w = (f ? 4.5 : 5.0) + (O.torso.kind === 'plate' ? 0.3 : 0);
   cv.poly([[16 - w, y], [16 + w, y], [16 + w + 0.15, y + h], [16 - w - 0.15, y + h]], B.m, { cx: 0.85, cy: 0.5 });
+  if (B.tools) toolPouch(cv, P, y, h);
   if (P.back) return;
   if (B.sash) {
     // むすびめと たれ
@@ -1788,6 +2460,99 @@ export function drawBelt(cv, P, O) {
   if (B.pouch) {
     cv.part({ ol: 'line' });
     cv.poly([[16 + 2.6, y + h - 0.2], [16 + 4.4, y + h - 0.2], [16 + 4.2, y + h + 1.8], [16 + 2.8, y + h + 1.8]], B.pouch, { cx: 0.7, cy: 0.4 });
+  }
+}
+
+// 設備屋の こしの 道具ぶくろ（スパナと ドライバーが 入った 革の ふくろ・きいろい メジャー）
+// まえ: みぎに ふくろ・ひだりに メジャー / うしろ: はんたい / よこ: こしの よこに ふくろ
+function toolPouch(cv, P, y, h) {
+  const steel = metal('silver');
+  const pouchM = leather('#8a5a30'), grip = cloth('#e8b020'), tape = cloth('#f2c81e');
+  const pouch = (pt, sx) => {
+    // ささった 道具（うしろ）→ ふくろ（まえ）
+    cv.part({ ol: 'line' });
+    cv.stroke([pt(1.0, h + 0.8), pt(0.9, -1.2)], 0.24, steel, { n: [0, 0] });
+    cv.part({ ol: 'line' });
+    cv.poly([pt(0.4, -1.3), pt(1.5, -1.3), pt(1.4, -2.2), pt(1.1, -1.7), pt(0.8, -1.7), pt(0.5, -2.2)], steel, { n: 'bevel', bw: 0.2 });
+    cv.part({ ol: 'line' });
+    cv.stroke([pt(2.0, h + 0.6), pt(2.05, -0.5)], 0.38, grip, { n: [0, 0] });
+    cv.part({ ol: 'line' });
+    cv.poly([pt(0, h - 0.2), pt(2.6 * sx, h - 0.2), pt(2.75 * sx, h + 2.6), pt(0.15, h + 2.8)], pouchM, { cx: 0.7, cy: 0.4 });
+    cv.crease([pt(0.1, h + 0.6), pt(2.65 * sx, h + 0.6)], 0.2, -0.45, { parts: [cv.cur] });
+  };
+  if (P.side) {
+    const X = P.X;
+    pouch((u, v) => [X(-1.6 + u), y + v], 1);
+    return;
+  }
+  const s = P.back ? -1 : 1;
+  pouch((u, v) => [16 + s * (3.0 + u), y + v], 1);
+  // メジャー
+  cv.part({ ol: 'line' });
+  const mx = 16 - s * 4.3, my = y + h + 0.7;
+  cv.poly([[mx - 1.0, my - 0.9], [mx + 1.0, my - 0.9], [mx + 1.05, my + 1.0], [mx - 1.05, my + 1.0]], tape, { cx: 0.6, cy: 0.5 });
+  cv.part({ ol: 'none' });
+  cv.ell(mx, my + 0.05, 0.4, 0.4, cloth('#2a2a34'), { n: [0, 0] });
+}
+
+// ダ天使の 小さな 黒い はね（まえ: からだの うしろから かたの そとに 見える / うしろ: せなかに / よこ: せなかの うしろ）
+export function drawWings(cv, P, O, where) {
+  const m = O.wings.m;
+  const sw = P.f === 0 ? 0 : 0.45;
+  if (where === 'side' || where === 'far') {
+    const X = P.X, b = P.bob;
+    const far = where === 'far';
+    wing(cv, (u, v) => [X(-1.6 - u * (far ? 0.86 : 1)), 22.2 + b + v - (far ? 0.9 : 0)], m, sw);
+    return;
+  }
+  const base = where === 'back' ? 1.2 : 2.6;
+  for (const s of [-1, 1]) wing(cv, (u, v) => [16 + s * (base + u * 1.06), 22.6 + v * 1.16], m, sw);
+}
+// はね 1まい（u: そとへ、v: したへ。T(u, v) → がめん）。うえへ のびて、さきから かざきり ばねが たれる
+function wing(cv, T, m, sw) {
+  const P = (list) => list.map(([u, v]) => T(u, v));
+  const up = (v, k = 1) => v - sw * k;
+  // かざきり ばね（そとの ものから）
+  for (const [u0, v0, u1, v1, r] of [[6.8, -4.4, 8.4, -1.8, 0.82], [6.2, -3.4, 8.0, 1.0, 0.84], [5.4, -2.6, 6.8, 3.0, 0.8], [4.4, -2.0, 5.2, 3.8, 0.78], [3.2, -1.4, 3.6, 3.4, 0.72], [2.0, -0.8, 2.2, 2.4, 0.64]]) {
+    cv.part({ ol: 'line' });
+    cv.lock(T(u0, up(v0)), T((u0 + u1) / 2 + 0.5, up((v0 + v1) / 2, 0.5)), T(u1, up(v1, 0.3)), r, 0.2, m);
+  }
+  // うえの かざり ばね
+  cv.part({ ol: 'line' });
+  cv.poly(P([[0, 0.8], [0.4, up(-1.6, 0.4)], [1.8, up(-3.6, 0.7)], [3.8, up(-5.3)], [6.0, up(-6.6)], [8.6, up(-8.0)], [8.2, up(-5.2)], [7.0, up(-3.2, 0.7)], [5.6, -2.0], [3.8, -1.0], [2.0, 0.2], [1.0, 1.0]]), m, { cx: 0.6, cy: 0.5 });
+  const id = cv.cur;
+  cv.crease(P([[1.0, up(-1.4, 0.4)], [3.4, up(-3.6, 0.8)], [6.4, up(-4.8)]]), 0.2, 0.45, { parts: [id] });
+  cv.crease(P([[1.8, 0.0], [3.8, up(-1.8, 0.5)], [6.6, up(-3.4, 0.8)]]), 0.18, -0.35, { parts: [id] });
+}
+
+// サイヤ人の 茶色い しっぽ（ふさふさ。あるくと すこし ゆれる）
+export function drawTail(cv, P, O, where) {
+  const m = O.tail.m;
+  const sw = P.f === 0 ? 0 : 0.5;
+  let ctrl;
+  if (where === 'behind') ctrl = [[18.6, 29.8], [22.6, 31.8 + sw * 0.3], [25.0, 29.6], [24.6, 26.6 - sw * 0.3], [23.0, 25.6 - sw * 0.2]];
+  else if (where === 'back') ctrl = [[16.0, 29.4], [16.6, 32.8], [19.6, 34.0 - sw * 0.3], [21.8, 31.8 - sw * 0.3], [21.0, 29.0 - sw * 0.2]];
+  else {
+    const X = P.X, b = P.bob;
+    ctrl = [[X(-2.4), 29.4 + b], [X(-5.0), 31.6 + b], [X(-7.4 - sw * 0.3), 29.6 + b], [X(-7.2), 26.6 + b - sw * 0.3], [X(-5.8), 25.6 + b]];
+  }
+  const pts = [];
+  for (let i = 0; i < ctrl.length - 1; i++) {
+    const a = ctrl[Math.max(0, i - 1)], p1 = ctrl[i], p2 = ctrl[i + 1], d = ctrl[Math.min(ctrl.length - 1, i + 2)];
+    for (let k = 0; k < 4; k++) {
+      const t = k / 4, t2 = t * t, t3 = t2 * t;
+      const f = (q0, q1, q2, q3) => 0.5 * (2 * q1 + (-q0 + q2) * t + (2 * q0 - 5 * q1 + 4 * q2 - q3) * t2 + (-q0 + 3 * q1 - 3 * q2 + q3) * t3);
+      pts.push([f(a[0], p1[0], p2[0], d[0]), f(a[1], p1[1], p2[1], d[1])]);
+    }
+  }
+  pts.push(ctrl[ctrl.length - 1]);
+  cv.part({ ol: 'line' });
+  cv.stroke(pts, pts.map((_, i) => 0.95 - (i / (pts.length - 1)) * 0.3), m, { lw: 0.8 });
+  const id = cv.cur;
+  for (let i = 3; i < pts.length - 1; i += 3) {
+    const [x0, y0] = pts[i], [x1, y1] = pts[i + 1];
+    const nx = -(y1 - y0), ny = x1 - x0, l = Math.hypot(nx, ny) || 1;
+    cv.crease([[x0 + (nx / l) * 0.6, y0 + (ny / l) * 0.6], [x1 - (nx / l) * 0.2, y1 - (ny / l) * 0.2]], 0.16, -0.4, { parts: [id] });
   }
 }
 
