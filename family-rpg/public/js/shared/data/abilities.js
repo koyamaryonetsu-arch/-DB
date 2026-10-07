@@ -28,6 +28,8 @@ import { CH3_ABILITIES } from './abilities-ch3.js';
 import { CH4_ABILITIES } from './abilities-ch4.js';
 import { JOB3_ABILITIES } from './abilities-jobs3.js';
 import { JOB4_ABILITIES } from './abilities-jobs4.js';
+// 2026年10月（第22回）の 新しい 職業の 技（おかん・社ちく・天才しせつ管理者・はかい神 など）
+import { JOB5_ABILITIES } from './abilities-jobs5.js';
 
 export const ABILITIES = {
   // ───────────── 戦士 ─────────────
@@ -594,6 +596,8 @@ Object.assign(ABILITIES, CH4_ABILITIES);
 Object.assign(ABILITIES, JOB3_ABILITIES);
 // ニート・サイヤ人・設備屋・ゴム人間・ユーチューバー・ゲーマーの 系統と 魔王（abilities-jobs4.js）
 Object.assign(ABILITIES, JOB4_ABILITIES);
+// おかん・社ちくの 系統と 天才しせつ管理者・はかい神（abilities-jobs5.js）
+Object.assign(ABILITIES, JOB5_ABILITIES);
 
 // 攻撃呪文かどうか（魔法剣で使える）
 export function isAttackSpell(id) {
@@ -614,7 +618,7 @@ export const ELEMENT_NAMES = {
 export const ELEMENT_ORDER = ['fire', 'ice', 'wind', 'blast', 'bolt', 'light', 'dark'];
 
 // 技の 種類（色分け）: dmg=ダメージ heal=回復 sup=補助
-const DMG_TYPES = new Set(['phys', 'magic', 'drainHp', 'drainMp', 'mahouken', 'bond', 'telegraph', 'multi', 'goldThrow', 'gamble', 'fixed', 'allMp', 'gather']);
+const DMG_TYPES = new Set(['phys', 'magic', 'drainHp', 'drainMp', 'mahouken', 'bond', 'telegraph', 'multi', 'goldThrow', 'gamble', 'fixed', 'allMp', 'gather', 'destroy']);
 const HEAL_TYPES = new Set(['heal', 'revive', 'cure', 'mpHeal', 'regen']);
 export const ROLE_NAMES = { dmg: 'ダメージ', heal: '回復', sup: '補助' };
 export function abilityRole(a) {

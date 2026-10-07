@@ -144,6 +144,9 @@ export const ITEMS = {
   straw_hat: { name: '麦わらぼうし', type: 'head', rank: 4, def: 6, bonus: { agi: 3, hp: 10 }, price: 600, desc: '赤いリボンの麦わらぼうし。かぶると、なぜか元気がわいてくる。だれでも装備できる。' },
   pipe_wrench: { name: 'パイプレンチ', type: 'weapon', rank: 6, cat: 'axe', atk: 54, bonus: { def: 4 }, price: 3800, desc: '太い配管もがっちりつかむ、赤い大きなレンチ。' },
   dark_feather_staff: { name: '黒い羽根のつえ', type: 'weapon', rank: 6, cat: 'staff', atk: 17, bonus: { mag: 24, agi: 3 }, price: 3400, desc: '黒い羽根とむらさきの宝石のつえ。呪文の力が大きく上がる。' },
+  // おかん・最強のおかんの 道具（2026年10月 第22回）
+  slipper: { name: 'スリッパ', type: 'weapon', rank: 4, cat: 'fan', atk: 22, bonus: { agi: 4, heal: 2 }, price: 850, desc: 'おかんのピンクのスリッパ。はたくと、スパーンといい音がする。' },
+  leopard_shirt: { name: 'ヒョウがらの服', type: 'armor', rank: 5, armorType: 'cloth', def: 21, bonus: { agi: 3, hp: 15 }, price: 1600, desc: 'ヒョウがらの、はでな服。着ると、なぜか強気になれる。' },
   // ブーメラン（ふつうの 攻撃で 敵全体に 当たる。何体にも 当たる ぶん、同じ ランクの 剣より 攻撃力は 低い）
   wood_boomerang: { name: '木のブーメラン', type: 'weapon', rank: 1, cat: 'boomerang', atk: 5, price: 120, upMat: 'wind_feather', desc: '投げると敵全体に当たって、手もとにもどってくる木のブーメラン。' },
   iron_boomerang: { name: '鉄のブーメラン', type: 'weapon', rank: 3, cat: 'boomerang', atk: 13, price: 620, desc: '重みのある鉄のブーメラン。敵全体をなぎはらって、もどってくる。' },
@@ -282,7 +285,7 @@ export const ITEM_KANA = {
   kitchen_knife: 'ほうちょう', whisk: 'あわだてき', chinese_wok: 'ちゅうかなべ', gold_mic: 'きんのまいく', chef_knife: 'みつぼしのほうちょう',
   pillow: 'まくら', selfie_stick: 'じどりぼう', game_controller: 'げーむのこんとろーらー', battle_suit: 'さいやじんのせんとうふく', chuuni_bokken: 'ふういんのぼくとう',
   monkey_wrench: 'もんきーれんち', gaming_keyboard: 'げーみんぐきーぼーど', gold_button: 'きんのきねんたて', straw_hat: 'むぎわらぼうし', pipe_wrench: 'ぱいぷれんち',
-  dark_feather_staff: 'くろいはねのつえ',
+  dark_feather_staff: 'くろいはねのつえ', slipper: 'すりっぱ', leopard_shirt: 'ひょうがらのふく',
   tm_gold_bangle: 'おうごんのうでわ', tm_gem_ring: 'ほうせきのゆびわ', tm_dragon_scale: 'えんりゅうのうろこ', tm_dark_ring: 'やみのゆびわ', tm_ice_pendant: 'こおりのぺんだんと', tm_shadow_anklet: 'かげのあんくれっと',
 };
 

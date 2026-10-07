@@ -550,7 +550,7 @@ export function showCreate(game) {
       warrior: '固くて強い', monk: 'とても素早い', priest: '回復の女神', mage: '攻撃呪文', performer: 'みんなをおうえん',
       jester: '何が起こるかな？', salaryman: 'チームを支える', idol: 'みんなの人気者', railman: '時間に正確', ballplayer: 'かっとばせ！',
       schoolkid: 'のびざかり！', civil_local: '町を守る', cook: '食べて元気に', parttimer: '何でもこなす',
-      neet: 'のびしろ無限大', saiyan: '戦闘民族', youtuber: '動画で人気者', gamer: 'ゲームの達人',
+      neet: 'のびしろ無限大', saiyan: '戦闘民族', youtuber: '動画で人気者', gamer: 'ゲームの達人', okan: 'みんなのおかん',
     }[j] }));
     b.addEventListener('click', () => {
       job = j;

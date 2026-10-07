@@ -408,6 +408,7 @@ export const STARTER_EQUIP = {
   saiyan: { weapon: null, armor: 'battle_suit', shield: null, head: null, acc: null },
   youtuber: { weapon: 'selfie_stick', armor: 'cloth', shield: null, head: null, acc: null },
   gamer: { weapon: 'game_controller', armor: 'cloth', shield: null, head: null, acc: null },
+  okan: { weapon: 'ladle', armor: 'cloth', shield: null, head: null, acc: null },
 };
 
 // みため（むかしの 項目は いつも のこす。かみがた・色・目もとの あたらしい 項目は data/looks.js）
