@@ -37,6 +37,8 @@ const MAT = {
   pad: { edge: '#e0e0f0', glow: '#8a8aff', core: '#ffffff', spark: ['#ff4a5a', '#4a8aff', '#4ad86a', '#ffd84a'] },
   rgb: { edge: '#ffffff', glow: '#c86aff', core: '#ffffff', spark: ['#ff5a6a', '#ffa83a', '#ffe84a', '#6aea7a', '#4ad8ff', '#c86aff'] },
   pillow: { edge: '#ffffff', glow: '#bfd0ff', core: '#ffffff', spark: ['#ffffff', '#e8eeff', '#d0dcff'] },
+  // スリッパ（ピンクの ふわふわ）
+  slipper: { edge: '#ffd0e4', glow: '#ff6aa8', core: '#ffffff', spark: ['#ff8ac0', '#ffffff', '#ffd0e4'] },
 };
 
 // ぞくせい・しかけの いろ（そざいの いろに うわがき）
@@ -153,6 +155,8 @@ const ID_LOOK = {
   gaming_keyboard: { mat: 'rgb', move: 'bat', trait: 'rainbow' },
   pipe_wrench: { mat: 'iron', move: 'pan', glow: '#e04a3a' },
   dark_feather_staff: { mat: 'ghost', trait: 'blackfeather' },
+  // スリッパ（すばやく はたいて パーン！）
+  slipper: { mat: 'slipper', move: 'slipper', trait: null },
   // ふしぎなかじで 作る 武器
   fang_spear: { mat: 'stone', trait: null },
   wolf_claw: { mat: 'iron', move: 'fang' },
@@ -502,6 +506,17 @@ const MOVES = {
     fx.puff(x, y, { color: '#ffffff', r0: 6 * s, r1: 22 * s, life: 420, delay: hit, alpha: 0.85 });
     for (let k = 0; k < 8 + L.lv; k++) fx.petal(x + rnd(-12, 12), y + rnd(-6, 6), { color: k % 3 ? '#ffffff' : '#e0e8ff', vx: rnd(-70, 70), vy: rnd(-90, -30), size: 2.6, delay: hit + k * 10, life: 900, g: 50 });
     impact(fx, t, L, crit, hit, s, { weight: 0.6, soft: true });
+    return hit;
+  },
+
+  // スリッパ: すばやく はたいて パーン！（ピンクの スリッパと まんがの もじ。つぶの かきかたは battlefx-jobs3.js）
+  slipper(fx, t, L, crit, d, s) {
+    const { x, y } = t;
+    const hit = fx.swipe([x - 34 * s, y - 30 * s], [x - 4 * s, y - 10 * s], [x + 14 * s, y + 8 * s], { w: 6 * (crit ? 1.3 : 1), color: L.edge, glow: L.glow, core: L.core, delay: d, swing: 100, life: 300, pow: 1.8 });
+    fx.add({ kind: 'pow3', x: x + 14 * s, y: Math.max(20, y - 18 * s), s: (crit ? 0.85 : 0.66) * s, life: 480, delay: hit, rot: rnd(-0.2, 0.05) });
+    fx.add({ kind: 'slip3', x, y: y - 4, s: 0.85 * s, a0: -2.4, a1: -0.55, swing: Math.max(40, hit - d), life: 460, delay: d });
+    fx.speedLines(x, y, { delay: hit, r0: 12, r1: 60, n: 10, color: '#ffe0ec', life: 200 });
+    impact(fx, t, L, crit, hit, s, { weight: 0.8, blunt: true });
     return hit;
   },
 

@@ -63,24 +63,50 @@ export function eyePal(iris) {
 // め の たかさ（あたまの まんなか から）
 export const EYE_V = 1.5;
 
+// もえる 目（ブラックきぎょうの星）: ひかりを きいろ、あかるい ところを オレンジに
+function firePal(pal) {
+  return { ...pal, W: '#fff27a', J: '#ff9a2a' };
+}
+// つかれた 目（社ちく）: 目の したの くま（むらさきがかった くらい はだ）と、おもい まぶた（とじた 目では かかない）
+function tiredMarks(cv, o, ix, iy, art, flip, under) {
+  const res = cv.res;
+  const w = art[0].length, h = art.length;
+  const lid = mixC(o.skinD, '#2a1830', 0.25);
+  const kuma = mixC(o.skinD, '#5a3a72', 0.4);
+  // まぶた: うえの だんを はだの かげで おおい、その したに まぶたの せん
+  const rows = h <= 2 ? 0 : res >= 8 ? 3 : 2;
+  for (let j = 0; j < rows; j++) {
+    for (let i = 0; i < w; i++) {
+      const ch = art[j][flip ? w - 1 - i : i];
+      if (ch !== '.' && ch !== 'L') cv.px(ix + i, iy + j, j === rows - 1 ? LINE : lid);
+    }
+  }
+  // くま（目の したの はば いっぱいに）
+  const y0 = iy + h + (res >= 8 ? 0 : 0);
+  for (let i = under[0]; i < w - under[1]; i++) {
+    cv.px(ix + i, y0, kuma);
+    if (res >= 8 && i > under[0] && i < w - under[1] - 1) cv.px(ix + i, y0 + 1, mixC(kuma, o.skinBase, 0.5));
+  }
+}
+
 // まえむき の かお
 export function faceFront(cv, H, o) {
   const k = cv.k, res = cv.res;
   const face = o.face || 'std';
-  const pal = eyePal(o.iris);
+  const pal = o.fire ? firePal(eyePal(o.iris)) : eyePal(o.iris);
   const set = res >= 8 ? (o.fem ? EYE8F : EYE8) : (o.fem ? EYE4F : EYE4);
   const art = set[face] || set.std;
   const w = art[0].length;
   const ey = H.y + EYE_V + (face === 'smile' ? 0.3 : 0);
   const gap = 2.95;
   cv.part({ ol: 'none', cast: false });
-  // まゆ（前がみで かくれる ことが 多い。browCol が ない ときは かかない）
-  const thick = face === 'brave' ? 2 : 1;
+  // まゆ（前がみで かくれる ことが 多い。browCol が ない ときは かかない）。もえる 目は つりあがった ふとい まゆ
+  const thick = face === 'brave' || o.fire ? 2 : 1;
   for (const s of o.browCol ? [-1, 1] : []) {
-    const bx = cv.X(H.x + s * gap), by = cv.Y(H.y - 1.25 + (face === 'sharp' ? 0.15 : 0));
+    const bx = cv.X(H.x + s * gap), by = cv.Y(H.y - 1.25 + (face === 'sharp' || o.fire ? 0.15 : 0));
     const half = Math.round(1.25 * k);
     for (let i = -half; i <= half; i++) {
-      const tilt = face === 'sharp' ? -s * i : face === 'calm' ? s * i : face === 'brave' ? -s * i * 0.6 : s * i * 0.25;
+      const tilt = face === 'sharp' || o.fire ? -s * i : face === 'calm' ? s * i : face === 'brave' ? -s * i * 0.6 : s * i * 0.25;
       const dy = Math.round((tilt * 0.45) / Math.max(1, k));
       for (let t = 0; t < (res >= 8 ? thick : 1); t++) cv.px(bx + i, by + dy + t, o.browCol);
     }
@@ -90,6 +116,8 @@ export function faceFront(cv, H, o) {
     const ix = cx - Math.floor(w / 2) - (s < 0 && w % 2 === 0 ? 0 : 0);
     const iy = cv.Y(ey) - Math.floor(art.length / 2);
     cv.stamp(ix, iy, art, pal, s > 0);
+    // くまは 目の まんなか あたり（まつげの ある がわは あける）
+    if (o.tired) tiredMarks(cv, o, ix, iy, art, s > 0, o.fem ? (s > 0 ? [0, 1] : [1, 0]) : [0, 0]);
   }
   // はな
   const ny = cv.Y(H.y + EYE_V + 1.9);
@@ -130,18 +158,25 @@ export function faceFront(cv, H, o) {
 export function faceSide(cv, H, o) {
   const k = cv.k, res = cv.res;
   const face = o.face || 'std';
-  const pal = eyePal(o.iris);
+  const pal = o.fire ? firePal(eyePal(o.iris)) : eyePal(o.iris);
   const art = (res >= 8 ? SIDE8 : SIDE4)[face] || (res >= 8 ? SIDE8 : SIDE4).std;
   const w = art[0].length;
   const ex = H.X(H.rx - 2.2);
   const ey = H.y + EYE_V + (face === 'smile' ? 0.3 : 0);
   cv.part({ ol: 'none', cast: false });
-  // まゆ
+  // まゆ（もえる 目は まえが さがる ふとい まゆ）
   const by = cv.Y(H.y - 1.25);
-  if (o.browCol) for (let i = 0; i < Math.round(2.0 * k); i++) cv.px(cv.X(H.X(H.rx - 1.2)) + (H.facing < 0 ? i : -i), by, o.browCol);
+  if (o.browCol) {
+    for (let i = 0; i < Math.round(2.0 * k); i++) {
+      const dy = o.fire ? Math.round(((Math.round(2.0 * k) - 1 - i) * 0.5) / Math.max(1, k / 2)) : 0;
+      cv.px(cv.X(H.X(H.rx - 1.2)) + (H.facing < 0 ? i : -i), by + dy, o.browCol);
+      if (o.fire && res >= 8) cv.px(cv.X(H.X(H.rx - 1.2)) + (H.facing < 0 ? i : -i), by + dy + 1, o.browCol);
+    }
+  }
   const ix = cv.X(ex) - Math.floor(w / 2);
   const iy = cv.Y(ey) - Math.floor(art.length / 2);
   cv.stamp(ix, iy, art, pal, H.facing > 0);
+  if (o.tired) tiredMarks(cv, o, ix, iy, art, H.facing > 0, [0, 0]);
   if (o.fem) {
     // まつげ（目じり = うしろ がわ）
     const lx = H.facing < 0 ? ix + w : ix - 1;
@@ -166,6 +201,33 @@ export function faceSide(cv, H, o) {
     const bx = cv.X(H.X(H.rx - 3.3)), byy = cv.Y(H.y + EYE_V + 1.9);
     cv.px(bx, byy, bc);
     if (res >= 8) { cv.px(bx + 1, byy, bc); cv.px(bx - 1, byy, bc); }
+  }
+}
+
+// ───────────── かみの うえに かく もの（あせ・イヤリング） ─────────────
+// B: { sweat, earring }  view: 'front' | 'side' | 'back'
+// あせ: ひたいの よこ（まえから 見て みぎ）に 水色の しずく / イヤリング: みみたぶから さがる 大きな 金の わ
+export function faceOver(cv, H, B, view) {
+  const res = cv.res;
+  if (B.earring) {
+    const gold = mat({ r: ['#6a3a10', '#b07418', '#e8b030', '#fbe07a', '#fffbe0'], th: TH.metal, spec: 0.95, sc: '#ffffff' });
+    const hoop = (u, v, rx, ry) => {
+      const pts = [];
+      for (let i = 0; i <= 18; i++) { const a = -Math.PI / 2 + (i / 18) * Math.PI * 2; pts.push([H.X(u + Math.cos(a) * rx), H.y + v + ry + Math.sin(a) * ry]); }
+      cv.part({ ol: 'line' });
+      cv.stroke(pts, res >= 8 ? 0.36 : 0.42, gold, { n: [0, -0.1], lw: 0.7 });
+    };
+    if (view === 'side') hoop(-1.2, 2.8, 1.25, 1.6);
+    else for (const s of [-1, 1]) hoop(s * 7.5, 2.6, 1.3, 1.6);
+  }
+  if (B.sweat && view !== 'back') {
+    // しずく（うえが とがる）
+    const u = view === 'side' ? 1.6 : 6.4, v = -3.4;
+    const x = H.X(u), y = H.y + v;
+    cv.part({ ol: 'line', cast: false });
+    cv.poly([[x, y - 1.5], [x + 0.75, y - 0.1], [x + 0.6, y + 0.6], [x, y + 0.95], [x - 0.6, y + 0.6], [x - 0.75, y - 0.1]], mat({ r: ['#3a7ab8', '#6ab0e8', '#a8dcff', '#e8f8ff'], th: TH.cloth }), { n: 'sphere', cx: 0.7 });
+    cv.part({ ol: 'none', cast: false });
+    cv.px(cv.X(x - 0.25), cv.Y(y), '#ffffff');
   }
 }
 
