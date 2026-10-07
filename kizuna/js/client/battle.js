@@ -1,25 +1,25 @@
 // たたかいの がめん（むかしの RPG ふう 1がめん）
-import { el, esc, ListMenu, toast } from './ui/dom.js?v=a39a58253380';
-import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js?v=a39a58253380';
-import { ITEMS } from '../shared/data/items.js?v=a39a58253380';
-import { JOBS } from '../shared/data/jobs.js?v=a39a58253380';
-import { MONSTERS } from '../shared/data/monsters.js?v=a39a58253380';
-import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed, battleAbilityOk } from '../shared/stats.js?v=a39a58253380';
-import { affinityOf, attackReach, spellSealed, SEALED_REASON } from '../shared/battle.js?v=a39a58253380';
-import { DUAL_TECHS, dualOptions, dualKnown } from '../shared/data/dual.js?v=a39a58253380';
-import { TACTICS } from '../shared/ai.js?v=a39a58253380';
-import { faceURL } from './field.js?v=a39a58253380';
-import { monsterCanvas } from './render/monsters.js?v=a39a58253380';
-import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=a39a58253380';
-import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js?v=a39a58253380';
-import { PARTY_ANIMS, JOB2_SFX } from './render/battlefx-jobs2.js?v=a39a58253380';
-import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js?v=a39a58253380';
-import { abilityDetail, statusNames, buffNames, targetTag } from './ui/info.js?v=a39a58253380';
-import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js?v=a39a58253380';
-import { ENEMY_RATE_NAMES } from '../shared/data/difficulty.js?v=a39a58253380';
-import { ResultPager, levelUpName } from './ui/result.js?v=a39a58253380';
+import { el, esc, ListMenu, toast } from './ui/dom.js?v=1712ace6c042';
+import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js?v=1712ace6c042';
+import { ITEMS } from '../shared/data/items.js?v=1712ace6c042';
+import { JOBS } from '../shared/data/jobs.js?v=1712ace6c042';
+import { MONSTERS } from '../shared/data/monsters.js?v=1712ace6c042';
+import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed, battleAbilityOk } from '../shared/stats.js?v=1712ace6c042';
+import { affinityOf, attackReach, spellSealed, SEALED_REASON } from '../shared/battle.js?v=1712ace6c042';
+import { DUAL_TECHS, dualOptions, dualKnown } from '../shared/data/dual.js?v=1712ace6c042';
+import { TACTICS } from '../shared/ai.js?v=1712ace6c042';
+import { faceURL } from './field.js?v=1712ace6c042';
+import { monsterCanvas } from './render/monsters.js?v=1712ace6c042';
+import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=1712ace6c042';
+import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js?v=1712ace6c042';
+import { PARTY_ANIMS, JOB2_SFX } from './render/battlefx-jobs2.js?v=1712ace6c042';
+import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js?v=1712ace6c042';
+import { abilityDetail, statusNames, buffNames, targetTag } from './ui/info.js?v=1712ace6c042';
+import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js?v=1712ace6c042';
+import { ENEMY_RATE_NAMES } from '../shared/data/difficulty.js?v=1712ace6c042';
+import { ResultPager, levelUpName } from './ui/result.js?v=1712ace6c042';
 // 第4章の しかけ（月の鏡・まぼろしの 分身・魔神のランプ・ボスの 大技）
-import { CH4_ALLY_FX, ch4ItemEntries, ch4ItemPick, ch4ItemInfo, ch4Present, vanishFx, drawShade } from './battle-ch4.js?v=a39a58253380';
+import { CH4_ALLY_FX, ch4ItemEntries, ch4ItemPick, ch4ItemInfo, ch4Present, vanishFx, drawShade, drawBurrow } from './battle-ch4.js?v=1712ace6c042';
 
 // たたかいの え の こまかさ（おもい きかいで さげたら、その あいだは さげた まま）
 let battleRes = BRES;
@@ -643,7 +643,8 @@ export class BattleScene {
   //   element: 属性の 技で ねらう とき、ためした ことの ある 敵には 効きぐあいを 出す
   //   back: もどる ボタン（えらぶ まえの メニューへ）
   pickFoe(mode, done, title = 'だれをねらう？', element = null, back = null) {
-    const list = this.enemies().filter((e) => e.alive);
+    // 砂に もぐった 敵は ねらえない（battle-ch4.js。みんな もぐっていたら えらばずに おくる → サーバーが「もぐっている！」）
+    const list = this.enemies().filter((e) => e.alive && !e.burrow);
     if (mode === 'enemies' || !list.length) return done(undefined);
     const groups = mode === 'group' ? this.foeGroups(list) : null;
     if (groups ? groups.length === 1 : list.length === 1) return done(groups ? groups[0].lead : list[0].id);
@@ -682,7 +683,7 @@ export class BattleScene {
   }
 
   // 敵の グループ（おなじ 種類。ならびは 左から）。lead: グループの いちばん 左（これを おくる）
-  foeGroups(list = this.enemies().filter((e) => e.alive)) {
+  foeGroups(list = this.enemies().filter((e) => e.alive && !e.burrow)) {
     const out = [];
     for (const e of list) {
       let gp = out.find((x) => x.species === e.species);
@@ -703,7 +704,7 @@ export class BattleScene {
     const r = this.canvas.getBoundingClientRect();
     const x = (e.clientX - r.left) / r.width * BW, y = (e.clientY - r.top) / r.height * BH;
     for (const m of this.layout || []) {
-      if (x >= m.x && x <= m.x + m.w && y >= m.y && y <= m.y + m.h && m.c.alive) {
+      if (x >= m.x && x <= m.x + m.w && y >= m.y && y <= m.y + m.h && m.c.alive && !m.c.burrow) {
         this.game.audio.sfx('confirm');
         // グループを えらぶ ときは、さわった 魔物の グループ（いちばん 左を おくる）
         if (this.targeting.mode === 'group') {
@@ -1552,6 +1553,12 @@ export class BattleScene {
       x.globalAlpha = base;
       // まぼろしの 分身が いる 戦いの 本物: 足もとに 小さな 影（battle-ch4.js）
       if (c.shade && c.alive) drawShade(x, m, base);
+      // 砂に もぐっている（ねらえない）: すがたの かわりに 砂の 山（砂が もり上がると 大きく ゆれる。battle-ch4.js）
+      if (c.burrow && c.alive) {
+        drawBurrow(x, m, this.time, c.burrow === 2, base);
+        x.globalAlpha = 1;
+        continue;
+      }
       // がめんより こまかい え は なめらかに ちぢめる（ドットが ぬけないように）
       x.imageSmoothingEnabled = (m.img.res || 1) > x.getTransform().a * 1.01;
       x.imageSmoothingQuality = 'high';

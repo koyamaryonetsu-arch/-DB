@@ -1,12 +1,13 @@
 // マップの タイル（16×16 ドット）を プログラムで かく
-import { T, TILE_INFO } from '../../shared/tiles.js?v=a39a58253380';
-import { hash2 } from '../../shared/rng.js?v=a39a58253380';
-import { Painter, shade, prand } from './pixel.js?v=a39a58253380';
-import { themedCanvas, partOfTile } from './themes.js?v=a39a58253380';
-import { CH3_PAINTERS, CH3_FRAMES, CH3_SPEED, RAIL_TILES, CH3_WALLS } from './tiles-ch3.js?v=a39a58253380';
-import { CH4_PAINTERS, CH4_FRAMES, CH4_SPEED, CH4_WALLS, ch4Mask, desertBase } from './tiles-ch4.js?v=a39a58253380';
-import { CANAL_CTX, CANAL_CTX_PAINTERS, canalVariant, canalBaseBits, canalWallBits } from './tiles-canal.js?v=a39a58253380';
-import { PYRAMID_PAINTERS, PYRAMID_FRAMES, PYRAMID_SPEED, PYRAMID_WALLS, paintTablet, paintPyrBrazier, paintPyrLever } from './tiles-pyramid.js?v=a39a58253380';
+import { T, TILE_INFO } from '../../shared/tiles.js?v=1712ace6c042';
+import { hash2 } from '../../shared/rng.js?v=1712ace6c042';
+import { Painter, shade, prand } from './pixel.js?v=1712ace6c042';
+import { themedCanvas, partOfTile } from './themes.js?v=1712ace6c042';
+import { CH3_PAINTERS, CH3_FRAMES, CH3_SPEED, RAIL_TILES, CH3_WALLS } from './tiles-ch3.js?v=1712ace6c042';
+import { CH4_PAINTERS, CH4_FRAMES, CH4_SPEED, CH4_WALLS, ch4Mask, desertBase } from './tiles-ch4.js?v=1712ace6c042';
+import { CANAL_CTX, CANAL_CTX_PAINTERS, canalVariant, canalBaseBits, canalWallBits } from './tiles-canal.js?v=1712ace6c042';
+import { PYRAMID_PAINTERS, PYRAMID_FRAMES, PYRAMID_SPEED, PYRAMID_WALLS, paintTablet, paintPyrBrazier, paintPyrLever } from './tiles-pyramid.js?v=1712ace6c042';
+import { whirlVariant } from './tiles-duna.js?v=1712ace6c042';
 
 export const TS = 16;
 
@@ -592,6 +593,8 @@ export function prepareMap(map) {
         if (m4 >= 0) mask[i] = m4 | canalBaseBits(t, at, x, y);
         // 地下水路: 水路の 中は ばしょと 流れの むき・通路は かべの かげ（とびらで 底 ⇔ 水 ⇔ せき が かわっても おなじ）
         variant[i] = canalVariant(t, at, x, y, variant[i]);
+        // 砂クジラの ねどこの 砂の うず: ねどこの まん中からの ずれ（render/tiles-duna.js）
+        variant[i] = whirlVariant(t, map, x, y, variant[i]);
       }
     }
   }

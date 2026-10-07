@@ -4,10 +4,10 @@
 // 行き先の 書き方: { npc: 'NPCのID' }（その 人の いる 場所）か { map, x, y }
 //   unless: 'フラグ' … その フラグが もう ある 人には 出さない（もう 話を 聞いた 人など。ぜんぶ 消えたら そのまま 出す）
 // 新しい 目標を 作ったら、ここにも 行き先を 足す
-import { MAPS } from '../maps/index.js?v=a39a58253380';
-import { SKY_OBJECTIVE_TARGETS, C3_LEAD_OBJECTIVE } from './sky.js?v=a39a58253380';
-import { CH3_OBJECTIVE_TARGETS, ch3SubQuests } from './story-ch3.js?v=a39a58253380';
-import { CH4_OBJECTIVE_TARGETS } from './story-ch4.js?v=a39a58253380';
+import { MAPS } from '../maps/index.js?v=1712ace6c042';
+import { SKY_OBJECTIVE_TARGETS, C3_LEAD_OBJECTIVE } from './sky.js?v=1712ace6c042';
+import { CH3_OBJECTIVE_TARGETS, ch3SubQuests } from './story-ch3.js?v=1712ace6c042';
+import { CH4_OBJECTIVE_TARGETS } from './story-ch4.js?v=1712ace6c042';
 
 export const OBJECTIVE_TARGETS = {
   'ホシミばあちゃんの家（村の南東）へ行こう': [{ npc: 'elder' }],
@@ -96,6 +96,8 @@ function mapLinks() {
   if (links) return links;
   links = [];
   for (const m of Object.values(MAPS)) for (const w of m.warps || []) if (w.to?.map) links.push({ from: m.id, x: w.x, y: w.y, to: w.to.map });
+  // ほかの つながり（第4章の すなかぜ号: ドゥナの さんばしの 船 ⇔ 砂の海の さんばし。マップの links）
+  for (const m of Object.values(MAPS)) for (const l of m.links || []) links.push({ from: m.id, x: l.x, y: l.y, to: l.to });
   // 船: さんばしの しおかぜ号 ⇔ カモメ港の 船長
   const ship = npcPos('ship');
   const cap = npcPos('port_captain');

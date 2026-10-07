@@ -1,17 +1,19 @@
 // 第4章「砂の海にしずむ星」の マップ
 // コガネ地方（フィールド）・北の古井戸・かれた地下水路（Step 2）・王都サファラと 宮殿の地下水路（Step 3）・王家のピラミッド（Step 4）
 // 村や ダンジョンの 形は south-rows.js・pyramid-rows.js（1文字 = 1マス）
-import { T, parseRows } from '../tiles.js?v=a39a58253380';
-import { makeRng } from '../rng.js?v=a39a58253380';
-import { npc } from './npc.js?v=a39a58253380';
-import { SEA_PLACES } from './ch2.js?v=a39a58253380';
+import { T, TILE_INFO, parseRows } from '../tiles.js?v=1712ace6c042';
+import { makeRng } from '../rng.js?v=1712ace6c042';
+import { npc } from './npc.js?v=1712ace6c042';
+import { SEA_PLACES } from './ch2.js?v=1712ace6c042';
 import {
   buildSouth, southZoneAt, southAreaName, southWeatherAt, southBgmAt, SOUTH_PLACES, SOUTH_POS, SOUTH_LANDING, LANDING_BEACH, OASIS2, OASIS_CAMP,
   STORM_Y, STORM_FLAG, SAFARA_POS, PALACE_HALL, PYRAMID, PYRAMID_PLAZA, PYRAMID_POS, PYRAMID_FLAG,
   SOUTH_STORM_Y, SOUTH_STORM_FLAG, DUNA_GATE, DUNA_VALLEY,
-} from './south.js?v=a39a58253380';
-import { HAMIL_ROWS, WELL_ROWS, CANAL1_ROWS, CANAL2_ROWS, CANAL3_ROWS, PALACE_CANAL_ROWS } from './south-rows.js?v=a39a58253380';
-import { PYR1_ROWS, PYR_B1_ROWS, PYR2_ROWS, PYR3_ROWS, PYR4_ROWS } from './pyramid-rows.js?v=a39a58253380';
+} from './south.js?v=1712ace6c042';
+import { HAMIL_ROWS, WELL_ROWS, CANAL1_ROWS, CANAL2_ROWS, CANAL3_ROWS, PALACE_CANAL_ROWS } from './south-rows.js?v=1712ace6c042';
+import { PYR1_ROWS, PYR_B1_ROWS, PYR2_ROWS, PYR3_ROWS, PYR4_ROWS } from './pyramid-rows.js?v=1712ace6c042';
+// Step 6: 砂の港ドゥナ・砂の古城・砂の海（maps/duna.js）
+import { buildDunaMaps, DUNA_FLAG, DUNA_POS, DUNA_TOWN, DUNA_VALLEY_EXIT } from './duna.js?v=1712ace6c042';
 
 const HAM = SOUTH_PLACES.hamil;
 const H = (x, y) => [HAM.x + x, HAM.y + y];
@@ -28,7 +30,10 @@ export const DUNA_LOOKOUTS = [{ id: 'c4_d_lookout1', x: DUNA_GATE.x - 1, y: DUNA
 // 第4章の マップの ID（セーブに のこるので かえない）
 export const CH4_MAPS = ['south', 'north_well', 'canal1', 'canal2', 'canal3', 'palace_canal',
   // Step 4: 王家のピラミッド（1階・地下・2階・3階・4階）
-  'pyramid1', 'pyramid_b1', 'pyramid2', 'pyramid3', 'pyramid4'];
+  'pyramid1', 'pyramid_b1', 'pyramid2', 'pyramid3', 'pyramid4',
+  // Step 6: 砂の港ドゥナ（フィールド）・砂の古城（1階・2階）・砂の海（すなかぜ号で すすむ）
+  'duna', 'sand_castle1', 'sand_castle2', 'sand_sea'];
+export const DUNA_MAPS = ['duna', 'sand_castle1', 'sand_castle2', 'sand_sea'];
 export const PYRAMID_MAPS = ['pyramid1', 'pyramid_b1', 'pyramid2', 'pyramid3', 'pyramid4'];
 
 // ───── 王家のピラミッド（Step 4）─────
@@ -80,6 +85,8 @@ export const SCORPION_FLAG = STORM_FLAG;
 export const SOUTH_TOWNS = {
   hamil: { name: HAM.name, map: 'south', x: HAM.x + HAM.w + 1, y: HAM.y + 9, rect: [HAM.x, HAM.y, HAM.w, HAM.h] },
   safara: { name: SAF.name, map: 'south', x: SAFARA_POS.gate.x, y: SAF.y - 2, rect: [SAF.x, SAF.y, SAF.w, SAF.h] },
+  // Step 6: 砂の港ドゥナ（北の 門の 外の 谷に おりる）
+  duna: { name: DUNA_TOWN.name, map: 'duna', x: DUNA_POS.gate.x, y: DUNA_TOWN.y - 2, rect: [DUNA_TOWN.x, DUNA_TOWN.y, DUNA_TOWN.w, DUNA_TOWN.h] },
 };
 Object.assign(SEA_PLACES, SOUTH_TOWNS);
 
@@ -89,6 +96,9 @@ export function ch4SearchMats(mapId) {
   if (mapId === 'north_well') return ['magic_powder', 'iron_shard'];
   if (mapId.startsWith('canal') || mapId === 'palace_canal') return ['magic_powder', 'iron_shard', 'pretty_shell'];
   if (mapId.startsWith('pyramid')) return ['magic_powder', 'silver_shard', 'star_shard'];
+  // Step 6: 砂の港ドゥナ（港の たる・箱）と 砂の古城
+  if (mapId === 'duna') return ['pretty_shell', 'beast_fang', 'wind_feather'];
+  if (mapId.startsWith('sand_castle')) return ['silver_shard', 'magic_powder', 'iron_shard'];
   return null;
 }
 
@@ -333,10 +343,13 @@ function buildField() {
   sb.gates.push({ x: P.courtDoor.x, y: P.courtDoor.y, closed: T.LOCKED_DOOR, open: T.DOOR, flag: ZAID_FLAG });
   // 南の 砂嵐（Step 5）: 道の ところを しらべると だいほん（大臣ザイードを たおすまで）
   for (const g of sb.gates) if (g.flag === SOUTH_STORM_FLAG && g.y === SOUTH_STORM_Y[0]) actions.push({ x: g.x, y: g.y, script: 'c4_south_storm', show: { not: [SOUTH_STORM_FLAG] } });
-  // ドゥナへの 谷の 木の さくと 門（Step 5 では 開かない）
+  // ドゥナへの 谷の 木の さくと 門（Step 5 では 開かない。Step 6 で 見張りが 開けると c4_duna。門の マスは 道に なる）
   for (let x = DUNA_GATE.x - 3; x <= DUNA_GATE.x + 3; x++) {
-    if ([T.FENCE, T.LOCKED_DOOR].includes(sb.tiles[DUNA_GATE.y * sb.w + x])) actions.push({ x, y: DUNA_GATE.y, script: 'c4_duna_fence' });
+    const tile = sb.tiles[DUNA_GATE.y * sb.w + x];
+    if (tile === T.FENCE) actions.push({ x, y: DUNA_GATE.y, script: 'c4_duna_fence' });
+    if (tile === T.LOCKED_DOOR) actions.push({ x, y: DUNA_GATE.y, script: 'c4_duna_fence', show: { not: [DUNA_FLAG] } });
   }
+  sb.gates.push({ x: DUNA_GATE.x, y: DUNA_GATE.y, closed: T.LOCKED_DOOR, open: T.DIRT, flag: DUNA_FLAG });
   actions.push({ x: P.arenaGate.x, y: P.arenaGate.y, script: 'c4_arena_gate' });
   // 王家のピラミッド（Step 4）: 日時計の とびら（開く まで）
   const D = PYRAMID_POS.door;
@@ -354,6 +367,10 @@ function buildField() {
       { x: P.courtWell.x, y: P.courtWell.y, to: { map: 'palace_canal', x: PALACE_CANAL_STAIRS.court.x + 0.5, y: PALACE_CANAL_STAIRS.court.y + 1.5, dir: 'down' } },
       // 王家のピラミッド（Step 4）: 日時計の とびら（開いた あと）→ 1階
       { x: D.x, y: D.y, to: { map: 'pyramid1', x: PYR_STAIRS.exit1.x + 0.5, y: PYR_STAIRS.exit1.y - 0.5, dir: 'up' } },
+      // 砂の港ドゥナ（Step 6）: 谷の 門の 先（いちばん 下の だん）→ ドゥナの 谷の 北の はし
+      ...Array.from({ length: DUNA_VALLEY_EXIT.x1 - DUNA_VALLEY_EXIT.x0 + 1 }, (_, i) => DUNA_VALLEY_EXIT.x0 + i)
+        .filter((x) => !TILE_INFO[sb.tiles[DUNA_VALLEY_EXIT.y * sb.w + x]]?.solid)
+        .map((x) => ({ x, y: DUNA_VALLEY_EXIT.y, to: { map: 'duna', x: DUNA_POS.arrive.x, y: DUNA_POS.arrive.y, dir: 'down' } })),
     ],
     triggers: [
       // 竜を おりた ところ（空を とべる 場所の 中なら どこでも）
@@ -691,7 +708,7 @@ function pyramid() {
 }
 
 export function buildCh4Maps() {
-  return { south: buildField(), north_well: northWell(), ...canal(), ...pyramid() };
+  return { south: buildField(), north_well: northWell(), ...canal(), ...pyramid(), ...buildDunaMaps() };
 }
 
 export { SOUTH_POS };

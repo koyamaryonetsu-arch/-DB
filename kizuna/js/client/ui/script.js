@@ -1,10 +1,10 @@
 // だいほんの さいせい（メッセージ・えらぶ・えんしゅつ）
-import { el } from './dom.js?v=a39a58253380';
-import { ListMenu } from './dom.js?v=a39a58253380';
-import { openServiceUI } from './services.js?v=a39a58253380';
-import { monsterCanvas } from '../render/monsters.js?v=a39a58253380';
-import { npcSprite } from '../field.js?v=a39a58253380';
-import { reportError } from '../errlog.js?v=a39a58253380';
+import { el } from './dom.js?v=1712ace6c042';
+import { ListMenu } from './dom.js?v=1712ace6c042';
+import { openServiceUI } from './services.js?v=1712ace6c042';
+import { monsterCanvas } from '../render/monsters.js?v=1712ace6c042';
+import { npcSprite } from '../field.js?v=1712ace6c042';
+import { reportError } from '../errlog.js?v=1712ace6c042';
 
 const TYPE_MS = 28;
 
@@ -123,7 +123,9 @@ export class ScriptPlayer {
         g.field.hideGuests = !!a[0];
         return null;
       case 'hideNpc':
-        g.field.scriptHidden.add(a[0]);
+        // ['hideNpc', id, false] … もう一度 見せる（イベントの さいごに、役者から 本物の NPC に もどす）
+        if (a[1] === false) g.field.scriptHidden.delete(a[0]);
+        else g.field.scriptHidden.add(a[0]);
         return null;
       case 'chestOpen':
         return null;

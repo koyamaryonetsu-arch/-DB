@@ -2,11 +2,13 @@
 // Step 2 の かれた地下水路（石だたみ・切り石の かべ・水路の 底と 水・水門・鉄の こうし・がれきの せき）は render/tiles-canal.js
 // (p, v, f, m) … Painter / ちがい（0〜3。砂嵐だけは ばしょ 0〜15。水路の 中は ばしょと 流れの むき）/ アニメの コマ / となりの ようす（mask。ch4Mask）
 // ひかりは 左上から
-import { T } from '../../shared/tiles.js?v=a39a58253380';
-import { Painter, prand, shade } from './pixel.js?v=a39a58253380';
-import { CANAL_PAINTERS, CANAL_FRAMES, CANAL_SPEED, CANAL_WALLS, canalMask } from './tiles-canal.js?v=a39a58253380';
+import { T } from '../../shared/tiles.js?v=1712ace6c042';
+import { Painter, prand, shade } from './pixel.js?v=1712ace6c042';
+import { CANAL_PAINTERS, CANAL_FRAMES, CANAL_SPEED, CANAL_WALLS, canalMask } from './tiles-canal.js?v=1712ace6c042';
 // 王家のピラミッド（Step 4）の タイルの え は render/tiles-pyramid.js（render/tiles.js が まぜる）。ここでは となりの ようす だけ
-import { pyramidMask } from './tiles-pyramid.js?v=a39a58253380';
+import { pyramidMask } from './tiles-pyramid.js?v=1712ace6c042';
+// 砂の港ドゥナ・砂の海（Step 6）の 砂の海と 砂の うず（render/tiles-duna.js）
+import { DUNA_PAINTERS, DUNA_FRAMES, DUNA_SPEED, dunaMask } from './tiles-duna.js?v=1712ace6c042';
 
 const TAU = Math.PI * 2;
 // 4×4 の ディザ（だんだんの いろを まぜる）
@@ -423,10 +425,12 @@ CH4_PAINTERS[T.DRY_FOUNTAIN] = paintDryFountain;
 
 // かれた地下水路（Step 2。render/tiles-canal.js）
 Object.assign(CH4_PAINTERS, CANAL_PAINTERS);
+// 砂の海と 砂の うず（Step 6。render/tiles-duna.js）
+Object.assign(CH4_PAINTERS, DUNA_PAINTERS);
 
 // アニメーションする タイルの コマ数（砂嵐は 16コマで 64ドット すすんで もとに もどる。水路の 水は 16コマで 32ドット ながれる）
-export const CH4_FRAMES = { [T.SANDSTORM]: 16, ...CANAL_FRAMES };
-export const CH4_SPEED = { [T.SANDSTORM]: 75, ...CANAL_SPEED };
+export const CH4_FRAMES = { [T.SANDSTORM]: 16, ...CANAL_FRAMES, ...DUNA_FRAMES };
+export const CH4_SPEED = { [T.SANDSTORM]: 75, ...CANAL_SPEED, ...DUNA_SPEED };
 // まえの かおが ある かべ（render/tiles.js の WALLS）
 export const CH4_WALLS = [T.ADOBE, ...CANAL_WALLS];
 
@@ -466,6 +470,9 @@ export function ch4Mask(t, at, x, y, map = null) {
     const ft = (dx, dy) => { const n = at(x + dx, y + dy); return n === T.DRY_FOUNTAIN || n === T.FOUNTAIN; };
     return (ft(0, -1) ? 0 : 1) | (ft(1, 0) ? 0 : 2) | (ft(0, 1) ? 0 : 4) | (ft(-1, 0) ? 0 : 8);
   }
+  // 砂の海（Step 6）: 岸の がわ
+  const dm = dunaMask(t, at, x, y);
+  if (dm >= 0) return dm;
   // 王家のピラミッド（Step 4）: ピラミッドの いち・オベリスクの 影の つながり・流れる 砂の ふち
   const pm = pyramidMask(t, at, x, y);
   if (pm >= 0) return pm;

@@ -71,6 +71,29 @@ export const ITEMS_CH4 = {
     equipUse: { base: [16, 24], msg: 'ランプから、青いけむりがふき出した…！\nみんなの体に、ふしぎな力がしみこんでいく！' },
     desc: '砂の魔神ザイードがのこした、古い金のランプ。装備していると、戦いの「道具」から使えて、みんなのMPを少し回復する（1回の戦いで1回）。魔力と守りも上がる。',
   },
+
+  // ───── 砂の海賊と砂クジラ（Step 6）─────
+  // だいじなもの: 船のかじ（砂の古城の 2階。バルガに わたすと すなかぜ号が 動く）
+  ship_rudder: {
+    name: '船のかじ', type: 'key',
+    desc: '砂の船「すなかぜ号」のかじ。古城の魔物たちにぬすまれていた。ドゥナのかしらバルガにとどけよう。',
+  },
+  // 砂クジラが 落とす（ボスの 品。1人 1つ）: 砂しぶき（マヌーサ）と 毒に 強く、HPと 守りが 上がる
+  whale_charm: {
+    name: '砂クジラのお守り', type: 'acc', rank: 7, unique: true, bonus: { hp: 30, def: 10 }, resist: { blind: 0.5, poison: 0.6 }, price: 0, sell: 1200,
+    desc: '正気にもどった砂クジラが、お礼にくれたお守り。砂の海の主の力が、やどっている。HPと守りが上がり、マヌーサと毒にかかりにくくなる。',
+  },
+};
+
+// ものがたりで いっしょに たたかう ゲスト（第4章 Step 6〜7。story-ch4-duna.js が shops.js の GUESTS に まぜる）
+// サラ: 砂の海賊の かしらバルガの むすめ（14さい）。ムチ使いの 海賊。ドゥナで バルガの 話の あと 仲間に なり、
+// 砂の古城と 砂の海の 航海に ついてくる。look は 主人公の みため（render/hero.js）。gear … ゲストの 装備（party.js の makeNpcSupportChar）
+export const CH4_GUESTS = {
+  sara: {
+    id: 'guest_sara', name: 'サラ', job: 'pirate', tactics: 'aggressive', minLevel: 30,
+    look: { body: 1, hair: 3, hairColor: 1, skin: 1, color: 1, style: 'pony', hcol: 'darkbrown', tone: 'tan', face: 'sharp' },
+    gear: { weapon: 'snake_whip', armor: 'desert_garb', shield: null, head: 'bandana' },
+  },
 };
 
 export const CH4_ITEM_KANA = {
@@ -82,6 +105,7 @@ export const CH4_ITEM_KANA = {
   crescent_shield: 'みかづきのたて', sand_helm: 'すなのかぶと', turban: 'たーばん', crescent_blade: 'みかづきのけん',
   moon_mirror: 'つきのかがみ', royal_gold_sword: 'おうけのおうごんのけん', royal_bracelet: 'おうけのうでわ',
   queen_letter: 'じょおうのてがみ', majin_lamp: 'まじんのらんぷ', mirage_ring: 'まぼろしのゆびわ',
+  ship_rudder: 'ふねのかじ', whale_charm: 'すなくじらのおまもり',
 };
 
 export const SHOPS_CH4 = {
@@ -114,5 +138,13 @@ export const SHOPS_CH4 = {
     keeper: '道具屋のおばさん',
     hello: 'いらっしゃい！市場の道具屋だよ。\n水はないけど、薬草ならあるよ。\n何にするんだい？',
     items: ['herb', 'antidote', 'moonherb', 'holy_water', 'return_wing', 'guide_thread', 'smoke_ball'],
+  },
+  // 砂の港ドゥナ（Step 6）: 港の 道具屋（砂の海の 旅の そなえ）。ランク7の 武器と 防具の 店は Step 7
+  duna_item: {
+    name: 'ドゥナの道具屋',
+    kind: 'item',
+    keeper: '道具屋のおやじ',
+    hello: 'へい、らっしゃい！ドゥナの道具屋だ。\n砂の海へ出るなら、薬草はたっぷり持っていきな。\n何にする？',
+    items: ['herb', 'antidote', 'moonherb', 'holy_water', 'return_wing', 'guide_thread', 'smoke_ball', 'sand_cloak'],
   },
 };

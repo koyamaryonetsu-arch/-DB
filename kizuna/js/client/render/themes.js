@@ -1,8 +1,8 @@
 // 色の かえかた（宝の洞窟の しゅるい・第3章の 氷と 火の 洞窟・第4章の 砂の 洞窟と 地下水路・洞窟の 主の 色ちがい）
 // もとの ドット絵は そのままに、明るさを たもって 色だけ かえる
-import { T } from '../../shared/tiles.js?v=a39a58253380';
-import { makeCanvas, ctxOf } from './pixel.js?v=a39a58253380';
-import { CANAL_CTX, CANAL_CTX_TILES } from './tiles-canal.js?v=a39a58253380';
+import { T } from '../../shared/tiles.js?v=1712ace6c042';
+import { makeCanvas, ctxOf } from './pixel.js?v=1712ace6c042';
+import { CANAL_CTX, CANAL_CTX_TILES } from './tiles-canal.js?v=1712ace6c042';
 
 // どの 部分か（ゆか・かべ・水）
 const PART_OF_TILE = {
@@ -25,6 +25,10 @@ for (const id of [T.PYRAMID, T.PYR_DOOR, T.PYR_GATE, T.OBELISK_BASE, T.SUN_SHADO
   T.BTN_SUN_ON, T.BTN_SAND_ON, T.BTN_MOON_ON, T.BTN_STAR_ON, T.FLOW_N, T.FLOW_E, T.FLOW_S, T.FLOW_W, T.SAND_PIT,
   T.PYR_CRACK, T.PYR_SLAB, T.SARCOPHAGUS, T.PYR_ALTAR, T.PYR_GLYPH, T.SEAL_RUNE]) PART_OF_TILE[id] = 'none';
 for (const name of ['pyramid_top', 'pyramid_side', 'pyr_stone_side', 'pyr_gold_side']) PART_OF_EXTRA[name] = 'none';
+// じゅうたん: 砂の古城（第4章 Step 6）では 赤い まま。ほかの テーマでは ゆかと おなじ（themeRgb）
+PART_OF_TILE[T.CARPET] = 'carpet';
+// 第4章 Step 6 の 砂の海と 砂の うず（フィールドだけ）も もとの 色の まま
+for (const id of [T.SAND_SEA, T.SAND_WHIRL]) PART_OF_TILE[id] = 'none';
 // mask … 地下水路の え で かいた たいまつ・レバー・かいだん など（mask の CANAL_CTX）も 色を かえない
 // 王家のピラミッドの 石の 文字ばん（かんばんの mask 4）も もとの 色の まま
 export const partOfTile = (id, mask = 0) => ((mask & CANAL_CTX && CANAL_CTX_TILES.has(id)) || (id === T.SIGN && mask & 4) ? 'none' : PART_OF_TILE[id] || 'floor');
@@ -87,11 +91,21 @@ const PYRAMID = {
   gem: G([0, '#0a2a58'], [0.5, '#2a7ad0'], [1, '#d0f0ff']),
   flame: null,
 };
-const THEMES = { ice: ICE, lava: LAVA, sand: SAND, canal: CANAL, pyramid: PYRAMID };
+// 砂の古城（第4章 Step 6）: 白っぽい 砂岩の 石だたみ・こい 灰茶の 古い 石の かべ・青緑の 古い 宝石。赤い じゅうたんは そのまま（keepCarpet）
+const CASTLE = {
+  floor: G([0, '#16120e'], [0.1, '#3a3026'], [0.2, '#6e6050'], [0.3, '#a09078'], [0.45, '#bcac90'], [0.7, '#d8caae'], [1, '#fff8ea']),
+  wall: G([0, '#0e0a08'], [0.1, '#2a221c'], [0.22, '#4e4236'], [0.35, '#766652'], [0.6, '#9c8a70'], [1, '#e2d4b8']),
+  water: G([0, '#0a1a1e'], [0.35, '#2a5a5e'], [0.7, '#6aa8a0'], [1, '#e8fff8']),
+  gem: G([0, '#0a3a40'], [0.5, '#3aa8a0'], [1, '#d8fff6']),
+  flame: null,
+  keepCarpet: true,
+};
+const THEMES = { ice: ICE, lava: LAVA, sand: SAND, canal: CANAL, pyramid: PYRAMID, castle: CASTLE };
 
 // 1つの 色を かえる
 export function themeRgb(r, g, b, theme, part) {
   const P = THEMES[theme];
+  if (part === 'carpet') part = P?.keepCarpet ? 'none' : 'floor';
   if (!P || part === 'none') return [r, g, b];
   const l = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
   const warm = r > 170 && g > 70 && b < 110 && r > b + 80; // たいまつの 火

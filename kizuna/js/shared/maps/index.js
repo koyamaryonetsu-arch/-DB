@@ -1,15 +1,15 @@
 // マップの ぜんたい（フィールド・どうくつ）と、そこに いる 人や たからばこ
-import { T, parseRows, TILE_INFO } from '../tiles.js?v=a39a58253380';
-import { makeRng, hash2 } from '../rng.js?v=a39a58253380';
-import { buildOverworld, PLACES, zoneAt, areaName, OW_W, OW_H, CAVE_ENTRANCE, FOREST_CLEARING, LAKE, SWAMP } from './overworld.js?v=a39a58253380';
-import { CAVE_B1_ROWS, CAVE_B2_ROWS } from './cave-rows.js?v=a39a58253380';
-import { npc } from './npc.js?v=a39a58253380';
-import { buildCh2Maps, SEA_PLACES } from './ch2.js?v=a39a58253380';
-import { buildTreasureFloor } from './treasure-cave.js?v=a39a58253380';
-import { addNightNpcs } from './night-npcs.js?v=a39a58253380';
-import { attachCasino } from './casino.js?v=a39a58253380';
-import { buildCh3Maps, ch3SearchMats, NORTH_SPARKLE_LOOT } from './ch3.js?v=a39a58253380';
-import { buildCh4Maps, ch4SearchMats, SOUTH_SPARKLE_LOOT } from './ch4.js?v=a39a58253380';
+import { T, parseRows, TILE_INFO } from '../tiles.js?v=1712ace6c042';
+import { makeRng, hash2 } from '../rng.js?v=1712ace6c042';
+import { buildOverworld, PLACES, zoneAt, areaName, OW_W, OW_H, CAVE_ENTRANCE, FOREST_CLEARING, LAKE, SWAMP } from './overworld.js?v=1712ace6c042';
+import { CAVE_B1_ROWS, CAVE_B2_ROWS } from './cave-rows.js?v=1712ace6c042';
+import { npc } from './npc.js?v=1712ace6c042';
+import { buildCh2Maps, SEA_PLACES } from './ch2.js?v=1712ace6c042';
+import { buildTreasureFloor } from './treasure-cave.js?v=1712ace6c042';
+import { addNightNpcs } from './night-npcs.js?v=1712ace6c042';
+import { attachCasino } from './casino.js?v=1712ace6c042';
+import { buildCh3Maps, ch3SearchMats, NORTH_SPARKLE_LOOT } from './ch3.js?v=1712ace6c042';
+import { buildCh4Maps, ch4SearchMats, SOUTH_SPARKLE_LOOT } from './ch4.js?v=1712ace6c042';
 
 const V = (x, y) => [PLACES.village.x + x, PLACES.village.y + y];
 const TW = (x, y) => [PLACES.town.x + x, PLACES.town.y + y];
@@ -325,19 +325,22 @@ export function slidesAt(map, x, y, hasFlag) {
   return !!TILE_INFO[effectiveTile(map, Math.floor(x), Math.floor(y), hasFlag)]?.slide;
 }
 
+// 船で すすめる タイル（水・第4章の 砂の海。sail の ある タイル）
+const sailTile = (t) => t === T.WATER || t === T.DEEP || !!TILE_INFO[t]?.sail;
+
 export function isBlocked(map, x, y, hasFlag) {
   const t = effectiveTile(map, x, y, hasFlag);
-  // 海の マップでは 船で 水の 上を すすめる
-  if (map.sailable && (t === T.WATER || t === T.DEEP)) return false;
+  // 海の マップでは 船で 水の 上を すすめる（第4章の 砂の海は すなかぜ号で 砂の 上を）
+  if (map.sailable && sailTile(t)) return false;
   if (TILE_INFO[t]?.solid ?? true) return true;
   return false;
 }
 
-// 船に のっている（海の マップで 水の 上に いる）
+// 船に のっている（海の マップで 水の 上に いる。砂の海の 上も）
 export function onWater(map, x, y, hasFlag) {
   if (!map.sailable) return false;
   const t = effectiveTile(map, Math.floor(x), Math.floor(y), hasFlag);
-  return t === T.WATER || t === T.DEEP;
+  return sailTile(t);
 }
 
 // NPCや たからばこの 表示じょうけん

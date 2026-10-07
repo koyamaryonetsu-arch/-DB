@@ -1,8 +1,8 @@
 // 美容室（かみがた・かみの色・目もと・はだの色を 変える）
 // ・変えて よいのは style・hcol・face・tone だけ（体の 形・服の 色・職業は そのまま）
 // ・代金は 1回 SALON_FEE ゴールド。何も 変えない ときは いらない
-import { SALON_FEE, salonLook } from '../data/looks.js?v=a39a58253380';
-import { partyOf } from './party.js?v=a39a58253380';
+import { SALON_FEE, salonLook } from '../data/looks.js?v=1712ace6c042';
+import { partyOf } from './party.js?v=1712ace6c042';
 
 // 店に 入った とき（ui に わたす）
 export function salonInfo(world, s) {

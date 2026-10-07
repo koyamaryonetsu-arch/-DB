@@ -13,16 +13,16 @@
 // ・パーティーの リーダーが よぶと、なかまに「いっしょに 乗る？」と きく（askRiders）。乗る なかまは リーダーの そばへ、
 //   「ついていく」に なって いっしょに とび、いっしょに おりる・となりの 地方へ いく。乗らない なかまは 地上に のこる
 // ・サーバーは とんでいない 人が 歩けない ところへ 入るのを みとめない（world.js の onMove）
-import { MAPS, isBlocked, onWater, condOk } from '../maps/index.js?v=a39a58253380';
-import { PLACES } from '../maps/overworld.js?v=a39a58253380';
-import { SEA_PLACES } from '../maps/ch2.js?v=a39a58253380';
-import { ABILITIES } from '../data/abilities.js?v=a39a58253380';
-import { ITEMS } from '../data/items.js?v=a39a58253380';
-import { hasKeyItem, mpCost, removeItem, itemCount } from '../stats.js?v=a39a58253380';
-import { SKY_MAPS, FLUTE_ID, RIDE_ASK_MS, regionHop, edgeAt, edgeTarget, regionsFrom, skyBox, inSkyBox, mountOf, flySpeed, edgeLockedText, boxLockedText } from '../data/sky.js?v=a39a58253380';
-import { partyOf } from './party.js?v=a39a58253380';
-import { warpDest } from './services.js?v=a39a58253380';
-import { advanceClock, clockOwner } from './clock.js?v=a39a58253380';
+import { MAPS, isBlocked, onWater, condOk } from '../maps/index.js?v=1712ace6c042';
+import { PLACES } from '../maps/overworld.js?v=1712ace6c042';
+import { SEA_PLACES } from '../maps/ch2.js?v=1712ace6c042';
+import { ABILITIES } from '../data/abilities.js?v=1712ace6c042';
+import { ITEMS } from '../data/items.js?v=1712ace6c042';
+import { hasKeyItem, mpCost, removeItem, itemCount } from '../stats.js?v=1712ace6c042';
+import { SKY_MAPS, FLUTE_ID, RIDE_ASK_MS, regionHop, edgeAt, edgeTarget, regionsFrom, skyBox, inSkyBox, mountOf, flySpeed, edgeLockedText, boxLockedText } from '../data/sky.js?v=1712ace6c042';
+import { partyOf } from './party.js?v=1712ace6c042';
+import { warpDest } from './services.js?v=1712ace6c042';
+import { advanceClock, clockOwner } from './clock.js?v=1712ace6c042';
 
 const FOLLOW_RANGE = 12;
 
@@ -108,6 +108,8 @@ export function canCall(world, s) {
   if (s.flying) return { ok: false, reason: 'もう空を飛んでいる。' };
   if (s.busy) return { ok: false, reason: '今はできません' };
   const mount = mountFor(world, s);
+  // 空を とべない フィールド（第4章 Step 6 の 砂の港ドゥナ・砂の海。がけと 砂嵐に かこまれている）
+  if (!canFlyMap(s.map) && MAPS[s.map]?.kind === 'field') return { ok: false, reason: `${ITEMS[FLUTE_ID].name}をふいた！\nしかし何も起こらなかった…\n（ここには、${mount.btn}は来られないようだ）` };
   if (!canFlyMap(s.map)) return { ok: false, reason: `${ITEMS[FLUTE_ID].name}をふいた！\nしかし何も起こらなかった…\n（洞窟や塔の中では、${mount.btn}は来られない）` };
   if (inTown(s.map, s.x, s.y)) return { ok: false, reason: `${ITEMS[FLUTE_ID].name}をふいた！\nしかし${mount.name}は町の中にはおりられない。\n（町の外でふこう）` };
   // ふぶき・砂嵐の 地方（シロガネ地方は 星の竜が 目覚めるまで・コガネ地方は 砂嵐の あいだ）: とべる 場所でしか よべない

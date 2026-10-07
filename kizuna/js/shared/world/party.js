@@ -5,15 +5,15 @@
 //   c.partyKeys  … いま いっしょに ぼうけんしている なかま（じゅんばん）。'fam:ID' は 家族の キャラ
 //   c.guests     … ものがたりで いっしょに いる ゲスト（ルカ など）
 // パーティーには リーダーの なかまが ついてくる（にんげんが ふえると、はいりきらない なかまは いったん まつ）
-import { newCharacter, computeStats, fullHeal, gainExp, gainJobBattles, migrateJobs, expForLevel, addItem, newMonsterCompanion, learnedAbilities } from '../stats.js?v=a39a58253380';
-import { jobBattlesForLevel } from '../data/jobs.js?v=a39a58253380';
-import { NPC_SUPPORTS, GUESTS } from '../data/shops.js?v=a39a58253380';
-import { MONSTERS } from '../data/monsters.js?v=a39a58253380';
-import { MONSTER_FRIENDS, ROSTER_MAX, COMPANION_SLOTS } from '../data/companions.js?v=a39a58253380';
-import { SLOTS, ITEMS } from '../data/items.js?v=a39a58253380';
-import { cleanWagon, hasWagon, WAGON_SLOTS } from '../data/wagon.js?v=a39a58253380';
-import { wagonState, wagonTavernInfo } from './wagon.js?v=a39a58253380';
-import { difficultyOf } from '../data/difficulty.js?v=a39a58253380';
+import { newCharacter, computeStats, fullHeal, gainExp, gainJobBattles, migrateJobs, expForLevel, addItem, newMonsterCompanion, learnedAbilities } from '../stats.js?v=1712ace6c042';
+import { jobBattlesForLevel, JOBS } from '../data/jobs.js?v=1712ace6c042';
+import { NPC_SUPPORTS, GUESTS } from '../data/shops.js?v=1712ace6c042';
+import { MONSTERS } from '../data/monsters.js?v=1712ace6c042';
+import { MONSTER_FRIENDS, ROSTER_MAX, COMPANION_SLOTS } from '../data/companions.js?v=1712ace6c042';
+import { SLOTS, ITEMS } from '../data/items.js?v=1712ace6c042';
+import { cleanWagon, hasWagon, WAGON_SLOTS } from '../data/wagon.js?v=1712ace6c042';
+import { wagonState, wagonTavernInfo } from './wagon.js?v=1712ace6c042';
+import { difficultyOf } from '../data/difficulty.js?v=1712ace6c042';
 
 // パーティーに 入れる 人（家族の プレイヤー）は 5人まで。いっしょに フィールドを 歩いて、いっしょに 戦う
 export const PARTY_MAX = 5;
@@ -205,14 +205,21 @@ const TIER_GEAR = [
 
 export function makeNpcSupportChar(def, level) {
   const c = newCharacter({ id: def.id, name: def.name, look: def.look, job: def.job });
+  // 上級職の ゲスト（第4章の サラは 海賊）。newCharacter は さいしょの 職業しか えらべないので ここで かえる
+  if (JOBS[def.job] && c.job !== def.job) {
+    delete c.jobs[c.job];
+    c.job = def.job;
+  }
   c.level = level;
   c.exp = expForLevel(level);
   const jl = Math.max(1, Math.min(7, Math.floor(level * 0.4)));
   c.jobs[def.job] = { lv: jl, b: jobBattlesForLevel(jl) };
   let gear = TIER_GEAR[0][1];
   for (const [lv, g] of TIER_GEAR) if (level >= lv) gear = g;
-  const [w, a, s, h] = gear[def.job];
+  const [w, a, s, h] = gear[def.job] || [];
   c.equip = { weapon: w || null, armor: a || null, shield: s || null, head: h || null, acc: null };
+  // ゲストの 装備（第4章の サラ: ムチと 砂の衣。def.gear が あれば それ）
+  if (def.gear) Object.assign(c.equip, def.gear);
   c.items = [];
   c.tactics = def.tactics || 'balanced';
   delete c.explored;

@@ -286,4 +286,54 @@ export const CH4_ABILITIES = {
     effect: { type: 'phys', mult: 1.3, ignoreDef: 0.25 }, cast: '{a}の砂の大うず！\n王の間じゅうに、砂があれくるう！', anim: 'sand_vortex',
     desc: '砂の大うずで、敵みんなに大ダメージ。防御で半分になる。',
   },
+
+  // ── 砂の港ドゥナの 谷・砂の古城・砂の海（Step 6）──
+  m_shark_double: {
+    name: '2回かみつく', kind: 'monster', mp: 2, target: 'enemy',
+    effect: { type: 'phys', mult: 0.85, hits: 2 }, cast: '{a}は、砂の中から飛びかかって、{t}に2回かみついた！', anim: 'bite',
+    desc: 'するどい歯で、2回続けてかみつく。',
+  },
+  m_shark_fin: {
+    name: 'せびれの一撃', kind: 'monster', mp: 2, target: 'enemy',
+    effect: { type: 'phys', mult: 1.3, acc: 0.9 }, cast: '{a}は、するどいせびれで、{t}を切りさいた！', anim: 'slash_fast',
+    desc: 'するどいせびれで、切りさく。',
+  },
+  m_armor_sweep: {
+    name: 'なぎはらい', kind: 'monster', mp: 2, target: 'enemies',
+    effect: { type: 'phys', mult: 0.7 }, cast: '{a}は、重い剣を大きくふり回した！', anim: 'hit_all',
+    desc: '重い剣で、敵みんなをなぎはらう。',
+  },
+  m_armor_guard: {
+    name: 'たてを構える', kind: 'monster', target: 'self',
+    effect: { type: 'buff', stat: 'def', mult: 1.35, dur: 25 }, cast: '{a}は、古いたてを、がっしりと構えた！', anim: 'buff',
+    desc: 'たてを構えて、守りを上げる。',
+  },
+  // ── 砂クジラ（Step 6 の ボス。砂に もぐるのは battle-ch4.js の burrow）──
+  m_whale_tackle: {
+    name: '体当たり', kind: 'monster', target: 'enemy',
+    effect: { type: 'phys', mult: 1.35, acc: 0.95 }, cast: '{a}は、山のような体で、{t}に体当たりしてきた！', anim: 'tackle',
+    desc: '大きな体で、1人に体当たりする。',
+  },
+  m_whale_gulp: {
+    name: '大口', kind: 'monster', target: 'enemy',
+    effect: { type: 'phys', mult: 1.7, acc: 0.9 }, cast: '{a}は、大きな口をがばっと開けて、{t}にくらいついた！', anim: 'bite',
+    desc: '大きな口でくらいついて、1人に大ダメージ。',
+  },
+  m_whale_spray: {
+    name: '砂しぶき', kind: 'monster', mp: 6, target: 'enemies',
+    effect: { type: 'magic', base: [34, 44], thr: 99, status: { status: 'blind', chance: 0.3, turns: [2, 3] } },
+    cast: '{a}は、大きなおびれで、砂の海をたたいた！\n砂しぶきが、みんなにふりそそぐ！', anim: 'sand_spray',
+    desc: '砂しぶきで、敵みんなにダメージ。目をくらませることがある。',
+  },
+  // 砂に もぐる（つぎの 番まで ねらえない。ゲージが たまると「砂がもり上がった…！」→ つぎの 番に 大ジャンプ）
+  m_whale_dive: {
+    name: '砂にもぐる', kind: 'monster', target: 'self',
+    effect: { type: 'burrow', next: 'm_whale_jump' }, cast: '{a}は、砂の中にもぐった！', anim: 'burrow',
+    desc: '砂の中にもぐる。次の番まで、攻撃がとどかない。砂がもり上がったら、大ジャンプが来る。',
+  },
+  m_whale_jump: {
+    name: '大ジャンプ', kind: 'monster', target: 'enemies',
+    effect: { type: 'phys', mult: 1.4, ignoreDef: 0.3 }, cast: '{a}が、砂の中から飛び出した！\n大きな体が空高くまい上がり、すなかぜ号に落ちてくる！', anim: 'whale_jump',
+    desc: '砂の中から飛び出して、敵みんなの上に落ちてくる。とても大きなダメージ。防御で半分になる。',
+  },
 };
