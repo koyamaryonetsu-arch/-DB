@@ -1,18 +1,18 @@
 // ゲーム ぜんたいの しんこう
-import { Input } from './input.js?v=92b7832d9909';
-import { GameAudio } from './audio.js?v=92b7832d9909';
-import { Field } from './field.js?v=92b7832d9909';
-import { Hud, STAMPS } from './ui/hud.js?v=92b7832d9909';
-import { FieldMenu, openWorldMap } from './ui/menu.js?v=92b7832d9909';
-import { ScriptPlayer, wait } from './ui/script.js?v=92b7832d9909';
-import { BattleScene } from './battle.js?v=92b7832d9909';
-import { showTitle, showLogin, showSelect, showCreate, showLoading, saveWhere } from './ui/title.js?v=92b7832d9909';
-import { showServerDown } from './ui/syncui.js?v=92b7832d9909';
-import { toast, confirmBox, el } from './ui/dom.js?v=92b7832d9909';
-import { MAPS } from '../shared/maps/index.js?v=92b7832d9909';
-import { applyBattlePrefs, applyUiFont } from './prefs.js?v=92b7832d9909';
-import { SkyClient } from './sky.js?v=92b7832d9909';
-import { reportError } from './errlog.js?v=92b7832d9909';
+import { Input } from './input.js?v=99eee20f67c7';
+import { GameAudio } from './audio.js?v=99eee20f67c7';
+import { Field } from './field.js?v=99eee20f67c7';
+import { Hud, STAMPS } from './ui/hud.js?v=99eee20f67c7';
+import { FieldMenu, openWorldMap } from './ui/menu.js?v=99eee20f67c7';
+import { ScriptPlayer, wait } from './ui/script.js?v=99eee20f67c7';
+import { BattleScene } from './battle.js?v=99eee20f67c7';
+import { showTitle, showLogin, showSelect, showCreate, showLoading, saveWhere } from './ui/title.js?v=99eee20f67c7';
+import { showServerDown } from './ui/syncui.js?v=99eee20f67c7';
+import { toast, confirmBox, el } from './ui/dom.js?v=99eee20f67c7';
+import { MAPS } from '../shared/maps/index.js?v=99eee20f67c7';
+import { applyBattlePrefs, applyUiFont } from './prefs.js?v=99eee20f67c7';
+import { SkyClient } from './sky.js?v=99eee20f67c7';
+import { reportError } from './errlog.js?v=99eee20f67c7';
 
 export class Game {
   constructor(net) {
@@ -473,10 +473,16 @@ export class Game {
           w(m);
         }
         break;
-      case 'menuRes':
-        if (m.text) toast(m.text);
+      case 'menuRes': {
+        // メニューが 返事を まっている（道具を 続けて 使う。ui/menu.js の menuCall）: true なら 知らせは メニューの まどに 出す
+        const w = this.menuWaiter;
+        this.menuWaiter = null;
+        let shown = false;
+        try { shown = !!w?.(m); } catch (e) { console.error(e); }
+        if (m.text && !shown) toast(m.text);
         this.audio.sfx(m.ok ? 'confirm' : 'buzz');
         break;
+      }
       case 'battleStart': return this.onBattleStart(m);
       case 'battleEv':
         // はじまりの えんしゅつ中は とっておいて、戦いの 画面が できてから わたす
@@ -719,7 +725,7 @@ export class Game {
     if (this.net.mode === 'offline' && !this.saveWarned) {
       this.saveWarned = true;
       const cloud = this.net.local?.cloud;
-      import('./offline.js?v=92b7832d9909').then(({ offlineStorage }) => {
+      import('./offline.js?v=99eee20f67c7').then(({ offlineStorage }) => {
         offlineStorage.load();
         if (cloud?.state === 'on') return;
         if (!offlineStorage.ok) toast('このブラウザではセーブができないかもしれません', 5000);

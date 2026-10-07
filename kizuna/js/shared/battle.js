@@ -7,17 +7,18 @@
 //
 // サーバー（家族サーバー）でも ブラウザ（ひとりモード）でも おなじ コードが うごく
 
-import { makeRng } from './rng.js?v=92b7832d9909';
-import { ABILITIES } from './data/abilities.js?v=92b7832d9909';
-import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=92b7832d9909';
-import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js?v=92b7832d9909';
-import { MONSTERS } from './data/monsters.js?v=92b7832d9909';
-import { ITEMS } from './data/items.js?v=92b7832d9909';
-import { JOBS } from './data/jobs.js?v=92b7832d9909';
-import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed, battleAbilityOk } from './stats.js?v=92b7832d9909';
-import { decideMonster, decideAlly } from './ai.js?v=92b7832d9909';
+import { makeRng } from './rng.js?v=99eee20f67c7';
+import { ABILITIES } from './data/abilities.js?v=99eee20f67c7';
+import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=99eee20f67c7';
+import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js?v=99eee20f67c7';
+import { MONSTERS } from './data/monsters.js?v=99eee20f67c7';
+import { ITEMS } from './data/items.js?v=99eee20f67c7';
+import { JOBS } from './data/jobs.js?v=99eee20f67c7';
+import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed, battleAbilityOk } from './stats.js?v=99eee20f67c7';
+import { decideMonster, decideAlly } from './ai.js?v=99eee20f67c7';
+import { ENEMY_RATES, strengthenEnemy } from './data/difficulty.js?v=99eee20f67c7';
 // 第4章の しかけ（まぼろしの分身・月の鏡・そうびしたまま 使う 道具）
-import { setupMirage, mirageHit, mirageVanish, mirageDown, mirageSync, mirageRemake, ch4ItemCheck, ch4UseItem, mirrorSnap } from './battle-ch4.js?v=92b7832d9909';
+import { setupMirage, mirageHit, mirageVanish, mirageDown, mirageSync, mirageRemake, ch4ItemCheck, ch4UseItem, mirrorSnap } from './battle-ch4.js?v=99eee20f67c7';
 
 export const BOND_MAX = 100;
 // きずなゲージの たまりやすさ（1 … はじめの 版。ちいさいほど たまりにくい）
@@ -215,6 +216,8 @@ export class Battle {
     this.preemptive = opts.preemptive || null;
     for (const a of opts.allies || []) this.addAlly(a);
     this.enemyMod = opts.enemyMod || null; // 敵の 強さを かえる（宝の洞窟）
+    // 設定の「敵の強さ」（1・1.2・1.5・2倍。data/difficulty.js）。とちゅうで 来る 魔物にも かける
+    this.enemyRate = ENEMY_RATES.includes(opts.enemyRate) ? opts.enemyRate : 1;
     this.addEnemies(opts.enemies || []);
     // まぼろしの分身（おなじ 魔物の 1体だけが 本物。battle-ch4.js）
     setupMirage(this);
@@ -261,6 +264,8 @@ export class Battle {
     for (const sp of list) {
       const m = enemyFromSpecies(sp);
       if (this.enemyMod) this.enemyMod(m);
+      // 敵の 強さ（ハードなど）: はじめの 魔物も、仲間を呼ぶ・ボスが 呼んだ 手下も おなじ 倍率
+      if (this.enemyRate > 1) strengthenEnemy(m, this.enemyRate);
       const total = (counts[sp] || 0) + (used[sp] || 0);
       const idx = used[sp] || 0;
       used[sp] = idx + 1;
@@ -2214,6 +2219,8 @@ export class Battle {
       noSpells: this.noSpells,
       // 月の鏡の 光（まぼろしの 分身が いる たたかいだけ。battle-ch4.js）
       mirror: mirrorSnap(this),
+      // 敵の 強さ（1 … ふつう。ハードなどの ときは 画面に しるし）
+      enemyRate: this.enemyRate,
       bond: this.bond,
       speed: this.speed,
       textSpeed: this.textSpeed,

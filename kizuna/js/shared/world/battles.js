@@ -1,21 +1,21 @@
 // たたかいの はじまりと おわり（ほうしゅう・ぜんめつ）
-import { Battle, normBattleSettings } from '../battle.js?v=92b7832d9909';
-import { scaleExp } from '../data/difficulty.js?v=92b7832d9909';
-import { MONSTERS } from '../data/monsters.js?v=92b7832d9909';
-import { ITEMS } from '../data/items.js?v=92b7832d9909';
-import { ABILITIES } from '../data/abilities.js?v=92b7832d9909';
-import { JOBS } from '../data/jobs.js?v=92b7832d9909';
-import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=92b7832d9909';
-import { gainExp, gainJobBattles, jobTrainMult, itemCount, removeItem, addItem, ownsItem, computeStats, STAT_NAMES, fullHeal } from '../stats.js?v=92b7832d9909';
-import { JOB_MAX_LEVEL } from '../data/jobs.js?v=92b7832d9909';
-import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf, PARTY_MAX } from './party.js?v=92b7832d9909';
-import { rollDrops, stealPick } from '../data/loot.js?v=92b7832d9909';
-import { MAPS } from '../maps/index.js?v=92b7832d9909';
-import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js?v=92b7832d9909';
-import { treasureAfterBattle } from './treasure.js?v=92b7832d9909';
-import { wipeGoldLoss, bankGold } from './bank.js?v=92b7832d9909';
-import { wagonShare, wagonBattleSwap } from './wagon.js?v=92b7832d9909';
-import { battleTactics } from './tactics.js?v=92b7832d9909';
+import { Battle, normBattleSettings } from '../battle.js?v=99eee20f67c7';
+import { scaleExp, difficultyOf } from '../data/difficulty.js?v=99eee20f67c7';
+import { MONSTERS } from '../data/monsters.js?v=99eee20f67c7';
+import { ITEMS } from '../data/items.js?v=99eee20f67c7';
+import { ABILITIES } from '../data/abilities.js?v=99eee20f67c7';
+import { JOBS } from '../data/jobs.js?v=99eee20f67c7';
+import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=99eee20f67c7';
+import { gainExp, gainJobBattles, jobTrainMult, itemCount, removeItem, addItem, ownsItem, computeStats, STAT_NAMES, fullHeal } from '../stats.js?v=99eee20f67c7';
+import { JOB_MAX_LEVEL } from '../data/jobs.js?v=99eee20f67c7';
+import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf, PARTY_MAX } from './party.js?v=99eee20f67c7';
+import { rollDrops, stealPick } from '../data/loot.js?v=99eee20f67c7';
+import { MAPS } from '../maps/index.js?v=99eee20f67c7';
+import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js?v=99eee20f67c7';
+import { treasureAfterBattle } from './treasure.js?v=99eee20f67c7';
+import { wipeGoldLoss, bankGold } from './bank.js?v=99eee20f67c7';
+import { wagonShare, wagonBattleSwap } from './wagon.js?v=99eee20f67c7';
+import { battleTactics } from './tactics.js?v=99eee20f67c7';
 
 let battleSeq = 1;
 
@@ -86,6 +86,12 @@ export function resultDone(world, s) {
   s.invuln = Math.min(s.invuln, AFTER_RESULT_MS);
 }
 
+// 敵の 強さ（設定の「敵の強さ」。data/difficulty.js）: パーティーでは リーダーの 設定（ものがたりと おなじ）。ひとりなら 自分の 設定
+export function enemyRateFor(world, party, sessions) {
+  const leader = (party && world.sessions.get(party.leader)) || sessions?.[0];
+  return difficultyOf(leader?.char).enemy;
+}
+
 // その 人が うごかす キャラ（じぶん＋「めいれいさせろ」の なかま）。じぶんが さいしょ
 export function mineOf(ctx, sid) {
   const out = ctx.battle.allies.filter((a) => a.controller === sid);
@@ -137,6 +143,8 @@ function makeBattle(world, sessions, party, enemies, opts) {
     preemptive: opts.preemptive || null,
     // 宝の洞窟: 魔物を 地図の レベルに あわせて 強くする
     enemyMod: opts.enemyLv ? (m) => scaleEnemy(m, opts.enemyLv) : null,
+    // 敵の 強さ（ハード 1.2倍 など）。リーダーの 設定。宝の洞窟の 強さの 上に かける（ほうしゅうは かわらない）
+    enemyRate: enemyRateFor(world, party, sessions),
     hooks: {
       hasItem: (actor, id) => {
         const m = actor.controller && world.sessions.get(actor.controller);

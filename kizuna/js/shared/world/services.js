@@ -1,25 +1,25 @@
 // お店・やどや・きょうかい・転職・酒場・でんごんばん・メニュー操作
-import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js?v=92b7832d9909';
-import { normDifficulty } from '../data/difficulty.js?v=92b7832d9909';
-import { ITEMS, sellPrice, SLOTS, SLOT_NAMES } from '../data/items.js?v=92b7832d9909';
-import { JOBS, ALL_JOBS, jobReqText, BODY_NAMES } from '../data/jobs.js?v=92b7832d9909';
-import { ABILITIES } from '../data/abilities.js?v=92b7832d9909';
-import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=92b7832d9909';
-import { TACTICS } from '../ai.js?v=92b7832d9909';
-import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js?v=92b7832d9909';
-import { salonInfo, salonAction } from './salon.js?v=92b7832d9909';
-import { breedMonsters, breedPreview } from './breed.js?v=92b7832d9909';
-import { MONSTERS } from '../data/monsters.js?v=92b7832d9909';
-import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings, spellSealed } from '../battle.js?v=92b7832d9909';
-import { PLACES } from '../maps/overworld.js?v=92b7832d9909';
-import { POS, SEA_PLACES, MAPS } from '../maps/index.js?v=92b7832d9909';
-import { castRura, warpParty, useTimeBell, warpPlaces, warpOwner } from './travel.js?v=92b7832d9909';
-import { bankInfo, bankAction } from './bank.js?v=92b7832d9909';
-import { forgeInfo, forgeAction } from './forge.js?v=92b7832d9909';
-import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction, wagonHere, wagonHealEntries, ownWagonEntries } from './wagon.js?v=92b7832d9909';
-import { casinoOpen, casinoAction } from './casino.js?v=92b7832d9909';
-import { useEscapeItem, noEscapeText } from './escape.js?v=92b7832d9909';
-import { bestEquipPlan, bestTeamOrder } from '../equip-plan.js?v=92b7832d9909';
+import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js?v=99eee20f67c7';
+import { normDifficulty } from '../data/difficulty.js?v=99eee20f67c7';
+import { ITEMS, sellPrice, SLOTS, SLOT_NAMES } from '../data/items.js?v=99eee20f67c7';
+import { JOBS, ALL_JOBS, jobReqText, BODY_NAMES } from '../data/jobs.js?v=99eee20f67c7';
+import { ABILITIES } from '../data/abilities.js?v=99eee20f67c7';
+import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=99eee20f67c7';
+import { TACTICS } from '../ai.js?v=99eee20f67c7';
+import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js?v=99eee20f67c7';
+import { salonInfo, salonAction } from './salon.js?v=99eee20f67c7';
+import { breedMonsters, breedPreview } from './breed.js?v=99eee20f67c7';
+import { MONSTERS } from '../data/monsters.js?v=99eee20f67c7';
+import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings, spellSealed } from '../battle.js?v=99eee20f67c7';
+import { PLACES } from '../maps/overworld.js?v=99eee20f67c7';
+import { POS, SEA_PLACES, MAPS } from '../maps/index.js?v=99eee20f67c7';
+import { castRura, warpParty, useTimeBell, warpPlaces, warpOwner } from './travel.js?v=99eee20f67c7';
+import { bankInfo, bankAction } from './bank.js?v=99eee20f67c7';
+import { forgeInfo, forgeAction } from './forge.js?v=99eee20f67c7';
+import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction, wagonHere, wagonHealEntries, ownWagonEntries } from './wagon.js?v=99eee20f67c7';
+import { casinoOpen, casinoAction } from './casino.js?v=99eee20f67c7';
+import { useEscapeItem, noEscapeText } from './escape.js?v=99eee20f67c7';
+import { bestEquipPlan, bestTeamOrder } from '../equip-plan.js?v=99eee20f67c7';
 
 export function openService(world, s, kind, arg) {
   switch (kind) {
@@ -307,11 +307,13 @@ function stowText(list) {
 
 export function menuAction(world, s, msg) {
   const c = s.char;
+  // 新しい ようす（自分・パーティー）を 先に おくってから 返事（menuRes）。
+  // メニューは 返事が とどいた ときに、新しい HP・MP・道具の 数で 画面を 作りなおす（client/ui/menu.js の 道具を 続けて 使う）
   const reply = (ok, text) => {
-    world.send(s, { t: 'menuRes', ok, text });
     world.sendSelf(s);
     const p = partyOf(world, s);
     if (p) world.sendParty(p);
+    world.send(s, { t: 'menuRes', ok, text });
     world.markDirty();
   };
   // お気に入りは 戦いの 中でも 変えられる

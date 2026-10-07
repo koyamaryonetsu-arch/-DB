@@ -5,14 +5,15 @@
 //   c.partyKeys  … いま いっしょに ぼうけんしている なかま（じゅんばん）。'fam:ID' は 家族の キャラ
 //   c.guests     … ものがたりで いっしょに いる ゲスト（ルカ など）
 // パーティーには リーダーの なかまが ついてくる（にんげんが ふえると、はいりきらない なかまは いったん まつ）
-import { newCharacter, computeStats, fullHeal, gainExp, gainJobBattles, migrateJobs, expForLevel, addItem, newMonsterCompanion, learnedAbilities } from '../stats.js?v=92b7832d9909';
-import { jobBattlesForLevel } from '../data/jobs.js?v=92b7832d9909';
-import { NPC_SUPPORTS, GUESTS } from '../data/shops.js?v=92b7832d9909';
-import { MONSTERS } from '../data/monsters.js?v=92b7832d9909';
-import { MONSTER_FRIENDS, ROSTER_MAX, COMPANION_SLOTS } from '../data/companions.js?v=92b7832d9909';
-import { SLOTS, ITEMS } from '../data/items.js?v=92b7832d9909';
-import { cleanWagon, hasWagon, WAGON_SLOTS } from '../data/wagon.js?v=92b7832d9909';
-import { wagonState, wagonTavernInfo } from './wagon.js?v=92b7832d9909';
+import { newCharacter, computeStats, fullHeal, gainExp, gainJobBattles, migrateJobs, expForLevel, addItem, newMonsterCompanion, learnedAbilities } from '../stats.js?v=99eee20f67c7';
+import { jobBattlesForLevel } from '../data/jobs.js?v=99eee20f67c7';
+import { NPC_SUPPORTS, GUESTS } from '../data/shops.js?v=99eee20f67c7';
+import { MONSTERS } from '../data/monsters.js?v=99eee20f67c7';
+import { MONSTER_FRIENDS, ROSTER_MAX, COMPANION_SLOTS } from '../data/companions.js?v=99eee20f67c7';
+import { SLOTS, ITEMS } from '../data/items.js?v=99eee20f67c7';
+import { cleanWagon, hasWagon, WAGON_SLOTS } from '../data/wagon.js?v=99eee20f67c7';
+import { wagonState, wagonTavernInfo } from './wagon.js?v=99eee20f67c7';
+import { difficultyOf } from '../data/difficulty.js?v=99eee20f67c7';
 
 // パーティーに 入れる 人（家族の プレイヤー）は 5人まで。いっしょに フィールドを 歩いて、いっしょに 戦う
 export const PARTY_MAX = 5;
@@ -571,6 +572,8 @@ export function partyState(world, p) {
     objective: world.sessions.get(p.leader)?.char?.objective || '',
     // パーティーの 時計（リーダーの 時間の ずれ。world/clock.js）
     clockShift: Number(world.sessions.get(p.leader)?.char?.timeShift) || 0,
+    // 敵の 強さ（リーダーの 設定で 戦う。world/battles.js の enemyRateFor。設定の 画面に 出す）
+    enemyRate: difficultyOf(world.sessions.get(p.leader)?.char).enemy,
     bond: p.bond,
     // ならび: 人（家族）の まとまりが なかまの 何番目に 入るか
     selfPos: selfPosOf(world, p),

@@ -1,38 +1,38 @@
 // フィールドの メニュー
-import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js?v=92b7832d9909';
-import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js?v=92b7832d9909';
-import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js?v=92b7832d9909';
-import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS, turnSeconds } from '../../shared/battle.js?v=92b7832d9909';
-import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily } from '../prefs.js?v=92b7832d9909';
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, TIER_NAMES } from '../../shared/data/jobs.js?v=92b7832d9909';
-import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress, monsterSlots, canEquipChar, MAX_LEVEL } from '../../shared/stats.js?v=92b7832d9909';
-import { HIRAMEKI } from '../../shared/data/hirameki.js?v=92b7832d9909';
-import { DUAL_TECHS, DUAL_ORDER, groupName, dualKnown } from '../../shared/data/dual.js?v=92b7832d9909';
-import { MONSTERS } from '../../shared/data/monsters.js?v=92b7832d9909';
-import { monsterDrops } from '../../shared/data/loot.js?v=92b7832d9909';
-import { MONSTER_FRIENDS, RACE_NAMES, recipeHint, joinTier } from '../../shared/data/companions.js?v=92b7832d9909';
-import { TACTICS } from '../../shared/ai.js?v=92b7832d9909';
-import { PLACES } from '../../shared/maps/overworld.js?v=92b7832d9909';
-import { SEA_PLACES } from '../../shared/maps/ch2.js?v=92b7832d9909';
-import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js?v=92b7832d9909';
-import { T, TILE_INFO } from '../../shared/tiles.js?v=92b7832d9909';
-import { itemDetail, abilityDetail, skillBrief, gearText, targetTag, statChanges, statChangesHtml } from './info.js?v=92b7832d9909';
-import { bestEquipPlan, bestTeamOrder } from '../../shared/equip-plan.js?v=92b7832d9909';
-import { makeCanvas, ctxOf } from '../render/pixel.js?v=92b7832d9909';
-import { monsterCanvas } from '../render/monsters.js?v=92b7832d9909';
-import { mapIconCanvas, boardIconURL } from '../render/boards.js?v=92b7832d9909';
-import { medalItemRow, walletView } from './casino.js?v=92b7832d9909';
-import { compareTeam, whoItems } from './counter.js?v=92b7832d9909';
-import { faceURL } from '../field.js?v=92b7832d9909';
-import { partyRows } from './hud.js?v=92b7832d9909';
-import { questMarks, subQuests, OBJECTIVE_TARGETS, whereName } from '../../shared/data/quest-targets.js?v=92b7832d9909';
-import { difficultyOf, visibleMarks, EXP_RATES, EXP_RATE_NAMES } from '../../shared/data/difficulty.js?v=92b7832d9909';
-import { memberTalk, talkFor } from '../../shared/data/party-talk.js?v=92b7832d9909';
-import { treasureRows, treasureDetail, openTreasureMap } from './treasure.js?v=92b7832d9909';
-import { themeHex } from '../render/themes.js?v=92b7832d9909';
-import { wagonMenuView, wagonHereClient, menuArrange } from './wagon.js?v=92b7832d9909';
-import { readErrLog, errLogText, clearErrLog } from '../errlog.js?v=92b7832d9909';
-import { fieldUsableAbilities } from '../../shared/fieldskills.js?v=92b7832d9909';
+import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js?v=99eee20f67c7';
+import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js?v=99eee20f67c7';
+import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js?v=99eee20f67c7';
+import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS, turnSeconds } from '../../shared/battle.js?v=99eee20f67c7';
+import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily, gearSortPref, setGearSortPref } from '../prefs.js?v=99eee20f67c7';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, TIER_NAMES } from '../../shared/data/jobs.js?v=99eee20f67c7';
+import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress, monsterSlots, canEquipChar, itemCount, MAX_LEVEL } from '../../shared/stats.js?v=99eee20f67c7';
+import { HIRAMEKI } from '../../shared/data/hirameki.js?v=99eee20f67c7';
+import { DUAL_TECHS, DUAL_ORDER, groupName, dualKnown } from '../../shared/data/dual.js?v=99eee20f67c7';
+import { MONSTERS } from '../../shared/data/monsters.js?v=99eee20f67c7';
+import { monsterDrops } from '../../shared/data/loot.js?v=99eee20f67c7';
+import { MONSTER_FRIENDS, RACE_NAMES, recipeHint, joinTier } from '../../shared/data/companions.js?v=99eee20f67c7';
+import { TACTICS } from '../../shared/ai.js?v=99eee20f67c7';
+import { PLACES } from '../../shared/maps/overworld.js?v=99eee20f67c7';
+import { SEA_PLACES } from '../../shared/maps/ch2.js?v=99eee20f67c7';
+import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js?v=99eee20f67c7';
+import { T, TILE_INFO } from '../../shared/tiles.js?v=99eee20f67c7';
+import { itemDetail, abilityDetail, skillBrief, gearText, targetTag, statChanges, statChangesHtml } from './info.js?v=99eee20f67c7';
+import { bestEquipPlan, bestTeamOrder, gearChoices, sortGearChoices, GEAR_SORTS } from '../../shared/equip-plan.js?v=99eee20f67c7';
+import { makeCanvas, ctxOf } from '../render/pixel.js?v=99eee20f67c7';
+import { monsterCanvas } from '../render/monsters.js?v=99eee20f67c7';
+import { mapIconCanvas, boardIconURL } from '../render/boards.js?v=99eee20f67c7';
+import { medalItemRow, walletView } from './casino.js?v=99eee20f67c7';
+import { compareTeam, whoItems } from './counter.js?v=99eee20f67c7';
+import { faceURL } from '../field.js?v=99eee20f67c7';
+import { partyRows } from './hud.js?v=99eee20f67c7';
+import { questMarks, subQuests, OBJECTIVE_TARGETS, whereName } from '../../shared/data/quest-targets.js?v=99eee20f67c7';
+import { difficultyOf, visibleMarks, EXP_RATES, EXP_RATE_NAMES, ENEMY_RATES, ENEMY_RATE_NAMES, ENEMY_RATE_NOTES } from '../../shared/data/difficulty.js?v=99eee20f67c7';
+import { memberTalk, talkFor } from '../../shared/data/party-talk.js?v=99eee20f67c7';
+import { treasureRows, treasureDetail, openTreasureMap } from './treasure.js?v=99eee20f67c7';
+import { themeHex } from '../render/themes.js?v=99eee20f67c7';
+import { wagonMenuView, wagonHereClient, menuArrange } from './wagon.js?v=99eee20f67c7';
+import { readErrLog, errLogText, clearErrLog } from '../errlog.js?v=99eee20f67c7';
+import { fieldUsableAbilities } from '../../shared/fieldskills.js?v=99eee20f67c7';
 
 // 呪文・技の タブ（左右で じゅんに かわる）
 // 今使える: フィールドで 使える 技だけ（回復・ルーラ など。えらぶと すぐ 使う）
@@ -60,6 +60,11 @@ function itemSortPref() {
 }
 function setItemSortPref(k) {
   try { localStorage.setItem('kizuna_isort', k); } catch { /* */ }
+}
+
+// 敵の 強さの 名前（「ハード（1.2倍）」。ふつうは「ふつう」だけ）
+function foeName(r) {
+  return r > 1 && ENEMY_RATE_NAMES[r] ? `${ENEMY_RATE_NAMES[r]}（${r}倍）` : ENEMY_RATE_NAMES[1];
 }
 
 // ずかんの ならび: ふつうの まもの（つよさじゅん）→ はいごう だけの まもの → ボス
@@ -366,7 +371,8 @@ export class FieldMenu {
   }
 
   // ───── どうぐ ─────
-  itemsList(active) {
+  // focus: { id, idx } … カーソルを おく 道具（使った・装備した 道具。なくなった ときは もとの 場所 idx に いちばん 近い 道具）
+  itemsList(active, focus = null) {
     const g = this.game;
     const c = g.me;
     const box = el('div');
@@ -401,8 +407,14 @@ export class FieldMenu {
       })));
     // じぶんの モンスターの なかま（装備できる 子の 名前を せつめいに 出す）
     const mons = this.myMates().filter((x) => x.species).map((x) => ({ name: x.name, species: x.species }));
+    let start = -1;
+    if (focus) {
+      start = items.findIndex((x) => x.value === focus.id);
+      if (start < 0) start = Math.min(Math.max(0, focus.idx || 0), items.length - 1);
+    }
     const m = this.mkSub({
       items,
+      start,
       onMove: (it) => { detail.textContent = it ? (it.tmap ? treasureDetail(g, it.tmap) : itemDetail(it.value, mons)) : ''; },
       onSelect: (it) => this.itemAction(it),
     });
@@ -414,6 +426,9 @@ export class FieldMenu {
     const g = this.game;
     if (entry.tmap) return openTreasureMap(this, entry.tmap);
     const it = ITEMS[entry.value];
+    // おわったら 道具の 一覧へ。カーソルは この 道具（なくなった ときは いちばん 近い 道具）
+    const focus = { id: entry.value, idx: this.sub ? this.sub.idx : 0 };
+    const backToList = (ms = 150) => setTimeout(() => { if (this.root) this.focusSub(this.itemsList(true, focus)); }, ms);
     // 風の笛（大鳥フウラを 呼ぶ。sky.js）
     if (it.flute) {
       this.sub.blur();
@@ -423,7 +438,7 @@ export class FieldMenu {
         g.sky.call();
         return;
       }
-      setTimeout(() => { if (this.root) this.focusSub(this.itemsList(true)); }, 150);
+      backToList();
       return;
     }
     if (entry.key || it.type === 'key') return;
@@ -437,7 +452,7 @@ export class FieldMenu {
     if (act === 'use') {
       if (it.effect.type === 'warp' && MAPS[g.field?.mapId]?.noEscape) {
         // 王家のピラミッドの 中: 帰り道の羽は 使えない（行き先を えらばずに サーバーへ。わけを 出す）
-        g.net.send({ t: 'menu', action: 'useItem', id: entry.value });
+        await this.menuCall({ t: 'menu', action: 'useItem', id: entry.value });
       } else if (it.effect.type === 'warp') {
         const place = await this.pick('どこへ飛ぶ？', [...this.warpChoices(), { label: 'やめる', value: null }]);
         if (place) {
@@ -447,27 +462,84 @@ export class FieldMenu {
         }
       } else if (it.effect.type === 'exit') {
         // みちびきの糸: 洞窟の 中なら 入り口の 外へ（メニューを とじて 外を 見せる）
-        g.net.send({ t: 'menu', action: 'useItem', id: entry.value });
         const m = MAPS[g.field?.mapId];
         if (m?.kind === 'dungeon' && !m.indoor && !m.noEscape) {
+          g.net.send({ t: 'menu', action: 'useItem', id: entry.value });
           this.close();
           return;
         }
+        await this.menuCall({ t: 'menu', action: 'useItem', id: entry.value });
       } else if (it.target === 'self') {
-        g.net.send({ t: 'menu', action: 'useItem', id: entry.value, ref: 'self' });
+        // 聖水・すず など（だれも えらばない）: 使った あとも 一覧の この 道具に カーソル
+        await this.menuCall({ t: 'menu', action: 'useItem', id: entry.value, ref: 'self' });
       } else {
-        const ref = await this.pickTarget(`だれに使う？`, it.target === 'deadAlly');
-        if (ref) g.net.send({ t: 'menu', action: 'useItem', id: entry.value, ref });
+        // 薬草・魔法の聖水 など: 残っている あいだは、おなじ 道具の「だれに使う？」に もどる
+        return this.useOnTargets(entry.value, focus);
       }
     } else if (act === 'equip') {
       // ドラクエと おなじ:「だれが 装備する？」（みんなの 強さが どう かわるか いっしょに 出す）
       const who = team.length === 1 ? 'self'
         : await this.pick(`だれが${it.name}を装備する？`, [...whoItems(team), { label: 'やめる', value: null }], { wide: true });
-      if (who) g.net.send({ t: 'menu', action: 'equip', id: entry.value, who });
+      if (who) await this.menuCall({ t: 'menu', action: 'equip', id: entry.value, who });
     } else if (act === 'drop') {
-      if (await confirmBox(g.input, `${it.name}を捨てますか？`, '捨てる', 'やめる', this.sfx)) g.net.send({ t: 'menu', action: 'discard', id: entry.value, n: 1 });
+      if (await confirmBox(g.input, `${it.name}を捨てますか？`, '捨てる', 'やめる', this.sfx)) await this.menuCall({ t: 'menu', action: 'discard', id: entry.value, n: 1 });
     }
-    setTimeout(() => { if (this.root) this.focusSub(this.itemsList(true)); }, 150);
+    backToList();
+  }
+
+  // 道具を だれかに 使う（薬草・魔法の聖水・種 など）。使った あとも、その 道具が 残っている あいだは
+  // おなじ 道具の「だれに使う？」に もどる（新しい HP・MPで。カーソルは 前に 使った 人。まどの 上に 使った けっか）。
+  // B・やめる で 道具の 一覧の この 道具へ。なくなった・使える 人が いなく なった ときは 一覧の いちばん 近い 道具へ
+  async useOnTargets(id, focus) {
+    const g = this.game;
+    const it = ITEMS[id];
+    const dead = it.target === 'deadAlly';
+    const goOn = () => !!this.root && itemCount(g.me, id) > 0 && this.partyRefs(dead).some((r) => !r.disabled);
+    let last;
+    let note = null;
+    for (;;) {
+      const ref = await this.pickTarget(`${it.name}をだれに使う？（残り${itemCount(g.me, id)}こ）`, dead, { start: last, note });
+      if (!ref || !this.root) break;
+      last = ref;
+      // 返事を まつ（その 前に 自分と パーティーの 新しい ようすが とどく）。つづける ときは けっかを つぎの まどに 出す
+      const res = await this.menuCall({ t: 'menu', action: 'useItem', id, ref }, goOn);
+      if (!res || !goOn()) break;
+      note = { text: res.text, cls: res.ok ? 'ok' : 'ng' };
+      // うしろに 見えている 道具の 一覧も 新しい 数に（えらぶ のは まだ「だれに使う？」の まど）
+      this.main.innerHTML = '';
+      this.main.append(this.itemsList(true, focus));
+    }
+    if (this.root) this.focusSub(this.itemsList(true, focus));
+  }
+
+  // メニューの 操作を サーバーに おくって 返事（menuRes）を まつ。返事より 先に 自分と パーティーの 新しい ようすが とどく
+  // （world/services.js の menuAction）。keep(返事) が true なら 知らせ（トースト）は 出さない（メニューの まどに 出す）。
+  // 返事が こない（通信が きれた など）ときは null。
+  // まつ あいだは すきとおった まくで 画面の タップを うけとめ、キーも すてる（うしろの 一覧を 2回 えらばない。十字キーの パッドも 出した まま）
+  menuCall(msg, keep = null) {
+    const g = this.game;
+    const cover = el('div', { class: 'modal-back', style: { zIndex: 6, background: 'transparent' } });
+    const hold = { onNav: () => {}, pad: true };
+    document.getElementById('ui').append(cover);
+    g.input.push(hold);
+    return new Promise((resolve) => {
+      const finish = (m) => {
+        clearTimeout(timer);
+        cover.remove();
+        g.input.pop(hold);
+        resolve(m);
+      };
+      const w = (m) => {
+        finish(m);
+        return !!keep?.(m);
+      };
+      const timer = setTimeout(() => {
+        if (g.menuWaiter === w) g.menuWaiter = null;
+        finish(null);
+      }, 6000);
+      g.menuWaiter = w;
+      g.net.send(msg);
+    });
   }
 
   // 帰り道の羽・ルーラの 行き先（行った ことの ある 町・村・港）
@@ -530,20 +602,28 @@ export class FieldMenu {
   }
 
   // body: リストの 上に 出す 中み（さいきょう装備の 見こみ など）。その ときは えらびしを 横に ならべ、上下で 中みを スクロール
-  pick(title, items, { wide = false, cls = '', body = null } = {}) {
+  // note: 題の すぐ 下の ひとこと（{ text, cls }。道具を 使った けっか〈ok・ng〉・設定の せつめい〈info〉）
+  // start: はじめに カーソルを おく えらびしの value（えらべない ときは ふつうどおり 上から）
+  // head: (m) => 題と リストの 間に 出す もの（装備の ならべかえ など。m … えらぶ リスト）。onSide: (d, m) … 左右（-1・1）
+  pick(title, items, { wide = false, cls = '', body = null, note = null, start, head = null, onSide = null } = {}) {
     const g = this.game;
     return new Promise((resolve) => {
       const hasCancel = items.some((i) => i.value === null || i.value === 'cancel');
       const back = el('div', { class: 'modal-back', style: { zIndex: 4 }, onclick: () => { this.sfx('cancel'); done(null); } });
       const box = el('div', { class: `win panel center-panel ${cls}`, style: { width: wide ? 'min(94vw, 560px)' : 'min(86vw, 380px)', zIndex: 5, background: 'var(--win-solid)' } }, el('div', { class: 'small gold', text: title }));
+      const at = start === undefined ? -1 : items.findIndex((i) => i.value === start && !i.disabled && !i.header);
       const m = new ListMenu(g.input, {
         items,
         cols: body ? 2 : 1,
         sound: this.sfx,
         back: hasCancel ? null : 'やめる',
+        start: at,
+        onSide: onSide ? (d) => onSide(d, m) : null,
         onSelect: (it) => done(it.value),
         onCancel: () => done(null),
       });
+      if (note?.text) box.append(el('div', { class: `pick-note ${note.cls || ''}`, text: note.text }));
+      if (head) box.append(head(m));
       if (body) {
         const nav = m.nav.bind(m);
         m.nav = (a, rep) => {
@@ -581,8 +661,9 @@ export class FieldMenu {
     return out.map((o) => ({ ...o, disabled: dead ? o.hp > 0 : o.hp <= 0 }));
   }
 
-  pickTarget(title, dead = false) {
-    return this.pick(title, [...this.partyRefs(dead), { label: 'やめる', value: null }]);
+  // opts: pick の start（カーソルを おく 人）・note（使った けっか）
+  pickTarget(title, dead = false, opts = {}) {
+    return this.pick(title, [...this.partyRefs(dead), { label: 'やめる', value: null }], { cls: 'pick-target', ...opts });
   }
 
   // ───── じゅもん・とくぎ ─────
@@ -859,7 +940,9 @@ export class FieldMenu {
     return box;
   }
 
-  // 1つの 部位を えらぶ まど。出すのは 装備できる 物だけ（ふくろの 物と、ほかの 仲間が 装備している 物）。
+  // 1つの 部位を えらぶ まど。出すのは その 人が 装備できる 物だけ（ふくろの 物と、ほかの 仲間が 装備している 物。shared/equip-plan.js の gearChoices）。
+  // ならびは「入手順」（ふくろの じゅん）か「強さ順」（みんなさいきょう装備と おなじ くらべかた。いちばん 上が さいきょう装備で えらぶ 物）。
+  // 上の ボタンか 左右で 切りかえ（この 端末に おぼえる）。「外す」「やめる」は いつも 下。
   // 仲間が 装備している 物を えらぶと「装備を入れかえる？」→ はい で 入れかえ（サーバーの swapEquip）。
   // 1つの 物を 2行で: 名前 ／ 変わる 強さ（上がる ものも 下がる ものも。いつも おなじ じゅん）。変えたら true
   async pickGear(c, who, slot) {
@@ -868,25 +951,39 @@ export class FieldMenu {
     const before = computeStats(c);
     const changes = (id) => statChanges(before, computeStats({ ...c, equip: { ...(c.equip || {}), [slot]: id } }));
     const row = (name, tag, list) => `<span class="eq-nm">${esc(name)}${tag ? `<span class="tag eq-tag">${esc(tag)}</span>` : ''}</span><span class="eq-sc">${statChangesHtml(list)}</span>`;
-    const opts = [];
-    const seen = new Set();
-    for (const e of g.me.items) {
-      const it = ITEMS[e.id];
-      if (it?.type !== slot || seen.has(e.id) || !canEquipChar(c, e.id)) continue;
-      seen.add(e.id);
-      opts.push({ html: row(it.name, e.n > 1 ? `×${e.n}` : '', changes(e.id)), value: e.id, cls: 'eq-opt' });
-    }
-    // 自分と 仲間（パーティー・馬車）が 装備している 物
+    // 自分と 仲間（パーティー・馬車）が 装備している 物も 候補（入れかえ）
     const others = this.teamChars().filter((m) => m.key !== who);
-    for (const m of others) {
-      const id = m.char.equip?.[slot];
-      if (!id || !ITEMS[id] || !canEquipChar(c, id)) continue;
-      opts.push({ html: row(ITEMS[id].name, `${m.char.name}が装備中`, changes(id)), value: `swap:${m.key}`, cls: 'eq-opt eq-swap' });
-    }
-    if (!opts.length) opts.push({ header: true, label: '装備できる物を持っていない', cls: 'eq-none' });
-    if (cur) opts.push({ html: row('外す', '', changes(null)), value: '__off', cls: 'eq-opt' });
-    opts.push({ label: 'やめる', value: null });
-    const pick = await this.pick(`${c.companion ? c.name + 'の' : ''}${SLOT_NAMES[slot]}を選ぶ（今：${cur ? ITEMS[cur].name : 'なし'}）`, opts, { wide: true, cls: 'eq-pick' });
+    const nameOf = (key) => others.find((m) => m.key === key)?.char.name || '';
+    const choices = gearChoices(c, slot, g.me, others);
+    let mode = gearSortPref();
+    const rows = () => {
+      const opts = sortGearChoices(choices, mode).map((x) => (x.from
+        ? { html: row(ITEMS[x.id].name, `${nameOf(x.from)}が装備中`, changes(x.id)), value: `swap:${x.from}`, cls: 'eq-opt eq-swap' }
+        : { html: row(ITEMS[x.id].name, x.n > 1 ? `×${x.n}` : '', changes(x.id)), value: x.id, cls: 'eq-opt' }));
+      if (!opts.length) opts.push({ header: true, label: '装備できる物を持っていない', cls: 'eq-none' });
+      if (cur) opts.push({ html: row('外す', '', changes(null)), value: '__off', cls: 'eq-opt' });
+      opts.push({ label: 'やめる', value: null });
+      return opts;
+    };
+    // 入手順・強さ順の 切りかえ（候補が 2つ いじょうの とき。切りかえたら カーソルは いちばん 上）
+    const keys = Object.keys(GEAR_SORTS);
+    let chips = null;
+    const setMode = (k, m) => {
+      if (!GEAR_SORTS[k] || k === mode) return;
+      mode = k;
+      setGearSortPref(k);
+      this.sfx('cursor');
+      for (const b of chips?.querySelectorAll('.btn') || []) b.classList.toggle('on', b.dataset.k === mode);
+      m.setItems(rows(), false);
+      m.root.scrollTop = 0;
+    };
+    const head = choices.length > 1 ? (m) => (chips = el('div', { class: 'tabs sort-tabs gear-sort' },
+      el('span', { class: 'small muted', text: 'ならび' }),
+      ...keys.map((k) => el('button', { class: `btn ${k === mode ? 'on' : ''}`, 'data-k': k, text: GEAR_SORTS[k], onclick: (e) => { e.stopPropagation(); setMode(k, m); } })),
+      // 左右の キー（スマホは ウインドウの 十字キー）でも 切りかえられる
+      !g.input.touch || g.input.padOn ? el('span', { class: 'tab-hint', text: '◀▶で切りかえ' }) : null)) : null;
+    const onSide = head ? (d, m) => setMode(keys[(keys.indexOf(mode) + d + keys.length) % keys.length], m) : null;
+    const pick = await this.pick(`${c.companion ? c.name + 'の' : ''}${SLOT_NAMES[slot]}を選ぶ（今：${cur ? ITEMS[cur].name : 'なし'}）`, rows(), { wide: true, cls: 'eq-pick', head, onSide });
     if (!pick) return false;
     if (pick === '__off') {
       g.net.send({ t: 'menu', action: 'unequip', slot, who });
@@ -1405,11 +1502,15 @@ export class FieldMenu {
     // ゲームの 難しさ（キャラごと。difficulty.js）
     const dif = difficultyOf(c);
     const sendDif = (patch) => g.net.send({ t: 'menu', action: 'settings', difficulty: patch });
+    // 敵の 強さ（ハード 1.2倍 など）。パーティーに さそわれて いる ときは リーダーの 設定で 戦う
+    const lead = g.visitingLeader?.();
+    const leadRate = lead && ENEMY_RATES.includes(g.party?.enemyRate) ? g.party.enemyRate : null;
     const items = [
       { header: true, label: 'ゲームの難しさ', cls: 'set-hdr' },
       { label: `目的地のしるし（メイン）：${dif.mainMarks ? '出す' : '出さない'}`, value: 'dMain' },
       { label: `目的地のしるし（たのまれごと）：${dif.subMarks ? '出す' : '出さない'}`, value: 'dSub' },
       { label: `もらえる経験値：${EXP_RATE_NAMES[dif.exp]}`, value: 'dExp' },
+      { label: `敵の強さ：${foeName(dif.enemy)}`, value: 'dEnemy' },
       { header: true, label: '画面と音・戦い', cls: 'set-hdr' },
       { label: `戦いの速さ（エフェクト）：${sp}`, value: 'speed' },
       { label: `文字の速さ：${tsp}`, value: 'textSpeed' },
@@ -1442,15 +1543,29 @@ export class FieldMenu {
       }));
       return box;
     }
+    // 変えた あとは 作りなおす（カーソルは おなじ 行の まま）
+    const again = (idx) => {
+      if (!this.root) return;
+      this.startIdx = idx;
+      this.focusSub(this.settingsView(true));
+    };
     const m = this.mkSub({
       items,
-      onSelect: (it) => {
+      onSelect: (it, idx) => {
         if (it.value === 'dMain') {
           sendDif({ mainMarks: !dif.mainMarks });
         } else if (it.value === 'dSub') {
           sendDif({ subMarks: !dif.subMarks });
         } else if (it.value === 'dExp') {
           sendDif({ exp: EXP_RATES[(EXP_RATES.indexOf(dif.exp) + 1) % EXP_RATES.length] });
+        } else if (it.value === 'dEnemy') {
+          // 4つの 強さを せつめいつきで 見せて えらぶ
+          this.sub.blur();
+          this.pickEnemyRate(dif.enemy, lead, leadRate).then(async (r) => {
+            if (r && r !== dif.enemy && this.root) await this.menuCall({ t: 'menu', action: 'settings', difficulty: { enemy: r } });
+            again(idx);
+          });
+          return;
         } else if (it.value === 'speed') {
           send({ speed: BATTLE_SPEEDS[(BATTLE_SPEEDS.indexOf(cur.speed) + 1) % BATTLE_SPEEDS.length] });
         } else if (it.value === 'textSpeed') {
@@ -1475,7 +1590,7 @@ export class FieldMenu {
         } else if (it.value === 'view') {
           g.field.setView(g.field.view === '3d' ? '2d' : '3d', true).then((v) => {
             toast(v === '3d' ? '画面を2.5D（立体）にしました' : '画面を2D（ドット）にしました');
-            if (this.root) this.focusSub(this.settingsView(true));
+            again(idx);
           });
           return;
         } else if (it.value === 'pad') {
@@ -1490,14 +1605,29 @@ export class FieldMenu {
           g.rescue();
           return;
         } else if (it.value === 'errlog') {
-          this.errLogPopup().then(() => { if (this.root) this.focusSub(this.settingsView(true)); });
+          this.errLogPopup().then(() => again(idx));
           return;
         }
-        setTimeout(() => { if (this.root) this.focusSub(this.settingsView(true)); }, 200);
+        setTimeout(() => again(idx), 200);
       },
     });
-    box.append(m.root, el('div', { class: 'detail', text: 'ゲームの難しさ: 目的地のしるしを「出さない」にすると、地図のしるしと仲間の「行き先は〇〇のほう」が出なくなる。経験値を0.75倍・0.5倍にすると、レベルが上がりにくくなる（仲間・馬車の仲間も同じ）。\nウェイトをONにすると、コマンドを選ぶ間は戦いの時間が止まる（じっくり考えたい人におすすめ）' + (g.input.touch ? '\n画面が消えると家族との通信がとぎれやすいので「画面を消さない」はONがおすすめ' : '') }));
+    const foeNote = `敵の強さをハード（1.2倍）・ベリーハード（1.5倍）・スーパーハード（2倍）にすると、魔物のHP・MP・攻撃・守り・素早さ・魔力がその倍になる（もらえる経験値・ゴールド・落とす物は同じ）。パーティーでは、リーダーの設定で戦う。${lead ? `\n今は${lead.name}の設定で戦っている：${foeName(leadRate || 1)}` : ''}`;
+    box.append(m.root, el('div', { class: 'detail', text: `ゲームの難しさ: 目的地のしるしを「出さない」にすると、地図のしるしと仲間の「行き先は〇〇のほう」が出なくなる。経験値を0.75倍・0.5倍にすると、レベルが上がりにくくなる（仲間・馬車の仲間も同じ）。\n${foeNote}\nウェイトをONにすると、コマンドを選ぶ間は戦いの時間が止まる（じっくり考えたい人におすすめ）` + (g.input.touch ? '\n画面が消えると家族との通信がとぎれやすいので「画面を消さない」はONがおすすめ' : '') }));
     return box;
+  }
+
+  // 敵の 強さを えらぶ まど（4つの 強さと みじかい せつめい。カーソルは 今の 強さ）。えらんだ 倍率（やめる なら null）
+  // lead … パーティーに さそわれて いる ときの リーダー（その 人の 設定 leadRate で 戦う）
+  pickEnemyRate(now, lead = null, leadRate = null) {
+    const items = ENEMY_RATES.map((r) => ({
+      html: `${esc(ENEMY_RATE_NAMES[r])}${r === now ? '<span class="tag gold">今</span>' : ''}<span class="sk-desc">${esc(ENEMY_RATE_NOTES[r])}</span>`,
+      right: `${r}倍`,
+      value: r,
+      cls: 'sk',
+    }));
+    const lines = ['魔物のHP・MP・攻撃・守り・素早さ・魔力が、この倍になる。', 'もらえる経験値・ゴールド・落とす物は同じ。', 'パーティーでは、リーダーの設定で戦う。'];
+    if (lead) lines.push(`今は${lead.name}の設定で戦っている：${foeName(leadRate || 1)}`);
+    return this.pick('敵の強さ', [...items, { label: 'やめる', value: null }], { wide: true, cls: 'foe-pick', start: now, note: { text: lines.join('\n'), cls: 'info' } });
   }
 }
 
