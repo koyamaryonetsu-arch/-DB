@@ -1,10 +1,10 @@
 // たたかいの はいけいと エフェクト
-import { makeCanvas, ctxOf, hexToRgb, mix } from './pixel.js?v=99eee20f67c7';
-import { weaponLook, playWeapon, playReach } from './weaponfx.js?v=99eee20f67c7';
-import { nightBg, drawNightSky } from './night-art.js?v=99eee20f67c7';
-import { playJobFx, JOB_FINE } from './battlefx-jobs.js?v=99eee20f67c7';
-import { drawPalaceHall, drawPalaceFloor } from './ch4-palace-bg.js?v=99eee20f67c7';
-import { playCh4Fx } from './battlefx-ch4.js?v=99eee20f67c7';
+import { makeCanvas, ctxOf, hexToRgb, mix } from './pixel.js?v=f8e8316730dd';
+import { weaponLook, playWeapon, playReach } from './weaponfx.js?v=f8e8316730dd';
+import { nightBg, drawNightSky } from './night-art.js?v=f8e8316730dd';
+import { playJobFx, JOB_FINE } from './battlefx-jobs.js?v=f8e8316730dd';
+import { drawPalaceHall, drawPalaceFloor } from './ch4-palace-bg.js?v=f8e8316730dd';
+import { playCh4Fx } from './battlefx-ch4.js?v=f8e8316730dd';
 
 export const BW = 256;
 export const BH = 144;

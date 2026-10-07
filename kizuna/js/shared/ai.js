@@ -1,8 +1,8 @@
 // たたかいの AI（モンスター と サポートなかま）
-import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=99eee20f67c7';
-import { mpCost, penaltyFor, weaponOk, comboAllowed } from './stats.js?v=99eee20f67c7';
+import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=f8e8316730dd';
+import { mpCost, penaltyFor, weaponOk, comboAllowed } from './stats.js?v=f8e8316730dd';
 // 第4章の まぼろしの分身と 月の鏡（battle-ch4.js）
-import { mirageAction, mirrorPlan } from './battle-ch4.js?v=99eee20f67c7';
+import { mirageAction, mirrorPlan } from './battle-ch4.js?v=f8e8316730dd';
 
 // さくせん
 export const TACTICS = {

@@ -1,24 +1,24 @@
 // たたかいの がめん（むかしの RPG ふう 1がめん）
-import { el, esc, ListMenu, toast } from './ui/dom.js?v=99eee20f67c7';
-import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js?v=99eee20f67c7';
-import { ITEMS } from '../shared/data/items.js?v=99eee20f67c7';
-import { JOBS } from '../shared/data/jobs.js?v=99eee20f67c7';
-import { MONSTERS } from '../shared/data/monsters.js?v=99eee20f67c7';
-import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed, battleAbilityOk } from '../shared/stats.js?v=99eee20f67c7';
-import { affinityOf, attackReach, spellSealed, SEALED_REASON } from '../shared/battle.js?v=99eee20f67c7';
-import { DUAL_TECHS, dualOptions, dualKnown } from '../shared/data/dual.js?v=99eee20f67c7';
-import { TACTICS } from '../shared/ai.js?v=99eee20f67c7';
-import { faceURL } from './field.js?v=99eee20f67c7';
-import { monsterCanvas } from './render/monsters.js?v=99eee20f67c7';
-import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=99eee20f67c7';
-import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js?v=99eee20f67c7';
-import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js?v=99eee20f67c7';
-import { abilityDetail, statusNames, buffNames, targetTag } from './ui/info.js?v=99eee20f67c7';
-import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js?v=99eee20f67c7';
-import { ENEMY_RATE_NAMES } from '../shared/data/difficulty.js?v=99eee20f67c7';
-import { ResultPager, levelUpName } from './ui/result.js?v=99eee20f67c7';
+import { el, esc, ListMenu, toast } from './ui/dom.js?v=f8e8316730dd';
+import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js?v=f8e8316730dd';
+import { ITEMS } from '../shared/data/items.js?v=f8e8316730dd';
+import { JOBS } from '../shared/data/jobs.js?v=f8e8316730dd';
+import { MONSTERS } from '../shared/data/monsters.js?v=f8e8316730dd';
+import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed, battleAbilityOk } from '../shared/stats.js?v=f8e8316730dd';
+import { affinityOf, attackReach, spellSealed, SEALED_REASON } from '../shared/battle.js?v=f8e8316730dd';
+import { DUAL_TECHS, dualOptions, dualKnown } from '../shared/data/dual.js?v=f8e8316730dd';
+import { TACTICS } from '../shared/ai.js?v=f8e8316730dd';
+import { faceURL } from './field.js?v=f8e8316730dd';
+import { monsterCanvas } from './render/monsters.js?v=f8e8316730dd';
+import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=f8e8316730dd';
+import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js?v=f8e8316730dd';
+import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js?v=f8e8316730dd';
+import { abilityDetail, statusNames, buffNames, targetTag } from './ui/info.js?v=f8e8316730dd';
+import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js?v=f8e8316730dd';
+import { ENEMY_RATE_NAMES } from '../shared/data/difficulty.js?v=f8e8316730dd';
+import { ResultPager, levelUpName } from './ui/result.js?v=f8e8316730dd';
 // 第4章の しかけ（月の鏡・まぼろしの 分身・魔神のランプ・ボスの 大技）
-import { CH4_ALLY_FX, ch4ItemEntries, ch4ItemPick, ch4ItemInfo, ch4Present, vanishFx, drawShade } from './battle-ch4.js?v=99eee20f67c7';
+import { CH4_ALLY_FX, ch4ItemEntries, ch4ItemPick, ch4ItemInfo, ch4Present, vanishFx, drawShade } from './battle-ch4.js?v=f8e8316730dd';
 
 // たたかいの え の こまかさ（おもい きかいで さげたら、その あいだは さげた まま）
 let battleRes = BRES;

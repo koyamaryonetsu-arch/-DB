@@ -2,7 +2,7 @@
 // ・のろいの宝「王家の黄金の剣」を とると、のろい（char.pyrCurse）。ピラミッドの 中の 魔物が ふえて、遠くから おいかけて くる
 // ・ピラミッドの 外（ピラミッドで ない マップ）に 出ると のろいは とける（world.js の placeSession から notePyramidMove）
 // ・みちびきの糸・帰り道の羽が 使えない マップ（map.noEscape）・呪文が ふうじられた マップ（map.noSpells）も ここで しらべる
-import { MAPS } from '../maps/index.js?v=99eee20f67c7';
+import { MAPS } from '../maps/index.js?v=f8e8316730dd';
 
 // のろいの ときの 魔物の 数（ばい）・あらわれる はやさ（ミリびょう。ふつうは 700）・おいかけて くる きょり（マス。ふつうは 4.5）
 export const CURSE_SPAWN = 2;

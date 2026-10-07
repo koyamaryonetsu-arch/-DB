@@ -1,17 +1,17 @@
 // カジノ（コイン売り場・スロット・ポーカー・景品コーナー）と メダル王の まど
 //   乱数と コインの 計算は サーバー（shared/world/casino.js）。ここは 見せるだけ
 //   キーボード: ←→↑↓ で えらぶ・Z/Enter で 決定・X/Esc で もどる。スマホは ボタンや カードを タップ
-import { el } from './dom.js?v=99eee20f67c7';
-import { Counter, itemInfo } from './counter.js?v=99eee20f67c7';
-import { request } from './shop.js?v=99eee20f67c7';
-import { boardIconURL } from '../render/boards.js?v=99eee20f67c7';
-import { symbolCanvas, symbolURL, cardCanvas, iconURL, CARD_SIZE } from '../render/casino.js?v=99eee20f67c7';
-import { ITEMS } from '../../shared/data/items.js?v=99eee20f67c7';
-import { itemCount } from '../../shared/stats.js?v=99eee20f67c7';
+import { el } from './dom.js?v=f8e8316730dd';
+import { Counter, itemInfo } from './counter.js?v=f8e8316730dd';
+import { request } from './shop.js?v=f8e8316730dd';
+import { boardIconURL } from '../render/boards.js?v=f8e8316730dd';
+import { symbolCanvas, symbolURL, cardCanvas, iconURL, CARD_SIZE } from '../render/casino.js?v=f8e8316730dd';
+import { ITEMS } from '../../shared/data/items.js?v=f8e8316730dd';
+import { itemCount } from '../../shared/stats.js?v=f8e8316730dd';
 import {
   REELS, SLOT_PAYS, SLOT_BETS, POKER_PAY_HANDS, POKER_BETS, pokerSuggest, cardName, coinsOf,
   medalsHeld, medalsGiven, COIN_PRICE,
-} from '../../shared/data/casino.js?v=99eee20f67c7';
+} from '../../shared/data/casino.js?v=f8e8316730dd';
 
 export function casinoUI(game, kind, data) {
   ensureStyle();
