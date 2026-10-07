@@ -1,11 +1,11 @@
 // キャラクターの つよさ計算・レベルアップ・転職ペナルティ
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_EASY_RATE, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets, jobBodyOk, superMasteredCount } from './data/jobs.js?v=1ba3e6f60a67';
-import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=1ba3e6f60a67';
-import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=1ba3e6f60a67';
-import { MONSTERS } from './data/monsters.js?v=1ba3e6f60a67';
-import { MONSTER_FRIENDS, monsterNatural, gearOf } from './data/companions.js?v=1ba3e6f60a67';
-import { HIRAMEKI, hiraRatio } from './data/hirameki.js?v=1ba3e6f60a67';
-import { cleanLook } from './data/looks.js?v=1ba3e6f60a67';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_EASY_RATE, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets, jobBodyOk, superMasteredCount } from './data/jobs.js?v=140b3d4eb1e5';
+import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=140b3d4eb1e5';
+import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=140b3d4eb1e5';
+import { MONSTERS } from './data/monsters.js?v=140b3d4eb1e5';
+import { MONSTER_FRIENDS, monsterNatural, gearOf } from './data/companions.js?v=140b3d4eb1e5';
+import { HIRAMEKI, hiraRatio } from './data/hirameki.js?v=140b3d4eb1e5';
+import { cleanLook } from './data/looks.js?v=140b3d4eb1e5';
 
 // 長い 物語に なるので レベルは 99まで（レベルで ふえる つよさは ひかえめ）
 export const MAX_LEVEL = 99;
@@ -112,6 +112,8 @@ export function computeStats(char) {
   r.dfn = r.def + eq.out.dfn;
   r.weaponCat = eq.weaponCat;
   r.resist = eq.resist;
+  // 職業の たいせい（ゴム人間・ニカは 雷が 効かない）
+  for (const [k, v] of Object.entries(JOBS[char.job]?.passive?.resist || {})) r.resist[k] = (r.resist[k] ?? 1) * v;
   r.onHit = eq.onHit;
   return r;
 }
@@ -402,6 +404,10 @@ export const STARTER_EQUIP = {
   civil_local: { weapon: 'ballpen', armor: 'cloth', shield: null, head: null, acc: null },
   cook: { weapon: 'kitchen_knife', armor: 'cloth', shield: null, head: null, acc: null },
   parttimer: { weapon: 'mop', armor: 'cloth', shield: null, head: null, acc: null },
+  neet: { weapon: 'pillow', armor: 'cloth', shield: null, head: null, acc: null },
+  saiyan: { weapon: null, armor: 'battle_suit', shield: null, head: null, acc: null },
+  youtuber: { weapon: 'selfie_stick', armor: 'cloth', shield: null, head: null, acc: null },
+  gamer: { weapon: 'game_controller', armor: 'cloth', shield: null, head: null, acc: null },
 };
 
 // みため（むかしの 項目は いつも のこす。かみがた・色・目もとの あたらしい 項目は data/looks.js）

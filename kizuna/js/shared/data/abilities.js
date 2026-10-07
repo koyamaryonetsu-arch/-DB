@@ -17,16 +17,17 @@
 // 名前の一部は「ダイの大冒険」「ロトの紋章」へのオマージュです。
 // 上級職・超級職の 技は abilities-adv.js（さいごに まぜる）
 
-import { ADV_ABILITIES } from './abilities-adv.js?v=1ba3e6f60a67';
-import { CH2_ABILITIES } from './abilities-ch2.js?v=1ba3e6f60a67';
-import { JOB_ABILITIES } from './abilities-jobs.js?v=1ba3e6f60a67';
-import { HIRA_ABILITIES } from './hirameki.js?v=1ba3e6f60a67';
-import { TRAVEL_ABILITIES } from './sky.js?v=1ba3e6f60a67';
-import { RARE_ABILITIES } from './monsters-rare.js?v=1ba3e6f60a67';
-import { JOB2_ABILITIES } from './abilities-jobs2.js?v=1ba3e6f60a67';
-import { CH3_ABILITIES } from './abilities-ch3.js?v=1ba3e6f60a67';
-import { CH4_ABILITIES } from './abilities-ch4.js?v=1ba3e6f60a67';
-import { JOB3_ABILITIES } from './abilities-jobs3.js?v=1ba3e6f60a67';
+import { ADV_ABILITIES } from './abilities-adv.js?v=140b3d4eb1e5';
+import { CH2_ABILITIES } from './abilities-ch2.js?v=140b3d4eb1e5';
+import { JOB_ABILITIES } from './abilities-jobs.js?v=140b3d4eb1e5';
+import { HIRA_ABILITIES } from './hirameki.js?v=140b3d4eb1e5';
+import { TRAVEL_ABILITIES } from './sky.js?v=140b3d4eb1e5';
+import { RARE_ABILITIES } from './monsters-rare.js?v=140b3d4eb1e5';
+import { JOB2_ABILITIES } from './abilities-jobs2.js?v=140b3d4eb1e5';
+import { CH3_ABILITIES } from './abilities-ch3.js?v=140b3d4eb1e5';
+import { CH4_ABILITIES } from './abilities-ch4.js?v=140b3d4eb1e5';
+import { JOB3_ABILITIES } from './abilities-jobs3.js?v=140b3d4eb1e5';
+import { JOB4_ABILITIES } from './abilities-jobs4.js?v=140b3d4eb1e5';
 
 export const ABILITIES = {
   // ───────────── 戦士 ─────────────
@@ -591,6 +592,8 @@ Object.assign(ABILITIES, CH3_ABILITIES);
 Object.assign(ABILITIES, CH4_ABILITIES);
 // 料理人・アルバイト・お笑い芸人の 系統、大賢者、ロトの勇者と、攻撃技を 足した 職業（abilities-jobs3.js）
 Object.assign(ABILITIES, JOB3_ABILITIES);
+// ニート・サイヤ人・設備屋・ゴム人間・ユーチューバー・ゲーマーの 系統と 魔王（abilities-jobs4.js）
+Object.assign(ABILITIES, JOB4_ABILITIES);
 
 // 攻撃呪文かどうか（魔法剣で使える）
 export function isAttackSpell(id) {

@@ -2,8 +2,8 @@
 // ・「道具」の コマンド: 月の鏡（まぼろしの 分身が いる 戦い）と、そうびしたまま 使う 道具（魔神のランプ）
 // ・まぼろしの 分身: 本物の 足もとの 小さな 影・分身が 消える ときの えんしゅつ・まぼろしが もどる 前ぶれ
 // ・ボスの 大技（砂嵐・砂の大うず）は、がめんの まん中に 大きく（render/battlefx-ch4.js）
-import { ITEMS } from '../shared/data/items.js?v=1ba3e6f60a67';
-import { BW, BH } from './render/battlefx.js?v=1ba3e6f60a67';
+import { ITEMS } from '../shared/data/items.js?v=140b3d4eb1e5';
+import { BW, BH } from './render/battlefx.js?v=140b3d4eb1e5';
 
 export const MIRROR_ID = 'moon_mirror';
 const MIRROR_INFO = '月の光で、まぼろしの分身をすべて消す。本物は、まぶしくて1回動けなくなる。\n使うと、光がもどるまで少し時間がかかる。';

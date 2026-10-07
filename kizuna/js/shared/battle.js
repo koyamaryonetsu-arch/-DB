@@ -7,17 +7,17 @@
 //
 // サーバー（家族サーバー）でも ブラウザ（ひとりモード）でも おなじ コードが うごく
 
-import { makeRng } from './rng.js?v=1ba3e6f60a67';
-import { ABILITIES } from './data/abilities.js?v=1ba3e6f60a67';
-import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=1ba3e6f60a67';
-import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js?v=1ba3e6f60a67';
-import { MONSTERS } from './data/monsters.js?v=1ba3e6f60a67';
-import { ITEMS } from './data/items.js?v=1ba3e6f60a67';
-import { JOBS } from './data/jobs.js?v=1ba3e6f60a67';
-import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed, battleAbilityOk } from './stats.js?v=1ba3e6f60a67';
-import { decideMonster, decideAlly } from './ai.js?v=1ba3e6f60a67';
+import { makeRng } from './rng.js?v=140b3d4eb1e5';
+import { ABILITIES } from './data/abilities.js?v=140b3d4eb1e5';
+import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=140b3d4eb1e5';
+import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js?v=140b3d4eb1e5';
+import { MONSTERS } from './data/monsters.js?v=140b3d4eb1e5';
+import { ITEMS } from './data/items.js?v=140b3d4eb1e5';
+import { JOBS } from './data/jobs.js?v=140b3d4eb1e5';
+import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed, battleAbilityOk } from './stats.js?v=140b3d4eb1e5';
+import { decideMonster, decideAlly } from './ai.js?v=140b3d4eb1e5';
 // 第4章の しかけ（まぼろしの分身・月の鏡・そうびしたまま 使う 道具）
-import { setupMirage, mirageHit, mirageVanish, mirageDown, mirageSync, mirageRemake, ch4ItemCheck, ch4UseItem, mirrorSnap } from './battle-ch4.js?v=1ba3e6f60a67';
+import { setupMirage, mirageHit, mirageVanish, mirageDown, mirageSync, mirageRemake, ch4ItemCheck, ch4UseItem, mirrorSnap } from './battle-ch4.js?v=140b3d4eb1e5';
 
 export const BOND_MAX = 100;
 // きずなゲージの たまりやすさ（1 … はじめの 版。ちいさいほど たまりにくい）
@@ -1152,6 +1152,22 @@ export class Battle {
         }
         break;
       }
+      case 'hurt': {
+        // 自分たちも 少し ダメージ（炎上）。たおれない（HPは 1より へらない）
+        const hurt = [];
+        for (const t of targets) {
+          if (!t.alive) continue;
+          const d = Math.min(t.hp - 1, this.rng.int(eff.base[0], eff.base[1]));
+          if (d <= 0) continue;
+          t.hp -= d;
+          hurt.push(t.name);
+          (ev.results = ev.results || []).push({ id: t.id, dmg: d });
+          ev.upd.push(t);
+        }
+        // ことばは 1回（「ソラとミーナも少しやけどした…」）
+        if (hurt.length) ev.lines.push((eff.msg || '{t}も少しダメージを受けた…').replaceAll('{a}', c.name).replaceAll('{t}', hurt.join('と')));
+        break;
+      }
       case 'dispel': {
         // 敵には つよく なる こうかを けす（ツッコミ）、みかたには よわく なる こうかを けす
         for (const t of targets) {
@@ -1408,7 +1424,8 @@ export class Battle {
     const [mn, mx] = eff.base;
     const base = estimate ? (mn + mx) / 2 : this.rng.int(mn, mx);
     // stat: 'heal' … 回復魔力で 強く なる 光の 技（大神官の ホーリーライト など。いやし手の 攻撃）
-    const pow = eff.stat === 'heal' ? (c.healPow || 0) : (c.mag || 0);
+    // 魔力は バフ・デバフ（魔力が 上がる 技）も かかる
+    const pow = eff.stat === 'heal' ? (c.healPow || 0) : effMag(c);
     const scale = 1 + clamp((pow - (eff.thr ?? 20)) / 150, 0, eff.scaleCap ?? 1);
     let dmg = base * scale * powMult * enemyFixedScale(c);
     const r = eff.element ? (t.resist[eff.element] ?? 1) : 1;
@@ -2334,6 +2351,12 @@ export function effAtk(c) {
   if (c.debuffs?.atk) v *= c.debuffs.atk.mult;
   return v;
 }
+export function effMag(c) {
+  let v = c.mag || 0;
+  if (c.buffs?.mag) v *= c.buffs.mag.mult;
+  if (c.debuffs?.mag) v *= c.debuffs.mag.mult;
+  return v;
+}
 export function effDfn(c) {
   let v = c.dfn;
   if (c.buffs?.def) v *= c.buffs.def.mult;
@@ -2348,7 +2371,7 @@ export function spellSealed(a) {
 }
 
 function statLabel(stat) {
-  return { atk: '攻撃力', def: '守備力', agi: '素早さ', eva: 'かいひりつ', breath: 'ブレスたいせい' }[stat] || stat;
+  return { atk: '攻撃力', def: '守備力', agi: '素早さ', mag: '魔力', eva: 'かいひりつ', breath: 'ブレスたいせい' }[stat] || stat;
 }
 
 function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }

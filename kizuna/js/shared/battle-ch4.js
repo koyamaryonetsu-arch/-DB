@@ -12,8 +12,8 @@
 //     本物が mirage.mirror 回 動くまで、鏡の 光は もどらない（「3ターンに1回」）
 //   ・本物が たおれると、分身も 消える
 // ・そうびしたまま 使える 道具（items の equipUse。魔神のランプ）: 道具の コマンドで 1回の たたかいに 1回 使える
-import { MONSTERS } from './data/monsters.js?v=1ba3e6f60a67';
-import { ITEMS } from './data/items.js?v=1ba3e6f60a67';
+import { MONSTERS } from './data/monsters.js?v=140b3d4eb1e5';
+import { ITEMS } from './data/items.js?v=140b3d4eb1e5';
 
 export const MIRROR_ID = 'moon_mirror';
 const LETTERS = 'ABCDEFGH';

@@ -582,19 +582,182 @@ export const JOBS = {
     versatile: true,
     learn: [[1, 'lt_ken'], [3, 'lt_shirushi'], [5, 'lt_inori'], [7, 'lt_gigacross'], [9, 'lt_kizuna'], [10, 'lt_minadein']],
   },
+
+  // ───────────── 2026年10月（第21回）の 新しい 職業（技は abilities-jobs4.js） ─────────────
+  // ニート → 中二病 → ダ天使
+  neet: {
+    id: 'neet', name: 'ニート', kana: 'にーと', short: 'ニート', tier: 0, family: 'tech', color: '#7a8aa0',
+    desc: '家でゴロゴロしているのが大すき。まくら投げやネットの知識で戦う。何もしていないようで、職業レベルがとても上がりやすい。',
+    mods: { hp: 0.95, mp: 1.0, str: 0.9, def: 0.9, agi: 0.9, mag: 1.0, heal: 0.95 },
+    weapons: ['fan', 'staff', 'none'], shield: false, armor: ['cloth', 'robe'], helm: false,
+    perLv: { hp: 1, mp: 0.5 },
+    passive: { train: 1.5 },
+    learn: [
+      [1, 'ne_makura'], [2, 'ne_gorogoro'], [3, 'ne_potechi'], [4, 'ne_yofukashi'], [5, 'ne_honki'],
+      [6, 'ne_guguru'], [7, 'ne_nidone'], [8, 'ne_jersey'], [10, 'ne_ippatsu'],
+    ],
+  },
+  chuuni: {
+    id: 'chuuni', name: '中二病', kana: 'ちゅうにびょう', short: '中二', tier: 1, req: ['neet'], family: 'magic', color: '#3a1a3a',
+    desc: '自分には特別な力があると信じている。ふう印されし右手やしっ黒の炎（本人いわく）で戦う。思いこみの力で、本当に魔力が強い。',
+    mods: { hp: 0.95, mp: 1.25, str: 1.05, def: 0.85, agi: 1.15, mag: 1.35, heal: 0.8 },
+    weapons: ['sword', 'staff', 'fan'], shield: false, armor: ['cloth', 'robe'], helm: false,
+    perLv: { mag: 0.5, mp: 0.5 },
+    learn: [[1, 'cu_migite'], [2, 'cu_jakigan'], [4, 'cu_kokuen'], [5, 'cu_note'], [6, 'cu_kurorekishi'], [8, 'cu_wagana'], [10, 'cu_judgment']],
+  },
+  datenshi: {
+    id: 'datenshi', name: 'ダ天使', kana: 'だてんし', short: 'ダ天', tier: 2, req: ['chuuni'], family: 'magic', color: '#2a1a40',
+    desc: '天から落ちた（と自分で言っている）天使。黒い羽根と闇の光で敵をうち、天使のほほえみで仲間をいやす。',
+    mods: { hp: 1.05, mp: 1.4, str: 1.0, def: 1.0, agi: 1.3, mag: 1.6, heal: 1.25 },
+    weapons: ['staff', 'sword', 'fan'], shield: false, armor: ['robe', 'cloth'], helm: false,
+    perLv: { mag: 1, mp: 0.5 },
+    learn: [[1, 'dt_hane'], [3, 'dt_hohoemi'], [5, 'dt_keiyaku'], [7, 'dt_ochita'], [8, 'dt_tsubasa'], [10, 'dt_darkangel']],
+  },
+
+  // サイヤ人 → スーパーサイヤ人 → スーパーサイヤ人2 → スーパーサイヤ人3（伝説の職業）
+  saiyan: {
+    id: 'saiyan', name: 'サイヤ人', kana: 'さいやじん', short: 'サイヤ', tier: 0, family: 'phys', color: '#2a3a8a',
+    desc: '戦いが大すきな戦闘民族。気だんやかめはめ波で戦う。きたえるほど強くなり、いつか金色にかがやくという。',
+    mods: { hp: 1.15, mp: 0.6, str: 1.25, def: 1.0, agi: 1.2, mag: 0.6, heal: 0.6 },
+    weapons: ['claw', 'none'], shield: false, armor: ['gi', 'cloth'], helm: false,
+    perLv: { str: 0.5, hp: 1 },
+    learn: [
+      [1, 'sy_kidan'], [2, 'sy_kiai'], [3, 'sy_renzoku'], [4, 'sy_taiyou'], [5, 'sy_kamehameha'],
+      [6, 'sy_bukuu'], [7, 'sy_ozaru'], [8, 'sy_rush'], [10, 'sy_bigbang'],
+    ],
+  },
+  super_saiyan: {
+    id: 'super_saiyan', name: 'スーパーサイヤ人', kana: 'すーぱーさいやじん', short: 'SS', tier: 1, req: ['saiyan'], family: 'phys', color: '#e8c020',
+    desc: 'サイヤ人がいかりで目ざめた、金色のすがた。かみがさか立ち、力も速さもはね上がる。',
+    mods: { hp: 1.3, mp: 0.7, str: 1.45, def: 1.15, agi: 1.35, mag: 0.7, heal: 0.6 },
+    weapons: ['claw', 'none'], shield: false, armor: ['gi', 'cloth'], helm: false,
+    perLv: { str: 1, agi: 0.5 },
+    learn: [[1, 'sz_kame'], [2, 'sz_aura'], [4, 'sz_kikouha'], [5, 'sz_zanzou'], [6, 'sz_ikari'], [8, 'sz_final'], [10, 'sz_renzoku']],
+  },
+  ss2: {
+    id: 'ss2', name: 'スーパーサイヤ人2', kana: 'すーぱーさいやじんつー', short: 'SS2', tier: 2, req: ['super_saiyan'], family: 'phys', color: '#f0d040',
+    desc: 'スーパーサイヤ人をこえたすがた。体のまわりを青いいなずまが走る。雷の力をまとった技で戦う。',
+    mods: { hp: 1.4, mp: 0.8, str: 1.6, def: 1.25, agi: 1.5, mag: 0.75, heal: 0.65 },
+    weapons: ['claw', 'none'], shield: false, armor: ['gi', 'cloth'], helm: false,
+    perLv: { str: 1, agi: 1 },
+    learn: [[1, 's2_spark'], [3, 's2_kame'], [5, 's2_aura'], [7, 's2_rush'], [8, 's2_kiaihou'], [10, 's2_final']],
+  },
+  ss3: {
+    id: 'ss3', name: 'スーパーサイヤ人3', kana: 'すーぱーさいやじんすりー', short: 'SS3', tier: 3, req: ['ss2'], reqSuper: 1, family: 'phys', color: '#f8e060',
+    desc: '長い金色のかみの、最後のすがた。スーパーサイヤ人2と、ほかの超級職を1つきわめた者だけがなれる。元気玉や竜拳で、どんな敵も打ちたおす。',
+    mods: { hp: 1.6, mp: 1.0, str: 1.85, def: 1.4, agi: 1.7, mag: 0.95, heal: 0.8 },
+    weapons: ['claw', 'none'], shield: false, armor: ['gi', 'cloth'], helm: false,
+    perLv: { str: 1.5, agi: 1, hp: 1 },
+    learn: [[1, 's3_ryuuken'], [3, 's3_kame'], [5, 's3_aura'], [7, 's3_shunkan'], [8, 's3_rengeki'], [10, 's3_genki']],
+  },
+
+  // 会社員 → 設備屋 → ryonetsu
+  setsubiya: {
+    id: 'setsubiya', name: '設備屋', kana: 'せつびや', short: '設備', tier: 1, req: ['salaryman'], family: 'tech', color: '#5a7a9a',
+    desc: '空調や配管を直すプロ。スパナで戦い、点検や配管修理で仲間を直す。エアコン全開で敵をこおらせることもできる。戦いで手に入るお金がふえる。',
+    mods: { hp: 1.2, mp: 1.0, str: 1.2, def: 1.25, agi: 0.95, mag: 0.95, heal: 1.1 },
+    weapons: ['axe', 'dagger', 'staff'], shield: true, armor: ['cloth', 'heavy'], helm: true,
+    perLv: { def: 0.5, hp: 1 },
+    passive: { gold: 1.2 },
+    learn: [[1, 'sb_spanner'], [2, 'sb_tenken'], [4, 'sb_haikan'], [5, 'sb_aircon'], [6, 'sb_shiunten'], [8, 'sb_duct'], [10, 'sb_kouji']],
+  },
+  ryonetsu: {
+    id: 'ryonetsu', name: 'ryonetsu', kana: 'りょうねつ', short: 'ryo', tier: 2, req: ['setsubiya'], family: 'tech', color: '#1a3a7a',
+    desc: '空調と省エネのプロフェッショナル集団。古い空調を新しくし、かん気を改善し、建物のすべてを最適に動かす。守りも回復も攻撃もこなし、戦いで手に入るお金がとてもふえる。',
+    mods: { hp: 1.3, mp: 1.3, str: 1.3, def: 1.35, agi: 1.15, mag: 1.3, heal: 1.3 },
+    weapons: ['axe', 'dagger', 'staff'], shield: true, armor: ['cloth', 'heavy', 'robe'], helm: true,
+    perLv: { def: 0.5, hp: 1, mag: 0.5 },
+    passive: { gold: 1.3 },
+    versatile: true,
+    learn: [[1, 'rn_koushin'], [3, 'rn_chiller'], [4, 'rn_kanki'], [5, 'rn_shoene'], [7, 'rn_netsugen'], [8, 'rn_yochou'], [10, 'rn_saiteki']],
+  },
+
+  // 海賊 → ゴム人間 → ニカ（伝説の職業）
+  rubber: {
+    id: 'rubber', name: 'ゴム人間', kana: 'ごむにんげん', short: 'ゴム', tier: 2, req: ['pirate'], family: 'phys', color: '#d83a2a',
+    desc: '体がゴムのようにのびる海賊。のびるうででパンチをくり出し、ギア2で速く、ギア3で大きくなる。ゴムなので雷が効かない。',
+    mods: { hp: 1.5, mp: 0.8, str: 1.55, def: 1.3, agi: 1.35, mag: 0.6, heal: 0.7 },
+    weapons: ['none', 'claw'], shield: false, armor: ['cloth', 'gi'], helm: true,
+    perLv: { hp: 1.5, str: 1 },
+    passive: { resist: { bolt: 0 } },
+    learn: [[1, 'go_pistol'], [3, 'go_gatling'], [4, 'go_fusen'], [5, 'go_gear2'], [7, 'go_bazooka'], [10, 'go_gear3']],
+  },
+  nika: {
+    id: 'nika', name: 'ニカ', kana: 'にか', short: 'ニカ', tier: 3, req: ['rubber'], reqSuper: 1, family: 'phys', color: '#f8f0e0',
+    desc: '太陽の神ニカの力が目ざめた、ゴム人間の最後のすがた。ゴム人間と、ほかの超級職を1つきわめた者だけがなれる。何でも自由自在、雷もつかんで投げる。',
+    mods: { hp: 1.65, mp: 1.1, str: 1.7, def: 1.4, agi: 1.6, mag: 1.0, heal: 1.1 },
+    weapons: ['none', 'claw'], shield: false, armor: ['cloth', 'gi'], helm: true,
+    perLv: { hp: 1.5, str: 1, agi: 0.5 },
+    passive: { resist: { bolt: 0 } },
+    learn: [[1, 'nk_gear5'], [3, 'nk_drum'], [5, 'nk_kaminari'], [7, 'nk_taiyou'], [8, 'nk_warai'], [10, 'nk_kaihou']],
+  },
+
+  // ユーチューバー → 人気配信者
+  youtuber: {
+    id: 'youtuber', name: 'ユーチューバー', kana: 'ゆーちゅーばー', short: 'ユーチ', tier: 0, family: 'tech', color: '#e83a3a',
+    desc: '動画で人気者をめざす。自どり棒で戦い、生配信のおうえんや、つりサムネ、炎上（！）で戦いをもり上げる。戦いで手に入るお金が少しふえる。',
+    mods: { hp: 0.95, mp: 1.1, str: 0.95, def: 0.9, agi: 1.1, mag: 1.05, heal: 1.0 },
+    weapons: ['staff', 'fan', 'none'], shield: false, armor: ['cloth', 'robe'], helm: false,
+    perLv: { mp: 0.5, agi: 0.3 },
+    passive: { gold: 1.1 },
+    learn: [
+      [1, 'yt_jidori'], [2, 'yt_live'], [3, 'yt_samune'], [4, 'yt_kirinuki'], [5, 'yt_superchat'],
+      [6, 'yt_enjou'], [7, 'yt_kikaku'], [8, 'yt_touroku'], [10, 'yt_hyakuman'],
+    ],
+  },
+  streamer: {
+    id: 'streamer', name: '人気配信者', kana: 'にんきはいしんしゃ', short: '配信', tier: 1, req: ['youtuber'], family: 'tech', color: '#c040c0',
+    desc: '登録者100万人の人気配信者。コラボ配信で仲間を強くし、投げせんの雨や大炎上で敵をたおす。戦いで手に入るお金がふえる。',
+    mods: { hp: 1.05, mp: 1.3, str: 1.0, def: 1.0, agi: 1.2, mag: 1.25, heal: 1.1 },
+    weapons: ['staff', 'fan', 'none'], shield: true, armor: ['cloth', 'robe'], helm: false,
+    perLv: { mp: 0.5, mag: 0.5 },
+    passive: { gold: 1.2 },
+    learn: [[1, 'st_collab'], [2, 'st_dokkiri'], [4, 'st_daienjou'], [5, 'st_kinen'], [6, 'st_kamikai'], [8, 'st_nagesen'], [10, 'st_doujisetsuzoku']],
+  },
+
+  // ゲーマー → プロゲーマー
+  gamer: {
+    id: 'gamer', name: 'ゲーマー', kana: 'げーまー', short: 'ゲーム', tier: 0, family: 'tech', color: '#3ac080',
+    desc: 'ゲームが大すき。ボタン連打やバグ技で戦い、ハメ技で敵を動けなくする。素早さと反射神経は、だれにも負けない。',
+    mods: { hp: 0.9, mp: 1.05, str: 1.0, def: 0.85, agi: 1.25, mag: 1.0, heal: 0.9 },
+    weapons: ['boomerang', 'dagger', 'none'], shield: false, armor: ['cloth', 'robe'], helm: false,
+    perLv: { agi: 0.5, mp: 0.3 },
+    learn: [
+      [1, 'ga_renda'], [2, 'ga_save'], [3, 'ga_bug'], [4, 'ga_kakin'], [5, 'ga_controller'],
+      [6, 'ga_tetsuya'], [7, 'ga_hame'], [8, 'ga_combo'], [10, 'ga_lastboss'],
+    ],
+  },
+  pro_gamer: {
+    id: 'pro_gamer', name: 'プロゲーマー', kana: 'ぷろげーまー', short: 'プロ', tier: 1, req: ['gamer'], family: 'tech', color: '#202830',
+    desc: '世界大会で戦うプロのゲーマー。1フレームの見切りで攻撃をよけ、神プレイで大ダメージをあたえる。',
+    mods: { hp: 1.0, mp: 1.1, str: 1.15, def: 0.95, agi: 1.5, mag: 1.05, heal: 0.95 },
+    weapons: ['boomerang', 'dagger', 'axe', 'none'], shield: false, armor: ['cloth', 'robe'], helm: false,
+    perLv: { agi: 1, str: 0.5 },
+    learn: [[1, 'pg_frame'], [2, 'pg_keyboard'], [4, 'pg_nyuuryoku'], [5, 'pg_meta'], [6, 'pg_kamiplay'], [8, 'pg_team'], [10, 'pg_yuushou']],
+  },
+
+  // 魔王（伝説の職業。勇者と ダ天使、光と やみの 両方を きわめた 者）
+  maou: {
+    id: 'maou', name: '魔王', kana: 'まおう', short: '魔王', tier: 3, req: ['hero', 'datenshi'], family: 'magic', color: '#4a1a5a',
+    desc: '世界をやみにつつむ、すべての魔物の王。勇者とダ天使をきわめた者だけがなれる。暗黒の炎と破滅の光で、すべてをほろぼす。',
+    mods: { hp: 1.6, mp: 1.4, str: 1.5, def: 1.45, agi: 1.25, mag: 1.65, heal: 1.0 },
+    weapons: ['sword', 'staff', 'axe', 'claw'], shield: true, armor: ['cloth', 'heavy', 'robe'], helm: true,
+    perLv: { hp: 2, mag: 1, str: 0.5 },
+    learn: [[1, 'mo_kokuen'], [3, 'mo_hadou'], [5, 'mo_tsume'], [7, 'mo_iatsu'], [8, 'mo_koromo'], [10, 'mo_hametsu']],
+  },
 };
 
 // はじめに えらべる 職業（基本職）
 export const JOB_ORDER = ['warrior', 'monk', 'priest', 'mage', 'performer', 'jester', 'salaryman', 'idol', 'railman', 'ballplayer',
-  'schoolkid', 'civil_local', 'cook', 'parttimer'];
+  'schoolkid', 'civil_local', 'cook', 'parttimer', 'neet', 'saiyan', 'youtuber', 'gamer'];
 export const ADVANCED_ORDER = ['battlemaster', 'paladin', 'magic_knight', 'pirate', 'holyfist', 'ninja', 'tamer', 'sage', 'superstar', 'fortune',
   'samurai', 'bucho', 'major_leaguer', 'middleschooler', 'civil_national', 'police', 'firefighter', 'train_driver',
-  'patissier', 'seishain', 'comedian'];
+  'patissier', 'seishain', 'comedian', 'chuuni', 'super_saiyan', 'setsubiya', 'streamer', 'pro_gamer'];
 export const SUPER_ORDER = ['dragon_knight', 'archmage', 'high_priest', 'god_hand', 'summoner', 'magic_swordsman', 'guardian', 'hero', 'monster_master', 'star_diva',
   'sword_master', 'shogun', 'shacho', 'nitoryu', 'highschooler', 'career', 'fruit_idol', 'storm_idol', 'keikyu_driver',
-  'star_chef', 'tatakiage', 'm1_champion', 'daikenja'];
+  'star_chef', 'tatakiage', 'm1_champion', 'daikenja', 'datenshi', 'ss2', 'ryonetsu', 'rubber'];
 // 伝説の 職業（超級職の 先）
-export const LEGEND_ORDER = ['loto_hero'];
+export const LEGEND_ORDER = ['loto_hero', 'ss3', 'nika', 'maou'];
 export const ALL_JOBS = [...JOB_ORDER, ...ADVANCED_ORDER, ...SUPER_ORDER, ...LEGEND_ORDER];
 export const TIER_NAMES = ['基本職', '上級職', '超級職', '伝説の職業'];
 // 神殿で ならべる じゅん（ランクごと）
@@ -690,4 +853,11 @@ export const JOB_HINTS = {
   m1_champion: 'お笑い芸人をきわめた人は、日本一のまんざい師になれるらしい…',
   daikenja: '賢者をきわめた者は、さらにその先の、大いなる賢者になれるらしい…',
   loto_hero: '勇者と、ほかの2つの超級職をきわめた者は、伝説の勇者の名をつげるらしい…',
+  datenshi: '中二病をきわめると、天から落ちた天使になれるらしい…',
+  ss2: 'スーパーサイヤ人をきわめると、いなずまをまとった、さらに上のすがたになれるらしい…',
+  ryonetsu: '設備屋をきわめると、空調と省エネのプロフェッショナル集団の一員になれるらしい…',
+  rubber: '海賊をきわめた者が、ふしぎな実を食べると、体がゴムのようにのびるらしい…',
+  ss3: 'スーパーサイヤ人2と、ほかの超級職を1つきわめた者は、長い金色のかみのすがたになれるらしい…',
+  nika: 'ゴム人間と、ほかの超級職を1つきわめた者には、太陽の神の力が目ざめるらしい…',
+  maou: '勇者とダ天使、光とやみの両方をきわめた者は、すべての魔物の王になるらしい…',
 };

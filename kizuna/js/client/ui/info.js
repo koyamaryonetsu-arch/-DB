@@ -1,12 +1,12 @@
 // せつめい文を つくる
-import { ITEMS, SLOT_NAMES, WEAPON_CAT_NAMES } from '../../shared/data/items.js?v=1ba3e6f60a67';
-import { ABILITIES, abilityTypeText } from '../../shared/data/abilities.js?v=1ba3e6f60a67';
-import { JOBS, ALL_JOBS } from '../../shared/data/jobs.js?v=1ba3e6f60a67';
-import { MONSTERS } from '../../shared/data/monsters.js?v=1ba3e6f60a67';
-import { MONSTER_FRIENDS } from '../../shared/data/companions.js?v=1ba3e6f60a67';
-import { computeStats, canEquip, canEquipMonster, monsterGear, penaltyFor, mpCost, comboJobNames, comboAllowed, jobPower } from '../../shared/stats.js?v=1ba3e6f60a67';
-import { attackReach } from '../../shared/battle.js?v=1ba3e6f60a67';
-import { maxPlus } from '../../shared/data/forge.js?v=1ba3e6f60a67';
+import { ITEMS, SLOT_NAMES, WEAPON_CAT_NAMES } from '../../shared/data/items.js?v=140b3d4eb1e5';
+import { ABILITIES, abilityTypeText } from '../../shared/data/abilities.js?v=140b3d4eb1e5';
+import { JOBS, ALL_JOBS } from '../../shared/data/jobs.js?v=140b3d4eb1e5';
+import { MONSTERS } from '../../shared/data/monsters.js?v=140b3d4eb1e5';
+import { MONSTER_FRIENDS } from '../../shared/data/companions.js?v=140b3d4eb1e5';
+import { computeStats, canEquip, canEquipMonster, monsterGear, penaltyFor, mpCost, comboJobNames, comboAllowed, jobPower } from '../../shared/stats.js?v=140b3d4eb1e5';
+import { attackReach } from '../../shared/battle.js?v=140b3d4eb1e5';
+import { maxPlus } from '../../shared/data/forge.js?v=140b3d4eb1e5';
 
 const TARGET_NAMES = { enemy: '敵1体', group: '敵1グループ', enemies: '敵全体', ally: '味方1人', allies: '味方全員', self: '自分', deadAlly: '死んだ味方', deadAllies: '死んだ味方全員' };
 // 技の リストに つける みじかい しるし（1体・1人・自分は つけない）。a: 技（または 相手の しゅるい）
@@ -181,7 +181,7 @@ export function statusNames(st) {
 }
 
 export function buffNames(b) {
-  const n = { '+atk': '攻↑', '+def': '守↑', '+agi': '速↑', '+eva': 'かわ↑', '-def': '守↓', '-atk': '攻↓', '-agi': '速↓' };
+  const n = { '+atk': '攻↑', '+def': '守↑', '+agi': '速↑', '+mag': '魔↑', '+eva': 'かわ↑', '-def': '守↓', '-atk': '攻↓', '-agi': '速↓', '-mag': '魔↓' };
   // 2だんかいめ（かさねがけ）は 矢じるしが 2つ（'+atk2' → 攻↑↑）
   return (b || []).map((x) => {
     const two = x.endsWith('2');

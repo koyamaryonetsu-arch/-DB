@@ -1,13 +1,13 @@
 // タイトル・ログイン・キャラクターえらび・キャラクターづくり
-import { el, ListMenu, toast, askText, confirmBox } from './dom.js?v=1ba3e6f60a67';
-import { JOBS, JOB_ORDER } from '../../shared/data/jobs.js?v=1ba3e6f60a67';
-import { HAIR_STYLES, HAIR_COLORS, SKIN_TONES, FACES, FACE_BY_ID, CLOTH_COLORS, cleanLook } from '../../shared/data/looks.js?v=1ba3e6f60a67';
-import { previewCache } from '../render/hero.js?v=1ba3e6f60a67';
-import { playerSprite } from '../field.js?v=1ba3e6f60a67';
-import { makeCanvas, ctxOf } from '../render/pixel.js?v=1ba3e6f60a67';
-import { LINE_MAX, parseCode } from '../../shared/world/transfer.js?v=1ba3e6f60a67';
-import { DEFAULT_SITE, pendingImport, clearPendingImport, familyServer, setFamilyServer, linkToFamilyServer, linkToSite, siteServerAddress } from '../links.js?v=1ba3e6f60a67';
-import { goFamilyServer, goSite, roundTrip, changeServer, syncOnServer, maybeRoundTrip, notePlayed, familyServerUp } from './syncui.js?v=1ba3e6f60a67';
+import { el, ListMenu, toast, askText, confirmBox } from './dom.js?v=140b3d4eb1e5';
+import { JOBS, JOB_ORDER } from '../../shared/data/jobs.js?v=140b3d4eb1e5';
+import { HAIR_STYLES, HAIR_COLORS, SKIN_TONES, FACES, FACE_BY_ID, CLOTH_COLORS, cleanLook } from '../../shared/data/looks.js?v=140b3d4eb1e5';
+import { previewCache } from '../render/hero.js?v=140b3d4eb1e5';
+import { playerSprite } from '../field.js?v=140b3d4eb1e5';
+import { makeCanvas, ctxOf } from '../render/pixel.js?v=140b3d4eb1e5';
+import { LINE_MAX, parseCode } from '../../shared/world/transfer.js?v=140b3d4eb1e5';
+import { DEFAULT_SITE, pendingImport, clearPendingImport, familyServer, setFamilyServer, linkToFamilyServer, linkToSite, siteServerAddress } from '../links.js?v=140b3d4eb1e5';
+import { goFamilyServer, goSite, roundTrip, changeServer, syncOnServer, maybeRoundTrip, notePlayed, familyServerUp } from './syncui.js?v=140b3d4eb1e5';
 
 function clearUI() {
   document.getElementById('ui').innerHTML = '';
@@ -550,6 +550,7 @@ export function showCreate(game) {
       warrior: '固くて強い', monk: 'とても素早い', priest: '回復の女神', mage: '攻撃呪文', performer: 'みんなをおうえん',
       jester: '何が起こるかな？', salaryman: 'チームを支える', idol: 'みんなの人気者', railman: '時間に正確', ballplayer: 'かっとばせ！',
       schoolkid: 'のびざかり！', civil_local: '町を守る', cook: '食べて元気に', parttimer: '何でもこなす',
+      neet: 'のびしろ無限大', saiyan: '戦闘民族', youtuber: '動画で人気者', gamer: 'ゲームの達人',
     }[j] }));
     b.addEventListener('click', () => {
       job = j;

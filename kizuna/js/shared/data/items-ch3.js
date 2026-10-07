@@ -129,7 +129,7 @@ export const SHOPS_CH3 = {
     items: ['fur_coat', 'snow_robe', 'snow_gi', 'fur_hat'],
     more: [{
       show: { all: ['c3_mine'] },
-      items: ['steel_mail', 'steel_shield', 'steel_helm'],
+      items: ['steel_mail', 'steel_shield', 'steel_helm', 'gold_button'],
       hello: 'いらっしゃい！\nはがねの防具が入ったよ。カナトコのはがねは、世界一さ！\nどうする？',
     }],
   },
