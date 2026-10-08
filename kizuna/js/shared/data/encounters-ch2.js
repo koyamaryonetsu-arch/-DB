@@ -7,6 +7,8 @@ export const ENCOUNTERS_CH2 = {
     { w: 2, group: [['sea_serpent', 1, 1]] },
     { w: 2, group: [['marine_slime', 1, 2], ['wild_gull', 1, 2]] },
     { w: 1, group: [['sea_serpent', 1, 1], ['shell_knight', 1, 1]] },
+    // あたらしい 仲間モンスター（monsters-r23.js）
+    { w: 2, group: [['tobiuo', 2, 3]] },
   ],
   isle: [
     { w: 4, group: [['coconut', 1, 3]] },
@@ -28,6 +30,7 @@ export const ENCOUNTERS_CH2 = {
     { w: 3, group: [['shell_knight', 2, 3], ['marine_slime', 0, 1]] },
     { w: 3, group: [['ghost_pirate', 2, 3]] },
     { w: 2, group: [['sea_serpent', 1, 1], ['coral_golem', 1, 1]] },
+    { w: 2, group: [['uzumaki_gai', 1, 2], ['marine_slime', 0, 1]] },
     // めずらしい: からくり騎士
     { w: 1, group: [['clockwork_knight', 1, 1]] },
   ],

@@ -7,21 +7,21 @@
 //
 // サーバー（家族サーバー）でも ブラウザ（ひとりモード）でも おなじ コードが うごく
 
-import { makeRng } from './rng.js?v=76455ba73f77';
-import { ABILITIES, ELEMENT_ORDER, ELEMENT_NAMES } from './data/abilities.js?v=76455ba73f77';
-import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=76455ba73f77';
-import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js?v=76455ba73f77';
-import { MONSTERS } from './data/monsters.js?v=76455ba73f77';
-import { ITEMS } from './data/items.js?v=76455ba73f77';
-import { JOBS } from './data/jobs.js?v=76455ba73f77';
-import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed, battleAbilityOk } from './stats.js?v=76455ba73f77';
-import { decideMonster, decideAlly } from './ai.js?v=76455ba73f77';
-import { ENEMY_RATES, strengthenEnemy } from './data/difficulty.js?v=76455ba73f77';
+import { makeRng } from './rng.js?v=3b0cee964f68';
+import { ABILITIES, ELEMENT_ORDER, ELEMENT_NAMES } from './data/abilities.js?v=3b0cee964f68';
+import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=3b0cee964f68';
+import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js?v=3b0cee964f68';
+import { MONSTERS } from './data/monsters.js?v=3b0cee964f68';
+import { ITEMS } from './data/items.js?v=3b0cee964f68';
+import { JOBS } from './data/jobs.js?v=3b0cee964f68';
+import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed, battleAbilityOk } from './stats.js?v=3b0cee964f68';
+import { decideMonster, decideAlly } from './ai.js?v=3b0cee964f68';
+import { ENEMY_RATES, strengthenEnemy } from './data/difficulty.js?v=3b0cee964f68';
 // 第4章の しかけ（まぼろしの分身・月の鏡・そうびしたまま 使う 道具）
-import { setupMirage, mirageHit, mirageVanish, mirageDown, mirageSync, mirageRemake, ch4ItemCheck, ch4UseItem, mirrorSnap } from './battle-ch4.js?v=76455ba73f77';
+import { setupMirage, mirageHit, mirageVanish, mirageDown, mirageSync, mirageRemake, ch4ItemCheck, ch4UseItem, mirrorSnap } from './battle-ch4.js?v=3b0cee964f68';
 // 第4章 Step 6 の 砂に もぐる（ねらえない。battle-ch4.js）
-import { burrowStart, burrowWarn, burrowBlock, hiddenFrom } from './battle-ch4.js?v=76455ba73f77';
-import { shownEquipKey } from './look-equip.js?v=76455ba73f77';
+import { burrowStart, burrowWarn, burrowBlock, hiddenFrom } from './battle-ch4.js?v=3b0cee964f68';
+import { shownEquipKey } from './look-equip.js?v=3b0cee964f68';
 
 export const BOND_MAX = 100;
 // きずなゲージの たまりやすさ（1 … はじめの 版。ちいさいほど たまりにくい）

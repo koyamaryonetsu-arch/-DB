@@ -1,14 +1,14 @@
 // たたかいの はいけいと エフェクト
-import { makeCanvas, ctxOf, hexToRgb, mix } from './pixel.js?v=76455ba73f77';
-import { weaponLook, playWeapon, playReach } from './weaponfx.js?v=76455ba73f77';
-import { nightBg, drawNightSky } from './night-art.js?v=76455ba73f77';
-import { playJobFx, JOB_FINE } from './battlefx-jobs.js?v=76455ba73f77';
-import { playJob2Fx, JOB2_FINE } from './battlefx-jobs2.js?v=76455ba73f77';
-import { playJob3Fx, JOB3_FINE } from './battlefx-jobs3.js?v=76455ba73f77';
-import { drawPalaceHall, drawPalaceFloor } from './ch4-palace-bg.js?v=76455ba73f77';
+import { makeCanvas, ctxOf, hexToRgb, mix } from './pixel.js?v=3b0cee964f68';
+import { weaponLook, playWeapon, playReach } from './weaponfx.js?v=3b0cee964f68';
+import { nightBg, drawNightSky } from './night-art.js?v=3b0cee964f68';
+import { playJobFx, JOB_FINE } from './battlefx-jobs.js?v=3b0cee964f68';
+import { playJob2Fx, JOB2_FINE } from './battlefx-jobs2.js?v=3b0cee964f68';
+import { playJob3Fx, JOB3_FINE } from './battlefx-jobs3.js?v=3b0cee964f68';
+import { drawPalaceHall, drawPalaceFloor } from './ch4-palace-bg.js?v=3b0cee964f68';
 // 第4章 Step 6: 砂の古城・砂の海（すなかぜ号の かんぱん）・砂クジラの ねどこ（ch4-duna-bg.js）
-import { drawCastleHall, drawCastleFloor, drawSandSea } from './ch4-duna-bg.js?v=76455ba73f77';
-import { playCh4Fx } from './battlefx-ch4.js?v=76455ba73f77';
+import { drawCastleHall, drawCastleFloor, drawSandSea } from './ch4-duna-bg.js?v=3b0cee964f68';
+import { playCh4Fx } from './battlefx-ch4.js?v=3b0cee964f68';
 
 export const BW = 256;
 export const BH = 144;

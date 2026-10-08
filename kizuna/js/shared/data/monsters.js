@@ -11,12 +11,13 @@
 const ROCK_RESIST = { fire: 0.5, ice: 0.7, wind: 0.6, blast: 1.5, poison: 0, sleep: 0, confuse: 0.3, paralyze: 0.2 };
 const METAL_RESIST = { fire: 0, ice: 0, wind: 0, blast: 0, bolt: 0, light: 0, dark: 0, void: 0.5, sleep: 0, poison: 0, confuse: 0, blind: 0, silence: 0, paralyze: 0, debuff: 0 };
 
-import { MONSTERS_CH2 } from './monsters-ch2.js?v=76455ba73f77';
-import { MONSTERS_TM } from './monsters-tm.js?v=76455ba73f77';
-import { NIGHT_MONSTERS } from './night.js?v=76455ba73f77';
-import { MONSTERS_RARE } from './monsters-rare.js?v=76455ba73f77';
-import { MONSTERS_CH3 } from './monsters-ch3.js?v=76455ba73f77';
-import { MONSTERS_CH4 } from './monsters-ch4.js?v=76455ba73f77';
+import { MONSTERS_CH2 } from './monsters-ch2.js?v=3b0cee964f68';
+import { MONSTERS_TM } from './monsters-tm.js?v=3b0cee964f68';
+import { NIGHT_MONSTERS } from './night.js?v=3b0cee964f68';
+import { MONSTERS_RARE } from './monsters-rare.js?v=3b0cee964f68';
+import { MONSTERS_CH3 } from './monsters-ch3.js?v=3b0cee964f68';
+import { MONSTERS_CH4 } from './monsters-ch4.js?v=3b0cee964f68';
+import { MONSTERS_R23 } from './monsters-r23.js?v=3b0cee964f68';
 
 export const MONSTERS = {
   pururin: {
@@ -227,3 +228,5 @@ Object.assign(MONSTERS, MONSTERS_RARE);
 Object.assign(MONSTERS, MONSTERS_CH3);
 // 第4章「砂の海にしずむ星」（monsters-ch4.js）
 Object.assign(MONSTERS, MONSTERS_CH4);
+// あたらしい 仲間モンスター（monsters-r23.js: どんぐりん・ぷるりんタワー・いかずちドラゴン など）
+Object.assign(MONSTERS, MONSTERS_R23);

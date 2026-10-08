@@ -1,8 +1,8 @@
 // 第4章 Step 6 の タイル（16×16 ドット）: 砂の海（金色の 砂の 波が ゆっくり 東へ ながれる）・砂クジラの ねどこの 砂の うず
 // render/tiles-ch4.js が まぜる。2.5D は render/field3d.js（砂の海は うごく 地面、うずは ねどこ ぜんたいで 1まいの え）
 // (p, v, f, m) … Painter / ちがい（うずは ねどこの まん中からの ずれ）/ アニメの コマ / となりの ようす（岸）
-import { T } from '../../shared/tiles.js?v=76455ba73f77';
-import { makeCanvas, ctxOf, prand } from './pixel.js?v=76455ba73f77';
+import { T } from '../../shared/tiles.js?v=3b0cee964f68';
+import { makeCanvas, ctxOf, prand } from './pixel.js?v=3b0cee964f68';
 
 const SEA = {
   base: '#d4a050', deep: '#bc8640', trough: '#a8743a', crest: '#ecc272', foam: '#f8dc9c', glint: '#fff2cc',

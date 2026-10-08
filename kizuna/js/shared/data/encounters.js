@@ -2,10 +2,10 @@
 // group: [[モンスターID, 最小数, 最大数], ...]
 // フィールドでは 先頭の モンスターの すがたで うろうろしている（シンボルエンカウント）
 
-import { ENCOUNTERS_CH2, FIXED_CH2, ZONE_BG_CH2 } from './encounters-ch2.js?v=76455ba73f77';
-import { NIGHT_ENCOUNTERS, NIGHT_ZONE_BG, NIGHT_ZONES } from './night.js?v=76455ba73f77';
-import { ENCOUNTERS_CH3, FIXED_CH3, ZONE_BG_CH3 } from './encounters-ch3.js?v=76455ba73f77';
-import { ENCOUNTERS_CH4, FIXED_CH4, ZONE_BG_CH4, NIGHT_ZONES_CH4 } from './encounters-ch4.js?v=76455ba73f77';
+import { ENCOUNTERS_CH2, FIXED_CH2, ZONE_BG_CH2 } from './encounters-ch2.js?v=3b0cee964f68';
+import { NIGHT_ENCOUNTERS, NIGHT_ZONE_BG, NIGHT_ZONES } from './night.js?v=3b0cee964f68';
+import { ENCOUNTERS_CH3, FIXED_CH3, ZONE_BG_CH3 } from './encounters-ch3.js?v=3b0cee964f68';
+import { ENCOUNTERS_CH4, FIXED_CH4, ZONE_BG_CH4, NIGHT_ZONES_CH4 } from './encounters-ch4.js?v=3b0cee964f68';
 
 export const ENCOUNTER_TABLES = {
   outskirts: [
@@ -13,6 +13,8 @@ export const ENCOUNTER_TABLES = {
     { w: 4, group: [['tsunousagi', 1, 2]] },
     { w: 3, group: [['kobushi', 1, 2]] },
     { w: 2, group: [['pururin', 1, 1], ['tsunousagi', 1, 1]] },
+    // あたらしい 仲間モンスター（monsters-r23.js）
+    { w: 2, group: [['donguri', 1, 2]] },
   ],
   plains: [
     { w: 4, group: [['pururin', 2, 3]] },
@@ -21,6 +23,7 @@ export const ENCOUNTER_TABLES = {
     { w: 2, group: [['pururin_beth', 1, 2]] },
     { w: 2, group: [['goblin', 1, 1], ['koumorin', 1, 2]] },
     { w: 1, group: [['tsunousagi', 2, 3]] },
+    { w: 2, group: [['hana_pururin', 1, 2], ['pururin', 0, 1]] },
   ],
   forest: [
     { w: 4, group: [['frog', 2, 3]] },
@@ -28,6 +31,7 @@ export const ENCOUNTER_TABLES = {
     { w: 3, group: [['lamp', 1, 3]] },
     { w: 3, group: [['nemuri', 1, 3]] },
     { w: 2, group: [['wolf', 1, 2], ['frog', 1, 2]] },
+    { w: 2, group: [['karamizuta', 1, 2]] },
   ],
   swamp: [
     { w: 4, group: [['hedoron', 1, 2]] },
@@ -48,12 +52,14 @@ export const ENCOUNTER_TABLES = {
     { w: 3, group: [['dark_bat', 1, 3]] },
     { w: 2, group: [['rockman', 1, 1]] },
     { w: 2, group: [['shadow_mage', 1, 1], ['skeleton', 1, 2]] },
+    { w: 2, group: [['koakuma', 1, 2], ['dark_bat', 0, 1]] },
   ],
   cave2: [
     { w: 3, group: [['skeleton', 2, 3]] },
     { w: 3, group: [['rockman', 1, 2], ['dark_bat', 0, 1]] },
     { w: 3, group: [['shadow_mage', 1, 2], ['dark_bat', 1, 2]] },
     { w: 2, group: [['dark_bat', 2, 4]] },
+    { w: 2, group: [['buriki', 1, 2], ['koakuma', 0, 1]] },
   ],
   rare: [
     { w: 3, group: [['kirakira', 1, 1]] },

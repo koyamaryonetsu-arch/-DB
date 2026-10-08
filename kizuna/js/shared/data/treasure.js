@@ -6,10 +6,10 @@
 //
 // 洞窟の マップ ID: tm_<seed36>_<lv>_<o|s><x>x<y>_<階>（たとえば tm_k3f9a2_3_o120x45_2）
 //   ID だけで 洞窟が つくれる（サーバーと 画面で おなじ 形。とちゅうで ログインしなおしても おなじ 洞窟）
-import { MONSTERS } from './monsters.js?v=76455ba73f77';
-import { ITEMS, SLOTS } from './items.js?v=76455ba73f77';
-import { ENCOUNTER_TABLES, ZONE_BG } from './encounters.js?v=76455ba73f77';
-import { makeRng } from '../rng.js?v=76455ba73f77';
+import { MONSTERS } from './monsters.js?v=3b0cee964f68';
+import { ITEMS, SLOTS } from './items.js?v=3b0cee964f68';
+import { ENCOUNTER_TABLES, ZONE_BG } from './encounters.js?v=3b0cee964f68';
+import { makeRng } from '../rng.js?v=3b0cee964f68';
 
 export const TM_MAX = 20; // 持てる 地図の 数
 export const TM_LV_MAX = 12; // 地図の レベルの 上限
