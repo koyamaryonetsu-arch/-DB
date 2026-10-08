@@ -6,7 +6,7 @@ import { ABILITIES } from '../../shared/data/abilities.js';
 import { salonUI } from './salon.js';
 import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered, canEquip } from '../../shared/stats.js';
 import { MONSTERS } from '../../shared/data/monsters.js';
-import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES, breedOutcome } from '../../shared/data/companions.js';
+import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES, breedOutcome, breedRumors } from '../../shared/data/companions.js';
 import { TACTICS } from '../../shared/ai.js';
 import { itemDetail, gearText } from './info.js';
 import { playerSprite, followerSprite, faceURL } from '../field.js';
@@ -339,9 +339,14 @@ function tavernUI(game, data) {
           `レベル${BREED_MIN_LEVEL}以上のモンスター2ひきを掛け合わせて、新しいモンスターを生み出す。`,
           '・生まれた子はレベル1から。でも親の技を4つまで受けつげる',
           '・親の強さを少し受けつぎ、「+」の数が多いほどよく育つ',
-          '・生まれる種族はふつう1ぴきめの親と同じ。組み合わせ次第でめずらしいモンスターが生まれることも…',
+          '・生まれる子は1ぴきめの親の系統（スライム系・けもの系など）。親のレベルが高いほど、強い魔物が生まれる',
+          '・図鑑にのっていない魔物ほど生まれやすい。全部仲間にしたことがあれば、1ぴきめと同じ種族',
+          '・決まった組み合わせだと、配合でしか生まれない魔物が生まれる',
           '・親の2ひきは旅立っていく（装備はふくろにもどる）',
         ].join('\n') }));
+        // 酒場の うわさ（まだ 見たことがない 配合だけの 魔物の ヒント）
+        const rumors = breedRumors(game.me, MONSTERS, 3);
+        if (rumors.length) main.append(el('div', { class: 'small gold', text: '酒場のうわさ' }), el('div', { class: 'small detail', text: rumors.map((h) => `・？？？ … ${h}`).join('\n') }));
         return;
       }
       const e = entries.get(key);
@@ -412,16 +417,15 @@ function tavernUI(game, data) {
       let sel = new Set(pv.auto);
       const back = el('div', { class: 'modal-back', style: { zIndex: 6 } });
       const box = el('div', { class: 'win panel center-panel choose-pop', style: { width: 'min(94vw, 480px)', zIndex: 7 } });
-      const cv = followerSprite({ mon: pv.child }, 'down', 0);
-      const img = el('canvas', { width: cv.width, height: cv.height, style: { height: '3.6em', width: 'auto', imageRendering: 'pixelated', flex: 'none' } });
-      img.getContext('2d').drawImage(cv, 0, 0);
-      const own = (MONSTER_FRIENDS[pv.child]?.learn || []).map(([lv, id]) => `Lv${lv} ${ABILITIES[id]?.name || id}`).join('・');
+      const img = childImg(pv.child, pv.unseen, { style: { height: '3.6em', width: 'auto', imageRendering: 'pixelated', flex: 'none' } });
+      // まだ 見たことがない 子は、生まれるまで ひみつ
+      const own = pv.unseen ? '？？？' : (MONSTER_FRIENDS[pv.child]?.learn || []).map(([lv, id]) => `Lv${lv} ${ABILITIES[id]?.name || id}`).join('・');
       box.append(
         el('div', { style: { display: 'flex', gap: '0.6em', alignItems: 'flex-start' } },
           el('div', { style: { flex: '1', minWidth: '0' } },
-            el('div', { class: 'small gold', style: { whiteSpace: 'pre-line' }, text: `生まれる子: ${pv.childName}（${RACE_NAMES[MONSTERS[pv.child]?.race] || ''}）＋${pv.plus}${pv.special ? '\n★ めずらしい組み合わせ！' : ''}` }),
+            el('div', { class: 'small gold', style: { whiteSpace: 'pre-line' }, text: `生まれる子: ${childLabel(pv)}（${RACE_NAMES[MONSTERS[pv.child]?.race] || ''}）＋${pv.plus}${pv.unseen ? '\n★ まだ見たことがない魔物！' : ''}${pv.kind === 'special' || pv.kind === 'recipe' ? '\n★ めずらしい組み合わせ！' : ''}` }),
             el('div', { class: 'small muted', text: `自分で覚える技: ${own || 'なし'}` }),
-            el('div', { class: 'small muted', text: `装備できる物: ${gearText(pv.child)}` })),
+            el('div', { class: 'small muted', text: `装備できる物: ${pv.unseen ? '？？？' : gearText(pv.child)}` })),
           img),
         el('div', { class: 'small', text: `親から受けつぐ技を${pv.max}つまで選んでね` }));
       const desc = el('div', { class: 'small detail', style: { minHeight: '2.4em' } });
@@ -458,6 +462,20 @@ function tavernUI(game, data) {
       document.getElementById('ui').append(back, box);
       m.focus();
     });
+    // 生まれる 子の え（hidden … まだ 図鑑に のっていない 子は かげ だけ。ui/menu.js の 図鑑と おなじ いろ）
+    const childImg = (sp, hidden, attrs) => {
+      const cv = followerSprite({ mon: sp }, 'down', 0);
+      const img = el('canvas', { width: cv.width, height: cv.height, ...attrs });
+      const x = img.getContext('2d');
+      x.drawImage(cv, 0, 0);
+      if (hidden) {
+        x.globalCompositeOperation = 'source-in';
+        x.fillStyle = '#2a2440';
+        x.fillRect(0, 0, img.width, img.height);
+      }
+      return img;
+    };
+    const childLabel = (pv) => (pv.unseen ? '？？？' : MONSTERS[pv.child]?.name || '');
     const breedFlow = async () => {
       const mons = info.roster.filter((x) => x.species);
       if (mons.filter((x) => x.level >= BREED_MIN_LEVEL).length < 2) {
@@ -472,7 +490,7 @@ function tavernUI(game, data) {
         })),
         { label: 'やめる', value: null },
       ], opts);
-      const a = await pick('配合: 1ぴきめの親を選んでね\n（生まれる子はふつう1ぴきめと同じ種族）');
+      const a = await pick('配合: 1ぴきめの親を選んでね\n（生まれる子は1ぴきめの系統になる）');
       if (!a) return;
       // 2ひきめ: カーソルを あわせる だけで 生まれる 子を 見せる（決定の あとの 見せかたと おなじ 中み）
       const A0 = mons.find((x) => x.key === a);
@@ -488,16 +506,20 @@ function tavernUI(game, data) {
           top.append(el('div', { class: 'small muted', text: `${B0.name}はレベル${BREED_MIN_LEVEL}になると配合できる` }));
           return;
         }
-        const o = breedOutcome(A0, B0, MONSTERS);
-        const cv = followerSprite({ mon: o.child }, 'down', 0);
-        const img = el('canvas', { width: cv.width, height: cv.height, class: 'breed-pv-img' });
-        img.getContext('2d').drawImage(cv, 0, 0);
+        // 図鑑（game.me）で 生まれる 子が きまる。サーバーの breedPreview と おなじ 計算（shared/data/companions.js の breedOutcome）
+        const o = breedOutcome(A0, B0, MONSTERS, game.me);
+        const img = childImg(o.child, o.unseen, { class: 'breed-pv-img' });
+        const rare = o.kind === 'special' || o.kind === 'recipe';
         top.append(img, el('div', { class: 'breed-pv-txt' },
           // 「（しゅぞく）＋3」は 行の とちゅうで わかれない ように
-          el('div', { class: 'small gold' }, `生まれる子: ${MONSTERS[o.child]?.name || ''}`,
+          el('div', { class: 'small gold' }, `生まれる子: ${childLabel(o)}`,
             el('span', { style: { whiteSpace: 'nowrap' }, text: `（${RACE_NAMES[MONSTERS[o.child]?.race] || ''}）＋${o.plus}` })),
-          o.special ? el('div', { class: 'small good', text: '★ めずらしい組み合わせ！' }) : null,
-          el('div', { class: 'small muted', text: `装備できる物: ${gearText(o.child)}` })));
+          o.unseen ? el('div', { class: 'small good', text: '★ まだ見たことがない魔物！' })
+            : o.firstFriend ? el('div', { class: 'small good', text: '★ 初めて仲間になる！' }) : null,
+          rare ? el('div', { class: 'small good', text: '★ めずらしい組み合わせ！' }) : null,
+          o.kind !== 'special' && o.count > 1 ? el('div', { class: 'small muted' }, `生まれる魔物 ${o.count}種`,
+            el('span', { style: { whiteSpace: 'nowrap' }, text: `（図鑑にない ${o.unseenCount}種）` })) : null,
+          o.unseen ? null : el('div', { class: 'small muted', text: `装備できる物: ${gearText(o.child)}` })));
       };
       const b = await pick(`${entries.get(a)?.name}の相手を選んでね`, a, { top, onMove: showChild });
       if (!b) return;
@@ -509,12 +531,16 @@ function tavernUI(game, data) {
       const pv = r.preview;
       const inherit = pv.skills.length ? await pickSkills(pv) : [];
       if (!inherit) return;
-      const nm = await askText(game.input, { title: `生まれる${pv.childName}の名前`, max: 8, initial: pv.childName });
+      // まだ 見たことがない 子は 名前も ひみつ（空のままなら 種族の 名前。酒場で あとから 変えられる）
+      const label = childLabel(pv);
+      const nm = await askText(game.input, pv.unseen
+        ? { title: '生まれる子の名前（空のままなら種族の名前）', max: 8, initial: '', placeholder: '？？？' }
+        : { title: `生まれる${pv.childName}の名前`, max: 8, initial: pv.childName });
       if (nm === null) return;
       const A = entries.get(a), B = entries.get(b);
-      const ok = await confirmBox(game.input, `${A.name}と${B.name}を配合しますか？\n→ ${nm || pv.childName}（${pv.childName} ＋${pv.plus}）が生まれる\n※ ${A.name}と${B.name}は旅立っていく（装備はふくろにもどる）`, '配合する', 'やめる', sfx);
+      const ok = await confirmBox(game.input, `${A.name}と${B.name}を配合しますか？\n→ ${nm || label}（${label} ＋${pv.plus}）が生まれる\n※ ${A.name}と${B.name}は旅立っていく（装備はふくろにもどる）`, '配合する', 'やめる', sfx);
       if (!ok) return;
-      await doReq({ action: 'breed', a, b, inherit, name: nm || pv.childName });
+      await doReq({ action: 'breed', a, b, inherit, name: nm || (pv.unseen ? '' : pv.childName) });
     };
     const act = async (key) => {
       if (key === BREED_KEY) {

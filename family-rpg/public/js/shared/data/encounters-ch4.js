@@ -20,6 +20,8 @@ export const ENCOUNTERS_CH4 = {
     { w: 4, group: [['mirage_flower', 1, 2], ['sand_slime', 0, 1]] },
     { w: 3, group: [['mirage_flower', 1, 1], ['sand_slime', 1, 2]] },
     { w: 2, group: [['scorpion_soldier', 1, 1], ['mirage_flower', 1, 1]] },
+    // あたらしい 仲間モンスター（monsters-r23.js）
+    { w: 2, group: [['toge_saboten', 1, 1], ['sand_slime', 0, 1]] },
     { w: 1, group: [['gold_beetle', 1, 1]] },
   ],
   // ── 夜（月のゆうれいが 出る。昼より 手ごわいが、経験値も 多い）──

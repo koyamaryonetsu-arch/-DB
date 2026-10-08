@@ -29,9 +29,10 @@ export function breedPreview(c, keyA, keyB) {
   if (!A || !B || A === B) return { ok: false, reason: '魔物を2ひき選んでね' };
   if (A.kind !== 'monster' || B.kind !== 'monster') return { ok: false, reason: '配合できるのはモンスターの仲間だけ' };
   if (A.char.level < BREED_MIN_LEVEL || B.char.level < BREED_MIN_LEVEL) return { ok: false, reason: `レベル${BREED_MIN_LEVEL}以上の魔物同士でないと配合できない` };
-  const { child, plus, special } = breedOutcome({ ...A.char, species: A.species }, { ...B.char, species: B.species }, MONSTERS);
+  // 生まれる 子は 図鑑で きまる（見たことがない 魔物が さき）。酒場の みほん（client/ui/services.js）も おなじ c の 図鑑で 計算する
+  const { child, plus, special, kind, unseen, firstFriend, count, unseenCount } = breedOutcome({ ...A.char, species: A.species }, { ...B.char, species: B.species }, MONSTERS, c);
   return {
-    ok: true, child, childName: MONSTERS[child].name, plus, special,
+    ok: true, child, childName: MONSTERS[child].name, plus, special, kind, unseen, firstFriend, count, unseenCount,
     skills: inheritableSkills(A, B), auto: autoInherit(A, B, child), max: BREED_INHERIT_MAX,
   };
 }
@@ -76,5 +77,5 @@ export function breedMonsters(world, s, { a, b, inherit, name } = {}) {
   bs.bred = (bs.bred || 0) + 1;
   bs.friend = (bs.friend || 0) + 1;
   afterRosterChange(world, s);
-  return { ok: true, key, name: nm, species: pv.child, plus: pv.plus, inherit: pick, joined: wasInParty };
+  return { ok: true, key, name: nm, species: pv.child, plus: pv.plus, inherit: pick, joined: wasInParty, newEntry: pv.unseen };
 }
