@@ -5,9 +5,9 @@ import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shar
 import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS, turnSeconds } from '../../shared/battle.js';
 import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily, gearSortPref, setGearSortPref } from '../prefs.js';
 import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, TIER_NAMES } from '../../shared/data/jobs.js';
-import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress, monsterSlots, canEquipChar, itemCount, MAX_LEVEL } from '../../shared/stats.js';
+import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress, partyJobSet, hiraVisible, monsterSlots, canEquipChar, itemCount, MAX_LEVEL } from '../../shared/stats.js';
 import { HIRAMEKI } from '../../shared/data/hirameki.js';
-import { DUAL_TECHS, DUAL_ORDER, groupName, dualKnown } from '../../shared/data/dual.js';
+import { DUAL_TECHS, DUAL_ORDER, groupName, dualKnown, dualRelated } from '../../shared/data/dual.js';
 import { MONSTERS } from '../../shared/data/monsters.js';
 import { monsterDrops } from '../../shared/data/loot.js';
 import { MONSTER_FRIENDS, RACE_NAMES, recipeHint, joinTier } from '../../shared/data/companions.js';
@@ -258,6 +258,24 @@ export class FieldMenu {
   myMates() {
     const g = this.game;
     return [...(g.party?.supports || []), ...(g.party?.wagon || [])].filter((x) => x.owner === g.me.id && x.kind !== 'family');
+  }
+
+  // いっしょに 戦う 人（自分・家族・パーティーの 仲間。馬車の 仲間は 入れない）と、見ている 人 c。
+  // ひらめき・合体技の 一覧で、パーティーに 関係する 技だけ 出す ため（stats.js の partyJobSet）
+  // もどりち: { jobs: パーティーの 職業, skills: 覚えている 技（自分と 自分の 仲間の ぶん。家族の キャラの 技は とどかない） }
+  partyFocus(c) {
+    const g = this.game;
+    const chars = [g.me, c];
+    for (const m of g.party?.members || []) if (m.charId !== g.me.id) chars.push({ job: m.job, mjobs: m.mjobs });
+    for (const x of g.party?.supports || []) chars.push(x.owner === g.me.id && x.kind !== 'family' ? this.charOf(x.key) || x : x);
+    const skills = new Set();
+    for (const ch of chars) {
+      if (!ch || ch.kind === 'family' || (!ch.jobs && !ch.species)) continue;
+      try {
+        for (const id of learnedAbilities(ch)) skills.add(id);
+      } catch { /* 形の ちがう データは とばす */ }
+    }
+    return { jobs: partyJobSet(chars), skills };
   }
 
   // key の キャラ（じぶん か なかま）を メニューで つかえる かたちに
@@ -768,9 +786,13 @@ export class FieldMenu {
     }
     if (mode === 'combo') {
       // ひらめき: 関係する 技を 何回も 使うと、使った しゅんかんに ひらめく
+      // 出すのは ひらめいた 技と、今の パーティーの 職業に 関係する 技だけ（stats.js の hiraVisible）
       const known = new Set(learned);
       const use = c.skillUse || {};
-      const order = Object.keys(HIRAMEKI).filter((id) => ABILITIES[id]).sort((x, y) => (known.has(y) ? 1 : 0) - (known.has(x) ? 1 : 0));
+      const focus = this.partyFocus(c);
+      const shown = hiraVisible(c, focus.jobs);
+      const hidden = Object.keys(HIRAMEKI).filter((id) => ABILITIES[id]).length - shown.length;
+      const order = shown.sort((x, y) => (known.has(y) ? 1 : 0) - (known.has(x) ? 1 : 0));
       rows(order.map((id) => {
         const a = ABILITIES[id];
         const ok = known.has(id);
@@ -787,7 +809,8 @@ export class FieldMenu {
           html: `<span class="nm">${ok ? esc(a.name) : '？？？？'}</span>${tag}<span class="ln">${esc(reqs)}</span><span class="ln gold">${esc(whoText)}</span>${ok ? `<span class="ln muted">${esc(skillBrief(a))}</span>` : ''}`,
         };
       }));
-      box.append(el('div', { class: 'detail', text: '技を使うたびに回数がふえる。書いてある回数をこえると、その技を使ったしゅんかんに、ひらめくことがある（ひらめいた技がそのまま出る）。\n掛け合わせ技は、元になった職業を合わせ持つ上級職からひらめく。神殿の「ひらめきの賢者」がヒントを教えてくれる。' }));
+      if (!order.length) box.append(el('div', { class: 'muted', text: '今のパーティーの職業でひらめけそうな技は、まだない。' }));
+      box.append(el('div', { class: 'detail', text: `今のパーティー（いっしょに戦う人と仲間）の職業に関係するひらめき技だけ出している。${hidden > 0 ? `ほかの職業の技があと${hidden}こある。` : ''}\n技を使うたびに回数がふえる。書いてある回数をこえると、その技を使ったしゅんかんに、ひらめくことがある（ひらめいた技がそのまま出る）。\n掛け合わせ技は、元になった職業を合わせ持つ上級職からひらめく。神殿の「ひらめきの賢者」がヒントを教えてくれる。` }));
       return box;
     }
     if (mode === 'fav') {
@@ -809,8 +832,11 @@ export class FieldMenu {
       return box;
     }
     if (mode === 'dual') {
-      // 合体技: 2人の 番を 使う 技
-      rows(DUAL_ORDER.map((id) => {
+      // 合体技: 2人の 番を 使う 技。出すのは 使った ことの ある 技と、今の パーティーに 関係する 技だけ（dual.js の dualRelated）
+      const focus = this.partyFocus(c);
+      const shownDual = DUAL_ORDER.filter((id) => dualKnown(c, id) || dualKnown(g.me, id) || dualRelated(id, focus.jobs, focus.skills));
+      const hiddenDual = DUAL_ORDER.length - shownDual.length;
+      rows(shownDual.map((id) => {
         const t = DUAL_TECHS[id];
         // はじめて 使う までは 効果は ひみつ
         const known = dualKnown(c, id) || dualKnown(g.me, id);
@@ -819,7 +845,8 @@ export class FieldMenu {
           html: `<span class="nm">${esc(t.name)}</span><span class="tag gold">MP ${t.mp[0]}＋${t.mp[1]}</span>${known ? '' : '<span class="tag muted">まだ使っていない</span>'}<span class="ln">${esc(`${groupName(t.need[0])} ＋ ${groupName(t.need[1])}（2人で1つずつ）`)}</span><span class="ln muted">${known ? esc(t.desc) : '効果は？？？（一度使うとわかる）'}</span>`,
         };
       }));
-      box.append(el('div', { class: 'detail', text: '合体技は、2人の番を使う技。自分のゲージがたまった時に「合体技」から選んでおく。いっしょに出す仲間のゲージがたまっていればすぐ、まだの時は「よやく」して、仲間のゲージがたまった時にいっしょに出す。\nどんな効果かは、一度使うまでわからない。家族のキャラと出す時は、相手の画面に「参加する？」と出る。' }));
+      if (!shownDual.length) box.append(el('div', { class: 'muted', text: '今のパーティーで出せそうな合体技は、まだない。' }));
+      box.append(el('div', { class: 'detail', text: (hiddenDual > 0 ? `今のパーティーの職業に関係する合体技だけ出している（ほかにあと${hiddenDual}こ）。\n` : '') + '合体技は、2人の番を使う技。自分のゲージがたまった時に「合体技」から選んでおく。いっしょに出す仲間のゲージがたまっていればすぐ、まだの時は「よやく」して、仲間のゲージがたまった時にいっしょに出す。\nどんな効果かは、一度使うまでわからない。家族のキャラと出す時は、相手の画面に「参加する？」と出る。' }));
       return box;
     }
     const items = learned.map((id) => {

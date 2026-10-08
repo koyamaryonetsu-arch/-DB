@@ -15,7 +15,7 @@
 import { POS } from '../maps/index.js';
 import { PLACES } from '../maps/overworld.js';
 import { ABILITIES } from './abilities.js';
-import { learnedAbilities, comboUnlocked, hiraAllowed } from '../stats.js';
+import { learnedAbilities, comboUnlocked, hiraAllowed, hiraRelated, partyJobSet } from '../stats.js';
 import { HIRAMEKI, hiraRatio } from './hirameki.js';
 import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js';
 import { CH3_STEPS, CH3_STORY_SCRIPTS, CH3_SCRIPTS, elderCh3 } from './story-ch3.js';
@@ -567,8 +567,10 @@ function sageHints(x) {
     const names = Object.keys(HIRAMEKI[e.id].from).map((k) => (k === '@atk' ? 'ふつうの攻撃' : `「${ABILITIES[k]?.name}」`)).join('と');
     hints.push(e.r >= 1 ? `おぬしの${names}…もう十分に使いこんでおる。\n次に使った時、何かひらめくかもしれんぞ。` : `おぬしの${names}…なかなか使いこんでおるな。\nもっと使えば、新しい技をひらめくじゃろう。`);
   }
+  // 掛け合わせ技の ヒントは、今の パーティーの 職業に 関係する ものだけ（stats.js の hiraRelated）
+  const jobSet = partyJobSet(x.partyChars ? x.partyChars() : [c]);
   for (const [id, text] of Object.entries(COMBO_HINTS)) {
-    if (learned.has(id)) continue;
+    if (learned.has(id) || !hiraRelated(id, jobSet)) continue;
     hints.push(text);
   }
   const lines = [
@@ -582,6 +584,9 @@ function sageHints(x) {
   if (hints.length) {
     const pick = hints.slice(0, 2);
     lines.push(...S('ひらめきの賢者', ...pick));
+  } else if (Object.keys(COMBO_HINTS).some((id) => !learned.has(id))) {
+    // ほかの 職業の 技なら まだ ある
+    lines.push(...S('ひらめきの賢者', '今の仲間の職業で教えられることは、もうないのう。\nほかの職業の仲間と旅をすれば、また話してやろう。'));
   } else {
     lines.push(...S('ひらめきの賢者', 'もうわしが教えることはない。おぬしこそ本当の賢者じゃ。'));
   }

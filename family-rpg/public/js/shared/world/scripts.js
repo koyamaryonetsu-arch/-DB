@@ -33,7 +33,22 @@ export function scriptCtx(s, owner = s, world = null) {
     count: (id) => (ITEMS[id]?.type === 'key' ? (hasKeyItem(o, id) ? 1 : 0) : itemCount(c, id)),
     kills: (sp) => o.kills?.[sp] || 0,
     quest: (k) => o.quests?.[k],
+    // いっしょに 戦う 人の キャラ（自分・家族・パーティーの 仲間。馬車の 仲間は 入れない）。
+    // ひらめきの賢者が、パーティーに 関係する 技の ヒントだけ 話す ため（stats.js の partyJobSet）
+    partyChars: () => fightingChars(world, s),
   };
+}
+
+function fightingChars(world, s) {
+  const p = world && s ? partyOf(world, s) : null;
+  if (!p) return [s.char];
+  const out = [s.char];
+  for (const sid of p.members) {
+    const m = world.sessions.get(sid);
+    if (m?.char && m.char !== s.char) out.push(m.char);
+  }
+  for (const x of p.supports) if (x?.char) out.push(x.char);
+  return out;
 }
 
 // ものがたりの すすみぐあい（STORY_STEPS の なんばんめまで おわったか。まだなら -1）

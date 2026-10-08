@@ -5,7 +5,7 @@
 //   c.partyKeys  … いま いっしょに ぼうけんしている なかま（じゅんばん）。'fam:ID' は 家族の キャラ
 //   c.guests     … ものがたりで いっしょに いる ゲスト（ルカ など）
 // パーティーには リーダーの なかまが ついてくる（にんげんが ふえると、はいりきらない なかまは いったん まつ）
-import { newCharacter, computeStats, fullHeal, gainExp, gainJobBattles, migrateJobs, expForLevel, addItem, newMonsterCompanion, learnedAbilities } from '../stats.js';
+import { newCharacter, computeStats, fullHeal, gainExp, gainJobBattles, migrateJobs, expForLevel, addItem, newMonsterCompanion, learnedAbilities, masteredJobs } from '../stats.js';
 import { jobBattlesForLevel, JOBS } from '../data/jobs.js';
 import { NPC_SUPPORTS, GUESTS } from '../data/shops.js';
 import { MONSTERS } from '../data/monsters.js';
@@ -555,6 +555,8 @@ export function supportInfo(x) {
     plus: x.char.plus || 0, bonus: x.char.bonus || undefined, inherit: x.char.inherit || undefined,
     hirameki: x.kind === 'npc' ? x.char.hirameki || [] : undefined, skillUse: x.kind === 'npc' ? x.char.skillUse || {} : undefined,
     favorites: x.kind === 'npc' ? x.char.favorites || [] : undefined,
+    // 家族の キャラの マスターした 職業（jobs は おくらない。メニューで パーティーに 関係する ひらめき技を えらぶ ため。stats.js の partyJobSet）
+    mjobs: x.kind === 'family' ? masteredJobs(x.char) : undefined,
     // オートで 使わない 技（作戦。家族の キャラの ぶんは 出さない）
     autoOff: x.kind !== 'family' && Array.isArray(x.char.autoOff) && x.char.autoOff.length ? x.char.autoOff : undefined,
     status: x.char.status?.poison ? ['poison'] : [],
@@ -589,7 +591,7 @@ export function partyState(world, p) {
       const m = world.sessions.get(sid);
       if (!m) return null;
       const st = computeStats(m.char);
-      return { sid, charId: m.charId, name: m.char.name, job: m.char.job, level: m.char.level, hp: m.char.hp, maxHp: st.maxHp, mp: m.char.mp, maxMp: st.maxMp, st: statsOf(st), look: m.char.look, equip: m.char.equip, map: m.map, follow: !!m.follow, away: !!m.away };
+      return { sid, charId: m.charId, name: m.char.name, job: m.char.job, level: m.char.level, hp: m.char.hp, maxHp: st.maxHp, mp: m.char.mp, maxMp: st.maxMp, st: statsOf(st), look: m.char.look, equip: m.char.equip, map: m.map, follow: !!m.follow, away: !!m.away, mjobs: masteredJobs(m.char) };
     }).filter(Boolean),
     supports: p.supports.map(supportInfo),
     // リーダーの 馬車の 仲間（馬車が なければ null。world/wagon.js）
