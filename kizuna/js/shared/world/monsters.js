@@ -1,9 +1,9 @@
 // フィールドを うろうろする モンスター（シンボル）
-import { ENCOUNTER_TABLES } from '../data/encounters.js?v=1f8c4e9d1fb7';
-import { MONSTERS } from '../data/monsters.js?v=1f8c4e9d1fb7';
-import { MAPS, isBlocked } from '../maps/index.js?v=1f8c4e9d1fb7';
-import { NIGHT_ZONES, NIGHT_MORE } from '../data/night.js?v=1f8c4e9d1fb7';
-import { cursedOn, CURSE_SPAWN, CURSE_SPAWN_MS, CURSE_CHASE } from './pyramid.js?v=1f8c4e9d1fb7';
+import { ENCOUNTER_TABLES } from '../data/encounters.js?v=f87d705c60fe';
+import { MONSTERS } from '../data/monsters.js?v=f87d705c60fe';
+import { MAPS, isBlocked } from '../maps/index.js?v=f87d705c60fe';
+import { NIGHT_ZONES, NIGHT_MORE } from '../data/night.js?v=f87d705c60fe';
+import { cursedOn, CURSE_SPAWN, CURSE_SPAWN_MS, CURSE_CHASE } from './pyramid.js?v=f87d705c60fe';
 
 let symSeq = 1;
 

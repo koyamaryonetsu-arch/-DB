@@ -1,13 +1,13 @@
 // タイトル・ログイン・キャラクターえらび・キャラクターづくり
-import { el, ListMenu, toast, askText, confirmBox } from './dom.js?v=1f8c4e9d1fb7';
-import { JOBS, JOB_ORDER } from '../../shared/data/jobs.js?v=1f8c4e9d1fb7';
-import { HAIR_STYLES, HAIR_COLORS, SKIN_TONES, FACES, FACE_BY_ID, CLOTH_COLORS, cleanLook } from '../../shared/data/looks.js?v=1f8c4e9d1fb7';
-import { previewCache } from '../render/hero.js?v=1f8c4e9d1fb7';
-import { playerSprite } from '../field.js?v=1f8c4e9d1fb7';
-import { makeCanvas, ctxOf } from '../render/pixel.js?v=1f8c4e9d1fb7';
-import { LINE_MAX, parseCode } from '../../shared/world/transfer.js?v=1f8c4e9d1fb7';
-import { DEFAULT_SITE, pendingImport, clearPendingImport, familyServer, setFamilyServer, linkToFamilyServer, linkToSite, siteServerAddress } from '../links.js?v=1f8c4e9d1fb7';
-import { goFamilyServer, goSite, roundTrip, changeServer, syncOnServer, maybeRoundTrip, notePlayed, familyServerUp } from './syncui.js?v=1f8c4e9d1fb7';
+import { el, ListMenu, toast, askText, confirmBox } from './dom.js?v=f87d705c60fe';
+import { JOBS, JOB_ORDER } from '../../shared/data/jobs.js?v=f87d705c60fe';
+import { HAIR_STYLES, HAIR_COLORS, SKIN_TONES, FACES, FACE_BY_ID, CLOTH_COLORS, cleanLook } from '../../shared/data/looks.js?v=f87d705c60fe';
+import { previewCache } from '../render/hero.js?v=f87d705c60fe';
+import { playerSprite } from '../field.js?v=f87d705c60fe';
+import { makeCanvas, ctxOf } from '../render/pixel.js?v=f87d705c60fe';
+import { LINE_MAX, parseCode } from '../../shared/world/transfer.js?v=f87d705c60fe';
+import { DEFAULT_SITE, pendingImport, clearPendingImport, familyServer, setFamilyServer, linkToFamilyServer, linkToSite, siteServerAddress } from '../links.js?v=f87d705c60fe';
+import { goFamilyServer, goSite, roundTrip, changeServer, syncOnServer, maybeRoundTrip, notePlayed, familyServerUp } from './syncui.js?v=f87d705c60fe';
 
 function clearUI() {
   document.getElementById('ui').innerHTML = '';

@@ -2,9 +2,9 @@
 // みため（かみがた・いろ）と そうび（ぶき・よろい・たて・かぶと）で かわる
 // 人は 32×42 で くみたてて、2ばいの 64×84 に して こまかく かきたす（res 4: せかいでは 16×21 の 大きさに かく）
 // どうぶつ・船は 16×21 など
-import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=1f8c4e9d1fb7';
-import { ITEMS, baseItemId } from '../../shared/data/items.js?v=1f8c4e9d1fb7';
-import { STARTER_EQUIP } from '../../shared/stats.js?v=1f8c4e9d1fb7';
+import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=f87d705c60fe';
+import { ITEMS, baseItemId } from '../../shared/data/items.js?v=f87d705c60fe';
+import { STARTER_EQUIP } from '../../shared/stats.js?v=f87d705c60fe';
 
 export const CW = 16;
 export const CH = 21;

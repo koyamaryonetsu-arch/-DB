@@ -1,9 +1,9 @@
 // 空の 旅と 夜の 人の ドット絵（すべて オリジナル）
 // ・風の大鳥フウラ（ひとりで とぶ すがた・人を のせた すがた）
 // ・ゆうれいの 女の子・星見の丘で 光る もの
-import { Painter, scale2x, rimShade, outline2, makeCanvas, ctxOf, flipCanvas } from './pixel.js?v=1f8c4e9d1fb7';
-import { paintHuman, npcOpts, CW, CH } from './chars.js?v=1f8c4e9d1fb7';
-import { dragonCanvas } from './dragon-art.js?v=1f8c4e9d1fb7';
+import { Painter, scale2x, rimShade, outline2, makeCanvas, ctxOf, flipCanvas } from './pixel.js?v=f87d705c60fe';
+import { paintHuman, npcOpts, CW, CH } from './chars.js?v=f87d705c60fe';
+import { dragonCanvas } from './dragon-art.js?v=f87d705c60fe';
 
 const OUT = '#1b1330';
 export const BIRD_W = 44;

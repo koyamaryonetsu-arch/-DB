@@ -3,21 +3,21 @@
 // ・ひと・まもの・もの は ドット絵を カメラに むけて たてる（ビルボード）
 // ・カメラは ななめ うえから みおろす（うごかすのは いち だけ。むきは かわらない）
 // あるく・ぶつかる などの きまりは 2D と おなじ（Field が きめる）。ここでは かく だけ。
-import * as THREE from '../../../vendor/three.min.js?v=1f8c4e9d1fb7';
-import { T } from '../../shared/tiles.js?v=1f8c4e9d1fb7';
-import { effectiveTile } from '../../shared/maps/index.js?v=1f8c4e9d1fb7';
-import { pyramidLevel } from '../../shared/maps/south.js?v=1f8c4e9d1fb7';
-import { hash2, valueNoise } from '../../shared/rng.js?v=1f8c4e9d1fb7';
+import * as THREE from '../../../vendor/three.min.js?v=f87d705c60fe';
+import { T } from '../../shared/tiles.js?v=f87d705c60fe';
+import { effectiveTile } from '../../shared/maps/index.js?v=f87d705c60fe';
+import { pyramidLevel } from '../../shared/maps/south.js?v=f87d705c60fe';
+import { hash2, valueNoise } from '../../shared/rng.js?v=f87d705c60fe';
 import {
   Atlas, extraCanvas, propCanvas, PROP_TILES, leafCanvas, roofCanvas, tileArt, stormCanvas, curtainCanvas, puffCanvas, canalWaterCanvas, rubbleCanvas,
-} from './tex3d.js?v=1f8c4e9d1fb7';
-import { tileCanvas } from './tiles.js?v=1f8c4e9d1fb7';
-import { duneShape, ch4Mask, onDesert } from './tiles-ch4.js?v=1f8c4e9d1fb7';
+} from './tex3d.js?v=f87d705c60fe';
+import { tileCanvas } from './tiles.js?v=f87d705c60fe';
+import { duneShape, ch4Mask, onDesert } from './tiles-ch4.js?v=f87d705c60fe';
 // 第4章 Step 6: 砂クジラの ねどこの 砂の うず（ねどこ ぜんたいで 1まいの え）
-import { whirlCanvas } from './tiles-duna.js?v=1f8c4e9d1fb7';
-import { TROUGH, CANAL_CTX, CANAL_SUN, canalVariant, canalMask, canalFlow, damVertical } from './tiles-canal.js?v=1f8c4e9d1fb7';
-import { flipCanvas, makeCanvas, ctxOf, whiteCopy } from './pixel.js?v=1f8c4e9d1fb7';
-import { themedCanvas, partOfTile, partOfExtra, partOfProp } from './themes.js?v=1f8c4e9d1fb7';
+import { whirlCanvas } from './tiles-duna.js?v=f87d705c60fe';
+import { TROUGH, CANAL_CTX, CANAL_SUN, canalVariant, canalMask, canalFlow, damVertical } from './tiles-canal.js?v=f87d705c60fe';
+import { flipCanvas, makeCanvas, ctxOf, whiteCopy } from './pixel.js?v=f87d705c60fe';
+import { themedCanvas, partOfTile, partOfExtra, partOfProp } from './themes.js?v=f87d705c60fe';
 
 const PITCH = 55 * Math.PI / 180;
 const SIN = Math.sin(PITCH), COS = Math.cos(PITCH);

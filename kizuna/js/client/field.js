@@ -1,24 +1,24 @@
 // フィールド（あるく・はなす・みる）
-import { MAPS, isBlocked, effectiveTile, condOk, tileAt, onWater, slidesAt, bodyPoints, npcCovers } from '../shared/maps/index.js?v=1f8c4e9d1fb7';
-import { T, TILE_INFO } from '../shared/tiles.js?v=1f8c4e9d1fb7';
-import { PLACES } from '../shared/maps/overworld.js?v=1f8c4e9d1fb7';
-import { TS, tileCanvas, frameOf, prepareMap } from './render/tiles.js?v=1f8c4e9d1fb7';
-import { paintHuman, npcOpts, paintSpecial, paintShip, paintSandShip, equipKey, CW, CH } from './render/chars.js?v=1f8c4e9d1fb7';
-import { heroCanvas, heroLookKey } from './render/hero.js?v=1f8c4e9d1fb7';
-import { monsterCanvas, bigNpcCanvas, bigNpcScale } from './render/monsters.js?v=1f8c4e9d1fb7';
-import { MONSTERS } from '../shared/data/monsters.js?v=1f8c4e9d1fb7';
-import { makeCanvas, ctxOf, shade, flipCanvas } from './render/pixel.js?v=1f8c4e9d1fb7';
-import { chestCanvas as chestCanvas3d } from './render/tex3d.js?v=1f8c4e9d1fb7';
-import { chestVanishes } from '../shared/data/fieldchests.js?v=1f8c4e9d1fb7';
-import { boardCanvas } from './render/boards.js?v=1f8c4e9d1fb7';
-import { el } from './ui/dom.js?v=1f8c4e9d1fb7';
-import { syncTreasureGates } from './ui/treasure.js?v=1f8c4e9d1fb7';
-import { skyNpcSprite } from './render/sky-art.js?v=1f8c4e9d1fb7';
-import { wagonDraws } from './render/wagon.js?v=1f8c4e9d1fb7';
-import { drawTreasureGlow } from './render/treasure-glow.js?v=1f8c4e9d1fb7';
-import { Weather } from './render/weather.js?v=1f8c4e9d1fb7';
-import { flySpeed } from '../shared/data/sky.js?v=1f8c4e9d1fb7';
-import { timeFlag } from '../shared/world/clock.js?v=1f8c4e9d1fb7';
+import { MAPS, isBlocked, effectiveTile, condOk, tileAt, onWater, slidesAt, bodyPoints, npcCovers } from '../shared/maps/index.js?v=f87d705c60fe';
+import { T, TILE_INFO } from '../shared/tiles.js?v=f87d705c60fe';
+import { PLACES } from '../shared/maps/overworld.js?v=f87d705c60fe';
+import { TS, tileCanvas, frameOf, prepareMap } from './render/tiles.js?v=f87d705c60fe';
+import { paintHuman, npcOpts, paintSpecial, paintShip, paintSandShip, equipKey, CW, CH } from './render/chars.js?v=f87d705c60fe';
+import { heroCanvas, heroLookKey } from './render/hero.js?v=f87d705c60fe';
+import { monsterCanvas, bigNpcCanvas, bigNpcScale } from './render/monsters.js?v=f87d705c60fe';
+import { MONSTERS } from '../shared/data/monsters.js?v=f87d705c60fe';
+import { makeCanvas, ctxOf, shade, flipCanvas } from './render/pixel.js?v=f87d705c60fe';
+import { chestCanvas as chestCanvas3d } from './render/tex3d.js?v=f87d705c60fe';
+import { chestVanishes } from '../shared/data/fieldchests.js?v=f87d705c60fe';
+import { boardCanvas } from './render/boards.js?v=f87d705c60fe';
+import { el } from './ui/dom.js?v=f87d705c60fe';
+import { syncTreasureGates } from './ui/treasure.js?v=f87d705c60fe';
+import { skyNpcSprite } from './render/sky-art.js?v=f87d705c60fe';
+import { wagonDraws } from './render/wagon.js?v=f87d705c60fe';
+import { drawTreasureGlow } from './render/treasure-glow.js?v=f87d705c60fe';
+import { Weather } from './render/weather.js?v=f87d705c60fe';
+import { flySpeed } from '../shared/data/sky.js?v=f87d705c60fe';
+import { timeFlag } from '../shared/world/clock.js?v=f87d705c60fe';
 
 const SPEED = 4.6; // マス/びょう
 const RUN = 1.35; // はしると この ばい（はやすぎない ように）
@@ -209,7 +209,7 @@ export class Field {
     if (mode === '3d' && Field.webgl2() && cv) {
       if (!this.r3d) {
         try {
-          const { Field3D } = await import('./render/field3d.js?v=1f8c4e9d1fb7');
+          const { Field3D } = await import('./render/field3d.js?v=f87d705c60fe');
           this.r3d = new Field3D(this, cv);
         } catch (e) {
           console.warn('2.5Dにできませんでした', e);

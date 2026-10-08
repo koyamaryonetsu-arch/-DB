@@ -6,8 +6,8 @@
 //   ちぢめた データ … LZW で ちぢめて、英数字と - _ だけで 書いたもの
 //   （LINE で 送れるように。LINE は 1回に 1万文字まで。仲間が いっぱいでも 7千文字ほど）
 // むかしの KIZUNA-1-<しるし>-<base64> も 読める
-import { repairChar, upgradeSave, SAVE_VERSION } from './save.js?v=1f8c4e9d1fb7';
-import { dropGoneFamily } from '../data/wagon.js?v=1f8c4e9d1fb7';
+import { repairChar, upgradeSave, SAVE_VERSION } from './save.js?v=f87d705c60fe';
+import { dropGoneFamily } from '../data/wagon.js?v=f87d705c60fe';
 
 const PREFIX = 'KIZUNA-2-';
 const PREFIX_V1 = 'KIZUNA-1-';
