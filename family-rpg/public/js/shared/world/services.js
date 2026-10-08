@@ -20,6 +20,7 @@ import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction, wagonHer
 import { casinoOpen, casinoAction } from './casino.js';
 import { useEscapeItem, noEscapeText } from './escape.js';
 import { bestEquipPlan, bestTeamOrder } from '../equip-plan.js';
+import { setLookEquip } from '../look-equip.js';
 
 export function openService(world, s, kind, arg) {
   switch (kind) {
@@ -365,6 +366,15 @@ export function menuAction(world, s, msg) {
       }
       const text = mine && from.equip[slot] === mine ? `${who.name}と${from.name}の${SLOT_NAMES[slot]}を入れかえた！` : `${who.name}は${from.name}の${ITEMS[id].name}を装備した！`;
       return reply(true, text + note);
+    }
+    // 見た目装備（強さは かわらない。えらべるのは 持っている 物だけ。shared/look-equip.js）
+    //   msg.slot … 'weapon'・'armor'・'shield'・'head'（'all' で ぜんぶ もどす）
+    //   msg.id … null（今の装備と同じ）・'none'（装備なし）・品物の ID
+    case 'lookEquip': {
+      const who = ownChar(s, msg.who);
+      if (!who) return reply(false, '');
+      const r = setLookEquip(who, c, msg.slot, msg.id ?? null);
+      return reply(r.ok, r.text);
     }
     case 'discard': {
       const it = ITEMS[msg.id];

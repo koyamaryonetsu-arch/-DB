@@ -13,6 +13,7 @@ import { itemStats, whoCanEquip, rankText } from './info.js';
 import { faceURL } from '../field.js';
 import { boardIconURL } from '../render/boards.js';
 import { partyRows } from './hud.js';
+import { shownEquip } from '../../shared/look-equip.js';
 
 const TYPE_MS = 18;
 
@@ -269,7 +270,7 @@ const STAT_NAMES = [['atk', '攻撃力'], ['dfn', '守備力'], ['agi', '素早�
 // じぶんと じぶんの なかま（いま パーティーに いる 仲間と、馬車の 仲間）。家族の キャラは じぶんで 買いものを する
 export function myTeam(game) {
   const me = game.me;
-  const out = [{ key: 'self', name: me.name, char: me, face: faceURL({ look: me.look, job: me.job, eq: me.equip }), kind: JOBS[me.job]?.name || '' }];
+  const out = [{ key: 'self', name: me.name, char: me, face: faceURL({ look: me.look, job: me.job, eq: shownEquip(me) }), kind: JOBS[me.job]?.name || '' }];
   const add = (x, wagon) => {
     if (x.owner !== me.id || x.kind === 'family' || out.some((m) => m.key === x.key)) return;
     const char = {
@@ -278,7 +279,7 @@ export function myTeam(game) {
     };
     out.push({
       key: x.key, name: x.name, char, wagon,
-      face: faceURL({ look: x.look, job: x.job, eq: x.equip, mon: x.species || undefined }),
+      face: faceURL({ look: x.look, job: x.job, eq: shownEquip(x), mon: x.species || undefined }),
       kind: x.species ? MONSTERS[x.species]?.name || '' : JOBS[x.job]?.name || '',
     });
   };

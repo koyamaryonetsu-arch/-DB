@@ -12,6 +12,7 @@ import { migrateJobs, oldComboUnlocks, addItem, fixBodyJob } from '../stats.js';
 import { repairTreasureMaps } from '../data/treasure.js';
 import { normBank } from './bank.js';
 import { cleanWagon } from '../data/wagon.js';
+import { cleanLookEquip } from '../look-equip.js';
 
 export const SAVE_VERSION = 4;
 
@@ -127,6 +128,8 @@ export function repairChar(c, id) {
       c.equip[slot] = null;
     } else if (!eid) c.equip[slot] = null;
   }
+  // 見た目装備（ない ことも ある。新しい 項目なので 版は 上げない。shared/look-equip.js）
+  cleanLookEquip(c);
 
   // 職業（知らない 職業なら 戦士に して、もとの 職業を おぼえておく）
   if (!c.species) {

@@ -7,6 +7,7 @@ import { request } from './shop.js';
 import { boardIconURL } from '../render/boards.js';
 import { previewCache } from '../render/hero.js';
 import { HAIR_STYLES, HAIR_COLORS, FACES, SKIN_TONES, SALON_FEE, lookIds, STYLE_BY_ID, HCOL_BY_ID, FACE_BY_ID, TONE_BY_ID } from '../../shared/data/looks.js';
+import { shownEquip } from '../../shared/look-equip.js';
 
 const DIRS = ['down', 'left', 'up', 'right'];
 const PARTS = [
@@ -32,7 +33,7 @@ function previewBox(game) {
   const cache = previewCache(24);
   const sprite = (look, dir, f) => {
     const me = game.me;
-    const eq = me.equip ? { ...me.equip, head: null } : undefined;
+    const eq = me.equip ? { ...shownEquip(me), head: null } : undefined;
     return cache(look, me.job, eq, dir, f, 8);
   };
   let t = 0;

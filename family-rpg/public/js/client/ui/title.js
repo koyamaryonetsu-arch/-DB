@@ -8,6 +8,7 @@ import { makeCanvas, ctxOf } from '../render/pixel.js';
 import { LINE_MAX, parseCode } from '../../shared/world/transfer.js';
 import { DEFAULT_SITE, pendingImport, clearPendingImport, familyServer, setFamilyServer, linkToFamilyServer, linkToSite, siteServerAddress } from '../links.js';
 import { goFamilyServer, goSite, roundTrip, changeServer, syncOnServer, maybeRoundTrip, notePlayed, familyServerUp } from './syncui.js';
+import { shownEquip } from '../../shared/look-equip.js';
 
 function clearUI() {
   document.getElementById('ui').innerHTML = '';
@@ -156,7 +157,7 @@ export function showSelect(game, chars) {
   list.append(grid);
   const items = [];
   for (const c of chars) {
-    const sp = playerSprite(c.look, c.job, 'down', 0, c.equip);
+    const sp = playerSprite(c.look, c.job, 'down', 0, shownEquip(c));
     const cv = makeCanvas(sp.width, sp.height);
     ctxOf(cv).drawImage(sp, 0, 0);
     const card = el('button', { class: 'win charcard' }, cv, el('div', {},

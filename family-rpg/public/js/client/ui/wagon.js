@@ -10,6 +10,7 @@ import { computeStats } from '../../shared/stats.js';
 import { faceURL } from '../field.js';
 import { wagonSprite } from '../render/wagon.js';
 import { request } from './shop.js';
+import { shownEquip } from '../../shared/look-equip.js';
 
 const isFam = (k) => String(k || '').startsWith('fam:');
 const BATTLE_MAX = 1 + COMPANION_SLOTS; // 戦う 仲間（自分を ふくめて）
@@ -84,7 +85,7 @@ export function wagonPicURL(dir = 'left') {
 }
 
 const kindName = (x) => (x.species ? MONSTERS[x.species]?.name || '' : JOBS[x.job]?.name || '');
-const faceOf = (x) => faceURL({ look: x.look, job: x.job, eq: x.equip, mon: x.species || undefined });
+const faceOf = (x) => faceURL({ look: x.look, job: x.job, eq: shownEquip(x), mon: x.species || undefined });
 
 // じぶんの 仲間の じょうほう（key → 名前・HP など。game.me の companions から）
 function mateInfo(me, key) {
@@ -92,7 +93,7 @@ function mateInfo(me, key) {
   if (!e) return null;
   const ch = e.char;
   const st = computeStats(ch);
-  return { key, name: ch.name, level: ch.level, job: ch.job, species: ch.species || null, look: ch.look, equip: ch.equip, hp: ch.hp, maxHp: st.maxHp, mp: ch.mp, maxMp: st.maxMp, charId: ch.id, plus: ch.plus || 0 };
+  return { key, name: ch.name, level: ch.level, job: ch.job, species: ch.species || null, look: ch.look, equip: ch.equip, lookEquip: ch.lookEquip, hp: ch.hp, maxHp: st.maxHp, mp: ch.mp, maxMp: st.maxMp, charId: ch.id, plus: ch.plus || 0 };
 }
 
 // パーティー・馬車の 1人の じょうほう（'self'・自分の 仲間・家族の キャラ）。わからない 家族は null
@@ -100,17 +101,17 @@ export function memberInfo(g, key) {
   const me = g.me;
   if (key === 'self') {
     const st = computeStats(me);
-    return { key, self: true, name: me.name, level: me.level, job: me.job, look: me.look, equip: me.equip, hp: me.hp, maxHp: st.maxHp, mp: me.mp, maxMp: st.maxMp };
+    return { key, self: true, name: me.name, level: me.level, job: me.job, look: me.look, equip: me.equip, lookEquip: me.lookEquip, hp: me.hp, maxHp: st.maxHp, mp: me.mp, maxMp: st.maxMp };
   }
   if (!isFam(key)) return mateInfo(me, key);
   const id = key.slice(4);
   const x = [...(g.party?.supports || []), ...(g.party?.wagon || [])].find((m) => m.key === key);
-  if (x) return { key, family: true, name: x.name, level: x.level, job: x.job, look: x.look, equip: x.equip, hp: x.hp, maxHp: x.maxHp, mp: x.mp, maxMp: x.maxMp };
+  if (x) return { key, family: true, name: x.name, level: x.level, job: x.job, look: x.look, equip: x.equip, lookEquip: x.lookEquip, hp: x.hp, maxHp: x.maxHp, mp: x.mp, maxMp: x.maxMp };
   // 本人が パーティーに いる（うつしは 出ていない）か、パーティーに 入りきらず 待っている
   const m = (g.party?.members || []).find((p) => p.charId === id);
-  if (m) return { key, family: true, here: true, name: m.name, level: m.level, job: m.job, look: m.look, equip: m.equip, hp: m.hp, maxHp: m.maxHp };
+  if (m) return { key, family: true, here: true, name: m.name, level: m.level, job: m.job, look: m.look, equip: m.equip, lookEquip: m.lookEquip, hp: m.hp, maxHp: m.maxHp };
   const ch = (g.chars || []).find((c) => c.id === id);
-  if (ch) return { key, family: true, name: ch.name, level: ch.level, job: ch.job, look: ch.look, equip: ch.equip, hp: null, maxHp: null };
+  if (ch) return { key, family: true, name: ch.name, level: ch.level, job: ch.job, look: ch.look, equip: ch.equip, lookEquip: ch.lookEquip, hp: null, maxHp: null };
   return null;
 }
 
