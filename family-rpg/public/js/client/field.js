@@ -5,6 +5,7 @@ import { PLACES } from '../shared/maps/overworld.js';
 import { TS, tileCanvas, frameOf, prepareMap } from './render/tiles.js';
 import { paintHuman, npcOpts, paintSpecial, paintShip, paintSandShip, equipKey, CW, CH } from './render/chars.js';
 import { heroCanvas, heroLookKey } from './render/hero.js';
+import { shownEquip } from '../shared/look-equip.js';
 import { monsterCanvas, bigNpcCanvas, bigNpcScale } from './render/monsters.js';
 import { MONSTERS } from '../shared/data/monsters.js';
 import { makeCanvas, ctxOf, shade, flipCanvas } from './render/pixel.js';
@@ -1007,7 +1008,7 @@ export class Field {
     for (const a of this.actors.values()) {
       objs.push({ y: a.y, draw: () => this.game.sky?.drawActor2D(this, a, camX, camY) || this.drawAt(npcSprite(a.sprite, a.dir, this.walkFrame(true)), a.x, a.y, camX, camY) });
     }
-    if (!this.hideMe) objs.push({ y: this.me.y, draw: () => this.drawPlayer(this.me, camX, camY, this.game.me.look, this.game.me.job, true, this.game.me.equip) });
+    if (!this.hideMe) objs.push({ y: this.me.y, draw: () => this.drawPlayer(this.me, camX, camY, this.game.me.look, this.game.me.job, true, shownEquip(this.game.me)) });
     objs.sort((a, b) => a.y - b.y);
     for (const o of objs) o.draw();
     // やね
@@ -1273,11 +1274,11 @@ export class Field {
       out.push(this.game.sky?.actor3d(a, this) || { key: 'a:' + a.id, canvas: npcSprite(a.sprite, a.dir, this.walkFrame(true)), x: a.x, y: a.y });
     }
     this.game.sky?.extra3d(this, out);
-    if (!this.hideMe && this.game.me && this.game.sky?.entity3d(this, this.me, true, out, this.game.me.look, this.game.me.job, this.game.me.equip)) return out;
+    if (!this.hideMe && this.game.me && this.game.sky?.entity3d(this, this.me, true, out, this.game.me.look, this.game.me.job, shownEquip(this.game.me))) return out;
     if (!this.hideMe && this.game.me) {
       const ship = this.isOnWater(this.me.x, this.me.y);
       const mc = ship ? shipSprite(this.me.dir || 'down', this.shipFrame(), this.map.ship)
-        : playerSprite(this.game.me.look, this.game.me.job, this.me.dir || 'down', this.walkFrame(this.myStep), this.game.me.equip);
+        : playerSprite(this.game.me.look, this.game.me.job, this.me.dir || 'down', this.walkFrame(this.myStep), shownEquip(this.game.me));
       out.push({ key: 'me', canvas: mc, x: this.me.x, y: this.me.y, ghost: '#9fd6ff', ...(ship ? SHIP3D : {}) });
       // トロッコに のっている（第3章）
       if (this.riding) out.push({ key: 'me:cart', canvas: npcSprite('minecart', this.me.dir, this.walkFrame(true)), x: this.me.x, y: this.me.y + 0.06, shadow: false });
@@ -1320,7 +1321,8 @@ export class Field {
     const p = this.game.party;
     if (!p || p.leader !== this.game.sid) return [];
     const out = [];
-    for (const s of p.supports || []) out.push({ look: s.look, job: s.job, eq: s.equip, mon: s.species || undefined });
+    // 見た目装備（lookEquip）が あれば その 絵（shared/look-equip.js）
+    for (const s of p.supports || []) out.push({ look: s.look, job: s.job, eq: shownEquip(s), mon: s.species || undefined });
     if (!this.hideGuests) for (const g of p.guests || []) out.push({ look: g.look, job: g.job, eq: g.equip, guest: true });
     return out;
   }

@@ -15,6 +15,7 @@ import { bankUI } from './bank.js';
 import { forgeUI } from './forge.js';
 import { tavernWagonItems, tavernWagonOpts, tavernWagonAct, tavernPlace, arrangeUI } from './wagon.js';
 import { casinoUI } from './casino.js';
+import { shownEquip } from '../../shared/look-equip.js';
 
 export function openServiceUI(game, kind, data) {
   switch (kind) {
@@ -85,7 +86,7 @@ function jobUI(game) {
     let who = 'self';
     const mates = () => (game.party?.supports || []).filter((x) => x.kind === 'npc' && x.owner === game.me.id);
     const target = () => {
-      if (who === 'self') return { name: game.me.name, job: game.me.job, jobs: game.me.jobs, look: game.me.look, equip: game.me.equip };
+      if (who === 'self') return { name: game.me.name, job: game.me.job, jobs: game.me.jobs, look: game.me.look, equip: game.me.equip, lookEquip: game.me.lookEquip };
       return mates().find((x) => x.key === who) || null;
     };
     const whoRow = el('div', { class: 'who-list' });
@@ -192,7 +193,8 @@ function jobUI(game) {
       main.append(whoRow);
       renderWho();
       // その 職業で そうびできない ものは はずした すがた（転職した あとの みため）
-      const eq = Object.fromEntries(Object.entries(c.equip || {}).map(([k, v]) => [k, v && canEquip(j, v) ? v : null]));
+      // 見た目装備は 職業に 関係なく そのまま（shared/look-equip.js）
+      const eq = shownEquip({ equip: Object.fromEntries(Object.entries(c.equip || {}).map(([k, v]) => [k, v && canEquip(j, v) ? v : null])), lookEquip: c.lookEquip });
       const pv = playerSprite(c.look, j, 'down', 0, eq);
       const img = el('canvas', { width: pv.width, height: pv.height, style: { width: '64px', height: '84px', imageRendering: 'pixelated', float: 'right', opacity: open ? '1' : '0.45' } });
       img.getContext('2d').drawImage(pv, 0, 0);
@@ -268,7 +270,7 @@ function tavernUI(game, data) {
     s.body.append(side, main);
     let info = data;
     const sfx = (x) => game.audio.sfx(x);
-    const face = (e) => faceURL({ look: e.look, job: e.job, eq: e.equip, mon: e.species || undefined });
+    const face = (e) => faceURL({ look: e.look, job: e.job, eq: shownEquip(e), mon: e.species || undefined });
     const who = (e) => (e.species ? `${MONSTERS[e.species]?.name || ''} Lv${e.level}` : `${JOBS[e.job]?.name || ''} Lv${e.level}`);
     const plusTag = (e) => (e.plus ? `<span class="plus">+${e.plus}</span>` : '');
     const BREED_KEY = '#breed';
@@ -349,7 +351,7 @@ function tavernUI(game, data) {
         main.append(el('div', { class: 'detail', text: `仲間を連れていくといっしょに戦ってくれる。\n連れていけるのは3人まで。待っている仲間とはいつでも入れかえられる（待っている間の装備はふくろにもどる）。\nモンスターの仲間もここで待っている。${info.wagon ? `\n馬車には${info.wagon.max}人まで乗れる（装備はそのまま。経験値は半分もらえる）。家族のキャラも乗れる。\nパーティーがいっぱいの時は、連れていく仲間は馬車に乗る。` : ''}` }));
         return;
       }
-      const pv = e.species ? followerSprite({ mon: e.species }, 'down', 0) : playerSprite(e.look, e.job, 'down', 0, e.equip);
+      const pv = e.species ? followerSprite({ mon: e.species }, 'down', 0) : playerSprite(e.look, e.job, 'down', 0, shownEquip(e));
       const img = el('canvas', { width: pv.width, height: pv.height, class: e.species ? 'tv-face' : 'tv-face hero' });
       img.getContext('2d').drawImage(pv, 0, 0);
       main.append(img, el('h3', { text: `${e.name}${e.plus ? ` ＋${e.plus}` : ''}` }), el('div', { class: 'small gold', text: e.sec === 'recruit' ? `${who(e)}（仲間になるとこのレベル）` : who(e) }));

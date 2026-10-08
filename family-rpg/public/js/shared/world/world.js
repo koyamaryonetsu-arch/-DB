@@ -33,6 +33,7 @@ import { medalSearchSteps, medalChestSteps } from './casino.js';
 import { stepHazard } from './hazards.js';
 import { noteDungeonEntry } from './escape.js';
 import { notePyramidMove } from './pyramid.js';
+import { shownEquipKey } from '../look-equip.js';
 
 export const PROTOCOL_VERSION = 1;
 const SPARKLE_RESPAWN_MS = 20 * 60 * 1000;
@@ -309,7 +310,7 @@ export class GameWorld {
   charList() {
     return Object.values(this.data.characters)
       .sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0))
-      .map((c) => ({ id: c.id, name: c.name, job: c.job, level: c.level, look: c.look, equip: c.equip, objective: c.objective }));
+      .map((c) => ({ id: c.id, name: c.name, job: c.job, level: c.level, look: c.look, equip: c.equip, lookEquip: c.lookEquip, objective: c.objective }));
   }
 
   onCreateChar(s, msg) {
@@ -1078,9 +1079,9 @@ export class GameWorld {
 }
 
 // みための ための そうび（ぶき・よろい・たて・あたま）
+//   見た目装備（char.lookEquip）が あれば そちらを 見せる（shared/look-equip.js）
 export function equipLook(c) {
-  const e = c.equip || {};
-  return [e.weapon || '', e.armor || '', e.shield || '', e.head || ''].join(',');
+  return shownEquipKey(c);
 }
 
 // セーブの 場所が つかえるか（知らない マップ・マップの 外なら null）

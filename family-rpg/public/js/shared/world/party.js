@@ -67,6 +67,8 @@ function famSnapshot(other) {
   const snap = {
     id: other.id, name: other.name, look: other.look, job: other.job, jobs: JSON.parse(JSON.stringify(other.jobs || {})),
     level: other.level, exp: other.exp, equip: { ...other.equip }, seeds: { ...(other.seeds || {}) },
+    // 見た目装備も うつす（shared/look-equip.js）
+    ...(other.lookEquip ? { lookEquip: { ...other.lookEquip } } : {}),
     items: [], flags: {}, status: {}, tactics: other.tactics || 'balanced', ownerId: other.id,
   };
   fullHeal(snap);
@@ -151,7 +153,7 @@ function companionInfo(e, activeKeys, partyKeys) {
   const st = computeStats(ch);
   const def = e.kind === 'npc' ? NPC_SUPPORTS.find((n) => n.id === e.key) : null;
   return {
-    key: e.key, kind: e.kind, species: e.species || null, name: ch.name, job: ch.job, level: ch.level, look: ch.look, equip: ch.equip,
+    key: e.key, kind: e.kind, species: e.species || null, name: ch.name, job: ch.job, level: ch.level, look: ch.look, equip: ch.equip, lookEquip: ch.lookEquip,
     hp: ch.hp, maxHp: st.maxHp, mp: ch.mp, maxMp: st.maxMp, tactics: ch.tactics,
     inParty: partyKeys.includes(e.key), active: activeKeys.has(e.key),
     desc: def?.desc || MONSTER_FRIENDS[e.species]?.note || '',
@@ -183,7 +185,7 @@ export function tavernInfo(world, s) {
     const copy = p?.famCopies?.get(`${c.id}|${key}`);
     const st = computeStats(copy || other);
     family.push({
-      key, name: other.name, job: other.job, level: other.level, look: other.look, equip: other.equip, family: true,
+      key, name: other.name, job: other.job, level: other.level, look: other.look, equip: other.equip, lookEquip: other.lookEquip, family: true,
       hp: copy ? copy.hp : st.maxHp, maxHp: st.maxHp, mp: copy ? copy.mp : st.maxMp, maxMp: st.maxMp, here,
       desc: `家族のキャラクター（${other.name}）。連れていくと${other.name}にも経験値のおすそわけが届くよ（馬車に乗っているときは少しだけ）。`,
       inParty, active: activeKeys.has(key),
@@ -550,7 +552,7 @@ export function supportInfo(x) {
   const st = computeStats(x.char);
   return {
     key: x.key, name: x.char.name, job: x.char.job, level: x.char.level, hp: x.char.hp, maxHp: st.maxHp, mp: x.char.mp, maxMp: st.maxMp, st: statsOf(st),
-    look: x.char.look, equip: x.char.equip, tactics: x.char.tactics || 'balanced', family: x.kind === 'family', kind: x.kind, species: x.char.species || null, owner: x.owner,
+    look: x.char.look, equip: x.char.equip, lookEquip: x.char.lookEquip, tactics: x.char.tactics || 'balanced', family: x.kind === 'family', kind: x.kind, species: x.char.species || null, owner: x.owner,
     jobs: x.kind === 'npc' ? x.char.jobs : undefined, seeds: x.kind === 'family' ? undefined : x.char.seeds, exp: x.char.exp,
     plus: x.char.plus || 0, bonus: x.char.bonus || undefined, inherit: x.char.inherit || undefined,
     hirameki: x.kind === 'npc' ? x.char.hirameki || [] : undefined, skillUse: x.kind === 'npc' ? x.char.skillUse || {} : undefined,
@@ -589,7 +591,7 @@ export function partyState(world, p) {
       const m = world.sessions.get(sid);
       if (!m) return null;
       const st = computeStats(m.char);
-      return { sid, charId: m.charId, name: m.char.name, job: m.char.job, level: m.char.level, hp: m.char.hp, maxHp: st.maxHp, mp: m.char.mp, maxMp: st.maxMp, st: statsOf(st), look: m.char.look, equip: m.char.equip, map: m.map, follow: !!m.follow, away: !!m.away };
+      return { sid, charId: m.charId, name: m.char.name, job: m.char.job, level: m.char.level, hp: m.char.hp, maxHp: st.maxHp, mp: m.char.mp, maxMp: st.maxMp, st: statsOf(st), look: m.char.look, equip: m.char.equip, lookEquip: m.char.lookEquip, map: m.map, follow: !!m.follow, away: !!m.away };
     }).filter(Boolean),
     supports: p.supports.map(supportInfo),
     // リーダーの 馬車の 仲間（馬車が なければ null。world/wagon.js）
