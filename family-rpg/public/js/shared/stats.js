@@ -24,7 +24,7 @@ export function expForLevel(lv) {
 }
 
 // レベルごとの 基本ステータス（職業の倍率を かける前）
-// レベルで ふえる ぶんは ひかえめ。つよさは 職業レベル（ボーナス・技の 威力）と 装備で のばす
+// レベルで ふえる ぶんは ひかえめ。職業の 得意な つよさは computeStats で レベルと いっしょに のびる（職業レベルは 少しの 補正）
 export function baseStats(level) {
   const L = level - 1;
   return {
@@ -38,10 +38,16 @@ export function baseStats(level) {
   };
 }
 
-// 職業レベル 1つで ふえる 得意な つよさ（倍率が 1いじょうの もの）の わりあい
-export const JOB_BOOST = 0.05;
+// 得意な つよさ（職業の 倍率が 1いじょうの もの）の のび。メインは キャラの レベル、職業レベルは 少しの 補正（2026年10月 第23回）
+// キャラの レベル 1つで ふえる わりあい。Lv21 で 上げ止まり（1.3倍）。そのあとは 基本の つよさと 装備で のびる
+export const LEVEL_AFFINITY = 0.015;
+export const LEVEL_AFFINITY_MAX = 0.3;
+// 職業レベル 1つで ふえる わりあい（Lv10 で 1.18倍。前は 0.05 で 1.45倍）
+export const JOB_BOOST = 0.02;
 // 職業の「ずっと残る ボーナス」（perLv）に かける 数
 export const PER_LV_MULT = 2;
+// ずっと残る ボーナスの 合計は、レベルの つよさの この わりあいまで（たくさんの 職業を きわめても 強く なりすぎない）
+export const PER_LV_CAP = 0.6;
 // 職業レベル 1つで ふえる、その 職業の 技の 威力
 export const JOB_POWER = 0.04;
 
@@ -86,7 +92,7 @@ export function computeStats(char) {
   const job = JOBS[char.job];
   const b = baseStats(char.level);
   const jl = jobLevel(char);
-  const boost = 1 + JOB_BOOST * (jl - 1);
+  const boost = 1 + Math.min(LEVEL_AFFINITY_MAX, LEVEL_AFFINITY * (char.level - 1)) + JOB_BOOST * (jl - 1);
   const s = {};
   for (const k of STAT_KEYS) {
     const m = job.mods[k];
@@ -94,12 +100,14 @@ export function computeStats(char) {
     if (m >= 1) v *= boost;
     s[k] = v;
   }
-  // すべての職業の レベルから もらえる ずっと残るボーナス（転職しても のこる）
+  // すべての職業の レベルから もらえる ずっと残るボーナス（転職しても のこる）。合計は レベルの つよさの PER_LV_CAP まで
+  const perSum = {};
   for (const [jid, info] of Object.entries(char.jobs || {})) {
     const per = JOBS[jid]?.perLv;
     if (!per) continue;
-    for (const [k, v] of Object.entries(per)) s[k] += v * PER_LV_MULT * ((info.lv || 1) - 1);
+    for (const [k, v] of Object.entries(per)) perSum[k] = (perSum[k] || 0) + v * PER_LV_MULT * ((info.lv || 1) - 1);
   }
+  for (const [k, v] of Object.entries(perSum)) s[k] += Math.min(v, b[k] * PER_LV_CAP);
   // たねで ふえた ぶん
   for (const [k, v] of Object.entries(char.seeds || {})) s[k] = (s[k] || 0) + v;
   const eq = equipBonus(char);

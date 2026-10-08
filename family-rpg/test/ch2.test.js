@@ -172,7 +172,7 @@ test('第2章を はじめから さいごまで とおして あそべる', { t
   assert.equal(bot.map, 'tower_2f');
   await bot.walkTo(2, 2);
   assert.equal(bot.map, 'tower_3f');
-  boost(bot, 60);
+  boost(bot, 65); // ひとりで 将軍に 勝てる くらい（乱数で 負けない ように 少し 上のせ）
   await bot.walkTo(19, 10);
   await bot.settle();
   assert.ok(bot.flag('c2_boss'), '嵐の将軍を たおした');
