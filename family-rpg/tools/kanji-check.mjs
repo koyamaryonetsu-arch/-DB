@@ -160,7 +160,7 @@ export function gameFiles() {
     'public/js/shared/data/abilities.js', 'public/js/shared/data/abilities-adv.js', 'public/js/shared/data/abilities-jobs.js', 'public/js/shared/data/companions.js',
     // 学校・公務員・町の みかた・アイドルの 職業の 技
     'public/js/shared/data/abilities-jobs2.js', 'public/js/shared/data/abilities-jobs3.js', 'public/js/shared/data/abilities-jobs4.js', 'public/js/shared/data/abilities-jobs5.js',
-    'public/js/shared/data/hirameki.js', 'public/js/shared/data/dual.js', 'public/js/shared/data/loot.js',
+    'public/js/shared/data/hirameki.js', 'public/js/shared/data/hirameki-jobs.js', 'public/js/shared/data/dual.js', 'public/js/shared/data/loot.js',
     'public/js/shared/data/encounters.js', 'public/js/shared/data/items.js', 'public/js/shared/data/jobs.js',
     'public/js/shared/data/monsters.js', 'public/js/shared/data/shops.js', 'public/js/shared/data/story.js',
     'public/js/shared/maps/index.js', 'public/js/shared/maps/overworld.js', 'public/js/shared/maps/ch2.js', 'public/js/shared/maps/sea.js',
