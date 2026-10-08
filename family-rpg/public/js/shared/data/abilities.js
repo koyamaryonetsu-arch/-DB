@@ -23,6 +23,7 @@ import { JOB_ABILITIES } from './abilities-jobs.js';
 import { HIRA_ABILITIES } from './hirameki.js';
 import { TRAVEL_ABILITIES } from './sky.js';
 import { RARE_ABILITIES } from './monsters-rare.js';
+import { R23_ABILITIES } from './monsters-r23.js';
 import { JOB2_ABILITIES } from './abilities-jobs2.js';
 import { CH3_ABILITIES } from './abilities-ch3.js';
 import { CH4_ABILITIES } from './abilities-ch4.js';
@@ -586,6 +587,8 @@ Object.assign(ABILITIES, ADV_ABILITIES, CH2_ABILITIES, JOB_ABILITIES, HIRA_ABILI
 Object.assign(ABILITIES, TRAVEL_ABILITIES);
 // めずらしい 魔物の 技（monsters-rare.js）
 Object.assign(ABILITIES, RARE_ABILITIES);
+// あたらしい 仲間モンスターの 技（monsters-r23.js）
+Object.assign(ABILITIES, R23_ABILITIES);
 // 学校・公務員・町の みかた・アイドルの 職業の 技（abilities-jobs2.js）
 Object.assign(ABILITIES, JOB2_ABILITIES);
 // 第3章の モンスターの 技

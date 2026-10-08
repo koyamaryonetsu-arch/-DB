@@ -102,7 +102,9 @@ function boost(bot, level) {
 test('第2章を はじめから さいごまで とおして あそべる', { timeout: 240000 }, async () => {
   // 時計は 昼から はじめる（げんじつの 時こくが 夜だと 夜の 魔物が 出て、乱数の ならびが かわり、ボス戦の けっかが かわる）
   const t0 = Date.now();
-  const world = new GameWorld({ offline: true, rng: makeRng(2024), rateLimit: false, now: () => 50 * DAY_MS + Math.round(0.3 * DAY_MS) + (Date.now() - t0) });
+  // 乱数の たね: 出現表が かわると 乱数の ならびが かわる。ひとりの 戦士（Lv60）と 嵐の将軍は 7わりくらいの 勝ちなので、
+  // 前の 版でも 今の 版でも 勝てる たねに する（2026-10 あたらしい 仲間モンスターで 2024 → 2027）
+  const world = new GameWorld({ offline: true, rng: makeRng(2027), rateLimit: false, now: () => 50 * DAY_MS + Math.round(0.3 * DAY_MS) + (Date.now() - t0) });
   const bot = new Bot(world, 'ソラ');
   await bot.login();
   await bot.createAndPlay('warrior');

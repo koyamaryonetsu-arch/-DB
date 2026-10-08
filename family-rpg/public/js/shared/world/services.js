@@ -202,7 +202,7 @@ export function serviceAction(world, s, msg) {
         }
         case 'breed':
           r = breedMonsters(world, s, { a: String(msg.a || ''), b: String(msg.b || ''), inherit: Array.isArray(msg.inherit) ? msg.inherit.map(String) : null, name: msg.name });
-          if (r.ok) text = `${r.name}（${MONSTERS[r.species].name}＋${r.plus}）が生まれた！${r.joined ? '' : `\n${r.name}は酒場で待っている。`}`;
+          if (r.ok) text = `${r.name}（${MONSTERS[r.species].name}＋${r.plus}）が生まれた！${r.newEntry ? `\n${MONSTERS[r.species].name}が図鑑にのった！` : ''}${r.joined ? '' : `\n${r.name}は酒場で待っている。`}`;
           break;
         default:
           // 馬車の 乗りかえ（world/wagon.js）

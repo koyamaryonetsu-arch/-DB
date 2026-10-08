@@ -13,6 +13,7 @@
 import { FRIENDS_CH2 } from './companions-ch2.js';
 import { FRIENDS_RARE } from './monsters-rare.js';
 import { FRIENDS_CH3 } from './companions-ch3.js';
+import { FRIENDS_R23, RECIPES_R23 } from './monsters-r23.js';
 
 export const MONSTER_FRIENDS = {
   pururin: {
@@ -254,13 +255,15 @@ Object.assign(MONSTER_FRIENDS, {
 // レベル10いじょうの なかま 2ひきから あたらしい なかまが うまれる（おやは いなくなる）
 // ・うまれた こは レベル1から。おやの つよさを すこし うけつぎ、おやの わざを 4つまで おぼえられる
 // ・「＋」（プラス）が つき、そだつと ふつうより つよくなる
-// ・とくべつな くみあわせでは あたらしい まものが うまれる（それいがいは さいしょに えらんだ おやと おなじ しゅるい）
+// ・とくべつな くみあわせ（特殊配合）では きまった まもの、それいがいは 1ぴきめの 系統の まもの（図鑑に ない まものが さき）。下の breedOutcome
 // 第2章の なかま
 Object.assign(MONSTER_FRIENDS, FRIENDS_CH2);
 // めずらしい 強い 魔物（ぷるりん騎士・ヴァルドラゴン など。gear も そこに ある）
 Object.assign(MONSTER_FRIENDS, FRIENDS_RARE);
 // 第3章の なかま
 Object.assign(MONSTER_FRIENDS, FRIENDS_CH3);
+// あたらしい 仲間モンスター（monsters-r23.js。gear も そこに ある）
+Object.assign(MONSTER_FRIENDS, FRIENDS_R23);
 // しゅぞくごとの 装備の うわがき（上の GEAR）
 for (const [sp, g] of Object.entries(GEAR)) if (MONSTER_FRIENDS[sp]) MONSTER_FRIENDS[sp].gear = { ...g, ...(MONSTER_FRIENDS[sp].gear || {}) };
 
@@ -288,7 +291,15 @@ export const RACE_NAMES = {
   undead: 'ゾンビ系', material: '物質系', dragon: 'ドラゴン系', human: '人間',
 };
 
-// a・b: しゅぞくID か { race, flying } の じょうけん
+// ───────────── 配合の きまり（ドラゴンクエストモンスターズ ふう） ─────────────
+// 1) 特殊配合 … しゅぞくID が 入った 組み合わせ（例: ぷるりん ＋ 空を飛ぶ魔物）。かならず その 子が 生まれる
+// 2) 系統配合 … それ いがい。生まれる 子の 候補は
+//      ・系統どうしの 組み合わせ（例: スライム系 ＋ スライム系 → キングぷるりん）の 子
+//      ・1ぴきめの 親の 系統の 魔物のうち、強さ（lv）が「弱いほうの 親 〜 ランクの 上限（breedRankCap）」の 魔物（強い じゅん）
+//      ・さいごに 1ぴきめの 親と おなじ しゅぞく
+//    候補の 中から、図鑑に のっていない（見たことがない）魔物 → 仲間に したことがない 魔物 → 1ぴきめと おなじ しゅぞく の じゅんに えらぶ。
+//    だから 配合を するほど、見たことのない 魔物が 生まれる（生まれる 子は 図鑑で きまるので、みほんと かならず おなじ）
+// a・b: しゅぞくID か { race, flying } の じょうけん（どちらが 1ぴきめでも よい）
 export const BREED_RECIPES = [
   { a: 'wolf', b: 'kirakira', child: 'star_panther' },
   { a: 'rockman', b: 'armor_crab', child: 'golem' },
@@ -304,6 +315,8 @@ export const BREED_RECIPES = [
   { a: { race: 'undead' }, b: { race: 'demon' }, child: 'demon_knight' },
   { a: { race: 'slime' }, b: { race: 'slime' }, child: 'king_pururin' },
   { a: { race: 'plant' }, b: { race: 'plant' }, child: 'chibi_treant' },
+  // あたらしい 仲間モンスター（monsters-r23.js）
+  ...RECIPES_R23,
 ];
 
 function specMatch(spec, sp, MONSTERS) {
@@ -315,20 +328,91 @@ function specMatch(spec, sp, MONSTERS) {
   return true;
 }
 
-// どんな まものが うまれるか（MONSTERS を わたす: data どうしの じゅんかんを さける）
-export function breedResult(spA, spB, MONSTERS) {
-  for (const r of BREED_RECIPES) {
-    if ((specMatch(r.a, spA, MONSTERS) && specMatch(r.b, spB, MONSTERS)) || (specMatch(r.a, spB, MONSTERS) && specMatch(r.b, spA, MONSTERS))) return r.child;
-  }
-  return spA;
+// 特殊配合（しゅぞくID が 入った 組み合わせ）か
+const isSpecialRecipe = (r) => typeof r.a === 'string' || typeof r.b === 'string';
+const recipeMatch = (r, spA, spB, MONSTERS) =>
+  (specMatch(r.a, spA, MONSTERS) && specMatch(r.b, spB, MONSTERS)) || (specMatch(r.a, spB, MONSTERS) && specMatch(r.b, spA, MONSTERS));
+
+// 系統配合で 生まれる 子の 強さ（lv）の 上限: 強いほうの 親の しゅぞくの lv ＋ 親の レベルの 合計の 1/4 ＋ 「＋」の 合計の 1/5
+// （親を 育てるほど、強い 魔物が 生まれる）
+export function breedRankCap(a, b, MONSTERS) {
+  const lv = (x) => MONSTERS[x.species]?.lv || 1;
+  const L = (x) => (Number.isFinite(x.level) ? x.level : BREED_MIN_LEVEL);
+  return Math.max(lv(a), lv(b)) + Math.floor((L(a) + L(b)) / 4) + Math.floor(((a.plus || 0) + (b.plus || 0)) / 5);
 }
 
-// ずかんの ヒント（例: 「スライムけい ＋ スライムけい」）
+// その 系統で 系統配合から 生まれる ことが ある 魔物（仲間に なる 魔物。ボス・メタル・きまった 組み合わせ だけの 魔物は のぞく）
+export function familyPool(race, MONSTERS) {
+  return Object.keys(MONSTER_FRIENDS).filter((sp) => {
+    const m = MONSTERS[sp];
+    return m && m.race === race && !m.boss && !m.metal && !MONSTER_FRIENDS[sp].recipeOnly;
+  });
+}
+
+// 生まれる 子の 候補（a・b は { species, level, plus }）。kind: 'special'（特殊配合）/ 'family'（系統配合）
+// recipes … list の 先頭から いくつが 系統どうしの 組み合わせの 子か
+export function breedCandidates(a, b, MONSTERS) {
+  const spA = a.species, spB = b.species;
+  for (const r of BREED_RECIPES) if (isSpecialRecipe(r) && recipeMatch(r, spA, spB, MONSTERS)) return { kind: 'special', list: [r.child], recipes: 1 };
+  const list = [];
+  const push = (sp) => { if (MONSTERS[sp] && MONSTER_FRIENDS[sp] && !list.includes(sp)) list.push(sp); };
+  for (const r of BREED_RECIPES) if (!isSpecialRecipe(r) && recipeMatch(r, spA, spB, MONSTERS)) push(r.child);
+  const recipes = list.length;
+  const lo = Math.min(MONSTERS[spA]?.lv || 1, MONSTERS[spB]?.lv || 1);
+  const cap = breedRankCap(a, b, MONSTERS);
+  // 強い じゅん（おなじ lv なら データの じゅん。sort は 安定）
+  const pool = familyPool(MONSTERS[spA]?.race, MONSTERS).filter((sp) => MONSTERS[sp].lv >= lo && MONSTERS[sp].lv <= cap);
+  for (const sp of pool.sort((x, y) => MONSTERS[y].lv - MONSTERS[x].lv)) push(sp);
+  push(spA);
+  return { kind: 'family', list, recipes };
+}
+
+// 図鑑で その 魔物を どこまで 知っているか（0: 見たことがない / 1: 見たことは ある / 2: 仲間に したことが ある）
+// c … キャラ（bestiary・kills。図鑑と おなじ 数えかた）。サーバーの 配合（world/breed.js）と 酒場の みほん（client/ui/services.js の game.me）で おなじ ものを わたす
+// c が ない ときは みんな 0（見たことがない）
+export function bestiaryKnow(c) {
+  if (typeof c === 'function') return c;
+  const bs = c?.bestiary || {}, kills = c?.kills || {};
+  return (sp) => {
+    const b = bs[sp] || {};
+    if ((b.friend || 0) > 0 || (b.bred || 0) > 0) return 2;
+    if ((b.seen || 0) > 0 || (kills[sp] || 0) > 0) return 1;
+    return 0;
+  };
+}
+
+// どんな まものが うまれるか（MONSTERS を わたす: data どうしの じゅんかんを さける。c … 図鑑を もつ キャラ）
+export function breedResult(spA, spB, MONSTERS, c = null) {
+  return breedOutcome({ species: spA, level: BREED_MIN_LEVEL }, { species: spB, level: BREED_MIN_LEVEL }, MONSTERS, c).child;
+}
+
+// ずかんの ヒント（例: 「スライム系 ＋ スライム系」）。系統配合だけで 生まれる 魔物は「植物系 ＋ どの魔物でも（強い親から）」
 export function recipeHint(child, MONSTERS) {
   const r = BREED_RECIPES.find((x) => x.child === child);
-  if (!r) return '';
   const nm = (spec) => (typeof spec === 'string' ? MONSTERS[spec]?.name : spec.flying ? '空を飛ぶ魔物' : RACE_NAMES[spec.race] || '？');
-  return `${nm(r.a)} ＋ ${nm(r.b)}`;
+  if (r) return `${nm(r.a)} ＋ ${nm(r.b)}`;
+  const f = MONSTER_FRIENDS[child];
+  if (f?.breedOnly && !f.recipeOnly && MONSTERS[child]) return `${RACE_NAMES[MONSTERS[child].race]} ＋ どの魔物でも（強い親から）`;
+  return '';
+}
+
+// 酒場の うわさ: まだ 見たことがない 配合だけの 魔物の ヒント（弱い じゅんに n こ）
+export function breedRumors(c, MONSTERS, n = 3) {
+  const know = bestiaryKnow(c);
+  return Object.keys(MONSTER_FRIENDS)
+    .filter((sp) => MONSTER_FRIENDS[sp].breedOnly && MONSTERS[sp] && know(sp) === 0)
+    .sort((x, y) => MONSTERS[x].lv - MONSTERS[y].lv)
+    .slice(0, n)
+    .map((sp) => recipeHint(sp, MONSTERS))
+    .filter(Boolean);
+}
+
+// ずかんの ならび: ふつうの まもの（つよさじゅん）→ はいごう だけの まもの（つよさじゅん）→ ボス（client/ui/menu.js）
+export function bestiaryOrder(MONSTERS) {
+  const all = Object.keys(MONSTERS);
+  const byLv = (a, b) => (MONSTERS[a].lv || 0) - (MONSTERS[b].lv || 0);
+  const normal = all.filter((sp) => !MONSTERS[sp].boss && !MONSTERS[sp].breedOnly).sort(byLv);
+  return [...normal, ...all.filter((sp) => MONSTERS[sp].breedOnly).sort(byLv), ...all.filter((sp) => MONSTERS[sp].boss)];
 }
 
 // うまれる こどもの「＋」
@@ -336,9 +420,22 @@ export function breedPlus(a, b) {
   return Math.min(99, Math.floor(((a.plus || 0) + (b.plus || 0)) / 2) + Math.max(1, Math.floor((a.level + b.level) / 10)));
 }
 
-// うまれる こ（しゅぞく・「＋」・めずらしい くみあわせ か）。a・b は { species, level, plus }
+// うまれる こ。a・b は { species, level, plus }、c は 図鑑を もつ キャラ（なければ みんな 見たことがない ものと する）
 // サーバーの はいごう（world/breed.js）と、酒場で 2ひきめに カーソルを あわせた ときの みほん（client/ui/services.js）で つかう
-export function breedOutcome(a, b, MONSTERS) {
-  const child = breedResult(a.species, b.species, MONSTERS);
-  return { child, plus: breedPlus(a, b), special: child !== a.species && child !== b.species };
+//   child: 生まれる しゅぞく / plus: 「＋」 / special: 親と ちがう しゅぞく
+//   kind: 'special'（特殊配合）/ 'recipe'（系統どうしの 組み合わせ）/ 'family'（系統配合）/ 'same'（1ぴきめと おなじ）
+//   unseen: 図鑑に のっていない（みほんでは ？？？）/ firstFriend: はじめて 仲間に なる
+//   count・unseenCount: この 組み合わせで 生まれる ことが ある 魔物の 数・その うち 図鑑に のっていない 数
+export function breedOutcome(a, b, MONSTERS, c = null) {
+  const know = bestiaryKnow(c);
+  const { kind, list, recipes } = breedCandidates(a, b, MONSTERS);
+  const child = kind === 'special' ? list[0] : list.find((sp) => know(sp) === 0) ?? list.find((sp) => know(sp) === 1) ?? a.species;
+  const k = know(child);
+  const at = list.indexOf(child);
+  return {
+    child, plus: breedPlus(a, b), special: child !== a.species && child !== b.species,
+    kind: kind === 'special' ? 'special' : at >= 0 && at < recipes ? 'recipe' : child === a.species ? 'same' : 'family',
+    unseen: k === 0, firstFriend: k < 2,
+    count: list.length, unseenCount: list.filter((sp) => know(sp) === 0).length,
+  };
 }

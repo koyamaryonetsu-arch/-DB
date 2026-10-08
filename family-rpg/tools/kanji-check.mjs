@@ -213,6 +213,8 @@ export function gameFiles() {
     'public/js/shared/data/story-ch4-duna.js', 'public/js/shared/maps/duna.js', 'public/js/shared/maps/duna-rows.js',
     // 見た目装備
     'public/js/shared/look-equip.js',
+    // あたらしい 仲間モンスターと 配合（どんぐりん・ぷるりんタワー・いかずちドラゴン など）
+    'public/js/shared/data/monsters-r23.js', 'public/js/client/render/r23-art.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

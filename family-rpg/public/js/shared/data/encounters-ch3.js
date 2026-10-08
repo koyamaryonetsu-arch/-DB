@@ -17,6 +17,8 @@ export const ENCOUNTERS_CH3 = {
     { w: 3, group: [['snowman', 1, 2], ['snow_wisp', 1, 1]] },
     { w: 2, group: [['snow_slime', 2, 3], ['snow_wisp', 0, 1]] },
     { w: 1, group: [['yeti', 1, 1], ['frost_wolf', 0, 1]] },
+    // あたらしい 仲間モンスター（monsters-r23.js）
+    { w: 2, group: [['tsurara_sou', 1, 2], ['snow_wisp', 0, 1]] },
   ],
   n_lake: [
     { w: 4, group: [['penguin_knight', 1, 3]] },
@@ -30,6 +32,7 @@ export const ENCOUNTERS_CH3 = {
     { w: 3, group: [['frost_wolf', 2, 3]] },
     { w: 2, group: [['yeti', 1, 1], ['snow_wisp', 1, 2]] },
     { w: 2, group: [['mole_miner', 1, 2], ['snowman', 1, 1]] },
+    { w: 2, group: [['hoseki_game', 1, 1], ['mole_miner', 0, 1]] },
   ],
   n_peak: [
     { w: 4, group: [['yeti', 1, 2]] },
@@ -44,6 +47,7 @@ export const ENCOUNTERS_CH3 = {
     { w: 3, group: [['ember_bird', 2, 3]] },
     { w: 2, group: [['magma_slime', 1, 2], ['fire_imp', 1, 1]] },
     { w: 2, group: [['lava_lizard', 1, 1], ['ember_bird', 1, 2]] },
+    { w: 2, group: [['hinezumi', 2, 3]] },
   ],
   // ── 氷の洞窟 ──
   n_ice: [

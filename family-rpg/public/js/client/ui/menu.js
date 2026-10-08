@@ -10,7 +10,7 @@ import { HIRAMEKI } from '../../shared/data/hirameki.js';
 import { DUAL_TECHS, DUAL_ORDER, groupName, dualKnown, dualRelated } from '../../shared/data/dual.js';
 import { MONSTERS } from '../../shared/data/monsters.js';
 import { monsterDrops } from '../../shared/data/loot.js';
-import { MONSTER_FRIENDS, RACE_NAMES, recipeHint, joinTier } from '../../shared/data/companions.js';
+import { MONSTER_FRIENDS, RACE_NAMES, recipeHint, joinTier, bestiaryOrder } from '../../shared/data/companions.js';
 import { TACTICS } from '../../shared/ai.js';
 import { PLACES } from '../../shared/maps/overworld.js';
 import { SEA_PLACES } from '../../shared/maps/ch2.js';
@@ -72,12 +72,8 @@ function foeName(r) {
   return r > 1 && ENEMY_RATE_NAMES[r] ? `${ENEMY_RATE_NAMES[r]}（${r}倍）` : ENEMY_RATE_NAMES[1];
 }
 
-// ずかんの ならび: ふつうの まもの（つよさじゅん）→ はいごう だけの まもの → ボス
-function zukanOrder() {
-  const all = Object.keys(MONSTERS);
-  const normal = all.filter((sp) => !MONSTERS[sp].boss && !MONSTERS[sp].breedOnly).sort((a, b) => (MONSTERS[a].lv || 0) - (MONSTERS[b].lv || 0));
-  return [...normal, ...all.filter((sp) => MONSTERS[sp].breedOnly), ...all.filter((sp) => MONSTERS[sp].boss)];
-}
+// ずかんの ならび（shared/data/companions.js の bestiaryOrder）
+const zukanOrder = () => bestiaryOrder(MONSTERS);
 
 export class FieldMenu {
   constructor(game) {
