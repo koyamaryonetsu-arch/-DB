@@ -5,15 +5,15 @@
 //   c.partyKeys  … いま いっしょに ぼうけんしている なかま（じゅんばん）。'fam:ID' は 家族の キャラ
 //   c.guests     … ものがたりで いっしょに いる ゲスト（ルカ など）
 // パーティーには リーダーの なかまが ついてくる（にんげんが ふえると、はいりきらない なかまは いったん まつ）
-import { newCharacter, computeStats, fullHeal, gainExp, gainJobBattles, migrateJobs, expForLevel, addItem, newMonsterCompanion, learnedAbilities } from '../stats.js?v=54cbd3f4befe';
-import { jobBattlesForLevel, JOBS } from '../data/jobs.js?v=54cbd3f4befe';
-import { NPC_SUPPORTS, GUESTS } from '../data/shops.js?v=54cbd3f4befe';
-import { MONSTERS } from '../data/monsters.js?v=54cbd3f4befe';
-import { MONSTER_FRIENDS, ROSTER_MAX, COMPANION_SLOTS } from '../data/companions.js?v=54cbd3f4befe';
-import { SLOTS, ITEMS } from '../data/items.js?v=54cbd3f4befe';
-import { cleanWagon, hasWagon, WAGON_SLOTS } from '../data/wagon.js?v=54cbd3f4befe';
-import { wagonState, wagonTavernInfo } from './wagon.js?v=54cbd3f4befe';
-import { difficultyOf } from '../data/difficulty.js?v=54cbd3f4befe';
+import { newCharacter, computeStats, fullHeal, gainExp, gainJobBattles, migrateJobs, expForLevel, addItem, newMonsterCompanion, learnedAbilities, masteredJobs } from '../stats.js?v=76455ba73f77';
+import { jobBattlesForLevel, JOBS } from '../data/jobs.js?v=76455ba73f77';
+import { NPC_SUPPORTS, GUESTS } from '../data/shops.js?v=76455ba73f77';
+import { MONSTERS } from '../data/monsters.js?v=76455ba73f77';
+import { MONSTER_FRIENDS, ROSTER_MAX, COMPANION_SLOTS } from '../data/companions.js?v=76455ba73f77';
+import { SLOTS, ITEMS } from '../data/items.js?v=76455ba73f77';
+import { cleanWagon, hasWagon, WAGON_SLOTS } from '../data/wagon.js?v=76455ba73f77';
+import { wagonState, wagonTavernInfo } from './wagon.js?v=76455ba73f77';
+import { difficultyOf } from '../data/difficulty.js?v=76455ba73f77';
 
 // パーティーに 入れる 人（家族の プレイヤー）は 5人まで。いっしょに フィールドを 歩いて、いっしょに 戦う
 export const PARTY_MAX = 5;
@@ -557,6 +557,8 @@ export function supportInfo(x) {
     plus: x.char.plus || 0, bonus: x.char.bonus || undefined, inherit: x.char.inherit || undefined,
     hirameki: x.kind === 'npc' ? x.char.hirameki || [] : undefined, skillUse: x.kind === 'npc' ? x.char.skillUse || {} : undefined,
     favorites: x.kind === 'npc' ? x.char.favorites || [] : undefined,
+    // 家族の キャラの マスターした 職業（jobs は おくらない。メニューで パーティーに 関係する ひらめき技を えらぶ ため。stats.js の partyJobSet）
+    mjobs: x.kind === 'family' ? masteredJobs(x.char) : undefined,
     // オートで 使わない 技（作戦。家族の キャラの ぶんは 出さない）
     autoOff: x.kind !== 'family' && Array.isArray(x.char.autoOff) && x.char.autoOff.length ? x.char.autoOff : undefined,
     status: x.char.status?.poison ? ['poison'] : [],
@@ -591,7 +593,7 @@ export function partyState(world, p) {
       const m = world.sessions.get(sid);
       if (!m) return null;
       const st = computeStats(m.char);
-      return { sid, charId: m.charId, name: m.char.name, job: m.char.job, level: m.char.level, hp: m.char.hp, maxHp: st.maxHp, mp: m.char.mp, maxMp: st.maxMp, st: statsOf(st), look: m.char.look, equip: m.char.equip, lookEquip: m.char.lookEquip, map: m.map, follow: !!m.follow, away: !!m.away };
+      return { sid, charId: m.charId, name: m.char.name, job: m.char.job, level: m.char.level, hp: m.char.hp, maxHp: st.maxHp, mp: m.char.mp, maxMp: st.maxMp, st: statsOf(st), look: m.char.look, equip: m.char.equip, lookEquip: m.char.lookEquip, map: m.map, follow: !!m.follow, away: !!m.away, mjobs: masteredJobs(m.char) };
     }).filter(Boolean),
     supports: p.supports.map(supportInfo),
     // リーダーの 馬車の 仲間（馬車が なければ null。world/wagon.js）

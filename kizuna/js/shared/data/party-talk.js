@@ -5,10 +5,10 @@
 //     kid  … ポポロ（元気な 子ども）
 //   self … だれも いない ときの 主人公の ひとりごと
 // ・新しい 目標を 作ったら、ここにも 1つ 足す（ない ときは 目標の 文を そのまま 話す）
-import { MONSTERS } from './monsters.js?v=54cbd3f4befe';
-import { C3_LEAD_OBJECTIVE } from './sky.js?v=54cbd3f4befe';
-import { CH3_OBJECTIVE_TALK } from './story-ch3.js?v=54cbd3f4befe';
-import { CH4_OBJECTIVE_TALK } from './story-ch4.js?v=54cbd3f4befe';
+import { MONSTERS } from './monsters.js?v=76455ba73f77';
+import { C3_LEAD_OBJECTIVE } from './sky.js?v=76455ba73f77';
+import { CH3_OBJECTIVE_TALK } from './story-ch3.js?v=76455ba73f77';
+import { CH4_OBJECTIVE_TALK } from './story-ch4.js?v=76455ba73f77';
 
 // 仲間の key（NPC の id）→ 話し方
 export const TALK_STYLE = {

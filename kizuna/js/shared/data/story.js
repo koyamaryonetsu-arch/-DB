@@ -12,21 +12,21 @@
 //   ['teleport', 'map', x, y, 'dir']  ['spawn', 'map', x, y]  ['chapter', 'だい1しょう', 'サブタイトル']
 //
 // x（じょうほう）: x.name x.flag('f') x.has('item') x.count('item') x.kills('monster') x.quest('key')
-import { POS } from '../maps/index.js?v=54cbd3f4befe';
-import { PLACES } from '../maps/overworld.js?v=54cbd3f4befe';
-import { ABILITIES } from './abilities.js?v=54cbd3f4befe';
-import { learnedAbilities, comboUnlocked, hiraAllowed } from '../stats.js?v=54cbd3f4befe';
-import { HIRAMEKI, hiraRatio } from './hirameki.js?v=54cbd3f4befe';
-import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js?v=54cbd3f4befe';
-import { CH3_STEPS, CH3_STORY_SCRIPTS, CH3_SCRIPTS, elderCh3 } from './story-ch3.js?v=54cbd3f4befe';
-import { CH4_STEPS, CH4_STORY_SCRIPTS, CH4_SCRIPTS, elderCh4 } from './story-ch4.js?v=54cbd3f4befe';
-import { TM_SCRIPTS, TM_STORY_SCRIPTS } from './story-tm.js?v=54cbd3f4befe';
-import { CASINO_SCRIPTS } from './story-casino.js?v=54cbd3f4befe';
-import { innSteps } from './inn.js?v=54cbd3f4befe';
-import { NIGHT_SCRIPTS } from './night.js?v=54cbd3f4befe';
-import { skyScripts } from './sky.js?v=54cbd3f4befe';
-import { FACILITY_SCRIPTS } from './facilities.js?v=54cbd3f4befe';
-import { wagonEventSteps } from './wagon.js?v=54cbd3f4befe';
+import { POS } from '../maps/index.js?v=76455ba73f77';
+import { PLACES } from '../maps/overworld.js?v=76455ba73f77';
+import { ABILITIES } from './abilities.js?v=76455ba73f77';
+import { learnedAbilities, comboUnlocked, hiraAllowed, hiraRelated, partyJobSet } from '../stats.js?v=76455ba73f77';
+import { HIRAMEKI, hiraRatio } from './hirameki.js?v=76455ba73f77';
+import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js?v=76455ba73f77';
+import { CH3_STEPS, CH3_STORY_SCRIPTS, CH3_SCRIPTS, elderCh3 } from './story-ch3.js?v=76455ba73f77';
+import { CH4_STEPS, CH4_STORY_SCRIPTS, CH4_SCRIPTS, elderCh4 } from './story-ch4.js?v=76455ba73f77';
+import { TM_SCRIPTS, TM_STORY_SCRIPTS } from './story-tm.js?v=76455ba73f77';
+import { CASINO_SCRIPTS } from './story-casino.js?v=76455ba73f77';
+import { innSteps } from './inn.js?v=76455ba73f77';
+import { NIGHT_SCRIPTS } from './night.js?v=76455ba73f77';
+import { skyScripts } from './sky.js?v=76455ba73f77';
+import { FACILITY_SCRIPTS } from './facilities.js?v=76455ba73f77';
+import { wagonEventSteps } from './wagon.js?v=76455ba73f77';
 
 const V = (x, y) => [PLACES.village.x + x + 0.5, PLACES.village.y + y + 0.5];
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
@@ -567,8 +567,10 @@ function sageHints(x) {
     const names = Object.keys(HIRAMEKI[e.id].from).map((k) => (k === '@atk' ? 'ふつうの攻撃' : `「${ABILITIES[k]?.name}」`)).join('と');
     hints.push(e.r >= 1 ? `おぬしの${names}…もう十分に使いこんでおる。\n次に使った時、何かひらめくかもしれんぞ。` : `おぬしの${names}…なかなか使いこんでおるな。\nもっと使えば、新しい技をひらめくじゃろう。`);
   }
+  // 掛け合わせ技の ヒントは、今の パーティーの 職業に 関係する ものだけ（stats.js の hiraRelated）
+  const jobSet = partyJobSet(x.partyChars ? x.partyChars() : [c]);
   for (const [id, text] of Object.entries(COMBO_HINTS)) {
-    if (learned.has(id)) continue;
+    if (learned.has(id) || !hiraRelated(id, jobSet)) continue;
     hints.push(text);
   }
   const lines = [
@@ -582,6 +584,9 @@ function sageHints(x) {
   if (hints.length) {
     const pick = hints.slice(0, 2);
     lines.push(...S('ひらめきの賢者', ...pick));
+  } else if (Object.keys(COMBO_HINTS).some((id) => !learned.has(id))) {
+    // ほかの 職業の 技なら まだ ある
+    lines.push(...S('ひらめきの賢者', '今の仲間の職業で教えられることは、もうないのう。\nほかの職業の仲間と旅をすれば、また話してやろう。'));
   } else {
     lines.push(...S('ひらめきの賢者', 'もうわしが教えることはない。おぬしこそ本当の賢者じゃ。'));
   }

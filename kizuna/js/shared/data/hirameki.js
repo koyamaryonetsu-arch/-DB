@@ -7,6 +7,8 @@
 //   - 掛け合わせ技（kind: 'combo'）… もとの 職業を 合わせ持つ 上級職から（stats.js の comboAllowed）
 //   - 職業の ひらめき技（job つき）… その 職業か、その 職業から 進んだ 職業
 // ・一度 ひらめいた 技は ずっと 使える（char.hirameki に のこる）
+// ・第20〜22回の 職業の ひらめき技は hirameki-jobs.js（下で いっしょに する）
+import { HIRA_JOB_ABILITIES, HIRAMEKI_JOBS } from './hirameki-jobs.js?v=76455ba73f77';
 
 // ひらめきで 覚える 新しい 技（基本職ごとに 2つ）
 export const HIRA_ABILITIES = {
@@ -166,6 +168,8 @@ export const HIRA_ABILITIES = {
     desc: '大事なお知らせを回覧板で回す。仲間全員の毒・ねむり・混乱・マヒを治す。',
     cast: '{a}は回覧板を回した！「みなさん、気をつけて！」', anim: 'heal1',
   },
+  // 第20〜22回の 職業の ひらめき技（hirameki-jobs.js）
+  ...HIRA_JOB_ABILITIES,
 };
 
 // ひらめきの じょうけん（技 → 使った 回数）。'@atk' は ふつうの 攻撃
@@ -205,6 +209,8 @@ export const HIRAMEKI = {
   madoromi: { from: { rariho: 10, hustle: 10 } },
   medoro: { from: { mera: 25, hyado: 25 } },
   star_strash: { from: { daichi: 20, kaiha: 15, kuuretsu: 12 } },
+  // 第20〜22回の 職業の ひらめき技（hirameki-jobs.js）
+  ...HIRAMEKI_JOBS,
 };
 
 // 回数の 名前（'@atk' など、技 では ない もの）

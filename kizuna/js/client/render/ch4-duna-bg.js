@@ -4,7 +4,7 @@
 // ・sand_sea / sand_sea_night / whale_deck（deco 'sand_sea'。かんぱんは battlefx.js の deck）… すなかぜ号の 上:
 //   遠くの 赤い 岩山・金色の 砂の 波・右に マストと たたんだ 帆。whale_deck は 砂クジラの ねどこ（遠くに 大きな 砂の うず・
 //   赤く にごる 空・まいあがる 砂）
-import { mix } from './pixel.js?v=54cbd3f4befe';
+import { mix } from './pixel.js?v=76455ba73f77';
 
 const BW = 256, BH = 144;
 

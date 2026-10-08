@@ -1,16 +1,16 @@
 // だいほん（イベント）を すすめる しくみ
-import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js?v=54cbd3f4befe';
-import { ITEMS } from '../data/items.js?v=54cbd3f4befe';
-import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js?v=54cbd3f4befe';
-import { startFixedBattle } from './battles.js?v=54cbd3f4befe';
-import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=54cbd3f4befe';
-import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion, befriendLevel } from './party.js?v=54cbd3f4befe';
-import { openService } from './services.js?v=54cbd3f4befe';
-import { isNightFor, advanceClock, fracFor } from './clock.js?v=54cbd3f4befe';
-import { grantWagon, wagonChars } from './wagon.js?v=54cbd3f4befe';
-import { GUESTS } from '../data/shops.js?v=54cbd3f4befe';
-import { unstickAll } from './hazards.js?v=54cbd3f4befe';
-import { MAPS, isBlocked } from '../maps/index.js?v=54cbd3f4befe';
+import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js?v=76455ba73f77';
+import { ITEMS } from '../data/items.js?v=76455ba73f77';
+import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js?v=76455ba73f77';
+import { startFixedBattle } from './battles.js?v=76455ba73f77';
+import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=76455ba73f77';
+import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion, befriendLevel } from './party.js?v=76455ba73f77';
+import { openService } from './services.js?v=76455ba73f77';
+import { isNightFor, advanceClock, fracFor } from './clock.js?v=76455ba73f77';
+import { grantWagon, wagonChars } from './wagon.js?v=76455ba73f77';
+import { GUESTS } from '../data/shops.js?v=76455ba73f77';
+import { unstickAll } from './hazards.js?v=76455ba73f77';
+import { MAPS, isBlocked } from '../maps/index.js?v=76455ba73f77';
 
 let runSeq = 1;
 
@@ -33,7 +33,22 @@ export function scriptCtx(s, owner = s, world = null) {
     count: (id) => (ITEMS[id]?.type === 'key' ? (hasKeyItem(o, id) ? 1 : 0) : itemCount(c, id)),
     kills: (sp) => o.kills?.[sp] || 0,
     quest: (k) => o.quests?.[k],
+    // いっしょに 戦う 人の キャラ（自分・家族・パーティーの 仲間。馬車の 仲間は 入れない）。
+    // ひらめきの賢者が、パーティーに 関係する 技の ヒントだけ 話す ため（stats.js の partyJobSet）
+    partyChars: () => fightingChars(world, s),
   };
+}
+
+function fightingChars(world, s) {
+  const p = world && s ? partyOf(world, s) : null;
+  if (!p) return [s.char];
+  const out = [s.char];
+  for (const sid of p.members) {
+    const m = world.sessions.get(sid);
+    if (m?.char && m.char !== s.char) out.push(m.char);
+  }
+  for (const x of p.supports) if (x?.char) out.push(x.char);
+  return out;
 }
 
 // ものがたりの すすみぐあい（STORY_STEPS の なんばんめまで おわったか。まだなら -1）

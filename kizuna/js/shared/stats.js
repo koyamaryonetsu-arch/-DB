@@ -1,11 +1,11 @@
 // キャラクターの つよさ計算・レベルアップ・転職ペナルティ
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_EASY_RATE, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets, jobBodyOk, superMasteredCount } from './data/jobs.js?v=54cbd3f4befe';
-import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=54cbd3f4befe';
-import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=54cbd3f4befe';
-import { MONSTERS } from './data/monsters.js?v=54cbd3f4befe';
-import { MONSTER_FRIENDS, monsterNatural, gearOf } from './data/companions.js?v=54cbd3f4befe';
-import { HIRAMEKI, hiraRatio } from './data/hirameki.js?v=54cbd3f4befe';
-import { cleanLook } from './data/looks.js?v=54cbd3f4befe';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_EASY_RATE, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets, jobBodyOk, superMasteredCount } from './data/jobs.js?v=76455ba73f77';
+import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=76455ba73f77';
+import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=76455ba73f77';
+import { MONSTERS } from './data/monsters.js?v=76455ba73f77';
+import { MONSTER_FRIENDS, monsterNatural, gearOf } from './data/companions.js?v=76455ba73f77';
+import { HIRAMEKI, hiraRatio } from './data/hirameki.js?v=76455ba73f77';
+import { cleanLook } from './data/looks.js?v=76455ba73f77';
 
 // 長い 物語に なるので レベルは 99まで（レベルで ふえる つよさは ひかえめ）
 export const MAX_LEVEL = 99;
@@ -219,6 +219,42 @@ export function hiraAllowed(char, id) {
     return true;
   }
   return a.job ? jobAncestry(char.job).has(a.job) : true;
+}
+
+// ───── 今の パーティーに 関係する ひらめき技 ─────
+// ひらめき技の 一覧（メニューの「ひらめき」・ひらめきの賢者）には、まだ ひらめいていない 技は
+// 今の パーティーの 職業に 関係する ものだけ 出す（ぜんぶ 出すと 多すぎて わからなく なる）。ひらめいた 技は いつも 出す。
+// パーティーの 職業（partyJobSet）… いっしょに 戦う 人（自分・家族・仲間。馬車の 仲間は 入れない）の
+//   今の 職業と、そこに いたるまでの 職業（jobAncestry）と、マスターした 職業
+// 関係する（hiraRelated）… その 技を ひらめく 職業（job）か、元に なる 技（from）の 職業が パーティーの 職業に ある
+// chars: [{ job, jobs?, mjobs? }]（mjobs … マスターした 職業の id の ならび。jobs が とどかない 家族の キャラ）
+export function partyJobSet(chars) {
+  const set = new Set();
+  for (const c of chars || []) {
+    if (!c || c.species || !JOBS[c.job]) continue;
+    for (const j of jobAncestry(c.job)) set.add(j);
+    for (const j of Object.keys(c.jobs || {})) if (JOBS[j] && jobLevel(c, j) >= JOB_MAX_LEVEL) set.add(j);
+    for (const j of c.mjobs || []) if (JOBS[j]) set.add(j);
+  }
+  return set;
+}
+
+// マスターした 職業の id（家族の キャラの ぶんを パーティーの みんなへ おくる。world/party.js）
+export function masteredJobs(char) {
+  return Object.keys(char?.jobs || {}).filter((j) => JOBS[j] && jobLevel(char, j) >= JOB_MAX_LEVEL);
+}
+
+export function hiraRelated(id, jobSet) {
+  const a = ABILITIES[id], h = HIRAMEKI[id];
+  if (!a || !h) return false;
+  if (a.job && jobSet.has(a.job)) return true;
+  return Object.keys(h.from).some((k) => jobSet.has(ABILITIES[k]?.job));
+}
+
+// その 人の ひらめきの 一覧に 出す 技（ひらめいた 技 ＋ パーティーに 関係する 技）。ならびは HIRAMEKI の じゅん
+export function hiraVisible(char, jobSet) {
+  const known = new Set(learnedAbilities(char));
+  return Object.keys(HIRAMEKI).filter((id) => ABILITIES[id] && (known.has(id) || hiraRelated(id, jobSet)));
 }
 
 // ひらめきの すすみぐあい（0〜1。1 で ひらめける）
