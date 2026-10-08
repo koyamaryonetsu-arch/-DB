@@ -1,25 +1,26 @@
 // お店・やどや・きょうかい・転職・酒場・でんごんばん・メニュー操作
-import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js?v=f87d705c60fe';
-import { normDifficulty } from '../data/difficulty.js?v=f87d705c60fe';
-import { ITEMS, sellPrice, SLOTS, SLOT_NAMES } from '../data/items.js?v=f87d705c60fe';
-import { JOBS, ALL_JOBS, jobReqText, BODY_NAMES } from '../data/jobs.js?v=f87d705c60fe';
-import { ABILITIES } from '../data/abilities.js?v=f87d705c60fe';
-import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=f87d705c60fe';
-import { TACTICS } from '../ai.js?v=f87d705c60fe';
-import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js?v=f87d705c60fe';
-import { salonInfo, salonAction } from './salon.js?v=f87d705c60fe';
-import { breedMonsters, breedPreview } from './breed.js?v=f87d705c60fe';
-import { MONSTERS } from '../data/monsters.js?v=f87d705c60fe';
-import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings, spellSealed } from '../battle.js?v=f87d705c60fe';
-import { PLACES } from '../maps/overworld.js?v=f87d705c60fe';
-import { POS, SEA_PLACES, MAPS } from '../maps/index.js?v=f87d705c60fe';
-import { castRura, warpParty, useTimeBell, warpPlaces, warpOwner } from './travel.js?v=f87d705c60fe';
-import { bankInfo, bankAction } from './bank.js?v=f87d705c60fe';
-import { forgeInfo, forgeAction } from './forge.js?v=f87d705c60fe';
-import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction, wagonHere, wagonHealEntries, ownWagonEntries } from './wagon.js?v=f87d705c60fe';
-import { casinoOpen, casinoAction } from './casino.js?v=f87d705c60fe';
-import { useEscapeItem, noEscapeText } from './escape.js?v=f87d705c60fe';
-import { bestEquipPlan, bestTeamOrder } from '../equip-plan.js?v=f87d705c60fe';
+import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js?v=54cbd3f4befe';
+import { normDifficulty } from '../data/difficulty.js?v=54cbd3f4befe';
+import { ITEMS, sellPrice, SLOTS, SLOT_NAMES } from '../data/items.js?v=54cbd3f4befe';
+import { JOBS, ALL_JOBS, jobReqText, BODY_NAMES } from '../data/jobs.js?v=54cbd3f4befe';
+import { ABILITIES } from '../data/abilities.js?v=54cbd3f4befe';
+import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=54cbd3f4befe';
+import { TACTICS } from '../ai.js?v=54cbd3f4befe';
+import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js?v=54cbd3f4befe';
+import { salonInfo, salonAction } from './salon.js?v=54cbd3f4befe';
+import { breedMonsters, breedPreview } from './breed.js?v=54cbd3f4befe';
+import { MONSTERS } from '../data/monsters.js?v=54cbd3f4befe';
+import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings, spellSealed } from '../battle.js?v=54cbd3f4befe';
+import { PLACES } from '../maps/overworld.js?v=54cbd3f4befe';
+import { POS, SEA_PLACES, MAPS } from '../maps/index.js?v=54cbd3f4befe';
+import { castRura, warpParty, useTimeBell, warpPlaces, warpOwner } from './travel.js?v=54cbd3f4befe';
+import { bankInfo, bankAction } from './bank.js?v=54cbd3f4befe';
+import { forgeInfo, forgeAction } from './forge.js?v=54cbd3f4befe';
+import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction, wagonHere, wagonHealEntries, ownWagonEntries } from './wagon.js?v=54cbd3f4befe';
+import { casinoOpen, casinoAction } from './casino.js?v=54cbd3f4befe';
+import { useEscapeItem, noEscapeText } from './escape.js?v=54cbd3f4befe';
+import { bestEquipPlan, bestTeamOrder } from '../equip-plan.js?v=54cbd3f4befe';
+import { setLookEquip } from '../look-equip.js?v=54cbd3f4befe';
 
 export function openService(world, s, kind, arg) {
   switch (kind) {
@@ -365,6 +366,15 @@ export function menuAction(world, s, msg) {
       }
       const text = mine && from.equip[slot] === mine ? `${who.name}と${from.name}の${SLOT_NAMES[slot]}を入れかえた！` : `${who.name}は${from.name}の${ITEMS[id].name}を装備した！`;
       return reply(true, text + note);
+    }
+    // 見た目装備（強さは かわらない。えらべるのは 持っている 物だけ。shared/look-equip.js）
+    //   msg.slot … 'weapon'・'armor'・'shield'・'head'（'all' で ぜんぶ もどす）
+    //   msg.id … null（今の装備と同じ）・'none'（装備なし）・品物の ID
+    case 'lookEquip': {
+      const who = ownChar(s, msg.who);
+      if (!who) return reply(false, '');
+      const r = setLookEquip(who, c, msg.slot, msg.id ?? null);
+      return reply(r.ok, r.text);
     }
     case 'discard': {
       const it = ITEMS[msg.id];

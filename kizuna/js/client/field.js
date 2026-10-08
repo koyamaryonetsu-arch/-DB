@@ -1,24 +1,25 @@
 // フィールド（あるく・はなす・みる）
-import { MAPS, isBlocked, effectiveTile, condOk, tileAt, onWater, slidesAt, bodyPoints, npcCovers } from '../shared/maps/index.js?v=f87d705c60fe';
-import { T, TILE_INFO } from '../shared/tiles.js?v=f87d705c60fe';
-import { PLACES } from '../shared/maps/overworld.js?v=f87d705c60fe';
-import { TS, tileCanvas, frameOf, prepareMap } from './render/tiles.js?v=f87d705c60fe';
-import { paintHuman, npcOpts, paintSpecial, paintShip, paintSandShip, equipKey, CW, CH } from './render/chars.js?v=f87d705c60fe';
-import { heroCanvas, heroLookKey } from './render/hero.js?v=f87d705c60fe';
-import { monsterCanvas, bigNpcCanvas, bigNpcScale } from './render/monsters.js?v=f87d705c60fe';
-import { MONSTERS } from '../shared/data/monsters.js?v=f87d705c60fe';
-import { makeCanvas, ctxOf, shade, flipCanvas } from './render/pixel.js?v=f87d705c60fe';
-import { chestCanvas as chestCanvas3d } from './render/tex3d.js?v=f87d705c60fe';
-import { chestVanishes } from '../shared/data/fieldchests.js?v=f87d705c60fe';
-import { boardCanvas } from './render/boards.js?v=f87d705c60fe';
-import { el } from './ui/dom.js?v=f87d705c60fe';
-import { syncTreasureGates } from './ui/treasure.js?v=f87d705c60fe';
-import { skyNpcSprite } from './render/sky-art.js?v=f87d705c60fe';
-import { wagonDraws } from './render/wagon.js?v=f87d705c60fe';
-import { drawTreasureGlow } from './render/treasure-glow.js?v=f87d705c60fe';
-import { Weather } from './render/weather.js?v=f87d705c60fe';
-import { flySpeed } from '../shared/data/sky.js?v=f87d705c60fe';
-import { timeFlag } from '../shared/world/clock.js?v=f87d705c60fe';
+import { MAPS, isBlocked, effectiveTile, condOk, tileAt, onWater, slidesAt, bodyPoints, npcCovers } from '../shared/maps/index.js?v=54cbd3f4befe';
+import { T, TILE_INFO } from '../shared/tiles.js?v=54cbd3f4befe';
+import { PLACES } from '../shared/maps/overworld.js?v=54cbd3f4befe';
+import { TS, tileCanvas, frameOf, prepareMap } from './render/tiles.js?v=54cbd3f4befe';
+import { paintHuman, npcOpts, paintSpecial, paintShip, paintSandShip, equipKey, CW, CH } from './render/chars.js?v=54cbd3f4befe';
+import { heroCanvas, heroLookKey } from './render/hero.js?v=54cbd3f4befe';
+import { shownEquip } from '../shared/look-equip.js?v=54cbd3f4befe';
+import { monsterCanvas, bigNpcCanvas, bigNpcScale } from './render/monsters.js?v=54cbd3f4befe';
+import { MONSTERS } from '../shared/data/monsters.js?v=54cbd3f4befe';
+import { makeCanvas, ctxOf, shade, flipCanvas } from './render/pixel.js?v=54cbd3f4befe';
+import { chestCanvas as chestCanvas3d } from './render/tex3d.js?v=54cbd3f4befe';
+import { chestVanishes } from '../shared/data/fieldchests.js?v=54cbd3f4befe';
+import { boardCanvas } from './render/boards.js?v=54cbd3f4befe';
+import { el } from './ui/dom.js?v=54cbd3f4befe';
+import { syncTreasureGates } from './ui/treasure.js?v=54cbd3f4befe';
+import { skyNpcSprite } from './render/sky-art.js?v=54cbd3f4befe';
+import { wagonDraws } from './render/wagon.js?v=54cbd3f4befe';
+import { drawTreasureGlow } from './render/treasure-glow.js?v=54cbd3f4befe';
+import { Weather } from './render/weather.js?v=54cbd3f4befe';
+import { flySpeed } from '../shared/data/sky.js?v=54cbd3f4befe';
+import { timeFlag } from '../shared/world/clock.js?v=54cbd3f4befe';
 
 const SPEED = 4.6; // マス/びょう
 const RUN = 1.35; // はしると この ばい（はやすぎない ように）
@@ -209,7 +210,7 @@ export class Field {
     if (mode === '3d' && Field.webgl2() && cv) {
       if (!this.r3d) {
         try {
-          const { Field3D } = await import('./render/field3d.js?v=f87d705c60fe');
+          const { Field3D } = await import('./render/field3d.js?v=54cbd3f4befe');
           this.r3d = new Field3D(this, cv);
         } catch (e) {
           console.warn('2.5Dにできませんでした', e);
@@ -1007,7 +1008,7 @@ export class Field {
     for (const a of this.actors.values()) {
       objs.push({ y: a.y, draw: () => this.game.sky?.drawActor2D(this, a, camX, camY) || this.drawAt(npcSprite(a.sprite, a.dir, this.walkFrame(true)), a.x, a.y, camX, camY) });
     }
-    if (!this.hideMe) objs.push({ y: this.me.y, draw: () => this.drawPlayer(this.me, camX, camY, this.game.me.look, this.game.me.job, true, this.game.me.equip) });
+    if (!this.hideMe) objs.push({ y: this.me.y, draw: () => this.drawPlayer(this.me, camX, camY, this.game.me.look, this.game.me.job, true, shownEquip(this.game.me)) });
     objs.sort((a, b) => a.y - b.y);
     for (const o of objs) o.draw();
     // やね
@@ -1273,11 +1274,11 @@ export class Field {
       out.push(this.game.sky?.actor3d(a, this) || { key: 'a:' + a.id, canvas: npcSprite(a.sprite, a.dir, this.walkFrame(true)), x: a.x, y: a.y });
     }
     this.game.sky?.extra3d(this, out);
-    if (!this.hideMe && this.game.me && this.game.sky?.entity3d(this, this.me, true, out, this.game.me.look, this.game.me.job, this.game.me.equip)) return out;
+    if (!this.hideMe && this.game.me && this.game.sky?.entity3d(this, this.me, true, out, this.game.me.look, this.game.me.job, shownEquip(this.game.me))) return out;
     if (!this.hideMe && this.game.me) {
       const ship = this.isOnWater(this.me.x, this.me.y);
       const mc = ship ? shipSprite(this.me.dir || 'down', this.shipFrame(), this.map.ship)
-        : playerSprite(this.game.me.look, this.game.me.job, this.me.dir || 'down', this.walkFrame(this.myStep), this.game.me.equip);
+        : playerSprite(this.game.me.look, this.game.me.job, this.me.dir || 'down', this.walkFrame(this.myStep), shownEquip(this.game.me));
       out.push({ key: 'me', canvas: mc, x: this.me.x, y: this.me.y, ghost: '#9fd6ff', ...(ship ? SHIP3D : {}) });
       // トロッコに のっている（第3章）
       if (this.riding) out.push({ key: 'me:cart', canvas: npcSprite('minecart', this.me.dir, this.walkFrame(true)), x: this.me.x, y: this.me.y + 0.06, shadow: false });
@@ -1320,7 +1321,8 @@ export class Field {
     const p = this.game.party;
     if (!p || p.leader !== this.game.sid) return [];
     const out = [];
-    for (const s of p.supports || []) out.push({ look: s.look, job: s.job, eq: s.equip, mon: s.species || undefined });
+    // 見た目装備（lookEquip）が あれば その 絵（shared/look-equip.js）
+    for (const s of p.supports || []) out.push({ look: s.look, job: s.job, eq: shownEquip(s), mon: s.species || undefined });
     if (!this.hideGuests) for (const g of p.guests || []) out.push({ look: g.look, job: g.job, eq: g.equip, guest: true });
     return out;
   }

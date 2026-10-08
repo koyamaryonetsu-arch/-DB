@@ -5,13 +5,14 @@
 // ・知らない 項目や 知らない 品物・職業・モンスターは けさずに とっておく（stash）。
 //   あとで その ゲームが 知っている ものに なったら もとに もどす
 // ・品物・職業・モンスター・マップの ID は けさない・なまえを かえない
-import { ITEMS, SLOTS } from '../data/items.js?v=f87d705c60fe';
-import { JOBS } from '../data/jobs.js?v=f87d705c60fe';
-import { MONSTERS } from '../data/monsters.js?v=f87d705c60fe';
-import { migrateJobs, oldComboUnlocks, addItem, fixBodyJob } from '../stats.js?v=f87d705c60fe';
-import { repairTreasureMaps } from '../data/treasure.js?v=f87d705c60fe';
-import { normBank } from './bank.js?v=f87d705c60fe';
-import { cleanWagon } from '../data/wagon.js?v=f87d705c60fe';
+import { ITEMS, SLOTS } from '../data/items.js?v=54cbd3f4befe';
+import { JOBS } from '../data/jobs.js?v=54cbd3f4befe';
+import { MONSTERS } from '../data/monsters.js?v=54cbd3f4befe';
+import { migrateJobs, oldComboUnlocks, addItem, fixBodyJob } from '../stats.js?v=54cbd3f4befe';
+import { repairTreasureMaps } from '../data/treasure.js?v=54cbd3f4befe';
+import { normBank } from './bank.js?v=54cbd3f4befe';
+import { cleanWagon } from '../data/wagon.js?v=54cbd3f4befe';
+import { cleanLookEquip } from '../look-equip.js?v=54cbd3f4befe';
 
 export const SAVE_VERSION = 4;
 
@@ -127,6 +128,8 @@ export function repairChar(c, id) {
       c.equip[slot] = null;
     } else if (!eid) c.equip[slot] = null;
   }
+  // 見た目装備（ない ことも ある。新しい 項目なので 版は 上げない。shared/look-equip.js）
+  cleanLookEquip(c);
 
   // 職業（知らない 職業なら 戦士に して、もとの 職業を おぼえておく）
   if (!c.species) {

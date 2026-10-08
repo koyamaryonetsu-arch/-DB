@@ -2,37 +2,38 @@
 //
 // クライアントとは メッセージ（JSON）で やりとりする。
 // つなぎかたは なんでも よい（WebSocket でも ブラウザ内の ちょくせつ呼び出しでも）。
-import { makeRng } from '../rng.js?v=f87d705c60fe';
-import { MAPS, isBlocked, effectiveTile, condOk, searchLoot, sparkleLoot, tileAt, POS, SEA_PLACES, standSpot } from '../maps/index.js?v=f87d705c60fe';
-import { PLACES } from '../maps/overworld.js?v=f87d705c60fe';
-import { T, TILE_INFO } from '../tiles.js?v=f87d705c60fe';
-import { ITEMS } from '../data/items.js?v=f87d705c60fe';
-import { JOBS } from '../data/jobs.js?v=f87d705c60fe';
-import { newCharacter, computeStats, addItem, fullHeal, migrateJobs, fixBodyJob } from '../stats.js?v=f87d705c60fe';
-import { mapState, spawnSymbols, moveSymbols, symbolSnapshot, symbolVisible } from './monsters.js?v=f87d705c60fe';
-import { tickFieldChests, fieldChestSnap, fieldChestNear, openFieldChest } from './fieldchests.js?v=f87d705c60fe';
-import { chestVanishes } from '../data/fieldchests.js?v=f87d705c60fe';
-import { startFieldBattle, battleTick, abortBattle, battleCommand, battleLeave, joinBattle, mineOf, resultDone } from './battles.js?v=f87d705c60fe';
-import { runScript, runSteps } from './scripts.js?v=f87d705c60fe';
-import { serviceAction, menuAction } from './services.js?v=f87d705c60fe';
-import { newParty, partyOf, partyState, syncParty, ensureCompanions, companionWait, PARTY_MAX, befriendLevel, rosterFull, nameOfKey, dropMissingFam } from './party.js?v=f87d705c60fe';
-import { hasWagon, dropGoneFamily } from '../data/wagon.js?v=f87d705c60fe';
-import { MONSTERS } from '../data/monsters.js?v=f87d705c60fe';
-import { CH1_CLEAR_OBJECTIVE } from '../data/story.js?v=f87d705c60fe';
-import { upgradeSave, repairChar } from './save.js?v=f87d705c60fe';
-import { exportCode, parseCode, importChar } from './transfer.js?v=f87d705c60fe';
-import { memorySyncStore, buildSyncOut, applySyncIn, encodeSync, decodeSync, syncSummary } from './sync.js?v=f87d705c60fe';
-import { tryTreasureDig, treasureMenu, fixTreasurePos, normalizeTreasure, pruneTreasureStates } from './treasure.js?v=f87d705c60fe';
-import { isNightFor, timeFlag, fracFor } from './clock.js?v=f87d705c60fe';
-import { onFly, setFlying, moveAllowed, ridingAlong, canFlyMap } from './travel.js?v=f87d705c60fe';
-import { migrateSky } from '../data/sky.js?v=f87d705c60fe';
-import { migrateCh4 } from '../data/story-ch4.js?v=f87d705c60fe';
-import { repairObjective } from '../data/progress.js?v=f87d705c60fe';
-import { wagonLook } from './wagon.js?v=f87d705c60fe';
-import { medalSearchSteps, medalChestSteps } from './casino.js?v=f87d705c60fe';
-import { stepHazard } from './hazards.js?v=f87d705c60fe';
-import { noteDungeonEntry } from './escape.js?v=f87d705c60fe';
-import { notePyramidMove } from './pyramid.js?v=f87d705c60fe';
+import { makeRng } from '../rng.js?v=54cbd3f4befe';
+import { MAPS, isBlocked, effectiveTile, condOk, searchLoot, sparkleLoot, tileAt, POS, SEA_PLACES, standSpot } from '../maps/index.js?v=54cbd3f4befe';
+import { PLACES } from '../maps/overworld.js?v=54cbd3f4befe';
+import { T, TILE_INFO } from '../tiles.js?v=54cbd3f4befe';
+import { ITEMS } from '../data/items.js?v=54cbd3f4befe';
+import { JOBS } from '../data/jobs.js?v=54cbd3f4befe';
+import { newCharacter, computeStats, addItem, fullHeal, migrateJobs, fixBodyJob } from '../stats.js?v=54cbd3f4befe';
+import { mapState, spawnSymbols, moveSymbols, symbolSnapshot, symbolVisible } from './monsters.js?v=54cbd3f4befe';
+import { tickFieldChests, fieldChestSnap, fieldChestNear, openFieldChest } from './fieldchests.js?v=54cbd3f4befe';
+import { chestVanishes } from '../data/fieldchests.js?v=54cbd3f4befe';
+import { startFieldBattle, battleTick, abortBattle, battleCommand, battleLeave, joinBattle, mineOf, resultDone } from './battles.js?v=54cbd3f4befe';
+import { runScript, runSteps } from './scripts.js?v=54cbd3f4befe';
+import { serviceAction, menuAction } from './services.js?v=54cbd3f4befe';
+import { newParty, partyOf, partyState, syncParty, ensureCompanions, companionWait, PARTY_MAX, befriendLevel, rosterFull, nameOfKey, dropMissingFam } from './party.js?v=54cbd3f4befe';
+import { hasWagon, dropGoneFamily } from '../data/wagon.js?v=54cbd3f4befe';
+import { MONSTERS } from '../data/monsters.js?v=54cbd3f4befe';
+import { CH1_CLEAR_OBJECTIVE } from '../data/story.js?v=54cbd3f4befe';
+import { upgradeSave, repairChar } from './save.js?v=54cbd3f4befe';
+import { exportCode, parseCode, importChar } from './transfer.js?v=54cbd3f4befe';
+import { memorySyncStore, buildSyncOut, applySyncIn, encodeSync, decodeSync, syncSummary } from './sync.js?v=54cbd3f4befe';
+import { tryTreasureDig, treasureMenu, fixTreasurePos, normalizeTreasure, pruneTreasureStates } from './treasure.js?v=54cbd3f4befe';
+import { isNightFor, timeFlag, fracFor } from './clock.js?v=54cbd3f4befe';
+import { onFly, setFlying, moveAllowed, ridingAlong, canFlyMap } from './travel.js?v=54cbd3f4befe';
+import { migrateSky } from '../data/sky.js?v=54cbd3f4befe';
+import { migrateCh4 } from '../data/story-ch4.js?v=54cbd3f4befe';
+import { repairObjective } from '../data/progress.js?v=54cbd3f4befe';
+import { wagonLook } from './wagon.js?v=54cbd3f4befe';
+import { medalSearchSteps, medalChestSteps } from './casino.js?v=54cbd3f4befe';
+import { stepHazard } from './hazards.js?v=54cbd3f4befe';
+import { noteDungeonEntry } from './escape.js?v=54cbd3f4befe';
+import { notePyramidMove } from './pyramid.js?v=54cbd3f4befe';
+import { shownEquipKey } from '../look-equip.js?v=54cbd3f4befe';
 
 export const PROTOCOL_VERSION = 1;
 const SPARKLE_RESPAWN_MS = 20 * 60 * 1000;
@@ -309,7 +310,7 @@ export class GameWorld {
   charList() {
     return Object.values(this.data.characters)
       .sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0))
-      .map((c) => ({ id: c.id, name: c.name, job: c.job, level: c.level, look: c.look, equip: c.equip, objective: c.objective }));
+      .map((c) => ({ id: c.id, name: c.name, job: c.job, level: c.level, look: c.look, equip: c.equip, lookEquip: c.lookEquip, objective: c.objective }));
   }
 
   onCreateChar(s, msg) {
@@ -1078,9 +1079,9 @@ export class GameWorld {
 }
 
 // みための ための そうび（ぶき・よろい・たて・あたま）
+//   見た目装備（char.lookEquip）が あれば そちらを 見せる（shared/look-equip.js）
 export function equipLook(c) {
-  const e = c.equip || {};
-  return [e.weapon || '', e.armor || '', e.shield || '', e.head || ''].join(',');
+  return shownEquipKey(c);
 }
 
 // セーブの 場所が つかえるか（知らない マップ・マップの 外なら null）

@@ -1671,3 +1671,16 @@ body.dot-font { --font-ui: 'KizunaDot', 'Hiragino Kaku Gothic ProN', 'Hiragino S
 /* 作戦: オートで 使わない 技 */
 .menu .item.auto-off .l { color: #8a8aa0; }
 .menu .item.best-all { color: var(--accent); }
+/* 見た目装備（menu.js の lookView・pickLook）: まえ と よこ の 見本。えらぶ まどでは カーソルの 物に かわる */
+.look-pv { display: flex; justify-content: center; align-items: flex-end; gap: 1.2em; margin: 0.2em 0 0.4em; }
+.look-pv .look-big { width: 96px; height: 126px; image-rendering: pixelated; }
+.look-pv.small .look-big { width: 64px; height: 84px; }
+.look-pick .look-pv-box { flex: none; }
+.look-pick .menu { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+.menu .item.look-opt .tag.eq-tag { margin-left: 0.5em; color: var(--accent); }
+/* よこむきの スマホ（高さが せまい）: 見本を 小さく */
+@media (max-height: 500px) {
+  .look-pv { margin: 0 0 0.2em; }
+  .look-pv .look-big { width: 64px; height: 84px; }
+  .look-pv.small .look-big { width: 44px; height: 58px; }
+}

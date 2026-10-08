@@ -1,12 +1,13 @@
 // 美容室（ドラクエ風の カウンター）
 //   「どんなご用でしょう？」→ かみがた／かみの色／目もと／はだの色 を えらぶ（みぎに 大きな みほん。くるくる 回る）
 //   → 決める →「〇〇ゴールドになりますが、よろしいですか？」はい／いいえ → サーバーで たしかめて 変わる
-import { el, esc } from './dom.js?v=f87d705c60fe';
-import { Counter } from './counter.js?v=f87d705c60fe';
-import { request } from './shop.js?v=f87d705c60fe';
-import { boardIconURL } from '../render/boards.js?v=f87d705c60fe';
-import { previewCache } from '../render/hero.js?v=f87d705c60fe';
-import { HAIR_STYLES, HAIR_COLORS, FACES, SKIN_TONES, SALON_FEE, lookIds, STYLE_BY_ID, HCOL_BY_ID, FACE_BY_ID, TONE_BY_ID } from '../../shared/data/looks.js?v=f87d705c60fe';
+import { el, esc } from './dom.js?v=54cbd3f4befe';
+import { Counter } from './counter.js?v=54cbd3f4befe';
+import { request } from './shop.js?v=54cbd3f4befe';
+import { boardIconURL } from '../render/boards.js?v=54cbd3f4befe';
+import { previewCache } from '../render/hero.js?v=54cbd3f4befe';
+import { HAIR_STYLES, HAIR_COLORS, FACES, SKIN_TONES, SALON_FEE, lookIds, STYLE_BY_ID, HCOL_BY_ID, FACE_BY_ID, TONE_BY_ID } from '../../shared/data/looks.js?v=54cbd3f4befe';
+import { shownEquip } from '../../shared/look-equip.js?v=54cbd3f4befe';
 
 const DIRS = ['down', 'left', 'up', 'right'];
 const PARTS = [
@@ -32,7 +33,7 @@ function previewBox(game) {
   const cache = previewCache(24);
   const sprite = (look, dir, f) => {
     const me = game.me;
-    const eq = me.equip ? { ...me.equip, head: null } : undefined;
+    const eq = me.equip ? { ...shownEquip(me), head: null } : undefined;
     return cache(look, me.job, eq, dir, f, 8);
   };
   let t = 0;
