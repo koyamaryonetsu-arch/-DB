@@ -2,13 +2,15 @@
 // Step 2 の かれた地下水路（石だたみ・切り石の かべ・水路の 底と 水・水門・鉄の こうし・がれきの せき）は render/tiles-canal.js
 // (p, v, f, m) … Painter / ちがい（0〜3。砂嵐だけは ばしょ 0〜15。水路の 中は ばしょと 流れの むき）/ アニメの コマ / となりの ようす（mask。ch4Mask）
 // ひかりは 左上から
-import { T } from '../../shared/tiles.js?v=2366dc8fea25';
-import { Painter, prand, shade } from './pixel.js?v=2366dc8fea25';
-import { CANAL_PAINTERS, CANAL_FRAMES, CANAL_SPEED, CANAL_WALLS, canalMask } from './tiles-canal.js?v=2366dc8fea25';
+import { T } from '../../shared/tiles.js?v=a94c44ae0637';
+import { Painter, prand, shade } from './pixel.js?v=a94c44ae0637';
+import { CANAL_PAINTERS, CANAL_FRAMES, CANAL_SPEED, CANAL_WALLS, canalMask } from './tiles-canal.js?v=a94c44ae0637';
 // 王家のピラミッド（Step 4）の タイルの え は render/tiles-pyramid.js（render/tiles.js が まぜる）。ここでは となりの ようす だけ
-import { pyramidMask } from './tiles-pyramid.js?v=2366dc8fea25';
+import { pyramidMask } from './tiles-pyramid.js?v=a94c44ae0637';
 // 砂の港ドゥナ・砂の海（Step 6）の 砂の海と 砂の うず（render/tiles-duna.js）
-import { DUNA_PAINTERS, DUNA_FRAMES, DUNA_SPEED, dunaMask } from './tiles-duna.js?v=2366dc8fea25';
+import { DUNA_PAINTERS, DUNA_FRAMES, DUNA_SPEED, dunaMask } from './tiles-duna.js?v=a94c44ae0637';
+// Step 7: 砂の底の神殿（水の 高さ・鏡の 床・水の ろう・水鏡・ほこら・かべ画・ドームの かべ）と 水が もどった ふん水
+import { TEMPLE_PAINTERS, TEMPLE_FRAMES, TEMPLE_SPEED, templeMask } from './tiles-temple.js?v=a94c44ae0637';
 
 const TAU = Math.PI * 2;
 // 4×4 の ディザ（だんだんの いろを まぜる）
@@ -427,10 +429,12 @@ CH4_PAINTERS[T.DRY_FOUNTAIN] = paintDryFountain;
 Object.assign(CH4_PAINTERS, CANAL_PAINTERS);
 // 砂の海と 砂の うず（Step 6。render/tiles-duna.js）
 Object.assign(CH4_PAINTERS, DUNA_PAINTERS);
+// 砂の底の神殿（Step 7。render/tiles-temple.js）
+Object.assign(CH4_PAINTERS, TEMPLE_PAINTERS);
 
 // アニメーションする タイルの コマ数（砂嵐は 16コマで 64ドット すすんで もとに もどる。水路の 水は 16コマで 32ドット ながれる）
-export const CH4_FRAMES = { [T.SANDSTORM]: 16, ...CANAL_FRAMES, ...DUNA_FRAMES };
-export const CH4_SPEED = { [T.SANDSTORM]: 75, ...CANAL_SPEED, ...DUNA_SPEED };
+export const CH4_FRAMES = { [T.SANDSTORM]: 16, ...CANAL_FRAMES, ...DUNA_FRAMES, ...TEMPLE_FRAMES };
+export const CH4_SPEED = { [T.SANDSTORM]: 75, ...CANAL_SPEED, ...DUNA_SPEED, ...TEMPLE_SPEED };
 // まえの かおが ある かべ（render/tiles.js の WALLS）
 export const CH4_WALLS = [T.ADOBE, ...CANAL_WALLS];
 
@@ -466,10 +470,14 @@ export function ch4Mask(t, at, x, y, map = null) {
   // 井戸・かんばん（草の 上に かく タイル）は、まわりが 砂ばくなら 砂の 上に（2）
   if (t === T.WELL || t === T.SIGN) return onDesert(at, x, y) ? 2 : -1;
   // かれた ふん水（王都サファラ）: となりが ふん水で ない がわに 石の ふち（1=北 2=東 4=南 8=西）
-  if (t === T.DRY_FOUNTAIN) {
-    const ft = (dx, dy) => { const n = at(x + dx, y + dy); return n === T.DRY_FOUNTAIN || n === T.FOUNTAIN; };
+  // 水が もどった ふん水（Step 7。c4_star）も おなじ 形
+  if (t === T.DRY_FOUNTAIN || t === T.FULL_FOUNTAIN) {
+    const ft = (dx, dy) => { const n = at(x + dx, y + dy); return n === T.DRY_FOUNTAIN || n === T.FOUNTAIN || n === T.FULL_FOUNTAIN; };
     return (ft(0, -1) ? 0 : 1) | (ft(1, 0) ? 0 : 2) | (ft(0, 1) ? 0 : 4) | (ft(-1, 0) ? 0 : 8);
   }
+  // 砂の底の神殿（Step 7）: 大きな 鏡・かべ画の つづき・水鏡の ふち・ドームの かべの あわの ふち
+  const tm = templeMask(t, at, x, y);
+  if (tm >= 0) return tm;
   // 砂の海（Step 6）: 岸の がわ
   const dm = dunaMask(t, at, x, y);
   if (dm >= 0) return dm;

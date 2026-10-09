@@ -1,15 +1,15 @@
 // マップの ぜんたい（フィールド・どうくつ）と、そこに いる 人や たからばこ
-import { T, parseRows, TILE_INFO } from '../tiles.js?v=2366dc8fea25';
-import { makeRng, hash2 } from '../rng.js?v=2366dc8fea25';
-import { buildOverworld, PLACES, zoneAt, areaName, OW_W, OW_H, CAVE_ENTRANCE, FOREST_CLEARING, LAKE, SWAMP } from './overworld.js?v=2366dc8fea25';
-import { CAVE_B1_ROWS, CAVE_B2_ROWS } from './cave-rows.js?v=2366dc8fea25';
-import { npc } from './npc.js?v=2366dc8fea25';
-import { buildCh2Maps, SEA_PLACES } from './ch2.js?v=2366dc8fea25';
-import { buildTreasureFloor } from './treasure-cave.js?v=2366dc8fea25';
-import { addNightNpcs } from './night-npcs.js?v=2366dc8fea25';
-import { attachCasino } from './casino.js?v=2366dc8fea25';
-import { buildCh3Maps, ch3SearchMats, NORTH_SPARKLE_LOOT } from './ch3.js?v=2366dc8fea25';
-import { buildCh4Maps, ch4SearchMats, SOUTH_SPARKLE_LOOT } from './ch4.js?v=2366dc8fea25';
+import { T, parseRows, TILE_INFO } from '../tiles.js?v=a94c44ae0637';
+import { makeRng, hash2 } from '../rng.js?v=a94c44ae0637';
+import { buildOverworld, PLACES, zoneAt, areaName, OW_W, OW_H, CAVE_ENTRANCE, FOREST_CLEARING, LAKE, SWAMP } from './overworld.js?v=a94c44ae0637';
+import { CAVE_B1_ROWS, CAVE_B2_ROWS } from './cave-rows.js?v=a94c44ae0637';
+import { npc } from './npc.js?v=a94c44ae0637';
+import { buildCh2Maps, SEA_PLACES } from './ch2.js?v=a94c44ae0637';
+import { buildTreasureFloor } from './treasure-cave.js?v=a94c44ae0637';
+import { addNightNpcs } from './night-npcs.js?v=a94c44ae0637';
+import { attachCasino } from './casino.js?v=a94c44ae0637';
+import { buildCh3Maps, ch3SearchMats, NORTH_SPARKLE_LOOT } from './ch3.js?v=a94c44ae0637';
+import { buildCh4Maps, ch4SearchMats, SOUTH_SPARKLE_LOOT } from './ch4.js?v=a94c44ae0637';
 
 const V = (x, y) => [PLACES.village.x + x, PLACES.village.y + y];
 const TW = (x, y) => [PLACES.town.x + x, PLACES.town.y + y];
@@ -316,6 +316,11 @@ export function effectiveTile(map, x, y, hasFlag) {
   const t = tileAt(map, x, y);
   if (map.gateAt === undefined) map.gateAt = new Map(map.gates.map((g) => [g.y * map.w + g.x, g]));
   const g = map.gateAt.get(y * map.w + x);
+  // levels: [[フラグ, タイル], …] … さいしょに たっている フラグの タイル。どれも なければ closed（第4章 Step 7 の 水の 高さ。3つ いじょうの すがた）
+  if (g?.levels) {
+    for (const [f, tile] of g.levels) if (hasFlag(f)) return tile;
+    return g.closed;
+  }
   if (g && (g.invert ? !hasFlag(g.flag) : hasFlag(g.flag))) return g.open;
   return g?.invert ? g.closed : t;
 }

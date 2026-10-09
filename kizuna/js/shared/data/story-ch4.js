@@ -16,20 +16,24 @@
 //         南の 砂嵐の 切れ目も 開く）→ 王都の 南の 門から 南の砂ばくへ → 砂の港ドゥナへの 谷（見張りに 手紙を 見せる）
 // Step 6: 谷の 門が 開いて 砂の港ドゥナ → かしらバルガ → サラ（ゲスト）→ 砂の古城の 船のかじ（2人スイッチ）→ すなかぜ号で 砂の海
 //         → 砂クジラ（砂に もぐる）→ 砂の底の神殿の 入口が 分かる（story-ch4-duna.js）
-import { NORTH_PLACES } from '../maps/north.js?v=2366dc8fea25';
-import { SOUTH_PLACES, SOUTH_POS, LANDING_BEACH, STORM_Y, STORM_GAP_X, SAFARA_POS } from '../maps/south.js?v=2366dc8fea25';
+import { NORTH_PLACES } from '../maps/north.js?v=a94c44ae0637';
+import { SOUTH_PLACES, SOUTH_POS, LANDING_BEACH, STORM_Y, STORM_GAP_X, SAFARA_POS } from '../maps/south.js?v=a94c44ae0637';
 import {
   CANAL_DOOR, CANAL_LEVERS, SONG_FLAGS, PALACE_CANAL_STAIRS,
   PYR_BUTTONS, PYR_DOOR_FLAG, PYR_LEVERS, PYR_CRACK_FLAG, GOLD_SWORD_FLAG, PYR_POTS, PYR_FALL, PYR_STAIRS, PYR4_POS, DUNA_LOOKOUTS,
-} from '../maps/ch4.js?v=2366dc8fea25';
-import { PYRAMID_POS } from '../maps/south.js?v=2366dc8fea25';
-import { sunSide, clockHour, isNoonFrac } from '../world/clock.js?v=2366dc8fea25';
-import { SEA_W, SEA_H } from '../maps/sea.js?v=2366dc8fea25';
-import { innSteps } from './inn.js?v=2366dc8fea25';
-import { C4_LEAD_OBJECTIVE } from './sky.js?v=2366dc8fea25';
-import { C3_OBJ } from './story-ch3.js?v=2366dc8fea25';
+} from '../maps/ch4.js?v=a94c44ae0637';
+import { PYRAMID_POS } from '../maps/south.js?v=a94c44ae0637';
+import { sunSide, clockHour, isNoonFrac } from '../world/clock.js?v=a94c44ae0637';
+import { SEA_W, SEA_H } from '../maps/sea.js?v=a94c44ae0637';
+import { innSteps } from './inn.js?v=a94c44ae0637';
+import { C4_LEAD_OBJECTIVE } from './sky.js?v=a94c44ae0637';
+import { C3_OBJ } from './story-ch3.js?v=a94c44ae0637';
 // Step 6: 砂の海賊と 砂クジラ（ドゥナ・砂の古城・すなかぜ号・砂の海）
-import { DUNA_STEPS, DUNA_OBJ, DUNA_STORY_SCRIPTS, DUNA_SCRIPTS, DUNA_TARGETS, DUNA_TALK, DUNA_PROGRESS } from './story-ch4-duna.js?v=2366dc8fea25';
+import { DUNA_STEPS, DUNA_OBJ, DUNA_STORY_SCRIPTS, DUNA_SCRIPTS, DUNA_TARGETS, DUNA_TALK, DUNA_PROGRESS } from './story-ch4-duna.js?v=a94c44ae0637';
+// Step 7: 砂の底の神殿と モルガナ・エンディング（A: 世界と物語）
+import {
+  TEMPLE_STEPS, TEMPLE_OBJ, TEMPLE_STORY_SCRIPTS, TEMPLE_SCRIPTS, TEMPLE_TOWN_LINES, TEMPLE_TARGETS, TEMPLE_TALK, TEMPLE_PROGRESS,
+} from './story-ch4-temple.js?v=a94c44ae0637';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -49,8 +53,10 @@ const C = (p) => [p.x + 0.5, p.y + 0.5];
 // Step 5: c4_zaid（大臣ザイード〈砂の魔神〉を たおした）・c4_letter（女王の手紙を もらった）
 // Step 6: c4_duna（谷の 門が 開いた）・c4_sara（サラが 仲間に なった）・c4_castle（船のかじを 取りもどした）・
 //         c4_ship（すなかぜ号に かじが ついた）・c4_whale（砂クジラが 正気に もどった）。story-ch4-duna.js
+// Step 7: c4_temple（砂の底の神殿に 入った）・c4_morgana（モルガナを たおした）・c4_star（水の守り星を 取りもどした）・
+//         c4_clear（第4章クリア）。story-ch4-temple.js
 export const CH4_STEPS = ['c4_start', 'c4_arrive', 'c4_hamil', 'c4_nadim', 'c4_well', 'c4_ami', 'c4_canal', 'c4_scorpion',
-  'c4_capital', 'c4_queen', 'c4_fountain', 'c4_song', 'c4_pyramid', 'c4_anku', 'c4_mirror', 'c4_zaid', 'c4_letter', ...DUNA_STEPS];
+  'c4_capital', 'c4_queen', 'c4_fountain', 'c4_song', 'c4_pyramid', 'c4_anku', 'c4_mirror', 'c4_zaid', 'c4_letter', ...DUNA_STEPS, ...TEMPLE_STEPS];
 
 // ───── 目標 ─────
 // 第3章クリアの あと（長老ハクゲンに もう一度 話す。sky.js）
@@ -91,6 +97,8 @@ export const C4_OBJ = {
   dunagate: '砂の港ドゥナへの谷の見張りに、もう一度話しかけよう（かしらから、返事が来ているかもしれない）',
   // Step 6（砂の港ドゥナ・砂の古城・砂の海。story-ch4-duna.js）
   ...DUNA_OBJ,
+  // Step 7（砂の底の神殿・エンディング。story-ch4-temple.js）
+  ...TEMPLE_OBJ,
 };
 // むかしの 版の 目標の 文（セーブに のこっている ことが ある。今は 知らない 文なので repairObjective が なおす）
 export const OLD_C4_OBJ = {
@@ -99,6 +107,7 @@ export const OLD_C4_OBJ = {
   song: '第4章の続きはアップデートで！（昼の12時ごろ、オベリスクの影がさす所を調べよう）',
   mirror: '第4章の続きはアップデートで！（月の鏡を手に入れた。夜の宮殿で、女王さまを月の鏡にうつしてみよう）',
   dunagate: '第4章の続きはアップデートで！（砂の海賊は、門を開けてくれなかった…。それまで、南の砂ばくで強くなっておこう）',
+  whale: '第4章の続きはアップデートで！（砂の底の神殿の入口は、砂クジラがねむっていた所の下にあるらしい…）',
 };
 
 // パーティー全員で 見る イベント
@@ -113,7 +122,9 @@ export const CH4_STORY_SCRIPTS = ['c4_arrive', 'c4_hamil_arrive', 'c4_nadim', 'c
   // Step 5: 夜の 中庭の とびら（大臣ザイードの 2つの 戦いと 女王の 手紙まで）・ドゥナへの 谷の 見張り（Step 6 で 門が 開く）
   'c4_court_door', 'c4_d_lookout',
   // Step 6: ドゥナに 着く・かしらバルガ・砂の古城（入る・2つの 石の 板・船のかじ）・すなかぜ号・砂クジラ（story-ch4-duna.js）
-  ...DUNA_STORY_SCRIPTS];
+  ...DUNA_STORY_SCRIPTS,
+  // Step 7: さんばしの サラ・砂クジラで 神殿へ・鏡の騎士・鏡の うつし身・水のろう・モルガナ・エンディング（story-ch4-temple.js）
+  ...TEMPLE_STORY_SCRIPTS];
 
 // ───── Step 3 の ことば ─────
 // 女王ネフィは、何回 話しかけても この 言葉だけ（何かが おかしい、と 気づける）
@@ -1410,7 +1421,15 @@ export const CH4_SCRIPTS = {
 
   // ───────────── 砂の港ドゥナ・砂の古城・砂の海（Step 6。story-ch4-duna.js）─────────────
   ...DUNA_SCRIPTS,
+  // ───────────── 砂の底の神殿・エンディング（Step 7。story-ch4-temple.js）─────────────
+  ...TEMPLE_SCRIPTS,
 };
+// 水の守り星を 取りもどした あと・第4章クリアの あとの 町の 人（Step 7）: その ことばが あれば、もとの だいほんの かわりに
+for (const [id, fn] of Object.entries(TEMPLE_TOWN_LINES)) {
+  const base = CH4_SCRIPTS[id];
+  if (!base) continue;
+  CH4_SCRIPTS[id] = Object.assign((x) => fn(x) || base(x), base);
+}
 
 // ───── 目標の 行き先（quest-targets.js）─────
 export const CH4_OBJECTIVE_TARGETS = {
@@ -1450,6 +1469,8 @@ export const CH4_OBJECTIVE_TARGETS = {
   [C4_OBJ.dunagate]: [{ npc: DUNA_LOOKOUTS[0].id }],
   // Step 6（ドゥナ・砂の古城・砂の海。story-ch4-duna.js）
   ...DUNA_TARGETS,
+  // Step 7（砂の底の神殿・エンディング。story-ch4-temple.js）
+  ...TEMPLE_TARGETS,
 };
 
 // ───── 仲間会話（party-talk.js）─────
@@ -1609,6 +1630,8 @@ export const CH4_OBJECTIVE_TALK = {
   },
   // ───── Step 6（ドゥナ・砂の古城・砂の海。story-ch4-duna.js）─────
   ...DUNA_TALK,
+  // ───── Step 7（砂の底の神殿・エンディング。story-ch4-temple.js）─────
+  ...TEMPLE_TALK,
 };
 
 // ───── すすみぐあい（progress.js の PROGRESS の うしろに つづく）─────
@@ -1644,6 +1667,8 @@ export const CH4_PROGRESS = [
   ['c4_duna_gate', C4_OBJ.dunagate],
   // Step 6（c4_castle_gate は 物語の すすみぐあいでは ない フラグ。story-ch4-duna.js）
   ...DUNA_PROGRESS,
+  // Step 7（c4_sara2・c4_tb2_seen・c4_t_mirror・c4_t_utsushimi・c4_tb3_seen・c4_t_guards は 物語の すすみぐあいでは ない フラグ。story-ch4-temple.js）
+  ...TEMPLE_PROGRESS,
 ];
 
 // むかしの セーブ: 第3章クリアで「続きはアップデートで！」の ままの 人は、第4章の 入り口（長老ハクゲン）へ

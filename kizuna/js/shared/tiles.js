@@ -32,6 +32,12 @@ export const T = {
   PYR_CRACK: 154, PYR_SLAB: 155, SARCOPHAGUS: 156, PYR_ALTAR: 157, PYR_GLYPH: 158, SEAL_RUNE: 159,
   // 第4章 Step 6（砂の港ドゥナ・砂の海・砂クジラの ねどこ）
   SAND_SEA: 160, SAND_WHIRL: 161,
+  // 第4章 Step 7（砂の底の神殿: 水の 高さで かわる 水と 底・うく 石の 板・とび石・3色の レバー・鏡の 床・大きな 鏡・水の ろう・水鏡・
+  // 砂の海賊の ほこら・かべ画・空気の ドームの かべ・水が もどった 王都の ふん水）
+  TW_HI: 162, TW_MID: 163, TW_LO: 164, TW_BED: 165, TW_BED_LO: 166, TW_RAFT: 167, TW_STEP: 168, TW_COLUMN: 169, TW_SHAFT: 170,
+  LEVER_R: 171, LEVER_R_ON: 172, LEVER_B: 173, LEVER_B_ON: 174, LEVER_Y: 175, LEVER_Y_ON: 176,
+  MIRROR_FLOOR: 177, MIRROR_LIT: 178, BIG_MIRROR: 179, MIRROR_BROKEN: 180, WATER_PRISON: 181, WATER_MIRROR: 182,
+  CLAN_SHRINE: 183, MURAL: 184, AIR_WALL: 185, FULL_FOUNTAIN: 186,
 };
 
 export const TILE_INFO = {};
@@ -178,6 +184,29 @@ def(T.SEAL_RUNE, 'seal_rune', { mapColor: '#8a6ab8' }); // 呪文を すいこ�
 // sail: 船で すすめる（sailable の マップだけ。maps/index.js の isBlocked・onWater）。ほかの マップでは 歩けない けしき
 def(T.SAND_SEA, 'sand_sea', { solid: true, sail: true, anim: true, mapColor: '#d8a456' }); // 砂の海（さらさら 流れる こまかい 砂。すなかぜ号で すすむ）
 def(T.SAND_WHIRL, 'sand_whirl', { solid: true, anim: true, mapColor: '#7a4e28' }); // 砂の うず（砂クジラの ねどこ。船でも 入れない）
+// 砂の底の神殿（Step 7）。地下1階の 水の 高さ（上・中・下）は maps/temple.js の gates の levels で かわる
+def(T.TW_HI, 'tw_hi', { solid: true, water: true, anim: true, mapColor: '#3a8ac8' }); // 水（水の 高さが「上」の ときの 水面）
+def(T.TW_MID, 'tw_mid', { solid: true, water: true, anim: true, mapColor: '#2a6aa8' }); // 水（「中」の 水面。ふかい 底の 上だけ）
+def(T.TW_LO, 'tw_lo', { solid: true, water: true, anim: true, mapColor: '#1e4e88' }); // 水（「下」でも のこる 水。下の 水門の 前の たまり）
+def(T.TW_BED, 'tw_bed', { mapColor: '#5a8a88' }); // 水が ひいた 中の 底（ぬれた 石だたみ）
+def(T.TW_BED_LO, 'tw_bed_lo', { mapColor: '#3e6a6e' }); // 水が ひいた ふかい 底（もに おおわれた 石）
+def(T.TW_RAFT, 'tw_raft', { mapColor: '#c8d8e0' }); // 水に うく 石の 板（水が「上」の ときだけ わたれる）
+def(T.TW_STEP, 'tw_step', { mapColor: '#a8c0c8' }); // とび石（水が「中」の ときだけ 水から 顔を 出す）
+def(T.TW_COLUMN, 'tw_column', { solid: true, mapColor: '#6a8a90' }); // 水が ひいて 高い 柱に なった とび石（上れない）
+def(T.TW_SHAFT, 'tw_shaft', { solid: true, mapColor: '#0a1418' }); // 石の 板が しずんだ あとの ふかい たて穴
+for (const [id, name, color, on] of [[T.LEVER_R, 'lever_r', '#c8403a', false], [T.LEVER_R_ON, 'lever_r_on', '#ff6a5a', true],
+  [T.LEVER_B, 'lever_b', '#3a6ac8', false], [T.LEVER_B_ON, 'lever_b_on', '#6aa8ff', true],
+  [T.LEVER_Y, 'lever_y', '#c8a020', false], [T.LEVER_Y_ON, 'lever_y_on', '#ffe050', true]]) def(id, name, { solid: true, light: on, mapColor: color }); // 赤・青・黄の 水門の レバー
+def(T.MIRROR_FLOOR, 'mirror_floor', { mapColor: '#9ab8d0' }); // 鏡の 床（本物の 道と、すいこまれる にせの 道。見た目は おなじ）
+def(T.MIRROR_LIT, 'mirror_lit', { anim: true, light: true, mapColor: '#e8f6ff' }); // 月の鏡で 光った 本物の 道
+def(T.BIG_MIRROR, 'big_mirror', { solid: true, mapColor: '#b8d0e8' }); // 大きな 鏡（しらべると 鏡の うつし身）
+def(T.MIRROR_BROKEN, 'mirror_broken', { mapColor: '#7a8ca0' }); // くだけた 大きな 鏡の あと（通れる）
+def(T.WATER_PRISON, 'water_prison', { solid: true, anim: true, light: true, mapColor: '#5ab8e8' }); // 水の 柱の ろう
+def(T.WATER_MIRROR, 'water_mirror', { solid: true, water: true, anim: true, light: true, mapColor: '#8ad0f0' }); // 水鏡（遠い 空に うかぶ 島が うつる）
+def(T.CLAN_SHRINE, 'clan_shrine', { solid: true, talkThrough: true, mapColor: '#d8b878' }); // 砂の海賊の 一族の ほこら
+def(T.MURAL, 'mural', { solid: true, mapColor: '#6a8aa0' }); // かべ画（水は、上から下へ。光は、下から上へ）
+def(T.AIR_WALL, 'air_wall', { solid: true, mapColor: '#b8946a' }); // 空気の ドームの かべ（あわの 向こうは 砂）
+def(T.FULL_FOUNTAIN, 'full_fountain', { solid: true, anim: true, mapColor: '#5aa8e0' }); // 水が もどった 王都の ふん水
 
 export function isSolid(id) {
   return TILE_INFO[id]?.solid ?? true;

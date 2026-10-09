@@ -9,11 +9,11 @@
 //
 //   c.dungeonFrom … フィールドから 洞窟に 入った ときの 外の 場所 { map, x, y, dir, in: 入った 洞窟 }
 //                   （placeSession で おぼえる。セーブに のこるので 読みこみなおしても 使える）
-import { MAPS } from '../maps/index.js?v=2366dc8fea25';
-import { ITEMS } from '../data/items.js?v=2366dc8fea25';
-import { itemCount, removeItem } from '../stats.js?v=2366dc8fea25';
-import { warpParty } from './travel.js?v=2366dc8fea25';
-import { treasureExitPoint } from './treasure.js?v=2366dc8fea25';
+import { MAPS } from '../maps/index.js?v=a94c44ae0637';
+import { ITEMS } from '../data/items.js?v=a94c44ae0637';
+import { itemCount, removeItem } from '../stats.js?v=a94c44ae0637';
+import { warpParty } from './travel.js?v=a94c44ae0637';
+import { treasureExitPoint } from './treasure.js?v=a94c44ae0637';
 
 // 糸が 使える マップ（洞窟・塔・宝の洞窟。カジノや お城などの たてものの 中は のぞく）
 export function isDungeonMap(m) {
@@ -75,9 +75,10 @@ export function dungeonExit(world, s) {
   return fromOk ? { map: from.map, x: from.x, y: from.y, dir: from.dir || 'down' } : null;
 }
 
-// みちびきの糸・帰り道の羽が 使えない 場所（map.noEscape。王家のピラミッド）の ことば
-export function noEscapeText(name) {
-  return `${name}を使おうとした…。\nしかし、ふしぎな力にはばまれて、使えない！\n（ピラミッドの中では、来た道を歩いてもどろう）`;
+// みちびきの糸・帰り道の羽が 使えない 場所（map.noEscape。王家のピラミッド・砂の底の神殿）の ことば
+// map.noEscapeHint … その 場所の ヒント（ない ときは ピラミッドの ことば）
+export function noEscapeText(name, map = null) {
+  return `${name}を使おうとした…。\nしかし、ふしぎな力にはばまれて、使えない！\n（${map?.noEscapeHint || 'ピラミッドの中では、来た道を歩いてもどろう'}）`;
 }
 
 // メニューの「道具」→「使う」（world/services.js の useItem から）。reply(ok, text)
@@ -88,7 +89,7 @@ export function useEscapeItem(world, s, id, reply) {
   const here = MAPS[s.map];
   if (!isDungeonMap(here)) return reply(false, `ここでは使えない。\n（${it.name}は、洞窟や塔の中で使う道具）`);
   // 王家のピラミッド（第4章）: 糸は 使えない（道具は へらない）
-  if (here.noEscape) return reply(false, noEscapeText(it.name));
+  if (here.noEscape) return reply(false, noEscapeText(it.name, here));
   const to = dungeonExit(world, s);
   if (!to) return reply(false, `${it.name}を使った！\nしかし、糸がどこにもつながっていない…`);
   removeItem(c, id, 1);

@@ -1,14 +1,14 @@
 // タイトル・ログイン・キャラクターえらび・キャラクターづくり
-import { el, ListMenu, toast, askText, confirmBox } from './dom.js?v=2366dc8fea25';
-import { JOBS, JOB_ORDER } from '../../shared/data/jobs.js?v=2366dc8fea25';
-import { HAIR_STYLES, HAIR_COLORS, SKIN_TONES, FACES, FACE_BY_ID, CLOTH_COLORS, cleanLook } from '../../shared/data/looks.js?v=2366dc8fea25';
-import { previewCache } from '../render/hero.js?v=2366dc8fea25';
-import { playerSprite } from '../field.js?v=2366dc8fea25';
-import { makeCanvas, ctxOf } from '../render/pixel.js?v=2366dc8fea25';
-import { LINE_MAX, parseCode } from '../../shared/world/transfer.js?v=2366dc8fea25';
-import { DEFAULT_SITE, pendingImport, clearPendingImport, familyServer, setFamilyServer, linkToFamilyServer, linkToSite, siteServerAddress } from '../links.js?v=2366dc8fea25';
-import { goFamilyServer, goSite, roundTrip, changeServer, syncOnServer, maybeRoundTrip, notePlayed, familyServerUp } from './syncui.js?v=2366dc8fea25';
-import { shownEquip } from '../../shared/look-equip.js?v=2366dc8fea25';
+import { el, ListMenu, toast, askText, confirmBox } from './dom.js?v=a94c44ae0637';
+import { JOBS, JOB_ORDER } from '../../shared/data/jobs.js?v=a94c44ae0637';
+import { HAIR_STYLES, HAIR_COLORS, SKIN_TONES, FACES, FACE_BY_ID, CLOTH_COLORS, cleanLook } from '../../shared/data/looks.js?v=a94c44ae0637';
+import { previewCache } from '../render/hero.js?v=a94c44ae0637';
+import { playerSprite } from '../field.js?v=a94c44ae0637';
+import { makeCanvas, ctxOf } from '../render/pixel.js?v=a94c44ae0637';
+import { LINE_MAX, parseCode } from '../../shared/world/transfer.js?v=a94c44ae0637';
+import { DEFAULT_SITE, pendingImport, clearPendingImport, familyServer, setFamilyServer, linkToFamilyServer, linkToSite, siteServerAddress } from '../links.js?v=a94c44ae0637';
+import { goFamilyServer, goSite, roundTrip, changeServer, syncOnServer, maybeRoundTrip, notePlayed, familyServerUp } from './syncui.js?v=a94c44ae0637';
+import { shownEquip } from '../../shared/look-equip.js?v=a94c44ae0637';
 
 function clearUI() {
   document.getElementById('ui').innerHTML = '';

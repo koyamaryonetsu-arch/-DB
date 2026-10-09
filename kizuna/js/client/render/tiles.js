@@ -1,13 +1,14 @@
 // マップの タイル（16×16 ドット）を プログラムで かく
-import { T, TILE_INFO } from '../../shared/tiles.js?v=2366dc8fea25';
-import { hash2 } from '../../shared/rng.js?v=2366dc8fea25';
-import { Painter, shade, prand } from './pixel.js?v=2366dc8fea25';
-import { themedCanvas, partOfTile } from './themes.js?v=2366dc8fea25';
-import { CH3_PAINTERS, CH3_FRAMES, CH3_SPEED, RAIL_TILES, CH3_WALLS } from './tiles-ch3.js?v=2366dc8fea25';
-import { CH4_PAINTERS, CH4_FRAMES, CH4_SPEED, CH4_WALLS, ch4Mask, desertBase } from './tiles-ch4.js?v=2366dc8fea25';
-import { CANAL_CTX, CANAL_CTX_PAINTERS, canalVariant, canalBaseBits, canalWallBits } from './tiles-canal.js?v=2366dc8fea25';
-import { PYRAMID_PAINTERS, PYRAMID_FRAMES, PYRAMID_SPEED, PYRAMID_WALLS, paintTablet, paintPyrBrazier, paintPyrLever } from './tiles-pyramid.js?v=2366dc8fea25';
-import { whirlVariant } from './tiles-duna.js?v=2366dc8fea25';
+import { T, TILE_INFO } from '../../shared/tiles.js?v=a94c44ae0637';
+import { hash2 } from '../../shared/rng.js?v=a94c44ae0637';
+import { Painter, shade, prand } from './pixel.js?v=a94c44ae0637';
+import { themedCanvas, partOfTile } from './themes.js?v=a94c44ae0637';
+import { CH3_PAINTERS, CH3_FRAMES, CH3_SPEED, RAIL_TILES, CH3_WALLS } from './tiles-ch3.js?v=a94c44ae0637';
+import { CH4_PAINTERS, CH4_FRAMES, CH4_SPEED, CH4_WALLS, ch4Mask, desertBase } from './tiles-ch4.js?v=a94c44ae0637';
+import { CANAL_CTX, CANAL_CTX_PAINTERS, canalVariant, canalBaseBits, canalWallBits } from './tiles-canal.js?v=a94c44ae0637';
+import { PYRAMID_PAINTERS, PYRAMID_FRAMES, PYRAMID_SPEED, PYRAMID_WALLS, paintTablet, paintPyrBrazier, paintPyrLever } from './tiles-pyramid.js?v=a94c44ae0637';
+import { whirlVariant } from './tiles-duna.js?v=a94c44ae0637';
+import { templeVariant } from './tiles-temple.js?v=a94c44ae0637';
 
 export const TS = 16;
 
@@ -595,6 +596,8 @@ export function prepareMap(map) {
         variant[i] = canalVariant(t, at, x, y, variant[i]);
         // 砂クジラの ねどこの 砂の うず: ねどこの まん中からの ずれ（render/tiles-duna.js）
         variant[i] = whirlVariant(t, map, x, y, variant[i]);
+        // 砂の底の神殿の 水鏡: 水鏡の 左上からの ずれ（render/tiles-temple.js）
+        variant[i] = templeVariant(t, map, x, y, variant[i]);
       }
     }
   }

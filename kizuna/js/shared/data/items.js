@@ -7,16 +7,16 @@
 // rank: 装備の ランク（1〜10。下の EQUIP_RANKS）。star: 店では 買えない 1つ上の 品（宝箱・レアドロップ）
 // unique: 1人 1つの 品（ボスが 落とす 物）。データを 合わせる ときに ふえすぎない
 
-import { ITEMS_CH2 } from './items-ch2.js?v=2366dc8fea25';
-import { ITEMS_TM } from './items-tm.js?v=2366dc8fea25';
-import { NIGHT_ITEMS, NIGHT_ITEM_KANA } from './night.js?v=2366dc8fea25';
-import { SKY_ITEMS, SKY_ITEM_KANA } from './sky.js?v=2366dc8fea25';
-import { ITEMS_FORGE, FORGE_KANA, addUpgradeItems } from './items-forge.js?v=2366dc8fea25';
-import { ITEMS_CASINO, CASINO_KANA } from './items-casino.js?v=2366dc8fea25';
-import { RARE_ITEMS, RARE_ITEM_KANA } from './monsters-rare.js?v=2366dc8fea25';
-import { ESCAPE_ITEMS, ESCAPE_KANA } from './escape.js?v=2366dc8fea25';
-import { ITEMS_CH3, CH3_ITEM_KANA } from './items-ch3.js?v=2366dc8fea25';
-import { ITEMS_CH4, CH4_ITEM_KANA } from './items-ch4.js?v=2366dc8fea25';
+import { ITEMS_CH2 } from './items-ch2.js?v=a94c44ae0637';
+import { ITEMS_TM } from './items-tm.js?v=a94c44ae0637';
+import { NIGHT_ITEMS, NIGHT_ITEM_KANA } from './night.js?v=a94c44ae0637';
+import { SKY_ITEMS, SKY_ITEM_KANA } from './sky.js?v=a94c44ae0637';
+import { ITEMS_FORGE, FORGE_KANA, addUpgradeItems } from './items-forge.js?v=a94c44ae0637';
+import { ITEMS_CASINO, CASINO_KANA } from './items-casino.js?v=a94c44ae0637';
+import { RARE_ITEMS, RARE_ITEM_KANA } from './monsters-rare.js?v=a94c44ae0637';
+import { ESCAPE_ITEMS, ESCAPE_KANA } from './escape.js?v=a94c44ae0637';
+import { ITEMS_CH3, CH3_ITEM_KANA } from './items-ch3.js?v=a94c44ae0637';
+import { ITEMS_CH4, CH4_ITEM_KANA } from './items-ch4.js?v=a94c44ae0637';
 
 export const ITEMS = {
   // ───── つかう どうぐ ─────
@@ -230,8 +230,8 @@ export const EQUIP_RANKS = [
   { rank: 3, name: '鉄', where: '第1章のルミナの町（森の主を助けたあと）', sword: 20, cloth: 14 },
   { rank: 4, name: '銀と海', where: '第2章のカモメ港', sword: 30, cloth: 17 },
   { rank: 5, name: 'はがね', where: '第3章の鉱山の町カナトコ（鉱山を取りもどすと品ぞろえがふえる）', sword: 40, cloth: 22 },
-  { rank: 6, name: '魔法', where: '第4章（これから）', sword: 50, cloth: 27 },
-  { rank: 7, name: 'プラチナ', where: '第5章（これから）', sword: 61, cloth: 33 },
+  { rank: 6, name: '魔法', where: '第4章の王都サファラ', sword: 50, cloth: 27 },
+  { rank: 7, name: 'プラチナ', where: '第4章の砂の港ドゥナ（第4章クリアのあと）', sword: 61, cloth: 33 },
   { rank: 8, name: '光', where: '第6章（これから）', sword: 72, cloth: 39 },
   { rank: 9, name: '竜', where: '第7章（これから）', sword: 85, cloth: 46 },
   { rank: 10, name: '伝説', where: '最後の章（これから）', sword: 100, cloth: 54 },

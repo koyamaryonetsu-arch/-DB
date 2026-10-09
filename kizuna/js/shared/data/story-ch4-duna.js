@@ -8,10 +8,10 @@
 // → 砂の海の まん中の「クジラの ねどこ」で 砂クジラ（すなかぜ号の かんぱんで ボス戦。砂に もぐる。battle-ch4.js）
 // → 正気に もどった 砂クジラ「砂の底の神殿の 入口は、わたしが ねむっていた 所の 下だ」（c4_whale）
 // → ドゥナの さんばしへ もどり、サラは パーティーから はなれて さんばしで 待つ → 第4章の 続きは アップデートで！
-import { DUNA_POS, CASTLE_PLATES, CASTLE_GATE_FLAG, SANDSEA_POS } from '../maps/duna.js?v=2366dc8fea25';
-import { GUESTS } from './shops.js?v=2366dc8fea25';
-import { CH4_GUESTS } from './items-ch4.js?v=2366dc8fea25';
-import { innSteps } from './inn.js?v=2366dc8fea25';
+import { DUNA_POS, CASTLE_PLATES, CASTLE_GATE_FLAG, SANDSEA_POS } from '../maps/duna.js?v=a94c44ae0637';
+import { GUESTS } from './shops.js?v=a94c44ae0637';
+import { CH4_GUESTS } from './items-ch4.js?v=a94c44ae0637';
+import { innSteps } from './inn.js?v=a94c44ae0637';
 
 // サラ（ゲスト。items-ch4.js）を ゲストの 一覧に まぜる（world/party.js・world/scripts.js の GUESTS）
 Object.assign(GUESTS, CH4_GUESTS);
@@ -34,8 +34,8 @@ export const DUNA_OBJ = {
   castlegate: '鉄のこうしが開いた！北のかいだんから、砂の古城の2階へ上ろう',
   castle: '取りもどした船のかじを、ドゥナのかしらバルガ（かしらの館）にとどけよう',
   ship: 'さんばしの先の「すなかぜ号」で砂の海へ。まん中の「クジラのねどこ」をめざそう',
-  // Step 6 の さいご（Step 7 で 文を かえれば repairObjective で 今の 文に なおる）
-  whale: '第4章の続きはアップデートで！（砂の底の神殿の入口は、砂クジラがねむっていた所の下にあるらしい…）',
+  // Step 6 の さいご。Step 7 で「さんばしの サラに 話す」に かえた（Step 6 の 版の 文は story-ch4.js の OLD_C4_OBJ.whale。repairObjective で 今の 文に なおる）
+  whale: 'ドゥナのさんばしで待つサラに、声をかけよう（砂クジラの力は、もどったかな？）',
 };
 
 // パーティー全員で 見る イベント（リーダーの 世界で すすむ）
@@ -272,7 +272,6 @@ function whaleHome() {
     ['remove', 'barga_c'],
     ['bgm', 'resume'],
     ['objective', DUNA_OBJ.whale],
-    ...N('――第4章の続きは、アップデートで！――'),
   ];
 }
 
@@ -426,10 +425,10 @@ export const DUNA_TALK = {
     kid: '砂クジラが砂にもぐったら、どこにいるか分からないよ！砂がもり上がったら、みんなで身を守ろうね！',
   },
   [DUNA_OBJ.whale]: {
-    self: '砂の底の神殿の入口は、クジラのねどこの下。砂クジラの力がもどるのを待とう。続きが来るまで、砂の海で強くなっておこう。',
-    bold: 'ミラさんは、まだ生きてる。砂クジラの力がもどったら、神殿へ乗りこむぞ！',
-    kind: 'サラさんのお母さん、きっと待っていますね。神殿へ行く時は、サラさんに声をかけましょう。',
-    kid: 'サラのお母さん、助けに行こうね！砂クジラさん、早く元気になって！',
+    self: '砂の底の神殿の入口は、クジラのねどこの下。ドゥナのさんばしで待っているサラに、声をかけよう。神殿の中では、糸もルーラも使えない。薬草と魔法の聖水を、多めに持っていこう。',
+    bold: 'ミラさんは、まだ生きてる。サラに声をかけて、神殿へ乗りこむぞ！',
+    kind: 'サラさんのお母さん、きっと待っていますね。神殿へ行く時は、さんばしのサラさんに声をかけましょう。',
+    kid: 'サラのお母さん、助けに行こうね！さんばしのサラに、声をかけよう！',
   },
 };
 

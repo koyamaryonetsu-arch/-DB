@@ -3,21 +3,23 @@
 // ・ひと・まもの・もの は ドット絵を カメラに むけて たてる（ビルボード）
 // ・カメラは ななめ うえから みおろす（うごかすのは いち だけ。むきは かわらない）
 // あるく・ぶつかる などの きまりは 2D と おなじ（Field が きめる）。ここでは かく だけ。
-import * as THREE from '../../../vendor/three.min.js?v=2366dc8fea25';
-import { T } from '../../shared/tiles.js?v=2366dc8fea25';
-import { effectiveTile } from '../../shared/maps/index.js?v=2366dc8fea25';
-import { pyramidLevel } from '../../shared/maps/south.js?v=2366dc8fea25';
-import { hash2, valueNoise } from '../../shared/rng.js?v=2366dc8fea25';
+import * as THREE from '../../../vendor/three.min.js?v=a94c44ae0637';
+import { T } from '../../shared/tiles.js?v=a94c44ae0637';
+import { effectiveTile } from '../../shared/maps/index.js?v=a94c44ae0637';
+import { pyramidLevel } from '../../shared/maps/south.js?v=a94c44ae0637';
+import { hash2, valueNoise } from '../../shared/rng.js?v=a94c44ae0637';
 import {
   Atlas, extraCanvas, propCanvas, PROP_TILES, leafCanvas, roofCanvas, tileArt, stormCanvas, curtainCanvas, puffCanvas, canalWaterCanvas, rubbleCanvas,
-} from './tex3d.js?v=2366dc8fea25';
-import { tileCanvas } from './tiles.js?v=2366dc8fea25';
-import { duneShape, ch4Mask, onDesert } from './tiles-ch4.js?v=2366dc8fea25';
+} from './tex3d.js?v=a94c44ae0637';
+import { tileCanvas } from './tiles.js?v=a94c44ae0637';
+import { duneShape, ch4Mask, onDesert } from './tiles-ch4.js?v=a94c44ae0637';
 // 第4章 Step 6: 砂クジラの ねどこの 砂の うず（ねどこ ぜんたいで 1まいの え）
-import { whirlCanvas } from './tiles-duna.js?v=2366dc8fea25';
-import { TROUGH, CANAL_CTX, CANAL_SUN, canalVariant, canalMask, canalFlow, damVertical } from './tiles-canal.js?v=2366dc8fea25';
-import { flipCanvas, makeCanvas, ctxOf, whiteCopy } from './pixel.js?v=2366dc8fea25';
-import { themedCanvas, partOfTile, partOfExtra, partOfProp } from './themes.js?v=2366dc8fea25';
+import { whirlCanvas } from './tiles-duna.js?v=a94c44ae0637';
+// 第4章 Step 7: 砂の底の神殿（水の 高さで かわる 水面と 底・かべの 鏡と かべ画・ドームの かべ・水鏡）
+import { TEMPLE_LIQUIDS, TEMPLE_FLOOR_H, templeBlockSpec, waterMirrorCanvas, MIRROR_W, MIRROR_H, WATER_MIRROR_FRAMES } from './tiles-temple.js?v=a94c44ae0637';
+import { TROUGH, CANAL_CTX, CANAL_SUN, canalVariant, canalMask, canalFlow, damVertical } from './tiles-canal.js?v=a94c44ae0637';
+import { flipCanvas, makeCanvas, ctxOf, whiteCopy } from './pixel.js?v=a94c44ae0637';
+import { themedCanvas, partOfTile, partOfExtra, partOfProp } from './themes.js?v=a94c44ae0637';
 
 const PITCH = 55 * Math.PI / 180;
 const SIN = Math.sin(PITCH), COS = Math.cos(PITCH);
@@ -42,11 +44,13 @@ const TREE_TILES = new Set([T.TREE, T.PINE, T.SNOW_PINE, T.PALM]);
 // 第3章: ようがん・温泉（水と おなじ ひくさに、うごく え を はる）
 const LIQUID_TILES = { [T.LAVA]: { name: 'lava', y: WATER_Y + 0.06, speed: 380 }, [T.HOT_SPRING]: { name: 'spring', y: -0.2, speed: 520 },
   // 第4章 Step 6: 砂の海（すなかぜ号で すすむ。地面より すこし ひくい 砂の 波。4コマで 東へ ながれる）と 砂クジラの ねどこの 砂の うず
-  [T.SAND_SEA]: { name: 'sand_sea', y: -0.2, speed: 360, frames: 4 }, [T.SAND_WHIRL]: { name: 'sand_whirl', y: -0.22, speed: 130, frames: 8 } };
+  [T.SAND_SEA]: { name: 'sand_sea', y: -0.2, speed: 360, frames: 4 }, [T.SAND_WHIRL]: { name: 'sand_whirl', y: -0.22, speed: 130, frames: 8 },
+  // 第4章 Step 7: 砂の底の神殿の 水（上・中・下で 水面の 高さが ちがう）と 水鏡
+  ...TEMPLE_LIQUIDS };
 // 第4章 Step 2（かれた地下水路）: 水路の 底・水の たかさ（通路より ひくい）・水門と こうしの とびらの たかさ・がれきの 山の たかさ
 const CANAL_BED_H = -0.42, CANAL_WATER_Y = -0.27, GATE_H = 1.05, DAM_H = 0.62;
 // 地面の たかさ（深い 雪は すこし 高く・谷は ふかく・水路の 底は ひくく）
-const FLOOR_H = { [T.STEPPING]: -0.16, [T.DEEP_SNOW]: 0.14, [T.CHASM]: -0.8, [T.CANAL_BED]: CANAL_BED_H, [T.DAM]: CANAL_BED_H };
+const FLOOR_H = { [T.STEPPING]: -0.16, [T.DEEP_SNOW]: 0.14, [T.CHASM]: -0.8, [T.CANAL_BED]: CANAL_BED_H, [T.DAM]: CANAL_BED_H, ...TEMPLE_FLOOR_H };
 // 雪・氷・砂ばくの 地面の よこの え
 const SIDE_OF = {
   [T.SAND]: 'sand_side', [T.SNOW]: 'snow_side', [T.SNOW_PATH]: 'snow_side', [T.DEEP_SNOW]: 'snow_side', [T.ICE]: 'ice_side',
@@ -128,7 +132,8 @@ function blockSpec(id, x, y) {
     case T.PYR_GLYPH: return { h: 1.6, top: ['x', 'cave_top', v], side: ['x', 'cave_side', v], south: ['t', T.PYR_GLYPH, v, 1] };
     case T.PYR_SLAB: return { h: 1.6, top: ['x', 'cave_top', v], side: ['t', T.PYR_SLAB, v, 1], south: ['t', T.PYR_SLAB, v, 1] };
     case T.PYR_CRACK: return { h: 1.6, top: ['x', 'cave_top', v], side: ['t', T.PYR_CRACK, v, 1], south: ['t', T.PYR_CRACK, v, 1] };
-    default: return null;
+    // 第4章 Step 7: 大きな 鏡・かべ画（かべの 前の かお）・空気の ドームの かべ（あわの 向こうの 砂）・水が もどった ふん水
+    default: return templeBlockSpec(id, v);
   }
 }
 
@@ -288,7 +293,7 @@ export class Field3D {
       const id = idAt(x, y);
       if (id === T.WELL && onDesert(idAt, x, y)) return { ...s, top: ['t', T.WELL, s.top[2], 2] };
       // 王都サファラ（Step 3）: かれた ふん水の ふち・日干しれんがの かべの 中の カギの とびら（かべと おなじ 高さ。たてものの かべと いっしょに ひくく なる）
-      if (id === T.DRY_FOUNTAIN) return { ...s, top: ['t', T.DRY_FOUNTAIN, s.top[2], ch4Mask(id, idAt, x, y)] };
+      if (id === T.DRY_FOUNTAIN || id === T.FULL_FOUNTAIN) return { ...s, top: ['t', id, s.top[2], ch4Mask(id, idAt, x, y)] };
       if (id === T.LOCKED_DOOR && [idAt(x - 1, y), idAt(x + 1, y), idAt(x, y - 1), idAt(x, y + 1)].includes(T.ADOBE)) {
         return { ...s, h: WALL_H, top: ['x', 'wall_top_adobe', 0], side: ['x', 'adobe_side', 0], wall: true };
       }
@@ -372,6 +377,7 @@ export class Field3D {
     const dunes = [], storm = [];
     const canal = [], dams = [];
     const whirl = []; // 砂クジラの ねどこの 砂の うず（第4章 Step 6。あとで まとめて 1まいの え）
+    const wmirror = []; // 水鏡の 広間の 水鏡（第4章 Step 7。あとで まとめて 1まいの え）
     const isBlockAt = (x, y) => {
       const id = idAt(x, y);
       return id !== -1 && kindOf(id) === BLOCK && spec(x, y).h > 0.55;
@@ -394,6 +400,7 @@ export class Field3D {
         }
         if (id === T.CANAL_WATER) { canal.push([x, y]); continue; } // 地下水路の 水（あとで まとめて）
         if (id === T.SAND_WHIRL) { whirl.push([x, y]); continue; } // 砂の うず（あとで まとめて）
+        if (id === T.WATER_MIRROR && map.waterMirror) { wmirror.push([x, y]); continue; } // 水鏡（あとで まとめて）
         if (kind === WATER && LIQUID_TILES[id]) {
           // ようがん・温泉
           const L = LIQUID_TILES[id];
@@ -591,6 +598,28 @@ export class Field3D {
       group.add(new THREE.Mesh(toGeometry(wg), wm));
       this.liquids.push({ mat: wm, frames: wf, speed: 130 });
     }
+    // 水鏡（第4章 Step 7）: 広間の 水鏡 ぜんたい（12×5マス）で 1まいの え（遠い 空に うかぶ 島）。4コマで さざなみ
+    if (wmirror.length) {
+      const { x: x0, y: y0 } = map.waterMirror;
+      const wy = LIQUID_TILES[T.WATER_MIRROR].y;
+      const mg = newGeo();
+      for (const [x, y] of wmirror) quad(mg, [x, wy, y], [x, wy, y + 1], [x + 1, wy, y + 1], [x + 1, wy, y], { u0: (x - x0) / MIRROR_W, u1: (x + 1 - x0) / MIRROR_W, v0: -(y + 1 - y0) / MIRROR_H, v1: -(y - y0) / MIRROR_H }, 1);
+      const mf = [];
+      for (let i = 0; i < WATER_MIRROR_FRAMES; i++) {
+        const t = new THREE.CanvasTexture(waterMirrorCanvas(i));
+        t.magFilter = THREE.NearestFilter;
+        t.minFilter = THREE.NearestFilter;
+        t.generateMipmaps = false;
+        t.wrapS = t.wrapT = THREE.RepeatWrapping;
+        t.colorSpace = THREE.SRGBColorSpace;
+        mf.push(t);
+        liquidFrames.push(t);
+      }
+      const mm = new THREE.MeshBasicMaterial({ map: mf[0], vertexColors: true });
+      materials.push(mm);
+      group.add(new THREE.Mesh(toGeometry(mg), mm));
+      this.liquids.push({ mat: mm, frames: mf, speed: 380 });
+    }
     // 砂嵐の かべ（第4章）: こい 砂の 地面（うごく え）・もこもこ うごく 砂けむりの かたまり（カメラに むけて たてる）・
     // その 上を 東へ ながれる うすい 砂の まく。とおれない ことが ひとめで わかる
     this.storm = null;
@@ -724,7 +753,7 @@ export class Field3D {
     this.scene.add(group);
     this.static = { group, materials, waterFrames: frames, liquidFrames };
     // 空と きりの 色（マップの sky3d で かえられる。雪の 地方は 白っぽい）
-    this.scene.background = new THREE.Color(map.sky3d?.bg || (dungeon ? ({ ice: '#0d1a33', sand: '#140c06', canal: '#0e0a06' }[map.theme] || '#070505') : '#1c3d6e'));
+    this.scene.background = new THREE.Color(map.sky3d?.bg || (dungeon ? ({ ice: '#0d1a33', sand: '#140c06', canal: '#0e0a06', temple: '#06121a' }[map.theme] || '#070505') : '#1c3d6e'));
     this.scene.fog = new THREE.Fog(map.sky3d?.fog ?? (dungeon ? 0x050304 : 0x9ec3e8), 10, 50);
     this.fogBase = { near: 8, far: 34, color: this.scene.fog.color.clone() };
     this.fogNow = null;
@@ -785,7 +814,8 @@ export class Field3D {
     const m = f.map;
     if (!m || this.lost) return;
     this.time += dt;
-    const sig = m.gates.map((g) => (f.gateFlag(g.flag) ? 1 : 0)).join('');
+    // levels の ある とびら（第4章 Step 7 の 水の 高さ）は、どの フラグも 見る
+    const sig = m.gates.map((g) => (g.levels ? g.levels.map(([fl]) => (f.gateFlag(fl) ? 1 : 0)).join('') : f.gateFlag(g.flag) ? 1 : 0)).join('');
     if (this.mapId !== f.mapId || sig !== this.gateSig) {
       this.gateSig = sig;
       this.build(m);

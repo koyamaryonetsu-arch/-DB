@@ -4,11 +4,11 @@
 // ・sand_castle1・sand_castle2（ダンジョン）… 砂の古城（バルガの 試練。1階に 2つの スイッチを 同時に ふむ しかけ、2階に 船の かじ）
 // ・sand_sea（フィールド・sailable）… 砂の海。すなかぜ号で 砂の 上を すすむ（第2章の 風の海と おなじ しくみ。maps/index.js の sailTile）。
 //   まん中に 砂クジラの ねどこ（砂の うず）。東の はしは まだ 砂嵐（モルガナを たおすまで）
-import { T, parseRows } from '../tiles.js?v=2366dc8fea25';
-import { fbm, hash2 } from '../rng.js?v=2366dc8fea25';
-import { npc } from './npc.js?v=2366dc8fea25';
-import { DUNA_TOWN_ROWS, CASTLE1_ROWS, CASTLE2_ROWS } from './duna-rows.js?v=2366dc8fea25';
-import { DUNA_GATE } from './south.js?v=2366dc8fea25';
+import { T, parseRows } from '../tiles.js?v=a94c44ae0637';
+import { fbm, hash2 } from '../rng.js?v=a94c44ae0637';
+import { npc } from './npc.js?v=a94c44ae0637';
+import { DUNA_TOWN_ROWS, CASTLE1_ROWS, CASTLE2_ROWS } from './duna-rows.js?v=a94c44ae0637';
+import { DUNA_GATE } from './south.js?v=a94c44ae0637';
 
 const inRect = (x, y, r, pad = 0) => x >= r.x - pad && y >= r.y - pad && x < r.x + r.w + pad && y < r.y + r.h + pad;
 
@@ -20,6 +20,10 @@ export const CASTLE_GATE_FLAG = 'c4_castle_gate';
 export const SHIP_FLAG = 'c4_ship';
 export const WHALE_FLAG = 'c4_whale';
 export const STORM_END_FLAG = 'c4_morgana';
+// Step 7: サラが また 仲間に なった（さんばしで）・砂の底の神殿に 入った・第4章クリア
+export const SARA2_FLAG = 'c4_sara2';
+export const TEMPLE_IN_FLAG = 'c4_temple';
+export const CLEAR4_FLAG = 'c4_clear';
 
 // ───────────── 砂の港ドゥナ（フィールド 'duna'）─────────────
 export const DUNA_W = 64;
@@ -237,7 +241,8 @@ export const DUNA_NPCS = [
   // かしらの 館: かしらバルガ・サラ（バルガの 話の あと 仲間に なる〈ゲスト〉。Step 6 の さいごは さんばしで 待つ）
   npc('barga', 'かしらバルガ', at(DUNA_POS.barga), 'barga', 'c4_barga', { dir: 'down' }),
   npc('sara_duna', 'サラ', at(D(34, 12)), 'sara', 'c4_sara_duna', { dir: 'left', show: { all: [DUNA_FLAG], not: ['c4_sara'] } }),
-  npc('sara_pier', 'サラ', [DUNA_POS.pierTop.x + 1, DUNA_POS.pierTop.y + 2], 'sara', 'c4_sara_after', { dir: 'down', show: { all: [WHALE_FLAG] } }),
+  // Step 7: さんばしの サラに 話すと、また 仲間に なる（c4_sara2。さいごまで いっしょ）
+  npc('sara_pier', 'サラ', [DUNA_POS.pierTop.x + 1, DUNA_POS.pierTop.y + 2], 'sara', 'c4_sara_after', { dir: 'down', show: { all: [WHALE_FLAG], not: [SARA2_FLAG] } }),
   // 北の 門の 海賊・東の 門の 見張り
   npc('c4_d_gate1', '砂の海賊', at(D(17, 1)), 'sand_pirate', 'c4_d_gate', { dir: 'down' }),
   npc('c4_d_gate2', '砂の海賊', at(D(21, 1)), 'sand_pirate2', 'c4_d_gate', { dir: 'down' }),
@@ -246,6 +251,8 @@ export const DUNA_NPCS = [
   npc('c4_d_inn', '宿屋のおかみ', at(D(4, 4)), 'pirate_f', 'c4_inn_duna', { dir: 'down' }),
   npc('c4_d_priest', '神父さま', at(D(14, 4)), 'desert_priest', 'church', { dir: 'down' }),
   npc('c4_d_shop', '道具屋のおやじ', at(D(25, 3)), 'pirate_old', 'c4_shop_duna', { dir: 'down' }),
+  // Step 7: 第4章クリアの あと、道具屋の となりで ランク7の 武器と 防具を 売る
+  npc('c4_d_arms', '武器と防具の海賊', at(D(26, 3)), 'pirate_mate', 'c4_arms_duna', { dir: 'down', show: { all: [CLEAR4_FLAG] } }),
   // 海賊の たまり場・広場・船大工の 小屋・港
   npc('c4_d_hall1', '海賊のガブ', at(D(33, 4)), 'sand_pirate', 'c4_d_hall1', { dir: 'right' }),
   npc('c4_d_hall2', '海賊のミーシャ', at(D(36, 5)), 'sand_pirate2', 'c4_d_hall2', { dir: 'left' }),
@@ -405,8 +412,11 @@ function sandSeaField() {
       { id: 'c4_sea_home', x: P.x, y: P.y, w: 2, h: 1, script: 'c4_sea_to_duna' },
       // ねどこに 近づくと 砂クジラが あばれだす（すなかぜ号で 来た あと）
       { id: 'c4_whale_event', x: N.x - R, y: N.y - R, w: R * 2 + 1, h: R * 2 + 1, script: 'c4_whale_event', show: { all: [SHIP_FLAG], not: [WHALE_FLAG] } },
+      // Step 7: サラと いっしょに ねどこへ 来ると、砂クジラが 船ごと 砂の底の神殿へ（c4_temple）
+      { id: 'c4_temple_dive', x: N.x - R, y: N.y - R, w: R * 2 + 1, h: R * 2 + 1, script: 'c4_temple_dive', show: { all: [SARA2_FLAG], not: [TEMPLE_IN_FLAG] } },
     ],
-    links: [{ x: P.x, y: P.y, to: 'duna' }],
+    // ねどこの 砂クジラ → 砂の底の神殿（空気の ドーム）。地図の しるしの 道しるべ
+    links: [{ x: P.x, y: P.y, to: 'duna' }, { x: N.x, y: N.y, to: 'temple_dome' }],
     zoneAt: makeSandSeaZone(sb.tiles), areaName: sandSeaAreaName,
     bgmAt: () => 'sand_sea',
     weatherAt: (x) => (x >= SANDSEA_STORM_X - 5 ? 'sandstorm' : 'sand'),
