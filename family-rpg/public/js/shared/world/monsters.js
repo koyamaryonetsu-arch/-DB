@@ -129,19 +129,21 @@ export function spawnSymbols(world, ms, dt, playersOnMap) {
   }
   const [zone, tod, target] = need[0];
   const burst = (counts[key(zone, tod)] || 0) < target / 2 ? 3 : 1;
+  // map.tableFor … その ときの 世界で 出現表を かえる（第4章 Step 7 の 砂の底の神殿 地下1階: 水が 高いか 低いか。maps/temple.js）
+  const table = map.tableFor ? map.tableFor(zone, playersOnMap, world) : null;
   for (let k = 0; k < burst; k++) {
     const loads = cellLoad(ms, zone, zc[zone], tod).sort((a, b) => a.load - b.load || world.rng.next() - 0.5);
-    spawnIn(world, ms, zone, tod, loads, near);
+    spawnIn(world, ms, zone, tod, loads, near, table);
   }
 }
 
-function spawnIn(world, ms, zone, tod, loads, near) {
+function spawnIn(world, ms, zone, tod, loads, near, table = null) {
   for (const { c } of loads.slice(0, 2)) {
     for (let tries = 0; tries < 6; tries++) {
       const [x, y] = world.rng.pick(c.tiles);
       // プレイヤーの めの まえには でない
       if (near(x, y, 9)) continue;
-      ms.symbols.set(...newSymbol(world, zone, x, y, tod));
+      ms.symbols.set(...newSymbol(world, zone, x, y, tod, table));
       return true;
     }
   }
@@ -164,15 +166,15 @@ function rebalance(world, ms, zc, near) {
       const [x, y] = world.rng.pick(low.c.tiles);
       if (near(x, y, 16)) continue;
       ms.symbols.delete(mover.id);
-      ms.symbols.set(...newSymbol(world, zone, x, y, mover.tod || null));
+      ms.symbols.set(...newSymbol(world, zone, x, y, mover.tod || null, mover.table !== zone ? mover.table : null));
       return;
     }
   }
 }
 
 // tod: 'day' / 'night'（昼と 夜で かわる ちいき）/ null（いつでも）
-function newSymbol(world, zone, x, y, tod = null) {
-  let table = tod === 'night' ? NIGHT_ZONES[zone] || zone : zone;
+function newSymbol(world, zone, x, y, tod = null, forced = null) {
+  let table = forced || (tod === 'night' ? NIGHT_ZONES[zone] || zone : zone);
   if (tod !== 'night' && (zone === 'plains' || zone === 'outskirts') && world.rng.chance(0.025)) table = 'rare';
   const group = rollGroup(world.rng, table);
   const lead = group[0];

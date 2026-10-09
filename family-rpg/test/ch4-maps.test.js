@@ -101,6 +101,9 @@ test('第4章: 人・宝箱・かんばん・しかけ・ワープが ただし�
     for (const lv of levers) for (const st of sets.slice()) sets.push([...st, lv]);
     // しかけを ぜんぶ といた あと（ピラミッドの 歌の ボタン・3階の 近道・4階の ひびの 入った かべ。お昼の 影も）
     sets.push([...ALL, 'c4_scorpion', ...new Set(m.gates.map((g) => g.flag).filter(Boolean))]);
+    // 3つ いじょうの すがたが ある とびら（第4章 Step 7 の 水の 高さ: levels）は、それぞれの 高さの フラグだけ たてた 世界も
+    const plain = [...new Set(m.gates.filter((g) => !g.levels).map((g) => g.flag).filter(Boolean))];
+    for (const f of new Set(m.gates.flatMap((g) => (g.levels || []).map(([lf]) => lf)))) sets.push([...ALL, ...plain, f]);
     const rs = sets.flatMap((fl) => starts.map((s0) => reach(m, s0, fl)));
     const r = (x, y) => rs.some((f) => f(x, y));
     for (const c of m.chests) {

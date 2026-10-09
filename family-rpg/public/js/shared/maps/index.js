@@ -316,6 +316,11 @@ export function effectiveTile(map, x, y, hasFlag) {
   const t = tileAt(map, x, y);
   if (map.gateAt === undefined) map.gateAt = new Map(map.gates.map((g) => [g.y * map.w + g.x, g]));
   const g = map.gateAt.get(y * map.w + x);
+  // levels: [[フラグ, タイル], …] … さいしょに たっている フラグの タイル。どれも なければ closed（第4章 Step 7 の 水の 高さ。3つ いじょうの すがた）
+  if (g?.levels) {
+    for (const [f, tile] of g.levels) if (hasFlag(f)) return tile;
+    return g.closed;
+  }
   if (g && (g.invert ? !hasFlag(g.flag) : hasFlag(g.flag))) return g.open;
   return g?.invert ? g.closed : t;
 }

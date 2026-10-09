@@ -75,9 +75,10 @@ export function dungeonExit(world, s) {
   return fromOk ? { map: from.map, x: from.x, y: from.y, dir: from.dir || 'down' } : null;
 }
 
-// みちびきの糸・帰り道の羽が 使えない 場所（map.noEscape。王家のピラミッド）の ことば
-export function noEscapeText(name) {
-  return `${name}を使おうとした…。\nしかし、ふしぎな力にはばまれて、使えない！\n（ピラミッドの中では、来た道を歩いてもどろう）`;
+// みちびきの糸・帰り道の羽が 使えない 場所（map.noEscape。王家のピラミッド・砂の底の神殿）の ことば
+// map.noEscapeHint … その 場所の ヒント（ない ときは ピラミッドの ことば）
+export function noEscapeText(name, map = null) {
+  return `${name}を使おうとした…。\nしかし、ふしぎな力にはばまれて、使えない！\n（${map?.noEscapeHint || 'ピラミッドの中では、来た道を歩いてもどろう'}）`;
 }
 
 // メニューの「道具」→「使う」（world/services.js の useItem から）。reply(ok, text)
@@ -88,7 +89,7 @@ export function useEscapeItem(world, s, id, reply) {
   const here = MAPS[s.map];
   if (!isDungeonMap(here)) return reply(false, `ここでは使えない。\n（${it.name}は、洞窟や塔の中で使う道具）`);
   // 王家のピラミッド（第4章）: 糸は 使えない（道具は へらない）
-  if (here.noEscape) return reply(false, noEscapeText(it.name));
+  if (here.noEscape) return reply(false, noEscapeText(it.name, here));
   const to = dungeonExit(world, s);
   if (!to) return reply(false, `${it.name}を使った！\nしかし、糸がどこにもつながっていない…`);
   removeItem(c, id, 1);

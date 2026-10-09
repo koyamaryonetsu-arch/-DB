@@ -5,6 +5,7 @@
 import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js';
 import { ITEMS, baseItemId } from '../../shared/data/items.js';
 import { STARTER_EQUIP } from '../../shared/stats.js';
+import { paintMiraPrison, paintWaterStar } from './temple-chars.js';
 
 export const CW = 16;
 export const CH = 21;
@@ -330,6 +331,12 @@ const NPC_LOOKS = {
   pirate_kid: { hair: 0, hairStyle: 'spiky', skin: 2, outfit: 'tunic', cloth: '#c8503a', small: true, hat: 'bandana', hatColor: '#d83a3a' },
   shipwright: { hair: 3, hairStyle: 'short', skin: 1, outfit: 'apron', cloth: '#6a4a2a', beard: true, hat: 'headband', hatColor: '#e8e0c8' },
   pirate_mate: { hair: 0, hairStyle: 'short', skin: 1, outfit: 'vest', cloth: '#2a3a5a', hat: 'bandana', hatColor: '#3a3a4a', weapon: { cat: 'sword', blade: '#e0e4ec', guard: '#8a5a32' } },
+  // 砂の底の神殿（Step 7）: 水のみこミラ（サラの 母。白い ベールと 水色の ころも）・水鏡の魔人モルガナ（青い かみ・水の かんむり・こい 青の ドレスと マント）・
+  // 鏡の騎士（鏡の ように 光る 銀の よろい）・ろうの 番人（水の よろいの 兵士）
+  mira: { hair: '#2a3a5a', hairStyle: 'long', skin: 1, outfit: 'robe', robeMain: '#e8f6fc', robeTrim: '#2a8ac8', female: true, hat: 'veil', cape: '#3aa8c8' },
+  morgana: { hair: '#3a7ac8', hairStyle: 'long', skin: '#d8eef6', outfit: 'robe', robeMain: '#2a4a8a', robeTrim: '#7ad8f0', female: true, hat: 'tiara', hatGem: '#8af0ff', cape: '#1a2a5a' },
+  mirror_guard: { hair: 0, skin: '#c8d8e8', outfit: 'armor', cloth: '#b8d0e8', hat: 'helmet', hatColor: '#d8e8f8', spear: true },
+  prison_guard: { hair: 0, skin: '#a8d8f0', outfit: 'armor', cloth: '#2a6aa8', hat: 'helmet', hatColor: '#4aa8e0', spear: true },
 };
 
 // そうびの かきかた: 'ぶき,よろい,たて,あたま' の もじれつ か { weapon, armor, shield, head }
@@ -2238,6 +2245,13 @@ export function paintSpecial(kind, dir, f) {
       return paintSandDemon(f);
     case 'zaid_demon_true':
       return paintSandDemon(f, true);
+    // 第4章 Step 7: 水の 柱の ろうの ミラ（目を とじている／水が 下がって 目を あけた）・水の守り星（render/temple-chars.js）
+    case 'mira_prison':
+      return fine(paintMiraPrison(false), '#1a3a5a');
+    case 'mira_prison_low':
+      return fine(paintMiraPrison(true), '#1a3a5a');
+    case 'water_star':
+      return fine(paintWaterStar(f), '#1a3a6a');
     default:
       return null;
   }

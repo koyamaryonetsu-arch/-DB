@@ -3,6 +3,7 @@
 import { T } from '../../shared/tiles.js';
 import { makeCanvas, ctxOf } from './pixel.js';
 import { CANAL_CTX, CANAL_CTX_TILES } from './tiles-canal.js';
+import { TEMPLE_TILES } from './tiles-temple.js';
 
 // どの 部分か（ゆか・かべ・水）
 const PART_OF_TILE = {
@@ -29,6 +30,8 @@ for (const name of ['pyramid_top', 'pyramid_side', 'pyr_stone_side', 'pyr_gold_s
 PART_OF_TILE[T.CARPET] = 'carpet';
 // 第4章 Step 6 の 砂の海と 砂の うず（フィールドだけ）も もとの 色の まま
 for (const id of [T.SAND_SEA, T.SAND_WHIRL]) PART_OF_TILE[id] = 'none';
+// 第4章 Step 7 の 砂の底の神殿の タイル（水・鏡・ろう・水鏡・ほこら など）も もとの 色の まま（神殿の 色で かいてある）
+for (const id of TEMPLE_TILES) PART_OF_TILE[id] = 'none';
 // mask … 地下水路の え で かいた たいまつ・レバー・かいだん など（mask の CANAL_CTX）も 色を かえない
 // 王家のピラミッドの 石の 文字ばん（かんばんの mask 4）も もとの 色の まま
 export const partOfTile = (id, mask = 0) => ((mask & CANAL_CTX && CANAL_CTX_TILES.has(id)) || (id === T.SIGN && mask & 4) ? 'none' : PART_OF_TILE[id] || 'floor');
@@ -100,7 +103,15 @@ const CASTLE = {
   flame: null,
   keepCarpet: true,
 };
-const THEMES = { ice: ICE, lava: LAVA, sand: SAND, canal: CANAL, pyramid: PYRAMID, castle: CASTLE };
+// 砂の底の神殿（第4章 Step 7）: 青みどりの 古い 石の ゆか・こい 青の 石の かべ・青い 火の たいまつ・すきとおった 水・青い 宝石
+const TEMPLE = {
+  floor: G([0, '#0c1418'], [0.1, '#1e3038'], [0.2, '#3a5862'], [0.3, '#5e808c'], [0.45, '#7a9ca8'], [0.7, '#a8c4cc'], [1, '#f0fbff']),
+  wall: G([0, '#06100e'], [0.1, '#12262c'], [0.22, '#24464e'], [0.35, '#3e6a72'], [0.6, '#6a98a0'], [1, '#d8f4f8']),
+  water: G([0, '#06223a'], [0.35, '#1d6ca8'], [0.7, '#5cbae8'], [1, '#f0fcff']),
+  gem: G([0, '#0a3a58'], [0.5, '#3ac8e8'], [1, '#e8ffff']),
+  flame: G([0, '#1a4a8a'], [0.5, '#4ab8f0'], [1, '#e8fbff']),
+};
+const THEMES = { ice: ICE, lava: LAVA, sand: SAND, canal: CANAL, pyramid: PYRAMID, castle: CASTLE, temple: TEMPLE };
 
 // 1つの 色を かえる
 export function themeRgb(r, g, b, theme, part) {

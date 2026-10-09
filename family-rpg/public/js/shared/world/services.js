@@ -394,7 +394,7 @@ export function menuAction(world, s, msg) {
       }
       if (eff.type === 'warp') {
         // 王家のピラミッド（第4章）: 帰り道の羽は 使えない（道具は へらない。行き先を えらぶ 前に 知らせる）
-        if (MAPS[s.map]?.noEscape) return reply(false, noEscapeText(it.name));
+        if (MAPS[s.map]?.noEscape) return reply(false, noEscapeText(it.name, MAPS[s.map]));
         // 行き先は リーダーと おなじ（パーティーで リーダーの 冒険に 来ている ときは リーダーの きろく。travel.js）
         const dest = msg.place && warpPlaces(warpOwner(world, s)).includes(msg.place) ? msg.place : null;
         if (!dest) return reply(false, 'どこへ行く？');

@@ -14,6 +14,8 @@ import { HAMIL_ROWS, WELL_ROWS, CANAL1_ROWS, CANAL2_ROWS, CANAL3_ROWS, PALACE_CA
 import { PYR1_ROWS, PYR_B1_ROWS, PYR2_ROWS, PYR3_ROWS, PYR4_ROWS } from './pyramid-rows.js';
 // Step 6: 砂の港ドゥナ・砂の古城・砂の海（maps/duna.js）
 import { buildDunaMaps, DUNA_FLAG, DUNA_POS, DUNA_TOWN, DUNA_VALLEY_EXIT } from './duna.js';
+// Step 7: 砂の底の神殿（maps/temple.js）
+import { buildTempleMaps, TEMPLE_MAPS, STAR_FLAG, CLEAR4_FLAG } from './temple.js';
 
 const HAM = SOUTH_PLACES.hamil;
 const H = (x, y) => [HAM.x + x, HAM.y + y];
@@ -32,7 +34,9 @@ export const CH4_MAPS = ['south', 'north_well', 'canal1', 'canal2', 'canal3', 'p
   // Step 4: 王家のピラミッド（1階・地下・2階・3階・4階）
   'pyramid1', 'pyramid_b1', 'pyramid2', 'pyramid3', 'pyramid4',
   // Step 6: 砂の港ドゥナ（フィールド）・砂の古城（1階・2階）・砂の海（すなかぜ号で すすむ）
-  'duna', 'sand_castle1', 'sand_castle2', 'sand_sea'];
+  'duna', 'sand_castle1', 'sand_castle2', 'sand_sea',
+  // Step 7: 砂の底の神殿（空気のドーム・地下1階〜3階・水鏡の広間）
+  ...TEMPLE_MAPS];
 export const DUNA_MAPS = ['duna', 'sand_castle1', 'sand_castle2', 'sand_sea'];
 export const PYRAMID_MAPS = ['pyramid1', 'pyramid_b1', 'pyramid2', 'pyramid3', 'pyramid4'];
 
@@ -99,6 +103,8 @@ export function ch4SearchMats(mapId) {
   // Step 6: 砂の港ドゥナ（港の たる・箱）と 砂の古城
   if (mapId === 'duna') return ['pretty_shell', 'beast_fang', 'wind_feather'];
   if (mapId.startsWith('sand_castle')) return ['silver_shard', 'magic_powder', 'iron_shard'];
+  // Step 7: 砂の底の神殿（ドームの つぼ）
+  if (mapId.startsWith('temple_')) return ['pretty_shell', 'silver_shard', 'magic_powder'];
   return null;
 }
 
@@ -161,6 +167,9 @@ const SOUTH_NPCS = [
   // 水の神殿（守り星の 台座は からっぽ）
   npc('c4_s_apprentice', 'みこ見習いのリタ', S(8, 24), 'w_priestess', 'c4_s_apprentice', { dir: 'left' }),
   npc('c4_s_pray', 'いのる女の人', S(5, 19), 'desert_f2', 'c4_s_pray', { dir: 'down' }),
+  // Step 7: 第4章クリアの あとは、水のみこミラが 水の神殿に もどり、台座に 水の守り星が かがやく
+  npc('mira_temple', '水のみこミラ', S(5, 22), 'mira', 'c4_mira_temple', { dir: 'down', show: { all: [CLEAR4_FLAG] } }),
+  npc('water_star_altar', '水の守り星', S(6, 24), 'water_star', 'c4_s_pedestal', { dir: 'down', solid: false, show: { all: [CLEAR4_FLAG] } }),
   // 宮殿の 前の 広場
   npc('c4_s_oldman', '物知りのおじいさん', S(21, 19), 'desert_elder', 'c4_s_oldman', { wander: 1 }),
   npc('c4_p_gate1', '宮殿の門番', S(24, 21), 'palace_guard', 'c4_p_gate', { show: DAY }),
@@ -307,10 +316,33 @@ function oasisRefill(sb) {
   return out;
 }
 
+// 水の守り星を 取りもどす（Step 7。c4_star）と、ハミルの オアシスの まわりに 緑が もどり、王都の ふん水から 水が ふき上がる
+export const GREEN_FLAG = STAR_FLAG;
+function oasisGreen(sb) {
+  const out = [];
+  HAMIL_ROWS.forEach((row, y) => [...row].forEach((ch, x) => {
+    // オアシスの まわりの 広場（;）は 草に、村の 砂ばく（0）の ところどころに 花
+    const plaza = ch === ';' && x >= 10 && x <= 19 && y >= 10 && y <= 16;
+    const flower = ch === '0' && (x * 7 + y * 3) % 5 === 0;
+    if (!plaza && !flower) return;
+    const [gx, gy] = H(x, y);
+    const open = plaza ? ((x + y) % 4 ? T.GRASS : T.FLOWERS) : T.TOWN_FLOWERS;
+    sb.gates.push({ x: gx, y: gy, closed: sb.tiles[gy * sb.w + gx], open, flag: GREEN_FLAG });
+    out.push([gx, gy]);
+  }));
+  return out;
+}
+function fountainFlow(sb) {
+  const F = SAFARA_POS.fountain;
+  for (let y = F.y - 1; y <= F.y + 1; y++) for (let x = F.x - 1; x <= F.x + 1; x++) sb.gates.push({ x, y, closed: T.DRY_FOUNTAIN, open: T.FULL_FOUNTAIN, flag: GREEN_FLAG });
+}
+
 function buildField() {
   const sb = buildSouth();
   canalEntrance(sb);
   const refill = oasisRefill(sb);
+  oasisGreen(sb);
+  fountainFlow(sb);
   for (const s of SOUTH_SIGNS) sb.tiles[s.y * sb.w + s.x] = T.SIGN;
   // 砂嵐のかべを しらべると だいほん（道の ところ）
   const actions = [];
@@ -708,7 +740,7 @@ function pyramid() {
 }
 
 export function buildCh4Maps() {
-  return { south: buildField(), north_well: northWell(), ...canal(), ...pyramid(), ...buildDunaMaps() };
+  return { south: buildField(), north_well: northWell(), ...canal(), ...pyramid(), ...buildDunaMaps(), ...buildTempleMaps() };
 }
 
 export { SOUTH_POS };
