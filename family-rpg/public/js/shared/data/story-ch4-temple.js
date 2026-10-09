@@ -16,8 +16,6 @@ import { SANDSEA_POS, DUNA_POS, SARA2_FLAG } from '../maps/duna.js';
 import { SOUTH_PLACES, SAFARA_POS } from '../maps/south.js';
 import { NPC_SUPPORTS } from './shops.js';
 import { CH4_GUESTS } from './items-ch4.js';
-// B（戦い）の データが 入るまでの 仮の 出現表・きまった 戦い（B の ものが 入ったら、この 行と temple-stub.js を 消す）
-import './temple-stub.js';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

@@ -25,6 +25,12 @@ const GEAR = {
   23: { warrior: ['steel_sword', 'steel_mail', 'steel_shield', 'steel_helm'], monk: ['steel_claw', 'snow_gi', null, 'fur_hat'], priest: ['steel_spear', 'snow_robe', 'steel_shield', 'fur_hat'], mage: ['snow_staff', 'snow_robe', null, 'fur_hat'], performer: ['ice_fan', 'snow_gi', 'steel_shield', 'fur_hat'] },
   // 第4章: 王都サファラの ランク6の 店の 装備（Step 3 から）
   33: { warrior: ['shamshir', 'sand_mail', 'crescent_shield', 'sand_helm'], monk: ['tiger_claw', 'sandstorm_gi', null, 'turban'], priest: ['sand_lance', 'moon_robe', 'crescent_shield', 'turban'], mage: ['oasis_staff', 'moon_robe', null, 'turban'], performer: ['sandwind_fan', 'sandstorm_gi', 'crescent_shield', 'turban'] },
+  // 第4章 Step 7（砂の底の神殿）: ランク7の 店は まだ ないので、ランク6 ＋ α（★三日月の剣と、それまでの ボスの アクセサリー。5つめ … アクセサリー）
+  38: {
+    warrior: ['crescent_blade', 'sand_mail', 'crescent_shield', 'sand_helm', 'whale_charm'], monk: ['tiger_claw', 'sandstorm_gi', null, 'turban', 'scorpion_brooch'],
+    priest: ['sand_lance', 'moon_robe', 'crescent_shield', 'turban', 'royal_bracelet'], mage: ['oasis_staff', 'moon_robe', null, 'turban', 'majin_lamp'],
+    performer: ['sandwind_fan', 'sandstorm_gi', 'crescent_shield', 'turban', 'mirage_ring'],
+  },
 };
 
 // gearTier: そうびの だんかい（GEAR の キー。ないときは レベルで きめる。第3章は 20 / 23 を 指定する）
@@ -34,8 +40,8 @@ export function makeChar(job, level, jobLv, name, gearTier = null) {
   c.level = level;
   c.jobs[job] = { lv: jobLv, b: jobBattlesForLevel(jobLv, JOBS[job].tier) };
   const tier = gearTier || (level >= 14 ? 14 : level >= 10 ? 10 : level >= 7 ? 7 : level >= 4 ? 4 : 1);
-  const [w, a, s, h] = GEAR[tier][job];
-  c.equip = { weapon: w, armor: a, shield: s || null, head: h || null, acc: null };
+  const [w, a, s, h, acc] = GEAR[tier][job];
+  c.equip = { weapon: w, armor: a, shield: s || null, head: h || null, acc: acc || null };
   fullHeal(c);
   return c;
 }
@@ -50,6 +56,8 @@ export function runBattle(party, enemyList, opts = {}) {
     canFlee: false,
     // 呪文が ふうじられた 場所（王家のピラミッド 2階）
     noSpells: !!opts.noSpells,
+    // 水の守りの歌（第4章 Step 7。モルガナ 真の すがた）
+    song: opts.song,
   });
   // 反撃の構えに 気づかない（なぐり続ける）人の つよさを はかる
   if (opts.ignoreStance) b.ignoreStance = true;
@@ -62,6 +70,10 @@ export function runBattle(party, enemyList, opts = {}) {
   // 砂に もぐる 魔物を 知っている（とび出す 前に 身を 守る）/ 知らない（もぐっても 攻撃しようと して 空ぶり。前ぶれでも 守らない）。battle-ch4.js
   if (opts.knowsBurrow) b.knowsBurrow = true;
   if (opts.ignoreBurrow) b.ignoreBurrow = true;
+  // 砂の底の神殿の しかけを 知っている（大波の 前に 身を 守る・おなじ 呪文を つづけない・水の衣に きずな技・水のろうを こわす）/
+  // 知らない（光っていても 呪文・大波でも 身を 守らない）。battle-temple.js
+  if (opts.knowsTemple) b.knowsTemple = true;
+  if (opts.templeNaive) b.templeNaive = true;
   let real = 0;
   let acts = 0;
   while (!b.over && real < 30 * 60 * 1000) {
@@ -195,6 +207,26 @@ export function whaleFight(lv, seed, know, tier = 33, log = false) {
   return runBattle(party, FIXED_ENCOUNTERS.sand_whale.group.flatMap(([sp, n]) => Array(n).fill(sp)), { seed, boss: true, knowsBurrow: know, ignoreBurrow: !know, log });
 }
 
+// Step 7: 砂の底の神殿（出現表・きまった 戦い）と モルガナ。どれも サラ（ゲスト）と 5人。装備は ランク6 ＋ α（GEAR 38）
+export const CH4_TEMPLE = [['t_b1_wet', 37, 38], ['t_b1_dry', 37, 38], ['t_b2', 37, 38], ['t_b2', 38, 38], ['t_b3', 38, 38]];
+export const CH4_TEMPLE_FIXED = [['mirror_knights', 37, 38], ['mirror_knights', 38, 38], ['utsushimi', 37, 38], ['utsushimi', 38, 38], ['prison_guards', 38, 38], ['prison_guards', 39, 38]];
+// モルガナ → ミラの いのりで 全回復 → 真の すがた: レベル
+export const CH4_MORGANA = [36, 37, 38, 39, 40];
+const groupOf = (enc) => FIXED_ENCOUNTERS[enc].group.flatMap(([sp, n]) => Array(n).fill(sp));
+// know … 知っている 人（月の鏡を 使い、影の ある 本物を ねらう・おなじ 呪文を つづけない・水の衣に きずな技〈雷〉・大波の 前に 身を 守る・水のろうを こわす）。
+// 知らない 人 … 分身にも 当てる・おなじ 呪文を つづける・光っていても 呪文・大波でも 身を 守らない（雷も ねらって 使わない）。
+// song … 水の守りの歌（わらべ歌を 4つ 聞いている。ふつうは 聞いている）
+export function morganaFight(lv, seed, know, song = true, tier = 38, log = false) {
+  const party = withSara(PARTY(lv, 10, tier), lv);
+  const flags = know ? { knowsMirage: true, knowsTemple: true } : { templeNaive: true };
+  const r1 = runBattle(party, groupOf('morgana'), { seed, boss: true, carry: true, log, ...flags });
+  if (r1.outcome !== 'win') return { ...r1, phase: 1 };
+  // ミラの いのり: みんなの HP・MPが 全部 もどる（たおれた 人も 起きる）
+  for (const c of party) fullHeal(c);
+  const r2 = runBattle(party, groupOf('morgana_true'), { seed: seed + 1, boss: true, carry: true, song, log, ...flags });
+  return { ...r2, seconds: r1.seconds + r2.seconds, acts: r1.acts + r2.acts, mpUsed: r1.mpUsed + r2.mpUsed, phase: 2, hp1: r1.hpLeft };
+}
+
 // 第2章: node tools/sim.js [回数] ch2
 if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'ch4') {
   const rng = makeRng(444);
@@ -299,6 +331,38 @@ if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'ch4') {
     }
   }
   if (process.env.LOG) whaleFight(Number(process.env.LV || 36), Number(process.env.SEED || 1), !process.env.IGNORE, 33, true);
+} else if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'ch4temple') {
+  // 第4章 Step 7: node tools/sim.js [回数] ch4temple
+  const rng = makeRng(7777);
+  for (const [table, lv, tier] of CH4_TEMPLE) {
+    const res = [];
+    for (let i = 0; i < N; i++) res.push(runBattle(withSara(PARTY(lv, 10, tier), lv), rollGroup(table, rng), { seed: i }));
+    summarize(`${table} Lv${lv}＋サラ`, res);
+  }
+  // きまった 戦い（鏡の騎士 2体・鏡のうつし身・水のろうの番人 2体）。知っている（光っている 騎士に 呪文を 使わない）・知らない
+  for (const know of [true, false]) {
+    for (const [enc, lv, tier] of CH4_TEMPLE_FIXED) {
+      const res = [];
+      for (let i = 0; i < N; i++) res.push(runBattle(withSara(PARTY(lv, 10, tier), lv), groupOf(enc), { seed: 777 + i * 7919, knowsTemple: know, templeNaive: !know }));
+      summarize(`${enc} Lv${lv}＋サラ${know ? '' : '（知らない）'}`, res);
+    }
+  }
+  // モルガナ → 真の すがた（つづけて。シードは ちらして）。1だんめで 負けた わりあいも 出す
+  const songs = process.env.NOSONG ? [true, false] : [true];
+  for (const song of songs) {
+    for (const know of [true, false]) {
+      for (const lv of CH4_MORGANA) {
+        const res = [];
+        for (let i = 0; i < Math.max(N, 40); i++) res.push(morganaFight(lv, 777 + i * 7919, know, song));
+        summarize(`BOSS morgana→true Lv${lv}${know ? '（知っている）' : '（知らない）'}${song ? '' : '・歌なし'}`, res);
+        const lost1 = res.filter((r) => r.phase === 1).length;
+        const won1 = res.filter((r) => r.phase === 2);
+        const hp1 = won1.length ? won1.reduce((t, r) => t + r.hp1, 0) / won1.length : 0;
+        console.log(`${''.padEnd(36)}（1だんめで 負け ${Math.round((lost1 / res.length) * 100)}%・1だんめの あとの HP残 ${Math.round(hp1 * 100)}%）`);
+      }
+    }
+  }
+  if (process.env.LOG) morganaFight(Number(process.env.LV || 38), Number(process.env.SEED || 1), !process.env.IGNORE, !process.env.NOSONG, 38, true);
 } else if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'ch2') {
   const rng = makeRng(777);
   // 職業レベルは 上がりやすく した ので、第2章では 基本職を ほぼ マスター している めやす

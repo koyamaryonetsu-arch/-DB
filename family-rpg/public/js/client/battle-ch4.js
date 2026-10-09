@@ -5,14 +5,16 @@
 // ・砂に もぐる（Step 6 の 砂クジラ）: もぐった 敵は 砂の 山に なって ねらえない。砂が もり上がると 山が ゆれて 前ぶれ
 import { ITEMS } from '../shared/data/items.js';
 import { BW, BH } from './render/battlefx.js';
+// 第4章 Step 7 の 砂の底の神殿と モルガナ（battle-temple.js）
+import { TEMPLE_SCREEN_ANIMS, TEMPLE_ALLY_FX, templePresent } from './battle-temple.js';
 
 export const MIRROR_ID = 'moon_mirror';
 const MIRROR_INFO = '月の光で、まぼろしの分身をすべて消す。本物は、まぶしくて1回動けなくなる。\n使うと、光がもどるまで少し時間がかかる。';
 
 // 敵が 使うと、がめんの まん中に 大きく 出す 技
-const SCREEN_ANIMS = new Set(['sandstorm', 'sand_vortex', 'sand_spray', 'whale_jump']);
+const SCREEN_ANIMS = new Set(['sandstorm', 'sand_vortex', 'sand_spray', 'whale_jump', ...TEMPLE_SCREEN_ANIMS]);
 // 味方の まどに 出す えんしゅつ（client/battle.js の allyFxKind）
-export const CH4_ALLY_FX = { sandstorm: 'wind', sand_vortex: 'quake', sand_spray: 'wind', whale_jump: 'quake' };
+export const CH4_ALLY_FX = { sandstorm: 'wind', sand_vortex: 'quake', sand_spray: 'wind', whale_jump: 'quake', ...TEMPLE_ALLY_FX };
 
 // 「道具」の はじめに ならべる もの（a … コマンドを えらんでいる 味方）
 export function ch4ItemEntries(scene, a) {
@@ -69,6 +71,8 @@ export function ch4Present(scene, ev, fx, anim, actor, lead) {
     if (lead) scene.fx.at(lead, go);
     else go();
   }
+  // 砂の底の神殿と モルガナ（はね返す・鏡写し・水の衣・大波・水のろう・水の守りの歌）
+  templePresent(scene, ev, fx, anim, actor);
 }
 
 // 分身に 当たって 消えた（けっかの vanish）。たおれた ときの 音・点めつの かわりに、むらさきに ゆらいで 消える

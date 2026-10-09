@@ -176,7 +176,7 @@ export function abilityDetail(id, char, { brief = false } = {}) {
 }
 
 export function statusNames(st) {
-  const n = { sleep: 'ねむり', paralyze: 'マヒ', confuse: '混乱', blind: 'まぼろし', silence: 'ふうじ', poison: '毒' };
+  const n = { sleep: 'ねむり', paralyze: 'マヒ', confuse: '混乱', blind: 'まぼろし', silence: 'ふうじ', poison: '毒', prison: '水のろう' };
   return (st || []).map((s) => n[s] || s).join(' ');
 }
 

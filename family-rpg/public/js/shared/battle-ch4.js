@@ -79,6 +79,9 @@ export function mirageHit(b, c, t, ev) {
 // まぼろしの わらい: 当てた 人の MPが へる（1回の 行動で いくつ 消しても、ことばは 1回。へる MPは 消した 数だけ）
 function laugh(b, c, ev) {
   const real = b.get(b.mirage.real);
+  // 分身に 当てると 本物の キズが いえる 魔物（Step 7 の モルガナ。mirage.heal … 最大HPの わりあい）
+  const conf = MONSTERS[b.mirage.species].mirage;
+  if (conf.heal) return mirageHeal(b, real, conf, ev);
   // 合体技の 2人の 力を 合わせた かげ（battle.js の dualProxy）でも、ほんとうの 人の MPを へらす
   const who = b.get(c.id) || c;
   if (!real?.alive || who.side !== 'ally') return;
@@ -103,6 +106,25 @@ function laugh(b, c, ev) {
   } else ev.postLines[ev.laughAt[who.id]] = text(who.id, L[who.id]);
 }
 
+// 分身に 当てた: 本物の HPが 少し 回復する（1回の 行動で 何体 消しても、ことばは 1回。回復は 消した 数だけ）。
+// 名前は 言わない（どれが 本物か 分からない ように）
+function mirageHeal(b, real, conf, ev) {
+  if (!real?.alive) return;
+  const h = Math.min(real.maxHp - real.hp, Math.round(real.maxHp * conf.heal));
+  real.hp += h;
+  mirageSync(b, real);
+  ev.upd.push(real);
+  ev.mirageHeal = (ev.mirageHeal || 0) + h;
+  ev.postLines = ev.postLines || [];
+  const name = MONSTERS[b.mirage.species].name;
+  const text = ev.mirageHeal > 0 ? `${name}のキズが、${ev.mirageHeal}回復した…！` : `${name}は、キズひとつない…。`;
+  if (ev.healAt === undefined) {
+    ev.postLines.push(`どこからか、${conf.laughBy || 'わらい声'}がひびく…「ふふふ…」`);
+    ev.healAt = ev.postLines.length;
+    ev.postLines.push(text);
+  } else ev.postLines[ev.healAt] = text;
+}
+
 // kill() の はじめ: 分身は 消える（たおした ことに ならない）。消えた ときの ことば（分身で なければ null）
 export function mirageVanish(b, t, ev) {
   if (!t.clone) return null;
@@ -119,7 +141,7 @@ export function mirageDown(b, t, ev) {
     vanish(b, x);
     if (ev) ev.upd.push(x);
   }
-  return gone.length ? ['まぼろしの分身も、砂になって消えていった…！'] : [];
+  return gone.length ? [MONSTERS[b.mirage.species].mirage.downMsg || 'まぼろしの分身も、砂になって消えていった…！'] : [];
 }
 
 // 本物の HPが かわった: 分身の HPも おなじに 見せる（どれが 本物か、HPでは 分からない）
@@ -145,7 +167,7 @@ export function mirageAction(b, m) {
   if (m.dazzled) {
     m.dazzled = false;
     hint();
-    return { type: 'ability', id: 'm_mirage_dazzled' };
+    return { type: 'ability', id: MONSTERS[m.species].mirage.dazzled || 'm_mirage_dazzled' };
   }
   if (missing && M.count >= M.cycle) {
     M.count = 0;

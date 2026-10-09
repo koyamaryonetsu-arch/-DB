@@ -18,6 +18,8 @@ import { MONSTERS_RARE } from './monsters-rare.js';
 import { MONSTERS_CH3 } from './monsters-ch3.js';
 import { MONSTERS_CH4 } from './monsters-ch4.js';
 import { MONSTERS_R23 } from './monsters-r23.js';
+// 第4章 Step 7「砂の底の神殿とモルガナ」（monsters-temple.js）
+import { MONSTERS_TEMPLE } from './monsters-temple.js';
 
 export const MONSTERS = {
   pururin: {
@@ -230,3 +232,5 @@ Object.assign(MONSTERS, MONSTERS_CH3);
 Object.assign(MONSTERS, MONSTERS_CH4);
 // あたらしい 仲間モンスター（monsters-r23.js: どんぐりん・ぷるりんタワー・いかずちドラゴン など）
 Object.assign(MONSTERS, MONSTERS_R23);
+// 第4章 Step 7「砂の底の神殿」の 魔物と モルガナ（monsters-temple.js）
+Object.assign(MONSTERS, MONSTERS_TEMPLE);

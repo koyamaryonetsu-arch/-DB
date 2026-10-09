@@ -3,7 +3,7 @@
 // → 地下1階「水のかいろう」（赤・青・黄の レバーで 水の 高さ 上・中・下）→ 地下2階「鏡の間」（鏡の騎士・月の鏡で 光る 道・鏡の うつし身・いやしの泉）
 // → 地下3階「水のろう」（ろうの 番人 → ミラが 目を あける）→ 水鏡の広間（モルガナ → ミラの いのり → 真の姿。c4_morgana）
 // → 水の守り星（c4_star）→ 町の ようすが かわる → 王宮 → 夜の 中庭 → 第4章クリア（c4_clear）
-// 戦いの しくみ・魔物・きまった 戦いは B（戦い）。ここでは 戦いは テストの 中で 勝たせる（B の データが ない 間は data/temple-stub.js）
+// 戦いの しくみ・魔物・きまった 戦いは B（戦い）。ここでは 戦いは テストの 中で 勝たせる
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { GameWorld } from '../public/js/shared/world/world.js';
