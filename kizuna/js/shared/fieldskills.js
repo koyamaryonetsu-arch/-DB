@@ -5,10 +5,10 @@
 //   ・ルーラは 洞窟や 塔の 中では 出さない（天井に 頭を ぶつける だけ）
 //   ・MPが 足りない 技・唱える 人が 死んでいる ときは 出すが えらべない（why: 'mp' / 'dead'）
 //   ・呪文が ふうじられた 場所（noSpells。王家のピラミッド 2階）では 呪文を 出すが えらべない（why: 'seal'）
-import { ABILITIES } from './data/abilities.js?v=e28f090d0ad9';
-import { ITEMS } from './data/items.js?v=e28f090d0ad9';
-import { learnedAbilities, mpCost, comboAllowed, weaponOk } from './stats.js?v=e28f090d0ad9';
-import { spellSealed } from './battle.js?v=e28f090d0ad9';
+import { ABILITIES } from './data/abilities.js?v=b2a0d9b4a2ff';
+import { ITEMS } from './data/items.js?v=b2a0d9b4a2ff';
+import { learnedAbilities, mpCost, comboAllowed, weaponOk } from './stats.js?v=b2a0d9b4a2ff';
+import { spellSealed } from './battle.js?v=b2a0d9b4a2ff';
 
 // mapKind: 今いる マップの しゅるい（'field' なら そと）
 // へんじ: [{ id, cost, ok, why }]（覚えた じゅん）
