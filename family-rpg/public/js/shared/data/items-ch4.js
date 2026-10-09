@@ -1,5 +1,5 @@
 // 第4章「砂の海にしずむ星」の 品物と お店（items.js・shops.js で まぜる）
-// 装備の ランク6「魔法」は 王都サファラ（Step 3）、ランク7は 砂の港ドゥナ（Step 6）で ふえる
+// 装備の ランク6「魔法」は 王都サファラ（Step 3）、ランク7「プラチナ」は 砂の港ドゥナ（Step 7。第4章クリアの あと）で ふえる
 // ランク6の 店の 品は、ランク5（カナトコの はがねの 品）より 少し 強い（items.js の EQUIP_RANKS: 剣 50・服 27）
 export const ITEMS_CH4 = {
   sand_cloak: {
@@ -83,6 +83,36 @@ export const ITEMS_CH4 = {
     name: '砂クジラのお守り', type: 'acc', rank: 7, unique: true, bonus: { hp: 30, def: 10 }, resist: { blind: 0.5, poison: 0.6 }, price: 0, sell: 1200,
     desc: '正気にもどった砂クジラが、お礼にくれたお守り。砂の海の主の力が、やどっている。HPと守りが上がり、マヌーサと毒にかかりにくくなる。',
   },
+
+  // ───── 砂の底の神殿と エンディング（Step 7）─────
+  // だいじなもの: 水の守り星（水鏡の広間。モルガナを たおすと 取りもどせる。エンディングで 水のみこミラが 水の神殿へ もどす）
+  water_star: {
+    name: '水の守り星', type: 'key',
+    desc: '砂の国の水を守る、青くすきとおった星。手のひらの上で、きれいな水のように、ゆらゆらと光っている。',
+  },
+  // ランク7の よろい（地下1階の とび石の 先の 宝箱。第4章クリアの あとは ドゥナの 防具屋でも 買える）
+  water_hagoromo: {
+    name: '水の羽衣', type: 'armor', rank: 7, armorType: 'cloth', def: 33, bonus: { mag: 5 }, resist: { fire: 0.8 }, price: 5600,
+    desc: '水の神殿に伝わる、うすい青の羽衣。水のように軽く、だれでも装備できる。魔力が上がり、炎に少し強い。',
+  },
+
+  // ───── ランク7「プラチナ」: 砂の港ドゥナの 武器と防具（第4章クリアの あと。Step 7）─────
+  platinum_sword: { name: 'プラチナソード', type: 'weapon', rank: 7, cat: 'sword', atk: 61, price: 6400, desc: '白銀にかがやくプラチナの剣。重さもちょうどよく、よく切れる。' },
+  platinum_axe: { name: 'プラチナアックス', type: 'weapon', rank: 7, cat: 'axe', atk: 69, bonus: { agi: -3 }, price: 6900, desc: 'プラチナの大きなオノ。重いが、一撃がとても強い。' },
+  platinum_dagger: { name: 'プラチナダガー', type: 'weapon', rank: 7, cat: 'dagger', atk: 44, bonus: { agi: 6 }, price: 4800, desc: 'プラチナの短剣。羽のように軽く、素早くふるえる。' },
+  harpoon: { name: 'ハープーン', type: 'weapon', rank: 7, cat: 'spear', atk: 56, price: 6000, desc: '砂の海の漁で使う、長い鉄のやり。先が大きなカギの形をしている。' },
+  platinum_claw: { name: 'プラチナクロー', type: 'weapon', rank: 7, cat: 'claw', atk: 55, bonus: { agi: 4 }, price: 5900, desc: 'プラチナのするどいツメ。' },
+  pirate_whip: { name: '海賊のムチ', type: 'weapon', rank: 7, cat: 'whip', atk: 52, price: 5900, desc: '砂の海賊が使う、船のつなをあんだ長いムチ。マストの上にもとどく。' },
+  pearl_staff: { name: 'しんじゅのつえ', type: 'weapon', rank: 7, cat: 'staff', atk: 22, bonus: { mag: 27, heal: 15 }, price: 5700, desc: '砂の海の大きなしんじゅがついたつえ。呪文の力が上がる。' },
+  ripple_fan: { name: 'さざなみのおうぎ', type: 'weapon', rank: 7, cat: 'fan', atk: 40, bonus: { agi: 10 }, price: 5200, desc: 'ふると、さざなみのような音がする、青いおうぎ。' },
+  platinum_boomerang: { name: 'プラチナブーメラン', type: 'weapon', rank: 7, cat: 'boomerang', atk: 39, price: 6000, desc: 'プラチナでできた、よく飛ぶブーメラン。' },
+  anchor_bat: { name: 'いかりのバット', type: 'weapon', rank: 7, cat: 'bat', atk: 58, bonus: { agi: 2 }, price: 5900, desc: '船のいかりの形をした、重いバット。' },
+  platinum_mail: { name: 'プラチナメイル', type: 'armor', rank: 7, armorType: 'heavy', def: 56, bonus: { agi: -2 }, price: 6900, desc: '白銀にかがやくプラチナのよろい。' },
+  pearl_robe: { name: 'しんじゅのローブ', type: 'armor', rank: 7, armorType: 'robe', def: 37, bonus: { mag: 9, heal: 8 }, price: 5600, desc: 'しんじゅのつぶをぬいこんだローブ。魔力が上がる。' },
+  stream_gi: { name: '水流の道着', type: 'armor', rank: 7, armorType: 'gi', def: 40, bonus: { agi: 10 }, price: 5600, desc: '水の流れのもようの道着。とても動きやすい。' },
+  platinum_shield: { name: 'プラチナシールド', type: 'shield', rank: 7, def: 33, price: 5200, desc: 'プラチナの大きなたて。' },
+  platinum_helm: { name: 'プラチナヘルム', type: 'head', rank: 7, helm: true, def: 20, price: 4200, desc: 'プラチナのかぶと。戦士などが装備できる。' },
+  pirate_hat: { name: '海賊のぼうし', type: 'head', rank: 7, def: 13, bonus: { agi: 2 }, resist: { blind: 0.9 }, price: 2600, desc: '砂の海賊がかぶる、つばの広いぼうし。だれでも装備できる。' },
 };
 
 // ものがたりで いっしょに たたかう ゲスト（第4章 Step 6〜7。story-ch4-duna.js が shops.js の GUESTS に まぜる）
@@ -106,6 +136,10 @@ export const CH4_ITEM_KANA = {
   moon_mirror: 'つきのかがみ', royal_gold_sword: 'おうけのおうごんのけん', royal_bracelet: 'おうけのうでわ',
   queen_letter: 'じょおうのてがみ', majin_lamp: 'まじんのらんぷ', mirage_ring: 'まぼろしのゆびわ',
   ship_rudder: 'ふねのかじ', whale_charm: 'すなくじらのおまもり',
+  water_star: 'みずのまもりぼし', water_hagoromo: 'みずのはごろも',
+  platinum_sword: 'ぷらちなそーど', platinum_axe: 'ぷらちなあっくす', platinum_dagger: 'ぷらちなだがー', harpoon: 'はーぷーん', platinum_claw: 'ぷらちなくろー',
+  pirate_whip: 'かいぞくのむち', pearl_staff: 'しんじゅのつえ', ripple_fan: 'さざなみのおうぎ', platinum_boomerang: 'ぷらちなぶーめらん', anchor_bat: 'いかりのばっと',
+  platinum_mail: 'ぷらちなめいる', pearl_robe: 'しんじゅのろーぶ', stream_gi: 'すいりゅうのどうぎ', platinum_shield: 'ぷらちなしーるど', platinum_helm: 'ぷらちなへるむ', pirate_hat: 'かいぞくのぼうし',
 };
 
 export const SHOPS_CH4 = {
@@ -146,5 +180,20 @@ export const SHOPS_CH4 = {
     keeper: '道具屋のおやじ',
     hello: 'へい、らっしゃい！ドゥナの道具屋だ。\n砂の海へ出るなら、薬草はたっぷり持っていきな。\n何にする？',
     items: ['herb', 'antidote', 'moonherb', 'holy_water', 'return_wing', 'guide_thread', 'smoke_ball', 'sand_cloak'],
+  },
+  // 砂の港ドゥナ（Step 7。第4章クリアの あと）: ランク7「プラチナ」の 武器と 防具（道具屋の となりの 海賊）
+  duna_weapon: {
+    name: 'ドゥナの武器屋',
+    kind: 'weapon',
+    keeper: '武器と防具の海賊',
+    hello: 'よう、王国のえいゆうさんたち！\n砂の海の向こうから、プラチナの武器がとどいたぜ。\nどれにする？',
+    items: ['platinum_sword', 'platinum_axe', 'platinum_dagger', 'harpoon', 'platinum_claw', 'pirate_whip', 'pearl_staff', 'ripple_fan', 'platinum_boomerang', 'anchor_bat'],
+  },
+  duna_armor: {
+    name: 'ドゥナの防具屋',
+    kind: 'armor',
+    keeper: '武器と防具の海賊',
+    hello: '防具もそろってるぜ。\n水の神殿の「水の羽衣」も、ミラさまのおかげで手に入るようになったんだ。\nどれにする？',
+    items: ['platinum_mail', 'water_hagoromo', 'pearl_robe', 'stream_gi', 'platinum_shield', 'platinum_helm', 'pirate_hat'],
   },
 };

@@ -8,6 +8,7 @@ import { CH4_PAINTERS, CH4_FRAMES, CH4_SPEED, CH4_WALLS, ch4Mask, desertBase } f
 import { CANAL_CTX, CANAL_CTX_PAINTERS, canalVariant, canalBaseBits, canalWallBits } from './tiles-canal.js';
 import { PYRAMID_PAINTERS, PYRAMID_FRAMES, PYRAMID_SPEED, PYRAMID_WALLS, paintTablet, paintPyrBrazier, paintPyrLever } from './tiles-pyramid.js';
 import { whirlVariant } from './tiles-duna.js';
+import { templeVariant } from './tiles-temple.js';
 
 export const TS = 16;
 
@@ -595,6 +596,8 @@ export function prepareMap(map) {
         variant[i] = canalVariant(t, at, x, y, variant[i]);
         // 砂クジラの ねどこの 砂の うず: ねどこの まん中からの ずれ（render/tiles-duna.js）
         variant[i] = whirlVariant(t, map, x, y, variant[i]);
+        // 砂の底の神殿の 水鏡: 水鏡の 左上からの ずれ（render/tiles-temple.js）
+        variant[i] = templeVariant(t, map, x, y, variant[i]);
       }
     }
   }

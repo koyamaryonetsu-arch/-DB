@@ -461,7 +461,8 @@ test('目標・仲間会話・地図の しるし（Step 3）。もう 聞いた
   // 物語の すすみぐあい（STORY_STEPS の うしろ）
   const cap = CH4_STEPS.indexOf('c4_capital');
   assert.deepEqual(CH4_STEPS.slice(cap, cap + 4), ['c4_capital', 'c4_queen', 'c4_fountain', 'c4_song']);
-  assert.ok(!CH4_STEPS.includes('c4_temple'), 'c4_temple は Step 7 の ため');
+  // c4_temple は Step 7（砂の底の神殿）で 使う（王都の 水の神殿の フラグは 別の 名前 c4_mira）
+  assert.ok(CH4_STEPS.indexOf('c4_temple') > CH4_STEPS.indexOf('c4_whale'), 'c4_temple は Step 7');
   for (const k of CH4_STEPS) assert.ok(STORY_STEPS.includes(k), k);
 });
 
@@ -668,7 +669,8 @@ test('王都の 人の みため: 女王（小さな かんむり）・水に �
     for (const dir of ['down', 'left', 'right', 'up']) for (const f of [0, 1]) assert.ok(paintHuman(dir, f, o).px.some(Boolean), `${id} ${dir} ${f}`);
   }
   // 王都の NPC は みんな みためが ある
-  for (const n of MAPS.south.npcs) if (n.x >= SAF.x && n.x < SAF.x + SAF.w && n.y >= SAF.y && n.y < SAF.y + SAF.h) assert.ok(npcOpts(n.sprite), `${n.id}: ${n.sprite}`);
+  // （第4章クリアの あとの 台座の 水の守り星〈Step 7〉は とくべつな え）
+  for (const n of MAPS.south.npcs) if (n.x >= SAF.x && n.x < SAF.x + SAF.w && n.y >= SAF.y && n.y < SAF.y + SAF.h) assert.ok(npcOpts(n.sprite) || paintSpecial(n.sprite, 'down', 0), `${n.id}: ${n.sprite}`);
   assert.equal(npcOpts('nefi').hat, 'tiara');
   assert.ok(npcOpts('nefi').small, '女王ネフィは 12さい');
   // 水に うつる 女王は はだも かみも 水の いろ

@@ -256,7 +256,7 @@ test('すすみぐあい: c4_letter → c4_duna → c4_sara →（c4_castle_gate
   assert.deepEqual(CH4_STEPS.slice(li + 1, li + 6), ['c4_duna', 'c4_sara', 'c4_castle', 'c4_ship', 'c4_whale']);
   assert.deepEqual(DUNA_STEPS, ['c4_duna', 'c4_sara', 'c4_castle', 'c4_ship', 'c4_whale']);
   for (const f of DUNA_STEPS) assert.ok(STORY_STEPS.includes(f), f);
-  assert.ok(!CH4_STEPS.includes('c4_temple') && !CH4_STEPS.includes(CASTLE_GATE_FLAG), 'c4_temple は Step 7・こうしは しかけの フラグ');
+  assert.ok(CH4_STEPS.indexOf('c4_temple') > CH4_STEPS.indexOf('c4_whale') && !CH4_STEPS.includes(CASTLE_GATE_FLAG), 'c4_temple は Step 7・こうしは しかけの フラグ');
   const f = (...l) => ({ flags: flagsOf(...UPTO('c4_letter'), ...l) });
   assert.equal(objectiveFromFlags(f('c4_duna_gate')), C4_OBJ.dunagate);
   assert.equal(objectiveFromFlags(f('c4_duna_gate', 'c4_duna')), C4_OBJ.duna);
@@ -265,7 +265,8 @@ test('すすみぐあい: c4_letter → c4_duna → c4_sara →（c4_castle_gate
   assert.equal(objectiveFromFlags(f('c4_duna', 'c4_sara', CASTLE_GATE_FLAG, 'c4_castle')), C4_OBJ.castle);
   assert.equal(objectiveFromFlags(f('c4_duna', 'c4_sara', 'c4_castle', 'c4_ship')), C4_OBJ.ship);
   assert.equal(objectiveFromFlags(f('c4_duna', 'c4_sara', 'c4_castle', 'c4_ship', 'c4_whale')), C4_OBJ.whale);
-  assert.ok(C4_OBJ.whale.startsWith('第4章の続きはアップデートで！（'), 'Step 6 の さいご');
+  // Step 6 の さいごの「続きはアップデートで！」は Step 7 で「さんばしの サラに 話す」に かわった（むかしの 文は OLD_C4_OBJ.whale。test/ch4-temple.test.js）
+  assert.ok(OLD_C4_OBJ.whale.startsWith('第4章の続きはアップデートで！（') && C4_OBJ.whale.includes('サラ'), 'Step 6 の さいご');
   for (const k of Object.keys(DUNA_OBJ)) {
     assert.equal(C4_OBJ[k], DUNA_OBJ[k], k);
     const t = C4_OBJ[k];
@@ -685,22 +686,23 @@ test('通しで あそべる: 谷の 見張り → ドゥナ → バルガ・サ
   winBattle(boss);
   for (let i = 0; i < 8; i++) await bot.settle();
   assert.ok(c.flags.c4_whale, '砂クジラが 正気に');
-  for (const f of CH4_STEPS) assert.ok(c.flags[f], f);
+  for (const f of CH4_STEPS.slice(0, CH4_STEPS.indexOf('c4_whale') + 1)) assert.ok(c.flags[f], f);
   assert.ok(ownsItem(c, 'whale_charm'), '砂クジラのお守り');
   assert.ok(said(bot, '砂の底の神殿の入口は、わたしがねむっていた所の下だ。'));
   assert.equal(bot.map, 'duna', 'ドゥナの さんばしへ もどる');
   assert.deepEqual(c.guests, [], 'サラは パーティーから はなれる');
-  assert.ok(said(bot, '第4章の続きは、アップデートで！'));
   assert.equal(c.objective, C4_OBJ.whale);
   // さんばしの サラ・ねどこの 砂クジラ（うずが しずまる）
   const has = world.hasFlagFn(bot.s);
   assert.ok(MAPS.duna.npcById.sara_pier.show.all.every(has));
   assert.ok(!MAPS.duna.npcById.sara_duna.show.not.every((f) => !has(f)), '館の サラは いない');
   assert.equal(effectiveTile(MAPS.sand_sea, N.x, N.y, has), T.SAND_SEA);
+  // さんばしの サラに 話すと、また 仲間に なる（Step 7。test/ch4-temple.test.js）
   const from = bot.msgs.length;
   await bot.walkTo(DUNA_POS.pierTop.x + 1, DUNA_POS.pierTop.y + 3);
   await bot.talk('sara_pier');
-  assert.ok(said(bot, '母さん…待っててね', from));
+  assert.ok(said(bot, '砂の下から、歌が聞こえるの', from));
+  assert.deepEqual(c.guests, ['sara']);
 });
 
 // ───────────── 絵と 音（ブラウザ なしで しらべられる ところ）─────────────
