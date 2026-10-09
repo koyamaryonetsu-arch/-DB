@@ -1095,6 +1095,13 @@
   - たおすと **砂クジラのお守り**（HPと守りが上がり、マヌーサと毒にかかりにくい）
 - 砂クジラのあと、サラはドゥナのさんばしで待っています。続きはアップデートで！
 
+### 砂の底の神殿の戦い（第4章 Step 7）
+
+- 神殿の中は、水の高さで出る魔物がかわります（水が高いと **水の精・水竜**、低いと **砂ガニ** などの砂の魔物）。水の魔物は **雷** がよく効きます。水の精は仲間を回復するので、先にたおそう
+- **鏡の騎士・まどわしの鏡**：体が **まぶしく光ったら**、次の番まで **呪文をはね返します**（はね返った呪文は、となえた人に当たる）。光っている時は武器で、光っていない時は呪文で。鏡の騎士は守りがとてもかたいので、光っていない時は呪文が効きます
+- **鏡のうつし身**：鏡の間の大きな鏡から、**自分たちそっくり** のすがたが出てきます（同じ職業・同じ見た目・同じ技）。家族で遊んでいると、家族のうつし身も出てきます
+- 神殿のおくの戦いは、**相手のようすのかわり**（光る・水をまとう・水がうずをまく・前ぶれのことば）をよく見て、作戦を変えよう。仲間の「はなす」もヒントになります
+
 ---
 
 ## 宝の地図・ふしぎなかじ屋・預かり所・馬車
@@ -1432,6 +1439,24 @@ npm start                 # 家族サーバー
   - バランス：`node tools/sim.js 60 ch4whale`（ドゥナ・古城・砂の海の出現表と船のかじの戦いをサラ入りの5人で、砂クジラを「知っている人」と「知らない人」で ためす）
   - 絵：`render/ch4-sea-art.js`（砂ザメ・古城のよろい・砂クジラ）・タイル `render/tiles-duna.js`（砂の海・砂のうず。2.5D は `render/field3d.js`）・洞窟の色 `castle`（`render/themes.js`）・人 `render/chars.js`（`barga`・`pirate_f`・`pirate_old`・`pirate_kid`・`shipwright`・`pirate_mate`・`sand_ship`・`rudder`）。曲：`duna`・`sand_sea`・`whale`・`sand_castle`
   - `test/ch4-duna.test.js`（砂にもぐる・前ぶれと大ジャンプ・砂クジラのデータと段階・オートの仲間・シミュレーション・目標とヒントと地図のしるし・バルガの台本・マップのつながり・2つの石の板（ひとり・仲間・家族）・通し・絵と音）
+- 第4章 Step 7（B: 砂の底の神殿の戦いとモルガナ。マップ・台本・エンディングは A）
+  - 名前の約束（`docs/plan-ch4.md` の 17）：出現表 `t_b1_wet`（地下1階・水が高い）・`t_b1_dry`（地下1階・水が低い）・`t_b2`（鏡の間）・`t_b3`（水のろう）。昼と夜の区別はない（`NIGHT_ZONES` に入れない）。きまった戦い `mirror_knights`・`utsushimi`・`prison_guards`・`morgana`（モルガナ3体のうち1体が本物）・`morgana_true`。背景 `sand_temple`・`mirror_hall`・`morgana_hall`。曲は `sand_temple`（ザコ・番人）・`morgana`（ボス）（A が作る。まだない時は `audio.js` の `play` が何もしないだけ）。負けた時は今のボスと同じ（`loseOk` なし）
+  - データ：`data/monsters-temple.js`（水の精・水竜・砂ガニ・鏡の騎士・まどわしの鏡・水のろうの番人・鏡のうつし身・水のろう・モルガナ・モルガナ（真の姿）。`monsters.js`・`loot.js` がまぜる）・`data/abilities-temple.js`・`data/items-temple.js`（しずくのイヤリング・水鏡のかんむり。ボスの品）・`data/encounters-temple.js`
+  - 戦いのしかけ：`shared/battle-temple.js`（`battle.js`・`ai.js` からは短い呼び出しだけ）
+    - **呪文をはね返す**（技の `effect: { type: 'reflect' }`。`c.reflect`）：光ってから次の自分の番まで（`templeTurnStart` で消える）。光った番ののこりの行動はとりやめ。味方の呪文（1体・グループ・全体）が光っている敵に当たると、その分はとなえた人にはね返る（1回の呪文で1回。強さ `REFLECT_MULT`・さいだいHPの `REFLECT_CAP` まで。`reflectSpell`）。オートの仲間は光っている敵に呪文を使わない（呪文しかない時は身を守る。`templeAdjust`）
+    - **鏡写し**（魔物の `mirrorCopy`）：同じ呪文（同じ技の id）を続けてモルガナに使うと、2回目からはね返す（`lastSpell`。分身は数えない）
+    - **水の衣**（魔物の `veil: { cut, block, breakBy, wait }`）：はじめからまとう。受けるダメージ `cut` ばい・`block` の属性は「水の衣が、炎をかき消した！」。`breakBy`（雷）のダメージで はじける（そのまま当たる）。本物が `wait` 回動くと、前ぶれ（`veilCharge`）→ 次の番にまたまとう。分身も同じすがたに見せる（`syncVeil`）。オートのみつもり（`calcPhys`・`calcMagic` の estimate）も水の衣を見る（`templeEst`）
+    - **まぼろしの分身**（Step 5 のしくみ。`battle-ch4.js`）：魔物の `mirage.heal` があると、分身に当てた時にわらいのかわりに本物のHPが回復（最大HPの わりあい）。`mirage.dazzled`（月の鏡でまぶしい番の技）・`mirage.downMsg`（本物がたおれた時のことば）
+    - **大波**（技の `effect: { type: 'wave', stage, next }`）：前ぶれ2だん（`waveStage` 1→2。`telegraph` のしくみ）→ 次の番に `m_big_wave`（みんなに物理。身を守ると半分）
+    - **水のろう**（技の `effect: { type: 'prison' }`）：1人に `status.prison`（`turns` 回の番は動けない。`onReady`・`doIncapacitated`）。敵の側に `water_prison` が出る（`holds`・`inside` … 中の人の絵）。こわすと早く出られる（`templeKill`。経験値なし）。モルガナがたおれると消える（`minionsFall`）。動ける味方が2人いじょうの時だけ使う（`t:noPrison`）
+    - **水の守りの歌**（17-2）：`morgana_true` の戦いを始める時、戦いに入っている家族のだれかが `SONG_FLAGS`（`maps/ch4.js`）を全部持っていれば（`heardSongs`）、はじめの `SONG.waves` 回の大波が `SONG.cut` ばい。シミュレーターは `opts.song`
+    - **鏡のうつし身**：戦いを始める時に、`utsushimi` の しるし1体を、パーティーの人数分（`b.allies`。家族・仲間・魔物の仲間・ゲスト）の「〇〇のうつし身」にかえる（`setupUtsushimi`・`mirrorCopy`）。職業・レベル・`look`・`eq`（見た目装備をふくむ `shownEquipKey`）・`mon`・覚えている技（`mirrorSkillOk` … にげる・追い出す・けしさる・生き返らせる・お金・ぬすむ技はのぞく）は同じ、強さは `MIRROR_RATE` ばい。技は仲間のオートの AI（`decideAlly` を味方と敵を入れかえた かげで よぶ）。経験値・お金は `utsushimi` の きまった値（1体ぶん）
+    - 魔物の行動のじょうけん `'t:noReflect'`・`'t:noVeil'`・`'t:noWave'`・`'t:noPrison'`（`templeCond`）
+    - シミュレーターの「知っている人」は `b.knowsTemple`（大波の前に身を守る・同じ呪文を続けない・水の衣にきずな技〈雷〉・水のろうを先にこわす。月の鏡は `b.knowsMirage`）、「知らない人」は `b.templeNaive`（光っていても呪文・大波でも身を守らない）
+  - がめん：`client/battle-temple.js`（うつし身の絵 … パーティーの人の絵を左右反転して少し青くすける色・水のろうの中の人・水の衣のゆらめき・前ぶれのしずく・光る ◇・大波のうず・バナー・水の守りの歌のしるし `.b-song`）。エフェクト `render/battlefx-temple.js`。戦いの背景 `render/ch4-temple-bg.js`。状態の名前 `prison`（水のろう。`ui/info.js`）
+  - バランス：`node tools/sim.js 60 ch4temple`（神殿の出現表・きまった戦い・モルガナ → いのりで全回復 → 真の姿をサラ入りの5人で、「知っている人」と「知らない人」で ためす。`NOSONG=1` で水の守りの歌なしも）。装備は `GEAR[38]`（ランク6 ＋ ★三日月の剣 ＋ それまでのボスのアクセサリー）
+  - 絵：`render/ch4-temple-art.js`（`addCh4Art` からよぶ）
+  - `test/ch4-temple-battle.test.js`（データ・出現表・水の衣・雷・前ぶれ・分身の回復・鏡写し・鏡の騎士・鏡のうろこ・大波と防御・水の守りの歌あり/なし・水のろう・段階・うつし身（職業・見た目装備・技・家族・魔物の仲間・ゲスト）・オートの仲間・シミュレーション・絵・文字）
 - 全滅して教会で目を覚ます時は、教会の人・かべ・宝箱と重ならない、いちばん近い所におく（`maps/index.js` の `standSpot`・`canStand`。体の大きさ `BODY` は画面のあたり判定と同じ）。もし人と重なっても、その人からはなれる方へは歩ける（`client/field.js` の `leavingNpcs`。`test/stuck.test.js`）
 - 動けなくなった時のしくみ：画面の見張りは `client/game.js` の `watchStuck`・`watchBattle`・`rescue`、不具合の記録は `client/errlog.js`。サーバーの立てなおしは `world.js` の `resync`、こわれた戦いを終わらせるのは `world/battles.js` の `abortBattle`（`test/stuck.test.js`）
 

@@ -211,6 +211,9 @@ export function gameFiles() {
     'public/js/shared/battle-ch4.js', 'public/js/client/battle-ch4.js',
     // 第4章 Step 6「砂の海賊と砂クジラ」（ドゥナ・砂の古城・すなかぜ号・砂の海・砂クジラ）
     'public/js/shared/data/story-ch4-duna.js', 'public/js/shared/maps/duna.js', 'public/js/shared/maps/duna-rows.js',
+    // 第4章 Step 7「砂の底の神殿とモルガナ」の 戦い（神殿の 魔物・鏡の騎士・うつし身・水のろう・モルガナ・水の守りの歌）
+    'public/js/shared/battle-temple.js', 'public/js/client/battle-temple.js', 'public/js/shared/data/monsters-temple.js',
+    'public/js/shared/data/abilities-temple.js', 'public/js/shared/data/items-temple.js', 'public/js/shared/data/encounters-temple.js',
     // 見た目装備
     'public/js/shared/look-equip.js',
     // あたらしい 仲間モンスターと 配合（どんぐりん・ぷるりんタワー・いかずちドラゴン など）

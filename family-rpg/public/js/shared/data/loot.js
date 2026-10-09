@@ -19,6 +19,7 @@ import { RARE_MAT_DROPS } from './monsters-rare.js';
 import { CH3_MAT_DROPS } from './monsters-ch3.js';
 import { CH4_MAT_DROPS } from './monsters-ch4.js';
 import { R23_MAT_DROPS } from './monsters-r23.js';
+import { TEMPLE_MAT_DROPS } from './monsters-temple.js';
 
 export const DROP_N = { common: 8, rare: 64, mat: 8 };
 
@@ -58,6 +59,8 @@ export const MAT_DROPS = {
   ...CH4_MAT_DROPS,
   // あたらしい 仲間モンスター（monsters-r23.js）
   ...R23_MAT_DROPS,
+  // 第4章 Step 7「砂の底の神殿」（monsters-temple.js）
+  ...TEMPLE_MAT_DROPS,
 };
 // ぬすむ ときは レアが 出やすい（この 倍。でも 半分まで）
 export const STEAL_RARE_MULT = 8;

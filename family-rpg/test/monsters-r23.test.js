@@ -15,6 +15,8 @@ import { ENCOUNTER_TABLES } from '../public/js/shared/data/encounters.js';
 import { NIGHT_ZONES } from '../public/js/shared/data/night.js';
 import { monsterDrops, MAT_DROPS } from '../public/js/shared/data/loot.js';
 import { MONSTERS_R23, FRIENDS_R23, R23_ABILITIES, RECIPES_R23 } from '../public/js/shared/data/monsters-r23.js';
+// 第4章 Step 7（砂の底の神殿）で ふえた 魔物（図鑑の かずに 入る）
+import { MONSTERS_TEMPLE } from '../public/js/shared/data/monsters-temple.js';
 import { MONSTER_ART } from '../public/js/client/render/monsters.js';
 import { addR23Art } from '../public/js/client/render/r23-art.js';
 import { computeStats, newMonsterCompanion, gainExp, expForLevel, learnedAbilities, monsterSlots } from '../public/js/shared/stats.js';
@@ -34,7 +36,7 @@ test('あたらしい 仲間モンスター: 27しゅ（やせい 11・配合だ
   assert.equal(NEW.length, 27);
   assert.equal(WILD.length, 11);
   assert.equal(BREED_ONLY.length, 16);
-  assert.equal(Object.keys(MONSTERS).length, 136);
+  assert.equal(Object.keys(MONSTERS).length, 136 + Object.keys(MONSTERS_TEMPLE).length);
   for (const sp of NEW) {
     assert.equal(MONSTERS[sp], MONSTERS_R23[sp], `${sp}: monsters.js に まざる`);
     assert.equal(MONSTER_FRIENDS[sp], FRIENDS_R23[sp], `${sp}: companions.js に まざる`);
