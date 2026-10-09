@@ -4,11 +4,12 @@
 // field … フィールドの シンボル（ちいさい え）の 大きさ（ないときは 20）
 // fade … すきとおる ところ（[[y, こさ], …]。y は え の たかさの わりあい。monsters.js の monsterCanvas が あとで うすく する）
 //        2.5D では こさ 0.5 より うすい ところが きえるので、いちばん うすくても 0.55 より こく
-import { fit, flipX, spark, bez, taper } from './ch3-draw.js?v=a94c44ae0637';
-import { addCh4BossArt } from './ch4-boss-art.js?v=a94c44ae0637';
-import { addPyramidArt } from './ch4-pyramid-art.js?v=a94c44ae0637';
-import { addSouthArt } from './ch4-south-art.js?v=a94c44ae0637';
-import { addSeaArt } from './ch4-sea-art.js?v=a94c44ae0637';
+import { fit, flipX, spark, bez, taper } from './ch3-draw.js?v=e28f090d0ad9';
+import { addCh4BossArt } from './ch4-boss-art.js?v=e28f090d0ad9';
+import { addPyramidArt } from './ch4-pyramid-art.js?v=e28f090d0ad9';
+import { addSouthArt } from './ch4-south-art.js?v=e28f090d0ad9';
+import { addSeaArt } from './ch4-sea-art.js?v=e28f090d0ad9';
+import { addTempleArt } from './ch4-temple-art.js?v=e28f090d0ad9';
 
 // だえんの ふちの てん（a0 → a1 の むき。0 は みぎ、PI/2 は した）
 function ellArc(cx, cy, rx, ry, a0, a1, n = 10) {
@@ -607,5 +608,7 @@ export function addCh4Art(ART) {
   addSouthArt(ART);
   // ── 砂の古城・砂の海（Step 6。砂ザメ・古城のよろい・ボスの 砂クジラ。ch4-sea-art.js）──
   addSeaArt(ART);
+  // ── 砂の底の神殿（Step 7。水の精・水竜・砂ガニ・鏡の騎士・まどわしの鏡・番人・うつし身・水のろう・モルガナ 2つの すがた。ch4-temple-art.js）──
+  addTempleArt(ART);
   addCh4BossArt(ART);
 }

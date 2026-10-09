@@ -633,7 +633,7 @@ export class GameAudio {
     const t = this.ctx.currentTime + delay;
     const o = this.ctx.createOscillator();
     if (type === 'pulse') o.setPeriodicWave(this.pulseWave);
-    else o.type = type;
+    else o.type = type === 'saw' ? 'sawtooth' : type;
     o.frequency.setValueAtTime(f, t);
     if (slide) o.frequency.exponentialRampToValueAtTime(slide, t + dur);
     const g = this.ctx.createGain();

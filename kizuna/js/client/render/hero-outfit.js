@@ -1,8 +1,8 @@
 // ふく・よろい（そうびの よろいと しょくぎょうで きまる）
 // outfitOf(みため, しょくぎょう, よろいの ID, おんな？) → かく ための せってい
 // 知らない よろい（これからの もの）は、種類（armorType）・ランク・名前の ことば から きめる
-import { mat, ramp, TH, mixC, HeroCanvas } from './hero-raster.js?v=a94c44ae0637';
-import { ITEMS } from '../../shared/data/items.js?v=a94c44ae0637';
+import { mat, ramp, TH, mixC, HeroCanvas } from './hero-raster.js?v=e28f090d0ad9';
+import { ITEMS } from '../../shared/data/items.js?v=e28f090d0ad9';
 
 // ───────────── ざいしつ ─────────────
 const METALS = {

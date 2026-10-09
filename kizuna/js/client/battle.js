@@ -1,26 +1,28 @@
 // たたかいの がめん（むかしの RPG ふう 1がめん）
-import { el, esc, ListMenu, toast } from './ui/dom.js?v=a94c44ae0637';
-import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js?v=a94c44ae0637';
-import { ITEMS } from '../shared/data/items.js?v=a94c44ae0637';
-import { JOBS } from '../shared/data/jobs.js?v=a94c44ae0637';
-import { MONSTERS } from '../shared/data/monsters.js?v=a94c44ae0637';
-import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed, battleAbilityOk } from '../shared/stats.js?v=a94c44ae0637';
-import { affinityOf, attackReach, spellSealed, SEALED_REASON } from '../shared/battle.js?v=a94c44ae0637';
-import { DUAL_TECHS, dualOptions, dualKnown } from '../shared/data/dual.js?v=a94c44ae0637';
-import { TACTICS } from '../shared/ai.js?v=a94c44ae0637';
-import { faceURL } from './field.js?v=a94c44ae0637';
-import { monsterCanvas } from './render/monsters.js?v=a94c44ae0637';
-import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=a94c44ae0637';
-import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js?v=a94c44ae0637';
-import { PARTY_ANIMS, JOB2_SFX } from './render/battlefx-jobs2.js?v=a94c44ae0637';
-import { PARTY_ANIMS3, JOB3_SFX } from './render/battlefx-jobs3.js?v=a94c44ae0637';
-import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js?v=a94c44ae0637';
-import { abilityDetail, statusNames, buffNames, targetTag } from './ui/info.js?v=a94c44ae0637';
-import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js?v=a94c44ae0637';
-import { ENEMY_RATE_NAMES } from '../shared/data/difficulty.js?v=a94c44ae0637';
-import { ResultPager, levelUpName } from './ui/result.js?v=a94c44ae0637';
+import { el, esc, ListMenu, toast } from './ui/dom.js?v=e28f090d0ad9';
+import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js?v=e28f090d0ad9';
+import { ITEMS } from '../shared/data/items.js?v=e28f090d0ad9';
+import { JOBS } from '../shared/data/jobs.js?v=e28f090d0ad9';
+import { MONSTERS } from '../shared/data/monsters.js?v=e28f090d0ad9';
+import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed, battleAbilityOk } from '../shared/stats.js?v=e28f090d0ad9';
+import { affinityOf, attackReach, spellSealed, SEALED_REASON } from '../shared/battle.js?v=e28f090d0ad9';
+import { DUAL_TECHS, dualOptions, dualKnown } from '../shared/data/dual.js?v=e28f090d0ad9';
+import { TACTICS } from '../shared/ai.js?v=e28f090d0ad9';
+import { faceURL } from './field.js?v=e28f090d0ad9';
+import { monsterCanvas } from './render/monsters.js?v=e28f090d0ad9';
+import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=e28f090d0ad9';
+import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js?v=e28f090d0ad9';
+import { PARTY_ANIMS, JOB2_SFX } from './render/battlefx-jobs2.js?v=e28f090d0ad9';
+import { PARTY_ANIMS3, JOB3_SFX } from './render/battlefx-jobs3.js?v=e28f090d0ad9';
+import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js?v=e28f090d0ad9';
+import { abilityDetail, statusNames, buffNames, targetTag } from './ui/info.js?v=e28f090d0ad9';
+import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js?v=e28f090d0ad9';
+import { ENEMY_RATE_NAMES } from '../shared/data/difficulty.js?v=e28f090d0ad9';
+import { ResultPager, levelUpName } from './ui/result.js?v=e28f090d0ad9';
 // 第4章の しかけ（月の鏡・まぼろしの 分身・魔神のランプ・ボスの 大技）
-import { CH4_ALLY_FX, ch4ItemEntries, ch4ItemPick, ch4ItemInfo, ch4Present, vanishFx, drawShade, drawBurrow } from './battle-ch4.js?v=a94c44ae0637';
+import { CH4_ALLY_FX, ch4ItemEntries, ch4ItemPick, ch4ItemInfo, ch4Present, vanishFx, drawShade, drawBurrow } from './battle-ch4.js?v=e28f090d0ad9';
+// 第4章 Step 7 の 砂の底の神殿と モルガナ（鏡のうつし身・水のろうの 絵・水の衣・光・大波・水の守りの歌）
+import { templeSprite, templeDraw, templeStart, TEMPLE_SFX } from './battle-temple.js?v=e28f090d0ad9';
 
 // たたかいの え の こまかさ（おもい きかいで さげたら、その あいだは さげた まま）
 let battleRes = BRES;
@@ -96,6 +98,8 @@ const ANIM_SFX = {
   ...JOB2_SFX,
   // おかん・社ちく・天才しせつ管理者・はかい神などの 技（render/battlefx-jobs3.js）
   ...JOB3_SFX,
+  // 第4章 Step 7 の 神殿の 魔物と モルガナ（render/battlefx-temple.js）
+  ...TEMPLE_SFX,
 };
 
 // ひらめきの 電球（ドット絵ふう）
@@ -134,6 +138,8 @@ export class BattleScene {
     this.ended = false;
     this.lock = false;
     this.build();
+    // 水の守りの歌の しるし（battle-temple.js）
+    templeStart(this, msg.snap);
     this.game.audio.play(msg.snap.bgm || (this.boss ? 'boss' : 'battle'), { force: true });
     const names = this.enemyNames();
     if (msg.resume) this.say(['つなぎ直した！戦いの続きだ！']);
@@ -168,7 +174,7 @@ export class BattleScene {
     while (this.readyQ.length) {
       const id = this.readyQ[0];
       const a = this.c.get(id);
-      const stuck = (a?.status || []).some((x) => x === 'sleep' || x === 'paralyze');
+      const stuck = (a?.status || []).some((x) => x === 'sleep' || x === 'paralyze' || x === 'prison');
       if (a && a.alive && a.ready && !a.auto && !stuck && !this.ended) {
         this.cur = id;
         this.openCommand();
@@ -1064,7 +1070,7 @@ export class BattleScene {
     if (ev.counter?.length) this.counterFx(ev.counter, counterRes, (perHit ? Math.max(...perHit.values()) : hitDelay) + 380);
     // えらんでいる とちゅうで たおれた・ねむった など
     const cur = this.cur && this.c.get(this.cur);
-    if (cur && (!cur.alive || (cur.status || []).some((x) => x === 'sleep' || x === 'paralyze') || !cur.ready)) this.dropReady(cur.id);
+    if (cur && (!cur.alive || (cur.status || []).some((x) => x === 'sleep' || x === 'paralyze' || x === 'prison') || !cur.ready)) this.dropReady(cur.id);
     else if (!this.cur && this.menu && !this.targeting) this.renderCmdIdle();
     this.renderStatus();
     this.updateAutoBtn();
@@ -1508,7 +1514,9 @@ export class BattleScene {
     const list = this.enemies().filter((c) => !(c.dead >= 2));
     // え の 大きさは res（こまかさ）で わって ほんとうの 大きさに
     const sprites = list.map((c) => {
-      const img = monsterCanvas(c.species, Math.floor(this.time / 420 + (c.slot || 0)) % 2);
+      const frame = Math.floor(this.time / 420 + (c.slot || 0)) % 2;
+      // 鏡のうつし身（パーティーの 人の 絵）・水のろう（中の 人）は battle-temple.js
+      const img = templeSprite(c, frame) || monsterCanvas(c.species, frame);
       const r = img.res || 1;
       return { c, img, iw: img.width / r, ih: img.height / r };
     });
@@ -1610,6 +1618,8 @@ export class BattleScene {
         x.globalAlpha = P.white * base;
         x.drawImage(white(m.img), px, py, w, h);
       }
+      // 水の衣・光（呪文を はね返す）・大波の 前ぶれ（battle-temple.js）
+      templeDraw(this, x, m, c, px, py, w, h, base, white);
       // まぼろしの 分身が 消える: むらさきに ゆらいで うすく なる
       if (c.vanished && c.dead > 0) {
         x.globalAlpha = 0.7 * base;

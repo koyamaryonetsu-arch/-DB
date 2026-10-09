@@ -11,13 +11,11 @@
 import {
   TEMPLE_LEVERS, WATER_FLAGS, waterLevel, waterFlagsFor, MIRROR_FLAG, KNIGHTS_FLAG, UTSUSHIMI_FLAG, SPRING_FLAG, GUARDS_FLAG,
   MORGANA_FLAG, STAR_FLAG, CLEAR4_FLAG, TEMPLE_FLAG, DOME_POS, B1_POS, B2_POS, B3_POS, HALL_POS,
-} from '../maps/temple.js?v=a94c44ae0637';
-import { SANDSEA_POS, DUNA_POS, SARA2_FLAG } from '../maps/duna.js?v=a94c44ae0637';
-import { SOUTH_PLACES, SAFARA_POS } from '../maps/south.js?v=a94c44ae0637';
-import { NPC_SUPPORTS } from './shops.js?v=a94c44ae0637';
-import { CH4_GUESTS } from './items-ch4.js?v=a94c44ae0637';
-// B（戦い）の データが 入るまでの 仮の 出現表・きまった 戦い（B の ものが 入ったら、この 行と temple-stub.js を 消す）
-import './temple-stub.js?v=a94c44ae0637';
+} from '../maps/temple.js?v=e28f090d0ad9';
+import { SANDSEA_POS, DUNA_POS, SARA2_FLAG } from '../maps/duna.js?v=e28f090d0ad9';
+import { SOUTH_PLACES, SAFARA_POS } from '../maps/south.js?v=e28f090d0ad9';
+import { NPC_SUPPORTS } from './shops.js?v=e28f090d0ad9';
+import { CH4_GUESTS } from './items-ch4.js?v=e28f090d0ad9';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

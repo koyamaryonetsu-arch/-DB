@@ -17,20 +17,21 @@
 // 名前の一部は「ダイの大冒険」「ロトの紋章」へのオマージュです。
 // 上級職・超級職の 技は abilities-adv.js（さいごに まぜる）
 
-import { ADV_ABILITIES } from './abilities-adv.js?v=a94c44ae0637';
-import { CH2_ABILITIES } from './abilities-ch2.js?v=a94c44ae0637';
-import { JOB_ABILITIES } from './abilities-jobs.js?v=a94c44ae0637';
-import { HIRA_ABILITIES } from './hirameki.js?v=a94c44ae0637';
-import { TRAVEL_ABILITIES } from './sky.js?v=a94c44ae0637';
-import { RARE_ABILITIES } from './monsters-rare.js?v=a94c44ae0637';
-import { R23_ABILITIES } from './monsters-r23.js?v=a94c44ae0637';
-import { JOB2_ABILITIES } from './abilities-jobs2.js?v=a94c44ae0637';
-import { CH3_ABILITIES } from './abilities-ch3.js?v=a94c44ae0637';
-import { CH4_ABILITIES } from './abilities-ch4.js?v=a94c44ae0637';
-import { JOB3_ABILITIES } from './abilities-jobs3.js?v=a94c44ae0637';
-import { JOB4_ABILITIES } from './abilities-jobs4.js?v=a94c44ae0637';
+import { ADV_ABILITIES } from './abilities-adv.js?v=e28f090d0ad9';
+import { CH2_ABILITIES } from './abilities-ch2.js?v=e28f090d0ad9';
+import { JOB_ABILITIES } from './abilities-jobs.js?v=e28f090d0ad9';
+import { HIRA_ABILITIES } from './hirameki.js?v=e28f090d0ad9';
+import { TRAVEL_ABILITIES } from './sky.js?v=e28f090d0ad9';
+import { RARE_ABILITIES } from './monsters-rare.js?v=e28f090d0ad9';
+import { R23_ABILITIES } from './monsters-r23.js?v=e28f090d0ad9';
+import { JOB2_ABILITIES } from './abilities-jobs2.js?v=e28f090d0ad9';
+import { CH3_ABILITIES } from './abilities-ch3.js?v=e28f090d0ad9';
+import { CH4_ABILITIES } from './abilities-ch4.js?v=e28f090d0ad9';
+import { TEMPLE_ABILITIES } from './abilities-temple.js?v=e28f090d0ad9';
+import { JOB3_ABILITIES } from './abilities-jobs3.js?v=e28f090d0ad9';
+import { JOB4_ABILITIES } from './abilities-jobs4.js?v=e28f090d0ad9';
 // 2026年10月（第22回）の 新しい 職業の 技（おかん・社ちく・天才しせつ管理者・はかい神 など）
-import { JOB5_ABILITIES } from './abilities-jobs5.js?v=a94c44ae0637';
+import { JOB5_ABILITIES } from './abilities-jobs5.js?v=e28f090d0ad9';
 
 export const ABILITIES = {
   // ───────────── 戦士 ─────────────
@@ -595,6 +596,8 @@ Object.assign(ABILITIES, JOB2_ABILITIES);
 Object.assign(ABILITIES, CH3_ABILITIES);
 // 第4章（abilities-ch4.js）
 Object.assign(ABILITIES, CH4_ABILITIES);
+// 第4章 Step 7「砂の底の神殿とモルガナ」（abilities-temple.js）
+Object.assign(ABILITIES, TEMPLE_ABILITIES);
 // 料理人・アルバイト・お笑い芸人の 系統、大賢者、ロトの勇者と、攻撃技を 足した 職業（abilities-jobs3.js）
 Object.assign(ABILITIES, JOB3_ABILITIES);
 // ニート・サイヤ人・設備屋・ゴム人間・ユーチューバー・ゲーマーの 系統と 魔王（abilities-jobs4.js）

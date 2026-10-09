@@ -1,10 +1,12 @@
 // たたかいの AI（モンスター と サポートなかま）
-import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=a94c44ae0637';
-import { mpCost, penaltyFor, weaponOk, comboAllowed } from './stats.js?v=a94c44ae0637';
+import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=e28f090d0ad9';
+import { mpCost, penaltyFor, weaponOk, comboAllowed } from './stats.js?v=e28f090d0ad9';
 // 第4章の まぼろしの分身と 月の鏡（battle-ch4.js）
-import { mirageAction, mirrorPlan } from './battle-ch4.js?v=a94c44ae0637';
+import { mirageAction, mirrorPlan } from './battle-ch4.js?v=e28f090d0ad9';
 // 第4章 Step 6 の 砂に もぐる 魔物（battle-ch4.js）
-import { burrowSurface, burrowPlan } from './battle-ch4.js?v=a94c44ae0637';
+import { burrowSurface, burrowPlan } from './battle-ch4.js?v=e28f090d0ad9';
+// 第4章 Step 7 の 砂の底の神殿と モルガナ（battle-temple.js）
+import { templeAction, templeCond, templePlan, templeAdjust, bondOk, waveIgnored } from './battle-temple.js?v=e28f090d0ad9';
 
 // さくせん
 export const TACTICS = {
@@ -23,6 +25,9 @@ export function decideMonster(b, m) {
   // まぼろしの 分身の 本物: まぶしくて 動けない・まぼろしを 作りなおす（battle-ch4.js）
   const forced = mirageAction(b, m);
   if (forced) return forced;
+  // 鏡のうつし身（仲間の オートの AI）・水の衣を また まとう・大波（battle-temple.js）
+  const tf = templeAction(b, m);
+  if (tf) return tf;
   const foes = b.aliveAllies();
   if (m.telegraph) {
     const id = m.telegraph;
@@ -65,6 +70,8 @@ function condOk(b, m, friends, cond) {
   if (cond === 'allyHurt') return friends.some((f) => f.hp / f.maxHp < 0.7);
   if (cond === 'callHelp') return friends.length < 4 && (m.helpCalls || 0) < 2;
   if (cond.startsWith('notRecent:')) return !m.recent.includes(cond.split(':')[1]);
+  // 't:…' … 砂の底の神殿の しかけの じょうけん（battle-temple.js）
+  if (cond.startsWith('t:')) return templeCond(b, m, cond.slice(2));
   // deadFriend:しゅるい … その しゅるいの なかまが たおれて いる（よみがえりの呪文）
   if (cond.startsWith('deadFriend:')) {
     const sp = cond.split(':')[1];
@@ -99,11 +106,14 @@ export function decideAlly(b, c) {
   // 砂に もぐった 敵が とび出す 前に 身を 守る（知っている 人）・空ぶり（知らない 人）。battle-ch4.js
   const bp = burrowPlan(b, c, foes);
   if (bp) return bp;
+  // 大波の 前に 身を 守る・水の衣に きずな技（しかけを 知っている 人。battle-temple.js）
+  const tp = templePlan(b, c, foes);
+  if (tp) return tp;
   if (!foes.length) return { type: 'defend' };
   const mine = usable(b, c);
 
   // 1) きずな技（にんげんが いない ときだけ）
-  if (b.bond >= 100 && !b.humans().some((h) => h.alive)) {
+  if (b.bond >= 100 && !b.humans().some((h) => h.alive) && bondOk(b)) {
     const t = strongestFoe(foes);
     return { type: 'bond', target: t.id };
   }
@@ -147,7 +157,7 @@ export function decideAlly(b, c) {
 
   // 5) ボスの 大わざに そなえる
   // （砂に もぐった 敵の とび出しも。b.ignoreBurrow … 気づかない 人）
-  const telegraphing = b.aliveEnemies().some((f) => f.telegraph && !(b.ignoreBurrow && f.burrow));
+  const telegraphing = b.aliveEnemies().some((f) => f.telegraph && !(b.ignoreBurrow && f.burrow) && !waveIgnored(b, f));
   if (telegraphing && c.hp / c.maxHp < 0.6 && b.rng.chance(0.75)) return { type: 'defend' };
 
   // MPが へってきたら まりょくを あつめる
@@ -386,6 +396,8 @@ function chooseAttack(b, c, tac, foes) {
     const w = tac.mpWeight * (mpRatio < 0.3 ? 3 : 1);
     o.final = o.score / (1 + o.mp * w * 10) * b.rng.float(0.9, 1.1) * (o.risky ? 0.05 : 1);
   }
+  // 光っている 敵に 呪文を 使わない など（battle-temple.js）
+  templeAdjust(b, c, opts);
   opts.sort((x, y) => y.final - x.final);
   // 物理しか ない ときに 反撃の構えの 敵しか いない: 防御して 構えが とけるのを まつ
   if (opts[0]?.risky) return { type: 'defend' };

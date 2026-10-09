@@ -1,14 +1,16 @@
 // たたかいの はいけいと エフェクト
-import { makeCanvas, ctxOf, hexToRgb, mix } from './pixel.js?v=a94c44ae0637';
-import { weaponLook, playWeapon, playReach } from './weaponfx.js?v=a94c44ae0637';
-import { nightBg, drawNightSky } from './night-art.js?v=a94c44ae0637';
-import { playJobFx, JOB_FINE } from './battlefx-jobs.js?v=a94c44ae0637';
-import { playJob2Fx, JOB2_FINE } from './battlefx-jobs2.js?v=a94c44ae0637';
-import { playJob3Fx, JOB3_FINE } from './battlefx-jobs3.js?v=a94c44ae0637';
-import { drawPalaceHall, drawPalaceFloor } from './ch4-palace-bg.js?v=a94c44ae0637';
+import { makeCanvas, ctxOf, hexToRgb, mix } from './pixel.js?v=e28f090d0ad9';
+import { weaponLook, playWeapon, playReach } from './weaponfx.js?v=e28f090d0ad9';
+import { nightBg, drawNightSky } from './night-art.js?v=e28f090d0ad9';
+import { playJobFx, JOB_FINE } from './battlefx-jobs.js?v=e28f090d0ad9';
+import { playJob2Fx, JOB2_FINE } from './battlefx-jobs2.js?v=e28f090d0ad9';
+import { playJob3Fx, JOB3_FINE } from './battlefx-jobs3.js?v=e28f090d0ad9';
+import { drawPalaceHall, drawPalaceFloor } from './ch4-palace-bg.js?v=e28f090d0ad9';
 // 第4章 Step 6: 砂の古城・砂の海（すなかぜ号の かんぱん）・砂クジラの ねどこ（ch4-duna-bg.js）
-import { drawCastleHall, drawCastleFloor, drawSandSea } from './ch4-duna-bg.js?v=a94c44ae0637';
-import { playCh4Fx } from './battlefx-ch4.js?v=a94c44ae0637';
+import { drawCastleHall, drawCastleFloor, drawSandSea } from './ch4-duna-bg.js?v=e28f090d0ad9';
+import { playCh4Fx } from './battlefx-ch4.js?v=e28f090d0ad9';
+// 第4章 Step 7: 砂の底の神殿・鏡の間・水鏡の広間（ch4-temple-bg.js）
+import { TEMPLE_BG, TEMPLE_DECOS, drawTempleBg, drawTempleFloorBg } from './ch4-temple-bg.js?v=e28f090d0ad9';
 
 export const BW = 256;
 export const BH = 144;
@@ -99,6 +101,8 @@ const BG = {
   sand_castle: { sky: ['#0e0a08', '#1c1610', '#2a2218'], far: '#5a4a38', near: '#8a765a', ground: ['#a8946e', '#988462'], deco: 'castle' },
   sand_sea: { sky: ['#3a86d8', '#7ab8ea', '#c8e2f2', '#f6e6b8'], far: '#d8a456', near: '#6a4222', ground: ['#a8733e', '#96652f'], deco: 'sand_sea', deck: true },
   whale_deck: { sky: ['#5a3a3a', '#8a5240', '#c27c4e', '#e6ae6e'], far: '#c8924c', near: '#6a4222', ground: ['#a8733e', '#96652f'], deco: 'sand_sea', deck: true, whirl: true },
+  // 第4章 Step 7: 砂の底の神殿（sand_temple）・鏡の間（mirror_hall）・水鏡の広間（morgana_hall）
+  ...TEMPLE_BG,
 };
 
 // はいけいの データ（〜_night は 夜空の はいけい。night-art.js）。ない ときは null
@@ -168,6 +172,7 @@ export function battleBackground(id) {
       case 'pyramid': case 'pyramid_boss': h = 0; break; // ピラミッドは あとで（drawPyramidHall・drawPyramidFloor）
       case 'palace': h = 0; break; // 夜の 王の間は あとで（ch4-palace-bg.js）
       case 'castle': case 'sand_sea': h = 0; break; // 砂の古城・砂の海は あとで（ch4-duna-bg.js）
+      case 'temple': case 'mirror': case 'mhall': h = 0; break; // 砂の底の神殿は あとで（ch4-temple-bg.js）
       default: h = 10 + Math.abs(Math.sin(px * 0.035) * 14) + Math.abs(Math.sin(px * 0.11) * 4);
     }
     if (d.deco === 'stalactite' || d.deco === 'crystal') {
@@ -181,6 +186,7 @@ export function battleBackground(id) {
   if (d.deco === 'palace') drawPalaceHall(x, hor);
   if (d.deco === 'castle') drawCastleHall(x, hor);
   if (d.deco === 'sand_sea') drawSandSea(x, d, hor);
+  if (TEMPLE_DECOS.has(d.deco)) drawTempleBg(x, d, hor);
   if (d.deco === 'houses') {
     x.fillStyle = '#ffd66b';
     for (let k = 10; k < BW; k += 48) x.fillRect(k + 8, hor - 12, 3, 3);
@@ -230,6 +236,7 @@ export function battleBackground(id) {
   else if (d.deco === 'pyramid' || d.deco === 'pyramid_boss') drawPyramidFloor(x, hor, d.deco === 'pyramid_boss');
   else if (d.deco === 'palace') drawPalaceFloor(x, hor);
   else if (d.deco === 'castle') drawCastleFloor(x, hor);
+  else if (TEMPLE_DECOS.has(d.deco)) drawTempleFloorBg(x, d, hor);
   else {
     x.fillStyle = 'rgba(0,0,0,0.12)';
     for (let i = 0; i < 6; i++) {

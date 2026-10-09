@@ -1,6 +1,6 @@
 // 夜の 宮殿の 王の間（第4章 Step 5。大臣ザイード・砂の魔神ザイードの 戦い）の 戦いの 背景
 // battlefx.js の battleBackground から よぶ（deco: 'palace'）。BW×BH の まま かく（hor … 地面の たかさ）
-import { mix } from './pixel.js?v=a94c44ae0637';
+import { mix } from './pixel.js?v=e28f090d0ad9';
 
 const BW = 256, BH = 144;
 // 高い まど（まん中 x・はば・アーチの てっぺん y・まどの 下 y）。まん中の まどに 大きな 月

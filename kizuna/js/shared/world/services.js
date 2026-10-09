@@ -1,26 +1,26 @@
 // お店・やどや・きょうかい・転職・酒場・でんごんばん・メニュー操作
-import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js?v=a94c44ae0637';
-import { normDifficulty } from '../data/difficulty.js?v=a94c44ae0637';
-import { ITEMS, sellPrice, SLOTS, SLOT_NAMES } from '../data/items.js?v=a94c44ae0637';
-import { JOBS, ALL_JOBS, jobReqText, BODY_NAMES } from '../data/jobs.js?v=a94c44ae0637';
-import { ABILITIES } from '../data/abilities.js?v=a94c44ae0637';
-import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=a94c44ae0637';
-import { TACTICS } from '../ai.js?v=a94c44ae0637';
-import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js?v=a94c44ae0637';
-import { salonInfo, salonAction } from './salon.js?v=a94c44ae0637';
-import { breedMonsters, breedPreview } from './breed.js?v=a94c44ae0637';
-import { MONSTERS } from '../data/monsters.js?v=a94c44ae0637';
-import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings, spellSealed } from '../battle.js?v=a94c44ae0637';
-import { PLACES } from '../maps/overworld.js?v=a94c44ae0637';
-import { POS, SEA_PLACES, MAPS } from '../maps/index.js?v=a94c44ae0637';
-import { castRura, warpParty, useTimeBell, warpPlaces, warpOwner } from './travel.js?v=a94c44ae0637';
-import { bankInfo, bankAction } from './bank.js?v=a94c44ae0637';
-import { forgeInfo, forgeAction } from './forge.js?v=a94c44ae0637';
-import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction, wagonHere, wagonHealEntries, ownWagonEntries } from './wagon.js?v=a94c44ae0637';
-import { casinoOpen, casinoAction } from './casino.js?v=a94c44ae0637';
-import { useEscapeItem, noEscapeText } from './escape.js?v=a94c44ae0637';
-import { bestEquipPlan, bestTeamOrder } from '../equip-plan.js?v=a94c44ae0637';
-import { setLookEquip } from '../look-equip.js?v=a94c44ae0637';
+import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js?v=e28f090d0ad9';
+import { normDifficulty } from '../data/difficulty.js?v=e28f090d0ad9';
+import { ITEMS, sellPrice, SLOTS, SLOT_NAMES } from '../data/items.js?v=e28f090d0ad9';
+import { JOBS, ALL_JOBS, jobReqText, BODY_NAMES } from '../data/jobs.js?v=e28f090d0ad9';
+import { ABILITIES } from '../data/abilities.js?v=e28f090d0ad9';
+import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=e28f090d0ad9';
+import { TACTICS } from '../ai.js?v=e28f090d0ad9';
+import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js?v=e28f090d0ad9';
+import { salonInfo, salonAction } from './salon.js?v=e28f090d0ad9';
+import { breedMonsters, breedPreview } from './breed.js?v=e28f090d0ad9';
+import { MONSTERS } from '../data/monsters.js?v=e28f090d0ad9';
+import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings, spellSealed } from '../battle.js?v=e28f090d0ad9';
+import { PLACES } from '../maps/overworld.js?v=e28f090d0ad9';
+import { POS, SEA_PLACES, MAPS } from '../maps/index.js?v=e28f090d0ad9';
+import { castRura, warpParty, useTimeBell, warpPlaces, warpOwner } from './travel.js?v=e28f090d0ad9';
+import { bankInfo, bankAction } from './bank.js?v=e28f090d0ad9';
+import { forgeInfo, forgeAction } from './forge.js?v=e28f090d0ad9';
+import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction, wagonHere, wagonHealEntries, ownWagonEntries } from './wagon.js?v=e28f090d0ad9';
+import { casinoOpen, casinoAction } from './casino.js?v=e28f090d0ad9';
+import { useEscapeItem, noEscapeText } from './escape.js?v=e28f090d0ad9';
+import { bestEquipPlan, bestTeamOrder } from '../equip-plan.js?v=e28f090d0ad9';
+import { setLookEquip } from '../look-equip.js?v=e28f090d0ad9';
 
 export function openService(world, s, kind, arg) {
   switch (kind) {

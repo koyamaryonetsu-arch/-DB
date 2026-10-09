@@ -7,16 +7,17 @@
 // rank: 装備の ランク（1〜10。下の EQUIP_RANKS）。star: 店では 買えない 1つ上の 品（宝箱・レアドロップ）
 // unique: 1人 1つの 品（ボスが 落とす 物）。データを 合わせる ときに ふえすぎない
 
-import { ITEMS_CH2 } from './items-ch2.js?v=a94c44ae0637';
-import { ITEMS_TM } from './items-tm.js?v=a94c44ae0637';
-import { NIGHT_ITEMS, NIGHT_ITEM_KANA } from './night.js?v=a94c44ae0637';
-import { SKY_ITEMS, SKY_ITEM_KANA } from './sky.js?v=a94c44ae0637';
-import { ITEMS_FORGE, FORGE_KANA, addUpgradeItems } from './items-forge.js?v=a94c44ae0637';
-import { ITEMS_CASINO, CASINO_KANA } from './items-casino.js?v=a94c44ae0637';
-import { RARE_ITEMS, RARE_ITEM_KANA } from './monsters-rare.js?v=a94c44ae0637';
-import { ESCAPE_ITEMS, ESCAPE_KANA } from './escape.js?v=a94c44ae0637';
-import { ITEMS_CH3, CH3_ITEM_KANA } from './items-ch3.js?v=a94c44ae0637';
-import { ITEMS_CH4, CH4_ITEM_KANA } from './items-ch4.js?v=a94c44ae0637';
+import { ITEMS_CH2 } from './items-ch2.js?v=e28f090d0ad9';
+import { ITEMS_TM } from './items-tm.js?v=e28f090d0ad9';
+import { NIGHT_ITEMS, NIGHT_ITEM_KANA } from './night.js?v=e28f090d0ad9';
+import { SKY_ITEMS, SKY_ITEM_KANA } from './sky.js?v=e28f090d0ad9';
+import { ITEMS_FORGE, FORGE_KANA, addUpgradeItems } from './items-forge.js?v=e28f090d0ad9';
+import { ITEMS_CASINO, CASINO_KANA } from './items-casino.js?v=e28f090d0ad9';
+import { RARE_ITEMS, RARE_ITEM_KANA } from './monsters-rare.js?v=e28f090d0ad9';
+import { ESCAPE_ITEMS, ESCAPE_KANA } from './escape.js?v=e28f090d0ad9';
+import { ITEMS_CH3, CH3_ITEM_KANA } from './items-ch3.js?v=e28f090d0ad9';
+import { ITEMS_CH4, CH4_ITEM_KANA } from './items-ch4.js?v=e28f090d0ad9';
+import { ITEMS_TEMPLE, TEMPLE_ITEM_KANA } from './items-temple.js?v=e28f090d0ad9';
 
 export const ITEMS = {
   // ───── つかう どうぐ ─────
@@ -214,6 +215,8 @@ Object.assign(ITEMS, ESCAPE_ITEMS);
 Object.assign(ITEMS, ITEMS_CH3);
 // 第4章「砂の海にしずむ星」（items-ch4.js）
 Object.assign(ITEMS, ITEMS_CH4);
+// 第4章 Step 7: モルガナが 落とす 品（items-temple.js）
+Object.assign(ITEMS, ITEMS_TEMPLE);
 // きたえた 装備（'iron_sword+1'〜'+3'）。新しい 装備を 足す ときは この 行より 上で
 addUpgradeItems(ITEMS);
 
@@ -294,7 +297,7 @@ Object.assign(ITEM_KANA, FORGE_KANA, RARE_ITEM_KANA);
 Object.assign(ITEM_KANA, CASINO_KANA);
 Object.assign(ITEM_KANA, ESCAPE_KANA);
 Object.assign(ITEM_KANA, CH3_ITEM_KANA);
-Object.assign(ITEM_KANA, CH4_ITEM_KANA);
+Object.assign(ITEM_KANA, CH4_ITEM_KANA, TEMPLE_ITEM_KANA);
 
 export function itemKana(id) {
   // きたえた 装備は もとの 装備の 読み ＋ 回数（鉄の剣 → 鉄の剣+1 の じゅん）

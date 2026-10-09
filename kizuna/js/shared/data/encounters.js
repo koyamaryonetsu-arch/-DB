@@ -2,10 +2,11 @@
 // group: [[モンスターID, 最小数, 最大数], ...]
 // フィールドでは 先頭の モンスターの すがたで うろうろしている（シンボルエンカウント）
 
-import { ENCOUNTERS_CH2, FIXED_CH2, ZONE_BG_CH2 } from './encounters-ch2.js?v=a94c44ae0637';
-import { NIGHT_ENCOUNTERS, NIGHT_ZONE_BG, NIGHT_ZONES } from './night.js?v=a94c44ae0637';
-import { ENCOUNTERS_CH3, FIXED_CH3, ZONE_BG_CH3 } from './encounters-ch3.js?v=a94c44ae0637';
-import { ENCOUNTERS_CH4, FIXED_CH4, ZONE_BG_CH4, NIGHT_ZONES_CH4 } from './encounters-ch4.js?v=a94c44ae0637';
+import { ENCOUNTERS_CH2, FIXED_CH2, ZONE_BG_CH2 } from './encounters-ch2.js?v=e28f090d0ad9';
+import { NIGHT_ENCOUNTERS, NIGHT_ZONE_BG, NIGHT_ZONES } from './night.js?v=e28f090d0ad9';
+import { ENCOUNTERS_CH3, FIXED_CH3, ZONE_BG_CH3 } from './encounters-ch3.js?v=e28f090d0ad9';
+import { ENCOUNTERS_CH4, FIXED_CH4, ZONE_BG_CH4, NIGHT_ZONES_CH4 } from './encounters-ch4.js?v=e28f090d0ad9';
+import { ENCOUNTERS_TEMPLE, FIXED_TEMPLE, ZONE_BG_TEMPLE } from './encounters-temple.js?v=e28f090d0ad9';
 
 export const ENCOUNTER_TABLES = {
   outskirts: [
@@ -96,3 +97,7 @@ Object.assign(ENCOUNTER_TABLES, ENCOUNTERS_CH4);
 Object.assign(FIXED_ENCOUNTERS, FIXED_CH4);
 Object.assign(ZONE_BG, ZONE_BG_CH4);
 Object.assign(NIGHT_ZONES, NIGHT_ZONES_CH4);
+// 第4章 Step 7「砂の底の神殿」（encounters-temple.js。昼と 夜の 区別は ない）
+Object.assign(ENCOUNTER_TABLES, ENCOUNTERS_TEMPLE);
+Object.assign(FIXED_ENCOUNTERS, FIXED_TEMPLE);
+Object.assign(ZONE_BG, ZONE_BG_TEMPLE);

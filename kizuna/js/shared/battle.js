@@ -7,21 +7,23 @@
 //
 // サーバー（家族サーバー）でも ブラウザ（ひとりモード）でも おなじ コードが うごく
 
-import { makeRng } from './rng.js?v=a94c44ae0637';
-import { ABILITIES, ELEMENT_ORDER, ELEMENT_NAMES } from './data/abilities.js?v=a94c44ae0637';
-import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=a94c44ae0637';
-import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js?v=a94c44ae0637';
-import { MONSTERS } from './data/monsters.js?v=a94c44ae0637';
-import { ITEMS } from './data/items.js?v=a94c44ae0637';
-import { JOBS } from './data/jobs.js?v=a94c44ae0637';
-import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed, battleAbilityOk } from './stats.js?v=a94c44ae0637';
-import { decideMonster, decideAlly } from './ai.js?v=a94c44ae0637';
-import { ENEMY_RATES, strengthenEnemy } from './data/difficulty.js?v=a94c44ae0637';
+import { makeRng } from './rng.js?v=e28f090d0ad9';
+import { ABILITIES, ELEMENT_ORDER, ELEMENT_NAMES } from './data/abilities.js?v=e28f090d0ad9';
+import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=e28f090d0ad9';
+import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js?v=e28f090d0ad9';
+import { MONSTERS } from './data/monsters.js?v=e28f090d0ad9';
+import { ITEMS } from './data/items.js?v=e28f090d0ad9';
+import { JOBS } from './data/jobs.js?v=e28f090d0ad9';
+import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed, battleAbilityOk } from './stats.js?v=e28f090d0ad9';
+import { decideMonster, decideAlly } from './ai.js?v=e28f090d0ad9';
+import { ENEMY_RATES, strengthenEnemy } from './data/difficulty.js?v=e28f090d0ad9';
 // 第4章の しかけ（まぼろしの分身・月の鏡・そうびしたまま 使う 道具）
-import { setupMirage, mirageHit, mirageVanish, mirageDown, mirageSync, mirageRemake, ch4ItemCheck, ch4UseItem, mirrorSnap } from './battle-ch4.js?v=a94c44ae0637';
+import { setupMirage, mirageHit, mirageVanish, mirageDown, mirageSync, mirageRemake, ch4ItemCheck, ch4UseItem, mirrorSnap } from './battle-ch4.js?v=e28f090d0ad9';
 // 第4章 Step 6 の 砂に もぐる（ねらえない。battle-ch4.js）
-import { burrowStart, burrowWarn, burrowBlock, hiddenFrom } from './battle-ch4.js?v=a94c44ae0637';
-import { shownEquipKey } from './look-equip.js?v=a94c44ae0637';
+import { burrowStart, burrowWarn, burrowBlock, hiddenFrom } from './battle-ch4.js?v=e28f090d0ad9';
+import { shownEquipKey } from './look-equip.js?v=e28f090d0ad9';
+// 第4章 Step 7 の 砂の底の神殿と モルガナ（呪文を はね返す・鏡写し・水の衣・大波・水のろう・水の守りの歌・鏡のうつし身。battle-temple.js）
+import { setupTemple, templeTurnStart, prisonTurn, reflectSpell, templeEffect, templeEst, templeDamage, templeKill, templePub, templeSnap } from './battle-temple.js?v=e28f090d0ad9';
 
 export const BOND_MAX = 100;
 // きずなゲージの たまりやすさ（1 … はじめの 版。ちいさいほど たまりにくい）
@@ -222,6 +224,8 @@ export class Battle {
     // 設定の「敵の強さ」（1・1.2・1.5・2倍。data/difficulty.js）。とちゅうで 来る 魔物にも かける
     this.enemyRate = ENEMY_RATES.includes(opts.enemyRate) ? opts.enemyRate : 1;
     this.addEnemies(opts.enemies || []);
+    // 鏡のうつし身・水の衣・水の守りの歌（battle-temple.js）
+    setupTemple(this, opts);
     // まぼろしの分身（おなじ 魔物の 1体だけが 本物。battle-ch4.js）
     setupMirage(this);
     this.initAtb();
@@ -447,8 +451,8 @@ export class Battle {
   }
 
   onReady(c) {
-    // ねむり・まひは じゅんばんが とばされる
-    if (c.status.sleep || c.status.paralyze) {
+    // ねむり・まひ・水のろうは じゅんばんが とばされる
+    if (c.status.sleep || c.status.paralyze || c.status.prison) {
       this.enqueue(c, { type: 'incapacitated' });
       return;
     }
@@ -586,7 +590,7 @@ export class Battle {
     }
     let cmd = q.cmd;
     // ねむりが ダメージで さめていたら ふつうに こうどうできる
-    if (cmd.type === 'incapacitated' && !c.status.sleep && !c.status.paralyze) {
+    if (cmd.type === 'incapacitated' && !c.status.sleep && !c.status.paralyze && !c.status.prison) {
       if (c.controller && !c.auto) {
         c.queued = false;
         c.ready = true;
@@ -604,6 +608,8 @@ export class Battle {
       ev.lines.push(`${c.name}は、反撃の構えをといた。`);
       ev.upd.push(c);
     }
+    // 呪文を はね返す 光が 消える など（battle-temple.js）
+    templeTurnStart(this, c, ev);
     if (cmd.type === 'incapacitated') {
       this.doIncapacitated(c, ev);
     } else {
@@ -661,6 +667,8 @@ export class Battle {
   }
 
   doIncapacitated(c, ev) {
+    // 水のろうに とじこめられている（battle-temple.js）
+    if (c.status.prison) return prisonTurn(this, c, ev);
     if (c.status.sleep) {
       const s = c.status.sleep;
       s.turns--;
@@ -802,6 +810,8 @@ export class Battle {
         }
         const pen = c.side === 'ally' ? penaltyFor(c.penChar, cmd.id) : { powMult: 1 };
         if (pen.penalized) ev.penalized = true;
+        // 光っている 敵・鏡写し: 呪文を はね返す（battle-temple.js）
+        if (reflectSpell(this, c, a, cmd, ev, pen.powMult, targets)) break;
         this.applyAbility(c, a, cmd, ev, pen.powMult, targets);
         break;
       }
@@ -1403,7 +1413,8 @@ export class Battle {
         break;
       }
       case 'nothing': break;
-      default: break;
+      // 呪文を はね返す・水の衣・大波の 前ぶれ・水のろう など（battle-temple.js）
+      default: templeEffect(this, c, a, eff, ev, targets); break;
     }
   }
 
@@ -1498,6 +1509,8 @@ export class Battle {
     if (t.defending) dmg *= 0.5;
     if (t.metal && !crit) dmg = estimate ? 0.5 : this.rng.int(0, 1);
     if (!estimate) dmg *= this.comboMult(c);
+    // オートの みつもり: 水の衣（battle-temple.js）
+    else dmg *= templeEst(this, c, t, element);
     const final = Math.max(0, Math.round(dmg));
     return { dmg: final, crit, hit };
   }
@@ -1515,6 +1528,7 @@ export class Battle {
     if (t.defending) dmg *= 0.75;
     if (eff.breath && t.buffs.breath) dmg *= 0.5;
     if (!estimate) dmg *= this.comboMult(c);
+    else dmg *= templeEst(this, c, t, eff.element);
     return { dmg: Math.max(0, Math.round(dmg)), resisted: r === 0 };
   }
 
@@ -1535,6 +1549,10 @@ export class Battle {
   damage(c, t, dmg, ev, info = {}) {
     ev.results = ev.results || [];
     if (mirageHit(this, c, t, ev)) return;
+    // 水の衣（半分・炎は 効かない・雷で はじける）・水の守りの歌（battle-temple.js）
+    const td = templeDamage(this, c, t, dmg, info, ev);
+    if (td === null) return;
+    dmg = td;
     // 天才しせつ管理者の 予兆保全: 敵の 大技の ダメージが 小さく なる（jobs.js の passive.foresee）
     if (ev.big && c.side === 'enemy' && t.side === 'ally' && dmg > 0) dmg = this.foreseeCut(dmg, ev);
     // 峰打ち: たおさずに HP を 1 のこす
@@ -1606,6 +1624,9 @@ export class Battle {
     // まぼろしの 分身は 消えるだけ（たおした ことに ならない。battle-ch4.js）
     const vanished = mirageVanish(this, t, ev);
     if (vanished) return vanished;
+    // 水のろうが こわれる（中の 人が 出る。battle-temple.js）
+    const tk = templeKill(this, t, ev);
+    if (tk) return tk;
     // 1回だけ 起き上がる 魔物（ミイラ兵。monsters の revive）
     const rv = t.side === 'enemy' && !t.revived ? MONSTERS[t.species]?.revive : null;
     if (rv && !(rv.not || []).includes(element)) {
@@ -2314,6 +2335,8 @@ export class Battle {
       noSpells: this.noSpells,
       // 月の鏡の 光（まぼろしの 分身が いる たたかいだけ。battle-ch4.js）
       mirror: mirrorSnap(this),
+      // 水の守りの歌の のこり（battle-temple.js）
+      temple: templeSnap(this),
       // 敵の 強さ（1 … ふつう。ハードなどの ときは 画面に しるし）
       enemyRate: this.enemyRate,
       bond: this.bond,
@@ -2440,6 +2463,8 @@ export function pub(c) {
     tactics: c.side === 'ally' ? (c.manualTac ? 'manual' : c.tactics) : undefined,
     tacBy: c.side === 'ally' ? c.tacBy || null : undefined,
     covering: c.cover ? c.cover.target : null,
+    // 水の衣・光（呪文を はね返す）・大波の 前ぶれ・鏡のうつし身・水のろうの 中の 人（battle-temple.js）
+    ...templePub(c),
   };
 }
 

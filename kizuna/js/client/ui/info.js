@@ -1,12 +1,12 @@
 // せつめい文を つくる
-import { ITEMS, SLOT_NAMES, WEAPON_CAT_NAMES } from '../../shared/data/items.js?v=a94c44ae0637';
-import { ABILITIES, abilityTypeText } from '../../shared/data/abilities.js?v=a94c44ae0637';
-import { JOBS, ALL_JOBS } from '../../shared/data/jobs.js?v=a94c44ae0637';
-import { MONSTERS } from '../../shared/data/monsters.js?v=a94c44ae0637';
-import { MONSTER_FRIENDS } from '../../shared/data/companions.js?v=a94c44ae0637';
-import { computeStats, canEquip, canEquipMonster, monsterGear, penaltyFor, mpCost, comboJobNames, comboAllowed, jobPower } from '../../shared/stats.js?v=a94c44ae0637';
-import { attackReach } from '../../shared/battle.js?v=a94c44ae0637';
-import { maxPlus } from '../../shared/data/forge.js?v=a94c44ae0637';
+import { ITEMS, SLOT_NAMES, WEAPON_CAT_NAMES } from '../../shared/data/items.js?v=e28f090d0ad9';
+import { ABILITIES, abilityTypeText } from '../../shared/data/abilities.js?v=e28f090d0ad9';
+import { JOBS, ALL_JOBS } from '../../shared/data/jobs.js?v=e28f090d0ad9';
+import { MONSTERS } from '../../shared/data/monsters.js?v=e28f090d0ad9';
+import { MONSTER_FRIENDS } from '../../shared/data/companions.js?v=e28f090d0ad9';
+import { computeStats, canEquip, canEquipMonster, monsterGear, penaltyFor, mpCost, comboJobNames, comboAllowed, jobPower } from '../../shared/stats.js?v=e28f090d0ad9';
+import { attackReach } from '../../shared/battle.js?v=e28f090d0ad9';
+import { maxPlus } from '../../shared/data/forge.js?v=e28f090d0ad9';
 
 const TARGET_NAMES = { enemy: '敵1体', group: '敵1グループ', enemies: '敵全体', ally: '味方1人', allies: '味方全員', self: '自分', deadAlly: '死んだ味方', deadAllies: '死んだ味方全員' };
 // 技の リストに つける みじかい しるし（1体・1人・自分は つけない）。a: 技（または 相手の しゅるい）
@@ -176,7 +176,7 @@ export function abilityDetail(id, char, { brief = false } = {}) {
 }
 
 export function statusNames(st) {
-  const n = { sleep: 'ねむり', paralyze: 'マヒ', confuse: '混乱', blind: 'まぼろし', silence: 'ふうじ', poison: '毒' };
+  const n = { sleep: 'ねむり', paralyze: 'マヒ', confuse: '混乱', blind: 'まぼろし', silence: 'ふうじ', poison: '毒', prison: '水のろう' };
   return (st || []).map((s) => n[s] || s).join(' ');
 }
 
