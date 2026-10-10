@@ -506,8 +506,14 @@ export class Game {
       }
       case 'toast':
         // afterBattle: たたかいの けっかを とじてから 出す（全滅して 目を覚ました ときなど）
-        if (m.afterBattle && (this.state === 'battle' || this.battleClosing)) this.waitBattleClosed().then(() => toast(m.text, 6000));
-        else toast(m.text, m.afterBattle ? 6000 : undefined);
+        if (m.afterBattle && (this.state === 'battle' || this.battleClosing)) this.waitBattleClosed().then(() => {
+          if (m.sfx) this.audio.sfx(m.sfx);
+          toast(m.text, 6000);
+        });
+        else {
+          if (m.sfx) this.audio.sfx(m.sfx);
+          toast(m.text, m.afterBattle ? 6000 : undefined);
+        }
         break;
       case 'chat':
         this.hud.addChat(m.from, m.text, m.stamp);
@@ -719,6 +725,8 @@ export class Game {
     this.keepAwake(true);
     if (m.rescued) toast('立てなおしました。動けるか、ためしてみてね', 5000);
     else if (m.resumed) toast('つなぎ直しました。続きから遊べます');
+    // 家族の パーティーで 仲間に なった まもの（いない 間に 酒場へ 来た。world/recruit-share.js）
+    for (const text of m.tavernNews || []) toast(text, 7000);
     for (const log of m.supportLog || []) {
       toast(`${log.helper}の冒険を${log.count}回手伝って\n経験値${log.exp}と${log.gold}ゴールドをもらった！${log.level ? `\nレベルが${log.level}に上がった！` : ''}`, 6000);
     }
