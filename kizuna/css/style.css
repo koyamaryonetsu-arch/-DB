@@ -1694,3 +1694,18 @@ body.dot-font { --font-ui: 'KizunaDot', 'Hiragino Kaku Gothic ProN', 'Hiragino S
   .look-pv .look-big { width: 64px; height: 84px; }
   .look-pv.small .look-big { width: 44px; height: 58px; }
 }
+/* ひみつのダンジョンの 家族の記録の板（ui/secret.js） */
+.sd-board-panel { display: flex; flex-direction: column; max-height: calc(100% - var(--safe-t) - 16px); }
+.sd-board { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+.sd-board-lead { margin-bottom: 0.3em; }
+.sd-rows { display: flex; flex-direction: column; }
+.sd-row { display: grid; grid-template-columns: 2.6em minmax(0, 1fr) auto; grid-template-areas: 'rk nm fl' 'rk sb sb'; column-gap: 0.6em; align-items: baseline; padding: 0.25em 0.3em; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+.sd-row .sd-rank { grid-area: rk; font-weight: bold; color: var(--muted); align-self: center; }
+.sd-row .sd-name { grid-area: nm; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sd-row .sd-floor { grid-area: fl; font-weight: bold; font-variant-numeric: tabular-nums; }
+.sd-row .sd-sub { grid-area: sb; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sd-row.rank1 .sd-rank { color: #ffd66b; }
+.sd-row.rank2 .sd-rank { color: #d8dce8; }
+.sd-row.rank3 .sd-rank { color: #e0a070; }
+.sd-row.me { background: rgba(160, 120, 255, 0.16); border-radius: 4px; }
+.sd-me { margin-top: 0.5em; color: var(--accent); white-space: pre-line; }

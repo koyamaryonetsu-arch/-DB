@@ -1,28 +1,28 @@
 // たたかいの がめん（むかしの RPG ふう 1がめん）
-import { el, esc, ListMenu, toast } from './ui/dom.js?v=fa0687a214b4';
-import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js?v=fa0687a214b4';
-import { ITEMS } from '../shared/data/items.js?v=fa0687a214b4';
-import { JOBS } from '../shared/data/jobs.js?v=fa0687a214b4';
-import { MONSTERS } from '../shared/data/monsters.js?v=fa0687a214b4';
-import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed, battleAbilityOk } from '../shared/stats.js?v=fa0687a214b4';
-import { affinityOf, attackReach, spellSealed, SEALED_REASON } from '../shared/battle.js?v=fa0687a214b4';
-import { DUAL_TECHS, dualOptions, dualKnown } from '../shared/data/dual.js?v=fa0687a214b4';
-import { TACTICS } from '../shared/ai.js?v=fa0687a214b4';
-import { faceURL } from './field.js?v=fa0687a214b4';
-import { monsterCanvas } from './render/monsters.js?v=fa0687a214b4';
-import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=fa0687a214b4';
-import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js?v=fa0687a214b4';
-import { PARTY_ANIMS, JOB2_SFX } from './render/battlefx-jobs2.js?v=fa0687a214b4';
-import { PARTY_ANIMS3, JOB3_SFX } from './render/battlefx-jobs3.js?v=fa0687a214b4';
-import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js?v=fa0687a214b4';
-import { abilityDetail, statusNames, buffNames, targetTag } from './ui/info.js?v=fa0687a214b4';
-import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js?v=fa0687a214b4';
-import { ENEMY_RATE_NAMES } from '../shared/data/difficulty.js?v=fa0687a214b4';
-import { ResultPager, levelUpName } from './ui/result.js?v=fa0687a214b4';
+import { el, esc, ListMenu, toast } from './ui/dom.js?v=2d30a5044288';
+import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js?v=2d30a5044288';
+import { ITEMS } from '../shared/data/items.js?v=2d30a5044288';
+import { JOBS } from '../shared/data/jobs.js?v=2d30a5044288';
+import { MONSTERS } from '../shared/data/monsters.js?v=2d30a5044288';
+import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed, battleAbilityOk } from '../shared/stats.js?v=2d30a5044288';
+import { affinityOf, attackReach, spellSealed, SEALED_REASON } from '../shared/battle.js?v=2d30a5044288';
+import { DUAL_TECHS, dualOptions, dualKnown } from '../shared/data/dual.js?v=2d30a5044288';
+import { TACTICS } from '../shared/ai.js?v=2d30a5044288';
+import { faceURL } from './field.js?v=2d30a5044288';
+import { monsterCanvas } from './render/monsters.js?v=2d30a5044288';
+import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=2d30a5044288';
+import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js?v=2d30a5044288';
+import { PARTY_ANIMS, JOB2_SFX } from './render/battlefx-jobs2.js?v=2d30a5044288';
+import { PARTY_ANIMS3, JOB3_SFX } from './render/battlefx-jobs3.js?v=2d30a5044288';
+import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js?v=2d30a5044288';
+import { abilityDetail, statusNames, buffNames, targetTag } from './ui/info.js?v=2d30a5044288';
+import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js?v=2d30a5044288';
+import { ENEMY_RATE_NAMES } from '../shared/data/difficulty.js?v=2d30a5044288';
+import { ResultPager, levelUpName } from './ui/result.js?v=2d30a5044288';
 // 第4章の しかけ（月の鏡・まぼろしの 分身・魔神のランプ・ボスの 大技）
-import { CH4_ALLY_FX, ch4ItemEntries, ch4ItemPick, ch4ItemInfo, ch4Present, vanishFx, drawShade, drawBurrow } from './battle-ch4.js?v=fa0687a214b4';
+import { CH4_ALLY_FX, ch4ItemEntries, ch4ItemPick, ch4ItemInfo, ch4Present, vanishFx, drawShade, drawBurrow } from './battle-ch4.js?v=2d30a5044288';
 // 第4章 Step 7 の 砂の底の神殿と モルガナ（鏡のうつし身・水のろうの 絵・水の衣・光・大波・水の守りの歌）
-import { templeSprite, templeDraw, templeStart, TEMPLE_SFX } from './battle-temple.js?v=fa0687a214b4';
+import { templeSprite, templeDraw, templeStart, TEMPLE_SFX } from './battle-temple.js?v=2d30a5044288';
 
 // たたかいの え の こまかさ（おもい きかいで さげたら、その あいだは さげた まま）
 let battleRes = BRES;

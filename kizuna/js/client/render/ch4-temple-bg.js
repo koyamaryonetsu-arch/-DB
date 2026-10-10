@@ -5,7 +5,7 @@
 //   ゆかの 半分は 鏡の ゆか（うつりこみ）
 // ・morgana_hall（deco 'mhall'）… 水鏡の広間: 広間いっぱいの 大きな 水鏡（中に 遠い 空に うかぶ 島が ゆらゆら うつる。第5章の 伏線）・
 //   両がわから 流れ落ちる 水・青く 光る 水の 柱。ゆかは 水が うすく はった 石の ゆか
-import { mix } from './pixel.js?v=fa0687a214b4';
+import { mix } from './pixel.js?v=2d30a5044288';
 
 const BW = 256, BH = 144;
 

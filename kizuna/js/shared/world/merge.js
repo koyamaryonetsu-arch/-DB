@@ -11,15 +11,16 @@
 // ・仲間 … 両方の 仲間を のこす（べつべつに 仲間に なった まものは 両方とも。家族の パーティーで 酒場に 来た まものも おなじ）
 // ・預かり所 … お金も 品物も、両方で 預けた・引き出した ぶんを たす
 // ・いる場所・HP・作戦 など … 両方で かわって いたら、あとで 遊んだ ほう
-import { expForLevel, MAX_LEVEL, computeStats } from '../stats.js?v=fa0687a214b4';
-import { JOBS, JOB_MAX_LEVEL, jobBattlesForLevel } from '../data/jobs.js?v=fa0687a214b4';
-import { ITEMS, SLOTS } from '../data/items.js?v=fa0687a214b4';
-import { STORY_STEPS } from '../data/story.js?v=fa0687a214b4';
-import { COMPANION_SLOTS } from '../data/companions.js?v=fa0687a214b4';
-import { WAGON_SLOTS } from '../data/wagon.js?v=fa0687a214b4';
-import { repairChar } from './save.js?v=fa0687a214b4';
-import { mergeTreasureMaps } from '../data/treasure.js?v=fa0687a214b4';
-import { COIN_MAX } from '../data/casino.js?v=fa0687a214b4';
+import { expForLevel, MAX_LEVEL, computeStats } from '../stats.js?v=2d30a5044288';
+import { JOBS, JOB_MAX_LEVEL, jobBattlesForLevel } from '../data/jobs.js?v=2d30a5044288';
+import { ITEMS, SLOTS } from '../data/items.js?v=2d30a5044288';
+import { STORY_STEPS } from '../data/story.js?v=2d30a5044288';
+import { COMPANION_SLOTS } from '../data/companions.js?v=2d30a5044288';
+import { WAGON_SLOTS } from '../data/wagon.js?v=2d30a5044288';
+import { repairChar } from './save.js?v=2d30a5044288';
+import { mergeTreasureMaps } from '../data/treasure.js?v=2d30a5044288';
+import { mergeSecret } from '../data/secret.js?v=2d30a5044288';
+import { COIN_MAX } from '../data/casino.js?v=2d30a5044288';
 
 const GOLD_MAX = 9999999;
 const clone = (x) => (x === undefined ? undefined : JSON.parse(JSON.stringify(x)));
@@ -156,6 +157,8 @@ function mergeBody(b, a, t, tLater) {
       case 'explored': out.explored = eachKey(vb, va, vt, (x, y, z) => orBits(y, z)); break;
       case 'keyItems': out.keyItems = mergeSet(vb, va, vt); break;
       case 'treasureMaps': out.treasureMaps = mergeTreasureMaps(vb, va, vt); break;
+      // ひみつのダンジョンの 記録（深い ほう。もらった ごほうびは 両方）
+      case 'sd': out.sd = mergeSecret(vb, va, vt); break;
       case 'supportLog': {
         const seen = new Set((vb || []).map(canon));
         out.supportLog = [...clone(va || []), ...clone((vt || []).filter((e) => !seen.has(canon(e))))].slice(-10);

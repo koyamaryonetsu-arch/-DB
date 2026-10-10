@@ -6,10 +6,10 @@
 //
 // 洞窟の マップ ID: tm_<seed36>_<lv>_<o|s><x>x<y>_<階>（たとえば tm_k3f9a2_3_o120x45_2）
 //   ID だけで 洞窟が つくれる（サーバーと 画面で おなじ 形。とちゅうで ログインしなおしても おなじ 洞窟）
-import { MONSTERS } from './monsters.js?v=fa0687a214b4';
-import { ITEMS, SLOTS } from './items.js?v=fa0687a214b4';
-import { ENCOUNTER_TABLES, ZONE_BG } from './encounters.js?v=fa0687a214b4';
-import { makeRng } from '../rng.js?v=fa0687a214b4';
+import { MONSTERS } from './monsters.js?v=2d30a5044288';
+import { ITEMS, SLOTS } from './items.js?v=2d30a5044288';
+import { ENCOUNTER_TABLES, ZONE_BG } from './encounters.js?v=2d30a5044288';
+import { makeRng } from '../rng.js?v=2d30a5044288';
 
 export const TM_MAX = 20; // 持てる 地図の 数
 export const TM_LV_MAX = 12; // 地図の レベルの 上限
@@ -117,9 +117,14 @@ export function ensureEncounterTable(lv, theme) {
 }
 
 // 魔物を 地図の レベルに あわせて 強くする（たたかいの はじめに 1体ずつ）
-export function scaleEnemy(m, L) {
+// pow … さらに かける 倍率（ひみつのダンジョンの 深い 階。data/secret.js の sdPower）。HP・攻撃・守り・魔力に かける
+export function scaleEnemy(m, L, pow = 1) {
   const L0 = m.lv || 1;
-  if (!Number.isFinite(L) || Math.abs(L - L0) < 0.01) return m;
+  if (Number.isFinite(pow) && pow > 1) powerUp(m, pow);
+  if (!Number.isFinite(L) || Math.abs(L - L0) < 0.01) {
+    if (m.powK) m.rewardK = m.powK;
+    return m;
+  }
   const k = (L + 6) / (L0 + 6);
   const hk = Math.pow(k, m.boss ? 1.3 : 1.15);
   m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * hk));
@@ -130,8 +135,18 @@ export function scaleEnemy(m, L) {
   m.healPow = Math.round(m.healPow * k);
   m.agi = Math.round(m.agi * Math.sqrt(k));
   m.lv = Math.round(L);
-  m.rewardK = k;
+  m.rewardK = k * (m.powK || 1);
   return m;
+}
+
+function powerUp(m, pow) {
+  const up = (v) => Math.round((v || 0) * pow);
+  m.maxHp = m.hp = Math.max(1, up(m.maxHp));
+  m.atk = up(m.atk);
+  m.dfn = Math.round((m.dfn || 0) * Math.sqrt(pow));
+  m.mag = up(m.mag);
+  m.healPow = up(m.healPow);
+  m.powK = Math.sqrt(pow);
 }
 
 // 強くした 魔物の ぶん ふえる 経験値・ゴールド

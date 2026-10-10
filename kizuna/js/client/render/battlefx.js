@@ -1,16 +1,17 @@
 // たたかいの はいけいと エフェクト
-import { makeCanvas, ctxOf, hexToRgb, mix } from './pixel.js?v=fa0687a214b4';
-import { weaponLook, playWeapon, playReach } from './weaponfx.js?v=fa0687a214b4';
-import { nightBg, drawNightSky } from './night-art.js?v=fa0687a214b4';
-import { playJobFx, JOB_FINE } from './battlefx-jobs.js?v=fa0687a214b4';
-import { playJob2Fx, JOB2_FINE } from './battlefx-jobs2.js?v=fa0687a214b4';
-import { playJob3Fx, JOB3_FINE } from './battlefx-jobs3.js?v=fa0687a214b4';
-import { drawPalaceHall, drawPalaceFloor } from './ch4-palace-bg.js?v=fa0687a214b4';
+import { makeCanvas, ctxOf, hexToRgb, mix } from './pixel.js?v=2d30a5044288';
+import { weaponLook, playWeapon, playReach } from './weaponfx.js?v=2d30a5044288';
+import { nightBg, drawNightSky } from './night-art.js?v=2d30a5044288';
+import { playJobFx, JOB_FINE } from './battlefx-jobs.js?v=2d30a5044288';
+import { playJob2Fx, JOB2_FINE } from './battlefx-jobs2.js?v=2d30a5044288';
+import { playJob3Fx, JOB3_FINE } from './battlefx-jobs3.js?v=2d30a5044288';
+import { drawPalaceHall, drawPalaceFloor } from './ch4-palace-bg.js?v=2d30a5044288';
 // 第4章 Step 6: 砂の古城・砂の海（すなかぜ号の かんぱん）・砂クジラの ねどこ（ch4-duna-bg.js）
-import { drawCastleHall, drawCastleFloor, drawSandSea } from './ch4-duna-bg.js?v=fa0687a214b4';
-import { playCh4Fx } from './battlefx-ch4.js?v=fa0687a214b4';
+import { drawCastleHall, drawCastleFloor, drawSandSea } from './ch4-duna-bg.js?v=2d30a5044288';
+import { playCh4Fx } from './battlefx-ch4.js?v=2d30a5044288';
 // 第4章 Step 7: 砂の底の神殿・鏡の間・水鏡の広間（ch4-temple-bg.js）
-import { TEMPLE_BG, TEMPLE_DECOS, drawTempleBg, drawTempleFloorBg } from './ch4-temple-bg.js?v=fa0687a214b4';
+import { TEMPLE_BG, TEMPLE_DECOS, drawTempleBg, drawTempleFloorBg } from './ch4-temple-bg.js?v=2d30a5044288';
+import { SECRET_BG } from './secret-art.js?v=2d30a5044288';
 
 export const BW = 256;
 export const BH = 144;
@@ -103,6 +104,8 @@ const BG = {
   whale_deck: { sky: ['#5a3a3a', '#8a5240', '#c27c4e', '#e6ae6e'], far: '#c8924c', near: '#6a4222', ground: ['#a8733e', '#96652f'], deco: 'sand_sea', deck: true, whirl: true },
   // 第4章 Step 7: 砂の底の神殿（sand_temple）・鏡の間（mirror_hall）・水鏡の広間（morgana_hall）
   ...TEMPLE_BG,
+  // ひみつのダンジョン（階の 色ごと・番人。render/secret-art.js）
+  ...SECRET_BG,
 };
 
 // はいけいの データ（〜_night は 夜空の はいけい。night-art.js）。ない ときは null

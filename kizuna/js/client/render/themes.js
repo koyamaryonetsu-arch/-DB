@@ -1,9 +1,9 @@
 // 色の かえかた（宝の洞窟の しゅるい・第3章の 氷と 火の 洞窟・第4章の 砂の 洞窟と 地下水路・洞窟の 主の 色ちがい）
 // もとの ドット絵は そのままに、明るさを たもって 色だけ かえる
-import { T } from '../../shared/tiles.js?v=fa0687a214b4';
-import { makeCanvas, ctxOf } from './pixel.js?v=fa0687a214b4';
-import { CANAL_CTX, CANAL_CTX_TILES } from './tiles-canal.js?v=fa0687a214b4';
-import { TEMPLE_TILES } from './tiles-temple.js?v=fa0687a214b4';
+import { T } from '../../shared/tiles.js?v=2d30a5044288';
+import { makeCanvas, ctxOf } from './pixel.js?v=2d30a5044288';
+import { CANAL_CTX, CANAL_CTX_TILES } from './tiles-canal.js?v=2d30a5044288';
+import { TEMPLE_TILES } from './tiles-temple.js?v=2d30a5044288';
 
 // どの 部分か（ゆか・かべ・水）
 const PART_OF_TILE = {
@@ -111,7 +111,59 @@ const TEMPLE = {
   gem: G([0, '#0a3a58'], [0.5, '#3ac8e8'], [1, '#e8ffff']),
   flame: G([0, '#1a4a8a'], [0.5, '#4ab8f0'], [1, '#e8fbff']),
 };
-const THEMES = { ice: ICE, lava: LAVA, sand: SAND, canal: CANAL, pyramid: PYRAMID, castle: CASTLE, temple: TEMPLE };
+// ひみつのダンジョン（10階ごとに 色が かわる。入口の 広間は むらさき。data/secret.js の SD_BANDS）
+const SECRET = {
+  sd_gate: {
+    floor: G([0, '#100c18'], [0.15, '#2a2238'], [0.3, '#4a3e62'], [0.5, '#6e6290'], [0.75, '#a49ac4'], [1, '#f4f0ff']),
+    wall: G([0, '#08060e'], [0.15, '#1c1428'], [0.3, '#34284a'], [0.5, '#56467a'], [1, '#c8b8f0']),
+    water: G([0, '#1a0a3a'], [0.35, '#5a2aa8'], [0.7, '#a87ae8'], [1, '#fbf0ff']),
+    gem: G([0, '#3a1a6a'], [0.5, '#b07af0'], [1, '#f6eaff']),
+    flame: G([0, '#5a2a9a'], [0.5, '#c890ff'], [1, '#fff0ff']),
+  },
+  sd_moss: {
+    floor: G([0, '#0e140c'], [0.15, '#283424'], [0.3, '#4a5a42'], [0.5, '#728262'], [0.75, '#a8b894'], [1, '#f2fae6']),
+    wall: G([0, '#060a06'], [0.15, '#18241a'], [0.3, '#2e4630'], [0.5, '#4a6a48'], [1, '#c4dcb0']),
+    water: G([0, '#06201a'], [0.35, '#1c5a4a'], [0.7, '#5aa88a'], [1, '#e4fff0']),
+    gem: G([0, '#1a4a2a'], [0.5, '#6ad08a'], [1, '#eaffef']),
+    flame: null,
+  },
+  sd_aqua: {
+    floor: G([0, '#0a1018'], [0.15, '#1e2e40'], [0.3, '#3a5470'], [0.5, '#5e7e9e'], [0.75, '#9cb8d2'], [1, '#f0f8ff']),
+    wall: G([0, '#04080e'], [0.15, '#0e1e30'], [0.3, '#1e3a5a'], [0.5, '#36608a'], [1, '#bcdcf6']),
+    water: G([0, '#04203a'], [0.35, '#1a6aa8'], [0.7, '#62c0ee'], [1, '#f0fcff']),
+    gem: G([0, '#0a3a6a'], [0.5, '#4ac8f8'], [1, '#ecffff']),
+    flame: G([0, '#1a4a8a'], [0.5, '#5ac0f8'], [1, '#ecfbff']),
+  },
+  sd_violet: {
+    floor: G([0, '#120a18'], [0.15, '#2c1e3a'], [0.3, '#4c3666'], [0.5, '#705490'], [0.75, '#a88cc8'], [1, '#f8f0ff']),
+    wall: G([0, '#08040c'], [0.15, '#1c0e28'], [0.3, '#341a4a'], [0.5, '#523070'], [1, '#d0b0f0']),
+    water: G([0, '#1a0a3a'], [0.35, '#5a2aa8'], [0.7, '#a87ae8'], [1, '#fbf0ff']),
+    gem: G([0, '#4a1a6a'], [0.5, '#e07af0'], [1, '#fff0ff']),
+    flame: G([0, '#6a2a9a'], [0.5, '#d890ff'], [1, '#fff4ff']),
+  },
+  sd_crimson: {
+    floor: G([0, '#180806'], [0.15, '#341410'], [0.3, '#5a2620'], [0.5, '#844036'], [0.75, '#c07a6a'], [1, '#fff0ea']),
+    wall: G([0, '#0c0404'], [0.15, '#260a0a'], [0.3, '#461414'], [0.5, '#6e2420'], [1, '#e8a090']),
+    water: G([0, '#5a0a02'], [0.3, '#c8300a'], [0.6, '#ff8a1a'], [0.85, '#ffd66b'], [1, '#fff6d0']),
+    gem: G([0, '#8a1a06'], [0.5, '#ff5a3a'], [1, '#ffe8d0']),
+    flame: null,
+  },
+  sd_gold: {
+    floor: G([0, '#141006'], [0.15, '#2e2410'], [0.3, '#54441e'], [0.5, '#86703a'], [0.75, '#c8ae6a'], [1, '#fff8dc']),
+    wall: G([0, '#0a0804'], [0.15, '#1e180a'], [0.3, '#3a2e14'], [0.5, '#5e4c22'], [1, '#e8d08a']),
+    water: G([0, '#062226'], [0.35, '#1d6c7c'], [0.7, '#5cbac2'], [1, '#e8fcff']),
+    gem: G([0, '#6a4a08'], [0.5, '#f0c830'], [1, '#fff8d0']),
+    flame: null,
+  },
+  sd_star: {
+    floor: G([0, '#06081a'], [0.15, '#141a3a'], [0.3, '#26305e'], [0.5, '#3e4c8a'], [0.75, '#7a8ac8'], [1, '#f4f6ff']),
+    wall: G([0, '#020310'], [0.15, '#0a0e28'], [0.3, '#161e48'], [0.5, '#283670'], [1, '#b8c4f4']),
+    water: G([0, '#0a0a3a'], [0.35, '#2a3aa8'], [0.7, '#8a9af0'], [1, '#ffffff']),
+    gem: G([0, '#2a2a6a'], [0.5, '#c8d0ff'], [1, '#ffffff']),
+    flame: G([0, '#3a4aaa'], [0.5, '#a8c0ff'], [1, '#ffffff']),
+  },
+};
+const THEMES = { ice: ICE, lava: LAVA, sand: SAND, canal: CANAL, pyramid: PYRAMID, castle: CASTLE, temple: TEMPLE, ...SECRET };
 
 // 1つの 色を かえる
 export function themeRgb(r, g, b, theme, part) {

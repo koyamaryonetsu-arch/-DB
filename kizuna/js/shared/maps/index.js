@@ -1,15 +1,16 @@
 // マップの ぜんたい（フィールド・どうくつ）と、そこに いる 人や たからばこ
-import { T, parseRows, TILE_INFO } from '../tiles.js?v=fa0687a214b4';
-import { makeRng, hash2 } from '../rng.js?v=fa0687a214b4';
-import { buildOverworld, PLACES, zoneAt, areaName, OW_W, OW_H, CAVE_ENTRANCE, FOREST_CLEARING, LAKE, SWAMP } from './overworld.js?v=fa0687a214b4';
-import { CAVE_B1_ROWS, CAVE_B2_ROWS } from './cave-rows.js?v=fa0687a214b4';
-import { npc } from './npc.js?v=fa0687a214b4';
-import { buildCh2Maps, SEA_PLACES } from './ch2.js?v=fa0687a214b4';
-import { buildTreasureFloor } from './treasure-cave.js?v=fa0687a214b4';
-import { addNightNpcs } from './night-npcs.js?v=fa0687a214b4';
-import { attachCasino } from './casino.js?v=fa0687a214b4';
-import { buildCh3Maps, ch3SearchMats, NORTH_SPARKLE_LOOT } from './ch3.js?v=fa0687a214b4';
-import { buildCh4Maps, ch4SearchMats, SOUTH_SPARKLE_LOOT } from './ch4.js?v=fa0687a214b4';
+import { T, parseRows, TILE_INFO } from '../tiles.js?v=2d30a5044288';
+import { makeRng, hash2 } from '../rng.js?v=2d30a5044288';
+import { buildOverworld, PLACES, zoneAt, areaName, OW_W, OW_H, CAVE_ENTRANCE, FOREST_CLEARING, LAKE, SWAMP } from './overworld.js?v=2d30a5044288';
+import { CAVE_B1_ROWS, CAVE_B2_ROWS } from './cave-rows.js?v=2d30a5044288';
+import { npc } from './npc.js?v=2d30a5044288';
+import { buildCh2Maps, SEA_PLACES } from './ch2.js?v=2d30a5044288';
+import { buildTreasureFloor } from './treasure-cave.js?v=2d30a5044288';
+import { buildSecretFloor, buildSecretMaps, SD_DOOR_NPCS, SD_DOOR_TRIGGERS, SD_DOOR_SIGNS } from './secret-dungeon.js?v=2d30a5044288';
+import { addNightNpcs } from './night-npcs.js?v=2d30a5044288';
+import { attachCasino } from './casino.js?v=2d30a5044288';
+import { buildCh3Maps, ch3SearchMats, NORTH_SPARKLE_LOOT } from './ch3.js?v=2d30a5044288';
+import { buildCh4Maps, ch4SearchMats, SOUTH_SPARKLE_LOOT } from './ch4.js?v=2d30a5044288';
 
 const V = (x, y) => [PLACES.village.x + x, PLACES.village.y + y];
 const TW = (x, y) => [PLACES.town.x + x, PLACES.town.y + y];
@@ -91,6 +92,9 @@ const OVERWORLD_NPCS = [
   // 第2章: 村の 南の さんばし
   npc('captain_pier', '船長マリナ', [27, 121], 'captain', 'captain_pier', { show: { all: ['c2_start'], not: ['c2_ship'] }, dir: 'right' }),
   npc('ship', 'しおかぜ号', [27.5, 124], 'ship', 'ship_board', { show: { all: ['c2_start'] } }),
+
+  // ひみつのダンジョンの 入口（ルミナの町の 南門の 外。maps/secret-dungeon.js）
+  ...SD_DOOR_NPCS,
 ];
 
 // ───────────── たからばこ ─────────────
@@ -116,6 +120,7 @@ const OVERWORLD_SIGNS = [
   { x: 29, y: 115, text: 'ホシフル村のさんばし\n（船に乗ると、南の海へ出られる）' },
   { x: LAKE.x - 3, y: LAKE.y - LAKE.ry - 2, text: '鏡の湖\n静かな湖。何かが光っている…？' },
   { x: 97, y: 50, text: 'ささやきの森\n迷わないように気を付けて。' },
+  ...SD_DOOR_SIGNS,
 ];
 
 // ───────────── お店の かんばん（入り口の よこの かべに かける） ─────────────
@@ -153,6 +158,7 @@ const OVERWORLD_WARPS = [
 const OVERWORLD_TRIGGERS = [
   { id: 'town_arrive', x: PLACES.town.x + 20, y: PLACES.town.y + 30, w: 8, h: 6, script: 'town_arrive', show: { all: ['p_attack'], not: ['c1_town'] } },
   { id: 'opening', x: PLACES.village.x + 3, y: PLACES.village.y + 2, w: 7, h: 5, script: 'opening', show: { not: ['p_opening'] } },
+  ...SD_DOOR_TRIGGERS,
 ];
 
 // きらきら（ひろえる どうぐ）
@@ -271,6 +277,8 @@ function buildMaps() {
   Object.assign(maps, buildCh4Maps());
   // カジノ・メダル王の城・小さなメダル（maps/casino.js）
   attachCasino(maps);
+  // ひみつのダンジョンの 入口の 広間（階は 'sd_<階>' を はじめて さわった ときに つくる。maps/secret-dungeon.js）
+  Object.assign(maps, buildSecretMaps());
   // 夜の 町・村（夜だけ 出る 人・夜は 家に 帰る 人）
   addNightNpcs(maps);
   for (const m of Object.values(maps)) finishMap(m);
@@ -286,12 +294,13 @@ function finishMap(m) {
   m.actionAt = new Map((m.actions || []).map((a) => [a.y * m.w + a.x, a]));
 }
 
-// 宝の洞窟（'tm_…'）は はじめて さわった ときに ID から つくる（maps/treasure-cave.js）。
+// 宝の洞窟（'tm_…'）と ひみつのダンジョンの 階（'sd_<階>'）は はじめて さわった ときに ID から つくる
+// （maps/treasure-cave.js・maps/secret-dungeon.js）。
 // Object.values(MAPS) には 出さない。たくさん たまったら 古い ものから わすれる（また おなじ 形に つくれる）
 const lazyIds = [];
 function lazyMap(t, k) {
-  if (typeof k !== 'string' || !k.startsWith('tm_') || Object.prototype.hasOwnProperty.call(t, k)) return;
-  const m = buildTreasureFloor(k);
+  if (typeof k !== 'string' || !(k.startsWith('tm_') || k.startsWith('sd_')) || Object.prototype.hasOwnProperty.call(t, k)) return;
+  const m = k.startsWith('tm_') ? buildTreasureFloor(k) : buildSecretFloor(k);
   if (!m) return;
   finishMap(m);
   Object.defineProperty(t, k, { value: m, enumerable: false, configurable: true, writable: true });
