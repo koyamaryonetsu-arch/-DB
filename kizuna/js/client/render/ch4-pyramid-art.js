@@ -1,7 +1,7 @@
 // 第4章 Step 4「王家のピラミッド」の 魔物の え（shared/data/monsters-ch4.js の ミイラ兵・のろいのつぼ・砂岩ゴーレム・ランプの魔人・王のミイラ兵）
 // ch4-art.js の addCh4Art から addPyramidArt を よぶ。かきかたは monsters.js・ch3-art.js と おなじ
 // （g … w・h の わりあいで かく。f … 0 か 1 の コマ）。ボス（ミイラの王アンク）は ch4-boss-art.js
-import { fit, bez, taper, flame } from './ch3-draw.js?v=b13027e590f9';
+import { fit, bez, taper, flame } from './ch3-draw.js?v=1a19851ff61f';
 
 // ほうたいの まきすじ（x0〜x1 の はばで ななめに）
 function wraps(g, x0, x1, y0, y1, n, c, lw = 0.8, tilt = 0.02) {

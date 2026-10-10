@@ -1,12 +1,13 @@
 // せつめい文を つくる
-import { ITEMS, SLOT_NAMES, WEAPON_CAT_NAMES } from '../../shared/data/items.js?v=b13027e590f9';
-import { ABILITIES, abilityTypeText } from '../../shared/data/abilities.js?v=b13027e590f9';
-import { JOBS, ALL_JOBS } from '../../shared/data/jobs.js?v=b13027e590f9';
-import { MONSTERS } from '../../shared/data/monsters.js?v=b13027e590f9';
-import { MONSTER_FRIENDS } from '../../shared/data/companions.js?v=b13027e590f9';
-import { computeStats, canEquip, canEquipMonster, monsterGear, penaltyFor, mpCost, comboJobNames, comboAllowed, jobPower } from '../../shared/stats.js?v=b13027e590f9';
-import { attackReach } from '../../shared/battle.js?v=b13027e590f9';
-import { maxPlus } from '../../shared/data/forge.js?v=b13027e590f9';
+import { ITEMS, SLOT_NAMES, WEAPON_CAT_NAMES } from '../../shared/data/items.js?v=1a19851ff61f';
+import { ABILITIES, abilityTypeText } from '../../shared/data/abilities.js?v=1a19851ff61f';
+import { JOBS, ALL_JOBS } from '../../shared/data/jobs.js?v=1a19851ff61f';
+import { MONSTERS } from '../../shared/data/monsters.js?v=1a19851ff61f';
+import { MONSTER_FRIENDS } from '../../shared/data/companions.js?v=1a19851ff61f';
+import { computeStats, canEquip, canEquipMonster, monsterGear, penaltyFor, mpCost, comboJobNames, comboAllowed, jobPower } from '../../shared/stats.js?v=1a19851ff61f';
+import { attackReach } from '../../shared/battle.js?v=1a19851ff61f';
+import { maxPlus } from '../../shared/data/forge.js?v=1a19851ff61f';
+import { SKILL_UPS } from '../../shared/data/skill-ups.js?v=1a19851ff61f';
 
 const TARGET_NAMES = { enemy: '敵1体', group: '敵1グループ', enemies: '敵全体', ally: '味方1人', allies: '味方全員', self: '自分', deadAlly: '死んだ味方', deadAllies: '死んだ味方全員' };
 // 技の リストに つける みじかい しるし（1体・1人・自分は つけない）。a: 技（または 相手の しゅるい）
@@ -164,7 +165,9 @@ export function abilityDetail(id, char, { brief = false } = {}) {
     lines.push(`覚えた職業: ${JOBS[a.job]?.name || ''}`);
     // 職業レベルで 威力が 上がる
     const jp = char ? jobPower(char, id) : 1;
-    if (jp > 1) lines.push(`${JOBS[a.job]?.name}Lv${char.jobs?.[a.job]?.lv || 1}：威力+${Math.round((jp - 1) * 100)}%`);
+    // 上位の 技（data/skill-ups.js）は もとの 技の 職業レベルの 威力を うけつぐ
+    const base = ABILITIES[SKILL_UPS[id]];
+    if (jp > 1) lines.push(`${JOBS[a.job]?.name}Lv${char.jobs?.[a.job]?.lv || 1}：威力+${Math.round((jp - 1) * 100)}%${base ? `（${base.name}の上位の技。もとの技の強さを受けつぐ）` : ''}`);
   }
   if (a.weapon === 'blade') lines.push('剣・短剣・オノが必要');
   if (a.weapon === 'fist') lines.push('ツメか素手で使う');

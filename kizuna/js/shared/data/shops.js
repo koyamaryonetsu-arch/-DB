@@ -2,10 +2,11 @@
 // お店: name 店の なまえ / kind かんばんの しゅるい / keeper 店の人 / hello さいしょの ことば / items 売っている 品物
 //       more: 物語が すすむと ふえる 品物 [{ show: { all: [フラグ] }, items: [...], hello }]（show の 書き方は NPC と おなじ。hello が あれば あいさつも かわる）
 
-import { SHOPS_CH2 } from './items-ch2.js?v=b13027e590f9';
-import { NIGHT_SHOPS } from './night.js?v=b13027e590f9';
-import { SHOPS_CH3, CH3_GUESTS } from './items-ch3.js?v=b13027e590f9';
-import { SHOPS_CH4 } from './items-ch4.js?v=b13027e590f9';
+import { SHOPS_CH2 } from './items-ch2.js?v=1a19851ff61f';
+import { NIGHT_SHOPS } from './night.js?v=1a19851ff61f';
+import { SHOPS_CH3, CH3_GUESTS } from './items-ch3.js?v=1a19851ff61f';
+import { SHOPS_CH4 } from './items-ch4.js?v=1a19851ff61f';
+import { POWDER_ID, POWDER_SHOPS } from './friend-powder.js?v=1a19851ff61f';
 
 export const SHOPS = {
   village: {
@@ -59,6 +60,8 @@ Object.assign(SHOPS, NIGHT_SHOPS);
 Object.assign(SHOPS, SHOPS_CH3);
 // 第4章（items-ch4.js）
 Object.assign(SHOPS, SHOPS_CH4);
+// 仲間の粉: 「魔物の心」に 目ざめた あと、町の 道具屋で 売る（friend-powder.js）
+for (const id of POWDER_SHOPS) if (SHOPS[id]) SHOPS[id].more = [...(SHOPS[id].more || []), { show: { all: ['monster_bond'] }, items: [POWDER_ID] }];
 
 // 物語で ふえた 品ぞろえ（hasFlag: その人の 世界の フラグ）
 function moreOpen(shop, hasFlag) {

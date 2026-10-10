@@ -1,26 +1,27 @@
 // お店・やどや・きょうかい・転職・酒場・でんごんばん・メニュー操作
-import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js?v=b13027e590f9';
-import { normDifficulty } from '../data/difficulty.js?v=b13027e590f9';
-import { ITEMS, sellPrice, SLOTS, SLOT_NAMES } from '../data/items.js?v=b13027e590f9';
-import { JOBS, ALL_JOBS, jobReqText, BODY_NAMES } from '../data/jobs.js?v=b13027e590f9';
-import { ABILITIES } from '../data/abilities.js?v=b13027e590f9';
-import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=b13027e590f9';
-import { TACTICS } from '../ai.js?v=b13027e590f9';
-import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js?v=b13027e590f9';
-import { salonInfo, salonAction } from './salon.js?v=b13027e590f9';
-import { breedMonsters, breedPreview } from './breed.js?v=b13027e590f9';
-import { MONSTERS } from '../data/monsters.js?v=b13027e590f9';
-import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings, spellSealed } from '../battle.js?v=b13027e590f9';
-import { PLACES } from '../maps/overworld.js?v=b13027e590f9';
-import { POS, SEA_PLACES, MAPS } from '../maps/index.js?v=b13027e590f9';
-import { castRura, warpParty, useTimeBell, warpPlaces, warpOwner } from './travel.js?v=b13027e590f9';
-import { bankInfo, bankAction } from './bank.js?v=b13027e590f9';
-import { forgeInfo, forgeAction } from './forge.js?v=b13027e590f9';
-import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction, wagonHere, wagonHealEntries, ownWagonEntries } from './wagon.js?v=b13027e590f9';
-import { casinoOpen, casinoAction } from './casino.js?v=b13027e590f9';
-import { useEscapeItem, noEscapeText } from './escape.js?v=b13027e590f9';
-import { bestEquipPlan, bestTeamOrder } from '../equip-plan.js?v=b13027e590f9';
-import { setLookEquip } from '../look-equip.js?v=b13027e590f9';
+import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js?v=1a19851ff61f';
+import { normDifficulty } from '../data/difficulty.js?v=1a19851ff61f';
+import { ITEMS, sellPrice, SLOTS, SLOT_NAMES } from '../data/items.js?v=1a19851ff61f';
+import { JOBS, ALL_JOBS, jobReqText, BODY_NAMES } from '../data/jobs.js?v=1a19851ff61f';
+import { ABILITIES } from '../data/abilities.js?v=1a19851ff61f';
+import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=1a19851ff61f';
+import { TACTICS } from '../ai.js?v=1a19851ff61f';
+import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js?v=1a19851ff61f';
+import { salonInfo, salonAction } from './salon.js?v=1a19851ff61f';
+import { breedMonsters, breedPreview } from './breed.js?v=1a19851ff61f';
+import { MONSTERS } from '../data/monsters.js?v=1a19851ff61f';
+import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings, spellSealed } from '../battle.js?v=1a19851ff61f';
+import { PLACES } from '../maps/overworld.js?v=1a19851ff61f';
+import { POS, SEA_PLACES, MAPS } from '../maps/index.js?v=1a19851ff61f';
+import { castRura, warpParty, useTimeBell, warpPlaces, warpOwner } from './travel.js?v=1a19851ff61f';
+import { bankInfo, bankAction } from './bank.js?v=1a19851ff61f';
+import { forgeInfo, forgeAction } from './forge.js?v=1a19851ff61f';
+import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction, wagonHere, wagonHealEntries, ownWagonEntries } from './wagon.js?v=1a19851ff61f';
+import { casinoOpen, casinoAction } from './casino.js?v=1a19851ff61f';
+import { useEscapeItem, noEscapeText } from './escape.js?v=1a19851ff61f';
+import { usePowder } from './powder.js?v=1a19851ff61f';
+import { bestEquipPlan, bestTeamOrder } from '../equip-plan.js?v=1a19851ff61f';
+import { setLookEquip } from '../look-equip.js?v=1a19851ff61f';
 
 export function openService(world, s, kind, arg) {
   switch (kind) {
@@ -392,6 +393,8 @@ export function menuAction(world, s, msg) {
         s.repelUntil = world.now() + eff.seconds * 1000;
         return reply(true, `${c.name}は聖水をふりまいた！\nしばらく弱い魔物が寄ってこない。`);
       }
+      // 仲間の粉（data/friend-powder.js）
+      if (eff.type === 'befriendBoost') return usePowder(world, s, c, msg.id, reply);
       if (eff.type === 'warp') {
         // 王家のピラミッド（第4章）: 帰り道の羽は 使えない（道具は へらない。行き先を えらぶ 前に 知らせる）
         if (MAPS[s.map]?.noEscape) return reply(false, noEscapeText(it.name, MAPS[s.map]));

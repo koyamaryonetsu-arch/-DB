@@ -11,16 +11,16 @@
 // ・仲間 … 両方の 仲間を のこす（べつべつに 仲間に なった まものは 両方とも。家族の パーティーで 酒場に 来た まものも おなじ）
 // ・預かり所 … お金も 品物も、両方で 預けた・引き出した ぶんを たす
 // ・いる場所・HP・作戦 など … 両方で かわって いたら、あとで 遊んだ ほう
-import { expForLevel, MAX_LEVEL, computeStats } from '../stats.js?v=b13027e590f9';
-import { JOBS, JOB_MAX_LEVEL, jobBattlesForLevel } from '../data/jobs.js?v=b13027e590f9';
-import { ITEMS, SLOTS } from '../data/items.js?v=b13027e590f9';
-import { STORY_STEPS } from '../data/story.js?v=b13027e590f9';
-import { COMPANION_SLOTS } from '../data/companions.js?v=b13027e590f9';
-import { WAGON_SLOTS } from '../data/wagon.js?v=b13027e590f9';
-import { repairChar } from './save.js?v=b13027e590f9';
-import { mergeTreasureMaps } from '../data/treasure.js?v=b13027e590f9';
-import { mergeSecret } from '../data/secret.js?v=b13027e590f9';
-import { COIN_MAX } from '../data/casino.js?v=b13027e590f9';
+import { expForLevel, MAX_LEVEL, computeStats } from '../stats.js?v=1a19851ff61f';
+import { JOBS, JOB_MAX_LEVEL, jobBattlesForLevel } from '../data/jobs.js?v=1a19851ff61f';
+import { ITEMS, SLOTS } from '../data/items.js?v=1a19851ff61f';
+import { STORY_STEPS } from '../data/story.js?v=1a19851ff61f';
+import { COMPANION_SLOTS } from '../data/companions.js?v=1a19851ff61f';
+import { WAGON_SLOTS } from '../data/wagon.js?v=1a19851ff61f';
+import { repairChar } from './save.js?v=1a19851ff61f';
+import { mergeTreasureMaps } from '../data/treasure.js?v=1a19851ff61f';
+import { mergeSecret } from '../data/secret.js?v=1a19851ff61f';
+import { COIN_MAX } from '../data/casino.js?v=1a19851ff61f';
 
 const GOLD_MAX = 9999999;
 const clone = (x) => (x === undefined ? undefined : JSON.parse(JSON.stringify(x)));

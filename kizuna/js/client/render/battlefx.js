@@ -1,18 +1,18 @@
 // たたかいの はいけいと エフェクト
-import { makeCanvas, ctxOf, hexToRgb, mix } from './pixel.js?v=b13027e590f9';
-import { weaponLook, playWeapon, playReach } from './weaponfx.js?v=b13027e590f9';
-import { nightBg, drawNightSky } from './night-art.js?v=b13027e590f9';
-import { playJobFx, JOB_FINE } from './battlefx-jobs.js?v=b13027e590f9';
-import { playJob2Fx, JOB2_FINE } from './battlefx-jobs2.js?v=b13027e590f9';
-import { playJob3Fx, JOB3_FINE } from './battlefx-jobs3.js?v=b13027e590f9';
-import { playJob4Fx, JOB4_FINE } from './battlefx-jobs4.js?v=b13027e590f9';
-import { drawPalaceHall, drawPalaceFloor } from './ch4-palace-bg.js?v=b13027e590f9';
+import { makeCanvas, ctxOf, hexToRgb, mix } from './pixel.js?v=1a19851ff61f';
+import { weaponLook, playWeapon, playReach } from './weaponfx.js?v=1a19851ff61f';
+import { nightBg, drawNightSky } from './night-art.js?v=1a19851ff61f';
+import { playJobFx, JOB_FINE } from './battlefx-jobs.js?v=1a19851ff61f';
+import { playJob2Fx, JOB2_FINE } from './battlefx-jobs2.js?v=1a19851ff61f';
+import { playJob3Fx, JOB3_FINE } from './battlefx-jobs3.js?v=1a19851ff61f';
+import { playJob4Fx, JOB4_FINE } from './battlefx-jobs4.js?v=1a19851ff61f';
+import { drawPalaceHall, drawPalaceFloor } from './ch4-palace-bg.js?v=1a19851ff61f';
 // 第4章 Step 6: 砂の古城・砂の海（すなかぜ号の かんぱん）・砂クジラの ねどこ（ch4-duna-bg.js）
-import { drawCastleHall, drawCastleFloor, drawSandSea } from './ch4-duna-bg.js?v=b13027e590f9';
-import { playCh4Fx } from './battlefx-ch4.js?v=b13027e590f9';
+import { drawCastleHall, drawCastleFloor, drawSandSea } from './ch4-duna-bg.js?v=1a19851ff61f';
+import { playCh4Fx } from './battlefx-ch4.js?v=1a19851ff61f';
 // 第4章 Step 7: 砂の底の神殿・鏡の間・水鏡の広間（ch4-temple-bg.js）
-import { TEMPLE_BG, TEMPLE_DECOS, drawTempleBg, drawTempleFloorBg } from './ch4-temple-bg.js?v=b13027e590f9';
-import { SECRET_BG } from './secret-art.js?v=b13027e590f9';
+import { TEMPLE_BG, TEMPLE_DECOS, drawTempleBg, drawTempleFloorBg } from './ch4-temple-bg.js?v=1a19851ff61f';
+import { SECRET_BG } from './secret-art.js?v=1a19851ff61f';
 
 export const BW = 256;
 export const BH = 144;

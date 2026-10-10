@@ -12,10 +12,11 @@
 //     best … いちばん 深く 着いた 階 / at … その 時こく / with … その とき いっしょに いた 家族の 名前
 //     got  … 大きな ごほうびを もらった 休み所の 階 [5, 10, …] / tries … ちょうせんした 回数
 //     run  … 今の ちょうせん { f: 今の 階, mid: とちゅうから 来た（記録に ならない）, took: ごほうびを 開けた 階 }
-import { MONSTERS } from './monsters.js?v=b13027e590f9';
-import { ITEMS, SLOTS } from './items.js?v=b13027e590f9';
-import { ENCOUNTER_TABLES, ZONE_BG, FIXED_ENCOUNTERS } from './encounters.js?v=b13027e590f9';
-import { makeRng } from '../rng.js?v=b13027e590f9';
+import { MONSTERS } from './monsters.js?v=1a19851ff61f';
+import { ITEMS, SLOTS } from './items.js?v=1a19851ff61f';
+import { ENCOUNTER_TABLES, ZONE_BG, FIXED_ENCOUNTERS } from './encounters.js?v=1a19851ff61f';
+import { makeRng } from '../rng.js?v=1a19851ff61f';
+import { rewardGold } from './difficulty.js?v=1a19851ff61f';
 
 export const SD_GATE = 'sd_gate';
 export const SD_NAME = 'ひみつのダンジョン';
@@ -158,7 +159,7 @@ export const sdStarRank = (f) => clamp(3 + Math.floor(f / 20), 4, 7);
 //   [{ gold } | { item, n } | { medal: true }]
 export function sdBigReward(f) {
   const r = makeRng((sdSeed(f) ^ 0xb16b00b) >>> 0);
-  const out = [{ gold: Math.min(50000, 100 * f) }];
+  const out = [{ gold: rewardGold(Math.min(50000, 100 * f)) }];
   out.push({ item: r.pick(SEEDS), n: f >= 30 ? 2 : 1 });
   if (f % 10 === 0) out.push({ medal: true });
   if (f % 10 === 5) {
@@ -184,7 +185,7 @@ export function sdSmallReward(f, rng) {
     { k: 'star_shard', w: f >= 15 ? 1 : 0 },
   ].filter((x) => x.w > 0);
   const k = rng.weighted(list).k;
-  if (k === 'gold') return { gold: Math.min(20000, 20 * f) };
+  if (k === 'gold') return { gold: rewardGold(Math.min(20000, 20 * f)) };
   if (k === 'herb') return { item: 'herb', n: 3 };
   if (k === 'seed') return { item: rng.pick(SEEDS), n: 1 };
   return { item: k, n: 1 };

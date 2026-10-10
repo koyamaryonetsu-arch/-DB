@@ -5,15 +5,15 @@
 //   c.partyKeys  … いま いっしょに ぼうけんしている なかま（じゅんばん）。'fam:ID' は 家族の キャラ
 //   c.guests     … ものがたりで いっしょに いる ゲスト（ルカ など）
 // パーティーには リーダーの なかまが ついてくる（にんげんが ふえると、はいりきらない なかまは いったん まつ）
-import { newCharacter, computeStats, fullHeal, gainExp, gainJobBattles, migrateJobs, expForLevel, addItem, newMonsterCompanion, learnedAbilities, masteredJobs } from '../stats.js?v=b13027e590f9';
-import { jobBattlesForLevel, JOBS } from '../data/jobs.js?v=b13027e590f9';
-import { NPC_SUPPORTS, GUESTS } from '../data/shops.js?v=b13027e590f9';
-import { MONSTERS } from '../data/monsters.js?v=b13027e590f9';
-import { MONSTER_FRIENDS, ROSTER_MAX, COMPANION_SLOTS } from '../data/companions.js?v=b13027e590f9';
-import { SLOTS, ITEMS } from '../data/items.js?v=b13027e590f9';
-import { cleanWagon, hasWagon, WAGON_SLOTS } from '../data/wagon.js?v=b13027e590f9';
-import { wagonState, wagonTavernInfo } from './wagon.js?v=b13027e590f9';
-import { difficultyOf } from '../data/difficulty.js?v=b13027e590f9';
+import { newCharacter, computeStats, fullHeal, gainExp, gainJobBattles, migrateJobs, expForLevel, addItem, newMonsterCompanion, learnedAbilities, masteredJobs } from '../stats.js?v=1a19851ff61f';
+import { jobBattlesForLevel, JOBS } from '../data/jobs.js?v=1a19851ff61f';
+import { NPC_SUPPORTS, GUESTS } from '../data/shops.js?v=1a19851ff61f';
+import { MONSTERS } from '../data/monsters.js?v=1a19851ff61f';
+import { MONSTER_FRIENDS, ROSTER_MAX, COMPANION_SLOTS } from '../data/companions.js?v=1a19851ff61f';
+import { SLOTS, ITEMS } from '../data/items.js?v=1a19851ff61f';
+import { cleanWagon, hasWagon, WAGON_SLOTS } from '../data/wagon.js?v=1a19851ff61f';
+import { wagonState, wagonTavernInfo } from './wagon.js?v=1a19851ff61f';
+import { difficultyOf } from '../data/difficulty.js?v=1a19851ff61f';
 
 // パーティーに 入れる 人（家族の プレイヤー）は 5人まで。いっしょに フィールドを 歩いて、いっしょに 戦う
 export const PARTY_MAX = 5;
@@ -389,18 +389,30 @@ export function companionRename(world, s, key, name) {
 // ───────────── モンスターが なかまに なる ─────────────
 // たたかいで さいごに たおした まものが おきあがる（紋章の ちからに めざめていれば）
 // mult: まもの使いなどが いると おおきくなる
-export function rollBefriend(world, c, killed, mult = 1) {
+//   info: { full } … 仲間が いっぱい（ROSTER_MAX）で 入れなかった とき、なりたがった 魔物（戦いの おわりの 知らせ）
+export function rollBefriend(world, c, killed, mult = 1, info = null) {
   if (!c?.flags?.monster_bond) return null;
   ensureCompanions(c);
-  if (c.companions.length >= ROSTER_MAX) return null;
+  const full = c.companions.length >= ROSTER_MAX;
   for (let i = killed.length - 1; i >= 0; i--) {
     const f = MONSTER_FRIENDS[killed[i]];
     if (!f || f.breedOnly || MONSTERS[killed[i]]?.boss) continue;
-    // はじめての なかまは すこし なりやすい
-    const first = !c.companions.some((e) => e.kind === 'monster');
-    return world.rng.chance(Math.min(0.5, f.rate * (first ? 3 : 1) * mult)) ? killed[i] : null;
+    const yes = world.rng.chance(befriendChance(c, killed[i], mult));
+    if (yes && full && info) info.full = killed[i];
+    return yes && !full ? killed[i] : null;
   }
   return null;
+}
+
+// 1回の 戦いで その 魔物が 仲間に なりたがる かくりつ（上限 BEFRIEND_CAP）
+//   mult … 魔物使い（1.5）・モンスターマスター（2）・なかまの粉（2）を かけた もの
+//   はじめての 魔物の 仲間は 3倍
+export const BEFRIEND_CAP = 0.5;
+export function befriendChance(c, species, mult = 1) {
+  const f = MONSTER_FRIENDS[species];
+  if (!f || f.breedOnly || !(f.rate > 0) || MONSTERS[species]?.boss) return 0;
+  const first = !(c?.companions || []).some((e) => e.kind === 'monster');
+  return Math.min(BEFRIEND_CAP, f.rate * (first ? 3 : 1) * mult);
 }
 
 // ずかん: みた まもの

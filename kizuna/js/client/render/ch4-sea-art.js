@@ -1,7 +1,7 @@
 // 第4章 Step 6「砂の海賊と砂クジラ」の 魔物の え（shared/data/monsters-ch4.js の 砂ザメ・古城のよろい・砂クジラ〈ボス〉）
 // ch4-art.js の addCh4Art から addSeaArt を よぶ。かきかたは monsters.js・ch3-art.js と おなじ
 // （g … w・h の わりあいで かく。f … 0 か 1 の コマ）
-import { fit, bez, taper, spark } from './ch3-draw.js?v=b13027e590f9';
+import { fit, bez, taper, spark } from './ch3-draw.js?v=1a19851ff61f';
 
 // ───── 砂ザメ ─────
 const SHARK = {

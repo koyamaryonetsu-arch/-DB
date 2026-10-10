@@ -17,21 +17,21 @@
 // 名前の一部は「ダイの大冒険」「ロトの紋章」へのオマージュです。
 // 上級職・超級職の 技は abilities-adv.js（さいごに まぜる）
 
-import { ADV_ABILITIES } from './abilities-adv.js?v=b13027e590f9';
-import { CH2_ABILITIES } from './abilities-ch2.js?v=b13027e590f9';
-import { JOB_ABILITIES } from './abilities-jobs.js?v=b13027e590f9';
-import { HIRA_ABILITIES } from './hirameki.js?v=b13027e590f9';
-import { TRAVEL_ABILITIES } from './sky.js?v=b13027e590f9';
-import { RARE_ABILITIES } from './monsters-rare.js?v=b13027e590f9';
-import { R23_ABILITIES } from './monsters-r23.js?v=b13027e590f9';
-import { JOB2_ABILITIES } from './abilities-jobs2.js?v=b13027e590f9';
-import { CH3_ABILITIES } from './abilities-ch3.js?v=b13027e590f9';
-import { CH4_ABILITIES } from './abilities-ch4.js?v=b13027e590f9';
-import { TEMPLE_ABILITIES } from './abilities-temple.js?v=b13027e590f9';
-import { JOB3_ABILITIES } from './abilities-jobs3.js?v=b13027e590f9';
-import { JOB4_ABILITIES } from './abilities-jobs4.js?v=b13027e590f9';
+import { ADV_ABILITIES } from './abilities-adv.js?v=1a19851ff61f';
+import { CH2_ABILITIES } from './abilities-ch2.js?v=1a19851ff61f';
+import { JOB_ABILITIES } from './abilities-jobs.js?v=1a19851ff61f';
+import { HIRA_ABILITIES } from './hirameki.js?v=1a19851ff61f';
+import { TRAVEL_ABILITIES } from './sky.js?v=1a19851ff61f';
+import { RARE_ABILITIES } from './monsters-rare.js?v=1a19851ff61f';
+import { R23_ABILITIES } from './monsters-r23.js?v=1a19851ff61f';
+import { JOB2_ABILITIES } from './abilities-jobs2.js?v=1a19851ff61f';
+import { CH3_ABILITIES } from './abilities-ch3.js?v=1a19851ff61f';
+import { CH4_ABILITIES } from './abilities-ch4.js?v=1a19851ff61f';
+import { TEMPLE_ABILITIES } from './abilities-temple.js?v=1a19851ff61f';
+import { JOB3_ABILITIES } from './abilities-jobs3.js?v=1a19851ff61f';
+import { JOB4_ABILITIES } from './abilities-jobs4.js?v=1a19851ff61f';
 // 2026年10月（第22回）の 新しい 職業の 技（おかん・社ちく・天才しせつ管理者・はかい神 など）
-import { JOB5_ABILITIES } from './abilities-jobs5.js?v=b13027e590f9';
+import { JOB5_ABILITIES } from './abilities-jobs5.js?v=1a19851ff61f';
 
 export const ABILITIES = {
   // ───────────── 戦士 ─────────────

@@ -3,7 +3,7 @@
 // （g … monsters.js の かく ための どうぐ。w・h の わりあいで かく。f … 0 か 1 の コマ）
 // field … フィールドの シンボル（ちいさい え）の 大きさ（ないときは 20）。配合で 生まれる 大きな 魔物は すこし 大きく
 // それぞれ パレット（P）の いろだけで かく（pal は P の いろ。monsterCanvas が この いろに よせる）
-import { fit, spark, bez, taper, flame } from './ch3-draw.js?v=b13027e590f9';
+import { fit, spark, bez, taper, flame } from './ch3-draw.js?v=1a19851ff61f';
 
 const W = '#ffffff', K = '#1a1026';
 

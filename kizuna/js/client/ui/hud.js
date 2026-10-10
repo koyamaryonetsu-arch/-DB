@@ -1,10 +1,11 @@
 // フィールドの がめんの かざり（HP・ばしょ・もくひょう・ちず・チャット）
-import { el, bar, askText, ListMenu } from './dom.js?v=b13027e590f9';
-import { computeStats } from '../../shared/stats.js?v=b13027e590f9';
-import { JOBS } from '../../shared/data/jobs.js?v=b13027e590f9';
-import { renderMiniMap, openWorldMap } from './menu.js?v=b13027e590f9';
-import { makeCanvas } from '../render/pixel.js?v=b13027e590f9';
-import { ClockBadge } from './clock.js?v=b13027e590f9';
+import { el, bar, askText, ListMenu } from './dom.js?v=1a19851ff61f';
+import { computeStats } from '../../shared/stats.js?v=1a19851ff61f';
+import { JOBS } from '../../shared/data/jobs.js?v=1a19851ff61f';
+import { renderMiniMap, openWorldMap } from './menu.js?v=1a19851ff61f';
+import { makeCanvas } from '../render/pixel.js?v=1a19851ff61f';
+import { ClockBadge } from './clock.js?v=1a19851ff61f';
+import { powderLabel } from '../../shared/data/friend-powder.js?v=1a19851ff61f';
 
 export const STAMPS = ['よろしく！', 'ありがとう！', '行くよー！', '助けて！', '待ってて！', 'やったね！', 'おつかれさま', 'ご飯だよ〜'];
 
@@ -42,7 +43,9 @@ export class Hud {
     this.mini = makeCanvas(84, 84);
     // 昼・夜の 時計（ちずの 左下）
     this.clock = new ClockBadge(game);
-    this.mapBox.append(this.mini, this.clock.el);
+    // 仲間の粉の のこり（ちずの 上に 小さく。data/friend-powder.js）
+    this.powder = el('div', { class: 'hud-powder', hidden: true });
+    this.mapBox.append(this.mini, this.clock.el, this.powder);
     this.btns = el('div', { class: 'hud-btns' },
       el('button', { class: 'win hud-btn', text: 'メニュー', onclick: () => game.openMenu() }),
       el('button', { class: 'win hud-btn', text: 'チャット', onclick: () => this.chatInput() }),
@@ -62,6 +65,9 @@ export class Hud {
       this.miniTimer = 250;
       renderMiniMap(this.game, this.mini, false);
       this.clock.update();
+      const pw = powderLabel(this.game.me);
+      if (this.powder.textContent !== pw) this.powder.textContent = pw;
+      this.powder.hidden = !pw;
     }
     const f = this.game.field;
     if (!f.map) return;

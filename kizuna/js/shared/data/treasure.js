@@ -6,10 +6,11 @@
 //
 // 洞窟の マップ ID: tm_<seed36>_<lv>_<o|s><x>x<y>_<階>（たとえば tm_k3f9a2_3_o120x45_2）
 //   ID だけで 洞窟が つくれる（サーバーと 画面で おなじ 形。とちゅうで ログインしなおしても おなじ 洞窟）
-import { MONSTERS } from './monsters.js?v=b13027e590f9';
-import { ITEMS, SLOTS } from './items.js?v=b13027e590f9';
-import { ENCOUNTER_TABLES, ZONE_BG } from './encounters.js?v=b13027e590f9';
-import { makeRng } from '../rng.js?v=b13027e590f9';
+import { MONSTERS } from './monsters.js?v=1a19851ff61f';
+import { ITEMS, SLOTS } from './items.js?v=1a19851ff61f';
+import { ENCOUNTER_TABLES, ZONE_BG } from './encounters.js?v=1a19851ff61f';
+import { makeRng } from '../rng.js?v=1a19851ff61f';
+import { REWARD_GOLD_RATE } from './difficulty.js?v=1a19851ff61f';
 
 export const TM_MAX = 20; // 持てる 地図の 数
 export const TM_LV_MAX = 12; // 地図の レベルの 上限
@@ -199,7 +200,7 @@ export function chestLoot(rng, lv, kind = 'normal') {
   if (kind === 'bossA') return rng.chance(0.3) ? rare() : equip();
   if (kind === 'bossB') {
     const r = rng.next();
-    if (r < 0.45) return { gold: Math.round((400 + lv * 220) * rng.float(0.9, 1.2) / 10) * 10 };
+    if (r < 0.45) return { gold: Math.round((400 + lv * 220) * rng.float(0.9, 1.2) * REWARD_GOLD_RATE / 10) * 10 };
     if (r < 0.75) return { item: rng.pick(SEEDS), n: 2 };
     return { item: rng.pick(['revive_flower', 'magic_water']), n: 2 };
   }
@@ -208,7 +209,7 @@ export function chestLoot(rng, lv, kind = 'normal') {
   if (r < rareP) return rare();
   if (r < rareP + 0.2) return equip();
   if (r < rareP + 0.33) return { item: rng.pick(SEEDS) };
-  if (r < rareP + 0.62) return { gold: Math.round((50 + lv * 40) * rng.float(0.7, 1.4) / 10) * 10 };
+  if (r < rareP + 0.62) return { gold: Math.round((50 + lv * 40) * rng.float(0.7, 1.4) * REWARD_GOLD_RATE / 10) * 10 };
   const list = CONSUMABLES.filter(([, , a, b]) => lv >= a && lv <= b).map(([id, w]) => ({ id, w }));
   const id = rng.weighted(list).id;
   return { item: id, n: id === 'herb' ? 3 : 1 };
