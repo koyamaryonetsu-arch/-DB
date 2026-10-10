@@ -1,4 +1,5 @@
 // おんがくと こうかおん（Web Audio で その場で つくる。きょくは すべて オリジナル）
+import { SFX_R26 } from './sfx-r26.js';
 
 const NOTE_BASE = { C: 0, 'C#': 1, Db: 1, D: 2, 'D#': 3, Eb: 3, E: 4, F: 5, 'F#': 6, Gb: 6, G: 7, 'G#': 8, Ab: 8, A: 9, 'A#': 10, Bb: 10, B: 11 };
 
@@ -748,6 +749,8 @@ export class GameAudio {
       case 'click': T(1400, 0.03, { vol: 0.1, type: 'square' }); this.noise(0.04, { vol: 0.2, from: 3000, to: 1200 }); T(180, 0.06, { vol: 0.1, delay: 0.03, type: 'triangle' }); break;
       case 'fall': T(900, 0.7, { vol: 0.1, slide: 120, type: 'triangle' }); this.noise(0.6, { vol: 0.2, type: 'bandpass', from: 1800, to: 300, q: 2 }); break;
       default:
+        // 第26回の 職業の 看板の技の 音（sfx-r26.js）
+        if (SFX_R26[id]) SFX_R26[id](this, T);
     }
   }
 }
