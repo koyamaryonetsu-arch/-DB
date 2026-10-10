@@ -223,6 +223,8 @@ export function gameFiles() {
     // ひみつのダンジョン（終わりの ない ダンジョン・家族の記録の板）
     'public/js/shared/data/secret.js', 'public/js/shared/data/story-secret.js', 'public/js/shared/maps/secret-dungeon.js',
     'public/js/shared/world/secret.js', 'public/js/client/ui/secret.js', 'public/js/client/render/secret-art.js',
+    // 合体技の 作り直し（2人・3人・4人の 合体技・カットイン）
+    'public/js/shared/battle-dual.js', 'public/js/client/battle-dual.js', 'public/js/client/render/dualfx.js',
   ];
   return list.map((f) => join(ROOT, f));
 }
