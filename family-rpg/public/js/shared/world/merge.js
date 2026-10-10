@@ -19,6 +19,7 @@ import { COMPANION_SLOTS } from '../data/companions.js';
 import { WAGON_SLOTS } from '../data/wagon.js';
 import { repairChar } from './save.js';
 import { mergeTreasureMaps } from '../data/treasure.js';
+import { mergeSecret } from '../data/secret.js';
 import { COIN_MAX } from '../data/casino.js';
 
 const GOLD_MAX = 9999999;
@@ -156,6 +157,8 @@ function mergeBody(b, a, t, tLater) {
       case 'explored': out.explored = eachKey(vb, va, vt, (x, y, z) => orBits(y, z)); break;
       case 'keyItems': out.keyItems = mergeSet(vb, va, vt); break;
       case 'treasureMaps': out.treasureMaps = mergeTreasureMaps(vb, va, vt); break;
+      // ひみつのダンジョンの 記録（深い ほう。もらった ごほうびは 両方）
+      case 'sd': out.sd = mergeSecret(vb, va, vt); break;
       case 'supportLog': {
         const seen = new Set((vb || []).map(canon));
         out.supportLog = [...clone(va || []), ...clone((vt || []).filter((e) => !seen.has(canon(e))))].slice(-10);

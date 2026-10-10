@@ -33,6 +33,7 @@ import { medalSearchSteps, medalChestSteps } from './casino.js';
 import { stepHazard } from './hazards.js';
 import { noteDungeonEntry } from './escape.js';
 import { notePyramidMove } from './pyramid.js';
+import { noteSecretMove, fixSecretPos, secretRespawn, pruneSecretStates } from './secret.js';
 import { shownEquipKey } from '../look-equip.js';
 
 export const PROTOCOL_VERSION = 1;
@@ -628,6 +629,8 @@ export class GameWorld {
     noteDungeonEntry(s, { map: s.map, x: s.x, y: s.y, dir: s.dir }, mapId);
     // のろいの宝の のろいは ピラミッドの 外に 出ると とける（world/pyramid.js）
     notePyramidMove(this, s, mapId);
+    // ひみつのダンジョンの ちょうせん（つづきか・とちゅうから 来たか・外へ 出たか。world/secret.js）
+    noteSecretMove(this, s, mapId);
     s.map = mapId;
     s.x = x;
     s.y = y;
@@ -660,6 +663,8 @@ export class GameWorld {
 
   // note: 目を覚ました ときの おしらせに 足す ことば（全滅で お金が へった など）
   respawn(s, note = '') {
+    // ひみつのダンジョンの 階で 全滅: 入口の 広間で 目を覚ます（world/secret.js）
+    if (secretRespawn(this, s, note)) return;
     // さそわれて 来ている 人は リーダーの いのりの場所で（みんな いっしょに 目を覚ます）
     const own = this.hostOf(s)?.char.spawn || s.char.spawn;
     const sp = own && MAPS[own.map] ? own : { map: 'overworld', x: POS.villageChurch[0] + 0.5, y: POS.villageChurch[1] + 0.5 };
@@ -1018,6 +1023,7 @@ export class GameWorld {
       tickFieldChests(this, ms, dt, players);
     }
     pruneTreasureStates(this, byMap);
+    pruneSecretStates(this, byMap);
     // いちを おくる（10かい/びょう）
     this.snapTimer += dt;
     if (this.snapTimer >= 100) {
@@ -1087,6 +1093,7 @@ export function equipLook(c) {
 // セーブの 場所が つかえるか（知らない マップ・マップの 外なら null）
 function validPos(pos) {
   if (typeof pos?.map === 'string' && pos.map.startsWith('tm_')) return fixTreasurePos(pos); // 宝の洞窟
+  if (typeof pos?.map === 'string' && /^sd_\d+$/.test(pos.map)) return fixSecretPos(pos); // ひみつのダンジョンの 階
   const pm = pos && typeof pos.map === 'string' && Object.prototype.hasOwnProperty.call(MAPS, pos.map) ? MAPS[pos.map] : null;
   const inside = pm && Number.isFinite(pos.x) && Number.isFinite(pos.y) && pos.x >= 0 && pos.y >= 0 && pos.x < pm.w && pos.y < pm.h;
   return inside ? pos : null;

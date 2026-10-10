@@ -21,6 +21,7 @@ import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js';
 import { CH3_STEPS, CH3_STORY_SCRIPTS, CH3_SCRIPTS, elderCh3 } from './story-ch3.js';
 import { CH4_STEPS, CH4_STORY_SCRIPTS, CH4_SCRIPTS, elderCh4 } from './story-ch4.js';
 import { TM_SCRIPTS, TM_STORY_SCRIPTS } from './story-tm.js';
+import { SD_SCRIPTS } from './story-secret.js';
 import { CASINO_SCRIPTS } from './story-casino.js';
 import { innSteps } from './inn.js';
 import { NIGHT_SCRIPTS } from './night.js';
@@ -608,5 +609,7 @@ Object.assign(SCRIPTS, skyScripts(SCRIPTS));
 Object.assign(SCRIPTS, FACILITY_SCRIPTS);
 // カジノ・メダル王・小さなメダル（story-casino.js）
 Object.assign(SCRIPTS, CASINO_SCRIPTS);
+// ひみつのダンジョン（story-secret.js。しょりは world/secret.js）
+Object.assign(SCRIPTS, SD_SCRIPTS);
 
 export { comboUnlocked };
