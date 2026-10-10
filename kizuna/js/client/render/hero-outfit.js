@@ -1,10 +1,10 @@
 // ふく・よろい（そうびの よろいと しょくぎょうで きまる）
 // outfitOf(みため, しょくぎょう, よろいの ID, おんな？) → かく ための せってい
 // 知らない よろい（これからの もの）は、種類（armorType）・ランク・名前の ことば から きめる
-import { mat, ramp, TH, mixC, HeroCanvas } from './hero-raster.js?v=0136232bcf56';
-import { ITEMS } from '../../shared/data/items.js?v=0136232bcf56';
+import { mat, ramp, TH, mixC, HeroCanvas } from './hero-raster.js?v=bdeec0bffe23';
+import { ITEMS } from '../../shared/data/items.js?v=bdeec0bffe23';
 // 第26回の 新しい 職業（楽天カードマン・きさつ隊・ネコ型ロボット・カッパ・火影 など）の 服と からだ
-import { R26_OUTFIT, R26_BODY, outfit26, body26, capeFlame, robotTail } from './hero-r26.js?v=0136232bcf56';
+import { R26_OUTFIT, R26_BODY, outfit26, body26, capeFlame, robotTail } from './hero-r26.js?v=bdeec0bffe23';
 
 // ───────────── ざいしつ ─────────────
 const METALS = {

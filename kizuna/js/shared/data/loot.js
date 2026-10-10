@@ -13,13 +13,13 @@
 //   ・種は その魔物に 合った もの（かたい→守り、はやい→素早さ、呪文→かしこさ、大きい→命、力じまん→力）
 //   ・素材（ふしぎなかじ で 使う）は MAT_DROPS に 書く。レアも よく落とす 物も 出なかった ときに 出る
 //   ・図鑑に 落とす 物が のる（手に入れるまでは ？？？）
-import { ITEMS } from './items.js?v=0136232bcf56';
-import { MONSTERS } from './monsters.js?v=0136232bcf56';
-import { RARE_MAT_DROPS } from './monsters-rare.js?v=0136232bcf56';
-import { CH3_MAT_DROPS } from './monsters-ch3.js?v=0136232bcf56';
-import { CH4_MAT_DROPS } from './monsters-ch4.js?v=0136232bcf56';
-import { R23_MAT_DROPS } from './monsters-r23.js?v=0136232bcf56';
-import { TEMPLE_MAT_DROPS } from './monsters-temple.js?v=0136232bcf56';
+import { ITEMS } from './items.js?v=bdeec0bffe23';
+import { MONSTERS } from './monsters.js?v=bdeec0bffe23';
+import { RARE_MAT_DROPS } from './monsters-rare.js?v=bdeec0bffe23';
+import { CH3_MAT_DROPS } from './monsters-ch3.js?v=bdeec0bffe23';
+import { CH4_MAT_DROPS } from './monsters-ch4.js?v=bdeec0bffe23';
+import { R23_MAT_DROPS } from './monsters-r23.js?v=bdeec0bffe23';
+import { TEMPLE_MAT_DROPS } from './monsters-temple.js?v=bdeec0bffe23';
 
 export const DROP_N = { common: 8, rare: 64, mat: 8 };
 

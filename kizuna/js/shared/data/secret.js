@@ -12,11 +12,11 @@
 //     best … いちばん 深く 着いた 階 / at … その 時こく / with … その とき いっしょに いた 家族の 名前
 //     got  … 大きな ごほうびを もらった 休み所の 階 [5, 10, …] / tries … ちょうせんした 回数
 //     run  … 今の ちょうせん { f: 今の 階, mid: とちゅうから 来た（記録に ならない）, took: ごほうびを 開けた 階 }
-import { MONSTERS } from './monsters.js?v=0136232bcf56';
-import { ITEMS, SLOTS } from './items.js?v=0136232bcf56';
-import { ENCOUNTER_TABLES, ZONE_BG, FIXED_ENCOUNTERS } from './encounters.js?v=0136232bcf56';
-import { makeRng } from '../rng.js?v=0136232bcf56';
-import { rewardGold } from './difficulty.js?v=0136232bcf56';
+import { MONSTERS } from './monsters.js?v=bdeec0bffe23';
+import { ITEMS, SLOTS } from './items.js?v=bdeec0bffe23';
+import { ENCOUNTER_TABLES, ZONE_BG, FIXED_ENCOUNTERS } from './encounters.js?v=bdeec0bffe23';
+import { makeRng } from '../rng.js?v=bdeec0bffe23';
+import { rewardGold } from './difficulty.js?v=bdeec0bffe23';
 
 export const SD_GATE = 'sd_gate';
 export const SD_NAME = 'ひみつのダンジョン';

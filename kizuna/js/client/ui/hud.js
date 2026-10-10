@@ -1,11 +1,11 @@
 // フィールドの がめんの かざり（HP・ばしょ・もくひょう・ちず・チャット）
-import { el, bar, askText, ListMenu } from './dom.js?v=0136232bcf56';
-import { computeStats } from '../../shared/stats.js?v=0136232bcf56';
-import { JOBS } from '../../shared/data/jobs.js?v=0136232bcf56';
-import { renderMiniMap, openWorldMap } from './menu.js?v=0136232bcf56';
-import { makeCanvas } from '../render/pixel.js?v=0136232bcf56';
-import { ClockBadge } from './clock.js?v=0136232bcf56';
-import { powderLabel } from '../../shared/data/friend-powder.js?v=0136232bcf56';
+import { el, bar, askText, ListMenu } from './dom.js?v=bdeec0bffe23';
+import { computeStats } from '../../shared/stats.js?v=bdeec0bffe23';
+import { JOBS } from '../../shared/data/jobs.js?v=bdeec0bffe23';
+import { renderMiniMap, openWorldMap } from './menu.js?v=bdeec0bffe23';
+import { makeCanvas } from '../render/pixel.js?v=bdeec0bffe23';
+import { ClockBadge } from './clock.js?v=bdeec0bffe23';
+import { powderLabel } from '../../shared/data/friend-powder.js?v=bdeec0bffe23';
 
 export const STAMPS = ['よろしく！', 'ありがとう！', '行くよー！', '助けて！', '待ってて！', 'やったね！', 'おつかれさま', 'ご飯だよ〜'];
 

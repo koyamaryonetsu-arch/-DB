@@ -11,7 +11,7 @@
 //   face26(cv, H, B, view, phase) … ひげ・赤い はな・くちばし・サングラス・花札の みみかざり・おしりの われめ
 //   drawHat26(cv, P, H, G, view) … 新しい ぼうし（かえりち: かいたら true）
 //   drawProp26(cv, P, A, O) … たての ない 手に もつ もの（カード・スプーン・虫めがね・きゅうり など）
-import { mat, ramp, TH, mixC, HeroCanvas } from './hero-raster.js?v=0136232bcf56';
+import { mat, ramp, TH, mixC, HeroCanvas } from './hero-raster.js?v=bdeec0bffe23';
 
 // ───────────── ざいしつ（mat は おなじ ものを つくりなおさない） ─────────────
 const cl = (c, o = {}) => mat({ r: ramp(c, 4, o), th: o.th || TH.cloth });

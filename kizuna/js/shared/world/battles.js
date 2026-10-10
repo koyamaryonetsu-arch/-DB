@@ -1,23 +1,23 @@
 // たたかいの はじまりと おわり（ほうしゅう・ぜんめつ）
-import { Battle, normBattleSettings } from '../battle.js?v=0136232bcf56';
-import { scaleExp, difficultyOf, rewardExp, rewardGold } from '../data/difficulty.js?v=0136232bcf56';
-import { POWDER, powderLeft } from '../data/friend-powder.js?v=0136232bcf56';
-import { MONSTERS } from '../data/monsters.js?v=0136232bcf56';
-import { ITEMS } from '../data/items.js?v=0136232bcf56';
-import { ABILITIES } from '../data/abilities.js?v=0136232bcf56';
-import { JOBS } from '../data/jobs.js?v=0136232bcf56';
-import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=0136232bcf56';
-import { gainExp, gainJobBattles, jobTrainMult, itemCount, removeItem, addItem, ownsItem, computeStats, STAT_NAMES, fullHeal } from '../stats.js?v=0136232bcf56';
-import { JOB_MAX_LEVEL } from '../data/jobs.js?v=0136232bcf56';
-import { befriendShare } from './recruit-share.js?v=0136232bcf56';
-import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendChance, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf, PARTY_MAX } from './party.js?v=0136232bcf56';
-import { rollDrops, stealPick } from '../data/loot.js?v=0136232bcf56';
-import { MAPS } from '../maps/index.js?v=0136232bcf56';
-import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js?v=0136232bcf56';
-import { treasureAfterBattle } from './treasure.js?v=0136232bcf56';
-import { wipeGoldLoss, bankGold } from './bank.js?v=0136232bcf56';
-import { wagonShare, wagonBattleSwap } from './wagon.js?v=0136232bcf56';
-import { battleTactics } from './tactics.js?v=0136232bcf56';
+import { Battle, normBattleSettings } from '../battle.js?v=bdeec0bffe23';
+import { scaleExp, difficultyOf, rewardExp, rewardGold } from '../data/difficulty.js?v=bdeec0bffe23';
+import { POWDER, powderLeft } from '../data/friend-powder.js?v=bdeec0bffe23';
+import { MONSTERS } from '../data/monsters.js?v=bdeec0bffe23';
+import { ITEMS } from '../data/items.js?v=bdeec0bffe23';
+import { ABILITIES } from '../data/abilities.js?v=bdeec0bffe23';
+import { JOBS } from '../data/jobs.js?v=bdeec0bffe23';
+import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=bdeec0bffe23';
+import { gainExp, gainJobBattles, jobTrainMult, itemCount, removeItem, addItem, ownsItem, computeStats, STAT_NAMES, fullHeal } from '../stats.js?v=bdeec0bffe23';
+import { JOB_MAX_LEVEL } from '../data/jobs.js?v=bdeec0bffe23';
+import { befriendShare } from './recruit-share.js?v=bdeec0bffe23';
+import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendChance, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf, PARTY_MAX } from './party.js?v=bdeec0bffe23';
+import { rollDrops, stealPick } from '../data/loot.js?v=bdeec0bffe23';
+import { MAPS } from '../maps/index.js?v=bdeec0bffe23';
+import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js?v=bdeec0bffe23';
+import { treasureAfterBattle } from './treasure.js?v=bdeec0bffe23';
+import { wipeGoldLoss, bankGold } from './bank.js?v=bdeec0bffe23';
+import { wagonShare, wagonBattleSwap } from './wagon.js?v=bdeec0bffe23';
+import { battleTactics } from './tactics.js?v=bdeec0bffe23';
 
 let battleSeq = 1;
 
@@ -286,12 +286,12 @@ export function abortBattle(world, ctx) {
   if (ctx.resolve) ctx.resolve('flee');
 }
 
-// 合体技は 一度 使うと 効果が わかる（出した 2人の もちぬしの キャラに char.dualSeen）
+// 合体技は 一度 使うと 効果が わかる（出した 人 みんなの もちぬしの キャラに char.dualSeen）
 function markDuals(world, ctx, evs) {
   for (const ev of evs) {
     const d = ev.dual;
     if (!d?.id) continue;
-    for (const id of [d.a, d.b]) {
+    for (const id of d.m || [d.a, d.b]) {
       const who = ctx.actorMap[id];
       const ch = who?.type === 'human' ? who.char : who?.type === 'support' ? world.data.characters[who.owner] : null;
       if (ch && !ch.dualSeen?.[d.id]) ch.dualSeen = { ...(ch.dualSeen || {}), [d.id]: 1 };

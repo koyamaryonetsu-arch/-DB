@@ -17,23 +17,23 @@
 // 名前の一部は「ダイの大冒険」「ロトの紋章」へのオマージュです。
 // 上級職・超級職の 技は abilities-adv.js（さいごに まぜる）
 
-import { ADV_ABILITIES } from './abilities-adv.js?v=0136232bcf56';
-import { CH2_ABILITIES } from './abilities-ch2.js?v=0136232bcf56';
-import { JOB_ABILITIES } from './abilities-jobs.js?v=0136232bcf56';
-import { HIRA_ABILITIES } from './hirameki.js?v=0136232bcf56';
-import { TRAVEL_ABILITIES } from './sky.js?v=0136232bcf56';
-import { RARE_ABILITIES } from './monsters-rare.js?v=0136232bcf56';
-import { R23_ABILITIES } from './monsters-r23.js?v=0136232bcf56';
-import { JOB2_ABILITIES } from './abilities-jobs2.js?v=0136232bcf56';
-import { CH3_ABILITIES } from './abilities-ch3.js?v=0136232bcf56';
-import { CH4_ABILITIES } from './abilities-ch4.js?v=0136232bcf56';
-import { TEMPLE_ABILITIES } from './abilities-temple.js?v=0136232bcf56';
-import { JOB3_ABILITIES } from './abilities-jobs3.js?v=0136232bcf56';
-import { JOB4_ABILITIES } from './abilities-jobs4.js?v=0136232bcf56';
+import { ADV_ABILITIES } from './abilities-adv.js?v=bdeec0bffe23';
+import { CH2_ABILITIES } from './abilities-ch2.js?v=bdeec0bffe23';
+import { JOB_ABILITIES } from './abilities-jobs.js?v=bdeec0bffe23';
+import { HIRA_ABILITIES } from './hirameki.js?v=bdeec0bffe23';
+import { TRAVEL_ABILITIES } from './sky.js?v=bdeec0bffe23';
+import { RARE_ABILITIES } from './monsters-rare.js?v=bdeec0bffe23';
+import { R23_ABILITIES } from './monsters-r23.js?v=bdeec0bffe23';
+import { JOB2_ABILITIES } from './abilities-jobs2.js?v=bdeec0bffe23';
+import { CH3_ABILITIES } from './abilities-ch3.js?v=bdeec0bffe23';
+import { CH4_ABILITIES } from './abilities-ch4.js?v=bdeec0bffe23';
+import { TEMPLE_ABILITIES } from './abilities-temple.js?v=bdeec0bffe23';
+import { JOB3_ABILITIES } from './abilities-jobs3.js?v=bdeec0bffe23';
+import { JOB4_ABILITIES } from './abilities-jobs4.js?v=bdeec0bffe23';
 // 2026年10月（第22回）の 新しい 職業の 技（おかん・社ちく・天才しせつ管理者・はかい神 など）
-import { JOB5_ABILITIES } from './abilities-jobs5.js?v=0136232bcf56';
+import { JOB5_ABILITIES } from './abilities-jobs5.js?v=bdeec0bffe23';
 // 2026年10月（第26回）の 新しい 職業の 技（楽天カードマン・きさつ隊・スパイ・探てい・ネコ型ロボット・カッパ・木の葉の忍び など）
-import { JOB6_ABILITIES } from './abilities-jobs6.js?v=0136232bcf56';
+import { JOB6_ABILITIES } from './abilities-jobs6.js?v=bdeec0bffe23';
 
 export const ABILITIES = {
   // ───────────── 戦士 ─────────────

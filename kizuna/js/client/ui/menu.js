@@ -1,41 +1,41 @@
 // フィールドの メニュー
-import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js?v=0136232bcf56';
-import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js?v=0136232bcf56';
-import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js?v=0136232bcf56';
-import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS, turnSeconds } from '../../shared/battle.js?v=0136232bcf56';
-import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily, gearSortPref, setGearSortPref } from '../prefs.js?v=0136232bcf56';
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, TIER_NAMES } from '../../shared/data/jobs.js?v=0136232bcf56';
-import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress, partyJobSet, hiraVisible, monsterSlots, canEquipChar, itemCount, MAX_LEVEL } from '../../shared/stats.js?v=0136232bcf56';
-import { HIRAMEKI } from '../../shared/data/hirameki.js?v=0136232bcf56';
-import { DUAL_TECHS, DUAL_ORDER, groupName, dualKnown, dualRelated } from '../../shared/data/dual.js?v=0136232bcf56';
-import { MONSTERS } from '../../shared/data/monsters.js?v=0136232bcf56';
-import { monsterDrops } from '../../shared/data/loot.js?v=0136232bcf56';
-import { MONSTER_FRIENDS, RACE_NAMES, recipeHint, joinTier, bestiaryOrder } from '../../shared/data/companions.js?v=0136232bcf56';
-import { TACTICS } from '../../shared/ai.js?v=0136232bcf56';
-import { PLACES } from '../../shared/maps/overworld.js?v=0136232bcf56';
-import { SEA_PLACES } from '../../shared/maps/ch2.js?v=0136232bcf56';
-import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js?v=0136232bcf56';
-import { T, TILE_INFO } from '../../shared/tiles.js?v=0136232bcf56';
-import { itemDetail, abilityDetail, skillBrief, gearText, targetTag, statChanges, statChangesHtml } from './info.js?v=0136232bcf56';
-import { bestEquipPlan, bestTeamOrder, gearChoices, sortGearChoices, GEAR_SORTS } from '../../shared/equip-plan.js?v=0136232bcf56';
-import { shownEquip, lookChoices, LOOK_SLOTS, LOOK_NONE } from '../../shared/look-equip.js?v=0136232bcf56';
-import { makeCanvas, ctxOf } from '../render/pixel.js?v=0136232bcf56';
-import { previewCache } from '../render/hero.js?v=0136232bcf56';
-import { monsterCanvas } from '../render/monsters.js?v=0136232bcf56';
-import { mapIconCanvas, boardIconURL } from '../render/boards.js?v=0136232bcf56';
-import { medalItemRow, walletView } from './casino.js?v=0136232bcf56';
-import { compareTeam, whoItems } from './counter.js?v=0136232bcf56';
-import { faceURL } from '../field.js?v=0136232bcf56';
-import { partyRows } from './hud.js?v=0136232bcf56';
-import { questMarks, subQuests, OBJECTIVE_TARGETS, whereName } from '../../shared/data/quest-targets.js?v=0136232bcf56';
-import { difficultyOf, visibleMarks, EXP_RATES, EXP_RATE_NAMES, ENEMY_RATES, ENEMY_RATE_NAMES, ENEMY_RATE_NOTES } from '../../shared/data/difficulty.js?v=0136232bcf56';
-import { memberTalk, talkFor } from '../../shared/data/party-talk.js?v=0136232bcf56';
-import { treasureRows, treasureDetail, openTreasureMap } from './treasure.js?v=0136232bcf56';
-import { themeHex } from '../render/themes.js?v=0136232bcf56';
-import { sdRecordOf, sdRecordText } from '../../shared/data/secret.js?v=0136232bcf56';
-import { wagonMenuView, wagonHereClient, menuArrange } from './wagon.js?v=0136232bcf56';
-import { readErrLog, errLogText, clearErrLog } from '../errlog.js?v=0136232bcf56';
-import { fieldUsableAbilities } from '../../shared/fieldskills.js?v=0136232bcf56';
+import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js?v=bdeec0bffe23';
+import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js?v=bdeec0bffe23';
+import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js?v=bdeec0bffe23';
+import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS, turnSeconds } from '../../shared/battle.js?v=bdeec0bffe23';
+import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily, gearSortPref, setGearSortPref } from '../prefs.js?v=bdeec0bffe23';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, TIER_NAMES } from '../../shared/data/jobs.js?v=bdeec0bffe23';
+import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress, partyJobSet, hiraVisible, monsterSlots, canEquipChar, itemCount, MAX_LEVEL } from '../../shared/stats.js?v=bdeec0bffe23';
+import { HIRAMEKI } from '../../shared/data/hirameki.js?v=bdeec0bffe23';
+import { DUAL_TECHS, DUAL_ORDER, groupName, dualKnown, dualRelated } from '../../shared/data/dual.js?v=bdeec0bffe23';
+import { MONSTERS } from '../../shared/data/monsters.js?v=bdeec0bffe23';
+import { monsterDrops } from '../../shared/data/loot.js?v=bdeec0bffe23';
+import { MONSTER_FRIENDS, RACE_NAMES, recipeHint, joinTier, bestiaryOrder } from '../../shared/data/companions.js?v=bdeec0bffe23';
+import { TACTICS } from '../../shared/ai.js?v=bdeec0bffe23';
+import { PLACES } from '../../shared/maps/overworld.js?v=bdeec0bffe23';
+import { SEA_PLACES } from '../../shared/maps/ch2.js?v=bdeec0bffe23';
+import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js?v=bdeec0bffe23';
+import { T, TILE_INFO } from '../../shared/tiles.js?v=bdeec0bffe23';
+import { itemDetail, abilityDetail, skillBrief, gearText, targetTag, statChanges, statChangesHtml } from './info.js?v=bdeec0bffe23';
+import { bestEquipPlan, bestTeamOrder, gearChoices, sortGearChoices, GEAR_SORTS } from '../../shared/equip-plan.js?v=bdeec0bffe23';
+import { shownEquip, lookChoices, LOOK_SLOTS, LOOK_NONE } from '../../shared/look-equip.js?v=bdeec0bffe23';
+import { makeCanvas, ctxOf } from '../render/pixel.js?v=bdeec0bffe23';
+import { previewCache } from '../render/hero.js?v=bdeec0bffe23';
+import { monsterCanvas } from '../render/monsters.js?v=bdeec0bffe23';
+import { mapIconCanvas, boardIconURL } from '../render/boards.js?v=bdeec0bffe23';
+import { medalItemRow, walletView } from './casino.js?v=bdeec0bffe23';
+import { compareTeam, whoItems } from './counter.js?v=bdeec0bffe23';
+import { faceURL } from '../field.js?v=bdeec0bffe23';
+import { partyRows } from './hud.js?v=bdeec0bffe23';
+import { questMarks, subQuests, OBJECTIVE_TARGETS, whereName } from '../../shared/data/quest-targets.js?v=bdeec0bffe23';
+import { difficultyOf, visibleMarks, EXP_RATES, EXP_RATE_NAMES, ENEMY_RATES, ENEMY_RATE_NAMES, ENEMY_RATE_NOTES } from '../../shared/data/difficulty.js?v=bdeec0bffe23';
+import { memberTalk, talkFor } from '../../shared/data/party-talk.js?v=bdeec0bffe23';
+import { treasureRows, treasureDetail, openTreasureMap } from './treasure.js?v=bdeec0bffe23';
+import { themeHex } from '../render/themes.js?v=bdeec0bffe23';
+import { sdRecordOf, sdRecordText } from '../../shared/data/secret.js?v=bdeec0bffe23';
+import { wagonMenuView, wagonHereClient, menuArrange } from './wagon.js?v=bdeec0bffe23';
+import { readErrLog, errLogText, clearErrLog } from '../errlog.js?v=bdeec0bffe23';
+import { fieldUsableAbilities } from '../../shared/fieldskills.js?v=bdeec0bffe23';
 
 // 見た目装備の せつめい
 const LOOK_HELP = '見た目だけを、持っている装備に変える（強さは変わらない）\n職業で装備できない物も選べる。「装備なし」も選べる';
@@ -840,17 +840,20 @@ export class FieldMenu {
       const focus = this.partyFocus(c);
       const shownDual = DUAL_ORDER.filter((id) => dualKnown(c, id) || dualKnown(g.me, id) || dualRelated(id, focus.jobs, focus.skills));
       const hiddenDual = DUAL_ORDER.length - shownDual.length;
+      // 2人技・3人技・4人技の じゅんに（同じ 人数の 中は DUAL_ORDER の じゅん）
+      shownDual.sort((x, y) => DUAL_TECHS[x].need.length - DUAL_TECHS[y].need.length);
       rows(shownDual.map((id) => {
         const t = DUAL_TECHS[id];
+        const n = t.need.length;
         // はじめて 使う までは 効果は ひみつ
         const known = dualKnown(c, id) || dualKnown(g.me, id);
         return {
           id, cls: known ? '' : 'unknown',
-          html: `<span class="nm">${esc(t.name)}</span><span class="tag gold">MP ${t.mp[0]}＋${t.mp[1]}</span>${known ? '' : '<span class="tag muted">まだ使っていない</span>'}<span class="ln">${esc(`${groupName(t.need[0])} ＋ ${groupName(t.need[1])}（2人で1つずつ）`)}</span><span class="ln muted">${known ? esc(t.desc) : '効果は？？？（一度使うとわかる）'}</span>`,
+          html: `<span class="nm">${esc(t.name)}</span><span class="tag ${n >= 3 ? 'good' : 'muted'}">${n}人技</span><span class="tag gold">MP ${t.mp.join('＋')}</span>${known ? '' : '<span class="tag muted">まだ使っていない</span>'}<span class="ln">${esc(`${t.need.map(groupName).join(' ＋ ')}（${n}人で1つずつ）`)}</span><span class="ln muted">${known ? esc(t.desc) : '効果は？？？（一度使うとわかる）'}</span>`,
         };
       }));
       if (!shownDual.length) box.append(el('div', { class: 'muted', text: '今のパーティーで出せそうな合体技は、まだない。' }));
-      box.append(el('div', { class: 'detail', text: (hiddenDual > 0 ? `今のパーティーの職業に関係する合体技だけ出している（ほかにあと${hiddenDual}こ）。\n` : '') + '合体技は、2人の番を使う技。自分のゲージがたまった時に「合体技」から選んでおく。いっしょに出す仲間のゲージがたまっていればすぐ、まだの時は「よやく」して、仲間のゲージがたまった時にいっしょに出す。\nどんな効果かは、一度使うまでわからない。家族のキャラと出す時は、相手の画面に「参加する？」と出る。' }));
+      box.append(el('div', { class: 'detail', text: (hiddenDual > 0 ? `今のパーティーの職業に関係する合体技だけ出している（ほかにあと${hiddenDual}こ）。\n` : '') + '合体技は、2人・3人・4人でいっしょに出す技。出す人みんなの番を使う。自分のゲージがたまった時に「合体技」から選んでおく。いっしょに出す仲間のゲージがたまっていればすぐ、まだの時は「よやく」して、みんなのゲージがたまった時にいっしょに出す（先にたまった仲間は、ほかの仲間を待つ）。\nどんな効果かは、一度使うまでわからない。家族のキャラと出す時は、相手の画面に「参加する？」と出る。' }));
       return box;
     }
     const items = learned.map((id) => {
