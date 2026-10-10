@@ -809,19 +809,204 @@ export const JOBS = {
     perLv: { hp: 2, str: 1.5, agi: 0.5 },
     learn: [[1, 'hk_hakai'], [3, 'hk_kimagure'], [5, 'hk_hirune'], [7, 'hk_kami'], [8, 'hk_ikari'], [10, 'hk_hakaidama']],
   },
+
+  // ───────────── 2026年10月（第26回）の 新しい 職業（技は abilities-jobs6.js。看板の 技は <職業の id>_sig） ─────────────
+  // 楽天カードマン（上級職。会社員＋旅芸人）
+  rakuten_cardman: {
+    id: 'rakuten_cardman', name: '楽天カードマン', kana: 'らくてんかーどまん', short: '楽天', tier: 1, req: ['salaryman', 'performer'], family: 'tech', color: '#bf0000',
+    desc: '「楽天カード！」のかけ声でおなじみの、赤い全身タイツのヒーロー。カードを投げて戦い、ポイントバックでお金もためる。戦いで手に入るお金がふえる。会社員と旅芸人をきわめるとなれる。',
+    mods: { hp: 1.15, mp: 1.0, str: 1.15, def: 1.05, agi: 1.25, mag: 1.0, heal: 1.0 },
+    weapons: ['fan', 'dagger', 'staff', 'none'], shield: true, armor: ['cloth', 'gi'], helm: false,
+    perLv: { agi: 0.5, mp: 0.5 },
+    passive: { gold: 1.2 },
+    learn: [[1, 'rk_card'], [2, 'rk_kangen'], [3, 'rk_ribo'], [5, 'rk_tights'], [7, 'rk_dance'], [10, 'rakuten_cardman_sig']],
+  },
+
+  // きさつ隊（上級職。戦士＋武闘家）→ 炎柱（超級職）→ 日の呼吸の使い手（伝説の職業）
+  kisatsu: {
+    id: 'kisatsu', name: 'きさつ隊', kana: 'きさつたい', short: 'きさつ', tier: 1, req: ['warrior', 'monk'], family: 'phys', color: '#2a3442',
+    desc: '黒い隊服で、夜の魔物と戦う剣士たち。全集中の呼吸で力を高め、水の呼吸の型で敵を切る。戦士と武闘家をきわめるとなれる。',
+    mods: { hp: 1.25, mp: 0.6, str: 1.4, def: 1.05, agi: 1.35, mag: 0.5, heal: 0.6 },
+    weapons: ['sword', 'dagger', 'none'], shield: false, armor: ['cloth', 'gi'], helm: false,
+    perLv: { str: 1, agi: 0.5 },
+    learn: [[1, 'ks_minamo'], [2, 'ks_zenshuu'], [3, 'ks_hyoutan'], [5, 'ks_uchishio'], [7, 'ks_nejire'], [10, 'kisatsu_sig']],
+  },
+  enbashira: {
+    id: 'enbashira', name: '炎柱', kana: 'えんばしら', short: '炎柱', tier: 2, req: ['kisatsu'], family: 'phys', color: '#e8601c',
+    desc: '炎の呼吸をきわめた、きさつ隊の柱。燃えるような心で仲間をはげまし、炎の型で敵をなぎはらう。お弁当を食べると「うまい！」とさけぶ。',
+    mods: { hp: 1.5, mp: 0.85, str: 1.6, def: 1.25, agi: 1.4, mag: 0.7, heal: 0.9 },
+    weapons: ['sword', 'dagger', 'none'], shield: false, armor: ['cloth', 'gi', 'heavy'], helm: false,
+    perLv: { str: 1, hp: 1 },
+    learn: [[1, 'eb_shiranui'], [2, 'eb_umai'], [3, 'eb_noboru'], [5, 'eb_uneri'], [7, 'enbashira_sig'], [10, 'eb_rengoku']],
+  },
+  hinokami: {
+    id: 'hinokami', name: '日の呼吸の使い手', kana: 'ひのこきゅうのつかいて', short: '日の呼吸', tier: 3, req: ['enbashira'], reqSuper: 1, family: 'phys', color: '#c8302a',
+    desc: 'すべての呼吸のはじまり、日の呼吸を受けついだ剣士。炎柱と、ほかの超級職を1つきわめた者だけがなれる。ヒノカミ神楽を、夜明けまでおどりつづける。',
+    mods: { hp: 1.6, mp: 1.1, str: 1.85, def: 1.4, agi: 1.7, mag: 0.95, heal: 1.0 },
+    weapons: ['sword', 'dagger', 'none'], shield: false, armor: ['cloth', 'gi'], helm: false,
+    perLv: { str: 1.5, agi: 1, hp: 1 },
+    learn: [[1, 'hn_kasha'], [3, 'hn_sukitooru'], [5, 'hn_koukyou'], [7, 'hn_hirin'], [8, 'hn_aza'], [10, 'hinokami_sig']],
+  },
+
+  // スパイ（基本職）→ 殺し屋（上級職）→ 黒の組織（超級職）
+  spy: {
+    id: 'spy', name: 'スパイ', kana: 'すぱい', short: 'スパイ', tier: 0, family: 'tech', color: '#3a3a4e',
+    desc: 'ひみつの任務をこなすスパイ。変装で身をかくし、ナイフや道具で戦う。敵の持ち物をぬすむのも得意。きわめると殺し屋になれる。',
+    mods: { hp: 0.95, mp: 0.95, str: 1.05, def: 0.85, agi: 1.4, mag: 0.95, heal: 0.85 },
+    weapons: ['dagger', 'whip', 'boomerang', 'none'], shield: false, armor: ['cloth', 'gi'], helm: true,
+    perLv: { agi: 1 },
+    learn: [[1, 'spy_knife'], [2, 'spy_hensou'], [3, 'spy_kimitsu'], [5, 'spy_gas'], [7, 'spy_action'], [10, 'spy_sig']],
+  },
+  assassin: {
+    id: 'assassin', name: '殺し屋', kana: 'ころしや', short: '殺し屋', tier: 1, req: ['spy'], family: 'tech', color: '#1e1e24',
+    desc: 'ねらった相手は、のがさない。急所をねらう一げきで、敵を一度にたおしてしまうこともある。気配を消すのも得意。スパイをきわめるとなれる。',
+    mods: { hp: 1.05, mp: 0.8, str: 1.4, def: 0.9, agi: 1.55, mag: 0.7, heal: 0.65 },
+    weapons: ['dagger', 'sword', 'whip', 'none'], shield: false, armor: ['cloth', 'gi'], helm: true,
+    perLv: { str: 0.5, agi: 1 },
+    learn: [[1, 'as_kyuusho'], [2, 'as_kehai'], [3, 'as_dokubari'], [5, 'as_ame'], [10, 'assassin_sig']],
+  },
+  black_org: {
+    id: 'black_org', name: '黒の組織', kana: 'くろのそしき', short: '黒組', tier: 2, req: ['assassin'], family: 'tech', color: '#101014',
+    desc: 'コードネームでよび合う、なぞの組織の一員。黒いコートと黒いぼうしで正体をかくし、闇の中で動く。ふしぎな薬で、敵の体を小さくしてしまう。',
+    mods: { hp: 1.35, mp: 1.05, str: 1.5, def: 1.15, agi: 1.5, mag: 1.05, heal: 0.75 },
+    weapons: ['dagger', 'sword', 'whip', 'none'], shield: false, armor: ['cloth', 'gi', 'robe'], helm: true,
+    perLv: { str: 1, agi: 0.5 },
+    learn: [[1, 'bo_yamiuchi'], [2, 'bo_torihiki'], [3, 'bo_codename'], [5, 'bo_kuruma'], [7, 'black_org_sig'], [10, 'bo_meirei']],
+  },
+
+  // 超能力者（上級職。魔法使い＋小学生）
+  esper: {
+    id: 'esper', name: '超能力者', kana: 'ちょうのうりょくしゃ', short: '超能力', tier: 1, req: ['mage', 'schoolkid'], family: 'magic', color: '#8a4ad8',
+    desc: 'ふしぎな力を持つ超能力者。スプーンをまげたり、物を宙にうかせたり、未来を予知して身をかわしたりする。魔法使いと小学生をきわめるとなれる。',
+    mods: { hp: 0.95, mp: 1.35, str: 0.8, def: 0.9, agi: 1.2, mag: 1.45, heal: 0.95 },
+    weapons: ['staff', 'dagger', 'none'], shield: false, armor: ['cloth', 'robe'], helm: false,
+    perLv: { mag: 0.5, mp: 0.5 },
+    learn: [[1, 'ep_spoon'], [2, 'ep_nenriki'], [3, 'ep_yochi'], [4, 'ep_teleport'], [7, 'ep_psycho'], [10, 'esper_sig']],
+  },
+
+  // 少年探てい団（基本職）→ おしり探てい（上級職）→ 名探てい（上級職）
+  shonen_tantei: {
+    id: 'shonen_tantei', name: '少年探てい団', kana: 'しょうねんたんていだん', short: '探てい団', tier: 0, family: 'tech', color: '#3a7ad8',
+    desc: '子どもたちの探てい団。探てい団バッジで連らくを取り合い、みんなで推理してなぞを解く。サッカーボールもけるよ。きわめるとおしり探ていになれる。',
+    mods: { hp: 0.95, mp: 1.0, str: 0.95, def: 0.9, agi: 1.3, mag: 1.0, heal: 1.0 },
+    weapons: ['staff', 'boomerang', 'none'], shield: false, armor: ['cloth', 'gi'], helm: true,
+    perLv: { agi: 0.5, mp: 0.4 },
+    learn: [[1, 'tn_ball'], [2, 'tn_kikikomi'], [3, 'tn_suiri'], [4, 'tn_badge'], [6, 'tn_jitensha'], [10, 'shonen_tantei_sig']],
+  },
+  oshiri_tantei: {
+    id: 'oshiri_tantei', name: 'おしり探てい', kana: 'おしりたんてい', short: 'おしり', tier: 1, req: ['shonen_tantei'], family: 'magic', color: '#b8784a',
+    desc: '顔がおしりの形をした、ププッとわらう名探てい。においで手がかりをかぎつけ、敵の弱点を見ぬく。ピンチの時は、ていねいにことわってから、おならで解決！',
+    mods: { hp: 1.1, mp: 1.1, str: 1.0, def: 1.0, agi: 1.15, mag: 1.2, heal: 1.05 },
+    weapons: ['staff', 'dagger', 'none'], shield: false, armor: ['cloth', 'robe'], helm: false,
+    perLv: { mag: 0.5, mp: 0.5 },
+    learn: [[1, 'os_suiri'], [2, 'os_kunkun'], [3, 'os_pupu'], [5, 'os_brown'], [7, 'os_oyatsu'], [10, 'oshiri_tantei_sig']],
+  },
+  meitantei: {
+    id: 'meitantei', name: '名探てい', kana: 'めいたんてい', short: '名探てい', tier: 1, req: ['oshiri_tantei'], family: 'magic', color: '#2a4aa8',
+    desc: '見た目は子ども、頭脳は大人の名探てい。ふき矢の時計で敵をねむらせ、キック力が上がるくつでボールをけりこむ。どんななぞも、推理で解き明かす。おしり探ていをきわめるとなれる。',
+    mods: { hp: 1.05, mp: 1.25, str: 1.05, def: 0.95, agi: 1.25, mag: 1.35, heal: 1.0 },
+    weapons: ['boomerang', 'staff', 'none'], shield: false, armor: ['cloth', 'robe'], helm: false,
+    perLv: { mag: 0.5, agi: 0.5 },
+    learn: [[1, 'mt_fukiya'], [2, 'mt_kick'], [3, 'mt_henseiki'], [5, 'mt_hannin'], [7, 'mt_skate'], [10, 'meitantei_sig']],
+  },
+
+  // クリエイター（上級職。アルバイト＋僧侶。薬局で 働く人）
+  creator: {
+    id: 'creator', name: 'クリエイター', kana: 'くりえいたー', short: 'クリエ', tier: 1, req: ['parttimer', 'priest'], family: 'magic', color: '#2a9a5a',
+    desc: '薬局で働く、薬と健康のプロ。お薬で仲間を回復して悪いじょうたいを治し、ポイント2倍デーでMPもためる。戦いで手に入るお金が少しふえる。アルバイトと僧侶をきわめるとなれる。',
+    mods: { hp: 1.1, mp: 1.2, str: 0.95, def: 1.0, agi: 1.05, mag: 1.0, heal: 1.45 },
+    weapons: ['staff', 'dagger', 'none'], shield: true, armor: ['cloth', 'robe'], helm: false,
+    perLv: { heal: 1, mp: 0.5 },
+    passive: { gold: 1.1 },
+    learn: [[1, 'ct_kago'], [2, 'ct_kusuri'], [3, 'ct_point'], [5, 'ct_shoudoku'], [7, 'ct_shohou'], [10, 'creator_sig']],
+  },
+
+  // ネコ型ロボット（基本職）→ 耳無しネコ型ロボット（上級職）→ ドラえもん（超級職）
+  neko_robot: {
+    id: 'neko_robot', name: 'ネコ型ロボット', kana: 'ねこがたろぼっと', short: 'ネコロボ', tier: 0, family: 'tech', color: '#e8c040',
+    desc: '未来から来たネコ型ロボット。どら焼きが大すきで、おなかのポケットから、いろいろな物を出す（たまにガラクタ）。きわめると…なにかが起こるらしい。',
+    mods: { hp: 1.1, mp: 1.05, str: 1.0, def: 1.1, agi: 0.9, mag: 1.0, heal: 1.0 },
+    weapons: ['staff', 'boomerang', 'none'], shield: true, armor: ['cloth'], helm: false,
+    perLv: { hp: 1, mp: 0.4 },
+    learn: [[1, 'nr_punch'], [2, 'nr_dorayaki'], [3, 'nr_pocket'], [5, 'nr_suzu'], [7, 'nr_tackle'], [10, 'neko_robot_sig']],
+  },
+  mimi_robot: {
+    id: 'mimi_robot', name: '耳無しネコ型ロボット', kana: 'みみなしねこがたろぼっと', short: '耳無し', tier: 1, req: ['neko_robot'], family: 'tech', color: '#2a8ad8',
+    desc: 'ネズミに耳をかじられて、耳がなくなったネコ型ロボット。悲しくて体が青くなってしまった。ネズミを見ると、大パニックになる。',
+    mods: { hp: 1.2, mp: 1.1, str: 1.1, def: 1.2, agi: 0.95, mag: 1.1, heal: 1.05 },
+    weapons: ['staff', 'boomerang', 'none'], shield: true, armor: ['cloth'], helm: false,
+    perLv: { hp: 1, def: 0.5 },
+    learn: [[1, 'mr_zutsuki'], [2, 'mr_naku'], [3, 'mr_ooguui'], [5, 'mr_shuuri'], [10, 'mimi_robot_sig']],
+  },
+  doraemon: {
+    id: 'doraemon', name: 'ドラえもん', kana: 'どらえもん', short: 'ドラ', tier: 2, req: ['mimi_robot'], family: 'tech', color: '#1a9ae8',
+    desc: '22世紀から来たネコ型ロボット。4次元ポケットから、ふしぎなひみつ道具を出して、みんなを助ける。あわてると、とんでもない道具を出してしまう。',
+    mods: { hp: 1.35, mp: 1.4, str: 1.15, def: 1.3, agi: 1.0, mag: 1.3, heal: 1.3 },
+    weapons: ['staff', 'boomerang', 'none'], shield: true, armor: ['cloth'], helm: false,
+    perLv: { hp: 1, mp: 0.5, heal: 0.5 },
+    versatile: true,
+    learn: [[1, 'dr_kuuki'], [2, 'dr_smalllight'], [3, 'dr_takecopter'], [5, 'doraemon_sig'], [7, 'dr_furoshiki'], [10, 'dr_bakudan']],
+  },
+
+  // カッパ（基本職）→ はなかっぱ（上級職）→ はなかっぱ（筋肉ニンニク）（超級職）
+  kappa: {
+    id: 'kappa', name: 'カッパ', kana: 'かっぱ', short: 'カッパ', tier: 0, family: 'phys', color: '#4ab84a',
+    desc: '川にすむ、頭にお皿をのせたカッパ。すもうとキュウリが大すき。お皿をぬらすと元気が出る。きわめると、頭に花がさくらしい。',
+    mods: { hp: 1.15, mp: 0.85, str: 1.15, def: 1.05, agi: 1.1, mag: 0.85, heal: 0.95 },
+    weapons: ['claw', 'spear', 'none'], shield: false, armor: ['cloth', 'gi'], helm: true,
+    perLv: { hp: 1, str: 0.4 },
+    learn: [[1, 'kp_tsuppari'], [2, 'kp_kyuuri'], [3, 'kp_mizu'], [5, 'kp_osara'], [7, 'kp_sumou'], [10, 'kappa_sig']],
+  },
+  hanakappa: {
+    id: 'hanakappa', name: 'はなかっぱ', kana: 'はなかっぱ', short: 'はなかっぱ', tier: 1, req: ['kappa'], family: 'magic', color: '#7ad84a',
+    desc: '頭にお皿のかわりに、花がさいているカッパ。食べた物で、頭にいろいろな花がさく。花びらで戦い、花のみつで仲間をいやす。「パッカーン！」',
+    mods: { hp: 1.15, mp: 1.15, str: 1.1, def: 1.0, agi: 1.15, mag: 1.15, heal: 1.15 },
+    weapons: ['claw', 'staff', 'none'], shield: false, armor: ['cloth', 'gi'], helm: false,
+    perLv: { mag: 0.5, heal: 0.5 },
+    learn: [[1, 'hkp_hanabira'], [2, 'hkp_kafun'], [3, 'hkp_mitsu'], [5, 'hkp_pakkan'], [7, 'hkp_gattsu'], [10, 'hanakappa_sig']],
+  },
+  kinniku_kappa: {
+    id: 'kinniku_kappa', name: 'はなかっぱ（筋肉ニンニク）', kana: 'はなかっぱきんにくにんにく', short: '筋肉', tier: 2, req: ['hanakappa'], family: 'phys', color: '#d8c87a',
+    desc: 'ニンニクを食べて、頭にニンニクの花がさいたはなかっぱ。体がムキムキの筋肉になって、力がとても強くなる。プロテインも大すき。',
+    mods: { hp: 1.55, mp: 0.85, str: 1.7, def: 1.35, agi: 1.15, mag: 0.7, heal: 0.9 },
+    weapons: ['claw', 'axe', 'none'], shield: false, armor: ['cloth', 'gi', 'heavy'], helm: false,
+    perLv: { str: 1, hp: 1 },
+    learn: [[1, 'kn_ninniku'], [2, 'kn_punch'], [3, 'kn_pose'], [5, 'kn_protein'], [7, 'kn_tackle'], [10, 'kinniku_kappa_sig']],
+  },
+
+  // 忍者 → 木の葉の忍び（超級職）→ 七代目火影（伝説の職業）
+  konoha: {
+    id: 'konoha', name: '木の葉の忍び', kana: 'このはのしのび', short: '木の葉', tier: 2, req: ['ninja'], family: 'tech', color: '#e8803a',
+    desc: '木の葉の里の忍び。あきらめないど根性で、影分身とらせん丸をあやつる。夢は、里でいちばんの忍びになること。',
+    mods: { hp: 1.35, mp: 1.15, str: 1.45, def: 1.05, agi: 1.65, mag: 1.2, heal: 0.85 },
+    weapons: ['dagger', 'claw', 'boomerang', 'none'], shield: false, armor: ['cloth', 'gi'], helm: true,
+    perLv: { agi: 1, str: 0.5 },
+    learn: [[1, 'kh_kunai'], [2, 'kh_bunshin'], [3, 'konoha_sig'], [5, 'kh_sennin'], [7, 'kh_senpuu'], [10, 'kh_shuriken']],
+  },
+  hokage: {
+    id: 'hokage', name: '七代目火影', kana: 'ななだいめほかげ', short: '火影', tier: 3, req: ['konoha'], reqSuper: 1, family: 'tech', color: '#f0a040',
+    desc: '木の葉の里の長、七代目火影。木の葉の忍びと、ほかの超級職を1つきわめた者だけがなれる。何百もの影分身と、体の中のきつねの力で、里のみんなを守る。',
+    mods: { hp: 1.65, mp: 1.35, str: 1.6, def: 1.35, agi: 1.65, mag: 1.35, heal: 1.05 },
+    weapons: ['dagger', 'claw', 'boomerang', 'none'], shield: false, armor: ['cloth', 'gi', 'robe'], helm: true,
+    perLv: { hp: 1.5, agi: 1, str: 0.5 },
+    learn: [[1, 'hg_oodama'], [3, 'hg_kitsune'], [5, 'hg_mamori'], [7, 'hg_bijuu'], [8, 'hg_ishi'], [10, 'hokage_sig']],
+  },
 };
 
 // はじめに えらべる 職業（基本職）
 export const JOB_ORDER = ['warrior', 'monk', 'priest', 'mage', 'performer', 'jester', 'salaryman', 'idol', 'railman', 'ballplayer',
-  'schoolkid', 'civil_local', 'cook', 'parttimer', 'neet', 'saiyan', 'youtuber', 'gamer', 'okan'];
+  'schoolkid', 'civil_local', 'cook', 'parttimer', 'neet', 'saiyan', 'youtuber', 'gamer', 'okan',
+  'spy', 'shonen_tantei', 'neko_robot', 'kappa'];
 export const ADVANCED_ORDER = ['battlemaster', 'paladin', 'magic_knight', 'pirate', 'holyfist', 'ninja', 'tamer', 'sage', 'superstar', 'fortune',
   'samurai', 'bucho', 'major_leaguer', 'middleschooler', 'civil_national', 'police', 'firefighter', 'train_driver',
-  'patissier', 'seishain', 'comedian', 'chuuni', 'super_saiyan', 'setsubiya', 'streamer', 'pro_gamer', 'saikyo_okan', 'shachiku'];
+  'patissier', 'seishain', 'comedian', 'chuuni', 'super_saiyan', 'setsubiya', 'streamer', 'pro_gamer', 'saikyo_okan', 'shachiku',
+  'rakuten_cardman', 'kisatsu', 'assassin', 'esper', 'oshiri_tantei', 'meitantei', 'creator', 'mimi_robot', 'hanakappa'];
 export const SUPER_ORDER = ['dragon_knight', 'archmage', 'high_priest', 'god_hand', 'summoner', 'magic_swordsman', 'guardian', 'hero', 'monster_master', 'star_diva',
   'sword_master', 'shogun', 'shacho', 'nitoryu', 'highschooler', 'career', 'fruit_idol', 'storm_idol', 'keikyu_driver',
-  'star_chef', 'tatakiage', 'm1_champion', 'daikenja', 'datenshi', 'ss2', 'ryonetsu', 'rubber', 'black_star'];
+  'star_chef', 'tatakiage', 'm1_champion', 'daikenja', 'datenshi', 'ss2', 'ryonetsu', 'rubber', 'black_star',
+  'enbashira', 'black_org', 'doraemon', 'kinniku_kappa', 'konoha'];
 // 伝説の 職業（超級職の 先）
-export const LEGEND_ORDER = ['loto_hero', 'ss3', 'nika', 'maou', 'facility_genius', 'hakaishin'];
+export const LEGEND_ORDER = ['loto_hero', 'ss3', 'nika', 'maou', 'facility_genius', 'hakaishin', 'hinokami', 'hokage'];
 export const ALL_JOBS = [...JOB_ORDER, ...ADVANCED_ORDER, ...SUPER_ORDER, ...LEGEND_ORDER];
 export const TIER_NAMES = ['基本職', '上級職', '超級職', '伝説の職業'];
 // 神殿で ならべる じゅん（ランクごと）
@@ -927,4 +1112,11 @@ export const JOB_HINTS = {
   black_star: '社ちくをきわめた者は、休みの日も会社にいる、伝説の社員になれるらしい…',
   facility_genius: 'ryonetsuと、ほかの超級職を1つきわめた者は、建物のすべてを見守る天才になれるらしい…',
   hakaishin: '魔王とゴッドハンドをきわめた者は、すべてをはかいする神になれるらしい…',
+  enbashira: 'きさつ隊をきわめた剣士は、炎のように燃える柱になれるらしい…',
+  hinokami: '炎柱と、ほかの超級職を1つきわめた者は、すべての呼吸のはじまりを受けつげるらしい…',
+  black_org: '殺し屋をきわめた者には、黒いコートのなぞの組織から、さそいが来るらしい…',
+  doraemon: '耳無しネコ型ロボットをきわめると、22世紀からやって来た、あのロボットになれるらしい…',
+  kinniku_kappa: 'はなかっぱをきわめて、ニンニクを食べると、筋肉がムキムキになるらしい…',
+  konoha: '忍者をきわめた者は、木の葉の里の忍びになれるらしい…',
+  hokage: '木の葉の忍びと、ほかの超級職を1つきわめた者は、里の長になれるらしい…',
 };
