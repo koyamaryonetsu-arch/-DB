@@ -1,16 +1,16 @@
 // マップの ぜんたい（フィールド・どうくつ）と、そこに いる 人や たからばこ
-import { T, parseRows, TILE_INFO } from '../tiles.js?v=2d30a5044288';
-import { makeRng, hash2 } from '../rng.js?v=2d30a5044288';
-import { buildOverworld, PLACES, zoneAt, areaName, OW_W, OW_H, CAVE_ENTRANCE, FOREST_CLEARING, LAKE, SWAMP } from './overworld.js?v=2d30a5044288';
-import { CAVE_B1_ROWS, CAVE_B2_ROWS } from './cave-rows.js?v=2d30a5044288';
-import { npc } from './npc.js?v=2d30a5044288';
-import { buildCh2Maps, SEA_PLACES } from './ch2.js?v=2d30a5044288';
-import { buildTreasureFloor } from './treasure-cave.js?v=2d30a5044288';
-import { buildSecretFloor, buildSecretMaps, SD_DOOR_NPCS, SD_DOOR_TRIGGERS, SD_DOOR_SIGNS } from './secret-dungeon.js?v=2d30a5044288';
-import { addNightNpcs } from './night-npcs.js?v=2d30a5044288';
-import { attachCasino } from './casino.js?v=2d30a5044288';
-import { buildCh3Maps, ch3SearchMats, NORTH_SPARKLE_LOOT } from './ch3.js?v=2d30a5044288';
-import { buildCh4Maps, ch4SearchMats, SOUTH_SPARKLE_LOOT } from './ch4.js?v=2d30a5044288';
+import { T, parseRows, TILE_INFO } from '../tiles.js?v=b13027e590f9';
+import { makeRng, hash2 } from '../rng.js?v=b13027e590f9';
+import { buildOverworld, PLACES, zoneAt, areaName, OW_W, OW_H, CAVE_ENTRANCE, FOREST_CLEARING, LAKE, SWAMP } from './overworld.js?v=b13027e590f9';
+import { CAVE_B1_ROWS, CAVE_B2_ROWS } from './cave-rows.js?v=b13027e590f9';
+import { npc } from './npc.js?v=b13027e590f9';
+import { buildCh2Maps, SEA_PLACES } from './ch2.js?v=b13027e590f9';
+import { buildTreasureFloor } from './treasure-cave.js?v=b13027e590f9';
+import { buildSecretFloor, buildSecretMaps, SD_DOOR_NPCS, SD_DOOR_TRIGGERS, SD_DOOR_SIGNS } from './secret-dungeon.js?v=b13027e590f9';
+import { addNightNpcs } from './night-npcs.js?v=b13027e590f9';
+import { attachCasino } from './casino.js?v=b13027e590f9';
+import { buildCh3Maps, ch3SearchMats, NORTH_SPARKLE_LOOT } from './ch3.js?v=b13027e590f9';
+import { buildCh4Maps, ch4SearchMats, SOUTH_SPARKLE_LOOT } from './ch4.js?v=b13027e590f9';
 
 const V = (x, y) => [PLACES.village.x + x, PLACES.village.y + y];
 const TW = (x, y) => [PLACES.town.x + x, PLACES.town.y + y];

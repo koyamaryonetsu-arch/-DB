@@ -3,7 +3,7 @@
 // ・sd_door_closed … ルミナの町に 着く 前（石の とびらで ふさがっている。星の しるし）
 // ・sd_board       … 家族の記録の板（木の 板に 金の メダルと 記録の 行）
 // ・sd_chest       … 休み所の ごほうびの 宝箱（むらさきに 金の ふち。きらきら）
-import { Painter } from './pixel.js?v=2d30a5044288';
+import { Painter } from './pixel.js?v=b13027e590f9';
 
 const ST = '#8a84a0', STL = '#b4aec8', STD = '#5e5874', STDD = '#3e3a52';
 const VI = '#7a4ac8', VIL = '#c8a0ff', VIH = '#f4e8ff', DK = '#140c22', DK2 = '#24183a';

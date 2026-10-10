@@ -1,8 +1,10 @@
 // ふく・よろい（そうびの よろいと しょくぎょうで きまる）
 // outfitOf(みため, しょくぎょう, よろいの ID, おんな？) → かく ための せってい
 // 知らない よろい（これからの もの）は、種類（armorType）・ランク・名前の ことば から きめる
-import { mat, ramp, TH, mixC, HeroCanvas } from './hero-raster.js?v=2d30a5044288';
-import { ITEMS } from '../../shared/data/items.js?v=2d30a5044288';
+import { mat, ramp, TH, mixC, HeroCanvas } from './hero-raster.js?v=b13027e590f9';
+import { ITEMS } from '../../shared/data/items.js?v=b13027e590f9';
+// 第26回の 新しい 職業（楽天カードマン・きさつ隊・ネコ型ロボット・カッパ・火影 など）の 服と からだ
+import { R26_OUTFIT, R26_BODY, outfit26, body26, capeFlame, robotTail } from './hero-r26.js?v=b13027e590f9';
 
 // ───────────── ざいしつ ─────────────
 const METALS = {
@@ -184,6 +186,7 @@ const JOB_OUTFIT = {
   // はかい神（金の ふちの くろい エジプトの 服・はばの ひろい 金の えり・金の うでわ・だぼっと した ズボン）
   hakaishin: { kind: 'hakai', main: '#1e1a32', pants: '#2c2644', flap: '#9a1e34' },
 };
+Object.assign(JOB_OUTFIT, R26_OUTFIT);
 // 職業の 服と おなじ よろい（きても 職業の ぼうしが のこる。最強のおかんの ヒョウがらの服）
 const OWN_ARMOR = { saikyo_okan: 'leopard_shirt' };
 export const ownArmor = (job, armorId) => !!armorId && OWN_ARMOR[job] === armorId;
@@ -213,6 +216,7 @@ const JOB_BODY = {
   facility_genius: { aura: 'circuit', holo: true },
   hakaishin: { iris: '#d8a020', aura: 'hakai', spark: 'ember' },
 };
+Object.assign(JOB_BODY, R26_BODY);
 export const jobBody = (job) => JOB_BODY[job] || null;
 
 // よろいの みため（ID ごと）
@@ -827,8 +831,11 @@ export function outfitOf(Lk, job, armorId, fem) {
       break;
     }
     default:
-      O.torso = { kind: 'tunic', hem: 31.4, flare: 0.4, collar: cloth('#efe4cc') };
+      // 第26回の 新しい 服の しゅるい（hero-r26.js）
+      if (!outfit26(O, S, Lk, fem, main, 'kind')) O.torso = { kind: 'tunic', hem: 31.4, flare: 0.4, collar: cloth('#efe4cc') };
   }
+  // 羽織・こしの 刀・きゃはん・エプロン など（第26回の 職業の 服）
+  outfit26(O, S, Lk, fem, main, 'more');
   // 小学生は いつも ランドセル（よろいを かえても せおっている）
   if (job === 'schoolkid') {
     const pc = PACK_COLORS[fem ? 1 : 0];
@@ -840,6 +847,7 @@ export function outfitOf(Lk, job, armorId, fem) {
     O.body = JB;
     if (JB.tail) O.tail = { m: mat({ r: ['#3e2414', '#6a4024', '#98633a', '#c08c5c'], th: TH.hair.slice(0, 3) }) };
     if (JB.wings) O.wings = { m: mat({ r: ['#08060e', '#16121e', '#2a2236', '#463a5c', '#7a6a9a'], th: TH.hair, spec: 0.965, sc: '#8a7ab0' }) };
+    body26(O, JB);
   }
   // ★の 品・強化した 品は きらめく
   O.sparkle = !!S.star || (S.plus || 0) > 0;
@@ -2924,6 +2932,8 @@ function wing(cv, T, m, sw) {
 
 // サイヤ人の 茶色い しっぽ（ふさふさ。あるくと すこし ゆれる）
 export function drawTail(cv, P, O, where) {
+  // ネコ型ロボットの みじかい しっぽ（さきに 赤い たま）
+  if (O.tail.short) return robotTail(cv, P, O.tail, where);
   const m = O.tail.m;
   const sw = P.f === 0 ? 0 : 0.5;
   let ctrl;
@@ -3074,12 +3084,14 @@ export function drawCape(cv, P, O, where) {
     // まえむき: からだの うしろに ひろがる（はしと すそ だけ 見える）
     cv.part({ ol: 'line' });
     cv.poly([[16 - 5.4, 21.0], [16 + 5.4, 21.0], [16 + 7.4, len - 3], [16 + 7.0 + sw * 0.3, len], [16 - 7.0 + sw * 0.3, len], [16 - 7.4, len - 3]], C.inner, { cx: 0.7 });
+    capeFlame(cv, P, C, where, cv.cur, len, sw);
   } else if (where === 'back') {
     cv.part({ ol: 'line' });
     cv.poly([[16 - 5.6, 20.8], [16 + 5.6, 20.8], [16 + 7.0, len - 3], [16 + 6.6 + sw * 0.4, len], [16 + 2.0, len + 0.4], [16 - 2.0, len + 0.4], [16 - 6.6 + sw * 0.4, len], [16 - 7.0, len - 3]], C.m, { cx: 0.8, cy: 0.2 });
     const id = cv.cur;
     for (const x of [-3.4, 0, 3.4]) cv.crease([[16 + x * 0.6, 23.0], [16 + x + sw * 0.3, len - 0.4]], 0.28, -0.42, { parts: [id] });
     cv.crease([[16 - 5.2, 21.4], [16 + 5.2, 21.4]], 0.3, 0.3, { parts: [id] });
+    capeFlame(cv, P, C, where, id, len, sw);
   } else {
     const X = P.X, b = P.bob;
     cv.part({ ol: 'line' });
@@ -3087,5 +3099,6 @@ export function drawCape(cv, P, O, where) {
     cv.poly([[X(1.0), 20.8 + b], [X(-2.8), 21.0 + b], [X(-5.4 - flow), len - 4], [X(-6.4 - flow * 1.4), len - 0.6], [X(-3.0 - flow), len], [X(-1.4), len - 2]], C.m, { cx: 0.8, cy: 0.2 });
     const id = cv.cur;
     cv.crease([[X(-2.6), 23.0 + b], [X(-4.4 - flow), len - 1]], 0.26, -0.45, { parts: [id] });
+    capeFlame(cv, P, C, where, id, len, sw);
   }
 }

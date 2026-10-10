@@ -2,11 +2,12 @@
 // みため（かみがた・いろ）と そうび（ぶき・よろい・たて・かぶと）で かわる
 // 人は 32×42 で くみたてて、2ばいの 64×84 に して こまかく かきたす（res 4: せかいでは 16×21 の 大きさに かく）
 // どうぶつ・船は 16×21 など
-import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=2d30a5044288';
-import { ITEMS, baseItemId } from '../../shared/data/items.js?v=2d30a5044288';
-import { STARTER_EQUIP } from '../../shared/stats.js?v=2d30a5044288';
-import { paintMiraPrison, paintWaterStar } from './temple-chars.js?v=2d30a5044288';
-import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js?v=2d30a5044288';
+import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=b13027e590f9';
+import { ITEMS, baseItemId } from '../../shared/data/items.js?v=b13027e590f9';
+import { STARTER_EQUIP } from '../../shared/stats.js?v=b13027e590f9';
+import { paintMiraPrison, paintWaterStar } from './temple-chars.js?v=b13027e590f9';
+import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js?v=b13027e590f9';
+import { R26_OLD_LOOK } from './hero-r26.js?v=b13027e590f9';
 
 export const CW = 16;
 export const CH = 21;
@@ -102,6 +103,9 @@ const JOB_LOOK = {
   facility_genius: { outfit: 'uniform', cloth: '#eef2f6', hat: 'miner', hatColor: '#f8f8f6' },
   hakaishin: { outfit: 'gi', cloth: '#1e1a32', giTrim: '#d8a020', hat: 'crown' },
 };
+
+// 第26回の 職業（いまの えは render/hero.js と hero-r26.js）
+Object.assign(JOB_LOOK, R26_OLD_LOOK);
 
 // よろい・ふくの みため（'cloth' は じぶんで えらんだ いろ）
 const ARMOR_LOOK = {

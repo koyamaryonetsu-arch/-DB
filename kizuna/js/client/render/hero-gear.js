@@ -1,7 +1,8 @@
 // ぶき・たて・かぶと（そうびの ID から みためを きめて かく）
 // 知らない 品（これからの もの）は、種類・ランク・名前の ことば から きめる
-import { mat, ramp, TH, mixC, mixI, hex, HeroCanvas } from './hero-raster.js?v=2d30a5044288';
-import { metal, metalRamp, cloth, leather, gem, glow, neon, metalOfName, baseItem, fruitIcon, ownArmor } from './hero-outfit.js?v=2d30a5044288';
+import { mat, ramp, TH, mixC, mixI, hex, HeroCanvas } from './hero-raster.js?v=b13027e590f9';
+import { metal, metalRamp, cloth, leather, gem, glow, neon, metalOfName, baseItem, fruitIcon, ownArmor } from './hero-outfit.js?v=b13027e590f9';
+import { R26_HAT, R26_BODY_HAT, drawHat26 } from './hero-r26.js?v=b13027e590f9';
 
 const D = Math.PI / 180;
 
@@ -1334,6 +1335,8 @@ const JOB_HAT = {
   // はかい神（金の わに とがった ネコの みみ・赤い 宝石）
   hakaishin: { kind: 'catcrown' },
 };
+// 第26回の 職業の ぼうし（黒の組織の ぼうし・ひたいあて など）と、からだの いちぶの ぼうし（ネコ型ロボットの フード・カッパの おさら・花）
+Object.assign(JOB_HAT, R26_HAT);
 function guessHead(it) {
   const name = it.name || '';
   const rank = it.rank || 2;
@@ -1357,6 +1360,7 @@ export function headOf(headId, job, armorId, O) {
     // 職業の 服と おなじ よろい（最強のおかんの ヒョウがらの服）でも 職業の ぼうし
     if ((!armorId || (ab && (ab.id === 'cloth' || ownArmor(job, ab.id)))) && JOB_HAT[job]) H = { ...JOB_HAT[job] };
     else if (ab && (ab.id === 'martial_gi' || ab.id === 'dragon_gi' || ab.id === 'wave_gi')) H = { kind: 'headband', c: ab.id === 'dragon_gi' ? '#f2c14e' : '#d9534f' };
+    if (!H && R26_BODY_HAT[job]) H = { ...R26_BODY_HAT[job] };
   }
   if (!H) return null;
   if (H.c === 'cloth') H.c = O?.spec?.main && O.spec.main !== 'cloth' ? O.spec.main : null;
@@ -1377,6 +1381,7 @@ function arcP(cx, cy, rx, ry, a0, a1, n = 12) {
 }
 
 export function drawHeadgear(cv, P, H, G, view) {
+  if (drawHat26(cv, P, H, G, view)) return;
   const k = cv.k;
   const side = view === 'side', back = view === 'back';
   const col = (c, d = '#8a6a4a') => c || G.clothC || d;

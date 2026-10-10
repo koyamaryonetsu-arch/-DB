@@ -6,7 +6,7 @@
 //   back(…)   … うしろむき（からだの うえに かぶさる）
 //   side(…), sideBehind(…) … よこむき
 // hat: ぼうし・かぶとの とき（'top': あたまの うえの ボリュームを かかない / 'band': はちまき など）
-import { HeroCanvas } from './hero-raster.js?v=2d30a5044288';
+import { HeroCanvas } from './hero-raster.js?v=b13027e590f9';
 
 // ───────────── べんりな かんすう ─────────────
 const rad = (d) => (d * Math.PI) / 180;
@@ -861,6 +861,8 @@ STYLES.perm = {
 // layer: 'behind'（からだの うしろ） / 'head'（あたまの うえ）
 // view: 'front' | 'back' | 'side'
 export function drawHair(cv, H, layer, view, style, m, o = {}) {
+  // かみ なし（おしり探てい・はなかっぱ。ぼうしで ぜんぶ かくれる とき）
+  if (style === 'none') return;
   const S = STYLES[style] || STYLES.short;
   if (view === 'front') {
     if (layer === 'behind') { if (S.behind) S.behind(cv, H, m, o); return; }

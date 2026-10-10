@@ -1,12 +1,12 @@
 // たたかいの AI（モンスター と サポートなかま）
-import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=2d30a5044288';
-import { mpCost, penaltyFor, weaponOk, comboAllowed } from './stats.js?v=2d30a5044288';
+import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=b13027e590f9';
+import { mpCost, penaltyFor, weaponOk, comboAllowed } from './stats.js?v=b13027e590f9';
 // 第4章の まぼろしの分身と 月の鏡（battle-ch4.js）
-import { mirageAction, mirrorPlan } from './battle-ch4.js?v=2d30a5044288';
+import { mirageAction, mirrorPlan } from './battle-ch4.js?v=b13027e590f9';
 // 第4章 Step 6 の 砂に もぐる 魔物（battle-ch4.js）
-import { burrowSurface, burrowPlan } from './battle-ch4.js?v=2d30a5044288';
+import { burrowSurface, burrowPlan } from './battle-ch4.js?v=b13027e590f9';
 // 第4章 Step 7 の 砂の底の神殿と モルガナ（battle-temple.js）
-import { templeAction, templeCond, templePlan, templeAdjust, bondOk, waveIgnored } from './battle-temple.js?v=2d30a5044288';
+import { templeAction, templeCond, templePlan, templeAdjust, bondOk, waveIgnored } from './battle-temple.js?v=b13027e590f9';
 
 // さくせん
 export const TACTICS = {
