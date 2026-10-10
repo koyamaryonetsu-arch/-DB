@@ -724,6 +724,11 @@ function applyFieldEffect(world, user, target, eff, powMult = 1) {
       const names = { str: '力', def: '身の守り', agi: '素早さ', mag: '攻撃魔力', hp: '最大HP' };
       return { ok: true, text: `${target.name}の${names[eff.stat]}が${n}上がった！` };
     }
+    case 'multi': {
+      // いくつかの 効き目（回復と 治す など）: 1つでも 効けば 使えた ことに する
+      const rs = (eff.parts || []).map((p) => applyFieldEffect(world, user, target, p, powMult)).filter((r) => r.ok);
+      return rs.length ? { ok: true, text: rs.map((r) => r.text).join('\n') } : { ok: false, text: target.hp <= 0 ? `${target.name}は死んでいる…` : `${target.name}は元気だ` };
+    }
     default:
       return { ok: false, text: '今は使えない' };
   }

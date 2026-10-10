@@ -1350,11 +1350,15 @@ function guessHead(it) {
   return { kind: 'cap', c: rank >= 4 ? '#5a4a8a' : '#9a6a3a', hides: 'top' };
 }
 
+const FACE_HEADS = new Set(['spy_glasses', 'kappa_sara']);
+
 export function headOf(headId, job, armorId, O) {
   const b = baseItem(headId);
   let H = null;
-  if (b && b.it.type === 'head') H = { rank: b.it.rank || 1, star: !!b.it.star, ...(HEAD_LOOK[b.id] || guessHead(b.it)) };
-  else if (!headId) {
+  // サングラス・カッパのお皿は 顔や 頭の 一部として 職業の 絵に かいて あるので、ぼうしは かぶらない ことに する
+  const bare = b && FACE_HEADS.has(b.id);
+  if (b && b.it.type === 'head' && !bare) H = { rank: b.it.rank || 1, star: !!b.it.star, ...(HEAD_LOOK[b.id] || guessHead(b.it)) };
+  else if (!headId || bare) {
     // 布の服（よろい なし も）の ときは しょくぎょうの ぼうし（武道着の 人は はちまき）
     const ab = baseItem(armorId);
     // 職業の 服と おなじ よろい（最強のおかんの ヒョウがらの服）でも 職業の ぼうし

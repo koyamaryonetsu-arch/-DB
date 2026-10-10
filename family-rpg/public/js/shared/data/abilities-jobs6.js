@@ -395,7 +395,7 @@ export const JOB6_ABILITIES = {
     desc: '品物でいっぱいの買い物かごを、敵1体にぶつける。', cast: '{a}は買い物かごをふり回した！', anim: 'tackle',
   },
   ct_kusuri: {
-    name: 'お薬出しておきますね', kana: 'おくすりだしておきますね', kind: 'skill', job: 'creator', mp: 5, target: 'ally', role: 'heal',
+    name: 'お薬出しておきますね', kana: 'おくすりだしておきますね', kind: 'skill', job: 'creator', mp: 5, target: 'ally', role: 'heal', field: true,
     effect: { type: 'multi', parts: [{ type: 'heal', base: [62, 78], thr: 30 }, { type: 'cure', statuses: STATUS_ALL }] },
     desc: '仲間1人にぴったりのお薬をわたす。HPを回復して、悪いじょうたいも治す。', cast: '{a}「{t}さん、お薬出しておきますね」', anim: 'heal1',
   },
@@ -415,7 +415,7 @@ export const JOB6_ABILITIES = {
     desc: 'みんなに合ったお薬を、ちゃんと処方。仲間全員のHPが、しばらく少しずつ回復する。', cast: '{a}は処方せんを、ていねいに読んだ！', anim: 'heal_ring',
   },
   creator_sig: {
-    name: '本日の大安売り', kana: 'ほんじつのおおやすうり', kind: 'skill', job: 'creator', mp: 16, target: 'allies', role: 'heal',
+    name: '本日の大安売り', kana: 'ほんじつのおおやすうり', kind: 'skill', job: 'creator', mp: 16, target: 'allies', role: 'heal', field: true,
     effect: { type: 'multi', parts: [{ type: 'heal', base: [75, 95], thr: 45 }, { type: 'mpHeal', base: [4, 7] }] },
     desc: '店じゅうの品物を大安売り！仲間全員のHPを回復して、MPも少し回復する。', cast: '{a}「本日、全品大安売りでーす！」', anim: 'creator_sig',
   },
@@ -484,7 +484,7 @@ export const JOB6_ABILITIES = {
     desc: 'どら焼きを10こ食べる。自分のHPとMPが回復する。', cast: '{a}はどら焼きをつぎつぎに食べた！もぐもぐもぐ！', anim: 'heal2',
   },
   mr_shuuri: {
-    name: 'ロボット修理', kana: 'ろぼっとしゅうり', kind: 'skill', job: 'mimi_robot', mp: 7, target: 'ally', role: 'heal',
+    name: 'ロボット修理', kana: 'ろぼっとしゅうり', kind: 'skill', job: 'mimi_robot', mp: 7, target: 'ally', role: 'heal', field: true,
     effect: { type: 'multi', parts: [{ type: 'heal', base: [75, 95], thr: 35 }, { type: 'cure', statuses: STATUS_ALL }] },
     desc: '未来の工具で、仲間1人をすっかり直す。HPを回復して、悪いじょうたいも治す。', cast: '{a}は、未来の工具をカチャカチャと動かした！', anim: 'heal1',
   },
