@@ -5,6 +5,7 @@ import { nightBg, drawNightSky } from './night-art.js';
 import { playJobFx, JOB_FINE } from './battlefx-jobs.js';
 import { playJob2Fx, JOB2_FINE } from './battlefx-jobs2.js';
 import { playJob3Fx, JOB3_FINE } from './battlefx-jobs3.js';
+import { playJob4Fx, JOB4_FINE } from './battlefx-jobs4.js';
 import { drawPalaceHall, drawPalaceFloor } from './ch4-palace-bg.js';
 // 第4章 Step 6: 砂の古城・砂の海（すなかぜ号の かんぱん）・砂クジラの ねどこ（ch4-duna-bg.js）
 import { drawCastleHall, drawCastleFloor, drawSandSea } from './ch4-duna-bg.js';
@@ -1148,7 +1149,7 @@ const FINE = {
 };
 
 // 学校・公務員・アイドルの 職業の つぶ（battlefx-jobs.js）・サイヤ人・ゴム人間・配信者 などの つぶ（battlefx-jobs2.js）
-Object.assign(FINE, JOB_FINE, JOB2_FINE, JOB3_FINE);
+Object.assign(FINE, JOB_FINE, JOB2_FINE, JOB3_FINE, JOB4_FINE);
 
 export class Effects {
   constructor() {
@@ -1416,6 +1417,8 @@ export class Effects {
     if (playJob2Fx(this, anim, targets, element, opts, BW, BH)) return;
     // おかん・社ちく・ブラックきぎょうの星・天才しせつ管理者・はかい神 の 技（battlefx-jobs3.js）
     if (playJob3Fx(this, anim, targets, element, opts, BW, BH)) return;
+    // 第26回の 職業の 看板の技（battlefx-jobs4.js）
+    if (playJob4Fx(this, anim, targets, element, opts, BW, BH)) return;
     // 第4章の ボスの 技・月の鏡（battlefx-ch4.js）
     if (playCh4Fx(this, anim, targets, element, opts, BW, BH)) return;
     const crit = !!opts.crit;

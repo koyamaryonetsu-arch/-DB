@@ -1416,6 +1416,8 @@ npm start                 # 家族サーバー
 - おかん・最強のおかん・社ちく・ブラックきぎょうの星・天才しせつ管理者・はかい神の技は `data/abilities-jobs5.js`（第22回）
   - 技のエフェクトは `client/render/battlefx-jobs3.js`（自分や味方にかける技は `PARTY_ANIMS3`、音は `JOB3_SFX`）。服やかみは `hero-outfit.js`・`hero-hair.js`・`hero-aura.js`、スリッパとヒョウがらの服は `hero-gear.js`・`weaponfx.js`
   - 新しい効き目は `shared/battle.js`：`gritMult`（HPが少ないほど強い。職業の `passive.grit`）・`foreseeCut`（大技の予兆。`passive.foresee`。大技は `ai.js` の `decideMonster` が `big` をつける）・`overtime`・`destroy`・`scan`（`effect.type`）
+- 第26回の職業20こ（楽天カードマン〜七代目火影）の絵は `client/render/hero-r26.js`（服 `R26_OUTFIT`・からだ `R26_BODY`（カッパの緑のはだ・もちもの など）・ぼうし `R26_HAT`／よろいでも残る `R26_BODY_HAT`。羽織・こうら・ロボットのおなかは `drawR26`）。`JOBS` にない id でもかける
+  - 看板の技（id `<職業のid>_sig`）のエフェクトは `client/render/battlefx-jobs4.js`（`battle.js` が技の id で `sigAnim` をえらぶので、データの `anim` はなくてもよい。みかたに使うと画面の下に出る）。新しい音は `client/sfx-r26.js`（`audio.js` の `sfx()` が知らない名前の時に見る）。テストは `test/hero-art-r26.test.js`
 - 字は `public/css/fonts.css`（丸ゴシックを文字のまとまりごとに分けたファイル。画面に出た文字の分だけ読みこむ）。`body.dot-font` でドットの字になります
 - 昼と夜・空の旅
   - `shared/world/clock.js` … 時計（1日 `DAY_MS`＝20分。`char.timeShift` が キャラの時間のずれ。パーティーは リーダーの時計＝`clockOwner`。宿屋・すずで `advanceClock`）。クライアントは `serverTime` と パーティーの `clockShift` で同じ時間を出す（`client/sky.js`）

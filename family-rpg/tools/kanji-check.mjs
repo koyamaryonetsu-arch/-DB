@@ -223,6 +223,8 @@ export function gameFiles() {
     // ひみつのダンジョン（終わりの ない ダンジョン・家族の記録の板）
     'public/js/shared/data/secret.js', 'public/js/shared/data/story-secret.js', 'public/js/shared/maps/secret-dungeon.js',
     'public/js/shared/world/secret.js', 'public/js/client/ui/secret.js', 'public/js/client/render/secret-art.js',
+    // 第26回の 職業の 看板の技の エフェクト（「プゥ〜」などの ドットの もじ）
+    'public/js/client/render/battlefx-jobs4.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

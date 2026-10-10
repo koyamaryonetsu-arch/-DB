@@ -861,6 +861,8 @@ STYLES.perm = {
 // layer: 'behind'（からだの うしろ） / 'head'（あたまの うえ）
 // view: 'front' | 'back' | 'side'
 export function drawHair(cv, H, layer, view, style, m, o = {}) {
+  // かみ なし（おしり探てい・はなかっぱ。ぼうしで ぜんぶ かくれる とき）
+  if (style === 'none') return;
   const S = STYLES[style] || STYLES.short;
   if (view === 'front') {
     if (layer === 'behind') { if (S.behind) S.behind(cv, H, m, o); return; }

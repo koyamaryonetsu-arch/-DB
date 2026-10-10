@@ -5,8 +5,10 @@
 import { HeroCanvas, mat, ramp, TH, mixC, rgbaCanvas } from './hero-raster.js';
 import { faceFront, faceSide, faceMarks, faceOver } from './hero-face.js';
 import { drawHair } from './hero-hair.js';
-import { outfitOf, drawTorsoFront, drawTorsoBack, drawTorsoSide, drawSkirt, drawCape, drawPauldron, drawBelt, drawNeckwear, drawPack, drawApron, drawWings, drawTail, drawCollar } from './hero-outfit.js';
+import { outfitOf, jobBody, drawTorsoFront, drawTorsoBack, drawTorsoSide, drawSkirt, drawCape, drawPauldron, drawBelt, drawNeckwear, drawPack, drawApron, drawWings, drawTail, drawCollar } from './hero-outfit.js';
 import { drawAura } from './hero-aura.js';
+// 第26回の 職業（羽織・こうら・ネコ型ロボットの おなか・もちもの・かおの しるし）
+import { R26_HAIR, R26_SKIN, drawR26, face26, drawProp26 } from './hero-r26.js';
 import { weaponOf, shieldOf, headOf, drawWeapon, drawShield, drawHeadgear, isLongSide } from './hero-gear.js';
 import { lookIds, HCOL_BY_ID, TONE_BY_ID, CLOTH_COLORS } from '../../shared/data/looks.js';
 import { STARTER_EQUIP } from '../../shared/stats.js';
@@ -238,7 +240,9 @@ function bootShape(cv, L, P, O) {
 
 function armShape(cv, A, P, O, { hand = true, sleeveOnly = false } = {}) {
   const fem = P.fem;
-  const r0 = fem ? 1.5 : 1.7, r1 = fem ? 1.32 : 1.5, r2 = fem ? 1.15 : 1.3;
+  // armW: きんにくの ふとい うで（筋肉ニンニク）
+  const aw = O.armW || 1;
+  const r0 = (fem ? 1.5 : 1.7) * aw, r1 = (fem ? 1.32 : 1.5) * aw, r2 = (fem ? 1.15 : 1.3) * (1 + (aw - 1) * 0.6);
   const S = O.sleeve;
   const wide = S.wide || 1;
   const sid = cv.cur;
@@ -291,7 +295,7 @@ function armShape(cv, A, P, O, { hand = true, sleeveOnly = false } = {}) {
 
 function handShape(cv, A, P, O) {
   cv.part({ ol: 'soft' });
-  const r = P.fem ? 1.22 : 1.38;
+  const r = (P.fem ? 1.22 : 1.38) * (1 + ((O.armW || 1) - 1) * 0.4);
   cv.ell(A.hand[0], A.hand[1], r, r * 1.05, O.glove || O.skin, { bulge: 0.85 });
   if (O.fingerless) {
     // ゆびの ない 手ぶくろ（ゆびさきは はだ）
@@ -367,6 +371,7 @@ const JOB_HAIR_RAMP = {
   // 最強のおかんの むらさきに そめた パーマ
   obapurple: ['#2e1638', '#5a2c6c', '#8a52a0', '#b886cc', '#e4c8f0'],
 };
+Object.assign(JOB_HAIR_RAMP, R26_HAIR);
 const jobHairMemo = new Map();
 function jobHair(id) {
   let v = jobHairMemo.get(id);
@@ -409,10 +414,24 @@ function makeLooks(L) {
   };
 }
 
+// 職業で かわる はだの いろ（カッパの 緑）。かおの いろも あわせる
+const skinMemo = new Map();
+function jobSkin(Lk, id) {
+  const key = `${id}|${Lk.skinBase}`;
+  let v = skinMemo.get(key);
+  if (!v) {
+    const r = R26_SKIN[id];
+    v = { skinR: r, skin: mat({ r, th: TH.skin, ln: mixC(r[0], '#10220e', 0.45) }), skinBase: r[2], skinD: r[1] };
+    skinMemo.set(key, v);
+  }
+  return { ...Lk, ...v };
+}
+
 // ───────────── くみたて ─────────────
 export function paintHero(look, job, equip, dir, f, res = 4) {
   const cv = new HeroCanvas(res);
-  const Lk = looksOf(look);
+  const JB0 = jobBody(job);
+  const Lk = JB0?.skin && R26_SKIN[JB0.skin] ? jobSkin(looksOf(look), JB0.skin) : looksOf(look);
   const fem = Lk.body === 1;
   const P = pose(dir, f, fem);
   const eq = parseEquip(equip, job);
@@ -431,7 +450,8 @@ export function paintHero(look, job, equip, dir, f, res = 4) {
   // 職業の からだの とくちょう（スーパーサイヤ人・ニカの かみ・目の いろ・まゆ・わらい顔・眼帯・きず）
   const B = O.body || null;
   const JH = B?.hcol ? jobHair(B.hcol) : null;
-  const hairStyle = B?.hair || Lk.style;
+  // かみを ぜんぶ かくす ぼうし（ネコ型ロボットの フード・はなかっぱの 花）は かみを かかない
+  const hairStyle = HD?.hides === 'all' ? 'none' : B?.hair || Lk.style;
   const hairM = JH ? JH.hair : Lk.hair;
   const hairO = { hat, stubble: Lk.stubble, tie: O.tie || '#e04a6a' };
   const faceO = { face: Lk.face, fem, iris: B?.iris || Lk.iris, skinBase: Lk.skinBase, skinD: Lk.skinD, browCol: B?.noBrow ? null : JH ? JH.brow : Lk.brow, grin: !!B?.grin, tired: !!B?.tired, fire: !!B?.fire };
@@ -443,13 +463,14 @@ export function paintHero(look, job, equip, dir, f, res = 4) {
   if (W && P.carry) P.carry(weaponArm, isLongSide(W));
 
   // からだは よこに すこし ふとく、あたまは すこし 大きく（ほかの 人と ならんでも 小さく 見えないように）
-  const body = () => cv.xf(BODY_SX, 1, 16, 21);
+  const body = () => cv.xf(BODY_SX * (O.bodySX || 1), 1, 16, 21);
   const head = () => cv.xf(HEAD_S, HEAD_S, H.x, H.y, 3.4);
   const arm = (A) => {
     cv.part();
     armShape(cv, A, P, O, { hand: false });
     if (O.pauldron) drawPauldron(cv, P, A, O);
     if (A === weaponArm && W) drawWeapon(cv, P, A, W, 'grip');
+    if (A === shieldArm && !SH) drawProp26(cv, P, A, O);
     handShape(cv, A, P, O);
     if (A === weaponArm && W) drawWeapon(cv, P, A, W, 'over');
     if (A === shieldArm && SH) drawShield(cv, P, A, SH);
@@ -460,6 +481,7 @@ export function paintHero(look, job, equip, dir, f, res = 4) {
   const hands = () => {
     for (const A of P.arms) {
       if (A === weaponArm && W) drawWeapon(cv, P, A, W, 'grip');
+      if (A === shieldArm && !SH) drawProp26(cv, P, A, O);
       handShape(cv, A, P, O);
       if (A === weaponArm && W) drawWeapon(cv, P, A, W, 'over');
       if (A === shieldArm && SH) drawShield(cv, P, A, SH);
@@ -472,6 +494,7 @@ export function paintHero(look, job, equip, dir, f, res = 4) {
     if (O.tail) drawTail(cv, P, O, 'behind');
     if (O.cape) drawCape(cv, P, O, 'behind');
     if (O.pack) drawPack(cv, P, O, 'behind');
+    drawR26(cv, P, O, 'behind');
     head();
     cv.part();
     drawHair(cv, H, 'behind', 'front', hairStyle, hairM, hairO);
@@ -482,6 +505,7 @@ export function paintHero(look, job, equip, dir, f, res = 4) {
     if (O.skirt?.over) drawSkirt(cv, P, O);
     if (O.apron) drawApron(cv, P, O);
     if (O.belt) drawBelt(cv, P, O);
+    drawR26(cv, P, O, 'over');
     neckShape(cv, P, O);
     drawNeckwear(cv, P, O);
     if (O.pack) drawPack(cv, P, O, 'straps');
@@ -491,13 +515,16 @@ export function paintHero(look, job, equip, dir, f, res = 4) {
     }
     for (const A of P.arms) if (O.pauldron) drawPauldron(cv, P, A, O);
     if (O.usekh) drawCollar(cv, P, O);
+    drawR26(cv, P, O, 'neck');
     head();
     headFront(cv, P, O);
     faceFront(cv, H, faceO);
     if (B) faceMarks(cv, H, B, 'front');
+    if (B) face26(cv, H, B, 'front', 'face');
     if (O.glasses) drawGlasses(cv, P, H);
     cv.part();
     drawHair(cv, H, 'head', 'front', hairStyle, hairM, hairO);
+    if (B) face26(cv, H, B, 'front', 'top');
     if (over) faceOver(cv, H, B, 'front');
     if (HD) drawHeadgear(cv, P, H, HD, 'front');
     body();
@@ -510,6 +537,7 @@ export function paintHero(look, job, equip, dir, f, res = 4) {
     if (O.skirt?.over) drawSkirt(cv, P, O);
     if (O.apron) drawApron(cv, P, O);
     if (O.belt) drawBelt(cv, P, O);
+    drawR26(cv, P, O, 'over');
     if (O.tail) drawTail(cv, P, O, 'back');
     for (const A of P.arms) {
       cv.part();
@@ -518,6 +546,7 @@ export function paintHero(look, job, equip, dir, f, res = 4) {
     if (O.cape) drawCape(cv, P, O, 'back');
     if (O.wings) drawWings(cv, P, O, 'back');
     for (const A of P.arms) if (O.pauldron) drawPauldron(cv, P, A, O);
+    drawR26(cv, P, O, 'backTop');
     neckShape(cv, P, O);
     drawNeckwear(cv, P, O);
     if (O.usekh) drawCollar(cv, P, O);
@@ -527,6 +556,7 @@ export function paintHero(look, job, equip, dir, f, res = 4) {
     cv.part();
     drawHair(cv, H, 'head', 'back', hairStyle, hairM, hairO);
     if (B) faceMarks(cv, H, B, 'back');
+    if (B) face26(cv, H, B, 'back', 'top');
     if (over) faceOver(cv, H, B, 'back');
     if (HD) drawHeadgear(cv, P, H, HD, 'back');
     body();
@@ -541,6 +571,7 @@ export function paintHero(look, job, equip, dir, f, res = 4) {
     if (O.cape) drawCape(cv, P, O, 'side');
     if (O.wings) drawWings(cv, P, O, 'side');
     if (O.pack) drawPack(cv, P, O, 'side');
+    drawR26(cv, P, O, 'side');
     head();
     cv.part();
     drawHair(cv, H, 'behind', 'side', hairStyle, hairM, hairO);
@@ -551,16 +582,20 @@ export function paintHero(look, job, equip, dir, f, res = 4) {
     if (O.skirt?.over) drawSkirt(cv, P, O);
     if (O.apron) drawApron(cv, P, O);
     if (O.belt) drawBelt(cv, P, O);
+    drawR26(cv, P, O, 'over');
     neckShape(cv, P, O);
     drawNeckwear(cv, P, O);
     if (O.pack) drawPack(cv, P, O, 'sideStrap');
+    drawR26(cv, P, O, 'neck');
     head();
     headSide(cv, P, O);
     faceSide(cv, H, faceO);
     if (B) faceMarks(cv, H, B, 'side');
+    if (B) face26(cv, H, B, 'side', 'face');
     if (O.glasses) drawGlasses(cv, P, H);
     cv.part();
     drawHair(cv, H, 'head', 'side', hairStyle, hairM, hairO);
+    if (B) face26(cv, H, B, 'side', 'top');
     if (over) faceOver(cv, H, B, 'side');
     if (HD) drawHeadgear(cv, P, H, HD, 'side');
     body();

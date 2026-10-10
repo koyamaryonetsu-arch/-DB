@@ -7,6 +7,7 @@ import { ITEMS, baseItemId } from '../../shared/data/items.js';
 import { STARTER_EQUIP } from '../../shared/stats.js';
 import { paintMiraPrison, paintWaterStar } from './temple-chars.js';
 import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js';
+import { R26_OLD_LOOK } from './hero-r26.js';
 
 export const CW = 16;
 export const CH = 21;
@@ -102,6 +103,9 @@ const JOB_LOOK = {
   facility_genius: { outfit: 'uniform', cloth: '#eef2f6', hat: 'miner', hatColor: '#f8f8f6' },
   hakaishin: { outfit: 'gi', cloth: '#1e1a32', giTrim: '#d8a020', hat: 'crown' },
 };
+
+// 第26回の 職業（いまの えは render/hero.js と hero-r26.js）
+Object.assign(JOB_LOOK, R26_OLD_LOOK);
 
 // よろい・ふくの みため（'cloth' は じぶんで えらんだ いろ）
 const ARMOR_LOOK = {
