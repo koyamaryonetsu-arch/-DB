@@ -8,6 +8,7 @@ import { JOBS } from '../data/jobs.js';
 import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js';
 import { gainExp, gainJobBattles, jobTrainMult, itemCount, removeItem, addItem, ownsItem, computeStats, STAT_NAMES, fullHeal } from '../stats.js';
 import { JOB_MAX_LEVEL } from '../data/jobs.js';
+import { befriendShare } from './recruit-share.js';
 import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf, PARTY_MAX } from './party.js';
 import { rollDrops, stealPick } from '../data/loot.js';
 import { MAPS } from '../maps/index.js';
@@ -440,6 +441,8 @@ function finishBattle(world, ctx) {
       const sp = target && rollBefriend(world, target.char, res.killed, mult);
       if (sp) befriend = { s: target, species: sp, level: befriendLevel(target.char, sp) };
     }
+    // 家族の パーティー: いっしょに 戦った 家族の 酒場にも（「はい」の とき。world/recruit-share.js）
+    if (befriend) befriend.share = befriendShare(sessions, befriend.s);
   } else if (outcome === 'lose') {
     // ほんとうの 全滅: それぞれ 自分の 持っている お金が 半分に（預かり所の お金は へらない）
     // 負けても 物語が すすむ 戦い（encounters の loseOk）では へらない
@@ -501,7 +504,7 @@ function finishBattle(world, ctx) {
   if (party) world.sendParty(party);
   world.markDirty();
   if (ctx.resolve) ctx.resolve(outcome);
-  if (befriend && world.sessions.has(befriend.s.id) && !befriend.s.away) world.offerBefriend(befriend.s, befriend.species, befriend.level);
+  if (befriend && world.sessions.has(befriend.s.id) && !befriend.s.away) world.offerBefriend(befriend.s, befriend.species, befriend.level, befriend.share);
 }
 
 // 職業レベルが あがった ときの メッセージ

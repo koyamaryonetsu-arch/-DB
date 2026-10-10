@@ -449,19 +449,32 @@ function monsterName(c, species) {
   return base;
 }
 
-// なかまに なった まものの いく ところ: あいている パーティー → あいている 馬車 → どちらも いっぱいなら bench の 人と 入れかわる
-// bench: 入れかわりに 酒場へ もどる なかま（パーティーか 馬車の 人）。'__tavern' なら あたらしい なかまが 酒場へ
-// level: たたかいで なかまに なった まものは befriendLevel()（いつも レベル1）。テストや 特別な ときだけ ほかの レベル
-export function addMonsterCompanion(world, s, species, level, bench) {
-  const c = ensureCompanions(s.char);
+// まものを 1ぴき キャラの なかまの きろくに 入れる（さいしょは 酒場で まつ。パーティー・馬車は かえない）
+//   名前は その キャラの なかまと かさならない もの・ずかんの「仲間にした」も ふやす。
+//   いっぱい（ROSTER_MAX）なら 入れない（full: true）。家族の 酒場にも 入れる（world/recruit-share.js）
+export function addMonsterEntry(c, species, level) {
+  ensureCompanions(c);
   if (!MONSTER_FRIENDS[species]) return { ok: false, reason: 'この魔物は仲間にできない' };
-  if (c.companions.length >= ROSTER_MAX) return { ok: false, reason: `仲間は${ROSTER_MAX}ひきまでです。酒場でだれかと別れよう` };
+  if (c.companions.length >= ROSTER_MAX) return { ok: false, full: true, reason: `仲間は${ROSTER_MAX}ひきまでです。酒場でだれかと別れよう` };
+  // 番号は かさならない ように（データを 合わせた あとなど）
+  while (c.companions.some((e) => e.key === `m${c.monsterSeq}`)) c.monsterSeq++;
   const key = 'm' + (c.monsterSeq++);
   const ch = newMonsterCompanion({ id: `${c.id}:${key}`, name: monsterName(c, species), species, level });
   c.companions.push({ key, kind: 'monster', species, char: ch });
   c.bestiary = c.bestiary || {};
   const b = c.bestiary[species] || (c.bestiary[species] = {});
   b.friend = (b.friend || 0) + 1;
+  return { ok: true, key, name: ch.name, char: ch };
+}
+
+// なかまに なった まものの いく ところ: あいている パーティー → あいている 馬車 → どちらも いっぱいなら bench の 人と 入れかわる
+// bench: 入れかわりに 酒場へ もどる なかま（パーティーか 馬車の 人）。'__tavern' なら あたらしい なかまが 酒場へ
+// level: たたかいで なかまに なった まものは befriendLevel()（いつも レベル1）。テストや 特別な ときだけ ほかの レベル
+export function addMonsterCompanion(world, s, species, level, bench) {
+  const c = ensureCompanions(s.char);
+  const add = addMonsterEntry(c, species, level);
+  if (!add.ok) return add;
+  const { key, char: ch } = add;
   let joined = false, where = null, benchedName = '', stowed = [];
   if (bench !== '__tavern') {
     const r = placeMember(c, key, typeof bench === 'string' ? bench : null);

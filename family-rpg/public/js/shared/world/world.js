@@ -17,6 +17,7 @@ import { runScript, runSteps } from './scripts.js';
 import { serviceAction, menuAction } from './services.js';
 import { newParty, partyOf, partyState, syncParty, ensureCompanions, companionWait, PARTY_MAX, befriendLevel, rosterFull, nameOfKey, dropMissingFam } from './party.js';
 import { hasWagon, dropGoneFamily } from '../data/wagon.js';
+import { takeTavernNews } from './recruit-share.js';
 import { MONSTERS } from '../data/monsters.js';
 import { CH1_CLEAR_OBJECTIVE } from '../data/story.js';
 import { upgradeSave, repairChar } from './save.js';
@@ -141,7 +142,7 @@ export class GameWorld {
     const p = partyOf(this, s);
     this.send(s, {
       t: 'enter', sid: s.id, char: s.char, map: s.map, x: s.x, y: s.y, dir: s.dir, posSeq: s.posSeq,
-      party: p ? partyState(this, p) : null, board: this.data.board || [], supportLog: [], serverTime: this.now(),
+      party: p ? partyState(this, p) : null, board: this.data.board || [], supportLog: [], tavernNews: takeTavernNews(s.char), serverTime: this.now(),
       players: this.playerList(s), resumed: true, rescued: true, fly: !!s.flying,
     });
     const ctx = s.battleId && this.battles.get(s.battleId);
@@ -189,7 +190,7 @@ export class GameWorld {
     const p = partyOf(this, t);
     this.send(t, {
       t: 'enter', sid: t.id, char: t.char, map: t.map, x: t.x, y: t.y, dir: t.dir, posSeq: t.posSeq,
-      party: p ? partyState(this, p) : null, board: this.data.board || [], supportLog: [], serverTime: this.now(),
+      party: p ? partyState(this, p) : null, board: this.data.board || [], supportLog: [], tavernNews: takeTavernNews(t.char), serverTime: this.now(),
       players: this.playerList(t), resumed: true, fly: !!t.flying,
     });
     if (ctx && !ctx.battle.over) {
@@ -459,7 +460,7 @@ export class GameWorld {
     c.supportLog = [];
     this.send(s, {
       t: 'enter', sid: s.id, char: c, map: s.map, x: s.x, y: s.y, dir: s.dir, posSeq: s.posSeq,
-      party: partyState(this, p), board: this.data.board || [], supportLog, serverTime: this.now(),
+      party: partyState(this, p), board: this.data.board || [], supportLog, tavernNews: takeTavernNews(c), serverTime: this.now(),
       players: this.playerList(s), fly: !!s.flying,
     });
     this.broadcast({ t: 'joined', sid: s.id, name: c.name }, s);
@@ -474,14 +475,15 @@ export class GameWorld {
 
   // たおした まものが なかまに なりたがっている（レベルは いつも 1。party.js の befriendLevel）
   //   パーティーが あいていれば パーティー、いっぱいなら あいている 馬車、どちらも いっぱいの ときだけ だれが 酒場へ もどるか えらぶ
-  offerBefriend(s, species, level = befriendLevel()) {
+  //   share: いっしょに 戦った 家族の キャラの id（「はい」の とき その 人たちの 酒場にも 入る。world/recruit-share.js）
+  offerBefriend(s, species, level = befriendLevel(), share = null) {
     const m = MONSTERS[species];
     if (!m || s.busy) return;
     const c = s.char;
     ensureCompanions(c);
     dropMissingFam(this, c);
     const id = 'o' + (++this.offerSeq || (this.offerSeq = 1)) + Math.floor(this.rng.next() * 1e6).toString(36);
-    s.befriendOffer = { id, species, level };
+    s.befriendOffer = { id, species, level, share: Array.isArray(share) ? share : [] };
     const p = partyOf(this, s);
     let yes;
     if (!rosterFull(c)) {

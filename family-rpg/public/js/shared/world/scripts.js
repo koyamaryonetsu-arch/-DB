@@ -5,6 +5,7 @@ import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.j
 import { startFixedBattle } from './battles.js';
 import { FIXED_ENCOUNTERS } from '../data/encounters.js';
 import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion, befriendLevel } from './party.js';
+import { shareBefriend } from './recruit-share.js';
 import { openService } from './services.js';
 import { isNightFor, advanceClock, fracFor } from './clock.js';
 import { grantWagon, wagonChars } from './wagon.js';
@@ -391,6 +392,10 @@ export class ScriptRun {
           else this.say(`${r.name}が仲間になった！\n${r.name}はルミナの町の酒場で待っている。`);
           if (r.benchedName) this.say(`${r.benchedName}は酒場へもどった。${r.stowed?.length ? '\n（装備はふくろにしまった）' : ''}`);
           this.say(`（名前は酒場で変えられるよ）`);
+          // 家族の パーティー: いっしょに 戦った 家族の 酒場にも 入る（world/recruit-share.js）
+          const sh = shareBefriend(w, s, off.species, befriendLevel(), off.share);
+          if (sh.got.length) this.say(`いっしょに戦った${sh.got.join('と')}の酒場にも、\n${sh.spName}が仲間になってくれた！`);
+          if (sh.full.length) this.say(`${sh.full.join('と')}の酒場はいっぱいで、\n${sh.spName}は入れなかった…`);
           w.sendSelf(s);
           break;
         }

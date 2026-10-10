@@ -8,7 +8,7 @@
 // ・ひらめいた 技 … 両方を 合わせる（わすれる ことは ない）
 // ・フラグ・宝箱・行った 場所・大事な物 … 両方を 合わせる（どちらかで 使った 大事な物は なくなる）
 // ・道具と そうび … 品物ごとに 両方で ふえた・へった 数を たす（そうびは 手もとに ある ものだけ。ボスの 品は 1つまで）
-// ・仲間 … 両方の 仲間を のこす（べつべつに 仲間に なった まものは 両方とも）
+// ・仲間 … 両方の 仲間を のこす（べつべつに 仲間に なった まものは 両方とも。家族の パーティーで 酒場に 来た まものも おなじ）
 // ・預かり所 … お金も 品物も、両方で 預けた・引き出した ぶんを たす
 // ・いる場所・HP・作戦 など … 両方で かわって いたら、あとで 遊んだ ほう
 import { expForLevel, MAX_LEVEL, computeStats } from '../stats.js';
@@ -159,6 +159,17 @@ function mergeBody(b, a, t, tLater) {
       case 'supportLog': {
         const seen = new Set((vb || []).map(canon));
         out.supportLog = [...clone(va || []), ...clone((vt || []).filter((e) => !seen.has(canon(e))))].slice(-10);
+        break;
+      }
+      // 家族の パーティーで 酒場に 来た まものの 知らせ（まだ 見ていない ぶん。world/recruit-share.js）
+      // 「わかれる まえ」に あった 知らせは、片方で 見て けした なら もう 出さない
+      case 'tavernNews': {
+        const arr = (x) => (Array.isArray(x) ? x : []);
+        const B = new Set(arr(vb).map(canon));
+        const keep = (x) => !B.has(canon(x)) || (va !== undefined && vt !== undefined && arr(va).some((y) => canon(y) === canon(x)) && arr(vt).some((y) => canon(y) === canon(x)));
+        const list = [];
+        for (const e of [...arr(va), ...arr(vt)]) if (e && keep(e) && !list.some((y) => canon(y) === canon(e))) list.push(clone(e));
+        out.tavernNews = list.length ? list.slice(-10) : undefined;
         break;
       }
       case 'monsterSeq': out.monsterSeq = Math.max(num(va), num(vt), 1); break;
