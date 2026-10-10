@@ -1,12 +1,17 @@
-// 合体技（2人で 力を 合わせる 技）
+// 合体技（2人・3人・4人で 力を 合わせる 技）
 //
 // ・自分の 行動ゲージが たまって コマンドを えらぶ とき、仲間と 出せる。
-//   仲間の ゲージが たまって いれば すぐ。まだ なら「よやく」して、仲間の ゲージが たまった ときに いっしょに 出す
+//   仲間の ゲージが たまって いれば すぐ。まだ なら「よやく」して、みんなの ゲージが たまった ときに いっしょに 出す
+//   （3人・4人の 技は、先に ゲージが たまった 仲間は ほかの 仲間を まつ。みんなの 番を 使う。shared/battle-dual.js）
 // ・はじめて 使う までは 効果が わからない（char.dualSeen。使うと わかる）
-// ・need の 2つの 組の 技を、2人が 1つずつ 覚えていれば 出せる（どちらが どちらでも よい）
-// ・2人の 番（行動ゲージ）と、それぞれの MP（mp[0]・mp[1]）を 使う
+// ・need の 組（2〜4こ）の 技を、出す 人が 1つずつ 覚えていれば 出せる（だれが どの 組でも よい）
+// ・出す 人みんなの 番（行動ゲージ）と、それぞれの MP（mp[組の じゅん]）を 使う
 // ・相手が 家族（人が 動かしている キャラ）の ときは、相手に「参加する？」と 聞く
-// ・技の 強さは 2人の 強さを 合わせて 決まる（battle.js の performDual）
+// ・技の 強さは、出す 人が それぞれ ふつうに 技を 出した ときの ダメージの 合計 × DUAL_POWER（人数）× parts の k
+//   （2人は 1.8倍・3人は 2.2倍・4人は 3倍 が もと。全体を ねらう 技は k を 小さく。battle-dual.js の dualPower）
+//
+// 第26回（2026年10月）: 40こ あった 合体技を 25こに しぼって 強く した。3人技・4人技と、クスッと 笑える 技を くわえた。
+// けずった 合体技を 使った ことの ある 記録（char.dualSeen）は そのまま のこす（DUAL_LEGACY: にていて 1つに まとめた 技は、まとめた 先の 技も わかる）
 import { ABILITIES } from './abilities.js';
 
 // 技の 組（どれか 1つを 覚えていれば よい）
@@ -29,13 +34,10 @@ const OFFICE = ['sm_meishi', 'sm_eigyo', 'sm_horenso', 'sm_present', 'hk_meishi_
 const BALL = ['bb_hit', 'bb_homerun', 'bb_fastball', 'hk_nagashi', 'hk_makyuu', 'ml_160', 'nt_nitoryu'];
 const IDOL = ['id_kiss', 'id_wink', 'id_fansa', 'id_penlight', 'hk_love_beam', 'fz_basket', 'ar_manazashi'];
 const JESTER = ['js_asobu', 'js_gag', 'js_kusuguri', 'hk_daibakushou'];
-const PARTY = ['sm_nomikai', 'sm_present', 'sm_bonus', 'js_gag', 'id_penlight', 'es_aisatsu', 'hs_bunkasai', 'lc_yurukyara', 'yt_live', 'cm_warai'];
-// 学校の 技・公務員の 技（授業参観: 子どもと 大人で 出す）
+// 学校の 技・公務員の 技
 const SCHOOL = ['es_randoseru', 'es_aisatsu', 'es_recorder', 'es_kakekko', 'es_dodge', 'hk_randoseru_rocket', 'jh_bukatsu', 'jh_test', 'jh_gassho', 'hs_seishun', 'hs_bunkasai'];
 const CIVIL = ['lc_madoguchi', 'lc_shorui', 'lc_jumin', 'nc_hanko', 'nc_yosan', 'cr_seisaku'];
-const WORK = [...OFFICE, ...CIVIL, 'bc_kessai', 'sh_meirei'];
 const ELEM_SPELLS = [...FIRE, ...ICE, ...WIND, ...BLAST, ...BOLT, ...LIGHT];
-const DANCE_SONG = [...DANCE, ...SONG];
 // 第20〜22回の 職業の 技（hi_ … その 職業の ひらめき技。hirameki-jobs.js）
 const COOK = ['ck_houchou', 'ck_soup', 'ck_tsuyobi', 'ck_spice', 'ck_stamina', 'ck_mijin', 'ck_flambe', 'ck_fullcourse', 'pa_candy', 'pa_cake', 'pa_fondue', 'pa_macaron', 'pa_sugar', 'pa_wedding',
   'sc_tetsujin', 'sc_honoo', 'sc_fullcourse', 'sc_kyuukyoku', 'hi_kakushi_bouchou', 'hi_daikaryoku', 'hi_okashi_no_ie'];
@@ -63,247 +65,250 @@ const LOTO = ['lt_ken', 'lt_shirushi', 'lt_inori', 'lt_gigacross', 'hi_arutema',
 const HERO = ['hr_gigaslash', 'hr_kizuna', 'hr_inori', 'hr_gigadein', 'hr_kizunaken'];
 const POLICE = ['po_taiho', 'po_keibou', 'po_shokumu', 'po_koutsuu', 'po_patocar', 'po_seigi'];
 const FIRE_DEPT = ['ff_housui', 'ff_teate', 'ff_kyujo', 'ff_hinoyoujin', 'ff_hashigo', 'ff_issei'];
-const TAMER = ['tm_shippu', 'tm_beast', 'tm_ranbu', 'tm_kemono', 'tm_kizuna', 'tm_majuu', 'mm_whip', 'mm_iyashi', 'mm_howl', 'mm_kizuna', 'mm_daikoushin', 'mm_king'];
+// 第26回: まとめた 組
+const MELEE = [...SWORD, ...FIST];
+const STAGE = [...new Set([...DANCE, ...SONG, ...IDOL])];
 const COMEDY = [...JESTER, ...WARAI];
-const GAME_SCHOOL = [...GAME, ...SCHOOL];
-const SAFETY = [...CIVIL, ...POLICE, ...FIRE_DEPT];
+const HOLY = [...new Set([...LOTO, ...HERO, ...LIGHT])];
+// 大人の 仕事（会社員・公務員・社ちく・上司・お店と 会社）
+const JOBWORK = [...new Set([...OFFICE, ...CIVIL, ...SHACHIKU, ...BOSS, ...STORE])];
+const FACILITY_WORK = [...new Set([...FACILITY, ...JOBWORK])];
+// 子ども（学校・ゲーム・配信）
+const KIDS = [...new Set([...SCHOOL, ...GAME, ...STREAM])];
+// 体を 使う 技（せーのでジャンプ）
+const JUMP = [...new Set([...FIST, ...DANCE, ...SCHOOL, ...BALL, ...KI, ...GOMU, ...JESTER, ...RAIL])];
+const RESCUE = [...new Set([...HEAL, ...CIVIL, ...GUARD])];
+const SALARY = [...new Set([...SHACHIKU, ...OFFICE])];
+const KITCHEN = [...new Set([...COOK, ...STORE])];
+// 攻撃の 技（職業の 技で、ダメージを あたえる もの。新しい 職業の 技も 自動で 入る）
+const hurts = (e) => !!e && (e.type === 'phys' || e.type === 'magic' || (e.type === 'multi' && (e.parts || []).some(hurts)));
+const ATTACK = Object.keys(ABILITIES).filter((id) => {
+  const a = ABILITIES[id];
+  return a.job && !a.hidden && (a.kind === 'skill' || a.kind === 'spell') && hurts(a.effect);
+});
 
 // 組の なまえ（メニューの 一覧で 見せる）
 export const DUAL_GROUP_NAMES = new Map([
-  [FIRE, '炎の呪文'], [ICE, '氷の呪文'], [WIND, '風の技'], [BLAST, '爆発の呪文'], [BOLT, '雷の呪文'], [LIGHT, '光の技'],
-  [SWORD, '剣の技'], [FIST, 'こぶしの技'], [HEAL, '回復の技'], [DANCE, 'おどり'], [SONG, '歌'], [GUARD, '守りの技'],
-  [RAIL, '鉄道員の技'], [OFFICE, '会社員の技'], [BALL, '野球の技'], [IDOL, 'アイドルの技'], [JESTER, '遊び人の技'], [PARTY, 'もり上げる技'],
-  [SCHOOL, '学校の技'], [CIVIL, '公務員の技'], [WORK, 'お仕事の技'],
-  [ELEM_SPELLS, '属性の技'], [DANCE_SONG, 'おどりか歌'],
-  [COOK, '料理の技'], [STORE, 'お店と会社の技'], [WARAI, 'お笑いの技'], [NEET, 'ニートの技'], [DARK, '闇の技'], [KI, '気の技'], [GOMU, 'ゴムの技'],
-  [PIRATE, '海賊の技'], [FACILITY, '設備の技'], [STREAM, '配信の技'], [GAME, 'ゲームの技'], [MAOU, '魔王の技'], [HAKAI, 'はかい神の技'], [OKAN, 'おかんの技'],
-  [SHACHIKU, '社ちくの技'], [BOSS, '上司の技'], [LOTO, 'ロトの技'], [HERO, '勇者の技'], [POLICE, '警察官の技'], [FIRE_DEPT, '消防士の技'], [TAMER, '魔物使いの技'],
-  [COMEDY, 'お笑いか遊び人の技'], [GAME_SCHOOL, 'ゲームか学校の技'], [SAFETY, '公務員・警察・消防の技'],
+  [FIRE, '炎の呪文'], [ICE, '氷の呪文'], [WIND, '風の技'], [ELEM_SPELLS, '属性の技'], [SWORD, '剣の技'], [FIST, 'こぶしの技'], [MELEE, '剣かこぶしの技'],
+  [HEAL, '回復の技'], [STAGE, 'おどり・歌・アイドルの技'], [RAIL, '鉄道員の技'], [JOBWORK, '大人の仕事の技'], [SCHOOL, '学校の技'], [COMEDY, 'お笑いか遊び人の技'],
+  [KI, '気の技'], [GOMU, 'ゴムの技'], [OKAN, 'おかんの技'], [NEET, 'ニートの技'], [COOK, '料理の技'], [STORE, 'お店と会社の技'],
+  [FACILITY, '設備の技'], [FACILITY_WORK, '設備か大人の仕事の技'], [MAOU, '魔王の技'], [HAKAI, 'はかい神の技'], [HOLY, '光か勇者の技'], [DARK, '闇の技'],
+  [JUMP, '体を使う技'], [POLICE, '警察官の技'], [FIRE_DEPT, '消防士の技'], [RESCUE, '回復か町を守る技'], [KIDS, '子どもの技（学校・ゲーム・配信）'],
+  [BOSS, '上司の技'], [SALARY, '社ちくか会社員の技'], [KITCHEN, '料理かお店の技'], [STREAM, '配信の技'], [GAME, 'ゲームの技'], [ATTACK, '攻撃の技（どの職業でも）'],
 ]);
 
+// parts の type:
+//   power … ダメージ（出す 人の ふつうの 技の 合計 × DUAL_POWER[人数] × k。kind: 'phys'（物理）/ 'magic'（呪文）。hits: 何回に 分けて 当てるか。
+//           ignoreDef: 守りを むしする わりあい（物理の 見つもりに つかう）、status・debuff・dispel・banish: 当てた あとの 効果）
+//   heal  … 仲間の 回復（さいだいHPの pct ＋ 出す 人の 回復の 技の 合計 × k）
+//   revive … たおれた 仲間を 生き返らせる（さいだいHPの pct）
+//   そのほか（buff・debuff・cure・atbSet・mpHeal・bondUp・status）は ふつうの 技と おなじ
+// elementFrom: その 組の 人が 出した 技の 属性に なる（クロス魔法剣）
+// fx: 画面の えんしゅつ（client/render/dualfx.js）。funny: クスッと 笑える 技
 export const DUAL_TECHS = {
+  // ───────── 2人技 ─────────
   dt_taishoumetsu: {
-    name: '対消滅', kana: 'ついしょうめつ', need: [FIRE, ICE], mp: [5, 5], target: 'enemy', spell: true,
-    parts: [{ type: 'magic', element: 'void', base: [62, 80], thr: 24 }],
-    desc: '炎と氷を全く同じ強さでぶつけて、全てを消し去る光を生む。', anim: 'void', element: 'void',
+    name: '対消滅', kana: 'ついしょうめつ', need: [FIRE, ICE], mp: [8, 8], target: 'enemy', spell: true, element: 'void',
+    parts: [{ type: 'power', kind: 'magic', element: 'void', k: 1.1 }],
+    desc: '炎と氷を全く同じ強さでぶつけて、全てを消し去る光を生む。敵1体に無属性の大ダメージ。', anim: 'void',
   },
   dt_honoo_tatsumaki: {
-    name: '炎の竜巻', kana: 'ほのおのたつまき', need: [FIRE, WIND], mp: [4, 4], target: 'enemies', spell: true,
-    parts: [{ type: 'magic', element: 'fire', base: [34, 44], thr: 20 }],
-    desc: '風が炎を巻き上げて、大きな炎の竜巻になる。敵全体を焼きつくす。', anim: 'fire_tornado', element: 'fire',
-  },
-  dt_blizzard: {
-    name: 'ブリザード', kana: 'ぶりざーど', need: [ICE, WIND], mp: [4, 4], target: 'enemies', spell: true,
-    parts: [{ type: 'magic', element: 'ice', base: [30, 40], thr: 20, status: { status: 'paralyze', chance: 0.15, turns: [1, 2], quiet: true } }],
-    desc: '氷が風に乗って、はげしいふぶきになる。敵全体をこおりつかせる。', anim: 'blizzard', element: 'ice',
-  },
-  dt_daibakuen: {
-    name: '大爆炎', kana: 'だいばくえん', need: [FIRE, BLAST], mp: [5, 5], target: 'enemies', spell: true,
-    parts: [{ type: 'magic', element: 'blast', base: [40, 52], thr: 22 }],
-    desc: '炎が爆発を呼び、大きな爆炎が上がる。敵全体に大ダメージ。', anim: 'blast2', element: 'blast',
+    name: '炎の竜巻', kana: 'ほのおのたつまき', need: [FIRE, WIND], mp: [6, 6], target: 'enemies', spell: true, element: 'fire',
+    parts: [{ type: 'power', kind: 'magic', element: 'fire', k: 0.7 }],
+    desc: '風が炎を巻き上げて、大きな炎の竜巻になる。敵全体を焼きつくす。', anim: 'fire_tornado',
   },
   dt_cross_mahouken: {
-    name: 'クロス魔法剣', kana: 'くろすまほうけん', need: [SWORD, ELEM_SPELLS], mp: [3, 4], target: 'enemy', weapon: [0, 'blade'],
-    parts: [{ type: 'phys', mult: 2.4, elementFrom: 1 }],
-    desc: '仲間の呪文の力を剣にまとわせて斬る。仲間の呪文と同じ属性の剣になる。', anim: 'mahouken',
-  },
-  dt_raiden_strash: {
-    name: 'ライデインストラッシュ', kana: 'らいでいんすとらっしゅ', need: [SWORD, BOLT], mp: [4, 6], target: 'enemy', weapon: [0, 'blade'],
-    parts: [{ type: 'phys', element: 'bolt', mult: 3.0, ignoreDef: 0.3 }],
-    desc: '仲間のよんだ雷を剣で受けて、そのまま斬りつける。雷の必殺剣。', anim: 'gigabreak', element: 'bolt',
+    name: 'クロス魔法剣', kana: 'くろすまほうけん', need: [SWORD, ELEM_SPELLS], mp: [5, 6], target: 'enemy', weapon: [0, 'blade'],
+    parts: [{ type: 'power', kind: 'phys', elementFrom: 1, k: 1.05, hits: 2 }],
+    desc: '仲間の呪文の力を剣にまとわせて、十字に斬る。仲間の呪文と同じ属性の剣で、敵1体に大ダメージ。', anim: 'mahouken',
   },
   dt_cross_break: {
-    name: 'クロスブレイク', kana: 'くろすぶれいく', need: [SWORD, SWORD], mp: [3, 3], target: 'enemy', weapon: [0, 'blade'],
-    parts: [{ type: 'phys', mult: 1.3, hits: 2, ignoreDef: 0.3 }],
-    desc: '2人の剣が十字をえがく。守りの固い敵にもよく効く。', anim: 'cross_slash',
-  },
-  dt_twin_fist: {
-    name: 'ツイン百裂拳', kana: 'ついんひゃくれつけん', need: [FIST, FIST], mp: [3, 3], target: 'enemy',
-    parts: [{ type: 'phys', mult: 0.45, hits: 6, critBonus: 0.05 }],
-    desc: '2人で息を合わせて、こぶしの雨をふらせる。6回続けて打つ。', anim: 'punch_multi',
+    name: 'クロスブレイク', kana: 'くろすぶれいく', need: [MELEE, MELEE], mp: [5, 5], target: 'enemy',
+    parts: [{ type: 'power', kind: 'phys', k: 1.0, hits: 4, ignoreDef: 0.5 }],
+    desc: '2人の剣とこぶしが十字をえがく。4回続けて打ちこむ。守りの固い敵にもよく効く。敵1体に大ダメージ。', anim: 'cross_slash',
   },
   dt_iyashi_wa: {
-    name: 'いやしの輪', kana: 'いやしのわ', need: [HEAL, HEAL], mp: [4, 4], target: 'allies', spell: true,
-    parts: [{ type: 'heal', base: [44, 58], thr: 20 }],
-    desc: '2人の回復の力が大きな輪になって、仲間全員のHPを大きく回復する。', anim: 'heal_ring',
-  },
-  dt_harmony: {
-    name: 'いやしのハーモニー', kana: 'いやしのはーもにー', need: [HEAL, DANCE_SONG], mp: [4, 3], target: 'allies',
-    parts: [{ type: 'heal', base: [28, 36], thr: 18 }, { type: 'cure', statuses: ['sleep', 'confuse', 'paralyze', 'poison', 'blind', 'silence'] }],
-    desc: '歌とおどりに、いやしの力を乗せる。仲間全員を回復して、状態異常も治す。', anim: 'heal_dance',
-  },
-  dt_teppeki: {
-    name: 'てっぺきの守り', kana: 'てっぺきのまもり', need: [GUARD, GUARD], mp: [3, 3], target: 'allies',
-    parts: [{ type: 'buff', stats: ['def'], mult: 1.4, dur: 30 }],
-    desc: '2人で守りをかためる。仲間全員の身の守りが大きく上がる。', anim: 'guard',
+    name: 'いやしの輪', kana: 'いやしのわ', need: [HEAL, HEAL], mp: [10, 10], target: 'allies', spell: true,
+    parts: [{ type: 'revive', pct: 0.3 }, { type: 'heal', pct: 0.4, k: 0.6 }],
+    desc: '2人の回復の力が大きな輪になる。たおれた仲間を生き返らせて、仲間全員のHPを大きく回復する。', anim: 'heal_ring',
   },
   dt_stage: {
-    name: 'ステージショー', kana: 'すてーじしょー', need: [DANCE, SONG], mp: [3, 3], target: 'allies',
-    parts: [{ type: 'buff', stats: ['atk', 'agi'], mult: 1.25, dur: 30 }],
-    desc: '歌とおどりのステージで、仲間全員の攻撃力と素早さが大きく上がる。', anim: 'stage',
+    name: 'ステージショー', kana: 'すてーじしょー', need: [STAGE, STAGE], mp: [6, 6], target: 'allies',
+    parts: [{ type: 'buff', stats: ['atk', 'agi'], mult: 1.5, dur: 40 }, { type: 'heal', pct: 0.2, k: 0.3 }, { type: 'bondUp', amount: 15 }],
+    desc: '歌とおどりの大ステージ！仲間全員の攻撃力と素早さが大きく上がり、HPも回復して、きずなも深まる。', anim: 'stage',
   },
   dt_tsukin_rush: {
-    name: '通勤ラッシュ', kana: 'つうきんらっしゅ', need: [RAIL, OFFICE], mp: [4, 3], target: 'enemies',
-    parts: [{ type: 'phys', mult: 1.3 }, { type: 'atbSet', value: 0, msg: '{t}はぎゅうぎゅうで動けない！' }],
-    desc: '鉄道員と会社員の、朝の戦い。敵全体をぎゅうぎゅうおしこんで、動きを止める。', anim: 'train',
-  },
-  dt_hero_interview: {
-    name: 'ヒーローインタビュー', kana: 'ひーろーいんたびゅー', need: [BALL, IDOL], mp: [3, 3], target: 'allies',
-    parts: [{ type: 'buff', stats: ['atk', 'agi'], mult: 1.3, dur: 30 }, { type: 'heal', base: [18, 24], thr: 18 }],
-    desc: 'ホームランのあとは、アイドルがインタビュー！仲間全員がもり上がって、元気が出る。', anim: 'stage',
-  },
-  dt_kakushigei: {
-    name: 'かくし芸大会', kana: 'かくしげいたいかい', need: [JESTER, PARTY], mp: [3, 4], target: 'enemies',
-    parts: [{ type: 'status', status: 'confuse', chance: 0.55, turns: [1, 3] }],
-    desc: 'おどろきのかくし芸が大うけ！敵全体が笑いころげて、混乱することがある。', anim: 'laugh',
+    name: '通勤ラッシュ', kana: 'つうきんらっしゅ', need: [RAIL, JOBWORK], mp: [6, 6], target: 'enemies', funny: true,
+    parts: [{ type: 'power', kind: 'phys', k: 0.7 }, { type: 'atbSet', value: 0, chance: 0.8, msg: '{t}はぎゅうぎゅうで動けない！', failMsg: '{t}は、なんとかおりられた。' }],
+    desc: '「おしこみまーす！」鉄道員と大人の朝の戦い。敵全体を電車にぎゅうぎゅうおしこんで、動きを止める。', anim: 'train',
   },
   dt_jugyo_sankan: {
-    name: '授業参観', kana: 'じゅぎょうさんかん', need: [SCHOOL, WORK], mp: [3, 3], target: 'allies',
-    parts: [{ type: 'buff', stats: ['atk', 'agi'], mult: 1.3, dur: 30 }, { type: 'heal', base: [20, 26], thr: 18 }],
-    desc: '子どもががんばるすがたを、大人がうしろから見守る。みんながはりきって、仲間全員の攻撃力と素早さが上がり、HPも回復する。', anim: 'stage',
-  },
-  // ───── 第23回: 第20〜22回の 職業の 合体技 ─────
-  dt_gomu_kame: {
-    name: 'ゴムゴムのかめはめ波', kana: 'ごむごむのかめはめは', need: [KI, GOMU], mp: [6, 6], target: 'enemy',
-    parts: [{ type: 'phys', mult: 3.0 }],
-    desc: 'かめはめ波を、ゴムのうでで大きくのばしたうでから打ち出す。敵1体に大ダメージ。', anim: 'kamehameha',
-  },
-  dt_fusion: {
-    name: 'フュージョン', kana: 'ふゅーじょん', need: [KI, KI], mp: [5, 5], target: 'enemies',
-    parts: [{ type: 'phys', mult: 1.5, ignoreDef: 0.3 }],
-    desc: '「フュー…ジョン！はっ！」2人が1人に合体して、敵全体に気の大攻撃。', anim: 'ki_blast',
-  },
-  dt_bentou: {
-    name: 'お弁当とどけに来たよ', kana: 'おべんとうとどけにきたよ', need: [OKAN, SHACHIKU], mp: [4, 3], target: 'allies',
-    parts: [{ type: 'heal', base: [40, 52], thr: 22 }, { type: 'buff', stat: 'atk', mult: 1.25, dur: 30 }],
-    desc: 'わすれたお弁当を、おかんが会社までとどけに来た！仲間全員のHPが回復して、攻撃力も上がる。', anim: 'gohan',
-  },
-  dt_zenkan: {
-    name: '全館リニューアル', kana: 'ぜんかんりにゅーある', need: [FACILITY, FACILITY], mp: [8, 8], target: 'enemies', element: 'ice',
-    parts: [{ type: 'magic', element: 'ice', base: [90, 110], thr: 60 }, { type: 'heal', target: 'allies', base: [50, 64], thr: 40 }],
-    desc: '設備のプロが2人で、建物をまるごと新しくする。敵全体に冷たい風、仲間全員は気持ちよく回復する。', anim: 'aircon',
-  },
-  dt_hametsu: {
-    name: '破滅のはかい玉', kana: 'はめつのはかいだま', need: [MAOU, HAKAI], mp: [12, 12], target: 'enemies', spell: true, element: 'dark',
-    parts: [{ type: 'magic', element: 'dark', base: [200, 240], thr: 90 }],
-    desc: '魔王の闇と、はかい神の力を1つの玉にまとめる。敵全体に闇の大ダメージ。', anim: 'hakai_ball',
-  },
-  dt_jikkyou: {
-    name: 'ゲーム実きょう', kana: 'げーむじっきょう', need: [STREAM, GAME], mp: [4, 4], target: 'allies',
-    parts: [{ type: 'buff', stats: ['atk', 'agi'], mult: 1.25, dur: 30 }, { type: 'bondUp', amount: 20 }],
-    desc: 'ゲームのうまい人と、話のうまい人で、大人気の実きょう配信！仲間全員の攻撃力と素早さが上がり、きずなも深まる。', anim: 'camera',
-  },
-  dt_ofukuro: {
-    name: 'おふくろの味', kana: 'おふくろのあじ', need: [COOK, OKAN], mp: [4, 4], target: 'allies',
-    parts: [{ type: 'heal', base: [44, 56], thr: 22 }, { type: 'cure', statuses: ['poison', 'sleep', 'confuse', 'paralyze', 'blind', 'silence'] }],
-    desc: '料理のうでと、おかんの愛情。なつかしい味で、仲間全員のHPが回復して、状態異常も治る。', anim: 'heal_dance',
-  },
-  dt_gyouretsu: {
-    name: '行列のできる店', kana: 'ぎょうれつのできるみせ', need: [COOK, STORE], mp: [4, 3], target: 'allies',
-    parts: [{ type: 'heal', base: [30, 40], thr: 20 }, { type: 'mpHeal', base: [4, 8] }],
-    desc: 'おいしい料理と、てきぱきした店員で、お店は大はんじょう。仲間全員のHPとMPが回復する。', anim: 'gohan',
+    name: '授業参観', kana: 'じゅぎょうさんかん', need: [SCHOOL, JOBWORK], mp: [5, 5], target: 'allies', funny: true,
+    parts: [{ type: 'buff', stats: ['atk', 'agi'], mult: 1.5, dur: 40 }, { type: 'heal', pct: 0.25, k: 0.3 }],
+    desc: 'うしろで大人が見ている！子どもがはりきりすぎて、仲間全員の攻撃力と素早さが大きく上がり、HPも回復する。', anim: 'stage',
   },
   dt_manzai: {
-    name: 'まんざい', kana: 'まんざい', need: [WARAI, COMEDY], mp: [4, 3], target: 'enemies',
-    parts: [{ type: 'atbSet', sub: 45, chance: 0.6, msg: '{t}は笑いころげて動けない！', failMsg: '{t}には、うけなかった…' }, { type: 'heal', target: 'allies', base: [24, 32], thr: 20 }],
-    desc: 'ボケとツッコミの息がぴったり。敵全体が笑いころげて動きがおそくなることがあり、仲間全員も笑って元気になる。', anim: 'laugh',
+    name: 'まんざい', kana: 'まんざい', need: [COMEDY, COMEDY], mp: [5, 5], target: 'enemies', funny: true,
+    parts: [
+      { type: 'power', kind: 'phys', k: 0.6, say: '「なんでやねん！」' },
+      { type: 'atbSet', sub: 60, chance: 0.75, msg: '{t}は笑いころげて動けない！', failMsg: '{t}には、うけなかった…' },
+      { type: 'heal', target: 'allies', pct: 0.2, k: 0.2 },
+    ],
+    desc: 'ボケとツッコミの息がぴったり。敵全体にツッコミを入れて、笑いころげさせる。仲間全員も笑って元気になる。', anim: 'laugh',
+  },
+  dt_gomu_kame: {
+    name: 'ゴムゴムのかめはめ波', kana: 'ごむごむのかめはめは', need: [KI, GOMU], mp: [8, 8], target: 'enemy',
+    parts: [{ type: 'power', kind: 'phys', k: 1.15 }],
+    desc: 'かめはめ波を、ゴムのうででぐーんとのばして打ち出す。敵1体に大ダメージ。', anim: 'kamehameha',
+  },
+  dt_bentou: {
+    name: 'お弁当とどけに来たよ', kana: 'おべんとうとどけにきたよ', need: [OKAN, JOBWORK], mp: [5, 5], target: 'allies', funny: true,
+    parts: [{ type: 'heal', pct: 0.4, k: 0.5 }, { type: 'buff', stat: 'atk', mult: 1.5, dur: 40 }],
+    desc: '「わすれもの！」おかんが仕事場までお弁当をとどけに来た。ちょっとはずかしいけど、仲間全員のHPが回復して、攻撃力が大きく上がる。', anim: 'gohan',
   },
   dt_hataraki: {
-    name: '早く働きなさい！', kana: 'はやくはたらきなさい', need: [OKAN, NEET], mp: [3, 3], target: 'enemies',
-    parts: [{ type: 'phys', mult: 1.3 }],
-    desc: 'おかんにしかられて、ついにニートが本気を出した！2人で敵全体にとびかかる。', anim: 'hit_all',
+    name: '早く働きなさい！', kana: 'はやくはたらきなさい', need: [OKAN, NEET], mp: [4, 4], target: 'enemies', funny: true,
+    parts: [{ type: 'power', kind: 'phys', k: 0.9, say: 'ついにニートが本気を出した！' }],
+    desc: '「いつまでねてるの！」おかんにしかられて、ついにニートが本気を出した！2人で敵全体にとびかかる。', anim: 'hit_all',
   },
-  dt_gishiki: {
-    name: '暗黒のぎしき', kana: 'あんこくのぎしき', need: [DARK, DARK], mp: [6, 6], target: 'enemies', spell: true, element: 'dark',
-    parts: [{ type: 'magic', element: 'dark', base: [70, 90], thr: 50 }, { type: 'debuff', stat: 'def', mult: 0.85, dur: 30, chance: 0.6 }],
-    desc: '闇の力を合わせる、ひみつのぎしき。敵全体に闇のダメージ。守備力が下がることがある。', anim: 'dark_wings',
+  dt_gyouretsu: {
+    name: '行列のできる店', kana: 'ぎょうれつのできるみせ', need: [COOK, STORE], mp: [5, 5], target: 'allies', funny: true,
+    parts: [
+      { type: 'heal', pct: 0.35, k: 0.5 }, { type: 'mpHeal', base: [8, 14] },
+      { type: 'atbSet', target: 'enemies', sub: 50, chance: 0.7, msg: '{t}も行列にならんでしまった！', failMsg: '{t}は行列にならばなかった。' },
+    ],
+    desc: 'おいしい料理と、てきぱきした店員で大はんじょう！仲間全員のHPとMPが回復する。敵まで行列にならんで、動きがおそくなる。', anim: 'gohan',
   },
-  dt_shuuden: {
-    name: '終電ギリギリ', kana: 'しゅうでんぎりぎり', need: [RAIL, SHACHIKU], mp: [4, 4], target: 'enemies',
-    parts: [{ type: 'phys', mult: 1.2 }, { type: 'atbSet', sub: 40, chance: 0.55, msg: '{t}は、ぎゅうぎゅうで動けない！', failMsg: '{t}は、なんとかおりられた。' }],
-    desc: '終電にかけこむ社ちくと、ドアをおさえる鉄道員。敵全体をおしこんで、動きを止めることがある。', anim: 'manin_densha',
+  dt_zenkan: {
+    name: '全館リニューアル', kana: 'ぜんかんりにゅーある', need: [FACILITY, FACILITY_WORK], mp: [8, 8], target: 'enemies', element: 'ice',
+    parts: [{ type: 'power', kind: 'magic', element: 'ice', k: 0.75 }, { type: 'heal', target: 'allies', pct: 0.3, k: 0.3 }],
+    desc: '設備のプロが、建物をまるごと新しくする。敵全体に冷たい風、仲間全員は気持ちよく回復する。', anim: 'aircon',
   },
-  dt_no_zangyou: {
-    name: 'ノー残業デー', kana: 'のーざんぎょうでー', need: [SHACHIKU, BOSS], mp: [3, 4], target: 'allies',
-    parts: [{ type: 'heal', base: [40, 52], thr: 22 }, { type: 'atbSet', add: 30, msg: '{t}はすっきりした顔をしている！' }],
-    desc: '上司の一声で、今日は早く帰れる！仲間全員のHPが回復して、すぐに動けるようになる。', anim: 'heal_dance',
-  },
-  dt_kaizokuou: {
-    name: '海賊王になる！', kana: 'かいぞくおうになる', need: [GOMU, PIRATE], mp: [6, 4], target: 'allies',
-    parts: [{ type: 'buff', stats: ['atk', 'agi'], mult: 1.3, dur: 40 }, { type: 'bondUp', amount: 20 }],
-    desc: '海賊の仲間と、大きなゆめをさけぶ！仲間全員の攻撃力と素早さが上がり、きずなも深まる。', anim: 'nika_drum',
+  dt_hametsu: {
+    name: '破滅のはかい玉', kana: 'はめつのはかいだま', need: [MAOU, HAKAI], mp: [16, 16], target: 'enemies', spell: true, element: 'dark',
+    parts: [{ type: 'power', kind: 'magic', element: 'dark', k: 0.85 }],
+    desc: '魔王の闇と、はかい神の力を1つの玉にまとめる。敵全体に闇の大ダメージ。', anim: 'hakai_ball',
   },
   dt_hikari_yami: {
-    name: '光と闇', kana: 'ひかりとやみ', need: [LOTO, DARK], mp: [10, 10], target: 'enemy', spell: true, element: 'void',
-    parts: [{ type: 'magic', element: 'void', base: [260, 310], thr: 90 }],
-    desc: 'ロトの光と、闇の力。ぶつかり合う2つの力が、敵1体を消し去るほどの大ダメージをあたえる。', anim: 'void',
+    name: '光と闇', kana: 'ひかりとやみ', need: [HOLY, DARK], mp: [12, 12], target: 'enemy', spell: true, element: 'void',
+    parts: [{ type: 'power', kind: 'magic', element: 'void', k: 1.2 }],
+    desc: '光と闇。ぶつかり合う2つの力が、敵1体を消し去るほどの大ダメージをあたえる。', anim: 'void',
   },
-  dt_roto_chisuji: {
-    name: 'ロトの血すじ', kana: 'ろとのちすじ', need: [LOTO, HERO], mp: [8, 6], target: 'allies',
-    parts: [{ type: 'buff', stats: ['atk', 'def', 'agi'], mult: 1.3, dur: 40 }, { type: 'heal', base: [60, 76], thr: 50 }],
-    desc: '伝説の勇者の血すじが、勇者の心を呼びおこす。仲間全員の攻撃力・守備力・素早さが上がり、HPも回復する。', anim: 'holy',
+  // ───────── 3人技 ─────────
+  dt_delta: {
+    name: 'デルタストライク', kana: 'でるたすとらいく', need: [SWORD, FIST, ELEM_SPELLS], mp: [8, 8, 8], target: 'enemy', weapon: [0, 'blade'],
+    parts: [{ type: 'power', kind: 'phys', elementFrom: 2, k: 1.0, hits: 3 }],
+    desc: '剣・こぶし・呪文が三角形をえがいて、1つの点にあつまる。敵1体に、呪文と同じ属性の大ダメージ。', anim: 'cross_slash',
   },
-  dt_collab: {
-    name: 'コラボライブ', kana: 'こらぼらいぶ', need: [STREAM, IDOL], mp: [4, 4], target: 'allies',
-    parts: [{ type: 'heal', base: [30, 40], thr: 20 }, { type: 'buff', stat: 'atk', mult: 1.25, dur: 30 }, { type: 'bondUp', amount: 15 }],
-    desc: '配信者とアイドルの、ゆめのコラボ！仲間全員のHPが回復して、攻撃力が上がり、きずなも深まる。', anim: 'stage',
+  dt_jump: {
+    name: 'せーのでジャンプ', kana: 'せーのでじゃんぷ', need: [JUMP, JUMP, JUMP], mp: [6, 6, 6], target: 'enemies', funny: true,
+    parts: [
+      { type: 'power', kind: 'phys', k: 0.75, say: '「せーの！」3人がいっしょにジャンプして、ドスンと着地した！' },
+      { type: 'atbSet', sub: 50, chance: 0.7, msg: '{t}はゆれでひっくり返った！', failMsg: '{t}はなんとかふんばった。' },
+    ],
+    desc: '「せーの！」3人でいっしょにジャンプして、地面をドスンとゆらす。敵全体にダメージをあたえて、ひっくり返す。', anim: 'quake',
   },
-  dt_kyouryoku: {
-    name: '協力プレイ', kana: 'きょうりょくぷれい', need: [GAME, GAME_SCHOOL], mp: [4, 4], target: 'enemy',
-    parts: [{ type: 'phys', mult: 0.55, hits: 6 }],
-    desc: '2人で息を合わせて、コントローラーを連打！敵1体に6回続けて攻撃する。', anim: 'punch_multi',
+  dt_uukanpi: {
+    name: 'ウーウーカンカンピーポー', kana: 'うーうーかんかんぴーぽー', need: [POLICE, FIRE_DEPT, RESCUE], mp: [8, 8, 8], target: 'allies', funny: true,
+    parts: [
+      { type: 'revive', pct: 0.4 }, { type: 'heal', pct: 0.45, k: 0.5 },
+      { type: 'cure', statuses: ['poison', 'sleep', 'confuse', 'paralyze', 'blind', 'silence'] },
+      { type: 'power', target: 'enemies', kind: 'phys', element: 'ice', k: 0.45, say: '消防車がいっせい放水！' },
+    ],
+    desc: 'パトカー・消防車・救急車が、いっぺんにかけつけた！たおれた仲間も起きて、仲間全員が回復し、状態異常も治る。敵全体には放水。', anim: 'siren',
   },
-  dt_honoo_course: {
-    name: '炎のフルコース', kana: 'ほのおのふるこーす', need: [COOK, FIRE], mp: [5, 5], target: 'enemies', spell: true, element: 'fire',
-    parts: [{ type: 'magic', element: 'fire', base: [40, 52], thr: 24 }],
-    desc: '料理人の強火に、炎の呪文を合わせる。敵全体を、こんがり焼き上げる。', anim: 'fire_tornado',
+  dt_oosouji: {
+    name: '大そうじ大作戦', kana: 'おおそうじだいさくせん', need: [OKAN, NEET, KIDS], mp: [6, 6, 6], target: 'enemies', funny: true,
+    parts: [
+      { type: 'power', kind: 'phys', k: 0.7, dispel: true, say: '「ほら、あんたたちも手伝いなさい！」' },
+      { type: 'banish', chance: 0.3, msg: '{t}はゴミぶくろに入れられた！', failMsg: '{t}は、ゴミぶくろからはい出した！' },
+    ],
+    desc: 'おかんの号令で、家じゅう大そうじ！敵全体をはたいて、強くなった力を消す。ゴミぶくろに入れられてしまう敵もいる。', anim: 'hit_all',
   },
-  dt_bousai: {
-    name: '防災点検', kana: 'ぼうさいてんけん', need: [FACILITY, SAFETY], mp: [4, 4], target: 'allies',
-    parts: [{ type: 'buff', stat: 'def', mult: 1.3, dur: 35 }, { type: 'cure', statuses: ['poison', 'sleep', 'confuse', 'paralyze', 'blind', 'silence'] }],
-    desc: '設備のプロと町を守る人で、すみずみまで点検。仲間全員の守備力が上がり、状態異常も治る。', anim: 'guard',
+  dt_ogori: {
+    name: '部長のおごりだ！', kana: 'ぶちょうのおごりだ', need: [BOSS, SALARY, KITCHEN], mp: [12, 4, 4], target: 'allies', funny: true,
+    parts: [
+      { type: 'heal', pct: 0.4, k: 0.5 }, { type: 'mpHeal', base: [10, 18] },
+      { type: 'buff', stats: ['atk', 'def'], mult: 1.45, dur: 40, say: '「今日はわしのおごりだ！」…部長のさいふは、からっぽになった。' },
+    ],
+    desc: '「今日はわしのおごりだ！」上司のお金で、みんなで大ごちそう。仲間全員のHPとMPが回復して、攻撃力と守備力が大きく上がる。部長のMPは多めにへる。', anim: 'gohan',
   },
-  dt_yakan: {
-    name: '夜間工事', kana: 'やかんこうじ', need: [FACILITY, SHACHIKU], mp: [5, 5], target: 'enemies',
-    parts: [{ type: 'phys', mult: 1.4, ignoreDef: 0.35 }],
-    desc: 'みんながねている間に、2人で一気に工事。敵全体を、守りごとくだく。', anim: 'quake',
+  dt_dai_collab: {
+    name: '大コラボ配信', kana: 'だいこらぼはいしん', need: [STREAM, GAME, STAGE], mp: [7, 7, 7], target: 'enemies',
+    parts: [
+      { type: 'power', kind: 'magic', element: 'light', k: 0.65, say: 'コメントがあらしのようにふってきた！' },
+      { type: 'buff', target: 'allies', stats: ['atk', 'agi'], mult: 1.4, dur: 40 }, { type: 'bondUp', amount: 25 },
+    ],
+    desc: '配信者とゲーマーとアイドルの、ゆめのコラボ配信！敵全体にコメントのあらし。仲間全員の攻撃力と素早さが上がり、きずなも深まる。', anim: 'camera',
   },
-  dt_hakai_ken: {
-    name: 'はかいの拳', kana: 'はかいのけん', need: [HAKAI, FIST], mp: [10, 6], target: 'enemy',
-    parts: [{ type: 'phys', mult: 3.2, ignoreDef: 0.4 }],
-    desc: 'はかい神の力を、こぶしにこめて打ちこむ。敵1体に、守りを打ちぬく大ダメージ。', anim: 'hakai',
+  // ───────── 4人技 ─────────
+  dt_zenin: {
+    name: '全員集合', kana: 'ぜんいんしゅうごう', need: [ATTACK, ATTACK, ATTACK, ATTACK], mp: [10, 10, 10, 10], target: 'enemies', funny: true,
+    parts: [{ type: 'power', kind: 'phys', k: 0.7, say: '「全員集合！」4人がいっせいにとびかかった！' }],
+    desc: '「全員集合！」4人がいっせいに敵におそいかかる。どの職業の4人でも出せる。敵全体に大ダメージ。', anim: 'hit_all',
   },
-  dt_siren: {
-    name: 'サイレン出動', kana: 'さいれんしゅつどう', need: [POLICE, FIRE_DEPT], mp: [4, 4], target: 'allies',
-    parts: [{ type: 'heal', base: [36, 48], thr: 22 }, { type: 'cure', statuses: ['poison', 'sleep', 'confuse', 'paralyze', 'blind', 'silence'] }, { type: 'buff', stat: 'def', mult: 1.2, dur: 30 }],
-    desc: 'パトカーと消防車が、サイレンを鳴らしてかけつける！仲間全員のHPが回復し、状態異常も治り、守備力も上がる。', anim: 'siren',
+  dt_kazoku_kaigi: {
+    name: '家族会議', kana: 'かぞくかいぎ', need: [OKAN, JOBWORK, KIDS, ATTACK], mp: [8, 8, 8, 8], target: 'enemies', funny: true,
+    parts: [
+      { type: 'buff', target: 'allies', stats: ['atk', 'def', 'agi'], mult: 1.5, dur: 45, say: '「では、今日の晩ごはんを決めます！」' },
+      { type: 'status', status: 'sleep', chance: 0.8, turns: [2, 3], say: '話し合いが長すぎて…' },
+      { type: 'heal', target: 'allies', pct: 0.3, k: 0.4 },
+    ],
+    desc: '「では、家族会議を始めます」話し合いがあまりに長くて、敵全体がねむってしまう。家族はまとまって、攻撃力・守備力・素早さが大きく上がり、HPも回復する。', anim: 'stage',
   },
-  dt_ozaru: {
-    name: '大ザルつかい', kana: 'おおざるつかい', need: [TAMER, KI], mp: [4, 5], target: 'enemies',
-    parts: [{ type: 'phys', mult: 1.3 }, { type: 'debuff', stat: 'atk', mult: 0.85, dur: 30, chance: 0.6 }],
-    desc: '大ザルになったサイヤ人を、魔物使いがうまくあやつる。敵全体を攻撃して、攻撃力を下げることがある。', anim: 'quake',
+  dt_finale: {
+    name: 'グランドフィナーレ', kana: 'ぐらんどふぃなーれ', need: [SWORD, FIST, ELEM_SPELLS, HEAL], mp: [14, 14, 14, 14], target: 'enemy', element: 'light', weapon: [0, 'blade'],
+    parts: [{ type: 'power', kind: 'magic', element: 'light', k: 1.0, hits: 4 }, { type: 'heal', target: 'allies', pct: 0.3, k: 0.4 }],
+    desc: '剣・こぶし・呪文・いやし。4人の力が1つの光になって、敵1体をつらぬく。とどめの大ダメージのあと、仲間全員のHPも回復する。', anim: 'holy',
   },
 };
 
+// メニューで ならべる じゅん（人数の 多い 技を 下に）
 export const DUAL_ORDER = Object.keys(DUAL_TECHS);
+
+// けずった 合体技 → にていて まとめた 先の 技（その 技を 使った ことが あれば、まとめた 先の 効果も わかる）
+// ここに ない けずった 技の 記録（dualSeen）も、けさずに そのまま のこす
+export const DUAL_LEGACY = {
+  dt_raiden_strash: 'dt_cross_mahouken', dt_twin_fist: 'dt_cross_break', dt_kyouryoku: 'dt_cross_break',
+  dt_hero_interview: 'dt_stage', dt_collab: 'dt_stage', dt_kakushigei: 'dt_manzai', dt_shuuden: 'dt_tsukin_rush',
+  dt_harmony: 'dt_iyashi_wa', dt_ofukuro: 'dt_bentou', dt_siren: 'dt_uukanpi', dt_jikkyou: 'dt_dai_collab', dt_yakan: 'dt_zenkan', dt_bousai: 'dt_zenkan',
+  dt_gishiki: 'dt_hikari_yami', dt_hakai_ken: 'dt_hametsu',
+};
+const LEGACY_OF = {};
+for (const [old, now] of Object.entries(DUAL_LEGACY)) (LEGACY_OF[now] = LEGACY_OF[now] || []).push(old);
+
+// 何人の 技か
+export function dualSize(id) {
+  return DUAL_TECHS[id]?.need.length || 0;
+}
 
 // 組の 説明（例:「炎の呪文」）
 export function groupName(list) {
   return DUAL_GROUP_NAMES.get(list) || list.map((id) => ABILITIES[id]?.name).filter(Boolean).slice(0, 3).join('・');
 }
 
-// 合体技に 使える 技を 1つ さがす（その 人が 今 使える もの）
+// 組を Set に（さがすのを はやく）
+const setCache = new WeakMap();
+function groupSet(list) {
+  let s = setCache.get(list);
+  if (!s) setCache.set(list, (s = new Set(list)));
+  return s;
+}
+
+// 合体技に 使える 技を 1つ さがす（その 人が 今 使える もの。覚えた じゅん）
 // who: { abilities, usable(id) }
 function findSkill(who, list) {
-  for (const id of list) if (who.abilities.includes(id) && (!who.usable || who.usable(id))) return id;
+  const set = groupSet(list);
+  for (const id of who.abilities || []) if (set.has(id) && (!who.usable || who.usable(id))) return id;
   return null;
 }
 
 // 相手が 合体技に 入れるか（生きていて、ねむり・マヒ・混乱で なく、ゲージが たまっている）
 // anyGauge: よやく できるか（ゲージは まだ たまって いなくて よい。ほかの 行動を まっている 仲間とも、つぎの 番で 出す）
+// hold: ほかの 仲間を まって ゲージが たまった まま 待っている（3人・4人技）
 export const DUAL_GAUGE = 100;
 export function partnerNow(p) {
-  return !p?.queued && (!!p?.ready || (p?.atb || 0) >= DUAL_GAUGE);
+  return !p?.queued && (!!p?.hold || !!p?.ready || (p?.atb || 0) >= DUAL_GAUGE);
 }
 export function partnerFree(p, anyGauge = false) {
   if (!p || !p.alive || p.busy || p.inviting || p.waiting) return false;
@@ -313,35 +318,78 @@ export function partnerFree(p, anyGauge = false) {
   return anyGauge || partnerNow(p);
 }
 
+// n こから k こ えらぶ くみあわせ
+function* combos(list, k, from = 0, pick = []) {
+  if (pick.length === k) {
+    yield pick;
+    return;
+  }
+  for (let i = from; i <= list.length - (k - pick.length); i++) yield* combos(list, k, i + 1, [...pick, list[i]]);
+}
+// 0..n-1 の ならべかた
+function perms(n) {
+  const out = [];
+  const go = (cur, rest) => {
+    if (!rest.length) return out.push(cur);
+    rest.forEach((x, i) => go([...cur, x], [...rest.slice(0, i), ...rest.slice(i + 1)]));
+  };
+  go([], [...Array(n).keys()]);
+  return out;
+}
+const PERMS = { 2: perms(2), 3: perms(3), 4: perms(4) };
+
+// members（0 … 出す 人）を 組に わりあてる。だめなら null
+// もどりち: { who: [組ごとの 人の 番号], skills: [組ごとの 技] }
+function assign(t, members, weaponOk) {
+  const n = t.need.length;
+  const silenced = (x) => (x.statuses || []).includes('silence');
+  if (t.spell && members.some(silenced)) return null;
+  const memo = new Map();
+  const skillOf = (m, g) => {
+    const key = m * 8 + g;
+    if (!memo.has(key)) memo.set(key, findSkill(members[m], t.need[g]));
+    return memo.get(key);
+  };
+  for (const perm of PERMS[n]) {
+    // perm[g] … 組 g を うけもつ 人
+    let ok = true;
+    for (let g = 0; g < n && ok; g++) {
+      const m = members[perm[g]];
+      if (!skillOf(perm[g], g) || (m.mp ?? 0) < t.mp[g]) ok = false;
+      // 剣が いる 組
+      else if (t.weapon && weaponOk && t.weapon[0] === g && !weaponOk({ weapon: t.weapon[1] }, m.weaponCat)) ok = false;
+    }
+    if (ok) return { who: perm, skills: perm.map((m, g) => skillOf(m, g)) };
+  }
+  return null;
+}
+
 // actor が 今 出せる 合体技
-// actor・others: { id, name, alive, abilities, mp, atb, ready, queued, statuses, weaponCat, usable(id) }
-// もどりち: [{ id, partner, partnerName, mine: 0|1, skills: [a, b], mp: [actorの MP, 相手の MP], element }]
+// actor・others: { id, name, alive, abilities, mp, atb, ready, queued, hold, statuses, weaponCat, usable(id) }
+// もどりち: [{ id, size, partners: [相手の id], partner（1人め）, partnerName（「・」で つなぐ）, names, mine（actor の 組）,
+//   skills: [組ごとの 技], who: [組ごとの 人の id], mp: [actor の MP, 相手の MP…（partners の じゅん）], element, now }]
+//   2人技は いままでと おなじ 形（partner・mp[0]・mp[1]）
 export function dualOptions(actor, others, weaponOk, { anyGauge = false } = {}) {
   const out = [];
   if (!actor || !actor.alive) return out;
-  const silenced = (x) => (x.statuses || []).includes('silence');
-  for (const p of others) {
-    if (p.id === actor.id || !partnerFree(p, anyGauge)) continue;
-    for (const [id, t] of Object.entries(DUAL_TECHS)) {
-      for (const side of [0, 1]) {
-        const mine = findSkill(actor, t.need[side]);
-        const theirs = mine && findSkill(p, t.need[1 - side]);
-        if (!mine || !theirs) continue;
-        const mpMine = t.mp[side], mpTheirs = t.mp[1 - side];
-        if (actor.mp < mpMine || p.mp < mpTheirs) continue;
-        if (t.spell && (silenced(actor) || silenced(p))) continue;
-        // 剣が いる 側
-        if (t.weapon && weaponOk) {
-          const [wSide, cat] = t.weapon;
-          const who = wSide === side ? actor : p;
-          if (!weaponOk({ weapon: cat }, who.weaponCat)) continue;
-        }
-        const skills = side === 0 ? [mine, theirs] : [theirs, mine];
-        const elFrom = t.parts.find((x) => x.elementFrom !== undefined)?.elementFrom;
-        const element = elFrom !== undefined ? ABILITIES[skills[elFrom]]?.effect?.element : t.element;
-        out.push({ id, partner: p.id, partnerName: p.name, mine: side, skills, mp: [mpMine, mpTheirs], element, now: partnerNow(p) });
-        break;
-      }
+  const free = others.filter((p) => p.id !== actor.id && partnerFree(p, anyGauge));
+  for (const [id, t] of Object.entries(DUAL_TECHS)) {
+    const n = t.need.length;
+    if (free.length < n - 1) continue;
+    // 自分が どの 組にも 入れない 技は とばす（はやく する）
+    if (!t.need.some((g) => findSkill(actor, g))) continue;
+    for (const team of combos(free, n - 1)) {
+      const members = [actor, ...team];
+      const fit = assign(t, members, weaponOk);
+      if (!fit) continue;
+      const mpOf = (m) => t.mp[fit.who.indexOf(m)];
+      const elFrom = t.parts.find((x) => x.elementFrom !== undefined)?.elementFrom;
+      const element = elFrom !== undefined ? ABILITIES[fit.skills[elFrom]]?.effect?.element : t.element;
+      out.push({
+        id, size: n, partners: team.map((p) => p.id), partner: team[0].id, partnerName: team.map((p) => p.name).join('・'), names: members.map((m) => m.name),
+        mine: fit.who.indexOf(0), skills: fit.skills, who: fit.who.map((m) => members[m].id),
+        mp: members.map((_, i) => mpOf(i)), element, now: team.every(partnerNow),
+      });
     }
   }
   return out;
@@ -349,7 +397,7 @@ export function dualOptions(actor, others, weaponOk, { anyGauge = false } = {}) 
 
 // ───── 今の パーティーに 関係する 合体技 ─────
 // メニューの「合体技」の 一覧には、使った ことの ある 技と、パーティーに 関係する 技だけ 出す
-// 関係する … need の 2つの 組の どちらにも、パーティーの 職業（stats.js の partyJobSet）の 技か、
+// 関係する … need の 組の どれにも、パーティーの 職業（stats.js の partyJobSet）の 技か、
 //   パーティーの だれかが 覚えている 技（skills）が ある
 export function dualRelated(id, jobSet, skills = new Set()) {
   const t = DUAL_TECHS[id];
@@ -357,7 +405,9 @@ export function dualRelated(id, jobSet, skills = new Set()) {
   return t.need.every((list) => list.some((k) => skills.has(k) || jobSet.has(ABILITIES[k]?.job)));
 }
 
-// その 合体技の 効果を 知っているか（一度 使うと わかる）
+// その 合体技の 効果を 知っているか（一度 使うと わかる。まとめる 前の 技を 使った ことが あっても わかる）
 export function dualKnown(char, id) {
-  return !!char?.dualSeen?.[id];
+  const seen = char?.dualSeen;
+  if (!seen) return false;
+  return !!seen[id] || (LEGACY_OF[id] || []).some((old) => seen[old]);
 }

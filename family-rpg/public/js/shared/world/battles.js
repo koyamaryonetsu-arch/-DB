@@ -286,12 +286,12 @@ export function abortBattle(world, ctx) {
   if (ctx.resolve) ctx.resolve('flee');
 }
 
-// 合体技は 一度 使うと 効果が わかる（出した 2人の もちぬしの キャラに char.dualSeen）
+// 合体技は 一度 使うと 効果が わかる（出した 人 みんなの もちぬしの キャラに char.dualSeen）
 function markDuals(world, ctx, evs) {
   for (const ev of evs) {
     const d = ev.dual;
     if (!d?.id) continue;
-    for (const id of [d.a, d.b]) {
+    for (const id of d.m || [d.a, d.b]) {
       const who = ctx.actorMap[id];
       const ch = who?.type === 'human' ? who.char : who?.type === 'support' ? world.data.characters[who.owner] : null;
       if (ch && !ch.dualSeen?.[d.id]) ch.dualSeen = { ...(ch.dualSeen || {}), [d.id]: 1 };

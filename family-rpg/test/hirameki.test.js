@@ -177,7 +177,7 @@ test('合体技: 2人の 技が そろい、相手の ゲージが たまって�
   m.atb = 100;
   const ids = b.dualOptionsFor(a).map((o) => o.id);
   assert.ok(ids.includes('dt_honoo_tatsumaki'), 'メラ＋バギ＝炎の竜巻');
-  assert.ok(ids.includes('dt_blizzard'), 'ヒャド＋バギ＝ブリザード');
+  assert.ok(!ids.includes('dt_blizzard'), 'ブリザードは 第26回で けずった');
   assert.ok(!ids.includes('dt_taishoumetsu'), '僧侶は ヒャドを 覚えていない');
   m.status.sleep = { turns: 2 };
   assert.equal(b.dualOptionsFor(a).length, 0, 'ねむっている 仲間とは 出せない');
@@ -199,8 +199,8 @@ test('合体技: AIの 仲間なら すぐ 出る（2人の MPと 番を 使う�
   assert.equal(act.dual.b, m.id);
   assert.ok(act.lines[0].includes('ヒナとミーナの合体技'));
   assert.ok(act.results.some((x) => x.dmg > 0));
-  assert.equal(a.mp, mpA - 4);
-  assert.equal(m.mp, mpM - 4);
+  assert.equal(a.mp, mpA - DUAL_TECHS.dt_honoo_tatsumaki.mp[0]);
+  assert.equal(m.mp, mpM - DUAL_TECHS.dt_honoo_tatsumaki.mp[1]);
   assert.equal(m.atb, 0);
   assert.equal(m.queued, false);
   // れんけいで 属性が つながっても、かってに「合体」は おこらない
@@ -228,7 +228,7 @@ test('合体技: 家族には「参加する？」と 聞く（OK で 出る・�
   [a, m] = b.allies;
   readyUp(b, a);
   m.atb = 100;
-  b.command(a.id, { type: 'dual', id: 'dt_blizzard', partner: m.id, target: b.enemies[0].id }, 's1');
+  b.command(a.id, { type: 'dual', id: 'dt_honoo_tatsumaki', partner: m.id, target: b.enemies[0].id }, 's1');
   const inv2 = b.tick(10).find((e) => e.t === 'dualInvite');
   b.command(m.id, { type: 'dualAnswer', invite: inv2.invite, ok: false }, 's2');
   evs = b.tick(10);
@@ -242,7 +242,7 @@ test('合体技: 家族には「参加する？」と 聞く（OK で 出る・�
   [a, m] = b.allies;
   readyUp(b, a);
   m.atb = 100;
-  b.command(a.id, { type: 'dual', id: 'dt_blizzard', partner: m.id, target: b.enemies[0].id }, 's1');
+  b.command(a.id, { type: 'dual', id: 'dt_honoo_tatsumaki', partner: m.id, target: b.enemies[0].id }, 's1');
   evs = [];
   for (let t = 0; t < DUAL_ASK_MS + 500; t += 100) evs.push(...b.tick(100));
   const late = evs.find((e) => e.t === 'dualAnswer');
@@ -252,8 +252,8 @@ test('合体技: 家族には「参加する？」と 聞く（OK で 出る・�
 
 test('合体技の データ: 技の 組が そろっていて、出せる 組み合わせが ある', () => {
   for (const [id, t] of Object.entries(DUAL_TECHS)) {
-    assert.equal(t.need.length, 2, id);
-    assert.equal(t.mp.length, 2, id);
+    assert.ok(t.need.length >= 2 && t.need.length <= 4, id);
+    assert.equal(t.mp.length, t.need.length, id);
     for (const g of t.need) for (const k of g) assert.ok(ABILITIES[k], `${id}: ${k}`);
     assert.ok(t.parts.length > 0);
   }

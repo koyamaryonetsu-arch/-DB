@@ -29,7 +29,8 @@ const masterChain = (c, jid) => {
 };
 const tierOf = (j) => JOBS[j].tier || 0;
 const NEW_HIRA = Object.keys(HIRA_JOB_ABILITIES);
-const NEW_DUAL = DUAL_ORDER.slice(DUAL_ORDER.indexOf('dt_gomu_kame'));
+// 第23回の 合体技で、第26回（合体技の 作り直し）の あとも のこっている 2人技
+const NEW_DUAL = ['dt_gomu_kame', 'dt_bentou', 'dt_zenkan', 'dt_hametsu', 'dt_gyouretsu', 'dt_manzai', 'dt_hataraki', 'dt_hikari_yami'];
 // 第20〜22回の 職業
 const RECENT = [
   'cook', 'patissier', 'star_chef', 'parttimer', 'seishain', 'tatakiage', 'comedian', 'm1_champion', 'daikenja', 'loto_hero',
@@ -145,18 +146,21 @@ test('第20〜22回の 職業には どれも ひらめき技が あり、合体
   assert.ok(pair('dt_bentou', 'okan', 'shachiku'), 'おかん×社ちく');
   assert.ok(pair('dt_zenkan', 'ryonetsu', 'facility_genius'), 'ryonetsu×天才しせつ管理者');
   assert.ok(pair('dt_hametsu', 'maou', 'hakaishin'), '魔王×はかい神');
-  assert.ok(pair('dt_jikkyou', 'youtuber', 'gamer'), 'ユーチューバー×ゲーマー');
-  assert.ok(pair('dt_ofukuro', 'cook', 'okan'), '料理人×おかん');
-  assert.ok(pair('dt_shuuden', 'railman', 'shachiku'), '鉄道員×社ちく');
-  assert.ok(pair('dt_siren', 'police', 'firefighter'), '警察官×消防士');
-  assert.ok(NEW_DUAL.length >= 20, `新しい 合体技 ${NEW_DUAL.length}こ`);
+  assert.ok(pair('dt_gyouretsu', 'cook', 'parttimer'), '料理人×アルバイト');
+  assert.ok(pair('dt_tsukin_rush', 'railman', 'shachiku'), '鉄道員×社ちく');
+  assert.ok(pair('dt_hataraki', 'okan', 'neet'), 'おかん×ニート');
+  // 第26回: 3人技（ユーチューバー×ゲーマー×アイドル の 大コラボ配信・警察官×消防士 の ウーウーカンカンピーポー）
+  const has = (id, side, j) => jobsOf(id, side).has(j);
+  assert.ok(has('dt_dai_collab', 0, 'youtuber') && has('dt_dai_collab', 1, 'gamer'), 'ユーチューバー×ゲーマー');
+  assert.ok(has('dt_uukanpi', 0, 'police') && has('dt_uukanpi', 1, 'firefighter'), '警察官×消防士');
+  assert.ok(NEW_DUAL.every((id) => DUAL_TECHS[id]), '第23回の 2人技が のこっている');
 });
 
 test('第23回の 合体技: データ・文字・組の 名前・エフェクト', () => {
   for (const id of NEW_DUAL) {
     const t = DUAL_TECHS[id];
-    assert.equal(t.need.length, 2, id);
-    assert.equal(t.mp.length, 2, id);
+    assert.ok(t.need.length >= 2 && t.need.length <= 4, id);
+    assert.equal(t.mp.length, t.need.length, id);
     for (const list of t.need) {
       assert.ok(DUAL_GROUP_NAMES.has(list), `${id}: 組の 名前`);
       for (const k of list) assert.ok(ABILITIES[k], `${id}: ${k}`);
@@ -322,10 +326,12 @@ test('パーティーに 関係する 合体技だけ 出す', () => {
   assert.ok(shown.includes('dt_jugyo_sankan') === false, '学校の 技が ないので 授業参観は 出さない');
   for (const id of ['dt_gomu_kame', 'dt_taishoumetsu', 'dt_hametsu']) assert.ok(!shown.includes(id), id);
   assert.ok(shown.length < DUAL_ORDER.length / 3, `出すのは 少しだけ ${shown.length}`);
-  // 覚えている 技（前の 職業の メラ など）でも 関係する
-  assert.ok(!dualRelated('dt_honoo_course', set));
-  assert.ok(dualRelated('dt_honoo_course', partyJobSet([{ job: 'cook' }]), new Set(['mera'])), '料理人＋メラを 覚えている');
-  assert.ok(dualRelated('dt_honoo_course', partyJobSet([{ job: 'cook' }, { job: 'mage' }])));
+  // 覚えている 技（前の 職業の バギ など）でも 関係する
+  assert.ok(!dualRelated('dt_honoo_tatsumaki', set));
+  assert.ok(dualRelated('dt_honoo_tatsumaki', partyJobSet([{ job: 'mage' }]), new Set(['bagi'])), '魔法使い＋バギを 覚えている');
+  assert.ok(dualRelated('dt_honoo_tatsumaki', partyJobSet([{ job: 'priest' }, { job: 'mage' }])));
+  // けずった 合体技は 出さない
+  assert.ok(!dualRelated('dt_honoo_course', partyJobSet([{ job: 'cook' }, { job: 'mage' }])));
 });
 
 test('パーティーの 職業は サーバーと クライアントで おなじ（家族の マスターした 職業を おくる）・ひらめきの賢者も 関係する ヒントだけ', { timeout: 60000 }, async () => {

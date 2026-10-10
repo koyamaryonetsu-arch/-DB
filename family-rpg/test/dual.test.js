@@ -2,7 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { newCharacter, gainExp, expForLevel, fullHeal } from '../public/js/shared/stats.js';
-import { Battle, BOND_GAIN, dualPartEffect, normBattleSettings, DEFAULT_BATTLE_SPEED, DEFAULT_TEXT_SPEED } from '../public/js/shared/battle.js';
+import { Battle, BOND_GAIN, DUAL_POWER, normBattleSettings, DEFAULT_BATTLE_SPEED, DEFAULT_TEXT_SPEED } from '../public/js/shared/battle.js';
 import { DUAL_TECHS } from '../public/js/shared/data/dual.js';
 import { makeRng } from '../public/js/shared/rng.js';
 
@@ -163,16 +163,27 @@ test('オートで ねらう 合体技は もう ない（前の セーブに �
   assert.equal(b.command(b.allies[0].id, { type: 'setAutoDual', id: 'dt_honoo_tatsumaki' }, 's1').ok, false, 'えらぶ コマンドも ない');
 });
 
-test('合体技の 強さ: 2人が 出した 呪文から きまる（はじめから 強すぎない）', () => {
-  const t = DUAL_TECHS.dt_taishoumetsu;
-  const low = dualPartEffect(t, t.parts[0], ['mera', 'hyado']);
-  const high = dualPartEffect(t, t.parts[0], ['merazoma', 'hyadaruko']);
-  assert.ok(low.base[1] < t.parts[0].base[0], `メラ＋ヒャドの 対消滅は 前より 弱い ${low.base}`);
-  assert.ok(high.base[0] > low.base[1], 'つよい 呪文どうしなら つよい');
-  const spread = dualPartEffect(DUAL_TECHS.dt_honoo_tatsumaki, DUAL_TECHS.dt_honoo_tatsumaki.parts[0], ['mera', 'bagi']);
-  assert.ok(spread.base[1] < 30, `全体の 合体技は ひかえめ ${spread.base}`);
-  const phys = dualPartEffect(DUAL_TECHS.dt_cross_break, DUAL_TECHS.dt_cross_break.parts[0], ['daichi', 'daichi']);
-  assert.ok(phys.mult < DUAL_TECHS.dt_cross_break.parts[0].mult);
+test('合体技の 強さ: 2人が ふつうに 技を 出した ときの 合計より ずっと 強い（人数で 上がる）', () => {
+  assert.ok(DUAL_POWER[2] >= 1.6 && DUAL_POWER[2] <= 2, `2人技 ${DUAL_POWER[2]}倍`);
+  assert.ok(DUAL_POWER[3] >= 2.1, `3人技 ${DUAL_POWER[3]}倍`);
+  assert.ok(DUAL_POWER[4] >= 2.8, `4人技 ${DUAL_POWER[4]}倍`);
+  // 炎の竜巻: メラ＋バギの ころより、メラゾーマ＋バギマの ほうが 強い（2人が 強くなるほど 強い）
+  const run = (lv) => {
+    const b = duo();
+    const [a, m] = b.allies;
+    for (const x of [a, m]) {
+      x.mag = lv;
+      x.mp = 999;
+    }
+    readyUp(b, a);
+    b.queue = b.queue.filter((q) => q.id !== m.id);
+    m.queued = false;
+    m.atb = 100;
+    b.command(a.id, { type: 'dual', id: 'dt_honoo_tatsumaki', partner: m.id, target: b.enemies[0].id }, 's1');
+    const act = runUntil(b, (e) => e.t === 'act' && e.dual).find((e) => e.t === 'act' && e.dual);
+    return act.results.filter((r) => r.dmg > 0).reduce((s, r) => s + r.dmg, 0);
+  };
+  assert.ok(run(120) > run(20), '魔力が 高いほど 強い');
 });
 
 test('きずなゲージは たまりにくい', () => {
