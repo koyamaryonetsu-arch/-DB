@@ -19,6 +19,7 @@ import { forgeInfo, forgeAction } from './forge.js';
 import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction, wagonHere, wagonHealEntries, ownWagonEntries } from './wagon.js';
 import { casinoOpen, casinoAction } from './casino.js';
 import { useEscapeItem, noEscapeText } from './escape.js';
+import { usePowder } from './powder.js';
 import { bestEquipPlan, bestTeamOrder } from '../equip-plan.js';
 import { setLookEquip } from '../look-equip.js';
 
@@ -392,6 +393,8 @@ export function menuAction(world, s, msg) {
         s.repelUntil = world.now() + eff.seconds * 1000;
         return reply(true, `${c.name}は聖水をふりまいた！\nしばらく弱い魔物が寄ってこない。`);
       }
+      // 仲間の粉（data/friend-powder.js）
+      if (eff.type === 'befriendBoost') return usePowder(world, s, c, msg.id, reply);
       if (eff.type === 'warp') {
         // 王家のピラミッド（第4章）: 帰り道の羽は 使えない（道具は へらない。行き先を えらぶ 前に 知らせる）
         if (MAPS[s.map]?.noEscape) return reply(false, noEscapeText(it.name, MAPS[s.map]));

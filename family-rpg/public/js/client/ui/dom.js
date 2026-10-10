@@ -32,8 +32,11 @@ export class ListMenu {
   // start: はじめに カーソルを おく ばんごう（まえに えらんだ ところ など）
   // onSide: 1れつの リストで 左右を おした とき（タブを かえる・せつめいを スクロール など）。-1 か 1
   // fit: なまえは 1行で。入りきらない ときは 文字を 小さく して ぜんぶ 見せる（せまい ボタンの たたかいの コマンド）
-  constructor(input, { items = [], cols = 1, onSelect, onCancel, onMove, onSide, sound, className = '', back, press = 0, start = -1, fit = false } = {}) {
+  // tapConfirm: タップ（クリック）で ほかの 行を えらぶと カーソルと せつめい だけ うごく。えらんでいる 行を もう一度 おすと 決まる
+  //   （戦いの 呪文・特技・道具。マウスは 先に カーソルが 合うので 1回で 決まる）
+  constructor(input, { items = [], cols = 1, onSelect, onCancel, onMove, onSide, sound, className = '', back, press = 0, start = -1, fit = false, tapConfirm = false } = {}) {
     this.input = input;
+    this.tapConfirm = tapConfirm;
     this.fitText = fit;
     this.onSide = onSide || null;
     this.press = press;
@@ -79,6 +82,10 @@ export class ListMenu {
           this.render();
           // タッチでは ホバーが ないので、タップで せつめいも かえる
           if (moved) this.onMove?.(this.items[i], i);
+          if (moved && this.tapConfirm) {
+            this.sound?.('cursor');
+            return;
+          }
           this.choose();
         },
         // マウスを 本当に うごかした ときだけ カーソルを あわせる

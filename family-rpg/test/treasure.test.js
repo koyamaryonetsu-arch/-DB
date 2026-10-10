@@ -8,6 +8,7 @@ import { PLACES } from '../public/js/shared/maps/overworld.js';
 import { T } from '../public/js/shared/tiles.js';
 import { STORY_STEPS, SCRIPTS } from '../public/js/shared/data/story.js';
 import { MONSTERS } from '../public/js/shared/data/monsters.js';
+import { rewardExp } from '../public/js/shared/data/difficulty.js';
 import { ITEMS } from '../public/js/shared/data/items.js';
 import { ENCOUNTER_TABLES } from '../public/js/shared/data/encounters.js';
 import {
@@ -362,7 +363,8 @@ test('宝の地図: 洞窟の 魔物は 地図の レベルで 強くなり、�
   for (const x of ctx.battle.enemies) x.hp = 1;
   await bot.settle();
   const gained = c.exp - exp0;
-  const baseExp = ctx.battle.result.killed.reduce((s, sp) => s + MONSTERS[sp].exp, 0);
+  // きほんの 倍率（data/difficulty.js の rewardExp。2026年10月 見なおし）を かけた もの
+  const baseExp = rewardExp(ctx.battle.result.killed.reduce((s, sp) => s + MONSTERS[sp].exp, 0));
   assert.ok(gained > baseExp, `経験値 ${gained} > ${baseExp}`);
   // 強さの きまり
   const m = scaleEnemy(enemyFromSpecies('skeleton'), 20);

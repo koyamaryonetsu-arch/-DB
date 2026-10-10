@@ -5,6 +5,7 @@ import { JOBS } from '../../shared/data/jobs.js';
 import { renderMiniMap, openWorldMap } from './menu.js';
 import { makeCanvas } from '../render/pixel.js';
 import { ClockBadge } from './clock.js';
+import { powderLabel } from '../../shared/data/friend-powder.js';
 
 export const STAMPS = ['よろしく！', 'ありがとう！', '行くよー！', '助けて！', '待ってて！', 'やったね！', 'おつかれさま', 'ご飯だよ〜'];
 
@@ -42,7 +43,9 @@ export class Hud {
     this.mini = makeCanvas(84, 84);
     // 昼・夜の 時計（ちずの 左下）
     this.clock = new ClockBadge(game);
-    this.mapBox.append(this.mini, this.clock.el);
+    // 仲間の粉の のこり（ちずの 上に 小さく。data/friend-powder.js）
+    this.powder = el('div', { class: 'hud-powder', hidden: true });
+    this.mapBox.append(this.mini, this.clock.el, this.powder);
     this.btns = el('div', { class: 'hud-btns' },
       el('button', { class: 'win hud-btn', text: 'メニュー', onclick: () => game.openMenu() }),
       el('button', { class: 'win hud-btn', text: 'チャット', onclick: () => this.chatInput() }),
@@ -62,6 +65,9 @@ export class Hud {
       this.miniTimer = 250;
       renderMiniMap(this.game, this.mini, false);
       this.clock.update();
+      const pw = powderLabel(this.game.me);
+      if (this.powder.textContent !== pw) this.powder.textContent = pw;
+      this.powder.hidden = !pw;
     }
     const f = this.game.field;
     if (!f.map) return;

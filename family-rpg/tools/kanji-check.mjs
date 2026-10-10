@@ -223,6 +223,9 @@ export function gameFiles() {
     // ひみつのダンジョン（終わりの ない ダンジョン・家族の記録の板）
     'public/js/shared/data/secret.js', 'public/js/shared/data/story-secret.js', 'public/js/shared/maps/secret-dungeon.js',
     'public/js/shared/world/secret.js', 'public/js/client/ui/secret.js', 'public/js/client/render/secret-art.js',
+    // 家族の 見なおし（第26回）: 第4章・夜の 魔物の 仲間・仲間の粉・上位の 技・戦いの 技の せつめい
+    'public/js/shared/data/companions-ch4.js', 'public/js/shared/data/friend-powder.js', 'public/js/shared/world/powder.js',
+    'public/js/shared/data/skill-ups.js', 'public/js/client/ui/skillinfo.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

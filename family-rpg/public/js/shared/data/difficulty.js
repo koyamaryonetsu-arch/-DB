@@ -37,6 +37,20 @@ export function normDifficulty(prev, msg) {
   return d;
 }
 
+// 戦いで もらえる 経験値・お金の きほんの 倍率（2026年10月 見なおし。前は どちらも 1）
+// 「レベルと お金が たまりやすすぎる」ので、経験値は 6わり・お金は 7わりに した。
+// 設定の「もらえる経験値」（1・0.75・0.5）は この 上に かかる（scaleExp）。職業レベル（戦いの 数）・店の 値段は かえない
+export const REWARD_EXP_RATE = 0.6;
+export const REWARD_GOLD_RATE = 0.7;
+// 戦い 1回ぶんの 経験値（魔物の exp の 合計 → きほんの 倍率。0 で なければ 1 いじょう）
+export function rewardExp(exp) {
+  return exp > 0 ? Math.max(1, Math.round(exp * REWARD_EXP_RATE)) : 0;
+}
+// 戦い・宝箱・ひみつのダンジョンの ごほうびの お金（0 で なければ 1 いじょう）
+export function rewardGold(gold) {
+  return gold > 0 ? Math.max(1, Math.round(gold * REWARD_GOLD_RATE)) : 0;
+}
+
 // その キャラが もらう 経験値（0 で なければ 1 いじょう）
 export function scaleExp(c, exp) {
   if (!(exp > 0)) return 0;

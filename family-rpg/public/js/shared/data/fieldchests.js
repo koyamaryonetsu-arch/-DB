@@ -2,6 +2,7 @@
 // ・ランダムな 場所に あらわれ、開けると きえる。しばらくすると べつの 場所に また 出る（world/fieldchests.js）
 // ・中みは その ちいきに あわせる（w … 出やすさ）
 // ・地図に はじめから おいてある フィールドの 宝箱も、開けたら きえる（洞窟・塔・町の 宝箱は のこる）
+import { rewardGold } from './difficulty.js';
 
 // マップごとに 同時に 出ている 数
 export const FIELD_CHEST_COUNT = { overworld: 7, sea: 5, north: 6, south: 6 };
@@ -92,11 +93,11 @@ const LOOT = {
   ],
 };
 
-// 中みを きめる（{ gold } か { item, n }）
+// 中みを きめる（{ gold } か { item, n }）。お金は きほんの 倍率（0.7。difficulty.js の rewardGold）
 export function fieldChestLoot(zone, rng) {
   const e = rng.weighted(LOOT[zone] || LOOT.plains);
   const roll = (r) => (Array.isArray(r) ? rng.int(r[0], r[1]) : r || 1);
-  return e.gold ? { gold: roll(e.gold) } : { item: e.item, n: roll(e.n) };
+  return e.gold ? { gold: rewardGold(roll(e.gold)) } : { item: e.item, n: roll(e.n) };
 }
 export const FIELD_CHEST_ZONES = Object.keys(LOOT);
 export const fieldChestLootTable = (zone) => LOOT[zone] || null;

@@ -8,7 +8,7 @@ import { GameWorld } from '../public/js/shared/world/world.js';
 import { makeRng } from '../public/js/shared/rng.js';
 import { Battle, enemyFromSpecies } from '../public/js/shared/battle.js';
 import { decideMonster } from '../public/js/shared/ai.js';
-import { difficultyOf, normDifficulty, strengthenEnemy, ENEMY_RATES, ENEMY_RATE_NAMES } from '../public/js/shared/data/difficulty.js';
+import { difficultyOf, normDifficulty, strengthenEnemy, ENEMY_RATES, ENEMY_RATE_NAMES, rewardExp } from '../public/js/shared/data/difficulty.js';
 import { MONSTERS } from '../public/js/shared/data/monsters.js';
 import { scaleEnemy, scaledRewardBonus } from '../public/js/shared/data/treasure.js';
 import { startFieldBattle, startFixedBattle, enemyRateFor } from '../public/js/shared/world/battles.js';
@@ -229,7 +229,7 @@ test('敵の強さ: もらえる 経験値・ゴールド・落とす 物は お
     return { exp: c.exp - exp0, gold: c.gold - gold0, bagChanged: JSON.stringify(c.items) !== bag0, items: JSON.stringify(c.items), lines: end.lines };
   };
   const normal = await run(1);
-  assert.equal(normal.exp, 28 * 2 + 14 * 2, '経験値（ふつう）');
+  assert.equal(normal.exp, rewardExp(28 * 2 + 14 * 2), '経験値（ふつう。きほんの 倍率 0.6）');
   for (const r of [1.2, 1.5, 2]) {
     const hard = await run(r);
     assert.equal(hard.exp, normal.exp, `${r}倍でも 経験値は おなじ`);
