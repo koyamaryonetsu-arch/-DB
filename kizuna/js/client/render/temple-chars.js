@@ -2,7 +2,7 @@
 // ・mira_prison … 水の 柱の ろうに とじこめられた 水のみこミラ（目を とじている）
 // ・mira_prison_low … ろうの 番人を たおした あと（水が こしまで 下がり、目を あける）
 // ・water_star … 水の守り星（青く すきとおった 星。水の しずくが まわりを まう）
-import { Painter } from './pixel.js?v=1a19851ff61f';
+import { Painter } from './pixel.js?v=0136232bcf56';
 
 const HAIR = '#2a3a5a', HAIRL = '#4a5a8a', SKIN = '#f0d0b0', SKIND = '#d8b090', ROBE = '#e8f6fc', ROBET = '#2a8ac8', VEIL = '#f4fbff';
 const WATER = '#4aa8e0', WATERL = '#6ac0f0', WATERH = '#b8e8ff', WATERD = '#3a90c8';

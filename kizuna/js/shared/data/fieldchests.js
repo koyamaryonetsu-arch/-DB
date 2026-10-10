@@ -2,7 +2,7 @@
 // ・ランダムな 場所に あらわれ、開けると きえる。しばらくすると べつの 場所に また 出る（world/fieldchests.js）
 // ・中みは その ちいきに あわせる（w … 出やすさ）
 // ・地図に はじめから おいてある フィールドの 宝箱も、開けたら きえる（洞窟・塔・町の 宝箱は のこる）
-import { rewardGold } from './difficulty.js?v=1a19851ff61f';
+import { rewardGold } from './difficulty.js?v=0136232bcf56';
 
 // マップごとに 同時に 出ている 数
 export const FIELD_CHEST_COUNT = { overworld: 7, sea: 5, north: 6, south: 6 };

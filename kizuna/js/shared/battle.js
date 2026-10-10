@@ -7,23 +7,25 @@
 //
 // サーバー（家族サーバー）でも ブラウザ（ひとりモード）でも おなじ コードが うごく
 
-import { makeRng } from './rng.js?v=1a19851ff61f';
-import { ABILITIES, ELEMENT_ORDER, ELEMENT_NAMES } from './data/abilities.js?v=1a19851ff61f';
-import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=1a19851ff61f';
-import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js?v=1a19851ff61f';
-import { MONSTERS } from './data/monsters.js?v=1a19851ff61f';
-import { ITEMS } from './data/items.js?v=1a19851ff61f';
-import { JOBS } from './data/jobs.js?v=1a19851ff61f';
-import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed, battleAbilityOk } from './stats.js?v=1a19851ff61f';
-import { decideMonster, decideAlly } from './ai.js?v=1a19851ff61f';
-import { ENEMY_RATES, strengthenEnemy } from './data/difficulty.js?v=1a19851ff61f';
+import { makeRng } from './rng.js?v=0136232bcf56';
+import { ABILITIES, ELEMENT_ORDER, ELEMENT_NAMES } from './data/abilities.js?v=0136232bcf56';
+// 推理（deduce）で ねらう 属性（第26回の 探ていの 技）
+import { deduceElement } from './data/abilities-jobs6.js?v=0136232bcf56';
+import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=0136232bcf56';
+import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js?v=0136232bcf56';
+import { MONSTERS } from './data/monsters.js?v=0136232bcf56';
+import { ITEMS } from './data/items.js?v=0136232bcf56';
+import { JOBS } from './data/jobs.js?v=0136232bcf56';
+import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed, battleAbilityOk } from './stats.js?v=0136232bcf56';
+import { decideMonster, decideAlly } from './ai.js?v=0136232bcf56';
+import { ENEMY_RATES, strengthenEnemy } from './data/difficulty.js?v=0136232bcf56';
 // 第4章の しかけ（まぼろしの分身・月の鏡・そうびしたまま 使う 道具）
-import { setupMirage, mirageHit, mirageVanish, mirageDown, mirageSync, mirageRemake, ch4ItemCheck, ch4UseItem, mirrorSnap } from './battle-ch4.js?v=1a19851ff61f';
+import { setupMirage, mirageHit, mirageVanish, mirageDown, mirageSync, mirageRemake, ch4ItemCheck, ch4UseItem, mirrorSnap } from './battle-ch4.js?v=0136232bcf56';
 // 第4章 Step 6 の 砂に もぐる（ねらえない。battle-ch4.js）
-import { burrowStart, burrowWarn, burrowBlock, hiddenFrom } from './battle-ch4.js?v=1a19851ff61f';
-import { shownEquipKey } from './look-equip.js?v=1a19851ff61f';
+import { burrowStart, burrowWarn, burrowBlock, hiddenFrom } from './battle-ch4.js?v=0136232bcf56';
+import { shownEquipKey } from './look-equip.js?v=0136232bcf56';
 // 第4章 Step 7 の 砂の底の神殿と モルガナ（呪文を はね返す・鏡写し・水の衣・大波・水のろう・水の守りの歌・鏡のうつし身。battle-temple.js）
-import { setupTemple, templeTurnStart, prisonTurn, reflectSpell, templeEffect, templeEst, templeDamage, templeKill, templePub, templeSnap } from './battle-temple.js?v=1a19851ff61f';
+import { setupTemple, templeTurnStart, prisonTurn, reflectSpell, templeEffect, templeEst, templeDamage, templeKill, templePub, templeSnap } from './battle-temple.js?v=0136232bcf56';
 
 export const BOND_MAX = 100;
 // きずなゲージの たまりやすさ（1 … はじめの 版。ちいさいほど たまりにくい）
@@ -955,6 +957,8 @@ export class Battle {
         if (eff.atbAfter) ev.atbAfter = eff.atbAfter;
         // 50-50 など: こうげきの あとで ぬすむ
         if (eff.steal && targets[0]) this.trySteal(c, targets[0], ev, eff.steal);
+        // ポイントバック（楽天カード！）: 当てた 敵の お金の points 倍が、たおさなくても もらえる
+        if (eff.points) this.givePoints(c, targets, eff, ev);
         // もろばぎり: じぶんも ダメージを うける
         if (eff.recoil && ev.dealt > 0 && c.alive) {
           const r = Math.max(1, Math.round(ev.dealt * eff.recoil));
@@ -1149,6 +1153,25 @@ export class Battle {
           ev.lines.push(weak.length ? `${name}の弱点は、${weak.join('・')}！` : `${name}には、弱点がない…。`);
           if (none.length) ev.lines.push(`${name}には、${none.join('・')}が効かない！`);
         }
+        break;
+      }
+      case 'deduce': {
+        // 推理（探ていの 技）: 敵の いちばんの 弱点を 見ぬいて、その 属性で 攻撃（弱点が なければ 属性なし）。
+        // ことばは 敵の しゅるいごとに 1回
+        const told = new Set();
+        let last = null;
+        for (const t of targets) {
+          if (!t.alive) continue;
+          const el = deduceElement(t);
+          if (t.species && !t.clone && !told.has(t.species)) {
+            told.add(t.species);
+            const name = MONSTERS[t.species]?.name || t.name;
+            ev.lines.push(el ? `${name}の弱点は…${ELEMENT_NAMES[el]}だ！` : `${name}には、弱点がない…！`);
+          }
+          this.magicHit(c, t, { ...eff, type: 'magic', element: el || undefined }, ev, powMult);
+          last = el || last;
+        }
+        this.afterDamage(c, ev, last);
         break;
       }
       case 'banish': {
@@ -1598,6 +1621,15 @@ export class Battle {
     }
     if (t.hp <= 0) ev.lines.push(...this.kill(t, info.element, ev));
     else if (t.boss) this.checkPhase(t, ev);
+  }
+
+  // ポイントバック（楽天カードマン）: 当てた 敵（分身は のぞく）の お金の eff.points 倍を もらう（hooks.gainGold）
+  givePoints(c, targets, eff, ev) {
+    if (c.side !== 'ally' || !this.hooks.gainGold) return 0;
+    let g = 0;
+    for (const t of targets) if (t.side === 'enemy' && t.species && !t.clone && !t.fled) g += this.hooks.gainGold(c, t.species, eff.points) || 0;
+    if (g > 0) ev.lines.push(`ポイントバック！${g}ゴールドを手に入れた！`);
+    return g;
   }
 
   // 大技の 予兆を 見ぬく 仲間（天才しせつ管理者）が 戦っていれば、ダメージを へらす（ことばは 1回の こうどうで 1回）

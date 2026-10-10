@@ -2,11 +2,11 @@
 // お店: name 店の なまえ / kind かんばんの しゅるい / keeper 店の人 / hello さいしょの ことば / items 売っている 品物
 //       more: 物語が すすむと ふえる 品物 [{ show: { all: [フラグ] }, items: [...], hello }]（show の 書き方は NPC と おなじ。hello が あれば あいさつも かわる）
 
-import { SHOPS_CH2 } from './items-ch2.js?v=1a19851ff61f';
-import { NIGHT_SHOPS } from './night.js?v=1a19851ff61f';
-import { SHOPS_CH3, CH3_GUESTS } from './items-ch3.js?v=1a19851ff61f';
-import { SHOPS_CH4 } from './items-ch4.js?v=1a19851ff61f';
-import { POWDER_ID, POWDER_SHOPS } from './friend-powder.js?v=1a19851ff61f';
+import { SHOPS_CH2 } from './items-ch2.js?v=0136232bcf56';
+import { NIGHT_SHOPS } from './night.js?v=0136232bcf56';
+import { SHOPS_CH3, CH3_GUESTS } from './items-ch3.js?v=0136232bcf56';
+import { SHOPS_CH4 } from './items-ch4.js?v=0136232bcf56';
+import { POWDER_ID, POWDER_SHOPS } from './friend-powder.js?v=0136232bcf56';
 
 export const SHOPS = {
   village: {
@@ -15,7 +15,8 @@ export const SHOPS = {
     keeper: 'よろず屋のおじさん',
     hello: 'いらっしゃい！ホシフル村のよろず屋だよ。\n薬草から剣まで、何でもそろってるよ。\n今日はどんなご用だい？',
     items: ['herb', 'antidote', 'holy_water', 'guide_thread', 'wood_sword', 'oak_staff', 'bronze_knife', 'feather_fan', 'harisen', 'ballpen', 'signal_flag', 'wood_bat',
-      'kitchen_knife', 'ladle', 'mop', 'pillow', 'selfie_stick', 'game_controller', 'cloth', 'battle_suit', 'leather_hat', 'leather_shield'],
+      'kitchen_knife', 'ladle', 'mop', 'pillow', 'selfie_stick', 'game_controller', 'mushimegane', 'cloth', 'battle_suit', 'leather_hat', 'leather_shield',
+      'spy_glasses', 'kappa_sara', 'neko_suzu'],
   },
   weapon: {
     name: 'ルミナの武器屋',

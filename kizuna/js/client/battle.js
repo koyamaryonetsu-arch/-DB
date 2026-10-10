@@ -1,30 +1,30 @@
 // たたかいの がめん（むかしの RPG ふう 1がめん）
-import { el, esc, ListMenu, toast } from './ui/dom.js?v=1a19851ff61f';
-import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js?v=1a19851ff61f';
-import { ITEMS } from '../shared/data/items.js?v=1a19851ff61f';
-import { JOBS } from '../shared/data/jobs.js?v=1a19851ff61f';
-import { MONSTERS } from '../shared/data/monsters.js?v=1a19851ff61f';
-import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed, battleAbilityOk } from '../shared/stats.js?v=1a19851ff61f';
-import { affinityOf, attackReach, spellSealed, SEALED_REASON } from '../shared/battle.js?v=1a19851ff61f';
-import { DUAL_TECHS, dualOptions, dualKnown } from '../shared/data/dual.js?v=1a19851ff61f';
-import { TACTICS } from '../shared/ai.js?v=1a19851ff61f';
-import { faceURL } from './field.js?v=1a19851ff61f';
-import { monsterCanvas } from './render/monsters.js?v=1a19851ff61f';
-import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=1a19851ff61f';
-import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js?v=1a19851ff61f';
-import { PARTY_ANIMS, JOB2_SFX } from './render/battlefx-jobs2.js?v=1a19851ff61f';
-import { PARTY_ANIMS3, JOB3_SFX } from './render/battlefx-jobs3.js?v=1a19851ff61f';
-import { SIG4, JOB4_SFX, sigAnim } from './render/battlefx-jobs4.js?v=1a19851ff61f';
-import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js?v=1a19851ff61f';
-import { statusNames, buffNames, targetTag } from './ui/info.js?v=1a19851ff61f';
-import { battleSkillText, battleItemText } from './ui/skillinfo.js?v=1a19851ff61f';
-import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js?v=1a19851ff61f';
-import { ENEMY_RATE_NAMES } from '../shared/data/difficulty.js?v=1a19851ff61f';
-import { ResultPager, levelUpName } from './ui/result.js?v=1a19851ff61f';
+import { el, esc, ListMenu, toast } from './ui/dom.js?v=0136232bcf56';
+import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js?v=0136232bcf56';
+import { ITEMS } from '../shared/data/items.js?v=0136232bcf56';
+import { JOBS } from '../shared/data/jobs.js?v=0136232bcf56';
+import { MONSTERS } from '../shared/data/monsters.js?v=0136232bcf56';
+import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed, battleAbilityOk } from '../shared/stats.js?v=0136232bcf56';
+import { affinityOf, attackReach, spellSealed, SEALED_REASON } from '../shared/battle.js?v=0136232bcf56';
+import { DUAL_TECHS, dualOptions, dualKnown } from '../shared/data/dual.js?v=0136232bcf56';
+import { TACTICS } from '../shared/ai.js?v=0136232bcf56';
+import { faceURL } from './field.js?v=0136232bcf56';
+import { monsterCanvas } from './render/monsters.js?v=0136232bcf56';
+import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=0136232bcf56';
+import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js?v=0136232bcf56';
+import { PARTY_ANIMS, JOB2_SFX } from './render/battlefx-jobs2.js?v=0136232bcf56';
+import { PARTY_ANIMS3, JOB3_SFX } from './render/battlefx-jobs3.js?v=0136232bcf56';
+import { SIG4, JOB4_SFX, sigAnim } from './render/battlefx-jobs4.js?v=0136232bcf56';
+import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js?v=0136232bcf56';
+import { statusNames, buffNames, targetTag } from './ui/info.js?v=0136232bcf56';
+import { battleSkillText, battleItemText } from './ui/skillinfo.js?v=0136232bcf56';
+import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js?v=0136232bcf56';
+import { ENEMY_RATE_NAMES } from '../shared/data/difficulty.js?v=0136232bcf56';
+import { ResultPager, levelUpName } from './ui/result.js?v=0136232bcf56';
 // 第4章の しかけ（月の鏡・まぼろしの 分身・魔神のランプ・ボスの 大技）
-import { CH4_ALLY_FX, ch4ItemEntries, ch4ItemPick, ch4ItemInfo, ch4Present, vanishFx, drawShade, drawBurrow } from './battle-ch4.js?v=1a19851ff61f';
+import { CH4_ALLY_FX, ch4ItemEntries, ch4ItemPick, ch4ItemInfo, ch4Present, vanishFx, drawShade, drawBurrow } from './battle-ch4.js?v=0136232bcf56';
 // 第4章 Step 7 の 砂の底の神殿と モルガナ（鏡のうつし身・水のろうの 絵・水の衣・光・大波・水の守りの歌）
-import { templeSprite, templeDraw, templeStart, TEMPLE_SFX } from './battle-temple.js?v=1a19851ff61f';
+import { templeSprite, templeDraw, templeStart, TEMPLE_SFX } from './battle-temple.js?v=0136232bcf56';
 
 // たたかいの え の こまかさ（おもい きかいで さげたら、その あいだは さげた まま）
 let battleRes = BRES;

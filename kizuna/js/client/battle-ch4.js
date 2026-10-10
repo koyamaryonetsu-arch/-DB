@@ -3,10 +3,10 @@
 // ・まぼろしの 分身: 本物の 足もとの 小さな 影・分身が 消える ときの えんしゅつ・まぼろしが もどる 前ぶれ
 // ・ボスの 大技（砂嵐・砂の大うず・砂しぶき・大ジャンプ）は、がめんの まん中に 大きく（render/battlefx-ch4.js）
 // ・砂に もぐる（Step 6 の 砂クジラ）: もぐった 敵は 砂の 山に なって ねらえない。砂が もり上がると 山が ゆれて 前ぶれ
-import { ITEMS } from '../shared/data/items.js?v=1a19851ff61f';
-import { BW, BH } from './render/battlefx.js?v=1a19851ff61f';
+import { ITEMS } from '../shared/data/items.js?v=0136232bcf56';
+import { BW, BH } from './render/battlefx.js?v=0136232bcf56';
 // 第4章 Step 7 の 砂の底の神殿と モルガナ（battle-temple.js）
-import { TEMPLE_SCREEN_ANIMS, TEMPLE_ALLY_FX, templePresent } from './battle-temple.js?v=1a19851ff61f';
+import { TEMPLE_SCREEN_ANIMS, TEMPLE_ALLY_FX, templePresent } from './battle-temple.js?v=0136232bcf56';
 
 export const MIRROR_ID = 'moon_mirror';
 const MIRROR_INFO = '月の光で、まぼろしの分身をすべて消す。本物は、まぶしくて1回動けなくなる。\n使うと、光がもどるまで少し時間がかかる。';

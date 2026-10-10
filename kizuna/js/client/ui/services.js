@@ -1,22 +1,22 @@
 // お店・転職・酒場・でんごんばん・ほしのかけら・きょうかい の がめん
-import { el, ListMenu, toast, askText, confirmBox, esc } from './dom.js?v=1a19851ff61f';
-import { ITEMS } from '../../shared/data/items.js?v=1a19851ff61f';
-import { JOBS, SUPER_ORDER, LEGEND_ORDER, TIER_ORDERS, TIER_NAMES, JOB_MAX_LEVEL, jobReqText, jobReqSets, jobBodyOk, BODY_NAMES, JOB_HINTS, superMasteredCount } from '../../shared/data/jobs.js?v=1a19851ff61f';
-import { ABILITIES } from '../../shared/data/abilities.js?v=1a19851ff61f';
-import { salonUI } from './salon.js?v=1a19851ff61f';
-import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered, canEquip } from '../../shared/stats.js?v=1a19851ff61f';
-import { MONSTERS } from '../../shared/data/monsters.js?v=1a19851ff61f';
-import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES, breedOutcome, breedRumors } from '../../shared/data/companions.js?v=1a19851ff61f';
-import { TACTICS } from '../../shared/ai.js?v=1a19851ff61f';
-import { itemDetail, gearText } from './info.js?v=1a19851ff61f';
-import { playerSprite, followerSprite, faceURL } from '../field.js?v=1a19851ff61f';
-import { shopUI, churchUI } from './shop.js?v=1a19851ff61f';
-import { bankUI } from './bank.js?v=1a19851ff61f';
-import { forgeUI } from './forge.js?v=1a19851ff61f';
-import { tavernWagonItems, tavernWagonOpts, tavernWagonAct, tavernPlace, arrangeUI } from './wagon.js?v=1a19851ff61f';
-import { casinoUI } from './casino.js?v=1a19851ff61f';
-import { sdBoardUI } from './secret.js?v=1a19851ff61f';
-import { shownEquip } from '../../shared/look-equip.js?v=1a19851ff61f';
+import { el, ListMenu, toast, askText, confirmBox, esc } from './dom.js?v=0136232bcf56';
+import { ITEMS } from '../../shared/data/items.js?v=0136232bcf56';
+import { JOBS, SUPER_ORDER, LEGEND_ORDER, TIER_ORDERS, TIER_NAMES, JOB_MAX_LEVEL, jobReqText, jobReqSets, jobBodyOk, BODY_NAMES, JOB_HINTS, superMasteredCount } from '../../shared/data/jobs.js?v=0136232bcf56';
+import { ABILITIES } from '../../shared/data/abilities.js?v=0136232bcf56';
+import { salonUI } from './salon.js?v=0136232bcf56';
+import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered, canEquip } from '../../shared/stats.js?v=0136232bcf56';
+import { MONSTERS } from '../../shared/data/monsters.js?v=0136232bcf56';
+import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES, breedOutcome, breedRumors } from '../../shared/data/companions.js?v=0136232bcf56';
+import { TACTICS } from '../../shared/ai.js?v=0136232bcf56';
+import { itemDetail, gearText } from './info.js?v=0136232bcf56';
+import { playerSprite, followerSprite, faceURL } from '../field.js?v=0136232bcf56';
+import { shopUI, churchUI } from './shop.js?v=0136232bcf56';
+import { bankUI } from './bank.js?v=0136232bcf56';
+import { forgeUI } from './forge.js?v=0136232bcf56';
+import { tavernWagonItems, tavernWagonOpts, tavernWagonAct, tavernPlace, arrangeUI } from './wagon.js?v=0136232bcf56';
+import { casinoUI } from './casino.js?v=0136232bcf56';
+import { sdBoardUI } from './secret.js?v=0136232bcf56';
+import { shownEquip } from '../../shared/look-equip.js?v=0136232bcf56';
 
 export function openServiceUI(game, kind, data) {
   switch (kind) {
@@ -250,7 +250,7 @@ function jobUI(game) {
         bars.append(el('span', { text: n }), el('div', { class: 'b' }, el('i', { style: { width: `${Math.min(100, v / 1.5 * 100)}%` } })), el('span', { class: v > 1 ? 'up' : v < 1 ? 'down' : '', text: `${Math.round(v * 100)}%` }));
       }
       main.append(el('div', { class: 'small gold', text: '強さのかたむき' }), bars);
-      main.append(el('div', { class: 'detail', text: `職業レベルは戦いに勝つと上がる（最大${JOB_MAX_LEVEL}）。ただし、1回の攻撃で終わってしまう戦いでは、修行は半分しか進まない。\n基本職を2つマスターすると上級職、上級職をマスターすると超級職になれる（超級職は、上級職をマスターするとヒントが出る）。超級職をきわめた先には、伝説の職業もある（ロトの勇者・スーパーサイヤ人3・ニカ・魔王・天才しせつ管理者・はかい神）。\n呪文の掛け合わせは、元の職業を合わせ持つ上級職以上で使える。\n他の職業で覚えた技も使えるが、MPが増えたり威力が下がることがある（元になった職業の技はだいじょうぶ）。\n酒場の仲間もここで転職できる。\n（十字キーの左右で、このせつめいをスクロールできる）` }));
+      main.append(el('div', { class: 'detail', text: `職業レベルは戦いに勝つと上がる（最大${JOB_MAX_LEVEL}）。ただし、1回の攻撃で終わってしまう戦いでは、修行は半分しか進まない。\n基本職を2つマスターすると上級職、上級職をマスターすると超級職になれる（超級職は、上級職をマスターするとヒントが出る）。超級職をきわめた先には、伝説の職業もある（ロトの勇者・スーパーサイヤ人3・ニカ・魔王・天才しせつ管理者・はかい神・日の呼吸の使い手・七代目火影）。\n呪文の掛け合わせは、元の職業を合わせ持つ上級職以上で使える。\n他の職業で覚えた技も使えるが、MPが増えたり威力が下がることがある（元になった職業の技はだいじょうぶ）。\n酒場の仲間もここで転職できる。\n（十字キーの左右で、このせつめいをスクロールできる）` }));
       // 下に つづく ときの しるし
       const more = el('div', { class: 'scroll-more', text: '▼ 下に続く' });
       main.append(more);

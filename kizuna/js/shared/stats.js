@@ -1,12 +1,12 @@
 // キャラクターの つよさ計算・レベルアップ・転職ペナルティ
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_EASY_RATE, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets, jobBodyOk, superMasteredCount } from './data/jobs.js?v=1a19851ff61f';
-import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=1a19851ff61f';
-import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=1a19851ff61f';
-import { MONSTERS } from './data/monsters.js?v=1a19851ff61f';
-import { MONSTER_FRIENDS, monsterNatural, gearOf } from './data/companions.js?v=1a19851ff61f';
-import { HIRAMEKI, hiraRatio } from './data/hirameki.js?v=1a19851ff61f';
-import { cleanLook } from './data/looks.js?v=1a19851ff61f';
-import { SKILL_UPS } from './data/skill-ups.js?v=1a19851ff61f';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_EASY_RATE, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets, jobBodyOk, superMasteredCount } from './data/jobs.js?v=0136232bcf56';
+import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=0136232bcf56';
+import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=0136232bcf56';
+import { MONSTERS } from './data/monsters.js?v=0136232bcf56';
+import { MONSTER_FRIENDS, monsterNatural, gearOf } from './data/companions.js?v=0136232bcf56';
+import { HIRAMEKI, hiraRatio } from './data/hirameki.js?v=0136232bcf56';
+import { cleanLook } from './data/looks.js?v=0136232bcf56';
+import { SKILL_UPS } from './data/skill-ups.js?v=0136232bcf56';
 
 // 長い 物語に なるので レベルは 99まで（レベルで ふえる つよさは ひかえめ）
 export const MAX_LEVEL = 99;
@@ -456,6 +456,11 @@ export const STARTER_EQUIP = {
   youtuber: { weapon: 'selfie_stick', armor: 'cloth', shield: null, head: null, acc: null },
   gamer: { weapon: 'game_controller', armor: 'cloth', shield: null, head: null, acc: null },
   okan: { weapon: 'ladle', armor: 'cloth', shield: null, head: null, acc: null },
+  // 第26回: スパイは サングラス、少年探てい団は 虫めがね、ネコ型ロボットは すず、カッパは お皿
+  spy: { weapon: 'bronze_knife', armor: 'cloth', shield: null, head: 'spy_glasses', acc: null },
+  shonen_tantei: { weapon: 'mushimegane', armor: 'cloth', shield: null, head: null, acc: null },
+  neko_robot: { weapon: null, armor: 'cloth', shield: null, head: null, acc: 'neko_suzu' },
+  kappa: { weapon: null, armor: 'cloth', shield: null, head: 'kappa_sara', acc: null },
 };
 
 // みため（むかしの 項目は いつも のこす。かみがた・色・目もとの あたらしい 項目は data/looks.js）

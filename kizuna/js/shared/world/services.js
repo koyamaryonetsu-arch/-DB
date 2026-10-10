@@ -1,27 +1,27 @@
 // お店・やどや・きょうかい・転職・酒場・でんごんばん・メニュー操作
-import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js?v=1a19851ff61f';
-import { normDifficulty } from '../data/difficulty.js?v=1a19851ff61f';
-import { ITEMS, sellPrice, SLOTS, SLOT_NAMES } from '../data/items.js?v=1a19851ff61f';
-import { JOBS, ALL_JOBS, jobReqText, BODY_NAMES } from '../data/jobs.js?v=1a19851ff61f';
-import { ABILITIES } from '../data/abilities.js?v=1a19851ff61f';
-import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=1a19851ff61f';
-import { TACTICS } from '../ai.js?v=1a19851ff61f';
-import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js?v=1a19851ff61f';
-import { salonInfo, salonAction } from './salon.js?v=1a19851ff61f';
-import { breedMonsters, breedPreview } from './breed.js?v=1a19851ff61f';
-import { MONSTERS } from '../data/monsters.js?v=1a19851ff61f';
-import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings, spellSealed } from '../battle.js?v=1a19851ff61f';
-import { PLACES } from '../maps/overworld.js?v=1a19851ff61f';
-import { POS, SEA_PLACES, MAPS } from '../maps/index.js?v=1a19851ff61f';
-import { castRura, warpParty, useTimeBell, warpPlaces, warpOwner } from './travel.js?v=1a19851ff61f';
-import { bankInfo, bankAction } from './bank.js?v=1a19851ff61f';
-import { forgeInfo, forgeAction } from './forge.js?v=1a19851ff61f';
-import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction, wagonHere, wagonHealEntries, ownWagonEntries } from './wagon.js?v=1a19851ff61f';
-import { casinoOpen, casinoAction } from './casino.js?v=1a19851ff61f';
-import { useEscapeItem, noEscapeText } from './escape.js?v=1a19851ff61f';
-import { usePowder } from './powder.js?v=1a19851ff61f';
-import { bestEquipPlan, bestTeamOrder } from '../equip-plan.js?v=1a19851ff61f';
-import { setLookEquip } from '../look-equip.js?v=1a19851ff61f';
+import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js?v=0136232bcf56';
+import { normDifficulty } from '../data/difficulty.js?v=0136232bcf56';
+import { ITEMS, sellPrice, SLOTS, SLOT_NAMES } from '../data/items.js?v=0136232bcf56';
+import { JOBS, ALL_JOBS, jobReqText, BODY_NAMES } from '../data/jobs.js?v=0136232bcf56';
+import { ABILITIES } from '../data/abilities.js?v=0136232bcf56';
+import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=0136232bcf56';
+import { TACTICS } from '../ai.js?v=0136232bcf56';
+import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js?v=0136232bcf56';
+import { salonInfo, salonAction } from './salon.js?v=0136232bcf56';
+import { breedMonsters, breedPreview } from './breed.js?v=0136232bcf56';
+import { MONSTERS } from '../data/monsters.js?v=0136232bcf56';
+import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings, spellSealed } from '../battle.js?v=0136232bcf56';
+import { PLACES } from '../maps/overworld.js?v=0136232bcf56';
+import { POS, SEA_PLACES, MAPS } from '../maps/index.js?v=0136232bcf56';
+import { castRura, warpParty, useTimeBell, warpPlaces, warpOwner } from './travel.js?v=0136232bcf56';
+import { bankInfo, bankAction } from './bank.js?v=0136232bcf56';
+import { forgeInfo, forgeAction } from './forge.js?v=0136232bcf56';
+import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction, wagonHere, wagonHealEntries, ownWagonEntries } from './wagon.js?v=0136232bcf56';
+import { casinoOpen, casinoAction } from './casino.js?v=0136232bcf56';
+import { useEscapeItem, noEscapeText } from './escape.js?v=0136232bcf56';
+import { usePowder } from './powder.js?v=0136232bcf56';
+import { bestEquipPlan, bestTeamOrder } from '../equip-plan.js?v=0136232bcf56';
+import { setLookEquip } from '../look-equip.js?v=0136232bcf56';
 
 export function openService(world, s, kind, arg) {
   switch (kind) {
@@ -723,6 +723,11 @@ function applyFieldEffect(world, user, target, eff, powMult = 1) {
       target.seeds[eff.stat] = (target.seeds[eff.stat] || 0) + n;
       const names = { str: '力', def: '身の守り', agi: '素早さ', mag: '攻撃魔力', hp: '最大HP' };
       return { ok: true, text: `${target.name}の${names[eff.stat]}が${n}上がった！` };
+    }
+    case 'multi': {
+      // いくつかの 効き目（回復と 治す など）: 1つでも 効けば 使えた ことに する
+      const rs = (eff.parts || []).map((p) => applyFieldEffect(world, user, target, p, powMult)).filter((r) => r.ok);
+      return rs.length ? { ok: true, text: rs.map((r) => r.text).join('\n') } : { ok: false, text: target.hp <= 0 ? `${target.name}は死んでいる…` : `${target.name}は元気だ` };
     }
     default:
       return { ok: false, text: '今は使えない' };

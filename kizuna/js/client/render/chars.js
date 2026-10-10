@@ -2,12 +2,12 @@
 // みため（かみがた・いろ）と そうび（ぶき・よろい・たて・かぶと）で かわる
 // 人は 32×42 で くみたてて、2ばいの 64×84 に して こまかく かきたす（res 4: せかいでは 16×21 の 大きさに かく）
 // どうぶつ・船は 16×21 など
-import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=1a19851ff61f';
-import { ITEMS, baseItemId } from '../../shared/data/items.js?v=1a19851ff61f';
-import { STARTER_EQUIP } from '../../shared/stats.js?v=1a19851ff61f';
-import { paintMiraPrison, paintWaterStar } from './temple-chars.js?v=1a19851ff61f';
-import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js?v=1a19851ff61f';
-import { R26_OLD_LOOK } from './hero-r26.js?v=1a19851ff61f';
+import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=0136232bcf56';
+import { ITEMS, baseItemId } from '../../shared/data/items.js?v=0136232bcf56';
+import { STARTER_EQUIP } from '../../shared/stats.js?v=0136232bcf56';
+import { paintMiraPrison, paintWaterStar } from './temple-chars.js?v=0136232bcf56';
+import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js?v=0136232bcf56';
+import { R26_OLD_LOOK } from './hero-r26.js?v=0136232bcf56';
 
 export const CW = 16;
 export const CH = 21;

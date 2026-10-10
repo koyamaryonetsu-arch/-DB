@@ -1,12 +1,14 @@
 // たたかいの AI（モンスター と サポートなかま）
-import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=1a19851ff61f';
-import { mpCost, penaltyFor, weaponOk, comboAllowed } from './stats.js?v=1a19851ff61f';
+import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=0136232bcf56';
+// 推理（deduce）の 属性・運しだいの 技を オートで 使う（第26回）
+import { deduceElement } from './data/abilities-jobs6.js?v=0136232bcf56';
+import { mpCost, penaltyFor, weaponOk, comboAllowed } from './stats.js?v=0136232bcf56';
 // 第4章の まぼろしの分身と 月の鏡（battle-ch4.js）
-import { mirageAction, mirrorPlan } from './battle-ch4.js?v=1a19851ff61f';
+import { mirageAction, mirrorPlan } from './battle-ch4.js?v=0136232bcf56';
 // 第4章 Step 6 の 砂に もぐる 魔物（battle-ch4.js）
-import { burrowSurface, burrowPlan } from './battle-ch4.js?v=1a19851ff61f';
+import { burrowSurface, burrowPlan } from './battle-ch4.js?v=0136232bcf56';
 // 第4章 Step 7 の 砂の底の神殿と モルガナ（battle-temple.js）
-import { templeAction, templeCond, templePlan, templeAdjust, bondOk, waveIgnored } from './battle-temple.js?v=1a19851ff61f';
+import { templeAction, templeCond, templePlan, templeAdjust, bondOk, waveIgnored } from './battle-temple.js?v=0136232bcf56';
 
 // さくせん
 export const TACTICS = {
@@ -329,7 +331,7 @@ function chooseAttack(b, c, tac, foes) {
     const a = ABILITIES[id];
     if (!a || !autoOk(c, id) || !canUse(b, c, id)) continue;
     const eff = prim(a);
-    if (eff.type !== 'phys' && eff.type !== 'magic' && eff.type !== 'drainHp' && eff.type !== 'destroy') continue;
+    if (eff.type !== 'phys' && eff.type !== 'magic' && eff.type !== 'drainHp' && eff.type !== 'destroy' && eff.type !== 'deduce' && !(eff.type === 'random' && a.autoRandom)) continue;
     if (eff.recoil && c.hp / c.maxHp < 0.5) continue; // もろばぎりは HPが すくない ときは つかわない
     const mp = mpCost(c.penChar, id);
     const pow = penaltyFor(c.penChar, id).powMult;
@@ -346,7 +348,28 @@ function chooseAttack(b, c, tac, foes) {
       }
       continue;
     }
+    // 運しだいの 技（ひみつ道具・あたまの花。autoRandom の ものだけ）: 中みの 攻撃の ダメージの へいきんで えらぶ
+    // （回復や 補助が 出る ときも むだには ならないので、攻撃の 中みの へいきんと 同じ くらいと みる。
+    //   中みの 技は 自分の 番で あいてを えらぶので、敵 1体の 技は 敵の へいきん）
+    if (eff.type === 'random') {
+      const scores = [];
+      for (const o of (eff.options || []).map((x) => ABILITIES[x]).filter(Boolean)) {
+        const oe = prim(o);
+        if ((oe.type !== 'phys' && oe.type !== 'magic') || !['enemy', 'group', 'enemies'].includes(o.target)) continue;
+        const one = (t) => {
+          if (oe.type === 'magic') return value(t, b.calcMagic(c, t, oe, pow, true).dmg);
+          const r = b.calcPhys(c, t, oe, pow, oe.element || 'phys', true);
+          return value(t, r.dmg * r.hit * (oe.hits || 1));
+        };
+        const sum = foes.reduce((s2, t) => s2 + one(t), 0);
+        scores.push(o.target === 'enemies' ? sum : sum / foes.length);
+      }
+      if (scores.length) opts.push({ cmd: { type: 'ability', id }, score: scores.reduce((x, y) => x + y, 0) / scores.length, mp, risky: false });
+      continue;
+    }
     const est = (t) => {
+      // 推理: 敵の いちばんの 弱点の 属性で 見つもる
+      if (eff.type === 'deduce') return b.calcMagic(c, t, { ...eff, element: deduceElement(t) || undefined }, pow, true).dmg;
       if (eff.type === 'phys' || eff.type === 'drainHp') {
         const r = b.calcPhys(c, t, eff, pow, eff.element || 'phys', true);
         return r.dmg * r.hit * (eff.hits || 1);
