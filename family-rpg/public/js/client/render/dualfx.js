@@ -51,26 +51,26 @@ function addCss() {
   st.textContent = `
 .dfx { position: absolute; inset: 0; overflow: hidden; z-index: 5; pointer-events: none; --c0: #7a3ac8; --c1: #ffd66b; --c2: #fff; --t: 1s; }
 .dfx-bg { position: absolute; inset: 0; background: radial-gradient(circle at 50% 45%, rgba(20,8,40,.55), rgba(0,0,0,.88)); animation: dfx-fade var(--t) ease-out forwards; }
-.dfx-rays { position: absolute; left: 50%; top: 45%; width: 220%; aspect-ratio: 1; transform: translate(-50%,-50%);
+.dfx-rays { position: absolute; left: 50%; top: 45%; width: 135%; aspect-ratio: 1; transform: translate(-50%,-50%); will-change: transform;
   background: repeating-conic-gradient(from 0deg, rgba(255,214,107,.35) 0deg 5deg, transparent 5deg 13deg);
   background: repeating-conic-gradient(from 0deg, color-mix(in srgb, var(--c1) 40%, transparent) 0deg 5deg, transparent 5deg 13deg);
-  animation: dfx-spin var(--t) linear forwards, dfx-fade var(--t) ease-out forwards; opacity: .9; }
-.dfx-band { position: absolute; left: -10%; right: -10%; top: 14%; height: 52%; transform: skewY(-7deg);
+  opacity: .9; }
+.dfx-band { position: absolute; left: -10%; right: -10%; top: 14%; height: 52%; transform: skewY(-7deg); transform-origin: left center; will-change: transform;
   background: var(--c0);
   background: linear-gradient(90deg, var(--c0), color-mix(in srgb, var(--c0) 55%, #000) 50%, var(--c0));
   border-top: 3px solid var(--c1); border-bottom: 3px solid var(--c1); box-shadow: 0 0 18px var(--c1);
-  animation: dfx-band calc(var(--t) * .28) cubic-bezier(.2,.9,.3,1.2) both, dfx-fade var(--t) ease-out forwards; }
+  animation: dfx-band calc(var(--t) * .28) cubic-bezier(.2,.9,.3,1.2) both; }
 .dfx.n3 .dfx-band, .dfx.n4 .dfx-band { border-width: 5px; }
-.dfx-band2 { position: absolute; left: -10%; right: -10%; top: 9%; height: 4%; transform: skewY(-7deg); background: var(--c1);
-  animation: dfx-band calc(var(--t) * .3) .08s ease-out both, dfx-fade var(--t) ease-out forwards; }
+.dfx-band2 { position: absolute; left: -10%; right: -10%; top: 9%; height: 4%; transform: skewY(-7deg); transform-origin: right center; background: var(--c1); will-change: transform;
+  animation: dfx-band calc(var(--t) * .3) .08s ease-out both; }
 .dfx-band2.b { top: auto; bottom: 26%; animation-delay: .14s; }
 .dfx-row { position: absolute; left: 0; right: 0; top: 14%; height: 52%; display: flex; justify-content: center; align-items: center; gap: 2%; transform: skewY(-7deg); }
 .dfx-p { position: relative; flex: 0 1 22%; max-width: 8.5em; height: 86%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
   transform: skewX(-10deg); background: rgba(0,0,0,.3); background: linear-gradient(180deg, color-mix(in srgb, var(--c1) 35%, transparent), rgba(0,0,0,.35));
-  border: 2px solid var(--c1); border-radius: 4px; box-shadow: 0 0 10px var(--c1) inset; overflow: hidden;
+  border: 2px solid var(--c1); border-radius: 4px; overflow: hidden; will-change: transform;
   animation: dfx-in calc(var(--t) * .25) cubic-bezier(.2,.9,.3,1.25) both; animation-delay: calc(var(--i) * .09s + .06s); }
 .dfx-p:nth-child(even) { animation-name: dfx-in2; }
-.dfx-p img { height: 74%; width: auto; image-rendering: pixelated; transform: skewX(10deg) skewY(7deg); filter: drop-shadow(0 0 6px var(--c1)); }
+.dfx-p img { height: 74%; width: auto; image-rendering: pixelated; transform: skewX(10deg) skewY(7deg); }
 .dfx-p span { transform: skewX(10deg) skewY(7deg); color: #fff; font-size: var(--fs-small, .8em); font-weight: bold; text-shadow: 2px 2px 0 #000; white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis; padding: 0 .2em .15em; }
 .dfx-title { position: absolute; left: 50%; bottom: 6%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; white-space: nowrap;
   animation: dfx-slam calc(var(--t) * .3) cubic-bezier(.3,1.4,.5,1) both; animation-delay: calc(var(--t) * .38); }
@@ -81,13 +81,12 @@ function addCss() {
 .dfx.n4 .dfx-title small { color: #ffd66b; }
 .dfx-word { position: absolute; right: 4%; top: 4%; font-size: var(--fs-big, 1.3em); font-weight: bold; color: #fff; transform: rotate(8deg);
   text-shadow: 2px 2px 0 #000, 0 0 10px var(--c1); animation: dfx-word calc(var(--t) * .45) cubic-bezier(.3,1.6,.5,1) both; animation-delay: calc(var(--t) * .55); }
-.dfx-flash { position: absolute; inset: 0; background: #fff; opacity: 0; animation: dfx-flash .35s ease-out both; animation-delay: calc(var(--t) * .38); }
+.dfx-flash { position: absolute; inset: 0; background: #fff; opacity: 0; animation: dfx-flash .35s ease-out forwards; animation-delay: calc(var(--t) * .38); }
 .dfx-st { position: absolute; width: .7em; height: .7em; background: var(--c2); clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
-  animation: dfx-tw .6s ease-in-out infinite alternate both; animation-delay: var(--d); opacity: 0; }
+  animation: dfx-tw .6s ease-in-out 4 alternate both; animation-delay: var(--d); opacity: 0; }
 .dfx-out { animation: dfx-out .3s ease-in forwards; }
 @keyframes dfx-fade { 0% { opacity: 0; } 10% { opacity: 1; } 85% { opacity: 1; } 100% { opacity: 0; } }
-@keyframes dfx-spin { to { transform: translate(-50%,-50%) rotate(50deg); } }
-@keyframes dfx-band { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes dfx-band { from { transform: skewY(-7deg) scaleX(0); } to { transform: skewY(-7deg) scaleX(1); } }
 @keyframes dfx-in { from { transform: translateX(-180%) skewX(-10deg); opacity: 0; } to { transform: skewX(-10deg); opacity: 1; } }
 @keyframes dfx-in2 { from { transform: translateX(180%) skewX(-10deg); opacity: 0; } to { transform: skewX(-10deg); opacity: 1; } }
 @keyframes dfx-slam { from { transform: translateX(-50%) scale(2.6); opacity: 0; } 60% { opacity: 1; } to { transform: translateX(-50%) scale(1); opacity: 1; } }
@@ -95,7 +94,6 @@ function addCss() {
 @keyframes dfx-flash { 0% { opacity: .85; } 100% { opacity: 0; } }
 @keyframes dfx-tw { from { transform: scale(.3) rotate(0deg); opacity: 0; } to { transform: scale(1.2) rotate(45deg); opacity: 1; } }
 @keyframes dfx-out { to { opacity: 0; } }
-@media (prefers-reduced-motion: reduce) { .dfx-rays { animation: dfx-fade var(--t) ease-out forwards; } }
 `;
   document.head.append(st);
 }
@@ -125,7 +123,7 @@ export function playDualCutin(stage, { id, name, people, tempo = 1, el }) {
   if (fx.word) root.append(el('div', { class: 'dfx-word', text: fx.word }));
   // 3人・4人技は きらきら（数は すくなめ）
   if (n >= 3) {
-    for (let k = 0; k < 4 + (n - 3) * 4; k++) {
+    for (let k = 0; k < 3 + (n - 3) * 3; k++) {
       const s = el('i', { class: 'dfx-st' });
       s.style.left = `${8 + ((k * 37) % 84)}%`;
       s.style.top = `${6 + ((k * 53) % 70)}%`;
