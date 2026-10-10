@@ -101,11 +101,11 @@ function restFloor(f, base) {
     npcs.push(npc('sd_guard', MONSTERS[sp]?.name || '番人', [REST_GUARD.x, REST_GUARD.y], `mon:${sp}`, 'sd_guard', { big: true }));
   }
   return {
-    ...base, bgm: 'secret_rest', dark: false, name: `${SD_NAME}　地下${f}階（休み所）`,
+    ...base, bgm: 'secret_rest', dark: false, name: `地下${f}階の休み所`,
     w: r.w, h: r.h, tiles: r.tiles, npcs,
     triggers: [{ id: 'sd_down', x: REST_DOWN.x, y: REST_DOWN.y, w: 1, h: 1, script: 'sd_down' }],
     zoneAt: () => 'safe:sd',
-    areaName: () => `${SD_NAME}　地下${f}階（休み所）`,
+    areaName: () => `地下${f}階の休み所`,
     sd: { floor: f, rest: true, arrive: { ...REST_ARRIVE } },
   };
 }
