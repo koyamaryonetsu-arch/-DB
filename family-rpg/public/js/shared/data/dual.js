@@ -16,38 +16,38 @@ import { ABILITIES } from './abilities.js';
 
 // 技の 組（どれか 1つを 覚えていれば よい）
 const FIRE = ['mera', 'merami', 'merazoma', 'gira', 'begirama', 'nj_katon', 'am_begiragon', 'am_meragaia', 'hk_triple_mera', 'ck_tsuyobi', 'ck_flambe', 'hi_daikaryoku', 'hi_giragureido', 'hi_ima_mera'];
-const ICE = ['hyado', 'hyadaruko', 'sg_mahyado', 'pr_uzushio', 'hk_koori_ya', 'dz_mahyadedos', 'hi_eternal_blizzard', 'sb_aircon', 'rn_chiller'];
-const WIND = ['bagi', 'bagima', 'sg_bagikurosu', 'nj_fuujin', 'hp_bagimuta', 'kamaitachi', 'hk_senpuukyaku', 'ar_senpu'];
-const BLAST = ['io', 'iora', 'pr_cannon', 'ft_tower', 'am_ionazun', 'dz_iogurande', 'pa_macaron'];
+const ICE = ['hyado', 'hyadaruko', 'sg_mahyado', 'pr_uzushio', 'hk_koori_ya', 'dz_mahyadedos', 'hi_eternal_blizzard', 'sb_aircon', 'rn_chiller', 'kp_mizu'];
+const WIND = ['bagi', 'bagima', 'sg_bagikurosu', 'nj_fuujin', 'hp_bagimuta', 'kamaitachi', 'hk_senpuukyaku', 'ar_senpu', 'hkp_hanabira'];
+const BLAST = ['io', 'iora', 'pr_cannon', 'ft_tower', 'am_ionazun', 'dz_iogurande', 'pa_macaron', 'dr_kuuki', 'ep_nenriki', 'ep_psycho', 'hg_bijuu'];
 const BOLT = ['mk_raiden', 'hr_gigadein', 'sm_raijin', 'so_kaminari', 's2_spark', 'nk_kaminari'];
 const LIGHT = ['hk_holy_light', 'ft_star', 'sd_comet', 'sd_meteor', 'hk_love_beam', 'fz_meteor', 'pa_candy', 'fg_hirameki'];
 const SWORD = ['daichi', 'kaiha', 'kuuretsu', 'kabutowari', 'majingiri', 'tamashii', 'bm_musou', 'bm_moroba', 'pr_kaizokugiri', 'sa_iai', 'sa_tsubame', 'sa_ittou', 'hk_midaregiri', 'hk_daichi_ikari', 'mk_kaengiri', 'mk_hyouketsu', 'mk_inazuma',
-  'dk_gigabreak', 'ms_dark', 'swm_seiken', 'swm_haken', 'swm_raijin', 'sg_ikkiuchi', 'sg_tenka', 'lt_ken', 'hi_arutema'];
-const FIST = ['seiken', 'bakuretsu', 'mouko', 'hyakuretsu', 'issen', 'hf_seikou', 'gh_shinsoku', 'hk_sandan', 'sy_rush', 's2_rush', 'go_pistol'];
+  'dk_gigabreak', 'ms_dark', 'swm_seiken', 'swm_haken', 'swm_raijin', 'sg_ikkiuchi', 'sg_tenka', 'lt_ken', 'hi_arutema', 'ks_minamo', 'ks_uchishio', 'ks_nejire', 'kisatsu_sig', 'eb_shiranui', 'eb_noboru', 'eb_uneri', 'eb_rengoku', 'hn_kasha', 'hn_hirin', 'hn_koukyou', 'hinokami_sig', 'spy_knife', 'spy_action', 'as_kyuusho', 'as_ame', 'bo_yamiuchi', 'kh_kunai'];
+const FIST = ['seiken', 'bakuretsu', 'mouko', 'hyakuretsu', 'issen', 'hf_seikou', 'gh_shinsoku', 'hk_sandan', 'sy_rush', 's2_rush', 'go_pistol', 'nr_punch', 'nr_tackle', 'mr_zutsuki', 'kp_tsuppari', 'kn_punch', 'kn_tackle', 'kinniku_kappa_sig', 'hkp_pakkan', 'kh_senpuu', 'hg_oodama'];
 const HEAL = ['hoimi', 'behoimi', 'behomara', 'sg_behoma', 'pl_hikari', 'id_fansa', 'id_kami', 'hk_iyashi_kaze', 'ss_stardance', 'es_kyushoku', 'lc_jumin', 'ff_teate', 'fz_juice',
-  'ok_gohan', 'ab_makanai', 'dz_ishi', 'dt_hohoemi', 'lt_inori'];
+  'ok_gohan', 'ab_makanai', 'dz_ishi', 'dt_hohoemi', 'lt_inori', 'ct_kusuri', 'creator_sig', 'nr_dorayaki', 'mr_shuuri', 'os_oyatsu', 'kp_kyuuri', 'hkp_mitsu'];
 const DANCE = ['hustle', 'medapani', 'zameha_dance', 'ss_stardance', 'js_bakuten', 'hk_happy_step', 'ar_senpu'];
 const SONG = ['ouen', 'tatakai_uta', 'pr_utage', 'bb_ouenka', 'id_penlight', 'hk_fan_cheer', 'sd_song', 'es_recorder', 'jh_gassho', 'ar_harmony', 'kq_doremi'];
 const GUARD = ['kabau', 'sukara', 'sukuruto', 'pl_daibougyo', 'pl_aegis', 'gd_wall', 'id_center', 'lc_bousai', 'cr_kiki', 'ff_hinoyoujin', 'dv_anzen', 'kq_sentou'];
 const RAIL = ['rw_manin', 'rw_teikoku', 'rw_shinkansen', 'rw_shuuden', 'hk_tokkyu', 'dv_tsuuka', 'dv_renketsu', 'dv_saikou', 'kq_120', 'kq_kaitoku'];
-const OFFICE = ['sm_meishi', 'sm_eigyo', 'sm_horenso', 'sm_present', 'hk_meishi_shuriken', 'sk_tsukin', 'sk_kaigi'];
+const OFFICE = ['sm_meishi', 'sm_eigyo', 'sm_horenso', 'sm_present', 'hk_meishi_shuriken', 'sk_tsukin', 'sk_kaigi', 'rk_card', 'rk_dance', 'rakuten_cardman_sig'];
 const BALL = ['bb_hit', 'bb_homerun', 'bb_fastball', 'hk_nagashi', 'hk_makyuu', 'ml_160', 'nt_nitoryu'];
 const IDOL = ['id_kiss', 'id_wink', 'id_fansa', 'id_penlight', 'hk_love_beam', 'fz_basket', 'ar_manazashi'];
-const JESTER = ['js_asobu', 'js_gag', 'js_kusuguri', 'hk_daibakushou'];
+const JESTER = ['js_asobu', 'js_gag', 'js_kusuguri', 'hk_daibakushou', 'oshiri_tantei_sig', 'os_brown'];
 // 学校の 技・公務員の 技
-const SCHOOL = ['es_randoseru', 'es_aisatsu', 'es_recorder', 'es_kakekko', 'es_dodge', 'hk_randoseru_rocket', 'jh_bukatsu', 'jh_test', 'jh_gassho', 'hs_seishun', 'hs_bunkasai'];
+const SCHOOL = ['es_randoseru', 'es_aisatsu', 'es_recorder', 'es_kakekko', 'es_dodge', 'hk_randoseru_rocket', 'jh_bukatsu', 'jh_test', 'jh_gassho', 'hs_seishun', 'hs_bunkasai', 'tn_ball', 'tn_jitensha', 'shonen_tantei_sig', 'mt_kick', 'mt_skate'];
 const CIVIL = ['lc_madoguchi', 'lc_shorui', 'lc_jumin', 'nc_hanko', 'nc_yosan', 'cr_seisaku'];
 const ELEM_SPELLS = [...FIRE, ...ICE, ...WIND, ...BLAST, ...BOLT, ...LIGHT];
 // 第20〜22回の 職業の 技（hi_ … その 職業の ひらめき技。hirameki-jobs.js）
 const COOK = ['ck_houchou', 'ck_soup', 'ck_tsuyobi', 'ck_spice', 'ck_stamina', 'ck_mijin', 'ck_flambe', 'ck_fullcourse', 'pa_candy', 'pa_cake', 'pa_fondue', 'pa_macaron', 'pa_sugar', 'pa_wedding',
   'sc_tetsujin', 'sc_honoo', 'sc_fullcourse', 'sc_kyuukyoku', 'hi_kakushi_bouchou', 'hi_daikaryoku', 'hi_okashi_no_ie'];
 const STORE = ['ab_danboru', 'ab_irasshai', 'ab_reji', 'ab_makanai', 'ab_shinadashi', 'ab_nenmatsu', 'se_shainsho', 'se_chourei', 'se_project', 'se_ookuchi',
-  'tk_genba', 'tk_zensha', 'tk_ryokou', 'tk_tatakiage', 'hi_wanope', 'hi_smile', 'hi_shachoushou'];
+  'tk_genba', 'tk_zensha', 'tk_ryokou', 'tk_tatakiage', 'hi_wanope', 'hi_smile', 'hi_shachoushou', 'ct_kago', 'ct_point'];
 const WARAI = ['cm_tsukkomi', 'cm_gag', 'cm_conte', 'cm_warai', 'cm_bakushou', 'm1_machinegun', 'm1_densetsu', 'm1_kansei', 'm1_yuushou', 'hi_noritsukkomi', 'hi_tendon'];
 const NEET = ['ne_makura', 'ne_potechi', 'ne_guguru', 'ne_jersey', 'ne_ippatsu', 'hi_kyou_honki'];
-const DARK = ['cu_migite', 'cu_kokuen', 'cu_judgment', 'dt_hane', 'dt_ochita', 'dt_darkangel', 'mo_kokuen', 'mo_tsume', 'mo_hametsu', 'ms_dark', 'ms_hades', 'hi_dorumadon', 'hi_yami_sekai'];
+const DARK = ['cu_migite', 'cu_kokuen', 'cu_judgment', 'dt_hane', 'dt_ochita', 'dt_darkangel', 'mo_kokuen', 'mo_tsume', 'mo_hametsu', 'ms_dark', 'ms_hades', 'hi_dorumadon', 'hi_yami_sekai', 'bo_kuruma', 'bo_meirei'];
 const KI = ['sy_kidan', 'sy_renzoku', 'sy_kamehameha', 'sy_rush', 'sy_bigbang', 'sz_kame', 'sz_kikouha', 'sz_final', 'sz_renzoku', 's2_spark', 's2_kame', 's2_rush', 's2_final',
-  's3_ryuuken', 's3_kame', 's3_rengeki', 'hi_kienzan', 'hi_bigbang_kame'];
+  's3_ryuuken', 's3_kame', 's3_rengeki', 'hi_kienzan', 'hi_bigbang_kame', 'konoha_sig', 'hg_oodama'];
 const GOMU = ['go_pistol', 'go_gatling', 'go_bazooka', 'go_gear3', 'nk_kaminari', 'nk_taiyou', 'nk_kaihou', 'hi_gomu_muchi'];
 const PIRATE = ['pr_kaizokugiri', 'pr_dokuro', 'pr_uzushio', 'pr_ikari', 'pr_utage', 'pr_cannon'];
 const FACILITY = ['sb_spanner', 'sb_tenken', 'sb_haikan', 'sb_aircon', 'sb_kouji', 'rn_koushin', 'rn_chiller', 'rn_kanki', 'rn_netsugen', 'rn_yochou', 'rn_saiteki',

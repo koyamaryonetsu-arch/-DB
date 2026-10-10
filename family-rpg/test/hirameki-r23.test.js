@@ -137,8 +137,7 @@ test('第20〜22回の 職業には どれも ひらめき技が あり、合体
   // 合体技: どの 職業の 技も、どこかの 合体技の 組に 入っている
   const inDual = new Set();
   for (const t of Object.values(DUAL_TECHS)) for (const list of t.need) for (const k of list) if (ABILITIES[k]?.job) inDual.add(ABILITIES[k].job);
-  // 第26回の 職業（看板の 技 <id>_sig が ある 職業）の 合体技は、合体技の 作りなおしで 足す（それまでは しらべない）
-  for (const j of ALL_JOBS.filter((x) => !ABILITIES[`${x}_sig`])) assert.ok(inDual.has(j), `${JOBS[j].name} の 技が 合体技に ない`);
+  for (const j of ALL_JOBS) assert.ok(inDual.has(j), `${JOBS[j].name} の 技が 合体技に ない`);
   // 新しい 職業どうし・新しい 職業と 前からの 職業の 合体技
   const jobsOf = (id, side) => new Set(DUAL_TECHS[id].need[side].map((k) => ABILITIES[k]?.job).filter(Boolean));
   const pair = (id, a, b) => (jobsOf(id, 0).has(a) && jobsOf(id, 1).has(b)) || (jobsOf(id, 0).has(b) && jobsOf(id, 1).has(a));

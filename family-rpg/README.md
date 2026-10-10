@@ -1483,7 +1483,7 @@ npm start                 # 家族サーバー
   - 新しい効き目：`phys` の `points`（ポイントバック。`Battle.givePoints` が `hooks.gainGold` で、当てた敵のお金の `points` 倍をわたす）・`deduce`（推理。`abilities-jobs6.js` の `deduceElement` で、敵がいちばん苦手な属性〈1.2倍以上〉をえらんで `magicHit`。ない時は属性なし）・`random` の `autoRandom`（オートの `chooseAttack` が、中みの攻撃技のダメージのへいきんで見つもって使う。`autoRandom` のない運しだいの技は今までどおりオートでは使わない）
   - 殺し屋の一撃必殺は、はかい神と同じ `destroy`（成功の割合が低い）。名探ていは上級職（おしり探ていをきわめるとなれる、上級職から上級職への道）
   - はじめの装備は `stats.js` の `STARTER_EQUIP`（スパイ・少年探てい団・ネコ型ロボット・カッパ）。新しい道具は `data/items.js`（虫めがね・スパイのサングラス・カッパのお皿・ネコのすず・日輪刀・クナイ・タケコプター）
-  - 合体技（`dual.js`）にはまだ入っていないので、`test/hirameki-r23.test.js` の「どの職業の技も合体技に入っている」は、看板の技のある職業をのぞいてしらべている（合体技を足したら、このしぼりこみを外す）
+  - 合体技（`dual.js`）の組にも入れた（剣・こぶし・回復・会社・お店・学校・遊び・闇・爆発・氷・風・気の組）。`test/hirameki-r23.test.js` の「どの職業の技も合体技に入っている」は、すべての職業でしらべる
 - 字は `public/css/fonts.css`（丸ゴシックを文字のまとまりごとに分けたファイル。画面に出た文字の分だけ読みこむ）。`body.dot-font` でドットの字になります
 - 昼と夜・空の旅
   - `shared/world/clock.js` … 時計（1日 `DAY_MS`＝20分。`char.timeShift` が キャラの時間のずれ。パーティーは リーダーの時計＝`clockOwner`。宿屋・すずで `advanceClock`）。クライアントは `serverTime` と パーティーの `clockShift` で同じ時間を出す（`client/sky.js`）
