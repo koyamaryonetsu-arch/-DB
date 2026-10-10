@@ -178,9 +178,9 @@ export const JOB4_ABILITIES = {
 
   // ───────────── スーパーサイヤ人（上級職） ─────────────
   sz_kame: {
-    name: '超かめはめ波', kana: 'ちょうかめはめは', kind: 'skill', job: 'super_saiyan', mp: 10, target: 'enemy',
-    effect: { type: 'phys', mult: 2.3 },
-    desc: '金色の気をこめたかめはめ波で、敵1体に大きなダメージ。', cast: '{a}「か…め…は…め…波ーっ！！」', anim: 'kamehameha',
+    name: '超かめはめ波', kana: 'ちょうかめはめは', kind: 'skill', job: 'super_saiyan', mp: 14, target: 'enemy',
+    effect: { type: 'phys', mult: 3.4 },
+    desc: '金色の気をこめたかめはめ波。かめはめ波の1.5倍の力で、敵1体に大きなダメージ。', cast: '{a}「か…め…は…め…波ーっ！！」', anim: 'kamehameha',
   },
   sz_aura: {
     name: '金色のオーラ', kana: 'こんじきのおーら', kind: 'skill', job: 'super_saiyan', mp: 6, target: 'self', role: 'sup',
@@ -203,8 +203,8 @@ export const JOB4_ABILITIES = {
     desc: 'いかりで力がかくせいする。次の攻撃の威力が2.5倍になり、自分の素早さも上がる。', cast: '{a}のいかりが、ばく発した！', anim: 'super_aura',
   },
   sz_final: {
-    name: 'ファイナルフラッシュ', kana: 'ふぁいなるふらっしゅ', kind: 'skill', job: 'super_saiyan', mp: 15, target: 'enemy',
-    effect: { type: 'phys', mult: 2.7, ignoreDef: 0.25 },
+    name: 'ファイナルフラッシュ', kana: 'ふぁいなるふらっしゅ', kind: 'skill', job: 'super_saiyan', mp: 16, target: 'enemy',
+    effect: { type: 'phys', mult: 3.6, ignoreDef: 0.35 },
     desc: 'りょう手を前につき出し、敵1体にまぶしい気のビーム。守りが固い敵にも強い。', cast: '{a}「ファイナルフラッシュ！」', anim: 'kamehameha',
   },
   sz_renzoku: {
@@ -220,8 +220,8 @@ export const JOB4_ABILITIES = {
     desc: '体のまわりの青いいなずまごと、敵1体をなぐる。雷のダメージ。', cast: '{a}の体から、いなずまが走った！', anim: 'bolt2',
   },
   s2_kame: {
-    name: 'かめはめ波・スパーク', kana: 'かめはめはすぱーく', kind: 'skill', job: 'ss2', mp: 14, target: 'enemy',
-    effect: { type: 'phys', mult: 3.0, element: 'bolt' },
+    name: 'かめはめ波・スパーク', kana: 'かめはめはすぱーく', kind: 'skill', job: 'ss2', mp: 18, target: 'enemy',
+    effect: { type: 'phys', mult: 4.5, element: 'bolt' },
     desc: 'いなずまをまとったかめはめ波で、敵1体に大きなダメージ。雷のダメージ。', cast: '{a}「か…め…は…め…波ーっ！！」', anim: 'kamehameha',
   },
   s2_aura: {
@@ -241,7 +241,7 @@ export const JOB4_ABILITIES = {
   },
   s2_final: {
     name: 'ファイナルかめはめ波', kana: 'ふぁいなるかめはめは', kind: 'skill', job: 'ss2', mp: 26, target: 'enemies',
-    effect: { type: 'phys', mult: 1.9, element: 'bolt' },
+    effect: { type: 'phys', mult: 2.6, element: 'bolt' },
     desc: 'ありったけの気をこめたかめはめ波で、敵全体に大きなダメージ。雷のダメージ。', cast: '{a}「これで終わりだ…！ファイナルかめはめ波！」', anim: 'kamehameha',
   },
 
@@ -252,8 +252,8 @@ export const JOB4_ABILITIES = {
     desc: '金色の竜のような気をまとって、敵1体をつらぬく。', cast: '{a}「竜拳！」金色の竜が、まいおどる！', anim: 'dragon_beam',
   },
   s3_kame: {
-    name: 'かめはめ波・極', kana: 'かめはめはきょく', kind: 'skill', job: 'ss3', mp: 18, target: 'enemy',
-    effect: { type: 'phys', mult: 3.6, ignoreDef: 0.3 },
+    name: 'かめはめ波・極', kana: 'かめはめはきょく', kind: 'skill', job: 'ss3', mp: 24, target: 'enemy',
+    effect: { type: 'phys', mult: 5.8, ignoreDef: 0.3 },
     desc: '極めたかめはめ波で、敵1体にとても大きなダメージ。守りが固い敵にも強い。', cast: '{a}「か…め…は…め…波ーーっ！！！」', anim: 'kamehameha',
   },
   s3_aura: {

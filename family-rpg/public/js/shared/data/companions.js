@@ -14,6 +14,7 @@ import { FRIENDS_CH2 } from './companions-ch2.js';
 import { FRIENDS_RARE } from './monsters-rare.js';
 import { FRIENDS_CH3 } from './companions-ch3.js';
 import { FRIENDS_R23, RECIPES_R23 } from './monsters-r23.js';
+import { FRIENDS_CH4 } from './companions-ch4.js';
 
 export const MONSTER_FRIENDS = {
   pururin: {
@@ -101,19 +102,19 @@ export const MONSTER_FRIENDS = {
     note: '空からつつく素早いカラス。',
   },
   skeleton: {
-    rate: 1 / 24, names: ['ホネゾウ', 'カラコロ', 'ボーン', 'しろほね'],
+    rate: 1 / 18, names: ['ホネゾウ', 'カラコロ', 'ボーン', 'しろほね'],
     growth: { hp: 1.1, mp: 0.6, str: 1.25, def: 1.1, agi: 0.9, mag: 0.5, heal: 0.5 },
     learn: [[1, 'm_swing'], [5, 'chikaratame'], [10, 'm_glare'], [15, 'mawashigeri'], [21, 'tamashii']],
     note: '剣のうでが立つがいこつ。攻撃力が高い。',
   },
   dark_bat: {
-    rate: 1 / 22, names: ['ヤミー', 'くらやみ', 'ノクト', 'バット'],
+    rate: 1 / 16, names: ['ヤミー', 'くらやみ', 'ノクト', 'バット'],
     growth: { hp: 0.95, mp: 1.0, str: 1.05, def: 0.85, agi: 1.35, mag: 1.0, heal: 0.7 },
     learn: [[1, 'm_drain'], [4, 'manusa'], [9, 'm_dark_bolt'], [14, 'rukani'], [19, 'mahoton']],
     note: '暗闇の力を使うこうもり。',
   },
   rockman: {
-    rate: 1 / 28, names: ['ゴロン', 'いわお', 'ガンさん', 'ロック'],
+    rate: 1 / 22, names: ['ゴロン', 'いわお', 'ガンさん', 'ロック'],
     growth: { hp: 1.4, mp: 0.4, str: 1.3, def: 1.4, agi: 0.6, mag: 0.4, heal: 0.5 },
     learn: [[1, 'm_boulder'], [4, 'm_harden'], [9, 'kabau'], [14, 'm_stomp'], [20, 'm_avalanche']],
     note: 'とても固くて力持ち。動きはおそい。',
@@ -264,6 +265,8 @@ Object.assign(MONSTER_FRIENDS, FRIENDS_RARE);
 Object.assign(MONSTER_FRIENDS, FRIENDS_CH3);
 // あたらしい 仲間モンスター（monsters-r23.js。gear も そこに ある）
 Object.assign(MONSTER_FRIENDS, FRIENDS_R23);
+// 第4章・夜の 魔物（2026年10月 見なおし。前は 仲間に ならなかった）
+Object.assign(MONSTER_FRIENDS, FRIENDS_CH4);
 // しゅぞくごとの 装備の うわがき（上の GEAR）
 for (const [sp, g] of Object.entries(GEAR)) if (MONSTER_FRIENDS[sp]) MONSTER_FRIENDS[sp].gear = { ...g, ...(MONSTER_FRIENDS[sp].gear || {}) };
 
@@ -345,7 +348,7 @@ export function breedRankCap(a, b, MONSTERS) {
 export function familyPool(race, MONSTERS) {
   return Object.keys(MONSTER_FRIENDS).filter((sp) => {
     const m = MONSTERS[sp];
-    return m && m.race === race && !m.boss && !m.metal && !MONSTER_FRIENDS[sp].recipeOnly;
+    return m && m.race === race && !m.boss && !m.metal && !MONSTER_FRIENDS[sp].recipeOnly && !MONSTER_FRIENDS[sp].noFamily;
   });
 }
 

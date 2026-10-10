@@ -120,8 +120,8 @@ export const HIRA_JOB_ABILITIES = {
     cast: '{a}の手の上で、気の円がうなりを上げる！', anim: 'slash_fast',
   },
   hi_bigbang_kame: {
-    name: 'ビッグバンかめはめ波', kana: 'びっぐばんかめはめは', kind: 'skill', job: 'super_saiyan', mp: 14, target: 'enemies', hirameki: true,
-    effect: { type: 'phys', mult: 1.3 },
+    name: 'ビッグバンかめはめ波', kana: 'びっぐばんかめはめは', kind: 'skill', job: 'super_saiyan', mp: 16, target: 'enemies', hirameki: true,
+    effect: { type: 'phys', mult: 1.8 },
     desc: 'ビッグバンアタックとかめはめ波を合わせた大技。敵全体を気の光で包みこむ。',
     cast: '{a}「ビッグバン…かめはめ波ーっ！」', anim: 'kamehameha',
   },

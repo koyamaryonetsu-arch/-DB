@@ -1,6 +1,7 @@
 // たたかいの はじまりと おわり（ほうしゅう・ぜんめつ）
 import { Battle, normBattleSettings } from '../battle.js';
-import { scaleExp, difficultyOf } from '../data/difficulty.js';
+import { scaleExp, difficultyOf, rewardExp, rewardGold } from '../data/difficulty.js';
+import { POWDER, powderLeft } from '../data/friend-powder.js';
 import { MONSTERS } from '../data/monsters.js';
 import { ITEMS } from '../data/items.js';
 import { ABILITIES } from '../data/abilities.js';
@@ -9,7 +10,7 @@ import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js';
 import { gainExp, gainJobBattles, jobTrainMult, itemCount, removeItem, addItem, ownsItem, computeStats, STAT_NAMES, fullHeal } from '../stats.js';
 import { JOB_MAX_LEVEL } from '../data/jobs.js';
 import { befriendShare } from './recruit-share.js';
-import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf, PARTY_MAX } from './party.js';
+import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendChance, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf, PARTY_MAX } from './party.js';
 import { rollDrops, stealPick } from '../data/loot.js';
 import { MAPS } from '../maps/index.js';
 import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js';
@@ -170,7 +171,7 @@ function makeBattle(world, sessions, party, enemies, opts) {
       // 大型買収: おいだした 敵の お金を もらう
       gainGold: (actor, species, mult = 1) => {
         const m = (actor.controller && world.sessions.get(actor.controller)) || sessions[0];
-        const g = Math.round((MONSTERS[species]?.gold || 0) * mult);
+        const g = rewardGold(Math.round((MONSTERS[species]?.gold || 0) * mult));
         if (!m || g <= 0) return 0;
         m.char.gold = Math.min(9999999, m.char.gold + g);
         world.sendSelf(m);
@@ -369,7 +370,9 @@ function finishBattle(world, ctx) {
     gold += bonus.gold;
     // 海賊・会社員など: お金が ふえる 職業が いると ゴールドが ふえる
     const goldMult = Math.max(1, ...Object.values(ctx.actorMap).map((w) => JOBS[w?.char?.job]?.passive?.gold || 1));
-    gold = Math.round(gold * goldMult);
+    // きほんの 倍率（経験値 0.6・お金 0.7。data/difficulty.js。設定の「もらえる経験値」は この あとの scaleExp）
+    exp = rewardExp(exp);
+    gold = rewardGold(Math.round(gold * goldMult));
     // 職業の しゅぎょう: かった たたかい 1かい（ボスは 3かいぶん）。
     // ワンパンチ（なかまの 1回めの こうどうで おわった たたかい）は 半分。なかま・馬車の なかまも おなじ
     const oneBlow = (b.allyActs || 0) <= 1;
@@ -438,9 +441,22 @@ function finishBattle(world, ctx) {
     if (!ctx.resolve && !b.boss && res.killed.length && !MAPS[ctx.map]?.noBefriend) {
       const target = sessions.find((m) => m.id === party?.leader) || sessions[0];
       // まもの使い・モンスターマスターが いると なかまに なりやすい
-      const mult = Math.max(1, ...b.allies.map((a) => JOBS[a.job]?.passive?.befriend || 1));
-      const sp = target && rollBefriend(world, target.char, res.killed, mult);
+      let mult = Math.max(1, ...b.allies.map((a) => JOBS[a.job]?.passive?.befriend || 1));
+      // 仲間の粉（data/friend-powder.js）: いっしょに 戦った だれかが 使っていれば 2倍。使った 人 みんな のこりが 1回 へる
+      // （仲間に なれる 魔物が いた 戦い だけ 数える）
+      const can = !!target?.char?.flags?.monster_bond && res.killed.some((x) => befriendChance(target.char, x) > 0);
+      const powdered = can ? sessions.filter((m) => powderLeft(m.char) > 0) : [];
+      if (powdered.length) mult *= POWDER.mult;
+      const info = {};
+      const sp = target && rollBefriend(world, target.char, res.killed, mult, info);
       if (sp) befriend = { s: target, species: sp, level: befriendLevel(target.char, sp) };
+      for (const m of powdered) {
+        m.char.befriendBoost = powderLeft(m.char) - 1;
+        if (!m.char.befriendBoost) delete m.char.befriendBoost;
+        perSession[m.id]?.lines.push(m.char.befriendBoost ? `（仲間の粉の力：のこり${m.char.befriendBoost}回）` : '（仲間の粉の力が消えた）');
+      }
+      // 仲間が いっぱいで 入れなかった（だまって 消えると「仲間に ならない」と 思うので 知らせる）
+      if (info.full && perSession[target.id]) perSession[target.id].lines.push(`${MONSTERS[info.full].name}が仲間になりたそうにしていたが、仲間がいっぱいだ…`, '（酒場でだれかと別れると、また仲間になる）');
     }
     // 家族の パーティー: いっしょに 戦った 家族の 酒場にも（「はい」の とき。world/recruit-share.js）
     if (befriend) befriend.share = befriendShare(sessions, befriend.s);

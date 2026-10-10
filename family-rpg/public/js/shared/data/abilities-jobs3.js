@@ -374,7 +374,7 @@ export const JOB3_ABILITIES = {
   },
   lt_gigacross: {
     name: 'ギガクロスブレイク', kana: 'ぎがくろすぶれいく', kind: 'skill', job: 'loto_hero', mp: 24, target: 'enemies',
-    effect: { type: 'phys', mult: 1.9, element: 'bolt' },
+    effect: { type: 'phys', mult: 2.3, element: 'bolt' },
     desc: '雷をまとった十字の剣で、敵全体を切りさく。', cast: '{a}のギガクロスブレイク！', anim: 'gigabreak',
   },
   lt_kizuna: {

@@ -389,18 +389,30 @@ export function companionRename(world, s, key, name) {
 // ───────────── モンスターが なかまに なる ─────────────
 // たたかいで さいごに たおした まものが おきあがる（紋章の ちからに めざめていれば）
 // mult: まもの使いなどが いると おおきくなる
-export function rollBefriend(world, c, killed, mult = 1) {
+//   info: { full } … 仲間が いっぱい（ROSTER_MAX）で 入れなかった とき、なりたがった 魔物（戦いの おわりの 知らせ）
+export function rollBefriend(world, c, killed, mult = 1, info = null) {
   if (!c?.flags?.monster_bond) return null;
   ensureCompanions(c);
-  if (c.companions.length >= ROSTER_MAX) return null;
+  const full = c.companions.length >= ROSTER_MAX;
   for (let i = killed.length - 1; i >= 0; i--) {
     const f = MONSTER_FRIENDS[killed[i]];
     if (!f || f.breedOnly || MONSTERS[killed[i]]?.boss) continue;
-    // はじめての なかまは すこし なりやすい
-    const first = !c.companions.some((e) => e.kind === 'monster');
-    return world.rng.chance(Math.min(0.5, f.rate * (first ? 3 : 1) * mult)) ? killed[i] : null;
+    const yes = world.rng.chance(befriendChance(c, killed[i], mult));
+    if (yes && full && info) info.full = killed[i];
+    return yes && !full ? killed[i] : null;
   }
   return null;
+}
+
+// 1回の 戦いで その 魔物が 仲間に なりたがる かくりつ（上限 BEFRIEND_CAP）
+//   mult … 魔物使い（1.5）・モンスターマスター（2）・なかまの粉（2）を かけた もの
+//   はじめての 魔物の 仲間は 3倍
+export const BEFRIEND_CAP = 0.5;
+export function befriendChance(c, species, mult = 1) {
+  const f = MONSTER_FRIENDS[species];
+  if (!f || f.breedOnly || !(f.rate > 0) || MONSTERS[species]?.boss) return 0;
+  const first = !(c?.companions || []).some((e) => e.kind === 'monster');
+  return Math.min(BEFRIEND_CAP, f.rate * (first ? 3 : 1) * mult);
 }
 
 // ずかん: みた まもの

@@ -16,7 +16,8 @@ import { PARTY_ANIMS, JOB2_SFX } from './render/battlefx-jobs2.js';
 import { PARTY_ANIMS3, JOB3_SFX } from './render/battlefx-jobs3.js';
 import { SIG4, JOB4_SFX, sigAnim } from './render/battlefx-jobs4.js';
 import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js';
-import { abilityDetail, statusNames, buffNames, targetTag } from './ui/info.js';
+import { statusNames, buffNames, targetTag } from './ui/info.js';
+import { battleSkillText, battleItemText } from './ui/skillinfo.js';
 import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js';
 import { ENEMY_RATE_NAMES } from '../shared/data/difficulty.js';
 import { ResultPager, levelUpName } from './ui/result.js';
@@ -453,7 +454,8 @@ export class BattleScene {
   }
 
   // keep: { off } … まえに えらんだ 行が リストの 上から 何ピクセルの ところに 見えていたか（その まま の 場所に 出す）
-  showMenu(items, onSelect, onCancel, title, detailFn, start = -1, keep = null) {
+  // tapConfirm: タップで ほかの 行を えらぶと せつめい だけ 出す（もう一度 おすと 決まる。呪文・特技・道具の 一覧）
+  showMenu(items, onSelect, onCancel, title, detailFn, start = -1, keep = null, tapConfirm = false) {
     this.closeMenus();
     this.cmdEl.innerHTML = '';
     if (title) this.cmdEl.append(el('div', { class: 'who', text: title }));
@@ -466,6 +468,7 @@ export class BattleScene {
       press: 130,
       start,
       fit: true,
+      tapConfirm,
     });
     this.cmdEl.append(m.root);
     this.menu = m;
@@ -574,10 +577,12 @@ export class BattleScene {
     const start = !last ? -1 : find(view?.fav) >= 0 ? find(view?.fav) : find();
     const detail = (it) => {
       if (!it || it.header) return;
-      this.info(abilityDetail(it.value, pc, { brief: true }));
+      // 効果・威力の 目安・属性・相手・MP（敵が 1体・自分に かける・全体の 技でも 使う 前に 見える。ui/skillinfo.js）
+      this.info(battleSkillText(it.value, pc, { touch: this.touchUi() }));
       const on = (a.favs || []).includes(it.value);
       this.msgEl.classList.add('hasfav');
-      this.msgEl.append(el('button', {
+      // 右上に うかべる（文は まわりを 回りこむ。css の .b-msg.info .favbtn）
+      this.msgEl.prepend(el('button', {
         class: `btn favbtn ${on ? 'on' : ''}`,
         text: on ? '★お気に入り' : '☆お気に入り',
         title: on ? 'お気に入りからはずす' : 'お気に入りに入れる',
@@ -593,12 +598,19 @@ export class BattleScene {
       const ab = ABILITIES[it.value];
       this.rememberPick(a, page, it.value);
       if (ab.effect.type === 'mahouken') return this.mahoukenMenu();
+      // 相手を えらぶ 間も おなじ せつめい（「もう一度タップ」は もう いらない）
+      this.info(battleSkillText(it.value, pc));
       const t = ab.target;
       const back = () => this.abilityMenu(ids, page);
       if (t === 'enemy' || t === 'group') return this.pickFoe(t, (tid) => this.send({ type: 'ability', id: it.value, target: tid }), ab.name, ab.effect?.element, back);
       if (t === 'ally' || t === 'deadAlly') return this.pickAlly((tid) => this.send({ type: 'ability', id: it.value, target: tid }), t === 'deadAlly', ab.name, back);
       return this.send({ type: 'ability', id: it.value });
-    }, () => this.openCommand(), null, detail, start, view);
+    }, () => this.openCommand(), null, detail, start, view, true);
+  }
+
+  // タッチの 画面（「もう一度タップで使う」を 出す）
+  touchUi() {
+    return document.body.classList.contains('touch');
   }
 
   // 魔法剣の くみあわせ（ないときは コマンドにも 出さない）
@@ -638,8 +650,9 @@ export class BattleScene {
       return this.pickAlly((tid) => this.send({ type: 'item', id: it.value, target: tid }), item.target === 'deadAlly', item.name, () => this.itemMenu());
     }, () => this.openCommand(), '道具', (it) => {
       if (!it) return;
-      this.info(ch4ItemInfo(it.value));
-    }, last ? bagItems.findIndex((x) => x.value === last) : -1, a && this.lastScroll(a, 'item'));
+      // 月の鏡など（battle-ch4.js）は その せつめい。ふつうの 道具は 相手・効果・せつめい（ui/skillinfo.js）
+      this.info(ITEMS[it.value] && !special.some((x) => x.value === it.value) ? battleItemText(it.value, { touch: this.touchUi() }) : ch4ItemInfo(it.value));
+    }, last ? bagItems.findIndex((x) => x.value === last) : -1, a && this.lastScroll(a, 'item'), true);
   }
 
   // その 敵に その 属性が どれくらい 効くか（ためした ことが なければ null）

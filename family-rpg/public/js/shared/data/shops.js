@@ -6,6 +6,7 @@ import { SHOPS_CH2 } from './items-ch2.js';
 import { NIGHT_SHOPS } from './night.js';
 import { SHOPS_CH3, CH3_GUESTS } from './items-ch3.js';
 import { SHOPS_CH4 } from './items-ch4.js';
+import { POWDER_ID, POWDER_SHOPS } from './friend-powder.js';
 
 export const SHOPS = {
   village: {
@@ -59,6 +60,8 @@ Object.assign(SHOPS, NIGHT_SHOPS);
 Object.assign(SHOPS, SHOPS_CH3);
 // 第4章（items-ch4.js）
 Object.assign(SHOPS, SHOPS_CH4);
+// 仲間の粉: 「魔物の心」に 目ざめた あと、町の 道具屋で 売る（friend-powder.js）
+for (const id of POWDER_SHOPS) if (SHOPS[id]) SHOPS[id].more = [...(SHOPS[id].more || []), { show: { all: ['monster_bond'] }, items: [POWDER_ID] }];
 
 // 物語で ふえた 品ぞろえ（hasFlag: その人の 世界の フラグ）
 function moreOpen(shop, hasFlag) {

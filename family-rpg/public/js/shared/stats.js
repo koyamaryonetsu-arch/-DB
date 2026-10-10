@@ -6,6 +6,7 @@ import { MONSTERS } from './data/monsters.js';
 import { MONSTER_FRIENDS, monsterNatural, gearOf } from './data/companions.js';
 import { HIRAMEKI, hiraRatio } from './data/hirameki.js';
 import { cleanLook } from './data/looks.js';
+import { SKILL_UPS } from './data/skill-ups.js';
 
 // 長い 物語に なるので レベルは 99まで（レベルで ふえる つよさは ひかえめ）
 export const MAX_LEVEL = 99;
@@ -52,10 +53,12 @@ export const PER_LV_CAP = 0.6;
 export const JOB_POWER = 0.04;
 
 // その 技の 職業の レベルで 上がる 威力（マスターで +36%）
-export function jobPower(char, abilityId) {
+// 上位の 技（data/skill-ups.js。超かめはめ波 など）は、もとの 技の 職業レベルの 威力も うけつぐ（大きい ほう）
+export function jobPower(char, abilityId, depth = 0) {
   const a = ABILITIES[abilityId];
-  if (!a?.job || !JOBS[a.job] || !char?.jobs) return 1;
-  return 1 + JOB_POWER * (jobLevel(char, a.job) - 1);
+  const own = !a?.job || !JOBS[a.job] || !char?.jobs ? 1 : 1 + JOB_POWER * (jobLevel(char, a.job) - 1);
+  const base = SKILL_UPS[abilityId];
+  return base && depth < 8 ? Math.max(own, jobPower(char, base, depth + 1)) : own;
 }
 
 export function jobLevel(char, jobId = char.job) {

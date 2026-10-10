@@ -225,6 +225,9 @@ export function gameFiles() {
     'public/js/shared/world/secret.js', 'public/js/client/ui/secret.js', 'public/js/client/render/secret-art.js',
     // 第26回の 職業の 看板の技の エフェクト（「プゥ〜」などの ドットの もじ）
     'public/js/client/render/battlefx-jobs4.js',
+    // 家族の 見なおし（第26回）: 第4章・夜の 魔物の 仲間・仲間の粉・上位の 技・戦いの 技の せつめい
+    'public/js/shared/data/companions-ch4.js', 'public/js/shared/data/friend-powder.js', 'public/js/shared/world/powder.js',
+    'public/js/shared/data/skill-ups.js', 'public/js/client/ui/skillinfo.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

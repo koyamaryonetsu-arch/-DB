@@ -10,6 +10,7 @@ import { gainExp, expForLevel, computeStats, itemCount, newMonsterCompanion } fr
 import { startFieldBattle } from '../public/js/shared/world/battles.js';
 import { runScript, runSteps } from '../public/js/shared/world/scripts.js';
 import { MONSTERS } from '../public/js/shared/data/monsters.js';
+import { rewardExp } from '../public/js/shared/data/difficulty.js';
 import { addMonsterCompanion, befriendLevel, MONSTER_JOIN_LEVEL } from '../public/js/shared/world/party.js';
 import { mergeChars } from '../public/js/shared/world/merge.js';
 import { exportCode, parseCode, importChar } from '../public/js/shared/world/transfer.js';
@@ -218,7 +219,8 @@ test('家族の キャラ: たたかいの いれかえ（家族が 馬車へ・
   ken.flushQueue();
   await winNow(world, ken, ctx2);
   assert.equal(ken.battles.at(-1).outcome, 'win');
-  const full = ctx2.battle.result.killed.reduce((a, sp) => a + (MONSTERS[sp].exp || 0), 0);
+  // きほんの 倍率（data/difficulty.js の rewardExp。2026年10月 見なおし）を かけた もの
+  const full = rewardExp(ctx2.battle.result.killed.reduce((a, sp) => a + (MONSTERS[sp].exp || 0), 0));
   assert.ok(full > 0);
   assert.equal(mc.exp - e0, Math.floor(Math.floor(full * 0.5) / 2), '馬車の 家族: 本人に パーティーの ときの 半分');
   assert.equal(mc.gold, g0, 'お金の おすそわけは なし');
