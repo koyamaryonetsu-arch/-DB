@@ -1,9 +1,9 @@
 // 第2章の 海（風の海）
 // 島を うかべて、港町・灯台・洞窟・嵐の塔を はめこむ。
 // 海の マップでは 水の上も 船で すすめる（maps/index.js の sailable）。
-import { T, parseRows } from '../tiles.js?v=b2a0d9b4a2ff';
-import { fbm, hash2 } from '../rng.js?v=b2a0d9b4a2ff';
-import { PORT_ROWS } from './ch2-rows.js?v=b2a0d9b4a2ff';
+import { T, parseRows } from '../tiles.js?v=fa0687a214b4';
+import { fbm, hash2 } from '../rng.js?v=fa0687a214b4';
+import { PORT_ROWS } from './ch2-rows.js?v=fa0687a214b4';
 
 export const SEA_W = 96;
 export const SEA_H = 72;

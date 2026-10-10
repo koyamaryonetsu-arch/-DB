@@ -1,21 +1,22 @@
 // たたかいの はじまりと おわり（ほうしゅう・ぜんめつ）
-import { Battle, normBattleSettings } from '../battle.js?v=b2a0d9b4a2ff';
-import { scaleExp, difficultyOf } from '../data/difficulty.js?v=b2a0d9b4a2ff';
-import { MONSTERS } from '../data/monsters.js?v=b2a0d9b4a2ff';
-import { ITEMS } from '../data/items.js?v=b2a0d9b4a2ff';
-import { ABILITIES } from '../data/abilities.js?v=b2a0d9b4a2ff';
-import { JOBS } from '../data/jobs.js?v=b2a0d9b4a2ff';
-import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=b2a0d9b4a2ff';
-import { gainExp, gainJobBattles, jobTrainMult, itemCount, removeItem, addItem, ownsItem, computeStats, STAT_NAMES, fullHeal } from '../stats.js?v=b2a0d9b4a2ff';
-import { JOB_MAX_LEVEL } from '../data/jobs.js?v=b2a0d9b4a2ff';
-import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf, PARTY_MAX } from './party.js?v=b2a0d9b4a2ff';
-import { rollDrops, stealPick } from '../data/loot.js?v=b2a0d9b4a2ff';
-import { MAPS } from '../maps/index.js?v=b2a0d9b4a2ff';
-import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js?v=b2a0d9b4a2ff';
-import { treasureAfterBattle } from './treasure.js?v=b2a0d9b4a2ff';
-import { wipeGoldLoss, bankGold } from './bank.js?v=b2a0d9b4a2ff';
-import { wagonShare, wagonBattleSwap } from './wagon.js?v=b2a0d9b4a2ff';
-import { battleTactics } from './tactics.js?v=b2a0d9b4a2ff';
+import { Battle, normBattleSettings } from '../battle.js?v=fa0687a214b4';
+import { scaleExp, difficultyOf } from '../data/difficulty.js?v=fa0687a214b4';
+import { MONSTERS } from '../data/monsters.js?v=fa0687a214b4';
+import { ITEMS } from '../data/items.js?v=fa0687a214b4';
+import { ABILITIES } from '../data/abilities.js?v=fa0687a214b4';
+import { JOBS } from '../data/jobs.js?v=fa0687a214b4';
+import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=fa0687a214b4';
+import { gainExp, gainJobBattles, jobTrainMult, itemCount, removeItem, addItem, ownsItem, computeStats, STAT_NAMES, fullHeal } from '../stats.js?v=fa0687a214b4';
+import { JOB_MAX_LEVEL } from '../data/jobs.js?v=fa0687a214b4';
+import { befriendShare } from './recruit-share.js?v=fa0687a214b4';
+import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf, PARTY_MAX } from './party.js?v=fa0687a214b4';
+import { rollDrops, stealPick } from '../data/loot.js?v=fa0687a214b4';
+import { MAPS } from '../maps/index.js?v=fa0687a214b4';
+import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js?v=fa0687a214b4';
+import { treasureAfterBattle } from './treasure.js?v=fa0687a214b4';
+import { wipeGoldLoss, bankGold } from './bank.js?v=fa0687a214b4';
+import { wagonShare, wagonBattleSwap } from './wagon.js?v=fa0687a214b4';
+import { battleTactics } from './tactics.js?v=fa0687a214b4';
 
 let battleSeq = 1;
 
@@ -440,6 +441,8 @@ function finishBattle(world, ctx) {
       const sp = target && rollBefriend(world, target.char, res.killed, mult);
       if (sp) befriend = { s: target, species: sp, level: befriendLevel(target.char, sp) };
     }
+    // 家族の パーティー: いっしょに 戦った 家族の 酒場にも（「はい」の とき。world/recruit-share.js）
+    if (befriend) befriend.share = befriendShare(sessions, befriend.s);
   } else if (outcome === 'lose') {
     // ほんとうの 全滅: それぞれ 自分の 持っている お金が 半分に（預かり所の お金は へらない）
     // 負けても 物語が すすむ 戦い（encounters の loseOk）では へらない
@@ -501,7 +504,7 @@ function finishBattle(world, ctx) {
   if (party) world.sendParty(party);
   world.markDirty();
   if (ctx.resolve) ctx.resolve(outcome);
-  if (befriend && world.sessions.has(befriend.s.id) && !befriend.s.away) world.offerBefriend(befriend.s, befriend.species, befriend.level);
+  if (befriend && world.sessions.has(befriend.s.id) && !befriend.s.away) world.offerBefriend(befriend.s, befriend.species, befriend.level, befriend.share);
 }
 
 // 職業レベルが あがった ときの メッセージ

@@ -2,38 +2,39 @@
 //
 // クライアントとは メッセージ（JSON）で やりとりする。
 // つなぎかたは なんでも よい（WebSocket でも ブラウザ内の ちょくせつ呼び出しでも）。
-import { makeRng } from '../rng.js?v=b2a0d9b4a2ff';
-import { MAPS, isBlocked, effectiveTile, condOk, searchLoot, sparkleLoot, tileAt, POS, SEA_PLACES, standSpot } from '../maps/index.js?v=b2a0d9b4a2ff';
-import { PLACES } from '../maps/overworld.js?v=b2a0d9b4a2ff';
-import { T, TILE_INFO } from '../tiles.js?v=b2a0d9b4a2ff';
-import { ITEMS } from '../data/items.js?v=b2a0d9b4a2ff';
-import { JOBS } from '../data/jobs.js?v=b2a0d9b4a2ff';
-import { newCharacter, computeStats, addItem, fullHeal, migrateJobs, fixBodyJob } from '../stats.js?v=b2a0d9b4a2ff';
-import { mapState, spawnSymbols, moveSymbols, symbolSnapshot, symbolVisible } from './monsters.js?v=b2a0d9b4a2ff';
-import { tickFieldChests, fieldChestSnap, fieldChestNear, openFieldChest } from './fieldchests.js?v=b2a0d9b4a2ff';
-import { chestVanishes } from '../data/fieldchests.js?v=b2a0d9b4a2ff';
-import { startFieldBattle, battleTick, abortBattle, battleCommand, battleLeave, joinBattle, mineOf, resultDone } from './battles.js?v=b2a0d9b4a2ff';
-import { runScript, runSteps } from './scripts.js?v=b2a0d9b4a2ff';
-import { serviceAction, menuAction } from './services.js?v=b2a0d9b4a2ff';
-import { newParty, partyOf, partyState, syncParty, ensureCompanions, companionWait, PARTY_MAX, befriendLevel, rosterFull, nameOfKey, dropMissingFam } from './party.js?v=b2a0d9b4a2ff';
-import { hasWagon, dropGoneFamily } from '../data/wagon.js?v=b2a0d9b4a2ff';
-import { MONSTERS } from '../data/monsters.js?v=b2a0d9b4a2ff';
-import { CH1_CLEAR_OBJECTIVE } from '../data/story.js?v=b2a0d9b4a2ff';
-import { upgradeSave, repairChar } from './save.js?v=b2a0d9b4a2ff';
-import { exportCode, parseCode, importChar } from './transfer.js?v=b2a0d9b4a2ff';
-import { memorySyncStore, buildSyncOut, applySyncIn, encodeSync, decodeSync, syncSummary } from './sync.js?v=b2a0d9b4a2ff';
-import { tryTreasureDig, treasureMenu, fixTreasurePos, normalizeTreasure, pruneTreasureStates } from './treasure.js?v=b2a0d9b4a2ff';
-import { isNightFor, timeFlag, fracFor } from './clock.js?v=b2a0d9b4a2ff';
-import { onFly, setFlying, moveAllowed, ridingAlong, canFlyMap } from './travel.js?v=b2a0d9b4a2ff';
-import { migrateSky } from '../data/sky.js?v=b2a0d9b4a2ff';
-import { migrateCh4 } from '../data/story-ch4.js?v=b2a0d9b4a2ff';
-import { repairObjective } from '../data/progress.js?v=b2a0d9b4a2ff';
-import { wagonLook } from './wagon.js?v=b2a0d9b4a2ff';
-import { medalSearchSteps, medalChestSteps } from './casino.js?v=b2a0d9b4a2ff';
-import { stepHazard } from './hazards.js?v=b2a0d9b4a2ff';
-import { noteDungeonEntry } from './escape.js?v=b2a0d9b4a2ff';
-import { notePyramidMove } from './pyramid.js?v=b2a0d9b4a2ff';
-import { shownEquipKey } from '../look-equip.js?v=b2a0d9b4a2ff';
+import { makeRng } from '../rng.js?v=fa0687a214b4';
+import { MAPS, isBlocked, effectiveTile, condOk, searchLoot, sparkleLoot, tileAt, POS, SEA_PLACES, standSpot } from '../maps/index.js?v=fa0687a214b4';
+import { PLACES } from '../maps/overworld.js?v=fa0687a214b4';
+import { T, TILE_INFO } from '../tiles.js?v=fa0687a214b4';
+import { ITEMS } from '../data/items.js?v=fa0687a214b4';
+import { JOBS } from '../data/jobs.js?v=fa0687a214b4';
+import { newCharacter, computeStats, addItem, fullHeal, migrateJobs, fixBodyJob } from '../stats.js?v=fa0687a214b4';
+import { mapState, spawnSymbols, moveSymbols, symbolSnapshot, symbolVisible } from './monsters.js?v=fa0687a214b4';
+import { tickFieldChests, fieldChestSnap, fieldChestNear, openFieldChest } from './fieldchests.js?v=fa0687a214b4';
+import { chestVanishes } from '../data/fieldchests.js?v=fa0687a214b4';
+import { startFieldBattle, battleTick, abortBattle, battleCommand, battleLeave, joinBattle, mineOf, resultDone } from './battles.js?v=fa0687a214b4';
+import { runScript, runSteps } from './scripts.js?v=fa0687a214b4';
+import { serviceAction, menuAction } from './services.js?v=fa0687a214b4';
+import { newParty, partyOf, partyState, syncParty, ensureCompanions, companionWait, PARTY_MAX, befriendLevel, rosterFull, nameOfKey, dropMissingFam } from './party.js?v=fa0687a214b4';
+import { hasWagon, dropGoneFamily } from '../data/wagon.js?v=fa0687a214b4';
+import { takeTavernNews } from './recruit-share.js?v=fa0687a214b4';
+import { MONSTERS } from '../data/monsters.js?v=fa0687a214b4';
+import { CH1_CLEAR_OBJECTIVE } from '../data/story.js?v=fa0687a214b4';
+import { upgradeSave, repairChar } from './save.js?v=fa0687a214b4';
+import { exportCode, parseCode, importChar } from './transfer.js?v=fa0687a214b4';
+import { memorySyncStore, buildSyncOut, applySyncIn, encodeSync, decodeSync, syncSummary } from './sync.js?v=fa0687a214b4';
+import { tryTreasureDig, treasureMenu, fixTreasurePos, normalizeTreasure, pruneTreasureStates } from './treasure.js?v=fa0687a214b4';
+import { isNightFor, timeFlag, fracFor } from './clock.js?v=fa0687a214b4';
+import { onFly, setFlying, moveAllowed, ridingAlong, canFlyMap } from './travel.js?v=fa0687a214b4';
+import { migrateSky } from '../data/sky.js?v=fa0687a214b4';
+import { migrateCh4 } from '../data/story-ch4.js?v=fa0687a214b4';
+import { repairObjective } from '../data/progress.js?v=fa0687a214b4';
+import { wagonLook } from './wagon.js?v=fa0687a214b4';
+import { medalSearchSteps, medalChestSteps } from './casino.js?v=fa0687a214b4';
+import { stepHazard } from './hazards.js?v=fa0687a214b4';
+import { noteDungeonEntry } from './escape.js?v=fa0687a214b4';
+import { notePyramidMove } from './pyramid.js?v=fa0687a214b4';
+import { shownEquipKey } from '../look-equip.js?v=fa0687a214b4';
 
 export const PROTOCOL_VERSION = 1;
 const SPARKLE_RESPAWN_MS = 20 * 60 * 1000;
@@ -141,7 +142,7 @@ export class GameWorld {
     const p = partyOf(this, s);
     this.send(s, {
       t: 'enter', sid: s.id, char: s.char, map: s.map, x: s.x, y: s.y, dir: s.dir, posSeq: s.posSeq,
-      party: p ? partyState(this, p) : null, board: this.data.board || [], supportLog: [], serverTime: this.now(),
+      party: p ? partyState(this, p) : null, board: this.data.board || [], supportLog: [], tavernNews: takeTavernNews(s.char), serverTime: this.now(),
       players: this.playerList(s), resumed: true, rescued: true, fly: !!s.flying,
     });
     const ctx = s.battleId && this.battles.get(s.battleId);
@@ -189,7 +190,7 @@ export class GameWorld {
     const p = partyOf(this, t);
     this.send(t, {
       t: 'enter', sid: t.id, char: t.char, map: t.map, x: t.x, y: t.y, dir: t.dir, posSeq: t.posSeq,
-      party: p ? partyState(this, p) : null, board: this.data.board || [], supportLog: [], serverTime: this.now(),
+      party: p ? partyState(this, p) : null, board: this.data.board || [], supportLog: [], tavernNews: takeTavernNews(t.char), serverTime: this.now(),
       players: this.playerList(t), resumed: true, fly: !!t.flying,
     });
     if (ctx && !ctx.battle.over) {
@@ -459,7 +460,7 @@ export class GameWorld {
     c.supportLog = [];
     this.send(s, {
       t: 'enter', sid: s.id, char: c, map: s.map, x: s.x, y: s.y, dir: s.dir, posSeq: s.posSeq,
-      party: partyState(this, p), board: this.data.board || [], supportLog, serverTime: this.now(),
+      party: partyState(this, p), board: this.data.board || [], supportLog, tavernNews: takeTavernNews(c), serverTime: this.now(),
       players: this.playerList(s), fly: !!s.flying,
     });
     this.broadcast({ t: 'joined', sid: s.id, name: c.name }, s);
@@ -474,14 +475,15 @@ export class GameWorld {
 
   // たおした まものが なかまに なりたがっている（レベルは いつも 1。party.js の befriendLevel）
   //   パーティーが あいていれば パーティー、いっぱいなら あいている 馬車、どちらも いっぱいの ときだけ だれが 酒場へ もどるか えらぶ
-  offerBefriend(s, species, level = befriendLevel()) {
+  //   share: いっしょに 戦った 家族の キャラの id（「はい」の とき その 人たちの 酒場にも 入る。world/recruit-share.js）
+  offerBefriend(s, species, level = befriendLevel(), share = null) {
     const m = MONSTERS[species];
     if (!m || s.busy) return;
     const c = s.char;
     ensureCompanions(c);
     dropMissingFam(this, c);
     const id = 'o' + (++this.offerSeq || (this.offerSeq = 1)) + Math.floor(this.rng.next() * 1e6).toString(36);
-    s.befriendOffer = { id, species, level };
+    s.befriendOffer = { id, species, level, share: Array.isArray(share) ? share : [] };
     const p = partyOf(this, s);
     let yes;
     if (!rosterFull(c)) {

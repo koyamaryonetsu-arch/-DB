@@ -1,16 +1,17 @@
 // だいほん（イベント）を すすめる しくみ
-import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js?v=b2a0d9b4a2ff';
-import { ITEMS } from '../data/items.js?v=b2a0d9b4a2ff';
-import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js?v=b2a0d9b4a2ff';
-import { startFixedBattle } from './battles.js?v=b2a0d9b4a2ff';
-import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=b2a0d9b4a2ff';
-import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion, befriendLevel } from './party.js?v=b2a0d9b4a2ff';
-import { openService } from './services.js?v=b2a0d9b4a2ff';
-import { isNightFor, advanceClock, fracFor } from './clock.js?v=b2a0d9b4a2ff';
-import { grantWagon, wagonChars } from './wagon.js?v=b2a0d9b4a2ff';
-import { GUESTS } from '../data/shops.js?v=b2a0d9b4a2ff';
-import { unstickAll } from './hazards.js?v=b2a0d9b4a2ff';
-import { MAPS, isBlocked } from '../maps/index.js?v=b2a0d9b4a2ff';
+import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js?v=fa0687a214b4';
+import { ITEMS } from '../data/items.js?v=fa0687a214b4';
+import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js?v=fa0687a214b4';
+import { startFixedBattle } from './battles.js?v=fa0687a214b4';
+import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=fa0687a214b4';
+import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion, befriendLevel } from './party.js?v=fa0687a214b4';
+import { shareBefriend } from './recruit-share.js?v=fa0687a214b4';
+import { openService } from './services.js?v=fa0687a214b4';
+import { isNightFor, advanceClock, fracFor } from './clock.js?v=fa0687a214b4';
+import { grantWagon, wagonChars } from './wagon.js?v=fa0687a214b4';
+import { GUESTS } from '../data/shops.js?v=fa0687a214b4';
+import { unstickAll } from './hazards.js?v=fa0687a214b4';
+import { MAPS, isBlocked } from '../maps/index.js?v=fa0687a214b4';
 
 let runSeq = 1;
 
@@ -391,6 +392,10 @@ export class ScriptRun {
           else this.say(`${r.name}が仲間になった！\n${r.name}はルミナの町の酒場で待っている。`);
           if (r.benchedName) this.say(`${r.benchedName}は酒場へもどった。${r.stowed?.length ? '\n（装備はふくろにしまった）' : ''}`);
           this.say(`（名前は酒場で変えられるよ）`);
+          // 家族の パーティー: いっしょに 戦った 家族の 酒場にも 入る（world/recruit-share.js）
+          const sh = shareBefriend(w, s, off.species, befriendLevel(), off.share);
+          if (sh.got.length) this.say(`いっしょに戦った${sh.got.join('と')}の酒場にも、\n${sh.spName}が仲間になってくれた！`);
+          if (sh.full.length) this.say(`${sh.full.join('と')}の酒場はいっぱいで、\n${sh.spName}は入れなかった…`);
           w.sendSelf(s);
           break;
         }

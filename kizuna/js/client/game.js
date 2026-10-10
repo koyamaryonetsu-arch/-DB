@@ -1,18 +1,18 @@
 // ゲーム ぜんたいの しんこう
-import { Input } from './input.js?v=b2a0d9b4a2ff';
-import { GameAudio } from './audio.js?v=b2a0d9b4a2ff';
-import { Field } from './field.js?v=b2a0d9b4a2ff';
-import { Hud, STAMPS } from './ui/hud.js?v=b2a0d9b4a2ff';
-import { FieldMenu, openWorldMap } from './ui/menu.js?v=b2a0d9b4a2ff';
-import { ScriptPlayer, wait } from './ui/script.js?v=b2a0d9b4a2ff';
-import { BattleScene } from './battle.js?v=b2a0d9b4a2ff';
-import { showTitle, showLogin, showSelect, showCreate, showLoading, saveWhere } from './ui/title.js?v=b2a0d9b4a2ff';
-import { showServerDown } from './ui/syncui.js?v=b2a0d9b4a2ff';
-import { toast, confirmBox, el } from './ui/dom.js?v=b2a0d9b4a2ff';
-import { MAPS } from '../shared/maps/index.js?v=b2a0d9b4a2ff';
-import { applyBattlePrefs, applyUiFont } from './prefs.js?v=b2a0d9b4a2ff';
-import { SkyClient } from './sky.js?v=b2a0d9b4a2ff';
-import { reportError } from './errlog.js?v=b2a0d9b4a2ff';
+import { Input } from './input.js?v=fa0687a214b4';
+import { GameAudio } from './audio.js?v=fa0687a214b4';
+import { Field } from './field.js?v=fa0687a214b4';
+import { Hud, STAMPS } from './ui/hud.js?v=fa0687a214b4';
+import { FieldMenu, openWorldMap } from './ui/menu.js?v=fa0687a214b4';
+import { ScriptPlayer, wait } from './ui/script.js?v=fa0687a214b4';
+import { BattleScene } from './battle.js?v=fa0687a214b4';
+import { showTitle, showLogin, showSelect, showCreate, showLoading, saveWhere } from './ui/title.js?v=fa0687a214b4';
+import { showServerDown } from './ui/syncui.js?v=fa0687a214b4';
+import { toast, confirmBox, el } from './ui/dom.js?v=fa0687a214b4';
+import { MAPS } from '../shared/maps/index.js?v=fa0687a214b4';
+import { applyBattlePrefs, applyUiFont } from './prefs.js?v=fa0687a214b4';
+import { SkyClient } from './sky.js?v=fa0687a214b4';
+import { reportError } from './errlog.js?v=fa0687a214b4';
 
 export class Game {
   constructor(net) {
@@ -506,8 +506,14 @@ export class Game {
       }
       case 'toast':
         // afterBattle: たたかいの けっかを とじてから 出す（全滅して 目を覚ました ときなど）
-        if (m.afterBattle && (this.state === 'battle' || this.battleClosing)) this.waitBattleClosed().then(() => toast(m.text, 6000));
-        else toast(m.text, m.afterBattle ? 6000 : undefined);
+        if (m.afterBattle && (this.state === 'battle' || this.battleClosing)) this.waitBattleClosed().then(() => {
+          if (m.sfx) this.audio.sfx(m.sfx);
+          toast(m.text, 6000);
+        });
+        else {
+          if (m.sfx) this.audio.sfx(m.sfx);
+          toast(m.text, m.afterBattle ? 6000 : undefined);
+        }
         break;
       case 'chat':
         this.hud.addChat(m.from, m.text, m.stamp);
@@ -719,13 +725,15 @@ export class Game {
     this.keepAwake(true);
     if (m.rescued) toast('立てなおしました。動けるか、ためしてみてね', 5000);
     else if (m.resumed) toast('つなぎ直しました。続きから遊べます');
+    // 家族の パーティーで 仲間に なった まもの（いない 間に 酒場へ 来た。world/recruit-share.js）
+    for (const text of m.tavernNews || []) toast(text, 7000);
     for (const log of m.supportLog || []) {
       toast(`${log.helper}の冒険を${log.count}回手伝って\n経験値${log.exp}と${log.gold}ゴールドをもらった！${log.level ? `\nレベルが${log.level}に上がった！` : ''}`, 6000);
     }
     if (this.net.mode === 'offline' && !this.saveWarned) {
       this.saveWarned = true;
       const cloud = this.net.local?.cloud;
-      import('./offline.js?v=b2a0d9b4a2ff').then(({ offlineStorage }) => {
+      import('./offline.js?v=fa0687a214b4').then(({ offlineStorage }) => {
         offlineStorage.load();
         if (cloud?.state === 'on') return;
         if (!offlineStorage.ok) toast('このブラウザではセーブができないかもしれません', 5000);

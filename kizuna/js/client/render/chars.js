@@ -2,10 +2,10 @@
 // みため（かみがた・いろ）と そうび（ぶき・よろい・たて・かぶと）で かわる
 // 人は 32×42 で くみたてて、2ばいの 64×84 に して こまかく かきたす（res 4: せかいでは 16×21 の 大きさに かく）
 // どうぶつ・船は 16×21 など
-import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=b2a0d9b4a2ff';
-import { ITEMS, baseItemId } from '../../shared/data/items.js?v=b2a0d9b4a2ff';
-import { STARTER_EQUIP } from '../../shared/stats.js?v=b2a0d9b4a2ff';
-import { paintMiraPrison, paintWaterStar } from './temple-chars.js?v=b2a0d9b4a2ff';
+import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=fa0687a214b4';
+import { ITEMS, baseItemId } from '../../shared/data/items.js?v=fa0687a214b4';
+import { STARTER_EQUIP } from '../../shared/stats.js?v=fa0687a214b4';
+import { paintMiraPrison, paintWaterStar } from './temple-chars.js?v=fa0687a214b4';
 
 export const CW = 16;
 export const CH = 21;

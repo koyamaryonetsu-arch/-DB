@@ -9,11 +9,11 @@
 //
 //   c.dungeonFrom … フィールドから 洞窟に 入った ときの 外の 場所 { map, x, y, dir, in: 入った 洞窟 }
 //                   （placeSession で おぼえる。セーブに のこるので 読みこみなおしても 使える）
-import { MAPS } from '../maps/index.js?v=b2a0d9b4a2ff';
-import { ITEMS } from '../data/items.js?v=b2a0d9b4a2ff';
-import { itemCount, removeItem } from '../stats.js?v=b2a0d9b4a2ff';
-import { warpParty } from './travel.js?v=b2a0d9b4a2ff';
-import { treasureExitPoint } from './treasure.js?v=b2a0d9b4a2ff';
+import { MAPS } from '../maps/index.js?v=fa0687a214b4';
+import { ITEMS } from '../data/items.js?v=fa0687a214b4';
+import { itemCount, removeItem } from '../stats.js?v=fa0687a214b4';
+import { warpParty } from './travel.js?v=fa0687a214b4';
+import { treasureExitPoint } from './treasure.js?v=fa0687a214b4';
 
 // 糸が 使える マップ（洞窟・塔・宝の洞窟。カジノや お城などの たてものの 中は のぞく）
 export function isDungeonMap(m) {

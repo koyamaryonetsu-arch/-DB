@@ -1,7 +1,7 @@
 // 昼と 夜の 時計（ちずの よこの 小さな 丸。お日さま・お月さまが 空を うごく）
-import { el, toast } from './dom.js?v=b2a0d9b4a2ff';
-import { makeCanvas, ctxOf } from '../render/pixel.js?v=b2a0d9b4a2ff';
-import { phaseOf, darkness, PHASE_NAMES, clockHour } from '../../shared/world/clock.js?v=b2a0d9b4a2ff';
+import { el, toast } from './dom.js?v=fa0687a214b4';
+import { makeCanvas, ctxOf } from '../render/pixel.js?v=fa0687a214b4';
+import { phaseOf, darkness, PHASE_NAMES, clockHour } from '../../shared/world/clock.js?v=fa0687a214b4';
 
 const S = 22;
 const mixHex = (a, b, t) => {
