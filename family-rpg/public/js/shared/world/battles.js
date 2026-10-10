@@ -142,8 +142,8 @@ function makeBattle(world, sessions, party, enemies, opts) {
     bgm: opts.bgm,
     bond: party.bond || 0,
     preemptive: opts.preemptive || null,
-    // 宝の洞窟: 魔物を 地図の レベルに あわせて 強くする
-    enemyMod: opts.enemyLv ? (m) => scaleEnemy(m, opts.enemyLv) : null,
+    // 宝の洞窟: 魔物を 地図の レベルに あわせて 強くする（ひみつのダンジョンの 深い 階は enemyPow 倍）
+    enemyMod: opts.enemyLv ? (m) => scaleEnemy(m, opts.enemyLv, opts.enemyPow) : null,
     // 敵の 強さ（ハード 1.2倍 など）。リーダーの 設定。宝の洞窟の 強さの 上に かける（ほうしゅうは かわらない）
     enemyRate: enemyRateFor(world, party, sessions),
     hooks: {
@@ -229,6 +229,7 @@ export function startFieldBattle(world, s, sym) {
     symbolId: sym.id,
     mapId: s.map,
     enemyLv: MAPS[s.map].enemyLv,
+    enemyPow: MAPS[s.map].enemyPow,
   });
   return ctx;
 }
@@ -242,7 +243,7 @@ export function startFixedBattle(world, initiator, participants, encId) {
   for (const [sp, mn] of enc.group) for (let i = 0; i < mn; i++) enemies.push(sp);
   return new Promise((resolve) => {
     for (const m of sessions) m.busy = null; // だいほんの あいだは busy='script' だが たたかいに きりかえる
-    const ctx = makeBattle(world, sessions, party, enemies, { bg: enc.bg, bgm: enc.bgm, canFlee: enc.canFlee, boss: enc.boss, fixed: encId, enemyLv: enc.enemyLv, loseOk: !!enc.loseOk });
+    const ctx = makeBattle(world, sessions, party, enemies, { bg: enc.bg, bgm: enc.bgm, canFlee: enc.canFlee, boss: enc.boss, fixed: encId, enemyLv: enc.enemyLv, enemyPow: enc.enemyPow, loseOk: !!enc.loseOk });
     ctx.resolve = resolve;
   });
 }
@@ -433,8 +434,8 @@ function finishBattle(world, ctx) {
     // 馬車の 仲間は 半分（world/wagon.js）
     wagonShare(world, ctx, { exp, trainN, grow, say: (l) => compLines.push(l) });
     if (compLines.length) for (const m of sessions) perSession[m.id].lines.push(...compLines);
-    // まものが なかまに なりたがる（ふつうの たたかい だけ）
-    if (!ctx.resolve && !b.boss && res.killed.length) {
+    // まものが なかまに なりたがる（ふつうの たたかい だけ。ひみつのダンジョンの 中では ならない: map.noBefriend）
+    if (!ctx.resolve && !b.boss && res.killed.length && !MAPS[ctx.map]?.noBefriend) {
       const target = sessions.find((m) => m.id === party?.leader) || sessions[0];
       // まもの使い・モンスターマスターが いると なかまに なりやすい
       const mult = Math.max(1, ...b.allies.map((a) => JOBS[a.job]?.passive?.befriend || 1));
@@ -449,6 +450,11 @@ function finishBattle(world, ctx) {
     for (const m of sessions) {
       if (ctx.opts.loseOk) {
         perSession[m.id] = { lines: [`${m.char.name}たちは力つきた…`] };
+        continue;
+      }
+      // ひみつのダンジョンの 中では お金は へらない（入口の 広間で 目を覚ます。world/secret.js）
+      if (MAPS[ctx.map]?.sd) {
+        perSession[m.id] = { lines: [`${m.char.name}たちは全滅してしまった…`, 'ひみつのダンジョンでは、お金はへらない。'] };
         continue;
       }
       const lines = [`${m.char.name}たちは全滅してしまった…`];

@@ -117,9 +117,14 @@ export function ensureEncounterTable(lv, theme) {
 }
 
 // 魔物を 地図の レベルに あわせて 強くする（たたかいの はじめに 1体ずつ）
-export function scaleEnemy(m, L) {
+// pow … さらに かける 倍率（ひみつのダンジョンの 深い 階。data/secret.js の sdPower）。HP・攻撃・守り・魔力に かける
+export function scaleEnemy(m, L, pow = 1) {
   const L0 = m.lv || 1;
-  if (!Number.isFinite(L) || Math.abs(L - L0) < 0.01) return m;
+  if (Number.isFinite(pow) && pow > 1) powerUp(m, pow);
+  if (!Number.isFinite(L) || Math.abs(L - L0) < 0.01) {
+    if (m.powK) m.rewardK = m.powK;
+    return m;
+  }
   const k = (L + 6) / (L0 + 6);
   const hk = Math.pow(k, m.boss ? 1.3 : 1.15);
   m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * hk));
@@ -130,8 +135,18 @@ export function scaleEnemy(m, L) {
   m.healPow = Math.round(m.healPow * k);
   m.agi = Math.round(m.agi * Math.sqrt(k));
   m.lv = Math.round(L);
-  m.rewardK = k;
+  m.rewardK = k * (m.powK || 1);
   return m;
+}
+
+function powerUp(m, pow) {
+  const up = (v) => Math.round((v || 0) * pow);
+  m.maxHp = m.hp = Math.max(1, up(m.maxHp));
+  m.atk = up(m.atk);
+  m.dfn = Math.round((m.dfn || 0) * Math.sqrt(pow));
+  m.mag = up(m.mag);
+  m.healPow = up(m.healPow);
+  m.powK = Math.sqrt(pow);
 }
 
 // 強くした 魔物の ぶん ふえる 経験値・ゴールド

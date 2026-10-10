@@ -6,6 +6,7 @@ import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js';
 import { ITEMS, baseItemId } from '../../shared/data/items.js';
 import { STARTER_EQUIP } from '../../shared/stats.js';
 import { paintMiraPrison, paintWaterStar } from './temple-chars.js';
+import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js';
 
 export const CW = 16;
 export const CH = 21;
@@ -255,6 +256,9 @@ const NPC_LOOKS = {
   banker_m: { hair: 5, hairStyle: 'short', skin: 0, outfit: 'vest', cloth: '#3a4a6a', glasses: true, beard: true },
   smith: { hair: 0, hairStyle: 'bald', skin: 1, outfit: 'apron', cloth: '#5a3a2a', beard: true, hat: 'headband', hatColor: '#c83a3a' },
   apprentice: { hair: 3, hairStyle: 'spiky', skin: 1, outfit: 'apron', cloth: '#6a4a2a', hat: 'bandana', hatColor: '#3f7fd0' },
+  // ひみつのダンジョン（入口の 案内人・休み所の ようせい）
+  sd_guide: { hair: 5, hairStyle: 'long', skin: 0, outfit: 'robe', robeMain: '#3a2a5a', robeTrim: '#c8a0ff', beard: true, hat: 'wizard', hatColor: '#3a2a5a', cane: true },
+  sd_fairy: { hair: 6, hairStyle: 'twin', skin: 0, outfit: 'dress', cloth: '#7ad8c8', female: true, small: true, hat: 'veil' },
   // カジノ・メダル王の城
   dealer: { hair: 0, hairStyle: 'short', skin: 0, outfit: 'vest', cloth: '#1e1e30' },
   casino_clerk: { hair: 3, hairStyle: 'pony', skin: 0, outfit: 'vest', cloth: '#8a2a5a', female: true },
@@ -2252,6 +2256,15 @@ export function paintSpecial(kind, dir, f) {
       return fine(paintMiraPrison(true), '#1a3a5a');
     case 'water_star':
       return fine(paintWaterStar(f), '#1a3a6a');
+    // ひみつのダンジョン（render/secret-art.js）: 入口・しまった 入口・家族の記録の板・ごほうびの 宝箱
+    case 'sd_door':
+      return fine(paintSdDoor(f), SD_OUTLINE.sd_door);
+    case 'sd_door_closed':
+      return fine(paintSdDoorClosed(f), SD_OUTLINE.sd_door_closed);
+    case 'sd_board':
+      return fine(paintSdBoard(f), SD_OUTLINE.sd_board);
+    case 'sd_chest':
+      return fine(paintSdChest(f), SD_OUTLINE.sd_chest);
     default:
       return null;
   }

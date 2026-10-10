@@ -330,6 +330,26 @@ const TRACKS = {
       { drums: true, v: 0.2, n: 'k:4 h:4 s:4 h:2 h:2 '.repeat(15) + 'k:4 s:4 s:2 s:2 k:4' },
     ],
   },
+  // ひみつのダンジョン: 終わりの ない 地下の めいろ（ふしぎで すこし こわい。でも もっと 下へ 行きたくなる）
+  secret: {
+    bpm: 100,
+    ch: [
+      { w: 'pulse', v: 0.08, n: 'E5:4 F5:2 E5:2 D5:4 C5:4 B4:6 C5:2 D5:8 E5:4 G5:2 F5:2 E5:4 D5:4 C5:6 B4:2 A4:8 A5:4 G5:2 F5:2 E5:4 F5:4 G5:6 F5:2 E5:8 F5:4 E5:2 D5:2 C5:4 B4:4 C5:4 B4:4 A4:8' },
+      { w: 'triangle', v: 0.22, n: 'AFCEFCDE'.split('').map((r) => ({ A: 'A2:6 A2:2 E3:4 A2:4 ', F: 'F2:6 F2:2 C3:4 F2:4 ', C: 'C3:6 C3:2 G3:4 C3:4 ', E: 'E2:6 E2:2 B2:4 E2:4 ', D: 'D2:6 D2:2 A2:4 D2:4 ' })[r]).join('') },
+      { w: 'square', v: 0.025, n: 'C5:16 A4:16 G4:16 G#4:16 A4:16 G4:16 F4:16 G#4:16' },
+      { drums: true, v: 0.3, n: 'k:4 h:4 s:4 h:4 '.repeat(8) },
+    ],
+  },
+  // ひみつのダンジョンの 休み所と 入口の 広間（ほっと ひと休み）
+  secret_rest: {
+    bpm: 76,
+    ch: [
+      { w: 'triangle', v: 0.12, n: 'E5:4 G5:4 C6:8 B5:4 A5:4 G5:8 A5:4 F5:4 D5:4 E5:4 C5:16 E5:4 G5:4 A5:4 C6:4 D6:8 B5:8 C6:4 A5:4 F5:4 D5:4 E5:8 C5:8' },
+      { w: 'square', v: 0.02, n: 'CGFCAGFC'.split('').map((r) => ({ C: 'C4:2 E4:2 G4:2 C5:2 G4:2 E4:2 C4:2 E4:2 ', G: 'G3:2 B3:2 D4:2 G4:2 D4:2 B3:2 G3:2 B3:2 ', F: 'F3:2 A3:2 C4:2 F4:2 C4:2 A3:2 F3:2 A3:2 ', A: 'A3:2 C4:2 E4:2 A4:2 E4:2 C4:2 A3:2 C4:2 ' })[r]).join('') },
+      { w: 'triangle', v: 0.18, n: 'C3:16 G2:16 F2:16 C3:16 A2:16 G2:16 F2:16 C3:16' },
+      { drums: true, v: 0.1, n: 'k:8 h:8 '.repeat(8) },
+    ],
+  },
   battle: {
     bpm: 152,
     ch: [

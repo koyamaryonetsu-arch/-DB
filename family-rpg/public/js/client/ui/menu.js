@@ -32,6 +32,7 @@ import { difficultyOf, visibleMarks, EXP_RATES, EXP_RATE_NAMES, ENEMY_RATES, ENE
 import { memberTalk, talkFor } from '../../shared/data/party-talk.js';
 import { treasureRows, treasureDetail, openTreasureMap } from './treasure.js';
 import { themeHex } from '../render/themes.js';
+import { sdRecordOf, sdRecordText } from '../../shared/data/secret.js';
 import { wagonMenuView, wagonHereClient, menuArrange } from './wagon.js';
 import { readErrLog, errLogText, clearErrLog } from '../errlog.js';
 import { fieldUsableAbilities } from '../../shared/fieldskills.js';
@@ -1198,6 +1199,9 @@ export class FieldMenu {
           el('span', { class: pg.done ? 'gold' : '', text: pg.done ? `Lv${JOB_MAX_LEVEL} ★マスター` : `Lv${info.lv}（あと${pg.next}回）` })));
       }
       box.append(jobs, el('div', { class: 'detail', text: '1回の攻撃で終わってしまう戦いでは、職業の修行は半分しか進まない。' }));
+      // ひみつのダンジョンの 最高の 階（自分の キャラだけ。仲間には ない）
+      const sd = sdRecordOf(c);
+      if (sd.best > 0) box.append(el('div', { class: 'kv small' }, el('span', { class: 'k', text: 'ひみつのダンジョン' }), el('span', { class: 'gold', text: `最高は地下${sd.best}階` })));
     }
     // 素早さの 差は すこしだけ（shared/battle.js の ATB）。戦いの 速さの 設定も かける
     const bspeed = normBattleSettings(this.game.me?.battleSettings || {}).speed;
@@ -1596,6 +1600,9 @@ export class FieldMenu {
     const chests = Object.keys(c.chests || {}).length;
     const total = Object.values(MAPS).reduce((s, m) => s + m.chests.length, 0);
     box.append(el('div', { class: 'detail', text: `宝箱 ${chests}/${total}　フィールドの宝箱 ${c.fieldChests || 0}こ　倒した魔物 ${Object.values(c.kills || {}).reduce((s, x) => s + x, 0)}ひき` }));
+    // ひみつのダンジョンの 自分の 記録（data/secret.js）
+    const sd = sdRecordOf(c);
+    if (sd.best > 0 || sd.tries > 0) box.append(el('div', { class: 'kv' }, el('span', { class: 'muted', text: 'ひみつのダンジョン' }), el('span', { class: 'gold', text: sdRecordText(sd) })));
     const wallet = walletView(c);
     if (wallet) box.append(wallet);
     return box;

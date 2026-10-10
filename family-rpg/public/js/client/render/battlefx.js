@@ -11,6 +11,7 @@ import { drawCastleHall, drawCastleFloor, drawSandSea } from './ch4-duna-bg.js';
 import { playCh4Fx } from './battlefx-ch4.js';
 // 第4章 Step 7: 砂の底の神殿・鏡の間・水鏡の広間（ch4-temple-bg.js）
 import { TEMPLE_BG, TEMPLE_DECOS, drawTempleBg, drawTempleFloorBg } from './ch4-temple-bg.js';
+import { SECRET_BG } from './secret-art.js';
 
 export const BW = 256;
 export const BH = 144;
@@ -103,6 +104,8 @@ const BG = {
   whale_deck: { sky: ['#5a3a3a', '#8a5240', '#c27c4e', '#e6ae6e'], far: '#c8924c', near: '#6a4222', ground: ['#a8733e', '#96652f'], deco: 'sand_sea', deck: true, whirl: true },
   // 第4章 Step 7: 砂の底の神殿（sand_temple）・鏡の間（mirror_hall）・水鏡の広間（morgana_hall）
   ...TEMPLE_BG,
+  // ひみつのダンジョン（階の 色ごと・番人。render/secret-art.js）
+  ...SECRET_BG,
 };
 
 // はいけいの データ（〜_night は 夜空の はいけい。night-art.js）。ない ときは null

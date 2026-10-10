@@ -15,6 +15,7 @@ import { bankUI } from './bank.js';
 import { forgeUI } from './forge.js';
 import { tavernWagonItems, tavernWagonOpts, tavernWagonAct, tavernPlace, arrangeUI } from './wagon.js';
 import { casinoUI } from './casino.js';
+import { sdBoardUI } from './secret.js';
 import { shownEquip } from '../../shared/look-equip.js';
 
 export function openServiceUI(game, kind, data) {
@@ -30,6 +31,8 @@ export function openServiceUI(game, kind, data) {
     case 'forge': return forgeUI(game, data);
     // カジノ・メダル王（ui/casino.js）
     case 'casino': case 'medalKing': return casinoUI(game, kind, data);
+    // ひみつのダンジョンの 家族の記録の板（ui/secret.js）
+    case 'sdBoard': return sdBoardUI(game, data);
     default: return Promise.resolve();
   }
 }
