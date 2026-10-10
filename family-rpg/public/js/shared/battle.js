@@ -9,6 +9,8 @@
 
 import { makeRng } from './rng.js';
 import { ABILITIES, ELEMENT_ORDER, ELEMENT_NAMES } from './data/abilities.js';
+// 推理（deduce）で ねらう 属性（第26回の 探ていの 技）
+import { deduceElement } from './data/abilities-jobs6.js';
 import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js';
 import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js';
 import { MONSTERS } from './data/monsters.js';
@@ -955,6 +957,8 @@ export class Battle {
         if (eff.atbAfter) ev.atbAfter = eff.atbAfter;
         // 50-50 など: こうげきの あとで ぬすむ
         if (eff.steal && targets[0]) this.trySteal(c, targets[0], ev, eff.steal);
+        // ポイントバック（楽天カード！）: 当てた 敵の お金の points 倍が、たおさなくても もらえる
+        if (eff.points) this.givePoints(c, targets, eff, ev);
         // もろばぎり: じぶんも ダメージを うける
         if (eff.recoil && ev.dealt > 0 && c.alive) {
           const r = Math.max(1, Math.round(ev.dealt * eff.recoil));
@@ -1149,6 +1153,25 @@ export class Battle {
           ev.lines.push(weak.length ? `${name}の弱点は、${weak.join('・')}！` : `${name}には、弱点がない…。`);
           if (none.length) ev.lines.push(`${name}には、${none.join('・')}が効かない！`);
         }
+        break;
+      }
+      case 'deduce': {
+        // 推理（探ていの 技）: 敵の いちばんの 弱点を 見ぬいて、その 属性で 攻撃（弱点が なければ 属性なし）。
+        // ことばは 敵の しゅるいごとに 1回
+        const told = new Set();
+        let last = null;
+        for (const t of targets) {
+          if (!t.alive) continue;
+          const el = deduceElement(t);
+          if (t.species && !t.clone && !told.has(t.species)) {
+            told.add(t.species);
+            const name = MONSTERS[t.species]?.name || t.name;
+            ev.lines.push(el ? `${name}の弱点は…${ELEMENT_NAMES[el]}だ！` : `${name}には、弱点がない…！`);
+          }
+          this.magicHit(c, t, { ...eff, type: 'magic', element: el || undefined }, ev, powMult);
+          last = el || last;
+        }
+        this.afterDamage(c, ev, last);
         break;
       }
       case 'banish': {
@@ -1598,6 +1621,15 @@ export class Battle {
     }
     if (t.hp <= 0) ev.lines.push(...this.kill(t, info.element, ev));
     else if (t.boss) this.checkPhase(t, ev);
+  }
+
+  // ポイントバック（楽天カードマン）: 当てた 敵（分身は のぞく）の お金の eff.points 倍を もらう（hooks.gainGold）
+  givePoints(c, targets, eff, ev) {
+    if (c.side !== 'ally' || !this.hooks.gainGold) return 0;
+    let g = 0;
+    for (const t of targets) if (t.side === 'enemy' && t.species && !t.clone && !t.fled) g += this.hooks.gainGold(c, t.species, eff.points) || 0;
+    if (g > 0) ev.lines.push(`ポイントバック！${g}ゴールドを手に入れた！`);
+    return g;
   }
 
   // 大技の 予兆を 見ぬく 仲間（天才しせつ管理者）が 戦っていれば、ダメージを へらす（ことばは 1回の こうどうで 1回）

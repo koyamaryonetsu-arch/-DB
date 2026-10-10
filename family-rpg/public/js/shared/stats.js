@@ -456,6 +456,11 @@ export const STARTER_EQUIP = {
   youtuber: { weapon: 'selfie_stick', armor: 'cloth', shield: null, head: null, acc: null },
   gamer: { weapon: 'game_controller', armor: 'cloth', shield: null, head: null, acc: null },
   okan: { weapon: 'ladle', armor: 'cloth', shield: null, head: null, acc: null },
+  // 第26回: スパイは サングラス、少年探てい団は 虫めがね、ネコ型ロボットは すず、カッパは お皿
+  spy: { weapon: 'bronze_knife', armor: 'cloth', shield: null, head: 'spy_glasses', acc: null },
+  shonen_tantei: { weapon: 'mushimegane', armor: 'cloth', shield: null, head: null, acc: null },
+  neko_robot: { weapon: null, armor: 'cloth', shield: null, head: null, acc: 'neko_suzu' },
+  kappa: { weapon: null, armor: 'cloth', shield: null, head: 'kappa_sara', acc: null },
 };
 
 // みため（むかしの 項目は いつも のこす。かみがた・色・目もとの あたらしい 項目は data/looks.js）

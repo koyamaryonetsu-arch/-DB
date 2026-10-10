@@ -113,7 +113,7 @@ export const SHOPS_CH3 = {
     kind: 'weapon',
     keeper: '武器屋のおやじ',
     hello: 'いらっしゃい…。\n鉱山を魔物に取られて、鉄がとどかねえんだ。\n今ある分だけで、すまねえな。',
-    items: ['steel_dagger', 'steel_claw', 'steel_whip', 'snow_staff', 'ice_fan', 'gold_mic'],
+    items: ['steel_dagger', 'steel_claw', 'steel_whip', 'snow_staff', 'ice_fan', 'gold_mic', 'kunai'],
     // 鉱山を 取りもどすと はがねの 品が そろう
     more: [{
       show: { all: ['c3_mine'] },
@@ -129,7 +129,7 @@ export const SHOPS_CH3 = {
     items: ['fur_coat', 'snow_robe', 'snow_gi', 'fur_hat'],
     more: [{
       show: { all: ['c3_mine'] },
-      items: ['steel_mail', 'steel_shield', 'steel_helm', 'gold_button', 'leopard_shirt'],
+      items: ['steel_mail', 'steel_shield', 'steel_helm', 'gold_button', 'leopard_shirt', 'takecopter'],
       hello: 'いらっしゃい！\nはがねの防具が入ったよ。カナトコのはがねは、世界一さ！\nどうする？',
     }],
   },
