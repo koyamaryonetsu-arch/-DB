@@ -1,15 +1,15 @@
 // たたかいの AI（モンスター と サポートなかま）
-import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=ac2bfe71849d';
+import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=79f79592c89a';
 // 推理（deduce）の 属性・運しだいの 技を オートで 使う（第26回）
-import { deduceElement } from './data/abilities-jobs6.js?v=ac2bfe71849d';
-import { mpCost, penaltyFor, weaponOk, comboAllowed } from './stats.js?v=ac2bfe71849d';
+import { deduceElement } from './data/abilities-jobs6.js?v=79f79592c89a';
+import { mpCost, penaltyFor, weaponOk, comboAllowed } from './stats.js?v=79f79592c89a';
 // 第4章の まぼろしの分身と 月の鏡（battle-ch4.js）
-import { mirageAction, mirrorPlan } from './battle-ch4.js?v=ac2bfe71849d';
+import { mirageAction, mirrorPlan } from './battle-ch4.js?v=79f79592c89a';
 // 第4章 Step 6 の 砂に もぐる 魔物（battle-ch4.js）
-import { burrowSurface, burrowPlan } from './battle-ch4.js?v=ac2bfe71849d';
+import { burrowSurface, burrowPlan } from './battle-ch4.js?v=79f79592c89a';
 // 第4章 Step 7 の 砂の底の神殿と モルガナ（battle-temple.js）
-import { templeAction, templeCond, templePlan, templeAdjust, bondOk, waveIgnored } from './battle-temple.js?v=ac2bfe71849d';
-import { labPlan, labIgnored } from './battle-lab.js?v=ac2bfe71849d';
+import { templeAction, templeCond, templePlan, templeAdjust, bondOk, waveIgnored } from './battle-temple.js?v=79f79592c89a';
+import { labPlan, labIgnored } from './battle-lab.js?v=79f79592c89a';
 
 // さくせん
 export const TACTICS = {

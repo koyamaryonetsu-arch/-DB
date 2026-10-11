@@ -7,20 +7,20 @@
 // rank: 装備の ランク（1〜10。下の EQUIP_RANKS）。star: 店では 買えない 1つ上の 品（宝箱・レアドロップ）
 // unique: 1人 1つの 品（ボスが 落とす 物）。データを 合わせる ときに ふえすぎない
 
-import { ITEMS_CH2 } from './items-ch2.js?v=ac2bfe71849d';
-import { ITEMS_TM } from './items-tm.js?v=ac2bfe71849d';
-import { NIGHT_ITEMS, NIGHT_ITEM_KANA } from './night.js?v=ac2bfe71849d';
-import { SKY_ITEMS, SKY_ITEM_KANA } from './sky.js?v=ac2bfe71849d';
-import { ITEMS_FORGE, FORGE_KANA, addUpgradeItems } from './items-forge.js?v=ac2bfe71849d';
-import { ITEMS_CASINO, CASINO_KANA } from './items-casino.js?v=ac2bfe71849d';
-import { RARE_ITEMS, RARE_ITEM_KANA } from './monsters-rare.js?v=ac2bfe71849d';
-import { ESCAPE_ITEMS, ESCAPE_KANA } from './escape.js?v=ac2bfe71849d';
-import { ITEMS_CH3, CH3_ITEM_KANA } from './items-ch3.js?v=ac2bfe71849d';
-import { ITEMS_CH4, CH4_ITEM_KANA } from './items-ch4.js?v=ac2bfe71849d';
-import { ITEMS_TEMPLE, TEMPLE_ITEM_KANA } from './items-temple.js?v=ac2bfe71849d';
-import { ITEMS_LAB, LAB_ITEM_KANA } from './items-lab.js?v=ac2bfe71849d';
-import { POWDER_ITEMS, POWDER_KANA } from './friend-powder.js?v=ac2bfe71849d';
-import { FIELD27_ITEMS, FIELD27_KANA } from './abilities-field27.js?v=ac2bfe71849d';
+import { ITEMS_CH2 } from './items-ch2.js?v=79f79592c89a';
+import { ITEMS_TM } from './items-tm.js?v=79f79592c89a';
+import { NIGHT_ITEMS, NIGHT_ITEM_KANA } from './night.js?v=79f79592c89a';
+import { SKY_ITEMS, SKY_ITEM_KANA } from './sky.js?v=79f79592c89a';
+import { ITEMS_FORGE, FORGE_KANA, addUpgradeItems } from './items-forge.js?v=79f79592c89a';
+import { ITEMS_CASINO, CASINO_KANA } from './items-casino.js?v=79f79592c89a';
+import { RARE_ITEMS, RARE_ITEM_KANA } from './monsters-rare.js?v=79f79592c89a';
+import { ESCAPE_ITEMS, ESCAPE_KANA } from './escape.js?v=79f79592c89a';
+import { ITEMS_CH3, CH3_ITEM_KANA } from './items-ch3.js?v=79f79592c89a';
+import { ITEMS_CH4, CH4_ITEM_KANA } from './items-ch4.js?v=79f79592c89a';
+import { ITEMS_TEMPLE, TEMPLE_ITEM_KANA } from './items-temple.js?v=79f79592c89a';
+import { ITEMS_LAB, LAB_ITEM_KANA } from './items-lab.js?v=79f79592c89a';
+import { POWDER_ITEMS, POWDER_KANA } from './friend-powder.js?v=79f79592c89a';
+import { FIELD27_ITEMS, FIELD27_KANA } from './abilities-field27.js?v=79f79592c89a';
 
 export const ITEMS = {
   // ───── つかう どうぐ ─────
