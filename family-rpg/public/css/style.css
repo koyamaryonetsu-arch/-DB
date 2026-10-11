@@ -1037,8 +1037,10 @@ img.face { image-rendering: pixelated; }
 .b-msg { flex: 1 1 0; min-width: 0; font-size: var(--fs-small); line-height: 1.5; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; }
 .b-msg .ln { white-space: pre-wrap; }
 .b-msg .ln.old { color: var(--muted); }
-/* 技の せつめいは 上から（はみ出したら スクロール） */
-.b-msg.info { justify-content: flex-start; overflow-y: auto; }
+/* 技の せつめいは 別の まど（.b-info。第27回）。上から（はみ出したら スクロール）。せつめいが ない ときは 出さない */
+.b-info { display: none; flex: 1.3 1 0; min-width: 0; font-size: var(--fs-small); line-height: 1.5; overflow-y: auto; overscroll-behavior: contain; }
+#battle.has-info .b-info { display: block; }
+.b-info .ln { white-space: pre-wrap; }
 .b-tools { position: absolute; right: calc(8px + var(--safe-r)); top: 50%; display: flex; flex-direction: column; gap: 6px; z-index: 2; }
 /* 敵の 強さ（設定の「敵の強さ」。ふつう いがいの とき）: え の 左下に 小さな しるし
    （魔物は 地面の 線〈え の 高さの 86%〉の 上に 立つので、左下は あいている。上の 技の 名前の 札・おしらせとも かさならない） */
@@ -1411,11 +1413,10 @@ body.bd-3 #battle .b-cmd .menu .item { font-size: calc(var(--bcmd-fs) * 0.9); pa
 .b-cmd .menu .hdr.fav-h { color: var(--accent); border-bottom: 1px solid rgba(255, 214, 107, 0.4); }
 .b-cmd .menu .hdr.all-h { margin-top: 0.3em; border-bottom: 1px solid rgba(255, 255, 255, 0.18); }
 .b-cmd .menu .item.fav { background: rgba(255, 214, 107, 0.07); }
-.b-msg.info { position: relative; }
-.b-msg .favbtn { position: absolute; top: 0.35em; right: 0.45em; font-size: 0.85em; padding: 0.1em 0.6em; min-height: 0; }
-.b-msg.hasfav .ln { padding-right: 6.4em; }
+.b-info { position: relative; }
+.b-info .favbtn { font-size: 0.85em; padding: 0.1em 0.6em; min-height: 0; }
 .b-cmd .menu .item.k-bond { border-color: var(--accent); white-space: nowrap; }
-.b-msg .favbtn.on { border-color: var(--accent); color: var(--accent); }
+.b-info .favbtn.on { border-color: var(--accent); color: var(--accent); }
 /* 合体技の よやく */
 .b-cmd .menu .item.later { opacity: 0.85; border-style: dashed; }
 .b-cmd .menu .item.auto-dual { grid-column: 1 / -1; min-height: 1.8em; }
@@ -1508,7 +1509,7 @@ body.dot-font { --font-ui: 'KizunaDot', 'Hiragino Kaku Gothic ProN', 'Hiragino S
 .b-bond.full { animation: none; box-shadow: 0 0 0 1px #000, 0 0 10px rgba(255, 214, 107, 0.55); }
 .hud-btn { border-radius: 4px; }
 .favbtn, .sort-tabs .btn { border-radius: 4px; }
-.sort-tabs .btn.on, .b-msg .favbtn.on { border-color: #fff; color: #fff; background: rgba(255, 255, 255, 0.1); }
+.sort-tabs .btn.on, .b-info .favbtn.on { border-color: #fff; color: #fff; background: rgba(255, 255, 255, 0.1); }
 
 /* 転職: 覚える技は 全部 ならべる（どんな 技か 1行で）。まどは スクロールできる（下に つづく ときは しるし） */
 .job-learn { margin: 0.5em 0; display: flex; flex-direction: column; gap: 0.25em; }
@@ -1713,16 +1714,46 @@ body.dot-font { --font-ui: 'KizunaDot', 'Hiragino Kaku Gothic ProN', 'Hiragino S
 .sd-row.me { background: rgba(160, 120, 255, 0.16); border-radius: 4px; }
 .sd-me { margin-top: 0.5em; color: var(--accent); white-space: pre-line; }
 
-/* ───── 戦いの 技・道具の せつめい（第26回 家族の 見なおし。ui/skillinfo.js） ─────
-   カーソルを 合わせた 技の せつめい（相手・威力・効果・MP）を 全部 読めるように、まどを 少し 高く する。
+/* ───── 戦いの 技・道具の せつめい（第26回 家族の 見なおし。ui/skillinfo.js）─────
+   第27回: せつめいは メッセージとは 別の まど（.b-info）。え・メッセージ・せつめい・コマンドが 重ならない。
    お気に入りの ボタンは 右上に うかべて、文は その まわりを 回りこむ（よこに はばを とらない） */
-.b-msg.info { display: block; }
-.b-msg.hasfav .ln { padding-right: 0; }
-.b-msg.info .favbtn { position: static; float: right; margin: 0 0 0.2em 0.5em; }
+.b-info .favbtn { float: right; margin: 0 0 0.2em 0.5em; }
+/* たてむき: 上から え・メッセージ・せつめい・コマンド（.b-bottom は column-reverse。DOM は コマンド・せつめい・メッセージ） */
 @media (max-aspect-ratio: 1/1) {
-  .b-msg.info { height: auto; max-height: 9.4em; }
+  .b-info { flex: none; height: auto; max-height: 7.9em; padding-top: 0.3em; padding-bottom: 0.3em; }
+  /* せつめいが 出ている 間は メッセージを 2行ぶんに（コマンドが せまく ならない） */
+  #battle.has-info .b-msg { height: 4.1em; }
 }
-/* よこむきの スマホ: せつめいの まどは え の 下はしに かさねて 上へ のばす（コマンドは そのまま） */
+/* よこむきの スマホ: 左の れつに 上から え・せつめい・メッセージ（え は のこりの 高さで 小さく なる）、右に つよさと コマンド */
 @media (orientation: landscape) and (max-height: 500px) {
-  .b-msg.info { grid-row: 1 / 5; grid-column: 1; align-self: end; height: auto; max-height: 62vh; z-index: 3; }
+  #battle.has-info {
+    /* メッセージは 3行ぶん（え を できるだけ 大きく のこす） */
+    grid-template-rows: auto auto minmax(0, 1fr) auto min(var(--bmsg), calc(var(--fs-small) * 4.3 + 10px));
+    grid-template-areas: "stage status" "stage bond" "stage cmd" "info cmd" "msg cmd";
+  }
+  .b-info { grid-area: info; max-height: 34vh; padding: 0.25em 0.7em; line-height: 1.38; }
+}
+/* 第27回: 技の 長おし（Y）で 出る「お気に入りに入れる／はずす」の まど */
+.b-favpop-back { position: absolute; inset: 0; z-index: 8; background: rgba(0, 0, 0, 0.35); }
+.b-favpop {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 9;
+  width: min(88%, 20em); display: flex; flex-direction: column; gap: 0.3em; background: var(--win-solid); font-size: var(--fs);
+}
+.b-favpop .bf-t { color: var(--accent); font-size: var(--fs-small); }
+/* たてむき: え の 上に 出す（下の せつめいと コマンドが 見えたまま） */
+@media (max-aspect-ratio: 1/1) { .b-favpop { top: 32%; } }
+.b-favpop .menu .item { min-height: 2.3em; }
+.b-favpop .menu .item.gold .l { color: var(--accent); }
+/* 長おしの 間に 文字を えらんだり、iPhone の メニューが 出たり しない */
+.b-cmd .menu .item { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+
+/* ───── 第27回: メニューの 道具（client/ui/menu.js の itemsList）─────
+   一覧は まどの 中で スクロール、せつめい（ui/skillinfo.js の menuItemText）は 下に いつも 見える（重ならない） */
+.fmenu .main > .items-view { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+.items-view > .tabs { flex: none; }
+.items-view > .menu { flex: 1 1 auto; min-height: 3em; overflow-y: auto; overscroll-behavior: contain; }
+.items-view > .item-detail { flex: none; max-height: 45%; overflow-y: auto; margin-top: 0.3em; padding: 0.3em 0.5em; color: var(--text); border-top: 1px solid rgba(255, 255, 255, 0.18); background: rgba(255, 255, 255, 0.04); border-radius: 0 0 4px 4px; }
+.items-view > .item-detail:empty { display: none; }
+@media (orientation: landscape) and (max-height: 520px) {
+  .items-view > .item-detail { max-height: 40%; line-height: 1.32; }
 }

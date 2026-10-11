@@ -17,6 +17,7 @@ import { tavernWagonItems, tavernWagonOpts, tavernWagonAct, tavernPlace, arrange
 import { casinoUI } from './casino.js';
 import { sdBoardUI } from './secret.js';
 import { shownEquip } from '../../shared/look-equip.js';
+import { jobAskText } from '../../shared/data/job-talk.js';
 
 export function openServiceUI(game, kind, data) {
   switch (kind) {
@@ -147,7 +148,8 @@ function jobUI(game) {
           return;
         }
         menu.blur();
-        const ok = await confirmBox(game.input, `${who === 'self' ? '' : c.name + 'を'}${JOBS[it.value].name}に転職${who === 'self' ? 'しますか' : 'させますか'}？\n（今の職業のレベルは残ります）`, 'はい', 'いいえ', (x) => game.audio.sfx(x));
+        // 第27回: かくにんは 1行（今の 職業の レベルが のこる ことは 下の せつめいに ある）
+        const ok = await confirmBox(game.input, jobAskText(JOBS[it.value].name, who === 'self' ? null : c.name), 'はい', 'いいえ', (x) => game.audio.sfx(x));
         if (ok) {
           const r = await request(game, { kind: 'jobChange', job: it.value, who });
           if (r.ok) {
@@ -250,7 +252,7 @@ function jobUI(game) {
         bars.append(el('span', { text: n }), el('div', { class: 'b' }, el('i', { style: { width: `${Math.min(100, v / 1.5 * 100)}%` } })), el('span', { class: v > 1 ? 'up' : v < 1 ? 'down' : '', text: `${Math.round(v * 100)}%` }));
       }
       main.append(el('div', { class: 'small gold', text: '強さのかたむき' }), bars);
-      main.append(el('div', { class: 'detail', text: `職業レベルは戦いに勝つと上がる（最大${JOB_MAX_LEVEL}）。ただし、1回の攻撃で終わってしまう戦いでは、修行は半分しか進まない。\n基本職を2つマスターすると上級職、上級職をマスターすると超級職になれる（超級職は、上級職をマスターするとヒントが出る）。超級職をきわめた先には、伝説の職業もある（ロトの勇者・スーパーサイヤ人3・ニカ・魔王・天才しせつ管理者・はかい神・日の呼吸の使い手・七代目火影）。\n呪文の掛け合わせは、元の職業を合わせ持つ上級職以上で使える。\n他の職業で覚えた技も使えるが、MPが増えたり威力が下がることがある（元になった職業の技はだいじょうぶ）。\n酒場の仲間もここで転職できる。\n（十字キーの左右で、このせつめいをスクロールできる）` }));
+      main.append(el('div', { class: 'detail', text: `職業レベルは戦いに勝つと上がる（最大${JOB_MAX_LEVEL}）。職業ごとに別で、転職しても今の職業のレベルは残る。ただし、1回の攻撃で終わってしまう戦いでは、修行は半分しか進まない。\n基本職を2つマスターすると上級職、上級職をマスターすると超級職になれる（超級職は、上級職をマスターするとヒントが出る）。超級職をきわめた先には、伝説の職業もある（ロトの勇者・スーパーサイヤ人3・ニカ・魔王・天才しせつ管理者・はかい神・日の呼吸の使い手・七代目火影）。\n呪文の掛け合わせは、元の職業を合わせ持つ上級職以上で使える。\n他の職業で覚えた技も使えるが、MPが増えたり威力が下がることがある（元になった職業の技はだいじょうぶ）。\n酒場の仲間もここで転職できる。\n（十字キーの左右で、このせつめいをスクロールできる）` }));
       // 下に つづく ときの しるし
       const more = el('div', { class: 'scroll-more', text: '▼ 下に続く' });
       main.append(more);

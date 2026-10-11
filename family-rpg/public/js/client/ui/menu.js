@@ -16,6 +16,7 @@ import { PLACES } from '../../shared/maps/overworld.js';
 import { SEA_PLACES } from '../../shared/maps/ch2.js';
 import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js';
 import { T, TILE_INFO } from '../../shared/tiles.js';
+import { menuItemText } from './skillinfo.js';
 import { itemDetail, abilityDetail, skillBrief, gearText, targetTag, statChanges, statChangesHtml } from './info.js';
 import { bestEquipPlan, bestTeamOrder, gearChoices, sortGearChoices, GEAR_SORTS } from '../../shared/equip-plan.js';
 import { shownEquip, lookChoices, LOOK_SLOTS, LOOK_NONE } from '../../shared/look-equip.js';
@@ -395,8 +396,9 @@ export class FieldMenu {
   itemsList(active, focus = null) {
     const g = this.game;
     const c = g.me;
-    const box = el('div');
-    const detail = el('div', { class: 'detail' });
+    // 第27回: 一覧は まどの 中で スクロール、せつめいは その 下に いつも 見える（css の .items-view）
+    const box = el('div', { class: 'items-view' });
+    const detail = el('div', { class: 'detail item-detail' });
     const mode = itemSortPref();
     const counts = new Map(c.items.map((e) => [e.id, e.n]));
     // 素材（ふしぎなかじで 使う）には しるし
@@ -432,10 +434,18 @@ export class FieldMenu {
       start = items.findIndex((x) => x.value === focus.id);
       if (start < 0) start = Math.min(Math.max(0, focus.idx || 0), items.length - 1);
     }
+    // せつめいは 戦いの 道具と おなじ 文（だれに・効果・せつめい）＋ 使える所（ui/skillinfo.js の menuItemText）。
+    // スマホは 戦いと おなじ「タップで せつめい → もう一度で 使う・装備する など」（ListMenu の tapConfirm）
+    const touch = !!g.input.touch;
     const m = this.mkSub({
       items,
       start,
-      onMove: (it) => { detail.textContent = it ? (it.tmap ? treasureDetail(g, it.tmap) : itemDetail(it.value, mons)) : ''; },
+      tapConfirm: touch,
+      onMove: (it) => {
+        detail.textContent = it ? (it.tmap ? treasureDetail(g, it.tmap) : menuItemText(it.value, { touch: touch && !it.key, mons })) : '';
+        // せつめいの 高さが かわると 一覧の まどが せまく なる。えらんだ 行が かくれないように
+        requestAnimationFrame(() => { if (m.root.isConnected) m.scrollToSel(); });
+      },
       onSelect: (it) => this.itemAction(it),
     });
     box.append(tabs, m.root, detail);
@@ -697,6 +707,8 @@ export class FieldMenu {
     if (c.companion) box.append(el('div', { class: 'gold small', text: `${c.name}の呪文・技　MP ${c.mp}` }));
     const learned = learnedAbilities(c);
     const detail = el('div', { class: 'detail' });
+    // スマホ: タップで せつめい、もう一度で 使う（道具・戦いと おなじ。第27回）
+    const touch = !!g.input.touch;
     const mode = SKILL_TABS.some(([k]) => k === this.skillMode) ? this.skillMode : 'list';
     const go = (m) => { this.skillMode = m; this.focusSub(this.skillsView(true, who)); };
     const side = (d) => {
@@ -763,7 +775,7 @@ export class FieldMenu {
       }
       const showNow = (it) => {
         const x = now.find((n) => n.id === it?.value);
-        detail.textContent = x ? `${abilityDetail(x.id, c)}${x.ok ? '' : `\n（${why[x.why]}）`}` : '';
+        detail.textContent = x ? `${abilityDetail(x.id, c)}${x.ok ? '' : `\n（${why[x.why]}）`}${x.ok && touch ? '\n▶もう一度タップで使う' : ''}` : '';
       };
       const m = list(now.map((x) => {
         const a = ABILITIES[x.id];
@@ -777,6 +789,7 @@ export class FieldMenu {
           disabled: !x.ok,
         };
       }), {
+        tapConfirm: touch,
         onMove: showNow,
         onSelect: (it) => {
           this.sub.blur();
@@ -883,8 +896,9 @@ export class FieldMenu {
       box.append(el('div', { class: 'detail', text: '「他」は今の職業以外で覚えた技。MPが増えたり、威力が下がったりする。' }));
       return box;
     }
-    const showDetail = (it) => { detail.textContent = it ? `${abilityDetail(it.value, c)}\n使った回数: ${c.skillUse?.[it.value] || 0}回` : ''; };
+    const showDetail = (it) => { detail.textContent = it ? `${abilityDetail(it.value, c)}\n使った回数: ${c.skillUse?.[it.value] || 0}回${touch ? '\n▶もう一度タップで「使う・お気に入り」' : ''}` : ''; };
     const m = list(items, {
+      tapConfirm: touch,
       onMove: showDetail,
       onSelect: async (it) => {
         const a = ABILITIES[it.value];

@@ -28,6 +28,7 @@ import { NIGHT_SCRIPTS } from './night.js';
 import { skyScripts } from './sky.js';
 import { FACILITY_SCRIPTS } from './facilities.js';
 import { wagonEventSteps } from './wagon.js';
+import { JOB_GREET } from './job-talk.js';
 
 const V = (x, y) => [PLACES.village.x + x + 0.5, PLACES.village.y + y + 0.5];
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
@@ -329,11 +330,8 @@ export const SCRIPTS = {
   ],
   church: () => [['church']],
   job_change: (x) => [
-    ...S('神官セレナ', 'ここは星の神殿。\n紋章を持つ者は、新しい道を選ぶことができます。',
-      '転職しても、今までに覚えた呪文や特技は使えます。',
-      'ただし、今の職業に合わない技は\nMPが多くかかったり、威力が下がったりします。',
-      '職業のレベルはそれぞれ別。戦いに勝つと上がります（最大10）。\nただし弱すぎる相手では修行になりません。',
-      '基本職を2つ極めれば上級職に、上級職を極めれば超級職になれますよ。\nさあ、どの職業になりますか？'),
+    // 第27回: 家族の ねがいで みじかく（くわしい ことは 転職の まどの せつめいに ある。client/ui/services.js）
+    ...S('神官セレナ', JOB_GREET),
     ['jobChange'],
   ],
   tavern: (x) => [

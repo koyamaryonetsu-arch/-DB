@@ -18,7 +18,7 @@ import { PARTY_ANIMS3, JOB3_SFX } from './render/battlefx-jobs3.js';
 import { SIG4, JOB4_SFX, sigAnim } from './render/battlefx-jobs4.js';
 import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js';
 import { statusNames, buffNames, targetTag } from './ui/info.js';
-import { battleSkillText, battleItemText } from './ui/skillinfo.js';
+import { battleSkillText, battleItemText, favHint } from './ui/skillinfo.js';
 import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js';
 import { ENEMY_RATE_NAMES } from '../shared/data/difficulty.js';
 import { ResultPager, levelUpName } from './ui/result.js';
@@ -234,7 +234,9 @@ export class BattleScene {
     this.cmdEl = el('div', { class: 'win b-cmd' });
     this.msgEl = el('div', { class: 'win b-msg' });
     this.msgEl.addEventListener('click', () => this.skipMsg());
-    const bottom = el('div', { class: 'b-bottom' }, this.cmdEl, this.msgEl);
+    // 技・道具の せつめいの まど（第27回: 戦いの メッセージとは 別。戦いが 進んでも 消えない・上書きされない）
+    this.infoEl = el('div', { class: 'win b-info' });
+    const bottom = el('div', { class: 'b-bottom' }, this.cmdEl, this.infoEl, this.msgEl);
     root.append(top, this.stage, bottom);
     this.statusBoxes = new Map();
     this.renderStatus(true);
@@ -359,17 +361,27 @@ export class BattleScene {
     for (const e of this.msgEl.children) e.style.display = '';
   }
 
-  // えらんでいる 技・道具の せつめい（上から 見せる。長くても 1行めが かくれない）
+  // えらんでいる 技・道具の せつめい（上から 見せる。長くても 1行めが かくれない）。
+  // 第27回: メッセージの まど（say）とは 別の まど（.b-info）。コマンドを とじる まで（clearInfo）出た まま
   info(text) {
-    this.msgEl.innerHTML = '';
-    this.msgEl.classList.remove('hasfav');
-    this.msgEl.classList.add('info');
-    this.msgEl.append(el('div', { class: 'ln small', text }));
+    if (!this.infoEl) return;
+    this.infoEl.innerHTML = '';
+    this.infoEl.classList.remove('hasfav');
+    if (!text) return this.clearInfo();
+    this.infoEl.append(el('div', { class: 'ln small', text }));
+    this.infoEl.scrollTop = 0;
+    this.root?.classList.add('has-info');
+  }
+
+  clearInfo() {
+    if (this.infoEl) this.infoEl.innerHTML = '';
+    this.root?.classList.remove('has-info');
   }
 
   // ───────────── コマンド ─────────────
   renderCmdIdle(text) {
     this.closeMenus();
+    this.clearInfo();
     this.cmdEl.innerHTML = '';
     const a = this.primary;
     if (!a) {
@@ -391,6 +403,7 @@ export class BattleScene {
 
   closeMenus() {
     if (this.ended) this.closeTactics();
+    this.closeFavPop();
     this.menu?.blur();
     this.menu = null;
     this.targeting = null;
@@ -401,6 +414,7 @@ export class BattleScene {
     const a = this.myActor;
     if (!a || !a.alive || this.ended) return;
     this.cur = a.id;
+    this.clearInfo();
     this.renderStatus();
     this.game.audio.sfx('warn');
     // 転職した あと 今の 職業・ぶきで 使えない 技（ほかの 職業の 掛け合わせ技・剣や ムチが いる 技 など）と
@@ -526,12 +540,19 @@ export class BattleScene {
     } catch { /* */ }
   }
 
+  favsOf(a) {
+    return this.localFavs?.get(a.id) || a.favs || [];
+  }
+
   // お気に入りに 入れる・はずす（サーバーに おぼえてもらう）
   toggleFav(a, id) {
-    const favs = a.favs || (a.favs = []);
+    // この 戦いの 中で かえた お気に入りは 手もとに おぼえる（サーバーの 前の 知らせ〈upd〉が あとから とどいても もどらない）
+    const favs = this.favsOf(a).slice();
     const on = !favs.includes(id);
     if (on) favs.push(id);
     else favs.splice(favs.indexOf(id), 1);
+    (this.localFavs || (this.localFavs = new Map())).set(a.id, favs);
+    a.favs = favs;
     const who = String(a.charId || '').includes(':') ? String(a.charId).split(':').pop() : 'self';
     // 知らせは サーバーの 返事（menuRes）で 出る
     this.game.net.send({ t: 'menu', action: 'favorite', who, id, op: on ? 'add' : 'remove' });
@@ -563,7 +584,7 @@ export class BattleScene {
       };
     };
     // お気に入りの まど（ならびは メニューの「技」で かえられる）＋ ぜんぶ
-    const favs = (a.favs || []).filter((id) => ids.includes(id));
+    const favs = this.favsOf(a).filter((id) => ids.includes(id));
     const items = [];
     if (favs.length) {
       items.push({ header: true, label: '★ お気に入り', cls: 'fav-h' }, ...favs.map((id) => row(id, true)));
@@ -578,11 +599,11 @@ export class BattleScene {
     const detail = (it) => {
       if (!it || it.header) return;
       // 効果・威力の 目安・属性・相手・MP（敵が 1体・自分に かける・全体の 技でも 使う 前に 見える。ui/skillinfo.js）
-      this.info(battleSkillText(it.value, pc, { touch: this.touchUi() }));
-      const on = (a.favs || []).includes(it.value);
-      this.msgEl.classList.add('hasfav');
-      // 右上に うかべる（文は まわりを 回りこむ。css の .b-msg.info .favbtn）
-      this.msgEl.prepend(el('button', {
+      this.info(favHint(battleSkillText(it.value, pc, { touch: this.touchUi() }), this.touchUi()));
+      const on = this.favsOf(a).includes(it.value);
+      this.infoEl.classList.add('hasfav');
+      // 右上に うかべる（文は まわりを 回りこむ。css の .b-info .favbtn）
+      this.infoEl.prepend(el('button', {
         class: `btn favbtn ${on ? 'on' : ''}`,
         text: on ? '★お気に入り' : '☆お気に入り',
         title: on ? 'お気に入りからはずす' : 'お気に入りに入れる',
@@ -606,6 +627,53 @@ export class BattleScene {
       if (t === 'ally' || t === 'deadAlly') return this.pickAlly((tid) => this.send({ type: 'ability', id: it.value, target: tid }), t === 'deadAlly', ab.name, back);
       return this.send({ type: 'ability', id: it.value });
     }, () => this.openCommand(), null, detail, start, view, true);
+    // 長おし・Y: お気に入りに 入れる／はずす を えらぶ 小さな まど（技は 使わない。第27回）
+    this.menu.onLong = (it) => {
+      if (!it || it.header) return;
+      this.favPopup(a, it.value, () => {
+        const off = this.selOffset();
+        const fav = !!this.menu?.current?.fav;
+        this.toggleFav(a, it.value);
+        this.abilityMenu(ids, page, { value: it.value, off, fav });
+      });
+    };
+  }
+
+  // 第27回: 技を 長おし（Y）した ときの「お気に入りに入れる／はずす」の まど。toggle: 入れる・はずす を えらんだ とき
+  favPopup(a, id, toggle) {
+    this.closeFavPop();
+    const on = this.favsOf(a).includes(id);
+    const back = el('div', { class: 'b-favpop-back', onclick: (e) => { e.stopPropagation(); cancel(); } });
+    const menu = new ListMenu(this.game.input, {
+      items: [{ label: on ? '☆お気に入りからはずす' : '★お気に入りに入れる', value: 'toggle', cls: on ? '' : 'gold' }, { label: 'やめる', value: null }],
+      sound: (x) => this.game.audio.sfx(x),
+      back: null,
+      onSelect: (it) => {
+        close();
+        if (it.value) toggle();
+        else this.menu?.focus();
+      },
+      onCancel: () => cancel(),
+    });
+    const box = el('div', { class: 'win b-favpop', role: 'dialog' }, el('div', { class: 'bf-t', text: `${ABILITIES[id]?.name || ''}${on ? '（お気に入り）' : ''}` }), menu.root);
+    const close = () => {
+      menu.blur();
+      back.remove();
+      box.remove();
+      this.favPop = null;
+    };
+    const cancel = () => {
+      close();
+      this.menu?.focus();
+    };
+    this.favPop = { close, id };
+    this.menu?.blur();
+    this.root.append(back, box);
+    menu.focus();
+  }
+
+  closeFavPop() {
+    this.favPop?.close();
   }
 
   // タッチの 画面（「もう一度タップで使う」を 出す）
@@ -1623,6 +1691,7 @@ export class BattleScene {
       // うしろの まど（たたかいの メッセージ・コマンド）は からに して、けっかだけを 見せる
       this.cmdEl.innerHTML = '';
       this.msgEl.innerHTML = '';
+      this.clearInfo();
       const pager = new ResultPager(lines);
       const list = el('div', { class: 'res-lines' });
       const more = el('div', { class: 'res-more', text: '▼' });

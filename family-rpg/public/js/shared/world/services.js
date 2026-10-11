@@ -22,6 +22,7 @@ import { useEscapeItem, noEscapeText } from './escape.js';
 import { usePowder } from './powder.js';
 import { bestEquipPlan, bestTeamOrder } from '../equip-plan.js';
 import { setLookEquip } from '../look-equip.js';
+import { jobDoneText } from '../data/job-talk.js';
 
 export function openService(world, s, kind, arg) {
   switch (kind) {
@@ -168,7 +169,7 @@ export function serviceAction(world, s, msg) {
       }
       const removed = r.removed.map((id) => ITEMS[id]?.name).filter(Boolean);
       world.sendParty(partyOf(world, s));
-      return reply(true, `${who.name}は${JOBS[msg.job].name}になった！${removed.length ? `\n（${removed.join('・')}は装備できないので外した）` : ''}`, { jobChanged: true, who: msg.who || 'self' });
+      return reply(true, jobDoneText(who.name, JOBS[msg.job].name, removed), { jobChanged: true, who: msg.who || 'self' });
     }
     case 'tavern': {
       let r;
@@ -533,6 +534,8 @@ export function menuAction(world, s, msg) {
         if (j >= 0 && j < list.length) [list[i], list[j]] = [list[j], list[i]];
       }
       who.favorites = list.slice(0, 30);
+      // 戦いの 中（長おしで お気に入り。第27回）: 戦いの 人の お気に入りも（つぎの 知らせで 前に もどらない）
+      for (const ctx of world.battles?.values?.() || []) for (const b of ctx.battle?.combatants || []) if (who.id && b.side === 'ally' && b.charId === who.id) b.favs = who.favorites.slice();
       return reply(true, msg.op === 'add' ? `${ABILITIES[id].name}をお気に入りに入れた。` : msg.op === 'remove' ? `${ABILITIES[id].name}をお気に入りからはずした。` : 'ならびを変えた。');
     }
     case 'settings': {
