@@ -1,6 +1,7 @@
 // おんがくと こうかおん（Web Audio で その場で つくる。きょくは すべて オリジナル）
 import { SFX_R26 } from './sfx-r26.js';
 import { SFX_R27 } from './sfx-r27.js';
+import { SFX_R29 } from './sfx-r29.js';
 
 const NOTE_BASE = { C: 0, 'C#': 1, Db: 1, D: 2, 'D#': 3, Eb: 3, E: 4, F: 5, 'F#': 6, Gb: 6, G: 7, 'G#': 8, Ab: 8, A: 9, 'A#': 10, Bb: 10, B: 11 };
 
@@ -754,6 +755,8 @@ export class GameAudio {
         if (SFX_R26[id]) SFX_R26[id](this, T);
         // 第27回に 作り直した 呪文・特技の 音（sfx-r27.js）
         else if (SFX_R27[id]) SFX_R27[id](this, T);
+        // 第29回の るろうに剣士の 道の 看板の技の 音（sfx-r29.js）
+        else if (SFX_R29[id]) SFX_R29[id](this, T);
     }
   }
 }

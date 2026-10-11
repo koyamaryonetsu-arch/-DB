@@ -159,8 +159,8 @@ export function gameFiles() {
     'public/js/shared/ai.js', 'public/js/shared/battle.js', 'public/js/shared/stats.js',
     'public/js/shared/data/abilities.js', 'public/js/shared/data/abilities-adv.js', 'public/js/shared/data/abilities-jobs.js', 'public/js/shared/data/companions.js',
     // 学校・公務員・町の みかた・アイドルの 職業の 技
-    'public/js/shared/data/abilities-jobs2.js', 'public/js/shared/data/abilities-jobs3.js', 'public/js/shared/data/abilities-jobs4.js', 'public/js/shared/data/abilities-jobs5.js', 'public/js/shared/data/abilities-jobs6.js', 'public/js/shared/data/abilities-jobs7.js',
-    'public/js/shared/data/hirameki.js', 'public/js/shared/data/hirameki-jobs.js', 'public/js/shared/data/hirameki-r27.js', 'public/js/shared/data/dual.js', 'public/js/shared/data/loot.js',
+    'public/js/shared/data/abilities-jobs2.js', 'public/js/shared/data/abilities-jobs3.js', 'public/js/shared/data/abilities-jobs4.js', 'public/js/shared/data/abilities-jobs5.js', 'public/js/shared/data/abilities-jobs6.js', 'public/js/shared/data/abilities-jobs7.js', 'public/js/shared/data/abilities-jobs8.js',
+    'public/js/shared/data/hirameki.js', 'public/js/shared/data/hirameki-jobs.js', 'public/js/shared/data/hirameki-r27.js', 'public/js/shared/data/hirameki-r29.js', 'public/js/shared/data/dual.js', 'public/js/shared/data/loot.js',
     'public/js/shared/data/encounters.js', 'public/js/shared/data/items.js', 'public/js/shared/data/jobs.js',
     'public/js/shared/data/monsters.js', 'public/js/shared/data/shops.js', 'public/js/shared/data/story.js',
     'public/js/shared/maps/index.js', 'public/js/shared/maps/overworld.js', 'public/js/shared/maps/ch2.js', 'public/js/shared/maps/sea.js',
@@ -236,6 +236,8 @@ export function gameFiles() {
     'public/js/shared/data/abilities-field27.js', 'public/js/shared/world/field27.js', 'public/js/shared/roster-sort.js',
     // 第27回: 暴れんぼう将軍の 看板の技「成敗！」の エフェクト
     'public/js/client/render/battlefx-jobs5.js',
+    // 第29回: るろうに剣士の 道の 看板の技の エフェクト
+    'public/js/client/render/battlefx-jobs6.js',
     // 第4章クリアの あとの より道: 砂の古代都市と 古代の大迷宮・たのまれごと（第27回）
     'public/js/shared/maps/labyrinth.js', 'public/js/shared/data/story-lab.js', 'public/js/shared/data/sidequests.js',
     'public/js/shared/data/items-lab.js', 'public/js/shared/data/monsters-lab.js', 'public/js/shared/data/abilities-lab.js',
