@@ -9,6 +9,7 @@ import { paintStorm } from './tiles-ch4.js';
 import { PYRAMID_EXTRAS } from './tiles-pyramid.js';
 // 第4章 Step 7: 砂の底の神殿の たてた もの（3色の レバー・水の 柱の ろう・砂の海賊の ほこら）
 import { TEMPLE_PROPS } from './tiles-temple.js';
+import { LAB_PROPS } from './tiles-lab.js';
 import {
   canalWallFace, canalWallTop, canalSidePaint, damTopPaint, paintCanalWater, sluiceTopPaint, sluiceBoardPaint, pillarSidePaint, pillarTopPaint, rubbleAtlasPaint,
   CANAL_SUN,
@@ -323,6 +324,8 @@ export function propPainter(id) {
   return p;
 }
 Object.assign(PROPS, TEMPLE_PROPS);
+// 古代の大迷宮: 休み所の 聖なる 火・竜の ほね（render/tiles-lab.js）
+Object.assign(PROPS, LAB_PROPS);
 export const PROP_TILES = new Set(Object.keys(PROPS).map(Number).filter((k) => PROPS[k]));
 
 // たからばこ（あいている・しまっている）

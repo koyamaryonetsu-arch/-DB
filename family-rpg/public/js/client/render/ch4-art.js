@@ -10,6 +10,7 @@ import { addPyramidArt } from './ch4-pyramid-art.js';
 import { addSouthArt } from './ch4-south-art.js';
 import { addSeaArt } from './ch4-sea-art.js';
 import { addTempleArt } from './ch4-temple-art.js';
+import { addLabArt } from './lab-art.js';
 
 // だえんの ふちの てん（a0 → a1 の むき。0 は みぎ、PI/2 は した）
 function ellArc(cx, cy, rx, ry, a0, a1, n = 10) {
@@ -611,4 +612,6 @@ export function addCh4Art(ART) {
   // ── 砂の底の神殿（Step 7。水の精・水竜・砂ガニ・鏡の騎士・まどわしの鏡・番人・うつし身・水のろう・モルガナ 2つの すがた。ch4-temple-art.js）──
   addTempleArt(ART);
   addCh4BossArt(ART);
+  // ── 古代の大迷宮（第4章クリアの あと。古竜オルドラ・星読みの塔・古代都市の 門 など。lab-art.js）──
+  addLabArt(ART);
 }

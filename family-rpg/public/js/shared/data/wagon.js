@@ -16,6 +16,11 @@ export const WAGON_SLOTS = 4;
 // 馬車の 仲間が もらえる 経験値・職業の 修行の わりあい
 export const WAGON_EXP_RATE = 0.5;
 
+// 馬車が 入れる マップ: フィールドと、馬車も 通れる 広い ダンジョン（map.wagon。古代の大迷宮）
+export function wagonMapOk(m) {
+  return m?.kind === 'field' || !!m?.wagon;
+}
+
 export function hasWagon(c) {
   return !!c?.wagon;
 }

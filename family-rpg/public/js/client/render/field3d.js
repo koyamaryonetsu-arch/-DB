@@ -17,6 +17,7 @@ import { duneShape, ch4Mask, onDesert } from './tiles-ch4.js';
 import { whirlCanvas } from './tiles-duna.js';
 // 第4章 Step 7: 砂の底の神殿（水の 高さで かわる 水面と 底・かべの 鏡と かべ画・ドームの かべ・水鏡）
 import { TEMPLE_LIQUIDS, TEMPLE_FLOOR_H, templeBlockSpec, waterMirrorCanvas, MIRROR_W, MIRROR_H, WATER_MIRROR_FRAMES } from './tiles-temple.js';
+import { labBlockSpec } from './tiles-lab.js';
 import { TROUGH, CANAL_CTX, CANAL_SUN, canalVariant, canalMask, canalFlow, damVertical } from './tiles-canal.js';
 import { flipCanvas, makeCanvas, ctxOf, whiteCopy } from './pixel.js';
 import { themedCanvas, partOfTile, partOfExtra, partOfProp } from './themes.js';
@@ -133,7 +134,7 @@ function blockSpec(id, x, y) {
     case T.PYR_SLAB: return { h: 1.6, top: ['x', 'cave_top', v], side: ['t', T.PYR_SLAB, v, 1], south: ['t', T.PYR_SLAB, v, 1] };
     case T.PYR_CRACK: return { h: 1.6, top: ['x', 'cave_top', v], side: ['t', T.PYR_CRACK, v, 1], south: ['t', T.PYR_CRACK, v, 1] };
     // 第4章 Step 7: 大きな 鏡・かべ画（かべの 前の かお）・空気の ドームの かべ（あわの 向こうの 砂）・水が もどった ふん水
-    default: return templeBlockSpec(id, v);
+    default: return templeBlockSpec(id, v) || labBlockSpec(id, v);
   }
 }
 

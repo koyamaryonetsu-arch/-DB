@@ -28,6 +28,8 @@ import { NIGHT_SCRIPTS } from './night.js';
 import { skyScripts } from './sky.js';
 import { FACILITY_SCRIPTS } from './facilities.js';
 import { wagonEventSteps } from './wagon.js';
+import { LAB_SCRIPTS, LAB_STORY_SCRIPTS } from './story-lab.js';
+import { QUEST_SCRIPTS, QUEST_STORY_SCRIPTS, wrapSideQuests } from './sidequests.js';
 
 const V = (x, y) => [PLACES.village.x + x + 0.5, PLACES.village.y + y + 0.5];
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
@@ -611,5 +613,9 @@ Object.assign(SCRIPTS, FACILITY_SCRIPTS);
 Object.assign(SCRIPTS, CASINO_SCRIPTS);
 // ひみつのダンジョン（story-secret.js。しょりは world/secret.js）
 Object.assign(SCRIPTS, SD_SCRIPTS);
+// 第4章クリアの あとの より道: 古代の大迷宮（story-lab.js）と たのまれごと（sidequests.js）
+Object.assign(SCRIPTS, LAB_SCRIPTS, QUEST_SCRIPTS);
+wrapSideQuests(SCRIPTS);
+for (const id of [...LAB_STORY_SCRIPTS, ...QUEST_STORY_SCRIPTS]) STORY_SCRIPTS.add(id);
 
 export { comboUnlocked };

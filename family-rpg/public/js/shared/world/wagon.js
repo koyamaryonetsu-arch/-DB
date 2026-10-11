@@ -4,7 +4,7 @@ import { MAPS } from '../maps/index.js';
 import { scaleExp } from '../data/difficulty.js';
 import { COMPANION_SLOTS } from '../data/companions.js';
 import { JOBS } from '../data/jobs.js';
-import { WAGON_SLOTS, WAGON_EXP_RATE, hasWagon, cleanWagon } from '../data/wagon.js';
+import { WAGON_SLOTS, WAGON_EXP_RATE, hasWagon, cleanWagon, wagonMapOk } from '../data/wagon.js';
 import { computeStats, fullHeal } from '../stats.js';
 import { pub } from '../battle.js';
 import {
@@ -15,9 +15,9 @@ import {
 const fail = (reason, extra = {}) => ({ ok: false, reason, ...extra });
 const isFam = (k) => String(k || '').startsWith('fam:');
 
-// 馬車が 入れる マップ（フィールドだけ。洞窟・塔の 中は 入り口で 待つ）
+// 馬車が 入れる マップ（フィールドと 馬車も 通れる 広い ダンジョン。ほかの 洞窟・塔の 中は 入り口で 待つ）
 export function wagonHere(mapId) {
-  return MAPS[mapId]?.kind === 'field';
+  return wagonMapOk(MAPS[mapId]);
 }
 
 export function grantWagon(c) {

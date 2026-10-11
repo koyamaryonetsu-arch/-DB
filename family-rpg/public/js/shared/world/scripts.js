@@ -8,7 +8,7 @@ import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion, 
 import { shareBefriend } from './recruit-share.js';
 import { openService } from './services.js';
 import { isNightFor, advanceClock, fracFor } from './clock.js';
-import { grantWagon, wagonChars } from './wagon.js';
+import { grantWagon, wagonChars, wagonHere } from './wagon.js';
 import { GUESTS } from '../data/shops.js';
 import { unstickAll } from './hazards.js';
 import { MAPS, isBlocked } from '../maps/index.js';
@@ -387,7 +387,7 @@ export class ScriptRun {
           this.batch.push(['sfx', 'join']);
           if (r.where === 'wagon') {
             // パーティーが いっぱいで 馬車が あいていた（洞窟の 中では 馬車は 入り口で 待っている）
-            this.say(MAPS[s.map]?.kind === 'field' ? `${r.name}が仲間に加わった！\n${r.name}は馬車に乗りこんだ！` : `${r.name}が仲間に加わった！\n${r.name}は入り口で待つ馬車へ向かった！`);
+            this.say(wagonHere(s.map) ? `${r.name}が仲間に加わった！\n${r.name}は馬車に乗りこんだ！` : `${r.name}が仲間に加わった！\n${r.name}は入り口で待つ馬車へ向かった！`);
           } else if (r.joined) this.say(`${r.name}が仲間に加わった！`);
           else this.say(`${r.name}が仲間になった！\n${r.name}はルミナの町の酒場で待っている。`);
           if (r.benchedName) this.say(`${r.benchedName}は酒場へもどった。${r.stowed?.length ? '\n（装備はふくろにしまった）' : ''}`);

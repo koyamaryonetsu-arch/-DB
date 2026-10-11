@@ -8,6 +8,7 @@ import { MAPS } from '../maps/index.js';
 import { SKY_OBJECTIVE_TARGETS, C3_LEAD_OBJECTIVE } from './sky.js';
 import { CH3_OBJECTIVE_TARGETS, ch3SubQuests } from './story-ch3.js';
 import { CH4_OBJECTIVE_TARGETS } from './story-ch4.js';
+import { labSubQuests } from './sidequests.js';
 
 export const OBJECTIVE_TARGETS = {
   'ホシミばあちゃんの家（村の南東）へ行こう': [{ npc: 'elder' }],
@@ -67,6 +68,8 @@ export function subQuests(c) {
   // 第3章（story-ch3.js）
   const count = (id) => (c.items || []).filter((i) => i.id === id).reduce((s, i) => s + (i.n || 0), 0);
   out.push(...ch3SubQuests(c, f, has, count));
+  // 第4章クリアの あとの たのまれごと（sidequests.js）
+  out.push(...labSubQuests(c, f, has));
   return out;
 }
 

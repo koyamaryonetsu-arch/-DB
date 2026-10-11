@@ -230,6 +230,10 @@ export function gameFiles() {
     'public/js/shared/data/skill-ups.js', 'public/js/client/ui/skillinfo.js',
     // 合体技の 作り直し（2人・3人・4人の 合体技・カットイン）
     'public/js/shared/battle-dual.js', 'public/js/client/battle-dual.js', 'public/js/client/render/dualfx.js',
+    // 第4章クリアの あとの より道: 砂の古代都市と 古代の大迷宮・たのまれごと（第27回）
+    'public/js/shared/maps/labyrinth.js', 'public/js/shared/data/story-lab.js', 'public/js/shared/data/sidequests.js',
+    'public/js/shared/data/items-lab.js', 'public/js/shared/data/monsters-lab.js', 'public/js/shared/data/abilities-lab.js',
+    'public/js/shared/data/encounters-lab.js', 'public/js/shared/battle-lab.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

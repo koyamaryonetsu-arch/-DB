@@ -9,6 +9,7 @@ import { mirageAction, mirrorPlan } from './battle-ch4.js';
 import { burrowSurface, burrowPlan } from './battle-ch4.js';
 // 第4章 Step 7 の 砂の底の神殿と モルガナ（battle-temple.js）
 import { templeAction, templeCond, templePlan, templeAdjust, bondOk, waveIgnored } from './battle-temple.js';
+import { labPlan, labIgnored } from './battle-lab.js';
 
 // さくせん
 export const TACTICS = {
@@ -111,6 +112,9 @@ export function decideAlly(b, c) {
   // 大波の 前に 身を 守る・水の衣に きずな技（しかけを 知っている 人。battle-temple.js）
   const tp = templePlan(b, c, foes);
   if (tp) return tp;
+  // 古竜の いにしえの炎の 前に 身を 守る（しかけを 知っている 人。battle-lab.js）
+  const lp = labPlan(b, c);
+  if (lp) return lp;
   if (!foes.length) return { type: 'defend' };
   const mine = usable(b, c);
 
@@ -159,7 +163,7 @@ export function decideAlly(b, c) {
 
   // 5) ボスの 大わざに そなえる
   // （砂に もぐった 敵の とび出しも。b.ignoreBurrow … 気づかない 人）
-  const telegraphing = b.aliveEnemies().some((f) => f.telegraph && !(b.ignoreBurrow && f.burrow) && !waveIgnored(b, f));
+  const telegraphing = b.aliveEnemies().some((f) => f.telegraph && !(b.ignoreBurrow && f.burrow) && !waveIgnored(b, f) && !labIgnored(b, f));
   if (telegraphing && c.hp / c.maxHp < 0.6 && b.rng.chance(0.75)) return { type: 'defend' };
 
   // MPが へってきたら まりょくを あつめる
