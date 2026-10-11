@@ -8,6 +8,7 @@ import { STARTER_EQUIP } from '../../shared/stats.js';
 import { paintMiraPrison, paintWaterStar } from './temple-chars.js';
 import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js';
 import { R26_OLD_LOOK } from './hero-r26.js';
+import { R27_OLD_LOOK } from './hero-r27.js';
 
 export const CW = 16;
 export const CH = 21;
@@ -105,7 +106,7 @@ const JOB_LOOK = {
 };
 
 // 第26回の 職業（いまの えは render/hero.js と hero-r26.js）
-Object.assign(JOB_LOOK, R26_OLD_LOOK);
+Object.assign(JOB_LOOK, R26_OLD_LOOK, R27_OLD_LOOK);
 
 // よろい・ふくの みため（'cloth' は じぶんで えらんだ いろ）
 const ARMOR_LOOK = {

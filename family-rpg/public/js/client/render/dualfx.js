@@ -34,6 +34,17 @@ export const DUAL_FX = {
   dt_zenin: { c: ['#c8601a', '#ffd66b', '#ffffff'], finale: 'quake', word: '全員集合！' },
   dt_kazoku_kaigi: { c: ['#6a4a2a', '#ffe0a0', '#9ad8ff'], finale: 'laugh', word: 'ぐぅ…' },
   dt_finale: { c: ['#c8a01a', '#ffffff', '#9ad8ff'], finale: 'nova', word: 'フィナーレ！' },
+  // 第27回: 新しい 職業の 合体技（spot・gadgets・coins・meteor・matoi は 第27回の とどめ）
+  dt_hannin: { c: ['#1a2a6a', '#ffe07a', '#ffffff'], finale: 'spot', word: 'ズバリ！' },
+  dt_nantoka: { c: ['#1a86e4', '#ffffff', '#ffd040'], finale: 'gadgets', word: '助けて〜！' },
+  dt_kyuuri_zushi: { c: ['#2a8a3a', '#9af0b0', '#ffffff'], finale: 'heal', word: 'へいらっしゃい！' },
+  dt_point10: { c: ['#bf0000', '#ffd040', '#ffffff'], finale: 'coins', word: 'ポイント10倍！' },
+  dt_nichirin: { c: ['#c82a0a', '#ff9a3a', '#ffe07a'], finale: 'nova', word: 'ゴオオッ！' },
+  dt_nenriki_meteor: { c: ['#5a2aa8', '#c89aff', '#ffffff'], finale: 'meteor', word: 'ズドーン！' },
+  dt_okusuri: { c: ['#24a05a', '#c8f0d8', '#ffffff'], finale: 'heal', word: 'お大事に！' },
+  dt_megumi: { c: ['#c81a1a', '#ffd040', '#ffffff'], finale: 'matoi', word: 'め組だ！' },
+  dt_hakkeyoi: { c: ['#8a5a2a', '#ffe0a0', '#ffffff'], finale: 'quake', word: 'のこった！' },
+  dt_nazo: { c: ['#1a2a6a', '#9ad8ff', '#ffffff'], finale: 'spot', word: 'ピーン！' },
 };
 const DEFAULT_FX = { c: ['#7a3ac8', '#ffd66b', '#ffffff'], finale: 'nova', word: '' };
 export const dualFxOf = (id) => DUAL_FX[id] || DEFAULT_FX;
@@ -232,6 +243,52 @@ export function playDualFinale(fx, id, pts, n, W, H) {
       for (let k = 0; k < 6; k++) fx.flashAt(90, k % 2 ? '#3a6aff' : '#ff2a2a', k * 140);
       fx.ring(W / 2, H * 0.62, '#ffffff', 4, 200, 600, 120);
       for (let k = 0; k < 20; k++) fx.twinkle(W * Math.random(), H * (0.5 + 0.45 * Math.random()), { color: k % 2 ? '#ff6a6a' : '#9ad8ff', size: 4, vy: -40, delay: 200 + k * 25, life: 700 });
+      break;
+    }
+    // ───── 第27回 ─────
+    case 'spot': {
+      // 推理: 上から スポットライト → まとに 大きな「!」と 虫めがねの わ
+      for (let k = 0; k < Math.min(3, pts.length); k++) fx.add({ kind: 'spot', x: pts[k].x, y: H, color: c2, life: 900, delay: k * 80 });
+      pts.forEach((p, i) => {
+        fx.ring(p.x, p.y, c1, 3, 120 + i * 60, 420, 30 * big);
+        fx.ring(p.x, p.y, c2, 2, 220 + i * 60, 420, 44 * big);
+        fx.add({ kind: 'j4text', x: Math.min(W - 12, p.x + 14), y: Math.max(14, p.y - 26), text: '!', s: 2.4, fill: c1, edge: '#1a1408', life: 800, delay: 160 + i * 60 });
+        fx.sparks(p.x, p.y, { colors: cols, n: 10 + 4 * n, speed: 140, spread: Math.PI * 2, delay: 260 + i * 60 });
+      });
+      fx.speedLines(center.x, center.y, { color: c2, n: 16 + 4 * n, delay: 140, life: 360, r1: 130 });
+      break;
+    }
+    case 'gadgets': {
+      // ポケットから 道具が つぎつぎ とび出して ふりそそぐ（すず・どら焼き・かぎ・ライト）
+      const kinds = ['#ffd040', '#c8783a', '#e8e8f0', '#ff6a6a', '#9ad8ff'];
+      for (let k = 0; k < 16 + 4 * n; k++) {
+        const p = pts[k % pts.length];
+        fx.add({ kind: 'coin', x: p.x + (Math.random() - 0.5) * 50, y: p.y - 70 - Math.random() * 40, vx: (Math.random() - 0.5) * 40, vy: 140 + Math.random() * 70, color: kinds[k % kinds.length], life: 560, delay: k * 35 });
+      }
+      pts.forEach((p, i) => { fx.burst(p.x, p.y, cols, 14, 110, { delay: 360 + i * 50 }); fx.star(p.x, p.y - 10, c2, 14, 300 + i * 60, 320); });
+      fx.hitStop(200 + 60 * n, 380, 1.2);
+      break;
+    }
+    case 'coins': {
+      // お金が 雨のように ふる（ポイントバック）
+      for (let k = 0; k < 26 + 6 * n; k++) fx.add({ kind: 'coin', x: W * (0.06 + 0.88 * Math.random()), y: -10 - Math.random() * 60, vx: 0, vy: 120 + Math.random() * 90, color: k % 3 ? '#ffd66b' : c1, life: 900, delay: k * 22 });
+      pts.forEach((p, i) => { fx.glow(p.x, p.y, { color: c0, r: 26 * big, delay: 120 + i * 50, life: 420 }); fx.burst(p.x, p.y, cols, 12, 110, { delay: 160 + i * 50 }); });
+      for (let k = 0; k < 10; k++) fx.twinkle(W * Math.random(), H * (0.2 + 0.6 * Math.random()), { color: '#fff6b0', size: 3, vy: -20, delay: 200 + k * 40, life: 600 });
+      break;
+    }
+    case 'meteor': {
+      // 大きな 岩が ななめに おちて くる
+      fx.play('meteor', pts, 'blast', { crit: n >= 3 });
+      pts.forEach((p, i) => fx.shock(p.x, p.y, { r1: 52 * big, color: c1, delay: 260 + i * 60 }));
+      fx.hitStop(260 + 80 * n, 260, 1.6);
+      break;
+    }
+    case 'matoi': {
+      // め組の まといが くるくる まわり、赤と 白の 紙ふぶき・太刀すじが 3本
+      for (let k = 0; k < 3; k++) fx.bigCut?.(center.x, center.y, { ang: -0.9 + k * 0.9, color: c2, glow: c1, w: 3 + n, delay: 80 + k * 90, life: 340 });
+      fx.swirl(center.x, center.y + 10, ['#ffffff', '#c81a1a', '#ffd040'], { n: 16 + 3 * n, rad: 26 * big, h: 70 * big, delay: 120, life: 760 });
+      for (let k = 0; k < 18 + 4 * n; k++) fx.petal(W * Math.random(), -6 - Math.random() * 20, { color: k % 2 ? '#ffffff' : '#d8202c', vx: (Math.random() - 0.5) * 30, vy: 40 + Math.random() * 40, delay: 200 + k * 18, life: 1000 });
+      fx.sparks(center.x, center.y, { colors: cols, n: 18 + 4 * n, speed: 160, spread: Math.PI * 2, delay: 300 });
       break;
     }
     default:

@@ -16,6 +16,7 @@ import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/ba
 import { PARTY_ANIMS, JOB2_SFX } from './render/battlefx-jobs2.js';
 import { PARTY_ANIMS3, JOB3_SFX } from './render/battlefx-jobs3.js';
 import { SIG4, JOB4_SFX, sigAnim } from './render/battlefx-jobs4.js';
+import { JOB5_SFX } from './render/battlefx-jobs5.js';
 import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js';
 import { statusNames, buffNames, targetTag } from './ui/info.js';
 import { battleSkillText, battleItemText } from './ui/skillinfo.js';
@@ -103,6 +104,8 @@ const ANIM_SFX = {
   ...JOB3_SFX,
   // 第26回の 職業の 看板の技（render/battlefx-jobs4.js）
   ...JOB4_SFX,
+  // 第27回の 暴れんぼう将軍の 看板の技（render/battlefx-jobs5.js）
+  ...JOB5_SFX,
   // 第4章 Step 7 の 神殿の 魔物と モルガナ（render/battlefx-temple.js）
   ...TEMPLE_SFX,
 };

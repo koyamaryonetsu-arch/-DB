@@ -34,6 +34,8 @@ import { JOB4_ABILITIES } from './abilities-jobs4.js';
 import { JOB5_ABILITIES } from './abilities-jobs5.js';
 // 2026年10月（第26回）の 新しい 職業の 技（楽天カードマン・きさつ隊・スパイ・探てい・ネコ型ロボット・カッパ・木の葉の忍び など）
 import { JOB6_ABILITIES } from './abilities-jobs6.js';
+// 2026年10月（第27回）の 新しい 職業の 技（暴れんぼう将軍）
+import { JOB7_ABILITIES } from './abilities-jobs7.js';
 
 export const ABILITIES = {
   // ───────────── 戦士 ─────────────
@@ -608,6 +610,8 @@ Object.assign(ABILITIES, JOB4_ABILITIES);
 Object.assign(ABILITIES, JOB5_ABILITIES);
 // 第26回の 20この 職業（abilities-jobs6.js）
 Object.assign(ABILITIES, JOB6_ABILITIES);
+// 第27回の 暴れんぼう将軍（abilities-jobs7.js）
+Object.assign(ABILITIES, JOB7_ABILITIES);
 
 // 攻撃呪文かどうか（魔法剣で使える）
 export function isAttackSpell(id) {

@@ -159,8 +159,8 @@ export function gameFiles() {
     'public/js/shared/ai.js', 'public/js/shared/battle.js', 'public/js/shared/stats.js',
     'public/js/shared/data/abilities.js', 'public/js/shared/data/abilities-adv.js', 'public/js/shared/data/abilities-jobs.js', 'public/js/shared/data/companions.js',
     // 学校・公務員・町の みかた・アイドルの 職業の 技
-    'public/js/shared/data/abilities-jobs2.js', 'public/js/shared/data/abilities-jobs3.js', 'public/js/shared/data/abilities-jobs4.js', 'public/js/shared/data/abilities-jobs5.js', 'public/js/shared/data/abilities-jobs6.js',
-    'public/js/shared/data/hirameki.js', 'public/js/shared/data/hirameki-jobs.js', 'public/js/shared/data/dual.js', 'public/js/shared/data/loot.js',
+    'public/js/shared/data/abilities-jobs2.js', 'public/js/shared/data/abilities-jobs3.js', 'public/js/shared/data/abilities-jobs4.js', 'public/js/shared/data/abilities-jobs5.js', 'public/js/shared/data/abilities-jobs6.js', 'public/js/shared/data/abilities-jobs7.js',
+    'public/js/shared/data/hirameki.js', 'public/js/shared/data/hirameki-jobs.js', 'public/js/shared/data/hirameki-r27.js', 'public/js/shared/data/dual.js', 'public/js/shared/data/loot.js',
     'public/js/shared/data/encounters.js', 'public/js/shared/data/items.js', 'public/js/shared/data/jobs.js',
     'public/js/shared/data/monsters.js', 'public/js/shared/data/shops.js', 'public/js/shared/data/story.js',
     'public/js/shared/maps/index.js', 'public/js/shared/maps/overworld.js', 'public/js/shared/maps/ch2.js', 'public/js/shared/maps/sea.js',
@@ -230,6 +230,8 @@ export function gameFiles() {
     'public/js/shared/data/skill-ups.js', 'public/js/client/ui/skillinfo.js',
     // 合体技の 作り直し（2人・3人・4人の 合体技・カットイン）
     'public/js/shared/battle-dual.js', 'public/js/client/battle-dual.js', 'public/js/client/render/dualfx.js',
+    // 第27回: 暴れんぼう将軍の 看板の技「成敗！」の エフェクト
+    'public/js/client/render/battlefx-jobs5.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

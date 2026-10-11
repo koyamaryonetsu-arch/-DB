@@ -991,6 +991,17 @@ export const JOBS = {
     perLv: { hp: 1.5, agi: 1, str: 0.5 },
     learn: [[1, 'hg_oodama'], [3, 'hg_kitsune'], [5, 'hg_mamori'], [7, 'hg_bijuu'], [8, 'hg_ishi'], [10, 'hokage_sig']],
   },
+
+  // ───────────── 2026年10月（第27回）: 将軍 → 暴れんぼう将軍（伝説の職業。技は abilities-jobs7.js） ─────────────
+  // 「坊」は 小学校で ならわない 漢字なので「暴れんぼう将軍」
+  abarenbo_shogun: {
+    id: 'abarenbo_shogun', name: '暴れんぼう将軍', kana: 'あばれんぼうしょうぐん', short: '上様', tier: 3, req: ['shogun'], reqSuper: 1, family: 'phys', color: '#2c4a9c',
+    desc: 'ふだんは町で気ままにくらす、なぞのおさむらいさん。じつは天下の将軍さま。将軍と、ほかの超級職を1つきわめた者だけがなれる。悪いやつは「成敗！」。',
+    mods: { hp: 1.65, mp: 1.05, str: 1.85, def: 1.5, agi: 1.5, mag: 0.85, heal: 1.0 },
+    weapons: ['sword', 'spear', 'dagger', 'none'], shield: false, armor: ['cloth', 'gi', 'heavy'], helm: true,
+    perLv: { str: 1.5, hp: 1.5, def: 0.5 },
+    learn: [[1, 'ab_mineuchi'], [3, 'ab_kao'], [5, 'ab_hakuba'], [7, 'ab_meyasu'], [8, 'ab_onari'], [10, 'abarenbo_shogun_sig']],
+  },
 };
 
 // はじめに えらべる 職業（基本職）
@@ -1006,7 +1017,7 @@ export const SUPER_ORDER = ['dragon_knight', 'archmage', 'high_priest', 'god_han
   'star_chef', 'tatakiage', 'm1_champion', 'daikenja', 'datenshi', 'ss2', 'ryonetsu', 'rubber', 'black_star',
   'enbashira', 'black_org', 'doraemon', 'kinniku_kappa', 'konoha'];
 // 伝説の 職業（超級職の 先）
-export const LEGEND_ORDER = ['loto_hero', 'ss3', 'nika', 'maou', 'facility_genius', 'hakaishin', 'hinokami', 'hokage'];
+export const LEGEND_ORDER = ['loto_hero', 'ss3', 'nika', 'maou', 'facility_genius', 'hakaishin', 'hinokami', 'hokage', 'abarenbo_shogun'];
 export const ALL_JOBS = [...JOB_ORDER, ...ADVANCED_ORDER, ...SUPER_ORDER, ...LEGEND_ORDER];
 export const TIER_NAMES = ['基本職', '上級職', '超級職', '伝説の職業'];
 // 神殿で ならべる じゅん（ランクごと）
@@ -1119,4 +1130,5 @@ export const JOB_HINTS = {
   kinniku_kappa: 'はなかっぱをきわめて、ニンニクを食べると、筋肉がムキムキになるらしい…',
   konoha: '忍者をきわめた者は、木の葉の里の忍びになれるらしい…',
   hokage: '木の葉の忍びと、ほかの超級職を1つきわめた者は、里の長になれるらしい…',
+  abarenbo_shogun: '将軍と、ほかの超級職を1つきわめた者は、白い馬で町を走る、あの上様になれるらしい…',
 };
