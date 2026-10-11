@@ -345,3 +345,68 @@ test('第26回の 看板の技: 音・battle.js と battlefx.js の つなぎ・
     assert.ok(!src.includes(`case '${k}':`), `${k} が battlefx.js の つぶと かさなる`);
   }
 });
+
+// 第28回: 楽天カードマンの メガネの カード・はなかっぱの かおと 頭の 花
+const countPx = (img, f, y0 = 0, y1 = img.h) => {
+  let n = 0;
+  for (let y = y0; y < y1; y++) for (let x = 0; x < img.w; x++) { const i = (y * img.w + x) * 4; if (img.rgba[i + 3] === 255 && f(img.rgba[i], img.rgba[i + 1], img.rgba[i + 2])) n++; }
+  return n;
+};
+const rgbAt = (img, x, y) => { const i = (y * img.w + x) * 4; return [img.rgba[i], img.rgba[i + 1], img.rgba[i + 2]]; };
+
+test('楽天カードマン: 黒い ふちの メガネの まえに 赤い カード（よろいを きても のこる。よこからも 見える）', () => {
+  assert.ok(jobBody('rakuten_cardman').cardGlasses);
+  // カードの 赤（#e8102e の あたり）
+  const card = (r, g, b) => Math.abs(r - 232) < 16 && g < 40 && Math.abs(b - 46) < 18;
+  for (const eq of [undefined, ',iron_armor,,', 'iron_sword,iron_armor,iron_shield,iron_helm']) {
+    for (const body of [0, 1]) {
+      const img = paintHero({ body, style: 'long', hcol: 'brown' }, 'rakuten_cardman', eq, 'down', 0, 8);
+      // 目の たかさ: まんなかは カード、その よこは 黒い ふち
+      for (const x of [52, 64, 76]) assert.ok(card(...rgbAt(img, x, 63)), `${eq} ${body} カード x${x} ${rgbAt(img, x, 63)}`);
+      for (const x of [40, 88]) assert.ok(rgbAt(img, x, 64).every((v) => v < 80), `${eq} ${body} メガネの ふち x${x} ${rgbAt(img, x, 64)}`);
+      for (const dir of ['left', 'right']) {
+        const s = paintHero({ body, style: 'long', hcol: 'brown' }, 'rakuten_cardman', eq, dir, 0, 8);
+        assert.ok(countPx(s, card, 50, 80) > 40, `${eq} ${body} ${dir} よこの カード`);
+      }
+    }
+  }
+  // ほかの 職業には ない
+  const w = paintHero({ body: 0, style: 'short', hcol: 'black' }, 'warrior', ',iron_armor,,', 'down', 0, 8);
+  assert.ok(!card(...rgbAt(w, 64, 63)));
+});
+
+test('はなかっぱ: 明るい 黄緑・大きな 黒い 目と ピンクの ほお・頭の 大きな 花（筋肉ニンニクは ニンニクの 花）。カッパとは ちがう', () => {
+  const look = { body: 0, style: 'short', hcol: 'black' };
+  const pink = (r, g, b) => r > 180 && g < 140 && b > 70 && b < 190 && r - g > 90;
+  const lav = (r, g, b) => b > 150 && r > 140 && g < r - 15 && b > g + 30;
+  const eye = (r, g, b) => r === 0x1d && g === 0x18 && b === 0x26;
+  const cheek = (r, g, b) => r === 0xf7 && g === 0xa0 && b === 0xb4;
+  for (const job of ['hanakappa', 'kinniku_kappa']) {
+    assert.ok(jobBody(job).hana && !jobBody(job).beak, job);
+    for (const eq of [undefined, ',iron_armor,,']) {
+      for (const res of [4, 8]) {
+        for (const dir of DIRS) {
+          const img = paintHero(look, job, eq, dir, 0, res);
+          const top = img.h / 4;
+          // 頭の うえ（えの うえ 4ぶんの1）に 花（はなかっぱは ピンク、筋肉ニンニクは うすむらさき）
+          if (job === 'hanakappa') assert.ok(countPx(img, pink, 0, top) > res * 30, `${job} ${eq} ${dir} res${res} の 花`);
+          else assert.ok(countPx(img, lav, 0, top) > res * 15, `${job} ${eq} ${dir} res${res} の ニンニクの 花`);
+          // かお（うしろでは 見えない）
+          if (dir !== 'up') {
+            assert.ok(countPx(img, eye) > res * 3, `${job} ${eq} ${dir} res${res} の 目`);
+            assert.ok(countPx(img, cheek) > res, `${job} ${eq} ${dir} res${res} の ほお`);
+          }
+        }
+      }
+    }
+  }
+  // 基本職の カッパは いままで どおり（花・はなかっぱの 目は ない）
+  for (const dir of DIRS) {
+    const img = paintHero(look, 'kappa', undefined, dir, 0, 8);
+    assert.equal(countPx(img, pink, 0, img.h / 4), 0, `kappa ${dir}`);
+    assert.equal(countPx(img, eye), 0, `kappa ${dir}`);
+  }
+  // はなかっぱの はだは カッパより 明るい
+  const lum = (job) => { const c = paintHero(look, job, undefined, 'down', 0, 8); const { w, rgba } = c, i = (Math.round(c.h * 0.4) * w + Math.round(w / 2)) * 4; return rgba[i] + rgba[i + 1] + rgba[i + 2]; };
+  assert.ok(lum('hanakappa') > lum('kappa') + 60, 'はなかっぱは 明るい 黄緑');
+});
