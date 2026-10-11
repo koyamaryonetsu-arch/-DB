@@ -245,6 +245,8 @@ export function gameFiles() {
     // 第5章 Step 2「星の塔」の 戦い（塔の 魔物・星の番人アルゴス・見通しの目）
     'public/js/shared/battle-ch5.js', 'public/js/client/battle-ch5.js', 'public/js/shared/data/monsters-ch5.js', 'public/js/shared/data/abilities-tower.js',
     'public/js/shared/data/items-tower.js', 'public/js/shared/data/encounters-ch5.js', 'public/js/shared/data/companions-ch5.js',
+    // 第5章 Step 1・2（A: 世界と物語）: 星祭りの夜・フードの子・星の羽・天のとばり・星の塔（8階）・アルゴスの 台本
+    'public/js/shared/data/story-ch5.js', 'public/js/shared/maps/tower.js', 'public/js/shared/maps/tower-rows.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

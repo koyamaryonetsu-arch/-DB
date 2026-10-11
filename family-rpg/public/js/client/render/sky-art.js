@@ -4,6 +4,7 @@
 import { Painter, scale2x, rimShade, outline2, makeCanvas, ctxOf, flipCanvas } from './pixel.js';
 import { paintHuman, npcOpts, CW, CH } from './chars.js';
 import { dragonCanvas } from './dragon-art.js';
+import { starDragonCanvas } from './ch5-dragon.js';
 
 const OUT = '#1b1330';
 export const BIRD_W = 44;
@@ -222,6 +223,8 @@ export function skyNpcSprite(kind, dir, frame) {
     case 'sky_bird': return birdCanvas(dir, frame);
     // 星の竜アステル（第3章。render/dragon-art.js）
     case 'sky_dragon': return dragonCanvas(dir, frame);
+    // 第5章: 星の羽を えた アステル（render/ch5-dragon.js）
+    case 'star_dragon': return starDragonCanvas(dir, frame);
     case 'ghost_girl': return ghostCanvas(dir, frame);
     case 'night_glint': return glintCanvas(frame);
     default: return null;

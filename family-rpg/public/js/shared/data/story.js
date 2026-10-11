@@ -20,6 +20,7 @@ import { HIRAMEKI, hiraRatio } from './hirameki.js';
 import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js';
 import { CH3_STEPS, CH3_STORY_SCRIPTS, CH3_SCRIPTS, elderCh3 } from './story-ch3.js';
 import { CH4_STEPS, CH4_STORY_SCRIPTS, CH4_SCRIPTS, elderCh4 } from './story-ch4.js';
+import { CH5_STEPS, CH5_STORY_SCRIPTS, CH5_SCRIPTS, CH5_TOWN_LINES, elderCh5 } from './story-ch5.js';
 import { TM_SCRIPTS, TM_STORY_SCRIPTS } from './story-tm.js';
 import { SD_SCRIPTS } from './story-secret.js';
 import { CASINO_SCRIPTS } from './story-casino.js';
@@ -43,10 +44,11 @@ export const STORY_STEPS = [
   ...CH2_STEPS,
   ...CH3_STEPS,
   ...CH4_STEPS,
+  ...CH5_STEPS,
 ];
 
 // パーティー全員で みる ストーリーイベント
-export const STORY_SCRIPTS = new Set(['elder', 'star_flower', 'treant', 'carpenter', 'boss_event', 'mayor', 'opening', 'town_arrive', 'cave_enter', 'locked_door', ...CH2_STORY_SCRIPTS, ...TM_STORY_SCRIPTS, ...CH3_STORY_SCRIPTS, ...CH4_STORY_SCRIPTS]);
+export const STORY_SCRIPTS = new Set(['elder', 'star_flower', 'treant', 'carpenter', 'boss_event', 'mayor', 'opening', 'town_arrive', 'cave_enter', 'locked_door', ...CH2_STORY_SCRIPTS, ...TM_STORY_SCRIPTS, ...CH3_STORY_SCRIPTS, ...CH4_STORY_SCRIPTS, ...CH5_STORY_SCRIPTS]);
 
 export const SCRIPTS = {
   // ───────────── じょしょう ─────────────
@@ -615,5 +617,15 @@ Object.assign(SCRIPTS, SD_SCRIPTS);
 Object.assign(SCRIPTS, LAB_SCRIPTS, QUEST_SCRIPTS);
 wrapSideQuests(SCRIPTS);
 for (const id of [...LAB_STORY_SCRIPTS, ...QUEST_STORY_SCRIPTS]) STORY_SCRIPTS.add(id);
+// 第5章「空にうかぶ大地」（story-ch5.js）。第4章クリアの あとの ホシミばあちゃんから はじまる
+Object.assign(SCRIPTS, CH5_SCRIPTS);
+const elderBase = SCRIPTS.elder;
+SCRIPTS.elder = (x) => (x.flag('c4_clear') ? elderCh5(x) : elderBase(x));
+// 星祭りの あいだの 村の 人・守り星の石（ことばが あれば、もとの だいほんの かわりに）
+for (const [id, fn] of Object.entries(CH5_TOWN_LINES)) {
+  const base = SCRIPTS[id];
+  if (!base) continue;
+  SCRIPTS[id] = Object.assign((x) => fn(x) || base(x), base);
+}
 
 export { comboUnlocked };

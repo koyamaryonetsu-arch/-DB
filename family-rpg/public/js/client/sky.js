@@ -4,9 +4,10 @@
 // ・大鳥フウラ: サーバー（shared/world/travel.js）が きめた flying を うけて、とぶ・おりる えんしゅつと え を かく
 import { el, toast, ListMenu } from './ui/dom.js';
 import { dayFrac, isNightFrac, darkness } from '../shared/world/clock.js';
-import { SKY_MAPS, FLUTE_ID, RIDE_ASK_MS, edgeAt, regionsFrom, skyBox, clampSkyBox, mountOf } from '../shared/data/sky.js';
+import { SKY_MAPS, FLUTE_ID, RIDE_ASK_MS, edgeAt, regionsFrom, skyBox, clampSkyBox, mountOf, VEIL, veilShown } from '../shared/data/sky.js';
 import { birdCanvas, birdRideCanvas, BIRD_W, BIRD_H, RIDE_TOP } from './render/sky-art.js';
 import { dragonCanvas, dragonRideCanvas } from './render/dragon-art.js';
+import { starDragonCanvas, starDragonRideCanvas } from './render/ch5-dragon.js';
 import { playerSprite } from './field.js';
 import { equipKey } from './render/chars.js';
 
@@ -24,9 +25,14 @@ const ease = (t) => 1 - (1 - t) * (1 - t);
 const MOUNTS = {
   bird: { only: birdCanvas, ride: birdRideCanvas, flap: 170, big: BIG, shadow: 13, anchor: 14, anchorOnly: 16, shadowScale: 2.4 },
   dragon: { only: dragonCanvas, ride: dragonRideCanvas, flap: 240, big: 1.15, shadow: 17, anchor: 17, anchorOnly: 19, shadowScale: 3 },
+  // 第5章: 星の羽を えた 竜（c5_wings。render/ch5-dragon.js）
+  star_dragon: { only: starDragonCanvas, ride: starDragonRideCanvas, flap: 240, big: 1.15, shadow: 17, anchor: 17, anchorOnly: 19, shadowScale: 3 },
 };
-// イベントの 役者（'sky_bird' … 大鳥、'sky_dragon' … 星の竜）
-const ACTOR_MOUNT = { sky_bird: 'bird', sky_dragon: 'dragon' };
+// イベントの 役者（'sky_bird' … 大鳥、'sky_dragon' … 星の竜、'star_dragon' … 星の羽の 竜）
+const ACTOR_MOUNT = { sky_bird: 'bird', sky_dragon: 'dragon', star_dragon: 'star_dragon' };
+// 「別の地方へ」の 行き先の 名前（第5章の「雲の上」もふくむ）
+const regionName = (id) => (id === VEIL.id ? VEIL.name : SKY_MAPS[id].name);
+const regionShort = (id) => (id === VEIL.id ? VEIL.short : SKY_MAPS[id].short);
 
 export class SkyClient {
   constructor(game) {
@@ -206,8 +212,12 @@ export class SkyClient {
     return mountOf({ c3_dragon: this.hasFlag('c3_dragon') });
   }
 
-  // 行ける 地方
-  regions() { return regionsFrom(this.game.field.mapId, (f) => this.hasFlag(f)); }
+  // 行ける 地方（第5章: 星の羽の 竜なら「雲の上」も。data/sky.js の VEIL）
+  regions() {
+    const has = (f) => this.hasFlag(f);
+    const list = regionsFrom(this.game.field.mapId, has);
+    return veilShown(has) ? [...list, VEIL.id] : list;
+  }
 
   // 「別の地方へ」ボタン: 行き先が 2つ 以上なら えらぶ
   regionButton() {
@@ -218,7 +228,7 @@ export class SkyClient {
     g.audio.sfx('confirm');
     const box = el('div', { class: 'win choice sky-choice' }, el('div', { class: 'q', text: 'どの地方へ飛ぶ？' }));
     const menu = new ListMenu(g.input, {
-      items: [...list.map((id) => ({ label: SKY_MAPS[id].name, value: id })), { label: 'やめる', value: null }],
+      items: [...list.map((id) => ({ label: regionName(id), value: id })), { label: 'やめる', value: null }],
       sound: (x) => g.audio.sfx(x),
       back: null,
       onSelect: (it) => finish(it.value),
@@ -279,7 +289,7 @@ export class SkyClient {
     const list = show && this.flying ? this.regions() : [];
     this.btn2.hidden = !list.length;
     if (!this.btn2.hidden) {
-      const label = list.length > 1 ? '別の地方へ' : `${SKY_MAPS[list[0]].short}へ`;
+      const label = list.length > 1 ? '別の地方へ' : `${regionShort(list[0])}へ`;
       if (this.btn2.textContent !== label) this.btn2.textContent = label;
     }
   }
@@ -318,8 +328,11 @@ export class SkyClient {
   // のりもの（星の竜に のせて もらった 人 … フラグ c3_dragon … は 竜。ほかは 大鳥フウラ）
   // じぶん は キャラの フラグ。ほかの 人 は サーバーの いちの じょうほう（mt）
   mountOf(o, mine) {
-    if (mine) return this.game.me?.flags?.c3_dragon ? 'dragon' : 'bird';
-    return o?.mt === 'dragon' ? 'dragon' : 'bird';
+    if (mine) {
+      const fl = this.game.me?.flags;
+      return fl?.c3_dragon ? (fl.c5_wings ? 'star_dragon' : 'dragon') : 'bird';
+    }
+    return o?.mt === 'dragon' || o?.mt === 'star_dragon' ? o.mt : 'bird';
   }
 
   // いま どう かくか（mine … じぶん）。null なら ふつうに 歩く すがた

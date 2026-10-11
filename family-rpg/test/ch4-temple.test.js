@@ -166,8 +166,12 @@ test('すすみぐあい: c4_whale →（c4_sara2）→ c4_temple → … → c4
   assert.equal(objectiveFromFlags(f('c4_temple', GUARDS_FLAG, 'c4_morgana')), TEMPLE_OBJ.morgana);
   assert.equal(objectiveFromFlags(f('c4_temple', 'c4_morgana', 'c4_star')), TEMPLE_OBJ.star);
   assert.equal(objectiveFromFlags(f('c4_temple', 'c4_morgana', 'c4_star', 'c4_clear')), TEMPLE_OBJ.clear);
-  // 第4章クリアの 目標は、前の 章の クリアと おなじ 形
-  assert.ok(TEMPLE_OBJ.clear.startsWith('第4章クリア！') && TEMPLE_OBJ.clear.includes('第5章はアップデートで！'));
+  // 第4章クリアの 目標は、第1章の クリアと おなじ 形で 第5章の はじまり（ホシミばあちゃん）へ。第5章が できる 前の 文は なおる
+  assert.ok(TEMPLE_OBJ.clear.startsWith('第4章クリア！') && TEMPLE_OBJ.clear.includes('ホシミばあちゃん'));
+  assert.ok(OLD_C4_OBJ.clear.includes('第5章はアップデートで！'));
+  const oldClear = { flags: f('c4_temple', 'c4_morgana', 'c4_star', 'c4_clear').flags, objective: OLD_C4_OBJ.clear };
+  assert.ok(repairObjective(oldClear));
+  assert.equal(oldClear.objective, TEMPLE_OBJ.clear);
   // Step 6 の 版の「続きはアップデートで！」は、さんばしの サラの 目標に なおる
   const old = { flags: f().flags, objective: OLD_C4_OBJ.whale };
   assert.ok(OLD_C4_OBJ.whale.startsWith('第4章の続きはアップデートで！'));
@@ -200,7 +204,7 @@ test('すすみぐあい: c4_whale →（c4_sara2）→ c4_temple → … → c4
   assert.ok(mark(TEMPLE_OBJ.temple, 'sand_sea').length, '砂の海からも 道しるべ（ねどこ）');
   assert.ok(mark(TEMPLE_OBJ.guards, 'temple_b3').length, '水のろうから 広間への かいだん');
   assert.ok(mark(TEMPLE_OBJ.guards, 'temple_hall').some((m) => m.x === HALL_POS.morgana.x && m.y === HALL_POS.morgana.y), 'モルガナ');
-  assert.ok(mark(TEMPLE_OBJ.clear, 'duna').length, 'クリアの あとは ドゥナの 店');
+  assert.ok(mark(TEMPLE_OBJ.clear, 'overworld').length, 'クリアの あとは ホシミばあちゃん');
   // だいじなもの・パーティー全員で 見る だいほん
   assert.equal(ITEMS.water_star.type, 'key');
   for (const id of TEMPLE_STORY_SCRIPTS) assert.ok(STORY_SCRIPTS.has(id) && SCRIPTS[id], id);

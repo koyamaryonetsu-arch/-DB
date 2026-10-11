@@ -8,6 +8,7 @@ import { MAPS } from '../maps/index.js';
 import { SKY_OBJECTIVE_TARGETS, C3_LEAD_OBJECTIVE } from './sky.js';
 import { CH3_OBJECTIVE_TARGETS, ch3SubQuests } from './story-ch3.js';
 import { CH4_OBJECTIVE_TARGETS } from './story-ch4.js';
+import { CH5_OBJECTIVE_TARGETS } from './story-ch5.js';
 import { labSubQuests } from './sidequests.js';
 
 export const OBJECTIVE_TARGETS = {
@@ -41,6 +42,7 @@ OBJECTIVE_TARGETS[C3_LEAD_OBJECTIVE] = [{ npc: 'elder' }];
 Object.assign(OBJECTIVE_TARGETS, CH3_OBJECTIVE_TARGETS);
 // 第4章（story-ch4.js）
 Object.assign(OBJECTIVE_TARGETS, CH4_OBJECTIVE_TARGETS);
+Object.assign(OBJECTIVE_TARGETS, CH5_OBJECTIVE_TARGETS);
 
 // たのまれごと（name … クエストの 名前、who … 報告する 人、ready … もう 報告できる）
 export function subQuests(c) {
