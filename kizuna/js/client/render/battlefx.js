@@ -1,24 +1,26 @@
 // たたかいの はいけいと エフェクト
-import { makeCanvas, ctxOf, hexToRgb, mix } from './pixel.js?v=79f79592c89a';
-import { weaponLook, playWeapon, playReach } from './weaponfx.js?v=79f79592c89a';
-import { nightBg, drawNightSky } from './night-art.js?v=79f79592c89a';
-import { playJobFx, JOB_FINE } from './battlefx-jobs.js?v=79f79592c89a';
-import { playJob2Fx, JOB2_FINE } from './battlefx-jobs2.js?v=79f79592c89a';
-import { playJob3Fx, JOB3_FINE } from './battlefx-jobs3.js?v=79f79592c89a';
-import { playJob4Fx, JOB4_FINE } from './battlefx-jobs4.js?v=79f79592c89a';
+import { makeCanvas, ctxOf, hexToRgb, mix } from './pixel.js?v=ba591da89332';
+import { weaponLook, playWeapon, playReach } from './weaponfx.js?v=ba591da89332';
+import { nightBg, drawNightSky } from './night-art.js?v=ba591da89332';
+import { playJobFx, JOB_FINE } from './battlefx-jobs.js?v=ba591da89332';
+import { playJob2Fx, JOB2_FINE } from './battlefx-jobs2.js?v=ba591da89332';
+import { playJob3Fx, JOB3_FINE } from './battlefx-jobs3.js?v=ba591da89332';
+import { playJob4Fx, JOB4_FINE } from './battlefx-jobs4.js?v=ba591da89332';
 // 第27回の 暴れんぼう将軍の 看板の技（battlefx-jobs5.js）
-import { playJob5Fx, JOB5_FINE } from './battlefx-jobs5.js?v=79f79592c89a';
+import { playJob5Fx, JOB5_FINE } from './battlefx-jobs5.js?v=ba591da89332';
 // 第29回の るろうに剣士の 道の 看板の技（battlefx-jobs6.js）
-import { playJob6Fx, JOB6_FINE } from './battlefx-jobs6.js?v=79f79592c89a';
-import { drawPalaceHall, drawPalaceFloor } from './ch4-palace-bg.js?v=79f79592c89a';
+import { playJob6Fx, JOB6_FINE } from './battlefx-jobs6.js?v=ba591da89332';
+import { drawPalaceHall, drawPalaceFloor } from './ch4-palace-bg.js?v=ba591da89332';
 // 第4章 Step 6: 砂の古城・砂の海（すなかぜ号の かんぱん）・砂クジラの ねどこ（ch4-duna-bg.js）
-import { drawCastleHall, drawCastleFloor, drawSandSea } from './ch4-duna-bg.js?v=79f79592c89a';
-import { playCh4Fx } from './battlefx-ch4.js?v=79f79592c89a';
+import { drawCastleHall, drawCastleFloor, drawSandSea } from './ch4-duna-bg.js?v=ba591da89332';
+import { playCh4Fx } from './battlefx-ch4.js?v=ba591da89332';
 // 第27回: 古い 呪文・特技の エフェクトの 作り直し（battlefx-r27.js）
-import { playR27Fx, R27_FINE } from './battlefx-r27.js?v=79f79592c89a';
+import { playR27Fx, R27_FINE } from './battlefx-r27.js?v=ba591da89332';
 // 第4章 Step 7: 砂の底の神殿・鏡の間・水鏡の広間（ch4-temple-bg.js）
-import { TEMPLE_BG, TEMPLE_DECOS, drawTempleBg, drawTempleFloorBg } from './ch4-temple-bg.js?v=79f79592c89a';
-import { SECRET_BG } from './secret-art.js?v=79f79592c89a';
+import { TEMPLE_BG, TEMPLE_DECOS, drawTempleBg, drawTempleFloorBg } from './ch4-temple-bg.js?v=ba591da89332';
+import { SECRET_BG } from './secret-art.js?v=ba591da89332';
+// 第5章 Step 2: 星の塔の 中・塔の てっぺん（ch5-tower-bg.js）
+import { TOWER_BG, TOWER_DECOS, drawTowerBg, drawTowerFloorBg } from './ch5-tower-bg.js?v=ba591da89332';
 
 export const BW = 256;
 export const BH = 144;
@@ -113,6 +115,8 @@ const BG = {
   ...TEMPLE_BG,
   // ひみつのダンジョン（階の 色ごと・番人。render/secret-art.js）
   ...SECRET_BG,
+  // 第5章 Step 2: 星の塔（star_tower）・塔の てっぺん（star_tower_top）
+  ...TOWER_BG,
 };
 
 // はいけいの データ（〜_night は 夜空の はいけい。night-art.js）。ない ときは null
@@ -197,6 +201,7 @@ export function battleBackground(id) {
   if (d.deco === 'castle') drawCastleHall(x, hor);
   if (d.deco === 'sand_sea') drawSandSea(x, d, hor);
   if (TEMPLE_DECOS.has(d.deco)) drawTempleBg(x, d, hor);
+  if (TOWER_DECOS.has(d.deco)) drawTowerBg(x, d, hor);
   if (d.deco === 'houses') {
     x.fillStyle = '#ffd66b';
     for (let k = 10; k < BW; k += 48) x.fillRect(k + 8, hor - 12, 3, 3);
@@ -247,6 +252,7 @@ export function battleBackground(id) {
   else if (d.deco === 'palace') drawPalaceFloor(x, hor);
   else if (d.deco === 'castle') drawCastleFloor(x, hor);
   else if (TEMPLE_DECOS.has(d.deco)) drawTempleFloorBg(x, d, hor);
+  else if (TOWER_DECOS.has(d.deco)) drawTowerFloorBg(x, d, hor);
   else {
     x.fillStyle = 'rgba(0,0,0,0.12)';
     for (let i = 0; i < 6; i++) {

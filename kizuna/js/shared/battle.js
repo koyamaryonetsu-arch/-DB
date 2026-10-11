@@ -7,26 +7,28 @@
 //
 // サーバー（家族サーバー）でも ブラウザ（ひとりモード）でも おなじ コードが うごく
 
-import { makeRng } from './rng.js?v=79f79592c89a';
-import { ABILITIES, ELEMENT_ORDER, ELEMENT_NAMES } from './data/abilities.js?v=79f79592c89a';
+import { makeRng } from './rng.js?v=ba591da89332';
+import { ABILITIES, ELEMENT_ORDER, ELEMENT_NAMES } from './data/abilities.js?v=ba591da89332';
 // 推理（deduce）で ねらう 属性（第26回の 探ていの 技）
-import { deduceElement } from './data/abilities-jobs6.js?v=79f79592c89a';
-import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=79f79592c89a';
+import { deduceElement } from './data/abilities-jobs6.js?v=ba591da89332';
+import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=ba591da89332';
 // 合体技（2人・3人・4人。battle-dual.js）
-import { optionsFor, validateDual, startDual, checkWaits, waitStillOk, fireWait, endWait, releasePartners, answerDual, endInvite, performDual, partnersOf } from './battle-dual.js?v=79f79592c89a';
-import { MONSTERS } from './data/monsters.js?v=79f79592c89a';
-import { ITEMS } from './data/items.js?v=79f79592c89a';
-import { JOBS } from './data/jobs.js?v=79f79592c89a';
-import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed, battleAbilityOk } from './stats.js?v=79f79592c89a';
-import { decideMonster, decideAlly } from './ai.js?v=79f79592c89a';
-import { ENEMY_RATES, strengthenEnemy } from './data/difficulty.js?v=79f79592c89a';
+import { optionsFor, validateDual, startDual, checkWaits, waitStillOk, fireWait, endWait, releasePartners, answerDual, endInvite, performDual, partnersOf } from './battle-dual.js?v=ba591da89332';
+import { MONSTERS } from './data/monsters.js?v=ba591da89332';
+import { ITEMS } from './data/items.js?v=ba591da89332';
+import { JOBS } from './data/jobs.js?v=ba591da89332';
+import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed, battleAbilityOk } from './stats.js?v=ba591da89332';
+import { decideMonster, decideAlly } from './ai.js?v=ba591da89332';
+import { ENEMY_RATES, strengthenEnemy } from './data/difficulty.js?v=ba591da89332';
 // 第4章の しかけ（まぼろしの分身・月の鏡・そうびしたまま 使う 道具）
-import { setupMirage, mirageHit, mirageVanish, mirageDown, mirageSync, mirageRemake, ch4ItemCheck, ch4UseItem, mirrorSnap } from './battle-ch4.js?v=79f79592c89a';
+import { setupMirage, mirageHit, mirageVanish, mirageDown, mirageSync, mirageRemake, ch4ItemCheck, ch4UseItem, mirrorSnap } from './battle-ch4.js?v=ba591da89332';
 // 第4章 Step 6 の 砂に もぐる（ねらえない。battle-ch4.js）
-import { burrowStart, burrowWarn, burrowBlock, hiddenFrom } from './battle-ch4.js?v=79f79592c89a';
-import { shownEquipKey } from './look-equip.js?v=79f79592c89a';
+import { burrowStart, burrowWarn, burrowBlock, hiddenFrom } from './battle-ch4.js?v=ba591da89332';
+import { shownEquipKey } from './look-equip.js?v=ba591da89332';
 // 第4章 Step 7 の 砂の底の神殿と モルガナ（呪文を はね返す・鏡写し・水の衣・大波・水のろう・水の守りの歌・鏡のうつし身。battle-temple.js）
-import { setupTemple, templeTurnStart, prisonTurn, reflectSpell, templeEffect, templeEst, templeDamage, templeKill, templePub, templeSnap } from './battle-temple.js?v=79f79592c89a';
+import { setupTemple, templeTurnStart, prisonTurn, reflectSpell, templeEffect, templeEst, templeDamage, templeKill, templePub, templeSnap } from './battle-temple.js?v=ba591da89332';
+// 第5章 Step 2 の 星の塔と 星の番人アルゴス（見通しの目。battle-ch5.js）
+import { towerTurnStart, foreseeCheck, towerEffect, towerKill, towerPub } from './battle-ch5.js?v=ba591da89332';
 
 export const BOND_MAX = 100;
 // きずなゲージの たまりやすさ（1 … はじめの 版。ちいさいほど たまりにくい）
@@ -34,7 +36,7 @@ export const BOND_GAIN = 0.35;
 // 合体技の 2人の 強さの 合わせかた（dualProxy）: 強い ほうの 強さ ＋ 弱い ほうの この わりあい
 export const DUAL_MIX = 0.5;
 // 合体技の 強さ・さそいを まつ 時間は battle-dual.js
-export { DUAL_POWER, DUAL_ASK_MS } from './battle-dual.js?v=79f79592c89a';
+export { DUAL_POWER, DUAL_ASK_MS } from './battle-dual.js?v=ba591da89332';
 const COMBO_WINDOW = 6000;
 const LETTERS = 'ABCDEFGH';
 
@@ -472,7 +474,8 @@ export class Battle {
       if (inv) this.endInvite(inv, 'やめた');
     }
     if (cmd.type === 'dual') return this.startDual(c, cmd);
-    if (cmd.type === 'defend') {
+    // 見通しの目に 読まれている 人の 防御は、じゅんばんに ならべて たしかめる（battle-ch5.js）
+    if (cmd.type === 'defend' && !c.foresee) {
       c.ready = false;
       c.atb = 0;
       c.defending = true;
@@ -583,6 +586,7 @@ export class Battle {
     }
     // 呪文を はね返す 光が 消える など（battle-temple.js）
     templeTurnStart(this, c, ev);
+    towerTurnStart(this, c, ev, cmd);
     if (cmd.type === 'incapacitated') {
       this.doIncapacitated(c, ev);
     } else {
@@ -680,6 +684,8 @@ export class Battle {
   }
 
   perform(c, cmd, ev) {
+    // 見通しの目に 読まれた 種類の 行動（battle-ch5.js）
+    if (foreseeCheck(this, c, cmd, ev)) return;
     // 敵が みんな 砂の 中に もぐっている（ねらえない。battle-ch4.js）
     if (burrowBlock(this, c, cmd, ev)) return;
     // ためてから 出す 大技（ai.js の decideMonster が big を つける）。天才しせつ管理者が いると ダメージが へる（foreseeCut）
@@ -1408,7 +1414,7 @@ export class Battle {
       }
       case 'nothing': break;
       // 呪文を はね返す・水の衣・大波の 前ぶれ・水のろう など（battle-temple.js）
-      default: templeEffect(this, c, a, eff, ev, targets); break;
+      default: if (!templeEffect(this, c, a, eff, ev, targets)) towerEffect(this, c, a, eff, ev); break;
     }
   }
 
@@ -1630,6 +1636,7 @@ export class Battle {
     // 水のろうが こわれる（中の 人が 出る。battle-temple.js）
     const tk = templeKill(this, t, ev);
     if (tk) return tk;
+    towerKill(this, t, ev);
     // 1回だけ 起き上がる 魔物（ミイラ兵。monsters の revive）
     const rv = t.side === 'enemy' && !t.revived ? MONSTERS[t.species]?.revive : null;
     if (rv && !(rv.not || []).includes(element)) {
@@ -2277,6 +2284,8 @@ export function pub(c) {
     covering: c.cover ? c.cover.target : null,
     // 水の衣・光（呪文を はね返す）・大波の 前ぶれ・鏡のうつし身・水のろうの 中の 人（battle-temple.js）
     ...templePub(c),
+    // 見通しの目に 読まれている 種類（battle-ch5.js）
+    ...towerPub(c),
   };
 }
 

@@ -1,15 +1,17 @@
 // たたかいの AI（モンスター と サポートなかま）
-import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=79f79592c89a';
+import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=ba591da89332';
 // 推理（deduce）の 属性・運しだいの 技を オートで 使う（第26回）
-import { deduceElement } from './data/abilities-jobs6.js?v=79f79592c89a';
-import { mpCost, penaltyFor, weaponOk, comboAllowed } from './stats.js?v=79f79592c89a';
+import { deduceElement } from './data/abilities-jobs6.js?v=ba591da89332';
+import { mpCost, penaltyFor, weaponOk, comboAllowed } from './stats.js?v=ba591da89332';
 // 第4章の まぼろしの分身と 月の鏡（battle-ch4.js）
-import { mirageAction, mirrorPlan } from './battle-ch4.js?v=79f79592c89a';
+import { mirageAction, mirrorPlan } from './battle-ch4.js?v=ba591da89332';
 // 第4章 Step 6 の 砂に もぐる 魔物（battle-ch4.js）
-import { burrowSurface, burrowPlan } from './battle-ch4.js?v=79f79592c89a';
+import { burrowSurface, burrowPlan } from './battle-ch4.js?v=ba591da89332';
 // 第4章 Step 7 の 砂の底の神殿と モルガナ（battle-temple.js）
-import { templeAction, templeCond, templePlan, templeAdjust, bondOk, waveIgnored } from './battle-temple.js?v=79f79592c89a';
-import { labPlan, labIgnored } from './battle-lab.js?v=79f79592c89a';
+import { templeAction, templeCond, templePlan, templeAdjust, bondOk, waveIgnored } from './battle-temple.js?v=ba591da89332';
+import { labPlan, labIgnored } from './battle-lab.js?v=ba591da89332';
+// 第5章 Step 2 の 星の番人アルゴス（見通しの目。battle-ch5.js）
+import { towerCond, towerPlan } from './battle-ch5.js?v=ba591da89332';
 
 // さくせん
 export const TACTICS = {
@@ -75,6 +77,8 @@ function condOk(b, m, friends, cond) {
   if (cond.startsWith('notRecent:')) return !m.recent.includes(cond.split(':')[1]);
   // 't:…' … 砂の底の神殿の しかけの じょうけん（battle-temple.js）
   if (cond.startsWith('t:')) return templeCond(b, m, cond.slice(2));
+  // 'c5:…' … 星の塔の しかけの じょうけん（battle-ch5.js）
+  if (cond.startsWith('c5:')) return towerCond(b, m, cond.slice(3));
   // deadFriend:しゅるい … その しゅるいの なかまが たおれて いる（よみがえりの呪文）
   if (cond.startsWith('deadFriend:')) {
     const sp = cond.split(':')[1];
@@ -115,6 +119,9 @@ export function decideAlly(b, c) {
   // 古竜の いにしえの炎の 前に 身を 守る（しかけを 知っている 人。battle-lab.js）
   const lp = labPlan(b, c);
   if (lp) return lp;
+  // 見通しの目に 読まれた 種類を さける・星のさばきの 前に 身を 守る（battle-ch5.js）
+  const fp = towerPlan(b, c, decideAlly);
+  if (fp) return fp;
   if (!foes.length) return { type: 'defend' };
   const mine = usable(b, c);
 

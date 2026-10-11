@@ -13,13 +13,14 @@
 //   ・種は その魔物に 合った もの（かたい→守り、はやい→素早さ、呪文→かしこさ、大きい→命、力じまん→力）
 //   ・素材（ふしぎなかじ で 使う）は MAT_DROPS に 書く。レアも よく落とす 物も 出なかった ときに 出る
 //   ・図鑑に 落とす 物が のる（手に入れるまでは ？？？）
-import { ITEMS } from './items.js?v=79f79592c89a';
-import { MONSTERS } from './monsters.js?v=79f79592c89a';
-import { RARE_MAT_DROPS } from './monsters-rare.js?v=79f79592c89a';
-import { CH3_MAT_DROPS } from './monsters-ch3.js?v=79f79592c89a';
-import { CH4_MAT_DROPS } from './monsters-ch4.js?v=79f79592c89a';
-import { R23_MAT_DROPS } from './monsters-r23.js?v=79f79592c89a';
-import { TEMPLE_MAT_DROPS } from './monsters-temple.js?v=79f79592c89a';
+import { ITEMS } from './items.js?v=ba591da89332';
+import { MONSTERS } from './monsters.js?v=ba591da89332';
+import { RARE_MAT_DROPS } from './monsters-rare.js?v=ba591da89332';
+import { CH3_MAT_DROPS } from './monsters-ch3.js?v=ba591da89332';
+import { CH4_MAT_DROPS } from './monsters-ch4.js?v=ba591da89332';
+import { R23_MAT_DROPS } from './monsters-r23.js?v=ba591da89332';
+import { TEMPLE_MAT_DROPS } from './monsters-temple.js?v=ba591da89332';
+import { CH5_MAT_DROPS } from './monsters-ch5.js?v=ba591da89332';
 
 export const DROP_N = { common: 8, rare: 64, mat: 8 };
 
@@ -61,6 +62,8 @@ export const MAT_DROPS = {
   ...R23_MAT_DROPS,
   // 第4章 Step 7「砂の底の神殿」（monsters-temple.js）
   ...TEMPLE_MAT_DROPS,
+  // 第5章 Step 2「星の塔」（monsters-ch5.js）
+  ...CH5_MAT_DROPS,
 };
 // ぬすむ ときは レアが 出やすい（この 倍。でも 半分まで）
 export const STEAL_RARE_MULT = 8;
