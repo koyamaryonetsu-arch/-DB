@@ -15,6 +15,7 @@ import { FRIENDS_RARE } from './monsters-rare.js';
 import { FRIENDS_CH3 } from './companions-ch3.js';
 import { FRIENDS_R23, RECIPES_R23 } from './monsters-r23.js';
 import { FRIENDS_CH4 } from './companions-ch4.js';
+import { FRIENDS_CH5 } from './companions-ch5.js';
 
 export const MONSTER_FRIENDS = {
   pururin: {
@@ -267,6 +268,8 @@ Object.assign(MONSTER_FRIENDS, FRIENDS_CH3);
 Object.assign(MONSTER_FRIENDS, FRIENDS_R23);
 // 第4章・夜の 魔物（2026年10月 見なおし。前は 仲間に ならなかった）
 Object.assign(MONSTER_FRIENDS, FRIENDS_CH4);
+// 第5章 Step 2「星の塔」の 魔物（companions-ch5.js）
+Object.assign(MONSTER_FRIENDS, FRIENDS_CH5);
 // しゅぞくごとの 装備の うわがき（上の GEAR）
 for (const [sp, g] of Object.entries(GEAR)) if (MONSTER_FRIENDS[sp]) MONSTER_FRIENDS[sp].gear = { ...g, ...(MONSTER_FRIENDS[sp].gear || {}) };
 

@@ -242,6 +242,9 @@ export function gameFiles() {
     'public/js/shared/maps/labyrinth.js', 'public/js/shared/data/story-lab.js', 'public/js/shared/data/sidequests.js',
     'public/js/shared/data/items-lab.js', 'public/js/shared/data/monsters-lab.js', 'public/js/shared/data/abilities-lab.js',
     'public/js/shared/data/encounters-lab.js', 'public/js/shared/battle-lab.js',
+    // 第5章 Step 2「星の塔」の 戦い（塔の 魔物・星の番人アルゴス・見通しの目）
+    'public/js/shared/battle-ch5.js', 'public/js/client/battle-ch5.js', 'public/js/shared/data/monsters-ch5.js', 'public/js/shared/data/abilities-tower.js',
+    'public/js/shared/data/items-tower.js', 'public/js/shared/data/encounters-ch5.js', 'public/js/shared/data/companions-ch5.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

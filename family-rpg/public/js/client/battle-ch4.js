@@ -7,14 +7,16 @@ import { ITEMS } from '../shared/data/items.js';
 import { BW, BH } from './render/battlefx.js';
 // 第4章 Step 7 の 砂の底の神殿と モルガナ（battle-temple.js）
 import { TEMPLE_SCREEN_ANIMS, TEMPLE_ALLY_FX, templePresent } from './battle-temple.js';
+// 第5章 Step 2 の 星の塔と 星の番人アルゴス（見通しの目。battle-ch5.js）
+import { TOWER_SCREEN_ANIMS, TOWER_ALLY_FX, towerPresent } from './battle-ch5.js';
 
 export const MIRROR_ID = 'moon_mirror';
 const MIRROR_INFO = '月の光で、まぼろしの分身をすべて消す。本物は、まぶしくて1回動けなくなる。\n使うと、光がもどるまで少し時間がかかる。';
 
 // 敵が 使うと、がめんの まん中に 大きく 出す 技
-const SCREEN_ANIMS = new Set(['sandstorm', 'sand_vortex', 'sand_spray', 'whale_jump', ...TEMPLE_SCREEN_ANIMS]);
+const SCREEN_ANIMS = new Set(['sandstorm', 'sand_vortex', 'sand_spray', 'whale_jump', ...TEMPLE_SCREEN_ANIMS, ...TOWER_SCREEN_ANIMS]);
 // 味方の まどに 出す えんしゅつ（client/battle.js の allyFxKind）
-export const CH4_ALLY_FX = { sandstorm: 'wind', sand_vortex: 'quake', sand_spray: 'wind', whale_jump: 'quake', ...TEMPLE_ALLY_FX };
+export const CH4_ALLY_FX = { sandstorm: 'wind', sand_vortex: 'quake', sand_spray: 'wind', whale_jump: 'quake', ...TEMPLE_ALLY_FX, ...TOWER_ALLY_FX };
 
 // 「道具」の はじめに ならべる もの（a … コマンドを えらんでいる 味方）
 export function ch4ItemEntries(scene, a) {
@@ -73,6 +75,8 @@ export function ch4Present(scene, ev, fx, anim, actor, lead) {
   }
   // 砂の底の神殿と モルガナ（はね返す・鏡写し・水の衣・大波・水のろう・水の守りの歌）
   templePresent(scene, ev, fx, anim, actor);
+  // 星の番人アルゴス（見通しの目）
+  towerPresent(scene, ev, fx, anim, actor);
 }
 
 // 分身に 当たって 消えた（けっかの vanish）。たおれた ときの 音・点めつの かわりに、むらさきに ゆらいで 消える

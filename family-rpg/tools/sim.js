@@ -94,12 +94,23 @@ export function runBattle(party, enemyList, opts = {}) {
   // 古竜オルドラの しかけを 知っている（いにしえの炎の 前に 身を 守る）/ 知らない（前ぶれでも 守らない）。battle-lab.js
   if (opts.knowsLab) b.knowsLab = true;
   if (opts.labNaive) b.labNaive = true;
+  // 星の番人アルゴスの 見通しの目を 知っている（読まれた 種類を さける・星のさばきの 前に 身を 守る）/ 知らない（読まれても そのまま）。battle-ch5.js
+  if (opts.knowsArgos) b.knowsArgos = true;
+  if (opts.argosNaive) b.argosNaive = true;
   let real = 0;
   let acts = 0;
+  // 見通しの目: 読まれた 人数・そのまま 使って しかえしされた 回数・外れた 回数
+  let reads = 0, hits = 0, misses = 0;
   while (!b.over && real < 30 * 60 * 1000) {
     const evs = b.tick(50);
     real += 50;
-    for (const e of evs) if (e.t === 'act') acts++;
+    for (const e of evs) {
+      if (e.t !== 'act') continue;
+      acts++;
+      if (e.fx?.type === 'foresee') reads += e.fx.targets.length;
+      if (e.foreseeHit) hits++;
+      if (e.foreseeMiss) misses++;
+    }
     if (opts.log) for (const e of evs) if (e.t === 'act' || e.t === 'msg') console.log('  ' + e.lines.join(' / '));
   }
   const allies = b.allies;
@@ -117,6 +128,7 @@ export function runBattle(party, enemyList, opts = {}) {
     hpLeft: allies.reduce((s, a) => s + a.hp, 0) / allies.reduce((s, a) => s + a.maxHp, 0),
     deaths: allies.filter((a) => !a.alive).length,
     mpUsed: allies.reduce((s, a) => s + (a.maxMp - a.mp), 0),
+    reads, hits, misses,
   };
 }
 
@@ -264,8 +276,40 @@ export function dragonFight(lv, seed, know, tier = 45, log = false) {
   return runBattle(party, fixedOf('lab_dragon'), { seed, boss: true, log, ...flags });
 }
 
+// 第5章 Step 2「星の塔」: node tools/sim.js [回数] ch5tower
+// [出現表, 主人公の レベル, 装備]。4人（せんし・そうりょ・まほう・ぶとう）・職業Lv10。
+// 装備は ランク8の 店（ハネノ・Step 3）が まだ ないので、ドゥナの ランク7 ＋ それまでの ボスの アクセサリー（GEAR 42）
+export const CH5_TOWER = [['t5_tower_low', 40, 42], ['t5_tower_low', 41, 42], ['t5_tower_high', 41, 42], ['t5_tower_high', 42, 42]];
+// 星の番人アルゴス: レベル（おすすめは 41〜42）
+export const CH5_ARGOS = [40, 41, 42, 43, 44];
+// know … 知っている 人（見通しの目に 読まれたら、読まれた 種類と ちがう 行動を する・星のさばきの 前に 身を 守る）。
+// 知らない 人 … 読まれても そのまま いつもの 行動（ふつうの オートの「大技に そなえる」は する）
+export function argosFight(lv, seed, know, tier = 42, log = false) {
+  const party = PARTY(lv, 10, tier);
+  const flags = know ? { knowsArgos: true } : { argosNaive: true };
+  return runBattle(party, fixedOf('argos'), { seed, boss: true, log, ...flags });
+}
+
 // 第2章: node tools/sim.js [回数] ch2
-if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'lab') {
+if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'ch5tower') {
+  const rng = makeRng(5050);
+  for (const [table, lv, tier] of CH5_TOWER) {
+    const res = [];
+    for (let i = 0; i < N; i++) res.push(runBattle(PARTY(lv, 10, tier), rollGroup(table, rng), { seed: i }));
+    summarize(`${table} Lv${lv}`, res);
+  }
+  // アルゴス（シードは ちらして）。見通しの目に 読まれた 回数・当たった（そのまま 使った）回数も 出す
+  for (const know of [true, false]) {
+    for (const lv of CH5_ARGOS) {
+      const res = [];
+      for (let i = 0; i < Math.max(N, 40); i++) res.push(argosFight(lv, 777 + i * 7919, know));
+      summarize(`BOSS argos Lv${lv}${know ? '（知っている）' : '（知らない）'}`, res);
+      const avg = (k) => (res.reduce((s, r) => s + (r[k] || 0), 0) / res.length).toFixed(1);
+      console.log(`${''.padEnd(36)}（1戦で 読まれた ${avg('reads')}回・当たった ${avg('hits')}回・外れた ${avg('misses')}回）`);
+    }
+  }
+  if (process.env.LOG) argosFight(Number(process.env.LV || 42), Number(process.env.SEED || 1), !process.env.IGNORE, 42, true);
+} else if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'lab') {
   const rng = makeRng(8888);
   for (const [n, lv, tier] of LAB_ZONES) {
     const res = [];

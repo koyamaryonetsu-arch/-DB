@@ -21,6 +21,7 @@ import { MONSTERS_R23 } from './monsters-r23.js';
 // 第4章 Step 7「砂の底の神殿とモルガナ」（monsters-temple.js）
 import { MONSTERS_TEMPLE } from './monsters-temple.js';
 import { MONSTERS_LAB } from './monsters-lab.js';
+import { MONSTERS_CH5 } from './monsters-ch5.js';
 
 export const MONSTERS = {
   pururin: {
@@ -237,3 +238,5 @@ Object.assign(MONSTERS, MONSTERS_R23);
 Object.assign(MONSTERS, MONSTERS_TEMPLE);
 // 第4章クリアの あとの より道: 古代の大迷宮の ボス（monsters-lab.js）
 Object.assign(MONSTERS, MONSTERS_LAB);
+// 第5章 Step 2「星の塔」の 魔物と 星の番人アルゴス（monsters-ch5.js）
+Object.assign(MONSTERS, MONSTERS_CH5);
