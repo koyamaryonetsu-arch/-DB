@@ -7,6 +7,7 @@ import { NIGHT_SHOPS } from './night.js';
 import { SHOPS_CH3, CH3_GUESTS } from './items-ch3.js';
 import { SHOPS_CH4 } from './items-ch4.js';
 import { POWDER_ID, POWDER_SHOPS } from './friend-powder.js';
+import { LURE_ITEM, FIELD27_SHOPS } from './abilities-field27.js';
 
 export const SHOPS = {
   village: {
@@ -63,6 +64,8 @@ Object.assign(SHOPS, SHOPS_CH3);
 Object.assign(SHOPS, SHOPS_CH4);
 // 仲間の粉: 「魔物の心」に 目ざめた あと、町の 道具屋で 売る（friend-powder.js）
 for (const id of POWDER_SHOPS) if (SHOPS[id]) SHOPS[id].more = [...(SHOPS[id].more || []), { show: { all: ['monster_bond'] }, items: [POWDER_ID] }];
+// 魔物よせの笛: 町の 道具屋（abilities-field27.js）
+for (const id of FIELD27_SHOPS) if (SHOPS[id] && !SHOPS[id].items.includes(LURE_ITEM)) SHOPS[id].items.push(LURE_ITEM);
 
 // 物語で ふえた 品ぞろえ（hasFlag: その人の 世界の フラグ）
 function moreOpen(shop, hasFlag) {

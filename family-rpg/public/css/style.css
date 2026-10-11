@@ -304,6 +304,8 @@ button:focus-visible, input:focus-visible, .item:focus-visible { outline: 3px so
 /* 仲間の粉の のこり（ちずの 上の はしに 小さく。ui/hud.js） */
 .hud-powder { position: absolute; left: 3px; right: 3px; top: 3px; padding: 1px 2px; font-size: clamp(9px, 1.6vmin + 3px, 13px); line-height: 1.25; text-align: center; color: #ffe0f4; background: rgba(70, 20, 70, 0.82); border-radius: 4px 4px 0 0; pointer-events: none; white-space: pre-line; overflow: hidden; }
 .hud-powder[hidden] { display: none; }
+.hud-aura { color: #dff4ff; background: rgba(20, 60, 110, 0.85); border-radius: 4px; }
+.hud-aura.lure { color: #ffe6cc; background: rgba(130, 30, 20, 0.86); }
 /* 大鳥フウラの ボタン（sky.js） */
 .hud-btn.hud-sky, .hud-btn.hud-sky2 { color: #bff0e0; border-color: #5ec8b0; }
 

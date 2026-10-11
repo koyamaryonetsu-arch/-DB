@@ -16,6 +16,7 @@ import { POS, SEA_PLACES, MAPS } from '../maps/index.js';
 import { castRura, warpParty, useTimeBell, warpPlaces, warpOwner } from './travel.js';
 import { bankInfo, bankAction } from './bank.js';
 import { forgeInfo, forgeAction } from './forge.js';
+import { FIELD27_EFFECTS, castField27, useAuraItem } from './field27.js';
 import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction, wagonHere, wagonHealEntries, ownWagonEntries } from './wagon.js';
 import { casinoOpen, casinoAction } from './casino.js';
 import { useEscapeItem, noEscapeText } from './escape.js';
@@ -388,11 +389,8 @@ export function menuAction(world, s, msg) {
       if (!it || it.type !== 'use' || !it.field) return reply(false, '今は使えない');
       if (itemCount(c, msg.id) < 1) return reply(false, '持っていない');
       const eff = it.effect;
-      if (eff.type === 'repel') {
-        removeItem(c, msg.id, 1);
-        s.repelUntil = world.now() + eff.seconds * 1000;
-        return reply(true, `${c.name}は聖水をふりまいた！\nしばらく弱い魔物が寄ってこない。`);
-      }
+      // 聖水・魔物よせの笛（あとから 使った ほうが 効く。world/field27.js）
+      if (eff.type === 'repel' || eff.type === 'lure') return useAuraItem(world, s, msg.id, reply);
       // 仲間の粉（data/friend-powder.js）
       if (eff.type === 'befriendBoost') return usePowder(world, s, c, msg.id, reply);
       if (eff.type === 'warp') {
@@ -433,6 +431,8 @@ export function menuAction(world, s, msg) {
       if (MAPS[s.map]?.noSpells && spellSealed(a)) return reply(false, `${caster.name}は${a.name}を唱えた！\nしかし呪文の力が、すいこまれてしまった…\n（ここでは呪文が使えない。特技や道具を使おう）`);
       // ルーラ（行った 町へ 仲間と 飛ぶ。travel.js）
       if (a.effect?.type === 'warp') return castRura(world, s, caster, msg.id, msg, reply);
+      // リレミト・トヘロス・マモノヨセ（world/field27.js）
+      if (FIELD27_EFFECTS.has(a.effect?.type)) return castField27(world, s, caster, msg.id, reply);
       const cost = mpCost(caster, msg.id);
       if (caster.mp < cost) return reply(false, 'MPが足りない！');
       const pen = penaltyFor(caster, msg.id);

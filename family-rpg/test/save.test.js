@@ -8,6 +8,7 @@ import { upgradeSave, repairChar, SAVE_VERSION } from '../public/js/shared/world
 import { exportCode, parseCode, importChar, CHAR_MAX, LINE_MAX, pack, unpack } from '../public/js/shared/world/transfer.js';
 import { GameWorld } from '../public/js/shared/world/world.js';
 import { makeRng } from '../public/js/shared/rng.js';
+import { ROSTER_MAX } from '../public/js/shared/data/companions.js';
 import { ITEMS } from '../public/js/shared/data/items.js';
 import { computeStats } from '../public/js/shared/stats.js';
 import { handOverOldSaves, findOldSaves, NOTE_FILE } from '../server/savedir.js';
@@ -262,15 +263,15 @@ test('引っこしコード: 仲間が いっぱいの キャラでも LINE で 
   for (let i = 0; i < 80; i++) c.chests['chest' + i] = true;
   for (const id of ['npc_gard', 'npc_mina', 'npc_rin', 'npc_tina', 'npc_luca']) party.recruitNpc(world, s, id, { join: false });
   for (const sp of Object.keys(MONSTERS)) {
-    if (c.companions.length >= 24) break;
+    if (c.companions.length >= ROSTER_MAX) break;
     party.addMonsterCompanion(world, s, sp, 40, true);
   }
-  assert.equal(c.companions.length, 24, '仲間 24人（いちばん 多い）');
+  assert.equal(c.companions.length, ROSTER_MAX, `仲間 ${ROSTER_MAX}人（いちばん 多い）`);
   const code = exportCode(c);
   assert.ok(code.length < LINE_MAX, `コードの 長さ ${code.length}`);
   const r = parseCode(code);
   assert.equal(r.ok, true);
-  assert.equal(r.char.companions.length, 24);
+  assert.equal(r.char.companions.length, ROSTER_MAX);
   assert.equal(r.char.level, 40);
 });
 

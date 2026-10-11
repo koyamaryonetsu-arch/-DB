@@ -740,6 +740,13 @@ export class FieldMenu {
         if (this.root) this.focusSub(this.skillsView(true, who));
         return;
       }
+      // リレミト: 洞窟の 中で 使えれば メニューを とじて 外を 見せる（みちびきの糸と 同じ。shared/world/field27.js）
+      if (a.effect?.type === 'exit') {
+        const r = await this.menuCall({ t: 'menu', action: 'cast', id, ref: 'self', who });
+        if (r?.ok) return this.close();
+        if (this.root) this.focusSub(this.skillsView(true, who));
+        return;
+      }
       let ref = 'self';
       if (a.target === 'self' && c.companion) ref = 'sup:' + c.key;
       else if (a.target !== 'allies' && a.target !== 'self') ref = await this.pickTarget(`だれに${a.name}？`, a.target === 'deadAlly');

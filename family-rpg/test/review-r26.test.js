@@ -196,7 +196,7 @@ test('仲間が いっぱいの とき: なりたがったのに 入れない �
   const { world, bot, c } = await solo(41);
   c.flags.monster_bond = true;
   const { addMonsterEntry } = await import('../public/js/shared/world/party.js');
-  for (let i = 0; i < 30; i++) addMonsterEntry(c, 'pururin', 1);
+  for (let i = 0; i < 50; i++) addMonsterEntry(c, 'pururin', 1); // 仲間は 40ひきまで（ROSTER_MAX）
   const chance = world.rng.chance.bind(world.rng);
   world.rng.chance = (p) => (p > 0 && p <= 0.5 && Math.abs(p - 1 / 10) < 1e-9 ? true : chance(p));
   await win(world, bot, startFieldBattle(world, bot.s, sym(['pururin'])));

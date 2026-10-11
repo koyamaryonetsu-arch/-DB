@@ -16,6 +16,7 @@ import { MAPS } from '../maps/index.js';
 import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js';
 import { treasureAfterBattle } from './treasure.js';
 import { wipeGoldLoss, bankGold } from './bank.js';
+import { lureOn, lureGroup } from './field27.js';
 import { wagonShare, wagonBattleSwap } from './wagon.js';
 import { battleTactics } from './tactics.js';
 
@@ -222,6 +223,8 @@ export function startFieldBattle(world, s, sym) {
   const r = world.rng.next();
   if (sym.state !== 'chase' && r < 0.12) preemptive = 'ally';
   else if (sym.state === 'chase' && r < 0.06) preemptive = 'enemy';
+  // 魔物よせ（マモノヨセ・魔物よせの笛）: 強めの 組が 出やすい（world/field27.js の lureGroup）
+  if (sessions.some((m) => lureOn(m, world.now()))) sym.group = lureGroup(world, sym);
   const ctx = makeBattle(world, sessions, party, sym.group, {
     bg: ZONE_BG[sym.table] || (MAPS[s.map].kind === 'dungeon' ? 'cave' : 'grass'),
     bgm: sym.table === 'rare' ? 'battle' : 'battle',
@@ -434,7 +437,7 @@ function finishBattle(world, ctx) {
       // 仲間は もちぬしの むずかしさ
       grow(who.char, scaleExp(world.data.characters[who.owner], exp), trains);
     }
-    // 馬車の 仲間は 半分（world/wagon.js）
+    // 馬車の 仲間（フィールドは 同じ・洞窟などは 半分。world/wagon.js）
     wagonShare(world, ctx, { exp, trainN, grow, say: (l) => compLines.push(l) });
     if (compLines.length) for (const m of sessions) perSession[m.id].lines.push(...compLines);
     // まものが なかまに なりたがる（ふつうの たたかい だけ。ひみつのダンジョンの 中では ならない: map.noBefriend）

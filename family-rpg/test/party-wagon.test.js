@@ -204,13 +204,13 @@ test('家族の キャラ: たたかいの いれかえ（家族が 馬車へ・
   assert.ok(back && back.hp === 3, '家族が 馬車から 出る（HPは そのまま）');
   assert.deepEqual(c.partyKeys, [fam, 'npc_mina', 'npc_rin']);
   assert.deepEqual(c.wagonKeys, ['npc_gard']);
-  // 勝つ: 馬車の 家族は 本人に パーティーの 半分の おすそわけ（お金は なし）
+  // 勝つ: 戦った 家族の 本人に おすそわけ
   for (const a of b.allies) if (a.controller === ken.s.id) ken.send({ t: 'battle', actor: a.id, auto: true });
   await winNow(world, ken, ctx);
   const mc = world.data.characters[mamaId];
   const log = mc.supportLog.at(-1);
   assert.ok(log && log.helper === 'ケン' && log.count >= 1, '戦った 家族の 本人に おすそわけ（ゴーレムは 経験値 0）');
-  // ママを 馬車へ（ガルドが パーティーへ）して もう 1回: 馬車の 家族の おすそわけは パーティーの ときの 半分
+  // ママを 馬車へ（ガルドが パーティーへ）して もう 1回: 馬車の 家族の おすそわけは フィールドでは パーティーの ときと 同じ
   menu(ken, { action: 'wagon', op: 'out', key: 'npc_gard', with: fam });
   assert.deepEqual(c.wagonKeys, [fam]);
   world.parties.get(ken.s.partyId).famCopies.get(`${c.id}|${fam}`).hp = 30;
@@ -222,7 +222,7 @@ test('家族の キャラ: たたかいの いれかえ（家族が 馬車へ・
   // きほんの 倍率（data/difficulty.js の rewardExp。2026年10月 見なおし）を かけた もの
   const full = rewardExp(ctx2.battle.result.killed.reduce((a, sp) => a + (MONSTERS[sp].exp || 0), 0));
   assert.ok(full > 0);
-  assert.equal(mc.exp - e0, Math.floor(Math.floor(full * 0.5) / 2), '馬車の 家族: 本人に パーティーの ときの 半分');
+  assert.equal(mc.exp - e0, Math.floor(full / 2), '馬車の 家族: 本人に パーティーの ときと 同じ（フィールド）');
   assert.equal(mc.gold, g0, 'お金の おすそわけは なし');
 });
 
