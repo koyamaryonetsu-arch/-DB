@@ -30,6 +30,8 @@ import { ResultPager, levelUpName } from './ui/result.js';
 import { CH4_ALLY_FX, ch4ItemEntries, ch4ItemPick, ch4ItemInfo, ch4Present, vanishFx, drawShade, drawBurrow } from './battle-ch4.js';
 // 第4章 Step 7 の 砂の底の神殿と モルガナ（鏡のうつし身・水のろうの 絵・水の衣・光・大波・水の守りの歌）
 import { templeSprite, templeDraw, templeStart, TEMPLE_SFX } from './battle-temple.js';
+// 第5章 Step 2 の 星の番人アルゴス（見通しの目。battle-ch5.js）
+import { towerDraw, TOWER_SFX } from './battle-ch5.js';
 
 // たたかいの え の こまかさ（おもい きかいで さげたら、その あいだは さげた まま）
 let battleRes = BRES;
@@ -113,6 +115,8 @@ const ANIM_SFX = {
   ...JOB6_SFX,
   // 第4章 Step 7 の 神殿の 魔物と モルガナ（render/battlefx-temple.js）
   ...TEMPLE_SFX,
+  // 第5章 Step 2 の 星の塔と 星の番人アルゴス（render/battlefx-ch5.js）
+  ...TOWER_SFX,
 };
 
 // ひらめきの 電球（ドット絵ふう）
@@ -1615,6 +1619,8 @@ export class BattleScene {
       }
       // 水の衣・光（呪文を はね返す）・大波の 前ぶれ（battle-temple.js）
       templeDraw(this, x, m, c, px, py, w, h, base, white);
+      // 見通しの目で 読んで いる 間、アルゴスの 3つの 目が 光る（battle-ch5.js）
+      towerDraw(this, x, m, c, px, py, w, h, base);
       // まぼろしの 分身が 消える: むらさきに ゆらいで うすく なる
       if (c.vanished && c.dead > 0) {
         x.globalAlpha = 0.7 * base;

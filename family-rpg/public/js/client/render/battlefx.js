@@ -19,6 +19,8 @@ import { playR27Fx, R27_FINE } from './battlefx-r27.js';
 // 第4章 Step 7: 砂の底の神殿・鏡の間・水鏡の広間（ch4-temple-bg.js）
 import { TEMPLE_BG, TEMPLE_DECOS, drawTempleBg, drawTempleFloorBg } from './ch4-temple-bg.js';
 import { SECRET_BG } from './secret-art.js';
+// 第5章 Step 2: 星の塔の 中・塔の てっぺん（ch5-tower-bg.js）
+import { TOWER_BG, TOWER_DECOS, drawTowerBg, drawTowerFloorBg } from './ch5-tower-bg.js';
 
 export const BW = 256;
 export const BH = 144;
@@ -113,6 +115,8 @@ const BG = {
   ...TEMPLE_BG,
   // ひみつのダンジョン（階の 色ごと・番人。render/secret-art.js）
   ...SECRET_BG,
+  // 第5章 Step 2: 星の塔（star_tower）・塔の てっぺん（star_tower_top）
+  ...TOWER_BG,
 };
 
 // はいけいの データ（〜_night は 夜空の はいけい。night-art.js）。ない ときは null
@@ -197,6 +201,7 @@ export function battleBackground(id) {
   if (d.deco === 'castle') drawCastleHall(x, hor);
   if (d.deco === 'sand_sea') drawSandSea(x, d, hor);
   if (TEMPLE_DECOS.has(d.deco)) drawTempleBg(x, d, hor);
+  if (TOWER_DECOS.has(d.deco)) drawTowerBg(x, d, hor);
   if (d.deco === 'houses') {
     x.fillStyle = '#ffd66b';
     for (let k = 10; k < BW; k += 48) x.fillRect(k + 8, hor - 12, 3, 3);
@@ -247,6 +252,7 @@ export function battleBackground(id) {
   else if (d.deco === 'palace') drawPalaceFloor(x, hor);
   else if (d.deco === 'castle') drawCastleFloor(x, hor);
   else if (TEMPLE_DECOS.has(d.deco)) drawTempleFloorBg(x, d, hor);
+  else if (TOWER_DECOS.has(d.deco)) drawTowerFloorBg(x, d, hor);
   else {
     x.fillStyle = 'rgba(0,0,0,0.12)';
     for (let i = 0; i < 6; i++) {

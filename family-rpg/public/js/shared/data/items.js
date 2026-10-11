@@ -19,6 +19,7 @@ import { ITEMS_CH3, CH3_ITEM_KANA } from './items-ch3.js';
 import { ITEMS_CH4, CH4_ITEM_KANA } from './items-ch4.js';
 import { ITEMS_TEMPLE, TEMPLE_ITEM_KANA } from './items-temple.js';
 import { ITEMS_LAB, LAB_ITEM_KANA } from './items-lab.js';
+import { ITEMS_TOWER, TOWER_ITEM_KANA } from './items-tower.js';
 import { POWDER_ITEMS, POWDER_KANA } from './friend-powder.js';
 import { FIELD27_ITEMS, FIELD27_KANA } from './abilities-field27.js';
 
@@ -232,6 +233,8 @@ Object.assign(ITEMS, ITEMS_CH4);
 Object.assign(ITEMS, ITEMS_TEMPLE);
 // 古代の大迷宮・たのまれごとの 品（items-lab.js）
 Object.assign(ITEMS, ITEMS_LAB);
+// 第5章 Step 2: アルゴスが 落とす 品（items-tower.js）
+Object.assign(ITEMS, ITEMS_TOWER);
 // なかまの粉（friend-powder.js）
 Object.assign(ITEMS, POWDER_ITEMS);
 // 魔物よせの笛（abilities-field27.js）
@@ -319,6 +322,7 @@ Object.assign(ITEM_KANA, CASINO_KANA);
 Object.assign(ITEM_KANA, ESCAPE_KANA);
 Object.assign(ITEM_KANA, CH3_ITEM_KANA);
 Object.assign(ITEM_KANA, CH4_ITEM_KANA, TEMPLE_ITEM_KANA, POWDER_KANA, LAB_ITEM_KANA);
+Object.assign(ITEM_KANA, TOWER_ITEM_KANA);
 Object.assign(ITEM_KANA, FIELD27_KANA);
 
 export function itemKana(id) {

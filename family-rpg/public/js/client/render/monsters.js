@@ -9,6 +9,7 @@ import { addRareArt } from './rare-art.js';
 import { addCh3Art } from './ch3-art.js';
 import { addCh4Art } from './ch4-art.js';
 import { addR23Art } from './r23-art.js';
+import { addCh5Art } from './ch5-tower-art.js';
 
 export const MRES = 4; // できあがりの こまかさ（せかいの 1ドットを 4×4 で かく）
 const OUT = '#130d24';
@@ -821,6 +822,8 @@ addCh3Art(MONSTER_ART);
 addCh4Art(MONSTER_ART);
 // あたらしい 仲間モンスター（r23-art.js: どんぐりん・ぷるりんタワー・いかずちドラゴン など）
 addR23Art(MONSTER_ART);
+// 第5章 Step 2「星の塔」の 魔物と 星の番人アルゴス（ch5-tower-art.js）
+addCh5Art(MONSTER_ART);
 
 const cache = new Map();
 

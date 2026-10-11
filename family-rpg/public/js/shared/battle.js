@@ -27,6 +27,8 @@ import { burrowStart, burrowWarn, burrowBlock, hiddenFrom } from './battle-ch4.j
 import { shownEquipKey } from './look-equip.js';
 // 第4章 Step 7 の 砂の底の神殿と モルガナ（呪文を はね返す・鏡写し・水の衣・大波・水のろう・水の守りの歌・鏡のうつし身。battle-temple.js）
 import { setupTemple, templeTurnStart, prisonTurn, reflectSpell, templeEffect, templeEst, templeDamage, templeKill, templePub, templeSnap } from './battle-temple.js';
+// 第5章 Step 2 の 星の塔と 星の番人アルゴス（見通しの目。battle-ch5.js）
+import { towerTurnStart, foreseeCheck, towerEffect, towerKill, towerPub } from './battle-ch5.js';
 
 export const BOND_MAX = 100;
 // きずなゲージの たまりやすさ（1 … はじめの 版。ちいさいほど たまりにくい）
@@ -472,7 +474,8 @@ export class Battle {
       if (inv) this.endInvite(inv, 'やめた');
     }
     if (cmd.type === 'dual') return this.startDual(c, cmd);
-    if (cmd.type === 'defend') {
+    // 見通しの目に 読まれている 人の 防御は、じゅんばんに ならべて たしかめる（battle-ch5.js）
+    if (cmd.type === 'defend' && !c.foresee) {
       c.ready = false;
       c.atb = 0;
       c.defending = true;
@@ -583,6 +586,7 @@ export class Battle {
     }
     // 呪文を はね返す 光が 消える など（battle-temple.js）
     templeTurnStart(this, c, ev);
+    towerTurnStart(this, c, ev, cmd);
     if (cmd.type === 'incapacitated') {
       this.doIncapacitated(c, ev);
     } else {
@@ -680,6 +684,8 @@ export class Battle {
   }
 
   perform(c, cmd, ev) {
+    // 見通しの目に 読まれた 種類の 行動（battle-ch5.js）
+    if (foreseeCheck(this, c, cmd, ev)) return;
     // 敵が みんな 砂の 中に もぐっている（ねらえない。battle-ch4.js）
     if (burrowBlock(this, c, cmd, ev)) return;
     // ためてから 出す 大技（ai.js の decideMonster が big を つける）。天才しせつ管理者が いると ダメージが へる（foreseeCut）
@@ -1408,7 +1414,7 @@ export class Battle {
       }
       case 'nothing': break;
       // 呪文を はね返す・水の衣・大波の 前ぶれ・水のろう など（battle-temple.js）
-      default: templeEffect(this, c, a, eff, ev, targets); break;
+      default: if (!templeEffect(this, c, a, eff, ev, targets)) towerEffect(this, c, a, eff, ev); break;
     }
   }
 
@@ -1630,6 +1636,7 @@ export class Battle {
     // 水のろうが こわれる（中の 人が 出る。battle-temple.js）
     const tk = templeKill(this, t, ev);
     if (tk) return tk;
+    towerKill(this, t, ev);
     // 1回だけ 起き上がる 魔物（ミイラ兵。monsters の revive）
     const rv = t.side === 'enemy' && !t.revived ? MONSTERS[t.species]?.revive : null;
     if (rv && !(rv.not || []).includes(element)) {
@@ -2277,6 +2284,8 @@ export function pub(c) {
     covering: c.cover ? c.cover.target : null,
     // 水の衣・光（呪文を はね返す）・大波の 前ぶれ・鏡のうつし身・水のろうの 中の 人（battle-temple.js）
     ...templePub(c),
+    // 見通しの目に 読まれている 種類（battle-ch5.js）
+    ...towerPub(c),
   };
 }
 

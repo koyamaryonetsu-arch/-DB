@@ -1876,6 +1876,12 @@ npm start                 # 家族サーバー
     - 魔物よせの効き目：`world/monsters.js`（`spawnSymbols` の数 `LURE.spawn` 倍・間 `LURE.spawnMs`、`moveSymbols` の気づくきょり `LURE.reach`・追いかけるきょり `LURE.chase`・`aggro` でない魔物も追う・魔物よけは効かない）、`world/battles.js` の `startFieldBattle` が `lureGroup`（出現表からもう1回ふって経験値の合計が多いほう）
   - **ひみつのダンジョンのとちゅうから**：`data/secret.js` の `c.sd.save`（`sdSaveOf`・`noteSdSave`・`sdStartFloors(...saves)`・`sdStartText`。`repairSecret` は `save` がない前の版のセーブに `sdSaveFloor(best)` を入れる。`mergeSecret` は深いほう）。`world/secret.js` の `chooseStart`（案内人の「ちょうせんを始める」と下り階段。リーダーでなければ1階だけ。`gather` した人みんなの `save` のいちばん浅い所まで）→ `startRun(run, f)`（`run = { f: f - 1 }` にして `arriveFloor` で記録）。休み所の「この階を記録して地上へもどる」は `exitEvent` が `noteSdSave`（`run.mid` の人はしない）
   - `test/field-r27.test.js`（上限40・家族の酒場・配合・データ合わせ・ならび・引っこしコード40人・馬車の経験値（フィールド・洞窟）・呪文のデータと覚える職業・リレミト（使える所・使えない所・仲間が唱える・家族）・トヘロスと聖水と笛（にげる・追いかける・あとから勝つ・しるし）・魔物よせの数と強い組・家族にも効く・ひみつのダンジョンの記録ととちゅうから（ひとり・家族・さそわれた人）・古いセーブ・文字）。前提を直したテスト：`wagon`・`party-wagon`（馬車の経験値）・`secret-dungeon`（案内人のえらぶ物・セーブの形）・`save`・`review-r26`（仲間の上限）
+- 第5章 Step 2「星の塔」B（戦い。くわしくは `docs/plan-ch5.md` の「12. 実装メモ」の「Step 2 で決まったこと（B）」）
+  - データ：`data/monsters-ch5.js`（塔の魔物6しゅ・星の番人アルゴス・素材 `CH5_MAT_DROPS`）・`abilities-tower.js`・`items-tower.js`（星見のペンダント）・`encounters-ch5.js`（出現表 `t5_tower_low`・`t5_tower_high`、きまった戦い `argos`、背景 `star_tower`・`star_tower_top`）・`companions-ch5.js`（6しゅとも仲間になる。`noFamily`）
+  - **見通しの目**（`shared/battle-ch5.js`）：アルゴスが1人（HP45%からは2人）の次の行動の種類（攻撃・呪文・回復・防御。`actKind`）を読む（`predictKind` … さいごに使った種類）。読まれた種類をそのまま使うと `foreseeCheck` が しかえし（攻撃はかわして反撃・呪文ははね返す・回復はかき消す・防御は守備力ダウン）、変えれば外れてアルゴスのゲージがへる。`battle.js` は `perform` のはじめ・`executeNext`・`applyAbility` の default・`kill`・`pub`・人の防御（読まれている時はならべる）に1行ずつ。`ai.js` は `condOk` の `'c5:gaze'` と `decideAlly` の `towerPlan`（オートは読まれた種類をさける。シミュレーターの `b.argosNaive`／`b.knowsArgos`）
+  - がめん：`client/battle-ch5.js`（読まれた人のまどの目のしるし・アルゴスの目が光る・バナー）、絵 `render/ch5-tower-art.js`（`addCh5Art`。`ARGOS_EYES`）・背景 `render/ch5-tower-bg.js`・エフェクト `render/battlefx-ch5.js`
+  - シミュレーション：`node tools/sim.js 60 ch5tower`（4人・職業Lv10・ランク7＋ボスのアクセサリー）。出現表 100%、アルゴス（240回）知っている Lv41 88%・Lv42 90%／知らない Lv41 40%・Lv42 44%。おすすめ Lv41〜42
+  - `test/ch5-tower-battle.test.js`（データ・落とす物・仲間・出現表と名前の約束・行動の種類・読む・しかえし・外れ・読みが消える・人の防御・前ぶれ・オート・シミュレーション・きまった戦い・絵・背景とエフェクト・がめんのしるし・文字）
 
 ---
 
