@@ -10,6 +10,7 @@ import { LAB_NPC_LOOKS } from './lab-art.js';
 import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js';
 import { R26_OLD_LOOK } from './hero-r26.js';
 import { R27_OLD_LOOK } from './hero-r27.js';
+import { R29_OLD_LOOK } from './hero-r29.js';
 
 export const CW = 16;
 export const CH = 21;
@@ -107,7 +108,7 @@ const JOB_LOOK = {
 };
 
 // 第26回の 職業（いまの えは render/hero.js と hero-r26.js）
-Object.assign(JOB_LOOK, R26_OLD_LOOK, R27_OLD_LOOK);
+Object.assign(JOB_LOOK, R26_OLD_LOOK, R27_OLD_LOOK, R29_OLD_LOOK);
 
 // よろい・ふくの みため（'cloth' は じぶんで えらんだ いろ）
 const ARMOR_LOOK = {
@@ -180,6 +181,7 @@ const WEAPON_LOOK = {
   metal_bat: { blade: '#c8ccd8', guard: '#2a2a3a' },
   legend_bat: { blade: '#f2c14e', guard: '#8a2a2a', glow: '#ffffff' },
   katana: { blade: '#e8ecf4', guard: '#2a2a2a' },
+  sakabatou: { blade: '#e8ecf4', guard: '#3a2a22' },
   // ふしぎなかじで 作る 武器
   fang_spear: { blade: '#f4ecd8', guard: '#7a4a22' },
   wolf_claw: { blade: '#ece6dc' },

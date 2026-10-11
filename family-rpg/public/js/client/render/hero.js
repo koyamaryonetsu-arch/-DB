@@ -9,6 +9,8 @@ import { outfitOf, jobBody, drawTorsoFront, drawTorsoBack, drawTorsoSide, drawSk
 import { drawAura } from './hero-aura.js';
 // 第26回の 職業（羽織・こうら・ネコ型ロボットの おなか・もちもの・かおの しるし）
 import { R26_HAIR, R26_SKIN, drawR26, face26, drawProp26 } from './hero-r26.js';
+// 第29回の るろうに剣士の 道の 赤毛
+import { R29_HAIR } from './hero-r29.js';
 import { weaponOf, shieldOf, headOf, drawWeapon, drawShield, drawHeadgear, isLongSide } from './hero-gear.js';
 import { lookIds, HCOL_BY_ID, TONE_BY_ID, CLOTH_COLORS } from '../../shared/data/looks.js';
 import { STARTER_EQUIP } from '../../shared/stats.js';
@@ -371,7 +373,7 @@ const JOB_HAIR_RAMP = {
   // 最強のおかんの むらさきに そめた パーマ
   obapurple: ['#2e1638', '#5a2c6c', '#8a52a0', '#b886cc', '#e4c8f0'],
 };
-Object.assign(JOB_HAIR_RAMP, R26_HAIR);
+Object.assign(JOB_HAIR_RAMP, R26_HAIR, R29_HAIR);
 const jobHairMemo = new Map();
 function jobHair(id) {
   let v = jobHairMemo.get(id);

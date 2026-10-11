@@ -19,6 +19,7 @@ import { SIG4, JOB4_SFX, sigAnim } from './render/battlefx-jobs4.js';
 // 第27回に 作り直した 古い 呪文・特技の エフェクト（段階・あたる じかん・音・味方への えんしゅつ）
 import { r27Anim, r27Hit, r27Sfx, playAllyR27 } from './render/battlefx-r27.js';
 import { JOB5_SFX } from './render/battlefx-jobs5.js';
+import { JOB6_SFX } from './render/battlefx-jobs6.js';
 import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js';
 import { statusNames, buffNames, targetTag } from './ui/info.js';
 import { battleSkillText, battleItemText, favHint } from './ui/skillinfo.js';
@@ -108,6 +109,8 @@ const ANIM_SFX = {
   ...JOB4_SFX,
   // 第27回の 暴れんぼう将軍の 看板の技（render/battlefx-jobs5.js）
   ...JOB5_SFX,
+  // 第29回の るろうに剣士の 道の 看板の技（render/battlefx-jobs6.js）
+  ...JOB6_SFX,
   // 第4章 Step 7 の 神殿の 魔物と モルガナ（render/battlefx-temple.js）
   ...TEMPLE_SFX,
 };

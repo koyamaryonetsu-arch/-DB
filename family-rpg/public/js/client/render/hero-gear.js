@@ -16,6 +16,8 @@ const WEAPON_LOOK = {
   silver_sword: { shape: 'long', mk: 'silver', len: 14.4, gemc: '#4a9aff' },
   thunder_sword: { shape: 'bolt', mk: 'silver', len: 14.2, blade: '#ffe46a', fx: 'bolt' },
   katana: { shape: 'katana', mk: 'steel', len: 14.4 },
+  // 第29回: るろうに剣士の 逆ば刀（かたなの かたち）
+  sakabatou: { shape: 'katana', mk: 'steel', len: 14.0 },
   stone_axe: { shape: 'stone', len: 11.6 },
   iron_axe: { shape: 'axe', mk: 'iron', len: 12.6 },
   pirate_axe: { shape: 'pirate', mk: 'iron', len: 13.4, wrap: '#c83a3a' },

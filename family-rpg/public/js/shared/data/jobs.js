@@ -1003,6 +1003,41 @@ export const JOBS = {
     perLv: { str: 1.5, hp: 1.5, def: 0.5 },
     learn: [[1, 'ab_mineuchi'], [3, 'ab_kao'], [5, 'ab_hakuba'], [7, 'ab_meyasu'], [8, 'ab_onari'], [10, 'abarenbo_shogun_sig']],
   },
+
+  // ───────────── 2026年10月（第29回）: るろうに剣士 → 人斬りばっ刀さい → ひ村ばっ刀さい → 飛天御剣流けい承者（技は abilities-jobs8.js） ─────────────
+  // 「抜・斎・緋・継」は 小学校で ならわない 漢字なので ひらがな（第26回の「探てい」と おなじ）
+  rurouni: {
+    id: 'rurouni', name: 'るろうに剣士', kana: 'るろうにけんし', short: 'るろうに', tier: 0, family: 'phys', color: '#c8304a',
+    desc: 'ほおに十字のきずがある、旅の剣士。刀のはが反対がわについた「逆ば刀」で、だれもきずつけずに悪いやつをこらしめる。口ぐせは「〜でござる」。きわめると人斬りばっ刀さいになれる。',
+    mods: { hp: 1.05, mp: 0.65, str: 1.25, def: 0.95, agi: 1.35, mag: 0.55, heal: 0.75 },
+    weapons: ['sword', 'dagger', 'none'], shield: false, armor: ['cloth', 'gi'], helm: false,
+    perLv: { agi: 0.8, str: 0.5 },
+    learn: [[1, 'rr_battou'], [2, 'rr_oro'], [3, 'rr_doryu'], [5, 'rr_ryukan'], [7, 'rr_sentaku'], [10, 'rurouni_sig']],
+  },
+  hitokiri: {
+    id: 'hitokiri', name: '人斬りばっ刀さい', kana: 'ひときりばっとうさい', short: '人斬り', tier: 1, req: ['rurouni'], family: 'phys', color: '#3a3048',
+    desc: 'むかし、目にもとまらぬばっ刀術で、おそれられた剣士。気配を消して、するどい一太刀をふるう。攻撃力と素早さはとても高いが、守りはうすい。るろうに剣士をきわめるとなれる。',
+    mods: { hp: 1.1, mp: 0.65, str: 1.5, def: 0.9, agi: 1.55, mag: 0.55, heal: 0.55 },
+    weapons: ['sword', 'dagger', 'none'], shield: false, armor: ['cloth', 'gi'], helm: false,
+    perLv: { str: 1, agi: 0.5 },
+    learn: [[1, 'htk_ryusho'], [2, 'htk_kenki'], [3, 'htk_soryu'], [5, 'htk_yamiyo'], [7, 'htk_ryumei'], [10, 'hitokiri_sig']],
+  },
+  himura: {
+    id: 'himura', name: 'ひ村ばっ刀さい', kana: 'ひむらばっとうさい', short: 'ひ村', tier: 2, req: ['hitokiri'], family: 'phys', color: '#a01c2c',
+    desc: '仲間を守るためだけに刀をぬくと決めた、落ち着いた剣士。赤い着物で、心をしずめて剣をふるう。飛天御剣流の大技、九頭竜閃を使いこなす。',
+    mods: { hp: 1.45, mp: 0.9, str: 1.6, def: 1.2, agi: 1.6, mag: 0.7, heal: 0.95 },
+    weapons: ['sword', 'dagger', 'none'], shield: false, armor: ['cloth', 'gi'], helm: false,
+    perLv: { str: 1, agi: 1 },
+    learn: [[1, 'hm_hiryu'], [2, 'hm_fusatsu'], [3, 'hm_arashi'], [5, 'hm_ocha'], [7, 'hm_tsumuji'], [10, 'himura_sig']],
+  },
+  hiten: {
+    id: 'hiten', name: '飛天御剣流けい承者', kana: 'ひてんみつるぎりゅうけいしょうしゃ', short: '飛天', tier: 3, req: ['himura'], reqSuper: 1, family: 'phys', color: '#8a9ab8',
+    desc: '飛天御剣流のおく義を受けついだ剣士。白いマントをはおる。ひ村ばっ刀さいと、ほかの超級職を1つきわめた者だけがなれる。おく義「天かける竜のひらめき」は、だれにも止められない。',
+    mods: { hp: 1.6, mp: 1.05, str: 1.85, def: 1.4, agi: 1.8, mag: 0.9, heal: 1.0 },
+    weapons: ['sword', 'dagger', 'none'], shield: false, armor: ['cloth', 'gi', 'robe'], helm: false,
+    perLv: { str: 1.5, agi: 1.5, hp: 0.5 },
+    learn: [[1, 'ht_shinsoku'], [3, 'ht_mantle'], [5, 'ht_ootatsu'], [7, 'ht_ikiyou'], [8, 'ht_yomi'], [10, 'hiten_sig']],
+  },
 };
 
 // リレミト・トヘロス・マモノヨセを 覚える 職業（abilities-field27.js）
@@ -1011,17 +1046,18 @@ applyField27Learn(JOBS);
 // はじめに えらべる 職業（基本職）
 export const JOB_ORDER = ['warrior', 'monk', 'priest', 'mage', 'performer', 'jester', 'salaryman', 'idol', 'railman', 'ballplayer',
   'schoolkid', 'civil_local', 'cook', 'parttimer', 'neet', 'saiyan', 'youtuber', 'gamer', 'okan',
-  'spy', 'shonen_tantei', 'neko_robot', 'kappa'];
+  'spy', 'shonen_tantei', 'neko_robot', 'kappa', 'rurouni'];
 export const ADVANCED_ORDER = ['battlemaster', 'paladin', 'magic_knight', 'pirate', 'holyfist', 'ninja', 'tamer', 'sage', 'superstar', 'fortune',
   'samurai', 'bucho', 'major_leaguer', 'middleschooler', 'civil_national', 'police', 'firefighter', 'train_driver',
   'patissier', 'seishain', 'comedian', 'chuuni', 'super_saiyan', 'setsubiya', 'streamer', 'pro_gamer', 'saikyo_okan', 'shachiku',
-  'rakuten_cardman', 'kisatsu', 'assassin', 'esper', 'oshiri_tantei', 'meitantei', 'creator', 'mimi_robot', 'hanakappa'];
+  'rakuten_cardman', 'kisatsu', 'assassin', 'esper', 'oshiri_tantei', 'meitantei', 'creator', 'mimi_robot', 'hanakappa',
+  'hitokiri'];
 export const SUPER_ORDER = ['dragon_knight', 'archmage', 'high_priest', 'god_hand', 'summoner', 'magic_swordsman', 'guardian', 'hero', 'monster_master', 'star_diva',
   'sword_master', 'shogun', 'shacho', 'nitoryu', 'highschooler', 'career', 'fruit_idol', 'storm_idol', 'keikyu_driver',
   'star_chef', 'tatakiage', 'm1_champion', 'daikenja', 'datenshi', 'ss2', 'ryonetsu', 'rubber', 'black_star',
-  'enbashira', 'black_org', 'doraemon', 'kinniku_kappa', 'konoha'];
+  'enbashira', 'black_org', 'doraemon', 'kinniku_kappa', 'konoha', 'himura'];
 // 伝説の 職業（超級職の 先）
-export const LEGEND_ORDER = ['loto_hero', 'ss3', 'nika', 'maou', 'facility_genius', 'hakaishin', 'hinokami', 'hokage', 'abarenbo_shogun'];
+export const LEGEND_ORDER = ['loto_hero', 'ss3', 'nika', 'maou', 'facility_genius', 'hakaishin', 'hinokami', 'hokage', 'abarenbo_shogun', 'hiten'];
 export const ALL_JOBS = [...JOB_ORDER, ...ADVANCED_ORDER, ...SUPER_ORDER, ...LEGEND_ORDER];
 export const TIER_NAMES = ['基本職', '上級職', '超級職', '伝説の職業'];
 // 神殿で ならべる じゅん（ランクごと）
@@ -1135,4 +1171,6 @@ export const JOB_HINTS = {
   konoha: '忍者をきわめた者は、木の葉の里の忍びになれるらしい…',
   hokage: '木の葉の忍びと、ほかの超級職を1つきわめた者は、里の長になれるらしい…',
   abarenbo_shogun: '将軍と、ほかの超級職を1つきわめた者は、白い馬で町を走る、あの上様になれるらしい…',
+  himura: '人斬りばっ刀さいをきわめた剣士は、心をしずめて、仲間を守る剣を手にするらしい…',
+  hiten: 'ひ村ばっ刀さいと、ほかの超級職を1つきわめた者は、飛天御剣流のおく義を受けつげるらしい…',
 };

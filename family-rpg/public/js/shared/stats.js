@@ -461,6 +461,8 @@ export const STARTER_EQUIP = {
   shonen_tantei: { weapon: 'mushimegane', armor: 'cloth', shield: null, head: null, acc: null },
   neko_robot: { weapon: null, armor: 'cloth', shield: null, head: null, acc: 'neko_suzu' },
   kappa: { weapon: null, armor: 'cloth', shield: null, head: 'kappa_sara', acc: null },
+  // 第29回: るろうに剣士は 逆ば刀
+  rurouni: { weapon: 'sakabatou', armor: 'cloth', shield: null, head: null, acc: null },
 };
 
 // みため（むかしの 項目は いつも のこす。かみがた・色・目もとの あたらしい 項目は data/looks.js）
