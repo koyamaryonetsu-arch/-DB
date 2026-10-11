@@ -188,7 +188,7 @@ export function dualFx(v, ev) {
     const foes = targets.filter((x) => x.side === 'enemy').map((x) => v.center(x)).filter(Boolean);
     const pts = foes.length ? foes : [{ x: BW / 2, y: BH * 0.62 }];
     playDualFinale(v.fx, d.id, pts, n, BW, BH);
-    const fin = { nova: 'blast', storm: 'wind', cross: 'crit', beam: 'blast', quake: 'smash', heal: 'heal', stage: 'buff', laugh: 'hirameki', siren: 'warn' };
+    const fin = { nova: 'blast', storm: 'wind', cross: 'crit', beam: 'blast', quake: 'smash', heal: 'heal', stage: 'buff', laugh: 'hirameki', siren: 'warn', spot: 'hirameki', gadgets: 'item', coins: 'coin', meteor: 'blast', matoi: 'crit' };
     au.sfx(fin[dualFxOf(d.id).finale] || (foes.length ? 'blast' : 'heal'));
   }, ms);
 }

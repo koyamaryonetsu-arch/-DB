@@ -87,6 +87,23 @@ const ATTACK = Object.keys(ABILITIES).filter((id) => {
   return a.job && !a.hidden && (a.kind === 'skill' || a.kind === 'spell') && hurts(a.effect);
 });
 
+// 第27回: 新しい 職業（第26回の 20こと 暴れんぼう将軍）の 組。その 職業の 技（ひらめき技も）を ぜんぶ 入れる
+const byJob = (...jobs) => Object.keys(ABILITIES).filter((id) => {
+  const a = ABILITIES[id];
+  return jobs.includes(a.job) && !a.hidden && (a.kind === 'skill' || a.kind === 'spell');
+});
+const DETECTIVE = byJob('shonen_tantei', 'oshiri_tantei', 'meitantei');
+const SHADOW = byJob('black_org', 'assassin', 'spy');
+const ROBOT = byJob('neko_robot', 'mimi_robot', 'doraemon');
+const KAPPA = byJob('kappa', 'hanakappa', 'kinniku_kappa');
+const RAKUTEN = byJob('rakuten_cardman');
+const UESAMA = byJob('abarenbo_shogun', 'shogun');
+const SAMURAI = byJob('samurai');
+const SHINOBI = byJob('ninja', 'konoha', 'hokage');
+const KISATSU = byJob('kisatsu', 'enbashira', 'hinokami');
+const ESPER = byJob('esper');
+const CREATOR = byJob('creator');
+
 // 組の なまえ（メニューの 一覧で 見せる）
 export const DUAL_GROUP_NAMES = new Map([
   [FIRE, '炎の呪文'], [ICE, '氷の呪文'], [WIND, '風の技'], [ELEM_SPELLS, '属性の技'], [SWORD, '剣の技'], [FIST, 'こぶしの技'], [MELEE, '剣かこぶしの技'],
@@ -95,6 +112,9 @@ export const DUAL_GROUP_NAMES = new Map([
   [FACILITY, '設備の技'], [FACILITY_WORK, '設備か大人の仕事の技'], [MAOU, '魔王の技'], [HAKAI, 'はかい神の技'], [HOLY, '光か勇者の技'], [DARK, '闇の技'],
   [JUMP, '体を使う技'], [POLICE, '警察官の技'], [FIRE_DEPT, '消防士の技'], [RESCUE, '回復か町を守る技'], [KIDS, '子どもの技（学校・ゲーム・配信）'],
   [BOSS, '上司の技'], [SALARY, '社ちくか会社員の技'], [KITCHEN, '料理かお店の技'], [STREAM, '配信の技'], [GAME, 'ゲームの技'], [ATTACK, '攻撃の技（どの職業でも）'],
+  // 第27回
+  [DETECTIVE, '探ていの技'], [SHADOW, 'スパイ・殺し屋・黒の組織の技'], [ROBOT, 'ネコ型ロボットの技'], [KAPPA, 'カッパの技'], [RAKUTEN, '楽天カードマンの技'],
+  [UESAMA, '将軍の技'], [SAMURAI, 'サムライの技'], [SHINOBI, '忍びの技'], [KISATSU, 'きさつ隊の技'], [ESPER, '超能力の技'], [CREATOR, 'クリエイターの技'],
 ]);
 
 // parts の type:
@@ -262,6 +282,94 @@ export const DUAL_TECHS = {
     desc: '剣・こぶし・呪文・いやし。4人の力が1つの光になって、敵1体をつらぬく。とどめの大ダメージのあと、仲間全員のHPも回復する。', anim: 'holy',
   },
 };
+
+// ───────── 第27回: 新しい 職業と 前からの 職業の 合体技（10こ。2人技7・3人技2・4人技1） ─────────
+// element: 'deduce' … 推理（敵 それぞれの いちばんの 弱点の 属性で 当たる。battle-dual.js）
+// points … ポイントバック（当てた 敵の お金の points 倍が もらえる。楽天カード！と おなじ）
+const R27_DUALS = {
+  dt_hannin: {
+    name: 'おまえが犯人だ！', kana: 'おまえがはんにんだ', need: [DETECTIVE, SHADOW], mp: [8, 8], target: 'enemy', funny: true,
+    parts: [
+      { type: 'power', kind: 'magic', element: 'deduce', k: 1.15, say: '「犯人は…おまえだ！」なぞの組織の仲間まで、思わずうなずいた！' },
+      { type: 'debuff', stat: 'def', mult: 0.7, dur: 40, chance: 0.85 },
+    ],
+    desc: '名探ていが、ビシッと指をさす。「おまえが犯人だ！」敵1体のいちばんの弱点を見ぬいて大ダメージをあたえ、守備力も下げる。', anim: 'holy',
+  },
+  dt_nantoka: {
+    name: 'なんとかしてよ〜！', kana: 'なんとかしてよ', need: [ROBOT, NEET], mp: [8, 6], target: 'enemies', funny: true,
+    parts: [
+      { type: 'power', kind: 'phys', k: 0.85, say: '「なんとかしてよ〜！」ポケットから、ひみつ道具が山ほど出てきた！' },
+      { type: 'buff', target: 'allies', stat: 'agi', mult: 1.4, dur: 40 },
+    ],
+    desc: 'ニートに泣きつかれて、ロボットがポケットのひみつ道具を山ほど出す。敵全体に道具の雨がふりそそぎ、仲間全員の素早さも上がる。', anim: 'hit_all',
+  },
+  dt_kyuuri_zushi: {
+    name: 'キュウリずし', kana: 'きゅうりずし', need: [KAPPA, COOK], mp: [6, 6], target: 'allies', funny: true,
+    parts: [
+      { type: 'heal', pct: 0.4, k: 0.5 }, { type: 'mpHeal', base: [6, 10] },
+      { type: 'buff', stats: ['atk', 'def'], mult: 1.45, dur: 40, say: 'カッパは、キュウリまきを10本ぺろりと食べた！' },
+    ],
+    desc: 'カッパがとってきた、川の水でひやしたキュウリで、料理人がおすしをにぎる。仲間全員のHPとMPが回復して、攻撃力と守備力が大きく上がる。', anim: 'gohan',
+  },
+  dt_point10: {
+    name: 'ポイント10倍デー', kana: 'ぽいんとじゅうばいでー', need: [RAKUTEN, OKAN], mp: [8, 6], target: 'enemies', funny: true,
+    parts: [
+      { type: 'power', kind: 'phys', k: 0.8, points: 1.2, say: '「今日はポイント10倍よ！」おかんの目の色が変わった！' },
+      { type: 'mpHeal', target: 'allies', base: [6, 10] },
+    ],
+    desc: '「今日はポイント10倍デー！」おかんが楽天カードで買いまくる。敵全体にカードのあらし。当てた敵のお金がたくさんもらえて、仲間全員のMPも少し回復する。', anim: 'cards',
+  },
+  dt_nichirin: {
+    name: '日輪の大ほのお', kana: 'にちりんのおおほのお', need: [KISATSU, FIRE], mp: [10, 10], target: 'enemy', element: 'fire',
+    parts: [{ type: 'power', kind: 'phys', element: 'fire', k: 1.2, hits: 3 }],
+    desc: '剣士の太刀に、仲間の炎の呪文をまとわせる。日輪のような大きなほのおで、敵1体に炎の大ダメージ。', anim: 'fire_tornado',
+  },
+  dt_nenriki_meteor: {
+    name: 'ねん力メテオ', kana: 'ねんりきめてお', need: [ESPER, ELEM_SPELLS], mp: [10, 10], target: 'enemies', spell: true, element: 'blast',
+    parts: [{ type: 'power', kind: 'magic', element: 'blast', k: 0.85, say: '空から、大きな岩がふってきた！' }],
+    desc: '仲間の呪文で空の岩をくだき、ねん力で敵の上に落とす。敵全体に爆発の大ダメージ。', anim: 'meteor',
+  },
+  dt_okusuri: {
+    name: 'おくすり手帳', kana: 'おくすりてちょう', need: [CREATOR, HEAL], mp: [10, 8], target: 'allies', funny: true,
+    parts: [
+      { type: 'revive', pct: 0.35 }, { type: 'heal', pct: 0.45, k: 0.6, say: '「おくすり手帳は、お持ちですか？」' },
+      { type: 'cure', statuses: ['poison', 'sleep', 'confuse', 'paralyze', 'blind', 'silence'] },
+    ],
+    desc: 'いつものお薬が、手帳ですぐにわかる。たおれた仲間を生き返らせて、仲間全員のHPを大きく回復し、悪いじょうたいも治す。', anim: 'heal_ring',
+  },
+  dt_megumi: {
+    name: 'め組の大立ち回り', kana: 'めぐみのおおたちまわり', need: [UESAMA, SAMURAI, SHINOBI], mp: [12, 10, 10], target: 'enemies',
+    parts: [
+      { type: 'power', kind: 'phys', k: 0.85, hits: 3, ignoreDef: 0.2, say: '町の火消し、め組もかけつけた！大立ち回りだ！' },
+      { type: 'atbSet', sub: 40, chance: 0.6, msg: '{t}は、思わずひれふした！', failMsg: '{t}は、まだ向かってくる！' },
+    ],
+    desc: '上様とサムライと忍びが、町の火消しといっしょに大立ち回り。敵全体を何度も斬りつけて、ひれふさせることもある。', anim: 'slash_multi',
+  },
+  dt_hakkeyoi: {
+    name: 'はっけよい、のこった！', kana: 'はっけよいのこった', need: [KAPPA, FIST, JUMP], mp: [8, 8, 8], target: 'enemies', funny: true,
+    parts: [
+      { type: 'power', kind: 'phys', k: 0.85, say: '「はっけよい、のこった！のこった！」' },
+      { type: 'banish', chance: 0.3, msg: '{t}は、どひょうの外までおし出された！', failMsg: '{t}は、どひょうぎわでこらえた！' },
+    ],
+    desc: 'カッパのかけ声で、みんなですもう！敵全体に体当たりして、どひょうの外までおし出してしまうこともある。', anim: 'quake',
+  },
+  // 4人技
+  dt_nazo: {
+    name: 'なぞはすべて解けた！', kana: 'なぞはすべてとけた', need: [DETECTIVE, KIDS, ROBOT, ATTACK], mp: [12, 10, 10, 10], target: 'enemies',
+    parts: [
+      { type: 'power', kind: 'magic', element: 'deduce', k: 0.8, say: '探てい団バッジで、みんなの手がかりがつながった！' },
+      { type: 'atbSet', sub: 40, chance: 0.6, msg: '{t}は、正体をあばかれて動けない！', failMsg: '{t}は、しらを切った！' },
+    ],
+    desc: '探ていとロボットと子どもたちが、手がかりを持ちよる。「なぞは、すべて解けた！」敵全体の、それぞれの弱点を見ぬいて大ダメージ。動きを止めることもある。', anim: 'holy',
+  },
+};
+// 2人技・3人技・4人技の じゅんに ならべる（第26回の 技の あとに）
+{
+  const all = { ...DUAL_TECHS, ...R27_DUALS };
+  const ids = Object.keys(all).sort((a, b) => all[a].need.length - all[b].need.length);
+  for (const id of Object.keys(DUAL_TECHS)) delete DUAL_TECHS[id];
+  for (const id of ids) DUAL_TECHS[id] = all[id];
+}
 
 // メニューで ならべる じゅん（人数の 多い 技を 下に）
 export const DUAL_ORDER = Object.keys(DUAL_TECHS);

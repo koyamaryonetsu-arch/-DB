@@ -73,9 +73,10 @@ const cmdOf = (o, target) => ({ type: 'dual', id: o.id, partner: o.partner, part
 const SCOPE = { enemy: /敵1体/, enemies: /敵全体/, allies: /仲間全員/ };
 const PART_TYPES = new Set(['power', 'heal', 'revive', 'buff', 'debuff', 'cure', 'atbSet', 'mpHeal', 'bondUp', 'status', 'banish']);
 
-test('第26回の 合体技: 数を しぼった（20〜28こ）・2人技・3人技・4人技・クスッと 笑える 技', () => {
+// 第27回: 新しい 職業の 合体技を 10こ 足して 35こ（ぜんぶで 35こ いない。test/jobs-r27.test.js）
+test('第26回の 合体技: 数を しぼった（20〜35こ）・2人技・3人技・4人技・クスッと 笑える 技', () => {
   const ids = DUAL_ORDER;
-  assert.ok(ids.length >= 20 && ids.length <= 28, `合体技 ${ids.length}こ`);
+  assert.ok(ids.length >= 20 && ids.length <= 35, `合体技 ${ids.length}こ`);
   const by = (n) => ids.filter((id) => dualSize(id) === n);
   assert.ok(by(2).length >= 12, `2人技 ${by(2).length}こ`);
   assert.ok(by(3).length >= 4, `3人技 ${by(3).length}こ`);

@@ -12,6 +12,8 @@
 //   drawHat26(cv, P, H, G, view) … 新しい ぼうし（かえりち: かいたら true）
 //   drawProp26(cv, P, A, O) … たての ない 手に もつ もの（カード・スプーン・虫めがね・きゅうり など）
 import { mat, ramp, TH, mixC, HeroCanvas } from './hero-raster.js';
+// 第27回の 暴れんぼう将軍の 家もんと せんす（hero-r27.js）
+import { drawR27, drawProp27 } from './hero-r27.js';
 
 // ───────────── ざいしつ（mat は おなじ ものを つくりなおさない） ─────────────
 const cl = (c, o = {}) => mat({ r: ramp(c, 4, o), th: o.th || TH.cloth });
@@ -313,6 +315,11 @@ function flameHem(cv, x0, x1, yb, h, clip, sw = 0) {
 // ───────────── かく（hero.js の じゅんばん） ─────────────
 // layer: 'behind'（まえむきの からだの うしろ）/ 'over'（服の うえ。まえ・よこ）/ 'neck'（うでの あと）/ 'back'（うしろむきの せなか）/ 'backTop'（うでの あと）/ 'side'（よこむきの からだの うしろ）
 export function drawR26(cv, P, O, layer) {
+  draw26(cv, P, O, layer);
+  // 第27回: 暴れんぼう将軍の 羽織の 家もん（羽織の うえに）
+  if (O.spec?.crest27) drawR27(cv, P, O, layer);
+}
+function draw26(cv, P, O, layer) {
   const view = P.side ? 'side' : P.back ? 'back' : 'front';
   if (layer === 'behind') {
     if (O.shell && view === 'front') shellFront(cv, O.shell);
@@ -884,7 +891,7 @@ export function drawHat26(cv, P, H, G, view) {
 // まえ: がめんの みぎの 手、うしろ: ひだりの 手、よこ: その 手（P.facing の ほうへ むける）
 export function drawProp26(cv, P, A, O) {
   const kind = O.body?.prop;
-  if (!kind) return;
+  if (!kind || drawProp27(cv, P, A, O)) return;
   const [hx, hy] = A.hand;
   const d = P.side ? P.facing : A.s || 1;
   switch (kind) {
