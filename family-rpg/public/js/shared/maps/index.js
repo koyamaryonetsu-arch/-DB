@@ -12,6 +12,7 @@ import { attachCasino } from './casino.js';
 import { buildCh3Maps, ch3SearchMats, NORTH_SPARKLE_LOOT } from './ch3.js';
 import { buildCh4Maps, ch4SearchMats, SOUTH_SPARKLE_LOOT } from './ch4.js';
 import { attachLab } from './labyrinth.js';
+import { attachTower } from './tower.js';
 
 const V = (x, y) => [PLACES.village.x + x, PLACES.village.y + y];
 const TW = (x, y) => [PLACES.town.x + x, PLACES.town.y + y];
@@ -282,6 +283,8 @@ function buildMaps() {
   Object.assign(maps, buildSecretMaps());
   // 第4章クリアの あとの より道: 砂の古代都市と 古代の大迷宮・たのまれごとの 人（maps/labyrinth.js）
   attachLab(maps);
+  // 第5章「空にうかぶ大地」: 星祭りの かざりと 星の塔（maps/tower.js）
+  attachTower(maps);
   // 夜の 町・村（夜だけ 出る 人・夜は 家に 帰る 人）
   addNightNpcs(maps);
   for (const m of Object.values(maps)) finishMap(m);

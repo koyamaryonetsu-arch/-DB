@@ -7,6 +7,7 @@ import { ITEMS, baseItemId } from '../../shared/data/items.js';
 import { STARTER_EQUIP } from '../../shared/stats.js';
 import { paintMiraPrison, paintWaterStar } from './temple-chars.js';
 import { LAB_NPC_LOOKS } from './lab-art.js';
+import { paintCh5Special } from './ch5-art.js';
 import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js';
 import { R26_OLD_LOOK } from './hero-r26.js';
 import { R27_OLD_LOOK } from './hero-r27.js';
@@ -349,6 +350,8 @@ const NPC_LOOKS = {
   morgana: { hair: '#3a7ac8', hairStyle: 'long', skin: '#d8eef6', outfit: 'robe', robeMain: '#2a4a8a', robeTrim: '#7ad8f0', female: true, hat: 'tiara', hatGem: '#8af0ff', cape: '#1a2a5a' },
   mirror_guard: { hair: 0, skin: '#c8d8e8', outfit: 'armor', cloth: '#b8d0e8', hat: 'helmet', hatColor: '#d8e8f8', spear: true },
   prison_guard: { hair: 0, skin: '#a8d8f0', outfit: 'armor', cloth: '#2a6aa8', hat: 'helmet', hatColor: '#4aa8e0', spear: true },
+  // 第5章 Step 1: フードの子（名前は まだ 出さない。こい あい色の マントと 深い フード。かおは 見えない）
+  hood_kid: { hair: 0, hairStyle: 'short', skin: 1, outfit: 'robe', robeMain: '#262a48', robeTrim: '#a8b4f0', small: true, hat: 'hood_dark', hatColor: '#262a48' },
 };
 // 第4章クリアの あとの たのまれごとの 人（render/lab-art.js）
 Object.assign(NPC_LOOKS, LAB_NPC_LOOKS);
@@ -1447,6 +1450,26 @@ function drawHat(p, dir, f, o) {
       }
       break;
     }
+    case 'hood_dark': { // 第5章: フードの子（かおが 見えない 深い フード。目も 光らない。ふちに 星の 色の ぬいとり）
+      const c = hc || '#262a48', cD = shade(c, -0.3), cL = shade(c, 0.22), trim = '#a8b4f0';
+      if (dir === 'up') {
+        spans(p, [[0, 9, 22], [1, 7, 24], [2, 6, 25], ...Array.from({ length: 20 }, (_, i) => [3 + i, 5, 26])], c);
+        p.vline(25, 3, 22, cD); p.vline(26, 3, 22, cD); p.vline(7, 3, 20, cL);
+      } else if (dir === 'down') {
+        spans(p, [[0, 9, 22], [1, 7, 24], [2, 6, 25], [3, 5, 26], [4, 5, 26], [5, 5, 26], [6, 5, 26], [7, 5, 26]], c);
+        for (let y = 8; y <= 21; y++) { p.hline(5, 7, y, c); p.hline(24, 26, y, cD); }
+        p.hline(8, 23, 7, trim); p.vline(8, 8, 13, trim); p.vline(23, 8, 13, trim);
+        // フードの なかは まっくら（かおは 見えない）
+        p.tag = 'void';
+        p.rect(9, 8, 14, 13, '#0c0a18');
+        p.hline(11, 20, 19, '#1a1830');
+      } else {
+        spans(p, [[0, 9, 20], [1, 7, 22], [2, 6, 23], [3, 5, 24], [4, 5, 24], [5, 5, 24], [6, 5, 24], [7, 5, 24]], c);
+        p.rect(15, 8, 9, 14, c); p.vline(23, 8, 21, cD); p.vline(15, 8, 20, trim);
+        p.tag = 'void'; p.rect(5, 8, 10, 12, '#0c0a18');
+      }
+      break;
+    }
     case 'cowl': { // かおが みえる フード（忍者・占い師 など）
       const c = hc || '#2a1a3a', cD = shade(c, -0.3), cL = shade(c, 0.2);
       if (dir === 'up') {
@@ -2275,8 +2298,11 @@ export function paintSpecial(kind, dir, f) {
       return fine(paintSdBoard(f), SD_OUTLINE.sd_board);
     case 'sd_chest':
       return fine(paintSdChest(f), SD_OUTLINE.sd_chest);
-    default:
-      return null;
+    default: {
+      // 第5章: 星の塔・星祭りの かざり（render/ch5-art.js）
+      const c5 = paintCh5Special(kind, dir, f);
+      return c5 ? fine(c5.p, c5.oc) : null;
+    }
   }
   return fine(p, oc);
 }

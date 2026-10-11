@@ -1041,7 +1041,7 @@ export class GameWorld {
           // 大鳥で とんでいる / なかまの 大鳥に いっしょに のっている
           ...(p.flying ? { air: 1, ride: ridingAlong(this, p) ? 1 : 0 } : {}),
           // 星の竜に のって とんでいる（第3章の あと。client/sky.js が 竜の え に する）
-          ...(p.flying && p.char.flags?.c3_dragon ? { mt: 'dragon' } : {}),
+          ...(p.flying && p.char.flags?.c3_dragon ? { mt: p.char.flags?.c5_wings ? 'star_dragon' : 'dragon' } : {}),
         }));
         for (const p of players) {
           const fc = fieldChestSnap(p, ms);

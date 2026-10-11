@@ -242,6 +242,8 @@ export function gameFiles() {
     'public/js/shared/maps/labyrinth.js', 'public/js/shared/data/story-lab.js', 'public/js/shared/data/sidequests.js',
     'public/js/shared/data/items-lab.js', 'public/js/shared/data/monsters-lab.js', 'public/js/shared/data/abilities-lab.js',
     'public/js/shared/data/encounters-lab.js', 'public/js/shared/battle-lab.js',
+    // 第5章 Step 1・2（A: 世界と物語）: 星祭りの夜・フードの子・星の羽・天のとばり・星の塔（8階）・アルゴスの 台本
+    'public/js/shared/data/story-ch5.js', 'public/js/shared/maps/tower.js', 'public/js/shared/maps/tower-rows.js', 'public/js/shared/data/tower-stub.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

@@ -41,6 +41,11 @@ export const T = {
   // 第4章クリアの あとの より道「古代の大迷宮」（maps/labyrinth.js。ほかの 人と ぶつからない ように 230 から）
   RUIN_FLOOR: 230, RUIN_GATE: 231, RUIN_GATE_SHUT: 232, REST_FIRE: 233, WARP_RING: 234, WARP_RING_OFF: 235,
   ANC_DOOR: 236, ANC_MURAL: 237, DRAGON_BONE: 238,
+  // 第5章 Step 1・2「星の塔」（maps/tower.js・render/tiles-tower.js。190 から）
+  SKY_FLOOR: 190, STAR_DIM: 191, STAR_GLOW: 192, STAR_LIT: 193, LIFT: 194, LIFT_SHAFT: 195, LIFT_UP: 196, WEIGHT: 197, WEIGHT_ON: 198,
+  WIND_E: 199, WIND_WINDOW: 200, WIND_SHUT: 201, VANE: 202, VANE_ON: 203, WIND_PIT: 204, ELEVATOR: 205, ELEVATOR_LIT: 206,
+  STAR_WINDOW: 207, TOWER_MURAL: 208, STAR_CHART: 209, STAR_FONT: 210, STAR_DOOR: 211, TOWER_DOOR: 212, TOWER_GATE: 213,
+  TOWER_BASE: 214, TOP_FLOOR: 215, TOP_EDGE: 216, CREST_ALTAR: 217, TOWER_EXIT: 218,
 };
 
 export const TILE_INFO = {};
@@ -220,6 +225,36 @@ def(T.WARP_RING_OFF, 'warp_ring_off', { mapColor: '#6a7a8a' }); // まだ 光っ
 def(T.ANC_DOOR, 'anc_door', { solid: true, mapColor: '#7a5a3a' }); // 古代の 石の とびら（しかけで 開く）
 def(T.ANC_MURAL, 'anc_mural', { solid: true, mapColor: '#a87a4a' }); // 古代の かべ画（古竜と 古代都市の 話）
 def(T.DRAGON_BONE, 'dragon_bone', { solid: true, mapColor: '#e8dcc0' }); // 大昔の 竜の ほね
+// 第5章「星の塔」（maps/tower.js）。上の 階ほど 星空の 色（render/tiles-tower.js）
+def(T.SKY_FLOOR, 'sky_floor', { mapColor: '#2a3470' }); // 星空の もようの ゆか（上の 階）
+def(T.STAR_DIM, 'star_dim', { mapColor: '#4a5490' }); // 星座の ゆかの 星（昼は 光らない。本物も にせも おなじ え）
+def(T.STAR_GLOW, 'star_glow', { anim: true, light: true, mapColor: '#c8d4ff' }); // 夜に 光る 本物の 星（'@night' の とびら）
+def(T.STAR_LIT, 'star_lit', { anim: true, light: true, mapColor: '#fff0a0' }); // じゅんばんに ふんで 光った 星
+def(T.LIFT, 'lift', { mapColor: '#c8b06a' }); // 上り下りの ゆか（下に いる。のると 重りで 上がる）
+def(T.LIFT_SHAFT, 'lift_shaft', { solid: true, mapColor: '#3a3a52' }); // 上り下りの ゆかの 通り道（ゆかが 下に ある あいだは 高い だん）
+def(T.LIFT_UP, 'lift_up', { mapColor: '#d8c07a' }); // 上がって 止まった 上り下りの ゆか（だんを 上り下り できる）
+def(T.WEIGHT, 'weight', { mapColor: '#8a8aa8' }); // 重りの ゆか（だれかが のると、上り下りの ゆかが 上がる）
+def(T.WEIGHT_ON, 'weight_on', { mapColor: '#ffe680' }); // しずんだ 重りの ゆか
+def(T.WIND_E, 'wind_e', { flow: [1, 0], anim: true, mapColor: '#a8d8f0' }); // 風の 窓から ふく 強い 風（東へ 流される）
+def(T.WIND_WINDOW, 'wind_window', { solid: true, anim: true, mapColor: '#6ac0e8' }); // 風が ふきこむ 窓
+def(T.WIND_SHUT, 'wind_shut', { solid: true, mapColor: '#5a5a78' }); // しまった 風の 窓
+def(T.VANE, 'vane', { solid: true, mapColor: '#8ab0c8' }); // 風見の石（しらべると 風の 窓が しまる・風の 道が できる）
+def(T.VANE_ON, 'vane_on', { solid: true, light: true, mapColor: '#c8f0ff' }); // 回した 風見の石
+def(T.WIND_PIT, 'wind_pit', { solid: true, mapColor: '#0a0c1e' }); // 塔の ふきぬけ（風が ふくと、風に のって わたれる）
+def(T.ELEVATOR, 'elevator', { mapColor: '#6a7a9a' }); // 星の エレベーター（まだ 光っていない）
+def(T.ELEVATOR_LIT, 'elevator_lit', { anim: true, light: true, mapColor: '#9ae0ff' }); // 光っている 星の エレベーター（近道）
+def(T.STAR_WINDOW, 'star_window', { solid: true, mapColor: '#3a4a8a' }); // 星空が 見える 窓
+def(T.TOWER_MURAL, 'tower_mural', { solid: true, mapColor: '#8a7aa8' }); // 昔の 勇者の かべ画
+def(T.STAR_CHART, 'star_chart', { solid: true, mapColor: '#3a4aa0' }); // 星図（星座の ゆかの ヒント）
+def(T.STAR_FONT, 'star_font', { solid: true, talkThrough: true, anim: true, light: true, mapColor: '#9ad8ff' }); // 休み所の 星の いずみ（回復と 記録）
+def(T.STAR_DOOR, 'star_door', { solid: true, mapColor: '#5a5aa0' }); // 星の とびら（しかけで 開く）
+def(T.TOWER_DOOR, 'tower_door', { solid: true, mapColor: '#7a7a8a' }); // 星の 塔の とびら（紋章で 開く。フィールド）
+def(T.TOWER_GATE, 'tower_gate', { mapColor: '#2a2a3a' }); // 開いた 塔の とびら（中へ）
+def(T.TOWER_BASE, 'tower_base', { solid: true, mapColor: '#9a9aaa' }); // 塔の 土台の 石（フィールド）
+def(T.TOP_FLOOR, 'top_floor', { mapColor: '#6a70a8' }); // 塔の てっぺんの 石の ゆか
+def(T.TOP_EDGE, 'top_edge', { solid: true, mapColor: '#4a4e7a' }); // てっぺんの ふちの 石がき（向こうは 夜空）
+def(T.CREST_ALTAR, 'crest_altar', { solid: true, talkThrough: true, light: true, mapColor: '#e8d890' }); // 紋章の さいだん（天のとばりを 開く）
+def(T.TOWER_EXIT, 'tower_exit', { mapColor: '#2a2a3a' }); // 1階の 出口（外へ）
 
 export function isSolid(id) {
   return TILE_INFO[id]?.solid ?? true;

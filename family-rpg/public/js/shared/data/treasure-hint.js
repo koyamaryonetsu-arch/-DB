@@ -43,7 +43,7 @@ export function landmarks(mapId) {
   for (const w of m.warps || []) {
     const to = MAPS[w.to?.map];
     const name = String(to?.name || '').split('　')[0];
-    if (!name || inTown(w.x, w.y) || out.some((o) => o.name === name)) continue;
+    if (!name || w.noMark || inTown(w.x, w.y) || out.some((o) => o.name === name)) continue;
     out.push({ name: `${name}の入り口`, x: w.x + 0.5, y: w.y + 0.5 });
   }
   // 名前の ある 小さめの 場所（湖・沼・森・島。マップの 大部分を しめる 場所と、ほとんど 海の 場所は のぞく）

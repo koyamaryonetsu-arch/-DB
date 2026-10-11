@@ -73,6 +73,25 @@ export const SKY_MAPS = {
     storm: '砂嵐', boxHint: '北の海辺', lockedHint: { flag: 'c3_clear', text: '竜守りの村の長老ハクゲンに、話を聞いてみよう' },
   },
 };
+// ───── 第5章: 天のとばり ─────
+// 星の羽を えた 竜（c5_wings）は、空の 上から「雲の上へ」飛べる（「別の地方へ」の えらぶ ところに 出る。world/travel.js の flyVeil）。
+// はじめて 飛ぶと 天のとばりに はじかれる（だいほん c5_veil_event → c5_veil）。とばりが 開くまで（c5_sky）は はじかれる
+export const VEIL = { id: 'veil', name: '雲の上', short: '雲の上', need: 'c5_wings', first: 'c5_veil', hint: 'c5_book', open: 'c5_sky' };
+export function veilShown(hasFlag) {
+  return okFlag(hasFlag, VEIL.need);
+}
+// null … 行けない（星の羽が ない）/ 'first' … はじめて（だいほん）/ 'shut' … はじかれる / 'open' … とばりが 開いている
+export function veilState(hasFlag) {
+  if (!okFlag(hasFlag, VEIL.need)) return null;
+  if (!okFlag(hasFlag, VEIL.first)) return 'first';
+  return okFlag(hasFlag, VEIL.open) ? 'open' : 'shut';
+}
+export function veilText(hasFlag) {
+  if (veilState(hasFlag) === 'open') return '天のとばりは、開いている…。\n雲の上に、空にうかぶ島々が見える。\n（第5章の続きはアップデートで！）';
+  const hint = okFlag(hasFlag, VEIL.hint) ? '星の塔のてっぺんで、紋章をかざそう' : 'ホシフル村のホシミばあちゃんに、話を聞いてみよう';
+  return `雲の上をめざして、高く飛んだ…！\nしかし、天のとばりにはじき返された！\n（${hint}）`;
+}
+
 // 「別の地方へ飛ぶ」の じゅんばん（さいしょが ボタンの 行き先）
 const REGION_ORDER = {
   overworld: ['sea', 'north', 'south'], sea: ['overworld', 'north', 'south'], north: ['overworld', 'sea', 'south'], south: ['sea', 'overworld', 'north'],

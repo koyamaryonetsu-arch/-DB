@@ -19,7 +19,8 @@ import { SEA_PLACES } from '../maps/ch2.js';
 import { ABILITIES } from '../data/abilities.js';
 import { ITEMS } from '../data/items.js';
 import { hasKeyItem, mpCost, removeItem, itemCount } from '../stats.js';
-import { SKY_MAPS, FLUTE_ID, RIDE_ASK_MS, regionHop, edgeAt, edgeTarget, regionsFrom, skyBox, inSkyBox, mountOf, flySpeed, edgeLockedText, boxLockedText } from '../data/sky.js';
+import { SKY_MAPS, FLUTE_ID, RIDE_ASK_MS, regionHop, edgeAt, edgeTarget, regionsFrom, skyBox, inSkyBox, mountOf, flySpeed, edgeLockedText, boxLockedText, VEIL, veilState, veilText } from '../data/sky.js';
+import { runScript } from './scripts.js';
 import { partyOf } from './party.js';
 import { warpDest } from './services.js';
 import { advanceClock, clockOwner } from './clock.js';
@@ -276,6 +277,7 @@ export function landBird(world, s) {
 // となりの 地方へ（edge: マップの はしを こえた / dest: 「別の地方へ飛ぶ」で えらんだ 地方）
 export function flyRegion(world, s, edge, dest = null) {
   if (!s.flying || s.busy) return false;
+  if (!edge && dest === VEIL.id) return flyVeil(world, s);
   const map = MAPS[s.map];
   const has = world.hasFlagFn(s);
   let to;
@@ -299,6 +301,16 @@ export function flyRegion(world, s, edge, dest = null) {
   riders.forEach((m, i) => world.placeSession(m, to.map, to.x + (i % 2 ? 1 : -1) * (1 + (i >> 1)) * 0.8, to.y, to.dir, true, { fly: true }));
   world.send(s, { t: 'toast', text: `${mountFor(world, s).name}は${MAPS[to.map].name}へ飛んでいく！` });
   world.broadcastPlayers();
+  return true;
+}
+
+// 第5章: 星の羽の 竜で「雲の上へ」（data/sky.js の VEIL）。はじめては だいほん（天のとばりに はじかれる。c5_veil）
+export function flyVeil(world, s) {
+  const has = world.hasFlagFn(s);
+  const st = veilState(has);
+  if (!st) return false;
+  if (st === 'first') return runScript(world, s, 'c5_veil_event');
+  world.send(s, { t: 'toast', text: veilText(has) });
   return true;
 }
 
