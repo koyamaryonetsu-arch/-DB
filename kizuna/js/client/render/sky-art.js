@@ -1,9 +1,10 @@
 // 空の 旅と 夜の 人の ドット絵（すべて オリジナル）
 // ・風の大鳥フウラ（ひとりで とぶ すがた・人を のせた すがた）
 // ・ゆうれいの 女の子・星見の丘で 光る もの
-import { Painter, scale2x, rimShade, outline2, makeCanvas, ctxOf, flipCanvas } from './pixel.js?v=ba591da89332';
-import { paintHuman, npcOpts, CW, CH } from './chars.js?v=ba591da89332';
-import { dragonCanvas } from './dragon-art.js?v=ba591da89332';
+import { Painter, scale2x, rimShade, outline2, makeCanvas, ctxOf, flipCanvas } from './pixel.js?v=506f2153b43f';
+import { paintHuman, npcOpts, CW, CH } from './chars.js?v=506f2153b43f';
+import { dragonCanvas } from './dragon-art.js?v=506f2153b43f';
+import { starDragonCanvas } from './ch5-dragon.js?v=506f2153b43f';
 
 const OUT = '#1b1330';
 export const BIRD_W = 44;
@@ -222,6 +223,8 @@ export function skyNpcSprite(kind, dir, frame) {
     case 'sky_bird': return birdCanvas(dir, frame);
     // 星の竜アステル（第3章。render/dragon-art.js）
     case 'sky_dragon': return dragonCanvas(dir, frame);
+    // 第5章: 星の羽を えた アステル（render/ch5-dragon.js）
+    case 'star_dragon': return starDragonCanvas(dir, frame);
     case 'ghost_girl': return ghostCanvas(dir, frame);
     case 'night_glint': return glintCanvas(frame);
     default: return null;

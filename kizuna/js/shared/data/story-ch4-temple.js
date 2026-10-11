@@ -11,11 +11,11 @@
 import {
   TEMPLE_LEVERS, WATER_FLAGS, waterLevel, waterFlagsFor, MIRROR_FLAG, KNIGHTS_FLAG, UTSUSHIMI_FLAG, SPRING_FLAG, GUARDS_FLAG,
   MORGANA_FLAG, STAR_FLAG, CLEAR4_FLAG, TEMPLE_FLAG, DOME_POS, B1_POS, B2_POS, B3_POS, HALL_POS,
-} from '../maps/temple.js?v=ba591da89332';
-import { SANDSEA_POS, DUNA_POS, SARA2_FLAG } from '../maps/duna.js?v=ba591da89332';
-import { SOUTH_PLACES, SAFARA_POS } from '../maps/south.js?v=ba591da89332';
-import { NPC_SUPPORTS } from './shops.js?v=ba591da89332';
-import { CH4_GUESTS } from './items-ch4.js?v=ba591da89332';
+} from '../maps/temple.js?v=506f2153b43f';
+import { SANDSEA_POS, DUNA_POS, SARA2_FLAG } from '../maps/duna.js?v=506f2153b43f';
+import { SOUTH_PLACES, SAFARA_POS } from '../maps/south.js?v=506f2153b43f';
+import { NPC_SUPPORTS } from './shops.js?v=506f2153b43f';
+import { CH4_GUESTS } from './items-ch4.js?v=506f2153b43f';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -44,8 +44,9 @@ export const TEMPLE_OBJ = {
   // とちゅうで 終わった ときの 目標（ふつうは そのまま つづけて 見る）
   morgana: '水鏡の上にうかぶ「水の守り星」を、取りもどそう',
   star: '王都サファラの宮殿で、女王ネフィに会おう',
-  // 第4章クリア（前の 章の クリアと おなじ 形）
-  clear: '第4章クリア！自由に冒険しよう（第5章はアップデートで！）',
+  // 第4章クリア（第1章の クリアと おなじ 形で、第5章の はじまり〈ホシミばあちゃん〉へ つなぐ。story-ch5.js）
+  // 第5章が できる 前の 文（「第5章はアップデートで！」）は story-ch4.js の OLD_C4_OBJ.clear に のこした（repairObjective で なおる）
+  clear: '第4章クリア！ホシフル村のホシミばあちゃんに話しかけると、第5章が始まるよ',
 };
 
 // パーティー全員で 見る イベント（リーダーの 世界で すすむ）
@@ -633,7 +634,7 @@ export const TEMPLE_TARGETS = {
   [TEMPLE_OBJ.guards]: [{ npc: 'morgana_npc' }],
   [TEMPLE_OBJ.morgana]: [{ npc: 'water_star_npc' }],
   [TEMPLE_OBJ.star]: [{ npc: 'nefi' }, { npc: 'nefi_night' }],
-  [TEMPLE_OBJ.clear]: [{ npc: 'c4_d_arms' }],
+  [TEMPLE_OBJ.clear]: [{ npc: 'elder' }],
 };
 
 // ───── 仲間会話（party-talk.js。「はなす」の ヒント）─────
@@ -693,10 +694,10 @@ export const TEMPLE_TALK = {
     kid: '女王さまに、知らせに行こう！',
   },
   [TEMPLE_OBJ.clear]: {
-    self: '第4章クリア！ドゥナにランク7の店が開いた。サラは、ルミナの町の酒場で仲間にできる。竜で、コガネ地方のどこへでも飛べるようになった。',
-    bold: 'やったな！ドゥナの店で、プラチナの武器を見に行こうぜ。サラも酒場で仲間になれるってよ！',
-    kind: 'おつかれさまでした。サラさんは、ルミナの町の酒場で仲間にできるそうですよ。空にうかぶ島…いつか、行ってみたいですね。',
-    kid: '第4章クリア〜！サラもいっしょに冒険できるんだって！',
+    self: '第4章クリア！ホシフル村のホシミばあちゃんに会いに行こう。ドゥナにはランク7の店が開いて、サラはルミナの町の酒場で仲間にできる。',
+    bold: 'やったな！ばあちゃんに知らせに行こうぜ。ドゥナの店のプラチナの武器も、見ておけよ！',
+    kind: 'おつかれさまでした。ホシミおばあさまに、会いに行きましょう。空にうかぶ島…いつか、行ってみたいですね。',
+    kid: '第4章クリア〜！ばあちゃんに、おしえに行こう！',
   },
 };
 

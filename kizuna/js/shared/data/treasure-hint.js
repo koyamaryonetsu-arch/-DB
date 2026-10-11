@@ -3,8 +3,8 @@
 //   ・ほる 場所の まわりの 地形（森の そば・水べ・岩山の ふもと など）
 //   ・今いる 場所から 何の 方角へ 何歩くらい か（同じ マップに いる とき）
 // 画面（client/ui/treasure.js）で 使う。サーバーの きまりには かかわらない
-import { MAPS, tileAt, PLACES, SEA_PLACES } from '../maps/index.js?v=ba591da89332';
-import { T } from '../tiles.js?v=ba591da89332';
+import { MAPS, tileAt, PLACES, SEA_PLACES } from '../maps/index.js?v=506f2153b43f';
+import { T } from '../tiles.js?v=506f2153b43f';
 
 // 8つの 方角（x は 右が +、y は 下が +）
 const DIRS = ['東', '南東', '南', '南西', '西', '北西', '北', '北東'];
@@ -43,7 +43,7 @@ export function landmarks(mapId) {
   for (const w of m.warps || []) {
     const to = MAPS[w.to?.map];
     const name = String(to?.name || '').split('　')[0];
-    if (!name || inTown(w.x, w.y) || out.some((o) => o.name === name)) continue;
+    if (!name || w.noMark || inTown(w.x, w.y) || out.some((o) => o.name === name)) continue;
     out.push({ name: `${name}の入り口`, x: w.x + 0.5, y: w.y + 0.5 });
   }
   // 名前の ある 小さめの 場所（湖・沼・森・島。マップの 大部分を しめる 場所と、ほとんど 海の 場所は のぞく）

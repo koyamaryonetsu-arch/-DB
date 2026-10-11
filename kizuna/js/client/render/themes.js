@@ -1,10 +1,11 @@
 // 色の かえかた（宝の洞窟の しゅるい・第3章の 氷と 火の 洞窟・第4章の 砂の 洞窟と 地下水路・洞窟の 主の 色ちがい）
 // もとの ドット絵は そのままに、明るさを たもって 色だけ かえる
-import { T } from '../../shared/tiles.js?v=ba591da89332';
-import { makeCanvas, ctxOf } from './pixel.js?v=ba591da89332';
-import { CANAL_CTX, CANAL_CTX_TILES } from './tiles-canal.js?v=ba591da89332';
-import { TEMPLE_TILES } from './tiles-temple.js?v=ba591da89332';
-import { LAB_TILES } from './tiles-lab.js?v=ba591da89332';
+import { T } from '../../shared/tiles.js?v=506f2153b43f';
+import { makeCanvas, ctxOf } from './pixel.js?v=506f2153b43f';
+import { CANAL_CTX, CANAL_CTX_TILES } from './tiles-canal.js?v=506f2153b43f';
+import { TEMPLE_TILES } from './tiles-temple.js?v=506f2153b43f';
+import { LAB_TILES } from './tiles-lab.js?v=506f2153b43f';
+import { TOWER_TILES, TOWER_THEMES } from './tiles-tower.js?v=506f2153b43f';
 
 // どの 部分か（ゆか・かべ・水）
 const PART_OF_TILE = {
@@ -35,6 +36,8 @@ for (const id of [T.SAND_SEA, T.SAND_WHIRL]) PART_OF_TILE[id] = 'none';
 for (const id of TEMPLE_TILES) PART_OF_TILE[id] = 'none';
 // 古代の大迷宮の タイル（石だたみ・聖なる 火・転送の門 など）も もとの 色の まま
 for (const id of LAB_TILES) PART_OF_TILE[id] = 'none';
+// 第5章「星の塔」の タイル（星座の ゆか・上り下りの ゆか・風の 窓 など）も もとの 色の まま
+for (const id of TOWER_TILES) PART_OF_TILE[id] = 'none';
 // mask … 地下水路の え で かいた たいまつ・レバー・かいだん など（mask の CANAL_CTX）も 色を かえない
 // 王家のピラミッドの 石の 文字ばん（かんばんの mask 4）も もとの 色の まま
 export const partOfTile = (id, mask = 0) => ((mask & CANAL_CTX && CANAL_CTX_TILES.has(id)) || (id === T.SIGN && mask & 4) ? 'none' : PART_OF_TILE[id] || 'floor');
@@ -181,7 +184,7 @@ const RUINS_DEEP = {
   gem: G([0, '#6a3a08'], [0.5, '#f0a830'], [1, '#fff4c8']),
   flame: null,
 };
-const THEMES = { ice: ICE, lava: LAVA, sand: SAND, canal: CANAL, pyramid: PYRAMID, castle: CASTLE, temple: TEMPLE, ruins: RUINS, ruins_deep: RUINS_DEEP, ...SECRET };
+const THEMES = { ice: ICE, lava: LAVA, sand: SAND, canal: CANAL, pyramid: PYRAMID, castle: CASTLE, temple: TEMPLE, ruins: RUINS, ruins_deep: RUINS_DEEP, ...SECRET, ...TOWER_THEMES };
 
 // 1つの 色を かえる
 export function themeRgb(r, g, b, theme, part) {

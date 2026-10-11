@@ -2,10 +2,10 @@
 // ・風の大鳥フウラ: カモメ港の 風のさいだんで「風の笛」を もらうと、フィールドで 呼べる（world/travel.js）
 // ・ルーラ: 魔法使い・賢者が 覚える。行った ことの ある 町へ 仲間と いっしょに 飛ぶ（洞窟や 塔の 中では 使えない）
 // ・第3章: シロガネ地方（北）へも 飛べる。星の竜アステルが 目覚めると（c3_dragon）竜に のって もっと はやく 飛べる
-import { OW_W, OW_H } from '../maps/overworld.js?v=ba591da89332';
-import { SEA_W, SEA_H, PORT, SEA_POS } from '../maps/sea.js?v=ba591da89332';
-import { NORTH_W, NORTH_H, NORTH_LANDING, NORTH_ARRIVE } from '../maps/north.js?v=ba591da89332';
-import { SOUTH_W, SOUTH_H, SOUTH_LANDING, SOUTH_ARRIVE, SOUTH_SKY_ZAID } from '../maps/south.js?v=ba591da89332';
+import { OW_W, OW_H } from '../maps/overworld.js?v=506f2153b43f';
+import { SEA_W, SEA_H, PORT, SEA_POS } from '../maps/sea.js?v=506f2153b43f';
+import { NORTH_W, NORTH_H, NORTH_LANDING, NORTH_ARRIVE } from '../maps/north.js?v=506f2153b43f';
+import { SOUTH_W, SOUTH_H, SOUTH_LANDING, SOUTH_ARRIVE, SOUTH_SKY_ZAID } from '../maps/south.js?v=506f2153b43f';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -73,6 +73,25 @@ export const SKY_MAPS = {
     storm: '砂嵐', boxHint: '北の海辺', lockedHint: { flag: 'c3_clear', text: '竜守りの村の長老ハクゲンに、話を聞いてみよう' },
   },
 };
+// ───── 第5章: 天のとばり ─────
+// 星の羽を えた 竜（c5_wings）は、空の 上から「雲の上へ」飛べる（「別の地方へ」の えらぶ ところに 出る。world/travel.js の flyVeil）。
+// はじめて 飛ぶと 天のとばりに はじかれる（だいほん c5_veil_event → c5_veil）。とばりが 開くまで（c5_sky）は はじかれる
+export const VEIL = { id: 'veil', name: '雲の上', short: '雲の上', need: 'c5_wings', first: 'c5_veil', hint: 'c5_book', open: 'c5_sky' };
+export function veilShown(hasFlag) {
+  return okFlag(hasFlag, VEIL.need);
+}
+// null … 行けない（星の羽が ない）/ 'first' … はじめて（だいほん）/ 'shut' … はじかれる / 'open' … とばりが 開いている
+export function veilState(hasFlag) {
+  if (!okFlag(hasFlag, VEIL.need)) return null;
+  if (!okFlag(hasFlag, VEIL.first)) return 'first';
+  return okFlag(hasFlag, VEIL.open) ? 'open' : 'shut';
+}
+export function veilText(hasFlag) {
+  if (veilState(hasFlag) === 'open') return '天のとばりは、開いている…。\n雲の上に、空にうかぶ島々が見える。\n（第5章の続きはアップデートで！）';
+  const hint = okFlag(hasFlag, VEIL.hint) ? '星の塔のてっぺんで、紋章をかざそう' : 'ホシフル村のホシミばあちゃんに、話を聞いてみよう';
+  return `雲の上をめざして、高く飛んだ…！\nしかし、天のとばりにはじき返された！\n（${hint}）`;
+}
+
 // 「別の地方へ飛ぶ」の じゅんばん（さいしょが ボタンの 行き先）
 const REGION_ORDER = {
   overworld: ['sea', 'north', 'south'], sea: ['overworld', 'north', 'south'], north: ['overworld', 'sea', 'south'], south: ['sea', 'overworld', 'north'],

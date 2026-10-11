@@ -4,11 +4,12 @@
 // 行き先の 書き方: { npc: 'NPCのID' }（その 人の いる 場所）か { map, x, y }
 //   unless: 'フラグ' … その フラグが もう ある 人には 出さない（もう 話を 聞いた 人など。ぜんぶ 消えたら そのまま 出す）
 // 新しい 目標を 作ったら、ここにも 行き先を 足す
-import { MAPS } from '../maps/index.js?v=ba591da89332';
-import { SKY_OBJECTIVE_TARGETS, C3_LEAD_OBJECTIVE } from './sky.js?v=ba591da89332';
-import { CH3_OBJECTIVE_TARGETS, ch3SubQuests } from './story-ch3.js?v=ba591da89332';
-import { CH4_OBJECTIVE_TARGETS } from './story-ch4.js?v=ba591da89332';
-import { labSubQuests } from './sidequests.js?v=ba591da89332';
+import { MAPS } from '../maps/index.js?v=506f2153b43f';
+import { SKY_OBJECTIVE_TARGETS, C3_LEAD_OBJECTIVE } from './sky.js?v=506f2153b43f';
+import { CH3_OBJECTIVE_TARGETS, ch3SubQuests } from './story-ch3.js?v=506f2153b43f';
+import { CH4_OBJECTIVE_TARGETS } from './story-ch4.js?v=506f2153b43f';
+import { CH5_OBJECTIVE_TARGETS } from './story-ch5.js?v=506f2153b43f';
+import { labSubQuests } from './sidequests.js?v=506f2153b43f';
 
 export const OBJECTIVE_TARGETS = {
   'ホシミばあちゃんの家（村の南東）へ行こう': [{ npc: 'elder' }],
@@ -41,6 +42,7 @@ OBJECTIVE_TARGETS[C3_LEAD_OBJECTIVE] = [{ npc: 'elder' }];
 Object.assign(OBJECTIVE_TARGETS, CH3_OBJECTIVE_TARGETS);
 // 第4章（story-ch4.js）
 Object.assign(OBJECTIVE_TARGETS, CH4_OBJECTIVE_TARGETS);
+Object.assign(OBJECTIVE_TARGETS, CH5_OBJECTIVE_TARGETS);
 
 // たのまれごと（name … クエストの 名前、who … 報告する 人、ready … もう 報告できる）
 export function subQuests(c) {

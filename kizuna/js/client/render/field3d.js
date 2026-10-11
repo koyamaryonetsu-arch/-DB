@@ -3,24 +3,25 @@
 // ・ひと・まもの・もの は ドット絵を カメラに むけて たてる（ビルボード）
 // ・カメラは ななめ うえから みおろす（うごかすのは いち だけ。むきは かわらない）
 // あるく・ぶつかる などの きまりは 2D と おなじ（Field が きめる）。ここでは かく だけ。
-import * as THREE from '../../../vendor/three.min.js?v=ba591da89332';
-import { T } from '../../shared/tiles.js?v=ba591da89332';
-import { effectiveTile } from '../../shared/maps/index.js?v=ba591da89332';
-import { pyramidLevel } from '../../shared/maps/south.js?v=ba591da89332';
-import { hash2, valueNoise } from '../../shared/rng.js?v=ba591da89332';
+import * as THREE from '../../../vendor/three.min.js?v=506f2153b43f';
+import { T } from '../../shared/tiles.js?v=506f2153b43f';
+import { effectiveTile } from '../../shared/maps/index.js?v=506f2153b43f';
+import { pyramidLevel } from '../../shared/maps/south.js?v=506f2153b43f';
+import { hash2, valueNoise } from '../../shared/rng.js?v=506f2153b43f';
 import {
   Atlas, extraCanvas, propCanvas, PROP_TILES, leafCanvas, roofCanvas, tileArt, stormCanvas, curtainCanvas, puffCanvas, canalWaterCanvas, rubbleCanvas,
-} from './tex3d.js?v=ba591da89332';
-import { tileCanvas } from './tiles.js?v=ba591da89332';
-import { duneShape, ch4Mask, onDesert } from './tiles-ch4.js?v=ba591da89332';
+} from './tex3d.js?v=506f2153b43f';
+import { tileCanvas } from './tiles.js?v=506f2153b43f';
+import { duneShape, ch4Mask, onDesert } from './tiles-ch4.js?v=506f2153b43f';
 // 第4章 Step 6: 砂クジラの ねどこの 砂の うず（ねどこ ぜんたいで 1まいの え）
-import { whirlCanvas } from './tiles-duna.js?v=ba591da89332';
+import { whirlCanvas } from './tiles-duna.js?v=506f2153b43f';
 // 第4章 Step 7: 砂の底の神殿（水の 高さで かわる 水面と 底・かべの 鏡と かべ画・ドームの かべ・水鏡）
-import { TEMPLE_LIQUIDS, TEMPLE_FLOOR_H, templeBlockSpec, waterMirrorCanvas, MIRROR_W, MIRROR_H, WATER_MIRROR_FRAMES } from './tiles-temple.js?v=ba591da89332';
-import { labBlockSpec } from './tiles-lab.js?v=ba591da89332';
-import { TROUGH, CANAL_CTX, CANAL_SUN, canalVariant, canalMask, canalFlow, damVertical } from './tiles-canal.js?v=ba591da89332';
-import { flipCanvas, makeCanvas, ctxOf, whiteCopy } from './pixel.js?v=ba591da89332';
-import { themedCanvas, partOfTile, partOfExtra, partOfProp } from './themes.js?v=ba591da89332';
+import { TEMPLE_LIQUIDS, TEMPLE_FLOOR_H, templeBlockSpec, waterMirrorCanvas, MIRROR_W, MIRROR_H, WATER_MIRROR_FRAMES } from './tiles-temple.js?v=506f2153b43f';
+import { labBlockSpec } from './tiles-lab.js?v=506f2153b43f';
+import { towerBlockSpec, TOWER_FLOOR_H } from './tiles-tower.js?v=506f2153b43f';
+import { TROUGH, CANAL_CTX, CANAL_SUN, canalVariant, canalMask, canalFlow, damVertical } from './tiles-canal.js?v=506f2153b43f';
+import { flipCanvas, makeCanvas, ctxOf, whiteCopy } from './pixel.js?v=506f2153b43f';
+import { themedCanvas, partOfTile, partOfExtra, partOfProp } from './themes.js?v=506f2153b43f';
 
 const PITCH = 55 * Math.PI / 180;
 const SIN = Math.sin(PITCH), COS = Math.cos(PITCH);
@@ -51,7 +52,7 @@ const LIQUID_TILES = { [T.LAVA]: { name: 'lava', y: WATER_Y + 0.06, speed: 380 }
 // 第4章 Step 2（かれた地下水路）: 水路の 底・水の たかさ（通路より ひくい）・水門と こうしの とびらの たかさ・がれきの 山の たかさ
 const CANAL_BED_H = -0.42, CANAL_WATER_Y = -0.27, GATE_H = 1.05, DAM_H = 0.62;
 // 地面の たかさ（深い 雪は すこし 高く・谷は ふかく・水路の 底は ひくく）
-const FLOOR_H = { [T.STEPPING]: -0.16, [T.DEEP_SNOW]: 0.14, [T.CHASM]: -0.8, [T.CANAL_BED]: CANAL_BED_H, [T.DAM]: CANAL_BED_H, ...TEMPLE_FLOOR_H };
+const FLOOR_H = { [T.STEPPING]: -0.16, [T.DEEP_SNOW]: 0.14, [T.CHASM]: -0.8, [T.CANAL_BED]: CANAL_BED_H, [T.DAM]: CANAL_BED_H, ...TEMPLE_FLOOR_H, ...TOWER_FLOOR_H };
 // 雪・氷・砂ばくの 地面の よこの え
 const SIDE_OF = {
   [T.SAND]: 'sand_side', [T.SNOW]: 'snow_side', [T.SNOW_PATH]: 'snow_side', [T.DEEP_SNOW]: 'snow_side', [T.ICE]: 'ice_side',
@@ -134,7 +135,7 @@ function blockSpec(id, x, y) {
     case T.PYR_SLAB: return { h: 1.6, top: ['x', 'cave_top', v], side: ['t', T.PYR_SLAB, v, 1], south: ['t', T.PYR_SLAB, v, 1] };
     case T.PYR_CRACK: return { h: 1.6, top: ['x', 'cave_top', v], side: ['t', T.PYR_CRACK, v, 1], south: ['t', T.PYR_CRACK, v, 1] };
     // 第4章 Step 7: 大きな 鏡・かべ画（かべの 前の かお）・空気の ドームの かべ（あわの 向こうの 砂）・水が もどった ふん水
-    default: return templeBlockSpec(id, v) || labBlockSpec(id, v);
+    default: return templeBlockSpec(id, v) || labBlockSpec(id, v) || towerBlockSpec(id, v);
   }
 }
 

@@ -13,13 +13,13 @@
 //   合体技・きずな技・にげる・混乱した 時の 行動は 読まれない（読みは 消える）
 // ・オートの 仲間: 読まれた 種類の 行動を さけて、ちがう 行動を えらぶ（towerPlan）。シミュレーター（tools/sim.js）の
 //   b.argosNaive … 知らない 人（読まれても そのまま）／ b.knowsArgos … 知っている 人（星のさばきの 前に 身を 守る も）
-import { MONSTERS } from './data/monsters.js?v=ba591da89332';
-import { ABILITIES } from './data/abilities.js?v=ba591da89332';
-import { ITEMS } from './data/items.js?v=ba591da89332';
-import { mpCost, penaltyFor } from './stats.js?v=ba591da89332';
+import { MONSTERS } from './data/monsters.js?v=506f2153b43f';
+import { ABILITIES } from './data/abilities.js?v=506f2153b43f';
+import { ITEMS } from './data/items.js?v=506f2153b43f';
+import { mpCost, penaltyFor } from './stats.js?v=506f2153b43f';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { atbRate } from './battle.js?v=ba591da89332';
-import { canUse } from './ai.js?v=ba591da89332';
+import { atbRate } from './battle.js?v=506f2153b43f';
+import { canUse } from './ai.js?v=506f2153b43f';
 
 export const ARGOS = 'argos';
 export const JUDGE = 'm_argos_judge';
