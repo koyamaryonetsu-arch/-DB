@@ -141,6 +141,11 @@ test('第27回: 使い回しの anim でも 段階か 色が ちがう（同じ 
 });
 
 test('第27回: 呪文の 段階が 上がるほど 大きく・派手に・長く（でも 2びょう まで）', () => {
+  // つぶの 数は らんすうで かわるので、決まった らんすうで くらべる（たまに 落ちない ように）
+  const realRandom = Math.random;
+  let seed = 12345;
+  Math.random = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  try {
   withFakeDocument(() => {
     for (const [name, ids] of Object.entries(SPELL_SERIES)) {
       const stats = ids.map((id) => {
@@ -167,6 +172,7 @@ test('第27回: 呪文の 段階が 上がるほど 大きく・派手に・長�
       assert.ok(last.t <= 2050, `${name}: ${last.id} が ${last.t}ms（2びょう まで）`);
     }
   });
+  } finally { Math.random = realRandom; }
   assert.deepEqual(TIER_SCALE.slice(1), [...TIER_SCALE.slice(1)].sort((a, b) => a - b), '段階の 大きさは だんだん 大きく');
 });
 

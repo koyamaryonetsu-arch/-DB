@@ -4,7 +4,7 @@ import { MAPS } from '../maps/index.js';
 import { scaleExp } from '../data/difficulty.js';
 import { COMPANION_SLOTS } from '../data/companions.js';
 import { JOBS } from '../data/jobs.js';
-import { WAGON_SLOTS, WAGON_EXP_RATE, wagonExpRate, hasWagon, cleanWagon, wagonMapOk } from '../data/wagon.js';
+import { WAGON_SLOTS, wagonExpRate, hasWagon, cleanWagon, wagonMapOk } from '../data/wagon.js';
 import { computeStats, fullHeal } from '../stats.js';
 import { pub } from '../battle.js';
 import {

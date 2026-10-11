@@ -5,6 +5,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { GameWorld } from '../public/js/shared/world/world.js';
 import { makeRng } from '../public/js/shared/rng.js';
+import { DAY_MS } from '../public/js/shared/world/clock.js';
 import { MAPS, isBlocked, effectiveTile, condOk } from '../public/js/shared/maps/index.js';
 import { T, TILE_INFO } from '../public/js/shared/tiles.js';
 import { flowCanReach } from '../public/js/shared/maps/flow.js';
@@ -32,7 +33,9 @@ import { Bot, tickN } from './helpers.js';
 const clearFlags = ['c4_clear', 'c4_star', 'c4_morgana', 'c4_scorpion', 'c3_clear', 'c2_clear', 'c1_clear', 'c3_onsen', 'q_smith_talk'];
 
 async function setup(seed = 27, flags = clearFlags) {
-  const world = new GameWorld({ offline: true, rng: makeRng(seed), rateLimit: false });
+  // 時計は 昼から（げんじつの 時こくが 夜だと 「昼は 星が 見えない」などが かわる）
+  const t0 = Date.now();
+  const world = new GameWorld({ offline: true, rng: makeRng(seed), rateLimit: false, now: () => 50 * DAY_MS + Math.round(0.3 * DAY_MS) + (Date.now() - t0) });
   const bot = new Bot(world, 'ソラ');
   await bot.login();
   await bot.createAndPlay('warrior');
