@@ -171,7 +171,7 @@ test('馬車: 洞窟の 中では 乗りかえられない', { timeout: 60000 },
   assert.deepEqual(c.wagonKeys, []);
 });
 
-test('馬車: 経験値と 職業の 修行を 半分 もらう（洞窟では もらわない・死んでいる 人も）', { timeout: 60000 }, async () => {
+test('馬車: 経験値と 職業の 修行は フィールドでは 戦った 仲間と 同じ・洞窟では 半分（死んでいる 人は もらわない）', { timeout: 60000 }, async () => {
   const { world, bot, c } = await withWagon(23);
   bot.send({ t: 'svc', kind: 'tavern', action: 'toWagon', key: 'npc_rin' });
   bot.send({ t: 'svc', kind: 'tavern', action: 'toWagon', key: 'npc_tina' });
@@ -189,26 +189,32 @@ test('馬車: 経験値と 職業の 修行を 半分 もらう（洞窟では �
   assert.equal(end.outcome, 'win');
   const got = { rin: rin.exp - e0.rin, gard: gard.exp - e0.gard };
   assert.ok(got.gard > 0);
-  assert.equal(got.rin, Math.floor(got.gard / 2), '馬車の 仲間は 半分');
+  assert.equal(got.rin, got.gard, 'フィールドでは 馬車の 仲間も 戦った 仲間と 同じ');
   assert.equal(tina.exp, e0.tina, '死んでいる 人は もらわない');
   assert.ok(end.lines.some((l) => /馬車の仲間は\d+ポイントの経験値/.test(l)));
-  // 職業の 修行は 2回で 1回ぶん
+  // 職業の 修行も 同じ（1回で 1回ぶん）
   assert.equal(gard.jobs[gard.job].b, 1);
-  assert.equal(rin.jobs[rin.job].b, 0);
-  assert.equal(rin.wagonTrain, 0.5);
-  const ctx2 = fieldBattle(world, bot, ['wolf', 'wolf']);
-  bot.flushQueue();
-  await winNow(world, bot, ctx2);
   assert.equal(rin.jobs[rin.job].b, 1);
   assert.equal(rin.wagonTrain, undefined);
-  // 洞窟の 中では 馬車は 入り口で 待っている（もらわない）
+  // 洞窟の 中では 馬車は 入り口で 待っている（半分。職業の 修行は 2回で 1回ぶん）
   bot.s.map = 'cave_b1';
-  const before = rin.exp;
-  const ctx3 = fieldBattle(world, bot, ['wolf']);
+  const before = { rin: rin.exp, gard: gard.exp };
+  const ctx3 = fieldBattle(world, bot, ['wolf', 'wolf']);
   bot.flushQueue();
   await winNow(world, bot, ctx3);
-  assert.equal(bot.battles.pop().outcome, 'win');
-  assert.equal(rin.exp, before);
+  const end3 = bot.battles.pop();
+  assert.equal(end3.outcome, 'win');
+  const got3 = { rin: rin.exp - before.rin, gard: gard.exp - before.gard };
+  assert.ok(got3.gard > 0);
+  assert.equal(got3.rin, Math.floor(got3.gard / 2), '洞窟では 半分');
+  assert.ok(end3.lines.some((l) => /入り口で待つ馬車の仲間は\d+ポイント/.test(l)));
+  assert.equal(rin.jobs[rin.job].b, 1);
+  assert.equal(rin.wagonTrain, 0.5);
+  const ctx4 = fieldBattle(world, bot, ['wolf']);
+  bot.flushQueue();
+  await winNow(world, bot, ctx4);
+  assert.equal(rin.jobs[rin.job].b, 2);
+  assert.equal(rin.wagonTrain, undefined);
 });
 
 test('馬車: たたかいの「いれかえ」（番を 使う・死んだ 仲間・自分・あとも そのまま）', { timeout: 60000 }, async () => {

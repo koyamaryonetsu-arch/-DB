@@ -2,16 +2,20 @@
 //
 // ・入口は ルミナの町の 南門の 外（maps/secret-dungeon.js の SD_DOOR）。ルミナの町に 着く（c1_town）と 開く
 // ・地下1階から はじまり、終わりが ない。階の 形は 階の 番号だけで きまる（家族みんな おなじ 形。sdSeed）
-// ・5階ごとに 休み所（ごほうびの 宝箱・回復の泉・「先へ進む／地上へもどる」）。10階ごとの 休み所には 階段を 守る 番人
+// ・5階ごとに 休み所（ごほうびの 宝箱・回復の泉・「先へ進む／この階を記録して地上へもどる」）。10階ごとの 休み所には 階段を 守る 番人
+// ・休み所で 記録した 階（5の 倍数）から、次の ちょうせんを 始められる（入口の 案内人・下り階段で 選ぶ。2026年10月 第27回）
+//   家族で 入る ときは リーダーが 選ぶ。選べるのは、いっしょに 入る パーティーの 全員が 記録した 階まで
 // ・魔物は 仲間に ならない（map.noBefriend）。糸・羽・ルーラは 使えない（map.noEscape）。全滅すると 入口へ（お金は へらない）
 //
 // マップの ID: 'sd_gate'（入口の 広間）・'sd_<階>'（たとえば sd_12。maps/index.js が ID から つくる）
 //
 // キャラの セーブ（なくても よい。むかしの セーブも そのまま 読める）
-//   c.sd = { best, at, with, got, tries, run }
-//     best … いちばん 深く 着いた 階 / at … その 時こく / with … その とき いっしょに いた 家族の 名前
+//   c.sd = { best, at, with, got, tries, save, run }
+//     best … いちばん 深く 着いた 階（とちゅうの 階から 始めても 数える）/ at … その 時こく / with … その とき いっしょに いた 家族の 名前
+//     save … 休み所で 記録した いちばん 深い 階（5の 倍数。0 は まだ ない）。その 階までの 休み所から 始められる
+//            （前の 版の セーブは、best までの 休み所を 記録した ことに する。repairSecret）
 //     got  … 大きな ごほうびを もらった 休み所の 階 [5, 10, …] / tries … ちょうせんした 回数
-//     run  … 今の ちょうせん { f: 今の 階, mid: とちゅうから 来た（記録に ならない）, took: ごほうびを 開けた 階 }
+//     run  … 今の ちょうせん { f: 今の 階, mid: とちゅうから 来た（さそわれて 来た など。記録に ならない）, took: ごほうびを 開けた 階 }
 import { MONSTERS } from './monsters.js';
 import { ITEMS, SLOTS } from './items.js';
 import { ENCOUNTER_TABLES, ZONE_BG, FIXED_ENCOUNTERS } from './encounters.js';
@@ -220,6 +224,9 @@ export function repairSecret(c) {
   out.got = floorList(s.got).filter(isRestFloor);
   const tries = Math.floor(Number(s.tries));
   out.tries = Number.isFinite(tries) ? Math.max(0, tries) : 0;
+  // 記録した 階（5の 倍数）。前の 版の セーブ（save が ない）は、行けた 階までの 休み所を 記録した ことに する
+  const sv = s.save === undefined ? out.best : Math.floor(Number(s.save));
+  out.save = Number.isFinite(sv) ? sdSaveFloor(clamp(sv, 0, SD_MAX)) : 0;
   const r = s.run;
   const rf = Math.floor(Number(r?.f));
   if (r && typeof r === 'object' && Number.isFinite(rf) && rf >= 0 && rf <= SD_MAX) {
@@ -231,7 +238,41 @@ export function repairSecret(c) {
 
 export function sdRecordOf(c) {
   const s = c?.sd;
-  return { best: Number.isFinite(s?.best) ? s.best : 0, at: s?.at || null, with: Array.isArray(s?.with) ? s.with : [], got: Array.isArray(s?.got) ? s.got : [], tries: s?.tries || 0 };
+  return {
+    best: Number.isFinite(s?.best) ? s.best : 0, at: s?.at || null, with: Array.isArray(s?.with) ? s.with : [], got: Array.isArray(s?.got) ? s.got : [], tries: s?.tries || 0,
+    save: sdSaveOf(c),
+  };
+}
+
+// ───────────── とちゅうの 階から 始める ─────────────
+// 5の 倍数に きりさげ（5より 下は 0）
+export const sdSaveFloor = (f) => Math.max(0, Math.floor((Number(f) || 0) / SD_REST_EVERY) * SD_REST_EVERY);
+// 記録した 階（休み所で「この階を記録して地上へもどる」。5の 倍数。まだ なければ 0）
+export function sdSaveOf(c) {
+  const v = c?.sd?.save;
+  if (v === undefined) return sdSaveFloor(c?.sd?.best); // 前の 版の セーブ（repairSecret の 前）
+  return Number.isFinite(v) ? sdSaveFloor(clamp(v, 0, SD_MAX)) : 0;
+}
+// 休み所で 記録する（深い ほうを のこす）。のびたら true
+export function noteSdSave(c, f) {
+  c.sd = c.sd && typeof c.sd === 'object' ? c.sd : { best: 0, got: [], tries: 0 };
+  const now = sdSaveOf(c);
+  const v = isRestFloor(f) ? f : 0;
+  c.sd.save = Math.max(now, v);
+  return v > now;
+}
+// 始められる 階（1階と、save までの 休み所）。saves … いっしょに 入る 人 みんなの save（いちばん 浅い 人まで）
+export function sdStartFloors(...saves) {
+  const top = saves.length ? Math.min(...saves.map((v) => sdSaveFloor(v))) : 0;
+  const out = [1];
+  for (let f = SD_REST_EVERY; f <= top; f += SD_REST_EVERY) out.push(f);
+  return out;
+}
+// 「地下1階・5〜20階から始められる」
+export function sdStartText(save) {
+  const s = sdSaveFloor(save);
+  if (!s) return '地下1階から始められる（休み所で記録すると、その階からも始められる）';
+  return `地下1階・${s === SD_REST_EVERY ? `${s}階` : `${SD_REST_EVERY}〜${s}階（5階ごと）`}から始められる`;
 }
 
 // その 階に 着いた（記録が のびたら true）。withNames … いっしょに いた 家族の 名前
@@ -256,6 +297,8 @@ export function mergeSecret(b, a, t) {
   }
   out.got = [...new Set([...(A.got || []), ...(T.got || [])])].sort((x, y) => x - y);
   out.tries = Math.max(0, (A.tries || 0) + (T.tries || 0) - (B.tries || 0), A.tries || 0, T.tries || 0);
+  // 記録した 階は 深い ほう
+  out.save = Math.max(sdSaveOf({ sd: A }), sdSaveOf({ sd: T }));
   const run = (a ? A.run : T.run) || A.run || T.run;
   if (run) out.run = JSON.parse(JSON.stringify(run));
   return out;

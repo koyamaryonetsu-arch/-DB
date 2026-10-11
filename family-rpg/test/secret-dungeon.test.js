@@ -150,8 +150,8 @@ test('入口: ルミナの町に 着く 前は しまっていて、着くと �
   const reach = reachFrom(gate, Math.floor(GATE_ARRIVE.x), Math.floor(GATE_ARRIVE.y));
   assert.ok(nextTo(reach, GATE_BOARD.x, GATE_BOARD.y) && nextTo(reach, GATE_GUIDE.x, GATE_GUIDE.y), '板と 案内人に 話せる');
   assert.ok(reach(GATE_DOWN.x, GATE_DOWN.y + 1), '下り階段へ 行ける');
-  // 案内人の 話（終わりが ない・5階ごと・仲間に ならない・お金は へらない）
-  answers(bot, [0]);
+  // 案内人の 話（終わりが ない・5階ごと・仲間に ならない・お金は へらない）。1番めは「ちょうせんを始める」
+  answers(bot, [1]);
   let f0 = bot.msgs.length;
   await talkTo(bot, 'sd_guide');
   const talk = sayTexts(bot, f0).join('\n');
@@ -562,7 +562,8 @@ test('セーブ: 古い セーブも 読める・こわれた 記録は とと�
   assert.equal(up.data.version, SAVE_VERSION);
   const bad = { id: 'b', name: 'こわれ', level: 1, flags: {}, items: [], equip: {}, sd: { best: '12', with: ['ママ', 3, '', 'ママ'], got: [5, 7, 10, -5, 'x'], tries: -2, run: { f: 3, took: [5, 'a'], mid: 1 }, junk: 1 } };
   repairChar(bad);
-  assert.deepEqual(bad.sd, { best: 12, with: ['ママ'], got: [5, 10], tries: 0, run: { f: 3, took: [5], mid: true } });
+  // 前の 版の セーブ（save が ない）: 行けた 階までの 休み所を 記録した ことに する（12階 → 10階）
+  assert.deepEqual(bad.sd, { best: 12, with: ['ママ'], got: [5, 10], tries: 0, save: 10, run: { f: 3, took: [5], mid: true } });
   const once = JSON.stringify(bad.sd);
   repairChar(bad);
   assert.equal(JSON.stringify(bad.sd), once, '何回 ととのえても 同じ');
@@ -576,7 +577,7 @@ test('セーブ: 古い セーブも 読める・こわれた 記録は とと�
   const base = { best: 5, at: 10, with: [], got: [5], tries: 2 };
   const ours = { best: 8, at: 30, with: ['ママ'], got: [5], tries: 4 };
   const theirs = { best: 12, at: 20, with: [], got: [5, 10], tries: 3 };
-  assert.deepEqual(mergeSecret(base, ours, theirs), { best: 12, at: 20, with: [], got: [5, 10], tries: 5 });
+  assert.deepEqual(mergeSecret(base, ours, theirs), { best: 12, at: 20, with: [], got: [5, 10], tries: 5, save: 10 });
   const cb = { id: 'z', name: 'Z', level: 5, exp: 100, gold: 0, flags: {}, items: [], equip: {}, sd: base };
   const r = mergeChars(cb, { ...cb, sd: ours, lastPlayed: 2 }, { ...cb, sd: theirs, lastPlayed: 1 });
   assert.equal(r.sd.best, 12);

@@ -4,7 +4,7 @@ import { MAPS } from '../maps/index.js';
 import { scaleExp } from '../data/difficulty.js';
 import { COMPANION_SLOTS } from '../data/companions.js';
 import { JOBS } from '../data/jobs.js';
-import { WAGON_SLOTS, WAGON_EXP_RATE, hasWagon, cleanWagon } from '../data/wagon.js';
+import { WAGON_SLOTS, wagonExpRate, hasWagon, cleanWagon } from '../data/wagon.js';
 import { computeStats, fullHeal } from '../stats.js';
 import { pub } from '../battle.js';
 import {
@@ -280,30 +280,33 @@ export function wagonRefChar(world, s, ref) {
 }
 
 // ───────────── 経験値の おすそわけ ─────────────
-// 勝った たたかいの あとで。たたかいに 出ていない 馬車の 仲間（生きている 人）が 半分もらう
-//   家族の キャラ（うつし）は、本人に とどく おすそわけが パーティーで 戦った ときの 半分（お金は なし）
+// 勝った たたかいの あとで。たたかいに 出ていない 馬車の 仲間（生きている 人）が もらう（data/wagon.js の wagonExpRate）
+//   馬車が いっしょの 所（フィールド・wagonHere）… 戦った 仲間と 同じ。馬車が 入口で 待っている 所（洞窟・塔）… 半分
+//   家族の キャラ（うつし）は、本人に とどく おすそわけが パーティーで 戦った ときと 同じ（洞窟などでは 半分。お金は なし）
 //   grow(ch, exp, trains) … 仲間を そだてて メッセージを つくる（battles.js）  say(line) … メッセージ
 export function wagonShare(world, ctx, { exp, trainN, grow, say }) {
   const p = world.parties.get(ctx.partyId);
   const lc = leaderChar(world, p);
-  if (!hasWagon(lc) || !wagonHere(ctx.map)) return 0;
+  if (!hasWagon(lc)) return 0;
+  const here = wagonHere(ctx.map);
+  const rate = wagonExpRate(here);
   const active = new Set(ctx.battle.allies.map((a) => ctx.actorMap[a.id]?.char).filter(Boolean));
   const list = wagonEntries(world, lc, p).filter((e) => !active.has(e.char) && e.char.hp > 0);
-  // 馬車の もちぬし（リーダー）の むずかしさで へらしてから 半分
-  const x = Math.floor(scaleExp(lc, exp) * WAGON_EXP_RATE);
+  // 馬車の もちぬし（リーダー）の むずかしさで へらしてから わりあいを かける
+  const x = Math.floor(scaleExp(lc, exp) * rate);
   if (!list.length || (x <= 0 && !trainN)) return 0;
-  if (x > 0 && list.some((e) => e.kind !== 'family')) say(`馬車の仲間は${x}ポイントの経験値をかくとく！`);
+  if (x > 0 && list.some((e) => e.kind !== 'family')) say(here ? `馬車の仲間は${x}ポイントの経験値をかくとく！` : `入り口で待つ馬車の仲間は${x}ポイントの経験値をかくとく！`);
   for (const e of list) {
     const ch = e.char;
     if (e.kind === 'family') {
       const owner = world.data.characters[ch.ownerId];
-      if (owner) creditSupportOwner(world, owner.id, Math.floor(scaleExp(owner, exp) * WAGON_EXP_RATE), 0, lc.name);
+      if (owner) creditSupportOwner(world, owner.id, Math.floor(scaleExp(owner, exp) * rate), 0, lc.name);
       continue;
     }
     let trains = 0;
-    // 職業の 修行も 半分（はんぱは 次の 戦いに もちこす）
+    // 職業の 修行も 同じ わりあい（はんぱは 次の 戦いに もちこす）
     if (!ch.species && trainN > 0) {
-      const carry = (ch.wagonTrain || 0) + trainN * WAGON_EXP_RATE;
+      const carry = (ch.wagonTrain || 0) + trainN * rate;
       trains = Math.floor(carry);
       ch.wagonTrain = carry - trains;
       if (!ch.wagonTrain) delete ch.wagonTrain;

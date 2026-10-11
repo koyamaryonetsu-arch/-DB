@@ -195,7 +195,7 @@ export function gearOf(species, race) {
 }
 
 // なかまに できる かず（酒場で まっている なかまも ふくむ）
-export const ROSTER_MAX = 24;
+export const ROSTER_MAX = 40;
 // いっしょに ぼうけんできる なかまの かず（じぶんを のぞく）
 export const COMPANION_SLOTS = 3;
 

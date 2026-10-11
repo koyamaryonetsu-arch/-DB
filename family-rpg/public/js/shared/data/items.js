@@ -19,6 +19,7 @@ import { ITEMS_CH3, CH3_ITEM_KANA } from './items-ch3.js';
 import { ITEMS_CH4, CH4_ITEM_KANA } from './items-ch4.js';
 import { ITEMS_TEMPLE, TEMPLE_ITEM_KANA } from './items-temple.js';
 import { POWDER_ITEMS, POWDER_KANA } from './friend-powder.js';
+import { FIELD27_ITEMS, FIELD27_KANA } from './abilities-field27.js';
 
 export const ITEMS = {
   // ───── つかう どうぐ ─────
@@ -228,6 +229,8 @@ Object.assign(ITEMS, ITEMS_CH4);
 Object.assign(ITEMS, ITEMS_TEMPLE);
 // なかまの粉（friend-powder.js）
 Object.assign(ITEMS, POWDER_ITEMS);
+// 魔物よせの笛（abilities-field27.js）
+Object.assign(ITEMS, FIELD27_ITEMS);
 // きたえた 装備（'iron_sword+1'〜'+3'）。新しい 装備を 足す ときは この 行より 上で
 addUpgradeItems(ITEMS);
 
@@ -311,6 +314,7 @@ Object.assign(ITEM_KANA, CASINO_KANA);
 Object.assign(ITEM_KANA, ESCAPE_KANA);
 Object.assign(ITEM_KANA, CH3_ITEM_KANA);
 Object.assign(ITEM_KANA, CH4_ITEM_KANA, TEMPLE_ITEM_KANA, POWDER_KANA);
+Object.assign(ITEM_KANA, FIELD27_KANA);
 
 export function itemKana(id) {
   // きたえた 装備は もとの 装備の 読み ＋ 回数（鉄の剣 → 鉄の剣+1 の じゅん）

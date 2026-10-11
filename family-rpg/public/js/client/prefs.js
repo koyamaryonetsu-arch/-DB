@@ -63,3 +63,12 @@ export function applyUiFont() {
 export function uiFontFamily() {
   return { gothic: 'KizunaGothic', round: 'KizunaRound', dot: 'KizunaDot' }[uiFontPref()];
 }
+
+// 酒場で 待っている 仲間の ならび: got（仲間に なった じゅん）/ kind（種類）/ level（レベル）。shared/roster-sort.js
+export function rosterSortPref() {
+  const v = get('kizuna_rsort', 'got');
+  return ['got', 'kind', 'level'].includes(v) ? v : 'got';
+}
+export function setRosterSortPref(v) {
+  set('kizuna_rsort', ['got', 'kind', 'level'].includes(v) ? v : 'got');
+}

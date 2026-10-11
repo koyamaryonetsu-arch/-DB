@@ -18,6 +18,8 @@ import { casinoUI } from './casino.js';
 import { sdBoardUI } from './secret.js';
 import { shownEquip } from '../../shared/look-equip.js';
 import { jobAskText } from '../../shared/data/job-talk.js';
+import { sortRoster, rosterSortName, nextRosterSort } from '../../shared/roster-sort.js';
+import { rosterSortPref, setRosterSortPref } from '../prefs.js';
 
 export function openServiceUI(game, kind, data) {
   switch (kind) {
@@ -280,6 +282,8 @@ function tavernUI(game, data) {
     const plusTag = (e) => (e.plus ? `<span class="plus">+${e.plus}</span>` : '');
     const BREED_KEY = '#breed';
     const ARRANGE_KEY = '#arrange';
+    const SORT_KEY = '#sort';
+    let sortMode = rosterSortPref();
     const byKey = () => {
       const m = new Map();
       for (const e of info.roster) m.set(e.key, { ...e, sec: 'roster' });
@@ -303,9 +307,11 @@ function tavernUI(game, data) {
       }
       // 馬車の 仲間（ui/wagon.js）
       out.push(...tavernWagonItems(info, entries, { face, who, plusTag }));
-      const waiting = info.roster.filter((e) => !e.inParty && !e.inWagon);
+      // 酒場で 待っている 仲間（40ひきまで いるので、ならびを 変えられる。shared/roster-sort.js）
+      const waiting = sortRoster(info.roster.filter((e) => !e.inParty && !e.inWagon), sortMode);
       if (waiting.length) {
-        out.push({ header: true, label: `酒場で待っている仲間（${waiting.length}）` });
+        out.push({ header: true, label: `酒場で待っている仲間（${waiting.length}）　仲間${info.roster.length}/${info.rosterMax || info.roster.length}` });
+        if (waiting.length > 1) out.push({ html: `ならび：<span class="gold">${rosterSortName(sortMode)}</span> <span class="muted small">（選ぶと変わる）</span>`, value: SORT_KEY });
         for (const e of waiting) out.push({ face: face(e), html: `${esc(e.name)}${plusTag(e)} <span class="muted small">${who(e)}</span>${e.hp <= 0 ? '<span class="tag warn">休んでいる</span>' : ''}`, value: e.key });
       }
       const mons = info.roster.filter((e) => e.species);
@@ -336,9 +342,13 @@ function tavernUI(game, data) {
         main.append(el('h3', { text: '総入れかえ' }), el('div', { class: 'detail', text: [
           'パーティーと馬車にいるみんなを、1番目から順番に選びなおす。',
           '・1〜4番目が戦う仲間（自分はかならずここに入る）',
-          '・5〜8番目は馬車で待つ仲間（戦わなくても経験値を半分もらえる）',
+          '・5〜8番目は馬車で待つ仲間（戦わなくても経験値をもらえる。洞窟や塔の中では半分）',
           '・酒場で待っている仲間とは、ひとりずつ入れかえよう',
         ].join('\n') }));
+        return;
+      }
+      if (key === SORT_KEY) {
+        main.append(el('h3', { text: '待っている仲間のならび' }), el('div', { class: 'detail', text: `今は「${rosterSortName(sortMode)}」。\n選ぶたびに、仲間になった順→種類順→レベル順と変わる。\n・種類順は、人の仲間が先。魔物は図鑑の順で、同じ種類はレベルの高い順\n・仲間は${info.rosterMax || 40}人（ひき）まで。いっぱいの時は、酒場でだれかと別れると、また仲間になる` }));
         return;
       }
       if (key === BREED_KEY) {
@@ -358,7 +368,7 @@ function tavernUI(game, data) {
       }
       const e = entries.get(key);
       if (!e) {
-        main.append(el('div', { class: 'detail', text: `仲間を連れていくといっしょに戦ってくれる。\n連れていけるのは3人まで。待っている仲間とはいつでも入れかえられる（待っている間の装備はふくろにもどる）。\nモンスターの仲間もここで待っている。${info.wagon ? `\n馬車には${info.wagon.max}人まで乗れる（装備はそのまま。経験値は半分もらえる）。家族のキャラも乗れる。\nパーティーがいっぱいの時は、連れていく仲間は馬車に乗る。` : ''}` }));
+        main.append(el('div', { class: 'detail', text: `仲間を連れていくといっしょに戦ってくれる。\n連れていけるのは3人まで。待っている仲間とはいつでも入れかえられる（待っている間の装備はふくろにもどる）。\nモンスターの仲間もここで待っている。${info.wagon ? `\n馬車には${info.wagon.max}人まで乗れる（装備はそのまま。戦わなくても経験値をもらえる。洞窟や塔の中では半分）。家族のキャラも乗れる。\nパーティーがいっぱいの時は、連れていく仲間は馬車に乗る。` : ''}` }));
         return;
       }
       const pv = e.species ? followerSprite({ mon: e.species }, 'down', 0) : playerSprite(e.look, e.job, 'down', 0, shownEquip(e));
@@ -375,7 +385,7 @@ function tavernUI(game, data) {
       }
       main.append(el('div', { class: 'detail', text: e.desc || '' }));
       if (e.sec === 'roster' && e.inParty && !e.active) main.append(el('div', { class: 'detail', text: '今はパーティーの人数がいっぱいなので待っている。' }));
-      if (e.inWagon) main.append(el('div', { class: 'detail', text: e.family ? '馬車に乗っている。本人にも経験値のおすそわけが少し届く。' : '馬車に乗っている。戦いに出なくても経験値を半分もらえる。' }));
+      if (e.inWagon) main.append(el('div', { class: 'detail', text: e.family ? '馬車に乗っている。本人にも経験値のおすそわけが少し届く。' : '馬車に乗っている。戦いに出なくても、戦った仲間と同じ経験値をもらえる（洞窟や塔の中では半分）。' }));
       if (e.here) main.append(el('div', { class: 'detail', text: '今は本人がいっしょに遊んでいるので、うつしは待っている。' }));
     };
     const menu = new ListMenu(game.input, {
@@ -550,6 +560,13 @@ function tavernUI(game, data) {
       await doReq({ action: 'breed', a, b, inherit, name: nm || (pv.unseen ? '' : pv.childName) });
     };
     const act = async (key) => {
+      if (key === SORT_KEY) {
+        // ならびを かえる（仲間に なった順 → 種類順 → レベル順）。カーソルは この 行の まま
+        sortMode = nextRosterSort(sortMode);
+        setRosterSortPref(sortMode);
+        refresh();
+        return;
+      }
       if (key === BREED_KEY) {
         menu.blur();
         await breedFlow();
