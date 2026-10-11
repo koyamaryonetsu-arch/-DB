@@ -86,8 +86,8 @@ test('第27回: 味方の 技は みんな エフェクトが ある（なにも
     const anim = finalAnim(id, ab);
     const types = ab.effect?.type === 'multi' ? (ab.effect.parts || []).map((p) => p.type) : [ab.effect?.type];
     if (!anim || anim === 'none') {
-      // 「なにも おきない」「にげる」「ルーラ」「なにかが おきる（あとで きまる）」だけは エフェクト なし
-      if (!types.every((t) => ['nothing', 'escape', 'warp', 'random'].includes(t))) none.push(`${id}(${ab.name})`);
+      // 「なにも おきない」「にげる」「ルーラ」「なにかが おきる（あとで きまる）」と、フィールドだけの 呪文（リレミト・トヘロス・マモノヨセ）は エフェクト なし
+      if (!types.every((t) => ['nothing', 'escape', 'warp', 'random', 'exit', 'repel', 'lure'].includes(t))) none.push(`${id}(${ab.name})`);
       continue;
     }
     if (!handled(anim)) noFx.push(`${id}:${anim}`);
