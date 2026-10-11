@@ -2,14 +2,15 @@
 // みため（かみがた・いろ）と そうび（ぶき・よろい・たて・かぶと）で かわる
 // 人は 32×42 で くみたてて、2ばいの 64×84 に して こまかく かきたす（res 4: せかいでは 16×21 の 大きさに かく）
 // どうぶつ・船は 16×21 など
-import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=8a9b6717ad39';
-import { ITEMS, baseItemId } from '../../shared/data/items.js?v=8a9b6717ad39';
-import { STARTER_EQUIP } from '../../shared/stats.js?v=8a9b6717ad39';
-import { paintMiraPrison, paintWaterStar } from './temple-chars.js?v=8a9b6717ad39';
-import { LAB_NPC_LOOKS } from './lab-art.js?v=8a9b6717ad39';
-import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js?v=8a9b6717ad39';
-import { R26_OLD_LOOK } from './hero-r26.js?v=8a9b6717ad39';
-import { R27_OLD_LOOK } from './hero-r27.js?v=8a9b6717ad39';
+import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=ac2bfe71849d';
+import { ITEMS, baseItemId } from '../../shared/data/items.js?v=ac2bfe71849d';
+import { STARTER_EQUIP } from '../../shared/stats.js?v=ac2bfe71849d';
+import { paintMiraPrison, paintWaterStar } from './temple-chars.js?v=ac2bfe71849d';
+import { LAB_NPC_LOOKS } from './lab-art.js?v=ac2bfe71849d';
+import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js?v=ac2bfe71849d';
+import { R26_OLD_LOOK } from './hero-r26.js?v=ac2bfe71849d';
+import { R27_OLD_LOOK } from './hero-r27.js?v=ac2bfe71849d';
+import { R29_OLD_LOOK } from './hero-r29.js?v=ac2bfe71849d';
 
 export const CW = 16;
 export const CH = 21;
@@ -107,7 +108,7 @@ const JOB_LOOK = {
 };
 
 // 第26回の 職業（いまの えは render/hero.js と hero-r26.js）
-Object.assign(JOB_LOOK, R26_OLD_LOOK, R27_OLD_LOOK);
+Object.assign(JOB_LOOK, R26_OLD_LOOK, R27_OLD_LOOK, R29_OLD_LOOK);
 
 // よろい・ふくの みため（'cloth' は じぶんで えらんだ いろ）
 const ARMOR_LOOK = {
@@ -180,6 +181,7 @@ const WEAPON_LOOK = {
   metal_bat: { blade: '#c8ccd8', guard: '#2a2a3a' },
   legend_bat: { blade: '#f2c14e', guard: '#8a2a2a', glow: '#ffffff' },
   katana: { blade: '#e8ecf4', guard: '#2a2a2a' },
+  sakabatou: { blade: '#e8ecf4', guard: '#3a2a22' },
   // ふしぎなかじで 作る 武器
   fang_spear: { blade: '#f4ecd8', guard: '#7a4a22' },
   wolf_claw: { blade: '#ece6dc' },

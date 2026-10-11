@@ -12,9 +12,11 @@
 //                                    はなかっぱの かお・楽天カードマンの メガネと カード（phase 'over': ぼうしの あと）
 //   drawHat26(cv, P, H, G, view) … 新しい ぼうし（かえりち: かいたら true）
 //   drawProp26(cv, P, A, O) … たての ない 手に もつ もの（カード・スプーン・虫めがね・きゅうり など）
-import { mat, ramp, TH, mixC, HeroCanvas } from './hero-raster.js?v=8a9b6717ad39';
+import { mat, ramp, TH, mixC, HeroCanvas } from './hero-raster.js?v=ac2bfe71849d';
 // 第27回の 暴れんぼう将軍の 家もんと せんす（hero-r27.js）
-import { drawR27, drawProp27 } from './hero-r27.js?v=8a9b6717ad39';
+import { drawR27, drawProp27 } from './hero-r27.js?v=ac2bfe71849d';
+// 第29回の るろうに剣士の 道の マント・十字の きず（hero-r29.js）
+import { outfit29, drawR29, face29 } from './hero-r29.js?v=ac2bfe71849d';
 
 // ───────────── ざいしつ（mat は おなじ ものを つくりなおさない） ─────────────
 const cl = (c, o = {}) => mat({ r: ramp(c, 4, o), th: o.th || TH.cloth });
@@ -212,6 +214,8 @@ export function outfit26(O, S, Lk, fem, main, phase) {
     O.apron = { m: cl(S.drug, { light: 0.9 }), y0: 28.0, y1: 34.6, flare: 0.7, bib: 22.6, pocket: cl(mixC(S.drug, '#ffffff', 0.3)), tie: cl(mixC(S.drug, '#000000', 0.2)) };
     O.drug26 = true;
   }
+  // 第29回: マントの うら・かたあて・かみの ひも（hero-r29.js）
+  if (S.r29) outfit29(O, S);
   return false;
 }
 
@@ -325,6 +329,8 @@ export function drawR26(cv, P, O, layer) {
   draw26(cv, P, O, layer);
   // 第27回: 暴れんぼう将軍の 羽織の 家もん（羽織の うえに）
   if (O.spec?.crest27) drawR27(cv, P, O, layer);
+  // 第29回: 飛天御剣流けい承者の マントの まえの はしと かたあて
+  if (O.mantle29) drawR29(cv, P, O, layer);
 }
 function draw26(cv, P, O, layer) {
   const view = P.side ? 'side' : P.back ? 'back' : 'front';
@@ -650,6 +656,8 @@ export function capeFlame(cv, P, C, where, id, len, sw) {
 // ───────────── かお ─────────────
 // phase: 'face'（かみの まえ）/ 'top'（かみの あと）/ 'over'（ぼうしの あと。いちばん まえ）
 export function face26(cv, H, B, view, phase) {
+  // 第29回: ほおの 十字の きず
+  if (B.cross) face29(cv, H, B, view, phase);
   if (phase === 'over') {
     if (B.cardGlasses) cardGlasses(cv, H, view);
     return;

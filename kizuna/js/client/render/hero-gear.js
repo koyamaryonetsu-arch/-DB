@@ -1,8 +1,8 @@
 // ぶき・たて・かぶと（そうびの ID から みためを きめて かく）
 // 知らない 品（これからの もの）は、種類・ランク・名前の ことば から きめる
-import { mat, ramp, TH, mixC, mixI, hex, HeroCanvas } from './hero-raster.js?v=8a9b6717ad39';
-import { metal, metalRamp, cloth, leather, gem, glow, neon, metalOfName, baseItem, fruitIcon, ownArmor } from './hero-outfit.js?v=8a9b6717ad39';
-import { R26_HAT, R26_BODY_HAT, drawHat26 } from './hero-r26.js?v=8a9b6717ad39';
+import { mat, ramp, TH, mixC, mixI, hex, HeroCanvas } from './hero-raster.js?v=ac2bfe71849d';
+import { metal, metalRamp, cloth, leather, gem, glow, neon, metalOfName, baseItem, fruitIcon, ownArmor } from './hero-outfit.js?v=ac2bfe71849d';
+import { R26_HAT, R26_BODY_HAT, drawHat26 } from './hero-r26.js?v=ac2bfe71849d';
 
 const D = Math.PI / 180;
 
@@ -16,6 +16,8 @@ const WEAPON_LOOK = {
   silver_sword: { shape: 'long', mk: 'silver', len: 14.4, gemc: '#4a9aff' },
   thunder_sword: { shape: 'bolt', mk: 'silver', len: 14.2, blade: '#ffe46a', fx: 'bolt' },
   katana: { shape: 'katana', mk: 'steel', len: 14.4 },
+  // 第29回: るろうに剣士の 逆ば刀（かたなの かたち）
+  sakabatou: { shape: 'katana', mk: 'steel', len: 14.0 },
   stone_axe: { shape: 'stone', len: 11.6 },
   iron_axe: { shape: 'axe', mk: 'iron', len: 12.6 },
   pirate_axe: { shape: 'pirate', mk: 'iron', len: 13.4, wrap: '#c83a3a' },

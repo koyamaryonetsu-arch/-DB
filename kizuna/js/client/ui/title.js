@@ -1,14 +1,14 @@
 // タイトル・ログイン・キャラクターえらび・キャラクターづくり
-import { el, ListMenu, toast, askText, confirmBox } from './dom.js?v=8a9b6717ad39';
-import { JOBS, JOB_ORDER } from '../../shared/data/jobs.js?v=8a9b6717ad39';
-import { HAIR_STYLES, HAIR_COLORS, SKIN_TONES, FACES, FACE_BY_ID, CLOTH_COLORS, cleanLook } from '../../shared/data/looks.js?v=8a9b6717ad39';
-import { previewCache } from '../render/hero.js?v=8a9b6717ad39';
-import { playerSprite } from '../field.js?v=8a9b6717ad39';
-import { makeCanvas, ctxOf } from '../render/pixel.js?v=8a9b6717ad39';
-import { LINE_MAX, parseCode } from '../../shared/world/transfer.js?v=8a9b6717ad39';
-import { DEFAULT_SITE, pendingImport, clearPendingImport, familyServer, setFamilyServer, linkToFamilyServer, linkToSite, siteServerAddress } from '../links.js?v=8a9b6717ad39';
-import { goFamilyServer, goSite, roundTrip, changeServer, syncOnServer, maybeRoundTrip, notePlayed, familyServerUp } from './syncui.js?v=8a9b6717ad39';
-import { shownEquip } from '../../shared/look-equip.js?v=8a9b6717ad39';
+import { el, ListMenu, toast, askText, confirmBox } from './dom.js?v=ac2bfe71849d';
+import { JOBS, JOB_ORDER } from '../../shared/data/jobs.js?v=ac2bfe71849d';
+import { HAIR_STYLES, HAIR_COLORS, SKIN_TONES, FACES, FACE_BY_ID, CLOTH_COLORS, cleanLook } from '../../shared/data/looks.js?v=ac2bfe71849d';
+import { previewCache } from '../render/hero.js?v=ac2bfe71849d';
+import { playerSprite } from '../field.js?v=ac2bfe71849d';
+import { makeCanvas, ctxOf } from '../render/pixel.js?v=ac2bfe71849d';
+import { LINE_MAX, parseCode } from '../../shared/world/transfer.js?v=ac2bfe71849d';
+import { DEFAULT_SITE, pendingImport, clearPendingImport, familyServer, setFamilyServer, linkToFamilyServer, linkToSite, siteServerAddress } from '../links.js?v=ac2bfe71849d';
+import { goFamilyServer, goSite, roundTrip, changeServer, syncOnServer, maybeRoundTrip, notePlayed, familyServerUp } from './syncui.js?v=ac2bfe71849d';
+import { shownEquip } from '../../shared/look-equip.js?v=ac2bfe71849d';
 
 function clearUI() {
   document.getElementById('ui').innerHTML = '';
@@ -553,6 +553,7 @@ export function showCreate(game) {
       schoolkid: 'のびざかり！', civil_local: '町を守る', cook: '食べて元気に', parttimer: '何でもこなす',
       neet: 'のびしろ無限大', saiyan: '戦闘民族', youtuber: '動画で人気者', gamer: 'ゲームの達人', okan: 'みんなのおかん',
       spy: 'ひみつの任務', shonen_tantei: 'なぞを解く', neko_robot: '未来から来た', kappa: 'すもうが得意',
+      rurouni: '旅の剣士でござる',
     }[j] }));
     b.addEventListener('click', () => {
       job = j;

@@ -8,9 +8,9 @@
 // ・王都の 東の 門の 先: 王家のピラミッドと オベリスク（Step 4。昼の 12時ごろ、オベリスクの 影が とびらを さす）
 // ・王都の 南の 門の 先: 南の 砂嵐（Step 5。道の ところは 大臣ザイードを たおすと 弱まる）→ 南の砂ばく → 砂の港ドゥナへの 谷
 //   （谷は 砂の海賊が 木の さくで とざしている。ドゥナの 町は Step 6 から）
-import { T, TILE_INFO, parseRows } from '../tiles.js?v=8a9b6717ad39';
-import { fbm, hash2 } from '../rng.js?v=8a9b6717ad39';
-import { HAMIL_ROWS, SAFARA_ROWS } from './south-rows.js?v=8a9b6717ad39';
+import { T, TILE_INFO, parseRows } from '../tiles.js?v=ac2bfe71849d';
+import { fbm, hash2 } from '../rng.js?v=ac2bfe71849d';
+import { HAMIL_ROWS, SAFARA_ROWS } from './south-rows.js?v=ac2bfe71849d';
 
 export const SOUTH_W = 144;
 export const SOUTH_H = 144;

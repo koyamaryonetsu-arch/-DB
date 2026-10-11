@@ -12,7 +12,7 @@
 //
 // 第26回（2026年10月）: 40こ あった 合体技を 25こに しぼって 強く した。3人技・4人技と、クスッと 笑える 技を くわえた。
 // けずった 合体技を 使った ことの ある 記録（char.dualSeen）は そのまま のこす（DUAL_LEGACY: にていて 1つに まとめた 技は、まとめた 先の 技も わかる）
-import { ABILITIES } from './abilities.js?v=8a9b6717ad39';
+import { ABILITIES } from './abilities.js?v=ac2bfe71849d';
 
 // 技の 組（どれか 1つを 覚えていれば よい）
 const FIRE = ['mera', 'merami', 'merazoma', 'gira', 'begirama', 'nj_katon', 'am_begiragon', 'am_meragaia', 'hk_triple_mera', 'ck_tsuyobi', 'ck_flambe', 'hi_daikaryoku', 'hi_giragureido', 'hi_ima_mera'];
@@ -22,13 +22,17 @@ const BLAST = ['io', 'iora', 'pr_cannon', 'ft_tower', 'am_ionazun', 'dz_iogurand
 const BOLT = ['mk_raiden', 'hr_gigadein', 'sm_raijin', 'so_kaminari', 's2_spark', 'nk_kaminari'];
 const LIGHT = ['hk_holy_light', 'ft_star', 'sd_comet', 'sd_meteor', 'hk_love_beam', 'fz_meteor', 'pa_candy', 'fg_hirameki'];
 const SWORD = ['daichi', 'kaiha', 'kuuretsu', 'kabutowari', 'majingiri', 'tamashii', 'bm_musou', 'bm_moroba', 'pr_kaizokugiri', 'sa_iai', 'sa_tsubame', 'sa_ittou', 'hk_midaregiri', 'hk_daichi_ikari', 'mk_kaengiri', 'mk_hyouketsu', 'mk_inazuma',
-  'dk_gigabreak', 'ms_dark', 'swm_seiken', 'swm_haken', 'swm_raijin', 'sg_ikkiuchi', 'sg_tenka', 'lt_ken', 'hi_arutema', 'ks_minamo', 'ks_uchishio', 'ks_nejire', 'kisatsu_sig', 'eb_shiranui', 'eb_noboru', 'eb_uneri', 'eb_rengoku', 'hn_kasha', 'hn_hirin', 'hn_koukyou', 'hinokami_sig', 'spy_knife', 'spy_action', 'as_kyuusho', 'as_ame', 'bo_yamiuchi', 'kh_kunai'];
+  'dk_gigabreak', 'ms_dark', 'swm_seiken', 'swm_haken', 'swm_raijin', 'sg_ikkiuchi', 'sg_tenka', 'lt_ken', 'hi_arutema', 'ks_minamo', 'ks_uchishio', 'ks_nejire', 'kisatsu_sig', 'eb_shiranui', 'eb_noboru', 'eb_uneri', 'eb_rengoku', 'hn_kasha', 'hn_hirin', 'hn_koukyou', 'hinokami_sig', 'spy_knife', 'spy_action', 'as_kyuusho', 'as_ame', 'bo_yamiuchi', 'kh_kunai',
+  // 第29回: るろうに剣士の 道（飛天御剣流）
+  'rr_battou', 'rr_doryu', 'rr_ryukan', 'rurouni_sig', 'htk_ryusho', 'htk_soryu', 'htk_yamiyo', 'hitokiri_sig', 'hm_hiryu', 'hm_arashi', 'hm_tsumuji', 'himura_sig',
+  'ht_shinsoku', 'ht_ootatsu', 'hiten_sig'];
 const FIST = ['seiken', 'bakuretsu', 'mouko', 'hyakuretsu', 'issen', 'hf_seikou', 'gh_shinsoku', 'hk_sandan', 'sy_rush', 's2_rush', 'go_pistol', 'nr_punch', 'nr_tackle', 'mr_zutsuki', 'kp_tsuppari', 'kn_punch', 'kn_tackle', 'kinniku_kappa_sig', 'hkp_pakkan', 'kh_senpuu', 'hg_oodama'];
 const HEAL = ['hoimi', 'behoimi', 'behomara', 'sg_behoma', 'pl_hikari', 'id_fansa', 'id_kami', 'hk_iyashi_kaze', 'ss_stardance', 'es_kyushoku', 'lc_jumin', 'ff_teate', 'fz_juice',
-  'ok_gohan', 'ab_makanai', 'dz_ishi', 'dt_hohoemi', 'lt_inori', 'ct_kusuri', 'creator_sig', 'nr_dorayaki', 'mr_shuuri', 'os_oyatsu', 'kp_kyuuri', 'hkp_mitsu'];
+  'ok_gohan', 'ab_makanai', 'dz_ishi', 'dt_hohoemi', 'lt_inori', 'ct_kusuri', 'creator_sig', 'nr_dorayaki', 'mr_shuuri', 'os_oyatsu', 'kp_kyuuri', 'hkp_mitsu',
+  'rr_sentaku', 'hm_ocha', 'ht_ikiyou'];
 const DANCE = ['hustle', 'medapani', 'zameha_dance', 'ss_stardance', 'js_bakuten', 'hk_happy_step', 'ar_senpu'];
 const SONG = ['ouen', 'tatakai_uta', 'pr_utage', 'bb_ouenka', 'id_penlight', 'hk_fan_cheer', 'sd_song', 'es_recorder', 'jh_gassho', 'ar_harmony', 'kq_doremi'];
-const GUARD = ['kabau', 'sukara', 'sukuruto', 'pl_daibougyo', 'pl_aegis', 'gd_wall', 'id_center', 'lc_bousai', 'cr_kiki', 'ff_hinoyoujin', 'dv_anzen', 'kq_sentou'];
+const GUARD = ['kabau', 'sukara', 'sukuruto', 'pl_daibougyo', 'pl_aegis', 'gd_wall', 'id_center', 'lc_bousai', 'cr_kiki', 'ff_hinoyoujin', 'dv_anzen', 'kq_sentou', 'hm_fusatsu'];
 const RAIL = ['rw_manin', 'rw_teikoku', 'rw_shinkansen', 'rw_shuuden', 'hk_tokkyu', 'dv_tsuuka', 'dv_renketsu', 'dv_saikou', 'kq_120', 'kq_kaitoku'];
 const OFFICE = ['sm_meishi', 'sm_eigyo', 'sm_horenso', 'sm_present', 'hk_meishi_shuriken', 'sk_tsukin', 'sk_kaigi', 'rk_card', 'rk_dance', 'rakuten_cardman_sig'];
 const BALL = ['bb_hit', 'bb_homerun', 'bb_fastball', 'hk_nagashi', 'hk_makyuu', 'ml_160', 'nt_nitoryu'];
@@ -45,7 +49,7 @@ const STORE = ['ab_danboru', 'ab_irasshai', 'ab_reji', 'ab_makanai', 'ab_shinada
   'tk_genba', 'tk_zensha', 'tk_ryokou', 'tk_tatakiage', 'hi_wanope', 'hi_smile', 'hi_shachoushou', 'ct_kago', 'ct_point'];
 const WARAI = ['cm_tsukkomi', 'cm_gag', 'cm_conte', 'cm_warai', 'cm_bakushou', 'm1_machinegun', 'm1_densetsu', 'm1_kansei', 'm1_yuushou', 'hi_noritsukkomi', 'hi_tendon'];
 const NEET = ['ne_makura', 'ne_potechi', 'ne_guguru', 'ne_jersey', 'ne_ippatsu', 'hi_kyou_honki'];
-const DARK = ['cu_migite', 'cu_kokuen', 'cu_judgment', 'dt_hane', 'dt_ochita', 'dt_darkangel', 'mo_kokuen', 'mo_tsume', 'mo_hametsu', 'ms_dark', 'ms_hades', 'hi_dorumadon', 'hi_yami_sekai', 'bo_kuruma', 'bo_meirei'];
+const DARK = ['cu_migite', 'cu_kokuen', 'cu_judgment', 'dt_hane', 'dt_ochita', 'dt_darkangel', 'mo_kokuen', 'mo_tsume', 'mo_hametsu', 'ms_dark', 'ms_hades', 'hi_dorumadon', 'hi_yami_sekai', 'bo_kuruma', 'bo_meirei', 'htk_yamiyo'];
 const KI = ['sy_kidan', 'sy_renzoku', 'sy_kamehameha', 'sy_rush', 'sy_bigbang', 'sz_kame', 'sz_kikouha', 'sz_final', 'sz_renzoku', 's2_spark', 's2_kame', 's2_rush', 's2_final',
   's3_ryuuken', 's3_kame', 's3_rengeki', 'hi_kienzan', 'hi_bigbang_kame', 'konoha_sig', 'hg_oodama'];
 const GOMU = ['go_pistol', 'go_gatling', 'go_bazooka', 'go_gear3', 'nk_kaminari', 'nk_taiyou', 'nk_kaihou', 'hi_gomu_muchi'];
@@ -103,6 +107,8 @@ const SHINOBI = byJob('ninja', 'konoha', 'hokage');
 const KISATSU = byJob('kisatsu', 'enbashira', 'hinokami');
 const ESPER = byJob('esper');
 const CREATOR = byJob('creator');
+// 第29回: るろうに剣士 → 人斬りばっ刀さい → ひ村ばっ刀さい → 飛天御剣流けい承者
+const HITEN = byJob('rurouni', 'hitokiri', 'himura', 'hiten');
 
 // 組の なまえ（メニューの 一覧で 見せる）
 export const DUAL_GROUP_NAMES = new Map([
@@ -115,6 +121,8 @@ export const DUAL_GROUP_NAMES = new Map([
   // 第27回
   [DETECTIVE, '探ていの技'], [SHADOW, 'スパイ・殺し屋・黒の組織の技'], [ROBOT, 'ネコ型ロボットの技'], [KAPPA, 'カッパの技'], [RAKUTEN, '楽天カードマンの技'],
   [UESAMA, '将軍の技'], [SAMURAI, 'サムライの技'], [SHINOBI, '忍びの技'], [KISATSU, 'きさつ隊の技'], [ESPER, '超能力の技'], [CREATOR, 'クリエイターの技'],
+  // 第29回
+  [HITEN, '飛天御剣流の技'],
 ]);
 
 // parts の type:
@@ -363,9 +371,29 @@ const R27_DUALS = {
     desc: '探ていとロボットと子どもたちが、手がかりを持ちよる。「なぞは、すべて解けた！」敵全体の、それぞれの弱点を見ぬいて大ダメージ。動きを止めることもある。', anim: 'holy',
   },
 };
+// ───────── 第29回: るろうに剣士の 道の 合体技（2こ。2人技1・3人技1。ぜんぶで 37こ） ─────────
+const R29_DUALS = {
+  dt_sentaku_biyori: {
+    name: 'せんたく日和でござる', kana: 'せんたくびよりでござる', need: [HITEN, OKAN], mp: [6, 6], target: 'allies', funny: true,
+    parts: [
+      { type: 'heal', pct: 0.4, k: 0.5, say: '「せっしゃがあらうでござる」「ほら、もっとしっかりしぼりなさい！」' },
+      { type: 'cure', statuses: ['poison', 'sleep', 'confuse', 'paralyze', 'blind', 'silence'] },
+      { type: 'buff', stats: ['def', 'agi'], mult: 1.45, dur: 40 },
+    ],
+    desc: '剣士とおかんで、家じゅうの大せんたく。お日さまのにおいの服で、仲間全員のHPが回復して悪いじょうたいが治り、守備力と素早さが大きく上がる。', anim: 'heal_ring',
+  },
+  dt_sanken: {
+    name: '天下無敵の三剣士', kana: 'てんかむてきのさんけんし', need: [HITEN, UESAMA, SAMURAI], mp: [12, 12, 10], target: 'enemies',
+    parts: [
+      { type: 'power', kind: 'phys', k: 0.95, hits: 3, ignoreDef: 0.3, say: '飛天御剣流と上様とサムライ、3つの剣が1つになった！' },
+      { type: 'debuff', stat: 'def', mult: 0.75, dur: 40, chance: 0.7 },
+    ],
+    desc: '飛天御剣流の剣士と上様とサムライが、ならんで刀をぬく。敵全体を3回ずつ切りつける。守りの固い敵にもよく効き、守備力も下げる。', anim: 'slash_multi',
+  },
+};
 // 2人技・3人技・4人技の じゅんに ならべる（第26回の 技の あとに）
 {
-  const all = { ...DUAL_TECHS, ...R27_DUALS };
+  const all = { ...DUAL_TECHS, ...R27_DUALS, ...R29_DUALS };
   const ids = Object.keys(all).sort((a, b) => all[a].need.length - all[b].need.length);
   for (const id of Object.keys(DUAL_TECHS)) delete DUAL_TECHS[id];
   for (const id of ids) DUAL_TECHS[id] = all[id];

@@ -7,20 +7,20 @@
 // rank: 装備の ランク（1〜10。下の EQUIP_RANKS）。star: 店では 買えない 1つ上の 品（宝箱・レアドロップ）
 // unique: 1人 1つの 品（ボスが 落とす 物）。データを 合わせる ときに ふえすぎない
 
-import { ITEMS_CH2 } from './items-ch2.js?v=8a9b6717ad39';
-import { ITEMS_TM } from './items-tm.js?v=8a9b6717ad39';
-import { NIGHT_ITEMS, NIGHT_ITEM_KANA } from './night.js?v=8a9b6717ad39';
-import { SKY_ITEMS, SKY_ITEM_KANA } from './sky.js?v=8a9b6717ad39';
-import { ITEMS_FORGE, FORGE_KANA, addUpgradeItems } from './items-forge.js?v=8a9b6717ad39';
-import { ITEMS_CASINO, CASINO_KANA } from './items-casino.js?v=8a9b6717ad39';
-import { RARE_ITEMS, RARE_ITEM_KANA } from './monsters-rare.js?v=8a9b6717ad39';
-import { ESCAPE_ITEMS, ESCAPE_KANA } from './escape.js?v=8a9b6717ad39';
-import { ITEMS_CH3, CH3_ITEM_KANA } from './items-ch3.js?v=8a9b6717ad39';
-import { ITEMS_CH4, CH4_ITEM_KANA } from './items-ch4.js?v=8a9b6717ad39';
-import { ITEMS_TEMPLE, TEMPLE_ITEM_KANA } from './items-temple.js?v=8a9b6717ad39';
-import { ITEMS_LAB, LAB_ITEM_KANA } from './items-lab.js?v=8a9b6717ad39';
-import { POWDER_ITEMS, POWDER_KANA } from './friend-powder.js?v=8a9b6717ad39';
-import { FIELD27_ITEMS, FIELD27_KANA } from './abilities-field27.js?v=8a9b6717ad39';
+import { ITEMS_CH2 } from './items-ch2.js?v=ac2bfe71849d';
+import { ITEMS_TM } from './items-tm.js?v=ac2bfe71849d';
+import { NIGHT_ITEMS, NIGHT_ITEM_KANA } from './night.js?v=ac2bfe71849d';
+import { SKY_ITEMS, SKY_ITEM_KANA } from './sky.js?v=ac2bfe71849d';
+import { ITEMS_FORGE, FORGE_KANA, addUpgradeItems } from './items-forge.js?v=ac2bfe71849d';
+import { ITEMS_CASINO, CASINO_KANA } from './items-casino.js?v=ac2bfe71849d';
+import { RARE_ITEMS, RARE_ITEM_KANA } from './monsters-rare.js?v=ac2bfe71849d';
+import { ESCAPE_ITEMS, ESCAPE_KANA } from './escape.js?v=ac2bfe71849d';
+import { ITEMS_CH3, CH3_ITEM_KANA } from './items-ch3.js?v=ac2bfe71849d';
+import { ITEMS_CH4, CH4_ITEM_KANA } from './items-ch4.js?v=ac2bfe71849d';
+import { ITEMS_TEMPLE, TEMPLE_ITEM_KANA } from './items-temple.js?v=ac2bfe71849d';
+import { ITEMS_LAB, LAB_ITEM_KANA } from './items-lab.js?v=ac2bfe71849d';
+import { POWDER_ITEMS, POWDER_KANA } from './friend-powder.js?v=ac2bfe71849d';
+import { FIELD27_ITEMS, FIELD27_KANA } from './abilities-field27.js?v=ac2bfe71849d';
 
 export const ITEMS = {
   // ───── つかう どうぐ ─────
@@ -157,6 +157,8 @@ export const ITEMS = {
   neko_suzu: { name: 'ネコのすず', type: 'acc', rank: 1, bonus: { hp: 6, agi: 2 }, price: 80, desc: '首につける、金色のすず。チリンといい音がする。' },
   nichirin: { name: '日輪刀', type: 'weapon', rank: 4, cat: 'sword', atk: 30, bonus: { agi: 3 }, price: 1300, desc: '太陽に一番近い山の鉄で作った刀。持ち主によって色が変わる。' },
   kunai: { name: 'クナイ', type: 'weapon', rank: 5, cat: 'dagger', atk: 30, bonus: { agi: 5 }, price: 1700, desc: '忍びが使う、投げてもよし、切ってもよしの小刀。' },
+  // 第29回: るろうに剣士の はじめの 装備（刀の はが 反対がわに ついた 刀。「刃」は 習わない 字なので「逆ば刀」）
+  sakabatou: { name: '逆ば刀', type: 'weapon', rank: 1, cat: 'sword', atk: 7, bonus: { agi: 2 }, price: 90, desc: '刀のはが、反対がわについたふしぎな刀。切れないけれど、悪いやつはしっかりこらしめる。' },
   takecopter: { name: 'タケコプター', type: 'acc', rank: 5, bonus: { agi: 12, def: 2 }, price: 1900, desc: '頭につける小さなプロペラ。体が軽くなって、素早く動ける。' },
   leopard_shirt: { name: 'ヒョウがらの服', type: 'armor', rank: 5, armorType: 'cloth', def: 21, bonus: { agi: 3, hp: 15 }, price: 1600, desc: 'ヒョウがらの、はでな服。着ると、なぜか強気になれる。' },
   // ブーメラン（ふつうの 攻撃で 敵全体に 当たる。何体にも 当たる ぶん、同じ ランクの 剣より 攻撃力は 低い）
@@ -307,7 +309,7 @@ export const ITEM_KANA = {
   monkey_wrench: 'もんきーれんち', gaming_keyboard: 'げーみんぐきーぼーど', gold_button: 'きんのきねんたて', straw_hat: 'むぎわらぼうし', pipe_wrench: 'ぱいぷれんち',
   dark_feather_staff: 'くろいはねのつえ', slipper: 'すりっぱ', leopard_shirt: 'ひょうがらのふく',
   mushimegane: 'むしめがね', spy_glasses: 'すぱいのさんぐらす', kappa_sara: 'かっぱのおさら', neko_suzu: 'ねこのすず', nichirin: 'にちりんとう',
-  kunai: 'くない', takecopter: 'たけこぷたー',
+  kunai: 'くない', takecopter: 'たけこぷたー', sakabatou: 'さかばとう',
   tm_gold_bangle: 'おうごんのうでわ', tm_gem_ring: 'ほうせきのゆびわ', tm_dragon_scale: 'えんりゅうのうろこ', tm_dark_ring: 'やみのゆびわ', tm_ice_pendant: 'こおりのぺんだんと', tm_shadow_anklet: 'かげのあんくれっと',
 };
 

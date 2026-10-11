@@ -1,12 +1,14 @@
 // ふく・よろい（そうびの よろいと しょくぎょうで きまる）
 // outfitOf(みため, しょくぎょう, よろいの ID, おんな？) → かく ための せってい
 // 知らない よろい（これからの もの）は、種類（armorType）・ランク・名前の ことば から きめる
-import { mat, ramp, TH, mixC, HeroCanvas } from './hero-raster.js?v=8a9b6717ad39';
-import { ITEMS } from '../../shared/data/items.js?v=8a9b6717ad39';
+import { mat, ramp, TH, mixC, HeroCanvas } from './hero-raster.js?v=ac2bfe71849d';
+import { ITEMS } from '../../shared/data/items.js?v=ac2bfe71849d';
 // 第26回の 新しい 職業（楽天カードマン・きさつ隊・ネコ型ロボット・カッパ・火影 など）の 服と からだ
-import { R26_OUTFIT, R26_BODY, outfit26, body26, capeFlame, robotTail } from './hero-r26.js?v=8a9b6717ad39';
+import { R26_OUTFIT, R26_BODY, outfit26, body26, capeFlame, robotTail } from './hero-r26.js?v=ac2bfe71849d';
 // 第27回の 暴れんぼう将軍（はかまと 羽織・ちょんまげ・せんす）
-import { R27_OUTFIT, R27_BODY } from './hero-r27.js?v=8a9b6717ad39';
+import { R27_OUTFIT, R27_BODY } from './hero-r27.js?v=ac2bfe71849d';
+// 第29回の るろうに剣士の 道（赤い 着物と はかま・白い マント・長い 赤毛・十字の きず）
+import { R29_OUTFIT, R29_BODY } from './hero-r29.js?v=ac2bfe71849d';
 
 // ───────────── ざいしつ ─────────────
 const METALS = {
@@ -188,7 +190,7 @@ const JOB_OUTFIT = {
   // はかい神（金の ふちの くろい エジプトの 服・はばの ひろい 金の えり・金の うでわ・だぼっと した ズボン）
   hakaishin: { kind: 'hakai', main: '#1e1a32', pants: '#2c2644', flap: '#9a1e34' },
 };
-Object.assign(JOB_OUTFIT, R26_OUTFIT, R27_OUTFIT);
+Object.assign(JOB_OUTFIT, R26_OUTFIT, R27_OUTFIT, R29_OUTFIT);
 // 職業の 服と おなじ よろい（きても 職業の ぼうしが のこる。最強のおかんの ヒョウがらの服）
 const OWN_ARMOR = { saikyo_okan: 'leopard_shirt' };
 export const ownArmor = (job, armorId) => !!armorId && OWN_ARMOR[job] === armorId;
@@ -218,7 +220,7 @@ const JOB_BODY = {
   facility_genius: { aura: 'circuit', holo: true },
   hakaishin: { iris: '#d8a020', aura: 'hakai', spark: 'ember' },
 };
-Object.assign(JOB_BODY, R26_BODY, R27_BODY);
+Object.assign(JOB_BODY, R26_BODY, R27_BODY, R29_BODY);
 export const jobBody = (job) => JOB_BODY[job] || null;
 
 // よろいの みため（ID ごと）

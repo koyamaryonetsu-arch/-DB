@@ -1,29 +1,29 @@
 // お店・やどや・きょうかい・転職・酒場・でんごんばん・メニュー操作
-import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js?v=8a9b6717ad39';
-import { normDifficulty } from '../data/difficulty.js?v=8a9b6717ad39';
-import { ITEMS, sellPrice, SLOTS, SLOT_NAMES } from '../data/items.js?v=8a9b6717ad39';
-import { JOBS, ALL_JOBS, jobReqText, BODY_NAMES } from '../data/jobs.js?v=8a9b6717ad39';
-import { ABILITIES } from '../data/abilities.js?v=8a9b6717ad39';
-import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=8a9b6717ad39';
-import { TACTICS } from '../ai.js?v=8a9b6717ad39';
-import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js?v=8a9b6717ad39';
-import { salonInfo, salonAction } from './salon.js?v=8a9b6717ad39';
-import { breedMonsters, breedPreview } from './breed.js?v=8a9b6717ad39';
-import { MONSTERS } from '../data/monsters.js?v=8a9b6717ad39';
-import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings, spellSealed } from '../battle.js?v=8a9b6717ad39';
-import { PLACES } from '../maps/overworld.js?v=8a9b6717ad39';
-import { POS, SEA_PLACES, MAPS } from '../maps/index.js?v=8a9b6717ad39';
-import { castRura, warpParty, useTimeBell, warpPlaces, warpOwner } from './travel.js?v=8a9b6717ad39';
-import { bankInfo, bankAction } from './bank.js?v=8a9b6717ad39';
-import { forgeInfo, forgeAction } from './forge.js?v=8a9b6717ad39';
-import { FIELD27_EFFECTS, castField27, useAuraItem } from './field27.js?v=8a9b6717ad39';
-import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction, wagonHere, wagonHealEntries, ownWagonEntries } from './wagon.js?v=8a9b6717ad39';
-import { casinoOpen, casinoAction } from './casino.js?v=8a9b6717ad39';
-import { useEscapeItem, noEscapeText } from './escape.js?v=8a9b6717ad39';
-import { usePowder } from './powder.js?v=8a9b6717ad39';
-import { bestEquipPlan, bestTeamOrder } from '../equip-plan.js?v=8a9b6717ad39';
-import { setLookEquip } from '../look-equip.js?v=8a9b6717ad39';
-import { jobDoneText } from '../data/job-talk.js?v=8a9b6717ad39';
+import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js?v=ac2bfe71849d';
+import { normDifficulty } from '../data/difficulty.js?v=ac2bfe71849d';
+import { ITEMS, sellPrice, SLOTS, SLOT_NAMES } from '../data/items.js?v=ac2bfe71849d';
+import { JOBS, ALL_JOBS, jobReqText, BODY_NAMES } from '../data/jobs.js?v=ac2bfe71849d';
+import { ABILITIES } from '../data/abilities.js?v=ac2bfe71849d';
+import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=ac2bfe71849d';
+import { TACTICS } from '../ai.js?v=ac2bfe71849d';
+import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js?v=ac2bfe71849d';
+import { salonInfo, salonAction } from './salon.js?v=ac2bfe71849d';
+import { breedMonsters, breedPreview } from './breed.js?v=ac2bfe71849d';
+import { MONSTERS } from '../data/monsters.js?v=ac2bfe71849d';
+import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings, spellSealed } from '../battle.js?v=ac2bfe71849d';
+import { PLACES } from '../maps/overworld.js?v=ac2bfe71849d';
+import { POS, SEA_PLACES, MAPS } from '../maps/index.js?v=ac2bfe71849d';
+import { castRura, warpParty, useTimeBell, warpPlaces, warpOwner } from './travel.js?v=ac2bfe71849d';
+import { bankInfo, bankAction } from './bank.js?v=ac2bfe71849d';
+import { forgeInfo, forgeAction } from './forge.js?v=ac2bfe71849d';
+import { FIELD27_EFFECTS, castField27, useAuraItem } from './field27.js?v=ac2bfe71849d';
+import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction, wagonHere, wagonHealEntries, ownWagonEntries } from './wagon.js?v=ac2bfe71849d';
+import { casinoOpen, casinoAction } from './casino.js?v=ac2bfe71849d';
+import { useEscapeItem, noEscapeText } from './escape.js?v=ac2bfe71849d';
+import { usePowder } from './powder.js?v=ac2bfe71849d';
+import { bestEquipPlan, bestTeamOrder } from '../equip-plan.js?v=ac2bfe71849d';
+import { setLookEquip } from '../look-equip.js?v=ac2bfe71849d';
+import { jobDoneText } from '../data/job-talk.js?v=ac2bfe71849d';
 
 export function openService(world, s, kind, arg) {
   switch (kind) {
