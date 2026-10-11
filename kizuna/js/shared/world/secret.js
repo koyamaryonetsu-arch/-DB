@@ -2,20 +2,25 @@
 // データと 階の 形は data/secret.js と maps/secret-dungeon.js
 //
 // ちょうせん（c.sd.run）
-// ・入口の 広間の 下り階段から 地下1階へ 入った 人だけが「ちょうせん中」。1つずつ 下りた 階が 記録に なる
+// ・入口の 広間（案内人か 下り階段）から 入った 人だけが「ちょうせん中」。1つずつ 下りた 階が 記録に なる
+// ・始める 階は 地下1階か、休み所で 記録した 階（c.sd.save。5の 倍数）までの 休み所（2026年10月 第27回）。
+//   パーティーでは リーダーが 選ぶ。選べるのは、いっしょに 入る 家族 みんなが 記録した 階まで（sdStartFloors）
+//   とちゅうの 階から 始めても、着いた いちばん 深い 階が 記録の 板に のる。初めて 着いた 休み所なら 大きな ごほうび
+// ・休み所の ようせいの「この階を記録して地上へもどる」で、その 階を 記録して 入口の 広間へ（noteSdSave）
 // ・パーティーの みんなで いっしょに 下りる（同じ 階に いる 家族を みんな つれていく）。いっしょに いた 家族の 名前も 記録に のこる
-// ・とちゅうから 来た 人（さそわれて リーダーの ところへ 来た など）は mid（その ちょうせんは 記録に ならない。ごほうびは 小さな 物だけ）
+// ・とちゅうから 来た 人（さそわれて リーダーの ところへ 来た など）は mid（その ちょうせんは 記録に ならない。記録も できない。ごほうびは 小さな 物だけ）
 // ・ダンジョンの 外（入口の 広間も）へ 出ると ちょうせんは 終わり（placeSession から noteSecretMove）
-import { MAPS, isBlocked } from '../maps/index.js?v=eaa48772a44a';
-import { fullHeal, addItem } from '../stats.js?v=eaa48772a44a';
-import { MONSTERS } from '../data/monsters.js?v=eaa48772a44a';
-import { SD_HOOKS } from '../data/story-secret.js?v=eaa48772a44a';
-import { partyOf } from './party.js?v=eaa48772a44a';
-import { SD_DOOR_OUT, GATE_ARRIVE } from '../maps/secret-dungeon.js?v=eaa48772a44a';
+import { MAPS, isBlocked } from '../maps/index.js?v=7a510653fedd';
+import { fullHeal, addItem } from '../stats.js?v=7a510653fedd';
+import { MONSTERS } from '../data/monsters.js?v=7a510653fedd';
+import { SD_HOOKS } from '../data/story-secret.js?v=7a510653fedd';
+import { partyOf } from './party.js?v=7a510653fedd';
+import { SD_DOOR_OUT, GATE_ARRIVE } from '../maps/secret-dungeon.js?v=7a510653fedd';
 import {
   SD_GATE, SD_NAME, SD_OPEN_FLAG, sdFloorId, sdFloorOf, isSdFloorId, isRestFloor, isGuardFloor, sdGuardian, sdGuardEncounter,
   sdRecommendLv, sdBigReward, sdSmallReward, rewardText, sdMedalId, noteSdFloor, sdRecordOf, sdRecordText, sdBoardRows, sdBand,
-} from '../data/secret.js?v=eaa48772a44a';
+  sdSaveOf, noteSdSave, sdStartFloors, sdStartText,
+} from '../data/secret.js?v=7a510653fedd';
 
 const GUIDE = 'ひみつのダンジョンの案内人';
 const FAIRY = '休み所のようせい';
@@ -148,15 +153,17 @@ async function guideTalk(run) {
     'このダンジョンには、終わりがない。\n下の階へ行くほど、魔物が強くなるぞ。',
     '階はいつも同じ形じゃ。家族みんな、同じ階を同じ形でもぐるんじゃよ。',
     `5階ごとに休み所がある。\n回復の泉と、ごほうびの宝箱があるぞ。初めて着いた休み所の宝箱には、大きなごほうびが入っておる。`,
-    '休み所からは、地上へもどれる。\n10階ごとの休み所では、強い番人が下り階段を守っておる。',
-    'ここでは、みちびきの糸も帰り道の羽も、ルーラも使えん。\n全滅すると、この入口にもどされる。でも、お金はへらんから安心せい。',
+    '休み所のようせいに話せば、その階を記録して地上へもどれる。\n次は、わしに話しかければ、記録した階から始められるぞ。',
+    '10階ごとの休み所では、強い番人が下り階段を守っておる。',
+    'ここでは、みちびきの糸も帰り道の羽も、ルーラもリレミトも使えん。\n全滅すると、この入口にもどされる。でも、お金はへらんから安心せい。',
     'それから…ここの魔物は、なぜか仲間にならんのじゃ。',
-    'ちょうせんは、いつも地下1階から。\n何階まで行けたかは、となりの「家族の記録の板」にのこるぞ。',
-    'パーティーを組んで入れば、いっしょにいた家族みんなの記録になる。\n家族で、何階までもぐれるかきそってみるとよい。',
+    'とちゅうの階から始めても、いちばん深く行けた階が、となりの「家族の記録の板」にのこるぞ。',
+    'パーティーを組んで入れば、いっしょにいた家族みんなの記録になる。\n何階から始めるかはリーダーが決める。選べるのは、みんなが記録した階までじゃ。',
   );
   await run.runSteps([
-    ...say(r.best > 0 ? `おお、${c.name}か。\n${c.name}の最高は、地下${r.best}階じゃったな。` : `ようこそ、${SD_NAME}へ。\nわしは、このダンジョンの案内人じゃ。`),
-    ['choice', '何を聞く？', ['このダンジョンのこと', '記録の板を見る', 'またこんど'], [
+    ...say(r.best > 0 ? `おお、${c.name}か。\n${c.name}の最高は、地下${r.best}階じゃったな。${r.save ? `\n地下${r.save}階まで記録してあるぞ。` : ''}` : `ようこそ、${SD_NAME}へ。\nわしは、このダンジョンの案内人じゃ。`),
+    ['choice', '何をする？', ['ちょうせんを始める', 'このダンジョンのこと', '記録の板を見る', 'またこんど'], [
+      [['call', (x) => chooseStart(x, true)]],
       explain,
       [['call', boardOpen]],
       say('うむ。気をつけてな。'),
@@ -181,23 +188,57 @@ async function boardOpen(run) {
   if (r2.aborted) run.abort();
 }
 
-// 地下1階へ（ちょうせんの はじまり）
-async function enterEvent(run) {
+// ───────────── ちょうせんの はじまり（何階から 始めるか）─────────────
+// 入口の 案内人（guide: true）と 下り階段から。パーティーでは リーダーが 選ぶ（同じ 広間に いる 家族 みんなが 記録した 階まで）
+async function chooseStart(run, guide = false) {
+  const world = run.world, s = run.init;
+  const p = partyOf(world, s);
+  const leader = !p || p.members.length < 2 || p.leader === s.id;
+  const people = gather(run);
+  const floors = leader ? sdStartFloors(...people.map((m) => sdSaveOf(m.char))) : [1];
+  const notes = [];
+  if (!leader && sdSaveOf(s.char) > 0) notes.push('（何階から始めるかは、パーティーのリーダーが選ぶ）');
+  else if (people.length > 1) {
+    const low = people.filter((m) => sdSaveOf(m.char) < Math.max(...people.map((x) => sdSaveOf(x.char))));
+    if (low.length) notes.push(`（選べるのは、みんなが記録した階まで。${low.map((m) => `${m.char.name}は${sdSaveOf(m.char) ? `地下${sdSaveOf(m.char)}階` : 'まだ1階'}`).join('・')}）`);
+  }
+  if (floors.length === 1) {
+    const q = `${SD_NAME}の地下1階へ下りますか？\n（おすすめ: レベル${sdRecommendLv(1)}くらいから）${notes.length ? `\n${notes.join('\n')}` : ''}`;
+    await run.runSteps([
+      ['choice', q, ['下りる', 'やめる'], [[['call', (x) => startRun(x, 1)]], guide ? [['say', GUIDE, 'うむ。準備ができたら、また来るがよい。']] : []]],
+    ]);
+    return;
+  }
+  const label = (f) => (f === 1 ? '地下1階から' : `地下${f}階の休み所から（Lv${sdRecommendLv(f)}くらい）`);
   await run.runSteps([
-    ['choice', `${SD_NAME}の地下1階へ下りますか？\n（おすすめ: レベル${sdRecommendLv(1)}くらいから）`, ['下りる', 'やめる'], [[['call', startRun]], []]],
+    ['choice', `何階から始める？${notes.length ? `\n${notes.join('\n')}` : ''}`, [...floors.map(label), 'やめる'], [
+      ...floors.map((f) => [['call', (x) => startRun(x, f)]]),
+      guide ? [['say', GUIDE, 'うむ。準備ができたら、また来るがよい。']] : [],
+    ]],
   ]);
 }
 
-async function startRun(run) {
+// 下り階段（入口の 広間）
+async function enterEvent(run) {
+  await chooseStart(run, false);
+}
+
+// f … 始める 階（1 か 記録した 休み所）
+async function startRun(run, f = 1) {
   const people = gather(run);
   for (const m of people) {
     const sd = sdOf(m.char);
-    sd.run = { f: 0, took: [] };
+    sd.run = { f: f - 1, took: [] };
     sd.tries = (sd.tries || 0) + 1;
   }
-  await moveAll(run, people, sdFloorId(1));
+  await moveAll(run, people, sdFloorId(f));
   if (run.aborted) return;
-  arriveFloor(run.world, people, 1);
+  arriveFloor(run.world, people, f);
+  if (f > 1) {
+    const lines = [`地下${f}階の休み所から、ちょうせんを始めた！\n回復の泉と、ごほうびの宝箱がある。`];
+    if (isGuardFloor(f)) lines.push(`下り階段の前には、番人の${MONSTERS[sdGuardian(f)]?.name || '魔物'}がいる…。\n準備をしてから話しかけよう。`);
+    await run.runSteps([['sfx', 'sparkle'], ...lines.map((l) => ['say', null, l])]);
+  }
 }
 
 // ───────────── 下りる（下り階段・休み所の「先へ進む」・番人）─────────────
@@ -242,18 +283,35 @@ async function restTalk(run) {
   if (!isRestFloor(f)) return;
   await run.runSteps([
     ['say', FAIRY, `ここは地下${f}階の休み所。\n泉の水を飲んで、ひと休みしていってね。`],
-    ['choice', 'どうする？', ['先へ進む', '地上へもどる', 'やめる'], [
+    ['choice', 'どうする？', ['先へ進む', 'この階を記録して地上へもどる', 'やめる'], [
       [['call', downEvent]],
-      [['choice', '地上へもどると、今回のちょうせんはおしまい。\n（記録はのこるよ）もどる？', ['もどる', 'やめる'], [[['call', exitEvent]], []]]],
+      [['choice', `地上へもどると、今回のちょうせんはおしまい。\n地下${f}階を記録しておくと、次は入口の案内人に話して、この階から始められるよ。\nもどる？`, ['もどる', 'やめる'], [[['call', exitEvent]], []]]],
       [['say', FAIRY, 'いってらっしゃい。むりはしないでね。']],
     ]],
   ]);
 }
 
 async function exitEvent(run) {
+  const world = run.world;
   const f = sdFloorOf(run.init.map);
   const people = gather(run);
-  const lines = people.map((m) => `${m.char.name}の記録: 最高は地下${sdRecordOf(m.char).best}階`);
+  // この 階を 記録する（ちょうせん中の 人だけ。とちゅうから 来た 人は 記録できない）
+  const saved = [];
+  for (const m of people) {
+    const r = runOf(m.char);
+    if (!r || r.mid || r.f !== f || !isRestFloor(f)) continue;
+    noteSdSave(m.char, f);
+    saved.push(m);
+  }
+  world.markDirty();
+  const lines = people.map((m) => {
+    const rec = sdRecordOf(m.char);
+    const sv = saved.includes(m)
+      ? (rec.save > f ? `地下${f}階を記録した！（記録は地下${rec.save}階まであるよ）` : `地下${f}階を記録した！`)
+      : '（とちゅうから来たので、記録できなかった）';
+    return `${m.char.name}: ${sv}\n最高は地下${rec.best}階。${sdStartText(rec.save)}`;
+  });
+  for (const m of people) world.sendSelf(m);
   await run.runSteps([
     ['say', FAIRY, `おつかれさま！\n今回は地下${f}階まで来られたね。`],
     ['fade', 'out'],

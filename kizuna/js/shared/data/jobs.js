@@ -13,6 +13,7 @@
 // 職業レベルは「たたかいに かった かず」で あがる（けいけんちとは べつ）。
 // 1回の こうどうで おわって しまう（ワンパンチの）たたかいは、しゅぎょうが はんぶんしか すすまない。
 
+import { applyField27Learn } from './abilities-field27.js?v=7a510653fedd';
 export const JOB_MAX_LEVEL = 10;
 // ワンパンチで おわった（なかまの 1回めの こうどうで かった）たたかいの しゅぎょうの わりあい。ほかの たたかいは まるごと 1回ぶん
 export const JOB_EASY_RATE = 0.5;
@@ -992,6 +993,9 @@ export const JOBS = {
     learn: [[1, 'hg_oodama'], [3, 'hg_kitsune'], [5, 'hg_mamori'], [7, 'hg_bijuu'], [8, 'hg_ishi'], [10, 'hokage_sig']],
   },
 };
+
+// リレミト・トヘロス・マモノヨセを 覚える 職業（abilities-field27.js）
+applyField27Learn(JOBS);
 
 // はじめに えらべる 職業（基本職）
 export const JOB_ORDER = ['warrior', 'monk', 'priest', 'mage', 'performer', 'jester', 'salaryman', 'idol', 'railman', 'ballplayer',

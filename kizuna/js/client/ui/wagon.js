@@ -1,16 +1,16 @@
 // 馬車の がめん: たたかいの「いれかえ」「総入れかえ」・メニューの「仲間」→「総入れかえ」「馬車」・酒場の 乗りかえ
 //   きまりは shared/data/wagon.js と shared/world/wagon.js
-import { el, esc, toast, ListMenu } from './dom.js?v=eaa48772a44a';
-import { WAGON_SLOTS } from '../../shared/data/wagon.js?v=eaa48772a44a';
-import { COMPANION_SLOTS } from '../../shared/data/companions.js?v=eaa48772a44a';
-import { MAPS } from '../../shared/maps/index.js?v=eaa48772a44a';
-import { JOBS } from '../../shared/data/jobs.js?v=eaa48772a44a';
-import { MONSTERS } from '../../shared/data/monsters.js?v=eaa48772a44a';
-import { computeStats } from '../../shared/stats.js?v=eaa48772a44a';
-import { faceURL } from '../field.js?v=eaa48772a44a';
-import { wagonSprite } from '../render/wagon.js?v=eaa48772a44a';
-import { request } from './shop.js?v=eaa48772a44a';
-import { shownEquip } from '../../shared/look-equip.js?v=eaa48772a44a';
+import { el, esc, toast, ListMenu } from './dom.js?v=7a510653fedd';
+import { WAGON_SLOTS } from '../../shared/data/wagon.js?v=7a510653fedd';
+import { COMPANION_SLOTS } from '../../shared/data/companions.js?v=7a510653fedd';
+import { MAPS } from '../../shared/maps/index.js?v=7a510653fedd';
+import { JOBS } from '../../shared/data/jobs.js?v=7a510653fedd';
+import { MONSTERS } from '../../shared/data/monsters.js?v=7a510653fedd';
+import { computeStats } from '../../shared/stats.js?v=7a510653fedd';
+import { faceURL } from '../field.js?v=7a510653fedd';
+import { wagonSprite } from '../render/wagon.js?v=7a510653fedd';
+import { request } from './shop.js?v=7a510653fedd';
+import { shownEquip } from '../../shared/look-equip.js?v=7a510653fedd';
 
 const isFam = (k) => String(k || '').startsWith('fam:');
 const BATTLE_MAX = 1 + COMPANION_SLOTS; // 戦う 仲間（自分を ふくめて）
@@ -471,7 +471,7 @@ export function wagonMenuView(menu, active) {
   items.push(...party.map((x) => ({ ...row(x), sec: 'party', label: x.name })));
   const note = !lead ? 'パーティーの馬車はリーダーのもの。自分の馬車の乗りかえは、自分がリーダーのときか酒場でできる。'
     : !here ? '馬車は入り口で待っている。\n洞窟や塔の中では乗りかえられない。'
-      : '馬車の仲間は戦いに出なくても、経験値を半分もらえる。家族のキャラも乗れる。\n戦いの中でも「いれかえ」で入れかえられる。\n酒場で待っている仲間とは、ルミナの町の酒場で乗りかえる。';
+      : '馬車の仲間は戦いに出なくても、戦った仲間と同じ経験値をもらえる（洞窟や塔の中では、入り口で待っているので半分）。家族のキャラも乗れる。\n戦いの中でも「いれかえ」で入れかえられる。\n酒場で待っている仲間とは、ルミナの町の酒場で乗りかえる。';
   if (!active) {
     for (const it of items) {
       if (it.value === '#arrange') continue;

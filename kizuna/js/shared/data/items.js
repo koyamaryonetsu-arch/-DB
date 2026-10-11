@@ -7,18 +7,19 @@
 // rank: 装備の ランク（1〜10。下の EQUIP_RANKS）。star: 店では 買えない 1つ上の 品（宝箱・レアドロップ）
 // unique: 1人 1つの 品（ボスが 落とす 物）。データを 合わせる ときに ふえすぎない
 
-import { ITEMS_CH2 } from './items-ch2.js?v=eaa48772a44a';
-import { ITEMS_TM } from './items-tm.js?v=eaa48772a44a';
-import { NIGHT_ITEMS, NIGHT_ITEM_KANA } from './night.js?v=eaa48772a44a';
-import { SKY_ITEMS, SKY_ITEM_KANA } from './sky.js?v=eaa48772a44a';
-import { ITEMS_FORGE, FORGE_KANA, addUpgradeItems } from './items-forge.js?v=eaa48772a44a';
-import { ITEMS_CASINO, CASINO_KANA } from './items-casino.js?v=eaa48772a44a';
-import { RARE_ITEMS, RARE_ITEM_KANA } from './monsters-rare.js?v=eaa48772a44a';
-import { ESCAPE_ITEMS, ESCAPE_KANA } from './escape.js?v=eaa48772a44a';
-import { ITEMS_CH3, CH3_ITEM_KANA } from './items-ch3.js?v=eaa48772a44a';
-import { ITEMS_CH4, CH4_ITEM_KANA } from './items-ch4.js?v=eaa48772a44a';
-import { ITEMS_TEMPLE, TEMPLE_ITEM_KANA } from './items-temple.js?v=eaa48772a44a';
-import { POWDER_ITEMS, POWDER_KANA } from './friend-powder.js?v=eaa48772a44a';
+import { ITEMS_CH2 } from './items-ch2.js?v=7a510653fedd';
+import { ITEMS_TM } from './items-tm.js?v=7a510653fedd';
+import { NIGHT_ITEMS, NIGHT_ITEM_KANA } from './night.js?v=7a510653fedd';
+import { SKY_ITEMS, SKY_ITEM_KANA } from './sky.js?v=7a510653fedd';
+import { ITEMS_FORGE, FORGE_KANA, addUpgradeItems } from './items-forge.js?v=7a510653fedd';
+import { ITEMS_CASINO, CASINO_KANA } from './items-casino.js?v=7a510653fedd';
+import { RARE_ITEMS, RARE_ITEM_KANA } from './monsters-rare.js?v=7a510653fedd';
+import { ESCAPE_ITEMS, ESCAPE_KANA } from './escape.js?v=7a510653fedd';
+import { ITEMS_CH3, CH3_ITEM_KANA } from './items-ch3.js?v=7a510653fedd';
+import { ITEMS_CH4, CH4_ITEM_KANA } from './items-ch4.js?v=7a510653fedd';
+import { ITEMS_TEMPLE, TEMPLE_ITEM_KANA } from './items-temple.js?v=7a510653fedd';
+import { POWDER_ITEMS, POWDER_KANA } from './friend-powder.js?v=7a510653fedd';
+import { FIELD27_ITEMS, FIELD27_KANA } from './abilities-field27.js?v=7a510653fedd';
 
 export const ITEMS = {
   // ───── つかう どうぐ ─────
@@ -228,6 +229,8 @@ Object.assign(ITEMS, ITEMS_CH4);
 Object.assign(ITEMS, ITEMS_TEMPLE);
 // なかまの粉（friend-powder.js）
 Object.assign(ITEMS, POWDER_ITEMS);
+// 魔物よせの笛（abilities-field27.js）
+Object.assign(ITEMS, FIELD27_ITEMS);
 // きたえた 装備（'iron_sword+1'〜'+3'）。新しい 装備を 足す ときは この 行より 上で
 addUpgradeItems(ITEMS);
 
@@ -311,6 +314,7 @@ Object.assign(ITEM_KANA, CASINO_KANA);
 Object.assign(ITEM_KANA, ESCAPE_KANA);
 Object.assign(ITEM_KANA, CH3_ITEM_KANA);
 Object.assign(ITEM_KANA, CH4_ITEM_KANA, TEMPLE_ITEM_KANA, POWDER_KANA);
+Object.assign(ITEM_KANA, FIELD27_KANA);
 
 export function itemKana(id) {
   // きたえた 装備は もとの 装備の 読み ＋ 回数（鉄の剣 → 鉄の剣+1 の じゅん）

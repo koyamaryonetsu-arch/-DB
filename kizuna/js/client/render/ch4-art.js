@@ -4,12 +4,12 @@
 // field … フィールドの シンボル（ちいさい え）の 大きさ（ないときは 20）
 // fade … すきとおる ところ（[[y, こさ], …]。y は え の たかさの わりあい。monsters.js の monsterCanvas が あとで うすく する）
 //        2.5D では こさ 0.5 より うすい ところが きえるので、いちばん うすくても 0.55 より こく
-import { fit, flipX, spark, bez, taper } from './ch3-draw.js?v=eaa48772a44a';
-import { addCh4BossArt } from './ch4-boss-art.js?v=eaa48772a44a';
-import { addPyramidArt } from './ch4-pyramid-art.js?v=eaa48772a44a';
-import { addSouthArt } from './ch4-south-art.js?v=eaa48772a44a';
-import { addSeaArt } from './ch4-sea-art.js?v=eaa48772a44a';
-import { addTempleArt } from './ch4-temple-art.js?v=eaa48772a44a';
+import { fit, flipX, spark, bez, taper } from './ch3-draw.js?v=7a510653fedd';
+import { addCh4BossArt } from './ch4-boss-art.js?v=7a510653fedd';
+import { addPyramidArt } from './ch4-pyramid-art.js?v=7a510653fedd';
+import { addSouthArt } from './ch4-south-art.js?v=7a510653fedd';
+import { addSeaArt } from './ch4-sea-art.js?v=7a510653fedd';
+import { addTempleArt } from './ch4-temple-art.js?v=7a510653fedd';
 
 // だえんの ふちの てん（a0 → a1 の むき。0 は みぎ、PI/2 は した）
 function ellArc(cx, cy, rx, ry, a0, a1, n = 10) {

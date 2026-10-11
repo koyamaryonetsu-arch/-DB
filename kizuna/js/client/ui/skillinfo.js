@@ -3,15 +3,16 @@
 //   2行め: 威力・効果の 目安（ふつうの 攻撃の 何倍・ダメージ・回復の 量・何が 上がるか）
 //   3行め: せつめい（data の desc）。転職の ペナルティ・上位の 技なども
 // 相手を えらぶ 前（敵が 1体・自分に かける・全体の 技でも）に 見える。client/battle.js の abilityMenu・itemMenu
-import { ABILITIES, abilityTypeText, abilityRole } from '../../shared/data/abilities.js?v=eaa48772a44a';
-import { ITEMS } from '../../shared/data/items.js?v=eaa48772a44a';
-import { JOBS } from '../../shared/data/jobs.js?v=eaa48772a44a';
-import { SKILL_UPS } from '../../shared/data/skill-ups.js?v=eaa48772a44a';
-import { mpCost, penaltyFor, comboAllowed } from '../../shared/stats.js?v=eaa48772a44a';
-import { targetText } from './info.js?v=eaa48772a44a';
+import { ABILITIES, abilityTypeText, abilityRole } from '../../shared/data/abilities.js?v=7a510653fedd';
+import { ITEMS } from '../../shared/data/items.js?v=7a510653fedd';
+import { JOBS } from '../../shared/data/jobs.js?v=7a510653fedd';
+import { SKILL_UPS } from '../../shared/data/skill-ups.js?v=7a510653fedd';
+import { mpCost, penaltyFor, comboAllowed } from '../../shared/stats.js?v=7a510653fedd';
+import { targetText, itemDetail } from './info.js?v=7a510653fedd';
 
 const STAT = { atk: '攻撃力', def: '守備力', agi: '素早さ', mag: '魔力', heal: '回復魔力', eva: 'かわしやすさ', dfn: '守備力', hit: '命中' };
 const STATUS = { sleep: 'ねむり', paralyze: 'マヒ', confuse: '混乱', blind: 'まぼろし', silence: '呪文ふうじ', poison: '毒', stop: '動けない' };
+const SEED = { str: '力', def: '身の守り', agi: '素早さ', mag: '攻撃魔力', hp: '最大HP' };
 const ITEM_TARGET = { self: '自分', ally: '味方1人', deadAlly: '死んだ味方1人', allies: '味方全員' };
 
 const num = (x) => (Math.round(x * 10) / 10).toString();
@@ -50,6 +51,7 @@ function partText(e, pm) {
     case 'dispel': return '敵の強化を消す';
     case 'bondUp': return `きずなゲージ+${e.amount}`;
     case 'escape': return '戦いからにげる';
+    case 'seed': return `${SEED[e.stat] || ''}が${range(e.amount)}上がる（ずっと）`;
     case 'multi': return (e.parts || []).map((p) => partText(p, pm)).filter(Boolean).join('＋');
     default: return '';
   }
@@ -78,14 +80,47 @@ export function battleSkillText(id, pc, { touch = false } = {}) {
   return lines.filter(Boolean).join('\n');
 }
 
+// 戦いの 呪文・特技の 一覧: 長おし・Yキーで お気に入り（第27回）の ひとこと を そえる
+export function favHint(text, touch = false) {
+  if (!text) return text;
+  if (touch) return text.replace('▶もう一度タップで使う', '▶もう一度タップで使う・長おしでお気に入り');
+  return `${text}\n（長おし・Yキーでお気に入り）`;
+}
+
 // 道具の せつめい（戦いの 中）
 export function battleItemText(id, { touch = false } = {}) {
   const it = ITEMS[id];
   if (!it) return '';
+  const lines = itemLines(it);
+  if (touch) lines.push('▶もう一度タップで使う');
+  return lines.join('\n');
+}
+
+// 道具の 1〜3行め（だれに・効果・せつめい）。戦いと メニューで おなじ 文
+function itemLines(it) {
   const lines = [`【道具】${ITEM_TARGET[it.target] || '自分'}`];
   const pw = partText(it.effect, 1);
   if (pw) lines.push(`効果：${pw}`);
   if (it.desc) lines.push(it.desc);
-  if (touch) lines.push('▶もう一度タップで使う');
-  return lines.join('\n');
+  return lines;
+}
+
+// どこで 使えるか（第27回 メニューの 道具）
+export function itemWhereText(it) {
+  if (!it || it.type !== 'use') return '';
+  if (it.battle && it.field) return '使える所：戦い・フィールド';
+  if (it.battle) return '使える所：戦いだけ';
+  if (it.field) return '使える所：フィールドだけ（戦いでは使えない）';
+  return '';
+}
+
+// メニューの「道具」の せつめい（第27回）。使う 道具は 戦いと おなじ 文（だれに・効果・せつめい）＋ 使える所。
+// 装備・素材・大事な物は info.js の itemDetail（強さ・装備できる 人）。touch: スマホで「もう一度タップで…」
+const GEAR = ['weapon', 'armor', 'shield', 'head', 'acc'];
+export function menuItemText(id, { touch = false, mons = null } = {}) {
+  const it = ITEMS[id];
+  if (!it) return '';
+  const lines = it.type === 'use' && it.effect ? [...itemLines(it), itemWhereText(it)] : [itemDetail(id, mons)];
+  if (touch && it.type !== 'key') lines.push(`▶もう一度タップで${it.type === 'use' && it.field ? '「使う」など' : GEAR.includes(it.type) ? '「装備する」など' : '「捨てる」など'}`);
+  return lines.filter(Boolean).join('\n');
 }

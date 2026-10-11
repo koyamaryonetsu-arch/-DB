@@ -7,9 +7,9 @@
 // ・みんな そろったら、家族には「参加する？」と 聞く（2人技と おなじ。何人でも、1人でも ことわれば 出ない）
 // ・強さ: 出す 人が それぞれ、その 組の 技（か ふつうの 攻撃）を 出した ときの ダメージの 合計 × DUAL_POWER[人数] × k
 //   （この 敵に 当てた ときの 見つもり。守り・弱点・バフも 入る。属性は 合体技の 属性で かかる）
-import { ABILITIES } from './data/abilities.js?v=eaa48772a44a';
-import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js?v=eaa48772a44a';
-import { weaponOk, comboAllowed, penaltyFor } from './stats.js?v=eaa48772a44a';
+import { ABILITIES } from './data/abilities.js?v=7a510653fedd';
+import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js?v=7a510653fedd';
+import { weaponOk, comboAllowed, penaltyFor } from './stats.js?v=7a510653fedd';
 
 // 人数ごとの 強さ（別々に 1回ずつ 動いた ときの 合計の 何倍か。全体技は parts の k で 下げる）
 export const DUAL_POWER = { 2: 1.8, 3: 2.2, 4: 3.0 };

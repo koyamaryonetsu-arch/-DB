@@ -1,27 +1,29 @@
 // お店・やどや・きょうかい・転職・酒場・でんごんばん・メニュー操作
-import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js?v=eaa48772a44a';
-import { normDifficulty } from '../data/difficulty.js?v=eaa48772a44a';
-import { ITEMS, sellPrice, SLOTS, SLOT_NAMES } from '../data/items.js?v=eaa48772a44a';
-import { JOBS, ALL_JOBS, jobReqText, BODY_NAMES } from '../data/jobs.js?v=eaa48772a44a';
-import { ABILITIES } from '../data/abilities.js?v=eaa48772a44a';
-import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=eaa48772a44a';
-import { TACTICS } from '../ai.js?v=eaa48772a44a';
-import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js?v=eaa48772a44a';
-import { salonInfo, salonAction } from './salon.js?v=eaa48772a44a';
-import { breedMonsters, breedPreview } from './breed.js?v=eaa48772a44a';
-import { MONSTERS } from '../data/monsters.js?v=eaa48772a44a';
-import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings, spellSealed } from '../battle.js?v=eaa48772a44a';
-import { PLACES } from '../maps/overworld.js?v=eaa48772a44a';
-import { POS, SEA_PLACES, MAPS } from '../maps/index.js?v=eaa48772a44a';
-import { castRura, warpParty, useTimeBell, warpPlaces, warpOwner } from './travel.js?v=eaa48772a44a';
-import { bankInfo, bankAction } from './bank.js?v=eaa48772a44a';
-import { forgeInfo, forgeAction } from './forge.js?v=eaa48772a44a';
-import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction, wagonHere, wagonHealEntries, ownWagonEntries } from './wagon.js?v=eaa48772a44a';
-import { casinoOpen, casinoAction } from './casino.js?v=eaa48772a44a';
-import { useEscapeItem, noEscapeText } from './escape.js?v=eaa48772a44a';
-import { usePowder } from './powder.js?v=eaa48772a44a';
-import { bestEquipPlan, bestTeamOrder } from '../equip-plan.js?v=eaa48772a44a';
-import { setLookEquip } from '../look-equip.js?v=eaa48772a44a';
+import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js?v=7a510653fedd';
+import { normDifficulty } from '../data/difficulty.js?v=7a510653fedd';
+import { ITEMS, sellPrice, SLOTS, SLOT_NAMES } from '../data/items.js?v=7a510653fedd';
+import { JOBS, ALL_JOBS, jobReqText, BODY_NAMES } from '../data/jobs.js?v=7a510653fedd';
+import { ABILITIES } from '../data/abilities.js?v=7a510653fedd';
+import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=7a510653fedd';
+import { TACTICS } from '../ai.js?v=7a510653fedd';
+import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js?v=7a510653fedd';
+import { salonInfo, salonAction } from './salon.js?v=7a510653fedd';
+import { breedMonsters, breedPreview } from './breed.js?v=7a510653fedd';
+import { MONSTERS } from '../data/monsters.js?v=7a510653fedd';
+import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings, spellSealed } from '../battle.js?v=7a510653fedd';
+import { PLACES } from '../maps/overworld.js?v=7a510653fedd';
+import { POS, SEA_PLACES, MAPS } from '../maps/index.js?v=7a510653fedd';
+import { castRura, warpParty, useTimeBell, warpPlaces, warpOwner } from './travel.js?v=7a510653fedd';
+import { bankInfo, bankAction } from './bank.js?v=7a510653fedd';
+import { forgeInfo, forgeAction } from './forge.js?v=7a510653fedd';
+import { FIELD27_EFFECTS, castField27, useAuraItem } from './field27.js?v=7a510653fedd';
+import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction, wagonHere, wagonHealEntries, ownWagonEntries } from './wagon.js?v=7a510653fedd';
+import { casinoOpen, casinoAction } from './casino.js?v=7a510653fedd';
+import { useEscapeItem, noEscapeText } from './escape.js?v=7a510653fedd';
+import { usePowder } from './powder.js?v=7a510653fedd';
+import { bestEquipPlan, bestTeamOrder } from '../equip-plan.js?v=7a510653fedd';
+import { setLookEquip } from '../look-equip.js?v=7a510653fedd';
+import { jobDoneText } from '../data/job-talk.js?v=7a510653fedd';
 
 export function openService(world, s, kind, arg) {
   switch (kind) {
@@ -168,7 +170,7 @@ export function serviceAction(world, s, msg) {
       }
       const removed = r.removed.map((id) => ITEMS[id]?.name).filter(Boolean);
       world.sendParty(partyOf(world, s));
-      return reply(true, `${who.name}は${JOBS[msg.job].name}になった！${removed.length ? `\n（${removed.join('・')}は装備できないので外した）` : ''}`, { jobChanged: true, who: msg.who || 'self' });
+      return reply(true, jobDoneText(who.name, JOBS[msg.job].name, removed), { jobChanged: true, who: msg.who || 'self' });
     }
     case 'tavern': {
       let r;
@@ -388,11 +390,8 @@ export function menuAction(world, s, msg) {
       if (!it || it.type !== 'use' || !it.field) return reply(false, '今は使えない');
       if (itemCount(c, msg.id) < 1) return reply(false, '持っていない');
       const eff = it.effect;
-      if (eff.type === 'repel') {
-        removeItem(c, msg.id, 1);
-        s.repelUntil = world.now() + eff.seconds * 1000;
-        return reply(true, `${c.name}は聖水をふりまいた！\nしばらく弱い魔物が寄ってこない。`);
-      }
+      // 聖水・魔物よせの笛（あとから 使った ほうが 効く。world/field27.js）
+      if (eff.type === 'repel' || eff.type === 'lure') return useAuraItem(world, s, msg.id, reply);
       // 仲間の粉（data/friend-powder.js）
       if (eff.type === 'befriendBoost') return usePowder(world, s, c, msg.id, reply);
       if (eff.type === 'warp') {
@@ -433,6 +432,8 @@ export function menuAction(world, s, msg) {
       if (MAPS[s.map]?.noSpells && spellSealed(a)) return reply(false, `${caster.name}は${a.name}を唱えた！\nしかし呪文の力が、すいこまれてしまった…\n（ここでは呪文が使えない。特技や道具を使おう）`);
       // ルーラ（行った 町へ 仲間と 飛ぶ。travel.js）
       if (a.effect?.type === 'warp') return castRura(world, s, caster, msg.id, msg, reply);
+      // リレミト・トヘロス・マモノヨセ（world/field27.js）
+      if (FIELD27_EFFECTS.has(a.effect?.type)) return castField27(world, s, caster, msg.id, reply);
       const cost = mpCost(caster, msg.id);
       if (caster.mp < cost) return reply(false, 'MPが足りない！');
       const pen = penaltyFor(caster, msg.id);
@@ -533,6 +534,8 @@ export function menuAction(world, s, msg) {
         if (j >= 0 && j < list.length) [list[i], list[j]] = [list[j], list[i]];
       }
       who.favorites = list.slice(0, 30);
+      // 戦いの 中（長おしで お気に入り。第27回）: 戦いの 人の お気に入りも（つぎの 知らせで 前に もどらない）
+      for (const ctx of world.battles?.values?.() || []) for (const b of ctx.battle?.combatants || []) if (who.id && b.side === 'ally' && b.charId === who.id) b.favs = who.favorites.slice();
       return reply(true, msg.op === 'add' ? `${ABILITIES[id].name}をお気に入りに入れた。` : msg.op === 'remove' ? `${ABILITIES[id].name}をお気に入りからはずした。` : 'ならびを変えた。');
     }
     case 'settings': {

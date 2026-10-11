@@ -8,10 +8,10 @@
 // → 砂の海の まん中の「クジラの ねどこ」で 砂クジラ（すなかぜ号の かんぱんで ボス戦。砂に もぐる。battle-ch4.js）
 // → 正気に もどった 砂クジラ「砂の底の神殿の 入口は、わたしが ねむっていた 所の 下だ」（c4_whale）
 // → ドゥナの さんばしへ もどり、サラは パーティーから はなれて さんばしで 待つ → 第4章の 続きは アップデートで！
-import { DUNA_POS, CASTLE_PLATES, CASTLE_GATE_FLAG, SANDSEA_POS } from '../maps/duna.js?v=eaa48772a44a';
-import { GUESTS } from './shops.js?v=eaa48772a44a';
-import { CH4_GUESTS } from './items-ch4.js?v=eaa48772a44a';
-import { innSteps } from './inn.js?v=eaa48772a44a';
+import { DUNA_POS, CASTLE_PLATES, CASTLE_GATE_FLAG, SANDSEA_POS } from '../maps/duna.js?v=7a510653fedd';
+import { GUESTS } from './shops.js?v=7a510653fedd';
+import { CH4_GUESTS } from './items-ch4.js?v=7a510653fedd';
+import { innSteps } from './inn.js?v=7a510653fedd';
 
 // サラ（ゲスト。items-ch4.js）を ゲストの 一覧に まぜる（world/party.js・world/scripts.js の GUESTS）
 Object.assign(GUESTS, CH4_GUESTS);

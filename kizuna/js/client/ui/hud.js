@@ -1,11 +1,12 @@
 // フィールドの がめんの かざり（HP・ばしょ・もくひょう・ちず・チャット）
-import { el, bar, askText, ListMenu } from './dom.js?v=eaa48772a44a';
-import { computeStats } from '../../shared/stats.js?v=eaa48772a44a';
-import { JOBS } from '../../shared/data/jobs.js?v=eaa48772a44a';
-import { renderMiniMap, openWorldMap } from './menu.js?v=eaa48772a44a';
-import { makeCanvas } from '../render/pixel.js?v=eaa48772a44a';
-import { ClockBadge } from './clock.js?v=eaa48772a44a';
-import { powderLabel } from '../../shared/data/friend-powder.js?v=eaa48772a44a';
+import { el, bar, askText, ListMenu } from './dom.js?v=7a510653fedd';
+import { computeStats } from '../../shared/stats.js?v=7a510653fedd';
+import { JOBS } from '../../shared/data/jobs.js?v=7a510653fedd';
+import { renderMiniMap, openWorldMap } from './menu.js?v=7a510653fedd';
+import { makeCanvas } from '../render/pixel.js?v=7a510653fedd';
+import { ClockBadge } from './clock.js?v=7a510653fedd';
+import { powderLabel } from '../../shared/data/friend-powder.js?v=7a510653fedd';
+import { auraLabel } from '../../shared/data/abilities-field27.js?v=7a510653fedd';
 
 export const STAMPS = ['よろしく！', 'ありがとう！', '行くよー！', '助けて！', '待ってて！', 'やったね！', 'おつかれさま', 'ご飯だよ〜'];
 
@@ -45,7 +46,9 @@ export class Hud {
     this.clock = new ClockBadge(game);
     // 仲間の粉の のこり（ちずの 上に 小さく。data/friend-powder.js）
     this.powder = el('div', { class: 'hud-powder', hidden: true });
-    this.mapBox.append(this.mini, this.clock.el, this.powder);
+    // 魔物よけ（トヘロス・聖水）・魔物よせ（マモノヨセ・笛）の のこり（仲間の粉の 下。data/abilities-field27.js）
+    this.aura = el('div', { class: 'hud-powder hud-aura', hidden: true });
+    this.mapBox.append(this.mini, this.clock.el, this.powder, this.aura);
     this.btns = el('div', { class: 'hud-btns' },
       el('button', { class: 'win hud-btn', text: 'メニュー', onclick: () => game.openMenu() }),
       el('button', { class: 'win hud-btn', text: 'チャット', onclick: () => this.chatInput() }),
@@ -68,6 +71,12 @@ export class Hud {
       const pw = powderLabel(this.game.me);
       if (this.powder.textContent !== pw) this.powder.textContent = pw;
       this.powder.hidden = !pw;
+      const au = this.game.me?.aura;
+      const al = auraLabel(au, Date.now() + (this.game.timeOffset || 0));
+      if (this.aura.textContent !== al) this.aura.textContent = al;
+      this.aura.hidden = !al;
+      this.aura.classList.toggle('lure', au?.kind === 'lure');
+      this.aura.style.top = pw ? `${this.powder.offsetHeight + 4}px` : '';
     }
     const f = this.game.field;
     if (!f.map) return;

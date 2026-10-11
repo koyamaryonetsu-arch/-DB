@@ -1,23 +1,24 @@
 // たたかいの はじまりと おわり（ほうしゅう・ぜんめつ）
-import { Battle, normBattleSettings } from '../battle.js?v=eaa48772a44a';
-import { scaleExp, difficultyOf, rewardExp, rewardGold } from '../data/difficulty.js?v=eaa48772a44a';
-import { POWDER, powderLeft } from '../data/friend-powder.js?v=eaa48772a44a';
-import { MONSTERS } from '../data/monsters.js?v=eaa48772a44a';
-import { ITEMS } from '../data/items.js?v=eaa48772a44a';
-import { ABILITIES } from '../data/abilities.js?v=eaa48772a44a';
-import { JOBS } from '../data/jobs.js?v=eaa48772a44a';
-import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=eaa48772a44a';
-import { gainExp, gainJobBattles, jobTrainMult, itemCount, removeItem, addItem, ownsItem, computeStats, STAT_NAMES, fullHeal } from '../stats.js?v=eaa48772a44a';
-import { JOB_MAX_LEVEL } from '../data/jobs.js?v=eaa48772a44a';
-import { befriendShare } from './recruit-share.js?v=eaa48772a44a';
-import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendChance, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf, PARTY_MAX } from './party.js?v=eaa48772a44a';
-import { rollDrops, stealPick } from '../data/loot.js?v=eaa48772a44a';
-import { MAPS } from '../maps/index.js?v=eaa48772a44a';
-import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js?v=eaa48772a44a';
-import { treasureAfterBattle } from './treasure.js?v=eaa48772a44a';
-import { wipeGoldLoss, bankGold } from './bank.js?v=eaa48772a44a';
-import { wagonShare, wagonBattleSwap } from './wagon.js?v=eaa48772a44a';
-import { battleTactics } from './tactics.js?v=eaa48772a44a';
+import { Battle, normBattleSettings } from '../battle.js?v=7a510653fedd';
+import { scaleExp, difficultyOf, rewardExp, rewardGold } from '../data/difficulty.js?v=7a510653fedd';
+import { POWDER, powderLeft } from '../data/friend-powder.js?v=7a510653fedd';
+import { MONSTERS } from '../data/monsters.js?v=7a510653fedd';
+import { ITEMS } from '../data/items.js?v=7a510653fedd';
+import { ABILITIES } from '../data/abilities.js?v=7a510653fedd';
+import { JOBS } from '../data/jobs.js?v=7a510653fedd';
+import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=7a510653fedd';
+import { gainExp, gainJobBattles, jobTrainMult, itemCount, removeItem, addItem, ownsItem, computeStats, STAT_NAMES, fullHeal } from '../stats.js?v=7a510653fedd';
+import { JOB_MAX_LEVEL } from '../data/jobs.js?v=7a510653fedd';
+import { befriendShare } from './recruit-share.js?v=7a510653fedd';
+import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendChance, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf, PARTY_MAX } from './party.js?v=7a510653fedd';
+import { rollDrops, stealPick } from '../data/loot.js?v=7a510653fedd';
+import { MAPS } from '../maps/index.js?v=7a510653fedd';
+import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js?v=7a510653fedd';
+import { treasureAfterBattle } from './treasure.js?v=7a510653fedd';
+import { wipeGoldLoss, bankGold } from './bank.js?v=7a510653fedd';
+import { lureOn, lureGroup } from './field27.js?v=7a510653fedd';
+import { wagonShare, wagonBattleSwap } from './wagon.js?v=7a510653fedd';
+import { battleTactics } from './tactics.js?v=7a510653fedd';
 
 let battleSeq = 1;
 
@@ -222,6 +223,8 @@ export function startFieldBattle(world, s, sym) {
   const r = world.rng.next();
   if (sym.state !== 'chase' && r < 0.12) preemptive = 'ally';
   else if (sym.state === 'chase' && r < 0.06) preemptive = 'enemy';
+  // 魔物よせ（マモノヨセ・魔物よせの笛）: 強めの 組が 出やすい（world/field27.js の lureGroup）
+  if (sessions.some((m) => lureOn(m, world.now()))) sym.group = lureGroup(world, sym);
   const ctx = makeBattle(world, sessions, party, sym.group, {
     bg: ZONE_BG[sym.table] || (MAPS[s.map].kind === 'dungeon' ? 'cave' : 'grass'),
     bgm: sym.table === 'rare' ? 'battle' : 'battle',
@@ -434,7 +437,7 @@ function finishBattle(world, ctx) {
       // 仲間は もちぬしの むずかしさ
       grow(who.char, scaleExp(world.data.characters[who.owner], exp), trains);
     }
-    // 馬車の 仲間は 半分（world/wagon.js）
+    // 馬車の 仲間（フィールドは 同じ・洞窟などは 半分。world/wagon.js）
     wagonShare(world, ctx, { exp, trainN, grow, say: (l) => compLines.push(l) });
     if (compLines.length) for (const m of sessions) perSession[m.id].lines.push(...compLines);
     // まものが なかまに なりたがる（ふつうの たたかい だけ。ひみつのダンジョンの 中では ならない: map.noBefriend）

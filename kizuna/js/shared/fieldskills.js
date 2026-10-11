@@ -2,13 +2,13 @@
 // サーバーの 'cast'（world/services.js）と おなじ きまりで えらぶ:
 //   ・field の ない 技（戦いだけの 技）は 出さない
 //   ・掛け合わせ技を 今の 職業で 使えない とき・ぶきが 合わない ときは 出さない
-//   ・ルーラは 洞窟や 塔の 中では 出さない（天井に 頭を ぶつける だけ）
+//   ・ルーラは 洞窟や 塔の 中では 出さない（天井に 頭を ぶつける だけ）。リレミトは フィールドでは 出さない
 //   ・MPが 足りない 技・唱える 人が 死んでいる ときは 出すが えらべない（why: 'mp' / 'dead'）
 //   ・呪文が ふうじられた 場所（noSpells。王家のピラミッド 2階）では 呪文を 出すが えらべない（why: 'seal'）
-import { ABILITIES } from './data/abilities.js?v=eaa48772a44a';
-import { ITEMS } from './data/items.js?v=eaa48772a44a';
-import { learnedAbilities, mpCost, comboAllowed, weaponOk } from './stats.js?v=eaa48772a44a';
-import { spellSealed } from './battle.js?v=eaa48772a44a';
+import { ABILITIES } from './data/abilities.js?v=7a510653fedd';
+import { ITEMS } from './data/items.js?v=7a510653fedd';
+import { learnedAbilities, mpCost, comboAllowed, weaponOk } from './stats.js?v=7a510653fedd';
+import { spellSealed } from './battle.js?v=7a510653fedd';
 
 // mapKind: 今いる マップの しゅるい（'field' なら そと）
 // へんじ: [{ id, cost, ok, why }]（覚えた じゅん）
@@ -22,6 +22,7 @@ export function fieldUsableAbilities(char, { mapKind = 'field', noSpells = false
     if (a.kind === 'combo' && !comboAllowed(char, id)) continue;
     if (!weaponOk(a, weaponCat)) continue;
     if (a.effect?.type === 'warp' && mapKind !== 'field') continue;
+    if (a.effect?.type === 'exit' && mapKind === 'field') continue; // リレミトは 洞窟や 塔の 中だけ（abilities-field27.js）
     const cost = mpCost(char, id);
     const why = (char.hp ?? 1) <= 0 ? 'dead' : noSpells && spellSealed(a) ? 'seal' : (char.mp || 0) < cost ? 'mp' : '';
     out.push({ id, cost, ok: !why, why });

@@ -1,41 +1,42 @@
 // フィールドの メニュー
-import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js?v=eaa48772a44a';
-import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js?v=eaa48772a44a';
-import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js?v=eaa48772a44a';
-import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS, turnSeconds } from '../../shared/battle.js?v=eaa48772a44a';
-import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily, gearSortPref, setGearSortPref } from '../prefs.js?v=eaa48772a44a';
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, TIER_NAMES } from '../../shared/data/jobs.js?v=eaa48772a44a';
-import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress, partyJobSet, hiraVisible, monsterSlots, canEquipChar, itemCount, MAX_LEVEL } from '../../shared/stats.js?v=eaa48772a44a';
-import { HIRAMEKI } from '../../shared/data/hirameki.js?v=eaa48772a44a';
-import { DUAL_TECHS, DUAL_ORDER, groupName, dualKnown, dualRelated } from '../../shared/data/dual.js?v=eaa48772a44a';
-import { MONSTERS } from '../../shared/data/monsters.js?v=eaa48772a44a';
-import { monsterDrops } from '../../shared/data/loot.js?v=eaa48772a44a';
-import { MONSTER_FRIENDS, RACE_NAMES, recipeHint, joinTier, bestiaryOrder } from '../../shared/data/companions.js?v=eaa48772a44a';
-import { TACTICS } from '../../shared/ai.js?v=eaa48772a44a';
-import { PLACES } from '../../shared/maps/overworld.js?v=eaa48772a44a';
-import { SEA_PLACES } from '../../shared/maps/ch2.js?v=eaa48772a44a';
-import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js?v=eaa48772a44a';
-import { T, TILE_INFO } from '../../shared/tiles.js?v=eaa48772a44a';
-import { itemDetail, abilityDetail, skillBrief, gearText, targetTag, statChanges, statChangesHtml } from './info.js?v=eaa48772a44a';
-import { bestEquipPlan, bestTeamOrder, gearChoices, sortGearChoices, GEAR_SORTS } from '../../shared/equip-plan.js?v=eaa48772a44a';
-import { shownEquip, lookChoices, LOOK_SLOTS, LOOK_NONE } from '../../shared/look-equip.js?v=eaa48772a44a';
-import { makeCanvas, ctxOf } from '../render/pixel.js?v=eaa48772a44a';
-import { previewCache } from '../render/hero.js?v=eaa48772a44a';
-import { monsterCanvas } from '../render/monsters.js?v=eaa48772a44a';
-import { mapIconCanvas, boardIconURL } from '../render/boards.js?v=eaa48772a44a';
-import { medalItemRow, walletView } from './casino.js?v=eaa48772a44a';
-import { compareTeam, whoItems } from './counter.js?v=eaa48772a44a';
-import { faceURL } from '../field.js?v=eaa48772a44a';
-import { partyRows } from './hud.js?v=eaa48772a44a';
-import { questMarks, subQuests, OBJECTIVE_TARGETS, whereName } from '../../shared/data/quest-targets.js?v=eaa48772a44a';
-import { difficultyOf, visibleMarks, EXP_RATES, EXP_RATE_NAMES, ENEMY_RATES, ENEMY_RATE_NAMES, ENEMY_RATE_NOTES } from '../../shared/data/difficulty.js?v=eaa48772a44a';
-import { memberTalk, talkFor } from '../../shared/data/party-talk.js?v=eaa48772a44a';
-import { treasureRows, treasureDetail, openTreasureMap } from './treasure.js?v=eaa48772a44a';
-import { themeHex } from '../render/themes.js?v=eaa48772a44a';
-import { sdRecordOf, sdRecordText } from '../../shared/data/secret.js?v=eaa48772a44a';
-import { wagonMenuView, wagonHereClient, menuArrange } from './wagon.js?v=eaa48772a44a';
-import { readErrLog, errLogText, clearErrLog } from '../errlog.js?v=eaa48772a44a';
-import { fieldUsableAbilities } from '../../shared/fieldskills.js?v=eaa48772a44a';
+import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js?v=7a510653fedd';
+import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js?v=7a510653fedd';
+import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js?v=7a510653fedd';
+import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS, turnSeconds } from '../../shared/battle.js?v=7a510653fedd';
+import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily, gearSortPref, setGearSortPref } from '../prefs.js?v=7a510653fedd';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, TIER_NAMES } from '../../shared/data/jobs.js?v=7a510653fedd';
+import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress, partyJobSet, hiraVisible, monsterSlots, canEquipChar, itemCount, MAX_LEVEL } from '../../shared/stats.js?v=7a510653fedd';
+import { HIRAMEKI } from '../../shared/data/hirameki.js?v=7a510653fedd';
+import { DUAL_TECHS, DUAL_ORDER, groupName, dualKnown, dualRelated } from '../../shared/data/dual.js?v=7a510653fedd';
+import { MONSTERS } from '../../shared/data/monsters.js?v=7a510653fedd';
+import { monsterDrops } from '../../shared/data/loot.js?v=7a510653fedd';
+import { MONSTER_FRIENDS, RACE_NAMES, recipeHint, joinTier, bestiaryOrder } from '../../shared/data/companions.js?v=7a510653fedd';
+import { TACTICS } from '../../shared/ai.js?v=7a510653fedd';
+import { PLACES } from '../../shared/maps/overworld.js?v=7a510653fedd';
+import { SEA_PLACES } from '../../shared/maps/ch2.js?v=7a510653fedd';
+import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js?v=7a510653fedd';
+import { T, TILE_INFO } from '../../shared/tiles.js?v=7a510653fedd';
+import { menuItemText } from './skillinfo.js?v=7a510653fedd';
+import { itemDetail, abilityDetail, skillBrief, gearText, targetTag, statChanges, statChangesHtml } from './info.js?v=7a510653fedd';
+import { bestEquipPlan, bestTeamOrder, gearChoices, sortGearChoices, GEAR_SORTS } from '../../shared/equip-plan.js?v=7a510653fedd';
+import { shownEquip, lookChoices, LOOK_SLOTS, LOOK_NONE } from '../../shared/look-equip.js?v=7a510653fedd';
+import { makeCanvas, ctxOf } from '../render/pixel.js?v=7a510653fedd';
+import { previewCache } from '../render/hero.js?v=7a510653fedd';
+import { monsterCanvas } from '../render/monsters.js?v=7a510653fedd';
+import { mapIconCanvas, boardIconURL } from '../render/boards.js?v=7a510653fedd';
+import { medalItemRow, walletView } from './casino.js?v=7a510653fedd';
+import { compareTeam, whoItems } from './counter.js?v=7a510653fedd';
+import { faceURL } from '../field.js?v=7a510653fedd';
+import { partyRows } from './hud.js?v=7a510653fedd';
+import { questMarks, subQuests, OBJECTIVE_TARGETS, whereName } from '../../shared/data/quest-targets.js?v=7a510653fedd';
+import { difficultyOf, visibleMarks, EXP_RATES, EXP_RATE_NAMES, ENEMY_RATES, ENEMY_RATE_NAMES, ENEMY_RATE_NOTES } from '../../shared/data/difficulty.js?v=7a510653fedd';
+import { memberTalk, talkFor } from '../../shared/data/party-talk.js?v=7a510653fedd';
+import { treasureRows, treasureDetail, openTreasureMap } from './treasure.js?v=7a510653fedd';
+import { themeHex } from '../render/themes.js?v=7a510653fedd';
+import { sdRecordOf, sdRecordText } from '../../shared/data/secret.js?v=7a510653fedd';
+import { wagonMenuView, wagonHereClient, menuArrange } from './wagon.js?v=7a510653fedd';
+import { readErrLog, errLogText, clearErrLog } from '../errlog.js?v=7a510653fedd';
+import { fieldUsableAbilities } from '../../shared/fieldskills.js?v=7a510653fedd';
 
 // 見た目装備の せつめい
 const LOOK_HELP = '見た目だけを、持っている装備に変える（強さは変わらない）\n職業で装備できない物も選べる。「装備なし」も選べる';
@@ -395,8 +396,9 @@ export class FieldMenu {
   itemsList(active, focus = null) {
     const g = this.game;
     const c = g.me;
-    const box = el('div');
-    const detail = el('div', { class: 'detail' });
+    // 第27回: 一覧は まどの 中で スクロール、せつめいは その 下に いつも 見える（css の .items-view）
+    const box = el('div', { class: 'items-view' });
+    const detail = el('div', { class: 'detail item-detail' });
     const mode = itemSortPref();
     const counts = new Map(c.items.map((e) => [e.id, e.n]));
     // 素材（ふしぎなかじで 使う）には しるし
@@ -432,10 +434,18 @@ export class FieldMenu {
       start = items.findIndex((x) => x.value === focus.id);
       if (start < 0) start = Math.min(Math.max(0, focus.idx || 0), items.length - 1);
     }
+    // せつめいは 戦いの 道具と おなじ 文（だれに・効果・せつめい）＋ 使える所（ui/skillinfo.js の menuItemText）。
+    // スマホは 戦いと おなじ「タップで せつめい → もう一度で 使う・装備する など」（ListMenu の tapConfirm）
+    const touch = !!g.input.touch;
     const m = this.mkSub({
       items,
       start,
-      onMove: (it) => { detail.textContent = it ? (it.tmap ? treasureDetail(g, it.tmap) : itemDetail(it.value, mons)) : ''; },
+      tapConfirm: touch,
+      onMove: (it) => {
+        detail.textContent = it ? (it.tmap ? treasureDetail(g, it.tmap) : menuItemText(it.value, { touch: touch && !it.key, mons })) : '';
+        // せつめいの 高さが かわると 一覧の まどが せまく なる。えらんだ 行が かくれないように
+        requestAnimationFrame(() => { if (m.root.isConnected) m.scrollToSel(); });
+      },
       onSelect: (it) => this.itemAction(it),
     });
     box.append(tabs, m.root, detail);
@@ -697,6 +707,8 @@ export class FieldMenu {
     if (c.companion) box.append(el('div', { class: 'gold small', text: `${c.name}の呪文・技　MP ${c.mp}` }));
     const learned = learnedAbilities(c);
     const detail = el('div', { class: 'detail' });
+    // スマホ: タップで せつめい、もう一度で 使う（道具・戦いと おなじ。第27回）
+    const touch = !!g.input.touch;
     const mode = SKILL_TABS.some(([k]) => k === this.skillMode) ? this.skillMode : 'list';
     const go = (m) => { this.skillMode = m; this.focusSub(this.skillsView(true, who)); };
     const side = (d) => {
@@ -740,6 +752,13 @@ export class FieldMenu {
         if (this.root) this.focusSub(this.skillsView(true, who));
         return;
       }
+      // リレミト: 洞窟の 中で 使えれば メニューを とじて 外を 見せる（みちびきの糸と 同じ。shared/world/field27.js）
+      if (a.effect?.type === 'exit') {
+        const r = await this.menuCall({ t: 'menu', action: 'cast', id, ref: 'self', who });
+        if (r?.ok) return this.close();
+        if (this.root) this.focusSub(this.skillsView(true, who));
+        return;
+      }
       let ref = 'self';
       if (a.target === 'self' && c.companion) ref = 'sup:' + c.key;
       else if (a.target !== 'allies' && a.target !== 'self') ref = await this.pickTarget(`だれに${a.name}？`, a.target === 'deadAlly');
@@ -763,7 +782,7 @@ export class FieldMenu {
       }
       const showNow = (it) => {
         const x = now.find((n) => n.id === it?.value);
-        detail.textContent = x ? `${abilityDetail(x.id, c)}${x.ok ? '' : `\n（${why[x.why]}）`}` : '';
+        detail.textContent = x ? `${abilityDetail(x.id, c)}${x.ok ? '' : `\n（${why[x.why]}）`}${x.ok && touch ? '\n▶もう一度タップで使う' : ''}` : '';
       };
       const m = list(now.map((x) => {
         const a = ABILITIES[x.id];
@@ -777,6 +796,7 @@ export class FieldMenu {
           disabled: !x.ok,
         };
       }), {
+        tapConfirm: touch,
         onMove: showNow,
         onSelect: (it) => {
           this.sub.blur();
@@ -883,8 +903,9 @@ export class FieldMenu {
       box.append(el('div', { class: 'detail', text: '「他」は今の職業以外で覚えた技。MPが増えたり、威力が下がったりする。' }));
       return box;
     }
-    const showDetail = (it) => { detail.textContent = it ? `${abilityDetail(it.value, c)}\n使った回数: ${c.skillUse?.[it.value] || 0}回` : ''; };
+    const showDetail = (it) => { detail.textContent = it ? `${abilityDetail(it.value, c)}\n使った回数: ${c.skillUse?.[it.value] || 0}回${touch ? '\n▶もう一度タップで「使う・お気に入り」' : ''}` : ''; };
     const m = list(items, {
+      tapConfirm: touch,
       onMove: showDetail,
       onSelect: async (it) => {
         const a = ABILITIES[it.value];

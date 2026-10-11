@@ -12,22 +12,23 @@
 //   ['teleport', 'map', x, y, 'dir']  ['spawn', 'map', x, y]  ['chapter', 'だい1しょう', 'サブタイトル']
 //
 // x（じょうほう）: x.name x.flag('f') x.has('item') x.count('item') x.kills('monster') x.quest('key')
-import { POS } from '../maps/index.js?v=eaa48772a44a';
-import { PLACES } from '../maps/overworld.js?v=eaa48772a44a';
-import { ABILITIES } from './abilities.js?v=eaa48772a44a';
-import { learnedAbilities, comboUnlocked, hiraAllowed, hiraRelated, partyJobSet } from '../stats.js?v=eaa48772a44a';
-import { HIRAMEKI, hiraRatio } from './hirameki.js?v=eaa48772a44a';
-import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js?v=eaa48772a44a';
-import { CH3_STEPS, CH3_STORY_SCRIPTS, CH3_SCRIPTS, elderCh3 } from './story-ch3.js?v=eaa48772a44a';
-import { CH4_STEPS, CH4_STORY_SCRIPTS, CH4_SCRIPTS, elderCh4 } from './story-ch4.js?v=eaa48772a44a';
-import { TM_SCRIPTS, TM_STORY_SCRIPTS } from './story-tm.js?v=eaa48772a44a';
-import { SD_SCRIPTS } from './story-secret.js?v=eaa48772a44a';
-import { CASINO_SCRIPTS } from './story-casino.js?v=eaa48772a44a';
-import { innSteps } from './inn.js?v=eaa48772a44a';
-import { NIGHT_SCRIPTS } from './night.js?v=eaa48772a44a';
-import { skyScripts } from './sky.js?v=eaa48772a44a';
-import { FACILITY_SCRIPTS } from './facilities.js?v=eaa48772a44a';
-import { wagonEventSteps } from './wagon.js?v=eaa48772a44a';
+import { POS } from '../maps/index.js?v=7a510653fedd';
+import { PLACES } from '../maps/overworld.js?v=7a510653fedd';
+import { ABILITIES } from './abilities.js?v=7a510653fedd';
+import { learnedAbilities, comboUnlocked, hiraAllowed, hiraRelated, partyJobSet } from '../stats.js?v=7a510653fedd';
+import { HIRAMEKI, hiraRatio } from './hirameki.js?v=7a510653fedd';
+import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js?v=7a510653fedd';
+import { CH3_STEPS, CH3_STORY_SCRIPTS, CH3_SCRIPTS, elderCh3 } from './story-ch3.js?v=7a510653fedd';
+import { CH4_STEPS, CH4_STORY_SCRIPTS, CH4_SCRIPTS, elderCh4 } from './story-ch4.js?v=7a510653fedd';
+import { TM_SCRIPTS, TM_STORY_SCRIPTS } from './story-tm.js?v=7a510653fedd';
+import { SD_SCRIPTS } from './story-secret.js?v=7a510653fedd';
+import { CASINO_SCRIPTS } from './story-casino.js?v=7a510653fedd';
+import { innSteps } from './inn.js?v=7a510653fedd';
+import { NIGHT_SCRIPTS } from './night.js?v=7a510653fedd';
+import { skyScripts } from './sky.js?v=7a510653fedd';
+import { FACILITY_SCRIPTS } from './facilities.js?v=7a510653fedd';
+import { wagonEventSteps } from './wagon.js?v=7a510653fedd';
+import { JOB_GREET } from './job-talk.js?v=7a510653fedd';
 
 const V = (x, y) => [PLACES.village.x + x + 0.5, PLACES.village.y + y + 0.5];
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
@@ -329,11 +330,8 @@ export const SCRIPTS = {
   ],
   church: () => [['church']],
   job_change: (x) => [
-    ...S('神官セレナ', 'ここは星の神殿。\n紋章を持つ者は、新しい道を選ぶことができます。',
-      '転職しても、今までに覚えた呪文や特技は使えます。',
-      'ただし、今の職業に合わない技は\nMPが多くかかったり、威力が下がったりします。',
-      '職業のレベルはそれぞれ別。戦いに勝つと上がります（最大10）。\nただし弱すぎる相手では修行になりません。',
-      '基本職を2つ極めれば上級職に、上級職を極めれば超級職になれますよ。\nさあ、どの職業になりますか？'),
+    // 第27回: 家族の ねがいで みじかく（くわしい ことは 転職の まどの せつめいに ある。client/ui/services.js）
+    ...S('神官セレナ', JOB_GREET),
     ['jobChange'],
   ],
   tavern: (x) => [

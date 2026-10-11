@@ -4,13 +4,16 @@
 // 形: KIZUNA-2-<しるし8もじ>-<ちぢめた データ>
 //   しるし … とちゅうで 切れていないか たしかめる ための かず
 //   ちぢめた データ … LZW で ちぢめて、英数字と - _ だけで 書いたもの
-//   （LINE で 送れるように。LINE は 1回に 1万文字まで。仲間が いっぱいでも 7千文字ほど）
+//   （LINE で 送れるように。LINE は 1回に 1万文字まで）
+// 仲間が 多くて 1万文字を こえる ときは KIZUNA-3-（仲間の 空の 項目と ID を はぶいた 形。slimChar / unslimChar）。
+//   仲間 40人（いっぱい）でも 9千文字ほど。こえない ときは 今までどおり KIZUNA-2-（前の 版でも 読める）
 // むかしの KIZUNA-1-<しるし>-<base64> も 読める
-import { repairChar, upgradeSave, SAVE_VERSION } from './save.js?v=eaa48772a44a';
-import { dropGoneFamily } from '../data/wagon.js?v=eaa48772a44a';
+import { repairChar, upgradeSave, SAVE_VERSION } from './save.js?v=7a510653fedd';
+import { dropGoneFamily } from '../data/wagon.js?v=7a510653fedd';
 
 const PREFIX = 'KIZUNA-2-';
 const PREFIX_V1 = 'KIZUNA-1-';
+const PREFIX_V3 = 'KIZUNA-3-';
 export const CODE_MAX = 400000;
 export const LINE_MAX = 10000;
 export const CHAR_MAX = 12;
@@ -123,10 +126,52 @@ function fromBase64(b64) {
   return new TextDecoder().decode(bytes);
 }
 
-// キャラクター → コード
+// ───── KIZUNA-3: 仲間の 空の 項目を はぶく（読む ときに もとに もどす。仲間 40人でも LINE で 1回）─────
+// はぶくのは、ここに ある 項目が この 空の 形と まったく 同じ ときだけ（もどすと 同じ 物に なる）
+const COMP_EMPTY = {
+  look: null, job: null, jobs: {}, items: [], keyItems: [], seeds: {}, status: {}, flags: {}, chests: {}, sparkles: {}, quests: {}, kills: {},
+  skillUse: {}, hirameki: [], supportLog: [], pos: null, spawn: null, objective: '',
+  equip: { weapon: null, armor: null, shield: null, head: null, acc: null },
+};
+const MON_KEYS = ['look', 'job', 'jobs', 'items', 'seeds', 'status', 'flags', 'equip'];
+const sameJson = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+export function slimChar(char) {
+  if (!Array.isArray(char?.companions)) return char;
+  const companions = char.companions.map((e) => {
+    if (!e?.char || typeof e.char !== 'object') return e;
+    const ch = {};
+    for (const [k, v] of Object.entries(e.char)) {
+      if (k === 'id' && v === `${char.id}:${e.key}`) continue;
+      if (k in COMP_EMPTY && sameJson(v, COMP_EMPTY[k])) continue;
+      if (k === 'species' && v === e.species) continue;
+      ch[k] = v;
+    }
+    return { ...e, char: ch };
+  });
+  return { ...char, companions };
+}
+export function unslimChar(char) {
+  if (!Array.isArray(char?.companions)) return char;
+  for (const e of char.companions) {
+    const ch = e?.char;
+    if (!ch || typeof ch !== 'object') continue;
+    if (ch.id === undefined && typeof e.key === 'string') ch.id = `${char.id}:${e.key}`;
+    if (ch.species === undefined && e.species) ch.species = e.species;
+    // 魔物の 仲間は 人の 仲間より 項目が 少ない（newMonsterCompanion）
+    const keys = e.kind === 'monster' ? MON_KEYS : Object.keys(COMP_EMPTY);
+    for (const k of keys) if (!(k in ch)) ch[k] = JSON.parse(JSON.stringify(COMP_EMPTY[k]));
+  }
+  return char;
+}
+
+// キャラクター → コード（LINE の 1回に 入らない ときだけ KIZUNA-3）
 export function exportCode(char, now = Date.now()) {
   const json = JSON.stringify({ v: SAVE_VERSION, at: now, char });
-  return `${PREFIX}${hash(json)}-${pack(json)}`;
+  const code = `${PREFIX}${hash(json)}-${pack(json)}`;
+  if (code.length <= LINE_MAX) return code;
+  const slim = JSON.stringify({ v: SAVE_VERSION, at: now, char: slimChar(char) });
+  const code3 = `${PREFIX_V3}${hash(slim)}-${pack(slim)}`;
+  return code3.length < code.length ? code3 : code;
 }
 
 // コード → キャラクター（こわれていたら reason）
@@ -135,7 +180,8 @@ export function parseCode(text) {
   if (!code) return { ok: false, reason: 'コードを入れてね' };
   if (code.length > CODE_MAX) return { ok: false, reason: 'コードが長すぎます' };
   const v1 = code.startsWith(PREFIX_V1);
-  if (!v1 && !code.startsWith(PREFIX)) return { ok: false, reason: '引っこしコードではないみたい' };
+  const v3 = code.startsWith(PREFIX_V3);
+  if (!v1 && !v3 && !code.startsWith(PREFIX)) return { ok: false, reason: '引っこしコードではないみたい' };
   const rest = code.slice(PREFIX.length);
   const dash = rest.indexOf('-');
   if (dash !== 8) return { ok: false, reason: 'コードがこわれているみたい' };
@@ -154,6 +200,7 @@ export function parseCode(text) {
   }
   const c = body?.char;
   if (!c || typeof c !== 'object' || !validId(c.id) || typeof c.name !== 'string') return { ok: false, reason: 'キャラクターが入っていないみたい' };
+  if (v3) unslimChar(c);
   // むかしの 版の コードも 読める 形に
   const up = upgradeSave({ version: Number(body.v) || 1, characters: { [c.id]: c } });
   const char = up.data.characters[c.id];

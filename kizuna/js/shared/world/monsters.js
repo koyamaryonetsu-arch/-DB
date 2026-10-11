@@ -1,9 +1,13 @@
 // フィールドを うろうろする モンスター（シンボル）
-import { ENCOUNTER_TABLES } from '../data/encounters.js?v=eaa48772a44a';
-import { MONSTERS } from '../data/monsters.js?v=eaa48772a44a';
-import { MAPS, isBlocked } from '../maps/index.js?v=eaa48772a44a';
-import { NIGHT_ZONES, NIGHT_MORE } from '../data/night.js?v=eaa48772a44a';
-import { cursedOn, CURSE_SPAWN, CURSE_SPAWN_MS, CURSE_CHASE } from './pyramid.js?v=eaa48772a44a';
+import { ENCOUNTER_TABLES } from '../data/encounters.js?v=7a510653fedd';
+import { MONSTERS } from '../data/monsters.js?v=7a510653fedd';
+import { MAPS, isBlocked } from '../maps/index.js?v=7a510653fedd';
+import { NIGHT_ZONES, NIGHT_MORE } from '../data/night.js?v=7a510653fedd';
+import { cursedOn, CURSE_SPAWN, CURSE_SPAWN_MS, CURSE_CHASE } from './pyramid.js?v=7a510653fedd';
+import { LURE } from '../data/abilities-field27.js?v=7a510653fedd';
+
+// 魔物よせ（マモノヨセ・魔物よせの笛。world/field27.js の s.lureUntil）が 効いている 人か
+const lured = (world, p) => p?.lureUntil > world.now();
 
 let symSeq = 1;
 
@@ -95,7 +99,9 @@ export function spawnSymbols(world, ms, dt, playersOnMap) {
   if (ms.spawnTimer > 0) return;
   // のろいの宝（王家のピラミッド）: のろわれた 人が いると 魔物が ふえる（world/pyramid.js）
   const curse = cursedOn(ms.id, playersOnMap);
-  ms.spawnTimer = curse ? CURSE_SPAWN_MS : 700;
+  // 魔物よせ（data/abilities-field27.js の LURE）: その マップに 効いている 人が いると、魔物が 多く・早く 出てくる
+  const lure = playersOnMap.some((p) => lured(world, p));
+  ms.spawnTimer = curse ? CURSE_SPAWN_MS : lure ? LURE.spawnMs : 700;
   const zc = zoneCells(ms);
   const key = (zone, tod) => `${zone}|${tod || ''}`;
   // 昼の 人・夜の 人が いるか（だれも 見ない ほうの まものは すこしずつ いなくなる）
@@ -113,7 +119,7 @@ export function spawnSymbols(world, ms, dt, playersOnMap) {
   // たりない ちいきの うち、いちばん 少ない ところから（夜が 来た すぐ あとは 3びきずつ）
   const pools = [];
   for (const [zone, base] of Object.entries(map.spawnCounts)) {
-    const target = curse ? Math.round(base * CURSE_SPAWN) : base;
+    const target = curse ? Math.round(base * CURSE_SPAWN) : lure ? Math.ceil(base * LURE.spawn) : base;
     if (!zc[zone]?.length) continue;
     if (!hasNightSplit(map, zone)) pools.push([zone, null, target]);
     else {
@@ -207,22 +213,24 @@ export function moveSymbols(world, ms, dt, players) {
       // 空の 上の 人・その まものが 見えない（昼と 夜が ちがう）人は おいかけない
       if (p.invuln > 0 || p.busy || p.flying || !symbolVisible(s, p.night)) continue;
       const d = Math.hypot(p.x - s.x, p.y - s.y);
-      const reach = cursedPlayer(map, p) ? CURSE_CHASE + 1.5 : 6;
+      const reach = cursedPlayer(map, p) ? CURSE_CHASE + 1.5 : lured(world, p) ? LURE.reach : 6;
       if (d < reach && d - reach < best - near) {
         best = d;
         near = reach;
         target = p;
       }
     }
-    const chaseR = target && cursedPlayer(map, target) ? CURSE_CHASE : 4.5;
-    const repelled = target && target.repelUntil > world.now() && s.level <= target.level;
+    const lure = !!target && lured(world, target);
+    const chaseR = target && cursedPlayer(map, target) ? CURSE_CHASE : lure ? LURE.chase : 4.5;
+    // 魔物よけ（聖水・トヘロス）。魔物よせが 効いている ときは 効かない（あとから 使った ほうが 勝つ。world/field27.js）
+    const repelled = target && !lure && target.repelUntil > world.now() && s.level <= target.level;
     if (s.sp === 'kirakira' && target && best < 4) {
       // きらきらぷるりんは にげる
       s.state = 'flee';
       const d = Math.max(0.01, best);
       s.vx = (s.x - target.x) / d;
       s.vy = (s.y - target.y) / d;
-    } else if (target && s.aggro && !repelled && best < chaseR) {
+    } else if (target && (s.aggro || lure) && !repelled && best < chaseR) {
       s.state = 'chase';
       const d = Math.max(0.01, best);
       s.vx = (target.x - s.x) / d;

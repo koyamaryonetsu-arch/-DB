@@ -1,22 +1,25 @@
 // お店・転職・酒場・でんごんばん・ほしのかけら・きょうかい の がめん
-import { el, ListMenu, toast, askText, confirmBox, esc } from './dom.js?v=eaa48772a44a';
-import { ITEMS } from '../../shared/data/items.js?v=eaa48772a44a';
-import { JOBS, SUPER_ORDER, LEGEND_ORDER, TIER_ORDERS, TIER_NAMES, JOB_MAX_LEVEL, jobReqText, jobReqSets, jobBodyOk, BODY_NAMES, JOB_HINTS, superMasteredCount } from '../../shared/data/jobs.js?v=eaa48772a44a';
-import { ABILITIES } from '../../shared/data/abilities.js?v=eaa48772a44a';
-import { salonUI } from './salon.js?v=eaa48772a44a';
-import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered, canEquip } from '../../shared/stats.js?v=eaa48772a44a';
-import { MONSTERS } from '../../shared/data/monsters.js?v=eaa48772a44a';
-import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES, breedOutcome, breedRumors } from '../../shared/data/companions.js?v=eaa48772a44a';
-import { TACTICS } from '../../shared/ai.js?v=eaa48772a44a';
-import { itemDetail, gearText } from './info.js?v=eaa48772a44a';
-import { playerSprite, followerSprite, faceURL } from '../field.js?v=eaa48772a44a';
-import { shopUI, churchUI } from './shop.js?v=eaa48772a44a';
-import { bankUI } from './bank.js?v=eaa48772a44a';
-import { forgeUI } from './forge.js?v=eaa48772a44a';
-import { tavernWagonItems, tavernWagonOpts, tavernWagonAct, tavernPlace, arrangeUI } from './wagon.js?v=eaa48772a44a';
-import { casinoUI } from './casino.js?v=eaa48772a44a';
-import { sdBoardUI } from './secret.js?v=eaa48772a44a';
-import { shownEquip } from '../../shared/look-equip.js?v=eaa48772a44a';
+import { el, ListMenu, toast, askText, confirmBox, esc } from './dom.js?v=7a510653fedd';
+import { ITEMS } from '../../shared/data/items.js?v=7a510653fedd';
+import { JOBS, SUPER_ORDER, LEGEND_ORDER, TIER_ORDERS, TIER_NAMES, JOB_MAX_LEVEL, jobReqText, jobReqSets, jobBodyOk, BODY_NAMES, JOB_HINTS, superMasteredCount } from '../../shared/data/jobs.js?v=7a510653fedd';
+import { ABILITIES } from '../../shared/data/abilities.js?v=7a510653fedd';
+import { salonUI } from './salon.js?v=7a510653fedd';
+import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered, canEquip } from '../../shared/stats.js?v=7a510653fedd';
+import { MONSTERS } from '../../shared/data/monsters.js?v=7a510653fedd';
+import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES, breedOutcome, breedRumors } from '../../shared/data/companions.js?v=7a510653fedd';
+import { TACTICS } from '../../shared/ai.js?v=7a510653fedd';
+import { itemDetail, gearText } from './info.js?v=7a510653fedd';
+import { playerSprite, followerSprite, faceURL } from '../field.js?v=7a510653fedd';
+import { shopUI, churchUI } from './shop.js?v=7a510653fedd';
+import { bankUI } from './bank.js?v=7a510653fedd';
+import { forgeUI } from './forge.js?v=7a510653fedd';
+import { tavernWagonItems, tavernWagonOpts, tavernWagonAct, tavernPlace, arrangeUI } from './wagon.js?v=7a510653fedd';
+import { casinoUI } from './casino.js?v=7a510653fedd';
+import { sdBoardUI } from './secret.js?v=7a510653fedd';
+import { shownEquip } from '../../shared/look-equip.js?v=7a510653fedd';
+import { jobAskText } from '../../shared/data/job-talk.js?v=7a510653fedd';
+import { sortRoster, rosterSortName, nextRosterSort } from '../../shared/roster-sort.js?v=7a510653fedd';
+import { rosterSortPref, setRosterSortPref } from '../prefs.js?v=7a510653fedd';
 
 export function openServiceUI(game, kind, data) {
   switch (kind) {
@@ -147,7 +150,8 @@ function jobUI(game) {
           return;
         }
         menu.blur();
-        const ok = await confirmBox(game.input, `${who === 'self' ? '' : c.name + 'を'}${JOBS[it.value].name}に転職${who === 'self' ? 'しますか' : 'させますか'}？\n（今の職業のレベルは残ります）`, 'はい', 'いいえ', (x) => game.audio.sfx(x));
+        // 第27回: かくにんは 1行（今の 職業の レベルが のこる ことは 下の せつめいに ある）
+        const ok = await confirmBox(game.input, jobAskText(JOBS[it.value].name, who === 'self' ? null : c.name), 'はい', 'いいえ', (x) => game.audio.sfx(x));
         if (ok) {
           const r = await request(game, { kind: 'jobChange', job: it.value, who });
           if (r.ok) {
@@ -250,7 +254,7 @@ function jobUI(game) {
         bars.append(el('span', { text: n }), el('div', { class: 'b' }, el('i', { style: { width: `${Math.min(100, v / 1.5 * 100)}%` } })), el('span', { class: v > 1 ? 'up' : v < 1 ? 'down' : '', text: `${Math.round(v * 100)}%` }));
       }
       main.append(el('div', { class: 'small gold', text: '強さのかたむき' }), bars);
-      main.append(el('div', { class: 'detail', text: `職業レベルは戦いに勝つと上がる（最大${JOB_MAX_LEVEL}）。ただし、1回の攻撃で終わってしまう戦いでは、修行は半分しか進まない。\n基本職を2つマスターすると上級職、上級職をマスターすると超級職になれる（超級職は、上級職をマスターするとヒントが出る）。超級職をきわめた先には、伝説の職業もある（ロトの勇者・スーパーサイヤ人3・ニカ・魔王・天才しせつ管理者・はかい神・日の呼吸の使い手・七代目火影）。\n呪文の掛け合わせは、元の職業を合わせ持つ上級職以上で使える。\n他の職業で覚えた技も使えるが、MPが増えたり威力が下がることがある（元になった職業の技はだいじょうぶ）。\n酒場の仲間もここで転職できる。\n（十字キーの左右で、このせつめいをスクロールできる）` }));
+      main.append(el('div', { class: 'detail', text: `職業レベルは戦いに勝つと上がる（最大${JOB_MAX_LEVEL}）。職業ごとに別で、転職しても今の職業のレベルは残る。ただし、1回の攻撃で終わってしまう戦いでは、修行は半分しか進まない。\n基本職を2つマスターすると上級職、上級職をマスターすると超級職になれる（超級職は、上級職をマスターするとヒントが出る）。超級職をきわめた先には、伝説の職業もある（ロトの勇者・スーパーサイヤ人3・ニカ・魔王・天才しせつ管理者・はかい神・日の呼吸の使い手・七代目火影）。\n呪文の掛け合わせは、元の職業を合わせ持つ上級職以上で使える。\n他の職業で覚えた技も使えるが、MPが増えたり威力が下がることがある（元になった職業の技はだいじょうぶ）。\n酒場の仲間もここで転職できる。\n（十字キーの左右で、このせつめいをスクロールできる）` }));
       // 下に つづく ときの しるし
       const more = el('div', { class: 'scroll-more', text: '▼ 下に続く' });
       main.append(more);
@@ -278,6 +282,8 @@ function tavernUI(game, data) {
     const plusTag = (e) => (e.plus ? `<span class="plus">+${e.plus}</span>` : '');
     const BREED_KEY = '#breed';
     const ARRANGE_KEY = '#arrange';
+    const SORT_KEY = '#sort';
+    let sortMode = rosterSortPref();
     const byKey = () => {
       const m = new Map();
       for (const e of info.roster) m.set(e.key, { ...e, sec: 'roster' });
@@ -301,9 +307,11 @@ function tavernUI(game, data) {
       }
       // 馬車の 仲間（ui/wagon.js）
       out.push(...tavernWagonItems(info, entries, { face, who, plusTag }));
-      const waiting = info.roster.filter((e) => !e.inParty && !e.inWagon);
+      // 酒場で 待っている 仲間（40ひきまで いるので、ならびを 変えられる。shared/roster-sort.js）
+      const waiting = sortRoster(info.roster.filter((e) => !e.inParty && !e.inWagon), sortMode);
       if (waiting.length) {
-        out.push({ header: true, label: `酒場で待っている仲間（${waiting.length}）` });
+        out.push({ header: true, label: `酒場で待っている仲間（${waiting.length}）　仲間${info.roster.length}/${info.rosterMax || info.roster.length}` });
+        if (waiting.length > 1) out.push({ html: `ならび：<span class="gold">${rosterSortName(sortMode)}</span> <span class="muted small">（選ぶと変わる）</span>`, value: SORT_KEY });
         for (const e of waiting) out.push({ face: face(e), html: `${esc(e.name)}${plusTag(e)} <span class="muted small">${who(e)}</span>${e.hp <= 0 ? '<span class="tag warn">休んでいる</span>' : ''}`, value: e.key });
       }
       const mons = info.roster.filter((e) => e.species);
@@ -334,9 +342,13 @@ function tavernUI(game, data) {
         main.append(el('h3', { text: '総入れかえ' }), el('div', { class: 'detail', text: [
           'パーティーと馬車にいるみんなを、1番目から順番に選びなおす。',
           '・1〜4番目が戦う仲間（自分はかならずここに入る）',
-          '・5〜8番目は馬車で待つ仲間（戦わなくても経験値を半分もらえる）',
+          '・5〜8番目は馬車で待つ仲間（戦わなくても経験値をもらえる。洞窟や塔の中では半分）',
           '・酒場で待っている仲間とは、ひとりずつ入れかえよう',
         ].join('\n') }));
+        return;
+      }
+      if (key === SORT_KEY) {
+        main.append(el('h3', { text: '待っている仲間のならび' }), el('div', { class: 'detail', text: `今は「${rosterSortName(sortMode)}」。\n選ぶたびに、仲間になった順→種類順→レベル順と変わる。\n・種類順は、人の仲間が先。魔物は図鑑の順で、同じ種類はレベルの高い順\n・仲間は${info.rosterMax || 40}人（ひき）まで。いっぱいの時は、酒場でだれかと別れると、また仲間になる` }));
         return;
       }
       if (key === BREED_KEY) {
@@ -356,7 +368,7 @@ function tavernUI(game, data) {
       }
       const e = entries.get(key);
       if (!e) {
-        main.append(el('div', { class: 'detail', text: `仲間を連れていくといっしょに戦ってくれる。\n連れていけるのは3人まで。待っている仲間とはいつでも入れかえられる（待っている間の装備はふくろにもどる）。\nモンスターの仲間もここで待っている。${info.wagon ? `\n馬車には${info.wagon.max}人まで乗れる（装備はそのまま。経験値は半分もらえる）。家族のキャラも乗れる。\nパーティーがいっぱいの時は、連れていく仲間は馬車に乗る。` : ''}` }));
+        main.append(el('div', { class: 'detail', text: `仲間を連れていくといっしょに戦ってくれる。\n連れていけるのは3人まで。待っている仲間とはいつでも入れかえられる（待っている間の装備はふくろにもどる）。\nモンスターの仲間もここで待っている。${info.wagon ? `\n馬車には${info.wagon.max}人まで乗れる（装備はそのまま。戦わなくても経験値をもらえる。洞窟や塔の中では半分）。家族のキャラも乗れる。\nパーティーがいっぱいの時は、連れていく仲間は馬車に乗る。` : ''}` }));
         return;
       }
       const pv = e.species ? followerSprite({ mon: e.species }, 'down', 0) : playerSprite(e.look, e.job, 'down', 0, shownEquip(e));
@@ -373,7 +385,7 @@ function tavernUI(game, data) {
       }
       main.append(el('div', { class: 'detail', text: e.desc || '' }));
       if (e.sec === 'roster' && e.inParty && !e.active) main.append(el('div', { class: 'detail', text: '今はパーティーの人数がいっぱいなので待っている。' }));
-      if (e.inWagon) main.append(el('div', { class: 'detail', text: e.family ? '馬車に乗っている。本人にも経験値のおすそわけが少し届く。' : '馬車に乗っている。戦いに出なくても経験値を半分もらえる。' }));
+      if (e.inWagon) main.append(el('div', { class: 'detail', text: e.family ? '馬車に乗っている。本人にも経験値のおすそわけが少し届く。' : '馬車に乗っている。戦いに出なくても、戦った仲間と同じ経験値をもらえる（洞窟や塔の中では半分）。' }));
       if (e.here) main.append(el('div', { class: 'detail', text: '今は本人がいっしょに遊んでいるので、うつしは待っている。' }));
     };
     const menu = new ListMenu(game.input, {
@@ -548,6 +560,13 @@ function tavernUI(game, data) {
       await doReq({ action: 'breed', a, b, inherit, name: nm || (pv.unseen ? '' : pv.childName) });
     };
     const act = async (key) => {
+      if (key === SORT_KEY) {
+        // ならびを かえる（仲間に なった順 → 種類順 → レベル順）。カーソルは この 行の まま
+        sortMode = nextRosterSort(sortMode);
+        setRosterSortPref(sortMode);
+        refresh();
+        return;
+      }
       if (key === BREED_KEY) {
         menu.blur();
         await breedFlow();
