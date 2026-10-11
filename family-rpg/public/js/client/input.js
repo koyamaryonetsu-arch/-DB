@@ -6,7 +6,7 @@
 const KEYMAP = {
   ArrowUp: 'up', KeyW: 'up', ArrowDown: 'down', KeyS: 'down', ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right',
   KeyZ: 'a', Enter: 'a', Space: 'a', NumpadEnter: 'a', KeyX: 'b', Escape: 'b', Backspace: 'b',
-  KeyM: 'map', KeyC: 'chat', Tab: 'menu', KeyF: 'fly',
+  KeyM: 'map', KeyC: 'chat', Tab: 'menu', KeyF: 'fly', KeyY: 'y',
 };
 
 export class Input {
@@ -351,7 +351,8 @@ export class Input {
     };
     if (edge('a', b(0))) this.emit('a');
     if (edge('b', b(1))) this.emit('b');
-    if (edge('menu', b(9) || b(3))) this.emit(this.busy ? 'b' : 'b');
+    // Y（3）: 長おしの かわり（戦いの 技の お気に入り。ListMenu の yKey）。ほかでは 今までどおり B
+    if (edge('menu', b(9) || b(3))) this.emit(b(3) && this.stack[this.stack.length - 1]?.yKey ? 'y' : 'b');
     if (edge('map', b(8))) this.emit('map');
     if (this.busy) {
       const dir = Math.abs(x) > Math.abs(y) ? (x > 0.5 ? 'right' : x < -0.5 ? 'left' : null) : (y > 0.5 ? 'down' : y < -0.5 ? 'up' : null);

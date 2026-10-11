@@ -34,9 +34,12 @@ export class ListMenu {
   // fit: なまえは 1行で。入りきらない ときは 文字を 小さく して ぜんぶ 見せる（せまい ボタンの たたかいの コマンド）
   // tapConfirm: タップ（クリック）で ほかの 行を えらぶと カーソルと せつめい だけ うごく。えらんでいる 行を もう一度 おすと 決まる
   //   （戦いの 呪文・特技・道具。マウスは 先に カーソルが 合うので 1回で 決まる）
-  constructor(input, { items = [], cols = 1, onSelect, onCancel, onMove, onSide, sound, className = '', back, press = 0, start = -1, fit = false, tapConfirm = false } = {}) {
+  // onLong: 行を 長おし（タッチ・マウス 0.5秒）した とき・Y（キーボードの Y・ゲームパッドの Y）を おした とき（第27回 戦いの お気に入り）。
+  //   長おしでは その 行は 決まらない（はなした あとの クリックは すてる）
+  constructor(input, { items = [], cols = 1, onSelect, onCancel, onMove, onSide, sound, className = '', back, press = 0, start = -1, fit = false, tapConfirm = false, onLong = null } = {}) {
     this.input = input;
     this.tapConfirm = tapConfirm;
+    this.onLong = onLong;
     this.fitText = fit;
     this.onSide = onSide || null;
     this.press = press;
@@ -53,7 +56,9 @@ export class ListMenu {
     if (start >= 0 && start < items.length && !items[start].header) this.idx = start;
     this.root = el('ul', { class: `menu ${cols === 2 ? 'cols2' : ''} ${fit ? 'fit' : ''} ${className}`, role: 'listbox' });
     // pad: スマホでは 十字キーの パッドも 出す
-    this.handler = { onNav: (a, rep) => this.nav(a, rep), pad: true, el: this.root, onGone: () => { this.active = false; } };
+    const self = this;
+    // yKey: ゲームパッドの Y を「y」で とどける（長おしの かわり。onLong が ある ときだけ。input.js）
+    this.handler = { onNav: (a, rep) => this.nav(a, rep), pad: true, el: this.root, onGone: () => { this.active = false; }, get yKey() { return !!self.onLong; } };
     this.active = false;
     this.render();
   }
@@ -88,6 +93,10 @@ export class ListMenu {
           }
           this.choose();
         },
+        // 長おし（onLong の ある メニューだけ）
+        // （あとから menu.onLong を 入れても 効く）
+        onpointerdown: (e) => { if (this.onLong) this.longStart(e, i); },
+        oncontextmenu: (e) => { if (this.onLong) e.preventDefault(); },
         // マウスを 本当に うごかした ときだけ カーソルを あわせる
         // （まどが マウスの 下に 出てきた だけで「いいえ」などに かわらないように）
         onmousemove: (e) => {
@@ -147,6 +156,50 @@ export class ListMenu {
         lab.style.fontSize = `${k.toFixed(2)}em`;
       }
     }
+  }
+
+  // 長おしを はかる（0.5秒。ゆびが 10ピクセル より うごいた・はなした・スクロールに なった ときは やめる）
+  longStart(e, i) {
+    if (e.button > 0 || this.items[i]?.header) return;
+    clearTimeout(this.longT);
+    const x0 = e.clientX, y0 = e.clientY;
+    const off = () => {
+      removeEventListener('pointermove', move);
+      removeEventListener('pointerup', stop);
+      removeEventListener('pointercancel', stop);
+    };
+    const stop = () => { clearTimeout(this.longT); off(); };
+    const move = (ev) => { if (Math.hypot(ev.clientX - x0, ev.clientY - y0) > 10) stop(); };
+    addEventListener('pointermove', move);
+    addEventListener('pointerup', stop);
+    addEventListener('pointercancel', stop);
+    this.longT = setTimeout(() => {
+      off();
+      if (!this.active || this.pressing || !this.root.isConnected) return;
+      // はなした ときの クリックは すてる（行が 決まらない・出てきた まどの 中も おさない）
+      const swallow = (ev) => { ev.stopPropagation(); ev.preventDefault(); };
+      const release = () => {
+        removeEventListener('pointerup', release);
+        removeEventListener('pointercancel', release);
+        addEventListener('click', swallow, { capture: true, once: true });
+        setTimeout(() => removeEventListener('click', swallow, { capture: true }), 500);
+      };
+      addEventListener('pointerup', release);
+      addEventListener('pointercancel', release);
+      this.fireLong(i);
+    }, ListMenu.LONG_MS);
+  }
+
+  fireLong(i = this.idx) {
+    const it = this.items[i];
+    if (!this.onLong || !it || it.header) return;
+    if (this.idx !== i) {
+      this.idx = i;
+      this.updateSel();
+      this.onMove?.(it, i);
+    }
+    this.sound?.('cursor');
+    this.onLong(it, i);
   }
 
   cancel() {
@@ -279,6 +332,7 @@ export class ListMenu {
       case 'right': if (cols > 1) step(1); else this.onSide?.(1); break;
       case 'a': this.choose(); break;
       case 'b': this.cancel(); break;
+      case 'y': this.fireLong(); break;
       default:
     }
   }
@@ -307,6 +361,9 @@ export class ListMenu {
     }, this.press);
   }
 }
+
+// 長おしの 時間（ミリ秒）
+ListMenu.LONG_MS = 500;
 
 // ───────────── おしらせ ─────────────
 export function toast(text, ms = 3200) {
