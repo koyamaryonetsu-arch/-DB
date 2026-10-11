@@ -1,12 +1,12 @@
 // ふく・よろい（そうびの よろいと しょくぎょうで きまる）
 // outfitOf(みため, しょくぎょう, よろいの ID, おんな？) → かく ための せってい
 // 知らない よろい（これからの もの）は、種類（armorType）・ランク・名前の ことば から きめる
-import { mat, ramp, TH, mixC, HeroCanvas } from './hero-raster.js?v=6f664e6b3ea4';
-import { ITEMS } from '../../shared/data/items.js?v=6f664e6b3ea4';
+import { mat, ramp, TH, mixC, HeroCanvas } from './hero-raster.js?v=76f251ec36c2';
+import { ITEMS } from '../../shared/data/items.js?v=76f251ec36c2';
 // 第26回の 新しい 職業（楽天カードマン・きさつ隊・ネコ型ロボット・カッパ・火影 など）の 服と からだ
-import { R26_OUTFIT, R26_BODY, outfit26, body26, capeFlame, robotTail } from './hero-r26.js?v=6f664e6b3ea4';
+import { R26_OUTFIT, R26_BODY, outfit26, body26, capeFlame, robotTail } from './hero-r26.js?v=76f251ec36c2';
 // 第27回の 暴れんぼう将軍（はかまと 羽織・ちょんまげ・せんす）
-import { R27_OUTFIT, R27_BODY } from './hero-r27.js?v=6f664e6b3ea4';
+import { R27_OUTFIT, R27_BODY } from './hero-r27.js?v=76f251ec36c2';
 
 // ───────────── ざいしつ ─────────────
 const METALS = {

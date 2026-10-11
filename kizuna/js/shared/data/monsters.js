@@ -11,15 +11,16 @@
 const ROCK_RESIST = { fire: 0.5, ice: 0.7, wind: 0.6, blast: 1.5, poison: 0, sleep: 0, confuse: 0.3, paralyze: 0.2 };
 const METAL_RESIST = { fire: 0, ice: 0, wind: 0, blast: 0, bolt: 0, light: 0, dark: 0, void: 0.5, sleep: 0, poison: 0, confuse: 0, blind: 0, silence: 0, paralyze: 0, debuff: 0 };
 
-import { MONSTERS_CH2 } from './monsters-ch2.js?v=6f664e6b3ea4';
-import { MONSTERS_TM } from './monsters-tm.js?v=6f664e6b3ea4';
-import { NIGHT_MONSTERS } from './night.js?v=6f664e6b3ea4';
-import { MONSTERS_RARE } from './monsters-rare.js?v=6f664e6b3ea4';
-import { MONSTERS_CH3 } from './monsters-ch3.js?v=6f664e6b3ea4';
-import { MONSTERS_CH4 } from './monsters-ch4.js?v=6f664e6b3ea4';
-import { MONSTERS_R23 } from './monsters-r23.js?v=6f664e6b3ea4';
+import { MONSTERS_CH2 } from './monsters-ch2.js?v=76f251ec36c2';
+import { MONSTERS_TM } from './monsters-tm.js?v=76f251ec36c2';
+import { NIGHT_MONSTERS } from './night.js?v=76f251ec36c2';
+import { MONSTERS_RARE } from './monsters-rare.js?v=76f251ec36c2';
+import { MONSTERS_CH3 } from './monsters-ch3.js?v=76f251ec36c2';
+import { MONSTERS_CH4 } from './monsters-ch4.js?v=76f251ec36c2';
+import { MONSTERS_R23 } from './monsters-r23.js?v=76f251ec36c2';
 // 第4章 Step 7「砂の底の神殿とモルガナ」（monsters-temple.js）
-import { MONSTERS_TEMPLE } from './monsters-temple.js?v=6f664e6b3ea4';
+import { MONSTERS_TEMPLE } from './monsters-temple.js?v=76f251ec36c2';
+import { MONSTERS_LAB } from './monsters-lab.js?v=76f251ec36c2';
 
 export const MONSTERS = {
   pururin: {
@@ -234,3 +235,5 @@ Object.assign(MONSTERS, MONSTERS_CH4);
 Object.assign(MONSTERS, MONSTERS_R23);
 // 第4章 Step 7「砂の底の神殿」の 魔物と モルガナ（monsters-temple.js）
 Object.assign(MONSTERS, MONSTERS_TEMPLE);
+// 第4章クリアの あとの より道: 古代の大迷宮の ボス（monsters-lab.js）
+Object.assign(MONSTERS, MONSTERS_LAB);

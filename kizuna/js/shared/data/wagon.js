@@ -11,7 +11,7 @@
 // ・家族の キャラは パーティーと おなじ「うつし」が 乗る。本人に とどく 経験値の おすそわけは パーティーの ときの 半分（お金は なし）。
 //   本人が パーティーに 来ている ときは うつしは 出ない（パーティーの 'fam:' と おなじ きまり）
 // ・総入れかえ: 1〜4番目が 戦う 仲間（自分は かならず ここ）、5〜8番目が 馬車（world/wagon.js の arrangeWagon）
-import { COMPANION_SLOTS } from './companions.js?v=6f664e6b3ea4';
+import { COMPANION_SLOTS } from './companions.js?v=76f251ec36c2';
 
 // 馬車に 乗れる 人数
 export const WAGON_SLOTS = 4;
@@ -22,6 +22,11 @@ export const WAGON_EXP_RATE = 0.5;
 export const WAGON_EXP_RATE_WITH = 1;
 // その 場所での わりあい（here … 馬車が いっしょか。world/wagon.js の wagonHere）
 export const wagonExpRate = (here) => (here ? WAGON_EXP_RATE_WITH : WAGON_EXP_RATE);
+
+// 馬車が 入れる マップ: フィールドと、馬車も 通れる 広い ダンジョン（map.wagon。古代の大迷宮）
+export function wagonMapOk(m) {
+  return m?.kind === 'field' || !!m?.wagon;
+}
 
 export function hasWagon(c) {
   return !!c?.wagon;

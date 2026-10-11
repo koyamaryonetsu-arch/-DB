@@ -2,13 +2,14 @@
 // みため（かみがた・いろ）と そうび（ぶき・よろい・たて・かぶと）で かわる
 // 人は 32×42 で くみたてて、2ばいの 64×84 に して こまかく かきたす（res 4: せかいでは 16×21 の 大きさに かく）
 // どうぶつ・船は 16×21 など
-import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=6f664e6b3ea4';
-import { ITEMS, baseItemId } from '../../shared/data/items.js?v=6f664e6b3ea4';
-import { STARTER_EQUIP } from '../../shared/stats.js?v=6f664e6b3ea4';
-import { paintMiraPrison, paintWaterStar } from './temple-chars.js?v=6f664e6b3ea4';
-import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js?v=6f664e6b3ea4';
-import { R26_OLD_LOOK } from './hero-r26.js?v=6f664e6b3ea4';
-import { R27_OLD_LOOK } from './hero-r27.js?v=6f664e6b3ea4';
+import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=76f251ec36c2';
+import { ITEMS, baseItemId } from '../../shared/data/items.js?v=76f251ec36c2';
+import { STARTER_EQUIP } from '../../shared/stats.js?v=76f251ec36c2';
+import { paintMiraPrison, paintWaterStar } from './temple-chars.js?v=76f251ec36c2';
+import { LAB_NPC_LOOKS } from './lab-art.js?v=76f251ec36c2';
+import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js?v=76f251ec36c2';
+import { R26_OLD_LOOK } from './hero-r26.js?v=76f251ec36c2';
+import { R27_OLD_LOOK } from './hero-r27.js?v=76f251ec36c2';
 
 export const CW = 16;
 export const CH = 21;
@@ -347,6 +348,8 @@ const NPC_LOOKS = {
   mirror_guard: { hair: 0, skin: '#c8d8e8', outfit: 'armor', cloth: '#b8d0e8', hat: 'helmet', hatColor: '#d8e8f8', spear: true },
   prison_guard: { hair: 0, skin: '#a8d8f0', outfit: 'armor', cloth: '#2a6aa8', hat: 'helmet', hatColor: '#4aa8e0', spear: true },
 };
+// 第4章クリアの あとの たのまれごとの 人（render/lab-art.js）
+Object.assign(NPC_LOOKS, LAB_NPC_LOOKS);
 
 // そうびの かきかた: 'ぶき,よろい,たて,あたま' の もじれつ か { weapon, armor, shield, head }
 export function parseEquip(eq, job) {

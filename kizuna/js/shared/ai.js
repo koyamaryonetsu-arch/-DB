@@ -1,14 +1,15 @@
 // たたかいの AI（モンスター と サポートなかま）
-import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=6f664e6b3ea4';
+import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=76f251ec36c2';
 // 推理（deduce）の 属性・運しだいの 技を オートで 使う（第26回）
-import { deduceElement } from './data/abilities-jobs6.js?v=6f664e6b3ea4';
-import { mpCost, penaltyFor, weaponOk, comboAllowed } from './stats.js?v=6f664e6b3ea4';
+import { deduceElement } from './data/abilities-jobs6.js?v=76f251ec36c2';
+import { mpCost, penaltyFor, weaponOk, comboAllowed } from './stats.js?v=76f251ec36c2';
 // 第4章の まぼろしの分身と 月の鏡（battle-ch4.js）
-import { mirageAction, mirrorPlan } from './battle-ch4.js?v=6f664e6b3ea4';
+import { mirageAction, mirrorPlan } from './battle-ch4.js?v=76f251ec36c2';
 // 第4章 Step 6 の 砂に もぐる 魔物（battle-ch4.js）
-import { burrowSurface, burrowPlan } from './battle-ch4.js?v=6f664e6b3ea4';
+import { burrowSurface, burrowPlan } from './battle-ch4.js?v=76f251ec36c2';
 // 第4章 Step 7 の 砂の底の神殿と モルガナ（battle-temple.js）
-import { templeAction, templeCond, templePlan, templeAdjust, bondOk, waveIgnored } from './battle-temple.js?v=6f664e6b3ea4';
+import { templeAction, templeCond, templePlan, templeAdjust, bondOk, waveIgnored } from './battle-temple.js?v=76f251ec36c2';
+import { labPlan, labIgnored } from './battle-lab.js?v=76f251ec36c2';
 
 // さくせん
 export const TACTICS = {
@@ -111,6 +112,9 @@ export function decideAlly(b, c) {
   // 大波の 前に 身を 守る・水の衣に きずな技（しかけを 知っている 人。battle-temple.js）
   const tp = templePlan(b, c, foes);
   if (tp) return tp;
+  // 古竜の いにしえの炎の 前に 身を 守る（しかけを 知っている 人。battle-lab.js）
+  const lp = labPlan(b, c);
+  if (lp) return lp;
   if (!foes.length) return { type: 'defend' };
   const mine = usable(b, c);
 
@@ -159,7 +163,7 @@ export function decideAlly(b, c) {
 
   // 5) ボスの 大わざに そなえる
   // （砂に もぐった 敵の とび出しも。b.ignoreBurrow … 気づかない 人）
-  const telegraphing = b.aliveEnemies().some((f) => f.telegraph && !(b.ignoreBurrow && f.burrow) && !waveIgnored(b, f));
+  const telegraphing = b.aliveEnemies().some((f) => f.telegraph && !(b.ignoreBurrow && f.burrow) && !waveIgnored(b, f) && !labIgnored(b, f));
   if (telegraphing && c.hp / c.maxHp < 0.6 && b.rng.chance(0.75)) return { type: 'defend' };
 
   // MPが へってきたら まりょくを あつめる

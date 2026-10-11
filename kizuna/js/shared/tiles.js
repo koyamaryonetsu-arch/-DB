@@ -38,6 +38,9 @@ export const T = {
   LEVER_R: 171, LEVER_R_ON: 172, LEVER_B: 173, LEVER_B_ON: 174, LEVER_Y: 175, LEVER_Y_ON: 176,
   MIRROR_FLOOR: 177, MIRROR_LIT: 178, BIG_MIRROR: 179, MIRROR_BROKEN: 180, WATER_PRISON: 181, WATER_MIRROR: 182,
   CLAN_SHRINE: 183, MURAL: 184, AIR_WALL: 185, FULL_FOUNTAIN: 186,
+  // 第4章クリアの あとの より道「古代の大迷宮」（maps/labyrinth.js。ほかの 人と ぶつからない ように 230 から）
+  RUIN_FLOOR: 230, RUIN_GATE: 231, RUIN_GATE_SHUT: 232, REST_FIRE: 233, WARP_RING: 234, WARP_RING_OFF: 235,
+  ANC_DOOR: 236, ANC_MURAL: 237, DRAGON_BONE: 238,
 };
 
 export const TILE_INFO = {};
@@ -207,6 +210,16 @@ def(T.CLAN_SHRINE, 'clan_shrine', { solid: true, talkThrough: true, mapColor: '#
 def(T.MURAL, 'mural', { solid: true, mapColor: '#6a8aa0' }); // かべ画（水は、上から下へ。光は、下から上へ）
 def(T.AIR_WALL, 'air_wall', { solid: true, mapColor: '#b8946a' }); // 空気の ドームの かべ（あわの 向こうは 砂）
 def(T.FULL_FOUNTAIN, 'full_fountain', { solid: true, anim: true, mapColor: '#5aa8e0' }); // 水が もどった 王都の ふん水
+// 古代の大迷宮（第4章クリアの あとの より道。maps/labyrinth.js・render/tiles-lab.js）
+def(T.RUIN_FLOOR, 'ruin_floor', { mapColor: '#c8b08a' }); // 古代の 大きな 石だたみ（馬車も 通れる 広い 道）
+def(T.RUIN_GATE, 'ruin_gate', { mapColor: '#3a2a1a' }); // 古代都市の 門の 下の かいだん（砂の海から 古代都市へ）
+def(T.RUIN_GATE_SHUT, 'ruin_gate_shut', { solid: true, mapColor: '#8a6a40' }); // 砂に うもれた 門（第4章クリアまで）
+def(T.REST_FIRE, 'rest_fire', { solid: true, talkThrough: true, anim: true, light: true, mapColor: '#ffb84a' }); // 休み所の 聖なる 火（回復と 記録）
+def(T.WARP_RING, 'warp_ring', { anim: true, light: true, mapColor: '#7ae8ff' }); // 近道の「転送の門」（光っている）
+def(T.WARP_RING_OFF, 'warp_ring_off', { mapColor: '#6a7a8a' }); // まだ 光っていない 転送の門（ふむと 光る）
+def(T.ANC_DOOR, 'anc_door', { solid: true, mapColor: '#7a5a3a' }); // 古代の 石の とびら（しかけで 開く）
+def(T.ANC_MURAL, 'anc_mural', { solid: true, mapColor: '#a87a4a' }); // 古代の かべ画（古竜と 古代都市の 話）
+def(T.DRAGON_BONE, 'dragon_bone', { solid: true, mapColor: '#e8dcc0' }); // 大昔の 竜の ほね
 
 export function isSolid(id) {
   return TILE_INFO[id]?.solid ?? true;

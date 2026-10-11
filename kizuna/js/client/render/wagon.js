@@ -1,10 +1,11 @@
 // 馬車（ほろ馬車と 馬）の ドット絵と、パーティーの うしろを ついてくる うごき
 //   よこむきは left を かく（right は はんてん）。down は 馬が てまえ、up は 馬車の うしろが てまえ
-import { Painter, scale2x, rimShade, outline2, flipCanvas } from './pixel.js?v=6f664e6b3ea4';
-import { MAPS, tileAt, onWater } from '../../shared/maps/index.js?v=6f664e6b3ea4';
-import { PLACES } from '../../shared/maps/overworld.js?v=6f664e6b3ea4';
-import { SEA_PLACES } from '../../shared/maps/ch2.js?v=6f664e6b3ea4';
-import { T } from '../../shared/tiles.js?v=6f664e6b3ea4';
+import { Painter, scale2x, rimShade, outline2, flipCanvas } from './pixel.js?v=76f251ec36c2';
+import { MAPS, tileAt, onWater } from '../../shared/maps/index.js?v=76f251ec36c2';
+import { PLACES } from '../../shared/maps/overworld.js?v=76f251ec36c2';
+import { SEA_PLACES } from '../../shared/maps/ch2.js?v=76f251ec36c2';
+import { T } from '../../shared/tiles.js?v=76f251ec36c2';
+import { wagonMapOk } from '../../shared/data/wagon.js?v=76f251ec36c2';
 
 const OUT = '#1b1330';
 const C = {
@@ -189,7 +190,7 @@ function townRects(mapId) {
 
 // 馬車が 止まって いられる 場所か
 export function wagonSpotOk(map, x, y, hasFlag) {
-  if (!map || map.kind !== 'field') return false;
+  if (!map || !wagonMapOk(map)) return false;
   const tx = Math.floor(x), ty = Math.floor(y);
   if (townRects(map.id).some((r) => inRect(tx, ty, r))) return false;
   if (onWater(map, x, y, hasFlag)) return false;
@@ -226,7 +227,7 @@ export class WagonFollower {
       this.mapId = id;
       this.pos = (id && this.parked[id]) || null;
     }
-    if (!map || map.kind !== 'field' || !MAPS[map.id]) return null;
+    if (!map || !wagonMapOk(map) || !MAPS[map.id]) return null;
     const hasFlag = (f) => field.gateFlag(f);
     // 船に のっている あいだは 馬車も 船の 中（かかない）
     if (onWater(map, o.x, o.y, hasFlag)) {

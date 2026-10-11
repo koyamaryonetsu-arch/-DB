@@ -4,10 +4,11 @@
 // 行き先の 書き方: { npc: 'NPCのID' }（その 人の いる 場所）か { map, x, y }
 //   unless: 'フラグ' … その フラグが もう ある 人には 出さない（もう 話を 聞いた 人など。ぜんぶ 消えたら そのまま 出す）
 // 新しい 目標を 作ったら、ここにも 行き先を 足す
-import { MAPS } from '../maps/index.js?v=6f664e6b3ea4';
-import { SKY_OBJECTIVE_TARGETS, C3_LEAD_OBJECTIVE } from './sky.js?v=6f664e6b3ea4';
-import { CH3_OBJECTIVE_TARGETS, ch3SubQuests } from './story-ch3.js?v=6f664e6b3ea4';
-import { CH4_OBJECTIVE_TARGETS } from './story-ch4.js?v=6f664e6b3ea4';
+import { MAPS } from '../maps/index.js?v=76f251ec36c2';
+import { SKY_OBJECTIVE_TARGETS, C3_LEAD_OBJECTIVE } from './sky.js?v=76f251ec36c2';
+import { CH3_OBJECTIVE_TARGETS, ch3SubQuests } from './story-ch3.js?v=76f251ec36c2';
+import { CH4_OBJECTIVE_TARGETS } from './story-ch4.js?v=76f251ec36c2';
+import { labSubQuests } from './sidequests.js?v=76f251ec36c2';
 
 export const OBJECTIVE_TARGETS = {
   'ホシミばあちゃんの家（村の南東）へ行こう': [{ npc: 'elder' }],
@@ -67,6 +68,8 @@ export function subQuests(c) {
   // 第3章（story-ch3.js）
   const count = (id) => (c.items || []).filter((i) => i.id === id).reduce((s, i) => s + (i.n || 0), 0);
   out.push(...ch3SubQuests(c, f, has, count));
+  // 第4章クリアの あとの たのまれごと（sidequests.js）
+  out.push(...labSubQuests(c, f, has));
   return out;
 }
 

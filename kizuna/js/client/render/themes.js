@@ -1,9 +1,10 @@
 // 色の かえかた（宝の洞窟の しゅるい・第3章の 氷と 火の 洞窟・第4章の 砂の 洞窟と 地下水路・洞窟の 主の 色ちがい）
 // もとの ドット絵は そのままに、明るさを たもって 色だけ かえる
-import { T } from '../../shared/tiles.js?v=6f664e6b3ea4';
-import { makeCanvas, ctxOf } from './pixel.js?v=6f664e6b3ea4';
-import { CANAL_CTX, CANAL_CTX_TILES } from './tiles-canal.js?v=6f664e6b3ea4';
-import { TEMPLE_TILES } from './tiles-temple.js?v=6f664e6b3ea4';
+import { T } from '../../shared/tiles.js?v=76f251ec36c2';
+import { makeCanvas, ctxOf } from './pixel.js?v=76f251ec36c2';
+import { CANAL_CTX, CANAL_CTX_TILES } from './tiles-canal.js?v=76f251ec36c2';
+import { TEMPLE_TILES } from './tiles-temple.js?v=76f251ec36c2';
+import { LAB_TILES } from './tiles-lab.js?v=76f251ec36c2';
 
 // どの 部分か（ゆか・かべ・水）
 const PART_OF_TILE = {
@@ -32,6 +33,8 @@ PART_OF_TILE[T.CARPET] = 'carpet';
 for (const id of [T.SAND_SEA, T.SAND_WHIRL]) PART_OF_TILE[id] = 'none';
 // 第4章 Step 7 の 砂の底の神殿の タイル（水・鏡・ろう・水鏡・ほこら など）も もとの 色の まま（神殿の 色で かいてある）
 for (const id of TEMPLE_TILES) PART_OF_TILE[id] = 'none';
+// 古代の大迷宮の タイル（石だたみ・聖なる 火・転送の門 など）も もとの 色の まま
+for (const id of LAB_TILES) PART_OF_TILE[id] = 'none';
 // mask … 地下水路の え で かいた たいまつ・レバー・かいだん など（mask の CANAL_CTX）も 色を かえない
 // 王家のピラミッドの 石の 文字ばん（かんばんの mask 4）も もとの 色の まま
 export const partOfTile = (id, mask = 0) => ((mask & CANAL_CTX && CANAL_CTX_TILES.has(id)) || (id === T.SIGN && mask & 4) ? 'none' : PART_OF_TILE[id] || 'floor');
@@ -163,7 +166,22 @@ const SECRET = {
     flame: G([0, '#3a4aaa'], [0.5, '#a8c0ff'], [1, '#ffffff']),
   },
 };
-const THEMES = { ice: ICE, lava: LAVA, sand: SAND, canal: CANAL, pyramid: PYRAMID, castle: CASTLE, temple: TEMPLE, ...SECRET };
+// 古代の大迷宮（第4章クリアの あと）: 赤茶の 古い 切り石の かべ・砂色の ゆか。深い 階（地下7階から）は こい むらさきの 石
+const RUINS = {
+  floor: G([0, '#1a1208'], [0.1, '#42301a'], [0.2, '#7a6040'], [0.3, '#a88c62'], [0.45, '#c4aa80'], [0.7, '#e0caa0'], [1, '#fff6e0']),
+  wall: G([0, '#24160a'], [0.08, '#5a3a1c'], [0.18, '#8a6034'], [0.3, '#b08250'], [0.5, '#cca070'], [1, '#f6dcac']),
+  water: G([0, '#06222e'], [0.35, '#1d6c8c'], [0.7, '#5cbad2'], [1, '#e8fcff']),
+  gem: G([0, '#6a3a08'], [0.5, '#f0a830'], [1, '#fff4c8']),
+  flame: null,
+};
+const RUINS_DEEP = {
+  floor: G([0, '#140c10'], [0.1, '#30202a'], [0.2, '#5a4048'], [0.3, '#86686a'], [0.45, '#a88a86'], [0.7, '#cab0a8'], [1, '#fff0ea']),
+  wall: G([0, '#1a0e1e'], [0.08, '#3e2444'], [0.18, '#62405e'], [0.3, '#86607e'], [0.5, '#a88098'], [1, '#ecd0e4']),
+  water: G([0, '#1a0a3a'], [0.35, '#5a2aa8'], [0.7, '#a87ae8'], [1, '#fbf0ff']),
+  gem: G([0, '#6a3a08'], [0.5, '#f0a830'], [1, '#fff4c8']),
+  flame: null,
+};
+const THEMES = { ice: ICE, lava: LAVA, sand: SAND, canal: CANAL, pyramid: PYRAMID, castle: CASTLE, temple: TEMPLE, ruins: RUINS, ruins_deep: RUINS_DEEP, ...SECRET };
 
 // 1つの 色を かえる
 export function themeRgb(r, g, b, theme, part) {

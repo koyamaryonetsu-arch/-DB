@@ -1,17 +1,17 @@
 // だいほん（イベント）を すすめる しくみ
-import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js?v=6f664e6b3ea4';
-import { ITEMS } from '../data/items.js?v=6f664e6b3ea4';
-import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js?v=6f664e6b3ea4';
-import { startFixedBattle } from './battles.js?v=6f664e6b3ea4';
-import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=6f664e6b3ea4';
-import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion, befriendLevel } from './party.js?v=6f664e6b3ea4';
-import { shareBefriend } from './recruit-share.js?v=6f664e6b3ea4';
-import { openService } from './services.js?v=6f664e6b3ea4';
-import { isNightFor, advanceClock, fracFor } from './clock.js?v=6f664e6b3ea4';
-import { grantWagon, wagonChars } from './wagon.js?v=6f664e6b3ea4';
-import { GUESTS } from '../data/shops.js?v=6f664e6b3ea4';
-import { unstickAll } from './hazards.js?v=6f664e6b3ea4';
-import { MAPS, isBlocked } from '../maps/index.js?v=6f664e6b3ea4';
+import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js?v=76f251ec36c2';
+import { ITEMS } from '../data/items.js?v=76f251ec36c2';
+import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js?v=76f251ec36c2';
+import { startFixedBattle } from './battles.js?v=76f251ec36c2';
+import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=76f251ec36c2';
+import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion, befriendLevel } from './party.js?v=76f251ec36c2';
+import { shareBefriend } from './recruit-share.js?v=76f251ec36c2';
+import { openService } from './services.js?v=76f251ec36c2';
+import { isNightFor, advanceClock, fracFor } from './clock.js?v=76f251ec36c2';
+import { grantWagon, wagonChars, wagonHere } from './wagon.js?v=76f251ec36c2';
+import { GUESTS } from '../data/shops.js?v=76f251ec36c2';
+import { unstickAll } from './hazards.js?v=76f251ec36c2';
+import { MAPS, isBlocked } from '../maps/index.js?v=76f251ec36c2';
 
 let runSeq = 1;
 
@@ -387,7 +387,7 @@ export class ScriptRun {
           this.batch.push(['sfx', 'join']);
           if (r.where === 'wagon') {
             // パーティーが いっぱいで 馬車が あいていた（洞窟の 中では 馬車は 入り口で 待っている）
-            this.say(MAPS[s.map]?.kind === 'field' ? `${r.name}が仲間に加わった！\n${r.name}は馬車に乗りこんだ！` : `${r.name}が仲間に加わった！\n${r.name}は入り口で待つ馬車へ向かった！`);
+            this.say(wagonHere(s.map) ? `${r.name}が仲間に加わった！\n${r.name}は馬車に乗りこんだ！` : `${r.name}が仲間に加わった！\n${r.name}は入り口で待つ馬車へ向かった！`);
           } else if (r.joined) this.say(`${r.name}が仲間に加わった！`);
           else this.say(`${r.name}が仲間になった！\n${r.name}はルミナの町の酒場で待っている。`);
           if (r.benchedName) this.say(`${r.benchedName}は酒場へもどった。${r.stowed?.length ? '\n（装備はふくろにしまった）' : ''}`);

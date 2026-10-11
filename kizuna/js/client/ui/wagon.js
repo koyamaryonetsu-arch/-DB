@@ -1,16 +1,16 @@
 // 馬車の がめん: たたかいの「いれかえ」「総入れかえ」・メニューの「仲間」→「総入れかえ」「馬車」・酒場の 乗りかえ
 //   きまりは shared/data/wagon.js と shared/world/wagon.js
-import { el, esc, toast, ListMenu } from './dom.js?v=6f664e6b3ea4';
-import { WAGON_SLOTS } from '../../shared/data/wagon.js?v=6f664e6b3ea4';
-import { COMPANION_SLOTS } from '../../shared/data/companions.js?v=6f664e6b3ea4';
-import { MAPS } from '../../shared/maps/index.js?v=6f664e6b3ea4';
-import { JOBS } from '../../shared/data/jobs.js?v=6f664e6b3ea4';
-import { MONSTERS } from '../../shared/data/monsters.js?v=6f664e6b3ea4';
-import { computeStats } from '../../shared/stats.js?v=6f664e6b3ea4';
-import { faceURL } from '../field.js?v=6f664e6b3ea4';
-import { wagonSprite } from '../render/wagon.js?v=6f664e6b3ea4';
-import { request } from './shop.js?v=6f664e6b3ea4';
-import { shownEquip } from '../../shared/look-equip.js?v=6f664e6b3ea4';
+import { el, esc, toast, ListMenu } from './dom.js?v=76f251ec36c2';
+import { WAGON_SLOTS, wagonMapOk } from '../../shared/data/wagon.js?v=76f251ec36c2';
+import { COMPANION_SLOTS } from '../../shared/data/companions.js?v=76f251ec36c2';
+import { MAPS } from '../../shared/maps/index.js?v=76f251ec36c2';
+import { JOBS } from '../../shared/data/jobs.js?v=76f251ec36c2';
+import { MONSTERS } from '../../shared/data/monsters.js?v=76f251ec36c2';
+import { computeStats } from '../../shared/stats.js?v=76f251ec36c2';
+import { faceURL } from '../field.js?v=76f251ec36c2';
+import { wagonSprite } from '../render/wagon.js?v=76f251ec36c2';
+import { request } from './shop.js?v=76f251ec36c2';
+import { shownEquip } from '../../shared/look-equip.js?v=76f251ec36c2';
 
 const isFam = (k) => String(k || '').startsWith('fam:');
 const BATTLE_MAX = 1 + COMPANION_SLOTS; // 戦う 仲間（自分を ふくめて）
@@ -117,7 +117,7 @@ export function memberInfo(g, key) {
 
 // 馬車が この マップに いるか（洞窟・塔の 中は 入り口で 待つ）
 export function wagonHereClient(game) {
-  return MAPS[game.field?.mapId]?.kind === 'field';
+  return wagonMapOk(MAPS[game.field?.mapId]);
 }
 
 // ───────────── たたかい ─────────────

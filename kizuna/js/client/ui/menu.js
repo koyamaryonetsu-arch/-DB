@@ -1,42 +1,43 @@
 // フィールドの メニュー
-import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js?v=6f664e6b3ea4';
-import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js?v=6f664e6b3ea4';
-import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js?v=6f664e6b3ea4';
-import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS, turnSeconds } from '../../shared/battle.js?v=6f664e6b3ea4';
-import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily, gearSortPref, setGearSortPref } from '../prefs.js?v=6f664e6b3ea4';
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, TIER_NAMES } from '../../shared/data/jobs.js?v=6f664e6b3ea4';
-import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress, partyJobSet, hiraVisible, monsterSlots, canEquipChar, itemCount, MAX_LEVEL } from '../../shared/stats.js?v=6f664e6b3ea4';
-import { HIRAMEKI } from '../../shared/data/hirameki.js?v=6f664e6b3ea4';
-import { DUAL_TECHS, DUAL_ORDER, groupName, dualKnown, dualRelated } from '../../shared/data/dual.js?v=6f664e6b3ea4';
-import { MONSTERS } from '../../shared/data/monsters.js?v=6f664e6b3ea4';
-import { monsterDrops } from '../../shared/data/loot.js?v=6f664e6b3ea4';
-import { MONSTER_FRIENDS, RACE_NAMES, recipeHint, joinTier, bestiaryOrder } from '../../shared/data/companions.js?v=6f664e6b3ea4';
-import { TACTICS } from '../../shared/ai.js?v=6f664e6b3ea4';
-import { PLACES } from '../../shared/maps/overworld.js?v=6f664e6b3ea4';
-import { SEA_PLACES } from '../../shared/maps/ch2.js?v=6f664e6b3ea4';
-import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js?v=6f664e6b3ea4';
-import { T, TILE_INFO } from '../../shared/tiles.js?v=6f664e6b3ea4';
-import { menuItemText } from './skillinfo.js?v=6f664e6b3ea4';
-import { itemDetail, abilityDetail, skillBrief, gearText, targetTag, statChanges, statChangesHtml } from './info.js?v=6f664e6b3ea4';
-import { bestEquipPlan, bestTeamOrder, gearChoices, sortGearChoices, GEAR_SORTS } from '../../shared/equip-plan.js?v=6f664e6b3ea4';
-import { shownEquip, lookChoices, LOOK_SLOTS, LOOK_NONE } from '../../shared/look-equip.js?v=6f664e6b3ea4';
-import { makeCanvas, ctxOf } from '../render/pixel.js?v=6f664e6b3ea4';
-import { previewCache } from '../render/hero.js?v=6f664e6b3ea4';
-import { monsterCanvas } from '../render/monsters.js?v=6f664e6b3ea4';
-import { mapIconCanvas, boardIconURL } from '../render/boards.js?v=6f664e6b3ea4';
-import { medalItemRow, walletView } from './casino.js?v=6f664e6b3ea4';
-import { compareTeam, whoItems } from './counter.js?v=6f664e6b3ea4';
-import { faceURL } from '../field.js?v=6f664e6b3ea4';
-import { partyRows } from './hud.js?v=6f664e6b3ea4';
-import { questMarks, subQuests, OBJECTIVE_TARGETS, whereName } from '../../shared/data/quest-targets.js?v=6f664e6b3ea4';
-import { difficultyOf, visibleMarks, EXP_RATES, EXP_RATE_NAMES, ENEMY_RATES, ENEMY_RATE_NAMES, ENEMY_RATE_NOTES } from '../../shared/data/difficulty.js?v=6f664e6b3ea4';
-import { memberTalk, talkFor } from '../../shared/data/party-talk.js?v=6f664e6b3ea4';
-import { treasureRows, treasureDetail, openTreasureMap } from './treasure.js?v=6f664e6b3ea4';
-import { themeHex } from '../render/themes.js?v=6f664e6b3ea4';
-import { sdRecordOf, sdRecordText } from '../../shared/data/secret.js?v=6f664e6b3ea4';
-import { wagonMenuView, wagonHereClient, menuArrange } from './wagon.js?v=6f664e6b3ea4';
-import { readErrLog, errLogText, clearErrLog } from '../errlog.js?v=6f664e6b3ea4';
-import { fieldUsableAbilities } from '../../shared/fieldskills.js?v=6f664e6b3ea4';
+import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js?v=76f251ec36c2';
+import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js?v=76f251ec36c2';
+import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js?v=76f251ec36c2';
+import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS, turnSeconds } from '../../shared/battle.js?v=76f251ec36c2';
+import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily, gearSortPref, setGearSortPref } from '../prefs.js?v=76f251ec36c2';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, TIER_NAMES } from '../../shared/data/jobs.js?v=76f251ec36c2';
+import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress, partyJobSet, hiraVisible, monsterSlots, canEquipChar, itemCount, MAX_LEVEL } from '../../shared/stats.js?v=76f251ec36c2';
+import { HIRAMEKI } from '../../shared/data/hirameki.js?v=76f251ec36c2';
+import { DUAL_TECHS, DUAL_ORDER, groupName, dualKnown, dualRelated } from '../../shared/data/dual.js?v=76f251ec36c2';
+import { MONSTERS } from '../../shared/data/monsters.js?v=76f251ec36c2';
+import { monsterDrops } from '../../shared/data/loot.js?v=76f251ec36c2';
+import { MONSTER_FRIENDS, RACE_NAMES, recipeHint, joinTier, bestiaryOrder } from '../../shared/data/companions.js?v=76f251ec36c2';
+import { TACTICS } from '../../shared/ai.js?v=76f251ec36c2';
+import { PLACES } from '../../shared/maps/overworld.js?v=76f251ec36c2';
+import { SEA_PLACES } from '../../shared/maps/ch2.js?v=76f251ec36c2';
+import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js?v=76f251ec36c2';
+import { T, TILE_INFO } from '../../shared/tiles.js?v=76f251ec36c2';
+import { menuItemText } from './skillinfo.js?v=76f251ec36c2';
+import { itemDetail, abilityDetail, skillBrief, gearText, targetTag, statChanges, statChangesHtml } from './info.js?v=76f251ec36c2';
+import { bestEquipPlan, bestTeamOrder, gearChoices, sortGearChoices, GEAR_SORTS } from '../../shared/equip-plan.js?v=76f251ec36c2';
+import { shownEquip, lookChoices, LOOK_SLOTS, LOOK_NONE } from '../../shared/look-equip.js?v=76f251ec36c2';
+import { makeCanvas, ctxOf } from '../render/pixel.js?v=76f251ec36c2';
+import { previewCache } from '../render/hero.js?v=76f251ec36c2';
+import { monsterCanvas } from '../render/monsters.js?v=76f251ec36c2';
+import { mapIconCanvas, boardIconURL } from '../render/boards.js?v=76f251ec36c2';
+import { medalItemRow, walletView } from './casino.js?v=76f251ec36c2';
+import { compareTeam, whoItems } from './counter.js?v=76f251ec36c2';
+import { faceURL } from '../field.js?v=76f251ec36c2';
+import { partyRows } from './hud.js?v=76f251ec36c2';
+import { questMarks, subQuests, OBJECTIVE_TARGETS, whereName } from '../../shared/data/quest-targets.js?v=76f251ec36c2';
+import { labDoneQuests, sideQuestHint } from '../../shared/data/sidequests.js?v=76f251ec36c2';
+import { difficultyOf, visibleMarks, EXP_RATES, EXP_RATE_NAMES, ENEMY_RATES, ENEMY_RATE_NAMES, ENEMY_RATE_NOTES } from '../../shared/data/difficulty.js?v=76f251ec36c2';
+import { memberTalk, talkFor } from '../../shared/data/party-talk.js?v=76f251ec36c2';
+import { treasureRows, treasureDetail, openTreasureMap } from './treasure.js?v=76f251ec36c2';
+import { themeHex } from '../render/themes.js?v=76f251ec36c2';
+import { sdRecordOf, sdRecordText } from '../../shared/data/secret.js?v=76f251ec36c2';
+import { wagonMenuView, wagonHereClient, menuArrange } from './wagon.js?v=76f251ec36c2';
+import { readErrLog, errLogText, clearErrLog } from '../errlog.js?v=76f251ec36c2';
+import { fieldUsableAbilities } from '../../shared/fieldskills.js?v=76f251ec36c2';
 
 // 見た目装備の せつめい
 const LOOK_HELP = '見た目だけを、持っている装備に変える（強さは変わらない）\n職業で装備できない物も選べる。「装備なし」も選べる';
@@ -1615,6 +1616,7 @@ export class FieldMenu {
     const f = (k) => !!c.flags[k];
     const active = subQuests(c);
     const done = [['q_mike_done', '迷子のねこミケ'], ['q_jelly_done', 'コックの特製ゼリー'], ['q_wolf_done', 'ウルフ退治'], ['q_bottle_done', 'びんの手紙']].filter(([k]) => f(k));
+    done.push(...labDoneQuests(c).map((n) => [null, n]));
     box.append(el('h3', { style: { marginTop: '0.6em' }, text: 'たのまれごと' }));
     if (!active.length && !done.length) box.append(el('div', { class: 'muted small', text: 'まだない。町の人の話を聞くと、たのまれごとが見つかることがある。' }));
     for (const q of active) {
@@ -1877,6 +1879,8 @@ export async function partyTalk(game) {
   for (const sp of speakers.slice(0, 4)) await g.script.say(sp.mon ? '' : sp.name, sp.text);
   const dir = questDirection(g);
   if (dir) await g.script.say('', `――${dir}`);
+  const side = sideQuestHint(g.me);
+  if (side) await g.script.say('', side);
   g.script.closeDialog();
 }
 

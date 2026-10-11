@@ -2,11 +2,12 @@
 // group: [[モンスターID, 最小数, 最大数], ...]
 // フィールドでは 先頭の モンスターの すがたで うろうろしている（シンボルエンカウント）
 
-import { ENCOUNTERS_CH2, FIXED_CH2, ZONE_BG_CH2 } from './encounters-ch2.js?v=6f664e6b3ea4';
-import { NIGHT_ENCOUNTERS, NIGHT_ZONE_BG, NIGHT_ZONES } from './night.js?v=6f664e6b3ea4';
-import { ENCOUNTERS_CH3, FIXED_CH3, ZONE_BG_CH3 } from './encounters-ch3.js?v=6f664e6b3ea4';
-import { ENCOUNTERS_CH4, FIXED_CH4, ZONE_BG_CH4, NIGHT_ZONES_CH4 } from './encounters-ch4.js?v=6f664e6b3ea4';
-import { ENCOUNTERS_TEMPLE, FIXED_TEMPLE, ZONE_BG_TEMPLE } from './encounters-temple.js?v=6f664e6b3ea4';
+import { ENCOUNTERS_CH2, FIXED_CH2, ZONE_BG_CH2 } from './encounters-ch2.js?v=76f251ec36c2';
+import { NIGHT_ENCOUNTERS, NIGHT_ZONE_BG, NIGHT_ZONES } from './night.js?v=76f251ec36c2';
+import { ENCOUNTERS_CH3, FIXED_CH3, ZONE_BG_CH3 } from './encounters-ch3.js?v=76f251ec36c2';
+import { ENCOUNTERS_CH4, FIXED_CH4, ZONE_BG_CH4, NIGHT_ZONES_CH4 } from './encounters-ch4.js?v=76f251ec36c2';
+import { ENCOUNTERS_TEMPLE, FIXED_TEMPLE, ZONE_BG_TEMPLE } from './encounters-temple.js?v=76f251ec36c2';
+import { ENCOUNTERS_LAB, FIXED_LAB, ZONE_BG_LAB } from './encounters-lab.js?v=76f251ec36c2';
 
 export const ENCOUNTER_TABLES = {
   outskirts: [
@@ -101,3 +102,7 @@ Object.assign(NIGHT_ZONES, NIGHT_ZONES_CH4);
 Object.assign(ENCOUNTER_TABLES, ENCOUNTERS_TEMPLE);
 Object.assign(FIXED_ENCOUNTERS, FIXED_TEMPLE);
 Object.assign(ZONE_BG, ZONE_BG_TEMPLE);
+// 第4章クリアの あとの より道: 古代の大迷宮・たのまれごとの 強い 魔物（encounters-lab.js）
+Object.assign(ENCOUNTER_TABLES, ENCOUNTERS_LAB);
+Object.assign(FIXED_ENCOUNTERS, FIXED_LAB);
+Object.assign(ZONE_BG, ZONE_BG_LAB);

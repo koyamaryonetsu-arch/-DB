@@ -1,34 +1,34 @@
 // たたかいの がめん（むかしの RPG ふう 1がめん）
-import { el, esc, ListMenu, toast } from './ui/dom.js?v=6f664e6b3ea4';
-import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js?v=6f664e6b3ea4';
-import { ITEMS } from '../shared/data/items.js?v=6f664e6b3ea4';
-import { JOBS } from '../shared/data/jobs.js?v=6f664e6b3ea4';
-import { MONSTERS } from '../shared/data/monsters.js?v=6f664e6b3ea4';
-import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed, battleAbilityOk } from '../shared/stats.js?v=6f664e6b3ea4';
-import { affinityOf, attackReach, spellSealed, SEALED_REASON } from '../shared/battle.js?v=6f664e6b3ea4';
+import { el, esc, ListMenu, toast } from './ui/dom.js?v=76f251ec36c2';
+import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js?v=76f251ec36c2';
+import { ITEMS } from '../shared/data/items.js?v=76f251ec36c2';
+import { JOBS } from '../shared/data/jobs.js?v=76f251ec36c2';
+import { MONSTERS } from '../shared/data/monsters.js?v=76f251ec36c2';
+import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed, battleAbilityOk } from '../shared/stats.js?v=76f251ec36c2';
+import { affinityOf, attackReach, spellSealed, SEALED_REASON } from '../shared/battle.js?v=76f251ec36c2';
 // 合体技（2人・3人・4人）の コマンド・さそい・えんしゅつ（battle-dual.js）
-import { myDualOptions, dualMenu, showInvite, askingName, waitText, onDualWait, onDualWaitEnd, onDualHold, onDualAnswer, dualPre, dualFx } from './battle-dual.js?v=6f664e6b3ea4';
-import { TACTICS } from '../shared/ai.js?v=6f664e6b3ea4';
-import { faceURL } from './field.js?v=6f664e6b3ea4';
-import { monsterCanvas } from './render/monsters.js?v=6f664e6b3ea4';
-import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=6f664e6b3ea4';
-import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js?v=6f664e6b3ea4';
-import { PARTY_ANIMS, JOB2_SFX } from './render/battlefx-jobs2.js?v=6f664e6b3ea4';
-import { PARTY_ANIMS3, JOB3_SFX } from './render/battlefx-jobs3.js?v=6f664e6b3ea4';
-import { SIG4, JOB4_SFX, sigAnim } from './render/battlefx-jobs4.js?v=6f664e6b3ea4';
+import { myDualOptions, dualMenu, showInvite, askingName, waitText, onDualWait, onDualWaitEnd, onDualHold, onDualAnswer, dualPre, dualFx } from './battle-dual.js?v=76f251ec36c2';
+import { TACTICS } from '../shared/ai.js?v=76f251ec36c2';
+import { faceURL } from './field.js?v=76f251ec36c2';
+import { monsterCanvas } from './render/monsters.js?v=76f251ec36c2';
+import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=76f251ec36c2';
+import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js?v=76f251ec36c2';
+import { PARTY_ANIMS, JOB2_SFX } from './render/battlefx-jobs2.js?v=76f251ec36c2';
+import { PARTY_ANIMS3, JOB3_SFX } from './render/battlefx-jobs3.js?v=76f251ec36c2';
+import { SIG4, JOB4_SFX, sigAnim } from './render/battlefx-jobs4.js?v=76f251ec36c2';
 // 第27回に 作り直した 古い 呪文・特技の エフェクト（段階・あたる じかん・音・味方への えんしゅつ）
-import { r27Anim, r27Hit, r27Sfx, playAllyR27 } from './render/battlefx-r27.js?v=6f664e6b3ea4';
-import { JOB5_SFX } from './render/battlefx-jobs5.js?v=6f664e6b3ea4';
-import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js?v=6f664e6b3ea4';
-import { statusNames, buffNames, targetTag } from './ui/info.js?v=6f664e6b3ea4';
-import { battleSkillText, battleItemText, favHint } from './ui/skillinfo.js?v=6f664e6b3ea4';
-import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js?v=6f664e6b3ea4';
-import { ENEMY_RATE_NAMES } from '../shared/data/difficulty.js?v=6f664e6b3ea4';
-import { ResultPager, levelUpName } from './ui/result.js?v=6f664e6b3ea4';
+import { r27Anim, r27Hit, r27Sfx, playAllyR27 } from './render/battlefx-r27.js?v=76f251ec36c2';
+import { JOB5_SFX } from './render/battlefx-jobs5.js?v=76f251ec36c2';
+import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js?v=76f251ec36c2';
+import { statusNames, buffNames, targetTag } from './ui/info.js?v=76f251ec36c2';
+import { battleSkillText, battleItemText, favHint } from './ui/skillinfo.js?v=76f251ec36c2';
+import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js?v=76f251ec36c2';
+import { ENEMY_RATE_NAMES } from '../shared/data/difficulty.js?v=76f251ec36c2';
+import { ResultPager, levelUpName } from './ui/result.js?v=76f251ec36c2';
 // 第4章の しかけ（月の鏡・まぼろしの 分身・魔神のランプ・ボスの 大技）
-import { CH4_ALLY_FX, ch4ItemEntries, ch4ItemPick, ch4ItemInfo, ch4Present, vanishFx, drawShade, drawBurrow } from './battle-ch4.js?v=6f664e6b3ea4';
+import { CH4_ALLY_FX, ch4ItemEntries, ch4ItemPick, ch4ItemInfo, ch4Present, vanishFx, drawShade, drawBurrow } from './battle-ch4.js?v=76f251ec36c2';
 // 第4章 Step 7 の 砂の底の神殿と モルガナ（鏡のうつし身・水のろうの 絵・水の衣・光・大波・水の守りの歌）
-import { templeSprite, templeDraw, templeStart, TEMPLE_SFX } from './battle-temple.js?v=6f664e6b3ea4';
+import { templeSprite, templeDraw, templeStart, TEMPLE_SFX } from './battle-temple.js?v=76f251ec36c2';
 
 // たたかいの え の こまかさ（おもい きかいで さげたら、その あいだは さげた まま）
 let battleRes = BRES;
