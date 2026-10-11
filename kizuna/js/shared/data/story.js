@@ -12,23 +12,23 @@
 //   ['teleport', 'map', x, y, 'dir']  ['spawn', 'map', x, y]  ['chapter', 'だい1しょう', 'サブタイトル']
 //
 // x（じょうほう）: x.name x.flag('f') x.has('item') x.count('item') x.kills('monster') x.quest('key')
-import { POS } from '../maps/index.js?v=7a510653fedd';
-import { PLACES } from '../maps/overworld.js?v=7a510653fedd';
-import { ABILITIES } from './abilities.js?v=7a510653fedd';
-import { learnedAbilities, comboUnlocked, hiraAllowed, hiraRelated, partyJobSet } from '../stats.js?v=7a510653fedd';
-import { HIRAMEKI, hiraRatio } from './hirameki.js?v=7a510653fedd';
-import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js?v=7a510653fedd';
-import { CH3_STEPS, CH3_STORY_SCRIPTS, CH3_SCRIPTS, elderCh3 } from './story-ch3.js?v=7a510653fedd';
-import { CH4_STEPS, CH4_STORY_SCRIPTS, CH4_SCRIPTS, elderCh4 } from './story-ch4.js?v=7a510653fedd';
-import { TM_SCRIPTS, TM_STORY_SCRIPTS } from './story-tm.js?v=7a510653fedd';
-import { SD_SCRIPTS } from './story-secret.js?v=7a510653fedd';
-import { CASINO_SCRIPTS } from './story-casino.js?v=7a510653fedd';
-import { innSteps } from './inn.js?v=7a510653fedd';
-import { NIGHT_SCRIPTS } from './night.js?v=7a510653fedd';
-import { skyScripts } from './sky.js?v=7a510653fedd';
-import { FACILITY_SCRIPTS } from './facilities.js?v=7a510653fedd';
-import { wagonEventSteps } from './wagon.js?v=7a510653fedd';
-import { JOB_GREET } from './job-talk.js?v=7a510653fedd';
+import { POS } from '../maps/index.js?v=6f664e6b3ea4';
+import { PLACES } from '../maps/overworld.js?v=6f664e6b3ea4';
+import { ABILITIES } from './abilities.js?v=6f664e6b3ea4';
+import { learnedAbilities, comboUnlocked, hiraAllowed, hiraRelated, partyJobSet } from '../stats.js?v=6f664e6b3ea4';
+import { HIRAMEKI, hiraRatio } from './hirameki.js?v=6f664e6b3ea4';
+import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js?v=6f664e6b3ea4';
+import { CH3_STEPS, CH3_STORY_SCRIPTS, CH3_SCRIPTS, elderCh3 } from './story-ch3.js?v=6f664e6b3ea4';
+import { CH4_STEPS, CH4_STORY_SCRIPTS, CH4_SCRIPTS, elderCh4 } from './story-ch4.js?v=6f664e6b3ea4';
+import { TM_SCRIPTS, TM_STORY_SCRIPTS } from './story-tm.js?v=6f664e6b3ea4';
+import { SD_SCRIPTS } from './story-secret.js?v=6f664e6b3ea4';
+import { CASINO_SCRIPTS } from './story-casino.js?v=6f664e6b3ea4';
+import { innSteps } from './inn.js?v=6f664e6b3ea4';
+import { NIGHT_SCRIPTS } from './night.js?v=6f664e6b3ea4';
+import { skyScripts } from './sky.js?v=6f664e6b3ea4';
+import { FACILITY_SCRIPTS } from './facilities.js?v=6f664e6b3ea4';
+import { wagonEventSteps } from './wagon.js?v=6f664e6b3ea4';
+import { JOB_GREET } from './job-talk.js?v=6f664e6b3ea4';
 
 const V = (x, y) => [PLACES.village.x + x + 0.5, PLACES.village.y + y + 0.5];
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);

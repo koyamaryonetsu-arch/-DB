@@ -8,7 +8,9 @@
 //   - 職業の ひらめき技（job つき）… その 職業か、その 職業から 進んだ 職業
 // ・一度 ひらめいた 技は ずっと 使える（char.hirameki に のこる）
 // ・第20〜22回の 職業の ひらめき技は hirameki-jobs.js（下で いっしょに する）
-import { HIRA_JOB_ABILITIES, HIRAMEKI_JOBS } from './hirameki-jobs.js?v=7a510653fedd';
+import { HIRA_JOB_ABILITIES, HIRAMEKI_JOBS } from './hirameki-jobs.js?v=6f664e6b3ea4';
+// 第27回: ぜんぶの 上級職より 上の 職業の ひらめき技（hirameki-r27.js）
+import { HIRA_R27_ABILITIES, HIRAMEKI_R27 } from './hirameki-r27.js?v=6f664e6b3ea4';
 
 // ひらめきで 覚える 新しい 技（基本職ごとに 2つ）
 export const HIRA_ABILITIES = {
@@ -170,6 +172,8 @@ export const HIRA_ABILITIES = {
   },
   // 第20〜22回の 職業の ひらめき技（hirameki-jobs.js）
   ...HIRA_JOB_ABILITIES,
+  // 第27回の ひらめき技（hirameki-r27.js）
+  ...HIRA_R27_ABILITIES,
 };
 
 // ひらめきの じょうけん（技 → 使った 回数）。'@atk' は ふつうの 攻撃
@@ -211,6 +215,8 @@ export const HIRAMEKI = {
   star_strash: { from: { daichi: 20, kaiha: 15, kuuretsu: 12 } },
   // 第20〜22回の 職業の ひらめき技（hirameki-jobs.js）
   ...HIRAMEKI_JOBS,
+  // 第27回の ひらめき技（hirameki-r27.js）
+  ...HIRAMEKI_R27,
 };
 
 // 回数の 名前（'@atk' など、技 では ない もの）

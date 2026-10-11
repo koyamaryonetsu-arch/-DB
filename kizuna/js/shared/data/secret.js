@@ -16,11 +16,11 @@
 //            （前の 版の セーブは、best までの 休み所を 記録した ことに する。repairSecret）
 //     got  … 大きな ごほうびを もらった 休み所の 階 [5, 10, …] / tries … ちょうせんした 回数
 //     run  … 今の ちょうせん { f: 今の 階, mid: とちゅうから 来た（さそわれて 来た など。記録に ならない）, took: ごほうびを 開けた 階 }
-import { MONSTERS } from './monsters.js?v=7a510653fedd';
-import { ITEMS, SLOTS } from './items.js?v=7a510653fedd';
-import { ENCOUNTER_TABLES, ZONE_BG, FIXED_ENCOUNTERS } from './encounters.js?v=7a510653fedd';
-import { makeRng } from '../rng.js?v=7a510653fedd';
-import { rewardGold } from './difficulty.js?v=7a510653fedd';
+import { MONSTERS } from './monsters.js?v=6f664e6b3ea4';
+import { ITEMS, SLOTS } from './items.js?v=6f664e6b3ea4';
+import { ENCOUNTER_TABLES, ZONE_BG, FIXED_ENCOUNTERS } from './encounters.js?v=6f664e6b3ea4';
+import { makeRng } from '../rng.js?v=6f664e6b3ea4';
+import { rewardGold } from './difficulty.js?v=6f664e6b3ea4';
 
 export const SD_GATE = 'sd_gate';
 export const SD_NAME = 'ひみつのダンジョン';

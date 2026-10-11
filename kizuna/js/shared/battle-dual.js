@@ -7,9 +7,12 @@
 // ・みんな そろったら、家族には「参加する？」と 聞く（2人技と おなじ。何人でも、1人でも ことわれば 出ない）
 // ・強さ: 出す 人が それぞれ、その 組の 技（か ふつうの 攻撃）を 出した ときの ダメージの 合計 × DUAL_POWER[人数] × k
 //   （この 敵に 当てた ときの 見つもり。守り・弱点・バフも 入る。属性は 合体技の 属性で かかる）
-import { ABILITIES } from './data/abilities.js?v=7a510653fedd';
-import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js?v=7a510653fedd';
-import { weaponOk, comboAllowed, penaltyFor } from './stats.js?v=7a510653fedd';
+import { ABILITIES, ELEMENT_NAMES } from './data/abilities.js?v=6f664e6b3ea4';
+import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js?v=6f664e6b3ea4';
+import { weaponOk, comboAllowed, penaltyFor } from './stats.js?v=6f664e6b3ea4';
+// 第27回: 推理（敵 それぞれの いちばんの 弱点の 属性で 当てる）の 合体技
+import { deduceElement } from './data/abilities-jobs6.js?v=6f664e6b3ea4';
+import { MONSTERS } from './data/monsters.js?v=6f664e6b3ea4';
 
 // 人数ごとの 強さ（別々に 1回ずつ 動いた ときの 合計の 何倍か。全体技は parts の k で 下げる）
 export const DUAL_POWER = { 2: 1.8, 3: 2.2, 4: 3.0 };
@@ -417,24 +420,39 @@ function powerHit(b, c, byGroup, part, scope, element, cmd, ev, hit, n) {
     ev.lines.push('しかし効果がなかった！');
     return;
   }
+  // 推理（element: 'deduce'）: ことばは 敵の しゅるいごとに 1回
+  const told = new Set();
+  let last = element;
   for (const tg of targets) {
     if (!tg.alive) continue;
     hit.add(tg.id);
     if (part.kind === 'phys') b.noteCounter(c, tg, ev);
-    const r = element && element !== 'phys' ? tg.resist?.[element] ?? 1 : 1;
+    let el = element;
+    if (element === 'deduce') {
+      el = deduceElement(tg) || undefined;
+      last = el || last;
+      if (tg.species && !tg.clone && !told.has(tg.species)) {
+        told.add(tg.species);
+        const nm = MONSTERS[tg.species]?.name || tg.name;
+        ev.lines.push(el ? `${nm}の弱点は…${ELEMENT_NAMES[el]}だ！` : `${nm}には、弱点がない…！`);
+      }
+    }
+    const r = el && el !== 'phys' ? tg.resist?.[el] ?? 1 : 1;
     if (r === 0) {
       ev.lines.push(`しかし${tg.name}には効かなかった！`);
-      (ev.results = ev.results || []).push({ id: tg.id, miss: true, element, aff: b.noteTried(tg, element) || undefined });
+      (ev.results = ev.results || []).push({ id: tg.id, miss: true, element: el, aff: b.noteTried(tg, el) || undefined });
       continue;
     }
     let d = dualPower(b, byGroup, tg, part, n) * r * b.rng.float(0.92, 1.08);
     if (tg.metal) d = b.rng.int(1, n + 1);
     const hits = Math.max(1, part.hits || 1);
     const each = Math.max(1, Math.round(d / hits));
-    for (let h = 0; h < hits && tg.alive; h++) b.damage(c, tg, tg.metal && h > 0 ? 0 : each, ev, { element: element || 'phys' });
+    for (let h = 0; h < hits && tg.alive; h++) b.damage(c, tg, tg.metal && h > 0 ? 0 : each, ev, { element: el || 'phys' });
     if (part.dispel && tg.alive) b.dispel(tg, ev);
     if (part.status && tg.alive) b.tryStatus(c, tg, part.status, ev, 1);
     if (part.debuff && tg.alive) b.applyDebuff(c, tg, part.debuff, ev, 1);
   }
-  b.afterDamage(c, ev, element || 'phys');
+  // ポイントバック（ポイント10倍デー）: 当てた 敵の お金の points 倍
+  if (part.points) b.givePoints(c, targets, part, ev);
+  b.afterDamage(c, ev, (element === 'deduce' ? last : element) || 'phys');
 }

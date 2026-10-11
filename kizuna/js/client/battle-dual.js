@@ -2,14 +2,14 @@
 //  ・コマンドの「合体技」の 一覧（だれと・何人で・よやくか）と、カーソルを 合わせた ときの 説明
 //  ・家族から さそわれた ときの「参加する！／ことわる」
 //  ・出す ときの カットインと とどめの えんしゅつ（render/dualfx.js）
-import { el, esc, ListMenu, toast } from './ui/dom.js?v=7a510653fedd';
-import { ABILITIES, ELEMENT_NAMES } from '../shared/data/abilities.js?v=7a510653fedd';
-import { comboAllowed, weaponOk } from '../shared/stats.js?v=7a510653fedd';
-import { DUAL_TECHS, dualOptions, dualKnown } from '../shared/data/dual.js?v=7a510653fedd';
-import { faceURL } from './field.js?v=7a510653fedd';
-import { targetTag } from './ui/info.js?v=7a510653fedd';
-import { playDualCutin, playDualFinale, cutMs, dualFxOf } from './render/dualfx.js?v=7a510653fedd';
-import { BW, BH } from './render/battlefx.js?v=7a510653fedd';
+import { el, esc, ListMenu, toast } from './ui/dom.js?v=6f664e6b3ea4';
+import { ABILITIES, ELEMENT_NAMES } from '../shared/data/abilities.js?v=6f664e6b3ea4';
+import { comboAllowed, weaponOk } from '../shared/stats.js?v=6f664e6b3ea4';
+import { DUAL_TECHS, dualOptions, dualKnown } from '../shared/data/dual.js?v=6f664e6b3ea4';
+import { faceURL } from './field.js?v=6f664e6b3ea4';
+import { targetTag } from './ui/info.js?v=6f664e6b3ea4';
+import { playDualCutin, playDualFinale, cutMs, dualFxOf } from './render/dualfx.js?v=6f664e6b3ea4';
+import { BW, BH } from './render/battlefx.js?v=6f664e6b3ea4';
 
 const SECRET = '効果は？？？（一度使うとわかる）';
 const sizeLabel = (n) => (n >= 3 ? `${n}人技` : '合体技');
@@ -188,7 +188,7 @@ export function dualFx(v, ev) {
     const foes = targets.filter((x) => x.side === 'enemy').map((x) => v.center(x)).filter(Boolean);
     const pts = foes.length ? foes : [{ x: BW / 2, y: BH * 0.62 }];
     playDualFinale(v.fx, d.id, pts, n, BW, BH);
-    const fin = { nova: 'blast', storm: 'wind', cross: 'crit', beam: 'blast', quake: 'smash', heal: 'heal', stage: 'buff', laugh: 'hirameki', siren: 'warn' };
+    const fin = { nova: 'blast', storm: 'wind', cross: 'crit', beam: 'blast', quake: 'smash', heal: 'heal', stage: 'buff', laugh: 'hirameki', siren: 'warn', spot: 'hirameki', gadgets: 'item', coins: 'coin', meteor: 'blast', matoi: 'crit' };
     au.sfx(fin[dualFxOf(d.id).finale] || (foes.length ? 'blast' : 'heal'));
   }, ms);
 }
