@@ -2,16 +2,16 @@
 // みため（体・かみがた・かみの色・はだ・目もと）と、しょくぎょう・そうび（ぶき・よろい・たて・かぶと）から かく
 //   heroImage(look, job, equip, dir, frame, res) → { w, h, res, rgba }
 // res 4: 64×84（フィールド）  res 8: 128×168（大きな みほん）
-import { HeroCanvas, mat, ramp, TH, mixC, rgbaCanvas } from './hero-raster.js?v=76f251ec36c2';
-import { faceFront, faceSide, faceMarks, faceOver } from './hero-face.js?v=76f251ec36c2';
-import { drawHair } from './hero-hair.js?v=76f251ec36c2';
-import { outfitOf, jobBody, drawTorsoFront, drawTorsoBack, drawTorsoSide, drawSkirt, drawCape, drawPauldron, drawBelt, drawNeckwear, drawPack, drawApron, drawWings, drawTail, drawCollar } from './hero-outfit.js?v=76f251ec36c2';
-import { drawAura } from './hero-aura.js?v=76f251ec36c2';
+import { HeroCanvas, mat, ramp, TH, mixC, rgbaCanvas } from './hero-raster.js?v=8a9b6717ad39';
+import { faceFront, faceSide, faceMarks, faceOver } from './hero-face.js?v=8a9b6717ad39';
+import { drawHair } from './hero-hair.js?v=8a9b6717ad39';
+import { outfitOf, jobBody, drawTorsoFront, drawTorsoBack, drawTorsoSide, drawSkirt, drawCape, drawPauldron, drawBelt, drawNeckwear, drawPack, drawApron, drawWings, drawTail, drawCollar } from './hero-outfit.js?v=8a9b6717ad39';
+import { drawAura } from './hero-aura.js?v=8a9b6717ad39';
 // 第26回の 職業（羽織・こうら・ネコ型ロボットの おなか・もちもの・かおの しるし）
-import { R26_HAIR, R26_SKIN, drawR26, face26, drawProp26 } from './hero-r26.js?v=76f251ec36c2';
-import { weaponOf, shieldOf, headOf, drawWeapon, drawShield, drawHeadgear, isLongSide } from './hero-gear.js?v=76f251ec36c2';
-import { lookIds, HCOL_BY_ID, TONE_BY_ID, CLOTH_COLORS } from '../../shared/data/looks.js?v=76f251ec36c2';
-import { STARTER_EQUIP } from '../../shared/stats.js?v=76f251ec36c2';
+import { R26_HAIR, R26_SKIN, drawR26, face26, drawProp26 } from './hero-r26.js?v=8a9b6717ad39';
+import { weaponOf, shieldOf, headOf, drawWeapon, drawShield, drawHeadgear, isLongSide } from './hero-gear.js?v=8a9b6717ad39';
+import { lookIds, HCOL_BY_ID, TONE_BY_ID, CLOTH_COLORS } from '../../shared/data/looks.js?v=8a9b6717ad39';
+import { STARTER_EQUIP } from '../../shared/stats.js?v=8a9b6717ad39';
 
 // そうびの かきかた: 'ぶき,よろい,たて,あたま' の もじれつ か { weapon, armor, shield, head }（ない ときは しょくぎょうの はじめの そうび）
 export function parseEquip(eq, job) {
@@ -463,8 +463,13 @@ export function paintHero(look, job, equip, dir, f, res = 4) {
   if (W && P.carry) P.carry(weaponArm, isLongSide(W));
 
   // からだは よこに すこし ふとく、あたまは すこし 大きく（ほかの 人と ならんでも 小さく 見えないように）
-  const body = () => cv.xf(BODY_SX * (O.bodySX || 1), 1, 16, 21);
-  const head = () => cv.xf(HEAD_S, HEAD_S, H.x, H.y, 3.4);
+  // ちびキャラ（はなかっぱ）: からだを あしもとに むかって ちぢめ、あたまを 大きく して したに ずらす
+  const CH = O.chibi || null;
+  const body = () => (CH ? cv.xf(BODY_SX * (O.bodySX || 1), CH.sy, 16, 40) : cv.xf(BODY_SX * (O.bodySX || 1), 1, 16, 21));
+  const head = () => {
+    cv.xf(HEAD_S * (CH ? CH.s : 1), HEAD_S * (CH ? CH.s : 1), H.x, H.y, CH ? CH.top : 3.4);
+    if (CH) cv.T.ay += CH.dy;
+  };
   const arm = (A) => {
     cv.part();
     armShape(cv, A, P, O, { hand: false });
@@ -518,7 +523,7 @@ export function paintHero(look, job, equip, dir, f, res = 4) {
     drawR26(cv, P, O, 'neck');
     head();
     headFront(cv, P, O);
-    faceFront(cv, H, faceO);
+    if (!B?.hana) faceFront(cv, H, faceO);
     if (B) faceMarks(cv, H, B, 'front');
     if (B) face26(cv, H, B, 'front', 'face');
     if (O.glasses) drawGlasses(cv, P, H);
@@ -527,6 +532,7 @@ export function paintHero(look, job, equip, dir, f, res = 4) {
     if (B) face26(cv, H, B, 'front', 'top');
     if (over) faceOver(cv, H, B, 'front');
     if (HD) drawHeadgear(cv, P, H, HD, 'front');
+    if (B) face26(cv, H, B, 'front', 'over');
     body();
     hands();
   } else if (view === 'back') {
@@ -559,6 +565,7 @@ export function paintHero(look, job, equip, dir, f, res = 4) {
     if (B) face26(cv, H, B, 'back', 'top');
     if (over) faceOver(cv, H, B, 'back');
     if (HD) drawHeadgear(cv, P, H, HD, 'back');
+    if (B) face26(cv, H, B, 'back', 'over');
     body();
     hands();
   } else {
@@ -589,7 +596,7 @@ export function paintHero(look, job, equip, dir, f, res = 4) {
     drawR26(cv, P, O, 'neck');
     head();
     headSide(cv, P, O);
-    faceSide(cv, H, faceO);
+    if (!B?.hana) faceSide(cv, H, faceO);
     if (B) faceMarks(cv, H, B, 'side');
     if (B) face26(cv, H, B, 'side', 'face');
     if (O.glasses) drawGlasses(cv, P, H);
@@ -598,6 +605,7 @@ export function paintHero(look, job, equip, dir, f, res = 4) {
     if (B) face26(cv, H, B, 'side', 'top');
     if (over) faceOver(cv, H, B, 'side');
     if (HD) drawHeadgear(cv, P, H, HD, 'side');
+    if (B) face26(cv, H, B, 'side', 'over');
     body();
     arm(near);
     // 金の えりは かたの うえに のる（てまえの うでより まえ）

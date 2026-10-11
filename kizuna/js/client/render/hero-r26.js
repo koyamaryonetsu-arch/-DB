@@ -5,15 +5,16 @@
 //   R26_OUTFIT … 布の服の ときの 服（hero-outfit.js の JOB_OUTFIT に まぜる）
 //   R26_BODY   … よろいを かえても のこる からだの とくちょう（JOB_BODY に まぜる）
 //   R26_HAT    … 布の服の ときの ぼうし（hero-gear.js の JOB_HAT に まぜる）
-//   R26_BODY_HAT … からだの いちぶの ぼうし（ネコ型ロボットの フード・カッパの おさら・はなかっぱの 花）。よろいでも のこる
+//   R26_BODY_HAT … からだの いちぶの ぼうし（ネコ型ロボットの フード・カッパの おさら・はなかっぱの 花・ニンニクの 花）。よろいでも のこる
 //   outfit26(O, S, Lk, fem) … 新しい 服の しゅるい（tights26・mascot26・kappa26・vest26・jump26）と、羽織・刀の さや など
 //   drawR26(cv, P, O, layer) … 羽織・こうら・おなかの ポケット・バッジ などを かく（layer は hero.js の かく じゅんばん）
-//   face26(cv, H, B, view, phase) … ひげ・赤い はな・くちばし・サングラス・花札の みみかざり・おしりの われめ
+//   face26(cv, H, B, view, phase) … ひげ・赤い はな・くちばし・サングラス・花札の みみかざり・おしりの われめ・
+//                                    はなかっぱの かお・楽天カードマンの メガネと カード（phase 'over': ぼうしの あと）
 //   drawHat26(cv, P, H, G, view) … 新しい ぼうし（かえりち: かいたら true）
 //   drawProp26(cv, P, A, O) … たての ない 手に もつ もの（カード・スプーン・虫めがね・きゅうり など）
-import { mat, ramp, TH, mixC, HeroCanvas } from './hero-raster.js?v=76f251ec36c2';
+import { mat, ramp, TH, mixC, HeroCanvas } from './hero-raster.js?v=8a9b6717ad39';
 // 第27回の 暴れんぼう将軍の 家もんと せんす（hero-r27.js）
-import { drawR27, drawProp27 } from './hero-r27.js?v=76f251ec36c2';
+import { drawR27, drawProp27 } from './hero-r27.js?v=8a9b6717ad39';
 
 // ───────────── ざいしつ（mat は おなじ ものを つくりなおさない） ─────────────
 const cl = (c, o = {}) => mat({ r: ramp(c, 4, o), th: o.th || TH.cloth });
@@ -56,10 +57,11 @@ export const R26_OUTFIT = {
   neko_robot: { kind: 'mascot26', main: '#2a8ae0' },
   mimi_robot: { kind: 'mascot26', main: '#3a9cec' },
   doraemon: { kind: 'mascot26', main: '#1e86e4', big: true },
-  // カッパ・はなかっぱ・はなかっぱ（筋肉ニンニク）: 緑の はだ・きいろい おなか（服は きない）
+  // カッパ: 緑の はだ・すじの ある きいろい おなか（服は きない）
   kappa: { kind: 'kappa26', belly: '#d8d48a' },
-  hanakappa: { kind: 'kappa26', belly: '#f2e486' },
-  kinniku_kappa: { kind: 'kappa26', belly: '#f2e486', muscle: true },
+  // はなかっぱ・はなかっぱ（筋肉ニンニク）: 明るい 黄緑の はだ・すじの ない クリームいろの おなか
+  hanakappa: { kind: 'kappa26', belly: '#fbf2b4', plain: true },
+  kinniku_kappa: { kind: 'kappa26', belly: '#fbf2b4', plain: true, muscle: true },
   // 木の葉の忍び（こんの 服に 緑の ベスト・せなかに 赤い うずまき）
   konoha: { kind: 'vest26', main: '#262e46', vest: '#55703e' },
   // 七代目火影（オレンジと 黒の 服に、すそが 赤い ほのおの 白い マント）
@@ -68,7 +70,7 @@ export const R26_OUTFIT = {
 
 // 古い 小さな え（chars.js の lookToOpts。32×42）での 服と ぼうし
 export const R26_OLD_LOOK = {
-  rakuten_cardman: { outfit: 'tunic', cloth: '#d8202c', cape: '#c01a26', hat: 'cowl', hatColor: '#d8202c' },
+  rakuten_cardman: { outfit: 'tunic', cloth: '#d8202c', cape: '#c01a26', hat: 'cowl', hatColor: '#d8202c', glasses: true },
   kisatsu: { outfit: 'robe', robeMain: '#e8a828', robeTrim: '#1c1c28' },
   enbashira: { outfit: 'robe', robeMain: '#f6f4ee', robeTrim: '#e8501c' },
   hinokami: { outfit: 'robe', robeMain: '#2a9a5a', robeTrim: '#1c1c24' },
@@ -84,8 +86,8 @@ export const R26_OLD_LOOK = {
   mimi_robot: { outfit: 'tunic', cloth: '#3a9cec', hat: 'hood', hatColor: '#3a9cec' },
   doraemon: { outfit: 'tunic', cloth: '#1e86e4', hat: 'hood', hatColor: '#1e86e4' },
   kappa: { outfit: 'tunic', cloth: '#3e9446' },
-  hanakappa: { outfit: 'tunic', cloth: '#58b04e', hat: 'bandana', hatColor: '#d82848' },
-  kinniku_kappa: { outfit: 'gi', cloth: '#58b04e', giTrim: '#f2e486' },
+  hanakappa: { outfit: 'tunic', cloth: '#9ad65a', hat: 'bandana', hatColor: '#f2507a' },
+  kinniku_kappa: { outfit: 'gi', cloth: '#9ad65a', giTrim: '#fbf2b4' },
   konoha: { outfit: 'vest', cloth: '#55703e', hat: 'headband', hatColor: '#26304e' },
   hokage: { outfit: 'traveler', cloth: '#f07a1c', cape: '#f4f2ea', hat: 'headband', hatColor: '#1c1c24' },
 };
@@ -93,9 +95,10 @@ export const R26_OLD_LOOK = {
 // よろいを かえても のこる からだの とくちょう（hero-outfit.js の JOB_BODY に まぜる）
 // skin: はだの いろ（カッパの 緑）  hair: 'none'（かみ なし）  prop: もちもの  whisker・nose: ドラえもん  beak: くちばし
 // sun: サングラス  hanafuda: 花札の みみかざり  cleft: おしりの われめ  blush: ほお  armW・bodySX: きんにく  shell: カッパの こうら
-// robotTail: 青い しっぽ（さきに 赤い たま）
+// robotTail: 青い しっぽ（さきに 赤い たま）  cardGlasses: 黒い メガネの まえに 赤い 楽天カード
+// hana: はなかっぱの かお（大きな 黒い 目・ピンクの ほお・わらった 小さな くち）と ちびキャラの からだ（大きな あたま）
 export const R26_BODY = {
-  rakuten_cardman: { prop: 'card' },
+  rakuten_cardman: { prop: 'card', cardGlasses: true },
   enbashira: { hcol: 'flame', iris: '#e0641c' },
   hinokami: { hcol: 'akagami', iris: '#a03a2a', hanafuda: true },
   spy: { sun: true },
@@ -107,8 +110,8 @@ export const R26_BODY = {
   neko_robot: { robotTail: true },
   doraemon: { whisker: true, nose: true, robotTail: true },
   kappa: { skin: 'kappa', hair: 'bob', hcol: 'kappagreen', iris: '#2a5a2a', beak: true, shell: true, prop: 'cucumber' },
-  hanakappa: { skin: 'hana', hair: 'none', iris: '#24302a', beak: true, noBrow: true },
-  kinniku_kappa: { skin: 'hana', hair: 'none', iris: '#24302a', beak: true, noBrow: true, armW: 1.62, bodySX: 1.14, grin: true },
+  hanakappa: { skin: 'hana', hair: 'none', noBrow: true, hana: true, shell: 'small' },
+  kinniku_kappa: { skin: 'hana', hair: 'none', noBrow: true, hana: true, shell: 'small', armW: 1.62, bodySX: 1.14, prop: 'garlic' },
   konoha: { prop: 'scroll' },
   hokage: { iris: '#2a58c4', aura: 'chakra' },
 };
@@ -124,7 +127,8 @@ export const R26_HAIR = {
 // はだの いろ（カッパ・はなかっぱ）
 export const R26_SKIN = {
   kappa: ['#2a6a34', '#3e9446', '#62b864', '#9ad88e'],
-  hana: ['#3a8a3c', '#58b04e', '#86d06c', '#bceca0'],
+  // はなかっぱ: カッパより 明るくて やさしい 黄緑
+  hana: ['#5a9e34', '#86c64a', '#ace468', '#dcf6a4'],
 };
 
 // 布の服の ときの ぼうし（hero-gear.js の JOB_HAT に まぜる）
@@ -249,7 +253,7 @@ function kind26(O, S, Lk, fem, main) {
       O.pants = Lk.skin;
       O.boots = { m: Lk.skin, h: 0 };
       O.belt = null;
-      O.kappa = { belly: cl(S.belly, { light: 1.05 }), muscle: !!S.muscle };
+      O.kappa = { belly: cl(S.belly, { light: 1.05 }), muscle: !!S.muscle, plain: !!S.plain };
       return true;
     }
     case 'vest26': {
@@ -286,7 +290,10 @@ function kind26(O, S, Lk, fem, main) {
 // ───────────── からだの とくちょう（outfitOf の さいごに よぶ） ─────────────
 export function body26(O, JB) {
   if (JB.robotTail) O.tail = { m: cl('#2a8ae0', { light: 1.1 }), ball: cl('#e02a2a', { light: 1.15 }), short: true };
-  if (JB.shell) O.shell = { m: mat({ r: ['#24301a', '#4a5a2a', '#768a40', '#a8b868'], th: TH.matte, spec: 0.97 }), rim: mat({ r: ['#4a4020', '#8a7a40', '#c8b870', '#ece0a8'], th: TH.matte }) };
+  if (JB.shell) O.shell = { m: mat({ r: ['#24301a', '#4a5a2a', '#768a40', '#a8b868'], th: TH.matte, spec: 0.97 }), rim: mat({ r: ['#4a4020', '#8a7a40', '#c8b870', '#ece0a8'], th: TH.matte }), small: JB.shell === 'small' };
+  // はなかっぱ: ちびキャラ（からだを あしもとへ ちぢめ、あたまを 大きく して したへ。上の 花の ための すきまを あける）
+  //   s: あたまの 大きさ（ふつうの 何ばい）  dy: あたまを したへ（マス）  sy: からだの たての ちぢみ  top: これより うえは ちぢめる
+  if (JB.hana) O.chibi = { s: 1, dy: 5.85, sy: 0.72, top: 2.4 };
   if (JB.armW) O.armW = JB.armW;
   if (JB.bodySX) O.bodySX = JB.bodySX;
 }
@@ -322,7 +329,7 @@ export function drawR26(cv, P, O, layer) {
 function draw26(cv, P, O, layer) {
   const view = P.side ? 'side' : P.back ? 'back' : 'front';
   if (layer === 'behind') {
-    if (O.shell && view === 'front') shellFront(cv, O.shell);
+    if (O.shell && !O.shell.small && view === 'front') shellFront(cv, O.shell);
     return;
   }
   if (layer === 'side') {
@@ -416,7 +423,7 @@ function torsoBits(cv, P, O, view) {
         cv.crease([[16, 22.4], [16, 29.4]], 0.2, -0.6, { parts: [id] });
         for (const s of [-1, 1]) cv.crease([[16 + s * 0.4, 24.2], [16 + s * 2.4, 24.6], [16 + s * 3.4, 23.6]], 0.2, -0.6, { parts: [id] });
         for (const y of [26.0, 27.6]) cv.crease([[14.2, y], [17.8, y]], 0.18, -0.5, { parts: [id] });
-      } else for (const y of [24.0, 25.6, 27.2, 28.6]) cv.crease([[13.6, y], [18.4, y]], 0.16, -0.4, { parts: [id] });
+      } else if (!K.plain) for (const y of [24.0, 25.6, 27.2, 28.6]) cv.crease([[13.6, y], [18.4, y]], 0.16, -0.4, { parts: [id] });
     }
   }
   if (O.vest26) {
@@ -561,24 +568,28 @@ function shellFront(cv, S) {
   cv.ell(16, 25.0, 7.4, 5.6, S.rim, { bulge: 0.7 });
 }
 function shellBack(cv, S) {
+  // はなかっぱの こうらは 小さい（せなかの まんなかより した）
+  const q = S.small ? 0.62 : 1, cy = S.small ? 26.4 : 25.2;
+  const Q = (x, y) => [16 + (x - 16) * q, cy + (y - 25.2) * q];
   cv.part({ ol: 'line' });
-  cv.ell(16, 25.4, 6.4, 5.4, S.rim, { bulge: 0.8 });
+  cv.ell(16, cy + 0.2 * q, 6.4 * q, 5.4 * q, S.rim, { bulge: 0.8 });
   cv.part({ ol: 'line' });
-  cv.ell(16, 25.2, 5.5, 4.6, S.m, { bulge: 0.8 });
+  cv.ell(16, cy, 5.5 * q, 4.6 * q, S.m, { bulge: 0.8 });
   const id = cv.cur;
   // こうらの もよう（まんなかの 6かく と まわり）
-  const hexPts = (cx, cy, r) => { const o = []; for (let i = 0; i < 6; i++) { const a = (i / 6) * Math.PI * 2 + Math.PI / 6; o.push([cx + Math.cos(a) * r, cy + Math.sin(a) * r * 0.9]); } o.push(o[0]); return o; };
+  const hexPts = (cx, cy, r) => { const o = []; for (let i = 0; i < 6; i++) { const a = (i / 6) * Math.PI * 2 + Math.PI / 6; o.push(Q(cx + Math.cos(a) * r, cy + Math.sin(a) * r * 0.9)); } o.push(o[0]); return o; };
   cv.crease(hexPts(16, 25.0, 1.8), 0.2, -0.7, { parts: [id] });
-  for (const [x0, y0, x1, y1] of [[16, 23.4, 16, 20.8], [16, 26.6, 16, 29.6], [14.4, 24.2, 11.2, 22.8], [17.6, 24.2, 20.8, 22.8], [14.4, 25.8, 11.0, 27.6], [17.6, 25.8, 21.0, 27.6]]) cv.crease([[x0, y0], [x1, y1]], 0.2, -0.6, { parts: [id] });
+  for (const [x0, y0, x1, y1] of [[16, 23.4, 16, 20.8], [16, 26.6, 16, 29.6], [14.4, 24.2, 11.2, 22.8], [17.6, 24.2, 20.8, 22.8], [14.4, 25.8, 11.0, 27.6], [17.6, 25.8, 21.0, 27.6]]) cv.crease([Q(x0, y0), Q(x1, y1)], 0.2, -0.6, { parts: [id] });
 }
 function shellSide(cv, P, S) {
   const X = P.X, b = P.bob;
+  const q = S.small ? 0.62 : 1, cy = (S.small ? 26.4 : 25.3) + b;
   cv.part({ ol: 'line' });
-  cv.ell(X(-3.4), 25.4 + b, 3.4, 5.2, S.rim, { bulge: 0.8 });
+  cv.ell(X(-3.4 + (1 - q) * 1.4), cy + 0.1, 3.4 * q, 5.2 * q, S.rim, { bulge: 0.8 });
   cv.part({ ol: 'line' });
-  cv.ell(X(-3.9), 25.3 + b, 2.6, 4.5, S.m, { bulge: 0.8 });
+  cv.ell(X(-3.9 + (1 - q) * 1.4), cy, 2.6 * q, 4.5 * q, S.m, { bulge: 0.8 });
   const id = cv.cur;
-  for (const y of [23.2, 25.4, 27.6]) cv.crease([[X(-2.0), y + b], [X(-6.0), y + b]], 0.18, -0.6, { parts: [id] });
+  for (const y of [-2.1, 0.1, 2.3]) cv.crease([[X(-2.0), cy + y * q], [X(-6.0), cy + y * q]], 0.18, -0.6, { parts: [id] });
 }
 
 // ───────────── ロボットの くびわと すず ─────────────
@@ -637,10 +648,15 @@ export function capeFlame(cv, P, C, where, id, len, sw) {
 }
 
 // ───────────── かお ─────────────
-// phase: 'face'（かみの まえ）/ 'top'（かみの あと）
+// phase: 'face'（かみの まえ）/ 'top'（かみの あと）/ 'over'（ぼうしの あと。いちばん まえ）
 export function face26(cv, H, B, view, phase) {
+  if (phase === 'over') {
+    if (B.cardGlasses) cardGlasses(cv, H, view);
+    return;
+  }
   const res = cv.res;
   if (phase === 'face') {
+    if (B.hana) hanaFace(cv, H, view);
     if (B.nose && view !== 'back') {
       // 赤い まるい はな と ひげ
       const u = view === 'side' ? H.rx + 0.2 : 0;
@@ -704,6 +720,105 @@ export function face26(cv, H, B, view, phase) {
     cv.stroke([[H.X(-7.6), H.y + 1.0], [H.X(-7.0), H.y + 1.4]], 0.2, mat({ r: BLACK, th: TH.matte }), { n: [0, 0] });
   }
 }
+// ───────────── はなかっぱの かお ─────────────
+// ドットの だえん（x, y, rx, ry は あたまの マス。いろ そのまま）
+function dotEll(cv, x, y, rx, ry, col) {
+  const T = cv.T, k = cv.k;
+  const X = cv.tx(x) * k, Y = cv.ty(y) * k, RX = rx * (T ? T.sx : 1) * k, RY = ry * (T ? T.sy : 1) * k;
+  for (let iy = Math.floor(Y - RY); iy <= Math.ceil(Y + RY); iy++) {
+    for (let ix = Math.floor(X - RX); ix <= Math.ceil(X + RX); ix++) {
+      const u = (ix + 0.5 - X) / RX, v = (iy + 0.5 - Y) / RY;
+      if (u * u + v * v <= 1) cv.px(ix, iy, col);
+    }
+  }
+}
+// 大きな 黒い 目（キラッと 白い ひかり 2つ）・ピンクの ほお・小さな くちばしの わらった くち
+function hanaFace(cv, H, view) {
+  const EYE = '#1d1826', SHINE = '#ffffff', LOW = '#3e3a5e', CHEEK = '#f7a0b4', BILL = '#f8c64a', SMILE = '#8a3e1c';
+  const small = cv.res < 8;
+  cv.part({ ol: 'none', cast: false });
+  const eye = (u, rx) => {
+    const v = 1.9, ry = 1.42;
+    dotEll(cv, H.X(u), H.y + v, rx, ry, EYE);
+    if (!small) dotEll(cv, H.X(u + rx * 0.1), H.y + v + ry * 0.55, rx * 0.55, ry * 0.3, LOW);
+    // キラッ（うえの 大きな ひかりと、したの 小さな ひかり）
+    dotEll(cv, H.X(u - rx * 0.32 * (view === 'side' ? -H.facing * H.facing : 1)), H.y + v - ry * 0.38, rx * 0.36, ry * 0.3, SHINE);
+    if (!small) dotEll(cv, H.X(u + rx * 0.38), H.y + v + ry * 0.32, rx * 0.16, ry * 0.13, SHINE);
+  };
+  if (view === 'side') {
+    eye(H.rx - 2.7, 0.78);
+    dotEll(cv, H.X(H.rx - 4.6), H.y + 3.9, 0.95, 0.5, CHEEK);
+    // まえに すこし 出た 小さな くちばし（わらった くち）
+    cv.part({ ol: 'soft', cast: false });
+    cv.poly([[H.X(H.rx - 1.6), H.y + 3.7], [H.X(H.rx + 0.9), H.y + 3.9], [H.X(H.rx + 0.9), H.y + 4.7], [H.X(H.rx - 1.4), H.y + 5.3]], cl(BILL, { light: 1.15 }), { n: [0, -0.2] });
+    cv.part({ ol: 'none', cast: false });
+    cv.stroke([[H.X(H.rx - 1.3), H.y + 4.0], [H.X(H.rx - 0.2), H.y + 4.6], [H.X(H.rx + 0.8), H.y + 4.3]], 0.13, cl(SMILE), { n: [0, 0] });
+    return;
+  }
+  if (view === 'back') return;
+  for (const s of [-1, 1]) eye(s * 3.1, 1.08);
+  for (const s of [-1, 1]) dotEll(cv, H.X(s * 5.0), H.y + 3.9, 1.05, 0.55, CHEEK);
+  // くちばし（小さく まるい）と わらった くち（U の かたち）
+  cv.part({ ol: 'soft', cast: false });
+  cv.ell(H.X(0), H.y + 4.6, 1.45, 0.8, cl(BILL, { light: 1.15 }), { n: [0, -0.3] });
+  const id = cv.cur;
+  cv.part({ ol: 'none', cast: false, clip: id });
+  const pts = [];
+  for (let i = 0; i <= 8; i++) { const t = i / 8 * 2 - 1; pts.push([H.X(t * 1.2), H.y + 4.35 + (1 - t * t) * 0.6]); }
+  cv.stroke(pts, 0.14, cl(SMILE), { n: [0, 0] });
+}
+
+// ───────────── 楽天カードマンの メガネと カード ─────────────
+// 黒い ふちの メガネ（つるは よこへ）の レンズの まえに、赤い 四角い カード（金の IC と しろい R）が くっついている
+function cardGlasses(cv, H, view) {
+  const fr = mat({ r: BLACK, th: TH.matte, spec: 0.95 });
+  const card = cl('#e8102e', { light: 1.12 });
+  const ink = '#ffffff';
+  if (view === 'back') {
+    // うしろ: よこに 見える メガネの つるだけ
+    cv.part({ ol: 'line' });
+    for (const s of [-1, 1]) cv.stroke([[H.X(s * 8.3), H.y + 0.9], [H.X(s * 7.0), H.y + 1.2]], 0.32, fr, { n: [0, 0] });
+    return;
+  }
+  if (view === 'side') {
+    const f = H.rx;
+    // つる（カードの うしろから みみの ほうへ）
+    cv.part({ ol: 'line' });
+    cv.stroke([[H.X(f - 2.0), H.y + 1.0], [H.X(-0.6), H.y + 0.6], [H.X(-1.8), H.y + 1.0]], 0.3, fr, { n: [0, 0] });
+    // レンズの ふち（カードの うしろ・うえと したに すこし）
+    cv.part({ ol: 'line' });
+    cv.poly([[H.X(f - 3.4), H.y + 0.1], [H.X(f + 0.2), H.y - 0.1], [H.X(f + 0.2), H.y + 3.0], [H.X(f - 3.4), H.y + 3.0]], fr, { n: 'bevel', bw: 0.25 });
+    // ななめから 見た カード
+    cv.part({ ol: 'line' });
+    cv.poly([[H.X(f - 2.0), H.y - 0.9], [H.X(f + 0.9), H.y - 1.1], [H.X(f + 0.9), H.y + 3.7], [H.X(f - 2.0), H.y + 3.9]], card, { n: 'bevel', bw: 0.35 });
+    const id = cv.cur;
+    cv.part({ ol: 'none', clip: id });
+    cv.rect(Math.min(H.X(f - 1.5), H.X(f - 0.3)), H.y + 0.2, 1.2, 1.0, mt(GOLD), { n: 'bevel', bw: 0.2 });
+    cv.part({ ol: 'none', clip: id, cast: false });
+    cv.rect(Math.min(H.X(f - 1.8), H.X(f + 0.7)), H.y + 2.6, 2.5, 0.35, white(), { n: [0, 0] });
+    return;
+  }
+  // まえ: つる → ふち → カード
+  cv.part({ ol: 'line' });
+  for (const s of [-1, 1]) cv.stroke([[H.X(s * 5.2), H.y + 0.9], [H.X(s * 7.0), H.y + 0.7]], 0.3, fr, { n: [0, 0] });
+  for (const s of [-1, 1]) {
+    cv.part({ ol: 'line' });
+    cv.poly([[H.X(s * 0.9), H.y + 0.1], [H.X(s * 5.6), H.y + 0.0], [H.X(s * 5.4), H.y + 3.0], [H.X(s * 1.1), H.y + 3.0]], fr, { n: 'bevel', bw: 0.25 });
+  }
+  cv.part({ ol: 'line' });
+  cv.poly([[H.X(-4.1), H.y - 1.0], [H.X(4.1), H.y - 1.0], [H.X(4.1), H.y + 3.9], [H.X(-4.1), H.y + 3.9]], card, { n: 'bevel', bw: 0.4 });
+  const id = cv.cur;
+  // 金の IC
+  cv.part({ ol: 'none', clip: id });
+  cv.rect(H.X(-3.3), H.y + 0.0, 1.5, 1.15, mt(GOLD), { n: 'bevel', bw: 0.2 });
+  // しろい R の しるしと ロゴの せん
+  cv.part({ ol: 'none', clip: id, cast: false });
+  const rx = cv.X(H.X(1.4)), ry = cv.Y(H.y + 0.9);
+  if (cv.res >= 8) cv.stamp(rx - 3, ry - 4, ['KKKK.', 'K...K', 'K...K', 'KKKK.', 'K.K..', 'K..K.', 'K...K'], { K: ink });
+  else cv.stamp(rx - 1, ry - 2, ['KK.', 'K.K', 'KK.', 'K.K'], { K: ink });
+  cv.rect(H.X(-3.3), H.y + 2.7, 6.6, 0.4, white(), { n: [0, 0] });
+}
+
 function sunglasses(cv, H, view) {
   const lens = mat({ r: ['#0a0a10', '#1a1a26', '#34344a'], th: [-0.1, 0.55] });
   const fr = mat({ r: BLACK, th: TH.matte });
@@ -845,42 +960,64 @@ export function drawHat26(cv, P, H, G, view) {
       cv.ell(side ? H.X(-0.4) : H.x, H.y - 7.9, side ? 2.8 : 3.2, side ? 0.7 : 0.9, mat({ r: ['#6ab0d8', '#9ad0ec', '#d0ecff', '#ffffff'], th: TH.gem }), { n: [0, -0.3] });
       return true;
     }
-    case 'flower26': {
-      // はなかっぱの 花（あたまの うえに さく 赤い 花と 葉っぱ）
-      const leaf = cl('#3a9a3a', { light: 1.1 });
-      const pet = cl('#ec3a5a', { light: 1.15 });
-      const sw = P.f === 0 ? 0.3 : -0.3;
-      const u0 = side ? -0.4 : 0;
-      cv.part({ ol: 'line' });
-      cv.cap(H.X(u0), H.y - 6.4, 0.6, H.X(u0 + sw), H.y - 10.0, 0.5, leaf);
-      for (const s of side ? [1, -1] : [-1, 1]) {
-        cv.part({ ol: 'line' });
-        cv.lock([H.X(u0), H.y - 7.2], [H.X(u0 + s * 3.0), H.y - 9.8], [H.X(u0 + s * 5.4), H.y - 8.2], 1.2, 0.35, leaf);
-      }
-      // チューリップの ような 花びら（うしろの 3まいと まえの 2まい。あたまの うえは せまいので よこに ひろく）
-      const fx = u0 + sw * 0.5, fy = -9.6;
-      for (const [du, dv, rx, ry, rot] of [[-2.4, 0.2, 1.9, 1.7, -0.5], [2.4, 0.2, 1.9, 1.7, 0.5], [0, -0.5, 2.0, 2.0, 0]]) {
-        cv.part({ ol: 'line' });
-        cv.ell(H.X(fx + du), H.y + fy + dv, rx, ry, cl('#d82848', { light: 1.1 }), { bulge: 0.8, rot });
-      }
-      for (const s of [-1, 1]) {
-        cv.part({ ol: 'line' });
-        cv.ell(H.X(fx + s * 1.2), H.y + fy + 0.8, 1.7, 1.6, pet, { bulge: 0.8, rot: s * 0.3 });
-      }
-      return true;
-    }
-    case 'garlic26': {
-      // 筋肉ニンニク（しろい ニンニクの たまと 緑の め）
-      const bulb = mat({ r: ['#8a7a86', '#d4c8d0', '#f6f0f2', '#ffffff'], th: TH.cloth });
-      const u0 = side ? -0.4 : 0;
+    case 'flower26': case 'garlic26': {
+      // はなかっぱの 頭の 花（あたまの てっぺんから 緑の 茎が 1本 のびて、さきに 大きな 花。葉っぱ 2まい）
+      // garlic26: 筋肉ニンニクの とき（ニンニクの 花: うすむらさきの 小さな 花が まるく あつまる）
+      const garlic = G.kind === 'garlic26';
+      const stem = cl('#3e9a34', { light: 1.1 });
+      const leaf = cl('#4caa3c', { light: 1.12 });
       const sw = P.f === 0 ? 0.25 : -0.25;
+      const u0 = side ? -0.6 : 0;
+      const fu = u0 + sw, fv = -11.5;
+      // 茎
       cv.part({ ol: 'line' });
-      cv.cap(H.X(u0 + sw), H.y - 12.6, 0.3, H.X(u0 + sw * 1.8), H.y - 14.6, 0.22, cl('#4aa040'));
+      cv.cap(H.X(u0), H.y - 6.4, 0.42, H.X(fu), fv + H.y + 1.2, 0.36, stem);
+      // 葉っぱ（茎の なかほどから よこへ）
+      for (const s of side ? [-1] : [-1, 1]) {
+        cv.part({ ol: 'line' });
+        cv.lock([H.X(u0 + sw * 0.5), H.y - 7.9], [H.X(u0 + s * 2.6), H.y - 9.3], [H.X(u0 + s * 5.0), H.y - 8.0], 1.05, 0.25, leaf);
+        const id = cv.cur;
+        cv.crease(TS(H, [[u0 + s * 0.7, -8.0], [u0 + s * 3.8, -8.3]]), 0.12, 0.4, { parts: [id] });
+      }
+      if (garlic) {
+        // ニンニクの 花（まるい ぼんぼりに 小さな 花）
+        const base = cl('#c99ae0', { light: 1.1 });
+        const fl = cl('#ecc8f8', { light: 1.1 });
+        const R = side ? 3.2 : 4.1;
+        cv.part({ ol: 'line' });
+        cv.ell(H.X(fu), H.y + fv, R, 3.0, base, { bulge: 0.9 });
+        const id = cv.cur;
+        const spots = back ? [[-1.4, -0.6], [1.2, -0.9], [0, 0.6], [-1.8, 0.8], [1.9, 0.5]] : [[-1.6, -0.7], [0.1, -1.2], [1.7, -0.6], [-0.8, 0.5], [1.0, 0.6], [-2.1, 0.9], [2.2, 1.0], [0, 1.5]];
+        for (const [du, dv] of spots) {
+          cv.part({ ol: 'soft', clip: id });
+          cv.ell(H.X(fu + du * (R / 2.6)), H.y + fv + dv * 1.25, 0.72, 0.65, fl, { bulge: 0.8 });
+        }
+        return true;
+      }
+      // 大きな 花（ピンクの 花びら 5まい・きいろい 中心）。うしろからは 花びらの うらと 緑の がく
+      const pet = cl(back ? '#e0466e' : '#f4507e', { light: 1.15 });
+      const sq = side ? 0.72 : 1;
+      const petals = [];
+      for (let i = 0; i < 5; i++) {
+        const a = -Math.PI / 2 + (i / 5) * Math.PI * 2;
+        petals.push([Math.cos(a) * 3.4 * sq, Math.sin(a) * 1.75]);
+      }
+      // うしろの 花びら（うえ）から じゅんに
+      petals.sort((p, q) => p[1] - q[1]);
+      for (const [du, dv] of petals) {
+        cv.part({ ol: 'line' });
+        cv.ell(H.X(fu + du), H.y + fv + dv, 2.4 * sq + 0.2, 1.75, pet, { bulge: 0.75 });
+      }
+      if (back) {
+        cv.part({ ol: 'line' });
+        cv.poly(TS(H, [[fu - 1.6, fv + 0.2], [fu, fv - 1.1], [fu + 1.6, fv + 0.2], [fu + 0.8, fv + 1.5], [fu - 0.8, fv + 1.5]]), leaf, { n: [0, -0.2] });
+        return true;
+      }
       cv.part({ ol: 'line' });
-      cv.poly(TS(H, [[u0 - 3.4, -7.0], [u0 - 3.8, -9.0], [u0 - 2.2, -11.2], [u0 - 0.4, -12.2], [u0 + sw, -13.4], [u0 + 0.4, -12.2], [u0 + 2.2, -11.2], [u0 + 3.8, -9.0], [u0 + 3.4, -7.0]]), bulb, { n: 'sphere', sph: [H.X(u0 - 1), H.y - 10.4, 4.4, 3.6], cx: 0.9 });
-      const id = cv.cur;
-      for (const du of [-1.6, 0, 1.6]) cv.crease(TS(H, [[u0 + du * 0.4, -12.0], [u0 + du * 1.3, -7.4]]), 0.18, -0.55, { parts: [id] });
-      if (cv.k >= 4) cv.crease(TS(H, [[u0 - 2.6, -8.8], [u0 - 1.6, -10.4]]), 0.16, 0.2, { parts: [id] });
+      cv.ell(H.X(fu + (side ? 0.6 : 0)), H.y + fv, 1.55 * sq + 0.2, 1.35, cl('#ffd23c', { light: 1.2 }), { bulge: 0.8 });
+      const cid = cv.cur;
+      cv.part({ ol: 'none', clip: cid, cast: false });
+      for (const [du, dv] of [[-0.4, -0.3], [0.45, 0.1], [-0.1, 0.45]]) cv.px(cv.X(H.X(fu + (side ? 0.5 : 0) + du)), cv.Y(H.y + fv + dv), '#e89a1a');
       return true;
     }
   }
@@ -950,6 +1087,15 @@ export function drawProp26(cv, P, A, O) {
       cv.cap(hx - d * 0.4, hy + 1.0, 0.7, hx + d * 1.0, hy - 2.8, 0.62, cl('#2e8a2a', { light: 1.05 }));
       const id = cv.cur;
       cv.crease([[hx - d * 0.2, hy + 0.4], [hx + d * 0.8, hy - 2.2]], 0.14, 0.5, { parts: [id] });
+      return;
+    }
+    case 'garlic': {
+      // ニンニク（しろい たまに すじと とがった さき）
+      const cx = hx + d * 0.7, cy = hy - 1.6;
+      cv.part({ ol: 'line' });
+      cv.poly([[cx - 1.5, cy + 0.2], [cx - 1.2, cy - 0.9], [cx - 0.3, cy - 1.6], [cx, cy - 2.6], [cx + 0.3, cy - 1.6], [cx + 1.2, cy - 0.9], [cx + 1.5, cy + 0.2], [cx + 0.9, cy + 1.1], [cx - 0.9, cy + 1.1]], mat({ r: ['#8a7a86', '#d4c8d0', '#f6f0f2', '#ffffff'], th: TH.cloth }), { n: 'sphere', sph: [cx - 0.4, cy - 0.6, 1.8, 1.8], cx: 0.9 });
+      const id = cv.cur;
+      for (const du of [-0.7, 0, 0.7]) cv.crease([[cx + du * 0.3, cy - 1.5], [cx + du, cy + 0.9]], 0.12, -0.55, { parts: [id] });
       return;
     }
     case 'scroll': {

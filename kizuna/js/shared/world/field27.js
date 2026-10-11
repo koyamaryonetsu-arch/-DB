@@ -7,17 +7,17 @@
 // ・char.aura    … 画面に 出す しるし { kind: 'repel'|'lure', until, name }（client/ui/hud.js。セーブに のこっても 時こくで 切れる）
 // ・あとから 使った ほうが 勝つ（片方を 使うと もう 片方は 消える）
 // ・家族と いっしょの ときは、同じ 場所に いる パーティーの 家族にも 効く
-import { MAPS } from '../maps/index.js?v=76f251ec36c2';
-import { ABILITIES } from '../data/abilities.js?v=76f251ec36c2';
-import { ITEMS } from '../data/items.js?v=76f251ec36c2';
-import { AURA_NAMES, LURE } from '../data/abilities-field27.js?v=76f251ec36c2';
-import { mpCost, itemCount, removeItem } from '../stats.js?v=76f251ec36c2';
-import { partyOf } from './party.js?v=76f251ec36c2';
-import { isDungeonMap, dungeonExit } from './escape.js?v=76f251ec36c2';
-import { warpParty } from './travel.js?v=76f251ec36c2';
-import { rollGroup } from './monsters.js?v=76f251ec36c2';
-import { ENCOUNTER_TABLES } from '../data/encounters.js?v=76f251ec36c2';
-import { MONSTERS } from '../data/monsters.js?v=76f251ec36c2';
+import { MAPS } from '../maps/index.js?v=8a9b6717ad39';
+import { ABILITIES } from '../data/abilities.js?v=8a9b6717ad39';
+import { ITEMS } from '../data/items.js?v=8a9b6717ad39';
+import { AURA_NAMES, LURE } from '../data/abilities-field27.js?v=8a9b6717ad39';
+import { mpCost, itemCount, removeItem } from '../stats.js?v=8a9b6717ad39';
+import { partyOf } from './party.js?v=8a9b6717ad39';
+import { isDungeonMap, dungeonExit } from './escape.js?v=8a9b6717ad39';
+import { warpParty } from './travel.js?v=8a9b6717ad39';
+import { rollGroup } from './monsters.js?v=8a9b6717ad39';
+import { ENCOUNTER_TABLES } from '../data/encounters.js?v=8a9b6717ad39';
+import { MONSTERS } from '../data/monsters.js?v=8a9b6717ad39';
 
 // ここで あつかう 効き目
 export const FIELD27_EFFECTS = new Set(['exit', 'repel', 'lure']);
