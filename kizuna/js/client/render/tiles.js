@@ -1,14 +1,14 @@
 // マップの タイル（16×16 ドット）を プログラムで かく
-import { T, TILE_INFO } from '../../shared/tiles.js?v=bdeec0bffe23';
-import { hash2 } from '../../shared/rng.js?v=bdeec0bffe23';
-import { Painter, shade, prand } from './pixel.js?v=bdeec0bffe23';
-import { themedCanvas, partOfTile } from './themes.js?v=bdeec0bffe23';
-import { CH3_PAINTERS, CH3_FRAMES, CH3_SPEED, RAIL_TILES, CH3_WALLS } from './tiles-ch3.js?v=bdeec0bffe23';
-import { CH4_PAINTERS, CH4_FRAMES, CH4_SPEED, CH4_WALLS, ch4Mask, desertBase } from './tiles-ch4.js?v=bdeec0bffe23';
-import { CANAL_CTX, CANAL_CTX_PAINTERS, canalVariant, canalBaseBits, canalWallBits } from './tiles-canal.js?v=bdeec0bffe23';
-import { PYRAMID_PAINTERS, PYRAMID_FRAMES, PYRAMID_SPEED, PYRAMID_WALLS, paintTablet, paintPyrBrazier, paintPyrLever } from './tiles-pyramid.js?v=bdeec0bffe23';
-import { whirlVariant } from './tiles-duna.js?v=bdeec0bffe23';
-import { templeVariant } from './tiles-temple.js?v=bdeec0bffe23';
+import { T, TILE_INFO } from '../../shared/tiles.js?v=eaa48772a44a';
+import { hash2 } from '../../shared/rng.js?v=eaa48772a44a';
+import { Painter, shade, prand } from './pixel.js?v=eaa48772a44a';
+import { themedCanvas, partOfTile } from './themes.js?v=eaa48772a44a';
+import { CH3_PAINTERS, CH3_FRAMES, CH3_SPEED, RAIL_TILES, CH3_WALLS } from './tiles-ch3.js?v=eaa48772a44a';
+import { CH4_PAINTERS, CH4_FRAMES, CH4_SPEED, CH4_WALLS, ch4Mask, desertBase } from './tiles-ch4.js?v=eaa48772a44a';
+import { CANAL_CTX, CANAL_CTX_PAINTERS, canalVariant, canalBaseBits, canalWallBits } from './tiles-canal.js?v=eaa48772a44a';
+import { PYRAMID_PAINTERS, PYRAMID_FRAMES, PYRAMID_SPEED, PYRAMID_WALLS, paintTablet, paintPyrBrazier, paintPyrLever } from './tiles-pyramid.js?v=eaa48772a44a';
+import { whirlVariant } from './tiles-duna.js?v=eaa48772a44a';
+import { templeVariant } from './tiles-temple.js?v=eaa48772a44a';
 
 export const TS = 16;
 

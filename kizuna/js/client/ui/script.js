@@ -1,10 +1,10 @@
 // だいほんの さいせい（メッセージ・えらぶ・えんしゅつ）
-import { el } from './dom.js?v=bdeec0bffe23';
-import { ListMenu } from './dom.js?v=bdeec0bffe23';
-import { openServiceUI } from './services.js?v=bdeec0bffe23';
-import { monsterCanvas } from '../render/monsters.js?v=bdeec0bffe23';
-import { npcSprite } from '../field.js?v=bdeec0bffe23';
-import { reportError } from '../errlog.js?v=bdeec0bffe23';
+import { el } from './dom.js?v=eaa48772a44a';
+import { ListMenu } from './dom.js?v=eaa48772a44a';
+import { openServiceUI } from './services.js?v=eaa48772a44a';
+import { monsterCanvas } from '../render/monsters.js?v=eaa48772a44a';
+import { npcSprite } from '../field.js?v=eaa48772a44a';
+import { reportError } from '../errlog.js?v=eaa48772a44a';
 
 const TYPE_MS = 28;
 

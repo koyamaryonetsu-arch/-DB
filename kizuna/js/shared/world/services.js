@@ -1,27 +1,27 @@
 // お店・やどや・きょうかい・転職・酒場・でんごんばん・メニュー操作
-import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js?v=bdeec0bffe23';
-import { normDifficulty } from '../data/difficulty.js?v=bdeec0bffe23';
-import { ITEMS, sellPrice, SLOTS, SLOT_NAMES } from '../data/items.js?v=bdeec0bffe23';
-import { JOBS, ALL_JOBS, jobReqText, BODY_NAMES } from '../data/jobs.js?v=bdeec0bffe23';
-import { ABILITIES } from '../data/abilities.js?v=bdeec0bffe23';
-import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=bdeec0bffe23';
-import { TACTICS } from '../ai.js?v=bdeec0bffe23';
-import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js?v=bdeec0bffe23';
-import { salonInfo, salonAction } from './salon.js?v=bdeec0bffe23';
-import { breedMonsters, breedPreview } from './breed.js?v=bdeec0bffe23';
-import { MONSTERS } from '../data/monsters.js?v=bdeec0bffe23';
-import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings, spellSealed } from '../battle.js?v=bdeec0bffe23';
-import { PLACES } from '../maps/overworld.js?v=bdeec0bffe23';
-import { POS, SEA_PLACES, MAPS } from '../maps/index.js?v=bdeec0bffe23';
-import { castRura, warpParty, useTimeBell, warpPlaces, warpOwner } from './travel.js?v=bdeec0bffe23';
-import { bankInfo, bankAction } from './bank.js?v=bdeec0bffe23';
-import { forgeInfo, forgeAction } from './forge.js?v=bdeec0bffe23';
-import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction, wagonHere, wagonHealEntries, ownWagonEntries } from './wagon.js?v=bdeec0bffe23';
-import { casinoOpen, casinoAction } from './casino.js?v=bdeec0bffe23';
-import { useEscapeItem, noEscapeText } from './escape.js?v=bdeec0bffe23';
-import { usePowder } from './powder.js?v=bdeec0bffe23';
-import { bestEquipPlan, bestTeamOrder } from '../equip-plan.js?v=bdeec0bffe23';
-import { setLookEquip } from '../look-equip.js?v=bdeec0bffe23';
+import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js?v=eaa48772a44a';
+import { normDifficulty } from '../data/difficulty.js?v=eaa48772a44a';
+import { ITEMS, sellPrice, SLOTS, SLOT_NAMES } from '../data/items.js?v=eaa48772a44a';
+import { JOBS, ALL_JOBS, jobReqText, BODY_NAMES } from '../data/jobs.js?v=eaa48772a44a';
+import { ABILITIES } from '../data/abilities.js?v=eaa48772a44a';
+import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=eaa48772a44a';
+import { TACTICS } from '../ai.js?v=eaa48772a44a';
+import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js?v=eaa48772a44a';
+import { salonInfo, salonAction } from './salon.js?v=eaa48772a44a';
+import { breedMonsters, breedPreview } from './breed.js?v=eaa48772a44a';
+import { MONSTERS } from '../data/monsters.js?v=eaa48772a44a';
+import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings, spellSealed } from '../battle.js?v=eaa48772a44a';
+import { PLACES } from '../maps/overworld.js?v=eaa48772a44a';
+import { POS, SEA_PLACES, MAPS } from '../maps/index.js?v=eaa48772a44a';
+import { castRura, warpParty, useTimeBell, warpPlaces, warpOwner } from './travel.js?v=eaa48772a44a';
+import { bankInfo, bankAction } from './bank.js?v=eaa48772a44a';
+import { forgeInfo, forgeAction } from './forge.js?v=eaa48772a44a';
+import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction, wagonHere, wagonHealEntries, ownWagonEntries } from './wagon.js?v=eaa48772a44a';
+import { casinoOpen, casinoAction } from './casino.js?v=eaa48772a44a';
+import { useEscapeItem, noEscapeText } from './escape.js?v=eaa48772a44a';
+import { usePowder } from './powder.js?v=eaa48772a44a';
+import { bestEquipPlan, bestTeamOrder } from '../equip-plan.js?v=eaa48772a44a';
+import { setLookEquip } from '../look-equip.js?v=eaa48772a44a';
 
 export function openService(world, s, kind, arg) {
   switch (kind) {

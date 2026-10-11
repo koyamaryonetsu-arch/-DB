@@ -1,31 +1,33 @@
 // たたかいの がめん（むかしの RPG ふう 1がめん）
-import { el, esc, ListMenu, toast } from './ui/dom.js?v=bdeec0bffe23';
-import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js?v=bdeec0bffe23';
-import { ITEMS } from '../shared/data/items.js?v=bdeec0bffe23';
-import { JOBS } from '../shared/data/jobs.js?v=bdeec0bffe23';
-import { MONSTERS } from '../shared/data/monsters.js?v=bdeec0bffe23';
-import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed, battleAbilityOk } from '../shared/stats.js?v=bdeec0bffe23';
-import { affinityOf, attackReach, spellSealed, SEALED_REASON } from '../shared/battle.js?v=bdeec0bffe23';
+import { el, esc, ListMenu, toast } from './ui/dom.js?v=eaa48772a44a';
+import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js?v=eaa48772a44a';
+import { ITEMS } from '../shared/data/items.js?v=eaa48772a44a';
+import { JOBS } from '../shared/data/jobs.js?v=eaa48772a44a';
+import { MONSTERS } from '../shared/data/monsters.js?v=eaa48772a44a';
+import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed, battleAbilityOk } from '../shared/stats.js?v=eaa48772a44a';
+import { affinityOf, attackReach, spellSealed, SEALED_REASON } from '../shared/battle.js?v=eaa48772a44a';
 // 合体技（2人・3人・4人）の コマンド・さそい・えんしゅつ（battle-dual.js）
-import { myDualOptions, dualMenu, showInvite, askingName, waitText, onDualWait, onDualWaitEnd, onDualHold, onDualAnswer, dualPre, dualFx } from './battle-dual.js?v=bdeec0bffe23';
-import { TACTICS } from '../shared/ai.js?v=bdeec0bffe23';
-import { faceURL } from './field.js?v=bdeec0bffe23';
-import { monsterCanvas } from './render/monsters.js?v=bdeec0bffe23';
-import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=bdeec0bffe23';
-import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js?v=bdeec0bffe23';
-import { PARTY_ANIMS, JOB2_SFX } from './render/battlefx-jobs2.js?v=bdeec0bffe23';
-import { PARTY_ANIMS3, JOB3_SFX } from './render/battlefx-jobs3.js?v=bdeec0bffe23';
-import { SIG4, JOB4_SFX, sigAnim } from './render/battlefx-jobs4.js?v=bdeec0bffe23';
-import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js?v=bdeec0bffe23';
-import { statusNames, buffNames, targetTag } from './ui/info.js?v=bdeec0bffe23';
-import { battleSkillText, battleItemText } from './ui/skillinfo.js?v=bdeec0bffe23';
-import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js?v=bdeec0bffe23';
-import { ENEMY_RATE_NAMES } from '../shared/data/difficulty.js?v=bdeec0bffe23';
-import { ResultPager, levelUpName } from './ui/result.js?v=bdeec0bffe23';
+import { myDualOptions, dualMenu, showInvite, askingName, waitText, onDualWait, onDualWaitEnd, onDualHold, onDualAnswer, dualPre, dualFx } from './battle-dual.js?v=eaa48772a44a';
+import { TACTICS } from '../shared/ai.js?v=eaa48772a44a';
+import { faceURL } from './field.js?v=eaa48772a44a';
+import { monsterCanvas } from './render/monsters.js?v=eaa48772a44a';
+import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=eaa48772a44a';
+import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js?v=eaa48772a44a';
+import { PARTY_ANIMS, JOB2_SFX } from './render/battlefx-jobs2.js?v=eaa48772a44a';
+import { PARTY_ANIMS3, JOB3_SFX } from './render/battlefx-jobs3.js?v=eaa48772a44a';
+import { SIG4, JOB4_SFX, sigAnim } from './render/battlefx-jobs4.js?v=eaa48772a44a';
+// 第27回に 作り直した 古い 呪文・特技の エフェクト（段階・あたる じかん・音・味方への えんしゅつ）
+import { r27Anim, r27Hit, r27Sfx, playAllyR27 } from './render/battlefx-r27.js?v=eaa48772a44a';
+import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js?v=eaa48772a44a';
+import { statusNames, buffNames, targetTag } from './ui/info.js?v=eaa48772a44a';
+import { battleSkillText, battleItemText } from './ui/skillinfo.js?v=eaa48772a44a';
+import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js?v=eaa48772a44a';
+import { ENEMY_RATE_NAMES } from '../shared/data/difficulty.js?v=eaa48772a44a';
+import { ResultPager, levelUpName } from './ui/result.js?v=eaa48772a44a';
 // 第4章の しかけ（月の鏡・まぼろしの 分身・魔神のランプ・ボスの 大技）
-import { CH4_ALLY_FX, ch4ItemEntries, ch4ItemPick, ch4ItemInfo, ch4Present, vanishFx, drawShade, drawBurrow } from './battle-ch4.js?v=bdeec0bffe23';
+import { CH4_ALLY_FX, ch4ItemEntries, ch4ItemPick, ch4ItemInfo, ch4Present, vanishFx, drawShade, drawBurrow } from './battle-ch4.js?v=eaa48772a44a';
 // 第4章 Step 7 の 砂の底の神殿と モルガナ（鏡のうつし身・水のろうの 絵・水の衣・光・大波・水の守りの歌）
-import { templeSprite, templeDraw, templeStart, TEMPLE_SFX } from './battle-temple.js?v=bdeec0bffe23';
+import { templeSprite, templeDraw, templeStart, TEMPLE_SFX } from './battle-temple.js?v=eaa48772a44a';
 
 // たたかいの え の こまかさ（おもい きかいで さげたら、その あいだは さげた まま）
 let battleRes = BRES;
@@ -917,7 +919,7 @@ export class BattleScene {
     // エフェクト
     const targets = (fx.targets || []).map((id) => this.c.get(id)).filter(Boolean);
     const enemyPts = targets.filter((t) => t.side === 'enemy').map((t) => this.center(t)).filter(Boolean);
-    const anim = sigAnim(ev.ability) || fx.anim || (fx.type === 'attack' ? (fx.side === 'ally' ? (fx.weapon === 'claw' || fx.weapon === 'none' ? 'punch' : 'slash_heavy') : 'hit') : null);
+    const anim = sigAnim(ev.ability) || r27Anim(ev.ability) || fx.anim || (fx.type === 'attack' ? (fx.side === 'ally' ? (fx.weapon === 'claw' || fx.weapon === 'none' ? 'punch' : 'slash_heavy') : 'hit') : null);
     const crit = (ev.results || []).some((r) => r.crit);
     const fromAlly = fx.side === 'ally';
     const ab = ev.ability ? ABILITIES[ev.ability] : null;
@@ -942,8 +944,8 @@ export class BattleScene {
         if (fx.weapon === 'bat') g.audio.sfx('bat');
         else if (fx.weapon === 'axe') g.audio.sfx('smash');
       } else {
-        this.fx.play(anim, enemyPts, fx.element, { crit, fromAlly });
-        hitDelay = HIT_DELAY[anim] || 0;
+        this.fx.play(anim, enemyPts, fx.element, { crit, fromAlly, ability: ev.ability, from: actor && (actor.side === 'ally' ? this.allyPt(actor) : this.center(actor)) });
+        hitDelay = r27Hit(anim, ev.ability) ?? HIT_DELAY[anim] ?? 0;
       }
     }
     // 味方に かける 合体技（回復・ステージ）は、たたかいの 画面にも 大きく
@@ -972,6 +974,7 @@ export class BattleScene {
         });
       }
       allyTargets.forEach((t, i) => this.allyFx(t.id, kind, (d + (allyTargets.length > 1 ? i * 60 : 0)) / tempo));
+      if (fromAlly && fx.type !== 'dual' && !SIG4.has(anim) && !PARTY_ANIMS.has(anim) && !PARTY_ANIMS3.has(anim)) playAllyR27(this.fx, anim, allyTargets.map((t) => this.allyPt(t)), { ability: ev.ability, element: fx.element, from: actor && this.allyPt(actor) });
       if (!hitDelay) hitDelay = d;
     }
     // じゅもんを となえた みかたは すこし ひかる
@@ -1000,8 +1003,9 @@ export class BattleScene {
     ch4Present(this, ev, fx, anim, actor, lead);
     if (ev.combo >= 2 && !ev.dual) this.banner(`れんけい ${ev.combo}！`, 'combo');
     if (anim === 'minadein') g.audio.sfx('bolt');
-    if (anim && ANIM_SFX[anim]) g.audio.sfx(ANIM_SFX[anim]);
-    else if (fx.type === 'ability' && fromAlly && !ANIM_SFX[anim]) g.audio.sfx('spell');
+    const sfxId = (fx.type !== 'attack' && r27Sfx(anim, ev.ability)) || ANIM_SFX[anim];
+    if (anim && sfxId) g.audio.sfx(sfxId);
+    else if (fx.type === 'ability' && fromAlly) g.audio.sfx('spell');
     if (fx.anim === 'quake') {
       const q = () => { if (!this.destroyed) this.shake(500, 7); };
       if (lead) setTimeout(q, lead / tempo);

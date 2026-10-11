@@ -1,18 +1,20 @@
 // たたかいの はいけいと エフェクト
-import { makeCanvas, ctxOf, hexToRgb, mix } from './pixel.js?v=bdeec0bffe23';
-import { weaponLook, playWeapon, playReach } from './weaponfx.js?v=bdeec0bffe23';
-import { nightBg, drawNightSky } from './night-art.js?v=bdeec0bffe23';
-import { playJobFx, JOB_FINE } from './battlefx-jobs.js?v=bdeec0bffe23';
-import { playJob2Fx, JOB2_FINE } from './battlefx-jobs2.js?v=bdeec0bffe23';
-import { playJob3Fx, JOB3_FINE } from './battlefx-jobs3.js?v=bdeec0bffe23';
-import { playJob4Fx, JOB4_FINE } from './battlefx-jobs4.js?v=bdeec0bffe23';
-import { drawPalaceHall, drawPalaceFloor } from './ch4-palace-bg.js?v=bdeec0bffe23';
+import { makeCanvas, ctxOf, hexToRgb, mix } from './pixel.js?v=eaa48772a44a';
+import { weaponLook, playWeapon, playReach } from './weaponfx.js?v=eaa48772a44a';
+import { nightBg, drawNightSky } from './night-art.js?v=eaa48772a44a';
+import { playJobFx, JOB_FINE } from './battlefx-jobs.js?v=eaa48772a44a';
+import { playJob2Fx, JOB2_FINE } from './battlefx-jobs2.js?v=eaa48772a44a';
+import { playJob3Fx, JOB3_FINE } from './battlefx-jobs3.js?v=eaa48772a44a';
+import { playJob4Fx, JOB4_FINE } from './battlefx-jobs4.js?v=eaa48772a44a';
+import { drawPalaceHall, drawPalaceFloor } from './ch4-palace-bg.js?v=eaa48772a44a';
 // 第4章 Step 6: 砂の古城・砂の海（すなかぜ号の かんぱん）・砂クジラの ねどこ（ch4-duna-bg.js）
-import { drawCastleHall, drawCastleFloor, drawSandSea } from './ch4-duna-bg.js?v=bdeec0bffe23';
-import { playCh4Fx } from './battlefx-ch4.js?v=bdeec0bffe23';
+import { drawCastleHall, drawCastleFloor, drawSandSea } from './ch4-duna-bg.js?v=eaa48772a44a';
+import { playCh4Fx } from './battlefx-ch4.js?v=eaa48772a44a';
+// 第27回: 古い 呪文・特技の エフェクトの 作り直し（battlefx-r27.js）
+import { playR27Fx, R27_FINE } from './battlefx-r27.js?v=eaa48772a44a';
 // 第4章 Step 7: 砂の底の神殿・鏡の間・水鏡の広間（ch4-temple-bg.js）
-import { TEMPLE_BG, TEMPLE_DECOS, drawTempleBg, drawTempleFloorBg } from './ch4-temple-bg.js?v=bdeec0bffe23';
-import { SECRET_BG } from './secret-art.js?v=bdeec0bffe23';
+import { TEMPLE_BG, TEMPLE_DECOS, drawTempleBg, drawTempleFloorBg } from './ch4-temple-bg.js?v=eaa48772a44a';
+import { SECRET_BG } from './secret-art.js?v=eaa48772a44a';
 
 export const BW = 256;
 export const BH = 144;
@@ -1149,7 +1151,7 @@ const FINE = {
 };
 
 // 学校・公務員・アイドルの 職業の つぶ（battlefx-jobs.js）・サイヤ人・ゴム人間・配信者 などの つぶ（battlefx-jobs2.js）
-Object.assign(FINE, JOB_FINE, JOB2_FINE, JOB3_FINE, JOB4_FINE);
+Object.assign(FINE, JOB_FINE, JOB2_FINE, JOB3_FINE, JOB4_FINE, R27_FINE);
 
 export class Effects {
   constructor() {
@@ -1421,6 +1423,8 @@ export class Effects {
     if (playJob4Fx(this, anim, targets, element, opts, BW, BH)) return;
     // 第4章の ボスの 技・月の鏡（battlefx-ch4.js）
     if (playCh4Fx(this, anim, targets, element, opts, BW, BH)) return;
+    // 第27回に 作り直した 呪文・特技（メラ〜メラガイアー・ヒャド系・バギ系・イオ系・デイン系・ホイミ系・補助・剣と こぶしの 技）
+    if (playR27Fx(this, anim, targets, element, opts, BW, BH)) return;
     const crit = !!opts.crit;
     const ec = COL[element] || null;
     const spell = /^(fire|ice|wind|blast|void|dark1|minadein|bolt|meteor)/.test(anim);

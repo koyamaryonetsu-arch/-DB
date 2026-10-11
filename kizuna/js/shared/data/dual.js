@@ -12,7 +12,7 @@
 //
 // 第26回（2026年10月）: 40こ あった 合体技を 25こに しぼって 強く した。3人技・4人技と、クスッと 笑える 技を くわえた。
 // けずった 合体技を 使った ことの ある 記録（char.dualSeen）は そのまま のこす（DUAL_LEGACY: にていて 1つに まとめた 技は、まとめた 先の 技も わかる）
-import { ABILITIES } from './abilities.js?v=bdeec0bffe23';
+import { ABILITIES } from './abilities.js?v=eaa48772a44a';
 
 // 技の 組（どれか 1つを 覚えていれば よい）
 const FIRE = ['mera', 'merami', 'merazoma', 'gira', 'begirama', 'nj_katon', 'am_begiragon', 'am_meragaia', 'hk_triple_mera', 'ck_tsuyobi', 'ck_flambe', 'hi_daikaryoku', 'hi_giragureido', 'hi_ima_mera'];
