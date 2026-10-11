@@ -236,6 +236,10 @@ export function gameFiles() {
     'public/js/shared/data/abilities-field27.js', 'public/js/shared/world/field27.js', 'public/js/shared/roster-sort.js',
     // 第27回: 暴れんぼう将軍の 看板の技「成敗！」の エフェクト
     'public/js/client/render/battlefx-jobs5.js',
+    // 第4章クリアの あとの より道: 砂の古代都市と 古代の大迷宮・たのまれごと（第27回）
+    'public/js/shared/maps/labyrinth.js', 'public/js/shared/data/story-lab.js', 'public/js/shared/data/sidequests.js',
+    'public/js/shared/data/items-lab.js', 'public/js/shared/data/monsters-lab.js', 'public/js/shared/data/abilities-lab.js',
+    'public/js/shared/data/encounters-lab.js', 'public/js/shared/battle-lab.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

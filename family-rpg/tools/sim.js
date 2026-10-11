@@ -8,6 +8,9 @@ import { makeRng } from '../public/js/shared/rng.js';
 // 第4章 Step 6: ゲストの サラ（world/party.js の makeNpcSupportChar と おなじ つくりかた）
 import { makeNpcSupportChar } from '../public/js/shared/world/party.js';
 import { CH4_GUESTS } from '../public/js/shared/data/items-ch4.js';
+// 古代の大迷宮: 魔物を 階の レベルまで 強く する（world/battles.js の enemyLv と おなじ）
+import { scaleEnemy } from '../public/js/shared/data/treasure.js';
+import { LAB_ENEMY_LV, LAB_TABLE } from '../public/js/shared/maps/labyrinth.js';
 
 const N = Number(process.argv[2] || 30);
 
@@ -30,6 +33,18 @@ const GEAR = {
     warrior: ['crescent_blade', 'sand_mail', 'crescent_shield', 'sand_helm', 'whale_charm'], monk: ['tiger_claw', 'sandstorm_gi', null, 'turban', 'scorpion_brooch'],
     priest: ['sand_lance', 'moon_robe', 'crescent_shield', 'turban', 'royal_bracelet'], mage: ['oasis_staff', 'moon_robe', null, 'turban', 'majin_lamp'],
     performer: ['sandwind_fan', 'sandstorm_gi', 'crescent_shield', 'turban', 'mirage_ring'],
+  },
+  // 第4章クリアの あと（古代の大迷宮）: ドゥナの ランク7の 店の 装備 ＋ それまでの ボスの アクセサリー（モルガナの 2つも）
+  42: {
+    warrior: ['platinum_sword', 'platinum_mail', 'platinum_shield', 'platinum_helm', 'whale_charm'], monk: ['platinum_claw', 'stream_gi', null, 'pirate_hat', 'scorpion_brooch'],
+    priest: ['harpoon', 'pearl_robe', 'platinum_shield', 'pirate_hat', 'mizukagami_crown'], mage: ['pearl_staff', 'pearl_robe', null, 'pirate_hat', 'tide_earring'],
+    performer: ['ripple_fan', 'stream_gi', 'platinum_shield', 'pirate_hat', 'mirage_ring'],
+  },
+  // 大迷宮の 宝箱の ★の 装備も 使う（地下9階まで 来た 人）
+  45: {
+    warrior: ['ancient_blade', 'sphinx_mail', 'guardian_shield', 'dragon_helm', 'whale_charm'], monk: ['night_claw', 'stream_gi', null, 'pirate_hat', 'scorpion_brooch'],
+    priest: ['harpoon', 'ancient_robe', 'platinum_shield', 'pirate_hat', 'mizukagami_crown'], mage: ['ancient_star_staff', 'pearl_robe', null, 'pirate_hat', 'tide_earring'],
+    performer: ['sphinx_fan', 'stream_gi', 'platinum_shield', 'pirate_hat', 'mirage_ring'],
   },
 };
 
@@ -58,6 +73,8 @@ export function runBattle(party, enemyList, opts = {}) {
     noSpells: !!opts.noSpells,
     // 水の守りの歌（第4章 Step 7。モルガナ 真の すがた）
     song: opts.song,
+    // 古代の大迷宮（階の レベル）・たのまれごとの 強い 魔物（きまった 戦いの enemyLv）
+    enemyMod: opts.enemyLv ? (m) => scaleEnemy(m, opts.enemyLv) : null,
   });
   // 反撃の構えに 気づかない（なぐり続ける）人の つよさを はかる
   if (opts.ignoreStance) b.ignoreStance = true;
@@ -74,6 +91,9 @@ export function runBattle(party, enemyList, opts = {}) {
   // 知らない（光っていても 呪文・大波でも 身を 守らない）。battle-temple.js
   if (opts.knowsTemple) b.knowsTemple = true;
   if (opts.templeNaive) b.templeNaive = true;
+  // 古竜オルドラの しかけを 知っている（いにしえの炎の 前に 身を 守る）/ 知らない（前ぶれでも 守らない）。battle-lab.js
+  if (opts.knowsLab) b.knowsLab = true;
+  if (opts.labNaive) b.labNaive = true;
   let real = 0;
   let acts = 0;
   while (!b.over && real < 30 * 60 * 1000) {
@@ -227,8 +247,46 @@ export function morganaFight(lv, seed, know, song = true, tier = 38, log = false
   return { ...r2, seconds: r1.seconds + r2.seconds, acts: r1.acts + r2.acts, mpUsed: r1.mpUsed + r2.mpUsed, phase: 2, hp1: r1.hpLeft };
 }
 
+// 第4章クリアの あと「古代の大迷宮」: node tools/sim.js [回数] lab
+// [階, 主人公の レベル, 装備]: 出現表は その 階の レベル（maps/labyrinth.js の LAB_ENEMY_LV）まで 強く した 魔物。4人（せんし・そうりょ・まほう・ぶとう）
+// 装備は ドゥナの ランク7（GEAR 42）、地下7階からは 大迷宮の ★の 装備も（GEAR 45）
+export const LAB_ZONES = [[1, 40, 42], [2, 40, 42], [3, 41, 42], [4, 41, 42], [5, 42, 42], [6, 42, 42], [7, 43, 45], [8, 43, 45], [9, 44, 45]];
+// きまった 戦い（スフィンクスの 番人・古代の 番兵・たのまれごとの 大王イカと マグマゴーレム）
+export const LAB_FIXED = [['lab_sphinx_guard', 42, 42], ['lab_guardians', 43, 45], ['lab_guardians', 44, 45], ['q_kraken', 40, 42], ['q_kraken', 42, 42], ['q_golem', 40, 42], ['q_golem', 42, 42]];
+// 古竜オルドラ: レベル（おすすめは 45）
+export const LAB_BOSS = [43, 44, 45, 46, 47];
+const fixedOf = (enc) => FIXED_ENCOUNTERS[enc].group.flatMap(([sp, n]) => Array(n).fill(sp));
+// know … 知っている 人（大きく 息を すいこんだら 身を 守る・しっぽを かかげたら なぐらない）。
+// 知らない 人 … 前ぶれでも 守らず、反撃の構えでも なぐる
+export function dragonFight(lv, seed, know, tier = 45, log = false) {
+  const party = PARTY(lv, 10, tier);
+  const flags = know ? { knowsLab: true } : { labNaive: true, ignoreStance: true };
+  return runBattle(party, fixedOf('lab_dragon'), { seed, boss: true, log, ...flags });
+}
+
 // 第2章: node tools/sim.js [回数] ch2
-if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'ch4') {
+if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'lab') {
+  const rng = makeRng(8888);
+  for (const [n, lv, tier] of LAB_ZONES) {
+    const res = [];
+    for (let i = 0; i < N; i++) res.push(runBattle(PARTY(lv, 10, tier), rollGroup(LAB_TABLE(n), rng), { seed: i, enemyLv: LAB_ENEMY_LV[n] }));
+    summarize(`地下${n}階 ${LAB_TABLE(n)}(敵Lv${LAB_ENEMY_LV[n]}) Lv${lv}`, res);
+  }
+  for (const [enc, lv, tier] of LAB_FIXED) {
+    const e = FIXED_ENCOUNTERS[enc];
+    const res = [];
+    for (let i = 0; i < N; i++) res.push(runBattle(PARTY(lv, 10, tier), fixedOf(enc), { seed: 777 + i * 7919, boss: !!e.boss, enemyLv: e.enemyLv }));
+    summarize(`${enc}(敵Lv${e.enemyLv}) Lv${lv}`, res);
+  }
+  for (const know of [true, false]) {
+    for (const lv of LAB_BOSS) {
+      const res = [];
+      for (let i = 0; i < Math.max(N, 40); i++) res.push(dragonFight(lv, 777 + i * 7919, know));
+      summarize(`BOSS old_dragon Lv${lv}${know ? '（知っている）' : '（知らない）'}`, res);
+    }
+  }
+  if (process.env.LOG) dragonFight(Number(process.env.LV || 45), Number(process.env.SEED || 1), !process.env.IGNORE, 45, true);
+} else if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'ch4') {
   const rng = makeRng(444);
   for (const [table, lv, tier] of CH4_ZONES) {
     const res = [];

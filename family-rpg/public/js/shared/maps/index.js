@@ -11,6 +11,7 @@ import { addNightNpcs } from './night-npcs.js';
 import { attachCasino } from './casino.js';
 import { buildCh3Maps, ch3SearchMats, NORTH_SPARKLE_LOOT } from './ch3.js';
 import { buildCh4Maps, ch4SearchMats, SOUTH_SPARKLE_LOOT } from './ch4.js';
+import { attachLab } from './labyrinth.js';
 
 const V = (x, y) => [PLACES.village.x + x, PLACES.village.y + y];
 const TW = (x, y) => [PLACES.town.x + x, PLACES.town.y + y];
@@ -279,6 +280,8 @@ function buildMaps() {
   attachCasino(maps);
   // ひみつのダンジョンの 入口の 広間（階は 'sd_<階>' を はじめて さわった ときに つくる。maps/secret-dungeon.js）
   Object.assign(maps, buildSecretMaps());
+  // 第4章クリアの あとの より道: 砂の古代都市と 古代の大迷宮・たのまれごとの 人（maps/labyrinth.js）
+  attachLab(maps);
   // 夜の 町・村（夜だけ 出る 人・夜は 家に 帰る 人）
   addNightNpcs(maps);
   for (const m of Object.values(maps)) finishMap(m);

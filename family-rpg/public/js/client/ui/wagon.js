@@ -1,7 +1,7 @@
 // 馬車の がめん: たたかいの「いれかえ」「総入れかえ」・メニューの「仲間」→「総入れかえ」「馬車」・酒場の 乗りかえ
 //   きまりは shared/data/wagon.js と shared/world/wagon.js
 import { el, esc, toast, ListMenu } from './dom.js';
-import { WAGON_SLOTS } from '../../shared/data/wagon.js';
+import { WAGON_SLOTS, wagonMapOk } from '../../shared/data/wagon.js';
 import { COMPANION_SLOTS } from '../../shared/data/companions.js';
 import { MAPS } from '../../shared/maps/index.js';
 import { JOBS } from '../../shared/data/jobs.js';
@@ -117,7 +117,7 @@ export function memberInfo(g, key) {
 
 // 馬車が この マップに いるか（洞窟・塔の 中は 入り口で 待つ）
 export function wagonHereClient(game) {
-  return MAPS[game.field?.mapId]?.kind === 'field';
+  return wagonMapOk(MAPS[game.field?.mapId]);
 }
 
 // ───────────── たたかい ─────────────

@@ -7,6 +7,7 @@ import { NIGHT_ENCOUNTERS, NIGHT_ZONE_BG, NIGHT_ZONES } from './night.js';
 import { ENCOUNTERS_CH3, FIXED_CH3, ZONE_BG_CH3 } from './encounters-ch3.js';
 import { ENCOUNTERS_CH4, FIXED_CH4, ZONE_BG_CH4, NIGHT_ZONES_CH4 } from './encounters-ch4.js';
 import { ENCOUNTERS_TEMPLE, FIXED_TEMPLE, ZONE_BG_TEMPLE } from './encounters-temple.js';
+import { ENCOUNTERS_LAB, FIXED_LAB, ZONE_BG_LAB } from './encounters-lab.js';
 
 export const ENCOUNTER_TABLES = {
   outskirts: [
@@ -101,3 +102,7 @@ Object.assign(NIGHT_ZONES, NIGHT_ZONES_CH4);
 Object.assign(ENCOUNTER_TABLES, ENCOUNTERS_TEMPLE);
 Object.assign(FIXED_ENCOUNTERS, FIXED_TEMPLE);
 Object.assign(ZONE_BG, ZONE_BG_TEMPLE);
+// 第4章クリアの あとの より道: 古代の大迷宮・たのまれごとの 強い 魔物（encounters-lab.js）
+Object.assign(ENCOUNTER_TABLES, ENCOUNTERS_LAB);
+Object.assign(FIXED_ENCOUNTERS, FIXED_LAB);
+Object.assign(ZONE_BG, ZONE_BG_LAB);

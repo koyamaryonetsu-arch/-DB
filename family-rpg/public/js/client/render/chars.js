@@ -6,6 +6,7 @@ import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js';
 import { ITEMS, baseItemId } from '../../shared/data/items.js';
 import { STARTER_EQUIP } from '../../shared/stats.js';
 import { paintMiraPrison, paintWaterStar } from './temple-chars.js';
+import { LAB_NPC_LOOKS } from './lab-art.js';
 import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js';
 import { R26_OLD_LOOK } from './hero-r26.js';
 import { R27_OLD_LOOK } from './hero-r27.js';
@@ -347,6 +348,8 @@ const NPC_LOOKS = {
   mirror_guard: { hair: 0, skin: '#c8d8e8', outfit: 'armor', cloth: '#b8d0e8', hat: 'helmet', hatColor: '#d8e8f8', spear: true },
   prison_guard: { hair: 0, skin: '#a8d8f0', outfit: 'armor', cloth: '#2a6aa8', hat: 'helmet', hatColor: '#4aa8e0', spear: true },
 };
+// 第4章クリアの あとの たのまれごとの 人（render/lab-art.js）
+Object.assign(NPC_LOOKS, LAB_NPC_LOOKS);
 
 // そうびの かきかた: 'ぶき,よろい,たて,あたま' の もじれつ か { weapon, armor, shield, head }
 export function parseEquip(eq, job) {

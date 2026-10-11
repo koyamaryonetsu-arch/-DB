@@ -29,6 +29,7 @@ import { compareTeam, whoItems } from './counter.js';
 import { faceURL } from '../field.js';
 import { partyRows } from './hud.js';
 import { questMarks, subQuests, OBJECTIVE_TARGETS, whereName } from '../../shared/data/quest-targets.js';
+import { labDoneQuests, sideQuestHint } from '../../shared/data/sidequests.js';
 import { difficultyOf, visibleMarks, EXP_RATES, EXP_RATE_NAMES, ENEMY_RATES, ENEMY_RATE_NAMES, ENEMY_RATE_NOTES } from '../../shared/data/difficulty.js';
 import { memberTalk, talkFor } from '../../shared/data/party-talk.js';
 import { treasureRows, treasureDetail, openTreasureMap } from './treasure.js';
@@ -1615,6 +1616,7 @@ export class FieldMenu {
     const f = (k) => !!c.flags[k];
     const active = subQuests(c);
     const done = [['q_mike_done', '迷子のねこミケ'], ['q_jelly_done', 'コックの特製ゼリー'], ['q_wolf_done', 'ウルフ退治'], ['q_bottle_done', 'びんの手紙']].filter(([k]) => f(k));
+    done.push(...labDoneQuests(c).map((n) => [null, n]));
     box.append(el('h3', { style: { marginTop: '0.6em' }, text: 'たのまれごと' }));
     if (!active.length && !done.length) box.append(el('div', { class: 'muted small', text: 'まだない。町の人の話を聞くと、たのまれごとが見つかることがある。' }));
     for (const q of active) {
@@ -1877,6 +1879,8 @@ export async function partyTalk(game) {
   for (const sp of speakers.slice(0, 4)) await g.script.say(sp.mon ? '' : sp.name, sp.text);
   const dir = questDirection(g);
   if (dir) await g.script.say('', `――${dir}`);
+  const side = sideQuestHint(g.me);
+  if (side) await g.script.say('', side);
   g.script.closeDialog();
 }
 

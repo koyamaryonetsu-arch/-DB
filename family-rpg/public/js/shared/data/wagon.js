@@ -23,6 +23,11 @@ export const WAGON_EXP_RATE_WITH = 1;
 // その 場所での わりあい（here … 馬車が いっしょか。world/wagon.js の wagonHere）
 export const wagonExpRate = (here) => (here ? WAGON_EXP_RATE_WITH : WAGON_EXP_RATE);
 
+// 馬車が 入れる マップ: フィールドと、馬車も 通れる 広い ダンジョン（map.wagon。古代の大迷宮）
+export function wagonMapOk(m) {
+  return m?.kind === 'field' || !!m?.wagon;
+}
+
 export function hasWagon(c) {
   return !!c?.wagon;
 }

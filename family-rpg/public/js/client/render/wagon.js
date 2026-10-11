@@ -5,6 +5,7 @@ import { MAPS, tileAt, onWater } from '../../shared/maps/index.js';
 import { PLACES } from '../../shared/maps/overworld.js';
 import { SEA_PLACES } from '../../shared/maps/ch2.js';
 import { T } from '../../shared/tiles.js';
+import { wagonMapOk } from '../../shared/data/wagon.js';
 
 const OUT = '#1b1330';
 const C = {
@@ -189,7 +190,7 @@ function townRects(mapId) {
 
 // 馬車が 止まって いられる 場所か
 export function wagonSpotOk(map, x, y, hasFlag) {
-  if (!map || map.kind !== 'field') return false;
+  if (!map || !wagonMapOk(map)) return false;
   const tx = Math.floor(x), ty = Math.floor(y);
   if (townRects(map.id).some((r) => inRect(tx, ty, r))) return false;
   if (onWater(map, x, y, hasFlag)) return false;
@@ -226,7 +227,7 @@ export class WagonFollower {
       this.mapId = id;
       this.pos = (id && this.parked[id]) || null;
     }
-    if (!map || map.kind !== 'field' || !MAPS[map.id]) return null;
+    if (!map || !wagonMapOk(map) || !MAPS[map.id]) return null;
     const hasFlag = (f) => field.gateFlag(f);
     // 船に のっている あいだは 馬車も 船の 中（かかない）
     if (onWater(map, o.x, o.y, hasFlag)) {
