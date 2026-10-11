@@ -16,6 +16,8 @@ import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/ba
 import { PARTY_ANIMS, JOB2_SFX } from './render/battlefx-jobs2.js';
 import { PARTY_ANIMS3, JOB3_SFX } from './render/battlefx-jobs3.js';
 import { SIG4, JOB4_SFX, sigAnim } from './render/battlefx-jobs4.js';
+// 第27回に 作り直した 古い 呪文・特技の エフェクト（段階・あたる じかん・音・味方への えんしゅつ）
+import { r27Anim, r27Hit, r27Sfx, playAllyR27 } from './render/battlefx-r27.js';
 import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js';
 import { statusNames, buffNames, targetTag } from './ui/info.js';
 import { battleSkillText, battleItemText } from './ui/skillinfo.js';
@@ -917,7 +919,7 @@ export class BattleScene {
     // エフェクト
     const targets = (fx.targets || []).map((id) => this.c.get(id)).filter(Boolean);
     const enemyPts = targets.filter((t) => t.side === 'enemy').map((t) => this.center(t)).filter(Boolean);
-    const anim = sigAnim(ev.ability) || fx.anim || (fx.type === 'attack' ? (fx.side === 'ally' ? (fx.weapon === 'claw' || fx.weapon === 'none' ? 'punch' : 'slash_heavy') : 'hit') : null);
+    const anim = sigAnim(ev.ability) || r27Anim(ev.ability) || fx.anim || (fx.type === 'attack' ? (fx.side === 'ally' ? (fx.weapon === 'claw' || fx.weapon === 'none' ? 'punch' : 'slash_heavy') : 'hit') : null);
     const crit = (ev.results || []).some((r) => r.crit);
     const fromAlly = fx.side === 'ally';
     const ab = ev.ability ? ABILITIES[ev.ability] : null;
@@ -942,8 +944,8 @@ export class BattleScene {
         if (fx.weapon === 'bat') g.audio.sfx('bat');
         else if (fx.weapon === 'axe') g.audio.sfx('smash');
       } else {
-        this.fx.play(anim, enemyPts, fx.element, { crit, fromAlly });
-        hitDelay = HIT_DELAY[anim] || 0;
+        this.fx.play(anim, enemyPts, fx.element, { crit, fromAlly, ability: ev.ability, from: actor && (actor.side === 'ally' ? this.allyPt(actor) : this.center(actor)) });
+        hitDelay = r27Hit(anim, ev.ability) ?? HIT_DELAY[anim] ?? 0;
       }
     }
     // 味方に かける 合体技（回復・ステージ）は、たたかいの 画面にも 大きく
@@ -972,6 +974,7 @@ export class BattleScene {
         });
       }
       allyTargets.forEach((t, i) => this.allyFx(t.id, kind, (d + (allyTargets.length > 1 ? i * 60 : 0)) / tempo));
+      if (fromAlly && fx.type !== 'dual' && !SIG4.has(anim) && !PARTY_ANIMS.has(anim) && !PARTY_ANIMS3.has(anim)) playAllyR27(this.fx, anim, allyTargets.map((t) => this.allyPt(t)), { ability: ev.ability, element: fx.element, from: actor && this.allyPt(actor) });
       if (!hitDelay) hitDelay = d;
     }
     // じゅもんを となえた みかたは すこし ひかる
@@ -1000,8 +1003,9 @@ export class BattleScene {
     ch4Present(this, ev, fx, anim, actor, lead);
     if (ev.combo >= 2 && !ev.dual) this.banner(`れんけい ${ev.combo}！`, 'combo');
     if (anim === 'minadein') g.audio.sfx('bolt');
-    if (anim && ANIM_SFX[anim]) g.audio.sfx(ANIM_SFX[anim]);
-    else if (fx.type === 'ability' && fromAlly && !ANIM_SFX[anim]) g.audio.sfx('spell');
+    const sfxId = (fx.type !== 'attack' && r27Sfx(anim, ev.ability)) || ANIM_SFX[anim];
+    if (anim && sfxId) g.audio.sfx(sfxId);
+    else if (fx.type === 'ability' && fromAlly) g.audio.sfx('spell');
     if (fx.anim === 'quake') {
       const q = () => { if (!this.destroyed) this.shake(500, 7); };
       if (lead) setTimeout(q, lead / tempo);
