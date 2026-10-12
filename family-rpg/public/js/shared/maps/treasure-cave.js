@@ -350,12 +350,12 @@ export function buildTreasureFloor(id) {
   }
   const pre = chestPrefix(seed);
   lay.chests.forEach((c, i) => {
-    chests.push({ id: `${pre}${floor}_${i}`, x: c.x, y: c.y, ...chestLoot(floorRng(seed, floor, 0xc0 + i), lv) });
+    chests.push({ id: `${pre}${floor}_${i}`, x: c.x, y: c.y, ...chestLoot(floorRng(seed, floor, 0xc0 + i), lv, 'normal', info) });
   });
   if (lay.hall) {
     const h = lay.hall;
     lay.bossChests.forEach((c, i) => {
-      chests.push({ id: `${pre}b${i}`, x: c.x, y: c.y, ...chestLoot(floorRng(seed, floor, 0xb0 + i), lv, i ? 'bossB' : 'bossA'), show: { all: [flag] } });
+      chests.push({ id: `${pre}b${i}`, x: c.x, y: c.y, ...chestLoot(floorRng(seed, floor, 0xb0 + i), lv, i ? 'bossB' : 'bossA', info), show: { all: [flag] } });
     });
     npcs.push(npc('tm_boss', MONSTERS[info.boss]?.name || '洞窟の主', [lay.boss.x, lay.boss.y], `mon:${info.boss}`, 'tm_boss', { big: true, show: { not: [flag] } }));
     triggers.push({ id: 'tm_boss_room', x: h.x, y: h.y, w: h.w, h: 6, script: 'tm_boss', show: { not: [flag] } });

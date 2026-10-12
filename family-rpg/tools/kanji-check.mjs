@@ -249,6 +249,8 @@ export function gameFiles() {
     'public/js/shared/data/story-ch5.js', 'public/js/shared/maps/tower.js', 'public/js/shared/maps/tower-rows.js',
     // 第31回 B: レベルアップの まとめ・しあわせのぼうし・こうふくのくつ
     'public/js/shared/world/growth.js', 'public/js/shared/data/items-r31.js', 'public/js/shared/world/perks.js',
+    // 第31回 C: レア装備（レア度★1〜★5・宝の洞窟・ボス・ひみつのダンジョン）
+    'public/js/shared/data/items-rare.js', 'public/js/shared/data/rare-loot.js', 'public/js/client/ui/rarity.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

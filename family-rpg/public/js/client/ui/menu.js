@@ -33,6 +33,7 @@ import { labDoneQuests, sideQuestHint } from '../../shared/data/sidequests.js';
 import { difficultyOf, visibleMarks, EXP_RATES, EXP_RATE_NAMES, ENEMY_RATES, ENEMY_RATE_NAMES, ENEMY_RATE_NOTES } from '../../shared/data/difficulty.js';
 import { memberTalk, talkFor } from '../../shared/data/party-talk.js';
 import { treasureRows, treasureDetail, openTreasureMap } from './treasure.js';
+import { rareNameHtml } from './rarity.js';
 import { themeHex } from '../render/themes.js';
 import { sdRecordOf, sdRecordText } from '../../shared/data/secret.js';
 import { wagonMenuView, wagonHereClient, menuArrange } from './wagon.js';
@@ -403,7 +404,7 @@ export class FieldMenu {
     const mode = itemSortPref();
     const counts = new Map(c.items.map((e) => [e.id, e.n]));
     // 素材（ふしぎなかじで 使う）には しるし
-    const items = sortItemIds(c.items.map((e) => e.id), mode).map((id) => ({ label: ITEMS[id].name, html: ITEMS[id].type === 'mat' ? `${esc(ITEMS[id].name)}<span class="tag mat">素材</span>` : undefined, right: `×${counts.get(id)}`, value: id }));
+    const items = sortItemIds(c.items.map((e) => e.id), mode).map((id) => ({ label: ITEMS[id].name, html: ITEMS[id].type === 'mat' ? `${esc(ITEMS[id].name)}<span class="tag mat">素材</span>` : rareNameHtml(id), right: `×${counts.get(id)}`, value: id }));
     for (const k of c.keyItems) items.push({ html: `${ITEMS[k].name}<span class="tag gold">大事</span>`, value: k, key: true });
     items.push(...treasureRows(c)); // 宝の地図
     const medal = medalItemRow(c);
@@ -959,7 +960,7 @@ export class FieldMenu {
     const mons = this.myMates().filter((x) => x.species).map((x) => ({ name: x.name, species: x.species }));
     // モンスターの なかまは しゅぞくで 装備できる 部位が きまる（ドラクエ5 ふう。今 何か 装備している 部位は 出す）
     const slots = c.species ? SLOTS.filter((sl) => monsterSlots(c.species).includes(sl) || c.equip?.[sl]) : SLOTS;
-    const items = slots.map((sl) => ({ label: `${SLOT_NAMES[sl]}：${c.equip?.[sl] ? ITEMS[c.equip[sl]].name : 'なし'}`, value: sl }));
+    const items = slots.map((sl) => ({ label: `${SLOT_NAMES[sl]}：${c.equip?.[sl] ? ITEMS[c.equip[sl]].name : 'なし'}`, html: `${SLOT_NAMES[sl]}：${c.equip?.[sl] ? rareNameHtml(c.equip[sl]) : 'なし'}`, value: sl }));
     // ドラクエの「さいきょう装備」: ふくろの 中で いちばん 強い ものを まとめて 装備
     // （「みんなさいきょう装備」は だれの装備？ の 一覧に ある。whoView）
     items.push({ label: 'さいきょう装備', value: '__best' });
@@ -1010,7 +1011,7 @@ export class FieldMenu {
     const cur = c.equip?.[slot] || null;
     const before = computeStats(c);
     const changes = (id) => statChanges(before, computeStats({ ...c, equip: { ...(c.equip || {}), [slot]: id } }));
-    const row = (name, tag, list) => `<span class="eq-nm">${esc(name)}${tag ? `<span class="tag eq-tag">${esc(tag)}</span>` : ''}</span><span class="eq-sc">${statChangesHtml(list)}</span>`;
+    const row = (nameHtml, tag, list) => `<span class="eq-nm">${nameHtml}${tag ? `<span class="tag eq-tag">${esc(tag)}</span>` : ''}</span><span class="eq-sc">${statChangesHtml(list)}</span>`;
     // 自分と 仲間（パーティー・馬車）が 装備している 物も 候補（入れかえ）
     const others = this.teamChars().filter((m) => m.key !== who);
     const nameOf = (key) => others.find((m) => m.key === key)?.char.name || '';
@@ -1018,10 +1019,10 @@ export class FieldMenu {
     let mode = gearSortPref();
     const rows = () => {
       const opts = sortGearChoices(choices, mode).map((x) => (x.from
-        ? { html: row(ITEMS[x.id].name, `${nameOf(x.from)}が装備中`, changes(x.id)), value: `swap:${x.from}`, cls: 'eq-opt eq-swap' }
-        : { html: row(ITEMS[x.id].name, x.n > 1 ? `×${x.n}` : '', changes(x.id)), value: x.id, cls: 'eq-opt' }));
+        ? { html: row(rareNameHtml(x.id), `${nameOf(x.from)}が装備中`, changes(x.id)), value: `swap:${x.from}`, cls: 'eq-opt eq-swap' }
+        : { html: row(rareNameHtml(x.id), x.n > 1 ? `×${x.n}` : '', changes(x.id)), value: x.id, cls: 'eq-opt' }));
       if (!opts.length) opts.push({ header: true, label: '装備できる物を持っていない', cls: 'eq-none' });
-      if (cur) opts.push({ html: row('外す', '', changes(null)), value: '__off', cls: 'eq-opt' });
+      if (cur) opts.push({ html: row(esc('外す'), '', changes(null)), value: '__off', cls: 'eq-opt' });
       opts.push({ label: 'やめる', value: null });
       return opts;
     };
@@ -1463,10 +1464,10 @@ export class FieldMenu {
       }
       detail.append(affRow, el('div', { class: 'small muted', text: '◎弱点 ○ふつう △効きにくい ×効かない ？まだためしていない' }));
       // 落とす 物（手に 入れた ものだけ 名前が 分かる）
-      const ORDER = { common: 0, mat: 0.5, rare: 1, boss: 2 };
+      const ORDER = { common: 0, mat: 0.5, rare: 1, brare: 1.5, boss: 2 };
       const drops = monsterDrops(sp).sort((p, q) => ORDER[p.kind] - ORDER[q.kind]);
       if (drops.length) {
-        const KIND = { boss: 'かならず', rare: 'レア', common: 'よく', mat: '素材' };
+        const KIND = { boss: 'かならず', brare: 'ときどき', rare: 'レア', common: 'よく', mat: '素材' };
         const row = el('div', { class: 'small zukan-drops' }, el('span', { class: 'muted', text: '落とす物 ' }));
         for (const d of drops) {
           const known = !!s.raw[`drop_${d.item}`];
