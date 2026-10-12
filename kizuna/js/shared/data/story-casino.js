@@ -1,6 +1,6 @@
 // カジノ・メダル王の城・小さなメダルの 人の だいほん（story.js で まぜる）
 // カジノの まど（コイン・スロット・ポーカー・景品）と メダル王の まどは client/ui/casino.js
-import { medalsFound, medalsHeld, COIN_PRICE } from './casino.js?v=20d81aa120cb';
+import { medalsFound, medalsHeld, COIN_PRICE } from './casino.js?v=bdbc0dbf619a';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 

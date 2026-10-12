@@ -8,9 +8,9 @@
 //   tier … その章（1〜5）。本だなや メモで わかるのは、その章まで 進んだ 人だけ（TIER_FLAG）
 // ・同じ 武具を 2つ 入れると、レア度は かわらないが きたえられる 回数（+の 上限）が 1 ふえる（CAP_UP_MAX 回まで。
 //   その 装備の しゅるいごと。c.alchemy.cap）
-import { ITEMS, baseItemId } from './items.js?v=20d81aa120cb';
-import { UPGRADE_TYPES, CAP_UP_MAX } from './items-forge.js?v=20d81aa120cb';
-import { ALCHEMY_POT, ALCHEMY_MEMO } from './items-alchemy.js?v=20d81aa120cb';
+import { ITEMS, baseItemId } from './items.js?v=bdbc0dbf619a';
+import { UPGRADE_TYPES, CAP_UP_MAX } from './items-forge.js?v=bdbc0dbf619a';
+import { ALCHEMY_POT, ALCHEMY_MEMO } from './items-alchemy.js?v=bdbc0dbf619a';
 
 export { ALCHEMY_POT, ALCHEMY_MEMO, CAP_UP_MAX };
 

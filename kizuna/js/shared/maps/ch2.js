@@ -1,8 +1,8 @@
 // 第2章の マップ（風の海・海鳴りの洞窟・嵐の塔）
-import { T, parseRows } from '../tiles.js?v=20d81aa120cb';
-import { npc } from './npc.js?v=20d81aa120cb';
-import { buildSea, makeSeaZone, seaAreaName, seaSparkles, SEA_POS, PORT, ISLES, ISLETS } from './sea.js?v=20d81aa120cb';
-import { SEA_CAVE_ROWS, TOWER_1F_ROWS, TOWER_2F_ROWS, TOWER_3F_ROWS } from './ch2-rows.js?v=20d81aa120cb';
+import { T, parseRows } from '../tiles.js?v=bdbc0dbf619a';
+import { npc } from './npc.js?v=bdbc0dbf619a';
+import { buildSea, makeSeaZone, seaAreaName, seaSparkles, SEA_POS, PORT, ISLES, ISLETS } from './sea.js?v=bdbc0dbf619a';
+import { SEA_CAVE_ROWS, TOWER_1F_ROWS, TOWER_2F_ROWS, TOWER_3F_ROWS } from './ch2-rows.js?v=bdbc0dbf619a';
 
 const P = (x, y) => [PORT.x + x, PORT.y + y];
 

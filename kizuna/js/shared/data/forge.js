@@ -9,11 +9,11 @@
 //            かくし要素: 弱い 武器（items-alchemy.js の REBIRTH）は 上限を こえて きたえられ、上限＋CAP_UP_MAX まで きたえて
 //            もう1回 きたえると 別の 武器に 生まれ変わる（風来のシレンの ように）
 // バランス: 作った 物・きたえた 物を 売っても、かかった ゴールドと 素材より 高くは ならない（テストで たしかめる）
-import { ITEMS, sellPrice } from './items.js?v=20d81aa120cb';
-import { UPGRADE_TYPES, upgradeId, upgradeLimit, addUpgradeItems, CAP_UP_MAX } from './items-forge.js?v=20d81aa120cb';
-import { CH3_RECIPES } from './items-ch3.js?v=20d81aa120cb';
-import { REBIRTH } from './items-alchemy.js?v=20d81aa120cb';
-import { capUp } from './alchemy.js?v=20d81aa120cb';
+import { ITEMS, sellPrice } from './items.js?v=bdbc0dbf619a';
+import { UPGRADE_TYPES, upgradeId, upgradeLimit, addUpgradeItems, CAP_UP_MAX } from './items-forge.js?v=bdbc0dbf619a';
+import { CH3_RECIPES } from './items-ch3.js?v=bdbc0dbf619a';
+import { REBIRTH } from './items-alchemy.js?v=bdbc0dbf619a';
+import { capUp } from './alchemy.js?v=bdbc0dbf619a';
 
 // ほかの ファイルで あとから 足された 装備にも +1〜 を 作る（なんど よんでも おなじ）
 addUpgradeItems(ITEMS);

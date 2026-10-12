@@ -2,14 +2,14 @@
 //  ・コマンドの「合体技」の 一覧（第31回: 行は 技の 名前だけ 大きく。だれと・何人で・よやくか・必要な 職業は 説明の まどに）
 //  ・家族から さそわれた ときの「参加する！／ことわる」
 //  ・出す ときの カットインと とどめの えんしゅつ（render/dualfx.js）
-import { el, esc, ListMenu, toast } from './ui/dom.js?v=20d81aa120cb';
-import { ABILITIES, ELEMENT_NAMES } from '../shared/data/abilities.js?v=20d81aa120cb';
-import { comboAllowed, weaponOk } from '../shared/stats.js?v=20d81aa120cb';
-import { DUAL_TECHS, dualOptions, dualKnown, dualNeedText } from '../shared/data/dual.js?v=20d81aa120cb';
-import { faceURL } from './field.js?v=20d81aa120cb';
-import { targetText } from './ui/info.js?v=20d81aa120cb';
-import { playDualCutin, playDualFinale, cutMs, dualFxOf, addDualCss } from './render/dualfx.js?v=20d81aa120cb';
-import { BW, BH } from './render/battlefx.js?v=20d81aa120cb';
+import { el, esc, ListMenu, toast } from './ui/dom.js?v=bdbc0dbf619a';
+import { ABILITIES, ELEMENT_NAMES } from '../shared/data/abilities.js?v=bdbc0dbf619a';
+import { comboAllowed, weaponOk } from '../shared/stats.js?v=bdbc0dbf619a';
+import { DUAL_TECHS, dualOptions, dualKnown, dualNeedText } from '../shared/data/dual.js?v=bdbc0dbf619a';
+import { faceURL } from './field.js?v=bdbc0dbf619a';
+import { targetText } from './ui/info.js?v=bdbc0dbf619a';
+import { playDualCutin, playDualFinale, cutMs, dualFxOf, addDualCss } from './render/dualfx.js?v=bdbc0dbf619a';
+import { BW, BH } from './render/battlefx.js?v=bdbc0dbf619a';
 
 const SECRET = '効果は？？？（一度使うとわかる）';
 const sizeLabel = (n) => `${n}人技`;
