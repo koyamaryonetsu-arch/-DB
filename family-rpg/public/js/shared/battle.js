@@ -631,6 +631,7 @@ export class Battle {
       c.queued = false;
       c.atb = ev.atbAfter ?? 0;
     }
+    if (c.mpRegen && c.alive && c.side === 'ally') c.mp = Math.min(c.maxMp, c.mp + c.mpRegen); // レア装備: 行動ごとの MP回復
     if (!ev.upd.includes(c)) ev.upd.push(c);
     ev.upd = [...new Set(ev.upd)].map((x) => (x.id ? pub(x) : x));
     ev.bond = this.bond;
@@ -1486,7 +1487,7 @@ export class Battle {
     const eva = (t.buffs.eva?.add || 0) + (t.flying ? 0.04 : 0) + clamp((effAgi(t) - effAgi(c)) / 500, 0, 0.1);
     const hit = clamp(0.97 * acc - eva, 0.05, 0.99);
     if (!estimate && !this.rng.chance(hit)) return { miss: true, dmg: 0 };
-    let critChance = (c.side === 'enemy' ? 1 / 64 : (c.job === 'monk' ? 1 / 14 : 1 / 28)) + (eff.critBonus || 0);
+    let critChance = (c.side === 'enemy' ? 1 / 64 : (c.job === 'monk' ? 1 / 14 : 1 / 28)) + (eff.critBonus || 0) + (c.crit || 0);
     const crit = !estimate && (eff.forceCrit || this.rng.chance(critChance));
     // atkFrom: 'def' … 攻撃力と 守備力の まんなかで なぐる（ガーディアンの ようさいの一撃 など。守りが かたいほど 強い）
     const base0 = eff.atkFrom === 'def' ? (effAtk(c) + effDfn(c)) / 2 : effAtk(c);
@@ -2198,6 +2199,7 @@ export function allyFromCharacter(char, init = {}) {
     // アクセサリー（そうびしたまま 使える 道具。魔神のランプ。battle-ch4.js）
     acc: char.equip?.acc || null,
     onHit: st.onHit,
+    crit: st.crit || 0, mpRegen: st.mpRegen || 0, // レア装備: 会心の 出やすさ・行動ごとの MP回復（第31回）
     resist: { ...st.resist },
     race: char.species ? (MONSTERS[char.species]?.race || 'beast') : 'human',
     abilities,

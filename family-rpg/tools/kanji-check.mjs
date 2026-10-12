@@ -247,6 +247,8 @@ export function gameFiles() {
     'public/js/shared/data/items-tower.js', 'public/js/shared/data/encounters-ch5.js', 'public/js/shared/data/companions-ch5.js',
     // 第5章 Step 1・2（A: 世界と物語）: 星祭りの夜・フードの子・星の羽・天のとばり・星の塔（8階）・アルゴスの 台本
     'public/js/shared/data/story-ch5.js', 'public/js/shared/maps/tower.js', 'public/js/shared/maps/tower-rows.js',
+    // 第31回 C: レア装備（レア度★1〜★5・宝の洞窟・ボス・ひみつのダンジョン）
+    'public/js/shared/data/items-rare.js', 'public/js/shared/data/rare-loot.js', 'public/js/client/ui/rarity.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

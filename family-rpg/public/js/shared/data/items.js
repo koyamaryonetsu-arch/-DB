@@ -6,6 +6,7 @@
 // head.helm: true だと 戦士だけ
 // rank: 装備の ランク（1〜10。下の EQUIP_RANKS）。star: 店では 買えない 1つ上の 品（宝箱・レアドロップ）
 // unique: 1人 1つの 品（ボスが 落とす 物）。データを 合わせる ときに ふえすぎない
+// rarity: レア度 0〜5（★の 数。items-rare.js の assignRarity が つける。店の 品は 0）
 
 import { ITEMS_CH2 } from './items-ch2.js';
 import { ITEMS_TM } from './items-tm.js';
@@ -22,6 +23,7 @@ import { ITEMS_LAB, LAB_ITEM_KANA } from './items-lab.js';
 import { ITEMS_TOWER, TOWER_ITEM_KANA } from './items-tower.js';
 import { POWDER_ITEMS, POWDER_KANA } from './friend-powder.js';
 import { FIELD27_ITEMS, FIELD27_KANA } from './abilities-field27.js';
+import { RARE_GEAR, RARE_GEAR_KANA, assignRarity } from './items-rare.js';
 
 export const ITEMS = {
   // ───── つかう どうぐ ─────
@@ -239,6 +241,9 @@ Object.assign(ITEMS, ITEMS_TOWER);
 Object.assign(ITEMS, POWDER_ITEMS);
 // 魔物よせの笛（abilities-field27.js）
 Object.assign(ITEMS, FIELD27_ITEMS);
+// 第31回: レア装備（items-rare.js）と、すべての 装備の レア度（★1〜★5。店の 品は 0）
+Object.assign(ITEMS, RARE_GEAR);
+assignRarity(ITEMS);
 // きたえた 装備（'iron_sword+1'〜'+3'）。新しい 装備を 足す ときは この 行より 上で
 addUpgradeItems(ITEMS);
 
@@ -324,6 +329,7 @@ Object.assign(ITEM_KANA, CH3_ITEM_KANA);
 Object.assign(ITEM_KANA, CH4_ITEM_KANA, TEMPLE_ITEM_KANA, POWDER_KANA, LAB_ITEM_KANA);
 Object.assign(ITEM_KANA, TOWER_ITEM_KANA);
 Object.assign(ITEM_KANA, FIELD27_KANA);
+Object.assign(ITEM_KANA, RARE_GEAR_KANA);
 
 export function itemKana(id) {
   // きたえた 装備は もとの 装備の 読み ＋ 回数（鉄の剣 → 鉄の剣+1 の じゅん）

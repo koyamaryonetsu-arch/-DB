@@ -1,5 +1,6 @@
 // だいほんの さいせい（メッセージ・えらぶ・えんしゅつ）
 import { el } from './dom.js';
+import { paintRare } from './rarity.js';
 import { ListMenu } from './dom.js';
 import { openServiceUI } from './services.js';
 import { monsterCanvas } from '../render/monsters.js';
@@ -252,7 +253,7 @@ export class ScriptPlayer {
       let timer = null;
       const finishType = () => {
         clearInterval(timer);
-        this.dlgText.textContent = text;
+        paintRare(this.dlgText, text); // レア装備の 名前に 色と ★（ui/rarity.js）
         done = true;
         this.dlgMore.hidden = false;
         if (spectator) autoTimer = setTimeout(close, 1200 + chars.length * 45);
@@ -275,7 +276,7 @@ export class ScriptPlayer {
       g.input.push(h);
       timer = setInterval(() => {
         i += 1;
-        this.dlgText.textContent = chars.slice(0, i).join('');
+        paintRare(this.dlgText, chars.slice(0, i).join(''));
         if (i % 3 === 0 && chars[i - 1] !== ' ') g.audio.sfx('talk');
         if (i >= chars.length) finishType();
       }, TYPE_MS);

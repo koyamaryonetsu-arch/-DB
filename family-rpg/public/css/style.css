@@ -1759,3 +1759,19 @@ body.dot-font { --font-ui: 'KizunaDot', 'Hiragino Kaku Gothic ProN', 'Hiragino S
 @media (orientation: landscape) and (max-height: 520px) {
   .items-view > .item-detail { max-height: 40%; line-height: 1.32; }
 }
+
+/* ───── レア度（第31回 C）: 名前の 色と ★の 数（★1 緑・★2 青・★3 紫・★4 オレンジ・★5 金と にじ）。client/ui/rarity.js ───── */
+.rar { font-weight: bold; }
+.rar.r1 { color: #8ef0a8; }
+.rar.r2 { color: #7cc8ff; }
+.rar.r3 { color: #d7a2ff; }
+.rar.r4 { color: #ffa057; }
+.rar.r5 {
+  color: #ffd66b;
+  background: linear-gradient(90deg, #fff08a 0%, #ffb8e6 30%, #a8f0ff 60%, #fff08a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.rar .rs { font-size: 0.7em; margin-left: 0.12em; letter-spacing: -0.06em; font-weight: normal; vertical-align: 0.08em; }
+.menu .item.dis .rar { opacity: 0.55; }

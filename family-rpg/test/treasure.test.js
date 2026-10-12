@@ -2,6 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { GameWorld } from '../public/js/shared/world/world.js';
+import { tmGearRank } from '../public/js/shared/data/rare-loot.js';
 import { makeRng } from '../public/js/shared/rng.js';
 import { MAPS, isBlocked, tileAt, condOk, POS } from '../public/js/shared/maps/index.js';
 import { PLACES } from '../public/js/shared/maps/overworld.js';
@@ -489,7 +490,8 @@ test('宝の地図: 宝箱の 中みは 地図の レベルに あわせる（�
     assert.ok(it, r.item);
     assert.ok(!it.unique && it.type !== 'key', r.item);
     if (it.rank) {
-      assert.ok(it.rank <= equipRankOf(lv), `${r.item} ランク${it.rank} (Lv${lv})`);
+      // 店の 装備は equipRankOf まで・レア装備（第31回）は tmGearRank まで
+      assert.ok(it.rank <= (it.src ? tmGearRank(lv) : equipRankOf(lv)), `${r.item} ランク${it.rank} (Lv${lv})`);
       rank = Math.max(rank, it.rank);
     }
   }

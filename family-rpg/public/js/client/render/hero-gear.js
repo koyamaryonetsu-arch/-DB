@@ -18,6 +18,11 @@ const WEAPON_LOOK = {
   katana: { shape: 'katana', mk: 'steel', len: 14.4 },
   // 第29回: るろうに剣士の 逆ば刀（かたなの かたち）
   sakabatou: { shape: 'katana', mk: 'steel', len: 14.0 },
+  // 第31回の レア装備の 刀（今ある 刀の かたちを 使う）
+  master_sakabatou: { shape: 'katana', mk: 'silver', len: 14.2 },
+  winter_katana: { shape: 'katana', mk: 'silver', len: 14.6, blade: '#bfeaff', fx: 'ice' },
+  muramasa: { shape: 'katana', mk: 'steel', len: 14.6, blade: '#e6b0ff', fx: 'dark' },
+  masamune: { shape: 'katana', mk: 'silver', len: 14.8, fx: 'holy' },
   stone_axe: { shape: 'stone', len: 11.6 },
   iron_axe: { shape: 'axe', mk: 'iron', len: 12.6 },
   pirate_axe: { shape: 'pirate', mk: 'iron', len: 13.4, wrap: '#c83a3a' },

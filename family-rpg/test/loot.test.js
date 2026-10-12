@@ -100,7 +100,12 @@ test('落とす物: 1体から 1つまで・レアは まれ・ボスは かな�
   }
   assert.ok(rare > N / 64 * 0.8 && rare < N / 64 * 1.2, `レア ${rare}`);
   assert.ok(common > N / 6 * 0.85 && common < N / 6 * 1.15, `よく ${common}`);
-  for (let i = 0; i < 20; i++) assert.deepEqual(rollDrops('goldoon', rng), ['rock_bangle']);
+  // ボスの 品は かならず（第31回: ちなんだ レア装備も ときどき。1体から ボスの 品 ＋ 1つまで）
+  for (let i = 0; i < 20; i++) {
+    const got = rollDrops('goldoon', rng);
+    assert.equal(got[0], 'rock_bangle');
+    assert.ok(got.length <= 2 && got.slice(1).every((id) => id === 'goldoon_fist'), got.join());
+  }
   let stolen = 0;
   for (let i = 0; i < 8000; i++) {
     const id = stealPick('wolf', rng);

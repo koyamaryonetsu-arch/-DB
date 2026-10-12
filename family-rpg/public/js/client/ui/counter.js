@@ -14,6 +14,7 @@ import { faceURL } from '../field.js';
 import { boardIconURL } from '../render/boards.js';
 import { partyRows } from './hud.js';
 import { shownEquip } from '../../shared/look-equip.js';
+import { rareNameHtml } from './rarity.js';
 
 const TYPE_MS = 18;
 
@@ -372,7 +373,7 @@ export function itemInfo(game, id, { sell = false } = {}) {
   if (!it) return null;
   cmpStyles();
   const box = el('div', { class: 'ct-item' });
-  box.append(el('div', { class: 'hd' }, el('span', { class: 'gold', text: it.name }), el('span', { class: 'st', text: itemStats(id) }), el('span', { class: 'rk', text: rankText(id) })));
+  box.append(el('div', { class: 'hd' }, el('span', { class: 'gold', html: rareNameHtml(id) }), el('span', { class: 'st', text: itemStats(id) }), el('span', { class: 'rk', text: rankText(id) })));
   box.append(el('div', { class: 'detail', text: it.desc || '' }));
   if (EQUIP_TYPES.includes(it.type) && !sell) {
     // パーティー 全員を ならびの じゅんに（装備できない 人も「変化なし」で 出す）

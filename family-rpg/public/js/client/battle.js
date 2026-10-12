@@ -26,6 +26,7 @@ import { battleSkillText, battleItemText, favHint } from './ui/skillinfo.js';
 import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js';
 import { ENEMY_RATE_NAMES } from '../shared/data/difficulty.js';
 import { ResultPager, levelUpName } from './ui/result.js';
+import { paintRare } from './ui/rarity.js';
 // 第4章の しかけ（月の鏡・まぼろしの 分身・魔神のランプ・ボスの 大技）
 import { CH4_ALLY_FX, ch4ItemEntries, ch4ItemPick, ch4ItemInfo, ch4Present, vanishFx, drawShade, drawBurrow } from './battle-ch4.js';
 // 第4章 Step 7 の 砂の底の神殿と モルガナ（鏡のうつし身・水のろうの 絵・水の衣・光・大波・水の守りの歌）
@@ -1723,6 +1724,7 @@ export class BattleScene {
       };
       const show = (step) => {
         const row = el('div', { class: `res-${step.kind}`, text: step.line });
+        paintRare(row, step.line); // 落とした レア装備に 色と ★（ui/rarity.js）
         list.append(row);
         box.scrollTop = box.scrollHeight;
         switch (step.kind) {

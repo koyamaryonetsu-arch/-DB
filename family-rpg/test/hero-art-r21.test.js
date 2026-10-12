@@ -209,8 +209,8 @@ test('第21回の ぶき: 名前で わかる 道具は その かたち。い�
   }
   const NEW = new Set(Object.values(SHAPES));
   for (const id of OLD_IDS) {
-    // 新しい ぶき と、それを きたえた もの（'pillow+1' など）は のぞく
-    if (ITEMS[id].type !== 'weapon' || STUB[id.replace(/\+\d+$/, '')]) continue;
+    // 新しい ぶき と、それを きたえた もの（'pillow+1' など）は のぞく。第31回の レア装備（src。バクのまくら など）も のぞく
+    if (ITEMS[id].type !== 'weapon' || ITEMS[id].src || STUB[id.replace(/\+\d+$/, '')]) continue;
     assert.ok(!NEW.has(weaponOf(id).shape), `${id}（${ITEMS[id].name}）の えが かわった`);
   }
 });

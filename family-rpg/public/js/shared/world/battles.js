@@ -394,7 +394,7 @@ function finishBattle(world, ctx) {
       // ドロップ（1体から 1つまで。ボスは かならず。loot.js）
       const drops = [];
       for (const sp of res.killed) {
-        for (const id of rollDrops(sp, world.rng)) {
+        for (const id of rollDrops(sp, world.rng, { map: ctx.map })) {
           if (ITEMS[id].unique && ownsItem(c, id)) continue; // ボスの 品は 1人 1つ
           addItem(c, id, 1);
           noteDrop(c, sp, id);
