@@ -247,6 +247,8 @@ export function gameFiles() {
     'public/js/shared/data/items-tower.js', 'public/js/shared/data/encounters-ch5.js', 'public/js/shared/data/companions-ch5.js',
     // 第5章 Step 1・2（A: 世界と物語）: 星祭りの夜・フードの子・星の羽・天のとばり・星の塔（8階）・アルゴスの 台本
     'public/js/shared/data/story-ch5.js', 'public/js/shared/maps/tower.js', 'public/js/shared/maps/tower-rows.js',
+    // 第31回 B: レベルアップの まとめ・しあわせのぼうし・こうふくのくつ
+    'public/js/shared/world/growth.js', 'public/js/shared/data/items-r31.js', 'public/js/shared/world/perks.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

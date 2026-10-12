@@ -178,7 +178,7 @@ test('ワールド: かった たたかいで 職業レベルが すすむ。ワ
   assert.equal(f.r.outcome, 'win');
   assert.equal(f.acts, 1);
   assert.equal(c.jobs.warrior.b, b0 + 0.5, 'ワンパンチは 半分');
-  assert.ok(f.r.lines.some((l) => l.includes('一撃で終わったので、職業の修行は半分しか進まなかった')));
+  assert.ok(f.r.lines.some((l) => l.includes('一撃で終わったので、職業の修行は半分')));
 });
 
 test('上級職・超級職・新しい 基本職の わざは ぜんぶ たたかいで つかえる（エラーが でない）', () => {

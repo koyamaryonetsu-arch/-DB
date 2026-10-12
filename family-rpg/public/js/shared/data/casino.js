@@ -231,6 +231,7 @@ export const PRIZES = [
   { id: 'pururin_shield', coins: 900 },
   { id: 'starry_cloak', coins: 2000 },
   { id: 'hayabusa_sword', coins: 3000 },
+  { id: 'shiawase_boushi', coins: 5000 }, // 第31回: 経験値2倍のぼうし（data/items-r31.js）
 ];
 
 // ───────────── 小さなメダル（メダル王の ごほうび） ─────────────
@@ -242,6 +243,7 @@ export const MEDAL_REWARDS = [
   { at: 20, items: [['kira_mail', 1]] },
   { at: 25, items: [['star_bangle', 1]] },
   { at: 30, items: [['kira_sword', 1]] },
+  { at: 35, items: [['koufuku_kutsu', 1]] }, // 第31回: 歩くとMPが回復するくつ（data/items-r31.js）
   { at: 40, items: [['kira_shield', 1]] },
   { at: 50, items: [['medal_crown', 1]] },
 ];

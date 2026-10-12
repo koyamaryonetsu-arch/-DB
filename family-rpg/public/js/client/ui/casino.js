@@ -238,13 +238,15 @@ async function medalKingUI(game, data) {
       continue;
     }
     const n = held();
-    if (!n) {
+    // もう わたした 数で もらえる ごほうびが 残っている（あとから ふえた ごほうび）
+    const pend = (info.rewards || []).some((x) => !x.got && x.at <= (info.given ?? medalsGiven(game.me)));
+    if (!n && !pend) {
       await ct.say('おや、小さなメダルを持っておらんようじゃな。\nつぼやたる、井戸の中などを調べて探してみるのじゃ。');
       await ct.tap(2200);
       line = 'ほかに何か用かな？';
       continue;
     }
-    const yes = await ct.ask(`小さなメダルを${n}枚、わしにわたしてくれるかな？`);
+    const yes = n ? await ct.ask(`小さなメダルを${n}枚、わしにわたしてくれるかな？`) : 0;
     if (ct.closed) break;
     if (yes !== 0) {
       line = 'そうか。気が向いたら、いつでも持ってくるがよい。';
@@ -259,10 +261,15 @@ async function medalKingUI(game, data) {
       line = 'ほかに何か用かな？';
       continue;
     }
-    game.audio.sfx('coin');
     ct.info(medalSummary(game, info));
-    await ct.say(`${r.gave}枚のメダル、たしかにうけとったぞ！\nこれで、わしにわたしたメダルは全部で${r.total}枚じゃな。`);
-    await ct.tap(2400);
+    if (r.gave) {
+      game.audio.sfx('coin');
+      await ct.say(`${r.gave}枚のメダル、たしかにうけとったぞ！\nこれで、わしにわたしたメダルは全部で${r.total}枚じゃな。`);
+      await ct.tap(2400);
+    } else {
+      await ct.say(`おお、そなたにはまだ、わたしていないほうびがあったのじゃ！`);
+      await ct.tap(1800);
+    }
     for (const g of r.got || []) {
       game.audio.play('jackpot');
       await ct.say(`${g.at}枚のほうびとして、これをとらせよう！`);

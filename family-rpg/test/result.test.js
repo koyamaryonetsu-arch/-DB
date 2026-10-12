@@ -1,8 +1,9 @@
-// たたかいの けっかの まど: ボタンを おすまで つぎの 行に すすまない・レベルアップの あとは 間を おく
+// たたかいの けっかの まど（第31回）: 1画面に ぜんぶ 出して 1回の タップで とじる。レベルアップは 1人 1〜2行の まとめ
 // サーバー: けっかを 読んでいる 人は つぎの たたかいに まきこまれない（ほかの 人は またない）
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { ResultPager, resultKind, levelUpName, RESULT_GAP_MS, LEVEL_GAP_MS } from '../public/js/client/ui/result.js';
+import { ResultSheet, resultKind, levelUpName, growthParts, OPEN_GUARD_MS } from '../public/js/client/ui/result.js';
+import { growthSummary } from '../public/js/shared/world/growth.js';
 import { GameWorld } from '../public/js/shared/world/world.js';
 import { battleSessions, readingResult, RESULT_MAX_MS, AFTER_RESULT_MS } from '../public/js/shared/world/battles.js';
 import { makeRng } from '../public/js/shared/rng.js';
@@ -15,57 +16,63 @@ test('けっかの 行の しゅるい', () => {
   assert.equal(resultKind('30ゴールドを手に入れた！'), 'gold');
   assert.equal(resultKind('プルリンはやくそうを持っていた！'), 'found');
   assert.equal(resultKind('パパはやくそうを手に入れた！'), 'item');
-  assert.equal(resultKind('パパのレベルが5に上がった！'), 'level');
-  assert.equal(resultKind('HP+5　力+2'), 'stats');
-  assert.equal(resultKind('パパの戦士の職業レベルが3に上がった！'), 'job');
-  assert.equal(resultKind('パパはホイミを覚えた！'), 'learn');
+  // 第31回の まとめの 行
+  assert.equal(resultKind('ユウ　Lv12→15！　HP+20　力+9　守り+6　素早さ+4'), 'level');
+  assert.equal(resultKind('ユウ　Lv12→15　戦士Lv3→4！　力+9'), 'level');
+  assert.equal(resultKind('ユウ　戦士Lv3→4！　力+2'), 'job');
+  assert.equal(resultKind('ユウ　ブラックきぎょうの星Lv9→10！'), 'job');
+  assert.equal(resultKind('覚えた：ホイミ、ベホイミ'), 'learn');
   assert.equal(resultKind('★ パパは「大地のいかり」をひらめいた！（これからも使える）'), 'learn');
   assert.equal(resultKind('★ パパはバトルマスターになれるようになった！（ルミナの町の神殿で転職できる）'), 'learn');
-  assert.equal(levelUpName('ユイのレベルが7に上がった！'), 'ユイ');
-  assert.equal(levelUpName('パパの戦士の職業レベルが3に上がった！'), null);
+  assert.equal(levelUpName('ユウ　Lv12→15！　力+9'), 'ユウ');
+  assert.equal(levelUpName('ユウ　戦士Lv3→4！'), null, '職業レベルだけ');
   assert.equal(levelUpName('30ゴールドを手に入れた！'), null);
+  assert.deepEqual(growthParts('ミーナ　Lv1→4　僧侶Lv1→2！　HP+12　回復+5'), { name: 'ミーナ', ups: 'Lv1→4　僧侶Lv1→2', level: true, stats: 'HP+12　回復+5' });
+  assert.equal(growthParts('ユウは120ポイントの経験値をかくとく！'), null);
+  // まえの 版の 行も わかる
+  assert.equal(resultKind('パパのレベルが5に上がった！'), 'level');
+  assert.equal(levelUpName('ユイのレベルが7に上がった！'), 'ユイ');
 });
 
-test('けっかの まど: ボタンを おす たびに 1行ずつ。はやすぎる ボタンは むし。レベルアップの あとは ながく まつ', () => {
-  const lines = ['魔物たちをやっつけた！', 'パパは12ポイントの経験値をかくとく！', 'パパのレベルが5に上がった！', 'HP+5　力+2', 'パパはやくそうを手に入れた！'];
-  const p = new ResultPager(lines);
-  let now = 1000;
-  // 1行め（まどを ひらいた とき）
-  const first = p.advance(now);
-  assert.equal(first.line, lines[0]);
-  assert.ok(!p.done);
-  // 時間が たっても かってには すすまない（advance を よんだ ときだけ）
-  now += 60000;
-  assert.equal(p.i, 1);
-  // 2行め
-  assert.equal(p.advance(now).line, lines[1]);
-  // れんだは むし
-  assert.equal(p.advance(now + RESULT_GAP_MS - 1), null);
-  now += RESULT_GAP_MS;
-  const lv = p.advance(now);
-  assert.equal(lv.kind, 'level');
-  // レベルアップの よいん: ふつうの 間では まだ すすまない
-  assert.equal(p.advance(now + RESULT_GAP_MS), null);
-  assert.ok(p.waitLeft(now + RESULT_GAP_MS) > 0);
-  assert.equal(p.advance(now + LEVEL_GAP_MS - 1), null);
-  now += LEVEL_GAP_MS;
-  assert.equal(p.waitLeft(now), 0);
-  assert.equal(p.advance(now).kind, 'stats');
-  now += RESULT_GAP_MS;
-  const last = p.advance(now);
-  assert.equal(last.kind, 'item', 'アイテムも ボタンを おしてから');
-  assert.ok(last.last);
-  assert.ok(p.done);
-  // さいごの 行の あとも ボタンで とじる（すぐには とじない）
-  assert.equal(p.advance(now + 10), null);
-  now += RESULT_GAP_MS;
-  assert.deepEqual(p.advance(now), { close: true });
+test('レベルアップの まとめ: 1回の 戦いで 上がった ぶんを 1人 1〜2行に（合計の 強さ・覚えた 技）', () => {
+  const ups = [
+    { level: 13, gains: { maxHp: 7, str: 3, def: 2 }, learned: [] },
+    { level: 14, gains: { maxHp: 6, str: 3, def: 2, agi: 2 }, learned: ['hoimi'] },
+    { level: 15, gains: { maxHp: 7, str: 3, def: 2, agi: 2 }, learned: [] },
+  ];
+  const jups = [{ job: 'warrior', lv: 4, gains: { str: 1 }, learned: [], unlocked: [], hinted: [] }];
+  const g = growthSummary('ユウ', ups, jups);
+  assert.deepEqual(g.lines, ['ユウ　Lv12→15　戦士Lv3→4！　HP+20　力+10　守り+6　素早さ+4', '覚えた：ホイミ']);
+  assert.deepEqual(g.notes, []);
+  assert.deepEqual(growthSummary('ユウ', [], []), { lines: [], notes: [] });
+  // 職業だけ・マスター
+  const m = growthSummary('ユウ', [], [{ job: 'warrior', lv: 10, gains: {}, learned: [], unlocked: ['paladin'], hinted: [] }]);
+  assert.deepEqual(m.lines, ['ユウ　戦士Lv9→10！']);
+  assert.ok(m.notes.some((l) => /戦士をマスターした/.test(l)));
+  assert.ok(m.notes.some((l) => /パラディンになれるようになった/.test(l)), m.notes.join('/'));
+  // サーバーの 行は クライアントで わかる
+  assert.equal(resultKind(g.lines[0]), 'level');
+  assert.equal(resultKind(g.lines[1]), 'learn');
+});
+
+test('けっかの まど: 1画面に ぜんぶ。出て すぐの タップは むし。そのあと 1回の タップで とじる', () => {
+  const lines = ['魔物たちをやっつけた！', 'パパは12ポイントの経験値をかくとく！', 'パパ　Lv4→6！　HP+9　力+4', '覚えた：ホイミ', 'ミーナ　Lv2→3！　回復+2', 'パパはやくそうを手に入れた！'];
+  const now = 1000;
+  const sh = new ResultSheet(lines, now);
+  assert.equal(sh.rows.length, lines.length, 'ぜんぶ いっぺんに');
+  assert.deepEqual(sh.levelNames, ['パパ', 'ミーナ'], 'レベルの 音は 1回・光らせる 人');
+  assert.ok(sh.has('level') && sh.has('item') && !sh.has('job'));
+  // うっかり タップ（戦いの さいごの タップ）は むし
+  assert.equal(sh.tap(now + 10), null);
+  assert.equal(sh.tap(now + OPEN_GUARD_MS - 1), null);
+  assert.ok(sh.waitLeft(now) > 0);
+  assert.deepEqual(sh.tap(now + OPEN_GUARD_MS), { close: true }, '1回で とじる');
+  assert.equal(sh.tap(now + OPEN_GUARD_MS + 10), null, 'もう とじた');
 });
 
 test('けっかの まど: 行が ない ときは すぐ とじられる', () => {
-  const p = new ResultPager([]);
-  assert.ok(p.done);
-  assert.deepEqual(p.advance(0), { close: true });
+  const sh = new ResultSheet([], 0);
+  assert.deepEqual(sh.tap(0), { close: true });
 });
 
 // ───────────── サーバー ─────────────

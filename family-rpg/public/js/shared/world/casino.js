@@ -203,10 +203,12 @@ function medalAction(world, s, msg, reply) {
   }
   if (msg.action !== 'give') return reply(false, '');
   const held = medalsHeld(c);
-  if (!held) return reply(false, '小さなメダルを持っていない', { medal: medalInfo(c) });
   const total = medalsGiven(c) + held;
-  c.medalsGiven = total;
   c.medalRewards = c.medalRewards && typeof c.medalRewards === 'object' ? c.medalRewards : {};
+  // あとから ふえた ごほうび（第31回の 35枚）は、もう わたした 数に とどいていれば メダルが なくても もらえる
+  const pending = MEDAL_REWARDS.some((r) => r.at <= total && !c.medalRewards[r.at]);
+  if (!held && !pending) return reply(false, '小さなメダルを持っていない', { medal: medalInfo(c) });
+  c.medalsGiven = total;
   const got = [];
   for (const r of MEDAL_REWARDS) {
     if (r.at > total || c.medalRewards[r.at]) continue;

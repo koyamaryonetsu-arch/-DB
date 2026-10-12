@@ -26,6 +26,7 @@ import { memorySyncStore, buildSyncOut, applySyncIn, encodeSync, decodeSync, syn
 import { tryTreasureDig, treasureMenu, fixTreasurePos, normalizeTreasure, pruneTreasureStates } from './treasure.js';
 import { isNightFor, timeFlag, fracFor } from './clock.js';
 import { onFly, setFlying, moveAllowed, ridingAlong, canFlyMap } from './travel.js';
+import { walkSteps } from './perks.js';
 import { migrateSky } from '../data/sky.js';
 import { migrateCh4 } from '../data/story-ch4.js';
 import { repairObjective } from '../data/progress.js';
@@ -542,6 +543,8 @@ export class GameWorld {
     s.moving = !!msg.moving;
     s.follow = !!msg.follow;
     const tx = Math.floor(x), ty = Math.floor(y);
+    // こうふくのくつ: 歩いた マスを 数える（world/perks.js）
+    if (tx !== oldTx || ty !== oldTy) walkSteps(this, s, Math.abs(tx - oldTx) + Math.abs(ty - oldTy));
     if (tx !== oldTx || ty !== oldTy) this.onEnterTile(s, tx, ty);
   }
 

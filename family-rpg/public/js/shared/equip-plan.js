@@ -37,6 +37,8 @@ function bestFor(ch, bag) {
   for (const slot of BEST_SLOTS) {
     const score = (id) => gearScore(ch, slot, id, w);
     const cur = ch.equip?.[slot] || null;
+    // ふしぎな 力の ある 装備（しあわせのぼうし など。data/items-r31.js）は 自分で つけた ものなので はずさない
+    if (ITEMS[cur]?.perk) continue;
     let best = cur;
     let bestScore = score(cur);
     for (const e of bag.items) {
