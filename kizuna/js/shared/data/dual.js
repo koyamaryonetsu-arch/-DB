@@ -18,8 +18,8 @@
 // けずった 合体技を 使った ことの ある 記録（char.dualSeen）は そのまま のこす（DUAL_LEGACY: にていて 1つに まとめた 技は、まとめた 先の 技も わかる）
 // 第31回（2026年10月）: 今の 職業で 判定する ように した。「攻撃の 技（どの 職業でも）」の 組を なくし、
 //   きずな技の ミナデインを 合体技に した（dt_minadein）。せーのでジャンプ・家族会議・なぞは すべて 解けた！の 組も 職業に むすびつけた
-import { ABILITIES } from './abilities.js?v=f0ec3e4f094f';
-import { JOBS, ALL_JOBS, jobBases } from './jobs.js?v=f0ec3e4f094f';
+import { ABILITIES } from './abilities.js?v=4238619cbf10';
+import { JOBS, ALL_JOBS, jobBases } from './jobs.js?v=4238619cbf10';
 
 // 技の 組（この 技を 持つ 職業の 人が うけもてる）
 const FIRE = ['mera', 'merami', 'merazoma', 'gira', 'begirama', 'nj_katon', 'am_begiragon', 'am_meragaia', 'hk_triple_mera', 'ck_tsuyobi', 'ck_flambe', 'hi_daikaryoku', 'hi_giragureido', 'hi_ima_mera'];

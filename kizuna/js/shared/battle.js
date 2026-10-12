@@ -7,34 +7,34 @@
 //
 // サーバー（家族サーバー）でも ブラウザ（ひとりモード）でも おなじ コードが うごく
 
-import { makeRng } from './rng.js?v=f0ec3e4f094f';
-import { ABILITIES, ELEMENT_ORDER, ELEMENT_NAMES } from './data/abilities.js?v=f0ec3e4f094f';
+import { makeRng } from './rng.js?v=4238619cbf10';
+import { ABILITIES, ELEMENT_ORDER, ELEMENT_NAMES } from './data/abilities.js?v=4238619cbf10';
 // 推理（deduce）で ねらう 属性（第26回の 探ていの 技）
-import { deduceElement } from './data/abilities-jobs6.js?v=f0ec3e4f094f';
-import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=f0ec3e4f094f';
+import { deduceElement } from './data/abilities-jobs6.js?v=4238619cbf10';
+import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=4238619cbf10';
 // 合体技（2人・3人・4人。battle-dual.js）
-import { optionsFor, validateDual, startDual, checkWaits, waitStillOk, fireWait, endWait, releasePartners, answerDual, endInvite, performDual, partnersOf, dualHurt, dualRecharged } from './battle-dual.js?v=f0ec3e4f094f';
-import { MONSTERS } from './data/monsters.js?v=f0ec3e4f094f';
-import { ITEMS } from './data/items.js?v=f0ec3e4f094f';
-import { JOBS } from './data/jobs.js?v=f0ec3e4f094f';
-import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed, battleAbilityOk } from './stats.js?v=f0ec3e4f094f';
-import { decideMonster, decideAlly } from './ai.js?v=f0ec3e4f094f';
-import { ENEMY_RATES, strengthenEnemy } from './data/difficulty.js?v=f0ec3e4f094f';
+import { optionsFor, validateDual, startDual, checkWaits, waitStillOk, fireWait, endWait, releasePartners, answerDual, endInvite, performDual, partnersOf, dualHurt, dualRecharged } from './battle-dual.js?v=4238619cbf10';
+import { MONSTERS } from './data/monsters.js?v=4238619cbf10';
+import { ITEMS } from './data/items.js?v=4238619cbf10';
+import { JOBS } from './data/jobs.js?v=4238619cbf10';
+import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed, battleAbilityOk } from './stats.js?v=4238619cbf10';
+import { decideMonster, decideAlly } from './ai.js?v=4238619cbf10';
+import { ENEMY_RATES, strengthenEnemy } from './data/difficulty.js?v=4238619cbf10';
 // 第4章の しかけ（まぼろしの分身・月の鏡・そうびしたまま 使う 道具）
-import { setupMirage, mirageHit, mirageVanish, mirageDown, mirageSync, mirageRemake, ch4ItemCheck, ch4UseItem, mirrorSnap } from './battle-ch4.js?v=f0ec3e4f094f';
+import { setupMirage, mirageHit, mirageVanish, mirageDown, mirageSync, mirageRemake, ch4ItemCheck, ch4UseItem, mirrorSnap } from './battle-ch4.js?v=4238619cbf10';
 // 第4章 Step 6 の 砂に もぐる（ねらえない。battle-ch4.js）
-import { burrowStart, burrowWarn, burrowBlock, hiddenFrom } from './battle-ch4.js?v=f0ec3e4f094f';
-import { shownEquipKey } from './look-equip.js?v=f0ec3e4f094f';
+import { burrowStart, burrowWarn, burrowBlock, hiddenFrom } from './battle-ch4.js?v=4238619cbf10';
+import { shownEquipKey } from './look-equip.js?v=4238619cbf10';
 // 第4章 Step 7 の 砂の底の神殿と モルガナ（呪文を はね返す・鏡写し・水の衣・大波・水のろう・水の守りの歌・鏡のうつし身。battle-temple.js）
-import { setupTemple, templeTurnStart, prisonTurn, reflectSpell, templeEffect, templeEst, templeDamage, templeKill, templePub, templeSnap } from './battle-temple.js?v=f0ec3e4f094f';
+import { setupTemple, templeTurnStart, prisonTurn, reflectSpell, templeEffect, templeEst, templeDamage, templeKill, templePub, templeSnap } from './battle-temple.js?v=4238619cbf10';
 // 第5章 Step 2 の 星の塔と 星の番人アルゴス（見通しの目。battle-ch5.js）
-import { towerTurnStart, foreseeCheck, towerEffect, towerKill, towerPub } from './battle-ch5.js?v=f0ec3e4f094f';
+import { towerTurnStart, foreseeCheck, towerEffect, towerKill, towerPub } from './battle-ch5.js?v=4238619cbf10';
 
 // 第31回: きずなゲージ・きずな技（ミナデイン）は なくなった（ミナデインは 合体技に。data/dual.js の dt_minadein）
 // 合体技の 2人の 強さの 合わせかた（dualProxy）: 強い ほうの 強さ ＋ 弱い ほうの この わりあい
 export const DUAL_MIX = 0.5;
 // 合体技の 強さ・さそいを まつ 時間は battle-dual.js
-export { DUAL_POWER, DUAL_ASK_MS } from './battle-dual.js?v=f0ec3e4f094f';
+export { DUAL_POWER, DUAL_ASK_MS } from './battle-dual.js?v=4238619cbf10';
 const COMBO_WINDOW = 6000;
 const LETTERS = 'ABCDEFGH';
 
@@ -1947,6 +1947,11 @@ export class Battle {
         }
         break;
       }
+      // HPと MPを いっしょに（ひみつのダンジョンの お店の 薬。data/items-secret.js）
+      case 'multi': for (const t of targets) for (const p of eff.parts || []) {
+        if (p.type === 'heal') this.heal(c, t, p, ev, 1);
+        else if (p.type === 'mpHeal' && t.alive) { const d = Math.min(t.maxMp - t.mp, this.rng.int(p.base[0], p.base[1])); t.mp += d; ev.lines.push(`${t.name}のMPが${d}回復した！`); ev.upd.push(t); }
+      } break;
       case 'escape': {
         if (!this.canFlee) {
           ev.lines.push('しかし逃げられない！');

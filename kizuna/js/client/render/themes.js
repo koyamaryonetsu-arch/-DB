@@ -1,11 +1,11 @@
 // 色の かえかた（宝の洞窟の しゅるい・第3章の 氷と 火の 洞窟・第4章の 砂の 洞窟と 地下水路・洞窟の 主の 色ちがい）
 // もとの ドット絵は そのままに、明るさを たもって 色だけ かえる
-import { T } from '../../shared/tiles.js?v=f0ec3e4f094f';
-import { makeCanvas, ctxOf } from './pixel.js?v=f0ec3e4f094f';
-import { CANAL_CTX, CANAL_CTX_TILES } from './tiles-canal.js?v=f0ec3e4f094f';
-import { TEMPLE_TILES } from './tiles-temple.js?v=f0ec3e4f094f';
-import { LAB_TILES } from './tiles-lab.js?v=f0ec3e4f094f';
-import { TOWER_TILES, TOWER_THEMES } from './tiles-tower.js?v=f0ec3e4f094f';
+import { T } from '../../shared/tiles.js?v=4238619cbf10';
+import { makeCanvas, ctxOf } from './pixel.js?v=4238619cbf10';
+import { CANAL_CTX, CANAL_CTX_TILES } from './tiles-canal.js?v=4238619cbf10';
+import { TEMPLE_TILES } from './tiles-temple.js?v=4238619cbf10';
+import { LAB_TILES } from './tiles-lab.js?v=4238619cbf10';
+import { TOWER_TILES, TOWER_THEMES } from './tiles-tower.js?v=4238619cbf10';
 
 // どの 部分か（ゆか・かべ・水）
 const PART_OF_TILE = {
@@ -254,7 +254,7 @@ export function tintCanvas(src, tint) {
       if (!d[i + 3]) continue;
       let [h, s, l] = rgbToHsl(d[i], d[i + 1], d[i + 2]);
       if (l < 0.13) continue;
-      h = (h + dh + 1) % 1;
+      h = tint.hueTo !== undefined ? tint.hueTo / 360 : (h + dh + 1) % 1; // hueTo … 色ちがいの 魔物（data/variants.js）
       s = Math.min(1, s * ks);
       l = Math.min(0.97, l * kl);
       const [r, g, b] = hslToRgb(h, s, l);

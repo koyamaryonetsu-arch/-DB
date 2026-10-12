@@ -15,16 +15,16 @@
 //   ・図鑑に 落とす 物が のる（手に入れるまでは ？？？）
 //   ・第31回: ボスは ちなんだ レア装備も ときどき（kind 'brare'。BOSS_RARE_N 回に 1回）。ふつうの 魔物は その地方の レア装備を まれに
 //     （REGION_RARE_N 体に 1体。図鑑には のらない）。ひみつのダンジョンの 中では、ここだけの ★4〜★5（data/rare-loot.js）
-import { ITEMS } from './items.js?v=f0ec3e4f094f';
-import { MONSTERS } from './monsters.js?v=f0ec3e4f094f';
-import { RARE_MAT_DROPS } from './monsters-rare.js?v=f0ec3e4f094f';
-import { CH3_MAT_DROPS } from './monsters-ch3.js?v=f0ec3e4f094f';
-import { CH4_MAT_DROPS } from './monsters-ch4.js?v=f0ec3e4f094f';
-import { R23_MAT_DROPS } from './monsters-r23.js?v=f0ec3e4f094f';
-import { TEMPLE_MAT_DROPS } from './monsters-temple.js?v=f0ec3e4f094f';
-import { CH5_MAT_DROPS } from './monsters-ch5.js?v=f0ec3e4f094f';
-import { bossRareOf, BOSS_RARE_N, regionRareList, REGION_RARE_N, pickSdGear, SD_DROP_N, SD_GUARD_DROP_N } from './rare-loot.js?v=f0ec3e4f094f';
-import { sdFloorOf } from './secret.js?v=f0ec3e4f094f';
+import { ITEMS } from './items.js?v=4238619cbf10';
+import { MONSTERS } from './monsters.js?v=4238619cbf10';
+import { RARE_MAT_DROPS } from './monsters-rare.js?v=4238619cbf10';
+import { CH3_MAT_DROPS } from './monsters-ch3.js?v=4238619cbf10';
+import { CH4_MAT_DROPS } from './monsters-ch4.js?v=4238619cbf10';
+import { R23_MAT_DROPS } from './monsters-r23.js?v=4238619cbf10';
+import { TEMPLE_MAT_DROPS } from './monsters-temple.js?v=4238619cbf10';
+import { CH5_MAT_DROPS } from './monsters-ch5.js?v=4238619cbf10';
+import { bossRareOf, BOSS_RARE_N, regionRareList, REGION_RARE_N, pickSdGear, SD_DROP_N, SD_GUARD_DROP_N } from './rare-loot.js?v=4238619cbf10';
+import { sdFloorOf } from './secret.js?v=4238619cbf10';
 
 export const DROP_N = { common: 8, rare: 64, mat: 8 };
 

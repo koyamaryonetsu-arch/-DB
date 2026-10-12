@@ -1,38 +1,38 @@
 // たたかいの がめん（むかしの RPG ふう 1がめん）
-import { el, esc, ListMenu, toast } from './ui/dom.js?v=f0ec3e4f094f';
-import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js?v=f0ec3e4f094f';
-import { ITEMS } from '../shared/data/items.js?v=f0ec3e4f094f';
-import { JOBS } from '../shared/data/jobs.js?v=f0ec3e4f094f';
-import { MONSTERS } from '../shared/data/monsters.js?v=f0ec3e4f094f';
-import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed, battleAbilityOk } from '../shared/stats.js?v=f0ec3e4f094f';
-import { affinityOf, attackReach, spellSealed, SEALED_REASON } from '../shared/battle.js?v=f0ec3e4f094f';
+import { el, esc, ListMenu, toast } from './ui/dom.js?v=4238619cbf10';
+import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js?v=4238619cbf10';
+import { ITEMS } from '../shared/data/items.js?v=4238619cbf10';
+import { JOBS } from '../shared/data/jobs.js?v=4238619cbf10';
+import { MONSTERS } from '../shared/data/monsters.js?v=4238619cbf10';
+import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed, battleAbilityOk } from '../shared/stats.js?v=4238619cbf10';
+import { affinityOf, attackReach, spellSealed, SEALED_REASON } from '../shared/battle.js?v=4238619cbf10';
 // 合体技（2人・3人・4人）の コマンド・さそい・えんしゅつ（battle-dual.js）
-import { myDualOptions, dualMenu, showInvite, askingName, waitText, onDualWait, onDualWaitEnd, onDualHold, onDualAnswer, onDualBreak, dualPre, dualFx } from './battle-dual.js?v=f0ec3e4f094f';
-import { TACTICS } from '../shared/ai.js?v=f0ec3e4f094f';
-import { faceURL } from './field.js?v=f0ec3e4f094f';
-import { monsterCanvas } from './render/monsters.js?v=f0ec3e4f094f';
-import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=f0ec3e4f094f';
-import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js?v=f0ec3e4f094f';
-import { PARTY_ANIMS, JOB2_SFX } from './render/battlefx-jobs2.js?v=f0ec3e4f094f';
-import { PARTY_ANIMS3, JOB3_SFX } from './render/battlefx-jobs3.js?v=f0ec3e4f094f';
-import { SIG4, JOB4_SFX, sigAnim } from './render/battlefx-jobs4.js?v=f0ec3e4f094f';
+import { myDualOptions, dualMenu, showInvite, askingName, waitText, onDualWait, onDualWaitEnd, onDualHold, onDualAnswer, onDualBreak, dualPre, dualFx } from './battle-dual.js?v=4238619cbf10';
+import { TACTICS } from '../shared/ai.js?v=4238619cbf10';
+import { faceURL } from './field.js?v=4238619cbf10';
+import { monsterCanvas } from './render/monsters.js?v=4238619cbf10';
+import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=4238619cbf10';
+import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js?v=4238619cbf10';
+import { PARTY_ANIMS, JOB2_SFX } from './render/battlefx-jobs2.js?v=4238619cbf10';
+import { PARTY_ANIMS3, JOB3_SFX } from './render/battlefx-jobs3.js?v=4238619cbf10';
+import { SIG4, JOB4_SFX, sigAnim } from './render/battlefx-jobs4.js?v=4238619cbf10';
 // 第27回に 作り直した 古い 呪文・特技の エフェクト（段階・あたる じかん・音・味方への えんしゅつ）
-import { r27Anim, r27Hit, r27Sfx, playAllyR27 } from './render/battlefx-r27.js?v=f0ec3e4f094f';
-import { JOB5_SFX } from './render/battlefx-jobs5.js?v=f0ec3e4f094f';
-import { JOB6_SFX } from './render/battlefx-jobs6.js?v=f0ec3e4f094f';
-import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js?v=f0ec3e4f094f';
-import { statusNames, buffNames, targetTag } from './ui/info.js?v=f0ec3e4f094f';
-import { battleSkillText, battleItemText, favHint } from './ui/skillinfo.js?v=f0ec3e4f094f';
-import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js?v=f0ec3e4f094f';
-import { ENEMY_RATE_NAMES } from '../shared/data/difficulty.js?v=f0ec3e4f094f';
-import { ResultSheet } from './ui/result.js?v=f0ec3e4f094f';
-import { paintRare } from './ui/rarity.js?v=f0ec3e4f094f';
+import { r27Anim, r27Hit, r27Sfx, playAllyR27 } from './render/battlefx-r27.js?v=4238619cbf10';
+import { JOB5_SFX } from './render/battlefx-jobs5.js?v=4238619cbf10';
+import { JOB6_SFX } from './render/battlefx-jobs6.js?v=4238619cbf10';
+import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js?v=4238619cbf10';
+import { statusNames, buffNames, targetTag } from './ui/info.js?v=4238619cbf10';
+import { battleSkillText, battleItemText, favHint } from './ui/skillinfo.js?v=4238619cbf10';
+import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js?v=4238619cbf10';
+import { ENEMY_RATE_NAMES } from '../shared/data/difficulty.js?v=4238619cbf10';
+import { ResultSheet } from './ui/result.js?v=4238619cbf10';
+import { paintRare } from './ui/rarity.js?v=4238619cbf10';
 // 第4章の しかけ（月の鏡・まぼろしの 分身・魔神のランプ・ボスの 大技）
-import { CH4_ALLY_FX, ch4ItemEntries, ch4ItemPick, ch4ItemInfo, ch4Present, vanishFx, drawShade, drawBurrow } from './battle-ch4.js?v=f0ec3e4f094f';
+import { CH4_ALLY_FX, ch4ItemEntries, ch4ItemPick, ch4ItemInfo, ch4Present, vanishFx, drawShade, drawBurrow } from './battle-ch4.js?v=4238619cbf10';
 // 第4章 Step 7 の 砂の底の神殿と モルガナ（鏡のうつし身・水のろうの 絵・水の衣・光・大波・水の守りの歌）
-import { templeSprite, templeDraw, templeStart, TEMPLE_SFX } from './battle-temple.js?v=f0ec3e4f094f';
+import { templeSprite, templeDraw, templeStart, TEMPLE_SFX } from './battle-temple.js?v=4238619cbf10';
 // 第5章 Step 2 の 星の番人アルゴス（見通しの目。battle-ch5.js）
-import { towerDraw, TOWER_SFX } from './battle-ch5.js?v=f0ec3e4f094f';
+import { towerDraw, TOWER_SFX } from './battle-ch5.js?v=4238619cbf10';
 
 // たたかいの え の こまかさ（おもい きかいで さげたら、その あいだは さげた まま）
 let battleRes = BRES;
@@ -721,7 +721,7 @@ export class BattleScene {
       if (a) this.rememberPick(a, 'item', it.value);
       if (ch4ItemPick(this, it.value)) return;
       const item = ITEMS[it.value];
-      if (item.target === 'self') return this.send({ type: 'item', id: it.value });
+      if (item.target === 'self' || item.target === 'allies') return this.send({ type: 'item', id: it.value }); // allies … 全員（ひみつのダンジョンの いやしの大すず）
       return this.pickAlly((tid) => this.send({ type: 'item', id: it.value, target: tid }), item.target === 'deadAlly', item.name, () => this.itemMenu());
     }, () => this.openCommand(), '道具', (it) => {
       if (!it) return;

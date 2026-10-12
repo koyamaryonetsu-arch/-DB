@@ -1,14 +1,14 @@
-// ひみつのダンジョンの マップ（入口の 広間・ふつうの 階・5階ごとの 休み所）と、ミドリナ地方の 入口
-// 階の 形は 階の 番号だけで きまる（data/secret.js の sdSeed。サーバーと 画面と 家族みんなで おなじ）
+// ひみつのダンジョンの マップ（入口の 広間・ふつうの 階・5階ごとの 休み所・宿屋の 階・お店の 階）と、ミドリナ地方の 入口
+// 階の 形は ID（'sd_<階>_<seed>'）だけで きまる（data/secret.js の sdFloorSeed。サーバーと 画面と いっしょに 入った 家族で おなじ）
 // ふつうの 階は 宝の洞窟の つくりかた（maps/treasure-cave.js の layoutFloor）で、下り階段を さがす 形
-import { T } from '../tiles.js?v=f0ec3e4f094f';
-import { npc } from './npc.js?v=f0ec3e4f094f';
-import { MONSTERS } from '../data/monsters.js?v=f0ec3e4f094f';
-import { layoutFloor } from './treasure-cave.js?v=f0ec3e4f094f';
+import { T } from '../tiles.js?v=4238619cbf10';
+import { npc } from './npc.js?v=4238619cbf10';
+import { MONSTERS } from '../data/monsters.js?v=4238619cbf10';
+import { layoutFloor } from './treasure-cave.js?v=4238619cbf10';
 import {
-  SD_GATE, SD_NAME, SD_OPEN_FLAG, sdFloorOf, sdSeed, sdLayoutLv, sdBand, sdEnemyLv, sdPower, ensureSdTable,
-  isRestFloor, isGuardFloor, sdGuardian,
-} from '../data/secret.js?v=f0ec3e4f094f';
+  SD_GATE, SD_NAME, SD_OPEN_FLAG, sdFloorOf, sdRunSeedOf, sdFloorSeed, sdLayoutLv, sdBand, sdEnemyLv, sdPower, ensureSdTable,
+  isRestFloor, isGuardFloor, sdGuardian, sdSpecialOf,
+} from '../data/secret.js?v=4238619cbf10';
 
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const NO_ESCAPE_HINT = 'ひみつのダンジョンでは、5階ごとの休み所から地上へもどれる';
@@ -76,22 +76,28 @@ export const REST_W = 19, REST_H = 13;
 export const REST_DOWN = { x: 9, y: 1 };
 export const REST_ARRIVE = { x: 9.5, y: 10.5 };
 export const REST_GUARD = { x: 9, y: 4 };
-export const REST_SPRING = { x: 4, y: 6 };
 export const REST_CHEST = { x: 14, y: 6 };
 export const REST_KEEPER = { x: 12, y: 9 };
+// 第32回: 回復の泉は なくした（10階ごとの 番人を たおすと 回復。宿屋の 階）。泉の あった 所は 水晶の かざり
+export const REST_DECO = { x: 4, y: 6 };
 
-function restFloor(f, base) {
+// 休み所・宿屋・お店の へや（下り階段は 上の まん中、着く 所は 下の まん中）
+function smallRoom() {
   const r = room(REST_W, REST_H);
   r.rect(1, 3, REST_W - 2, REST_H - 3, T.CAVE_FLOOR);
   for (const [x, y] of [[1, 3], [REST_W - 2, 3], [1, REST_H - 3], [REST_W - 2, REST_H - 3]]) r.set(x, y, T.CAVE_WALL);
   r.set(REST_DOWN.x, 2, T.BOSS_FLOOR);
   r.set(REST_DOWN.x, REST_DOWN.y, T.STAIRS_DOWN);
-  r.rect(6, 5, 12, 9, T.BOSS_FLOOR);
   for (const x of [6, 12]) r.set(x, 2, T.TORCH);
+  return r;
+}
+
+function restFloor(f, base) {
+  const r = smallRoom();
+  r.rect(6, 5, 12, 9, T.BOSS_FLOOR);
   for (const [x, y] of [[3, 4], [15, 4], [3, 9], [15, 9]]) r.set(x, y, T.PILLAR);
-  for (const [x, y] of [[1, 6], [17, 6], [2, 9], [16, 9]]) r.set(x, y, T.CRYSTAL);
+  for (const [x, y] of [[1, 6], [17, 6], [2, 9], [16, 9], [REST_DECO.x, REST_DECO.y]]) r.set(x, y, T.CRYSTAL);
   const npcs = [
-    npc('sd_spring', '回復の泉', [REST_SPRING.x, REST_SPRING.y], 'spring', 'sd_spring'),
     npc('sd_chest', 'ごほうびの宝箱', [REST_CHEST.x, REST_CHEST.y], 'sd_chest', 'sd_chest'),
     npc('sd_keeper', '休み所のようせい', [REST_KEEPER.x, REST_KEEPER.y], 'sd_fairy', 'sd_rest'),
   ];
@@ -106,13 +112,48 @@ function restFloor(f, base) {
     triggers: [{ id: 'sd_down', x: REST_DOWN.x, y: REST_DOWN.y, w: 1, h: 1, script: 'sd_down' }],
     zoneAt: () => 'safe:sd',
     areaName: () => `地下${f}階の休み所`,
-    sd: { floor: f, rest: true, arrive: { ...REST_ARRIVE } },
+    sd: { floor: f, seed: base.sd.seed, rest: true, arrive: { ...REST_ARRIVE }, down: { ...REST_DOWN } },
+  };
+}
+
+// ───────────── 宿屋の 階・お店の 階（運で 出る。data/secret.js の sdSpecialOf）─────────────
+// 魔物は 出ない。まん中に 宿屋の 主人 か ふしぎな 商人。下り階段は 休み所と おなじ 所
+export const SPECIAL_KEEPER = { x: 9, y: 6 };
+export const SD_INN_KEEPER = 'ふしぎな宿屋の主人';
+function specialFloor(f, base, kind) {
+  const r = smallRoom();
+  if (kind === 'inn') {
+    // ベッドと だんろ・じゅうたん
+    r.rect(7, 5, 11, 8, T.CARPET);
+    for (const [x, y] of [[2, 4], [2, 6], [2, 8], [16, 4], [16, 6], [16, 8]]) r.set(x, y, T.BED);
+    r.set(5, 3, T.FIREPLACE);
+    r.set(13, 3, T.LAMP);
+    for (const [x, y] of [[4, 9], [14, 9]]) r.set(x, y, T.TABLE);
+  } else {
+    // たな・たる・木の はこ
+    r.rect(7, 5, 11, 8, T.CARPET);
+    for (const x of [3, 4, 14, 15]) r.set(x, 3, T.SHELF);
+    for (const [x, y] of [[2, 8], [16, 8]]) r.set(x, y, T.BARREL);
+    for (const [x, y] of [[2, 9], [16, 9], [3, 9]]) r.set(x, y, T.CRATE);
+    for (const [x, y] of [[2, 5], [16, 5]]) r.set(x, y, T.POT);
+  }
+  const who = kind === 'inn'
+    ? npc('sd_inn', SD_INN_KEEPER, [SPECIAL_KEEPER.x, SPECIAL_KEEPER.y], 'woman', 'sd_inn', { dir: 'down' })
+    : npc('sd_shop', 'ふしぎな商人', [SPECIAL_KEEPER.x, SPECIAL_KEEPER.y], 'merchant', 'sd_shop', { dir: 'down' });
+  const label = kind === 'inn' ? 'ふしぎな宿屋' : 'ふしぎな店';
+  return {
+    ...base, bgm: 'secret_rest', dark: false, name: `地下${f}階の${label}`,
+    w: r.w, h: r.h, tiles: r.tiles, npcs: [who],
+    triggers: [{ id: 'sd_down', x: REST_DOWN.x, y: REST_DOWN.y, w: 1, h: 1, script: 'sd_down' }],
+    zoneAt: () => 'safe:sd',
+    areaName: () => `地下${f}階の${label}`,
+    sd: { floor: f, seed: base.sd.seed, kind, arrive: { ...REST_ARRIVE }, down: { ...REST_DOWN } },
   };
 }
 
 // ───────────── ふつうの 階（下り階段を さがす）─────────────
 function mazeFloor(f, base) {
-  const lay = layoutFloor(sdSeed(f), sdLayoutLv(f), 1, 99, 'earth');
+  const lay = layoutFloor(sdFloorSeed(f, base.sd.seed), sdLayoutLv(f), 1, 99, 'earth');
   const zone = ensureSdTable(f);
   const arrive = { x: lay.arrive.x + 0.5, y: lay.arrive.y + 0.5 };
   const safe = (x, y) => Math.abs(x - lay.arrive.x) <= 2 && Math.abs(y - lay.arrive.y) <= 2;
@@ -126,22 +167,26 @@ function mazeFloor(f, base) {
     zoneAt: (x, y) => (safe(x, y) ? 'safe:sd' : zone),
     areaName: () => `${SD_NAME}　地下${f}階`,
     spawnCounts: { [zone]: clamp(3 + Math.round(lay.walkable / 130), 4, 9) },
-    sd: { floor: f, arrive, down: { ...lay.down } },
+    sd: { floor: f, seed: base.sd.seed, arrive, down: { ...lay.down } },
   };
 }
 
-// 'sd_<階>' → マップ（maps/index.js が はじめて さわった ときに つくる）
+// 'sd_<階>_<seed>'（前の 版は 'sd_<階>'）→ マップ（maps/index.js が はじめて さわった ときに つくる）
 export function buildSecretFloor(id) {
   const f = sdFloorOf(id);
   if (!f) return null;
+  const seed = sdRunSeedOf(id);
   const base = {
+    sd: { seed },
     id, kind: 'dungeon', theme: sdBand(f).theme,
     // 糸・羽・ルーラは 使えない（world/escape.js・services.js）。魔物は 仲間に ならない（world/battles.js）
     noEscape: true, noEscapeHint: NO_ESCAPE_HINT, noBefriend: true,
     enemyLv: sdEnemyLv(f), enemyPow: sdPower(f),
     gates: [], chests: [], signs: [], warps: [], sparkles: [], roofs: [],
   };
-  return isRestFloor(f) ? restFloor(f, base) : mazeFloor(f, base);
+  if (isRestFloor(f)) return restFloor(f, base);
+  const special = sdSpecialOf(f, seed);
+  return special ? specialFloor(f, base, special) : mazeFloor(f, base);
 }
 
 export function buildSecretMaps() {
