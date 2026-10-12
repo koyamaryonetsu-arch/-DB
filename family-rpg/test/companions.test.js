@@ -89,7 +89,7 @@ test('酒場: なかまを さがして つれていく・いれかえ・ひら�
   let r = svc({ action: 'recruit', key: 'npc_gard' });
   assert.ok(r.ok, r.text);
   assert.equal(bot.party.supports.length, 1);
-  assert.equal(bot.party.supports[0].level, 5, 'レベルは じぶんより すこし ひくい');
+  assert.equal(bot.party.supports[0].level, 1, '酒場で 新しく 仲間に なる 人は レベル1から（第31回）');
   svc({ action: 'recruit', key: 'npc_mina' });
   svc({ action: 'recruit', key: 'npc_poporo' });
   assert.equal(bot.party.supports.length, 3);

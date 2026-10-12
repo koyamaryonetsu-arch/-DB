@@ -239,6 +239,8 @@ Object.assign(ITEMS, ITEMS_TOWER);
 Object.assign(ITEMS, POWDER_ITEMS);
 // 魔物よせの笛（abilities-field27.js）
 Object.assign(ITEMS, FIELD27_ITEMS);
+// 第31回: しあわせのぼうし・こうふくのくつ（items-r31.js）
+import { ITEMS_R31, R31_ITEM_KANA } from './items-r31.js'; Object.assign(ITEMS, ITEMS_R31);
 // きたえた 装備（'iron_sword+1'〜'+3'）。新しい 装備を 足す ときは この 行より 上で
 addUpgradeItems(ITEMS);
 
@@ -324,6 +326,7 @@ Object.assign(ITEM_KANA, CH3_ITEM_KANA);
 Object.assign(ITEM_KANA, CH4_ITEM_KANA, TEMPLE_ITEM_KANA, POWDER_KANA, LAB_ITEM_KANA);
 Object.assign(ITEM_KANA, TOWER_ITEM_KANA);
 Object.assign(ITEM_KANA, FIELD27_KANA);
+Object.assign(ITEM_KANA, R31_ITEM_KANA);
 
 export function itemKana(id) {
   // きたえた 装備は もとの 装備の 読み ＋ 回数（鉄の剣 → 鉄の剣+1 の じゅん）

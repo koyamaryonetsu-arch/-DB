@@ -150,6 +150,8 @@ const HEAD_LOOK = {
   // 第4章: 王都サファラの 防具屋
   turban: { hat: 'turban', hatColor: '#f4f0e6' },
   straw_hat: { hat: 'straw' },
+  // 第31回: しあわせのぼうし（ピンクの 羽の ぼうし）
+  shiawase_boushi: { hat: 'feather', hatColor: '#f07aa8' },
 };
 
 // ぶきの いろ
@@ -1656,7 +1658,7 @@ function drawHat(p, dir, f, o) {
       break;
     }
     case 'feather': {
-      const c = '#8a3a3a', cD = shade(c, -0.2), fe = '#f4f4f4';
+      const c = hc || '#8a3a3a', cD = shade(c, -0.2), fe = '#f4f4f4';
       if (side) spans(p, [[1, 10, 18], [2, 8, 20], [3, 7, 22], [4, 6, 23], [5, 6, 23], [6, 6, 23], [7, 6, 23]], c);
       else spans(p, [[0, 11, 20], [1, 9, 22], [2, 7, 24], [3, 6, 25], [4, 6, 25], [5, 6, 25], [6, 6, 25], [7, 6, 25]], c);
       p.rect(side ? 5 : 4, 7, side ? 19 : 24, 2, cD);

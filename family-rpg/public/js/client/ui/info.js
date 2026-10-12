@@ -8,6 +8,7 @@ import { computeStats, canEquip, canEquipMonster, monsterGear, penaltyFor, mpCos
 import { attackReach } from '../../shared/battle.js';
 import { maxPlus } from '../../shared/data/forge.js';
 import { SKILL_UPS } from '../../shared/data/skill-ups.js';
+import { perkText } from '../../shared/data/items-r31.js';
 
 const TARGET_NAMES = { enemy: '敵1体', group: '敵1グループ', enemies: '敵全体', ally: '味方1人', allies: '味方全員', self: '自分', deadAlly: '死んだ味方', deadAllies: '死んだ味方全員' };
 // 技の リストに つける みじかい しるし（1体・1人・自分は つけない）。a: 技（または 相手の しゅるい）
@@ -83,6 +84,8 @@ export function itemDetail(id, mons = null) {
   const lines = [it.desc || ''];
   const st = itemStats(id);
   if (st) lines.push(st);
+  // ふしぎな 力（第31回: しあわせのぼうし・こうふくのくつ。data/items-r31.js）
+  if (perkText(it)) lines.push(`★ ${perkText(it)}`);
   const rk = rankText(id);
   if (it.type === 'weapon') lines.push(`種類: ${WEAPON_CAT_NAMES[it.cat] || it.cat}${rk ? `　${rk}` : ''}`);
   else if (rk) lines.push(rk);

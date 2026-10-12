@@ -1265,6 +1265,8 @@ const HEAD_LOOK = {
   turban: { kind: 'bandana', c: '#f4f0e6', hides: 'top' },
   // 麦わらぼうし（赤い リボン）
   straw_hat: { kind: 'straw', c: '#ecc86c', band: '#d42c28', hides: 'top' },
+  // 第31回: しあわせのぼうし（ピンクの 羽の ぼうし）
+  shiawase_boushi: { kind: 'feather', c: '#f07aa8', hides: 'top' },
 };
 // 布の服の ときの しょくぎょうの ぼうし
 const JOB_HAT = {
