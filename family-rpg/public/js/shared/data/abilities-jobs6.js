@@ -715,8 +715,8 @@ export const JOB6_ABILITIES = {
   },
   hg_ishi: {
     name: '火の意志', kana: 'ひのいし', kind: 'skill', job: 'hokage', mp: 20, target: 'allies', role: 'sup',
-    effect: { type: 'multi', parts: [{ type: 'buff', stat: 'atk', mult: 1.35, dur: 45 }, { type: 'cure', statuses: STATUS_ALL }, { type: 'bondUp', amount: 25 }] },
-    desc: '受けつがれる火の意志で、仲間全員の攻撃力を上げて、悪いじょうたいを治す。きずなゲージもふえる。', cast: '{a}「あきらめないど根性！それがおれの忍道だ！」', anim: 'warcry',
+    effect: { type: 'multi', parts: [{ type: 'buff', stat: 'atk', mult: 1.35, dur: 45 }, { type: 'cure', statuses: STATUS_ALL }, { type: 'mpHeal', base: [3, 5] }] },
+    desc: '受けつがれる火の意志で、仲間全員の攻撃力を上げて、悪いじょうたいを治す。MPも少し回復する。', cast: '{a}「あきらめないど根性！それがおれの忍道だ！」', anim: 'warcry',
   },
   hokage_sig: {
     name: '多重影分身の術', kana: 'たじゅうかげぶんしんのじゅつ', kind: 'skill', job: 'hokage', mp: 36, target: 'enemies',

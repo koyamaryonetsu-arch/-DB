@@ -7,7 +7,7 @@ import { MONSTERS } from '../shared/data/monsters.js';
 import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed, battleAbilityOk } from '../shared/stats.js';
 import { affinityOf, attackReach, spellSealed, SEALED_REASON } from '../shared/battle.js';
 // 合体技（2人・3人・4人）の コマンド・さそい・えんしゅつ（battle-dual.js）
-import { myDualOptions, dualMenu, showInvite, askingName, waitText, onDualWait, onDualWaitEnd, onDualHold, onDualAnswer, dualPre, dualFx } from './battle-dual.js';
+import { myDualOptions, dualMenu, showInvite, askingName, waitText, onDualWait, onDualWaitEnd, onDualHold, onDualAnswer, onDualBreak, dualPre, dualFx } from './battle-dual.js';
 import { TACTICS } from '../shared/ai.js';
 import { faceURL } from './field.js';
 import { monsterCanvas } from './render/monsters.js';
@@ -65,7 +65,7 @@ function allyFxKind(anim, fx, ab) {
   if (eff) {
     if (eff.type === 'heal' || eff.type === 'cure') return 'heal';
     if (eff.type === 'revive') return 'revive';
-    if (eff.type === 'buff' || eff.type === 'bondUp') return 'up';
+    if (eff.type === 'buff') return 'up';
     if (eff.type === 'debuff') return 'down';
     if (eff.type === 'cover') return 'shield';
     if (eff.type === 'charge') return 'charge';
@@ -141,7 +141,6 @@ export class BattleScene {
     for (const c of msg.snap.combatants) this.c.set(c.id, { ...c, flash: 0, dead: !c.alive ? 1 : 0, lunge: 0 });
     // この たたかいで ためした 属性（'まもの|属性'）。図鑑に のっている ぶんと あわせて ねらう ときに 見せる
     this.tried = new Set();
-    this.bond = msg.snap.bond || 0;
     // 戦いの 速さ（エフェクト）と 文字の 速さ（サーバーと おなじ あたい）
     this.fxSpeed = msg.snap.speed || 1;
     this.textSpeed = msg.snap.textSpeed || 1;
@@ -228,8 +227,8 @@ export class BattleScene {
     root.hidden = false;
     this.root = root;
     this.statusEl = el('div', { class: 'b-status' });
-    this.bondEl = el('div', { class: 'win b-bond' }, el('span', { text: 'きずな' }), el('div', { class: 'bb' }, el('i')));
-    const top = el('div', { class: 'b-top' }, this.statusEl, this.bondEl);
+    // 第31回: きずなゲージは なくなった（ミナデインは 合体技に）
+    const top = el('div', { class: 'b-top' }, this.statusEl);
     this.res = battleRes;
     this.canvas = makeCanvas(BW * this.res, BH * this.res);
     this.ctx = ctxOf(this.canvas);
@@ -349,9 +348,6 @@ export class BattleScene {
       s.atb.style.width = `${v}%`;
       s.atbBox.classList.toggle('full', v >= 99.9);
     }
-    const bb = this.bondEl.querySelector('i');
-    bb.style.width = `${Math.min(100, this.bond)}%`;
-    this.bondEl.classList.toggle('full', this.bond >= 100);
   }
 
   // ───────────── メッセージ ─────────────
@@ -454,7 +450,6 @@ export class BattleScene {
     const wagon = battleWagon(this);
     if (wagon) items.splice(items.length - 1, 0, { label: 'いれかえ', value: 'wagon', disabled: !wagon.outs.length || !wagon.ins.some((x) => x.hp > 0) });
     if (duals.length) items.splice(3, 0, { html: '<span class="dual-cmd">合体技</span>', value: 'dual', cls: 'k-dual' });
-    if (this.bond >= 100) items.unshift({ html: '<span class="gold">★ミナデイン</span>', value: 'bond', cls: 'k-bond' });
     this.showMenu(items, (it) => {
       switch (it.value) {
         case 'attack': {
@@ -468,7 +463,6 @@ export class BattleScene {
         case 'item': return this.itemMenu();
         case 'defend': return this.send({ type: 'defend' });
         case 'flee': return this.send({ type: 'flee' });
-        case 'bond': return this.pickEnemy((t) => this.send({ type: 'bond', target: t }), 'ミナデインでねらう相手');
         case 'wagon': return battleSwapMenu(this);
         default:
       }
@@ -868,7 +862,6 @@ export class BattleScene {
             const c = this.c.get(id);
             if (c) c.atb = v;
           }
-          this.bond = ev.bond;
           break;
         case 'ready': {
           const c = this.c.get(ev.id);
@@ -936,12 +929,6 @@ export class BattleScene {
         case 'dualHold':
           onDualHold(this, ev);
           break;
-        case 'bondJoin': {
-          const c = this.c.get(ev.id);
-          if (c) this.banner(`${c.name}が力を合わせた！（${ev.count}人）`);
-          this.game.audio.sfx('bond');
-          break;
-        }
         case 'tactics':
           this.onTactics(ev);
           break;
@@ -985,7 +972,6 @@ export class BattleScene {
       } else this.c.set(u.id, { ...u, flash: 0, dead: 0, lunge: 0 });
     }
     for (const j of ev.joined || []) if (!this.c.has(j.id)) this.c.set(j.id, { ...j, flash: 0, dead: 0, lunge: 0, appear: 1 });
-    if (ev.bond !== undefined) this.bond = ev.bond;
     this.say(ev.lines || [], ev.dur || 1000);
     const actor = this.c.get(ev.id);
     const fx = ev.fx || {};
@@ -1074,7 +1060,8 @@ export class BattleScene {
     // よみがえりの呪文を 止めた
     if (ev.chantBreak) { g.audio.sfx('crit'); this.banner('呪文を止めた！', 'combo'); }
     if (fx.type === 'stance') { g.audio.sfx('warn'); this.banner('！反撃の構え！なぐると反撃される', 'danger'); }
-    if (fx.type === 'bondStart') this.startBondPrompt(ev);
+    // 合体技の よやくで まっていた 人が ダメージ: ゲージが 半分から やり直し（battle-dual.js）
+    if (ev.dualBreak) onDualBreak(this, ev);
     if (fx.type === 'flee') g.audio.sfx('flee');
     if (fx.type === 'wagon') wagonSwapFx(this, ev);
     // 月の鏡・まぼろし・ボスの 大技（battle-ch4.js）
@@ -1436,31 +1423,6 @@ export class BattleScene {
   shake(ms, px = 5) {
     const a = Math.round(px), b = Math.round(px * 0.4), c = Math.round(px * 0.6);
     this.stage.animate([{ transform: 'translate(0,0)' }, { transform: `translate(${-a}px,${b}px)` }, { transform: `translate(${a}px,${-b}px)` }, { transform: `translate(${-c}px,${Math.round(b / 2)}px)` }, { transform: 'translate(0,0)' }], { duration: ms });
-  }
-
-  // きずな技: みんなで ボタンを おす
-  startBondPrompt(ev) {
-    this.game.audio.sfx('bond');
-    this.fx.flash = 400;
-    this.fx.flashColor = '#ffe0f4';
-    const a = this.primary;
-    if (!a || !a.alive || a.auto || ev.id === a.id) return;
-    const btn = el('button', { class: 'bondjoin', text: '★ 力を合わせる！ ★' });
-    const join = () => {
-      this.game.net.send({ t: 'battle', actor: a.id, cmd: { type: 'bondJoin' } });
-      btn.remove();
-      this.game.input.pop(h);
-    };
-    const h = { el: btn, onNav: (x) => { if (x === 'a') join(); } };
-    btn.addEventListener('click', join);
-    this.stage.append(btn);
-    this.game.input.push(h);
-    setTimeout(() => {
-      if (btn.isConnected) {
-        btn.remove();
-        this.game.input.pop(h);
-      }
-    }, (ev.bondWindow || 3500) - 200);
   }
 
   // ───────────── まいフレーム ─────────────

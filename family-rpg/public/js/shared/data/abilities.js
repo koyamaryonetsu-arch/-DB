@@ -10,7 +10,7 @@
 //   'ally' みかた1人 / 'allies' みかた全員 / 'self' 自分 / 'deadAlly' しんだ みかた
 // effect.type:
 //   phys(物理) magic(呪文ダメージ) heal revive buff debuff status cure
-//   charge(ためる) cover(かばう) bondUp(きずなゲージ) drainHp mahouken(魔法剣) bond(きずな技)
+//   charge(ためる) cover(かばう) drainHp mahouken(魔法剣)（第31回: きずなゲージ bondUp・きずな技 bond は なくなった）
 //   callHelp(なかまをよぶ) telegraph(ためこみ→大技) flee(にげだす) nothing
 // element: fire ice wind blast bolt light dark
 //
@@ -330,8 +330,8 @@ export const ABILITIES = {
   },
   ouen: {
     name: 'おうえんの歌', kana: 'おうえんのうた', kind: 'skill', job: 'performer', mp: 4, target: 'allies',
-    effect: { type: 'bondUp', amount: 20 },
-    desc: '元気な歌できずなゲージを増やす。',
+    effect: { type: 'buff', stat: 'atk', mult: 1.15, dur: 30 },
+    desc: '元気な歌で、仲間全員の攻撃力を少し上げる。',
     cast: '{a}はおうえんの歌を歌った！', anim: 'dance',
   },
   tatakai_uta: {
@@ -405,13 +405,7 @@ export const ABILITIES = {
     cast: '{a}は逆手に剣を構えた…！スターストラッシュ！', anim: 'strash',
   },
 
-  // ───────────── きずな技（パーティーで ちからを あわせる） ─────────────
-  minadein: {
-    name: 'ミナデイン', kana: 'みなでいん', kind: 'bond', mp: 0, target: 'enemy',
-    effect: { type: 'bond' },
-    desc: 'きずなゲージが満タンのときだけ使える。仲間みんなの力を合わせた雷。',
-    cast: '{a}はきずなの紋章を高くかかげた！', anim: 'minadein',
-  },
+  // 第31回: きずな技の ミナデイン（minadein）は なくなった（合体技の dt_minadein に。data/dual.js）
 
   // ───────────── モンスター専用 ─────────────
   m_tackle: {
@@ -645,7 +639,7 @@ export const ELEMENT_NAMES = {
 export const ELEMENT_ORDER = ['fire', 'ice', 'wind', 'blast', 'bolt', 'light', 'dark'];
 
 // 技の 種類（色分け）: dmg=ダメージ heal=回復 sup=補助
-const DMG_TYPES = new Set(['phys', 'magic', 'drainHp', 'drainMp', 'mahouken', 'bond', 'telegraph', 'multi', 'goldThrow', 'gamble', 'fixed', 'allMp', 'gather', 'destroy', 'deduce']);
+const DMG_TYPES = new Set(['phys', 'magic', 'drainHp', 'drainMp', 'mahouken', 'telegraph', 'multi', 'goldThrow', 'gamble', 'fixed', 'allMp', 'gather', 'destroy', 'deduce']);
 const HEAL_TYPES = new Set(['heal', 'revive', 'cure', 'mpHeal', 'regen']);
 export const ROLE_NAMES = { dmg: 'ダメージ', heal: '回復', sup: '補助' };
 export function abilityRole(a) {

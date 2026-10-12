@@ -7,7 +7,8 @@ import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityP
 import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, TIER_NAMES } from '../../shared/data/jobs.js';
 import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress, partyJobSet, hiraVisible, monsterSlots, canEquipChar, itemCount, MAX_LEVEL } from '../../shared/stats.js';
 import { HIRAMEKI } from '../../shared/data/hirameki.js';
-import { DUAL_TECHS, DUAL_ORDER, groupName, dualKnown, dualRelated } from '../../shared/data/dual.js';
+import { DUAL_TECHS, DUAL_ORDER, dualKnown, dualRelated, dualNeedText } from '../../shared/data/dual.js';
+import { addDualCss } from '../render/dualfx.js';
 import { MONSTERS } from '../../shared/data/monsters.js';
 import { monsterDrops } from '../../shared/data/loot.js';
 import { MONSTER_FRIENDS, RACE_NAMES, recipeHint, joinTier, bestiaryOrder } from '../../shared/data/companions.js';
@@ -858,6 +859,8 @@ export class FieldMenu {
     }
     if (mode === 'dual') {
       // 合体技: 2人の 番を 使う 技。出すのは 使った ことの ある 技と、今の パーティーに 関係する 技だけ（dual.js の dualRelated）
+      // 第31回: 名前は 1行に 名前だけ 大きく（dualfx.js の CSS）。人数・MP・必要な 職業は 下の 行に
+      addDualCss();
       const focus = this.partyFocus(c);
       const shownDual = DUAL_ORDER.filter((id) => dualKnown(c, id) || dualKnown(g.me, id) || dualRelated(id, focus.jobs, focus.skills));
       const hiddenDual = DUAL_ORDER.length - shownDual.length;
@@ -869,12 +872,12 @@ export class FieldMenu {
         // はじめて 使う までは 効果は ひみつ
         const known = dualKnown(c, id) || dualKnown(g.me, id);
         return {
-          id, cls: known ? '' : 'unknown',
-          html: `<span class="nm">${esc(t.name)}</span><span class="tag ${n >= 3 ? 'good' : 'muted'}">${n}人技</span><span class="tag gold">MP ${t.mp.join('＋')}</span>${known ? '' : '<span class="tag muted">まだ使っていない</span>'}<span class="ln">${esc(`${t.need.map(groupName).join(' ＋ ')}（${n}人で1つずつ）`)}</span><span class="ln muted">${known ? esc(t.desc) : '効果は？？？（一度使うとわかる）'}</span>`,
+          id, cls: `dual-row n${n}${known ? '' : ' unknown'}`,
+          html: `<span class="nm dual-nm">${esc(t.name)}</span><span class="ln">${esc(`${n}人技・MP ${t.mp.join('＋')}・必要な職業：${dualNeedText(id)}`)}</span><span class="ln muted">${known ? esc(t.desc) : '効果は？？？（一度使うとわかる。まだ使っていない）'}</span>`,
         };
       }));
       if (!shownDual.length) box.append(el('div', { class: 'muted', text: '今のパーティーで出せそうな合体技は、まだない。' }));
-      box.append(el('div', { class: 'detail', text: (hiddenDual > 0 ? `今のパーティーの職業に関係する合体技だけ出している（ほかにあと${hiddenDual}こ）。\n` : '') + '合体技は、2人・3人・4人でいっしょに出す技。出す人みんなの番を使う。自分のゲージがたまった時に「合体技」から選んでおく。いっしょに出す仲間のゲージがたまっていればすぐ、まだの時は「よやく」して、みんなのゲージがたまった時にいっしょに出す（先にたまった仲間は、ほかの仲間を待つ）。\nどんな効果かは、一度使うまでわからない。家族のキャラと出す時は、相手の画面に「参加する？」と出る。' }));
+      box.append(el('div', { class: 'detail', text: (hiddenDual > 0 ? `今のパーティーの職業に関係する合体技だけ出している（ほかにあと${hiddenDual}こ）。\n` : '') + '合体技は、2人・3人・4人でいっしょに出す技。出せるかは、今ついている職業で決まる。出す人みんなの番を使う。自分のゲージがたまった時に「合体技」から選んでおく。いっしょに出す仲間のゲージがたまっていればすぐ、まだの時は「よやく」して、みんなのゲージがたまった時にいっしょに出す（先にたまった仲間は、ほかの仲間を待つ）。\nよやくで待っている間にダメージを受けると、その人のゲージは半分からやり直し。どんな効果かは、一度使うまでわからない。家族のキャラと出す時は、相手の画面に「参加する？」と出る。' }));
       return box;
     }
     const items = learned.map((id) => {

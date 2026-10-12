@@ -391,8 +391,8 @@ export const JOB4_ABILITIES = {
   },
   nk_drum: {
     name: '解放のドラム', kana: 'かいほうのどらむ', kind: 'skill', job: 'nika', mp: 18, target: 'allies', role: 'sup',
-    effect: { type: 'multi', parts: [{ type: 'buff', stats: ['atk', 'agi'], mult: 1.3, dur: 45 }, { type: 'cure', statuses: STATUS_ALL }, { type: 'bondUp', amount: 30 }] },
-    desc: '楽しいドラムのリズム。仲間全員の攻撃力と素早さが上がり、悪いじょうたいも治って、きずなゲージもふえる。', cast: 'ドンドットット♪ 楽しいリズムがひびきわたる！', anim: 'nika_drum',
+    effect: { type: 'multi', parts: [{ type: 'buff', stats: ['atk', 'agi'], mult: 1.3, dur: 45 }, { type: 'cure', statuses: STATUS_ALL }, { type: 'mpHeal', base: [3, 4] }] },
+    desc: '楽しいドラムのリズム。仲間全員の攻撃力と素早さが上がり、悪いじょうたいも治って、MPも少し回復する。', cast: 'ドンドットット♪ 楽しいリズムがひびきわたる！', anim: 'nika_drum',
   },
   nk_kaminari: {
     name: '雷をつかむ', kana: 'かみなりをつかむ', kind: 'skill', job: 'nika', mp: 20, target: 'enemies',
@@ -423,8 +423,8 @@ export const JOB4_ABILITIES = {
   },
   yt_live: {
     name: '生配信', kana: 'なまはいしん', kind: 'skill', job: 'youtuber', mp: 4, target: 'allies', role: 'sup',
-    effect: { type: 'multi', parts: [{ type: 'bondUp', amount: 10 }, { type: 'buff', stat: 'atk', mult: 1.1, dur: 30 }] },
-    desc: '戦いを生配信。見ている人のおうえんで、仲間全員の攻撃力が少し上がり、きずなゲージもふえる。', cast: '{a}「生配信、始めまーす！」', anim: 'camera',
+    effect: { type: 'multi', parts: [{ type: 'mpHeal', base: [1, 1] }, { type: 'buff', stat: 'atk', mult: 1.1, dur: 30 }] },
+    desc: '戦いを生配信。見ている人のおうえんで、仲間全員の攻撃力が少し上がり、MPも少し回復する。', cast: '{a}「生配信、始めまーす！」', anim: 'camera',
   },
   yt_samune: {
     name: 'つりサムネ', kana: 'つりさむね', kind: 'skill', job: 'youtuber', mp: 3, target: 'enemy',
@@ -480,8 +480,8 @@ export const JOB4_ABILITIES = {
   },
   st_kinen: {
     name: '100万人記念', kana: 'ひゃくまんにんきねん', kind: 'skill', job: 'streamer', mp: 12, target: 'allies', role: 'heal',
-    effect: { type: 'multi', parts: [{ type: 'heal', base: [72, 90], thr: 50 }, { type: 'bondUp', amount: 15 }] },
-    desc: '登録者100万人の記念配信。仲間全員のHPを回復し、きずなゲージもふえる。', cast: '{a}「みなさん、本当にありがとう！」', anim: 'heal_dance',
+    effect: { type: 'multi', parts: [{ type: 'heal', base: [72, 90], thr: 50 }, { type: 'mpHeal', base: [2, 3] }] },
+    desc: '登録者100万人の記念配信。仲間全員のHPを回復し、MPも少し回復する。', cast: '{a}「みなさん、本当にありがとう！」', anim: 'heal_dance',
   },
   st_kamikai: {
     name: '神回', kana: 'かみかい', kind: 'skill', job: 'streamer', mp: 8, target: 'self',
@@ -495,8 +495,8 @@ export const JOB4_ABILITIES = {
   },
   st_doujisetsuzoku: {
     name: '同時接続100万人', kana: 'どうじせつぞくひゃくまんにん', kind: 'skill', job: 'streamer', mp: 20, target: 'allies', role: 'sup',
-    effect: { type: 'multi', parts: [{ type: 'buff', stats: ['atk', 'agi'], mult: 1.2, dur: 40 }, { type: 'heal', base: [60, 78], thr: 50 }, { type: 'bondUp', amount: 25 }] },
-    desc: '100万人がいっしょに見ている！仲間全員の攻撃力と素早さが上がり、HPも回復して、きずなゲージもふえる。', cast: '同時接続、100万人！コメントがものすごいいきおいで流れる！', anim: 'superchat',
+    effect: { type: 'multi', parts: [{ type: 'buff', stats: ['atk', 'agi'], mult: 1.2, dur: 40 }, { type: 'heal', base: [60, 78], thr: 50 }, { type: 'mpHeal', base: [3, 5] }] },
+    desc: '100万人がいっしょに見ている！仲間全員の攻撃力と素早さが上がり、HPも回復して、MPも少し回復する。', cast: '同時接続、100万人！コメントがものすごいいきおいで流れる！', anim: 'superchat',
   },
 
   // ───────────── ゲーマー（基本職） ─────────────
@@ -579,8 +579,8 @@ export const JOB4_ABILITIES = {
   },
   pg_yuushou: {
     name: '世界大会優勝', kana: 'せかいたいかいゆうしょう', kind: 'skill', job: 'pro_gamer', mp: 18, target: 'enemies', role: 'dmg',
-    effect: { type: 'multi', parts: [{ type: 'phys', mult: 1.4 }, { type: 'bondUp', amount: 20 }] },
-    desc: '世界大会で優勝した実力で、敵全体に大きなダメージ。きずなゲージもふえる。', cast: '{a}の世界大会優勝プレイ！', anim: 'meteor',
+    effect: { type: 'multi', parts: [{ type: 'phys', mult: 1.4 }, { type: 'mpHeal', target: 'allies', base: [3, 4] }] },
+    desc: '世界大会で優勝した実力で、敵全体に大きなダメージ。MPも少し回復する。', cast: '{a}の世界大会優勝プレイ！', anim: 'meteor',
   },
 
   // ───────────── 魔王（伝説の職業） ─────────────

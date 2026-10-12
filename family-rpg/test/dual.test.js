@@ -1,8 +1,8 @@
-// 合体技の よやく（仲間の ゲージが たまったら 出る）・はじめは 効果が わからない・強さ、きずなゲージ
+// 合体技の よやく（仲間の ゲージが たまったら 出る）・はじめは 効果が わからない・強さ（きずなゲージは 第31回で なくなった）
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { newCharacter, gainExp, expForLevel, fullHeal } from '../public/js/shared/stats.js';
-import { Battle, BOND_GAIN, DUAL_POWER, normBattleSettings, DEFAULT_BATTLE_SPEED, DEFAULT_TEXT_SPEED } from '../public/js/shared/battle.js';
+import { Battle, DUAL_POWER, normBattleSettings, DEFAULT_BATTLE_SPEED, DEFAULT_TEXT_SPEED } from '../public/js/shared/battle.js';
 import { DUAL_TECHS } from '../public/js/shared/data/dual.js';
 import { makeRng } from '../public/js/shared/rng.js';
 
@@ -184,16 +184,6 @@ test('合体技の 強さ: 2人が ふつうに 技を 出した ときの 合�
     return act.results.filter((r) => r.dmg > 0).reduce((s, r) => s + r.dmg, 0);
   };
   assert.ok(run(120) > run(20), '魔力が 高いほど 強い');
-});
-
-test('きずなゲージは たまりにくい', () => {
-  const b = duo();
-  b.bond = 0;
-  b.addBond(10);
-  assert.equal(b.bond, Math.round(10 * BOND_GAIN * 100) / 100);
-  assert.ok(BOND_GAIN < 0.5);
-  b.addBond(-100);
-  assert.equal(b.bond, 0);
 });
 
 test('戦いの 速さと 文字の 速さは べつ（前の「ふつう」は 少し ゆっくりに）', () => {

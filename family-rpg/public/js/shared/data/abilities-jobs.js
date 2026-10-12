@@ -95,8 +95,8 @@ export const JOB_ABILITIES = {
     effect: { type: 'buff', stats: ['atk', 'def', 'agi'], mult: 1.3, dur: 40 }, desc: '', cast: '{a}の本気モード！みんなの力がみなぎる！', anim: 'warcry',
   },
   js_m_bond: {
-    name: 'なかよしの輪', kana: 'なかよしのわ', kind: 'skill', mp: 0, target: 'self', hidden: true,
-    effect: { type: 'bondUp', amount: 30 }, desc: '', cast: 'みんなで手をつないで輪になった！', anim: 'heal_dance',
+    name: 'なかよしの輪', kana: 'なかよしのわ', kind: 'skill', mp: 0, target: 'allies', hidden: true,
+    effect: { type: 'mpHeal', base: [3, 6] }, desc: '', cast: 'みんなで手をつないで輪になった！', anim: 'heal_dance',
   },
 
   // ───────────── 会社員 ─────────────

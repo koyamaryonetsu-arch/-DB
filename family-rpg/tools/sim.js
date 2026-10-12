@@ -87,7 +87,7 @@ export function runBattle(party, enemyList, opts = {}) {
   // 砂に もぐる 魔物を 知っている（とび出す 前に 身を 守る）/ 知らない（もぐっても 攻撃しようと して 空ぶり。前ぶれでも 守らない）。battle-ch4.js
   if (opts.knowsBurrow) b.knowsBurrow = true;
   if (opts.ignoreBurrow) b.ignoreBurrow = true;
-  // 砂の底の神殿の しかけを 知っている（大波の 前に 身を 守る・おなじ 呪文を つづけない・水の衣に きずな技・水のろうを こわす）/
+  // 砂の底の神殿の しかけを 知っている（大波の 前に 身を 守る・おなじ 呪文を つづけない・水の衣に 雷の 技・水のろうを こわす）/
   // 知らない（光っていても 呪文・大波でも 身を 守らない）。battle-temple.js
   if (opts.knowsTemple) b.knowsTemple = true;
   if (opts.templeNaive) b.templeNaive = true;
@@ -245,7 +245,7 @@ export const CH4_TEMPLE_FIXED = [['mirror_knights', 37, 38], ['mirror_knights', 
 // モルガナ → ミラの いのりで 全回復 → 真の すがた: レベル
 export const CH4_MORGANA = [36, 37, 38, 39, 40];
 const groupOf = (enc) => FIXED_ENCOUNTERS[enc].group.flatMap(([sp, n]) => Array(n).fill(sp));
-// know … 知っている 人（月の鏡を 使い、影の ある 本物を ねらう・おなじ 呪文を つづけない・水の衣に きずな技〈雷〉・大波の 前に 身を 守る・水のろうを こわす）。
+// know … 知っている 人（月の鏡を 使い、影の ある 本物を ねらう・おなじ 呪文を つづけない・水の衣に 雷の 技・大波の 前に 身を 守る・水のろうを こわす）。
 // 知らない 人 … 分身にも 当てる・おなじ 呪文を つづける・光っていても 呪文・大波でも 身を 守らない（雷も ねらって 使わない）。
 // song … 水の守りの歌（わらべ歌を 4つ 聞いている。ふつうは 聞いている）
 export function morganaFight(lv, seed, know, song = true, tier = 38, log = false) {

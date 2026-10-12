@@ -272,12 +272,12 @@ test('第23回の 合体技は ぜんぶ たたかいで 出せる（2人の MP�
     }
     n++;
   }
-  // 出せる 組み合わせ: おかんの 技 ＋ 社ちくの 技 ＝ お弁当とどけに来たよ（どちらからでも）
-  const okan = { id: 'a', name: 'かあさん', alive: true, abilities: ['ok_otama'], mp: 20, ready: true, statuses: [] };
-  const sk = { id: 'b', name: 'たなか', alive: true, abilities: ['sk_tsukin'], mp: 20, ready: true, statuses: [] };
+  // 出せる 組み合わせ: おかん ＋ 社ちく ＝ お弁当とどけに来たよ（どちらからでも。第31回: 今の 職業で 見る）
+  const okan = { id: 'a', name: 'かあさん', job: 'okan', alive: true, abilities: ['ok_otama'], mp: 20, ready: true, statuses: [] };
+  const sk = { id: 'b', name: 'たなか', job: 'shachiku', alive: true, abilities: ['sk_tsukin'], mp: 20, ready: true, statuses: [] };
   assert.ok(dualOptions(okan, [sk], weaponOk).some((o) => o.id === 'dt_bentou'));
   assert.ok(dualOptions(sk, [okan], weaponOk).some((o) => o.id === 'dt_bentou'));
-  assert.ok(!dualOptions(okan, [{ ...sk, abilities: ['daichi'] }], weaponOk).some((o) => o.id === 'dt_bentou'));
+  assert.ok(!dualOptions(okan, [{ ...sk, job: 'warrior', abilities: ['daichi', 'sk_tsukin'] }], weaponOk).some((o) => o.id === 'dt_bentou'), '社ちくの 技を 覚えていても 戦士では 出ない');
 });
 
 test('パーティーに 関係する ひらめき技だけ 出す（ひらめいた 技は いつも 出す）', () => {
@@ -325,9 +325,9 @@ test('パーティーに 関係する 合体技だけ 出す', () => {
   assert.ok(shown.includes('dt_jugyo_sankan') === false, '学校の 技が ないので 授業参観は 出さない');
   for (const id of ['dt_gomu_kame', 'dt_taishoumetsu', 'dt_hametsu']) assert.ok(!shown.includes(id), id);
   assert.ok(shown.length < DUAL_ORDER.length / 3, `出すのは 少しだけ ${shown.length}`);
-  // 覚えている 技（前の 職業の バギ など）でも 関係する
+  // 第31回: 今の 職業（と、そこに いたるまでの 職業・マスターした 職業）で 見る。覚えている 技だけでは 関係しない
   assert.ok(!dualRelated('dt_honoo_tatsumaki', set));
-  assert.ok(dualRelated('dt_honoo_tatsumaki', partyJobSet([{ job: 'mage' }]), new Set(['bagi'])), '魔法使い＋バギを 覚えている');
+  assert.ok(!dualRelated('dt_honoo_tatsumaki', partyJobSet([{ job: 'mage' }]), new Set(['bagi'])), '魔法使い＋バギを 覚えているだけ');
   assert.ok(dualRelated('dt_honoo_tatsumaki', partyJobSet([{ job: 'priest' }, { job: 'mage' }])));
   // けずった 合体技は 出さない
   assert.ok(!dualRelated('dt_honoo_course', partyJobSet([{ job: 'cook' }, { job: 'mage' }])));

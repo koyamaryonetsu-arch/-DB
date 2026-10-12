@@ -103,8 +103,9 @@ export const MONSTERS_TEMPLE = {
   // 分身に 当てると 消えて、モルガナの HPが 少し 回復する（mirage.heal）。月の鏡で 分身が 消え、本物は つぎの 番 動けない。
   // 水の衣（veil）: まとっている 間は 受ける ダメージが 半分・炎は 効かない。雷の ダメージで はじけとぶ。前ぶれで また まとう。
   // 鏡写し（mirrorCopy）: おなじ 呪文を 2回 つづけて モルガナに 使うと、2回目は はね返される
+  // 第31回: きずな技（雷。だれでも 0.5回ほど 使えて 水の衣も はがせた）が なくなった ぶん、HPを 5000 → 4000（tools/sim.js ch4temple で 勝ちやすさを 合わせた）
   morgana: {
-    name: 'モルガナ', lv: 39, hp: 5000, mp: 600, str: 122, def: 80, agi: 56, mag: 140, exp: 7000, gold: 3000,
+    name: 'モルガナ', lv: 39, hp: 4000, mp: 600, str: 122, def: 80, agi: 56, mag: 140, exp: 7000, gold: 3000,
     race: 'demon', size: 'l', boss: true, turns: 2, speed: 0.7, hit: 'slash', drops: { boss: ['tide_earring'] },
     resist: { ...BOSS_STATUS, sleep: 0, confuse: 0, bolt: 1.2, fire: 0.7, ice: 0.8, dark: 0.6 },
     // cycle・mirror … 本物の 行動の かず（2回行動なので、3ターンで 6）

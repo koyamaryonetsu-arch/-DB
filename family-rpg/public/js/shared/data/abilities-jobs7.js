@@ -43,8 +43,8 @@ export const JOB7_ABILITIES = {
   },
   ab_onari: {
     name: '上様のおなり', kana: 'うえさまのおなり', kind: 'skill', job: 'abarenbo_shogun', mp: 20, target: 'allies', role: 'sup',
-    effect: { type: 'multi', parts: [{ type: 'buff', stats: ['atk', 'def'], mult: 1.35, dur: 45 }, { type: 'bondUp', amount: 20 }] },
-    desc: '「上様の、おなーりー！」仲間全員の攻撃力と守備力が上がり、きずなゲージもふえる。', cast: '「上様の、おなーりー！」', anim: 'warcry',
+    effect: { type: 'multi', parts: [{ type: 'buff', stats: ['atk', 'def'], mult: 1.35, dur: 45 }, { type: 'mpHeal', base: [3, 5] }] },
+    desc: '「上様の、おなーりー！」仲間全員の攻撃力と守備力が上がり、MPも少し回復する。', cast: '「上様の、おなーりー！」', anim: 'warcry',
   },
   abarenbo_shogun_sig: {
     name: '成敗！', kana: 'せいばい', kind: 'skill', job: 'abarenbo_shogun', mp: 34, target: 'enemies',

@@ -102,10 +102,9 @@ test('砂クジラ: 砂に もぐると ねらえない（攻撃・全体の 呪
   b.queue = [{ id: w.id, cmd: { type: 'attack', target: whale.id }, last: true }];
   b.executeNext();
   assert.equal(whale.hp, hp0, 'こんらんでも とどかない');
-  // きずな技も とどかない
-  b.bond = 100;
-  const e4 = act(b, mage, { type: 'bond', target: whale.id });
-  assert.ok(e4.lines.some((l) => l.includes('砂の中にもぐっている')) && b.bond === 100 && !b.bondCharge);
+  // 第31回: きずな技は なくなった（前の 版の コマンドは ことわる）
+  mage.ready = true;
+  assert.equal(b.command(mage.id, { type: 'bond', target: whale.id }).ok, false);
 });
 
 test('砂クジラ: もぐっている 間も ほかの 敵（砂ザメ）は ねらえる。全体の 呪文は 砂ザメにだけ 当たる', () => {

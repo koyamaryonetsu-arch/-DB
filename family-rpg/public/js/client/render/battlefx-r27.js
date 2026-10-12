@@ -133,7 +133,6 @@ export function fxLook(abilityId, element) {
     if (p.type === 'heal' || p.type === 'regen') cols.push(HEAL[1]);
     if (p.type === 'mpHeal') cols.push('#7a9aff');
     if (p.type === 'cure') cols.push('#8af0e0');
-    if (p.type === 'bondUp') cols.push('#ff8ac8');
     if (p.type === 'charge') cols.push('#ff6a2a');
     if (p.type === 'cover') cols.push(STAT_FX.def);
     if (p.type === 'status') cols.push(STATUS_FX[p.status] || '#c8a8f0');
@@ -1481,7 +1480,7 @@ export function allyAnimFor(anim, abilityId) {
   if (types.some((t) => t === 'heal' || t === 'regen' || t === 'cure' || t === 'mpHeal')) return 'heal2';
   if (types.includes('cover')) return 'guard';
   if (types.includes('charge')) return 'charge';
-  if (types.some((t) => t === 'buff' || t === 'bondUp')) return 'buff';
+  if (types.includes('buff')) return 'buff';
   return null;
 }
 

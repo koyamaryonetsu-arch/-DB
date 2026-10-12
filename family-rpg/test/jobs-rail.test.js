@@ -124,8 +124,8 @@ test('鉄道の 職業: たたかいでの 効き目（警笛・がんじょう�
 
 test('鉄道の 職業: 連携技に まざる（鉄道員の技・守りの技・歌）', () => {
   const ids = (opts) => opts.map((o) => o.id);
-  const driver = { id: 'a', name: '運転士', alive: true, abilities: ['dv_tsuuka'], mp: 30, ready: true, statuses: [], weaponCat: 'fan' };
-  const papa = { id: 'b', name: 'パパ', alive: true, abilities: ['sm_meishi'], mp: 30, ready: true, statuses: [], weaponCat: 'dagger' };
+  const driver = { id: 'a', name: '運転士', job: 'train_driver', alive: true, abilities: ['dv_tsuuka'], mp: 30, ready: true, statuses: [], weaponCat: 'fan' };
+  const papa = { id: 'b', name: 'パパ', job: 'salaryman', alive: true, abilities: ['sm_meishi'], mp: 30, ready: true, statuses: [], weaponCat: 'dagger' };
   assert.ok(ids(dualOptions(driver, [papa], weaponOk)).includes('dt_tsukin_rush'), '通勤ラッシュ');
 });
 
