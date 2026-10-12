@@ -50,6 +50,9 @@ export const UPGRADE_BY_RANK = [0, 1, 2, 3, 3, 4, 4, 5, 5, 5, 5];
 export const UPGRADE_MAX = Math.max(...UPGRADE_BY_RANK);
 // むかしは どの 装備も +3 まで きたえられた。むかしの セーブの +3 の 装備が きえない ように、+3 までは どの 装備にも 作っておく
 const KEEP_MAX = 3;
+// 第32回: れん金がまで 同じ 武具を 2つ 合わせると、きたえられる 回数が 1 ふえる（この 回数まで。data/alchemy.js）
+//   生まれ変わる 武器（items-alchemy.js の REBIRTH）も、上限＋この 回数まで きたえてから 生まれ変わる
+export const CAP_UP_MAX = 3;
 
 // その 装備を 何回まで きたえられるか（きたえた 装備は もとの 装備の ランクで）
 export function upgradeLimit(it) {
@@ -101,11 +104,12 @@ export function upgradedItem(baseId, base, n) {
 }
 
 // table（ITEMS）の きたえられる 装備 ぜんぶに +1〜 を 足す（なんど よんでも おなじ）
-// ランクで きまる 回数まで（むかしの セーブの ために +3 までは どれにも）
+// ランクで きまる 回数＋れん金で ふやせる 回数（CAP_UP_MAX）まで（むかしの セーブの ために +3 までは どれにも）
+export const upgradeTop = (it) => Math.max(KEEP_MAX, upgradeLimit(it) + CAP_UP_MAX);
 export function addUpgradeItems(table) {
   for (const [id, it] of Object.entries(table)) {
     if (!it || it.base || !UPGRADE_TYPES.includes(it.type)) continue;
-    const top = Math.max(KEEP_MAX, upgradeLimit(it));
+    const top = upgradeTop(it);
     for (let n = 1; n <= top; n++) {
       const uid = upgradeId(id, n);
       if (!table[uid]) table[uid] = upgradedItem(id, it, n);

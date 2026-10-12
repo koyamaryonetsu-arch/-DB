@@ -5,15 +5,16 @@
 // ・知らない 項目や 知らない 品物・職業・モンスターは けさずに とっておく（stash）。
 //   あとで その ゲームが 知っている ものに なったら もとに もどす
 // ・品物・職業・モンスター・マップの ID は けさない・なまえを かえない
-import { ITEMS, SLOTS } from '../data/items.js?v=5ec13f79e88c';
-import { JOBS } from '../data/jobs.js?v=5ec13f79e88c';
-import { MONSTERS } from '../data/monsters.js?v=5ec13f79e88c';
-import { migrateJobs, oldComboUnlocks, addItem, fixBodyJob } from '../stats.js?v=5ec13f79e88c';
-import { repairTreasureMaps } from '../data/treasure.js?v=5ec13f79e88c';
-import { repairSecret } from '../data/secret.js?v=5ec13f79e88c';
-import { normBank } from './bank.js?v=5ec13f79e88c';
-import { cleanWagon } from '../data/wagon.js?v=5ec13f79e88c';
-import { cleanLookEquip } from '../look-equip.js?v=5ec13f79e88c';
+import { ITEMS, SLOTS } from '../data/items.js?v=20d81aa120cb';
+import { JOBS } from '../data/jobs.js?v=20d81aa120cb';
+import { MONSTERS } from '../data/monsters.js?v=20d81aa120cb';
+import { migrateJobs, oldComboUnlocks, addItem, fixBodyJob } from '../stats.js?v=20d81aa120cb';
+import { repairTreasureMaps } from '../data/treasure.js?v=20d81aa120cb';
+import { repairSecret } from '../data/secret.js?v=20d81aa120cb';
+import { repairAlchemy } from './alchemy.js?v=20d81aa120cb';
+import { normBank } from './bank.js?v=20d81aa120cb';
+import { cleanWagon } from '../data/wagon.js?v=20d81aa120cb';
+import { cleanLookEquip } from '../look-equip.js?v=20d81aa120cb';
 
 export const SAVE_VERSION = 4;
 
@@ -160,6 +161,7 @@ export function repairChar(c, id) {
   }
   repairTreasureMaps(c); // 宝の地図（なくても よい）
   repairSecret(c); // ひみつのダンジョンの 記録（なくても よい。新しい 項目なので 版は 上げない）
+  repairAlchemy(c); // れん金がま（第32回。なくても よい）・もう たおした ボスの 品
   // 馬車の 仲間（いなくなった 仲間の key は はずす）
   cleanWagon(c);
   cleanStash(c);

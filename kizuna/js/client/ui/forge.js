@@ -5,21 +5,22 @@
 //             →「すぐに装備するか？」→「だれが装備する？」
 //   きたえる: 装備を えらぶ（E は 装備している 物）→ みぎに きたえる 前→あとの 強さと 素材
 //             →「〇〇にきたえるには〇〇がいる。きたえるか？」→ カン！カン！カン！
-import { el, esc } from './dom.js?v=5ec13f79e88c';
-import { Counter, compareTeam, itemInfo, whoItems, myTeam } from './counter.js?v=5ec13f79e88c';
-import { request } from './shop.js?v=5ec13f79e88c';
-import { rankText } from './info.js?v=5ec13f79e88c';
-import { ITEMS } from '../../shared/data/items.js?v=5ec13f79e88c';
-import { UPGRADE_TYPES, UPGRADE_MAX } from '../../shared/data/items-forge.js?v=5ec13f79e88c';
-import { recipeOf, upgradeCost, lackOf, canUpgrade, maxPlus } from '../../shared/data/forge.js?v=5ec13f79e88c';
-import { computeStats, itemCount } from '../../shared/stats.js?v=5ec13f79e88c';
-import { boardIconURL } from '../render/boards.js?v=5ec13f79e88c';
+import { el, esc } from './dom.js?v=20d81aa120cb';
+import { Counter, compareTeam, itemInfo, whoItems, myTeam } from './counter.js?v=20d81aa120cb';
+import { request } from './shop.js?v=20d81aa120cb';
+import { rankText } from './info.js?v=20d81aa120cb';
+import { ITEMS } from '../../shared/data/items.js?v=20d81aa120cb';
+import { UPGRADE_TYPES, UPGRADE_MAX } from '../../shared/data/items-forge.js?v=20d81aa120cb';
+import { recipeOf, upgradeCost, lackOf, canUpgrade, maxPlus } from '../../shared/data/forge.js?v=20d81aa120cb';
+import { bindAlchemy } from './alchemy.js?v=20d81aa120cb';
+import { computeStats, itemCount } from '../../shared/stats.js?v=20d81aa120cb';
+import { boardIconURL } from '../render/boards.js?v=20d81aa120cb';
 
 const BONUS_NAMES = { str: '力', def: '身の守り', agi: '素早さ', mag: '攻撃魔力', heal: '回復魔力', hp: '最大HP', mp: '最大MP' };
 
 const HINTS = {
   craft: '素材とゴールドで、店では売っていない装備を作る。\n物語が進むと、作れる物がふえる。',
-  upgrade: `武器・よろい・たて・頭の装備をきたえる。1回ごとに攻撃力や守備力が上がる。\nきたえられる回数は、装備のランクで決まる。\n（ランク1は+1まで。ランクが高いほど多く、最大+${UPGRADE_MAX}）\n+3からは星のかけらもいる。`,
+  upgrade: `武器・よろい・たて・頭の装備をきたえる。1回ごとに攻撃力や守備力が上がる。\nきたえられる回数は、装備のランクで決まる。\n（ランク1は+1まで。ランクが高いほど多く、最大+${UPGRADE_MAX}）\n+3からは星のかけらもいる。\nれん金がまで同じ装備を2つ合わせると、回数がふえる。`,
   exit: '',
 };
 
@@ -46,8 +47,20 @@ function costBlock(game, cost) {
 }
 
 export async function forgeUI(game, data) {
+  bindAlchemy(game);
   const ct = new Counter(game, { title: data.name || 'ふしぎなかじ屋', keeper: data.keeper || 'かじ屋', icon: boardIconURL('smith') });
   let line = data.hello || 'ここはふしぎなかじ屋だ。\n今日は何をする？';
+  // 第32回: れん金がまを もらう・れん金の コツを 教わる（world/alchemy.js の forgePotGift）
+  if (data.gift) {
+    await ct.say(data.gift);
+    await ct.tap();
+    game.audio.sfx('key');
+    await ct.say(data.giftNote, { narr: true });
+    await ct.tap();
+  } else if (data.tip) {
+    await ct.say(data.tip);
+    await ct.tap();
+  }
   while (!ct.closed) {
     await ct.say(line);
     ct.info(hint(HINTS.craft));
@@ -181,15 +194,23 @@ function upgradeBox(game, cand) {
   const it = ITEMS[cand.id];
   const cost = upgradeCost(cand.id);
   const box = el('div', { class: 'ct-item forge-up' });
-  const title = cost ? `${it.name} → ${ITEMS[cost.to].name}` : it.name;
+  // 生まれ変わる（かくし要素）: 何に なるかは ひみつ
+  const title = cost ? `${it.name} → ${cost.reborn ? '？？？' : ITEMS[cost.to].name}` : it.name;
   box.append(el('div', { class: 'hd' }, el('span', { class: 'gold', text: title }), el('span', { class: 'rk', text: rankText(cand.id) })));
   if (!cost) {
     if (cand.who) box.append(el('div', { class: 'small muted', text: `${cand.whoName}が装備している` }));
-    box.append(el('div', { class: 'detail', text: UPGRADE_TYPES.includes(it.type) ? `これ以上はきたえられない。\n（この装備は+${maxPlus(cand.id)}まで。ランクが高い装備ほど、たくさんきたえられる）` : 'これはきたえられない。' }));
+    box.append(el('div', { class: 'detail', text: UPGRADE_TYPES.includes(it.type) ? `これ以上はきたえられない。\n（この装備は+${maxPlus(cand.id)}まで。ランクが高い装備ほど、たくさんきたえられる。れん金がまで同じ装備を2つ合わせると、ふやせる）` : 'これはきたえられない。' }));
     return box;
   }
-  // きたえられる 回数（ランクで きまる）
-  box.append(el('div', { class: 'small muted forge-limit', text: `この装備は+${maxPlus(cand.id)}まできたえられる。（今は+${it.plus || 0}）` }));
+  if (cost.reborn) {
+    box.append(el('div', { class: 'detail forge-reborn', text: `${it.name}が、ふしぎな光をはなっている…。\nもう1回きたえると、何かが起こりそうだ。` }));
+    box.append(costBlock(game, cost));
+    return box;
+  }
+  // きたえられる 回数（ランクで きまる ＋ れん金で ふやした 回数）。生まれ変わる 武器は 上限を こえても きたえられる
+  box.append(el('div', { class: 'small muted forge-limit', text: cost.over
+    ? `この装備は+${maxPlus(cand.id)}まで…のはずだが、\nまだきたえられそうだ。（今は+${it.plus || 0}）`
+    : `この装備は+${maxPlus(cand.id)}まできたえられる。（今は+${it.plus || 0}）` }));
   const before = statLines(cand.id);
   const after = statLines(cost.to);
   const tbl = el('div', { class: 'forge-stats' });
@@ -215,6 +236,35 @@ function upgradeBox(game, cand) {
   return box;
 }
 
+// ───────────── 生まれ変わり（かくし要素）─────────────
+const REBORN_CSS = `
+.reborn-flash { position: fixed; inset: 0; z-index: 30; pointer-events: none; background: radial-gradient(circle at 50% 45%, #fff 0%, #fff6c8 30%, rgba(255, 214, 107, 0.4) 60%, rgba(255, 214, 107, 0) 80%); animation: reborn-flash 1.6s ease-out forwards; }
+@keyframes reborn-flash { 0% { opacity: 0; } 12% { opacity: 1; } 100% { opacity: 0; } }
+.ct-item.reborn { border: 2px solid #ffd66b; border-radius: 8px; padding: 0.4em; box-shadow: 0 0 14px rgba(255, 214, 107, 0.55); animation: reborn-glow 1.8s ease-in-out infinite alternate; }
+.ct-item.reborn .rb-hd { color: #ffd66b; font-size: 1.1em; text-align: center; margin-bottom: 0.2em; }
+@keyframes reborn-glow { from { box-shadow: 0 0 6px rgba(255, 214, 107, 0.35); } to { box-shadow: 0 0 18px rgba(255, 214, 107, 0.85); } }
+`;
+let rebornCss = false;
+async function rebornScene(game, ct, res) {
+  if (!rebornCss) {
+    rebornCss = true;
+    document.head.append(el('style', { text: REBORN_CSS }));
+  }
+  const flash = el('div', { class: 'reborn-flash' });
+  document.getElementById('ui').append(flash);
+  setTimeout(() => flash.remove(), 1700);
+  game.audio.sfx('hirameki');
+  setTimeout(() => game.audio.sfx('sparkle'), 900);
+  const box = itemInfo(game, res.upgraded);
+  if (box) {
+    box.classList.add('reborn');
+    box.prepend(el('div', { class: 'rb-hd', text: '✦ 生まれ変わった！ ✦' }));
+  }
+  ct.info(box);
+  await ct.say(res.text, { narr: true });
+  await ct.tap(4200);
+}
+
 async function upgradeLoop(game, ct) {
   let line = 'どれをきたえる？';
   let idx = 0;
@@ -236,7 +286,7 @@ async function upgradeLoop(game, ct) {
         value: i,
         label: ITEMS[c.id].name,
         html: `${c.who ? '<span class="tag e">E</span>' : ''}${esc(ITEMS[c.id].name)}${c.who ? `<span class="cnt">${esc(c.whoName)}</span>` : c.n > 1 ? `<span class="cnt">×${c.n}</span>` : ''}`,
-        right: cost ? `+${cost.n}へ` : '最大',
+        right: cost ? (cost.reborn ? '？？？' : `+${cost.n}へ${cost.over ? '？' : ''}`) : '最大',
         rightCls: !cost ? 'muted' : lack.ok ? 'gold' : 'dis',
         disabled: !canUpgrade(c.id),
       };
@@ -250,12 +300,14 @@ async function upgradeLoop(game, ct) {
     if (!cost) continue;
     const lack = lackOf(game.me, cost);
     if (!lack.ok) {
-      await ct.say(`${it.name}を+${cost.n}にきたえるには、\n${matsText(cost.mats)}と${cost.gold}ゴールドがいる。\n${lack.mats.length ? '素材が足りないようだな。' : 'ゴールドが足りないようだな。'}`);
+      await ct.say(`${it.name}を${cost.reborn ? 'もう1回' : `+${cost.n}に`}きたえるには、\n${matsText(cost.mats)}と${cost.gold}ゴールドがいる。\n${lack.mats.length ? '素材が足りないようだな。' : 'ゴールドが足りないようだな。'}`);
       await ct.tap(2600);
       line = AGAIN;
       continue;
     }
-    const yes = await ct.ask(`${it.name}を+${cost.n}にきたえるには、\n${matsText(cost.mats)}と${cost.gold}ゴールドがいる。\nきたえるか？`);
+    const yes = await ct.ask(cost.reborn
+      ? `${it.name}をもう1回きたえるには、\n${matsText(cost.mats)}と${cost.gold}ゴールドがいる。\n…何かが起こりそうだ。きたえるか？`
+      : `${it.name}を+${cost.n}にきたえるには、\n${matsText(cost.mats)}と${cost.gold}ゴールドがいる。\nきたえるか？`);
     if (ct.closed) return;
     if (yes !== 0) {
       line = AGAIN;
@@ -268,6 +320,12 @@ async function upgradeLoop(game, ct) {
       await ct.say(res.text || 'おや？何かおかしいようだな。');
       await ct.tap(2000);
       line = AGAIN;
+      continue;
+    }
+    // 生まれ変わり（かくし要素）の 場面
+    if (res.reborn) {
+      await rebornScene(game, ct, res);
+      line = `なんと…！こんなことがあるなんて！\n${AGAIN}`;
       continue;
     }
     setTimeout(() => game.audio.sfx('sparkle'), 800);

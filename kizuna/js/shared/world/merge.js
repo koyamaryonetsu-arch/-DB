@@ -11,16 +11,17 @@
 // ・仲間 … 両方の 仲間を のこす（べつべつに 仲間に なった まものは 両方とも。家族の パーティーで 酒場に 来た まものも おなじ）
 // ・預かり所 … お金も 品物も、両方で 預けた・引き出した ぶんを たす
 // ・いる場所・HP・作戦 など … 両方で かわって いたら、あとで 遊んだ ほう
-import { expForLevel, MAX_LEVEL, computeStats } from '../stats.js?v=5ec13f79e88c';
-import { JOBS, JOB_MAX_LEVEL, jobBattlesForLevel } from '../data/jobs.js?v=5ec13f79e88c';
-import { ITEMS, SLOTS } from '../data/items.js?v=5ec13f79e88c';
-import { STORY_STEPS } from '../data/story.js?v=5ec13f79e88c';
-import { COMPANION_SLOTS } from '../data/companions.js?v=5ec13f79e88c';
-import { WAGON_SLOTS } from '../data/wagon.js?v=5ec13f79e88c';
-import { repairChar } from './save.js?v=5ec13f79e88c';
-import { mergeTreasureMaps } from '../data/treasure.js?v=5ec13f79e88c';
-import { mergeSecret } from '../data/secret.js?v=5ec13f79e88c';
-import { COIN_MAX } from '../data/casino.js?v=5ec13f79e88c';
+import { expForLevel, MAX_LEVEL, computeStats } from '../stats.js?v=20d81aa120cb';
+import { JOBS, JOB_MAX_LEVEL, jobBattlesForLevel } from '../data/jobs.js?v=20d81aa120cb';
+import { ITEMS, SLOTS } from '../data/items.js?v=20d81aa120cb';
+import { STORY_STEPS } from '../data/story.js?v=20d81aa120cb';
+import { COMPANION_SLOTS } from '../data/companions.js?v=20d81aa120cb';
+import { WAGON_SLOTS } from '../data/wagon.js?v=20d81aa120cb';
+import { repairChar } from './save.js?v=20d81aa120cb';
+import { mergeTreasureMaps } from '../data/treasure.js?v=20d81aa120cb';
+import { mergeSecret } from '../data/secret.js?v=20d81aa120cb';
+import { mergeAlchemy } from './alchemy.js?v=20d81aa120cb';
+import { COIN_MAX } from '../data/casino.js?v=20d81aa120cb';
 
 const GOLD_MAX = 9999999;
 const clone = (x) => (x === undefined ? undefined : JSON.parse(JSON.stringify(x)));
@@ -159,6 +160,8 @@ function mergeBody(b, a, t, tLater) {
       case 'treasureMaps': out.treasureMaps = mergeTreasureMaps(vb, va, vt); break;
       // ひみつのダンジョンの 記録（深い ほう。もらった ごほうびは 両方）
       case 'sd': out.sd = mergeSecret(vb, va, vt); break;
+      // れん金がま（レシピは 両方・回数は 多い ほう。world/alchemy.js）
+      case 'alchemy': out.alchemy = mergeAlchemy(vb, va, vt, tLater); break;
       case 'supportLog': {
         const seen = new Set((vb || []).map(canon));
         out.supportLog = [...clone(va || []), ...clone((vt || []).filter((e) => !seen.has(canon(e))))].slice(-10);

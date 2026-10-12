@@ -1,15 +1,15 @@
 // マップの タイル（16×16 ドット）を プログラムで かく
-import { T, TILE_INFO } from '../../shared/tiles.js?v=5ec13f79e88c';
-import { hash2 } from '../../shared/rng.js?v=5ec13f79e88c';
-import { Painter, shade, prand } from './pixel.js?v=5ec13f79e88c';
-import { themedCanvas, partOfTile } from './themes.js?v=5ec13f79e88c';
-import { CH3_PAINTERS, CH3_FRAMES, CH3_SPEED, RAIL_TILES, CH3_WALLS } from './tiles-ch3.js?v=5ec13f79e88c';
-import { CH4_PAINTERS, CH4_FRAMES, CH4_SPEED, CH4_WALLS, ch4Mask, desertBase } from './tiles-ch4.js?v=5ec13f79e88c';
-import { CANAL_CTX, CANAL_CTX_PAINTERS, canalVariant, canalBaseBits, canalWallBits } from './tiles-canal.js?v=5ec13f79e88c';
-import { PYRAMID_PAINTERS, PYRAMID_FRAMES, PYRAMID_SPEED, PYRAMID_WALLS, paintTablet, paintPyrBrazier, paintPyrLever } from './tiles-pyramid.js?v=5ec13f79e88c';
-import { whirlVariant } from './tiles-duna.js?v=5ec13f79e88c';
-import { templeVariant } from './tiles-temple.js?v=5ec13f79e88c';
-import { TOWER_PAINTERS, TOWER_FRAMES, TOWER_SPEED, TOWER_WALLS, towerMask, towerVariant } from './tiles-tower.js?v=5ec13f79e88c';
+import { T, TILE_INFO } from '../../shared/tiles.js?v=20d81aa120cb';
+import { hash2 } from '../../shared/rng.js?v=20d81aa120cb';
+import { Painter, shade, prand } from './pixel.js?v=20d81aa120cb';
+import { themedCanvas, partOfTile } from './themes.js?v=20d81aa120cb';
+import { CH3_PAINTERS, CH3_FRAMES, CH3_SPEED, RAIL_TILES, CH3_WALLS } from './tiles-ch3.js?v=20d81aa120cb';
+import { CH4_PAINTERS, CH4_FRAMES, CH4_SPEED, CH4_WALLS, ch4Mask, desertBase } from './tiles-ch4.js?v=20d81aa120cb';
+import { CANAL_CTX, CANAL_CTX_PAINTERS, canalVariant, canalBaseBits, canalWallBits } from './tiles-canal.js?v=20d81aa120cb';
+import { PYRAMID_PAINTERS, PYRAMID_FRAMES, PYRAMID_SPEED, PYRAMID_WALLS, paintTablet, paintPyrBrazier, paintPyrLever } from './tiles-pyramid.js?v=20d81aa120cb';
+import { whirlVariant } from './tiles-duna.js?v=20d81aa120cb';
+import { templeVariant } from './tiles-temple.js?v=20d81aa120cb';
+import { TOWER_PAINTERS, TOWER_FRAMES, TOWER_SPEED, TOWER_WALLS, towerMask, towerVariant } from './tiles-tower.js?v=20d81aa120cb';
 
 export const TS = 16;
 

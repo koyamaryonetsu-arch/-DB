@@ -13,18 +13,18 @@
 //   ・種は その魔物に 合った もの（かたい→守り、はやい→素早さ、呪文→かしこさ、大きい→命、力じまん→力）
 //   ・素材（ふしぎなかじ で 使う）は MAT_DROPS に 書く。レアも よく落とす 物も 出なかった ときに 出る
 //   ・図鑑に 落とす 物が のる（手に入れるまでは ？？？）
-//   ・第31回: ボスは ちなんだ レア装備も ときどき（kind 'brare'。BOSS_RARE_N 回に 1回）。ふつうの 魔物は その地方の レア装備を まれに
+//   ・第31回: ボスは ちなんだ レア装備も（kind 'brare'。第32回から かならず: BOSS_RARE_N = 1）。ふつうの 魔物は その地方の レア装備を まれに
 //     （REGION_RARE_N 体に 1体。図鑑には のらない）。ひみつのダンジョンの 中では、ここだけの ★4〜★5（data/rare-loot.js）
-import { ITEMS } from './items.js?v=5ec13f79e88c';
-import { MONSTERS } from './monsters.js?v=5ec13f79e88c';
-import { RARE_MAT_DROPS } from './monsters-rare.js?v=5ec13f79e88c';
-import { CH3_MAT_DROPS } from './monsters-ch3.js?v=5ec13f79e88c';
-import { CH4_MAT_DROPS } from './monsters-ch4.js?v=5ec13f79e88c';
-import { R23_MAT_DROPS } from './monsters-r23.js?v=5ec13f79e88c';
-import { TEMPLE_MAT_DROPS } from './monsters-temple.js?v=5ec13f79e88c';
-import { CH5_MAT_DROPS } from './monsters-ch5.js?v=5ec13f79e88c';
-import { bossRareOf, BOSS_RARE_N, regionRareList, REGION_RARE_N, pickSdGear, SD_DROP_N, SD_GUARD_DROP_N } from './rare-loot.js?v=5ec13f79e88c';
-import { sdFloorOf } from './secret.js?v=5ec13f79e88c';
+import { ITEMS } from './items.js?v=20d81aa120cb';
+import { MONSTERS } from './monsters.js?v=20d81aa120cb';
+import { RARE_MAT_DROPS } from './monsters-rare.js?v=20d81aa120cb';
+import { CH3_MAT_DROPS } from './monsters-ch3.js?v=20d81aa120cb';
+import { CH4_MAT_DROPS } from './monsters-ch4.js?v=20d81aa120cb';
+import { R23_MAT_DROPS } from './monsters-r23.js?v=20d81aa120cb';
+import { TEMPLE_MAT_DROPS } from './monsters-temple.js?v=20d81aa120cb';
+import { CH5_MAT_DROPS } from './monsters-ch5.js?v=20d81aa120cb';
+import { bossRareOf, BOSS_RARE_N, regionRareList, REGION_RARE_N, pickSdGear, SD_DROP_N, SD_GUARD_DROP_N } from './rare-loot.js?v=20d81aa120cb';
+import { sdFloorOf } from './secret.js?v=20d81aa120cb';
 
 export const DROP_N = { common: 8, rare: 64, mat: 8 };
 
@@ -87,7 +87,7 @@ export function monsterDrops(species) {
   for (const id of Array.isArray(d.boss) ? d.boss : d.boss ? [d.boss] : []) {
     if (ITEMS[id]) out.push({ item: id, kind: 'boss', n: 1, rate: 1 });
   }
-  // ボスに ちなんだ レア装備（ときどき）
+  // ボスに ちなんだ レア装備（第32回から かならず）
   const br = bossRareOf(species);
   if (br) out.push({ item: br, kind: 'brare', n: BOSS_RARE_N, rate: 1 / BOSS_RARE_N });
   if (d.rare) out.push(entry('rare', d.rare));

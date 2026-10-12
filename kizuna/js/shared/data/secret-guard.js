@@ -8,7 +8,7 @@
 //     レア装備（〜59階は 第5章の ★、60階からは ★5）で レベル＋4 なら 8〜9割
 //   ・番人ごとに 強さが ちがう（物語の ボスは もとが 強いので ひかえめ・宝の洞窟の 主は 軽いので 多め・砂クジラは しかけが きついので 1倍の まま）
 //     表に ない 番人は SD_GUARD_POW_DEFAULT
-import { MONSTERS } from './monsters.js?v=5ec13f79e88c';
+import { MONSTERS } from './monsters.js?v=20d81aa120cb';
 
 export const SD_GUARD_FROM = 40; // ここから 強く する 階
 export const SD_GUARD_POW_DEFAULT = 1.3;
