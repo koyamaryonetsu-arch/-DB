@@ -22,13 +22,14 @@
 //     got  … 大きな ごほうびを もらった 休み所の 階 [5, 10, …] / tries … ちょうせんした 回数
 //     run  … 今の ちょうせん { f: 今の 階, mid: とちゅうから 来た（さそわれて 来た など。記録に ならない）, took: ごほうびを 開けた 階,
 //              seed: この ちょうせんの 階の 形の もと（入口から 入る たびに 新しく。いっしょに 入った 家族は おなじ）}
-import { MONSTERS } from './monsters.js?v=4238619cbf10';
-import { registerVariant, variantFits, variantId } from './variants.js?v=4238619cbf10';
-import { ITEMS, SLOTS } from './items.js?v=4238619cbf10';
-import { ENCOUNTER_TABLES, ZONE_BG, FIXED_ENCOUNTERS } from './encounters.js?v=4238619cbf10';
-import { makeRng } from '../rng.js?v=4238619cbf10';
-import { rewardGold } from './difficulty.js?v=4238619cbf10';
-import { pickSdGear, SD_GEAR_FROM } from './rare-loot.js?v=4238619cbf10';
+import { MONSTERS } from './monsters.js?v=5ec13f79e88c';
+import { registerVariant, variantFits, variantId } from './variants.js?v=5ec13f79e88c';
+import { ITEMS, SLOTS } from './items.js?v=5ec13f79e88c';
+import { ENCOUNTER_TABLES, ZONE_BG, FIXED_ENCOUNTERS } from './encounters.js?v=5ec13f79e88c';
+import { makeRng } from '../rng.js?v=5ec13f79e88c';
+import { rewardGold } from './difficulty.js?v=5ec13f79e88c';
+import { pickSdGear, SD_GEAR_FROM } from './rare-loot.js?v=5ec13f79e88c';
+import { sdGuardStrength } from './secret-guard.js?v=5ec13f79e88c';
 
 export const SD_GATE = 'sd_gate';
 export const SD_NAME = 'ひみつのダンジョン';
@@ -237,13 +238,14 @@ export function sdGuardian(f) {
   const i = Math.max(0, Math.floor(f / SD_GUARD_EVERY) - 1);
   return SD_GUARDS[i % SD_GUARDS.length];
 }
-export const sdGuardLv = (f) => sdEnemyLv(f) + 2;
+export const sdGuardLv = (f) => sdGuardStrength(f).lv; // 強さの 数式は data/secret-guard.js（第32回 A）
 // 番人との 戦い（FIXED_ENCOUNTERS に 入れる）
 export function sdGuardEncounter(f) {
   const id = `sdguard_${f}`;
+  const g = sdGuardStrength(f, sdGuardian(f));
   FIXED_ENCOUNTERS[id] = {
     group: [[sdGuardian(f), 1, 1]], bg: 'sd_guard', bgm: 'boss', canFlee: false, boss: true,
-    enemyLv: sdGuardLv(f), enemyPow: sdPower(f),
+    enemyLv: g.lv, enemyPow: g.pow,
   };
   return id;
 }

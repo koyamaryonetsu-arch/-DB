@@ -1,18 +1,18 @@
 // マップの ぜんたい（フィールド・どうくつ）と、そこに いる 人や たからばこ
-import { T, parseRows, TILE_INFO } from '../tiles.js?v=4238619cbf10';
-import { makeRng, hash2 } from '../rng.js?v=4238619cbf10';
-import { buildOverworld, PLACES, zoneAt, areaName, OW_W, OW_H, CAVE_ENTRANCE, FOREST_CLEARING, LAKE, SWAMP } from './overworld.js?v=4238619cbf10';
-import { CAVE_B1_ROWS, CAVE_B2_ROWS } from './cave-rows.js?v=4238619cbf10';
-import { npc } from './npc.js?v=4238619cbf10';
-import { buildCh2Maps, SEA_PLACES } from './ch2.js?v=4238619cbf10';
-import { buildTreasureFloor } from './treasure-cave.js?v=4238619cbf10';
-import { buildSecretFloor, buildSecretMaps, SD_DOOR_NPCS, SD_DOOR_TRIGGERS, SD_DOOR_SIGNS } from './secret-dungeon.js?v=4238619cbf10';
-import { addNightNpcs } from './night-npcs.js?v=4238619cbf10';
-import { attachCasino } from './casino.js?v=4238619cbf10';
-import { buildCh3Maps, ch3SearchMats, NORTH_SPARKLE_LOOT } from './ch3.js?v=4238619cbf10';
-import { buildCh4Maps, ch4SearchMats, SOUTH_SPARKLE_LOOT } from './ch4.js?v=4238619cbf10';
-import { attachLab } from './labyrinth.js?v=4238619cbf10';
-import { attachTower } from './tower.js?v=4238619cbf10';
+import { T, parseRows, TILE_INFO } from '../tiles.js?v=5ec13f79e88c';
+import { makeRng, hash2 } from '../rng.js?v=5ec13f79e88c';
+import { buildOverworld, PLACES, zoneAt, areaName, OW_W, OW_H, CAVE_ENTRANCE, FOREST_CLEARING, LAKE, SWAMP } from './overworld.js?v=5ec13f79e88c';
+import { CAVE_B1_ROWS, CAVE_B2_ROWS } from './cave-rows.js?v=5ec13f79e88c';
+import { npc } from './npc.js?v=5ec13f79e88c';
+import { buildCh2Maps, SEA_PLACES } from './ch2.js?v=5ec13f79e88c';
+import { buildTreasureFloor } from './treasure-cave.js?v=5ec13f79e88c';
+import { buildSecretFloor, buildSecretMaps, SD_DOOR_NPCS, SD_DOOR_TRIGGERS, SD_DOOR_SIGNS } from './secret-dungeon.js?v=5ec13f79e88c';
+import { addNightNpcs } from './night-npcs.js?v=5ec13f79e88c';
+import { attachCasino } from './casino.js?v=5ec13f79e88c';
+import { buildCh3Maps, ch3SearchMats, NORTH_SPARKLE_LOOT } from './ch3.js?v=5ec13f79e88c';
+import { buildCh4Maps, ch4SearchMats, SOUTH_SPARKLE_LOOT } from './ch4.js?v=5ec13f79e88c';
+import { attachLab } from './labyrinth.js?v=5ec13f79e88c';
+import { attachTower } from './tower.js?v=5ec13f79e88c';
 
 const V = (x, y) => [PLACES.village.x + x, PLACES.village.y + y];
 const TW = (x, y) => [PLACES.town.x + x, PLACES.town.y + y];

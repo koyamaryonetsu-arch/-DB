@@ -2,23 +2,23 @@
 //  ・コマンドの「合体技」の 一覧（第31回: 行は 技の 名前だけ 大きく。だれと・何人で・よやくか・必要な 職業は 説明の まどに）
 //  ・家族から さそわれた ときの「参加する！／ことわる」
 //  ・出す ときの カットインと とどめの えんしゅつ（render/dualfx.js）
-import { el, esc, ListMenu, toast } from './ui/dom.js?v=4238619cbf10';
-import { ABILITIES, ELEMENT_NAMES } from '../shared/data/abilities.js?v=4238619cbf10';
-import { comboAllowed, weaponOk } from '../shared/stats.js?v=4238619cbf10';
-import { DUAL_TECHS, dualOptions, dualKnown, dualNeedText } from '../shared/data/dual.js?v=4238619cbf10';
-import { faceURL } from './field.js?v=4238619cbf10';
-import { targetText } from './ui/info.js?v=4238619cbf10';
-import { playDualCutin, playDualFinale, cutMs, dualFxOf, addDualCss } from './render/dualfx.js?v=4238619cbf10';
-import { BW, BH } from './render/battlefx.js?v=4238619cbf10';
+import { el, esc, ListMenu, toast } from './ui/dom.js?v=5ec13f79e88c';
+import { ABILITIES, ELEMENT_NAMES } from '../shared/data/abilities.js?v=5ec13f79e88c';
+import { comboAllowed, weaponOk } from '../shared/stats.js?v=5ec13f79e88c';
+import { DUAL_TECHS, dualOptions, dualKnown, dualNeedText } from '../shared/data/dual.js?v=5ec13f79e88c';
+import { faceURL } from './field.js?v=5ec13f79e88c';
+import { targetText } from './ui/info.js?v=5ec13f79e88c';
+import { playDualCutin, playDualFinale, cutMs, dualFxOf, addDualCss } from './render/dualfx.js?v=5ec13f79e88c';
+import { BW, BH } from './render/battlefx.js?v=5ec13f79e88c';
 
 const SECRET = '効果は？？？（一度使うとわかる）';
 const sizeLabel = (n) => `${n}人技`;
 
 // 自分の キャラが 今 出せる 合体技（サーバーでも たしかめる）
 export function myDualOptions(v, a) {
-  if (!a || a.mon) return [];
+  if (!a) return [];
   const info = (x) => ({
-    id: x.id, name: x.name, job: x.job, alive: x.alive, abilities: x.abilities || [], mp: x.mp, atb: x.atb, ready: x.ready, queued: !!x.queued, hold: !!x.dualHold,
+    id: x.id, name: x.name, job: x.job, mon: x.mon, alive: x.alive, abilities: x.abilities || [], mp: x.mp, atb: x.atb, ready: x.ready, queued: !!x.queued, hold: !!x.dualHold,
     inviting: false, statuses: x.status || [], weaponCat: x.weaponCat,
     waiting: x.id !== a.id && (!!x.waitDual || (!!x.dualTarget && x.dualTarget !== a.id)),
     usable: (id) => {
@@ -26,7 +26,8 @@ export function myDualOptions(v, a) {
       return !!ab && (ab.kind !== 'combo' || comboAllowed(x.pc || { job: x.job, jobs: {} }, id)) && weaponOk(ab, x.weaponCat);
     },
   });
-  const others = v.allies().filter((x) => x.id !== a.id && !x.mon);
+  // 第32回: モンスターの 仲間も（モンスターの 仲間の 組が ある 技だけ）
+  const others = v.allies().filter((x) => x.id !== a.id);
   // 人数の 多い 技を 上に
   return dualOptions(info(a), others.map(info), weaponOk, { anyGauge: true }).sort((x, y) => y.size - x.size);
 }

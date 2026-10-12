@@ -9,12 +9,12 @@
 //   その 人の ゲージは 半分から やり直し（よやくは つづく。ゲージが まだ たまって いない 人は かわらない。dualHurt）
 // ・強さ: 出す 人が それぞれ、その 組の 技（か ふつうの 攻撃）を 出した ときの ダメージの 合計 × DUAL_POWER[人数] × k
 //   （この 敵に 当てた ときの 見つもり。守り・弱点・バフも 入る。属性は 合体技の 属性で かかる）
-import { ABILITIES, ELEMENT_NAMES } from './data/abilities.js?v=4238619cbf10';
-import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js?v=4238619cbf10';
-import { weaponOk, comboAllowed, penaltyFor } from './stats.js?v=4238619cbf10';
+import { ABILITIES, ELEMENT_NAMES } from './data/abilities.js?v=5ec13f79e88c';
+import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js?v=5ec13f79e88c';
+import { weaponOk, comboAllowed, penaltyFor } from './stats.js?v=5ec13f79e88c';
 // 第27回: 推理（敵 それぞれの いちばんの 弱点の 属性で 当てる）の 合体技
-import { deduceElement } from './data/abilities-jobs6.js?v=4238619cbf10';
-import { MONSTERS } from './data/monsters.js?v=4238619cbf10';
+import { deduceElement } from './data/abilities-jobs6.js?v=5ec13f79e88c';
+import { MONSTERS } from './data/monsters.js?v=5ec13f79e88c';
 
 // 人数ごとの 強さ（別々に 1回ずつ 動いた ときの 合計の 何倍か。全体技は parts の k で 下げる）
 export const DUAL_POWER = { 2: 1.8, 3: 2.2, 4: 3.0 };
@@ -36,10 +36,11 @@ const nowOf = (p) => partnerNow({ queued: p.queued, hold: p.dualHold, ready: p.r
 // c が 今 出せる 合体技（exec: 出す しゅんかんの たしかめ。よやくした 相手も かぞえる）
 // anyGauge: 仲間の ゲージが まだでも よやく できる ものも かぞえる
 export function optionsFor(b, c, others = null, exec = false, anyGauge = false) {
-  if (!c || c.side !== 'ally' || c.mon) return [];
-  const list = (others || b.allies.filter((x) => x !== c)).filter((x) => x && x.side === 'ally' && !x.mon);
+  // 第32回: モンスターの 仲間も 入れる（モンスターの 仲間の 組が ある 技だけ。data/dual.js の fitsGroup）
+  if (!c || c.side !== 'ally') return [];
+  const list = (others || b.allies.filter((x) => x !== c)).filter((x) => x && x.side === 'ally');
   const info = (x) => ({
-    id: x.id, name: x.name, job: x.job, alive: x.alive, abilities: x.abilities || [], mp: x.mp, atb: x.atb, ready: x.ready, hold: !!x.dualHold,
+    id: x.id, name: x.name, job: x.job, mon: x.mon, alive: x.alive, abilities: x.abilities || [], mp: x.mp, atb: x.atb, ready: x.ready, hold: !!x.dualHold,
     queued: exec && x.dualWith === c.id ? false : !!x.queued,
     // ほかの 人の 合体技に 入る ことに なっている
     busy: !!x.dualWith && x.dualWith !== c.id,

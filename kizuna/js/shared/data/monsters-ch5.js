@@ -10,6 +10,7 @@
 //   読まれた 種類の 行動を そのまま 使うと、攻撃は かわして 反撃・呪文は はね返す・回復は かき消す・防御は 見ぬいて くずす。
 //   ちがう 種類の 行動を すれば 外れて、アルゴスの 目が くらむ（つぎの 番が おそく なる）。HPが へると 2人を 同時に 読む（foresee.two）
 //   星の光（みんな）・重力（1人の 素早さを 下げる）・三つ目の光線・前ぶれの ある 星のさばき（身を 守ると 半分）
+//   第32回: HP・攻撃力を 上げ、HP25%から 流星群（みんな。tools/sim-boss.mjs で 店の 装備 3〜5割・レア装備＋レベル4 で 8〜9割）
 
 // ボスの じょうたい いじょうの 効きにくさ（第3章・第4章の ボスと おなじ）
 const BOSS_STATUS = { sleep: 0.1, poison: 0.3, confuse: 0.1, blind: 0.3, silence: 0.2, paralyze: 0.1 };
@@ -74,7 +75,7 @@ export const MONSTERS_CH5 = {
 
   // ── ボス（8階・塔の てっぺん）──
   argos: {
-    name: '星の番人アルゴス', lv: 44, hp: 9200, mp: 400, str: 174, def: 104, agi: 58, mag: 140, exp: 16000, gold: 6500,
+    name: '星の番人アルゴス', lv: 44, hp: 11300, mp: 400, str: 200, def: 104, agi: 58, mag: 140, exp: 16000, gold: 6500,
     race: 'material', size: 'xl', boss: true, turns: 2, speed: 0.68, hit: 'slash', drops: { boss: ['argos_pendant'] },
     resist: { ...BOSS_STATUS, sleep: 0, confuse: 0, bolt: 1.3, dark: 1.15, light: 0.4, fire: 0.85 },
     // 見通しの目（battle-ch5.js）: two … HPが この わりあいより へると 2人を 同時に 読む。
@@ -88,7 +89,7 @@ export const MONSTERS_CH5 = {
     ],
     phases: [
       { hpBelow: 0.45, msg: ['アルゴスの3つの目が、すべて大きく開いた！', '（これからは、2人の行動を同時に読んでくる…！）'] },
-      { hpBelow: 0.25, msg: ['アルゴスの体の星もようが、赤くかがやいた！', 'アルゴスの攻撃力が上がった！'], buff: { atk: 1.2 } },
+      { hpBelow: 0.25, msg: ['アルゴスの体の星もようが、赤くかがやいた！', 'アルゴスの攻撃力が上がった！'], buff: { atk: 1.2 }, addActions: [{ w: 2, id: 'm_argos_meteor', cond: 'notRecent:m_argos_meteor' }] },
     ],
     desc: '星の塔のてっぺんで「天のとばり」を守る、星の番人。3つの目で、次にだれが何をするかを見通す。目にじっと見られたら、読まれた種類（攻撃・呪文・回復・防御）とはちがう行動をしよう。目に星の光が集まったら「星のさばき」の前ぶれ。身を守ろう。雷がよく効き、光はほとんど効かない。',
   },

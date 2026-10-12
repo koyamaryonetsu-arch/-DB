@@ -1,18 +1,18 @@
 // 宝の地図（せかいの しくみ）: 手に入れる・ほる・洞窟に 入る／出る・洞窟の 主・ごほうび
 // データと 洞窟の 形は data/treasure.js と maps/treasure-cave.js
-import { MAPS, isBlocked, tileAt, POS, PLACES } from '../maps/index.js?v=4238619cbf10';
-import { SEA_POS } from '../maps/sea.js?v=4238619cbf10';
-import { T, TILE_INFO } from '../tiles.js?v=4238619cbf10';
-import { makeRng } from '../rng.js?v=4238619cbf10';
-import { MONSTERS } from '../data/monsters.js?v=4238619cbf10';
-import { TM_HOOKS } from '../data/story-tm.js?v=4238619cbf10';
-import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=4238619cbf10';
-import { ScriptRun } from './scripts.js?v=4238619cbf10';
-import { partyOf } from './party.js?v=4238619cbf10';
+import { MAPS, isBlocked, tileAt, POS, PLACES } from '../maps/index.js?v=5ec13f79e88c';
+import { SEA_POS } from '../maps/sea.js?v=5ec13f79e88c';
+import { T, TILE_INFO } from '../tiles.js?v=5ec13f79e88c';
+import { makeRng } from '../rng.js?v=5ec13f79e88c';
+import { MONSTERS } from '../data/monsters.js?v=5ec13f79e88c';
+import { TM_HOOKS } from '../data/story-tm.js?v=5ec13f79e88c';
+import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=5ec13f79e88c';
+import { ScriptRun } from './scripts.js?v=5ec13f79e88c';
+import { partyOf } from './party.js?v=5ec13f79e88c';
 import {
-  TM_MAX, TM_THEMES, caveInfo, tmTitle, floorMapId, parseFloorId, isTreasureMapId, clearedFlag, foundFlag, seed36, bossLvOf,
+  TM_MAX, TM_THEMES, caveInfo, tmTitle, floorMapId, parseFloorId, isTreasureMapId, clearedFlag, foundFlag, seed36, bossLvOf, tmBossPow,
   mapDropRate, dropMapLevel, nextMapLevel, repairTreasureMaps,
-} from '../data/treasure.js?v=4238619cbf10';
+} from '../data/treasure.js?v=5ec13f79e88c';
 
 const HUNTER = '宝探しのダイゴ';
 
@@ -256,7 +256,7 @@ function bossEncounter(p) {
   const id = `tmboss_${seed36(p.seed)}_${p.lv}`;
   FIXED_ENCOUNTERS[id] = {
     group: [[cave.boss, 1, 1]], bg: TM_THEMES[cave.theme].bossBg, bgm: 'boss', canFlee: false, boss: true,
-    enemyLv: bossLvOf(p.seed, p.lv),
+    enemyLv: bossLvOf(p.seed, p.lv), enemyPow: tmBossPow(p.lv, cave.boss),
   };
   return id;
 }

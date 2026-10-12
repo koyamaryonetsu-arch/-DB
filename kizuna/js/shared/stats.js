@@ -1,12 +1,12 @@
 // キャラクターの つよさ計算・レベルアップ・転職ペナルティ
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_EASY_RATE, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets, jobBodyOk, superMasteredCount } from './data/jobs.js?v=4238619cbf10';
-import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=4238619cbf10';
-import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=4238619cbf10';
-import { MONSTERS } from './data/monsters.js?v=4238619cbf10';
-import { MONSTER_FRIENDS, monsterNatural, gearOf } from './data/companions.js?v=4238619cbf10';
-import { HIRAMEKI, hiraRatio } from './data/hirameki.js?v=4238619cbf10';
-import { cleanLook } from './data/looks.js?v=4238619cbf10';
-import { SKILL_UPS } from './data/skill-ups.js?v=4238619cbf10';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_EASY_RATE, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets, jobBodyOk, superMasteredCount } from './data/jobs.js?v=5ec13f79e88c';
+import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=5ec13f79e88c';
+import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=5ec13f79e88c';
+import { MONSTERS } from './data/monsters.js?v=5ec13f79e88c';
+import { MONSTER_FRIENDS, monsterNatural, gearOf } from './data/companions.js?v=5ec13f79e88c';
+import { HIRAMEKI, hiraRatio } from './data/hirameki.js?v=5ec13f79e88c';
+import { cleanLook } from './data/looks.js?v=5ec13f79e88c';
+import { SKILL_UPS } from './data/skill-ups.js?v=5ec13f79e88c';
 
 // 長い 物語に なるので レベルは 99まで（レベルで ふえる つよさは ひかえめ）
 export const MAX_LEVEL = 99;
@@ -266,6 +266,18 @@ export function hiraRelated(id, jobSet) {
 export function hiraVisible(char, jobSet) {
   const known = new Set(learnedAbilities(char));
   return Object.keys(HIRAMEKI).filter((id) => ABILITIES[id] && (known.has(id) || hiraRelated(id, jobSet)));
+}
+
+// 第32回: メニューの「ひらめき」の 一覧は、その 人が 今 ついている 職業の ひらめき技だけ（ひらめいた 技も、ほかの 職業の ものは 出さない）
+//   職業の ひらめき技 … 技の 職業（a.job）が 今の 職業 / 掛け合わせ技 … 今の 職業で ひらめける もの（comboAllowed）
+//   魔物の 仲間・職業の ない 人は なし。ならびは HIRAMEKI の じゅん
+export function hiraOfJob(char) {
+  if (!char || char.species || !JOBS[char.job]) return [];
+  return Object.keys(HIRAMEKI).filter((id) => {
+    const a = ABILITIES[id];
+    if (!a) return false;
+    return a.kind === 'combo' ? comboAllowed(char, id) : a.job === char.job;
+  });
 }
 
 // ひらめきの すすみぐあい（0〜1。1 で ひらめける）

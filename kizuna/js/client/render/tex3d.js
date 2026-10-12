@@ -2,19 +2,19 @@
 // ・タイルの え を 1まいに ならべた「アトラス」
 // ・かべの よこ・うえ、やま、はし など 3D だけで つかう え
 // ・つぼ・さく・かんばん など たてて みせる「もの」の え（せなかは とうめい）
-import { T } from '../../shared/tiles.js?v=4238619cbf10';
-import { tileCanvas } from './tiles.js?v=4238619cbf10';
-import { Painter, prand, makeCanvas, ctxOf, shade } from './pixel.js?v=4238619cbf10';
-import { paintStorm } from './tiles-ch4.js?v=4238619cbf10';
-import { PYRAMID_EXTRAS } from './tiles-pyramid.js?v=4238619cbf10';
+import { T } from '../../shared/tiles.js?v=5ec13f79e88c';
+import { tileCanvas } from './tiles.js?v=5ec13f79e88c';
+import { Painter, prand, makeCanvas, ctxOf, shade } from './pixel.js?v=5ec13f79e88c';
+import { paintStorm } from './tiles-ch4.js?v=5ec13f79e88c';
+import { PYRAMID_EXTRAS } from './tiles-pyramid.js?v=5ec13f79e88c';
 // 第4章 Step 7: 砂の底の神殿の たてた もの（3色の レバー・水の 柱の ろう・砂の海賊の ほこら）
-import { TEMPLE_PROPS } from './tiles-temple.js?v=4238619cbf10';
-import { LAB_PROPS } from './tiles-lab.js?v=4238619cbf10';
-import { TOWER_PROPS } from './tiles-tower.js?v=4238619cbf10';
+import { TEMPLE_PROPS } from './tiles-temple.js?v=5ec13f79e88c';
+import { LAB_PROPS } from './tiles-lab.js?v=5ec13f79e88c';
+import { TOWER_PROPS } from './tiles-tower.js?v=5ec13f79e88c';
 import {
   canalWallFace, canalWallTop, canalSidePaint, damTopPaint, paintCanalWater, sluiceTopPaint, sluiceBoardPaint, pillarSidePaint, pillarTopPaint, rubbleAtlasPaint,
   CANAL_SUN,
-} from './tiles-canal.js?v=4238619cbf10';
+} from './tiles-canal.js?v=5ec13f79e88c';
 
 const TAU = Math.PI * 2;
 
