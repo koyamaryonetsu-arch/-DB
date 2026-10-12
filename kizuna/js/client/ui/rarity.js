@@ -2,9 +2,9 @@
 //   色は css の .rar.r1〜.r5（★1 緑・★2 青・★3 紫・★4 オレンジ・★5 金と にじ）。店の 品（★なし）は ふつうの 色
 //   rareNameHtml … メニュー・装備・店で 売る 一覧の 名前
 //   paintRare    … 会話の まど（宝箱を 開けた・ごほうび）と 戦いの けっかの 文の 中の 名前に 色と ★を つける
-import { ITEMS } from '../../shared/data/items.js?v=bbefc48d5022';
-import { rarityOf } from '../../shared/data/rare-loot.js?v=bbefc48d5022';
-import { esc } from './dom.js?v=bbefc48d5022';
+import { ITEMS } from '../../shared/data/items.js?v=f0ec3e4f094f';
+import { rarityOf } from '../../shared/data/rare-loot.js?v=f0ec3e4f094f';
+import { esc } from './dom.js?v=f0ec3e4f094f';
 
 const stars = (r) => '★'.repeat(r);
 const span = (r, nameHtml) => `<span class="rar r${r}">${nameHtml}<span class="rs">${stars(r)}</span></span>`;

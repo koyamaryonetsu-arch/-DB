@@ -1,15 +1,15 @@
 // モンスターの え（ベクターで かいて ドットえに へんかん）
 // すべて オリジナルの デザイン
 // 2ばいの こまかさで かいて ドットえに → Scale2x で 4ばい → ひかり・かげ・ふちどり（res 4）
-import { makeCanvas, ctxOf, pixelize, shade, painterFrom, scale2x, outline2, volumeShade } from './pixel.js?v=bbefc48d5022';
-import { MONSTERS } from '../../shared/data/monsters.js?v=bbefc48d5022';
-import { tintCanvas } from './themes.js?v=bbefc48d5022';
-import { addNightArt } from './night-art.js?v=bbefc48d5022';
-import { addRareArt } from './rare-art.js?v=bbefc48d5022';
-import { addCh3Art } from './ch3-art.js?v=bbefc48d5022';
-import { addCh4Art } from './ch4-art.js?v=bbefc48d5022';
-import { addR23Art } from './r23-art.js?v=bbefc48d5022';
-import { addCh5Art } from './ch5-tower-art.js?v=bbefc48d5022';
+import { makeCanvas, ctxOf, pixelize, shade, painterFrom, scale2x, outline2, volumeShade } from './pixel.js?v=f0ec3e4f094f';
+import { MONSTERS } from '../../shared/data/monsters.js?v=f0ec3e4f094f';
+import { tintCanvas } from './themes.js?v=f0ec3e4f094f';
+import { addNightArt } from './night-art.js?v=f0ec3e4f094f';
+import { addRareArt } from './rare-art.js?v=f0ec3e4f094f';
+import { addCh3Art } from './ch3-art.js?v=f0ec3e4f094f';
+import { addCh4Art } from './ch4-art.js?v=f0ec3e4f094f';
+import { addR23Art } from './r23-art.js?v=f0ec3e4f094f';
+import { addCh5Art } from './ch5-tower-art.js?v=f0ec3e4f094f';
 
 export const MRES = 4; // できあがりの こまかさ（せかいの 1ドットを 4×4 で かく）
 const OUT = '#130d24';

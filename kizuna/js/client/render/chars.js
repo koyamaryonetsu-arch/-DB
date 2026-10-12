@@ -2,16 +2,16 @@
 // みため（かみがた・いろ）と そうび（ぶき・よろい・たて・かぶと）で かわる
 // 人は 32×42 で くみたてて、2ばいの 64×84 に して こまかく かきたす（res 4: せかいでは 16×21 の 大きさに かく）
 // どうぶつ・船は 16×21 など
-import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=bbefc48d5022';
-import { ITEMS, baseItemId } from '../../shared/data/items.js?v=bbefc48d5022';
-import { STARTER_EQUIP } from '../../shared/stats.js?v=bbefc48d5022';
-import { paintMiraPrison, paintWaterStar } from './temple-chars.js?v=bbefc48d5022';
-import { LAB_NPC_LOOKS } from './lab-art.js?v=bbefc48d5022';
-import { paintCh5Special } from './ch5-art.js?v=bbefc48d5022';
-import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js?v=bbefc48d5022';
-import { R26_OLD_LOOK } from './hero-r26.js?v=bbefc48d5022';
-import { R27_OLD_LOOK } from './hero-r27.js?v=bbefc48d5022';
-import { R29_OLD_LOOK } from './hero-r29.js?v=bbefc48d5022';
+import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=f0ec3e4f094f';
+import { ITEMS, baseItemId } from '../../shared/data/items.js?v=f0ec3e4f094f';
+import { STARTER_EQUIP } from '../../shared/stats.js?v=f0ec3e4f094f';
+import { paintMiraPrison, paintWaterStar } from './temple-chars.js?v=f0ec3e4f094f';
+import { LAB_NPC_LOOKS } from './lab-art.js?v=f0ec3e4f094f';
+import { paintCh5Special } from './ch5-art.js?v=f0ec3e4f094f';
+import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js?v=f0ec3e4f094f';
+import { R26_OLD_LOOK } from './hero-r26.js?v=f0ec3e4f094f';
+import { R27_OLD_LOOK } from './hero-r27.js?v=f0ec3e4f094f';
+import { R29_OLD_LOOK } from './hero-r29.js?v=f0ec3e4f094f';
 
 export const CW = 16;
 export const CH = 21;

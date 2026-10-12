@@ -1,21 +1,21 @@
 // 第4章「砂の海にしずむ星」の マップ
 // コガネ地方（フィールド）・北の古井戸・かれた地下水路（Step 2）・王都サファラと 宮殿の地下水路（Step 3）・王家のピラミッド（Step 4）
 // 村や ダンジョンの 形は south-rows.js・pyramid-rows.js（1文字 = 1マス）
-import { T, TILE_INFO, parseRows } from '../tiles.js?v=bbefc48d5022';
-import { makeRng } from '../rng.js?v=bbefc48d5022';
-import { npc } from './npc.js?v=bbefc48d5022';
-import { SEA_PLACES } from './ch2.js?v=bbefc48d5022';
+import { T, TILE_INFO, parseRows } from '../tiles.js?v=f0ec3e4f094f';
+import { makeRng } from '../rng.js?v=f0ec3e4f094f';
+import { npc } from './npc.js?v=f0ec3e4f094f';
+import { SEA_PLACES } from './ch2.js?v=f0ec3e4f094f';
 import {
   buildSouth, southZoneAt, southAreaName, southWeatherAt, southBgmAt, SOUTH_PLACES, SOUTH_POS, SOUTH_LANDING, LANDING_BEACH, OASIS2, OASIS_CAMP,
   STORM_Y, STORM_FLAG, SAFARA_POS, PALACE_HALL, PYRAMID, PYRAMID_PLAZA, PYRAMID_POS, PYRAMID_FLAG,
   SOUTH_STORM_Y, SOUTH_STORM_FLAG, DUNA_GATE, DUNA_VALLEY,
-} from './south.js?v=bbefc48d5022';
-import { HAMIL_ROWS, WELL_ROWS, CANAL1_ROWS, CANAL2_ROWS, CANAL3_ROWS, PALACE_CANAL_ROWS } from './south-rows.js?v=bbefc48d5022';
-import { PYR1_ROWS, PYR_B1_ROWS, PYR2_ROWS, PYR3_ROWS, PYR4_ROWS } from './pyramid-rows.js?v=bbefc48d5022';
+} from './south.js?v=f0ec3e4f094f';
+import { HAMIL_ROWS, WELL_ROWS, CANAL1_ROWS, CANAL2_ROWS, CANAL3_ROWS, PALACE_CANAL_ROWS } from './south-rows.js?v=f0ec3e4f094f';
+import { PYR1_ROWS, PYR_B1_ROWS, PYR2_ROWS, PYR3_ROWS, PYR4_ROWS } from './pyramid-rows.js?v=f0ec3e4f094f';
 // Step 6: 砂の港ドゥナ・砂の古城・砂の海（maps/duna.js）
-import { buildDunaMaps, DUNA_FLAG, DUNA_POS, DUNA_TOWN, DUNA_VALLEY_EXIT } from './duna.js?v=bbefc48d5022';
+import { buildDunaMaps, DUNA_FLAG, DUNA_POS, DUNA_TOWN, DUNA_VALLEY_EXIT } from './duna.js?v=f0ec3e4f094f';
 // Step 7: 砂の底の神殿（maps/temple.js）
-import { buildTempleMaps, TEMPLE_MAPS, STAR_FLAG, CLEAR4_FLAG } from './temple.js?v=bbefc48d5022';
+import { buildTempleMaps, TEMPLE_MAPS, STAR_FLAG, CLEAR4_FLAG } from './temple.js?v=f0ec3e4f094f';
 
 const HAM = SOUTH_PLACES.hamil;
 const H = (x, y) => [HAM.x + x, HAM.y + y];

@@ -8,22 +8,22 @@
 // unique: 1人 1つの 品（ボスが 落とす 物）。データを 合わせる ときに ふえすぎない
 // rarity: レア度 0〜5（★の 数。items-rare.js の assignRarity が つける。店の 品は 0）
 
-import { ITEMS_CH2 } from './items-ch2.js?v=bbefc48d5022';
-import { ITEMS_TM } from './items-tm.js?v=bbefc48d5022';
-import { NIGHT_ITEMS, NIGHT_ITEM_KANA } from './night.js?v=bbefc48d5022';
-import { SKY_ITEMS, SKY_ITEM_KANA } from './sky.js?v=bbefc48d5022';
-import { ITEMS_FORGE, FORGE_KANA, addUpgradeItems } from './items-forge.js?v=bbefc48d5022';
-import { ITEMS_CASINO, CASINO_KANA } from './items-casino.js?v=bbefc48d5022';
-import { RARE_ITEMS, RARE_ITEM_KANA } from './monsters-rare.js?v=bbefc48d5022';
-import { ESCAPE_ITEMS, ESCAPE_KANA } from './escape.js?v=bbefc48d5022';
-import { ITEMS_CH3, CH3_ITEM_KANA } from './items-ch3.js?v=bbefc48d5022';
-import { ITEMS_CH4, CH4_ITEM_KANA } from './items-ch4.js?v=bbefc48d5022';
-import { ITEMS_TEMPLE, TEMPLE_ITEM_KANA } from './items-temple.js?v=bbefc48d5022';
-import { ITEMS_LAB, LAB_ITEM_KANA } from './items-lab.js?v=bbefc48d5022';
-import { ITEMS_TOWER, TOWER_ITEM_KANA } from './items-tower.js?v=bbefc48d5022';
-import { POWDER_ITEMS, POWDER_KANA } from './friend-powder.js?v=bbefc48d5022';
-import { FIELD27_ITEMS, FIELD27_KANA } from './abilities-field27.js?v=bbefc48d5022';
-import { RARE_GEAR, RARE_GEAR_KANA, assignRarity } from './items-rare.js?v=bbefc48d5022';
+import { ITEMS_CH2 } from './items-ch2.js?v=f0ec3e4f094f';
+import { ITEMS_TM } from './items-tm.js?v=f0ec3e4f094f';
+import { NIGHT_ITEMS, NIGHT_ITEM_KANA } from './night.js?v=f0ec3e4f094f';
+import { SKY_ITEMS, SKY_ITEM_KANA } from './sky.js?v=f0ec3e4f094f';
+import { ITEMS_FORGE, FORGE_KANA, addUpgradeItems } from './items-forge.js?v=f0ec3e4f094f';
+import { ITEMS_CASINO, CASINO_KANA } from './items-casino.js?v=f0ec3e4f094f';
+import { RARE_ITEMS, RARE_ITEM_KANA } from './monsters-rare.js?v=f0ec3e4f094f';
+import { ESCAPE_ITEMS, ESCAPE_KANA } from './escape.js?v=f0ec3e4f094f';
+import { ITEMS_CH3, CH3_ITEM_KANA } from './items-ch3.js?v=f0ec3e4f094f';
+import { ITEMS_CH4, CH4_ITEM_KANA } from './items-ch4.js?v=f0ec3e4f094f';
+import { ITEMS_TEMPLE, TEMPLE_ITEM_KANA } from './items-temple.js?v=f0ec3e4f094f';
+import { ITEMS_LAB, LAB_ITEM_KANA } from './items-lab.js?v=f0ec3e4f094f';
+import { ITEMS_TOWER, TOWER_ITEM_KANA } from './items-tower.js?v=f0ec3e4f094f';
+import { POWDER_ITEMS, POWDER_KANA } from './friend-powder.js?v=f0ec3e4f094f';
+import { FIELD27_ITEMS, FIELD27_KANA } from './abilities-field27.js?v=f0ec3e4f094f';
+import { RARE_GEAR, RARE_GEAR_KANA, assignRarity } from './items-rare.js?v=f0ec3e4f094f';
 
 export const ITEMS = {
   // ───── つかう どうぐ ─────
@@ -242,7 +242,7 @@ Object.assign(ITEMS, POWDER_ITEMS);
 // 魔物よせの笛（abilities-field27.js）
 Object.assign(ITEMS, FIELD27_ITEMS);
 // 第31回: しあわせのぼうし・こうふくのくつ（items-r31.js）
-import { ITEMS_R31, R31_ITEM_KANA } from './items-r31.js?v=bbefc48d5022'; Object.assign(ITEMS, ITEMS_R31);
+import { ITEMS_R31, R31_ITEM_KANA } from './items-r31.js?v=f0ec3e4f094f'; Object.assign(ITEMS, ITEMS_R31);
 // 第31回: レア装備（items-rare.js）と、すべての 装備の レア度（★1〜★5。店の 品は 0）
 Object.assign(ITEMS, RARE_GEAR);
 assignRarity(ITEMS);
