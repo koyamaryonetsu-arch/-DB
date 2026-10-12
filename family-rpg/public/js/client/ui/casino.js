@@ -167,7 +167,7 @@ async function coinsUI(game, data) {
 async function prizesUI(game, data) {
   const ct = new CasinoCounter(game, { title: '景品コーナー', keeper: '景品係', icon: boardIconURL('casino'), purse: 'coins' });
   const AGAIN = 'ほかにも何かこうかんしますか？';
-  let line = 'いらっしゃいませ！\nコインを、すてきな景品とこうかんいたします。';
+  let line = `いらっしゃいませ！\nコインを、すてきな景品とこうかんいたします。${data.more ? '\n（お話が進むと、景品がふえますよ）' : ''}`;
   let idx = 0;
   while (!ct.closed) {
     await ct.say(line);

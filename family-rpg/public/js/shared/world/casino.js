@@ -12,7 +12,7 @@ import { ITEMS } from '../data/items.js';
 import { addItem, itemCount } from '../stats.js';
 import {
   COIN_PRICE, COIN_MAX, COIN_BUY_MAX, COIN_PACKS, coinsOf, SLOT_BETS, REELS, slotLine, slotPay,
-  POKER_BETS, JOKER, DOUBLE_MAX, evalPoker, doubleOutcome, PRIZES, MEDAL_REWARDS,
+  POKER_BETS, JOKER, DOUBLE_MAX, evalPoker, doubleOutcome, PRIZES, prizesFor, MEDAL_REWARDS,
   medalsFound, medalsGiven, medalsHeld,
 } from '../data/casino.js';
 import { MEDAL_SPOTS, MEDAL_SPOT_BY_ID, medalSparkleId } from '../maps/casino.js';
@@ -41,7 +41,7 @@ export function casinoOpen(world, s, kind, arg) {
     case 'coins': return { ...base, price: COIN_PRICE, packs: COIN_PACKS, buyMax: COIN_BUY_MAX };
     case 'slot': return { ...base, bets: SLOT_BETS, bet: arg === 'slot10' ? 10 : 1 };
     case 'poker': return { ...base, bets: POKER_BETS, doubleMax: DOUBLE_MAX };
-    case 'prizes': return { ...base, prizes: PRIZES };
+    case 'prizes': { const prizes = prizesFor(c.flags); return { ...base, prizes, more: prizes.length < PRIZES.length }; }
     default: return null;
   }
 }
@@ -167,7 +167,7 @@ export function casinoAction(world, s, msg) {
     }
     case 'prize': {
       if (!want('prizes')) return reply(false, '');
-      const pr = PRIZES.find((x) => x.id === msg.id);
+      const pr = prizesFor(c.flags).find((x) => x.id === msg.id);
       if (!pr || !ITEMS[pr.id]) return reply(false, 'その景品はありません');
       if (coins < pr.coins) return reply(false, 'コインが足りないようです');
       if (itemCount(c, pr.id) >= 99) return reply(false, 'それ以上は持てないようです');

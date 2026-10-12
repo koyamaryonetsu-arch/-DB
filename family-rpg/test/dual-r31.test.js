@@ -180,7 +180,7 @@ test('家族会議・なぞは すべて 解けた！: 4人目も 職業しば�
 
 // ───────────── ミナデイン ─────────────
 test('ミナデイン: 勇者の 系統が 1人 いれば、あとの 3人は だれでも よい（家族が 決めた れいがい）', () => {
-  assert.deepEqual([...HERO_LINE_JOBS].sort(), ALL_JOBS.filter((j) => jobAncestry(j).has('hero')).sort());
+  assert.deepEqual([...HERO_LINE_JOBS].sort(), ['hero', 'loto_hero'], '魔王・はかい神は 入らない');
   for (const j of ['hero', 'loto_hero']) assert.ok(HERO_LINE_JOBS.includes(j), j);
   const t = DUAL_TECHS.dt_minadein;
   assert.equal(t.name, 'ミナデイン');

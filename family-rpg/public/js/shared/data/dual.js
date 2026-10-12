@@ -19,7 +19,7 @@
 // 第31回（2026年10月）: 今の 職業で 判定する ように した。「攻撃の 技（どの 職業でも）」の 組を なくし、
 //   きずな技の ミナデインを 合体技に した（dt_minadein）。せーのでジャンプ・家族会議・なぞは すべて 解けた！の 組も 職業に むすびつけた
 import { ABILITIES } from './abilities.js';
-import { JOBS, ALL_JOBS, jobAncestry, jobBases } from './jobs.js';
+import { JOBS, ALL_JOBS, jobBases } from './jobs.js';
 
 // 技の 組（この 技を 持つ 職業の 人が うけもてる）
 const FIRE = ['mera', 'merami', 'merazoma', 'gira', 'begirama', 'nj_katon', 'am_begiragon', 'am_meragaia', 'hk_triple_mera', 'ck_tsuyobi', 'ck_flambe', 'hi_daikaryoku', 'hi_giragureido', 'hi_ima_mera'];
@@ -128,8 +128,8 @@ const DANCE_JOBS = byJob('performer', 'jester', 'superstar', 'storm_idol');
 const HOME = [...new Set([...NEET, ...ROBOT])];
 // なぞは すべて 解けた！の 4人目: 警察・スパイ・探てい
 const SLEUTH = byJob('police', 'spy', 'shonen_tantei', 'oshiri_tantei', 'meitantei');
-// ミナデイン: 勇者の 系統（勇者と、勇者から 分かれた 職業）。のこりの 3人は だれでも よい（ANY は この 技だけ）
-export const HERO_LINE_JOBS = ALL_JOBS.filter((j) => jobAncestry(j).has('hero'));
+// ミナデイン: 勇者の 系統（勇者・ロトの勇者。魔王・はかい神は 入れない＝家族が 決めた）。のこりの 3人は だれでも よい（ANY は この 技だけ）
+export const HERO_LINE_JOBS = ['hero', 'loto_hero'];
 const HERO_LINE = byJob(...HERO_LINE_JOBS);
 const ANY = byJob(...ALL_JOBS);
 // 全員集合: 組は だれでも（4人の 職業の そろいかたは team: 'line' で 見る）

@@ -232,7 +232,24 @@ export const PRIZES = [
   { id: 'starry_cloak', coins: 2000 },
   { id: 'hayabusa_sword', coins: 3000 },
   { id: 'shiawase_boushi', coins: 5000 }, // 第31回: 経験値2倍のぼうし（data/items-r31.js）
+  // 第31回: 物語が 進むと 景品が ふえる（need … その フラグが ついたら ならぶ。地方の レア装備は data/items-rare.js）
+  { id: 'seed_def', coins: 300, need: 'c2_clear' },
+  { id: 'seed_mag', coins: 300, need: 'c2_clear' },
+  { id: 'mermaid_shield', coins: 1500, need: 'c2_clear' },
+  { id: 'sea_trident', coins: 2500, need: 'c2_clear' },
+  { id: 'yeti_club', coins: 3500, need: 'c3_clear' },
+  { id: 'aurora_robe', coins: 4000, need: 'c3_clear' },
+  { id: 'magic_carpet', coins: 6000, need: 'c4_clear' },
+  { id: 'thief_knife', coins: 6500, need: 'c4_clear' },
+  { id: 'gold_abacus', coins: 7000, need: 'c4_clear' },
+  { id: 'milkyway_whip', coins: 9000, need: 'c5_argos' },
+  { id: 'shooting_boomerang', coins: 10000, need: 'c5_argos' },
+  { id: 'little_prince_cape', coins: 12000, need: 'c5_argos' },
 ];
+// 今 ならんでいる 景品（flags … キャラの フラグ）
+export function prizesFor(flags = {}) {
+  return PRIZES.filter((p) => !p.need || flags?.[p.need]);
+}
 
 // ───────────── 小さなメダル（メダル王の ごほうび） ─────────────
 // at: メダル王に わたした 数が ここまで とどくと もらえる（1回ずつ）

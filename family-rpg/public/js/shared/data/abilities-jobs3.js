@@ -382,10 +382,11 @@ export const JOB3_ABILITIES = {
     effect: { type: 'multi', parts: [{ type: 'mpHeal', base: [2, 4] }, { type: 'atbSet', add: 50, msg: '{t}はすぐに動けそうだ！' }] },
     desc: '伝説の勇者のきずな。仲間全員のMPが少し回復して、行動の順番も早く来る。', cast: '{a}の声が、仲間の心に強くひびいた！', anim: 'warcry',
   },
+  // 第31回: 仲間から MPを 集める「ミナデイン」は 合体技に なった。ロトの 勇者 ひとりの 呪文 テラデインに（ID は セーブの ため そのまま）
   lt_minadein: {
-    name: 'ミナデイン', kana: 'みなでいん', kind: 'spell', job: 'loto_hero', mp: 28, target: 'enemy', noAuto: true, role: 'dmg',
-    effect: { type: 'gather', element: 'bolt', base: [260, 300], per: 110, take: 12, thr: 90 },
-    desc: '生きている仲間からMPを12ずつ集め、敵1体に大きな雷をおとす。集まった仲間が多いほど強い（オートでは使わない）。', cast: '{a}はミナデインを唱えた！', anim: 'bolt2',
+    name: 'テラデイン', kana: 'てらでいん', kind: 'spell', job: 'loto_hero', mp: 28, target: 'enemy', role: 'dmg',
+    effect: { type: 'magic', element: 'bolt', base: [300, 350], thr: 110 },
+    desc: 'ロトの勇者だけが使える、天をさく雷。敵1体に大きなダメージ。', cast: '{a}はテラデインを唱えた！', anim: 'bolt2', attackSpell: true,
   },
 
   // ───────────── 攻撃技を 足した 職業 ─────────────

@@ -250,17 +250,16 @@ test('新しい こうか: マダンテ・ミナデイン・回復魔力の 光�
   const dmg = 99999 - b.enemies[0].hp;
   assert.equal(me.mp, 0, 'MPは 0に');
   assert.ok(dmg >= (130 + 30) * 3 * 0.9 && dmg <= (130 + 30) * 3 * 1.1, `ダメージ ${dmg}`);
-  // ミナデイン: 仲間から MPを 集めるほど 強い
-  const mina = (mates) => {
+  // テラデイン（第31回: もとの ミナデイン。仲間から MPを 集めない ロトの勇者 ひとりの 雷）
+  {
     const r = setup('loto_hero', ['rockman'], { prep: (c) => master(c, 'hero') });
     r.b.enemies[0].hp = r.b.enemies[0].maxHp = 99999;
-    r.mate.mp = mates ? 50 : 0;
+    r.mate.mp = 50;
     use(r.b, r.me, 'lt_minadein', r.b.enemies[0].id);
-    return { dmg: 99999 - r.b.enemies[0].hp, mateMp: r.mate.mp };
-  };
-  const solo = mina(false), two = mina(true);
-  assert.equal(two.mateMp, 38, '仲間の MPが 12 へる');
-  assert.ok(two.dmg > solo.dmg, `集まると 強い ${solo.dmg} → ${two.dmg}`);
+    assert.equal(r.mate.mp, 50, '仲間の MPは へらない');
+    assert.ok(99999 - r.b.enemies[0].hp > 0, 'ダメージ');
+    assert.equal(ABILITIES.lt_minadein.name, 'テラデイン');
+  }
   // 回復魔力の 光（ホーリーライト）: 回復魔力が 高いほど 強い
   ({ b, me } = setup('high_priest', ['rockman']));
   const t = b.enemies[0];
@@ -276,10 +275,10 @@ test('新しい こうか: マダンテ・ミナデイン・回復魔力の 光�
   assert.ok(guarded > base, `守りを 上げると ${base} → ${guarded}`);
 });
 
-test('オートの 仲間: いくつかの こうかの 技も わかる。マダンテ・ミナデインは オートで 使わない', () => {
+test('オートの 仲間: いくつかの こうかの 技も わかる。マダンテは オートで 使わない（テラデインは 使う）', () => {
   assert.equal(prim(ABILITIES.ck_stamina).type, 'heal');
   assert.equal(prim(ABILITIES.daichi).type, 'phys');
-  assert.ok(ABILITIES.dz_madante.noAuto && ABILITIES.lt_minadein.noAuto);
+  assert.ok(ABILITIES.dz_madante.noAuto && !ABILITIES.lt_minadein.noAuto);
   // 大賢者の オート: マダンテは えらばない
   const { b, me } = setup('daikenja', ['rockman', 'rockman', 'skeleton']);
   me.abilities = ['dz_madante', 'dz_mahyadedos'];

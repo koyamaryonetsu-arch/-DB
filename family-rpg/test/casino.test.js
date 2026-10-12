@@ -292,7 +292,9 @@ test('景品: コインで こうかん。足りない・ない 品・まどが 
   open('slot1');
   assert.equal(act({ action: 'prize', id: 'magic_water' }).ok, false, 'スロットの 台では こうかん できない');
   const ui = open('prizes');
-  assert.deepEqual(ui.prizes, PRIZES);
+  assert.deepEqual(ui.prizes, PRIZES.filter((p) => !p.need), 'はじめは 物語の 景品は ならばない');
+  assert.equal(ui.more, true);
+  assert.equal(act({ action: 'prize', id: 'little_prince_cape' }).ok, false, 'まだ ならんでいない 景品');
   let r = act({ action: 'prize', id: 'magic_water' });
   assert.equal(r.ok, true, r.text);
   assert.equal(c.coins, 70);
@@ -315,7 +317,7 @@ test('景品・ごほうびの 装備: ランク4〜5（40・50枚は ランク6
     assert.ok(!(it.price > 0), `${p.id} は 店の 品では ない`);
     // 売っても コインで 買う ねだん（1枚 20G）より ずっと 安い
     assert.ok((it.sell ?? 0) < p.coins * COIN_PRICE / 2, `${p.id} の 売値`);
-    if (it.rank) assert.ok(it.rank >= 2 && it.rank <= 5, `${p.id} rank ${it.rank}`);
+    if (it.rank) assert.ok(it.rank >= 2 && it.rank <= (p.need ? 8 : 5), `${p.id} rank ${it.rank}`);
   }
   for (const r of MEDAL_REWARDS) for (const [id] of r.items) {
     const it = ITEMS[id];
@@ -537,4 +539,19 @@ test('カジノ: 台に 話しかけると スロットの まどが 開く（�
   assert.equal(ui[2].mode, 'slot');
   assert.equal(ui[2].bet, 1);
   assert.equal(ui[2].coins, 30);
+});
+
+test('景品（第31回）: 物語が 進むと ふえる（第2〜4章クリア・アルゴス）', async () => {
+  const { prizesFor } = await import('../public/js/shared/data/casino.js');
+  const base = prizesFor({}).length;
+  const c2 = prizesFor({ c2_clear: true }).length;
+  const all = prizesFor({ c2_clear: true, c3_clear: true, c4_clear: true, c5_argos: true }).length;
+  assert.ok(base < c2 && c2 < all, `${base} → ${c2} → ${all}`);
+  assert.equal(all, PRIZES.length);
+  for (const p of PRIZES) if (p.need) assert.ok(['c2_clear', 'c3_clear', 'c4_clear', 'c5_argos'].includes(p.need), p.need);
+  const { c, open, act } = await gambler();
+  c.coins = 20000;
+  c.flags.c5_argos = true;
+  open('prizes');
+  assert.equal(act({ action: 'prize', id: 'little_prince_cape' }).ok, true);
 });
