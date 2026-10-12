@@ -95,6 +95,17 @@ export function enemyLvOf(lv, floor = 1) {
 export function bossLvOf(seed, lv) {
   return enemyLvOf(lv, caveInfo(seed, lv).floors) + 1.5;
 }
+// 第32回: 地図 Lv8 からの 主は さらに 強い（scaleEnemy の pow。HP・攻撃・魔力に かけ、守りは その 平方根）。
+//   地図 Lv7 までは 今まで どおり 1倍。Lv8 は +30%・Lv9 は +60%・Lv10〜12 は +105% を もとに、主ごとの 強さの ちがいを
+//   MONSTERS の tmPow で ならす（ゴーレムは 手下を よぶので ひかえめ・パンサーは 軽いので 多め）。
+//   めやす（tools/sim-boss.mjs）: 地図 Lv10〜12 の 主に 主人公 Lv 2L+18 の 店の 装備で 3〜5割、レア装備で レベル+4 なら 8〜9割。
+//   Lv8・9 は その 間の 上りざか（店の 装備でも 9割 くらい）
+export const TM_POW_FROM = 8;
+export function tmBossPow(lv, species) {
+  const base = lv >= 10 ? 1.05 : lv === 9 ? 0.6 : lv >= TM_POW_FROM ? 0.3 : 0;
+  if (!base) return 1;
+  return Math.round((1 + base * (MONSTERS[species]?.tmPow ?? 1)) * 100) / 100;
+}
 
 // ───────────── 出てくる 魔物 ─────────────
 export function encounterZone(lv, theme) {
@@ -120,9 +131,10 @@ export function ensureEncounterTable(lv, theme) {
 
 // 魔物を 地図の レベルに あわせて 強くする（たたかいの はじめに 1体ずつ）
 // pow … さらに かける 倍率（ひみつのダンジョンの 深い 階。data/secret.js の sdPower）。HP・攻撃・守り・魔力に かける
+//   1より 小さい 時は 弱く する（ひみつのダンジョンの 番人の 一部。data/secret-guard.js）。ほうしゅうは へらさない
 export function scaleEnemy(m, L, pow = 1) {
   const L0 = m.lv || 1;
-  if (Number.isFinite(pow) && pow > 1) powerUp(m, pow);
+  if (Number.isFinite(pow) && pow > 0 && pow !== 1) powerUp(m, pow);
   if (!Number.isFinite(L) || Math.abs(L - L0) < 0.01) {
     if (m.powK) m.rewardK = m.powK;
     return m;
@@ -148,7 +160,7 @@ function powerUp(m, pow) {
   m.dfn = Math.round((m.dfn || 0) * Math.sqrt(pow));
   m.mag = up(m.mag);
   m.healPow = up(m.healPow);
-  m.powK = Math.sqrt(pow);
+  m.powK = Math.sqrt(Math.max(1, pow));
 }
 
 // 強くした 魔物の ぶん ふえる 経験値・ゴールド

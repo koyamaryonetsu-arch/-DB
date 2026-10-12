@@ -2,13 +2,14 @@
 // つよさは レベル10の ときの もの。地図の レベルに あわせて つよくなる（data/treasure.js の scaleEnemy）
 // art … 絵の もとに する 魔物 / artScale … 大きさ / tint … 色の かえかた（hue: 色あい 度・sat: あざやかさ・light: 明るさ）
 // どの 主も 1ターンに 2回 行動し、大わざの 前に ためる（telegraph）
+// tmPow … 地図 Lv8 からの 主の 強さの 上がりかた（data/treasure.js の tmBossPow。1 が ふつう。第32回）
 
 const BOSS_STATUS = { sleep: 0.1, poison: 0.3, confuse: 0.1, blind: 0.3, silence: 0.2, paralyze: 0.1 };
 
 export const MONSTERS_TM = {
   tm_golem: {
     name: '黄金のゴーレム', lv: 10, hp: 1350, mp: 30, str: 46, def: 32, agi: 11, mag: 18, exp: 900, gold: 500,
-    race: 'material', size: 'xl', boss: true, turns: 2, tmBoss: true,
+    race: 'material', size: 'xl', boss: true, turns: 2, tmBoss: true, tmPow: 0.82,
     art: 'golem', artScale: 2.2, tint: { hue: 12, sat: 1.7, light: 1.12 },
     drops: { boss: ['tm_gold_bangle'] },
     resist: { ...BOSS_STATUS, fire: 0.7, ice: 0.8, blast: 1.4, bolt: 1.2, poison: 0, sleep: 0 },
@@ -23,7 +24,7 @@ export const MONSTERS_TM = {
   },
   tm_king: {
     name: '宝石のキングぷるりん', lv: 10, hp: 1250, mp: 60, str: 42, def: 28, agi: 16, mag: 30, exp: 900, gold: 520,
-    race: 'slime', size: 'xl', boss: true, turns: 2, tmBoss: true,
+    race: 'slime', size: 'xl', boss: true, turns: 2, tmBoss: true, tmPow: 1,
     art: 'king_pururin', artScale: 2.3, tint: { hue: -70, sat: 1.3, light: 1.05 },
     drops: { boss: ['tm_gem_ring'] },
     resist: { ...BOSS_STATUS, ice: 0.5, fire: 1.2, bolt: 1.3 },
@@ -38,7 +39,7 @@ export const MONSTERS_TM = {
   },
   tm_dragon: {
     name: '炎の竜ガルドラ', lv: 10, hp: 1300, mp: 40, str: 48, def: 26, agi: 18, mag: 28, exp: 950, gold: 500,
-    race: 'dragon', size: 'xl', boss: true, turns: 2, tmBoss: true,
+    race: 'dragon', size: 'xl', boss: true, turns: 2, tmBoss: true, tmPow: 0.88,
     art: 'chibi_dragon', artScale: 2.5, tint: { hue: -18, sat: 1.25, light: 0.82 },
     drops: { boss: ['tm_dragon_scale'] },
     resist: { ...BOSS_STATUS, fire: 0.3, ice: 1.4, wind: 0.9 },
@@ -53,7 +54,7 @@ export const MONSTERS_TM = {
   },
   tm_knight: {
     name: '闇の騎士ナイトメア', lv: 10, hp: 1200, mp: 40, str: 45, def: 30, agi: 18, mag: 22, exp: 950, gold: 520,
-    race: 'demon', size: 'xl', boss: true, turns: 2, tmBoss: true,
+    race: 'demon', size: 'xl', boss: true, turns: 2, tmBoss: true, tmPow: 1.15,
     art: 'demon_knight', artScale: 2.3, tint: { hue: 75, sat: 1.35, light: 0.85 },
     drops: { boss: ['tm_dark_ring'] },
     resist: { ...BOSS_STATUS, dark: 0.5, light: 1.4, wind: 0.8 },
@@ -68,7 +69,7 @@ export const MONSTERS_TM = {
   },
   tm_serpent: {
     name: '氷の大へびフロスト', lv: 10, hp: 1200, mp: 50, str: 42, def: 26, agi: 19, mag: 26, exp: 950, gold: 500,
-    race: 'dragon', size: 'xl', boss: true, turns: 2, tmBoss: true,
+    race: 'dragon', size: 'xl', boss: true, turns: 2, tmBoss: true, tmPow: 1.2,
     art: 'sea_serpent', artScale: 2.0, tint: { hue: 25, sat: 0.55, light: 1.3 },
     drops: { boss: ['tm_ice_pendant'] },
     resist: { ...BOSS_STATUS, ice: 0.2, fire: 1.3, bolt: 1.3 },
@@ -83,7 +84,7 @@ export const MONSTERS_TM = {
   },
   tm_panther: {
     name: '影のパンサー', lv: 10, hp: 1050, mp: 30, str: 42, def: 24, agi: 24, mag: 20, exp: 900, gold: 480,
-    race: 'beast', size: 'xl', boss: true, turns: 2, tmBoss: true,
+    race: 'beast', size: 'xl', boss: true, turns: 2, tmBoss: true, tmPow: 1.2,
     art: 'star_panther', artScale: 2.1, tint: { hue: 55, sat: 1.1, light: 0.85 },
     drops: { boss: ['tm_shadow_anklet'] },
     resist: { ...BOSS_STATUS, dark: 0.6, light: 1.3, wind: 0.8 },

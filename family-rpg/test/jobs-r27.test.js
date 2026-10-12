@@ -352,8 +352,8 @@ test('第27回の ひらめき技は、その 職業が パーティーに い�
 const jobsOf = (id, g) => new Set(DUAL_TECHS[id].need[g].map((k) => ABILITIES[k]?.job).filter(Boolean));
 
 test('第27回の 合体技: 10こ（2人・3人・4人）・ぜんぶで 35こ いない・半分くらい クスッと・新しい 職業と 前からの 職業', () => {
-  // 第29回で 2こ 足して 37こ、第31回の ミナデインで 38こ まで（test/jobs-r29.test.js・test/dual-r31.test.js）
-  assert.ok(DUAL_ORDER.length <= 38, `${DUAL_ORDER.length}こ`);
+  // 第29回で 2こ 足して 37こ、第31回の ミナデインで 38こ、第32回の 魔物使いの 3こで 41こ まで（test/jobs-r29.test.js・test/dual-r31.test.js・test/dual-r32.test.js）
+  assert.ok(DUAL_ORDER.length <= 41, `${DUAL_ORDER.length}こ`);
   assert.ok(NEW_DUAL.length >= 8 && NEW_DUAL.length <= 10);
   for (const id of NEW_DUAL) assert.ok(DUAL_TECHS[id], id);
   const sizes = NEW_DUAL.map(dualSize);

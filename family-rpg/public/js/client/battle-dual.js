@@ -16,9 +16,9 @@ const sizeLabel = (n) => `${n}人技`;
 
 // 自分の キャラが 今 出せる 合体技（サーバーでも たしかめる）
 export function myDualOptions(v, a) {
-  if (!a || a.mon) return [];
+  if (!a) return [];
   const info = (x) => ({
-    id: x.id, name: x.name, job: x.job, alive: x.alive, abilities: x.abilities || [], mp: x.mp, atb: x.atb, ready: x.ready, queued: !!x.queued, hold: !!x.dualHold,
+    id: x.id, name: x.name, job: x.job, mon: x.mon, alive: x.alive, abilities: x.abilities || [], mp: x.mp, atb: x.atb, ready: x.ready, queued: !!x.queued, hold: !!x.dualHold,
     inviting: false, statuses: x.status || [], weaponCat: x.weaponCat,
     waiting: x.id !== a.id && (!!x.waitDual || (!!x.dualTarget && x.dualTarget !== a.id)),
     usable: (id) => {
@@ -26,7 +26,8 @@ export function myDualOptions(v, a) {
       return !!ab && (ab.kind !== 'combo' || comboAllowed(x.pc || { job: x.job, jobs: {} }, id)) && weaponOk(ab, x.weaponCat);
     },
   });
-  const others = v.allies().filter((x) => x.id !== a.id && !x.mon);
+  // 第32回: モンスターの 仲間も（モンスターの 仲間の 組が ある 技だけ）
+  const others = v.allies().filter((x) => x.id !== a.id);
   // 人数の 多い 技を 上に
   return dualOptions(info(a), others.map(info), weaponOk, { anyGauge: true }).sort((x, y) => y.size - x.size);
 }

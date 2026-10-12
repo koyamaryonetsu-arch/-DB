@@ -18,6 +18,7 @@
 // けずった 合体技を 使った ことの ある 記録（char.dualSeen）は そのまま のこす（DUAL_LEGACY: にていて 1つに まとめた 技は、まとめた 先の 技も わかる）
 // 第31回（2026年10月）: 今の 職業で 判定する ように した。「攻撃の 技（どの 職業でも）」の 組を なくし、
 //   きずな技の ミナデインを 合体技に した（dt_minadein）。せーのでジャンプ・家族会議・なぞは すべて 解けた！の 組も 職業に むすびつけた
+// 第32回（2026年10月）: 魔物使い・モンスターマスターの 合体技 3こ（R32_DUALS）。「モンスターの 仲間」の 組（MONSTER_ALLY）だけは 魔物の 仲間が うけもつ
 import { ABILITIES } from './abilities.js';
 import { JOBS, ALL_JOBS, jobBases } from './jobs.js';
 
@@ -112,6 +113,11 @@ const ESPER = byJob('esper');
 const CREATOR = byJob('creator');
 // 第29回: るろうに剣士 → 人斬りばっ刀さい → ひ村ばっ刀さい → 飛天御剣流けい承者
 const HITEN = byJob('rurouni', 'hitokiri', 'himura', 'hiten');
+// 第32回: 魔物使い・モンスターマスター（ムチと 魔物の 技・ひらめき技）と、モンスターの 仲間
+const TAMER = byJob('tamer', 'monster_master');
+// モンスターの 仲間（職業の ない 魔物の 仲間だけが うけもつ 組。人は 入れない。fitsGroup で who.mon を 見る）。
+// 中身は 魔物の 技（findSkill・説明に 使う だけ）。groupJobs は からっぽ
+export const MONSTER_ALLY = Object.keys(ABILITIES).filter((id) => ABILITIES[id].kind === 'monster');
 
 // ───── 第31回: 職業に むすびつけた 組 ─────
 // 上級職 いじょう（tier 1〜）の 職業の 技だけ（グランドフィナーレ）
@@ -148,13 +154,15 @@ export const DUAL_GROUP_NAMES = new Map([
   [UESAMA, '将軍の技'], [SAMURAI, 'サムライの技'], [SHINOBI, '忍びの技'], [KISATSU, 'きさつ隊の技'], [ESPER, '超能力の技'], [CREATOR, 'クリエイターの技'],
   // 第29回
   [HITEN, '飛天御剣流の技'],
+  // 第32回
+  [TAMER, '魔物使いの技'], [MONSTER_ALLY, 'モンスターの仲間'],
   // 第31回
   [SWORD_ADV, '剣の上級職'], [FIST_ADV, 'こぶしの上級職'], [SPELL_ADV, '攻撃呪文の上級職'], [HEAL_ADV, 'いやしの上級職'],
   [BALL_JOBS, '野球の技'], [DANCE_JOBS, 'おどりの技'], [HOME, 'ニートかネコ型ロボットの技'], [SLEUTH, '警察・スパイ・探ていの技'],
   [HERO_LINE, '勇者の系統'], [ANY, 'どの職業でも'], [LINE, '4人とも同じ職業か同じ系統'],
 ]);
 // ひとことで 言える 組（「〇〇の職業」と 言いかえない）
-const PLAIN_NAMES = new Set([SWORD_ADV, FIST_ADV, SPELL_ADV, HEAL_ADV, HERO_LINE, ANY, LINE]);
+const PLAIN_NAMES = new Set([SWORD_ADV, FIST_ADV, SPELL_ADV, HEAL_ADV, HERO_LINE, ANY, LINE, MONSTER_ALLY]);
 // 職業が だれでも よい 組（ミナデインだけ）と、4人の そろいかたで 見る 組（全員集合）
 export const ANY_GROUPS = new Set([ANY, LINE]);
 
@@ -431,9 +439,31 @@ const R29_DUALS = {
     desc: '飛天御剣流の剣士と上様とサムライが、ならんで刀をぬく。敵全体を3回ずつ切りつける。守りの固い敵にもよく効き、守備力も下げる。', anim: 'slash_multi',
   },
 };
+// ───────── 第32回: 魔物使い・モンスターマスターの 合体技（3こ。2人技2・3人技1。ぜんぶで 41こ） ─────────
+// モンスターの 仲間（MONSTER_ALLY）が 入れる のは この 技だけ（人は うけもてない。魔物は ほかの 組を うけもてない）
+const R32_DUALS = {
+  dt_beast_cross: {
+    name: 'ビーストクロス', kana: 'びーすとくろす', need: [TAMER, MONSTER_ALLY], mp: [6, 3], target: 'enemy',
+    parts: [{ type: 'power', kind: 'phys', k: 1.15, hits: 2, ignoreDef: 0.2, say: '「いけっ！」合図といっしょに、魔物の仲間がとびかかった！' }],
+    desc: '魔物使いのムチと、魔物の仲間のキバが十字をえがく。息のぴったり合った2回の攻撃で、敵1体に大ダメージ。守りの固い敵にも少し効く。', anim: 'cross_slash',
+  },
+  dt_circus: {
+    name: '大サーカス', kana: 'だいさーかす', need: [TAMER, DANCE_JOBS], mp: [6, 6], target: 'enemies', funny: true,
+    parts: [
+      { type: 'power', kind: 'phys', k: 0.7, say: '「さあさあ、お立ち会い！」魔物たちが火の輪をくぐって、とびこんできた！' },
+      { type: 'atbSet', sub: 50, chance: 0.65, msg: '{t}は、サーカスに見とれている！', failMsg: '{t}は、見向きもしない。' },
+    ],
+    desc: '魔物使いのムチの合図で、おどる人と魔物たちの大サーカスが始まる。敵全体にとびこんで、見とれた敵は動きがおそくなる。', anim: 'hit_all',
+  },
+  dt_wild_rush: {
+    name: 'ワイルドラッシュ', kana: 'わいるどらっしゅ', need: [TAMER, MONSTER_ALLY, FIST], mp: [8, 3, 8], target: 'enemy',
+    parts: [{ type: 'power', kind: 'phys', k: 1.05, hits: 3, ignoreDef: 0.2, say: 'ムチ・キバ・こぶしの、野生の3れんげき！' }],
+    desc: '魔物使いのムチ、魔物の仲間のキバ、こぶしの強い人の連打。野生の力をひとつにして、敵1体に3回の大ダメージ。', anim: 'slash_multi',
+  },
+};
 // 2人技・3人技・4人技の じゅんに ならべる（第26回の 技の あとに）
 {
-  const all = { ...DUAL_TECHS, ...R27_DUALS, ...R29_DUALS };
+  const all = { ...DUAL_TECHS, ...R27_DUALS, ...R29_DUALS, ...R32_DUALS };
   const ids = Object.keys(all).sort((a, b) => all[a].need.length - all[b].need.length);
   for (const id of Object.keys(DUAL_TECHS)) delete DUAL_TECHS[id];
   for (const id of ids) DUAL_TECHS[id] = all[id];
@@ -504,7 +534,9 @@ export function sameLine(jobs) {
 
 // その 人が 組を うけもてるか（今の 職業で 見る）
 export function fitsGroup(who, list) {
-  return !!who?.job && groupJobs(list).has(who.job);
+  // 第32回: モンスターの 仲間の 組は 魔物（who.mon）だけ。魔物は ほかの 組を うけもてない
+  if (list === MONSTER_ALLY) return !!who?.mon;
+  return !!who?.job && !who.mon && groupJobs(list).has(who.job);
 }
 
 // 組の 技で、その 人が 出す 技（えらぶ じゅん: 今の 職業の 覚えた 技 → 覚えた 技 → 今の 職業の 組の 技）。
@@ -588,8 +620,10 @@ function assign(t, members, weaponOk) {
 //   2人技は いままでと おなじ 形（partner・mp[0]・mp[1]）
 export function dualOptions(actor, others, weaponOk, { anyGauge = false } = {}) {
   const out = [];
-  if (!actor || !actor.alive || !JOBS[actor.job]) return out;
-  const free = others.filter((p) => p.id !== actor.id && partnerFree(p, anyGauge) && JOBS[p.job]);
+  // 職業の ある 人か、モンスターの 仲間（第32回。モンスターの 仲間の 組が ある 技だけ）
+  const canDual = (x) => !!JOBS[x.job] || !!x.mon;
+  if (!actor || !actor.alive || !canDual(actor)) return out;
+  const free = others.filter((p) => p.id !== actor.id && partnerFree(p, anyGauge) && canDual(p));
   for (const [id, t] of Object.entries(DUAL_TECHS)) {
     const n = t.need.length;
     if (free.length < n - 1) continue;
@@ -618,7 +652,7 @@ export function dualOptions(actor, others, weaponOk, { anyGauge = false } = {}) 
 export function dualRelated(id, jobSet) {
   const t = DUAL_TECHS[id];
   if (!t) return false;
-  return t.need.every((list) => ANY_GROUPS.has(list) || [...groupJobs(list)].some((j) => jobSet.has(j)));
+  return t.need.every((list) => ANY_GROUPS.has(list) || list === MONSTER_ALLY || [...groupJobs(list)].some((j) => jobSet.has(j)));
 }
 
 // その 合体技の 効果を 知っているか（一度 使うと わかる。まとめる 前の 技を 使った ことが あっても わかる）

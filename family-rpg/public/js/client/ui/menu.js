@@ -5,7 +5,7 @@ import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shar
 import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS, turnSeconds } from '../../shared/battle.js';
 import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily, gearSortPref, setGearSortPref } from '../prefs.js';
 import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, TIER_NAMES } from '../../shared/data/jobs.js';
-import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress, partyJobSet, hiraVisible, monsterSlots, canEquipChar, itemCount, MAX_LEVEL } from '../../shared/stats.js';
+import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress, partyJobSet, hiraOfJob, monsterSlots, canEquipChar, itemCount, MAX_LEVEL } from '../../shared/stats.js';
 import { HIRAMEKI } from '../../shared/data/hirameki.js';
 import { DUAL_TECHS, DUAL_ORDER, dualKnown, dualRelated, dualNeedText } from '../../shared/data/dual.js';
 import { addDualCss } from '../render/dualfx.js';
@@ -267,7 +267,7 @@ export class FieldMenu {
   }
 
   // いっしょに 戦う 人（自分・家族・パーティーの 仲間。馬車の 仲間は 入れない）と、見ている 人 c。
-  // ひらめき・合体技の 一覧で、パーティーに 関係する 技だけ 出す ため（stats.js の partyJobSet）
+  // 合体技の 一覧で、パーティーに 関係する 技だけ 出す ため（stats.js の partyJobSet。ひらめきは 第32回から 今の 職業だけ＝hiraOfJob）
   // もどりち: { jobs: パーティーの 職業, skills: 覚えている 技（自分と 自分の 仲間の ぶん。家族の キャラの 技は とどかない） }
   partyFocus(c) {
     const g = this.game;
@@ -813,12 +813,10 @@ export class FieldMenu {
     }
     if (mode === 'combo') {
       // ひらめき: 関係する 技を 何回も 使うと、使った しゅんかんに ひらめく
-      // 出すのは ひらめいた 技と、今の パーティーの 職業に 関係する 技だけ（stats.js の hiraVisible）
+      // 第32回: 出すのは その 人が 今 ついている 職業の ひらめき技だけ（掛け合わせ技は その 職業で ひらめける もの。stats.js の hiraOfJob）
       const known = new Set(learned);
       const use = c.skillUse || {};
-      const focus = this.partyFocus(c);
-      const shown = hiraVisible(c, focus.jobs);
-      const hidden = Object.keys(HIRAMEKI).filter((id) => ABILITIES[id]).length - shown.length;
+      const shown = hiraOfJob(c);
       const order = shown.sort((x, y) => (known.has(y) ? 1 : 0) - (known.has(x) ? 1 : 0));
       rows(order.map((id) => {
         const a = ABILITIES[id];
@@ -829,15 +827,16 @@ export class FieldMenu {
           return `${nm} ${seen ? Math.min(use[k] || 0, n) : '?'}/${n}回`;
         }).join('　');
         const prog = hiraProgress(c, id);
-        const whoText = a.kind === 'combo' ? `使える職業: ${comboJobNames(id).join('・')}（とその超級職）` : `${JOBS[a.job]?.name || ''}の技（${JOBS[a.job]?.name || ''}とそこから進んだ職業でひらめく）`;
+        const whoText = a.kind === 'combo' ? `掛け合わせ技（${comboJobNames(id).join('・')}とその超級職）` : '';
         const tag = ok ? '<span class="tag good">ひらめいた</span>' : prog >= 1 ? '<span class="tag gold">もうすぐ！</span>' : '';
         return {
           id, cls: ok ? '' : 'locked',
-          html: `<span class="nm">${ok ? esc(a.name) : '？？？？'}</span>${tag}<span class="ln">${esc(reqs)}</span><span class="ln gold">${esc(whoText)}</span>${ok ? `<span class="ln muted">${esc(skillBrief(a))}</span>` : ''}`,
+          html: `<span class="nm">${ok ? esc(a.name) : '？？？？'}</span>${tag}<span class="ln">${esc(reqs)}</span>${whoText ? `<span class="ln gold">${esc(whoText)}</span>` : ''}${ok ? `<span class="ln muted">${esc(skillBrief(a))}</span>` : ''}`,
         };
       }));
-      if (!order.length) box.append(el('div', { class: 'muted', text: '今のパーティーの職業でひらめけそうな技は、まだない。' }));
-      box.append(el('div', { class: 'detail', text: `今のパーティー（いっしょに戦う人と仲間）の職業に関係するひらめき技だけ出している。${hidden > 0 ? `ほかの職業の技があと${hidden}こある。` : ''}\n技を使うたびに回数がふえる。書いてある回数をこえると、その技を使ったしゅんかんに、ひらめくことがある（ひらめいた技がそのまま出る）。\n掛け合わせ技は、元になった職業を合わせ持つ上級職からひらめく。神殿の「ひらめきの賢者」がヒントを教えてくれる。` }));
+      const jobName = JOBS[c.job]?.name || '';
+      if (!order.length) box.append(el('div', { class: 'muted', text: jobName ? `${jobName}でひらめく技はない。` : 'ひらめく技はない。' }));
+      box.append(el('div', { class: 'detail', text: `${c.name}の今の職業（${jobName || 'なし'}）でひらめく技だけ出している。ほかの職業の技は、その職業についた時に出る。\n書いてある回数をこえると、その技を使ったしゅんかんに、ひらめくことがある。神殿の「ひらめきの賢者」がヒントを教えてくれる。` }));
       return box;
     }
     if (mode === 'fav') {

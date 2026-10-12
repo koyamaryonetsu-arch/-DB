@@ -8,9 +8,9 @@ import assert from 'node:assert/strict';
 import { JOBS, ALL_JOBS, JOB_MAX_LEVEL } from '../public/js/shared/data/jobs.js';
 import { ABILITIES } from '../public/js/shared/data/abilities.js';
 import {
-  DUAL_TECHS, DUAL_ORDER, DUAL_GROUP_NAMES, DUAL_LEGACY, dualOptions, dualRelated, dualKnown, dualSize,
+  DUAL_TECHS, DUAL_ORDER, DUAL_GROUP_NAMES, DUAL_LEGACY, MONSTER_ALLY, dualOptions, dualRelated, dualKnown, dualSize,
 } from '../public/js/shared/data/dual.js';
-import { newCharacter, gainExp, expForLevel, fullHeal, weaponOk, partyJobSet } from '../public/js/shared/stats.js';
+import { newCharacter, newMonsterCompanion, gainExp, expForLevel, fullHeal, weaponOk, partyJobSet } from '../public/js/shared/stats.js';
 import { Battle, DUAL_POWER, DUAL_ASK_MS } from '../public/js/shared/battle.js';
 import { makeRng } from '../public/js/shared/rng.js';
 import { DUAL_FX, cutMs } from '../public/js/client/render/dualfx.js';
@@ -22,6 +22,8 @@ const chain = (c, j) => {
   if (JOBS[j].reqSuper) master(c, 'god_hand');
 };
 function mk(job, name, lv = 40) {
+  // 第32回: 'MON' … モンスターの 仲間（モンスターの 仲間の 組）
+  if (job === 'MON') return newMonsterCompanion({ id: name, name, species: 'slime', level: lv });
   const c = newCharacter({ id: name, name, job: 'warrior' });
   gainExp(c, expForLevel(lv));
   chain(c, job);
@@ -34,7 +36,7 @@ function mk(job, name, lv = 40) {
 // jobs[0] … 自分（s1）。humans: { 番号: コントローラー }（家族）・mine: 自分が 動かす 仲間の 番号
 function party(jobs, { humans = {}, mine = [], seed = 1, enemies = ['rockman'] } = {}) {
   const allies = jobs.map((j, i) => {
-    const char = mk(j, `${JOBS[j].name}${i}`);
+    const char = mk(j, `${JOBS[j]?.name || 'スラ'}${i}`);
     if (i === 0) return { char, controller: 's1' };
     if (humans[i]) return { char, controller: humans[i] };
     if (mine.includes(i)) return { char, kind: 'support', controller: 's1' };
@@ -73,10 +75,11 @@ const cmdOf = (o, target) => ({ type: 'dual', id: o.id, partner: o.partner, part
 const SCOPE = { enemy: /敵1体/, enemies: /敵全体/, allies: /仲間全員/ };
 const PART_TYPES = new Set(['power', 'heal', 'revive', 'buff', 'debuff', 'cure', 'atbSet', 'mpHeal', 'status', 'banish']);
 
-// 第27回: 新しい 職業の 合体技を 10こ 足して 35こ。第29回: るろうに剣士の 道の 2こを 足して 37こ。第31回: ミナデインで 38こ（test/dual-r31.test.js）
-test('第26回の 合体技: 数を しぼった（20〜38こ）・2人技・3人技・4人技・クスッと 笑える 技', () => {
+// 第27回: 新しい 職業の 合体技を 10こ 足して 35こ。第29回: るろうに剣士の 道の 2こを 足して 37こ。第31回: ミナデインで 38こ（test/dual-r31.test.js）。
+// 第32回: 魔物使い・モンスターマスターの 3こで 41こ（test/dual-r32.test.js）
+test('第26回の 合体技: 数を しぼった（20〜41こ）・2人技・3人技・4人技・クスッと 笑える 技', () => {
   const ids = DUAL_ORDER;
-  assert.ok(ids.length >= 20 && ids.length <= 38, `合体技 ${ids.length}こ`);
+  assert.ok(ids.length >= 20 && ids.length <= 41, `合体技 ${ids.length}こ`);
   const by = (n) => ids.filter((id) => dualSize(id) === n);
   assert.ok(by(2).length >= 12, `2人技 ${by(2).length}こ`);
   assert.ok(by(3).length >= 4, `3人技 ${by(3).length}こ`);
@@ -432,6 +435,7 @@ test('強さ: 別々に 動くより はっきり 得（2人技 1.6倍・3人技
 
 // その 組の 技を 1つ 覚える 職業（武器の いらない 技）
 function jobFor(list) {
+  if (list === MONSTER_ALLY) return 'MON';
   for (const k of list) {
     const s = ABILITIES[k];
     if (!s?.job || s.weapon || s.hirameki || !JOBS[s.job]?.learn.some(([, x]) => x === k)) continue;
@@ -454,7 +458,7 @@ test('どの 合体技も ほんとうの たたかいで 出せる（人数ぶ�
     // HPは へらしておく（回復の 技の ため）
     for (const a of b.allies) a.hp = Math.round(a.maxHp / 3);
     const o = b.dualOptionsFor(me).find((x) => x.id === id && x.size === t.need.length);
-    assert.ok(o, `${t.name}: ${jobs.map((j) => JOBS[j].name).join('×')} で 出せる`);
+    assert.ok(o, `${t.name}: ${jobs.map((j) => JOBS[j]?.name || 'モンスター').join('×')} で 出せる`);
     const mp = new Map([me, ...ps].map((x) => [x.id, x.mp]));
     const r = b.command(me.id, cmdOf(o, b.enemies[0].id), 's1');
     assert.equal(r.ok, true, `${id}: ${r.reason || ''}`);

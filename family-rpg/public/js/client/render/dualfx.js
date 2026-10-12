@@ -51,6 +51,10 @@ export const DUAL_FX = {
   // 第29回: るろうに剣士の 道の 合体技
   dt_sentaku_biyori: { c: ['#c8304a', '#9ad8ff', '#ffffff'], finale: 'heal', word: 'ピッカピカでござる！' },
   dt_sanken: { c: ['#a01c2c', '#e8ecf4', '#ffd040'], finale: 'cross', word: 'いざ、参る！' },
+  // 第32回: 魔物使い・モンスターマスターの 合体技（とどめは 今ある 型）
+  dt_beast_cross: { c: ['#7a4a1a', '#ffb04a', '#ffffff'], finale: 'cross', word: 'いけっ！' },
+  dt_circus: { c: ['#c81a3a', '#ffd040', '#3a8aff'], finale: 'stage', word: 'ブラボー！' },
+  dt_wild_rush: { c: ['#5a3a1a', '#ff8a3a', '#ffe0a0'], finale: 'quake', word: 'ガオーッ！' },
 };
 const DEFAULT_FX = { c: ['#7a3ac8', '#ffd66b', '#ffffff'], finale: 'nova', word: '' };
 export const dualFxOf = (id) => DUAL_FX[id] || DEFAULT_FX;

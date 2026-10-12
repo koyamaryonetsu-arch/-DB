@@ -36,10 +36,11 @@ const nowOf = (p) => partnerNow({ queued: p.queued, hold: p.dualHold, ready: p.r
 // c が 今 出せる 合体技（exec: 出す しゅんかんの たしかめ。よやくした 相手も かぞえる）
 // anyGauge: 仲間の ゲージが まだでも よやく できる ものも かぞえる
 export function optionsFor(b, c, others = null, exec = false, anyGauge = false) {
-  if (!c || c.side !== 'ally' || c.mon) return [];
-  const list = (others || b.allies.filter((x) => x !== c)).filter((x) => x && x.side === 'ally' && !x.mon);
+  // 第32回: モンスターの 仲間も 入れる（モンスターの 仲間の 組が ある 技だけ。data/dual.js の fitsGroup）
+  if (!c || c.side !== 'ally') return [];
+  const list = (others || b.allies.filter((x) => x !== c)).filter((x) => x && x.side === 'ally');
   const info = (x) => ({
-    id: x.id, name: x.name, job: x.job, alive: x.alive, abilities: x.abilities || [], mp: x.mp, atb: x.atb, ready: x.ready, hold: !!x.dualHold,
+    id: x.id, name: x.name, job: x.job, mon: x.mon, alive: x.alive, abilities: x.abilities || [], mp: x.mp, atb: x.atb, ready: x.ready, hold: !!x.dualHold,
     queued: exec && x.dualWith === c.id ? false : !!x.queued,
     // ほかの 人の 合体技に 入る ことに なっている
     busy: !!x.dualWith && x.dualWith !== c.id,

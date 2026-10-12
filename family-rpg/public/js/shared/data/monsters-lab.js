@@ -12,7 +12,7 @@ const BOSS_STATUS = { sleep: 0.1, poison: 0.3, confuse: 0.1, blind: 0.3, silence
 
 export const MONSTERS_LAB = {
   old_dragon: {
-    name: '古竜オルドラ', lv: 48, hp: 9600, mp: 300, str: 170, def: 108, agi: 52, mag: 150, exp: 21000, gold: 8000,
+    name: '古竜オルドラ', lv: 48, hp: 10800, mp: 300, str: 176, def: 108, agi: 52, mag: 150, exp: 21000, gold: 8000,
     race: 'dragon', size: 'xl', boss: true, turns: 2, speed: 0.66, hit: 'bite', drops: { boss: ['old_dragon_eye'] },
     resist: { ...BOSS_STATUS, ice: 1.3, bolt: 1.1, fire: 0.3, dark: 0.7 },
     actions: [
