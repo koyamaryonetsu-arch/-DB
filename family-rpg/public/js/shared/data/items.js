@@ -245,6 +245,8 @@ Object.assign(ITEMS, FIELD27_ITEMS);
 import { ITEMS_R31, R31_ITEM_KANA } from './items-r31.js'; Object.assign(ITEMS, ITEMS_R31);
 // 第31回: レア装備（items-rare.js）と、すべての 装備の レア度（★1〜★5。店の 品は 0）
 Object.assign(ITEMS, RARE_GEAR);
+// 第32回: れん金がまの 品・生まれ変わりの 武器（items-alchemy.js）
+import { ALCHEMY_ITEMS, ALCHEMY_KANA } from './items-alchemy.js'; Object.assign(ITEMS, ALCHEMY_ITEMS);
 assignRarity(ITEMS);
 // きたえた 装備（'iron_sword+1'〜'+3'）。新しい 装備を 足す ときは この 行より 上で
 addUpgradeItems(ITEMS);
@@ -333,6 +335,7 @@ Object.assign(ITEM_KANA, TOWER_ITEM_KANA);
 Object.assign(ITEM_KANA, FIELD27_KANA);
 Object.assign(ITEM_KANA, R31_ITEM_KANA);
 Object.assign(ITEM_KANA, RARE_GEAR_KANA);
+Object.assign(ITEM_KANA, ALCHEMY_KANA);
 
 export function itemKana(id) {
   // きたえた 装備は もとの 装備の 読み ＋ 回数（鉄の剣 → 鉄の剣+1 の じゅん）

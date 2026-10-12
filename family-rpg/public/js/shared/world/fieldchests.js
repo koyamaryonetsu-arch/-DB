@@ -7,6 +7,7 @@ import { T } from '../tiles.js';
 import { ITEMS } from '../data/items.js';
 import { addItem } from '../stats.js';
 import { FIELD_CHEST_COUNT, FIELD_CHEST_RESPAWN_MS, FIELD_CHEST_LIFE_MS, fieldChestLoot } from '../data/fieldchests.js';
+import { alchemyMemoLoot } from './alchemy.js';
 
 const GROUND = new Set([T.GRASS, T.FLOWERS, T.TALLGRASS, T.FOREST_FLOOR, T.SAND, T.HILL, T.DIRT, T.SNOW, T.DEEP_SNOW, T.ASH, T.DESERT]);
 const SPACING = 10; // ほかの 宝箱との あいだ（マス）
@@ -148,7 +149,8 @@ export function openFieldChest(world, s, ms, fc) {
   ms.fchests.delete(fc.id);
   ms.fcVer++;
   ms.fcTimer = 0;
-  const loot = fieldChestLoot(fc.zone, world.rng);
+  // れん金のメモ（かまを 持っている 人だけ。world/alchemy.js）
+  const loot = alchemyMemoLoot(c, world.rng) || fieldChestLoot(fc.zone, world.rng);
   c.fieldChests = (c.fieldChests || 0) + 1;
   world.markDirty();
   const steps = [['sfx', 'chest']];

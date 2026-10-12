@@ -40,6 +40,7 @@ import { sdRecordOf, sdRecordText } from '../../shared/data/secret.js';
 import { wagonMenuView, wagonHereClient, menuArrange } from './wagon.js';
 import { readErrLog, errLogText, clearErrLog } from '../errlog.js';
 import { fieldUsableAbilities } from '../../shared/fieldskills.js';
+import { alchemyRow, alchemyUI, bindAlchemy } from './alchemy.js';
 
 // 見た目装備の せつめい
 const LOOK_HELP = '見た目だけを、持っている装備に変える（強さは変わらない）\n職業で装備できない物も選べる。「装備なし」も選べる';
@@ -83,6 +84,7 @@ const zukanOrder = () => bestiaryOrder(MONSTERS);
 export class FieldMenu {
   constructor(game) {
     this.game = game;
+    bindAlchemy(game); // きたえる 回数は 自分の れん金の きろくで（ui/alchemy.js）
   }
 
   get sfx() { return (x) => this.game.audio.sfx(x); }
@@ -406,7 +408,10 @@ export class FieldMenu {
     const counts = new Map(c.items.map((e) => [e.id, e.n]));
     // 素材（ふしぎなかじで 使う）には しるし
     const items = sortItemIds(c.items.map((e) => e.id), mode).map((id) => ({ label: ITEMS[id].name, html: ITEMS[id].type === 'mat' ? `${esc(ITEMS[id].name)}<span class="tag mat">素材</span>` : rareNameHtml(id), right: `×${counts.get(id)}`, value: id }));
-    for (const k of c.keyItems) items.push({ html: `${ITEMS[k].name}<span class="tag gold">大事</span>`, value: k, key: true });
+    // れん金がま（第32回）は いちばん上（ui/alchemy.js）
+    const pot = alchemyRow(c);
+    if (pot) items.unshift(pot);
+    for (const k of c.keyItems) if (!pot || k !== pot.value) items.push({ html: `${ITEMS[k].name}<span class="tag gold">大事</span>`, value: k, key: true });
     items.push(...treasureRows(c)); // 宝の地図
     const medal = medalItemRow(c);
     if (medal) items.push(medal);
@@ -473,6 +478,10 @@ export class FieldMenu {
       }
       backToList();
       return;
+    }
+    if (entry.pot) {
+      this.close();
+      return alchemyUI(g);
     }
     if (entry.key || it.type === 'key') return;
     const acts = [];
@@ -1470,7 +1479,7 @@ export class FieldMenu {
       const ORDER = { common: 0, mat: 0.5, rare: 1, brare: 1.5, boss: 2 };
       const drops = monsterDrops(sp).sort((p, q) => ORDER[p.kind] - ORDER[q.kind]);
       if (drops.length) {
-        const KIND = { boss: 'かならず', brare: 'ときどき', rare: 'レア', common: 'よく', mat: '素材' };
+        const KIND = { boss: 'かならず', brare: 'かならず', rare: 'レア', common: 'よく', mat: '素材' };
         const row = el('div', { class: 'small zukan-drops' }, el('span', { class: 'muted', text: '落とす物 ' }));
         for (const d of drops) {
           const known = !!s.raw[`drop_${d.item}`];

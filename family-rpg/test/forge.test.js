@@ -2,7 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { ITEMS, SLOTS, sellPrice, baseItemId, itemKana, sortItemIds } from '../public/js/shared/data/items.js';
-import { UPGRADE_MAX, UPGRADE_TYPES, UPGRADE_BY_RANK, upgradeId, upgradeLimit } from '../public/js/shared/data/items-forge.js';
+import { UPGRADE_MAX, UPGRADE_TYPES, UPGRADE_BY_RANK, upgradeId, upgradeLimit, CAP_UP_MAX } from '../public/js/shared/data/items-forge.js';
 import { RECIPES, RECIPE_OPEN, recipeOpen, upgradeCost, lackOf, canUpgrade, maxPlus } from '../public/js/shared/data/forge.js';
 import { BANK_KINDS, BANK_STACK } from '../public/js/shared/data/facilities.js';
 import { MAT_DROPS, monsterDrops, rollDrops } from '../public/js/shared/data/loot.js';
@@ -290,8 +290,8 @@ test('きたえる: +1〜+3 で 攻撃力（守備力）が もとの 1わりず
   assert.equal(ITEMS['herb+1'], undefined);
   for (const [id, it] of Object.entries(ITEMS)) {
     if (it.base) continue;
-    // ランクで きまる 回数まで（むかしの セーブの ため +3 までは どれにも ある）
-    const top = UPGRADE_TYPES.includes(it.type) ? Math.max(3, maxPlus(id)) : UPGRADE_MAX;
+    // ランクで きまる 回数＋れん金で ふやせる 回数（第32回 CAP_UP_MAX）まで（むかしの セーブの ため +3 までは どれにも ある）
+    const top = UPGRADE_TYPES.includes(it.type) ? Math.max(3, maxPlus(id) + CAP_UP_MAX) : UPGRADE_MAX;
     if (UPGRADE_TYPES.includes(it.type)) assert.equal(ITEMS[upgradeId(id, top + 1)], undefined, `${id}+${top + 1} は ない`);
     for (let n = 1; n <= top; n++) {
       const up = ITEMS[upgradeId(id, n)];
@@ -315,22 +315,23 @@ test('きたえる: きたえられる 回数は ランクで きまる（ラン
   assert.equal(UPGRADE_MAX, 5);
   assert.equal(upgradeLimit({}), 1, 'ランクが ない 物は ランク1');
   assert.ok(UPGRADE_BY_RANK.every((v, i) => !i || v >= UPGRADE_BY_RANK[i - 1]), 'ランクが 高いほど 多い');
-  // 木の剣（ランク1）は +1 まで
-  assert.equal(ITEMS.wood_sword.rank, 1);
-  assert.equal(maxPlus('wood_sword'), 1);
-  assert.ok(canUpgrade('wood_sword'));
-  assert.ok(!canUpgrade('wood_sword+1'), '+1 で おしまい');
-  assert.equal(upgradeCost('wood_sword+1'), null);
-  // むかしの セーブで +3 に して あった 木の剣も きえない（使えるが、これ以上は きたえられない）
+  // 皮のぼうし（ランク1）は +1 まで（木の剣は 第32回から 生まれ変わる 武器。test/alchemy.test.js）
+  assert.equal(ITEMS.leather_hat.rank, 1);
+  assert.equal(maxPlus('leather_hat'), 1);
+  assert.ok(canUpgrade('leather_hat'));
+  assert.ok(!canUpgrade('leather_hat+1'), '+1 で おしまい');
+  assert.equal(upgradeCost('leather_hat+1'), null);
+  // むかしの セーブで +3 に して あった 品も きえない（使えるが、これ以上は きたえられない）
   assert.equal(ITEMS['wood_sword+3'].atk, 9);
-  assert.ok(!canUpgrade('wood_sword+2') && !canUpgrade('wood_sword+3'));
+  assert.ok(!canUpgrade('leather_hat+2') && !canUpgrade('leather_hat+3'));
   // 鉄（ランク3）は +3、はがね（ランク5）は +4
   assert.equal(maxPlus('iron_sword'), 3);
   assert.equal(maxPlus('iron_sword+2'), 3, 'きたえた 物は もとの ランクで');
   const r5 = Object.keys(ITEMS).find((id) => ITEMS[id].type === 'weapon' && ITEMS[id].rank === 5 && !ITEMS[id].base);
   assert.equal(maxPlus(r5), 4);
   assert.ok(ITEMS[upgradeId(r5, 4)], `${r5}+4`);
-  assert.equal(ITEMS[upgradeId(r5, 5)], undefined);
+  assert.ok(ITEMS[upgradeId(r5, 4 + CAP_UP_MAX)], 'れん金で ふやす ぶんも ある');
+  assert.equal(ITEMS[upgradeId(r5, 5 + CAP_UP_MAX)], undefined);
   const c4 = upgradeCost(upgradeId(r5, 3));
   assert.equal(c4.to, upgradeId(r5, 4));
   assert.ok(c4.gold > upgradeCost(upgradeId(r5, 2)).gold, '+4 は もっと 高い');
@@ -365,7 +366,8 @@ test('きたえる: 素材と ゴールドは 回数が すすむほど ふえ�
     const spent = cost.gold + cost.mats.reduce((a, [m, n]) => a + sellPrice(m) * n, 0);
     assert.ok(sellPrice(cost.to) - sellPrice(id) < spent, `${id}: 売り値 ${sellPrice(id)}→${sellPrice(cost.to)} / ${spent}`);
     const prev = upgradeCost(cost.to);
-    if (prev) assert.ok(prev.gold >= cost.gold, `${cost.to}: ゴールドは へらない`);
+    // 生まれ変わった 武器（第32回）は +0 から やりなおし
+    if (prev && !cost.reborn) assert.ok(prev.gold >= cost.gold, `${cost.to}: ゴールドは へらない`);
   }
 });
 

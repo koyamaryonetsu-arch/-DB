@@ -16,6 +16,7 @@ import { POS, SEA_PLACES, MAPS } from '../maps/index.js';
 import { castRura, warpParty, useTimeBell, warpPlaces, warpOwner } from './travel.js';
 import { bankInfo, bankAction } from './bank.js';
 import { forgeInfo, forgeAction } from './forge.js';
+import { alchemyAction, useAlchemyMemo } from './alchemy.js';
 import { FIELD27_EFFECTS, castField27, useAuraItem } from './field27.js';
 import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction, wagonHere, wagonHealEntries, ownWagonEntries } from './wagon.js';
 import { casinoOpen, casinoAction } from './casino.js';
@@ -281,6 +282,8 @@ export function serviceAction(world, s, msg) {
     // 預かり所（bank.js）・ふしぎなかじ屋（forge.js）
     case 'bank': return bankAction(world, s, msg, reply);
     case 'forge': return forgeAction(world, s, msg, reply, { equipItem, ownChar });
+    // れん金がま（world/alchemy.js）
+    case 'alchemy': return alchemyAction(world, s, msg, reply);
     default:
   }
 }
@@ -394,6 +397,8 @@ export function menuAction(world, s, msg) {
       if (eff.type === 'repel' || eff.type === 'lure') return useAuraItem(world, s, msg.id, reply);
       // 仲間の粉（data/friend-powder.js）
       if (eff.type === 'befriendBoost') return usePowder(world, s, c, msg.id, reply);
+      // れん金のメモ（world/alchemy.js）
+      if (eff.type === 'alchemyMemo') return useAlchemyMemo(world, s, msg.id, reply);
       if (eff.type === 'warp') {
         // 王家のピラミッド（第4章）: 帰り道の羽は 使えない（道具は へらない。行き先を えらぶ 前に 知らせる）
         if (MAPS[s.map]?.noEscape) return reply(false, noEscapeText(it.name, MAPS[s.map]));

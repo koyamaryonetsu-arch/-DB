@@ -1,7 +1,7 @@
 // レア度と、レア装備が 手に入る 所（第31回 C）
 //   ・宝の洞窟の 宝箱 … 地図の 名前の ことば（大地・氷・炎 …）に ちなんだ 装備。地図の レベルが 高いほど 強い（data/treasure.js の chestLoot）
-//   ・物語の ボス … そのボスに ちなんだ 装備を ときどき（BOSS_RARE_N 回に 1回。loot.js）
-//   ・ふつうの 魔物 … その地方に 合った 装備を まれに（REGION_RARE_N 回に 1回。loot.js）
+//   ・物語の ボス … そのボスに ちなんだ 装備を かならず（第32回。BOSS_RARE_N 回に 1回 ＝ 1。loot.js）。強さは その章の 店と おなじ くらい
+//   ・ふつうの 魔物 … その地方に 合った 装備を まれに（REGION_RARE_N 体に 1体。第32回 500。loot.js）
 //   ・ひみつのダンジョン … ここだけの ★4〜★5（深いほど 強い。20階から。休み所の ごほうび・魔物・番人。data/secret.js・loot.js）
 //   ・店の 品は レア度なし（0）
 import { ITEMS, baseItemId } from './items.js';
@@ -109,13 +109,13 @@ export function luckyShoesRate(lv, kind = 'normal') {
 }
 
 // ───────────── ボス・ふつうの 魔物 ─────────────
-// ボスが ときどき 落とす（4回に 1回）
-export const BOSS_RARE_N = 4;
+// ボスが かならず 落とす（第32回。前は 4回に 1回）
+export const BOSS_RARE_N = 1;
 export function bossRareOf(species) {
   return rareIds('boss').find((id) => ITEMS[id].boss === species) || null;
 }
-// ふつうの 魔物が まれに 落とす（200体に 1体）。地方は 魔物の レベルで（ミドリナ 〜9・海 〜16・シロガネ 〜28・コガネ 〜38・星の塔 39〜）
-export const REGION_RARE_N = 200;
+// ふつうの 魔物が まれに 落とす（第32回: 500体に 1体。前は 200体）。地方は 魔物の レベルで（ミドリナ 〜9・海 〜16・シロガネ 〜28・コガネ 〜38・星の塔 39〜）
+export const REGION_RARE_N = 500;
 export function regionOf(species) {
   const m = MONSTERS[species];
   if (!m || m.boss || m.breedOnly || !(m.exp > 0) || String(species).startsWith('tm_')) return 0;

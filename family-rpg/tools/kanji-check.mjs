@@ -251,6 +251,8 @@ export function gameFiles() {
     'public/js/shared/world/growth.js', 'public/js/shared/data/items-r31.js', 'public/js/shared/world/perks.js',
     // 第31回 C: レア装備（レア度★1〜★5・宝の洞窟・ボス・ひみつのダンジョン）
     'public/js/shared/data/items-rare.js', 'public/js/shared/data/rare-loot.js', 'public/js/client/ui/rarity.js',
+    // 第32回 C: れん金がま・生まれ変わりの 武器
+    'public/js/shared/data/items-alchemy.js', 'public/js/shared/data/alchemy.js', 'public/js/shared/world/alchemy.js', 'public/js/client/ui/alchemy.js',
   ];
   return list.map((f) => join(ROOT, f));
 }
