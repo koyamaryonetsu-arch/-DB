@@ -15,12 +15,12 @@
 // ・砂に もぐる（Step 6 の 砂クジラ）: 技の 効果 { type: 'burrow', next: '<とび出す 技>' }。
 //   「砂の中に もぐった！」→ つぎの 自分の 番まで ねらえない（味方の 攻撃・呪文・特技の 的に ならない。全体の 呪文も 当たらない）。
 //   ゲージが たまってくると「砂が もり上がった…！」（前ぶれ。身を 守る じかん）→ つぎの 番に 出てきて とび出す 技（ai.js の telegraph）
-import { MONSTERS } from './data/monsters.js?v=37d7bca100b3';
-import { ITEMS } from './data/items.js?v=37d7bca100b3';
-import { ABILITIES } from './data/abilities.js?v=37d7bca100b3';
-import { DUAL_TECHS } from './data/dual.js?v=37d7bca100b3';
+import { MONSTERS } from './data/monsters.js?v=98e104bf307c';
+import { ITEMS } from './data/items.js?v=98e104bf307c';
+import { ABILITIES } from './data/abilities.js?v=98e104bf307c';
+import { DUAL_TECHS } from './data/dual.js?v=98e104bf307c';
 // こうどうゲージの はやさ（battle.js。たがいに よびあうが、つかうのは たたかいの 中だけ）
-import { atbRate } from './battle.js?v=37d7bca100b3';
+import { atbRate } from './battle.js?v=98e104bf307c';
 
 export const MIRROR_ID = 'moon_mirror';
 const LETTERS = 'ABCDEFGH';
@@ -313,7 +313,7 @@ export function mirrorSnap(b) {
 // warnAt … ゲージが ここまで たまると「砂がもり上がった…！」（前ぶれ。身を 守る じかん）
 export const BURROW_WARN = 60;
 
-// c から t を ねらえない（砂に もぐった 敵）。battle.js の sideOf・こんらんの 相手・きずな技
+// c から t を ねらえない（砂に もぐった 敵）。battle.js の sideOf・こんらんの 相手
 export function hiddenFrom(c, t) {
   return !!t?.burrow && !!c && t.side !== c.side;
 }
@@ -356,7 +356,7 @@ export function burrowSurface(b, m) {
 
 // 敵を ねらう 行動か（ねらえる 敵が いないと 空ぶり）
 function aimsAtFoes(cmd) {
-  if (['attack', 'mahouken', 'bond'].includes(cmd.type)) return true;
+  if (['attack', 'mahouken'].includes(cmd.type)) return true;
   if (cmd.type === 'ability') return ['enemy', 'group', 'enemies'].includes(ABILITIES[cmd.id]?.target);
   if (cmd.type === 'dual') return ['enemy', 'group', 'enemies'].includes(DUAL_TECHS[cmd.id]?.target);
   return false;

@@ -13,15 +13,15 @@
 // ・鏡のうつし身（utsushimi）: 戦いの はじめに、パーティーの 人数ぶんの「〇〇のうつし身」に かわる（職業・レベル・見た目〈見た目装備も〉・
 //   覚えている 技は うつした 人と おなじ。強さは MIRROR_RATE ばい）。技は 仲間の オートの AI（ai.js の decideAlly）で えらぶ
 // ・シミュレーター（tools/sim.js）: b.knowsTemple … しかけを 知っている 人（大波の 前に 身を 守る・おなじ 呪文を つづけない・
-//   水の衣に きずな技〈雷〉・水のろうを こわす）。b.templeNaive … 知らない 人（光っていても 呪文・大波でも 身を 守らない）
-import { MONSTERS } from './data/monsters.js?v=37d7bca100b3';
-import { ABILITIES, ELEMENT_NAMES } from './data/abilities.js?v=37d7bca100b3';
+//   水の衣に 雷の 技・水のろうを こわす）。b.templeNaive … 知らない 人（光っていても 呪文・大波でも 身を 守らない）
+import { MONSTERS } from './data/monsters.js?v=98e104bf307c';
+import { ABILITIES, ELEMENT_NAMES } from './data/abilities.js?v=98e104bf307c';
 // わらべ歌の フラグ（物語の データ。読むだけ）
-import { SONG_FLAGS } from './maps/ch4.js?v=37d7bca100b3';
-import { decideAlly } from './ai.js?v=37d7bca100b3';
+import { SONG_FLAGS } from './maps/ch4.js?v=98e104bf307c';
+import { decideAlly } from './ai.js?v=98e104bf307c';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { atbRate, pub } from './battle.js?v=37d7bca100b3';
-import { mirageSync } from './battle-ch4.js?v=37d7bca100b3';
+import { atbRate, pub } from './battle.js?v=98e104bf307c';
+import { mirageSync } from './battle-ch4.js?v=98e104bf307c';
 
 export const UTSUSHIMI = 'utsushimi';
 export const PRISON = 'water_prison';
@@ -34,7 +34,7 @@ export const REFLECT_CAP = 0.3;
 // 水の守りの歌: はじめの waves 回の 大波が cut ばい
 export const SONG = { waves: 1, cut: 0.5 };
 // うつし身が 使わない 技の こうか（戦いを こわす もの・にげる・追い出す・けしさる・生き返らせる・お金・ぬすむ・どれか ひとつ など）
-const MIRROR_SKIP = new Set(['escape', 'banish', 'destroy', 'revive', 'reviveAll', 'goldThrow', 'steal', 'scan', 'bondUp', 'allMp', 'random', 'callHelp', 'stance', 'hurt', 'overtime', 'mahouken', 'flee']);
+const MIRROR_SKIP = new Set(['escape', 'banish', 'destroy', 'revive', 'reviveAll', 'goldThrow', 'steal', 'scan', 'allMp', 'random', 'callHelp', 'stance', 'hurt', 'overtime', 'mahouken', 'flee']);
 
 const isSpell = (a) => !!a && (a.kind === 'spell' || !!a.spellLike);
 const foeKinds = new Set(['enemy', 'group', 'enemies']);
@@ -88,7 +88,7 @@ export function setupUtsushimi(b) {
 // うつし身が 使える 技（覚えている 技から。戦いを こわす 技は 使わない）
 export function mirrorSkillOk(id) {
   const a = ABILITIES[id];
-  if (!a || a.kind === 'bond' || a.hidden) return false;
+  if (!a || a.hidden) return false;
   const effs = a.effect?.type === 'multi' ? a.effect.parts || [] : [a.effect || {}];
   return effs.every((e) => !MIRROR_SKIP.has(e.type));
 }
@@ -126,7 +126,6 @@ function mirrorView(b) {
   Object.defineProperty(v, 'allies', { get: () => b.enemies });
   Object.defineProperty(v, 'enemies', { get: () => b.allies });
   v.humans = () => [];
-  v.bond = 0;
   for (const k of ['knowsMirage', 'knowsBurrow', 'ignoreBurrow', 'ignoreStance', 'ignoreChant', 'focusBoss', 'knowsTemple', 'templeNaive']) v[k] = false;
   return v;
 }
@@ -425,25 +424,26 @@ export function templeKill(b, t, ev) {
 }
 
 // ───────────── オートの 仲間・シミュレーター ─────────────
-// 味方の オート（ai.js の decideAlly の はじめ）。知っている 人は 大波の 前に 身を 守り、水の衣に きずな技（雷）
+// 味方の オート（ai.js の decideAlly の はじめ）。知っている 人は 大波の 前に 身を 守る
 export function templePlan(b, c, foes) {
   if (c.side !== 'ally' || !b.knowsTemple) return null;
   const mine = 100 / atbRate(c);
   // 大波が 自分の つぎの 番より 先に 来る
   const wave = b.aliveEnemies().find((e) => e.telegraph === WAVE);
   if (wave && (100 - wave.atb) / atbRate(wave) <= mine) return { type: 'defend' };
-  if (b.bond >= 100 && !b.humans().some((h) => h.alive)) {
-    const v = foes.find((f) => f.veil && !f.clone);
-    if (v) return { type: 'bond', target: v.id };
-  }
   return null;
 }
 
-// きずな技を 使って よいか（知っている 人は、水の衣を まとう 敵が いる 時は 衣の 時まで とっておく）
-export function bondOk(b) {
-  if (!b.knowsTemple) return true;
-  const veiled = b.aliveEnemies().filter((e) => MONSTERS[e.species]?.veil && !e.clone);
-  return !veiled.length || veiled.some((e) => e.veil);
+// 水の衣を まとった 敵に 雷の 技（知っている 人。ai.js の decideAlly。第31回: 前の きずな技〈雷〉の かわり）
+// mine … 使える 技（[{ id, a }]）。雷の ダメージの 技で いちばん MPの 多い もの（強い 技）。合体技の ミナデインは 人が えらぶ
+const hasBolt = (e) => !!e && (e.element === 'bolt' && (e.type === 'phys' || e.type === 'magic' || e.type === 'gather')) || (e?.type === 'multi' && (e.parts || []).some(hasBolt));
+export function veilBolt(b, c, foes, mine) {
+  if (c.side !== 'ally' || !b.knowsTemple) return null;
+  const v = foes.find((f) => f.veil && !f.clone);
+  if (!v) return null;
+  const bolt = mine.filter(({ a }) => hasBolt(a.effect) && a.effect.type !== 'gather').sort((x, y) => (y.a.mp || 0) - (x.a.mp || 0))[0];
+  if (!bolt) return null;
+  return ['enemies', 'allies', 'self'].includes(bolt.a.target) ? { type: 'ability', id: bolt.id } : { type: 'ability', id: bolt.id, target: v.id };
 }
 
 // 大波の 前ぶれに 気づかない 人（b.templeNaive）は、ふつうの「大技に そなえる」も しない

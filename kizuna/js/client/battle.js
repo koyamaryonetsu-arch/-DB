@@ -1,38 +1,38 @@
 // たたかいの がめん（むかしの RPG ふう 1がめん）
-import { el, esc, ListMenu, toast } from './ui/dom.js?v=37d7bca100b3';
-import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js?v=37d7bca100b3';
-import { ITEMS } from '../shared/data/items.js?v=37d7bca100b3';
-import { JOBS } from '../shared/data/jobs.js?v=37d7bca100b3';
-import { MONSTERS } from '../shared/data/monsters.js?v=37d7bca100b3';
-import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed, battleAbilityOk } from '../shared/stats.js?v=37d7bca100b3';
-import { affinityOf, attackReach, spellSealed, SEALED_REASON } from '../shared/battle.js?v=37d7bca100b3';
+import { el, esc, ListMenu, toast } from './ui/dom.js?v=98e104bf307c';
+import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js?v=98e104bf307c';
+import { ITEMS } from '../shared/data/items.js?v=98e104bf307c';
+import { JOBS } from '../shared/data/jobs.js?v=98e104bf307c';
+import { MONSTERS } from '../shared/data/monsters.js?v=98e104bf307c';
+import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed, battleAbilityOk } from '../shared/stats.js?v=98e104bf307c';
+import { affinityOf, attackReach, spellSealed, SEALED_REASON } from '../shared/battle.js?v=98e104bf307c';
 // 合体技（2人・3人・4人）の コマンド・さそい・えんしゅつ（battle-dual.js）
-import { myDualOptions, dualMenu, showInvite, askingName, waitText, onDualWait, onDualWaitEnd, onDualHold, onDualAnswer, dualPre, dualFx } from './battle-dual.js?v=37d7bca100b3';
-import { TACTICS } from '../shared/ai.js?v=37d7bca100b3';
-import { faceURL } from './field.js?v=37d7bca100b3';
-import { monsterCanvas } from './render/monsters.js?v=37d7bca100b3';
-import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=37d7bca100b3';
-import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js?v=37d7bca100b3';
-import { PARTY_ANIMS, JOB2_SFX } from './render/battlefx-jobs2.js?v=37d7bca100b3';
-import { PARTY_ANIMS3, JOB3_SFX } from './render/battlefx-jobs3.js?v=37d7bca100b3';
-import { SIG4, JOB4_SFX, sigAnim } from './render/battlefx-jobs4.js?v=37d7bca100b3';
+import { myDualOptions, dualMenu, showInvite, askingName, waitText, onDualWait, onDualWaitEnd, onDualHold, onDualAnswer, onDualBreak, dualPre, dualFx } from './battle-dual.js?v=98e104bf307c';
+import { TACTICS } from '../shared/ai.js?v=98e104bf307c';
+import { faceURL } from './field.js?v=98e104bf307c';
+import { monsterCanvas } from './render/monsters.js?v=98e104bf307c';
+import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=98e104bf307c';
+import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js?v=98e104bf307c';
+import { PARTY_ANIMS, JOB2_SFX } from './render/battlefx-jobs2.js?v=98e104bf307c';
+import { PARTY_ANIMS3, JOB3_SFX } from './render/battlefx-jobs3.js?v=98e104bf307c';
+import { SIG4, JOB4_SFX, sigAnim } from './render/battlefx-jobs4.js?v=98e104bf307c';
 // 第27回に 作り直した 古い 呪文・特技の エフェクト（段階・あたる じかん・音・味方への えんしゅつ）
-import { r27Anim, r27Hit, r27Sfx, playAllyR27 } from './render/battlefx-r27.js?v=37d7bca100b3';
-import { JOB5_SFX } from './render/battlefx-jobs5.js?v=37d7bca100b3';
-import { JOB6_SFX } from './render/battlefx-jobs6.js?v=37d7bca100b3';
-import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js?v=37d7bca100b3';
-import { statusNames, buffNames, targetTag } from './ui/info.js?v=37d7bca100b3';
-import { battleSkillText, battleItemText, favHint } from './ui/skillinfo.js?v=37d7bca100b3';
-import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js?v=37d7bca100b3';
-import { ENEMY_RATE_NAMES } from '../shared/data/difficulty.js?v=37d7bca100b3';
-import { ResultSheet } from './ui/result.js?v=37d7bca100b3';
-import { paintRare } from './ui/rarity.js?v=37d7bca100b3';
+import { r27Anim, r27Hit, r27Sfx, playAllyR27 } from './render/battlefx-r27.js?v=98e104bf307c';
+import { JOB5_SFX } from './render/battlefx-jobs5.js?v=98e104bf307c';
+import { JOB6_SFX } from './render/battlefx-jobs6.js?v=98e104bf307c';
+import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js?v=98e104bf307c';
+import { statusNames, buffNames, targetTag } from './ui/info.js?v=98e104bf307c';
+import { battleSkillText, battleItemText, favHint } from './ui/skillinfo.js?v=98e104bf307c';
+import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js?v=98e104bf307c';
+import { ENEMY_RATE_NAMES } from '../shared/data/difficulty.js?v=98e104bf307c';
+import { ResultSheet } from './ui/result.js?v=98e104bf307c';
+import { paintRare } from './ui/rarity.js?v=98e104bf307c';
 // 第4章の しかけ（月の鏡・まぼろしの 分身・魔神のランプ・ボスの 大技）
-import { CH4_ALLY_FX, ch4ItemEntries, ch4ItemPick, ch4ItemInfo, ch4Present, vanishFx, drawShade, drawBurrow } from './battle-ch4.js?v=37d7bca100b3';
+import { CH4_ALLY_FX, ch4ItemEntries, ch4ItemPick, ch4ItemInfo, ch4Present, vanishFx, drawShade, drawBurrow } from './battle-ch4.js?v=98e104bf307c';
 // 第4章 Step 7 の 砂の底の神殿と モルガナ（鏡のうつし身・水のろうの 絵・水の衣・光・大波・水の守りの歌）
-import { templeSprite, templeDraw, templeStart, TEMPLE_SFX } from './battle-temple.js?v=37d7bca100b3';
+import { templeSprite, templeDraw, templeStart, TEMPLE_SFX } from './battle-temple.js?v=98e104bf307c';
 // 第5章 Step 2 の 星の番人アルゴス（見通しの目。battle-ch5.js）
-import { towerDraw, TOWER_SFX } from './battle-ch5.js?v=37d7bca100b3';
+import { towerDraw, TOWER_SFX } from './battle-ch5.js?v=98e104bf307c';
 
 // たたかいの え の こまかさ（おもい きかいで さげたら、その あいだは さげた まま）
 let battleRes = BRES;
@@ -66,7 +66,7 @@ function allyFxKind(anim, fx, ab) {
   if (eff) {
     if (eff.type === 'heal' || eff.type === 'cure') return 'heal';
     if (eff.type === 'revive') return 'revive';
-    if (eff.type === 'buff' || eff.type === 'bondUp') return 'up';
+    if (eff.type === 'buff') return 'up';
     if (eff.type === 'debuff') return 'down';
     if (eff.type === 'cover') return 'shield';
     if (eff.type === 'charge') return 'charge';
@@ -142,7 +142,6 @@ export class BattleScene {
     for (const c of msg.snap.combatants) this.c.set(c.id, { ...c, flash: 0, dead: !c.alive ? 1 : 0, lunge: 0 });
     // この たたかいで ためした 属性（'まもの|属性'）。図鑑に のっている ぶんと あわせて ねらう ときに 見せる
     this.tried = new Set();
-    this.bond = msg.snap.bond || 0;
     // 戦いの 速さ（エフェクト）と 文字の 速さ（サーバーと おなじ あたい）
     this.fxSpeed = msg.snap.speed || 1;
     this.textSpeed = msg.snap.textSpeed || 1;
@@ -229,8 +228,8 @@ export class BattleScene {
     root.hidden = false;
     this.root = root;
     this.statusEl = el('div', { class: 'b-status' });
-    this.bondEl = el('div', { class: 'win b-bond' }, el('span', { text: 'きずな' }), el('div', { class: 'bb' }, el('i')));
-    const top = el('div', { class: 'b-top' }, this.statusEl, this.bondEl);
+    // 第31回: きずなゲージは なくなった（ミナデインは 合体技に）
+    const top = el('div', { class: 'b-top' }, this.statusEl);
     this.res = battleRes;
     this.canvas = makeCanvas(BW * this.res, BH * this.res);
     this.ctx = ctxOf(this.canvas);
@@ -350,9 +349,6 @@ export class BattleScene {
       s.atb.style.width = `${v}%`;
       s.atbBox.classList.toggle('full', v >= 99.9);
     }
-    const bb = this.bondEl.querySelector('i');
-    bb.style.width = `${Math.min(100, this.bond)}%`;
-    this.bondEl.classList.toggle('full', this.bond >= 100);
   }
 
   // ───────────── メッセージ ─────────────
@@ -455,7 +451,6 @@ export class BattleScene {
     const wagon = battleWagon(this);
     if (wagon) items.splice(items.length - 1, 0, { label: 'いれかえ', value: 'wagon', disabled: !wagon.outs.length || !wagon.ins.some((x) => x.hp > 0) });
     if (duals.length) items.splice(3, 0, { html: '<span class="dual-cmd">合体技</span>', value: 'dual', cls: 'k-dual' });
-    if (this.bond >= 100) items.unshift({ html: '<span class="gold">★ミナデイン</span>', value: 'bond', cls: 'k-bond' });
     this.showMenu(items, (it) => {
       switch (it.value) {
         case 'attack': {
@@ -469,7 +464,6 @@ export class BattleScene {
         case 'item': return this.itemMenu();
         case 'defend': return this.send({ type: 'defend' });
         case 'flee': return this.send({ type: 'flee' });
-        case 'bond': return this.pickEnemy((t) => this.send({ type: 'bond', target: t }), 'ミナデインでねらう相手');
         case 'wagon': return battleSwapMenu(this);
         default:
       }
@@ -869,7 +863,6 @@ export class BattleScene {
             const c = this.c.get(id);
             if (c) c.atb = v;
           }
-          this.bond = ev.bond;
           break;
         case 'ready': {
           const c = this.c.get(ev.id);
@@ -937,12 +930,6 @@ export class BattleScene {
         case 'dualHold':
           onDualHold(this, ev);
           break;
-        case 'bondJoin': {
-          const c = this.c.get(ev.id);
-          if (c) this.banner(`${c.name}が力を合わせた！（${ev.count}人）`);
-          this.game.audio.sfx('bond');
-          break;
-        }
         case 'tactics':
           this.onTactics(ev);
           break;
@@ -986,7 +973,6 @@ export class BattleScene {
       } else this.c.set(u.id, { ...u, flash: 0, dead: 0, lunge: 0 });
     }
     for (const j of ev.joined || []) if (!this.c.has(j.id)) this.c.set(j.id, { ...j, flash: 0, dead: 0, lunge: 0, appear: 1 });
-    if (ev.bond !== undefined) this.bond = ev.bond;
     this.say(ev.lines || [], ev.dur || 1000);
     const actor = this.c.get(ev.id);
     const fx = ev.fx || {};
@@ -1075,7 +1061,8 @@ export class BattleScene {
     // よみがえりの呪文を 止めた
     if (ev.chantBreak) { g.audio.sfx('crit'); this.banner('呪文を止めた！', 'combo'); }
     if (fx.type === 'stance') { g.audio.sfx('warn'); this.banner('！反撃の構え！なぐると反撃される', 'danger'); }
-    if (fx.type === 'bondStart') this.startBondPrompt(ev);
+    // 合体技の よやくで まっていた 人が ダメージ: ゲージが 半分から やり直し（battle-dual.js）
+    if (ev.dualBreak) onDualBreak(this, ev);
     if (fx.type === 'flee') g.audio.sfx('flee');
     if (fx.type === 'wagon') wagonSwapFx(this, ev);
     // 月の鏡・まぼろし・ボスの 大技（battle-ch4.js）
@@ -1437,31 +1424,6 @@ export class BattleScene {
   shake(ms, px = 5) {
     const a = Math.round(px), b = Math.round(px * 0.4), c = Math.round(px * 0.6);
     this.stage.animate([{ transform: 'translate(0,0)' }, { transform: `translate(${-a}px,${b}px)` }, { transform: `translate(${a}px,${-b}px)` }, { transform: `translate(${-c}px,${Math.round(b / 2)}px)` }, { transform: 'translate(0,0)' }], { duration: ms });
-  }
-
-  // きずな技: みんなで ボタンを おす
-  startBondPrompt(ev) {
-    this.game.audio.sfx('bond');
-    this.fx.flash = 400;
-    this.fx.flashColor = '#ffe0f4';
-    const a = this.primary;
-    if (!a || !a.alive || a.auto || ev.id === a.id) return;
-    const btn = el('button', { class: 'bondjoin', text: '★ 力を合わせる！ ★' });
-    const join = () => {
-      this.game.net.send({ t: 'battle', actor: a.id, cmd: { type: 'bondJoin' } });
-      btn.remove();
-      this.game.input.pop(h);
-    };
-    const h = { el: btn, onNav: (x) => { if (x === 'a') join(); } };
-    btn.addEventListener('click', join);
-    this.stage.append(btn);
-    this.game.input.push(h);
-    setTimeout(() => {
-      if (btn.isConnected) {
-        btn.remove();
-        this.game.input.pop(h);
-      }
-    }, (ev.bondWindow || 3500) - 200);
   }
 
   // ───────────── まいフレーム ─────────────

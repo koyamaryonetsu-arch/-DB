@@ -12,26 +12,26 @@
 //   ['teleport', 'map', x, y, 'dir']  ['spawn', 'map', x, y]  ['chapter', 'だい1しょう', 'サブタイトル']
 //
 // x（じょうほう）: x.name x.flag('f') x.has('item') x.count('item') x.kills('monster') x.quest('key')
-import { POS } from '../maps/index.js?v=37d7bca100b3';
-import { PLACES } from '../maps/overworld.js?v=37d7bca100b3';
-import { ABILITIES } from './abilities.js?v=37d7bca100b3';
-import { learnedAbilities, comboUnlocked, hiraAllowed, hiraRelated, partyJobSet } from '../stats.js?v=37d7bca100b3';
-import { HIRAMEKI, hiraRatio } from './hirameki.js?v=37d7bca100b3';
-import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js?v=37d7bca100b3';
-import { CH3_STEPS, CH3_STORY_SCRIPTS, CH3_SCRIPTS, elderCh3 } from './story-ch3.js?v=37d7bca100b3';
-import { CH4_STEPS, CH4_STORY_SCRIPTS, CH4_SCRIPTS, elderCh4 } from './story-ch4.js?v=37d7bca100b3';
-import { CH5_STEPS, CH5_STORY_SCRIPTS, CH5_SCRIPTS, CH5_TOWN_LINES, elderCh5 } from './story-ch5.js?v=37d7bca100b3';
-import { TM_SCRIPTS, TM_STORY_SCRIPTS } from './story-tm.js?v=37d7bca100b3';
-import { SD_SCRIPTS } from './story-secret.js?v=37d7bca100b3';
-import { CASINO_SCRIPTS } from './story-casino.js?v=37d7bca100b3';
-import { innSteps } from './inn.js?v=37d7bca100b3';
-import { NIGHT_SCRIPTS } from './night.js?v=37d7bca100b3';
-import { skyScripts } from './sky.js?v=37d7bca100b3';
-import { FACILITY_SCRIPTS } from './facilities.js?v=37d7bca100b3';
-import { wagonEventSteps } from './wagon.js?v=37d7bca100b3';
-import { JOB_GREET } from './job-talk.js?v=37d7bca100b3';
-import { LAB_SCRIPTS, LAB_STORY_SCRIPTS } from './story-lab.js?v=37d7bca100b3';
-import { QUEST_SCRIPTS, QUEST_STORY_SCRIPTS, wrapSideQuests } from './sidequests.js?v=37d7bca100b3';
+import { POS } from '../maps/index.js?v=98e104bf307c';
+import { PLACES } from '../maps/overworld.js?v=98e104bf307c';
+import { ABILITIES } from './abilities.js?v=98e104bf307c';
+import { learnedAbilities, comboUnlocked, hiraAllowed, hiraRelated, partyJobSet } from '../stats.js?v=98e104bf307c';
+import { HIRAMEKI, hiraRatio } from './hirameki.js?v=98e104bf307c';
+import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js?v=98e104bf307c';
+import { CH3_STEPS, CH3_STORY_SCRIPTS, CH3_SCRIPTS, elderCh3 } from './story-ch3.js?v=98e104bf307c';
+import { CH4_STEPS, CH4_STORY_SCRIPTS, CH4_SCRIPTS, elderCh4 } from './story-ch4.js?v=98e104bf307c';
+import { CH5_STEPS, CH5_STORY_SCRIPTS, CH5_SCRIPTS, CH5_TOWN_LINES, elderCh5 } from './story-ch5.js?v=98e104bf307c';
+import { TM_SCRIPTS, TM_STORY_SCRIPTS } from './story-tm.js?v=98e104bf307c';
+import { SD_SCRIPTS } from './story-secret.js?v=98e104bf307c';
+import { CASINO_SCRIPTS } from './story-casino.js?v=98e104bf307c';
+import { innSteps } from './inn.js?v=98e104bf307c';
+import { NIGHT_SCRIPTS } from './night.js?v=98e104bf307c';
+import { skyScripts } from './sky.js?v=98e104bf307c';
+import { FACILITY_SCRIPTS } from './facilities.js?v=98e104bf307c';
+import { wagonEventSteps } from './wagon.js?v=98e104bf307c';
+import { JOB_GREET } from './job-talk.js?v=98e104bf307c';
+import { LAB_SCRIPTS, LAB_STORY_SCRIPTS } from './story-lab.js?v=98e104bf307c';
+import { QUEST_SCRIPTS, QUEST_STORY_SCRIPTS, wrapSideQuests } from './sidequests.js?v=98e104bf307c';
 
 const V = (x, y) => [PLACES.village.x + x + 0.5, PLACES.village.y + y + 0.5];
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
@@ -294,7 +294,7 @@ export const SCRIPTS = {
   v_girl: (x) => S('女の子', '素早さが高い人ほど、戦いで早く動けるのよ。', '武闘家さんはとっても素早いんだって！'),
   v_boy: (x) => S('男の子', 'ねえねえ、知ってる？魔物にさわると戦いになるんだよ。', '聖水を使うと弱い魔物が寄ってこなくなるんだって！'),
   v_oldman: (x) => S('おじいさん', 'わしが若いころ、きずなの紋章の勇者の歌をよく聞いたもんじゃ…',
-    '「一人ではともせぬ光も、みんなでともせば夜を照らす」…', '仲間といっしょに戦うと「きずなゲージ」がたまるそうじゃよ。'),
+    '「一人ではともせぬ光も、みんなでともせば夜を照らす」…', '仲間と力を合わせる「合体技」というものがあるそうじゃよ。'),
   v_woman: (x) => S('おくさん', '困ったら自分の家のベッドで休むといいわ。\nHPもMPも全部回復するわよ。'),
   star_stone: (x) => {
     if (!x.flag('p_attack')) return N('守り星の石が優しくかがやいている。');

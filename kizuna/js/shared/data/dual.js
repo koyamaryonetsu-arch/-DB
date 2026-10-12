@@ -3,8 +3,12 @@
 // ・自分の 行動ゲージが たまって コマンドを えらぶ とき、仲間と 出せる。
 //   仲間の ゲージが たまって いれば すぐ。まだ なら「よやく」して、みんなの ゲージが たまった ときに いっしょに 出す
 //   （3人・4人の 技は、先に ゲージが たまった 仲間は ほかの 仲間を まつ。みんなの 番を 使う。shared/battle-dual.js）
+//   よやくで ゲージが たまって まっている 人が ダメージを 受けると、その 人の ゲージは 半分から やり直し（よやくは つづく）
 // ・はじめて 使う までは 効果が わからない（char.dualSeen。使うと わかる）
-// ・need の 組（2〜4こ）の 技を、出す 人が 1つずつ 覚えていれば 出せる（だれが どの 組でも よい）
+// ・need の 組（2〜4こ）を、出す 人が 1人ずつ うけもつ。うけもてるのは「今 ついている 職業」が その 組の 職業の 人
+//   （組の 技を 持つ 職業。マスターした 職業や、前の 職業で 覚えた 技は 関係 ない。だれが どの 組でも よい）
+// ・「職業が だれでも よい」組は ミナデイン（勇者の 系統 ＋ だれでも 3人）だけ（家族が 決めた れいがい）。
+//   全員集合は 4人の 職業が おなじ か、4人とも おなじ 基本職から 分かれた 系統（team: 'line'）
 // ・出す 人みんなの 番（行動ゲージ）と、それぞれの MP（mp[組の じゅん]）を 使う
 // ・相手が 家族（人が 動かしている キャラ）の ときは、相手に「参加する？」と 聞く
 // ・技の 強さは、出す 人が それぞれ ふつうに 技を 出した ときの ダメージの 合計 × DUAL_POWER（人数）× parts の k
@@ -12,9 +16,12 @@
 //
 // 第26回（2026年10月）: 40こ あった 合体技を 25こに しぼって 強く した。3人技・4人技と、クスッと 笑える 技を くわえた。
 // けずった 合体技を 使った ことの ある 記録（char.dualSeen）は そのまま のこす（DUAL_LEGACY: にていて 1つに まとめた 技は、まとめた 先の 技も わかる）
-import { ABILITIES } from './abilities.js?v=37d7bca100b3';
+// 第31回（2026年10月）: 今の 職業で 判定する ように した。「攻撃の 技（どの 職業でも）」の 組を なくし、
+//   きずな技の ミナデインを 合体技に した（dt_minadein）。せーのでジャンプ・家族会議・なぞは すべて 解けた！の 組も 職業に むすびつけた
+import { ABILITIES } from './abilities.js?v=98e104bf307c';
+import { JOBS, ALL_JOBS, jobAncestry, jobBases } from './jobs.js?v=98e104bf307c';
 
-// 技の 組（どれか 1つを 覚えていれば よい）
+// 技の 組（この 技を 持つ 職業の 人が うけもてる）
 const FIRE = ['mera', 'merami', 'merazoma', 'gira', 'begirama', 'nj_katon', 'am_begiragon', 'am_meragaia', 'hk_triple_mera', 'ck_tsuyobi', 'ck_flambe', 'hi_daikaryoku', 'hi_giragureido', 'hi_ima_mera'];
 const ICE = ['hyado', 'hyadaruko', 'sg_mahyado', 'pr_uzushio', 'hk_koori_ya', 'dz_mahyadedos', 'hi_eternal_blizzard', 'sb_aircon', 'rn_chiller', 'kp_mizu'];
 const WIND = ['bagi', 'bagima', 'sg_bagikurosu', 'nj_fuujin', 'hp_bagimuta', 'kamaitachi', 'hk_senpuukyaku', 'ar_senpu', 'hkp_hanabira'];
@@ -29,10 +36,13 @@ const SWORD = ['daichi', 'kaiha', 'kuuretsu', 'kabutowari', 'majingiri', 'tamash
 const FIST = ['seiken', 'bakuretsu', 'mouko', 'hyakuretsu', 'issen', 'hf_seikou', 'gh_shinsoku', 'hk_sandan', 'sy_rush', 's2_rush', 'go_pistol', 'nr_punch', 'nr_tackle', 'mr_zutsuki', 'kp_tsuppari', 'kn_punch', 'kn_tackle', 'kinniku_kappa_sig', 'hkp_pakkan', 'kh_senpuu', 'hg_oodama'];
 const HEAL = ['hoimi', 'behoimi', 'behomara', 'sg_behoma', 'pl_hikari', 'id_fansa', 'id_kami', 'hk_iyashi_kaze', 'ss_stardance', 'es_kyushoku', 'lc_jumin', 'ff_teate', 'fz_juice',
   'ok_gohan', 'ab_makanai', 'dz_ishi', 'dt_hohoemi', 'lt_inori', 'ct_kusuri', 'creator_sig', 'nr_dorayaki', 'mr_shuuri', 'os_oyatsu', 'kp_kyuuri', 'hkp_mitsu',
-  'rr_sentaku', 'hm_ocha', 'ht_ikiyou'];
+  'rr_sentaku', 'hm_ocha', 'ht_ikiyou',
+  // 第31回: 大神官も いやしの 組に
+  'hp_behomazun'];
 const DANCE = ['hustle', 'medapani', 'zameha_dance', 'ss_stardance', 'js_bakuten', 'hk_happy_step', 'ar_senpu'];
 const SONG = ['ouen', 'tatakai_uta', 'pr_utage', 'bb_ouenka', 'id_penlight', 'hk_fan_cheer', 'sd_song', 'es_recorder', 'jh_gassho', 'ar_harmony', 'kq_doremi'];
-const GUARD = ['kabau', 'sukara', 'sukuruto', 'pl_daibougyo', 'pl_aegis', 'gd_wall', 'id_center', 'lc_bousai', 'cr_kiki', 'ff_hinoyoujin', 'dv_anzen', 'kq_sentou', 'hm_fusatsu'];
+// 第31回: かばう（戦士）は 町を 守る 技から はずした（戦士が どこにでも 入って しまう）
+const GUARD = ['sukara', 'sukuruto', 'pl_daibougyo', 'pl_aegis', 'gd_wall', 'id_center', 'lc_bousai', 'cr_kiki', 'ff_hinoyoujin', 'dv_anzen', 'kq_sentou', 'hm_fusatsu'];
 const RAIL = ['rw_manin', 'rw_teikoku', 'rw_shinkansen', 'rw_shuuden', 'hk_tokkyu', 'dv_tsuuka', 'dv_renketsu', 'dv_saikou', 'kq_120', 'kq_kaitoku'];
 const OFFICE = ['sm_meishi', 'sm_eigyo', 'sm_horenso', 'sm_present', 'hk_meishi_shuriken', 'sk_tsukin', 'sk_kaigi', 'rk_card', 'rk_dance', 'rakuten_cardman_sig'];
 const BALL = ['bb_hit', 'bb_homerun', 'bb_fastball', 'hk_nagashi', 'hk_makyuu', 'ml_160', 'nt_nitoryu'];
@@ -79,17 +89,10 @@ const JOBWORK = [...new Set([...OFFICE, ...CIVIL, ...SHACHIKU, ...BOSS, ...STORE
 const FACILITY_WORK = [...new Set([...FACILITY, ...JOBWORK])];
 // 子ども（学校・ゲーム・配信）
 const KIDS = [...new Set([...SCHOOL, ...GAME, ...STREAM])];
-// 体を 使う 技（せーのでジャンプ）
-const JUMP = [...new Set([...FIST, ...DANCE, ...SCHOOL, ...BALL, ...KI, ...GOMU, ...JESTER, ...RAIL])];
 const RESCUE = [...new Set([...HEAL, ...CIVIL, ...GUARD])];
 const SALARY = [...new Set([...SHACHIKU, ...OFFICE])];
 const KITCHEN = [...new Set([...COOK, ...STORE])];
-// 攻撃の 技（職業の 技で、ダメージを あたえる もの。新しい 職業の 技も 自動で 入る）
-const hurts = (e) => !!e && (e.type === 'phys' || e.type === 'magic' || (e.type === 'multi' && (e.parts || []).some(hurts)));
-const ATTACK = Object.keys(ABILITIES).filter((id) => {
-  const a = ABILITIES[id];
-  return a.job && !a.hidden && (a.kind === 'skill' || a.kind === 'spell') && hurts(a.effect);
-});
+// 第31回:「攻撃の 技（どの 職業でも）」の 組（ATTACK）と「体を 使う 技」（JUMP・32の 職業）は なくした
 
 // 第27回: 新しい 職業（第26回の 20こと 暴れんぼう将軍）の 組。その 職業の 技（ひらめき技も）を ぜんぶ 入れる
 const byJob = (...jobs) => Object.keys(ABILITIES).filter((id) => {
@@ -110,27 +113,57 @@ const CREATOR = byJob('creator');
 // 第29回: るろうに剣士 → 人斬りばっ刀さい → ひ村ばっ刀さい → 飛天御剣流けい承者
 const HITEN = byJob('rurouni', 'hitokiri', 'himura', 'hiten');
 
+// ───── 第31回: 職業に むすびつけた 組 ─────
+// 上級職 いじょう（tier 1〜）の 職業の 技だけ（グランドフィナーレ）
+const advanced = (list) => list.filter((id) => (JOBS[ABILITIES[id]?.job]?.tier || 0) >= 1);
+const ATK_SPELLS = ELEM_SPELLS.filter((id) => ABILITIES[id]?.kind === 'spell');
+const SWORD_ADV = advanced(SWORD);
+const FIST_ADV = advanced(FIST);
+const SPELL_ADV = advanced(ATK_SPELLS);
+const HEAL_ADV = advanced(HEAL);
+// せーのでジャンプ: 学校の 子・野球選手・おどる 人
+const BALL_JOBS = byJob('ballplayer', 'major_leaguer', 'nitoryu');
+const DANCE_JOBS = byJob('performer', 'jester', 'superstar', 'storm_idol');
+// 家族会議の 4人目: 家に いる 人（ニート・ネコ型ロボット）
+const HOME = [...new Set([...NEET, ...ROBOT])];
+// なぞは すべて 解けた！の 4人目: 警察・スパイ・探てい
+const SLEUTH = byJob('police', 'spy', 'shonen_tantei', 'oshiri_tantei', 'meitantei');
+// ミナデイン: 勇者の 系統（勇者と、勇者から 分かれた 職業）。のこりの 3人は だれでも よい（ANY は この 技だけ）
+export const HERO_LINE_JOBS = ALL_JOBS.filter((j) => jobAncestry(j).has('hero'));
+const HERO_LINE = byJob(...HERO_LINE_JOBS);
+const ANY = byJob(...ALL_JOBS);
+// 全員集合: 組は だれでも（4人の 職業の そろいかたは team: 'line' で 見る）
+const LINE = [...ANY];
+
 // 組の なまえ（メニューの 一覧で 見せる）
 export const DUAL_GROUP_NAMES = new Map([
   [FIRE, '炎の呪文'], [ICE, '氷の呪文'], [WIND, '風の技'], [ELEM_SPELLS, '属性の技'], [SWORD, '剣の技'], [FIST, 'こぶしの技'], [MELEE, '剣かこぶしの技'],
   [HEAL, '回復の技'], [STAGE, 'おどり・歌・アイドルの技'], [RAIL, '鉄道員の技'], [JOBWORK, '大人の仕事の技'], [SCHOOL, '学校の技'], [COMEDY, 'お笑いか遊び人の技'],
   [KI, '気の技'], [GOMU, 'ゴムの技'], [OKAN, 'おかんの技'], [NEET, 'ニートの技'], [COOK, '料理の技'], [STORE, 'お店と会社の技'],
   [FACILITY, '設備の技'], [FACILITY_WORK, '設備か大人の仕事の技'], [MAOU, '魔王の技'], [HAKAI, 'はかい神の技'], [HOLY, '光か勇者の技'], [DARK, '闇の技'],
-  [JUMP, '体を使う技'], [POLICE, '警察官の技'], [FIRE_DEPT, '消防士の技'], [RESCUE, '回復か町を守る技'], [KIDS, '子どもの技（学校・ゲーム・配信）'],
-  [BOSS, '上司の技'], [SALARY, '社ちくか会社員の技'], [KITCHEN, '料理かお店の技'], [STREAM, '配信の技'], [GAME, 'ゲームの技'], [ATTACK, '攻撃の技（どの職業でも）'],
+  [POLICE, '警察官の技'], [FIRE_DEPT, '消防士の技'], [RESCUE, '回復か守りの技'], [KIDS, '子ども（学校・ゲーム・配信）の技'],
+  [BOSS, '上司の技'], [SALARY, '社ちくか会社員の技'], [KITCHEN, '料理かお店の技'], [STREAM, '配信の技'], [GAME, 'ゲームの技'],
   // 第27回
   [DETECTIVE, '探ていの技'], [SHADOW, 'スパイ・殺し屋・黒の組織の技'], [ROBOT, 'ネコ型ロボットの技'], [KAPPA, 'カッパの技'], [RAKUTEN, '楽天カードマンの技'],
   [UESAMA, '将軍の技'], [SAMURAI, 'サムライの技'], [SHINOBI, '忍びの技'], [KISATSU, 'きさつ隊の技'], [ESPER, '超能力の技'], [CREATOR, 'クリエイターの技'],
   // 第29回
   [HITEN, '飛天御剣流の技'],
+  // 第31回
+  [SWORD_ADV, '剣の上級職'], [FIST_ADV, 'こぶしの上級職'], [SPELL_ADV, '攻撃呪文の上級職'], [HEAL_ADV, 'いやしの上級職'],
+  [BALL_JOBS, '野球の技'], [DANCE_JOBS, 'おどりの技'], [HOME, 'ニートかネコ型ロボットの技'], [SLEUTH, '警察・スパイ・探ていの技'],
+  [HERO_LINE, '勇者の系統'], [ANY, 'どの職業でも'], [LINE, '4人とも同じ職業か同じ系統'],
 ]);
+// ひとことで 言える 組（「〇〇の職業」と 言いかえない）
+const PLAIN_NAMES = new Set([SWORD_ADV, FIST_ADV, SPELL_ADV, HEAL_ADV, HERO_LINE, ANY, LINE]);
+// 職業が だれでも よい 組（ミナデインだけ）と、4人の そろいかたで 見る 組（全員集合）
+export const ANY_GROUPS = new Set([ANY, LINE]);
 
 // parts の type:
 //   power … ダメージ（出す 人の ふつうの 技の 合計 × DUAL_POWER[人数] × k。kind: 'phys'（物理）/ 'magic'（呪文）。hits: 何回に 分けて 当てるか。
 //           ignoreDef: 守りを むしする わりあい（物理の 見つもりに つかう）、status・debuff・dispel・banish: 当てた あとの 効果）
 //   heal  … 仲間の 回復（さいだいHPの pct ＋ 出す 人の 回復の 技の 合計 × k）
 //   revive … たおれた 仲間を 生き返らせる（さいだいHPの pct）
-//   そのほか（buff・debuff・cure・atbSet・mpHeal・bondUp・status）は ふつうの 技と おなじ
+//   そのほか（buff・debuff・cure・atbSet・mpHeal・status）は ふつうの 技と おなじ
 // elementFrom: その 組の 人が 出した 技の 属性に なる（クロス魔法剣）
 // fx: 画面の えんしゅつ（client/render/dualfx.js）。funny: クスッと 笑える 技
 export const DUAL_TECHS = {
@@ -162,8 +195,8 @@ export const DUAL_TECHS = {
   },
   dt_stage: {
     name: 'ステージショー', kana: 'すてーじしょー', need: [STAGE, STAGE], mp: [6, 6], target: 'allies',
-    parts: [{ type: 'buff', stats: ['atk', 'agi'], mult: 1.5, dur: 40 }, { type: 'heal', pct: 0.2, k: 0.3 }, { type: 'bondUp', amount: 15 }],
-    desc: '歌とおどりの大ステージ！仲間全員の攻撃力と素早さが大きく上がり、HPも回復して、きずなも深まる。', anim: 'stage',
+    parts: [{ type: 'buff', stats: ['atk', 'agi'], mult: 1.5, dur: 40 }, { type: 'heal', pct: 0.2, k: 0.3 }, { type: 'mpHeal', base: [3, 5] }],
+    desc: '歌とおどりの大ステージ！仲間全員の攻撃力と素早さが大きく上がり、HPとMPも回復する。', anim: 'stage',
   },
   dt_tsukin_rush: {
     name: '通勤ラッシュ', kana: 'つうきんらっしゅ', need: [RAIL, JOBWORK], mp: [6, 6], target: 'enemies', funny: true,
@@ -229,12 +262,12 @@ export const DUAL_TECHS = {
     desc: '剣・こぶし・呪文が三角形をえがいて、1つの点にあつまる。敵1体に、呪文と同じ属性の大ダメージ。', anim: 'cross_slash',
   },
   dt_jump: {
-    name: 'せーのでジャンプ', kana: 'せーのでじゃんぷ', need: [JUMP, JUMP, JUMP], mp: [6, 6, 6], target: 'enemies', funny: true,
+    name: 'せーのでジャンプ', kana: 'せーのでじゃんぷ', need: [SCHOOL, BALL_JOBS, DANCE_JOBS], mp: [6, 6, 6], target: 'enemies', funny: true,
     parts: [
-      { type: 'power', kind: 'phys', k: 0.75, say: '「せーの！」3人がいっしょにジャンプして、ドスンと着地した！' },
+      { type: 'power', kind: 'phys', k: 0.8, say: '「せーの！」3人がいっしょにジャンプして、ドスンと着地した！' },
       { type: 'atbSet', sub: 50, chance: 0.7, msg: '{t}はゆれでひっくり返った！', failMsg: '{t}はなんとかふんばった。' },
     ],
-    desc: '「せーの！」3人でいっしょにジャンプして、地面をドスンとゆらす。敵全体にダメージをあたえて、ひっくり返す。', anim: 'quake',
+    desc: '「せーの！」学校の子と野球選手とおどる人が、いっしょにジャンプして地面をドスンとゆらす。敵全体にダメージをあたえて、ひっくり返す。', anim: 'quake',
   },
   dt_uukanpi: {
     name: 'ウーウーカンカンピーポー', kana: 'うーうーかんかんぴーぽー', need: [POLICE, FIRE_DEPT, RESCUE], mp: [8, 8, 8], target: 'allies', funny: true,
@@ -265,29 +298,36 @@ export const DUAL_TECHS = {
     name: '大コラボ配信', kana: 'だいこらぼはいしん', need: [STREAM, GAME, STAGE], mp: [7, 7, 7], target: 'enemies',
     parts: [
       { type: 'power', kind: 'magic', element: 'light', k: 0.65, say: 'コメントがあらしのようにふってきた！' },
-      { type: 'buff', target: 'allies', stats: ['atk', 'agi'], mult: 1.4, dur: 40 }, { type: 'bondUp', amount: 25 },
+      { type: 'buff', target: 'allies', stats: ['atk', 'agi'], mult: 1.4, dur: 40 }, { type: 'mpHeal', target: 'allies', base: [3, 6] },
     ],
-    desc: '配信者とゲーマーとアイドルの、ゆめのコラボ配信！敵全体にコメントのあらし。仲間全員の攻撃力と素早さが上がり、きずなも深まる。', anim: 'camera',
+    desc: '配信者とゲーマーとアイドルの、ゆめのコラボ配信！敵全体にコメントのあらし。仲間全員の攻撃力と素早さが上がり、MPも少し回復する。', anim: 'camera',
   },
   // ───────── 4人技 ─────────
   dt_zenin: {
-    name: '全員集合', kana: 'ぜんいんしゅうごう', need: [ATTACK, ATTACK, ATTACK, ATTACK], mp: [10, 10, 10, 10], target: 'enemies', funny: true,
-    parts: [{ type: 'power', kind: 'phys', k: 0.7, say: '「全員集合！」4人がいっせいにとびかかった！' }],
-    desc: '「全員集合！」4人がいっせいに敵におそいかかる。どの職業の4人でも出せる。敵全体に大ダメージ。', anim: 'hit_all',
+    name: '全員集合', kana: 'ぜんいんしゅうごう', need: [LINE, LINE, LINE, LINE], team: 'line', mp: [10, 10, 10, 10], target: 'enemies', funny: true,
+    parts: [{ type: 'power', kind: 'phys', k: 0.85, say: '「全員集合！」4人がいっせいにとびかかった！' }],
+    desc: '「全員集合！」同じ職業か、同じ基本職から分かれた職業の4人が、いっせいに敵におそいかかる。敵全体に大ダメージ。', anim: 'hit_all',
   },
   dt_kazoku_kaigi: {
-    name: '家族会議', kana: 'かぞくかいぎ', need: [OKAN, JOBWORK, KIDS, ATTACK], mp: [8, 8, 8, 8], target: 'enemies', funny: true,
+    name: '家族会議', kana: 'かぞくかいぎ', need: [OKAN, JOBWORK, KIDS, HOME], mp: [8, 8, 8, 8], target: 'enemies', funny: true,
     parts: [
       { type: 'buff', target: 'allies', stats: ['atk', 'def', 'agi'], mult: 1.5, dur: 45, say: '「では、今日の晩ごはんを決めます！」' },
       { type: 'status', status: 'sleep', chance: 0.8, turns: [2, 3], say: '話し合いが長すぎて…' },
       { type: 'heal', target: 'allies', pct: 0.3, k: 0.4 },
     ],
-    desc: '「では、家族会議を始めます」話し合いがあまりに長くて、敵全体がねむってしまう。家族はまとまって、攻撃力・守備力・素早さが大きく上がり、HPも回復する。', anim: 'stage',
+    desc: '「では、家族会議を始めます」おかん・仕事の大人・子ども・家にいる人がそろうと、話し合いがあまりに長くて、敵全体がねむってしまう。家族はまとまって、攻撃力・守備力・素早さが大きく上がり、HPも回復する。', anim: 'stage',
   },
   dt_finale: {
-    name: 'グランドフィナーレ', kana: 'ぐらんどふぃなーれ', need: [SWORD, FIST, ELEM_SPELLS, HEAL], mp: [14, 14, 14, 14], target: 'enemy', element: 'light', weapon: [0, 'blade'],
-    parts: [{ type: 'power', kind: 'magic', element: 'light', k: 1.0, hits: 4 }, { type: 'heal', target: 'allies', pct: 0.3, k: 0.4 }],
-    desc: '剣・こぶし・呪文・いやし。4人の力が1つの光になって、敵1体をつらぬく。とどめの大ダメージのあと、仲間全員のHPも回復する。', anim: 'holy',
+    name: 'グランドフィナーレ', kana: 'ぐらんどふぃなーれ', need: [SWORD_ADV, FIST_ADV, SPELL_ADV, HEAL_ADV], mp: [14, 14, 14, 14], target: 'enemy', element: 'light', weapon: [0, 'blade'],
+    parts: [{ type: 'power', kind: 'magic', element: 'light', k: 1.1, hits: 4 }, { type: 'heal', target: 'allies', pct: 0.3, k: 0.4 }],
+    desc: '剣・こぶし・攻撃呪文・いやし、それぞれの上級職の4人の力が1つの光になって、敵1体をつらぬく。とどめの大ダメージのあと、仲間全員のHPも回復する。', anim: 'holy',
+  },
+  // 第31回: きずな技だった ミナデインが 合体技に。勇者の 系統が 1人 いれば、のこりの 3人は だれでも よい（家族が 決めた れいがい）。
+  // 合体技で いちばん 強い 敵1体の 雷（k 1.4 は 合体技で いちばん 大きい。ボスへは さいだいHPの 35%まで・MPも 多め。tools/sim-dual.mjs minadein）
+  dt_minadein: {
+    name: 'ミナデイン', kana: 'みなでいん', need: [HERO_LINE, ANY, ANY, ANY], mp: [20, 12, 12, 12], target: 'enemy', spell: true, element: 'bolt', bossCap: 0.35,
+    parts: [{ type: 'power', kind: 'magic', element: 'bolt', k: 1.4, say: 'みんなの力が、1つの大きな雷になった！' }],
+    desc: '勇者が天にかかげた手に、仲間みんなの力が集まる。勇者の系統の人が1人いれば、あとの3人はだれでもよい。敵1体に、合体技でいちばん強い雷をおとす。', anim: 'minadein',
   },
 };
 
@@ -354,21 +394,21 @@ const R27_DUALS = {
     desc: '上様とサムライと忍びが、町の火消しといっしょに大立ち回り。敵全体を何度も斬りつけて、ひれふさせることもある。', anim: 'slash_multi',
   },
   dt_hakkeyoi: {
-    name: 'はっけよい、のこった！', kana: 'はっけよいのこった', need: [KAPPA, FIST, JUMP], mp: [8, 8, 8], target: 'enemies', funny: true,
+    name: 'はっけよい、のこった！', kana: 'はっけよいのこった', need: [KAPPA, FIST, SCHOOL], mp: [8, 8, 8], target: 'enemies', funny: true,
     parts: [
       { type: 'power', kind: 'phys', k: 0.85, say: '「はっけよい、のこった！のこった！」' },
       { type: 'banish', chance: 0.3, msg: '{t}は、どひょうの外までおし出された！', failMsg: '{t}は、どひょうぎわでこらえた！' },
     ],
-    desc: 'カッパのかけ声で、みんなですもう！敵全体に体当たりして、どひょうの外までおし出してしまうこともある。', anim: 'quake',
+    desc: 'カッパのかけ声で、こぶしの強い人と学校の子が、みんなですもう！敵全体に体当たりして、どひょうの外までおし出してしまうこともある。', anim: 'quake',
   },
   // 4人技
   dt_nazo: {
-    name: 'なぞはすべて解けた！', kana: 'なぞはすべてとけた', need: [DETECTIVE, KIDS, ROBOT, ATTACK], mp: [12, 10, 10, 10], target: 'enemies',
+    name: 'なぞはすべて解けた！', kana: 'なぞはすべてとけた', need: [DETECTIVE, KIDS, ROBOT, SLEUTH], mp: [12, 10, 10, 10], target: 'enemies',
     parts: [
-      { type: 'power', kind: 'magic', element: 'deduce', k: 0.8, say: '探てい団バッジで、みんなの手がかりがつながった！' },
+      { type: 'power', kind: 'magic', element: 'deduce', k: 0.85, say: '探てい団バッジで、みんなの手がかりがつながった！' },
       { type: 'atbSet', sub: 40, chance: 0.6, msg: '{t}は、正体をあばかれて動けない！', failMsg: '{t}は、しらを切った！' },
     ],
-    desc: '探ていとロボットと子どもたちが、手がかりを持ちよる。「なぞは、すべて解けた！」敵全体の、それぞれの弱点を見ぬいて大ダメージ。動きを止めることもある。', anim: 'holy',
+    desc: '探ていとロボットと子どもたちと、警察かスパイが、手がかりを持ちよる。「なぞは、すべて解けた！」敵全体の、それぞれの弱点を見ぬいて大ダメージ。動きを止めることもある。', anim: 'holy',
   },
 };
 // ───────── 第29回: るろうに剣士の 道の 合体技（2こ。2人技1・3人技1。ぜんぶで 37こ） ─────────
@@ -423,20 +463,65 @@ export function groupName(list) {
   return DUAL_GROUP_NAMES.get(list) || list.map((id) => ABILITIES[id]?.name).filter(Boolean).slice(0, 3).join('・');
 }
 
+// 組を うけもてる 職業（その 組の 技を 持つ 職業）
+const jobCache = new WeakMap();
+export function groupJobs(list) {
+  let s = jobCache.get(list);
+  if (!s) jobCache.set(list, (s = new Set(list.map((id) => ABILITIES[id]?.job).filter((j) => JOBS[j]))));
+  return s;
+}
+
+// 組を うけもてる 職業の 説明（メニュー・戦いの 説明の まど）。職業が 3つ までなら 職業の 名前、多い ときは「〇〇の職業」
+export function groupJobText(list) {
+  const nm = groupName(list);
+  if (PLAIN_NAMES.has(list)) return nm;
+  const jobs = [...groupJobs(list)];
+  if (jobs.length && jobs.length <= 3) return jobs.map((j) => JOBS[j].name).join('・');
+  return `${nm.replace(/の技$/, '')}の職業`;
+}
+
+// 合体技に 必要な 職業（組ごと。おなじ 組が つづく ときは「×3」。例:「勇者の系統＋どの職業でも×3」）
+// short … たたかいの 説明の まど よう（組の 名前を みじかく。例:「おかん＋ニート＋子ども」）
+export function dualNeedText(id, short = false) {
+  const t = DUAL_TECHS[id];
+  if (!t) return '';
+  const out = [];
+  for (const g of t.need) {
+    const txt = short ? groupName(g).replace(/（.*）/, '').replace(/の技$/, '') : groupJobText(g);
+    const last = out[out.length - 1];
+    if (last && last.txt === txt) last.n++;
+    else out.push({ txt, n: 1 });
+  }
+  return out.map((x) => (x.n > 1 ? `${x.txt}×${x.n}` : x.txt)).join('＋');
+}
+
+// 4人の 職業の そろいかた（全員集合）: みんな おなじ 職業 か、みんなに 共通の 基本職が ある（今の 職業の もとを たどる）
+export function sameLine(jobs) {
+  if (!jobs.length || jobs.some((j) => !JOBS[j])) return false;
+  if (jobs.every((j) => j === jobs[0])) return true;
+  return jobBases(jobs[0]).some((base) => jobs.every((j) => jobBases(j).includes(base)));
+}
+
+// その 人が 組を うけもてるか（今の 職業で 見る）
+export function fitsGroup(who, list) {
+  return !!who?.job && groupJobs(list).has(who.job);
+}
+
+// 組の 技で、その 人が 出す 技（えらぶ じゅん: 今の 職業の 覚えた 技 → 覚えた 技 → 今の 職業の 組の 技）。
+// 合体技の 属性（クロス魔法剣など）と、説明の まどに 使う。who: { job, abilities, usable(id) }
+function findSkill(who, list) {
+  const set = groupSet(list);
+  const ok = (id) => set.has(id) && (!who.usable || who.usable(id));
+  const known = (who.abilities || []).filter(ok);
+  return known.find((id) => ABILITIES[id]?.job === who.job) || known[0] || list.find((id) => ABILITIES[id]?.job === who.job) || null;
+}
+
 // 組を Set に（さがすのを はやく）
 const setCache = new WeakMap();
 function groupSet(list) {
   let s = setCache.get(list);
   if (!s) setCache.set(list, (s = new Set(list)));
   return s;
-}
-
-// 合体技に 使える 技を 1つ さがす（その 人が 今 使える もの。覚えた じゅん）
-// who: { abilities, usable(id) }
-function findSkill(who, list) {
-  const set = groupSet(list);
-  for (const id of who.abilities || []) if (set.has(id) && (!who.usable || who.usable(id))) return id;
-  return null;
 }
 
 // 相手が 合体技に 入れるか（生きていて、ねむり・マヒ・混乱で なく、ゲージが たまっている）
@@ -480,40 +565,36 @@ function assign(t, members, weaponOk) {
   const n = t.need.length;
   const silenced = (x) => (x.statuses || []).includes('silence');
   if (t.spell && members.some(silenced)) return null;
-  const memo = new Map();
-  const skillOf = (m, g) => {
-    const key = m * 8 + g;
-    if (!memo.has(key)) memo.set(key, findSkill(members[m], t.need[g]));
-    return memo.get(key);
-  };
+  // 全員集合: 4人の 職業の そろいかた
+  if (t.team === 'line' && !sameLine(members.map((m) => m.job))) return null;
   for (const perm of PERMS[n]) {
     // perm[g] … 組 g を うけもつ 人
     let ok = true;
     for (let g = 0; g < n && ok; g++) {
       const m = members[perm[g]];
-      if (!skillOf(perm[g], g) || (m.mp ?? 0) < t.mp[g]) ok = false;
+      if (!fitsGroup(m, t.need[g]) || (m.mp ?? 0) < t.mp[g]) ok = false;
       // 剣が いる 組
       else if (t.weapon && weaponOk && t.weapon[0] === g && !weaponOk({ weapon: t.weapon[1] }, m.weaponCat)) ok = false;
     }
-    if (ok) return { who: perm, skills: perm.map((m, g) => skillOf(m, g)) };
+    if (ok) return { who: perm, skills: perm.map((m, g) => findSkill(members[m], t.need[g])) };
   }
   return null;
 }
 
 // actor が 今 出せる 合体技
-// actor・others: { id, name, alive, abilities, mp, atb, ready, queued, hold, statuses, weaponCat, usable(id) }
+// actor・others: { id, name, job, alive, abilities, mp, atb, ready, queued, hold, statuses, weaponCat, usable(id) }
 // もどりち: [{ id, size, partners: [相手の id], partner（1人め）, partnerName（「・」で つなぐ）, names, mine（actor の 組）,
 //   skills: [組ごとの 技], who: [組ごとの 人の id], mp: [actor の MP, 相手の MP…（partners の じゅん）], element, now }]
 //   2人技は いままでと おなじ 形（partner・mp[0]・mp[1]）
 export function dualOptions(actor, others, weaponOk, { anyGauge = false } = {}) {
   const out = [];
-  if (!actor || !actor.alive) return out;
-  const free = others.filter((p) => p.id !== actor.id && partnerFree(p, anyGauge));
+  if (!actor || !actor.alive || !JOBS[actor.job]) return out;
+  const free = others.filter((p) => p.id !== actor.id && partnerFree(p, anyGauge) && JOBS[p.job]);
   for (const [id, t] of Object.entries(DUAL_TECHS)) {
     const n = t.need.length;
     if (free.length < n - 1) continue;
     // 自分が どの 組にも 入れない 技は とばす（はやく する）
-    if (!t.need.some((g) => findSkill(actor, g))) continue;
+    if (!t.need.some((g) => fitsGroup(actor, g))) continue;
     for (const team of combos(free, n - 1)) {
       const members = [actor, ...team];
       const fit = assign(t, members, weaponOk);
@@ -533,12 +614,11 @@ export function dualOptions(actor, others, weaponOk, { anyGauge = false } = {}) 
 
 // ───── 今の パーティーに 関係する 合体技 ─────
 // メニューの「合体技」の 一覧には、使った ことの ある 技と、パーティーに 関係する 技だけ 出す
-// 関係する … need の 組の どれにも、パーティーの 職業（stats.js の partyJobSet）の 技か、
-//   パーティーの だれかが 覚えている 技（skills）が ある
-export function dualRelated(id, jobSet, skills = new Set()) {
+// 関係する … need の 組の どれにも、パーティーの 職業（stats.js の partyJobSet）が ある（「だれでも」の 組は いつも）
+export function dualRelated(id, jobSet) {
   const t = DUAL_TECHS[id];
   if (!t) return false;
-  return t.need.every((list) => list.some((k) => skills.has(k) || jobSet.has(ABILITIES[k]?.job)));
+  return t.need.every((list) => ANY_GROUPS.has(list) || [...groupJobs(list)].some((j) => jobSet.has(j)));
 }
 
 // その 合体技の 効果を 知っているか（一度 使うと わかる。まとめる 前の 技を 使った ことが あっても わかる）

@@ -16,12 +16,12 @@
 //            （前の 版の セーブは、best までの 休み所を 記録した ことに する。repairSecret）
 //     got  … 大きな ごほうびを もらった 休み所の 階 [5, 10, …] / tries … ちょうせんした 回数
 //     run  … 今の ちょうせん { f: 今の 階, mid: とちゅうから 来た（さそわれて 来た など。記録に ならない）, took: ごほうびを 開けた 階 }
-import { MONSTERS } from './monsters.js?v=37d7bca100b3';
-import { ITEMS, SLOTS } from './items.js?v=37d7bca100b3';
-import { ENCOUNTER_TABLES, ZONE_BG, FIXED_ENCOUNTERS } from './encounters.js?v=37d7bca100b3';
-import { makeRng } from '../rng.js?v=37d7bca100b3';
-import { rewardGold } from './difficulty.js?v=37d7bca100b3';
-import { pickSdGear, SD_GEAR_FROM } from './rare-loot.js?v=37d7bca100b3';
+import { MONSTERS } from './monsters.js?v=98e104bf307c';
+import { ITEMS, SLOTS } from './items.js?v=98e104bf307c';
+import { ENCOUNTER_TABLES, ZONE_BG, FIXED_ENCOUNTERS } from './encounters.js?v=98e104bf307c';
+import { makeRng } from '../rng.js?v=98e104bf307c';
+import { rewardGold } from './difficulty.js?v=98e104bf307c';
+import { pickSdGear, SD_GEAR_FROM } from './rare-loot.js?v=98e104bf307c';
 
 export const SD_GATE = 'sd_gate';
 export const SD_NAME = 'ひみつのダンジョン';

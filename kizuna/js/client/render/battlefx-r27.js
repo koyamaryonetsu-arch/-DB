@@ -13,8 +13,8 @@
 // ・敵1体・敵全体・味方（がめんの した。playAllyR27）・味方全体の どれでも 形が くずれない
 // ・ダメージの 数字が 出る じかん（r27Hit）と、エフェクトが あたる じかんを そろえる
 // ・スマホで おもく ならない ように、つぶの かずは 1技 だいたい 250こ まで（ひばなは まとめて かかれるので かるい）
-import { makeCanvas, hexToRgb } from './pixel.js?v=37d7bca100b3';
-import { ABILITIES } from '../../shared/data/abilities.js?v=37d7bca100b3';
+import { makeCanvas, hexToRgb } from './pixel.js?v=98e104bf307c';
+import { ABILITIES } from '../../shared/data/abilities.js?v=98e104bf307c';
 
 const rnd = (a, b) => a + Math.random() * (b - a);
 const pick = (a) => a[Math.floor(Math.random() * a.length)];
@@ -133,7 +133,6 @@ export function fxLook(abilityId, element) {
     if (p.type === 'heal' || p.type === 'regen') cols.push(HEAL[1]);
     if (p.type === 'mpHeal') cols.push('#7a9aff');
     if (p.type === 'cure') cols.push('#8af0e0');
-    if (p.type === 'bondUp') cols.push('#ff8ac8');
     if (p.type === 'charge') cols.push('#ff6a2a');
     if (p.type === 'cover') cols.push(STAT_FX.def);
     if (p.type === 'status') cols.push(STATUS_FX[p.status] || '#c8a8f0');
@@ -1481,7 +1480,7 @@ export function allyAnimFor(anim, abilityId) {
   if (types.some((t) => t === 'heal' || t === 'regen' || t === 'cure' || t === 'mpHeal')) return 'heal2';
   if (types.includes('cover')) return 'guard';
   if (types.includes('charge')) return 'charge';
-  if (types.some((t) => t === 'buff' || t === 'bondUp')) return 'buff';
+  if (types.includes('buff')) return 'buff';
   return null;
 }
 

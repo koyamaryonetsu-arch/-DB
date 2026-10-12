@@ -197,8 +197,8 @@ export const HIRA_R27_ABILITIES = {
   }),
   hi_tenka_touitsu: sk('shogun', {
     name: '天下統一', kana: 'てんかとういつ', mp: 16, target: 'allies',
-    effect: { type: 'multi', parts: [{ type: 'buff', stats: ['atk', 'def'], mult: 1.3, dur: 45 }, { type: 'bondUp', amount: 20 }] },
-    desc: '天下を1つにまとめる大号令。仲間全員の攻撃力と守備力が上がり、きずなゲージもふえる。', cast: '{a}「天下は、ひとつじゃ！」', anim: 'warcry',
+    effect: { type: 'multi', parts: [{ type: 'buff', stats: ['atk', 'def'], mult: 1.3, dur: 45 }, { type: 'mpHeal', base: [2, 4] }] },
+    desc: '天下を1つにまとめる大号令。仲間全員の攻撃力と守備力が上がり、MPも少し回復する。', cast: '{a}「天下は、ひとつじゃ！」', anim: 'warcry',
   }),
   hi_bonus: sk('shacho', {
     name: 'ボーナス大放出', kana: 'ぼーなすだいほうしゅつ', mp: 14, target: 'allies',

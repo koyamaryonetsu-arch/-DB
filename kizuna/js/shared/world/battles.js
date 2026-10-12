@@ -1,26 +1,26 @@
 // たたかいの はじまりと おわり（ほうしゅう・ぜんめつ）
-import { Battle, normBattleSettings } from '../battle.js?v=37d7bca100b3';
-import { scaleExp, difficultyOf, rewardExp, rewardGold } from '../data/difficulty.js?v=37d7bca100b3';
-import { POWDER, powderLeft } from '../data/friend-powder.js?v=37d7bca100b3';
-import { MONSTERS } from '../data/monsters.js?v=37d7bca100b3';
-import { ITEMS } from '../data/items.js?v=37d7bca100b3';
-import { ABILITIES } from '../data/abilities.js?v=37d7bca100b3';
-import { JOBS } from '../data/jobs.js?v=37d7bca100b3';
-import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=37d7bca100b3';
-import { gainExp, gainJobBattles, jobTrainMult, itemCount, removeItem, addItem, ownsItem, computeStats, fullHeal } from '../stats.js?v=37d7bca100b3';
-import { JOB_MAX_LEVEL } from '../data/jobs.js?v=37d7bca100b3';
-import { befriendShare } from './recruit-share.js?v=37d7bca100b3';
-import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendChance, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf, PARTY_MAX } from './party.js?v=37d7bca100b3';
-import { rollDrops, stealPick } from '../data/loot.js?v=37d7bca100b3';
-import { MAPS } from '../maps/index.js?v=37d7bca100b3';
-import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js?v=37d7bca100b3';
-import { treasureAfterBattle } from './treasure.js?v=37d7bca100b3';
-import { wipeGoldLoss, bankGold } from './bank.js?v=37d7bca100b3';
-import { lureOn, lureGroup } from './field27.js?v=37d7bca100b3';
-import { wagonShare, wagonBattleSwap } from './wagon.js?v=37d7bca100b3';
-import { growthSummary } from './growth.js?v=37d7bca100b3';
-import { topLevel, battleTeamChars, expHatMult } from './perks.js?v=37d7bca100b3';
-import { battleTactics } from './tactics.js?v=37d7bca100b3';
+import { Battle, normBattleSettings } from '../battle.js?v=98e104bf307c';
+import { scaleExp, difficultyOf, rewardExp, rewardGold } from '../data/difficulty.js?v=98e104bf307c';
+import { POWDER, powderLeft } from '../data/friend-powder.js?v=98e104bf307c';
+import { MONSTERS } from '../data/monsters.js?v=98e104bf307c';
+import { ITEMS } from '../data/items.js?v=98e104bf307c';
+import { ABILITIES } from '../data/abilities.js?v=98e104bf307c';
+import { JOBS } from '../data/jobs.js?v=98e104bf307c';
+import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=98e104bf307c';
+import { gainExp, gainJobBattles, jobTrainMult, itemCount, removeItem, addItem, ownsItem, computeStats, fullHeal } from '../stats.js?v=98e104bf307c';
+import { JOB_MAX_LEVEL } from '../data/jobs.js?v=98e104bf307c';
+import { befriendShare } from './recruit-share.js?v=98e104bf307c';
+import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendChance, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf, PARTY_MAX } from './party.js?v=98e104bf307c';
+import { rollDrops, stealPick } from '../data/loot.js?v=98e104bf307c';
+import { MAPS } from '../maps/index.js?v=98e104bf307c';
+import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js?v=98e104bf307c';
+import { treasureAfterBattle } from './treasure.js?v=98e104bf307c';
+import { wipeGoldLoss, bankGold } from './bank.js?v=98e104bf307c';
+import { lureOn, lureGroup } from './field27.js?v=98e104bf307c';
+import { wagonShare, wagonBattleSwap } from './wagon.js?v=98e104bf307c';
+import { growthSummary } from './growth.js?v=98e104bf307c';
+import { topLevel, battleTeamChars, expHatMult } from './perks.js?v=98e104bf307c';
+import { battleTactics } from './tactics.js?v=98e104bf307c';
 
 let battleSeq = 1;
 
@@ -144,7 +144,6 @@ function makeBattle(world, sessions, party, enemies, opts) {
     noSpells: !!MAPS[sessions[0]?.map]?.noSpells,
     bg: opts.bg,
     bgm: opts.bgm,
-    bond: party.bond || 0,
     preemptive: opts.preemptive || null,
     // 宝の洞窟: 魔物を 地図の レベルに あわせて 強くする（ひみつのダンジョンの 深い 階は enemyPow 倍）
     enemyMod: opts.enemyLv ? (m) => scaleEnemy(m, opts.enemyLv, opts.enemyPow) : null,
@@ -346,7 +345,6 @@ function finishBattle(world, ctx) {
     ch.mp = a.mp;
     ch.status = a.status.poison && a.alive ? { poison: true } : {};
   }
-  if (party) party.bond = b.bond;
   // 技を 使った 回数と、ひらめいた 技を のこす（自分・自分の 仲間。家族の キャラと ゲストは のこさない）
   const hiraLines = [];
   for (const a of b.allies) {

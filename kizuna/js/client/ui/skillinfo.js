@@ -3,12 +3,12 @@
 //   2行め: 威力・効果の 目安（ふつうの 攻撃の 何倍・ダメージ・回復の 量・何が 上がるか）
 //   3行め: せつめい（data の desc）。転職の ペナルティ・上位の 技なども
 // 相手を えらぶ 前（敵が 1体・自分に かける・全体の 技でも）に 見える。client/battle.js の abilityMenu・itemMenu
-import { ABILITIES, abilityTypeText, abilityRole } from '../../shared/data/abilities.js?v=37d7bca100b3';
-import { ITEMS } from '../../shared/data/items.js?v=37d7bca100b3';
-import { JOBS } from '../../shared/data/jobs.js?v=37d7bca100b3';
-import { SKILL_UPS } from '../../shared/data/skill-ups.js?v=37d7bca100b3';
-import { mpCost, penaltyFor, comboAllowed } from '../../shared/stats.js?v=37d7bca100b3';
-import { targetText, itemDetail } from './info.js?v=37d7bca100b3';
+import { ABILITIES, abilityTypeText, abilityRole } from '../../shared/data/abilities.js?v=98e104bf307c';
+import { ITEMS } from '../../shared/data/items.js?v=98e104bf307c';
+import { JOBS } from '../../shared/data/jobs.js?v=98e104bf307c';
+import { SKILL_UPS } from '../../shared/data/skill-ups.js?v=98e104bf307c';
+import { mpCost, penaltyFor, comboAllowed } from '../../shared/stats.js?v=98e104bf307c';
+import { targetText, itemDetail } from './info.js?v=98e104bf307c';
 
 const STAT = { atk: '攻撃力', def: '守備力', agi: '素早さ', mag: '魔力', heal: '回復魔力', eva: 'かわしやすさ', dfn: '守備力', hit: '命中' };
 const STATUS = { sleep: 'ねむり', paralyze: 'マヒ', confuse: '混乱', blind: 'まぼろし', silence: '呪文ふうじ', poison: '毒', stop: '動けない' };
@@ -49,7 +49,6 @@ function partText(e, pm) {
     case 'cover': return `味方をかばう（${e.dur || 20}秒）`;
     case 'steal': return `物をぬすむ（${pct(e.chance ?? 1)}）`;
     case 'dispel': return '敵の強化を消す';
-    case 'bondUp': return `きずなゲージ+${e.amount}`;
     case 'escape': return '戦いからにげる';
     case 'seed': return `${SEED[e.stat] || ''}が${range(e.amount)}上がる（ずっと）`;
     case 'multi': return (e.parts || []).map((p) => partText(p, pm)).filter(Boolean).join('＋');

@@ -10,37 +10,37 @@
 //   'ally' みかた1人 / 'allies' みかた全員 / 'self' 自分 / 'deadAlly' しんだ みかた
 // effect.type:
 //   phys(物理) magic(呪文ダメージ) heal revive buff debuff status cure
-//   charge(ためる) cover(かばう) bondUp(きずなゲージ) drainHp mahouken(魔法剣) bond(きずな技)
+//   charge(ためる) cover(かばう) drainHp mahouken(魔法剣)（第31回: きずなゲージ bondUp・きずな技 bond は なくなった）
 //   callHelp(なかまをよぶ) telegraph(ためこみ→大技) flee(にげだす) nothing
 // element: fire ice wind blast bolt light dark
 //
 // 名前の一部は「ダイの大冒険」「ロトの紋章」へのオマージュです。
 // 上級職・超級職の 技は abilities-adv.js（さいごに まぜる）
 
-import { ADV_ABILITIES } from './abilities-adv.js?v=37d7bca100b3';
-import { CH2_ABILITIES } from './abilities-ch2.js?v=37d7bca100b3';
-import { JOB_ABILITIES } from './abilities-jobs.js?v=37d7bca100b3';
-import { HIRA_ABILITIES } from './hirameki.js?v=37d7bca100b3';
-import { TRAVEL_ABILITIES } from './sky.js?v=37d7bca100b3';
-import { RARE_ABILITIES } from './monsters-rare.js?v=37d7bca100b3';
-import { R23_ABILITIES } from './monsters-r23.js?v=37d7bca100b3';
-import { JOB2_ABILITIES } from './abilities-jobs2.js?v=37d7bca100b3';
-import { CH3_ABILITIES } from './abilities-ch3.js?v=37d7bca100b3';
-import { CH4_ABILITIES } from './abilities-ch4.js?v=37d7bca100b3';
-import { TEMPLE_ABILITIES } from './abilities-temple.js?v=37d7bca100b3';
-import { LAB_ABILITIES } from './abilities-lab.js?v=37d7bca100b3';
-import { TOWER_ABILITIES } from './abilities-tower.js?v=37d7bca100b3';
-import { JOB3_ABILITIES } from './abilities-jobs3.js?v=37d7bca100b3';
-import { JOB4_ABILITIES } from './abilities-jobs4.js?v=37d7bca100b3';
+import { ADV_ABILITIES } from './abilities-adv.js?v=98e104bf307c';
+import { CH2_ABILITIES } from './abilities-ch2.js?v=98e104bf307c';
+import { JOB_ABILITIES } from './abilities-jobs.js?v=98e104bf307c';
+import { HIRA_ABILITIES } from './hirameki.js?v=98e104bf307c';
+import { TRAVEL_ABILITIES } from './sky.js?v=98e104bf307c';
+import { RARE_ABILITIES } from './monsters-rare.js?v=98e104bf307c';
+import { R23_ABILITIES } from './monsters-r23.js?v=98e104bf307c';
+import { JOB2_ABILITIES } from './abilities-jobs2.js?v=98e104bf307c';
+import { CH3_ABILITIES } from './abilities-ch3.js?v=98e104bf307c';
+import { CH4_ABILITIES } from './abilities-ch4.js?v=98e104bf307c';
+import { TEMPLE_ABILITIES } from './abilities-temple.js?v=98e104bf307c';
+import { LAB_ABILITIES } from './abilities-lab.js?v=98e104bf307c';
+import { TOWER_ABILITIES } from './abilities-tower.js?v=98e104bf307c';
+import { JOB3_ABILITIES } from './abilities-jobs3.js?v=98e104bf307c';
+import { JOB4_ABILITIES } from './abilities-jobs4.js?v=98e104bf307c';
 // 2026年10月（第22回）の 新しい 職業の 技（おかん・社ちく・天才しせつ管理者・はかい神 など）
-import { JOB5_ABILITIES } from './abilities-jobs5.js?v=37d7bca100b3';
+import { JOB5_ABILITIES } from './abilities-jobs5.js?v=98e104bf307c';
 // 2026年10月（第26回）の 新しい 職業の 技（楽天カードマン・きさつ隊・スパイ・探てい・ネコ型ロボット・カッパ・木の葉の忍び など）
-import { JOB6_ABILITIES } from './abilities-jobs6.js?v=37d7bca100b3';
-import { FIELD27_ABILITIES } from './abilities-field27.js?v=37d7bca100b3';
+import { JOB6_ABILITIES } from './abilities-jobs6.js?v=98e104bf307c';
+import { FIELD27_ABILITIES } from './abilities-field27.js?v=98e104bf307c';
 // 2026年10月（第27回）の 新しい 職業の 技（暴れんぼう将軍）
-import { JOB7_ABILITIES } from './abilities-jobs7.js?v=37d7bca100b3';
+import { JOB7_ABILITIES } from './abilities-jobs7.js?v=98e104bf307c';
 // 2026年10月（第29回）の 新しい 職業の 技（るろうに剣士 → 人斬りばっ刀さい → ひ村ばっ刀さい → 飛天御剣流けい承者）
-import { JOB8_ABILITIES } from './abilities-jobs8.js?v=37d7bca100b3';
+import { JOB8_ABILITIES } from './abilities-jobs8.js?v=98e104bf307c';
 
 export const ABILITIES = {
   // ───────────── 戦士 ─────────────
@@ -330,8 +330,8 @@ export const ABILITIES = {
   },
   ouen: {
     name: 'おうえんの歌', kana: 'おうえんのうた', kind: 'skill', job: 'performer', mp: 4, target: 'allies',
-    effect: { type: 'bondUp', amount: 20 },
-    desc: '元気な歌できずなゲージを増やす。',
+    effect: { type: 'buff', stat: 'atk', mult: 1.15, dur: 30 },
+    desc: '元気な歌で、仲間全員の攻撃力を少し上げる。',
     cast: '{a}はおうえんの歌を歌った！', anim: 'dance',
   },
   tatakai_uta: {
@@ -405,13 +405,7 @@ export const ABILITIES = {
     cast: '{a}は逆手に剣を構えた…！スターストラッシュ！', anim: 'strash',
   },
 
-  // ───────────── きずな技（パーティーで ちからを あわせる） ─────────────
-  minadein: {
-    name: 'ミナデイン', kana: 'みなでいん', kind: 'bond', mp: 0, target: 'enemy',
-    effect: { type: 'bond' },
-    desc: 'きずなゲージが満タンのときだけ使える。仲間みんなの力を合わせた雷。',
-    cast: '{a}はきずなの紋章を高くかかげた！', anim: 'minadein',
-  },
+  // 第31回: きずな技の ミナデイン（minadein）は なくなった（合体技の dt_minadein に。data/dual.js）
 
   // ───────────── モンスター専用 ─────────────
   m_tackle: {
@@ -645,7 +639,7 @@ export const ELEMENT_NAMES = {
 export const ELEMENT_ORDER = ['fire', 'ice', 'wind', 'blast', 'bolt', 'light', 'dark'];
 
 // 技の 種類（色分け）: dmg=ダメージ heal=回復 sup=補助
-const DMG_TYPES = new Set(['phys', 'magic', 'drainHp', 'drainMp', 'mahouken', 'bond', 'telegraph', 'multi', 'goldThrow', 'gamble', 'fixed', 'allMp', 'gather', 'destroy', 'deduce']);
+const DMG_TYPES = new Set(['phys', 'magic', 'drainHp', 'drainMp', 'mahouken', 'telegraph', 'multi', 'goldThrow', 'gamble', 'fixed', 'allMp', 'gather', 'destroy', 'deduce']);
 const HEAL_TYPES = new Set(['heal', 'revive', 'cure', 'mpHeal', 'regen']);
 export const ROLE_NAMES = { dmg: 'ダメージ', heal: '回復', sup: '補助' };
 export function abilityRole(a) {

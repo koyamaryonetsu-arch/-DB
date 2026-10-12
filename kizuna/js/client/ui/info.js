@@ -1,15 +1,15 @@
 // せつめい文を つくる
-import { ITEMS, SLOT_NAMES, WEAPON_CAT_NAMES } from '../../shared/data/items.js?v=37d7bca100b3';
-import { ABILITIES, abilityTypeText } from '../../shared/data/abilities.js?v=37d7bca100b3';
-import { JOBS, ALL_JOBS } from '../../shared/data/jobs.js?v=37d7bca100b3';
-import { MONSTERS } from '../../shared/data/monsters.js?v=37d7bca100b3';
-import { MONSTER_FRIENDS } from '../../shared/data/companions.js?v=37d7bca100b3';
-import { computeStats, canEquip, canEquipMonster, monsterGear, penaltyFor, mpCost, comboJobNames, comboAllowed, jobPower } from '../../shared/stats.js?v=37d7bca100b3';
-import { attackReach } from '../../shared/battle.js?v=37d7bca100b3';
-import { maxPlus } from '../../shared/data/forge.js?v=37d7bca100b3';
-import { SKILL_UPS } from '../../shared/data/skill-ups.js?v=37d7bca100b3';
-import { perkText } from '../../shared/data/items-r31.js?v=37d7bca100b3';
-import { rarityOf, traitText } from '../../shared/data/rare-loot.js?v=37d7bca100b3';
+import { ITEMS, SLOT_NAMES, WEAPON_CAT_NAMES } from '../../shared/data/items.js?v=98e104bf307c';
+import { ABILITIES, abilityTypeText } from '../../shared/data/abilities.js?v=98e104bf307c';
+import { JOBS, ALL_JOBS } from '../../shared/data/jobs.js?v=98e104bf307c';
+import { MONSTERS } from '../../shared/data/monsters.js?v=98e104bf307c';
+import { MONSTER_FRIENDS } from '../../shared/data/companions.js?v=98e104bf307c';
+import { computeStats, canEquip, canEquipMonster, monsterGear, penaltyFor, mpCost, comboJobNames, comboAllowed, jobPower } from '../../shared/stats.js?v=98e104bf307c';
+import { attackReach } from '../../shared/battle.js?v=98e104bf307c';
+import { maxPlus } from '../../shared/data/forge.js?v=98e104bf307c';
+import { SKILL_UPS } from '../../shared/data/skill-ups.js?v=98e104bf307c';
+import { perkText } from '../../shared/data/items-r31.js?v=98e104bf307c';
+import { rarityOf, traitText } from '../../shared/data/rare-loot.js?v=98e104bf307c';
 
 const TARGET_NAMES = { enemy: '敵1体', group: '敵1グループ', enemies: '敵全体', ally: '味方1人', allies: '味方全員', self: '自分', deadAlly: '死んだ味方', deadAllies: '死んだ味方全員' };
 // 技の リストに つける みじかい しるし（1体・1人・自分は つけない）。a: 技（または 相手の しゅるい）

@@ -44,8 +44,8 @@ export const HIRA_JOB_ABILITIES = {
   },
   hi_shachoushou: {
     name: '社長賞', kana: 'しゃちょうしょう', kind: 'skill', job: 'seishain', mp: 9, target: 'allies', hirameki: true,
-    effect: { type: 'multi', parts: [{ type: 'buff', stats: ['atk', 'def'], mult: 1.2, dur: 35 }, { type: 'bondUp', amount: 10 }] },
-    desc: 'チームの大活やくが社長に表しょうされた！仲間全員の攻撃力と守備力が上がり、きずなも深まる。',
+    effect: { type: 'multi', parts: [{ type: 'buff', stats: ['atk', 'def'], mult: 1.2, dur: 35 }, { type: 'mpHeal', base: [1, 2] }] },
+    desc: 'チームの大活やくが社長に表しょうされた！仲間全員の攻撃力と守備力が上がり、MPも少し回復する。',
     cast: '「このチームに、社長賞をおくります！」', anim: 'warcry',
   },
   // ───────────── お笑い芸人（M-1王者） ─────────────
@@ -160,8 +160,8 @@ export const HIRA_JOB_ABILITIES = {
   // ───────────── ユーチューバー（人気配信者） ─────────────
   hi_kyuujoushou: {
     name: '急上しょう1位', kana: 'きゅうじょうしょういちい', kind: 'skill', job: 'youtuber', mp: 5, target: 'allies', hirameki: true,
-    effect: { type: 'multi', parts: [{ type: 'buff', stat: 'atk', mult: 1.15, dur: 30 }, { type: 'bondUp', amount: 15 }] },
-    desc: '動画が急上しょうランキング1位に！仲間全員の攻撃力が上がり、きずなも深まる。',
+    effect: { type: 'multi', parts: [{ type: 'buff', stat: 'atk', mult: 1.15, dur: 30 }, { type: 'mpHeal', base: [1, 1] }] },
+    desc: '動画が急上しょうランキング1位に！仲間全員の攻撃力が上がり、MPも少し回復する。',
     cast: '「急上しょう1位、ありがとうございます！」', anim: 'superchat',
   },
   hi_buzz: {

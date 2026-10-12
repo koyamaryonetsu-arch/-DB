@@ -5,17 +5,22 @@
 //   ほかの 仲間が まだ なら、その 仲間は ゲージが たまった まま まつ（p.dualHold。AI・オート・自分が 動かす 仲間）。
 //   家族（ほかの 人が 動かす キャラ）は まつのを おしつけない（ふつうに 番が 来て、コマンドを えらんでいる あいだは「今」）
 // ・みんな そろったら、家族には「参加する？」と 聞く（2人技と おなじ。何人でも、1人でも ことわれば 出ない）
+// ・よやくで ゲージが たまって まっている 人（よやくした 人・先に たまって まつ 仲間）が ダメージを 受けると、
+//   その 人の ゲージは 半分から やり直し（よやくは つづく。ゲージが まだ たまって いない 人は かわらない。dualHurt）
 // ・強さ: 出す 人が それぞれ、その 組の 技（か ふつうの 攻撃）を 出した ときの ダメージの 合計 × DUAL_POWER[人数] × k
 //   （この 敵に 当てた ときの 見つもり。守り・弱点・バフも 入る。属性は 合体技の 属性で かかる）
-import { ABILITIES, ELEMENT_NAMES } from './data/abilities.js?v=37d7bca100b3';
-import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js?v=37d7bca100b3';
-import { weaponOk, comboAllowed, penaltyFor } from './stats.js?v=37d7bca100b3';
+import { ABILITIES, ELEMENT_NAMES } from './data/abilities.js?v=98e104bf307c';
+import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js?v=98e104bf307c';
+import { weaponOk, comboAllowed, penaltyFor } from './stats.js?v=98e104bf307c';
 // 第27回: 推理（敵 それぞれの いちばんの 弱点の 属性で 当てる）の 合体技
-import { deduceElement } from './data/abilities-jobs6.js?v=37d7bca100b3';
-import { MONSTERS } from './data/monsters.js?v=37d7bca100b3';
+import { deduceElement } from './data/abilities-jobs6.js?v=98e104bf307c';
+import { MONSTERS } from './data/monsters.js?v=98e104bf307c';
 
 // 人数ごとの 強さ（別々に 1回ずつ 動いた ときの 合計の 何倍か。全体技は parts の k で 下げる）
 export const DUAL_POWER = { 2: 1.8, 3: 2.2, 4: 3.0 };
+// 第31回: ボスが 1回で たおれすぎない ように、ボスへの 1回の ダメージは さいだいHPの この わりあいまで（人数ごと。技の bossCap で うわがき）。
+// ミナデインは 0.35（いちばん 強い）。超級職の 4人などで ないと とどかない（tools/sim-dual.mjs minadein）
+export const DUAL_BOSS_CAP = { 2: 0.2, 3: 0.25, 4: 0.3 };
 // 合体技に さそわれた 家族が こたえるまで まつ 時間（ミリびょう）
 export const DUAL_ASK_MS = 7000;
 // 動けない じょうたい（合体技に 入れない）
@@ -34,7 +39,7 @@ export function optionsFor(b, c, others = null, exec = false, anyGauge = false) 
   if (!c || c.side !== 'ally' || c.mon) return [];
   const list = (others || b.allies.filter((x) => x !== c)).filter((x) => x && x.side === 'ally' && !x.mon);
   const info = (x) => ({
-    id: x.id, name: x.name, alive: x.alive, abilities: x.abilities || [], mp: x.mp, atb: x.atb, ready: x.ready, hold: !!x.dualHold,
+    id: x.id, name: x.name, job: x.job, alive: x.alive, abilities: x.abilities || [], mp: x.mp, atb: x.atb, ready: x.ready, hold: !!x.dualHold,
     queued: exec && x.dualWith === c.id ? false : !!x.queued,
     // ほかの 人の 合体技に 入る ことに なっている
     busy: !!x.dualWith && x.dualWith !== c.id,
@@ -136,8 +141,8 @@ export function checkWaits(b) {
     if (!waitStillOk(b, c, ps)) continue;
     // 番が 来ている 自分の 仲間・AIは まつ
     for (const p of ps) if (p.ready && !p.queued && !p.dualHold && !needsAsk(c, p)) hold(b, c, p);
-    // みんなの 番が 来ている（家族は コマンドを えらんでいる あいだ）
-    if (ps.every((p) => p.dualHold || (p.ready && !p.queued))) fire(b, c);
+    // みんなの 番が 来ている（家族は コマンドを えらんでいる あいだ）。自分の ゲージが みだれて ためなおしている 間は まつ
+    if (!w.slow && ps.every((p) => p.dualHold || (p.ready && !p.queued))) fire(b, c);
   }
 }
 
@@ -178,7 +183,7 @@ export function fireWait(b, c, p) {
   const ps = w.partners.map((id) => b.get(id));
   if (!waitStillOk(b, c, ps)) return false;
   const others = ps.filter((x) => x !== p);
-  if (others.every((x) => x.dualHold || (x.ready && !x.queued))) {
+  if (!w.slow && others.every((x) => x.dualHold || (x.ready && !x.queued))) {
     const r = fire(b, c);
     // 家族に「参加する？」と 聞いている ときは、家族の 番は ふつうに 来る（参加すると その 番を 使う）。ほかの 仲間は まつ
     return !!r?.ok && ((!r.pending && !r.waiting) || !!p.dualHold);
@@ -410,7 +415,32 @@ export function performDual(b, c, cmd, ev) {
   }
   releasePartners(b, cmd);
   ev.upd.push(c, ...team);
-  b.addBond(6 + 3 * (n - 2));
+}
+
+// ───── よやくの 待ち中に ダメージ（第31回）─────
+// よやくで ゲージが たまって まっている 人が ダメージを 受けると、その 人の ゲージは 半分から やり直し（よやくは つづく）
+//  ・よやくした 人（c.waitDual）: ゲージが また たまるまで、みんな そろっても 出さない（waitDual.slow）
+//  ・先に ゲージが たまって まっている 仲間（p.dualHold）: まつのを やめて、ゲージが また たまったら もう一度 まつ・出す
+//  ・ゲージが まだ たまって いない 仲間・家族に「参加する？」と 聞いている 間は かわらない
+// battle.js の damage から よぶ（t … ダメージを 受けた 人、ev … 今の 行動の できごと）
+export const DUAL_BREAK_ATB = 50;
+export function dualHurt(b, t, ev) {
+  if (t.side !== 'ally' || !t.alive || t.hp <= 0) return;
+  if (t.waitDual && !t.waitDual.slow) t.waitDual.slow = true;
+  else if (t.dualHold && b.get(t.dualTarget)?.waitDual) t.dualHold = false;
+  else return;
+  t.atb = DUAL_BREAK_ATB;
+  t.ready = false;
+  ev.lines.push(`${t.name}の力あわせがみだれた！`);
+  ev.dualBreak = [...(ev.dualBreak || []), t.id];
+  ev.upd.push(t);
+}
+
+// よやくした 人の ゲージが また たまった（battle.js の advance。true … この 番は よやくの まま まつ）
+export function dualRecharged(b, c) {
+  if (!c.waitDual?.slow) return false;
+  c.waitDual.slow = false;
+  return true;
 }
 
 // 合体技の ダメージを 当てる（hits 回に 分けて）
@@ -444,6 +474,7 @@ function powerHit(b, c, byGroup, part, scope, element, cmd, ev, hit, n) {
       continue;
     }
     let d = dualPower(b, byGroup, tg, part, n) * r * b.rng.float(0.92, 1.08);
+    if (tg.boss) d = Math.min(d, tg.maxHp * (DUAL_TECHS[cmd.id]?.bossCap ?? DUAL_BOSS_CAP[n] ?? 0.3));
     if (tg.metal) d = b.rng.int(1, n + 1);
     const hits = Math.max(1, part.hits || 1);
     const each = Math.max(1, Math.round(d / hits));
