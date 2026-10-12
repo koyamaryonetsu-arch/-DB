@@ -254,7 +254,7 @@ export function tintCanvas(src, tint) {
       if (!d[i + 3]) continue;
       let [h, s, l] = rgbToHsl(d[i], d[i + 1], d[i + 2]);
       if (l < 0.13) continue;
-      h = (h + dh + 1) % 1;
+      h = tint.hueTo !== undefined ? tint.hueTo / 360 : (h + dh + 1) % 1; // hueTo … 色ちがいの 魔物（data/variants.js）
       s = Math.min(1, s * ks);
       l = Math.min(0.97, l * kl);
       const [r, g, b] = hslToRgb(h, s, l);

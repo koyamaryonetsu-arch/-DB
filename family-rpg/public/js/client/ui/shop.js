@@ -5,7 +5,6 @@
 //         → 装備品なら「ここで装備していきますか？」→「どなたが装備しますか？」→「今までの〇〇は引き取りましょうか？」
 //   売る: 品物を えらぶ → いくつ？ →「〇〇ゴールドで引き取りましょう。よろしいですか？」はい／いいえ
 // 教会:  おいのりをする／生き返らせる／毒を治す／やめる（寄付の かくにん つき）
-import { esc } from './dom.js';
 import { rareNameHtml } from './rarity.js';
 import { Counter, EQUIP_TYPES, compareTeam, itemInfo, whoItems } from './counter.js';
 import { ITEMS, sellPrice } from '../../shared/data/items.js';
@@ -54,15 +53,19 @@ export async function shopUI(game, data) {
   ct.close();
 }
 
-function buyRow(game, id) {
+// 店の ねだん（ひみつのダンジョンの お店は その 店だけの ねだん。data/secret-shop.js）
+const priceOf = (data, id) => data?.prices?.[id] ?? ITEMS[id].price;
+
+function buyRow(game, id, data) {
   const it = ITEMS[id];
+  const price = priceOf(data, id);
   let tag = '';
   if (EQUIP_TYPES.includes(it.type)) {
     const team = compareTeam(game, id);
     if (!team.some((r) => r.can)) tag = '<span class="tag muted">装備できない</span>';
     else if (team.some((r) => r.can && !r.same && r.main.d > 0)) tag = '<span class="tag up">↑強くなる</span>';
   }
-  return { value: id, label: it.name, html: `${esc(it.name)}${tag}`, right: `${it.price}G`, rightCls: game.me.gold < it.price ? 'dis' : 'gold' };
+  return { value: id, label: it.name, html: `${rareNameHtml(id)}${tag}`, right: `${price}G`, rightCls: game.me.gold < price ? 'dis' : 'gold' };
 }
 
 async function buyLoop(game, ct, data) {
@@ -70,29 +73,29 @@ async function buyLoop(game, ct, data) {
   let idx = 0;
   while (!ct.closed) {
     await ct.say(line);
-    const rows = data.items.filter((id) => ITEMS[id]).map((id) => buyRow(game, id));
+    const rows = data.items.filter((id) => ITEMS[id]).map((id) => buyRow(game, id, data));
     const it = await ct.pick(rows, { start: idx, onMove: (x) => ct.info(x ? itemInfo(game, x.value) : null) });
     if (!it) return;
     idx = rows.findIndex((r) => r.value === it.value);
-    line = await buyOne(game, ct, it.value);
+    line = await buyOne(game, ct, it.value, priceOf(data, it.value));
   }
 }
 
-async function buyOne(game, ct, id) {
+async function buyOne(game, ct, id, price = ITEMS[id].price) {
   const it = ITEMS[id];
   const eq = EQUIP_TYPES.includes(it.type);
   let qty = 1;
   if (!eq) {
-    const max = Math.min(99, Math.floor(game.me.gold / it.price));
+    const max = Math.min(99, Math.floor(game.me.gold / price));
     if (max < 1) {
-      await ct.say(`${it.name}は${it.price}ゴールドです。\nおや？ゴールドが足りないようですね。`);
+      await ct.say(`${it.name}は${price}ゴールドです。\nおや？ゴールドが足りないようですね。`);
       await ct.tap(1800);
       return AGAIN;
     }
-    qty = await ct.qty(`${it.name}ですね。\nいくつお求めですか？`, max, it.price, `持っている数: ${itemCount(game.me, id)}`);
+    qty = await ct.qty(`${it.name}ですね。\nいくつお求めですか？`, max, price, `持っている数: ${itemCount(game.me, id)}`);
     if (!qty) return AGAIN;
   }
-  const total = it.price * qty;
+  const total = price * qty;
   const yes = await ct.ask(qty > 1
     ? `${it.name}を${qty}個ですね。\n全部で${total}ゴールドになりますが、よろしいですか？`
     : `${it.name}ですね。\n${total}ゴールドになりますが、よろしいですか？`);

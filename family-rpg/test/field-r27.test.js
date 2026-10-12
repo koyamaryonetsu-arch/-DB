@@ -35,7 +35,7 @@ import { fieldUsableAbilities } from '../public/js/shared/fieldskills.js';
 import { sortRoster, nextRosterSort } from '../public/js/shared/roster-sort.js';
 import { gainExp, expForLevel, computeStats, mpCost, learnedAbilities, itemCount, addItem } from '../public/js/shared/stats.js';
 import {
-  SD_GATE, SD_OPEN_FLAG, sdFloorId, sdSaveOf, sdStartFloors, sdStartText, noteSdSave, repairSecret, mergeSecret, sdBoardRows,
+  SD_GATE, SD_OPEN_FLAG, sdFloorId, sdFloorOf, sdSaveOf, sdStartFloors, sdStartText, noteSdSave, repairSecret, mergeSecret, sdBoardRows,
 } from '../public/js/shared/data/secret.js';
 import { REST_DOWN } from '../public/js/shared/maps/secret-dungeon.js';
 import { gameFiles, checkFile } from '../tools/kanji-check.mjs';
@@ -511,7 +511,7 @@ test('ひみつのダンジョン: 休み所で 記録して 地上へ → 案�
   await place(bot, 'sd_4', m4.sd.arrive.x, m4.sd.arrive.y);
   c.sd.run = { f: 4, took: [] };
   await goDown(bot);
-  assert.equal(bot.s.map, 'sd_5');
+  assert.equal(sdFloorOf(bot.s.map), 5);
   assert.equal(c.sd.best, 5);
   // 休み所の ようせい: この階を記録して地上へもどる
   let from = bot.msgs.length;
@@ -532,8 +532,9 @@ test('ひみつのダンジョン: 休み所で 記録して 地上へ → 案�
   assert.deepEqual(pick[1].length, 3);
   assert.match(pick[1][0], /地下1階から/);
   assert.match(pick[1][1], /地下5階の休み所から/);
-  assert.equal(bot.s.map, 'sd_5');
-  assert.deepEqual(c.sd.run, { f: 5, took: [] }, 'とちゅうからでも ちょうせん中（記録に なる）');
+  assert.equal(sdFloorOf(bot.s.map), 5);
+  assert.deepEqual({ ...c.sd.run, seed: undefined }, { f: 5, took: [], seed: undefined }, 'とちゅうからでも ちょうせん中（記録に なる）');
+  assert.ok(c.sd.run.seed > 0 && bot.s.map === sdFloorId(5, c.sd.run.seed), 'ちょうせんの seed（第32回）');
   assert.equal(c.sd.tries, 2);
   // 初めて 開ける 5階の 宝箱は 大きな ごほうび
   from = bot.msgs.length;
@@ -541,7 +542,7 @@ test('ひみつのダンジョン: 休み所で 記録して 地上へ → 案�
   assert.ok(sayTexts(bot, from).some((t) => t.includes('初めて着いたごほうび')));
   // 下りると 記録が のびる（記録の 板）
   await goDown(bot);
-  assert.equal(bot.s.map, 'sd_6');
+  assert.equal(sdFloorOf(bot.s.map), 6);
   assert.equal(c.sd.best, 6);
   assert.equal(sdBoardRows(world.data.characters)[0].best, 6);
   // 下り階段（入口の 広間）でも 選べる
@@ -591,25 +592,27 @@ test('ひみつのダンジョン: 家族で 入る ときは リーダーが �
   assert.ok(pick);
   assert.equal(pick[1].length, 4, '1階・5階・10階・やめる');
   assert.match(pick[0], /ユイは地下10階/);
-  assert.equal(P.map, 'sd_10');
-  assert.equal(Y.map, 'sd_10', 'ユイも いっしょ');
-  for (const x of [P, Y]) assert.deepEqual(x.char.sd.run, { f: 10, took: [] });
+  assert.equal(sdFloorOf(P.map), 10);
+  assert.equal(sdFloorOf(Y.map), 10, 'ユイも いっしょ');
+  for (const x of [P, Y]) assert.deepEqual({ ...x.char.sd.run, seed: undefined }, { f: 10, took: [], seed: undefined });
+  assert.equal(P.char.sd.run.seed, Y.char.sd.run.seed, 'いっしょに 入った 家族は おなじ seed（第32回）');
+  assert.equal(P.map, Y.map);
   // 番人を たおして 11階へ → 2人とも 記録（ユイは 12階が 最高なので かわらない）
   await talkTo(papa, 'sd_guard');
   await yui.settle();
-  assert.equal(P.map, 'sd_11');
-  assert.equal(Y.map, 'sd_11');
+  assert.equal(sdFloorOf(P.map), 11);
+  assert.equal(sdFloorOf(Y.map), 11);
   // 15階まで 下りる
   for (let f = 11; f < 15; f++) {
     await goDown(papa);
     await yui.settle();
   }
-  assert.equal(P.map, 'sd_15');
+  assert.equal(sdFloorOf(P.map), 15);
   assert.equal(Y.char.sd.best, 15, 'とちゅうから 始めても いちばん 深い 階を 数える');
   assert.deepEqual(Y.char.sd.with, ['パパ']);
   // ケンが とちゅうから（さそわれて 来た）: 記録できない
   await join(papa, ken);
-  assert.equal(K.map, 'sd_15');
+  assert.equal(sdFloorOf(K.map), 15);
   assert.ok(K.char.sd.run.mid);
   from = papa.msgs.length;
   answers(papa, [1, 0]);
@@ -638,8 +641,8 @@ test('ひみつのダンジョン: 家族で 入る ときは リーダーが �
   await yui.settle();
   const pick2 = lastChoice(papa, from).find(([q]) => q.startsWith('何階から始める'));
   assert.equal(pick2[1].length, 5, '1・5・10・15・やめる');
-  assert.equal(P.map, 'sd_15');
-  assert.equal(Y.map, 'sd_15');
+  assert.equal(sdFloorOf(P.map), 15);
+  assert.equal(sdFloorOf(Y.map), 15);
 });
 
 test('ひみつのダンジョン: 古い セーブ（記録した 階が ない）は 行けた 階までの 休み所から 始められる。データ合わせは 深い ほう', () => {

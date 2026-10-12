@@ -1,5 +1,5 @@
 // ひみつのダンジョンの だいほん（story.js で まぜる）
-// しょりの なかみは world/secret.js が SD_HOOKS に 入れる（入る・下りる・番人・ごほうび・地上へ・記録の 板）
+// しょりの なかみは world/secret.js が SD_HOOKS に 入れる（入る・下りる・番人・ごほうび・地上へ・記録の 板・宿屋・お店）
 export const SD_HOOKS = {};
 
 const call = (k) => () => [['call', (run) => SD_HOOKS[k]?.(run)]];
@@ -14,9 +14,11 @@ export const SD_SCRIPTS = {
   // 下り階段（10階ごとの 休み所では 番人と 戦ってから）・ふさがった 上り階段
   sd_down: call('down'),
   sd_up: () => [['say', null, '上り階段は、ふしぎな力でふさがっている…。\n（地上へもどれるのは、5階ごとの休み所から）']],
-  // 休み所: 休み所の 番人（先へ進む／地上へもどる）・ごほうびの 宝箱・番人（10階ごと）
+  // 休み所: 休み所の ようせい（先へ進む／地上へもどる）・ごほうびの 宝箱・番人（10階ごと。たおすと 全回復）
   sd_rest: call('rest'),
   sd_chest: call('chest'),
-  sd_spring: call('spring'),
+  // 運で 出る 階: ふしぎな宿屋（すこしの ゴールドで 全回復）・ふしぎな店（data/secret-shop.js）
+  sd_inn: call('inn'),
+  sd_shop: call('shop'),
   sd_guard: call('down'),
 };

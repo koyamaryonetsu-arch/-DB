@@ -721,7 +721,7 @@ export class BattleScene {
       if (a) this.rememberPick(a, 'item', it.value);
       if (ch4ItemPick(this, it.value)) return;
       const item = ITEMS[it.value];
-      if (item.target === 'self') return this.send({ type: 'item', id: it.value });
+      if (item.target === 'self' || item.target === 'allies') return this.send({ type: 'item', id: it.value }); // allies … 全員（ひみつのダンジョンの いやしの大すず）
       return this.pickAlly((tid) => this.send({ type: 'item', id: it.value, target: tid }), item.target === 'deadAlly', item.name, () => this.itemMenu());
     }, () => this.openCommand(), '道具', (it) => {
       if (!it) return;

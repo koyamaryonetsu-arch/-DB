@@ -243,6 +243,8 @@ Object.assign(ITEMS, POWDER_ITEMS);
 Object.assign(ITEMS, FIELD27_ITEMS);
 // 第31回: しあわせのぼうし・こうふくのくつ（items-r31.js）
 import { ITEMS_R31, R31_ITEM_KANA } from './items-r31.js'; Object.assign(ITEMS, ITEMS_R31);
+// 第32回: ひみつのダンジョンの お店だけの 回復薬（items-secret.js）
+import { SD_POTIONS, SD_POTION_KANA } from './items-secret.js'; Object.assign(ITEMS, SD_POTIONS);
 // 第31回: レア装備（items-rare.js）と、すべての 装備の レア度（★1〜★5。店の 品は 0）
 Object.assign(ITEMS, RARE_GEAR);
 assignRarity(ITEMS);
@@ -333,6 +335,7 @@ Object.assign(ITEM_KANA, TOWER_ITEM_KANA);
 Object.assign(ITEM_KANA, FIELD27_KANA);
 Object.assign(ITEM_KANA, R31_ITEM_KANA);
 Object.assign(ITEM_KANA, RARE_GEAR_KANA);
+Object.assign(ITEM_KANA, SD_POTION_KANA);
 
 export function itemKana(id) {
   // きたえた 装備は もとの 装備の 読み ＋ 回数（鉄の剣 → 鉄の剣+1 の じゅん）
