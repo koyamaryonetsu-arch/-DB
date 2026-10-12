@@ -7,12 +7,12 @@
 // ・みんな そろったら、家族には「参加する？」と 聞く（2人技と おなじ。何人でも、1人でも ことわれば 出ない）
 // ・強さ: 出す 人が それぞれ、その 組の 技（か ふつうの 攻撃）を 出した ときの ダメージの 合計 × DUAL_POWER[人数] × k
 //   （この 敵に 当てた ときの 見つもり。守り・弱点・バフも 入る。属性は 合体技の 属性で かかる）
-import { ABILITIES, ELEMENT_NAMES } from './data/abilities.js?v=506f2153b43f';
-import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js?v=506f2153b43f';
-import { weaponOk, comboAllowed, penaltyFor } from './stats.js?v=506f2153b43f';
+import { ABILITIES, ELEMENT_NAMES } from './data/abilities.js?v=d720b7bfa4a3';
+import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js?v=d720b7bfa4a3';
+import { weaponOk, comboAllowed, penaltyFor } from './stats.js?v=d720b7bfa4a3';
 // 第27回: 推理（敵 それぞれの いちばんの 弱点の 属性で 当てる）の 合体技
-import { deduceElement } from './data/abilities-jobs6.js?v=506f2153b43f';
-import { MONSTERS } from './data/monsters.js?v=506f2153b43f';
+import { deduceElement } from './data/abilities-jobs6.js?v=d720b7bfa4a3';
+import { MONSTERS } from './data/monsters.js?v=d720b7bfa4a3';
 
 // 人数ごとの 強さ（別々に 1回ずつ 動いた ときの 合計の 何倍か。全体技は parts の k で 下げる）
 export const DUAL_POWER = { 2: 1.8, 3: 2.2, 4: 3.0 };

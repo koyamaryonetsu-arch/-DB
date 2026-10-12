@@ -1,14 +1,14 @@
 // ひみつのダンジョンの マップ（入口の 広間・ふつうの 階・5階ごとの 休み所）と、ミドリナ地方の 入口
 // 階の 形は 階の 番号だけで きまる（data/secret.js の sdSeed。サーバーと 画面と 家族みんなで おなじ）
 // ふつうの 階は 宝の洞窟の つくりかた（maps/treasure-cave.js の layoutFloor）で、下り階段を さがす 形
-import { T } from '../tiles.js?v=506f2153b43f';
-import { npc } from './npc.js?v=506f2153b43f';
-import { MONSTERS } from '../data/monsters.js?v=506f2153b43f';
-import { layoutFloor } from './treasure-cave.js?v=506f2153b43f';
+import { T } from '../tiles.js?v=d720b7bfa4a3';
+import { npc } from './npc.js?v=d720b7bfa4a3';
+import { MONSTERS } from '../data/monsters.js?v=d720b7bfa4a3';
+import { layoutFloor } from './treasure-cave.js?v=d720b7bfa4a3';
 import {
   SD_GATE, SD_NAME, SD_OPEN_FLAG, sdFloorOf, sdSeed, sdLayoutLv, sdBand, sdEnemyLv, sdPower, ensureSdTable,
   isRestFloor, isGuardFloor, sdGuardian,
-} from '../data/secret.js?v=506f2153b43f';
+} from '../data/secret.js?v=d720b7bfa4a3';
 
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const NO_ESCAPE_HINT = 'ひみつのダンジョンでは、5階ごとの休み所から地上へもどれる';

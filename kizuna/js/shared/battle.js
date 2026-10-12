@@ -7,28 +7,28 @@
 //
 // サーバー（家族サーバー）でも ブラウザ（ひとりモード）でも おなじ コードが うごく
 
-import { makeRng } from './rng.js?v=506f2153b43f';
-import { ABILITIES, ELEMENT_ORDER, ELEMENT_NAMES } from './data/abilities.js?v=506f2153b43f';
+import { makeRng } from './rng.js?v=d720b7bfa4a3';
+import { ABILITIES, ELEMENT_ORDER, ELEMENT_NAMES } from './data/abilities.js?v=d720b7bfa4a3';
 // 推理（deduce）で ねらう 属性（第26回の 探ていの 技）
-import { deduceElement } from './data/abilities-jobs6.js?v=506f2153b43f';
-import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=506f2153b43f';
+import { deduceElement } from './data/abilities-jobs6.js?v=d720b7bfa4a3';
+import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=d720b7bfa4a3';
 // 合体技（2人・3人・4人。battle-dual.js）
-import { optionsFor, validateDual, startDual, checkWaits, waitStillOk, fireWait, endWait, releasePartners, answerDual, endInvite, performDual, partnersOf } from './battle-dual.js?v=506f2153b43f';
-import { MONSTERS } from './data/monsters.js?v=506f2153b43f';
-import { ITEMS } from './data/items.js?v=506f2153b43f';
-import { JOBS } from './data/jobs.js?v=506f2153b43f';
-import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed, battleAbilityOk } from './stats.js?v=506f2153b43f';
-import { decideMonster, decideAlly } from './ai.js?v=506f2153b43f';
-import { ENEMY_RATES, strengthenEnemy } from './data/difficulty.js?v=506f2153b43f';
+import { optionsFor, validateDual, startDual, checkWaits, waitStillOk, fireWait, endWait, releasePartners, answerDual, endInvite, performDual, partnersOf } from './battle-dual.js?v=d720b7bfa4a3';
+import { MONSTERS } from './data/monsters.js?v=d720b7bfa4a3';
+import { ITEMS } from './data/items.js?v=d720b7bfa4a3';
+import { JOBS } from './data/jobs.js?v=d720b7bfa4a3';
+import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed, battleAbilityOk } from './stats.js?v=d720b7bfa4a3';
+import { decideMonster, decideAlly } from './ai.js?v=d720b7bfa4a3';
+import { ENEMY_RATES, strengthenEnemy } from './data/difficulty.js?v=d720b7bfa4a3';
 // 第4章の しかけ（まぼろしの分身・月の鏡・そうびしたまま 使う 道具）
-import { setupMirage, mirageHit, mirageVanish, mirageDown, mirageSync, mirageRemake, ch4ItemCheck, ch4UseItem, mirrorSnap } from './battle-ch4.js?v=506f2153b43f';
+import { setupMirage, mirageHit, mirageVanish, mirageDown, mirageSync, mirageRemake, ch4ItemCheck, ch4UseItem, mirrorSnap } from './battle-ch4.js?v=d720b7bfa4a3';
 // 第4章 Step 6 の 砂に もぐる（ねらえない。battle-ch4.js）
-import { burrowStart, burrowWarn, burrowBlock, hiddenFrom } from './battle-ch4.js?v=506f2153b43f';
-import { shownEquipKey } from './look-equip.js?v=506f2153b43f';
+import { burrowStart, burrowWarn, burrowBlock, hiddenFrom } from './battle-ch4.js?v=d720b7bfa4a3';
+import { shownEquipKey } from './look-equip.js?v=d720b7bfa4a3';
 // 第4章 Step 7 の 砂の底の神殿と モルガナ（呪文を はね返す・鏡写し・水の衣・大波・水のろう・水の守りの歌・鏡のうつし身。battle-temple.js）
-import { setupTemple, templeTurnStart, prisonTurn, reflectSpell, templeEffect, templeEst, templeDamage, templeKill, templePub, templeSnap } from './battle-temple.js?v=506f2153b43f';
+import { setupTemple, templeTurnStart, prisonTurn, reflectSpell, templeEffect, templeEst, templeDamage, templeKill, templePub, templeSnap } from './battle-temple.js?v=d720b7bfa4a3';
 // 第5章 Step 2 の 星の塔と 星の番人アルゴス（見通しの目。battle-ch5.js）
-import { towerTurnStart, foreseeCheck, towerEffect, towerKill, towerPub } from './battle-ch5.js?v=506f2153b43f';
+import { towerTurnStart, foreseeCheck, towerEffect, towerKill, towerPub } from './battle-ch5.js?v=d720b7bfa4a3';
 
 export const BOND_MAX = 100;
 // きずなゲージの たまりやすさ（1 … はじめの 版。ちいさいほど たまりにくい）
@@ -36,7 +36,7 @@ export const BOND_GAIN = 0.35;
 // 合体技の 2人の 強さの 合わせかた（dualProxy）: 強い ほうの 強さ ＋ 弱い ほうの この わりあい
 export const DUAL_MIX = 0.5;
 // 合体技の 強さ・さそいを まつ 時間は battle-dual.js
-export { DUAL_POWER, DUAL_ASK_MS } from './battle-dual.js?v=506f2153b43f';
+export { DUAL_POWER, DUAL_ASK_MS } from './battle-dual.js?v=d720b7bfa4a3';
 const COMBO_WINDOW = 6000;
 const LETTERS = 'ABCDEFGH';
 
