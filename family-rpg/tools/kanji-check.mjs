@@ -253,6 +253,8 @@ export function gameFiles() {
     'public/js/shared/data/items-rare.js', 'public/js/shared/data/rare-loot.js', 'public/js/client/ui/rarity.js',
     // 第32回 B: ひみつのダンジョン（宿屋・お店の 階・お店だけの 回復薬）と 色ちがいの 魔物
     'public/js/shared/data/secret-shop.js', 'public/js/shared/data/items-secret.js', 'public/js/shared/data/variants.js',
+    // 第32回 C: れん金がま・生まれ変わりの 武器
+    'public/js/shared/data/items-alchemy.js', 'public/js/shared/data/alchemy.js', 'public/js/shared/world/alchemy.js', 'public/js/client/ui/alchemy.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

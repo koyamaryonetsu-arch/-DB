@@ -4,14 +4,15 @@
 //   ★なし … 店で 買える 品（rarity: 0）
 //   ★1 緑 … 店では 買えない ふつうの 品（ふしぎなかじで 作る 品・指輪 など）
 //   ★2 青 … むかしからの「★の 品」（star: true。店より 少し 強い）・宝の洞窟の 品
-//   ★3 紫 … ボスの 品（unique）・ボスの まれな ドロップ・宝の洞窟の 品・ランク7より 上の ★の 品
+//   ★3 紫 … ボスの 品（unique）・宝の洞窟の 品・ランク7より 上の ★の 品・れん金がまの 品（第32回）
+//   （第32回: ボスが かならず 落とす ちなんだ 装備は ★2。強さは その章の 店の 品と おなじ くらい ＋ とくせい 1つ）
 //   ★4 オレンジ … 宝の洞窟の 主の 宝箱・ひみつのダンジョン（20階から）
 //   ★5 金・にじ … ひみつのダンジョンの 深い 階（50階から）だけ。今の いちばん 強い 装備（ランク8★）より 上
 // rarity が ない 装備は assignRarity が 上の きまりで つける（店の 品は 0）。きたえた 装備（+1〜）は もとの 装備と おなじ
 //
 // 手に入る 所（src）
 //   'tm'     … 宝の洞窟の 宝箱。grp: 地図の 名前の ことばの なかま（data/rare-loot.js の TM_WORD_GROUP）
-//   'boss'   … 物語の ボスが ときどき 落とす。boss: 魔物の ID
+//   'boss'   … 物語の ボスが かならず 落とす（第32回。前は 4回に 1回）。boss: 魔物の ID
 //   'region' … ふつうの 魔物が まれに 落とす。region: 地方（1 ミドリナ・2 海・3 シロガネ・4 コガネ・5 星の塔）
 //   'sd'     … ひみつのダンジョンだけ（ほかでは 出ない）
 //
@@ -40,6 +41,11 @@ const tm = (grp) => ({ src: 'tm', grp });
 const boss = (id) => ({ src: 'boss', boss: id });
 const region = (n) => ({ src: 'region', region: n });
 const SD = { src: 'sd' };
+// ボスの 品（第32回）: その ランクの 店の 品と おなじ 強さの ★2（レア度の ぶんを もどす）
+const BW = (cat, rank) => W(cat, rank, 2, 1 / RAR_K[2]);
+const BA = (armorType, rank) => A(armorType, rank, 2, 1 / RAR_K[2]);
+const BS = (rank) => S(rank, 2, 1 / RAR_K[2]);
+const BH = (rank, helm = false) => H(rank, 2, helm, 1 / RAR_K[2]);
 
 const GEAR = {
   // ═════ 宝の洞窟（tm）═════
@@ -112,26 +118,33 @@ const GEAR = {
   kagutsuchi: { ...W('sword', 8, 4), ...tm('fire'), name: 'カグツチの剣', bonus: { str: 6 }, resist: { fire: 0.8 }, desc: '火の神の名をもつ、赤くかがやく剣。炎に強くなる。' },
   lavastone_ring: { ...C(8, 3), ...tm('fire'), name: 'ようがん石の指輪', bonus: { str: 8, def: 4 }, resist: { fire: 0.7 }, desc: '火山のおくでとれる、熱い石の指輪。力と守りが上がる。' },
 
-  // ═════ 物語の ボスが ときどき 落とす（boss）═════
-  treant_staff: { ...W('staff', 3, 3), ...boss('dark_treant'), name: 'ねじれ木のつえ', bonus: { mag: 6, heal: 8 }, resist: { poison: 0.7 }, desc: 'ダークトレントの枝のつえ。回復の力が上がり、毒にかかりにくい。' },
-  goldoon_fist: { ...W('claw', 4, 3), ...boss('goldoon'), name: 'ゴルドーンのこぶし', bonus: { def: 4 }, desc: '岩の大男ゴルドーンの、こぶしの形のナックル。' },
-  kraken_whip: { ...W('whip', 5, 3), ...boss('giant_squid'), name: 'クラーケンのムチ', onHit: { status: 'paralyze', chance: 0.12 }, desc: '大王イカの足のようにからみつくムチ。ときどき敵をマヒさせる。' },
-  storm_general_helm: { ...H(5, 3, true), ...boss('storm_general'), name: '嵐の将軍のかぶと', bonus: { hp: 12 }, resist: { wind: 0.8, bolt: 0.85 }, desc: 'ストルムのかぶと。風と雷に強い。' },
-  mammoth_fur: { ...A('cloth', 6, 3), ...boss('blizzard_mammoth'), name: 'マンモスの毛皮', bonus: { hp: 20 }, resist: { ice: 0.7 }, desc: 'ブリザマンモスの毛皮。だれでも装備でき、氷に強い。' },
-  magma_hammer: { ...W('axe', 6, 3), ...boss('magma_golem'), name: 'ようがんの大づち', bonus: { str: 4 }, resist: { fire: 0.85 }, desc: 'マグマゴーレムの体からできた大づち。' },
-  flare_shield: { ...S(6, 3), ...boss('flame_knight'), name: '炎の騎士のたて', resist: { fire: 0.7 }, desc: 'フレアードのたて。炎にとても強い。' },
-  guardian_halberd: { ...W('spear', 6, 3), ...boss('trial_guardian'), name: '竜の番人のほこ', bonus: { def: 5 }, desc: '竜の番人が持っていた大きなほこ。守りが上がる。' },
-  witch_broom: { ...W('staff', 6, 3), ...boss('flame_witch'), name: '炎の魔女のほうき', bonus: { mag: 20, agi: 5 }, resist: { fire: 0.85 }, desc: 'イグニアのほうき。魔力と素早さが上がる。' },
-  witch_hat: { ...H(6, 3), ...boss('flame_witch_true'), name: '魔女の黒いぼうし', bonus: { mag: 8, mp: 15 }, desc: '真の姿のイグニアがかぶっていたぼうし。魔力とMPが上がる。' },
-  scorpion_whip: { ...W('whip', 7, 3), ...boss('armor_scorpion'), name: 'サソリのしっぽムチ', onHit: { status: 'poison', chance: 0.3 }, desc: 'よろい大サソリのしっぽのムチ。ときどき敵を毒にする。' },
-  ankh_staff: { ...W('staff', 7, 3), ...boss('mummy_king'), name: 'アンクのつえ', bonus: { heal: 16, mag: 10 }, desc: '命のしるしの形をした、古代の王のつえ。回復の力が大きく上がる。' },
-  traitor_dagger: { ...W('dagger', 7, 3), ...boss('zaid_minister'), name: 'うらぎりの短剣', bonus: { agi: 5 }, onHit: { status: 'confuse', chance: 0.15 }, desc: '大臣ザイードのかくし持っていた短剣。ときどき敵を混乱させる。' },
-  majin_scimitar: { ...W('sword', 7, 3), ...boss('zaid_demon'), name: '魔神の三日月刀', bonus: { str: 4 }, desc: '砂の魔神の大きな三日月刀。' },
-  whalebone_boomerang: { ...W('boomerang', 7, 3), ...boss('sand_whale'), name: 'クジラの骨のブーメラン', bonus: { hp: 15 }, desc: '砂クジラの骨のブーメラン。敵全体に当たる。' },
-  seawitch_dress: { ...A('robe', 7, 3), ...boss('morgana'), name: '海の魔女のドレス', bonus: { mag: 10, mp: 15 }, resist: { ice: 0.8 }, desc: 'モルガナのドレス。魔力とMPが上がる。' },
-  leviathan_shield: { ...S(8, 3), ...boss('morgana_true'), name: 'リヴァイアサンのたて', resist: { ice: 0.8, bolt: 0.85 }, desc: '海の大竜のうろこのたて。氷と雷に強い。' },
-  hundred_eye_helm: { ...H(8, 3, true), ...boss('argos'), name: '百目のかぶと', bonus: { agi: 4 }, resist: { blind: 0.4, confuse: 0.6 }, desc: 'アルゴスの目のもようのかぶと。マヌーサと混乱に強い。' },
-  old_fang_sword: { ...W('sword', 8, 4), ...boss('old_dragon'), name: '古竜のキバの剣', bonus: { str: 5, hp: 20 }, resist: { fire: 0.85 }, desc: '古竜オルドラのキバをけずった剣。' },
+  // ═════ 物語の ボスが かならず 落とす（boss）═════
+  // 第32回: かならず 落とす かわりに、その章の 店の いちばん よい 装備と おなじ くらいの 強さ（ランクも おなじ・★2）＋ とくせい 1つ。
+  //         れん金がまで その章の 品と 合わせると、もっと 強い ★3〜★4 に なる（data/alchemy.js）
+  // 第1章（店 ランク3）
+  treant_staff: { ...BW('staff', 3), ...boss('dark_treant'), name: 'ねじれ木のつえ', bonus: { mag: 4, heal: 10 }, resist: { poison: 0.7 }, desc: 'ダークトレントの枝のつえ。回復の力が上がり、毒にかかりにくい。' },
+  goldoon_fist: { ...BW('claw', 3), ...boss('goldoon'), name: 'ゴルドーンのこぶし', bonus: { def: 3 }, resist: { paralyze: 0.8 }, desc: '岩の大男ゴルドーンの、こぶしの形のナックル。マヒしにくい。' },
+  // 第2章（店 ランク4）
+  kraken_whip: { ...BW('whip', 4), ...boss('giant_squid'), name: 'クラーケンのムチ', onHit: { status: 'paralyze', chance: 0.12 }, desc: '大王イカの足のようにからみつくムチ。ときどき敵をマヒさせる。' },
+  storm_general_helm: { ...BH(4, true), ...boss('storm_general'), name: '嵐の将軍のかぶと', bonus: { hp: 8 }, resist: { wind: 0.8 }, desc: 'ストルムのかぶと。風に強い。' },
+  // 第3章（店 ランク5）
+  mammoth_fur: { ...BA('cloth', 5), ...boss('blizzard_mammoth'), name: 'マンモスの毛皮', bonus: { hp: 12 }, resist: { ice: 0.75 }, desc: 'ブリザマンモスの毛皮。だれでも装備でき、氷に強い。' },
+  magma_hammer: { ...BW('axe', 5), ...boss('magma_golem'), name: 'ようがんの大づち', bonus: { str: 3 }, resist: { fire: 0.85 }, desc: 'マグマゴーレムの体からできた大づち。炎に少し強い。' },
+  flare_shield: { ...BS(5), ...boss('flame_knight'), name: '炎の騎士のたて', resist: { fire: 0.75 }, desc: 'フレアードのたて。炎に強い。' },
+  guardian_halberd: { ...BW('spear', 5), ...boss('trial_guardian'), name: '竜の番人のほこ', bonus: { def: 4 }, crit: 0.03, desc: '竜の番人が持っていた大きなほこ。会心が出やすい。' },
+  witch_broom: { ...BW('staff', 5), ...boss('flame_witch'), name: '炎の魔女のほうき', bonus: { mag: 16, agi: 4 }, resist: { fire: 0.85 }, desc: 'イグニアのほうき。魔力と素早さが上がり、炎に少し強い。' },
+  witch_hat: { ...BH(5), ...boss('flame_witch_true'), name: '魔女の黒いぼうし', bonus: { mag: 6, mp: 10 }, mpRegen: 1, desc: '真の姿のイグニアがかぶっていたぼうし。行動するたびにMPが1回復する。' },
+  // 第4章（店 ランク6）
+  scorpion_whip: { ...BW('whip', 6), ...boss('armor_scorpion'), name: 'サソリのしっぽムチ', onHit: { status: 'poison', chance: 0.3 }, desc: 'よろい大サソリのしっぽのムチ。ときどき敵を毒にする。' },
+  ankh_staff: { ...BW('staff', 6), ...boss('mummy_king'), name: 'アンクのつえ', bonus: { heal: 14, mag: 8 }, mpRegen: 1, desc: '命のしるしの形をした、古代の王のつえ。行動するたびにMPが1回復する。' },
+  traitor_dagger: { ...BW('dagger', 6), ...boss('zaid_minister'), name: 'うらぎりの短剣', bonus: { agi: 5 }, onHit: { status: 'confuse', chance: 0.15 }, desc: '大臣ザイードのかくし持っていた短剣。ときどき敵を混乱させる。' },
+  majin_scimitar: { ...BW('sword', 6), ...boss('zaid_demon'), name: '魔神の三日月刀', bonus: { str: 3 }, crit: 0.03, desc: '砂の魔神の大きな三日月刀。会心が出やすい。' },
+  whalebone_boomerang: { ...BW('boomerang', 6), ...boss('sand_whale'), name: 'クジラの骨のブーメラン', bonus: { hp: 12 }, resist: { paralyze: 0.8 }, desc: '砂クジラの骨のブーメラン。敵全体に当たり、マヒしにくい。' },
+  seawitch_dress: { ...BA('robe', 6), ...boss('morgana'), name: '海の魔女のドレス', bonus: { mag: 8, mp: 12 }, resist: { ice: 0.8 }, desc: 'モルガナのドレス。魔力とMPが上がり、氷に強い。' },
+  leviathan_shield: { ...BS(6), ...boss('morgana_true'), name: 'リヴァイアサンのたて', resist: { ice: 0.8 }, desc: '海の大竜のうろこのたて。氷に強い。' },
+  // 第5章（店 ランク7）
+  hundred_eye_helm: { ...BH(7, true), ...boss('argos'), name: '百目のかぶと', bonus: { agi: 4 }, resist: { blind: 0.5, confuse: 0.7 }, desc: 'アルゴスの目のもようのかぶと。マヌーサと混乱にかかりにくい。' },
+  old_fang_sword: { ...BW('sword', 7), ...boss('old_dragon'), name: '古竜のキバの剣', bonus: { str: 4, hp: 15 }, resist: { fire: 0.85 }, desc: '古竜オルドラのキバをけずった剣。炎に少し強い。' },
 
   // ═════ ふつうの 魔物が まれに 落とす（region）═════
   // 1: ミドリナ地方

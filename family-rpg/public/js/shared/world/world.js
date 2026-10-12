@@ -27,6 +27,7 @@ import { tryTreasureDig, treasureMenu, fixTreasurePos, normalizeTreasure, pruneT
 import { isNightFor, timeFlag, fracFor } from './clock.js';
 import { onFly, setFlying, moveAllowed, ridingAlong, canFlyMap } from './travel.js';
 import { walkSteps } from './perks.js';
+import { alchemySteps, alchemyShelf } from './alchemy.js';
 import { migrateSky } from '../data/sky.js';
 import { migrateCh4 } from '../data/story-ch4.js';
 import { repairObjective } from '../data/progress.js';
@@ -545,6 +546,8 @@ export class GameWorld {
     const tx = Math.floor(x), ty = Math.floor(y);
     // こうふくのくつ: 歩いた マスを 数える（world/perks.js）
     if (tx !== oldTx || ty !== oldTy) walkSteps(this, s, Math.abs(tx - oldTx) + Math.abs(ty - oldTy));
+    // れん金がま: 歩くと できあがりに 近づく（world/alchemy.js）
+    if (tx !== oldTx || ty !== oldTy) alchemySteps(this, s, Math.abs(tx - oldTx) + Math.abs(ty - oldTy));
     if (tx !== oldTx || ty !== oldTy) this.onEnterTile(s, tx, ty);
   }
 
@@ -819,6 +822,9 @@ export class GameWorld {
     const key = `${s.map}:${tx}:${ty}`;
     const names = { [T.POT]: 'つぼ', [T.BARREL]: 'たる', [T.SHELF]: 'たな', [T.BOOKSHELF]: '本だな', [T.CRATE]: '箱' };
     const nm = names[tile] || 'それ';
+    // れん金がまを 持っていれば、本だなで れん金の 本を 読む（world/alchemy.js）
+    const book = tile === T.BOOKSHELF && alchemyShelf(this, s, key);
+    if (book) return runSteps(this, s, book);
     if (c.searched[key]) return runSteps(this, s, [['say', null, `${nm}を調べた。\nしかし何も見つからなかった。`]]);
     c.searched[key] = true;
     const loot = searchLoot(s.map, tx, ty);

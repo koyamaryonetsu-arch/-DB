@@ -11,6 +11,7 @@ import { MONSTERS } from '../data/monsters.js';
 import { migrateJobs, oldComboUnlocks, addItem, fixBodyJob } from '../stats.js';
 import { repairTreasureMaps } from '../data/treasure.js';
 import { repairSecret } from '../data/secret.js';
+import { repairAlchemy } from './alchemy.js';
 import { normBank } from './bank.js';
 import { cleanWagon } from '../data/wagon.js';
 import { cleanLookEquip } from '../look-equip.js';
@@ -160,6 +161,7 @@ export function repairChar(c, id) {
   }
   repairTreasureMaps(c); // 宝の地図（なくても よい）
   repairSecret(c); // ひみつのダンジョンの 記録（なくても よい。新しい 項目なので 版は 上げない）
+  repairAlchemy(c); // れん金がま（第32回。なくても よい）・もう たおした ボスの 品
   // 馬車の 仲間（いなくなった 仲間の key は はずす）
   cleanWagon(c);
   cleanStash(c);
