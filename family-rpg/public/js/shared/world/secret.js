@@ -1,5 +1,6 @@
-// ひみつのダンジョン（せかいの しくみ）: 入る・階を 下りる・番人・休み所の ごほうびと 泉・地上へ もどる・全滅・記録の 板
-// データと 階の 形は data/secret.js と maps/secret-dungeon.js
+// ひみつのダンジョン（せかいの しくみ）: 入る・階を 下りる・番人（たおすと 全回復）・休み所の ごほうび・宿屋の 階・お店の 階・
+// 地上へ もどる・全滅・記録の 板
+// データと 階の 形は data/secret.js と maps/secret-dungeon.js（お店の 品ぞろえは data/secret-shop.js）
 //
 // ちょうせん（c.sd.run）
 // ・入口の 広間（案内人か 下り階段）から 入った 人だけが「ちょうせん中」。1つずつ 下りた 階が 記録に なる
@@ -10,20 +11,26 @@
 // ・パーティーの みんなで いっしょに 下りる（同じ 階に いる 家族を みんな つれていく）。いっしょに いた 家族の 名前も 記録に のこる
 // ・とちゅうから 来た 人（さそわれて リーダーの ところへ 来た など）は mid（その ちょうせんは 記録に ならない。記録も できない。ごほうびは 小さな 物だけ）
 // ・ダンジョンの 外（入口の 広間も）へ 出ると ちょうせんは 終わり（placeSession から noteSecretMove）
+// ・階の 形は ちょうせんごとに かわる（2026年10月 第32回）: 入口から 始める ときに seed を 作って c.sd.run.seed に 入れ、
+//   マップの ID（'sd_<階>_<seed>'）にも 入れる。いっしょに 下りる 家族は おなじ ID の 階へ 行くので おなじ 形。
+//   ログインしなおしても 場所の ID に seed が のこる。前の 版の 'sd_<階>' に いた 人は、次の 階から 新しい seed
 import { MAPS, isBlocked } from '../maps/index.js';
 import { fullHeal, addItem } from '../stats.js';
 import { MONSTERS } from '../data/monsters.js';
 import { SD_HOOKS } from '../data/story-secret.js';
 import { partyOf } from './party.js';
-import { SD_DOOR_OUT, GATE_ARRIVE } from '../maps/secret-dungeon.js';
+import { SD_DOOR_OUT, GATE_ARRIVE, SD_INN_KEEPER } from '../maps/secret-dungeon.js';
 import {
   SD_GATE, SD_NAME, SD_OPEN_FLAG, sdFloorId, sdFloorOf, isSdFloorId, isRestFloor, isGuardFloor, sdGuardian, sdGuardEncounter,
   sdRecommendLv, sdBigReward, sdSmallReward, rewardText, sdMedalId, noteSdFloor, sdRecordOf, sdRecordText, sdBoardRows, sdBand,
-  sdSaveOf, noteSdSave, sdStartFloors, sdStartText,
+  sdSaveOf, noteSdSave, sdStartFloors, sdStartText, sdRunSeedOf, newSdSeed, sdInnPrice,
 } from '../data/secret.js';
+import { ensureSdShop } from '../data/secret-shop.js';
 
 const GUIDE = 'ひみつのダンジョンの案内人';
 const FAIRY = '休み所のようせい';
+// その 階の 宿屋・お店（maps/secret-dungeon.js の sd.kind）
+const floorKind = (mapId) => MAPS[mapId]?.sd?.kind || null;
 
 // ───────────── ちょうせんの きろく ─────────────
 function sdOf(c) {
@@ -32,6 +39,13 @@ function sdOf(c) {
   return c.sd;
 }
 const runOf = (c) => (c?.sd?.run && typeof c.sd.run === 'object' ? c.sd.run : null);
+// とちゅうから 来た 人の ちょうせん（記録に ならない。seed は その 階の もの）
+function midRun(f, mapId) {
+  const run = { f, mid: true, took: [] };
+  const seed = sdRunSeedOf(mapId);
+  if (seed) run.seed = seed;
+  return run;
+}
 
 // world.placeSession から（s.map が かわる 前）: ちょうせんの つづきか、とちゅうから 来たか、外に 出たか
 export function noteSecretMove(world, s, toMap) {
@@ -43,7 +57,7 @@ export function noteSecretMove(world, s, toMap) {
   if (f) {
     // 下り階段・入口からの 正しい 移動は 下りた あとで 記録する（arriveFloor）。それ いがいは とちゅうから
     if (step === toMap) return;
-    sdOf(c).run = { f, mid: true, took: [] };
+    sdOf(c).run = midRun(f, toMap);
     return;
   }
   if (c.sd?.run) delete c.sd.run;
@@ -86,7 +100,7 @@ export function pruneSecretStates(world, byMap) {
 }
 
 // ───────────── パーティーで いっしょに ─────────────
-// 同じ マップに いる 家族（ほかの ことを していない 人）を だいほんに 入れる（いっしょに 下りる・ごほうび・泉）
+// 同じ マップに いる 家族（ほかの ことを していない 人）を だいほんに 入れる（いっしょに 下りる・ごほうび・宿屋）
 function gather(run) {
   const w = run.world, s = run.init;
   const p = partyOf(w, s);
@@ -109,26 +123,31 @@ async function moveAll(run, people, to) {
 }
 
 // 階に 着いた: ちょうせん中の 人は 記録を のばす（いっしょに いた 家族の 名前も）
-function arriveFloor(world, people, f) {
+// seed … その ちょうせんの seed（ちがう ちょうせんの 人は とちゅうから 来た ことに する）
+function arriveFloor(world, people, f, seed = 0) {
   const now = world.now();
   const news = [];
   for (const m of people) {
     const c = m.char;
     const sd = sdOf(c);
     const r = runOf(c);
-    if (!r || r.mid || r.f !== f - 1) {
-      sd.run = { f, mid: true, took: [] };
+    if (!r || r.mid || r.f !== f - 1 || (seed && r.seed && r.seed !== seed)) {
+      sd.run = midRun(f, sdFloorId(f, seed));
       continue;
     }
     r.f = f;
+    if (seed) r.seed = seed;
     const others = people.filter((o) => o !== m).map((o) => o.char.name);
     if (noteSdFloor(c, f, others, now)) news.push(m);
   }
   world.markDirty();
+  // 宿屋・お店の 階は ひとこと（会話の まどは 出さない）
+  const kind = floorKind(sdFloorId(f, seed));
+  const here = kind === 'inn' ? '\nふしぎな宿屋がある！' : kind === 'shop' ? '\nふしぎな店がある！' : '';
   for (const m of people) {
     const mid = runOf(m.char)?.mid;
     const isNew = news.includes(m);
-    world.send(m, { t: 'toast', text: `${SD_NAME}　地下${f}階${isNew ? '\n★新記録！' : mid ? '\n（とちゅうから来たので、今回は記録にならない）' : ''}` });
+    world.send(m, { t: 'toast', text: `${SD_NAME}　地下${f}階${isNew ? '\n★新記録！' : mid ? '\n（とちゅうから来たので、今回は記録にならない）' : ''}${here}` });
     world.sendSelf(m);
   }
   return news;
@@ -151,10 +170,11 @@ async function guideTalk(run) {
   const say = (...lines) => lines.map((l) => ['say', GUIDE, l]);
   const explain = say(
     'このダンジョンには、終わりがない。\n下の階へ行くほど、魔物が強くなるぞ。',
-    '階はいつも同じ形じゃ。家族みんな、同じ階を同じ形でもぐるんじゃよ。',
-    `5階ごとに休み所がある。\n回復の泉と、ごほうびの宝箱があるぞ。初めて着いた休み所の宝箱には、大きなごほうびが入っておる。`,
+    '階の形は、入るたびに変わる。\nいっしょに入った家族は、みんな同じ形じゃ。',
+    `5階ごとに休み所がある。\nごほうびの宝箱があるぞ。初めて着いた休み所の宝箱には、大きなごほうびが入っておる。`,
     '休み所のようせいに話せば、その階を記録して地上へもどれる。\n次は、わしに話しかければ、記録した階から始められるぞ。',
-    '10階ごとの休み所では、強い番人が下り階段を守っておる。',
+    '10階ごとの休み所では、強い番人が下り階段を守っておる。\nたおせば、HPとMPがすっかり回復するぞ。',
+    '回復の泉はない。運がよければ、宿屋やお店だけの階に出会えるぞ。',
     'ここでは、みちびきの糸も帰り道の羽も、ルーラもリレミトも使えん。\n全滅すると、この入口にもどされる。でも、お金はへらんから安心せい。',
     'それから…ここの魔物は、なぜか仲間にならんのじゃ。',
     'とちゅうの階から始めても、いちばん深く行けた階が、となりの「家族の記録の板」にのこるぞ。',
@@ -224,29 +244,33 @@ async function enterEvent(run) {
 }
 
 // f … 始める 階（1 か 記録した 休み所）
+// ちょうせんの seed を 作って、いっしょに 入る 家族 みんなに 入れる（同じ 形の 階へ）
 async function startRun(run, f = 1) {
   const people = gather(run);
+  const seed = newSdSeed(run.world.rng);
   for (const m of people) {
     const sd = sdOf(m.char);
-    sd.run = { f: f - 1, took: [] };
+    sd.run = { f: f - 1, took: [], seed };
     sd.tries = (sd.tries || 0) + 1;
   }
-  await moveAll(run, people, sdFloorId(f));
+  await moveAll(run, people, sdFloorId(f, seed));
   if (run.aborted) return;
-  arriveFloor(run.world, people, f);
+  arriveFloor(run.world, people, f, seed);
   if (f > 1) {
-    const lines = [`地下${f}階の休み所から、ちょうせんを始めた！\n回復の泉と、ごほうびの宝箱がある。`];
-    if (isGuardFloor(f)) lines.push(`下り階段の前には、番人の${MONSTERS[sdGuardian(f)]?.name || '魔物'}がいる…。\n準備をしてから話しかけよう。`);
-    await run.runSteps([['sfx', 'sparkle'], ...lines.map((l) => ['say', null, l])]);
+    const guard = isGuardFloor(f) ? `\n下り階段の前には、番人の${MONSTERS[sdGuardian(f)]?.name || '魔物'}がいる…。` : '';
+    await run.runSteps([['sfx', 'sparkle'], ['say', null, `地下${f}階の休み所から、ちょうせんを始めた！${guard}`]]);
   }
 }
 
 // ───────────── 下りる（下り階段・休み所の「先へ進む」・番人）─────────────
 async function downEvent(run) {
   const world = run.world;
-  const f = sdFloorOf(run.init.map);
+  const here = run.init.map;
+  const f = sdFloorOf(here);
   if (!f) return;
   const people = gather(run);
+  // この ちょうせんの seed（前の 版の 階なら ちょうせんの seed か、新しく 作る）
+  const seed = sdRunSeedOf(here) || runOf(run.init.char)?.seed || newSdSeed(world.rng);
   if (isGuardFloor(f)) {
     const sp = sdGuardian(f);
     const name = MONSTERS[sp]?.name || '番人';
@@ -260,18 +284,21 @@ async function downEvent(run) {
       ['battle', enc],
     ]);
     if (run.aborted) return;
-    await run.runSteps([['bgm', 'resume'], ['sfx', 'key'], ['say', null, `番人の${name}をたおした！\n下り階段への道が開いた！`]]);
+    // 番人を たおすと、いっしょに 戦った みんなの HPと MPが 全回復（第32回。5階ごとの 回復の泉の かわり）
+    await run.runSteps([
+      ['bgm', 'resume'], ['sfx', 'key'], ['say', null, `番人の${name}をたおした！\n下り階段への道が開いた！`],
+      ['flash'], ['heal'], ['sfx', 'heal'], ['say', null, 'ふしぎな光が、みんなをつつみこんだ…。\nHPとMPがすっかり回復した！'],
+    ]);
     if (run.aborted) return;
   }
   const next = f + 1;
-  const go = people.filter((m) => world.sessions.has(m.id) && m.map === MAPS[sdFloorId(f)].id);
-  await moveAll(run, go, sdFloorId(next));
+  const go = people.filter((m) => world.sessions.has(m.id) && m.map === here);
+  await moveAll(run, go, sdFloorId(next, seed));
   if (run.aborted) return;
-  arriveFloor(world, go, next);
+  arriveFloor(world, go, next, seed);
   if (isRestFloor(next)) {
-    const lines = [`地下${next}階の休み所に着いた！\nここには魔物が来ない。`, '回復の泉と、ごほうびの宝箱がある。\n（地上へもどりたい時は、休み所のようせいに話しかけよう）'];
-    if (isGuardFloor(next)) lines.push(`下り階段の前には、番人の${MONSTERS[sdGuardian(next)]?.name || '魔物'}がいる…。\n準備をしてから話しかけよう。`);
-    await run.runSteps([['sfx', 'sparkle'], ...lines.map((l) => ['say', null, l])]);
+    const guard = isGuardFloor(next) ? `\n下り階段の前には、番人の${MONSTERS[sdGuardian(next)]?.name || '魔物'}がいる…。` : '';
+    await run.runSteps([['sfx', 'sparkle'], ['say', null, `地下${next}階の休み所に着いた！\nごほうびの宝箱がある。（地上へもどる時は、ようせいに話しかけよう）${guard}`]]);
   } else if (sdBand(next) !== sdBand(f)) {
     await run.runSteps([['say', null, `あたりの様子が変わった…。\n（${sdBand(next).label}）`]]);
   }
@@ -282,7 +309,7 @@ async function restTalk(run) {
   const f = sdFloorOf(run.init.map);
   if (!isRestFloor(f)) return;
   await run.runSteps([
-    ['say', FAIRY, `ここは地下${f}階の休み所。\n泉の水を飲んで、ひと休みしていってね。`],
+    ['say', FAIRY, `ここは地下${f}階の休み所。\n魔物は来ないから、ひと休みしていってね。`],
     ['choice', 'どうする？', ['先へ進む', 'この階を記録して地上へもどる', 'やめる'], [
       [['call', downEvent]],
       [['choice', `地上へもどると、今回のちょうせんはおしまい。\n地下${f}階を記録しておくと、次は入口の案内人に話して、この階から始められるよ。\nもどる？`, ['もどる', 'やめる'], [[['call', exitEvent]], []]]],
@@ -322,16 +349,43 @@ async function exitEvent(run) {
   ]);
 }
 
-// 回復の泉（いっしょに いる 家族も みんな）
-async function springEvent(run) {
+// ───────────── 宿屋の 階（運で 出る）─────────────
+// すこしの ゴールドで、いっしょに いる 家族 みんなの HPと MPが 全回復（はらうのは 話しかけた 人）
+async function innTalk(run) {
+  const here = run.init.map;
+  const f = sdFloorOf(here);
+  if (floorKind(here) !== 'inn') return;
   gather(run);
+  const price = sdInnPrice(f);
+  const stay = async (x) => {
+    const c = x.init.char;
+    if ((c.gold || 0) < price) {
+      await x.runSteps([['say', SD_INN_KEEPER, 'おや、ゴールドが足りないようだね…。\nまたおいで。']]);
+      return;
+    }
+    c.gold -= price;
+    x.world.markDirty();
+    await x.runSteps([
+      ['fade', 'out'], ['bgm', 'inn'], ['wait', 1800], ['heal'], ['bgm', 'resume'], ['fade', 'in'],
+      ['sfx', 'heal'], ['say', null, 'HPとMPがすっかり回復した！'],
+    ]);
+  };
   await run.runSteps([
-    ['say', null, 'すきとおった泉がわいている。'],
-    ['choice', '泉の水を飲む？', ['飲む', 'やめる'], [
-      [['heal'], ['sfx', 'heal'], ['say', null, '体の底から力がわいてくる！\nみんなのHPとMPが回復した！']],
-      [],
+    ['choice', `${SD_INN_KEEPER}「ようこそ。\nひと休み${price}ゴールドで、HPとMPがすっかり回復するよ。休んでいくかい？」`, ['休む', 'やめる'], [
+      [['call', stay]],
+      [['say', SD_INN_KEEPER, '気をつけて行くんだよ。']],
     ]],
   ]);
+}
+
+// ───────────── お店の 階（運で 出る）─────────────
+// 品ぞろえは その ちょうせんの seed と 階で きまる（data/secret-shop.js）。店の 画面は ふつうの お店
+async function shopTalk(run) {
+  const here = run.init.map;
+  if (floorKind(here) !== 'shop') return;
+  const f = sdFloorOf(here);
+  const seed = sdRunSeedOf(here);
+  await run.runSteps([['shop', ensureSdShop(f, seed)]]);
 }
 
 // ごほうびの 宝箱（1回の ちょうせんで 1人1回。初めて 着いた 休み所は 大きな ごほうび）
@@ -345,7 +399,7 @@ async function chestEvent(run) {
     const c = m.char;
     const sd = sdOf(c);
     let r = runOf(c);
-    if (!r || r.f !== f) r = sd.run = { f, mid: true, took: [] };
+    if (!r || r.f !== f) r = sd.run = midRun(f, run.init.map);
     if (!Array.isArray(r.took)) r.took = [];
     if (r.took.includes(f)) continue;
     r.took.push(f);
@@ -374,7 +428,7 @@ async function chestEvent(run) {
 
 // だいほんの しょり（data/story-secret.js）
 Object.assign(SD_HOOKS, {
-  door: doorEvent, guide: guideTalk, board: boardOpen, enter: enterEvent, down: downEvent, rest: restTalk, chest: chestEvent, spring: springEvent,
+  door: doorEvent, guide: guideTalk, board: boardOpen, enter: enterEvent, down: downEvent, rest: restTalk, chest: chestEvent, inn: innTalk, shop: shopTalk,
 });
 
 export { SD_DOOR_OUT };

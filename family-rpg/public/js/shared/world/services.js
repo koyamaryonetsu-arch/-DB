@@ -32,7 +32,7 @@ export function openService(world, s, kind, arg) {
       if (!shop) return null;
       s.openShop = arg;
       const has = world.hasFlagFn(s);
-      return { shop: arg, name: shop.name, items: shopItems(shop, has), keeper: shop.keeper, hello: shopHello(shop, has), kind: shop.kind };
+      return { shop: arg, name: shop.name, items: shopItems(shop, has), keeper: shop.keeper, hello: shopHello(shop, has), kind: shop.kind, prices: shop.prices };
     }
     case 'jobChange': return { jobs: ALL_JOBS };
     case 'tavern': return tavernInfo(world, s);
@@ -115,8 +115,10 @@ export function serviceAction(world, s, msg) {
         const it = ITEMS[msg.id];
         const equipable = SLOTS.includes(it?.type);
         const qty = equipable ? 1 : Math.max(1, Math.min(99, Math.floor(msg.qty || 1)));
-        if (!shop || !shopItems(shop, world.hasFlagFn(s)).includes(msg.id) || !it || !(it.price > 0)) return reply(false, 'その品物はありません');
-        const cost = it.price * qty;
+        // prices … その 店だけの ねだん（ひみつのダンジョンの お店の レア装備。data/secret-shop.js）
+        const price = shop?.prices?.[msg.id] ?? it?.price;
+        if (!shop || !shopItems(shop, world.hasFlagFn(s)).includes(msg.id) || !it || !(price > 0)) return reply(false, 'その品物はありません');
+        const cost = price * qty;
         if (c.gold < cost) return reply(false, 'おや？ゴールドが足りないようですね。');
         // だれが 装備する？（じぶん か じぶんの なかま。むかしの 'equip: true' は じぶん）
         const whoKey = msg.who || (msg.equip ? 'self' : null);

@@ -23,7 +23,7 @@ import {
   SD_GATE, SD_OPEN_FLAG, sdFloorId, sdFloorOf, sdEnemyLv, sdPower, sdRecommendLv, sdBand, ensureSdTable, sdZone, isRestFloor, isGuardFloor,
   sdGuardian, sdGuardEncounter, sdBigReward, sdSmallReward, repairSecret, mergeSecret, sdBoardRows, sdRecordText, noteSdFloor, SD_GUARDS, sdMonsterPool,
 } from '../public/js/shared/data/secret.js';
-import { SD_DOOR, GATE_DOWN, GATE_ARRIVE, GATE_BOARD, GATE_GUIDE, REST_CHEST, REST_KEEPER, REST_GUARD, REST_DOWN, REST_SPRING } from '../public/js/shared/maps/secret-dungeon.js';
+import { SD_DOOR, GATE_DOWN, GATE_ARRIVE, GATE_BOARD, GATE_GUIDE, REST_CHEST, REST_KEEPER, REST_GUARD, REST_DOWN } from '../public/js/shared/maps/secret-dungeon.js';
 import { gameFiles, checkFile } from '../tools/kanji-check.mjs';
 import { Bot, tickN } from './helpers.js';
 
@@ -165,9 +165,11 @@ test('入口: ルミナの町に 着く 前は しまっていて、着くと �
   answers(bot, [0]);
   f0 = bot.msgs.length;
   await stepOn(bot, GATE_DOWN.x, GATE_DOWN.y);
-  assert.equal(bot.map, 'sd_1');
+  // 第32回: 階の ID に ちょうせんの seed が 入る
+  assert.equal(sdFloorOf(bot.map), 1);
   assert.equal(c.sd.best, 1);
-  assert.deepEqual(c.sd.run, { f: 1, took: [] });
+  assert.deepEqual({ ...c.sd.run, seed: undefined }, { f: 1, took: [], seed: undefined });
+  assert.equal(bot.map, sdFloorId(1, c.sd.run.seed));
   assert.equal(c.sd.tries, 1);
   assert.ok(toasts(bot, f0).some((t) => t.includes('地下1階') && t.includes('新記録')));
   // 入口の 広間から 地上へ もどる 階段
@@ -201,7 +203,8 @@ test('階の 形: 同じ 階は いつも 同じ形（家族みんな）。ど�
     const reach = reachFrom(m, ax, ay);
     if (isRestFloor(f)) {
       assert.ok(m.sd.rest);
-      for (const p of [REST_CHEST, REST_SPRING, REST_KEEPER]) assert.ok(nextTo(reach, p.x, p.y), `${f}階: 休み所の ${p.x},${p.y}`);
+      assert.ok(!m.npcs.some((n) => n.id === 'sd_spring'), `${f}階: 回復の泉は ない（第32回）`);
+      for (const p of [REST_CHEST, REST_KEEPER]) assert.ok(nextTo(reach, p.x, p.y), `${f}階: 休み所の ${p.x},${p.y}`);
       if (isGuardFloor(f)) {
         assert.ok(!reach(REST_DOWN.x, REST_DOWN.y + 1), `${f}階: 番人が 階段を ふさぐ`);
         const g = m.npcs.find((n) => n.id === 'sd_guard');
@@ -233,21 +236,22 @@ test('下りる: 階段を ふむと 次の 階へ。記録が のびる。上�
   await onFloor(bot, 1);
   for (let f = 1; f < 4; f++) {
     await goDown(bot);
-    assert.equal(bot.map, sdFloorId(f + 1));
+    assert.equal(sdFloorOf(bot.map), f + 1);
     assert.equal(c.sd.best, f + 1);
     assert.equal(c.sd.run.f, f + 1);
   }
   // 上り階段（ふさがっている）
-  const m = MAPS.sd_4;
+  const m = MAPS[bot.map];
   const up = m.triggers.find((t) => t.script === 'sd_up');
   const from = bot.msgs.length;
   await place(bot, m.id, up.x + 0.5, up.y + 1.5);
   await stepOn(bot, up.x, up.y);
-  assert.equal(bot.map, 'sd_4');
+  assert.equal(bot.map, m.id);
+  assert.equal(sdFloorOf(m.id), 4);
   assert.ok(sayTexts(bot, from).some((t) => t.includes('ふさがっている')));
   // 4階から 5階（休み所）へ
   await goDown(bot);
-  assert.equal(bot.map, 'sd_5');
+  assert.equal(sdFloorOf(bot.map), 5);
   assert.equal(c.sd.best, 5);
 });
 
@@ -340,7 +344,7 @@ test('糸・帰り道の羽・ルーラは 使えない（道具も MPも へら
   const mp0 = c.mp;
   bot.send({ t: 'menu', action: 'cast', id: rura, place: 'village', who: 'self' });
   await bot.settle();
-  assert.equal(bot.map, 'sd_10');
+  assert.equal(sdFloorOf(bot.map), 10);
   assert.equal(c.mp, mp0);
 });
 
@@ -388,11 +392,8 @@ test('5階ごとの ごほうび: 初めて 着いた 時は 大きな ごほう
   await talkTo(bot, 'sd_chest');
   assert.equal(medalsFound(c), m0 + 1);
   assert.deepEqual(c.sd.got, [5, 10]);
-  // 回復の泉
-  c.hp = 1;
-  answers(bot, [0]);
-  await talkTo(bot, 'sd_spring');
-  assert.ok(c.hp > 1);
+  // 回復の泉は なくなった（第32回。番人を たおすと 回復）
+  assert.ok(!MAPS[bot.map].npcs.some((n) => n.id === 'sd_spring'));
 });
 
 test('休み所: 「地上へもどる」で 入口の 広間へ（記録は のこる）。「先へ進む」で 次の 階。10階ごとの 番人を たおすと 下へ', async () => {
@@ -402,13 +403,13 @@ test('休み所: 「地上へもどる」で 入口の 広間へ（記録は の
   // 先へ 進む
   answers(bot, [0]);
   await talkTo(bot, 'sd_keeper');
-  assert.equal(bot.map, 'sd_6');
+  assert.equal(sdFloorOf(bot.map), 6);
   assert.equal(c.sd.best, 6);
   // 地上へ もどる（やめる → もどる）
   await onFloor(bot, 5);
   answers(bot, [1, 1]);
   await talkTo(bot, 'sd_keeper');
-  assert.equal(bot.map, 'sd_5');
+  assert.equal(sdFloorOf(bot.map), 5);
   answers(bot, [1, 0]);
   await talkTo(bot, 'sd_keeper');
   assert.equal(bot.map, SD_GATE);
@@ -419,7 +420,7 @@ test('休み所: 「地上へもどる」で 入口の 広間へ（記録は の
   const from = bot.msgs.length;
   await talkTo(bot, 'sd_guard');
   assert.ok(bot.battles.some((b) => b.outcome === 'win'));
-  assert.equal(bot.map, 'sd_11');
+  assert.equal(sdFloorOf(bot.map), 11);
   assert.equal(c.sd.best, 11);
   assert.ok(sayTexts(bot, from).some((t) => t.includes('番人')));
 });
@@ -475,19 +476,19 @@ test('家族の パーティー: いっしょに 入って 下りると みん�
   answers(papa, [0]);
   await stepOn(papa, GATE_DOWN.x, GATE_DOWN.y);
   await yui.settle();
-  assert.equal(papa.map, 'sd_1');
-  assert.equal(yui.map, 'sd_1', 'はなれていても 同じ 広間なら いっしょ');
+  assert.equal(sdFloorOf(papa.map), 1);
+  assert.equal(yui.map, papa.map, 'はなれていても 同じ 広間なら いっしょ（おなじ seed の 階）');
   // 2階・3階へ（ユイが 階段を ふんでも みんなで）
   await goDown(papa);
   await yui.settle();
-  assert.equal(yui.map, 'sd_2');
-  const m2 = MAPS.sd_2;
-  world.placeSession(Y, 'sd_2', m2.sd.down.x + 0.5, m2.sd.down.y + 1.5, 'up');
+  assert.equal(sdFloorOf(yui.map), 2);
+  const m2 = MAPS[yui.map];
+  world.placeSession(Y, m2.id, m2.sd.down.x + 0.5, m2.sd.down.y + 1.5, 'up');
   await yui.settle();
   await stepOn(yui, m2.sd.down.x, m2.sd.down.y);
   await papa.settle();
-  assert.equal(papa.map, 'sd_3');
-  assert.equal(yui.map, 'sd_3');
+  assert.equal(sdFloorOf(papa.map), 3);
+  assert.equal(yui.map, papa.map);
   for (const [c, other] of [[P.char, 'ユイ'], [Y.char, 'パパ']]) {
     assert.equal(c.sd.best, 3);
     assert.deepEqual(c.sd.with, [other]);
@@ -502,12 +503,12 @@ test('家族の パーティー: いっしょに 入って 下りると みん�
   papa.send({ t: 'party', action: 'invite', sid: ken.s.id });
   ken.send({ t: 'party', action: 'accept' });
   await ken.settle();
-  assert.equal(ken.map, 'sd_3');
+  assert.equal(ken.map, papa.map);
   assert.ok(K.char.sd.run.mid);
   await goDown(papa);
   await ken.settle();
   await yui.settle();
-  assert.equal(ken.map, 'sd_4');
+  assert.equal(sdFloorOf(ken.map), 4);
   assert.equal(P.char.sd.best, 4);
   assert.equal(Y.char.sd.best, 4);
   assert.deepEqual(P.char.sd.with.sort(), ['ケン', 'ユイ'].sort());
@@ -517,7 +518,7 @@ test('家族の パーティー: いっしょに 入って 下りると みん�
   ken.send({ t: 'party', action: 'leave' });
   await tickN(world, 3);
   await ken.settle();
-  assert.notEqual(ken.map, 'sd_4');
+  assert.equal(sdFloorOf(ken.map), 0);
   assert.equal(K.char.sd.run, undefined);
 });
 
@@ -613,7 +614,7 @@ test('文字・絵・音: 使えない 漢字・スペースが ない。絵と 
     const bad = checkFile(file).filter((p) => p.kind !== 'kana');
     assert.deepEqual(bad, [], f);
   }
-  for (const id of ['sd_door', 'sd_guide', 'sd_board', 'sd_enter', 'sd_down', 'sd_up', 'sd_rest', 'sd_chest', 'sd_spring', 'sd_guard']) assert.ok(SCRIPTS[id], id);
+  for (const id of ['sd_door', 'sd_guide', 'sd_board', 'sd_enter', 'sd_down', 'sd_up', 'sd_rest', 'sd_chest', 'sd_inn', 'sd_shop', 'sd_guard']) assert.ok(SCRIPTS[id], id);
   const { _TRACKS } = await import('../public/js/client/audio.js');
   for (const id of new Set([MAPS.sd_gate.bgm, MAPS.sd_1.bgm, MAPS.sd_5.bgm])) assert.ok(_TRACKS[id], id);
   const art = await import('../public/js/client/render/secret-art.js');

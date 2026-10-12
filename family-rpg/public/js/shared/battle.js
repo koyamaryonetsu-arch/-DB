@@ -1947,6 +1947,11 @@ export class Battle {
         }
         break;
       }
+      // HPと MPを いっしょに（ひみつのダンジョンの お店の 薬。data/items-secret.js）
+      case 'multi': for (const t of targets) for (const p of eff.parts || []) {
+        if (p.type === 'heal') this.heal(c, t, p, ev, 1);
+        else if (p.type === 'mpHeal' && t.alive) { const d = Math.min(t.maxMp - t.mp, this.rng.int(p.base[0], p.base[1])); t.mp += d; ev.lines.push(`${t.name}のMPが${d}回復した！`); ev.upd.push(t); }
+      } break;
       case 'escape': {
         if (!this.canFlee) {
           ev.lines.push('しかし逃げられない！');

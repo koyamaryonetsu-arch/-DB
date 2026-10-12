@@ -1,13 +1,18 @@
 // ひみつのダンジョン（何階まで もぐれるかを 家族で きそう、終わりの ない ダンジョン）
 //
 // ・入口は ルミナの町の 南門の 外（maps/secret-dungeon.js の SD_DOOR）。ルミナの町に 着く（c1_town）と 開く
-// ・地下1階から はじまり、終わりが ない。階の 形は 階の 番号だけで きまる（家族みんな おなじ 形。sdSeed）
-// ・5階ごとに 休み所（ごほうびの 宝箱・回復の泉・「先へ進む／この階を記録して地上へもどる」）。10階ごとの 休み所には 階段を 守る 番人
+// ・地下1階から はじまり、終わりが ない。階の 形は 入るたびに かわる（ちょうせんごとの seed。いっしょに 入った 家族は おなじ 形。2026年10月 第32回）
+// ・5階ごとに 休み所（ごほうびの 宝箱・「先へ進む／この階を記録して地上へもどる」）。10階ごとの 休み所には 階段を 守る 番人（たおすと 全回復）
+//   （第32回: 5階ごとの 回復の泉は なくした）
+// ・運で 宿屋だけの 階・お店だけの 階が 出る（6階から。5の 倍数の 階には 出ない。sdSpecialOf）
+// ・40階から 色ちがいの 魔物が まざる（data/variants.js）
 // ・休み所で 記録した 階（5の 倍数）から、次の ちょうせんを 始められる（入口の 案内人・下り階段で 選ぶ。2026年10月 第27回）
 //   家族で 入る ときは リーダーが 選ぶ。選べるのは、いっしょに 入る パーティーの 全員が 記録した 階まで
 // ・魔物は 仲間に ならない（map.noBefriend）。糸・羽・ルーラは 使えない（map.noEscape）。全滅すると 入口へ（お金は へらない）
 //
-// マップの ID: 'sd_gate'（入口の 広間）・'sd_<階>'（たとえば sd_12。maps/index.js が ID から つくる）
+// マップの ID: 'sd_gate'（入口の 広間）・'sd_<階>_<seed の 36進>'（たとえば sd_12_k3x9a。maps/index.js が ID から つくる）
+//   seed が ID に 入っているので、サーバー・画面・家族みんなが ID だけで おなじ 形を つくれる（宝の洞窟と おなじ やりかた）。
+//   ログインしなおしても 場所の ID に seed が のこるので おなじ 形。'sd_<階>'（seed なし）は 前の 版の 形（階の 番号だけで きまる）
 //
 // キャラの セーブ（なくても よい。むかしの セーブも そのまま 読める）
 //   c.sd = { best, at, with, got, tries, save, run }
@@ -15,8 +20,10 @@
 //     save … 休み所で 記録した いちばん 深い 階（5の 倍数。0 は まだ ない）。その 階までの 休み所から 始められる
 //            （前の 版の セーブは、best までの 休み所を 記録した ことに する。repairSecret）
 //     got  … 大きな ごほうびを もらった 休み所の 階 [5, 10, …] / tries … ちょうせんした 回数
-//     run  … 今の ちょうせん { f: 今の 階, mid: とちゅうから 来た（さそわれて 来た など。記録に ならない）, took: ごほうびを 開けた 階 }
+//     run  … 今の ちょうせん { f: 今の 階, mid: とちゅうから 来た（さそわれて 来た など。記録に ならない）, took: ごほうびを 開けた 階,
+//              seed: この ちょうせんの 階の 形の もと（入口から 入る たびに 新しく。いっしょに 入った 家族は おなじ）}
 import { MONSTERS } from './monsters.js';
+import { registerVariant, variantFits, variantId } from './variants.js';
 import { ITEMS, SLOTS } from './items.js';
 import { ENCOUNTER_TABLES, ZONE_BG, FIXED_ENCOUNTERS } from './encounters.js';
 import { makeRng } from '../rng.js';
@@ -34,32 +41,76 @@ export const SD_BOARD_MAX = 10; // 記録の 板に 出す 人数
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
 // ───────────── ID ─────────────
-export const sdFloorId = (f) => `sd_${f}`;
-const FLOOR_ID = /^sd_([1-9]\d{0,2})$/;
-// 'sd_12' → 12（ちがえば 0）
-export function sdFloorOf(id) {
+export const SD_SEED_MAX = 0x7fffffff;
+const okSeed = (v) => Number.isInteger(v) && v > 0 && v <= SD_SEED_MAX;
+// seed … ちょうせんの seed（0 や なしは 前の 版の 形）
+export const sdFloorId = (f, seed = 0) => (okSeed(seed) ? `sd_${f}_${seed.toString(36)}` : `sd_${f}`);
+const FLOOR_ID = /^sd_([1-9]\d{0,2})(?:_([0-9a-z]{1,6}))?$/;
+function parseId(id) {
   const m = typeof id === 'string' ? FLOOR_ID.exec(id) : null;
-  return m ? Number(m[1]) : 0;
+  if (!m) return null;
+  const seed = m[2] ? parseInt(m[2], 36) : 0;
+  if (m[2] && !okSeed(seed)) return null;
+  return { f: Number(m[1]), seed };
+}
+// 'sd_12_k3x9a' → 12（ちがえば 0）
+export function sdFloorOf(id) {
+  return parseId(id)?.f || 0;
+}
+// 'sd_12_k3x9a' → その ちょうせんの seed（前の 版の 'sd_12' や ちがう ID は 0）
+export function sdRunSeedOf(id) {
+  return parseId(id)?.seed || 0;
+}
+// 新しい ちょうせんの seed（world.rng から。1〜SD_SEED_MAX）
+export function newSdSeed(rng) {
+  return 1 + Math.floor(rng.next() * (SD_SEED_MAX - 1));
 }
 export const isSdFloorId = (id) => sdFloorOf(id) > 0;
 export const isSdMapId = (id) => id === SD_GATE || isSdFloorId(id);
 export const isRestFloor = (f) => f > 0 && f % SD_REST_EVERY === 0;
 export const isGuardFloor = (f) => f > 0 && f % SD_GUARD_EVERY === 0;
 
-// 階の 形を きめる 数（階の 番号だけで きまる。家族みんな、何回 入っても おなじ 形）
+// 階の 形を きめる 数（前の 版: 階の 番号だけで きまる）
 export function sdSeed(f) {
   let h = Math.imul(f + 0x2545, 0x9e3779b1) ^ 0x5d1c0de;
   h = Math.imul(h ^ (h >>> 15), 0x85ebca6b);
   h = Math.imul(h ^ (h >>> 13), 0xc2b2ae35);
   return (h ^ (h >>> 16)) & 0x7fffffff;
 }
+// その ちょうせんの その 階の 形を きめる 数（seed が なければ 前の 版と おなじ）
+export function sdFloorSeed(f, seed = 0) {
+  if (!okSeed(seed)) return sdSeed(f);
+  let h = Math.imul(seed ^ 0x51ed27, 0x9e3779b1) ^ Math.imul(f + 0x2545, 0x85ebca6b);
+  h = Math.imul(h ^ (h >>> 15), 0x85ebca6b);
+  h = Math.imul(h ^ (h >>> 13), 0xc2b2ae35);
+  return (h ^ (h >>> 16)) & 0x7fffffff;
+}
 
-// ───────────── 強さ ─────────────
-// 魔物の レベル: 1階 4・10階 13・20階 23・30階 33・40階 43 …（1階ごとに 1つ）
+// ───────────── 宿屋の 階・お店の 階（運で 出る）─────────────
+// 6階から。休み所（5の 倍数。番人の 階も ふくむ）には 出ない。4つの 階（6〜9・11〜14 …）ごとに SD_SPECIAL_RATE の 運で 1つ。
+// 宿屋か お店かは はんぶんずつ。seed が ない（前の 版の 形）なら 出ない
+export const SD_SPECIAL_FROM = 6;
+export const SD_SPECIAL_RATE = 0.6;
+export function sdSpecialOf(f, seed = 0) {
+  if (!okSeed(seed) || f < SD_SPECIAL_FROM || f % SD_REST_EVERY === 0) return null;
+  const block = Math.floor(f / SD_REST_EVERY);
+  const r = makeRng((sdFloorSeed(block * SD_REST_EVERY, seed) ^ 0x5bec1a1) >>> 0);
+  if (!r.chance(SD_SPECIAL_RATE)) return null;
+  const at = block * SD_REST_EVERY + r.int(1, SD_REST_EVERY - 1);
+  const kind = r.chance(0.5) ? 'inn' : 'shop';
+  return at === f ? kind : null;
+}
+// 宿屋の ねだん（すこしの ゴールド。7階 50G・30階 170G・60階 320G）
+export const sdInnPrice = (f) => Math.round((15 + 5 * Math.max(1, f)) / 10) * 10;
+
+// ───────────── 強さ（上限なし）─────────────
+// 魔物の レベル: 1階 4・10階 13・20階 23・30階 33・40階 43・50階 53・90階 93・200階 203 …（1階ごとに 1つ。上限なし）
+// 出てくる 魔物を その レベルまで 強くする（data/treasure.js の scaleEnemy。HPは レベルの 比の 1.15乗、攻撃・守り・魔力は 比）
 export function sdEnemyLv(f) {
   return 3 + f;
 }
-// 深い 階の 倍率（30階までは 1倍。そこから 1階ごとに 3%：40階 1.3倍・50階 1.6倍・70階 2.2倍）
+// 深い 階の 倍率（30階までは 1倍。そこから 1階ごとに 3%：40階 1.3倍・50階 1.6倍・70階 2.2倍・200階 6.1倍。上限なし）
+// 階の 番号は SD_MAX（999）まで。999階でも 数が あふれない・NaN に ならない（test/secret-r32.test.js）
 export function sdPower(f) {
   return f <= 30 ? 1 : Math.round((1 + (f - 30) * 0.03) * 100) / 100;
 }
@@ -105,19 +156,72 @@ export function sdMonsterPool() {
 
 export const sdZone = (f) => `sd${f}`;
 
-// その 階の 出現表（ENCOUNTER_TABLES に 入れる。階の 番号だけで きまる）
+// その 階に 出る かもしれない 魔物（階の レベルの 8つ下〜1つ上。たりなければ レベルの 近い 8しゅ）
+function sdCandidates(f) {
+  const L = sdEnemyLv(f);
+  const pool = sdMonsterPool();
+  const cand = pool.filter((sp) => MONSTERS[sp].lv <= L + 1 && MONSTERS[sp].lv >= L - 8);
+  if (cand.length >= 6) return cand;
+  return pool.slice().sort((a, b) => Math.abs(MONSTERS[a].lv - L) - Math.abs(MONSTERS[b].lv - L) || (a < b ? -1 : 1)).slice(0, 8);
+}
+
+// ───────────── 色ちがい（40階から）─────────────
+// 出現の わりあい: 40階 15%・50階 21%・60階 27%・90階から 45%（上限）。深いほど 強い しゅるいも まざる
+export const SD_VARIANT_FROM = 40;
+export const sdVariantRate = (f) => (f < SD_VARIANT_FROM ? 0 : Math.min(0.45, 0.15 + (f - SD_VARIANT_FROM) * 0.006));
+// その 階に 出る 色ちがいの しゅるい（ゴールドは どの 階でも まれに。べつに 足す）
+export function sdVariantKinds(f) {
+  if (f < SD_VARIANT_FROM) return [];
+  return ['dark', ...(f >= 50 ? ['shadow'] : []), ...(f >= 60 ? ['red'] : [])];
+}
+// 色ちがいに なる 魔物（40階より 下で 出る 魔物 みんな）。モジュールを 読んだ ときに とうろくする（サーバーと 画面で おなじ）
+let variantBaseCache = null;
+export function sdVariantBases() {
+  if (!variantBaseCache) {
+    const set = new Set(sdCandidates(SD_VARIANT_FROM));
+    const top = sdMonsterPool().slice().sort((a, b) => MONSTERS[b].lv - MONSTERS[a].lv || (a < b ? -1 : 1)).slice(0, 8);
+    for (const sp of sdMonsterPool()) if (MONSTERS[sp].lv >= sdEnemyLv(SD_VARIANT_FROM) - 8) set.add(sp);
+    for (const sp of top) set.add(sp);
+    variantBaseCache = [...set].sort();
+  }
+  return variantBaseCache;
+}
+export function registerSdVariants() {
+  const out = [];
+  for (const sp of sdVariantBases()) for (const k of ['dark', 'shadow', 'red', 'gold']) if (variantFits(sp, k) && registerVariant(sp, k)) out.push(variantId(sp, k));
+  return out;
+}
+
+// その 階の 出現表（ENCOUNTER_TABLES に 入れる。階の 番号だけで きまる。形は ちょうせんごとに かわっても 魔物は おなじ）
 export function ensureSdTable(f) {
   const zone = sdZone(f);
   if (ENCOUNTER_TABLES[zone]) return zone;
-  const L = sdEnemyLv(f);
-  const pool = sdMonsterPool();
-  let cand = pool.filter((sp) => MONSTERS[sp].lv <= L + 1 && MONSTERS[sp].lv >= L - 8);
-  if (cand.length < 6) cand = pool.slice().sort((a, b) => Math.abs(MONSTERS[a].lv - L) - Math.abs(MONSTERS[b].lv - L) || (a < b ? -1 : 1)).slice(0, 8);
+  const cand = sdCandidates(f);
   const r = makeRng((sdSeed(f) ^ 0x6d0b5) >>> 0);
   const pick = r.shuffle(cand.slice()).slice(0, 5).sort((a, b) => MONSTERS[a].lv - MONSTERS[b].lv);
   const max = (sp) => (MONSTERS[sp].size === 'l' ? 2 : 3);
   const table = pick.map((sp) => ({ w: 3, group: [[sp, 1, max(sp)]] }));
   for (let i = 0; i + 1 < pick.length; i += 2) table.push({ w: 2, group: [[pick[i + 1], 1, 2], [pick[i], 1, 1]] });
+  // 40階から 色ちがい（もとの 魔物と いっしょに 出る ことも）。合わせて sdVariantRate の わりあいに なる 重み
+  const rate = sdVariantRate(f);
+  if (rate > 0) {
+    const W = table.reduce((t, e) => t + e.w, 0);
+    const VW = (W * rate) / (1 - rate);
+    const kinds = sdVariantKinds(f);
+    const vs = [];
+    for (const sp of r.shuffle(pick.slice())) {
+      const k = r.pick(kinds);
+      if (variantFits(sp, k) && MONSTERS[variantId(sp, k)]) vs.push([sp, variantId(sp, k)]);
+      if (vs.length >= 2) break;
+    }
+    const gold = pick.map((sp) => variantId(sp, 'gold')).find((id) => MONSTERS[id]);
+    const each = (gold ? VW * 0.85 : VW) / Math.max(1, vs.length);
+    for (const [sp, v] of vs) {
+      table.push({ w: each * 0.6, group: [[v, 1, max(sp) - 1]] });
+      table.push({ w: each * 0.4, group: [[v, 1, 1], [sp, 1, 2]] });
+    }
+    if (gold) table.push({ w: vs.length ? VW * 0.15 : VW, group: [[gold, 1, 1]] });
+  }
   ENCOUNTER_TABLES[zone] = table;
   ZONE_BG[zone] = sdBand(f).bg;
   return zone;
@@ -241,6 +345,7 @@ export function repairSecret(c) {
   if (r && typeof r === 'object' && Number.isFinite(rf) && rf >= 0 && rf <= SD_MAX) {
     out.run = { f: rf, took: floorList(r.took) };
     if (r.mid) out.run.mid = true;
+    if (okSeed(r.seed)) out.run.seed = r.seed;
   }
   c.sd = out;
 }
@@ -338,3 +443,6 @@ export function sdRecordText(r) {
   const parts = [sdDate(r.at), r.with?.length ? `${r.with.join('・')}といっしょ` : ''].filter(Boolean);
   return `地下${r.best}階${parts.length ? `（${parts.join('・')}）` : ''}`;
 }
+
+// 色ちがいを とうろく（このモジュールを 読んだ ときに 1回。サーバーと 画面の 両方で おなじ）
+registerSdVariants();

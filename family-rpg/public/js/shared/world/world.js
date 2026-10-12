@@ -1098,7 +1098,7 @@ export function equipLook(c) {
 // セーブの 場所が つかえるか（知らない マップ・マップの 外なら null）
 function validPos(pos) {
   if (typeof pos?.map === 'string' && pos.map.startsWith('tm_')) return fixTreasurePos(pos); // 宝の洞窟
-  if (typeof pos?.map === 'string' && /^sd_\d+$/.test(pos.map)) return fixSecretPos(pos); // ひみつのダンジョンの 階
+  if (typeof pos?.map === 'string' && /^sd_\d+(_[0-9a-z]+)?$/.test(pos.map)) return fixSecretPos(pos); // ひみつのダンジョンの 階
   const pm = pos && typeof pos.map === 'string' && Object.prototype.hasOwnProperty.call(MAPS, pos.map) ? MAPS[pos.map] : null;
   const inside = pm && Number.isFinite(pos.x) && Number.isFinite(pos.y) && pos.x >= 0 && pos.y >= 0 && pos.x < pm.w && pos.y < pm.h;
   return inside ? pos : null;
