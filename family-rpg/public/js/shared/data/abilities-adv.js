@@ -247,8 +247,8 @@ export const ADV_ABILITIES = {
   },
   ss_encore: {
     name: 'アンコール', kana: 'あんこーる', kind: 'skill', job: 'superstar', mp: 8, target: 'allies',
-    effect: { type: 'bondUp', amount: 40 },
-    desc: 'かんせいに応えてきずなゲージをたくさん増やす。', cast: '{a}のアンコール！', anim: 'dance',
+    effect: { type: 'atbSet', add: 35, msg: '{t}はすぐに動けそうだ！' },
+    desc: 'かんせいに応えて、もう1曲！仲間全員の行動の順番が早く来る。', cast: '{a}のアンコール！', anim: 'dance',
   },
 
   // ───────────── 占い師 ─────────────
@@ -287,7 +287,7 @@ export const ADV_ABILITIES = {
   },
   ft_fate_bond: {
     name: 'きずなの星', kana: 'きずなのほし', kind: 'skill', job: 'fortune', mp: 0, target: 'allies', hidden: true,
-    effect: { type: 'bondUp', amount: 60 }, cast: 'きずなの星がかがやいた！', anim: 'dance',
+    effect: { type: 'mpHeal', base: [6, 10] }, cast: 'きずなの星がかがやいた！', anim: 'dance',
   },
   ft_fate_power: {
     name: '勇気の星', kana: 'ゆうきのほし', kind: 'skill', job: 'fortune', mp: 0, target: 'allies', hidden: true,
@@ -491,8 +491,8 @@ export const ADV_ABILITIES = {
   },
   hr_kizuna: {
     name: 'きずなのちかい', kana: 'きずなのちかい', kind: 'skill', job: 'hero', mp: 8, target: 'allies',
-    effect: { type: 'bondUp', amount: 55 },
-    desc: '仲間とちかいを立て、きずなゲージを大きく増やす。', cast: '{a}は仲間とちかいを立てた！', anim: 'dance',
+    effect: { type: 'multi', parts: [{ type: 'buff', stats: ['atk', 'def'], mult: 1.15, dur: 40 }, { type: 'atbSet', add: 25, msg: '{t}はすぐに動けそうだ！' }] },
+    desc: '仲間とちかいを立てる。仲間全員の攻撃力と守備力が少し上がり、行動の順番も早く来る。', cast: '{a}は仲間とちかいを立てた！', anim: 'dance',
   },
   hr_inori: {
     name: '勇者のいのり', kana: 'ゆうしゃのいのり', kind: 'spell', job: 'hero', mp: 20, target: 'allies', field: true,

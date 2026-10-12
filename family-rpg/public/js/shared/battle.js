@@ -13,7 +13,7 @@ import { ABILITIES, ELEMENT_ORDER, ELEMENT_NAMES } from './data/abilities.js';
 import { deduceElement } from './data/abilities-jobs6.js';
 import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js';
 // 合体技（2人・3人・4人。battle-dual.js）
-import { optionsFor, validateDual, startDual, checkWaits, waitStillOk, fireWait, endWait, releasePartners, answerDual, endInvite, performDual, partnersOf } from './battle-dual.js';
+import { optionsFor, validateDual, startDual, checkWaits, waitStillOk, fireWait, endWait, releasePartners, answerDual, endInvite, performDual, partnersOf, dualHurt, dualRecharged } from './battle-dual.js';
 import { MONSTERS } from './data/monsters.js';
 import { ITEMS } from './data/items.js';
 import { JOBS } from './data/jobs.js';
@@ -30,9 +30,7 @@ import { setupTemple, templeTurnStart, prisonTurn, reflectSpell, templeEffect, t
 // 第5章 Step 2 の 星の塔と 星の番人アルゴス（見通しの目。battle-ch5.js）
 import { towerTurnStart, foreseeCheck, towerEffect, towerKill, towerPub } from './battle-ch5.js';
 
-export const BOND_MAX = 100;
-// きずなゲージの たまりやすさ（1 … はじめの 版。ちいさいほど たまりにくい）
-export const BOND_GAIN = 0.35;
+// 第31回: きずなゲージ・きずな技（ミナデイン）は なくなった（ミナデインは 合体技に。data/dual.js の dt_minadein）
 // 合体技の 2人の 強さの 合わせかた（dualProxy）: 強い ほうの 強さ ＋ 弱い ほうの この わりあい
 export const DUAL_MIX = 0.5;
 // 合体技の 強さ・さそいを まつ 時間は battle-dual.js
@@ -179,10 +177,8 @@ export class Battle {
     this.noSpells = !!opts.noSpells;
     this.bg = opts.bg || 'grass';
     this.bgm = opts.bgm || 'battle';
-    this.bond = Math.max(0, Math.min(BOND_MAX, opts.bond || 0));
     this.combo = { count: 0, actor: null, element: null, time: -99999 };
     this.fleeBonus = 0;
-    this.bondCharge = null;
     // 合体技の さそい（家族が こたえるのを まっている もの）
     this.invites = new Map();
     this.inviteSeq = 0;
@@ -313,18 +309,6 @@ export class Battle {
         if (inv.remaining <= 0) this.endInvite(inv, '時間切れ');
       }
     }
-    // きずな技の ちからあわせ中（リアル時間で まつ）
-    if (this.bondCharge) {
-      this.bondCharge.remaining -= dtReal;
-      for (const j of this.bondCharge.aiJoin) {
-        if (!j.done && this.bondCharge.total - this.bondCharge.remaining >= j.at) {
-          j.done = true;
-          this.bondJoin(j.id);
-        }
-      }
-      if (this.bondCharge.remaining <= 0) this.finishBond();
-      return this.flush();
-    }
     if (this.lock > 0) {
       this.lock -= dtReal;
       if (this.lock > 0) return this.flush();
@@ -357,7 +341,7 @@ export class Battle {
   emitGauges() {
     const g = {};
     for (const c of this.combatants) if (c.alive && !c.fled) g[c.id] = Math.round(c.atb * 10) / 10;
-    this.emit({ t: 'g', g, bond: this.bond });
+    this.emit({ t: 'g', g });
   }
 
   advance(dt) {
@@ -411,10 +395,12 @@ export class Battle {
     }
     // ゲージ
     for (const c of this.combatants) {
-      if (!c.alive || c.fled || c.ready || c.queued || c.waitDual || c.dualHold) continue;
+      // 合体技の よやくで まっている 人は ゲージが すすまない（ダメージで みだれて ためなおしている 間は すすむ。battle-dual.js）
+      if (!c.alive || c.fled || c.ready || c.queued || (c.waitDual && !c.waitDual.slow) || c.dualHold) continue;
       c.atb += atbRate(c) * dt;
       if (c.atb >= 100) {
         c.atb = 100;
+        if (dualRecharged(this, c)) continue;
         // 合体技を よやくして まっている 仲間が いれば、この 番で いっしょに 出す
         if (c.dualTarget && this.fireWait(this.get(c.dualTarget), c)) continue;
         this.onReady(c);
@@ -457,7 +443,8 @@ export class Battle {
     const c = this.get(actorId);
     if (!c || !c.alive || this.over) return { ok: false, reason: 'no' };
     if (controller !== undefined && c.controller !== controller) return { ok: false, reason: 'notyours' };
-    if (cmd?.type === 'bondJoin') return this.bondJoin(actorId) ? { ok: true } : { ok: false };
+    // 前の 版の きずな技（なくなった）
+    if (cmd?.type === 'bondJoin') return { ok: false, reason: 'no' };
     if (cmd?.type === 'dualAnswer') return this.answerDual(actorId, cmd);
     // 合体技の よやくを やめる
     if (cmd?.type === 'dualCancel') {
@@ -514,7 +501,7 @@ export class Battle {
         return { ok: true };
       case 'ability': {
         const a = ABILITIES[cmd.id];
-        if (!a || !c.abilities.includes(cmd.id) || a.kind === 'bond') return { ok: false, reason: 'まだ覚えていない' };
+        if (!a || !c.abilities.includes(cmd.id)) return { ok: false, reason: 'まだ覚えていない' };
         if (a.effect.type === 'mahouken') return { ok: false, reason: 'bad' };
         if (a.kind === 'combo' && !comboAllowed(c.penChar, cmd.id)) return { ok: false, reason: '今の職業では使えない' };
         if (!weaponOk(a, c.weaponCat)) return { ok: false, reason: '武器が合わない' };
@@ -543,9 +530,6 @@ export class Battle {
         if (this.hooks.hasItem && !this.hooks.hasItem(c, cmd.id)) return { ok: false, reason: '持っていない' };
         return { ok: true };
       }
-      case 'bond':
-        if (this.bond < BOND_MAX) return { ok: false, reason: 'きずなゲージが足りない' };
-        return { ok: true };
       case 'dual': return validateDual(this, c, cmd);
       default: return { ok: false, reason: 'bad' };
     }
@@ -634,7 +618,6 @@ export class Battle {
     if (c.mpRegen && c.alive && c.side === 'ally') c.mp = Math.min(c.maxMp, c.mp + c.mpRegen); // レア装備: 行動ごとの MP回復
     if (!ev.upd.includes(c)) ev.upd.push(c);
     ev.upd = [...new Set(ev.upd)].map((x) => (x.id ? pub(x) : x));
-    ev.bond = this.bond;
     this.lock = this.pace(450, 380, ev.lines.length, 900) + (ev.extraLock || 0) / this.speed;
     ev.dur = this.lock;
     delete ev.extraLock;
@@ -746,7 +729,6 @@ export class Battle {
       }
       case 'item': this.useItem(c, cmd, ev); break;
       case 'mahouken': this.doMahouken(c, cmd, ev); break;
-      case 'bond': this.startBond(c, cmd, ev); break;
       case 'dual': this.performDual(c, cmd, ev); break;
       case 'ability': {
         const a = ABILITIES[cmd.id];
@@ -908,7 +890,7 @@ export class Battle {
     const targets = givenTargets || this.targetsFor(c, a, cmd);
     this.pushCoverMsg(ev);
     ev.fx = { type: 'ability', anim: a.anim, actor: c.id, targets: targets.map((t) => t.id), side: c.side, element: eff.element };
-    if (!targets.length && !['callHelp', 'flee', 'nothing', 'telegraph', 'stance', 'charge', 'bondUp', 'escape', 'goldThrow', 'reviveAll', 'multi', 'mirage', 'burrow'].includes(eff.type)) {
+    if (!targets.length && !['callHelp', 'flee', 'nothing', 'telegraph', 'stance', 'charge', 'escape', 'goldThrow', 'reviveAll', 'multi', 'mirage', 'burrow'].includes(eff.type)) {
       ev.lines.push('しかし効果がなかった！');
       return;
     }
@@ -996,13 +978,11 @@ export class Battle {
           t.status = {};
           ev.lines.push(`なんと${t.name}が生き返った！`);
           ev.upd.push(t);
-          this.addBond(8);
         }
         break;
       }
       case 'buff': {
         for (const t of targets) this.applyBuff(c, t, eff, ev, powMult);
-        if (c.side === 'ally') this.addBond(1);
         break;
       }
       case 'debuff': {
@@ -1221,11 +1201,6 @@ export class Battle {
         ev.upd.push(c);
         break;
       }
-      case 'bondUp': {
-        this.addBond(Math.round(eff.amount * powMult));
-        ev.lines.push('きずなゲージが増えた！');
-        break;
-      }
       case 'regen': {
         // じわじわ 回復（料理の スープ など）: REGEN_MS ごとに 少しずつ。強い ほうが のこる
         for (const t of targets) {
@@ -1277,7 +1252,7 @@ export class Battle {
         for (const part of eff.parts || []) {
           const ab = { ...a, effect: part, target: part.target || a.target };
           const ts = part.target && part.target !== a.target ? this.targetsFor(c, ab, cmd) : targets.filter((t) => t.alive || ['revive', 'reviveAll'].includes(part.type));
-          if (!ts.length && !['bondUp', 'charge', 'goldThrow'].includes(part.type)) continue;
+          if (!ts.length && !['charge', 'goldThrow'].includes(part.type)) continue;
           this.applyAbility(c, ab, cmd, ev, powMult, ts);
           for (const t of ts) hit.add(t.id);
         }
@@ -1581,7 +1556,8 @@ export class Battle {
     ev.upd.push(t);
     ev.dealt = (ev.dealt || 0) + dmg;
     ev.lastTarget = t;
-    if (t.side === 'ally' && dmg >= t.maxHp * 0.05) this.addBond(1);
+    // 合体技の よやくで まっている 人は、ゲージが 半分から やり直し（battle-dual.js）
+    if (t.side === 'ally') dualHurt(this, t, ev);
     // 呪文を となえて いる 敵（よみがえりの呪文）: ダメージが たまると とぎれる
     if (t.chant && t.hp > 0) {
       t.chant.dmg += dmg;
@@ -1677,7 +1653,6 @@ export class Battle {
       out.push(...mirageDown(this, t, ev));
       return out;
     }
-    this.addBond(5);
     return [`${t.name}は死んでしまった！`];
   }
 
@@ -1694,7 +1669,6 @@ export class Battle {
     ev.upd.push(t);
     if (t.hp >= t.maxHp) ev.lines.push(`${t.name}のキズがすっかり回復した！`);
     else ev.lines.push(`${t.name}のHPが${real}回復した！`);
-    if (c.side === 'ally' && t !== c && real > 0) this.addBond(2);
   }
 
   // つよく する こうか（バイキルト・スクルト など）
@@ -1809,20 +1783,14 @@ export class Battle {
       return;
     }
     if (!ev.dealt) return;
-    this.addBond(1);
     const n = ev.comboCount || 1;
     if (n >= 2) {
       ev.combo = n;
       ev.lines.splice(1, 0, `れんけい${n}！`);
-      this.addBond(Math.min(4, n));
     }
     this.combo = { count: n, actor: c.id, element: element || 'phys', time: this.time };
   }
 
-  addBond(n) {
-    const add = n > 0 ? n * BOND_GAIN : n;
-    this.bond = Math.max(0, Math.min(BOND_MAX, Math.round((this.bond + add) * 100) / 100));
-  }
 
   // ───────────── ひらめき ─────────────
   // 技（ふつうの 攻撃は '@atk'）を 使った 回数
@@ -1878,7 +1846,6 @@ export class Battle {
     ev.ability = id;
     ev.lines.push(`${c.name}はひらめいた！`);
     ev.extraLock = 900;
-    this.addBond(3);
     if (a.effect.type === 'mahouken') {
       const spell = ['merazoma', 'merami', 'mera', 'hyadaruko', 'hyado', 'gira', 'io', 'bagi'].find((x) => c.abilities.includes(x)) || 'mera';
       const skill = ['daichi', 'kaiha', 'kuuretsu', 'kabutowari'].find((x) => c.abilities.includes(x)) || 'daichi';
@@ -1950,78 +1917,6 @@ export class Battle {
     }
     if (skEff.atbAfter) ev.atbAfter = skEff.atbAfter;
     this.afterDamage(c, ev, sp.effect.element);
-  }
-
-  // ───────────── きずな技（ミナデイン） ─────────────
-  startBond(c, cmd, ev) {
-    if (this.bond < BOND_MAX) {
-      ev.lines.push('しかしきずなゲージが足りない！');
-      return;
-    }
-    const target = this.peekTarget(c, 'enemy', cmd.target);
-    if (!target) return;
-    this.bond = 0;
-    ev.lines.push(`${c.name}はきずなの紋章を高くかかげた！`, 'みんな、力を合わせて！');
-    ev.fx = { type: 'bondStart', actor: c.id };
-    const total = 3500;
-    const aiJoin = this.aliveAllies()
-      .filter((x) => x !== c && (!x.controller || x.auto))
-      .map((x) => ({ id: x.id, at: this.rng.int(500, 2200), done: false }));
-    this.bondCharge = { actor: c.id, target: target.id, joined: new Set([c.id]), remaining: total, total, aiJoin };
-    ev.bondWindow = total;
-    ev.extraLock = 0;
-  }
-
-  bondJoin(id) {
-    const bc = this.bondCharge;
-    const c = this.get(id);
-    if (!bc || !c || !c.alive || bc.joined.has(id)) return false;
-    bc.joined.add(id);
-    this.emit({ t: 'bondJoin', id, count: bc.joined.size });
-    return true;
-  }
-
-  finishBond() {
-    const bc = this.bondCharge;
-    this.bondCharge = null;
-    const actor = this.get(bc.actor);
-    const ev = { t: 'act', id: bc.actor, lines: [], upd: [], name: 'ミナデイン' };
-    this.cur = ev;
-    const joined = [...bc.joined].map((id) => this.get(id)).filter((x) => x && x.alive);
-    const n = joined.length;
-    ev.lines.push(n >= 4 ? 'みんなの心が一つになった！' : `${n}人の力が一つになった！`);
-    ev.lines.push('ミナデイン！！');
-    let power = 0;
-    for (const j of joined) power += (j.atk || 0) * 0.35 + (j.mag || 0) * 0.35;
-    power *= 1 + 0.1 * (n - 1);
-    // 砂に もぐった 敵には とどかない（battle-ch4.js）
-    const foes = this.aliveEnemies().filter((x) => !hiddenFrom(actor, x));
-    if (!foes.length) ev.lines.push('しかし、敵はみんな砂の中にもぐっている！');
-    let main = this.get(bc.target);
-    if (!main || !foes.includes(main)) main = foes[0];
-    ev.fx = { type: 'ability', anim: 'minadein', actor: bc.actor, targets: foes.map((x) => x.id), side: 'ally', element: 'bolt' };
-    for (const t of foes) {
-      let d = power * (t === main ? 1 : 0.5) * this.rng.float(0.95, 1.05);
-      if (t.metal) d = this.rng.int(1, 3);
-      this.damage(actor, t, Math.round(d), ev, { element: 'bolt' });
-    }
-    for (const j of joined) {
-      if (j !== actor) j.atb = 0;
-      if (j.ready) j.ready = false;
-      this.queue = this.queue.filter((q) => q.id !== j.id);
-      j.queued = false;
-      ev.upd.push(j);
-    }
-    actor.atb = 0;
-    if (ev.postLines) ev.lines.push(...ev.postLines);
-    delete ev.postLines;
-    ev.upd = [...new Set(ev.upd)].map(pub);
-    ev.bond = this.bond;
-    this.lock = this.pace(800, 380, ev.lines.length);
-    ev.dur = this.lock;
-    this.emit(ev);
-    this.cur = null;
-    this.checkEnd();
   }
 
   // ───────────── どうぐ ─────────────
@@ -2138,7 +2033,6 @@ export class Battle {
       outcome: res.outcome,
       killed: this.killed.slice(),
       fled: this.fledEnemies.slice(),
-      bond: this.bond,
       allies: this.allies.map((a) => ({ id: a.id, charId: a.charId, hp: a.hp, mp: a.mp, alive: a.alive, poison: !!a.status.poison })),
     };
     this.emit({ t: 'end', outcome: res.outcome });
@@ -2159,7 +2053,6 @@ export class Battle {
       temple: templeSnap(this),
       // 敵の 強さ（1 … ふつう。ハードなどの ときは 画面に しるし）
       enemyRate: this.enemyRate,
-      bond: this.bond,
       speed: this.speed,
       textSpeed: this.textSpeed,
       wait: this.wait,

@@ -329,10 +329,10 @@ test('ひらめきと 合体技: 小学生・地方公務員の ひらめき技�
   changeJob(c, 'middleschooler');
   assert.equal(hiraAllowed(c, 'hk_randoseru_rocket'), true, '中学生でも ひらめく');
   // 授業参観: 学校の 技 ＋ お仕事の 技
-  const kid = { id: 'a', name: 'キッズ', alive: true, abilities: ['es_randoseru'], mp: 20, ready: true, statuses: [], weaponCat: 'sword' };
-  const papa = { id: 'b', name: 'パパ', alive: true, abilities: ['sm_meishi'], mp: 20, ready: true, statuses: [], weaponCat: 'dagger' };
-  const clerk = { ...papa, id: 'c', abilities: ['lc_madoguchi'] };
-  const stranger = { ...papa, id: 'd', abilities: ['daichi'] };
+  const kid = { id: 'a', name: 'キッズ', job: 'schoolkid', alive: true, abilities: ['es_randoseru'], mp: 20, ready: true, statuses: [], weaponCat: 'sword' };
+  const papa = { id: 'b', name: 'パパ', job: 'salaryman', alive: true, abilities: ['sm_meishi'], mp: 20, ready: true, statuses: [], weaponCat: 'dagger' };
+  const clerk = { ...papa, id: 'c', job: 'civil_local', abilities: ['lc_madoguchi'] };
+  const stranger = { ...papa, id: 'd', job: 'warrior', abilities: ['daichi'] };
   const ids = (opts) => opts.map((o) => o.id);
   assert.ok(ids(dualOptions(kid, [papa], weaponOk)).includes('dt_jugyo_sankan'));
   assert.ok(ids(dualOptions(papa, [kid], weaponOk)).includes('dt_jugyo_sankan'), 'どちらから でも');
@@ -340,7 +340,7 @@ test('ひらめきと 合体技: 小学生・地方公務員の ひらめき技�
   assert.ok(!ids(dualOptions(kid, [stranger], weaponOk)).includes('dt_jugyo_sankan'));
   // 新しい 技も 前からの 合体技に まざる（リコーダー＋おどり → ステージショー）
   const flute = { ...kid, abilities: ['es_recorder'] };
-  const dancer = { ...papa, abilities: ['hustle'] };
+  const dancer = { ...papa, job: 'performer', abilities: ['hustle'] };
   assert.ok(ids(dualOptions(flute, [dancer], weaponOk)).includes('dt_stage'));
 });
 

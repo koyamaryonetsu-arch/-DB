@@ -352,8 +352,8 @@ test('第27回の ひらめき技は、その 職業が パーティーに い�
 const jobsOf = (id, g) => new Set(DUAL_TECHS[id].need[g].map((k) => ABILITIES[k]?.job).filter(Boolean));
 
 test('第27回の 合体技: 10こ（2人・3人・4人）・ぜんぶで 35こ いない・半分くらい クスッと・新しい 職業と 前からの 職業', () => {
-  // 第29回で 2こ 足して 37こ まで（test/jobs-r29.test.js）
-  assert.ok(DUAL_ORDER.length <= 37, `${DUAL_ORDER.length}こ`);
+  // 第29回で 2こ 足して 37こ、第31回の ミナデインで 38こ まで（test/jobs-r29.test.js・test/dual-r31.test.js）
+  assert.ok(DUAL_ORDER.length <= 38, `${DUAL_ORDER.length}こ`);
   assert.ok(NEW_DUAL.length >= 8 && NEW_DUAL.length <= 10);
   for (const id of NEW_DUAL) assert.ok(DUAL_TECHS[id], id);
   const sizes = NEW_DUAL.map(dualSize);
@@ -461,7 +461,7 @@ test('第27回の 合体技: 出せて 強い（別々に 動くより はっき
   }
   // 敵 全体の 技（敵 3体で、合計は 別々の 1体ぶんの 3倍 いじょう）
   for (const [id, jobs, min] of [['dt_nantoka', ['doraemon', 'neet'], 3], ['dt_point10', ['rakuten_cardman', 'okan'], 2.8], ['dt_nenriki_meteor', ['esper', 'mage'], 2.8],
-    ['dt_megumi', ['abarenbo_shogun', 'samurai', 'ninja'], 3.5], ['dt_hakkeyoi', ['kappa', 'monk', 'schoolkid'], 3], ['dt_nazo', ['meitantei', 'gamer', 'doraemon', 'warrior'], 4]]) {
+    ['dt_megumi', ['abarenbo_shogun', 'samurai', 'ninja'], 3.5], ['dt_hakkeyoi', ['kappa', 'monk', 'schoolkid'], 3], ['dt_nazo', ['meitantei', 'gamer', 'doraemon', 'police'], 4]]) {
     const b = party(jobs, { enemies: ['rockman', 'rockman', 'rockman'] });
     const solo = b.allies.reduce((s, m) => s + soloBest(b, m, b.enemies[0]), 0);
     const { act } = fire(b, id);
@@ -479,7 +479,7 @@ test('第27回の 合体技: 推理（弱点で 当たる）・ポイントバ�
   assert.equal(r.element, 'light');
   assert.ok(act.lines.some((l) => l.includes('の弱点は…光だ！')), act.lines.join(' / '));
   // なぞはすべて解けた！（4人）: 敵 それぞれの 弱点
-  const b4 = party(['meitantei', 'gamer', 'doraemon', 'warrior'], { enemies: ['skeleton', 'rockman'] });
+  const b4 = party(['meitantei', 'gamer', 'doraemon', 'police'], { enemies: ['skeleton', 'rockman'] });
   b4.enemies[0].resist = { ...MONSTERS.skeleton.resist };
   b4.enemies[1].resist = { ...MONSTERS.rockman.resist };
   const a4 = fire(b4, 'dt_nazo').act;

@@ -259,8 +259,8 @@ test('合体技の データ: 技の 組が そろっていて、出せる 組�
     for (const g of t.need) for (const k of g) assert.ok(ABILITIES[k], `${id}: ${k}`);
     assert.ok(t.parts.length > 0);
   }
-  const a = { id: 'a', name: 'A', alive: true, abilities: ['daichi'], mp: 20, atb: 100, ready: true, weaponCat: 'sword' };
-  const p = { id: 'b', name: 'B', alive: true, abilities: ['mera'], mp: 20, atb: 100, weaponCat: 'staff' };
+  const a = { id: 'a', name: 'A', job: 'warrior', alive: true, abilities: ['daichi'], mp: 20, atb: 100, ready: true, weaponCat: 'sword' };
+  const p = { id: 'b', name: 'B', job: 'mage', alive: true, abilities: ['mera'], mp: 20, atb: 100, weaponCat: 'staff' };
   const opts = dualOptions(a, [p], weaponOk);
   const cm = opts.find((o) => o.id === 'dt_cross_mahouken');
   assert.ok(cm, '剣技＋呪文＝クロス魔法剣');

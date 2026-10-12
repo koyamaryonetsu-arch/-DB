@@ -6,6 +6,7 @@
 // スマホでも 重く ならない ように: DOM は transform と opacity だけ うごかす。つぶは 1回 100こ くらいまで
 //
 // client/battle-dual.js の dualFx から よぶ。CSS は ここで 1回だけ 入れる（style.css は さわらない）
+// 第31回: 合体技の 名前を 大きく（たたかいの コマンドの 一覧・メニューの 合体技の タブ）の CSS も ここ（addDualCss）
 
 // 技ごとの えんしゅつ: c … 色（[こい, あかるい, ひかり]）、finale … とどめの かたち、word … 画面に 出る ことば
 export const DUAL_FX = {
@@ -34,6 +35,8 @@ export const DUAL_FX = {
   dt_zenin: { c: ['#c8601a', '#ffd66b', '#ffffff'], finale: 'quake', word: '全員集合！' },
   dt_kazoku_kaigi: { c: ['#6a4a2a', '#ffe0a0', '#9ad8ff'], finale: 'laugh', word: 'ぐぅ…' },
   dt_finale: { c: ['#c8a01a', '#ffffff', '#9ad8ff'], finale: 'nova', word: 'フィナーレ！' },
+  // 第31回: きずな技だった ミナデイン（空から みんなの 雷が おちる）
+  dt_minadein: { c: ['#1a2a8a', '#ffe95a', '#ffffff'], finale: 'bolt', word: 'ミナデイン！！' },
   // 第27回: 新しい 職業の 合体技（spot・gadgets・coins・meteor・matoi は 第27回の とどめ）
   dt_hannin: { c: ['#1a2a6a', '#ffe07a', '#ffffff'], finale: 'spot', word: 'ズバリ！' },
   dt_nantoka: { c: ['#1a86e4', '#ffffff', '#ffd040'], finale: 'gadgets', word: '助けて〜！' },
@@ -56,7 +59,12 @@ export const dualFxOf = (id) => DUAL_FX[id] || DEFAULT_FX;
 export const CUT_MS = { 2: 1000, 3: 1300, 4: 1600 };
 export const cutMs = (n) => CUT_MS[n] || CUT_MS[2];
 
+// 合体技の 名前を 大きく（第31回）: たたかいの コマンドは 1列に して、名前だけを 大きく（入りきらない ときは ListMenu の fit が 小さく する）。
+// メニューの 合体技の タブも 名前の 行を 大きく（ui/menu.js から よぶ）
 let cssDone = false;
+export function addDualCss() {
+  addCss();
+}
 function addCss() {
   if (cssDone || typeof document === 'undefined') return;
   cssDone = true;
@@ -108,6 +116,12 @@ function addCss() {
 @keyframes dfx-flash { 0% { opacity: .85; } 100% { opacity: 0; } }
 @keyframes dfx-tw { from { transform: scale(.3) rotate(0deg); opacity: 0; } to { transform: scale(1.2) rotate(45deg); opacity: 1; } }
 @keyframes dfx-out { to { opacity: 0; } }
+#battle .b-cmd .menu:has(> .item.k-dualopt) { grid-template-columns: minmax(0, 1fr); }
+.b-cmd .menu .item.k-dualopt { min-height: 2.5em; border-color: rgba(255, 214, 107, .6); }
+.b-cmd .menu .item.k-dualopt .dual-nm { font-size: 1.3em; font-weight: bold; letter-spacing: .03em; color: #fff3cf; text-shadow: 2px 2px 0 #000; }
+.b-cmd .menu .item.k-dualopt.n3 .dual-nm, .b-cmd .menu .item.k-dualopt.n4 .dual-nm { color: #ffd66b; }
+.menu .item.sk-row.dual-row .dual-nm { flex-basis: 100%; font-size: 1.3em; font-weight: bold; line-height: 1.25; letter-spacing: .03em; }
+.menu .item.sk-row.dual-row.n3 .dual-nm, .menu .item.sk-row.dual-row.n4 .dual-nm { color: #ffd66b; }
 `;
   document.head.append(st);
 }
@@ -246,6 +260,18 @@ export function playDualFinale(fx, id, pts, n, W, H) {
       for (let k = 0; k < 6; k++) fx.flashAt(90, k % 2 ? '#3a6aff' : '#ff2a2a', k * 140);
       fx.ring(W / 2, H * 0.62, '#ffffff', 4, 200, 600, 120);
       for (let k = 0; k < 20; k++) fx.twinkle(W * Math.random(), H * (0.5 + 0.45 * Math.random()), { color: k % 2 ? '#ff6a6a' : '#9ad8ff', size: 4, vy: -40, delay: 200 + k * 25, life: 700 });
+      break;
+    }
+    // ───── 第31回 ─────
+    case 'bolt': {
+      // ミナデイン: 空が 光り、みんなの 雷が 1つに なって おちる
+      for (let k = 0; k < 4; k++) fx.flashAt(80, k % 2 ? c1 : '#ffffff', k * 110);
+      fx.converge(center.x, center.y - 40, { colors: cols, n: 14 + 4 * n, r: 56 * big, life: 320 });
+      fx.play('minadein', pts, 'bolt', { crit: true });
+      fx.pillar(center.x, center.y + 30, c1, { w: 12 + 4 * n, h: H, delay: 260, life: 640, edge: c2 });
+      fx.speedLines(center.x, center.y, { color: c2, n: 20 + 4 * n, delay: 280, life: 360, r1: 130 });
+      fx.burst(center.x, center.y, cols, 22 + 6 * n, 140 + 30 * n, { delay: 320 });
+      fx.hitStop(260 + 80 * n, 300, 1.7);
       break;
     }
     // ───── 第27回 ─────

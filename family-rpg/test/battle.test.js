@@ -147,7 +147,8 @@ test('ボスの ためこみ（いきを すいこむ）の あとは すぐに 
   assert.ok(avalancheAt - inhaleAt > 2000, `猶予 ${avalancheAt - inhaleAt}ms`);
 });
 
-test('きずなゲージが まんたんなら ミナデインを つかえる', () => {
+// 第31回: きずなゲージ・きずな技は なくなった（ミナデインは 合体技。test/dual-r31.test.js）
+test('きずな技（前の 版の ミナデインの コマンド）は もう 使えない', () => {
   const party = ['warrior', 'priest'].map((j) => char(j, 8, 5, j));
   const b = new Battle({
     rng: makeRng(6),
@@ -157,12 +158,11 @@ test('きずなゲージが まんたんなら ミナデインを つかえる',
   });
   for (const e of b.enemies) e.actions = [{ w: 1, id: 'm_nothing' }];
   for (let i = 0; i < 400 && !b.allies[0].ready; i++) b.tick(50);
-  const r = b.command(b.allies[0].id, { type: 'bond', target: b.enemies[0].id }, 's1');
-  assert.equal(r.ok, true);
-  const evs = run(b, 10000);
-  assert.ok(evs.some((e) => e.t === 'bondJoin'), 'AIが ちからを あわせた');
-  assert.ok(evs.some((e) => e.t === 'act' && e.name === 'ミナデイン'));
-  assert.equal(b.bond < 100, true);
+  assert.equal(b.command(b.allies[0].id, { type: 'bond', target: b.enemies[0].id }, 's1').ok, false);
+  assert.equal(b.command(b.allies[0].id, { type: 'bondJoin' }, 's1').ok, false);
+  assert.equal(b.bond, undefined);
+  assert.equal('bond' in b.snapshot(), false);
+  assert.equal(b.command(b.allies[0].id, { type: 'attack', target: b.enemies[0].id }, 's1').ok, true, 'ふつうに 続けられる');
 });
 
 test('しょうり・ぜんめつの けっか', () => {

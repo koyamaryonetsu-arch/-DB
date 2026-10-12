@@ -49,7 +49,6 @@ function partText(e, pm) {
     case 'cover': return `味方をかばう（${e.dur || 20}秒）`;
     case 'steal': return `物をぬすむ（${pct(e.chance ?? 1)}）`;
     case 'dispel': return '敵の強化を消す';
-    case 'bondUp': return `きずなゲージ+${e.amount}`;
     case 'escape': return '戦いからにげる';
     case 'seed': return `${SEED[e.stat] || ''}が${range(e.amount)}上がる（ずっと）`;
     case 'multi': return (e.parts || []).map((p) => partText(p, pm)).filter(Boolean).join('＋');

@@ -194,8 +194,8 @@ export const JOB3_ABILITIES = {
   },
   se_chourei: {
     name: '朝礼', kana: 'ちょうれい', kind: 'skill', job: 'seishain', mp: 7, target: 'allies', role: 'sup',
-    effect: { type: 'multi', parts: [{ type: 'buff', stat: 'atk', mult: 1.2, dur: 35 }, { type: 'bondUp', amount: 10 }] },
-    desc: '朝礼で気合いを入れる。仲間全員の攻撃力が上がり、きずなゲージも少しふえる。', cast: '{a}「本日もよろしくお願いします！」', anim: 'warcry',
+    effect: { type: 'multi', parts: [{ type: 'buff', stat: 'atk', mult: 1.2, dur: 35 }, { type: 'mpHeal', base: [1, 2] }] },
+    desc: '朝礼で気合いを入れる。仲間全員の攻撃力が上がり、MPも少し回復する。', cast: '{a}「本日もよろしくお願いします！」', anim: 'warcry',
   },
   se_yukyu: {
     name: '有給休か', kana: 'ゆうきゅうきゅうか', kind: 'skill', job: 'seishain', mp: 6, target: 'self', role: 'heal',
@@ -278,8 +278,8 @@ export const JOB3_ABILITIES = {
   },
   cm_warai: {
     name: '笑いの力', kana: 'わらいのちから', kind: 'skill', job: 'comedian', mp: 12, target: 'allies', role: 'heal',
-    effect: { type: 'multi', parts: [{ type: 'heal', base: [60, 75], thr: 45 }, { type: 'bondUp', amount: 15 }] },
-    desc: '笑う門には福来たる。仲間全員のHPを回復し、きずなゲージもふえる。', cast: '{a}の話で、みんな大笑い！', anim: 'heal_dance',
+    effect: { type: 'multi', parts: [{ type: 'heal', base: [60, 75], thr: 45 }, { type: 'mpHeal', base: [2, 3] }] },
+    desc: '笑う門には福来たる。仲間全員のHPを回復し、MPも少し回復する。', cast: '{a}の話で、みんな大笑い！', anim: 'heal_dance',
   },
   cm_monomane: {
     name: 'ものまね', kana: 'ものまね', kind: 'skill', job: 'comedian', mp: 6, target: 'self',
@@ -310,8 +310,8 @@ export const JOB3_ABILITIES = {
   },
   m1_kansei: {
     name: '大かんせい', kana: 'だいかんせい', kind: 'skill', job: 'm1_champion', mp: 16, target: 'allies', role: 'sup',
-    effect: { type: 'multi', parts: [{ type: 'buff', stats: ['atk', 'agi'], mult: 1.3, dur: 40 }, { type: 'bondUp', amount: 30 }] },
-    desc: '会場の大かんせい！仲間全員の攻撃力と素早さが上がり、きずなゲージもふえる。', cast: '会場から大かんせいがわき起こった！', anim: 'warcry',
+    effect: { type: 'multi', parts: [{ type: 'buff', stats: ['atk', 'agi'], mult: 1.3, dur: 40 }, { type: 'mpHeal', base: [2, 4] }] },
+    desc: '会場の大かんせい！仲間全員の攻撃力と素早さが上がり、MPも少し回復する。', cast: '会場から大かんせいがわき起こった！', anim: 'warcry',
   },
   m1_yuushou: {
     name: '優勝の時', kana: 'ゆうしょうのとき', kind: 'skill', job: 'm1_champion', mp: 28, target: 'enemies', role: 'dmg',
@@ -379,8 +379,8 @@ export const JOB3_ABILITIES = {
   },
   lt_kizuna: {
     name: '伝説のきずな', kana: 'でんせつのきずな', kind: 'skill', job: 'loto_hero', mp: 16, target: 'allies', role: 'sup',
-    effect: { type: 'multi', parts: [{ type: 'bondUp', amount: 50 }, { type: 'atbSet', add: 50, msg: '{t}はすぐに動けそうだ！' }] },
-    desc: '伝説の勇者のきずな。きずなゲージが大きくふえて、仲間全員の行動の順番も早く来る。', cast: '{a}の声が、仲間の心に強くひびいた！', anim: 'warcry',
+    effect: { type: 'multi', parts: [{ type: 'mpHeal', base: [2, 4] }, { type: 'atbSet', add: 50, msg: '{t}はすぐに動けそうだ！' }] },
+    desc: '伝説の勇者のきずな。仲間全員のMPが少し回復して、行動の順番も早く来る。', cast: '{a}の声が、仲間の心に強くひびいた！', anim: 'warcry',
   },
   lt_minadein: {
     name: 'ミナデイン', kana: 'みなでいん', kind: 'spell', job: 'loto_hero', mp: 28, target: 'enemy', noAuto: true, role: 'dmg',

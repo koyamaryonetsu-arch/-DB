@@ -8,7 +8,7 @@ import { mirageAction, mirrorPlan } from './battle-ch4.js';
 // 第4章 Step 6 の 砂に もぐる 魔物（battle-ch4.js）
 import { burrowSurface, burrowPlan } from './battle-ch4.js';
 // 第4章 Step 7 の 砂の底の神殿と モルガナ（battle-temple.js）
-import { templeAction, templeCond, templePlan, templeAdjust, bondOk, waveIgnored } from './battle-temple.js';
+import { templeAction, templeCond, templePlan, templeAdjust, veilBolt, waveIgnored } from './battle-temple.js';
 import { labPlan, labIgnored } from './battle-lab.js';
 // 第5章 Step 2 の 星の番人アルゴス（見通しの目。battle-ch5.js）
 import { towerCond, towerPlan } from './battle-ch5.js';
@@ -113,7 +113,7 @@ export function decideAlly(b, c) {
   // 砂に もぐった 敵が とび出す 前に 身を 守る（知っている 人）・空ぶり（知らない 人）。battle-ch4.js
   const bp = burrowPlan(b, c, foes);
   if (bp) return bp;
-  // 大波の 前に 身を 守る・水の衣に きずな技（しかけを 知っている 人。battle-temple.js）
+  // 大波の 前に 身を 守る（しかけを 知っている 人。battle-temple.js）
   const tp = templePlan(b, c, foes);
   if (tp) return tp;
   // 古竜の いにしえの炎の 前に 身を 守る（しかけを 知っている 人。battle-lab.js）
@@ -125,11 +125,9 @@ export function decideAlly(b, c) {
   if (!foes.length) return { type: 'defend' };
   const mine = usable(b, c);
 
-  // 1) きずな技（にんげんが いない ときだけ）
-  if (b.bond >= 100 && !b.humans().some((h) => h.alive) && bondOk(b)) {
-    const t = strongestFoe(foes);
-    return { type: 'bond', target: t.id };
-  }
+  // 1) 水の衣を まとった 敵に 雷の 技（しかけを 知っている 人。battle-temple.js。第31回: 前の きずな技の かわり）
+  const vb = veilBolt(b, c, foes, mine);
+  if (vb) return vb;
 
   // 2) しんだ なかまを いきかえらせる（ふたり いじょうなら みんなを いきかえらせる わざ）
   if (dead.length) {
@@ -299,8 +297,9 @@ function chooseBuff(b, c, allies, mine) {
       if (lacking(c, a) && rng.chance(0.3)) return { type: 'ability', id };
     }
   }
-  const bond = mine.find(({ a }) => a.effect.type === 'bondUp');
-  if (bond && b.bond < 80 && rng.chance(0.25)) return { type: 'ability', id: bond.id };
+  // 仲間の 番を 早める 技（アンコール・伝説のきずな など。第31回: きずなゲージを ためる 技の かわり）
+  const hurry = mine.find(({ a }) => a.target === 'allies' && (a.effect.type === 'multi' ? a.effect.parts || [] : [a.effect]).some((p) => p.type === 'atbSet' && p.add));
+  if (hurry && b.boss && rng.chance(0.2)) return { type: 'ability', id: hurry.id };
   const charge = mine.find(({ a }) => a.effect.type === 'charge');
   if (charge && b.boss && c.charge <= 1 && rng.chance(0.25)) return { type: 'ability', id: charge.id };
   return null;

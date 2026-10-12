@@ -144,7 +144,6 @@ function makeBattle(world, sessions, party, enemies, opts) {
     noSpells: !!MAPS[sessions[0]?.map]?.noSpells,
     bg: opts.bg,
     bgm: opts.bgm,
-    bond: party.bond || 0,
     preemptive: opts.preemptive || null,
     // 宝の洞窟: 魔物を 地図の レベルに あわせて 強くする（ひみつのダンジョンの 深い 階は enemyPow 倍）
     enemyMod: opts.enemyLv ? (m) => scaleEnemy(m, opts.enemyLv, opts.enemyPow) : null,
@@ -346,7 +345,6 @@ function finishBattle(world, ctx) {
     ch.mp = a.mp;
     ch.status = a.status.poison && a.alive ? { poison: true } : {};
   }
-  if (party) party.bond = b.bond;
   // 技を 使った 回数と、ひらめいた 技を のこす（自分・自分の 仲間。家族の キャラと ゲストは のこさない）
   const hiraLines = [];
   for (const a of b.allies) {

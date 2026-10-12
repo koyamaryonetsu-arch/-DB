@@ -10,7 +10,7 @@
 //     防御 … 守りを 見ぬかれて、身を 守れず 守備力が 下がる
 //   ちがう 種類の 行動を すれば「読みが外れた！」で、アルゴスの こうどうゲージが foresee.daze へる（目が くらむ）。
 //   読みは その 人の 次の 番まで（ねむり・マヒで 動けない 番が 来ても 消える）。HPが foresee.two より へると 2人を 同時に 読む
-//   合体技・きずな技・にげる・混乱した 時の 行動は 読まれない（読みは 消える）
+//   合体技（ミナデインも）・にげる・混乱した 時の 行動は 読まれない（読みは 消える）
 // ・オートの 仲間: 読まれた 種類の 行動を さけて、ちがう 行動を えらぶ（towerPlan）。シミュレーター（tools/sim.js）の
 //   b.argosNaive … 知らない 人（読まれても そのまま）／ b.knowsArgos … 知っている 人（星のさばきの 前に 身を 守る も）
 import { MONSTERS } from './data/monsters.js';
@@ -259,7 +259,7 @@ export function dodgeCmd(b, c, kind) {
   }
   for (const id of c.abilities || []) {
     const a = ABILITIES[id];
-    if (!a || a.kind === 'bond' || c.autoOff?.includes(id) || a.noAuto || !canUse(b, c, id)) continue;
+    if (!a || c.autoOff?.includes(id) || a.noAuto || !canUse(b, c, id)) continue;
     const k = actKind({ type: 'ability', id });
     if (k === kind) continue;
     const e = prim(a);

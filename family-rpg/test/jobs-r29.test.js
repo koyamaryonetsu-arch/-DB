@@ -347,7 +347,8 @@ test('第29回の 合体技: 4つの 職業の 技が 今の 組（剣・回復�
   assert.ok(byName.get('回復の技').includes('rr_sentaku'));
   assert.ok(byName.get('飛天御剣流の技'), '飛天御剣流の 組');
   // 数
-  assert.ok(DUAL_ORDER.length <= 37, `${DUAL_ORDER.length}こ`);
+  // 第31回: ミナデインで 38こ
+  assert.ok(DUAL_ORDER.length <= 38, `${DUAL_ORDER.length}こ`);
   for (const id of NEW_DUAL) assert.ok(DUAL_TECHS[id], id);
   assert.equal(dualSize('dt_sentaku_biyori'), 2);
   assert.equal(dualSize('dt_sanken'), 3);

@@ -71,12 +71,12 @@ const runUntil = (b, pred, ms = 60000) => {
 const isDual = (e) => e.t === 'act' && e.dual;
 const cmdOf = (o, target) => ({ type: 'dual', id: o.id, partner: o.partner, partners: o.partners, target });
 const SCOPE = { enemy: /敵1体/, enemies: /敵全体/, allies: /仲間全員/ };
-const PART_TYPES = new Set(['power', 'heal', 'revive', 'buff', 'debuff', 'cure', 'atbSet', 'mpHeal', 'bondUp', 'status', 'banish']);
+const PART_TYPES = new Set(['power', 'heal', 'revive', 'buff', 'debuff', 'cure', 'atbSet', 'mpHeal', 'status', 'banish']);
 
-// 第27回: 新しい 職業の 合体技を 10こ 足して 35こ。第29回: るろうに剣士の 道の 2こを 足して 37こ（ぜんぶで 37こ いない。test/jobs-r29.test.js）
-test('第26回の 合体技: 数を しぼった（20〜37こ）・2人技・3人技・4人技・クスッと 笑える 技', () => {
+// 第27回: 新しい 職業の 合体技を 10こ 足して 35こ。第29回: るろうに剣士の 道の 2こを 足して 37こ。第31回: ミナデインで 38こ（test/dual-r31.test.js）
+test('第26回の 合体技: 数を しぼった（20〜38こ）・2人技・3人技・4人技・クスッと 笑える 技', () => {
   const ids = DUAL_ORDER;
-  assert.ok(ids.length >= 20 && ids.length <= 37, `合体技 ${ids.length}こ`);
+  assert.ok(ids.length >= 20 && ids.length <= 38, `合体技 ${ids.length}こ`);
   const by = (n) => ids.filter((id) => dualSize(id) === n);
   assert.ok(by(2).length >= 12, `2人技 ${by(2).length}こ`);
   assert.ok(by(3).length >= 4, `3人技 ${by(3).length}こ`);
@@ -110,7 +110,8 @@ test('合体技の データ・文字・組の 名前・えんしゅつ', () => 
     assert.match(t.desc, SCOPE[t.target], `${id}（${t.target}）: ${t.desc}`);
     for (const p of t.parts) {
       assert.ok(PART_TYPES.has(p.type), `${id}: ${p.type}`);
-      if (p.type === 'power') assert.ok(p.k > 0 && p.k <= 1.3, `${id}: k ${p.k}`);
+      // ミナデインだけは いちばん 強い（1.5まで。test/dual-r31.test.js）
+      if (p.type === 'power') assert.ok(p.k > 0 && p.k <= (id === 'dt_minadein' ? 1.5 : 1.3), `${id}: k ${p.k}`);
       // 敵を 止める・ねむらせる 技は かならずは 効かない
       if (['atbSet', 'status', 'banish'].includes(p.type) && ['enemy', 'enemies'].includes(p.target || t.target)) assert.ok(p.chance > 0 && p.chance < 1, `${t.name}: 効く わりあい`);
       // 補助は 強いが 上限あり（1.5倍まで）
@@ -135,44 +136,53 @@ test('合体技の データ・文字・組の 名前・えんしゅつ', () => 
   }
 });
 
-test('どの 職業の 技も、どれかの 合体技に 使える', () => {
+test('どの 職業も、どれかの 合体技に 入れる（全員集合・ミナデインの「だれでも」の 組も ふくめて）', () => {
   const inDual = new Set();
   for (const t of Object.values(DUAL_TECHS)) for (const list of t.need) for (const k of list) if (ABILITIES[k]?.job) inDual.add(ABILITIES[k].job);
   for (const j of ALL_JOBS) assert.ok(inDual.has(j), `${JOBS[j].name} の 技が 合体技に ない`);
 });
 
-test('2人・3人・4人の 出し方: 人数ぶんの 仲間が、それぞれ ちがう 組の 技を 持っている', () => {
-  const p = (id, abilities, extra = {}) => ({ id, name: id, alive: true, abilities, mp: 30, ready: true, statuses: [], ...extra });
-  const A = p('剣', ['daichi'], { weaponCat: 'sword' });
-  const B = p('拳', ['seiken'], { weaponCat: 'claw' });
-  const C = p('魔', ['mera']);
-  const D = p('僧', ['hoimi', 'bagi']);
+// 第31回: 組は「今 ついている 職業」で うけもつ（job）。グランドフィナーレは 上級職 いじょうの 4人
+test('2人・3人・4人の 出し方: 人数ぶんの 仲間が、それぞれ ちがう 組の 職業に ついている', () => {
+  const p = (id, job, abilities, extra = {}) => ({ id, name: id, job, alive: true, abilities, mp: 30, ready: true, statuses: [], ...extra });
+  const A = p('剣', 'battlemaster', ['daichi', 'bm_musou'], { weaponCat: 'sword' });
+  const B = p('拳', 'holyfist', ['seiken', 'hf_seikou'], { weaponCat: 'claw' });
+  const C = p('魔', 'sage', ['mera', 'sg_mahyado']);
+  const D = p('僧', 'paladin', ['hoimi', 'pl_hikari']);
   const all = dualOptions(A, [B, C, D], weaponOk);
   const find = (list, id, partners) => list.find((o) => o.id === id && (!partners || (o.partners.length === partners.length && partners.every((x) => o.partners.includes(x)))));
   const fin = find(all, 'dt_finale', ['拳', '魔', '僧']);
-  assert.ok(fin, '剣＋こぶし＋呪文＋回復＝グランドフィナーレ（4人技）');
+  assert.ok(fin, '剣＋こぶし＋攻撃呪文＋いやしの 上級職＝グランドフィナーレ（4人技）');
   assert.equal(fin.size, 4);
   assert.deepEqual(fin.mp, [14, 14, 14, 14]);
-  assert.deepEqual(fin.skills, ['daichi', 'seiken', 'mera', 'hoimi']);
+  assert.deepEqual(fin.skills, ['bm_musou', 'hf_seikou', 'sg_mahyado', 'pl_hikari'], '今の 職業の 技を 先に');
   assert.equal(fin.mine, 0);
   assert.ok(find(all, 'dt_delta', ['拳', '魔']), '剣＋こぶし＋呪文＝デルタストライク（3人技）');
-  const E = p('癒', ['hoimi']);
-  assert.ok(!find(dualOptions(A, [B, E], weaponOk), 'dt_delta'), '回復の 技だけでは デルタストライクは 出ない');
-  assert.ok(!find(dualOptions(A, [B, C, E], weaponOk), 'dt_zenin'), '全員集合は 4人とも 攻撃の 技が いる');
+  const E = p('癒', 'okan', ['ok_gohan']);
+  assert.ok(!find(dualOptions(A, [B, E], weaponOk), 'dt_delta'), '回復の 職業だけでは デルタストライクは 出ない');
   assert.ok(find(all, 'dt_cross_break', ['拳']) && find(all, 'dt_cross_mahouken', ['魔']), '2人技も');
-  assert.ok(find(all, 'dt_zenin', ['拳', '魔', '僧']), '4人 いれば 全員集合');
+  assert.ok(!find(all, 'dt_zenin'), '全員集合は 4人が 同じ 系統で ないと 出ない');
   // だれから えらんでも おなじ（自分が どの 組でも よい）
   const fromD = find(dualOptions(D, [A, B, C], weaponOk), 'dt_finale', ['剣', '拳', '魔']);
   assert.ok(fromD && fromD.mine === 3 && fromD.mp.length === 4);
+  // 基本職の 4人では グランドフィナーレは 出ない（デルタストライクは 出る）
+  const base = [p('戦', 'warrior', ['daichi'], { weaponCat: 'sword' }), p('武', 'monk', ['seiken']), p('魔2', 'mage', ['mera']), p('僧2', 'priest', ['hoimi'])];
+  const baseAll = dualOptions(base[0], base.slice(1), weaponOk);
+  assert.ok(!find(baseAll, 'dt_finale') && find(baseAll, 'dt_delta'), '基本職では フィナーレは 出ない');
+  // 前の 職業で 覚えた 技（マスターした 職業）は 関係 ない: 戦士に 転職した 人が メラを 覚えていても 呪文の 組には 入れない
+  const ex = p('元魔', 'warrior', ['mera', 'daichi'], { weaponCat: 'sword' });
+  assert.ok(!find(dualOptions(ex, [p('氷', 'mage', ['hyado'])], weaponOk), 'dt_taishoumetsu'), '今の 職業で 見る');
+  assert.ok(find(dualOptions(p('炎', 'mage', ['mera']), [p('氷', 'mage', ['hyado'])], weaponOk), 'dt_taishoumetsu'), '魔法使い 2人なら 出せる');
   // 人数が たりない
   assert.ok(!dualOptions(A, [B], weaponOk).some((o) => o.size >= 3), '2人では 3人技は 出ない');
   // MP・ねむり・剣
   assert.ok(!find(dualOptions(A, [B, C, { ...D, mp: 5 }], weaponOk), 'dt_finale'), 'MPが 足りない');
   assert.ok(!find(dualOptions(A, [B, { ...C, statuses: ['sleep'] }, D], weaponOk), 'dt_delta', ['拳', '魔']), 'ねむっている 仲間とは 出せない');
   assert.ok(!find(dualOptions({ ...A, weaponCat: 'staff' }, [B, C, D], weaponOk), 'dt_finale'), '剣が いる');
-  // おかん＋大人の仕事＋子ども＋だれでも ＝ 家族会議
-  const okan = p('母', ['ok_otama']), papa = p('父', ['sk_tsukin']), kid = p('子', ['es_randoseru']), neet = p('兄', ['ne_makura']);
+  // おかん＋大人の仕事＋子ども＋家に いる 人（ニート） ＝ 家族会議
+  const okan = p('母', 'okan', ['ok_otama']), papa = p('父', 'shachiku', ['sk_tsukin']), kid = p('子', 'schoolkid', ['es_randoseru']), neet = p('兄', 'neet', ['ne_makura']);
   assert.ok(find(dualOptions(okan, [papa, kid, neet], weaponOk), 'dt_kazoku_kaigi'));
+  assert.ok(!find(dualOptions(okan, [papa, kid, p('戦2', 'warrior', ['daichi'])], weaponOk), 'dt_kazoku_kaigi'), '4人目は だれでもでは ない');
   assert.ok(find(dualOptions(okan, [neet, kid], weaponOk), 'dt_oosouji'), 'おかん＋ニート＋子ども＝大そうじ大作戦');
   assert.ok(find(dualOptions(okan, [neet], weaponOk), 'dt_hataraki'), 'おかん＋ニート＝早く働きなさい！');
 });
@@ -180,8 +190,12 @@ test('2人・3人・4人の 出し方: 人数ぶんの 仲間が、それぞれ 
 test('パーティーに 関係する 合体技だけ メニューに 出す（3人技・4人技も）', () => {
   const hero = partyJobSet([{ job: 'warrior' }, { job: 'priest' }, { job: 'mage' }, { job: 'monk' }]);
   const shown = DUAL_ORDER.filter((id) => dualRelated(id, hero));
-  for (const id of ['dt_finale', 'dt_delta', 'dt_zenin', 'dt_cross_break', 'dt_honoo_tatsumaki']) assert.ok(shown.includes(id), id);
-  for (const id of ['dt_kazoku_kaigi', 'dt_hataraki', 'dt_uukanpi']) assert.ok(!shown.includes(id), id);
+  for (const id of ['dt_delta', 'dt_zenin', 'dt_cross_break', 'dt_honoo_tatsumaki']) assert.ok(shown.includes(id), id);
+  // グランドフィナーレは 上級職、ミナデインは 勇者の 系統が いる
+  for (const id of ['dt_kazoku_kaigi', 'dt_hataraki', 'dt_uukanpi', 'dt_finale', 'dt_minadein']) assert.ok(!shown.includes(id), id);
+  const adv = partyJobSet([{ job: 'battlemaster' }, { job: 'holyfist' }, { job: 'sage' }, { job: 'paladin' }]);
+  assert.ok(dualRelated('dt_finale', adv));
+  assert.ok(dualRelated('dt_minadein', partyJobSet([{ job: 'hero' }])));
   const home = partyJobSet([{ job: 'okan' }, { job: 'shachiku' }, { job: 'schoolkid' }, { job: 'neet' }]);
   const shown2 = DUAL_ORDER.filter((id) => dualRelated(id, home));
   for (const id of ['dt_kazoku_kaigi', 'dt_oosouji', 'dt_hataraki', 'dt_bentou', 'dt_jugyo_sankan', 'dt_zenin']) assert.ok(shown2.includes(id), id);
@@ -253,7 +267,7 @@ test('3人技の よやく: やめる・仲間が 倒れる → まっていた 
 
 test('4人技: 自分が 動かす 仲間（めいれいさせろ）も、そろって いれば すぐ・まだ なら まつ', () => {
   // みんな 番が 来ている → すぐ
-  let b = party(['warrior', 'monk', 'mage', 'priest'], { mine: [1, 2, 3] });
+  let b = party(['battlemaster', 'holyfist', 'sage', 'paladin'], { mine: [1, 2, 3] });
   let [me, ...ps] = b.allies;
   me.weaponCat = 'sword';
   for (const a of b.allies) readyUp(b, a);
@@ -267,7 +281,7 @@ test('4人技: 自分が 動かす 仲間（めいれいさせろ）も、そろ
   assert.equal(act.dual.n, 4);
   assert.ok(act.results.some((x) => x.dmg > 0) && act.results.some((x) => x.heal !== undefined), 'ダメージと 回復');
   // まだの 仲間が いる → ゲージが たまった 仲間は（自分が 動かす 仲間でも）コマンドを 出さずに まつ
-  b = party(['warrior', 'monk', 'mage', 'priest'], { mine: [1, 2, 3], seed: 9 });
+  b = party(['battlemaster', 'holyfist', 'sage', 'paladin'], { mine: [1, 2, 3], seed: 9 });
   [me, ...ps] = b.allies;
   me.weaponCat = 'sword';
   readyUp(b, me);
@@ -385,7 +399,7 @@ function soloBest(b, m, t) {
 
 test('強さ: 別々に 動くより はっきり 得（2人技 1.6倍・3人技 2倍・4人技 2.6倍 いじょう）', () => {
   assert.ok(DUAL_POWER[2] >= 1.6 && DUAL_POWER[3] >= 2.2 && DUAL_POWER[4] >= 3);
-  const cases = [['dt_cross_break', ['warrior', 'monk'], 1.6], ['dt_cross_mahouken', ['warrior', 'mage'], 1.5], ['dt_delta', ['warrior', 'monk', 'mage'], 2.0], ['dt_finale', ['warrior', 'monk', 'mage', 'priest'], 2.6],
+  const cases = [['dt_cross_break', ['warrior', 'monk'], 1.6], ['dt_cross_mahouken', ['warrior', 'mage'], 1.5], ['dt_delta', ['warrior', 'monk', 'mage'], 2.0], ['dt_finale', ['battlemaster', 'holyfist', 'sage', 'paladin'], 2.6],
     ['dt_gomu_kame', ['saiyan', 'rubber'], 1.6], ['dt_taishoumetsu', ['mage', 'archmage'], 1.6]];
   for (const [id, jobs, min] of cases) {
     let dual = 0, solo = 0;

@@ -6,9 +6,10 @@
 import { Battle } from '../public/js/shared/battle.js';
 import { makeRng } from '../public/js/shared/rng.js';
 import { fullHeal } from '../public/js/shared/stats.js';
+import { JOBS } from '../public/js/shared/data/jobs.js';
 import { FIXED_ENCOUNTERS } from '../public/js/shared/data/encounters.js';
 import { DUAL_TECHS } from '../public/js/shared/data/dual.js';
-import { dualPower, memberPower } from '../public/js/shared/battle-dual.js';
+import { dualPower, memberPower, DUAL_BOSS_CAP } from '../public/js/shared/battle-dual.js';
 import { ABILITIES } from '../public/js/shared/data/abilities.js';
 import { decideAlly } from '../public/js/shared/ai.js';
 import { makeChar, withSara } from './sim.js';
@@ -111,7 +112,101 @@ function party(lv, jlv, tier, guest) {
   return p;
 }
 
-if (process.argv[1].endsWith('sim-dual.mjs')) {
+// ───── 第31回: ミナデイン（合体技）の 強さ: node tools/sim-dual.mjs [回数] minadein ─────
+// ボスの さいだいHPの 何%を 1回で けずるか（見つもり。ボスの 雷の 効きぐあいも 入る）を、ほかの 合体技と くらべる。
+// ボスへは 1回で さいだいHPの DUAL_BOSS_CAP（ミナデインは bossCap）まで。（ ）の 中は 上限の 前の 見つもり
+//   勇者＋基本職 … 勇者・戦士・僧侶・魔法使い（いちばん よく ある 形。「あと 3人は だれでも」）
+//   ロト＋超級職 … ロトの勇者・竜の騎士・ゴッドハンド・大魔道士（いちばん 強い 形）
+//   フィナーレ … バトルマスター・聖拳士・賢者・パラディン の グランドフィナーレ（上級職 4人）
+const master = (c, j) => { c.jobs[j] = { lv: 10, b: 999 }; };
+const chain = (c, j) => {
+  for (const r of JOBS[j].req || []) { master(c, r); chain(c, r); }
+  if (JOBS[j].reqSuper) { master(c, 'god_hand'); master(c, 'archmage'); }
+};
+// gear … 装備を かりる 基本職（GEAR は 基本職の ぶん だけ）
+function advChar(job, gear, lv, tier, name) {
+  const c = makeChar(gear, lv, 10, name, tier);
+  chain(c, job);
+  master(c, job);
+  c.job = job;
+  fullHeal(c);
+  return c;
+}
+const MINA_BOSSES = [['flame_witch_true', 30, 23], ['armor_scorpion', 31, 23], ['mummy_king', 34, 33], ['sand_whale', 36, 33], ['zaid_demon', 37, 33],
+  ['morgana', 38, 38], ['morgana_true', 38, 38], ['argos', 42, 42], ['lab_dragon', 45, 45]];
+const MINA_PARTIES = {
+  '勇者＋基本職': [['hero', 'warrior'], ['warrior', 'warrior'], ['priest', 'priest'], ['mage', 'mage']],
+  'ロト＋超級職': [['loto_hero', 'warrior'], ['dragon_knight', 'warrior'], ['god_hand', 'monk'], ['archmage', 'mage']],
+  'フィナーレ': [['battlemaster', 'warrior'], ['holyfist', 'monk'], ['sage', 'mage'], ['paladin', 'priest']],
+};
+export function minadeinCheck(enc, lv, tier, key, seed = 1) {
+  const party = MINA_PARTIES[key].map(([j, g], i) => advChar(j, g, lv, tier, `${JOBS[j].name}${i}`));
+  const b = new Battle({ rng: makeRng(seed), boss: true, canFlee: false, allies: party.map((c) => ({ char: c, kind: 'support', controller: 'sim' })), enemies: groupOf(enc) });
+  for (const a of b.allies) { a.weaponCat = 'sword'; a.ready = true; a.atb = 100; }
+  const boss = b.enemies.find((e) => e.boss) || b.enemies[0];
+  const opts = b.dualOptionsFor(b.allies[0]);
+  const est = (id) => {
+    const o = opts.find((x) => x.id === id);
+    if (!o) return null;
+    const t = DUAL_TECHS[id];
+    const by = o.who.map((wid) => b.get(wid));
+    let d = 0;
+    for (const p of t.parts) {
+      if (p.type !== 'power') continue;
+      const el = p.elementFrom !== undefined ? o.element : p.element;
+      const r = el && el !== 'phys' ? boss.resist?.[el] ?? 1 : 1;
+      d += dualPower(b, by, boss, p, o.size) * r;
+    }
+    return { raw: d / boss.maxHp, v: Math.min(d / boss.maxHp, t.bossCap ?? DUAL_BOSS_CAP[o.size]) };
+  };
+  // ほかの 敵1体の 合体技で いちばん 強い もの
+  let best = null;
+  for (const o of opts) {
+    const t = DUAL_TECHS[o.id];
+    if (o.id === 'dt_minadein' || t.target !== 'enemy') continue;
+    const v = est(o.id);
+    if (v !== null && (!best || v.v > best.v.v)) best = { id: o.id, v };
+  }
+  return { mina: est('dt_minadein'), finale: est('dt_finale'), best, hp: boss.maxHp };
+}
+
+// ほんとうの 戦い: 勇者・戦士・僧侶・魔法使いで、ふつう（合体技なし）と 合体技（ミナデインも）を くらべる
+const HERO_BOSSES = [['zaid_demon', 37, 33], ['morgana_true', 38, 38], ['argos', 42, 42], ['lab_dragon', 45, 45]];
+function heroParty(lv, tier) {
+  return MINA_PARTIES['勇者＋基本職'].map(([j, g], i) => advChar(j, g, lv, tier, `${JOBS[j].name}${i}`));
+}
+
+if (process.argv[1].endsWith('sim-dual.mjs') && process.argv[3] === 'minadein') {
+  console.log('ほんとうの 戦い（勇者・戦士・僧侶・魔法使い）');
+  console.log(`${'ボス'.padEnd(26)} ふつう  合体技  （平均秒 ふつう→合体技）  よく使った合体技`);
+  for (const [enc, lv, tier] of HERO_BOSSES) {
+    const res = { off: [], on: [] };
+    for (let i = 0; i < N; i++) {
+      for (const duals of [false, true]) {
+        const flags = enc === 'morgana_true' ? { knowsTemple: true, song: true } : {};
+        res[duals ? 'on' : 'off'].push(runDual(heroParty(lv, tier), groupOf(enc), { seed: 777 + i * 7919, duals, ...flags }));
+      }
+    }
+    const rate = (l) => `${String(Math.round((l.filter((r) => r.outcome === 'win').length / l.length) * 100)).padStart(3)}%`;
+    const sec = (l) => Math.round(l.reduce((s, r) => s + r.seconds, 0) / l.length);
+    const used = {};
+    for (const r of res.on) for (const [k, v] of Object.entries(r.used)) used[k] = (used[k] || 0) + v;
+    const top = Object.entries(used).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([k, v]) => `${DUAL_TECHS[k].name}${(v / N).toFixed(1)}`).join(' ');
+    console.log(`${`${enc} Lv${lv}`.padEnd(28)} ${rate(res.off)}   ${rate(res.on)}   （${sec(res.off)}→${sec(res.on)}秒）  ${top}`);
+  }
+  console.log('');
+  console.log('1回で ボスの さいだいHPの 何%（見つもり）');
+  const pct = (e) => (!e ? '  -  ' : `${String(Math.round(e.v * 100)).padStart(3)}%（${Math.round(e.raw * 100)}）`);
+  console.log(`${'ボス'.padEnd(24)} ${Object.keys(MINA_PARTIES).map((k) => `${k}（ミナデイン／ほかで いちばん）`).join('  ')}`);
+  for (const [enc, lv, tier] of MINA_BOSSES) {
+    const cols = Object.keys(MINA_PARTIES).map((key) => {
+      const r = minadeinCheck(enc, lv, tier, key);
+      const other = r.best ? `${pct(r.best.v)} ${DUAL_TECHS[r.best.id].name}` : '-';
+      return `${pct(r.mina)}／${other}`;
+    });
+    console.log(`${`${enc} Lv${lv}`.padEnd(24)} ${cols.join('   ')}`);
+  }
+} else if (process.argv[1].endsWith('sim-dual.mjs')) {
   console.log(`${'ボス'.padEnd(26)} ふつう  合体技  （平均秒 ふつう→合体技）  よく使った合体技`);
   for (const [enc, lv, jlv, tier = null, guest = null, flags = {}] of BOSSES) {
     const res = { off: [], on: [] };
