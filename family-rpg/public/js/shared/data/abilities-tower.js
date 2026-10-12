@@ -94,6 +94,12 @@ export const TOWER_ABILITIES = {
     effect: { type: 'phys', mult: 0.9, debuff: { stat: 'agi', mult: 0.6, dur: 30, chance: 0.9 } }, cast: '{a}は、{t}の上の空気を、ずしりと重くした！', anim: 'gravity',
     desc: '重い空気でおしつぶす。素早さが下がる。',
   },
+  // 第32回: HPが 25%より へると 使う（monsters-ch5.js の phases の addActions）
+  m_argos_meteor: {
+    name: '流星群', kind: 'monster', mp: 10, target: 'enemies',
+    effect: { type: 'magic', element: 'light', base: [60, 72], thr: 99 }, cast: '{a}は、3つの目で、夜空をにらみつけた！\n流れ星が、雨のようにふりそそぐ！', anim: 'star_light',
+    desc: '夜空から流れ星をふらせて、敵みんなに大きなダメージ。',
+  },
   m_argos_beam: {
     name: '三つ目の光線', kind: 'monster', mp: 5, target: 'enemy',
     effect: { type: 'magic', element: 'light', base: [84, 100], thr: 99 }, cast: '{a}の3つの目から、{t}に光線がとんだ！', anim: 'eye_beam',

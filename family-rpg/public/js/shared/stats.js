@@ -268,6 +268,18 @@ export function hiraVisible(char, jobSet) {
   return Object.keys(HIRAMEKI).filter((id) => ABILITIES[id] && (known.has(id) || hiraRelated(id, jobSet)));
 }
 
+// 第32回: メニューの「ひらめき」の 一覧は、その 人が 今 ついている 職業の ひらめき技だけ（ひらめいた 技も、ほかの 職業の ものは 出さない）
+//   職業の ひらめき技 … 技の 職業（a.job）が 今の 職業 / 掛け合わせ技 … 今の 職業で ひらめける もの（comboAllowed）
+//   魔物の 仲間・職業の ない 人は なし。ならびは HIRAMEKI の じゅん
+export function hiraOfJob(char) {
+  if (!char || char.species || !JOBS[char.job]) return [];
+  return Object.keys(HIRAMEKI).filter((id) => {
+    const a = ABILITIES[id];
+    if (!a) return false;
+    return a.kind === 'combo' ? comboAllowed(char, id) : a.job === char.job;
+  });
+}
+
 // ひらめきの すすみぐあい（0〜1。1 で ひらめける）
 export function hiraProgress(char, id) {
   const h = HIRAMEKI[id];

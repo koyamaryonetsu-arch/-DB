@@ -10,7 +10,7 @@ import { FIXED_ENCOUNTERS } from '../data/encounters.js';
 import { ScriptRun } from './scripts.js';
 import { partyOf } from './party.js';
 import {
-  TM_MAX, TM_THEMES, caveInfo, tmTitle, floorMapId, parseFloorId, isTreasureMapId, clearedFlag, foundFlag, seed36, bossLvOf,
+  TM_MAX, TM_THEMES, caveInfo, tmTitle, floorMapId, parseFloorId, isTreasureMapId, clearedFlag, foundFlag, seed36, bossLvOf, tmBossPow,
   mapDropRate, dropMapLevel, nextMapLevel, repairTreasureMaps,
 } from '../data/treasure.js';
 
@@ -256,7 +256,7 @@ function bossEncounter(p) {
   const id = `tmboss_${seed36(p.seed)}_${p.lv}`;
   FIXED_ENCOUNTERS[id] = {
     group: [[cave.boss, 1, 1]], bg: TM_THEMES[cave.theme].bossBg, bgm: 'boss', canFlee: false, boss: true,
-    enemyLv: bossLvOf(p.seed, p.lv),
+    enemyLv: bossLvOf(p.seed, p.lv), enemyPow: tmBossPow(p.lv, cave.boss),
   };
   return id;
 }

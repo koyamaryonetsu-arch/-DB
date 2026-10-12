@@ -29,6 +29,7 @@ import { ENCOUNTER_TABLES, ZONE_BG, FIXED_ENCOUNTERS } from './encounters.js';
 import { makeRng } from '../rng.js';
 import { rewardGold } from './difficulty.js';
 import { pickSdGear, SD_GEAR_FROM } from './rare-loot.js';
+import { sdGuardStrength } from './secret-guard.js';
 
 export const SD_GATE = 'sd_gate';
 export const SD_NAME = 'ひみつのダンジョン';
@@ -237,13 +238,14 @@ export function sdGuardian(f) {
   const i = Math.max(0, Math.floor(f / SD_GUARD_EVERY) - 1);
   return SD_GUARDS[i % SD_GUARDS.length];
 }
-export const sdGuardLv = (f) => sdEnemyLv(f) + 2;
+export const sdGuardLv = (f) => sdGuardStrength(f).lv; // 強さの 数式は data/secret-guard.js（第32回 A）
 // 番人との 戦い（FIXED_ENCOUNTERS に 入れる）
 export function sdGuardEncounter(f) {
   const id = `sdguard_${f}`;
+  const g = sdGuardStrength(f, sdGuardian(f));
   FIXED_ENCOUNTERS[id] = {
     group: [[sdGuardian(f), 1, 1]], bg: 'sd_guard', bgm: 'boss', canFlee: false, boss: true,
-    enemyLv: sdGuardLv(f), enemyPow: sdPower(f),
+    enemyLv: g.lv, enemyPow: g.pow,
   };
   return id;
 }
