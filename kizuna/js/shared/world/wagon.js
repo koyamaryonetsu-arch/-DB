@@ -1,16 +1,16 @@
 // 馬車（サーバーの きまり）: もらう・乗りかえ・総入れかえ・経験値の おすそわけ・たたかいでの いれかえ
 //   きまりの せつめいは data/wagon.js
-import { MAPS } from '../maps/index.js?v=d720b7bfa4a3';
-import { scaleExp } from '../data/difficulty.js?v=d720b7bfa4a3';
-import { COMPANION_SLOTS } from '../data/companions.js?v=d720b7bfa4a3';
-import { JOBS } from '../data/jobs.js?v=d720b7bfa4a3';
-import { WAGON_SLOTS, wagonExpRate, hasWagon, cleanWagon, wagonMapOk } from '../data/wagon.js?v=d720b7bfa4a3';
-import { computeStats, fullHeal } from '../stats.js?v=d720b7bfa4a3';
-import { pub } from '../battle.js?v=d720b7bfa4a3';
+import { MAPS } from '../maps/index.js?v=37d7bca100b3';
+import { scaleExp } from '../data/difficulty.js?v=37d7bca100b3';
+import { COMPANION_SLOTS } from '../data/companions.js?v=37d7bca100b3';
+import { JOBS } from '../data/jobs.js?v=37d7bca100b3';
+import { WAGON_SLOTS, wagonExpRate, hasWagon, cleanWagon, wagonMapOk } from '../data/wagon.js?v=37d7bca100b3';
+import { computeStats, fullHeal } from '../stats.js?v=37d7bca100b3';
+import { pub } from '../battle.js?v=37d7bca100b3';
 import {
   partyOf, companionOf, ensureCompanions, stowGear, afterRosterChange, syncParty, nameOfKey, supportInfo,
   famCopy, humanCharIds, dropMissingFam, creditSupportOwner, PARTY_MAX, BATTLE_FILL,
-} from './party.js?v=d720b7bfa4a3';
+} from './party.js?v=37d7bca100b3';
 
 const fail = (reason, extra = {}) => ({ ok: false, reason, ...extra });
 const isFam = (k) => String(k || '').startsWith('fam:');
@@ -283,8 +283,8 @@ export function wagonRefChar(world, s, ref) {
 // 勝った たたかいの あとで。たたかいに 出ていない 馬車の 仲間（生きている 人）が もらう（data/wagon.js の wagonExpRate）
 //   馬車が いっしょの 所（フィールド・wagonHere）… 戦った 仲間と 同じ。馬車が 入口で 待っている 所（洞窟・塔）… 半分
 //   家族の キャラ（うつし）は、本人に とどく おすそわけが パーティーで 戦った ときと 同じ（洞窟などでは 半分。お金は なし）
-//   grow(ch, exp, trains) … 仲間を そだてて メッセージを つくる（battles.js）  say(line) … メッセージ
-export function wagonShare(world, ctx, { exp, trainN, grow, say }) {
+//   grow(ch, exp, trains) … 仲間を そだてて メッセージを つくる（battles.js）  say(line) … メッセージ  mult(ch) … しあわせのぼうしの 倍率（world/perks.js）
+export function wagonShare(world, ctx, { exp, trainN, grow, say, mult = () => 1 }) {
   const p = world.parties.get(ctx.partyId);
   const lc = leaderChar(world, p);
   if (!hasWagon(lc)) return 0;
@@ -300,7 +300,7 @@ export function wagonShare(world, ctx, { exp, trainN, grow, say }) {
     const ch = e.char;
     if (e.kind === 'family') {
       const owner = world.data.characters[ch.ownerId];
-      if (owner) creditSupportOwner(world, owner.id, Math.floor(scaleExp(owner, exp) * rate), 0, lc.name);
+      if (owner) creditSupportOwner(world, owner.id, Math.floor(scaleExp(owner, exp) * rate) * mult(ch), 0, lc.name);
       continue;
     }
     let trains = 0;

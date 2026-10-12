@@ -6,13 +6,13 @@
 //  3) かべの ふちを すこし けずって 洞窟らしく（ゆかを ふやす だけ なので つながりは こわれない）
 //  4) のぼり階段の へや → いちばん 遠い へやに くだり階段（さいごの 階は 主の 大広間）
 //  5) 宝箱・水たまり（ようがん）・水晶・がれき・たいまつ。置くたびに ぜんぶの ゆかへ 行けるか たしかめる
-import { T } from '../tiles.js?v=d720b7bfa4a3';
-import { makeRng, hash2 } from '../rng.js?v=d720b7bfa4a3';
-import { npc } from './npc.js?v=d720b7bfa4a3';
-import { MONSTERS } from '../data/monsters.js?v=d720b7bfa4a3';
+import { T } from '../tiles.js?v=37d7bca100b3';
+import { makeRng, hash2 } from '../rng.js?v=37d7bca100b3';
+import { npc } from './npc.js?v=37d7bca100b3';
+import { MONSTERS } from '../data/monsters.js?v=37d7bca100b3';
 import {
   parseFloorId, caveInfo, floorMapId, enemyLvOf, clearedFlag, chestPrefix, chestLoot, ensureEncounterTable, TM_THEMES,
-} from '../data/treasure.js?v=d720b7bfa4a3';
+} from '../data/treasure.js?v=37d7bca100b3';
 
 const WALK = new Set([T.CAVE_FLOOR, T.RUBBLE, T.BOSS_FLOOR, T.STAIRS_UP, T.STAIRS_DOWN]);
 const DIRS = [[1, 0], [-1, 0], [0, 1], [0, -1]];
@@ -350,12 +350,12 @@ export function buildTreasureFloor(id) {
   }
   const pre = chestPrefix(seed);
   lay.chests.forEach((c, i) => {
-    chests.push({ id: `${pre}${floor}_${i}`, x: c.x, y: c.y, ...chestLoot(floorRng(seed, floor, 0xc0 + i), lv) });
+    chests.push({ id: `${pre}${floor}_${i}`, x: c.x, y: c.y, ...chestLoot(floorRng(seed, floor, 0xc0 + i), lv, 'normal', info) });
   });
   if (lay.hall) {
     const h = lay.hall;
     lay.bossChests.forEach((c, i) => {
-      chests.push({ id: `${pre}b${i}`, x: c.x, y: c.y, ...chestLoot(floorRng(seed, floor, 0xb0 + i), lv, i ? 'bossB' : 'bossA'), show: { all: [flag] } });
+      chests.push({ id: `${pre}b${i}`, x: c.x, y: c.y, ...chestLoot(floorRng(seed, floor, 0xb0 + i), lv, i ? 'bossB' : 'bossA', info), show: { all: [flag] } });
     });
     npcs.push(npc('tm_boss', MONSTERS[info.boss]?.name || '洞窟の主', [lay.boss.x, lay.boss.y], `mon:${info.boss}`, 'tm_boss', { big: true, show: { not: [flag] } }));
     triggers.push({ id: 'tm_boss_room', x: h.x, y: h.y, w: h.w, h: 6, script: 'tm_boss', show: { not: [flag] } });

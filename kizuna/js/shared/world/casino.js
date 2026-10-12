@@ -8,16 +8,16 @@
 //   c.medalSpots   … 小さなメダルを 見つけた 場所 { id: 時こく }
 //   c.medalsGiven  … メダル王に わたした 数
 //   c.medalRewards … もらった ごほうび { 5: true, 10: true, … }
-import { ITEMS } from '../data/items.js?v=d720b7bfa4a3';
-import { addItem, itemCount } from '../stats.js?v=d720b7bfa4a3';
+import { ITEMS } from '../data/items.js?v=37d7bca100b3';
+import { addItem, itemCount } from '../stats.js?v=37d7bca100b3';
 import {
   COIN_PRICE, COIN_MAX, COIN_BUY_MAX, COIN_PACKS, coinsOf, SLOT_BETS, REELS, slotLine, slotPay,
   POKER_BETS, JOKER, DOUBLE_MAX, evalPoker, doubleOutcome, PRIZES, MEDAL_REWARDS,
   medalsFound, medalsGiven, medalsHeld,
-} from '../data/casino.js?v=d720b7bfa4a3';
-import { MEDAL_SPOTS, MEDAL_SPOT_BY_ID, medalSparkleId } from '../maps/casino.js?v=d720b7bfa4a3';
-import { MAPS, tileAt, condOk } from '../maps/index.js?v=d720b7bfa4a3';
-import { T } from '../tiles.js?v=d720b7bfa4a3';
+} from '../data/casino.js?v=37d7bca100b3';
+import { MEDAL_SPOTS, MEDAL_SPOT_BY_ID, medalSparkleId } from '../maps/casino.js?v=37d7bca100b3';
+import { MAPS, tileAt, condOk } from '../maps/index.js?v=37d7bca100b3';
+import { T } from '../tiles.js?v=37d7bca100b3';
 
 // 見つけた 光る 場所は もう 光らない（sparkles の 時こくを ずっと 先に）
 export const MEDAL_TAKEN_AT = 9e15;
@@ -203,10 +203,12 @@ function medalAction(world, s, msg, reply) {
   }
   if (msg.action !== 'give') return reply(false, '');
   const held = medalsHeld(c);
-  if (!held) return reply(false, '小さなメダルを持っていない', { medal: medalInfo(c) });
   const total = medalsGiven(c) + held;
-  c.medalsGiven = total;
   c.medalRewards = c.medalRewards && typeof c.medalRewards === 'object' ? c.medalRewards : {};
+  // あとから ふえた ごほうび（第31回の 35枚）は、もう わたした 数に とどいていれば メダルが なくても もらえる
+  const pending = MEDAL_REWARDS.some((r) => r.at <= total && !c.medalRewards[r.at]);
+  if (!held && !pending) return reply(false, '小さなメダルを持っていない', { medal: medalInfo(c) });
+  c.medalsGiven = total;
   const got = [];
   for (const r of MEDAL_REWARDS) {
     if (r.at > total || c.medalRewards[r.at]) continue;

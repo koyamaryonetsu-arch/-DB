@@ -13,14 +13,18 @@
 //   ・種は その魔物に 合った もの（かたい→守り、はやい→素早さ、呪文→かしこさ、大きい→命、力じまん→力）
 //   ・素材（ふしぎなかじ で 使う）は MAT_DROPS に 書く。レアも よく落とす 物も 出なかった ときに 出る
 //   ・図鑑に 落とす 物が のる（手に入れるまでは ？？？）
-import { ITEMS } from './items.js?v=d720b7bfa4a3';
-import { MONSTERS } from './monsters.js?v=d720b7bfa4a3';
-import { RARE_MAT_DROPS } from './monsters-rare.js?v=d720b7bfa4a3';
-import { CH3_MAT_DROPS } from './monsters-ch3.js?v=d720b7bfa4a3';
-import { CH4_MAT_DROPS } from './monsters-ch4.js?v=d720b7bfa4a3';
-import { R23_MAT_DROPS } from './monsters-r23.js?v=d720b7bfa4a3';
-import { TEMPLE_MAT_DROPS } from './monsters-temple.js?v=d720b7bfa4a3';
-import { CH5_MAT_DROPS } from './monsters-ch5.js?v=d720b7bfa4a3';
+//   ・第31回: ボスは ちなんだ レア装備も ときどき（kind 'brare'。BOSS_RARE_N 回に 1回）。ふつうの 魔物は その地方の レア装備を まれに
+//     （REGION_RARE_N 体に 1体。図鑑には のらない）。ひみつのダンジョンの 中では、ここだけの ★4〜★5（data/rare-loot.js）
+import { ITEMS } from './items.js?v=37d7bca100b3';
+import { MONSTERS } from './monsters.js?v=37d7bca100b3';
+import { RARE_MAT_DROPS } from './monsters-rare.js?v=37d7bca100b3';
+import { CH3_MAT_DROPS } from './monsters-ch3.js?v=37d7bca100b3';
+import { CH4_MAT_DROPS } from './monsters-ch4.js?v=37d7bca100b3';
+import { R23_MAT_DROPS } from './monsters-r23.js?v=37d7bca100b3';
+import { TEMPLE_MAT_DROPS } from './monsters-temple.js?v=37d7bca100b3';
+import { CH5_MAT_DROPS } from './monsters-ch5.js?v=37d7bca100b3';
+import { bossRareOf, BOSS_RARE_N, regionRareList, REGION_RARE_N, pickSdGear, SD_DROP_N, SD_GUARD_DROP_N } from './rare-loot.js?v=37d7bca100b3';
+import { sdFloorOf } from './secret.js?v=37d7bca100b3';
 
 export const DROP_N = { common: 8, rare: 64, mat: 8 };
 
@@ -83,6 +87,9 @@ export function monsterDrops(species) {
   for (const id of Array.isArray(d.boss) ? d.boss : d.boss ? [d.boss] : []) {
     if (ITEMS[id]) out.push({ item: id, kind: 'boss', n: 1, rate: 1 });
   }
+  // ボスに ちなんだ レア装備（ときどき）
+  const br = bossRareOf(species);
+  if (br) out.push({ item: br, kind: 'brare', n: BOSS_RARE_N, rate: 1 / BOSS_RARE_N });
   if (d.rare) out.push(entry('rare', d.rare));
   if (d.common) out.push(entry('common', d.common));
   if (MAT_DROPS[species]) out.push(entry('mat', MAT_DROPS[species]));
@@ -90,13 +97,22 @@ export function monsterDrops(species) {
 }
 
 // たおした 1体から 落ちる 物（rng.chance を つかう）
-export function rollDrops(species, rng) {
+// where … { map }（戦った マップ。ひみつのダンジョンの 中なら ここだけの 装備が 出る）
+export function rollDrops(species, rng, where = null) {
   const list = monsterDrops(species);
   const out = list.filter((x) => x.kind === 'boss').map((x) => x.item);
+  const brare = list.find((x) => x.kind === 'brare');
+  if (brare && rng.chance(brare.rate)) out.push(brare.item);
   const rare = list.find((x) => x.kind === 'rare');
   const common = list.find((x) => x.kind === 'common');
   const mat = list.find((x) => x.kind === 'mat');
-  if (rare && rng.chance(rare.rate)) out.push(rare.item);
+  // ひみつのダンジョン（20階から）: 番人は 3回に 1回・ふつうの 魔物は まれに
+  const f = where?.map ? sdFloorOf(where.map) : 0;
+  const sdId = f ? pickSdGear(rng, f) : null;
+  const region = regionRareList(species);
+  if (sdId && rng.chance(1 / (MONSTERS[species]?.boss ? SD_GUARD_DROP_N : SD_DROP_N))) out.push(sdId);
+  else if (region.length && rng.chance(1 / REGION_RARE_N)) out.push(rng.pick(region));
+  else if (rare && rng.chance(rare.rate)) out.push(rare.item);
   else if (common && rng.chance(common.rate)) out.push(common.item);
   else if (mat && rng.chance(mat.rate)) out.push(mat.item);
   return out;

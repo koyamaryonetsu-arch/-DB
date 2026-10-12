@@ -2,16 +2,16 @@
 // みため（かみがた・いろ）と そうび（ぶき・よろい・たて・かぶと）で かわる
 // 人は 32×42 で くみたてて、2ばいの 64×84 に して こまかく かきたす（res 4: せかいでは 16×21 の 大きさに かく）
 // どうぶつ・船は 16×21 など
-import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=d720b7bfa4a3';
-import { ITEMS, baseItemId } from '../../shared/data/items.js?v=d720b7bfa4a3';
-import { STARTER_EQUIP } from '../../shared/stats.js?v=d720b7bfa4a3';
-import { paintMiraPrison, paintWaterStar } from './temple-chars.js?v=d720b7bfa4a3';
-import { LAB_NPC_LOOKS } from './lab-art.js?v=d720b7bfa4a3';
-import { paintCh5Special } from './ch5-art.js?v=d720b7bfa4a3';
-import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js?v=d720b7bfa4a3';
-import { R26_OLD_LOOK } from './hero-r26.js?v=d720b7bfa4a3';
-import { R27_OLD_LOOK } from './hero-r27.js?v=d720b7bfa4a3';
-import { R29_OLD_LOOK } from './hero-r29.js?v=d720b7bfa4a3';
+import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=37d7bca100b3';
+import { ITEMS, baseItemId } from '../../shared/data/items.js?v=37d7bca100b3';
+import { STARTER_EQUIP } from '../../shared/stats.js?v=37d7bca100b3';
+import { paintMiraPrison, paintWaterStar } from './temple-chars.js?v=37d7bca100b3';
+import { LAB_NPC_LOOKS } from './lab-art.js?v=37d7bca100b3';
+import { paintCh5Special } from './ch5-art.js?v=37d7bca100b3';
+import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js?v=37d7bca100b3';
+import { R26_OLD_LOOK } from './hero-r26.js?v=37d7bca100b3';
+import { R27_OLD_LOOK } from './hero-r27.js?v=37d7bca100b3';
+import { R29_OLD_LOOK } from './hero-r29.js?v=37d7bca100b3';
 
 export const CW = 16;
 export const CH = 21;
@@ -150,6 +150,8 @@ const HEAD_LOOK = {
   // 第4章: 王都サファラの 防具屋
   turban: { hat: 'turban', hatColor: '#f4f0e6' },
   straw_hat: { hat: 'straw' },
+  // 第31回: しあわせのぼうし（ピンクの 羽の ぼうし）
+  shiawase_boushi: { hat: 'feather', hatColor: '#f07aa8' },
 };
 
 // ぶきの いろ
@@ -1656,7 +1658,7 @@ function drawHat(p, dir, f, o) {
       break;
     }
     case 'feather': {
-      const c = '#8a3a3a', cD = shade(c, -0.2), fe = '#f4f4f4';
+      const c = hc || '#8a3a3a', cD = shade(c, -0.2), fe = '#f4f4f4';
       if (side) spans(p, [[1, 10, 18], [2, 8, 20], [3, 7, 22], [4, 6, 23], [5, 6, 23], [6, 6, 23], [7, 6, 23]], c);
       else spans(p, [[0, 11, 20], [1, 9, 22], [2, 7, 24], [3, 6, 25], [4, 6, 25], [5, 6, 25], [6, 6, 25], [7, 6, 25]], c);
       p.rect(side ? 5 : 4, 7, side ? 19 : 24, 2, cD);

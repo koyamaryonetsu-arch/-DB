@@ -1,37 +1,38 @@
 // たたかいの がめん（むかしの RPG ふう 1がめん）
-import { el, esc, ListMenu, toast } from './ui/dom.js?v=d720b7bfa4a3';
-import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js?v=d720b7bfa4a3';
-import { ITEMS } from '../shared/data/items.js?v=d720b7bfa4a3';
-import { JOBS } from '../shared/data/jobs.js?v=d720b7bfa4a3';
-import { MONSTERS } from '../shared/data/monsters.js?v=d720b7bfa4a3';
-import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed, battleAbilityOk } from '../shared/stats.js?v=d720b7bfa4a3';
-import { affinityOf, attackReach, spellSealed, SEALED_REASON } from '../shared/battle.js?v=d720b7bfa4a3';
+import { el, esc, ListMenu, toast } from './ui/dom.js?v=37d7bca100b3';
+import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js?v=37d7bca100b3';
+import { ITEMS } from '../shared/data/items.js?v=37d7bca100b3';
+import { JOBS } from '../shared/data/jobs.js?v=37d7bca100b3';
+import { MONSTERS } from '../shared/data/monsters.js?v=37d7bca100b3';
+import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed, battleAbilityOk } from '../shared/stats.js?v=37d7bca100b3';
+import { affinityOf, attackReach, spellSealed, SEALED_REASON } from '../shared/battle.js?v=37d7bca100b3';
 // 合体技（2人・3人・4人）の コマンド・さそい・えんしゅつ（battle-dual.js）
-import { myDualOptions, dualMenu, showInvite, askingName, waitText, onDualWait, onDualWaitEnd, onDualHold, onDualAnswer, dualPre, dualFx } from './battle-dual.js?v=d720b7bfa4a3';
-import { TACTICS } from '../shared/ai.js?v=d720b7bfa4a3';
-import { faceURL } from './field.js?v=d720b7bfa4a3';
-import { monsterCanvas } from './render/monsters.js?v=d720b7bfa4a3';
-import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=d720b7bfa4a3';
-import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js?v=d720b7bfa4a3';
-import { PARTY_ANIMS, JOB2_SFX } from './render/battlefx-jobs2.js?v=d720b7bfa4a3';
-import { PARTY_ANIMS3, JOB3_SFX } from './render/battlefx-jobs3.js?v=d720b7bfa4a3';
-import { SIG4, JOB4_SFX, sigAnim } from './render/battlefx-jobs4.js?v=d720b7bfa4a3';
+import { myDualOptions, dualMenu, showInvite, askingName, waitText, onDualWait, onDualWaitEnd, onDualHold, onDualAnswer, dualPre, dualFx } from './battle-dual.js?v=37d7bca100b3';
+import { TACTICS } from '../shared/ai.js?v=37d7bca100b3';
+import { faceURL } from './field.js?v=37d7bca100b3';
+import { monsterCanvas } from './render/monsters.js?v=37d7bca100b3';
+import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=37d7bca100b3';
+import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js?v=37d7bca100b3';
+import { PARTY_ANIMS, JOB2_SFX } from './render/battlefx-jobs2.js?v=37d7bca100b3';
+import { PARTY_ANIMS3, JOB3_SFX } from './render/battlefx-jobs3.js?v=37d7bca100b3';
+import { SIG4, JOB4_SFX, sigAnim } from './render/battlefx-jobs4.js?v=37d7bca100b3';
 // 第27回に 作り直した 古い 呪文・特技の エフェクト（段階・あたる じかん・音・味方への えんしゅつ）
-import { r27Anim, r27Hit, r27Sfx, playAllyR27 } from './render/battlefx-r27.js?v=d720b7bfa4a3';
-import { JOB5_SFX } from './render/battlefx-jobs5.js?v=d720b7bfa4a3';
-import { JOB6_SFX } from './render/battlefx-jobs6.js?v=d720b7bfa4a3';
-import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js?v=d720b7bfa4a3';
-import { statusNames, buffNames, targetTag } from './ui/info.js?v=d720b7bfa4a3';
-import { battleSkillText, battleItemText, favHint } from './ui/skillinfo.js?v=d720b7bfa4a3';
-import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js?v=d720b7bfa4a3';
-import { ENEMY_RATE_NAMES } from '../shared/data/difficulty.js?v=d720b7bfa4a3';
-import { ResultPager, levelUpName } from './ui/result.js?v=d720b7bfa4a3';
+import { r27Anim, r27Hit, r27Sfx, playAllyR27 } from './render/battlefx-r27.js?v=37d7bca100b3';
+import { JOB5_SFX } from './render/battlefx-jobs5.js?v=37d7bca100b3';
+import { JOB6_SFX } from './render/battlefx-jobs6.js?v=37d7bca100b3';
+import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js?v=37d7bca100b3';
+import { statusNames, buffNames, targetTag } from './ui/info.js?v=37d7bca100b3';
+import { battleSkillText, battleItemText, favHint } from './ui/skillinfo.js?v=37d7bca100b3';
+import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js?v=37d7bca100b3';
+import { ENEMY_RATE_NAMES } from '../shared/data/difficulty.js?v=37d7bca100b3';
+import { ResultSheet } from './ui/result.js?v=37d7bca100b3';
+import { paintRare } from './ui/rarity.js?v=37d7bca100b3';
 // 第4章の しかけ（月の鏡・まぼろしの 分身・魔神のランプ・ボスの 大技）
-import { CH4_ALLY_FX, ch4ItemEntries, ch4ItemPick, ch4ItemInfo, ch4Present, vanishFx, drawShade, drawBurrow } from './battle-ch4.js?v=d720b7bfa4a3';
+import { CH4_ALLY_FX, ch4ItemEntries, ch4ItemPick, ch4ItemInfo, ch4Present, vanishFx, drawShade, drawBurrow } from './battle-ch4.js?v=37d7bca100b3';
 // 第4章 Step 7 の 砂の底の神殿と モルガナ（鏡のうつし身・水のろうの 絵・水の衣・光・大波・水の守りの歌）
-import { templeSprite, templeDraw, templeStart, TEMPLE_SFX } from './battle-temple.js?v=d720b7bfa4a3';
+import { templeSprite, templeDraw, templeStart, TEMPLE_SFX } from './battle-temple.js?v=37d7bca100b3';
 // 第5章 Step 2 の 星の番人アルゴス（見通しの目。battle-ch5.js）
-import { towerDraw, TOWER_SFX } from './battle-ch5.js?v=d720b7bfa4a3';
+import { towerDraw, TOWER_SFX } from './battle-ch5.js?v=37d7bca100b3';
 
 // たたかいの え の こまかさ（おもい きかいで さげたら、その あいだは さげた まま）
 let battleRes = BRES;
@@ -1690,8 +1691,9 @@ export class BattleScene {
   }
 
   // ───────────── おわり ─────────────
-  // けっか: ボタン（タップ・クリック・Z/Enter/スペース・ゲームパッドA）を おすと 1行ずつ すすむ（ui/result.js）
-  //   レベルが 上がった ときは レベルアップの きょく（よいんを のこして、つぎの 行は ボタンを まつ）
+  // けっか（第31回）: ぜんぶの 行を 1画面に 出す。1回の タップ（クリック・Z/Enter/スペース・ゲームパッドA）で とじる（ui/result.js）
+  //   レベルアップは 1人 1〜2行の まとめ。レベルアップの きょくは 1回だけ（勝利の きょくの あと）
+  //   中みが まどに 入りきらない ときは、タップで 下へ スクロールしてから とじる
   showResult(msg) {
     return new Promise((resolve) => {
       this.closeMenus();
@@ -1702,55 +1704,52 @@ export class BattleScene {
       else au.stop(0.3);
       // ジングルの あとに たたかいの きょくに もどらない（とじたら フィールドの きょく）
       au.resumeTrack = null;
-      const lines = msg.lines || [];
-      if (!lines.length) return resolve();
+      const sheet = new ResultSheet(msg.lines || [], performance.now());
+      if (!sheet.lines.length) return resolve();
       // うしろの まど（たたかいの メッセージ・コマンド）は からに して、けっかだけを 見せる
       this.cmdEl.innerHTML = '';
       this.msgEl.innerHTML = '';
       this.clearInfo();
-      const pager = new ResultPager(lines);
       const list = el('div', { class: 'res-lines' });
+      for (const r of sheet.rows) {
+        if (r.grow) {
+          // 「ユウ　Lv12→15！　HP+20　力+9」: 名前・上がった もの・強さ
+          const row = el('div', { class: `res-${r.kind} res-grow ${r.kind === 'level' ? 'lvup' : ''}` },
+            el('span', { class: 'rg-name', text: r.grow.name }),
+            el('span', { class: 'rg-up', text: `${r.grow.ups}！` }));
+          // 「回復+8」の とちゅうで おりかえさない
+          if (r.grow.stats) row.append(el('span', { class: 'rg-st' }, ...r.grow.stats.split('　').map((t) => el('span', { text: t }))));
+          list.append(row);
+          continue;
+        }
+        const row = el('div', { class: `res-${r.kind}`, text: r.line });
+        if (r.kind === 'job' || /^[★☆]/.test(r.line)) row.classList.add('gold');
+        else if (r.kind === 'learn' || r.kind === 'item' || r.kind === 'found') row.classList.add('good');
+        paintRare(row, r.line); // 落とした レア装備に 色と ★（ui/rarity.js）
+        list.append(row);
+      }
       const more = el('div', { class: 'res-more', text: '▼' });
       const box = el('div', { class: 'win b-result scroll' }, list, more);
       this.root.append(box);
       this.resultBox = box;
-      let moreT = null;
+      // 音は 1回ずつ: レベルアップの きょく（勝利の きょくの あとに つづけて）・職業レベル・道具
+      if (sheet.has('level') && msg.outcome === 'win') au.resumeTrack = 'levelup';
+      else if (sheet.has('job')) au.sfx('key');
+      if (sheet.has('item') || sheet.has('found')) setTimeout(() => au.sfx('item'), 250);
+      for (const who of new Set(sheet.levelNames)) {
+        const a = this.allies().find((x) => x.name === who);
+        if (a) this.glowStatus(a.id, '#ffd66b');
+      }
       let finished = false;
-      const waitMark = () => {
-        more.classList.remove('on');
-        clearTimeout(moreT);
-        moreT = setTimeout(() => { if (!finished) more.classList.add('on'); }, pager.waitLeft(performance.now()));
-      };
-      const show = (step) => {
-        const row = el('div', { class: `res-${step.kind}`, text: step.line });
-        list.append(row);
-        box.scrollTop = box.scrollHeight;
-        switch (step.kind) {
-          case 'level': {
-            row.classList.add('gold', 'lvup');
-            // レベルアップの きょく（なりおわる まえに つぎの 人が 上がったら、きょくは そのまま きらきらだけ）
-            if (au.music?.id === 'levelup') au.sfx('sparkle');
-            else au.play('levelup', { force: true });
-            au.resumeTrack = null;
-            const who = levelUpName(step.line);
-            const a = who && this.allies().find((x) => x.name === who);
-            if (a) this.glowStatus(a.id, '#ffd66b');
-            break;
-          }
-          case 'job': row.classList.add('gold'); au.sfx('key'); break;
-          case 'learn': row.classList.add('good'); au.sfx('sparkle'); break;
-          case 'item': row.classList.add('good'); au.sfx('item'); break;
-          case 'gold': au.sfx('coin'); break;
-          default:
-        }
-        waitMark();
-      };
+      const moreT = setTimeout(() => { if (!finished) more.classList.add('on'); }, sheet.waitLeft(performance.now()));
       const advance = () => {
-        if (finished) return;
-        const step = pager.advance(performance.now());
-        if (!step) return;
-        if (step.close) return finish();
-        show(step);
+        if (finished || sheet.waitLeft(performance.now()) > 0) return;
+        // 入りきらない ときは まず 下へ（さいごまで 見てから とじる）
+        if (box.scrollTop + box.clientHeight < box.scrollHeight - 4) {
+          box.scrollTop += Math.max(40, box.clientHeight * 0.8);
+          return;
+        }
+        if (sheet.tap(performance.now())?.close) finish();
       };
       const h = { el: box, onNav: (a) => { if (a === 'a' || a === 'b') advance(); } };
       // がめんの どこを さわっても すすむ
@@ -1764,6 +1763,8 @@ export class BattleScene {
         if (finished) return;
         finished = true;
         clearTimeout(moreT);
+        // とじた あとに レベルアップの きょくが ならない ように
+        if (au.resumeTrack === 'levelup') au.resumeTrack = null;
         g.input.pop(h);
         this.root.removeEventListener('click', onTap);
         this.closeResult = null;
@@ -1771,7 +1772,6 @@ export class BattleScene {
       };
       // 画面が こわされた（つぎの たたかいが はじまった など）ときも とじる
       this.closeResult = finish;
-      advance();
     });
   }
 

@@ -5,15 +5,15 @@
 //   c.partyKeys  … いま いっしょに ぼうけんしている なかま（じゅんばん）。'fam:ID' は 家族の キャラ
 //   c.guests     … ものがたりで いっしょに いる ゲスト（ルカ など）
 // パーティーには リーダーの なかまが ついてくる（にんげんが ふえると、はいりきらない なかまは いったん まつ）
-import { newCharacter, computeStats, fullHeal, gainExp, gainJobBattles, migrateJobs, expForLevel, addItem, newMonsterCompanion, learnedAbilities, masteredJobs } from '../stats.js?v=d720b7bfa4a3';
-import { jobBattlesForLevel, JOBS } from '../data/jobs.js?v=d720b7bfa4a3';
-import { NPC_SUPPORTS, GUESTS } from '../data/shops.js?v=d720b7bfa4a3';
-import { MONSTERS } from '../data/monsters.js?v=d720b7bfa4a3';
-import { MONSTER_FRIENDS, ROSTER_MAX, COMPANION_SLOTS } from '../data/companions.js?v=d720b7bfa4a3';
-import { SLOTS, ITEMS } from '../data/items.js?v=d720b7bfa4a3';
-import { cleanWagon, hasWagon, WAGON_SLOTS } from '../data/wagon.js?v=d720b7bfa4a3';
-import { wagonState, wagonTavernInfo } from './wagon.js?v=d720b7bfa4a3';
-import { difficultyOf } from '../data/difficulty.js?v=d720b7bfa4a3';
+import { newCharacter, computeStats, fullHeal, gainExp, gainJobBattles, migrateJobs, expForLevel, addItem, newMonsterCompanion, learnedAbilities, masteredJobs } from '../stats.js?v=37d7bca100b3';
+import { jobBattlesForLevel, JOBS } from '../data/jobs.js?v=37d7bca100b3';
+import { NPC_SUPPORTS, GUESTS } from '../data/shops.js?v=37d7bca100b3';
+import { MONSTERS } from '../data/monsters.js?v=37d7bca100b3';
+import { MONSTER_FRIENDS, ROSTER_MAX, COMPANION_SLOTS } from '../data/companions.js?v=37d7bca100b3';
+import { SLOTS, ITEMS } from '../data/items.js?v=37d7bca100b3';
+import { cleanWagon, hasWagon, WAGON_SLOTS } from '../data/wagon.js?v=37d7bca100b3';
+import { wagonState, wagonTavernInfo } from './wagon.js?v=37d7bca100b3';
+import { difficultyOf } from '../data/difficulty.js?v=37d7bca100b3';
 
 // パーティーに 入れる 人（家族の プレイヤー）は 5人まで。いっしょに フィールドを 歩いて、いっしょに 戦う
 export const PARTY_MAX = 5;
@@ -144,8 +144,11 @@ export function syncParty(world, p) {
 }
 
 // ───────────── 酒場 ─────────────
-function npcStartLevel(c) {
-  return Math.max(1, c.level - 1);
+// 酒場で 新しく 仲間に なる 人は レベル1から（第31回。モンスターの 仲間と おなじ。今 いる 仲間の レベルは そのまま）
+export const TAVERN_JOIN_LEVEL = 1;
+// ものがたりで 仲間に なる 人（第1章の ルカ）は 主人公の 1つ下（すぐ いっしょに 戦うので 今までどおり）
+export function npcStartLevel(c, story = false) {
+  return story ? Math.max(1, c.level - 1) : TAVERN_JOIN_LEVEL;
 }
 
 function companionInfo(e, activeKeys, partyKeys) {
@@ -317,7 +320,8 @@ export function recruitNpc(world, s, npcId, opts = {}) {
   if (def.unlock && !c.flags[def.unlock] && !opts.force) return { ok: false, reason: 'まだ仲間にできません' };
   if (companionOf(c, npcId)) return { ok: false, reason: 'もう仲間です' };
   if (c.companions.length >= ROSTER_MAX) return { ok: false, reason: `仲間は${ROSTER_MAX}人までです` };
-  const ch = makeNpcSupportChar(def, npcStartLevel(c));
+  // opts.force … ものがたりで 仲間に なる（world/scripts.js の 'recruit'）
+  const ch = makeNpcSupportChar(def, npcStartLevel(c, !!opts.force));
   ch.id = `${c.id}:${def.id}`;
   c.companions.push({ key: def.id, kind: 'npc', char: ch });
   let joined = false, where = null, benchedName = '', stowed = [];
@@ -509,17 +513,11 @@ export function guestChar(world, id, heroLevel) {
 // ───────────── なかまの せいちょう ─────────────
 // たたかいに でた なかまだけが そだつ（酒場で まっている なかまは そだたない）
 // trainN: 職業の しゅぎょうに なった かず（てきが よわすぎると 0）
+// かえす もの: { ups, jups }（レベルと 職業レベルの 上がった ぶん。まとめの 文は world/growth.js）
 export function growCompanion(ch, exp, trainN = 0) {
-  const lines = [];
   const ups = gainExp(ch, exp);
-  for (const u of ups) {
-    lines.push(`${ch.name}のレベルが${u.level}に上がった！`);
-    for (const id of u.learned) lines.push({ learn: id, who: ch.name });
-  }
-  if (!ch.species && trainN > 0) {
-    for (const u of gainJobBattles(ch, trainN)) lines.push({ job: u });
-  }
-  return lines;
+  const jups = !ch.species && trainN > 0 ? gainJobBattles(ch, trainN) : [];
+  return { ups, jups };
 }
 
 // サポートで たたかった 家族キャラへの おれい

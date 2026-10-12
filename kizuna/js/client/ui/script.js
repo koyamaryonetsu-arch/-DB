@@ -1,10 +1,11 @@
 // だいほんの さいせい（メッセージ・えらぶ・えんしゅつ）
-import { el } from './dom.js?v=d720b7bfa4a3';
-import { ListMenu } from './dom.js?v=d720b7bfa4a3';
-import { openServiceUI } from './services.js?v=d720b7bfa4a3';
-import { monsterCanvas } from '../render/monsters.js?v=d720b7bfa4a3';
-import { npcSprite } from '../field.js?v=d720b7bfa4a3';
-import { reportError } from '../errlog.js?v=d720b7bfa4a3';
+import { el } from './dom.js?v=37d7bca100b3';
+import { paintRare } from './rarity.js?v=37d7bca100b3';
+import { ListMenu } from './dom.js?v=37d7bca100b3';
+import { openServiceUI } from './services.js?v=37d7bca100b3';
+import { monsterCanvas } from '../render/monsters.js?v=37d7bca100b3';
+import { npcSprite } from '../field.js?v=37d7bca100b3';
+import { reportError } from '../errlog.js?v=37d7bca100b3';
 
 const TYPE_MS = 28;
 
@@ -252,7 +253,7 @@ export class ScriptPlayer {
       let timer = null;
       const finishType = () => {
         clearInterval(timer);
-        this.dlgText.textContent = text;
+        paintRare(this.dlgText, text); // レア装備の 名前に 色と ★（ui/rarity.js）
         done = true;
         this.dlgMore.hidden = false;
         if (spectator) autoTimer = setTimeout(close, 1200 + chars.length * 45);
@@ -275,7 +276,7 @@ export class ScriptPlayer {
       g.input.push(h);
       timer = setInterval(() => {
         i += 1;
-        this.dlgText.textContent = chars.slice(0, i).join('');
+        paintRare(this.dlgText, chars.slice(0, i).join(''));
         if (i % 3 === 0 && chars[i - 1] !== ' ') g.audio.sfx('talk');
         if (i >= chars.length) finishType();
       }, TYPE_MS);

@@ -1,24 +1,26 @@
 // たたかいの はじまりと おわり（ほうしゅう・ぜんめつ）
-import { Battle, normBattleSettings } from '../battle.js?v=d720b7bfa4a3';
-import { scaleExp, difficultyOf, rewardExp, rewardGold } from '../data/difficulty.js?v=d720b7bfa4a3';
-import { POWDER, powderLeft } from '../data/friend-powder.js?v=d720b7bfa4a3';
-import { MONSTERS } from '../data/monsters.js?v=d720b7bfa4a3';
-import { ITEMS } from '../data/items.js?v=d720b7bfa4a3';
-import { ABILITIES } from '../data/abilities.js?v=d720b7bfa4a3';
-import { JOBS } from '../data/jobs.js?v=d720b7bfa4a3';
-import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=d720b7bfa4a3';
-import { gainExp, gainJobBattles, jobTrainMult, itemCount, removeItem, addItem, ownsItem, computeStats, STAT_NAMES, fullHeal } from '../stats.js?v=d720b7bfa4a3';
-import { JOB_MAX_LEVEL } from '../data/jobs.js?v=d720b7bfa4a3';
-import { befriendShare } from './recruit-share.js?v=d720b7bfa4a3';
-import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendChance, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf, PARTY_MAX } from './party.js?v=d720b7bfa4a3';
-import { rollDrops, stealPick } from '../data/loot.js?v=d720b7bfa4a3';
-import { MAPS } from '../maps/index.js?v=d720b7bfa4a3';
-import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js?v=d720b7bfa4a3';
-import { treasureAfterBattle } from './treasure.js?v=d720b7bfa4a3';
-import { wipeGoldLoss, bankGold } from './bank.js?v=d720b7bfa4a3';
-import { lureOn, lureGroup } from './field27.js?v=d720b7bfa4a3';
-import { wagonShare, wagonBattleSwap } from './wagon.js?v=d720b7bfa4a3';
-import { battleTactics } from './tactics.js?v=d720b7bfa4a3';
+import { Battle, normBattleSettings } from '../battle.js?v=37d7bca100b3';
+import { scaleExp, difficultyOf, rewardExp, rewardGold } from '../data/difficulty.js?v=37d7bca100b3';
+import { POWDER, powderLeft } from '../data/friend-powder.js?v=37d7bca100b3';
+import { MONSTERS } from '../data/monsters.js?v=37d7bca100b3';
+import { ITEMS } from '../data/items.js?v=37d7bca100b3';
+import { ABILITIES } from '../data/abilities.js?v=37d7bca100b3';
+import { JOBS } from '../data/jobs.js?v=37d7bca100b3';
+import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=37d7bca100b3';
+import { gainExp, gainJobBattles, jobTrainMult, itemCount, removeItem, addItem, ownsItem, computeStats, fullHeal } from '../stats.js?v=37d7bca100b3';
+import { JOB_MAX_LEVEL } from '../data/jobs.js?v=37d7bca100b3';
+import { befriendShare } from './recruit-share.js?v=37d7bca100b3';
+import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendChance, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf, PARTY_MAX } from './party.js?v=37d7bca100b3';
+import { rollDrops, stealPick } from '../data/loot.js?v=37d7bca100b3';
+import { MAPS } from '../maps/index.js?v=37d7bca100b3';
+import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js?v=37d7bca100b3';
+import { treasureAfterBattle } from './treasure.js?v=37d7bca100b3';
+import { wipeGoldLoss, bankGold } from './bank.js?v=37d7bca100b3';
+import { lureOn, lureGroup } from './field27.js?v=37d7bca100b3';
+import { wagonShare, wagonBattleSwap } from './wagon.js?v=37d7bca100b3';
+import { growthSummary } from './growth.js?v=37d7bca100b3';
+import { topLevel, battleTeamChars, expHatMult } from './perks.js?v=37d7bca100b3';
+import { battleTactics } from './tactics.js?v=37d7bca100b3';
 
 let battleSeq = 1;
 
@@ -381,56 +383,57 @@ function finishBattle(world, ctx) {
     const oneBlow = (b.allyActs || 0) <= 1;
     const trainN = (b.boss ? 3 : 1) * jobTrainMult(oneBlow);
     const leaderName = sessions[0]?.char.name || '';
+    // しあわせのぼうし: その 戦いの パーティー（馬車も ふくむ）で いちばん レベルが 高い 人には 効かない（world/perks.js）
+    // （レベルが 上がる 前に きめる）
+    const top = topLevel(battleTeamChars(world, ctx));
+    const hat = (ch) => expHatMult(ch, top);
+    // レベルアップの まとめ（world/growth.js）: 人ごとの 行・★の 知らせ
+    const own = {};
     for (const m of sessions) {
       const c = m.char;
       // ゲームの むずかしさ（設定）で 経験値が へる（difficulty.js）
-      const myExp = scaleExp(c, exp);
+      const hm = hat(c);
+      const myExp = scaleExp(c, exp) * hm;
       const lines = [];
       lines.push(res.killed.length ? '魔物たちをやっつけた！' : '戦いに勝った！');
-      if (myExp > 0) lines.push(`${c.name}は${myExp}ポイントの経験値をかくとく！`);
+      if (myExp > 0) lines.push(`${c.name}は${myExp}ポイントの経験値をかくとく！${hm > 1 ? '（しあわせのぼうしで2倍）' : ''}`);
       if (gold > 0) lines.push(`${gold}ゴールドを手に入れた！`);
       c.gold = Math.min(9999999, c.gold + gold);
       for (const sp of res.killed) c.kills[sp] = (c.kills[sp] || 0) + 1;
       // ドロップ（1体から 1つまで。ボスは かならず。loot.js）
       const drops = [];
       for (const sp of res.killed) {
-        for (const id of rollDrops(sp, world.rng)) {
+        for (const id of rollDrops(sp, world.rng, { map: ctx.map })) {
           if (ITEMS[id].unique && ownsItem(c, id)) continue; // ボスの 品は 1人 1つ
           addItem(c, id, 1);
           noteDrop(c, sp, id);
           drops.push(id);
-          lines.push(`${MONSTERS[sp].name}は${ITEMS[id].name}を持っていた！`, `${c.name}は${ITEMS[id].name}を手に入れた！`);
+          // 1つ 1行（第31回: 「手に入れた！」の 行は はぶく。けっかの まどで 緑の 字）
+          lines.push(`${MONSTERS[sp].name}は${ITEMS[id].name}を持っていた！`);
         }
       }
       const ups = gainExp(c, myExp);
-      for (const u of ups) {
-        lines.push(`${c.name}のレベルが${u.level}に上がった！`);
-        const g = Object.entries(u.gains).map(([k, v]) => `${statShort(k)}+${v}`).join('　');
-        if (g) lines.push(g);
-        for (const id of u.learned) lines.push(learnLine(c, id));
-      }
       let jups = [];
       if (JOBS[c.job] && (c.jobs[c.job]?.lv || 1) < JOB_MAX_LEVEL) {
         jups = gainJobBattles(c, trainN);
-        if (oneBlow) lines.push('（一撃で終わったので、職業の修行は半分しか進まなかった）');
+        if (oneBlow) lines.push('（一撃で終わったので、職業の修行は半分）');
       }
-      for (const u of jups) lines.push(...jobUpLines(c, u));
+      own[m.id] = growthSummary(c.name, ups, jups);
       perSession[m.id] = { lines, levelUp: ups.length > 0, jobUp: jups.length > 0, drops };
     }
     // なかま: たたかいに でた なかまだけ そだつ。家族の キャラには おれいが とどく
-    const compLines = [];
+    const compRows = [], compNotes = [], expLines = [];
     const grow = (ch, x, trains) => {
-      for (const l of growCompanion(ch, x, trains)) {
-        if (typeof l === 'string') compLines.push(l);
-        else if (l.learn) compLines.push(learnLine({ name: l.who }, l.learn));
-        else if (l.job) compLines.push(...jobUpLines(ch, l.job));
-      }
+      const { ups, jups } = growCompanion(ch, x * hat(ch), trains);
+      const g = growthSummary(ch.name, ups, jups);
+      compRows.push(...g.lines);
+      compNotes.push(...g.notes);
     };
     for (const a of b.allies) {
       const who = ctx.actorMap[a.id];
       if (who?.type !== 'support' || !who.char) continue;
       if (who.kind === 'family') {
-        if (who.char.ownerId) creditSupportOwner(world, who.char.ownerId, scaleExp(world.data.characters[who.char.ownerId], exp), gold, leaderName);
+        if (who.char.ownerId) creditSupportOwner(world, who.char.ownerId, scaleExp(world.data.characters[who.char.ownerId], exp) * hat(who.char), gold, leaderName);
         continue;
       }
       const trains = !who.char.species ? trainN : 0;
@@ -438,8 +441,17 @@ function finishBattle(world, ctx) {
       grow(who.char, scaleExp(world.data.characters[who.owner], exp), trains);
     }
     // 馬車の 仲間（フィールドは 同じ・洞窟などは 半分。world/wagon.js）
-    wagonShare(world, ctx, { exp, trainN, grow, say: (l) => compLines.push(l) });
-    if (compLines.length) for (const m of sessions) perSession[m.id].lines.push(...compLines);
+    wagonShare(world, ctx, { exp, trainN, grow, mult: hat, say: (l) => expLines.push(l) });
+    // 1画面に まとめる: 経験値・お金・ドロップ → レベルアップ（自分 → いっしょに 戦った 家族 → 仲間・馬車）→ ★の 知らせ
+    for (const m of sessions) {
+      const L = perSession[m.id].lines;
+      L.push(...expLines);
+      const rows = [...own[m.id].lines];
+      for (const o of sessions) if (o !== m) rows.push(...own[o.id].lines);
+      rows.push(...compRows);
+      L.push(...rows, ...own[m.id].notes, ...compNotes);
+      perSession[m.id].levelUp = rows.length > 0;
+    }
     // まものが なかまに なりたがる（ふつうの たたかい だけ。ひみつのダンジョンの 中では ならない: map.noBefriend）
     if (!ctx.resolve && !b.boss && res.killed.length && !MAPS[ctx.map]?.noBefriend) {
       const target = sessions.find((m) => m.id === party?.leader) || sessions[0];
@@ -532,26 +544,3 @@ function finishBattle(world, ctx) {
   if (befriend && world.sessions.has(befriend.s.id) && !befriend.s.away) world.offerBefriend(befriend.s, befriend.species, befriend.level, befriend.share);
 }
 
-// 職業レベルが あがった ときの メッセージ
-function jobUpLines(c, u) {
-  const out = [`${c.name}の${JOBS[u.job].name}の職業レベルが${u.lv}に上がった！`];
-  const g = Object.entries(u.gains || {}).map(([k, v]) => `${statShort(k)}+${v}`).join('　');
-  if (g) out.push(g);
-  out.push(`${JOBS[u.job].name}の技の威力が上がった！`);
-  if (u.lv >= JOB_MAX_LEVEL) out.push(`${c.name}は${JOBS[u.job].name}をマスターした！`);
-  for (const id of u.learned) out.push(learnLine(c, id));
-  for (const id of u.unlocked || []) out.push(`★ ${c.name}は${JOBS[id].name}になれるようになった！（ルミナの町の神殿で転職できる）`);
-  for (const id of u.hinted || []) out.push(`☆ 新しい職業「${JOBS[id].name}」のヒントを見つけた！（神殿で見られる）`);
-  return out;
-}
-
-function statShort(k) {
-  return { maxHp: 'HP', maxMp: 'MP', str: '力', def: '守り', agi: '素早さ', mag: '魔力', heal: '回復' }[k] || STAT_NAMES[k] || k;
-}
-
-function learnLine(c, id) {
-  const a = ABILITIES[id];
-  if (!a) return '';
-  if (a.kind === 'combo') return `${c.name}は掛け合わせ技「${a.name}」をひらめいた！`;
-  return `${c.name}は${a.name}を覚えた！`;
-}

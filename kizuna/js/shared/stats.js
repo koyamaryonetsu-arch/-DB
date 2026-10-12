@@ -1,12 +1,12 @@
 // キャラクターの つよさ計算・レベルアップ・転職ペナルティ
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_EASY_RATE, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets, jobBodyOk, superMasteredCount } from './data/jobs.js?v=d720b7bfa4a3';
-import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=d720b7bfa4a3';
-import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=d720b7bfa4a3';
-import { MONSTERS } from './data/monsters.js?v=d720b7bfa4a3';
-import { MONSTER_FRIENDS, monsterNatural, gearOf } from './data/companions.js?v=d720b7bfa4a3';
-import { HIRAMEKI, hiraRatio } from './data/hirameki.js?v=d720b7bfa4a3';
-import { cleanLook } from './data/looks.js?v=d720b7bfa4a3';
-import { SKILL_UPS } from './data/skill-ups.js?v=d720b7bfa4a3';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_EASY_RATE, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets, jobBodyOk, superMasteredCount } from './data/jobs.js?v=37d7bca100b3';
+import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=37d7bca100b3';
+import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=37d7bca100b3';
+import { MONSTERS } from './data/monsters.js?v=37d7bca100b3';
+import { MONSTER_FRIENDS, monsterNatural, gearOf } from './data/companions.js?v=37d7bca100b3';
+import { HIRAMEKI, hiraRatio } from './data/hirameki.js?v=37d7bca100b3';
+import { cleanLook } from './data/looks.js?v=37d7bca100b3';
+import { SKILL_UPS } from './data/skill-ups.js?v=37d7bca100b3';
 
 // 長い 物語に なるので レベルは 99まで（レベルで ふえる つよさは ひかえめ）
 export const MAX_LEVEL = 99;
@@ -71,6 +71,7 @@ function equipBonus(char) {
   const resist = {};
   let weaponCat = 'none';
   let onHit = null;
+  let crit = 0, mpRegen = 0;
   for (const slot of SLOTS) {
     const id = char.equip?.[slot];
     if (!id) continue;
@@ -85,8 +86,11 @@ function equipBonus(char) {
     }
     if (it.bonus) for (const [k, v] of Object.entries(it.bonus)) out[k] = (out[k] || 0) + v;
     if (it.resist) for (const [k, v] of Object.entries(it.resist)) resist[k] = (resist[k] ?? 1) * v;
+    // 第31回: 会心の 出やすさ・行動ごとの MP回復（レア装備。shared/battle.js）
+    if (it.crit) crit += it.crit;
+    if (it.mpRegen) mpRegen += it.mpRegen;
   }
-  return { out, resist, weaponCat, onHit };
+  return { out, resist, weaponCat, onHit, crit, mpRegen };
 }
 
 // キャラクターの いまの つよさ
@@ -126,6 +130,8 @@ export function computeStats(char) {
   // 職業の たいせい（ゴム人間・ニカは 雷が 効かない）
   for (const [k, v] of Object.entries(JOBS[char.job]?.passive?.resist || {})) r.resist[k] = (r.resist[k] ?? 1) * v;
   r.onHit = eq.onHit;
+  r.crit = eq.crit;
+  r.mpRegen = eq.mpRegen;
   return r;
 }
 
@@ -161,6 +167,8 @@ function monsterCompanionStats(char) {
   r.resist = res;
   // 毒のナイフ など（武器の おまけ）
   r.onHit = eq.onHit;
+  r.crit = eq.crit;
+  r.mpRegen = eq.mpRegen;
   return r;
 }
 

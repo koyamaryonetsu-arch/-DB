@@ -16,11 +16,12 @@
 //            （前の 版の セーブは、best までの 休み所を 記録した ことに する。repairSecret）
 //     got  … 大きな ごほうびを もらった 休み所の 階 [5, 10, …] / tries … ちょうせんした 回数
 //     run  … 今の ちょうせん { f: 今の 階, mid: とちゅうから 来た（さそわれて 来た など。記録に ならない）, took: ごほうびを 開けた 階 }
-import { MONSTERS } from './monsters.js?v=d720b7bfa4a3';
-import { ITEMS, SLOTS } from './items.js?v=d720b7bfa4a3';
-import { ENCOUNTER_TABLES, ZONE_BG, FIXED_ENCOUNTERS } from './encounters.js?v=d720b7bfa4a3';
-import { makeRng } from '../rng.js?v=d720b7bfa4a3';
-import { rewardGold } from './difficulty.js?v=d720b7bfa4a3';
+import { MONSTERS } from './monsters.js?v=37d7bca100b3';
+import { ITEMS, SLOTS } from './items.js?v=37d7bca100b3';
+import { ENCOUNTER_TABLES, ZONE_BG, FIXED_ENCOUNTERS } from './encounters.js?v=37d7bca100b3';
+import { makeRng } from '../rng.js?v=37d7bca100b3';
+import { rewardGold } from './difficulty.js?v=37d7bca100b3';
+import { pickSdGear, SD_GEAR_FROM } from './rare-loot.js?v=37d7bca100b3';
 
 export const SD_GATE = 'sd_gate';
 export const SD_NAME = 'ひみつのダンジョン';
@@ -148,7 +149,7 @@ const SEEDS = ['seed_str', 'seed_def', 'seed_agi', 'seed_mag', 'seed_hp'];
 let equipCache = null;
 function equipPools() {
   if (equipCache) return equipCache;
-  const all = Object.entries(ITEMS).filter(([id, it]) => SLOTS.includes(it.type) && !it.unique && it.rank && !id.includes('+'));
+  const all = Object.entries(ITEMS).filter(([id, it]) => SLOTS.includes(it.type) && !it.unique && it.rank && !id.includes('+') && !it.src);
   equipCache = {
     shop: (rank) => all.filter(([, it]) => !it.star && it.price > 0 && it.rank === rank).map(([id]) => id).sort(),
     star: (rank) => all.filter(([, it]) => it.star && it.rank <= rank && it.rank >= rank - 2).map(([id]) => id).sort(),
@@ -175,6 +176,11 @@ export function sdBigReward(f) {
     if (list.length) out.push({ item: r.pick(list), n: 1 });
   }
   if (f >= 50 && f % 10 === 0) out.push({ item: 'revive_flower', n: 2 });
+  // 第31回: 20階からの 休み所は、ここでしか 手に入らない ★4〜★5 の 装備（深いほど 強い。data/rare-loot.js）
+  if (f >= SD_GEAR_FROM) {
+    const id = pickSdGear(r, f);
+    if (id) out.push({ item: id, n: 1 });
+  }
   return out;
 }
 
@@ -187,11 +193,14 @@ export function sdSmallReward(f, rng) {
     { k: 'seed', w: 1 + Math.floor(f / 25) },
     { k: 'revive_flower', w: f >= 10 ? 2 : 0 },
     { k: 'star_shard', w: f >= 15 ? 1 : 0 },
+    // 第31回: 30階からは ★4〜★5 の 装備も まれに
+    { k: 'sdgear', w: f >= 30 ? 1 : 0 },
   ].filter((x) => x.w > 0);
   const k = rng.weighted(list).k;
   if (k === 'gold') return { gold: rewardGold(Math.min(20000, 20 * f)) };
   if (k === 'herb') return { item: 'herb', n: 3 };
   if (k === 'seed') return { item: rng.pick(SEEDS), n: 1 };
+  if (k === 'sdgear') return { item: pickSdGear(rng, f) || 'revive_flower', n: 1 };
   return { item: k, n: 1 };
 }
 

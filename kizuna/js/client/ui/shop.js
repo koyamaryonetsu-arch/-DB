@@ -5,11 +5,12 @@
 //         → 装備品なら「ここで装備していきますか？」→「どなたが装備しますか？」→「今までの〇〇は引き取りましょうか？」
 //   売る: 品物を えらぶ → いくつ？ →「〇〇ゴールドで引き取りましょう。よろしいですか？」はい／いいえ
 // 教会:  おいのりをする／生き返らせる／毒を治す／やめる（寄付の かくにん つき）
-import { esc } from './dom.js?v=d720b7bfa4a3';
-import { Counter, EQUIP_TYPES, compareTeam, itemInfo, whoItems } from './counter.js?v=d720b7bfa4a3';
-import { ITEMS, sellPrice } from '../../shared/data/items.js?v=d720b7bfa4a3';
-import { itemCount } from '../../shared/stats.js?v=d720b7bfa4a3';
-import { boardIconURL } from '../render/boards.js?v=d720b7bfa4a3';
+import { esc } from './dom.js?v=37d7bca100b3';
+import { rareNameHtml } from './rarity.js?v=37d7bca100b3';
+import { Counter, EQUIP_TYPES, compareTeam, itemInfo, whoItems } from './counter.js?v=37d7bca100b3';
+import { ITEMS, sellPrice } from '../../shared/data/items.js?v=37d7bca100b3';
+import { itemCount } from '../../shared/stats.js?v=37d7bca100b3';
+import { boardIconURL } from '../render/boards.js?v=37d7bca100b3';
 
 // サーバーの へんじを まつ
 export function request(game, msg) {
@@ -156,7 +157,7 @@ async function sellLoop(game, ct) {
     const rows = bag.map((e) => ({
       value: e.id,
       label: ITEMS[e.id].name,
-      html: `${esc(ITEMS[e.id].name)}${ITEMS[e.id].type === 'mat' ? '<span class="tag mat">素材</span>' : ''}<span class="cnt">×${e.n}</span>`,
+      html: `${rareNameHtml(e.id)}${ITEMS[e.id].type === 'mat' ? '<span class="tag mat">素材</span>' : ''}<span class="cnt">×${e.n}</span>`,
       right: sellPrice(e.id) > 0 ? `${sellPrice(e.id)}G` : '―',
       rightCls: 'gold',
       disabled: sellPrice(e.id) <= 0,

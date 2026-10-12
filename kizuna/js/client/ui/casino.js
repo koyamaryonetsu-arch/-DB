@@ -1,17 +1,17 @@
 // カジノ（コイン売り場・スロット・ポーカー・景品コーナー）と メダル王の まど
 //   乱数と コインの 計算は サーバー（shared/world/casino.js）。ここは 見せるだけ
 //   キーボード: ←→↑↓ で えらぶ・Z/Enter で 決定・X/Esc で もどる。スマホは ボタンや カードを タップ
-import { el } from './dom.js?v=d720b7bfa4a3';
-import { Counter, itemInfo } from './counter.js?v=d720b7bfa4a3';
-import { request } from './shop.js?v=d720b7bfa4a3';
-import { boardIconURL } from '../render/boards.js?v=d720b7bfa4a3';
-import { symbolCanvas, symbolURL, cardCanvas, iconURL, CARD_SIZE } from '../render/casino.js?v=d720b7bfa4a3';
-import { ITEMS } from '../../shared/data/items.js?v=d720b7bfa4a3';
-import { itemCount } from '../../shared/stats.js?v=d720b7bfa4a3';
+import { el } from './dom.js?v=37d7bca100b3';
+import { Counter, itemInfo } from './counter.js?v=37d7bca100b3';
+import { request } from './shop.js?v=37d7bca100b3';
+import { boardIconURL } from '../render/boards.js?v=37d7bca100b3';
+import { symbolCanvas, symbolURL, cardCanvas, iconURL, CARD_SIZE } from '../render/casino.js?v=37d7bca100b3';
+import { ITEMS } from '../../shared/data/items.js?v=37d7bca100b3';
+import { itemCount } from '../../shared/stats.js?v=37d7bca100b3';
 import {
   REELS, SLOT_PAYS, SLOT_BETS, POKER_PAY_HANDS, POKER_BETS, pokerSuggest, cardName, coinsOf,
   medalsHeld, medalsGiven, COIN_PRICE,
-} from '../../shared/data/casino.js?v=d720b7bfa4a3';
+} from '../../shared/data/casino.js?v=37d7bca100b3';
 
 export function casinoUI(game, kind, data) {
   ensureStyle();
@@ -238,13 +238,15 @@ async function medalKingUI(game, data) {
       continue;
     }
     const n = held();
-    if (!n) {
+    // もう わたした 数で もらえる ごほうびが 残っている（あとから ふえた ごほうび）
+    const pend = (info.rewards || []).some((x) => !x.got && x.at <= (info.given ?? medalsGiven(game.me)));
+    if (!n && !pend) {
       await ct.say('おや、小さなメダルを持っておらんようじゃな。\nつぼやたる、井戸の中などを調べて探してみるのじゃ。');
       await ct.tap(2200);
       line = 'ほかに何か用かな？';
       continue;
     }
-    const yes = await ct.ask(`小さなメダルを${n}枚、わしにわたしてくれるかな？`);
+    const yes = n ? await ct.ask(`小さなメダルを${n}枚、わしにわたしてくれるかな？`) : 0;
     if (ct.closed) break;
     if (yes !== 0) {
       line = 'そうか。気が向いたら、いつでも持ってくるがよい。';
@@ -259,10 +261,15 @@ async function medalKingUI(game, data) {
       line = 'ほかに何か用かな？';
       continue;
     }
-    game.audio.sfx('coin');
     ct.info(medalSummary(game, info));
-    await ct.say(`${r.gave}枚のメダル、たしかにうけとったぞ！\nこれで、わしにわたしたメダルは全部で${r.total}枚じゃな。`);
-    await ct.tap(2400);
+    if (r.gave) {
+      game.audio.sfx('coin');
+      await ct.say(`${r.gave}枚のメダル、たしかにうけとったぞ！\nこれで、わしにわたしたメダルは全部で${r.total}枚じゃな。`);
+      await ct.tap(2400);
+    } else {
+      await ct.say(`おお、そなたにはまだ、わたしていないほうびがあったのじゃ！`);
+      await ct.tap(1800);
+    }
     for (const g of r.got || []) {
       game.audio.play('jackpot');
       await ct.say(`${g.at}枚のほうびとして、これをとらせよう！`);

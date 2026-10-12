@@ -6,11 +6,12 @@
 //
 // 洞窟の マップ ID: tm_<seed36>_<lv>_<o|s><x>x<y>_<階>（たとえば tm_k3f9a2_3_o120x45_2）
 //   ID だけで 洞窟が つくれる（サーバーと 画面で おなじ 形。とちゅうで ログインしなおしても おなじ 洞窟）
-import { MONSTERS } from './monsters.js?v=d720b7bfa4a3';
-import { ITEMS, SLOTS } from './items.js?v=d720b7bfa4a3';
-import { ENCOUNTER_TABLES, ZONE_BG } from './encounters.js?v=d720b7bfa4a3';
-import { makeRng } from '../rng.js?v=d720b7bfa4a3';
-import { REWARD_GOLD_RATE } from './difficulty.js?v=d720b7bfa4a3';
+import { MONSTERS } from './monsters.js?v=37d7bca100b3';
+import { ITEMS, SLOTS } from './items.js?v=37d7bca100b3';
+import { ENCOUNTER_TABLES, ZONE_BG } from './encounters.js?v=37d7bca100b3';
+import { makeRng } from '../rng.js?v=37d7bca100b3';
+import { REWARD_GOLD_RATE } from './difficulty.js?v=37d7bca100b3';
+import { tmGearRank, pickTmGear, luckyShoesRate, LUCKY_SHOES } from './rare-loot.js?v=37d7bca100b3';
 
 export const TM_MAX = 20; // 持てる 地図の 数
 export const TM_LV_MAX = 12; // 地図の レベルの 上限
@@ -164,17 +165,18 @@ export function scaledRewardBonus(battle) {
 }
 
 // ───────────── 宝箱の なかみ ─────────────
-// 装備の ランクは 地図の レベルで（いまの 物語の 店より 強すぎない）
+// 第31回: 地図の 名前（大地・氷・炎 …）に ちなんだ レア装備（data/rare-loot.js）。地図の レベルが 高いほど ランクと レア度が 上がる
+//   ふつうの 宝箱 … レア装備 6〜13%（★2〜★4）・店の 装備 15% ほか / 主の 宝箱（bossA）… 75% レア装備（★3・★4 が 出やすい）、こうふくの靴が まれに
+// 店の 装備の ランク（地図 Lv1〜3 は 3・Lv12 で 7）
 export function equipRankOf(lv) {
-  return lv <= 3 ? 3 : 4;
+  return clamp(tmGearRank(lv) - 1, 3, 7);
 }
 let equipCache = null;
 function equipPools() {
   if (equipCache) return equipCache;
-  const all = Object.entries(ITEMS).filter(([, it]) => SLOTS.includes(it.type) && !it.unique && it.rank);
+  const all = Object.entries(ITEMS).filter(([, it]) => SLOTS.includes(it.type) && !it.unique && it.rank && !it.base);
   equipCache = {
-    shop: (rank) => all.filter(([, it]) => !it.star && it.price > 0 && it.rank >= rank - 1 && it.rank <= rank).map(([id]) => id),
-    star: (rank) => all.filter(([, it]) => it.star && it.rank <= rank).map(([id]) => id),
+    shop: (rank) => all.filter(([, it]) => !it.star && !it.rarity && it.price > 0 && it.rank >= rank - 1 && it.rank <= rank).map(([id]) => id),
   };
   return equipCache;
 }
@@ -186,18 +188,21 @@ const CONSUMABLES = [
 const SEEDS = ['seed_str', 'seed_def', 'seed_agi', 'seed_mag', 'seed_hp'];
 
 // rng … 宝箱ごとに きまった 乱数（洞窟の seed から）/ kind: 'normal' | 'bossA' | 'bossB'
-export function chestLoot(rng, lv, kind = 'normal') {
+// cave … { theme, word }（caveInfo。宝箱の レア装備を 地図の 名前に ちなませる）
+export function chestLoot(rng, lv, kind = 'normal', cave = null) {
   const pools = equipPools();
   const rank = equipRankOf(lv);
   const rare = () => {
-    const list = pools.star(rank);
-    return list.length ? { item: rng.pick(list) } : { item: 'revive_flower' };
+    const shoes = luckyShoesRate(lv, kind);
+    if (shoes > 0 && rng.chance(shoes)) return { item: LUCKY_SHOES };
+    const id = pickTmGear(rng, lv, cave, kind);
+    return id ? { item: id } : { item: 'revive_flower' };
   };
   const equip = () => {
     const list = pools.shop(rank);
     return list.length ? { item: rng.pick(list) } : { gold: 100 };
   };
-  if (kind === 'bossA') return rng.chance(0.3) ? rare() : equip();
+  if (kind === 'bossA') return rng.chance(0.75) ? rare() : equip();
   if (kind === 'bossB') {
     const r = rng.next();
     if (r < 0.45) return { gold: Math.round((400 + lv * 220) * rng.float(0.9, 1.2) * REWARD_GOLD_RATE / 10) * 10 };
@@ -205,11 +210,11 @@ export function chestLoot(rng, lv, kind = 'normal') {
     return { item: rng.pick(['revive_flower', 'magic_water']), n: 2 };
   }
   const r = rng.next();
-  const rareP = 0.03 + lv * 0.004;
+  const rareP = 0.06 + lv * 0.006;
   if (r < rareP) return rare();
-  if (r < rareP + 0.2) return equip();
-  if (r < rareP + 0.33) return { item: rng.pick(SEEDS) };
-  if (r < rareP + 0.62) return { gold: Math.round((50 + lv * 40) * rng.float(0.7, 1.4) * REWARD_GOLD_RATE / 10) * 10 };
+  if (r < rareP + 0.15) return equip();
+  if (r < rareP + 0.28) return { item: rng.pick(SEEDS) };
+  if (r < rareP + 0.57) return { gold: Math.round((50 + lv * 40) * rng.float(0.7, 1.4) * REWARD_GOLD_RATE / 10) * 10 };
   const list = CONSUMABLES.filter(([, , a, b]) => lv >= a && lv <= b).map(([id, w]) => ({ id, w }));
   const id = rng.weighted(list).id;
   return { item: id, n: id === 'herb' ? 3 : 1 };

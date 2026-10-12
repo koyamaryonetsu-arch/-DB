@@ -1,8 +1,8 @@
 // ぶき・たて・かぶと（そうびの ID から みためを きめて かく）
 // 知らない 品（これからの もの）は、種類・ランク・名前の ことば から きめる
-import { mat, ramp, TH, mixC, mixI, hex, HeroCanvas } from './hero-raster.js?v=d720b7bfa4a3';
-import { metal, metalRamp, cloth, leather, gem, glow, neon, metalOfName, baseItem, fruitIcon, ownArmor } from './hero-outfit.js?v=d720b7bfa4a3';
-import { R26_HAT, R26_BODY_HAT, drawHat26 } from './hero-r26.js?v=d720b7bfa4a3';
+import { mat, ramp, TH, mixC, mixI, hex, HeroCanvas } from './hero-raster.js?v=37d7bca100b3';
+import { metal, metalRamp, cloth, leather, gem, glow, neon, metalOfName, baseItem, fruitIcon, ownArmor } from './hero-outfit.js?v=37d7bca100b3';
+import { R26_HAT, R26_BODY_HAT, drawHat26 } from './hero-r26.js?v=37d7bca100b3';
 
 const D = Math.PI / 180;
 
@@ -18,6 +18,11 @@ const WEAPON_LOOK = {
   katana: { shape: 'katana', mk: 'steel', len: 14.4 },
   // 第29回: るろうに剣士の 逆ば刀（かたなの かたち）
   sakabatou: { shape: 'katana', mk: 'steel', len: 14.0 },
+  // 第31回の レア装備の 刀（今ある 刀の かたちを 使う）
+  master_sakabatou: { shape: 'katana', mk: 'silver', len: 14.2 },
+  winter_katana: { shape: 'katana', mk: 'silver', len: 14.6, blade: '#bfeaff', fx: 'ice' },
+  muramasa: { shape: 'katana', mk: 'steel', len: 14.6, blade: '#e6b0ff', fx: 'dark' },
+  masamune: { shape: 'katana', mk: 'silver', len: 14.8, fx: 'holy' },
   stone_axe: { shape: 'stone', len: 11.6 },
   iron_axe: { shape: 'axe', mk: 'iron', len: 12.6 },
   pirate_axe: { shape: 'pirate', mk: 'iron', len: 13.4, wrap: '#c83a3a' },
@@ -1265,6 +1270,8 @@ const HEAD_LOOK = {
   turban: { kind: 'bandana', c: '#f4f0e6', hides: 'top' },
   // 麦わらぼうし（赤い リボン）
   straw_hat: { kind: 'straw', c: '#ecc86c', band: '#d42c28', hides: 'top' },
+  // 第31回: しあわせのぼうし（ピンクの 羽の ぼうし）
+  shiawase_boushi: { kind: 'feather', c: '#f07aa8', hides: 'top' },
 };
 // 布の服の ときの しょくぎょうの ぼうし
 const JOB_HAT = {
