@@ -4,9 +4,9 @@
 //   ・ふつうの 魔物 … その地方に 合った 装備を まれに（REGION_RARE_N 回に 1回。loot.js）
 //   ・ひみつのダンジョン … ここだけの ★4〜★5（深いほど 強い。20階から。休み所の ごほうび・魔物・番人。data/secret.js・loot.js）
 //   ・店の 品は レア度なし（0）
-import { ITEMS, baseItemId } from './items.js?v=98e104bf307c';
-import { MONSTERS } from './monsters.js?v=98e104bf307c';
-import { RARITY_OVERRIDE, defaultRarity } from './items-rare.js?v=98e104bf307c';
+import { ITEMS, baseItemId } from './items.js?v=bbefc48d5022';
+import { MONSTERS } from './monsters.js?v=bbefc48d5022';
+import { RARITY_OVERRIDE, defaultRarity } from './items-rare.js?v=bbefc48d5022';
 
 export const RARITY_MAX = 5;
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));

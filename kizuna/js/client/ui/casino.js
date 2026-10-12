@@ -1,17 +1,17 @@
 // カジノ（コイン売り場・スロット・ポーカー・景品コーナー）と メダル王の まど
 //   乱数と コインの 計算は サーバー（shared/world/casino.js）。ここは 見せるだけ
 //   キーボード: ←→↑↓ で えらぶ・Z/Enter で 決定・X/Esc で もどる。スマホは ボタンや カードを タップ
-import { el } from './dom.js?v=98e104bf307c';
-import { Counter, itemInfo } from './counter.js?v=98e104bf307c';
-import { request } from './shop.js?v=98e104bf307c';
-import { boardIconURL } from '../render/boards.js?v=98e104bf307c';
-import { symbolCanvas, symbolURL, cardCanvas, iconURL, CARD_SIZE } from '../render/casino.js?v=98e104bf307c';
-import { ITEMS } from '../../shared/data/items.js?v=98e104bf307c';
-import { itemCount } from '../../shared/stats.js?v=98e104bf307c';
+import { el } from './dom.js?v=bbefc48d5022';
+import { Counter, itemInfo } from './counter.js?v=bbefc48d5022';
+import { request } from './shop.js?v=bbefc48d5022';
+import { boardIconURL } from '../render/boards.js?v=bbefc48d5022';
+import { symbolCanvas, symbolURL, cardCanvas, iconURL, CARD_SIZE } from '../render/casino.js?v=bbefc48d5022';
+import { ITEMS } from '../../shared/data/items.js?v=bbefc48d5022';
+import { itemCount } from '../../shared/stats.js?v=bbefc48d5022';
 import {
   REELS, SLOT_PAYS, SLOT_BETS, POKER_PAY_HANDS, POKER_BETS, pokerSuggest, cardName, coinsOf,
   medalsHeld, medalsGiven, COIN_PRICE,
-} from '../../shared/data/casino.js?v=98e104bf307c';
+} from '../../shared/data/casino.js?v=bbefc48d5022';
 
 export function casinoUI(game, kind, data) {
   ensureStyle();
@@ -167,7 +167,7 @@ async function coinsUI(game, data) {
 async function prizesUI(game, data) {
   const ct = new CasinoCounter(game, { title: '景品コーナー', keeper: '景品係', icon: boardIconURL('casino'), purse: 'coins' });
   const AGAIN = 'ほかにも何かこうかんしますか？';
-  let line = 'いらっしゃいませ！\nコインを、すてきな景品とこうかんいたします。';
+  let line = `いらっしゃいませ！\nコインを、すてきな景品とこうかんいたします。${data.more ? '\n（お話が進むと、景品がふえますよ）' : ''}`;
   let idx = 0;
   while (!ct.closed) {
     await ct.say(line);

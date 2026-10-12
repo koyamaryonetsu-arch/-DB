@@ -1,8 +1,8 @@
 // ぶき・たて・かぶと（そうびの ID から みためを きめて かく）
 // 知らない 品（これからの もの）は、種類・ランク・名前の ことば から きめる
-import { mat, ramp, TH, mixC, mixI, hex, HeroCanvas } from './hero-raster.js?v=98e104bf307c';
-import { metal, metalRamp, cloth, leather, gem, glow, neon, metalOfName, baseItem, fruitIcon, ownArmor } from './hero-outfit.js?v=98e104bf307c';
-import { R26_HAT, R26_BODY_HAT, drawHat26 } from './hero-r26.js?v=98e104bf307c';
+import { mat, ramp, TH, mixC, mixI, hex, HeroCanvas } from './hero-raster.js?v=bbefc48d5022';
+import { metal, metalRamp, cloth, leather, gem, glow, neon, metalOfName, baseItem, fruitIcon, ownArmor } from './hero-outfit.js?v=bbefc48d5022';
+import { R26_HAT, R26_BODY_HAT, drawHat26 } from './hero-r26.js?v=bbefc48d5022';
 
 const D = Math.PI / 180;
 
