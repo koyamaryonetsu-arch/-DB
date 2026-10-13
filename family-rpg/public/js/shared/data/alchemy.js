@@ -21,6 +21,11 @@ export const TIER_FLAG = { 1: null, 2: null, 3: 'c3_start', 4: 'c4_start', 5: 'c
 // 同じ 武具を 2つ 入れる（きたえる 回数を ふやす）レシピの ID（はじめから 知っている）
 export const MERGE_RECIPE = 'r_merge';
 
+// 第33回: れん金術師の 系統（れん金術師・国家れん金術師・はがねのれん金術師）に 今 ついている 人が
+// パーティーに いると、できあがるまでの 歩数が 半分（1歩で 2歩ぶん 進む。world/alchemy.js の potRate）
+export const POT_FAST_JOBS = ['alchemist', 'state_alchemist', 'fullmetal'];
+export const POT_FAST_RATE = 2;
+
 // できあがるまでの 歩数（道具・素材 30・★2までの 装備 40・★3 50・★4 60・同じ 武具 40）
 export function potSteps(out, merge = false) {
   if (merge) return 40;

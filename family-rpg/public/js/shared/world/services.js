@@ -173,7 +173,7 @@ export function serviceAction(world, s, msg) {
       }
       const removed = r.removed.map((id) => ITEMS[id]?.name).filter(Boolean);
       world.sendParty(partyOf(world, s));
-      return reply(true, jobDoneText(who.name, JOBS[msg.job].name, removed), { jobChanged: true, who: msg.who || 'self' });
+      return reply(true, jobDoneText(who.name, JOBS[msg.job].name, removed, msg.job), { jobChanged: true, who: msg.who || 'self' });
     }
     case 'tavern': {
       let r;

@@ -8,6 +8,7 @@ import { SHOPS_CH3, CH3_GUESTS } from './items-ch3.js';
 import { SHOPS_CH4 } from './items-ch4.js';
 import { POWDER_ID, POWDER_SHOPS } from './friend-powder.js';
 import { LURE_ITEM, FIELD27_SHOPS } from './abilities-field27.js';
+import { R33_SHOP_ADD } from './items-r33.js';
 
 export const SHOPS = {
   village: {
@@ -66,6 +67,16 @@ Object.assign(SHOPS, SHOPS_CH4);
 for (const id of POWDER_SHOPS) if (SHOPS[id]) SHOPS[id].more = [...(SHOPS[id].more || []), { show: { all: ['monster_bond'] }, items: [POWDER_ID] }];
 // 魔物よせの笛: 町の 道具屋（abilities-field27.js）
 for (const id of FIELD27_SHOPS) if (SHOPS[id] && !SHOPS[id].items.includes(LURE_ITEM)) SHOPS[id].items.push(LURE_ITEM);
+// 第33回: 11の 職業の 装備（items-r33.js）。more は その フラグの 品ぞろえに 足す
+for (const [id, add] of Object.entries(R33_SHOP_ADD)) {
+  const shop = SHOPS[id];
+  if (!shop) continue;
+  shop.items.push(...(add.items || []).filter((x) => !shop.items.includes(x)));
+  for (const [flag, list] of Object.entries(add.more || {})) {
+    const m = (shop.more || []).find((x) => x.show?.all?.length === 1 && x.show.all[0] === flag);
+    if (m) m.items.push(...list.filter((x) => !m.items.includes(x)));
+  }
+}
 
 // 物語で ふえた 品ぞろえ（hasFlag: その人の 世界の フラグ）
 function moreOpen(shop, hasFlag) {

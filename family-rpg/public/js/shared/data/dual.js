@@ -20,38 +20,44 @@
 //   きずな技の ミナデインを 合体技に した（dt_minadein）。せーのでジャンプ・家族会議・なぞは すべて 解けた！の 組も 職業に むすびつけた
 // 第32回（2026年10月）: 魔物使い・モンスターマスターの 合体技 3こ（R32_DUALS）。「モンスターの 仲間」の 組（MONSTER_ALLY）だけは 魔物の 仲間が うけもつ
 import { ABILITIES } from './abilities.js';
-import { JOBS, ALL_JOBS, jobBases } from './jobs.js';
+import { JOBS, ALL_JOBS, jobBases, SCHOOL_JOBS } from './jobs.js';
 
 // 技の 組（この 技を 持つ 職業の 人が うけもてる）
-const FIRE = ['mera', 'merami', 'merazoma', 'gira', 'begirama', 'nj_katon', 'am_begiragon', 'am_meragaia', 'hk_triple_mera', 'ck_tsuyobi', 'ck_flambe', 'hi_daikaryoku', 'hi_giragureido', 'hi_ima_mera'];
-const ICE = ['hyado', 'hyadaruko', 'sg_mahyado', 'pr_uzushio', 'hk_koori_ya', 'dz_mahyadedos', 'hi_eternal_blizzard', 'sb_aircon', 'rn_chiller', 'kp_mizu'];
+const FIRE = ['mera', 'merami', 'merazoma', 'gira', 'begirama', 'nj_katon', 'am_begiragon', 'am_meragaia', 'hk_triple_mera', 'ck_tsuyobi', 'ck_flambe', 'hi_daikaryoku', 'hi_giragureido', 'hi_ima_mera',
+  // 第33回
+  'sl_yubi', 'ws_honoo', 'hi_honoo_uzu'];
+const ICE = ['hyado', 'hyadaruko', 'sg_mahyado', 'pr_uzushio', 'hk_koori_ya', 'dz_mahyadedos', 'hi_eternal_blizzard', 'sb_aircon', 'rn_chiller', 'kp_mizu', 'bs_shabon', 'hi_aqua'];
 const WIND = ['bagi', 'bagima', 'sg_bagikurosu', 'nj_fuujin', 'hp_bagimuta', 'kamaitachi', 'hk_senpuukyaku', 'ar_senpu', 'hkp_hanabira'];
-const BLAST = ['io', 'iora', 'pr_cannon', 'ft_tower', 'am_ionazun', 'dz_iogurande', 'pa_macaron', 'dr_kuuki', 'ep_nenriki', 'ep_psycho', 'hg_bijuu'];
-const BOLT = ['mk_raiden', 'hr_gigadein', 'sm_raijin', 'so_kaminari', 's2_spark', 'nk_kaminari'];
-const LIGHT = ['hk_holy_light', 'ft_star', 'sd_comet', 'sd_meteor', 'hk_love_beam', 'fz_meteor', 'pa_candy', 'fg_hirameki'];
+const BLAST = ['io', 'iora', 'pr_cannon', 'ft_tower', 'am_ionazun', 'dz_iogurande', 'pa_macaron', 'dr_kuuki', 'ep_nenriki', 'ep_psycho', 'hg_bijuu', 'state_alchemist_sig'];
+const BOLT = ['mk_raiden', 'hr_gigadein', 'sm_raijin', 'so_kaminari', 's2_spark', 'nk_kaminari', 'hy_kizu'];
+const LIGHT = ['hk_holy_light', 'ft_star', 'sd_comet', 'sd_meteor', 'hk_love_beam', 'fz_meteor', 'pa_candy', 'fg_hirameki',
+  // 第33回
+  'ws_hikari', 'harry_sig', 'mn_stick', 'sailor_soldier_sig', 'sailor_moon_sig', 'hi_spiral'];
 const SWORD = ['daichi', 'kaiha', 'kuuretsu', 'kabutowari', 'majingiri', 'tamashii', 'bm_musou', 'bm_moroba', 'pr_kaizokugiri', 'sa_iai', 'sa_tsubame', 'sa_ittou', 'hk_midaregiri', 'hk_daichi_ikari', 'mk_kaengiri', 'mk_hyouketsu', 'mk_inazuma',
   'dk_gigabreak', 'ms_dark', 'swm_seiken', 'swm_haken', 'swm_raijin', 'sg_ikkiuchi', 'sg_tenka', 'lt_ken', 'hi_arutema', 'ks_minamo', 'ks_uchishio', 'ks_nejire', 'kisatsu_sig', 'eb_shiranui', 'eb_noboru', 'eb_uneri', 'eb_rengoku', 'hn_kasha', 'hn_hirin', 'hn_koukyou', 'hinokami_sig', 'spy_knife', 'spy_action', 'as_kyuusho', 'as_ame', 'bo_yamiuchi', 'kh_kunai',
   // 第29回: るろうに剣士の 道（飛天御剣流）
   'rr_battou', 'rr_doryu', 'rr_ryukan', 'rurouni_sig', 'htk_ryusho', 'htk_soryu', 'htk_yamiyo', 'hitokiri_sig', 'hm_hiryu', 'hm_arashi', 'hm_tsumuji', 'himura_sig',
   'ht_shinsoku', 'ht_ootatsu', 'hiten_sig'];
-const FIST = ['seiken', 'bakuretsu', 'mouko', 'hyakuretsu', 'issen', 'hf_seikou', 'gh_shinsoku', 'hk_sandan', 'sy_rush', 's2_rush', 'go_pistol', 'nr_punch', 'nr_tackle', 'mr_zutsuki', 'kp_tsuppari', 'kn_punch', 'kn_tackle', 'kinniku_kappa_sig', 'hkp_pakkan', 'kh_senpuu', 'hg_oodama'];
+const FIST = ['seiken', 'bakuretsu', 'mouko', 'hyakuretsu', 'issen', 'hf_seikou', 'gh_shinsoku', 'hk_sandan', 'sy_rush', 's2_rush', 'go_pistol', 'nr_punch', 'nr_tackle', 'mr_zutsuki', 'kp_tsuppari', 'kn_punch', 'kn_tackle', 'kinniku_kappa_sig', 'hkp_pakkan', 'kh_senpuu', 'hg_oodama', 'fm_ude', 'hi_ryoute'];
 const HEAL = ['hoimi', 'behoimi', 'behomara', 'sg_behoma', 'pl_hikari', 'id_fansa', 'id_kami', 'hk_iyashi_kaze', 'ss_stardance', 'es_kyushoku', 'lc_jumin', 'ff_teate', 'fz_juice',
   'ok_gohan', 'ab_makanai', 'dz_ishi', 'dt_hohoemi', 'lt_inori', 'ct_kusuri', 'creator_sig', 'nr_dorayaki', 'mr_shuuri', 'os_oyatsu', 'kp_kyuuri', 'hkp_mitsu',
   'rr_sentaku', 'hm_ocha', 'ht_ikiyou',
+  // 第33回
+  'al_kusuri', 'bs_kizuna', 'mn_heal', 'h3_katei',
   // 第31回: 大神官も いやしの 組に
   'hp_behomazun'];
 const DANCE = ['hustle', 'medapani', 'zameha_dance', 'ss_stardance', 'js_bakuten', 'hk_happy_step', 'ar_senpu'];
 const SONG = ['ouen', 'tatakai_uta', 'pr_utage', 'bb_ouenka', 'id_penlight', 'hk_fan_cheer', 'sd_song', 'es_recorder', 'jh_gassho', 'ar_harmony', 'kq_doremi'];
 // 第31回: かばう（戦士）は 町を 守る 技から はずした（戦士が どこにでも 入って しまう）
-const GUARD = ['sukara', 'sukuruto', 'pl_daibougyo', 'pl_aegis', 'gd_wall', 'id_center', 'lc_bousai', 'cr_kiki', 'ff_hinoyoujin', 'dv_anzen', 'kq_sentou', 'hm_fusatsu'];
+const GUARD = ['sukara', 'sukuruto', 'pl_daibougyo', 'pl_aegis', 'gd_wall', 'id_center', 'lc_bousai', 'cr_kiki', 'ff_hinoyoujin', 'dv_anzen', 'kq_sentou', 'hm_fusatsu', 'al_kabe', 'sl_toride', 'fm_kabe'];
 const RAIL = ['rw_manin', 'rw_teikoku', 'rw_shinkansen', 'rw_shuuden', 'hk_tokkyu', 'dv_tsuuka', 'dv_renketsu', 'dv_saikou', 'kq_120', 'kq_kaitoku'];
 const OFFICE = ['sm_meishi', 'sm_eigyo', 'sm_horenso', 'sm_present', 'hk_meishi_shuriken', 'sk_tsukin', 'sk_kaigi', 'rk_card', 'rk_dance', 'rakuten_cardman_sig'];
 const BALL = ['bb_hit', 'bb_homerun', 'bb_fastball', 'hk_nagashi', 'hk_makyuu', 'ml_160', 'nt_nitoryu'];
-const IDOL = ['id_kiss', 'id_wink', 'id_fansa', 'id_penlight', 'hk_love_beam', 'fz_basket', 'ar_manazashi'];
+const IDOL = ['id_kiss', 'id_wink', 'id_fansa', 'id_penlight', 'hk_love_beam', 'fz_basket', 'ar_manazashi', 'bs_oshioki'];
 const JESTER = ['js_asobu', 'js_gag', 'js_kusuguri', 'hk_daibakushou', 'oshiri_tantei_sig', 'os_brown'];
 // 学校の 技・公務員の 技
 const SCHOOL = ['es_randoseru', 'es_aisatsu', 'es_recorder', 'es_kakekko', 'es_dodge', 'hk_randoseru_rocket', 'jh_bukatsu', 'jh_test', 'jh_gassho', 'hs_seishun', 'hs_bunkasai', 'tn_ball', 'tn_jitensha', 'shonen_tantei_sig', 'mt_kick', 'mt_skate'];
-const CIVIL = ['lc_madoguchi', 'lc_shorui', 'lc_jumin', 'nc_hanko', 'nc_yosan', 'cr_seisaku'];
+const CIVIL = ['lc_madoguchi', 'lc_shorui', 'lc_jumin', 'nc_hanko', 'nc_yosan', 'cr_seisaku', 'h3_shusseki'];
 const ELEM_SPELLS = [...FIRE, ...ICE, ...WIND, ...BLAST, ...BOLT, ...LIGHT];
 // 第20〜22回の 職業の 技（hi_ … その 職業の ひらめき技。hirameki-jobs.js）
 const COOK = ['ck_houchou', 'ck_soup', 'ck_tsuyobi', 'ck_spice', 'ck_stamina', 'ck_mijin', 'ck_flambe', 'ck_fullcourse', 'pa_candy', 'pa_cake', 'pa_fondue', 'pa_macaron', 'pa_sugar', 'pa_wedding',
@@ -115,6 +121,15 @@ const CREATOR = byJob('creator');
 const HITEN = byJob('rurouni', 'hitokiri', 'himura', 'hiten');
 // 第32回: 魔物使い・モンスターマスター（ムチと 魔物の 技・ひらめき技）と、モンスターの 仲間
 const TAMER = byJob('tamer', 'monster_master');
+// 第33回: 11の 職業の 組（その 職業の 技と ひらめき技 ぜんぶ）
+const KAITO = byJob('magician', 'kaito', 'kaito_kid');
+const WIZARD = byJob('wizard_student', 'harry');
+const ALCHEMY = byJob('alchemist', 'state_alchemist', 'fullmetal');
+const SAILOR = byJob('sailor_soldier', 'sailor_moon');
+const HOMEROOM = byJob('homeroom_3b');
+const IDOL_JOBS = byJob('idol', 'superstar', 'fruit_idol', 'storm_idol');
+// 学校の 子ども（3年B組の担任の 生徒。jobs.js の SCHOOL_JOBS）
+const SCHOOL_KIDS = byJob(...SCHOOL_JOBS);
 // モンスターの 仲間（職業の ない 魔物の 仲間だけが うけもつ 組。人は 入れない。fitsGroup で who.mon を 見る）。
 // 中身は 魔物の 技（findSkill・説明に 使う だけ）。groupJobs は からっぽ
 export const MONSTER_ALLY = Object.keys(ABILITIES).filter((id) => ABILITIES[id].kind === 'monster');
@@ -156,6 +171,9 @@ export const DUAL_GROUP_NAMES = new Map([
   [HITEN, '飛天御剣流の技'],
   // 第32回
   [TAMER, '魔物使いの技'], [MONSTER_ALLY, 'モンスターの仲間'],
+  // 第33回
+  [KAITO, '手品とかいとうの技'], [WIZARD, '魔法学校の技'], [ALCHEMY, 'れん金術の技'], [SAILOR, '美少女戦士の技'], [HOMEROOM, '3年B組の担任の技'],
+  [IDOL_JOBS, 'アイドルの技'], [SCHOOL_KIDS, '学校の子どもの技'],
   // 第31回
   [SWORD_ADV, '剣の上級職'], [FIST_ADV, 'こぶしの上級職'], [SPELL_ADV, '攻撃呪文の上級職'], [HEAL_ADV, 'いやしの上級職'],
   [BALL_JOBS, '野球の技'], [DANCE_JOBS, 'おどりの技'], [HOME, 'ニートかネコ型ロボットの技'], [SLEUTH, '警察・スパイ・探ていの技'],
@@ -461,9 +479,54 @@ const R32_DUALS = {
     desc: '魔物使いのムチ、魔物の仲間のキバ、こぶしの強い人の連打。野生の力をひとつにして、敵1体に3回の大ダメージ。', anim: 'slash_multi',
   },
 };
+// ───────── 第33回: 11の 職業と 前からの 職業の 合体技（5こ。2人技4・3人技1。ぜんぶで 46こ） ─────────
+// 今の 職業で 判定（組の 職業に 今 ついている 人）。「職業が だれでも よい」組は 使わない（ミナデインだけの まま）
+const R33_DUALS = {
+  dt_tsukiyo: {
+    name: '月夜のかけひき', kana: 'つきよのかけひき', need: [KAITO, DETECTIVE], mp: [8, 8], target: 'enemy', funny: true,
+    parts: [
+      { type: 'power', kind: 'magic', element: 'deduce', k: 1.15, say: '「その予告状、読みといたよ」「さすがは名探てい」…なぜか2人は、同じ敵をねらった！' },
+      { type: 'atbSet', sub: 45, chance: 0.55, msg: '{t}は、2人のかけひきに見とれている！', failMsg: '{t}は、目をそらした。' },
+    ],
+    desc: 'かいとうと名探てい、月夜のちえくらべ。敵1体のいちばんの弱点を見ぬいて大ダメージ。見とれて動けなくなることもある。', anim: 'holy',
+  },
+  dt_reform: {
+    name: '一晩で大リフォーム', kana: 'ひとばんでだいりふぉーむ', need: [ALCHEMY, FACILITY], mp: [8, 8], target: 'enemies', funny: true,
+    parts: [
+      { type: 'power', kind: 'phys', k: 0.85, say: 'れん金術師がれん成して、設備のプロが組み立てる。地面から、鉄のはしらがつぎつぎとつき出した！' },
+      { type: 'buff', target: 'allies', stat: 'def', mult: 1.45, dur: 40 },
+    ],
+    desc: 'れん金術と設備のプロの力で、まわりを一晩で大リフォーム。敵全体を鉄のはしらでつき上げて、仲間全員の守備力が大きく上がる。', anim: 'quake',
+  },
+  dt_moonlight: {
+    name: 'ムーンライト・ステージ', kana: 'むーんらいとすてーじ', need: [SAILOR, IDOL_JOBS], mp: [8, 8], target: 'enemies', element: 'light',
+    parts: [
+      { type: 'power', kind: 'magic', element: 'light', k: 0.75, say: '「愛と正義の、アイドル戦士！」月の光のスポットライトが当たった！' },
+      { type: 'heal', target: 'allies', pct: 0.25, k: 0.3 },
+    ],
+    desc: '美少女戦士とアイドルの、月夜のステージ。敵全体に月の光の大ダメージ。仲間全員のHPも回復する。', anim: 'holy',
+  },
+  dt_hippogriff: {
+    name: 'ヒッポグリフの空の旅', kana: 'ひっぽぐりふのそらのたび', need: [WIZARD, TAMER], mp: [8, 8], target: 'enemies', element: 'wind',
+    parts: [
+      { type: 'power', kind: 'phys', element: 'wind', k: 0.8, say: '魔物使いがおじぎをすると、つばさのある魔物が背中に乗せてくれた！' },
+      { type: 'atbSet', sub: 40, chance: 0.5, msg: '{t}は、つばさの風でふきとばされた！', failMsg: '{t}は、ふんばった！' },
+    ],
+    desc: '魔物使いがならした、つばさのある魔物に乗って、魔法学校の生徒が空をかける。敵全体に風のダメージ。ふきとばされて動けなくなる敵もいる。', anim: 'wind2',
+  },
+  dt_sotsugyou: {
+    name: '旅立ちの日に', kana: 'たびだちのひに', need: [HOMEROOM, SCHOOL_KIDS, SCHOOL_KIDS], mp: [16, 8, 8], target: 'allies',
+    parts: [
+      { type: 'revive', pct: 0.35 },
+      { type: 'heal', pct: 0.45, k: 0.5, say: '「先生、ありがとうございました！」' },
+      { type: 'buff', stats: ['atk', 'def', 'agi'], mult: 1.45, dur: 45 },
+    ],
+    desc: '先生と生徒たちの、旅立ちの日。たおれた仲間も起き上がり、仲間全員のHPを大きく回復して、攻撃力・守備力・素早さが大きく上がる。', anim: 'heal_ring',
+  },
+};
 // 2人技・3人技・4人技の じゅんに ならべる（第26回の 技の あとに）
 {
-  const all = { ...DUAL_TECHS, ...R27_DUALS, ...R29_DUALS, ...R32_DUALS };
+  const all = { ...DUAL_TECHS, ...R27_DUALS, ...R29_DUALS, ...R32_DUALS, ...R33_DUALS };
   const ids = Object.keys(all).sort((a, b) => all[a].need.length - all[b].need.length);
   for (const id of Object.keys(DUAL_TECHS)) delete DUAL_TECHS[id];
   for (const id of ids) DUAL_TECHS[id] = all[id];

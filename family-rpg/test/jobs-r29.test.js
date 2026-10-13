@@ -103,7 +103,8 @@ test('第29回の 職業: 職業の 木（id・名前・ランク・なる じ�
     assert.ok(!/[抜斎緋継龍]/.test(j.name + j.desc + (JOB_HINTS[id] || '')), id);
   }
   // 基本職は さいごに、伝説は ほかの 伝説と 同じ 形（○○Lv10＋ほかの超級職1つLv10）
-  assert.equal(JOB_ORDER[JOB_ORDER.length - 1], 'rurouni');
+  // 第33回: 手品師・れん金術師が さらに あとに ならぶ（るろうに剣士は 第26回の 職業の すぐ あと）
+  assert.equal(JOB_ORDER[JOB_ORDER.indexOf('kappa') + 1], 'rurouni');
   assert.match(jobReqText('hitokiri'), /^るろうに剣士Lv10$/);
   assert.match(jobReqText('himura'), /^人斬りばっ刀さいLv10$/);
   assert.match(jobReqText('hiten'), /^ひ村ばっ刀さいLv10＋ほかの超級職1つLv10$/);
@@ -348,7 +349,8 @@ test('第29回の 合体技: 4つの 職業の 技が 今の 組（剣・回復�
   assert.ok(byName.get('飛天御剣流の技'), '飛天御剣流の 組');
   // 数
   // 第31回: ミナデインで 38こ。第32回: 魔物使いの 3こで 41こ
-  assert.ok(DUAL_ORDER.length <= 41, `${DUAL_ORDER.length}こ`);
+  // 第33回: 11の 職業の 5こで 46こ（test/jobs-r33.test.js）
+  assert.ok(DUAL_ORDER.length <= 46, `${DUAL_ORDER.length}こ`);
   for (const id of NEW_DUAL) assert.ok(DUAL_TECHS[id], id);
   assert.equal(dualSize('dt_sentaku_biyori'), 2);
   assert.equal(dualSize('dt_sanken'), 3);

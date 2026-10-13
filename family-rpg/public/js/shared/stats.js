@@ -483,6 +483,9 @@ export const STARTER_EQUIP = {
   kappa: { weapon: null, armor: 'cloth', shield: null, head: 'kappa_sara', acc: null },
   // 第29回: るろうに剣士は 逆ば刀
   rurouni: { weapon: 'sakabatou', armor: 'cloth', shield: null, head: null, acc: null },
+  // 第33回: 手品師は マジックステッキ、れん金術師は チョーク（data/items-r33.js）
+  magician: { weapon: 'magic_wand', armor: 'cloth', shield: null, head: null, acc: null },
+  alchemist: { weapon: 'chalk', armor: 'cloth', shield: null, head: null, acc: null },
 };
 
 // みため（むかしの 項目は いつも のこす。かみがた・色・目もとの あたらしい 項目は data/looks.js）
