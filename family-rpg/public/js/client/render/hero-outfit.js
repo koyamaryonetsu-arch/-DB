@@ -10,7 +10,7 @@ import { R27_OUTFIT, R27_BODY } from './hero-r27.js';
 // 第29回の るろうに剣士の 道（赤い 着物と はかま・白い マント・長い 赤毛・十字の きず）
 import { R29_OUTFIT, R29_BODY } from './hero-r29.js';
 // 第33回の 11この 職業（手品師・かいとう・魔法学校・3年B組・れん金術師・美少女戦士 の 道）
-import { R33_OUTFIT, R33_BODY, R33_ARMOR_LOOK } from './hero-r33.js';
+import { R33_OUTFIT, R33_BODY, R33_ARMOR_LOOK, masc33 } from './hero-r33.js';
 
 // ───────────── ざいしつ ─────────────
 const METALS = {
@@ -223,7 +223,8 @@ const JOB_BODY = {
   hakaishin: { iris: '#d8a020', aura: 'hakai', spark: 'ember' },
 };
 Object.assign(JOB_BODY, R26_BODY, R27_BODY, R29_BODY, R33_BODY);
-export const jobBody = (job) => JOB_BODY[job] || null;
+// fem に false を わたすと 男性の みため（男の子の 美少女戦士・セーラームーンは タキシード仮面ふう。hero-r33.js の R33_MASC）
+export const jobBody = (job, fem) => (fem === false && masc33(job, false)?.body) || JOB_BODY[job] || null;
 
 // よろいの みため（ID ごと）
 const ARMOR_OUTFIT = {
@@ -274,6 +275,8 @@ function guessArmor(it) {
 
 // 職業の 服（女性で ちがう ところが あれば かさねる）
 function jobOutfit(job, fem) {
+  const M = masc33(job, fem);
+  if (M) return M.outfit;
   const S = JOB_OUTFIT[job] || JOB_OUTFIT.warrior;
   return fem && S.fem ? { ...S, ...S.fem } : S;
 }
@@ -851,7 +854,7 @@ export function outfitOf(Lk, job, armorId, fem) {
     O.pack = { m: leather(pc), edge: leather(mixC(pc, '#000000', 0.32)), clasp: metal('gold'), strap: leather(mixC(pc, '#000000', 0.12)) };
   }
   // 職業の からだの とくちょう（しっぽ・はね・かみ・オーラ・眼帯 など。よろいを かえても のこる）
-  const JB = JOB_BODY[job];
+  const JB = jobBody(job, !!fem);
   if (JB) {
     O.body = JB;
     if (JB.tail) O.tail = { m: mat({ r: ['#3e2414', '#6a4024', '#98633a', '#c08c5c'], th: TH.hair.slice(0, 3) }) };
