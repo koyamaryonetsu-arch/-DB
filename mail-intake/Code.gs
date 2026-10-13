@@ -22,6 +22,15 @@
  *   SUPABASE_URL               - (任意) 既定 https://hykjpadvbficiiuockhj.supabase.co
  *   ANTHROPIC_MODEL            - (任意) 既定 claude-haiku-4-5-20251001（本文抽出は安いHaikuで十分）
  *   ANTHROPIC_OCR_MODEL        - (任意) 既定 claude-sonnet-4-6（添付見積書の画像/PDF読取は視覚対応モデル）
+ *   ANTHROPIC_DECIDE_MODEL     - (任意) 既定 claude-sonnet-5-5（「新規か既存の続きか」の判断。精度が要なので上位モデル）
+ *
+ * 重複を防ぐ仕組み（2026-10 追加）:
+ *   (1) メールのやり取り（スレッド）と案件の組み合わせを覚える（スクリプトプロパティ TH_<スレッドID>）。
+ *       Gmailのラベルは「1通ごと」に付くため、処理済みのやり取りに返信が来ると、その返信には印が無く
+ *       やり取り全体が拾い直されていた。以前は毎回AIが新規/続きを判断し直し、重複登録や
+ *       LINEの「新規か更新か」問い合わせが繰り返し出ていた。→ 覚えている案件があれば判断せずにその案件を更新。
+ *   (2) 複数の案件をまとめたメール（月次の進捗まとめ・定例会議の議事録・各店まとめての報告）は登録しない。
+ *   (3) 新規か続きかの判断は上位モデルが、要約ではなくメール本文も見て行う。
  */
 
 var SRC_LABEL = '案件登録';        // 取込対象（フィルタ/手動で付与）
@@ -31,6 +40,7 @@ var SKIP_LABEL = '案件登録_要確認'; // 案件でない / 進捗だが更�
 var DUP_LABEL = '案件登録_重複';    // 既存の手動登録と重複（登録せず）
 var CONFIRM_LABEL = '案件登録_確認待ち'; // 新規か更新か人に確認中（アプリの「🆕 登録確認」で処理）
 var OLD_LABEL = '案件登録_期間外';  // 受信が古いメール（遡り登録しない・再スキャンもしない）
+var MULTI_LABEL = '案件登録_まとめ'; // 複数の案件をまとめたメール（月次進捗・議事録など）。1件の案件にしない
 
 // 取込対象にするメールの新しさ（時間）。既定24時間＝「その日その日に届いたメールだけ」を登録する。
 // 過去メールを遡って登録しない（古い案件の重複登録・遡り更新を防ぐ）。
@@ -55,6 +65,8 @@ function SUPABASE_URL_() { return cfg_('SUPABASE_URL', 'https://hykjpadvbficiiuo
 function MODEL_() { return cfg_('ANTHROPIC_MODEL', 'claude-haiku-4-5-20251001'); }
 // 添付見積書のAI-OCRは画像/PDFを読むため視覚対応モデル（既定Sonnet）を使う
 function OCR_MODEL_() { return cfg_('ANTHROPIC_OCR_MODEL', 'claude-sonnet-4-6'); }
+// 「新規か既存の続きか」の判断に使うモデル。読み取り(Haiku)より上位のモデルで、メール本文も見て判断する
+function DECIDE_MODEL_() { return cfg_('ANTHROPIC_DECIDE_MODEL', 'claude-sonnet-5-5'); }
 var OCR_MAX_BYTES = 5 * 1024 * 1024; // 5MB超の添付はスキップ（API上限・コスト対策）
 
 // ===== メイン（5分毎トリガー） =====
@@ -68,15 +80,19 @@ function importCaseEmails() {
     var lblDup = getOrCreateLabel_(DUP_LABEL);
     var lblOld = getOrCreateLabel_(OLD_LABEL);
     var lblConfirm = getOrCreateLabel_(CONFIRM_LABEL);
+    var lblMulti = getOrCreateLabel_(MULTI_LABEL);
+    pruneThreadMemory_(); // 古くなった「やり取り⇔案件」の記録を1日1回掃除
     // 取込対象は「直近に届いたメール」だけ。過去メールは遡って登録しない（newer_than:2d＋下の時間ガード）
+    // ※Gmailのラベルは1通ごと。処理済みのやり取りでも、新しい返信には印が無いので再び拾われる
+    //   （＝返信は進捗として扱いたいので、これ自体は正しい）。重複しないよう下の「記録」で判定する。
     var q = 'label:' + SRC_LABEL + ' -label:' + DONE_LABEL + ' -label:' + UPD_LABEL +
             ' -label:' + SKIP_LABEL + ' -label:' + DUP_LABEL + ' -label:' + OLD_LABEL +
-            ' -label:' + CONFIRM_LABEL + ' newer_than:2d';
+            ' -label:' + CONFIRM_LABEL + ' -label:' + MULTI_LABEL + ' newer_than:2d';
     var threads = GmailApp.search(q, 0, 20);
     if (!threads.length) { Logger.log('対象メールなし'); return; }
 
     var maxAgeMs = INTAKE_MAX_AGE_HOURS_() * 60 * 60 * 1000;
-    var nNew = 0, nUpd = 0, nDup = 0, nSkip = 0, nOld = 0, nConfirm = 0;
+    var nNew = 0, nUpd = 0, nDup = 0, nSkip = 0, nOld = 0, nConfirm = 0, nMulti = 0, nKnown = 0;
     threads.forEach(function (th) {
       // 期間ガード: 最新メールが古いスレッドは登録・更新しない（過去案件の遡り登録を防ぐ）。
       // 期間外ラベルを付けて以後スキャン対象から外す（毎回の再判定・APIコストも避ける）。
@@ -90,9 +106,52 @@ function importCaseEmails() {
       var m = msgs[msgs.length - 1];        // 最新（進捗判定・受付日フォールバック用）
       var emailText = buildThreadText_(th); // スレッド全体を文脈に（最初の依頼＋以降の進捗）
 
+      // ===== (1) このやり取りを前に処理したか（記録 → 無ければ確認待ちの記録 → それも無ければラベル） =====
+      var known = recallThread_(th);
+      if (known.kind === 'multi') { th.addLabel(lblMulti); nMulti++; return; }
+      if (known.kind === 'pending') {
+        // 確認待ち（人がまだ新規/更新を選んでいない）→ 同じ問い合わせを繰り返さない
+        th.addLabel(lblConfirm); nConfirm++;
+        Logger.log('確認待ちのやり取りに返信（再度の問い合わせはしない）: ' + th.getFirstMessageSubject());
+        return;
+      }
+      if (known.kind === 'discarded') {
+        th.addLabel(lblSkip); nSkip++;
+        Logger.log('「破棄」と決めたやり取りへの返信のため登録しない: ' + th.getFirstMessageSubject());
+        return;
+      }
+      if (known.kind === 'case') {
+        // 案件が分かっている → AIに新規/続きを判断させず、その案件の進捗として扱う
+        nKnown++;
+        var row = fetchCaseById_(known.caseId);
+        if (!row) {
+          // 案件が削除されている（人が消した）→ 作り直さない
+          th.addLabel(lblDup); nDup++;
+          Logger.log('記録の案件が見つからない（削除済み）ため登録しない: id=' + known.caseId + ' / ' + th.getFirstMessageSubject());
+          return;
+        }
+        var pk = parseEmail_(emailText, { continuation: true });
+        var progK = (pk && pk.progress) || {};
+        if (pk && ((progK.note || '').trim() || hasProgressDates_(progK))) {
+          updateCase_(row, progK, pk.content, null);
+          th.addLabel(lblUpd); nUpd++;
+        } else {
+          th.addLabel(lblDup); nDup++;   // 返信に新しい情報なし（お礼など）
+        }
+        rememberThread_(th, { c: String(row.id) });
+        return;
+      }
+
       var p = parseEmail_(emailText);
       // 方針: 要確認に回すのは「明確に案件でない」とAIが判断した時だけ。迷ったら登録する（不要なら後で削除）
       if (!p || p.is_case === false) { th.addLabel(lblSkip); nSkip++; return; }
+      // ===== (2) 複数の案件をまとめたメールは1件の案件にしない =====
+      if (p.multi_case === true) {
+        th.addLabel(lblMulti); nMulti++;
+        rememberThread_(th, { m: 1 });
+        Logger.log('複数案件のまとめメールのため登録しない: ' + (p.title || m.getSubject()));
+        return;
+      }
       fixPersons_(p); // 客先担当者/R担当者の取り違え補正＋苗字のみに正規化
 
       // 受付日は「今回届いたメールの日」を基準にする。
@@ -105,9 +164,17 @@ function importCaseEmails() {
       // 見積書の自動OCR取込は無効化（誤登録が多いため）。見積り名・金額・提出日の自動入力はしない。
       // ※アプリ側の手動OCR（見積り名セルをダブルクリック）は引き続き利用可。
       var quote = null;
-      // 既存案件と照合し update/new/review を決定。迷ったら会社全体の過去案件を集め直して再確認
-      var decision = decideCaseWithRecheck_(p, received, participants);
+      // ===== (3) 既存案件と照合し update/new/review を決定（上位モデルがメール本文も見て判断） =====
+      // known.kind === 'legacy' ＝ この仕組みを入れる前に処理済みのやり取り（案件idの記録が無い）
+      var legacy = known.kind === 'legacy';
+      var decision = decideCaseWithRecheck_(p, received, participants, emailText, legacy);
 
+      if (legacy && !(decision.decision === 'update' && decision.row)) {
+        // 以前に登録/更新済みのやり取りなので、新規登録もLINEの問い合わせもしない
+        th.addLabel(lblDup); nDup++;
+        Logger.log('処理済みのやり取りへの返信。続き先を特定できないため登録せず: ' + (p.title || m.getSubject()));
+        return;
+      }
       if (decision.decision === 'update' && decision.row) {
         // 一致確定：進捗・見積添付・日程がメールにあれば更新（時間差/複数人の続報も取りこぼさない）
         if (p.intent === 'progress' || quote || hasProgressDates_(p.progress)) {
@@ -117,10 +184,12 @@ function importCaseEmails() {
           th.addLabel(lblDup); nDup++;   // 既存と同一だが新しい情報なし → 手動優先で登録せず
           Logger.log('既存と同一（新情報なし）で登録せず: ' + (p.title || m.getSubject()) + ' → id=' + decision.row.id);
         }
+        rememberThread_(th, { c: String(decision.row.id) });
       } else if (decision.decision === 'review') {
         // 新規か更新か決められない → 登録せず「登録確認キュー」へ。LINEで問い合わせ、
         // 人がアプリの「🆕 登録確認」でボタンを押して 自動登録 / 自動更新 する。
-        queueIntakeConfirm_(p, received, m, th, decision.reason || '新規か更新か判断できませんでした');
+        var pid = queueIntakeConfirm_(p, received, m, th, decision.reason || '新規か更新か判断できませんでした');
+        if (pid) rememberThread_(th, { p: String(pid) });
         th.addLabel(lblConfirm); nConfirm++;
       } else {
         // 別の新しい案件と確信 → 新規登録（日程もメールにあれば正しい項目へ）
@@ -131,12 +200,13 @@ function importCaseEmails() {
         // 件名が違っても同じ話をしていることが多いため、人に新規/更新を確認してもらう。
         var near = findNearbyActiveCases_(p, received);
         if (near.length) {
-          queueIntakeConfirm_(p, received, m, th, INTAKE_CONFIRM_DAYS_() + '日以内に同じ劇場の進行中案件があります', near);
+          var pid2 = queueIntakeConfirm_(p, received, m, th, INTAKE_CONFIRM_DAYS_() + '日以内に同じ劇場の進行中案件があります', near);
+          if (pid2) rememberThread_(th, { p: String(pid2) });
           th.addLabel(lblConfirm); nConfirm++;
           return;
         }
         var dupId = findDupSuspect_(p, received);
-        insertCase_({
+        var newId = insertCase_({
           dup_suspect_id: dupId,
           company: normalizeCompany_(p.company), theater: theater, received_date: received,
           tc_person: p.tc_person || '', r_person: p.r_person || '',
@@ -148,11 +218,12 @@ function importCaseEmails() {
           estimate_amount: quote ? quote.estimate_amount : '',
           quote_date: (quote && quote.quote_date) || dates.quote_date || ''
         });
+        if (newId) rememberThread_(th, { c: String(newId) });
         th.addLabel(lblDone); nNew++;
       }
     });
-    Logger.log('新規 %s / 進捗更新 %s / 重複スキップ %s / 非案件・要確認 %s / 期間外 %s / 確認待ち %s',
-      nNew, nUpd, nDup, nSkip, nOld, nConfirm);
+    Logger.log('新規 %s / 進捗更新 %s / 重複スキップ %s / 非案件・要確認 %s / 期間外 %s / 確認待ち %s / まとめメール %s（うち記録済みのやり取り %s）',
+      nNew, nUpd, nDup, nSkip, nOld, nConfirm, nMulti, nKnown);
   } catch (e) {
     Logger.log('importCaseEmails error: ' + e);
   } finally {
@@ -161,6 +232,82 @@ function importCaseEmails() {
 }
 
 function getOrCreateLabel_(name) { return GmailApp.getUserLabelByName(name) || GmailApp.createLabel(name); }
+
+// ===== やり取り（スレッド）⇔ 案件 の記録 =====
+// 値: {c:案件id} 登録/更新済み ／ {p:確認待ちid} 人の確認待ち ／ {m:1} まとめメール。at=記録した時刻
+var THREAD_MEMORY_DAYS = 180; // これより古い記録は掃除（返信が半年以上空いたら改めて判断）
+function threadMemKey_(th) { return 'TH_' + th.getId(); }
+function rememberThread_(th, v) {
+  try {
+    v.at = Date.now();
+    PropertiesService.getScriptProperties().setProperty(threadMemKey_(th), JSON.stringify(v));
+  } catch (e) { Logger.log('やり取りの記録に失敗: ' + e); }
+}
+function readThreadMemory_(th) {
+  try {
+    var raw = PropertiesService.getScriptProperties().getProperty(threadMemKey_(th));
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) { return null; }
+}
+// このやり取りを前に処理したかを返す。
+//   {kind:'case', caseId} / {kind:'pending', pendingId} / {kind:'discarded'} / {kind:'multi'}
+//   {kind:'legacy'} = 記録はないが処理済みのラベルがある（この仕組みを入れる前に処理） / {kind:'none'} = 初めて
+function recallThread_(th) {
+  var mem = readThreadMemory_(th);
+  if (mem && mem.m) return { kind: 'multi' };
+  if (mem && mem.c) return { kind: 'case', caseId: String(mem.c) };
+  var names = (th.getLabels() || []).map(function (l) { return l.getName(); });
+  var pend = null;
+  if (mem && mem.p) pend = fetchPendingById_(mem.p);
+  else if (names.indexOf(CONFIRM_LABEL) !== -1) pend = fetchPendingByThread_(th); // 記録前の確認待ち
+  if (pend) {
+    if (pend.status === 'pending') return { kind: 'pending', pendingId: String(pend.id) };
+    if (pend.status === 'discarded') return { kind: 'discarded' };
+    if (pend.decided_case_id) {
+      rememberThread_(th, { c: String(pend.decided_case_id) }); // 人が選んだ案件を以後の「正」にする
+      return { kind: 'case', caseId: String(pend.decided_case_id) };
+    }
+  }
+  if (names.indexOf(MULTI_LABEL) !== -1) return { kind: 'multi' };
+  if (names.indexOf(DONE_LABEL) !== -1 || names.indexOf(UPD_LABEL) !== -1 || names.indexOf(DUP_LABEL) !== -1) return { kind: 'legacy' };
+  return { kind: 'none' };
+}
+// 記録の掃除（1日1回・古いものだけ）
+function pruneThreadMemory_() {
+  try {
+    var props = PropertiesService.getScriptProperties();
+    var last = Number(props.getProperty('TH_PRUNED_AT') || 0);
+    if (Date.now() - last < 24 * 60 * 60 * 1000) return;
+    var all = props.getProperties();
+    var limit = Date.now() - THREAD_MEMORY_DAYS * 24 * 60 * 60 * 1000;
+    var n = 0;
+    Object.keys(all).forEach(function (k) {
+      if (k.indexOf('TH_') !== 0 || k === 'TH_PRUNED_AT') return;
+      var v; try { v = JSON.parse(all[k]); } catch (e) { v = null; }
+      if (!v || !v.at || v.at < limit) { props.deleteProperty(k); n++; }
+    });
+    props.setProperty('TH_PRUNED_AT', String(Date.now()));
+    if (n) Logger.log('やり取りの古い記録を掃除: ' + n + '件');
+  } catch (e) { Logger.log('記録の掃除に失敗: ' + e); }
+}
+// 案件1件を取得（記録の案件が残っているか・更新の基準にする）
+function fetchCaseById_(id) {
+  var rows = queryCases_('id=eq.' + encodeURIComponent(id));
+  return rows && rows.length ? rows[0] : null;
+}
+function fetchPendingRows_(filter) {
+  var key = cfg_('SUPABASE_SERVICE_ROLE_KEY');
+  if (!key) return [];
+  var res = UrlFetchApp.fetch(SUPABASE_URL_() + '/rest/v1/case_intake_pending?' + filter +
+    '&select=id,status,decided_case_id&order=created_at.desc&limit=1', {
+    method: 'get', headers: { apikey: key, Authorization: 'Bearer ' + key }, muteHttpExceptions: true
+  });
+  if (res.getResponseCode() >= 300) return [];
+  try { return JSON.parse(res.getContentText()) || []; } catch (e) { return []; }
+}
+function fetchPendingById_(id) { var r = fetchPendingRows_('id=eq.' + encodeURIComponent(id)); return r.length ? r[0] : null; }
+function threadUrl_(th) { return 'https://mail.google.com/mail/u/0/#all/' + th.getId(); }
+function fetchPendingByThread_(th) { var r = fetchPendingRows_('thread_url=eq.' + encodeURIComponent(threadUrl_(th))); return r.length ? r[0] : null; }
 // スレッド全体を1つのテキストに（最初の依頼＋以降のやり取り）。長すぎる場合は先頭優先で丸める
 function buildThreadText_(th) {
   var msgs = th.getMessages();
@@ -222,7 +369,8 @@ function fixPersons_(p) {
 }
 
 // ===== Claude: メール解析（新規/進捗の判定＋項目抽出） =====
-function parseEmail_(emailText) {
+function parseEmail_(emailText, opts) {
+  opts = opts || {};
   var apiKey = cfg_('ANTHROPIC_API_KEY');
   if (!apiKey) { Logger.log('ANTHROPIC_API_KEY未設定'); return null; }
   var sys =
@@ -235,7 +383,7 @@ function parseEmail_(emailText) {
     '- r_person = 菱熱工業（受注側・弊社）の担当者。次のリストの苗字と一致する場合のみ入れる。一致しなければ空文字: ' + JSON.stringify(RYONETSU_MEMBERS) + '\n' +
     '- tc_person = 客先（劇場・シネコン運営会社側）の担当者。菱熱工業メンバーの名前は絶対に入れない。\n' +
     '- どちらも「苗字のみ」（例: 「山田太郎様」→「山田」。「様」「さん」等の敬称は付けない）。\n' +
-    'スキーマ: {"is_case":bool,"confidence":number,"intent":"new"|"progress","title":string,' +
+    'スキーマ: {"is_case":bool,"multi_case":bool,"confidence":number,"intent":"new"|"progress","title":string,' +
     '"company":string,"theater":string(劇場名),"received_date":"YYYY-MM-DD",' +
     '"tc_person":string,"r_person":string,"category":string,"content":string(要点1-3文),' +
     '"progress":{"survey_date":"YYYY-MM-DD","quote_date":"YYYY-MM-DD","work_start_date":"YYYY-MM-DD","work_end_date":"YYYY-MM-DD","note":string}}\n' +
@@ -246,7 +394,15 @@ function parseEmail_(emailText) {
     '- intent=progress のときだけ、「一番新しいメッセージで判明した“新しい進展”」だけを1〜3文で簡潔に書く。\n' +
     '- スレッド全体の再要約や、これまでの経緯の繰り返しはしない。既に分かっている内容は書かない。\n' +
     '- 「7/10:」「7/13:」のような過去日付の列挙・箇条書きはしない（日付は上の項目で管理する）。\n' +
-    '- 新しい進展が無ければ note は空文字にする。';
+    '- 新しい進展が無ければ note は空文字にする。\n' +
+    'multi_case（まとめメールの判定）:\n' +
+    '- 1通のメールで「複数の別々の案件」をまとめて報告・連絡しているときだけ true。\n' +
+    '  例: 月次の「各案件進捗状況」、定例会議の議事録、複数の劇場・店舗をまとめた点検報告や見積の一括送付。\n' +
+    '- 同じ劇場の1つの依頼に複数の作業・不具合が含まれるだけなら false（それは1件の案件）。迷ったら false。' +
+    (opts.continuation
+      ? '\n【このやり取りは既に案件として登録済み】intent は必ず "progress" とし、multi_case は false。' +
+        '一番新しいメッセージで判明した新しい進展を note に、日程は progress の各項目に入れる。'
+      : '');
   return safeJson_(anthropicText_(apiKey, sys, emailText, 800));
 }
 
@@ -321,7 +477,7 @@ function threadParticipants_(th) {
 // ===== Claude: 既存案件との照合を「update / new / review」で判定 =====
 // 精度最優先。曖昧なまま new と断定せず、続きの可能性が残るなら review（人の確認）へ。
 // 過去のやり取り・関係者のつながり・対象設備を加味し、時間差や複数人のスレッドでも続報を拾う。
-function decideCase_(p, received, candidates, participants, strict) {
+function decideCase_(p, received, candidates, participants, strict, emailText, legacy) {
   var apiKey = cfg_('ANTHROPIC_API_KEY');
   if (!apiKey) return { decision: 'review', row: null, reason: 'APIキー未設定' };
   var list = candidates.map(function (x, i) {
@@ -340,7 +496,7 @@ function decideCase_(p, received, candidates, participants, strict) {
       (x.estimate_name ? ' 見積名=' + String(x.estimate_name).slice(0, 40) : '') +
       (d.length ? ' 日程[' + d.join(',') + ']' : '') +
       '\n    内容=' + String(x.content || '').slice(0, 300) +
-      (x.memo ? '\n    社内メモ=' + String(x.memo).slice(0, 100) : '');
+      (x.memo ? '\n    社内メモ=' + String(x.memo).slice(0, 400) : '');
   }).join('\n');
   var sys = [
     'あなたは「新しいメール案件が、既存案件の続き(=同じ一件)か、新規の別案件か」を見分けます。JSONのみ出力（前後に文章なし）。',
@@ -354,7 +510,9 @@ function decideCase_(p, received, candidates, participants, strict) {
     '- 時間が空いていても、送信者や宛先が前回と違っても、それだけで別案件と判断しない。',
     '- 客先担当/R担当/やり取りの関係者(メール)が既存案件と一致するかも手がかりにする。',
     '- 対象の設備・場所・工事が明確に別で、既存のどれとも無関係だと判断できる場合のみ "new"。',
+    '- 判断はメール本文（件名・本文・引用部分）と既存案件の内容・社内メモを突き合わせて行う。要約だけで決めない。',
     (strict ? '- これは再確認です。過去案件を一件ずつ丁寧に照合し、少しでも同一の可能性が残るなら "review" にすること。' : ''),
+    (legacy ? '- 【重要】このメールのやり取りは、以前に既存案件として登録または更新済みです。新しい案件ではありません。続き先の既存案件を探して "update" で返すこと。特定できなければ "review"。' : ''),
     'スキーマ: {"decision":"update"|"new"|"review","matched_id":string(updateの時のみ),"confidence":0〜1の数値,"reason":string(日本語で簡潔に)}'
   ].join('\n');
   var user = [
@@ -368,10 +526,13 @@ function decideCase_(p, received, candidates, participants, strict) {
     'やり取りの関係者(メール): ' + (participants || '(不明)'),
     '内容: ' + (p.content || ''),
     '',
+    '# メール本文（やり取り全体・抜粋）',
+    String(emailText || '').slice(0, 4000) || '(なし)',
+    '',
     '# 既存案件（同じ劇場/会社・新しい順）',
     list
   ].join('\n');
-  var j = safeJson_(anthropicText_(apiKey, sys, user, 400));
+  var j = safeJson_(anthropicText_(apiKey, sys, user, 600, { model: DECIDE_MODEL_(), effort: 'low' }));
   if (!j || !j.decision) return { decision: 'review', row: null, reason: 'AI応答不正' };
   var conf = (typeof j.confidence === 'number') ? j.confidence : 0;
   var row = null;
@@ -390,15 +551,19 @@ function decideCase_(p, received, candidates, participants, strict) {
 }
 
 // 迷ったら過去案件を再確認: 1回目が review なら会社全体＋表記ゆれで候補を集め直して厳密に見直す
-function decideCaseWithRecheck_(p, received, participants) {
+function decideCaseWithRecheck_(p, received, participants, emailText, legacy) {
   var candidates = fetchCandidateCases_(p);
-  if (!candidates.length) return { decision: 'new', row: null, reason: '同じ劇場/会社の既存案件が無い' };
-  var d1 = decideCase_(p, received, candidates, participants, false);
+  if (!candidates.length) {
+    if (!legacy) return { decision: 'new', row: null, reason: '同じ劇場/会社の既存案件が無い' };
+    candidates = fetchBroadCandidates_(p, []); // 処理済みのやり取りなら、会社全体から続き先を探す
+    if (!candidates.length) return { decision: 'review', row: null, reason: '続き先の候補が見つからない' };
+  }
+  var d1 = decideCase_(p, received, candidates, participants, false, emailText, legacy);
   if (d1.decision !== 'review') return d1;
   // 曖昧 → 会社全体の過去案件も含めて集め直し、厳密モードで再判定
   var broad = fetchBroadCandidates_(p, candidates);
   Logger.log('曖昧のため過去案件を再確認（候補' + broad.length + '件）: ' + (p.title || ''));
-  return decideCase_(p, received, broad, participants, true);
+  return decideCase_(p, received, broad, participants, true, emailText, legacy);
 }
 // 再確認用に候補を広げる（既存候補＋会社全体の最近案件＋劇場名の表記ゆれ一致）
 function fetchBroadCandidates_(p, base) {
@@ -464,7 +629,7 @@ function findNearbyActiveCases_(p, received) {
 // 案件は登録しない（人がアプリでボタンを押した時に登録/更新される）。
 function queueIntakeConfirm_(p, received, m, th, reason, candidates) {
   var key = cfg_('SUPABASE_SERVICE_ROLE_KEY');
-  if (!key) { Logger.log('SUPABASE_SERVICE_ROLE_KEY未設定のため確認キューに積めません'); return; }
+  if (!key) { Logger.log('SUPABASE_SERVICE_ROLE_KEY未設定のため確認キューに積めません'); return ''; }
   var cands = candidates || [];
   if (!cands.length) { try { cands = fetchCandidateCases_(p); } catch (e) { cands = []; } }
   var dates = p.progress || {};
@@ -492,7 +657,7 @@ function queueIntakeConfirm_(p, received, m, th, reason, candidates) {
         estimate_name: x.estimate_name || '', content: String(x.content || '').slice(0, 200)
       };
     }),
-    thread_url: th ? ('https://mail.google.com/mail/u/0/#all/' + th.getId()) : ''
+    thread_url: th ? threadUrl_(th) : ''
   };
   var res = UrlFetchApp.fetch(SUPABASE_URL_() + '/rest/v1/case_intake_pending', {
     method: 'post', contentType: 'application/json',
@@ -501,13 +666,14 @@ function queueIntakeConfirm_(p, received, m, th, reason, candidates) {
   });
   if (res.getResponseCode() >= 300) {
     Logger.log('確認キュー登録失敗（テーブル未作成かも: SETUP_INTAKE_CONFIRM.sql）: ' + res.getContentText());
-    return;
+    return '';
   }
   Logger.log('確認待ちに追加（登録せず）: ' + (p.theater || '') + ' / ' + (body.title || '') + ' / ' + reason);
   var rows;
   try { rows = JSON.parse(res.getContentText()); } catch (e) { rows = null; }
   var id = (rows && rows[0] && rows[0].id) ? rows[0].id : '';
   if (id) notifyIntakeConfirm_(id);
+  return id;
 }
 
 // 確認待ちができたことをLINEへ通知（Vercelの /api/notify-intake が送信する）
@@ -603,11 +769,14 @@ function insertCase_(f) {
   if (f.work_end_date) body.work_end_date = f.work_end_date;
   var res = UrlFetchApp.fetch(SUPABASE_URL_() + '/rest/v1/cases', {
     method: 'post', contentType: 'application/json',
-    headers: { apikey: key, Authorization: 'Bearer ' + key, Prefer: 'return=minimal' },
+    headers: { apikey: key, Authorization: 'Bearer ' + key, Prefer: 'return=representation' },
     payload: JSON.stringify(body), muteHttpExceptions: true
   });
-  if (res.getResponseCode() >= 300) Logger.log('INSERT失敗: ' + res.getContentText());
-  else Logger.log('新規登録: ' + f.theater + ' / ' + String(f.content || '').slice(0, 30));
+  if (res.getResponseCode() >= 300) { Logger.log('INSERT失敗: ' + res.getContentText()); return ''; }
+  Logger.log('新規登録: ' + f.theater + ' / ' + String(f.content || '').slice(0, 30));
+  // 登録した案件のid（このやり取りに返信が来たら、この案件の更新として扱うために覚える）
+  try { var rows = JSON.parse(res.getContentText()); return (rows && rows[0] && rows[0].id) ? String(rows[0].id) : ''; }
+  catch (e) { return ''; }
 }
 
 // ===== Supabase: 進捗UPDATE（該当案件に日付/内容を反映） =====
@@ -958,18 +1127,39 @@ function isDuplicateNote_(content, note) {
 }
 
 // ===== 共通 =====
-function anthropicText_(apiKey, system, user, maxTokens) {
+// opts（任意）: { model, effort } … 指定すると上位モデルで呼ぶ（判断用）。失敗したら従来のモデルでやり直す。
+// 何も渡さなければ今までどおり MODEL_()（劇場情報の取り込み等、他の呼び出し元もそのまま動く）
+function anthropicText_(apiKey, system, user, maxTokens, opts) {
+  opts = opts || {};
+  var useModel = opts.model || MODEL_();
+  var body = { model: useModel, max_tokens: maxTokens || 500, system: system, messages: [{ role: 'user', content: user }] };
+  var headers = { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' };
+  if (opts.model) {
+    // 上位モデルは考える分のトークンも使うので余裕を持たせる。判断は単純なので effort は low
+    body.max_tokens = Math.max(body.max_tokens, 4000);
+    body.output_config = { effort: opts.effort || 'low' };
+    // 安全機能で応答を断られた時は、自動で別のモデルに切り替えて答えさせる
+    body.fallbacks = 'default';
+    headers['anthropic-beta'] = 'server-side-fallback-2026-07-01';
+  }
   var res = UrlFetchApp.fetch('https://api.anthropic.com/v1/messages', {
-    method: 'post', contentType: 'application/json',
-    headers: { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
-    payload: JSON.stringify({
-      model: MODEL_(), max_tokens: maxTokens || 500, system: system,
-      messages: [{ role: 'user', content: user }]
-    }), muteHttpExceptions: true
+    method: 'post', contentType: 'application/json', headers: headers,
+    payload: JSON.stringify(body), muteHttpExceptions: true
   });
-  if (res.getResponseCode() >= 300) { Logger.log('Anthropic失敗: ' + res.getContentText()); return ''; }
+  if (res.getResponseCode() >= 300) {
+    Logger.log('Anthropic失敗(' + useModel + '): ' + res.getContentText());
+    if (opts.model && opts.model !== MODEL_()) {
+      Logger.log('従来のモデル(' + MODEL_() + ')でやり直します');
+      return anthropicText_(apiKey, system, user, maxTokens);
+    }
+    return '';
+  }
   var data = JSON.parse(res.getContentText());
-  return (data.content && data.content[0] && data.content[0].text) || '';
+  if (data.stop_reason === 'refusal') { Logger.log('AIが応答を断りました(' + useModel + ')'); return ''; }
+  // 上位モデルは先頭に「考えた内容(thinking)」のブロックが入るので、文章(text)のブロックを探す
+  var blocks = data.content || [];
+  for (var i = 0; i < blocks.length; i++) if (blocks[i] && blocks[i].type === 'text') return blocks[i].text || '';
+  return '';
 }
 function safeJson_(txt) {
   if (!txt) return null;
@@ -1028,6 +1218,14 @@ function setupTrigger() {
   });
   ScriptApp.newTrigger('importCaseEmails').timeBased().everyMinutes(5).create();
   Logger.log('importCaseEmails を5分毎に実行するトリガーを作成しました。');
+}
+// 判断用モデルが使えるかの確認（GASエディタで1回実行 → ログに「OK」と出ればよい）
+function testDecideModel() {
+  var apiKey = cfg_('ANTHROPIC_API_KEY');
+  if (!apiKey) { Logger.log('ANTHROPIC_API_KEY未設定'); return; }
+  var t = anthropicText_(apiKey, 'JSONのみ出力。', '{"ok":true} とだけ返してください。', 100, { model: DECIDE_MODEL_(), effort: 'low' });
+  var j = safeJson_(t);
+  Logger.log('判断用モデル ' + DECIDE_MODEL_() + ': ' + (j && j.ok ? 'OK' : ('応答を確認してください → ' + String(t).slice(0, 200))));
 }
 function testConnections() {
   var n = GmailApp.search('label:' + SRC_LABEL + ' -label:' + DONE_LABEL + ' newer_than:2d').length;
