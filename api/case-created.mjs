@@ -20,10 +20,22 @@
 //     「REPLICA IDENTITY FULL」が必要（Database Webhook作成時に自動設定される）。
 
 const LINE_PUSH_URL = 'https://api.line.me/v2/bot/message/push';
-const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
+import { claudeText } from '../lib/claude.mjs';
 const APP_URL = 'https://cinema-cases.vercel.app';
-const AI_MODEL = 'claude-sonnet-4-6';
-const SUMMARY_MODEL = 'claude-haiku-4-5-20251001'; // 更新通知の「案件」1行要約（安いモデルで十分）
+// 新規の修理案件の「AI初期対応診断」（依頼先・注意点・過去の類似）。最新の Sonnet。使えない時は以前の Sonnet
+const AI_MODEL = 'claude-sonnet-5-5';
+const AI_MODEL_PREV = 'claude-sonnet-4-6';
+// 要約用（更新通知の「案件」1行要約・社内メモ→客先向け「内容」の要約）。安くて速い最新の Haiku
+const SUMMARY_MODEL = 'claude-haiku-5-5';
+// 最新の Haiku が使えない時のやり直し用（以前のモデル）
+const SUMMARY_MODEL_PREV = 'claude-haiku-4-5-20251001';
+
+// 要約用の呼び出し（共通部品 lib/claude.mjs）。要約は単純なので考える量は少なめ(low)。
+// 失敗した時は以前のモデルでやり直す。断られた・失敗した時は空文字（呼び出し側が簡易要約などに切り替える）
+async function summaryText(system, user, maxTokens) {
+  const out = await claudeText({ model: SUMMARY_MODEL, prevModel: SUMMARY_MODEL_PREV, system, content: user, maxTokens, effort: 'low' });
+  return out.text;
+}
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://hykjpadvbficiiuockhj.supabase.co';
 
 // 重複通知の抑止: 同じ内容の通知キーを line_notify_log に記録し、既にあれば送らない。
@@ -388,23 +400,10 @@ async function getInitialResponseAdvice(c) {
     '【過去の類似】同劇場の類似案件の要点1-3行（症状と当時の対応/教訓。無ければ「類似案件なし」）'
   ].join('\n');
 
-  const r = await fetch(ANTHROPIC_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': process.env.ANTHROPIC_API_KEY,
-      'anthropic-version': '2023-06-01'
-    },
-    body: JSON.stringify({
-      model: AI_MODEL,
-      max_tokens: 600,
-      system: system,
-      messages: [{ role: 'user', content: user }]
-    })
-  });
-  if (!r.ok) throw new Error(`Anthropic API ${r.status}: ${await r.text()}`);
-  const data = await r.json();
-  return (data.content && data.content[0] && data.content[0].text) || '(AI応答が空)';
+  // 劇場の持病・連絡先・過去案件を突き合わせて考える作業なので、考える量は中くらい(medium)
+  const out = await claudeText({ model: AI_MODEL, prevModel: AI_MODEL_PREV, system, content: user, maxTokens: 600, effort: 'medium' });
+  if (out.error) throw new Error(out.error);
+  return out.text || '(AI応答が空)';
 }
 
 // 操作元を判定: 'ryo'=菱熱担当者がアプリ操作 / 'customer'=顧客がアプリ操作 / 'auto'=AI・メール自動。
@@ -557,15 +556,7 @@ async function summarizeMemoForCustomer(delta, currentContent, customerMemo) {
     norm(delta)
   ].join('\n');
   try {
-    const r = await fetch(ANTHROPIC_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': process.env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
-      body: JSON.stringify({ model: SUMMARY_MODEL, max_tokens: 300, system: sys, messages: [{ role: 'user', content: user }] })
-    });
-    if (!r.ok) { console.error('内容要約API失敗', r.status, await r.text()); return ''; }
-    const data = await r.json();
-    let s = (data.content && data.content[0] && data.content[0].text) || '';
-    s = s.trim();
+    let s = (await summaryText(sys, user, 300)).trim();
     // 「NONE」「(なし)」等の“共有なし”は内容へ書かない（却下理由の混入を防ぐ頑丈判定）
     if (isNoShareSummary(s)) return '';
     return s;
@@ -630,14 +621,7 @@ async function summarizeCaseOneLine(c) {
       '例:「シアター1 エラーE49」「ロビー空調 水漏れ」「男子トイレ 詰まり」。';
     const user = `劇場: ${c.theater || ''}\n種別: ${c.category || ''}\n見積名: ${c.estimate_name || ''}\n` +
       `内容: ${norm(c.content).slice(0, 800)}`;
-    const r = await fetch(ANTHROPIC_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': process.env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
-      body: JSON.stringify({ model: SUMMARY_MODEL, max_tokens: 60, system: sys, messages: [{ role: 'user', content: user }] })
-    });
-    if (!r.ok) return fallback;
-    const data = await r.json();
-    let s = (data.content && data.content[0] && data.content[0].text) || '';
+    let s = await summaryText(sys, user, 60);
     s = s.replace(/\s*\n\s*/g, ' ').replace(/[。\.]$/, '').trim();
     return s ? s.slice(0, 40) : fallback;
   } catch (e) {
