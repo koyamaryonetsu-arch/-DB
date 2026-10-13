@@ -1,12 +1,13 @@
 // キャラクターの つよさ計算・レベルアップ・転職ペナルティ
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_EASY_RATE, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets, jobBodyOk, superMasteredCount } from './data/jobs.js?v=852838173644';
-import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=852838173644';
-import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=852838173644';
-import { MONSTERS } from './data/monsters.js?v=852838173644';
-import { MONSTER_FRIENDS, monsterNatural, gearOf } from './data/companions.js?v=852838173644';
-import { HIRAMEKI, hiraRatio } from './data/hirameki.js?v=852838173644';
-import { cleanLook } from './data/looks.js?v=852838173644';
-import { SKILL_UPS } from './data/skill-ups.js?v=852838173644';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_EASY_RATE, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets, jobBodyOk, superMasteredCount } from './data/jobs.js?v=0c5fbeb062ef';
+import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=0c5fbeb062ef';
+import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=0c5fbeb062ef';
+import { MONSTERS } from './data/monsters.js?v=0c5fbeb062ef';
+import { MONSTER_FRIENDS, monsterNatural, gearOf } from './data/companions.js?v=0c5fbeb062ef';
+import { HIRAMEKI, hiraRatio } from './data/hirameki.js?v=0c5fbeb062ef';
+import { cleanLook } from './data/looks.js?v=0c5fbeb062ef';
+import { SKILL_UPS } from './data/skill-ups.js?v=0c5fbeb062ef';
+import { jobLabel } from './job-label.js?v=0c5fbeb062ef';
 
 // 長い 物語に なるので レベルは 99まで（レベルで ふえる つよさは ひかえめ）
 export const MAX_LEVEL = 99;
@@ -312,9 +313,10 @@ export function comboAllowed(char, id) {
 }
 
 // その 掛け合わせ技が つかえる 上級職の なまえ
-export function comboJobNames(id) {
+// who: 見ている キャラ（職業の 名前を その 人 むけに。job-label.js）
+export function comboJobNames(id, who = null) {
   const need = comboBaseJobs(id);
-  return ALL_JOBS.filter((j) => JOBS[j].tier === 1 && need.every((b) => jobBases(j).includes(b))).map((j) => JOBS[j].name);
+  return ALL_JOBS.filter((j) => JOBS[j].tier === 1 && need.every((b) => jobBases(j).includes(b))).map((j) => jobLabel(j, who));
 }
 
 // ぶきの じょうけん
@@ -373,7 +375,7 @@ function basePenalty(char, abilityId) {
     powMult = 1 - (1 - powMult) / 2;
   }
   const pct = Math.round(powMult * 100);
-  const label = `${origin.name}の技：MP${mpMult === 1 ? 'そのまま' : mpMult + '倍'}・威力${pct}%${mastered ? '（マスターしたので軽め）' : ''}`;
+  const label = `${jobLabel(a.job, char)}の技：MP${mpMult === 1 ? 'そのまま' : mpMult + '倍'}・威力${pct}%${mastered ? '（マスターしたので軽め）' : ''}`;
   return { mpMult, powMult, penalized: true, label };
 }
 

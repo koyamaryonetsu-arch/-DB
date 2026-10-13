@@ -1,31 +1,32 @@
 // お店・やどや・きょうかい・転職・酒場・でんごんばん・メニュー操作
-import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js?v=852838173644';
-import { normDifficulty } from '../data/difficulty.js?v=852838173644';
-import { ITEMS, sellPrice, SLOTS, SLOT_NAMES } from '../data/items.js?v=852838173644';
-import { JOBS, ALL_JOBS, jobReqText, BODY_NAMES } from '../data/jobs.js?v=852838173644';
-import { ABILITIES } from '../data/abilities.js?v=852838173644';
-import { abilityFor, abilityLabel, isMasc } from '../ability-label.js?v=852838173644';
-import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=852838173644';
-import { TACTICS } from '../ai.js?v=852838173644';
-import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js?v=852838173644';
-import { salonInfo, salonAction } from './salon.js?v=852838173644';
-import { breedMonsters, breedPreview } from './breed.js?v=852838173644';
-import { MONSTERS } from '../data/monsters.js?v=852838173644';
-import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings, spellSealed } from '../battle.js?v=852838173644';
-import { PLACES } from '../maps/overworld.js?v=852838173644';
-import { POS, SEA_PLACES, MAPS } from '../maps/index.js?v=852838173644';
-import { castRura, warpParty, useTimeBell, warpPlaces, warpOwner } from './travel.js?v=852838173644';
-import { bankInfo, bankAction } from './bank.js?v=852838173644';
-import { forgeInfo, forgeAction } from './forge.js?v=852838173644';
-import { alchemyAction, useAlchemyMemo } from './alchemy.js?v=852838173644';
-import { FIELD27_EFFECTS, castField27, useAuraItem } from './field27.js?v=852838173644';
-import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction, wagonHere, wagonHealEntries, ownWagonEntries } from './wagon.js?v=852838173644';
-import { casinoOpen, casinoAction } from './casino.js?v=852838173644';
-import { useEscapeItem, noEscapeText } from './escape.js?v=852838173644';
-import { usePowder } from './powder.js?v=852838173644';
-import { bestEquipPlan, bestTeamOrder } from '../equip-plan.js?v=852838173644';
-import { setLookEquip } from '../look-equip.js?v=852838173644';
-import { jobDoneText } from '../data/job-talk.js?v=852838173644';
+import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js?v=0c5fbeb062ef';
+import { normDifficulty } from '../data/difficulty.js?v=0c5fbeb062ef';
+import { ITEMS, sellPrice, SLOTS, SLOT_NAMES } from '../data/items.js?v=0c5fbeb062ef';
+import { JOBS, ALL_JOBS, jobReqText, BODY_NAMES } from '../data/jobs.js?v=0c5fbeb062ef';
+import { ABILITIES } from '../data/abilities.js?v=0c5fbeb062ef';
+import { abilityFor, abilityLabel, isMasc } from '../ability-label.js?v=0c5fbeb062ef';
+import { jobLabel } from '../job-label.js?v=0c5fbeb062ef';
+import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=0c5fbeb062ef';
+import { TACTICS } from '../ai.js?v=0c5fbeb062ef';
+import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js?v=0c5fbeb062ef';
+import { salonInfo, salonAction } from './salon.js?v=0c5fbeb062ef';
+import { breedMonsters, breedPreview } from './breed.js?v=0c5fbeb062ef';
+import { MONSTERS } from '../data/monsters.js?v=0c5fbeb062ef';
+import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings, spellSealed } from '../battle.js?v=0c5fbeb062ef';
+import { PLACES } from '../maps/overworld.js?v=0c5fbeb062ef';
+import { POS, SEA_PLACES, MAPS } from '../maps/index.js?v=0c5fbeb062ef';
+import { castRura, warpParty, useTimeBell, warpPlaces, warpOwner } from './travel.js?v=0c5fbeb062ef';
+import { bankInfo, bankAction } from './bank.js?v=0c5fbeb062ef';
+import { forgeInfo, forgeAction } from './forge.js?v=0c5fbeb062ef';
+import { alchemyAction, useAlchemyMemo } from './alchemy.js?v=0c5fbeb062ef';
+import { FIELD27_EFFECTS, castField27, useAuraItem } from './field27.js?v=0c5fbeb062ef';
+import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction, wagonHere, wagonHealEntries, ownWagonEntries } from './wagon.js?v=0c5fbeb062ef';
+import { casinoOpen, casinoAction } from './casino.js?v=0c5fbeb062ef';
+import { useEscapeItem, noEscapeText } from './escape.js?v=0c5fbeb062ef';
+import { usePowder } from './powder.js?v=0c5fbeb062ef';
+import { bestEquipPlan, bestTeamOrder } from '../equip-plan.js?v=0c5fbeb062ef';
+import { setLookEquip } from '../look-equip.js?v=0c5fbeb062ef';
+import { jobDoneText } from '../data/job-talk.js?v=0c5fbeb062ef';
 
 export function openService(world, s, kind, arg) {
   switch (kind) {
@@ -164,8 +165,10 @@ export function serviceAction(world, s, msg) {
       if (who.job === msg.job) return reply(false, '今の職業と同じです');
       const r = changeJob(who, msg.job);
       // 体で なれない 職業（フルーツジッパーは 女性、アラシは 男性だけ）
-      if (r.body !== undefined) return reply(false, `${JOBS[msg.job].name}には、${BODY_NAMES[r.body]}しかなれない…`);
-      if (r.locked) return reply(false, `まだ${JOBS[msg.job].name}にはなれない…\n（${jobReqText(msg.job)}が必要）`);
+      // 職業の 名前は なる 人 むけ（男の子の 美少女戦士は「仮面のしんし」。job-label.js）
+      const jn = (j) => jobLabel(j, who);
+      if (r.body !== undefined) return reply(false, `${jn(msg.job)}には、${BODY_NAMES[r.body]}しかなれない…`);
+      if (r.locked) return reply(false, `まだ${jn(msg.job)}にはなれない…\n（${jobReqText(msg.job, jn)}が必要）`);
       if (!r.ok) return reply(false, '');
       // なかまが はずした そうびは ふくろへ
       if (who !== c) {
@@ -174,7 +177,7 @@ export function serviceAction(world, s, msg) {
       }
       const removed = r.removed.map((id) => ITEMS[id]?.name).filter(Boolean);
       world.sendParty(partyOf(world, s));
-      return reply(true, jobDoneText(who.name, JOBS[msg.job].name, removed, msg.job, isMasc(who)), { jobChanged: true, who: msg.who || 'self' });
+      return reply(true, jobDoneText(who.name, jn(msg.job), removed, msg.job, isMasc(who)), { jobChanged: true, who: msg.who || 'self' });
     }
     case 'tavern': {
       let r;

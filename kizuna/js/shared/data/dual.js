@@ -19,8 +19,9 @@
 // 第31回（2026年10月）: 今の 職業で 判定する ように した。「攻撃の 技（どの 職業でも）」の 組を なくし、
 //   きずな技の ミナデインを 合体技に した（dt_minadein）。せーのでジャンプ・家族会議・なぞは すべて 解けた！の 組も 職業に むすびつけた
 // 第32回（2026年10月）: 魔物使い・モンスターマスターの 合体技 3こ（R32_DUALS）。「モンスターの 仲間」の 組（MONSTER_ALLY）だけは 魔物の 仲間が うけもつ
-import { ABILITIES } from './abilities.js?v=852838173644';
-import { JOBS, ALL_JOBS, jobBases, SCHOOL_JOBS } from './jobs.js?v=852838173644';
+import { ABILITIES } from './abilities.js?v=0c5fbeb062ef';
+import { JOBS, ALL_JOBS, jobBases, SCHOOL_JOBS } from './jobs.js?v=0c5fbeb062ef';
+import { isMasc, jobLabel } from '../job-label.js?v=0c5fbeb062ef';
 
 // 技の 組（この 技を 持つ 職業の 人が うけもてる）
 const FIRE = ['mera', 'merami', 'merazoma', 'gira', 'begirama', 'nj_katon', 'am_begiragon', 'am_meragaia', 'hk_triple_mera', 'ck_tsuyobi', 'ck_flambe', 'hi_daikaryoku', 'hi_giragureido', 'hi_ima_mera',
@@ -179,6 +180,8 @@ export const DUAL_GROUP_NAMES = new Map([
   [BALL_JOBS, '野球の技'], [DANCE_JOBS, 'おどりの技'], [HOME, 'ニートかネコ型ロボットの技'], [SLEUTH, '警察・スパイ・探ていの技'],
   [HERO_LINE, '勇者の系統'], [ANY, 'どの職業でも'], [LINE, '4人とも同じ職業か同じ系統'],
 ]);
+// 第33回: 見ている 人が 男の子の ときの 組の なまえ（男の子の 美少女戦士は「仮面のしんし」。shared/job-label.js）
+const DUAL_GROUP_NAMES_MASC = new Map([[SAILOR, '仮面のしんしの技']]);
 // ひとことで 言える 組（「〇〇の職業」と 言いかえない）
 const PLAIN_NAMES = new Set([SWORD_ADV, FIST_ADV, SPELL_ADV, HEAL_ADV, HERO_LINE, ANY, LINE, MONSTER_ALLY]);
 // 職業が だれでも よい 組（ミナデインだけ）と、4人の そろいかたで 見る 組（全員集合）
@@ -557,9 +560,9 @@ export function dualSize(id) {
   return DUAL_TECHS[id]?.need.length || 0;
 }
 
-// 組の 説明（例:「炎の呪文」）
-export function groupName(list) {
-  return DUAL_GROUP_NAMES.get(list) || list.map((id) => ABILITIES[id]?.name).filter(Boolean).slice(0, 3).join('・');
+// 組の 説明（例:「炎の呪文」）。who: 見ている 人（男の子なら 職業の 名前が かわる 組が ある）
+export function groupName(list, who = null) {
+  return (isMasc(who) && DUAL_GROUP_NAMES_MASC.get(list)) || DUAL_GROUP_NAMES.get(list) || list.map((id) => ABILITIES[id]?.name).filter(Boolean).slice(0, 3).join('・');
 }
 
 // 組を うけもてる 職業（その 組の 技を 持つ 職業）
@@ -571,22 +574,23 @@ export function groupJobs(list) {
 }
 
 // 組を うけもてる 職業の 説明（メニュー・戦いの 説明の まど）。職業が 3つ までなら 職業の 名前、多い ときは「〇〇の職業」
-export function groupJobText(list) {
-  const nm = groupName(list);
+export function groupJobText(list, who = null) {
+  const nm = groupName(list, who);
   if (PLAIN_NAMES.has(list)) return nm;
   const jobs = [...groupJobs(list)];
-  if (jobs.length && jobs.length <= 3) return jobs.map((j) => JOBS[j].name).join('・');
+  if (jobs.length && jobs.length <= 3) return jobs.map((j) => jobLabel(j, who)).join('・');
   return `${nm.replace(/の技$/, '')}の職業`;
 }
 
 // 合体技に 必要な 職業（組ごと。おなじ 組が つづく ときは「×3」。例:「勇者の系統＋どの職業でも×3」）
 // short … たたかいの 説明の まど よう（組の 名前を みじかく。例:「おかん＋ニート＋子ども」）
-export function dualNeedText(id, short = false) {
+// who … 見ている 人（男の子の 美少女戦士は「仮面のしんし」。今の 職業で 組を 見るので、見ている 人で きめる）
+export function dualNeedText(id, short = false, who = null) {
   const t = DUAL_TECHS[id];
   if (!t) return '';
   const out = [];
   for (const g of t.need) {
-    const txt = short ? groupName(g).replace(/（.*）/, '').replace(/の技$/, '') : groupJobText(g);
+    const txt = short ? groupName(g, who).replace(/（.*）/, '').replace(/の技$/, '') : groupJobText(g, who);
     const last = out[out.length - 1];
     if (last && last.txt === txt) last.n++;
     else out.push({ txt, n: 1 });

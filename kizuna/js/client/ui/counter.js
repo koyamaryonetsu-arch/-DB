@@ -4,17 +4,17 @@
 //   うえ: 店の なまえ・所持金・✕閉じる
 //   まんなか: ひだり＝品物や コマンド、みぎ＝せつめいと「だれが どう かわるか」
 //   した: 店の人の ことば（はい／いいえ は ここの みぎに 出る）
-import { el, ListMenu, esc } from './dom.js?v=852838173644';
-import { ITEMS, sellPrice } from '../../shared/data/items.js?v=852838173644';
-import { MONSTERS } from '../../shared/data/monsters.js?v=852838173644';
-import { JOBS } from '../../shared/data/jobs.js?v=852838173644';
-import { computeStats, canEquipChar, itemCount } from '../../shared/stats.js?v=852838173644';
-import { itemStats, whoCanEquip, rankText } from './info.js?v=852838173644';
-import { faceURL } from '../field.js?v=852838173644';
-import { boardIconURL } from '../render/boards.js?v=852838173644';
-import { partyRows } from './hud.js?v=852838173644';
-import { shownEquip } from '../../shared/look-equip.js?v=852838173644';
-import { rareNameHtml } from './rarity.js?v=852838173644';
+import { el, ListMenu, esc } from './dom.js?v=0c5fbeb062ef';
+import { ITEMS, sellPrice } from '../../shared/data/items.js?v=0c5fbeb062ef';
+import { MONSTERS } from '../../shared/data/monsters.js?v=0c5fbeb062ef';
+import { jobLabel } from '../../shared/job-label.js?v=0c5fbeb062ef';
+import { computeStats, canEquipChar, itemCount } from '../../shared/stats.js?v=0c5fbeb062ef';
+import { itemStats, whoCanEquip, rankText } from './info.js?v=0c5fbeb062ef';
+import { faceURL } from '../field.js?v=0c5fbeb062ef';
+import { boardIconURL } from '../render/boards.js?v=0c5fbeb062ef';
+import { partyRows } from './hud.js?v=0c5fbeb062ef';
+import { shownEquip } from '../../shared/look-equip.js?v=0c5fbeb062ef';
+import { rareNameHtml } from './rarity.js?v=0c5fbeb062ef';
 
 const TYPE_MS = 18;
 
@@ -271,7 +271,7 @@ const STAT_NAMES = [['atk', '攻撃力'], ['dfn', '守備力'], ['agi', '素早�
 // じぶんと じぶんの なかま（いま パーティーに いる 仲間と、馬車の 仲間）。家族の キャラは じぶんで 買いものを する
 export function myTeam(game) {
   const me = game.me;
-  const out = [{ key: 'self', name: me.name, char: me, face: faceURL({ look: me.look, job: me.job, eq: shownEquip(me) }), kind: JOBS[me.job]?.name || '' }];
+  const out = [{ key: 'self', name: me.name, char: me, face: faceURL({ look: me.look, job: me.job, eq: shownEquip(me) }), kind: jobLabel(me.job, me) }];
   const add = (x, wagon) => {
     if (x.owner !== me.id || x.kind === 'family' || out.some((m) => m.key === x.key)) return;
     const char = {
@@ -281,7 +281,7 @@ export function myTeam(game) {
     out.push({
       key: x.key, name: x.name, char, wagon,
       face: faceURL({ look: x.look, job: x.job, eq: shownEquip(x), mon: x.species || undefined }),
-      kind: x.species ? MONSTERS[x.species]?.name || '' : JOBS[x.job]?.name || '',
+      kind: x.species ? MONSTERS[x.species]?.name || '' : jobLabel(x.job, x),
     });
   };
   for (const x of game.party?.supports || []) add(x, false);

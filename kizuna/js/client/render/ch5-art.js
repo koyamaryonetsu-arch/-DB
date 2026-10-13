@@ -1,7 +1,7 @@
 // 第5章 Step 1・2 の とくべつな え（render/chars.js の paintSpecial から paintCh5Special。星の羽の 竜は render/ch5-dragon.js）
 // ・star_tower … ホシフル村の 北の 山の 星の塔（雲を つきぬけて、空の 上まで のびる。上の ほうは 星空に とける）
 // ・fest_lantern … 星祭りの 星の ちょうちん（2コマで ゆれる）・fest_star … 星祭りの 星の かざりの 柱（リボン）
-import { Painter } from './pixel.js?v=852838173644';
+import { Painter } from './pixel.js?v=0c5fbeb062ef';
 
 const STONE = '#8a8ea8', STONE_L = '#b0b4c8', STONE_D = '#5e6280', STONE_DD = '#3e4260', LINE = '#4a4e6a';
 const SKY_D = '#1a2050', STAR = '#ffffff', STAR_Y = '#fff4b0', GOLD = '#e8c050', CLOUD = '#e8ecf8', CLOUD_D = '#b8c0d8';

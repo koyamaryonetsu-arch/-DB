@@ -2,13 +2,13 @@
 // お店: name 店の なまえ / kind かんばんの しゅるい / keeper 店の人 / hello さいしょの ことば / items 売っている 品物
 //       more: 物語が すすむと ふえる 品物 [{ show: { all: [フラグ] }, items: [...], hello }]（show の 書き方は NPC と おなじ。hello が あれば あいさつも かわる）
 
-import { SHOPS_CH2 } from './items-ch2.js?v=852838173644';
-import { NIGHT_SHOPS } from './night.js?v=852838173644';
-import { SHOPS_CH3, CH3_GUESTS } from './items-ch3.js?v=852838173644';
-import { SHOPS_CH4 } from './items-ch4.js?v=852838173644';
-import { POWDER_ID, POWDER_SHOPS } from './friend-powder.js?v=852838173644';
-import { LURE_ITEM, FIELD27_SHOPS } from './abilities-field27.js?v=852838173644';
-import { R33_SHOP_ADD } from './items-r33.js?v=852838173644';
+import { SHOPS_CH2 } from './items-ch2.js?v=0c5fbeb062ef';
+import { NIGHT_SHOPS } from './night.js?v=0c5fbeb062ef';
+import { SHOPS_CH3, CH3_GUESTS } from './items-ch3.js?v=0c5fbeb062ef';
+import { SHOPS_CH4 } from './items-ch4.js?v=0c5fbeb062ef';
+import { POWDER_ID, POWDER_SHOPS } from './friend-powder.js?v=0c5fbeb062ef';
+import { LURE_ITEM, FIELD27_SHOPS } from './abilities-field27.js?v=0c5fbeb062ef';
+import { R33_SHOP_ADD } from './items-r33.js?v=0c5fbeb062ef';
 
 export const SHOPS = {
   village: {

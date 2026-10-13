@@ -1,14 +1,15 @@
 // タイトル・ログイン・キャラクターえらび・キャラクターづくり
-import { el, ListMenu, toast, askText, confirmBox } from './dom.js?v=852838173644';
-import { JOBS, JOB_ORDER } from '../../shared/data/jobs.js?v=852838173644';
-import { HAIR_STYLES, HAIR_COLORS, SKIN_TONES, FACES, FACE_BY_ID, CLOTH_COLORS, cleanLook } from '../../shared/data/looks.js?v=852838173644';
-import { previewCache } from '../render/hero.js?v=852838173644';
-import { playerSprite } from '../field.js?v=852838173644';
-import { makeCanvas, ctxOf } from '../render/pixel.js?v=852838173644';
-import { LINE_MAX, parseCode } from '../../shared/world/transfer.js?v=852838173644';
-import { DEFAULT_SITE, pendingImport, clearPendingImport, familyServer, setFamilyServer, linkToFamilyServer, linkToSite, siteServerAddress } from '../links.js?v=852838173644';
-import { goFamilyServer, goSite, roundTrip, changeServer, syncOnServer, maybeRoundTrip, notePlayed, familyServerUp } from './syncui.js?v=852838173644';
-import { shownEquip } from '../../shared/look-equip.js?v=852838173644';
+import { el, ListMenu, toast, askText, confirmBox } from './dom.js?v=0c5fbeb062ef';
+import { JOBS, JOB_ORDER } from '../../shared/data/jobs.js?v=0c5fbeb062ef';
+import { jobLabel } from '../../shared/job-label.js?v=0c5fbeb062ef';
+import { HAIR_STYLES, HAIR_COLORS, SKIN_TONES, FACES, FACE_BY_ID, CLOTH_COLORS, cleanLook } from '../../shared/data/looks.js?v=0c5fbeb062ef';
+import { previewCache } from '../render/hero.js?v=0c5fbeb062ef';
+import { playerSprite } from '../field.js?v=0c5fbeb062ef';
+import { makeCanvas, ctxOf } from '../render/pixel.js?v=0c5fbeb062ef';
+import { LINE_MAX, parseCode } from '../../shared/world/transfer.js?v=0c5fbeb062ef';
+import { DEFAULT_SITE, pendingImport, clearPendingImport, familyServer, setFamilyServer, linkToFamilyServer, linkToSite, siteServerAddress } from '../links.js?v=0c5fbeb062ef';
+import { goFamilyServer, goSite, roundTrip, changeServer, syncOnServer, maybeRoundTrip, notePlayed, familyServerUp } from './syncui.js?v=0c5fbeb062ef';
+import { shownEquip } from '../../shared/look-equip.js?v=0c5fbeb062ef';
 
 function clearUI() {
   document.getElementById('ui').innerHTML = '';
@@ -162,7 +163,7 @@ export function showSelect(game, chars) {
     ctxOf(cv).drawImage(sp, 0, 0);
     const card = el('button', { class: 'win charcard' }, cv, el('div', {},
       el('div', { text: c.name }),
-      el('div', { class: 'meta', text: `${JOBS[c.job]?.name} Lv${c.level}` }),
+      el('div', { class: 'meta', text: `${jobLabel(c.job, c)} Lv${c.level}` }),
       el('div', { class: 'meta', text: c.objective || '' })));
     card.addEventListener('click', () => choose(c));
     grid.append(card);
