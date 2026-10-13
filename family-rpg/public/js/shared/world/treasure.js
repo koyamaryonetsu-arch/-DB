@@ -87,10 +87,13 @@ function newSeed(world, c) {
 }
 
 // 地図を 1まい わたす（いっぱいなら 主を たおした 古い 地図と 入れかえる。それも ないと null）
-export function grantTreasureMap(world, c, { lv = 1, map = null } = {}) {
+// keep … 入れかえない 地図の seed（今 いる 洞窟。主を たおした すぐあとに その 地図を 消すと、
+//         主の フラグも 消えて、主が また あらわれて しまう＝2026年10月 第33回で 直した）
+export function grantTreasureMap(world, c, { lv = 1, map = null, keep = null } = {}) {
   c.treasureMaps = Array.isArray(c.treasureMaps) ? c.treasureMaps : [];
   if (c.treasureMaps.length >= TM_MAX) {
-    const old = c.treasureMaps.filter((t) => t.cleared).sort((a, b) => (a.at || 0) - (b.at || 0))[0];
+    const here = parseFloorId(c.pos?.map)?.seed;
+    const old = c.treasureMaps.filter((t) => t.cleared && t.seed !== keep && t.seed !== here).sort((a, b) => (a.at || 0) - (b.at || 0))[0];
     if (!old) return null;
     removeTreasureMap(c, old.id);
   }
@@ -285,7 +288,8 @@ async function bossEvent(run) {
   owner.flags[flag] = true;
   for (const m of run.everyone) {
     const rec = (m.char.treasureMaps || []).find((t) => t.seed === p.seed);
-    if (rec) { rec.cleared = true; rec.found = true; }
+    // おなじ 地図を 持っている 人は みんな「主を たおした」（家族と 入った 時も、あとで ひとりで 来て 主が いない）
+    if (rec) { rec.cleared = true; rec.found = true; m.char.flags[flag] = true; }
     pruneTreasureData(m.char);
   }
   const steps = [
@@ -298,7 +302,7 @@ async function bossEvent(run) {
   const rng = makeRng((p.seed ^ 0x6a09e667) >>> 0);
   const lv = nextMapLevel(rng, p.lv);
   for (const m of run.everyone) {
-    const got = grantTreasureMap(world, m.char, { lv });
+    const got = grantTreasureMap(world, m.char, { lv, keep: p.seed });
     if (got) steps.push(['sfx', 'item'], ['say', null, `${m.char.name}は宝の地図を見つけた！\n（${tmTitle(got)}）`]);
     else steps.push(['say', null, `${m.char.name}は宝の地図を見つけた！\nしかし、もう地図がいっぱいで持てない…`]);
   }

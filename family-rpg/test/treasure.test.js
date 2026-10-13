@@ -498,3 +498,36 @@ test('宝の地図: 宝箱の 中みは 地図の レベルに あわせる（�
   assert.ok(gold > 0 && rank >= 3);
   assert.ok(n > 0);
 });
+
+test('宝の地図（第33回）: 地図が いっぱいでも、主を たおした 洞窟の 地図は 入れかえない（主が また あらわれない）', { timeout: 120000 }, async () => {
+  const { world, bot, c } = await hero(23);
+  strong(c);
+  const tm = grantTreasureMap(world, c, { lv: 2 });
+  tm.found = true;
+  tm.at = 0; // いちばん 古い 地図
+  c.flags[foundFlag(tm.seed)] = true;
+  // のこりは 主を たおした 地図で いっぱいに
+  while (c.treasureMaps.length < TM_MAX) {
+    const t = grantTreasureMap(world, c, { lv: 1 });
+    t.cleared = true; t.found = true;
+  }
+  const info = caveInfo(tm.seed, tm.lv);
+  const last = MAPS[floorMapId(tm, info.floors)];
+  const boss = last.npcById.tm_boss;
+  world.placeSession(bot.s, last.id, boss.x + 0.5, boss.y + 2.5, 'up');
+  Object.assign(bot, { map: last.id, x: boss.x + 0.5, y: boss.y + 2.5, seq: bot.s.posSeq });
+  bot.send({ t: 'interact', kind: 'npc', id: 'tm_boss' });
+  for (let i = 0; i < 400 && !world.battles.size; i++) { bot.flushQueue(); await tickN(world, 1); }
+  const ctx = [...world.battles.values()][0];
+  assert.ok(ctx, '主と 戦う');
+  for (const x of ctx.battle.enemies) x.hp = 1;
+  await bot.settle();
+  assert.equal(bot.battles.pop().outcome, 'win');
+  assert.ok(c.treasureMaps.some((t) => t.seed === tm.seed), 'たおした 洞窟の 地図は のこる');
+  assert.ok(c.flags[clearedFlag(tm.seed)], '主を たおした フラグが のこる');
+  assert.ok(!condOk(boss.show, (f) => !!c.flags[f]), '主は もう いない');
+  assert.equal(c.treasureMaps.length, TM_MAX);
+  // しばらく 待っても 主の 戦いは 始まらない
+  for (let i = 0; i < 60; i++) { bot.flushQueue(); await tickN(world, 1); }
+  assert.equal(world.battles.size, 0, 'また 戦いに ならない');
+});
