@@ -2,9 +2,9 @@
 // ・見通しの目: 読まれた 人の まど（名前の 上）に 目の しるしと 読まれた 種類（攻撃・呪文・回復・防御）。
 //   読んで いる 間は アルゴスの 3つの 目が 光る。読んだ とき（目から 光の すじ）・当たった とき（しかえし）・外れた とき（目が くらむ）の えんしゅつと バナー
 // ・敵が 使うと がめんの まん中に 大きく 出す 技（星の光・星のさばき・ふきあげる風・星の尾）・味方の まどの えんしゅつ・音
-import { KIND_NAMES } from '../shared/battle-ch5.js?v=3910dde37fcc';
-import { ARGOS_EYES } from './render/ch5-tower-art.js?v=3910dde37fcc';
-import { el } from './ui/dom.js?v=3910dde37fcc';
+import { KIND_NAMES } from '../shared/battle-ch5.js?v=0156f0c62388';
+import { ARGOS_EYES } from './render/ch5-tower-art.js?v=0156f0c62388';
+import { el } from './ui/dom.js?v=0156f0c62388';
 
 export const TOWER_SCREEN_ANIMS = ['star_light', 'star_judge', 'tower_gust', 'comet_tail'];
 export const TOWER_ALLY_FX = {

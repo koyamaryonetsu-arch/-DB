@@ -2,16 +2,17 @@
 // みため（かみがた・いろ）と そうび（ぶき・よろい・たて・かぶと）で かわる
 // 人は 32×42 で くみたてて、2ばいの 64×84 に して こまかく かきたす（res 4: せかいでは 16×21 の 大きさに かく）
 // どうぶつ・船は 16×21 など
-import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=3910dde37fcc';
-import { ITEMS, baseItemId } from '../../shared/data/items.js?v=3910dde37fcc';
-import { STARTER_EQUIP } from '../../shared/stats.js?v=3910dde37fcc';
-import { paintMiraPrison, paintWaterStar } from './temple-chars.js?v=3910dde37fcc';
-import { LAB_NPC_LOOKS } from './lab-art.js?v=3910dde37fcc';
-import { paintCh5Special } from './ch5-art.js?v=3910dde37fcc';
-import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js?v=3910dde37fcc';
-import { R26_OLD_LOOK } from './hero-r26.js?v=3910dde37fcc';
-import { R27_OLD_LOOK } from './hero-r27.js?v=3910dde37fcc';
-import { R29_OLD_LOOK } from './hero-r29.js?v=3910dde37fcc';
+import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=0156f0c62388';
+import { ITEMS, baseItemId } from '../../shared/data/items.js?v=0156f0c62388';
+import { STARTER_EQUIP } from '../../shared/stats.js?v=0156f0c62388';
+import { paintMiraPrison, paintWaterStar } from './temple-chars.js?v=0156f0c62388';
+import { LAB_NPC_LOOKS } from './lab-art.js?v=0156f0c62388';
+import { paintCh5Special } from './ch5-art.js?v=0156f0c62388';
+import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js?v=0156f0c62388';
+import { R26_OLD_LOOK } from './hero-r26.js?v=0156f0c62388';
+import { R27_OLD_LOOK } from './hero-r27.js?v=0156f0c62388';
+import { R29_OLD_LOOK } from './hero-r29.js?v=0156f0c62388';
+import { R33_OLD_LOOK } from './hero-r33.js?v=0156f0c62388';
 
 export const CW = 16;
 export const CH = 21;
@@ -109,7 +110,7 @@ const JOB_LOOK = {
 };
 
 // 第26回の 職業（いまの えは render/hero.js と hero-r26.js）
-Object.assign(JOB_LOOK, R26_OLD_LOOK, R27_OLD_LOOK, R29_OLD_LOOK);
+Object.assign(JOB_LOOK, R26_OLD_LOOK, R27_OLD_LOOK, R29_OLD_LOOK, R33_OLD_LOOK);
 
 // よろい・ふくの みため（'cloth' は じぶんで えらんだ いろ）
 const ARMOR_LOOK = {

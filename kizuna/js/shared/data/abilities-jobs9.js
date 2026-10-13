@@ -19,12 +19,12 @@ export const JOB9_ABILITIES = {
   mg_card: {
     name: 'トランプ投げ', kana: 'とらんぷなげ', kind: 'skill', job: 'magician', mp: 2, target: 'enemy',
     effect: { type: 'phys', mult: 0.7, hits: 2 },
-    desc: '指の間から、トランプを2まいシュッと投げる。敵1体に2回当たる。', cast: '{a}は、トランプをシュッと投げた！', anim: 'cards',
+    desc: '指の間から、トランプを2まいシュッと投げる。敵1体に2回当たる。', cast: '{a}は、トランプをシュッと投げた！', anim: 'r33_card_throw',
   },
   mg_hato: {
     name: 'ハトが出るよ', kana: 'はとがでるよ', kind: 'skill', job: 'magician', mp: 3, target: 'enemies', role: 'sup',
     effect: { type: 'status', status: 'blind', chance: 0.35, turns: [2, 3] },
-    desc: 'シルクハットから、ハトがバサバサとび出す。敵全体の目の前が、まぼろしにつつまれることがある。', cast: '{a}がぼうしをとると…ハトがバサバサとび出した！', anim: 'debuff',
+    desc: 'シルクハットから、ハトがバサバサとび出す。敵全体の目の前が、まぼろしにつつまれることがある。', cast: '{a}がぼうしをとると…ハトがバサバサとび出した！', anim: 'r33_hat_trick',
   },
   mg_hako: {
     name: 'びっくり箱', kana: 'びっくりばこ', kind: 'skill', job: 'magician', mp: 4, target: 'enemies',
@@ -50,14 +50,14 @@ export const JOB9_ABILITIES = {
   magician_sig: {
     name: 'イリュージョン', kana: 'いりゅーじょん', kind: 'skill', job: 'magician', mp: 12, target: 'enemies',
     effect: { type: 'magic', element: 'light', base: [42, 52], thr: 40 },
-    desc: '大きな幕が下りて、上がると…光のハトと紙ふぶき！敵全体に光のダメージ。', cast: '{a}「さあ、世紀の大イリュージョン！」', anim: 'holy',
+    desc: '大きな幕が下りて、上がると…光のハトと紙ふぶき！敵全体に光のダメージ。', cast: '{a}「さあ、世紀の大イリュージョン！」', anim: 'magician_sig',
   },
 
   // ───────────── かいとう（上級職。手品師＋スパイ） ─────────────
   kt_card: {
     name: 'トランプじゅう', kana: 'とらんぷじゅう', kind: 'skill', job: 'kaito', mp: 4, target: 'enemy',
     effect: { type: 'phys', mult: 0.8, hits: 3 },
-    desc: 'トランプをうち出す、ふしぎなピストル。敵1体に3回当たる。', cast: '{a}は、トランプじゅうをかまえた！', anim: 'cards',
+    desc: 'トランプをうち出す、ふしぎなピストル。敵1体に3回当たる。', cast: '{a}は、トランプじゅうをかまえた！', anim: 'r33_card_throw',
   },
   kt_yokoku: {
     name: '予告状', kana: 'よこくじょう', kind: 'skill', job: 'kaito', mp: 4, target: 'enemies', role: 'sup',
@@ -67,7 +67,7 @@ export const JOB9_ABILITIES = {
   kt_surikae: {
     name: 'すりかえトリック', kana: 'すりかえとりっく', kind: 'skill', job: 'kaito', mp: 4, target: 'enemy', role: 'sup',
     effect: { type: 'multi', parts: [{ type: 'steal', chance: 0.6 }, { type: 'dispel' }] },
-    desc: '白い布をかぶせて、パッと取ると…。敵1体の持ち物をぬすんで、強くなった力もにせものとすりかえる。', cast: '{a}「ワン、ツー、スリー！」', anim: 'debuff',
+    desc: '白い布をかぶせて、パッと取ると…。敵1体の持ち物をぬすんで、強くなった力もにせものとすりかえる。', cast: '{a}「ワン、ツー、スリー！」', anim: 'r33_steal',
   },
   kt_hensou: {
     name: '変装の名人', kana: 'へんそうのめいじん', kind: 'skill', job: 'kaito', mp: 6, target: 'enemies', role: 'sup',
@@ -82,19 +82,19 @@ export const JOB9_ABILITIES = {
   kaito_sig: {
     name: '予告どおりにいただきます', kana: 'よこくどおりにいただきます', kind: 'skill', job: 'kaito', mp: 14, target: 'enemy',
     effect: { type: 'phys', mult: 3.0, critBonus: 0.1, steal: 0.5 },
-    desc: '予告どおりの時間に、目にもとまらぬ早わざ。敵1体に大きなダメージ。持ち物もぬすむ。', cast: '{a}「予告どおり、いただきます」', anim: 'slash_fast',
+    desc: '予告どおりの時間に、目にもとまらぬ早わざ。敵1体に大きなダメージ。持ち物もぬすむ。', cast: '{a}「予告どおり、いただきます」', anim: 'kaito_sig',
   },
 
   // ───────────── かいとうキッド（超級職。かいとうを きわめる） ─────────────
   kk_hato: {
     name: 'ハトの大群', kana: 'はとのたいぐん', kind: 'skill', job: 'kaito_kid', mp: 8, target: 'enemies',
     effect: { type: 'phys', mult: 1.35, status: { status: 'blind', chance: 0.25, turns: [1, 2] } },
-    desc: 'マントの中から、ハトの大群がとび出す。敵全体に当たり、目の前がまぼろしにつつまれる敵もいる。', cast: '{a}がマントを広げると、ハトの大群がとび出した！', anim: 'hit_all',
+    desc: 'マントの中から、ハトの大群がとび出す。敵全体に当たり、目の前がまぼろしにつつまれる敵もいる。', cast: '{a}がマントを広げると、ハトの大群がとび出した！', anim: 'r33_hat_trick',
   },
   kk_smoke: {
     name: 'けむり玉', kana: 'けむりだま', kind: 'skill', job: 'kaito_kid', mp: 10, target: 'allies', role: 'sup',
     effect: { type: 'buff', stat: 'eva', add: 0.25, dur: 30 },
-    desc: 'ポンッとけむり玉をわって、みんなのすがたをかくす。仲間全員が攻撃をかわしやすくなる。', cast: '{a}は、けむり玉を地面にたたきつけた！ポンッ！', anim: 'buff',
+    desc: 'ポンッとけむり玉をわって、みんなのすがたをかくす。仲間全員が攻撃をかわしやすくなる。', cast: '{a}は、けむり玉を地面にたたきつけた！ポンッ！', anim: 'r33_smoke_flash',
   },
   kk_poker: {
     name: 'ポーカーフェイス', kana: 'ぽーかーふぇいす', kind: 'skill', job: 'kaito_kid', mp: 8, target: 'self', role: 'sup',
@@ -114,14 +114,14 @@ export const JOB9_ABILITIES = {
   kaito_kid_sig: {
     name: 'トランプじゅうの嵐', kana: 'とらんぷじゅうのあらし', kind: 'skill', job: 'kaito_kid', mp: 26, target: 'enemies',
     effect: { type: 'phys', mult: 0.6, hits: 8, random: true, critBonus: 0.05 },
-    desc: 'トランプじゅうを、目にもとまらぬ速さでうちまくる。トランプの嵐が、敵にランダムで8回当たる。', cast: '{a}「レディース・エーン・ジェントルメーン！」', anim: 'cards',
+    desc: 'トランプじゅうを、目にもとまらぬ速さでうちまくる。トランプの嵐が、敵にランダムで8回当たる。', cast: '{a}「レディース・エーン・ジェントルメーン！」', anim: 'kaito_kid_sig',
   },
 
   // ───────────── 魔法学校の生徒（上級職。小学生＋魔法使い。呪文） ─────────────
   ws_hikari: {
     name: 'ルーモス', kana: 'るーもす', kind: 'spell', job: 'wizard_student', mp: 3, target: 'enemy',
     effect: { type: 'magic', element: 'light', base: [22, 28], thr: 18 },
-    desc: 'つえの先に、明るい光をともす呪文。敵1体に光のダメージ。', cast: '{a}「ルーモス！」つえの先が光った！', anim: 'holy',
+    desc: 'つえの先に、明るい光をともす呪文。敵1体に光のダメージ。', cast: '{a}「ルーモス！」つえの先が光った！', anim: 'r33_spell_ray',
   },
   ws_uku: {
     name: 'ふわふわ呪文', kana: 'ふわふわじゅもん', kind: 'spell', job: 'wizard_student', mp: 4, target: 'enemy',
@@ -142,7 +142,7 @@ export const JOB9_ABILITIES = {
   ws_houki: {
     name: 'ほうきの練習', kana: 'ほうきのれんしゅう', kind: 'skill', job: 'wizard_student', mp: 7, target: 'allies', role: 'sup',
     effect: { type: 'buff', stat: 'agi', mult: 1.2, dur: 35 },
-    desc: '「上がれ！」ほうきにまたがって、みんなで空をとぶ練習。仲間全員の素早さが上がる。', cast: '{a}「みんな、ほうきに手をかざして…上がれ！」', anim: 'buff',
+    desc: '「上がれ！」ほうきにまたがって、みんなで空をとぶ練習。仲間全員の素早さが上がる。', cast: '{a}「みんな、ほうきに手をかざして…上がれ！」', anim: 'r33_broom',
   },
   ws_honoo: {
     name: 'インセンディオ', kana: 'いんせんでぃお', kind: 'spell', job: 'wizard_student', mp: 9, target: 'enemies',
@@ -158,7 +158,7 @@ export const JOB9_ABILITIES = {
         { type: 'status', status: 'paralyze', chance: 0.35, turns: [1, 2] },
       ],
     },
-    desc: 'つえの先から、赤い光線をうつ呪文。敵1体に大きなダメージ。体がしびれて動けなくなることもある。', cast: '{a}「ステューピファイ！」', anim: 'void',
+    desc: 'つえの先から、赤い光線をうつ呪文。敵1体に大きなダメージ。体がしびれて動けなくなることもある。', cast: '{a}「ステューピファイ！」', anim: 'wizard_student_sig',
   },
 
   // ───────────── ハリーポッター（超級職。魔法学校の生徒を きわめる） ─────────────
@@ -171,12 +171,12 @@ export const JOB9_ABILITIES = {
         { type: 'debuff', stat: 'atk', mult: 0.7, dur: 40, chance: 0.85 },
       ],
     },
-    desc: '相手の武器をはじき飛ばす呪文。敵1体にダメージをあたえて、攻撃力を下げる。', cast: '{a}「エクスペリアームス！」', anim: 'void',
+    desc: '相手の武器をはじき飛ばす呪文。敵1体にダメージをあたえて、攻撃力を下げる。', cast: '{a}「エクスペリアームス！」', anim: 'r33_disarm',
   },
   hy_houki: {
     name: 'ほうきで急上しょう', kana: 'ほうきできゅうじょうしょう', kind: 'skill', job: 'harry', mp: 8, target: 'self', role: 'sup',
     effect: { type: 'multi', parts: [{ type: 'buff', stat: 'agi', mult: 1.4, dur: 40 }, { type: 'buff', stat: 'eva', add: 0.2, dur: 40 }] },
-    desc: '世界一速いほうきで、空高くまい上がる。自分の素早さが上がり、攻撃もかわしやすくなる。', cast: '{a}は、ほうきで空高くまい上がった！', anim: 'buff',
+    desc: '世界一速いほうきで、空高くまい上がる。自分の素早さが上がり、攻撃もかわしやすくなる。', cast: '{a}は、ほうきで空高くまい上がった！', anim: 'r33_broom',
   },
   hy_quidditch: {
     name: 'クィディッチの急こう下', kana: 'くぃでぃっちのきゅうこうか', kind: 'skill', job: 'harry', mp: 10, target: 'enemy',
@@ -186,7 +186,7 @@ export const JOB9_ABILITIES = {
   hy_kizu: {
     name: 'いなずまのきず', kana: 'いなずまのきず', kind: 'spell', job: 'harry', mp: 16, target: 'enemies',
     effect: { type: 'magic', element: 'bolt', base: [80, 98], thr: 65 },
-    desc: 'おでこのいなずまの形のきずが、光ってうずく。敵全体に雷のダメージ。', cast: '{a}のおでこのきずが、まぶしく光った！', anim: 'bolt2',
+    desc: 'おでこのいなずまの形のきずが、光ってうずく。敵全体に雷のダメージ。', cast: '{a}のおでこのきずが、まぶしく光った！', anim: 'r33_lightning',
   },
   hy_dumbledore: {
     name: 'ダンブルドア軍団', kana: 'だんぶるどあぐんだん', kind: 'skill', job: 'harry', mp: 16, target: 'allies', role: 'sup',
@@ -202,14 +202,14 @@ export const JOB9_ABILITIES = {
         { type: 'heal', target: 'allies', base: [45, 60], thr: 50 },
       ],
     },
-    desc: '「エクスペクト・パトローナム！」銀色に光るしかが、かけぬける。敵全体に光の大ダメージ。仲間全員のHPも少し回復する。', cast: '{a}「エクスペクト・パトローナム！」', anim: 'holy',
+    desc: '「エクスペクト・パトローナム！」銀色に光るしかが、かけぬける。敵全体に光の大ダメージ。仲間全員のHPも少し回復する。', cast: '{a}「エクスペクト・パトローナム！」', anim: 'harry_sig',
   },
 
   // ───────────── 3年B組の担任（伝説の職業。高校生＋地方公務員） ─────────────
   h3_hito: {
     name: '人という字は', kana: 'ひとというじは', kind: 'skill', job: 'homeroom_3b', mp: 14, target: 'allies', role: 'sup',
     effect: { type: 'buff', stats: ['atk', 'def'], mult: 1.3, dur: 45 },
-    desc: '「人という字は、ささえ合ってできているんです」仲間全員の攻撃力と守備力が上がる。', cast: '{a}「いいですか、人という字は…ささえ合って、できているんです」', anim: 'warcry',
+    desc: '「人という字は、ささえ合ってできているんです」仲間全員の攻撃力と守備力が上がる。', cast: '{a}「いいですか、人という字は…ささえ合って、できているんです」', anim: 'r33_hito_ji',
   },
   h3_shusseki: {
     name: '出席をとる', kana: 'しゅっせきをとる', kind: 'skill', job: 'homeroom_3b', mp: 12, target: 'enemies', role: 'sup',
@@ -240,19 +240,19 @@ export const JOB9_ABILITIES = {
         { type: 'atbSet', sub: 50, chance: 0.6, msg: '{t}は、正座して話を聞いている…', failMsg: '{t}は、耳をふさいだ！' },
       ],
     },
-    desc: '心をこめた、長い長いお説教。敵全体の心にひびく大ダメージ。正座したまま動けなくなる敵もいる。', cast: '{a}「そこに、すわりなさい。いいですか…」', anim: 'warcry',
+    desc: '心をこめた、長い長いお説教。敵全体の心にひびく大ダメージ。正座したまま動けなくなる敵もいる。', cast: '{a}「そこに、すわりなさい。いいですか…」', anim: 'homeroom_3b_sig',
   },
 
   // ───────────── れん金術師（基本職） ─────────────
   al_toge: {
     name: '石のとげ', kana: 'いしのとげ', kind: 'skill', job: 'alchemist', mp: 2, target: 'enemy',
     effect: { type: 'phys', mult: 1.4 },
-    desc: '地面に手をついてれん成。とがった石が、敵1体の足元からつき出す。', cast: '{a}が地面に手をつくと、とがった石がつき出した！', anim: 'rock_smash',
+    desc: '地面に手をついてれん成。とがった石が、敵1体の足元からつき出す。', cast: '{a}が地面に手をつくと、とがった石がつき出した！', anim: 'r33_alchemy_spear',
   },
   al_kabe: {
     name: '土のかべ', kana: 'つちのかべ', kind: 'skill', job: 'alchemist', mp: 4, target: 'allies', role: 'sup',
     effect: { type: 'buff', stat: 'def', mult: 1.12, dur: 30 },
-    desc: '地面の土をれん成して、低いかべを作る。仲間全員の守備力が少し上がる。', cast: '{a}の前に、土のかべがもり上がった！', anim: 'guard',
+    desc: '地面の土をれん成して、低いかべを作る。仲間全員の守備力が少し上がる。', cast: '{a}の前に、土のかべがもり上がった！', anim: 'r33_alchemy_wall',
   },
   al_bunkai: {
     name: '分解', kana: 'ぶんかい', kind: 'skill', job: 'alchemist', mp: 4, target: 'enemy',
@@ -262,7 +262,7 @@ export const JOB9_ABILITIES = {
   al_bakuhatsu: {
     name: 'れん成反応', kana: 'れんせいはんのう', kind: 'skill', job: 'alchemist', mp: 6, target: 'enemies',
     effect: { type: 'magic', element: 'blast', base: [22, 30], thr: 28 },
-    desc: '空気をれん成して、小さな爆発を起こす。敵全体に爆発のダメージ。', cast: '{a}のまわりで、青いいなずまがはじけた！', anim: 'blast1',
+    desc: '空気をれん成して、小さな爆発を起こす。敵全体に爆発のダメージ。', cast: '{a}のまわりで、青いいなずまがはじけた！', anim: 'r33_alchemy',
   },
   al_kusuri: {
     name: '薬のれん成', kana: 'くすりのれんせい', kind: 'skill', job: 'alchemist', mp: 5, target: 'ally', role: 'heal',
@@ -272,7 +272,7 @@ export const JOB9_ABILITIES = {
   alchemist_sig: {
     name: '石の大男', kana: 'いしのおおおとこ', kind: 'skill', job: 'alchemist', mp: 12, target: 'enemies',
     effect: { type: 'phys', mult: 0.95 },
-    desc: '地面から、石の大男をれん成する。大男のうでが、敵全体をなぎはらう。', cast: '{a}が両手をつくと、地面から石の大男が立ち上がった！', anim: 'quake',
+    desc: '地面から、石の大男をれん成する。大男のうでが、敵全体をなぎはらう。', cast: '{a}が両手をつくと、地面から石の大男が立ち上がった！', anim: 'alchemist_sig',
   },
 
   // ───────────── 国家れん金術師（上級職。れん金術師を きわめる） ─────────────
@@ -294,24 +294,24 @@ export const JOB9_ABILITIES = {
   sl_toride: {
     name: '石のとりで', kana: 'いしのとりで', kind: 'skill', job: 'state_alchemist', mp: 8, target: 'allies', role: 'sup',
     effect: { type: 'buff', stat: 'def', mult: 1.25, dur: 40 },
-    desc: 'まわりの岩をれん成して、石のとりでを作る。仲間全員の守備力が上がる。', cast: '{a}のまわりに、石のとりでがそびえ立った！', anim: 'guard',
+    desc: 'まわりの岩をれん成して、石のとりでを作る。仲間全員の守備力が上がる。', cast: '{a}のまわりに、石のとりでがそびえ立った！', anim: 'r33_alchemy_wall',
   },
   sl_hashira: {
     name: '石の柱', kana: 'いしのはしら', kind: 'skill', job: 'state_alchemist', mp: 8, target: 'enemy',
     effect: { type: 'phys', mult: 2.2 },
-    desc: '地面から太い石の柱をつき上げて、敵1体を空高くはね上げる。', cast: '{a}の足元から、石の柱がつき上がった！', anim: 'rock_smash',
+    desc: '地面から太い石の柱をつき上げて、敵1体を空高くはね上げる。', cast: '{a}の足元から、石の柱がつき上がった！', anim: 'r33_alchemy_spear',
   },
   state_alchemist_sig: {
     name: 'れん成大爆発', kana: 'れんせいだいばくはつ', kind: 'skill', job: 'state_alchemist', mp: 18, target: 'enemies',
     effect: { type: 'magic', element: 'blast', base: [80, 96], thr: 62 },
-    desc: '地面にまるいもようをかいて、大きなれん成反応を起こす。敵全体に爆発の大ダメージ。', cast: '{a}は両手で地面にふれた…れん成大爆発！', anim: 'blast2',
+    desc: '地面にまるいもようをかいて、大きなれん成反応を起こす。敵全体に爆発の大ダメージ。', cast: '{a}は両手で地面にふれた…れん成大爆発！', anim: 'state_alchemist_sig',
   },
 
   // ───────────── はがねのれん金術師（超級職。国家れん金術師を きわめる） ─────────────
   fm_ude: {
     name: '機械のうで', kana: 'きかいのうで', kind: 'skill', job: 'fullmetal', mp: 7, target: 'enemy',
     effect: { type: 'phys', mult: 2.3, ignoreDef: 0.25 },
-    desc: 'はがねの機械のうでで、思い切りなぐる。敵1体に大きなダメージ。守りの固い敵にも効く。', cast: '{a}の、はがねのうでがうなる！', anim: 'punch',
+    desc: 'はがねの機械のうでで、思い切りなぐる。敵1体に大きなダメージ。守りの固い敵にも効く。', cast: '{a}の、はがねのうでがうなる！', anim: 'r33_mech_arm',
   },
   fm_yaiba: {
     name: 'うでのやいば', kana: 'うでのやいば', kind: 'skill', job: 'fullmetal', mp: 6, target: 'self', role: 'sup',
@@ -321,7 +321,7 @@ export const JOB9_ABILITIES = {
   fm_kabe: {
     name: 'はがねのかべ', kana: 'はがねのかべ', kind: 'skill', job: 'fullmetal', mp: 10, target: 'allies', role: 'sup',
     effect: { type: 'buff', stats: ['def', 'breath'], mult: 1.3, dur: 40 },
-    desc: '地面から、はがねのかべをぐるりとれん成する。仲間全員の守備力が上がり、炎やふぶきの息のダメージが半分になる。', cast: '{a}「みんな、かべのうしろへ！」', anim: 'guard',
+    desc: '地面から、はがねのかべをぐるりとれん成する。仲間全員の守備力が上がり、炎やふぶきの息のダメージが半分になる。', cast: '{a}「みんな、かべのうしろへ！」', anim: 'r33_alchemy_wall',
   },
   fm_koukan: {
     name: '等価こうかん', kana: 'とうかこうかん', kind: 'skill', job: 'fullmetal', mp: 4, target: 'allies', role: 'sup',
@@ -337,12 +337,12 @@ export const JOB9_ABILITIES = {
   fm_toge: {
     name: 'とげの森', kana: 'とげのもり', kind: 'skill', job: 'fullmetal', mp: 15, target: 'enemies',
     effect: { type: 'phys', mult: 1.5 },
-    desc: 'あたり一面の地面から、とげをつき出す。敵全体にダメージ。', cast: '{a}が両手をパン！と合わせた。地面一面に、とげがはえた！', anim: 'quake',
+    desc: 'あたり一面の地面から、とげをつき出す。敵全体にダメージ。', cast: '{a}が両手をパン！と合わせた。地面一面に、とげがはえた！', anim: 'r33_alchemy_spear',
   },
   fullmetal_sig: {
     name: '大地のやり', kana: 'だいちのやり', kind: 'skill', job: 'fullmetal', mp: 26, target: 'enemies',
     effect: { type: 'phys', mult: 1.15, hits: 2, ignoreDef: 0.2 },
-    desc: '両手を合わせて、大地から何本もの大きなやりをつき出す。敵全体に2回当たる。守りの固い敵にも効く。', cast: '{a}は両手をパン！と合わせて、地面についた！', anim: 'rock_smash',
+    desc: '両手を合わせて、大地から何本もの大きなやりをつき出す。敵全体に2回当たる。守りの固い敵にも効く。', cast: '{a}は両手をパン！と合わせて、地面についた！', anim: 'fullmetal_sig',
   },
 
   // ───────────── 美少女戦士（上級職。中学生＋アイドル） ─────────────
@@ -365,7 +365,7 @@ export const JOB9_ABILITIES = {
         { type: 'atbSet', sub: 30, chance: 0.4, msg: '{t}は、決めポーズに見とれている！', failMsg: '{t}は、ポーズを見ていなかった。' },
       ],
     },
-    desc: 'びしっと決めポーズ。敵全体の攻撃力が下がり、見とれて止まる敵もいる。', cast: '{a}「愛と正義の美少女戦士！月にかわっておしおきよ！」', anim: 'hearts',
+    desc: 'びしっと決めポーズ。敵全体の攻撃力が下がり、見とれて止まる敵もいる。', cast: '{a}「愛と正義の美少女戦士！月にかわっておしおきよ！」', anim: 'r33_sailor_beam',
   },
   bs_kizuna: {
     name: '友情のきずな', kana: 'ゆうじょうのきずな', kind: 'skill', job: 'sailor_soldier', mp: 9, target: 'allies', role: 'heal',
@@ -386,14 +386,14 @@ export const JOB9_ABILITIES = {
   sailor_soldier_sig: {
     name: 'ムーン・ティアラ・アクション', kana: 'むーんてぃあらあくしょん', kind: 'skill', job: 'sailor_soldier', mp: 16, target: 'enemy',
     effect: { type: 'magic', element: 'light', base: [128, 152], thr: 65 },
-    desc: 'ひたいのティアラを、光のわにして投げる。敵1体に光の大ダメージ。', cast: '{a}「ムーン・ティアラ・アクション！」', anim: 'holy',
+    desc: 'ひたいのティアラを、光のわにして投げる。敵1体に光の大ダメージ。', cast: '{a}「ムーン・ティアラ・アクション！」', anim: 'sailor_soldier_sig',
   },
 
   // ───────────── セーラームーン（超級職。美少女戦士を きわめる） ─────────────
   mn_stick: {
     name: 'ムーンスティック', kana: 'むーんすてぃっく', kind: 'skill', job: 'sailor_moon', mp: 9, target: 'enemy',
     effect: { type: 'magic', element: 'light', base: [62, 76], thr: 50 },
-    desc: '三日月のついたスティックから、月の光をうつ。敵1体に光のダメージ。', cast: '{a}は、ムーンスティックをかかげた！', anim: 'holy',
+    desc: '三日月のついたスティックから、月の光をうつ。敵1体に光のダメージ。', cast: '{a}は、ムーンスティックをかかげた！', anim: 'r33_sailor_beam',
   },
   mn_bara: {
     name: 'タキシード仮面のバラ', kana: 'たきしーどかめんのばら', kind: 'skill', job: 'sailor_moon', mp: 8, target: 'enemy',
@@ -414,7 +414,7 @@ export const JOB9_ABILITIES = {
   mn_heal: {
     name: 'ムーン・ヒーリング・エスカレーション', kana: 'むーんひーりんぐえすかれーしょん', kind: 'skill', job: 'sailor_moon', mp: 18, target: 'allies', role: 'heal',
     effect: { type: 'multi', parts: [{ type: 'heal', base: [95, 120], thr: 60 }, { type: 'cure', statuses: STATUS_ALL }] },
-    desc: 'やさしい月の光で、みんなをつつむ。仲間全員のHPを回復して、悪いじょうたいも治す。', cast: '{a}「ムーン・ヒーリング・エスカレーション！」', anim: 'heal2',
+    desc: 'やさしい月の光で、みんなをつつむ。仲間全員のHPを回復して、悪いじょうたいも治す。', cast: '{a}「ムーン・ヒーリング・エスカレーション！」', anim: 'r33_moon_heal',
   },
   mn_inori: {
     name: '銀水しょうのいのり', kana: 'ぎんずいしょうのいのり', kind: 'skill', job: 'sailor_moon', mp: 18, target: 'deadAlly', role: 'heal',
@@ -424,6 +424,6 @@ export const JOB9_ABILITIES = {
   sailor_moon_sig: {
     name: 'ムーン・プリンセス・ハレーション', kana: 'むーんぷりんせすはれーしょん', kind: 'skill', job: 'sailor_moon', mp: 32, target: 'enemies',
     effect: { type: 'magic', element: 'light', base: [150, 178], thr: 85 },
-    desc: '月のプリンセスの力をときはなつ、月の光の必殺技。敵全体に光の大ダメージ。', cast: '{a}「ムーン・プリンセス・ハレーション！」', anim: 'holy',
+    desc: '月のプリンセスの力をときはなつ、月の光の必殺技。敵全体に光の大ダメージ。', cast: '{a}「ムーン・プリンセス・ハレーション！」', anim: 'sailor_moon_sig',
   },
 };
