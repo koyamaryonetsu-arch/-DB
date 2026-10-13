@@ -8,8 +8,10 @@
 //   Authorization: Bearer <Supabaseのユーザーaccess_token>（ログイン中ユーザーのみ許可）
 // レスポンス(JSON): { ok, estimate_name, estimate_amount, quote_date }
 
-const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
-const AI_MODEL = 'claude-sonnet-4-6';
+import { claudeText } from '../lib/claude.mjs';
+// 見積書（画像/PDF）の読み取り。最新の Sonnet。使えない時は以前の Sonnet でやり直す
+const AI_MODEL = 'claude-sonnet-5-5';
+const AI_MODEL_PREV = 'claude-sonnet-4-6';
 const SUPABASE_URL = 'https://hykjpadvbficiiuockhj.supabase.co';
 // anon(public) キー。RLS前提の公開キーなのでコード内保持で問題なし（ユーザートークン検証用）
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh5a2pwYWR2YmZpY2lpdW9ja2hqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAxNDUyMTYsImV4cCI6MjA5NTcyMTIxNn0.xrFZ7SChyYBKIyQbVzNq9vToEAQxG6zveUr9B2lRbYY';
@@ -47,22 +49,13 @@ export default async function handler(req, res) {
   ].join('\n');
 
   try {
-    const r = await fetch(ANTHROPIC_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model: AI_MODEL,
-        max_tokens: 400,
-        messages: [{ role: 'user', content: [mediaBlock, { type: 'text', text: prompt }] }]
-      })
+    // 金額・日付を書き写すだけなので考える量は少なめ(low)
+    const out = await claudeText({
+      model: AI_MODEL, prevModel: AI_MODEL_PREV, maxTokens: 400, effort: 'low',
+      content: [mediaBlock, { type: 'text', text: prompt }]
     });
-    if (!r.ok) return res.status(502).json({ error: `Anthropic ${r.status}: ${await r.text()}` });
-    const data = await r.json();
-    const text = (data.content && data.content[0] && data.content[0].text) || '';
+    if (out.error) return res.status(502).json({ error: out.error });
+    const text = out.text;
     const parsed = safeJson(text);
     if (!parsed) return res.status(502).json({ error: 'AI応答を解析できませんでした', raw: text });
     return res.status(200).json({
