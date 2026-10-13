@@ -1,18 +1,18 @@
 // 宝の地図（せかいの しくみ）: 手に入れる・ほる・洞窟に 入る／出る・洞窟の 主・ごほうび
 // データと 洞窟の 形は data/treasure.js と maps/treasure-cave.js
-import { MAPS, isBlocked, tileAt, POS, PLACES } from '../maps/index.js?v=bdbc0dbf619a';
-import { SEA_POS } from '../maps/sea.js?v=bdbc0dbf619a';
-import { T, TILE_INFO } from '../tiles.js?v=bdbc0dbf619a';
-import { makeRng } from '../rng.js?v=bdbc0dbf619a';
-import { MONSTERS } from '../data/monsters.js?v=bdbc0dbf619a';
-import { TM_HOOKS } from '../data/story-tm.js?v=bdbc0dbf619a';
-import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=bdbc0dbf619a';
-import { ScriptRun } from './scripts.js?v=bdbc0dbf619a';
-import { partyOf } from './party.js?v=bdbc0dbf619a';
+import { MAPS, isBlocked, tileAt, POS, PLACES } from '../maps/index.js?v=711e1c044126';
+import { SEA_POS } from '../maps/sea.js?v=711e1c044126';
+import { T, TILE_INFO } from '../tiles.js?v=711e1c044126';
+import { makeRng } from '../rng.js?v=711e1c044126';
+import { MONSTERS } from '../data/monsters.js?v=711e1c044126';
+import { TM_HOOKS } from '../data/story-tm.js?v=711e1c044126';
+import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=711e1c044126';
+import { ScriptRun } from './scripts.js?v=711e1c044126';
+import { partyOf } from './party.js?v=711e1c044126';
 import {
   TM_MAX, TM_THEMES, caveInfo, tmTitle, floorMapId, parseFloorId, isTreasureMapId, clearedFlag, foundFlag, seed36, bossLvOf, tmBossPow,
   mapDropRate, dropMapLevel, nextMapLevel, repairTreasureMaps,
-} from '../data/treasure.js?v=bdbc0dbf619a';
+} from '../data/treasure.js?v=711e1c044126';
 
 const HUNTER = '宝探しのダイゴ';
 
@@ -87,10 +87,13 @@ function newSeed(world, c) {
 }
 
 // 地図を 1まい わたす（いっぱいなら 主を たおした 古い 地図と 入れかえる。それも ないと null）
-export function grantTreasureMap(world, c, { lv = 1, map = null } = {}) {
+// keep … 入れかえない 地図の seed（今 いる 洞窟。主を たおした すぐあとに その 地図を 消すと、
+//         主の フラグも 消えて、主が また あらわれて しまう＝2026年10月 第33回で 直した）
+export function grantTreasureMap(world, c, { lv = 1, map = null, keep = null } = {}) {
   c.treasureMaps = Array.isArray(c.treasureMaps) ? c.treasureMaps : [];
   if (c.treasureMaps.length >= TM_MAX) {
-    const old = c.treasureMaps.filter((t) => t.cleared).sort((a, b) => (a.at || 0) - (b.at || 0))[0];
+    const here = parseFloorId(c.pos?.map)?.seed;
+    const old = c.treasureMaps.filter((t) => t.cleared && t.seed !== keep && t.seed !== here).sort((a, b) => (a.at || 0) - (b.at || 0))[0];
     if (!old) return null;
     removeTreasureMap(c, old.id);
   }
@@ -285,7 +288,8 @@ async function bossEvent(run) {
   owner.flags[flag] = true;
   for (const m of run.everyone) {
     const rec = (m.char.treasureMaps || []).find((t) => t.seed === p.seed);
-    if (rec) { rec.cleared = true; rec.found = true; }
+    // おなじ 地図を 持っている 人は みんな「主を たおした」（家族と 入った 時も、あとで ひとりで 来て 主が いない）
+    if (rec) { rec.cleared = true; rec.found = true; m.char.flags[flag] = true; }
     pruneTreasureData(m.char);
   }
   const steps = [
@@ -298,7 +302,7 @@ async function bossEvent(run) {
   const rng = makeRng((p.seed ^ 0x6a09e667) >>> 0);
   const lv = nextMapLevel(rng, p.lv);
   for (const m of run.everyone) {
-    const got = grantTreasureMap(world, m.char, { lv });
+    const got = grantTreasureMap(world, m.char, { lv, keep: p.seed });
     if (got) steps.push(['sfx', 'item'], ['say', null, `${m.char.name}は宝の地図を見つけた！\n（${tmTitle(got)}）`]);
     else steps.push(['say', null, `${m.char.name}は宝の地図を見つけた！\nしかし、もう地図がいっぱいで持てない…`]);
   }

@@ -9,10 +9,10 @@
 // 塔の 魔物・きまった 戦い argos・見通しの目は B（戦い）が 作る（plan-ch5.md の 11）
 import {
   C5, BOOK_FLAG, DOOR_FLAG, EV, LIFTS, VANES, DOOR6_FLAG, STAR_FLAGS, STARS_FLAG, TOP_FLAG, TOWER_POS, TOWER_FLOORS, towerMapId,
-} from '../maps/tower.js?v=bdbc0dbf619a';
-import { PLACES } from '../maps/overworld.js?v=bdbc0dbf619a';
-import { TEMPLE_OBJ } from './story-ch4-temple.js?v=bdbc0dbf619a';
-import { isNightFor, advanceClock } from '../world/clock.js?v=bdbc0dbf619a';
+} from '../maps/tower.js?v=711e1c044126';
+import { PLACES } from '../maps/overworld.js?v=711e1c044126';
+import { TEMPLE_OBJ } from './story-ch4-temple.js?v=711e1c044126';
+import { isNightFor, advanceClock } from '../world/clock.js?v=711e1c044126';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
