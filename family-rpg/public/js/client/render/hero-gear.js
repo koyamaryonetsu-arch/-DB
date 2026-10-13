@@ -3,6 +3,8 @@
 import { mat, ramp, TH, mixC, mixI, hex, HeroCanvas } from './hero-raster.js';
 import { metal, metalRamp, cloth, leather, gem, glow, neon, metalOfName, baseItem, fruitIcon, ownArmor } from './hero-outfit.js';
 import { R26_HAT, R26_BODY_HAT, drawHat26 } from './hero-r26.js';
+// 第33回: シルクハット（布の服の とき）・ティアラ（よろいでも のこる）
+import { R33_HAT, R33_BODY_HAT } from './hero-r33.js';
 
 const D = Math.PI / 180;
 
@@ -1345,7 +1347,8 @@ const JOB_HAT = {
   hakaishin: { kind: 'catcrown' },
 };
 // 第26回の 職業の ぼうし（黒の組織の ぼうし・ひたいあて など）と、からだの いちぶの ぼうし（ネコ型ロボットの フード・カッパの おさら・花）
-Object.assign(JOB_HAT, R26_HAT);
+Object.assign(JOB_HAT, R26_HAT, R33_HAT);
+Object.assign(R26_BODY_HAT, R33_BODY_HAT);
 function guessHead(it) {
   const name = it.name || '';
   const rank = it.rank || 2;

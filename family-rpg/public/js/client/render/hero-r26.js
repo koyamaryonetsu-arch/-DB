@@ -17,6 +17,8 @@ import { mat, ramp, TH, mixC, HeroCanvas } from './hero-raster.js';
 import { drawR27, drawProp27 } from './hero-r27.js';
 // 第29回の るろうに剣士の 道の マント・十字の きず（hero-r29.js）
 import { outfit29, drawR29, face29 } from './hero-r29.js';
+// 第33回の 11この 職業の マント・リボン・めがね・シルクハット・もちもの（hero-r33.js）
+import { outfit33, body33, drawR33, face33, drawHat33, drawProp33 } from './hero-r33.js';
 
 // ───────────── ざいしつ（mat は おなじ ものを つくりなおさない） ─────────────
 const cl = (c, o = {}) => mat({ r: ramp(c, 4, o), th: o.th || TH.cloth });
@@ -216,6 +218,8 @@ export function outfit26(O, S, Lk, fem, main, phase) {
   }
   // 第29回: マントの うら・かたあて・かみの ひも（hero-r29.js）
   if (S.r29) outfit29(O, S);
+  // 第33回: マント・ネクタイ・マフラー・セーラー戦士の 服（hero-r33.js）
+  if (S.r33) outfit33(O, S, Lk, fem);
   return false;
 }
 
@@ -300,6 +304,8 @@ export function body26(O, JB) {
   if (JB.hana) O.chibi = { s: 1, dy: 5.85, sy: 0.72, top: 2.4 };
   if (JB.armW) O.armW = JB.armW;
   if (JB.bodySX) O.bodySX = JB.bodySX;
+  // 第33回: 機械の 右うで・手ぶくろの れん金の 円
+  if (JB.r33) body33(O, JB);
 }
 
 // ───────────── ほのおの すそ（羽織・マント） ─────────────
@@ -331,6 +337,8 @@ export function drawR26(cv, P, O, layer) {
   if (O.spec?.crest27) drawR27(cv, P, O, layer);
   // 第29回: 飛天御剣流けい承者の マントの まえの はしと かたあて
   if (O.mantle29) drawR29(cv, P, O, layer);
+  // 第33回: マント・マフラー・ほうき・リボン など
+  if (O.r33) drawR33(cv, P, O, layer);
 }
 function draw26(cv, P, O, layer) {
   const view = P.side ? 'side' : P.back ? 'back' : 'front';
@@ -658,6 +666,8 @@ export function capeFlame(cv, P, C, where, id, len, sw) {
 export function face26(cv, H, B, view, phase) {
   // 第29回: ほおの 十字の きず
   if (B.cross) face29(cv, H, B, view, phase);
+  // 第33回: まるめがね・片めがね・いなずまの きず
+  if (B.r33) face33(cv, H, B, view, phase);
   if (phase === 'over') {
     if (B.cardGlasses) cardGlasses(cv, H, view);
     return;
@@ -1029,14 +1039,15 @@ export function drawHat26(cv, P, H, G, view) {
       return true;
     }
   }
-  return false;
+  // 第33回: シルクハット・ティアラ
+  return drawHat33(cv, P, H, G, view);
 }
 
 // ───────────── もちもの（たての ない 手） ─────────────
 // まえ: がめんの みぎの 手、うしろ: ひだりの 手、よこ: その 手（P.facing の ほうへ むける）
 export function drawProp26(cv, P, A, O) {
   const kind = O.body?.prop;
-  if (!kind || drawProp27(cv, P, A, O)) return;
+  if (!kind || drawProp27(cv, P, A, O) || drawProp33(cv, P, A, O)) return;
   const [hx, hy] = A.hand;
   const d = P.side ? P.facing : A.s || 1;
   switch (kind) {

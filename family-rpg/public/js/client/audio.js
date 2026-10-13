@@ -2,6 +2,7 @@
 import { SFX_R26 } from './sfx-r26.js';
 import { SFX_R27 } from './sfx-r27.js';
 import { SFX_R29 } from './sfx-r29.js';
+import { SFX_R33 } from './sfx-r33.js';
 
 const NOTE_BASE = { C: 0, 'C#': 1, Db: 1, D: 2, 'D#': 3, Eb: 3, E: 4, F: 5, 'F#': 6, Gb: 6, G: 7, 'G#': 8, Ab: 8, A: 9, 'A#': 10, Bb: 10, B: 11 };
 
@@ -779,6 +780,8 @@ export class GameAudio {
         else if (SFX_R27[id]) SFX_R27[id](this, T);
         // 第29回の るろうに剣士の 道の 看板の技の 音（sfx-r29.js）
         else if (SFX_R29[id]) SFX_R29[id](this, T);
+        // 第33回の 11この 職業の 技の 音（sfx-r33.js）
+        else if (SFX_R33[id]) SFX_R33[id](this, T);
     }
   }
 }
