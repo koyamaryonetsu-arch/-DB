@@ -5,6 +5,7 @@ import { ITEMS, sellPrice, SLOTS, SLOT_NAMES } from '../data/items.js';
 import { JOBS, ALL_JOBS, jobReqText, BODY_NAMES } from '../data/jobs.js';
 import { ABILITIES } from '../data/abilities.js';
 import { abilityFor, abilityLabel, isMasc } from '../ability-label.js';
+import { jobLabel } from '../job-label.js';
 import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js';
 import { TACTICS } from '../ai.js';
 import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js';
@@ -164,8 +165,10 @@ export function serviceAction(world, s, msg) {
       if (who.job === msg.job) return reply(false, '今の職業と同じです');
       const r = changeJob(who, msg.job);
       // 体で なれない 職業（フルーツジッパーは 女性、アラシは 男性だけ）
-      if (r.body !== undefined) return reply(false, `${JOBS[msg.job].name}には、${BODY_NAMES[r.body]}しかなれない…`);
-      if (r.locked) return reply(false, `まだ${JOBS[msg.job].name}にはなれない…\n（${jobReqText(msg.job)}が必要）`);
+      // 職業の 名前は なる 人 むけ（男の子の 美少女戦士は「仮面のしんし」。job-label.js）
+      const jn = (j) => jobLabel(j, who);
+      if (r.body !== undefined) return reply(false, `${jn(msg.job)}には、${BODY_NAMES[r.body]}しかなれない…`);
+      if (r.locked) return reply(false, `まだ${jn(msg.job)}にはなれない…\n（${jobReqText(msg.job, jn)}が必要）`);
       if (!r.ok) return reply(false, '');
       // なかまが はずした そうびは ふくろへ
       if (who !== c) {
@@ -174,7 +177,7 @@ export function serviceAction(world, s, msg) {
       }
       const removed = r.removed.map((id) => ITEMS[id]?.name).filter(Boolean);
       world.sendParty(partyOf(world, s));
-      return reply(true, jobDoneText(who.name, JOBS[msg.job].name, removed, msg.job, isMasc(who)), { jobChanged: true, who: msg.who || 'self' });
+      return reply(true, jobDoneText(who.name, jn(msg.job), removed, msg.job, isMasc(who)), { jobChanged: true, who: msg.who || 'self' });
     }
     case 'tavern': {
       let r;

@@ -9,6 +9,8 @@
 // perLv: その職業のレベル1つにつき、どの職業でも有効な「ずっと残るボーナス」
 // passive: その職業で いる あいだの とくべつな ちから（train: 勝った たたかいが 何回ぶんの 修行に なるか）
 // body: その 体の 人だけ なれる（0=男性 1=女性。look.body が ない 人は 男性 あつかい）
+// masc: 男の子（look.body が 1 で ない 人）の ときの 名前・みじかい 名前・かな・説明・神殿の うわさ { name, short, kana, desc, hint }
+//   （第33回 美少女戦士・セーラームーン。名前を 出す 所は shared/job-label.js の jobLabel・jobFor を 使う）
 //
 // 職業レベルは「たたかいに かった かず」で あがる（けいけんちとは べつ）。
 // 1回の こうどうで おわって しまう（ワンパンチの）たたかいは、しゅぎょうが はんぶんしか すすまない。
@@ -1126,6 +1128,8 @@ export const JOBS = {
   sailor_soldier: {
     id: 'sailor_soldier', name: '美少女戦士', kana: 'びしょうじょせんし', short: '美少女', tier: 1, req: ['middleschooler', 'idol'], family: 'magic', color: '#2a4ad8',
     desc: 'セーラー服で戦う、愛と正義の美少女戦士。変身して魔力を高め、決めポーズで敵を止める。中学生とアイドルをきわめるとなれる。',
+    // 男の子は タキシード仮面ふう（見た目 hero-r33.js の R33_MASC・技 ability-label.js と おなじ）
+    masc: { name: '仮面のしんし', short: 'しんし', kana: 'かめんのしんし', desc: 'タキシードとマントに白い仮面の、なぞのしんし。変身して魔力を高め、バラと決めゼリフで敵を止める。中学生とアイドルをきわめるとなれる。' },
     mods: { hp: 1.05, mp: 1.15, str: 1.05, def: 0.95, agi: 1.35, mag: 1.25, heal: 1.15 },
     weapons: ['staff', 'fan', 'boomerang', 'none'], shield: false, armor: ['cloth', 'robe'], helm: false,
     perLv: { agi: 0.5, mag: 0.5, heal: 0.5 },
@@ -1134,6 +1138,10 @@ export const JOBS = {
   sailor_moon: {
     id: 'sailor_moon', name: 'セーラームーン', kana: 'せーらーむーん', short: 'ムーン', tier: 2, req: ['sailor_soldier'], family: 'magic', color: '#ff7ab8',
     desc: 'お団子頭の、月のプリンセス。月の光の必殺技で敵をたおし、銀水しょうのいのりで仲間を生き返らせる。',
+    masc: {
+      name: 'タキシード仮面', short: 'タキシード', kana: 'たきしーどかめん', desc: 'シルクハットに白い仮面の、月夜のしんし。バラとステッキの必殺技で敵をたおし、銀水しょうのいのりで仲間を生き返らせる。',
+      hint: '仮面のしんしをきわめると、月夜にあらわれる、あのなぞの仮面の男になれるらしい…',
+    },
     mods: { hp: 1.25, mp: 1.45, str: 1.0, def: 1.05, agi: 1.45, mag: 1.4, heal: 1.4 },
     weapons: ['staff', 'fan', 'boomerang', 'none'], shield: false, armor: ['cloth', 'robe'], helm: false,
     perLv: { mag: 1, heal: 0.5, agi: 0.5 },

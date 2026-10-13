@@ -43,7 +43,7 @@ export function dualInfo(v, o, more = 0) {
   const when = o.now ? '' : '（よやく）';
   const others = more > 0 ? `（ほか${more}通り）` : '';
   const desc = dualKnown(v.game.me, o.id) ? t.desc : SECRET;
-  return `【${tags}】${o.partnerName}といっしょに${when}${others}\n必要な職業：${dualNeedText(o.id, true)}　MP ${o.mp.join('＋')}\n${desc}`;
+  return `【${tags}】${o.partnerName}といっしょに${when}${others}\n必要な職業：${dualNeedText(o.id, true, v.myActor)}　MP ${o.mp.join('＋')}\n${desc}`;
 }
 
 // 合体技の 一覧（コマンド → 合体技）。行は 技の 名前だけ（大きく）。おなじ 技を 出せる 仲間の くみあわせが いくつか ある ときは、

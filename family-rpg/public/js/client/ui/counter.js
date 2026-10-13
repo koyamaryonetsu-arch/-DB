@@ -7,7 +7,7 @@
 import { el, ListMenu, esc } from './dom.js';
 import { ITEMS, sellPrice } from '../../shared/data/items.js';
 import { MONSTERS } from '../../shared/data/monsters.js';
-import { JOBS } from '../../shared/data/jobs.js';
+import { jobLabel } from '../../shared/job-label.js';
 import { computeStats, canEquipChar, itemCount } from '../../shared/stats.js';
 import { itemStats, whoCanEquip, rankText } from './info.js';
 import { faceURL } from '../field.js';
@@ -271,7 +271,7 @@ const STAT_NAMES = [['atk', '攻撃力'], ['dfn', '守備力'], ['agi', '素早�
 // じぶんと じぶんの なかま（いま パーティーに いる 仲間と、馬車の 仲間）。家族の キャラは じぶんで 買いものを する
 export function myTeam(game) {
   const me = game.me;
-  const out = [{ key: 'self', name: me.name, char: me, face: faceURL({ look: me.look, job: me.job, eq: shownEquip(me) }), kind: JOBS[me.job]?.name || '' }];
+  const out = [{ key: 'self', name: me.name, char: me, face: faceURL({ look: me.look, job: me.job, eq: shownEquip(me) }), kind: jobLabel(me.job, me) }];
   const add = (x, wagon) => {
     if (x.owner !== me.id || x.kind === 'family' || out.some((m) => m.key === x.key)) return;
     const char = {
@@ -281,7 +281,7 @@ export function myTeam(game) {
     out.push({
       key: x.key, name: x.name, char, wagon,
       face: faceURL({ look: x.look, job: x.job, eq: shownEquip(x), mon: x.species || undefined }),
-      kind: x.species ? MONSTERS[x.species]?.name || '' : JOBS[x.job]?.name || '',
+      kind: x.species ? MONSTERS[x.species]?.name || '' : jobLabel(x.job, x),
     });
   };
   for (const x of game.party?.supports || []) add(x, false);

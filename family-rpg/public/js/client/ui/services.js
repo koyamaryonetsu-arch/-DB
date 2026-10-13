@@ -1,9 +1,10 @@
 // お店・転職・酒場・でんごんばん・ほしのかけら・きょうかい の がめん
 import { el, ListMenu, toast, askText, confirmBox, esc } from './dom.js';
 import { ITEMS } from '../../shared/data/items.js';
-import { JOBS, SUPER_ORDER, LEGEND_ORDER, TIER_ORDERS, TIER_NAMES, JOB_MAX_LEVEL, jobReqText, jobReqSets, jobBodyOk, BODY_NAMES, JOB_HINTS, superMasteredCount } from '../../shared/data/jobs.js';
+import { SUPER_ORDER, LEGEND_ORDER, TIER_ORDERS, TIER_NAMES, JOB_MAX_LEVEL, jobReqText, jobReqSets, jobBodyOk, BODY_NAMES, superMasteredCount } from '../../shared/data/jobs.js';
 import { ABILITIES } from '../../shared/data/abilities.js';
 import { abilityFor } from '../../shared/ability-label.js';
+import { jobFor, jobLabel, jobHint } from '../../shared/job-label.js';
 import { salonUI } from './salon.js';
 import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered, canEquip } from '../../shared/stats.js';
 import { MONSTERS } from '../../shared/data/monsters.js';
@@ -111,7 +112,7 @@ function jobUI(game) {
     const render = () => {
       if (!target()) who = 'self';
       const c = target();
-      s.right.textContent = `${c.name}: ${JOBS[c.job]?.name || ''}`;
+      s.right.textContent = `${c.name}: ${jobLabel(c.job, c)}`;
       const out = [];
       TIER_ORDERS.forEach((all, tier) => {
         // 体で なれない 職業（フルーツジッパー・アラシ）は 出さない
@@ -125,7 +126,8 @@ function jobUI(game) {
           const ok = jobUnlocked(c, j);
           const lv = c.jobs?.[j]?.lv || 0;
           out.push({
-            html: ok ? esc(JOBS[j].name) : `<span class="muted">🔒 ${esc(JOBS[j].name)}</span>`,
+            // 職業の 名前は 転職する 人 むけ（男の子の 美少女戦士は「仮面のしんし」。shared/job-label.js）
+            html: ok ? esc(jobLabel(j, c)) : `<span class="muted">🔒 ${esc(jobLabel(j, c))}</span>`,
             right: !ok ? '' : lv >= JOB_MAX_LEVEL ? '★マスター' : lv ? `Lv${lv}` : '初めて',
             rightCls: lv >= JOB_MAX_LEVEL ? 'gold' : '',
             value: j,
@@ -152,7 +154,7 @@ function jobUI(game) {
         }
         menu.blur();
         // 第27回: かくにんは 1行（今の 職業の レベルが のこる ことは 下の せつめいに ある）
-        const ok = await confirmBox(game.input, jobAskText(JOBS[it.value].name, who === 'self' ? null : c.name), 'はい', 'いいえ', (x) => game.audio.sfx(x));
+        const ok = await confirmBox(game.input, jobAskText(jobLabel(it.value, c), who === 'self' ? null : c.name), 'はい', 'いいえ', (x) => game.audio.sfx(x));
         if (ok) {
           const r = await request(game, { kind: 'jobChange', job: it.value, who });
           if (r.ok) {
@@ -184,16 +186,17 @@ function jobUI(game) {
         main.append(el('h3', { text: '？？？' }), el('div', { class: 'small gold', text: `${TIER_NAMES[2]}・${TIER_NAMES[3]}` }),
           el('div', { class: 'detail', text: 'まだだれも知らない、ひみつの職業。\n上級職をマスターすると、その先の職業のヒントがここに出てくる。' }));
         // うわさ: もとの 職業を はじめた ひみつの 職業だけ（名前は ださない）
-        const rumors = [...SUPER_ORDER, ...LEGEND_ORDER].filter((s) => JOB_HINTS[s] && jobBodyOk(s, c.look) && !jobKnown(c, s)
+        const rumors = [...SUPER_ORDER, ...LEGEND_ORDER].filter((s) => jobHint(s, c) && jobBodyOk(s, c.look) && !jobKnown(c, s)
           && jobReqSets(s).some((set) => set.some((r) => c.jobs?.[r])));
         if (rumors.length) {
           const box = el('div', { class: 'small job-rumor' }, el('div', { class: 'gold', text: '神殿のうわさ' }));
-          for (const s of rumors) box.append(el('div', { class: 'jl-desc', text: `・${JOB_HINTS[s]}` }));
+          for (const s of rumors) box.append(el('div', { class: 'jl-desc', text: `・${jobHint(s, c)}` }));
           main.append(box);
         }
         return;
       }
-      const job = JOBS[j];
+      // 名前・かな・説明は 転職する 人 むけ（job-label.js の jobFor）
+      const job = jobFor(j, c);
       if (!job || !c) return;
       const lv = c.jobs?.[j]?.lv || 0;
       const open = jobUnlocked(c, j);
@@ -210,10 +213,10 @@ function jobUI(game) {
       // なる ための じょうけん・しゅぎょうの すすみぐあい
       // （まだ なれない 超級職は、マスターしていない じょうけんを ？？？？ に する）
       const secretReq = (job.tier || 0) >= 2 && !open;
-      const reqName = (r) => (secretReq && !jobMastered(c, r) ? '？？？？' : JOBS[r].name);
+      const reqName = (r) => (secretReq && !jobMastered(c, r) ? '？？？？' : jobLabel(r, c));
       if (job.req) {
         const req = el('div', { class: 'small', style: { margin: '0.4em 0' } });
-        req.append(el('div', { class: open ? 'good' : 'warn', text: open ? `なれる！（${jobReqText(j)}）` : `なるには: ${jobReqText(j, reqName)}` }));
+        req.append(el('div', { class: open ? 'good' : 'warn', text: open ? `なれる！（${jobReqText(j, (r) => jobLabel(r, c))}）` : `なるには: ${jobReqText(j, reqName)}` }));
         if (job.body !== undefined) req.append(el('div', { class: 'muted', text: `（${BODY_NAMES[job.body]}だけがなれる職業）` }));
         jobReqSets(j).forEach((set, i) => {
           if (i) req.append(el('div', { class: 'muted', text: '　または' }));
@@ -285,7 +288,7 @@ function tavernUI(game, data) {
     let info = data;
     const sfx = (x) => game.audio.sfx(x);
     const face = (e) => faceURL({ look: e.look, job: e.job, eq: shownEquip(e), mon: e.species || undefined });
-    const who = (e) => (e.species ? `${MONSTERS[e.species]?.name || ''} Lv${e.level}` : `${JOBS[e.job]?.name || ''} Lv${e.level}`);
+    const who = (e) => (e.species ? `${MONSTERS[e.species]?.name || ''} Lv${e.level}` : `${jobLabel(e.job, e)} Lv${e.level}`);
     const plusTag = (e) => (e.plus ? `<span class="plus">+${e.plus}</span>` : '');
     const ARRANGE_KEY = '#arrange';
     const SORT_KEY = '#sort';

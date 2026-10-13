@@ -4,6 +4,8 @@ import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/
 import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js';
 // 第33回: 技の 名前は 見ている キャラ むけ（男の子の 美少女戦士・セーラームーンは タキシード仮面ふう）
 import { abilityFor, dualForView } from '../../shared/ability-label.js';
+// 職業の 名前は その 人 むけ（男の子の 美少女戦士は「仮面のしんし」、セーラームーンは「タキシード仮面」。第33回）
+import { jobLabel } from '../../shared/job-label.js';
 import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS, turnSeconds } from '../../shared/battle.js';
 import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily, gearSortPref, setGearSortPref } from '../prefs.js';
 import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, TIER_NAMES } from '../../shared/data/jobs.js';
@@ -310,7 +312,7 @@ export class FieldMenu {
     const mates = this.myMates();
     const title = { skills: 'だれの呪文・技？', equip: 'だれの装備？', status: 'だれの強さ？' }[next] || 'だれ？';
     const items = [{ label: `${g.me.name}（自分）`, value: 'self', face: faceURL({ look: g.me.look, job: g.me.job, eq: shownEquip(g.me) }) },
-      ...mates.map((m) => ({ label: `${m.name}（${m.species ? MONSTERS[m.species]?.name : JOBS[m.job]?.name} Lv${m.level}${m.wagon ? '・馬車' : ''}）`, value: m.key, face: faceURL({ look: m.look, job: m.job, eq: shownEquip(m), mon: m.species || undefined }) }))];
+      ...mates.map((m) => ({ label: `${m.name}（${m.species ? MONSTERS[m.species]?.name : jobLabel(m.job, m)} Lv${m.level}${m.wagon ? '・馬車' : ''}）`, value: m.key, face: faceURL({ look: m.look, job: m.job, eq: shownEquip(m), mon: m.species || undefined }) }))];
     // 強さは「全員」を 一覧で くらべられる
     if (next === 'status') items.unshift({ label: '全員（一覧でくらべる）', value: '__all' });
     // 装備は「みんなさいきょう装備」も ここ（だれかを えらぶ ときと おなじ 場所）
@@ -838,14 +840,14 @@ export class FieldMenu {
           return `${nm} ${seen ? Math.min(use[k] || 0, n) : '?'}/${n}回`;
         }).join('　');
         const prog = hiraProgress(c, id);
-        const whoText = a.kind === 'combo' ? `掛け合わせ技（${comboJobNames(id).join('・')}とその超級職）` : '';
+        const whoText = a.kind === 'combo' ? `掛け合わせ技（${comboJobNames(id, c).join('・')}とその超級職）` : '';
         const tag = ok ? '<span class="tag good">ひらめいた</span>' : prog >= 1 ? '<span class="tag gold">もうすぐ！</span>' : '';
         return {
           id, cls: ok ? '' : 'locked',
           html: `<span class="nm">${ok ? esc(a.name) : '？？？？'}</span>${tag}<span class="ln">${esc(reqs)}</span>${whoText ? `<span class="ln gold">${esc(whoText)}</span>` : ''}${ok ? `<span class="ln muted">${esc(skillBrief(a))}</span>` : ''}`,
         };
       }));
-      const jobName = JOBS[c.job]?.name || '';
+      const jobName = jobLabel(c.job, c);
       if (!order.length) box.append(el('div', { class: 'muted', text: jobName ? `${jobName}でひらめく技はない。` : 'ひらめく技はない。' }));
       box.append(el('div', { class: 'detail', text: `${c.name}の今の職業（${jobName || 'なし'}）でひらめく技だけ出している。ほかの職業の技は、その職業についた時に出る。\n書いてある回数をこえると、その技を使ったしゅんかんに、ひらめくことがある。神殿の「ひらめきの賢者」がヒントを教えてくれる。` }));
       return box;
@@ -886,7 +888,7 @@ export class FieldMenu {
         const known = dualKnown(c, id) || dualKnown(g.me, id);
         return {
           id, cls: `dual-row n${n}${known ? '' : ' unknown'}`,
-          html: `<span class="nm dual-nm">${esc(t.name)}</span><span class="ln">${esc(`${n}人技・MP ${t.mp.join('＋')}・必要な職業：${dualNeedText(id)}`)}</span><span class="ln muted">${known ? esc(t.desc) : '効果は？？？（一度使うとわかる。まだ使っていない）'}</span>`,
+          html: `<span class="nm dual-nm">${esc(t.name)}</span><span class="ln">${esc(`${n}人技・MP ${t.mp.join('＋')}・必要な職業：${dualNeedText(id, false, c)}`)}</span><span class="ln muted">${known ? esc(t.desc) : '効果は？？？（一度使うとわかる。まだ使っていない）'}</span>`,
         };
       }));
       if (!shownDual.length) box.append(el('div', { class: 'muted', text: '今のパーティーで出せそうな合体技は、まだない。' }));
@@ -994,7 +996,7 @@ export class FieldMenu {
       onMove: (it) => {
         if (it.value === '__best') detail.textContent = 'ふくろの中から、攻撃力・守備力がいちばん上がる武器・よろい・たて・かぶとを選ぶ（アクセサリーはそのまま）\n何が何に変わるかを見てから、決められる';
         else if (it.value === '__look') detail.textContent = LOOK_HELP;
-        else detail.textContent = c.equip?.[it.value] ? `E ${ITEMS[c.equip[it.value]].name}（装備している）\n${itemDetail(c.equip[it.value], mons)}` : '';
+        else detail.textContent = c.equip?.[it.value] ? `E ${ITEMS[c.equip[it.value]].name}（装備している）\n${itemDetail(c.equip[it.value], mons, c)}` : '';
       },
       onSelect: async (it) => {
         const slot = it.value;
@@ -1214,7 +1216,7 @@ export class FieldMenu {
     const box = el('div');
     // レベルは 99まで（stats.js の MAX_LEVEL）
     const next = c.level >= MAX_LEVEL ? null : expForLevel(c.level + 1) - (c.exp || 0);
-    const kind = c.species ? `${MONSTERS[c.species]?.name || ''}（モンスター）` : JOBS[c.job]?.name || '';
+    const kind = c.species ? `${MONSTERS[c.species]?.name || ''}（モンスター）` : jobLabel(c.job, c);
     box.append(el('h3', { text: `${c.name}　${kind}` }));
     const kv = (k, v, cls = '') => el('div', { class: 'kv' }, el('span', { class: 'k', text: k }), el('span', { class: cls, text: String(v) }));
     box.append(el('div', { class: 'twocol' },
@@ -1236,7 +1238,7 @@ export class FieldMenu {
         if (!info) continue;
         const pg = jobProgress(c, j);
         jobs.append(el('div', { class: 'kv small' },
-          el('span', { class: j === c.job ? 'good' : '', text: `${JOBS[j].name}${JOBS[j].tier ? `（${TIER_NAMES[JOBS[j].tier]}）` : ''}` }),
+          el('span', { class: j === c.job ? 'good' : '', text: `${jobLabel(j, c)}${JOBS[j].tier ? `（${TIER_NAMES[JOBS[j].tier]}）` : ''}` }),
           el('span', { class: pg.done ? 'gold' : '', text: pg.done ? `Lv${JOB_MAX_LEVEL} ★マスター` : `Lv${info.lv}（あと${pg.next}回）` })));
       }
       box.append(jobs, el('div', { class: 'detail', text: '1回の攻撃で終わってしまう戦いでは、職業の修行は半分しか進まない。' }));
@@ -1264,15 +1266,15 @@ export class FieldMenu {
       name: x.name, level: x.level, hp: x.hp, mp: x.mp, maxHp: st.maxHp ?? x.maxHp, maxMp: st.maxMp ?? x.maxMp, st, kind,
       face: faceURL({ look: x.look, job: x.job, eq: shownEquip(x), mon: x.species || undefined }),
     });
-    add(g.me, computeStats(g.me), JOBS[g.me.job]?.name || '');
+    add(g.me, computeStats(g.me), jobLabel(g.me.job, g.me));
     for (const m of this.myMates()) {
       const c = this.charOf(m.key);
-      if (c) add(m, computeStats(c), `${m.wagon ? '馬車・' : ''}${m.species ? MONSTERS[m.species]?.name || '' : JOBS[m.job]?.name || ''}`);
+      if (c) add(m, computeStats(c), `${m.wagon ? '馬車・' : ''}${m.species ? MONSTERS[m.species]?.name || '' : jobLabel(m.job, m)}`);
     }
     // 家族（パーティーの ほかの 人）と その なかま、ゲスト
-    for (const m of p.members || []) if (m.sid !== g.sid && m.st) add(m, m.st, JOBS[m.job]?.name || '');
-    for (const m of p.supports || []) if (m.owner !== g.me.id && m.st) add(m, m.st, m.species ? MONSTERS[m.species]?.name || '' : JOBS[m.job]?.name || '');
-    for (const m of p.guests || []) if (m.st) add(m, m.st, JOBS[m.job]?.name || '');
+    for (const m of p.members || []) if (m.sid !== g.sid && m.st) add(m, m.st, jobLabel(m.job, m));
+    for (const m of p.supports || []) if (m.owner !== g.me.id && m.st) add(m, m.st, m.species ? MONSTERS[m.species]?.name || '' : jobLabel(m.job, m));
+    for (const m of p.guests || []) if (m.st) add(m, m.st, jobLabel(m.job, m));
     const rows = [
       ['レベル', (x) => x.level],
       ['HP', (x) => x.maxHp, (x) => `${Math.max(0, x.hp)}/${x.maxHp}`],
@@ -1312,9 +1314,9 @@ export class FieldMenu {
     const face = (x) => el('img', { class: 'face', src: faceURL({ look: x.look, job: x.job, eq: shownEquip(x), mon: x.species || undefined }), alt: '' });
     const row = (x, name, tag, cls = '') => el('div', { class: 'kv party-row' }, el('span', { class: cls }, face(x), name), el('span', { class: 'small muted', text: tag }));
     // ならびの じゅん（リーダーが きめる。先頭ほど 敵に ねらわれやすい）
-    const memRows = (p?.members || []).map((m) => row(m, `${m.sid === p.leader ? '★' : ''}${m.name}（${JOBS[m.job].name} Lv${m.level}）`, `HP ${m.hp}/${m.maxHp}`, m.sid === p.leader ? 'gold' : ''));
+    const memRows = (p?.members || []).map((m) => row(m, `${m.sid === p.leader ? '★' : ''}${m.name}（${jobLabel(m.job, m)} Lv${m.level}）`, `HP ${m.hp}/${m.maxHp}`, m.sid === p.leader ? 'gold' : ''));
     const supRows = (p?.supports || []).map((s) => {
-      const kind = s.species ? `${MONSTERS[s.species]?.name}${s.plus ? `＋${s.plus}` : ''} Lv${s.level}` : `${JOBS[s.job]?.name} Lv${s.level}`;
+      const kind = s.species ? `${MONSTERS[s.species]?.name}${s.plus ? `＋${s.plus}` : ''} Lv${s.level}` : `${jobLabel(s.job, s)} Lv${s.level}`;
       return row(s, `${s.name}（${kind}）`, s.family ? '家族サポート' : s.species ? 'モンスター' : '仲間');
     });
     const pos = Math.max(0, Math.min(supRows.length, p?.selfPos || 0));
@@ -1324,7 +1326,7 @@ export class FieldMenu {
     // 馬車（リーダーの もの。ui/wagon.js）
     if (p?.wagon) {
       rows.push(el('div', { class: 'small gold', style: { marginTop: '0.4em' }, text: `馬車（${p.wagon.length}人）` }));
-      for (const w of p.wagon) rows.push(row(w, `${w.name}（${w.species ? MONSTERS[w.species]?.name : JOBS[w.job]?.name} Lv${w.level}）`, w.hp > 0 ? `HP ${w.hp}/${w.maxHp}` : '死んでいる'));
+      for (const w of p.wagon) rows.push(row(w, `${w.name}（${w.species ? MONSTERS[w.species]?.name : jobLabel(w.job, w)} Lv${w.level}）`, w.hp > 0 ? `HP ${w.hp}/${w.maxHp}` : '死んでいる'));
     }
     box.append(...rows);
     if (!active) {

@@ -3,6 +3,7 @@ import { ITEMS, SLOT_NAMES, WEAPON_CAT_NAMES } from '../../shared/data/items.js'
 import { abilityTypeText } from '../../shared/data/abilities.js';
 import { abilityFor, abilityLabel } from '../../shared/ability-label.js';
 import { JOBS, ALL_JOBS } from '../../shared/data/jobs.js';
+import { jobLabel } from '../../shared/job-label.js';
 import { MONSTERS } from '../../shared/data/monsters.js';
 import { MONSTER_FRIENDS } from '../../shared/data/companions.js';
 import { computeStats, canEquip, canEquipMonster, monsterGear, penaltyFor, mpCost, comboJobNames, comboAllowed, jobPower } from '../../shared/stats.js';
@@ -45,7 +46,8 @@ export function rankText(id) {
 }
 
 // mons: じぶんの モンスターの なかま [{ name, species }]（あれば「装備できる 魔物」に 名前を 出す）
-export function whoCanEquip(id, mons = null) {
+// who: 見ている キャラ（職業の 名前を その 人 むけに。shared/job-label.js）
+export function whoCanEquip(id, mons = null, who = null) {
   const it = ITEMS[id];
   if (!it || !['weapon', 'armor', 'shield', 'head', 'acc'].includes(it.type)) return '';
   const jobs = ALL_JOBS.filter((j) => canEquip(j, id));
@@ -61,9 +63,9 @@ export function whoCanEquip(id, mons = null) {
     } else if (monOk.length) monText = `仲間の魔物 ${monOk.length}種類`;
   }
   if (jobs.length === ALL_JOBS.length) return monText ? `人はだれでも装備できる\n${monText}` : 'だれでも装備できる';
-  const base = jobs.filter((j) => !JOBS[j].tier).map((j) => JOBS[j].name);
+  const base = jobs.filter((j) => !JOBS[j].tier).map((j) => jobLabel(j, who));
   const adv = jobs.filter((j) => JOBS[j].tier === 1);
-  const advText = adv.length <= 4 ? adv.map((j) => JOBS[j].name).join('・') : `上級職 ${adv.length}種類`;
+  const advText = adv.length <= 4 ? adv.map((j) => jobLabel(j, who)).join('・') : `上級職 ${adv.length}種類`;
   // 超級職の なまえは 神殿で ヒントが 出るまで ひみつ
   const sup = jobs.filter((j) => JOBS[j].tier >= 2).length;
   return `装備: ${[base.join('・'), advText, sup ? `超級職 ${sup}種類` : ''].filter(Boolean).join(' ／ ')}${monText ? `\n${monText}` : ''}`;
@@ -82,7 +84,7 @@ export function gearText(species) {
   return parts.join('・');
 }
 
-export function itemDetail(id, mons = null) {
+export function itemDetail(id, mons = null, who = null) {
   const it = ITEMS[id];
   if (!it) return '';
   const lines = [it.desc || ''];
@@ -99,7 +101,7 @@ export function itemDetail(id, mons = null) {
   // ムチ・ブーメラン: ふつうの 攻撃が 何体にも 当たる
   const reach = it.type === 'weapon' ? attackReach(it.cat) : 'enemy';
   if (reach !== 'enemy') lines.push(`${reach === 'group' ? '攻撃で同じ種類の敵みんなに当たる' : '攻撃で敵全体に当たる'}（2体目から少しずつ弱くなる）`);
-  const w = whoCanEquip(id, mons);
+  const w = whoCanEquip(id, mons, who);
   if (w) lines.push(w);
   // ふしぎなかじ
   if (it.plus) lines.push(`ふしぎなかじで${it.plus}回きたえてある（+${it.plus}）`);
@@ -170,15 +172,15 @@ export function abilityDetail(id, char, { brief = false } = {}) {
   lines.push(a.desc || '');
   if (a.kind === 'combo') {
     lines.push(`掛け合わせ: ${a.requires.map((r) => abilityLabel(r, char)).join(' ＋ ')}`);
-    lines.push(`使える職業: ${comboJobNames(id).join('・')}（とその超級職）`);
+    lines.push(`使える職業: ${comboJobNames(id, char).join('・')}（とその超級職）`);
     if (char && char.job && !comboAllowed(char, id)) lines.push('⚠ 今の職業では使えない');
   } else if (a.job) {
-    lines.push(`覚えた職業: ${JOBS[a.job]?.name || ''}`);
+    lines.push(`覚えた職業: ${jobLabel(a.job, char)}`);
     // 職業レベルで 威力が 上がる
     const jp = char ? jobPower(char, id) : 1;
     // 上位の 技（data/skill-ups.js）は もとの 技の 職業レベルの 威力を うけつぐ
     const base = abilityFor(SKILL_UPS[id], char);
-    if (jp > 1) lines.push(`${JOBS[a.job]?.name}Lv${char.jobs?.[a.job]?.lv || 1}：威力+${Math.round((jp - 1) * 100)}%${base ? `（${base.name}の上位の技。もとの技の強さを受けつぐ）` : ''}`);
+    if (jp > 1) lines.push(`${jobLabel(a.job, char)}Lv${char.jobs?.[a.job]?.lv || 1}：威力+${Math.round((jp - 1) * 100)}%${base ? `（${base.name}の上位の技。もとの技の強さを受けつぐ）` : ''}`);
   }
   if (a.weapon === 'blade') lines.push('剣・短剣・オノが必要');
   if (a.weapon === 'fist') lines.push('ツメか素手で使う');
