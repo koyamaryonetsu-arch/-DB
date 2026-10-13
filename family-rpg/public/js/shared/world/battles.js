@@ -4,7 +4,7 @@ import { scaleExp, difficultyOf, rewardExp, rewardGold } from '../data/difficult
 import { POWDER, powderLeft } from '../data/friend-powder.js';
 import { MONSTERS } from '../data/monsters.js';
 import { ITEMS } from '../data/items.js';
-import { ABILITIES } from '../data/abilities.js';
+import { abilityLabel } from '../ability-label.js';
 import { JOBS } from '../data/jobs.js';
 import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js';
 import { gainExp, gainJobBattles, jobTrainMult, itemCount, removeItem, addItem, ownsItem, computeStats, fullHeal } from '../stats.js';
@@ -354,7 +354,7 @@ function finishBattle(world, ctx) {
     ch.skillUse = { ...a.use };
     if (a.hiraNew?.length) {
       ch.hirameki = [...new Set([...(Array.isArray(ch.hirameki) ? ch.hirameki : []), ...a.hiraNew])];
-      for (const id of a.hiraNew) hiraLines.push(`★ ${ch.name}は「${ABILITIES[id]?.name}」をひらめいた！（これからも使える）`);
+      for (const id of a.hiraNew) hiraLines.push(`★ ${ch.name}は「${abilityLabel(id, ch)}」をひらめいた！（これからも使える）`);
     }
   }
 
@@ -416,14 +416,14 @@ function finishBattle(world, ctx) {
         jups = gainJobBattles(c, trainN);
         if (oneBlow) lines.push('（一撃で終わったので、職業の修行は半分）');
       }
-      own[m.id] = growthSummary(c.name, ups, jups);
+      own[m.id] = growthSummary(c.name, ups, jups, c);
       perSession[m.id] = { lines, levelUp: ups.length > 0, jobUp: jups.length > 0, drops };
     }
     // なかま: たたかいに でた なかまだけ そだつ。家族の キャラには おれいが とどく
     const compRows = [], compNotes = [], expLines = [];
     const grow = (ch, x, trains) => {
       const { ups, jups } = growCompanion(ch, x * hat(ch), trains);
-      const g = growthSummary(ch.name, ups, jups);
+      const g = growthSummary(ch.name, ups, jups, ch);
       compRows.push(...g.lines);
       compNotes.push(...g.notes);
     };

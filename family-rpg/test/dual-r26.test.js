@@ -15,6 +15,7 @@ import { Battle, DUAL_POWER, DUAL_ASK_MS } from '../public/js/shared/battle.js';
 import { makeRng } from '../public/js/shared/rng.js';
 import { DUAL_FX, cutMs } from '../public/js/client/render/dualfx.js';
 import { checkText } from '../tools/kanji-check.mjs';
+import { dualLabel } from '../public/js/shared/ability-label.js';
 
 const master = (c, j) => { c.jobs[j] = { lv: JOB_MAX_LEVEL, b: 999 }; };
 const chain = (c, j) => {
@@ -464,7 +465,8 @@ test('どの 合体技も ほんとうの たたかいで 出せる（人数ぶ�
     assert.equal(r.ok, true, `${id}: ${r.reason || ''}`);
     const act = runUntil(b, isDual, 8000).find(isDual);
     assert.equal(act?.dual?.id, id, `${id} が 出た`);
-    assert.equal(act.name, t.name);
+    // 第33回: 男の子の 美少女戦士が 入ると 名前が かわる（ability-label.js の dualFor）
+    assert.equal(act.name, dualLabel(t, b.allies));
     assert.equal(act.dual.m.length, t.need.length);
     assert.equal(act.fx.type, 'dual');
     if (!t.parts.some((p) => p.type === 'mpHeal')) {

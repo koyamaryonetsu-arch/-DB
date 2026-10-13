@@ -3,6 +3,7 @@ import { el, ListMenu, toast, askText, confirmBox, esc } from './dom.js';
 import { ITEMS } from '../../shared/data/items.js';
 import { JOBS, SUPER_ORDER, LEGEND_ORDER, TIER_ORDERS, TIER_NAMES, JOB_MAX_LEVEL, jobReqText, jobReqSets, jobBodyOk, BODY_NAMES, JOB_HINTS, superMasteredCount } from '../../shared/data/jobs.js';
 import { ABILITIES } from '../../shared/data/abilities.js';
+import { abilityFor } from '../../shared/ability-label.js';
 import { salonUI } from './salon.js';
 import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered, canEquip } from '../../shared/stats.js';
 import { MONSTERS } from '../../shared/data/monsters.js';
@@ -239,7 +240,8 @@ function jobUI(game) {
       const learn = el('div', { class: 'small job-learn' });
       learn.append(el('div', { class: 'gold', text: `覚える技（職業レベル）　全${job.learn.length}こ` }));
       for (const [l, id] of job.learn) {
-        const a = ABILITIES[id];
+        // 転職する 人 むけの 名前（男の子の 美少女戦士は タキシード仮面ふう。shared/ability-label.js）
+        const a = abilityFor(id, c);
         const got = lv >= l;
         const row = el('div', { class: `jl-row ${got ? 'good' : 'muted'}` },
           el('span', { class: 'jl-lv', text: `Lv${l}` }),

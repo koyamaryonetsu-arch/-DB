@@ -31,6 +31,8 @@ import { setupTemple, templeTurnStart, prisonTurn, reflectSpell, templeEffect, t
 import { towerTurnStart, foreseeCheck, towerEffect, towerKill, towerPub } from './battle-ch5.js';
 // 第33回: 3年B組の担任は 学校の 仲間が いると 技が 強く なる（battle-r33.js）
 import { classmateMult } from './battle-r33.js';
+// 第33回: 男の子の 美少女戦士・セーラームーンは タキシード仮面ふうの 技の 名前・セリフ・えんしゅつ（強さは おなじ）
+import { abilityFor } from './ability-label.js';
 
 // 第31回: きずなゲージ・きずな技（ミナデイン）は なくなった（ミナデインは 合体技に。data/dual.js の dt_minadein）
 // 合体技の 2人の 強さの 合わせかた（dualProxy）: 強い ほうの 強さ ＋ 弱い ほうの この わりあい
@@ -733,7 +735,8 @@ export class Battle {
       case 'mahouken': this.doMahouken(c, cmd, ev); break;
       case 'dual': this.performDual(c, cmd, ev); break;
       case 'ability': {
-        const a = ABILITIES[cmd.id];
+        // 使う 人 むけの 技（男の子の 美少女戦士・セーラームーンは 名前・セリフ・えんしゅつが かわる。ability-label.js）
+        const a = abilityFor(cmd.id, c);
         if (!a) break;
         ev.name = a.name;
         ev.ability = cmd.id;
@@ -1840,7 +1843,7 @@ export class Battle {
 
   // ひらめいた 技を その場で 出す（はじめの 1回は MP いらず）。覚えて、たたかいの あとも 使える
   doHirameki(c, id, cmd, ev) {
-    const a = ABILITIES[id];
+    const a = abilityFor(id, c);
     c.abilities = [...c.abilities, id];
     c.hiraNew = [...(c.hiraNew || []), id];
     ev.hirameki = { id, name: a.name, actor: c.id };

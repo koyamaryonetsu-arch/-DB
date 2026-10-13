@@ -1,6 +1,8 @@
 // たたかいの がめん（むかしの RPG ふう 1がめん）
 import { el, esc, ListMenu, toast } from './ui/dom.js';
 import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js';
+// 第33回: 技の 名前は 使う 人 むけ（男の子の 美少女戦士・セーラームーンは タキシード仮面ふう）
+import { abilityFor, abilityLabel } from '../shared/ability-label.js';
 import { ITEMS } from '../shared/data/items.js';
 import { JOBS } from '../shared/data/jobs.js';
 import { MONSTERS } from '../shared/data/monsters.js';
@@ -573,10 +575,11 @@ export class BattleScene {
   // keep: お気に入りを かえた ときなど、いまの カーソルと 見え方の まま 出しなおす（{ value, off }）
   abilityMenu(ids, page = 'spell', keep = null) {
     const a = this.myActor;
-    const pc = a.pc || { job: a.job, jobs: this.game.me.jobs };
+    // look: 技の 名前・説明を 使う 人 むけに（男の子の 美少女戦士など。shared/ability-label.js）
+    const pc = { ...(a.pc || { job: a.job, jobs: this.game.me.jobs }), look: a.look, mon: a.mon };
     const silenced = (a.status || []).includes('silence');
     const row = (id, fav) => {
-      const ab = ABILITIES[id];
+      const ab = abilityFor(id, a);
       const isMk = ab.effect.type === 'mahouken';
       const cost = isMk ? 0 : mpCost(pc, id);
       const pen = penaltyFor(pc, id).penalized;
@@ -628,7 +631,7 @@ export class BattleScene {
       }));
     };
     this.showMenu(items, (it) => {
-      const ab = ABILITIES[it.value];
+      const ab = abilityFor(it.value, a);
       this.rememberPick(a, page, it.value);
       if (ab.effect.type === 'mahouken') return this.mahoukenMenu();
       // 相手を えらぶ 間も おなじ せつめい（「もう一度タップ」は もう いらない）
@@ -667,7 +670,7 @@ export class BattleScene {
       },
       onCancel: () => cancel(),
     });
-    const box = el('div', { class: 'win b-favpop', role: 'dialog' }, el('div', { class: 'bf-t', text: `${ABILITIES[id]?.name || ''}${on ? '（お気に入り）' : ''}` }), menu.root);
+    const box = el('div', { class: 'win b-favpop', role: 'dialog' }, el('div', { class: 'bf-t', text: `${abilityLabel(id, a)}${on ? '（お気に入り）' : ''}` }), menu.root);
     const close = () => {
       menu.blur();
       back.remove();

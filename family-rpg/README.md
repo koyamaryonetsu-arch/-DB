@@ -754,6 +754,8 @@
 | はがねのれん金術師 | 国家れん金術師 | 右うでと左足がはがねの機械の、赤いコートのれん金術師（第33回）。機械のうで（守りの固い敵にも効く）・うでのやいば（攻撃力アップ）・はがねのかべ（みんなの守備力アップ＋息のダメージ半分）・等価こうかん（自分のHPで、みんなのMPを回復）・とげの森（敵全体）・**大地のやり**（敵全体に2回）。パーティーにいると、れん金がまの歩数が半分 |
 | セーラームーン | 美少女戦士 | お団子頭の、月のプリンセス（第33回）。ムーンスティック（光）・タキシード仮面のバラ（止まることも）・ルナのはげまし（みんなのMP＋魔力アップ）・ムーン・ヒーリング・エスカレーション（みんなを回復＋治す）・銀水しょうのいのり（生き返らせる）・**ムーン・プリンセス・ハレーション**（敵全体に月の光） |
 
+**男の子の美少女戦士・セーラームーン**は、見た目がタキシード仮面ふうなので、技もタキシード仮面の技になります（強さ・MPは女の子と同じ。名前とセリフとえんしゅつだけちがう）。タキシードキック・仮面のしんし・**月の光が見ているぞ！**・**ローズ・ブーメラン**／ステッキさばき・赤いバラの一撃・いやしのバラ・**タキシード・ラ・スマッシャー**、ひらめき技は 氷のバラふぶき・ローズ・スパイラル・アタック、合体技 ムーンライト・ステージは「月夜のダンスパーティー」。
+
 （なるための職業は、神殿ではマスターするまで「？？？？」です）
 
 ### 伝説の職業
@@ -1855,6 +1857,7 @@ npm start                 # 家族サーバー
     - つけたしは `hero-r26.js` からよぶ：服 `outfit33`（マントのうら・前にたれるマント・白い手ぶくろ・ローブのネクタイ・マフラー・ほうき・セーラー戦士の服）、からだ `body33`（機械の右うで `O.sleeveR`・手ぶくろのれん金の円 `O.handMark`）、絵 `drawR33`、かお `face33`（まるめがね・片めがね・いなずまのきず）、ぼうし `drawHat33`、もちもの `drawProp33`（ステッキ・予告状・トランプ銃・つえ・出席ぼ・銀時計・月のステッキ）
     - 装備の見た目（`items-r33.js` の品）：ぶき `R33_WEAPON_LOOK`（マジックステッキ・チョーク・指し棒・ニワトコのつえ・ティアラ。形 `wand33` は `drawWand33`。はがねの機械のうでは はがね色のツメ）、よろい `R33_ARMOR_LOOK`（魔法学校のローブ・かいとうの白いマント・とうめいマント・熱血先生のジャージ）、ぼうし `R33_HEAD_LOOK`（シルクハット）。銀水しょうはアクセなので絵に出ない
     - かみがた（えらべないかみ）は `hero-hair.js` の `messy33`（ハリー）・`center33`（3年B組）・`braid33`（はがね）・`moon33`（セーラームーン）。`hero.js` は右うでだけちがうそで `O.sleeveR` と、手のあとの `handMark33` を見る
+  - **男の子の技もタキシード仮面ふう**（第33回 家族が決めた）：技のデータの `masc: { name, kana, cast, desc, anim }`（強さは書かない＝同じ）。名前・セリフ・説明・えんしゅつを出す所は **`shared/ability-label.js` の `abilityFor(id か技, 人)`・`abilityLabel`** を使う（人＝キャラか戦いの人。`isMasc` は look があって `look.body !== 1`。look のないもの・魔物はもとの技）。サーバーの戦い（`battle.js` の `ability`・`doHirameki`、`battle-ch5.js`）は行動した人 `c`（`look` を持つ）で決めるので、札 `ev.name`・セリフ・`ev.fx.anim`・ひらめきの知らせが男の子用になる。クライアントは戦いの技一覧・お気に入りの窓（`client/battle.js`。`pc` に `look` を入れて `battleSkillText` にわたす）、メニュー（`menu.js` の `skillsView`・`autoSkillsView`、`info.js` の `abilityDetail`）、転職の技一覧（`ui/services.js`）、レベルアップの「覚えた」（`world/growth.js` の `growthSummary` の4つめ）、ひらめきの★（`world/battles.js`）、お気に入りの知らせ（`world/services.js`）、ひらめきの賢者（`story.js`）、転職のひとこと（`job-talk.js` の `JOB_SAY_MASC`・`jobDoneText` の5つめ）。合体技は `dual.js` の `masc: { group, name, kana, desc, says }` と `dualFor(id, 出す人たち)`（`group` の組の職業の男の子がいれば）・メニューは `dualForView`。えんしゅつは `battlefx-jobs7.js` の `r33_bara`・`r33_bara_ring`・`r33_cane`・`r33_tux_smash`（つぶ `j7rose`）。テスト `test/masc-r33.test.js`
   - **男の子の美少女戦士・セーラームーンはタキシード仮面ふう**（家族が決めた。`look.body` が 1 でない人）：`hero-r33.js` の `R33_MASC`（服・からだ〈白い仮面 `mask33`・赤いバラ `rose33`〉・シルクハット・古い小さな絵）を `masc33(job, fem)` でひく（`hero-outfit.js` の `jobOutfit`・`jobBody(job, false)`、`hero-gear.js` の `headOf`、`chars.js` の `lookToOpts`）。ティアラ・おだんごは女の子だけ。美少女戦士はマントが短めでうらはこい赤、セーラームーンはマントのうらがあかるい赤でバラが光る
   - 技のえんしゅつは `client/render/battlefx-jobs7.js`。**技の id ではなく、えんしゅつの名前（anim）でひく**（データの技に `anim: 'kaito_kid_sig'`・`anim: 'r33_card_throw'` のように書く）。一覧は `R33_SIGS`（11この職業の看板の技。名前は `<職業のid>_sig` で、A の技の id と同じ）・`R33_MOVES`（ほかの技に合うえんしゅつ21こ。`r33_…`）。`abilities-jobs9.js` の看板の技11こと、ほかの技23こ（どの技がどのえんしゅつかは `docs/plan-r33-jobs.md` の「えんしゅつ（B）」）の anim をこの名前にした。`battlefx.js` の `play()` が jobs6 のつぎに聞く。つぶは `JOB7_FINE`（`j7…`）
     - あたる時間は `JOB7_HIT`（`battle.js` の `HIT_DELAY` にまぜる）、音は `JOB7_SFX`（新しい音は `client/sfx-r33.js` の `r33_*`）、みかたにかけるえんしゅつ（画面の下に出す）は `PARTY_ANIMS7`

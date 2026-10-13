@@ -346,15 +346,18 @@ export const JOB9_ABILITIES = {
   },
 
   // ───────────── 美少女戦士（上級職。中学生＋アイドル） ─────────────
+  // 男の子（look.body が 1 で ない）は タキシード仮面ふう: masc の 名前・セリフ・説明・えんしゅつに なる（強さは おなじ。shared/ability-label.js）
   bs_heel: {
     name: 'ハイヒールキック', kana: 'はいひーるきっく', kind: 'skill', job: 'sailor_soldier', mp: 3, target: 'enemy',
     effect: { type: 'phys', mult: 1.6 },
     desc: 'くるっと回って、ハイヒールでキック。敵1体にダメージ。', cast: '{a}の、ハイヒールキック！', anim: 'kick',
+    masc: { name: 'タキシードキック', kana: 'たきしーどきっく', cast: '{a}の、タキシードキック！', desc: 'えんび服のすそをひるがえして、するどいキック。敵1体にダメージ。' },
   },
   bs_henshin: {
     name: 'メイクアップ！', kana: 'めいくあっぷ', kind: 'skill', job: 'sailor_soldier', mp: 5, target: 'self', role: 'sup',
     effect: { type: 'buff', stats: ['mag', 'def'], mult: 1.35, dur: 40 },
     desc: 'ブローチをかかげて、美少女戦士に変身！自分の魔力と守備力が上がる。', cast: '{a}「メイクアップ！」', anim: 'charge',
+    masc: { name: '仮面のしんし', kana: 'かめんのしんし', cast: '{a}は白い仮面をつけた。「仮面のしんし、ただいま参上！」', desc: 'シルクハットと白い仮面で、タキシード仮面に変身！自分の魔力と守備力が上がる。' },
   },
   bs_oshioki: {
     name: '月にかわっておしおきよ！', kana: 'つきにかわっておしおきよ', kind: 'skill', job: 'sailor_soldier', mp: 6, target: 'enemies', role: 'sup',
@@ -366,6 +369,7 @@ export const JOB9_ABILITIES = {
       ],
     },
     desc: 'びしっと決めポーズ。敵全体の攻撃力が下がり、見とれて止まる敵もいる。', cast: '{a}「愛と正義の美少女戦士！月にかわっておしおきよ！」', anim: 'r33_sailor_beam',
+    masc: { name: '月の光が見ているぞ！', kana: 'つきのひかりがみているぞ', cast: '{a}「月の光が見ているぞ！悪さはそこまでだ！」', desc: '月を背に、バラを投げて決めゼリフ。敵全体の攻撃力が下がり、見とれて止まる敵もいる。', anim: 'r33_bara' },
   },
   bs_kizuna: {
     name: '友情のきずな', kana: 'ゆうじょうのきずな', kind: 'skill', job: 'sailor_soldier', mp: 9, target: 'allies', role: 'heal',
@@ -387,6 +391,7 @@ export const JOB9_ABILITIES = {
     name: 'ムーン・ティアラ・アクション', kana: 'むーんてぃあらあくしょん', kind: 'skill', job: 'sailor_soldier', mp: 16, target: 'enemy',
     effect: { type: 'magic', element: 'light', base: [128, 152], thr: 65 },
     desc: 'ひたいのティアラを、光のわにして投げる。敵1体に光の大ダメージ。', cast: '{a}「ムーン・ティアラ・アクション！」', anim: 'sailor_soldier_sig',
+    masc: { name: 'ローズ・ブーメラン', kana: 'ろーずぶーめらん', cast: '{a}「ローズ・ブーメラン！」', desc: '光をまとった赤いバラを、ブーメランのように投げる。敵1体に光の大ダメージ。', anim: 'r33_bara_ring' },
   },
 
   // ───────────── セーラームーン（超級職。美少女戦士を きわめる） ─────────────
@@ -394,6 +399,7 @@ export const JOB9_ABILITIES = {
     name: 'ムーンスティック', kana: 'むーんすてぃっく', kind: 'skill', job: 'sailor_moon', mp: 9, target: 'enemy',
     effect: { type: 'magic', element: 'light', base: [62, 76], thr: 50 },
     desc: '三日月のついたスティックから、月の光をうつ。敵1体に光のダメージ。', cast: '{a}は、ムーンスティックをかかげた！', anim: 'r33_sailor_beam',
+    masc: { name: 'ステッキさばき', kana: 'すてっきさばき', cast: '{a}は、ステッキをくるりと回した！', desc: '月の光を宿したステッキで、するどく打つ。敵1体に光のダメージ。', anim: 'r33_cane' },
   },
   mn_bara: {
     name: 'タキシード仮面のバラ', kana: 'たきしーどかめんのばら', kind: 'skill', job: 'sailor_moon', mp: 8, target: 'enemy',
@@ -405,6 +411,7 @@ export const JOB9_ABILITIES = {
       ],
     },
     desc: 'ピンチの時、どこからか赤いバラが飛んでくる。敵1体にささり、おどろいて止まることもある。', cast: 'どこからか、赤いバラが飛んできた！', anim: 'shuriken',
+    masc: { name: '赤いバラの一撃', kana: 'あかいばらのいちげき', cast: '{a}は、赤いバラをシュッと投げた！', desc: 'むねにさした赤いバラを、すばやく投げる。敵1体にささり、おどろいて止まることもある。', anim: 'r33_bara' },
   },
   mn_luna: {
     name: 'ルナのはげまし', kana: 'るなのはげまし', kind: 'skill', job: 'sailor_moon', mp: 10, target: 'allies', role: 'sup',
@@ -415,6 +422,7 @@ export const JOB9_ABILITIES = {
     name: 'ムーン・ヒーリング・エスカレーション', kana: 'むーんひーりんぐえすかれーしょん', kind: 'skill', job: 'sailor_moon', mp: 18, target: 'allies', role: 'heal',
     effect: { type: 'multi', parts: [{ type: 'heal', base: [95, 120], thr: 60 }, { type: 'cure', statuses: STATUS_ALL }] },
     desc: 'やさしい月の光で、みんなをつつむ。仲間全員のHPを回復して、悪いじょうたいも治す。', cast: '{a}「ムーン・ヒーリング・エスカレーション！」', anim: 'r33_moon_heal',
+    masc: { name: 'いやしのバラ', kana: 'いやしのばら', cast: '{a}がバラをかかげると、月の光の花びらがふりそそいだ。', desc: '月の光を受けたバラの花びらで、みんなをつつむ。仲間全員のHPを回復して、悪いじょうたいも治す。' },
   },
   mn_inori: {
     name: '銀水しょうのいのり', kana: 'ぎんずいしょうのいのり', kind: 'skill', job: 'sailor_moon', mp: 18, target: 'deadAlly', role: 'heal',
@@ -425,5 +433,6 @@ export const JOB9_ABILITIES = {
     name: 'ムーン・プリンセス・ハレーション', kana: 'むーんぷりんせすはれーしょん', kind: 'skill', job: 'sailor_moon', mp: 32, target: 'enemies',
     effect: { type: 'magic', element: 'light', base: [150, 178], thr: 85 },
     desc: '月のプリンセスの力をときはなつ、月の光の必殺技。敵全体に光の大ダメージ。', cast: '{a}「ムーン・プリンセス・ハレーション！」', anim: 'sailor_moon_sig',
+    masc: { name: 'タキシード・ラ・スマッシャー', kana: 'たきしーどらすまっしゃー', cast: '{a}「タキシード・ラ・スマッシャー！」', desc: '月を背に、ステッキから白い光の波をはなつ、月夜の必殺技。敵全体に光の大ダメージ。', anim: 'r33_tux_smash' },
   },
 };

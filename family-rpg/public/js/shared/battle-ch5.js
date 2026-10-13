@@ -15,6 +15,7 @@
 //   b.argosNaive … 知らない 人（読まれても そのまま）／ b.knowsArgos … 知っている 人（星のさばきの 前に 身を 守る も）
 import { MONSTERS } from './data/monsters.js';
 import { ABILITIES } from './data/abilities.js';
+import { abilityFor } from './ability-label.js';
 import { ITEMS } from './data/items.js';
 import { mpCost, penaltyFor } from './stats.js';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
@@ -158,7 +159,8 @@ function foreseeHit(b, c, cmd, ev, by, kind) {
   const conf = confOf(by) || {};
   const A = shortName(by);
   // 何を しようと したか（ふつうの 行動と おなじ はじめの ことば）
-  const a = cmd.type === 'ability' ? ABILITIES[cmd.id] : null;
+  // 使う 人 むけの 技の 名前・セリフ（男の子の 美少女戦士など。ability-label.js）
+  const a = cmd.type === 'ability' ? abilityFor(cmd.id, c) : null;
   if (a) {
     // MPが たりない・呪文が ふうじられて いる: ふつうに しっぱい（読みは 消える）
     const cost = mpCost(c.penChar, cmd.id);
