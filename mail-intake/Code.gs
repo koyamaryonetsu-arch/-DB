@@ -20,7 +20,7 @@
  *   ANTHROPIC_API_KEY          - Anthropic APIキー
  *   SUPABASE_SERVICE_ROLE_KEY  - Supabase の service_role キー（Settings > API）
  *   SUPABASE_URL               - (任意) 既定 https://hykjpadvbficiiuockhj.supabase.co
- *   ANTHROPIC_MODEL            - (任意) 既定 claude-haiku-4-5-20251001（本文抽出は安いHaikuで十分）
+ *   ANTHROPIC_MODEL            - (任意) 既定 claude-haiku-5-5（本文の読み取り・内容の要約・劇場情報の抽出。安い最新Haiku）
  *   ANTHROPIC_OCR_MODEL        - (任意) 既定 claude-sonnet-4-6（添付見積書の画像/PDF読取は視覚対応モデル）
  *   ANTHROPIC_DECIDE_MODEL     - (任意) 既定 claude-sonnet-5-5（「新規か既存の続きか」の判断。精度が要なので上位モデル）
  *
@@ -62,7 +62,11 @@ function cfg_(k, d) {
   return (v === null || v === '') ? (d === undefined ? '' : d) : v;
 }
 function SUPABASE_URL_() { return cfg_('SUPABASE_URL', 'https://hykjpadvbficiiuockhj.supabase.co'); }
-function MODEL_() { return cfg_('ANTHROPIC_MODEL', 'claude-haiku-4-5-20251001'); }
+function MODEL_() { return cfg_('ANTHROPIC_MODEL', 'claude-haiku-5-5'); }
+// 最新のモデルが使えない時のやり直し用（以前の Haiku）
+var PREV_MODEL = 'claude-haiku-4-5-20251001';
+// 「考える量(effort)」を指定できるモデルか（以前の Haiku 4.5 などは指定するとエラーになる）
+function supportsEffort_(model) { return !/haiku-4|sonnet-4-5|claude-3/.test(String(model || '')); }
 // 添付見積書のAI-OCRは画像/PDFを読むため視覚対応モデル（既定Sonnet）を使う
 function OCR_MODEL_() { return cfg_('ANTHROPIC_OCR_MODEL', 'claude-sonnet-4-6'); }
 // 「新規か既存の続きか」の判断に使うモデル。読み取り(Haiku)より上位のモデルで、メール本文も見て判断する
@@ -1131,14 +1135,16 @@ function isDuplicateNote_(content, note) {
 // 何も渡さなければ今までどおり MODEL_()（劇場情報の取り込み等、他の呼び出し元もそのまま動く）
 function anthropicText_(apiKey, system, user, maxTokens, opts) {
   opts = opts || {};
-  var useModel = opts.model || MODEL_();
+  var useModel = opts.model || opts.forceModel || MODEL_();
   var body = { model: useModel, max_tokens: maxTokens || 500, system: system, messages: [{ role: 'user', content: user }] };
   var headers = { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' };
-  if (opts.model) {
-    // 上位モデルは考える分のトークンも使うので余裕を持たせる。判断は単純なので effort は low
-    body.max_tokens = Math.max(body.max_tokens, 4000);
+  if (supportsEffort_(useModel)) {
+    // 最新のモデルは「考える分」も上限(max_tokens)に数えるので余裕を持たせる。読み取り・要約・判断とも単純なので effort は low
+    body.max_tokens = Math.max(body.max_tokens, opts.model ? 4000 : 3000);
     body.output_config = { effort: opts.effort || 'low' };
-    // 安全機能で応答を断られた時は、自動で別のモデルに切り替えて答えさせる
+  }
+  if (opts.model) {
+    // 判断用の上位モデル: 安全機能で応答を断られた時は、自動で別のモデルに切り替えて答えさせる
     body.fallbacks = 'default';
     headers['anthropic-beta'] = 'server-side-fallback-2026-07-01';
   }
@@ -1148,9 +1154,14 @@ function anthropicText_(apiKey, system, user, maxTokens, opts) {
   });
   if (res.getResponseCode() >= 300) {
     Logger.log('Anthropic失敗(' + useModel + '): ' + res.getContentText());
+    // 判断用の上位モデル → 読み取り用モデル → 以前の Haiku の順にやり直す
     if (opts.model && opts.model !== MODEL_()) {
-      Logger.log('従来のモデル(' + MODEL_() + ')でやり直します');
+      Logger.log('読み取り用のモデル(' + MODEL_() + ')でやり直します');
       return anthropicText_(apiKey, system, user, maxTokens);
+    }
+    if (!opts.forceModel && useModel !== PREV_MODEL) {
+      Logger.log('以前のモデル(' + PREV_MODEL + ')でやり直します');
+      return anthropicText_(apiKey, system, user, maxTokens, { forceModel: PREV_MODEL });
     }
     return '';
   }
@@ -1226,6 +1237,9 @@ function testDecideModel() {
   var t = anthropicText_(apiKey, 'JSONのみ出力。', '{"ok":true} とだけ返してください。', 100, { model: DECIDE_MODEL_(), effort: 'low' });
   var j = safeJson_(t);
   Logger.log('判断用モデル ' + DECIDE_MODEL_() + ': ' + (j && j.ok ? 'OK' : ('応答を確認してください → ' + String(t).slice(0, 200))));
+  var t2 = anthropicText_(apiKey, 'JSONのみ出力。', '{"ok":true} とだけ返してください。', 100);
+  var j2 = safeJson_(t2);
+  Logger.log('読み取り用モデル ' + MODEL_() + ': ' + (j2 && j2.ok ? 'OK' : ('応答を確認してください → ' + String(t2).slice(0, 200))));
 }
 function testConnections() {
   var n = GmailApp.search('label:' + SRC_LABEL + ' -label:' + DONE_LABEL + ' newer_than:2d').length;
