@@ -34,7 +34,8 @@ function mk(job, name, lv = 40) {
 
 test('魔物使い・モンスターマスターの 合体技 3こ（2人技2・3人技1）: 名前・組・MP・えんしゅつ・文字', () => {
   for (const id of NEW) assert.ok(DUAL_TECHS[id], id);
-  assert.equal(DUAL_ORDER.length, 41);
+  // 第33回: 11の 職業の 5こで 46こ（test/jobs-r33.test.js）
+  assert.equal(DUAL_ORDER.length, 46);
   assert.deepEqual(NEW.map((id) => DUAL_TECHS[id].name), ['ビーストクロス', '大サーカス', 'ワイルドラッシュ']);
   assert.deepEqual(NEW.map(dualSize), [2, 2, 3]);
   for (const id of NEW) {

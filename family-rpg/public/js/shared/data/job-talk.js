@@ -12,8 +12,25 @@ export function jobAskText(jobName, mate = null) {
   return mate ? `${mate}を${jobName}に転職させますか？` : `${jobName}に転職しますか？`;
 }
 
+// 第33回: 職業に ついた ときの ひとこと（1行。新しい 職業だけ。ない 職業は 何も 足さない）
+export const JOB_SAY = {
+  magician: '「タネも仕かけもございません！」',
+  kaito: '「予告状は、もうとどけたよ」',
+  kaito_kid: '「レディース・エーン・ジェントルメーン！」',
+  wizard_student: '「入学のしるしに、つえをもらった！」',
+  harry: '「おでこのきずが、ちくっといたんだ…」',
+  homeroom_3b: '「さあ、授業を始めますよ」',
+  alchemist: '「両手を合わせて…れん成！」',
+  state_alchemist: '「国のしるし、銀時計をもらった！」',
+  fullmetal: '「だれがチビだって！？」',
+  sailor_soldier: '「メイクアップ！」',
+  sailor_moon: '「月にかわっておしおきよ！」',
+};
+
 // removed: 装備できなく なって はずした 物の 名前（多い ときは 2つ と「など」）
-export function jobDoneText(name, jobName, removed = []) {
+// jobId: なった 職業（JOB_SAY の ひとことを 2行目に）
+export function jobDoneText(name, jobName, removed = [], jobId = null) {
+  const say = jobId && JOB_SAY[jobId] ? `\n${JOB_SAY[jobId]}` : '';
   const off = removed.length ? `\n（${removed.slice(0, 2).join('・')}${removed.length > 2 ? 'など' : ''}を外した）` : '';
-  return `${name}は${jobName}になった！${off}`;
+  return `${name}は${jobName}になった！${say}${off}`;
 }

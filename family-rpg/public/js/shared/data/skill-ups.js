@@ -26,6 +26,13 @@ export const SKILL_UPS = {
   // 剣の 技の 上位
   dk_gigabreak: 'mk_inazuma',
   lt_gigacross: 'hr_gigaslash',
+  // 第33回の 職業の 道（手品師の 道・れん金術師の 道・美少女戦士の 道・魔法学校の 道）
+  kaito_kid_sig: 'kt_card',
+  sl_hashira: 'al_toge',
+  fullmetal_sig: 'sl_hashira',
+  state_alchemist_sig: 'al_bakuhatsu',
+  sailor_moon_sig: 'sailor_soldier_sig',
+  harry_sig: 'ws_hikari',
 };
 
 // もとの 技（ない ときは null）

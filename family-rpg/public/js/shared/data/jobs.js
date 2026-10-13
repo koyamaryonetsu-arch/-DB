@@ -1038,7 +1038,111 @@ export const JOBS = {
     perLv: { str: 1.5, agi: 1.5, hp: 0.5 },
     learn: [[1, 'ht_shinsoku'], [3, 'ht_mantle'], [5, 'ht_ootatsu'], [7, 'ht_ikiyou'], [8, 'ht_yomi'], [10, 'hiten_sig']],
   },
+
+  // ───────────── 2026年10月（第33回）: 11の 職業（技は abilities-jobs9.js。docs/plan-r33-jobs.md） ─────────────
+  // 「怪・盗・錬」は 小学校で ならわない 漢字なので ひらがな（かいとう・れん金）
+  // 手品師（基本職）→ かいとう（上級職。手品師＋スパイ）→ かいとうキッド（超級職）
+  magician: {
+    id: 'magician', name: '手品師', kana: 'てじなし', short: '手品', tier: 0, family: 'tech', color: '#7a3ac8',
+    desc: 'タネも仕かけもない（？）マジックで、みんなをおどろかせる。トランプやハトで戦い、助手の仲間を元気にする。素早くて器用。スパイといっしょにきわめると、かいとうになれる。',
+    mods: { hp: 0.95, mp: 1.05, str: 0.9, def: 0.85, agi: 1.3, mag: 1.05, heal: 0.9 },
+    weapons: ['staff', 'dagger', 'fan', 'none'], shield: false, armor: ['cloth', 'robe'], helm: true,
+    perLv: { agi: 0.5, mag: 0.5 },
+    learn: [[1, 'mg_card'], [2, 'mg_hato'], [3, 'mg_hako'], [5, 'mg_joshu'], [7, 'mg_ukabu'], [10, 'magician_sig']],
+  },
+  kaito: {
+    id: 'kaito', name: 'かいとう', kana: 'かいとう', short: 'かいとう', tier: 1, req: ['magician', 'spy'], family: 'tech', color: '#e8ecf4',
+    desc: '予告状をとどけて、ねらったお宝をかならずいただく、なぞのどろぼう。トランプじゅうと変装と、ハンググライダーで、だれにもつかまらない。手品師とスパイをきわめるとなれる。',
+    mods: { hp: 1.05, mp: 1.0, str: 1.15, def: 0.95, agi: 1.5, mag: 1.05, heal: 0.9 },
+    weapons: ['dagger', 'staff', 'fan', 'none'], shield: false, armor: ['cloth', 'robe'], helm: true,
+    perLv: { agi: 1, str: 0.5 },
+    learn: [[1, 'kt_card'], [2, 'kt_yokoku'], [3, 'kt_surikae'], [5, 'kt_hensou'], [7, 'kt_glider'], [10, 'kaito_sig']],
+  },
+  kaito_kid: {
+    id: 'kaito_kid', name: 'かいとうキッド', kana: 'かいとうきっど', short: 'キッド', tier: 2, req: ['kaito'], family: 'tech', color: '#f4f6ff',
+    desc: '月夜にあらわれる、白いシルクハットと白いマントの大どろぼう。片目のモノクルが光る。トランプじゅうとハトとけむり玉で、だれにも正体を知られない。',
+    mods: { hp: 1.3, mp: 1.2, str: 1.35, def: 1.1, agi: 1.65, mag: 1.2, heal: 1.0 },
+    weapons: ['dagger', 'staff', 'fan', 'none'], shield: false, armor: ['cloth', 'robe'], helm: true,
+    perLv: { agi: 1, str: 0.5, mag: 0.5 },
+    learn: [[1, 'kk_hato'], [2, 'kk_smoke'], [3, 'kk_poker'], [5, 'kk_jewel'], [7, 'kk_tsukiyo'], [10, 'kaito_kid_sig']],
+  },
+  // 魔法学校の生徒（上級職。小学生＋魔法使い）→ ハリーポッター（超級職）。学校の 職業なので のびざかり
+  wizard_student: {
+    id: 'wizard_student', name: '魔法学校の生徒', kana: 'まほうがっこうのせいと', short: '魔法学校', tier: 1, req: ['schoolkid', 'mage'], family: 'magic', color: '#7a1a2a',
+    desc: '魔法の学校で、呪文とほうきを習っている生徒。小学生なので、のびざかりで職業レベルが上がりやすい。小学生と魔法使いをきわめるとなれる。',
+    mods: { hp: 0.95, mp: 1.35, str: 0.8, def: 0.9, agi: 1.25, mag: 1.45, heal: 1.05 },
+    weapons: ['staff', 'dagger', 'none'], shield: false, armor: ['cloth', 'robe'], helm: false,
+    perLv: { mag: 0.5, mp: 0.5, agi: 0.3 },
+    passive: { train: 1.25 },
+    learn: [[1, 'ws_hikari'], [2, 'ws_uku'], [3, 'ws_kachikachi'], [5, 'ws_houki'], [7, 'ws_honoo'], [10, 'wizard_student_sig']],
+  },
+  harry: {
+    id: 'harry', name: 'ハリーポッター', kana: 'はりーぽったー', short: 'ハリー', tier: 2, req: ['wizard_student'], family: 'magic', color: '#9a1a2a',
+    desc: 'おでこにいなずまのきずがある、丸めがねの魔法使いの少年。ほうきに乗るのがとくいで、守護の呪文で仲間を守る。まだ生徒なので、のびざかり。',
+    mods: { hp: 1.15, mp: 1.4, str: 1.0, def: 1.05, agi: 1.5, mag: 1.55, heal: 1.15 },
+    weapons: ['staff', 'dagger', 'none'], shield: false, armor: ['cloth', 'robe'], helm: false,
+    perLv: { mag: 1, agi: 0.5, mp: 0.5 },
+    passive: { train: 1.25 },
+    learn: [[1, 'hy_buki'], [2, 'hy_houki'], [3, 'hy_quidditch'], [5, 'hy_kizu'], [7, 'hy_dumbledore'], [10, 'harry_sig']],
+  },
+  // 3年B組の担任（伝説の職業。高校生と 地方公務員を きわめる。魔王・はかい神と おなじ 2つの 職業の 形）
+  // passive.classmates … 学校の 職業（SCHOOL_JOBS）の 仲間 1人に つき、技の 力が この わりあい 上がる（3人まで。shared/battle-r33.js）
+  homeroom_3b: {
+    id: 'homeroom_3b', name: '3年B組の担任', kana: 'さんねんびーぐみのたんにん', short: '担任', tier: 3, req: ['highschooler', 'civil_local'], family: 'tech', color: '#3a5a3a',
+    desc: '生徒みんなに体当たりでぶつかる、熱血先生。高校生と地方公務員をきわめた者だけがなれる。学校の職業の仲間がいると、はりきって技が強くなる（1人で1わり。3人まで）。',
+    mods: { hp: 1.55, mp: 1.4, str: 1.35, def: 1.4, agi: 1.15, mag: 1.3, heal: 1.5 },
+    weapons: ['staff', 'fan', 'none'], shield: true, armor: ['cloth', 'robe'], helm: false,
+    perLv: { hp: 1.5, heal: 1, def: 1 },
+    passive: { classmates: 0.1 },
+    learn: [[1, 'h3_hito'], [3, 'h3_shusseki'], [5, 'h3_chalk'], [7, 'h3_katei'], [8, 'h3_taiiku'], [10, 'homeroom_3b_sig']],
+  },
+  // れん金術師（基本職）→ 国家れん金術師（上級職）→ はがねのれん金術師（超級職）
+  // この 系統の 人が パーティーに いると、れん金がまの 歩数が 半分（data/alchemy.js の POT_FAST_JOBS）
+  alchemist: {
+    id: 'alchemist', name: 'れん金術師', kana: 'れんきんじゅつし', short: 'れん金', tier: 0, family: 'magic', color: '#3a6ab8',
+    desc: '地面や物にふれて、形を作りかえる「れん成」の使い手。石のとげで戦い、土のかべで仲間を守る。パーティーにいると、れん金がまの完成までの歩数が半分になる。きわめると国家れん金術師になれる。',
+    mods: { hp: 1.0, mp: 1.1, str: 1.0, def: 1.05, agi: 0.95, mag: 1.15, heal: 0.95 },
+    weapons: ['staff', 'spear', 'none'], shield: true, armor: ['cloth', 'robe'], helm: false,
+    perLv: { mag: 0.5, def: 0.5 },
+    learn: [[1, 'al_toge'], [2, 'al_kabe'], [3, 'al_bunkai'], [5, 'al_bakuhatsu'], [7, 'al_kusuri'], [10, 'alchemist_sig']],
+  },
+  state_alchemist: {
+    id: 'state_alchemist', name: '国家れん金術師', kana: 'こっかれんきんじゅつし', short: '国家れん金', tier: 1, req: ['alchemist'], family: 'magic', color: '#2a4a8a',
+    desc: '国にみとめられた、うでのいいれん金術師。しるしの銀時計を持つ。指を鳴らしてほのおを出し、石のとりでで仲間を守る。パーティーにいると、れん金がまの歩数が半分。れん金術師をきわめるとなれる。',
+    mods: { hp: 1.15, mp: 1.2, str: 1.15, def: 1.15, agi: 1.0, mag: 1.3, heal: 1.0 },
+    weapons: ['staff', 'spear', 'none'], shield: true, armor: ['cloth', 'robe', 'heavy'], helm: false,
+    perLv: { mag: 0.5, def: 0.5, hp: 0.5 },
+    learn: [[1, 'sl_tsuchi'], [2, 'sl_gin'], [3, 'sl_yubi'], [5, 'sl_toride'], [7, 'sl_hashira'], [10, 'state_alchemist_sig']],
+  },
+  fullmetal: {
+    id: 'fullmetal', name: 'はがねのれん金術師', kana: 'はがねのれんきんじゅつし', short: 'はがね', tier: 2, req: ['state_alchemist'], family: 'phys', color: '#c83a2a',
+    desc: '右うでと左足が、はがねの機械でできたれん金術師。赤いコートで、両手を合わせるだけでれん成できる。大地からやりをつき出す。パーティーにいると、れん金がまの歩数が半分。',
+    mods: { hp: 1.35, mp: 1.2, str: 1.5, def: 1.3, agi: 1.35, mag: 1.25, heal: 0.85 },
+    weapons: ['spear', 'claw', 'sword', 'none'], shield: false, armor: ['cloth', 'gi', 'robe'], helm: false,
+    perLv: { str: 1, def: 0.5, mag: 0.5 },
+    learn: [[1, 'fm_ude'], [2, 'fm_yaiba'], [3, 'fm_kabe'], [5, 'fm_koukan'], [7, 'fm_toge'], [10, 'fullmetal_sig']],
+  },
+  // 美少女戦士（上級職。中学生＋アイドル）→ セーラームーン（超級職）
+  sailor_soldier: {
+    id: 'sailor_soldier', name: '美少女戦士', kana: 'びしょうじょせんし', short: '美少女', tier: 1, req: ['middleschooler', 'idol'], family: 'magic', color: '#2a4ad8',
+    desc: 'セーラー服で戦う、愛と正義の美少女戦士。変身して魔力を高め、決めポーズで敵を止める。中学生とアイドルをきわめるとなれる。',
+    mods: { hp: 1.05, mp: 1.15, str: 1.05, def: 0.95, agi: 1.35, mag: 1.25, heal: 1.15 },
+    weapons: ['staff', 'fan', 'boomerang', 'none'], shield: false, armor: ['cloth', 'robe'], helm: false,
+    perLv: { agi: 0.5, mag: 0.5, heal: 0.5 },
+    learn: [[1, 'bs_heel'], [2, 'bs_henshin'], [3, 'bs_oshioki'], [5, 'bs_kizuna'], [7, 'bs_shabon'], [10, 'sailor_soldier_sig']],
+  },
+  sailor_moon: {
+    id: 'sailor_moon', name: 'セーラームーン', kana: 'せーらーむーん', short: 'ムーン', tier: 2, req: ['sailor_soldier'], family: 'magic', color: '#ff7ab8',
+    desc: 'お団子頭の、月のプリンセス。月の光の必殺技で敵をたおし、銀水しょうのいのりで仲間を生き返らせる。',
+    mods: { hp: 1.15, mp: 1.45, str: 1.0, def: 1.05, agi: 1.45, mag: 1.5, heal: 1.4 },
+    weapons: ['staff', 'fan', 'boomerang', 'none'], shield: false, armor: ['cloth', 'robe'], helm: false,
+    perLv: { mag: 1, heal: 0.5, agi: 0.5 },
+    learn: [[1, 'mn_stick'], [2, 'mn_bara'], [3, 'mn_luna'], [5, 'mn_heal'], [7, 'mn_inori'], [10, 'sailor_moon_sig']],
+  },
 };
+
+// 第33回: 学校の 職業（3年B組の担任の passive.classmates で 数える。学校に 通う 子どもの 職業）
+export const SCHOOL_JOBS = ['schoolkid', 'middleschooler', 'highschooler', 'wizard_student', 'harry', 'sailor_soldier', 'sailor_moon', 'shonen_tantei'];
 
 // リレミト・トヘロス・マモノヨセを 覚える 職業（abilities-field27.js）
 applyField27Learn(JOBS);
@@ -1046,18 +1150,24 @@ applyField27Learn(JOBS);
 // はじめに えらべる 職業（基本職）
 export const JOB_ORDER = ['warrior', 'monk', 'priest', 'mage', 'performer', 'jester', 'salaryman', 'idol', 'railman', 'ballplayer',
   'schoolkid', 'civil_local', 'cook', 'parttimer', 'neet', 'saiyan', 'youtuber', 'gamer', 'okan',
-  'spy', 'shonen_tantei', 'neko_robot', 'kappa', 'rurouni'];
+  'spy', 'shonen_tantei', 'neko_robot', 'kappa', 'rurouni',
+  // 第33回
+  'magician', 'alchemist'];
 export const ADVANCED_ORDER = ['battlemaster', 'paladin', 'magic_knight', 'pirate', 'holyfist', 'ninja', 'tamer', 'sage', 'superstar', 'fortune',
   'samurai', 'bucho', 'major_leaguer', 'middleschooler', 'civil_national', 'police', 'firefighter', 'train_driver',
   'patissier', 'seishain', 'comedian', 'chuuni', 'super_saiyan', 'setsubiya', 'streamer', 'pro_gamer', 'saikyo_okan', 'shachiku',
   'rakuten_cardman', 'kisatsu', 'assassin', 'esper', 'oshiri_tantei', 'meitantei', 'creator', 'mimi_robot', 'hanakappa',
-  'hitokiri'];
+  'hitokiri',
+  // 第33回
+  'kaito', 'wizard_student', 'state_alchemist', 'sailor_soldier'];
 export const SUPER_ORDER = ['dragon_knight', 'archmage', 'high_priest', 'god_hand', 'summoner', 'magic_swordsman', 'guardian', 'hero', 'monster_master', 'star_diva',
   'sword_master', 'shogun', 'shacho', 'nitoryu', 'highschooler', 'career', 'fruit_idol', 'storm_idol', 'keikyu_driver',
   'star_chef', 'tatakiage', 'm1_champion', 'daikenja', 'datenshi', 'ss2', 'ryonetsu', 'rubber', 'black_star',
-  'enbashira', 'black_org', 'doraemon', 'kinniku_kappa', 'konoha', 'himura'];
+  'enbashira', 'black_org', 'doraemon', 'kinniku_kappa', 'konoha', 'himura',
+  // 第33回
+  'kaito_kid', 'harry', 'fullmetal', 'sailor_moon'];
 // 伝説の 職業（超級職の 先）
-export const LEGEND_ORDER = ['loto_hero', 'ss3', 'nika', 'maou', 'facility_genius', 'hakaishin', 'hinokami', 'hokage', 'abarenbo_shogun', 'hiten'];
+export const LEGEND_ORDER = ['loto_hero', 'ss3', 'nika', 'maou', 'facility_genius', 'hakaishin', 'hinokami', 'hokage', 'abarenbo_shogun', 'hiten', 'homeroom_3b'];
 export const ALL_JOBS = [...JOB_ORDER, ...ADVANCED_ORDER, ...SUPER_ORDER, ...LEGEND_ORDER];
 export const TIER_NAMES = ['基本職', '上級職', '超級職', '伝説の職業'];
 // 神殿で ならべる じゅん（ランクごと）
@@ -1173,4 +1283,10 @@ export const JOB_HINTS = {
   abarenbo_shogun: '将軍と、ほかの超級職を1つきわめた者は、白い馬で町を走る、あの上様になれるらしい…',
   himura: '人斬りばっ刀さいをきわめた剣士は、心をしずめて、仲間を守る剣を手にするらしい…',
   hiten: 'ひ村ばっ刀さいと、ほかの超級職を1つきわめた者は、飛天御剣流のおく義を受けつげるらしい…',
+  // 第33回
+  kaito_kid: 'かいとうをきわめた者は、月夜にあらわれる白いマントの大どろぼうになれるらしい…',
+  harry: '魔法学校の生徒をきわめると、おでこにいなずまのきずがある、あの少年になれるらしい…',
+  fullmetal: '国家れん金術師をきわめた者は、両手を合わせるだけでれん成できるらしい…',
+  sailor_moon: '美少女戦士をきわめると、月のプリンセスの力が目ざめるらしい…',
+  homeroom_3b: '高校生と地方公務員、学校と町の両方をきわめた者は、熱血先生として3年B組を受けもてるらしい…',
 };

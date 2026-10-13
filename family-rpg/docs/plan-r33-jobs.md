@@ -66,7 +66,7 @@
 | 3年B組の担任 | `h3_hito` 人という字は(1)・`h3_shusseki` 出席をとる(3)・`h3_chalk` チョーク投げ(5)・`h3_katei` 家庭訪問(7)・`h3_taiiku` 体育の授業(8) |
 | れん金術師 | `al_toge` 石のとげ(1)・`al_kabe` 土のかべ(2)・`al_bunkai` 分解(3)・`al_bakuhatsu` れん成反応(5)・`al_kusuri` 薬のれん成(7) |
 | 国家れん金術師 | `sl_tsuchi` 土の大波(1)・`sl_gin` 銀時計(2)・`sl_yubi` 指ぱっちん(3)・`sl_toride` 石のとりで(5)・`sl_hashira` 石の柱(7) |
-| はがねのれん金術師 | `fm_ude` 機械のうで(1)・`fm_yaiba` うでの刃(2)・`fm_kabe` はがねのかべ(3)・`fm_koukan` 等価こうかん(5)・`fm_toge` とげの森(7) |
+| はがねのれん金術師 | `fm_ude` 機械のうで(1)・`fm_yaiba` うでのやいば(2)・`fm_kabe` はがねのかべ(3)・`fm_koukan` 等価こうかん(5)・`fm_toge` とげの森(7) |
 | 美少女戦士 | `bs_heel` ハイヒールキック(1)・`bs_henshin` メイクアップ！(2)・`bs_oshioki` 月にかわっておしおきよ！(3)・`bs_kizuna` 友情のきずな(5)・`bs_shabon` シャボンスプレー(7) |
 | セーラームーン | `mn_stick` ムーンスティック(1)・`mn_bara` タキシード仮面のバラ(2)・`mn_luna` ルナのはげまし(3)・`mn_heal` ムーン・ヒーリング・エスカレーション(5)・`mn_inori` 銀水しょうのいのり(7) |
 
