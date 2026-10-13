@@ -111,3 +111,31 @@
 | `automail_arm` | はがねの機械のうで | ツメ（ランク7・★3） | 宝の洞窟「大地・岩」 |
 | `silver_crystal` | 銀水しょう | アクセ（ランク8・★4） | ひみつのダンジョン |
 | `nekketsu_jersey` | 熱血先生のジャージ | 服（ランク7・★3） | 宝の洞窟「大地・岩」 |
+
+## えんしゅつ（B）
+
+えんしゅつは `client/render/battlefx-jobs7.js`。技の id では なく、技の データの `anim` の 名前で ひく。
+
+- 看板の 技 11こ: `anim` は 技の id と おなじ `<職業の id>_sig`（abilities-jobs9.js の anim を かえた）
+- ほかの 技（anim を `r33_…` に かえた もの）
+
+| 技ID | anim |
+|---|---|
+| `mg_card`・`kt_card` | `r33_card_throw` |
+| `mg_hato`・`kk_hato` | `r33_hat_trick` |
+| `kt_surikae` | `r33_steal` |
+| `kk_smoke` | `r33_smoke_flash`（みかた） |
+| `ws_hikari` | `r33_spell_ray` |
+| `ws_houki`・`hy_houki` | `r33_broom`（みかた） |
+| `hy_buki` | `r33_disarm` |
+| `hy_kizu` | `r33_lightning` |
+| `h3_hito` | `r33_hito_ji`（みかた） |
+| `al_toge`・`sl_hashira`・`fm_toge` | `r33_alchemy_spear` |
+| `al_kabe`・`sl_toride`・`fm_kabe` | `r33_alchemy_wall`（みかた） |
+| `al_bakuhatsu` | `r33_alchemy` |
+| `fm_ude` | `r33_mech_arm` |
+| `bs_oshioki`・`mn_stick` | `r33_sailor_beam` |
+| `mn_heal` | `r33_moon_heal`（みかた） |
+
+- まだ どの 技にも つけて いない えんしゅつ: `r33_glider`・`r33_patronus`・`r33_sekkyo`・`r33_watch`・`r33_sailor_guard`・`r33_moon_tiara`（ひらめき技や これからの 技に つかえる）
+- 装備の 見た目（hero-r33.js）: `magic_wand`・`chalk`・`pointer_stick`・`elder_wand`・`tiara_boomerang`（ぶき）、`automail_arm`（はがねの ツメ）、`silk_hat`（シルクハット）、`school_robe`・`kid_mantle`・`invisible_cloak`・`nekketsu_jersey`（服）。`silver_crystal` は アクセなので 絵に 出ない
