@@ -8,11 +8,11 @@
 //   - 職業の ひらめき技（job つき）… その 職業か、その 職業から 進んだ 職業
 // ・一度 ひらめいた 技は ずっと 使える（char.hirameki に のこる）
 // ・第20〜22回の 職業の ひらめき技は hirameki-jobs.js（下で いっしょに する）
-import { HIRA_JOB_ABILITIES, HIRAMEKI_JOBS } from './hirameki-jobs.js?v=711e1c044126';
+import { HIRA_JOB_ABILITIES, HIRAMEKI_JOBS } from './hirameki-jobs.js?v=6b1c926c9cc8';
 // 第27回: ぜんぶの 上級職より 上の 職業の ひらめき技（hirameki-r27.js）
-import { HIRA_R27_ABILITIES, HIRAMEKI_R27 } from './hirameki-r27.js?v=711e1c044126';
+import { HIRA_R27_ABILITIES, HIRAMEKI_R27 } from './hirameki-r27.js?v=6b1c926c9cc8';
 // 第29回: るろうに剣士の 道の ひらめき技（hirameki-r29.js）
-import { HIRA_R29_ABILITIES, HIRAMEKI_R29 } from './hirameki-r29.js?v=711e1c044126';
+import { HIRA_R29_ABILITIES, HIRAMEKI_R29 } from './hirameki-r29.js?v=6b1c926c9cc8';
 
 // ひらめきで 覚える 新しい 技（基本職ごとに 2つ）
 export const HIRA_ABILITIES = {

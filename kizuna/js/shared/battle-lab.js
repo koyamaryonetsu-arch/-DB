@@ -2,7 +2,7 @@
 // ・前ぶれ（大きく 息を すいこんだ）を 見たら、いにしえの炎が 自分の つぎの 番より 先に 来る ときは 身を 守る
 // 反撃の構え（しっぽを かかげた）の ときに なぐらないのは、ふつうの オートと おなじ（ai.js の countering）。
 // 知らない 人は b.ignoreStance（構えでも なぐる）と、前ぶれでも 守らない（b.labNaive）
-import { atbRate } from './battle.js?v=711e1c044126';
+import { atbRate } from './battle.js?v=6b1c926c9cc8';
 
 export const LAB_BIG = 'm_old_flare';
 
