@@ -2,17 +2,17 @@
 // みため（かみがた・いろ）と そうび（ぶき・よろい・たて・かぶと）で かわる
 // 人は 32×42 で くみたてて、2ばいの 64×84 に して こまかく かきたす（res 4: せかいでは 16×21 の 大きさに かく）
 // どうぶつ・船は 16×21 など
-import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=0156f0c62388';
-import { ITEMS, baseItemId } from '../../shared/data/items.js?v=0156f0c62388';
-import { STARTER_EQUIP } from '../../shared/stats.js?v=0156f0c62388';
-import { paintMiraPrison, paintWaterStar } from './temple-chars.js?v=0156f0c62388';
-import { LAB_NPC_LOOKS } from './lab-art.js?v=0156f0c62388';
-import { paintCh5Special } from './ch5-art.js?v=0156f0c62388';
-import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js?v=0156f0c62388';
-import { R26_OLD_LOOK } from './hero-r26.js?v=0156f0c62388';
-import { R27_OLD_LOOK } from './hero-r27.js?v=0156f0c62388';
-import { R29_OLD_LOOK } from './hero-r29.js?v=0156f0c62388';
-import { R33_OLD_LOOK } from './hero-r33.js?v=0156f0c62388';
+import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=cfe8cd1c70e2';
+import { ITEMS, baseItemId } from '../../shared/data/items.js?v=cfe8cd1c70e2';
+import { STARTER_EQUIP } from '../../shared/stats.js?v=cfe8cd1c70e2';
+import { paintMiraPrison, paintWaterStar } from './temple-chars.js?v=cfe8cd1c70e2';
+import { LAB_NPC_LOOKS } from './lab-art.js?v=cfe8cd1c70e2';
+import { paintCh5Special } from './ch5-art.js?v=cfe8cd1c70e2';
+import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js?v=cfe8cd1c70e2';
+import { R26_OLD_LOOK } from './hero-r26.js?v=cfe8cd1c70e2';
+import { R27_OLD_LOOK } from './hero-r27.js?v=cfe8cd1c70e2';
+import { R29_OLD_LOOK } from './hero-r29.js?v=cfe8cd1c70e2';
+import { R33_OLD_LOOK, masc33 } from './hero-r33.js?v=cfe8cd1c70e2';
 
 export const CW = 16;
 export const CH = 21;
@@ -391,10 +391,13 @@ export function lookToOpts(look = {}, job = 'warrior', eq = undefined) {
     hatColor: null,
   };
   // ふく
+  // 男の子の 美少女戦士・セーラームーンは タキシード仮面ふう（hero-r33.js の R33_MASC）
+  const jl0 = masc33(job, look.body === 1)?.old || JOB_LOOK[job];
+  const jl = jl0 || {};
   let al;
   if (!e.armor) al = { outfit: 'under', cloth: '#e8e0d0' };
   else if (ARMOR_LOOK[e.armor]) al = ARMOR_LOOK[e.armor];
-  else al = JOB_LOOK[job] || JOB_LOOK.warrior;
+  else al = jl0 || JOB_LOOK.warrior;
   o.outfit = al.outfit;
   if (al.cloth) o.cloth = res(al.cloth);
   if (al.robeMain) o.robeMain = res(al.robeMain);
@@ -406,7 +409,6 @@ export function lookToOpts(look = {}, job = 'warrior', eq = undefined) {
   if (al.hakama) o.hakama = al.hakama;
   if (al.cape) o.cape = al.cape;
   // ぼうし（ぬののふくの 武闘家は はちまき）
-  const jl = JOB_LOOK[job] || {};
   const hl = e.head ? HEAD_LOOK[e.head] : (!ARMOR_LOOK[e.armor] && e.armor ? { hat: jl.hat || null, hatColor: jl.hatColor || null } : null);
   if (hl?.hat) {
     o.hat = hl.hat;
@@ -414,7 +416,10 @@ export function lookToOpts(look = {}, job = 'warrior', eq = undefined) {
   }
   if (!o.hat && o.outfit === 'gi') o.hat = 'headband';
   // めがね（部長・社長）は どの ふくでも
-  if ((JOB_LOOK[job] || {}).glasses) o.glasses = true;
+  if (jl.glasses) o.glasses = true;
+  // 目もとの 白い 仮面と 赤い バラ（タキシード仮面ふう）も どの ふくでも
+  if (jl.mask) o.mask = true;
+  if (jl.rose) o.rose = jl.rose;
   // ぶき・たて
   const w = e.weapon && ITEMS[e.weapon];
   if (w) o.weapon = { cat: w.cat, ...(WEAPON_LOOK[e.weapon] || { blade: '#dfe4f0', guard: '#7a4a22' }) };
@@ -1620,6 +1625,20 @@ function drawHat(p, dir, f, o) {
       }
       break;
     }
+    case 'silk': {
+      // シルクハット（ひろい つば・たかい つつ・おび。タキシード仮面ふう）
+      const c = hc || '#1c1a26', cD = shade(c, -0.3), cL = shade(c, 0.45), band = '#3c3a4a';
+      if (side) {
+        p.rect(9, 0, 12, 7, c); p.vline(10, 1, 4, cL); p.vline(20, 0, 6, cD);
+        p.rect(9, 5, 12, 2, band);
+        p.rect(4, 7, 21, 2, c); p.hline(4, 24, 8, cD);
+      } else {
+        p.rect(10, 0, 12, 7, c); p.vline(11, 1, 4, cL); p.vline(21, 0, 6, cD);
+        p.rect(10, 5, 12, 2, band);
+        p.rect(5, 7, 22, 2, c); p.hline(5, 26, 8, cD);
+      }
+      break;
+    }
     case 'tiara': {
       // 小さな かんむり（金の わに 3つの とがり。まんなかが 高い。hatGem … まんなかの ほうせき。女王ネフィ）
       const g = '#f2c14e', gD = '#b8862a', gL = '#fff0a0', j = o.hatGem || '#3ac8e8';
@@ -1713,6 +1732,41 @@ function drawGlasses(p, dir) {
   }
 }
 
+// 目もとの 白い 仮面（タキシード仮面ふう。はだの 上だけ。目と 前がみは のこす）
+function drawMask(p, dir) {
+  const W = '#f6f6fa', S = '#c8cad8';
+  p.tag = 'glass';
+  const on = (x, y, c) => { if (p.tagAt(x, y) === 'skin') p.set(x, y, c); };
+  if (dir === 'down') {
+    for (const [a, b, tip] of [[8, 13, 7], [18, 23, 24]]) {
+      for (let y = 11; y <= 14; y++) for (let x = a; x <= b; x++) on(x, y, W);
+      for (let x = a + 1; x < b; x++) on(x, 15, S);
+      on(tip, 10, W); on(tip, 11, W);
+    }
+    for (let x = 14; x <= 17; x++) { on(x, 12, W); on(x, 13, S); }
+  } else if (dir === 'side') {
+    for (let y = 11; y <= 14; y++) for (let x = 5; x <= 11; x++) on(x, y, W);
+    for (let x = 6; x <= 10; x++) on(x, 15, S);
+    on(12, 10, W); on(12, 11, W);
+  }
+  p.tag = 'cloth';
+}
+// 赤い バラ（たての ない 手。glow: 光る バラ）
+function drawRose(p, dir, f, o) {
+  if (dir === 'up' || o.shield) return;
+  const la = dir === 'side' ? 0 : f === 0 ? 0 : -2;
+  const sx = dir === 'side' ? (f === 0 ? 11 : 15) : 4, sy = dir === 'side' ? 26 : 26 + la;
+  const red = o.rose === 'glow' ? '#f02a44' : '#c8182c', redD = shade(red, -0.3), g = '#2e8a3a';
+  p.tag = 'cloth';
+  p.vline(sx + 1, sy + 2, sy + 6, g); p.set(sx + 2, sy + 4, g);
+  p.rect(sx, sy, 3, 2, red); p.set(sx + 1, sy + 1, redD); p.set(sx + 1, sy - 1, red);
+  if (o.rose === 'glow') {
+    p.tag = 'gold';
+    p.set(sx - 1, sy - 2, '#ffffff'); p.set(sx + 3, sy - 1, '#ffd2e0'); p.set(sx + 4, sy + 2, '#ffffff');
+    p.tag = 'cloth';
+  }
+}
+
 export function paintHuman(dir, f, o) {
   // まず これまでの 32×42 で かいて、2ばいの こまかさ（64×84）に してから こまかい ところを かきたす
   const p = new Painter(HW, HH, true);
@@ -1737,8 +1791,10 @@ export function paintHuman(dir, f, o) {
     drawBody(p, vdir, f, o);
     if (o.cape && vdir === 'up') drawCape(p, vdir, f, o);
     drawHead(p, vdir, f, o);
+    if (o.mask) drawMask(p, vdir);
     if (o.glasses) drawGlasses(p, vdir);
     drawGear(p, vdir, f, o);
+    if (o.rose) drawRose(p, vdir, f, o);
     drawHat(p, vdir, f, o);
     q = scale2x(p);
     p.marks.f = f;

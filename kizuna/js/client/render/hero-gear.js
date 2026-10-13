@@ -1,10 +1,10 @@
 // ぶき・たて・かぶと（そうびの ID から みためを きめて かく）
 // 知らない 品（これからの もの）は、種類・ランク・名前の ことば から きめる
-import { mat, ramp, TH, mixC, mixI, hex, HeroCanvas } from './hero-raster.js?v=0156f0c62388';
-import { metal, metalRamp, cloth, leather, gem, glow, neon, metalOfName, baseItem, fruitIcon, ownArmor } from './hero-outfit.js?v=0156f0c62388';
-import { R26_HAT, R26_BODY_HAT, drawHat26 } from './hero-r26.js?v=0156f0c62388';
+import { mat, ramp, TH, mixC, mixI, hex, HeroCanvas } from './hero-raster.js?v=cfe8cd1c70e2';
+import { metal, metalRamp, cloth, leather, gem, glow, neon, metalOfName, baseItem, fruitIcon, ownArmor } from './hero-outfit.js?v=cfe8cd1c70e2';
+import { R26_HAT, R26_BODY_HAT, drawHat26 } from './hero-r26.js?v=cfe8cd1c70e2';
 // 第33回: シルクハット（布の服の とき）・ティアラ（よろいでも のこる）
-import { R33_HAT, R33_BODY_HAT, R33_WEAPON_LOOK, R33_HEAD_LOOK, drawWand33 } from './hero-r33.js?v=0156f0c62388';
+import { R33_HAT, R33_BODY_HAT, R33_WEAPON_LOOK, R33_HEAD_LOOK, drawWand33, masc33 } from './hero-r33.js?v=cfe8cd1c70e2';
 
 const D = Math.PI / 180;
 
@@ -1378,10 +1378,13 @@ export function headOf(headId, job, armorId, O) {
   else if (!headId || bare) {
     // 布の服（よろい なし も）の ときは しょくぎょうの ぼうし（武道着の 人は はちまき）
     const ab = baseItem(armorId);
+    // 男の子の 美少女戦士・セーラームーンは シルクハット（ティアラは かぶらない）
+    const M = masc33(job, !!O?.fem);
+    const jobHat = M ? M.hat : JOB_HAT[job], bodyHat = M ? null : R26_BODY_HAT[job];
     // 職業の 服と おなじ よろい（最強のおかんの ヒョウがらの服）でも 職業の ぼうし
-    if ((!armorId || (ab && (ab.id === 'cloth' || ownArmor(job, ab.id)))) && JOB_HAT[job]) H = { ...JOB_HAT[job] };
+    if ((!armorId || (ab && (ab.id === 'cloth' || ownArmor(job, ab.id)))) && jobHat) H = { ...jobHat };
     else if (ab && (ab.id === 'martial_gi' || ab.id === 'dragon_gi' || ab.id === 'wave_gi')) H = { kind: 'headband', c: ab.id === 'dragon_gi' ? '#f2c14e' : '#d9534f' };
-    if (!H && R26_BODY_HAT[job]) H = { ...R26_BODY_HAT[job] };
+    if (!H && bodyHat) H = { ...bodyHat };
   }
   if (!H) return null;
   if (H.c === 'cloth') H.c = O?.spec?.main && O.spec.main !== 'cloth' ? O.spec.main : null;

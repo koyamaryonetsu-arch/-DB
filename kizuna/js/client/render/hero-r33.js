@@ -21,6 +21,7 @@
 //   R33_HAT      … 布の服の ときの ぼうし（hero-gear.js の JOB_HAT に まぜる）
 //   R33_BODY_HAT … よろいでも のこる ぼうし（ティアラ。hero-gear.js の からだの ぼうしに まぜる）
 //   R33_OLD_LOOK … 古い 小さな え（chars.js の JOB_LOOK に まぜる）
+//   R33_MASC・masc33(job, fem) … 男の子の 美少女戦士・セーラームーン（タキシード仮面ふう。上の 表の かわり）
 //   outfit33(O, S, Lk, fem) … 服の つけたし（outfit26 の つけたしから よぶ）
 //   body33(O, JB)           … からだの つけたし（body26 から よぶ。機械の うで・手ぶくろの 円）
 //   drawR33(cv, P, O, layer) … マント・マフラー・ほうき・リボン・ネクタイ・くさり・せなかの しるし（drawR26 から よぶ）
@@ -28,8 +29,8 @@
 //   drawHat33(cv, P, H, G, view) … シルクハット・ティアラ（drawHat26 から よぶ。かいたら true）
 //   drawProp33(cv, P, A, O) … たての ない 手の もちもの（drawProp26 から よぶ。かいたら true）
 //   handMark33(cv, A, P, O) … 手ぶくろの れん金の 円（hero.js の 手の あとで よぶ）
-import { mat, ramp, TH, mixC } from './hero-raster.js?v=0156f0c62388';
-import { EYE_V } from './hero-face.js?v=0156f0c62388';
+import { mat, ramp, TH, mixC } from './hero-raster.js?v=cfe8cd1c70e2';
+import { EYE_V } from './hero-face.js?v=cfe8cd1c70e2';
 
 export const R33_JOBS = ['magician', 'kaito', 'kaito_kid', 'wizard_student', 'harry', 'homeroom_3b', 'alchemist', 'state_alchemist', 'fullmetal', 'sailor_soldier', 'sailor_moon'];
 
@@ -118,6 +119,31 @@ export const R33_OLD_LOOK = {
   sailor_soldier: { outfit: 'dress', cloth: '#d8487e', hat: 'tiara', hatColor: '#dcdcec' },
   sailor_moon: { outfit: 'dress', cloth: '#2a4ec0', hat: 'tiara', hatColor: '#f2c14e' },
 };
+
+// ───────────── 男の子の 美少女戦士・セーラームーン（タキシード仮面ふう。家族が きめた こと） ─────────────
+// 男性（look.body が 1 で ない）の ときだけ、上の 表の かわりに つかう。女の子は 今の まま（セーラー服・おだんご・ティアラ）
+//  黒い えんび服・白い シャツ・黒い 蝶ネクタイ・黒い マント（うらは 赤）・黒い シルクハット・目もとの 白い 仮面・赤い バラ
+//  美少女戦士 … マントが みじかめで うらは こい 赤・ふつうの バラ
+//  セーラームーン … マントが 長く うらは あかるい 赤・バラが 光る
+//   outfit: 布の服の ときの 服（JOB_OUTFIT の かわり）  body: からだの とくちょう（JOB_BODY の かわり。仮面と バラは よろいでも のこる）
+//   hat: 布の服の ときの ぼうし（JOB_HAT の かわり。ティアラ R33_BODY_HAT は かぶらない）  old: 古い 小さな え（JOB_LOOK の かわり）
+const TUX = (capeIn, capeLen) => ({ kind: 'suit', main: '#1a1822', bow: '#141018', lapel: '#0a0810', pants: '#15131c', r33: true, cape: '#17151f', capeIn, capeLen, drape: true, gloves: true });
+export const R33_MASC = {
+  sailor_soldier: {
+    outfit: TUX('#a0162a', 33.4),
+    body: { mask33: true, prop: 'rose33', rose33: '#a0162a', r33: true },
+    hat: { kind: 'silk33', c: '#1c1a26', band: '#3c3a4a', hides: 'top' },
+    old: { outfit: 'suit', cloth: '#1c1a26', tie: '#141018', cape: '#1c1a28', hat: 'silk', hatColor: '#1c1a26', mask: true, rose: 'plain' },
+  },
+  sailor_moon: {
+    outfit: TUX('#ec2a40', 36.4),
+    body: { mask33: true, prop: 'rose33', rose33: '#ec2a40', roseGlow33: true, r33: true },
+    hat: { kind: 'silk33', c: '#1c1a26', band: '#141018', hides: 'top' },
+    old: { outfit: 'suit', cloth: '#1c1a26', tie: '#141018', cape: '#1c1a28', hat: 'silk', hatColor: '#1c1a26', mask: true, rose: 'glow' },
+  },
+};
+// 男性で タキシード仮面ふうに なる 職業なら その 見た目（ほかは null）。fem: 女性か（look.body === 1）
+export const masc33 = (job, fem) => (!fem && R33_MASC[job]) || null;
 
 // ───────────── 服の つけたし（outfit26 の つけたしから） ─────────────
 export function outfit33(O, S, Lk, fem) {
@@ -404,7 +430,10 @@ function broom(cv, P, B, where) {
 // ───────────── かお ─────────────
 // phase: 'face'（かみの まえ）/ 'top'（かみの あと）/ 'over'（ぼうしの あと）
 export function face33(cv, H, B, view, phase) {
-  if (!B.r33 || phase !== 'top' || view === 'back') return;
+  if (!B.r33 || view === 'back') return;
+  // 目もとの 白い 仮面は 目の あと・かみの まえ（前がみが 上に かかる）
+  if (phase === 'face' && B.mask33) dominoMask(cv, H, view);
+  if (phase !== 'top') return;
   if (B.glasses33) roundGlasses(cv, H, view);
   if (B.monocle33) monocle(cv, H, view, B.monocle33 === 'clover');
   if (B.bolt33) boltScar(cv, H, view);
@@ -422,6 +451,51 @@ function ringPx(cv, x, y, r, col) {
     cv.px(px, py, col);
   }
 }
+// 目もとの 白い 仮面（ドミノマスク。タキシード仮面ふう）
+// 目の まわりを 白く ぬり、目（もう かいて ある いろ そのままの ドット）は のこす。ふちは こい 線、下の ふちは かげ。
+// かおの パーツ（目の まんなかの パーツ）の 上だけに かく。よこむきは てまえの 目と、うしろへ はねる はし
+function dominoMask(cv, H, view) {
+  const k = cv.k, res = cv.res;
+  const ey = cv.Y(H.y + EYE_V);
+  const sc = Math.abs(cv.tx(H.x + 10) - cv.tx(H.x)) * k / 10; // あたまの 1マスが 何ドットか
+  const side = view === 'side';
+  const eyes = side ? [cv.X(H.X(H.rx - 2.2))] : [-1, 1].map((s) => cv.X(H.x + s * 2.95));
+  const face = cv.partAt(eyes[0], ey);
+  if (!face) return;
+  // 目の ドットの はんい（この 中の いろ そのままの ドットは 目）
+  const ehw = res >= 8 ? 4.5 : 2.5, ehh = res >= 8 ? 4.5 : 3.0;
+  const isEye = (x, y) => eyes.some((ex) => Math.abs(x - ex) <= ehw && Math.abs(y - ey) <= ehh) && cv.fix[y * cv.w + x] !== -1;
+  // 仮面の かたち（u: 目から そとへ、v: 目の たかさから 下へ。マス）
+  const lens = (u, v) => (u / 2.55) ** 2 + ((v + 0.15) / (v < 0 ? 1.75 : 1.5)) ** 2 <= 1;
+  // そとの はしは 上に はねる
+  const wing = (u, v) => u > 1.0 && u < 4.3 && v > -1.4 - (u - 1.0) * 0.55 && v < 0.5 - (u - 1.0) * 0.62;
+  const inMask = (x, y) => {
+    const v = (y - ey) / sc;
+    if (side) {
+      const back = (x - eyes[0]) / sc * -H.facing; // うしろ（みみの ほう）が プラス
+      return lens(back, v) || wing(back, v);
+    }
+    const mid = (eyes[0] + eyes[1]) / 2;
+    const a = Math.abs(x - mid) / sc;
+    // はなの 上の つなぎ
+    if (a < 1.6 && v > -1.0 && v < 0.1) return true;
+    const u = a - 2.95;
+    return lens(u, v) || wing(u, v);
+  };
+  const x0 = Math.min(...eyes) - Math.ceil(7 * sc), x1 = Math.max(...eyes) + Math.ceil(7 * sc);
+  const y0 = ey - Math.ceil(3 * sc), y1 = ey + Math.ceil(3 * sc);
+  // いろは ふやさない（白と りんかくの いろ）
+  const W = '#ffffff', L = '#1b1330';
+  cv.part({ ol: 'none', cast: false });
+  for (let y = y0; y <= y1; y++) {
+    for (let x = x0; x <= x1; x++) {
+      if (!inMask(x, y) || cv.partAt(x, y) !== face || isEye(x, y)) continue;
+      const edge = !inMask(x - 1, y) || !inMask(x + 1, y) || !inMask(x, y - 1) || !inMask(x, y + 1);
+      cv.px(x, y, edge ? L : W);
+    }
+  }
+}
+
 // まるめがね（くろい ほそい ふち）
 function roundGlasses(cv, H, view) {
   cv.part({ ol: 'none', cast: false });
@@ -605,6 +679,38 @@ export function drawProp33(cv, P, A, O) {
       cv.ell(cx, cy - 1.5, 0.45, 0.35, mt(SILVER), { bulge: 0.9 });
       cv.part({ ol: 'none' });
       cv.stroke([[hx - d * 0.2, hy + 0.4], [hx - d * 0.4, hy + 1.8], [hx + d * 0.2, hy + 2.6]], 0.16, mt(SILVER), { n: [0, -0.3] });
+      return true;
+    }
+    case 'rose33': {
+      // 赤い バラ（みどりの くきと は。セーラームーンの 男の子は バラが 光る）
+      const green = cl('#2e8a3a');
+      const top = [hx + d * 1.3, hy - 4.6];
+      cv.part({ ol: 'line' });
+      cv.cap(hx - d * 0.2, hy + 1.2, 0.26, top[0], top[1] + 0.6, 0.24, green);
+      cv.part({ ol: 'line' });
+      cv.poly([[hx + d * 0.5, hy - 1.6], [hx + d * 1.9, hy - 2.6], [hx + d * 1.5, hy - 1.4]], green, { cx: 0.6 });
+      const glow = !!O.body.roseGlow33;
+      // バラの 赤は マントの うらと おなじ いろ（いろを ふやさない）
+      const red = cl(O.body.rose33 || '#c8182c', { light: 1.05 });
+      cv.part({ ol: 'line' });
+      cv.ell(top[0], top[1], 1.25, 1.1, red, { bulge: 0.9 });
+      const id = cv.cur;
+      cv.crease([[top[0] - 0.6, top[1] + 0.1], [top[0], top[1] - 0.4], [top[0] + 0.5, top[1] + 0.2]], 0.14, -0.55, { parts: [id] });
+      // がくの みどり
+      cv.part({ ol: 'soft' });
+      cv.poly([[top[0] - 0.7, top[1] + 0.8], [top[0] + 0.7, top[1] + 0.8], [top[0], top[1] + 1.4]], green, { cx: 0.6 });
+      if (glow) {
+        // 光の つぶ（バラの まわりに 白）
+        cv.part({ ol: 'none', cast: false });
+        const X = cv.X(top[0]), Y = cv.Y(top[1]), r = Math.max(3, Math.round(1.9 * cv.k));
+        cv.px(X, Y - r, '#ffffff');
+        cv.px(X + r, Y - 1, '#ffffff');
+        cv.px(X - r, Y + 1, '#ffffff');
+        if (cv.k >= 4) {
+          for (const [dx, dy] of [[0, -r - 1], [1, -r], [-1, -r], [0, -r + 1]]) cv.px(X + dx, Y + dy, '#ffffff');
+          cv.px(X + r - 1, Y + r - 1, '#ffffff');
+        }
+      }
       return true;
     }
     case 'moonstick33': {
