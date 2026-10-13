@@ -21,7 +21,7 @@
  *   SUPABASE_SERVICE_ROLE_KEY  - Supabase の service_role キー（Settings > API）
  *   SUPABASE_URL               - (任意) 既定 https://hykjpadvbficiiuockhj.supabase.co
  *   ANTHROPIC_MODEL            - (任意) 既定 claude-haiku-5-5（本文の読み取り・内容の要約・劇場情報の抽出。安い最新Haiku）
- *   ANTHROPIC_OCR_MODEL        - (任意) 既定 claude-sonnet-4-6（添付見積書の画像/PDF読取は視覚対応モデル）
+ *   ANTHROPIC_OCR_MODEL        - (任意) 既定 claude-sonnet-5-5（劇場情報メールの添付など、画像/PDFの読み取り）
  *   ANTHROPIC_DECIDE_MODEL     - (任意) 既定 claude-sonnet-5-5（「新規か既存の続きか」の判断。精度が要なので上位モデル）
  *
  * 重複を防ぐ仕組み（2026-10 追加）:
@@ -67,8 +67,10 @@ function MODEL_() { return cfg_('ANTHROPIC_MODEL', 'claude-haiku-5-5'); }
 var PREV_MODEL = 'claude-haiku-4-5-20251001';
 // 「考える量(effort)」を指定できるモデルか（以前の Haiku 4.5 などは指定するとエラーになる）
 function supportsEffort_(model) { return !/haiku-4|sonnet-4-5|claude-3/.test(String(model || '')); }
+// 断られた時の自動切替（fallbacks: "default"）が使えるモデルか（Haiku や以前の Sonnet では使えない）
+function supportsFallback_(model) { return /^claude-(sonnet-5-5|opus-5|fable-5)/.test(String(model || '')); }
 // 添付見積書のAI-OCRは画像/PDFを読むため視覚対応モデル（既定Sonnet）を使う
-function OCR_MODEL_() { return cfg_('ANTHROPIC_OCR_MODEL', 'claude-sonnet-4-6'); }
+function OCR_MODEL_() { return cfg_('ANTHROPIC_OCR_MODEL', 'claude-sonnet-5-5'); }
 // 「新規か既存の続きか」の判断に使うモデル。読み取り(Haiku)より上位のモデルで、メール本文も見て判断する
 function DECIDE_MODEL_() { return cfg_('ANTHROPIC_DECIDE_MODEL', 'claude-sonnet-5-5'); }
 var OCR_MAX_BYTES = 5 * 1024 * 1024; // 5MB超の添付はスキップ（API上限・コスト対策）
@@ -1067,18 +1069,9 @@ function ocrQuote_(apiKey, mediaBlock) {
     'estimate_amount=見積合計金額の数値のみ（税込があれば税込・カンマや¥や円は除く・整数）, ' +
     'quote_date=見積書の発行日/日付をYYYY-MM-DD。読めない項目は空文字。\n' +
     'スキーマ: {"is_quote":bool,"estimate_name":string,"estimate_amount":string,"quote_date":"YYYY-MM-DD"}';
-  var res = UrlFetchApp.fetch('https://api.anthropic.com/v1/messages', {
-    method: 'post', contentType: 'application/json',
-    headers: { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
-    payload: JSON.stringify({
-      model: OCR_MODEL_(), max_tokens: 400, system: sys,
-      messages: [{ role: 'user', content: [mediaBlock, { type: 'text', text: 'この書類を読み取ってJSONで返してください。' }] }]
-    }), muteHttpExceptions: true
-  });
-  if (res.getResponseCode() >= 300) { Logger.log('OCR失敗: ' + res.getContentText()); return null; }
-  var data;
-  try { data = JSON.parse(res.getContentText()); } catch (e) { return null; }
-  var txt = (data.content && data.content[0] && data.content[0].text) || '';
+  var txt = anthropicText_(apiKey, sys,
+    [mediaBlock, { type: 'text', text: 'この書類を読み取ってJSONで返してください。' }], 400,
+    { model: OCR_MODEL_(), effort: 'low' });
   var j = safeJson_(txt);
   if (!j || j.is_quote === false) return null;
   return { estimate_name: j.estimate_name || '', estimate_amount: j.estimate_amount || '', quote_date: j.quote_date || '' };
@@ -1131,7 +1124,8 @@ function isDuplicateNote_(content, note) {
 }
 
 // ===== 共通 =====
-// opts（任意）: { model, effort } … 指定すると上位モデルで呼ぶ（判断用）。失敗したら従来のモデルでやり直す。
+// opts（任意）: { model, effort } … 指定すると上位モデルで呼ぶ（判断用・画像/PDFの読み取り）。失敗したら従来のモデルでやり直す。
+// user は文字列、または画像/PDFを含むかたまりの配列。
 // 何も渡さなければ今までどおり MODEL_()（劇場情報の取り込み等、他の呼び出し元もそのまま動く）
 function anthropicText_(apiKey, system, user, maxTokens, opts) {
   opts = opts || {};
@@ -1143,8 +1137,8 @@ function anthropicText_(apiKey, system, user, maxTokens, opts) {
     body.max_tokens = Math.max(body.max_tokens, opts.model ? 4000 : 3000);
     body.output_config = { effort: opts.effort || 'low' };
   }
-  if (opts.model) {
-    // 判断用の上位モデル: 安全機能で応答を断られた時は、自動で別のモデルに切り替えて答えさせる
+  if (supportsFallback_(useModel)) {
+    // 上位モデル: 安全機能で応答を断られた時は、自動で別のモデルに切り替えて答えさせる
     body.fallbacks = 'default';
     headers['anthropic-beta'] = 'server-side-fallback-2026-07-01';
   }

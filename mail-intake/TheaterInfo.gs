@@ -197,18 +197,10 @@ function extractTheaterInfo_(apiKey, text, mediaBlocks) {
     return safeJson_(anthropicText_(apiKey, sys, text, 2000));
   }
   var content = [{ type: 'text', text: text }].concat(mediaBlocks);
-  var res = UrlFetchApp.fetch('https://api.anthropic.com/v1/messages', {
-    method: 'post', contentType: 'application/json',
-    headers: { 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
-    payload: JSON.stringify({
-      model: OCR_MODEL_(), max_tokens: 1500, system: sys,
-      messages: [{ role: 'user', content: content }]
-    }), muteHttpExceptions: true
-  });
-  if (res.getResponseCode() >= 300) { Logger.log('劇場情報抽出(添付)失敗: ' + res.getContentText()); return null; }
-  var data;
-  try { data = JSON.parse(res.getContentText()); } catch (e) { return null; }
-  var txt = (data.content && data.content[0] && data.content[0].text) || '';
+  // 呼び方は Code.gs の anthropicText_ に任せる（最新モデルの「考えた内容」を飛ばして答えを読む・
+  // 上限に余裕・断られた時の自動切替・使えない時のやり直し）
+  var txt = anthropicText_(apiKey, sys, content, 2000, { model: OCR_MODEL_(), effort: 'low' });
+  if (!txt) { Logger.log('劇場情報抽出(添付)失敗: 応答なし'); return null; }
   return safeJson_(txt);
 }
 
