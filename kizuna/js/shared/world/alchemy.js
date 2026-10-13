@@ -6,13 +6,14 @@
 //   useAlchemyMemo … れん金のメモを 使う（services.js の useItem）
 //   alchemyMemoLoot … フィールドの 宝箱に メモが 入っている ことが ある（world/fieldchests.js）
 //   repairAlchemy・mergeAlchemy … セーブを ととのえる・データ合わせ
-import { ITEMS, baseItemId } from '../data/items.js?v=6b1c926c9cc8';
-import { addItem, removeItem, itemCount, ownsItem } from '../stats.js?v=6b1c926c9cc8';
+import { ITEMS, baseItemId } from '../data/items.js?v=3910dde37fcc';
+import { addItem, removeItem, itemCount, ownsItem } from '../stats.js?v=3910dde37fcc';
 import {
   ALCHEMY_POT, ALCHEMY_MEMO, POT_FLAG, STARTER_RECIPES, KEEPER_RECIPES, MERGE_RECIPE, CAP_UP_MAX, RECIPE_BY_ID,
-  hasPot, matchPot, learnableRecipes, knowsRecipe, insText, capUp,
-} from '../data/alchemy.js?v=6b1c926c9cc8';
-import { bossRareOf } from '../data/rare-loot.js?v=6b1c926c9cc8';
+  hasPot, matchPot, learnableRecipes, knowsRecipe, insText, capUp, POT_FAST_JOBS, POT_FAST_RATE,
+} from '../data/alchemy.js?v=3910dde37fcc';
+import { partyOf } from './party.js?v=3910dde37fcc';
+import { bossRareOf } from '../data/rare-loot.js?v=3910dde37fcc';
 
 // 本だなの きろくの 数（多すぎる ときは 古い ものから わすれる）
 const SHELF_MAX = 400;
@@ -65,12 +66,28 @@ export function forgePotGift(world, s, place) {
   return { tip: `そうだ、れん金のコツを1つ教えよう。\n${recipeLine(r)}ぞ。` };
 }
 
+// ───────────── れん金術師が いると 歩数が 半分（第33回） ─────────────
+// いっしょに 歩いている パーティー（自分・家族・仲間）で、れん金術師の 系統に 今 ついている 人（いなければ null）
+export function potHelper(world, s) {
+  const chars = [s?.char];
+  const p = world?.parties && s ? partyOf(world, s) : null;
+  if (p) {
+    for (const sid of p.members || []) chars.push(world.sessions?.get(sid)?.char);
+    for (const x of p.supports || []) chars.push(x?.char);
+  }
+  return chars.find((c) => c && !c.species && POT_FAST_JOBS.includes(c.job)) || null;
+}
+// 1歩で 何歩ぶん 進むか（れん金術師が いれば POT_FAST_RATE）
+export function potRate(world, s) {
+  return potHelper(world, s) ? POT_FAST_RATE : 1;
+}
+
 // ───────────── かまの そうさ ─────────────
-// 画面に 出す かまの ようす（できる 物の 名前は、知っている レシピ だけ）
-export function potView(c) {
+// 画面に 出す かまの ようす（できる 物の 名前は、知っている レシピ だけ）。rate … potRate（のこりの 歩数を その ぶん へらして 見せる）
+export function potView(c, rate = 1) {
   const p = c?.alchemy?.pot;
   if (!p || !ITEMS[p.out]) return null;
-  return { out: p.out, left: Math.max(1, Math.ceil(p.left)), merge: p.merge || null, known: p.recipe === MERGE_RECIPE || knowsRecipe(c, p.recipe), ins: p.ins || [] };
+  return { out: p.out, left: Math.max(1, Math.ceil(p.left / (rate || 1))), merge: p.merge || null, known: p.recipe === MERGE_RECIPE || knowsRecipe(c, p.recipe), ins: p.ins || [] };
 }
 
 // reply(ok, text, extra)
@@ -78,10 +95,10 @@ export function alchemyAction(world, s, msg, reply) {
   const c = s.char;
   if (!hasPot(c)) return reply(false, 'れん金がまを持っていない。');
   switch (msg.action) {
-    case 'status': return reply(true, '', { pot: potView(c) });
+    case 'status': return reply(true, '', { pot: potView(c, potRate(world, s)) });
     case 'put': {
       if (s.busy) return reply(false, '今はできない。');
-      if (c.alchemy?.pot) return reply(false, 'れん金がまの中では、まだ何かが完成するのを待っている。', { pot: potView(c) });
+      if (c.alchemy?.pot) return reply(false, 'れん金がまの中では、まだ何かが完成するのを待っている。', { pot: potView(c, potRate(world, s)) });
       const ids = Array.isArray(msg.ids) ? msg.ids.filter((x) => typeof x === 'string').slice(0, 4) : [];
       if (ids.length < 2) return reply(false, '2つ以上入れよう。');
       if (ids.length > 3) return reply(false, '入れられるのは3つまで。');
@@ -98,12 +115,17 @@ export function alchemyAction(world, s, msg, reply) {
       const known = m.recipe === MERGE_RECIPE || knowsRecipe(c, m.recipe);
       rec(c).pot = { out: m.out, recipe: m.recipe, left: m.steps, ins: ids, ...(m.merge ? { merge: m.merge } : {}) };
       const name = ITEMS[m.out].name;
+      // 第33回: れん金術師が いると 歩数が 半分
+      const helper = potHelper(world, s);
+      const rate = helper ? POT_FAST_RATE : 1;
+      const steps = Math.ceil(m.steps / rate);
       let text;
-      if (m.merge) text = `${insText(ids)}を、れん金がまに入れた！\nあと${m.steps}歩ほど歩くと、\n${ITEMS[m.merge].name}のきたえられる回数がふえる。`;
-      else if (known) text = `${insText(ids)}を、れん金がまに入れた！\nあと${m.steps}歩ほど歩くと、${name}ができる。`;
-      else text = `${insText(ids)}を、れん金がまに入れた！\n…うまくいきそうだ！\nあと${m.steps}歩ほど歩くと、何かができる。`;
+      if (m.merge) text = `${insText(ids)}を、れん金がまに入れた！\nあと${steps}歩ほど歩くと、\n${ITEMS[m.merge].name}のきたえられる回数がふえる。`;
+      else if (known) text = `${insText(ids)}を、れん金がまに入れた！\nあと${steps}歩ほど歩くと、${name}ができる。`;
+      else text = `${insText(ids)}を、れん金がまに入れた！\n…うまくいきそうだ！\nあと${steps}歩ほど歩くと、何かができる。`;
+      if (helper) text += `\n（${helper.name}のれん金術で、歩数が半分！）`;
       world.markDirty();
-      return reply(true, text, { pot: potView(c), steps: m.steps });
+      return reply(true, text, { pot: potView(c, rate), steps });
     }
     default: return reply(false, '');
   }
@@ -115,7 +137,8 @@ export function alchemySteps(world, s, n) {
   const c = s?.char;
   const p = c?.alchemy?.pot;
   if (!p || !(n > 0) || s.flying) return false;
-  p.left = (Number(p.left) || 0) - n;
+  // 第33回: れん金術師が パーティーに いると 1歩で 2歩ぶん
+  p.left = (Number(p.left) || 0) - n * potRate(world, s);
   world.markDirty();
   if (p.left > 0) return false;
   finishPot(world, s);

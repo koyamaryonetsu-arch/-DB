@@ -2,13 +2,13 @@
 // group: [[モンスターID, 最小数, 最大数], ...]
 // フィールドでは 先頭の モンスターの すがたで うろうろしている（シンボルエンカウント）
 
-import { ENCOUNTERS_CH2, FIXED_CH2, ZONE_BG_CH2 } from './encounters-ch2.js?v=6b1c926c9cc8';
-import { NIGHT_ENCOUNTERS, NIGHT_ZONE_BG, NIGHT_ZONES } from './night.js?v=6b1c926c9cc8';
-import { ENCOUNTERS_CH3, FIXED_CH3, ZONE_BG_CH3 } from './encounters-ch3.js?v=6b1c926c9cc8';
-import { ENCOUNTERS_CH4, FIXED_CH4, ZONE_BG_CH4, NIGHT_ZONES_CH4 } from './encounters-ch4.js?v=6b1c926c9cc8';
-import { ENCOUNTERS_TEMPLE, FIXED_TEMPLE, ZONE_BG_TEMPLE } from './encounters-temple.js?v=6b1c926c9cc8';
-import { ENCOUNTERS_LAB, FIXED_LAB, ZONE_BG_LAB } from './encounters-lab.js?v=6b1c926c9cc8';
-import { ENCOUNTERS_CH5, FIXED_CH5, ZONE_BG_CH5 } from './encounters-ch5.js?v=6b1c926c9cc8';
+import { ENCOUNTERS_CH2, FIXED_CH2, ZONE_BG_CH2 } from './encounters-ch2.js?v=3910dde37fcc';
+import { NIGHT_ENCOUNTERS, NIGHT_ZONE_BG, NIGHT_ZONES } from './night.js?v=3910dde37fcc';
+import { ENCOUNTERS_CH3, FIXED_CH3, ZONE_BG_CH3 } from './encounters-ch3.js?v=3910dde37fcc';
+import { ENCOUNTERS_CH4, FIXED_CH4, ZONE_BG_CH4, NIGHT_ZONES_CH4 } from './encounters-ch4.js?v=3910dde37fcc';
+import { ENCOUNTERS_TEMPLE, FIXED_TEMPLE, ZONE_BG_TEMPLE } from './encounters-temple.js?v=3910dde37fcc';
+import { ENCOUNTERS_LAB, FIXED_LAB, ZONE_BG_LAB } from './encounters-lab.js?v=3910dde37fcc';
+import { ENCOUNTERS_CH5, FIXED_CH5, ZONE_BG_CH5 } from './encounters-ch5.js?v=3910dde37fcc';
 
 export const ENCOUNTER_TABLES = {
   outskirts: [

@@ -1,12 +1,12 @@
 // キャラクターの つよさ計算・レベルアップ・転職ペナルティ
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_EASY_RATE, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets, jobBodyOk, superMasteredCount } from './data/jobs.js?v=6b1c926c9cc8';
-import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=6b1c926c9cc8';
-import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=6b1c926c9cc8';
-import { MONSTERS } from './data/monsters.js?v=6b1c926c9cc8';
-import { MONSTER_FRIENDS, monsterNatural, gearOf } from './data/companions.js?v=6b1c926c9cc8';
-import { HIRAMEKI, hiraRatio } from './data/hirameki.js?v=6b1c926c9cc8';
-import { cleanLook } from './data/looks.js?v=6b1c926c9cc8';
-import { SKILL_UPS } from './data/skill-ups.js?v=6b1c926c9cc8';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_EASY_RATE, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets, jobBodyOk, superMasteredCount } from './data/jobs.js?v=3910dde37fcc';
+import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=3910dde37fcc';
+import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=3910dde37fcc';
+import { MONSTERS } from './data/monsters.js?v=3910dde37fcc';
+import { MONSTER_FRIENDS, monsterNatural, gearOf } from './data/companions.js?v=3910dde37fcc';
+import { HIRAMEKI, hiraRatio } from './data/hirameki.js?v=3910dde37fcc';
+import { cleanLook } from './data/looks.js?v=3910dde37fcc';
+import { SKILL_UPS } from './data/skill-ups.js?v=3910dde37fcc';
 
 // 長い 物語に なるので レベルは 99まで（レベルで ふえる つよさは ひかえめ）
 export const MAX_LEVEL = 99;
@@ -483,6 +483,9 @@ export const STARTER_EQUIP = {
   kappa: { weapon: null, armor: 'cloth', shield: null, head: 'kappa_sara', acc: null },
   // 第29回: るろうに剣士は 逆ば刀
   rurouni: { weapon: 'sakabatou', armor: 'cloth', shield: null, head: null, acc: null },
+  // 第33回: 手品師は マジックステッキ、れん金術師は チョーク（data/items-r33.js）
+  magician: { weapon: 'magic_wand', armor: 'cloth', shield: null, head: null, acc: null },
+  alchemist: { weapon: 'chalk', armor: 'cloth', shield: null, head: null, acc: null },
 };
 
 // みため（むかしの 項目は いつも のこす。かみがた・色・目もとの あたらしい 項目は data/looks.js）

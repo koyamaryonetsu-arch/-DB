@@ -2,12 +2,13 @@
 // お店: name 店の なまえ / kind かんばんの しゅるい / keeper 店の人 / hello さいしょの ことば / items 売っている 品物
 //       more: 物語が すすむと ふえる 品物 [{ show: { all: [フラグ] }, items: [...], hello }]（show の 書き方は NPC と おなじ。hello が あれば あいさつも かわる）
 
-import { SHOPS_CH2 } from './items-ch2.js?v=6b1c926c9cc8';
-import { NIGHT_SHOPS } from './night.js?v=6b1c926c9cc8';
-import { SHOPS_CH3, CH3_GUESTS } from './items-ch3.js?v=6b1c926c9cc8';
-import { SHOPS_CH4 } from './items-ch4.js?v=6b1c926c9cc8';
-import { POWDER_ID, POWDER_SHOPS } from './friend-powder.js?v=6b1c926c9cc8';
-import { LURE_ITEM, FIELD27_SHOPS } from './abilities-field27.js?v=6b1c926c9cc8';
+import { SHOPS_CH2 } from './items-ch2.js?v=3910dde37fcc';
+import { NIGHT_SHOPS } from './night.js?v=3910dde37fcc';
+import { SHOPS_CH3, CH3_GUESTS } from './items-ch3.js?v=3910dde37fcc';
+import { SHOPS_CH4 } from './items-ch4.js?v=3910dde37fcc';
+import { POWDER_ID, POWDER_SHOPS } from './friend-powder.js?v=3910dde37fcc';
+import { LURE_ITEM, FIELD27_SHOPS } from './abilities-field27.js?v=3910dde37fcc';
+import { R33_SHOP_ADD } from './items-r33.js?v=3910dde37fcc';
 
 export const SHOPS = {
   village: {
@@ -66,6 +67,16 @@ Object.assign(SHOPS, SHOPS_CH4);
 for (const id of POWDER_SHOPS) if (SHOPS[id]) SHOPS[id].more = [...(SHOPS[id].more || []), { show: { all: ['monster_bond'] }, items: [POWDER_ID] }];
 // 魔物よせの笛: 町の 道具屋（abilities-field27.js）
 for (const id of FIELD27_SHOPS) if (SHOPS[id] && !SHOPS[id].items.includes(LURE_ITEM)) SHOPS[id].items.push(LURE_ITEM);
+// 第33回: 11の 職業の 装備（items-r33.js）。more は その フラグの 品ぞろえに 足す
+for (const [id, add] of Object.entries(R33_SHOP_ADD)) {
+  const shop = SHOPS[id];
+  if (!shop) continue;
+  shop.items.push(...(add.items || []).filter((x) => !shop.items.includes(x)));
+  for (const [flag, list] of Object.entries(add.more || {})) {
+    const m = (shop.more || []).find((x) => x.show?.all?.length === 1 && x.show.all[0] === flag);
+    if (m) m.items.push(...list.filter((x) => !m.items.includes(x)));
+  }
+}
 
 // 物語で ふえた 品ぞろえ（hasFlag: その人の 世界の フラグ）
 function moreOpen(shop, hasFlag) {

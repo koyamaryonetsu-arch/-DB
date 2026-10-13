@@ -8,9 +8,9 @@
 //   tier … その章（1〜5）。本だなや メモで わかるのは、その章まで 進んだ 人だけ（TIER_FLAG）
 // ・同じ 武具を 2つ 入れると、レア度は かわらないが きたえられる 回数（+の 上限）が 1 ふえる（CAP_UP_MAX 回まで。
 //   その 装備の しゅるいごと。c.alchemy.cap）
-import { ITEMS, baseItemId } from './items.js?v=6b1c926c9cc8';
-import { UPGRADE_TYPES, CAP_UP_MAX } from './items-forge.js?v=6b1c926c9cc8';
-import { ALCHEMY_POT, ALCHEMY_MEMO } from './items-alchemy.js?v=6b1c926c9cc8';
+import { ITEMS, baseItemId } from './items.js?v=3910dde37fcc';
+import { UPGRADE_TYPES, CAP_UP_MAX } from './items-forge.js?v=3910dde37fcc';
+import { ALCHEMY_POT, ALCHEMY_MEMO } from './items-alchemy.js?v=3910dde37fcc';
 
 export { ALCHEMY_POT, ALCHEMY_MEMO, CAP_UP_MAX };
 
@@ -20,6 +20,11 @@ export const POT_FLAG = 'c2_port_seen';
 export const TIER_FLAG = { 1: null, 2: null, 3: 'c3_start', 4: 'c4_start', 5: 'c4_clear' };
 // 同じ 武具を 2つ 入れる（きたえる 回数を ふやす）レシピの ID（はじめから 知っている）
 export const MERGE_RECIPE = 'r_merge';
+
+// 第33回: れん金術師の 系統（れん金術師・国家れん金術師・はがねのれん金術師）に 今 ついている 人が
+// パーティーに いると、できあがるまでの 歩数が 半分（1歩で 2歩ぶん 進む。world/alchemy.js の potRate）
+export const POT_FAST_JOBS = ['alchemist', 'state_alchemist', 'fullmetal'];
+export const POT_FAST_RATE = 2;
 
 // できあがるまでの 歩数（道具・素材 30・★2までの 装備 40・★3 50・★4 60・同じ 武具 40）
 export function potSteps(out, merge = false) {

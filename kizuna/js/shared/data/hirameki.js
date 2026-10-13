@@ -8,11 +8,13 @@
 //   - 職業の ひらめき技（job つき）… その 職業か、その 職業から 進んだ 職業
 // ・一度 ひらめいた 技は ずっと 使える（char.hirameki に のこる）
 // ・第20〜22回の 職業の ひらめき技は hirameki-jobs.js（下で いっしょに する）
-import { HIRA_JOB_ABILITIES, HIRAMEKI_JOBS } from './hirameki-jobs.js?v=6b1c926c9cc8';
+import { HIRA_JOB_ABILITIES, HIRAMEKI_JOBS } from './hirameki-jobs.js?v=3910dde37fcc';
 // 第27回: ぜんぶの 上級職より 上の 職業の ひらめき技（hirameki-r27.js）
-import { HIRA_R27_ABILITIES, HIRAMEKI_R27 } from './hirameki-r27.js?v=6b1c926c9cc8';
+import { HIRA_R27_ABILITIES, HIRAMEKI_R27 } from './hirameki-r27.js?v=3910dde37fcc';
 // 第29回: るろうに剣士の 道の ひらめき技（hirameki-r29.js）
-import { HIRA_R29_ABILITIES, HIRAMEKI_R29 } from './hirameki-r29.js?v=6b1c926c9cc8';
+import { HIRA_R29_ABILITIES, HIRAMEKI_R29 } from './hirameki-r29.js?v=3910dde37fcc';
+// 第33回: 11の 職業の ひらめき技（hirameki-r33.js）
+import { HIRA_R33_ABILITIES, HIRAMEKI_R33 } from './hirameki-r33.js?v=3910dde37fcc';
 
 // ひらめきで 覚える 新しい 技（基本職ごとに 2つ）
 export const HIRA_ABILITIES = {
@@ -178,6 +180,8 @@ export const HIRA_ABILITIES = {
   ...HIRA_R27_ABILITIES,
   // 第29回の ひらめき技（hirameki-r29.js）
   ...HIRA_R29_ABILITIES,
+  // 第33回の ひらめき技（hirameki-r33.js）
+  ...HIRA_R33_ABILITIES,
 };
 
 // ひらめきの じょうけん（技 → 使った 回数）。'@atk' は ふつうの 攻撃
@@ -223,6 +227,8 @@ export const HIRAMEKI = {
   ...HIRAMEKI_R27,
   // 第29回の ひらめき技（hirameki-r29.js）
   ...HIRAMEKI_R29,
+  // 第33回の ひらめき技（hirameki-r33.js）
+  ...HIRAMEKI_R33,
 };
 
 // 回数の 名前（'@atk' など、技 では ない もの）

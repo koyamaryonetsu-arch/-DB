@@ -1,26 +1,26 @@
 // たたかいの はいけいと エフェクト
-import { makeCanvas, ctxOf, hexToRgb, mix } from './pixel.js?v=6b1c926c9cc8';
-import { weaponLook, playWeapon, playReach } from './weaponfx.js?v=6b1c926c9cc8';
-import { nightBg, drawNightSky } from './night-art.js?v=6b1c926c9cc8';
-import { playJobFx, JOB_FINE } from './battlefx-jobs.js?v=6b1c926c9cc8';
-import { playJob2Fx, JOB2_FINE } from './battlefx-jobs2.js?v=6b1c926c9cc8';
-import { playJob3Fx, JOB3_FINE } from './battlefx-jobs3.js?v=6b1c926c9cc8';
-import { playJob4Fx, JOB4_FINE } from './battlefx-jobs4.js?v=6b1c926c9cc8';
+import { makeCanvas, ctxOf, hexToRgb, mix } from './pixel.js?v=3910dde37fcc';
+import { weaponLook, playWeapon, playReach } from './weaponfx.js?v=3910dde37fcc';
+import { nightBg, drawNightSky } from './night-art.js?v=3910dde37fcc';
+import { playJobFx, JOB_FINE } from './battlefx-jobs.js?v=3910dde37fcc';
+import { playJob2Fx, JOB2_FINE } from './battlefx-jobs2.js?v=3910dde37fcc';
+import { playJob3Fx, JOB3_FINE } from './battlefx-jobs3.js?v=3910dde37fcc';
+import { playJob4Fx, JOB4_FINE } from './battlefx-jobs4.js?v=3910dde37fcc';
 // 第27回の 暴れんぼう将軍の 看板の技（battlefx-jobs5.js）
-import { playJob5Fx, JOB5_FINE } from './battlefx-jobs5.js?v=6b1c926c9cc8';
+import { playJob5Fx, JOB5_FINE } from './battlefx-jobs5.js?v=3910dde37fcc';
 // 第29回の るろうに剣士の 道の 看板の技（battlefx-jobs6.js）
-import { playJob6Fx, JOB6_FINE } from './battlefx-jobs6.js?v=6b1c926c9cc8';
-import { drawPalaceHall, drawPalaceFloor } from './ch4-palace-bg.js?v=6b1c926c9cc8';
+import { playJob6Fx, JOB6_FINE } from './battlefx-jobs6.js?v=3910dde37fcc';
+import { drawPalaceHall, drawPalaceFloor } from './ch4-palace-bg.js?v=3910dde37fcc';
 // 第4章 Step 6: 砂の古城・砂の海（すなかぜ号の かんぱん）・砂クジラの ねどこ（ch4-duna-bg.js）
-import { drawCastleHall, drawCastleFloor, drawSandSea } from './ch4-duna-bg.js?v=6b1c926c9cc8';
-import { playCh4Fx } from './battlefx-ch4.js?v=6b1c926c9cc8';
+import { drawCastleHall, drawCastleFloor, drawSandSea } from './ch4-duna-bg.js?v=3910dde37fcc';
+import { playCh4Fx } from './battlefx-ch4.js?v=3910dde37fcc';
 // 第27回: 古い 呪文・特技の エフェクトの 作り直し（battlefx-r27.js）
-import { playR27Fx, R27_FINE } from './battlefx-r27.js?v=6b1c926c9cc8';
+import { playR27Fx, R27_FINE } from './battlefx-r27.js?v=3910dde37fcc';
 // 第4章 Step 7: 砂の底の神殿・鏡の間・水鏡の広間（ch4-temple-bg.js）
-import { TEMPLE_BG, TEMPLE_DECOS, drawTempleBg, drawTempleFloorBg } from './ch4-temple-bg.js?v=6b1c926c9cc8';
-import { SECRET_BG } from './secret-art.js?v=6b1c926c9cc8';
+import { TEMPLE_BG, TEMPLE_DECOS, drawTempleBg, drawTempleFloorBg } from './ch4-temple-bg.js?v=3910dde37fcc';
+import { SECRET_BG } from './secret-art.js?v=3910dde37fcc';
 // 第5章 Step 2: 星の塔の 中・塔の てっぺん（ch5-tower-bg.js）
-import { TOWER_BG, TOWER_DECOS, drawTowerBg, drawTowerFloorBg } from './ch5-tower-bg.js?v=6b1c926c9cc8';
+import { TOWER_BG, TOWER_DECOS, drawTowerBg, drawTowerFloorBg } from './ch5-tower-bg.js?v=3910dde37fcc';
 
 export const BW = 256;
 export const BH = 144;

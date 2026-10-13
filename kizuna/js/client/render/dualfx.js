@@ -55,6 +55,12 @@ export const DUAL_FX = {
   dt_beast_cross: { c: ['#7a4a1a', '#ffb04a', '#ffffff'], finale: 'cross', word: 'いけっ！' },
   dt_circus: { c: ['#c81a3a', '#ffd040', '#3a8aff'], finale: 'stage', word: 'ブラボー！' },
   dt_wild_rush: { c: ['#5a3a1a', '#ff8a3a', '#ffe0a0'], finale: 'quake', word: 'ガオーッ！' },
+  // 第33回（担当A）: 11の 職業の 合体技（とどめは 今ある 型。絵の 担当が かえて よい）
+  dt_tsukiyo: { c: ['#1a2a5a', '#f4f6ff', '#ffe07a'], finale: 'spot', word: 'いただきます！' },
+  dt_reform: { c: ['#2a4a8a', '#9ad8ff', '#ffd040'], finale: 'quake', word: 'トントンカン！' },
+  dt_moonlight: { c: ['#ff7ab8', '#ffe07a', '#ffffff'], finale: 'stage', word: 'ムーンライト！' },
+  dt_hippogriff: { c: ['#5a3a1a', '#c8e0ff', '#ffffff'], finale: 'storm', word: 'バサッ！' },
+  dt_sotsugyou: { c: ['#3a5a3a', '#ffb0c8', '#ffffff'], finale: 'heal', word: '卒業おめでとう！' },
 };
 const DEFAULT_FX = { c: ['#7a3ac8', '#ffd66b', '#ffffff'], finale: 'nova', word: '' };
 export const dualFxOf = (id) => DUAL_FX[id] || DEFAULT_FX;
