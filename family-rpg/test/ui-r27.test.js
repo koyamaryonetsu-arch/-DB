@@ -167,7 +167,7 @@ test('転職の せりふ: 神官の あいさつは 1回（2行）・かくに�
   assert.ok(many.split('\n').length <= 2);
   // 転職の まどは せりふの かわりに せつめいで 足りる（レベルは 残る・他の 職業の 技）
   const svc = src('js/client/ui/services.js');
-  assert.match(svc, /jobAskText\(JOBS\[it\.value\]\.name/);
+  assert.match(svc, /jobAskText\(jobLabel\(it\.value, c\)/);  // 第33回: 職業の 名前は 転職する 人 むけ（job-label.js）
   assert.match(svc, /転職しても今の職業のレベルは残る/);
   assert.match(svc, /MPが増えたり威力が下がる/);
 });

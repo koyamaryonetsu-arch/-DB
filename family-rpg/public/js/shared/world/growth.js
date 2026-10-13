@@ -3,9 +3,10 @@
 //     「ユウ　Lv12→15　戦士Lv3→4！　HP+20　力+9　守り+6」
 //     「覚えた：ホイミ、ベホイミ」
 //   マスター・新しい 職業・ヒントは べつの 行（notes。めったに 出ない 大事な 知らせ）
-import { JOBS, JOB_MAX_LEVEL } from '../data/jobs.js';
+import { JOB_MAX_LEVEL } from '../data/jobs.js';
 import { ABILITIES } from '../data/abilities.js';
 import { abilityFor } from '../ability-label.js';
+import { jobLabel } from '../job-label.js';
 
 export const GROW_STATS = ['maxHp', 'maxMp', 'str', 'def', 'agi', 'mag', 'heal'];
 const SHORT = { maxHp: 'HP', maxMp: 'MP', str: '力', def: '守り', agi: '素早さ', mag: '魔力', heal: '回復' };
@@ -18,7 +19,7 @@ export function learnName(id, who = null) {
   return a.kind === 'combo' ? `掛け合わせ技「${a.name}」` : a.name;
 }
 
-// name … 名前、ups … gainExp の 結果（1レベルごと）、jups … gainJobBattles の 結果（1職業レベルごと）、who … その キャラ（技の 名前に 使う）
+// name … 名前、ups … gainExp の 結果（1レベルごと）、jups … gainJobBattles の 結果（1職業レベルごと）、who … その キャラ（技・職業の 名前に 使う。job-label.js）
 // かえす もの: { lines: [まとめの 行（0〜2行）], notes: [★の 知らせ] }
 export function growthSummary(name, ups = [], jups = [], who = null) {
   const lines = [], notes = [];
@@ -37,14 +38,15 @@ export function growthSummary(name, ups = [], jups = [], who = null) {
     r.to = u.lv;
     byJob.set(u.job, r);
   }
-  for (const [job, r] of byJob) head.push(`${JOBS[job]?.name || job}Lv${r.from}→${r.to}`);
+  const jn = (j) => jobLabel(j, who) || j;
+  for (const [job, r] of byJob) head.push(`${jn(job)}Lv${r.from}→${r.to}`);
   const st = GROW_STATS.filter((k) => gains[k] > 0).map((k) => `${statShort(k)}+${gains[k]}`).join('　');
   lines.push(`${name}　${head.join('　')}！${st ? `　${st}` : ''}`);
   if (learned.length) lines.push(`覚えた：${learned.map((id) => learnName(id, who)).join('、')}`);
   for (const u of jups) {
-    if (u.lv >= JOB_MAX_LEVEL) notes.push(`★ ${name}は${JOBS[u.job].name}をマスターした！`);
-    for (const id of u.unlocked || []) notes.push(`★ ${name}は${JOBS[id].name}になれるようになった！（ルミナの町の神殿で転職できる）`);
-    for (const id of u.hinted || []) notes.push(`☆ 新しい職業「${JOBS[id].name}」のヒントを見つけた！（神殿で見られる）`);
+    if (u.lv >= JOB_MAX_LEVEL) notes.push(`★ ${name}は${jn(u.job)}をマスターした！`);
+    for (const id of u.unlocked || []) notes.push(`★ ${name}は${jn(id)}になれるようになった！（ルミナの町の神殿で転職できる）`);
+    for (const id of u.hinted || []) notes.push(`☆ 新しい職業「${jn(id)}」のヒントを見つけた！（神殿で見られる）`);
   }
   return { lines, notes };
 }

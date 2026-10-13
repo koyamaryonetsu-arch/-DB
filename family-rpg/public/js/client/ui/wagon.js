@@ -4,7 +4,7 @@ import { el, esc, toast, ListMenu } from './dom.js';
 import { WAGON_SLOTS, wagonMapOk } from '../../shared/data/wagon.js';
 import { COMPANION_SLOTS } from '../../shared/data/companions.js';
 import { MAPS } from '../../shared/maps/index.js';
-import { JOBS } from '../../shared/data/jobs.js';
+import { jobLabel } from '../../shared/job-label.js';
 import { MONSTERS } from '../../shared/data/monsters.js';
 import { computeStats } from '../../shared/stats.js';
 import { faceURL } from '../field.js';
@@ -84,7 +84,8 @@ export function wagonPicURL(dir = 'left') {
   try { return wagonSprite(dir, 0).toDataURL(); } catch { return ''; }
 }
 
-const kindName = (x) => (x.species ? MONSTERS[x.species]?.name || '' : JOBS[x.job]?.name || '');
+// 職業の 名前は その 人 むけ（男の子の 美少女戦士は「仮面のしんし」。shared/job-label.js）
+const kindName = (x) => (x.species ? MONSTERS[x.species]?.name || '' : jobLabel(x.job, x));
 const faceOf = (x) => faceURL({ look: x.look, job: x.job, eq: shownEquip(x), mon: x.species || undefined });
 
 // じぶんの 仲間の じょうほう（key → 名前・HP など。game.me の companions から）

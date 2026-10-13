@@ -1,6 +1,7 @@
 // タイトル・ログイン・キャラクターえらび・キャラクターづくり
 import { el, ListMenu, toast, askText, confirmBox } from './dom.js';
 import { JOBS, JOB_ORDER } from '../../shared/data/jobs.js';
+import { jobLabel } from '../../shared/job-label.js';
 import { HAIR_STYLES, HAIR_COLORS, SKIN_TONES, FACES, FACE_BY_ID, CLOTH_COLORS, cleanLook } from '../../shared/data/looks.js';
 import { previewCache } from '../render/hero.js';
 import { playerSprite } from '../field.js';
@@ -162,7 +163,7 @@ export function showSelect(game, chars) {
     ctxOf(cv).drawImage(sp, 0, 0);
     const card = el('button', { class: 'win charcard' }, cv, el('div', {},
       el('div', { text: c.name }),
-      el('div', { class: 'meta', text: `${JOBS[c.job]?.name} Lv${c.level}` }),
+      el('div', { class: 'meta', text: `${jobLabel(c.job, c)} Lv${c.level}` }),
       el('div', { class: 'meta', text: c.objective || '' })));
     card.addEventListener('click', () => choose(c));
     grid.append(card);

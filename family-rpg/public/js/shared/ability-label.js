@@ -14,13 +14,12 @@
 //  人 … キャラ（char）・戦いの 人（combatant。サーバーの c も、クライアントの pub(c) も look を もつ）
 import { ABILITIES } from './data/abilities.js';
 import { DUAL_TECHS, groupJobs } from './data/dual.js';
+import { isMasc } from './job-label.js';
 
 // 男の子か（見た目の look.body が 1 で ない）。モンスター（仲間の 魔物・敵）は ちがう。
 // look の ない もの（職業だけの { job, jobs }・敵・古い データ）は もとの 技の まま（ちがう 名前を 出さない ため）
-export function isMasc(who) {
-  if (!who || typeof who !== 'object' || who.mon) return false;
-  return !!who.look && typeof who.look === 'object' && who.look.body !== 1;
-}
+// きめ方は job-label.js の 1か所（職業の 名前も おなじ きめ方。jobLabel）
+export { isMasc };
 
 const cache = new WeakMap();
 const merged = (base, over) => {
