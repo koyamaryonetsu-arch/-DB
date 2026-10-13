@@ -728,13 +728,13 @@ export function playJob7Fx(fx, anim, targets, element, opts = {}, W = 256, H = 1
     }
     case 'homeroom_3b_sig': {
       // 1) 黒板に チョークで「人」
-      const bx = Math.min(W - 52, Math.max(52, tx)), by = Math.max(30, top - 34);
+      const bx = Math.min(W - 52, Math.max(52, tx)), by = Math.max(26, top - 46);
       fx.add({ kind: 'j7board', x: bx, y: by, w: 92, h: 46, life: 1500 });
       for (let k = 0; k < 8; k++) fx.puff(bx + rnd(-16, 16), by + rnd(-10, 14), { color: '#f6f6ee', r0: 1, r1: 4, vy: 12, life: 500, alpha: 0.5, delay: 180 + k * 50 });
       // 2) 説教の 文字が 敵に ぶつかる
       const words = ['コラッ！', 'いいですか！', 'わかりますか！'];
       each((t, i, d) => {
-        text(words[i % words.length], t.x, t.y - (i % 2 ? 34 : 16), 640 + i * 90, { bubble: '#ffffff', fill: '#2a2438', edge: '#2a2438', life: 700, font: 'bold 12px KizunaRound, "Hiragino Maru Gothic ProN", sans-serif' });
+        text(words[i % words.length], t.x, t.y - (i % 2 ? 6 : 22), 640 + i * 90, { bubble: '#ffffff', fill: '#2a2438', edge: '#2a2438', life: 700, font: 'bold 10px KizunaRound, "Hiragino Maru Gothic ProN", sans-serif' });
         hitMark(t, 700 + i * 90, '#f6f6ee', 18);
         fx.arrows(t.x, t.y, '#ffd66b', false, 2, 760 + i * 90);
       });
