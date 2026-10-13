@@ -1816,6 +1816,7 @@ npm start                 # 家族サーバー
 - 第33回（2026年10月）の 11この職業の絵とえんしゅつ（担当B。id は `docs/plan-r33-jobs.md` の約束どおり：`magician`・`kaito`・`kaito_kid`・`wizard_student`・`harry`・`homeroom_3b`・`alchemist`・`state_alchemist`・`fullmetal`・`sailor_soldier`・`sailor_moon`）
   - 絵は `client/render/hero-r33.js`（服 `R33_OUTFIT`・からだ `R33_BODY`・かみの色 `R33_HAIR`・シルクハット `R33_HAT`（布の服の時）・ティアラ `R33_BODY_HAT`（よろいでも残る）・古い小さな絵 `R33_OLD_LOOK`）。`JOBS` にない id でもかける
     - つけたしは `hero-r26.js` からよぶ：服 `outfit33`（マントのうら・前にたれるマント・白い手ぶくろ・ローブのネクタイ・マフラー・ほうき・セーラー戦士の服）、からだ `body33`（機械の右うで `O.sleeveR`・手ぶくろのれん金の円 `O.handMark`）、絵 `drawR33`、かお `face33`（まるめがね・片めがね・いなずまのきず）、ぼうし `drawHat33`、もちもの `drawProp33`（ステッキ・予告状・トランプ銃・つえ・出席ぼ・銀時計・月のステッキ）
+    - 装備の見た目（A の品の id）：ぶき `R33_WEAPON_LOOK`（マジックステッキ・チョーク・指し棒・ニワトコのつえ。形 `wand33` は `drawWand33`）、よろい `R33_ARMOR_LOOK`（魔法学校のローブ・かいとうの白いマント・熱血先生のジャージ）、ぼうし `R33_HEAD_LOOK`（シルクハット）。ティアラ（ぶき）・機械のうで（ぶき）などは今ある形（ブーメラン・ツメ）のまま
     - かみがた（えらべないかみ）は `hero-hair.js` の `messy33`（ハリー）・`center33`（3年B組）・`braid33`（はがね）・`moon33`（セーラームーン）。`hero.js` は右うでだけちがうそで `O.sleeveR` と、手のあとの `handMark33` を見る
   - 技のえんしゅつは `client/render/battlefx-jobs7.js`。**技の id ではなく、えんしゅつの名前（anim）でひく**（データの技に `anim: 'kaito_kid_sig'`・`anim: 'r33_card_throw'` のように書く）。一覧は `R33_SIGS`（11この職業の看板の技。名前は `<職業のid>_sig` で、A の技の id と同じ）・`R33_MOVES`（ほかの技に合うえんしゅつ21こ。`r33_…`）。`battlefx.js` の `play()` が jobs6 のつぎに聞く。つぶは `JOB7_FINE`（`j7…`）
     - あたる時間は `JOB7_HIT`（`battle.js` の `HIT_DELAY` にまぜる）、音は `JOB7_SFX`（新しい音は `client/sfx-r33.js` の `r33_*`）、みかたにかけるえんしゅつ（画面の下に出す）は `PARTY_ANIMS7`

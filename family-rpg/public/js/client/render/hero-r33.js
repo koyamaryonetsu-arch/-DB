@@ -640,3 +640,60 @@ export function handMark33(cv, A, P, O) {
     cv.stamp(x - 1, y - 1, ['cc', 'cc'], { c });
   }
 }
+
+// ───────────── 第33回の ぶき（hero-gear.js の WEAPON_LOOK の shape 'wand33'。kind33 で かわる） ─────────────
+// F: ぶきの むきの ざひょう（a: 手から 先へ、b: よこ）。仮の 品の id（A の データ）: magic_wand・chalk・pointer_stick・elder_wand
+export const R33_WEAPON_LOOK = {
+  magic_wand: { shape: 'wand33', kind33: 'stick', len: 10.4 },
+  chalk: { shape: 'wand33', kind33: 'chalk', len: 5.2 },
+  pointer_stick: { shape: 'wand33', kind33: 'pointer', len: 13.2 },
+  elder_wand: { shape: 'wand33', kind33: 'elder', len: 10.8 },
+};
+export function drawWand33(cv, F, W) {
+  const L = W.len || 10;
+  switch (W.kind33) {
+    case 'chalk': {
+      // チョーク（白い みじかい ぼう。先が すこし 丸い）
+      cv.part({ ol: 'line' });
+      cv.poly(F.P([[-1.4, -0.75], [L - 0.6, -0.75], [L, 0], [L - 0.6, 0.75], [-1.4, 0.75]]), mat({ r: ['#a8a49a', '#e2ded2', '#f8f6ee', '#ffffff'], th: TH.matte }), { n: 'row', cx: 0.7 });
+      return;
+    }
+    case 'pointer': {
+      // 指し棒（のびる 銀の ぼう・先に 赤い 玉）
+      cv.part({ ol: 'line' });
+      cv.poly(F.P([[-2.2, -0.55], [L * 0.5, -0.45], [L - 0.6, -0.3], [L - 0.6, 0.3], [L * 0.5, 0.45], [-2.2, 0.55]]), mt(SILVER), { n: 'row', cx: 0.7 });
+      cv.part({ ol: 'line' });
+      cv.ell(...F.T(L, 0), 0.7, 0.7, cl('#d0202c', { light: 1.2 }), { bulge: 0.9 });
+      cv.part({ ol: 'line' });
+      cv.poly(F.P([[-2.6, -0.8], [0.6, -0.8], [0.6, 0.8], [-2.6, 0.8]]), cl('#2a2a36'), { n: 'row', cx: 0.7 });
+      return;
+    }
+    case 'elder': {
+      // ふしの ある 灰色の 木の つえ
+      const m = mat({ r: ['#2e2a30', '#5a5458', '#8a8488', '#c4beba'], th: TH.matte });
+      cv.part({ ol: 'line' });
+      cv.poly(F.P([[-2.4, -0.7], [L - 1.0, -0.4], [L, 0], [L - 1.0, 0.4], [-2.4, 0.7]]), m, { n: 'row', cx: 0.7 });
+      for (const a of [L * 0.3, L * 0.55, L * 0.78]) { cv.part({ ol: 'soft' }); cv.ell(...F.T(a, 0), 0.62, 0.62, m, { bulge: 0.8 }); }
+      return;
+    }
+    default: {
+      // 手品の ステッキ（黒い ぼうで りょうはしが 白）
+      cv.part({ ol: 'line' });
+      cv.poly(F.P([[-2.6, -0.62], [L, -0.62], [L, 0.62], [-2.6, 0.62]]), mat({ r: ['#141220', '#34304a', '#6a6688', '#b4b0d0'], th: TH.metal, spec: 0.95 }), { n: 'row', cx: 0.7 });
+      const id = cv.cur;
+      cv.part({ ol: 'none', clip: id });
+      cv.poly(F.P([[L - 1.8, -0.7], [L, -0.7], [L, 0.7], [L - 1.8, 0.7]]), white(), { n: 'row', cx: 0.6 });
+      cv.part({ ol: 'none', clip: id });
+      cv.poly(F.P([[-2.6, -0.7], [-1.2, -0.7], [-1.2, 0.7], [-2.6, 0.7]]), white(), { n: 'row', cx: 0.6 });
+    }
+  }
+}
+// 仮の 品の id（A の データ）の よろい・ぼうしの 見た目
+export const R33_ARMOR_LOOK = {
+  school_robe: { kind: 'robe', main: '#1c1a26', trim: '#3c3a4c', r33: true, tie33: ['#2a3e86', '#c4c8d6'] },
+  kid_mantle: { kind: 'suit', main: '#f4f4f8', tie: '#d0202c', shirt: '#3a62c8', pants: '#eceef6', r33: true, cape: '#f8f8fc', capeIn: '#d8deec', capeLen: 36.4, drape: true, gloves: true },
+  nekketsu_jersey: { kind: 'jersey', main: '#c8202c', tee: '#f2f2f6' },
+};
+export const R33_HEAD_LOOK = {
+  silk_hat: { kind: 'silk33', c: '#1c1a26', band: '#c41a2a', hides: 'top' },
+};

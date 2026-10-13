@@ -10,7 +10,7 @@ import { R27_OUTFIT, R27_BODY } from './hero-r27.js';
 // 第29回の るろうに剣士の 道（赤い 着物と はかま・白い マント・長い 赤毛・十字の きず）
 import { R29_OUTFIT, R29_BODY } from './hero-r29.js';
 // 第33回の 11この 職業（手品師・かいとう・魔法学校・3年B組・れん金術師・美少女戦士 の 道）
-import { R33_OUTFIT, R33_BODY } from './hero-r33.js';
+import { R33_OUTFIT, R33_BODY, R33_ARMOR_LOOK } from './hero-r33.js';
 
 // ───────────── ざいしつ ─────────────
 const METALS = {
@@ -247,6 +247,9 @@ const ARMOR_OUTFIT = {
   // ヒョウがらの服
   leopard_shirt: { kind: 'leopard' },
 };
+
+// 第33回の よろい（魔法学校のローブ・かいとうの白いマント・熱血先生のジャージ。hero-r33.js）
+Object.assign(ARMOR_OUTFIT, R33_ARMOR_LOOK);
 
 // 知らない よろい: 名前と 種類から
 function guessArmor(it) {
