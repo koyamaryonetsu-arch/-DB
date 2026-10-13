@@ -6,6 +6,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { JOBS } from '../public/js/shared/data/jobs.js';
 import { ITEMS } from '../public/js/shared/data/items.js';
+import { ABILITIES } from '../public/js/shared/data/abilities.js';
 import { paintHero } from '../public/js/client/render/hero.js';
 import { outfitOf, jobBody } from '../public/js/client/render/hero-outfit.js';
 import { headOf } from '../public/js/client/render/hero-gear.js';
@@ -183,36 +184,39 @@ test('第33回の 職業の からだ: めがね・片めがね・きず・機�
   assert.ok(countPx(paintHero(look, 'harry', undefined, 'down', 0, 8), red) > countPx(paintHero(look, 'wizard_student', undefined, 'down', 0, 8), red) + 40, 'ハリーの 赤');
 });
 
-test('第33回の 装備の 見た目: ステッキ・チョーク・指し棒・ニワトコのつえ・シルクハット・ローブ・白いマント・ジャージ（A の 仮の 品の id）', () => {
-  // データは A が 作る。まだ ない ときは この テストの 中だけ 仮の 品を 足す
-  const TEMP = {
-    magic_wand: { name: 'マジックステッキ', type: 'weapon', rank: 1, cat: 'staff' },
-    chalk: { name: 'チョーク', type: 'weapon', rank: 1, cat: 'staff' },
-    pointer_stick: { name: '指し棒', type: 'weapon', rank: 5, cat: 'staff' },
-    elder_wand: { name: 'ニワトコのつえ', type: 'weapon', rank: 8, cat: 'staff' },
-    silk_hat: { name: 'シルクハット', type: 'head', rank: 2 },
-    school_robe: { name: '魔法学校のローブ', type: 'armor', rank: 3, armorType: 'robe' },
-    kid_mantle: { name: 'かいとうの白いマント', type: 'armor', rank: 7, armorType: 'cloth' },
-    nekketsu_jersey: { name: '熱血先生のジャージ', type: 'armor', rank: 7, armorType: 'cloth' },
-  };
-  const added = [];
-  for (const [id, it] of Object.entries(TEMP)) if (!ITEMS[id]) { ITEMS[id] = { id, ...it }; added.push(id); }
-  try {
-    const look = { body: 0, style: 'short', hcol: 'brown' };
-    for (const w of ['magic_wand', 'chalk', 'pointer_stick', 'elder_wand']) {
-      for (const dir of DIRS) {
-        const img = paintHero(look, 'magician', `${w},cloth,,`, dir, 0, 8);
-        checkImg(img, `${w} ${dir}`);
-        assert.notEqual(key(img), key(paintHero(look, 'magician', 'oak_staff,cloth,,', dir, 0, 8)), `${w} ${dir} は ふつうの つえと ちがう`);
-      }
+test('第33回の 装備の 見た目: 11この 品（ぶき・よろい・ぼうし）は 職業の 見た目が ある・はみ出さない', () => {
+  const look = { body: 0, style: 'short', hcol: 'brown' };
+  const W = ['magic_wand', 'chalk', 'pointer_stick', 'elder_wand', 'tiara_boomerang', 'automail_arm'];
+  for (const id of [...W, 'silk_hat', 'school_robe', 'kid_mantle', 'invisible_cloak', 'nekketsu_jersey', 'silver_crystal']) assert.ok(ITEMS[id], `${id} の データ`);
+  for (const w of W) {
+    for (const dir of DIRS) {
+      const img = paintHero(look, 'magician', `${w},cloth,,`, dir, 0, 8);
+      checkImg(img, `${w} ${dir}`);
+      assert.notEqual(key(img), key(paintHero(look, 'magician', 'oak_staff,cloth,,', dir, 0, 8)), `${w} ${dir} は ふつうの つえと ちがう`);
     }
-    assert.equal(headOf('silk_hat', 'warrior', 'cloth', outfitOf({ cloth: '#fff' }, 'warrior', 'cloth', false)).kind, 'silk33');
-    assert.equal(outfitOf({ cloth: '#fff', skin: 0 }, 'warrior', 'kid_mantle', false).r33?.drape ? 1 : 0, 1, 'かいとうの白いマント');
-    assert.ok(outfitOf({ cloth: '#fff', skin: 0 }, 'warrior', 'school_robe', false).r33?.tie, '魔法学校のローブ');
-    for (const eq of [',school_robe,,silk_hat', ',kid_mantle,,', ',nekketsu_jersey,,']) for (const dir of DIRS) checkImg(paintHero(look, 'warrior', eq, dir, 0, 4), `${eq} ${dir}`);
-  } finally {
-    for (const id of added) delete ITEMS[id];
   }
+  assert.notEqual(key(paintHero(look, 'fullmetal', 'automail_arm,cloth,,', 'down', 0, 8)), key(paintHero(look, 'fullmetal', 'iron_claw,cloth,,', 'down', 0, 8)), '機械のうでは はがねの いろ');
+  assert.equal(headOf('silk_hat', 'warrior', 'cloth', outfitOf({ cloth: '#fff' }, 'warrior', 'cloth', false)).kind, 'silk33');
+  assert.ok(outfitOf({ cloth: '#fff', skin: 0 }, 'warrior', 'kid_mantle', false).r33?.drape, 'かいとうの白いマント');
+  assert.ok(outfitOf({ cloth: '#fff', skin: 0 }, 'warrior', 'school_robe', false).r33?.tie, '魔法学校のローブ');
+  assert.ok(outfitOf({ cloth: '#fff', skin: 0 }, 'warrior', 'invisible_cloak', false).cape, 'とうめいマント');
+  for (const eq of [',school_robe,,silk_hat', ',kid_mantle,,', ',nekketsu_jersey,,', ',invisible_cloak,,']) for (const dir of DIRS) checkImg(paintHero(look, 'warrior', eq, dir, 0, 4), `${eq} ${dir}`);
+});
+
+test('第33回の 技の データ: 看板の技は <職業の id>_sig の えんしゅつ、ほかの 技も r33_ の えんしゅつに つながる', () => {
+  for (const job of JOBS11) {
+    const id = `${job}_sig`;
+    assert.equal(ABILITIES[id]?.anim, id, `${id} の anim`);
+    assert.ok(R33_ANIMS.has(id), id);
+  }
+  const used = new Set();
+  for (const [id, a] of Object.entries(ABILITIES)) {
+    if (!a.anim || !(R33_ANIMS.has(a.anim))) continue;
+    used.add(a.anim);
+    // みかたに かける 技は、みかたの えんしゅつ（がめんの 下に 出す）
+    if (/^(ally|allies|self)$/.test(a.target)) assert.ok(PARTY_ANIMS7.has(a.anim), `${id} (${a.target}) の ${a.anim}`);
+  }
+  assert.ok(used.size >= 25, `つかわれて いる えんしゅつ ${used.size}`);
 });
 
 // ───────────── えんしゅつ ─────────────

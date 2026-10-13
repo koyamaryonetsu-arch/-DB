@@ -43,7 +43,7 @@ export const R33_MOVES = ['r33_card_throw', 'r33_hat_trick', 'r33_smoke_flash', 
   'r33_sekkyo', 'r33_hito_ji', 'r33_alchemy', 'r33_alchemy_spear', 'r33_alchemy_wall', 'r33_mech_arm', 'r33_watch', 'r33_sailor_beam', 'r33_sailor_guard', 'r33_moon_tiara', 'r33_moon_heal'];
 export const R33_ANIMS = new Set([...R33_SIGS, ...R33_MOVES]);
 // みかたに つかう ことが ある えんしゅつ（敵が いない ときは がめんの 下に 大きく 出す）
-export const PARTY_ANIMS7 = new Set(['r33_glider', 'r33_broom', 'r33_hito_ji', 'r33_alchemy_wall', 'r33_sailor_guard', 'r33_moon_heal', 'r33_patronus']);
+export const PARTY_ANIMS7 = new Set(['r33_glider', 'r33_smoke_flash', 'r33_broom', 'r33_hito_ji', 'r33_alchemy_wall', 'r33_sailor_guard', 'r33_moon_heal', 'r33_patronus']);
 // あたる じかん（ms。ダメージの 数字を この ときに 出す）
 export const JOB7_HIT = {
   kaito_kid_sig: 380, harry_sig: 360, homeroom_3b_sig: 700, fullmetal_sig: 520, sailor_moon_sig: 620,

@@ -648,6 +648,10 @@ export const R33_WEAPON_LOOK = {
   chalk: { shape: 'wand33', kind33: 'chalk', len: 5.2 },
   pointer_stick: { shape: 'wand33', kind33: 'pointer', len: 13.2 },
   elder_wand: { shape: 'wand33', kind33: 'elder', len: 10.8 },
+  // ティアラ（なげる ぶき。手に もつ 金の わと 赤い 石）
+  tiara_boomerang: { shape: 'wand33', kind33: 'tiara', len: 4.2 },
+  // はがねの 機械の うで（ツメの かたちで、はがねの いろ）
+  automail_arm: { shape: 'claw', mk: 'steel' },
 };
 export function drawWand33(cv, F, W) {
   const L = W.len || 10;
@@ -666,6 +670,18 @@ export function drawWand33(cv, F, W) {
       cv.ell(...F.T(L, 0), 0.7, 0.7, cl('#d0202c', { light: 1.2 }), { bulge: 0.9 });
       cv.part({ ol: 'line' });
       cv.poly(F.P([[-2.6, -0.8], [0.6, -0.8], [0.6, 0.8], [-2.6, 0.8]]), cl('#2a2a36'), { n: 'row', cx: 0.7 });
+      return;
+    }
+    case 'tiara': {
+      // ティアラ（手の 先に 金の わ。まん中に 赤い 石）
+      const [cx, cy] = F.T(L * 0.55, 0);
+      cv.part({ ol: 'line' });
+      cv.ell(cx, cy - 1.6, 2.1, 1.3, mt(GOLD), { bulge: 0.8 });
+      const id = cv.cur;
+      cv.part({ ol: 'none', clip: id });
+      cv.ell(cx, cy - 1.4, 1.3, 0.6, mt(['#3a2208', '#6a4210', '#9c6a1a', '#c8962e']), { n: [0, 0.3] });
+      cv.part({ ol: 'line' });
+      cv.ell(cx, cy - 2.8, 0.6, 0.7, gemM('#e8203a'), { bulge: 0.9 });
       return;
     }
     case 'elder': {
@@ -693,6 +709,8 @@ export const R33_ARMOR_LOOK = {
   school_robe: { kind: 'robe', main: '#1c1a26', trim: '#3c3a4c', r33: true, tie33: ['#2a3e86', '#c4c8d6'] },
   kid_mantle: { kind: 'suit', main: '#f4f4f8', tie: '#d0202c', shirt: '#3a62c8', pants: '#eceef6', r33: true, cape: '#f8f8fc', capeIn: '#d8deec', capeLen: 36.4, drape: true, gloves: true },
   nekketsu_jersey: { kind: 'jersey', main: '#c8202c', tee: '#f2f2f6' },
+  // とうめいマント（ぎんいろに すける 旅の マント）
+  invisible_cloak: { kind: 'travel', main: '#4a5068', cloak: '#c4ccdc' },
 };
 export const R33_HEAD_LOOK = {
   silk_hat: { kind: 'silk33', c: '#1c1a26', band: '#c41a2a', hides: 'top' },
