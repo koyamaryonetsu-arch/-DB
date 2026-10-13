@@ -1,15 +1,16 @@
 // せつめい文を つくる
-import { ITEMS, SLOT_NAMES, WEAPON_CAT_NAMES } from '../../shared/data/items.js?v=cfe8cd1c70e2';
-import { ABILITIES, abilityTypeText } from '../../shared/data/abilities.js?v=cfe8cd1c70e2';
-import { JOBS, ALL_JOBS } from '../../shared/data/jobs.js?v=cfe8cd1c70e2';
-import { MONSTERS } from '../../shared/data/monsters.js?v=cfe8cd1c70e2';
-import { MONSTER_FRIENDS } from '../../shared/data/companions.js?v=cfe8cd1c70e2';
-import { computeStats, canEquip, canEquipMonster, monsterGear, penaltyFor, mpCost, comboJobNames, comboAllowed, jobPower } from '../../shared/stats.js?v=cfe8cd1c70e2';
-import { attackReach } from '../../shared/battle.js?v=cfe8cd1c70e2';
-import { maxPlus } from '../../shared/data/forge.js?v=cfe8cd1c70e2';
-import { SKILL_UPS } from '../../shared/data/skill-ups.js?v=cfe8cd1c70e2';
-import { perkText } from '../../shared/data/items-r31.js?v=cfe8cd1c70e2';
-import { rarityOf, traitText } from '../../shared/data/rare-loot.js?v=cfe8cd1c70e2';
+import { ITEMS, SLOT_NAMES, WEAPON_CAT_NAMES } from '../../shared/data/items.js?v=852838173644';
+import { abilityTypeText } from '../../shared/data/abilities.js?v=852838173644';
+import { abilityFor, abilityLabel } from '../../shared/ability-label.js?v=852838173644';
+import { JOBS, ALL_JOBS } from '../../shared/data/jobs.js?v=852838173644';
+import { MONSTERS } from '../../shared/data/monsters.js?v=852838173644';
+import { MONSTER_FRIENDS } from '../../shared/data/companions.js?v=852838173644';
+import { computeStats, canEquip, canEquipMonster, monsterGear, penaltyFor, mpCost, comboJobNames, comboAllowed, jobPower } from '../../shared/stats.js?v=852838173644';
+import { attackReach } from '../../shared/battle.js?v=852838173644';
+import { maxPlus } from '../../shared/data/forge.js?v=852838173644';
+import { SKILL_UPS } from '../../shared/data/skill-ups.js?v=852838173644';
+import { perkText } from '../../shared/data/items-r31.js?v=852838173644';
+import { rarityOf, traitText } from '../../shared/data/rare-loot.js?v=852838173644';
 
 const TARGET_NAMES = { enemy: '敵1体', group: '敵1グループ', enemies: '敵全体', ally: '味方1人', allies: '味方全員', self: '自分', deadAlly: '死んだ味方', deadAllies: '死んだ味方全員' };
 // 技の リストに つける みじかい しるし（1体・1人・自分は つけない）。a: 技（または 相手の しゅるい）
@@ -148,8 +149,9 @@ export function skillBrief(a) {
   return a.desc || `${abilityTypeText(a)}（${targetText(a)}）`;
 }
 
+// char: 見ている キャラ（男の子の 美少女戦士などは 名前・説明が かわる。shared/ability-label.js）
 export function abilityDetail(id, char, { brief = false } = {}) {
-  const a = ABILITIES[id];
+  const a = abilityFor(id, char);
   if (!a) return '';
   const lines = [];
   const cost = char ? mpCost(char, id) : a.mp;
@@ -167,7 +169,7 @@ export function abilityDetail(id, char, { brief = false } = {}) {
   lines.push(`消費MP ${cost}${char && cost !== (a.mp || 0) ? `（元は${a.mp}）` : ''}　相手: ${targetText(a)}`);
   lines.push(a.desc || '');
   if (a.kind === 'combo') {
-    lines.push(`掛け合わせ: ${a.requires.map((r) => ABILITIES[r]?.name).join(' ＋ ')}`);
+    lines.push(`掛け合わせ: ${a.requires.map((r) => abilityLabel(r, char)).join(' ＋ ')}`);
     lines.push(`使える職業: ${comboJobNames(id).join('・')}（とその超級職）`);
     if (char && char.job && !comboAllowed(char, id)) lines.push('⚠ 今の職業では使えない');
   } else if (a.job) {
@@ -175,7 +177,7 @@ export function abilityDetail(id, char, { brief = false } = {}) {
     // 職業レベルで 威力が 上がる
     const jp = char ? jobPower(char, id) : 1;
     // 上位の 技（data/skill-ups.js）は もとの 技の 職業レベルの 威力を うけつぐ
-    const base = ABILITIES[SKILL_UPS[id]];
+    const base = abilityFor(SKILL_UPS[id], char);
     if (jp > 1) lines.push(`${JOBS[a.job]?.name}Lv${char.jobs?.[a.job]?.lv || 1}：威力+${Math.round((jp - 1) * 100)}%${base ? `（${base.name}の上位の技。もとの技の強さを受けつぐ）` : ''}`);
   }
   if (a.weapon === 'blade') lines.push('剣・短剣・オノが必要');

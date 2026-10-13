@@ -1,26 +1,26 @@
 // たたかいの はじまりと おわり（ほうしゅう・ぜんめつ）
-import { Battle, normBattleSettings } from '../battle.js?v=cfe8cd1c70e2';
-import { scaleExp, difficultyOf, rewardExp, rewardGold } from '../data/difficulty.js?v=cfe8cd1c70e2';
-import { POWDER, powderLeft } from '../data/friend-powder.js?v=cfe8cd1c70e2';
-import { MONSTERS } from '../data/monsters.js?v=cfe8cd1c70e2';
-import { ITEMS } from '../data/items.js?v=cfe8cd1c70e2';
-import { ABILITIES } from '../data/abilities.js?v=cfe8cd1c70e2';
-import { JOBS } from '../data/jobs.js?v=cfe8cd1c70e2';
-import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=cfe8cd1c70e2';
-import { gainExp, gainJobBattles, jobTrainMult, itemCount, removeItem, addItem, ownsItem, computeStats, fullHeal } from '../stats.js?v=cfe8cd1c70e2';
-import { JOB_MAX_LEVEL } from '../data/jobs.js?v=cfe8cd1c70e2';
-import { befriendShare } from './recruit-share.js?v=cfe8cd1c70e2';
-import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendChance, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf, PARTY_MAX } from './party.js?v=cfe8cd1c70e2';
-import { rollDrops, stealPick } from '../data/loot.js?v=cfe8cd1c70e2';
-import { MAPS } from '../maps/index.js?v=cfe8cd1c70e2';
-import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js?v=cfe8cd1c70e2';
-import { treasureAfterBattle } from './treasure.js?v=cfe8cd1c70e2';
-import { wipeGoldLoss, bankGold } from './bank.js?v=cfe8cd1c70e2';
-import { lureOn, lureGroup } from './field27.js?v=cfe8cd1c70e2';
-import { wagonShare, wagonBattleSwap } from './wagon.js?v=cfe8cd1c70e2';
-import { growthSummary } from './growth.js?v=cfe8cd1c70e2';
-import { topLevel, battleTeamChars, expHatMult } from './perks.js?v=cfe8cd1c70e2';
-import { battleTactics } from './tactics.js?v=cfe8cd1c70e2';
+import { Battle, normBattleSettings } from '../battle.js?v=852838173644';
+import { scaleExp, difficultyOf, rewardExp, rewardGold } from '../data/difficulty.js?v=852838173644';
+import { POWDER, powderLeft } from '../data/friend-powder.js?v=852838173644';
+import { MONSTERS } from '../data/monsters.js?v=852838173644';
+import { ITEMS } from '../data/items.js?v=852838173644';
+import { abilityLabel } from '../ability-label.js?v=852838173644';
+import { JOBS } from '../data/jobs.js?v=852838173644';
+import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=852838173644';
+import { gainExp, gainJobBattles, jobTrainMult, itemCount, removeItem, addItem, ownsItem, computeStats, fullHeal } from '../stats.js?v=852838173644';
+import { JOB_MAX_LEVEL } from '../data/jobs.js?v=852838173644';
+import { befriendShare } from './recruit-share.js?v=852838173644';
+import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendChance, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf, PARTY_MAX } from './party.js?v=852838173644';
+import { rollDrops, stealPick } from '../data/loot.js?v=852838173644';
+import { MAPS } from '../maps/index.js?v=852838173644';
+import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js?v=852838173644';
+import { treasureAfterBattle } from './treasure.js?v=852838173644';
+import { wipeGoldLoss, bankGold } from './bank.js?v=852838173644';
+import { lureOn, lureGroup } from './field27.js?v=852838173644';
+import { wagonShare, wagonBattleSwap } from './wagon.js?v=852838173644';
+import { growthSummary } from './growth.js?v=852838173644';
+import { topLevel, battleTeamChars, expHatMult } from './perks.js?v=852838173644';
+import { battleTactics } from './tactics.js?v=852838173644';
 
 let battleSeq = 1;
 
@@ -354,7 +354,7 @@ function finishBattle(world, ctx) {
     ch.skillUse = { ...a.use };
     if (a.hiraNew?.length) {
       ch.hirameki = [...new Set([...(Array.isArray(ch.hirameki) ? ch.hirameki : []), ...a.hiraNew])];
-      for (const id of a.hiraNew) hiraLines.push(`★ ${ch.name}は「${ABILITIES[id]?.name}」をひらめいた！（これからも使える）`);
+      for (const id of a.hiraNew) hiraLines.push(`★ ${ch.name}は「${abilityLabel(id, ch)}」をひらめいた！（これからも使える）`);
     }
   }
 
@@ -416,14 +416,14 @@ function finishBattle(world, ctx) {
         jups = gainJobBattles(c, trainN);
         if (oneBlow) lines.push('（一撃で終わったので、職業の修行は半分）');
       }
-      own[m.id] = growthSummary(c.name, ups, jups);
+      own[m.id] = growthSummary(c.name, ups, jups, c);
       perSession[m.id] = { lines, levelUp: ups.length > 0, jobUp: jups.length > 0, drops };
     }
     // なかま: たたかいに でた なかまだけ そだつ。家族の キャラには おれいが とどく
     const compRows = [], compNotes = [], expLines = [];
     const grow = (ch, x, trains) => {
       const { ups, jups } = growCompanion(ch, x * hat(ch), trains);
-      const g = growthSummary(ch.name, ups, jups);
+      const g = growthSummary(ch.name, ups, jups, ch);
       compRows.push(...g.lines);
       compNotes.push(...g.notes);
     };

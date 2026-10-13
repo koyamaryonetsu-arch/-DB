@@ -1,25 +1,26 @@
 // お店・転職・酒場・でんごんばん・ほしのかけら・きょうかい の がめん
-import { el, ListMenu, toast, askText, confirmBox, esc } from './dom.js?v=cfe8cd1c70e2';
-import { ITEMS } from '../../shared/data/items.js?v=cfe8cd1c70e2';
-import { JOBS, SUPER_ORDER, LEGEND_ORDER, TIER_ORDERS, TIER_NAMES, JOB_MAX_LEVEL, jobReqText, jobReqSets, jobBodyOk, BODY_NAMES, JOB_HINTS, superMasteredCount } from '../../shared/data/jobs.js?v=cfe8cd1c70e2';
-import { ABILITIES } from '../../shared/data/abilities.js?v=cfe8cd1c70e2';
-import { salonUI } from './salon.js?v=cfe8cd1c70e2';
-import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered, canEquip } from '../../shared/stats.js?v=cfe8cd1c70e2';
-import { MONSTERS } from '../../shared/data/monsters.js?v=cfe8cd1c70e2';
-import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES, breedOutcome, breedRumors } from '../../shared/data/companions.js?v=cfe8cd1c70e2';
-import { TACTICS } from '../../shared/ai.js?v=cfe8cd1c70e2';
-import { itemDetail, gearText } from './info.js?v=cfe8cd1c70e2';
-import { playerSprite, followerSprite, faceURL } from '../field.js?v=cfe8cd1c70e2';
-import { shopUI, churchUI } from './shop.js?v=cfe8cd1c70e2';
-import { bankUI } from './bank.js?v=cfe8cd1c70e2';
-import { forgeUI } from './forge.js?v=cfe8cd1c70e2';
-import { tavernWagonItems, tavernWagonOpts, tavernWagonAct, tavernPlace, arrangeUI } from './wagon.js?v=cfe8cd1c70e2';
-import { casinoUI } from './casino.js?v=cfe8cd1c70e2';
-import { sdBoardUI } from './secret.js?v=cfe8cd1c70e2';
-import { shownEquip } from '../../shared/look-equip.js?v=cfe8cd1c70e2';
-import { jobAskText } from '../../shared/data/job-talk.js?v=cfe8cd1c70e2';
-import { sortRoster, rosterSortName, nextRosterSort } from '../../shared/roster-sort.js?v=cfe8cd1c70e2';
-import { rosterSortPref, setRosterSortPref } from '../prefs.js?v=cfe8cd1c70e2';
+import { el, ListMenu, toast, askText, confirmBox, esc } from './dom.js?v=852838173644';
+import { ITEMS } from '../../shared/data/items.js?v=852838173644';
+import { JOBS, SUPER_ORDER, LEGEND_ORDER, TIER_ORDERS, TIER_NAMES, JOB_MAX_LEVEL, jobReqText, jobReqSets, jobBodyOk, BODY_NAMES, JOB_HINTS, superMasteredCount } from '../../shared/data/jobs.js?v=852838173644';
+import { ABILITIES } from '../../shared/data/abilities.js?v=852838173644';
+import { abilityFor } from '../../shared/ability-label.js?v=852838173644';
+import { salonUI } from './salon.js?v=852838173644';
+import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered, canEquip } from '../../shared/stats.js?v=852838173644';
+import { MONSTERS } from '../../shared/data/monsters.js?v=852838173644';
+import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES, breedOutcome, breedRumors } from '../../shared/data/companions.js?v=852838173644';
+import { TACTICS } from '../../shared/ai.js?v=852838173644';
+import { itemDetail, gearText } from './info.js?v=852838173644';
+import { playerSprite, followerSprite, faceURL } from '../field.js?v=852838173644';
+import { shopUI, churchUI } from './shop.js?v=852838173644';
+import { bankUI } from './bank.js?v=852838173644';
+import { forgeUI } from './forge.js?v=852838173644';
+import { tavernWagonItems, tavernWagonOpts, tavernWagonAct, tavernPlace, arrangeUI } from './wagon.js?v=852838173644';
+import { casinoUI } from './casino.js?v=852838173644';
+import { sdBoardUI } from './secret.js?v=852838173644';
+import { shownEquip } from '../../shared/look-equip.js?v=852838173644';
+import { jobAskText } from '../../shared/data/job-talk.js?v=852838173644';
+import { sortRoster, rosterSortName, nextRosterSort } from '../../shared/roster-sort.js?v=852838173644';
+import { rosterSortPref, setRosterSortPref } from '../prefs.js?v=852838173644';
 
 export function openServiceUI(game, kind, data) {
   switch (kind) {
@@ -239,7 +240,8 @@ function jobUI(game) {
       const learn = el('div', { class: 'small job-learn' });
       learn.append(el('div', { class: 'gold', text: `覚える技（職業レベル）　全${job.learn.length}こ` }));
       for (const [l, id] of job.learn) {
-        const a = ABILITIES[id];
+        // 転職する 人 むけの 名前（男の子の 美少女戦士は タキシード仮面ふう。shared/ability-label.js）
+        const a = abilityFor(id, c);
         const got = lv >= l;
         const row = el('div', { class: `jl-row ${got ? 'good' : 'muted'}` },
           el('span', { class: 'jl-lv', text: `Lv${l}` }),

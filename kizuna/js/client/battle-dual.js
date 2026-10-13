@@ -2,16 +2,20 @@
 //  ・コマンドの「合体技」の 一覧（第31回: 行は 技の 名前だけ 大きく。だれと・何人で・よやくか・必要な 職業は 説明の まどに）
 //  ・家族から さそわれた ときの「参加する！／ことわる」
 //  ・出す ときの カットインと とどめの えんしゅつ（render/dualfx.js）
-import { el, esc, ListMenu, toast } from './ui/dom.js?v=cfe8cd1c70e2';
-import { ABILITIES, ELEMENT_NAMES } from '../shared/data/abilities.js?v=cfe8cd1c70e2';
-import { comboAllowed, weaponOk } from '../shared/stats.js?v=cfe8cd1c70e2';
-import { DUAL_TECHS, dualOptions, dualKnown, dualNeedText } from '../shared/data/dual.js?v=cfe8cd1c70e2';
-import { faceURL } from './field.js?v=cfe8cd1c70e2';
-import { targetText } from './ui/info.js?v=cfe8cd1c70e2';
-import { playDualCutin, playDualFinale, cutMs, dualFxOf, addDualCss } from './render/dualfx.js?v=cfe8cd1c70e2';
-import { BW, BH } from './render/battlefx.js?v=cfe8cd1c70e2';
+import { el, esc, ListMenu, toast } from './ui/dom.js?v=852838173644';
+import { ABILITIES, ELEMENT_NAMES } from '../shared/data/abilities.js?v=852838173644';
+import { comboAllowed, weaponOk } from '../shared/stats.js?v=852838173644';
+import { dualOptions, dualKnown, dualNeedText } from '../shared/data/dual.js?v=852838173644';
+// 第33回: 男の子の 美少女戦士が 入る ときは 名前・説明が かわる（shared/ability-label.js）
+import { dualFor } from '../shared/ability-label.js?v=852838173644';
+import { faceURL } from './field.js?v=852838173644';
+import { targetText } from './ui/info.js?v=852838173644';
+import { playDualCutin, playDualFinale, cutMs, dualFxOf, addDualCss } from './render/dualfx.js?v=852838173644';
+import { BW, BH } from './render/battlefx.js?v=852838173644';
 
 const SECRET = '効果は？？？（一度使うとわかる）';
+// その くみあわせ（o.who … 出す 人の id）むけの 合体技
+const techOf = (v, o) => dualFor(o.id, (o.who || [o.partner]).map((id) => v.c.get(id)));
 const sizeLabel = (n) => `${n}人技`;
 
 // 自分の キャラが 今 出せる 合体技（サーバーでも たしかめる）
@@ -34,7 +38,7 @@ export function myDualOptions(v, a) {
 
 // 説明の まど（3行まで）: 人数・属性・相手・いっしょに 出す 人（よやく）／必要な 職業・MP／効果
 export function dualInfo(v, o, more = 0) {
-  const t = DUAL_TECHS[o.id];
+  const t = techOf(v, o);
   const tags = [sizeLabel(o.size || 2), ELEMENT_NAMES[o.element], targetText(t)].filter(Boolean).join('・');
   const when = o.now ? '' : '（よやく）';
   const others = more > 0 ? `（ほか${more}通り）` : '';
@@ -60,12 +64,12 @@ export function dualMenu(v, opts) {
   for (const list of groups.values()) list.sort((x, y) => (y.now ? 1 : 0) - (x.now ? 1 : 0));
   const items = [...groups.values()].map((list) => {
     const o = list[0];
-    const t = DUAL_TECHS[o.id];
+    const t = techOf(v, o);
     const n = o.size || 2;
     return { html: `<span class="dual-nm">${esc(t.name)}</span>`, right: `${o.mp[0]}`, value: list, cls: `k-${role(t)} k-dualopt n${n}${list.some((x) => x.now) ? '' : ' later'}` };
   });
   const fire = (o) => {
-    const t = DUAL_TECHS[o.id];
+    const t = techOf(v, o);
     const go = (target) => v.send({ type: 'dual', id: o.id, partner: o.partner, partners: o.partners, target });
     if (t.target === 'enemy' || t.target === 'group') return v.pickFoe(t.target, (tid) => go(tid), t.name, o.element, () => dualMenu(v, myDualOptions(v, v.myActor)));
     return go();
@@ -74,7 +78,7 @@ export function dualMenu(v, opts) {
     const list = it.value;
     if (list.length === 1) return fire(list[0]);
     // だれと 出す？（いっしょに 出す 人の 名前だけ）
-    const t = DUAL_TECHS[list[0].id];
+    const t = techOf(v, list[0]);
     v.showMenu(list.map((o) => ({ label: `${o.partnerName}${o.now ? '' : '（よやく）'}`, value: o, right: `${o.mp[0]}` })),
       (x) => fire(x.value), () => dualMenu(v, myDualOptions(v, v.myActor)), `「${t.name}」をだれと出す？`, (x) => { if (x) v.info(dualInfo(v, x.value)); });
   }, () => v.openCommand(), '合体技（いっしょに出す人の番を使う）', (it) => {
@@ -94,7 +98,7 @@ export function askingName(v, cmd) {
 // よやく中・まっている ときの ことば（コマンドの まど）
 export function waitText(v, a) {
   if (a.waitDual) {
-    const t = DUAL_TECHS[a.waitDual.id];
+    const t = dualFor(a.waitDual.id, [a, ...(a.waitDual.partners || [a.waitDual.partner]).map((id) => v.c.get(id))]);
     const names = (a.waitDual.partners || [a.waitDual.partner]).map((id) => v.c.get(id)?.name || '仲間').join('・');
     // ダメージで 力あわせが みだれた（自分の ゲージを ためなおしている）
     if ((a.atb ?? 100) < 99.9) return `力あわせがみだれた！自分と${names}のゲージがたまったら「${t?.name || '合体技'}」を出す…`;
@@ -150,7 +154,7 @@ export function onDualHold(v, ev) {
 // 家族から 合体技に さそわれた
 export function showInvite(v, ev) {
   v.closeInvite();
-  const t = DUAL_TECHS[ev.tech];
+  const t = dualFor(ev.tech, [ev.from, ...(ev.partners || [ev.to])].map((id) => v.c.get(id)));
   const n = (ev.partners?.length || 1) + 1;
   const bar = el('div', { class: 'di-bar' }, el('i', { style: { animationDuration: `${ev.ms || 7000}ms` } }));
   const who = n >= 3 ? `${ev.fromName}が${n}人技にさそっている！` : `${ev.fromName}が合体技にさそっている！`;

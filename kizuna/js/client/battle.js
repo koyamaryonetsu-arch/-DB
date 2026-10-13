@@ -1,40 +1,42 @@
 // たたかいの がめん（むかしの RPG ふう 1がめん）
-import { el, esc, ListMenu, toast } from './ui/dom.js?v=cfe8cd1c70e2';
-import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js?v=cfe8cd1c70e2';
-import { ITEMS } from '../shared/data/items.js?v=cfe8cd1c70e2';
-import { JOBS } from '../shared/data/jobs.js?v=cfe8cd1c70e2';
-import { MONSTERS } from '../shared/data/monsters.js?v=cfe8cd1c70e2';
-import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed, battleAbilityOk } from '../shared/stats.js?v=cfe8cd1c70e2';
-import { affinityOf, attackReach, spellSealed, SEALED_REASON } from '../shared/battle.js?v=cfe8cd1c70e2';
+import { el, esc, ListMenu, toast } from './ui/dom.js?v=852838173644';
+import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js?v=852838173644';
+// 第33回: 技の 名前は 使う 人 むけ（男の子の 美少女戦士・セーラームーンは タキシード仮面ふう）
+import { abilityFor, abilityLabel } from '../shared/ability-label.js?v=852838173644';
+import { ITEMS } from '../shared/data/items.js?v=852838173644';
+import { JOBS } from '../shared/data/jobs.js?v=852838173644';
+import { MONSTERS } from '../shared/data/monsters.js?v=852838173644';
+import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed, battleAbilityOk } from '../shared/stats.js?v=852838173644';
+import { affinityOf, attackReach, spellSealed, SEALED_REASON } from '../shared/battle.js?v=852838173644';
 // 合体技（2人・3人・4人）の コマンド・さそい・えんしゅつ（battle-dual.js）
-import { myDualOptions, dualMenu, showInvite, askingName, waitText, onDualWait, onDualWaitEnd, onDualHold, onDualAnswer, onDualBreak, dualPre, dualFx } from './battle-dual.js?v=cfe8cd1c70e2';
-import { TACTICS } from '../shared/ai.js?v=cfe8cd1c70e2';
-import { faceURL } from './field.js?v=cfe8cd1c70e2';
-import { monsterCanvas } from './render/monsters.js?v=cfe8cd1c70e2';
-import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=cfe8cd1c70e2';
-import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js?v=cfe8cd1c70e2';
-import { PARTY_ANIMS, JOB2_SFX } from './render/battlefx-jobs2.js?v=cfe8cd1c70e2';
-import { PARTY_ANIMS3, JOB3_SFX } from './render/battlefx-jobs3.js?v=cfe8cd1c70e2';
-import { SIG4, JOB4_SFX, sigAnim } from './render/battlefx-jobs4.js?v=cfe8cd1c70e2';
+import { myDualOptions, dualMenu, showInvite, askingName, waitText, onDualWait, onDualWaitEnd, onDualHold, onDualAnswer, onDualBreak, dualPre, dualFx } from './battle-dual.js?v=852838173644';
+import { TACTICS } from '../shared/ai.js?v=852838173644';
+import { faceURL } from './field.js?v=852838173644';
+import { monsterCanvas } from './render/monsters.js?v=852838173644';
+import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=852838173644';
+import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js?v=852838173644';
+import { PARTY_ANIMS, JOB2_SFX } from './render/battlefx-jobs2.js?v=852838173644';
+import { PARTY_ANIMS3, JOB3_SFX } from './render/battlefx-jobs3.js?v=852838173644';
+import { SIG4, JOB4_SFX, sigAnim } from './render/battlefx-jobs4.js?v=852838173644';
 // 第27回に 作り直した 古い 呪文・特技の エフェクト（段階・あたる じかん・音・味方への えんしゅつ）
-import { r27Anim, r27Hit, r27Sfx, playAllyR27 } from './render/battlefx-r27.js?v=cfe8cd1c70e2';
-import { JOB5_SFX } from './render/battlefx-jobs5.js?v=cfe8cd1c70e2';
-import { JOB6_SFX } from './render/battlefx-jobs6.js?v=cfe8cd1c70e2';
+import { r27Anim, r27Hit, r27Sfx, playAllyR27 } from './render/battlefx-r27.js?v=852838173644';
+import { JOB5_SFX } from './render/battlefx-jobs5.js?v=852838173644';
+import { JOB6_SFX } from './render/battlefx-jobs6.js?v=852838173644';
 // 第33回の 11この 職業の 技（音・あたる じかん・みかたに 出す えんしゅつ）
-import { JOB7_SFX, JOB7_HIT, PARTY_ANIMS7 } from './render/battlefx-jobs7.js?v=cfe8cd1c70e2';
-import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js?v=cfe8cd1c70e2';
-import { statusNames, buffNames, targetTag } from './ui/info.js?v=cfe8cd1c70e2';
-import { battleSkillText, battleItemText, favHint } from './ui/skillinfo.js?v=cfe8cd1c70e2';
-import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js?v=cfe8cd1c70e2';
-import { ENEMY_RATE_NAMES } from '../shared/data/difficulty.js?v=cfe8cd1c70e2';
-import { ResultSheet } from './ui/result.js?v=cfe8cd1c70e2';
-import { paintRare } from './ui/rarity.js?v=cfe8cd1c70e2';
+import { JOB7_SFX, JOB7_HIT, PARTY_ANIMS7 } from './render/battlefx-jobs7.js?v=852838173644';
+import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js?v=852838173644';
+import { statusNames, buffNames, targetTag } from './ui/info.js?v=852838173644';
+import { battleSkillText, battleItemText, favHint } from './ui/skillinfo.js?v=852838173644';
+import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js?v=852838173644';
+import { ENEMY_RATE_NAMES } from '../shared/data/difficulty.js?v=852838173644';
+import { ResultSheet } from './ui/result.js?v=852838173644';
+import { paintRare } from './ui/rarity.js?v=852838173644';
 // 第4章の しかけ（月の鏡・まぼろしの 分身・魔神のランプ・ボスの 大技）
-import { CH4_ALLY_FX, ch4ItemEntries, ch4ItemPick, ch4ItemInfo, ch4Present, vanishFx, drawShade, drawBurrow } from './battle-ch4.js?v=cfe8cd1c70e2';
+import { CH4_ALLY_FX, ch4ItemEntries, ch4ItemPick, ch4ItemInfo, ch4Present, vanishFx, drawShade, drawBurrow } from './battle-ch4.js?v=852838173644';
 // 第4章 Step 7 の 砂の底の神殿と モルガナ（鏡のうつし身・水のろうの 絵・水の衣・光・大波・水の守りの歌）
-import { templeSprite, templeDraw, templeStart, TEMPLE_SFX } from './battle-temple.js?v=cfe8cd1c70e2';
+import { templeSprite, templeDraw, templeStart, TEMPLE_SFX } from './battle-temple.js?v=852838173644';
 // 第5章 Step 2 の 星の番人アルゴス（見通しの目。battle-ch5.js）
-import { towerDraw, TOWER_SFX } from './battle-ch5.js?v=cfe8cd1c70e2';
+import { towerDraw, TOWER_SFX } from './battle-ch5.js?v=852838173644';
 
 // たたかいの え の こまかさ（おもい きかいで さげたら、その あいだは さげた まま）
 let battleRes = BRES;
@@ -573,10 +575,11 @@ export class BattleScene {
   // keep: お気に入りを かえた ときなど、いまの カーソルと 見え方の まま 出しなおす（{ value, off }）
   abilityMenu(ids, page = 'spell', keep = null) {
     const a = this.myActor;
-    const pc = a.pc || { job: a.job, jobs: this.game.me.jobs };
+    // look: 技の 名前・説明を 使う 人 むけに（男の子の 美少女戦士など。shared/ability-label.js）
+    const pc = { ...(a.pc || { job: a.job, jobs: this.game.me.jobs }), look: a.look, mon: a.mon };
     const silenced = (a.status || []).includes('silence');
     const row = (id, fav) => {
-      const ab = ABILITIES[id];
+      const ab = abilityFor(id, a);
       const isMk = ab.effect.type === 'mahouken';
       const cost = isMk ? 0 : mpCost(pc, id);
       const pen = penaltyFor(pc, id).penalized;
@@ -628,7 +631,7 @@ export class BattleScene {
       }));
     };
     this.showMenu(items, (it) => {
-      const ab = ABILITIES[it.value];
+      const ab = abilityFor(it.value, a);
       this.rememberPick(a, page, it.value);
       if (ab.effect.type === 'mahouken') return this.mahoukenMenu();
       // 相手を えらぶ 間も おなじ せつめい（「もう一度タップ」は もう いらない）
@@ -667,7 +670,7 @@ export class BattleScene {
       },
       onCancel: () => cancel(),
     });
-    const box = el('div', { class: 'win b-favpop', role: 'dialog' }, el('div', { class: 'bf-t', text: `${ABILITIES[id]?.name || ''}${on ? '（お気に入り）' : ''}` }), menu.root);
+    const box = el('div', { class: 'win b-favpop', role: 'dialog' }, el('div', { class: 'bf-t', text: `${abilityLabel(id, a)}${on ? '（お気に入り）' : ''}` }), menu.root);
     const close = () => {
       menu.blur();
       back.remove();

@@ -19,8 +19,8 @@
 // 第31回（2026年10月）: 今の 職業で 判定する ように した。「攻撃の 技（どの 職業でも）」の 組を なくし、
 //   きずな技の ミナデインを 合体技に した（dt_minadein）。せーのでジャンプ・家族会議・なぞは すべて 解けた！の 組も 職業に むすびつけた
 // 第32回（2026年10月）: 魔物使い・モンスターマスターの 合体技 3こ（R32_DUALS）。「モンスターの 仲間」の 組（MONSTER_ALLY）だけは 魔物の 仲間が うけもつ
-import { ABILITIES } from './abilities.js?v=cfe8cd1c70e2';
-import { JOBS, ALL_JOBS, jobBases, SCHOOL_JOBS } from './jobs.js?v=cfe8cd1c70e2';
+import { ABILITIES } from './abilities.js?v=852838173644';
+import { JOBS, ALL_JOBS, jobBases, SCHOOL_JOBS } from './jobs.js?v=852838173644';
 
 // 技の 組（この 技を 持つ 職業の 人が うけもてる）
 const FIRE = ['mera', 'merami', 'merazoma', 'gira', 'begirama', 'nj_katon', 'am_begiragon', 'am_meragaia', 'hk_triple_mera', 'ck_tsuyobi', 'ck_flambe', 'hi_daikaryoku', 'hi_giragureido', 'hi_ima_mera',
@@ -505,6 +505,12 @@ const R33_DUALS = {
       { type: 'heal', target: 'allies', pct: 0.25, k: 0.3 },
     ],
     desc: '美少女戦士とアイドルの、月夜のステージ。敵全体に月の光の大ダメージ。仲間全員のHPも回復する。', anim: 'holy',
+    // 美少女戦士の 組（need[0]）が 男の子なら タキシード仮面ふう（shared/ability-label.js の dualFor）
+    masc: {
+      group: 0, name: '月夜のダンスパーティー', kana: 'つきよのだんすぱーてぃー',
+      desc: 'タキシード仮面とアイドルの、月夜のダンスパーティー。敵全体に月の光の大ダメージ。仲間全員のHPも回復する。',
+      says: { 0: '「月夜のパーティーへ、ようこそ！」赤いバラがまい、月の光のスポットライトが当たった！' },
+    },
   },
   dt_hippogriff: {
     name: 'ヒッポグリフの空の旅', kana: 'ひっぽぐりふのそらのたび', need: [WIZARD, TAMER], mp: [8, 8], target: 'enemies', element: 'wind',

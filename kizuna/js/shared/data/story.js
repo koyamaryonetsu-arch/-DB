@@ -12,26 +12,26 @@
 //   ['teleport', 'map', x, y, 'dir']  ['spawn', 'map', x, y]  ['chapter', 'だい1しょう', 'サブタイトル']
 //
 // x（じょうほう）: x.name x.flag('f') x.has('item') x.count('item') x.kills('monster') x.quest('key')
-import { POS } from '../maps/index.js?v=cfe8cd1c70e2';
-import { PLACES } from '../maps/overworld.js?v=cfe8cd1c70e2';
-import { ABILITIES } from './abilities.js?v=cfe8cd1c70e2';
-import { learnedAbilities, comboUnlocked, hiraAllowed, hiraRelated, partyJobSet } from '../stats.js?v=cfe8cd1c70e2';
-import { HIRAMEKI, hiraRatio } from './hirameki.js?v=cfe8cd1c70e2';
-import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js?v=cfe8cd1c70e2';
-import { CH3_STEPS, CH3_STORY_SCRIPTS, CH3_SCRIPTS, elderCh3 } from './story-ch3.js?v=cfe8cd1c70e2';
-import { CH4_STEPS, CH4_STORY_SCRIPTS, CH4_SCRIPTS, elderCh4 } from './story-ch4.js?v=cfe8cd1c70e2';
-import { CH5_STEPS, CH5_STORY_SCRIPTS, CH5_SCRIPTS, CH5_TOWN_LINES, elderCh5 } from './story-ch5.js?v=cfe8cd1c70e2';
-import { TM_SCRIPTS, TM_STORY_SCRIPTS } from './story-tm.js?v=cfe8cd1c70e2';
-import { SD_SCRIPTS } from './story-secret.js?v=cfe8cd1c70e2';
-import { CASINO_SCRIPTS } from './story-casino.js?v=cfe8cd1c70e2';
-import { innSteps } from './inn.js?v=cfe8cd1c70e2';
-import { NIGHT_SCRIPTS } from './night.js?v=cfe8cd1c70e2';
-import { skyScripts } from './sky.js?v=cfe8cd1c70e2';
-import { FACILITY_SCRIPTS } from './facilities.js?v=cfe8cd1c70e2';
-import { wagonEventSteps } from './wagon.js?v=cfe8cd1c70e2';
-import { JOB_GREET } from './job-talk.js?v=cfe8cd1c70e2';
-import { LAB_SCRIPTS, LAB_STORY_SCRIPTS } from './story-lab.js?v=cfe8cd1c70e2';
-import { QUEST_SCRIPTS, QUEST_STORY_SCRIPTS, wrapSideQuests } from './sidequests.js?v=cfe8cd1c70e2';
+import { POS } from '../maps/index.js?v=852838173644';
+import { PLACES } from '../maps/overworld.js?v=852838173644';
+import { abilityLabel } from '../ability-label.js?v=852838173644';
+import { learnedAbilities, comboUnlocked, hiraAllowed, hiraRelated, partyJobSet } from '../stats.js?v=852838173644';
+import { HIRAMEKI, hiraRatio } from './hirameki.js?v=852838173644';
+import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js?v=852838173644';
+import { CH3_STEPS, CH3_STORY_SCRIPTS, CH3_SCRIPTS, elderCh3 } from './story-ch3.js?v=852838173644';
+import { CH4_STEPS, CH4_STORY_SCRIPTS, CH4_SCRIPTS, elderCh4 } from './story-ch4.js?v=852838173644';
+import { CH5_STEPS, CH5_STORY_SCRIPTS, CH5_SCRIPTS, CH5_TOWN_LINES, elderCh5 } from './story-ch5.js?v=852838173644';
+import { TM_SCRIPTS, TM_STORY_SCRIPTS } from './story-tm.js?v=852838173644';
+import { SD_SCRIPTS } from './story-secret.js?v=852838173644';
+import { CASINO_SCRIPTS } from './story-casino.js?v=852838173644';
+import { innSteps } from './inn.js?v=852838173644';
+import { NIGHT_SCRIPTS } from './night.js?v=852838173644';
+import { skyScripts } from './sky.js?v=852838173644';
+import { FACILITY_SCRIPTS } from './facilities.js?v=852838173644';
+import { wagonEventSteps } from './wagon.js?v=852838173644';
+import { JOB_GREET } from './job-talk.js?v=852838173644';
+import { LAB_SCRIPTS, LAB_STORY_SCRIPTS } from './story-lab.js?v=852838173644';
+import { QUEST_SCRIPTS, QUEST_STORY_SCRIPTS, wrapSideQuests } from './sidequests.js?v=852838173644';
 
 const V = (x, y) => [PLACES.village.x + x + 0.5, PLACES.village.y + y + 0.5];
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
@@ -567,7 +567,7 @@ function sageHints(x) {
     .filter((e) => e.r >= 0.5)
     .sort((a, b) => b.r - a.r);
   for (const e of near.slice(0, 1)) {
-    const names = Object.keys(HIRAMEKI[e.id].from).map((k) => (k === '@atk' ? 'ふつうの攻撃' : `「${ABILITIES[k]?.name}」`)).join('と');
+    const names = Object.keys(HIRAMEKI[e.id].from).map((k) => (k === '@atk' ? 'ふつうの攻撃' : `「${abilityLabel(k, c)}」`)).join('と');
     hints.push(e.r >= 1 ? `おぬしの${names}…もう十分に使いこんでおる。\n次に使った時、何かひらめくかもしれんぞ。` : `おぬしの${names}…なかなか使いこんでおるな。\nもっと使えば、新しい技をひらめくじゃろう。`);
   }
   // 掛け合わせ技の ヒントは、今の パーティーの 職業に 関係する ものだけ（stats.js の hiraRelated）
@@ -583,7 +583,7 @@ function sageHints(x) {
       '例えば大地斬とメラの魔法剣なら、戦士と魔法使いを合わせた魔法戦士じゃ。'),
   ];
   const have = [...learned].filter((id) => HIRAMEKI[id]);
-  if (have.length) lines.push(...S('ひらめきの賢者', `おぬしはすでに${have.map((id) => ABILITIES[id].name).slice(0, 4).join('・')}をひらめいておるな。見事じゃ。`));
+  if (have.length) lines.push(...S('ひらめきの賢者', `おぬしはすでに${have.map((id) => abilityLabel(id, c)).slice(0, 4).join('・')}をひらめいておるな。見事じゃ。`));
   if (hints.length) {
     const pick = hints.slice(0, 2);
     lines.push(...S('ひらめきの賢者', ...pick));

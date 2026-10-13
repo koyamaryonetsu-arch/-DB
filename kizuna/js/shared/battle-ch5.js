@@ -13,13 +13,14 @@
 //   合体技（ミナデインも）・にげる・混乱した 時の 行動は 読まれない（読みは 消える）
 // ・オートの 仲間: 読まれた 種類の 行動を さけて、ちがう 行動を えらぶ（towerPlan）。シミュレーター（tools/sim.js）の
 //   b.argosNaive … 知らない 人（読まれても そのまま）／ b.knowsArgos … 知っている 人（星のさばきの 前に 身を 守る も）
-import { MONSTERS } from './data/monsters.js?v=cfe8cd1c70e2';
-import { ABILITIES } from './data/abilities.js?v=cfe8cd1c70e2';
-import { ITEMS } from './data/items.js?v=cfe8cd1c70e2';
-import { mpCost, penaltyFor } from './stats.js?v=cfe8cd1c70e2';
+import { MONSTERS } from './data/monsters.js?v=852838173644';
+import { ABILITIES } from './data/abilities.js?v=852838173644';
+import { abilityFor } from './ability-label.js?v=852838173644';
+import { ITEMS } from './data/items.js?v=852838173644';
+import { mpCost, penaltyFor } from './stats.js?v=852838173644';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { atbRate } from './battle.js?v=cfe8cd1c70e2';
-import { canUse } from './ai.js?v=cfe8cd1c70e2';
+import { atbRate } from './battle.js?v=852838173644';
+import { canUse } from './ai.js?v=852838173644';
 
 export const ARGOS = 'argos';
 export const JUDGE = 'm_argos_judge';
@@ -158,7 +159,8 @@ function foreseeHit(b, c, cmd, ev, by, kind) {
   const conf = confOf(by) || {};
   const A = shortName(by);
   // 何を しようと したか（ふつうの 行動と おなじ はじめの ことば）
-  const a = cmd.type === 'ability' ? ABILITIES[cmd.id] : null;
+  // 使う 人 むけの 技の 名前・セリフ（男の子の 美少女戦士など。ability-label.js）
+  const a = cmd.type === 'ability' ? abilityFor(cmd.id, c) : null;
   if (a) {
     // MPが たりない・呪文が ふうじられて いる: ふつうに しっぱい（読みは 消える）
     const cost = mpCost(c.penChar, cmd.id);

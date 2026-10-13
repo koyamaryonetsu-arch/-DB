@@ -3,12 +3,13 @@
 //   2行め: 威力・効果の 目安（ふつうの 攻撃の 何倍・ダメージ・回復の 量・何が 上がるか）
 //   3行め: せつめい（data の desc）。転職の ペナルティ・上位の 技なども
 // 相手を えらぶ 前（敵が 1体・自分に かける・全体の 技でも）に 見える。client/battle.js の abilityMenu・itemMenu
-import { ABILITIES, abilityTypeText, abilityRole } from '../../shared/data/abilities.js?v=cfe8cd1c70e2';
-import { ITEMS } from '../../shared/data/items.js?v=cfe8cd1c70e2';
-import { JOBS } from '../../shared/data/jobs.js?v=cfe8cd1c70e2';
-import { SKILL_UPS } from '../../shared/data/skill-ups.js?v=cfe8cd1c70e2';
-import { mpCost, penaltyFor, comboAllowed } from '../../shared/stats.js?v=cfe8cd1c70e2';
-import { targetText, itemDetail } from './info.js?v=cfe8cd1c70e2';
+import { ABILITIES, abilityTypeText, abilityRole } from '../../shared/data/abilities.js?v=852838173644';
+import { abilityFor, abilityLabel } from '../../shared/ability-label.js?v=852838173644';
+import { ITEMS } from '../../shared/data/items.js?v=852838173644';
+import { JOBS } from '../../shared/data/jobs.js?v=852838173644';
+import { SKILL_UPS } from '../../shared/data/skill-ups.js?v=852838173644';
+import { mpCost, penaltyFor, comboAllowed } from '../../shared/stats.js?v=852838173644';
+import { targetText, itemDetail } from './info.js?v=852838173644';
 
 const STAT = { atk: '攻撃力', def: '守備力', agi: '素早さ', mag: '魔力', heal: '回復魔力', eva: 'かわしやすさ', dfn: '守備力', hit: '命中' };
 const STATUS = { sleep: 'ねむり', paralyze: 'マヒ', confuse: '混乱', blind: 'まぼろし', silence: '呪文ふうじ', poison: '毒', stop: '動けない' };
@@ -57,8 +58,9 @@ function partText(e, pm) {
 }
 
 // 呪文・特技の せつめい（pc: 使う 人。{ job, jobs }。touch: タッチの とき「もう一度タップで使う」）
-export function battleSkillText(id, pc, { touch = false } = {}) {
-  const a = ABILITIES[id];
+// who: 名前・説明を きめる 人（look を 見る。男の子の 美少女戦士などは かわる。ability-label.js。look の ない pc なら もとの まま）
+export function battleSkillText(id, pc, { touch = false, who = pc } = {}) {
+  const a = abilityFor(id, who);
   if (!a) return '';
   const lines = [];
   const pen = pc ? penaltyFor(pc, id) : { powMult: 1 };
@@ -71,7 +73,7 @@ export function battleSkillText(id, pc, { touch = false } = {}) {
   if (pw) lines.push(`${role === 'dmg' ? '威力' : '効果'}：${pw}`);
   const notes = [];
   if (pen.jobPow > 1 && role !== 'sup') notes.push(`職業レベルで威力+${Math.round((pen.jobPow - 1) * 100)}%`);
-  if (SKILL_UPS[id] && ABILITIES[SKILL_UPS[id]]) notes.push(`${ABILITIES[SKILL_UPS[id]].name}の上位の技`);
+  if (SKILL_UPS[id] && ABILITIES[SKILL_UPS[id]]) notes.push(`${abilityLabel(SKILL_UPS[id], who)}の上位の技`);
   if (pen.penalized) notes.push(`⚠${pen.label}`);
   if (a.kind === 'combo' && pc?.job && JOBS[pc.job] && !comboAllowed(pc, id)) notes.push('⚠今の職業では使えない');
   lines.push([a.desc || '', notes.length ? `（${notes.join('・')}）` : ''].filter(Boolean).join(''));

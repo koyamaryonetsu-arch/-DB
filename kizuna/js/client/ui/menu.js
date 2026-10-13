@@ -1,46 +1,48 @@
 // フィールドの メニュー
-import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js?v=cfe8cd1c70e2';
-import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js?v=cfe8cd1c70e2';
-import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js?v=cfe8cd1c70e2';
-import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS, turnSeconds } from '../../shared/battle.js?v=cfe8cd1c70e2';
-import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily, gearSortPref, setGearSortPref } from '../prefs.js?v=cfe8cd1c70e2';
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, TIER_NAMES } from '../../shared/data/jobs.js?v=cfe8cd1c70e2';
-import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress, partyJobSet, hiraOfJob, monsterSlots, canEquipChar, itemCount, MAX_LEVEL } from '../../shared/stats.js?v=cfe8cd1c70e2';
-import { HIRAMEKI } from '../../shared/data/hirameki.js?v=cfe8cd1c70e2';
-import { DUAL_TECHS, DUAL_ORDER, dualKnown, dualRelated, dualNeedText } from '../../shared/data/dual.js?v=cfe8cd1c70e2';
-import { addDualCss } from '../render/dualfx.js?v=cfe8cd1c70e2';
-import { MONSTERS } from '../../shared/data/monsters.js?v=cfe8cd1c70e2';
-import { monsterDrops } from '../../shared/data/loot.js?v=cfe8cd1c70e2';
-import { MONSTER_FRIENDS, RACE_NAMES, recipeHint, joinTier, bestiaryOrder } from '../../shared/data/companions.js?v=cfe8cd1c70e2';
-import { TACTICS } from '../../shared/ai.js?v=cfe8cd1c70e2';
-import { PLACES } from '../../shared/maps/overworld.js?v=cfe8cd1c70e2';
-import { SEA_PLACES } from '../../shared/maps/ch2.js?v=cfe8cd1c70e2';
-import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js?v=cfe8cd1c70e2';
-import { T, TILE_INFO } from '../../shared/tiles.js?v=cfe8cd1c70e2';
-import { menuItemText } from './skillinfo.js?v=cfe8cd1c70e2';
-import { itemDetail, abilityDetail, skillBrief, gearText, targetTag, statChanges, statChangesHtml } from './info.js?v=cfe8cd1c70e2';
-import { bestEquipPlan, bestTeamOrder, gearChoices, sortGearChoices, GEAR_SORTS } from '../../shared/equip-plan.js?v=cfe8cd1c70e2';
-import { shownEquip, lookChoices, LOOK_SLOTS, LOOK_NONE } from '../../shared/look-equip.js?v=cfe8cd1c70e2';
-import { makeCanvas, ctxOf } from '../render/pixel.js?v=cfe8cd1c70e2';
-import { previewCache } from '../render/hero.js?v=cfe8cd1c70e2';
-import { monsterCanvas } from '../render/monsters.js?v=cfe8cd1c70e2';
-import { mapIconCanvas, boardIconURL } from '../render/boards.js?v=cfe8cd1c70e2';
-import { medalItemRow, walletView } from './casino.js?v=cfe8cd1c70e2';
-import { compareTeam, whoItems } from './counter.js?v=cfe8cd1c70e2';
-import { faceURL } from '../field.js?v=cfe8cd1c70e2';
-import { partyRows } from './hud.js?v=cfe8cd1c70e2';
-import { questMarks, subQuests, OBJECTIVE_TARGETS, whereName } from '../../shared/data/quest-targets.js?v=cfe8cd1c70e2';
-import { labDoneQuests, sideQuestHint } from '../../shared/data/sidequests.js?v=cfe8cd1c70e2';
-import { difficultyOf, visibleMarks, EXP_RATES, EXP_RATE_NAMES, ENEMY_RATES, ENEMY_RATE_NAMES, ENEMY_RATE_NOTES } from '../../shared/data/difficulty.js?v=cfe8cd1c70e2';
-import { memberTalk, talkFor } from '../../shared/data/party-talk.js?v=cfe8cd1c70e2';
-import { treasureRows, treasureDetail, openTreasureMap } from './treasure.js?v=cfe8cd1c70e2';
-import { rareNameHtml } from './rarity.js?v=cfe8cd1c70e2';
-import { themeHex } from '../render/themes.js?v=cfe8cd1c70e2';
-import { sdRecordOf, sdRecordText } from '../../shared/data/secret.js?v=cfe8cd1c70e2';
-import { wagonMenuView, wagonHereClient, menuArrange } from './wagon.js?v=cfe8cd1c70e2';
-import { readErrLog, errLogText, clearErrLog } from '../errlog.js?v=cfe8cd1c70e2';
-import { fieldUsableAbilities } from '../../shared/fieldskills.js?v=cfe8cd1c70e2';
-import { alchemyRow, alchemyUI, bindAlchemy } from './alchemy.js?v=cfe8cd1c70e2';
+import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js?v=852838173644';
+import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js?v=852838173644';
+import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js?v=852838173644';
+// 第33回: 技の 名前は 見ている キャラ むけ（男の子の 美少女戦士・セーラームーンは タキシード仮面ふう）
+import { abilityFor, dualForView } from '../../shared/ability-label.js?v=852838173644';
+import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS, turnSeconds } from '../../shared/battle.js?v=852838173644';
+import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily, gearSortPref, setGearSortPref } from '../prefs.js?v=852838173644';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, TIER_NAMES } from '../../shared/data/jobs.js?v=852838173644';
+import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress, partyJobSet, hiraOfJob, monsterSlots, canEquipChar, itemCount, MAX_LEVEL } from '../../shared/stats.js?v=852838173644';
+import { HIRAMEKI } from '../../shared/data/hirameki.js?v=852838173644';
+import { DUAL_TECHS, DUAL_ORDER, dualKnown, dualRelated, dualNeedText } from '../../shared/data/dual.js?v=852838173644';
+import { addDualCss } from '../render/dualfx.js?v=852838173644';
+import { MONSTERS } from '../../shared/data/monsters.js?v=852838173644';
+import { monsterDrops } from '../../shared/data/loot.js?v=852838173644';
+import { MONSTER_FRIENDS, RACE_NAMES, recipeHint, joinTier, bestiaryOrder } from '../../shared/data/companions.js?v=852838173644';
+import { TACTICS } from '../../shared/ai.js?v=852838173644';
+import { PLACES } from '../../shared/maps/overworld.js?v=852838173644';
+import { SEA_PLACES } from '../../shared/maps/ch2.js?v=852838173644';
+import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js?v=852838173644';
+import { T, TILE_INFO } from '../../shared/tiles.js?v=852838173644';
+import { menuItemText } from './skillinfo.js?v=852838173644';
+import { itemDetail, abilityDetail, skillBrief, gearText, targetTag, statChanges, statChangesHtml } from './info.js?v=852838173644';
+import { bestEquipPlan, bestTeamOrder, gearChoices, sortGearChoices, GEAR_SORTS } from '../../shared/equip-plan.js?v=852838173644';
+import { shownEquip, lookChoices, LOOK_SLOTS, LOOK_NONE } from '../../shared/look-equip.js?v=852838173644';
+import { makeCanvas, ctxOf } from '../render/pixel.js?v=852838173644';
+import { previewCache } from '../render/hero.js?v=852838173644';
+import { monsterCanvas } from '../render/monsters.js?v=852838173644';
+import { mapIconCanvas, boardIconURL } from '../render/boards.js?v=852838173644';
+import { medalItemRow, walletView } from './casino.js?v=852838173644';
+import { compareTeam, whoItems } from './counter.js?v=852838173644';
+import { faceURL } from '../field.js?v=852838173644';
+import { partyRows } from './hud.js?v=852838173644';
+import { questMarks, subQuests, OBJECTIVE_TARGETS, whereName } from '../../shared/data/quest-targets.js?v=852838173644';
+import { labDoneQuests, sideQuestHint } from '../../shared/data/sidequests.js?v=852838173644';
+import { difficultyOf, visibleMarks, EXP_RATES, EXP_RATE_NAMES, ENEMY_RATES, ENEMY_RATE_NAMES, ENEMY_RATE_NOTES } from '../../shared/data/difficulty.js?v=852838173644';
+import { memberTalk, talkFor } from '../../shared/data/party-talk.js?v=852838173644';
+import { treasureRows, treasureDetail, openTreasureMap } from './treasure.js?v=852838173644';
+import { rareNameHtml } from './rarity.js?v=852838173644';
+import { themeHex } from '../render/themes.js?v=852838173644';
+import { sdRecordOf, sdRecordText } from '../../shared/data/secret.js?v=852838173644';
+import { wagonMenuView, wagonHereClient, menuArrange } from './wagon.js?v=852838173644';
+import { readErrLog, errLogText, clearErrLog } from '../errlog.js?v=852838173644';
+import { fieldUsableAbilities } from '../../shared/fieldskills.js?v=852838173644';
+import { alchemyRow, alchemyUI, bindAlchemy } from './alchemy.js?v=852838173644';
 
 // 見た目装備の せつめい
 const LOOK_HELP = '見た目だけを、持っている装備に変える（強さは変わらない）\n職業で装備できない物も選べる。「装備なし」も選べる';
@@ -752,7 +754,7 @@ export class FieldMenu {
     };
     // 使う（ルーラは 行き先、回復などは だれに を えらんで サーバーへ）。おわったら この タブに もどる
     const useSkill = async (id) => {
-      const a = ABILITIES[id];
+      const a = abilityFor(id, c);
       // ルーラ: 行き先を えらぶ（洞窟や 塔の 中では そのまま 唱えて 天井に ぶつかる）
       if (a.effect?.type === 'warp') {
         const inField = g.field.map?.kind === 'field';
@@ -789,7 +791,7 @@ export class FieldMenu {
         return box;
       }
       if (!active) {
-        for (const x of now) box.append(el('div', { class: 'sk-mini' }, el('span', { class: x.ok ? 'nm' : 'nm muted', text: ABILITIES[x.id].name }), el('span', { class: 'muted small', text: `　MP${x.cost}　${skillBrief(ABILITIES[x.id])}` })));
+        for (const x of now) box.append(el('div', { class: 'sk-mini' }, el('span', { class: x.ok ? 'nm' : 'nm muted', text: abilityFor(x.id, c).name }), el('span', { class: 'muted small', text: `　MP${x.cost}　${skillBrief(abilityFor(x.id, c))}` })));
         return box;
       }
       const showNow = (it) => {
@@ -797,7 +799,7 @@ export class FieldMenu {
         detail.textContent = x ? `${abilityDetail(x.id, c)}${x.ok ? '' : `\n（${why[x.why]}）`}${x.ok && touch ? '\n▶もう一度タップで使う' : ''}` : '';
       };
       const m = list(now.map((x) => {
-        const a = ABILITIES[x.id];
+        const a = abilityFor(x.id, c);
         const tt = targetTag(a);
         return {
           html: `${esc(a.name)}${tt ? `<span class="tag tgt t-${a.target}">${tt}</span>` : ''}${x.ok ? '' : `<span class="tag muted">${why[x.why]}</span>`}<span class="sk-desc">${esc(skillBrief(a))}</span>`,
@@ -828,11 +830,11 @@ export class FieldMenu {
       const shown = hiraOfJob(c);
       const order = shown.sort((x, y) => (known.has(y) ? 1 : 0) - (known.has(x) ? 1 : 0));
       rows(order.map((id) => {
-        const a = ABILITIES[id];
+        const a = abilityFor(id, c);
         const ok = known.has(id);
         const reqs = Object.entries(HIRAMEKI[id].from).map(([k, n]) => {
           const seen = k === '@atk' || known.has(k) || use[k] > 0;
-          const nm = k === '@atk' ? 'ふつうの攻撃' : seen ? ABILITIES[k]?.name : '？？？';
+          const nm = k === '@atk' ? 'ふつうの攻撃' : seen ? abilityFor(k, c)?.name : '？？？';
           return `${nm} ${seen ? Math.min(use[k] || 0, n) : '?'}/${n}回`;
         }).join('　');
         const prog = hiraProgress(c, id);
@@ -850,18 +852,18 @@ export class FieldMenu {
     }
     if (mode === 'fav') {
       // お気に入り: 戦いの 呪文・特技の いちばん 上に この じゅんで 出る
-      const favs = (c.favorites || []).filter((id) => ABILITIES[id] && learned.includes(id));
+      const favs = (c.favorites || []).filter((id) => abilityFor(id, c) && learned.includes(id));
       if (!favs.length) box.append(el('div', { class: 'muted', text: 'まだお気に入りはない。「覚えた技」で技を選んで「お気に入りに入れる」を選ぼう。' }));
       if (active && favs.length) {
-        list(favs.map((id, i) => ({ html: `<span class="muted small">${i + 1}.</span> ${esc(ABILITIES[id].name)}<span class="sk-desc">${esc(skillBrief(ABILITIES[id]))}</span>`, value: id, right: ABILITIES[id].kind === 'spell' ? '呪文' : '特技', cls: 'sk' })), {
+        list(favs.map((id, i) => ({ html: `<span class="muted small">${i + 1}.</span> ${esc(abilityFor(id, c).name)}<span class="sk-desc">${esc(skillBrief(abilityFor(id, c)))}</span>`, value: id, right: abilityFor(id, c).kind === 'spell' ? '呪文' : '特技', cls: 'sk' })), {
           onSelect: async (it) => {
             this.sub.blur();
-            const op = await this.pick(`${ABILITIES[it.value].name}`, [{ label: '▲ 上へ', value: 'up' }, { label: '▼ 下へ', value: 'down' }, { label: 'お気に入りからはずす', value: 'remove' }, { label: 'やめる', value: null }]);
+            const op = await this.pick(`${abilityFor(it.value, c).name}`, [{ label: '▲ 上へ', value: 'up' }, { label: '▼ 下へ', value: 'down' }, { label: 'お気に入りからはずす', value: 'remove' }, { label: 'やめる', value: null }]);
             if (op) this.sendFav(c, who, it.value, op);
             setTimeout(() => { if (this.root) this.focusSub(this.skillsView(true, who)); }, 200);
           },
         });
-      } else if (favs.length) box.append(el('div', { class: 'small', text: favs.map((id) => ABILITIES[id].name).join('、') }));
+      } else if (favs.length) box.append(el('div', { class: 'small', text: favs.map((id) => abilityFor(id, c).name).join('、') }));
       else if (active) backOnly();
       box.append(el('div', { class: 'detail', text: '戦いで呪文・特技を開くと、いちばん上の「お気に入り」の窓にこのじゅんで出る。選ぶと、上へ・下へでならびを変えられる。' }));
       return box;
@@ -875,8 +877,10 @@ export class FieldMenu {
       const hiddenDual = DUAL_ORDER.length - shownDual.length;
       // 2人技・3人技・4人技の じゅんに（同じ 人数の 中は DUAL_ORDER の じゅん）
       shownDual.sort((x, y) => DUAL_TECHS[x].need.length - DUAL_TECHS[y].need.length);
+      // 名前は 見ている キャラ（その 組で ない ときは パーティー）むけ（男の子の 美少女戦士は タキシード仮面ふう）
+      const mates = [g.me, ...(g.party?.members || []), ...(g.party?.supports || [])];
       rows(shownDual.map((id) => {
-        const t = DUAL_TECHS[id];
+        const t = dualForView(id, c, mates);
         const n = t.need.length;
         // はじめて 使う までは 効果は ひみつ
         const known = dualKnown(c, id) || dualKnown(g.me, id);
@@ -890,7 +894,7 @@ export class FieldMenu {
       return box;
     }
     const items = learned.map((id) => {
-      const a = ABILITIES[id];
+      const a = abilityFor(id, c);
       const p = penaltyFor(c, id);
       const locked = a.kind === 'combo' && !comboAllowed(c, id);
       const elm = a.effect?.element;
@@ -911,7 +915,7 @@ export class FieldMenu {
       return box;
     }
     if (!active) {
-      for (const id of learned.slice(0, 12)) box.append(el('div', { class: 'sk-mini' }, el('span', { class: 'nm', text: ABILITIES[id].name }), el('span', { class: 'muted small', text: `　${skillBrief(ABILITIES[id])}` })));
+      for (const id of learned.slice(0, 12)) box.append(el('div', { class: 'sk-mini' }, el('span', { class: 'nm', text: abilityFor(id, c).name }), el('span', { class: 'muted small', text: `　${skillBrief(abilityFor(id, c))}` })));
       if (learned.length > 12) box.append(el('div', { class: 'small muted', text: `ほか${learned.length - 12}こ` }));
       box.append(el('div', { class: 'detail', text: '「他」は今の職業以外で覚えた技。MPが増えたり、威力が下がったりする。' }));
       return box;
@@ -921,7 +925,7 @@ export class FieldMenu {
       tapConfirm: touch,
       onMove: showDetail,
       onSelect: async (it) => {
-        const a = ABILITIES[it.value];
+        const a = abilityFor(it.value, c);
         const locked = a.kind === 'combo' && !comboAllowed(c, it.value);
         const fav = (c.favorites || []).includes(it.value);
         this.sub.blur();
@@ -1564,7 +1568,7 @@ export class FieldMenu {
     const off = new Set(Array.isArray(c.autoOff) ? c.autoOff : []);
     // 戦いで 使える 技だけ（ルーラなど フィールドだけの 技・きずな技は のぞく）
     const ids = learnedAbilities(c).filter((id) => {
-      const a = ABILITIES[id];
+      const a = abilityFor(id, c);
       return a && !a.fieldOnly && !a.hidden && a.kind !== 'bond';
     });
     box.append(el('div', { class: 'gold small', text: `${c.name}がオートで使う技` }));
@@ -1582,7 +1586,7 @@ export class FieldMenu {
     const items = [
       { label: '全部使う', value: '__all', disabled: !off.size },
       ...ids.map((id) => {
-        const a = ABILITIES[id];
+        const a = abilityFor(id, c);
         const no = off.has(id);
         return {
           html: `${esc(a.name)}<span class="sk-desc">${esc(skillBrief(a))}</span>`,

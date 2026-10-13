@@ -1,12 +1,12 @@
 // フィールドの がめんの かざり（HP・ばしょ・もくひょう・ちず・チャット）
-import { el, bar, askText, ListMenu } from './dom.js?v=cfe8cd1c70e2';
-import { computeStats } from '../../shared/stats.js?v=cfe8cd1c70e2';
-import { JOBS } from '../../shared/data/jobs.js?v=cfe8cd1c70e2';
-import { renderMiniMap, openWorldMap } from './menu.js?v=cfe8cd1c70e2';
-import { makeCanvas } from '../render/pixel.js?v=cfe8cd1c70e2';
-import { ClockBadge } from './clock.js?v=cfe8cd1c70e2';
-import { powderLabel } from '../../shared/data/friend-powder.js?v=cfe8cd1c70e2';
-import { auraLabel } from '../../shared/data/abilities-field27.js?v=cfe8cd1c70e2';
+import { el, bar, askText, ListMenu } from './dom.js?v=852838173644';
+import { computeStats } from '../../shared/stats.js?v=852838173644';
+import { JOBS } from '../../shared/data/jobs.js?v=852838173644';
+import { renderMiniMap, openWorldMap } from './menu.js?v=852838173644';
+import { makeCanvas } from '../render/pixel.js?v=852838173644';
+import { ClockBadge } from './clock.js?v=852838173644';
+import { powderLabel } from '../../shared/data/friend-powder.js?v=852838173644';
+import { auraLabel } from '../../shared/data/abilities-field27.js?v=852838173644';
 
 export const STAMPS = ['よろしく！', 'ありがとう！', '行くよー！', '助けて！', '待ってて！', 'やったね！', 'おつかれさま', 'ご飯だよ〜'];
 
