@@ -1850,6 +1850,14 @@ npm start                 # 家族サーバー
   - 看板の技のエフェクトは `client/render/battlefx-jobs6.js`（`playJob6Fx`・つぶ `JOB6_FINE`（`j6fall`・`j6ray`・`j6dragon`・`j6draw`）・音 `JOB6_SFX`。`battlefx.js` の `play()` が jobs5 のつぎに聞く）。音は `client/sfx-r29.js`（`r29_*`。`audio.js` の `sfx()` が知らない名前の時に見る）
   - はじめの装備は `stats.js` の `STARTER_EQUIP.rurouni`（逆ば刀 `sakabatou`。ホシフル村のよろず屋でも買える）
   - テストは `test/jobs-r29.test.js`（職業の木・ランク・強さ・技の数・攻撃技・看板の技・ひらめき・合体技・見た目・エフェクト・文字・はじめの装備）。基本職と上級職の数（`test/jobs.test.js`）、合体技の数の上限（`dual-r26`・`jobs-r27`）、`fx-r27` のエフェクトの一覧（`playJob6Fx`）も合わせた
+- 第33回（2026年10月）の 11この職業の絵とえんしゅつ（担当B。id は `docs/plan-r33-jobs.md` の約束どおり：`magician`・`kaito`・`kaito_kid`・`wizard_student`・`harry`・`homeroom_3b`・`alchemist`・`state_alchemist`・`fullmetal`・`sailor_soldier`・`sailor_moon`）
+  - 絵は `client/render/hero-r33.js`（服 `R33_OUTFIT`・からだ `R33_BODY`・かみの色 `R33_HAIR`・シルクハット `R33_HAT`（布の服の時）・ティアラ `R33_BODY_HAT`（よろいでも残る）・古い小さな絵 `R33_OLD_LOOK`）。`JOBS` にない id でもかける
+    - つけたしは `hero-r26.js` からよぶ：服 `outfit33`（マントのうら・前にたれるマント・白い手ぶくろ・ローブのネクタイ・マフラー・ほうき・セーラー戦士の服）、からだ `body33`（機械の右うで `O.sleeveR`・手ぶくろのれん金の円 `O.handMark`）、絵 `drawR33`、かお `face33`（まるめがね・片めがね・いなずまのきず）、ぼうし `drawHat33`、もちもの `drawProp33`（ステッキ・予告状・トランプ銃・つえ・出席ぼ・銀時計・月のステッキ）
+    - 装備の見た目（`items-r33.js` の品）：ぶき `R33_WEAPON_LOOK`（マジックステッキ・チョーク・指し棒・ニワトコのつえ・ティアラ。形 `wand33` は `drawWand33`。はがねの機械のうでは はがね色のツメ）、よろい `R33_ARMOR_LOOK`（魔法学校のローブ・かいとうの白いマント・とうめいマント・熱血先生のジャージ）、ぼうし `R33_HEAD_LOOK`（シルクハット）。銀水しょうはアクセなので絵に出ない
+    - かみがた（えらべないかみ）は `hero-hair.js` の `messy33`（ハリー）・`center33`（3年B組）・`braid33`（はがね）・`moon33`（セーラームーン）。`hero.js` は右うでだけちがうそで `O.sleeveR` と、手のあとの `handMark33` を見る
+  - 技のえんしゅつは `client/render/battlefx-jobs7.js`。**技の id ではなく、えんしゅつの名前（anim）でひく**（データの技に `anim: 'kaito_kid_sig'`・`anim: 'r33_card_throw'` のように書く）。一覧は `R33_SIGS`（11この職業の看板の技。名前は `<職業のid>_sig` で、A の技の id と同じ）・`R33_MOVES`（ほかの技に合うえんしゅつ21こ。`r33_…`）。`abilities-jobs9.js` の看板の技11こと、ほかの技23こ（どの技がどのえんしゅつかは `docs/plan-r33-jobs.md` の「えんしゅつ（B）」）の anim をこの名前にした。`battlefx.js` の `play()` が jobs6 のつぎに聞く。つぶは `JOB7_FINE`（`j7…`）
+    - あたる時間は `JOB7_HIT`（`battle.js` の `HIT_DELAY` にまぜる）、音は `JOB7_SFX`（新しい音は `client/sfx-r33.js` の `r33_*`）、みかたにかけるえんしゅつ（画面の下に出す）は `PARTY_ANIMS7`
+  - テストは `test/hero-art-r33.test.js`（11この職業の絵・男女・4方向・装備・ほかの職業とちがう・ぼうし・もちもの・よろいでも残る所・えんしゅつ32こ（単体・全体・みかた・時間・NaN）・あたる時間・音・つなぎ）。`fx-r27` のエフェクトの一覧に `playJob7Fx` を足した
 - 第26回の職業20こ（楽天カードマン〜七代目火影）の絵は `client/render/hero-r26.js`（服 `R26_OUTFIT`・からだ `R26_BODY`（カッパの緑のはだ・もちもの など）・ぼうし `R26_HAT`／よろいでも残る `R26_BODY_HAT`。羽織・こうら・ロボットのおなかは `drawR26`）。`JOBS` にない id でもかける
   - 看板の技（id `<職業のid>_sig`）のエフェクトは `client/render/battlefx-jobs4.js`（`battle.js` が技の id で `sigAnim` をえらぶので、データの `anim` はなくてもよい。みかたに使うと画面の下に出る）。新しい音は `client/sfx-r26.js`（`audio.js` の `sfx()` が知らない名前の時に見る）。テストは `test/hero-art-r26.test.js`
 - 第26回の20の職業（楽天カードマン・きさつ隊→炎柱→日の呼吸の使い手・スパイ→殺し屋→黒の組織・超能力者・少年探てい団→おしり探てい→名探てい・クリエイター・ネコ型ロボット→耳無しネコ型ロボット→ドラえもん・カッパ→はなかっぱ→はなかっぱ（筋肉ニンニク）・木の葉の忍び→七代目火影）の技は `data/abilities-jobs6.js`。テストは `test/jobs-r26.test.js`

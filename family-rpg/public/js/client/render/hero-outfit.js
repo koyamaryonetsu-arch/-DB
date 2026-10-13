@@ -9,6 +9,8 @@ import { R26_OUTFIT, R26_BODY, outfit26, body26, capeFlame, robotTail } from './
 import { R27_OUTFIT, R27_BODY } from './hero-r27.js';
 // 第29回の るろうに剣士の 道（赤い 着物と はかま・白い マント・長い 赤毛・十字の きず）
 import { R29_OUTFIT, R29_BODY } from './hero-r29.js';
+// 第33回の 11この 職業（手品師・かいとう・魔法学校・3年B組・れん金術師・美少女戦士 の 道）
+import { R33_OUTFIT, R33_BODY, R33_ARMOR_LOOK } from './hero-r33.js';
 
 // ───────────── ざいしつ ─────────────
 const METALS = {
@@ -190,7 +192,7 @@ const JOB_OUTFIT = {
   // はかい神（金の ふちの くろい エジプトの 服・はばの ひろい 金の えり・金の うでわ・だぼっと した ズボン）
   hakaishin: { kind: 'hakai', main: '#1e1a32', pants: '#2c2644', flap: '#9a1e34' },
 };
-Object.assign(JOB_OUTFIT, R26_OUTFIT, R27_OUTFIT, R29_OUTFIT);
+Object.assign(JOB_OUTFIT, R26_OUTFIT, R27_OUTFIT, R29_OUTFIT, R33_OUTFIT);
 // 職業の 服と おなじ よろい（きても 職業の ぼうしが のこる。最強のおかんの ヒョウがらの服）
 const OWN_ARMOR = { saikyo_okan: 'leopard_shirt' };
 export const ownArmor = (job, armorId) => !!armorId && OWN_ARMOR[job] === armorId;
@@ -220,7 +222,7 @@ const JOB_BODY = {
   facility_genius: { aura: 'circuit', holo: true },
   hakaishin: { iris: '#d8a020', aura: 'hakai', spark: 'ember' },
 };
-Object.assign(JOB_BODY, R26_BODY, R27_BODY, R29_BODY);
+Object.assign(JOB_BODY, R26_BODY, R27_BODY, R29_BODY, R33_BODY);
 export const jobBody = (job) => JOB_BODY[job] || null;
 
 // よろいの みため（ID ごと）
@@ -245,6 +247,9 @@ const ARMOR_OUTFIT = {
   // ヒョウがらの服
   leopard_shirt: { kind: 'leopard' },
 };
+
+// 第33回の よろい（魔法学校のローブ・かいとうの白いマント・熱血先生のジャージ。hero-r33.js）
+Object.assign(ARMOR_OUTFIT, R33_ARMOR_LOOK);
 
 // 知らない よろい: 名前と 種類から
 function guessArmor(it) {

@@ -3,6 +3,8 @@
 import { mat, ramp, TH, mixC, mixI, hex, HeroCanvas } from './hero-raster.js';
 import { metal, metalRamp, cloth, leather, gem, glow, neon, metalOfName, baseItem, fruitIcon, ownArmor } from './hero-outfit.js';
 import { R26_HAT, R26_BODY_HAT, drawHat26 } from './hero-r26.js';
+// 第33回: シルクハット（布の服の とき）・ティアラ（よろいでも のこる）
+import { R33_HAT, R33_BODY_HAT, R33_WEAPON_LOOK, R33_HEAD_LOOK, drawWand33 } from './hero-r33.js';
 
 const D = Math.PI / 180;
 
@@ -85,6 +87,8 @@ const WEAPON_LOOK = {
   // おかんの スリッパ（ピンクの 家の スリッパ）
   slipper: { shape: 'slipper', len: 8.8 },
 };
+// 第33回の ぶき（マジックステッキ・チョーク・指し棒・ニワトコのつえ。hero-r33.js）
+Object.assign(WEAPON_LOOK, R33_WEAPON_LOOK);
 
 // 名前で わかる 道具（これから ふえる 品も おなじ かたちに）
 const NAME_LOOK = [
@@ -172,7 +176,7 @@ const SHAPE_GROUP = {
   kitchen: 'dagger', chefknife: 'dagger', pan: 'pan', wok: 'pan', ladle: 'sword', whisk: 'fan',
   mop: 'staff', brush: 'staff', standmic: 'staff', mic: 'light',
   pillow: 'fan', selfie: 'staff', pad: 'boomerang', bokken: 'sword', monkey: 'axe', keyboard: 'axe', pipewrench: 'axe', darkfeather: 'staff',
-  slipper: 'fan',
+  slipper: 'fan', wand33: 'light',
 };
 const groupOf = (W) => SHAPE_GROUP[W.shape] || W.cat || 'sword';
 
@@ -267,6 +271,7 @@ function drawWeaponNow(cv, P, A, W, g) {
     case 'pipewrench': return pipeWrench(cv, F, W, outward);
     case 'darkfeather': return darkFeatherStaff(cv, F, W, P);
     case 'slipper': return slipperShape(cv, F, W, outward);
+    case 'wand33': return drawWand33(cv, F, W);
     default: return sword(cv, F, W);
   }
 }
@@ -1273,6 +1278,8 @@ const HEAD_LOOK = {
   // 第31回: しあわせのぼうし（ピンクの 羽の ぼうし）
   shiawase_boushi: { kind: 'feather', c: '#f07aa8', hides: 'top' },
 };
+// 第33回の シルクハット（hero-r33.js）
+Object.assign(HEAD_LOOK, R33_HEAD_LOOK);
 // 布の服の ときの しょくぎょうの ぼうし
 const JOB_HAT = {
   monk: { kind: 'headband', c: '#d9534f' },
@@ -1345,7 +1352,8 @@ const JOB_HAT = {
   hakaishin: { kind: 'catcrown' },
 };
 // 第26回の 職業の ぼうし（黒の組織の ぼうし・ひたいあて など）と、からだの いちぶの ぼうし（ネコ型ロボットの フード・カッパの おさら・花）
-Object.assign(JOB_HAT, R26_HAT);
+Object.assign(JOB_HAT, R26_HAT, R33_HAT);
+Object.assign(R26_BODY_HAT, R33_BODY_HAT);
 function guessHead(it) {
   const name = it.name || '';
   const rank = it.rank || 2;

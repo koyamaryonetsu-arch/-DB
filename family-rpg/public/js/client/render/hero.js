@@ -11,6 +11,8 @@ import { drawAura } from './hero-aura.js';
 import { R26_HAIR, R26_SKIN, drawR26, face26, drawProp26 } from './hero-r26.js';
 // 第29回の るろうに剣士の 道の 赤毛
 import { R29_HAIR } from './hero-r29.js';
+// 第33回の 職業の かみの いろと、手ぶくろの れん金の 円
+import { R33_HAIR, handMark33 } from './hero-r33.js';
 import { weaponOf, shieldOf, headOf, drawWeapon, drawShield, drawHeadgear, isLongSide } from './hero-gear.js';
 import { lookIds, HCOL_BY_ID, TONE_BY_ID, CLOTH_COLORS } from '../../shared/data/looks.js';
 import { STARTER_EQUIP } from '../../shared/stats.js';
@@ -245,7 +247,8 @@ function armShape(cv, A, P, O, { hand = true, sleeveOnly = false } = {}) {
   // armW: きんにくの ふとい うで（筋肉ニンニク）
   const aw = O.armW || 1;
   const r0 = (fem ? 1.5 : 1.7) * aw, r1 = (fem ? 1.32 : 1.5) * aw, r2 = (fem ? 1.15 : 1.3) * (1 + (aw - 1) * 0.6);
-  const S = O.sleeve;
+  // sleeveR: 右うでだけ ちがう そで（はがねの れん金術師の 機械の うで）
+  const S = (A.right && O.sleeveR) || O.sleeve;
   const wide = S.wide || 1;
   const sid = cv.cur;
   // そでの もよう（チェック・ラメ。はだの ところには つけない）
@@ -299,6 +302,7 @@ function handShape(cv, A, P, O) {
   cv.part({ ol: 'soft' });
   const r = (P.fem ? 1.22 : 1.38) * (1 + ((O.armW || 1) - 1) * 0.4);
   cv.ell(A.hand[0], A.hand[1], r, r * 1.05, O.glove || O.skin, { bulge: 0.85 });
+  if (O.handMark) handMark33(cv, A, P, O);
   if (O.fingerless) {
     // ゆびの ない 手ぶくろ（ゆびさきは はだ）
     cv.part({ ol: 'soft', clip: cv.cur });
@@ -373,7 +377,7 @@ const JOB_HAIR_RAMP = {
   // 最強のおかんの むらさきに そめた パーマ
   obapurple: ['#2e1638', '#5a2c6c', '#8a52a0', '#b886cc', '#e4c8f0'],
 };
-Object.assign(JOB_HAIR_RAMP, R26_HAIR, R29_HAIR);
+Object.assign(JOB_HAIR_RAMP, R26_HAIR, R29_HAIR, R33_HAIR);
 const jobHairMemo = new Map();
 function jobHair(id) {
   let v = jobHairMemo.get(id);

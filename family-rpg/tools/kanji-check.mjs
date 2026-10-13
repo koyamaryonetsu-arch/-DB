@@ -238,6 +238,8 @@ export function gameFiles() {
     'public/js/client/render/battlefx-jobs5.js',
     // 第29回: るろうに剣士の 道の 看板の技の エフェクト
     'public/js/client/render/battlefx-jobs6.js',
+    // 第33回: 11この 職業の 技の えんしゅつ（説教の 文字・きめぜりふ）
+    'public/js/client/render/battlefx-jobs7.js',
     // 第4章クリアの あとの より道: 砂の古代都市と 古代の大迷宮・たのまれごと（第27回）
     'public/js/shared/maps/labyrinth.js', 'public/js/shared/data/story-lab.js', 'public/js/shared/data/sidequests.js',
     'public/js/shared/data/items-lab.js', 'public/js/shared/data/monsters-lab.js', 'public/js/shared/data/abilities-lab.js',
