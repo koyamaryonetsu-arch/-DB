@@ -4,6 +4,7 @@ import { normDifficulty } from '../data/difficulty.js';
 import { ITEMS, sellPrice, SLOTS, SLOT_NAMES } from '../data/items.js';
 import { JOBS, ALL_JOBS, jobReqText, BODY_NAMES } from '../data/jobs.js';
 import { ABILITIES } from '../data/abilities.js';
+import { abilityFor, abilityLabel, isMasc } from '../ability-label.js';
 import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js';
 import { TACTICS } from '../ai.js';
 import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js';
@@ -173,7 +174,7 @@ export function serviceAction(world, s, msg) {
       }
       const removed = r.removed.map((id) => ITEMS[id]?.name).filter(Boolean);
       world.sendParty(partyOf(world, s));
-      return reply(true, jobDoneText(who.name, JOBS[msg.job].name, removed, msg.job), { jobChanged: true, who: msg.who || 'self' });
+      return reply(true, jobDoneText(who.name, JOBS[msg.job].name, removed, msg.job, isMasc(who)), { jobChanged: true, who: msg.who || 'self' });
     }
     case 'tavern': {
       let r;
@@ -433,7 +434,7 @@ export function menuAction(world, s, msg) {
       // 馬車の 仲間が 唱えるのも、相手が 馬車の 仲間なのも、馬車が いっしょの ときだけ
       const inWagon = (c.wagonKeys || []).includes(msg.who) || String(msg.ref || '').startsWith('wagon:');
       if (inWagon && !wagonHere(s.map)) return reply(false, '馬車は入り口で待っている…');
-      const a = ABILITIES[msg.id];
+      const a = abilityFor(msg.id, caster);
       if (!a || !a.field || !learnedAbilities(caster).includes(msg.id)) return reply(false, '今は使えない');
       // 呪文が ふうじられた 場所（王家のピラミッド 2階）: 呪文は 使えない（MPは へらない。特技は 使える）
       if (MAPS[s.map]?.noSpells && spellSealed(a)) return reply(false, `${caster.name}は${a.name}を唱えた！\nしかし呪文の力が、すいこまれてしまった…\n（ここでは呪文が使えない。特技や道具を使おう）`);
@@ -543,7 +544,7 @@ export function menuAction(world, s, msg) {
       who.favorites = list.slice(0, 30);
       // 戦いの 中（長おしで お気に入り。第27回）: 戦いの 人の お気に入りも（つぎの 知らせで 前に もどらない）
       for (const ctx of world.battles?.values?.() || []) for (const b of ctx.battle?.combatants || []) if (who.id && b.side === 'ally' && b.charId === who.id) b.favs = who.favorites.slice();
-      return reply(true, msg.op === 'add' ? `${ABILITIES[id].name}をお気に入りに入れた。` : msg.op === 'remove' ? `${ABILITIES[id].name}をお気に入りからはずした。` : 'ならびを変えた。');
+      return reply(true, msg.op === 'add' ? `${abilityLabel(id, who)}をお気に入りに入れた。` : msg.op === 'remove' ? `${abilityLabel(id, who)}をお気に入りからはずした。` : 'ならびを変えた。');
     }
     case 'settings': {
       const old = c.battleSettings || {};

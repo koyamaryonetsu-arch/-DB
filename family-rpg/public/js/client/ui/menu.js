@@ -2,6 +2,8 @@
 import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js';
 import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js';
 import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js';
+// 第33回: 技の 名前は 見ている キャラ むけ（男の子の 美少女戦士・セーラームーンは タキシード仮面ふう）
+import { abilityFor, dualForView } from '../../shared/ability-label.js';
 import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS, turnSeconds } from '../../shared/battle.js';
 import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily, gearSortPref, setGearSortPref } from '../prefs.js';
 import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, TIER_NAMES } from '../../shared/data/jobs.js';
@@ -752,7 +754,7 @@ export class FieldMenu {
     };
     // 使う（ルーラは 行き先、回復などは だれに を えらんで サーバーへ）。おわったら この タブに もどる
     const useSkill = async (id) => {
-      const a = ABILITIES[id];
+      const a = abilityFor(id, c);
       // ルーラ: 行き先を えらぶ（洞窟や 塔の 中では そのまま 唱えて 天井に ぶつかる）
       if (a.effect?.type === 'warp') {
         const inField = g.field.map?.kind === 'field';
@@ -789,7 +791,7 @@ export class FieldMenu {
         return box;
       }
       if (!active) {
-        for (const x of now) box.append(el('div', { class: 'sk-mini' }, el('span', { class: x.ok ? 'nm' : 'nm muted', text: ABILITIES[x.id].name }), el('span', { class: 'muted small', text: `　MP${x.cost}　${skillBrief(ABILITIES[x.id])}` })));
+        for (const x of now) box.append(el('div', { class: 'sk-mini' }, el('span', { class: x.ok ? 'nm' : 'nm muted', text: abilityFor(x.id, c).name }), el('span', { class: 'muted small', text: `　MP${x.cost}　${skillBrief(abilityFor(x.id, c))}` })));
         return box;
       }
       const showNow = (it) => {
@@ -797,7 +799,7 @@ export class FieldMenu {
         detail.textContent = x ? `${abilityDetail(x.id, c)}${x.ok ? '' : `\n（${why[x.why]}）`}${x.ok && touch ? '\n▶もう一度タップで使う' : ''}` : '';
       };
       const m = list(now.map((x) => {
-        const a = ABILITIES[x.id];
+        const a = abilityFor(x.id, c);
         const tt = targetTag(a);
         return {
           html: `${esc(a.name)}${tt ? `<span class="tag tgt t-${a.target}">${tt}</span>` : ''}${x.ok ? '' : `<span class="tag muted">${why[x.why]}</span>`}<span class="sk-desc">${esc(skillBrief(a))}</span>`,
@@ -828,11 +830,11 @@ export class FieldMenu {
       const shown = hiraOfJob(c);
       const order = shown.sort((x, y) => (known.has(y) ? 1 : 0) - (known.has(x) ? 1 : 0));
       rows(order.map((id) => {
-        const a = ABILITIES[id];
+        const a = abilityFor(id, c);
         const ok = known.has(id);
         const reqs = Object.entries(HIRAMEKI[id].from).map(([k, n]) => {
           const seen = k === '@atk' || known.has(k) || use[k] > 0;
-          const nm = k === '@atk' ? 'ふつうの攻撃' : seen ? ABILITIES[k]?.name : '？？？';
+          const nm = k === '@atk' ? 'ふつうの攻撃' : seen ? abilityFor(k, c)?.name : '？？？';
           return `${nm} ${seen ? Math.min(use[k] || 0, n) : '?'}/${n}回`;
         }).join('　');
         const prog = hiraProgress(c, id);
@@ -850,18 +852,18 @@ export class FieldMenu {
     }
     if (mode === 'fav') {
       // お気に入り: 戦いの 呪文・特技の いちばん 上に この じゅんで 出る
-      const favs = (c.favorites || []).filter((id) => ABILITIES[id] && learned.includes(id));
+      const favs = (c.favorites || []).filter((id) => abilityFor(id, c) && learned.includes(id));
       if (!favs.length) box.append(el('div', { class: 'muted', text: 'まだお気に入りはない。「覚えた技」で技を選んで「お気に入りに入れる」を選ぼう。' }));
       if (active && favs.length) {
-        list(favs.map((id, i) => ({ html: `<span class="muted small">${i + 1}.</span> ${esc(ABILITIES[id].name)}<span class="sk-desc">${esc(skillBrief(ABILITIES[id]))}</span>`, value: id, right: ABILITIES[id].kind === 'spell' ? '呪文' : '特技', cls: 'sk' })), {
+        list(favs.map((id, i) => ({ html: `<span class="muted small">${i + 1}.</span> ${esc(abilityFor(id, c).name)}<span class="sk-desc">${esc(skillBrief(abilityFor(id, c)))}</span>`, value: id, right: abilityFor(id, c).kind === 'spell' ? '呪文' : '特技', cls: 'sk' })), {
           onSelect: async (it) => {
             this.sub.blur();
-            const op = await this.pick(`${ABILITIES[it.value].name}`, [{ label: '▲ 上へ', value: 'up' }, { label: '▼ 下へ', value: 'down' }, { label: 'お気に入りからはずす', value: 'remove' }, { label: 'やめる', value: null }]);
+            const op = await this.pick(`${abilityFor(it.value, c).name}`, [{ label: '▲ 上へ', value: 'up' }, { label: '▼ 下へ', value: 'down' }, { label: 'お気に入りからはずす', value: 'remove' }, { label: 'やめる', value: null }]);
             if (op) this.sendFav(c, who, it.value, op);
             setTimeout(() => { if (this.root) this.focusSub(this.skillsView(true, who)); }, 200);
           },
         });
-      } else if (favs.length) box.append(el('div', { class: 'small', text: favs.map((id) => ABILITIES[id].name).join('、') }));
+      } else if (favs.length) box.append(el('div', { class: 'small', text: favs.map((id) => abilityFor(id, c).name).join('、') }));
       else if (active) backOnly();
       box.append(el('div', { class: 'detail', text: '戦いで呪文・特技を開くと、いちばん上の「お気に入り」の窓にこのじゅんで出る。選ぶと、上へ・下へでならびを変えられる。' }));
       return box;
@@ -875,8 +877,10 @@ export class FieldMenu {
       const hiddenDual = DUAL_ORDER.length - shownDual.length;
       // 2人技・3人技・4人技の じゅんに（同じ 人数の 中は DUAL_ORDER の じゅん）
       shownDual.sort((x, y) => DUAL_TECHS[x].need.length - DUAL_TECHS[y].need.length);
+      // 名前は 見ている キャラ（その 組で ない ときは パーティー）むけ（男の子の 美少女戦士は タキシード仮面ふう）
+      const mates = [g.me, ...(g.party?.members || []), ...(g.party?.supports || [])];
       rows(shownDual.map((id) => {
-        const t = DUAL_TECHS[id];
+        const t = dualForView(id, c, mates);
         const n = t.need.length;
         // はじめて 使う までは 効果は ひみつ
         const known = dualKnown(c, id) || dualKnown(g.me, id);
@@ -890,7 +894,7 @@ export class FieldMenu {
       return box;
     }
     const items = learned.map((id) => {
-      const a = ABILITIES[id];
+      const a = abilityFor(id, c);
       const p = penaltyFor(c, id);
       const locked = a.kind === 'combo' && !comboAllowed(c, id);
       const elm = a.effect?.element;
@@ -911,7 +915,7 @@ export class FieldMenu {
       return box;
     }
     if (!active) {
-      for (const id of learned.slice(0, 12)) box.append(el('div', { class: 'sk-mini' }, el('span', { class: 'nm', text: ABILITIES[id].name }), el('span', { class: 'muted small', text: `　${skillBrief(ABILITIES[id])}` })));
+      for (const id of learned.slice(0, 12)) box.append(el('div', { class: 'sk-mini' }, el('span', { class: 'nm', text: abilityFor(id, c).name }), el('span', { class: 'muted small', text: `　${skillBrief(abilityFor(id, c))}` })));
       if (learned.length > 12) box.append(el('div', { class: 'small muted', text: `ほか${learned.length - 12}こ` }));
       box.append(el('div', { class: 'detail', text: '「他」は今の職業以外で覚えた技。MPが増えたり、威力が下がったりする。' }));
       return box;
@@ -921,7 +925,7 @@ export class FieldMenu {
       tapConfirm: touch,
       onMove: showDetail,
       onSelect: async (it) => {
-        const a = ABILITIES[it.value];
+        const a = abilityFor(it.value, c);
         const locked = a.kind === 'combo' && !comboAllowed(c, it.value);
         const fav = (c.favorites || []).includes(it.value);
         this.sub.blur();
@@ -1564,7 +1568,7 @@ export class FieldMenu {
     const off = new Set(Array.isArray(c.autoOff) ? c.autoOff : []);
     // 戦いで 使える 技だけ（ルーラなど フィールドだけの 技・きずな技は のぞく）
     const ids = learnedAbilities(c).filter((id) => {
-      const a = ABILITIES[id];
+      const a = abilityFor(id, c);
       return a && !a.fieldOnly && !a.hidden && a.kind !== 'bond';
     });
     box.append(el('div', { class: 'gold small', text: `${c.name}がオートで使う技` }));
@@ -1582,7 +1586,7 @@ export class FieldMenu {
     const items = [
       { label: '全部使う', value: '__all', disabled: !off.size },
       ...ids.map((id) => {
-        const a = ABILITIES[id];
+        const a = abilityFor(id, c);
         const no = off.has(id);
         return {
           html: `${esc(a.name)}<span class="sk-desc">${esc(skillBrief(a))}</span>`,

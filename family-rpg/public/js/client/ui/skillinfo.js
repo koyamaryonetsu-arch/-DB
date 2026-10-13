@@ -4,6 +4,7 @@
 //   3行め: せつめい（data の desc）。転職の ペナルティ・上位の 技なども
 // 相手を えらぶ 前（敵が 1体・自分に かける・全体の 技でも）に 見える。client/battle.js の abilityMenu・itemMenu
 import { ABILITIES, abilityTypeText, abilityRole } from '../../shared/data/abilities.js';
+import { abilityFor, abilityLabel } from '../../shared/ability-label.js';
 import { ITEMS } from '../../shared/data/items.js';
 import { JOBS } from '../../shared/data/jobs.js';
 import { SKILL_UPS } from '../../shared/data/skill-ups.js';
@@ -57,8 +58,9 @@ function partText(e, pm) {
 }
 
 // 呪文・特技の せつめい（pc: 使う 人。{ job, jobs }。touch: タッチの とき「もう一度タップで使う」）
-export function battleSkillText(id, pc, { touch = false } = {}) {
-  const a = ABILITIES[id];
+// who: 名前・説明を きめる 人（look を 見る。男の子の 美少女戦士などは かわる。ability-label.js。look の ない pc なら もとの まま）
+export function battleSkillText(id, pc, { touch = false, who = pc } = {}) {
+  const a = abilityFor(id, who);
   if (!a) return '';
   const lines = [];
   const pen = pc ? penaltyFor(pc, id) : { powMult: 1 };
@@ -71,7 +73,7 @@ export function battleSkillText(id, pc, { touch = false } = {}) {
   if (pw) lines.push(`${role === 'dmg' ? '威力' : '効果'}：${pw}`);
   const notes = [];
   if (pen.jobPow > 1 && role !== 'sup') notes.push(`職業レベルで威力+${Math.round((pen.jobPow - 1) * 100)}%`);
-  if (SKILL_UPS[id] && ABILITIES[SKILL_UPS[id]]) notes.push(`${ABILITIES[SKILL_UPS[id]].name}の上位の技`);
+  if (SKILL_UPS[id] && ABILITIES[SKILL_UPS[id]]) notes.push(`${abilityLabel(SKILL_UPS[id], who)}の上位の技`);
   if (pen.penalized) notes.push(`⚠${pen.label}`);
   if (a.kind === 'combo' && pc?.job && JOBS[pc.job] && !comboAllowed(pc, id)) notes.push('⚠今の職業では使えない');
   lines.push([a.desc || '', notes.length ? `（${notes.join('・')}）` : ''].filter(Boolean).join(''));

@@ -26,11 +26,18 @@ export const JOB_SAY = {
   sailor_soldier: '「メイクアップ！」',
   sailor_moon: '「月にかわっておしおきよ！」',
 };
+// 男の子（look.body が 1 で ない）の ときの ひとこと（タキシード仮面ふう。shared/ability-label.js）
+export const JOB_SAY_MASC = {
+  sailor_soldier: '「仮面のしんし、ただいま参上！」',
+  sailor_moon: '「月の光が見ているぞ！」',
+};
 
 // removed: 装備できなく なって はずした 物の 名前（多い ときは 2つ と「など」）
 // jobId: なった 職業（JOB_SAY の ひとことを 2行目に。はずした 物が ある ときは そちらを 出す。2行まで）
-export function jobDoneText(name, jobName, removed = [], jobId = null) {
-  const say = jobId && JOB_SAY[jobId] && !removed.length ? `\n${JOB_SAY[jobId]}` : '';
+// masc: 男の子か（JOB_SAY_MASC が ある 職業は そちら）
+export function jobDoneText(name, jobName, removed = [], jobId = null, masc = false) {
+  const line = jobId && ((masc && JOB_SAY_MASC[jobId]) || JOB_SAY[jobId]);
+  const say = line && !removed.length ? `\n${line}` : '';
   const off = removed.length ? `\n（${removed.slice(0, 2).join('・')}${removed.length > 2 ? 'など' : ''}を外した）` : '';
   return `${name}は${jobName}になった！${say}${off}`;
 }

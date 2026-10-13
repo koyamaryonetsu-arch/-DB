@@ -505,6 +505,12 @@ const R33_DUALS = {
       { type: 'heal', target: 'allies', pct: 0.25, k: 0.3 },
     ],
     desc: '美少女戦士とアイドルの、月夜のステージ。敵全体に月の光の大ダメージ。仲間全員のHPも回復する。', anim: 'holy',
+    // 美少女戦士の 組（need[0]）が 男の子なら タキシード仮面ふう（shared/ability-label.js の dualFor）
+    masc: {
+      group: 0, name: '月夜のダンスパーティー', kana: 'つきよのだんすぱーてぃー',
+      desc: 'タキシード仮面とアイドルの、月夜のダンスパーティー。敵全体に月の光の大ダメージ。仲間全員のHPも回復する。',
+      says: { 0: '「月夜のパーティーへ、ようこそ！」赤いバラがまい、月の光のスポットライトが当たった！' },
+    },
   },
   dt_hippogriff: {
     name: 'ヒッポグリフの空の旅', kana: 'ひっぽぐりふのそらのたび', need: [WIZARD, TAMER], mp: [8, 8], target: 'enemies', element: 'wind',

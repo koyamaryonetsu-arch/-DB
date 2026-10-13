@@ -14,7 +14,7 @@
 // x（じょうほう）: x.name x.flag('f') x.has('item') x.count('item') x.kills('monster') x.quest('key')
 import { POS } from '../maps/index.js';
 import { PLACES } from '../maps/overworld.js';
-import { ABILITIES } from './abilities.js';
+import { abilityLabel } from '../ability-label.js';
 import { learnedAbilities, comboUnlocked, hiraAllowed, hiraRelated, partyJobSet } from '../stats.js';
 import { HIRAMEKI, hiraRatio } from './hirameki.js';
 import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js';
@@ -567,7 +567,7 @@ function sageHints(x) {
     .filter((e) => e.r >= 0.5)
     .sort((a, b) => b.r - a.r);
   for (const e of near.slice(0, 1)) {
-    const names = Object.keys(HIRAMEKI[e.id].from).map((k) => (k === '@atk' ? 'ふつうの攻撃' : `「${ABILITIES[k]?.name}」`)).join('と');
+    const names = Object.keys(HIRAMEKI[e.id].from).map((k) => (k === '@atk' ? 'ふつうの攻撃' : `「${abilityLabel(k, c)}」`)).join('と');
     hints.push(e.r >= 1 ? `おぬしの${names}…もう十分に使いこんでおる。\n次に使った時、何かひらめくかもしれんぞ。` : `おぬしの${names}…なかなか使いこんでおるな。\nもっと使えば、新しい技をひらめくじゃろう。`);
   }
   // 掛け合わせ技の ヒントは、今の パーティーの 職業に 関係する ものだけ（stats.js の hiraRelated）
@@ -583,7 +583,7 @@ function sageHints(x) {
       '例えば大地斬とメラの魔法剣なら、戦士と魔法使いを合わせた魔法戦士じゃ。'),
   ];
   const have = [...learned].filter((id) => HIRAMEKI[id]);
-  if (have.length) lines.push(...S('ひらめきの賢者', `おぬしはすでに${have.map((id) => ABILITIES[id].name).slice(0, 4).join('・')}をひらめいておるな。見事じゃ。`));
+  if (have.length) lines.push(...S('ひらめきの賢者', `おぬしはすでに${have.map((id) => abilityLabel(id, c)).slice(0, 4).join('・')}をひらめいておるな。見事じゃ。`));
   if (hints.length) {
     const pick = hints.slice(0, 2);
     lines.push(...S('ひらめきの賢者', ...pick));

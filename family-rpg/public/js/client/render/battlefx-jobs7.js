@@ -26,6 +26,11 @@
 //  r33_watch       銀時計が 光って れん金の 円が 大きく（国家れん金術師）
 //  r33_sailor_beam ハートと 星の 光（美少女戦士）          r33_sailor_guard リボンの 光で 仲間を 守る（みかた）
 //  r33_moon_tiara  ティアラが 光の わに なって とぶ        r33_moon_heal  月の 光で 回復（みかた）
+// 男の子の 美少女戦士・セーラームーン（タキシード仮面ふう。技の データの masc.anim。shared/ability-label.js）
+//  r33_bara       赤い バラが 飛んで ささる（赤いバラの一撃・月の光が見ているぞ！）
+//  r33_bara_ring  光る 大きな バラが ブーメランの ように 回って もどる（ローズ・ブーメラン・ローズ・スパイラル・アタック）
+//  r33_cane       ステッキの 一撃（白い 光の すじと 星。ステッキさばき）
+//  r33_tux_smash  夜空と 三日月 → ステッキから 白い 光の 波 → バラが ささる（タキシード・ラ・スマッシャー）
 // ・どれも 2.2びょう いないで おわる。あたる じかんは JOB7_HIT（battle.js の HIT_DELAY に まぜる）
 // ・みかたに つかう えんしゅつ（PARTY_ANIMS7）は、battle.js が がめんの 下の まん中に 出す
 
@@ -40,7 +45,9 @@ const FONT = 'bold 18px KizunaRound, "Hiragino Maru Gothic ProN", sans-serif';
 export const R33_SIG_JOBS = ['magician', 'kaito', 'kaito_kid', 'wizard_student', 'harry', 'homeroom_3b', 'alchemist', 'state_alchemist', 'fullmetal', 'sailor_soldier', 'sailor_moon'];
 export const R33_SIGS = R33_SIG_JOBS.map((j) => `${j}_sig`);
 export const R33_MOVES = ['r33_card_throw', 'r33_hat_trick', 'r33_smoke_flash', 'r33_steal', 'r33_glider', 'r33_spell_ray', 'r33_disarm', 'r33_patronus', 'r33_broom', 'r33_lightning',
-  'r33_sekkyo', 'r33_hito_ji', 'r33_alchemy', 'r33_alchemy_spear', 'r33_alchemy_wall', 'r33_mech_arm', 'r33_watch', 'r33_sailor_beam', 'r33_sailor_guard', 'r33_moon_tiara', 'r33_moon_heal'];
+  'r33_sekkyo', 'r33_hito_ji', 'r33_alchemy', 'r33_alchemy_spear', 'r33_alchemy_wall', 'r33_mech_arm', 'r33_watch', 'r33_sailor_beam', 'r33_sailor_guard', 'r33_moon_tiara', 'r33_moon_heal',
+  // 男の子の 美少女戦士・セーラームーン（タキシード仮面ふう）
+  'r33_bara', 'r33_bara_ring', 'r33_cane', 'r33_tux_smash'];
 export const R33_ANIMS = new Set([...R33_SIGS, ...R33_MOVES]);
 // みかたに つかう ことが ある えんしゅつ（敵が いない ときは がめんの 下に 大きく 出す）
 export const PARTY_ANIMS7 = new Set(['r33_glider', 'r33_smoke_flash', 'r33_broom', 'r33_hito_ji', 'r33_alchemy_wall', 'r33_sailor_guard', 'r33_moon_heal', 'r33_patronus']);
@@ -51,6 +58,7 @@ export const JOB7_HIT = {
   r33_card_throw: 200, r33_hat_trick: 260, r33_steal: 160, r33_spell_ray: 160, r33_disarm: 180,
   r33_patronus: 340, r33_lightning: 120, r33_sekkyo: 260, r33_alchemy: 360, r33_alchemy_spear: 380, r33_mech_arm: 80,
   r33_watch: 380, r33_sailor_beam: 220, r33_moon_tiara: 300,
+  r33_bara: 220, r33_bara_ring: 300, r33_cane: 120, r33_tux_smash: 620,
 };
 // たたかいの 音（battle.js の ANIM_SFX に まぜる。audio.js・sfx-r26.js・sfx-r33.js の 音）
 export const JOB7_SFX = {
@@ -59,6 +67,7 @@ export const JOB7_SFX = {
   r33_card_throw: 'cardfly', r33_hat_trick: 'r33_poof', r33_smoke_flash: 'r33_poof', r33_steal: 'kirari', r33_glider: 'wind', r33_spell_ray: 'spell', r33_disarm: 'spell',
   r33_patronus: 'r33_patronus', r33_broom: 'wind', r33_lightning: 'thunder', r33_sekkyo: 'r33_scold', r33_hito_ji: 'buff', r33_alchemy: 'r33_clap', r33_alchemy_spear: 'r33_clap',
   r33_alchemy_wall: 'rumble', r33_mech_arm: 'crit', r33_watch: 'kirari', r33_sailor_beam: 'sparkle', r33_sailor_guard: 'buff', r33_moon_tiara: 'r33_moon', r33_moon_heal: 'heal',
+  r33_bara: 'cardfly', r33_bara_ring: 'wind', r33_cane: 'kirari', r33_tux_smash: 'r33_moon',
 };
 
 // ───────────── え の ぶひん ─────────────
@@ -640,6 +649,55 @@ export const JOB7_FINE = {
     R(-21, -44, 8, 26, ol); R(-19, -42, 4, 22, st);
     x.restore();
   },
+  // 赤い バラ（x0,y0 → x1,y1 へ 回りながら 飛ぶ）。ring: ブーメランの ように 行って もどる（光る）。
+  // ring で ない ときは 着いたら ささった まま 少し ゆれて きえる。s: 大きさ
+  j7rose(x, p, t) {
+    const a = fadeOut(t, p.ring ? 0.85 : 0.75);
+    if (a <= 0) return;
+    const k = clamp01(p.age / p.travel);
+    let cx, cy, rot;
+    if (p.ring) {
+      const go = k < 0.5 ? easeOut(k * 2) : 1 - easeOut((k - 0.5) * 2);
+      cx = p.x0 + (p.x1 - p.x0) * go + Math.sin(k * Math.PI * 2) * (p.swing || 16);
+      cy = p.y0 + (p.y1 - p.y0) * go - Math.sin(go * Math.PI) * 18;
+      rot = p.age / 45;
+    } else {
+      const e = easeOut(k);
+      cx = p.x0 + (p.x1 - p.x0) * e;
+      cy = p.y0 + (p.y1 - p.y0) * e - Math.sin(e * Math.PI) * (p.arc || 10);
+      // 飛ぶ むき（花が さき）。着いたら 少し ゆれる
+      rot = Math.atan2(p.y1 - p.y0, p.x1 - p.x0) + Math.PI / 2 + (k >= 1 ? Math.sin(p.age / 60) * 0.12 : 0);
+    }
+    const s = p.s || 1;
+    x.save();
+    if (p.ring || p.glow) {
+      x.globalCompositeOperation = 'lighter';
+      softGlow(x, cx, cy, 16 * s, 'rgba(255,90,110,0.9)', a * 0.6);
+      x.globalCompositeOperation = 'source-over';
+    }
+    x.globalAlpha = a;
+    x.translate(cx, cy);
+    x.rotate(rot);
+    x.scale(s, s);
+    // くき と 葉っぱ
+    x.strokeStyle = '#1e5a26';
+    x.lineWidth = 1.4;
+    x.beginPath(); x.moveTo(0, 2); x.lineTo(0, 11); x.stroke();
+    x.fillStyle = '#3a9a3a';
+    x.beginPath(); x.ellipse(2.2, 6.5, 2.2, 1.1, -0.6, 0, Math.PI * 2); x.fill();
+    // 花（こい 赤の ふち → 赤 → まん中の うずまき）
+    x.fillStyle = '#5a0a14';
+    x.beginPath(); x.arc(0, -1, 4.4, 0, Math.PI * 2); x.fill();
+    x.fillStyle = p.c || '#e0203a';
+    x.beginPath(); x.arc(0, -1, 3.7, 0, Math.PI * 2); x.fill();
+    x.strokeStyle = '#7a0a1c';
+    x.lineWidth = 0.9;
+    x.beginPath(); x.arc(0.4, -1.2, 2.2, 0.4, Math.PI * 1.6); x.stroke();
+    x.beginPath(); x.arc(-0.2, -0.8, 1, Math.PI, Math.PI * 2.6); x.stroke();
+    x.fillStyle = '#ff8a9a';
+    x.fillRect(-2.2, -3.6, 1.4, 1);
+    x.restore();
+  },
   // ピンクの 光が あふれる（大きな 光の まる）
   j7pink(x, p, t) {
     const a = fadeOut(t, 0.4);
@@ -1025,6 +1083,57 @@ export function playJob7Fx(fx, anim, targets, element, opts = {}, W = 256, H = 1
         fx.add({ kind: 'j7tiara', x0: from.x, y0: from.y - 10, x1: t.x, y1: t.y, x: t.x, y: t.y, travel: 620, life: 680, delay: d, swing: 12 });
         hitMark(t, 300 + d, '#ffd84a', 16);
       });
+      return true;
+    }
+    // ───── 男の子の 美少女戦士・セーラームーン（タキシード仮面ふう） ─────
+    case 'r33_bara': {
+      // 赤い バラが 飛んで ささる。花びらが ちる
+      each((t, i, d) => {
+        fx.add({ kind: 'j7rose', x0: from.x + rnd(-4, 4), y0: from.y - 12, x1: t.x + rnd(-4, 4), y1: t.y + rnd(-6, 4), x: t.x, y: t.y, travel: 220, life: 760, delay: d, arc: rnd(6, 14), s: 1.5 });
+        hitMark(t, 220 + d, '#ff3a4a', 13);
+        for (let k = 0; k < 5; k++) fx.petal(t.x + rnd(-6, 6), t.y + rnd(-6, 2), { color: k % 2 ? '#e0203a' : '#ff8a9a', vx: rnd(-50, 50), vy: rnd(-60, -20), g: 120, delay: 230 + d + k * 20, life: 700 });
+      });
+      return true;
+    }
+    case 'r33_bara_ring': {
+      // 光る 大きな バラが 回りながら 行って もどる
+      each((t, i, d) => {
+        fx.add({ kind: 'j7rose', x0: from.x, y0: from.y - 12, x1: t.x, y1: t.y, x: t.x, y: t.y, travel: 640, life: 700, delay: d, swing: 16, ring: true, s: 2.2 });
+        hitMark(t, 300 + d, '#ff5a6a', 18);
+        fx.shock(t.x, t.y, { r0: 6, r1: 42 * sz, color: '#ff8a9a', w: 2, delay: 300 + d, life: 360 });
+        for (let k = 0; k < 6; k++) fx.petal(t.x + rnd(-10, 10), t.y + rnd(-8, 4), { color: k % 2 ? '#e0203a' : '#ffd0d8', vx: rnd(-60, 60), vy: rnd(-70, -20), g: 120, delay: 310 + d + k * 20, life: 760 });
+      });
+      return true;
+    }
+    case 'r33_cane': {
+      // ステッキの 一撃（白い 光の すじ・星）
+      each((t, i, d) => {
+        fx.bigCut(t.x, t.y, { ang: -0.7, color: '#ffffff', glow: '#fff2a8', w: 3, delay: d, life: 260 });
+        for (let k = 0; k < 4; k++) fx.twinkle(t.x + rnd(-14, 14), t.y + rnd(-14, 10), { color: k % 2 ? '#fff6b0' : '#ffffff', size: 6, delay: 80 + d + k * 30, life: 360 });
+        hitMark(t, 120 + d, '#fff2a8', 15);
+      });
+      fx.hitStop(crit ? 180 : 120, 120, 1.2);
+      return true;
+    }
+    case 'r33_tux_smash': {
+      // 1) 夜の 空と 三日月、きめゼリフ（技の 名前の 帯の 下）
+      fx.tintAt('rgba(10, 8, 40, 0.5)', 1700);
+      fx.add({ kind: 'j7moon', x: W * 0.22, y: 30, r: 20, life: 1700 });
+      for (let k = 0; k < 12; k++) fx.twinkle(rnd(8, W - 8), rnd(4, H * 0.45), { color: k % 2 ? '#fff6b0' : '#ffffff', size: rnd(3, 6), delay: k * 40, life: 900 });
+      text('月の光が見ているぞ！', W / 2, 34, 160, { life: 1200, fill: '#ffffff', edge: '#3a0a1a', font: 'bold 13px KizunaRound, "Hiragino Maru Gothic ProN", sans-serif' });
+      // 2) ステッキから 白い 光の 波（大きな わが なんども ひろがる）
+      fx.glow(from.x, Math.min(H - 16, from.y - 18), { color: '#ffffff', r: 18, delay: 300, life: 360 });
+      for (let k = 0; k < 3; k++) fx.shock(from.x, Math.min(H - 16, from.y - 18), { r0: 8, r1: W * 0.9, color: k ? '#e8eeff' : '#ffffff', w: 5 - k * 1.2, delay: 380 + k * 90, life: 520 });
+      each((t, i, d) => {
+        fx.add({ kind: 'j7beam', x0: from.x, y0: Math.min(H - 16, from.y - 18), x1: t.x, y1: t.y, x: t.x, y: t.y, life: 380, delay: 420 + d, c: '#cfd8ff' });
+        hitMark(t, 620 + d, '#ffffff', 22);
+        fx.shock(t.x, t.y, { r0: 6, r1: 48 * sz, color: '#ffffff', w: 3, delay: 620 + d, life: 420 });
+        // 3) バラが ささる
+        fx.add({ kind: 'j7rose', x0: from.x + rnd(-20, 20), y0: -8, x1: t.x + rnd(-4, 4), y1: t.y - 4, x: t.x, y: t.y, travel: 260, life: 800, delay: 700 + d, arc: 4, s: 1.6, glow: true });
+      });
+      fx.flashAt(90, '#ffffff', 620);
+      fx.hitStop(crit ? 260 : 200, 620, 1.6);
+      for (let k = 0; k < 14; k++) fx.petal(rnd(10, W - 10), rnd(-10, 4), { color: k % 2 ? '#e0203a' : '#ffd0d8', vx: rnd(-20, 20), vy: rnd(30, 60), delay: 900 + k * 30, life: 800 });
       return true;
     }
     case 'r33_moon_heal': {
