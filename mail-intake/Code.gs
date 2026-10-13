@@ -1311,7 +1311,9 @@ function testDecideModel() {
 function testConnections() {
   var n = GmailApp.search('label:' + SRC_LABEL + ' -label:' + DONE_LABEL + ' newer_than:2d').length;
   Logger.log('Gmail「' + SRC_LABEL + '」未処理: ' + n + '件');
-  Logger.log('Supabase接続（川崎の既存案件）: ' + fetchTheaterCases_('TOHOシネマズ 川崎').length + '件');
+  // つながったかどうかを分かりやすく（以前は劇場名の完全一致で数えていたため、0件でも接続は正常だった）
+  var latest = queryCases_('id=not.is.null');
+  Logger.log('Supabase接続: ' + (latest.length ? ('OK（最新の案件を ' + latest.length + ' 件読めました）') : '案件を読めませんでした（上に「候補取得失敗」が出ていれば接続の問題）'));
   Logger.log('ANTHROPIC_API_KEY: ' + (cfg_('ANTHROPIC_API_KEY') ? 'あり' : 'なし') +
     ' / SUPABASE_SERVICE_ROLE_KEY: ' + (cfg_('SUPABASE_SERVICE_ROLE_KEY') ? 'あり' : 'なし'));
 }
