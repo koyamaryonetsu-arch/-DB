@@ -333,6 +333,8 @@
   let equipLoans = [];                   // 貸出記録
   let personalTasksSupported = false;    // personal_tasks テーブルがあるか
   let personalTasks = {};                // { 担当者名: [ {text,done,priority,due}, ... ] }
+  let taskSuggestionsSupported = false;  // task_suggestions テーブルがあるか
+  let taskSuggestionRows = [];           // 表から読んだ提案（メール・LINEの提案中＋押した結果）
   let intakePending = [];                // 案件の登録確認（新規か更新か）待ちリスト
   let theaterPending = [];               // 劇場情報 自動更新の要確認キュー
   const DATE_FIELDS = new Set(['receivedDate', 'surveyDate', 'quoteDate', 'workStartDate', 'workEndDate', 'invoiceDate', 'paymentDate']);
@@ -736,6 +738,31 @@
         .upsert({ person: person, tasks: tasks, updated_at: new Date().toISOString() }, { onConflict: 'person' });
       if (error) throw error;
     },
+    // ---- 個人タスクの提案（task_suggestions） ----
+    // 提案中のもの（メール・LINE）と、押した結果（登録・破棄。止まりの提案を二度出さないため）を読む
+    async fetchTaskSuggestions() {
+      if (this.mode === 'local') { taskSuggestionsSupported = true; return loadTaskSuggestionsLocal(); }
+      const { data, error } = await sb.from('task_suggestions')
+        .select('id,person,text,due,priority,source,reason,case_id,source_url,dedupe_key,status,created_at')
+        .order('created_at', { ascending: true }).limit(2000);
+      if (error) { taskSuggestionsSupported = false; return []; }
+      taskSuggestionsSupported = true;
+      return data || [];
+    },
+    // 「登録」「破棄」を記録する。同じ dedupe_key の行があれば状態を上書き（無ければ作る＝止まりの提案）
+    async decideTaskSuggestion(s, status) {
+      const row = {
+        person: s.person, text: s.text, due: s.due || null, priority: s.priority || 'mid',
+        source: s.source, reason: s.reason || '', case_id: s.case_id || null, source_url: s.source_url || '',
+        dedupe_key: s.dedupe_key, status: status, decided_at: new Date().toISOString()
+      };
+      if (this.mode === 'local') {
+        const list = loadTaskSuggestionsLocal().filter((x) => x.dedupe_key !== s.dedupe_key);
+        list.push(row); saveTaskSuggestionsLocal(list); return;
+      }
+      const { error } = await sb.from('task_suggestions').upsert(row, { onConflict: 'dedupe_key' });
+      if (error) throw error;
+    },
     async fetchTheaterContacts() {
       if (this.mode === 'local') return loadTheaterContactsLocal();
       const { data, error } = await sb.from('theater_contacts').select('*').order('sort_order', { ascending: true });
@@ -1086,6 +1113,15 @@
   }
   function savePersonalTasksLocal(map) {
     try { localStorage.setItem(PERSONAL_TASKS_KEY, JSON.stringify(map)); } catch (e) {}
+  }
+  // ---------- 個人タスクの提案（ローカルモード用） ----------
+  const TASK_SUGG_KEY = 'cinema_task_suggestions';
+  function loadTaskSuggestionsLocal() {
+    try { const a = JSON.parse(localStorage.getItem(TASK_SUGG_KEY)); if (Array.isArray(a)) return a; } catch (e) {}
+    return [];
+  }
+  function saveTaskSuggestionsLocal(list) {
+    try { localStorage.setItem(TASK_SUGG_KEY, JSON.stringify(list)); } catch (e) {}
   }
   // 案件の劇場名と完全一致する master 行を返す（無ければ undefined）
   function findTheaterInMaster(name) {
@@ -3255,9 +3291,13 @@
     $('personalTaskBtn').classList.remove('hidden');
     updatePersonalTaskBtn();
     renderTaskTable();
-    // 個人タスクは最新をDBから読み直す（読めたら再描画）
+    // 個人タスクと「これタスクでは？」の提案は最新をDBから読み直す（読めたら再描画）
     store.fetchPersonalTasks().then((map) => {
       personalTasks = map || {};
+      if (taskMode) renderPersonTaskPanel();
+    }).catch(() => {});
+    store.fetchTaskSuggestions().then((rows) => {
+      taskSuggestionRows = rows || [];
       if (taskMode) renderPersonTaskPanel();
     }).catch(() => {});
   }
@@ -3557,6 +3597,97 @@
     $('taskBtn').title = open ? `未完了のタスク ${open} 件${over ? `（うち期限切れ ${over} 件）` : ''}` : '';
   }
 
+  // ===== 個人タスクの提案「💡 これタスクでは？」 =====
+  // ① 案件の止まり … 案件データからその場で計算（一覧の左端の色と同じ判定）。押した結果だけ表に残す
+  // ② メール・LINE … GAS が AI で拾って表(task_suggestions)に入れたもの（status='pending'）
+  // 一度「登録」「破棄」したもの（dedupe_key）は二度と出さない
+  const STALL_REPLY_DAYS = 14;   // 見積り提出後、返事が無いまま何日で提案するか
+  const STALL_INVOICE_DAYS = 7;  // 作業完了後、請求書が出ないまま何日で提案するか
+  // 案件のR担当者から、チームの誰か（苗字）を取り出す（R担当が空・チーム外なら提案しない）
+  function caseOwner(c) {
+    const rp = String(c.rPerson || '');
+    return loadTeam().find((n) => rp.includes(n)) || '';
+  }
+  function caseLabel(c) {
+    const th = shortTheaterName(c.theater) || c.theater || '（劇場名なし）';
+    const what = String(c.estimateName || c.content || '').replace(/\s+/g, ' ').trim().slice(0, 14);
+    return what ? `${th}（${what}）` : th;
+  }
+  function stallSuggestions() {
+    if (!isPrivileged(currentUser)) return [];
+    const today = todayStr();
+    const out = [];
+    visibleCases().forEach((c) => {
+      const person = caseOwner(c); if (!person) return;
+      const st = statusOf(c);
+      if (['取り下げ', '失注', '保留', '入金済', '請求済'].indexOf(st) !== -1) return;
+      const cls = rowColorClass(c);
+      const add = (rule, text, reason, priority) => out.push({
+        person, text: `${caseLabel(c)}：${text}`, reason, priority, due: '',
+        source: 'stall', case_id: String(c.id), source_url: '', dedupe_key: `stall:${rule}:${c.id}`
+      });
+      if (cls === 'row-red' && c.surveyDate) {
+        add('quote', '見積りを提出する', `調査から${daysBetween(c.surveyDate, today)}日 見積り未提出`, 'high');
+      } else if (cls === 'row-yellow' && c.receivedDate) {
+        add('survey', '調査日を決める', `受付から${daysBetween(c.receivedDate, today)}日 調査日未定`, 'mid');
+      }
+      if ((st === '見積り提出済' || st === '客先対応中') && c.quoteDate && !c.workStartDate) {
+        const n = daysBetween(c.quoteDate, today);
+        if (n !== null && n >= STALL_REPLY_DAYS) add('reply', '見積りの返事を確認する', `見積り提出から${n}日 動きなし`, 'mid');
+      }
+      if (st === '対応済み' && c.workEndDate && !c.invoiceDate) {
+        const n = daysBetween(c.workEndDate, today);
+        if (n !== null && n >= STALL_INVOICE_DAYS) add('invoice', '請求書を発行する', `作業完了から${n}日 請求書未発行`, 'high');
+      }
+    });
+    return out;
+  }
+  // 表示する提案（担当者ごと）。止まり＋メール/LINE の提案中から、押したものを除く
+  function currentSuggestions() {
+    if (store.mode === 'supabase' && !taskSuggestionsSupported) return [];
+    const decided = new Set(taskSuggestionRows.filter((r) => r.status !== 'pending').map((r) => r.dedupe_key));
+    const fromTable = taskSuggestionRows.filter((r) => r.status === 'pending' && r.source !== 'stall');
+    return stallSuggestions().concat(fromTable).filter((x) => x.person && !decided.has(x.dedupe_key));
+  }
+  const SUGG_SOURCE_LABEL = { stall: '止まり', mail: 'メール', line: 'LINE' };
+  function suggestionsHtml(list) {
+    if (!list.length) return '';
+    return `<div class="sugg"><div class="sugg-h">💡 これタスクでは？</div><ul class="sugg-list">${list.map((x) => {
+      const k = escapeHtml(x.dedupe_key);
+      const openable = (x.source === 'stall' && x.case_id) || x.source_url;
+      const due = x.due ? `<span class="task-due">〜${escapeHtml(fmtDateShort(x.due))}</span>` : '';
+      return `<li class="sugg-item" data-sugg="${k}">
+        <span class="sugg-src sugg-src-${escapeHtml(x.source)}">${escapeHtml(SUGG_SOURCE_LABEL[x.source] || x.source)}</span>
+        <span class="sugg-body"><span class="sugg-text${openable ? ' sugg-link' : ''}" ${openable ? `data-sugg-open="${k}" title="${x.source === 'stall' ? 'この案件を開く' : '元のメールを開く'}"` : ''}>${escapeHtml(x.text)}</span>${due}
+          ${x.reason ? `<span class="sugg-why">${escapeHtml(x.reason)}</span>` : ''}</span>
+        <span class="sugg-btns"><button type="button" class="sugg-accept" data-sugg-accept="${k}">＋ タスク登録</button><button type="button" class="sugg-dismiss" data-sugg-dismiss="${k}">破棄</button></span>
+      </li>`;
+    }).join('')}</ul></div>`;
+  }
+  function findSuggestion(key) { return currentSuggestions().find((x) => x.dedupe_key === key); }
+  async function decideSuggestion(key, accept) {
+    const sug = findSuggestion(key); if (!sug) return;
+    if (accept) {
+      personTasks(sug.person).push({ text: sug.text, done: false, priority: sug.priority || 'mid', due: sug.due || '' });
+      savePersonTasks(sug.person);
+    }
+    const status = accept ? 'accepted' : 'dismissed';
+    // 先に画面から消す（押した直後に消える）。記録に失敗したら知らせる
+    taskSuggestionRows = taskSuggestionRows.filter((r) => r.dedupe_key !== key).concat([Object.assign({}, sug, { status })]);
+    renderPersonTaskPanel();
+    try { await store.decideTaskSuggestion(sug, status); }
+    catch (e) { alert('提案の記録に失敗しました（次に開いたとき、もう一度出ることがあります）: ' + (e && e.message ? e.message : e)); }
+  }
+  function openSuggestionSource(key) {
+    const sug = findSuggestion(key); if (!sug) return;
+    if (sug.source === 'stall' && sug.case_id) {
+      const c = cases.find((x) => String(x.id) === String(sug.case_id));
+      if (c) openModal(c, 'full');
+    } else if (sug.source_url) {
+      window.open(sug.source_url, '_blank', 'noopener');
+    }
+  }
+
   // 担当者ごとの個人タスク。案件のタスク表の「上」に別枠で出す（同時表示・ボタンで表示/非表示）
   function renderPersonTaskPanel() {
     updateTaskBadge();
@@ -3571,23 +3702,29 @@
       return;
     }
     const persons = taskPersons();
+    const sugg = currentSuggestions();
     if (!persons.length) {
-      tbody.innerHTML = '<tr><td colspan="2" class="task-hint">上の担当者ボタンから名前を押すと、その人の個人タスクが出ます。もう一度押すと消えます。</td></tr>';
+      const nAll = sugg.length;
+      tbody.innerHTML = '<tr><td colspan="2" class="task-hint">上の担当者ボタンから名前を押すと、その人の個人タスクが出ます。もう一度押すと消えます。' +
+        (nAll ? `<br>💡 タスクの提案が ${nAll} 件あります（名前を押すと出ます）。` : '') + '</td></tr>';
       $('ptpCount').textContent = '';
       return;
     }
     persons.forEach((p) => {
       const tr = document.createElement('tr');
       tr.dataset.person = p;
+      const mine = sugg.filter((x) => x.person === p);
       tr.innerHTML = `
         <td class="ptp-person"><span class="ptp-name">${escapeHtml(p)}</span><button type="button" class="task-open-btn" data-persontaskopen="${escapeHtml(p)}" title="${escapeHtml(p)}さんのタスクを追加・編集">＋ 追加</button></td>
         <td class="task-col ptp-tasks">
           ${taskCellHtml(personTasks(p), 'data-persontaskcell')}
+          ${suggestionsHtml(mine)}
         </td>`;
       tbody.appendChild(tr);
     });
     const total = persons.reduce((n, p) => n + personTasks(p).filter((t) => !t.done).length, 0);
-    $('ptpCount').textContent = `未完了 ${total} 件`;
+    const nSugg = sugg.filter((x) => persons.indexOf(x.person) !== -1).length;
+    $('ptpCount').textContent = `未完了 ${total} 件` + (nSugg ? `・💡提案 ${nSugg} 件` : '');
   }
 
   function renderTaskTable() {
@@ -5178,6 +5315,12 @@
   $('personalTaskBtn').addEventListener('click', togglePersonalTasks);
   // 個人タスクのパネル: ✎で編集ポップアップ、チェックで完了
   $('personTaskBody').addEventListener('click', (e) => {
+    const sa = e.target.closest('[data-sugg-accept]');
+    if (sa) { decideSuggestion(sa.dataset.suggAccept, true); return; }
+    const sd = e.target.closest('[data-sugg-dismiss]');
+    if (sd) { decideSuggestion(sd.dataset.suggDismiss, false); return; }
+    const so = e.target.closest('[data-sugg-open]');
+    if (so) { openSuggestionSource(so.dataset.suggOpen); return; }
     const te = e.target.closest('[data-tedit]');
     if (te) { editTaskText(te); return; }
     const po = e.target.closest('[data-persontaskopen]');
