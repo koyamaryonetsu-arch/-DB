@@ -768,7 +768,7 @@ export function playJob7Fx(fx, anim, targets, element, opts = {}, W = 256, H = 1
       fx.tintAt('rgba(10, 8, 40, 0.5)', 1700);
       fx.add({ kind: 'j7moon', x: W * 0.78, y: 30, r: 20, life: 1700 });
       for (let k = 0; k < 14; k++) fx.twinkle(rnd(8, W - 8), rnd(4, H * 0.45), { color: k % 2 ? '#fff6b0' : '#ffffff', size: rnd(3, 6), delay: k * 40, life: 900 });
-      text('月にかわって、おしおきよ！', W / 2, 18, 160, { life: 1200, fill: '#fff6d0', edge: '#3a1a4a', font: 'bold 13px KizunaRound, "Hiragino Maru Gothic ProN", sans-serif' });
+      text('月にかわって、おしおきよ！', W / 2, 34, 160, { life: 1200, fill: '#fff6d0', edge: '#3a1a4a', font: 'bold 13px KizunaRound, "Hiragino Maru Gothic ProN", sans-serif' });
       // 2) 月の 光が ふる
       each((t, i, d) => fx.add({ kind: 'j7shaft', x: t.x, y: t.y + 6, w: 18 * sz, life: 700, delay: 320 + d }));
       // 3) ティアラが とんで もどる
