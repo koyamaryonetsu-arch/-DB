@@ -51,7 +51,7 @@ function updateTheaterInfoFromLine() {
       return;
     }
     var startMs = Date.now();
-    var nAuto = 0, nPend = 0, nSkip = 0, nRows = 0, nChunk = 0;
+    var nAuto = 0, nPend = 0, nSkip = 0, nRows = 0, nChunk = 0, nSugg = 0;
 
     for (var f = 0; f < files.length; f++) {
       if (Date.now() - startMs > LT_TIME_BUDGET_MS) { Logger.log('時間上限のため中断（残りは次回）'); break; }
@@ -71,6 +71,10 @@ function updateTheaterInfoFromLine() {
           if (Date.now() - startMs > LT_TIME_BUDGET_MS) { Logger.log('時間上限のため中断（残りは次回）'); break; }
           var chunk = got.lines.slice(i, i + LT_CHUNK_ROWS);
           var text = ltChunkToText_(ss.getName(), sh.getName(), chunk);
+          // メンバーのやること（依頼・約束）を個人タスクに提案（Code.gs の suggestTasksFromText_）。
+          // 設備の話でなくても依頼はあり得るので、劇場情報のキーワードで絞る前に見る
+          try { nSugg += suggestTasksFromText_(apiKey, text, 'line', 'line', ''); }
+          catch (e) { Logger.log('タスク提案(LINE)エラー: ' + e); }
           if (!ltHasKeyword_(text)) { nSkip++; continue; }   // 設備に無関係な雑談はAIに渡さない
           nChunk++;
           try {
@@ -92,8 +96,8 @@ function updateTheaterInfoFromLine() {
         ltSavePos_(ss.getId(), sh.getName(), got.lastRow);
       }
     }
-    Logger.log('LINE劇場情報: 読取 %s 行 / AI判定 %s 塊 / 自動反映 %s / 要確認 %s / スキップ %s',
-      nRows, nChunk, nAuto, nPend, nSkip);
+    Logger.log('LINE劇場情報: 読取 %s 行 / AI判定 %s 塊 / 自動反映 %s / 要確認 %s / スキップ %s / タスク提案 %s 件',
+      nRows, nChunk, nAuto, nPend, nSkip, nSugg);
   } catch (e) {
     Logger.log('updateTheaterInfoFromLine error: ' + e);
   } finally {

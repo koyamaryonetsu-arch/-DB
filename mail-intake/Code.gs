@@ -114,7 +114,7 @@ function importCaseEmails() {
 
       // ===== (1) このやり取りを前に処理したか（記録 → 無ければ確認待ちの記録 → それも無ければラベル） =====
       var known = recallThread_(th);
-      if (known.kind === 'multi') { th.addLabel(lblMulti); nMulti++; return; }
+      if (known.kind === 'multi') { th.addLabel(lblMulti); nMulti++; suggestTasksFromMail_(th, m); return; }
       if (known.kind === 'pending') {
         // 確認待ち（人がまだ新規/更新を選んでいない）→ 同じ問い合わせを繰り返さない
         th.addLabel(lblConfirm); nConfirm++;
@@ -150,11 +150,16 @@ function importCaseEmails() {
 
       var p = parseEmail_(emailText);
       // 方針: 要確認に回すのは「明確に案件でない」とAIが判断した時だけ。迷ったら登録する（不要なら後で削除）
-      if (!p || p.is_case === false) { th.addLabel(lblSkip); nSkip++; return; }
+      if (!p || p.is_case === false) {
+        th.addLabel(lblSkip); nSkip++;
+        if (p) suggestTasksFromMail_(th, m); // 案件ではないメールでも、メンバーのやることがあれば個人タスクに提案
+        return;
+      }
       // ===== (2) 複数の案件をまとめたメールは1件の案件にしない =====
       if (p.multi_case === true) {
         th.addLabel(lblMulti); nMulti++;
         rememberThread_(th, { m: 1 });
+        suggestTasksFromMail_(th, m); // まとめメールの中のやることを個人タスクに提案
         Logger.log('複数案件のまとめメールのため登録しない: ' + (p.title || m.getSubject()));
         return;
       }
@@ -238,6 +243,74 @@ function importCaseEmails() {
 }
 
 function getOrCreateLabel_(name) { return GmailApp.getUserLabelByName(name) || GmailApp.createLabel(name); }
+
+// ===== 個人タスクの提案「💡 これタスクでは？」（メール・LINE → task_suggestions） =====
+// メンバーが頼まれた・引き受けた、まだ終わっていない作業をAIが拾い、アプリの個人タスクの枠に提案として出す。
+// 担当者がはっきりしないものは出さない。同じ提案は dedupe_key で1回だけ（破棄されたものは二度と入らない）。
+var SUGG_MIN_CONF = 0.7;
+// 案件にならなかったメール・まとめメールの「一番新しい1通」から拾う（返信のたびに同じものを拾い直さない）
+function suggestTasksFromMail_(th, m) {
+  try {
+    var apiKey = cfg_('ANTHROPIC_API_KEY');
+    if (!apiKey || !m) return 0;
+    var text = '件名: ' + m.getSubject() + '\n差出人: ' + m.getFrom() + '\n宛先: ' + m.getTo() +
+      (m.getCc() ? '\nCC: ' + m.getCc() : '') +
+      '\n日時: ' + Utilities.formatDate(m.getDate(), 'Asia/Tokyo', 'yyyy-MM-dd HH:mm') + '\n\n' +
+      String(m.getPlainBody() || '').slice(0, 3500);
+    return suggestTasksFromText_(apiKey, text, 'mail', 'mail:' + m.getId(), th ? threadUrl_(th) : '');
+  } catch (e) { Logger.log('タスク提案(メール)エラー: ' + e); return 0; }
+}
+// 文章からやることを拾って task_suggestions に入れる。入れた件数を返す
+function suggestTasksFromText_(apiKey, text, source, keyPrefix, sourceUrl) {
+  var today = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy-MM-dd');
+  var sys = [
+    'あなたは菱熱工業（シネコン設備の保守・工事会社）の業務アシスタントです。',
+    'メールやLINEのやり取りから、菱熱工業のメンバーがこれからやるべき具体的な作業（個人タスク）を拾い出します。JSONのみ出力（前後に文章なし）。',
+    '菱熱工業のメンバー（苗字）: ' + JSON.stringify(RYONETSU_MEMBERS),
+    '拾うもの: メンバーが頼まれた・引き受けた・約束した、まだ終わっていない作業。',
+    '  例: 資料や見積書を送る／日程を連絡する／発注・手配する／確認して回答する／現地へ行く／書類を作る。',
+    '拾わないもの: すでに終わったこと／客先や協力会社など相手側がやること／',
+    '  新しい修理・工事の依頼そのもの（案件として別に登録している）／挨拶・お礼・雑談・情報共有だけのもの。',
+    'person: 担当がメンバーの誰か、名指し・宛先・「○○さんお願いします」・本人の「対応します」などで',
+    '  はっきり分かる時だけ、その苗字（上のリストの表記）。はっきりしなければ、その作業は出さない。',
+    'text: 30字以内。「劇場名：やること」（劇場が無ければ「やること」だけ）。動詞で終える。例「平和島：厨房水道の見積りを送る」。',
+    'due: 期限が書いてあれば YYYY-MM-DD。今日は ' + today + '。「明日」「今週中」「来週月曜」などは日付に直す。無ければ空文字。',
+    'reason: 根拠を40字以内（誰が何と言ったか）。',
+    'confidence: 0〜1。確信が持てないものは出さない。最大5件。無ければ空配列。',
+    'スキーマ: {"tasks":[{"person":string,"text":string,"due":string,"reason":string,"confidence":number}]}'
+  ].join('\n');
+  var j = safeJson_(anthropicText_(apiKey, sys, text, 800));
+  var list = (j && Array.isArray(j.tasks)) ? j.tasks : [];
+  var rows = [];
+  list.forEach(function (t) {
+    if (!t) return;
+    var person = memberMatch_(surnameOnly_(t.person || ''));
+    var body = String(t.text || '').trim().slice(0, 60);
+    var conf = (typeof t.confidence === 'number') ? t.confidence : 0;
+    if (!person || !body || conf < SUGG_MIN_CONF) return;
+    var due = /^\d{4}-\d{2}-\d{2}$/.test(String(t.due || '')) ? t.due : null;
+    rows.push({
+      person: person, text: body, due: due, priority: 'mid', source: source,
+      reason: String(t.reason || '').slice(0, 80), source_url: sourceUrl || '',
+      dedupe_key: keyPrefix + ':' + normalizeText_(person + body).slice(0, 60), status: 'pending'
+    });
+  });
+  if (!rows.length) return 0;
+  var key = cfg_('SUPABASE_SERVICE_ROLE_KEY');
+  if (!key) return 0;
+  // 同じ dedupe_key が既にあれば入れない（破棄・登録済みの提案を復活させない）
+  var res = UrlFetchApp.fetch(SUPABASE_URL_() + '/rest/v1/task_suggestions?on_conflict=dedupe_key', {
+    method: 'post', contentType: 'application/json',
+    headers: { apikey: key, Authorization: 'Bearer ' + key, Prefer: 'resolution=ignore-duplicates,return=minimal' },
+    payload: JSON.stringify(rows), muteHttpExceptions: true
+  });
+  if (res.getResponseCode() >= 300) {
+    Logger.log('タスク提案の登録に失敗（表が未作成かも: SETUP_TASK_SUGGESTIONS.sql）: ' + res.getContentText());
+    return 0;
+  }
+  Logger.log('タスクを提案: ' + rows.map(function (r) { return r.person + '「' + r.text + '」'; }).join(' / '));
+  return rows.length;
+}
 
 // ===== やり取り（スレッド）⇔ 案件 の記録 =====
 // 値: {c:案件id} 登録/更新済み ／ {p:確認待ちid} 人の確認待ち ／ {m:1} まとめメール。at=記録した時刻
