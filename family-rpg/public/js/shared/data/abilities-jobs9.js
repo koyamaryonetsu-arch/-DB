@@ -44,19 +44,19 @@ export const JOB9_ABILITIES = {
   },
   mg_ukabu: {
     name: '空中ふゆう', kana: 'くうちゅうふゆう', kind: 'skill', job: 'magician', mp: 5, target: 'enemy',
-    effect: { type: 'phys', mult: 1.9 },
+    effect: { type: 'phys', mult: 1.8 },
     desc: 'タネも仕かけもなく、敵1体をふわりとうかせて、ドスンと落とす。', cast: '{a}がステッキをふると、{t}の体がうき上がった！', anim: 'quake',
   },
   magician_sig: {
     name: 'イリュージョン', kana: 'いりゅーじょん', kind: 'skill', job: 'magician', mp: 12, target: 'enemies',
-    effect: { type: 'magic', element: 'light', base: [58, 72], thr: 40 },
+    effect: { type: 'magic', element: 'light', base: [42, 52], thr: 40 },
     desc: '大きな幕が下りて、上がると…光のハトと紙ふぶき！敵全体に光のダメージ。', cast: '{a}「さあ、世紀の大イリュージョン！」', anim: 'holy',
   },
 
   // ───────────── かいとう（上級職。手品師＋スパイ） ─────────────
   kt_card: {
-    name: 'トランプじゅう', kana: 'とらんぷじゅう', kind: 'skill', job: 'kaito', mp: 3, target: 'enemy',
-    effect: { type: 'phys', mult: 0.6, hits: 3 },
+    name: 'トランプじゅう', kana: 'とらんぷじゅう', kind: 'skill', job: 'kaito', mp: 4, target: 'enemy',
+    effect: { type: 'phys', mult: 0.8, hits: 3 },
     desc: 'トランプをうち出す、ふしぎなピストル。敵1体に3回当たる。', cast: '{a}は、トランプじゅうをかまえた！', anim: 'cards',
   },
   kt_yokoku: {
@@ -76,19 +76,19 @@ export const JOB9_ABILITIES = {
   },
   kt_glider: {
     name: 'ハンググライダー', kana: 'はんぐぐらいだー', kind: 'skill', job: 'kaito', mp: 8, target: 'enemies',
-    effect: { type: 'phys', mult: 0.95 },
+    effect: { type: 'phys', mult: 1.2 },
     desc: '白いハンググライダーで、空から敵全体にとびげり。', cast: '{a}は、白いつばさを広げて空へまい上がった！', anim: 'tackle',
   },
   kaito_sig: {
     name: '予告どおりにいただきます', kana: 'よこくどおりにいただきます', kind: 'skill', job: 'kaito', mp: 14, target: 'enemy',
-    effect: { type: 'phys', mult: 2.7, critBonus: 0.1, steal: 0.5 },
+    effect: { type: 'phys', mult: 3.0, critBonus: 0.1, steal: 0.5 },
     desc: '予告どおりの時間に、目にもとまらぬ早わざ。敵1体に大きなダメージ。持ち物もぬすむ。', cast: '{a}「予告どおり、いただきます」', anim: 'slash_fast',
   },
 
   // ───────────── かいとうキッド（超級職。かいとうを きわめる） ─────────────
   kk_hato: {
     name: 'ハトの大群', kana: 'はとのたいぐん', kind: 'skill', job: 'kaito_kid', mp: 8, target: 'enemies',
-    effect: { type: 'phys', mult: 1.15, status: { status: 'blind', chance: 0.25, turns: [1, 2] } },
+    effect: { type: 'phys', mult: 1.35, status: { status: 'blind', chance: 0.25, turns: [1, 2] } },
     desc: 'マントの中から、ハトの大群がとび出す。敵全体に当たり、目の前がまぼろしにつつまれる敵もいる。', cast: '{a}がマントを広げると、ハトの大群がとび出した！', anim: 'hit_all',
   },
   kk_smoke: {
@@ -103,17 +103,17 @@ export const JOB9_ABILITIES = {
   },
   kk_jewel: {
     name: 'ダイヤのきらめき', kana: 'だいやのきらめき', kind: 'skill', job: 'kaito_kid', mp: 14, target: 'enemies',
-    effect: { type: 'magic', element: 'light', base: [80, 98], thr: 60 },
+    effect: { type: 'magic', element: 'light', base: [88, 108], thr: 60 },
     desc: '月の光に、ぬすんだ大きな宝石をかざす。敵全体に光のダメージ。', cast: '{a}は、大きな宝石を月にかざした…キラッ！', anim: 'holy',
   },
   kk_tsukiyo: {
     name: '月夜のグライダー', kana: 'つきよのぐらいだー', kind: 'skill', job: 'kaito_kid', mp: 14, target: 'enemy',
-    effect: { type: 'phys', mult: 2.4, atbAfter: 50 },
+    effect: { type: 'phys', mult: 2.7, atbAfter: 50 },
     desc: '月を背に、ハンググライダーで急こう下。敵1体に大きなダメージ。すぐまた空へもどるので、早めに次の番が来る。', cast: '{a}は、月を背にして急こう下した！', anim: 'tackle',
   },
   kaito_kid_sig: {
     name: 'トランプじゅうの嵐', kana: 'とらんぷじゅうのあらし', kind: 'skill', job: 'kaito_kid', mp: 26, target: 'enemies',
-    effect: { type: 'phys', mult: 0.5, hits: 8, random: true, critBonus: 0.05 },
+    effect: { type: 'phys', mult: 0.6, hits: 8, random: true, critBonus: 0.05 },
     desc: 'トランプじゅうを、目にもとまらぬ速さでうちまくる。トランプの嵐が、敵にランダムで8回当たる。', cast: '{a}「レディース・エーン・ジェントルメーン！」', anim: 'cards',
   },
 
@@ -146,7 +146,7 @@ export const JOB9_ABILITIES = {
   },
   ws_honoo: {
     name: 'インセンディオ', kana: 'いんせんでぃお', kind: 'spell', job: 'wizard_student', mp: 9, target: 'enemies',
-    effect: { type: 'magic', element: 'fire', base: [44, 56], thr: 45 },
+    effect: { type: 'magic', element: 'fire', base: [36, 46], thr: 45 },
     desc: 'つえの先から、ほのおをふき出す呪文。敵全体に炎のダメージ。', cast: '{a}「インセンディオ！」', anim: 'fire_wave',
   },
   wizard_student_sig: {
@@ -154,11 +154,11 @@ export const JOB9_ABILITIES = {
     effect: {
       type: 'multi',
       parts: [
-        { type: 'magic', base: [118, 142], thr: 65 },
-        { type: 'atbSet', sub: 40, chance: 0.45, msg: '{t}は、気を失って動けない！', failMsg: '{t}は、なんとかたえた！' },
+        { type: 'magic', base: [105, 125], thr: 65 },
+        { type: 'status', status: 'paralyze', chance: 0.35, turns: [1, 2] },
       ],
     },
-    desc: 'つえの先から、赤い光線をうつ呪文。敵1体に大きなダメージ。気を失って動けなくなることもある。', cast: '{a}「ステューピファイ！」', anim: 'void',
+    desc: 'つえの先から、赤い光線をうつ呪文。敵1体に大きなダメージ。体がしびれて動けなくなることもある。', cast: '{a}「ステューピファイ！」', anim: 'void',
   },
 
   // ───────────── ハリーポッター（超級職。魔法学校の生徒を きわめる） ─────────────
@@ -185,7 +185,7 @@ export const JOB9_ABILITIES = {
   },
   hy_kizu: {
     name: 'いなずまのきず', kana: 'いなずまのきず', kind: 'spell', job: 'harry', mp: 16, target: 'enemies',
-    effect: { type: 'magic', element: 'bolt', base: [92, 112], thr: 65 },
+    effect: { type: 'magic', element: 'bolt', base: [80, 98], thr: 65 },
     desc: 'おでこのいなずまの形のきずが、光ってうずく。敵全体に雷のダメージ。', cast: '{a}のおでこのきずが、まぶしく光った！', anim: 'bolt2',
   },
   hy_dumbledore: {
@@ -198,7 +198,7 @@ export const JOB9_ABILITIES = {
     effect: {
       type: 'multi',
       parts: [
-        { type: 'magic', element: 'light', base: [172, 205], thr: 85 },
+        { type: 'magic', element: 'light', base: [150, 180], thr: 85 },
         { type: 'heal', target: 'allies', base: [45, 60], thr: 50 },
       ],
     },
@@ -218,7 +218,7 @@ export const JOB9_ABILITIES = {
   },
   h3_chalk: {
     name: 'チョーク投げ', kana: 'ちょーくなげ', kind: 'skill', job: 'homeroom_3b', mp: 12, target: 'enemy',
-    effect: { type: 'phys', mult: 3.2, critBonus: 0.15 },
+    effect: { type: 'phys', mult: 3.4, critBonus: 0.15 },
     desc: 'ねむっている生徒もとび起きる、ねらいすましたチョーク。敵1体に大きなダメージ。会心が出やすい。', cast: '{a}「こらっ！」チョークがまっすぐ飛んだ！', anim: 'shuriken',
   },
   h3_katei: {
@@ -228,7 +228,7 @@ export const JOB9_ABILITIES = {
   },
   h3_taiiku: {
     name: '体育の授業', kana: 'たいいくのじゅぎょう', kind: 'skill', job: 'homeroom_3b', mp: 18, target: 'enemies',
-    effect: { type: 'phys', mult: 1.8 },
+    effect: { type: 'phys', mult: 2.0 },
     desc: '「校庭を10周！」みんなで走って、敵全体をふみこえていく。', cast: '{a}「よーし、校庭を10周だ！」', anim: 'quake',
   },
   homeroom_3b_sig: {
@@ -236,7 +236,7 @@ export const JOB9_ABILITIES = {
     effect: {
       type: 'multi',
       parts: [
-        { type: 'magic', base: [205, 245], thr: 90 },
+        { type: 'magic', base: [220, 260], thr: 90 },
         { type: 'atbSet', sub: 50, chance: 0.6, msg: '{t}は、正座して話を聞いている…', failMsg: '{t}は、耳をふさいだ！' },
       ],
     },
@@ -266,19 +266,19 @@ export const JOB9_ABILITIES = {
   },
   al_kusuri: {
     name: '薬のれん成', kana: 'くすりのれんせい', kind: 'skill', job: 'alchemist', mp: 5, target: 'ally', role: 'heal',
-    effect: { type: 'multi', parts: [{ type: 'heal', base: [42, 56], thr: 25 }, { type: 'cure', statuses: ['poison', 'paralyze'] }] },
-    desc: '薬草をれん成して、よく効く薬を作る。仲間1人のHPを回復して、毒とマヒも治す。', cast: '{a}は、薬草をれん成した！', anim: 'heal1',
+    effect: { type: 'multi', parts: [{ type: 'regen', base: [10, 14], thr: 25, dur: 24 }, { type: 'cure', statuses: ['poison', 'paralyze'] }] },
+    desc: '薬草をれん成して、ゆっくり効く薬を作る。仲間1人のHPがしばらく少しずつ回復して、毒とマヒも治る。', cast: '{a}は、薬草をれん成した！', anim: 'heal1',
   },
   alchemist_sig: {
     name: '石の大男', kana: 'いしのおおおとこ', kind: 'skill', job: 'alchemist', mp: 12, target: 'enemies',
-    effect: { type: 'phys', mult: 1.05 },
+    effect: { type: 'phys', mult: 0.95 },
     desc: '地面から、石の大男をれん成する。大男のうでが、敵全体をなぎはらう。', cast: '{a}が両手をつくと、地面から石の大男が立ち上がった！', anim: 'quake',
   },
 
   // ───────────── 国家れん金術師（上級職。れん金術師を きわめる） ─────────────
   sl_tsuchi: {
     name: '土の大波', kana: 'つちのおおなみ', kind: 'skill', job: 'state_alchemist', mp: 5, target: 'enemies',
-    effect: { type: 'phys', mult: 0.9 },
+    effect: { type: 'phys', mult: 0.85 },
     desc: '地面を大波のようにうねらせて、敵全体をのみこむ。', cast: '{a}がれん成すると、地面が大波のようにうねった！', anim: 'quake',
   },
   sl_gin: {
@@ -303,7 +303,7 @@ export const JOB9_ABILITIES = {
   },
   state_alchemist_sig: {
     name: 'れん成大爆発', kana: 'れんせいだいばくはつ', kind: 'skill', job: 'state_alchemist', mp: 18, target: 'enemies',
-    effect: { type: 'magic', element: 'blast', base: [92, 112], thr: 62 },
+    effect: { type: 'magic', element: 'blast', base: [80, 96], thr: 62 },
     desc: '地面にまるいもようをかいて、大きなれん成反応を起こす。敵全体に爆発の大ダメージ。', cast: '{a}は両手で地面にふれた…れん成大爆発！', anim: 'blast2',
   },
 
@@ -319,9 +319,9 @@ export const JOB9_ABILITIES = {
     desc: '機械のうでを、するどいやいばにれん成する。自分の攻撃力が上がる。', cast: '{a}の機械のうでが、ジャキン！とやいばに変わった！', anim: 'charge',
   },
   fm_kabe: {
-    name: 'はがねのかべ', kana: 'はがねのかべ', kind: 'skill', job: 'fullmetal', mp: 10, target: 'self', role: 'sup',
-    effect: { type: 'cover', all: true, dur: 20, defMult: 1.35 },
-    desc: '自分の前に、はがねのかべを作って立ちはだかる。しばらく仲間全員をかばい、自分の守備力も上がる。', cast: '{a}「みんな、うしろへ！」', anim: 'guard',
+    name: 'はがねのかべ', kana: 'はがねのかべ', kind: 'skill', job: 'fullmetal', mp: 10, target: 'allies', role: 'sup',
+    effect: { type: 'buff', stats: ['def', 'breath'], mult: 1.3, dur: 40 },
+    desc: '地面から、はがねのかべをぐるりとれん成する。仲間全員の守備力が上がり、炎やふぶきの息のダメージが半分になる。', cast: '{a}「みんな、かべのうしろへ！」', anim: 'guard',
   },
   fm_koukan: {
     name: '等価こうかん', kana: 'とうかこうかん', kind: 'skill', job: 'fullmetal', mp: 4, target: 'allies', role: 'sup',
@@ -391,8 +391,8 @@ export const JOB9_ABILITIES = {
 
   // ───────────── セーラームーン（超級職。美少女戦士を きわめる） ─────────────
   mn_stick: {
-    name: 'ムーンスティック', kana: 'むーんすてぃっく', kind: 'skill', job: 'sailor_moon', mp: 8, target: 'enemy',
-    effect: { type: 'magic', element: 'light', base: [70, 86], thr: 50 },
+    name: 'ムーンスティック', kana: 'むーんすてぃっく', kind: 'skill', job: 'sailor_moon', mp: 9, target: 'enemy',
+    effect: { type: 'magic', element: 'light', base: [62, 76], thr: 50 },
     desc: '三日月のついたスティックから、月の光をうつ。敵1体に光のダメージ。', cast: '{a}は、ムーンスティックをかかげた！', anim: 'holy',
   },
   mn_bara: {
@@ -422,8 +422,8 @@ export const JOB9_ABILITIES = {
     desc: '銀水しょうにいのりをこめる。たおれた仲間1人を生き返らせる。', cast: '{a}は、銀水しょうをむねにいのった…', anim: 'revive',
   },
   sailor_moon_sig: {
-    name: 'ムーン・プリンセス・ハレーション', kana: 'むーんぷりんせすはれーしょん', kind: 'skill', job: 'sailor_moon', mp: 28, target: 'enemies',
-    effect: { type: 'magic', element: 'light', base: [178, 212], thr: 85 },
+    name: 'ムーン・プリンセス・ハレーション', kana: 'むーんぷりんせすはれーしょん', kind: 'skill', job: 'sailor_moon', mp: 32, target: 'enemies',
+    effect: { type: 'magic', element: 'light', base: [150, 178], thr: 85 },
     desc: '月のプリンセスの力をときはなつ、月の光の必殺技。敵全体に光の大ダメージ。', cast: '{a}「ムーン・プリンセス・ハレーション！」', anim: 'holy',
   },
 };

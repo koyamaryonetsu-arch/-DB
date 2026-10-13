@@ -1053,7 +1053,7 @@ export const JOBS = {
   kaito: {
     id: 'kaito', name: 'かいとう', kana: 'かいとう', short: 'かいとう', tier: 1, req: ['magician', 'spy'], family: 'tech', color: '#e8ecf4',
     desc: '予告状をとどけて、ねらったお宝をかならずいただく、なぞのどろぼう。トランプじゅうと変装と、ハンググライダーで、だれにもつかまらない。手品師とスパイをきわめるとなれる。',
-    mods: { hp: 1.05, mp: 1.0, str: 1.15, def: 0.95, agi: 1.5, mag: 1.05, heal: 0.9 },
+    mods: { hp: 1.1, mp: 1.0, str: 1.25, def: 1.0, agi: 1.45, mag: 0.95, heal: 0.9 },
     weapons: ['dagger', 'staff', 'fan', 'none'], shield: false, armor: ['cloth', 'robe'], helm: true,
     perLv: { agi: 1, str: 0.5 },
     learn: [[1, 'kt_card'], [2, 'kt_yokoku'], [3, 'kt_surikae'], [5, 'kt_hensou'], [7, 'kt_glider'], [10, 'kaito_sig']],
@@ -1061,7 +1061,7 @@ export const JOBS = {
   kaito_kid: {
     id: 'kaito_kid', name: 'かいとうキッド', kana: 'かいとうきっど', short: 'キッド', tier: 2, req: ['kaito'], family: 'tech', color: '#f4f6ff',
     desc: '月夜にあらわれる、白いシルクハットと白いマントの大どろぼう。片目のモノクルが光る。トランプじゅうとハトとけむり玉で、だれにも正体を知られない。',
-    mods: { hp: 1.3, mp: 1.2, str: 1.35, def: 1.1, agi: 1.65, mag: 1.2, heal: 1.0 },
+    mods: { hp: 1.3, mp: 1.2, str: 1.45, def: 1.1, agi: 1.65, mag: 1.1, heal: 1.0 },
     weapons: ['dagger', 'staff', 'fan', 'none'], shield: false, armor: ['cloth', 'robe'], helm: true,
     perLv: { agi: 1, str: 0.5, mag: 0.5 },
     learn: [[1, 'kk_hato'], [2, 'kk_smoke'], [3, 'kk_poker'], [5, 'kk_jewel'], [7, 'kk_tsukiyo'], [10, 'kaito_kid_sig']],
@@ -1070,7 +1070,7 @@ export const JOBS = {
   wizard_student: {
     id: 'wizard_student', name: '魔法学校の生徒', kana: 'まほうがっこうのせいと', short: '魔法学校', tier: 1, req: ['schoolkid', 'mage'], family: 'magic', color: '#7a1a2a',
     desc: '魔法の学校で、呪文とほうきを習っている生徒。小学生なので、のびざかりで職業レベルが上がりやすい。小学生と魔法使いをきわめるとなれる。',
-    mods: { hp: 0.95, mp: 1.35, str: 0.8, def: 0.9, agi: 1.25, mag: 1.45, heal: 1.05 },
+    mods: { hp: 0.95, mp: 1.3, str: 0.8, def: 0.9, agi: 1.25, mag: 1.4, heal: 1.05 },
     weapons: ['staff', 'dagger', 'none'], shield: false, armor: ['cloth', 'robe'], helm: false,
     perLv: { mag: 0.5, mp: 0.5, agi: 0.3 },
     passive: { train: 1.25 },
@@ -1090,7 +1090,7 @@ export const JOBS = {
   homeroom_3b: {
     id: 'homeroom_3b', name: '3年B組の担任', kana: 'さんねんびーぐみのたんにん', short: '担任', tier: 3, req: ['highschooler', 'civil_local'], family: 'tech', color: '#3a5a3a',
     desc: '生徒みんなに体当たりでぶつかる、熱血先生。高校生と地方公務員をきわめた者だけがなれる。学校の職業の仲間がいると、はりきって技が強くなる（1人で1わり。3人まで）。',
-    mods: { hp: 1.55, mp: 1.4, str: 1.35, def: 1.4, agi: 1.15, mag: 1.3, heal: 1.5 },
+    mods: { hp: 1.55, mp: 1.4, str: 1.45, def: 1.4, agi: 1.15, mag: 1.3, heal: 1.4 },
     weapons: ['staff', 'fan', 'none'], shield: true, armor: ['cloth', 'robe'], helm: false,
     perLv: { hp: 1.5, heal: 1, def: 1 },
     passive: { classmates: 0.1 },
@@ -1134,7 +1134,7 @@ export const JOBS = {
   sailor_moon: {
     id: 'sailor_moon', name: 'セーラームーン', kana: 'せーらーむーん', short: 'ムーン', tier: 2, req: ['sailor_soldier'], family: 'magic', color: '#ff7ab8',
     desc: 'お団子頭の、月のプリンセス。月の光の必殺技で敵をたおし、銀水しょうのいのりで仲間を生き返らせる。',
-    mods: { hp: 1.15, mp: 1.45, str: 1.0, def: 1.05, agi: 1.45, mag: 1.5, heal: 1.4 },
+    mods: { hp: 1.25, mp: 1.45, str: 1.0, def: 1.05, agi: 1.45, mag: 1.4, heal: 1.4 },
     weapons: ['staff', 'fan', 'boomerang', 'none'], shield: false, armor: ['cloth', 'robe'], helm: false,
     perLv: { mag: 1, heal: 0.5, agi: 0.5 },
     learn: [[1, 'mn_stick'], [2, 'mn_bara'], [3, 'mn_luna'], [5, 'mn_heal'], [7, 'mn_inori'], [10, 'sailor_moon_sig']],

@@ -17,7 +17,7 @@ export const HIRA_R33_ABILITIES = {
   hi_joker: sk('kaito', {
     name: 'ジョーカーのきりふだ', kana: 'じょーかーのきりふだ', mp: 9, target: 'enemy',
     effect: { type: 'phys', mult: 2.6, critBonus: 0.2 },
-    desc: 'トランプの中の、さいごのきりふだ。敵1体に大きなダメージ。会心がとても出やすい。', cast: '{a}は、ジョーカーのカードをひらりと見せた！', anim: 'cards',
+    desc: 'トランプの中の、最後のきりふだ。敵1体に大きなダメージ。会心がとても出やすい。', cast: '{a}は、ジョーカーのカードをひらりと見せた！', anim: 'cards',
   }),
   // かいとうキッド: 月の 下の マジックショー
   hi_tsukika: sk('kaito_kid', {
