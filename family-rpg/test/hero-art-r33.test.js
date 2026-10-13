@@ -11,8 +11,8 @@ import { paintHero } from '../public/js/client/render/hero.js';
 import { outfitOf, jobBody } from '../public/js/client/render/hero-outfit.js';
 import { headOf } from '../public/js/client/render/hero-gear.js';
 import { HAIR_STYLE_IDS } from '../public/js/client/render/hero-hair.js';
-import { R33_JOBS, R33_OUTFIT, R33_BODY, R33_HAT, R33_BODY_HAT, R33_OLD_LOOK, R33_HAIR } from '../public/js/client/render/hero-r33.js';
-import { lookToOpts } from '../public/js/client/render/chars.js';
+import { R33_JOBS, R33_OUTFIT, R33_BODY, R33_HAT, R33_BODY_HAT, R33_OLD_LOOK, R33_HAIR, R33_MASC, masc33 } from '../public/js/client/render/hero-r33.js';
+import { lookToOpts, paintHuman } from '../public/js/client/render/chars.js';
 import { Effects, BW, BH } from '../public/js/client/render/battlefx.js';
 import { JOB_FINE, playJobFx } from '../public/js/client/render/battlefx-jobs.js';
 import { JOB2_FINE, playJob2Fx } from '../public/js/client/render/battlefx-jobs2.js';
@@ -122,9 +122,11 @@ test('第33回の 職業の 服: 服の しゅるい・マント・シルクハ�
   const Lk = { cloth: '#3f7fd0', skin: 0 };
   const O = (job, armor = 'cloth', fem = false) => outfitOf(Lk, job, armor, fem);
   const KIND = { magician: 'suit', kaito: 'suit', kaito_kid: 'suit', wizard_student: 'robe', harry: 'robe', homeroom_3b: 'suit', alchemist: 'robe', state_alchemist: 'uniform', fullmetal: 'coat', sailor_soldier: 'sailor', sailor_moon: 'sailor' };
+  // 美少女戦士・セーラームーンの セーラー服は 女の子だけ（男の子は タキシード仮面ふう。下の テスト）
+  const girl = (job) => job === 'sailor_soldier' || job === 'sailor_moon';
   for (const [job, k] of Object.entries(KIND)) {
-    assert.equal(O(job).kind, k, job);
-    assert.equal(O(job, null).kind, k, `${job} よろい なし`);
+    assert.equal(O(job, 'cloth', girl(job)).kind, k, job);
+    assert.equal(O(job, null, girl(job)).kind, k, `${job} よろい なし`);
     assert.equal(O(job, 'cloth', true).kind, k, `${job} 女性`);
   }
   // マント（手品師は 黒に 赤い うら、かいとうと キッドは 白）と まえに たれる マント。よろいを きると なくなる
@@ -135,17 +137,17 @@ test('第33回の 職業の 服: 服の しゅるい・マント・シルクハ�
   assert.ok(O('harry').r33.scarf && O('harry').r33.broom && O('harry').r33.tie, 'ハリーの マフラー・ほうき・ネクタイ');
   assert.ok(O('wizard_student').r33.tie && !O('wizard_student').r33.scarf, '魔法学校の生徒の ネクタイ');
   assert.ok(O('state_alchemist').r33.chain && O('fullmetal').r33.crest, '銀時計の くさり・コートの しるし');
-  assert.ok(O('sailor_moon', 'cloth', true).skirt && O('sailor_moon').r33.bow.moon, 'セーラー戦士の スカートと リボン');
+  assert.ok(O('sailor_moon', 'cloth', true).skirt && O('sailor_moon', 'cloth', true).r33.bow.moon, 'セーラー戦士の スカートと リボン');
   // ぼうし（シルクハットは 布の服の とき。ティアラは よろいでも のこり、かぶとで かわる）
-  const hat = (job, armor = 'cloth', head = null) => headOf(head, job, armor, O(job, armor))?.kind || null;
+  const hat = (job, armor = 'cloth', head = null, fem = false) => headOf(head, job, armor, O(job, armor, fem))?.kind || null;
   for (const job of ['magician', 'kaito', 'kaito_kid']) {
     assert.equal(hat(job), 'silk33', job);
     assert.equal(hat(job, 'iron_armor'), null, `${job} てつの よろい`);
   }
   for (const job of ['sailor_soldier', 'sailor_moon']) {
-    assert.equal(hat(job), 'tiara33', job);
-    assert.equal(hat(job, 'iron_armor'), 'tiara33', `${job} てつの よろい`);
-    assert.equal(hat(job, 'iron_armor', 'iron_helm'), 'helmet', `${job} かぶと`);
+    assert.equal(hat(job, 'cloth', null, true), 'tiara33', job);
+    assert.equal(hat(job, 'iron_armor', null, true), 'tiara33', `${job} てつの よろい`);
+    assert.equal(hat(job, 'iron_armor', 'iron_helm', true), 'helmet', `${job} かぶと`);
   }
   for (const job of ['harry', 'homeroom_3b', 'alchemist', 'fullmetal', 'wizard_student']) assert.equal(hat(job), null, job);
   // もちもの・かお・からだ（よろいを きても のこる）
@@ -174,7 +176,7 @@ test('第33回の 職業の からだ: めがね・片めがね・きず・機�
   }
   // セーラームーンと はがねの れん金術師は 金の かみ（えらんだ 茶色の かみでも）
   const gold = (r, g, b) => r > 200 && g > 150 && b < 120 && r - b > 110;
-  for (const job of ['sailor_moon', 'fullmetal']) assert.ok(countPx(paintHero(look, job, undefined, 'up', 0, 8), gold) > 600, `${job} の 金の かみ`);
+  for (const job of ['sailor_moon', 'fullmetal']) assert.ok(countPx(paintHero(job === 'sailor_moon' ? { ...look, body: 1 } : look, job, undefined, 'up', 0, 8), gold) > 600, `${job} の 金の かみ`);
   assert.ok(countPx(paintHero(look, 'warrior', undefined, 'up', 0, 8), gold) < 100, 'ふつうの かみ');
   // はがねの れん金術師の 右うで（ひじから 先が はがねの 色）
   const steel = (r, g, b) => b > r + 12 && b > g && r > 70 && r < 230 && Math.abs(r - g) < 24;
@@ -201,6 +203,102 @@ test('第33回の 装備の 見た目: 11この 品（ぶき・よろい・ぼ�
   assert.ok(outfitOf({ cloth: '#fff', skin: 0 }, 'warrior', 'school_robe', false).r33?.tie, '魔法学校のローブ');
   assert.ok(outfitOf({ cloth: '#fff', skin: 0 }, 'warrior', 'invisible_cloak', false).cape, 'とうめいマント');
   for (const eq of [',school_robe,,silk_hat', ',kid_mantle,,', ',nekketsu_jersey,,', ',invisible_cloak,,']) for (const dir of DIRS) checkImg(paintHero(look, 'warrior', eq, dir, 0, 4), `${eq} ${dir}`);
+});
+
+// 家族が きめた こと: 男の子の 美少女戦士・セーラームーンは タキシード仮面ふう。女の子は 今の まま
+test('第33回 男の子の 美少女戦士・セーラームーン: タキシード仮面ふう（えんび服・マント・シルクハット・仮面・バラ）、女の子は 今の まま', () => {
+  const SENSHI = ['sailor_soldier', 'sailor_moon'];
+  assert.deepEqual(Object.keys(R33_MASC), SENSHI);
+  for (const job of JOBS11) assert.equal(masc33(job, true), null, `${job} 女性`);
+  for (const job of JOBS11) assert.equal(!!masc33(job, false), SENSHI.includes(job), `${job} 男性`);
+  const Lk = { cloth: '#3f7fd0', skin: 0 };
+  const O = (job, armor, fem) => outfitOf(Lk, job, armor, fem);
+  const hat = (job, armor, fem, head = null) => headOf(head, job, armor, O(job, armor, fem))?.kind || null;
+  for (const job of SENSHI) {
+    // 男の子: 黒い えんび服・黒い 蝶ネクタイ・黒い マント（うらは 赤）・白い 手ぶくろ・シルクハット・仮面・バラ
+    const M = O(job, 'cloth', false);
+    assert.equal(M.kind, 'suit', `${job} 男性の 服`);
+    assert.equal(M.spec.bow, '#141018', `${job} 黒い 蝶ネクタイ`);
+    assert.ok(M.cape && M.r33.drape && M.glove, `${job} マントと 手ぶくろ`);
+    assert.ok(!M.skirt && !M.r33.bow, `${job} スカートと セーラーの リボンは ない`);
+    assert.equal(M.body.mask33, true, `${job} 仮面`);
+    assert.equal(M.body.prop, 'rose33', `${job} バラ`);
+    assert.ok(!M.body.hair && !M.body.hcol, `${job} 男の子は 自分の かみがた`);
+    assert.equal(hat(job, 'cloth', false), 'silk33', `${job} シルクハット`);
+    assert.equal(hat(job, null, false), 'silk33', `${job} よろい なしも シルクハット`);
+    // よろいを きても 仮面と バラは のこり、ティアラは かぶらない
+    const MA = O(job, 'iron_armor', false);
+    assert.ok(MA.body.mask33 && MA.body.prop === 'rose33', `${job} よろいでも 仮面と バラ`);
+    assert.equal(hat(job, 'iron_armor', false), null, `${job} よろいで ティアラは ない`);
+    assert.equal(hat(job, 'iron_armor', false, 'iron_helm'), 'helmet', `${job} かぶと`);
+    assert.equal(jobBody(job, false).mask33, true, `${job} jobBody(男性)`);
+    // 女の子: 今の まま（セーラー服・ティアラ・からだの とくちょう）
+    const F = O(job, 'cloth', true);
+    assert.equal(F.kind, 'sailor', `${job} 女性の 服`);
+    assert.deepEqual(F.spec, R33_OUTFIT[job], `${job} 女性の 服の 設定は もとの まま`);
+    assert.equal(F.body, R33_BODY[job], `${job} 女性の からだは もとの まま`);
+    assert.ok(F.skirt && F.r33.bow && !F.body.mask33, `${job} 女性の スカートと リボン`);
+    assert.equal(hat(job, 'cloth', true), 'tiara33', `${job} 女性の ティアラ`);
+    assert.equal(hat(job, 'iron_armor', true), 'tiara33', `${job} 女性は よろいでも ティアラ`);
+    assert.equal(jobBody(job), R33_BODY[job], `${job} jobBody は もとの まま`);
+  }
+  // セーラームーンの おだんご・金の かみは 女の子だけ
+  assert.equal(O('sailor_moon', 'cloth', true).body.hair, 'moon33');
+  // 美少女戦士と セーラームーンの ちがい（マントの 長さ・うらの 赤・光る バラ・ぼうしの おび）
+  const S = R33_MASC.sailor_soldier, Mo = R33_MASC.sailor_moon;
+  assert.ok(S.outfit.capeLen < Mo.outfit.capeLen, '美少女戦士の マントは みじかめ');
+  assert.notEqual(S.outfit.capeIn, Mo.outfit.capeIn, 'マントの うらの 赤');
+  assert.ok(Mo.body.roseGlow33 && !S.body.roseGlow33, 'セーラームーンの バラは 光る');
+  assert.notEqual(O('sailor_soldier', 'cloth', false).cape.inner, O('sailor_moon', 'cloth', false).cape.inner);
+});
+
+test('第33回 男の子の 美少女戦士・セーラームーン: 絵（フィールド・戦い・古い え）に 仮面と バラ、ティアラと おだんごは 出ない', () => {
+  const boy = { body: 0, style: 'short', hcol: 'brown', tone: 'light' };
+  const girl = { ...boy, body: 1 };
+  const white = (r, g, b) => r === 255 && g === 255 && b === 255;
+  const gold = (r, g, b) => r > 200 && g > 150 && b < 120 && r - b > 110;
+  const red = (r, g, b) => r > 150 && g < 70 && b < 90;
+  for (const job of ['sailor_soldier', 'sailor_moon']) {
+    for (const res of [4, 8]) {
+      for (const dir of DIRS) {
+        const b = paintHero(boy, job, undefined, dir, 0, res), g = paintHero(girl, job, undefined, dir, 0, res);
+        checkImg(b, `${job} 男性 ${dir} res${res}`);
+        assert.notEqual(key(b), key(g), `${job} ${dir} res${res} 男女で ちがう`);
+        assert.notEqual(key(b), key(paintHero(boy, 'magician', undefined, dir, 0, res)), `${job} ${dir} res${res} 手品師と ちがう`);
+      }
+      // まえむき: 目もとの 白い 仮面（ふつうの 人より 白が 多い）と 赤い バラ・マントの うら
+      const b = paintHero(boy, job, undefined, 'down', 0, res);
+      assert.ok(countPx(b, white) > countPx(paintHero(boy, 'warrior', undefined, 'down', 0, res), white) + (res >= 8 ? 30 : 8), `${job} res${res} 仮面`);
+      assert.ok(countPx(b, red) > (res >= 8 ? 40 : 10), `${job} res${res} 赤い バラと マントの うら`);
+      // よろいでも 仮面（戦士と ちがう・白が 多い）
+      const ba = paintHero(boy, job, ',iron_armor,,', 'down', 0, res), wa = paintHero(boy, 'warrior', ',iron_armor,,', 'down', 0, res);
+      assert.notEqual(key(ba), key(wa), `${job} res${res} よろいでも 仮面と バラ`);
+    }
+    // 男の子は 金の おだんごに ならない（えらんだ 茶色の かみ）。女の子の セーラームーンは 金の かみ
+    assert.ok(countPx(paintHero(boy, job, undefined, 'up', 0, 8), gold) < 100, `${job} 男の子の かみ`);
+  }
+  assert.ok(countPx(paintHero(girl, 'sailor_moon', undefined, 'up', 0, 8), gold) > 600, '女の子の セーラームーンは 金の かみ');
+  // 美少女戦士と セーラームーン（男の子）は ちがう え
+  for (const dir of DIRS) assert.notEqual(key(paintHero(boy, 'sailor_soldier', undefined, dir, 0, 4)), key(paintHero(boy, 'sailor_moon', undefined, dir, 0, 4)), dir);
+  // 古い 小さな え（chars.js）
+  for (const job of ['sailor_soldier', 'sailor_moon']) {
+    const ob = lookToOpts({ body: 0 }, job, ',cloth,,'), og = lookToOpts({ body: 1 }, job, ',cloth,,');
+    assert.equal(ob.outfit, 'suit', `${job} 古い え 男性`);
+    assert.equal(ob.hat, 'silk', `${job} 古い え シルクハット`);
+    assert.ok(ob.mask && ob.rose && ob.cape, `${job} 古い え 仮面・バラ・マント`);
+    assert.equal(og.outfit, 'dress', `${job} 古い え 女性`);
+    assert.equal(og.hat, 'tiara', `${job} 古い え ティアラ`);
+    assert.ok(!og.mask && !og.rose, `${job} 古い え 女性は 仮面なし`);
+    const oa = lookToOpts({ body: 0 }, job, ',iron_armor,,');
+    assert.ok(oa.mask && oa.rose && oa.hat !== 'tiara', `${job} 古い え よろいでも 仮面と バラ`);
+    for (const dir of DIRS) {
+      const hb = paintHuman(dir, 0, ob), hg = paintHuman(dir, 0, og);
+      assert.ok(hb.px.some(Boolean), `${job} ${dir} 古い え`);
+      assert.notEqual(hb.px.join(), hg.px.join(), `${job} ${dir} 古い え 男女`);
+    }
+  }
+  assert.equal(lookToOpts({ body: 0 }, 'sailor_moon', ',cloth,,').rose, 'glow');
+  assert.equal(lookToOpts({ body: 0 }, 'sailor_soldier', ',cloth,,').rose, 'plain');
 });
 
 test('第33回の 技の データ: 看板の技は <職業の id>_sig の えんしゅつ、ほかの 技も r33_ の えんしゅつに つながる', () => {
