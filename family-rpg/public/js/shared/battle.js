@@ -29,6 +29,8 @@ import { shownEquipKey } from './look-equip.js';
 import { setupTemple, templeTurnStart, prisonTurn, reflectSpell, templeEffect, templeEst, templeDamage, templeKill, templePub, templeSnap } from './battle-temple.js';
 // 第5章 Step 2 の 星の塔と 星の番人アルゴス（見通しの目。battle-ch5.js）
 import { towerTurnStart, foreseeCheck, towerEffect, towerKill, towerPub } from './battle-ch5.js';
+// 第33回: 3年B組の担任は 学校の 仲間が いると 技が 強く なる（battle-r33.js）
+import { classmateMult } from './battle-r33.js';
 
 // 第31回: きずなゲージ・きずな技（ミナデイン）は なくなった（ミナデインは 合体技に。data/dual.js の dt_minadein）
 // 合体技の 2人の 強さの 合わせかた（dualProxy）: 強い ほうの 強さ ＋ 弱い ほうの この わりあい
@@ -774,7 +776,7 @@ export class Battle {
         if (pen.penalized) ev.penalized = true;
         // 光っている 敵・鏡写し: 呪文を はね返す（battle-temple.js）
         if (reflectSpell(this, c, a, cmd, ev, pen.powMult, targets)) break;
-        this.applyAbility(c, a, cmd, ev, pen.powMult, targets);
+        this.applyAbility(c, a, cmd, ev, pen.powMult * classmateMult(this, c), targets);
         break;
       }
       default:

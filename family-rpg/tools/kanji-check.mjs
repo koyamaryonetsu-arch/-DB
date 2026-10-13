@@ -257,6 +257,8 @@ export function gameFiles() {
     'public/js/shared/data/secret-shop.js', 'public/js/shared/data/items-secret.js', 'public/js/shared/data/variants.js',
     // 第32回 C: れん金がま・生まれ変わりの 武器
     'public/js/shared/data/items-alchemy.js', 'public/js/shared/data/alchemy.js', 'public/js/shared/world/alchemy.js', 'public/js/client/ui/alchemy.js',
+    // 第33回: 11の 職業（技・ひらめき技・装備）
+    'public/js/shared/data/abilities-jobs9.js', 'public/js/shared/data/hirameki-r33.js', 'public/js/shared/data/items-r33.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

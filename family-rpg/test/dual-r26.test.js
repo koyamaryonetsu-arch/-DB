@@ -76,10 +76,10 @@ const SCOPE = { enemy: /敵1体/, enemies: /敵全体/, allies: /仲間全員/ }
 const PART_TYPES = new Set(['power', 'heal', 'revive', 'buff', 'debuff', 'cure', 'atbSet', 'mpHeal', 'status', 'banish']);
 
 // 第27回: 新しい 職業の 合体技を 10こ 足して 35こ。第29回: るろうに剣士の 道の 2こを 足して 37こ。第31回: ミナデインで 38こ（test/dual-r31.test.js）。
-// 第32回: 魔物使い・モンスターマスターの 3こで 41こ（test/dual-r32.test.js）
-test('第26回の 合体技: 数を しぼった（20〜41こ）・2人技・3人技・4人技・クスッと 笑える 技', () => {
+// 第32回: 魔物使い・モンスターマスターの 3こで 41こ（test/dual-r32.test.js）。第33回: 11の 職業の 5こで 46こ（test/jobs-r33.test.js）
+test('第26回の 合体技: 数を しぼった（20〜46こ）・2人技・3人技・4人技・クスッと 笑える 技', () => {
   const ids = DUAL_ORDER;
-  assert.ok(ids.length >= 20 && ids.length <= 41, `合体技 ${ids.length}こ`);
+  assert.ok(ids.length >= 20 && ids.length <= 46, `合体技 ${ids.length}こ`);
   const by = (n) => ids.filter((id) => dualSize(id) === n);
   assert.ok(by(2).length >= 12, `2人技 ${by(2).length}こ`);
   assert.ok(by(3).length >= 4, `3人技 ${by(3).length}こ`);

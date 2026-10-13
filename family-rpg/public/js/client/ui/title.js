@@ -554,6 +554,7 @@ export function showCreate(game) {
       neet: 'のびしろ無限大', saiyan: '戦闘民族', youtuber: '動画で人気者', gamer: 'ゲームの達人', okan: 'みんなのおかん',
       spy: 'ひみつの任務', shonen_tantei: 'なぞを解く', neko_robot: '未来から来た', kappa: 'すもうが得意',
       rurouni: '旅の剣士でござる',
+      magician: 'タネも仕かけもない', alchemist: '形を作りかえる',
     }[j] }));
     b.addEventListener('click', () => {
       job = j;

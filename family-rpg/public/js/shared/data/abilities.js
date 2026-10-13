@@ -41,6 +41,8 @@ import { FIELD27_ABILITIES } from './abilities-field27.js';
 import { JOB7_ABILITIES } from './abilities-jobs7.js';
 // 2026年10月（第29回）の 新しい 職業の 技（るろうに剣士 → 人斬りばっ刀さい → ひ村ばっ刀さい → 飛天御剣流けい承者）
 import { JOB8_ABILITIES } from './abilities-jobs8.js';
+// 2026年10月（第33回）の 新しい 職業の 技（手品師・かいとう・魔法学校・3年B組の担任・れん金術師・美少女戦士 など 11）
+import { JOB9_ABILITIES } from './abilities-jobs9.js';
 
 export const ABILITIES = {
   // ───────────── 戦士 ─────────────
@@ -619,6 +621,8 @@ Object.assign(ABILITIES, FIELD27_ABILITIES);
 Object.assign(ABILITIES, JOB7_ABILITIES);
 // 第29回の るろうに剣士の 道（abilities-jobs8.js）
 Object.assign(ABILITIES, JOB8_ABILITIES);
+// 第33回の 11の 職業（abilities-jobs9.js）
+Object.assign(ABILITIES, JOB9_ABILITIES);
 
 // 攻撃呪文かどうか（魔法剣で使える）
 export function isAttackSpell(id) {
