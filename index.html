@@ -65,7 +65,7 @@
       <input type="search" id="searchBox" class="hdr-search" placeholder="劇場名・担当者・内容で検索">
       <button id="quickCaseBtn" class="hdr-btn">⚡ 簡易登録</button>
       <button id="newCaseBtn" class="hdr-btn pri">＋ 新規登録</button>
-      <button id="taskBtn" class="hdr-btn col-ryo"><span id="taskBtnLabel"><span class="tb-ic">📋</span><span class="tb-tx"> タスク管理</span></span><span id="taskBadge" class="tp-badge task-badge hidden"></span></button>
+      <button id="taskBtn" class="hdr-btn col-ryo"><span id="taskBtnLabel"><span class="tb-ic">📋</span><span class="tb-tx"> タスク管理</span></span><span id="taskBadge" class="tp-badge task-badge hidden"></span><span id="taskOverBadge" class="tp-badge task-badge over-badge hidden"></span></button>
       <button id="calBtn" class="hdr-btn col-ryo">📅 カレンダー</button>
       <button id="intakeBtn" class="hdr-btn col-ryo hidden">🆕 登録確認 <span id="ikBadge" class="tp-badge hidden"></span></button>
       <button id="theaterPendingBtn" class="hdr-btn col-ryo hidden">🔎 劇場情報更新確認 <span id="tpBadge" class="tp-badge hidden"></span></button>
@@ -152,7 +152,19 @@
     <div id="filterBar" class="legend filter-bar">
       <div id="statusChips" class="fb-chips"></div>
       <span class="fb-sep"></span>
-      <button id="showAllBtn" type="button" class="sw-btn" role="switch" aria-checked="false" title="ONにすると「完了・入金済・取り下げ・失注」も含めて全件表示。OFFは既定（これらは非表示）"><span class="sw-t"></span>完了も表示</button>
+      <!-- 完了・対応済み・請求済・入金済・取り下げ・失注・保留 を1つずつ表示/非表示（最初は7つとも非表示） -->
+      <div class="fb-pop-wrap">
+        <button id="statusVisBtn" type="button" class="sv-btn" aria-haspopup="true" aria-expanded="false" title="完了・対応済み・請求済・入金済・取り下げ・失注・保留を、一覧に出すかどうか1つずつ選べます">表示する状態 ▾</button>
+        <div id="statusVisPop" class="fb-pop sv-pop hidden">
+          <div class="fb-pop-h">一覧に出す状態</div>
+          <div id="statusVisList" class="sv-list"></div>
+          <div class="sv-actions">
+            <button id="statusVisAll" type="button" class="mini-btn">全部表示</button>
+            <button id="statusVisNone" type="button" class="mini-btn">7つとも隠す</button>
+          </div>
+          <p>選んだ内容は次に開いたときも残ります。</p>
+        </div>
+      </div>
       <button id="toggleBigBtn" type="button" class="sw-btn col-ryo" role="switch" aria-checked="false" title="見積り金額300万円以上の大口案件（と更新案件）だけを表示します"><span class="sw-t"></span>大口のみ</button>
       <button id="taxToggleBtn" type="button" class="sw-btn" role="switch" aria-checked="false" title="「見積り金額（税込み）」の列を表示します"><span class="sw-t"></span>税込み</button>
       <button id="taskDoneToggleBtn" type="button" class="sw-btn col-ryo hidden" role="switch" aria-checked="false" title="タスク管理画面で、チェック済み（完了）タスクも表示します"><span class="sw-t"></span>完了タスクも表示</button>
