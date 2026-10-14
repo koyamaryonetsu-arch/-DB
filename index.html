@@ -89,7 +89,7 @@
           </div>
           <div class="pop-group">
             <div class="pop-h">別機能</div>
-            <button id="koteiBtn" class="pop-item col-ryo">📋 工程表</button>
+            <button id="koteiBtn" class="pop-item col-ryo">📁 書類棚（工程表・写真台帳）</button>
             <button id="equipBtn" class="pop-item col-ryo">🧰 設備管理台帳</button>
           </div>
           <div class="pop-group">
@@ -257,27 +257,47 @@
       <div id="calGrid" class="cal-grid"></div>
     </div>
 
+    <!-- ===== 書類棚（工程表・写真台帳の置き場。PCのフォルダと同じ形） ===== -->
+    <div id="viewShelf" class="hidden" aria-label="書類棚">
+      <nav class="sh-tree" id="shTree" aria-label="フォルダ"></nav>
+      <section class="sh-files">
+        <div class="sh-bar">
+          <button type="button" class="sh-btn sh-treebtn" id="shTreeBtn" aria-label="フォルダを選ぶ">📁 場所</button>
+          <div class="sh-crumb" id="shCrumb"></div>
+          <span class="sh-grow"></span>
+          <div class="sh-seg" id="shFilter" role="group" aria-label="種類で絞り込む">
+            <button type="button" data-filter="all" class="on">すべて</button><button type="button" data-filter="kotei">📊 工程表</button><button type="button" data-filter="photo">📷 写真台帳</button>
+          </div>
+          <input type="search" id="shSearch" class="sh-search" placeholder="🔍 書類の名前で探す" aria-label="書類の名前で探す">
+          <button type="button" class="sh-btn pri" id="shNewBtn">＋ 新しく作る</button>
+        </div>
+        <div class="sh-list" id="shList"></div>
+      </section>
+    </div>
+
+    <!-- ===== 開いている書類の上の帯（工程表・写真台帳で共通） ===== -->
+    <div id="docTop" class="hidden">
+      <div class="dt-crumb" id="dtCrumb"></div>
+      <span class="dt-ic" id="dtIcon" aria-hidden="true"></span>
+      <input type="text" id="dtName" class="dt-name" aria-label="書類の名前">
+      <span class="dt-saved" id="dtSaved" role="status"></span>
+      <span class="dt-grow"></span>
+      <button type="button" class="dt-btn" id="dtSave" title="上書き保存（Ctrl+S）">💾 上書き保存</button>
+      <button type="button" class="dt-btn" id="dtSaveAs">名前を付けて新規に保存</button>
+      <button type="button" class="dt-btn" id="dtPrint">🖨 印刷 / PDF</button>
+      <button type="button" class="dt-btn" id="dtExcel">📊 Excel</button>
+      <button type="button" class="dt-btn" id="dtBack">← 書類棚へ</button>
+    </div>
+
     <!-- ===== 工程表（ガントチャート）ビュー ===== -->
     <div id="viewKotei" class="hidden">
-      <!-- プロジェクト情報バー -->
+      <!-- 書類の情報 -->
       <div class="k-infobar">
-        <div class="k-info-top">
-          <input type="text" id="title" class="k-title-input" placeholder="工事名を入力（例：TOHOシネマズ○○ 熱源更新工事 工程表）">
-          <div class="k-site">
-            <label>現場</label>
-            <select id="kSelect" title="編集する工程表（現場）を選びます"></select>
-            <button class="btn" id="kNew">＋ 新規</button>
-            <button class="btn danger" id="kDelete">🗑 削除</button>
-          </div>
-        </div>
         <div class="k-info-grid">
           <div class="k-info-cell"><span class="k-lbl">種類</span>
-            <select id="kKind" class="k-kind">
-              <option value="date">通常（日付）</option>
-              <option value="zero">ゼロ工程表（1日目・2日目…）</option>
-              <option value="master-week">マスター工程（週単位）</option>
-              <option value="master-month">マスター工程（月単位）</option>
-            </select>
+            <div class="k-kseg" id="kKindSeg" role="group" aria-label="種類">
+              <button type="button" data-kind="date">通常（日付）</button><button type="button" data-kind="zero">ゼロ工程表</button><button type="button" data-kind="master-week">マスター（週）</button><button type="button" data-kind="master-month">マスター（月）</button>
+            </div>
           </div>
           <div class="k-info-cell wide"><span class="k-lbl">工事内容</span><input type="text" id="kContent" placeholder="例）熱源更新工事"></div>
           <div class="k-info-cell" id="startCell"><span class="k-lbl">着工日</span><input type="date" id="start"></div>
@@ -286,14 +306,6 @@
           <div class="k-info-cell"><span class="k-lbl">施工会社</span><span class="k-val">菱熱工業株式会社</span></div>
           <div class="k-info-cell"><span class="k-lbl">施主</span><select id="kClient"><option value="">（未選択）</option></select></div>
           <div class="k-info-cell"><span class="k-lbl">作成者（担当者）</span><select id="kAuthor"><option value="">（未選択）</option></select></div>
-          <div class="k-info-cell wide"><span class="k-lbl">バージョン（作成日）</span>
-            <span class="k-ver">
-              <select id="kVerSelect" title="保存したバージョンを選んで表示します"><option value="">編集中（最新）</option></select>
-              <button class="btn" id="btnSaveVer" title="今の状態を作成日つきのバージョンとして保存します">保存</button>
-              <button class="btn" id="btnRenameVer" title="選んでいるバージョンの名前を変更">✏ 名前</button>
-              <button class="btn danger" id="btnDelVer" title="選んでいるバージョンを削除">🗑</button>
-            </span>
-          </div>
         </div>
       </div>
 
@@ -311,14 +323,12 @@
           <button class="btn" id="kZoomIn" aria-label="拡大">＋</button>
           <button class="btn" id="kZoomReset" aria-label="100%に戻す">⟲</button>
         </span>
-        <button class="btn" id="btnExcel">📊 Excel出力</button>
-        <button class="btn" id="btnPrint">🖨 印刷 / PDF</button>
         <button class="btn danger" id="btnClear">バー全消去</button>
         <div class="legend">
           <span><span class="sw blue"></span>日中（青の行）</span>
           <span><span class="sw red"></span>夜間（赤の行）</span>
           <span><span class="sw wknd"></span>土日祝</span>
-          <span class="hint">💡 行をダブルクリックでバー作成／バーをダブルクリックで文字入力／上下に動かすと日中⇔夜間／Ctrl+クリックで複数選択</span>
+          <span class="hint">💡 <b>空いている所をドラッグ</b>でバーを作る／<b>バーをつかんで</b>移動（上下で日中⇔夜間）／<b>端</b>で長さ／<b>クリック</b>で文字・削除／Ctrl+クリックで複数選択</span>
         </div>
       </header>
 
@@ -343,6 +353,46 @@
           <label for="kNotes">特記事項</label>
           <textarea id="kNotes" placeholder="特記事項を入力（例：搬出入は管理者立会いのもと実施。雨天時は順延。）"></textarea>
         </div>
+      </div>
+    </div>
+
+    <!-- ===== 工事写真台帳ビュー ===== -->
+    <div id="viewPhoto" class="hidden">
+      <div class="ph-left">
+        <div class="ph-hdr">
+          <div class="ph-f"><label for="phTheater">劇場名</label><input type="text" id="phTheater"></div>
+          <div class="ph-f"><label for="phWork">工事名</label><input type="text" id="phWork"></div>
+          <div class="ph-f ph-f-date"><label for="phDate">表紙の日付</label><input type="date" id="phDate"></div>
+        </div>
+        <div class="ph-act">
+          <label class="ph-btn pri" for="phAddInput">＋ 写真を追加</label>
+          <input type="file" id="phAddInput" accept="image/*" multiple hidden>
+          <span class="ph-cnt" id="phCount"></span>
+          <span class="ph-grow"></span>
+          <span id="phBulk" class="ph-bulk-wrap"></span>
+          <button type="button" class="ph-btn ph-pvbtn" id="phPvBtn">見本を見る</button>
+        </div>
+        <div class="ph-act ph-sortrow">
+          <span class="ph-lbl">並べ替え</span>
+          <div class="ph-seg" id="phSort" role="group" aria-label="並べ替え">
+            <button type="button" data-psort="date">📅 撮影日順</button><button type="button" data-psort="koshu">🔧 工種別</button><button type="button" data-psort="kubun">工事前→工事後</button>
+          </div>
+          <span class="ph-cnt" id="phSortHint"></span>
+        </div>
+        <div class="ph-drop" id="phDrop">📷 写真はここへドラッグでも入れられます（何枚でも一度に）・スマホは「＋ 写真を追加」でカメラも使えます</div>
+        <div class="ph-cards" id="phCards"></div>
+        <datalist id="koshuList"></datalist>
+      </div>
+      <div class="ph-right" id="phRight">
+        <div class="ph-pvbar">
+          <b>できあがりの見本（A4縦）</b><span class="ph-grow"></span>
+          <span>台帳に出す：</span>
+          <label><input type="checkbox" id="phOptCover"> 表紙</label>
+          <label><input type="checkbox" id="phOptKoshu"> 工種</label>
+          <label><input type="checkbox" id="phOptShot"> 撮影日</label>
+          <button type="button" class="ph-btn ph-pvclose" id="phPvClose">✕ 閉じる</button>
+        </div>
+        <div class="ph-pv" id="phPv"></div>
       </div>
     </div>
 
@@ -715,6 +765,7 @@
 
       </div>
       <div class="modal-footer">
+        <button type="button" id="modalPhotoBtn" class="col-ryo hidden" title="この案件の工事写真台帳を作ります（劇場名・工事名が入ります）">📷 写真台帳を作る</button>
         <button type="button" id="modalDuplicateBtn">複製</button>
         <button type="button" id="modalDeleteBtn" class="danger">削除</button>
         <button type="button" id="cancelBtn">キャンセル</button>
@@ -877,6 +928,13 @@
 </div>
 
 <script src="app.js"></script>
+<!-- 書類棚の小窓（新しく作る・名前・移動・保存の確認など） -->
+<div id="shDlgBg" class="sh-dlg-bg hidden"><div id="shDlg" class="sh-dlg" role="dialog" aria-modal="true"></div></div>
+<div id="shMenu" class="sh-menu hidden" role="menu"></div>
+<div id="shToast" class="sh-toast hidden" role="status"></div>
+<!-- 写真台帳の印刷用（印刷の時だけ使う） -->
+<div id="photoPrint" class="photo-print"></div>
 <script src="kotei.js"></script>
+<script src="shelf.js"></script>
 </body>
 </html>
