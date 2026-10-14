@@ -72,6 +72,7 @@
 ├── templates.js        # 請求書/完了届テンプレート（base64）
 ├── kotei.js            # 工程表（ガントチャート）の編集。開く/保存は shelf.js が担当
 ├── shelf.js            # 書類棚（工程表・工事写真台帳のフォルダ管理・上書き保存/名前を付けて新規に保存）＋写真台帳
+├── shelf.css           # 書類棚・写真台帳の見た目（style.css とは別ファイル）
 ├── img/ryonetsu-logo.png # 写真台帳の表紙のロゴ
 ├── api/
 │   ├── case-created.mjs # Supabase webhook → AI判断 → LINE通知
