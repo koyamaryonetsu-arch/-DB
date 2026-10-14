@@ -679,7 +679,7 @@
       if (!force) {
         const st = await api.stamp(c.type, c.row.id);
         if (st === null) { saving = false; c.saving = false; saveUi(); openDlg(`<h3>保存できません</h3><div class="sh-dlg-b"><p>この書類は、ほかの人が削除したようです。「名前を付けて新規に保存」で別の書類として残せます。</p></div><div class="sh-dlg-f"><button type="button" class="pri" data-dlg="cancel">閉じる</button></div>`); $('shDlg').querySelector('[data-dlg="cancel"]').addEventListener('click', closeDlg); return false; }
-        if (c.loadedStamp && st && new Date(st).getTime() !== new Date(c.loadedStamp).getTime()) {
+        if (c.loadedStamp && st && st !== c.loadedStamp && new Date(st).getTime() !== new Date(c.loadedStamp).getTime()) {
           saving = false; c.saving = false; saveUi();
           return await new Promise((resolve) => {
             openDlg(`<h3>ほかの人が先に保存しています</h3><div class="sh-dlg-b"><p>あなたが開いた後に、この書類が保存されています（${esc(fmtUpdated(st))}）。上書きすると、その人の変更は消えます。</p></div>
