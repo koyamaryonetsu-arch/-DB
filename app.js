@@ -67,7 +67,10 @@
   const STATUS_FILTER_ORDER = ['受付','見積り中','見積り提出済','日程調整中','作業中','対応済み','客先対応中','請求済','入金済','保留','取り下げ','完了','失注'];
   // ログイン時に既定で非表示にするステータス（ステータス列のチェックボックスから外れた状態にする）。
   // 「全件表示」ボタンで一時的に全部見せられる。
-  const DEFAULT_HIDDEN_STATUSES = ['完了', '入金済', '取り下げ', '失注'];
+  // トップ画で最初は隠す状態（「表示する状態 ▾」で1つずつ表示/非表示を切り替えられる）
+  const DEFAULT_HIDDEN_STATUSES = ['完了', '対応済み', '請求済', '入金済', '取り下げ', '失注', '保留'];
+  // 「終わった案件」＝タスクの件数・止まりの提案から外す状態（表示の切替とは別。対応済み・保留にもまだやるタスクがある）
+  const CLOSED_FOR_TASKS = ['完了', '入金済', '取り下げ', '失注'];
   // 終了した案件（二重登録の判定では比較対象から外す）
   const TERMINAL_LIKE_STATUSES = new Set(['完了', '入金済', '取り下げ', '失注']);
 
@@ -950,12 +953,36 @@
   function defaultStatusVisibleSet() {
     return new Set(STATUS_FILTER_ORDER.filter((s) => DEFAULT_HIDDEN_STATUSES.indexOf(s) === -1));
   }
-  // ログイン時に「完了・取り下げ」をチェックから外した状態で開始する
-  function seedDefaultStatusFilter() { columnFilters['status'] = defaultStatusVisibleSet(); }
-  // いま完了・取り下げも表示されているか（フィルタ無し or その2つがチェック済み）
-  function statusAllShown() {
-    const set = columnFilters['status'];
-    return !set || DEFAULT_HIDDEN_STATUSES.every((s) => set.has(s));
+  // ログイン時: 前回「表示する状態」で選んだものを復元（初めては7つとも非表示）
+  const STATUS_SHOW_KEY = 'statusShowV1';
+  function seedDefaultStatusFilter() {
+    let shown = [];
+    try { const a = JSON.parse(localStorage.getItem(userFilterKey(STATUS_SHOW_KEY)) || '[]'); if (Array.isArray(a)) shown = a; } catch (e) {}
+    const visible = defaultStatusVisibleSet();
+    shown.forEach((st) => { if (DEFAULT_HIDDEN_STATUSES.indexOf(st) !== -1) visible.add(st); });
+    if (STATUS_FILTER_ORDER.every((st) => visible.has(st))) delete columnFilters['status'];
+    else columnFilters['status'] = visible;
+  }
+  // その状態がいま一覧に出ているか（絞り込みなし＝全部出ている）
+  function statusShown(st) { const set = columnFilters['status']; return !set || set.has(st); }
+  // いま7つとも表示されているか
+  function statusAllShown() { return DEFAULT_HIDDEN_STATUSES.every(statusShown); }
+  function saveStatusShow() {
+    try { localStorage.setItem(userFilterKey(STATUS_SHOW_KEY), JSON.stringify(DEFAULT_HIDDEN_STATUSES.filter(statusShown))); } catch (e) {}
+  }
+  // 「表示する状態」で1つの状態の表示/非表示を切り替える
+  function toggleStatusShown(st) {
+    let set = columnFilters['status'];
+    if (!set) set = new Set(STATUS_FILTER_ORDER);
+    if (set.has(st)) set.delete(st); else set.add(st);
+    if (STATUS_FILTER_ORDER.every((x) => set.has(x))) delete columnFilters['status'];
+    else columnFilters['status'] = set;
+    saveStatusShow(); refresh();
+  }
+  function setAllStatusShown(show) {
+    if (show) delete columnFilters['status'];
+    else columnFilters['status'] = defaultStatusVisibleSet();
+    saveStatusShow(); refresh();
   }
   // ⑥ ON/OFF はスイッチで表す（青＝ON）。文字はそのまま、状態は aria-checked で持つ
   function setSwitch(btn, on) {
@@ -963,12 +990,15 @@
     btn.setAttribute('aria-checked', on ? 'true' : 'false');
     btn.classList.toggle('active', !!on);
   }
-  function updateShowAllBtn() { setSwitch($('showAllBtn'), statusAllShown()); }
-  // 「全件表示」ボタン: 完了・取り下げも含めて全部表示 ↔ 既定（完了・取り下げ非表示）を切替
-  function toggleShowAllStatuses() {
-    if (statusAllShown()) columnFilters['status'] = defaultStatusVisibleSet(); // 既定に戻す
-    else delete columnFilters['status'];                                       // 全部表示
-    refresh();
+  // 「表示する状態 ▾」のボタンと中身を今の状態に合わせる（名前は今までの関数名のまま。描き直しのたびに呼ばれる）
+  function updateShowAllBtn() {
+    const btn = $('statusVisBtn'); if (!btn) return;
+    const hidden = DEFAULT_HIDDEN_STATUSES.filter((st) => !statusShown(st)).length;
+    btn.innerHTML = `表示する状態 <span class="sv-count">${hidden ? `非表示 ${hidden}` : 'すべて表示'}</span> ▾`;
+    btn.classList.toggle('all-shown', !hidden);
+    const box = $('statusVisList'); if (!box) return;
+    box.innerHTML = DEFAULT_HIDDEN_STATUSES.map((st) =>
+      `<button type="button" class="sw-btn sv-item" role="switch" aria-checked="${statusShown(st)}" data-sv="${escapeHtml(st)}"><span class="sw-t"></span>${escapeHtml(statusDisplayLabel(st))}</button>`).join('');
   }
   // R担当者ボタンによる絞り込み（空=全員）。複数選択時はいずれかが担当の案件（OR）
   let rPersonFilter = new Set();
@@ -3587,14 +3617,18 @@
       if (due && due < today) over++;
     };
     visibleCases().forEach((c) => {
-      if (DEFAULT_HIDDEN_STATUSES.indexOf(statusOf(c)) !== -1) return;
+      if (CLOSED_FOR_TASKS.indexOf(statusOf(c)) !== -1) return;
       (Array.isArray(c.tasks) ? c.tasks : []).forEach(count);
     });
     Object.keys(personalTasks).forEach((p) => (Array.isArray(personalTasks[p]) ? personalTasks[p] : []).forEach(count));
-    badge.textContent = open ? String(open) : '';
+    // 数字だけだと何の数か分からないため、「未完了」「期限切れ」と文字を添える
+    badge.innerHTML = open ? `<span class="bl">未完了</span>${open}` : '';
     badge.classList.toggle('hidden', !open);
-    badge.classList.toggle('ok', !over);
-    $('taskBtn').title = open ? `未完了のタスク ${open} 件${over ? `（うち期限切れ ${over} 件）` : ''}` : '';
+    badge.classList.add('ok');
+    badge.classList.toggle('has-over', !!over);   // スマホでは「期限切れ」の札を出さず、この札を赤くする
+    const ob = $('taskOverBadge');
+    if (ob) { ob.innerHTML = over ? `<span class="bl">期限切れ</span>${over}` : ''; ob.classList.toggle('hidden', !over); }
+    $('taskBtn').title = open ? `未完了のタスク ${open} 件${over ? `（うち期限切れ ${over} 件）` : ''}（案件のタスク＋全員の個人タスク）` : '';
   }
 
   // ===== 個人タスクの提案「💡 これタスクでは？」 =====
@@ -5767,7 +5801,13 @@
   updateBigToggleLabel();
 
   // 全件表示（完了・取り下げも表示）トグル
-  if ($('showAllBtn')) $('showAllBtn').addEventListener('click', toggleShowAllStatuses);
+  // 「表示する状態 ▾」の中: 1つずつ切り替え／全部表示／7つとも隠す（中を押しても閉じない＝続けて切り替えられる）
+  $('statusVisList').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-sv]'); if (!b) return;
+    e.stopPropagation(); toggleStatusShown(b.dataset.sv);
+  });
+  $('statusVisAll').addEventListener('click', (e) => { e.stopPropagation(); setAllStatusShown(true); });
+  $('statusVisNone').addEventListener('click', (e) => { e.stopPropagation(); setAllStatusShown(false); });
 
   // 税込み/税抜き表示トグル（標準=税抜き。税込みにすると「見積り金額（税込み）」列を表示）
   let showTax = false;
@@ -5778,7 +5818,7 @@
   });
 
   // ===== ① 押すと開く小窓（☰ その他／自分のメニュー／色の意味） =====
-  const POPOVERS = [['moreMenuBtn', 'moreMenu'], ['userMenuBtn', 'userMenu'], ['legendBtn', 'legendPop']];
+  const POPOVERS = [['moreMenuBtn', 'moreMenu'], ['userMenuBtn', 'userMenu'], ['legendBtn', 'legendPop'], ['statusVisBtn', 'statusVisPop']];
   function closePopovers(exceptId) {
     POPOVERS.forEach(([b, p]) => {
       if (p === exceptId) return;
@@ -5801,7 +5841,7 @@
     // 中の機能を押したら閉じる（表示倍率の －／＋ は続けて押せるよう閉じない）
     pop.addEventListener('click', (e) => {
       const item = e.target.closest('button');
-      if (item && !item.closest('.zoom-control')) closePopovers();
+      if (item && !item.closest('.zoom-control') && !item.closest('#statusVisPop')) closePopovers();
     });
   });
   document.addEventListener('click', (e) => {
@@ -5854,7 +5894,11 @@
       if (badge && !orig.classList.contains('hidden')) pending += Number(badge.textContent) || 0;
     });
     const mb = $('moreBadge');
-    if (mb) { mb.textContent = pending ? String(pending) : ''; mb.classList.toggle('hidden', !pending); }
+    if (mb) {
+      mb.innerHTML = pending ? `<span class="bl">確認</span>${pending}` : '';
+      mb.classList.toggle('hidden', !pending);
+      $('moreMenuBtn').title = pending ? `登録確認・劇場情報更新確認の確認待ち ${pending} 件（☰ の中）` : '';
+    }
   }
   ['quickCaseBtn', 'calBtn', 'intakeBtn', 'theaterPendingBtn'].forEach((id) => {
     if ($(id)) new MutationObserver(syncMenuProxies).observe($(id), { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ['class'] });

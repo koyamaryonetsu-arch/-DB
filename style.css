@@ -2406,3 +2406,31 @@ td.task-col.ptp-tasks { padding-right: 12px !important; }
   .sugg-btns { grid-column: 1 / -1; justify-content: flex-end; }
   .sugg-accept, .sugg-dismiss { height: 34px; padding: 0 14px; font-size: 13px; }
 }
+/* 「表示する状態 ▾」（完了・対応済み・請求済・入金済・取り下げ・失注・保留 を1つずつ） */
+.sv-btn {
+  height: 30px; padding: 0 10px; border-radius: 7px; border: 1px solid #d3d9e3; background: #fff;
+  font-size: 12.5px; color: #374151; white-space: nowrap; flex: none;
+}
+.sv-btn:hover { border-color: #aab4c4; }
+.sv-btn .sv-count { font-size: 11px; font-weight: 700; color: #6b7280; background: #eef1f5; border-radius: 9px; padding: 1px 7px; margin-left: 2px; }
+.sv-btn.all-shown .sv-count { background: #dbeafe; color: #1d4ed8; }
+.sv-pop { width: 250px; left: 0; right: auto; }
+.sv-list { display: grid; gap: 2px; margin-bottom: 8px; }
+.sv-list .sw-btn { justify-content: flex-start; padding: 6px 4px; border-radius: 6px; font-size: 13px; }
+.sv-list .sw-btn:hover { background: #f1f5f9; }
+.sv-actions { display: flex; gap: 6px; margin-bottom: 6px; }
+.sv-actions .mini-btn { flex: 1; }
+
+/* 数字の意味を文字で出す（タスク管理の件数／☰ の件数） */
+.task-badge .bl { font-weight: 600; margin-right: 3px; font-size: 10.5px; }
+.task-badge.over-badge { background: #dc2626; color: #fff; margin-left: 4px; }
+/* PC では「登録確認」「劇場情報更新確認」の件数がボタンに出ているので、☰ の件数は出さない（スマホだけ） */
+@media (min-width: 601px) { #moreBadge { display: none !important; } }
+.m-badge .bl { font-weight: 600; margin-right: 3px; font-size: 10.5px; }
+/* スマホ: 札を2つ並べると上の段が狭くなるので、「期限切れ」は別に出さず「未完了」の札を赤くする */
+@media (max-width: 600px) {
+  #taskOverBadge { display: none !important; }
+  #taskBadge.has-over { background: #dc2626; color: #fff; }
+}
+/* とても狭いスマホ（幅360px以下）では、タスク管理を開いている間の「閉じる」の文字を省いて ✕ だけにする */
+@media (max-width: 360px) { header .hdr-btn .tb-sh { display: none; } }
