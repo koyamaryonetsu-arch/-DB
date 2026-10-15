@@ -2469,6 +2469,7 @@
     // 複製/削除（既存案件の編集時のみ・通常編集のみ。表示自体はモバイルのみCSSで制御）
     $('modalDuplicateBtn').classList.toggle('hidden', !caseObj || isCalEdit);
     $('modalDeleteBtn').classList.toggle('hidden', !caseObj || isCalEdit);
+    $('modalPhotoBtn').classList.toggle('hidden', !caseObj || isCalEdit || !isPrivileged(currentUser));
 
     if (isPrivileged(currentUser)) {
       $('company').disabled = false;
@@ -3383,28 +3384,34 @@
   }
   function toggleCalMode() { if (calMode) exitCalMode(); else enterCalMode(); }
 
-  // ===== 工程表（ガントチャート）モード =====
+  // ===== 書類棚（工程表・工事写真台帳）モード — 中身は shelf.js / kotei.js =====
   let koteiMode = false;
-  function enterKoteiMode() {
+  function enterKoteiMode(opts) {
     if (aggMode) exitAggMode();
     if (taskMode) exitTaskMode();
     if (calMode) exitCalMode();
     exitAuxModes();
     koteiMode = true;
-    $('koteiBtn').textContent = '✕ 工程表を閉じる';
+    $('koteiBtn').textContent = '✕ 書類棚を閉じる';
     document.querySelector('.table-wrap').classList.add('hidden');
     document.querySelector('.legend').classList.add('hidden');
-    $('viewKotei').classList.remove('hidden');
-    if (window.KOTEI && window.KOTEI.open) window.KOTEI.open();
+    document.body.classList.add('shelf-active');
+    if (window.SHELF) window.SHELF.open(opts);
   }
+  // 他の画面へ切り替えた時にも呼ばれる（保存していない変更は端末に残り、次に開いた時に復元できる）
   function exitKoteiMode() {
     koteiMode = false;
-    $('koteiBtn').textContent = '📋 工程表';
-    $('viewKotei').classList.add('hidden');
+    $('koteiBtn').textContent = '📁 書類棚（工程表・写真台帳）';
+    if (window.SHELF) window.SHELF.close();
+    document.body.classList.remove('shelf-active');
     document.querySelector('.table-wrap').classList.remove('hidden');
     document.querySelector('.legend').classList.remove('hidden');
   }
-  function toggleKoteiMode() { if (koteiMode) exitKoteiMode(); else enterKoteiMode(); }
+  // 「✕ 書類棚を閉じる」を押した時は、保存していない変更があれば「保存しますか？」と聞いてから閉じる
+  function toggleKoteiMode() {
+    if (!koteiMode) { enterKoteiMode(); return; }
+    if (window.SHELF) window.SHELF.requestClose(exitKoteiMode); else exitKoteiMode();
+  }
 
   // ===== 支払い状況（購買）モード（菱熱のみ） =====
   let purchaseMode = false;
@@ -5137,6 +5144,15 @@
     const dup = Object.assign({}, c, { id: genId(), tasks: [], purchases: [], allocations: Object.assign({}, c.allocations || {}), updatedAt: new Date().toISOString() });
     cases.push(dup); persistCase(dup); closeModal(); render(); if (calMode) renderCalendar();
   });
+  // この案件の工事写真台帳を作る（劇場名・工事名が入った状態で「新しく作る」を開く）
+  $('modalPhotoBtn').addEventListener('click', () => {
+    const c = cases.find((x) => x.id === $('caseId').value); if (!c) return;
+    if (caseFormSnapshot() !== modalSnapshot && !confirm('編集中の内容が保存されていません。\n保存せずに写真台帳を作りますか？')) return;
+    closeModal();
+    const opts = { newFromCase: { id: c.id, company: c.company, theater: c.theater, estimateName: c.estimateName || '', content: c.content || '' }, type: 'photo' };
+    if (koteiMode && window.SHELF) window.SHELF.requestClose(() => { exitKoteiMode(); enterKoteiMode(opts); });
+    else enterKoteiMode(opts);
+  });
   $('modalDeleteBtn').addEventListener('click', () => {
     const c = cases.find((x) => x.id === $('caseId').value); if (!c) return;
     if (!confirm(`案件「${c.theater || '(劇場未入力)'}」を削除しますか？`)) return;
@@ -6018,7 +6034,12 @@
       client: () => sb,
       mode: () => store.mode,
       teams: () => { try { return loadTeam(); } catch (e) { return []; } },
-      companies: () => { try { return companies.map((c) => ({ name: c.name, abbr: c.abbr, officialName: c.officialName || '' })); } catch (e) { return []; } }
+      companies: () => { try { return companies.map((c) => ({ name: c.name, abbr: c.abbr, officialName: c.officialName || '' })); } catch (e) { return []; } },
+      // 書類棚(shelf.js)用: 劇場マスタ・案件（見えている分）・ログイン中の人
+      theaters: () => { try { return theaterMaster.map((t) => ({ name: t.name, company: t.company })); } catch (e) { return []; } },
+      cases: () => { try { return visibleCases().map((c) => ({ id: c.id, company: c.company, theater: c.theater, estimateName: c.estimateName || '', content: c.content || '' })); } catch (e) { return []; } },
+      shortTheater: (name) => shortTheaterName(name),
+      userEmail: () => (currentUser && currentUser.email) || ''
     };
     // モードに応じたログイン画面ヒント
     const hintEl = $('loginHint');

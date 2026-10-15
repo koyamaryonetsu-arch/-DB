@@ -1493,8 +1493,8 @@ td[data-field="category"], td[data-field="content"] { background: #fff; }
 
 
 /* ============================================================
-   工程表（ガントチャート）ビュー v2 — すべて #viewKotei 配下にスコープ
-   1日4分割／各作業4行（日中詳細・日中バー・夜間詳細・夜間バー）
+   工程表（ガントチャート）ビュー v3 — すべて #viewKotei 配下にスコープ
+   1日4分割／各作業2段（日中・夜間。文字はバーの上）。マスターは1段
    ============================================================ */
 #viewKotei{
   --k-label-w:140px; --k-line:#dfe3e8; --k-line-strong:#b9c0c9;
@@ -1507,14 +1507,13 @@ td[data-field="category"], td[data-field="content"] { background: #fff; }
 #viewKotei *{ box-sizing:border-box; }
 
 /* ツールバー */
-#viewKotei .toolbar{ background:#fff; border-bottom:1px solid var(--k-line); padding:8px 12px; display:flex; flex-wrap:wrap; gap:8px 14px; align-items:center; flex:0 0 auto; }
+#viewKotei .toolbar{ color:#1f2733; background:#fff; border-bottom:1px solid var(--k-line); padding:8px 12px; display:flex; flex-wrap:wrap; gap:8px 14px; align-items:center; flex:0 0 auto; }
 #viewKotei .field{ display:flex; align-items:center; gap:5px; }
 #viewKotei .field label{ font-weight:600; color:#445; white-space:nowrap; }
 #viewKotei input[type=text],#viewKotei input[type=date],#viewKotei input[type=number],#viewKotei select{
   border:1px solid #cbd2db; border-radius:6px; padding:5px 8px; font-size:13px; font-family:inherit; background:#fff; color:#1f2733;
 }
 #viewKotei #days{ width:54px; text-align:center; }
-#viewKotei #kSelect{ min-width:150px; max-width:240px; font-weight:600; }
 
 /* プロジェクト情報バー */
 #viewKotei .k-infobar{ background:linear-gradient(180deg,#fbfcfe,#eef2f8); border-bottom:2px solid var(--k-line-strong); padding:12px 16px 10px; flex:0 0 auto; }
@@ -1625,8 +1624,8 @@ td[data-field="category"], td[data-field="content"] { background: #fff; }
 #viewKotei .kgl{ position:absolute; top:0; bottom:0; width:0; pointer-events:none; z-index:0; }
 #viewKotei .kgl-day{ border-left:2px solid var(--k-day-line); }
 #viewKotei .kgl-q{ border-left:1px solid var(--k-quarter-line); }
-#viewKotei .klane.detail{ height:18px; border-bottom:1px dotted #e5e9ee; }
-#viewKotei .klane.bar{ height:20px; border-bottom:1px solid var(--k-line); cursor:crosshair; }
+#viewKotei .klane.bar{ height:34px; border-bottom:1px dashed #e1e5ec; cursor:crosshair; touch-action:pan-y; }
+#viewKotei .klane.bar.master{ height:36px; border-bottom:1px solid var(--k-line-strong); }
 /* バーにマウスを乗せている間はそのレーンを前面に出す（下にはみ出す「×」を確実にクリックできるように） */
 #viewKotei .klane.bar:hover{ z-index:8; }
 #viewKotei .klane.bar.night{ border-bottom:1px solid var(--k-line-strong); }
@@ -1640,7 +1639,7 @@ td[data-field="category"], td[data-field="content"] { background: #fff; }
 
 /* バー */
 #viewKotei .kbar{
-  position:absolute; top:2px; height:16px; border-radius:4px; cursor:grab;
+  position:absolute; bottom:4px; height:14px; border-radius:4px; cursor:grab;
   box-shadow:0 1px 2px rgba(0,0,0,.25); user-select:none; border:1px solid rgba(0,0,0,.15); z-index:3;
 }
 #viewKotei .kbar.day{ background:var(--k-blue); }

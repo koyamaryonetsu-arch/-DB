@@ -325,3 +325,8 @@ create policy "tc_update" on public.theater_contacts for update to authenticated
 drop policy if exists "tc_delete" on public.theater_contacts;
 create policy "tc_delete" on public.theater_contacts for delete to authenticated
   using (coalesce(auth.email() like '%@ryonetsu.com', false));
+
+-- ============================================
+-- 書類棚（工程表のフォルダ管理・ごみ箱）＋ 工事写真台帳（photo_ledgers・doc_folders・Storage ledger-photos）
+-- 既存環境への適用は SETUP_SHELF.sql を参照
+-- ============================================

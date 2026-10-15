@@ -2,11 +2,13 @@
 /* ============================================================
    工程表（ガントチャート）  ―  シネマ案件管理アプリ統合版
    ・種類: 通常(日付) / ゼロ工程表(1日目…) / マスター工程(週・月)
-   ・通常/ゼロ: 1日4分割（〜8時/8〜12/12〜17/17〜）・各作業4行（日中/夜間）
-   ・マスター: 週 or 月単位・各作業2行
-   ・ダブルクリックで文字入力／上下移動で日中⇔夜間／Ctrl+クリックで複数選択
-   ・戻す/進む・縮尺・特記事項・印刷・Excel出力・バージョン管理(作成日)
-   ・保存先は Supabase の koutei テーブル（現場ごと独立・全員共有）
+   ・通常/ゼロ: 1日4分割（〜8時/8〜12/12〜17/17〜）・各作業2段（日中/夜間。文字はバーの上）
+   ・マスター: 週 or 月単位・各作業1段
+   ・空いている所をドラッグでバーを作る（ダブルクリックでも1日分）／つかんで移動（上下で日中⇔夜間）
+     ／端で長さ／クリックで文字・日中⇔夜間・削除／Ctrl+クリックで複数選択
+   ・戻す/進む・縮尺・特記事項・印刷・Excel出力
+   ・どの工程表を開くか・保存（上書き保存／名前を付けて新規に保存）は書類棚(shelf.js)が受け持つ。
+     ここは「開いている1枚」を描いて編集し、変わったら hooks.onChange で知らせるだけ
    ============================================================ */
 (function () {
   const BASE_QW = 16;
@@ -26,21 +28,18 @@
   ])];
 
   let state = null;
+  let hooks = {};
 
-  function defaultState() {
-    return {
+  function defaultState(init) {
+    return Object.assign({
       v: 2, kind: 'date', unit: 'week',
       title: "工事名　工程表", content: "", start: isoToday(), days: 21,
-      author: "", client: "", notes: "", versions: [],
+      author: "", client: "", notes: "",
       tasks: DEFAULT_TASKS.map((n) => ({ id: uid(), name: n })),
       bars: []   // {id, taskId, startSlot, lenSlots, night:bool, label}
-    };
+    }, init || {});
   }
   function uid() { return Math.random().toString(36).slice(2, 9); }
-  function uuid() {
-    if (window.crypto && typeof crypto.randomUUID === 'function') return crypto.randomUUID();
-    return 'kxxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => { const r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16); });
-  }
   function isoToday() { return iso(new Date()); }
   function iso(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
   function parseISO(s) { const [y, m, d] = String(s).split('-').map(Number); return new Date(y, (m || 1) - 1, d || 1); }
@@ -49,8 +48,7 @@
   /* ---- 種類ごとのパラメータ ---- */
   function isMaster() { return state && state.kind === 'master'; }
   function slotsPer() { return isMaster() ? 1 : 4; }
-  function rowsPerTask() { return isMaster() ? 2 : 4; }
-  function hasTimes() { return state && (state.kind === 'date' || state.kind === 'zero'); }
+  function rowsPerTask() { return isMaster() ? 2 : 4; }   // Excel 出力の行数（文字の行＋バーの行）
   function hasCalendar() { return state && state.kind === 'date'; }
 
   /* ---- 祝日（概算・通常工程のみ使用） ---- */
@@ -117,6 +115,7 @@
 
   function render() {
     if (!state) return;
+    closeBarPop();
     applyScaleVars();
     board.innerHTML = '';
     const cols = state.days, trackW = cols * COL_W;
@@ -150,15 +149,14 @@
     let wknd = [], todayIdx = -1;
     if (hasCalendar()) { for (let i = 0; i < cols; i++) { const di = dayInfo(i); if (di.isWeekend || di.isHoliday) wknd.push(i); if (di.isToday) todayIdx = i; } }
 
-    const laneDefs = isMaster() ? [{ k: 'detail', n: false }, { k: 'bar', n: false }]
-      : [{ k: 'detail', n: false }, { k: 'bar', n: false }, { k: 'detail', n: true }, { k: 'bar', n: true }];
+    const laneNights = isMaster() ? [false] : [false, true];
 
     state.tasks.forEach((task) => {
       const row = el('div', 'ktask');
       const lbl = el('div', 'klabel');
       const grip = el('span', 'grip'); grip.textContent = '⋮'; grip.title = 'ドラッグで並べ替え'; grip.draggable = true;
       grip.addEventListener('dragstart', (e) => { e.dataTransfer.setData('text/plain', task.id); });
-      const name = el('div', 'name'); name.textContent = task.name; name.title = 'クリックで名称編集';
+      const name = el('div', 'name'); name.textContent = task.name; name.title = 'クリックで名前を書き直す';
       name.addEventListener('click', () => editTaskName(task, name));
       const del = el('button', 'ktask-del'); del.textContent = '×'; del.title = 'この作業を削除';
       del.addEventListener('click', () => deleteTask(task));
@@ -173,17 +171,11 @@
       // 縦線（実体のある要素＝印刷でも確実に出る）: 1日ごとに濃い線、1日の1/4ごとに薄い線
       addGridLines(lanes, cols, SLOTS);
 
-      const laneEls = laneDefs.map((d) => makeLane(d.k, task.id, d.n, trackW));
-      laneEls.forEach((le) => lanes.appendChild(le));
-      // バー配置：マスターは1本のバーレーンに全バー。通常/ゼロは日中/夜間で振り分け
-      const barLanes = laneEls.filter((le) => le.dataset.kind === 'bar');
-      const detailLanes = laneEls.filter((le) => le.dataset.kind === 'detail');
-      state.bars.filter((b) => b.taskId === task.id).forEach((b) => {
-        const night = isMaster() ? false : !!b.night;
-        const bl = barLanes.find((le) => (le.dataset.night === '1') === night) || barLanes[0];
-        const dl = detailLanes.find((le) => (le.dataset.night === '1') === night) || detailLanes[0];
-        bl.appendChild(makeBar(b));
-        if (b.label) dl.appendChild(makeDetailText(b));
+      // 1作業 = 日中・夜間の2段（マスターは1段）。文字はバーの上に出す
+      laneNights.forEach((night) => {
+        const lane = makeLane(task.id, night, trackW);
+        state.bars.filter((b) => b.taskId === task.id && (isMaster() ? true : !!b.night === night)).forEach((b) => lane.appendChild(makeBar(b)));
+        lanes.appendChild(lane);
       });
       row.appendChild(lanes);
       board.appendChild(row);
@@ -200,9 +192,7 @@
   }
 
   function addGridLines(lanes, cols, slots) {
-    // 1日（または1週/1月）ごとの濃い縦線
     for (let d = 1; d <= cols; d++) { const ln = el('div', 'kgl kgl-day'); ln.style.left = (d * COL_W) + 'px'; lanes.appendChild(ln); }
-    // 1/4日ごとの薄い縦線（通常/ゼロのみ）
     if (slots > 1) {
       for (let d = 0; d < cols; d++) {
         for (let q = 1; q < slots; q++) { const ln = el('div', 'kgl kgl-q'); ln.style.left = (d * COL_W + q * QW) + 'px'; lanes.appendChild(ln); }
@@ -215,42 +205,37 @@
     recordUndo(snap());
     state.bars = state.bars.filter((b) => b.taskId !== task.id);
     state.tasks = state.tasks.filter((t) => t.id !== task.id);
-    save(); render();
+    changed(); render();
   }
   function addTaskInline() {
-    const nm = prompt('追加する作業名を入力してください。', '');
-    if (nm === null) return;
     recordUndo(snap());
-    state.tasks.push({ id: uid(), name: nm.trim() || '新規作業' });
-    save(); render();
+    const t = { id: uid(), name: '新しい作業' };
+    state.tasks.push(t);
+    changed(); render();
+    const names = board.querySelectorAll('.klabel .name');
+    const last = names[names.length - 1]; if (last) editTaskName(t, last, true);
   }
 
-  function makeLane(kind, taskId, night, trackW) {
-    const lane = el('div', 'klane ' + kind + (night ? ' night' : ' day'));
+  function makeLane(taskId, night, trackW) {
+    const lane = el('div', 'klane bar' + (night ? ' night' : ' day') + (isMaster() ? ' master' : ''));
     lane.style.width = trackW + 'px';
-    lane.dataset.task = taskId; lane.dataset.night = night ? '1' : '0'; lane.dataset.kind = kind;
-    if (kind === 'bar') lane.addEventListener('dblclick', (e) => onLaneDblClick(e, lane));
+    lane.dataset.task = taskId; lane.dataset.night = night ? '1' : '0'; lane.dataset.kind = 'bar';
+    if (!isMaster()) { const tag = el('span', 'ltag'); tag.textContent = night ? '夜間' : '日中'; lane.appendChild(tag); }
+    lane.addEventListener('pointerdown', (e) => onLaneDown(e, lane));
+    lane.addEventListener('dblclick', (e) => onLaneDblClick(e, lane));
     return lane;
-  }
-  function makeDetailText(b) {
-    const t = el('div', 'kdetail'); t.dataset.bar = b.id;
-    t.style.left = (b.startSlot * QW) + 'px'; t.style.width = Math.max(QW, b.lenSlots * QW) + 'px';
-    t.textContent = b.label || ''; t.title = b.label || '';
-    return t;
   }
   function makeBar(b) {
     const night = isMaster() ? false : !!b.night;
     const div = el('div', 'kbar ' + (night ? 'night' : 'day'));
     div.dataset.id = b.id;
     div.style.left = (b.startSlot * QW) + 'px'; div.style.width = Math.max(QW, b.lenSlots * QW) + 'px';
-    div.title = (b.label || '(無題)') + '  [' + slotLabel(b) + ']  ダブルクリックで文字入力';
+    div.title = (b.label || '(文字なし)') + '  [' + slotLabel(b) + ']  クリックで文字・削除';
+    const lb = el('span', 'klb'); lb.textContent = b.label || '';
     const hl = el('div', 'h l'), hr = el('div', 'h r');
-    const x = el('div', 'kx'); x.textContent = '×'; x.title = '削除';
-    x.addEventListener('pointerdown', (e) => { e.stopPropagation(); });
-    x.addEventListener('click', (e) => { e.stopPropagation(); deleteBars([b.id]); });
-    div.append(hl, hr, x);
+    div.append(lb, hl, hr);
     div.addEventListener('pointerdown', (e) => onBarDown(e, b, div));
-    div.addEventListener('dblclick', (e) => { e.stopPropagation(); editBar(b, div); });
+    div.addEventListener('dblclick', (e) => { e.stopPropagation(); openBarPop(b); });
     return div;
   }
   function slotLabel(b) {
@@ -264,27 +249,37 @@
   function liveUpdate(b) {
     const bd = board.querySelector('.kbar[data-id="' + b.id + '"]');
     if (bd) { bd.style.left = (b.startSlot * QW) + 'px'; bd.style.width = Math.max(QW, b.lenSlots * QW) + 'px'; }
-    const dt = board.querySelector('.kdetail[data-bar="' + b.id + '"]');
-    if (dt) { dt.style.left = (b.startSlot * QW) + 'px'; dt.style.width = Math.max(QW, b.lenSlots * QW) + 'px'; }
   }
 
   /* ============================================================
      バー操作
      ============================================================ */
   let drag = null;
-  function slotAtClientX(lane, clientX) { const r = lane.getBoundingClientRect(); return clamp(Math.round((clientX - r.left) / QW), 0, state.days * SLOTS); }
-  // バーの作成は「行をダブルクリック」。作成後は1日分の長さで置かれ、ドラッグで移動・端で伸縮できる
+  function slotAtClientX(lane, clientX) { const r = lane.getBoundingClientRect(); return clamp(Math.floor((clientX - r.left) / QW), 0, state.days * SLOTS - 1); }
+  // 空いている所をドラッグ → その長さでバーを作る（クリックだけでは作らない＝うっかり防止）
+  function onLaneDown(e, lane) {
+    if (e.button !== 0 || e.target.closest('.kbar')) return;
+    e.preventDefault();
+    if (!(e.ctrlKey || e.metaKey)) { selectedIds = new Set(); applySelection(); }
+    const s = slotAtClientX(lane, e.clientX);
+    const ghost = el('div', 'kghost'); ghost.style.left = (s * QW) + 'px'; ghost.style.width = QW + 'px';
+    lane.appendChild(ghost);
+    drag = { mode: 'new', lane, s0: s, s1: s, ghost, moved: false };
+    bindDragMove();
+  }
+  // ダブルクリックでも1日分のバーを作れる（今までの作り方）
   function onLaneDblClick(e, lane) {
-    if (e.target.classList.contains('kbar') || e.target.classList.contains('h') || e.target.classList.contains('kx')) return;
+    if (e.target.closest('.kbar')) return;
     e.preventDefault();
     const before = snap();
-    const startSlot = Math.min(slotAtClientX(lane, e.clientX), state.days * SLOTS - 1);
-    const bar = { id: uid(), taskId: lane.dataset.task, startSlot, lenSlots: SLOTS, night: lane.dataset.night === '1', label: '' };
+    const day = Math.floor(slotAtClientX(lane, e.clientX) / SLOTS);
+    const bar = { id: uid(), taskId: lane.dataset.task, startSlot: day * SLOTS, lenSlots: SLOTS, night: lane.dataset.night === '1', label: '' };
     state.bars.push(bar);
-    recordUndo(before); save(); render();
-    selectedIds = new Set([bar.id]); applySelection();
+    recordUndo(before); changed(); render();
+    selectedIds = new Set([bar.id]); applySelection(); openBarPop(bar);
   }
   function onBarDown(e, b, div) {
+    if (e.button !== 0) return;
     e.preventDefault(); e.stopPropagation();
     if (e.ctrlKey || e.metaKey) { if (selectedIds.has(b.id)) selectedIds.delete(b.id); else selectedIds.add(b.id); applySelection(); return; }
     if (!selectedIds.has(b.id)) { selectedIds = new Set([b.id]); applySelection(); }
@@ -292,60 +287,101 @@
     if (e.target.classList.contains('l')) mode = 'resize-l';
     else if (e.target.classList.contains('r')) mode = 'resize-r';
     const group = (mode === 'move') ? state.bars.filter((x) => selectedIds.has(x.id)).map((x) => ({ bar: x, origStart: x.startSlot })) : [{ bar: b, origStart: b.startSlot }];
-    drag = { mode, primary: b, group, startX: e.clientX, origLen: b.lenSlots, origStart: b.startSlot, div, moved: false, before: snap(), reassigned: false };
+    drag = { mode, primary: b, group, startX: e.clientX, startY: e.clientY, origLen: b.lenSlots, origStart: b.startSlot, div, moved: false, before: snap(), reassigned: false };
     bindDragMove();
   }
   function bindDragMove() { window.addEventListener('pointermove', onDragMove); window.addEventListener('pointerup', onDragUp, { once: true }); }
   function onDragMove(e) {
     if (!drag) return;
+    if (drag.mode === 'new') {
+      const s = slotAtClientX(drag.lane, e.clientX);
+      if (s !== drag.s0) drag.moved = true;
+      drag.s1 = s;
+      const a = Math.min(drag.s0, s), z = Math.max(drag.s0, s);
+      drag.ghost.style.left = (a * QW) + 'px'; drag.ghost.style.width = ((z - a + 1) * QW) + 'px';
+      return;
+    }
     const dSlots = Math.round((e.clientX - drag.startX) / QW);
-    if (dSlots !== 0) drag.moved = true;
+    if (dSlots !== 0 || Math.abs(e.clientY - drag.startY) > 6) drag.moved = true;
     const total = state.days * SLOTS, b = drag.primary;
     if (drag.mode === 'move') { drag.group.forEach((g) => { g.bar.startSlot = clamp(g.origStart + dSlots, 0, total - g.bar.lenSlots); liveUpdate(g.bar); }); }
-    else if (drag.mode === 'resize-r' || drag.mode === 'create') { b.lenSlots = clamp(drag.origLen + dSlots, 1, total - b.startSlot); liveUpdate(b); }
+    else if (drag.mode === 'resize-r') { b.lenSlots = clamp(drag.origLen + dSlots, 1, total - b.startSlot); liveUpdate(b); }
     else if (drag.mode === 'resize-l') { const ns = clamp(drag.origStart + dSlots, 0, drag.origStart + drag.origLen - 1); b.lenSlots = drag.origStart + drag.origLen - ns; b.startSlot = ns; liveUpdate(b); }
   }
   function onDragUp(e) {
     window.removeEventListener('pointermove', onDragMove);
-    if (drag) {
-      const b = drag.primary;
-      if (drag.mode === 'move' && drag.group.length === 1) {
-        const lane = laneAtPoint(e.clientX, e.clientY);
-        if (lane && (lane.dataset.task !== b.taskId || (lane.dataset.night === '1') !== b.night)) { b.taskId = lane.dataset.task; b.night = lane.dataset.night === '1'; drag.reassigned = true; }
-      }
-      if (drag.mode === 'create' && !drag.moved) b.lenSlots = SLOTS;
-      const changed = drag.moved || drag.reassigned || drag.mode === 'create';
-      if (changed) { recordUndo(drag.before); save(); render(); } else applySelection();
+    const d = drag; drag = null;
+    if (!d) return;
+    if (d.mode === 'new') {
+      d.ghost.remove();
+      if (!d.moved) return;
+      const before = snap();
+      const a = Math.min(d.s0, d.s1), z = Math.max(d.s0, d.s1);
+      const bar = { id: uid(), taskId: d.lane.dataset.task, startSlot: a, lenSlots: z - a + 1, night: d.lane.dataset.night === '1', label: '' };
+      state.bars.push(bar);
+      recordUndo(before); changed(); render();
+      selectedIds = new Set([bar.id]); applySelection(); openBarPop(bar);
+      return;
     }
-    drag = null;
+    const b = d.primary;
+    if (d.mode === 'move' && d.group.length === 1) {
+      const lane = laneAtPoint(e.clientX, e.clientY);
+      if (lane && (lane.dataset.task !== b.taskId || (!isMaster() && (lane.dataset.night === '1') !== !!b.night))) { b.taskId = lane.dataset.task; if (!isMaster()) b.night = lane.dataset.night === '1'; d.reassigned = true; }
+    }
+    const changedNow = (d.moved && (b.startSlot !== d.origStart || b.lenSlots !== d.origLen || d.group.some((g) => g.bar.startSlot !== g.origStart))) || d.reassigned;
+    if (changedNow) { recordUndo(d.before); changed(); render(); return; }
+    applySelection();
+    if (!d.moved) openBarPop(b);   // つかんで動かさずに離した＝クリック → 文字・削除の小窓
   }
   function laneAtPoint(x, y) {
     const stack = (document.elementsFromPoint ? document.elementsFromPoint(x, y) : [document.elementFromPoint(x, y)]);
-    for (const e2 of stack) { if (e2 && e2.classList && e2.classList.contains('klane') && e2.dataset.kind === 'bar') return e2; }
+    for (const e2 of stack) { if (e2 && e2.classList && e2.classList.contains('klane')) return e2; }
     return null;
   }
 
-  function editBar(b, div) {
-    const lane = div.parentElement, detail = lane.previousElementSibling;
-    if (!detail) return;
-    const before = snap();
-    const inp = document.createElement('input');
-    inp.type = 'text'; inp.className = 'kedit'; inp.value = b.label || '';
-    inp.style.left = (b.startSlot * QW) + 'px'; inp.style.width = Math.max(100, b.lenSlots * QW) + 'px';
-    detail.querySelectorAll('.kdetail').forEach((d) => { d.style.visibility = 'hidden'; });
-    detail.appendChild(inp); inp.focus(); inp.select();
-    let committed = false;
-    const done = () => { if (committed) return; committed = true; const nv = inp.value.trim(); if (nv !== (b.label || '')) { recordUndo(before); b.label = nv; save(); } render(); };
-    inp.addEventListener('blur', done);
-    inp.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') { ev.preventDefault(); inp.blur(); } else if (ev.key === 'Escape') { inp.value = b.label || ''; inp.blur(); } });
+  // ---- バーの小窓（文字・日中⇔夜間・削除） ----
+  let pop = null;
+  function closeBarPop() {
+    if (!pop) return;
+    const p = pop; pop = null;
+    p.el.remove();
+    document.removeEventListener('pointerdown', p.outside, true);
+    const nv = (p.input.value || '').trim();
+    const b = state && state.bars.find((x) => x.id === p.barId);
+    if (b && nv !== (p.orig || '')) { b.label = nv; recordUndo(p.before); changed(); }
   }
+  function openBarPop(b) {
+    closeBarPop();
+    const div = board.querySelector('.kbar[data-id="' + b.id + '"]'); if (!div) return;
+    const r = div.getBoundingClientRect();
+    const box = el('div', 'kbarpop');
+    box.innerHTML = '<input type="text" class="kbp-in" placeholder="バーの文字（例：既設撤去）" list="taskSuggest">' +
+      (isMaster() ? '' : '<button type="button" class="kbp-night"></button>') +
+      '<button type="button" class="kbp-del">削除</button>';
+    document.body.appendChild(box);
+    const input = box.querySelector('.kbp-in'); input.value = b.label || '';
+    const nb = box.querySelector('.kbp-night');
+    if (nb) nb.textContent = b.night ? '🔵 日中にする' : '🔴 夜間にする';
+    const w = box.offsetWidth || 360;
+    box.style.left = Math.max(8, Math.min(r.left, window.innerWidth - w - 8)) + 'px';
+    box.style.top = Math.min(r.bottom + 6, window.innerHeight - 56) + 'px';
+    const outside = (ev) => { if (!box.contains(ev.target)) closeBarPop(); };
+    pop = { el: box, input, barId: b.id, orig: b.label || '', before: snap(), outside };
+    setTimeout(() => document.addEventListener('pointerdown', outside, true), 0);
+    input.addEventListener('input', () => { const lb = board.querySelector('.kbar[data-id="' + b.id + '"] .klb'); if (lb) lb.textContent = input.value; });
+    input.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' || ev.key === 'Escape') { ev.preventDefault(); if (ev.key === 'Escape') input.value = pop ? pop.orig : input.value; closeBarPop(); render(); } });
+    if (nb) nb.addEventListener('click', () => { const before = pop.before; b.label = (input.value || '').trim(); pop.orig = b.label; closeBarPop(); b.night = !b.night; recordUndo(before); changed(); render(); selectedIds = new Set([b.id]); applySelection(); });
+    box.querySelector('.kbp-del').addEventListener('click', () => { pop.input.value = pop.orig; closeBarPop(); deleteBars([b.id]); });
+    input.focus(); input.select();
+  }
+
   function deleteBars(ids) {
     if (!ids.length) return;
     recordUndo(snap());
     const set = new Set(ids);
     state.bars = state.bars.filter((x) => !set.has(x.id));
     ids.forEach((id) => selectedIds.delete(id));
-    save(); render();
+    changed(); render();
   }
   function applySelection() {
     board.querySelectorAll('.kbar.sel').forEach((x) => x.classList.remove('sel'));
@@ -365,8 +401,8 @@
   let undoStack = [], redoStack = [];
   function snap() { return JSON.parse(JSON.stringify(state)); }
   function recordUndo(prev) { undoStack.push(prev); if (undoStack.length > 80) undoStack.shift(); redoStack = []; updateUndoButtons(); }
-  function undo() { if (!undoStack.length) return; redoStack.push(snap()); state = undoStack.pop(); selectedIds = new Set(); save(); syncToolbar(); render(); updateUndoButtons(); }
-  function redo() { if (!redoStack.length) return; undoStack.push(snap()); state = redoStack.pop(); selectedIds = new Set(); save(); syncToolbar(); render(); updateUndoButtons(); }
+  function undo() { if (!undoStack.length) return; closeBarPop(); redoStack.push(snap()); state = undoStack.pop(); selectedIds = new Set(); changed(); syncToolbar(); render(); updateUndoButtons(); }
+  function redo() { if (!redoStack.length) return; closeBarPop(); undoStack.push(snap()); state = redoStack.pop(); selectedIds = new Set(); changed(); syncToolbar(); render(); updateUndoButtons(); }
   function updateUndoButtons() { const u = $('#viewKotei #btnUndo'), rd = $('#viewKotei #btnRedo'); if (u) u.disabled = !undoStack.length; if (rd) rd.disabled = !redoStack.length; }
   $('#viewKotei #btnUndo').addEventListener('click', undo);
   $('#viewKotei #btnRedo').addEventListener('click', redo);
@@ -382,98 +418,51 @@
   (function () { try { const z = parseFloat(localStorage.getItem(ZOOM_LS)); if (z >= 0.5 && z <= 2) scale = z; } catch (e) {} })();
 
   /* ============================================================
-     種類（通常 / ゼロ / マスター）
+     種類（通常 / ゼロ / マスター週 / マスター月）— 4つのボタンで切り替え
      ============================================================ */
+  function kindKey() { return isMaster() ? ('master-' + (state.unit || 'week')) : state.kind; }
   function applyKindUI() {
     if (!state) return;
-    const sel = $('#viewKotei #kKind'); if (sel) sel.value = isMaster() ? ('master-' + (state.unit || 'week')) : state.kind;
+    document.querySelectorAll('#viewKotei #kKindSeg [data-kind]').forEach((b) => { const on = b.dataset.kind === kindKey(); b.classList.toggle('on', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
     const lbl = $('#viewKotei #kDaysLbl'), unit = $('#viewKotei #kDaysUnit');
     const startCell = $('#viewKotei #startCell'), endCell = $('#viewKotei #endCell');
     if (isMaster()) { if (lbl) lbl.textContent = state.unit === 'month' ? '月数' : '週数'; if (unit) unit.textContent = state.unit === 'month' ? 'ヶ月' : '週'; startCell && startCell.classList.add('hidden'); endCell && endCell.classList.add('hidden'); }
     else if (state.kind === 'zero') { if (lbl) lbl.textContent = '日数'; if (unit) unit.textContent = '日'; startCell && startCell.classList.add('hidden'); endCell && endCell.classList.add('hidden'); }
     else { if (lbl) lbl.textContent = '工期'; if (unit) unit.textContent = '日'; startCell && startCell.classList.remove('hidden'); endCell && endCell.classList.remove('hidden'); }
   }
-  $('#viewKotei #kKind').addEventListener('change', (e) => {
-    if (!state) return; recordUndo(snap());
-    const v = e.target.value;
+  $('#viewKotei #kKindSeg').addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-kind]'); if (!btn || !state || btn.dataset.kind === kindKey()) return;
+    recordUndo(snap());
+    const v = btn.dataset.kind;
     if (v === 'master-week') { state.kind = 'master'; state.unit = 'week'; }
     else if (v === 'master-month') { state.kind = 'master'; state.unit = 'month'; }
     else { state.kind = v; }
-    if (isMaster()) state.bars.forEach((b) => b.night = false);
-    save(); applyKindUI(); render();
+    if (isMaster()) state.bars.forEach((b) => { b.night = false; });
+    const total = state.days * slotsPer();
+    state.bars.forEach((b) => { b.startSlot = clamp(b.startSlot, 0, total - 1); b.lenSlots = clamp(b.lenSlots, 1, total - b.startSlot); });
+    changed(); applyKindUI(); updateEndLabel(); render();
   });
-
-  /* ============================================================
-     バージョン管理（作成日つき）
-     ============================================================ */
-  let lastPickedVer = '';
-  function refreshVersionSelect() {
-    const sel = $('#viewKotei #kVerSelect'); if (!sel) return;
-    sel.innerHTML = '<option value="">編集中（最新）</option>';
-    (state && state.versions || []).forEach((v) => {
-      const o = document.createElement('option'); o.value = v.id;
-      o.textContent = (v.createdAt || '') + (v.label ? '　' + v.label : '');
-      sel.appendChild(o);
-    });
-    sel.value = (lastPickedVer && (state.versions || []).some((v) => v.id === lastPickedVer)) ? lastPickedVer : '';
-  }
-  function saveVersion() {
-    if (!state) return;
-    const label = prompt('このバージョンの名前（任意。例：客先提出版）', '');
-    if (label === null) return;
-    state.versions = state.versions || [];
-    const sd = { title: state.title, content: state.content, start: state.start, days: state.days, author: state.author, client: state.client, notes: state.notes, kind: state.kind, unit: state.unit, tasks: JSON.parse(JSON.stringify(state.tasks)), bars: JSON.parse(JSON.stringify(state.bars)) };
-    state.versions.unshift({ id: uid(), createdAt: isoToday(), label: label.trim(), snap: sd });
-    save(); refreshVersionSelect();
-    alert('バージョンを保存しました（作成日：' + isoToday() + '）');
-  }
-  function loadVersion(id) {
-    const v = (state.versions || []).find((x) => x.id === id); if (!v) return;
-    recordUndo(snap());
-    const s = v.snap;
-    Object.assign(state, { title: s.title, content: s.content, start: s.start, days: s.days, author: s.author, client: s.client || '', notes: s.notes, kind: s.kind || 'date', unit: s.unit || 'week', tasks: JSON.parse(JSON.stringify(s.tasks)), bars: JSON.parse(JSON.stringify(s.bars)) });
-    selectedIds = new Set(); save(); syncToolbar(); applyKindUI(); render();
-  }
-  // 保存済みバージョンの名前変更・削除（プルダウンで選んでいる版が対象）
-  function renameVersion() {
-    const v = (state.versions || []).find((x) => x.id === lastPickedVer);
-    if (!v) { alert('名前を変えるバージョンを、プルダウンから選んでください。'); return; }
-    const nv = prompt('バージョンの名前を変更します。', v.label || '');
-    if (nv === null) return;
-    v.label = nv.trim(); save(); refreshVersionSelect(); $('#viewKotei #kVerSelect').value = v.id;
-  }
-  function deleteVersion() {
-    const v = (state.versions || []).find((x) => x.id === lastPickedVer);
-    if (!v) { alert('削除するバージョンを、プルダウンから選んでください。'); return; }
-    if (!confirm('バージョン「' + (v.createdAt || '') + (v.label ? '　' + v.label : '') + '」を削除します。よろしいですか？')) return;
-    state.versions = state.versions.filter((x) => x.id !== v.id); lastPickedVer = '';
-    save(); refreshVersionSelect();
-  }
-  $('#viewKotei #btnSaveVer').addEventListener('click', saveVersion);
-  $('#viewKotei #btnRenameVer').addEventListener('click', renameVersion);
-  $('#viewKotei #btnDelVer').addEventListener('click', deleteVersion);
-  $('#viewKotei #kVerSelect').addEventListener('change', (e) => { lastPickedVer = e.target.value; if (e.target.value) loadVersion(e.target.value); });
 
   /* ============================================================
      作業（縦軸）編集・マスター
      ============================================================ */
-  function editTaskName(task, nameEl) {
-    const before = snap();
+  function editTaskName(task, nameEl, isNew) {
+    const before = isNew ? null : snap();
     const inp = document.createElement('input');
-    inp.type = 'text'; inp.value = task.name; inp.style.cssText = 'width:100%;border:1px solid #9db4f0;border-radius:5px;padding:3px 4px;font-family:inherit;font-size:12px;';
+    inp.type = 'text'; inp.value = task.name; inp.className = 'kname-in';
     inp.setAttribute('list', 'taskSuggest');
     nameEl.replaceWith(inp); inp.focus(); inp.select();
     let committed = false;
-    const done = () => { if (committed) return; committed = true; const nv = inp.value.trim() || task.name; if (nv !== task.name) { recordUndo(before); task.name = nv; save(); } render(); };
+    const done = () => { if (committed) return; committed = true; const nv = inp.value.trim() || task.name; if (nv !== task.name) { if (before) recordUndo(before); task.name = nv; changed(); } render(); };
     inp.addEventListener('blur', done);
-    inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); inp.blur(); } });
+    inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); inp.blur(); } else if (e.key === 'Escape') { inp.value = task.name; inp.blur(); } });
   }
   function reorderTask(dragId, targetId) {
     if (dragId === targetId) return;
     const arr = state.tasks; const from = arr.findIndex((t) => t.id === dragId), to = arr.findIndex((t) => t.id === targetId);
     if (from < 0 || to < 0) return;
     recordUndo(snap());
-    const [m] = arr.splice(from, 1); arr.splice(to, 0, m); save(); render();
+    const [m] = arr.splice(from, 1); arr.splice(to, 0, m); changed(); render();
   }
   const masterBg = $('#masterBg');
   function openMaster() { buildMaster(); masterBg.classList.add('show'); }
@@ -482,26 +471,26 @@
     state.tasks.forEach((t, i) => {
       const row = el('div', 'mrow');
       const inp = document.createElement('input'); inp.type = 'text'; inp.value = t.name; inp.setAttribute('list', 'taskSuggest');
-      inp.addEventListener('change', () => { recordUndo(snap()); t.name = inp.value.trim() || t.name; save(); render(); });
+      inp.addEventListener('change', () => { recordUndo(snap()); t.name = inp.value.trim() || t.name; changed(); render(); });
       const up = mbtn('▲', () => move(i, -1)), dn = mbtn('▼', () => move(i, 1)), del = mbtn('✕', () => {
         if (state.bars.some((b) => b.taskId === t.id) && !confirm('この作業のバーも削除されます。よろしいですか？')) return;
-        recordUndo(snap()); state.bars = state.bars.filter((b) => b.taskId !== t.id); state.tasks.splice(i, 1); save(); render(); buildMaster();
+        recordUndo(snap()); state.bars = state.bars.filter((b) => b.taskId !== t.id); state.tasks.splice(i, 1); changed(); render(); buildMaster();
       }); del.style.color = '#b91c1c';
       row.append(inp, up, dn, del); list.appendChild(row);
     });
-    function move(i, d) { const j = i + d; if (j < 0 || j >= state.tasks.length) return; recordUndo(snap()); const a = state.tasks;[a[i], a[j]] = [a[j], a[i]]; save(); render(); buildMaster(); }
+    function move(i, d) { const j = i + d; if (j < 0 || j >= state.tasks.length) return; recordUndo(snap()); const a = state.tasks;[a[i], a[j]] = [a[j], a[i]]; changed(); render(); buildMaster(); }
   }
   function mbtn(txt, fn) { const b = el('button', 'ic'); b.textContent = txt; b.addEventListener('click', fn); return b; }
   $('#mAddBtn').addEventListener('click', addTask);
   $('#mAdd').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); addTask(); } });
-  function addTask() { const v = $('#mAdd').value.trim(); if (!v) return; recordUndo(snap()); state.tasks.push({ id: uid(), name: v }); $('#mAdd').value = ''; save(); render(); buildMaster(); }
+  function addTask() { const v = $('#mAdd').value.trim(); if (!v) return; recordUndo(snap()); state.tasks.push({ id: uid(), name: v }); $('#mAdd').value = ''; changed(); render(); buildMaster(); }
   $('#mClose').addEventListener('click', () => masterBg.classList.remove('show'));
-  $('#mRestore').addEventListener('click', () => { if (!confirm('縦軸を標準セットに戻します（バーは保持）。よろしいですか？')) return; recordUndo(snap()); state.tasks = DEFAULT_TASKS.map((n) => ({ id: uid(), name: n })); save(); render(); buildMaster(); });
+  $('#mRestore').addEventListener('click', () => { if (!confirm('縦軸を標準セットに戻します（バーは保持）。よろしいですか？')) return; recordUndo(snap()); state.tasks = DEFAULT_TASKS.map((n) => ({ id: uid(), name: n })); changed(); render(); buildMaster(); });
   masterBg.addEventListener('click', (e) => { if (e.target === masterBg) masterBg.classList.remove('show'); });
   $('#viewKotei #btnMaster').addEventListener('click', openMaster);
 
   /* ============================================================
-     プロジェクト情報・特記事項
+     書類の情報・特記事項
      ============================================================ */
   function updateEndLabel() { const e = $('#viewKotei #kEnd'); if (e) e.textContent = (state && hasCalendar()) ? fmtJp(endDateIso()) : '―'; }
   let fieldBefore = null;
@@ -513,9 +502,9 @@
       if (!state) return;
       let v = e.target.value;
       if (opts.num) { v = parseInt(v, 10); if (isNaN(v) || v < 1) v = 1; if (v > 370) v = 370; }
+      if (opts.date && !v) return;
       state[prop] = v;
-      if (id === 'title') updateDocName(currentId, state.title);
-      save();
+      changed();
       if (opts.render) { render(); updateEndLabel(); }
     });
     inp.addEventListener('change', () => {
@@ -524,12 +513,14 @@
       fieldBefore = null;
     });
   }
-  bindField('title', 'title'); bindField('kContent', 'content'); bindField('kNotes', 'notes');
-  bindField('start', 'start', { render: true }); bindField('days', 'days', { num: true, render: true });
+  bindField('kContent', 'content'); bindField('kNotes', 'notes');
+  bindField('start', 'start', { render: true, date: true }); bindField('days', 'days', { num: true, render: true });
 
   // 作成者（担当者）・客先 は案件管理のマスタから選ぶ
   function bridge() { return window.CINEMA_DB || {}; }
+  function sbClient() { return (window.CINEMA_DB && window.CINEMA_DB.mode && window.CINEMA_DB.mode() === 'supabase') ? window.CINEMA_DB.client() : null; }
   let companyOfficial = {}; // 会社名 -> 正式名称（kotei側で直接取得・app.jsのキャッシュに依存しない）
+  let officialLoaded = false;
   async function loadCompanyOfficial() {
     companyOfficial = {};
     const sb = sbClient();
@@ -537,8 +528,8 @@
       try { const { data } = await sb.from('companies').select('name,official_name'); (data || []).forEach((c) => { if (c.official_name) companyOfficial[c.name] = c.official_name; }); }
       catch (e) {}
     }
-    // ローカルモード or 取得失敗時はブリッジから補完
     try { ((bridge().companies && bridge().companies()) || []).forEach((c) => { if (c.officialName && !companyOfficial[c.name]) companyOfficial[c.name] = c.officialName; }); } catch (e) {}
+    officialLoaded = true;
   }
   function officialClientName() {
     if (!state || !state.client) return '';
@@ -562,17 +553,18 @@
     fillSelect('kAuthor', teams, state.author);
     fillSelect('kClient', comps, state.client);
   }
-  $('#viewKotei #kAuthor').addEventListener('change', (e) => { if (!state) return; recordUndo(snap()); state.author = e.target.value; save(); });
-  $('#viewKotei #kClient').addEventListener('change', (e) => { if (!state) return; recordUndo(snap()); state.client = e.target.value; save(); });
-  $('#viewKotei #btnClear').addEventListener('click', () => { if (!state) return; if (confirm('この工程表のバーをすべて消去します。縦軸・設定は残ります。よろしいですか？')) { recordUndo(snap()); state.bars = []; selectedIds = new Set(); save(); render(); } });
+  $('#viewKotei #kAuthor').addEventListener('change', (e) => { if (!state) return; recordUndo(snap()); state.author = e.target.value; changed(); });
+  $('#viewKotei #kClient').addEventListener('change', (e) => { if (!state) return; recordUndo(snap()); state.client = e.target.value; changed(); });
+  $('#viewKotei #btnClear').addEventListener('click', () => { if (!state) return; if (confirm('この工程表のバーをすべて消去します。縦軸・設定は残ります。よろしいですか？\n（↶ 戻す で元に戻せます）')) { recordUndo(snap()); state.bars = []; selectedIds = new Set(); changed(); render(); } });
 
   /* ---- 印刷 ---- */
-  $('#viewKotei #btnPrint').addEventListener('click', () => {
+  function print() {
+    closeBarPop();
     fillPrintHead(); document.body.classList.add('kotei-printing');
     const cleanup = () => { document.body.classList.remove('kotei-printing'); window.removeEventListener('afterprint', cleanup); };
     window.addEventListener('afterprint', cleanup);
     setTimeout(() => window.print(), 50);
-  });
+  }
   function fillPrintHead() {
     if (!state) return;
     const set = (id, v) => { const e = $('#viewKotei #' + id); if (e) e.textContent = v || ''; };
@@ -583,22 +575,15 @@
     set('phClient', officialClientName()); set('phAuthor', state.author);
   }
 
-  /* ---- Excel出力 ---- */
-  $('#viewKotei #btnExcel').addEventListener('click', () => { try { exportExcel(); } catch (err) { alert('Excel出力に失敗しました：' + (err.message || err)); } });
-
   /* ============================================================
-     保存・読込（Supabase / local・複数現場）
+     読み込み（どの工程表を開くかは書類棚が決める）
      ============================================================ */
-  const DOCS_LS = 'koutei_docs_v1', CUR_LS = 'koteiCurrentV1';
-  let currentId = null, docs = [], saveTimer = null;
-  function sbClient() { return (window.CINEMA_DB && window.CINEMA_DB.mode && window.CINEMA_DB.mode() === 'supabase') ? window.CINEMA_DB.client() : null; }
-  function lsDocs() { try { return JSON.parse(localStorage.getItem(DOCS_LS)) || {}; } catch (e) { return {}; } }
-  function lsSetDocs(o) { try { localStorage.setItem(DOCS_LS, JSON.stringify(o)); } catch (e) {} }
   function normalize(o) {
-    o = o || {}; const old = !o.v; o.v = 2;
+    o = JSON.parse(JSON.stringify(o || {})); const old = !o.v; o.v = 2;
     o.kind = o.kind || 'date'; o.unit = o.unit || 'week';
     o.title = o.title || ''; o.content = o.content || ''; o.start = o.start || isoToday(); o.days = o.days || 21;
-    o.author = o.author || ''; o.client = o.client || ''; o.notes = o.notes || ''; o.versions = Array.isArray(o.versions) ? o.versions : [];
+    o.author = o.author || ''; o.client = o.client || ''; o.notes = o.notes || '';
+    delete o.versions;   // 「版」はやめた（上書き保存／名前を付けて新規に保存だけにした）
     o.tasks = (o.tasks || []).map((t) => ({ id: t.id || uid(), name: t.name || '' }));
     o.bars = (o.bars || []).map((b) => {
       let startSlot = b.startSlot | 0, lenSlots = Math.max(1, b.lenSlots | 0);
@@ -608,74 +593,37 @@
     });
     return o;
   }
-  async function loadList() {
-    const sb = sbClient();
-    if (sb) { const { data, error } = await sb.from('koutei').select('id,name,updated_at').order('updated_at', { ascending: false }); if (error) throw error; return (data || []).map((r) => ({ id: r.id, name: r.name || '工程表' })); }
-    const all = lsDocs(); return Object.keys(all).map((id) => ({ id, name: all[id].name || '工程表' }));
-  }
-  async function loadDoc(id) {
-    const sb = sbClient();
-    if (sb) { const { data, error } = await sb.from('koutei').select('*').eq('id', id).single(); if (error) throw error; return normalize(data && data.data); }
-    const all = lsDocs(); const d = all[id]; return d ? normalize(d.data) : defaultState();
-  }
-  async function createDoc(st) {
-    const sb = sbClient();
-    if (sb) { const { data, error } = await sb.from('koutei').insert({ name: st.title || '工程表', data: st }).select('id').single(); if (error) throw error; return data.id; }
-    const id = uuid(); const all = lsDocs(); all[id] = { name: st.title || '工程表', data: st }; lsSetDocs(all); return id;
-  }
-  async function removeDocRemote(id) {
-    const sb = sbClient();
-    if (sb) { const { error } = await sb.from('koutei').delete().eq('id', id); if (error) throw error; return; }
-    const all = lsDocs(); delete all[id]; lsSetDocs(all);
-  }
-  function save() {
-    if (!currentId || !state) return;
-    if (!sbClient()) { const all = lsDocs(); all[currentId] = { name: state.title || '工程表', data: state }; lsSetDocs(all); return; }
-    clearTimeout(saveTimer);
-    const snapshot = JSON.parse(JSON.stringify(state));
-    saveTimer = setTimeout(() => { const sb = sbClient(); if (!sb) return; sb.from('koutei').update({ name: snapshot.title || '工程表', data: snapshot }).eq('id', currentId).then(({ error }) => { if (error) console.error('工程表の保存に失敗しました', error); }); }, 600);
-  }
-  function updateDocName(id, name) {
-    const d = docs.find((x) => x.id === id); if (d) d.name = name || '工程表';
-    const sel = $('#viewKotei #kSelect'); const opt = sel && sel.querySelector('option[value="' + id + '"]'); if (opt) opt.textContent = name || '(無題)';
-  }
-  function refreshSelect() {
-    const sel = $('#viewKotei #kSelect'); if (!sel) return; sel.innerHTML = '';
-    docs.forEach((d) => { const o = document.createElement('option'); o.value = d.id; o.textContent = d.name || '(無題)'; sel.appendChild(o); });
-    if (currentId) sel.value = currentId;
-  }
   function syncToolbar() {
     if (!state) return;
-    $('#viewKotei #title').value = state.title;
     $('#viewKotei #kContent').value = state.content || '';
     $('#viewKotei #start').value = state.start;
     $('#viewKotei #days').value = state.days;
     $('#viewKotei #kNotes').value = state.notes || '';
     populateMasters();
-    applyKindUI(); refreshVersionSelect(); updateEndLabel();
+    applyKindUI(); updateEndLabel();
   }
-  async function switchTo(id) {
-    state = await loadDoc(id); currentId = id;
-    try { localStorage.setItem(CUR_LS, id); } catch (e) {}
-    selectedIds = new Set(); undoStack = []; redoStack = []; lastPickedVer = ''; updateUndoButtons();
-    refreshSelect(); syncToolbar(); render();
+  function changed() { if (hooks.onChange && state) hooks.onChange(); }
+  // 1枚を開く。h.onChange は「何か変わった」ときに呼ばれる（保存は書類棚が行う）
+  function load(st, h) {
+    closeBarPop();
+    hooks = h || {};
+    state = normalize(st || defaultState());
+    selectedIds = new Set(); undoStack = []; redoStack = []; updateUndoButtons();
+    syncToolbar(); render();
+    if (!officialLoaded) loadCompanyOfficial().then(() => { if (state) syncToolbar(); }).catch(() => {});
   }
-  $('#viewKotei #kSelect').addEventListener('change', (e) => { switchTo(e.target.value); });
-  $('#viewKotei #kNew').addEventListener('click', async () => {
-    const nm = prompt('新しい工程表（現場）の名前を入力してください。', '新しい現場　工程表');
-    if (nm === null) return;
-    const st = defaultState(); st.title = nm.trim() || '工事名　工程表';
-    try { const id = await createDoc(st); docs.unshift({ id, name: st.title }); await switchTo(id); } catch (err) { alert('新規作成に失敗しました：' + (err.message || err)); }
-  });
-  $('#viewKotei #kDelete').addEventListener('click', async () => {
-    if (!currentId) return;
-    const cur = docs.find((d) => d.id === currentId);
-    if (!confirm('「' + (cur ? cur.name : '') + '」を削除します。元に戻せません。よろしいですか？')) return;
-    try {
-      await removeDocRemote(currentId); docs = docs.filter((d) => d.id !== currentId);
-      if (docs.length) { await switchTo(docs[0].id); } else { const st = defaultState(); const id = await createDoc(st); docs = [{ id, name: st.title }]; await switchTo(id); }
-    } catch (err) { alert('削除に失敗しました：' + (err.message || err)); }
-  });
+  function getState() { return state ? JSON.parse(JSON.stringify(state)) : null; }
+  function setTitle(t) { if (state) state.title = t; }
+  // 書類棚の一覧に出す「期間」の説明
+  function summary(o) {
+    o = o || {};
+    const k = o.kind || 'date', days = o.days || 0;
+    if (k === 'master') return 'マスター工程・' + days + (o.unit === 'month' ? 'ヶ月' : '週');
+    if (k === 'zero') return 'ゼロ工程表・' + days + '日';
+    if (!o.start) return days + '日';
+    const a = parseISO(o.start), z = parseISO(addDaysIso(o.start, Math.max(0, days - 1)));
+    return (a.getMonth() + 1) + '/' + a.getDate() + '〜' + (z.getMonth() + 1) + '/' + z.getDate() + '（' + days + '日）';
+  }
 
   /* ---- util ---- */
   function el(t, c) { const e = document.createElement(t); if (c) e.className = c; return e; }
@@ -811,23 +759,10 @@
       '<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>';
   }
 
+  function excel() { try { exportExcel(); } catch (err) { alert('Excel出力に失敗しました：' + (err.message || err)); } }
+
   /* ============================================================
-     公開API
+     公開API（書類棚 shelf.js から使う）
      ============================================================ */
-  let opening = false;
-  async function open() {
-    if (opening) return; opening = true;
-    try {
-      try { await loadCompanyOfficial(); } catch (e) {}
-      docs = await loadList();
-      let id = null; try { id = localStorage.getItem(CUR_LS); } catch (e) {}
-      if (!docs.find((d) => d.id === id)) id = docs.length ? docs[0].id : null;
-      if (!id) { const st = defaultState(); id = await createDoc(st); docs = [{ id, name: st.title }]; }
-      await switchTo(id);
-    } catch (err) {
-      console.error('工程表の読み込みに失敗しました', err);
-      if (!state) { state = defaultState(); refreshSelect(); syncToolbar(); render(); }
-    } finally { opening = false; }
-  }
-  window.KOTEI = { open, render };
+  window.KOTEI = { load, getState, setTitle, render, print, excel, normalize, defaultState, summary, closePop: closeBarPop };
 })();
