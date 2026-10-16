@@ -10,7 +10,7 @@ import { addCh3Art } from './ch3-art.js';
 import { addCh4Art } from './ch4-art.js';
 import { addR23Art } from './r23-art.js';
 import { addCh5Art } from './ch5-tower-art.js';
-import { addKumoiArt } from './ch5-kumoi-art.js';
+import { addKumoiArt } from './ch5-kumoi-mon-art.js';
 
 export const MRES = 4; // できあがりの こまかさ（せかいの 1ドットを 4×4 で かく）
 const OUT = '#130d24';
@@ -825,7 +825,7 @@ addCh4Art(MONSTER_ART);
 addR23Art(MONSTER_ART);
 // 第5章 Step 2「星の塔」の 魔物と 星の番人アルゴス（ch5-tower-art.js）
 addCh5Art(MONSTER_ART);
-// 第5章 Step 3・4「クモイ地方・しずみゆく島の古い神殿」の 魔物と ガイアイーター（ch5-kumoi-art.js）
+// 第5章 Step 3・4「クモイ地方・しずみゆく島の古い神殿」の 魔物と ガイアイーター（ch5-kumoi-mon-art.js）
 addKumoiArt(MONSTER_ART);
 
 const cache = new Map();

@@ -8,6 +8,7 @@ import { STARTER_EQUIP } from '../../shared/stats.js';
 import { paintMiraPrison, paintWaterStar } from './temple-chars.js';
 import { LAB_NPC_LOOKS } from './lab-art.js';
 import { paintCh5Special } from './ch5-art.js';
+import { KUMOI_NPC_LOOKS, drawWings } from './ch5-kumoi-art.js';
 import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js';
 import { R26_OLD_LOOK } from './hero-r26.js';
 import { R27_OLD_LOOK } from './hero-r27.js';
@@ -358,6 +359,8 @@ const NPC_LOOKS = {
 };
 // 第4章クリアの あとの たのまれごとの 人（render/lab-art.js）
 Object.assign(NPC_LOOKS, LAB_NPC_LOOKS);
+// 第5章 雲の上の町ハネノの ハネビト（せなかに 羽。render/ch5-kumoi-art.js）
+Object.assign(NPC_LOOKS, KUMOI_NPC_LOOKS);
 
 // そうびの かきかた: 'ぶき,よろい,たて,あたま' の もじれつ か { weapon, armor, shield, head }
 export function parseEquip(eq, job) {
@@ -458,6 +461,9 @@ export function npcOpts(kind) {
     // ムチを もつ 人（サラ）・マントの 人（女王ネフィ・大臣ザイード）
     weapon: n.weapon,
     cape: n.cape,
+    // 第5章: ハネビトの 羽（render/ch5-kumoi-art.js）
+    wings: n.wings,
+    wingSize: n.wingSize,
   };
 }
 
@@ -1788,8 +1794,10 @@ export function paintHuman(dir, f, o) {
   } else {
     // マント（まえ・よこ むきは からだの うしろ）
     if (o.cape && vdir !== 'up') drawCape(p, vdir, f, o);
+    if (o.wings && vdir !== 'up') drawWings(p, vdir, f, o);
     drawBody(p, vdir, f, o);
     if (o.cape && vdir === 'up') drawCape(p, vdir, f, o);
+    if (o.wings && vdir === 'up') drawWings(p, vdir, f, o);
     drawHead(p, vdir, f, o);
     if (o.mask) drawMask(p, vdir);
     if (o.glasses) drawGlasses(p, vdir);

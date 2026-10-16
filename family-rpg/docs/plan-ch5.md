@@ -313,7 +313,7 @@
 ### 実装メモ（B … 戦い・品。2026年10月16日）
 
 - 名前の約束（上）のとおり：出現表 `t5_kumoi`・`t5_ruin_up`（1〜3階）・`t5_ruin_low`（4〜7階）・`t5_ruin_cloud`（雲が入った所）、きまった戦い `gaia_eater`（台本は `['battle', 'gaia_eater']`。`showMon('gaia_eater')` は体ぜんぶの絵）、背景 `kumoi`（`t5_kumoi`）・`sink_ruin`（`t5_ruin_up`）・`sink_ruin_deep`（`t5_ruin_low`・`t5_ruin_cloud`・`gaia_eater`）、曲 `gaia`（A が作る。ないときは鳴らないだけ）。品は `data/items-kumoi.js` の `KUMOI_SHOP_WEAPONS`・`KUMOI_SHOP_ARMOR`・`KUMOI_SHOP_TOOLS`・`RUIN_TREASURE`。負けた時は今のボスと同じ（`loseOk` なし）
-- ファイル：`data/monsters-kumoi.js`・`abilities-kumoi.js`・`encounters-kumoi.js`・`companions-kumoi.js`・`items-kumoi.js`、しくみ `shared/battle-gaia.js`、がめん `client/battle-gaia.js`、絵 `render/ch5-kumoi-art.js`・背景 `render/ch5-kumoi-bg.js`・エフェクト `render/battlefx-kumoi.js`、シミュレーター `tools/sim-gaia.mjs`（と `tools/sim.js` の `ch5kumoi`）、テスト `test/ch5-kumoi-battle.test.js`（21こ）
+- ファイル：`data/monsters-kumoi.js`・`abilities-kumoi.js`・`encounters-kumoi.js`・`companions-kumoi.js`・`items-kumoi.js`、しくみ `shared/battle-gaia.js`、がめん `client/battle-gaia.js`、絵 `render/ch5-kumoi-mon-art.js`・背景 `render/ch5-kumoi-bg.js`・エフェクト `render/battlefx-kumoi.js`、シミュレーター `tools/sim-gaia.mjs`（と `tools/sim.js` の `ch5kumoi`）、テスト `test/ch5-kumoi-battle.test.js`（21こ）
 - 新しい魔物（10しゅ。どれも仲間になる・`noFamily`・`region: 6`）
   - クモイ地方：雲ひつじ（Lv43。ねむり雲。風1.35）・空とびエイ（Lv44。急降下・雷のしっぽでマヒ。氷1.3）・かみなりぐも（Lv44。いなずま・かみなりの雨。雷0・風1.4）・雲海へび（Lv45。しめつけて素早さダウン・雲のいき。氷1.3）。星の塔の ほうき星の鳥・星くらげ も少し
   - 神殿1〜3階：石の守り手（Lv44。大地の足ぶみ（みんな）・石のかべ。爆発1.3）・岩もぐら（Lv43。ドリルづめ・土かけでマヌーサ。氷1.3）。はにわ兵・石のガーゴイルも
@@ -347,3 +347,39 @@
   - 空のレア（地方6。500体に1体）：ハヤテの剣・ニンバス2000（つえ）・つばさのサンダル。`rare-loot.js` の `regionOf` に「魔物の `region` があればそれ」の1行
   - れん金（`KUMOI_RECIPES` を `alchemy.js` の `RECIPES` にまぜる。tier 5）：星の王子のマント＋雲のわた×2 → 雲の羽衣★3／大ムカデのよろい＋大地のかけら×2 → 大地神のよろい★4／大地のかけら×2＋雲のわた → 命の木の実
 - A とまとめる時：A の仮のファイル `data/kumoi-stub.js` は消して、店と宝箱は `data/items-kumoi.js` から import。マップのゾーンに `t5_kumoi`・`t5_ruin_up`・`t5_ruin_low`・`t5_ruin_cloud`（と `spawnCounts`）。7階の台本は `['showMon', 'gaia_eater']`→`['battle', 'gaia_eater']`（勝ったら A の `c5_gaia`）。曲 `gaia` は A が `client/audio.js` に。B が1〜数行ずつ足したファイル：`monsters.js`・`abilities.js`・`items.js`・`encounters.js`・`companions.js`・`loot.js`・`rare-loot.js`・`alchemy.js`・`battle.js`・`battle-ch5.js`・`client/battle.js`・`client/battle-ch4.js`・`client/battle-ch5.js`・`render/battlefx.js`・`render/battlefx-ch5.js`・`render/monsters.js`・`tools/sim.js`・`tools/kanji-check.mjs` の `gameFiles()`・`test/monsters-r23.test.js`（図鑑の数）・`test/loot.test.js`（バットのランクに8）・README（ランクの表の8）
+
+### 実装メモ（A … 世界と物語。2026年10月16日）
+
+- フラグ（もう変えない）：物語のすすみぐあいは 13 の名前のとおり（`data/story-kumoi.js` の `KUMOI_STEPS` を `CH5_STEPS` のうしろに）。物語のすすみぐあいではないフラグ：`c5_k_town`（ハネノの町の門番のあいさつ）・`c5_k_vane1`／`c5_k_vane2`（風見の石。もう1度回すと消える）・`c5_rf1`〜`c5_rf7`（神殿のその階に来た。1階は `c5_ruin` と同時）・`c5_r_tilt2`／`c5_r_tilt3`／`c5_r_tilt5`（かたむきの石。たっている＝東へかたむいた）・`c5_r_scale3`／`c5_r_scale6`（てんびんがつりあった）・`c5_r_ladder`（縄ばしごをかけた）
+- 目標：`C5_OBJ.sky` を「風の笛で星の竜アステルを呼んで、空の上から『雲の上』へ飛ぼう…」にかえた。前の文は `OLD_C5_OBJ.sky`（`repairObjective` でなおる）。そのあとは `KUMOI_OBJ`：`kumoi`・`town`・`hanono`・`pipi`・`ruin`・`r2`〜`r7`（その階に来た時。しかけのヒント）・`gaia`・`shard`（「第5章の続きはアップデートで！（守り星のかけらの光で、島のしずみが少し止まった…）」。**あとの Step で変える時は `OLD_C5_OBJ.shard` にのこす**）。仲間の「はなす」・地図のしるし（しかけは `unless` で、すんだら消える）も目標ごと
+- 雲の上：`data/sky.js` の `SKY_MAPS.kumoi`（`aboveVeil: true`・`need: 'c5_sky'`・`box` は ハネノの島の上だけ〈`until: 'c5_shard'`〉。竜が来られない時は「はげしい風で…（ハネノの島でふこう）」）。地上の4つの地方の `REGION_ORDER` は変えていない。`REGION_ORDER.kumoi` で地上の4つの地方へ。`world/travel.js` の `flyVeil` の 'open' で `hopTo`（`flyRegion` と同じ。いっしょに乗っている仲間も）→ はじめは だいほん `c5_kumoi_event`（雲の海・島がしずんでいる・竜が飛べるのはこの島だけ → `c5_kumoi`）。`client/sky.js` は `aboveVeil` の地方では「雲の上」を出さない
+- クモイ地方（`maps/kumoi.js`。`kumoi` 80×60・フィールド）
+  - 島（だ円）：ハネノの島（いちばん大きい。生けがきの中に町の家のやね・北の門〈ふむと `hanono`〉・竜の降り場・西の船着き場）・風見の小島（石1）・小さなうき島（宝箱）・西の風見の小島（石2）・しずみゆく島（古い神殿・かたむいた木と柱が多い）・北東のはなれ小島（竜でだけ）・雲から出てきた島（`c5_shard` で雲がゲートで島になる）。島のふちは `CLOUD_RIM`（雲にとけかけた草）
+  - 風の道（`T.SKYWIND_N/E/S/W`。`flow`）：ハネノの島 →（西）風見の小島 →（北）小さなうき島 … 石1を回すと曲がり角が西 → 西の風見の小島 →（南）曲がり角が東なら風見の小島・石2を回すと南のしずみゆく島。帰り道：うき島 →（南）風見の小島、風見の小島 →（東）ハネノの島、しずみゆく島 →（東・北）ハネノの島。曲がり角は `KUMOI_JUNCTIONS`（ゲート）。テストで「どの石の向きでも、どこへ流されても、ハネノの島へ帰れる」をたしかめた
+  - 魔物は島の上が `t5_kumoi`（`spawnCounts` 9）。雲・風の道・町と降り場・船着き場・神殿の入口のまわりは出ない
+  - しずみゆく島の古い神殿の入口は **神殿の南のかべ**（2.5D のカメラから見えるがわ。北の風の道の着く所から、神殿の東をまわって南へ）
+- ハネノの町（`hanono` 46×38・フィールドの町。雲の海にかこまれた島。`outside: 'cloud'`）
+  - 長の家（北。長ソラネ・書記）・宿屋（80G。夜まで休む）・教会・武器と防具の店（ハネビト2人）・道具屋・見晴らし台（北東。ピピ・宝箱）・広場の羽の像。南の門（3マス）でクモイ地方へ。町の中では竜の笛は「町の中にはおりられない」（`map.noFlyText`）
+  - ルーラ・帰り道の羽：`SEA_PLACES.hanono`（`maps/kumoi.js` の `KUMOI_TOWNS`。南の門の内がわにおりる）
+  - 店：`data/shops-kumoi.js`（`hanono_weapon`・`hanono_armor`・`hanono_item`。ならびは B の `KUMOI_SHOP_*`。作業中は `data/kumoi-stub.js`）
+  - 台本：はじめて町に入ると門番（紋章を見て「長さまが待っていた」→ `c5_k_town`）→ 長ソラネ（大地の守り星がうばわれ島がしずみ始めた・ハネビトの羽も弱った・うばったのはフードの子・西の しずみゆく島の神殿に守り星のかけら・風の道はピピがくわしい → `c5_hanono`）→ ピピ（飛べない小さな羽・風見の石のヒント・「ノクト兄ちゃんは、悪い人じゃないよ。ぼくと遊んでくれたもん」・ノクトが町でくらしていた・「…飛べなくても、いいじゃないか」→ `c5_pipi`）。**ノクトの名前はピピの話が初めて**（ソラネはその前は名前を知らない）。町の人の話も物語でかわる
+  - ばあちゃん（`elderKumoi`）：`c5_sky` のあと「雲の上へ」・ハネビトの昔話・`c5_pipi` のあと「…ノクト…？ …いや、何でもないよ」・`c5_shard` のあと「いつか、わしの話を聞いておくれ」（第4幕へのつなぎ）。`c5_tower` のあとは古い書物の場面を出さない（`c5_book` がない古いセーブでも）
+- しずみゆく島の古い神殿（`maps/sink-ruin.js`・`maps/sink-ruin-rows.js`。30×22 が7階。1階が上、下へ下へ。`kind: 'dungeon'`・糸・リレミトが使える〈神殿の前へ〉・曲 `sink_ruin`・テーマ 1〜3階 `sky_ruin`〈白っぽい砂色〉・4〜5階 `sky_ruin_mid`・6〜7階 `sky_ruin_deep`〈雲のあおい灰色〉）
+  - 1階：入口と大地の守り星のかべ画（4まいで1まい：守り星・根・島・ハネビト）。入口で `c5_ruin`
+  - 2階：**かたむくゆか**。かたむきの石で西 ⇔ 東。西のときは岩が西の通路（下りかいだんへ）をふさぎ、東へかたむけると岩が東へころがって東の小べや（宝箱）の入口をふさぐ（宝箱はかたむける前に）。下の へやに たて穴（縄ばしごの上のはし）
+  - 3階：**重さのてんびん（岩と人）**。かたむきの石で岩が左の皿へころがる → 右の皿にだれかがのると つりあって南のとびらが開く（開いたまま）。家族2人なら1人ずつでも、ひとりなら仲間に「のってもらう？」でもよい
+  - 4階：**休み所**（いずみで回復と記録。`['church']`、夜まで・朝まで）。ハネビトの古い日記（しかけと雲と根のヒント）。この階は魔物が出ない
+  - 5階：**水が流れるゆか**と**縄ばしご**。西のときは西の水路に水、東へかたむけると水が東の水路へ（東の水路の先に まるめた縄ばしご）。縄ばしごを上へかけると `c5_r_ladder`（2階のたて穴 ⇔ 5階。下から開く近道）。下の へやに雲
+  - 6階：**はなれた重さのてんびん**（皿が21マスはなれている。家族2人・ひとりは仲間）。雲がひろい
+  - 7階：**島の根の間**。ガイアイーター（NPC `gaia_npc`・すがた `mon:gaia_eater`・`big`）。広間に入る（トリガー）か話しかけると `gaiaEvent`：`['showMon', 'gaia_eater']` → `['bgm', 'gaia']` → `['battle', 'gaia_eater']`。負けたら台本は止まる（もう一度で最初から）。勝つと `c5_gaia` → おくの台の **守り星のかけら**（星祭りの夜、広場のすみで、ひとりでひざをかかえて泣いている小さな子の思い出「…どうして、ぼくだけ…。」。名前は出さない）→ 大事な物 `earth_shard`（大地の守り星のかけら。`data/sky.js` の `SKY_ITEMS`）→ 島のしずみが少し止まる → `c5_shard`（クモイ地方の竜の `box` がなくなり、雲から島が出てくる）→「第5章の続きはアップデートで！」
+  - 雲：5〜7階の `T.CLOUD_FLOOR` の上は出現表 `t5_ruin_cloud`（★の宝箱も雲の中に）。ほかは 1〜3階 `t5_ruin_up`・4〜7階 `t5_ruin_low`
+  - 宝箱：各階の★は B の `RUIN_TREASURE[階]`（`r5_<階>a`・`r5_<階>b`。作業中は `data/kumoi-stub.js` の仮の★）。ほかに道具の宝箱が各階1つ
+- 絵と音：タイル `render/tiles-kumoi.js`（27しゅるい。ID は 219〜228 と 239〜255。2.5D は雲の海が島よりずっと下〈`KUMOI_LIQUIDS`〉・マップの外も雲〈`outside: 'cloud'`〉・神殿の入口のまぐさ）・ハネビトの羽（`render/ch5-kumoi-art.js`。`wings`・ピピと子どもは `wingSize: 'small'`）・曲 `kumoi`（BPM104）・`hanono`（BPM96）・`sink_ruin`（BPM84）・`gaia`（BPM172。`client/audio-kumoi.js`）
+- `test/ch5-step34.test.js`（15こ。c5_sky から c5_shard までの通しもふくむ。戦いはテストの中で勝たせる）。Step 1・2 のテスト（`ch5-step12`）は、とばりが開いたあと「雲の上」でクモイ地方へ行くようにかえた
+- B（戦い・品）との約束：出現表 `t5_kumoi`・`t5_ruin_up`・`t5_ruin_low`・`t5_ruin_cloud`、きまった戦い `gaia_eater`（今の仮は `bgm: 'gaia'`・`boss: true`・`canFlee: false`。7階の大きな NPC の絵は `MONSTER_ART.gaia_eater.npc` で）、背景 `kumoi`・`sink_ruin`・`sink_ruin_deep`（`ZONE_BG` も）、店のならび・`RUIN_TREASURE`。仮のデータ `data/kumoi-stub.js`（`data/shops-kumoi.js`・`maps/sink-ruin.js` が import）と `data/kumoi-battle-stub.js`（`story-ch5.js` の1行）は、まとめる時に消す
+- 案とちがうところ・小さく決めたところ
+  - ハネノの町は、クモイ地方の中ではなく べつのマップ `hanono`（名前の約束どおり）。クモイ地方のハネノの島には町の家のやねと門だけ
+  - 竜で飛べるのは、守り星のかけらまでハネノの島の上だけ（風の道としかけを生かすため。第3・4章のふぶき・砂嵐と同じ形）
+  - 「島がしずむ」は、見た目（雲にとけるふち・かたむいた木と柱・下の階ほど雲）と、`c5_shard` のあと雲から島が1つ出てくる所にした。しずんで行けなくなる所は作っていない（とじこめにならないように）
+  - 「重さのてんびん」は、2つの皿に同時に重さ（人か岩）がのると開いて、開いたまま。星の塔の上り下りのゆかと同じように、家族2人・仲間で
+  - 4階の休み所の階は、魔物が出ない（ゆっくり休めるように）

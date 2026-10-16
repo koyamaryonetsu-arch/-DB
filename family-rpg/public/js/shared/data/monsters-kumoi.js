@@ -1,6 +1,6 @@
 // 第5章 Step 3・4「クモイ地方（雲の上の島々）」と「しずみゆく島の古い神殿」の 魔物と、島を むしばむ 大ムカデ ガイアイーター（B: 戦い）
 // monsters.js（MONSTERS）・loot.js（MAT_DROPS）が まぜる。ここは ほかの データを import しない（じゅんかんを さける）
-// え は client/render/ch5-kumoi-art.js。たたかいの しかけ（多部位の 戦い）は shared/battle-gaia.js
+// え は client/render/ch5-kumoi-mon-art.js。たたかいの しかけ（多部位の 戦い）は shared/battle-gaia.js
 //
 // 出現表（encounters-kumoi.js）: t5_kumoi＝クモイ地方の 島 / t5_ruin_up＝神殿 1〜3階 / t5_ruin_low＝4〜7階 / t5_ruin_cloud＝雲が 入った 所（強い・経験値と お金が 多い）
 // おすすめ Lv44〜45（第26回で 経験値を ×0.6 に した ことを 考えて 合わせた。docs/plan-ch5.md の「13」）
