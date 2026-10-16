@@ -13,14 +13,14 @@
 //   合体技（ミナデインも）・にげる・混乱した 時の 行動は 読まれない（読みは 消える）
 // ・オートの 仲間: 読まれた 種類の 行動を さけて、ちがう 行動を えらぶ（towerPlan）。シミュレーター（tools/sim.js）の
 //   b.argosNaive … 知らない 人（読まれても そのまま）／ b.knowsArgos … 知っている 人（星のさばきの 前に 身を 守る も）
-import { MONSTERS } from './data/monsters.js?v=7936c145c576';
-import { ABILITIES } from './data/abilities.js?v=7936c145c576';
-import { abilityFor } from './ability-label.js?v=7936c145c576';
-import { ITEMS } from './data/items.js?v=7936c145c576';
-import { mpCost, penaltyFor } from './stats.js?v=7936c145c576';
+import { MONSTERS } from './data/monsters.js?v=b9571cd5f856';
+import { ABILITIES } from './data/abilities.js?v=b9571cd5f856';
+import { abilityFor } from './ability-label.js?v=b9571cd5f856';
+import { ITEMS } from './data/items.js?v=b9571cd5f856';
+import { mpCost, penaltyFor } from './stats.js?v=b9571cd5f856';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { atbRate } from './battle.js?v=7936c145c576';
-import { canUse } from './ai.js?v=7936c145c576';
+import { atbRate } from './battle.js?v=b9571cd5f856';
+import { canUse } from './ai.js?v=b9571cd5f856';
 
 export const ARGOS = 'argos';
 export const JUDGE = 'm_argos_judge';

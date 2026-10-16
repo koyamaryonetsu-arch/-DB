@@ -2,14 +2,14 @@
 // ・時計: サーバーの 時こく（game.timeOffset）＋ パーティーの 時計の ずれ（party.clockShift）。宿屋の だいほんの とちゅうは
 //   えんしゅつ（['clock', ずれ]）まで 前の 空の まま
 // ・大鳥フウラ: サーバー（shared/world/travel.js）が きめた flying を うけて、とぶ・おりる えんしゅつと え を かく
-import { el, toast, ListMenu } from './ui/dom.js?v=7936c145c576';
-import { dayFrac, isNightFrac, darkness } from '../shared/world/clock.js?v=7936c145c576';
-import { SKY_MAPS, FLUTE_ID, RIDE_ASK_MS, edgeAt, regionsFrom, skyBox, clampSkyBox, mountOf, VEIL, veilShown } from '../shared/data/sky.js?v=7936c145c576';
-import { birdCanvas, birdRideCanvas, BIRD_W, BIRD_H, RIDE_TOP } from './render/sky-art.js?v=7936c145c576';
-import { dragonCanvas, dragonRideCanvas } from './render/dragon-art.js?v=7936c145c576';
-import { starDragonCanvas, starDragonRideCanvas } from './render/ch5-dragon.js?v=7936c145c576';
-import { playerSprite } from './field.js?v=7936c145c576';
-import { equipKey } from './render/chars.js?v=7936c145c576';
+import { el, toast, ListMenu } from './ui/dom.js?v=b9571cd5f856';
+import { dayFrac, isNightFrac, darkness } from '../shared/world/clock.js?v=b9571cd5f856';
+import { SKY_MAPS, FLUTE_ID, RIDE_ASK_MS, edgeAt, regionsFrom, skyBox, clampSkyBox, mountOf, VEIL, veilShown } from '../shared/data/sky.js?v=b9571cd5f856';
+import { birdCanvas, birdRideCanvas, BIRD_W, BIRD_H, RIDE_TOP } from './render/sky-art.js?v=b9571cd5f856';
+import { dragonCanvas, dragonRideCanvas } from './render/dragon-art.js?v=b9571cd5f856';
+import { starDragonCanvas, starDragonRideCanvas } from './render/ch5-dragon.js?v=b9571cd5f856';
+import { playerSprite } from './field.js?v=b9571cd5f856';
+import { equipKey } from './render/chars.js?v=b9571cd5f856';
 
 export const FLY_SPEED = 1.9; // 歩く はやさの この ばい
 const CRUISE = 1.45; // とんでいる たかさ（マス）
@@ -216,7 +216,8 @@ export class SkyClient {
   regions() {
     const has = (f) => this.hasFlag(f);
     const list = regionsFrom(this.game.field.mapId, has);
-    return veilShown(has) ? [...list, VEIL.id] : list;
+    // 雲の上の 地方（クモイ地方。aboveVeil）では「雲の上」は 出さない
+    return veilShown(has) && !SKY_MAPS[this.game.field.mapId]?.aboveVeil ? [...list, VEIL.id] : list;
   }
 
   // 「別の地方へ」ボタン: 行き先が 2つ 以上なら えらぶ

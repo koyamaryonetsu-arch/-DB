@@ -13,17 +13,17 @@
 // ・パーティーの リーダーが よぶと、なかまに「いっしょに 乗る？」と きく（askRiders）。乗る なかまは リーダーの そばへ、
 //   「ついていく」に なって いっしょに とび、いっしょに おりる・となりの 地方へ いく。乗らない なかまは 地上に のこる
 // ・サーバーは とんでいない 人が 歩けない ところへ 入るのを みとめない（world.js の onMove）
-import { MAPS, isBlocked, onWater, condOk } from '../maps/index.js?v=7936c145c576';
-import { PLACES } from '../maps/overworld.js?v=7936c145c576';
-import { SEA_PLACES } from '../maps/ch2.js?v=7936c145c576';
-import { ABILITIES } from '../data/abilities.js?v=7936c145c576';
-import { ITEMS } from '../data/items.js?v=7936c145c576';
-import { hasKeyItem, mpCost, removeItem, itemCount } from '../stats.js?v=7936c145c576';
-import { SKY_MAPS, FLUTE_ID, RIDE_ASK_MS, regionHop, edgeAt, edgeTarget, regionsFrom, skyBox, inSkyBox, mountOf, flySpeed, edgeLockedText, boxLockedText, VEIL, veilState, veilText } from '../data/sky.js?v=7936c145c576';
-import { runScript } from './scripts.js?v=7936c145c576';
-import { partyOf } from './party.js?v=7936c145c576';
-import { warpDest } from './services.js?v=7936c145c576';
-import { advanceClock, clockOwner } from './clock.js?v=7936c145c576';
+import { MAPS, isBlocked, onWater, condOk } from '../maps/index.js?v=b9571cd5f856';
+import { PLACES } from '../maps/overworld.js?v=b9571cd5f856';
+import { SEA_PLACES } from '../maps/ch2.js?v=b9571cd5f856';
+import { ABILITIES } from '../data/abilities.js?v=b9571cd5f856';
+import { ITEMS } from '../data/items.js?v=b9571cd5f856';
+import { hasKeyItem, mpCost, removeItem, itemCount } from '../stats.js?v=b9571cd5f856';
+import { SKY_MAPS, FLUTE_ID, RIDE_ASK_MS, regionHop, edgeAt, edgeTarget, regionsFrom, skyBox, inSkyBox, mountOf, flySpeed, edgeLockedText, boxLockedText, VEIL, veilState, veilText } from '../data/sky.js?v=b9571cd5f856';
+import { runScript } from './scripts.js?v=b9571cd5f856';
+import { partyOf } from './party.js?v=b9571cd5f856';
+import { warpDest } from './services.js?v=b9571cd5f856';
+import { advanceClock, clockOwner } from './clock.js?v=b9571cd5f856';
 
 const FOLLOW_RANGE = 12;
 
@@ -110,7 +110,8 @@ export function canCall(world, s) {
   if (s.busy) return { ok: false, reason: '今はできません' };
   const mount = mountFor(world, s);
   // 空を とべない フィールド（第4章 Step 6 の 砂の港ドゥナ・砂の海。がけと 砂嵐に かこまれている）
-  if (!canFlyMap(s.map) && MAPS[s.map]?.kind === 'field') return { ok: false, reason: `${ITEMS[FLUTE_ID].name}をふいた！\nしかし何も起こらなかった…\n（ここには、${mount.btn}は来られないようだ）` };
+  // map.noFlyText … その 場所の ことば（第5章の 雲の上の町ハネノ）
+  if (!canFlyMap(s.map) && MAPS[s.map]?.kind === 'field') return { ok: false, reason: MAPS[s.map].noFlyText || `${ITEMS[FLUTE_ID].name}をふいた！\nしかし何も起こらなかった…\n（ここには、${mount.btn}は来られないようだ）` };
   if (!canFlyMap(s.map)) return { ok: false, reason: `${ITEMS[FLUTE_ID].name}をふいた！\nしかし何も起こらなかった…\n（洞窟や塔の中では、${mount.btn}は来られない）` };
   if (inTown(s.map, s.x, s.y)) return { ok: false, reason: `${ITEMS[FLUTE_ID].name}をふいた！\nしかし${mount.name}は町の中にはおりられない。\n（町の外でふこう）` };
   // ふぶき・砂嵐の 地方（シロガネ地方は 星の竜が 目覚めるまで・コガネ地方は 砂嵐の あいだ）: とべる 場所でしか よべない
@@ -296,20 +297,34 @@ export function flyRegion(world, s, edge, dest = null) {
     to = regionHop(s.map, s.x, s.y, null, pick, has);
   }
   if (!to || !MAPS[to.map]) return false;
-  const riders = followers(world, s).filter((m) => m.flying);
-  world.placeSession(s, to.map, to.x, to.y, to.dir, true, { fly: true });
-  riders.forEach((m, i) => world.placeSession(m, to.map, to.x + (i % 2 ? 1 : -1) * (1 + (i >> 1)) * 0.8, to.y, to.dir, true, { fly: true }));
+  hopTo(world, s, to);
   world.send(s, { t: 'toast', text: `${mountFor(world, s).name}は${MAPS[to.map].name}へ飛んでいく！` });
-  world.broadcastPlayers();
   return true;
 }
 
+// 空の 上で べつの 地方へ（いっしょに 乗っている なかまも）
+function hopTo(world, s, to) {
+  const riders = followers(world, s).filter((m) => m.flying);
+  world.placeSession(s, to.map, to.x, to.y, to.dir, true, { fly: true });
+  riders.forEach((m, i) => world.placeSession(m, to.map, to.x + (i % 2 ? 1 : -1) * (1 + (i >> 1)) * 0.8, to.y, to.dir, true, { fly: true }));
+  world.broadcastPlayers();
+}
+
 // 第5章: 星の羽の 竜で「雲の上へ」（data/sky.js の VEIL）。はじめては だいほん（天のとばりに はじかれる。c5_veil）
+// とばりが 開いた あと（c5_sky）は 雲の上の クモイ地方へ（Step 3。はじめて 着いた ときは だいほん c5_kumoi_event）
 export function flyVeil(world, s) {
   const has = world.hasFlagFn(s);
   const st = veilState(has);
   if (!st) return false;
   if (st === 'first') return runScript(world, s, 'c5_veil_event');
+  if (st === 'open' && SKY_MAPS[s.map] && !SKY_MAPS[s.map].aboveVeil) {
+    const to = regionHop(s.map, s.x, s.y, null, 'kumoi', has);
+    if (!to || !MAPS[to.map]) return false;
+    hopTo(world, s, to);
+    world.send(s, { t: 'toast', text: veilText(has) });
+    if (!has('c5_kumoi')) runScript(world, s, 'c5_kumoi_event');
+    return true;
+  }
   world.send(s, { t: 'toast', text: veilText(has) });
   return true;
 }

@@ -2,17 +2,18 @@
 // みため（かみがた・いろ）と そうび（ぶき・よろい・たて・かぶと）で かわる
 // 人は 32×42 で くみたてて、2ばいの 64×84 に して こまかく かきたす（res 4: せかいでは 16×21 の 大きさに かく）
 // どうぶつ・船は 16×21 など
-import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=7936c145c576';
-import { ITEMS, baseItemId } from '../../shared/data/items.js?v=7936c145c576';
-import { STARTER_EQUIP } from '../../shared/stats.js?v=7936c145c576';
-import { paintMiraPrison, paintWaterStar } from './temple-chars.js?v=7936c145c576';
-import { LAB_NPC_LOOKS } from './lab-art.js?v=7936c145c576';
-import { paintCh5Special } from './ch5-art.js?v=7936c145c576';
-import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js?v=7936c145c576';
-import { R26_OLD_LOOK } from './hero-r26.js?v=7936c145c576';
-import { R27_OLD_LOOK } from './hero-r27.js?v=7936c145c576';
-import { R29_OLD_LOOK } from './hero-r29.js?v=7936c145c576';
-import { R33_OLD_LOOK, masc33 } from './hero-r33.js?v=7936c145c576';
+import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=b9571cd5f856';
+import { ITEMS, baseItemId } from '../../shared/data/items.js?v=b9571cd5f856';
+import { STARTER_EQUIP } from '../../shared/stats.js?v=b9571cd5f856';
+import { paintMiraPrison, paintWaterStar } from './temple-chars.js?v=b9571cd5f856';
+import { LAB_NPC_LOOKS } from './lab-art.js?v=b9571cd5f856';
+import { paintCh5Special } from './ch5-art.js?v=b9571cd5f856';
+import { KUMOI_NPC_LOOKS, drawWings } from './ch5-kumoi-art.js?v=b9571cd5f856';
+import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js?v=b9571cd5f856';
+import { R26_OLD_LOOK } from './hero-r26.js?v=b9571cd5f856';
+import { R27_OLD_LOOK } from './hero-r27.js?v=b9571cd5f856';
+import { R29_OLD_LOOK } from './hero-r29.js?v=b9571cd5f856';
+import { R33_OLD_LOOK, masc33 } from './hero-r33.js?v=b9571cd5f856';
 
 export const CW = 16;
 export const CH = 21;
@@ -358,6 +359,8 @@ const NPC_LOOKS = {
 };
 // 第4章クリアの あとの たのまれごとの 人（render/lab-art.js）
 Object.assign(NPC_LOOKS, LAB_NPC_LOOKS);
+// 第5章 雲の上の町ハネノの ハネビト（せなかに 羽。render/ch5-kumoi-art.js）
+Object.assign(NPC_LOOKS, KUMOI_NPC_LOOKS);
 
 // そうびの かきかた: 'ぶき,よろい,たて,あたま' の もじれつ か { weapon, armor, shield, head }
 export function parseEquip(eq, job) {
@@ -458,6 +461,9 @@ export function npcOpts(kind) {
     // ムチを もつ 人（サラ）・マントの 人（女王ネフィ・大臣ザイード）
     weapon: n.weapon,
     cape: n.cape,
+    // 第5章: ハネビトの 羽（render/ch5-kumoi-art.js）
+    wings: n.wings,
+    wingSize: n.wingSize,
   };
 }
 
@@ -1788,8 +1794,10 @@ export function paintHuman(dir, f, o) {
   } else {
     // マント（まえ・よこ むきは からだの うしろ）
     if (o.cape && vdir !== 'up') drawCape(p, vdir, f, o);
+    if (o.wings && vdir !== 'up') drawWings(p, vdir, f, o);
     drawBody(p, vdir, f, o);
     if (o.cape && vdir === 'up') drawCape(p, vdir, f, o);
+    if (o.wings && vdir === 'up') drawWings(p, vdir, f, o);
     drawHead(p, vdir, f, o);
     if (o.mask) drawMask(p, vdir);
     if (o.glasses) drawGlasses(p, vdir);

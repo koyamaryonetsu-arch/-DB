@@ -1,11 +1,12 @@
 // 色の かえかた（宝の洞窟の しゅるい・第3章の 氷と 火の 洞窟・第4章の 砂の 洞窟と 地下水路・洞窟の 主の 色ちがい）
 // もとの ドット絵は そのままに、明るさを たもって 色だけ かえる
-import { T } from '../../shared/tiles.js?v=7936c145c576';
-import { makeCanvas, ctxOf } from './pixel.js?v=7936c145c576';
-import { CANAL_CTX, CANAL_CTX_TILES } from './tiles-canal.js?v=7936c145c576';
-import { TEMPLE_TILES } from './tiles-temple.js?v=7936c145c576';
-import { LAB_TILES } from './tiles-lab.js?v=7936c145c576';
-import { TOWER_TILES, TOWER_THEMES } from './tiles-tower.js?v=7936c145c576';
+import { T } from '../../shared/tiles.js?v=b9571cd5f856';
+import { makeCanvas, ctxOf } from './pixel.js?v=b9571cd5f856';
+import { CANAL_CTX, CANAL_CTX_TILES } from './tiles-canal.js?v=b9571cd5f856';
+import { TEMPLE_TILES } from './tiles-temple.js?v=b9571cd5f856';
+import { LAB_TILES } from './tiles-lab.js?v=b9571cd5f856';
+import { TOWER_TILES, TOWER_THEMES } from './tiles-tower.js?v=b9571cd5f856';
+import { KUMOI_TILES, KUMOI_THEMES } from './tiles-kumoi.js?v=b9571cd5f856';
 
 // どの 部分か（ゆか・かべ・水）
 const PART_OF_TILE = {
@@ -38,6 +39,8 @@ for (const id of TEMPLE_TILES) PART_OF_TILE[id] = 'none';
 for (const id of LAB_TILES) PART_OF_TILE[id] = 'none';
 // 第5章「星の塔」の タイル（星座の ゆか・上り下りの ゆか・風の 窓 など）も もとの 色の まま
 for (const id of TOWER_TILES) PART_OF_TILE[id] = 'none';
+// 第5章 Step 3・4 の クモイ地方・しずみゆく島の 神殿の タイルも もとの 色の まま
+for (const id of KUMOI_TILES) PART_OF_TILE[id] = 'none';
 // mask … 地下水路の え で かいた たいまつ・レバー・かいだん など（mask の CANAL_CTX）も 色を かえない
 // 王家のピラミッドの 石の 文字ばん（かんばんの mask 4）も もとの 色の まま
 export const partOfTile = (id, mask = 0) => ((mask & CANAL_CTX && CANAL_CTX_TILES.has(id)) || (id === T.SIGN && mask & 4) ? 'none' : PART_OF_TILE[id] || 'floor');
@@ -184,7 +187,7 @@ const RUINS_DEEP = {
   gem: G([0, '#6a3a08'], [0.5, '#f0a830'], [1, '#fff4c8']),
   flame: null,
 };
-const THEMES = { ice: ICE, lava: LAVA, sand: SAND, canal: CANAL, pyramid: PYRAMID, castle: CASTLE, temple: TEMPLE, ruins: RUINS, ruins_deep: RUINS_DEEP, ...SECRET, ...TOWER_THEMES };
+const THEMES = { ice: ICE, lava: LAVA, sand: SAND, canal: CANAL, pyramid: PYRAMID, castle: CASTLE, temple: TEMPLE, ruins: RUINS, ruins_deep: RUINS_DEEP, ...SECRET, ...TOWER_THEMES, ...KUMOI_THEMES };
 
 // 1つの 色を かえる
 export function themeRgb(r, g, b, theme, part) {
