@@ -13,6 +13,13 @@ import {
 import { PLACES } from '../maps/overworld.js';
 import { TEMPLE_OBJ } from './story-ch4-temple.js';
 import { isNightFor, advanceClock } from '../world/clock.js';
+// Step 3・4: クモイ地方・ハネノの町・しずみゆく島の古い神殿（story-kumoi.js）
+import {
+  KUMOI_STEPS, KUMOI_STORY_SCRIPTS, KUMOI_SCRIPTS, KUMOI_OBJECTIVE_TARGETS, KUMOI_OBJECTIVE_TALK, KUMOI_PROGRESS, elderKumoi,
+} from './story-kumoi.js';
+import { KUMOI_POS } from '../maps/kumoi.js';
+// 仮の 戦いの データ（B の 出現表・gaia_eater が 入ったら この 1行と kumoi-battle-stub.js を 消す）
+import './kumoi-battle-stub.js';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -22,7 +29,9 @@ const V = (x, y) => [VIL.x + x + 0.5, VIL.y + y + 0.5];
 // ───── 第5章の すすみかた（STORY_STEPS の うしろに つづく。あとの Step で うしろに たす）─────
 // Step 1: c5_start（星祭り）・c5_hood（フードの子）・c5_stones（星の石）・c5_wings（星の羽）・c5_veil（天のとばり）
 // Step 2: c5_tower（星の塔に 入った）・c5_argos（アルゴスを たおした）・c5_sky（とばりを 開いて 雲の 上へ）
-export const CH5_STEPS = [C5.start, C5.hood, C5.stones, C5.wings, C5.veil, C5.tower, C5.argos, C5.sky];
+// Step 3・4: c5_kumoi（クモイ地方に 着いた）・c5_hanono（ソラネの 話）・c5_pipi（ノクトの 名前）・c5_ruin（古い 神殿に 入った）・
+//   c5_gaia（ガイアイーターを たおした）・c5_shard（守り星の かけら。Step 4 の さいご）。story-kumoi.js の KUMOI_STEPS
+export const CH5_STEPS = [C5.start, C5.hood, C5.stones, C5.wings, C5.veil, C5.tower, C5.argos, C5.sky, ...KUMOI_STEPS];
 
 // ───── 目標 ─────
 // 第4章クリアの あと（ホシミばあちゃんに 話しかける。story-ch4-temple.js の TEMPLE_OBJ.clear）
@@ -45,16 +54,20 @@ export const C5_OBJ = {
   f7: '7階の2つの「上り下りのゆか」で、上のだんをめざそう',
   f8: '8階のおくで、星の番人が待っている…（準備を整えてから進もう）',
   argos: '星のとびらの先のかいだんから、てっぺんへ。紋章を天のとばりにかざそう',
-  // Step 2 の さいご。あとの Step で 文を かえる ときは、この 文を OLD_C5_OBJ.sky に のこす（repairObjective で なおる）
-  sky: '第5章の続きはアップデートで！（雲の上に、空にうかぶ島々が見える…）',
+  // とばりが 開いた あと（Step 3 から。前の 文は OLD_C5_OBJ.sky）
+  sky: '風の笛で星の竜アステルを呼んで、空の上から「雲の上」へ飛ぼう。とばりの向こうに、空にうかぶ島々がある',
 };
 // むかしの 版の 目標の 文（セーブに のこっている ことが ある。今は 知らない 文なので repairObjective が なおす）
-export const OLD_C5_OBJ = {};
+export const OLD_C5_OBJ = {
+  // Step 2 の さいご（c5_sky。Step 3 で 上の 文に かえた）
+  sky: '第5章の続きはアップデートで！（雲の上に、空にうかぶ島々が見える…）',
+};
 
 // パーティー全員で 見る イベント（リーダーの 世界で すすむ）
 export const CH5_STORY_SCRIPTS = [
   'star_stone', 'c5_veil_event', 'c5_tower_door', 'c5_tf1', 'c5_argos_event', 'c5_top_event', 'c5_altar',
   ...Object.keys(LIFTS).flatMap((k) => [`c5_lift_${k}`, `c5_weight_${k}`]),
+  ...KUMOI_STORY_SCRIPTS,
 ];
 
 // ───────────── 2回目の 星祭り・フードの子（ホシミばあちゃん。c5_start・c5_hood）─────────────
@@ -232,14 +245,15 @@ export function elderCh5(x) {
   if (!x.flag(C5.veil)) {
     return S('ホシミばあちゃん', '星の羽…！なんと美しい光じゃ。', '風の笛でアステルさまを呼んで、空の上で「雲の上へ」とねがってごらん。');
   }
-  if (!x.flag(BOOK_FLAG)) return bookScene();
+  if (!x.flag(BOOK_FLAG) && !x.flag(C5.tower)) return bookScene();
   if (!x.flag(C5.tower)) {
     return S('ホシミばあちゃん', '星の塔は、村の北の山じゃ。\nとびらに紋章をかざしてごらん。', '塔の中は長い。4階に、休むための場所があるそうじゃよ。');
   }
   if (!x.flag(C5.sky)) {
     return S('ホシミばあちゃん', '書物には、こうも書いてあった。\n「星座のゆかは、夜にこそ道を教える」…とな。', '{name}、むりはせんでな。\n4階の休み所で、しっかり休むんじゃよ。');
   }
-  return S('ホシミばあちゃん', '天のとばりが、開いたんじゃな…！', '空にうかぶ島々…。\n{name}、どうか、気を付けて行っておいで。');
+  // Step 3・4（story-kumoi.js）
+  return elderKumoi(x);
 }
 
 // ───────────── 星の塔の とびら（フィールド）─────────────
@@ -478,7 +492,7 @@ function topEvent() {
     ['remove', 'astel_c5'],
     ['look'],
     ['flag', C5.sky], ['sync'],
-    ...N('――第5章の続きはアップデートで！――'),
+    ...N('（風の笛で星の竜アステルを呼んで、空の上で「雲の上」を選ぶと、\n空にうかぶ島々へ飛んでいける）'),
     ['bgm', 'resume'],
     ['objective', C5_OBJ.sky],
   ];
@@ -544,6 +558,8 @@ export const CH5_SCRIPTS = {
   c5_star_door: () => N('星の光でできたとびらだ。', 'とびらに、竜の星座の形がきざまれている…。'),
   // 8階: 星の番人アルゴス
   c5_argos_event: (x) => (x.flag(C5.argos) ? [] : argosEvent()),
+  // Step 3・4（story-kumoi.js）
+  ...KUMOI_SCRIPTS,
   c5_argos_door: () => N('星の光でできたとびらだ。', 'かたくとざされている…。\n（星の番人に、みとめてもらわないと、開かないようだ）'),
   // てっぺん
   c5_top_event: (x) => (x.flag(C5.sky) ? [] : topEvent()),
@@ -603,7 +619,8 @@ export const CH5_OBJECTIVE_TARGETS = {
   ],
   [C5_OBJ.f8]: [{ npc: 'argos_npc' }],
   [C5_OBJ.argos]: [{ map: towerMapId(TOWER_FLOORS + 1), x: TOWER_POS[9].altar.x, y: TOWER_POS[9].altar.y }],
-  [C5_OBJ.sky]: [{ npc: 'elder' }],
+  [C5_OBJ.sky]: [{ map: 'kumoi', x: KUMOI_POS.gate[0].x, y: KUMOI_POS.gate[0].y }],
+  ...KUMOI_OBJECTIVE_TARGETS,
 };
 
 // ───── 仲間会話（party-talk.js。「はなす」の ヒント）─────
@@ -699,11 +716,12 @@ export const CH5_OBJECTIVE_TALK = {
     kid: 'てっぺんだ〜！紋章をかざそう！',
   },
   [C5_OBJ.sky]: {
-    self: '天のとばりが開いた。雲の上に、空にうかぶ島々が見える。第5章の続きは、アップデートで。',
-    bold: 'やったな！空の島か…早く行ってみたいぜ！',
-    kind: '空にうかぶ島々…。島がしずんでいるというのが、心配ですね。',
-    kid: '雲の上に島があったよ！早く行きたいな〜！',
+    self: '天のとばりが開いた。風の笛でアステルを呼んで、空の上で「雲の上」を選べば、空にうかぶ島々へ行ける。',
+    bold: 'やったな！アステルを呼んで、雲の上へ行こうぜ！',
+    kind: '空にうかぶ島々…。島がしずんでいるというのが、心配ですね。アステルさまを呼んで、「雲の上」へ行きましょう。',
+    kid: '雲の上に島があったよ！アステルをよんで、行ってみよう！',
   },
+  ...KUMOI_OBJECTIVE_TALK,
 };
 
 // ───── すすみぐあい（progress.js の PROGRESS の うしろに つづく）─────
@@ -718,6 +736,7 @@ export const CH5_PROGRESS = [
   ...[2, 3, 4, 5, 6, 7, 8].map((n) => [EV(n), C5_OBJ[`f${n}`]]),
   [C5.argos, C5_OBJ.argos],
   [C5.sky, C5_OBJ.sky],
+  ...KUMOI_PROGRESS,
 ];
 
 export { STARS_FLAG, DOOR_FLAG };

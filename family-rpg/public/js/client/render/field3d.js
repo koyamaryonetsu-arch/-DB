@@ -19,6 +19,7 @@ import { whirlCanvas } from './tiles-duna.js';
 import { TEMPLE_LIQUIDS, TEMPLE_FLOOR_H, templeBlockSpec, waterMirrorCanvas, MIRROR_W, MIRROR_H, WATER_MIRROR_FRAMES } from './tiles-temple.js';
 import { labBlockSpec } from './tiles-lab.js';
 import { towerBlockSpec, TOWER_FLOOR_H } from './tiles-tower.js';
+import { kumoiBlockSpec, KUMOI_FLOOR_H, KUMOI_LIQUIDS, CLOUD_OUTSIDE } from './tiles-kumoi.js';
 import { TROUGH, CANAL_CTX, CANAL_SUN, canalVariant, canalMask, canalFlow, damVertical } from './tiles-canal.js';
 import { flipCanvas, makeCanvas, ctxOf, whiteCopy } from './pixel.js';
 import { themedCanvas, partOfTile, partOfExtra, partOfProp } from './themes.js';
@@ -48,11 +49,13 @@ const LIQUID_TILES = { [T.LAVA]: { name: 'lava', y: WATER_Y + 0.06, speed: 380 }
   // 第4章 Step 6: 砂の海（すなかぜ号で すすむ。地面より すこし ひくい 砂の 波。4コマで 東へ ながれる）と 砂クジラの ねどこの 砂の うず
   [T.SAND_SEA]: { name: 'sand_sea', y: -0.2, speed: 360, frames: 4 }, [T.SAND_WHIRL]: { name: 'sand_whirl', y: -0.22, speed: 130, frames: 8 },
   // 第4章 Step 7: 砂の底の神殿の 水（上・中・下で 水面の 高さが ちがう）と 水鏡
-  ...TEMPLE_LIQUIDS };
+  ...TEMPLE_LIQUIDS,
+  // 第5章 Step 3: クモイ地方の 雲の 海（島より ずっと 下。render/tiles-kumoi.js）
+  ...KUMOI_LIQUIDS };
 // 第4章 Step 2（かれた地下水路）: 水路の 底・水の たかさ（通路より ひくい）・水門と こうしの とびらの たかさ・がれきの 山の たかさ
 const CANAL_BED_H = -0.42, CANAL_WATER_Y = -0.27, GATE_H = 1.05, DAM_H = 0.62;
 // 地面の たかさ（深い 雪は すこし 高く・谷は ふかく・水路の 底は ひくく）
-const FLOOR_H = { [T.STEPPING]: -0.16, [T.DEEP_SNOW]: 0.14, [T.CHASM]: -0.8, [T.CANAL_BED]: CANAL_BED_H, [T.DAM]: CANAL_BED_H, ...TEMPLE_FLOOR_H, ...TOWER_FLOOR_H };
+const FLOOR_H = { [T.STEPPING]: -0.16, [T.DEEP_SNOW]: 0.14, [T.CHASM]: -0.8, [T.CANAL_BED]: CANAL_BED_H, [T.DAM]: CANAL_BED_H, ...TEMPLE_FLOOR_H, ...TOWER_FLOOR_H, ...KUMOI_FLOOR_H };
 // 雪・氷・砂ばくの 地面の よこの え
 const SIDE_OF = {
   [T.SAND]: 'sand_side', [T.SNOW]: 'snow_side', [T.SNOW_PATH]: 'snow_side', [T.DEEP_SNOW]: 'snow_side', [T.ICE]: 'ice_side',
@@ -135,7 +138,7 @@ function blockSpec(id, x, y) {
     case T.PYR_SLAB: return { h: 1.6, top: ['x', 'cave_top', v], side: ['t', T.PYR_SLAB, v, 1], south: ['t', T.PYR_SLAB, v, 1] };
     case T.PYR_CRACK: return { h: 1.6, top: ['x', 'cave_top', v], side: ['t', T.PYR_CRACK, v, 1], south: ['t', T.PYR_CRACK, v, 1] };
     // 第4章 Step 7: 大きな 鏡・かべ画（かべの 前の かお）・空気の ドームの かべ（あわの 向こうの 砂）・水が もどった ふん水
-    default: return templeBlockSpec(id, v) || labBlockSpec(id, v) || towerBlockSpec(id, v);
+    default: return templeBlockSpec(id, v) || labBlockSpec(id, v) || towerBlockSpec(id, v) || kumoiBlockSpec(id, v);
   }
 }
 
@@ -449,6 +452,11 @@ export class Field3D {
             const lu = uvOf(['x', 'pyramid_side', 0]);
             box(g, x, y, 1.0, PYR_H0, uvOf(['x', 'pyramid_top', 0]), lu, lu, () => 1.0);
           }
+          // 第5章: しずみゆく島の 古い 神殿の 入口（フィールド）: 入口の 上に 石の まぐさ
+          if (id === T.RUIN_DOOR && !dungeon) {
+            const lu = uvOf(['t', T.RUIN_WALL, 0, 1]);
+            box(g, x, y, 1.0, 1.6, uvOf(['t', T.RUIN_WALL, 0, 0]), lu, lu, () => 1.0);
+          }
           // もんの うえの かべ（たてものの いりぐち）
           if (id === T.DOOR) {
             const rr = roofOf(x, y);
@@ -740,9 +748,11 @@ export class Field3D {
       const snowy = map.outside === 'snow';
       // 砂の 地方の 南（第4章 Step 6 の ドゥナ・砂の海）は 砂の海
       const sandy = map.outside === 'sand';
-      const oy = snowy ? -0.05 : sandy ? LIQUID_TILES[T.SAND_SEA].y - 0.03 : WATER_Y - 0.03;
-      quad(sea, [-M, oy, -M], [-M, oy, h + M], [w + M, oy, h + M], [w + M, oy, -M], { u0: -M, u1: w + M, v0: -h - M, v1: M }, snowy ? 0.86 : sandy ? 0.8 : 0.62);
-      const seaTex = new THREE.CanvasTexture(tileCanvas(snowy ? T.SNOW : sandy ? T.SAND_SEA : T.DEEP, 0, 0, 0));
+      // 第5章: 雲の上の 地方（クモイ地方・ハネノの町）は 雲の 海
+      const cloudy = map.outside === 'cloud';
+      const oy = snowy ? -0.05 : sandy ? LIQUID_TILES[T.SAND_SEA].y - 0.03 : cloudy ? CLOUD_OUTSIDE.y : WATER_Y - 0.03;
+      quad(sea, [-M, oy, -M], [-M, oy, h + M], [w + M, oy, h + M], [w + M, oy, -M], { u0: -M, u1: w + M, v0: -h - M, v1: M }, snowy ? 0.86 : sandy ? 0.8 : cloudy ? CLOUD_OUTSIDE.light : 0.62);
+      const seaTex = new THREE.CanvasTexture(tileCanvas(snowy ? T.SNOW : sandy ? T.SAND_SEA : cloudy ? CLOUD_OUTSIDE.tile : T.DEEP, 0, 0, 0));
       seaTex.magFilter = THREE.NearestFilter;
       seaTex.minFilter = THREE.NearestFilter;
       seaTex.generateMipmaps = false;

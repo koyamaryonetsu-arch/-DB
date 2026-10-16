@@ -10,6 +10,7 @@ import { PYRAMID_PAINTERS, PYRAMID_FRAMES, PYRAMID_SPEED, PYRAMID_WALLS, paintTa
 import { whirlVariant } from './tiles-duna.js';
 import { templeVariant } from './tiles-temple.js';
 import { TOWER_PAINTERS, TOWER_FRAMES, TOWER_SPEED, TOWER_WALLS, towerMask, towerVariant } from './tiles-tower.js';
+import { KUMOI_PAINTERS, KUMOI_FRAMES, KUMOI_SPEED, KUMOI_WALLS, kumoiMask, kumoiVariant } from './tiles-kumoi.js';
 
 export const TS = 16;
 
@@ -497,6 +498,8 @@ Object.assign(painters, CH4_PAINTERS);
 Object.assign(painters, PYRAMID_PAINTERS);
 // 第5章「星の塔」（render/tiles-tower.js）
 Object.assign(painters, TOWER_PAINTERS);
+// 第5章 Step 3・4「クモイ地方」「しずみゆく島の古い神殿」（render/tiles-kumoi.js）
+Object.assign(painters, KUMOI_PAINTERS);
 // ピラミッドの 中の かがり火は 金色の 台（mask 4。tiles-ch4.js の ch4Mask）
 for (const [id, lit] of [[T.BRAZIER, false], [T.BRAZIER_LIT, true]]) {
   const base = painters[id];
@@ -518,9 +521,9 @@ const FRAMES = {
   [T.WATER]: 3, [T.DEEP]: 3, [T.SWAMP]: 3, [T.FOUNTAIN]: 2, [T.FIREPLACE]: 2, [T.CAVE_WATER]: 3, [T.CRYSTAL]: 3,
   [T.TORCH]: 3, [T.LAMP]: 2, [T.STEPPING]: 3, [T.BRIDGE_H]: 3, [T.BRIDGE_V]: 3, [T.BROKEN_BRIDGE]: 3, [T.CAVE_BRIDGE]: 3, [T.PIER]: 3,
   [T.WHIRLPOOL]: 3,
-  ...CH3_FRAMES, ...CH4_FRAMES, ...PYRAMID_FRAMES, ...TOWER_FRAMES,
+  ...CH3_FRAMES, ...CH4_FRAMES, ...PYRAMID_FRAMES, ...TOWER_FRAMES, ...KUMOI_FRAMES,
 };
-const SPEED = { [T.TORCH]: 140, [T.FIREPLACE]: 180, [T.CRYSTAL]: 500, [T.LAMP]: 700, ...CH3_SPEED, ...CH4_SPEED, ...PYRAMID_SPEED, ...TOWER_SPEED };
+const SPEED = { [T.TORCH]: 140, [T.FIREPLACE]: 180, [T.CRYSTAL]: 500, [T.LAMP]: 700, ...CH3_SPEED, ...CH4_SPEED, ...PYRAMID_SPEED, ...TOWER_SPEED, ...KUMOI_SPEED };
 
 export function frameOf(id, t) {
   const n = FRAMES[id];
@@ -550,7 +553,7 @@ export function tileCanvas(id, variant, frame, mask, theme) {
 }
 
 const WATERY = new Set([T.WATER, T.DEEP, T.BROKEN_BRIDGE, T.STEPPING, T.PIER, T.BRIDGE_H, T.BRIDGE_V, T.WHIRLPOOL]);
-const WALLS = new Set([T.WALL_STONE, T.WALL_WOOD, T.CAVE_WALL, T.TORCH, ...CH3_WALLS, ...CH4_WALLS, ...PYRAMID_WALLS, ...TOWER_WALLS]);
+const WALLS = new Set([T.WALL_STONE, T.WALL_WOOD, T.CAVE_WALL, T.TORCH, ...CH3_WALLS, ...CH4_WALLS, ...PYRAMID_WALLS, ...TOWER_WALLS, ...KUMOI_WALLS]);
 
 // マップごとに いちど だけ けいさん（となりの タイルで かわる みため）
 export function prepareMap(map) {
@@ -587,6 +590,10 @@ export function prepareMap(map) {
         const m5 = towerMask(t, at, x, y);
         if (m5 >= 0) mask[i] |= m5;
         variant[i] = towerVariant(t, at, x, y, variant[i]);
+        // 第5章 しずみゆく島の 神殿: かべ画の つづき（render/tiles-kumoi.js）
+        const mk = kumoiMask(t, at, x, y);
+        if (mk >= 0) mask[i] |= mk;
+        variant[i] = kumoiVariant(t, at, x, y, variant[i]);
       } else if (RAIL_TILES.has(t)) {
         // レールの つながり（北=1 東=2 南=4 西=8）
         let m = 0;

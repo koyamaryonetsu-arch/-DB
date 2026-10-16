@@ -46,6 +46,13 @@ export const T = {
   WIND_E: 199, WIND_WINDOW: 200, WIND_SHUT: 201, VANE: 202, VANE_ON: 203, WIND_PIT: 204, ELEVATOR: 205, ELEVATOR_LIT: 206,
   STAR_WINDOW: 207, TOWER_MURAL: 208, STAR_CHART: 209, STAR_FONT: 210, STAR_DOOR: 211, TOWER_DOOR: 212, TOWER_GATE: 213,
   TOWER_BASE: 214, TOP_FLOOR: 215, TOP_EDGE: 216, CREST_ALTAR: 217, TOWER_EXIT: 218,
+  // 第5章 Step 3・4「クモイ地方」（maps/kumoi.js・render/tiles-kumoi.js。219〜228）
+  CLOUD_SEA: 219, CLOUD_RIM: 220, SKYWIND_N: 221, SKYWIND_E: 222, SKYWIND_S: 223, SKYWIND_W: 224,
+  TILT_TREE: 225, TILT_PILLAR: 226, RUIN_WALL: 227, RUIN_DOOR: 228,
+  // 第5章 Step 4「しずみゆく島の古い神殿」（maps/sink-ruin.js。239〜255）
+  TILT_FLOOR_W: 239, TILT_FLOOR_E: 240, BOULDER: 241, TILT_LEVER: 242, TILT_LEVER_ON: 243,
+  SCALE_PAN: 244, SCALE_PAN_ON: 245, PAN_ROCK: 246, SCALE_DOOR: 247, SCALE_BEAM: 248,
+  CLOUD_FLOOR: 249, RUIN_SHAFT: 250, ROPE_LADDER: 251, ROPE_COIL: 252, RUIN_MURAL: 253, SHARD_ALTAR: 254, GAIA_ROOT: 255,
 };
 
 export const TILE_INFO = {};
@@ -255,6 +262,35 @@ def(T.TOP_FLOOR, 'top_floor', { mapColor: '#6a70a8' }); // 塔の てっぺん�
 def(T.TOP_EDGE, 'top_edge', { solid: true, mapColor: '#4a4e7a' }); // てっぺんの ふちの 石がき（向こうは 夜空）
 def(T.CREST_ALTAR, 'crest_altar', { solid: true, talkThrough: true, light: true, mapColor: '#e8d890' }); // 紋章の さいだん（天のとばりを 開く）
 def(T.TOWER_EXIT, 'tower_exit', { mapColor: '#2a2a3a' }); // 1階の 出口（外へ）
+// 第5章「クモイ地方」（maps/kumoi.js）。雲の 海に うかぶ 島々（render/tiles-kumoi.js）
+def(T.CLOUD_SEA, 'cloud_sea', { solid: true, anim: true, mapColor: '#e4ecf8' }); // 雲の 海（歩けない。竜なら 上を 飛べる）
+def(T.CLOUD_RIM, 'cloud_rim', { mapColor: '#c4dcc8' }); // 雲に とけかけた 島の ふち（しずみかけている。歩ける）
+def(T.SKYWIND_N, 'skywind_n', { flow: [0, -1], anim: true, mapColor: '#9ad0f4' }); // 風の 道（北へ 流される。雲の 上を わたれる）
+def(T.SKYWIND_E, 'skywind_e', { flow: [1, 0], anim: true, mapColor: '#9ad0f4' }); // 風の 道（東へ）
+def(T.SKYWIND_S, 'skywind_s', { flow: [0, 1], anim: true, mapColor: '#9ad0f4' }); // 風の 道（南へ）
+def(T.SKYWIND_W, 'skywind_w', { flow: [-1, 0], anim: true, mapColor: '#9ad0f4' }); // 風の 道（西へ）
+def(T.TILT_TREE, 'tilt_tree', { solid: true, mapColor: '#4a8a4a' }); // かたむいた 木（島が しずんで かたむいた）
+def(T.TILT_PILLAR, 'tilt_pillar', { solid: true, mapColor: '#c8c4b0' }); // かたむいた 古い 柱
+def(T.RUIN_WALL, 'ruin_wall', { solid: true, mapColor: '#b8b098' }); // 古い 神殿の 石の かべ（フィールド）
+def(T.RUIN_DOOR, 'ruin_door', { mapColor: '#3a3428' }); // 古い 神殿の 入口（中へ）
+// しずみゆく島の古い神殿（maps/sink-ruin.js）。かべと ゆかは 洞窟の タイルを 神殿の 色に（render/themes.js の sky_ruin）
+def(T.TILT_FLOOR_W, 'tilt_floor_w', { mapColor: '#a8a490' }); // かたむいた ゆか（西が ひくい）
+def(T.TILT_FLOOR_E, 'tilt_floor_e', { mapColor: '#a8a490' }); // かたむいた ゆか（東が ひくい）
+def(T.BOULDER, 'boulder', { solid: true, mapColor: '#7a6e5a' }); // 大きな 岩（ゆかが かたむくと ころがる）
+def(T.TILT_LEVER, 'tilt_lever', { solid: true, mapColor: '#8a7a5a' }); // かたむきの石（おすと 島の かたむきが かわる）
+def(T.TILT_LEVER_ON, 'tilt_lever_on', { solid: true, light: true, mapColor: '#e8c870' }); // おした かたむきの石
+def(T.SCALE_PAN, 'scale_pan', { mapColor: '#c8a860' }); // 重さの てんびんの 皿（上がっている）
+def(T.SCALE_PAN_ON, 'scale_pan_on', { mapColor: '#ffe080' }); // 下がった てんびんの 皿（つりあった）
+def(T.PAN_ROCK, 'pan_rock', { solid: true, mapColor: '#8a7a5a' }); // 岩が のった てんびんの 皿
+def(T.SCALE_DOOR, 'scale_door', { solid: true, mapColor: '#8a8070' }); // てんびんの とびら（つりあうと 開く）
+def(T.SCALE_BEAM, 'scale_beam', { solid: true, mapColor: '#a88a40' }); // てんびんの 柱と うで
+def(T.CLOUD_FLOOR, 'cloud_floor', { anim: true, mapColor: '#d8e0ec' }); // 入りこんだ 雲（歩ける。強い 魔物が 出る）
+def(T.RUIN_SHAFT, 'ruin_shaft', { solid: true, mapColor: '#1a1814' }); // ふかい たて穴（縄ばしごを かけると 下りられる）
+def(T.ROPE_LADDER, 'rope_ladder', { mapColor: '#a07a40' }); // 縄ばしご（2階 ⇔ 5階の 近道）
+def(T.ROPE_COIL, 'rope_coil', { solid: true, mapColor: '#a07a40' }); // まるめた 縄ばしご（上へ かけられる）
+def(T.RUIN_MURAL, 'ruin_mural', { solid: true, mapColor: '#9a8a6a' }); // 古い かべ画（大地の 守り星と ハネビト）
+def(T.SHARD_ALTAR, 'shard_altar', { solid: true, talkThrough: true, light: true, mapColor: '#f0d890' }); // 守り星の かけらの 台
+def(T.GAIA_ROOT, 'gaia_root', { solid: true, mapColor: '#6a5038' }); // 島を ささえる 大きな 根（食べられて ぼろぼろ）
 
 export function isSolid(id) {
   return TILE_INFO[id]?.solid ?? true;
