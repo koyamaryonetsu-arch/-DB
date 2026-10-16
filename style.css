@@ -1580,7 +1580,7 @@ td[data-field="category"], td[data-field="content"] { background: #fff; }
 #viewKotei .k-printhead{ display:none; }
 
 /* スクロール領域・盤面 */
-#viewKotei .scroll{ flex:1 1 auto; overflow:auto; background:#fff; position:relative; min-height:300px; max-height:calc(100vh - 330px); }
+#viewKotei .scroll{ flex:1 1 auto; overflow:auto; background:#fff; position:relative; min-height:300px; height:calc(100dvh - var(--kscroll-top, 330px) - 12px); }
 #viewKotei .board{ position:relative; }
 
 /* ヘッダー行 */

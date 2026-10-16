@@ -208,6 +208,8 @@
   function theatersOf(co) {
     const out = [];
     live().concat(S.folders).forEach((r) => { if (r.company === co && r.theater && out.indexOf(r.theater) < 0) out.push(r.theater); });
+    // 開いている劇場は、書類が0件になっても残す（消すと左の欄がずれて押し間違えるため）
+    if (S.loc.kind === 'place' && S.loc.co === co && S.loc.th && out.indexOf(S.loc.th) < 0) out.push(S.loc.th);
     return out.sort((a, b) => theaterLabel(co, a).localeCompare(theaterLabel(co, b), 'ja'));
   }
   function masterTheaters(co) {
@@ -262,11 +264,12 @@
           const nf = cnt((r) => r.folder_id === f.id);
           h += `<button type="button" class="sh-tn lv3${l.kind === 'place' && l.folder === f.id ? ' on' : ''}" data-co="${esc(co)}" data-th="${esc(th)}" data-folder="${esc(f.id)}"><span class="tw"></span>🗂 ${esc(f.name)}<span class="ct">${nf || ''}</span></button>`;
         });
+        // フォルダを作るボタンは、開いている劇場のすぐ下に出す（一番下だと、ごみ箱の近くで位置が変わりやすい）
+        if (l.kind === 'place' && l.co === co && l.th === th && !setupMissing.folders) h += `<button type="button" class="sh-tn lv3 sh-addf" data-act="newfolder"><span class="tw"></span>＋ ここにフォルダを作る</button>`;
       });
     });
     if (nUnset) h += `<button type="button" class="sh-tn${l.kind === 'unset' ? ' on' : ''}" data-loc="unset"><span class="tw"></span>❔ ${UNSET}<span class="ct">${nUnset}</span></button>`;
     h += `<div class="sh-th">　</div><button type="button" class="sh-tn${l.kind === 'trash' ? ' on' : ''}" data-loc="trash"><span class="tw"></span>🗑 ごみ箱<span class="ct">${nTrash || ''}</span></button>`;
-    if (l.kind === 'place' && l.th && !setupMissing.folders) h += `<button type="button" class="sh-tn sh-addf" data-act="newfolder"><span class="tw"></span>＋ この劇場にフォルダを作る</button>`;
     $('shTree').innerHTML = h;
   }
   function renderCrumb() {
@@ -457,6 +460,8 @@
   function docMenu(anchor, id) {
     const r = S.rows.find((x) => x.id === id); if (!r) return;
     S.sel = id; renderList();
+    // 一覧を描き直したので、押したボタンを探し直してその近くに出す（古いボタンは画面から消えていて位置が取れない）
+    anchor = document.querySelector(`#shList [data-dmenu="${CSS.escape(id)}"]`) || anchor;
     openMenu(anchor, `<button type="button" data-mact="open">開く</button><button type="button" data-mact="rename">名前を変える</button><button type="button" data-mact="dup">複製する</button><button type="button" data-mact="move">フォルダへ移動</button><hr><button type="button" class="danger" data-mact="del">削除する（ごみ箱へ）</button>`);
     $('shMenu').onclick = (e) => {
       const b = e.target.closest('[data-mact]'); if (!b) return; closeMenu();
@@ -625,7 +630,7 @@
     $('dtExcel').classList.toggle('hidden', type !== 'kotei');
   }
   function showShelf() {
-    if (window.KOTEI) window.KOTEI.closePop();
+    if (window.KOTEI) window.KOTEI.leave();
     $('docTop').classList.add('hidden'); $('viewKotei').classList.add('hidden'); $('viewPhoto').classList.add('hidden');
     $('viewShelf').classList.remove('hidden');
     renderShelf();
@@ -1028,7 +1033,7 @@
   // 他の画面へ切り替えた時（保存していない内容はこの端末に残るので、次に開いた時に復元できる）
   function close() {
     if (S.cur && S.cur.dirty) { const c = S.cur; lsSet(DRAFT(c.type, c.row.id), { at: Date.now(), name: currentName(), data: currentData() }); }
-    if (window.KOTEI) window.KOTEI.closePop();
+    if (window.KOTEI) window.KOTEI.leave();
     S.cur = null; closeDlg(); closeMenu();
     ['viewShelf', 'docTop', 'viewKotei', 'viewPhoto'].forEach((id) => $(id).classList.add('hidden'));
   }
