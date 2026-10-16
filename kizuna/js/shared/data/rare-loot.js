@@ -4,9 +4,9 @@
 //   ・ふつうの 魔物 … その地方に 合った 装備を まれに（REGION_RARE_N 体に 1体。第32回 500。loot.js）
 //   ・ひみつのダンジョン … ここだけの ★4〜★5（深いほど 強い。20階から。休み所の ごほうび・魔物・番人。data/secret.js・loot.js）
 //   ・店の 品は レア度なし（0）
-import { ITEMS, baseItemId } from './items.js?v=b9571cd5f856';
-import { MONSTERS } from './monsters.js?v=b9571cd5f856';
-import { RARITY_OVERRIDE, defaultRarity } from './items-rare.js?v=b9571cd5f856';
+import { ITEMS, baseItemId } from './items.js?v=2d5cd0f0104e';
+import { MONSTERS } from './monsters.js?v=2d5cd0f0104e';
+import { RARITY_OVERRIDE, defaultRarity } from './items-rare.js?v=2d5cd0f0104e';
 
 export const RARITY_MAX = 5;
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -119,6 +119,8 @@ export const REGION_RARE_N = 500;
 export function regionOf(species) {
   const m = MONSTERS[species];
   if (!m || m.boss || m.breedOnly || !(m.exp > 0) || String(species).startsWith('tm_')) return 0;
+  // 第5章 Step 3・4: 雲の上の 魔物は 地方 6（空の レア。monsters-kumoi.js の region）
+  if (m.region) return m.region;
   const lv = m.lv || 1;
   return lv <= 9 ? 1 : lv <= 16 ? 2 : lv <= 28 ? 3 : lv <= 38 ? 4 : 5;
 }

@@ -10,12 +10,13 @@
 // resist: たいせい（しゅぞくの たいせいを つかう。ここに かけば うわがき）
 // gear:   装備できる 物（しゅぞくの けいの RACE_GEAR を うわがき。下の RACE_GEAR を 見てね）
 
-import { FRIENDS_CH2 } from './companions-ch2.js?v=b9571cd5f856';
-import { FRIENDS_RARE } from './monsters-rare.js?v=b9571cd5f856';
-import { FRIENDS_CH3 } from './companions-ch3.js?v=b9571cd5f856';
-import { FRIENDS_R23, RECIPES_R23 } from './monsters-r23.js?v=b9571cd5f856';
-import { FRIENDS_CH4 } from './companions-ch4.js?v=b9571cd5f856';
-import { FRIENDS_CH5 } from './companions-ch5.js?v=b9571cd5f856';
+import { FRIENDS_CH2 } from './companions-ch2.js?v=2d5cd0f0104e';
+import { FRIENDS_RARE } from './monsters-rare.js?v=2d5cd0f0104e';
+import { FRIENDS_CH3 } from './companions-ch3.js?v=2d5cd0f0104e';
+import { FRIENDS_R23, RECIPES_R23 } from './monsters-r23.js?v=2d5cd0f0104e';
+import { FRIENDS_CH4 } from './companions-ch4.js?v=2d5cd0f0104e';
+import { FRIENDS_CH5 } from './companions-ch5.js?v=2d5cd0f0104e';
+import { FRIENDS_KUMOI } from './companions-kumoi.js?v=2d5cd0f0104e';
 
 export const MONSTER_FRIENDS = {
   pururin: {
@@ -270,6 +271,8 @@ Object.assign(MONSTER_FRIENDS, FRIENDS_R23);
 Object.assign(MONSTER_FRIENDS, FRIENDS_CH4);
 // 第5章 Step 2「星の塔」の 魔物（companions-ch5.js）
 Object.assign(MONSTER_FRIENDS, FRIENDS_CH5);
+// 第5章 Step 3・4 の 魔物（companions-kumoi.js）
+Object.assign(MONSTER_FRIENDS, FRIENDS_KUMOI);
 // しゅぞくごとの 装備の うわがき（上の GEAR）
 for (const [sp, g] of Object.entries(GEAR)) if (MONSTER_FRIENDS[sp]) MONSTER_FRIENDS[sp].gear = { ...g, ...(MONSTER_FRIENDS[sp].gear || {}) };
 

@@ -1,10 +1,10 @@
 // ぶき・たて・かぶと（そうびの ID から みためを きめて かく）
 // 知らない 品（これからの もの）は、種類・ランク・名前の ことば から きめる
-import { mat, ramp, TH, mixC, mixI, hex, HeroCanvas } from './hero-raster.js?v=b9571cd5f856';
-import { metal, metalRamp, cloth, leather, gem, glow, neon, metalOfName, baseItem, fruitIcon, ownArmor } from './hero-outfit.js?v=b9571cd5f856';
-import { R26_HAT, R26_BODY_HAT, drawHat26 } from './hero-r26.js?v=b9571cd5f856';
+import { mat, ramp, TH, mixC, mixI, hex, HeroCanvas } from './hero-raster.js?v=2d5cd0f0104e';
+import { metal, metalRamp, cloth, leather, gem, glow, neon, metalOfName, baseItem, fruitIcon, ownArmor } from './hero-outfit.js?v=2d5cd0f0104e';
+import { R26_HAT, R26_BODY_HAT, drawHat26 } from './hero-r26.js?v=2d5cd0f0104e';
 // 第33回: シルクハット（布の服の とき）・ティアラ（よろいでも のこる）
-import { R33_HAT, R33_BODY_HAT, R33_WEAPON_LOOK, R33_HEAD_LOOK, drawWand33, masc33 } from './hero-r33.js?v=b9571cd5f856';
+import { R33_HAT, R33_BODY_HAT, R33_WEAPON_LOOK, R33_HEAD_LOOK, drawWand33, masc33 } from './hero-r33.js?v=2d5cd0f0104e';
 
 const D = Math.PI / 180;
 

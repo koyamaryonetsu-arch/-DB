@@ -8,9 +8,11 @@
 //   tier … その章（1〜5）。本だなや メモで わかるのは、その章まで 進んだ 人だけ（TIER_FLAG）
 // ・同じ 武具を 2つ 入れると、レア度は かわらないが きたえられる 回数（+の 上限）が 1 ふえる（CAP_UP_MAX 回まで。
 //   その 装備の しゅるいごと。c.alchemy.cap）
-import { ITEMS, baseItemId } from './items.js?v=b9571cd5f856';
-import { UPGRADE_TYPES, CAP_UP_MAX } from './items-forge.js?v=b9571cd5f856';
-import { ALCHEMY_POT, ALCHEMY_MEMO } from './items-alchemy.js?v=b9571cd5f856';
+import { ITEMS, baseItemId } from './items.js?v=2d5cd0f0104e';
+import { UPGRADE_TYPES, CAP_UP_MAX } from './items-forge.js?v=2d5cd0f0104e';
+import { ALCHEMY_POT, ALCHEMY_MEMO } from './items-alchemy.js?v=2d5cd0f0104e';
+// 第5章 Step 3・4 の レシピ（items-kumoi.js）
+import { KUMOI_RECIPES } from './items-kumoi.js?v=2d5cd0f0104e';
 
 export { ALCHEMY_POT, ALCHEMY_MEMO, CAP_UP_MAX };
 
@@ -78,6 +80,7 @@ export const RECIPES = [
   // ── 第5章 ──
   R('r_dragon_slayer', 5, 'dragon_slayer', 'old_fang_sword', 'dragon_scale', 'star_iron'),
   R('r_senrigan', 5, 'senrigan_helm', 'hundred_eye_helm', 'star_shard', 'star_shard'),
+  ...KUMOI_RECIPES,
 ];
 export const RECIPE_BY_ID = Object.fromEntries(RECIPES.map((r) => [r.id, r]));
 // かまを もらった ときに 教えて もらう レシピ

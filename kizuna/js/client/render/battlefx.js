@@ -1,28 +1,30 @@
 // たたかいの はいけいと エフェクト
-import { makeCanvas, ctxOf, hexToRgb, mix } from './pixel.js?v=b9571cd5f856';
-import { weaponLook, playWeapon, playReach } from './weaponfx.js?v=b9571cd5f856';
-import { nightBg, drawNightSky } from './night-art.js?v=b9571cd5f856';
-import { playJobFx, JOB_FINE } from './battlefx-jobs.js?v=b9571cd5f856';
-import { playJob2Fx, JOB2_FINE } from './battlefx-jobs2.js?v=b9571cd5f856';
-import { playJob3Fx, JOB3_FINE } from './battlefx-jobs3.js?v=b9571cd5f856';
-import { playJob4Fx, JOB4_FINE } from './battlefx-jobs4.js?v=b9571cd5f856';
+import { makeCanvas, ctxOf, hexToRgb, mix } from './pixel.js?v=2d5cd0f0104e';
+import { weaponLook, playWeapon, playReach } from './weaponfx.js?v=2d5cd0f0104e';
+import { nightBg, drawNightSky } from './night-art.js?v=2d5cd0f0104e';
+import { playJobFx, JOB_FINE } from './battlefx-jobs.js?v=2d5cd0f0104e';
+import { playJob2Fx, JOB2_FINE } from './battlefx-jobs2.js?v=2d5cd0f0104e';
+import { playJob3Fx, JOB3_FINE } from './battlefx-jobs3.js?v=2d5cd0f0104e';
+import { playJob4Fx, JOB4_FINE } from './battlefx-jobs4.js?v=2d5cd0f0104e';
 // 第27回の 暴れんぼう将軍の 看板の技（battlefx-jobs5.js）
-import { playJob5Fx, JOB5_FINE } from './battlefx-jobs5.js?v=b9571cd5f856';
+import { playJob5Fx, JOB5_FINE } from './battlefx-jobs5.js?v=2d5cd0f0104e';
 // 第29回の るろうに剣士の 道の 看板の技（battlefx-jobs6.js）
-import { playJob6Fx, JOB6_FINE } from './battlefx-jobs6.js?v=b9571cd5f856';
+import { playJob6Fx, JOB6_FINE } from './battlefx-jobs6.js?v=2d5cd0f0104e';
 // 第33回の 11この 職業の 技（battlefx-jobs7.js）
-import { playJob7Fx, JOB7_FINE } from './battlefx-jobs7.js?v=b9571cd5f856';
-import { drawPalaceHall, drawPalaceFloor } from './ch4-palace-bg.js?v=b9571cd5f856';
+import { playJob7Fx, JOB7_FINE } from './battlefx-jobs7.js?v=2d5cd0f0104e';
+import { drawPalaceHall, drawPalaceFloor } from './ch4-palace-bg.js?v=2d5cd0f0104e';
 // 第4章 Step 6: 砂の古城・砂の海（すなかぜ号の かんぱん）・砂クジラの ねどこ（ch4-duna-bg.js）
-import { drawCastleHall, drawCastleFloor, drawSandSea } from './ch4-duna-bg.js?v=b9571cd5f856';
-import { playCh4Fx } from './battlefx-ch4.js?v=b9571cd5f856';
+import { drawCastleHall, drawCastleFloor, drawSandSea } from './ch4-duna-bg.js?v=2d5cd0f0104e';
+import { playCh4Fx } from './battlefx-ch4.js?v=2d5cd0f0104e';
 // 第27回: 古い 呪文・特技の エフェクトの 作り直し（battlefx-r27.js）
-import { playR27Fx, R27_FINE } from './battlefx-r27.js?v=b9571cd5f856';
+import { playR27Fx, R27_FINE } from './battlefx-r27.js?v=2d5cd0f0104e';
 // 第4章 Step 7: 砂の底の神殿・鏡の間・水鏡の広間（ch4-temple-bg.js）
-import { TEMPLE_BG, TEMPLE_DECOS, drawTempleBg, drawTempleFloorBg } from './ch4-temple-bg.js?v=b9571cd5f856';
-import { SECRET_BG } from './secret-art.js?v=b9571cd5f856';
+import { TEMPLE_BG, TEMPLE_DECOS, drawTempleBg, drawTempleFloorBg } from './ch4-temple-bg.js?v=2d5cd0f0104e';
+import { SECRET_BG } from './secret-art.js?v=2d5cd0f0104e';
 // 第5章 Step 2: 星の塔の 中・塔の てっぺん（ch5-tower-bg.js）
-import { TOWER_BG, TOWER_DECOS, drawTowerBg, drawTowerFloorBg } from './ch5-tower-bg.js?v=b9571cd5f856';
+import { TOWER_BG, TOWER_DECOS, drawTowerBg, drawTowerFloorBg } from './ch5-tower-bg.js?v=2d5cd0f0104e';
+// 第5章 Step 3・4: 雲の上の 島・しずみゆく島の 古い神殿（ch5-kumoi-bg.js）
+import { KUMOI_BG, KUMOI_DECOS, drawKumoiBg, drawKumoiFloorBg } from './ch5-kumoi-bg.js?v=2d5cd0f0104e';
 
 export const BW = 256;
 export const BH = 144;
@@ -119,6 +121,8 @@ const BG = {
   ...SECRET_BG,
   // 第5章 Step 2: 星の塔（star_tower）・塔の てっぺん（star_tower_top）
   ...TOWER_BG,
+  // 第5章 Step 3・4: クモイ地方（kumoi）・古い神殿（sink_ruin・sink_ruin_deep）
+  ...KUMOI_BG,
 };
 
 // はいけいの データ（〜_night は 夜空の はいけい。night-art.js）。ない ときは null
@@ -204,6 +208,7 @@ export function battleBackground(id) {
   if (d.deco === 'sand_sea') drawSandSea(x, d, hor);
   if (TEMPLE_DECOS.has(d.deco)) drawTempleBg(x, d, hor);
   if (TOWER_DECOS.has(d.deco)) drawTowerBg(x, d, hor);
+  if (KUMOI_DECOS.has(d.deco)) drawKumoiBg(x, d, hor);
   if (d.deco === 'houses') {
     x.fillStyle = '#ffd66b';
     for (let k = 10; k < BW; k += 48) x.fillRect(k + 8, hor - 12, 3, 3);
@@ -255,6 +260,7 @@ export function battleBackground(id) {
   else if (d.deco === 'castle') drawCastleFloor(x, hor);
   else if (TEMPLE_DECOS.has(d.deco)) drawTempleFloorBg(x, d, hor);
   else if (TOWER_DECOS.has(d.deco)) drawTowerFloorBg(x, d, hor);
+  else if (KUMOI_DECOS.has(d.deco)) drawKumoiFloorBg(x, d, hor);
   else {
     x.fillStyle = 'rgba(0,0,0,0.12)';
     for (let i = 0; i < 6; i++) {

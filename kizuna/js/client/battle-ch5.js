@@ -2,9 +2,11 @@
 // ・見通しの目: 読まれた 人の まど（名前の 上）に 目の しるしと 読まれた 種類（攻撃・呪文・回復・防御）。
 //   読んで いる 間は アルゴスの 3つの 目が 光る。読んだ とき（目から 光の すじ）・当たった とき（しかえし）・外れた とき（目が くらむ）の えんしゅつと バナー
 // ・敵が 使うと がめんの まん中に 大きく 出す 技（星の光・星のさばき・ふきあげる風・星の尾）・味方の まどの えんしゅつ・音
-import { KIND_NAMES } from '../shared/battle-ch5.js?v=b9571cd5f856';
-import { ARGOS_EYES } from './render/ch5-tower-art.js?v=b9571cd5f856';
-import { el } from './ui/dom.js?v=b9571cd5f856';
+import { KIND_NAMES } from '../shared/battle-ch5.js?v=2d5cd0f0104e';
+import { ARGOS_EYES } from './render/ch5-tower-art.js?v=2d5cd0f0104e';
+import { el } from './ui/dom.js?v=2d5cd0f0104e';
+// 第5章 Step 4 の ガイアイーター（ねらいめ・まもり・土はこびの しるし。battle-gaia.js）
+import { gaiaDraw, gaiaPresent } from './battle-gaia.js?v=2d5cd0f0104e';
 
 export const TOWER_SCREEN_ANIMS = ['star_light', 'star_judge', 'tower_gust', 'comet_tail'];
 export const TOWER_ALLY_FX = {
@@ -51,6 +53,7 @@ export function towerMarks(scene) {
 
 // たたかいの え（client/battle.js の draw。すがたを かいた あと）: 読んで いる 間は アルゴスの 3つの 目が 光る
 export function towerDraw(scene, x, m, c, px, py, w, h, base) {
+  gaiaDraw(scene, x, m, c, px, py, w, h, base);
   if (c.species !== 'argos' || !c.alive) return;
   const reading = scene.allies().some((a) => a.foresee && a.alive);
   const T = scene.time;
@@ -101,5 +104,6 @@ export function towerPresent(scene, ev, fx, anim, actor) {
     scene.banner('読みが外れた！アルゴスの目がくらんだ！', 'combo');
   }
   if (fx.type === 'telegraph' && actor?.species === 'argos') scene.fx.play('judge_charge', at([fx.actor]));
+  gaiaPresent(scene, ev, fx, anim, actor);
   towerMarks(scene);
 }
