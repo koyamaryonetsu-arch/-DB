@@ -630,7 +630,7 @@
     $('dtExcel').classList.toggle('hidden', type !== 'kotei');
   }
   function showShelf() {
-    if (window.KOTEI) window.KOTEI.closePop();
+    if (window.KOTEI) window.KOTEI.leave();
     $('docTop').classList.add('hidden'); $('viewKotei').classList.add('hidden'); $('viewPhoto').classList.add('hidden');
     $('viewShelf').classList.remove('hidden');
     renderShelf();
@@ -1033,7 +1033,7 @@
   // 他の画面へ切り替えた時（保存していない内容はこの端末に残るので、次に開いた時に復元できる）
   function close() {
     if (S.cur && S.cur.dirty) { const c = S.cur; lsSet(DRAFT(c.type, c.row.id), { at: Date.now(), name: currentName(), data: currentData() }); }
-    if (window.KOTEI) window.KOTEI.closePop();
+    if (window.KOTEI) window.KOTEI.leave();
     S.cur = null; closeDlg(); closeMenu();
     ['viewShelf', 'docTop', 'viewKotei', 'viewPhoto'].forEach((id) => $(id).classList.add('hidden'));
   }

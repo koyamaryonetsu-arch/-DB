@@ -233,3 +233,13 @@ body.shelf-active main{ padding-top:10px; }
   .ph-meta{ grid-template-columns:1fr; }
   .ph-fx .ph-dt{ width:100%; }
 }
+
+/* 工程表: 大きく表示（上の段・書類の情報・使い方の文を隠して、工程表を画面いっぱいに） */
+body.kotei-big #appHeader{ display:none !important; }
+body.kotei-big main{ padding:6px 8px !important; }
+body.kotei-big #viewKotei .k-infobar,
+body.kotei-big #viewKotei .toolbar .hint{ display:none !important; }
+body.kotei-big #docTop{ padding:5px 10px; }
+#viewKotei .btn.k-bigbtn{ color:#1d4ed8; border-color:#9db4f0; }
+#viewKotei .btn.k-bigbtn.on{ background:#1f2a44; border-color:#1f2a44; color:#fff; }
+@media print{ body.kotei-printing #viewKotei .scroll{ height:auto !important; } }
