@@ -34,7 +34,7 @@ import { battleBgSpec } from '../public/js/client/render/battlefx.js';
 import { KUMOI_BG, KUMOI_DECOS, drawKumoiBg, drawKumoiFloorBg } from '../public/js/client/render/ch5-kumoi-bg.js';
 import { playKumoiFx } from '../public/js/client/render/battlefx-kumoi.js';
 import { playTowerFx } from '../public/js/client/render/battlefx-ch5.js';
-import { GAIA_SCREEN_ANIMS, GAIA_ALLY_FX, GAIA_SFX, gaiaDraw, gaiaView } from '../public/js/client/battle-gaia.js';
+import { GAIA_SCREEN_ANIMS, GAIA_ALLY_FX, GAIA_SFX, gaiaDraw, gaiaView, gaiaPresent } from '../public/js/client/battle-gaia.js';
 import { checkFile, gameFiles } from '../tools/kanji-check.mjs';
 import { Bot } from './helpers.js';
 
@@ -554,6 +554,14 @@ test('がめん: ねらいめ（しっぽ → 体 → 頭）・頭の まもり�
   const onlyRing = draw(head);
   assert.ok(onlyRing > 0);
   assert.equal(draw({ species: 'argos', alive: true }), 0, 'ほかの 魔物は かかない');
+  // ねらう じゅんの ヒントは わ だけ（家族の 答え）: はじめの バナーは 出さない・図鑑にも 順番は 書かない
+  const banners = [];
+  const sc = { game: { audio: { sfx() {} } }, banner: (t) => banners.push(t), c: new Map(), fx: { play() {} } };
+  gaiaPresent(sc, { lines: [] }, { type: 'gaia_start' }, null, null);
+  assert.deepEqual(banners, []);
+  gaiaPresent(sc, { lines: [], gaiaPart: { part: 'tail' } }, {}, null, null);
+  assert.equal(banners.length, 1, '部位を たおした ときは 短い バナー');
+  assert.ok(!MONSTERS[GAIA].desc.includes('順に'));
 });
 
 // ───────────── 文字 ─────────────
