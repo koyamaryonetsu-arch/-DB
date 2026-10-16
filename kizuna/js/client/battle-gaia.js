@@ -1,10 +1,10 @@
 // 第5章 Step 4 ガイアイーター（多部位の 戦い）と クモイ地方・古い神殿の 魔物の がめん（client/battle-ch5.js から よぶ。サーバーがわは shared/battle-gaia.js）
 // ・部位の 見せかた: 左から しっぽ・体・頭（戦いの 頭は ガイアイーターの 頭の え。gaiaSprite）。ならぶと 1ぴきの 大ムカデ
-// ・ねらう じゅんの ヒント: 今 ねらうと よい 部位（しっぽ → 体 → 頭）に だいだいの「ねらいめ」の わ（gaiaDraw）。
+// ・ねらう じゅんの ヒント（わ だけ）: 今 ねらうと よい 部位（しっぽ → 体 → 頭）に だいだいの「ねらいめ」の わ（gaiaDraw）。
 //   頭は 体が 生きている 間 青い たての しるし（守られている）。しっぽが 生きている 間は 体へ 土の つぶが ながれる（土はこび）。
-//   はじめに「しっぽ→体→頭の順にねらおう！」の バナー（短く）。部位を たおすと 短い バナー
+//   ねらう じゅんの ヒントは「ねらいめ」の わ だけ（はじめの バナーは 出さない。家族の 答え）。部位を たおすと 短い バナー
 // ・敵が 使うと がめんの まん中に 大きく 出す 技・味方の まどの えんしゅつ・音
-import { monsterCanvas } from './render/monsters.js?v=2d5cd0f0104e';
+import { monsterCanvas } from './render/monsters.js?v=6f78c11061a2';
 
 const TAIL = 'gaia_tail', BODY = 'gaia_body', HEAD = 'gaia_eater';
 const ORDER = [TAIL, BODY, HEAD];
@@ -91,7 +91,6 @@ export function gaiaDraw(scene, x, m, c, px, py, w, h, base) {
 export function gaiaPresent(scene, ev, fx, anim, actor) {
   const g = scene.game;
   const at = (ids) => (ids || []).map((id) => scene.c.get(id)).filter(Boolean).map((t) => (t.side === 'ally' ? scene.allyPt(t) : scene.center(t))).filter(Boolean);
-  if (fx.type === 'gaia_start') scene.banner('しっぽ→体→頭の順にねらおう！', 'danger');
   if (fx.type === 'gaiaFeed') {
     const from = at([fx.actor])[0];
     if (from) scene.fx.play('gaia_feed', [from], null, { to: at(fx.targets) });
@@ -100,6 +99,6 @@ export function gaiaPresent(scene, ev, fx, anim, actor) {
   if (fx.type === 'telegraph' && CHARGE[actor?.species]) scene.fx.play(CHARGE[actor.species], at([fx.actor]));
   if (ev.gaiaPart) {
     g.audio.sfx('crit');
-    scene.banner(ev.gaiaPart.part === 'tail' ? 'しっぽをたおした！回復が止まった' : '体をたおした！頭をねらえ！', 'combo');
+    scene.banner(ev.gaiaPart.part === 'tail' ? 'しっぽをたおした！回復が止まった' : '体をたおした！守りがとけた', 'combo');
   }
 }
