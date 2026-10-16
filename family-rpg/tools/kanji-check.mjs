@@ -247,6 +247,9 @@ export function gameFiles() {
     // 第5章 Step 2「星の塔」の 戦い（塔の 魔物・星の番人アルゴス・見通しの目）
     'public/js/shared/battle-ch5.js', 'public/js/client/battle-ch5.js', 'public/js/shared/data/monsters-ch5.js', 'public/js/shared/data/abilities-tower.js',
     'public/js/shared/data/items-tower.js', 'public/js/shared/data/encounters-ch5.js', 'public/js/shared/data/companions-ch5.js',
+    // 第5章 Step 3・4「クモイ地方・しずみゆく島の古い神殿」の 戦いと 品（魔物・ガイアイーター・多部位の 戦い・ハネノの 店・神殿の 宝箱）
+    'public/js/shared/data/monsters-kumoi.js', 'public/js/shared/data/abilities-kumoi.js', 'public/js/shared/data/items-kumoi.js', 'public/js/shared/data/encounters-kumoi.js',
+    'public/js/shared/data/companions-kumoi.js', 'public/js/shared/battle-gaia.js', 'public/js/client/battle-gaia.js',
     // 第5章 Step 1・2（A: 世界と物語）: 星祭りの夜・フードの子・星の羽・天のとばり・星の塔（8階）・アルゴスの 台本
     'public/js/shared/data/story-ch5.js', 'public/js/shared/maps/tower.js', 'public/js/shared/maps/tower-rows.js',
     // 第31回 B: レベルアップの まとめ・しあわせのぼうし・こうふくのくつ

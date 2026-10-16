@@ -23,6 +23,7 @@ import { CH4_MAT_DROPS } from './monsters-ch4.js';
 import { R23_MAT_DROPS } from './monsters-r23.js';
 import { TEMPLE_MAT_DROPS } from './monsters-temple.js';
 import { CH5_MAT_DROPS } from './monsters-ch5.js';
+import { KUMOI_MAT_DROPS } from './monsters-kumoi.js';
 import { bossRareOf, BOSS_RARE_N, regionRareList, REGION_RARE_N, pickSdGear, SD_DROP_N, SD_GUARD_DROP_N } from './rare-loot.js';
 import { sdFloorOf } from './secret.js';
 
@@ -68,6 +69,8 @@ export const MAT_DROPS = {
   ...TEMPLE_MAT_DROPS,
   // 第5章 Step 2「星の塔」（monsters-ch5.js）
   ...CH5_MAT_DROPS,
+  // 第5章 Step 3・4「クモイ地方・しずみゆく島の古い神殿」（monsters-kumoi.js）
+  ...KUMOI_MAT_DROPS,
 };
 // ぬすむ ときは レアが 出やすい（この 倍。でも 半分まで）
 export const STEAL_RARE_MULT = 8;

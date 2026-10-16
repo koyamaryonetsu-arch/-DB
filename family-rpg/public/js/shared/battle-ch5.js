@@ -21,6 +21,8 @@ import { mpCost, penaltyFor } from './stats.js';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
 import { atbRate } from './battle.js';
 import { canUse } from './ai.js';
+// 第5章 Step 4: ガイアイーターの 多部位の 戦い（battle-gaia.js。ここから よぶ）
+import { gaiaEffect, gaiaCond, gaiaKill, gaiaPlan, gaiaPub } from './battle-gaia.js';
 
 export const ARGOS = 'argos';
 export const JUDGE = 'm_argos_judge';
@@ -77,12 +79,15 @@ const readBy = (b, m) => b.allies.filter((x) => x.alive && x.foresee?.by === m.i
 
 // 魔物の こうどうの じょうけん（ai.js の condOk。'c5:' の あと）
 export function towerCond(b, m, cond) {
+  const g = gaiaCond(b, m, cond);
+  if (g !== null) return g;
   if (cond === 'gaze') return !!confOf(m) && readBy(b, m).length < gazeCount(m) && gazeTargets(b).length > 0;
   return true;
 }
 
 // ───────────── 技の こうか（battle.js の applyAbility の のこり）─────────────
 export function towerEffect(b, c, a, eff, ev) {
+  if (gaiaEffect(b, c, a, eff, ev)) return true;
   if (eff.type !== 'foresee') return false;
   foreseeStart(b, c, ev);
   return true;
@@ -219,6 +224,7 @@ function foreseeHit(b, c, cmd, ev, by, kind) {
 
 // たおれた（battle.js の kill）: アルゴスが たおれると、読みも みんな 消える
 export function towerKill(b, t, ev) {
+  gaiaKill(b, t, ev);
   if (t.side !== 'enemy' || !confOf(t)) return;
   for (const x of b.allies) {
     if (x.foresee?.by !== t.id) continue;
@@ -232,6 +238,9 @@ export function towerKill(b, t, ev) {
 // （b.argosNaive … 知らない 人。読まれても そのまま）。decide … ai.js の decideAlly（さけた あとの えらびなおしに 使う）
 export function towerPlan(b, c, decide) {
   if (c.side !== 'ally') return null;
+  // ガイアイーター（知っている 人: しっぽ → 体 → 頭・大技の 前に 身を 守る。battle-gaia.js）
+  const gp = gaiaPlan(b, c, decide);
+  if (gp) return gp;
   if (b.knowsArgos && c.foresee?.kind !== 'guard') {
     const mine = 100 / atbRate(c);
     const j = b.aliveEnemies().find((e) => e.telegraph === JUDGE);
@@ -285,5 +294,5 @@ export function dodgeCmd(b, c, kind) {
 // ───────────── がめんへ ─────────────
 // pub（battle.js）に まぜる: 読まれている 種類（味方だけ）
 export function towerPub(c) {
-  return c.side === 'ally' ? { foresee: c.foresee?.kind || null } : {};
+  return c.side === 'ally' ? { foresee: c.foresee?.kind || null } : gaiaPub(c);
 }

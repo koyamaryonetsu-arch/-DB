@@ -11,6 +11,8 @@
 import { ITEMS, baseItemId } from './items.js';
 import { UPGRADE_TYPES, CAP_UP_MAX } from './items-forge.js';
 import { ALCHEMY_POT, ALCHEMY_MEMO } from './items-alchemy.js';
+// 第5章 Step 3・4 の レシピ（items-kumoi.js）
+import { KUMOI_RECIPES } from './items-kumoi.js';
 
 export { ALCHEMY_POT, ALCHEMY_MEMO, CAP_UP_MAX };
 
@@ -78,6 +80,7 @@ export const RECIPES = [
   // ── 第5章 ──
   R('r_dragon_slayer', 5, 'dragon_slayer', 'old_fang_sword', 'dragon_scale', 'star_iron'),
   R('r_senrigan', 5, 'senrigan_helm', 'hundred_eye_helm', 'star_shard', 'star_shard'),
+  ...KUMOI_RECIPES,
 ];
 export const RECIPE_BY_ID = Object.fromEntries(RECIPES.map((r) => [r.id, r]));
 // かまを もらった ときに 教えて もらう レシピ

@@ -18,7 +18,7 @@ import {
 import { STORY_STEPS, SCRIPTS, STORY_SCRIPTS } from '../public/js/shared/data/story.js';
 import { CH5_STEPS, C5_OBJ, OLD_C5_OBJ, CH5_OBJECTIVE_TARGETS, CH5_OBJECTIVE_TALK } from '../public/js/shared/data/story-ch5.js';
 import { KUMOI_STEPS, KUMOI_OBJ, KUMOI_STORY_SCRIPTS } from '../public/js/shared/data/story-kumoi.js';
-import { KUMOI_SHOP_WEAPONS, KUMOI_SHOP_ARMOR, KUMOI_SHOP_TOOLS, RUIN_TREASURE } from '../public/js/shared/data/kumoi-stub.js';
+import { KUMOI_SHOP_WEAPONS, KUMOI_SHOP_ARMOR, KUMOI_SHOP_TOOLS, RUIN_TREASURE } from '../public/js/shared/data/items-kumoi.js';
 import { SHOPS, shopItems } from '../public/js/shared/data/shops.js';
 import { ITEMS } from '../public/js/shared/data/items.js';
 import { objectiveFromFlags, KNOWN_OBJECTIVES, repairObjective } from '../public/js/shared/data/progress.js';
@@ -329,7 +329,7 @@ test('ハネノの町: 門番 → 長ソラネ（c5_hanono）→ ピピ（c5_pip
   assert.equal(m.kind, 'field');
   assert.equal(m.bgm, 'hanono');
   assert.ok(!SKY_MAPS.hanono, '町の 中は 竜が 来ない');
-  // 店（B の ならび。仮の ファイル kumoi-stub.js）
+  // 店（B の ならび。data/items-kumoi.js）
   assert.deepEqual(SHOPS.hanono_weapon.items, KUMOI_SHOP_WEAPONS);
   assert.deepEqual(SHOPS.hanono_armor.items, KUMOI_SHOP_ARMOR);
   assert.deepEqual(SHOPS.hanono_item.items, KUMOI_SHOP_TOOLS);
@@ -417,7 +417,7 @@ test('神殿の マップ: 7階（1階が 上・下へ 下へ）。かいだん�
     const r0 = reach(m.id, arrive(n), ALL_RUIN);
     for (const ch of m.chests) assert.ok(near(r, ch) || near(r0, ch), `${n}階: 宝箱 ${ch.id}`);
     assert.ok(m.zoneAt(arrive(n)[0], arrive(n)[1]).startsWith('safe'), `${n}階: かいだんの まわりは 魔物が 出ない`);
-    // 宝箱の 中み（B の RUIN_TREASURE[階]。仮の ファイル kumoi-stub.js）
+    // 宝箱の 中み（B の RUIN_TREASURE[階]。data/items-kumoi.js）
     for (const [i, id] of (RUIN_TREASURE[n] || []).entries()) assert.ok(m.chests.some((ch) => ch.id === `r5_${n}${'ab'[i]}` && ch.item === id), `${n}階の ★の 宝箱 ${id}`);
   }
   // 下の 階ほど 雲が 入りこんでいる（雲の 中は t5_ruin_cloud）

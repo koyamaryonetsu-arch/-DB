@@ -5,6 +5,8 @@
 import { KIND_NAMES } from '../shared/battle-ch5.js';
 import { ARGOS_EYES } from './render/ch5-tower-art.js';
 import { el } from './ui/dom.js';
+// 第5章 Step 4 の ガイアイーター（ねらいめ・まもり・土はこびの しるし。battle-gaia.js）
+import { gaiaDraw, gaiaPresent } from './battle-gaia.js';
 
 export const TOWER_SCREEN_ANIMS = ['star_light', 'star_judge', 'tower_gust', 'comet_tail'];
 export const TOWER_ALLY_FX = {
@@ -51,6 +53,7 @@ export function towerMarks(scene) {
 
 // たたかいの え（client/battle.js の draw。すがたを かいた あと）: 読んで いる 間は アルゴスの 3つの 目が 光る
 export function towerDraw(scene, x, m, c, px, py, w, h, base) {
+  gaiaDraw(scene, x, m, c, px, py, w, h, base);
   if (c.species !== 'argos' || !c.alive) return;
   const reading = scene.allies().some((a) => a.foresee && a.alive);
   const T = scene.time;
@@ -101,5 +104,6 @@ export function towerPresent(scene, ev, fx, anim, actor) {
     scene.banner('読みが外れた！アルゴスの目がくらんだ！', 'combo');
   }
   if (fx.type === 'telegraph' && actor?.species === 'argos') scene.fx.play('judge_charge', at([fx.actor]));
+  gaiaPresent(scene, ev, fx, anim, actor);
   towerMarks(scene);
 }

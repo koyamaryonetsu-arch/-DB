@@ -18,8 +18,6 @@ import {
   KUMOI_STEPS, KUMOI_STORY_SCRIPTS, KUMOI_SCRIPTS, KUMOI_OBJECTIVE_TARGETS, KUMOI_OBJECTIVE_TALK, KUMOI_PROGRESS, elderKumoi,
 } from './story-kumoi.js';
 import { KUMOI_POS } from '../maps/kumoi.js';
-// 仮の 戦いの データ（B の 出現表・gaia_eater が 入ったら この 1行と kumoi-battle-stub.js を 消す）
-import './kumoi-battle-stub.js';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

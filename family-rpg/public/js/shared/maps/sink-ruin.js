@@ -11,7 +11,7 @@
 import { T, parseRows } from '../tiles.js';
 import { npc } from './npc.js';
 import { RUIN_ROWS } from './sink-ruin-rows.js';
-import { RUIN_TREASURE } from '../data/kumoi-stub.js';
+import { RUIN_TREASURE } from '../data/items-kumoi.js';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 export const RUIN_FLOORS = 7;

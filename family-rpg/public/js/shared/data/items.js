@@ -21,6 +21,7 @@ import { ITEMS_CH4, CH4_ITEM_KANA } from './items-ch4.js';
 import { ITEMS_TEMPLE, TEMPLE_ITEM_KANA } from './items-temple.js';
 import { ITEMS_LAB, LAB_ITEM_KANA } from './items-lab.js';
 import { ITEMS_TOWER, TOWER_ITEM_KANA } from './items-tower.js';
+import { ITEMS_KUMOI, KUMOI_ITEM_KANA } from './items-kumoi.js';
 import { POWDER_ITEMS, POWDER_KANA } from './friend-powder.js';
 import { FIELD27_ITEMS, FIELD27_KANA } from './abilities-field27.js';
 import { RARE_GEAR, RARE_GEAR_KANA, assignRarity } from './items-rare.js';
@@ -237,6 +238,8 @@ Object.assign(ITEMS, ITEMS_TEMPLE);
 Object.assign(ITEMS, ITEMS_LAB);
 // 第5章 Step 2: アルゴスが 落とす 品（items-tower.js）
 Object.assign(ITEMS, ITEMS_TOWER);
+// 第5章 Step 3・4: ハネノの 店・神殿の 宝箱・ガイアイーター・空の レア・れん金（items-kumoi.js）
+Object.assign(ITEMS, ITEMS_KUMOI);
 // なかまの粉（friend-powder.js）
 Object.assign(ITEMS, POWDER_ITEMS);
 // 魔物よせの笛（abilities-field27.js）
@@ -270,7 +273,7 @@ export const EQUIP_RANKS = [
   { rank: 5, name: 'はがね', where: '第3章の鉱山の町カナトコ（鉱山を取りもどすと品ぞろえがふえる）', sword: 40, cloth: 22 },
   { rank: 6, name: '魔法', where: '第4章の王都サファラ', sword: 50, cloth: 27 },
   { rank: 7, name: 'プラチナ', where: '第4章の砂の港ドゥナ（第4章クリアのあと）', sword: 61, cloth: 33 },
-  { rank: 8, name: '光', where: '第6章（これから）', sword: 72, cloth: 39 },
+  { rank: 8, name: '光', where: '第5章の雲の上の町ハネノ', sword: 72, cloth: 39 },
   { rank: 9, name: '竜', where: '第7章（これから）', sword: 85, cloth: 46 },
   { rank: 10, name: '伝説', where: '最後の章（これから）', sword: 100, cloth: 54 },
 ];
@@ -336,6 +339,7 @@ Object.assign(ITEM_KANA, ESCAPE_KANA);
 Object.assign(ITEM_KANA, CH3_ITEM_KANA);
 Object.assign(ITEM_KANA, CH4_ITEM_KANA, TEMPLE_ITEM_KANA, POWDER_KANA, LAB_ITEM_KANA);
 Object.assign(ITEM_KANA, TOWER_ITEM_KANA);
+Object.assign(ITEM_KANA, KUMOI_ITEM_KANA);
 Object.assign(ITEM_KANA, FIELD27_KANA);
 Object.assign(ITEM_KANA, R31_ITEM_KANA);
 Object.assign(ITEM_KANA, RARE_GEAR_KANA);

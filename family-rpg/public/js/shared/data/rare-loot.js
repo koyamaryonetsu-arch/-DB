@@ -119,6 +119,8 @@ export const REGION_RARE_N = 500;
 export function regionOf(species) {
   const m = MONSTERS[species];
   if (!m || m.boss || m.breedOnly || !(m.exp > 0) || String(species).startsWith('tm_')) return 0;
+  // 第5章 Step 3・4: 雲の上の 魔物は 地方 6（空の レア。monsters-kumoi.js の region）
+  if (m.region) return m.region;
   const lv = m.lv || 1;
   return lv <= 9 ? 1 : lv <= 16 ? 2 : lv <= 28 ? 3 : lv <= 38 ? 4 : 5;
 }
