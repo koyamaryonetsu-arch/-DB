@@ -6,6 +6,7 @@ import { OW_W, OW_H } from '../maps/overworld.js';
 import { SEA_W, SEA_H, PORT, SEA_POS } from '../maps/sea.js';
 import { NORTH_W, NORTH_H, NORTH_LANDING, NORTH_ARRIVE } from '../maps/north.js';
 import { SOUTH_W, SOUTH_H, SOUTH_LANDING, SOUTH_ARRIVE, SOUTH_SKY_ZAID } from '../maps/south.js';
+import { KUMOI_W, KUMOI_H, KUMOI_SKY, KUMOI_ARRIVE } from '../maps/kumoi.js';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -35,9 +36,15 @@ export const SKY_ITEMS = {
     name: '風の笛', type: 'key', flute: true,
     desc: '風の守り星の力がこもった笛。ふくと風の大鳥フウラ（星の竜が目覚めたあとは竜）が来て、空を飛べる。町の外で使う。',
   },
+  // 第5章 Step 4: しずみゆく島の 古い 神殿の いちばん 下で 手に 入れる（data/story-kumoi.js）
+  earth_shard: {
+    name: '大地の守り星のかけら', type: 'key',
+    desc: '大地の守り星から欠けた、小さなかけら。しずみゆく島の古い神殿の、いちばん下にあった。にぎると、だれかの思い出が見えた気がする。',
+  },
 };
 export const SKY_ITEM_KANA = {
   wind_flute: 'かぜのふえ',
+  earth_shard: 'だいちのまもりぼしのかけら',
 };
 
 // ───── 目標 ─────
@@ -72,6 +79,12 @@ export const SKY_MAPS = {
     box: [{ ...SOUTH_LANDING, until: 'c4_zaid', hint: '北の海辺' }, { ...SOUTH_SKY_ZAID, until: 'c4_morgana', hint: '王都サファラや北の海辺のあたり' }],
     storm: '砂嵐', boxHint: '北の海辺', lockedHint: { flag: 'c3_clear', text: '竜守りの村の長老ハクゲンに、話を聞いてみよう' },
   },
+  // 第5章 Step 3: 雲の上の クモイ地方（天のとばりの 向こう。地上の 地方からは「雲の上」で 行く。world/travel.js の flyVeil）
+  // aboveVeil … とばりの 上の 地方（「雲の上」は 出さない）。島の まわりの 風が あれていて、守り星の かけら（c5_shard）までは ハネノの島の 上だけ
+  kumoi: {
+    name: 'クモイ地方', short: 'クモイ', edges: {}, need: 'c5_sky', aboveVeil: true,
+    box: { ...KUMOI_SKY, until: 'c5_shard', hint: 'ハネノの島' }, storm: '風', boxHint: 'ハネノの島',
+  },
 };
 // ───── 第5章: 天のとばり ─────
 // 星の羽を えた 竜（c5_wings）は、空の 上から「雲の上へ」飛べる（「別の地方へ」の えらぶ ところに 出る。world/travel.js の flyVeil）。
@@ -87,7 +100,7 @@ export function veilState(hasFlag) {
   return okFlag(hasFlag, VEIL.open) ? 'open' : 'shut';
 }
 export function veilText(hasFlag) {
-  if (veilState(hasFlag) === 'open') return '天のとばりは、開いている…。\n雲の上に、空にうかぶ島々が見える。\n（第5章の続きはアップデートで！）';
+  if (veilState(hasFlag) === 'open') return '天のとばりをこえて、雲の上へ…！';
   const hint = okFlag(hasFlag, VEIL.hint) ? '星の塔のてっぺんで、紋章をかざそう' : 'ホシフル村のホシミばあちゃんに、話を聞いてみよう';
   return `雲の上をめざして、高く飛んだ…！\nしかし、天のとばりにはじき返された！\n（${hint}）`;
 }
@@ -95,6 +108,8 @@ export function veilText(hasFlag) {
 // 「別の地方へ飛ぶ」の じゅんばん（さいしょが ボタンの 行き先）
 const REGION_ORDER = {
   overworld: ['sea', 'north', 'south'], sea: ['overworld', 'north', 'south'], north: ['overworld', 'sea', 'south'], south: ['sea', 'overworld', 'north'],
+  // 雲の上から 地上へ（地上から 雲の上へは「雲の上」。VEIL）
+  kumoi: ['overworld', 'sea', 'north', 'south'],
 };
 // 「別の地方へ飛ぶ」で 着く ところ（さんばしの 上の 空・雪原の 上の 空・北の海辺の 上の 空）
 const ARRIVE = {
@@ -102,8 +117,9 @@ const ARRIVE = {
   overworld: { x: 28, y: OW_H - 4.5, dir: 'up' },
   north: { ...NORTH_ARRIVE, dir: 'up' },
   south: { ...SOUTH_ARRIVE, dir: 'down' },
+  kumoi: { ...KUMOI_ARRIVE, dir: 'up' },
 };
-const SIZE = { overworld: [OW_W, OW_H], sea: [SEA_W, SEA_H], north: [NORTH_W, NORTH_H], south: [SOUTH_W, SOUTH_H] };
+const SIZE = { overworld: [OW_W, OW_H], sea: [SEA_W, SEA_H], north: [NORTH_W, NORTH_H], south: [SOUTH_W, SOUTH_H], kumoi: [KUMOI_W, KUMOI_H] };
 
 const okFlag = (hasFlag, f) => !f || (typeof hasFlag === 'function' ? hasFlag(f) : !!hasFlag?.[f]);
 

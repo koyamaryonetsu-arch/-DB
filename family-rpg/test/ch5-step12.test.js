@@ -17,7 +17,7 @@ import {
 } from '../public/js/shared/maps/tower.js';
 import { STORY_STEPS, SCRIPTS, STORY_SCRIPTS } from '../public/js/shared/data/story.js';
 import {
-  CH5_STEPS, C5_OBJ, C5_LEAD, CH5_STORY_SCRIPTS, CH5_OBJECTIVE_TARGETS, CH5_OBJECTIVE_TALK, BOOK_TEXT,
+  CH5_STEPS, C5_OBJ, OLD_C5_OBJ, C5_LEAD, CH5_STORY_SCRIPTS, CH5_OBJECTIVE_TARGETS, CH5_OBJECTIVE_TALK, BOOK_TEXT,
 } from '../public/js/shared/data/story-ch5.js';
 import { OLD_C4_OBJ } from '../public/js/shared/data/story-ch4.js';
 import { TEMPLE_OBJ } from '../public/js/shared/data/story-ch4-temple.js';
@@ -142,7 +142,7 @@ const ALL_TOWER = [...Object.values(LIFTS).map((l) => l.flag), ...Object.values(
 
 // ───────────── すすみぐあい・目標・ヒント・しるし ─────────────
 test('すすみぐあい: c4_clear → c5_start … c5_sky。目標・仲間会話・地図の しるし・第4章クリアの 文の なおし', () => {
-  assert.deepEqual(CH5_STEPS, ['c5_start', 'c5_hood', 'c5_stones', 'c5_wings', 'c5_veil', 'c5_tower', 'c5_argos', 'c5_sky'], '名前の 約束（plan-ch5.md の 11）');
+  assert.deepEqual(CH5_STEPS.slice(0, 8), ['c5_start', 'c5_hood', 'c5_stones', 'c5_wings', 'c5_veil', 'c5_tower', 'c5_argos', 'c5_sky'], '名前の 約束（plan-ch5.md の 11。Step 3 から うしろに たす）');
   const ci = STORY_STEPS.indexOf('c4_clear');
   assert.deepEqual(STORY_STEPS.slice(ci + 1, ci + 1 + CH5_STEPS.length), CH5_STEPS, '第4章の あとに つづく');
   const f = (...l) => ({ flags: flagsOf(...UPTO('c4_clear'), ...l) });
@@ -161,8 +161,12 @@ test('すすみぐあい: c4_clear → c5_start … c5_sky。目標・仲間会�
     [['c5_argos'], 'argos'], [['c5_sky'], 'sky'],
   ];
   for (const [fl, k] of seq) assert.equal(objectiveFromFlags(f(...UPTO(fl[0]).filter((x) => x.startsWith('c5_')), ...fl)), C5_OBJ[k], k);
-  // Step 2 の さいごは「第5章の続きはアップデートで！」の 形
-  assert.ok(C5_OBJ.sky.startsWith('第5章の続きはアップデートで！') && C5_OBJ.sky.includes('空にうかぶ島'));
+  // Step 2 の さいごの 目標は、Step 3 で「雲の上」へ 飛ぶ 文に かわった（前の 文は OLD_C5_OBJ.sky。repairObjective で なおる）
+  assert.ok(C5_OBJ.sky.includes('雲の上') && C5_OBJ.sky.includes('空にうかぶ島'));
+  assert.ok(OLD_C5_OBJ.sky.startsWith('第5章の続きはアップデートで！'));
+  const oldSky = { flags: flagsOf(...UPTO('c5_sky')), objective: OLD_C5_OBJ.sky };
+  assert.ok(repairObjective(oldSky));
+  assert.equal(oldSky.objective, C5_OBJ.sky);
   // どの 目標にも 仲間会話と 行き先
   for (const [k, t] of Object.entries(C5_OBJ)) {
     assert.ok(KNOWN_OBJECTIVES.has(t), k);
@@ -234,7 +238,7 @@ test('天のとばり: 星の羽の 竜で「雲の上へ」→ はじめは だ
   assert.equal(veilState(has(['c5_wings', 'c5_veil', 'c5_sky'])), 'open');
   assert.match(veilText(has(['c5_wings', 'c5_veil'])), /はじき返された[\s\S]*ホシミばあちゃん/);
   assert.match(veilText(has(['c5_wings', 'c5_veil', 'c5_book'])), /はじき返された[\s\S]*星の塔/);
-  assert.match(veilText(has(['c5_wings', 'c5_veil', 'c5_sky'])), /開いている[\s\S]*第5章の続きはアップデートで！/);
+  assert.match(veilText(has(['c5_wings', 'c5_veil', 'c5_sky'])), /とばりをこえて[\s\S]*雲の上/, 'とばりが 開くと 雲の上の クモイ地方へ（Step 3）');
   assert.equal(VEIL.id, 'veil');
   assert.ok(!regionsFrom('overworld', () => true).includes('veil'), '地方の ならびは かえない（「雲の上」は べつの えらぶ ところ）');
 
@@ -770,15 +774,17 @@ test('通しで あそべる: 第4章クリア → 星祭り → 星の羽 → �
   await place(bot, towerMapId(9), 11, 9);
   await stepOn(bot, 11, 7, opts);
   // 第5章 Step 2 の さいご
-  for (const f of CH5_STEPS) got(f);
+  for (const f of CH5_STEPS.slice(0, CH5_STEPS.indexOf('c5_sky') + 1)) got(f);
   for (let n = 1; n <= TOWER_FLOORS; n++) got(EV(n));
   assert.equal(c.objective, C5_OBJ.sky);
   assert.deepEqual(fought.filter((id) => FIXED_ENCOUNTERS[id]), ['argos'], 'きまった 戦いは アルゴスだけ');
-  // 星の羽の 竜で「雲の上へ」は 開いている
+  // 星の羽の 竜で「雲の上へ」は 開いている（Step 3: 雲の上の クモイ地方へ。続きは test/ch5-step34.test.js）
   await place(bot, 'overworld', 28, 84);
   bot.send({ t: 'fly', action: 'call' });
   const from = bot.msgs.length;
   bot.send({ t: 'fly', action: 'region', to: 'veil' });
   await play(bot);
-  assert.ok(toast(bot, '第5章の続きはアップデートで！', from));
+  assert.ok(toast(bot, '雲の上', from));
+  assert.equal(bot.s.map, 'kumoi');
+  got('c5_kumoi');
 });

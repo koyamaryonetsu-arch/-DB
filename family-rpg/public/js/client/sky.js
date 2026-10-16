@@ -216,7 +216,8 @@ export class SkyClient {
   regions() {
     const has = (f) => this.hasFlag(f);
     const list = regionsFrom(this.game.field.mapId, has);
-    return veilShown(has) ? [...list, VEIL.id] : list;
+    // 雲の上の 地方（クモイ地方。aboveVeil）では「雲の上」は 出さない
+    return veilShown(has) && !SKY_MAPS[this.game.field.mapId]?.aboveVeil ? [...list, VEIL.id] : list;
   }
 
   // 「別の地方へ」ボタン: 行き先が 2つ 以上なら えらぶ

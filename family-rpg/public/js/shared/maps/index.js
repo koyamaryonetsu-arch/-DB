@@ -13,6 +13,7 @@ import { buildCh3Maps, ch3SearchMats, NORTH_SPARKLE_LOOT } from './ch3.js';
 import { buildCh4Maps, ch4SearchMats, SOUTH_SPARKLE_LOOT } from './ch4.js';
 import { attachLab } from './labyrinth.js';
 import { attachTower } from './tower.js';
+import { attachKumoi } from './kumoi.js';
 
 const V = (x, y) => [PLACES.village.x + x, PLACES.village.y + y];
 const TW = (x, y) => [PLACES.town.x + x, PLACES.town.y + y];
@@ -285,6 +286,8 @@ function buildMaps() {
   attachLab(maps);
   // 第5章「空にうかぶ大地」: 星祭りの かざりと 星の塔（maps/tower.js）
   attachTower(maps);
+  // 第5章 Step 3・4: クモイ地方・ハネノの町・しずみゆく島の古い神殿（maps/kumoi.js・maps/sink-ruin.js）
+  attachKumoi(maps);
   // 夜の 町・村（夜だけ 出る 人・夜は 家に 帰る 人）
   addNightNpcs(maps);
   for (const m of Object.values(maps)) finishMap(m);
