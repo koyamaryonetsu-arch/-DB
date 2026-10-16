@@ -113,13 +113,13 @@ export const MONSTERS_KUMOI = {
 
   // ── ボス（神殿の いちばん下）: ガイアイーターの 頭（この 戦いの 本体。図鑑・台本の showMon('gaia_eater') は 体ぜんぶの え）──
   gaia_eater: {
-    name: 'ガイアイーター', lv: 46, hp: 10000, mp: 300, str: 420, def: 140, agi: 64, mag: 140, exp: 9000, gold: 3600,
+    name: 'ガイアイーター', lv: 46, hp: 10600, mp: 300, str: 420, def: 140, agi: 64, mag: 140, exp: 9000, gold: 3600,
     race: 'beast', size: 'xl', boss: true, turns: 2, speed: 0.62, hit: 'bite', drops: { boss: ['gaia_fang_charm'] },
     resist: { ...BOSS_STATUS, sleep: 0, confuse: 0, ice: 1.3, fire: 0.85, poison: 0 },
     // 頭を たおすと、のこりの 部位も くずれおちる（battle.js の minionsFall）
     minionsFall: [GAIA_BODY, GAIA_TAIL], fallMsg: 'のこりの体も、ばらばらにくずれおちた！',
     // 多部位の 戦い（battle-gaia.js）: guard … 体が 生きている 間の 頭への ダメージの 倍率
-    gaia: { part: 'head', guard: 0.85 },
+    gaia: { part: 'head', guard: 0.8 },
     actions: [
       { w: 3, id: 'attack' }, { w: 3, id: 'm_gaia_bite' }, { w: 3, id: 'm_gaia_dust', cond: 'notRecent:m_gaia_dust' },
       { w: 2, id: 'm_gaia_maw', cond: ['notRecent:m_gaia_maw', 'notRecent:m_gaia_devour'] },
@@ -127,7 +127,7 @@ export const MONSTERS_KUMOI = {
     phases: [
       { hpBelow: 0.4, msg: ['ガイアイーターの頭が、大きくあばれ始めた！', 'ガイアイーターの頭の攻撃力が上がった！'], buff: { atk: 1.2 } },
     ],
-    desc: 'しずみゆく島の土を食べて、島をむしばむ大ムカデ。体は、頭・体・しっぽに分かれて動く。しっぽは体に土をはこび、かたい体は頭を守っている。しっぽ→体→頭の順にたおそう。前ぶれのあとの大技は、身を守ろう。',
+    desc: 'しずみゆく島の土を食べて、島をむしばむ大ムカデ。体は、頭・体・しっぽに分かれて動く。しっぽは体に土をはこび、かたい体は頭を守っている。前ぶれのあとの大技は、身を守ろう。',
   },
 };
 
@@ -135,7 +135,7 @@ export const MONSTERS_KUMOI = {
 export const GAIA_PARTS = {
   // 体: かたい こうら（ふつうの ダメージは 半分。合体技・爆発は そのまま）。生きている 間は 頭を まもる
   [GAIA_BODY]: {
-    name: 'ガイアイーターの体', lv: 46, hp: 7000, mp: 200, str: 350, def: 200, agi: 40, mag: 120, exp: 6000, gold: 2400,
+    name: 'ガイアイーターの体', lv: 46, hp: 7400, mp: 200, str: 350, def: 200, agi: 40, mag: 120, exp: 6000, gold: 2400,
     race: 'beast', size: 'xl', boss: true, turns: 1, speed: 0.66, hit: 'slash', part: GAIA, noBefriend: true,
     resist: { ...BOSS_STATUS, sleep: 0, confuse: 0, blast: 1.3, bolt: 1.1, fire: 0.85, ice: 0.9, poison: 0 },
     gaia: { part: 'body', shell: 0.6 },
@@ -147,7 +147,7 @@ export const GAIA_PARTS = {
   },
   // しっぽ: 体に 土を はこぶ（体と 頭の 回復）・毒ばり・前ぶれの ある 毒ばりの雨
   [GAIA_TAIL]: {
-    name: 'ガイアイーターのしっぽ', lv: 46, hp: 4400, mp: 200, str: 330, def: 120, agi: 78, mag: 120, exp: 4000, gold: 1500,
+    name: 'ガイアイーターのしっぽ', lv: 46, hp: 4650, mp: 200, str: 330, def: 120, agi: 78, mag: 120, exp: 4000, gold: 1500,
     race: 'beast', size: 'xl', boss: true, turns: 1, speed: 0.82, hit: 'slash', part: GAIA, noBefriend: true,
     resist: { ...BOSS_STATUS, sleep: 0, confuse: 0, fire: 1.3, ice: 0.9, poison: 0 },
     gaia: { part: 'tail', feed: 0.05 },
