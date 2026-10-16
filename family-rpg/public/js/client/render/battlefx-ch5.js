@@ -3,6 +3,8 @@
 // 敵が みかたに 使う 大技（星の光・星のさばき・ふきあげる風・星の尾）は、client/battle-ch4.js が がめんの まん中を ねらって よぶ
 // 見通しの目: foresee_eyes（3つの 目が 光って、読んだ 人へ 光の すじ）・foresee_hit（目から しかえしの 光）・foresee_miss（目が くらむ）
 import { ELEMENT_FX } from './battlefx-r27.js';
+// 第5章 Step 3・4: クモイ地方・古い神殿の 魔物と ガイアイーター（battlefx-kumoi.js）
+import { playKumoiFx } from './battlefx-kumoi.js';
 
 const LIGHT = ELEMENT_FX.light.colors, WIND = ELEMENT_FX.wind.colors, FIRE = ELEMENT_FX.fire.colors;
 const EYE = ['#7af0ff', '#e8ffff', '#ffffff', '#b8a8ff'];
@@ -147,6 +149,6 @@ export function playTowerFx(fx, anim, targets, element, opts = {}, W = 256, H = 
       for (const t of targets) fx.burst(t.x, t.y, FIRE, 10, 50, { delay: 300 });
       return true;
     default:
-      return false;
+      return playKumoiFx(fx, anim, targets, element, opts, W, H);
   }
 }

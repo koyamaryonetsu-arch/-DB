@@ -16,6 +16,7 @@ import { FRIENDS_CH3 } from './companions-ch3.js';
 import { FRIENDS_R23, RECIPES_R23 } from './monsters-r23.js';
 import { FRIENDS_CH4 } from './companions-ch4.js';
 import { FRIENDS_CH5 } from './companions-ch5.js';
+import { FRIENDS_KUMOI } from './companions-kumoi.js';
 
 export const MONSTER_FRIENDS = {
   pururin: {
@@ -270,6 +271,8 @@ Object.assign(MONSTER_FRIENDS, FRIENDS_R23);
 Object.assign(MONSTER_FRIENDS, FRIENDS_CH4);
 // 第5章 Step 2「星の塔」の 魔物（companions-ch5.js）
 Object.assign(MONSTER_FRIENDS, FRIENDS_CH5);
+// 第5章 Step 3・4 の 魔物（companions-kumoi.js）
+Object.assign(MONSTER_FRIENDS, FRIENDS_KUMOI);
 // しゅぞくごとの 装備の うわがき（上の GEAR）
 for (const [sp, g] of Object.entries(GEAR)) if (MONSTER_FRIENDS[sp]) MONSTER_FRIENDS[sp].gear = { ...g, ...(MONSTER_FRIENDS[sp].gear || {}) };
 

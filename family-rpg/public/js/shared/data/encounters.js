@@ -9,6 +9,7 @@ import { ENCOUNTERS_CH4, FIXED_CH4, ZONE_BG_CH4, NIGHT_ZONES_CH4 } from './encou
 import { ENCOUNTERS_TEMPLE, FIXED_TEMPLE, ZONE_BG_TEMPLE } from './encounters-temple.js';
 import { ENCOUNTERS_LAB, FIXED_LAB, ZONE_BG_LAB } from './encounters-lab.js';
 import { ENCOUNTERS_CH5, FIXED_CH5, ZONE_BG_CH5 } from './encounters-ch5.js';
+import { ENCOUNTERS_KUMOI, FIXED_KUMOI, ZONE_BG_KUMOI } from './encounters-kumoi.js';
 
 export const ENCOUNTER_TABLES = {
   outskirts: [
@@ -111,3 +112,7 @@ Object.assign(ZONE_BG, ZONE_BG_LAB);
 Object.assign(ENCOUNTER_TABLES, ENCOUNTERS_CH5);
 Object.assign(FIXED_ENCOUNTERS, FIXED_CH5);
 Object.assign(ZONE_BG, ZONE_BG_CH5);
+// 第5章 Step 3・4「クモイ地方・しずみゆく島の古い神殿」・ガイアイーター（encounters-kumoi.js）
+Object.assign(ENCOUNTER_TABLES, ENCOUNTERS_KUMOI);
+Object.assign(FIXED_ENCOUNTERS, FIXED_KUMOI);
+Object.assign(ZONE_BG, ZONE_BG_KUMOI);

@@ -479,7 +479,7 @@
 | 5 | はがね | 第3章 鉱山の町カナトコ（鉱山を取りもどすと品ぞろえがふえる） | 40 |
 | 6 | 魔法 | 第4章 王都サファラ | 50 |
 | 7 | プラチナ | 第4章 砂の港ドゥナ（第4章クリアのあと） | 61 |
-| 8 | 光 | 第6章（これから） | 72 |
+| 8 | 光 | 第5章 雲の上の町ハネノ | 72 |
 | 9 | 竜 | 第7章（これから） | 85 |
 | 10 | 伝説 | 最後の章（これから） | 100 |
 
@@ -2083,6 +2083,12 @@ npm start                 # 家族サーバー
   - がめん：`client/battle-ch5.js`（読まれた人のまどの目のしるし・アルゴスの目が光る・バナー）、絵 `render/ch5-tower-art.js`（`addCh5Art`。`ARGOS_EYES`）・背景 `render/ch5-tower-bg.js`・エフェクト `render/battlefx-ch5.js`
   - シミュレーション：`node tools/sim.js 60 ch5tower`（4人・職業Lv10・ランク7＋ボスのアクセサリー）。出現表 100%、アルゴス（240回）知っている Lv41 88%・Lv42 90%／知らない Lv41 40%・Lv42 44%。おすすめ Lv41〜42
   - `test/ch5-tower-battle.test.js`（データ・落とす物・仲間・出現表と名前の約束・行動の種類・読む・しかえし・外れ・読みが消える・人の防御・前ぶれ・オート・シミュレーション・きまった戦い・絵・背景とエフェクト・がめんのしるし・文字）
+- 第5章 Step 3・4「クモイ地方・しずみゆく島の古い神殿」B（戦い・品。くわしくは `docs/plan-ch5.md` の「13」の「実装メモ（B）」）
+  - データ：`data/monsters-kumoi.js`（新しい魔物10しゅ・ガイアイーター・部位 `GAIA_PARTS`（`addGaiaParts` で数えない形）・素材 `KUMOI_MAT_DROPS`）・`abilities-kumoi.js`・`encounters-kumoi.js`（出現表 `t5_kumoi`・`t5_ruin_up`・`t5_ruin_low`・`t5_ruin_cloud`、色ちがい2しゅ、きまった戦い `gaia_eater`、背景 `kumoi`・`sink_ruin`・`sink_ruin_deep`）・`companions-kumoi.js`（10しゅとも仲間になる）・`items-kumoi.js`（ハネノのランク8の店 `KUMOI_SHOP_*`・神殿の宝箱 `RUIN_TREASURE`・ボスの品・空のレア（地方6。`rare-loot.js` の `regionOf` が魔物の `region` を見る）・れん金 `KUMOI_RECIPES`）
+  - **多部位の戦い**（`shared/battle-gaia.js`）：しっぽ（`gaia_tail`。土はこびで体と頭を回復）・体（`gaia_body`。こうらで ふつうのダメージ ×0.6、合体技と爆発はそのまま。生きている間は頭を守る ×0.85）・頭（`gaia_eater`。たおすと のこりもくずれて勝ち）。部位ごとに前ぶれの大技（毒ばりの雨・大地ゆるがし・大地のみこみ）。`battle.js` は `setupGaia`・`gaiaDamage` の2行、ほかは `battle-ch5.js` の `tower*` からよぶ。知っている人のオートは `b.knowsGaia`（`gaiaPlan`）
+  - がめん：`client/battle-gaia.js`（頭の絵 `gaiaSprite`・ねらいめの わ・まもりの たて・土はこびの つぶ・バナー）、絵 `render/ch5-kumoi-art.js`（`addKumoiArt`。`gaia_head`・`gaia_body`・`gaia_tail` を ならべると1ぴき）・背景 `render/ch5-kumoi-bg.js`・エフェクト `render/battlefx-kumoi.js`
+  - シミュレーション：`node tools/sim.js 100 ch5kumoi`（出現表。どれも100%）、`node tools/sim-gaia.mjs 100 44,45,46`（超級職4人・ランク8＋★。`SHOP=1` で★なしも。`LOG=1 KNOW=1` で1戦のようす）。Lv44／45：完全オート 30%／36%・知っている 82%／92%
+  - `test/ch5-kumoi-battle.test.js`（21こ。データ・部位・落とす物・仲間・出現表と名前の約束・店・宝箱・空のレアとれん金・はじめ・まもり・こうら・土はこび・前ぶれ・頭をたおすと勝ち・オートと知っている人・シミュレーション・きまった戦い・絵・背景とエフェクト・がめん・文字）。前提を直したテスト：`monsters-r23`（図鑑の数）・`loot`（バットのランクに8）
 - 第31回 C：レア装備とレア度（くわしくは `docs/plan-r31.md` の「3.」の「実装メモ（C）」）
   - データ：`data/items-rare.js`（レア装備112こ。`src` … `'tm'`〈`grp`〉・`'boss'`〈`boss`〉・`'region'`〈`region`〉・`'sd'`。`assignRarity` が rarity のない装備に つける）・`data/rare-loot.js`（`rarityOf`・`traitText`・`pickTmGear`・`bossRareOf`・`regionRareList`・`pickSdGear`）
   - 手に入る所：`data/treasure.js` の `chestLoot(rng, lv, kind, cave)`・`data/secret.js` の `sdBigReward`／`sdSmallReward`・`data/loot.js` の `monsterDrops`（`brare`）／`rollDrops(sp, rng, { map })`

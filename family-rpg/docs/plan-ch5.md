@@ -309,3 +309,41 @@
     - `KUMOI_SHOP_WEAPONS`・`KUMOI_SHOP_ARMOR`・`KUMOI_SHOP_TOOLS`（ハネノの店のならび。ID の配列）
     - `RUIN_TREASURE`（`{ 1: [id, …], 2: […], … 7: […] }`。各階の宝箱の中み。★2〜★4）
   - おすすめのレベル：ハネノ・しずみゆく島・ガイアイーター **Lv44〜45**
+
+### 実装メモ（B … 戦い・品。2026年10月16日）
+
+- 名前の約束（上）のとおり：出現表 `t5_kumoi`・`t5_ruin_up`（1〜3階）・`t5_ruin_low`（4〜7階）・`t5_ruin_cloud`（雲が入った所）、きまった戦い `gaia_eater`（台本は `['battle', 'gaia_eater']`。`showMon('gaia_eater')` は体ぜんぶの絵）、背景 `kumoi`（`t5_kumoi`）・`sink_ruin`（`t5_ruin_up`）・`sink_ruin_deep`（`t5_ruin_low`・`t5_ruin_cloud`・`gaia_eater`）、曲 `gaia`（A が作る。ないときは鳴らないだけ）。品は `data/items-kumoi.js` の `KUMOI_SHOP_WEAPONS`・`KUMOI_SHOP_ARMOR`・`KUMOI_SHOP_TOOLS`・`RUIN_TREASURE`。負けた時は今のボスと同じ（`loseOk` なし）
+- ファイル：`data/monsters-kumoi.js`・`abilities-kumoi.js`・`encounters-kumoi.js`・`companions-kumoi.js`・`items-kumoi.js`、しくみ `shared/battle-gaia.js`、がめん `client/battle-gaia.js`、絵 `render/ch5-kumoi-art.js`・背景 `render/ch5-kumoi-bg.js`・エフェクト `render/battlefx-kumoi.js`、シミュレーター `tools/sim-gaia.mjs`（と `tools/sim.js` の `ch5kumoi`）、テスト `test/ch5-kumoi-battle.test.js`（21こ）
+- 新しい魔物（10しゅ。どれも仲間になる・`noFamily`・`region: 6`）
+  - クモイ地方：雲ひつじ（Lv43。ねむり雲。風1.35）・空とびエイ（Lv44。急降下・雷のしっぽでマヒ。氷1.3）・かみなりぐも（Lv44。いなずま・かみなりの雨。雷0・風1.4）・雲海へび（Lv45。しめつけて素早さダウン・雲のいき。氷1.3）。星の塔の ほうき星の鳥・星くらげ も少し
+  - 神殿1〜3階：石の守り手（Lv44。大地の足ぶみ（みんな）・石のかべ。爆発1.3）・岩もぐら（Lv43。ドリルづめ・土かけでマヌーサ。氷1.3）。はにわ兵・石のガーゴイルも
+  - 神殿4〜7階：つちくいムカデ（Lv45。ガイアイーターの子。毒のキバ。炎1.3）・はにわ兵（Lv45。土のやり・ふしぎな歌で混乱。氷1.3）
+  - 雲が入った所：雲間のゆうれい（Lv46。つめたい手・雲のきり。光1.4）・雷雲ワイバーン（Lv47。いかずちのいき。氷1.3）と色ちがい（`registerVariant`）ダーク雲ひつじ・レッドつちくいムカデ。経験値とお金は ほかの約1.6〜1.8倍
+  - 素材：雲のわた（`cloud_cotton`。雲の魔物）・大地のかけら（`land_shard`。神殿の土と岩の魔物）
+- **ガイアイーター（多部位の戦い。`shared/battle-gaia.js`）**
+  - 部位の ID：`gaia_tail`（しっぽ）・`gaia_body`（体）・`gaia_eater`（頭。この戦いの本体）。きまった戦いでは左から しっぽ・体・頭。部位は `MONSTERS` に数えない形で入れた（`addGaiaParts`。図鑑・魔物の数に出ない。色ちがいと同じ）。頭の名前は戦いの中だけ「ガイアイーターの頭」（`setupGaia`）
+  - しっぽ（HP4400）… 土はこび（体と頭を さいだいHPの5%回復。へっていない時は使わない `c5:gaiaFeed`）・毒ばり・前ぶれ「しっぽの先の毒ばりが、むらさきに光り始めた」→ 毒ばりの雨（ばらばらに6回）。炎1.3
+  - 体（HP7000）… かたいこうら（ふつうのダメージ ×0.6。合体技と爆発はそのまま）。生きている間は頭を守る（頭へのダメージ ×0.85）。土を食べる（自分を6%）・まきつく・前ぶれ「体を大きくとぐろにまいた」→ 大地ゆるがし（みんな）。爆発1.3
+  - 頭（HP10000・2回行動）… かみくだく（守備力ダウン）・土石のいき（みんな）・前ぶれ「大あごを大きく開けた」→ 大地のみこみ（みんな。守り5わりむし・身を守ると半分）。HP40%で攻撃力1.2倍。氷1.3。たおすと のこりの部位も くずれおちる（`minionsFall`）→ 勝ち
+  - 「守られて…」「こうらで…」のことばは1戦で2回まで（`NOTE_MAX`）。しっぽ・体をたおすと短いことば（`gaiaKill`）
+  - `battle.js` は import・constructor の `setupGaia`・`damage` の `gaiaDamage` の3か所。あとは `battle-ch5.js` の `towerEffect`・`towerCond`・`towerKill`・`towerPlan`・`towerPub` からよぶ（`ai.js` はかえていない）
+  - オートの仲間（ふつう）は何もかわらない。シミュレーターの「知っている人」（`b.knowsGaia`）は しっぽ → 体 → 頭 の順にねらい（`gaiaPlan`）、前ぶれの大技が自分の番より先に来る時は身を守る。合体技は `tools/sim-gaia.mjs` の `dualPlan`（ねらいめが体か頭の時、ミナデイン・全員集合）
+- がめん（`client/battle-gaia.js`。`client/battle-ch5.js` の `towerDraw`・`towerPresent` からよぶ）：頭は戦いでは頭の絵（`gaiaSprite`。`client/battle.js` の `computeLayout` に1行）。3つならぶと1ぴきの大ムカデ。今ねらうとよい部位に だいだいの「ねらいめ」の わと「！」、頭には体が生きている間 青いたて、しっぽが生きている間は体へ土のつぶがながれる。はじめにバナー「しっぽ→体→頭の順にねらおう！」。部位をたおすとバナー
+- **強さ（`node tools/sim-gaia.mjs 100 44,45,46`。超級職4人＝勇者・大賢者・ゴッドハンド・大神官、職業Lv10、ランク8の店＋その時期の★装備（神殿の宝箱・アルゴスと古竜の品・大迷宮の★）、100回）**
+
+  | Lv | 完全オート | 知っている | ★なし（店だけ）オート | ★なし 知っている |
+  |---|---|---|---|---|
+  | 44 | 30% | 82% | 15% | 75% |
+  | 45 | 36% | 92% | 31% | 83% |
+  | 46 | 64% | 98% | 37% | 91% |
+
+  - 知っている人の3つのうち1つだけしない（Lv45・★あり）：順番をしない 83%・前ぶれで守らない 80%・合体技を使わない 73%
+  - 決めかた：はじめ（HP 8600/6600/4000・攻撃は今の半分くらい）は どちらも100%。HPと攻撃を上げると「完全オート」は0%近くまで下がり、知っている人との差が大きすぎた（知っている100%・オート0〜27%）。頭のまもり（×0.25 → ×0.85）・こうら（×0.5 → ×0.6）・大技の倍率を軽くして、そのぶん ふだんの攻撃（土石のいき・頭の2回行動）を重くして差をちぢめた。オート3割にそろえると、知っている人は8〜9割（7割にはならなかった）
+- 出現表（`node tools/sim.js 100 ch5kumoi`。せんし・そうりょ・まほう・ぶとう、職業Lv10、ランク8の店＋ボスのアクセサリー＝ `GEAR[48]`）：どれも100%（のこりHP 86〜89%・27〜35びょう。雲の中は82〜83%・38〜42びょう・MP消費が多い）
+- 品（`data/items-kumoi.js`）
+  - ハネノの店（ランク8「光」・★なし）：武器10しゅ（光の剣・雲切りのオノ・羽の短剣・そよ風のやり・光のツメ・にじのムチ・雲のつえ・羽ばたきのおうぎ・光のブーメラン・雷雲のバット）、防具（光のよろい・雲のマント・ハネビトのローブ・風切りの道着・光のたて・光のかぶと・ハネビトのぼうし）、道具（新しい 雲のわたあめ＝HP110回復・ハネビトのぬり薬＝毒マヒねむり混乱マヌーサ と、今の道具）。`items.js` の `EQUIP_RANKS` のランク8を「第5章の雲の上の町ハネノ」に
+  - 神殿の宝箱 `RUIN_TREASURE`：1階 ハネビトの羽かざり★2／2階 グリフォンのツメ★2・風見どりのおうぎ★2／3階 イカロスのつばさ★3（素早さ+16。炎に少し弱い）／4階 アトラスのたて★3／5階 ガルーダのやり★3・大地のローブ★3／6階 ワルキューレのかぶと★4・雷雲のつえ★4／7階 天空の剣★4・天空のよろい★4（`src: 'ruin'`。宝の洞窟・魔物・ひみつのダンジョンからは出ない）
+  - ガイアイーター：かならず 大ムカデのキバのお守り（アクセ・1人1つ）と 大ムカデのよろい（★2。`src: 'boss'`）
+  - 空のレア（地方6。500体に1体）：ハヤテの剣・ニンバス2000（つえ）・つばさのサンダル。`rare-loot.js` の `regionOf` に「魔物の `region` があればそれ」の1行
+  - れん金（`KUMOI_RECIPES` を `alchemy.js` の `RECIPES` にまぜる。tier 5）：星の王子のマント＋雲のわた×2 → 雲の羽衣★3／大ムカデのよろい＋大地のかけら×2 → 大地神のよろい★4／大地のかけら×2＋雲のわた → 命の木の実
+- A とまとめる時：A の仮のファイル `data/kumoi-stub.js` は消して、店と宝箱は `data/items-kumoi.js` から import。マップのゾーンに `t5_kumoi`・`t5_ruin_up`・`t5_ruin_low`・`t5_ruin_cloud`（と `spawnCounts`）。7階の台本は `['showMon', 'gaia_eater']`→`['battle', 'gaia_eater']`（勝ったら A の `c5_gaia`）。曲 `gaia` は A が `client/audio.js` に。B が1〜数行ずつ足したファイル：`monsters.js`・`abilities.js`・`items.js`・`encounters.js`・`companions.js`・`loot.js`・`rare-loot.js`・`alchemy.js`・`battle.js`・`battle-ch5.js`・`client/battle.js`・`client/battle-ch4.js`・`client/battle-ch5.js`・`render/battlefx.js`・`render/battlefx-ch5.js`・`render/monsters.js`・`tools/sim.js`・`tools/kanji-check.mjs` の `gameFiles()`・`test/monsters-r23.test.js`（図鑑の数）・`test/loot.test.js`（バットのランクに8）・README（ランクの表の8）

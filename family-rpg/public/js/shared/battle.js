@@ -29,6 +29,8 @@ import { shownEquipKey } from './look-equip.js';
 import { setupTemple, templeTurnStart, prisonTurn, reflectSpell, templeEffect, templeEst, templeDamage, templeKill, templePub, templeSnap } from './battle-temple.js';
 // 第5章 Step 2 の 星の塔と 星の番人アルゴス（見通しの目。battle-ch5.js）
 import { towerTurnStart, foreseeCheck, towerEffect, towerKill, towerPub } from './battle-ch5.js';
+// 第5章 Step 4 の ガイアイーター（多部位の 戦い。battle-gaia.js）
+import { setupGaia, gaiaDamage } from './battle-gaia.js';
 // 第33回: 3年B組の担任は 学校の 仲間が いると 技が 強く なる（battle-r33.js）
 import { classmateMult } from './battle-r33.js';
 // 第33回: 男の子の 美少女戦士・セーラームーンは タキシード仮面ふうの 技の 名前・セリフ・えんしゅつ（強さは おなじ）
@@ -202,6 +204,7 @@ export class Battle {
     this.addEnemies(opts.enemies || []);
     // 鏡のうつし身・水の衣・水の守りの歌（battle-temple.js）
     setupTemple(this, opts);
+    setupGaia(this);
     // まぼろしの分身（おなじ 魔物の 1体だけが 本物。battle-ch4.js）
     setupMirage(this);
     this.initAtb();
@@ -1534,6 +1537,8 @@ export class Battle {
     const td = templeDamage(this, c, t, dmg, info, ev);
     if (td === null) return;
     dmg = td;
+    // ガイアイーターの 頭（体に まもられる）・体（かたい こうら）。battle-gaia.js
+    dmg = gaiaDamage(this, c, t, dmg, info, ev);
     // 天才しせつ管理者の 予兆保全: 敵の 大技の ダメージが 小さく なる（jobs.js の passive.foresee）
     if (ev.big && c.side === 'enemy' && t.side === 'ally' && dmg > 0) dmg = this.foreseeCut(dmg, ev);
     // 峰打ち: たおさずに HP を 1 のこす

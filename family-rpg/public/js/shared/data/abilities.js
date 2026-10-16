@@ -30,6 +30,7 @@ import { CH4_ABILITIES } from './abilities-ch4.js';
 import { TEMPLE_ABILITIES } from './abilities-temple.js';
 import { LAB_ABILITIES } from './abilities-lab.js';
 import { TOWER_ABILITIES } from './abilities-tower.js';
+import { KUMOI_ABILITIES } from './abilities-kumoi.js';
 import { JOB3_ABILITIES } from './abilities-jobs3.js';
 import { JOB4_ABILITIES } from './abilities-jobs4.js';
 // 2026年10月（第22回）の 新しい 職業の 技（おかん・社ちく・天才しせつ管理者・はかい神 など）
@@ -607,6 +608,8 @@ Object.assign(ABILITIES, TEMPLE_ABILITIES);
 Object.assign(ABILITIES, LAB_ABILITIES);
 // 第5章 Step 2「星の塔」の 魔物と アルゴスの 技（abilities-tower.js）
 Object.assign(ABILITIES, TOWER_ABILITIES);
+// 第5章 Step 3・4 の 魔物と ガイアイーターの 技（abilities-kumoi.js）
+Object.assign(ABILITIES, KUMOI_ABILITIES);
 // 料理人・アルバイト・お笑い芸人の 系統、大賢者、ロトの勇者と、攻撃技を 足した 職業（abilities-jobs3.js）
 Object.assign(ABILITIES, JOB3_ABILITIES);
 // ニート・サイヤ人・設備屋・ゴム人間・ユーチューバー・ゲーマーの 系統と 魔王（abilities-jobs4.js）

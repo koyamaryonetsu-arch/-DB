@@ -46,6 +46,12 @@ const GEAR = {
     priest: ['harpoon', 'ancient_robe', 'platinum_shield', 'pirate_hat', 'mizukagami_crown'], mage: ['ancient_star_staff', 'pearl_robe', null, 'pirate_hat', 'tide_earring'],
     performer: ['sphinx_fan', 'stream_gi', 'platinum_shield', 'pirate_hat', 'mirage_ring'],
   },
+  // 第5章 Step 3・4: 雲の上の町ハネノの ランク8の 店 ＋ それまでの ボスの アクセサリー（アルゴスの 星見のペンダントも）
+  48: {
+    warrior: ['light_sword', 'light_mail', 'light_shield', 'light_helm', 'argos_pendant'], monk: ['light_claw', 'windcut_gi', null, 'hanebito_hat', 'scorpion_brooch'],
+    priest: ['breeze_spear', 'hanebito_robe', 'light_shield', 'hanebito_hat', 'mizukagami_crown'], mage: ['kumo_staff', 'hanebito_robe', null, 'hanebito_hat', 'tide_earring'],
+    performer: ['wingbeat_fan', 'windcut_gi', 'light_shield', 'hanebito_hat', 'mirage_ring'],
+  },
 };
 
 // gearTier: そうびの だんかい（GEAR の キー。ないときは レベルで きめる。第3章は 20 / 23 を 指定する）
@@ -290,8 +296,22 @@ export function argosFight(lv, seed, know, tier = 42, log = false) {
   return runBattle(party, fixedOf('argos'), { seed, boss: true, log, ...flags });
 }
 
-// 第2章: node tools/sim.js [回数] ch2
-if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'ch5tower') {
+// 第5章 Step 3・4「クモイ地方・しずみゆく島の古い神殿」: node tools/sim.js [回数] ch5kumoi
+// [出現表, 主人公の レベル, 装備]。4人（せんし・そうりょ・まほう・ぶとう）・職業Lv10。装備は ハネノの ランク8の 店（GEAR 48）
+// ガイアイーターは 超級職の 4人で はかる（tools/sim-gaia.mjs）
+export const CH5_KUMOI = [
+  ['t5_kumoi', 43, 48], ['t5_kumoi', 44, 48], ['t5_ruin_up', 44, 48], ['t5_ruin_up', 45, 48], ['t5_ruin_low', 44, 48], ['t5_ruin_low', 45, 48],
+  ['t5_ruin_cloud', 45, 48], ['t5_ruin_cloud', 46, 48],
+];
+if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'ch5kumoi') {
+  const rng = makeRng(5353);
+  for (const [table, lv, tier] of CH5_KUMOI) {
+    const res = [];
+    for (let i = 0; i < N; i++) res.push(runBattle(PARTY(lv, 10, tier), rollGroup(table, rng), { seed: i }));
+    summarize(`${table} Lv${lv}`, res);
+  }
+  // 第2章: node tools/sim.js [回数] ch2（など。下の つづき）
+} else if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'ch5tower') {
   const rng = makeRng(5050);
   for (const [table, lv, tier] of CH5_TOWER) {
     const res = [];
