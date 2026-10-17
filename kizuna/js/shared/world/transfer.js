@@ -8,8 +8,8 @@
 // 仲間が 多くて 1万文字を こえる ときは KIZUNA-3-（仲間の 空の 項目と ID を はぶいた 形。slimChar / unslimChar）。
 //   仲間 40人（いっぱい）でも 9千文字ほど。こえない ときは 今までどおり KIZUNA-2-（前の 版でも 読める）
 // むかしの KIZUNA-1-<しるし>-<base64> も 読める
-import { repairChar, upgradeSave, SAVE_VERSION } from './save.js?v=7dd7285b1441';
-import { dropGoneFamily } from '../data/wagon.js?v=7dd7285b1441';
+import { repairChar, upgradeSave, SAVE_VERSION } from './save.js?v=367d06be56ca';
+import { dropGoneFamily } from '../data/wagon.js?v=367d06be56ca';
 
 const PREFIX = 'KIZUNA-2-';
 const PREFIX_V1 = 'KIZUNA-1-';

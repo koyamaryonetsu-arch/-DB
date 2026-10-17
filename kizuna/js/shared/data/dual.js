@@ -19,9 +19,9 @@
 // 第31回（2026年10月）: 今の 職業で 判定する ように した。「攻撃の 技（どの 職業でも）」の 組を なくし、
 //   きずな技の ミナデインを 合体技に した（dt_minadein）。せーのでジャンプ・家族会議・なぞは すべて 解けた！の 組も 職業に むすびつけた
 // 第32回（2026年10月）: 魔物使い・モンスターマスターの 合体技 3こ（R32_DUALS）。「モンスターの 仲間」の 組（MONSTER_ALLY）だけは 魔物の 仲間が うけもつ
-import { ABILITIES } from './abilities.js?v=7dd7285b1441';
-import { JOBS, ALL_JOBS, jobBases, SCHOOL_JOBS } from './jobs.js?v=7dd7285b1441';
-import { isMasc, jobLabel } from '../job-label.js?v=7dd7285b1441';
+import { ABILITIES } from './abilities.js?v=367d06be56ca';
+import { JOBS, ALL_JOBS, jobBases, SCHOOL_JOBS } from './jobs.js?v=367d06be56ca';
+import { isMasc, jobLabel } from '../job-label.js?v=367d06be56ca';
 
 // 技の 組（この 技を 持つ 職業の 人が うけもてる）
 const FIRE = ['mera', 'merami', 'merazoma', 'gira', 'begirama', 'nj_katon', 'am_begiragon', 'am_meragaia', 'hk_triple_mera', 'ck_tsuyobi', 'ck_flambe', 'hi_daikaryoku', 'hi_giragureido', 'hi_ima_mera',
