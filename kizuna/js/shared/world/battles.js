@@ -1,26 +1,26 @@
 // たたかいの はじまりと おわり（ほうしゅう・ぜんめつ）
-import { Battle, normBattleSettings } from '../battle.js?v=6f78c11061a2';
-import { scaleExp, difficultyOf, rewardExp, rewardGold } from '../data/difficulty.js?v=6f78c11061a2';
-import { POWDER, powderLeft } from '../data/friend-powder.js?v=6f78c11061a2';
-import { MONSTERS } from '../data/monsters.js?v=6f78c11061a2';
-import { ITEMS } from '../data/items.js?v=6f78c11061a2';
-import { abilityLabel } from '../ability-label.js?v=6f78c11061a2';
-import { JOBS } from '../data/jobs.js?v=6f78c11061a2';
-import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=6f78c11061a2';
-import { gainExp, gainJobBattles, jobTrainMult, itemCount, removeItem, addItem, ownsItem, computeStats, fullHeal } from '../stats.js?v=6f78c11061a2';
-import { JOB_MAX_LEVEL } from '../data/jobs.js?v=6f78c11061a2';
-import { befriendShare } from './recruit-share.js?v=6f78c11061a2';
-import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendChance, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf, PARTY_MAX } from './party.js?v=6f78c11061a2';
-import { rollDrops, stealPick } from '../data/loot.js?v=6f78c11061a2';
-import { MAPS } from '../maps/index.js?v=6f78c11061a2';
-import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js?v=6f78c11061a2';
-import { treasureAfterBattle } from './treasure.js?v=6f78c11061a2';
-import { wipeGoldLoss, bankGold } from './bank.js?v=6f78c11061a2';
-import { lureOn, lureGroup } from './field27.js?v=6f78c11061a2';
-import { wagonShare, wagonBattleSwap } from './wagon.js?v=6f78c11061a2';
-import { growthSummary } from './growth.js?v=6f78c11061a2';
-import { topLevel, battleTeamChars, expHatMult } from './perks.js?v=6f78c11061a2';
-import { battleTactics } from './tactics.js?v=6f78c11061a2';
+import { Battle, normBattleSettings } from '../battle.js?v=dc4564ddf4d4';
+import { scaleExp, difficultyOf, rewardExp, rewardGold } from '../data/difficulty.js?v=dc4564ddf4d4';
+import { POWDER, powderLeft } from '../data/friend-powder.js?v=dc4564ddf4d4';
+import { MONSTERS } from '../data/monsters.js?v=dc4564ddf4d4';
+import { ITEMS } from '../data/items.js?v=dc4564ddf4d4';
+import { abilityLabel } from '../ability-label.js?v=dc4564ddf4d4';
+import { JOBS } from '../data/jobs.js?v=dc4564ddf4d4';
+import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=dc4564ddf4d4';
+import { gainExp, gainJobBattles, jobTrainMult, itemCount, removeItem, addItem, ownsItem, computeStats, fullHeal } from '../stats.js?v=dc4564ddf4d4';
+import { JOB_MAX_LEVEL } from '../data/jobs.js?v=dc4564ddf4d4';
+import { befriendShare } from './recruit-share.js?v=dc4564ddf4d4';
+import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendChance, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf, PARTY_MAX } from './party.js?v=dc4564ddf4d4';
+import { rollDrops, stealPick } from '../data/loot.js?v=dc4564ddf4d4';
+import { MAPS } from '../maps/index.js?v=dc4564ddf4d4';
+import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js?v=dc4564ddf4d4';
+import { treasureAfterBattle } from './treasure.js?v=dc4564ddf4d4';
+import { wipeGoldLoss, bankGold } from './bank.js?v=dc4564ddf4d4';
+import { lureOn, lureGroup } from './field27.js?v=dc4564ddf4d4';
+import { wagonShare, wagonBattleSwap } from './wagon.js?v=dc4564ddf4d4';
+import { growthSummary } from './growth.js?v=dc4564ddf4d4';
+import { topLevel, battleTeamChars, expHatMult } from './perks.js?v=dc4564ddf4d4';
+import { battleTactics } from './tactics.js?v=dc4564ddf4d4';
 
 let battleSeq = 1;
 
@@ -48,13 +48,14 @@ export function battleSessions(world, s) {
   return out;
 }
 
-// たたかっている なかまの ところへ かけつけて さんかする（ふつうの たたかい だけ）
+// たたかっている なかまの ところへ かけつけて さんかする（ふつうの たたかいも、ボス・物語の たたかいも。
+//   第34回: 会話の 時に そばに いなかった 人・会話の タイミングが ずれた 人も、あとから かけつけられる）
 export function joinBattle(world, s, targetSid) {
   if (s.busy || s.away || s.flying || !s.inWorld) return { ok: false };
   const t = world.sessions.get(targetSid);
   if (!t || t === s || t.busy !== 'battle' || t.partyId !== s.partyId || t.map !== s.map) return { ok: false };
   const ctx = world.battles.get(t.battleId);
-  if (!ctx || ctx.opts.fixed || ctx.battle.over || ctx.battle.pendingEnd) return { ok: false };
+  if (!ctx || ctx.battle.over || ctx.battle.pendingEnd) return { ok: false };
   if (Math.hypot(t.x - s.x, t.y - s.y) > LATE_JOIN_RADIUS) return { ok: false };
   if (ctx.sids.includes(s.id)) return { ok: false };
   // プレイヤーは 5人まで いっしょに 戦える（world/party.js の PARTY_MAX）
@@ -74,7 +75,7 @@ export function joinBattle(world, s, targetSid) {
       ctx.battle.setAuto(ally.id, !!s.char.battleSettings?.auto);
     }
   }
-  world.send(s, { t: 'battleStart', snap: ctx.battle.snapshot(), mine: mineOf(ctx, s.id), boss: !!ctx.opts.boss, story: false, joined: true });
+  world.send(s, { t: 'battleStart', snap: ctx.battle.snapshot(), mine: mineOf(ctx, s.id), boss: !!ctx.opts.boss, story: !!ctx.opts.fixed, joined: true });
   world.broadcastPositions = true;
   return { ok: true };
 }

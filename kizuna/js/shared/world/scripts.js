@@ -1,17 +1,17 @@
 // だいほん（イベント）を すすめる しくみ
-import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js?v=6f78c11061a2';
-import { ITEMS } from '../data/items.js?v=6f78c11061a2';
-import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js?v=6f78c11061a2';
-import { startFixedBattle } from './battles.js?v=6f78c11061a2';
-import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=6f78c11061a2';
-import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion, befriendLevel } from './party.js?v=6f78c11061a2';
-import { shareBefriend } from './recruit-share.js?v=6f78c11061a2';
-import { openService } from './services.js?v=6f78c11061a2';
-import { isNightFor, advanceClock, fracFor } from './clock.js?v=6f78c11061a2';
-import { grantWagon, wagonChars, wagonHere } from './wagon.js?v=6f78c11061a2';
-import { GUESTS } from '../data/shops.js?v=6f78c11061a2';
-import { unstickAll } from './hazards.js?v=6f78c11061a2';
-import { MAPS, isBlocked } from '../maps/index.js?v=6f78c11061a2';
+import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js?v=dc4564ddf4d4';
+import { ITEMS } from '../data/items.js?v=dc4564ddf4d4';
+import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js?v=dc4564ddf4d4';
+import { startFixedBattle } from './battles.js?v=dc4564ddf4d4';
+import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=dc4564ddf4d4';
+import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion, befriendLevel } from './party.js?v=dc4564ddf4d4';
+import { shareBefriend } from './recruit-share.js?v=dc4564ddf4d4';
+import { openService } from './services.js?v=dc4564ddf4d4';
+import { isNightFor, advanceClock, fracFor } from './clock.js?v=dc4564ddf4d4';
+import { grantWagon, wagonChars, wagonHere } from './wagon.js?v=dc4564ddf4d4';
+import { GUESTS } from '../data/shops.js?v=dc4564ddf4d4';
+import { unstickAll } from './hazards.js?v=dc4564ddf4d4';
+import { MAPS, isBlocked } from '../maps/index.js?v=dc4564ddf4d4';
 
 let runSeq = 1;
 
@@ -488,7 +488,9 @@ export function runScript(world, s, scriptId, opts = {}) {
         const now = world.now();
         if (!(s.storyHintAt > now - 8000)) {
           s.storyHintAt = now;
-          world.send(s, { t: 'toast', text: `ストーリーは、リーダーの${leader.char.name}といっしょに進めよう` });
+          // リーダーが ボス・物語の たたかいの 中なら、そばへ 行けば とちゅうから 入れる（battles.js の joinBattle）
+          const fighting = leader.busy === 'battle' && leader.map === s.map && world.battles.get(leader.battleId)?.opts.fixed;
+          world.send(s, { t: 'toast', text: fighting ? `${leader.char.name}が戦っている！そばへ行くと、戦いに入れるよ` : `ストーリーは、リーダーの${leader.char.name}といっしょに進めよう` });
         }
         return false;
       }
