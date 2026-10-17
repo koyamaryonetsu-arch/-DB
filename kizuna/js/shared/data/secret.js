@@ -22,14 +22,14 @@
 //     got  … 大きな ごほうびを もらった 休み所の 階 [5, 10, …] / tries … ちょうせんした 回数
 //     run  … 今の ちょうせん { f: 今の 階, mid: とちゅうから 来た（さそわれて 来た など。記録に ならない）, took: ごほうびを 開けた 階,
 //              seed: この ちょうせんの 階の 形の もと（入口から 入る たびに 新しく。いっしょに 入った 家族は おなじ）}
-import { MONSTERS } from './monsters.js?v=dc4564ddf4d4';
-import { registerVariant, variantFits, variantId } from './variants.js?v=dc4564ddf4d4';
-import { ITEMS, SLOTS } from './items.js?v=dc4564ddf4d4';
-import { ENCOUNTER_TABLES, ZONE_BG, FIXED_ENCOUNTERS } from './encounters.js?v=dc4564ddf4d4';
-import { makeRng } from '../rng.js?v=dc4564ddf4d4';
-import { rewardGold } from './difficulty.js?v=dc4564ddf4d4';
-import { pickSdGear, SD_GEAR_FROM } from './rare-loot.js?v=dc4564ddf4d4';
-import { sdGuardStrength } from './secret-guard.js?v=dc4564ddf4d4';
+import { MONSTERS } from './monsters.js?v=7dd7285b1441';
+import { registerVariant, variantFits, variantId } from './variants.js?v=7dd7285b1441';
+import { ITEMS, SLOTS } from './items.js?v=7dd7285b1441';
+import { ENCOUNTER_TABLES, ZONE_BG, FIXED_ENCOUNTERS } from './encounters.js?v=7dd7285b1441';
+import { makeRng } from '../rng.js?v=7dd7285b1441';
+import { rewardGold } from './difficulty.js?v=7dd7285b1441';
+import { pickSdGear, SD_GEAR_FROM } from './rare-loot.js?v=7dd7285b1441';
+import { sdGuardStrength } from './secret-guard.js?v=7dd7285b1441';
 
 export const SD_GATE = 'sd_gate';
 export const SD_NAME = 'ひみつのダンジョン';
