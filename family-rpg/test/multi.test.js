@@ -201,3 +201,31 @@ test('「だれで遊ぶ？」には いつ 遊んだか・今 遊んでいる�
   assert.ok(papa.msgs.filter((m) => m.t === 'players').pop().players.some((x) => x.name === 'ママ'));
   noStatus(papa.msgs.filter((m) => m.t === 'chars').pop().chars, 'キャラを 作った とき');
 });
+
+test('第34回: ボス・物語の たたかいにも、会話の 時に いなかった なかまが とちゅうから かけつけられる', { timeout: 60000 }, async () => {
+  const { world, papa, kid } = await family();
+  const { runSteps } = await import('../public/js/shared/world/scripts.js');
+  papa.s.x = FIELD.x; papa.s.y = FIELD.y;
+  kid.s.x = FIELD.x + 20; kid.s.y = FIELD.y;
+  kid.s.busy = 'menu'; // 会話の 時は ほかの ことを していた
+  runSteps(world, papa.s, [['battle', 'argos']]);
+  for (let i = 0; i < 50 && !papa.inBattle; i++) { papa.flushQueue?.(); await tickN(world, 1); }
+  assert.ok(papa.inBattle, 'パパは ボスと たたかう');
+  assert.ok(!kid.inBattle, 'ユイは まだ 入っていない');
+  kid.s.busy = null;
+  // とおいと 入れない → かけつけると 入れる
+  kid.send({ t: 'joinBattle', sid: papa.s.id });
+  assert.ok(!kid.inBattle);
+  kid.s.x = FIELD.x + 1.2;
+  kid.send({ t: 'joinBattle', sid: papa.s.id });
+  assert.ok(kid.inBattle, 'ボスの たたかいにも とちゅうから 入れる');
+  const js = kid.msgs.filter((m) => m.t === 'battleStart').pop();
+  assert.ok(js.joined && js.boss && js.story, 'ボス・物語の たたかいとして 入る');
+  const ctx = [...world.battles.values()][0];
+  assert.equal(ctx.battle.allies.filter((a) => a.kind === 'player').length, 2);
+  for (const e of ctx.battle.enemies) e.hp = 1;
+  await papa.settle(8000);
+  await kid.settle(400);
+  assert.ok(!papa.inBattle && !kid.inBattle, 'いっしょに おわる');
+  assert.notEqual(kid.s.busy, 'battle');
+});

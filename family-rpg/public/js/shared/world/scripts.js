@@ -488,7 +488,9 @@ export function runScript(world, s, scriptId, opts = {}) {
         const now = world.now();
         if (!(s.storyHintAt > now - 8000)) {
           s.storyHintAt = now;
-          world.send(s, { t: 'toast', text: `ストーリーは、リーダーの${leader.char.name}といっしょに進めよう` });
+          // リーダーが ボス・物語の たたかいの 中なら、そばへ 行けば とちゅうから 入れる（battles.js の joinBattle）
+          const fighting = leader.busy === 'battle' && leader.map === s.map && world.battles.get(leader.battleId)?.opts.fixed;
+          world.send(s, { t: 'toast', text: fighting ? `${leader.char.name}が戦っている！そばへ行くと、戦いに入れるよ` : `ストーリーは、リーダーの${leader.char.name}といっしょに進めよう` });
         }
         return false;
       }

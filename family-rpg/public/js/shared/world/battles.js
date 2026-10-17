@@ -48,13 +48,14 @@ export function battleSessions(world, s) {
   return out;
 }
 
-// たたかっている なかまの ところへ かけつけて さんかする（ふつうの たたかい だけ）
+// たたかっている なかまの ところへ かけつけて さんかする（ふつうの たたかいも、ボス・物語の たたかいも。
+//   第34回: 会話の 時に そばに いなかった 人・会話の タイミングが ずれた 人も、あとから かけつけられる）
 export function joinBattle(world, s, targetSid) {
   if (s.busy || s.away || s.flying || !s.inWorld) return { ok: false };
   const t = world.sessions.get(targetSid);
   if (!t || t === s || t.busy !== 'battle' || t.partyId !== s.partyId || t.map !== s.map) return { ok: false };
   const ctx = world.battles.get(t.battleId);
-  if (!ctx || ctx.opts.fixed || ctx.battle.over || ctx.battle.pendingEnd) return { ok: false };
+  if (!ctx || ctx.battle.over || ctx.battle.pendingEnd) return { ok: false };
   if (Math.hypot(t.x - s.x, t.y - s.y) > LATE_JOIN_RADIUS) return { ok: false };
   if (ctx.sids.includes(s.id)) return { ok: false };
   // プレイヤーは 5人まで いっしょに 戦える（world/party.js の PARTY_MAX）
@@ -74,7 +75,7 @@ export function joinBattle(world, s, targetSid) {
       ctx.battle.setAuto(ally.id, !!s.char.battleSettings?.auto);
     }
   }
-  world.send(s, { t: 'battleStart', snap: ctx.battle.snapshot(), mine: mineOf(ctx, s.id), boss: !!ctx.opts.boss, story: false, joined: true });
+  world.send(s, { t: 'battleStart', snap: ctx.battle.snapshot(), mine: mineOf(ctx, s.id), boss: !!ctx.opts.boss, story: !!ctx.opts.fixed, joined: true });
   world.broadcastPositions = true;
   return { ok: true };
 }
