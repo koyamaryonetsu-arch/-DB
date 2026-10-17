@@ -13,16 +13,16 @@
 //   合体技（ミナデインも）・にげる・混乱した 時の 行動は 読まれない（読みは 消える）
 // ・オートの 仲間: 読まれた 種類の 行動を さけて、ちがう 行動を えらぶ（towerPlan）。シミュレーター（tools/sim.js）の
 //   b.argosNaive … 知らない 人（読まれても そのまま）／ b.knowsArgos … 知っている 人（星のさばきの 前に 身を 守る も）
-import { MONSTERS } from './data/monsters.js?v=367d06be56ca';
-import { ABILITIES } from './data/abilities.js?v=367d06be56ca';
-import { abilityFor } from './ability-label.js?v=367d06be56ca';
-import { ITEMS } from './data/items.js?v=367d06be56ca';
-import { mpCost, penaltyFor } from './stats.js?v=367d06be56ca';
+import { MONSTERS } from './data/monsters.js?v=1f7c58f87666';
+import { ABILITIES } from './data/abilities.js?v=1f7c58f87666';
+import { abilityFor } from './ability-label.js?v=1f7c58f87666';
+import { ITEMS } from './data/items.js?v=1f7c58f87666';
+import { mpCost, penaltyFor } from './stats.js?v=1f7c58f87666';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { atbRate } from './battle.js?v=367d06be56ca';
-import { canUse } from './ai.js?v=367d06be56ca';
+import { atbRate } from './battle.js?v=1f7c58f87666';
+import { canUse } from './ai.js?v=1f7c58f87666';
 // 第5章 Step 4: ガイアイーターの 多部位の 戦い（battle-gaia.js。ここから よぶ）
-import { gaiaEffect, gaiaCond, gaiaKill, gaiaPlan, gaiaPub } from './battle-gaia.js?v=367d06be56ca';
+import { gaiaEffect, gaiaCond, gaiaKill, gaiaPlan, gaiaPub } from './battle-gaia.js?v=1f7c58f87666';
 
 export const ARGOS = 'argos';
 export const JUDGE = 'm_argos_judge';
