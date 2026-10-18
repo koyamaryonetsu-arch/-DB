@@ -1,53 +1,54 @@
 // フィールドの メニュー
-import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js?v=6ba421b76da0';
-import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js?v=6ba421b76da0';
-import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js?v=6ba421b76da0';
+import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js?v=88f4b1116681';
+import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js?v=88f4b1116681';
+import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js?v=88f4b1116681';
 // 第33回: 技の 名前は 見ている キャラ むけ（男の子の 美少女戦士・セーラームーンは タキシード仮面ふう）
-import { abilityFor, dualForView } from '../../shared/ability-label.js?v=6ba421b76da0';
+import { abilityFor, dualForView } from '../../shared/ability-label.js?v=88f4b1116681';
 // 職業の 名前は その 人 むけ（男の子の 美少女戦士は「仮面のしんし」、セーラームーンは「タキシード仮面」。第33回）
-import { jobLabel } from '../../shared/job-label.js?v=6ba421b76da0';
-import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS, turnSeconds } from '../../shared/battle.js?v=6ba421b76da0';
-import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily, gearSortPref, setGearSortPref } from '../prefs.js?v=6ba421b76da0';
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, TIER_NAMES } from '../../shared/data/jobs.js?v=6ba421b76da0';
-import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress, partyJobSet, hiraOfJob, monsterSlots, canEquipChar, itemCount, MAX_LEVEL } from '../../shared/stats.js?v=6ba421b76da0';
-import { HIRAMEKI } from '../../shared/data/hirameki.js?v=6ba421b76da0';
-import { DUAL_TECHS, DUAL_ORDER, dualKnown, dualRelated, dualNeedText, dualNeedLabel } from '../../shared/data/dual.js?v=6ba421b76da0';
-import { addDualCss } from '../render/dualfx.js?v=6ba421b76da0';
-import { MONSTERS } from '../../shared/data/monsters.js?v=6ba421b76da0';
-import { monsterDrops } from '../../shared/data/loot.js?v=6ba421b76da0';
-import { MONSTER_FRIENDS, RACE_NAMES, recipeHint, joinTier, bestiaryOrder } from '../../shared/data/companions.js?v=6ba421b76da0';
-import { TACTICS } from '../../shared/ai.js?v=6ba421b76da0';
-import { PLACES } from '../../shared/maps/overworld.js?v=6ba421b76da0';
-import { SEA_PLACES } from '../../shared/maps/ch2.js?v=6ba421b76da0';
-import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js?v=6ba421b76da0';
-import { T, TILE_INFO } from '../../shared/tiles.js?v=6ba421b76da0';
-import { menuItemText } from './skillinfo.js?v=6ba421b76da0';
-import { itemDetail, abilityDetail, skillBrief, gearText, targetTag, statChanges, statChangesHtml } from './info.js?v=6ba421b76da0';
-import { bestEquipPlan, bestTeamOrder, gearChoices, sortGearChoices, GEAR_SORTS } from '../../shared/equip-plan.js?v=6ba421b76da0';
-import { shownEquip, lookChoices, LOOK_SLOTS, LOOK_NONE } from '../../shared/look-equip.js?v=6ba421b76da0';
-import { makeCanvas, ctxOf } from '../render/pixel.js?v=6ba421b76da0';
-import { previewCache } from '../render/hero.js?v=6ba421b76da0';
-import { monsterCanvas } from '../render/monsters.js?v=6ba421b76da0';
-import { mapIconCanvas, boardIconURL } from '../render/boards.js?v=6ba421b76da0';
-import { medalItemRow, walletView } from './casino.js?v=6ba421b76da0';
-import { compareTeam, whoItems } from './counter.js?v=6ba421b76da0';
-import { faceURL } from '../field.js?v=6ba421b76da0';
-import { partyRows } from './hud.js?v=6ba421b76da0';
-import { questMarks, subQuests, OBJECTIVE_TARGETS, whereName } from '../../shared/data/quest-targets.js?v=6ba421b76da0';
-import { labDoneQuests, sideQuestHint } from '../../shared/data/sidequests.js?v=6ba421b76da0';
-import { difficultyOf, visibleMarks, EXP_RATES, EXP_RATE_NAMES, ENEMY_RATES, ENEMY_RATE_NAMES, ENEMY_RATE_NOTES } from '../../shared/data/difficulty.js?v=6ba421b76da0';
-import { memberTalk, talkFor } from '../../shared/data/party-talk.js?v=6ba421b76da0';
-import { treasureRows, treasureDetail, openTreasureMap } from './treasure.js?v=6ba421b76da0';
-import { rareNameHtml } from './rarity.js?v=6ba421b76da0';
-import { themeHex } from '../render/themes.js?v=6ba421b76da0';
-import { sdRecordOf, sdRecordText } from '../../shared/data/secret.js?v=6ba421b76da0';
-import { wagonMenuView, wagonHereClient, menuArrange } from './wagon.js?v=6ba421b76da0';
-import { readErrLog, errLogText, clearErrLog } from '../errlog.js?v=6ba421b76da0';
-import { fieldUsableAbilities } from '../../shared/fieldskills.js?v=6ba421b76da0';
-import { alchemyRow, alchemyUI, bindAlchemy } from './alchemy.js?v=6ba421b76da0';
-import './r35-css.js?v=6ba421b76da0';
-import { newsView } from './news.js?v=6ba421b76da0';
-import { hasUnreadNews } from '../../shared/data/news.js?v=6ba421b76da0';
+import { jobLabel } from '../../shared/job-label.js?v=88f4b1116681';
+import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS, turnSeconds } from '../../shared/battle.js?v=88f4b1116681';
+import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily, gearSortPref, setGearSortPref } from '../prefs.js?v=88f4b1116681';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, TIER_NAMES } from '../../shared/data/jobs.js?v=88f4b1116681';
+import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress, partyJobSet, hiraOfJob, monsterSlots, canEquipChar, itemCount, MAX_LEVEL } from '../../shared/stats.js?v=88f4b1116681';
+import { HIRAMEKI } from '../../shared/data/hirameki.js?v=88f4b1116681';
+import { DUAL_TECHS, DUAL_ORDER, dualKnown, dualRelated, dualNeedText, dualNeedLabel } from '../../shared/data/dual.js?v=88f4b1116681';
+import { addDualCss } from '../render/dualfx.js?v=88f4b1116681';
+import { MONSTERS } from '../../shared/data/monsters.js?v=88f4b1116681';
+import { monsterDrops } from '../../shared/data/loot.js?v=88f4b1116681';
+import { MONSTER_FRIENDS, RACE_NAMES, recipeHint, joinTier, bestiaryOrder } from '../../shared/data/companions.js?v=88f4b1116681';
+import { TACTICS } from '../../shared/ai.js?v=88f4b1116681';
+import { PLACES } from '../../shared/maps/overworld.js?v=88f4b1116681';
+import { SEA_PLACES } from '../../shared/maps/ch2.js?v=88f4b1116681';
+import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js?v=88f4b1116681';
+import { T, TILE_INFO } from '../../shared/tiles.js?v=88f4b1116681';
+import { menuItemText } from './skillinfo.js?v=88f4b1116681';
+import { itemDetail, abilityDetail, skillBrief, gearText, targetTag, statChanges, statChangesHtml } from './info.js?v=88f4b1116681';
+import { bestEquipPlan, bestTeamOrder, gearChoices, sortGearChoices, GEAR_SORTS } from '../../shared/equip-plan.js?v=88f4b1116681';
+import { shownEquip, lookChoices, LOOK_SLOTS, LOOK_NONE } from '../../shared/look-equip.js?v=88f4b1116681';
+import { makeCanvas, ctxOf } from '../render/pixel.js?v=88f4b1116681';
+import { previewCache } from '../render/hero.js?v=88f4b1116681';
+import { monsterCanvas } from '../render/monsters.js?v=88f4b1116681';
+import { mapIconCanvas, boardIconURL } from '../render/boards.js?v=88f4b1116681';
+import { medalItemRow, walletView } from './casino.js?v=88f4b1116681';
+import { compareTeam, whoItems } from './counter.js?v=88f4b1116681';
+import { faceURL } from '../field.js?v=88f4b1116681';
+import { partyRows } from './hud.js?v=88f4b1116681';
+import { questMarks, subQuests, OBJECTIVE_TARGETS, whereName } from '../../shared/data/quest-targets.js?v=88f4b1116681';
+import { labDoneQuests, sideQuestHint } from '../../shared/data/sidequests.js?v=88f4b1116681';
+import { difficultyOf, visibleMarks, EXP_RATES, EXP_RATE_NAMES, ENEMY_RATES, ENEMY_RATE_NAMES, ENEMY_RATE_NOTES } from '../../shared/data/difficulty.js?v=88f4b1116681';
+import { memberTalk, talkFor } from '../../shared/data/party-talk.js?v=88f4b1116681';
+import { treasureRows, treasureDetail, openTreasureMap } from './treasure.js?v=88f4b1116681';
+import { rareNameHtml } from './rarity.js?v=88f4b1116681';
+import { themeHex } from '../render/themes.js?v=88f4b1116681';
+import { sdRecordOf, sdRecordText } from '../../shared/data/secret.js?v=88f4b1116681';
+import { wagonMenuView, wagonHereClient, menuArrange } from './wagon.js?v=88f4b1116681';
+import { readErrLog, errLogText, clearErrLog } from '../errlog.js?v=88f4b1116681';
+import { fieldUsableAbilities } from '../../shared/fieldskills.js?v=88f4b1116681';
+import { alchemyRow, alchemyUI, bindAlchemy } from './alchemy.js?v=88f4b1116681';
+import './r35-css.js?v=88f4b1116681';
+import { newsView } from './news.js?v=88f4b1116681';
+import { hasUnreadNews } from '../../shared/data/news.js?v=88f4b1116681';
+import { vehicleMenuView } from './vehicles.js?v=88f4b1116681';
 
 // 見た目装備の せつめい
 const LOOK_HELP = '見た目だけを、持っている装備に変える（強さは変わらない）\n職業で装備できない物も選べる。「装備なし」も選べる';
@@ -65,6 +66,8 @@ const MAIN = [
   { label: '強さ', value: 'status' },
   { label: '仲間', value: 'party' },
   { label: '作戦', value: 'tactics' },
+  // 第37回: 走る時に 乗る 乗り物（ui/vehicles.js）
+  { label: '乗り物', value: 'vehicle' },
   { label: '図鑑', value: 'zukan' },
   { label: 'マップ', value: 'map' },
   { label: 'クエスト', value: 'quest' },
@@ -274,6 +277,7 @@ export class FieldMenu {
       case 'status': this.main.append(this.statusView()); break;
       case 'party': this.main.append(this.partyView(false)); break;
       case 'tactics': this.main.append(this.tacticsView(false)); break;
+      case 'vehicle': this.main.append(vehicleMenuView(this, false)); break;
       case 'zukan': this.main.append(this.zukanView(false)); break;
       case 'map': this.main.append(el('div', { class: 'muted', text: '探検した場所の地図を見る。（Mキーでも開ける）\n次の行き先はピンク、たのまれごとは水色、報告できるときはみどりのしるし。' })); break;
       case 'quest': this.main.append(this.questView()); break;
@@ -377,6 +381,7 @@ export class FieldMenu {
       case 'equip': return this.openView(() => this.equipView(true));
       case 'party': return this.openView(() => this.partyView(true));
       case 'tactics': return this.openView(() => this.tacticsView(true));
+      case 'vehicle': return this.openView(() => vehicleMenuView(this, true));
       case 'zukan': return this.focusSub(this.zukanView(true));
       case 'settings': return this.focusSub(this.settingsView(true));
       case 'news':

@@ -2,19 +2,19 @@
 // みため（かみがた・いろ）と そうび（ぶき・よろい・たて・かぶと）で かわる
 // 人は 32×42 で くみたてて、2ばいの 64×84 に して こまかく かきたす（res 4: せかいでは 16×21 の 大きさに かく）
 // どうぶつ・船は 16×21 など
-import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=6ba421b76da0';
-import { ITEMS, baseItemId } from '../../shared/data/items.js?v=6ba421b76da0';
-import { STARTER_EQUIP } from '../../shared/stats.js?v=6ba421b76da0';
-import { paintMiraPrison, paintWaterStar } from './temple-chars.js?v=6ba421b76da0';
-import { LAB_NPC_LOOKS } from './lab-art.js?v=6ba421b76da0';
-import { paintCh5Special } from './ch5-art.js?v=6ba421b76da0';
-import { KUMOI_NPC_LOOKS, drawWings } from './ch5-kumoi-art.js?v=6ba421b76da0';
-import { HOSHIYOMI_NPC_LOOKS } from './ch5-hoshiyomi-art.js?v=6ba421b76da0';
-import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js?v=6ba421b76da0';
-import { R26_OLD_LOOK } from './hero-r26.js?v=6ba421b76da0';
-import { R27_OLD_LOOK } from './hero-r27.js?v=6ba421b76da0';
-import { R29_OLD_LOOK } from './hero-r29.js?v=6ba421b76da0';
-import { R33_OLD_LOOK, masc33 } from './hero-r33.js?v=6ba421b76da0';
+import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=88f4b1116681';
+import { ITEMS, baseItemId } from '../../shared/data/items.js?v=88f4b1116681';
+import { STARTER_EQUIP } from '../../shared/stats.js?v=88f4b1116681';
+import { paintMiraPrison, paintWaterStar } from './temple-chars.js?v=88f4b1116681';
+import { LAB_NPC_LOOKS } from './lab-art.js?v=88f4b1116681';
+import { paintCh5Special } from './ch5-art.js?v=88f4b1116681';
+import { KUMOI_NPC_LOOKS, drawWings } from './ch5-kumoi-art.js?v=88f4b1116681';
+import { HOSHIYOMI_NPC_LOOKS } from './ch5-hoshiyomi-art.js?v=88f4b1116681';
+import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js?v=88f4b1116681';
+import { R26_OLD_LOOK } from './hero-r26.js?v=88f4b1116681';
+import { R27_OLD_LOOK } from './hero-r27.js?v=88f4b1116681';
+import { R29_OLD_LOOK } from './hero-r29.js?v=88f4b1116681';
+import { R33_OLD_LOOK, masc33 } from './hero-r33.js?v=88f4b1116681';
 
 export const CW = 16;
 export const CH = 21;
@@ -270,6 +270,8 @@ const NPC_LOOKS = {
   banker_m: { hair: 5, hairStyle: 'short', skin: 0, outfit: 'vest', cloth: '#3a4a6a', glasses: true, beard: true },
   smith: { hair: 0, hairStyle: 'bald', skin: 1, outfit: 'apron', cloth: '#5a3a2a', beard: true, hat: 'headband', hatColor: '#c83a3a' },
   apprentice: { hair: 3, hairStyle: 'spiky', skin: 1, outfit: 'apron', cloth: '#6a4a2a', hat: 'bandana', hatColor: '#3f7fd0' },
+  // 乗り物屋のハヤテ（第37回）
+  vehicle_keeper: { hair: 3, hairStyle: 'spiky', skin: 1, outfit: 'tunic', cloth: '#2a8a8a', hat: 'cap' },
   // ひみつのダンジョン（入口の 案内人・休み所の ようせい）
   sd_guide: { hair: 5, hairStyle: 'long', skin: 0, outfit: 'robe', robeMain: '#3a2a5a', robeTrim: '#c8a0ff', beard: true, hat: 'wizard', hatColor: '#3a2a5a', cane: true },
   sd_fairy: { hair: 6, hairStyle: 'twin', skin: 0, outfit: 'dress', cloth: '#7ad8c8', female: true, small: true, hat: 'veil' },

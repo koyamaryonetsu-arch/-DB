@@ -11,17 +11,17 @@
 // ・仲間 … 両方の 仲間を のこす（べつべつに 仲間に なった まものは 両方とも。家族の パーティーで 酒場に 来た まものも おなじ）
 // ・預かり所 … お金も 品物も、両方で 預けた・引き出した ぶんを たす
 // ・いる場所・HP・作戦 など … 両方で かわって いたら、あとで 遊んだ ほう
-import { expForLevel, MAX_LEVEL, computeStats } from '../stats.js?v=6ba421b76da0';
-import { JOBS, JOB_MAX_LEVEL, jobBattlesForLevel } from '../data/jobs.js?v=6ba421b76da0';
-import { ITEMS, SLOTS } from '../data/items.js?v=6ba421b76da0';
-import { STORY_STEPS } from '../data/story.js?v=6ba421b76da0';
-import { COMPANION_SLOTS } from '../data/companions.js?v=6ba421b76da0';
-import { WAGON_SLOTS } from '../data/wagon.js?v=6ba421b76da0';
-import { repairChar } from './save.js?v=6ba421b76da0';
-import { mergeTreasureMaps } from '../data/treasure.js?v=6ba421b76da0';
-import { mergeSecret } from '../data/secret.js?v=6ba421b76da0';
-import { mergeAlchemy } from './alchemy.js?v=6ba421b76da0';
-import { COIN_MAX } from '../data/casino.js?v=6ba421b76da0';
+import { expForLevel, MAX_LEVEL, computeStats } from '../stats.js?v=88f4b1116681';
+import { JOBS, JOB_MAX_LEVEL, jobBattlesForLevel } from '../data/jobs.js?v=88f4b1116681';
+import { ITEMS, SLOTS } from '../data/items.js?v=88f4b1116681';
+import { STORY_STEPS } from '../data/story.js?v=88f4b1116681';
+import { COMPANION_SLOTS } from '../data/companions.js?v=88f4b1116681';
+import { WAGON_SLOTS } from '../data/wagon.js?v=88f4b1116681';
+import { repairChar } from './save.js?v=88f4b1116681';
+import { mergeTreasureMaps } from '../data/treasure.js?v=88f4b1116681';
+import { mergeSecret } from '../data/secret.js?v=88f4b1116681';
+import { mergeAlchemy } from './alchemy.js?v=88f4b1116681';
+import { COIN_MAX } from '../data/casino.js?v=88f4b1116681';
 
 const GOLD_MAX = 9999999;
 const clone = (x) => (x === undefined ? undefined : JSON.parse(JSON.stringify(x)));
@@ -157,6 +157,8 @@ function mergeBody(b, a, t, tLater) {
       case 'sparkles': out.sparkles = eachKey(vb, va, vt, (x, y, z) => Math.max(num(y), num(z)) || undefined); break;
       case 'explored': out.explored = eachKey(vb, va, vt, (x, y, z) => orBits(y, z)); break;
       case 'keyItems': out.keyItems = mergeSet(vb, va, vt); break;
+      // 乗り物（第37回）: どちらかで 買えば 持っている
+      case 'vehicles': out.vehicles = mergeSet(vb, va, vt); break;
       case 'treasureMaps': out.treasureMaps = mergeTreasureMaps(vb, va, vt); break;
       // ひみつのダンジョンの 記録（深い ほう。もらった ごほうびは 両方）
       case 'sd': out.sd = mergeSecret(vb, va, vt); break;

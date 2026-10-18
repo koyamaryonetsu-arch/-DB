@@ -13,20 +13,20 @@
 //   合体技（ミナデインも）・にげる・混乱した 時の 行動は 読まれない（読みは 消える）
 // ・オートの 仲間: 読まれた 種類の 行動を さけて、ちがう 行動を えらぶ（towerPlan）。シミュレーター（tools/sim.js）の
 //   b.argosNaive … 知らない 人（読まれても そのまま）／ b.knowsArgos … 知っている 人（星のさばきの 前に 身を 守る も）
-import { MONSTERS } from './data/monsters.js?v=6ba421b76da0';
-import { ABILITIES } from './data/abilities.js?v=6ba421b76da0';
-import { abilityFor } from './ability-label.js?v=6ba421b76da0';
-import { ITEMS } from './data/items.js?v=6ba421b76da0';
-import { mpCost, penaltyFor } from './stats.js?v=6ba421b76da0';
+import { MONSTERS } from './data/monsters.js?v=88f4b1116681';
+import { ABILITIES } from './data/abilities.js?v=88f4b1116681';
+import { abilityFor } from './ability-label.js?v=88f4b1116681';
+import { ITEMS } from './data/items.js?v=88f4b1116681';
+import { mpCost, penaltyFor } from './stats.js?v=88f4b1116681';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { atbRate } from './battle.js?v=6ba421b76da0';
-import { canUse } from './ai.js?v=6ba421b76da0';
+import { atbRate } from './battle.js?v=88f4b1116681';
+import { canUse } from './ai.js?v=88f4b1116681';
 // 第5章 Step 4: ガイアイーターの 多部位の 戦い（battle-gaia.js。ここから よぶ）
-import { gaiaEffect, gaiaCond, gaiaKill, gaiaPlan, gaiaPub } from './battle-gaia.js?v=6ba421b76da0';
+import { gaiaEffect, gaiaCond, gaiaKill, gaiaPlan, gaiaPub } from './battle-gaia.js?v=88f4b1116681';
 // 第5章 Step 5: ノクトの影（職業の まね・合体技の よやくを こわす。battle-nocto.js。ここから よぶ）
-import { noctoCond, noctoEffect, noctoCheck, noctoKill, noctoPlan, noctoPub } from './battle-nocto.js?v=6ba421b76da0';
+import { noctoCond, noctoEffect, noctoCheck, noctoKill, noctoPlan, noctoPub } from './battle-nocto.js?v=88f4b1116681';
 // 第5章 Step 6・7: ノクト（1回目）・大地の神殿の 魔物（かげぶんしん・地われ・まもる・おこる。battle-earth.js。ここから よぶ）
-import { earthCond, earthEffect, earthKill, earthPlan, earthPub, earthTurnStart } from './battle-earth.js?v=6ba421b76da0';
+import { earthCond, earthEffect, earthKill, earthPlan, earthPub, earthTurnStart } from './battle-earth.js?v=88f4b1116681';
 
 export const ARGOS = 'argos';
 export const JUDGE = 'm_argos_judge';

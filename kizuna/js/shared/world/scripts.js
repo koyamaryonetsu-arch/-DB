@@ -1,18 +1,18 @@
 // だいほん（イベント）を すすめる しくみ
-import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js?v=6ba421b76da0';
-import { ITEMS } from '../data/items.js?v=6ba421b76da0';
-import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js?v=6ba421b76da0';
-import { startFixedBattle } from './battles.js?v=6ba421b76da0';
-import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=6ba421b76da0';
-import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion, befriendLevel } from './party.js?v=6ba421b76da0';
-import { sayFarewell } from './farewell.js?v=6ba421b76da0';
-import { shareBefriend } from './recruit-share.js?v=6ba421b76da0';
-import { openService } from './services.js?v=6ba421b76da0';
-import { isNightFor, advanceClock, fracFor } from './clock.js?v=6ba421b76da0';
-import { grantWagon, wagonChars, wagonHere } from './wagon.js?v=6ba421b76da0';
-import { GUESTS } from '../data/shops.js?v=6ba421b76da0';
-import { unstickAll } from './hazards.js?v=6ba421b76da0';
-import { MAPS, isBlocked } from '../maps/index.js?v=6ba421b76da0';
+import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js?v=88f4b1116681';
+import { ITEMS } from '../data/items.js?v=88f4b1116681';
+import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js?v=88f4b1116681';
+import { startFixedBattle } from './battles.js?v=88f4b1116681';
+import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=88f4b1116681';
+import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion, befriendLevel } from './party.js?v=88f4b1116681';
+import { sayFarewell } from './farewell.js?v=88f4b1116681';
+import { shareBefriend } from './recruit-share.js?v=88f4b1116681';
+import { openService } from './services.js?v=88f4b1116681';
+import { isNightFor, advanceClock, fracFor } from './clock.js?v=88f4b1116681';
+import { grantWagon, wagonChars, wagonHere } from './wagon.js?v=88f4b1116681';
+import { GUESTS } from '../data/shops.js?v=88f4b1116681';
+import { unstickAll } from './hazards.js?v=88f4b1116681';
+import { MAPS, isBlocked } from '../maps/index.js?v=88f4b1116681';
 
 let runSeq = 1;
 
@@ -445,7 +445,7 @@ export class ScriptRun {
           }
           break;
         }
-        case 'shop': case 'jobChange': case 'tavern': case 'board': case 'starTrade': case 'church': case 'bank': case 'forge': case 'casino': case 'medalKing': case 'salon': {
+        case 'shop': case 'jobChange': case 'tavern': case 'board': case 'starTrade': case 'church': case 'bank': case 'forge': case 'casino': case 'medalKing': case 'salon': case 'vehicles': {
           const r = await this.flush();
           if (r.aborted) return this.abort();
           const ui = openService(w, this.init, op, a[0]);

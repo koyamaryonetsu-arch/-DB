@@ -49,4 +49,6 @@ export const FACILITY_SCRIPTS = {
   // 第3章: 鉱山の町カナトコ（テツジイは story-ch3.js）
   bank_kanatoko: () => [['bank', 'kanatoko']],
   forge_kanatoko: () => [['forge', 'kanatoko']],
+  // 第37回: 乗り物屋（ルミナの町。data/vehicles.js・world/vehicles.js）
+  vehicle_shop: () => [['vehicles']],
 };

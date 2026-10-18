@@ -1,21 +1,21 @@
 // マップの ぜんたい（フィールド・どうくつ）と、そこに いる 人や たからばこ
-import { T, parseRows, TILE_INFO } from '../tiles.js?v=6ba421b76da0';
-import { makeRng, hash2 } from '../rng.js?v=6ba421b76da0';
-import { buildOverworld, PLACES, zoneAt, areaName, OW_W, OW_H, CAVE_ENTRANCE, FOREST_CLEARING, LAKE, SWAMP } from './overworld.js?v=6ba421b76da0';
-import { CAVE_B1_ROWS, CAVE_B2_ROWS } from './cave-rows.js?v=6ba421b76da0';
-import { npc } from './npc.js?v=6ba421b76da0';
-import { buildCh2Maps, SEA_PLACES } from './ch2.js?v=6ba421b76da0';
-import { buildTreasureFloor } from './treasure-cave.js?v=6ba421b76da0';
-import { buildSecretFloor, buildSecretMaps, SD_DOOR_NPCS, SD_DOOR_TRIGGERS, SD_DOOR_SIGNS } from './secret-dungeon.js?v=6ba421b76da0';
-import { addNightNpcs } from './night-npcs.js?v=6ba421b76da0';
-import { attachCasino } from './casino.js?v=6ba421b76da0';
-import { buildCh3Maps, ch3SearchMats, NORTH_SPARKLE_LOOT } from './ch3.js?v=6ba421b76da0';
-import { buildCh4Maps, ch4SearchMats, SOUTH_SPARKLE_LOOT } from './ch4.js?v=6ba421b76da0';
-import { attachLab } from './labyrinth.js?v=6ba421b76da0';
-import { attachTower } from './tower.js?v=6ba421b76da0';
-import { attachKumoi } from './kumoi.js?v=6ba421b76da0';
-import { attachHoshiyomi } from './hoshiyomi.js?v=6ba421b76da0';
-import { attachEarth } from './earth.js?v=6ba421b76da0';
+import { T, parseRows, TILE_INFO } from '../tiles.js?v=88f4b1116681';
+import { makeRng, hash2 } from '../rng.js?v=88f4b1116681';
+import { buildOverworld, PLACES, zoneAt, areaName, OW_W, OW_H, CAVE_ENTRANCE, FOREST_CLEARING, LAKE, SWAMP } from './overworld.js?v=88f4b1116681';
+import { CAVE_B1_ROWS, CAVE_B2_ROWS } from './cave-rows.js?v=88f4b1116681';
+import { npc } from './npc.js?v=88f4b1116681';
+import { buildCh2Maps, SEA_PLACES } from './ch2.js?v=88f4b1116681';
+import { buildTreasureFloor } from './treasure-cave.js?v=88f4b1116681';
+import { buildSecretFloor, buildSecretMaps, SD_DOOR_NPCS, SD_DOOR_TRIGGERS, SD_DOOR_SIGNS } from './secret-dungeon.js?v=88f4b1116681';
+import { addNightNpcs } from './night-npcs.js?v=88f4b1116681';
+import { attachCasino } from './casino.js?v=88f4b1116681';
+import { buildCh3Maps, ch3SearchMats, NORTH_SPARKLE_LOOT } from './ch3.js?v=88f4b1116681';
+import { buildCh4Maps, ch4SearchMats, SOUTH_SPARKLE_LOOT } from './ch4.js?v=88f4b1116681';
+import { attachLab } from './labyrinth.js?v=88f4b1116681';
+import { attachTower } from './tower.js?v=88f4b1116681';
+import { attachKumoi } from './kumoi.js?v=88f4b1116681';
+import { attachHoshiyomi } from './hoshiyomi.js?v=88f4b1116681';
+import { attachEarth } from './earth.js?v=88f4b1116681';
 
 const V = (x, y) => [PLACES.village.x + x, PLACES.village.y + y];
 const TW = (x, y) => [PLACES.town.x + x, PLACES.town.y + y];
@@ -86,6 +86,8 @@ const OVERWORLD_NPCS = [
   // 預かり所と ふしぎなかじ屋（南門の 東の たてもの。facilities.js）
   npc('town_banker', '預かり所のおねえさん', TW(27, 29), 'banker', 'bank_town'),
   npc('town_smith', 'かじ屋の親方', TW(31, 29), 'smith', 'forge_town'),
+  // 第37回: 乗り物屋（南の 広場の 下。data/vehicles.js）
+  npc('vehicle_keeper', '乗り物屋のハヤテ', TW(29, 24), 'vehicle_keeper', 'vehicle_shop', { dir: 'down' }),
 
   // フィールド
   npc('bridge_worker', '橋の番人', [123, 61], 'carpenter', 'bridge_worker'),
@@ -135,6 +137,8 @@ export const BOARD_NAMES = {
   general: 'よろず屋', weapon: '武器屋', armor: '防具屋', arms: '武器と防具の店', item: '道具屋', inn: '宿屋',
   church: '教会', bar: '酒場', temple: '星の神殿', harbor: '港長の家',
   bank: '預かり所', smith: 'かじ屋',
+  // 第37回
+  vehicle: '乗り物屋',
   // 第4章 王都サファラ
   palace: '宮殿', arena: '闘技場', scholar: '学者の家',
 };
@@ -152,6 +156,7 @@ const OVERWORLD_BOARDS = [
   board(TW(25, 9), 'temple'),
   board(TW(28, 32), 'bank'),
   board(TW(30, 32), 'smith'),
+  board(TW(30, 26), 'vehicle'),
 ];
 
 // ───────────── ワープ（出入り口） ─────────────
@@ -207,7 +212,9 @@ function buildMaps() {
       // 町
       ...[[3, 2, 9, 7, 'green'], [17, 2, 14, 8, 'white'], [35, 2, 10, 8, 'orange'], [3, 12, 8, 6, 'red'], [37, 12, 8, 6, 'blue'],
         [3, 21, 8, 6, 'teal'], [37, 21, 8, 6, 'brown'], [3, 28, 9, 6, 'purple'], [14, 29, 7, 5, 'pink'], [36, 29, 9, 5, 'brown'],
-        [26, 28, 7, 5, 'orange']]
+        [26, 28, 7, 5, 'orange'],
+        // 第37回: 乗り物屋
+        [26, 23, 7, 4, 'teal']]
         .map(([x, y, w, h, color]) => ({ x: PLACES.town.x + x, y: PLACES.town.y + y, w, h, color })),
     ],
     zoneAt, areaName,

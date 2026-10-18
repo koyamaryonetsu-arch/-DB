@@ -1,5 +1,5 @@
 // お店の かんばん（たてものに かける）と、地図の しるし
-import { Painter, makeCanvas, ctxOf } from './pixel.js?v=6ba421b76da0';
+import { Painter, makeCanvas, ctxOf } from './pixel.js?v=88f4b1116681';
 
 // しるしの え（9×9。'.' は とうめい）
 const ICONS = {
@@ -259,6 +259,21 @@ const ICONS = {
     ],
     pal: { b: '#5a3a22', W: '#fff6dc', l: '#8a98b0' },
   },
+  // 自転車（乗り物屋。第37回）
+  vehicle: {
+    rows: [
+      '.........',
+      '.....hh..',
+      '..ss..f..',
+      '...fffff.',
+      '.ooo.f.f.',
+      'o..oyo.oo',
+      'o.o.o.o.o',
+      'o...oo..o',
+      '.ooo..oo.',
+    ],
+    pal: { o: '#ffffff', f: '#ffd24a', h: '#2a2230', s: '#2a2230', y: '#ff6a6a' },
+  },
 };
 
 ICONS.general = ICONS.item;
@@ -297,6 +312,7 @@ const BOARD = {
   palace: ['#3a64b0', '#162a5a', '#6a94e0'],
   arena: ['#a83a2a', '#4a1a10', '#d8604a'],
   scholar: ['#6a4a8a', '#2a1a40', '#9a7ab8'],
+  vehicle: ['#2a8a8a', '#0f3a3a', '#5ab8b8'],
 };
 
 // たてものに かける かんばん（16×15）

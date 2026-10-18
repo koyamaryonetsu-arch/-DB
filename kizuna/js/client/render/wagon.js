@@ -1,11 +1,11 @@
 // 馬車（ほろ馬車と 馬）の ドット絵と、パーティーの うしろを ついてくる うごき
 //   よこむきは left を かく（right は はんてん）。down は 馬が てまえ、up は 馬車の うしろが てまえ
-import { Painter, scale2x, rimShade, outline2, flipCanvas } from './pixel.js?v=6ba421b76da0';
-import { MAPS, tileAt, onWater } from '../../shared/maps/index.js?v=6ba421b76da0';
-import { PLACES } from '../../shared/maps/overworld.js?v=6ba421b76da0';
-import { SEA_PLACES } from '../../shared/maps/ch2.js?v=6ba421b76da0';
-import { T } from '../../shared/tiles.js?v=6ba421b76da0';
-import { wagonMapOk } from '../../shared/data/wagon.js?v=6ba421b76da0';
+import { Painter, scale2x, rimShade, outline2, flipCanvas } from './pixel.js?v=88f4b1116681';
+import { MAPS, tileAt, onWater } from '../../shared/maps/index.js?v=88f4b1116681';
+import { PLACES } from '../../shared/maps/overworld.js?v=88f4b1116681';
+import { SEA_PLACES } from '../../shared/maps/ch2.js?v=88f4b1116681';
+import { T } from '../../shared/tiles.js?v=88f4b1116681';
+import { wagonMapOk } from '../../shared/data/wagon.js?v=88f4b1116681';
 
 const OUT = '#1b1330';
 const C = {
@@ -279,16 +279,17 @@ export function wagonDraws(field) {
   if (field.wagonHidden || field.game?.sky?.hidesFollowers?.()) return out;
   const g = field.game;
   const dt = Math.min(100, field.lastDt || 16);
-  const add = (key, holder, o, n) => {
+  // 乗り物に 乗っている 人の 馬車は かかない（みんなで 乗っている。第37回）。うごきは つづける
+  const add = (key, holder, o, n, hide = false) => {
     holder.wagonF = holder.wagonF || new WagonFollower();
     const pos = holder.wagonF.update(field, o, n, dt);
-    if (!pos) return;
+    if (!pos || hide) return;
     out.push({ key, canvas: wagonSprite(pos.dir, holder.wagonF.moving ? field.walkFrame(true) : 0), x: pos.x, y: pos.y, side: pos.dir === 'left' || pos.dir === 'right' });
   };
   const p = g.party;
-  if (g.me?.wagon && (!p || p.leader === g.sid) && !field.hideMe) add('wg:me', field, field.me, field.myFollowers().length);
+  if (g.me?.wagon && (!p || p.leader === g.sid) && !field.hideMe) add('wg:me', field, field.me, field.myFollowers().length, !!field.myVehicle?.());
   for (const o of field.others.values()) {
-    if (o.wg) add('wg:' + o.sid, o, o, (o.fl || []).filter((f) => !(field.hideGuests && f.guest)).length);
+    if (o.wg) add('wg:' + o.sid, o, o, (o.fl || []).filter((f) => !(field.hideGuests && f.guest)).length, !!field.otherVehicle?.(o));
   }
   return out;
 }
