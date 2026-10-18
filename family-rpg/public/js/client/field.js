@@ -20,6 +20,8 @@ import { drawTreasureGlow } from './render/treasure-glow.js';
 import { Weather } from './render/weather.js';
 import { flySpeed } from '../shared/data/sky.js';
 import { timeFlag } from '../shared/world/clock.js';
+import { vehicleCanvas, vehicleFrames, vehicleShadow } from './render/vehicle-art.js';
+import { rideShown, chosenVehicle } from '../shared/data/vehicles.js';
 
 const SPEED = 4.6; // マス/びょう
 const RUN = 1.35; // はしると この ばい（はやすぎない ように）
@@ -457,10 +459,11 @@ export class Field {
     // サーバーへ いちを おくる
     this.moveTimer -= dt;
     const tileChanged = Math.floor(me.x) !== Math.floor(this.lastSent.x) || Math.floor(me.y) !== Math.floor(this.lastSent.y);
-    if ((this.moveTimer <= 0 && (Math.abs(me.x - this.lastSent.x) > 0.01 || Math.abs(me.y - this.lastSent.y) > 0.01 || this.lastSent.moving !== me.moving)) || tileChanged) {
+    if ((this.moveTimer <= 0 && (Math.abs(me.x - this.lastSent.x) > 0.01 || Math.abs(me.y - this.lastSent.y) > 0.01 || this.lastSent.moving !== me.moving || this.lastSent.running !== !!me.running)) || tileChanged) {
       this.moveTimer = 100;
-      this.lastSent = { x: me.x, y: me.y, moving: me.moving };
-      this.game.net.send({ t: 'move', x: +me.x.toFixed(3), y: +me.y.toFixed(3), dir: me.dir, moving: me.moving, seq: this.game.posSeq, follow: !!this.game.follow });
+      this.lastSent = { x: me.x, y: me.y, moving: me.moving, running: !!me.running };
+      // run … 走っている（ほかの 人に 乗り物の 絵を 見せる。第37回）
+      this.game.net.send({ t: 'move', x: +me.x.toFixed(3), y: +me.y.toFixed(3), dir: me.dir, moving: me.moving, run: !!me.running, seq: this.game.posSeq, follow: !!this.game.follow });
     }
     // モンスターに ふれた？・たたかっている なかまの ところに きた？
     if (canMove && !flying) {
@@ -797,7 +800,7 @@ export class Field {
         o = { sid: p.sid, x: p.x, y: p.y, trail: [] };
         this.others.set(p.sid, o);
       }
-      Object.assign(o, { name: p.name, look: p.look, job: p.job, eq: p.eq, tx: p.x, ty: p.y, dir: p.dir, moving: !!p.mv, battle: !!p.b, away: !!p.aw, partyId: p.pid, fl: p.fl || [], air: !!p.air, ride: !!p.ride, wg: !!p.wg });
+      Object.assign(o, { name: p.name, look: p.look, job: p.job, eq: p.eq, tx: p.x, ty: p.y, dir: p.dir, moving: !!p.mv, battle: !!p.b, away: !!p.aw, partyId: p.pid, fl: p.fl || [], air: !!p.air, ride: !!p.ride, wg: !!p.wg, vh: p.vh || null });
       o.mt = p.mt || null; // のりもの（'dragon' … 星の竜。sky.js）
       // リーダーの とおった みちを おぼえる（ついていく ため）
       if (this.game.follow && p.sid === this.game.party?.leader) {
@@ -1018,11 +1021,11 @@ export class Field {
       o.fl.forEach((f, i) => {
         if (this.hideGuests && f.guest) return;
         const tp = this.trailPos(o, i + 1);
-        if (tp && !o.air && !this.isOnWater(tp.x, tp.y)) objs.push({ y: tp.y, draw: () => this.drawAt(followerSprite(f, tp.dir, this.walkFrame(o.moving)), tp.x, tp.y, camX, camY) });
+        if (tp && !o.air && !this.otherVehicle(o) && !this.isOnWater(tp.x, tp.y)) objs.push({ y: tp.y, draw: () => this.drawAt(followerSprite(f, tp.dir, this.walkFrame(o.moving)), tp.x, tp.y, camX, camY) });
       });
     }
     // じぶんの なかま（酒場の なかま・モンスター・ゲスト）
-    const fl = this.myFollowers();
+    const fl = this.myVehicle() ? [] : this.myFollowers(); // 乗り物に 乗っている 間は みんなで 乗っている（第37回）
     fl.forEach((f, i) => {
       const tp = this.trailPos(this.me, i + 1);
       if (tp && !this.riding && !this.game.sky?.hidesFollowers() && !this.isOnWater(tp.x, tp.y)) objs.push({ y: tp.y, draw: () => this.drawAt(followerSprite(f, tp.dir, this.walkFrame(this.myStep)), tp.x, tp.y, camX, camY) });
@@ -1283,15 +1286,20 @@ export class Field {
       if (this.game.sky?.entity3d(this, o, false, out, o.look, o.job, o.eq)) continue;
       const mate = o.partyId === this.game.party?.id;
       const oShip = this.isOnWater(o.x, o.y);
-      const oc = oShip ? shipSprite(o.dir || 'down', this.shipFrame(), this.map.ship) : playerSprite(o.look, o.job, o.dir || 'down', this.walkFrame(o.moving), o.eq);
-      out.push({ key: 'p:' + o.sid, canvas: oc, x: o.x, y: o.y, alpha: o.away ? 0.45 : 1, ghost: mate ? '#ffd66b' : null, ...(oShip ? SHIP3D : {}) });
+      const oVeh = !oShip && this.otherVehicle(o);
+      const oc = oShip ? shipSprite(o.dir || 'down', this.shipFrame(), this.map.ship)
+        : oVeh ? this.vehicleSprite(oVeh, o.look, o.job, o.eq, o.dir)
+          : playerSprite(o.look, o.job, o.dir || 'down', this.walkFrame(o.moving), o.eq);
+      out.push({ key: 'p:' + o.sid, canvas: oc, x: o.x, y: o.y, alpha: o.away ? 0.45 : 1, ghost: mate ? '#ffd66b' : null, ...(oShip ? SHIP3D : {}), ...(oVeh ? { shadowScale: vehicleShadow(oVeh) } : {}) });
       o.fl.forEach((f, i) => {
         if (this.hideGuests && f.guest) return;
+        if (oVeh) return;
         const tp = this.trailPos(o, i + 1);
         if (tp && !this.isOnWater(tp.x, tp.y)) out.push({ key: `pf:${o.sid}:${i}`, canvas: followerSprite(f, tp.dir, this.walkFrame(o.moving)), x: tp.x, y: tp.y, anchor: f.mon ? 2 : undefined });
       });
     }
-    this.myFollowers().forEach((f, i) => {
+    const myVeh = this.myVehicle();
+    (myVeh ? [] : this.myFollowers()).forEach((f, i) => {
       const tp = this.trailPos(this.me, i + 1);
       if (tp && !this.riding && !this.game.sky?.hidesFollowers() && !this.isOnWater(tp.x, tp.y)) out.push({ key: 'mf:' + i, canvas: followerSprite(f, tp.dir, this.walkFrame(this.myStep)), x: tp.x, y: tp.y, anchor: f.mon ? 2 : undefined });
     });
@@ -1304,8 +1312,9 @@ export class Field {
     if (!this.hideMe && this.game.me) {
       const ship = this.isOnWater(this.me.x, this.me.y);
       const mc = ship ? shipSprite(this.me.dir || 'down', this.shipFrame(), this.map.ship)
-        : playerSprite(this.game.me.look, this.game.me.job, this.me.dir || 'down', this.walkFrame(this.myStep), shownEquip(this.game.me));
-      out.push({ key: 'me', canvas: mc, x: this.me.x, y: this.me.y, ghost: '#9fd6ff', ...(ship ? SHIP3D : {}) });
+        : myVeh ? this.vehicleSprite(myVeh, this.game.me.look, this.game.me.job, shownEquip(this.game.me), this.me.dir)
+          : playerSprite(this.game.me.look, this.game.me.job, this.me.dir || 'down', this.walkFrame(this.myStep), shownEquip(this.game.me));
+      out.push({ key: 'me', canvas: mc, x: this.me.x, y: this.me.y, ghost: '#9fd6ff', ...(ship ? SHIP3D : {}), ...(myVeh && !ship ? { shadowScale: vehicleShadow(myVeh) } : {}) });
       // トロッコに のっている（第3章）
       if (this.riding) out.push({ key: 'me:cart', canvas: npcSprite('minecart', this.me.dir, this.walkFrame(true)), x: this.me.x, y: this.me.y + 0.06, shadow: false });
     }
@@ -1336,6 +1345,31 @@ export class Field {
   // 点と 点の 間を なめらかに うめる（trailAt。test/ui-r35.test.js）
   trailPos(o, n) {
     return trailAt(o, n * 0.95);
+  }
+
+  // ───────────── 乗り物（第37回。data/vehicles.js・render/vehicle-art.js） ─────────────
+  // 自分: えらんだ 乗り物に、走っている 時だけ 乗る。船・大鳥・竜・トロッコ・イベントで かくれている 時は 乗らない
+  myVehicle() {
+    const me = this.me, sky = this.game.sky;
+    return rideShown(chosenVehicle(this.game.me), {
+      running: !!(me.moving && me.running),
+      ship: !!this.map && this.isOnWater(me.x, me.y),
+      air: !!(sky?.flying || sky?.anim),
+      cart: !!this.riding,
+      hidden: !!this.hideMe || !!sky?.ridingAlong?.(),
+    });
+  }
+
+  // ほかの 人: サーバーの いちの じょうほう（vh … 走って 乗っている 時だけ とどく）
+  otherVehicle(o) {
+    return rideShown(o?.vh, { running: !!o?.moving, ship: !!this.map && this.isOnWater(o.x, o.y), air: !!o?.air });
+  }
+
+  // 人を のせた 乗り物の 絵（コマは 時間で。3コマの 乗り物も ある）
+  vehicleSprite(id, look, job, eq, dir) {
+    const f = Math.floor(this.time / 120) % vehicleFrames(id);
+    const key = `${heroLookKey(look)}:${job}:${equipKey(eq, job)}`;
+    return vehicleCanvas(id, key, (d, fr) => playerSprite(look, job, d, fr, eq), dir || 'down', f);
   }
 
   myFollowers() {
@@ -1381,8 +1415,10 @@ export class Field {
 
   drawPlayerOnFoot(o, camX, camY, look, job, mine = false, eq = undefined) {
     const ship = this.isOnWater(o.x, o.y);
+    const veh = !ship && (mine ? this.myVehicle() : this.otherVehicle(o));
     const c = ship ? shipSprite(o.dir || 'down', this.shipFrame(), this.map.ship)
-      : playerSprite(look, job, o.dir || 'down', this.walkFrame(mine ? this.myStep : o.moving), eq);
+      : veh ? this.vehicleSprite(veh, look, job, eq, o.dir)
+        : playerSprite(look, job, o.dir || 'down', this.walkFrame(mine ? this.myStep : o.moving), eq);
     const ctx = this.ctx;
     const myParty = this.game.party?.id;
     // なかまが たたかっている: あしもとに ひかる わ（ちかづくと さんか できる）

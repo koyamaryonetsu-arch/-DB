@@ -2,6 +2,7 @@
 //
 // クライアントとは メッセージ（JSON）で やりとりする。
 // つなぎかたは なんでも よい（WebSocket でも ブラウザ内の ちょくせつ呼び出しでも）。
+import { vehicleSnap } from './vehicles.js';
 import { makeRng } from '../rng.js';
 import { MAPS, isBlocked, effectiveTile, condOk, searchLoot, sparkleLoot, tileAt, POS, SEA_PLACES, standSpot } from '../maps/index.js';
 import { PLACES } from '../maps/overworld.js';
@@ -547,6 +548,8 @@ export class GameWorld {
     s.y = y;
     s.dir = ['up', 'down', 'left', 'right'].includes(msg.dir) ? msg.dir : s.dir;
     s.moving = !!msg.moving;
+    // 走っている（乗り物の 絵。world/vehicles.js）
+    s.running = !!msg.run && s.moving;
     s.follow = !!msg.follow;
     const tx = Math.floor(x), ty = Math.floor(y);
     // こうふくのくつ: 歩いた マスを 数える（world/perks.js）
@@ -1060,6 +1063,8 @@ export class GameWorld {
           ...(p.flying ? { air: 1, ride: ridingAlong(this, p) ? 1 : 0 } : {}),
           // 星の竜に のって とんでいる（第3章の あと。client/sky.js が 竜の え に する）
           ...(p.flying && p.char.flags?.c3_dragon ? { mt: p.char.flags?.c5_wings ? 'star_dragon' : 'dragon' } : {}),
+          // 走って 乗り物に 乗っている（第37回。client/field.js が その 乗り物の 絵に する）
+          ...(vehicleSnap(p) ? { vh: vehicleSnap(p) } : {}),
         }));
         for (const p of players) {
           const fc = fieldChestSnap(p, ms);

@@ -15,6 +15,7 @@ import { repairAlchemy } from './alchemy.js';
 import { normBank } from './bank.js';
 import { cleanWagon } from '../data/wagon.js';
 import { cleanLookEquip } from '../look-equip.js';
+import { cleanVehicles } from '../data/vehicles.js';
 
 export const SAVE_VERSION = 4;
 
@@ -132,6 +133,8 @@ export function repairChar(c, id) {
   }
   // 見た目装備（ない ことも ある。新しい 項目なので 版は 上げない。shared/look-equip.js）
   cleanLookEquip(c);
+  // 乗り物（第37回。ない ことも ある。新しい 項目なので 版は 上げない。data/vehicles.js）
+  if (!c.species) cleanVehicles(c);
 
   // 職業（知らない 職業なら 戦士に して、もとの 職業を おぼえておく）
   if (!c.species) {

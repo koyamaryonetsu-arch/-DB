@@ -6,6 +6,7 @@ import { ABILITIES } from '../../shared/data/abilities.js';
 import { abilityFor } from '../../shared/ability-label.js';
 import { jobFor, jobLabel, jobHint } from '../../shared/job-label.js';
 import { salonUI } from './salon.js';
+import { vehicleShopUI } from './vehicles.js';
 import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered, canEquip } from '../../shared/stats.js';
 import { MONSTERS } from '../../shared/data/monsters.js';
 import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES, breedOutcome, breedRumors, rankOf, monsterLevelCap, SPECIAL_KINDS } from '../../shared/data/companions.js';
@@ -30,6 +31,8 @@ export function openServiceUI(game, kind, data) {
     case 'jobChange': return jobUI(game);
     case 'tavern': return tavernUI(game, data);
     case 'salon': return salonUI(game, data);
+    // 乗り物屋（第37回。ui/vehicles.js）
+    case 'vehicles': return vehicleShopUI(game, data);
     case 'board': return boardUI(game, data);
     case 'starTrade': return starUI(game, data);
     case 'church': return churchUI(game, data);

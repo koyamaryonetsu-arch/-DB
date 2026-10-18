@@ -29,6 +29,7 @@ import { usePowder } from './powder.js';
 import { bestEquipPlan, bestTeamOrder } from '../equip-plan.js';
 import { setLookEquip } from '../look-equip.js';
 import { jobDoneText } from '../data/job-talk.js';
+import { vehicleShopInfo, vehicleShopAction, vehicleMenuAction } from './vehicles.js';
 
 export function openService(world, s, kind, arg) {
   switch (kind) {
@@ -42,6 +43,8 @@ export function openService(world, s, kind, arg) {
     case 'jobChange': return { jobs: ALL_JOBS };
     case 'tavern': return tavernInfo(world, s);
     case 'salon': return salonInfo(world, s);
+    // 乗り物屋（第37回。world/vehicles.js）
+    case 'vehicles': return vehicleShopInfo(world, s);
     case 'board': return { posts: world.data.board || [] };
     case 'starTrade': return { trades: STAR_TRADES };
     case 'church': return churchInfo(world, s);
@@ -247,6 +250,7 @@ export function serviceAction(world, s, msg) {
       return;
     }
     case 'salon': return salonAction(world, s, msg, reply);
+    case 'vehicles': return vehicleShopAction(world, s, msg, reply);
     // 馬車の 総入れかえ（メニューから。へんじを まてるように お店と おなじ 形で。world/wagon.js）
     case 'wagon': {
       if (s.busy) return reply(false, '今はできません');
@@ -393,6 +397,11 @@ export function menuAction(world, s, msg) {
     // 見た目装備（強さは かわらない。えらべるのは 持っている 物だけ。shared/look-equip.js）
     //   msg.slot … 'weapon'・'armor'・'shield'・'head'（'all' で ぜんぶ もどす）
     //   msg.id … null（今の装備と同じ）・'none'（装備なし）・品物の ID
+    // 乗り物を えらぶ・乗らない（第37回。world/vehicles.js）
+    case 'vehicle': {
+      const r = vehicleMenuAction(world, s, msg);
+      return reply(r.ok, r.text);
+    }
     case 'lookEquip': {
       const who = ownChar(s, msg.who);
       if (!who) return reply(false, '');

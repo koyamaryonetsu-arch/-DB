@@ -187,6 +187,8 @@ export function gameFiles() {
     'public/js/client/ui/bank.js', 'public/js/client/ui/forge.js',
     // 馬車
     'public/js/shared/data/wagon.js', 'public/js/shared/world/wagon.js', 'public/js/client/ui/wagon.js', 'public/js/client/render/wagon.js',
+    // 乗り物（第37回）
+    'public/js/shared/data/vehicles.js', 'public/js/shared/world/vehicles.js', 'public/js/client/ui/vehicles.js', 'public/js/client/render/vehicle-art.js',
     // みちびきの糸（洞窟から 入り口へ）
     'public/js/shared/data/escape.js', 'public/js/shared/world/escape.js',
     // カジノ・小さなメダル・メダル王

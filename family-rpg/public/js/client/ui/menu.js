@@ -48,6 +48,7 @@ import { alchemyRow, alchemyUI, bindAlchemy } from './alchemy.js';
 import './r35-css.js';
 import { newsView } from './news.js';
 import { hasUnreadNews } from '../../shared/data/news.js';
+import { vehicleMenuView } from './vehicles.js';
 
 // 見た目装備の せつめい
 const LOOK_HELP = '見た目だけを、持っている装備に変える（強さは変わらない）\n職業で装備できない物も選べる。「装備なし」も選べる';
@@ -65,6 +66,8 @@ const MAIN = [
   { label: '強さ', value: 'status' },
   { label: '仲間', value: 'party' },
   { label: '作戦', value: 'tactics' },
+  // 第37回: 走る時に 乗る 乗り物（ui/vehicles.js）
+  { label: '乗り物', value: 'vehicle' },
   { label: '図鑑', value: 'zukan' },
   { label: 'マップ', value: 'map' },
   { label: 'クエスト', value: 'quest' },
@@ -274,6 +277,7 @@ export class FieldMenu {
       case 'status': this.main.append(this.statusView()); break;
       case 'party': this.main.append(this.partyView(false)); break;
       case 'tactics': this.main.append(this.tacticsView(false)); break;
+      case 'vehicle': this.main.append(vehicleMenuView(this, false)); break;
       case 'zukan': this.main.append(this.zukanView(false)); break;
       case 'map': this.main.append(el('div', { class: 'muted', text: '探検した場所の地図を見る。（Mキーでも開ける）\n次の行き先はピンク、たのまれごとは水色、報告できるときはみどりのしるし。' })); break;
       case 'quest': this.main.append(this.questView()); break;
@@ -377,6 +381,7 @@ export class FieldMenu {
       case 'equip': return this.openView(() => this.equipView(true));
       case 'party': return this.openView(() => this.partyView(true));
       case 'tactics': return this.openView(() => this.tacticsView(true));
+      case 'vehicle': return this.openView(() => vehicleMenuView(this, true));
       case 'zukan': return this.focusSub(this.zukanView(true));
       case 'settings': return this.focusSub(this.settingsView(true));
       case 'news':

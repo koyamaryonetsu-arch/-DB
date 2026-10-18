@@ -279,16 +279,17 @@ export function wagonDraws(field) {
   if (field.wagonHidden || field.game?.sky?.hidesFollowers?.()) return out;
   const g = field.game;
   const dt = Math.min(100, field.lastDt || 16);
-  const add = (key, holder, o, n) => {
+  // 乗り物に 乗っている 人の 馬車は かかない（みんなで 乗っている。第37回）。うごきは つづける
+  const add = (key, holder, o, n, hide = false) => {
     holder.wagonF = holder.wagonF || new WagonFollower();
     const pos = holder.wagonF.update(field, o, n, dt);
-    if (!pos) return;
+    if (!pos || hide) return;
     out.push({ key, canvas: wagonSprite(pos.dir, holder.wagonF.moving ? field.walkFrame(true) : 0), x: pos.x, y: pos.y, side: pos.dir === 'left' || pos.dir === 'right' });
   };
   const p = g.party;
-  if (g.me?.wagon && (!p || p.leader === g.sid) && !field.hideMe) add('wg:me', field, field.me, field.myFollowers().length);
+  if (g.me?.wagon && (!p || p.leader === g.sid) && !field.hideMe) add('wg:me', field, field.me, field.myFollowers().length, !!field.myVehicle?.());
   for (const o of field.others.values()) {
-    if (o.wg) add('wg:' + o.sid, o, o, (o.fl || []).filter((f) => !(field.hideGuests && f.guest)).length);
+    if (o.wg) add('wg:' + o.sid, o, o, (o.fl || []).filter((f) => !(field.hideGuests && f.guest)).length, !!field.otherVehicle?.(o));
   }
   return out;
 }

@@ -157,6 +157,8 @@ function mergeBody(b, a, t, tLater) {
       case 'sparkles': out.sparkles = eachKey(vb, va, vt, (x, y, z) => Math.max(num(y), num(z)) || undefined); break;
       case 'explored': out.explored = eachKey(vb, va, vt, (x, y, z) => orBits(y, z)); break;
       case 'keyItems': out.keyItems = mergeSet(vb, va, vt); break;
+      // 乗り物（第37回）: どちらかで 買えば 持っている
+      case 'vehicles': out.vehicles = mergeSet(vb, va, vt); break;
       case 'treasureMaps': out.treasureMaps = mergeTreasureMaps(vb, va, vt); break;
       // ひみつのダンジョンの 記録（深い ほう。もらった ごほうびは 両方）
       case 'sd': out.sd = mergeSecret(vb, va, vt); break;

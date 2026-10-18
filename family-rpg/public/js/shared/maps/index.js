@@ -86,6 +86,8 @@ const OVERWORLD_NPCS = [
   // 預かり所と ふしぎなかじ屋（南門の 東の たてもの。facilities.js）
   npc('town_banker', '預かり所のおねえさん', TW(27, 29), 'banker', 'bank_town'),
   npc('town_smith', 'かじ屋の親方', TW(31, 29), 'smith', 'forge_town'),
+  // 第37回: 乗り物屋（南の 広場の 下。data/vehicles.js）
+  npc('vehicle_keeper', '乗り物屋のハヤテ', TW(29, 24), 'vehicle_keeper', 'vehicle_shop', { dir: 'down' }),
 
   // フィールド
   npc('bridge_worker', '橋の番人', [123, 61], 'carpenter', 'bridge_worker'),
@@ -135,6 +137,8 @@ export const BOARD_NAMES = {
   general: 'よろず屋', weapon: '武器屋', armor: '防具屋', arms: '武器と防具の店', item: '道具屋', inn: '宿屋',
   church: '教会', bar: '酒場', temple: '星の神殿', harbor: '港長の家',
   bank: '預かり所', smith: 'かじ屋',
+  // 第37回
+  vehicle: '乗り物屋',
   // 第4章 王都サファラ
   palace: '宮殿', arena: '闘技場', scholar: '学者の家',
 };
@@ -152,6 +156,7 @@ const OVERWORLD_BOARDS = [
   board(TW(25, 9), 'temple'),
   board(TW(28, 32), 'bank'),
   board(TW(30, 32), 'smith'),
+  board(TW(30, 26), 'vehicle'),
 ];
 
 // ───────────── ワープ（出入り口） ─────────────
@@ -207,7 +212,9 @@ function buildMaps() {
       // 町
       ...[[3, 2, 9, 7, 'green'], [17, 2, 14, 8, 'white'], [35, 2, 10, 8, 'orange'], [3, 12, 8, 6, 'red'], [37, 12, 8, 6, 'blue'],
         [3, 21, 8, 6, 'teal'], [37, 21, 8, 6, 'brown'], [3, 28, 9, 6, 'purple'], [14, 29, 7, 5, 'pink'], [36, 29, 9, 5, 'brown'],
-        [26, 28, 7, 5, 'orange']]
+        [26, 28, 7, 5, 'orange'],
+        // 第37回: 乗り物屋
+        [26, 23, 7, 4, 'teal']]
         .map(([x, y, w, h, color]) => ({ x: PLACES.town.x + x, y: PLACES.town.y + y, w, h, color })),
     ],
     zoneAt, areaName,

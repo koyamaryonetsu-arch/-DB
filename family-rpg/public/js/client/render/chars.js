@@ -270,6 +270,8 @@ const NPC_LOOKS = {
   banker_m: { hair: 5, hairStyle: 'short', skin: 0, outfit: 'vest', cloth: '#3a4a6a', glasses: true, beard: true },
   smith: { hair: 0, hairStyle: 'bald', skin: 1, outfit: 'apron', cloth: '#5a3a2a', beard: true, hat: 'headband', hatColor: '#c83a3a' },
   apprentice: { hair: 3, hairStyle: 'spiky', skin: 1, outfit: 'apron', cloth: '#6a4a2a', hat: 'bandana', hatColor: '#3f7fd0' },
+  // 乗り物屋のハヤテ（第37回）
+  vehicle_keeper: { hair: 3, hairStyle: 'spiky', skin: 1, outfit: 'tunic', cloth: '#2a8a8a', hat: 'cap' },
   // ひみつのダンジョン（入口の 案内人・休み所の ようせい）
   sd_guide: { hair: 5, hairStyle: 'long', skin: 0, outfit: 'robe', robeMain: '#3a2a5a', robeTrim: '#c8a0ff', beard: true, hat: 'wizard', hatColor: '#3a2a5a', cane: true },
   sd_fairy: { hair: 6, hairStyle: 'twin', skin: 0, outfit: 'dress', cloth: '#7ad8c8', female: true, small: true, hat: 'veil' },
