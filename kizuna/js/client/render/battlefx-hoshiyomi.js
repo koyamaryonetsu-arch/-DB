@@ -2,7 +2,7 @@
 // （battlefx-kumoi.js の playKumoiFx の さいごに よばれる。ない anim なら false）
 // 色: 星＝白・黄・水色の きらきら、影＝こい むらさき・黒、なみだと さむけ＝水色・白、赤い 石＝赤
 // ノクトの影: ns_mimic（まねる。影が ゆらめいて 光の わ）・ns_bond_watch（前ぶれ。むらさきの くさりが あつまる）→ ns_bond_break（大技。くさりが はじける）
-import { ELEMENT_FX } from './battlefx-r27.js?v=cd32925e7010';
+import { ELEMENT_FX } from './battlefx-r27.js?v=0d59e2790100';
 
 const ICE = ELEMENT_FX.ice.colors, WIND = ELEMENT_FX.wind.colors;
 const STAR = ['#ffffff', '#fff4b0', '#b8d8ff', '#ffd848'];

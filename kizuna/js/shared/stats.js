@@ -1,13 +1,13 @@
 // キャラクターの つよさ計算・レベルアップ・転職ペナルティ
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_EASY_RATE, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets, jobBodyOk, superMasteredCount } from './data/jobs.js?v=cd32925e7010';
-import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=cd32925e7010';
-import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=cd32925e7010';
-import { MONSTERS } from './data/monsters.js?v=cd32925e7010';
-import { MONSTER_FRIENDS, monsterNatural, gearOf, monsterLevelCap } from './data/companions.js?v=cd32925e7010';
-import { HIRAMEKI, hiraRatio } from './data/hirameki.js?v=cd32925e7010';
-import { cleanLook } from './data/looks.js?v=cd32925e7010';
-import { SKILL_UPS } from './data/skill-ups.js?v=cd32925e7010';
-import { jobLabel } from './job-label.js?v=cd32925e7010';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_EASY_RATE, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets, jobBodyOk, superMasteredCount } from './data/jobs.js?v=0d59e2790100';
+import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=0d59e2790100';
+import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=0d59e2790100';
+import { MONSTERS } from './data/monsters.js?v=0d59e2790100';
+import { MONSTER_FRIENDS, monsterNatural, gearOf, monsterLevelCap } from './data/companions.js?v=0d59e2790100';
+import { HIRAMEKI, hiraRatio } from './data/hirameki.js?v=0d59e2790100';
+import { cleanLook } from './data/looks.js?v=0d59e2790100';
+import { SKILL_UPS } from './data/skill-ups.js?v=0d59e2790100';
+import { jobLabel } from './job-label.js?v=0d59e2790100';
 
 // 長い 物語に なるので レベルは 99まで（レベルで ふえる つよさは ひかえめ）
 export const MAX_LEVEL = 99;
