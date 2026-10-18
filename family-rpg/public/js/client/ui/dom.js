@@ -37,8 +37,10 @@ export class ListMenu {
   //   （戦いの 呪文・特技・道具。マウスは 先に カーソルが 合うので 1回で 決まる）
   // onLong: 行を 長おし（タッチ・マウス 0.5秒）した とき・Y（キーボードの Y・ゲームパッドの Y）を おした とき（第27回 戦いの お気に入り）。
   //   長おしでは その 行は 決まらない（はなした あとの クリックは すてる）
-  constructor(input, { items = [], cols = 1, onSelect, onCancel, onMove, onSide, sound, className = '', back, press = 0, start = -1, fit = false, tapConfirm = false, onLong = null } = {}) {
+  // onY: Y（キーボードの Y・ゲームパッドの Y）を おした とき（長おしでは よばない。第35回 道具の ならべかえ）
+  constructor(input, { items = [], cols = 1, onSelect, onCancel, onMove, onSide, sound, className = '', back, press = 0, start = -1, fit = false, tapConfirm = false, onLong = null, onY = null } = {}) {
     this.input = input;
+    this.onY = onY;
     this.tapConfirm = tapConfirm;
     this.onLong = onLong;
     this.fitText = fit;
@@ -59,7 +61,7 @@ export class ListMenu {
     // pad: スマホでは 十字キーの パッドも 出す
     const self = this;
     // yKey: ゲームパッドの Y を「y」で とどける（長おしの かわり。onLong が ある ときだけ。input.js）
-    this.handler = { onNav: (a, rep) => this.nav(a, rep), pad: true, el: this.root, onGone: () => { this.active = false; }, get yKey() { return !!self.onLong; } };
+    this.handler = { onNav: (a, rep) => this.nav(a, rep), pad: true, el: this.root, onGone: () => { this.active = false; }, get yKey() { return !!(self.onLong || self.onY); } };
     this.active = false;
     this.render();
   }
@@ -345,6 +347,8 @@ export class ListMenu {
         return go(best.i);
       }
     }
+    // Y: onY が あれば そちら（道具の ならべかえ）。なければ 長おしと おなじ
+    if (a === 'y' && this.onY) return this.onY(this.current, this.idx);
     // 列の はしで 左右 → onSide（タブを かえる など。1列の リストは いつも はし）
     if ((a === 'left' || a === 'right') && this.onSide && this.atEdge(a === 'left' ? -1 : 1, cols)) return this.onSide(a === 'left' ? -1 : 1);
     switch (a) {

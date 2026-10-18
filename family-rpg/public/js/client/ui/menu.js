@@ -475,7 +475,7 @@ export class FieldMenu {
     }))) : null;
     items.splice(0, items.length, ...cur.list);
     // ならべかえ（あいうえお順・種類順・手に入れた順）
-    const tabs = el('div', { class: 'tabs sort-tabs' }, el('span', { class: 'small muted', text: 'ならべかえ' }),
+    const tabs = el('div', { class: 'tabs sort-tabs' }, el('span', { class: 'small muted', text: g.input.touch ? 'ならべかえ' : 'ならべかえ（Y）' }),
       ...Object.entries(ITEM_SORTS).map(([k, label]) => el('button', {
         class: `btn ${k === mode ? 'on' : ''}`,
         text: label,
@@ -506,6 +506,13 @@ export class FieldMenu {
       },
       onSelect: (it) => this.itemAction(it),
       onSide: kinds.length > 1 ? (d) => goTab(kinds[(kinds.indexOf(cur) + d + kinds.length) % kinds.length].k) : null,
+      // 第35回: Y で ならべかえ（コントローラー・キーボード。タップは 上の ボタン）
+      onY: () => {
+        const keys = Object.keys(ITEM_SORTS);
+        setItemSortPref(keys[(keys.indexOf(mode) + 1) % keys.length]);
+        this.sfx('cursor');
+        this.focusSub(this.itemsList(true));
+      },
     });
     box.append(...(kindTabs ? [kindTabs] : []), tabs, m.root, detail);
     return box;

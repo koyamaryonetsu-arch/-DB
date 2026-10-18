@@ -266,7 +266,7 @@ export function gameFiles() {
     'public/js/shared/data/story-kumoi.js', 'public/js/shared/maps/kumoi.js', 'public/js/shared/maps/sink-ruin.js', 'public/js/shared/maps/sink-ruin-rows.js',
     'public/js/shared/data/shops-kumoi.js',
     // 第35回 A: 技の タブ・お知らせ
-    'public/js/shared/skill-tabs.js', 'public/js/shared/data/news.js', 'public/js/client/ui/news.js',
+    'public/js/shared/skill-tabs.js', 'public/js/shared/data/news.js', 'public/js/client/ui/news.js', 'public/js/client/battle-pad.js', 'public/js/client/ui/padnav.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

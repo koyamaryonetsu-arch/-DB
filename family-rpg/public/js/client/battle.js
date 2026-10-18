@@ -31,6 +31,7 @@ import { battleSkillText, battleItemText, favHint } from './ui/skillinfo.js';
 // 第35回: 技えらびの タブ（効果ごと）
 import { skillTabs, startTab, abilityElements } from '../shared/skill-tabs.js';
 import './ui/r35-css.js';
+import { bindBattlePad } from './battle-pad.js';
 import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js';
 import { ENEMY_RATE_NAMES } from '../shared/data/difficulty.js';
 import { ResultSheet } from './ui/result.js';
@@ -249,7 +250,9 @@ export class BattleScene {
     this.canvas = makeCanvas(BW * this.res, BH * this.res);
     this.ctx = ctxOf(this.canvas);
     this.floatEl = el('div', { class: 'b-float' });
-    this.autoBtn = el('button', { class: 'btn', text: 'オート', onclick: () => this.toggleAuto() });
+    this.autoBtn = el('button', { class: 'btn', text: 'オート', title: 'SELECT・Mキーでも（戦いのメニュー）', onclick: () => this.toggleAuto() });
+    // 第35回: SELECT・M で 戦いの メニュー（オート・作戦・合体技の よやくを やめる。battle-pad.js）
+    this.unbindPad = bindBattlePad(this);
     this.speedHint = el('div');
     const tools = el('div', { class: 'b-tools' }, this.autoBtn);
     // 敵の 強さ（ハード・ベリーハード・スーパーハード）の しるし
@@ -1814,6 +1817,7 @@ export class BattleScene {
 
   destroy() {
     this.destroyed = true;
+    this.unbindPad?.();
     this.closeTactics();
     this.closeResult?.();
     this.closeMenus();

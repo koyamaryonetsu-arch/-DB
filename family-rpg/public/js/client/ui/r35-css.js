@@ -31,6 +31,10 @@ const CSS = `
 .items-view > .item-tabs .btn.sel { color: #fff; border-color: var(--accent); background: rgba(255, 214, 107, 0.18); }
 .items-view > .tab-hint { flex: none; }
 
+/* 十字キーの カーソル（client/ui/padnav.js。ボタンの ならんだ 画面） */
+.pad-focus { outline: 3px solid #ffd66b !important; outline-offset: 2px !important; box-shadow: 0 0 0 2px #04061a, 0 0 12px rgba(255, 214, 107, 0.8) !important; }
+input.pad-focus { outline-offset: 0; }
+
 /* れん金がまの ボタン（client/ui/hud.js） */
 .hud-btn.hud-pot { color: #ffe9a8; border-color: #c9a24a; }
 

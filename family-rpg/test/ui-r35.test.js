@@ -10,6 +10,7 @@ import { checkFile, gameFiles } from '../tools/kanji-check.mjs';
 import { GameWorld } from '../public/js/shared/world/world.js';
 import { makeRng } from '../public/js/shared/rng.js';
 import { Bot } from './helpers.js';
+import { nearest } from '../public/js/client/ui/padnav.js';
 
 const src = (p) => fs.readFileSync(new URL(`../public/${p}`, import.meta.url), 'utf8');
 const ab = (id) => ABILITIES[id];
@@ -179,4 +180,42 @@ test('れん金がま: フィールドの 右の ボタン（大鳥・竜の ボ
   assert.match(h, /this\.btns\.append\(this\.potBtn\)/, 'hud-btns（sky.js の 大鳥の ボタンと おなじ 所）');
   assert.match(h, /if \(g\.state !== 'field' \|\| g\.busy \|\| g\.menuOpen \|\| !hasPot\(g\.me\)\) return;/);
   assert.match(h, /alchemyUI\(g\)\.finally/);
+});
+
+// ───────────── 6. コントローラーだけで 完結 ─────────────
+test('十字キーで ボタンの 画面: いちばん 近い ボタンへ（同じ 行・列を 先に）', () => {
+  const R = (left, top, w = 60, h = 30) => ({ left, top, right: left + w, bottom: top + h, width: w, height: h });
+  const name = R(0, 0, 600, 40); // 名前（はばが ひろい）
+  const male = R(0, 60), female = R(70, 60);
+  const prev = R(0, 120), next = R(300, 120);
+  const list = [name, male, female, prev, next];
+  assert.equal(nearest(name, list, 'down'), male, '下: 重なって いる 列の いちばん 近い もの');
+  assert.equal(nearest(male, list, 'right'), female);
+  assert.equal(nearest(female, list, 'left'), male);
+  assert.equal(nearest(female, list, 'down'), prev);
+  assert.equal(nearest(prev, list, 'right'), next);
+  assert.equal(nearest(male, list, 'up'), name);
+  assert.equal(nearest(name, list, 'up'), null, 'その 向きに ない ときは うごかない');
+});
+
+test('コントローラー: 転職の だれ・戦いの メニュー・大鳥の L・道具の ならべかえ・ボタンの 画面', () => {
+  const sv = src('js/client/ui/services.js');
+  assert.match(sv, /value: '__who'/, '転職: いちばん上の 行で だれを えらぶ');
+  assert.match(sv, /if \(menu\.current\?\.value === '__who'\) return nextWho\(d\);/, '左右で 人を かえる');
+  assert.match(sv, /if \(it\.value === '__who'\) return nextWho\(1\);/, 'A でも かえる');
+  const bp = src('js/client/battle-pad.js');
+  assert.match(bp, /a === 'map' \? battlePadMenu\(scene\)/, '戦い: SELECT・M で 戦いの メニュー');
+  for (const w of ['オートにする', 'の作戦', '合体技のよやくをやめる']) assert.ok(bp.includes(w), w);
+  assert.match(src('js/client/battle.js'), /this\.unbindPad = bindBattlePad\(this\);/);
+  const inp = src('js/client/input.js');
+  assert.match(inp, /if \(!repeat && this\.hot\?\.\(action\)\) return;/);
+  assert.match(inp, /if \(edge\('ride', b\(4\)\)\) this\.emit\('ride'\);/, 'ゲームパッドの L で 大鳥');
+  assert.match(src('js/client/game.js'), /else if \(a === 'ride'\) this\.sky\.padButton\(\);/);
+  assert.match(src('js/client/sky.js'), /if \(this\.flying && !this\.btn2\.hidden\) return this\.regionButton\(\);/);
+  assert.match(src('js/client/ui/menu.js'), /onY: \(\) => \{\n\s+const keys = Object\.keys\(ITEM_SORTS\);/, '道具: Y で ならべかえ');
+  assert.match(src('js/client/ui/dom.js'), /if \(a === 'y' && this\.onY\) return this\.onY\(this\.current, this\.idx\);/);
+  // タップ しか できなかった 画面に padNav（タイトル・キャラえらび・キャラを 作る・引っこしコード・スマホに 持っていく キャラ）
+  const t = src('js/client/ui/title.js');
+  assert.equal((t.match(/padNav\(/g) || []).length, 4);
+  assert.match(src('js/client/ui/syncui.js'), /padNav\(box, /);
 });
