@@ -8,17 +8,15 @@
 // ・6階の ノクトの 影（きまった 戦い nocto_shadow。B）→ c5_nshadow → 水しょうの 前に もどると 本物の ノクト（c5_nocto。「第5章の続きはアップデートで！」）
 // ・思い出の かけらを 6つ 全部 拾っていると、ノクトの 影の さいごの 場面と、ノクトの ことばが かわる（第6幕でも MEMORY_SHARD_FLAGS を 使う）
 // 里の まわりと 迷宮の 魔物・きまった 戦い nocto_shadow・里の 店の 品・迷宮の 宝箱の 品は B（戦い・品）が 作る（plan-ch5.md の 14）
-import { K5, KUMOI_POS, KUMOI_ROADS, KUMOI_VANES } from '../maps/kumoi.js?v=d72794b61b43';
+import { K5, KUMOI_POS, KUMOI_ROADS, KUMOI_VANES } from '../maps/kumoi.js?v=64263a381100';
 import {
   K6, HOSHIYOMI_POS, PRACTICE_ORDER, PRACTICE_FLAGS, PRACTICE_DONE, PRACTICE_PRIZE,
-} from '../maps/hoshiyomi.js?v=d72794b61b43';
+} from '../maps/hoshiyomi.js?v=64263a381100';
 import {
   MEMORY_FLOORS, MEMORY_POS, MEMORY_REST, MEMORY_BOSS, MF, LAMP, MSHARD, MEMORY_SHARD_FLAGS, memoryShardCount, memoryShardsAll,
   memoryMapId, memoryArrive,
-} from '../maps/memory.js?v=d72794b61b43';
-import { innSteps } from './inn.js?v=d72794b61b43';
-// 仮の 戦いの データ（B の 出現表と ノクトの影が 入ったら、この 1行と data/hoshiyomi-battle-stub.js を 消す）
-import './hoshiyomi-battle-stub.js?v=d72794b61b43';
+} from '../maps/memory.js?v=64263a381100';
+import { innSteps } from './inn.js?v=64263a381100';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

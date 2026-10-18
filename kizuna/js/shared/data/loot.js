@@ -15,17 +15,18 @@
 //   ・図鑑に 落とす 物が のる（手に入れるまでは ？？？）
 //   ・第31回: ボスは ちなんだ レア装備も（kind 'brare'。第32回から かならず: BOSS_RARE_N = 1）。ふつうの 魔物は その地方の レア装備を まれに
 //     （REGION_RARE_N 体に 1体。図鑑には のらない）。ひみつのダンジョンの 中では、ここだけの ★4〜★5（data/rare-loot.js）
-import { ITEMS } from './items.js?v=d72794b61b43';
-import { MONSTERS } from './monsters.js?v=d72794b61b43';
-import { RARE_MAT_DROPS } from './monsters-rare.js?v=d72794b61b43';
-import { CH3_MAT_DROPS } from './monsters-ch3.js?v=d72794b61b43';
-import { CH4_MAT_DROPS } from './monsters-ch4.js?v=d72794b61b43';
-import { R23_MAT_DROPS } from './monsters-r23.js?v=d72794b61b43';
-import { TEMPLE_MAT_DROPS } from './monsters-temple.js?v=d72794b61b43';
-import { CH5_MAT_DROPS } from './monsters-ch5.js?v=d72794b61b43';
-import { KUMOI_MAT_DROPS } from './monsters-kumoi.js?v=d72794b61b43';
-import { bossRareOf, BOSS_RARE_N, regionRareList, REGION_RARE_N, pickSdGear, SD_DROP_N, SD_GUARD_DROP_N } from './rare-loot.js?v=d72794b61b43';
-import { sdFloorOf } from './secret.js?v=d72794b61b43';
+import { ITEMS } from './items.js?v=64263a381100';
+import { MONSTERS } from './monsters.js?v=64263a381100';
+import { RARE_MAT_DROPS } from './monsters-rare.js?v=64263a381100';
+import { CH3_MAT_DROPS } from './monsters-ch3.js?v=64263a381100';
+import { CH4_MAT_DROPS } from './monsters-ch4.js?v=64263a381100';
+import { R23_MAT_DROPS } from './monsters-r23.js?v=64263a381100';
+import { TEMPLE_MAT_DROPS } from './monsters-temple.js?v=64263a381100';
+import { CH5_MAT_DROPS } from './monsters-ch5.js?v=64263a381100';
+import { KUMOI_MAT_DROPS } from './monsters-kumoi.js?v=64263a381100';
+import { HOSHIYOMI_MAT_DROPS } from './monsters-hoshiyomi.js?v=64263a381100';
+import { bossRareOf, BOSS_RARE_N, regionRareList, REGION_RARE_N, pickSdGear, SD_DROP_N, SD_GUARD_DROP_N } from './rare-loot.js?v=64263a381100';
+import { sdFloorOf } from './secret.js?v=64263a381100';
 
 export const DROP_N = { common: 8, rare: 64, mat: 8 };
 
@@ -71,6 +72,8 @@ export const MAT_DROPS = {
   ...CH5_MAT_DROPS,
   // 第5章 Step 3・4「クモイ地方・しずみゆく島の古い神殿」（monsters-kumoi.js）
   ...KUMOI_MAT_DROPS,
+  // 第5章 Step 5「星読みの里・ノクトの思い出の迷宮」（monsters-hoshiyomi.js）
+  ...HOSHIYOMI_MAT_DROPS,
 };
 // ぬすむ ときは レアが 出やすい（この 倍。でも 半分まで）
 export const STEAL_RARE_MULT = 8;

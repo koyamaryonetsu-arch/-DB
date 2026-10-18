@@ -4,9 +4,9 @@
 //   ・ふつうの 魔物 … その地方に 合った 装備を まれに（REGION_RARE_N 体に 1体。第32回 500。loot.js）
 //   ・ひみつのダンジョン … ここだけの ★4〜★5（深いほど 強い。20階から。休み所の ごほうび・魔物・番人。data/secret.js・loot.js）
 //   ・店の 品は レア度なし（0）
-import { ITEMS, baseItemId } from './items.js?v=d72794b61b43';
-import { MONSTERS } from './monsters.js?v=d72794b61b43';
-import { RARITY_OVERRIDE, defaultRarity, starsFor, isShopGear } from './items-rare.js?v=d72794b61b43';
+import { ITEMS, baseItemId } from './items.js?v=64263a381100';
+import { MONSTERS } from './monsters.js?v=64263a381100';
+import { RARITY_OVERRIDE, defaultRarity, starsFor, isShopGear } from './items-rare.js?v=64263a381100';
 
 export const RARITY_MAX = 5;
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -32,7 +32,7 @@ export const isShopItem = (id) => isShopGear(ITEMS[baseItemId(id)]);
 // めずらしさの 文（説明に 出す。店の 品は ''）。ネタバレに ならない ように「どこで」だけ
 const SRC_TEXT = {
   tm: '宝の洞窟でしか手に入らない', boss: 'ボスからしか手に入らない', region: '魔物がまれに落とす', sd: 'ひみつのダンジョンでしか手に入らない',
-  alchemy: 'れん金でしか作れない', reborn: 'ふつうには手に入らない', ruin: '神殿の宝箱でしか手に入らない',
+  alchemy: 'れん金でしか作れない', reborn: 'ふつうには手に入らない', ruin: '神殿の宝箱でしか手に入らない', memory: '迷宮の宝箱でしか手に入らない',
 };
 export function rareWhereText(id) {
   const it = ITEMS[baseItemId(id)];

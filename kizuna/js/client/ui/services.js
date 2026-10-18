@@ -1,28 +1,28 @@
 // お店・転職・酒場・でんごんばん・ほしのかけら・きょうかい の がめん
-import { el, ListMenu, toast, askText, confirmBox, esc } from './dom.js?v=d72794b61b43';
-import { ITEMS } from '../../shared/data/items.js?v=d72794b61b43';
-import { SUPER_ORDER, LEGEND_ORDER, TIER_ORDERS, TIER_NAMES, JOB_MAX_LEVEL, jobReqText, jobReqSets, jobBodyOk, BODY_NAMES, superMasteredCount } from '../../shared/data/jobs.js?v=d72794b61b43';
-import { ABILITIES } from '../../shared/data/abilities.js?v=d72794b61b43';
-import { abilityFor } from '../../shared/ability-label.js?v=d72794b61b43';
-import { jobFor, jobLabel, jobHint } from '../../shared/job-label.js?v=d72794b61b43';
-import { salonUI } from './salon.js?v=d72794b61b43';
-import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered, canEquip } from '../../shared/stats.js?v=d72794b61b43';
-import { MONSTERS } from '../../shared/data/monsters.js?v=d72794b61b43';
-import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES, breedOutcome, breedRumors, rankOf, monsterLevelCap, SPECIAL_KINDS } from '../../shared/data/companions.js?v=d72794b61b43';
-import { breedForecast, TREND_MARK } from '../../shared/breed-calc.js?v=d72794b61b43';
-import { TACTICS } from '../../shared/ai.js?v=d72794b61b43';
-import { itemDetail, gearText } from './info.js?v=d72794b61b43';
-import { playerSprite, followerSprite, faceURL } from '../field.js?v=d72794b61b43';
-import { shopUI, churchUI } from './shop.js?v=d72794b61b43';
-import { bankUI } from './bank.js?v=d72794b61b43';
-import { forgeUI } from './forge.js?v=d72794b61b43';
-import { tavernWagonItems, tavernWagonOpts, tavernWagonAct, tavernPlace, arrangeUI } from './wagon.js?v=d72794b61b43';
-import { casinoUI } from './casino.js?v=d72794b61b43';
-import { sdBoardUI } from './secret.js?v=d72794b61b43';
-import { shownEquip } from '../../shared/look-equip.js?v=d72794b61b43';
-import { jobAskText } from '../../shared/data/job-talk.js?v=d72794b61b43';
-import { sortRoster, rosterSortName, nextRosterSort } from '../../shared/roster-sort.js?v=d72794b61b43';
-import { rosterSortPref, setRosterSortPref } from '../prefs.js?v=d72794b61b43';
+import { el, ListMenu, toast, askText, confirmBox, esc } from './dom.js?v=64263a381100';
+import { ITEMS } from '../../shared/data/items.js?v=64263a381100';
+import { SUPER_ORDER, LEGEND_ORDER, TIER_ORDERS, TIER_NAMES, JOB_MAX_LEVEL, jobReqText, jobReqSets, jobBodyOk, BODY_NAMES, superMasteredCount } from '../../shared/data/jobs.js?v=64263a381100';
+import { ABILITIES } from '../../shared/data/abilities.js?v=64263a381100';
+import { abilityFor } from '../../shared/ability-label.js?v=64263a381100';
+import { jobFor, jobLabel, jobHint } from '../../shared/job-label.js?v=64263a381100';
+import { salonUI } from './salon.js?v=64263a381100';
+import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered, canEquip } from '../../shared/stats.js?v=64263a381100';
+import { MONSTERS } from '../../shared/data/monsters.js?v=64263a381100';
+import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES, breedOutcome, breedRumors, rankOf, monsterLevelCap, SPECIAL_KINDS } from '../../shared/data/companions.js?v=64263a381100';
+import { breedForecast, TREND_MARK } from '../../shared/breed-calc.js?v=64263a381100';
+import { TACTICS } from '../../shared/ai.js?v=64263a381100';
+import { itemDetail, gearText } from './info.js?v=64263a381100';
+import { playerSprite, followerSprite, faceURL } from '../field.js?v=64263a381100';
+import { shopUI, churchUI } from './shop.js?v=64263a381100';
+import { bankUI } from './bank.js?v=64263a381100';
+import { forgeUI } from './forge.js?v=64263a381100';
+import { tavernWagonItems, tavernWagonOpts, tavernWagonAct, tavernPlace, arrangeUI } from './wagon.js?v=64263a381100';
+import { casinoUI } from './casino.js?v=64263a381100';
+import { sdBoardUI } from './secret.js?v=64263a381100';
+import { shownEquip } from '../../shared/look-equip.js?v=64263a381100';
+import { jobAskText } from '../../shared/data/job-talk.js?v=64263a381100';
+import { sortRoster, rosterSortName, nextRosterSort } from '../../shared/roster-sort.js?v=64263a381100';
+import { rosterSortPref, setRosterSortPref } from '../prefs.js?v=64263a381100';
 
 export function openServiceUI(game, kind, data) {
   switch (kind) {

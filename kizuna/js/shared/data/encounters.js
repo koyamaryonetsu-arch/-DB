@@ -2,14 +2,15 @@
 // group: [[モンスターID, 最小数, 最大数], ...]
 // フィールドでは 先頭の モンスターの すがたで うろうろしている（シンボルエンカウント）
 
-import { ENCOUNTERS_CH2, FIXED_CH2, ZONE_BG_CH2 } from './encounters-ch2.js?v=d72794b61b43';
-import { NIGHT_ENCOUNTERS, NIGHT_ZONE_BG, NIGHT_ZONES } from './night.js?v=d72794b61b43';
-import { ENCOUNTERS_CH3, FIXED_CH3, ZONE_BG_CH3 } from './encounters-ch3.js?v=d72794b61b43';
-import { ENCOUNTERS_CH4, FIXED_CH4, ZONE_BG_CH4, NIGHT_ZONES_CH4 } from './encounters-ch4.js?v=d72794b61b43';
-import { ENCOUNTERS_TEMPLE, FIXED_TEMPLE, ZONE_BG_TEMPLE } from './encounters-temple.js?v=d72794b61b43';
-import { ENCOUNTERS_LAB, FIXED_LAB, ZONE_BG_LAB } from './encounters-lab.js?v=d72794b61b43';
-import { ENCOUNTERS_CH5, FIXED_CH5, ZONE_BG_CH5 } from './encounters-ch5.js?v=d72794b61b43';
-import { ENCOUNTERS_KUMOI, FIXED_KUMOI, ZONE_BG_KUMOI } from './encounters-kumoi.js?v=d72794b61b43';
+import { ENCOUNTERS_CH2, FIXED_CH2, ZONE_BG_CH2 } from './encounters-ch2.js?v=64263a381100';
+import { NIGHT_ENCOUNTERS, NIGHT_ZONE_BG, NIGHT_ZONES } from './night.js?v=64263a381100';
+import { ENCOUNTERS_CH3, FIXED_CH3, ZONE_BG_CH3 } from './encounters-ch3.js?v=64263a381100';
+import { ENCOUNTERS_CH4, FIXED_CH4, ZONE_BG_CH4, NIGHT_ZONES_CH4 } from './encounters-ch4.js?v=64263a381100';
+import { ENCOUNTERS_TEMPLE, FIXED_TEMPLE, ZONE_BG_TEMPLE } from './encounters-temple.js?v=64263a381100';
+import { ENCOUNTERS_LAB, FIXED_LAB, ZONE_BG_LAB } from './encounters-lab.js?v=64263a381100';
+import { ENCOUNTERS_CH5, FIXED_CH5, ZONE_BG_CH5 } from './encounters-ch5.js?v=64263a381100';
+import { ENCOUNTERS_KUMOI, FIXED_KUMOI, ZONE_BG_KUMOI } from './encounters-kumoi.js?v=64263a381100';
+import { ENCOUNTERS_HOSHIYOMI, FIXED_HOSHIYOMI, ZONE_BG_HOSHIYOMI } from './encounters-hoshiyomi.js?v=64263a381100';
 
 export const ENCOUNTER_TABLES = {
   outskirts: [
@@ -116,3 +117,7 @@ Object.assign(ZONE_BG, ZONE_BG_CH5);
 Object.assign(ENCOUNTER_TABLES, ENCOUNTERS_KUMOI);
 Object.assign(FIXED_ENCOUNTERS, FIXED_KUMOI);
 Object.assign(ZONE_BG, ZONE_BG_KUMOI);
+// 第5章 Step 5「星読みの里・ノクトの思い出の迷宮」・ノクトの影（encounters-hoshiyomi.js）
+Object.assign(ENCOUNTER_TABLES, ENCOUNTERS_HOSHIYOMI);
+Object.assign(FIXED_ENCOUNTERS, FIXED_HOSHIYOMI);
+Object.assign(ZONE_BG, ZONE_BG_HOSHIYOMI);

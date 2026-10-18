@@ -10,12 +10,13 @@
 //   その 装備の しゅるいごと。c.alchemy.cap）。第35回: 店で 買える 装備（★1）は きたえられない ので、これも できない
 // ・第35回: 生まれ変わりの 武器の 1だん目は「店の 武器＋素材＋星のかけら」（items-alchemy.js の REBIRTH_START）。
 //   hidden の レシピは 本だな・メモ・親方では わからない（町の 人などの ヒントを 見て、自分で 入れてみる）
-import { ITEMS, baseItemId } from './items.js?v=d72794b61b43';
-import { UPGRADE_TYPES, CAP_UP_MAX } from './items-forge.js?v=d72794b61b43';
-import { ALCHEMY_POT, ALCHEMY_MEMO, REBIRTH_START } from './items-alchemy.js?v=d72794b61b43';
-import { isShopGear } from './items-rare.js?v=d72794b61b43';
+import { ITEMS, baseItemId } from './items.js?v=64263a381100';
+import { UPGRADE_TYPES, CAP_UP_MAX } from './items-forge.js?v=64263a381100';
+import { ALCHEMY_POT, ALCHEMY_MEMO, REBIRTH_START } from './items-alchemy.js?v=64263a381100';
+import { isShopGear } from './items-rare.js?v=64263a381100';
 // 第5章 Step 3・4 の レシピ（items-kumoi.js）
-import { KUMOI_RECIPES } from './items-kumoi.js?v=d72794b61b43';
+import { KUMOI_RECIPES } from './items-kumoi.js?v=64263a381100';
+import { HOSHIYOMI_RECIPES } from './items-hoshiyomi.js?v=64263a381100';
 
 export { ALCHEMY_POT, ALCHEMY_MEMO, CAP_UP_MAX };
 
@@ -84,6 +85,7 @@ export const RECIPES = [
   R('r_dragon_slayer', 5, 'dragon_slayer', 'old_fang_sword', 'dragon_scale', 'star_iron'),
   R('r_senrigan', 5, 'senrigan_helm', 'hundred_eye_helm', 'star_shard', 'star_shard'),
   ...KUMOI_RECIPES,
+  ...HOSHIYOMI_RECIPES,
   // ── 生まれ変わりの 武器の 1だん目（第35回。かくし要素: hidden）──
   ...REBIRTH_START.map((x) => ({ ...R(x.id, 2, x.to, x.from, x.mat, 'star_shard'), hidden: true })),
 ];

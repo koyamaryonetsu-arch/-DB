@@ -10,14 +10,15 @@
 // resist: たいせい（しゅぞくの たいせいを つかう。ここに かけば うわがき）
 // gear:   装備できる 物（しゅぞくの けいの RACE_GEAR を うわがき。下の RACE_GEAR を 見てね）
 
-import { FRIENDS_CH2 } from './companions-ch2.js?v=d72794b61b43';
-import { FRIENDS_RARE } from './monsters-rare.js?v=d72794b61b43';
-import { FRIENDS_CH3 } from './companions-ch3.js?v=d72794b61b43';
-import { FRIENDS_R23, RECIPES_R23 } from './monsters-r23.js?v=d72794b61b43';
-import { FRIENDS_CH4 } from './companions-ch4.js?v=d72794b61b43';
-import { FRIENDS_CH5 } from './companions-ch5.js?v=d72794b61b43';
-import { FRIENDS_KUMOI } from './companions-kumoi.js?v=d72794b61b43';
-import { FRIENDS_BOSS, MATERIAL_RECIPES, FOUR_RECIPES } from './monsters-boss.js?v=d72794b61b43';
+import { FRIENDS_CH2 } from './companions-ch2.js?v=64263a381100';
+import { FRIENDS_RARE } from './monsters-rare.js?v=64263a381100';
+import { FRIENDS_CH3 } from './companions-ch3.js?v=64263a381100';
+import { FRIENDS_R23, RECIPES_R23 } from './monsters-r23.js?v=64263a381100';
+import { FRIENDS_CH4 } from './companions-ch4.js?v=64263a381100';
+import { FRIENDS_CH5 } from './companions-ch5.js?v=64263a381100';
+import { FRIENDS_KUMOI } from './companions-kumoi.js?v=64263a381100';
+import { FRIENDS_HOSHIYOMI } from './companions-hoshiyomi.js?v=64263a381100';
+import { FRIENDS_BOSS, MATERIAL_RECIPES, FOUR_RECIPES } from './monsters-boss.js?v=64263a381100';
 
 export const MONSTER_FRIENDS = {
   pururin: {
@@ -274,6 +275,8 @@ Object.assign(MONSTER_FRIENDS, FRIENDS_CH4);
 Object.assign(MONSTER_FRIENDS, FRIENDS_CH5);
 // 第5章 Step 3・4 の 魔物（companions-kumoi.js）
 Object.assign(MONSTER_FRIENDS, FRIENDS_KUMOI);
+// 第5章 Step 5 の 魔物（companions-hoshiyomi.js）
+Object.assign(MONSTER_FRIENDS, FRIENDS_HOSHIYOMI);
 // ボス級（ランク SS）の 仲間。配合でしか 生まれない（monsters-boss.js。第35回）
 Object.assign(MONSTER_FRIENDS, FRIENDS_BOSS);
 // しゅぞくごとの 装備の うわがき（上の GEAR）
@@ -439,7 +442,8 @@ export function breedCandidates(a, b, MONSTERS, c = null) {
   for (const r of MATERIAL_RECIPES) if (hasItem(c, r.item) && recipeMatch(r, spA, spB, MONSTERS)) add(r.child, 'material', { item: r.item });
   if (ra >= RANK_S && rb >= RANK_S && lvOf(a) >= RANK_BREED_LV && lvOf(b) >= RANK_BREED_LV) {
     const races = [MONSTERS[spA]?.race, MONSTERS[spB]?.race];
-    for (const sp of bossClassList(MONSTERS)) if (races.includes(MONSTERS[sp].race)) add(sp, 'rank');
+    // materialOnly … 素材配合でしか 生まれない ボス級（影の王。monsters-boss.js）
+    for (const sp of bossClassList(MONSTERS)) if (races.includes(MONSTERS[sp].race) && !MONSTER_FRIENDS[sp].materialOnly) add(sp, 'rank');
   }
   for (const r of BREED_RECIPES) if (isSpecialRecipe(r) && recipeMatch(r, spA, spB, MONSTERS)) add(r.child, 'special');
   for (const r of BREED_RECIPES) if (!isSpecialRecipe(r) && recipeMatch(r, spA, spB, MONSTERS)) add(r.child, 'recipe');

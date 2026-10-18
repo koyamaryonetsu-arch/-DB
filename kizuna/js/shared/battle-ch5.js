@@ -13,16 +13,18 @@
 //   合体技（ミナデインも）・にげる・混乱した 時の 行動は 読まれない（読みは 消える）
 // ・オートの 仲間: 読まれた 種類の 行動を さけて、ちがう 行動を えらぶ（towerPlan）。シミュレーター（tools/sim.js）の
 //   b.argosNaive … 知らない 人（読まれても そのまま）／ b.knowsArgos … 知っている 人（星のさばきの 前に 身を 守る も）
-import { MONSTERS } from './data/monsters.js?v=d72794b61b43';
-import { ABILITIES } from './data/abilities.js?v=d72794b61b43';
-import { abilityFor } from './ability-label.js?v=d72794b61b43';
-import { ITEMS } from './data/items.js?v=d72794b61b43';
-import { mpCost, penaltyFor } from './stats.js?v=d72794b61b43';
+import { MONSTERS } from './data/monsters.js?v=64263a381100';
+import { ABILITIES } from './data/abilities.js?v=64263a381100';
+import { abilityFor } from './ability-label.js?v=64263a381100';
+import { ITEMS } from './data/items.js?v=64263a381100';
+import { mpCost, penaltyFor } from './stats.js?v=64263a381100';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { atbRate } from './battle.js?v=d72794b61b43';
-import { canUse } from './ai.js?v=d72794b61b43';
+import { atbRate } from './battle.js?v=64263a381100';
+import { canUse } from './ai.js?v=64263a381100';
 // 第5章 Step 4: ガイアイーターの 多部位の 戦い（battle-gaia.js。ここから よぶ）
-import { gaiaEffect, gaiaCond, gaiaKill, gaiaPlan, gaiaPub } from './battle-gaia.js?v=d72794b61b43';
+import { gaiaEffect, gaiaCond, gaiaKill, gaiaPlan, gaiaPub } from './battle-gaia.js?v=64263a381100';
+// 第5章 Step 5: ノクトの影（職業の まね・合体技の よやくを こわす。battle-nocto.js。ここから よぶ）
+import { noctoCond, noctoEffect, noctoCheck, noctoKill, noctoPlan, noctoPub } from './battle-nocto.js?v=64263a381100';
 
 export const ARGOS = 'argos';
 export const JUDGE = 'm_argos_judge';
@@ -81,6 +83,8 @@ const readBy = (b, m) => b.allies.filter((x) => x.alive && x.foresee?.by === m.i
 export function towerCond(b, m, cond) {
   const g = gaiaCond(b, m, cond);
   if (g !== null) return g;
+  const n = noctoCond(b, m, cond);
+  if (n !== null) return n;
   if (cond === 'gaze') return !!confOf(m) && readBy(b, m).length < gazeCount(m) && gazeTargets(b).length > 0;
   return true;
 }
@@ -88,6 +92,7 @@ export function towerCond(b, m, cond) {
 // ───────────── 技の こうか（battle.js の applyAbility の のこり）─────────────
 export function towerEffect(b, c, a, eff, ev) {
   if (gaiaEffect(b, c, a, eff, ev)) return true;
+  if (noctoEffect(b, c, a, eff, ev)) return true;
   if (eff.type !== 'foresee') return false;
   foreseeStart(b, c, ev);
   return true;
@@ -134,6 +139,8 @@ export function towerTurnStart(b, c, ev, cmd) {
 // 読まれた 種類と おなじ 行動なら しかえし（true … この 行動は ここで おわり）。ちがえば 外れ（false … ふつうに つづける）
 export function foreseeCheck(b, c, cmd, ev) {
   if (c.side !== 'ally') return false;
+  // ノクトの影は 合体技を 見ると 次に きずなくだきの 前ぶれ（battle-nocto.js）
+  if (noctoCheck(b, c, cmd)) return true;
   const kind = cmd.confused ? null : actKind(cmd);
   const f = c.foresee;
   if (kind) c.lastKind = kind;
@@ -225,6 +232,7 @@ function foreseeHit(b, c, cmd, ev, by, kind) {
 // たおれた（battle.js の kill）: アルゴスが たおれると、読みも みんな 消える
 export function towerKill(b, t, ev) {
   gaiaKill(b, t, ev);
+  noctoKill(b, t, ev);
   if (t.side !== 'enemy' || !confOf(t)) return;
   for (const x of b.allies) {
     if (x.foresee?.by !== t.id) continue;
@@ -241,6 +249,9 @@ export function towerPlan(b, c, decide) {
   // ガイアイーター（知っている 人: しっぽ → 体 → 頭・大技の 前に 身を 守る。battle-gaia.js）
   const gp = gaiaPlan(b, c, decide);
   if (gp) return gp;
+  // ノクトの影（知っている 人: きずなくだきの 前に 身を 守る・まねられた 人は 攻撃しない。battle-nocto.js）
+  const np = noctoPlan(b, c, decide);
+  if (np) return np;
   if (b.knowsArgos && c.foresee?.kind !== 'guard') {
     const mine = 100 / atbRate(c);
     const j = b.aliveEnemies().find((e) => e.telegraph === JUDGE);
@@ -294,5 +305,5 @@ export function dodgeCmd(b, c, kind) {
 // ───────────── がめんへ ─────────────
 // pub（battle.js）に まぜる: 読まれている 種類（味方だけ）
 export function towerPub(c) {
-  return c.side === 'ally' ? { foresee: c.foresee?.kind || null } : gaiaPub(c);
+  return c.side === 'ally' ? { foresee: c.foresee?.kind || null, ...noctoPub(c) } : { ...gaiaPub(c), ...noctoPub(c) };
 }

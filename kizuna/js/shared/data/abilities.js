@@ -17,33 +17,34 @@
 // 名前の一部は「ダイの大冒険」「ロトの紋章」へのオマージュです。
 // 上級職・超級職の 技は abilities-adv.js（さいごに まぜる）
 
-import { ADV_ABILITIES } from './abilities-adv.js?v=d72794b61b43';
-import { CH2_ABILITIES } from './abilities-ch2.js?v=d72794b61b43';
-import { JOB_ABILITIES } from './abilities-jobs.js?v=d72794b61b43';
-import { HIRA_ABILITIES } from './hirameki.js?v=d72794b61b43';
-import { TRAVEL_ABILITIES } from './sky.js?v=d72794b61b43';
-import { RARE_ABILITIES } from './monsters-rare.js?v=d72794b61b43';
-import { R23_ABILITIES } from './monsters-r23.js?v=d72794b61b43';
-import { JOB2_ABILITIES } from './abilities-jobs2.js?v=d72794b61b43';
-import { CH3_ABILITIES } from './abilities-ch3.js?v=d72794b61b43';
-import { CH4_ABILITIES } from './abilities-ch4.js?v=d72794b61b43';
-import { TEMPLE_ABILITIES } from './abilities-temple.js?v=d72794b61b43';
-import { LAB_ABILITIES } from './abilities-lab.js?v=d72794b61b43';
-import { TOWER_ABILITIES } from './abilities-tower.js?v=d72794b61b43';
-import { KUMOI_ABILITIES } from './abilities-kumoi.js?v=d72794b61b43';
-import { JOB3_ABILITIES } from './abilities-jobs3.js?v=d72794b61b43';
-import { JOB4_ABILITIES } from './abilities-jobs4.js?v=d72794b61b43';
+import { ADV_ABILITIES } from './abilities-adv.js?v=64263a381100';
+import { CH2_ABILITIES } from './abilities-ch2.js?v=64263a381100';
+import { JOB_ABILITIES } from './abilities-jobs.js?v=64263a381100';
+import { HIRA_ABILITIES } from './hirameki.js?v=64263a381100';
+import { TRAVEL_ABILITIES } from './sky.js?v=64263a381100';
+import { RARE_ABILITIES } from './monsters-rare.js?v=64263a381100';
+import { R23_ABILITIES } from './monsters-r23.js?v=64263a381100';
+import { JOB2_ABILITIES } from './abilities-jobs2.js?v=64263a381100';
+import { CH3_ABILITIES } from './abilities-ch3.js?v=64263a381100';
+import { CH4_ABILITIES } from './abilities-ch4.js?v=64263a381100';
+import { TEMPLE_ABILITIES } from './abilities-temple.js?v=64263a381100';
+import { LAB_ABILITIES } from './abilities-lab.js?v=64263a381100';
+import { TOWER_ABILITIES } from './abilities-tower.js?v=64263a381100';
+import { KUMOI_ABILITIES } from './abilities-kumoi.js?v=64263a381100';
+import { HOSHIYOMI_ABILITIES } from './abilities-hoshiyomi.js?v=64263a381100';
+import { JOB3_ABILITIES } from './abilities-jobs3.js?v=64263a381100';
+import { JOB4_ABILITIES } from './abilities-jobs4.js?v=64263a381100';
 // 2026年10月（第22回）の 新しい 職業の 技（おかん・社ちく・天才しせつ管理者・はかい神 など）
-import { JOB5_ABILITIES } from './abilities-jobs5.js?v=d72794b61b43';
+import { JOB5_ABILITIES } from './abilities-jobs5.js?v=64263a381100';
 // 2026年10月（第26回）の 新しい 職業の 技（楽天カードマン・きさつ隊・スパイ・探てい・ネコ型ロボット・カッパ・木の葉の忍び など）
-import { JOB6_ABILITIES } from './abilities-jobs6.js?v=d72794b61b43';
-import { FIELD27_ABILITIES } from './abilities-field27.js?v=d72794b61b43';
+import { JOB6_ABILITIES } from './abilities-jobs6.js?v=64263a381100';
+import { FIELD27_ABILITIES } from './abilities-field27.js?v=64263a381100';
 // 2026年10月（第27回）の 新しい 職業の 技（暴れんぼう将軍）
-import { JOB7_ABILITIES } from './abilities-jobs7.js?v=d72794b61b43';
+import { JOB7_ABILITIES } from './abilities-jobs7.js?v=64263a381100';
 // 2026年10月（第29回）の 新しい 職業の 技（るろうに剣士 → 人斬りばっ刀さい → ひ村ばっ刀さい → 飛天御剣流けい承者）
-import { JOB8_ABILITIES } from './abilities-jobs8.js?v=d72794b61b43';
+import { JOB8_ABILITIES } from './abilities-jobs8.js?v=64263a381100';
 // 2026年10月（第33回）の 新しい 職業の 技（手品師・かいとう・魔法学校・3年B組の担任・れん金術師・美少女戦士 など 11）
-import { JOB9_ABILITIES } from './abilities-jobs9.js?v=d72794b61b43';
+import { JOB9_ABILITIES } from './abilities-jobs9.js?v=64263a381100';
 
 export const ABILITIES = {
   // ───────────── 戦士 ─────────────
@@ -610,6 +611,8 @@ Object.assign(ABILITIES, LAB_ABILITIES);
 Object.assign(ABILITIES, TOWER_ABILITIES);
 // 第5章 Step 3・4 の 魔物と ガイアイーターの 技（abilities-kumoi.js）
 Object.assign(ABILITIES, KUMOI_ABILITIES);
+// 第5章 Step 5 の 魔物と ノクトの影の 技（abilities-hoshiyomi.js）
+Object.assign(ABILITIES, HOSHIYOMI_ABILITIES);
 // 料理人・アルバイト・お笑い芸人の 系統、大賢者、ロトの勇者と、攻撃技を 足した 職業（abilities-jobs3.js）
 Object.assign(ABILITIES, JOB3_ABILITIES);
 // ニート・サイヤ人・設備屋・ゴム人間・ユーチューバー・ゲーマーの 系統と 魔王（abilities-jobs4.js）

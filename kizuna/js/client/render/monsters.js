@@ -1,16 +1,17 @@
 // モンスターの え（ベクターで かいて ドットえに へんかん）
 // すべて オリジナルの デザイン
 // 2ばいの こまかさで かいて ドットえに → Scale2x で 4ばい → ひかり・かげ・ふちどり（res 4）
-import { makeCanvas, ctxOf, pixelize, shade, painterFrom, scale2x, outline2, volumeShade } from './pixel.js?v=d72794b61b43';
-import { MONSTERS } from '../../shared/data/monsters.js?v=d72794b61b43';
-import { tintCanvas } from './themes.js?v=d72794b61b43';
-import { addNightArt } from './night-art.js?v=d72794b61b43';
-import { addRareArt } from './rare-art.js?v=d72794b61b43';
-import { addCh3Art } from './ch3-art.js?v=d72794b61b43';
-import { addCh4Art } from './ch4-art.js?v=d72794b61b43';
-import { addR23Art } from './r23-art.js?v=d72794b61b43';
-import { addCh5Art } from './ch5-tower-art.js?v=d72794b61b43';
-import { addKumoiArt } from './ch5-kumoi-mon-art.js?v=d72794b61b43';
+import { makeCanvas, ctxOf, pixelize, shade, painterFrom, scale2x, outline2, volumeShade } from './pixel.js?v=64263a381100';
+import { MONSTERS } from '../../shared/data/monsters.js?v=64263a381100';
+import { tintCanvas } from './themes.js?v=64263a381100';
+import { addNightArt } from './night-art.js?v=64263a381100';
+import { addRareArt } from './rare-art.js?v=64263a381100';
+import { addCh3Art } from './ch3-art.js?v=64263a381100';
+import { addCh4Art } from './ch4-art.js?v=64263a381100';
+import { addR23Art } from './r23-art.js?v=64263a381100';
+import { addCh5Art } from './ch5-tower-art.js?v=64263a381100';
+import { addKumoiArt } from './ch5-kumoi-mon-art.js?v=64263a381100';
+import { addHoshiyomiArt } from './ch5-hoshiyomi-mon-art.js?v=64263a381100';
 
 export const MRES = 4; // できあがりの こまかさ（せかいの 1ドットを 4×4 で かく）
 const OUT = '#130d24';
@@ -827,6 +828,8 @@ addR23Art(MONSTER_ART);
 addCh5Art(MONSTER_ART);
 // 第5章 Step 3・4「クモイ地方・しずみゆく島の古い神殿」の 魔物と ガイアイーター（ch5-kumoi-mon-art.js）
 addKumoiArt(MONSTER_ART);
+// 第5章 Step 5「星読みの里・ノクトの思い出の迷宮」の 魔物と ノクトの影・影の王（ch5-hoshiyomi-mon-art.js）
+addHoshiyomiArt(MONSTER_ART);
 
 const cache = new Map();
 
