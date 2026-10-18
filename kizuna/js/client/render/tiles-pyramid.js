@@ -4,10 +4,10 @@
 //   呪文を すいこむ もんしょう・外への 出口
 // (p, v, f, m) … Painter / ちがい（0〜3）/ アニメの コマ / となりの ようす（mask。pyramidMask）
 // ピラミッドの 中の ゆか・かべは 洞窟の タイルを 金色に 色がえ（render/themes.js の 'pyramid'）。ここの タイルは その 色に あわせて かく
-import { T } from '../../shared/tiles.js?v=88924df060b6';
-import { PYRAMID } from '../../shared/maps/south.js?v=88924df060b6';
-import { prand } from './pixel.js?v=88924df060b6';
-import { desertBase } from './tiles-ch4.js?v=88924df060b6';
+import { T } from '../../shared/tiles.js?v=e6a22f787154';
+import { PYRAMID } from '../../shared/maps/south.js?v=e6a22f787154';
+import { prand } from './pixel.js?v=e6a22f787154';
+import { desertBase } from './tiles-ch4.js?v=e6a22f787154';
 
 const TAU = Math.PI * 2;
 const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5].map((n) => (n + 0.5) / 16);

@@ -4,9 +4,9 @@
 //   ・ふつうの 魔物 … その地方に 合った 装備を まれに（REGION_RARE_N 体に 1体。第32回 500。loot.js）
 //   ・ひみつのダンジョン … ここだけの ★4〜★5（深いほど 強い。20階から。休み所の ごほうび・魔物・番人。data/secret.js・loot.js）
 //   ・店の 品は レア度なし（0）
-import { ITEMS, baseItemId } from './items.js?v=88924df060b6';
-import { MONSTERS } from './monsters.js?v=88924df060b6';
-import { RARITY_OVERRIDE, defaultRarity, starsFor, isShopGear } from './items-rare.js?v=88924df060b6';
+import { ITEMS, baseItemId } from './items.js?v=e6a22f787154';
+import { MONSTERS } from './monsters.js?v=e6a22f787154';
+import { RARITY_OVERRIDE, defaultRarity, starsFor, isShopGear } from './items-rare.js?v=e6a22f787154';
 
 export const RARITY_MAX = 5;
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -33,6 +33,8 @@ export const isShopItem = (id) => isShopGear(ITEMS[baseItemId(id)]);
 const SRC_TEXT = {
   tm: '宝の洞窟でしか手に入らない', boss: 'ボスからしか手に入らない', region: '魔物がまれに落とす', sd: 'ひみつのダンジョンでしか手に入らない',
   alchemy: 'れん金でしか作れない', reborn: 'ふつうには手に入らない', ruin: '神殿の宝箱でしか手に入らない', memory: '迷宮の宝箱でしか手に入らない',
+  // 第5章 Step 6・7（items-earth.js）: 大地の神殿の 宝箱・ボスが まれに 落とす 品（ノクトの紋章）・みんなが くれる 品
+  earth: '大地の神殿の宝箱でしか手に入らない', bossrare: 'ボスがまれに落とす', gift: 'たくされた品（ほかでは手に入らない）',
 };
 export function rareWhereText(id) {
   const it = ITEMS[baseItemId(id)];

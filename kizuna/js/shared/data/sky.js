@@ -2,11 +2,11 @@
 // ・風の大鳥フウラ: カモメ港の 風のさいだんで「風の笛」を もらうと、フィールドで 呼べる（world/travel.js）
 // ・ルーラ: 魔法使い・賢者が 覚える。行った ことの ある 町へ 仲間と いっしょに 飛ぶ（洞窟や 塔の 中では 使えない）
 // ・第3章: シロガネ地方（北）へも 飛べる。星の竜アステルが 目覚めると（c3_dragon）竜に のって もっと はやく 飛べる
-import { OW_W, OW_H } from '../maps/overworld.js?v=88924df060b6';
-import { SEA_W, SEA_H, PORT, SEA_POS } from '../maps/sea.js?v=88924df060b6';
-import { NORTH_W, NORTH_H, NORTH_LANDING, NORTH_ARRIVE } from '../maps/north.js?v=88924df060b6';
-import { SOUTH_W, SOUTH_H, SOUTH_LANDING, SOUTH_ARRIVE, SOUTH_SKY_ZAID } from '../maps/south.js?v=88924df060b6';
-import { KUMOI_W, KUMOI_H, KUMOI_SKY, KUMOI_SKY2, KUMOI_ARRIVE } from '../maps/kumoi.js?v=88924df060b6';
+import { OW_W, OW_H } from '../maps/overworld.js?v=e6a22f787154';
+import { SEA_W, SEA_H, PORT, SEA_POS } from '../maps/sea.js?v=e6a22f787154';
+import { NORTH_W, NORTH_H, NORTH_LANDING, NORTH_ARRIVE } from '../maps/north.js?v=e6a22f787154';
+import { SOUTH_W, SOUTH_H, SOUTH_LANDING, SOUTH_ARRIVE, SOUTH_SKY_ZAID } from '../maps/south.js?v=e6a22f787154';
+import { KUMOI_W, KUMOI_H, KUMOI_SKY, KUMOI_SKY2, KUMOI_ARRIVE } from '../maps/kumoi.js?v=e6a22f787154';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -46,11 +46,27 @@ export const SKY_ITEMS = {
     name: '星読みのランプ', type: 'key',
     desc: '星読みのじいさまカナタにもらった、小さなランプ。思い出の迷宮のランプ台に光をうつすと、柱の影がのびて、影の中にだけ見える道があらわれる。',
   },
+  // 第5章 Step 6・7（data/story-earth.js）: 大地の 神殿の 5階で ピピに あずかる・ハネノで ユキナと ばあちゃんに もらう
+  pipi_letter: {
+    name: 'ピピの手紙', type: 'key',
+    desc: 'ハネビトの子ピピが、ノクトにあてて書いた手紙。大きな字で、いっしょうけんめいに書いてある。ノクトに会ったら、わたしてあげよう。',
+  },
+  yukina_song: {
+    name: 'いのりの歌', type: 'key',
+    desc: '竜のみこユキナに教わった、古いいのりの歌。やみにとざされたとびらも、この歌を聞けば、心を開くという。',
+  },
+  hoshifuru_stone: {
+    name: '星の石のかけら', type: 'key',
+    desc: 'ホシフル村の守り星の石の、小さなかけら。ホシミばあちゃんにあずかった。いつか、ある子にわたしてほしいと、たのまれた。',
+  },
 };
 export const SKY_ITEM_KANA = {
   wind_flute: 'かぜのふえ',
   earth_shard: 'だいちのまもりぼしのかけら',
   star_lamp: 'ほしよみのらんぷ',
+  pipi_letter: 'ぴぴのてがみ',
+  yukina_song: 'いのりのうた',
+  hoshifuru_stone: 'ほしのいしのかけら',
 };
 
 // ───── 目標 ─────

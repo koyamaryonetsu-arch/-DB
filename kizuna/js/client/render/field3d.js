@@ -3,27 +3,28 @@
 // ・ひと・まもの・もの は ドット絵を カメラに むけて たてる（ビルボード）
 // ・カメラは ななめ うえから みおろす（うごかすのは いち だけ。むきは かわらない）
 // あるく・ぶつかる などの きまりは 2D と おなじ（Field が きめる）。ここでは かく だけ。
-import * as THREE from '../../../vendor/three.min.js?v=88924df060b6';
-import { T } from '../../shared/tiles.js?v=88924df060b6';
-import { effectiveTile } from '../../shared/maps/index.js?v=88924df060b6';
-import { pyramidLevel } from '../../shared/maps/south.js?v=88924df060b6';
-import { hash2, valueNoise } from '../../shared/rng.js?v=88924df060b6';
+import * as THREE from '../../../vendor/three.min.js?v=e6a22f787154';
+import { T } from '../../shared/tiles.js?v=e6a22f787154';
+import { effectiveTile } from '../../shared/maps/index.js?v=e6a22f787154';
+import { pyramidLevel } from '../../shared/maps/south.js?v=e6a22f787154';
+import { hash2, valueNoise } from '../../shared/rng.js?v=e6a22f787154';
 import {
   Atlas, extraCanvas, propCanvas, PROP_TILES, leafCanvas, roofCanvas, tileArt, stormCanvas, curtainCanvas, puffCanvas, canalWaterCanvas, rubbleCanvas,
-} from './tex3d.js?v=88924df060b6';
-import { tileCanvas } from './tiles.js?v=88924df060b6';
-import { duneShape, ch4Mask, onDesert } from './tiles-ch4.js?v=88924df060b6';
+} from './tex3d.js?v=e6a22f787154';
+import { tileCanvas } from './tiles.js?v=e6a22f787154';
+import { duneShape, ch4Mask, onDesert } from './tiles-ch4.js?v=e6a22f787154';
 // 第4章 Step 6: 砂クジラの ねどこの 砂の うず（ねどこ ぜんたいで 1まいの え）
-import { whirlCanvas } from './tiles-duna.js?v=88924df060b6';
+import { whirlCanvas } from './tiles-duna.js?v=e6a22f787154';
 // 第4章 Step 7: 砂の底の神殿（水の 高さで かわる 水面と 底・かべの 鏡と かべ画・ドームの かべ・水鏡）
-import { TEMPLE_LIQUIDS, TEMPLE_FLOOR_H, templeBlockSpec, waterMirrorCanvas, MIRROR_W, MIRROR_H, WATER_MIRROR_FRAMES } from './tiles-temple.js?v=88924df060b6';
-import { labBlockSpec } from './tiles-lab.js?v=88924df060b6';
-import { towerBlockSpec, TOWER_FLOOR_H } from './tiles-tower.js?v=88924df060b6';
-import { kumoiBlockSpec, KUMOI_FLOOR_H, KUMOI_LIQUIDS, CLOUD_OUTSIDE } from './tiles-kumoi.js?v=88924df060b6';
-import { MEMORY_FLOOR_H, MEMORY_LIQUIDS } from './tiles-memory.js?v=88924df060b6';
-import { TROUGH, CANAL_CTX, CANAL_SUN, canalVariant, canalMask, canalFlow, damVertical } from './tiles-canal.js?v=88924df060b6';
-import { flipCanvas, makeCanvas, ctxOf, whiteCopy } from './pixel.js?v=88924df060b6';
-import { themedCanvas, partOfTile, partOfExtra, partOfProp } from './themes.js?v=88924df060b6';
+import { TEMPLE_LIQUIDS, TEMPLE_FLOOR_H, templeBlockSpec, waterMirrorCanvas, MIRROR_W, MIRROR_H, WATER_MIRROR_FRAMES } from './tiles-temple.js?v=e6a22f787154';
+import { labBlockSpec } from './tiles-lab.js?v=e6a22f787154';
+import { towerBlockSpec, TOWER_FLOOR_H } from './tiles-tower.js?v=e6a22f787154';
+import { kumoiBlockSpec, KUMOI_FLOOR_H, KUMOI_LIQUIDS, CLOUD_OUTSIDE } from './tiles-kumoi.js?v=e6a22f787154';
+import { MEMORY_FLOOR_H, MEMORY_LIQUIDS } from './tiles-memory.js?v=e6a22f787154';
+import { EARTH_FLOOR_H, EARTH_LIQUIDS, earthBlockSpec } from './tiles-earth.js?v=e6a22f787154';
+import { TROUGH, CANAL_CTX, CANAL_SUN, canalVariant, canalMask, canalFlow, damVertical } from './tiles-canal.js?v=e6a22f787154';
+import { flipCanvas, makeCanvas, ctxOf, whiteCopy } from './pixel.js?v=e6a22f787154';
+import { themedCanvas, partOfTile, partOfExtra, partOfProp } from './themes.js?v=e6a22f787154';
 
 const PITCH = 55 * Math.PI / 180;
 const SIN = Math.sin(PITCH), COS = Math.cos(PITCH);
@@ -54,11 +55,13 @@ const LIQUID_TILES = { [T.LAVA]: { name: 'lava', y: WATER_Y + 0.06, speed: 380 }
   // 第5章 Step 3: クモイ地方の 雲の 海（島より ずっと 下。render/tiles-kumoi.js）
   ...KUMOI_LIQUIDS,
   // 第5章 Step 5: 思い出の 迷宮の もや（ゆかより ずっと 下。render/tiles-memory.js）
-  ...MEMORY_LIQUIDS };
+  ...MEMORY_LIQUIDS,
+  // 第5章 Step 6: 大地の 神殿の 根の すきまの 谷（ゆかより ずっと 下。render/tiles-earth.js）
+  ...EARTH_LIQUIDS };
 // 第4章 Step 2（かれた地下水路）: 水路の 底・水の たかさ（通路より ひくい）・水門と こうしの とびらの たかさ・がれきの 山の たかさ
 const CANAL_BED_H = -0.42, CANAL_WATER_Y = -0.27, GATE_H = 1.05, DAM_H = 0.62;
 // 地面の たかさ（深い 雪は すこし 高く・谷は ふかく・水路の 底は ひくく）
-const FLOOR_H = { [T.STEPPING]: -0.16, [T.DEEP_SNOW]: 0.14, [T.CHASM]: -0.8, [T.CANAL_BED]: CANAL_BED_H, [T.DAM]: CANAL_BED_H, ...TEMPLE_FLOOR_H, ...TOWER_FLOOR_H, ...KUMOI_FLOOR_H, ...MEMORY_FLOOR_H };
+const FLOOR_H = { [T.STEPPING]: -0.16, [T.DEEP_SNOW]: 0.14, [T.CHASM]: -0.8, [T.CANAL_BED]: CANAL_BED_H, [T.DAM]: CANAL_BED_H, ...TEMPLE_FLOOR_H, ...TOWER_FLOOR_H, ...KUMOI_FLOOR_H, ...MEMORY_FLOOR_H, ...EARTH_FLOOR_H };
 // 雪・氷・砂ばくの 地面の よこの え
 const SIDE_OF = {
   [T.SAND]: 'sand_side', [T.SNOW]: 'snow_side', [T.SNOW_PATH]: 'snow_side', [T.DEEP_SNOW]: 'snow_side', [T.ICE]: 'ice_side',
@@ -141,7 +144,7 @@ function blockSpec(id, x, y) {
     case T.PYR_SLAB: return { h: 1.6, top: ['x', 'cave_top', v], side: ['t', T.PYR_SLAB, v, 1], south: ['t', T.PYR_SLAB, v, 1] };
     case T.PYR_CRACK: return { h: 1.6, top: ['x', 'cave_top', v], side: ['t', T.PYR_CRACK, v, 1], south: ['t', T.PYR_CRACK, v, 1] };
     // 第4章 Step 7: 大きな 鏡・かべ画（かべの 前の かお）・空気の ドームの かべ（あわの 向こうの 砂）・水が もどった ふん水
-    default: return templeBlockSpec(id, v) || labBlockSpec(id, v) || towerBlockSpec(id, v) || kumoiBlockSpec(id, v);
+    default: return templeBlockSpec(id, v) || labBlockSpec(id, v) || towerBlockSpec(id, v) || kumoiBlockSpec(id, v) || earthBlockSpec(id, v);
   }
 }
 

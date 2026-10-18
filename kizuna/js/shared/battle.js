@@ -7,42 +7,44 @@
 //
 // サーバー（家族サーバー）でも ブラウザ（ひとりモード）でも おなじ コードが うごく
 
-import { makeRng } from './rng.js?v=88924df060b6';
-import { ABILITIES, ELEMENT_ORDER, ELEMENT_NAMES } from './data/abilities.js?v=88924df060b6';
+import { makeRng } from './rng.js?v=e6a22f787154';
+import { ABILITIES, ELEMENT_ORDER, ELEMENT_NAMES } from './data/abilities.js?v=e6a22f787154';
 // 推理（deduce）で ねらう 属性（第26回の 探ていの 技）
-import { deduceElement } from './data/abilities-jobs6.js?v=88924df060b6';
-import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=88924df060b6';
+import { deduceElement } from './data/abilities-jobs6.js?v=e6a22f787154';
+import { HIRAMEKI, hiraChance, hiraRatio } from './data/hirameki.js?v=e6a22f787154';
 // 合体技（2人・3人・4人。battle-dual.js）
-import { optionsFor, validateDual, startDual, checkWaits, waitStillOk, fireWait, endWait, releasePartners, answerDual, endInvite, performDual, partnersOf, dualHurt, dualRecharged } from './battle-dual.js?v=88924df060b6';
-import { MONSTERS } from './data/monsters.js?v=88924df060b6';
-import { ITEMS } from './data/items.js?v=88924df060b6';
-import { JOBS } from './data/jobs.js?v=88924df060b6';
-import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed, battleAbilityOk } from './stats.js?v=88924df060b6';
-import { decideMonster, decideAlly } from './ai.js?v=88924df060b6';
-import { ENEMY_RATES, strengthenEnemy } from './data/difficulty.js?v=88924df060b6';
+import { optionsFor, validateDual, startDual, checkWaits, waitStillOk, fireWait, endWait, releasePartners, answerDual, endInvite, performDual, partnersOf, dualHurt, dualRecharged } from './battle-dual.js?v=e6a22f787154';
+import { MONSTERS } from './data/monsters.js?v=e6a22f787154';
+import { ITEMS } from './data/items.js?v=e6a22f787154';
+import { JOBS } from './data/jobs.js?v=e6a22f787154';
+import { computeStats, learnedAbilities, penaltyFor, mpCost, weaponOk, comboAllowed, hiraAllowed, battleAbilityOk } from './stats.js?v=e6a22f787154';
+import { decideMonster, decideAlly } from './ai.js?v=e6a22f787154';
+import { ENEMY_RATES, strengthenEnemy } from './data/difficulty.js?v=e6a22f787154';
 // 第4章の しかけ（まぼろしの分身・月の鏡・そうびしたまま 使う 道具）
-import { setupMirage, mirageHit, mirageVanish, mirageDown, mirageSync, mirageRemake, ch4ItemCheck, ch4UseItem, mirrorSnap } from './battle-ch4.js?v=88924df060b6';
+import { setupMirage, mirageHit, mirageVanish, mirageDown, mirageSync, mirageRemake, ch4ItemCheck, ch4UseItem, mirrorSnap } from './battle-ch4.js?v=e6a22f787154';
 // 第4章 Step 6 の 砂に もぐる（ねらえない。battle-ch4.js）
-import { burrowStart, burrowWarn, burrowBlock, hiddenFrom } from './battle-ch4.js?v=88924df060b6';
-import { shownEquipKey } from './look-equip.js?v=88924df060b6';
+import { burrowStart, burrowWarn, burrowBlock, hiddenFrom } from './battle-ch4.js?v=e6a22f787154';
+import { shownEquipKey } from './look-equip.js?v=e6a22f787154';
 // 第4章 Step 7 の 砂の底の神殿と モルガナ（呪文を はね返す・鏡写し・水の衣・大波・水のろう・水の守りの歌・鏡のうつし身。battle-temple.js）
-import { setupTemple, templeTurnStart, prisonTurn, reflectSpell, templeEffect, templeEst, templeDamage, templeKill, templePub, templeSnap } from './battle-temple.js?v=88924df060b6';
+import { setupTemple, templeTurnStart, prisonTurn, reflectSpell, templeEffect, templeEst, templeDamage, templeKill, templePub, templeSnap } from './battle-temple.js?v=e6a22f787154';
 // 第5章 Step 2 の 星の塔と 星の番人アルゴス（見通しの目。battle-ch5.js）
-import { towerTurnStart, foreseeCheck, towerEffect, towerKill, towerPub } from './battle-ch5.js?v=88924df060b6';
+import { towerTurnStart, foreseeCheck, towerEffect, towerKill, towerPub } from './battle-ch5.js?v=e6a22f787154';
 // 第5章 Step 4 の ガイアイーター（多部位の 戦い。battle-gaia.js）
-import { setupGaia, gaiaDamage } from './battle-gaia.js?v=88924df060b6';
+import { setupGaia, gaiaDamage } from './battle-gaia.js?v=e6a22f787154';
 // 第5章 Step 5 の ノクトの影（職業の まね・合体技の よやくを こわす。battle-nocto.js）
-import { setupNocto, noctoDamage } from './battle-nocto.js?v=88924df060b6';
+import { setupNocto, noctoDamage } from './battle-nocto.js?v=e6a22f787154';
+// 第5章 Step 6・7 の ノクト（1回目）と 大地の神殿の 魔物（地われ・手をのばす・HP半分で 終わる・まもる・おこる。battle-earth.js）
+import { setupEarth, earthDamage, earthStop, riftTurn, reachOk, reach } from './battle-earth.js?v=e6a22f787154';
 // 第33回: 3年B組の担任は 学校の 仲間が いると 技が 強く なる（battle-r33.js）
-import { classmateMult } from './battle-r33.js?v=88924df060b6';
+import { classmateMult } from './battle-r33.js?v=e6a22f787154';
 // 第33回: 男の子の 美少女戦士・セーラームーンは タキシード仮面ふうの 技の 名前・セリフ・えんしゅつ（強さは おなじ）
-import { abilityFor } from './ability-label.js?v=88924df060b6';
+import { abilityFor } from './ability-label.js?v=e6a22f787154';
 
 // 第31回: きずなゲージ・きずな技（ミナデイン）は なくなった（ミナデインは 合体技に。data/dual.js の dt_minadein）
 // 合体技の 2人の 強さの 合わせかた（dualProxy）: 強い ほうの 強さ ＋ 弱い ほうの この わりあい
 export const DUAL_MIX = 0.5;
 // 合体技の 強さ・さそいを まつ 時間は battle-dual.js
-export { DUAL_POWER, DUAL_ASK_MS } from './battle-dual.js?v=88924df060b6';
+export { DUAL_POWER, DUAL_ASK_MS } from './battle-dual.js?v=e6a22f787154';
 const COMBO_WINDOW = 6000;
 const LETTERS = 'ABCDEFGH';
 
@@ -208,6 +210,7 @@ export class Battle {
     setupTemple(this, opts);
     setupGaia(this);
     setupNocto(this);
+    setupEarth(this);
     // まぼろしの分身（おなじ 魔物の 1体だけが 本物。battle-ch4.js）
     setupMirage(this);
     this.initAtb();
@@ -391,6 +394,8 @@ export class Battle {
           c.regen = null;
           continue;
         }
+        // 地われ・のみこまれ の 間は 回復を 受けられない（battle-earth.js）
+        if (c.status.rift) continue;
         const h = Math.min(c.maxHp - c.hp, c.regen.amt);
         if (h <= 0) continue;
         c.hp += h;
@@ -423,8 +428,8 @@ export class Battle {
   }
 
   onReady(c) {
-    // ねむり・まひ・水のろうは じゅんばんが とばされる
-    if (c.status.sleep || c.status.paralyze || c.status.prison) {
+    // ねむり・まひ・水のろう・地われ（のみこまれ）は じゅんばんが とばされる
+    if (c.status.sleep || c.status.paralyze || c.status.prison || c.status.rift) {
       this.enqueue(c, { type: 'incapacitated' });
       return;
     }
@@ -541,6 +546,8 @@ export class Battle {
         return { ok: true };
       }
       case 'dual': return validateDual(this, c, cmd);
+      // 手をのばす（地われ・のみこまれ の 仲間を 助ける。battle-earth.js）
+      case 'reach': return reachOk(this, c, cmd);
       default: return { ok: false, reason: 'bad' };
     }
   }
@@ -560,7 +567,7 @@ export class Battle {
     }
     let cmd = q.cmd;
     // ねむりが ダメージで さめていたら ふつうに こうどうできる
-    if (cmd.type === 'incapacitated' && !c.status.sleep && !c.status.paralyze && !c.status.prison) {
+    if (cmd.type === 'incapacitated' && !c.status.sleep && !c.status.paralyze && !c.status.prison && !c.status.rift) {
       if (c.controller && !c.auto) {
         c.queued = false;
         c.ready = true;
@@ -640,6 +647,8 @@ export class Battle {
   doIncapacitated(c, ev) {
     // 水のろうに とじこめられている（battle-temple.js）
     if (c.status.prison) return prisonTurn(this, c, ev);
+    // 地われに 落ちている・のみこまれている（battle-earth.js）
+    if (c.status.rift) return riftTurn(this, c, ev);
     if (c.status.sleep) {
       const s = c.status.sleep;
       s.turns--;
@@ -740,6 +749,7 @@ export class Battle {
       case 'item': this.useItem(c, cmd, ev); break;
       case 'mahouken': this.doMahouken(c, cmd, ev); break;
       case 'dual': this.performDual(c, cmd, ev); break;
+      case 'reach': reach(this, c, cmd, ev); break;
       case 'ability': {
         // 使う 人 むけの 技（男の子の 美少女戦士・セーラームーンは 名前・セリフ・えんしゅつが かわる。ability-label.js）
         const a = abilityFor(cmd.id, c);
@@ -853,7 +863,7 @@ export class Battle {
 
   coverRedirect(t) {
     const cover = this.allies.find((x) => x.alive && x !== t && x.cover && (x.cover.target === 'all' || x.cover.target === t.id)
-      && !x.status.sleep && !x.status.paralyze);
+      && !x.status.sleep && !x.status.paralyze && !x.status.rift);
     if (cover) {
       if (this.cur) this.cur.coverMsg = `${cover.name}が${t.name}をかばった！`;
       return cover;
@@ -1401,7 +1411,7 @@ export class Battle {
       }
       case 'nothing': break;
       // 呪文を はね返す・水の衣・大波の 前ぶれ・水のろう など（battle-temple.js）
-      default: if (!templeEffect(this, c, a, eff, ev, targets)) towerEffect(this, c, a, eff, ev); break;
+      default: if (!templeEffect(this, c, a, eff, ev, targets)) towerEffect(this, c, a, eff, ev, targets); break;
     }
   }
 
@@ -1544,6 +1554,10 @@ export class Battle {
     dmg = gaiaDamage(this, c, t, dmg, info, ev);
     // ノクトの影: まねられた 人の 攻撃は 見切られて 半分（battle-nocto.js）
     dmg = noctoDamage(this, c, t, dmg, info, ev);
+    // まもり兵が かばう・ダンゴムシの こうらと いかり・ノクトは HP半分で 戦いを やめる（battle-earth.js）
+    const ed = earthDamage(this, c, t, dmg, info, ev);
+    if (ed === null) return;
+    dmg = ed;
     // 天才しせつ管理者の 予兆保全: 敵の 大技の ダメージが 小さく なる（jobs.js の passive.foresee）
     if (ev.big && c.side === 'enemy' && t.side === 'ally' && dmg > 0) dmg = this.foreseeCut(dmg, ev);
     // 峰打ち: たおさずに HP を 1 のこす
@@ -1673,6 +1687,11 @@ export class Battle {
 
   heal(c, t, eff, ev, powMult) {
     if (!t.alive) return;
+    // 地われ・のみこまれ の 間は 回復が とどかない（battle-earth.js）
+    if (t.status.rift) {
+      ev.lines.push(`${t.name}には、回復がとどかない！`);
+      return;
+    }
     const [mn, mx] = eff.base;
     let amt = this.rng.int(mn, mx);
     if (!eff.fixed) amt *= 1 + clamp(((c.healPow || 0) - (eff.thr ?? 20)) / 150, 0, eff.scaleCap ?? 1);
@@ -2027,6 +2046,8 @@ export class Battle {
         ev.phase = true;
       }
     }
+    // ノクト（1回目）: HPが 半分で 戦いを やめる（勝ち。battle-earth.js）
+    earthStop(this, t, ev);
     if (ev.phaseLines && !ev.phaseQueued) {
       ev.phaseQueued = true;
       // メッセージの さいごに つける

@@ -2,7 +2,7 @@
 // render/monsters.js が addHoshiyomiArt を よぶ。かきかたは ch5-kumoi-mon-art.js と おなじ（g … w・h の わりあいで かく。f … 0 か 1 の コマ）
 // ノクトの影: nocto_shadow … フードの 子の 形の 影（図鑑・台本の showMon('nocto_shadow')）。
 //   戦いで だれかを まねて いる 間は、client/battle-nocto.js が うしろに まねた 人の 影を かさねる
-import { fit, bez, taper, spark } from './ch3-draw.js?v=88924df060b6';
+import { fit, bez, taper, spark } from './ch3-draw.js?v=e6a22f787154';
 
 // ───── 黒ずくめの追っ手 ─────
 const AGENT = {

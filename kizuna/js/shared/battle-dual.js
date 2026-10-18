@@ -9,14 +9,14 @@
 //   その 人の ゲージは 半分から やり直し（よやくは つづく。ゲージが まだ たまって いない 人は かわらない。dualHurt）
 // ・強さ: 出す 人が それぞれ、その 組の 技（か ふつうの 攻撃）を 出した ときの ダメージの 合計 × DUAL_POWER[人数] × k
 //   （この 敵に 当てた ときの 見つもり。守り・弱点・バフも 入る。属性は 合体技の 属性で かかる）
-import { ABILITIES, ELEMENT_NAMES } from './data/abilities.js?v=88924df060b6';
-import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js?v=88924df060b6';
-import { weaponOk, comboAllowed, penaltyFor } from './stats.js?v=88924df060b6';
+import { ABILITIES, ELEMENT_NAMES } from './data/abilities.js?v=e6a22f787154';
+import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js?v=e6a22f787154';
+import { weaponOk, comboAllowed, penaltyFor } from './stats.js?v=e6a22f787154';
 // 第27回: 推理（敵 それぞれの いちばんの 弱点の 属性で 当てる）の 合体技
-import { deduceElement } from './data/abilities-jobs6.js?v=88924df060b6';
-import { MONSTERS } from './data/monsters.js?v=88924df060b6';
+import { deduceElement } from './data/abilities-jobs6.js?v=e6a22f787154';
+import { MONSTERS } from './data/monsters.js?v=e6a22f787154';
 // 第33回: 男の子の 美少女戦士が 出す ときは 合体技の 名前・セリフが かわる（ability-label.js の dualFor）
-import { dualFor } from './ability-label.js?v=88924df060b6';
+import { dualFor } from './ability-label.js?v=e6a22f787154';
 
 // 人数ごとの 強さ（別々に 1回ずつ 動いた ときの 合計の 何倍か。全体技は parts の k で 下げる）
 export const DUAL_POWER = { 2: 1.8, 3: 2.2, 4: 3.0 };
@@ -26,7 +26,7 @@ export const DUAL_BOSS_CAP = { 2: 0.2, 3: 0.25, 4: 0.3 };
 // 合体技に さそわれた 家族が こたえるまで まつ 時間（ミリびょう）
 export const DUAL_ASK_MS = 7000;
 // 動けない じょうたい（合体技に 入れない）
-const OUT = ['sleep', 'paralyze', 'confuse', 'prison'];
+const OUT = ['sleep', 'paralyze', 'confuse', 'prison', 'rift'];
 const cantJoin = (p) => !p || !p.alive || p.fled || OUT.some((s) => p.status?.[s]);
 
 export const partnersOf = (cmd) => (cmd?.partners?.length ? cmd.partners : cmd?.partner ? [cmd.partner] : []);
@@ -50,7 +50,7 @@ export function optionsFor(b, c, others = null, exec = false, anyGauge = false) 
     // ほかの 人の 合体技を まっている・まって もらって いる
     waiting: x !== c && (!!x.waitDual || (!!x.dualTarget && x.dualTarget !== c.id)),
     // 呪文が ふうじられた 場所では、呪文の 合体技は 出せない（マホトーンと おなじ）。水のろうの 中も 出られない
-    statuses: [...Object.keys(x.status || {}), ...(x.status?.prison ? ['paralyze'] : []), ...(b.noSpells ? ['silence'] : [])], weaponCat: x.weaponCat,
+    statuses: [...Object.keys(x.status || {}), ...(x.status?.prison || x.status?.rift ? ['paralyze'] : []), ...(b.noSpells ? ['silence'] : [])], weaponCat: x.weaponCat,
     usable: (id) => {
       const a = ABILITIES[id];
       return !!a && (a.kind !== 'combo' || comboAllowed(x.penChar, id)) && weaponOk(a, x.weaponCat);

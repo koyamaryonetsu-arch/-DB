@@ -13,18 +13,23 @@
 // 第5章 Step 5: 西の 小島「星読みの里」（中の 町は maps/hoshiyomi.js の 'hoshiyomi'）。守り星の かけら（c5_shard）の あと、
 //   しずみゆく島の 北西の 風見の石3を 回すと、北へ 風の道（w7）が 開いて 里の 島へ。里の 島から 東へ 風の道（w8）で 帰れる。
 //   竜で 里の 島の 上を 飛べるのは、里に 着いて から（c5_village。data/sky.js の box）。里の 島の まわりの 魔物は t5_village（B）
-import { T } from '../tiles.js?v=88924df060b6';
-import { hash2, fbm } from '../rng.js?v=88924df060b6';
-import { npc } from './npc.js?v=88924df060b6';
-import { SEA_PLACES } from './ch2.js?v=88924df060b6';
-import { buildRuinMaps, RUIN_OUT } from './sink-ruin.js?v=88924df060b6';
+// 第5章 Step 6・7: ハネノの島の 南の「根の島」（大地の 神殿の 入口。中は maps/earth.js の earth_1f〜8f）。ハネノの島の 南の 風見の石4を 回すと
+//   南へ 風の道（w9）が 開く。根の島から 北へ 風の道（w10）で 帰れる（竜でも 行ける）。神殿の 入口は 根が からみついていて、長ソラネの 話（c5_root）で ほどける。
+//   影の城が うかぶと（c5_castle）: 雲の 海の まん中に 影の城（まだ 入れない）・西の 船着き場の 風の道（w1）が とぎれる・しずんでいた 小島が 1つ 出てくる・
+//   空が 夕ぐれの 色に（map.dusk）・曲が kumoi_dusk に。根の島の 魔物は t5_root（B）
+import { T } from '../tiles.js?v=e6a22f787154';
+import { hash2, fbm } from '../rng.js?v=e6a22f787154';
+import { npc } from './npc.js?v=e6a22f787154';
+import { SEA_PLACES } from './ch2.js?v=e6a22f787154';
+import { buildRuinMaps, RUIN_OUT } from './sink-ruin.js?v=e6a22f787154';
+import { EARTH_OUT, HANONO_GATHER_NPCS, K7 } from './earth.js?v=e6a22f787154';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 // 物語の すすみぐあい（data/story-ch5.js の CH5_STEPS の c5_sky の うしろ。plan-ch5.md の 13 の 名前の 約束）
 export const K5 = { kumoi: 'c5_kumoi', hanono: 'c5_hanono', pipi: 'c5_pipi', ruin: 'c5_ruin', gaia: 'c5_gaia', shard: 'c5_shard' };
 // 物語の すすみぐあいでは ない フラグ
 export const HANONO_SEEN = 'c5_k_town'; // ハネノの 町に 入った（門番の あいさつ）
-export const KUMOI_VANES = { v1: 'c5_k_vane1', v2: 'c5_k_vane2', v3: 'c5_k_vane3' }; // 風見の石を 回した（もう 1回 回すと もどる。v3 は 星読みの里への 風の道）
+export const KUMOI_VANES = { v1: 'c5_k_vane1', v2: 'c5_k_vane2', v3: 'c5_k_vane3', v4: 'c5_kroad_w9' }; // 風見の石を 回した（もう 1回 回すと もどる。v3 は 星読みの里への 風の道・v4 は 根の島への 風の道）
 
 // ───────────── クモイ地方（フィールド 'kumoi'）─────────────
 export const KUMOI_W = 80;
@@ -42,6 +47,9 @@ export const KUMOI_ISLES = {
   far: { cx: 70, cy: 9, rx: 3.5, ry: 3, name: '北東のはなれ小島' },
   // 第5章 Step 5: 西の 小島「星読みの里」（中の 町は maps/hoshiyomi.js）
   star: { cx: 6.5, cy: 27, rx: 6, ry: 5, name: '星読みの里' },
+  // 第5章 Step 6・7: ハネノの島の 南の「根の島」（大地の 神殿の 入口）と、影の城が うかぶと（c5_castle）雲から 出てくる 小島
+  root: { cx: 60, cy: 52, rx: 6.5, ry: 4.5, name: '根の島' },
+  shade: { cx: 44.5, cy: 38.5, rx: 2.6, ry: 2, name: '影の城の前の小島', show: K7.castle },
 };
 const IS = KUMOI_ISLES;
 const inIsle = (I, x, y, k = 1) => ((x + 0.5 - I.cx) / I.rx) ** 2 + ((y + 0.5 - I.cy) / I.ry) ** 2 < k;
@@ -66,6 +74,11 @@ export const KUMOI_POS = {
   starGateOut: { x: 7, y: 28.5 }, // 里から 出て 着く ところ
   starSign: { x: 9, y: 28 }, // 里の 島の かんばん
   roadSign: { x: 11, y: 39 }, // しずみゆく島の 北西の かんばん（風の道 w7 の のりば）
+  // 第5章 Step 6・7: 根の島
+  vane4: { x: 59, y: 40 }, // 風見の石4（ハネノの島の 南。c5_root の あと 回すと 根の島への 風の道 w9 が 開く）
+  rootRoadSign: { x: 62, y: 39 }, // ハネノの島の 南の かんばん（風の道 w9 の のりば）
+  rootSign: { x: 57, y: 54 }, // 根の島の かんばん
+  castle: { x: 40, y: 37 }, // 影の城（c5_castle の あと。雲の 海の まん中。まだ 入れない）
 };
 // 星読みの里の 島の 町（生けがきの 中に 家の やね。中へは 門から）
 export const STAR_TOWN = { x: 4, y: 23, w: 6, h: 5 };
@@ -99,12 +112,18 @@ export const KUMOI_WINDS = {
   w6: [...seg(25, 44, 'E', 25), ...seg(50, 44, 'N', 6)],
   // 第5章 Step 5: 星読みの里の 島 → 東へ（西の風見の小島から 南へ ふく 風 w5 に 合流。風見の小島か しずみゆく島へ）
   w8: seg(12, 26, 'E', 6),
+  // 第5章 Step 6・7: 根の島 → 北へ（ハネノの島の 南へ 帰る）
+  w10: seg(56, 47, 'N', 7),
 };
 // 開け しめ できる 風の道（ふだんは 雲の 海。flag が たつと 風の道）
 // w7 … しずみゆく島の 北西 → 北へ → 星読みの里の 島（風見の石3。守り星の かけら〈c5_shard〉の あとで ないと 回らない）
 export const KUMOI_ROADS = {
   w7: { cells: seg(9, 38, 'N', 8), flag: KUMOI_VANES.v3, vane: 'vane3' },
+  // 第5章 Step 6・7: ハネノの島の 南 → 南へ → 根の島（風見の石4。長ソラネの 話〈c5_root〉の あとで ないと 回らない）
+  w9: { cells: seg(61, 41, 'S', 7), flag: KUMOI_VANES.v4, vane: 'vane4' },
 };
+// 影の城が うかぶと（c5_castle）とぎれる 風の道（ハネノの島の 西の 船着き場 → 風見の小島。帰りの w2 は のこる）
+export const CASTLE_CUT = 'w1';
 // 曲がり角（風見の石で 向きが かわる）: off … 回す 前 / on … 回した あと
 export const KUMOI_JUNCTIONS = {
   j1: { x: 34, y: 16, off: 'N', on: 'W', flag: KUMOI_VANES.v1, vane: 'vane1' },
@@ -189,6 +208,14 @@ export function buildKumoiTiles() {
   for (const [x, y, w, h] of STAR_HOUSES) for (let j = y; j < y + h; j++) for (let i = x; i < x + w; i++) set(i, j, T.WALL_WOOD);
   for (const g of KUMOI_POS.starGate) { set(g.x, g.y, T.STONE_PATH); set(g.x, g.y + 1, T.STONE_PATH); }
   for (const p of [KUMOI_POS.starSign, KUMOI_POS.roadSign]) set(p.x, p.y, T.SIGN);
+  // 4c) 根の島: 大地の 神殿の 古い 石がこい（入口は 南。根が からみついていて、c5_root で ほどける）・大きな 根（第5章 Step 6・7）
+  const EO = EARTH_OUT;
+  for (let y = EO.y - 1; y <= EO.y + EO.h; y++) for (let x = EO.x - 1; x <= EO.x + EO.w; x++) if (isleAt(x, y) === 'root') set(x, y, T.GRASS);
+  for (let y = EO.y; y < EO.y + EO.h; y++) for (let x = EO.x; x < EO.x + EO.w; x++) set(x, y, T.RUIN_WALL);
+  set(EO.door.x, EO.door.y, T.GAIA_ROOT);
+  gates.push({ x: EO.door.x, y: EO.door.y, closed: T.GAIA_ROOT, open: T.ROOT_GATE, flag: K7.root });
+  for (const [x, y] of ROOT_DECO) set(x, y, T.GAIA_ROOT);
+  set(KUMOI_POS.rootSign.x, KUMOI_POS.rootSign.y, T.SIGN);
   // 5) 風の道（雲の 上）。のる 所と 着く 所は 島の 地面
   for (const cells of Object.values(KUMOI_WINDS)) for (const [x, y, d] of cells) set(x, y, DIR_TILE[d]);
   // 開け しめ できる 風の道（ふだんは 雲の 海）
@@ -209,9 +236,15 @@ export function buildKumoiTiles() {
   // 風見の石3の まわりと、そこから 風の道 w7 の のりばまでも 草に（第5章 Step 5）
   const V3 = KUMOI_POS.vane3;
   for (let y = 38; y <= V3.y + 1; y++) for (let x = 8; x <= V3.x; x++) if (SOLIDS.includes(get(x, y))) set(x, y, T.GRASS);
+  // 風見の石4の まわりも 草に（第5章 Step 6・7）
+  const V4 = KUMOI_POS.vane4;
+  for (let y = V4.y - 2; y <= V4.y; y++) for (let x = V4.x - 3; x <= KUMOI_POS.rootRoadSign.x; x++) if (SOLIDS.includes(get(x, y))) set(x, y, T.GRASS);
+  set(KUMOI_POS.rootRoadSign.x, KUMOI_POS.rootRoadSign.y, T.SIGN);
+  // 影の城が うかぶと とぎれる 風の道（c5_castle。雲の 海に なる）
+  for (const [x, y] of KUMOI_WINDS[CASTLE_CUT]) gates.push({ x, y, closed: get(x, y), open: T.CLOUD_SEA, flag: K7.castle });
   // 6) 風見の石
-  for (const k of ['vane1', 'vane2', 'vane3']) set(KUMOI_POS[k].x, KUMOI_POS[k].y, T.VANE);
-  gates.push({ x: V3.x, y: V3.y, closed: T.VANE, open: T.VANE_ON, flag: KUMOI_VANES.v3 });
+  for (const k of ['vane1', 'vane2', 'vane3', 'vane4']) set(KUMOI_POS[k].x, KUMOI_POS[k].y, T.VANE);
+  for (const R of Object.values(KUMOI_ROADS)) gates.push({ x: KUMOI_POS[R.vane].x, y: KUMOI_POS[R.vane].y, closed: T.VANE, open: T.VANE_ON, flag: R.flag });
   for (const J of Object.values(KUMOI_JUNCTIONS)) {
     const V = KUMOI_POS[J.vane];
     gates.push({ x: V.x, y: V.y, closed: T.VANE, open: T.VANE_ON, flag: J.flag });
@@ -222,6 +255,8 @@ export function buildKumoiTiles() {
 export const KUMOI_HOUSES = [[53, 22, 4, 3], [61, 22, 4, 3], [53, 26, 4, 2], [61, 26, 4, 2]];
 // 星読みの里の 島の 家（やねだけ。第5章 Step 5）
 export const STAR_HOUSES = [[5, 24, 4, 2]];
+// 根の島の 大きな 根（かざり。第5章 Step 6・7）
+const ROOT_DECO = [[55, 50], [55, 52], [64, 50], [64, 52], [58, 55], [62, 55]];
 const ROOF_COLORS = ['white', 'teal', 'blue', 'pink'];
 
 // どの ちいきか: 島の 上は t5_kumoi。雲・風の道・町と 降り場・神殿の 入口の まわりは 出ない
@@ -239,6 +274,14 @@ export function makeKumoiZone(tiles) {
       if (Math.hypot(x - 9, y - 30) < 2.5 || Math.hypot(x - 11, y - 26) < 2) return 'safe:pier';
       return 't5_village';
     }
+    // 根の島（第5章 Step 6・7）: 神殿の 入口・風の道の 着く 所の まわりは 出ない。ほかは 根の島の 魔物（B の t5_root）
+    if (isleAt(x, y) === 'root') {
+      const EO = EARTH_OUT;
+      if (x >= EO.door.x - 2 && x <= EO.door.x + 2 && y >= EO.door.y && y <= EO.door.y + 2) return 'safe:earth';
+      if (Math.hypot(x - 61, y - 48) < 2 || Math.hypot(x - 56, y - 48) < 2) return 'safe:pier';
+      return 't5_root';
+    }
+    if (Math.hypot(x - KUMOI_POS.vane4.x, y - KUMOI_POS.vane4.y) < 3 || Math.hypot(x - 61, y - 40) < 2 || Math.hypot(x - 56, y - 40) < 2) return 'safe:pier';
     if (Math.hypot(x - KUMOI_POS.vane3.x, y - KUMOI_POS.vane3.y) < 2.5 || Math.hypot(x - 9, y - 39) < 1.5) return 'safe:pier';
     // 風の道の のりば（船着き場）
     if (Math.hypot(x - 45, y - 30) < 3 || Math.hypot(x - 50, y - 38) < 2.5) return 'safe:pier';
@@ -256,6 +299,8 @@ const at = (p) => [p.x, p.y];
 const KUMOI_NPCS = [
   // ハネビトの 見張り（町の 門の 前）
   npc('c5_k_guard', 'ハネビトの見張り', at(KUMOI_POS.guard), 'hanebito_guard', 'c5_k_guard', { dir: 'left' }),
+  // 第5章 Step 7: 影の城（雲の 海の まん中に うかぶ。まだ 入れない。影の城の 前の 小島から 話しかけられる）
+  npc('shadow_castle', '影の城', at(KUMOI_POS.castle), 'shadow_castle', 'c5_castle_view', { solid: false, show: { all: [K7.castle] } }),
 ];
 const KUMOI_CHESTS = [
   { id: 'k5_treasure', x: 34, y: 11, item: 'seed_agi' },
@@ -264,13 +309,21 @@ const KUMOI_CHESTS = [
   // c5_shard の あと（雲から 出てきた 島・竜で 行く はなれ小島）
   { id: 'k5_rise', x: 40, y: 51, item: 'seed_hp', show: { all: [K5.shard] } },
   { id: 'k5_far', x: 70, y: 9, item: 'seed_mag' },
+  // 第5章 Step 6・7: 根の島・影の城の 前の 小島（c5_castle の あと）
+  { id: 'k5_root', x: 65, y: 53, item: 'seed_str' },
+  { id: 'k5_shade', x: 45, y: 38, item: 'seed_hp', show: { all: [K7.castle] } },
 ];
+// 影の城が うかんだ あとの 空の 色（クモイ地方・ハネノの 町。昼でも 夕方くらいの 色）
+export const KUMOI_DUSK = { flag: K7.castle, color: 'rgba(120, 44, 70, 0.24)' };
 const KUMOI_SIGNS = [
   { ...KUMOI_POS.sign, text: 'ここはハネノの島。\n↑ ハネノの町\n← 西の船着き場から、風の道で風見の小島へ' },
   { ...KUMOI_POS.sinkSign, text: 'しずみゆく島。\n古い神殿の入口は、神殿の南がわ。\n（島がかたむいて、とびらがゆがんでいる…）' },
   // 第5章 Step 5
   { ...KUMOI_POS.starSign, text: 'ここは星読みの里。\n↑ 里の門\n→ 東の風の道で、西の風見の小島の南へ' },
   { ...KUMOI_POS.roadSign, text: '↑ 北の雲の向こうに、星読みの里があるという。\n（風見の石を回すと、北へ風の道が開くらしい）' },
+  // 第5章 Step 6・7
+  { ...KUMOI_POS.rootRoadSign, text: '↓ 南の雲の下に、島々をささえる「根の島」がある。\n（風見の石を回すと、南へ風の道が開くらしい）' },
+  { ...KUMOI_POS.rootSign, text: 'ここは根の島。\n島々をささえる大きな根が、雲の海の下までのびている。\n↑ 大地の神殿（入口は、古い石がこいの南がわ）\n↑ 北の風の道で、ハネノの島へ' },
 ];
 
 function kumoiField() {
@@ -297,12 +350,16 @@ function kumoiField() {
       { x: RUIN_OUT.door.x, y: RUIN_OUT.door.y, to: { map: 'sink_ruin_1f', ...RUIN_OUT.inside, dir: 'up' } },
       // 第5章 Step 5: 星読みの里の 門 → 星読みの里（maps/hoshiyomi.js の HOSHIYOMI_ARRIVE と おなじ 場所）
       ...KUMOI_POS.starGate.map((g) => ({ x: g.x, y: g.y, to: { map: 'hoshiyomi', x: 20.5, y: 26.5, dir: 'up' } })),
+      // 第5章 Step 6・7: 根の島の 大地の 神殿（入口の 根は c5_root で ほどける）
+      { x: EARTH_OUT.door.x, y: EARTH_OUT.door.y, to: { map: 'earth_1f', ...EARTH_OUT.inside, dir: 'up' } },
     ],
     triggers: [],
     links: [],
     zoneAt: makeKumoiZone(b.tiles), areaName: kumoiAreaName,
-    bgmAt: () => 'kumoi',
-    spawnCounts: { t5_kumoi: 9, t5_village: 3 },
+    // 第5章 Step 7: 影の城が うかぶと（c5_castle）曲が かわり、空が 夕ぐれの 色に（client/field.js の dusk）
+    bgmAt: (x, y, night, has) => (has?.(K7.castle) ? 'kumoi_dusk' : 'kumoi'),
+    dusk: KUMOI_DUSK,
+    spawnCounts: { t5_kumoi: 9, t5_village: 3, t5_root: 3 },
     sparkles: [{ id: 'ksp0', x: 31, y: 30, zone: 't5_kumoi' }, { id: 'ksp1', x: 20, y: 18, zone: 't5_kumoi' }, { id: 'ksp2', x: 12, y: 49, zone: 't5_kumoi' }],
   };
 }
@@ -411,7 +468,8 @@ export function buildHanonoTiles() {
 const DAY = { not: ['@night'] };
 const HN_NPCS = [
   npc('sorane', '長ソラネ', at(HANONO_POS.sorane), 'sorane', 'c5_sorane', { dir: 'down' }),
-  npc('pipi', 'ピピ', at(HANONO_POS.pipi), 'pipi', 'c5_pipi', { dir: 'right' }),
+  // ピピ（第5章 Step 6: 長ソラネの 話〈c5_root〉の あと、こっそり 大地の 神殿へ。助けた あとは maps/earth.js の pipi_home）
+  npc('pipi', 'ピピ', at(HANONO_POS.pipi), 'pipi', 'c5_pipi', { dir: 'right', show: { not: [K7.root] } }),
   // 宿屋・教会・武器と防具の店・道具屋（カウンターの 向こう）
   npc('c5_h_inn', '宿屋のおかみ', [HH.inn.x + 4, HH.inn.y + 1], 'hanebito_f', 'c5_inn_hanono', { dir: 'down' }),
   npc('c5_h_priest', '神父さま', [HH.church.door, HH.church.y + 2], 'hanebito_priest', 'church', { dir: 'down' }),
@@ -425,6 +483,8 @@ const HN_NPCS = [
   npc('c5_h_kid', 'ハネビトの女の子', [27, 25], 'hanebito_kid', 'c5_h_kid', { wander: 2, show: DAY }),
   npc('c5_h_wind', '風読みのハネビト', [34, 29], 'hanebito_m', 'c5_h_wind', { dir: 'left' }),
   npc('c5_h_scholar', 'ソラネの書記', [HH.sorane.x + 3, HH.sorane.y + 2], 'hanebito_f2', 'c5_h_scholar', { dir: 'down' }),
+  // 第5章 Step 7: 影の城が うかんだ あと、広場に 集まる 人たち（maps/earth.js）
+  ...HANONO_GATHER_NPCS,
 ];
 const HN_CHESTS = [
   { id: 'hn_sorane', x: HH.sorane.x + HH.sorane.w - 3, y: HH.sorane.y + 1, item: 'magic_water', n: 2 },
@@ -447,6 +507,7 @@ function hanonoField() {
     bg2d: '#e4ecf8',
     // 竜の 笛を ふいた とき（町の 中には おりられない。world/travel.js の canCall）
     noFlyText: '風の笛をふいた！\nしかし星の竜アステルは、町の中にはおりられない。\n（南の門から外に出てふこう）',
+    dusk: KUMOI_DUSK,
     w: b.w, h: b.h, tiles: b.tiles, gates: [],
     npcs: HN_NPCS, chests: HN_CHESTS, signs: HN_SIGNS, boards: HN_BOARDS,
     roofs: Object.values(HH).map((B) => ({ x: B.x, y: B.y, w: B.w, h: B.h, color: B.roof })),

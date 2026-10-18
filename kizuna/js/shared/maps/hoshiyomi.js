@@ -5,12 +5,12 @@
 //   南の 門（3マス）を ふむと クモイ地方の 星読みの里の 島へ もどる
 // ・ノクトの 思い出の 迷宮（memory_1f〜memory_6f）は maps/memory.js
 // だいほんは data/story-hoshiyomi.js
-import { T } from '../tiles.js?v=88924df060b6';
-import { hash2, fbm } from '../rng.js?v=88924df060b6';
-import { npc } from './npc.js?v=88924df060b6';
-import { SEA_PLACES } from './ch2.js?v=88924df060b6';
-import { KUMOI_POS } from './kumoi.js?v=88924df060b6';
-import { buildMemoryMaps } from './memory.js?v=88924df060b6';
+import { T } from '../tiles.js?v=e6a22f787154';
+import { hash2, fbm } from '../rng.js?v=e6a22f787154';
+import { npc } from './npc.js?v=e6a22f787154';
+import { SEA_PLACES } from './ch2.js?v=e6a22f787154';
+import { KUMOI_POS } from './kumoi.js?v=e6a22f787154';
+import { buildMemoryMaps } from './memory.js?v=e6a22f787154';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 // 物語の すすみぐあい（data/story-ch5.js の CH5_STEPS の c5_shard の うしろ。plan-ch5.md の 14 の 名前の 約束）
@@ -133,7 +133,8 @@ const DAY = { not: ['@night'] };
 const at = (p) => [p.x, p.y];
 const HY_NPCS = [
   npc('kanata', '星読みのカナタ', at(HOSHIYOMI_POS.kanata), 'kanata', 'c5_kanata', { dir: 'down' }),
-  npc('elder_hy', 'ホシミばあちゃん', at(HOSHIYOMI_POS.grandma), 'elder', 'c5_y_grandma', { dir: 'left', show: { all: [K6.grandma] } }),
+  // 影の城が うかんだ あと（c5_castle）は ハネノの 町へ（maps/earth.js の 集まる 人たち）
+  npc('elder_hy', 'ホシミばあちゃん', at(HOSHIYOMI_POS.grandma), 'elder', 'c5_y_grandma', { dir: 'left', show: { all: [K6.grandma], not: ['c5_castle'] } }),
   // 宿屋・教会・よろず屋（カウンターの 向こう）
   npc('c5_y_inn', '宿屋のおかみ', [HH.inn.x + 3, HH.inn.y + 1], 'hoshi_f', 'c5_inn_hoshiyomi', { dir: 'down' }),
   npc('c5_y_priest', '神父さま', [HH.church.door, HH.church.y + 2], 'priest', 'church', { dir: 'down' }),

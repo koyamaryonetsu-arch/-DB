@@ -8,15 +8,15 @@
 // ・6階の ノクトの 影（きまった 戦い nocto_shadow。B）→ c5_nshadow → 水しょうの 前に もどると 本物の ノクト（c5_nocto。「第5章の続きはアップデートで！」）
 // ・思い出の かけらを 6つ 全部 拾っていると、ノクトの 影の さいごの 場面と、ノクトの ことばが かわる（第6幕でも MEMORY_SHARD_FLAGS を 使う）
 // 里の まわりと 迷宮の 魔物・きまった 戦い nocto_shadow・里の 店の 品・迷宮の 宝箱の 品は B（戦い・品）が 作る（plan-ch5.md の 14）
-import { K5, KUMOI_POS, KUMOI_ROADS, KUMOI_VANES } from '../maps/kumoi.js?v=88924df060b6';
+import { K5, KUMOI_POS, KUMOI_ROADS, KUMOI_VANES } from '../maps/kumoi.js?v=e6a22f787154';
 import {
   K6, HOSHIYOMI_POS, PRACTICE_ORDER, PRACTICE_FLAGS, PRACTICE_DONE, PRACTICE_PRIZE,
-} from '../maps/hoshiyomi.js?v=88924df060b6';
+} from '../maps/hoshiyomi.js?v=e6a22f787154';
 import {
   MEMORY_FLOORS, MEMORY_POS, MEMORY_REST, MEMORY_BOSS, MF, LAMP, MSHARD, MEMORY_SHARD_FLAGS, memoryShardCount, memoryShardsAll,
   memoryMapId, memoryArrive,
-} from '../maps/memory.js?v=88924df060b6';
-import { innSteps } from './inn.js?v=88924df060b6';
+} from '../maps/memory.js?v=e6a22f787154';
+import { innSteps } from './inn.js?v=e6a22f787154';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -38,8 +38,8 @@ export const HOSHIYOMI_OBJ = {
   m5: '5階。2つ目のへやの3つのランプ台を、使い分けて進もう',
   m6: 'いちばん下の階…。大広間で、だれかが待っている。準備を整えてから進もう',
   nshadow: '星読みの里の、星読みの水しょうの前へもどろう',
-  // Step 5 の さいご。あとの Step で 文を かえる ときは、この 文を OLD_C5_OBJ.nocto に のこす（repairObjective で なおる）
-  nocto: '第5章の続きはアップデートで！（ノクトは「大地の神殿まで来ればいい」と言って、消えた…）',
+  // 本物の ノクトに 会った あと（Step 6 で かえた。前の「第5章の続きはアップデートで！…」の 文は story-ch5.js の OLD_C5_OBJ.nocto。repairObjective で なおる）
+  nocto: 'ハネノの町の長ソラネに、大地の神殿のことを聞こう',
 };
 const OBJ = HOSHIYOMI_OBJ;
 const FLOOR_OBJ = { 1: 'memory', 2: 'm2', 3: 'm3', 4: 'm4', 5: 'm5', 6: 'm6' };
@@ -195,7 +195,8 @@ function noctoScene() {
     ...S('星読みのカナタ', '…あの子は、まだ、選ぶとちゅうなのじゃ。', '{name}よ。\nそなたの紋章の光が、いつか、あの子の道をてらすかもしれん。'),
     ['look'],
     ['flag', K6.nocto], ['sync'],
-    ...N('――第5章の続きはアップデートで！――'),
+    // 第5章 Step 6 へ（大地の 神殿）
+    ...N('（大地の神殿…。\nハネノの町の長ソラネなら、何か知っているかもしれない）'),
     ['bgm', 'resume'],
     ['objective', OBJ.nocto],
   ];
@@ -468,7 +469,7 @@ export const HOSHIYOMI_OBJECTIVE_TARGETS = {
   [OBJ.m5]: [lampAt(5, 1), lampAt(5, 2), down(5)],
   [OBJ.m6]: [{ npc: 'nocto_shade' }],
   [OBJ.nshadow]: [hat(HOSHIYOMI_POS.crystal)],
-  [OBJ.nocto]: [{ npc: 'kanata' }],
+  [OBJ.nocto]: [{ npc: 'sorane' }],
 };
 
 // ───── 仲間会話（party-talk.js。「はなす」の ヒント）─────
@@ -534,10 +535,10 @@ export const HOSHIYOMI_OBJECTIVE_TALK = {
     kid: 'もどってこられたね！水しょうのところへ行こう！',
   },
   [OBJ.nocto]: {
-    self: 'ノクトは、大地の守り星を持って、大地の神殿で待つと言った。第5章の続きは、アップデートで。',
-    bold: 'ノクトのやつ…。大地の神殿、ぜったい行ってやる！',
-    kind: 'ノクトさん…。ひとりで、何を選ぼうとしているのでしょう。',
-    kid: 'ノクト兄ちゃん、ピピが待ってるのに…。',
+    self: 'ノクトは、大地の守り星を持って、大地の神殿で待つと言った。ハネノの町の長ソラネに、神殿のことを聞いてみよう。',
+    bold: 'ノクトのやつ…。大地の神殿、ぜったい行ってやる！まずはハネノのソラネさんだ！',
+    kind: 'ノクトさん…。ひとりで、何を選ぼうとしているのでしょう。ハネノの長ソラネさまなら、大地の神殿を知っているはずです。',
+    kid: 'ノクト兄ちゃん、ピピが待ってるのに…。ハネノに行って、長さまに聞いてみよう！',
   },
 };
 

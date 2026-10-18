@@ -10,8 +10,8 @@
 //   - 酒場が いっぱい（ROSTER_MAX）なら 入れない（今の しくみと 同じ。その 人に「いっぱいだった」と 知らせる）
 // ・知らせ: 遊んでいる 人には その 場で（戦いの けっかを とじてから）。今 いない 人は c.tavernNews に のこし、
 //   つぎに 入った ときに 出す（world.js の takeTavernNews）
-import { MONSTERS } from '../data/monsters.js?v=88924df060b6';
-import { addMonsterEntry } from './party.js?v=88924df060b6';
+import { MONSTERS } from '../data/monsters.js?v=e6a22f787154';
+import { addMonsterEntry } from './party.js?v=e6a22f787154';
 
 export const TAVERN_NEWS_MAX = 10;
 

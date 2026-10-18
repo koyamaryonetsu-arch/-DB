@@ -1,17 +1,18 @@
 // マップの タイル（16×16 ドット）を プログラムで かく
-import { T, TILE_INFO } from '../../shared/tiles.js?v=88924df060b6';
-import { hash2 } from '../../shared/rng.js?v=88924df060b6';
-import { Painter, shade, prand } from './pixel.js?v=88924df060b6';
-import { themedCanvas, partOfTile } from './themes.js?v=88924df060b6';
-import { CH3_PAINTERS, CH3_FRAMES, CH3_SPEED, RAIL_TILES, CH3_WALLS } from './tiles-ch3.js?v=88924df060b6';
-import { CH4_PAINTERS, CH4_FRAMES, CH4_SPEED, CH4_WALLS, ch4Mask, desertBase } from './tiles-ch4.js?v=88924df060b6';
-import { CANAL_CTX, CANAL_CTX_PAINTERS, canalVariant, canalBaseBits, canalWallBits } from './tiles-canal.js?v=88924df060b6';
-import { PYRAMID_PAINTERS, PYRAMID_FRAMES, PYRAMID_SPEED, PYRAMID_WALLS, paintTablet, paintPyrBrazier, paintPyrLever } from './tiles-pyramid.js?v=88924df060b6';
-import { whirlVariant } from './tiles-duna.js?v=88924df060b6';
-import { templeVariant } from './tiles-temple.js?v=88924df060b6';
-import { TOWER_PAINTERS, TOWER_FRAMES, TOWER_SPEED, TOWER_WALLS, towerMask, towerVariant } from './tiles-tower.js?v=88924df060b6';
-import { KUMOI_PAINTERS, KUMOI_FRAMES, KUMOI_SPEED, KUMOI_WALLS, kumoiMask, kumoiVariant } from './tiles-kumoi.js?v=88924df060b6';
-import { MEMORY_PAINTERS, MEMORY_FRAMES, MEMORY_SPEED } from './tiles-memory.js?v=88924df060b6';
+import { T, TILE_INFO } from '../../shared/tiles.js?v=e6a22f787154';
+import { hash2 } from '../../shared/rng.js?v=e6a22f787154';
+import { Painter, shade, prand } from './pixel.js?v=e6a22f787154';
+import { themedCanvas, partOfTile } from './themes.js?v=e6a22f787154';
+import { CH3_PAINTERS, CH3_FRAMES, CH3_SPEED, RAIL_TILES, CH3_WALLS } from './tiles-ch3.js?v=e6a22f787154';
+import { CH4_PAINTERS, CH4_FRAMES, CH4_SPEED, CH4_WALLS, ch4Mask, desertBase } from './tiles-ch4.js?v=e6a22f787154';
+import { CANAL_CTX, CANAL_CTX_PAINTERS, canalVariant, canalBaseBits, canalWallBits } from './tiles-canal.js?v=e6a22f787154';
+import { PYRAMID_PAINTERS, PYRAMID_FRAMES, PYRAMID_SPEED, PYRAMID_WALLS, paintTablet, paintPyrBrazier, paintPyrLever } from './tiles-pyramid.js?v=e6a22f787154';
+import { whirlVariant } from './tiles-duna.js?v=e6a22f787154';
+import { templeVariant } from './tiles-temple.js?v=e6a22f787154';
+import { TOWER_PAINTERS, TOWER_FRAMES, TOWER_SPEED, TOWER_WALLS, towerMask, towerVariant } from './tiles-tower.js?v=e6a22f787154';
+import { KUMOI_PAINTERS, KUMOI_FRAMES, KUMOI_SPEED, KUMOI_WALLS, kumoiMask, kumoiVariant } from './tiles-kumoi.js?v=e6a22f787154';
+import { MEMORY_PAINTERS, MEMORY_FRAMES, MEMORY_SPEED } from './tiles-memory.js?v=e6a22f787154';
+import { EARTH_PAINTERS, EARTH_FRAMES, EARTH_SPEED } from './tiles-earth.js?v=e6a22f787154';
 
 export const TS = 16;
 
@@ -503,6 +504,8 @@ Object.assign(painters, TOWER_PAINTERS);
 Object.assign(painters, KUMOI_PAINTERS);
 // 第5章 Step 5「ノクトの思い出の迷宮」「星読みの里」（render/tiles-memory.js）
 Object.assign(painters, MEMORY_PAINTERS);
+// 第5章 Step 6・7「大地の神殿」と 根の島（render/tiles-earth.js）
+Object.assign(painters, EARTH_PAINTERS);
 // ピラミッドの 中の かがり火は 金色の 台（mask 4。tiles-ch4.js の ch4Mask）
 for (const [id, lit] of [[T.BRAZIER, false], [T.BRAZIER_LIT, true]]) {
   const base = painters[id];
@@ -524,9 +527,9 @@ const FRAMES = {
   [T.WATER]: 3, [T.DEEP]: 3, [T.SWAMP]: 3, [T.FOUNTAIN]: 2, [T.FIREPLACE]: 2, [T.CAVE_WATER]: 3, [T.CRYSTAL]: 3,
   [T.TORCH]: 3, [T.LAMP]: 2, [T.STEPPING]: 3, [T.BRIDGE_H]: 3, [T.BRIDGE_V]: 3, [T.BROKEN_BRIDGE]: 3, [T.CAVE_BRIDGE]: 3, [T.PIER]: 3,
   [T.WHIRLPOOL]: 3,
-  ...CH3_FRAMES, ...CH4_FRAMES, ...PYRAMID_FRAMES, ...TOWER_FRAMES, ...KUMOI_FRAMES, ...MEMORY_FRAMES,
+  ...CH3_FRAMES, ...CH4_FRAMES, ...PYRAMID_FRAMES, ...TOWER_FRAMES, ...KUMOI_FRAMES, ...MEMORY_FRAMES, ...EARTH_FRAMES,
 };
-const SPEED = { [T.TORCH]: 140, [T.FIREPLACE]: 180, [T.CRYSTAL]: 500, [T.LAMP]: 700, ...CH3_SPEED, ...CH4_SPEED, ...PYRAMID_SPEED, ...TOWER_SPEED, ...KUMOI_SPEED, ...MEMORY_SPEED };
+const SPEED = { [T.TORCH]: 140, [T.FIREPLACE]: 180, [T.CRYSTAL]: 500, [T.LAMP]: 700, ...CH3_SPEED, ...CH4_SPEED, ...PYRAMID_SPEED, ...TOWER_SPEED, ...KUMOI_SPEED, ...MEMORY_SPEED, ...EARTH_SPEED };
 
 export function frameOf(id, t) {
   const n = FRAMES[id];

@@ -7,11 +7,13 @@
 // 島と 神殿の 魔物・きまった 戦い gaia_eater・ランク8の 店の 品・神殿の 宝箱の ★の 品は B（戦い・品）が 作る（plan-ch5.md の 13）
 import {
   K5, HANONO_SEEN, KUMOI_VANES, KUMOI_JUNCTIONS, KUMOI_POS, HANONO_POS,
-} from '../maps/kumoi.js?v=88924df060b6';
+} from '../maps/kumoi.js?v=e6a22f787154';
 import {
   RF, RUIN_FLOORS, RUIN_POS, RUIN_OUT, TILTS, SCALES, LADDER_FLAG, ruinMapId,
-} from '../maps/sink-ruin.js?v=88924df060b6';
-import { innSteps } from './inn.js?v=88924df060b6';
+} from '../maps/sink-ruin.js?v=e6a22f787154';
+import { innSteps } from './inn.js?v=e6a22f787154';
+// 第5章 Step 6・7: 本物の ノクトに 会った あとの 長ソラネ・ピピ（story-earth.js）
+import { soraneEarth, pipiEarth } from './story-earth.js?v=e6a22f787154';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -107,6 +109,7 @@ function soraneScene() {
   ];
 }
 function sorane(x) {
+  if (x.flag('c5_nocto')) return soraneEarth(x);
   if (!x.flag(K5.hanono)) return soraneScene();
   if (!x.flag(K5.pipi)) return S('長ソラネ', 'ピピは、町の北東の見晴らし台にいます。\n風の道のことを、聞いてみてください。');
   if (!x.flag(K5.ruin)) return S('長ソラネ', '風の道ののりばは、ハネノの島の西の船着き場です。', 'ノクト…。あのフードの子の名前ですね。\n…ピピは、あの子のことが、大好きでしたから。');
@@ -143,7 +146,7 @@ function pipi(x) {
   if (!x.flag(K5.pipi)) return pipiScene();
   if (!x.flag(K5.ruin)) return S('ピピ', '風見の石を回すと、風の向きがかわるよ！', '1つ目の小島の石で、西の小島へ。\n西の小島の石で、しずみゆく島へ！');
   if (!x.flag(K5.shard)) return S('ピピ', '古い神殿って、ゆかがかたむいてるんでしょ？\nころばないでね！');
-  if (x.flag('c5_nocto')) return S('ピピ', '…ノクト兄ちゃんに、会ったの！？', '兄ちゃん、元気だった？\n…そっか。…ぼく、待ってるって、伝えてくれた？', 'いつか、羽が大きくなったら、ぼくが兄ちゃんをむかえに行くんだ！');
+  if (x.flag('c5_nocto')) return pipiEarth(x);
   return S('ピピ', '島のゆれ、止まったね！\nありがとう！', '…ノクト兄ちゃんのこと、何かわかった？\n…そっか。', 'ぼく、ここで、ずっと待ってるんだ。\nいつか、羽が大きくなったら、兄ちゃんを探しに行くの！');
 }
 
@@ -340,6 +343,8 @@ export const KUMOI_SCRIPTS = {
   c5_kumoi_event: (x) => (x.flag(K5.kumoi) ? [] : kumoiArrive()),
   // クモイ地方: 門の 前の 見張り・風見の石
   c5_k_guard: (x) => {
+    if (x.flag('c5_castle')) return S('ハネビトの見張り', 'あの黒い城が、うかんでから…\n西の船着き場の風の道が、黒い風でとぎれてしまいました。', '西の島々へは、星の竜アステルさまに乗せてもらってください。');
+    if (x.flag('c5_root')) return S('ハネビトの見張り', '根の島へは、この島の南の風見の石から、風の道が出ています。', '根の島からは、北の風の道で、ここへ帰ってこられますよ。');
     if (!x.flag(K5.hanono)) return S('ハネビトの見張り', 'ここは、ハネノの町。\nハネビトの町です。', '…この島も、少しずつしずんでいるんです。\n長のソラネさまに、話を聞いてください。');
     if (!x.flag(K5.shard)) return S('ハネビトの見張り', '風の道ののりばは、この島の西の船着き場です。', '風の道は、1度のると止まれません。\n流された先で、風見の石をよく見てくださいね。');
     return S('ハネビトの見張り', '島のゆれが、止まりました…！\n風も、少しおだやかになったみたいです。');
@@ -349,10 +354,13 @@ export const KUMOI_SCRIPTS = {
   c5_h_arrive: (x) => (x.flag(HANONO_SEEN) ? [] : townArrive()),
   c5_sorane: (x) => sorane(x),
   c5_pipi: (x) => pipi(x),
-  c5_inn_hanono: (x) => innSteps('宿屋のおかみ', 80, x),
-  c5_shop_hw: () => [['shop', 'hanono_weapon']],
-  c5_shop_ha: () => [['shop', 'hanono_armor']],
-  c5_shop_hi: () => [['shop', 'hanono_item']],
+  // 第5章 Step 7: 影の城が うかんだ あと（c5_castle）は 宿屋が 少し やすく、店は ランク9の 品（data/shops-earth.js）
+  c5_inn_hanono: (x) => (x.flag('c5_castle')
+    ? [...S('宿屋のおかみ', '最後の戦いの前ですもの。\n少しだけ、おやすくしておきますね。'), ...innSteps('宿屋のおかみ', 60, x)]
+    : innSteps('宿屋のおかみ', 80, x)),
+  c5_shop_hw: (x) => [['shop', x?.flag?.('c5_castle') ? 'hanono9_weapon' : 'hanono_weapon']],
+  c5_shop_ha: (x) => [['shop', x?.flag?.('c5_castle') ? 'hanono9_armor' : 'hanono_armor']],
+  c5_shop_hi: (x) => [['shop', x?.flag?.('c5_castle') ? 'hanono9_item' : 'hanono_item']],
   c5_h_gate: (x) => (x.flag(K5.shard)
     ? S('ハネビトの門番', '島のゆれが止まり、町のみんなも、ほっとしています！')
     : S('ハネビトの門番', '町の外へ出るなら、この門からどうぞ。', '星の竜を呼ぶなら、町の外でね。\n竜が町におりたら、家がこわれちゃいますから！')),
@@ -360,10 +368,14 @@ export const KUMOI_SCRIPTS = {
     ? S('羽の弱ったおじいさん', '島のゆれが止まった…。\nわしの羽も、少し軽くなった気がするのう。')
     : S('羽の弱ったおじいさん', '昔は、わしも、島から島へ、自由に飛んだものじゃ。', '守り星がなくなってから、羽が重くてのう…。\nもう、この島から出られんよ。')),
   c5_h_woman: (x) => {
+    if (x.flag('c5_root') && !x.flag('c5_pipi_save')) return S('ハネビトのおくさん', 'ピピを、見なかった？\nさっきから、どこにもいないのよ…。');
+    if (x.flag('c5_castle')) return S('ハネビトのおくさん', '地上の人たちが、こんなにたくさん…！', 'みんな、紋章の子のために、来てくれたのね。');
     if (x.flag(K5.pipi)) return S('ハネビトのおくさん', 'ノクト…？ああ、あのフードの子ね。\nピピと、よく見晴らし台で遊んでいたわ。', 'あの子が、守り星を…？\nわたし、まだ信じられないの。');
     return S('ハネビトのおくさん', '島がゆれるたびに、家のかべがきしむのよ。\nこのまま、雲の海にしずんでしまうのかしら…。');
   },
-  c5_h_kid: (x) => (x.flag(K5.shard)
+  c5_h_kid: (x) => (x.flag('c5_castle')
+    ? S('ハネビトの女の子', '空が、ずっと夕方みたい…。', 'でも、あのムチのおねえさんが、こわくないよって、言ってくれたの！')
+    : x.flag(K5.shard)
     ? S('ハネビトの女の子', 'ゆれなくなったね！\nわたし、もうこわくないよ！')
     : S('ハネビトの女の子', 'ねえねえ、羽のない人って、どうやって飛ぶの？', 'えっ、竜に乗るの！？\nいいなあ！')),
   c5_h_wind: (x) => (x.flag(K5.ruin)

@@ -56,6 +56,9 @@ export const T = {
   // 第5章 Step 5「ノクトの思い出の迷宮」（maps/memory.js・render/tiles-memory.js。あいている 62〜69）と「星読みの里」（maps/hoshiyomi.js。83・84）
   MEM_VOID: 62, SHADOW_PATH: 63, SHADOW_FLOOR: 64, LAMP_STAND: 65, LAMP_LIT: 66, MEM_SHARD: 67, MEM_PILLAR: 68, MEM_EXIT: 69,
   STAR_CRYSTAL: 83, STAR_SCOPE: 84,
+  // 第5章 Step 6・7「大地の神殿」と 根の島（maps/earth.js・render/tiles-earth.js。あいていた 20・23〜29・54・58・85〜89）
+  ROOT_BRIDGE: 20, ROOT_GAP: 23, WATER_JAR: 24, WATER_JAR_ON: 25, GOLEM_S: 26, GOLEM_SLAB: 27, UNDO_SLAB: 28, EARTH_PIT: 29,
+  GOLEM_FILL: 54, EARTH_DOOR: 58, LIFT_BROKEN: 85, EARTH_LIFT: 86, EARTH_ALTAR: 87, ROOT_GATE: 88, GOLEM_E: 89,
 };
 
 export const TILE_INFO = {};
@@ -306,6 +309,22 @@ def(T.MEM_EXIT, 'mem_exit', { light: true, anim: true, mapColor: '#f0e8ff' }); /
 // 星読みの 里（maps/hoshiyomi.js）
 def(T.STAR_CRYSTAL, 'star_crystal', { solid: true, talkThrough: true, light: true, anim: true, mapColor: '#a8d8ff' }); // 星読みの 水晶（思い出の 中へ 入る）
 def(T.STAR_SCOPE, 'star_scope', { solid: true, mapColor: '#8a7a4a' }); // 星見の 遠めがね
+// 第5章 Step 6・7「大地の神殿」（maps/earth.js）。かべと ゆかは 洞窟の タイルを 階の 色に（render/themes.js の earth_*）
+def(T.ROOT_BRIDGE, 'root_bridge', { mapColor: '#8a6a3a' }); // 根の 橋（水がめで のびた 大きな 根。歩ける）
+def(T.ROOT_GAP, 'root_gap', { solid: true, anim: true, mapColor: '#0e0a06' }); // 根の すきまの ふかい 谷（歩けない）
+def(T.WATER_JAR, 'water_jar', { solid: true, mapColor: '#6a7a8a' }); // 根の 水がめ（しらべると 根が のびる・ちぢむ）
+def(T.WATER_JAR_ON, 'water_jar_on', { solid: true, anim: true, light: true, mapColor: '#7ab8e8' }); // 水を そそいだ 水がめ
+def(T.GOLEM_S, 'golem_s', { solid: true, mapColor: '#9a8a6a' }); // 土の 守り手（南を むいた 石の ゴーレム）
+def(T.GOLEM_E, 'golem_e', { solid: true, mapColor: '#9a8a6a' }); // 土の 守り手（東を むいた 石の ゴーレム）
+def(T.GOLEM_SLAB, 'golem_slab', { solid: true, mapColor: '#b8a070' }); // 守り手の 石板（しらべると ゴーレムが 1歩 歩く）
+def(T.UNDO_SLAB, 'undo_slab', { solid: true, mapColor: '#8aa0b8' }); // もとに もどす 石板（ゴーレムが はじめの 場所へ）
+def(T.EARTH_PIT, 'earth_pit', { solid: true, mapColor: '#1a1208' }); // ゆかの あな（ゴーレムが おちると うまる）
+def(T.GOLEM_FILL, 'golem_fill', { mapColor: '#8a7a5a' }); // あなを うめた ゴーレムの せなか（歩ける 足場）
+def(T.EARTH_DOOR, 'earth_door', { solid: true, mapColor: '#7a5a3a' }); // 根の とびら（2つの ふむ石で 開く）
+def(T.LIFT_BROKEN, 'lift_broken', { solid: true, mapColor: '#5a4a3a' }); // こわれた 上り下りの ゆか
+def(T.EARTH_LIFT, 'earth_lift', { light: true, mapColor: '#c8a860' }); // 直った 上り下りの ゆか（1階 ⇔ 5階）
+def(T.EARTH_ALTAR, 'earth_altar', { solid: true, talkThrough: true, light: true, anim: true, mapColor: '#e8905a' }); // 大地の 守り星の 祭だん
+def(T.ROOT_GATE, 'root_gate', { mapColor: '#3a2a18' }); // 大地の 神殿の 入口（根の とびら）
 
 export function isSolid(id) {
   return TILE_INFO[id]?.solid ?? true;

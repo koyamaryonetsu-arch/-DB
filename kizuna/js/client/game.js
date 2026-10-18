@@ -1,18 +1,18 @@
 // ゲーム ぜんたいの しんこう
-import { Input } from './input.js?v=88924df060b6';
-import { GameAudio } from './audio.js?v=88924df060b6';
-import { Field } from './field.js?v=88924df060b6';
-import { Hud, STAMPS } from './ui/hud.js?v=88924df060b6';
-import { FieldMenu, openWorldMap } from './ui/menu.js?v=88924df060b6';
-import { ScriptPlayer, wait } from './ui/script.js?v=88924df060b6';
-import { BattleScene } from './battle.js?v=88924df060b6';
-import { showTitle, showLogin, showSelect, showCreate, showLoading, saveWhere } from './ui/title.js?v=88924df060b6';
-import { showServerDown } from './ui/syncui.js?v=88924df060b6';
-import { toast, confirmBox, el } from './ui/dom.js?v=88924df060b6';
-import { MAPS } from '../shared/maps/index.js?v=88924df060b6';
-import { applyBattlePrefs, applyUiFont } from './prefs.js?v=88924df060b6';
-import { SkyClient } from './sky.js?v=88924df060b6';
-import { reportError } from './errlog.js?v=88924df060b6';
+import { Input } from './input.js?v=e6a22f787154';
+import { GameAudio } from './audio.js?v=e6a22f787154';
+import { Field } from './field.js?v=e6a22f787154';
+import { Hud, STAMPS } from './ui/hud.js?v=e6a22f787154';
+import { FieldMenu, openWorldMap } from './ui/menu.js?v=e6a22f787154';
+import { ScriptPlayer, wait } from './ui/script.js?v=e6a22f787154';
+import { BattleScene } from './battle.js?v=e6a22f787154';
+import { showTitle, showLogin, showSelect, showCreate, showLoading, saveWhere } from './ui/title.js?v=e6a22f787154';
+import { showServerDown } from './ui/syncui.js?v=e6a22f787154';
+import { toast, confirmBox, el } from './ui/dom.js?v=e6a22f787154';
+import { MAPS } from '../shared/maps/index.js?v=e6a22f787154';
+import { applyBattlePrefs, applyUiFont } from './prefs.js?v=e6a22f787154';
+import { SkyClient } from './sky.js?v=e6a22f787154';
+import { reportError } from './errlog.js?v=e6a22f787154';
 
 export class Game {
   constructor(net) {
@@ -664,6 +664,21 @@ export class Game {
 
   // ようがんの 地面で ダメージ: 画面が 赤く 光る（はじめての ときだけ せつめい）
   onHurt(m) {
+    // 第5章 Step 6: 大地の こどう（kind 'tremor' … ふるえ始めた・'rock' … 落石に 当たった。shared/world/tremor.js）。ことばは サーバーの toast
+    if (m.kind === 'tremor') {
+      this.audio.sfx('rumble');
+      if (this.field) this.field.shakeT = 900;
+      return;
+    }
+    if (m.kind === 'rock') {
+      this.audio.sfx('hurt');
+      if (this.field) this.field.shakeT = 400;
+      const cr = document.getElementById('curtain');
+      cr.classList.add('hurt');
+      clearTimeout(this.hurtT);
+      this.hurtT = setTimeout(() => cr.classList.remove('hurt'), 180);
+      return;
+    }
     this.audio.sfx('hurt');
     const c = document.getElementById('curtain');
     c.classList.add('hurt');
@@ -734,7 +749,7 @@ export class Game {
     if (this.net.mode === 'offline' && !this.saveWarned) {
       this.saveWarned = true;
       const cloud = this.net.local?.cloud;
-      import('./offline.js?v=88924df060b6').then(({ offlineStorage }) => {
+      import('./offline.js?v=e6a22f787154').then(({ offlineStorage }) => {
         offlineStorage.load();
         if (cloud?.state === 'on') return;
         if (!offlineStorage.ok) toast('このブラウザではセーブができないかもしれません', 5000);

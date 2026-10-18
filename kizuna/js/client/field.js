@@ -1,25 +1,25 @@
 // フィールド（あるく・はなす・みる）
-import { MAPS, isBlocked, effectiveTile, condOk, tileAt, onWater, slidesAt, bodyPoints, npcCovers } from '../shared/maps/index.js?v=88924df060b6';
-import { T, TILE_INFO } from '../shared/tiles.js?v=88924df060b6';
-import { PLACES } from '../shared/maps/overworld.js?v=88924df060b6';
-import { TS, tileCanvas, frameOf, prepareMap } from './render/tiles.js?v=88924df060b6';
-import { paintHuman, npcOpts, paintSpecial, paintShip, paintSandShip, equipKey, CW, CH } from './render/chars.js?v=88924df060b6';
-import { heroCanvas, heroLookKey } from './render/hero.js?v=88924df060b6';
-import { shownEquip } from '../shared/look-equip.js?v=88924df060b6';
-import { monsterCanvas, bigNpcCanvas, bigNpcScale } from './render/monsters.js?v=88924df060b6';
-import { MONSTERS } from '../shared/data/monsters.js?v=88924df060b6';
-import { makeCanvas, ctxOf, shade, flipCanvas } from './render/pixel.js?v=88924df060b6';
-import { chestCanvas as chestCanvas3d } from './render/tex3d.js?v=88924df060b6';
-import { chestVanishes } from '../shared/data/fieldchests.js?v=88924df060b6';
-import { boardCanvas } from './render/boards.js?v=88924df060b6';
-import { el } from './ui/dom.js?v=88924df060b6';
-import { syncTreasureGates } from './ui/treasure.js?v=88924df060b6';
-import { skyNpcSprite } from './render/sky-art.js?v=88924df060b6';
-import { wagonDraws } from './render/wagon.js?v=88924df060b6';
-import { drawTreasureGlow } from './render/treasure-glow.js?v=88924df060b6';
-import { Weather } from './render/weather.js?v=88924df060b6';
-import { flySpeed } from '../shared/data/sky.js?v=88924df060b6';
-import { timeFlag } from '../shared/world/clock.js?v=88924df060b6';
+import { MAPS, isBlocked, effectiveTile, condOk, tileAt, onWater, slidesAt, bodyPoints, npcCovers } from '../shared/maps/index.js?v=e6a22f787154';
+import { T, TILE_INFO } from '../shared/tiles.js?v=e6a22f787154';
+import { PLACES } from '../shared/maps/overworld.js?v=e6a22f787154';
+import { TS, tileCanvas, frameOf, prepareMap } from './render/tiles.js?v=e6a22f787154';
+import { paintHuman, npcOpts, paintSpecial, paintShip, paintSandShip, equipKey, CW, CH } from './render/chars.js?v=e6a22f787154';
+import { heroCanvas, heroLookKey } from './render/hero.js?v=e6a22f787154';
+import { shownEquip } from '../shared/look-equip.js?v=e6a22f787154';
+import { monsterCanvas, bigNpcCanvas, bigNpcScale } from './render/monsters.js?v=e6a22f787154';
+import { MONSTERS } from '../shared/data/monsters.js?v=e6a22f787154';
+import { makeCanvas, ctxOf, shade, flipCanvas } from './render/pixel.js?v=e6a22f787154';
+import { chestCanvas as chestCanvas3d } from './render/tex3d.js?v=e6a22f787154';
+import { chestVanishes } from '../shared/data/fieldchests.js?v=e6a22f787154';
+import { boardCanvas } from './render/boards.js?v=e6a22f787154';
+import { el } from './ui/dom.js?v=e6a22f787154';
+import { syncTreasureGates } from './ui/treasure.js?v=e6a22f787154';
+import { skyNpcSprite } from './render/sky-art.js?v=e6a22f787154';
+import { wagonDraws } from './render/wagon.js?v=e6a22f787154';
+import { drawTreasureGlow } from './render/treasure-glow.js?v=e6a22f787154';
+import { Weather } from './render/weather.js?v=e6a22f787154';
+import { flySpeed } from '../shared/data/sky.js?v=e6a22f787154';
+import { timeFlag } from '../shared/world/clock.js?v=e6a22f787154';
 
 const SPEED = 4.6; // マス/びょう
 const RUN = 1.35; // はしると この ばい（はやすぎない ように）
@@ -226,7 +226,7 @@ export class Field {
     if (mode === '3d' && Field.webgl2() && cv) {
       if (!this.r3d) {
         try {
-          const { Field3D } = await import('./render/field3d.js?v=88924df060b6');
+          const { Field3D } = await import('./render/field3d.js?v=e6a22f787154');
           this.r3d = new Field3D(this, cv);
         } catch (e) {
           console.warn('2.5Dにできませんでした', e);
@@ -915,6 +915,14 @@ export class Field {
     return btoa(s);
   }
 
+  // 夕ぐれの 色（第5章 Step 7。影の城が うかんだ あとの クモイ地方: map.dusk = { flag, color }。昼でも 夕方くらいの 色に）
+  drawDusk(ctx) {
+    const d = this.map?.dusk;
+    if (!d || !this.hasFlag(d.flag)) return;
+    ctx.fillStyle = d.color;
+    ctx.fillRect(0, 0, this.vw, this.vh);
+  }
+
   // ───────────── よる ─────────────
   // くらさ: サーバーの 時計（パーティーの 時間。shared/world/clock.js）。どうくつ・塔の 中は かわらない
   nightAlpha() {
@@ -1037,6 +1045,7 @@ export class Field {
     }
     // くらやみ・よる
     if (m.dark) this.drawDark(camX, camY, x0, y0, x1, y1);
+    this.drawDusk(ctx);
     const na = this.nightAlpha();
     if (na > 0) {
       ctx.fillStyle = `rgba(12, 18, 60, ${na})`;
@@ -1187,7 +1196,8 @@ export class Field {
       x.globalCompositeOperation = 'source-over';
       ctx.drawImage(d, 0, 0);
     }
-    // よる
+    // 夕ぐれの 色（第5章 Step 7）・よる
+    this.drawDusk(ctx);
     const na = this.nightAlpha();
     if (na > 0) {
       ctx.fillStyle = `rgba(12, 18, 60, ${na})`;
@@ -1620,7 +1630,8 @@ export class Field {
 
   areaBgm() {
     // 第4章の 砂ばくは 昼と 夜で 曲が かわる（maps/south.js の southBgmAt）
-    if (this.map.bgmAt) return this.map.bgmAt(Math.floor(this.me.x), Math.floor(this.me.y), !!this.game.sky?.isNight());
+    // 第5章 Step 7: クモイ地方は 影の城が うかぶと 曲が かわる（4つめ … 世界の フラグ）
+    if (this.map.bgmAt) return this.map.bgmAt(Math.floor(this.me.x), Math.floor(this.me.y), !!this.game.sky?.isNight(), (f) => this.hasFlag(f));
     if (this.map.kind === 'dungeon') return this.map.bgm || 'cave';
     const name = this.areaName();
     for (const p of Object.values(PLACES)) if (p.name === name) return p.bgm;
