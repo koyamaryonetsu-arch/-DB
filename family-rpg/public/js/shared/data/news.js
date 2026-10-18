@@ -1,0 +1,122 @@
+// お知らせ（第35回 家族が 決めた こと。docs/idea-r35.md の L「そのほかのお願い」1）
+//   メニューの「お知らせ」に 出す。まだ 読んでいない 物が あると、メニューボタンに ●（キャラごとに 読んだ 物を 記録）
+//
+// ・アップデートの たびに、いちばん 上に 足す（新しい 物ほど 上）。id は かえない（読んだ 記録に 使う）
+// ・1つは 数行。ネタバレ（ボスの 名前・物語の 先・かくれた 職業の じょうけん など）は 書かない
+// ・ゲームに 出る 文なので、漢字の きまり（tools/kanji-check.mjs）を 守る
+//
+// { id, date: 'YYYY-MM-DD', title, text }
+export const NEWS = [
+  {
+    id: 'r35-ui',
+    date: '2026-10-18',
+    title: '技えらびと道具がタブに',
+    text: '戦いの呪文・特技が、効果ごとのタブに分かれました（★お気に入り・今の職業・攻撃・回復など）。十字キーは、いちばん右の列でさらに右をおすと次のタブへ。\nわかっている弱点の技には「弱点」のしるしが出ます。\nメニューの道具もタブに分かれ、れん金がまはフィールドの「れん金」ボタンからも使えます。',
+  },
+  {
+    id: 'intro-breed',
+    date: '2026-10-18',
+    title: 'モンスターの配合',
+    text: 'ルミナの町の酒場で、育てたモンスター2ひきを配合すると、技や強さを受けついだ子が生まれます。\n配合でしか会えないモンスターもいます。図鑑に組み合わせのヒントが出ることも。',
+  },
+  {
+    id: 'intro-alchemy',
+    date: '2026-10-18',
+    title: 'れん金がま',
+    text: '道具や装備を2〜3こ入れて少し歩くと、新しい物ができあがります。ふしぎなかじ屋でもらえます。\nレシピは、本だな・かじ屋の親方・宝箱のメモなどでわかります。',
+  },
+  {
+    id: 'intro-dual',
+    date: '2026-10-18',
+    title: '合体技',
+    text: '仲間と2人・3人・4人で出す大技です。戦いのコマンドの「合体技」から選ぶと、みんなの行動ゲージがたまった時に出ます。\n出せるかどうかは、みんなの今の職業の組み合わせで決まります。',
+  },
+  {
+    id: 'intro-secret',
+    date: '2026-10-18',
+    title: 'ひみつのダンジョン',
+    text: 'ルミナの町の南門の近くにある、終わりのないダンジョンです。入るたびに形が変わります。\n5階ごとに休み所。家族で、何階までもぐれるかきそってみよう。',
+  },
+  {
+    id: 'intro-treasure',
+    date: '2026-10-18',
+    title: '宝の地図',
+    text: 'ルミナの町の宝探しのダイゴから、地図がもらえます。地図の場所で地面を調べると、宝の洞窟があらわれます。\nおくの主をたおすと、宝と次の地図が手に入ります。',
+  },
+  {
+    id: 'intro-casino',
+    date: '2026-10-18',
+    title: 'カジノとメダル王',
+    text: 'カモメ港のカジノでは、スロットやポーカーで集めたコインを景品ととりかえられます。\n町や洞窟にかくれた小さなメダルは、メダル王にわたすとごほうびがもらえます。',
+  },
+  {
+    id: 'intro-wagon',
+    date: '2026-10-18',
+    title: '馬車',
+    text: '酒場のマスターからもらえます。いっしょに歩く仲間のほかに、4人まで乗せておけます。\n馬車の仲間も経験値がもらえます。戦いの「いれかえ」で交代もできます。',
+  },
+  {
+    id: 'intro-job',
+    date: '2026-10-18',
+    title: '転職と職業レベル',
+    text: 'ルミナの町の神殿で転職できます。職業レベルは戦いに勝つと上がり、10でマスター。\nマスターすると、次の職業への道が開きます。覚えた技は、転職しても使えます。',
+  },
+  {
+    id: 'intro-hirameki',
+    date: '2026-10-18',
+    title: 'ひらめき',
+    text: '技をたくさん使っていると、戦いの中で新しい技をひらめくことがあります。\nメニューの「呪文・技」の「ひらめき」で、あとどれくらいかがわかります。',
+  },
+  {
+    id: 'intro-fav',
+    date: '2026-10-18',
+    title: 'お気に入り',
+    text: '戦いで技を長おし（Yボタン）すると、お気に入りに入れられます。\nお気に入りは戦いの「★」のタブに出ます。ならびはメニューの「呪文・技」で変えられます。',
+  },
+  {
+    id: 'intro-tactics',
+    date: '2026-10-18',
+    title: '作戦',
+    text: 'メニューの「作戦」で、仲間の戦い方を決められます。「めいれいさせろ」にすると、仲間のコマンドも自分で選べます。\nオートで使わない技を決めることもできます。',
+  },
+  {
+    id: 'intro-hat',
+    date: '2026-10-18',
+    title: 'しあわせのぼうし',
+    text: 'カジノの景品です。かぶった人は、戦いの経験値が2倍になります（パーティーでいちばんレベルが高い人には効きません）。\nレベルの低い仲間にかぶせると、早く追いつけます。',
+  },
+];
+
+const IDS = new Set(NEWS.map((n) => n.id));
+
+// 読んだ お知らせ（キャラに 記録。ない ときは 空）
+export function newsReadOf(char) {
+  return new Set(Array.isArray(char?.newsRead) ? char.newsRead.filter((id) => IDS.has(id)) : []);
+}
+
+// まだ 読んでいない お知らせ
+export function unreadNews(char) {
+  const read = newsReadOf(char);
+  return NEWS.filter((n) => !read.has(n.id));
+}
+
+export function hasUnreadNews(char) {
+  return !!char && unreadNews(char).length > 0;
+}
+
+// 読んだ ことに する（サーバー: world/services.js の menu → newsRead）。知らない id は 入れない。もどりち: かわったか
+export function markNewsRead(char, ids) {
+  if (!char) return false;
+  const read = newsReadOf(char);
+  const before = read.size;
+  for (const id of Array.isArray(ids) ? ids : [ids]) if (IDS.has(id)) read.add(id);
+  if (read.size === before && Array.isArray(char.newsRead) && char.newsRead.length === before) return false;
+  char.newsRead = NEWS.map((n) => n.id).filter((id) => read.has(id));
+  return true;
+}
+
+// 日付の 見せ方（10/18）
+export function newsDate(n) {
+  const m = /^\d{4}-(\d{2})-(\d{2})$/.exec(n?.date || '');
+  return m ? `${Number(m[1])}/${Number(m[2])}` : '';
+}

@@ -1,5 +1,5 @@
 // 第35回 A: 戦いの 技えらびの タブ（効果ごと）。家族が 決めた こと（docs/idea-r35.md の L「戦いの技えらび」）
-//   ・タブ: 今の職業／こうげき（1体）／こうげき（全体）／回復／強くする／弱くする・状態異常／そのほか（空の タブは 出さない）
+//   ・タブ: 今の職業／攻撃（1体）／攻撃（全体）／回復／強くする／弱くする・状態異常／そのほか（空の タブは 出さない）
 //   ・お気に入りも 1つの タブ（★）。上の 技を 覚えても 下の 技は かくさない。技の ならびは かえない（今の じゅんの まま）
 //   ・わかっている 弱点の 属性の 技に「弱点」の しるし（client/battle.js）
 // ここは 画面に よらない きまり（テスト: test/ui-r35.test.js）
@@ -17,8 +17,8 @@ const DEBUFF = new Set(['debuff', 'status', 'dispel']);
 export const SKILL_TABS = [
   { id: 'fav', label: '★', title: 'お気に入り' },
   { id: 'job', label: '今の職業', title: '今の職業' },
-  { id: 'one', label: 'こうげき1体', title: 'こうげき（1体）' },
-  { id: 'all', label: 'こうげき全体', title: 'こうげき（全体）' },
+  { id: 'one', label: '攻撃1体', title: '攻撃（1体）' },
+  { id: 'all', label: '攻撃全体', title: '攻撃（全体）' },
   { id: 'heal', label: '回復', title: '回復' },
   { id: 'buff', label: '強くする', title: '強くする' },
   { id: 'debuff', label: '弱くする', title: '弱くする・状態異常' },

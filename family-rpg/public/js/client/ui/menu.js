@@ -46,6 +46,8 @@ import { readErrLog, errLogText, clearErrLog } from '../errlog.js';
 import { fieldUsableAbilities } from '../../shared/fieldskills.js';
 import { alchemyRow, alchemyUI, bindAlchemy } from './alchemy.js';
 import './r35-css.js';
+import { newsView } from './news.js';
+import { hasUnreadNews } from '../../shared/data/news.js';
 
 // 見た目装備の せつめい
 const LOOK_HELP = '見た目だけを、持っている装備に変える（強さは変わらない）\n職業で装備できない物も選べる。「装備なし」も選べる';
@@ -66,6 +68,8 @@ const MAIN = [
   { label: '図鑑', value: 'zukan' },
   { label: 'マップ', value: 'map' },
   { label: 'クエスト', value: 'quest' },
+  // 第35回: お知らせ（ui/news.js。まだ 読んでいない 物が あると ●）
+  { label: 'お知らせ', value: 'news' },
   { label: '設定', value: 'settings' },
   { label: '終わる', value: 'quit' },
 ];
@@ -122,7 +126,7 @@ export class FieldMenu {
     document.getElementById('ui').append(this.backdrop, this.root);
     this.updateHead();
     this.menu = new ListMenu(g.input, {
-      items: MAIN,
+      items: MAIN.map((it) => (it.value === 'news' && hasUnreadNews(g.me) ? { ...it, cls: 'has-new' } : it)),
       sound: this.sfx,
       back: null,
       onMove: (it) => this.preview(it.value),
@@ -260,6 +264,7 @@ export class FieldMenu {
       case 'map': this.main.append(el('div', { class: 'muted', text: '探検した場所の地図を見る。（Mキーでも開ける）\n次の行き先はピンク、たのまれごとは水色、報告できるときはみどりのしるし。' })); break;
       case 'quest': this.main.append(this.questView()); break;
       case 'settings': this.main.append(this.settingsView(false)); break;
+      case 'news': this.main.append(newsView(this, false)); break;
       case 'quit': {
         const where = g.net.mode !== 'offline' ? '家族サーバー' : g.net.local?.cloud?.state === 'on' ? 'claude.ai' : 'このブラウザ';
         this.main.append(el('div', { class: 'muted', text: `セーブしてタイトルにもどる。（${where}にセーブされます）` }));
@@ -360,6 +365,11 @@ export class FieldMenu {
       case 'tactics': return this.openView(() => this.tacticsView(true));
       case 'zukan': return this.focusSub(this.zukanView(true));
       case 'settings': return this.focusSub(this.settingsView(true));
+      case 'news':
+        // 読んだら メニューの ● を けす
+        for (const it of this.menu.items) if (it.value === 'news') it.cls = '';
+        this.menu.root.querySelector('.item.has-new')?.classList.remove('has-new');
+        return this.focusSub(newsView(this, true));
       case 'talk':
         this.close();
         return partyTalk(g);

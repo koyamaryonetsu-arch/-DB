@@ -37,7 +37,7 @@ const CSS = `
 .news-view .news-row.unread .l::after { content: '●'; color: #ff6b6b; font-size: 0.7em; margin-left: 0.3em; vertical-align: 0.15em; }
 .news-body { white-space: pre-line; line-height: 1.6; }
 .news-body .nb-date { color: var(--muted); font-size: 0.85em; }
-.menu .item.has-new .l::after, .btn.has-new::after { content: '●'; color: #ff6b6b; font-size: 0.7em; margin-left: 0.25em; vertical-align: 0.2em; }
+.menu .item.has-new .l::after, .hud-btn.has-new::after { content: '●'; color: #ff6b6b; font-size: 0.7em; margin-left: 0.25em; vertical-align: 0.2em; }
 `;
 
 export function addR35Css() {

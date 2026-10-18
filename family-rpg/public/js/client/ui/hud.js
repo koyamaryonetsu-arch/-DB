@@ -3,6 +3,7 @@ import { el, bar, askText, ListMenu } from './dom.js';
 import { computeStats } from '../../shared/stats.js';
 import { JOBS } from '../../shared/data/jobs.js';
 import { jobShort } from '../../shared/job-label.js';
+import { hasUnreadNews } from '../../shared/data/news.js';
 import { renderMiniMap, openWorldMap } from './menu.js';
 import { makeCanvas } from '../render/pixel.js';
 import { ClockBadge } from './clock.js';
@@ -81,6 +82,8 @@ export class Hud {
       this.aura.hidden = !al;
       this.aura.classList.toggle('lure', au?.kind === 'lure');
       this.aura.style.top = pw ? `${this.powder.offsetHeight + 4}px` : '';
+      // 第35回: まだ 読んでいない お知らせが あると メニューボタンに ●（data/news.js）
+      this.btns.firstChild?.classList.toggle('has-new', hasUnreadNews(this.game.me));
     }
     const f = this.game.field;
     if (!f.map) return;

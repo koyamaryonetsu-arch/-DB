@@ -1,4 +1,5 @@
 // お店・やどや・きょうかい・転職・酒場・でんごんばん・メニュー操作
+import { markNewsRead } from '../data/news.js';
 import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js';
 import { normDifficulty } from '../data/difficulty.js';
 import { ITEMS, sellPrice, SLOTS, SLOT_NAMES } from '../data/items.js';
@@ -567,6 +568,14 @@ export function menuAction(world, s, msg) {
         else delete c.difficulty;
       }
       return reply(true, '設定を変えた。');
+    }
+    // 第35回: お知らせを 読んだ（data/news.js。返事の 知らせ・音は なし）
+    case 'newsRead': {
+      if (markNewsRead(c, msg.ids)) {
+        world.sendSelf(s);
+        world.markDirty();
+      }
+      return;
     }
     default:
       return reply(false, '');
