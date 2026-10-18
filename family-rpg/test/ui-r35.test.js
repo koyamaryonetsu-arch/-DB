@@ -11,6 +11,7 @@ import { GameWorld } from '../public/js/shared/world/world.js';
 import { makeRng } from '../public/js/shared/rng.js';
 import { Bot } from './helpers.js';
 import { nearest } from '../public/js/client/ui/padnav.js';
+import { Field, trailAt } from '../public/js/client/field.js';
 
 const src = (p) => fs.readFileSync(new URL(`../public/${p}`, import.meta.url), 'utf8');
 const ab = (id) => ABILITIES[id];
@@ -218,4 +219,29 @@ test('コントローラー: 転職の だれ・戦いの メニュー・大鳥�
   const t = src('js/client/ui/title.js');
   assert.equal((t.match(/padNav\(/g) || []).length, 4);
   assert.match(src('js/client/ui/syncui.js'), /padNav\(box, /);
+});
+
+// ───────────── 7. 仲間の 動き ─────────────
+test('仲間の 動き: 主人公が 歩くと 仲間も なめらかに（道の 点に とびとびに 合わせない）', () => {
+  const me = { x: 5, y: 5, dir: 'right', trail: [] };
+  const push = Field.prototype.pushTrail;
+  const steps = [];
+  let last = null;
+  // 1コマ 0.05マス（歩く はやさ くらい）。右へ 60コマ → 下へ 60コマ
+  for (let i = 0; i < 120; i++) {
+    if (i < 60) me.x += 0.05; else { me.y += 0.05; me.dir = 'down'; }
+    push.call(null, me);
+    const f = trailAt(me, 0.95);
+    if (last && i > 30) steps.push(Math.hypot(f.x - last.x, f.y - last.y));
+    last = f;
+  }
+  const max = Math.max(...steps);
+  const min = Math.min(...steps.filter((_, i) => i < 25));
+  assert.ok(max <= 0.0501, `1コマで とびすぎない（${max.toFixed(3)}）`);
+  assert.ok(min >= 0.049, `まっすぐ 歩く 間は 毎コマ 同じだけ 動く（${min.toFixed(3)}）`);
+  // 道の とちゅうも 道の 上（点と 点の 間）
+  const o = { x: 2, y: 0, dir: 'right', trail: [{ x: 1, y: 0, dir: 'right' }, { x: 0, y: 0, dir: 'right' }] };
+  assert.deepEqual(trailAt(o, 1.5), { x: 0.5, y: 0, dir: 'right' });
+  assert.deepEqual(trailAt(o, 5), { x: 0, y: 0, dir: 'right' }, '道より 遠い ときは いちばん 古い 点');
+  assert.match(src('js/client/field.js'), /return trailAt\(o, n \* 0\.95\);/);
 });
