@@ -9,15 +9,15 @@
 // 塔の 魔物・きまった 戦い argos・見通しの目は B（戦い）が 作る（plan-ch5.md の 11）
 import {
   C5, BOOK_FLAG, DOOR_FLAG, EV, LIFTS, VANES, DOOR6_FLAG, STAR_FLAGS, STARS_FLAG, TOP_FLAG, TOWER_POS, TOWER_FLOORS, towerMapId,
-} from '../maps/tower.js?v=9fc3f72b90b0';
-import { PLACES } from '../maps/overworld.js?v=9fc3f72b90b0';
-import { TEMPLE_OBJ } from './story-ch4-temple.js?v=9fc3f72b90b0';
-import { isNightFor, advanceClock } from '../world/clock.js?v=9fc3f72b90b0';
+} from '../maps/tower.js?v=751dd4575c23';
+import { PLACES } from '../maps/overworld.js?v=751dd4575c23';
+import { TEMPLE_OBJ } from './story-ch4-temple.js?v=751dd4575c23';
+import { isNightFor, advanceClock } from '../world/clock.js?v=751dd4575c23';
 // Step 3・4: クモイ地方・ハネノの町・しずみゆく島の古い神殿（story-kumoi.js）
 import {
   KUMOI_STEPS, KUMOI_STORY_SCRIPTS, KUMOI_SCRIPTS, KUMOI_OBJECTIVE_TARGETS, KUMOI_OBJECTIVE_TALK, KUMOI_PROGRESS, elderKumoi,
-} from './story-kumoi.js?v=9fc3f72b90b0';
-import { KUMOI_POS } from '../maps/kumoi.js?v=9fc3f72b90b0';
+} from './story-kumoi.js?v=751dd4575c23';
+import { KUMOI_POS } from '../maps/kumoi.js?v=751dd4575c23';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

@@ -15,8 +15,8 @@
 // 職業レベルは「たたかいに かった かず」で あがる（けいけんちとは べつ）。
 // 1回の こうどうで おわって しまう（ワンパンチの）たたかいは、しゅぎょうが はんぶんしか すすまない。
 
-import { applyField27Learn } from './abilities-field27.js?v=9fc3f72b90b0';
-import { JOB_TAGS } from './job-tags.js?v=9fc3f72b90b0';
+import { applyField27Learn } from './abilities-field27.js?v=751dd4575c23';
+import { JOB_TAGS } from './job-tags.js?v=751dd4575c23';
 export const JOB_MAX_LEVEL = 10;
 // ワンパンチで おわった（なかまの 1回めの こうどうで かった）たたかいの しゅぎょうの わりあい。ほかの たたかいは まるごと 1回ぶん
 export const JOB_EASY_RATE = 0.5;

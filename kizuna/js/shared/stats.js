@@ -1,13 +1,13 @@
 // キャラクターの つよさ計算・レベルアップ・転職ペナルティ
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_EASY_RATE, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets, jobBodyOk, superMasteredCount } from './data/jobs.js?v=9fc3f72b90b0';
-import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=9fc3f72b90b0';
-import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=9fc3f72b90b0';
-import { MONSTERS } from './data/monsters.js?v=9fc3f72b90b0';
-import { MONSTER_FRIENDS, monsterNatural, gearOf } from './data/companions.js?v=9fc3f72b90b0';
-import { HIRAMEKI, hiraRatio } from './data/hirameki.js?v=9fc3f72b90b0';
-import { cleanLook } from './data/looks.js?v=9fc3f72b90b0';
-import { SKILL_UPS } from './data/skill-ups.js?v=9fc3f72b90b0';
-import { jobLabel } from './job-label.js?v=9fc3f72b90b0';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_EASY_RATE, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets, jobBodyOk, superMasteredCount } from './data/jobs.js?v=751dd4575c23';
+import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=751dd4575c23';
+import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=751dd4575c23';
+import { MONSTERS } from './data/monsters.js?v=751dd4575c23';
+import { MONSTER_FRIENDS, monsterNatural, gearOf, monsterLevelCap } from './data/companions.js?v=751dd4575c23';
+import { HIRAMEKI, hiraRatio } from './data/hirameki.js?v=751dd4575c23';
+import { cleanLook } from './data/looks.js?v=751dd4575c23';
+import { SKILL_UPS } from './data/skill-ups.js?v=751dd4575c23';
+import { jobLabel } from './job-label.js?v=751dd4575c23';
 
 // 長い 物語に なるので レベルは 99まで（レベルで ふえる つよさは ひかえめ）
 export const MAX_LEVEL = 99;
@@ -544,6 +544,8 @@ export function newMonsterCompanion({ id, name, species, level }) {
     items: [], seeds: {}, status: {}, flags: {},
     tactics: 'balanced',
     joinedAt: Date.now(),
+    // 第35回からの 仲間（レベルの 上限が ランクと ＋で きまる。data/companions.js の monsterLevelCap）
+    ranked: 1,
   };
   fullHeal(c);
   return c;
@@ -554,7 +556,8 @@ export function gainExp(char, exp) {
   const ups = [];
   if (exp <= 0) return ups;
   char.exp += exp;
-  while (char.level < MAX_LEVEL && char.exp >= expForLevel(char.level + 1)) {
+  // 魔物の 仲間は ランクと ＋で きまる 上限まで（data/companions.js の monsterLevelCap。第35回）
+  while (char.level < (char.species ? monsterLevelCap(char, MONSTERS, MAX_LEVEL) : MAX_LEVEL) && char.exp >= expForLevel(char.level + 1)) {
     const before = computeStats(char);
     const learnedBefore = new Set(learnedAbilities(char));
     char.level++;

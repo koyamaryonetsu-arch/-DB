@@ -5,15 +5,15 @@
 //   c.partyKeys  … いま いっしょに ぼうけんしている なかま（じゅんばん）。'fam:ID' は 家族の キャラ
 //   c.guests     … ものがたりで いっしょに いる ゲスト（ルカ など）
 // パーティーには リーダーの なかまが ついてくる（にんげんが ふえると、はいりきらない なかまは いったん まつ）
-import { newCharacter, computeStats, fullHeal, gainExp, gainJobBattles, migrateJobs, expForLevel, addItem, newMonsterCompanion, learnedAbilities, masteredJobs } from '../stats.js?v=9fc3f72b90b0';
-import { jobBattlesForLevel, JOBS } from '../data/jobs.js?v=9fc3f72b90b0';
-import { NPC_SUPPORTS, GUESTS } from '../data/shops.js?v=9fc3f72b90b0';
-import { MONSTERS } from '../data/monsters.js?v=9fc3f72b90b0';
-import { MONSTER_FRIENDS, ROSTER_MAX, COMPANION_SLOTS } from '../data/companions.js?v=9fc3f72b90b0';
-import { SLOTS, ITEMS } from '../data/items.js?v=9fc3f72b90b0';
-import { cleanWagon, hasWagon, WAGON_SLOTS } from '../data/wagon.js?v=9fc3f72b90b0';
-import { wagonState, wagonTavernInfo } from './wagon.js?v=9fc3f72b90b0';
-import { difficultyOf } from '../data/difficulty.js?v=9fc3f72b90b0';
+import { newCharacter, computeStats, fullHeal, gainExp, gainJobBattles, migrateJobs, expForLevel, addItem, newMonsterCompanion, learnedAbilities, masteredJobs } from '../stats.js?v=751dd4575c23';
+import { jobBattlesForLevel, JOBS } from '../data/jobs.js?v=751dd4575c23';
+import { NPC_SUPPORTS, GUESTS } from '../data/shops.js?v=751dd4575c23';
+import { MONSTERS } from '../data/monsters.js?v=751dd4575c23';
+import { MONSTER_FRIENDS, ROSTER_MAX, COMPANION_SLOTS } from '../data/companions.js?v=751dd4575c23';
+import { SLOTS, ITEMS } from '../data/items.js?v=751dd4575c23';
+import { cleanWagon, hasWagon, WAGON_SLOTS } from '../data/wagon.js?v=751dd4575c23';
+import { wagonState, wagonTavernInfo } from './wagon.js?v=751dd4575c23';
+import { difficultyOf } from '../data/difficulty.js?v=751dd4575c23';
 
 // パーティーに 入れる 人（家族の プレイヤー）は 5人まで。いっしょに フィールドを 歩いて、いっしょに 戦う
 export const PARTY_MAX = 5;
@@ -161,6 +161,8 @@ function companionInfo(e, activeKeys, partyKeys) {
     inParty: partyKeys.includes(e.key), active: activeKeys.has(e.key),
     desc: def?.desc || MONSTER_FRIENDS[e.species]?.note || '',
     plus: ch.plus || 0, abilities: e.kind === 'monster' ? learnedAbilities(ch) : undefined, parents: ch.parents || null,
+    // 配合の めやす・血統（shared/breed-calc.js。第35回）
+    ...(e.kind === 'monster' ? { bonus: ch.bonus || null, seeds: ch.seeds || null, lineage: ch.lineage || null, ranked: ch.ranked || 0 } : {}),
   };
 }
 
@@ -365,18 +367,18 @@ export function companionWait(world, s, key) {
   return { ok: true, name: nameOfKey(world, c, key), stowed };
 }
 
-// わかれる（モンスターの なかま だけ。そうびは ふくろに もどる）
+// わかれる（そうびは ふくろに もどる）。第35回から 人間の 仲間とも（あとで 酒場で また さそえる。レベル1から）
 export function companionRelease(world, s, key) {
   const c = ensureCompanions(s.char);
   const e = companionOf(c, key);
   if (!e) return { ok: false, reason: '見つかりません' };
-  if (e.kind !== 'monster') return { ok: false, reason: 'この仲間は酒場でずっと待っていてくれるよ' };
+  if (e.kind !== 'monster' && e.kind !== 'npc') return { ok: false, reason: 'この仲間は酒場でずっと待っていてくれるよ' };
   for (const slot of SLOTS) if (e.char.equip?.[slot]) addItem(c, e.char.equip[slot], 1);
   c.companions = c.companions.filter((x) => x !== e);
   c.partyKeys = c.partyKeys.filter((k) => k !== key);
   if (Array.isArray(c.wagonKeys)) c.wagonKeys = c.wagonKeys.filter((k) => k !== key);
   afterRosterChange(world, s);
-  return { ok: true, name: e.char.name };
+  return { ok: true, name: e.char.name, human: e.kind === 'npc' };
 }
 
 export function companionRename(world, s, key, name) {
@@ -393,17 +395,15 @@ export function companionRename(world, s, key, name) {
 // ───────────── モンスターが なかまに なる ─────────────
 // たたかいで さいごに たおした まものが おきあがる（紋章の ちからに めざめていれば）
 // mult: まもの使いなどが いると おおきくなる
-//   info: { full } … 仲間が いっぱい（ROSTER_MAX）で 入れなかった とき、なりたがった 魔物（戦いの おわりの 知らせ）
+//   info … 第34回までは 仲間が いっぱいの とき info.full に 入れていた（第35回から いっぱいでも なりたがる。world/farewell.js）
 export function rollBefriend(world, c, killed, mult = 1, info = null) {
   if (!c?.flags?.monster_bond) return null;
   ensureCompanions(c);
-  const full = c.companions.length >= ROSTER_MAX;
+  // 第35回: 仲間が いっぱいでも なりたがる（「はい」の あとで だれと さよならするか えらぶ。world/farewell.js）
   for (let i = killed.length - 1; i >= 0; i--) {
     const f = MONSTER_FRIENDS[killed[i]];
     if (!f || f.breedOnly || MONSTERS[killed[i]]?.boss) continue;
-    const yes = world.rng.chance(befriendChance(c, killed[i], mult));
-    if (yes && full && info) info.full = killed[i];
-    return yes && !full ? killed[i] : null;
+    return world.rng.chance(befriendChance(c, killed[i], mult)) ? killed[i] : null;
   }
   return null;
 }

@@ -1,17 +1,18 @@
 // だいほん（イベント）を すすめる しくみ
-import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js?v=9fc3f72b90b0';
-import { ITEMS } from '../data/items.js?v=9fc3f72b90b0';
-import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js?v=9fc3f72b90b0';
-import { startFixedBattle } from './battles.js?v=9fc3f72b90b0';
-import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=9fc3f72b90b0';
-import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion, befriendLevel } from './party.js?v=9fc3f72b90b0';
-import { shareBefriend } from './recruit-share.js?v=9fc3f72b90b0';
-import { openService } from './services.js?v=9fc3f72b90b0';
-import { isNightFor, advanceClock, fracFor } from './clock.js?v=9fc3f72b90b0';
-import { grantWagon, wagonChars, wagonHere } from './wagon.js?v=9fc3f72b90b0';
-import { GUESTS } from '../data/shops.js?v=9fc3f72b90b0';
-import { unstickAll } from './hazards.js?v=9fc3f72b90b0';
-import { MAPS, isBlocked } from '../maps/index.js?v=9fc3f72b90b0';
+import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js?v=751dd4575c23';
+import { ITEMS } from '../data/items.js?v=751dd4575c23';
+import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js?v=751dd4575c23';
+import { startFixedBattle } from './battles.js?v=751dd4575c23';
+import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=751dd4575c23';
+import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion, befriendLevel } from './party.js?v=751dd4575c23';
+import { sayFarewell } from './farewell.js?v=751dd4575c23';
+import { shareBefriend } from './recruit-share.js?v=751dd4575c23';
+import { openService } from './services.js?v=751dd4575c23';
+import { isNightFor, advanceClock, fracFor } from './clock.js?v=751dd4575c23';
+import { grantWagon, wagonChars, wagonHere } from './wagon.js?v=751dd4575c23';
+import { GUESTS } from '../data/shops.js?v=751dd4575c23';
+import { unstickAll } from './hazards.js?v=751dd4575c23';
+import { MAPS, isBlocked } from '../maps/index.js?v=751dd4575c23';
 
 let runSeq = 1;
 
@@ -378,6 +379,8 @@ export class ScriptRun {
           if (!off || off.id !== a[0]) break;
           s.befriendOffer = null;
           if (a[1] === false) break;
+          // 仲間が いっぱいの ときは a[2] の 仲間と さよならしてから（world/farewell.js）
+          if (a[2]) this.say(sayFarewell(w, s, a[2]));
           // たたかいで なかまに なった まものは いつも レベル1（party.js の befriendLevel）
           const r = addMonsterCompanion(w, s, off.species, befriendLevel(), a[1]);
           if (!r.ok) {
