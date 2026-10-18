@@ -1,14 +1,20 @@
 // レア装備（第31回 C）。items.js で まぜる
 //
-// レア度（rarity）★1〜★5。名前の 色と ★の 数で わかる（client/ui/rarity.js・css の .rar）
-//   ★なし … 店で 買える 品（rarity: 0）
-//   ★1 緑 … 店では 買えない ふつうの 品（ふしぎなかじで 作る 品・指輪 など）
-//   ★2 青 … むかしからの「★の 品」（star: true。店より 少し 強い）・宝の洞窟の 品
-//   ★3 紫 … ボスの 品（unique）・宝の洞窟の 品・ランク7より 上の ★の 品・れん金がまの 品（第32回）
-//   （第32回: ボスが かならず 落とす ちなんだ 装備は ★2。強さは その章の 店の 品と おなじ くらい ＋ とくせい 1つ）
-//   ★4 オレンジ … 宝の洞窟の 主の 宝箱・ひみつのダンジョン（20階から）
-//   ★5 金・にじ … ひみつのダンジョンの 深い 階（50階から）だけ。今の いちばん 強い 装備（ランク8★）より 上
-// rarity が ない 装備は assignRarity が 上の きまりで つける（店の 品は 0）。きたえた 装備（+1〜）は もとの 装備と おなじ
+// 第35回: ★（強さ）と レア度（めずらしさ）を 分けた（家族:「★の 数と ランクの 関係が わからない」）
+//   ★（starsFor・rare-loot.js の starsOf）… 強さ。名前の あとの ★の 数・説明の「強さ ★★★（ランク7）」
+//     ★1 … 店で 買える 品だけ（強さは その ステージの 店の 品。きたえられない・れん金で 回数も ふやせない）
+//     ★2〜★5 … 店では 買えない 品。ランク（強さの ものさし）で きまる（STARS_BY_RANK）
+//       ★2 ランク1〜4（序章〜第2章）・★3 ランク5〜7（第3〜4章）・★4 ランク8（第5章）・★5 ランク9〜10（その先）
+//     同じ ランクなら 店の 品（★1）より 強い。★が 多いほど 強い（★と ランクが さかさまに ならない）
+//   レア度（rarity 0〜5）… めずらしさ。名前の 色（client/ui/rarity.js・css の .rar.r1〜r5）と 宝箱・店の 出やすさ
+//     0 … 店で 買える 品（色なし）
+//     1 緑 … 店では 買えない ふつうの 品（ふしぎなかじで 作る 品・指輪 など）
+//     2 青 … むかしからの「★の 品」（star: true）・宝の洞窟の 品・ボスの 品（第32回）
+//     3 紫 … 宝の洞窟の 品・ランク7より 上の ★の 品・れん金がまの 品（第32回）
+//     4 オレンジ … 宝の洞窟の 主の 宝箱・ひみつのダンジョン（20階から）
+//     5 金・にじ … ひみつのダンジョンの 深い 階（50階から）だけ
+//   rarity が ない 装備は assignRarity が 上の きまりで つける（店の 品は 0）。きたえた 装備（+1〜）は もとの 装備と おなじ
+//   （RAR_K … データを 作る ときの 強さの かけ算。むかしの レア度の まま。★とは べつ）
 //
 // 手に入る 所（src）
 //   'tm'     … 宝の洞窟の 宝箱。grp: 地図の 名前の ことばの なかま（data/rare-loot.js の TM_WORD_GROUP）
@@ -248,6 +254,20 @@ export function defaultRarity(it) {
   if (it.unique) return 3;
   if (!(it.price > 0)) return 1;
   return 0;
+}
+// 店で 買える 装備か（レア度 0。第35回: ★1で 固定・きたえられない）。きたえた 装備（+1〜）も もとの 装備と おなじ
+export function isShopGear(it) {
+  if (!it || !EQUIP_TYPES.includes(it.type)) return false;
+  return Number.isInteger(it.rarity) ? it.rarity === 0 : (RARITY_OVERRIDE[it.base] ?? defaultRarity(it)) === 0;
+}
+// ★の 数（強さ。第35回）: 店の 品は 1。店では 買えない 品は ランクで 2〜5（ランク1〜4 ★2・5〜7 ★3・8 ★4・9〜10 ★5）
+export const STARS_BY_RANK = [2, 2, 2, 2, 2, 3, 3, 3, 4, 5, 5];
+export const STARS_MAX = 5;
+export function starsFor(it) {
+  if (!it || !EQUIP_TYPES.includes(it.type)) return 0;
+  if (isShopGear(it)) return 1;
+  const r = Math.max(1, Math.min(STARS_BY_RANK.length - 1, it.rank || 1));
+  return STARS_BY_RANK[r];
 }
 export function assignRarity(table) {
   for (const [id, it] of Object.entries(table)) {

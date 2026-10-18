@@ -4,8 +4,10 @@
 // ・れん金のメモ … 使うと レシピが 1つ わかる（フィールドの 宝箱など）
 // ・れん金でしか 作れない ★装備（src: 'alchemy'）… 15こ。材料に その章の ボスの 品・地方の 品を 使う。
 //   強さは その章の 店の 1つ上の ランク × レア度（★3 1.08・★4 1.12）
-// ・生まれ変わりの 武器（src: 'reborn'）… 弱い 武器を きたえる 上限を こえて きたえ続けると 生まれ変わる（かくし要素。REBIRTH）
-//   木の剣・銅の剣・かしのつえ・木のバット・木のブーメラン → ランク4★2 → ランク7★3
+// ・生まれ変わりの 武器（src: 'reborn'）… かくし要素。5つの 系統
+//   木の剣・銅の剣・かしのつえ・木のバット・木のブーメラン（店の 品）→ 1だん目（ランク4・★2）→ 2だん目（ランク7・★3）
+//   第35回: 店の 品は きたえられない ので、1だん目は れん金がまで「店の 武器＋素材＋星のかけら」で 作る（REBIRTH_START）。
+//           1だん目からは 今までどおり、きたえる 上限を こえて きたえ続けると 生まれ変わる（REBIRTH）
 
 // 強さの めやす（items.js の EQUIP_RANKS の 剣・だれでも 着られる 服。items-rare.js と おなじ）
 const SWORD = [0, 6, 12, 20, 30, 40, 50, 61, 72, 85, 100];
@@ -93,18 +95,26 @@ export const ALCHEMY_ITEMS = { ...USE, ...GEAR };
 export const ALCHEMY_GEAR = Object.keys(GEAR).filter((id) => GEAR[id].src === 'alchemy');
 export const REBORN_GEAR = Object.keys(GEAR).filter((id) => GEAR[id].src === 'reborn');
 
-// 生まれ変わり（もとの 武器 → 生まれ変わった 武器）。上限＋れん金で ふやせる 回数（CAP_UP_MAX）まで きたえて、
+// 1だん目を 作る れん金（第35回）: 店の 武器＋その 武器に 合う 素材＋星のかけら → 1だん目。
+// data/alchemy.js の RECIPES に 入る（hidden: 本だな・メモ・親方では わからない。町の ヒントを 見て ためす）
+//   from … 店の 武器 / to … 1だん目 / mat … 合わせる 素材
+export const REBIRTH_START = [
+  { id: 'r_reborn_sword', from: 'bronze_sword', mat: 'silver_shard', to: 'akagane_sword' },
+  { id: 'r_reborn_bokuto', from: 'wood_sword', mat: 'moonherb', to: 'spirit_bokuto' },
+  { id: 'r_reborn_staff', from: 'oak_staff', mat: 'magic_powder', to: 'magic_school_staff' },
+  { id: 'r_reborn_bat', from: 'wood_bat', mat: 'beast_fang', to: 'cleanup_bat' },
+  { id: 'r_reborn_boomerang', from: 'wood_boomerang', mat: 'wind_feather', to: 'whirlwind_boomerang' },
+];
+// 1だん目の 売り値は ひかえめに（店の 武器と 素材で すぐ 作れる ので、作って 売っても もうからない ように）
+for (const x of REBIRTH_START) GEAR[x.to].sell = 100;
+// 生まれ変わり（1だん目 → 2だん目）。上限＋れん金で ふやせる 回数（CAP_UP_MAX）まで きたえて、
 // もう1回 きたえると 生まれ変わる（data/forge.js の rebirthOf・upgradeCost）。mats・gold … 生まれ変わる ときに いる 物
+//   第34回までは 店の 武器（銅の剣 など）も ここに あった（店の 品は きたえられなく なったので、れん金の REBIRTH_START に）
 export const REBIRTH = {
-  bronze_sword: { to: 'akagane_sword', gold: 800, mats: [['star_shard', 3], ['iron_shard', 6], ['silver_shard', 3]] },
   akagane_sword: { to: 'sun_sword', gold: 5000, mats: [['star_shard', 5], ['star_iron', 1], ['flame_stone', 3]] },
-  wood_sword: { to: 'spirit_bokuto', gold: 800, mats: [['star_shard', 3], ['magic_powder', 6], ['silver_shard', 3]] },
   spirit_bokuto: { to: 'world_tree_sword', gold: 5000, mats: [['star_shard', 5], ['star_iron', 1], ['magic_powder', 8]] },
-  oak_staff: { to: 'magic_school_staff', gold: 800, mats: [['star_shard', 3], ['magic_powder', 6], ['silver_shard', 3]] },
   magic_school_staff: { to: 'merlin_staff', gold: 5000, mats: [['star_shard', 5], ['star_iron', 1], ['ice_crystal', 3]] },
-  wood_bat: { to: 'cleanup_bat', gold: 800, mats: [['star_shard', 3], ['beast_fang', 6], ['silver_shard', 3]] },
   cleanup_bat: { to: 'homerun_king_bat', gold: 5000, mats: [['star_shard', 5], ['star_iron', 1], ['dragon_scale', 2]] },
-  wood_boomerang: { to: 'whirlwind_boomerang', gold: 800, mats: [['star_shard', 3], ['wind_feather', 6], ['silver_shard', 3]] },
   whirlwind_boomerang: { to: 'sky_boomerang', gold: 5000, mats: [['star_shard', 5], ['star_iron', 1], ['wind_feather', 8]] },
 };
 
