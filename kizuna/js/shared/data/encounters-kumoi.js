@@ -5,7 +5,7 @@
 //   t5_ruin_low   … 神殿 4〜7階（つちくいムカデ・はにわ兵。石の守り手・岩もぐらも）
 //   t5_ruin_cloud … 雲が 入った 所（雲間のゆうれい・雷雲ワイバーン・色ちがい。強い・経験値と お金が 多い）
 // 4階の 休み所と 7階の ガイアイーターの 広間は 魔物が 出ない（A の マップ）
-import { registerVariant } from './variants.js?v=0d59e2790100';
+import { registerVariant } from './variants.js?v=88924df060b6';
 
 // 色ちがい（data/variants.js）: 雲の 中の ダーク雲ひつじ・レッドつちくいムカデ
 export const KUMOI_VARIANTS = [registerVariant('cloud_sheep', 'dark'), registerVariant('gaia_larva', 'red')];

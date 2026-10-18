@@ -6,10 +6,10 @@
 // ・思い出の かけら … 各階に 1つ。拾うと その 年の 場面。かけらへの 影の 道は、拾うと 消えなくなる（MEMORY_KEEP）
 // ・6階の 大広間で ノクトの 影（きまった 戦い nocto_shadow。B が 作る）
 // ・みちびきの糸・リレミトは 使える（1階の 出口 → 星読みの里の 水しょうの 前）。魔物は 1〜3階 t5_memory・4〜6階 t5_memory_deep（B）
-import { T, parseRows } from '../tiles.js?v=0d59e2790100';
-import { npc } from './npc.js?v=0d59e2790100';
-import { MEMORY_ROWS, MEMORY_KEEP } from './memory-rows.js?v=0d59e2790100';
-import { MEMORY_TREASURE } from '../data/items-hoshiyomi.js?v=0d59e2790100';
+import { T, parseRows } from '../tiles.js?v=88924df060b6';
+import { npc } from './npc.js?v=88924df060b6';
+import { MEMORY_ROWS, MEMORY_KEEP } from './memory-rows.js?v=88924df060b6';
+import { MEMORY_TREASURE } from '../data/items-hoshiyomi.js?v=88924df060b6';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 export const MEMORY_FLOORS = 6;
