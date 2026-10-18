@@ -161,6 +161,8 @@ function companionInfo(e, activeKeys, partyKeys) {
     inParty: partyKeys.includes(e.key), active: activeKeys.has(e.key),
     desc: def?.desc || MONSTER_FRIENDS[e.species]?.note || '',
     plus: ch.plus || 0, abilities: e.kind === 'monster' ? learnedAbilities(ch) : undefined, parents: ch.parents || null,
+    // 配合の めやす・血統（shared/breed-calc.js。第35回）
+    ...(e.kind === 'monster' ? { bonus: ch.bonus || null, seeds: ch.seeds || null, lineage: ch.lineage || null, ranked: ch.ranked || 0 } : {}),
   };
 }
 

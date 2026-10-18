@@ -23,6 +23,7 @@ import { MONSTERS_TEMPLE } from './monsters-temple.js';
 import { MONSTERS_LAB } from './monsters-lab.js';
 import { MONSTERS_CH5 } from './monsters-ch5.js';
 import { MONSTERS_KUMOI, addGaiaParts } from './monsters-kumoi.js';
+import { MONSTERS_BOSS } from './monsters-boss.js';
 
 export const MONSTERS = {
   pururin: {
@@ -244,3 +245,5 @@ Object.assign(MONSTERS, MONSTERS_CH5);
 // 第5章 Step 3・4「クモイ地方・しずみゆく島の古い神殿」の 魔物と ガイアイーター（部位は 数えない 形。monsters-kumoi.js）
 Object.assign(MONSTERS, MONSTERS_KUMOI);
 addGaiaParts(MONSTERS);
+// ボス級（ランク SS）の 仲間。配合でしか 生まれない（monsters-boss.js。第35回）
+Object.assign(MONSTERS, MONSTERS_BOSS);

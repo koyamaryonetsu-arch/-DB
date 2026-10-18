@@ -206,13 +206,13 @@ export function serviceAction(world, s, msg) {
           break;
         case 'breedPreview': {
           // みるだけ（なにも かわらない）
-          const pv = breedPreview(ensureCompanions(s.char), String(msg.a || ''), String(msg.b || ''));
+          const pv = breedPreview(ensureCompanions(s.char), String(msg.a || ''), String(msg.b || ''), msg.child ? String(msg.child) : null);
           world.send(s, { t: 'svcRes', ok: pv.ok, text: pv.ok ? '' : pv.reason, preview: pv.ok ? pv : null });
           return;
         }
         case 'breed':
-          r = breedMonsters(world, s, { a: String(msg.a || ''), b: String(msg.b || ''), inherit: Array.isArray(msg.inherit) ? msg.inherit.map(String) : null, name: msg.name });
-          if (r.ok) text = `${r.name}（${MONSTERS[r.species].name}＋${r.plus}）が生まれた！${r.newEntry ? `\n${MONSTERS[r.species].name}が図鑑にのった！` : ''}${r.joined ? '' : `\n${r.name}は酒場で待っている。`}`;
+          r = breedMonsters(world, s, { a: String(msg.a || ''), b: String(msg.b || ''), child: msg.child ? String(msg.child) : null, inherit: Array.isArray(msg.inherit) ? msg.inherit.map(String) : null, name: msg.name });
+          if (r.ok) text = `${r.itemName ? `${r.itemName}が光につつまれた…！\n` : ''}${r.name}（${MONSTERS[r.species].name}＋${r.plus}・ランク${r.rank}）が生まれた！${r.newEntry ? `\n${MONSTERS[r.species].name}が図鑑にのった！` : ''}${r.joined ? '' : `\n${r.name}は酒場で待っている。`}`;
           break;
         default:
           // 馬車の 乗りかえ（world/wagon.js）

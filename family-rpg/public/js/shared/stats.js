@@ -3,7 +3,7 @@ import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_EASY_RATE, jobBattlesForLevel, jobBa
 import { ITEMS, SLOTS, baseItemId } from './data/items.js';
 import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js';
 import { MONSTERS } from './data/monsters.js';
-import { MONSTER_FRIENDS, monsterNatural, gearOf } from './data/companions.js';
+import { MONSTER_FRIENDS, monsterNatural, gearOf, monsterLevelCap } from './data/companions.js';
 import { HIRAMEKI, hiraRatio } from './data/hirameki.js';
 import { cleanLook } from './data/looks.js';
 import { SKILL_UPS } from './data/skill-ups.js';
@@ -544,6 +544,8 @@ export function newMonsterCompanion({ id, name, species, level }) {
     items: [], seeds: {}, status: {}, flags: {},
     tactics: 'balanced',
     joinedAt: Date.now(),
+    // 第35回からの 仲間（レベルの 上限が ランクと ＋で きまる。data/companions.js の monsterLevelCap）
+    ranked: 1,
   };
   fullHeal(c);
   return c;
@@ -554,7 +556,8 @@ export function gainExp(char, exp) {
   const ups = [];
   if (exp <= 0) return ups;
   char.exp += exp;
-  while (char.level < MAX_LEVEL && char.exp >= expForLevel(char.level + 1)) {
+  // 魔物の 仲間は ランクと ＋で きまる 上限まで（data/companions.js の monsterLevelCap。第35回）
+  while (char.level < (char.species ? monsterLevelCap(char, MONSTERS, MAX_LEVEL) : MAX_LEVEL) && char.exp >= expForLevel(char.level + 1)) {
     const before = computeStats(char);
     const learnedBefore = new Set(learnedAbilities(char));
     char.level++;
