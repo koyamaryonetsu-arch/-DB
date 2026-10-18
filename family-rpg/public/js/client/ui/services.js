@@ -506,7 +506,7 @@ function tavernUI(game, data) {
       if (!e) {
         main.append(el('div', { class: 'detail', text: view === 'monster'
           ? `モンスターの仲間も、連れていくといっしょに戦ってくれる。\n待っている間の装備はふくろにもどる。${info.wagon ? `\n馬車には${info.wagon.max}人（ひき）まで乗れる。` : ''}`
-          : `仲間を連れていくといっしょに戦ってくれる。\n連れていけるのは3人まで。待っている仲間とはいつでも入れかえられる（待っている間の装備はふくろにもどる）。${info.wagon ? `\n馬車には${info.wagon.max}人まで乗れる（装備はそのまま。戦わなくても経験値をもらえる。洞窟や塔の中では半分）。家族のキャラも乗れる。\nパーティーがいっぱいの時は、連れていく仲間は馬車に乗る。` : ''}` }));
+          : `仲間を連れていくといっしょに戦ってくれる。\n連れていけるのは3人まで。待っている仲間とはいつでも入れかえられる（待っている間の装備はふくろにもどる）。\n別れた人間の仲間は、あとでまたさそえる（レベル1から）。${info.wagon ? `\n馬車には${info.wagon.max}人まで乗れる（装備はそのまま。戦わなくても経験値をもらえる。洞窟や塔の中では半分）。家族のキャラも乗れる。\nパーティーがいっぱいの時は、連れていく仲間は馬車に乗る。` : ''}` }));
         return;
       }
       const pv = e.species ? followerSprite({ mon: e.species }, 'down', 0) : playerSprite(e.look, e.job, 'down', 0, shownEquip(e));
@@ -586,6 +586,22 @@ function tavernUI(game, data) {
         ...wg.map((e) => ({ face: face(e), label: `${e.name}（${who(e)}${where('馬車')}）`, value: e.key })),
         { label: 'やめる', value: null },
       ]);
+    };
+    // 別れる 前の たしかめ（人間の 仲間は あとで 酒場で また さそえる。レベル1から）
+    const byeText = (x) => (x.species
+      ? `本当に${x.name}と別れますか？\n（もう会えなくなるよ。装備はふくろにもどる）`
+      : `本当に${x.name}と別れますか？\n（あとで酒場でまたさそえる。レベル1から。装備はふくろにもどる）`);
+    // 仲間が いっぱいの とき: だれと さよならするか（酒場で 待っている 仲間が 先・レベルの 低い じゅん。world/farewell.js と 同じ）
+    const pickFarewell = async (name) => {
+      const busy = (x) => (x.inParty || x.inWagon ? 1 : 0);
+      const list = info.roster.map((x, i) => ({ x, i })).sort((p, q) => busy(p.x) - busy(q.x) || p.x.level - q.x.level || p.i - q.i).map(({ x }) => x);
+      const key = await ask(`仲間がいっぱい！（${info.roster.length}/${info.rosterMax}）\nだれかとさよならして、${name}を仲間にする？`, [
+        ...list.map((x) => ({ face: face(x), label: `${x.name}（${who(x)}${busy(x) ? '・いっしょ' : ''}）`, value: x.key })),
+        { label: 'やめる', value: null },
+      ]);
+      const x = key && entries.get(key);
+      if (!x) return null;
+      return (await confirmBox(game.input, byeText(x).replace('別れますか', 'さよならしますか'), 'さよならする', 'やめる', sfx)) ? x : null;
     };
     // 総入れかえ（ui/wagon.js の arrangeUI。酒場からも サーバーの へんじを まつ）
     const arrange = async () => {
@@ -783,25 +799,36 @@ function tavernUI(game, data) {
       const place = tavernPlace(info, partyKeys().length);
       const full = place.full;
       if (e.sec === 'recruit') {
+        // 仲間が いっぱい: だれかと さよならして 入れる？（world/farewell.js。第35回）
+        let bye = null;
+        if (info.roster.length >= (info.rosterMax || info.roster.length + 1)) {
+          bye = await pickFarewell(e.name);
+          if (!bye) {
+            menu.focus();
+            return;
+          }
+        }
+        const full2 = full && !(bye && (bye.inParty || bye.inWagon));
+        const farewell = bye?.key || null;
         const a = await ask(`${e.name}（${who(e)}）を仲間にする？`, [
-          { label: full ? '仲間にして入れかわる' : `仲間にして連れていく${place.note}`, value: 'join' },
+          { label: full2 ? '仲間にして入れかわる' : `仲間にして連れていく${place.note}`, value: 'join' },
           { label: '仲間にして酒場で待ってもらう', value: 'wait' },
           { label: 'やめる', value: null },
         ]);
         if (a === 'join') {
           let swap = null;
-          if (full) swap = await pickSwap(e.name);
-          if (!full || swap) await doReq({ action: 'recruit', key, swap });
-        } else if (a === 'wait') await doReq({ action: 'recruit', key, join: false });
+          if (full2) swap = await pickSwap(e.name);
+          if (!full2 || swap) await doReq({ action: 'recruit', key, swap, farewell });
+        } else if (a === 'wait') await doReq({ action: 'recruit', key, join: false, farewell });
       } else if (e.inWagon) {
         const opts = [...tavernWagonOpts(info, e)];
         if (e.sec === 'roster') opts.push({ label: '名前を変える', value: 'rename' });
-        if (e.species) opts.push({ label: '別れる', value: 'release' });
+        if (e.sec === 'roster') opts.push({ label: '別れる', value: 'release' });
         opts.push({ label: 'やめる', value: null });
         const a = await ask(`${e.name}をどうする？`, opts);
         if (a === 'rename') await rename(e);
         else if (a === 'release') {
-          const ok = await confirmBox(game.input, `本当に${e.name}と別れますか？\n（もう会えなくなるよ。装備はふくろにもどる）`, '別れる', 'やめる', sfx);
+          const ok = await confirmBox(game.input, byeText(e), '別れる', 'やめる', sfx);
           if (ok) await doReq({ action: 'release', key });
         } else if (a) await tavernWagonAct(wagonCtx(), e, a);
       } else if (e.inParty) {
@@ -815,7 +842,7 @@ function tavernUI(game, data) {
       } else {
         const opts = [{ label: `連れていく${place.note}`, value: 'join' }, ...tavernWagonOpts(info, e)];
         if (e.sec === 'roster') opts.push({ label: '名前を変える', value: 'rename' });
-        if (e.species) opts.push({ label: '別れる', value: 'release' });
+        if (e.sec === 'roster') opts.push({ label: '別れる', value: 'release' });
         opts.push({ label: 'やめる', value: null });
         const a = await ask(`${e.name}をどうする？`, opts);
         if (a === 'join') {
@@ -824,7 +851,7 @@ function tavernUI(game, data) {
           if (!full || swap) await doReq({ action: 'join', key, swap });
         } else if (a === 'rename') await rename(e);
         else if (a === 'release') {
-          const ok = await confirmBox(game.input, `本当に${e.name}と別れますか？\n（もう会えなくなるよ。装備はふくろにもどる）`, '別れる', 'やめる', sfx);
+          const ok = await confirmBox(game.input, byeText(e), '別れる', 'やめる', sfx);
           if (ok) await doReq({ action: 'release', key });
         } else if (a) await tavernWagonAct(wagonCtx(), e, a);
       }

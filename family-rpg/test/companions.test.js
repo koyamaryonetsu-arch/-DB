@@ -104,8 +104,8 @@ test('酒場: なかまを さがして つれていく・いれかえ・ひら�
   r = svc({ action: 'join', key: 'npc_rin', swap: 'npc_poporo' });
   assert.ok(r.ok, r.text);
   assert.deepEqual(bot.party.supports.map((x) => x.key), ['npc_gard', 'npc_mina', 'npc_rin']);
-  // なかまは わかれられない（酒場で まつ）
-  r = svc({ action: 'release', key: 'npc_gard' });
+  // 家族の キャラとは 別れられない（第35回から 人間の 仲間とは 別れられる: test/breed-r35.test.js）
+  r = svc({ action: 'release', key: 'fam:nobody' });
   assert.ok(!r.ok);
   // なまえを かえる
   r = svc({ action: 'rename', key: 'npc_gard', name: 'ガルドン' });

@@ -227,6 +227,8 @@ button:focus-visible, input:focus-visible, .item:focus-visible { outline: 3px so
   min-width: 9em;
 }
 .choice .q { font-size: var(--fs-small); color: var(--muted); margin-bottom: 0.2em; }
+/* 第35回: えらぶ 物が 多い とき（仲間が いっぱいの ときの さよなら）は この 中で スクロール */
+.choice .menu { max-height: min(52vh, 26em); overflow-y: auto; }
 
 /* ───── HUD ───── */
 #hud { position: absolute; inset: 0; pointer-events: none; }

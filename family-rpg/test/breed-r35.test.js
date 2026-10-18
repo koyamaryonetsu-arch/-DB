@@ -9,12 +9,13 @@ import { ITEMS } from '../public/js/shared/data/items.js';
 import { ABILITIES } from '../public/js/shared/data/abilities.js';
 import {
   MONSTER_FRIENDS, RANKS, rankIdx, rankOf, breedCandidates, breedOutcome, breedPlus, monsterLevelCap, bossClassList, recipeHint,
-  familyPool, BREED_RECIPES, MATERIAL_RECIPES, FOUR_RECIPES, RANK_BREED_LV, bestiaryOrder,
+  familyPool, BREED_RECIPES, MATERIAL_RECIPES, FOUR_RECIPES, RANK_BREED_LV, bestiaryOrder, ROSTER_MAX,
 } from '../public/js/shared/data/companions.js';
 import { MONSTERS_BOSS, FRIENDS_BOSS } from '../public/js/shared/data/monsters-boss.js';
 import { inheritBonus, breedForecast, bareStats, powerScore, makeLineage } from '../public/js/shared/breed-calc.js';
 import { computeStats, newMonsterCompanion, gainExp, expForLevel, learnedAbilities, itemCount, MAX_LEVEL } from '../public/js/shared/stats.js';
-import { addMonsterCompanion, tavernInfo } from '../public/js/shared/world/party.js';
+import { addMonsterCompanion, addMonsterEntry, tavernInfo, rollBefriend } from '../public/js/shared/world/party.js';
+import { farewellList } from '../public/js/shared/world/farewell.js';
 import { breedPreview } from '../public/js/shared/world/breed.js';
 import { checkFile, gameFiles } from '../tools/kanji-check.mjs';
 import { Bot } from './helpers.js';
@@ -282,4 +283,88 @@ test('画面の 文字（漢字の きまり・スペース）', () => {
     const r = checkFile(f).filter((x) => x.kind !== 'kana');
     assert.deepEqual(r, [], f);
   }
+});
+
+// ───────────── 仲間が いっぱいの ときの さよなら（world/farewell.js）─────────────
+const fill = (c, n) => { while (c.companions.length < n) assert.ok(addMonsterEntry(c, c.companions.length % 2 ? 'pururin' : 'wolf', 1 + (c.companions.length % 7)).ok); };
+const said = (bot, re, from = 0) => bot.msgs.slice(from).filter((m) => m.t === 'script').some((m) => m.steps.some((st) => st[0] === 'say' && re.test(st[2])));
+const choicesOf = (bot, from = 0) => bot.msgs.slice(from).filter((m) => m.t === 'script').flatMap((m) => m.steps.filter((st) => st[0] === 'choice'));
+
+test('さよなら: 人間の 仲間とも 別れられる。あとで 酒場で また さそえる（レベル1から・装備は ふくろへ）', { timeout: 60000 }, async () => {
+  const { world, bot, c } = await solo(40);
+  bot.send({ t: 'svc', kind: 'tavern', action: 'recruit', key: 'npc_gard' });
+  assert.ok(lastRes(bot).ok);
+  const gard = companion(c, 'npc_gard');
+  gainExp(gard.char, expForLevel(12));
+  const weapon = gard.char.equip.weapon;
+  const had = weapon ? itemCount(c, weapon) : 0;
+  bot.send({ t: 'svc', kind: 'tavern', action: 'release', key: 'npc_gard' });
+  const r = lastRes(bot);
+  assert.ok(r.ok, r.text);
+  assert.match(r.text, /また酒場でさそってね/);
+  assert.ok(!companion(c, 'npc_gard') && !c.partyKeys.includes('npc_gard'));
+  if (weapon) assert.equal(itemCount(c, weapon), had + 1, '装備は ふくろへ');
+  const again = tavernInfo(world, bot.s).recruits.find((x) => x.key === 'npc_gard');
+  assert.ok(again, '酒場で また さそえる');
+  assert.equal(again.level, 1);
+  bot.send({ t: 'svc', kind: 'tavern', action: 'recruit', key: 'npc_gard', join: false });
+  assert.equal(companion(c, 'npc_gard').char.level, 1);
+});
+
+test('さよなら: 酒場が いっぱいでも、だれかと さよならして 新しい 人間の 仲間を さそえる', { timeout: 60000 }, async () => {
+  const { bot, c } = await solo(41);
+  fill(c, ROSTER_MAX);
+  bot.send({ t: 'svc', kind: 'tavern', action: 'recruit', key: 'npc_mina' });
+  assert.ok(!lastRes(bot).ok, 'いっぱい');
+  const bye = farewellList(c)[0];
+  bot.send({ t: 'svc', kind: 'tavern', action: 'recruit', key: 'npc_mina', farewell: bye.key });
+  const r = lastRes(bot);
+  assert.ok(r.ok, r.text);
+  assert.match(r.text, /さよならした/);
+  assert.ok(companion(c, 'npc_mina') && !companion(c, bye.key));
+  assert.equal(c.companions.length, ROSTER_MAX);
+  // さそえない 人の ときは さよならしない
+  const before = c.companions.length;
+  bot.send({ t: 'svc', kind: 'tavern', action: 'recruit', key: 'npc_nobody', farewell: c.companions[0].key });
+  assert.ok(!lastRes(bot).ok);
+  assert.equal(c.companions.length, before);
+});
+
+test('さよなら: 仲間が いっぱいでも 魔物は 仲間に なりたがる →「はい」→ だれと さよならするか えらぶ（やめるも できる）', { timeout: 60000 }, async () => {
+  const { world, bot, c } = await solo(42);
+  fill(c, ROSTER_MAX);
+  // 戦いの おわり: いっぱいでも なりたがる
+  let got = null;
+  for (let i = 0; i < 200 && !got; i++) got = rollBefriend(world, c, ['pururin'], 5);
+  assert.equal(got, 'pururin');
+  // 「はい」→ さよならの 一覧（酒場で 待っている レベルの 低い 仲間が 先）→ 1ばんめ
+  const list = farewellList(c);
+  assert.equal(list.length, ROSTER_MAX);
+  assert.ok(list[0].label.includes('Lv1'));
+  let n = bot.msgs.length;
+  const answers = [0, 0];
+  const orig = bot.onMsg.bind(bot);
+  bot.onMsg = (m) => {
+    if (m.t === 'script' && m.steps.at(-1)?.[0] === 'choice') bot.choice = answers.shift() ?? 0;
+    orig(m);
+  };
+  world.offerBefriend(bot.s, 'koumorin');
+  await bot.settle();
+  const ch = choicesOf(bot, n).find((st) => st[1] === 'だれとさよならする？');
+  assert.ok(ch, 'だれと さよならするか 聞く');
+  assert.equal(ch[2].length, ROSTER_MAX + 1, 'みんな ＋ やめる');
+  assert.ok(said(bot, /仲間がいっぱいだ/, n));
+  assert.ok(said(bot, /さよならした/, n));
+  assert.ok(!companion(c, list[0].key), 'さよならした');
+  assert.ok(c.companions.some((e) => e.species === 'koumorin'), '新しい 魔物が 入った');
+  assert.equal(c.companions.length, ROSTER_MAX);
+  // やめる（さいご）: だれも かわらない
+  n = bot.msgs.length;
+  answers.push(0, ROSTER_MAX);
+  const keys = c.companions.map((e) => e.key).join();
+  world.offerBefriend(bot.s, 'frog');
+  await bot.settle();
+  bot.onMsg = orig;
+  assert.equal(c.companions.map((e) => e.key).join(), keys);
+  assert.ok(said(bot, /さびしそうに去っていった/, n));
 });

@@ -11,6 +11,7 @@ import { TACTICS } from '../ai.js';
 import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js';
 import { salonInfo, salonAction } from './salon.js';
 import { breedMonsters, breedPreview } from './breed.js';
+import { farewellText } from './farewell.js';
 import { MONSTERS } from '../data/monsters.js';
 import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings, spellSealed } from '../battle.js';
 import { PLACES } from '../maps/overworld.js';
@@ -183,11 +184,20 @@ export function serviceAction(world, s, msg) {
       let r;
       let text = '';
       switch (msg.action) {
-        case 'recruit':
+        case 'recruit': {
+          // 酒場が いっぱい: farewell の 仲間と さよならしてから（world/farewell.js。第35回）
+          let bye = '';
+          if (msg.farewell) {
+            if (!tavernInfo(world, s).recruits.some((x) => x.key === msg.key)) return reply(false, '見つかりません');
+            const f = companionRelease(world, s, String(msg.farewell));
+            if (!f.ok) return reply(false, f.reason, { tavern: tavernInfo(world, s) });
+            bye = `${farewellText(f)}\n`;
+          }
           // パーティー → 馬車 → 入れかわり（party.js の placeMember）
           r = recruitNpc(world, s, String(msg.key || ''), { swap: msg.swap ? String(msg.swap) : null, join: msg.join !== false });
-          if (r.ok) text = r.joined ? `${r.name}が仲間に加わった！${r.where === 'wagon' ? `\n${r.name}は馬車に乗りこんだ。` : ''}${r.benchedName ? `\n${r.benchedName}は酒場で待っている。` : ''}${stowText(r.stowed)}` : `${r.name}が仲間になった！\n（今は酒場で待っている）`;
+          if (r.ok) text = bye + (r.joined ? `${r.name}が仲間に加わった！${r.where === 'wagon' ? `\n${r.name}は馬車に乗りこんだ。` : ''}${r.benchedName ? `\n${r.benchedName}は酒場で待っている。` : ''}${stowText(r.stowed)}` : `${r.name}が仲間になった！\n（今は酒場で待っている）`);
           break;
+        }
         case 'join':
           r = companionJoin(world, s, String(msg.key || ''), msg.swap ? String(msg.swap) : null);
           if (r.ok) text = `${r.where === 'wagon' ? `${r.name}が仲間に加わって、馬車に乗りこんだ！` : `${r.name}がパーティーに加わった！`}${r.benchedName ? `\n${r.benchedName}は酒場で待っている。` : ''}${stowText(r.stowed)}`;
@@ -198,7 +208,7 @@ export function serviceAction(world, s, msg) {
           break;
         case 'release':
           r = companionRelease(world, s, String(msg.key || ''));
-          if (r.ok) text = `${r.name}と別れた。\n「今までありがとう！」`;
+          if (r.ok) text = farewellText(r);
           break;
         case 'rename':
           r = companionRename(world, s, String(msg.key || ''), msg.name);

@@ -5,6 +5,7 @@ import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.j
 import { startFixedBattle } from './battles.js';
 import { FIXED_ENCOUNTERS } from '../data/encounters.js';
 import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion, befriendLevel } from './party.js';
+import { sayFarewell } from './farewell.js';
 import { shareBefriend } from './recruit-share.js';
 import { openService } from './services.js';
 import { isNightFor, advanceClock, fracFor } from './clock.js';
@@ -378,6 +379,8 @@ export class ScriptRun {
           if (!off || off.id !== a[0]) break;
           s.befriendOffer = null;
           if (a[1] === false) break;
+          // 仲間が いっぱいの ときは a[2] の 仲間と さよならしてから（world/farewell.js）
+          if (a[2]) this.say(sayFarewell(w, s, a[2]));
           // たたかいで なかまに なった まものは いつも レベル1（party.js の befriendLevel）
           const r = addMonsterCompanion(w, s, off.species, befriendLevel(), a[1]);
           if (!r.ok) {

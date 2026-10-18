@@ -192,7 +192,8 @@ test('仲間の粉: 戦いの おわりで 2倍で ふる・1回 へる。ボス
   world.rng.chance = chance;
 });
 
-test('仲間が いっぱいの とき: なりたがったのに 入れない ことを 知らせる', { timeout: 60000 }, async () => {
+// 第35回: いっぱいでも なりたがる（「はい」の あとで だれと さよならするか えらぶ。world/farewell.js・test/breed-r35.test.js）
+test('仲間が いっぱいの とき: なりたがったら、だれかと さよならして 入れられる（「いっぱいだ」の 知らせは もう 出ない）', { timeout: 60000 }, async () => {
   const { world, bot, c } = await solo(41);
   c.flags.monster_bond = true;
   const { addMonsterEntry } = await import('../public/js/shared/world/party.js');
@@ -202,12 +203,12 @@ test('仲間が いっぱいの とき: なりたがったのに 入れない �
   await win(world, bot, startFieldBattle(world, bot.s, sym(['pururin'])));
   world.rng.chance = chance;
   const end = bot.msgs.filter((m) => m.t === 'battleEnd').pop();
-  assert.ok(end.lines.some((l) => /仲間になりたそうにしていたが、仲間がいっぱいだ/.test(l)), end.lines.join('/'));
-  // rollBefriend は 今までどおり null
+  assert.ok(!end.lines.some((l) => /仲間になりたそうにしていたが、仲間がいっぱいだ/.test(l)), end.lines.join('/'));
+  // いっぱいでも なりたがる
   const info = {};
   world.rng.chance = () => true;
-  assert.equal(rollBefriend(world, c, ['pururin'], 1, info), null);
-  assert.equal(info.full, 'pururin');
+  assert.equal(rollBefriend(world, c, ['pururin'], 1, info), 'pururin');
+  assert.equal(info.full, undefined);
   world.rng.chance = chance;
 });
 

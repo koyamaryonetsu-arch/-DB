@@ -367,18 +367,18 @@ export function companionWait(world, s, key) {
   return { ok: true, name: nameOfKey(world, c, key), stowed };
 }
 
-// わかれる（モンスターの なかま だけ。そうびは ふくろに もどる）
+// わかれる（そうびは ふくろに もどる）。第35回から 人間の 仲間とも（あとで 酒場で また さそえる。レベル1から）
 export function companionRelease(world, s, key) {
   const c = ensureCompanions(s.char);
   const e = companionOf(c, key);
   if (!e) return { ok: false, reason: '見つかりません' };
-  if (e.kind !== 'monster') return { ok: false, reason: 'この仲間は酒場でずっと待っていてくれるよ' };
+  if (e.kind !== 'monster' && e.kind !== 'npc') return { ok: false, reason: 'この仲間は酒場でずっと待っていてくれるよ' };
   for (const slot of SLOTS) if (e.char.equip?.[slot]) addItem(c, e.char.equip[slot], 1);
   c.companions = c.companions.filter((x) => x !== e);
   c.partyKeys = c.partyKeys.filter((k) => k !== key);
   if (Array.isArray(c.wagonKeys)) c.wagonKeys = c.wagonKeys.filter((k) => k !== key);
   afterRosterChange(world, s);
-  return { ok: true, name: e.char.name };
+  return { ok: true, name: e.char.name, human: e.kind === 'npc' };
 }
 
 export function companionRename(world, s, key, name) {
@@ -395,17 +395,15 @@ export function companionRename(world, s, key, name) {
 // ───────────── モンスターが なかまに なる ─────────────
 // たたかいで さいごに たおした まものが おきあがる（紋章の ちからに めざめていれば）
 // mult: まもの使いなどが いると おおきくなる
-//   info: { full } … 仲間が いっぱい（ROSTER_MAX）で 入れなかった とき、なりたがった 魔物（戦いの おわりの 知らせ）
+//   info … 第34回までは 仲間が いっぱいの とき info.full に 入れていた（第35回から いっぱいでも なりたがる。world/farewell.js）
 export function rollBefriend(world, c, killed, mult = 1, info = null) {
   if (!c?.flags?.monster_bond) return null;
   ensureCompanions(c);
-  const full = c.companions.length >= ROSTER_MAX;
+  // 第35回: 仲間が いっぱいでも なりたがる（「はい」の あとで だれと さよならするか えらぶ。world/farewell.js）
   for (let i = killed.length - 1; i >= 0; i--) {
     const f = MONSTER_FRIENDS[killed[i]];
     if (!f || f.breedOnly || MONSTERS[killed[i]]?.boss) continue;
-    const yes = world.rng.chance(befriendChance(c, killed[i], mult));
-    if (yes && full && info) info.full = killed[i];
-    return yes && !full ? killed[i] : null;
+    return world.rng.chance(befriendChance(c, killed[i], mult)) ? killed[i] : null;
   }
   return null;
 }
