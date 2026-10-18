@@ -4,7 +4,7 @@
 //     ノクト＝黒むらさき・あかむらさき（合体技）・大地の われめ＝茶と あかね色
 // ノクト: n1_clones（影が 立ち上がる）・n1_combo_ready（前ぶれ。3つの 影に 光が あつまる）→ n1_combo（大技。3つの 影が ひとつに）・
 //   n1_rift（地われ）・n1_reach（手をのばす。味方の 技。client/battle-earth.js が 味方の まどにも）
-import { ELEMENT_FX } from './battlefx-r27.js?v=e6a22f787154';
+import { ELEMENT_FX } from './battlefx-r27.js?v=6ba421b76da0';
 
 const BLAST = ELEMENT_FX.blast?.colors || ['#ffd060', '#ff8a30', '#ffffff'];
 const BARK = ['#5a4228', '#8a6a44', '#b08a5a'];
