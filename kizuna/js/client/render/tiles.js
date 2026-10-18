@@ -1,16 +1,16 @@
 // マップの タイル（16×16 ドット）を プログラムで かく
-import { T, TILE_INFO } from '../../shared/tiles.js?v=dcad12cc1a04';
-import { hash2 } from '../../shared/rng.js?v=dcad12cc1a04';
-import { Painter, shade, prand } from './pixel.js?v=dcad12cc1a04';
-import { themedCanvas, partOfTile } from './themes.js?v=dcad12cc1a04';
-import { CH3_PAINTERS, CH3_FRAMES, CH3_SPEED, RAIL_TILES, CH3_WALLS } from './tiles-ch3.js?v=dcad12cc1a04';
-import { CH4_PAINTERS, CH4_FRAMES, CH4_SPEED, CH4_WALLS, ch4Mask, desertBase } from './tiles-ch4.js?v=dcad12cc1a04';
-import { CANAL_CTX, CANAL_CTX_PAINTERS, canalVariant, canalBaseBits, canalWallBits } from './tiles-canal.js?v=dcad12cc1a04';
-import { PYRAMID_PAINTERS, PYRAMID_FRAMES, PYRAMID_SPEED, PYRAMID_WALLS, paintTablet, paintPyrBrazier, paintPyrLever } from './tiles-pyramid.js?v=dcad12cc1a04';
-import { whirlVariant } from './tiles-duna.js?v=dcad12cc1a04';
-import { templeVariant } from './tiles-temple.js?v=dcad12cc1a04';
-import { TOWER_PAINTERS, TOWER_FRAMES, TOWER_SPEED, TOWER_WALLS, towerMask, towerVariant } from './tiles-tower.js?v=dcad12cc1a04';
-import { KUMOI_PAINTERS, KUMOI_FRAMES, KUMOI_SPEED, KUMOI_WALLS, kumoiMask, kumoiVariant } from './tiles-kumoi.js?v=dcad12cc1a04';
+import { T, TILE_INFO } from '../../shared/tiles.js?v=9fc3f72b90b0';
+import { hash2 } from '../../shared/rng.js?v=9fc3f72b90b0';
+import { Painter, shade, prand } from './pixel.js?v=9fc3f72b90b0';
+import { themedCanvas, partOfTile } from './themes.js?v=9fc3f72b90b0';
+import { CH3_PAINTERS, CH3_FRAMES, CH3_SPEED, RAIL_TILES, CH3_WALLS } from './tiles-ch3.js?v=9fc3f72b90b0';
+import { CH4_PAINTERS, CH4_FRAMES, CH4_SPEED, CH4_WALLS, ch4Mask, desertBase } from './tiles-ch4.js?v=9fc3f72b90b0';
+import { CANAL_CTX, CANAL_CTX_PAINTERS, canalVariant, canalBaseBits, canalWallBits } from './tiles-canal.js?v=9fc3f72b90b0';
+import { PYRAMID_PAINTERS, PYRAMID_FRAMES, PYRAMID_SPEED, PYRAMID_WALLS, paintTablet, paintPyrBrazier, paintPyrLever } from './tiles-pyramid.js?v=9fc3f72b90b0';
+import { whirlVariant } from './tiles-duna.js?v=9fc3f72b90b0';
+import { templeVariant } from './tiles-temple.js?v=9fc3f72b90b0';
+import { TOWER_PAINTERS, TOWER_FRAMES, TOWER_SPEED, TOWER_WALLS, towerMask, towerVariant } from './tiles-tower.js?v=9fc3f72b90b0';
+import { KUMOI_PAINTERS, KUMOI_FRAMES, KUMOI_SPEED, KUMOI_WALLS, kumoiMask, kumoiVariant } from './tiles-kumoi.js?v=9fc3f72b90b0';
 
 export const TS = 16;
 

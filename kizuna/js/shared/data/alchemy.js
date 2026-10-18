@@ -8,11 +8,11 @@
 //   tier … その章（1〜5）。本だなや メモで わかるのは、その章まで 進んだ 人だけ（TIER_FLAG）
 // ・同じ 武具を 2つ 入れると、レア度は かわらないが きたえられる 回数（+の 上限）が 1 ふえる（CAP_UP_MAX 回まで。
 //   その 装備の しゅるいごと。c.alchemy.cap）
-import { ITEMS, baseItemId } from './items.js?v=dcad12cc1a04';
-import { UPGRADE_TYPES, CAP_UP_MAX } from './items-forge.js?v=dcad12cc1a04';
-import { ALCHEMY_POT, ALCHEMY_MEMO } from './items-alchemy.js?v=dcad12cc1a04';
+import { ITEMS, baseItemId } from './items.js?v=9fc3f72b90b0';
+import { UPGRADE_TYPES, CAP_UP_MAX } from './items-forge.js?v=9fc3f72b90b0';
+import { ALCHEMY_POT, ALCHEMY_MEMO } from './items-alchemy.js?v=9fc3f72b90b0';
 // 第5章 Step 3・4 の レシピ（items-kumoi.js）
-import { KUMOI_RECIPES } from './items-kumoi.js?v=dcad12cc1a04';
+import { KUMOI_RECIPES } from './items-kumoi.js?v=9fc3f72b90b0';
 
 export { ALCHEMY_POT, ALCHEMY_MEMO, CAP_UP_MAX };
 
