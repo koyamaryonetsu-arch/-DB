@@ -79,3 +79,18 @@ test('十字キー: 2列・3列の リストでも 列の はしで 左右 → o
   assert.match(d, /atEdge\(d, cols = this\.cols\)/);
   assert.match(d, /this\.onSide && this\.atEdge\(a === 'left' \? -1 : 1, cols\)\) return this\.onSide/);
 });
+
+// ───────────── 2. 職業の 表示 ─────────────
+test('職業の 表示: 戦いの まど・メニューの 札に 短い 職業名（男の子の セーラー系は jobShort）', () => {
+  const b = src('js/client/battle.js');
+  assert.match(b, /s\.jb\.textContent = a\.mon \|\| a\.kind === 'monster' \|\| !JOBS\[a\.job\] \? '' : jobShort\(a\.job, a\)/);
+  const h = src('js/client/ui/hud.js');
+  assert.match(h, /jobShort\(x\.job, x\)/);
+  assert.match(h, /x && !x\.species/, 'モンスターは 出さない');
+  const m = src('js/client/ui/menu.js');
+  assert.match(m, /m\.jb \? el\('div', \{ class: 'jb', text: m\.jb \}\)/);
+  // スマホの たてでは メニューの 札に 出さない（せまい）・たての 戦いの 5人の 上の 3人も
+  const css = src('js/client/ui/r35-css.js');
+  assert.match(css, /orientation: portrait\) \{ \.fm-mem > \.jb \{ display: none; \}/);
+  assert.match(css, /data-n="5"\] \.b-mem:nth-child\(-n \+ 3\) \.jb \{ display: none; \}/);
+});

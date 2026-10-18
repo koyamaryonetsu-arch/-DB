@@ -5,6 +5,7 @@ import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.
 import { abilityFor, abilityLabel } from '../shared/ability-label.js';
 import { ITEMS } from '../shared/data/items.js';
 import { JOBS } from '../shared/data/jobs.js';
+import { jobShort } from '../shared/job-label.js';
 import { MONSTERS } from '../shared/data/monsters.js';
 import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed, battleAbilityOk } from '../shared/stats.js';
 import { affinityOf, attackReach, spellSealed, SEALED_REASON } from '../shared/battle.js';
@@ -312,8 +313,10 @@ export class BattleScene {
         box.addEventListener('click', () => this.onAllyClick(a.id));
         const name = el('span', { class: 'n', text: a.name });
         const tag = el('span', { class: 'tg' });
+        // 第35回: 短い 職業名（男の子の 美少女戦士は「しんし」など。shared/job-label.js）
+        const jb = el('span', { class: 'jb' });
         const lv = el('span', { class: 'lv' });
-        const nm = el('div', { class: 'nm' }, el('span', { class: 'nl' }, name, tag), lv);
+        const nm = el('div', { class: 'nm' }, el('span', { class: 'nl' }, name, tag, jb), lv);
         const gauge = (label, kind) => {
           const bar = el('div', { class: `gb ${kind}` }, el('i'));
           const num = el('span', { class: 'gn' });
@@ -326,7 +329,7 @@ export class BattleScene {
         const atb = el('div', { class: 'atb' }, el('i'));
         box.append(nm, hp.row, mp.row, sts, atb);
         this.statusEl.append(box);
-        this.statusBoxes.set(a.id, { box, name, tag, lv, hp, mp, sts, atb: atb.firstChild, atbBox: atb });
+        this.statusBoxes.set(a.id, { box, name, tag, jb, lv, hp, mp, sts, atb: atb.firstChild, atbBox: atb });
       }
     }
     // 家族と いっしょの ときは、人が 動かしている キャラの 名前を 黄緑に
@@ -344,6 +347,7 @@ export class BattleScene {
       s.box.classList.toggle('tac', this.canTactics(a));
       s.name.className = `n ${multi && a.kind === 'player' ? 'player' : ''} ${hpCls}`;
       s.lv.textContent = `Lv${a.lv}`;
+      s.jb.textContent = a.mon || a.kind === 'monster' || !JOBS[a.job] ? '' : jobShort(a.job, a);
       s.hp.row.className = `grow hp ${hpCls}`;
       s.hp.bar.style.width = `${Math.round(r * 100)}%`;
       s.hp.num.textContent = `${Math.max(0, a.hp)}/${a.maxHp}`;

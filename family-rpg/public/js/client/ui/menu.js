@@ -45,6 +45,7 @@ import { wagonMenuView, wagonHereClient, menuArrange } from './wagon.js';
 import { readErrLog, errLogText, clearErrLog } from '../errlog.js';
 import { fieldUsableAbilities } from '../../shared/fieldskills.js';
 import { alchemyRow, alchemyUI, bindAlchemy } from './alchemy.js';
+import './r35-css.js';
 
 // 見た目装備の せつめい
 const LOOK_HELP = '見た目だけを、持っている装備に変える（強さは変わらない）\n職業で装備できない物も選べる。「装備なし」も選べる';
@@ -158,7 +159,9 @@ export class FieldMenu {
         el('div', { class: `n ${m.hpCls}`, text: m.name }),
         el('div', { class: `v ${m.hpCls}` }, el('span', { class: 'k', text: 'H' }), `${Math.max(0, m.hp)}`),
         el('div', { class: 'v' }, el('span', { class: 'k', text: 'M' }), `${m.mp}`),
-        el('div', { class: 'v lv' }, el('span', { class: 'k', text: 'Lv' }), `${m.level}`)));
+        el('div', { class: 'v lv' }, el('span', { class: 'k', text: 'Lv' }), `${m.level}`),
+        // 第35回: 短い 職業名（モンスターは なし。スマホの たてでは せまいので 出さない。ui/r35-css.js）
+        m.jb ? el('div', { class: 'jb', text: m.jb }) : null));
     }
     this.headGold.innerHTML = '';
     this.headGold.append(el('span', { class: 'k', text: '所持金' }), el('span', { class: 'g', text: `${c.gold.toLocaleString('ja-JP')} G` }));

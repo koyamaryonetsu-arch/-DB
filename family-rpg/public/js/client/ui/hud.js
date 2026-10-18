@@ -2,6 +2,7 @@
 import { el, bar, askText, ListMenu } from './dom.js';
 import { computeStats } from '../../shared/stats.js';
 import { JOBS } from '../../shared/data/jobs.js';
+import { jobShort } from '../../shared/job-label.js';
 import { renderMiniMap, openWorldMap } from './menu.js';
 import { makeCanvas } from '../render/pixel.js';
 import { ClockBadge } from './clock.js';
@@ -23,11 +24,14 @@ export function partyRows(g) {
     const hpCls = hp <= 0 ? 'dead' : r <= 0.1 ? 'red' : r <= 0.5 ? 'orange' : '';
     to.push({ name, level, hp, maxHp, mp, maxMp, tag, away, player, hpCls, ref });
   };
+  // 第35回: 短い 職業名（モンスターは なし。shared/job-label.js）
+  const jb = (to, x) => { to[to.length - 1].jb = x && !x.species && JOBS[x.job] ? jobShort(x.job, x) : ''; };
   const st = computeStats(c);
   add(people, c.name, c.level, c.hp, st.maxHp, c.mp, st.maxMp, '', false, true, 'self');
-  for (const m of p?.members || []) if (m.sid !== g.sid) add(people, m.name, m.level, m.hp, m.maxHp, m.mp, m.maxMp, '家族', m.away, true);
-  for (const s of p?.supports || []) add(sups, s.name, s.level, s.hp, s.maxHp, s.mp, s.maxMp, s.family ? '家族サポート' : s.species ? 'モンスター' : '仲間', false, false, s.key);
-  for (const gu of p?.guests || []) add(guests, gu.name, gu.level, gu.hp, gu.maxHp, gu.mp ?? 0, gu.maxMp || 1, 'ゲスト');
+  jb(people, c);
+  for (const m of p?.members || []) if (m.sid !== g.sid) { add(people, m.name, m.level, m.hp, m.maxHp, m.mp, m.maxMp, '家族', m.away, true); jb(people, m); }
+  for (const s of p?.supports || []) { add(sups, s.name, s.level, s.hp, s.maxHp, s.mp, s.maxMp, s.family ? '家族サポート' : s.species ? 'モンスター' : '仲間', false, false, s.key); jb(sups, s); }
+  for (const gu of p?.guests || []) { add(guests, gu.name, gu.level, gu.hp, gu.maxHp, gu.mp ?? 0, gu.maxMp || 1, 'ゲスト'); jb(guests, gu); }
   // ならびかえ（リーダーが きめた じゅんばん）
   const pos = Math.max(0, Math.min(sups.length, p?.selfPos || 0));
   return [...sups.slice(0, pos), ...people, ...sups.slice(pos), ...guests];

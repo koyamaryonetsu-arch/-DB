@@ -19,7 +19,10 @@ const CSS = `
 
 /* 職業の 短い 名前 */
 .b-mem .nm .jb, .fm-mem .jb { color: #b8c4ff; font-size: 0.78em; margin-left: 0.3em; white-space: nowrap; }
-.fm-mem .n .jb { margin-left: 0.25em; }
+.fm-mem > .jb { margin-left: 0; font-size: 0.82em; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 700px) and (orientation: portrait) { .fm-mem > .jb { display: none; } }
+/* たての 戦い: 5人の ときの 上の 3人は せまいので 出さない（仲間の しるしと おなじ） */
+@media (max-aspect-ratio: 1/1) { .b-status[data-n="5"] .b-mem:nth-child(-n + 3) .jb { display: none; } }
 .cmp-list .jb, .all-status .jb { color: #b8c4ff; font-size: 0.8em; white-space: nowrap; }
 
 /* 道具の タブ（client/ui/menu.js の itemsList） */
