@@ -292,7 +292,7 @@ test('景品: コインで こうかん。足りない・ない 品・まどが 
   open('slot1');
   assert.equal(act({ action: 'prize', id: 'magic_water' }).ok, false, 'スロットの 台では こうかん できない');
   const ui = open('prizes');
-  assert.deepEqual(ui.prizes, PRIZES.filter((p) => !p.need), 'はじめは 物語の 景品は ならばない');
+  assert.deepEqual(ui.prizes, PRIZES.filter((p) => !p.need && !p.tier), 'はじめは 物語の 景品・宝の地図の 段の 景品は ならばない');
   assert.equal(ui.more, true);
   assert.equal(act({ action: 'prize', id: 'little_prince_cape' }).ok, false, 'まだ ならんでいない 景品');
   let r = act({ action: 'prize', id: 'magic_water' });
@@ -317,7 +317,8 @@ test('景品・ごほうびの 装備: ランク4〜5（40・50枚は ランク6
     assert.ok(!(it.price > 0), `${p.id} は 店の 品では ない`);
     // 売っても コインで 買う ねだん（1枚 20G）より ずっと 安い
     assert.ok((it.sell ?? 0) < p.coins * COIN_PRICE / 2, `${p.id} の 売値`);
-    if (it.rank) assert.ok(it.rank >= 2 && it.rank <= (p.need ? 8 : 5), `${p.id} rank ${it.rank}`);
+    // 第37回 B: 宝の地図の 段（tier）の 景品は ★3〜★5（ランク7〜10）
+    if (it.rank) assert.ok(it.rank >= 2 && it.rank <= (p.tier ? 10 : p.need ? 8 : 5), `${p.id} rank ${it.rank}`);
   }
   for (const r of MEDAL_REWARDS) for (const [id] of r.items) {
     const it = ITEMS[id];
@@ -518,7 +519,8 @@ test('カジノと メダル王の城: 港と 島から 入れて、人と 台�
     const m = MAPS[id];
     assert.ok(m.spawnCounts && !Object.keys(m.spawnCounts).length, '魔物は 出ない');
     for (const n of m.npcs) assert.ok(SCRIPTS[n.script], `${id} ${n.id} ${n.script}`);
-    for (const w of m.warps) assert.equal(w.to.map, 'sea');
+    // 第37回 B: カジノの 中の 階だんは すごろく場へ
+    for (const w of m.warps) assert.ok(w.to.map === 'sea' || (id === 'casino' && w.to.map === 'sugoroku_hall'), `${id} → ${w.to.map}`);
   }
   assert.ok(SCRIPTS.medal_fan && MAPS.overworld.npcById.medal_fan, 'ルミナの町の メダル集めの 少年');
   const kingSteps = SCRIPTS.medal_king({ c: { medalSpots: {} }, flag: () => false });
@@ -547,7 +549,7 @@ test('景品（第31回）: 物語が 進むと ふえる（第2〜4章クリア
   const c2 = prizesFor({ c2_clear: true }).length;
   const all = prizesFor({ c2_clear: true, c3_clear: true, c4_clear: true, c5_argos: true }).length;
   assert.ok(base < c2 && c2 < all, `${base} → ${c2} → ${all}`);
-  assert.equal(all, PRIZES.length);
+  assert.equal(all, PRIZES.filter((p) => !p.tier).length, '宝の地図の 段の 景品は べつ（第37回 B）');
   for (const p of PRIZES) if (p.need) assert.ok(['c2_clear', 'c3_clear', 'c4_clear', 'c5_argos'].includes(p.need), p.need);
   const { c, open, act } = await gambler();
   c.coins = 20000;

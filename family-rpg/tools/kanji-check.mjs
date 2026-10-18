@@ -195,6 +195,10 @@ export function gameFiles() {
     'public/js/shared/data/casino.js', 'public/js/shared/data/items-casino.js', 'public/js/shared/data/story-casino.js',
     'public/js/shared/world/casino.js', 'public/js/shared/maps/casino.js',
     'public/js/client/ui/casino.js', 'public/js/client/render/casino.js',
+    // 第37回 B: ルーレット・すごろく場・宝の地図の 段で ふえる 景品
+    'public/js/shared/data/casino-tier.js', 'public/js/shared/data/roulette.js', 'public/js/shared/data/sugoroku.js',
+    'public/js/shared/data/items-casino-r37.js', 'public/js/shared/world/sugoroku.js',
+    'public/js/client/ui/roulette.js', 'public/js/client/ui/sugoroku.js', 'public/js/client/render/sugoroku.js',
     // めずらしい 強い 魔物（ぷるりん騎士・ヴァルドラゴン など）
     'public/js/shared/data/monsters-rare.js', 'public/js/client/render/rare-art.js',
     // たたかいの けっかの まど（ボタンで 1行ずつ）

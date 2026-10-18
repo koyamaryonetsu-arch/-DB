@@ -13,7 +13,7 @@ import { targetText, itemDetail } from './info.js';
 
 const STAT = { atk: '攻撃力', def: '守備力', agi: '素早さ', mag: '魔力', heal: '回復魔力', eva: 'かわしやすさ', dfn: '守備力', hit: '命中' };
 const STATUS = { sleep: 'ねむり', paralyze: 'マヒ', confuse: '混乱', blind: 'まぼろし', silence: '呪文ふうじ', poison: '毒', stop: '動けない' };
-const SEED = { str: '力', def: '身の守り', agi: '素早さ', mag: '攻撃魔力', hp: '最大HP' };
+const SEED = { str: '力', def: '身の守り', agi: '素早さ', mag: '攻撃魔力', hp: '最大HP', mp: '最大MP', heal: '回復魔力' };
 const ITEM_TARGET = { self: '自分', ally: '味方1人', deadAlly: '死んだ味方1人', allies: '味方全員' };
 
 const num = (x) => (Math.round(x * 10) / 10).toString();

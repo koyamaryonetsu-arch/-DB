@@ -18,11 +18,18 @@ import {
 import { MEDAL_SPOTS, MEDAL_SPOT_BY_ID, medalSparkleId } from '../maps/casino.js';
 import { MAPS, tileAt, condOk } from '../maps/index.js';
 import { T } from '../tiles.js';
+// 第37回 B: ルーレット・すごろく場・宝の地図の 段で ふえる 景品
+import { ROULETTE_CHIPS, ROULETTE_MAX_TOTAL, normBets, roulettePayout } from '../data/roulette.js';
+import { tierInfo } from '../data/casino-tier.js';
+import { sugorokuInfo, sugorokuAction } from './sugoroku.js';
+import { SUGOROKU_MAP } from '../data/sugoroku.js';
 
 // 見つけた 光る 場所は もう 光らない（sparkles の 時こくを ずっと 先に）
 export const MEDAL_TAKEN_AT = 9e15;
 const fmt = (n) => Number(n).toLocaleString('ja-JP');
-const CASINO_MODES = { coins: 'coins', slot1: 'slot', slot10: 'slot', poker: 'poker', prizes: 'prizes' };
+const CASINO_MODES = { coins: 'coins', slot1: 'slot', slot10: 'slot', poker: 'poker', prizes: 'prizes', roulette: 'roulette', sugoroku: 'sugoroku' };
+// その まどを 開ける マップ（すごろくは カジノの 地下の すごろく場）
+const MODE_MAP = { sugoroku: SUGOROKU_MAP };
 
 // ───────────── まどを 開く ─────────────
 export function casinoOpen(world, s, kind, arg) {
@@ -33,7 +40,7 @@ export function casinoOpen(world, s, kind, arg) {
     return { mode: 'medal', ...medalInfo(c) };
   }
   const mode = CASINO_MODES[arg];
-  if (kind !== 'casino' || !mode || s.map !== 'casino') return null;
+  if (kind !== 'casino' || !mode || s.map !== (MODE_MAP[mode] || 'casino')) return null;
   settlePoker(world, s);
   s.casino = mode;
   const base = { mode, coins: coinsOf(c), coinMax: COIN_MAX };
@@ -41,7 +48,15 @@ export function casinoOpen(world, s, kind, arg) {
     case 'coins': return { ...base, price: COIN_PRICE, packs: COIN_PACKS, buyMax: COIN_BUY_MAX };
     case 'slot': return { ...base, bets: SLOT_BETS, bet: arg === 'slot10' ? 10 : 1 };
     case 'poker': return { ...base, bets: POKER_BETS, doubleMax: DOUBLE_MAX };
-    case 'prizes': { const prizes = prizesFor(c.flags); return { ...base, prizes, more: prizes.length < PRIZES.length }; }
+    case 'prizes': {
+      // 宝の地図の クリア数の 段で 景品が ふえる（tier。data/casino-tier.js）
+      const t = tierInfo(c);
+      const prizes = prizesFor(c.flags, t.tier);
+      const story = PRIZES.some((p) => p.need && !c.flags?.[p.need]);
+      return { ...base, prizes, more: prizes.length < PRIZES.length, story, tier: t };
+    }
+    case 'roulette': return { ...base, chips: ROULETTE_CHIPS, maxTotal: ROULETTE_MAX_TOTAL };
+    case 'sugoroku': return { ...base, ...sugorokuInfo(world, s) };
     default: return null;
   }
 }
@@ -74,7 +89,9 @@ export function casinoAction(world, s, msg) {
   // まどが 開いている あいだ（係の人・台の だいほんの とちゅう）だけ
   if (msg.action !== 'close' && s.busy !== 'script') return reply(false, '今はできません');
   if (msg.kind === 'medal') return medalAction(world, s, msg, reply);
-  if (s.map !== 'casino') return reply(false, 'ここはカジノではない');
+  // すごろく場（world/sugoroku.js）
+  if (msg.action !== 'close' && s.casino === 'sugoroku') return sugorokuAction(world, s, msg, reply);
+  if (s.map !== 'casino' && !(msg.action === 'close' && s.map === SUGOROKU_MAP)) return reply(false, 'ここはカジノではない');
   const want = (mode) => s.casino === mode;
   const coins = coinsOf(c);
   switch (msg.action) {
@@ -165,9 +182,21 @@ export function casinoAction(world, s, msg) {
       p.stage = 'done';
       return reply(true, '', { win: p.win, stage: 'done' });
     }
+    case 'roulette': {
+      // ルーレット: かけを たしかめて、玉の 止まる 数は サーバーの 乱数
+      if (!want('roulette')) return reply(false, '');
+      const nb = normBets(msg.bets);
+      if (!nb) return reply(false, 'そのかけ方はできません');
+      if (coins < nb.total) return reply(false, 'コインが足りません');
+      const n = world.rng.int(0, 36);
+      const pay = roulettePayout(nb.bets, n);
+      c.coins = coins - nb.total;
+      const win = pay.win ? addCoins(c, pay.win) : 0;
+      return reply(true, '', { n, win, bet: nb.total, hits: pay.hits });
+    }
     case 'prize': {
       if (!want('prizes')) return reply(false, '');
-      const pr = prizesFor(c.flags).find((x) => x.id === msg.id);
+      const pr = prizesFor(c.flags, tierInfo(c).tier).find((x) => x.id === msg.id);
       if (!pr || !ITEMS[pr.id]) return reply(false, 'その景品はありません');
       if (coins < pr.coins) return reply(false, 'コインが足りないようです');
       if (itemCount(c, pr.id) >= 99) return reply(false, 'それ以上は持てないようです');
