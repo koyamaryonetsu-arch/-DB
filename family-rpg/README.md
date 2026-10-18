@@ -1191,8 +1191,12 @@
 - **第5章 Step 3・4「雲の上の町ハネノとしずみゆく島」**
   6. 風の笛でアステルを呼んで、空の上で「**雲の上**」を選ぶと、雲の海にうかぶ島々 **クモイ地方** へ。島は少しずつ、雲の海へしずんでいるようです
   7. いちばん大きな島の **ハネノの町** へ。羽のある人々「ハネビト」の長 **ソラネ** と、飛べない羽を気にしている子 **ピピ** に話を聞こう
-  8. **風の道** と **風見の石** で島から島へわたり、西の **しずみゆく島の古い神殿**（7階。下へ下へ）のいちばん下へ…（ここまで。続きはアップデートで！）
+  8. **風の道** と **風見の石** で島から島へわたり、西の **しずみゆく島の古い神殿**（7階。下へ下へ）のいちばん下へ
   - くわしいヒントは「[クモイ地方としずみゆく島（第5章 Step 3・4）](#クモイ地方としずみゆく島第5章-step-34)」
+- **第5章 Step 5「星読みの里と、思い出の迷宮」**
+  9. しずみゆく島の北西の **風見の石** を回すと、北へ新しい風の道が開いて、西の小島の **星読みの里** へ
+  10. 里のおくの **星読みのじいさまカナタ** に話を聞こう。里の **星読みの水しょう** から、ある人の **思い出の迷宮**（6階）へ入れます…（ここまで。続きはアップデートで！）
+  - くわしいヒントは「[星読みの里と思い出の迷宮（第5章 Step 5）](#星読みの里と思い出の迷宮第5章-step-5)」
 
 めやす（4人パーティーで）：ダークトレントはレベル5〜7、ゴルドーンはレベル10〜12、大王イカはレベル14〜16、嵐の将軍ストルムはレベル18〜20 くらい。
 第3章は、ブリザマンモス（ユキナといっしょ）がレベル19〜21、マグマゴーレムが22〜24、炎の騎士フレアードが24〜26、竜の番人が26〜28、炎の魔女イグニアが28〜30 くらい（はがねの装備をそろえて）。
@@ -1445,6 +1449,30 @@
 
 - 下の階ほど **雲が入りこんで** います。雲の中は魔物が強いかわりに、よい宝もねむっています
 - 町の人や仲間の「**はなす**」で、しかけのヒントが聞けます
+
+## 星読みの里と思い出の迷宮（第5章 Step 5）
+
+おすすめは Lv47 くらい（星読みの里の店の装備をそろえて）。
+
+- **星読みの里へ**：しずみゆく島の古い神殿のいちばん下まで進んだあと、しずみゆく島の **北西の風見の石** を回すと、北の雲の上に風の道が開きます。もう1度回すと、とじます。里の島からは、東の風の道でハネノの島の方へ帰れます
+- **竜で飛べる所**：里に1度着くまでは、里の島の上は飛べません（風の道で行こう）。着いたあとは、クモイ地方のどこへでも飛べます
+- **星読みの里**：宿屋（「夜まで休む」も）・教会・よろず屋（武器・防具・道具）。1度行くと **ルーラ・帰り道の羽** で来られます。町の中では竜を呼べません（南の門から外へ）
+- **星読みの練習**（より道）：里の南東の **星見の広場** で、里の子どもたちが星座のなぞに夢中。ゆかの星を、星座のじゅんにふもう（夜は本物の星だけが光ります。昼は広場のかどの絵がヒント）。できると、子どもが里の宝をくれます
+- **思い出の迷宮**：6階。カナタの家の「星読みの水しょう」から入ります。**みちびきの糸・リレミトが使えます**（水しょうの前にもどります）
+- **光と影**：「ランプ台」をしらべると、ランプの光がうつります。光と反対のがわに **柱の影** がのびて、**影の中にだけ見える道** をわたれます。光るランプ台は1つの階に1つだけ（ほかのランプ台をしらべると、光がそちらへうつります）。家族で遊ぶ時は、1人がランプ台を、もう1人が影の道を…と分かれると早いよ
+- **思い出のかけら**：どの階にも1つ。拾うと、その年の思い出が見られます。かけらへの影の道は、拾うと消えなくなります。**6つ全部集めると…？**
+- 1つの階に1つの **見どころ**：
+
+  | 階 | 見どころ |
+  |---|---|
+  | 1階 | 初めての影の道（ランプ台が2つ） |
+  | 2階 | 影の道を2本つないで進む |
+  | 3階 | **休み所**。星のいずみで何度でも回復と記録（「夜まで休む」も）。この階には魔物が出ません |
+  | 4階 | まん中の柱のまわりに3つのランプ台。光をうつすと、影がぐるっと回ります |
+  | 5階 | 3つのランプ台を使い分けよう |
+  | 6階 | 大広間で、何かが待っています。3階で準備を整えてから |
+
+- 仲間の「**はなす**」で、しかけのヒントが聞けます
 
 ## 宝の地図・ふしぎなかじ屋・預かり所・馬車
 
@@ -2062,6 +2090,14 @@ npm start                 # 家族サーバー
   - B（戦い・品）との約束：出現表 `t5_kumoi`・`t5_ruin_up`・`t5_ruin_low`・`t5_ruin_cloud`、きまった戦い `gaia_eater`（`showMon('gaia_eater')` と7階の大きな NPC `mon:gaia_eater`）、店のならび `KUMOI_SHOP_WEAPONS`・`KUMOI_SHOP_ARMOR`・`KUMOI_SHOP_TOOLS`（店は `data/shops-kumoi.js`）、宝箱 `RUIN_TREASURE[階]`。作業中の仮のデータ `data/kumoi-stub.js`（品）・`data/kumoi-battle-stub.js`（戦い）は B とまとめる時に消す。曲 `kumoi`・`hanono`・`sink_ruin`・`gaia` は A（`client/audio-kumoi.js`）
   - 絵：タイル `render/tiles-kumoi.js`（27しゅるい。2.5D は 雲の海 `KUMOI_LIQUIDS`〈島よりずっと下〉・`kumoiBlockSpec`・`KUMOI_FLOOR_H`・`KUMOI_PROPS`、`outside: 'cloud'`）・ハネビトの羽 `render/ch5-kumoi-art.js`（`KUMOI_NPC_LOOKS`・`drawWings`。`chars.js` の `wings`・`wingSize`）。大事な物 `earth_shard` は `data/sky.js` の `SKY_ITEMS`
   - `test/ch5-step34.test.js`（15こ。すすみぐあいと目標・雲の上と竜の飛べる所・島めぐりの風の道・風見の石・ハネノの町・神殿のつながり・かたむくゆか・てんびん（ひとり・仲間・家族2人）・縄ばしご・ガイアイーターの台本（負け・勝ち）・文字・絵と音・**c5_sky から c5_shard までの通し**）
+- 第5章 Step 5（星読みの里・思い出の迷宮。A … 世界と物語。ネタバレになるので、物語の中みは `docs/plan-ch5.md` の「14」の実装メモ）
+  - フラグ：物語のすすみぐあい（`CH5_STEPS` の `c5_shard` のうしろ。`data/story-hoshiyomi.js` の `HOSHIYOMI_STEPS`）は `c5_village`・`c5_kanata`・`c5_grandma`・`c5_memory`・`c5_nshadow`・`c5_nocto`。しかけのフラグ：`c5_k_vane3`（風見の石3）・`c5_y_cs1`〜`c5_y_cs4`／`c5_y_stars`／`c5_y_prize`（星読みの練習）・`c5_mf1`〜`c5_mf6`（その階に来た）・`c5_m<階>_l<番>`（光っているランプ台。1つの階に1つ）・`c5_ms1`〜`c5_ms6`（思い出のかけら。`MEMORY_SHARD_FLAGS`・`memoryShardsAll`）
+  - 台本：`data/story-hoshiyomi.js`（`story-ch5.js` がまぜる）。`KUMOI_OBJ.shard` を星読みの里への文にかえ、前の文は `OLD_C5_OBJ.shard`。ばあちゃんは `c5_shard` のあと `elderHoshiyomi`。台本の `['if', fn, …]` で、かけら6つの時だけ場面をかえる
+  - マップ：クモイ地方の西に `KUMOI_ISLES.star`・`STAR_TOWN`・風の道 `w8`（いつも）と `KUMOI_ROADS.w7`（ゲート。風見の石3）。`data/sky.js` の `box` に2つ目（`KUMOI_SKY2`。`c5_village` まで里の島の上は飛べない）。`maps/hoshiyomi.js`（`attachHoshiyomi(maps)` を `maps/index.js` から1行。`hoshiyomi`・`SEA_PLACES.hoshiyomi` でルーラ）・`maps/memory.js`・`maps/memory-rows.js`（`memory_1f`〜`memory_6f`。テーマ `memory_1`〜`memory_6`）
+    - 光と影：ランプ台 `1`〜`4`（`LAMP_STAND`／`LAMP_LIT`）・影の道 `a`〜`d`（`MEM_VOID` → `SHADOW_PATH` のゲート `levels`）・ゆかの影 `A`〜`D`（`SHADOW_FLOOR`）。ランプ台の台本は ほかの光を `unflag` してから `toggle`（道が消えたマスの人は となりへ よける）・`sameMap`（家族なら はなれていても）。かけらへの影の道は `MEMORY_KEEP`（拾うと消えない）
+  - B（戦い・品）との約束：出現表 `t5_village`・`t5_memory`・`t5_memory_deep`、きまった戦い `nocto_shadow`、店のならび `HOSHIYOMI_SHOP_*`（店は `data/shops-hoshiyomi.js`）、宝箱 `MEMORY_TREASURE[階]`。作業中の仮のデータ `data/hoshiyomi-stub.js`（品）・`data/hoshiyomi-battle-stub.js`（戦い）は B とまとめる時に消す。曲 `hoshiyomi`・`memory`・`nocto_shadow` は A（`client/audio-hoshiyomi.js`）
+  - 絵：タイル `render/tiles-memory.js`（10しゅるい。ID 62〜69・83・84。もやは `MEMORY_LIQUIDS`〈ゆかよりずっと下〉）・人 `render/ch5-hoshiyomi-art.js`（`HOSHIYOMI_NPC_LOOKS`）。大事な物 `star_lamp` は `data/sky.js` の `SKY_ITEMS`
+  - `test/ch5-step5.test.js`（12こ。光と影の じょうたいを ぜんぶ ためして、とじこめられないことも。**c5_shard から c5_nocto までの通し**）
 - 家族の酒場にも仲間の魔物（マルチプレイ）：`shared/world/recruit-share.js`
   - 流れ：`battles.js` の `finishBattle` で、仲間になりたがる魔物が決まった時（`rollBefriend`。受け取る人は今までどおり、戦いに出ていたリーダー、いなければ魔物にふれた人）に、`befriendShare(sessions, 受け取る人)` で「戦いのおわりの `ctx.sids` の人のキャラ」をおぼえる → `world.offerBefriend(s, species, level, share)` が `s.befriendOffer.share` に入れる → 台本の `['befriend', …]`（`scripts.js`）で「はい」の時だけ `shareBefriend` がその人たちの酒場に入れる。「いいえ」ならだれにも入らない
   - 入れ方は `party.js` の `addMonsterEntry(c, species, level)`（`addMonsterCompanion` も中で使う。名前 `monsterName`・番号 `monsterSeq`・図鑑の `friend`・`ROSTER_MAX` でいっぱいなら `{ full: true }`）。パーティー・馬車（`partyKeys`・`wagonKeys`）はかえない。レベルは `befriendLevel()`

@@ -20,6 +20,7 @@ import { TEMPLE_LIQUIDS, TEMPLE_FLOOR_H, templeBlockSpec, waterMirrorCanvas, MIR
 import { labBlockSpec } from './tiles-lab.js';
 import { towerBlockSpec, TOWER_FLOOR_H } from './tiles-tower.js';
 import { kumoiBlockSpec, KUMOI_FLOOR_H, KUMOI_LIQUIDS, CLOUD_OUTSIDE } from './tiles-kumoi.js';
+import { MEMORY_FLOOR_H, MEMORY_LIQUIDS } from './tiles-memory.js';
 import { TROUGH, CANAL_CTX, CANAL_SUN, canalVariant, canalMask, canalFlow, damVertical } from './tiles-canal.js';
 import { flipCanvas, makeCanvas, ctxOf, whiteCopy } from './pixel.js';
 import { themedCanvas, partOfTile, partOfExtra, partOfProp } from './themes.js';
@@ -51,11 +52,13 @@ const LIQUID_TILES = { [T.LAVA]: { name: 'lava', y: WATER_Y + 0.06, speed: 380 }
   // 第4章 Step 7: 砂の底の神殿の 水（上・中・下で 水面の 高さが ちがう）と 水鏡
   ...TEMPLE_LIQUIDS,
   // 第5章 Step 3: クモイ地方の 雲の 海（島より ずっと 下。render/tiles-kumoi.js）
-  ...KUMOI_LIQUIDS };
+  ...KUMOI_LIQUIDS,
+  // 第5章 Step 5: 思い出の 迷宮の もや（ゆかより ずっと 下。render/tiles-memory.js）
+  ...MEMORY_LIQUIDS };
 // 第4章 Step 2（かれた地下水路）: 水路の 底・水の たかさ（通路より ひくい）・水門と こうしの とびらの たかさ・がれきの 山の たかさ
 const CANAL_BED_H = -0.42, CANAL_WATER_Y = -0.27, GATE_H = 1.05, DAM_H = 0.62;
 // 地面の たかさ（深い 雪は すこし 高く・谷は ふかく・水路の 底は ひくく）
-const FLOOR_H = { [T.STEPPING]: -0.16, [T.DEEP_SNOW]: 0.14, [T.CHASM]: -0.8, [T.CANAL_BED]: CANAL_BED_H, [T.DAM]: CANAL_BED_H, ...TEMPLE_FLOOR_H, ...TOWER_FLOOR_H, ...KUMOI_FLOOR_H };
+const FLOOR_H = { [T.STEPPING]: -0.16, [T.DEEP_SNOW]: 0.14, [T.CHASM]: -0.8, [T.CANAL_BED]: CANAL_BED_H, [T.DAM]: CANAL_BED_H, ...TEMPLE_FLOOR_H, ...TOWER_FLOOR_H, ...KUMOI_FLOOR_H, ...MEMORY_FLOOR_H };
 // 雪・氷・砂ばくの 地面の よこの え
 const SIDE_OF = {
   [T.SAND]: 'sand_side', [T.SNOW]: 'snow_side', [T.SNOW_PATH]: 'snow_side', [T.DEEP_SNOW]: 'snow_side', [T.ICE]: 'ice_side',

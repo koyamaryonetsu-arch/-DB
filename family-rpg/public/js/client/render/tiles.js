@@ -11,6 +11,7 @@ import { whirlVariant } from './tiles-duna.js';
 import { templeVariant } from './tiles-temple.js';
 import { TOWER_PAINTERS, TOWER_FRAMES, TOWER_SPEED, TOWER_WALLS, towerMask, towerVariant } from './tiles-tower.js';
 import { KUMOI_PAINTERS, KUMOI_FRAMES, KUMOI_SPEED, KUMOI_WALLS, kumoiMask, kumoiVariant } from './tiles-kumoi.js';
+import { MEMORY_PAINTERS, MEMORY_FRAMES, MEMORY_SPEED } from './tiles-memory.js';
 
 export const TS = 16;
 
@@ -500,6 +501,8 @@ Object.assign(painters, PYRAMID_PAINTERS);
 Object.assign(painters, TOWER_PAINTERS);
 // 第5章 Step 3・4「クモイ地方」「しずみゆく島の古い神殿」（render/tiles-kumoi.js）
 Object.assign(painters, KUMOI_PAINTERS);
+// 第5章 Step 5「ノクトの思い出の迷宮」「星読みの里」（render/tiles-memory.js）
+Object.assign(painters, MEMORY_PAINTERS);
 // ピラミッドの 中の かがり火は 金色の 台（mask 4。tiles-ch4.js の ch4Mask）
 for (const [id, lit] of [[T.BRAZIER, false], [T.BRAZIER_LIT, true]]) {
   const base = painters[id];
@@ -521,9 +524,9 @@ const FRAMES = {
   [T.WATER]: 3, [T.DEEP]: 3, [T.SWAMP]: 3, [T.FOUNTAIN]: 2, [T.FIREPLACE]: 2, [T.CAVE_WATER]: 3, [T.CRYSTAL]: 3,
   [T.TORCH]: 3, [T.LAMP]: 2, [T.STEPPING]: 3, [T.BRIDGE_H]: 3, [T.BRIDGE_V]: 3, [T.BROKEN_BRIDGE]: 3, [T.CAVE_BRIDGE]: 3, [T.PIER]: 3,
   [T.WHIRLPOOL]: 3,
-  ...CH3_FRAMES, ...CH4_FRAMES, ...PYRAMID_FRAMES, ...TOWER_FRAMES, ...KUMOI_FRAMES,
+  ...CH3_FRAMES, ...CH4_FRAMES, ...PYRAMID_FRAMES, ...TOWER_FRAMES, ...KUMOI_FRAMES, ...MEMORY_FRAMES,
 };
-const SPEED = { [T.TORCH]: 140, [T.FIREPLACE]: 180, [T.CRYSTAL]: 500, [T.LAMP]: 700, ...CH3_SPEED, ...CH4_SPEED, ...PYRAMID_SPEED, ...TOWER_SPEED, ...KUMOI_SPEED };
+const SPEED = { [T.TORCH]: 140, [T.FIREPLACE]: 180, [T.CRYSTAL]: 500, [T.LAMP]: 700, ...CH3_SPEED, ...CH4_SPEED, ...PYRAMID_SPEED, ...TOWER_SPEED, ...KUMOI_SPEED, ...MEMORY_SPEED };
 
 export function frameOf(id, t) {
   const n = FRAMES[id];
