@@ -58,7 +58,7 @@ export const JOB_TAGS = {
   salaryman: ['work', 'money'], // 会社員
   idol: ['stage', 'light'], // アイドル（キラキラビーム）
   railman: ['ride', 'work'], // 鉄道員
-  ballplayer: ['sport', 'rival'], // プロ野球選手
+  ballplayer: ['sport', 'rival', 'work'], // プロ野球選手
   schoolkid: ['school', 'kid'], // 小学生
   civil_local: ['work', 'guard'], // 地方公務員（防災訓練）
   cook: ['cook', 'fire', 'work'], // 料理人（強火・フランベ）
@@ -68,7 +68,7 @@ export const JOB_TAGS = {
   youtuber: ['money', 'machine'], // ユーチューバー
   gamer: ['machine', 'kid'], // ゲーマー
   okan: ['home', 'cook'], // おかん
-  spy: ['shinobi', 'henshin'], // スパイ（変装）
+  spy: ['shinobi', 'henshin', 'work', 'machine'], // スパイ（変装）
   shonen_tantei: ['detective', 'kid', 'school'], // 少年探てい団
   neko_robot: ['machine', 'home'], // ネコ型ロボット
   kappa: ['monster', 'sport', 'ice'], // カッパ（すもう・水でっぽう）
@@ -88,7 +88,7 @@ export const JOB_TAGS = {
   fortune: ['magic', 'light', 'detective'], // 占い師（太陽・星のカード。運命を見ぬく）
   samurai: ['sword', 'money'], // サムライ（ぜに投げ）
   bucho: ['work', 'master'], // 部長
-  major_leaguer: ['sport', 'rival'], // メジャーリーガー
+  major_leaguer: ['sport', 'rival', 'work'], // メジャーリーガー
   middleschooler: ['school', 'kid', 'sport'], // 中学生（部活）
   civil_national: ['work', 'money'], // 国家公務員（予算会議）
   police: ['guard', 'detective', 'ride', 'work'], // 警察官（パトカー）
@@ -132,7 +132,7 @@ export const JOB_TAGS = {
   sword_master: ['sword', 'master', 'bolt'], // ソードマスター（雷神一閃）
   shogun: ['sword', 'master'], // 将軍
   shacho: ['money', 'work', 'sky'], // 社長（プライベートジェット）
-  nitoryu: ['sport', 'rival'], // 二刀流スター
+  nitoryu: ['sport', 'rival', 'work'], // 二刀流スター
   highschooler: ['school', 'kid'], // 高校生
   career: ['work', 'guard'], // キャリア組（危機管理）
   fruit_idol: ['stage', 'cook'], // フルーツジッパー（ミックスジュース）

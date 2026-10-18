@@ -190,13 +190,16 @@ test('生まれ変わり（かくし要素）: 1だん目は れん金がまで�
     assert.ok(m.ok && m.out === x.to && m.recipe === x.id, JSON.stringify(m));
     // むかし きたえた 店の 武器（+1〜）も 入れられる
     assert.equal(matchPot([upgradeId(x.from, 2), x.mat, 'star_shard'], c).out, x.to);
-    assert.ok(RECIPE_BY_ID[x.id].hidden, 'かくし要素');
+    assert.ok(RECIPE_BY_ID[x.id].reborn && !RECIPE_BY_ID[x.id].hidden, 'かくさない（第36回）');
     // 1だん目 → 2だん目
     assert.ok(REBIRTH[x.to], x.to);
   }
-  // 本だな・メモ・親方では わからない
+  // 第36回: 本だな・メモで わかる。親方も（どこかの 親方が 1つずつ 教える）
   const all = learnableRecipes({}, () => true);
-  assert.ok(!all.some((r) => r.hidden));
+  for (const x of REBIRTH_START) {
+    assert.ok(all.some((r) => r.id === x.id), x.id);
+    assert.ok(Object.values(KEEPER_RECIPES).some((l) => l.includes(x.id)), `${x.id}: 親方`);
+  }
   assert.equal(Object.keys(REBIRTH).length, 5);
   for (const [from, rb] of Object.entries(REBIRTH)) {
     const r = rebirthOf(from);

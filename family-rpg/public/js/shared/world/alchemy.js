@@ -58,7 +58,10 @@ export function forgePotGift(world, s, place) {
       giftNote: `${c.name}は、れん金がまを手に入れた！\n（メニューの「道具」のいちばん上から使える）`,
     };
   }
-  const r = pickLearnable(learnableRecipes(c, ownFlags(c), KEEPER_RECIPES[place] || []), null);
+  // 第36回: 生まれ変わりの 武器の レシピを 先に
+  const list = learnableRecipes(c, ownFlags(c), KEEPER_RECIPES[place] || []);
+  const reborn = list.filter((x) => x.reborn);
+  const r = pickLearnable(reborn.length ? reborn : list, null);
   if (!r) return {};
   learnRecipe(c, r.id);
   world.sendSelf(s);
