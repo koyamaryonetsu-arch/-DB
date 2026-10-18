@@ -26,7 +26,7 @@ export const DUAL_BOSS_CAP = { 2: 0.2, 3: 0.25, 4: 0.3 };
 // 合体技に さそわれた 家族が こたえるまで まつ 時間（ミリびょう）
 export const DUAL_ASK_MS = 7000;
 // 動けない じょうたい（合体技に 入れない）
-const OUT = ['sleep', 'paralyze', 'confuse', 'prison'];
+const OUT = ['sleep', 'paralyze', 'confuse', 'prison', 'rift'];
 const cantJoin = (p) => !p || !p.alive || p.fled || OUT.some((s) => p.status?.[s]);
 
 export const partnersOf = (cmd) => (cmd?.partners?.length ? cmd.partners : cmd?.partner ? [cmd.partner] : []);
@@ -50,7 +50,7 @@ export function optionsFor(b, c, others = null, exec = false, anyGauge = false) 
     // ほかの 人の 合体技を まっている・まって もらって いる
     waiting: x !== c && (!!x.waitDual || (!!x.dualTarget && x.dualTarget !== c.id)),
     // 呪文が ふうじられた 場所では、呪文の 合体技は 出せない（マホトーンと おなじ）。水のろうの 中も 出られない
-    statuses: [...Object.keys(x.status || {}), ...(x.status?.prison ? ['paralyze'] : []), ...(b.noSpells ? ['silence'] : [])], weaponCat: x.weaponCat,
+    statuses: [...Object.keys(x.status || {}), ...(x.status?.prison || x.status?.rift ? ['paralyze'] : []), ...(b.noSpells ? ['silence'] : [])], weaponCat: x.weaponCat,
     usable: (id) => {
       const a = ABILITIES[id];
       return !!a && (a.kind !== 'combo' || comboAllowed(x.penChar, id)) && weaponOk(a, x.weaponCat);

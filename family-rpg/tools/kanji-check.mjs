@@ -279,6 +279,9 @@ export function gameFiles() {
     // 第5章 Step 5（B: 戦い・品）: 星読みの里の まわりと 思い出の迷宮の 魔物・ノクトの影（職業の まね・きずなくだき）・里の 店・迷宮の 宝箱・影の王
     'public/js/shared/data/monsters-hoshiyomi.js', 'public/js/shared/data/abilities-hoshiyomi.js', 'public/js/shared/data/items-hoshiyomi.js',
     'public/js/shared/data/encounters-hoshiyomi.js', 'public/js/shared/data/companions-hoshiyomi.js', 'public/js/shared/battle-nocto.js', 'public/js/client/battle-nocto.js',
+    // 第5章 Step 6・7（B: 戦い・品）: 根の島と 大地の神殿の 魔物・ノクト（1回目。かげぶんしん・地われ・手をのばす）・ハネノの ランク9の 店・神殿の 宝箱・みんなが くれる 品・天空のきょ兵
+    'public/js/shared/data/monsters-earth.js', 'public/js/shared/data/abilities-earth.js', 'public/js/shared/data/items-earth.js',
+    'public/js/shared/data/encounters-earth.js', 'public/js/shared/data/companions-earth.js', 'public/js/shared/battle-earth.js', 'public/js/client/battle-earth.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

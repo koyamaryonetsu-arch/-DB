@@ -25,6 +25,8 @@ import { canUse } from './ai.js';
 import { gaiaEffect, gaiaCond, gaiaKill, gaiaPlan, gaiaPub } from './battle-gaia.js';
 // 第5章 Step 5: ノクトの影（職業の まね・合体技の よやくを こわす。battle-nocto.js。ここから よぶ）
 import { noctoCond, noctoEffect, noctoCheck, noctoKill, noctoPlan, noctoPub } from './battle-nocto.js';
+// 第5章 Step 6・7: ノクト（1回目）・大地の神殿の 魔物（かげぶんしん・地われ・まもる・おこる。battle-earth.js。ここから よぶ）
+import { earthCond, earthEffect, earthKill, earthPlan, earthPub, earthTurnStart } from './battle-earth.js';
 
 export const ARGOS = 'argos';
 export const JUDGE = 'm_argos_judge';
@@ -85,14 +87,17 @@ export function towerCond(b, m, cond) {
   if (g !== null) return g;
   const n = noctoCond(b, m, cond);
   if (n !== null) return n;
+  const e = earthCond(b, m, cond);
+  if (e !== null) return e;
   if (cond === 'gaze') return !!confOf(m) && readBy(b, m).length < gazeCount(m) && gazeTargets(b).length > 0;
   return true;
 }
 
 // ───────────── 技の こうか（battle.js の applyAbility の のこり）─────────────
-export function towerEffect(b, c, a, eff, ev) {
+export function towerEffect(b, c, a, eff, ev, targets = []) {
   if (gaiaEffect(b, c, a, eff, ev)) return true;
   if (noctoEffect(b, c, a, eff, ev)) return true;
+  if (earthEffect(b, c, a, eff, ev, targets)) return true;
   if (eff.type !== 'foresee') return false;
   foreseeStart(b, c, ev);
   return true;
@@ -126,6 +131,7 @@ function foreseeStart(b, c, ev) {
 // ───────────── こうどうの はじめ（battle.js の executeNext）─────────────
 // 動けない 番（ねむり・マヒ・水のろう）でも 読みは 消える。読んだ アルゴスが もう いなければ 消える
 export function towerTurnStart(b, c, ev, cmd) {
+  earthTurnStart(b, c, ev);
   if (c.side !== 'ally' || !c.foresee) return;
   const by = b.get(c.foresee.by);
   if (!by?.alive || cmd?.type === 'incapacitated') {
@@ -233,6 +239,7 @@ function foreseeHit(b, c, cmd, ev, by, kind) {
 export function towerKill(b, t, ev) {
   gaiaKill(b, t, ev);
   noctoKill(b, t, ev);
+  earthKill(b, t, ev);
   if (t.side !== 'enemy' || !confOf(t)) return;
   for (const x of b.allies) {
     if (x.foresee?.by !== t.id) continue;
@@ -252,6 +259,9 @@ export function towerPlan(b, c, decide) {
   // ノクトの影（知っている 人: きずなくだきの 前に 身を 守る・まねられた 人は 攻撃しない。battle-nocto.js）
   const np = noctoPlan(b, c, decide);
   if (np) return np;
+  // ノクト（1回目。知っている 人: 影を 先に たおす・前ぶれで 身を 守る・手を のばす。battle-earth.js）
+  const ep = earthPlan(b, c);
+  if (ep) return ep;
   if (b.knowsArgos && c.foresee?.kind !== 'guard') {
     const mine = 100 / atbRate(c);
     const j = b.aliveEnemies().find((e) => e.telegraph === JUDGE);
@@ -305,5 +315,5 @@ export function dodgeCmd(b, c, kind) {
 // ───────────── がめんへ ─────────────
 // pub（battle.js）に まぜる: 読まれている 種類（味方だけ）
 export function towerPub(c) {
-  return c.side === 'ally' ? { foresee: c.foresee?.kind || null, ...noctoPub(c) } : { ...gaiaPub(c), ...noctoPub(c) };
+  return c.side === 'ally' ? { foresee: c.foresee?.kind || null, ...noctoPub(c), ...earthPub(c) } : { ...gaiaPub(c), ...noctoPub(c), ...earthPub(c) };
 }

@@ -25,6 +25,7 @@ import { TEMPLE_MAT_DROPS } from './monsters-temple.js';
 import { CH5_MAT_DROPS } from './monsters-ch5.js';
 import { KUMOI_MAT_DROPS } from './monsters-kumoi.js';
 import { HOSHIYOMI_MAT_DROPS } from './monsters-hoshiyomi.js';
+import { EARTH_MAT_DROPS } from './monsters-earth.js';
 import { bossRareOf, BOSS_RARE_N, regionRareList, REGION_RARE_N, pickSdGear, SD_DROP_N, SD_GUARD_DROP_N } from './rare-loot.js';
 import { sdFloorOf } from './secret.js';
 
@@ -74,6 +75,8 @@ export const MAT_DROPS = {
   ...KUMOI_MAT_DROPS,
   // 第5章 Step 5「星読みの里・ノクトの思い出の迷宮」（monsters-hoshiyomi.js）
   ...HOSHIYOMI_MAT_DROPS,
+  // 第5章 Step 6・7「根の島・大地の神殿」（monsters-earth.js）
+  ...EARTH_MAT_DROPS,
 };
 // ぬすむ ときは レアが 出やすい（この 倍。でも 半分まで）
 export const STEAL_RARE_MULT = 8;

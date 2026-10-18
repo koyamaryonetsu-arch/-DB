@@ -24,6 +24,7 @@ import { MONSTERS_LAB } from './monsters-lab.js';
 import { MONSTERS_CH5 } from './monsters-ch5.js';
 import { MONSTERS_KUMOI, addGaiaParts } from './monsters-kumoi.js';
 import { MONSTERS_HOSHIYOMI } from './monsters-hoshiyomi.js';
+import { MONSTERS_EARTH, addEarthHidden } from './monsters-earth.js';
 import { MONSTERS_BOSS } from './monsters-boss.js';
 
 export const MONSTERS = {
@@ -247,6 +248,9 @@ Object.assign(MONSTERS, MONSTERS_CH5);
 Object.assign(MONSTERS, MONSTERS_KUMOI);
 // 第5章 Step 5「星読みの里・ノクトの思い出の迷宮」の 魔物と ノクトの影（monsters-hoshiyomi.js）
 Object.assign(MONSTERS, MONSTERS_HOSHIYOMI);
+// 第5章 Step 6・7「根の島・大地の神殿」の 魔物と ノクト（1回目。分身は 数えない 形。monsters-earth.js）
+Object.assign(MONSTERS, MONSTERS_EARTH);
+addEarthHidden(MONSTERS);
 addGaiaParts(MONSTERS);
 // ボス級（ランク SS）の 仲間。配合でしか 生まれない（monsters-boss.js。第35回）
 Object.assign(MONSTERS, MONSTERS_BOSS);
