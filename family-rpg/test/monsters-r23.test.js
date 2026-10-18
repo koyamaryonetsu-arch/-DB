@@ -1,5 +1,5 @@
 // あたらしい 仲間モンスター（shared/data/monsters-r23.js・client/render/r23-art.js）と、
-// ドラゴンクエストモンスターズ ふうの 配合（companions.js の breedOutcome: 特殊配合・系統配合・図鑑に ない 魔物が 生まれやすい）
+// ドラゴンクエストモンスターズ ふうの 配合（companions.js の breedOutcome: 特殊配合・系統配合。第35回で 作りなおし: test/breed-r35.test.js）
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { GameWorld } from '../public/js/shared/world/world.js';
@@ -7,7 +7,7 @@ import { makeRng } from '../public/js/shared/rng.js';
 import { MONSTERS } from '../public/js/shared/data/monsters.js';
 import {
   MONSTER_FRIENDS, RACE_GEAR, BREED_RECIPES, BREED_MIN_LEVEL, joinTier, recipeHint, breedOutcome, breedResult, breedCandidates,
-  bestiaryKnow, breedRumors, bestiaryOrder, familyPool, breedRankCap,
+  bestiaryKnow, breedRumors, bestiaryOrder, familyPool, rankIdx, rankUpNeed,
 } from '../public/js/shared/data/companions.js';
 import { ABILITIES } from '../public/js/shared/data/abilities.js';
 import { ITEMS, SLOTS } from '../public/js/shared/data/items.js';
@@ -20,6 +20,7 @@ import { MONSTERS_TEMPLE } from '../public/js/shared/data/monsters-temple.js';
 import { MONSTERS_LAB } from '../public/js/shared/data/monsters-lab.js';
 import { MONSTERS_CH5 } from '../public/js/shared/data/monsters-ch5.js';
 import { MONSTERS_KUMOI } from '../public/js/shared/data/monsters-kumoi.js';
+import { MONSTERS_BOSS } from '../public/js/shared/data/monsters-boss.js';
 import { MONSTER_ART } from '../public/js/client/render/monsters.js';
 import { addR23Art } from '../public/js/client/render/r23-art.js';
 import { computeStats, newMonsterCompanion, gainExp, expForLevel, learnedAbilities, monsterSlots } from '../public/js/shared/stats.js';
@@ -33,13 +34,14 @@ import { Bot } from './helpers.js';
 const NEW = Object.keys(MONSTERS_R23);
 const WILD = NEW.filter((sp) => !MONSTERS_R23[sp].breedOnly);
 const BREED_ONLY = NEW.filter((sp) => MONSTERS_R23[sp].breedOnly);
-const OLD_FRIENDS = Object.keys(MONSTER_FRIENDS).filter((sp) => !NEW.includes(sp));
+// ボス級（第35回 monsters-boss.js）は べつ（test/breed-r35.test.js）
+const OLD_FRIENDS = Object.keys(MONSTER_FRIENDS).filter((sp) => !NEW.includes(sp) && MONSTER_FRIENDS[sp].rank !== 'SS');
 
 test('あたらしい 仲間モンスター: 27しゅ（やせい 11・配合だけ 16）。図鑑の 魔物は 109 → 136', () => {
   assert.equal(NEW.length, 27);
   assert.equal(WILD.length, 11);
   assert.equal(BREED_ONLY.length, 16);
-  assert.equal(Object.keys(MONSTERS).length, 136 + Object.keys(MONSTERS_TEMPLE).length + Object.keys(MONSTERS_LAB).length + Object.keys(MONSTERS_CH5).length + Object.keys(MONSTERS_KUMOI).length);
+  assert.equal(Object.keys(MONSTERS).length, 136 + Object.keys(MONSTERS_TEMPLE).length + Object.keys(MONSTERS_LAB).length + Object.keys(MONSTERS_CH5).length + Object.keys(MONSTERS_KUMOI).length + Object.keys(MONSTERS_BOSS).length);
   for (const sp of NEW) {
     assert.equal(MONSTERS[sp], MONSTERS_R23[sp], `${sp}: monsters.js に まざる`);
     assert.equal(MONSTER_FRIENDS[sp], FRIENDS_R23[sp], `${sp}: companions.js に まざる`);
@@ -250,7 +252,7 @@ test('配合: いままでの 組み合わせは かわらない（図鑑を わ
   assert.equal(breedResult('chibi_dragon', 'sea_serpent', MONSTERS), 'great_dragon');
 });
 
-test('配合: 特殊配合（きまった 組み合わせ）は どちらが 1ぴきめでも、図鑑に かかわらず かならず その 子', () => {
+test('配合: 特殊配合（きまった 組み合わせ）は どちらが 1ぴきめでも、図鑑に かかわらず おすすめ（いちばん 上）が その 子', () => {
   const all = (sp) => 2;
   for (const r of RECIPES_R23) {
     const pick = (spec) => (typeof spec === 'string' ? spec : Object.keys(MONSTER_FRIENDS).find((sp) => MONSTERS[sp].race === spec.race && !MONSTER_FRIENDS[sp].breedOnly && sp !== r.a));
@@ -268,15 +270,13 @@ test('配合: 特殊配合（きまった 組み合わせ）は どちらが 1�
 });
 
 test('配合: 配合でしか 生まれない 魔物は ぜんぶ 生まれる（特殊配合か、系統配合の 候補に 入る）。ヒントも 出る', () => {
-  const parents = Object.keys(MONSTER_FRIENDS);
+  const parents = Object.keys(MONSTER_FRIENDS).filter((sp) => MONSTER_FRIENDS[sp].rank !== 'SS');
   for (const target of BREED_ONLY) {
     assert.ok(recipeHint(target, MONSTERS), `${target}: ヒント`);
-    // 見たことがない のは target だけ → target が 生まれる 親が いる
-    const know = (sp) => (sp === target ? 0 : 2);
     let found = null;
     for (const a of parents) {
       for (const b of parents) {
-        if (breedOutcome(lv(a, 40, 10), lv(b, 40, 10), MONSTERS, know).child === target) { found = [a, b]; break; }
+        if (breedCandidates(lv(a, 40, 10), lv(b, 40, 10), MONSTERS).list.includes(target)) { found = [a, b]; break; }
       }
       if (found) break;
     }
@@ -293,57 +293,40 @@ test('配合: 配合でしか 生まれない 魔物は ぜんぶ 生まれる�
   assert.ok(!familyPool('slime', MONSTERS).includes('kirakira'));
 });
 
-test('配合: 系統配合は 1ぴきめの 系統。親を 育てるほど 強い 魔物が 候補に 入る（ランクの 上限）', () => {
+test('配合: 系統配合は 両方の 親の 系統。親を 育てるほど 1つ上の ランクも 候補に 入る（下がらない）', () => {
   const low = breedCandidates(lv('wolf', 10), lv('frog', 10), MONSTERS);
   const high = breedCandidates(lv('wolf', 40), lv('frog', 40), MONSTERS);
-  assert.equal(low.kind, 'family');
   for (const sp of [...low.list, ...high.list]) assert.equal(MONSTERS[sp].race, 'beast', sp);
   assert.ok(high.list.length > low.list.length, '強い 親ほど 候補が ふえる');
-  assert.ok(Math.max(...high.list.map((sp) => MONSTERS[sp].lv)) > Math.max(...low.list.map((sp) => MONSTERS[sp].lv)));
-  assert.equal(breedRankCap(lv('wolf', 10), lv('frog', 10), MONSTERS), MONSTERS.wolf.lv + 5);
-  assert.equal(breedRankCap(lv('wolf', 10, 5), lv('frog', 10, 5), MONSTERS), MONSTERS.wolf.lv + 5 + 2, '「＋」も 少し');
-  // 候補は 強い じゅん。さいごは 1ぴきめと おなじ しゅぞく
-  const lvs = high.list.slice(0, -1).map((sp) => MONSTERS[sp].lv);
-  assert.deepEqual(lvs, [...lvs].sort((x, y) => y - x));
-  assert.equal(high.list[high.list.length - 1] === 'wolf' || high.list.includes('wolf'), true);
-  // 弱いほうの 親より 弱い 魔物は 生まれない
-  for (const sp of high.list) assert.ok(MONSTERS[sp].lv >= Math.min(MONSTERS.wolf.lv, MONSTERS.frog.lv), sp);
-  // はじめの ころ（レベル10の 第1章の 魔物どうし）は 第2章いこうの 強い 魔物は 生まれない
+  assert.ok(Math.max(...high.list.map((sp) => rankIdx(sp, MONSTERS))) > Math.max(...low.list.map((sp) => rankIdx(sp, MONSTERS))));
+  assert.equal(rankUpNeed(1), 28);
+  // 子の ランクは 高いほうの 親と 同じか 1つ上
+  for (const c of [low, high]) for (const it of c.items) assert.ok(it.rank === c.hi || it.rank === c.hi + 1, it.sp);
+  // ちがう 系統どうしは 両方の 系統から
+  const mix = breedCandidates(lv('pururin', 10), lv('wolf', 10), MONSTERS);
+  assert.ok(mix.list.some((sp) => MONSTERS[sp].race === 'slime') && mix.list.some((sp) => MONSTERS[sp].race === 'beast'));
+  // はじめの ころ（レベル10の 第1章の 魔物どうし）は 第2章いこうの 強い 魔物は 生まれない（特定配合の 子は のぞく）
   for (const [a, b] of [['wolf', 'frog'], ['pururin', 'hedoron'], ['skeleton', 'goblin'], ['kobushi', 'nemuri'], ['lamp', 'koumorin']]) {
-    for (const sp of breedCandidates(lv(a, 10), lv(b, 10), MONSTERS).list) assert.ok(MONSTERS[sp].lv <= 18, `${a}＋${b} → ${sp}`);
+    for (const it of breedCandidates(lv(a, 10), lv(b, 10), MONSTERS).items) if (it.kind === 'family') assert.ok(MONSTERS[it.sp].lv <= 18, `${a}＋${b} → ${it.sp}`);
   }
 });
 
-test('配合: 図鑑に のっていない 魔物が さきに 生まれる → 仲間に したことがない 魔物 → ぜんぶ 仲間に したら 1ぴきめと おなじ', () => {
+test('配合: 生まれる 子は 図鑑で かわらない（見たことが ない 子は 目じるし だけ）。おすすめは いちばん 強い 子', () => {
   const A = lv('wolf', 30), B = lv('frog', 30);
   const { list } = breedCandidates(A, B, MONSTERS);
   assert.ok(list.length >= 6, `候補 ${list.length}しゅ`);
-  // なにも 知らない → いちばん 強い 候補
   const fresh = breedOutcome(A, B, MONSTERS, { bestiary: {}, kills: {} });
   assert.equal(fresh.child, list[0]);
   assert.ok(fresh.unseen && fresh.firstFriend && fresh.unseenCount === list.length);
-  // 上から 2つを 見たことが ある（たおした）→ 3つめ（見たことがない）
   const c = { bestiary: { [list[0]]: { seen: 3 } }, kills: { [list[1]]: 2 } };
   const o = breedOutcome(A, B, MONSTERS, c);
-  assert.equal(o.child, list[2]);
-  assert.ok(o.unseen && o.unseenCount === list.length - 2);
-  // 見たことが ある ものだけ → 仲間に したことが ない もの（いちばん 上）
-  const seenAll = { bestiary: Object.fromEntries(list.map((sp) => [sp, { seen: 1 }])), kills: {} };
-  const o2 = breedOutcome(A, B, MONSTERS, seenAll);
-  assert.equal(o2.child, list[0]);
-  assert.ok(!o2.unseen && o2.firstFriend);
-  // 1つだけ 仲間に したことが ない → それ
-  const ownAllBut = { bestiary: Object.fromEntries(list.map((sp, i) => [sp, i === 3 ? { seen: 1 } : { friend: 1 }])), kills: {} };
-  assert.equal(breedOutcome(A, B, MONSTERS, ownAllBut).child, list[3]);
-  // ぜんぶ 仲間に した → 1ぴきめと おなじ（「＋」を ふやして 育てなおせる）
-  const ownAll = { bestiary: Object.fromEntries(list.map((sp) => [sp, { bred: 1 }])), kills: {} };
-  const o3 = breedOutcome(A, B, MONSTERS, ownAll);
-  assert.equal(o3.child, 'wolf');
-  assert.equal(o3.kind, 'same');
-  assert.ok(!o3.unseen && !o3.firstFriend && o3.unseenCount === 0);
-  // 系統どうしの 組み合わせ（スライム系 ＋ スライム系 → キングぷるりん）も 見たことが なければ さき
-  assert.equal(breedOutcome(lv('pururin'), lv('ice_pururin'), MONSTERS, ownAllBut).child, 'king_pururin');
-  assert.equal(breedOutcome(lv('pururin'), lv('ice_pururin'), MONSTERS, ownAllBut).kind, 'recipe');
+  assert.equal(o.child, list[0], '見たことが あっても 同じ 子');
+  assert.ok(!o.unseen && o.firstFriend && o.unseenCount === list.length - 2);
+  // 子を えらぶ（pick）
+  const p = breedOutcome(A, B, MONSTERS, c, list[3]);
+  assert.equal(p.child, list[3]);
+  assert.ok(p.ok);
+  assert.ok(!breedOutcome(A, B, MONSTERS, c, 'kirakira').ok, '候補に ない 子は えらべない');
   // bestiaryKnow: 図鑑と おなじ 数えかた
   const k = bestiaryKnow({ bestiary: { a: { seen: 1 }, b: { friend: 1 }, c: { bred: 1 }, d: { el_fire: 1 } }, kills: { e: 1 } });
   assert.deepEqual(['a', 'b', 'c', 'd', 'e', 'f'].map(k), [1, 2, 2, 0, 1, 0]);
@@ -362,12 +345,12 @@ async function solo(seed = 77) {
 }
 const lastRes = (bot) => bot.msgs.filter((m) => m.t === 'svcRes').pop();
 
-test('配合: 酒場の みほん（クライアントの 図鑑で 計算）・サーバーの よこく・ほんとうに 生まれる 子が いつも おなじ。おなじ 組み合わせでも 図鑑が ふえると ちがう 子', { timeout: 60000 }, async () => {
+test('配合: 酒場の みほん（クライアントで 計算）・サーバーの よこく・ほんとうに 生まれる 子が いつも おなじ。えらんだ 子が 生まれる', { timeout: 60000 }, async () => {
   const { world, bot, c } = await solo(77);
   const born = [];
-  const pairs = [['wolf', 'frog'], ['wolf', 'frog'], ['wolf', 'frog'], ['pururin', 'ice_pururin'], ['pururin', 'ice_pururin'], ['skeleton', 'goblin'],
-    ['kobushi', 'nemuri'], ['kobushi', 'nemuri'], ['lamp', 'wind_imp'], ['rockman', 'snowman'], ['pururin', 'king_pururin'], ['sea_serpent', 'crow']];
-  for (const [x, y] of pairs) {
+  const pairs = [['wolf', 'frog', 0], ['wolf', 'frog', 2], ['frog', 'wolf', 2], ['pururin', 'ice_pururin', 0], ['pururin', 'ice_pururin', 1], ['skeleton', 'goblin', 0],
+    ['kobushi', 'nemuri', 0], ['lamp', 'wind_imp', 1], ['rockman', 'snowman', 0], ['pururin', 'king_pururin', 0], ['sea_serpent', 'crow', 0]];
+  for (const [x, y, n] of pairs) {
     const a = addMonsterCompanion(world, bot.s, x, 24);
     const b = addMonsterCompanion(world, bot.s, y, 22);
     assert.ok(a.ok && b.ok);
@@ -375,34 +358,40 @@ test('配合: 酒場の みほん（クライアントの 図鑑で 計算）・
     // クライアント: 酒場の 一覧と 自分の キャラ（'self' で とどく bot.char）だけで 計算する
     const roster = tavernInfo(world, bot.s).roster;
     const ea = roster.find((e) => e.key === a.key), eb = roster.find((e) => e.key === b.key);
-    const o = breedOutcome(ea, eb, MONSTERS, bot.char);
+    const o0 = breedOutcome(ea, eb, MONSTERS, bot.char);
+    const pick = o0.list[Math.min(n, o0.list.length - 1)];
+    const o = breedOutcome(ea, eb, MONSTERS, bot.char, pick);
+    // どちらを 1ぴきめに しても 同じ
+    assert.deepEqual(breedOutcome(eb, ea, MONSTERS, bot.char).list, o0.list, `${x}＋${y}: 順番で かわらない`);
     // サーバーの よこく
-    const pv = breedPreview(c, a.key, b.key);
+    const pv = breedPreview(c, a.key, b.key, pick);
     assert.ok(pv.ok, pv.reason);
-    for (const k of ['child', 'plus', 'special', 'kind', 'unseen', 'firstFriend', 'count', 'unseenCount']) assert.deepEqual(o[k], pv[k], `${x}＋${y}: ${k}`);
-    bot.send({ t: 'svc', kind: 'tavern', action: 'breedPreview', a: a.key, b: b.key });
+    for (const k of ['child', 'plus', 'special', 'kind', 'unseen', 'firstFriend', 'count', 'unseenCount', 'rank']) assert.deepEqual(o[k], pv[k], `${x}＋${y}: ${k}`);
+    assert.deepEqual(pv.choices.map((ch) => ch.sp), o0.list);
+    bot.send({ t: 'svc', kind: 'tavern', action: 'breedPreview', a: a.key, b: b.key, child: pick });
     assert.equal(lastRes(bot).preview.child, o.child);
-    // ほんとうに 配合する
+    // ほんとうに 配合する（えらんだ 子）
     const before = c.companions.length;
-    bot.send({ t: 'svc', kind: 'tavern', action: 'breed', a: a.key, b: b.key });
+    bot.send({ t: 'svc', kind: 'tavern', action: 'breed', a: a.key, b: b.key, child: pick });
     const r = lastRes(bot);
     assert.ok(r.ok, r.text);
     assert.equal(c.companions.length, before - 1);
     const kid = c.companions[c.companions.length - 1];
-    assert.equal(kid.species, o.child, `${x}＋${y}: みほんと おなじ 子`);
+    assert.equal(kid.species, pick, `${x}＋${y}: えらんだ 子`);
+    assert.deepEqual(kid.char.lineage.p, [x, y]);
     if (o.unseen) assert.match(r.text, /図鑑にのった/);
     born.push(kid.species);
     // 子は 酒場へ（つぎの 配合の じゃまに ならない ように わかれる）
     bot.send({ t: 'svc', kind: 'tavern', action: 'release', key: kid.key });
   }
-  // はいごうを するほど 見たことの ない 子が 生まれる: はぐれウルフ ＋ どくどくガエル を 3回 → 3しゅ ちがう 子
-  assert.equal(new Set(born.slice(0, 3)).size, 3, born.slice(0, 3).join(','));
-  for (const sp of born.slice(0, 3)) assert.ok(c.bestiary[sp].bred >= 1);
-  // スライム系 ＋ スライム系: 1回めは キングぷるりん、2回めは ほかの スライム系
   assert.equal(born[3], 'king_pururin');
   assert.notEqual(born[4], 'king_pururin');
   assert.equal(MONSTERS[born[4]].race, 'slime');
-  assert.equal(born[10], 'pururin_tower', 'ぷるりん ＋ キングぷるりん → ぷるりんタワー');
+  assert.equal(born[9], 'pururin_tower', 'ぷるりん ＋ キングぷるりん → ぷるりんタワー');
+  // 候補に ない 子は 生まれない
+  const a = addMonsterCompanion(world, bot.s, 'wolf', 12), b = addMonsterCompanion(world, bot.s, 'frog', 12);
+  bot.send({ t: 'svc', kind: 'tavern', action: 'breed', a: a.key, b: b.key, child: 'ss_oldra' });
+  assert.ok(!lastRes(bot).ok);
 });
 
 test('配合: 生まれた あたらしい 魔物は 技を 覚え、たたかえる（レベル1から）', () => {

@@ -1,9 +1,12 @@
-// まものの はいごう（ドラゴンクエストモンスターズ ふう）
+// まものの はいごう（ドラゴンクエストモンスターズ ふう。第35回で 作りなおし）
+//   生まれる 子の 候補・＋・ランクは data/companions.js の breedOutcome、能力の 受けつぎ・めやす・血統は shared/breed-calc.js
+//   どちらも 酒場の 画面（client/ui/services.js）と 同じ 計算
 import { MONSTERS } from '../data/monsters.js';
 import { ABILITIES } from '../data/abilities.js';
-import { SLOTS } from '../data/items.js';
-import { MONSTER_FRIENDS, BREED_MIN_LEVEL, BREED_INHERIT_MAX, breedOutcome } from '../data/companions.js';
-import { computeStats, learnedAbilities, newMonsterCompanion, addItem, STAT_KEYS } from '../stats.js';
+import { ITEMS, SLOTS } from '../data/items.js';
+import { MONSTER_FRIENDS, BREED_MIN_LEVEL, BREED_INHERIT_MAX, breedOutcome, bestiaryKnow, RANKS } from '../data/companions.js';
+import { computeStats, learnedAbilities, newMonsterCompanion, addItem, removeItem, itemCount } from '../stats.js';
+import { inheritBonus, breedForecast, makeLineage } from '../breed-calc.js';
 import { ensureCompanions, companionOf, putInParty, afterRosterChange } from './party.js';
 
 // おやから うけつげる わざ（かくれた わざは のぞく）
@@ -22,51 +25,62 @@ export function autoInherit(A, B, child) {
     .slice(0, BREED_INHERIT_MAX);
 }
 
-// はいごうの まえに みせる じょうほう
-export function breedPreview(c, keyA, keyB) {
+// 配合の 計算に わたす 親（companions.js・breed-calc.js の 形）
+const parentOf = (e) => ({ ...e.char, species: e.species });
+
+// はいごうの まえに みせる じょうほう（pick: えらんだ 子。なければ おすすめ〈いちばん 上〉）
+//   choices: 生まれる ことが ある 子 みんな（{ sp, kind, rank, item, unseen, plus, trend }）。2つ いじょうなら 酒場で えらぶ
+export function breedPreview(c, keyA, keyB, pick = null) {
   ensureCompanions(c);
   const A = companionOf(c, keyA), B = companionOf(c, keyB);
   if (!A || !B || A === B) return { ok: false, reason: '魔物を2ひき選んでね' };
   if (A.kind !== 'monster' || B.kind !== 'monster') return { ok: false, reason: '配合できるのはモンスターの仲間だけ' };
   if (A.char.level < BREED_MIN_LEVEL || B.char.level < BREED_MIN_LEVEL) return { ok: false, reason: `レベル${BREED_MIN_LEVEL}以上の魔物同士でないと配合できない` };
-  // 生まれる 子は 図鑑で きまる（見たことがない 魔物が さき）。酒場の みほん（client/ui/services.js）も おなじ c の 図鑑で 計算する
-  const { child, plus, special, kind, unseen, firstFriend, count, unseenCount } = breedOutcome({ ...A.char, species: A.species }, { ...B.char, species: B.species }, MONSTERS, c);
+  const pa = parentOf(A), pb = parentOf(B);
+  const o = breedOutcome(pa, pb, MONSTERS, c, pick);
+  if (!o.ok) return { ok: false, reason: 'その魔物は生まれない' };
+  const know = bestiaryKnow(c);
+  const choices = o.items.map((it) => {
+    const plus = breedOutcome(pa, pb, MONSTERS, c, it.sp).plus;
+    return { sp: it.sp, kind: it.kind, rank: RANKS[it.rank], item: it.item || null, unseen: know(it.sp) === 0, low: o.items[0] && it.rank < RANKS.indexOf(o.hi), plus, trend: breedForecast(pa, pb, it.sp, plus).trend };
+  });
+  const fc = breedForecast(pa, pb, o.child, o.plus);
   return {
-    ok: true, child, childName: MONSTERS[child].name, plus, special, kind, unseen, firstFriend, count, unseenCount,
-    skills: inheritableSkills(A, B), auto: autoInherit(A, B, child), max: BREED_INHERIT_MAX,
+    ok: true, child: o.child, childName: MONSTERS[o.child].name, plus: o.plus, rank: o.rank, special: o.special, kind: o.kind, item: o.item,
+    itemName: o.item ? ITEMS[o.item]?.name || '' : '', unseen: o.unseen, firstFriend: o.firstFriend, count: o.count, unseenCount: o.unseenCount,
+    choices, trend: fc.trend, cap: fc.cap,
+    skills: inheritableSkills(A, B), auto: autoInherit(A, B, o.child), max: BREED_INHERIT_MAX,
   };
 }
 
-// おやの つよさを すこし うけつぐ（そうびを はずした つよさの 1わり）
-function inheritBonus(A, B) {
-  const bonus = {};
-  const sa = computeStats({ ...A.char, equip: {} }), sb = computeStats({ ...B.char, equip: {} });
-  for (const k of STAT_KEYS) {
-    const v = Math.round(((sa[k] || 0) + (sb[k] || 0)) * 0.1);
-    if (v > 0) bonus[k] = v;
-  }
-  return bonus;
-}
-
-// はいごう する。inherit: うけつぐ わざ（4つまで）、name: こどもの なまえ
-export function breedMonsters(world, s, { a, b, inherit, name } = {}) {
+// はいごう する。child: えらんだ 子（なければ おすすめ）、inherit: うけつぐ わざ（4つまで）、name: こどもの なまえ
+export function breedMonsters(world, s, { a, b, child, inherit, name } = {}) {
   const c = ensureCompanions(s.char);
-  const pv = breedPreview(c, a, b);
+  const pv = breedPreview(c, a, b, child || null);
   if (!pv.ok) return pv;
+  // 素材配合: ボスの 品が ふくろに ある か（配合すると なくなる）
+  if (pv.item && itemCount(c, pv.item) < 1) return { ok: false, reason: `${pv.itemName}がふくろにない` };
   const A = companionOf(c, a), B = companionOf(c, b);
   const pick = Array.isArray(inherit) ? inherit.filter((id) => pv.skills.includes(id)).slice(0, BREED_INHERIT_MAX) : pv.auto;
   const nm = String(name || '').replace(/[<>&"'\s]/g, '').slice(0, 8) || MONSTERS[pv.child].name;
   const wasInParty = c.partyKeys.includes(a) || c.partyKeys.includes(b);
+  // 受けつぐ 能力と 血統は 親が いる うちに
+  const bonus = inheritBonus(parentOf(A), parentOf(B));
+  const lineage = makeLineage(parentOf(A), parentOf(B));
+  if (pv.item) removeItem(c, pv.item, 1);
   // おやは たびだっていく（そうびは ふくろへ）
   for (const p of [A, B]) for (const slot of SLOTS) if (p.char.equip?.[slot]) addItem(c, p.char.equip[slot], 1);
   c.companions = c.companions.filter((e) => e !== A && e !== B);
   c.partyKeys = c.partyKeys.filter((k) => k !== a && k !== b);
+  if (Array.isArray(c.wagonKeys)) c.wagonKeys = c.wagonKeys.filter((k) => k !== a && k !== b);
+  while (c.companions.some((e) => e.key === `m${c.monsterSeq}`)) c.monsterSeq++;
   const key = 'm' + (c.monsterSeq++);
   const ch = newMonsterCompanion({ id: `${c.id}:${key}`, name: nm, species: pv.child, level: 1 });
   ch.plus = pv.plus;
-  ch.bonus = inheritBonus(A, B);
+  ch.bonus = bonus;
   ch.inherit = pick;
   ch.parents = [A.char.name, B.char.name];
+  ch.lineage = lineage;
   const st = computeStats(ch);
   ch.hp = st.maxHp;
   ch.mp = st.maxMp;
@@ -77,5 +91,5 @@ export function breedMonsters(world, s, { a, b, inherit, name } = {}) {
   bs.bred = (bs.bred || 0) + 1;
   bs.friend = (bs.friend || 0) + 1;
   afterRosterChange(world, s);
-  return { ok: true, key, name: nm, species: pv.child, plus: pv.plus, inherit: pick, joined: wasInParty, newEntry: pv.unseen };
+  return { ok: true, key, name: nm, species: pv.child, plus: pv.plus, rank: pv.rank, kind: pv.kind, itemName: pv.itemName, inherit: pick, joined: wasInParty, newEntry: pv.unseen };
 }

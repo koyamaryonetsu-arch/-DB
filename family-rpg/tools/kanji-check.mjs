@@ -267,6 +267,8 @@ export function gameFiles() {
     // 第5章 Step 3・4（A: 世界と物語）: クモイ地方・ハネノの町・しずみゆく島の古い神殿（7階）・ガイアイーターの 台本・守り星の かけら
     'public/js/shared/data/story-kumoi.js', 'public/js/shared/maps/kumoi.js', 'public/js/shared/maps/sink-ruin.js', 'public/js/shared/maps/sink-ruin-rows.js',
     'public/js/shared/data/shops-kumoi.js',
+    // 第35回 D: 配合の 作りなおし（ボス級の 仲間）・仲間が いっぱいの ときの さよなら
+    'public/js/shared/data/monsters-boss.js', 'public/js/shared/world/farewell.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

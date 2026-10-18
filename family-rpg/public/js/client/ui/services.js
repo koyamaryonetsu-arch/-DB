@@ -8,7 +8,8 @@ import { jobFor, jobLabel, jobHint } from '../../shared/job-label.js';
 import { salonUI } from './salon.js';
 import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered, canEquip } from '../../shared/stats.js';
 import { MONSTERS } from '../../shared/data/monsters.js';
-import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES, breedOutcome, breedRumors } from '../../shared/data/companions.js';
+import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES, breedOutcome, breedRumors, rankOf, monsterLevelCap, SPECIAL_KINDS } from '../../shared/data/companions.js';
+import { breedForecast, TREND_MARK } from '../../shared/breed-calc.js';
 import { TACTICS } from '../../shared/ai.js';
 import { itemDetail, gearText } from './info.js';
 import { playerSprite, followerSprite, faceURL } from '../field.js';
@@ -375,20 +376,39 @@ function tavernUI(game, data) {
       for (const e of waiting) out.push(rowOf(e, e.hp <= 0 ? '<span class="tag warn">休んでいる</span>' : ''));
       return out;
     };
+    // 2ひきめの 一覧の みほん（えらぶ 前に 見える）: 生まれる 子・ランク・めやす（↑→↓。弱く なる 時は 赤い 字）
+    //   o … おすすめの 子（data/companions.js の breedOutcome）、f … めやす（shared/breed-calc.js の breedForecast）
+    const pairInfo = (A, X) => {
+      const o = breedOutcome(A, X, MONSTERS, game.me);
+      return { o, f: breedForecast(A, X, o.child, o.plus), can: o.items.some((it) => SPECIAL_KINDS.slice(0, 3).includes(it.kind)) };
+    };
+    const TREND_CLS = { up: 'good', same: '', down: 'danger' };
     const breedItems = () => {
       const A = parentA && entries.get(parentA);
       if (parentA && !A) parentA = null;
       const all = sortRoster(mons(), sortMode);
-      const out = [{ header: true, label: A ? `2ひきめ：${A.name}の相手を選んでね` : '1ぴきめの親を選んでね（子は1ぴきめの系統）' }];
+      const out = [{ header: true, label: A ? `2ひきめ：${A.name}の相手を選んでね` : '1ぴきめの親を選んでね' }];
       if (ready().length < 2) out.push({ label: `レベル${BREED_MIN_LEVEL}以上のモンスターが2ひき必要だよ`, value: null, disabled: true });
+      const rows = [], can = [];
       for (const e of all) {
         const low = e.level < BREED_MIN_LEVEL;
         const isA = e.key === parentA;
-        out.push({
+        const row = {
           face: face(e), html: `${isA ? '<span class="good">●</span> ' : ''}${esc(e.name)}${plusTag(e)} <span class="muted small">${who(e)}</span>`, value: e.key,
           disabled: low, right: isA ? '1ぴきめ' : low ? `Lv${BREED_MIN_LEVEL}から` : '', rightCls: isA ? 'good' : '', cls: isA ? 'breed-a' : '',
-        });
+        };
+        if (A && !isA && !low) {
+          const { o, f, can: sp } = pairInfo(A, e);
+          row.html += ` <span class="small ${f.trend === 'down' ? 'danger' : 'muted'}">→${o.unseen ? '？？？' : esc(MONSTERS[o.child]?.name || '')}</span>`;
+          row.right = `${o.rank}${TREND_MARK[f.trend]}`;
+          row.rightCls = TREND_CLS[f.trend];
+          if (sp) { can.push(row); continue; }
+        } else if (!A) row.right = row.right || rankOf(e.species, MONSTERS);
+        rows.push(row);
       }
+      // 4体配合・素材配合・ランク配合が できる 相手は 上に
+      if (can.length) out.push({ header: true, label: '★ とくべつな配合ができる！' }, ...can, { header: true, label: 'そのほかの相手' });
+      out.push(...rows);
       // ならびは いちばん 下（カーソルは さいしょの 魔物から）
       out.push(...sortRow(all.length));
       return out;
@@ -399,13 +419,28 @@ function tavernUI(game, data) {
       const wg = info.wagon ? `　馬車 ${info.wagon.keys.length}/${info.wagon.max}人` : '';
       return `パーティー ${n}/4人${wg}${info.isLeader ? '' : '（リーダーの仲間がついてくる）'}`;
     };
+    const spName = (sp) => MONSTERS[sp]?.name || '？';
+    // ランク・＋・レベルの 上限・血統（両親と 祖父母。world/breed.js の lineage）
+    const monLines = (e) => {
+      const out = [`ランク${rankOf(e.species, MONSTERS)}${e.plus ? `　＋${e.plus}` : ''}${e.ranked ? `　レベルの上限 ${monsterLevelCap(e, MONSTERS)}` : ''}`];
+      const p = e.lineage?.p;
+      if (e.parents || p) out.push(`両親: ${[0, 1].map((i) => `${e.parents?.[i] || ''}${p?.[i] ? `（${spName(p[i])}）` : ''}`).join(' ＋ ')}`);
+      const g = e.lineage?.g;
+      if (g && (g[0] || g[1])) out.push(`祖父母: ${g.map((x) => (x ? x.map(spName).join('・') : '野生')).join(' ／ ')}`);
+      return out;
+    };
+    const KIND_TEXT = {
+      four: '★ 4体配合！', material: '★ 素材配合！', rank: '★ ランク配合！', special: '★ めずらしい組み合わせ！', recipe: '★ めずらしい組み合わせ！',
+      same: '★ 新生配合（「+」が大きく上がる）',
+    };
+    const trendText = (f) => `${TREND_MARK[f.trend]} ${f.lowRank ? 'ランクが下がる' : f.trend === 'down' ? '親より弱くなるかも' : f.trend === 'up' ? '育てると親より強くなる' : '育てると親と同じくらい'}`;
     const breedRules = () => el('div', { class: 'detail', text: [
       `レベル${BREED_MIN_LEVEL}以上のモンスター2ひきを掛け合わせて、新しいモンスターを生み出す。`,
-      '・生まれた子はレベル1から。でも親の技を4つまで受けつげる',
-      '・親の強さを少し受けつぎ、「+」の数が多いほどよく育つ',
-      '・生まれる子は1ぴきめの親の系統（スライム系・けもの系など）。親のレベルが高いほど、強い魔物が生まれる',
-      '・図鑑にのっていない魔物ほど生まれやすい。全部仲間にしたことがあれば、1ぴきめと同じ種族',
-      '・決まった組み合わせだと、配合でしか生まれない魔物が生まれる',
+      '・子のランクは、高いほうの親と同じか1つ上（親を育てると1つ上も）',
+      '・子はレベル1から。親の強さの1/4ずつと、技を4つまで受けつぐ',
+      '・「+」が多いほどよく育ち、レベルの上限も上がる',
+      '・同じ種類の2ひきだと、同じ魔物のまま「+」が大きく上がる',
+      '・生まれる子が何種類かある時は、自分で選べる。どちらを1ぴきめにしても同じ',
       '・親の2ひきは旅立っていく（装備はふくろにもどる）',
     ].join('\n') });
     // 配合の 画面の 右（スマホの たてでは 下）: 1ぴきめ・2ひきめ と 生まれる 子の みほん
@@ -428,7 +463,7 @@ function tavernUI(game, data) {
         main.append(el('div', { class: 'small gold', text: `${e.name}${e.plus ? ` ＋${e.plus}` : ''}（${who(e)}）` }));
         const learned = e.abilities || learnedAbilities({ species: e.species, level: e.level });
         main.append(el('div', { class: 'small', text: `技: ${learned.map((id) => ABILITIES[id]?.name).filter(Boolean).join('・') || 'なし'}` }));
-        if (e.parents) main.append(el('div', { class: 'small muted', text: `親: ${e.parents.join(' ＋ ')}` }));
+        main.append(...monLines(e).map((t) => el('div', { class: 'small muted', text: t })));
         main.append(el('div', { class: 'small muted', text: A ? '2ひきめにカーソルを合わせると、生まれる子がここに出る' : '選ぶと1ぴきめになる' }));
       }
       if (!A) {
@@ -441,7 +476,7 @@ function tavernUI(game, data) {
     const TOP_TEXT = {
       [V_HUMAN]: '人間の仲間と家族のキャラクター。連れていく・待ってもらう・新しい仲間を探す（レベル1から）。',
       [V_MON]: '魔物の仲間。連れていく・待ってもらう・名前を変える・別れる。',
-      [V_BREED]: `レベル${BREED_MIN_LEVEL}以上のモンスター2ひきを掛け合わせて、新しいモンスターを生み出す。\n1ぴきめを選んでから、2ひきめを選ぶ。`,
+      [V_BREED]: `レベル${BREED_MIN_LEVEL}以上のモンスター2ひきを掛け合わせて、新しいモンスターを生み出す。\n子のランクは親より下がらない。生まれる子は選べる。`,
     };
     const show = (key) => {
       main.innerHTML = '';
@@ -471,7 +506,7 @@ function tavernUI(game, data) {
       if (!e) {
         main.append(el('div', { class: 'detail', text: view === 'monster'
           ? `モンスターの仲間も、連れていくといっしょに戦ってくれる。\n待っている間の装備はふくろにもどる。${info.wagon ? `\n馬車には${info.wagon.max}人（ひき）まで乗れる。` : ''}`
-          : `仲間を連れていくといっしょに戦ってくれる。\n連れていけるのは3人まで。待っている仲間とはいつでも入れかえられる（待っている間の装備はふくろにもどる）。${info.wagon ? `\n馬車には${info.wagon.max}人まで乗れる（装備はそのまま。戦わなくても経験値をもらえる。洞窟や塔の中では半分）。家族のキャラも乗れる。\nパーティーがいっぱいの時は、連れていく仲間は馬車に乗る。` : ''}` }));
+          : `仲間を連れていくといっしょに戦ってくれる。\n連れていけるのは3人まで。待っている仲間とはいつでも入れかえられる（待っている間の装備はふくろにもどる）。\n別れた人間の仲間は、あとでまたさそえる（レベル1から）。${info.wagon ? `\n馬車には${info.wagon.max}人まで乗れる（装備はそのまま。戦わなくても経験値をもらえる。洞窟や塔の中では半分）。家族のキャラも乗れる。\nパーティーがいっぱいの時は、連れていく仲間は馬車に乗る。` : ''}` }));
         return;
       }
       const pv = e.species ? followerSprite({ mon: e.species }, 'down', 0) : playerSprite(e.look, e.job, 'down', 0, shownEquip(e));
@@ -483,7 +518,7 @@ function tavernUI(game, data) {
         const learned = e.abilities || learnedAbilities({ species: e.species, level: e.level });
         main.append(el('div', { class: 'small', text: `技: ${learned.map((id) => ABILITIES[id]?.name).filter(Boolean).join('・') || 'なし'}` }));
         main.append(el('div', { class: 'small', text: `装備できる物: ${gearText(e.species)}` }));
-        if (e.parents) main.append(el('div', { class: 'small muted', text: `親: ${e.parents.join(' ＋ ')}` }));
+        main.append(...monLines(e).map((t) => el('div', { class: 'small muted', text: t })));
         if (e.level < BREED_MIN_LEVEL) main.append(el('div', { class: 'small muted', text: `レベル${BREED_MIN_LEVEL}になると配合できる` }));
       }
       main.append(el('div', { class: 'detail', text: e.desc || '' }));
@@ -552,6 +587,22 @@ function tavernUI(game, data) {
         { label: 'やめる', value: null },
       ]);
     };
+    // 別れる 前の たしかめ（人間の 仲間は あとで 酒場で また さそえる。レベル1から）
+    const byeText = (x) => (x.species
+      ? `本当に${x.name}と別れますか？\n（もう会えなくなるよ。装備はふくろにもどる）`
+      : `本当に${x.name}と別れますか？\n（あとで酒場でまたさそえる。レベル1から。装備はふくろにもどる）`);
+    // 仲間が いっぱいの とき: だれと さよならするか（酒場で 待っている 仲間が 先・レベルの 低い じゅん。world/farewell.js と 同じ）
+    const pickFarewell = async (name) => {
+      const busy = (x) => (x.inParty || x.inWagon ? 1 : 0);
+      const list = info.roster.map((x, i) => ({ x, i })).sort((p, q) => busy(p.x) - busy(q.x) || p.x.level - q.x.level || p.i - q.i).map(({ x }) => x);
+      const key = await ask(`仲間がいっぱい！（${info.roster.length}/${info.rosterMax}）\nだれかとさよならして、${name}を仲間にする？`, [
+        ...list.map((x) => ({ face: face(x), label: `${x.name}（${who(x)}${busy(x) ? '・いっしょ' : ''}）`, value: x.key })),
+        { label: 'やめる', value: null },
+      ]);
+      const x = key && entries.get(key);
+      if (!x) return null;
+      return (await confirmBox(game.input, byeText(x).replace('別れますか', 'さよならしますか'), 'さよならする', 'やめる', sfx)) ? x : null;
+    };
     // 総入れかえ（ui/wagon.js の arrangeUI。酒場からも サーバーの へんじを まつ）
     const arrange = async () => {
       const r = await arrangeUI(game, { send: (party, wagon) => request(game, { kind: 'tavern', action: 'arrange', party, wagon }) });
@@ -568,7 +619,7 @@ function tavernUI(game, data) {
       box.append(
         el('div', { style: { display: 'flex', gap: '0.6em', alignItems: 'flex-start' } },
           el('div', { style: { flex: '1', minWidth: '0' } },
-            el('div', { class: 'small gold', style: { whiteSpace: 'pre-line' }, text: `生まれる子: ${childLabel(pv)}（${RACE_NAMES[MONSTERS[pv.child]?.race] || ''}）＋${pv.plus}${pv.unseen ? '\n★ まだ見たことがない魔物！' : ''}${pv.kind === 'special' || pv.kind === 'recipe' ? '\n★ めずらしい組み合わせ！' : ''}` }),
+            el('div', { class: 'small gold', style: { whiteSpace: 'pre-line' }, text: `生まれる子: ${childLabel(pv)}（ランク${pv.rank}・${RACE_NAMES[MONSTERS[pv.child]?.race] || ''}）＋${pv.plus}${pv.unseen ? '\n★ まだ見たことがない魔物！' : ''}${KIND_TEXT[pv.kind] ? `\n${KIND_TEXT[pv.kind]}` : ''}` }),
             el('div', { class: 'small muted', text: `自分で覚える技: ${own || 'なし'}` }),
             el('div', { class: 'small muted', text: `装備できる物: ${pv.unseen ? '？？？' : gearText(pv.child)}` })),
           img),
@@ -621,30 +672,66 @@ function tavernUI(game, data) {
       return img;
     };
     const childLabel = (pv) => (pv.unseen ? '？？？' : MONSTERS[pv.child]?.name || '');
-    // 生まれる 子の みほん（図鑑〈game.me〉で きまる。サーバーの breedPreview と おなじ 計算: shared/data/companions.js の breedOutcome）
+    // 生まれる 子の みほん（おすすめの 子。サーバーの breedPreview と おなじ 計算: data/companions.js の breedOutcome・shared/breed-calc.js）
     const breedPreviewBox = (top, A0, B0) => {
-      const o = breedOutcome(A0, B0, MONSTERS, game.me);
+      const { o, f } = pairInfo(A0, B0);
       const img = childImg(o.child, o.unseen, { class: 'breed-pv-img' });
-      const rare = o.kind === 'special' || o.kind === 'recipe';
       top.append(img, el('div', { class: 'breed-pv-txt' },
-        // 「（しゅぞく）＋3」は 行の とちゅうで わかれない ように
+        // 「（ランクB）＋3」は 行の とちゅうで わかれない ように
         el('div', { class: 'small gold' }, `生まれる子: ${childLabel(o)}`,
-          el('span', { style: { whiteSpace: 'nowrap' }, text: `（${RACE_NAMES[MONSTERS[o.child]?.race] || ''}）＋${o.plus}` })),
+          el('span', { style: { whiteSpace: 'nowrap' }, text: `（ランク${o.rank}）＋${o.plus}` })),
+        el('div', { class: `small ${TREND_CLS[f.trend]}`, text: `${trendText(f)}（生まれた時 HP${f.born.maxHp} 力${f.born.str}）` }),
         o.unseen ? el('div', { class: 'small good', text: '★ まだ見たことがない魔物！' })
           : o.firstFriend ? el('div', { class: 'small good', text: '★ 初めて仲間になる！' }) : null,
-        rare ? el('div', { class: 'small good', text: '★ めずらしい組み合わせ！' }) : null,
-        o.kind !== 'special' && o.count > 1 ? el('div', { class: 'small muted' }, `生まれる魔物 ${o.count}種`,
-          el('span', { style: { whiteSpace: 'nowrap' }, text: `（図鑑にない ${o.unseenCount}種）` })) : null,
-        o.unseen ? null : el('div', { class: 'small muted', text: `装備できる物: ${gearText(o.child)}` })));
+        KIND_TEXT[o.kind] ? el('div', { class: 'small good', text: `${KIND_TEXT[o.kind]}${o.item ? `（${ITEMS[o.item]?.name || ''}を使う）` : ''}` }) : null,
+        o.count > 1 ? el('div', { class: 'small muted', text: `生まれる子は${o.count}種から選べる` }) : null));
+    };
+    // 子を えらぶ（候補が 2つ いじょう）。見たことが ない 子は かげと NEW。↓は 親より 弱く なるかも
+    const faceCache = new Map();
+    const childFace = (sp, hidden) => {
+      if (!hidden) return faceURL({ mon: sp });
+      if (!faceCache.has(sp)) {
+        let u = '';
+        try { u = childImg(sp, true, {}).toDataURL(); } catch { u = ''; }
+        faceCache.set(sp, u);
+      }
+      return faceCache.get(sp);
+    };
+    const pickChild = (pv) => {
+      const note = el('div', { class: 'small good', style: { minHeight: '1.3em' } });
+      const say = (ch) => { note.textContent = ch ? `${KIND_TEXT[ch.kind] || ''}${ch.item ? `（${ITEMS[ch.item]?.name || ''}がなくなる）` : ''}` : ''; };
+      say(pv.choices[0]);
+      return choose(game, `生まれる子を選んでね（${pv.choices.length}種）\n↓…親より弱くなるかも`, [
+        ...pv.choices.map((ch) => ({
+          face: childFace(ch.sp, ch.unseen), value: ch.sp,
+          html: `${ch.unseen ? '？？？' : esc(MONSTERS[ch.sp]?.name || '')} <span class="muted small">ランク${ch.rank} ＋${ch.plus}</span>${ch.unseen ? '<span class="tag good">NEW</span>' : ''}`,
+          right: TREND_MARK[ch.trend], rightCls: TREND_CLS[ch.trend],
+        })),
+        { label: 'やめる', value: null },
+      ], { top: note, onMove: (it) => say(pv.choices.find((x) => x.sp === it?.value)) });
     };
     // 2ひきを きめた あと: 受けつぐ 技 → 名前 → たしかめ → 配合。やめても 1ぴきめは えらんだ まま
     const breedWith = async (a, b) => {
-      const r = await request(game, { kind: 'tavern', action: 'breedPreview', a, b });
+      const ask = (child) => request(game, { kind: 'tavern', action: 'breedPreview', a, b, child });
+      let r = await ask(null);
       if (!r.ok || !r.preview) {
         toast(r.text || '配合できない');
         return null;
       }
-      const pv = r.preview;
+      let pv = r.preview;
+      // 生まれる 子が 2つ いじょう: えらぶ（いちばん 上が おすすめ）
+      if (pv.choices?.length >= 2) {
+        const sp = await pickChild(pv);
+        if (!sp) return null;
+        if (sp !== pv.child) {
+          r = await ask(sp);
+          if (!r.ok || !r.preview) {
+            toast(r.text || '配合できない');
+            return null;
+          }
+          pv = r.preview;
+        }
+      }
       const inherit = pv.skills.length ? await pickSkills(pv) : [];
       if (!inherit) return null;
       // まだ 見たことがない 子は 名前も ひみつ（空のままなら 種族の 名前。酒場で あとから 変えられる）
@@ -654,9 +741,9 @@ function tavernUI(game, data) {
         : { title: `生まれる${pv.childName}の名前`, max: 8, initial: pv.childName });
       if (nm === null) return null;
       const A = entries.get(a), B = entries.get(b);
-      const ok = await confirmBox(game.input, `${A.name}と${B.name}を配合しますか？\n→ ${nm || label}（${label} ＋${pv.plus}）が生まれる\n※ ${A.name}と${B.name}は旅立っていく（装備はふくろにもどる）`, '配合する', 'やめる', sfx);
+      const ok = await confirmBox(game.input, `${A.name}と${B.name}を配合しますか？\n→ ${nm || label}（${label} ランク${pv.rank} ＋${pv.plus}）が生まれる\n※ ${A.name}と${B.name}は旅立っていく（装備はふくろにもどる）${pv.itemName ? `\n※ ${pv.itemName}を使う（なくなる）` : ''}`, '配合する', 'やめる', sfx);
       if (!ok) return null;
-      return doReq({ action: 'breed', a, b, inherit, name: nm || (pv.unseen ? '' : pv.childName) });
+      return doReq({ action: 'breed', a, b, child: pv.child, inherit, name: nm || (pv.unseen ? '' : pv.childName) });
     };
     // 配合の 画面で えらんだ: 1ぴきめ → 2ひきめ（配合へ）。1ぴきめを もう一度 えらぶと はずす
     const breedPick = async (key) => {
@@ -670,6 +757,15 @@ function tavernUI(game, data) {
       if (!parentA || parentA === key) {
         parentA = parentA === key ? null : key;
         refresh();
+        // 1ぴきめを えらんだら、カーソルは いちばん 上の 相手へ（とくべつな 配合が できる 相手が 先）
+        if (parentA) {
+          const i = menu.items.findIndex((it) => !it.header && !it.disabled && it.value && it.value !== parentA && it.value !== SORT_KEY);
+          if (i >= 0) {
+            menu.idx = i;
+            menu.render();
+            show(menu.current?.value);
+          }
+        }
         return;
       }
       menu.blur();
@@ -703,25 +799,36 @@ function tavernUI(game, data) {
       const place = tavernPlace(info, partyKeys().length);
       const full = place.full;
       if (e.sec === 'recruit') {
+        // 仲間が いっぱい: だれかと さよならして 入れる？（world/farewell.js。第35回）
+        let bye = null;
+        if (info.roster.length >= (info.rosterMax || info.roster.length + 1)) {
+          bye = await pickFarewell(e.name);
+          if (!bye) {
+            menu.focus();
+            return;
+          }
+        }
+        const full2 = full && !(bye && (bye.inParty || bye.inWagon));
+        const farewell = bye?.key || null;
         const a = await ask(`${e.name}（${who(e)}）を仲間にする？`, [
-          { label: full ? '仲間にして入れかわる' : `仲間にして連れていく${place.note}`, value: 'join' },
+          { label: full2 ? '仲間にして入れかわる' : `仲間にして連れていく${place.note}`, value: 'join' },
           { label: '仲間にして酒場で待ってもらう', value: 'wait' },
           { label: 'やめる', value: null },
         ]);
         if (a === 'join') {
           let swap = null;
-          if (full) swap = await pickSwap(e.name);
-          if (!full || swap) await doReq({ action: 'recruit', key, swap });
-        } else if (a === 'wait') await doReq({ action: 'recruit', key, join: false });
+          if (full2) swap = await pickSwap(e.name);
+          if (!full2 || swap) await doReq({ action: 'recruit', key, swap, farewell });
+        } else if (a === 'wait') await doReq({ action: 'recruit', key, join: false, farewell });
       } else if (e.inWagon) {
         const opts = [...tavernWagonOpts(info, e)];
         if (e.sec === 'roster') opts.push({ label: '名前を変える', value: 'rename' });
-        if (e.species) opts.push({ label: '別れる', value: 'release' });
+        if (e.sec === 'roster') opts.push({ label: '別れる', value: 'release' });
         opts.push({ label: 'やめる', value: null });
         const a = await ask(`${e.name}をどうする？`, opts);
         if (a === 'rename') await rename(e);
         else if (a === 'release') {
-          const ok = await confirmBox(game.input, `本当に${e.name}と別れますか？\n（もう会えなくなるよ。装備はふくろにもどる）`, '別れる', 'やめる', sfx);
+          const ok = await confirmBox(game.input, byeText(e), '別れる', 'やめる', sfx);
           if (ok) await doReq({ action: 'release', key });
         } else if (a) await tavernWagonAct(wagonCtx(), e, a);
       } else if (e.inParty) {
@@ -735,7 +842,7 @@ function tavernUI(game, data) {
       } else {
         const opts = [{ label: `連れていく${place.note}`, value: 'join' }, ...tavernWagonOpts(info, e)];
         if (e.sec === 'roster') opts.push({ label: '名前を変える', value: 'rename' });
-        if (e.species) opts.push({ label: '別れる', value: 'release' });
+        if (e.sec === 'roster') opts.push({ label: '別れる', value: 'release' });
         opts.push({ label: 'やめる', value: null });
         const a = await ask(`${e.name}をどうする？`, opts);
         if (a === 'join') {
@@ -744,7 +851,7 @@ function tavernUI(game, data) {
           if (!full || swap) await doReq({ action: 'join', key, swap });
         } else if (a === 'rename') await rename(e);
         else if (a === 'release') {
-          const ok = await confirmBox(game.input, `本当に${e.name}と別れますか？\n（もう会えなくなるよ。装備はふくろにもどる）`, '別れる', 'やめる', sfx);
+          const ok = await confirmBox(game.input, byeText(e), '別れる', 'やめる', sfx);
           if (ok) await doReq({ action: 'release', key });
         } else if (a) await tavernWagonAct(wagonCtx(), e, a);
       }
