@@ -75,7 +75,7 @@ const MAIN = [
 ];
 
 // 第35回: 道具の 分類の タブ（メニューの 道具）
-const ITEM_TABS = [['use', '消耗品'], ['equip', '装備品'], ['key', '大事な物'], ['mat', '素材'], ['tmap', '宝の地図']];
+const ITEM_TABS = [['use', '消もう品'], ['equip', '装備品'], ['key', '大事な物'], ['mat', '素材'], ['tmap', '宝の地図']];
 const GEAR_TYPES = new Set(['weapon', 'armor', 'shield', 'head', 'acc']);
 // 一覧の 行（itemsList の items）が どの タブか
 export function itemTabOf(row) {
@@ -455,7 +455,7 @@ export class FieldMenu {
       box.append(el('div', { class: 'small', text: items.map((i) => i.label || ITEMS[i.value].name).join('、') }));
       return box;
     }
-    // 第35回: 道具の 分類の タブ（消耗品・装備品・大事な物・素材・宝の地図。空の タブは 出さない）。
+    // 第35回: 道具の 分類の タブ（消もう品・装備品・大事な物・素材・宝の地図。空の タブは 出さない）。
     // スマホは タブを タップ、十字キー・キーボードは 左右（ListMenu の onSide）
     const kinds = ITEM_TABS.map(([k, label]) => ({ k, label, list: items.filter((x) => itemTabOf(x) === k) })).filter((t) => t.list.length);
     const fRow = focus && items.find((x) => x.value === focus.id);

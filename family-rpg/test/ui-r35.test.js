@@ -150,9 +150,9 @@ test('お知らせ: サーバーに 読んだ 記録（menu → newsRead。返�
 });
 
 // ───────────── 4. 道具の 分類 ─────────────
-test('道具の タブ: 消耗品・装備品・大事な物・素材・宝の地図（空の タブは 出さない・左右で かえる）', () => {
+test('道具の タブ: 消もう品・装備品・大事な物・素材・宝の地図（空の タブは 出さない・左右で かえる）', () => {
   const m = src('js/client/ui/menu.js');
-  assert.match(m, /const ITEM_TABS = \[\['use', '消耗品'\], \['equip', '装備品'\], \['key', '大事な物'\], \['mat', '素材'\], \['tmap', '宝の地図'\]\];/);
+  assert.match(m, /const ITEM_TABS = \[\['use', '消もう品'\], \['equip', '装備品'\], \['key', '大事な物'\], \['mat', '素材'\], \['tmap', '宝の地図'\]\];/);
   assert.match(m, /\.filter\(\(t\) => t\.list\.length\)/, '空の タブは 出さない');
   assert.match(m, /onSide: kinds\.length > 1 \? \(d\) => goTab/, '十字キーの 左右で タブ');
   // 使った・装備した あとは その 道具の タブに もどる（なくなった ときは 今の タブ）
