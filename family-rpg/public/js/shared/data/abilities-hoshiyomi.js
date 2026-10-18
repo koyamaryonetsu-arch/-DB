@@ -94,12 +94,12 @@ export const HOSHIYOMI_ABILITIES = {
   // たましいすい
   m_soul_kiss: {
     name: 'たましいのくちづけ', kind: 'monster', mp: 4, target: 'enemy',
-    effect: { type: 'drainHp', mult: 1.45 }, cast: '{a}が、{t}に顔をよせてきた…！\nたましいがすいとられる…！', anim: 'soul_kiss',
+    effect: { type: 'drainHp', mult: 1.3 }, cast: '{a}が、{t}に顔をよせてきた…！\nたましいがすいとられる…！', anim: 'soul_kiss',
     desc: '顔をよせて、HPをすいとる。',
   },
   m_soul_chill: {
     name: 'こおりつくさむけ', kind: 'monster', mp: 6, target: 'enemies',
-    effect: { type: 'magic', element: 'ice', base: [58, 70], thr: 99, debuff: { stat: 'agi', mult: 0.8, dur: 20, chance: 0.5 } }, cast: '{a}が近づくと、あたりがこおりつくように、さむくなった…', anim: 'soul_chill',
+    effect: { type: 'magic', element: 'ice', base: [48, 58], thr: 99, debuff: { stat: 'agi', mult: 0.8, dur: 20, chance: 0.5 } }, cast: '{a}が近づくと、あたりがこおりつくように、さむくなった…', anim: 'soul_chill',
     desc: 'こおりつくさむけで、敵みんなにダメージ。素早さが下がることがある。',
   },
   m_soul_joy: {
@@ -115,7 +115,7 @@ export const HOSHIYOMI_ABILITIES = {
   },
   m_homun_blades: {
     name: '影のやいば', kind: 'monster', mp: 6, target: 'enemies',
-    effect: { type: 'phys', mult: 0.8 }, cast: '{a}の足もとから、影のやいばが、いっせいにのびてきた！', anim: 'homun_blades',
+    effect: { type: 'phys', mult: 0.7 }, cast: '{a}の足もとから、影のやいばが、いっせいにのびてきた！', anim: 'homun_blades',
     desc: '足もとからのびる影のやいばで、敵みんなを攻撃する。',
   },
   m_homun_stone: {

@@ -30,7 +30,7 @@ export const ENCOUNTERS_HOSHIYOMI = {
     { w: 4, group: [['soul_eater', 1, 2], ['lonely_ghost', 0, 1]] },
     { w: 3, group: [['homunculus_shade', 1, 2], ['kage_boushi', 0, 1]] },
     { w: 3, group: [['soul_eater', 1, 1], ['homunculus_shade', 1, 1]] },
-    { w: 2, group: [[SHADOW_KAGE, 1, 2], ['lonely_ghost', 1, 1]] },
+    { w: 2, group: [[SHADOW_KAGE, 1, 1], ['lonely_ghost', 1, 1]] },
     { w: 2, group: [[DARK_DOLL, 1, 2], ['homunculus_shade', 0, 1]] },
   ],
 };

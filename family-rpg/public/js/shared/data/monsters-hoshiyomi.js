@@ -76,7 +76,7 @@ export const MONSTERS_HOSHIYOMI = {
   // ── ノクトの思い出の迷宮（4〜6階）──
   // たましいすい: ぼろぼろの マントの かげ。まわりの しあわせと 力を すいとる。光が とても よく 効く
   soul_eater: {
-    name: 'たましいすい', lv: 48, hp: 1060, mp: 200, str: 196, def: 126, agi: 90, mag: 200, exp: 940, gold: 440,
+    name: 'たましいすい', lv: 48, hp: 1000, mp: 200, str: 184, def: 126, agi: 90, mag: 200, exp: 940, gold: 440,
     race: 'undead', size: 'm', flying: true, region: 6,
     resist: { light: 1.6, dark: 0.2, ice: 0.4, fire: 1.1, poison: 0, sleep: 0, confuse: 0.4, blind: 0.5 }, drops: { common: ['magic_water', 10], rare: ['seed_mag', 36] },
     actions: [{ w: 3, id: 'm_soul_kiss' }, { w: 2, id: 'm_soul_chill', cond: 'notRecent:m_soul_chill' }, { w: 2, id: 'm_soul_joy', cond: 'notRecent:m_soul_joy' }, { w: 1, id: 'attack' }],
@@ -84,7 +84,7 @@ export const MONSTERS_HOSHIYOMI = {
   },
   // ひとがたの影: 人の 形を まねた 影。赤い 石の 力で キズが ふさがる
   homunculus_shade: {
-    name: 'ひとがたの影', lv: 48, hp: 1120, mp: 120, str: 212, def: 140, agi: 86, mag: 150, exp: 960, gold: 450,
+    name: 'ひとがたの影', lv: 48, hp: 1060, mp: 120, str: 196, def: 140, agi: 86, mag: 150, exp: 960, gold: 450,
     race: 'demon', size: 'm', hit: 'slash', region: 6,
     resist: { light: 1.3, dark: 0.3, fire: 0.9, poison: 0.3, sleep: 0.3, confuse: 0.3 }, drops: { common: ['jou_herb', 10], rare: ['seed_str', 36] },
     actions: [{ w: 3, id: 'attack' }, { w: 3, id: 'm_homun_claw' }, { w: 2, id: 'm_homun_blades', cond: 'notRecent:m_homun_blades' }, { w: 1, id: 'm_homun_stone', cond: ['hpBelow:0.75', 'notRecent:m_homun_stone'] }],
