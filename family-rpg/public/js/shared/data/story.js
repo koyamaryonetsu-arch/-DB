@@ -32,6 +32,7 @@ import { wagonEventSteps } from './wagon.js';
 import { JOB_GREET } from './job-talk.js';
 import { LAB_SCRIPTS, LAB_STORY_SCRIPTS } from './story-lab.js';
 import { QUEST_SCRIPTS, QUEST_STORY_SCRIPTS, wrapSideQuests } from './sidequests.js';
+import { applyTownHints } from './secret-hints.js';
 
 const V = (x, y) => [PLACES.village.x + x + 0.5, PLACES.village.y + y + 0.5];
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
@@ -627,5 +628,8 @@ for (const [id, fn] of Object.entries(CH5_TOWN_LINES)) {
   if (!base) continue;
   SCRIPTS[id] = Object.assign((x) => fn(x) || base(x), base);
 }
+
+// 第35回: かくし要素の ヒント（町の 人の さいごに 1行。secret-hints.js）
+applyTownHints(SCRIPTS);
 
 export { comboUnlocked };

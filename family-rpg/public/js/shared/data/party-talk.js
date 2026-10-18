@@ -10,6 +10,7 @@ import { C3_LEAD_OBJECTIVE } from './sky.js';
 import { CH3_OBJECTIVE_TALK } from './story-ch3.js';
 import { CH4_OBJECTIVE_TALK } from './story-ch4.js';
 import { CH5_OBJECTIVE_TALK } from './story-ch5.js';
+import { nextPartyHint } from './secret-hints.js';
 
 // 仲間の key（NPC の id）→ 話し方
 export const TALK_STYLE = {
@@ -184,6 +185,15 @@ Object.assign(OBJECTIVE_TALK, CH3_OBJECTIVE_TALK);
 Object.assign(OBJECTIVE_TALK, CH4_OBJECTIVE_TALK);
 Object.assign(OBJECTIVE_TALK, CH5_OBJECTIVE_TALK);
 
+// 目標の 文の 章（第3〜5章の 表に あれば その章。ほかは 第2章まで あつかい）
+export function objectiveChapter(objective) {
+  const o = objective || '';
+  if (CH5_OBJECTIVE_TALK[o]) return 5;
+  if (CH4_OBJECTIVE_TALK[o]) return 4;
+  if (CH3_OBJECTIVE_TALK[o] || o === C3_LEAD_OBJECTIVE) return 3;
+  return 2;
+}
+
 // 話す 内容（目標が 表に ない ときは 目標の 文を そのまま）
 export function talkFor(objective, style) {
   const t = OBJECTIVE_TALK[objective || ''];
@@ -200,5 +210,8 @@ export function memberTalk(m, objective) {
     return { name: m.name, text: `${m.name}は、行き先のほうをじっと見つめている。`, mon: true, kind: name };
   }
   const style = TALK_STYLE[m.key] || TALK_STYLE[m.id] || 'kind';
+  // 第35回: ときどき（じゅんばんに）かくし要素の ヒント（data/secret-hints.js）
+  const hint = nextPartyHint(objectiveChapter(objective));
+  if (hint) return { name: m.name, text: hint, hint: true };
   return { name: m.name, text: talkFor(objective, style) };
 }
