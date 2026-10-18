@@ -793,6 +793,8 @@ img.face { image-rendering: pixelated; }
 /* 第31回: 配合だけの 画面（1ぴきめ・2ひきめの しるし） */
 .breed-slots { display: flex; flex-wrap: wrap; gap: 0.2em 1.2em; margin-bottom: 0.2em; font-weight: bold; }
 .tavern-panel .menu .item.breed-a { outline: 1px dashed rgba(127, 224, 160, 0.7); outline-offset: -2px; }
+/* 第35回: 配合の めやす（↑→↓）。弱く なる 時は 赤い 字 */
+.menu .item .r.danger { color: var(--danger); }
 @media (max-height: 520px) and (orientation: landscape) {
   .breed-pv { min-height: 2.8em; margin: 0.15em 0 0.25em; }
   .breed-pv-img { height: 2.6em; }
