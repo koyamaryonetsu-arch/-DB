@@ -185,6 +185,10 @@ function mergeBody(b, a, t, tLater) {
       case 'fieldChests': out.fieldChests = add(vb, va, vt) || undefined; break;
       case 'medalSpots': case 'medalRewards': out[k] = eachKey(vb, va, vt, (x, y, z) => y ?? z); break;
       case 'medalsGiven': out.medalsGiven = Math.max(num(va), num(vt)); break;
+      // 第37回 B: すごろく券に かえた メダル（両方で かえた ぶんを たす）・宝の地図の クリア数（両方で ふえた ぶんを たす。
+      //   わかれる 前に まだ 数えていなかった ときは 両方で 数えなおした 数なので 多い ほう）
+      case 'medalsSpent': out.medalsSpent = add(vb, va, vt) || undefined; break;
+      case 'tmClears': out.tmClears = vb === undefined ? Math.max(num(va), num(vt)) : Math.max(add(vb, va, vt), num(va), num(vt)); break;
       case 'jobSys': out.jobSys = Math.max(num(va), num(vt)) || undefined; break;
       case 'createdAt': {
         const ts = [va, vt].filter(Number.isFinite);

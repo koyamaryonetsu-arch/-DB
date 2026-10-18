@@ -35,6 +35,7 @@ import { migrateCh4 } from '../data/story-ch4.js';
 import { repairObjective } from '../data/progress.js';
 import { wagonLook } from './wagon.js';
 import { medalSearchSteps, medalChestSteps } from './casino.js';
+import { ensureTmClears } from '../data/casino-tier.js';
 import { stepHazard } from './hazards.js';
 import { stepTremor } from './tremor.js';
 import { noteDungeonEntry } from './escape.js';
@@ -1150,4 +1151,5 @@ function normalizeChar(c) {
   fixBodyJob(c);
   for (const e of c.companions || []) fixBodyJob(e?.char);
   normalizeTreasure(c);
+  ensureTmClears(c); // 第37回 B: 宝の地図の クリア数（data/casino-tier.js）
 }

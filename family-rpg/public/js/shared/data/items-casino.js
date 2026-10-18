@@ -1,6 +1,8 @@
 // カジノの 景品と メダル王の ごほうび（items.js で まぜる）
 // ・どれも 店では 買えない（price: 0）。売ると 少しだけ（コインで 買うより ずっと 安い）
 // ・ランク4〜5（第2章の カモメ港の 品より 少し 強い）。40枚・50枚の ごほうびは これからの 章の ランク6
+import { ITEMS_CASINO_R37, CASINO_R37_KANA } from './items-casino-r37.js';
+
 export const ITEMS_CASINO = {
   // ───── カジノの 景品 ─────
   pururin_shield: {
@@ -59,3 +61,7 @@ export const CASINO_KANA = {
   killer_earring: 'きらーぴあす', mystic_hat: 'ふしぎなぼうし', kira_mail: 'きらきらのよろい', star_bangle: 'ほしふるうでわ',
   kira_sword: 'きらきらのけん', kira_shield: 'きらきらのたて', medal_crown: 'めだるおうのかんむり', small_medal: 'ちいさなめだる',
 };
+
+// 第37回 B: 宝の地図の 段で ふえる 景品・すごろくの 品（items-casino-r37.js）
+Object.assign(ITEMS_CASINO, ITEMS_CASINO_R37);
+Object.assign(CASINO_KANA, CASINO_R37_KANA);

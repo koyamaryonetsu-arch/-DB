@@ -754,7 +754,7 @@ function applyFieldEffect(world, user, target, eff, powMult = 1) {
       const n = world.rng.int(eff.amount[0], eff.amount[1]);
       target.seeds = target.seeds || {};
       target.seeds[eff.stat] = (target.seeds[eff.stat] || 0) + n;
-      const names = { str: '力', def: '身の守り', agi: '素早さ', mag: '攻撃魔力', hp: '最大HP' };
+      const names = { str: '力', def: '身の守り', agi: '素早さ', mag: '攻撃魔力', hp: '最大HP', mp: '最大MP', heal: '回復魔力' };
       return { ok: true, text: `${target.name}の${names[eff.stat]}が${n}上がった！` };
     }
     case 'multi': {

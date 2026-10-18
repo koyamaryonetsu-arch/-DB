@@ -10,7 +10,7 @@ import { ITEMS } from '../../shared/data/items.js';
 import { itemCount } from '../../shared/stats.js';
 import {
   REELS, SLOT_PAYS, SLOT_BETS, POKER_PAY_HANDS, POKER_BETS, pokerSuggest, cardName, coinsOf,
-  medalsHeld, medalsGiven, COIN_PRICE,
+  medalsHeld, medalsGiven, medalsFound, medalsSpent, COIN_PRICE,
 } from '../../shared/data/casino.js';
 
 export function casinoUI(game, kind, data) {
@@ -21,17 +21,20 @@ export function casinoUI(game, kind, data) {
     case 'slot': return slotUI(game, data);
     case 'poker': return pokerUI(game, data);
     case 'prizes': return prizesUI(game, data);
+    // 第37回 B: ルーレット・すごろく場（ui/roulette.js・ui/sugoroku.js。この ファイルの 部品を つかうので あとから 読む）
+    case 'roulette': return import('./roulette.js').then((m) => m.rouletteUI(game, data));
+    case 'sugoroku': return import('./sugoroku.js').then((m) => m.sugorokuUI(game, data));
     default: return Promise.resolve();
   }
 }
 
-const fmt = (n) => Number(n || 0).toLocaleString('ja-JP');
-const sendClose = (game, kind = 'casino') => game.net.send({ t: 'svc', kind, action: 'close' });
+export const fmt = (n) => Number(n || 0).toLocaleString('ja-JP');
+export const sendClose = (game, kind = 'casino') => game.net.send({ t: 'svc', kind, action: 'close' });
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const itemsText = (items) => items.map(([id, n]) => `${ITEMS[id]?.name || id}${n > 1 ? `×${n}` : ''}`).join('と');
 
 // ───────────── カウンターの まど（コイン・景品・メダル王）─────────────
-class CasinoCounter extends Counter {
+export class CasinoCounter extends Counter {
   constructor(game, opts) {
     super(game, { ...opts, cls: 'casino-counter' });
     this.purse = opts.purse || null;
@@ -93,7 +96,7 @@ class CasinoCounter extends Counter {
   }
 }
 
-function helpBox(lines) {
+export function helpBox(lines) {
   return el('div', { class: 'detail cs-help', text: lines.join('\n') });
 }
 
@@ -166,8 +169,11 @@ async function coinsUI(game, data) {
 // ───────────── 景品コーナー ─────────────
 async function prizesUI(game, data) {
   const ct = new CasinoCounter(game, { title: '景品コーナー', keeper: '景品係', icon: boardIconURL('casino'), purse: 'coins' });
-  const AGAIN = 'ほかにも何かこうかんしますか？';
-  let line = `いらっしゃいませ！\nコインを、すてきな景品とこうかんいたします。${data.more ? '\n（お話が進むと、景品がふえますよ）' : ''}`;
+  // 第37回 B: 宝の地図の クリア数の 段で 景品が ふえる（data/casino-tier.js）。たなに「あと〇こ」
+  const t = data.tier;
+  const shelf = t && t.left > 0 ? `\n（宝の地図をあと${t.left}こクリアすると、新しい景品が入ります）` : '';
+  const AGAIN = `ほかにも何かこうかんしますか？${shelf}`;
+  let line = `いらっしゃいませ！\nコインを、すてきな景品とこうかんいたします。${shelf || (data.story ?? data.more ? '\n（お話が進むと、景品がふえますよ）' : '')}`;
   let idx = 0;
   while (!ct.closed) {
     await ct.say(line);
@@ -323,7 +329,7 @@ async function rewardList(game, ct, info) {
 }
 
 // ───────────── スロット・ポーカーの まど ─────────────
-function casinoShell(game, { title, cls }) {
+export function casinoShell(game, { title, cls }) {
   const back = el('div', { class: 'modal-back' });
   const coinsEl = el('span', { class: 'cs-coins' });
   const s = { onClose: null, locked: false };
@@ -356,7 +362,7 @@ function casinoShell(game, { title, cls }) {
 }
 
 // コインの 数を すこしずつ ふやして 見せる
-function countUp(sh, from, to, sfx) {
+export function countUp(sh, from, to, sfx) {
   clearInterval(sh.countTimer);
   if (to <= from) {
     sh.setCoins(to);
@@ -990,15 +996,15 @@ export function medalItemRow(c) {
 // クエストの 画面: 小さなメダルと カジノの コイン
 export function walletView(c) {
   const lines = [];
-  const found = medalsHeld(c) + medalsGiven(c);
-  if (found) lines.push(`小さなメダル ${medalsHeld(c)}枚（見つけた数 ${found}枚・メダル王にわたした数 ${medalsGiven(c)}枚）`);
+  const found = medalsFound(c);
+  if (found) lines.push(`小さなメダル ${medalsHeld(c)}枚（見つけた数 ${found}枚・メダル王にわたした数 ${medalsGiven(c)}枚${medalsSpent(c) ? `・すごろく券にかえた数 ${medalsSpent(c)}枚` : ''}）`);
   if (coinsOf(c)) lines.push(`カジノのコイン ${fmt(coinsOf(c))}枚`);
   return lines.length ? el('div', { class: 'detail', text: lines.join('\n') }) : null;
 }
 
 // ───────────── 見た目（このファイルだけの CSS）─────────────
 let styled = false;
-function ensureStyle() {
+export function ensureStyle() {
   if (styled || typeof document === 'undefined') return;
   styled = true;
   const st = document.createElement('style');

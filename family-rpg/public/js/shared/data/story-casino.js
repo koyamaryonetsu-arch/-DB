@@ -1,6 +1,8 @@
 // カジノ・メダル王の城・小さなメダルの 人の だいほん（story.js で まぜる）
 // カジノの まど（コイン・スロット・ポーカー・景品）と メダル王の まどは client/ui/casino.js
 import { medalsFound, medalsHeld, COIN_PRICE } from './casino.js';
+import { tierInfo, TIER_AT } from './casino-tier.js';
+import { SG_HOOKS, BOARDS, TICKET_COINS, MEDAL_TICKETS } from './sugoroku.js';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 
@@ -11,11 +13,28 @@ export const CASINO_SCRIPTS = {
   casino_poker: () => [['casino', 'poker']],
   casino_coins: () => [['casino', 'coins']],
   casino_prizes: () => [['casino', 'prizes']],
+  // 第37回 B: ルーレット・すごろく場
+  casino_roulette: () => [['casino', 'roulette']],
+  sugoroku_desk: () => [['call', (run) => SG_HOOKS.desk?.(run)]],
+  sugoroku_master: (x) => {
+    const t = tierInfo(x.c);
+    const next = BOARDS.find((b) => b.tier === t.tier + 1);
+    return S('すごろく名人',
+      'わしは、すごろく名人。\nさいころ1つで、どこまでも行ける。それがすごろくの楽しさじゃ。',
+      '分かれ道では、近道もあるが、魔物が待っておることも多い。\n宝箱やお店のマスをねらうのも、よい作戦じゃな。',
+      next ? `${x.name}どのは、宝の地図を${t.clears}こクリアしておるな。\nあと${t.left}こクリアすると、「${next.name}」があらわれるぞ！`
+        : `${x.name}どのは、宝の地図を${t.clears}こもクリアしておるのか！\n「伝説のすごろく」のゴールには、★5の景品がねむっておる。`);
+  },
+  sugoroku_girl: () => S('すごろく好きの女の子',
+    `すごろく券はね、コイン${TICKET_COINS}枚で1まい買えるの。\n小さなメダル1まいなら、${MEDAL_TICKETS}まいもらえるんだよ！`,
+    'とちゅうでやめても、それまでに手に入れた物はもらえるよ。\nスマホがねむっても、続きからあそべるの！',
+    `宝の地図を${TIER_AT[1]}こ・${TIER_AT[2]}こ・${TIER_AT[3]}こ・${TIER_AT[4]}ことクリアすると、\nカジノの景品もふえるんだって！`),
 
   casino_guide: () => [
     ...S('カジノの案内係', 'ようこそ、カモメ港のカジノへ！\nここではコインを使って、ゲームを楽しめます。',
       `まずは左のカウンターのコイン係で、コインをお買い求めください。\nコインは1枚${COIN_PRICE}ゴールドです。`,
       '上の台がスロット、まん中のテーブルがポーカーです。\nふやしたコインは、右のカウンターで景品とこうかんできます。',
+      '左下のテーブルはルーレット。右下の階だんを下りると、すごろく場です。\n宝の地図をたくさんクリアした方には、景品もすごろくも、もっとごうかになりますよ。',
       'なお、コインはゴールドにはもどせません。\nむりをせず、楽しく遊んでくださいね。'),
   ],
   casino_gent: () => S('スロット好きのおじさん', '7が3つそろうと、なんとかけたコインの250倍！\n…わしはまだ、一度も見たことがないがね。',

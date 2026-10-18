@@ -14,6 +14,8 @@ import {
   mapDropRate, dropMapLevel, nextMapLevel, repairTreasureMaps,
 } from '../data/treasure.js';
 
+import { ensureTmClears, addTmClear } from '../data/casino-tier.js';
+
 const HUNTER = '宝探しのダイゴ';
 
 // ───────────── ほる 場所 ─────────────
@@ -285,11 +287,17 @@ async function bossEvent(run) {
   ]);
   if (run.aborted) return;
   // 勝った: 主は いなくなり、宝箱と 出口が あらわれる。地図は「主を たおした」に
+  // 第37回 B: 宝の地図の クリア数（c.tmClears。カジノの 段）… 数えなおしは フラグを たてる 前に（data/casino-tier.js）
+  ensureTmClears(owner);
+  for (const m of run.everyone) ensureTmClears(m.char);
   owner.flags[flag] = true;
   for (const m of run.everyone) {
     const rec = (m.char.treasureMaps || []).find((t) => t.seed === p.seed);
     // おなじ 地図を 持っている 人は みんな「主を たおした」（家族と 入った 時も、あとで ひとりで 来て 主が いない）
-    if (rec) { rec.cleared = true; rec.found = true; m.char.flags[flag] = true; }
+    if (rec) {
+      if (!rec.cleared) addTmClear(m.char);
+      rec.cleared = true; rec.found = true; m.char.flags[flag] = true;
+    }
     pruneTreasureData(m.char);
   }
   const steps = [
