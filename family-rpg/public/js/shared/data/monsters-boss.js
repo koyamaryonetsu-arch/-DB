@@ -11,6 +11,8 @@
 // ・MONSTERS の 数字（hp・str など）は 敵と しての もの（使わない）。仲間の 強さは growth で きまる
 // ・第5章 Step 5: 影の王（ss_shadow_king）… ボスの 仲間では ない 新しい ボス級。たましいすい × ひとがたの影（か 悪魔系の S ＋ S）＋ 影星のペンダント
 //   （ノクトの影の 品）の 素材配合だけで 生まれる（materialOnly … ランク配合では 生まれない）
+// ・第5章 Step 6・7: 天空のきょ兵（ss_sky_giant）… 天空のまもり兵 × 物質系の S ＋ 大地のかけらのお守り（ノクト 1回目の 品）の
+//   素材配合だけで 生まれる（materialOnly。影の王と おなじ）。名前の「きょ」は 使える 漢字に ないので ひらがな
 
 const STATUS = { sleep: 0.5, poison: 0.5, confuse: 0.5, paralyze: 0.6 };
 
@@ -30,6 +32,8 @@ export const MONSTERS_BOSS = {
   ss_oldra: mon('古竜オルドラ', 48, 'dragon', 'old_dragon', { fire: 0.3, ice: 1.2 }, '大昔の竜。配合で生まれ、今は仲間として炎をはく。'),
   // 第5章 Step 5: ノクトの影の 品 ＋ たましいすい × ひとがたの影 など（アニメの 敵ふうの 2ひきから 生まれる ボス級。docs/idea-r35.md の K）
   ss_shadow_king: mon('影の王', 50, 'demon', 'shadow_king', { dark: 0.3, light: 1.2, confuse: 0.3 }, '影の魔物たちをしたがえる王。配合で生まれ、今は仲間として影のつるぎをふるう。'),
+  // 第5章 Step 6・7: ノクト（1回目）の 品 ＋ 天空のまもり兵 × 物質系の S（空の 古い 城の 大きな 機械の 兵）
+  ss_sky_giant: mon('天空のきょ兵', 52, 'material', 'sky_giant', { bolt: 1.2, blast: 0.6, poison: 0.2, sleep: 0.3 }, '空の古い城を守っていた、大きな機械の兵。配合で生まれ、今は仲間として、目の光で敵をなぎはらう。'),
 };
 
 // 仲間に なった とき（companions.js で まぜる）。rank: 'SS'・recipeOnly（系統配合の 子には ならない）
@@ -85,6 +89,15 @@ export const FRIENDS_BOSS = {
     // ランク配合（S × S）では 生まれない。ノクトの影の 品が いる（companions.js の breedCandidates）
     materialOnly: true,
   }),
+  ss_sky_giant: ss({
+    names: ['キョヘイ', 'ソラノモリ', 'ガーディ', 'おおまもる'],
+    growth: { hp: 1.6, mp: 0.8, str: 1.45, def: 1.65, agi: 0.65, mag: 1.2, heal: 0.6 },
+    learn: [[1, 'm_sg_arm'], [4, 'kabau'], [9, 'm_sg_beam'], [14, 'm_boulder'], [20, 'sukuruto'], [26, 'm_avalanche']],
+    gear: { weapons: [], armor: ['heavy'], shield: true, head: false },
+    note: 'ボス級。仲間をかばい、目の光で敵みんなをなぎはらう。',
+    // ランク配合（S × S）では 生まれない。ノクト（1回目）の 品が いる（companions.js の breedCandidates）
+    materialOnly: true,
+  }),
   ss_oldra: ss({
     names: ['オルドラ', 'コリュウ', 'こはく', 'いにしえ'],
     growth: { hp: 1.5, mp: 1.0, str: 1.5, def: 1.35, agi: 1.0, mag: 1.2, heal: 0.8 },
@@ -108,6 +121,8 @@ export const MATERIAL_RECIPES = [
   // 影の王: たましいすい × ひとがたの影（とくべつな 組み合わせ）か、悪魔系の S ＋ S ランク ＋ 影星のペンダント（ノクトの影の 品）
   { a: 'soul_eater', b: 'homunculus_shade', item: 'shade_pendant', child: 'ss_shadow_king' },
   { a: { race: 'demon', minRank: S }, b: { minRank: S }, item: 'shade_pendant', child: 'ss_shadow_king' },
+  // 天空のきょ兵: 天空のまもり兵 × 物質系の S ランク ＋ 大地のかけらのお守り（ノクト 1回目の 品）
+  { a: 'sky_guard', b: { race: 'material', minRank: S }, item: 'nocto_earth_charm', child: 'ss_sky_giant' },
 ];
 
 // 4体配合（両親と 祖父母 4ひきが みんな その しゅぞく → 子）

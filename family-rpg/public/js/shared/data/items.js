@@ -23,6 +23,7 @@ import { ITEMS_LAB, LAB_ITEM_KANA } from './items-lab.js';
 import { ITEMS_TOWER, TOWER_ITEM_KANA } from './items-tower.js';
 import { ITEMS_KUMOI, KUMOI_ITEM_KANA } from './items-kumoi.js';
 import { ITEMS_HOSHIYOMI, HOSHIYOMI_ITEM_KANA } from './items-hoshiyomi.js';
+import { ITEMS_EARTH, EARTH_ITEM_KANA } from './items-earth.js';
 import { POWDER_ITEMS, POWDER_KANA } from './friend-powder.js';
 import { FIELD27_ITEMS, FIELD27_KANA } from './abilities-field27.js';
 import { RARE_GEAR, RARE_GEAR_KANA, assignRarity } from './items-rare.js';
@@ -243,6 +244,8 @@ Object.assign(ITEMS, ITEMS_TOWER);
 Object.assign(ITEMS, ITEMS_KUMOI);
 // 第5章 Step 5: 星読みの里の 店・思い出の迷宮の 宝箱・ノクトの影・れん金（items-hoshiyomi.js）
 Object.assign(ITEMS, ITEMS_HOSHIYOMI);
+// 第5章 Step 6・7: ハネノの ランク9の 店・大地の神殿の 宝箱・ノクト（1回目）・みんなが くれる 品・れん金（items-earth.js）
+Object.assign(ITEMS, ITEMS_EARTH);
 // なかまの粉（friend-powder.js）
 Object.assign(ITEMS, POWDER_ITEMS);
 // 魔物よせの笛（abilities-field27.js）
@@ -344,6 +347,7 @@ Object.assign(ITEM_KANA, CH4_ITEM_KANA, TEMPLE_ITEM_KANA, POWDER_KANA, LAB_ITEM_
 Object.assign(ITEM_KANA, TOWER_ITEM_KANA);
 Object.assign(ITEM_KANA, KUMOI_ITEM_KANA);
 Object.assign(ITEM_KANA, HOSHIYOMI_ITEM_KANA);
+Object.assign(ITEM_KANA, EARTH_ITEM_KANA);
 Object.assign(ITEM_KANA, FIELD27_KANA);
 Object.assign(ITEM_KANA, R31_ITEM_KANA);
 Object.assign(ITEM_KANA, RARE_GEAR_KANA);

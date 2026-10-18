@@ -12,6 +12,7 @@ import { addR23Art } from './r23-art.js';
 import { addCh5Art } from './ch5-tower-art.js';
 import { addKumoiArt } from './ch5-kumoi-mon-art.js';
 import { addHoshiyomiArt } from './ch5-hoshiyomi-mon-art.js';
+import { addEarthArt } from './ch5-earth-mon-art.js';
 
 export const MRES = 4; // できあがりの こまかさ（せかいの 1ドットを 4×4 で かく）
 const OUT = '#130d24';
@@ -830,6 +831,8 @@ addCh5Art(MONSTER_ART);
 addKumoiArt(MONSTER_ART);
 // 第5章 Step 5「星読みの里・ノクトの思い出の迷宮」の 魔物と ノクトの影・影の王（ch5-hoshiyomi-mon-art.js）
 addHoshiyomiArt(MONSTER_ART);
+// 第5章 Step 6・7「根の島・大地の神殿」の 魔物と ノクト（1回目）・分身・天空のきょ兵（ch5-earth-mon-art.js）
+addEarthArt(MONSTER_ART);
 
 const cache = new Map();
 

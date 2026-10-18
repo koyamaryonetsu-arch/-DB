@@ -9,6 +9,8 @@ import { el } from './ui/dom.js';
 import { gaiaDraw, gaiaPresent } from './battle-gaia.js';
 // 第5章 Step 5 の ノクトの影（まねた 人の 影・まねられている しるし・きずなくだき。battle-nocto.js）と 星読みの里・迷宮の 魔物
 import { noctoDraw, noctoPresent } from './battle-nocto.js';
+// 第5章 Step 6・7 の ノクト（1回目。合体技の 前ぶれの わ・地われの しるし・バナー）と 大地の神殿の 魔物（battle-earth.js）
+import { earthDraw, earthPresent } from './battle-earth.js';
 
 export const TOWER_SCREEN_ANIMS = ['star_light', 'star_judge', 'tower_gust', 'comet_tail'];
 export const TOWER_ALLY_FX = {
@@ -57,6 +59,7 @@ export function towerMarks(scene) {
 export function towerDraw(scene, x, m, c, px, py, w, h, base) {
   gaiaDraw(scene, x, m, c, px, py, w, h, base);
   noctoDraw(scene, x, m, c, px, py, w, h, base);
+  earthDraw(scene, x, m, c, px, py, w, h, base);
   if (c.species !== 'argos' || !c.alive) return;
   const reading = scene.allies().some((a) => a.foresee && a.alive);
   const T = scene.time;
@@ -109,5 +112,6 @@ export function towerPresent(scene, ev, fx, anim, actor) {
   if (fx.type === 'telegraph' && actor?.species === 'argos') scene.fx.play('judge_charge', at([fx.actor]));
   gaiaPresent(scene, ev, fx, anim, actor);
   noctoPresent(scene, ev, fx, anim, actor);
+  earthPresent(scene, ev, fx, anim, actor);
   towerMarks(scene);
 }

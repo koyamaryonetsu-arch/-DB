@@ -15,10 +15,7 @@ import {
   K7, EF, JAR, GOLEM_LOST, PIT_FLAG, LIFT_FLAG, DROP_FLAG, SWITCH_WAIT, DOOR4_FLAG, LETTER_FLAG, GATHER, GATHER_FLAG,
   EARTH_FLOORS, EARTH_POS, EARTH_GOLEMS, EARTH_OUT, EARTH_REST, golemState, golemCellKind, earthMapId,
 } from '../maps/earth.js';
-// 仮の 品の データ（B の data/items-earth.js が 入ったら './items-earth.js' に かえて、data/earth-stub.js を 消す）
-import { GATHER_GIFTS } from './earth-stub.js';
-// 仮の 戦いの データ（B の 出現表と ノクト 1回目が 入ったら、この 1行と data/earth-battle-stub.js を 消す）
-import './earth-battle-stub.js';
+import { GATHER_GIFTS } from './items-earth.js';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

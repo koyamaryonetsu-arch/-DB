@@ -14,6 +14,8 @@ import { labPlan, labIgnored } from './battle-lab.js';
 import { towerCond, towerPlan } from './battle-ch5.js';
 // 第5章 Step 5 の ノクトの影（職業の まね。battle-nocto.js）
 import { noctoAction } from './battle-nocto.js';
+// 第5章 Step 6・7 の ノクト（1回目。合体技の 前ぶれ）と「手をのばす」（battle-earth.js）
+import { earthAction, reachPlan } from './battle-earth.js';
 
 // さくせん
 export const TACTICS = {
@@ -38,6 +40,9 @@ export function decideMonster(b, m) {
   // ノクトの影: まねる 人を かえる・まねた 人の 技（battle-nocto.js）
   const nf = noctoAction(b, m);
   if (nf) return nf;
+  // ノクト（1回目）: 影が そろうと 合体技の 前ぶれ（battle-earth.js）
+  const ef = earthAction(b, m);
+  if (ef) return ef;
   const foes = b.aliveAllies();
   if (m.telegraph) {
     const id = m.telegraph;
@@ -143,9 +148,12 @@ export function decideAlly(b, c) {
     if (one) return { type: 'ability', id: one.id, target: dead[0].id };
   }
 
-  // 3) かいふく
-  const healCmd = chooseHeal(b, c, tac, allies, mine);
+  // 3) かいふく（地われ・のみこまれ の 人は 回復を 受けられない。battle-earth.js）
+  const healCmd = chooseHeal(b, c, tac, allies.filter((x) => !x.status?.rift), mine);
   if (healCmd) return healCmd;
+  // 3.5) 地われ・のみこまれ の 仲間に「手をのばす」（第5章 Step 6・7。battle-earth.js）
+  const rp = reachPlan(b, c);
+  if (rp) return rp;
 
   // 4) じょうたい いじょうを なおす
   const cures = mine.filter(({ a }) => a.effect.type === 'cure');

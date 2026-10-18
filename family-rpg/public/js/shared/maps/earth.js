@@ -11,8 +11,7 @@
 import { T, parseRows } from '../tiles.js';
 import { npc } from './npc.js';
 import { EARTH_ROWS } from './earth-rows.js';
-// 仮の 品の データ（B の data/items-earth.js が 入ったら './items-earth.js' に かえて、data/earth-stub.js を 消す）
-import { EARTH_TREASURE } from '../data/earth-stub.js';
+import { EARTH_TREASURE } from '../data/items-earth.js';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 // 物語の すすみぐあい（data/story-ch5.js の CH5_STEPS の c5_nocto の うしろ。plan-ch5.md の 16 の 名前の 約束）

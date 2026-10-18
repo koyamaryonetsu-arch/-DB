@@ -27,6 +27,8 @@ import { TOWER_BG, TOWER_DECOS, drawTowerBg, drawTowerFloorBg } from './ch5-towe
 import { KUMOI_BG, KUMOI_DECOS, drawKumoiBg, drawKumoiFloorBg } from './ch5-kumoi-bg.js';
 // 第5章 Step 5: 星読みの里の まわり・ノクトの思い出の迷宮（ch5-hoshiyomi-bg.js）
 import { HOSHIYOMI_BG, HOSHIYOMI_DECOS, drawHoshiyomiBg, drawHoshiyomiFloorBg } from './ch5-hoshiyomi-bg.js';
+// 第5章 Step 6・7: 根の島・大地の神殿（ch5-earth-bg.js）
+import { EARTH_BG, EARTH_DECOS, drawEarthBg, drawEarthFloorBg } from './ch5-earth-bg.js';
 
 export const BW = 256;
 export const BH = 144;
@@ -127,6 +129,8 @@ const BG = {
   ...KUMOI_BG,
   // 第5章 Step 5: 星読みの里の まわり（hoshiyomi）・思い出の迷宮（memory・memory_deep）
   ...HOSHIYOMI_BG,
+  // 第5章 Step 6・7: 根の島（root_isle）・大地の神殿（earth_temple・earth_temple_deep）
+  ...EARTH_BG,
 };
 
 // はいけいの データ（〜_night は 夜空の はいけい。night-art.js）。ない ときは null
@@ -198,6 +202,8 @@ export function battleBackground(id) {
       case 'castle': case 'sand_sea': h = 0; break; // 砂の古城・砂の海は あとで（ch4-duna-bg.js）
       case 'temple': case 'mirror': case 'mhall': h = 0; break; // 砂の底の神殿は あとで（ch4-temple-bg.js）
       case 'memory': case 'memory_deep': h = 0; break; // 思い出の迷宮は あとで（ch5-hoshiyomi-bg.js）
+      case 'root_isle': h = 4 + Math.abs(Math.sin(px * 0.04) * 6); break; // 根の島の 草の おか（ch5-earth-bg.js）
+      case 'earth_temple': case 'earth_temple_deep': h = 0; break; // 大地の神殿は あとで（ch5-earth-bg.js）
       default: h = 10 + Math.abs(Math.sin(px * 0.035) * 14) + Math.abs(Math.sin(px * 0.11) * 4);
     }
     if (d.deco === 'stalactite' || d.deco === 'crystal') {
@@ -215,6 +221,7 @@ export function battleBackground(id) {
   if (TOWER_DECOS.has(d.deco)) drawTowerBg(x, d, hor);
   if (KUMOI_DECOS.has(d.deco)) drawKumoiBg(x, d, hor);
   if (HOSHIYOMI_DECOS.has(d.deco)) drawHoshiyomiBg(x, d, hor);
+  if (EARTH_DECOS.has(d.deco)) drawEarthBg(x, d, hor);
   if (d.deco === 'houses') {
     x.fillStyle = '#ffd66b';
     for (let k = 10; k < BW; k += 48) x.fillRect(k + 8, hor - 12, 3, 3);
@@ -268,6 +275,7 @@ export function battleBackground(id) {
   else if (TOWER_DECOS.has(d.deco)) drawTowerFloorBg(x, d, hor);
   else if (KUMOI_DECOS.has(d.deco)) drawKumoiFloorBg(x, d, hor);
   else if (HOSHIYOMI_DECOS.has(d.deco)) drawHoshiyomiFloorBg(x, d, hor);
+  else if (EARTH_DECOS.has(d.deco)) drawEarthFloorBg(x, d, hor);
   else {
     x.fillStyle = 'rgba(0,0,0,0.12)';
     for (let i = 0; i < 6; i++) {

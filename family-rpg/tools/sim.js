@@ -52,6 +52,12 @@ const GEAR = {
     priest: ['breeze_spear', 'hanebito_robe', 'light_shield', 'hanebito_hat', 'mizukagami_crown'], mage: ['kumo_staff', 'hanebito_robe', null, 'hanebito_hat', 'tide_earring'],
     performer: ['wingbeat_fan', 'windcut_gi', 'light_shield', 'hanebito_hat', 'mirage_ring'],
   },
+  // 第5章 Step 6・7: 星読みの里の ランク8の 店（上の ほう）＋ ノクトの影の 影星のペンダント・それまでの ボスの アクセサリー
+  50: {
+    warrior: ['hoshi_sword', 'hoshi_mail', 'star_shield', 'star_helm', 'shade_pendant'], monk: ['starlight_claw', 'yokaze_gi', null, 'hoshi_hood', 'scorpion_brooch'],
+    priest: ['polaris_spear', 'hoshi_robe', 'star_shield', 'hoshi_hood', 'mizukagami_crown'], mage: ['hoshi_staff', 'hoshi_robe', null, 'hoshi_hood', 'tide_earring'],
+    performer: ['yozora_fan', 'yokaze_gi', 'star_shield', 'hoshi_hood', 'mirage_ring'],
+  },
 };
 
 // gearTier: そうびの だんかい（GEAR の キー。ないときは レベルで きめる。第3章は 20 / 23 を 指定する）
@@ -306,7 +312,17 @@ export const CH5_KUMOI = [
 // 第5章 Step 5「星読みの里の まわり・ノクトの思い出の迷宮」: node tools/sim.js [回数] ch5hoshiyomi
 // 4人（せんし・そうりょ・まほう・ぶとう）・職業Lv10。装備は ハネノの ランク8の 店（GEAR 48）。ノクトの影は tools/sim-nocto.mjs
 export const CH5_HOSHIYOMI = [['t5_village', 46, 48], ['t5_village', 47, 48], ['t5_memory', 46, 48], ['t5_memory', 47, 48], ['t5_memory_deep', 47, 48], ['t5_memory_deep', 48, 48]];
-if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'ch5hoshiyomi') {
+// 第5章 Step 6・7「根の島・大地の神殿」: node tools/sim.js [回数] ch5earth
+// 4人（せんし・そうりょ・まほう・ぶとう）・職業Lv10。装備は 星読みの里の ランク8の 店 ＋ 影星のペンダント（GEAR 50）。ノクト（1回目）は tools/sim-nocto1.mjs
+export const CH5_EARTH = [['t5_root', 48, 50], ['t5_root', 49, 50], ['t5_earth_up', 49, 50], ['t5_earth_up', 50, 50], ['t5_earth_low', 49, 50], ['t5_earth_low', 50, 50]];
+if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'ch5earth') {
+  const rng = makeRng(5050);
+  for (const [table, lv, tier] of CH5_EARTH) {
+    const res = [];
+    for (let i = 0; i < N; i++) res.push(runBattle(PARTY(lv, 10, tier), rollGroup(table, rng), { seed: i }));
+    summarize(`${table} Lv${lv}`, res);
+  }
+} else if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'ch5hoshiyomi') {
   const rng = makeRng(4747);
   for (const [table, lv, tier] of CH5_HOSHIYOMI) {
     const res = [];

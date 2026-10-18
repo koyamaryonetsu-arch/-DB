@@ -165,8 +165,8 @@ function bondBreak(b, c, ev) {
   ev.warn = true;
 }
 
-// よやくを くだく: みんなの ゲージは 0 から（まっていた 仲間も）
-function breakTeam(b, tm, ev) {
+// よやくを くだく: みんなの ゲージは 0 から（まっていた 仲間も）。第5章 Step 6・7 の 地われも 使う（battle-earth.js）
+export function breakTeam(b, tm, ev) {
   const reset = (x) => {
     if (!x) return;
     x.ready = false;

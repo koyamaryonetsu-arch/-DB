@@ -18,6 +18,7 @@ import { isShopGear } from './items-rare.js';
 // 第5章 Step 3・4 の レシピ（items-kumoi.js）
 import { KUMOI_RECIPES } from './items-kumoi.js';
 import { HOSHIYOMI_RECIPES } from './items-hoshiyomi.js';
+import { EARTH_RECIPES } from './items-earth.js';
 
 export { ALCHEMY_POT, ALCHEMY_MEMO, CAP_UP_MAX };
 
@@ -87,6 +88,8 @@ export const RECIPES = [
   R('r_senrigan', 5, 'senrigan_helm', 'hundred_eye_helm', 'star_shard', 'star_shard'),
   ...KUMOI_RECIPES,
   ...HOSHIYOMI_RECIPES,
+  // 第5章 Step 6・7: 大地の根・大地の光石で ★4 → ★5（items-earth.js）
+  ...EARTH_RECIPES,
   // ── 生まれ変わりの 武器の 1だん目（第35回。第36回から かくさない）──
   ...REBIRTH_START.map((x) => ({ ...R(x.id, 2, x.to, x.from, x.mat, 'star_shard'), reborn: true })),
 ];

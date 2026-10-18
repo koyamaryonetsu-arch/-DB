@@ -46,6 +46,8 @@ import { towerDraw, TOWER_SFX } from './battle-ch5.js';
 import { gaiaSprite, GAIA_SFX } from './battle-gaia.js';
 // 第5章 Step 5 の ノクトの影（まねた 人の 影を かさねた え。battle-nocto.js）
 import { noctoSprite, NOCTO_SFX } from './battle-nocto.js';
+// 第5章 Step 6・7 の ノクト（1回目）と 大地の神殿の 魔物（音・コマンド「手をのばす」。battle-earth.js）
+import { EARTH_SFX, earthReachItem, earthReachPick, REACH_INFO } from './battle-earth.js';
 
 // たたかいの え の こまかさ（おもい きかいで さげたら、その あいだは さげた まま）
 let battleRes = BRES;
@@ -138,6 +140,8 @@ const ANIM_SFX = {
   ...GAIA_SFX,
   // 第5章 Step 5 の 星読みの里・思い出の迷宮の 魔物と ノクトの影（client/battle-nocto.js）
   ...NOCTO_SFX,
+  // 第5章 Step 6・7 の 根の島・大地の神殿の 魔物と ノクト（1回目）（client/battle-earth.js）
+  ...EARTH_SFX,
 };
 
 // ひらめきの 電球（ドット絵ふう）
@@ -211,7 +215,7 @@ export class BattleScene {
     while (this.readyQ.length) {
       const id = this.readyQ[0];
       const a = this.c.get(id);
-      const stuck = (a?.status || []).some((x) => x === 'sleep' || x === 'paralyze' || x === 'prison');
+      const stuck = (a?.status || []).some((x) => x === 'sleep' || x === 'paralyze' || x === 'prison' || x === 'rift');
       if (a && a.alive && a.ready && !a.auto && !stuck && !this.ended) {
         this.cur = id;
         this.openCommand();
@@ -476,6 +480,9 @@ export class BattleScene {
     const wagon = battleWagon(this);
     if (wagon) items.splice(items.length - 1, 0, { label: 'いれかえ', value: 'wagon', disabled: !wagon.outs.length || !wagon.ins.some((x) => x.hp > 0) });
     if (duals.length) items.splice(3, 0, { html: '<span class="dual-cmd">合体技</span>', value: 'dual', cls: 'k-dual' });
+    // 地われ・のみこまれ の 仲間が いる 時だけ「手をのばす」（いちばん 上。battle-earth.js）
+    const reach = earthReachItem(this, a);
+    if (reach) items.unshift(reach);
     this.showMenu(items, (it) => {
       switch (it.value) {
         case 'attack': {
@@ -490,9 +497,12 @@ export class BattleScene {
         case 'defend': return this.send({ type: 'defend' });
         case 'flee': return this.send({ type: 'flee' });
         case 'wagon': return battleSwapMenu(this);
+        case 'reach': return earthReachPick(this, a);
         default:
       }
     }, null, this.noSpells ? `${a.name}はどうする？（ここでは呪文がふうじられている）` : `${a.name}はどうする？`);
+    // 「手をのばす」が ある ときは せつめいも（battle-earth.js）
+    if (reach) this.info(REACH_INFO);
     if (this.noSpells && spells.length && !this.sealNoted) {
       this.sealNoted = true;
       this.info(`${SEALED_REASON}\n特技・道具・攻撃で戦おう。`);
@@ -1225,7 +1235,7 @@ export class BattleScene {
     if (ev.counter?.length) this.counterFx(ev.counter, counterRes, (perHit ? Math.max(...perHit.values()) : hitDelay) + 380);
     // えらんでいる とちゅうで たおれた・ねむった など
     const cur = this.cur && this.c.get(this.cur);
-    if (cur && (!cur.alive || (cur.status || []).some((x) => x === 'sleep' || x === 'paralyze' || x === 'prison') || !cur.ready)) this.dropReady(cur.id);
+    if (cur && (!cur.alive || (cur.status || []).some((x) => x === 'sleep' || x === 'paralyze' || x === 'prison' || x === 'rift') || !cur.ready)) this.dropReady(cur.id);
     else if (!this.cur && this.menu && !this.targeting) this.renderCmdIdle();
     this.renderStatus();
     this.updateAutoBtn();

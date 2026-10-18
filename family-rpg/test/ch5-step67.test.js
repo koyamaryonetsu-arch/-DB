@@ -20,7 +20,7 @@ import { CH5_STEPS, OLD_C5_OBJ, CH5_OBJECTIVE_TARGETS, CH5_OBJECTIVE_TALK } from
 import { HOSHIYOMI_OBJ } from '../public/js/shared/data/story-hoshiyomi.js';
 import { EARTH_STEPS, EARTH_OBJ, EARTH_STORY_SCRIPTS } from '../public/js/shared/data/story-earth.js';
 // 仮の 品（B の data/items-earth.js が 入ったら、ここも './items-earth.js' に かえる）
-import { HANONO9_SHOP_WEAPONS, HANONO9_SHOP_ARMOR, HANONO9_SHOP_TOOLS, EARTH_TREASURE, GATHER_GIFTS } from '../public/js/shared/data/earth-stub.js';
+import { HANONO9_SHOP_WEAPONS, HANONO9_SHOP_ARMOR, HANONO9_SHOP_TOOLS, EARTH_TREASURE, GATHER_GIFTS } from '../public/js/shared/data/items-earth.js';
 import { SHOPS, shopItems } from '../public/js/shared/data/shops.js';
 import { ITEMS } from '../public/js/shared/data/items.js';
 import { objectiveFromFlags, KNOWN_OBJECTIVES, repairObjective } from '../public/js/shared/data/progress.js';
