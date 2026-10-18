@@ -16,6 +16,7 @@
 // 1回の こうどうで おわって しまう（ワンパンチの）たたかいは、しゅぎょうが はんぶんしか すすまない。
 
 import { applyField27Learn } from './abilities-field27.js';
+import { JOB_TAGS } from './job-tags.js';
 export const JOB_MAX_LEVEL = 10;
 // ワンパンチで おわった（なかまの 1回めの こうどうで かった）たたかいの しゅぎょうの わりあい。ほかの たたかいは まるごと 1回ぶん
 export const JOB_EASY_RATE = 0.5;
@@ -1154,6 +1155,8 @@ export const SCHOOL_JOBS = ['schoolkid', 'middleschooler', 'highschooler', 'wiza
 
 // リレミト・トヘロス・マモノヨセを 覚える 職業（abilities-field27.js）
 applyField27Learn(JOBS);
+// 第35回: 職業の タグ（2〜4こ。合体技の 組に 使う。一覧と 意味は data/job-tags.js）
+for (const [id, tags] of Object.entries(JOB_TAGS)) if (JOBS[id]) JOBS[id].tags = tags;
 
 // はじめに えらべる 職業（基本職）
 export const JOB_ORDER = ['warrior', 'monk', 'priest', 'mage', 'performer', 'jester', 'salaryman', 'idol', 'railman', 'ballplayer',
