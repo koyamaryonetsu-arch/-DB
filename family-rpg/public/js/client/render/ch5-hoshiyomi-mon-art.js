@@ -42,7 +42,7 @@ function blackAgent(g0, f) {
     R(0.87, 0.4, 0.03, C.S);
     R(0.9, 0.34, 0.04, C.KD);
     R(0.9, 0.34, 0.028, C.KH);
-    spark(g, 0.92, 0.28, 0.03, C.Y);
+    spark(g, 0.92, 0.28, 0.03, C.Y, C.W);
   } else {
     g.poly([[0.69, 0.32], [0.78, 0.36], [0.8, 0.62], [0.73, 0.62], [0.7, 0.42]], C.KD);
     g.poly([[0.7, 0.33], [0.77, 0.37], [0.785, 0.6], [0.74, 0.6], [0.71, 0.42]], C.K);
@@ -117,7 +117,7 @@ function starOwl(g0, f) {
 const STARSL = {
   B: '#2a3a8a', BL: '#4a62c0', BH: '#8aa8f0', BD: '#1a2260', BDD: '#0e1238', // 体
   S: '#ffffff', SY: '#fff0a0', SG: '#ffd848', // 星くず
-  E: '#ffffff', P: '#101030', M: '#ff8ab0',
+  E: '#f4f8ff', P: '#101030', M: '#ff8ab0',
 };
 // 星くずスライム: 夜空色の すきとおった スライム（正面）。体の 中に 星くず。コマ1で 少し つぶれて 星が 光る
 function stardustSlime(g0, f) {
@@ -294,7 +294,7 @@ function soulEater(g0, f) {
   const R = (x, y, r, c) => g.ell(x, y, r, r * k, c);
   const reach = f ? 0.05 : 0;
   // つめたい きり
-  for (const [x, y, r] of [[0.28, 0.9, 0.08], [0.5, 0.95, 0.1], [0.72, 0.9, 0.08]]) R(x, y, r, C.M);
+  for (const [x, y, r] of [[0.28, 0.88, 0.08], [0.5, 0.91, 0.08], [0.72, 0.88, 0.08]]) R(x, y, r, C.M);
   for (const [x, y, r] of [[0.32, 0.88, 0.04], [0.66, 0.9, 0.035]]) R(x, y, r, C.ML);
   // マント（すそは ぎざぎざ）
   g.poly([[0.5, 0.06], [0.7, 0.18], [0.78, 0.5], [0.84, 0.88], [0.74, 0.8], [0.68, 0.94], [0.6, 0.82], [0.52, 0.96], [0.44, 0.82], [0.36, 0.94], [0.3, 0.8], [0.18, 0.9], [0.22, 0.5], [0.3, 0.18]], C.KD);
@@ -380,7 +380,7 @@ function noctoShadow(g0, f) {
   const R = (x, y, r, c) => g.ell(x, y, r, r * k, c);
   const sw = f ? 0.03 : 0;
   // 影の もや（うしろ）
-  for (const [x, y, r] of [[0.2, 0.5 - sw, 0.12], [0.8, 0.48 + sw, 0.12], [0.3, 0.2 + sw, 0.09], [0.72, 0.22 - sw, 0.09], [0.5, 0.9, 0.2]]) R(x, y, r, C.W);
+  for (const [x, y, r] of [[0.2, 0.5 - sw, 0.12], [0.8, 0.48 + sw, 0.12], [0.3, 0.2 + sw, 0.09], [0.72, 0.22 - sw, 0.09], [0.5, 0.86, 0.14]]) R(x, y, r, C.W);
   // マント（すそが 影に とける）
   g.poly([[0.5, 0.14], [0.68, 0.28], [0.74, 0.6], [0.82, 0.92], [0.7, 0.86], [0.6, 0.96], [0.5, 0.88], [0.4, 0.96], [0.3, 0.86], [0.18, 0.92], [0.26, 0.6], [0.32, 0.28]], C.KD);
   g.poly([[0.5, 0.16], [0.66, 0.29], [0.72, 0.6], [0.78, 0.88], [0.69, 0.83], [0.6, 0.92], [0.5, 0.85], [0.4, 0.92], [0.31, 0.83], [0.22, 0.88], [0.28, 0.6], [0.34, 0.29]], C.K);
@@ -460,13 +460,13 @@ function shadowKing(g0, f) {
 export function addHoshiyomiArt(ART) {
   // 星読みの里の まわり
   ART.black_agent = { size: [46, 60], pal: Object.values(AGENT), draw: blackAgent };
-  ART.star_owl = { size: [52, 52], pal: Object.values(OWL), draw: starOwl };
+  ART.star_owl = { size: [56, 50], pal: Object.values(OWL), draw: starOwl };
   ART.stardust_slime = { size: [40, 36], pal: Object.values(STARSL), draw: stardustSlime };
   // ノクトの思い出の迷宮
-  ART.lonely_ghost = { size: [48, 52], pal: Object.values(LGHOST), draw: lonelyGhost };
+  ART.lonely_ghost = { size: [52, 48], pal: Object.values(LGHOST), draw: lonelyGhost };
   ART.lonely_doll = { size: [40, 46], pal: Object.values(DOLL), draw: lonelyDoll };
   ART.kage_boushi = { size: [44, 58], pal: Object.values(KAGE), draw: kageBoushi };
-  ART.soul_eater = { size: [54, 62], pal: Object.values(SOUL), draw: soulEater };
+  ART.soul_eater = { size: [60, 56], pal: Object.values(SOUL), draw: soulEater };
   ART.homunculus_shade = { size: [46, 62], pal: Object.values(HOMUN), draw: homunculusShade };
   // ノクトの影（フィールドの 大きな NPC 'mon:nocto_shadow' にも。npc の 大きさは 人より 少し 大きい くらい）
   ART.nocto_shadow = { size: [72, 84], npc: 0.45, pal: Object.values(NOCTO_PAL), draw: noctoShadow };

@@ -44,6 +44,8 @@ import { templeSprite, templeDraw, templeStart, TEMPLE_SFX } from './battle-temp
 import { towerDraw, TOWER_SFX } from './battle-ch5.js';
 // 第5章 Step 4 の ガイアイーター（部位の え・音。battle-gaia.js）
 import { gaiaSprite, GAIA_SFX } from './battle-gaia.js';
+// 第5章 Step 5 の ノクトの影（まねた 人の 影を かさねた え。battle-nocto.js）
+import { noctoSprite, NOCTO_SFX } from './battle-nocto.js';
 
 // たたかいの え の こまかさ（おもい きかいで さげたら、その あいだは さげた まま）
 let battleRes = BRES;
@@ -134,6 +136,8 @@ const ANIM_SFX = {
   ...TOWER_SFX,
   // 第5章 Step 3・4 の クモイ地方・古い神殿の 魔物と ガイアイーター（render/battlefx-kumoi.js）
   ...GAIA_SFX,
+  // 第5章 Step 5 の 星読みの里・思い出の迷宮の 魔物と ノクトの影（client/battle-nocto.js）
+  ...NOCTO_SFX,
 };
 
 // ひらめきの 電球（ドット絵ふう）
@@ -1556,7 +1560,7 @@ export class BattleScene {
     const sprites = list.map((c) => {
       const frame = Math.floor(this.time / 420 + (c.slot || 0)) % 2;
       // 鏡のうつし身（パーティーの 人の 絵）・水のろう（中の 人）は battle-temple.js
-      const img = templeSprite(c, frame) || gaiaSprite(c, frame) || monsterCanvas(c.species, frame);
+      const img = templeSprite(c, frame) || gaiaSprite(c, frame) || noctoSprite(c, frame) || monsterCanvas(c.species, frame);
       const r = img.res || 1;
       return { c, img, iw: img.width / r, ih: img.height / r };
     });
