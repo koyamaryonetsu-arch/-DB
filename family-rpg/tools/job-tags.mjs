@@ -18,7 +18,7 @@ if (mode === 'jobs') {
 } else if (mode === 'duals') {
   console.log('| 合体技 | 人数 | 組 |');
   console.log('|---|---|---|');
-  for (const id of DUAL_ORDER) console.log(`| ${DUAL_TECHS[id].name} | ${dualSize(id)}人 | ${dualNeedLabel(id).replace('必要な', '')}：${dualNeedText(id, true)} |`);
+  for (const id of DUAL_ORDER) console.log(`| ${DUAL_TECHS[id].name} | ${dualSize(id)}人 | ${dualNeedLabel(id).replace('必要な', '')}：${dualNeedText(id)} |`);
 } else {
   for (const t of TAG_ORDER) {
     const techs = DUAL_ORDER.filter((id) => DUAL_TECHS[id].need.some((g) => groupTags(g).includes(t))).map((id) => DUAL_TECHS[id].name);

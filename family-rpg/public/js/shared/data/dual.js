@@ -102,7 +102,7 @@ const LINE = [...ANY];
 
 // 組の なまえ（メニューの 一覧で 見せる）。タグの 組は タグの 名前（下で 足す）
 export const DUAL_GROUP_NAMES = new Map([
-  [KI, '気の技'], [GOMU, 'ゴムの技'], [OKAN, 'おかんの技'], [NEET, 'ニートの技'], [FACILITY, '設備の技'], [MAOU, '魔王の技'], [HAKAI, 'はかい神の技'],
+  [KI, 'サイヤ人か木の葉の忍びの技'], [GOMU, 'ゴムの技'], [OKAN, 'おかんの技'], [NEET, 'ニートの技'], [FACILITY, '設備の技'], [MAOU, '魔王の技'], [HAKAI, 'はかい神の技'],
   [POLICE, '警察官の技'], [FIRE_DEPT, '消防士の技'], [BOSS, '上司の技'], [STREAM, '配信の技'], [GAME, 'ゲームの技'],
   [KAPPA, 'カッパの技'], [UESAMA, '将軍の技'], [SAMURAI, 'サムライの技'], [ESPER, '超能力の技'], [CREATOR, 'クリエイターの技'],
   [HITEN, '飛天御剣流の技'], [TAMER, '魔物使いの技'], [MONSTER_ALLY, 'モンスターの仲間'],

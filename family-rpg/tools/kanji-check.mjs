@@ -230,6 +230,8 @@ export function gameFiles() {
     'public/js/shared/data/skill-ups.js', 'public/js/client/ui/skillinfo.js',
     // 合体技の 作り直し（2人・3人・4人の 合体技・カットイン）
     'public/js/shared/battle-dual.js', 'public/js/client/battle-dual.js', 'public/js/client/render/dualfx.js',
+    // 第35回 C: 職業の タグ（合体技の 組）
+    'public/js/shared/data/job-tags.js',
     // 第27回 B: 転職の せりふ（みじかく）
     'public/js/shared/data/job-talk.js',
     // 第27回 D: 仲間40ひき・酒場の ならび・リレミト・トヘロス・マモノヨセ・魔物よせの笛
