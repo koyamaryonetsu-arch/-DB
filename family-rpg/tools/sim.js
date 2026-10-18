@@ -303,7 +303,17 @@ export const CH5_KUMOI = [
   ['t5_kumoi', 43, 48], ['t5_kumoi', 44, 48], ['t5_ruin_up', 44, 48], ['t5_ruin_up', 45, 48], ['t5_ruin_low', 44, 48], ['t5_ruin_low', 45, 48],
   ['t5_ruin_cloud', 45, 48], ['t5_ruin_cloud', 46, 48],
 ];
-if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'ch5kumoi') {
+// 第5章 Step 5「星読みの里の まわり・ノクトの思い出の迷宮」: node tools/sim.js [回数] ch5hoshiyomi
+// 4人（せんし・そうりょ・まほう・ぶとう）・職業Lv10。装備は ハネノの ランク8の 店（GEAR 48）。ノクトの影は tools/sim-nocto.mjs
+export const CH5_HOSHIYOMI = [['t5_village', 46, 48], ['t5_village', 47, 48], ['t5_memory', 46, 48], ['t5_memory', 47, 48], ['t5_memory_deep', 47, 48], ['t5_memory_deep', 48, 48]];
+if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'ch5hoshiyomi') {
+  const rng = makeRng(4747);
+  for (const [table, lv, tier] of CH5_HOSHIYOMI) {
+    const res = [];
+    for (let i = 0; i < N; i++) res.push(runBattle(PARTY(lv, 10, tier), rollGroup(table, rng), { seed: i }));
+    summarize(`${table} Lv${lv}`, res);
+  }
+} else if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'ch5kumoi') {
   const rng = makeRng(5353);
   for (const [table, lv, tier] of CH5_KUMOI) {
     const res = [];

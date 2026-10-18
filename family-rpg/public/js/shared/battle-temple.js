@@ -130,7 +130,8 @@ function mirrorView(b) {
   return v;
 }
 
-function mirrorDecide(b, m) {
+// 第5章 Step 5 の ノクトの影も 使う（まねた 人の 技を えらぶ。battle-nocto.js）
+export function mirrorDecide(b, m) {
   let cmd = null;
   try {
     cmd = decideAlly(mirrorView(b), m);

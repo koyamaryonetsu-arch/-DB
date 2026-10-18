@@ -21,7 +21,7 @@ import { STORY_STEPS, SCRIPTS, STORY_SCRIPTS } from '../public/js/shared/data/st
 import { CH5_STEPS, OLD_C5_OBJ, CH5_OBJECTIVE_TARGETS, CH5_OBJECTIVE_TALK } from '../public/js/shared/data/story-ch5.js';
 import { KUMOI_OBJ } from '../public/js/shared/data/story-kumoi.js';
 import { HOSHIYOMI_STEPS, HOSHIYOMI_OBJ, HOSHIYOMI_STORY_SCRIPTS } from '../public/js/shared/data/story-hoshiyomi.js';
-import { HOSHIYOMI_SHOP_WEAPONS, HOSHIYOMI_SHOP_ARMOR, HOSHIYOMI_SHOP_TOOLS, MEMORY_TREASURE } from '../public/js/shared/data/hoshiyomi-stub.js';
+import { HOSHIYOMI_SHOP_WEAPONS, HOSHIYOMI_SHOP_ARMOR, HOSHIYOMI_SHOP_TOOLS, MEMORY_TREASURE } from '../public/js/shared/data/items-hoshiyomi.js';
 import { SHOPS, shopItems } from '../public/js/shared/data/shops.js';
 import { ITEMS } from '../public/js/shared/data/items.js';
 import { objectiveFromFlags, KNOWN_OBJECTIVES, repairObjective } from '../public/js/shared/data/progress.js';

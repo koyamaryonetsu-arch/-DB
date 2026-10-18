@@ -16,6 +16,7 @@ import { ALCHEMY_POT, ALCHEMY_MEMO, REBIRTH_START } from './items-alchemy.js';
 import { isShopGear } from './items-rare.js';
 // 第5章 Step 3・4 の レシピ（items-kumoi.js）
 import { KUMOI_RECIPES } from './items-kumoi.js';
+import { HOSHIYOMI_RECIPES } from './items-hoshiyomi.js';
 
 export { ALCHEMY_POT, ALCHEMY_MEMO, CAP_UP_MAX };
 
@@ -84,6 +85,7 @@ export const RECIPES = [
   R('r_dragon_slayer', 5, 'dragon_slayer', 'old_fang_sword', 'dragon_scale', 'star_iron'),
   R('r_senrigan', 5, 'senrigan_helm', 'hundred_eye_helm', 'star_shard', 'star_shard'),
   ...KUMOI_RECIPES,
+  ...HOSHIYOMI_RECIPES,
   // ── 生まれ変わりの 武器の 1だん目（第35回。かくし要素: hidden）──
   ...REBIRTH_START.map((x) => ({ ...R(x.id, 2, x.to, x.from, x.mat, 'star_shard'), hidden: true })),
 ];

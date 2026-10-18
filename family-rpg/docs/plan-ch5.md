@@ -403,6 +403,45 @@
 - 品（B が `data/items-hoshiyomi.js`・A は仮のファイル `data/hoshiyomi-stub.js`）：`HOSHIYOMI_SHOP_WEAPONS`・`HOSHIYOMI_SHOP_ARMOR`・`HOSHIYOMI_SHOP_TOOLS`・`MEMORY_TREASURE`（`{ 1: [...], … 6: [...] }`）
 - おすすめのレベル：Lv47
 
+### 実装メモ（B … 戦い・品。2026年10月18日）
+
+- 名前の約束（上）のとおり：出現表 `t5_village`（里のまわり）・`t5_memory`（迷宮1〜3階）・`t5_memory_deep`（4〜6階）、きまった戦い `nocto_shadow`（台本は `['battle', 'nocto_shadow']`。`showMon('nocto_shadow')` はフードの子の形の影の絵）、背景 `hoshiyomi`・`memory`・`memory_deep`（`nocto_shadow` の戦いは `memory_deep`）、曲 `nocto_shadow`（A）。品は `data/items-hoshiyomi.js` の `HOSHIYOMI_SHOP_WEAPONS`・`HOSHIYOMI_SHOP_ARMOR`・`HOSHIYOMI_SHOP_TOOLS`・`MEMORY_TREASURE`。負けた時は今のボスと同じ（`loseOk` なし）
+- ファイル：`data/monsters-hoshiyomi.js`・`abilities-hoshiyomi.js`・`encounters-hoshiyomi.js`・`companions-hoshiyomi.js`・`items-hoshiyomi.js`、しくみ `shared/battle-nocto.js`、がめん `client/battle-nocto.js`、絵 `render/ch5-hoshiyomi-mon-art.js`・背景 `render/ch5-hoshiyomi-bg.js`・エフェクト `render/battlefx-hoshiyomi.js`、シミュレーター `tools/sim-nocto.mjs`（と `tools/sim.js` の `ch5hoshiyomi`）、テスト `test/ch5-hoshiyomi-battle.test.js`（21こ）
+- 新しい魔物（8しゅ。どれも仲間になる・`noFamily`・`region: 6`〈空のレア〉）
+  - 里のまわり：黒ずくめの追っ手（Lv47。黒の組織の手下ふう。しのびうち・黒いけむり・あやしいくすり〈攻撃力ダウン「体が小さくなったような気がする…」〉。雷1.3。悪魔系）・星読みフクロウ（Lv46。夜風のはばたき・星のまなざしで混乱。炎1.3）・星くずスライム（Lv45。光の技。闇1.3）。クモイ地方の魔物も少し
+  - 迷宮1〜3階：さびしさのゆうれい（Lv47。オリジナル。なみだのしずく・ひとりにしないで〈素早さダウン〉・さびしい歌〈ねむり〉。光1.4）・ひとりぼっちの人形（Lv46。くるくるダンス〈3回〉・つぎあて〈回復〉・ボタンの目〈マヒ〉。炎1.3）・かげぼうし（Lv47。影ふみ〈マヒ〉・影にとける〈かいひ〉。光1.35）
+  - 迷宮4〜6階：たましいすい（Lv48。吸魂鬼ふう。たましいのくちづけ〈HPをすう〉・こおりつくさむけ・しあわせをすう〈強くなる力を消す〉。光1.6）・ひとがたの影（Lv48。ホムンクルスふう。するどいツメ・影のやいば〈みんな〉・赤い石の力〈じわじわ回復〉。光1.3）と色ちがい（`registerVariant`）シャドウかげぼうし・ダークひとりぼっちの人形
+  - 素材：星の砂（`star_sand`。里のまわり）・影のしずく（`shade_drop`。影の魔物）
+  - 名前はそのままの名前を使わない（テストで「ディメンター・吸魂鬼・ホムンクルス・ジン・ウォッカ・黒の組織」が入っていないことをたしかめる）
+- **ノクトの影**（`nocto_shadow`。Lv49・HP25300・2回行動。`shared/battle-nocto.js`）
+  - **職業のまね**：戦いのはじめと、4回動くごとに（`mimicEvery`）かならず「影のまね」で、パーティーのだれか1人（人を先に・前とちがう人）の **すがたと職業** をまねる。第4章の鏡のうつし身の `mirrorSkillOk`・`mirrorDecide`（`battle-temple.js` で export にした）を使い、まねた人の技（回復・生き返り・かばう をのぞく）を仲間のオートのAIでえらんで、45%（`mimicRate`）で使う（強さは影の強さ）。まねられた人の攻撃（ふつうの攻撃・特技・呪文）は **見切られてダメージが半分**（`noctoDamage`。ことばは1戦で3回まで。合体技はそのまま）
+    - はじめは「見切られて、かわされ反撃」にしたが、完全オートがほとんど勝てなくなった（オートは見切られてもそのまま攻撃する）ので半分にした
+  - **きずなくだき**（☆合体技の予約をこわす。ソリトゥスの第2段階の前ぶれ）：合体技を見ると（`noctoCheck` → `noctoAction`）、影は次にかならず前ぶれ「みんなのきずなを、じっとにらんでいる…！」（`m_ns_bond_watch`。ほかにも ときどき）→ 次の番に「きずなくだき」（みんなに物理×3.3・守り3わりむし。身を守ると半分）。前ぶれから次の番までは ふつうより少し早い（`windup: -30`）
+    - 合体技の **よやく**（よやくして待っている `waitDual`・ならんで出るのを待っている queue の dual）の組は、**組のだれかが身を守っていれば守れる**（「〇〇が身を守り、…のきずなを守りぬいた！」）。守れないと、よやくがくだかれ（組みんなのゲージが0から）、影が「くだいたきずなの力」をすいとって攻撃力×1.2
+    - HP50%で攻撃力×1.15
+  - `battle.js` は import・constructor の `setupNocto`・`damage` の `noctoDamage` の3か所、`ai.js` は `decideMonster` の `noctoAction` の1か所。あとは `battle-ch5.js` の `towerCond`・`towerEffect`・`foreseeCheck`・`towerKill`・`towerPlan`・`towerPub` からよぶ
+  - オートの仲間（ふつう）は何もかわらない。シミュレーターの「知っている人」（`b.knowsNocto`・`noctoPlan`）は、前ぶれのあと 合体技の組の人と きずなくだきより先に番が来る人が身を守り、まねられた人は攻撃のかわりに回復・強くする技・防御（`supportCmd`）。合体技は `tools/sim-nocto.mjs` の `dualPlan`（まねられた人からさそう・前ぶれのあとは みんなの番が来ている時だけ）
+- がめん（`client/battle-nocto.js`）：まねている間は影の絵のうしろに、まねた人の影（左右反転・こいむらさき。`noctoSprite`。`client/battle.js` の `computeLayout` に1行）。まねられた人のまどに「まねられている」。前ぶれの間は影のまわりにむらさきのわ（`noctoDraw`）とバナー「！きずなくだきの前ぶれ！身を守れ！」。まねた時・くだかれた時・守りぬいた時は短いバナー
+- **強さ**（`node tools/sim-nocto.mjs 100 46,47,48`。超級職4人＝勇者・大賢者・ゴッドハンド・大神官、職業Lv10、里の店＋その時期の★装備〈迷宮の宝箱・神殿の宝箱・ガイアイーターとアルゴスと古竜の品〉、100回）
+
+  | Lv | 完全オート | 知っている | ★なし（店だけ）オート | ★なし 知っている |
+  |---|---|---|---|---|
+  | 46 | 4% | 74% | 0% | 37% |
+  | 47 | 14% | 75% | 5% | 53% |
+  | 48 | 19% | 84% | 7% | 66% |
+
+  - 知っている人の3つのうち1つだけしない（Lv47）：前ぶれで守らない 22%・まねられても攻撃する 69%・合体技を使わない 31%
+  - 決めかた：はじめ（HP23000・きずなくだき×1.25・前ぶれから次の番まで ふつう）は、知っている100%・オート15%。知っている人は合体技で ほぼたおしてしまい、きずなくだきは 前ぶれの間に よやくしないだけでかわせた。そこで「合体技を見ると かならず前ぶれ」「きずなくだきを大きく（×3.3）・少し早く」にして、守らないと大変・守ると番がへる形にし、HPを1.1倍にした
+- 出現表（`node tools/sim.js 100 ch5hoshiyomi`。せんし・そうりょ・まほう・ぶとう、職業Lv10、ハネノのランク8の店＋ボスのアクセサリー＝ `GEAR[48]`）：里のまわり 100%（のこりHP 79%）・迷宮1〜3階 99〜100%（82%）・4〜6階 99%（76〜78%）
+- 品（`data/items-hoshiyomi.js`）
+  - 里の店（ランク8の上のほう＝ハネノの約1.08倍・店の品なのでレア度0＝★1・きたえられない）：武器10しゅ（星読みの剣・流星のオノ・星くずの短剣・北極星のやり・星明かりのツメ・星座のムチ・星読みのつえ・夜空のおうぎ・ほうき星のブーメラン・月夜のバット）、防具（星読みのよろい・星月夜のマント・星読みのローブ・夜風の道着・星のたて・星のかぶと・星読みのずきん）、道具（新しい 星のこんぺいとう＝MP30回復・420G と、今の道具）
+  - 迷宮の宝箱 `MEMORY_TREASURE`（`src: 'memory'`。説明は「迷宮の宝箱でしか手に入らない」）：1階 ほしぞらのマフラー／2階 月かげのツメ・光と影のおうぎ／3階 星図のローブ・明けの明星のつえ（行動でMP+1）／4階 影ぬいの短剣（ときどきマヒ）・ともしびのたて／5階 たそがれのやり・月光のよろい／6階 光と影の剣・星読みのかんむり。**どれもランク8なので★4**（第35回「ランクで★」）。深い階ほど名前の色（めずらしさ）が上がり（1〜2階 青・3〜4階 紫・5〜6階 オレンジ）、強さも少しずつ上がる。同じ種類の店の品（★1）より強い
+  - ノクトの影：かならず 影星のペンダント（アクセ・1人1つ・影の王の配合の素材）と 影のマント（`src: 'boss'`）
+  - れん金（`HOSHIYOMI_RECIPES` を `alchemy.js` の `RECIPES` にまぜる。tier 5）：影のマント＋影のしずく＋星の砂 → 夜明けのマント／星読みのつえ＋星の砂×2 → 星読みの大づえ／星の砂×2＋影のしずく → かしこさの種
+- **ボス級「影の王」**（`ss_shadow_king`。`data/monsters-boss.js`）：たましいすい × ひとがたの影（か 悪魔系の S ＋ S ランク）＋ 影星のペンダント の素材配合だけで生まれる（`materialOnly` … ランク配合では生まれない。`companions.js` の `breedCandidates` に1行）。ボスの仲間ではない新しいボス級なので、`test/breed-r35.test.js` の「ボス7体」は影の王をのぞいてたしかめる。絵 `shadow_king`
+- A とまとめた時：A の仮のファイル `data/hoshiyomi-stub.js`・`data/hoshiyomi-battle-stub.js` は消して、`shops-hoshiyomi.js`・`maps/memory.js`・`test/ch5-step5.test.js` は `items-hoshiyomi.js` から import。`story-hoshiyomi.js` の仮の import 1行も消した。6階の人のすがたは A の `nocto_shade`（B の絵に NPC 用の大きさはつけない）。里の宝（星読みの練習のごほうび）は A の今の品（命の木の実・かしこさの種）のまま
+- B が1〜数行ずつ足したファイル：`monsters.js`・`abilities.js`・`items.js`・`encounters.js`・`companions.js`・`loot.js`・`rare-loot.js`（`SRC_TEXT.memory`）・`alchemy.js`・`monsters-boss.js`・`battle.js`・`battle-ch5.js`・`battle-temple.js`（`mirrorDecide` を export）・`ai.js`・`client/battle.js`・`client/battle-ch4.js`・`client/battle-ch5.js`・`render/battlefx.js`・`render/battlefx-kumoi.js`・`render/monsters.js`・`tools/sim.js`・`tools/kanji-check.mjs` の `gameFiles()`・`test/monsters-r23.test.js`（図鑑の数）・`test/breed-r35.test.js`
+
 ### 実装メモ（A … 世界と物語。2026年10月18日）
 
 > ネタバレ注意：第4幕の中みが書いてあります。

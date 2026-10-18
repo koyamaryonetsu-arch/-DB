@@ -9,7 +9,7 @@
 import { T, parseRows } from '../tiles.js';
 import { npc } from './npc.js';
 import { MEMORY_ROWS, MEMORY_KEEP } from './memory-rows.js';
-import { MEMORY_TREASURE } from '../data/hoshiyomi-stub.js';
+import { MEMORY_TREASURE } from '../data/items-hoshiyomi.js';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 export const MEMORY_FLOORS = 6;

@@ -17,8 +17,6 @@ import {
   memoryMapId, memoryArrive,
 } from '../maps/memory.js';
 import { innSteps } from './inn.js';
-// 仮の 戦いの データ（B の 出現表と ノクトの影が 入ったら、この 1行と data/hoshiyomi-battle-stub.js を 消す）
-import './hoshiyomi-battle-stub.js';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

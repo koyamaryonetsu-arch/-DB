@@ -4,6 +4,8 @@
 // 土と 岩の 技は 土の 色（茶・こけ・岩の 灰色）。敵が みかたに 使う 大技は、client/battle-ch4.js が がめんの まん中を ねらって よぶ
 // ガイアイーター: maw_charge・rumble_charge・needle_charge（前ぶれ）→ gaia_devour・gaia_quake・needle_rain（大技）。gaia_feed（土はこび。しっぽ → 体・頭）
 import { ELEMENT_FX } from './battlefx-r27.js';
+// 第5章 Step 5: 星読みの里の まわり・思い出の迷宮の 魔物と ノクトの影（battlefx-hoshiyomi.js）
+import { playHoshiyomiFx } from './battlefx-hoshiyomi.js';
 
 const BOLT = ELEMENT_FX.bolt.colors, WIND = ELEMENT_FX.wind.colors, ICE = ELEMENT_FX.ice.colors;
 const EARTH = ['#7a5232', '#a87a4e', '#d0a478', '#4a301c'];
@@ -242,6 +244,6 @@ export function playKumoiFx(fx, anim, targets, element, opts = {}, W = 256, H = 
       fx.hitStop(160, 300, 1);
       return true;
     default:
-      return false;
+      return playHoshiyomiFx(fx, anim, targets, element, opts, W, H);
   }
 }
