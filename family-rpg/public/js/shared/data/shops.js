@@ -10,6 +10,7 @@ import { POWDER_ID, POWDER_SHOPS } from './friend-powder.js';
 import { LURE_ITEM, FIELD27_SHOPS } from './abilities-field27.js';
 import { R33_SHOP_ADD } from './items-r33.js';
 import { SHOPS_KUMOI } from './shops-kumoi.js';
+import { SHOPS_HOSHIYOMI } from './shops-hoshiyomi.js';
 
 export const SHOPS = {
   village: {
@@ -66,6 +67,8 @@ Object.assign(SHOPS, SHOPS_CH3);
 Object.assign(SHOPS, SHOPS_CH4);
 // 第5章 雲の上の町ハネノ（shops-kumoi.js）
 Object.assign(SHOPS, SHOPS_KUMOI);
+// 第5章 Step 5 星読みの里（shops-hoshiyomi.js）
+Object.assign(SHOPS, SHOPS_HOSHIYOMI);
 // 仲間の粉: 「魔物の心」に 目ざめた あと、町の 道具屋で 売る（friend-powder.js）
 for (const id of POWDER_SHOPS) if (SHOPS[id]) SHOPS[id].more = [...(SHOPS[id].more || []), { show: { all: ['monster_bond'] }, items: [POWDER_ID] }];
 // 魔物よせの笛: 町の 道具屋（abilities-field27.js）

@@ -147,7 +147,7 @@ const kumoiStops = (flags, start = [59, 33]) => flowReach(MAPS.kumoi, start, (f)
 test('すすみぐあい: c5_sky → c5_kumoi … c5_shard（名前の 約束）。目標・仲間会話・地図の しるし・Step 2 の さいごの 文の なおし', () => {
   assert.deepEqual(KUMOI_STEPS, ['c5_kumoi', 'c5_hanono', 'c5_pipi', 'c5_ruin', 'c5_gaia', 'c5_shard'], '名前の 約束（plan-ch5.md の 13）');
   const si = CH5_STEPS.indexOf('c5_sky');
-  assert.deepEqual(CH5_STEPS.slice(si + 1), KUMOI_STEPS, 'c5_sky の うしろに つづく');
+  assert.deepEqual(CH5_STEPS.slice(si + 1, si + 1 + KUMOI_STEPS.length), KUMOI_STEPS, 'c5_sky の うしろに つづく');
   assert.deepEqual(STORY_STEPS.slice(STORY_STEPS.indexOf('c5_sky') + 1, STORY_STEPS.indexOf('c5_sky') + 7), KUMOI_STEPS);
   const f = (...l) => ({ flags: flagsOf(...UPTO('c5_sky'), ...l) });
   // Step 2 の さいごの 文（「第5章の続きはアップデートで！…」）は Step 3 の 文に なおる
@@ -163,8 +163,11 @@ test('すすみぐあい: c5_sky → c5_kumoi … c5_shard（名前の 約束）
     [['c5_gaia'], 'gaia'], [['c5_shard'], 'shard'],
   ];
   for (const [fl, k] of seq) assert.equal(objectiveFromFlags(f(...UPTO(fl[0]).filter((x) => x.startsWith('c5_')), ...fl)), KUMOI_OBJ[k], k);
-  // Step 4 の さいごは「第5章の続きはアップデートで！」
-  assert.ok(KUMOI_OBJ.shard.startsWith('第5章の続きはアップデートで！'));
+  // Step 4 の さいごの「第5章の続きはアップデートで！」は Step 5 で 星読みの里への 文に かわった（前の 文は OLD_C5_OBJ.shard で なおる）
+  assert.ok(KUMOI_OBJ.shard.includes('星読みの里') && OLD_C5_OBJ.shard.startsWith('第5章の続きはアップデートで！'));
+  const oldShard = { flags: flagsOf(...UPTO('c5_shard')), objective: OLD_C5_OBJ.shard };
+  assert.ok(repairObjective(oldShard));
+  assert.equal(oldShard.objective, KUMOI_OBJ.shard);
   // どの 目標にも 仲間会話と 行き先
   for (const [k, t] of Object.entries(KUMOI_OBJ)) {
     assert.ok(KNOWN_OBJECTIVES.has(t), k);
@@ -207,7 +210,9 @@ test('雲の上: とばりが 開くと 竜で「雲の上」→ クモイ地方
   assert.deepEqual([box0.x, box0.y, box0.w, box0.h], [KUMOI_SKY.x, KUMOI_SKY.y, KUMOI_SKY.w, KUMOI_SKY.h]);
   assert.ok(inSkyBox(box0, KUMOI_POS.arrive.x, KUMOI_POS.arrive.y), '来た 所は ハネノの島の 上');
   assert.ok(!inSkyBox(box0, KUMOI_ISLES.sink.cx, KUMOI_ISLES.sink.cy), 'しずみゆく島の 上は 風が あれて 飛べない');
-  assert.equal(skyBox('kumoi', (f) => f === 'c5_shard'), null, 'かけらの あとは どこでも');
+  const box1 = skyBox('kumoi', (f) => f === 'c5_shard');
+  assert.ok(inSkyBox(box1, KUMOI_ISLES.sink.cx, KUMOI_ISLES.sink.cy) && !inSkyBox(box1, KUMOI_ISLES.star.cx, KUMOI_ISLES.star.cy), 'かけらの あとは 星読みの里の 島の ほかは どこでも');
+  assert.equal(skyBox('kumoi', (f) => f === 'c5_shard' || f === 'c5_village'), null, '里に 着くと どこでも');
 
   const { world, bot, c } = await setup(6101, 'c5_sky');
   await place(bot, 'overworld', 28, 84);
@@ -626,7 +631,7 @@ test('ガイアイーターの 台本: showMon → battle（gaia_eater）。負�
   assert.ok(c.flags.c5_gaia && c.flags.c5_shard, '勝った → かけら');
   assert.ok(said(bot, 'ひとりでひざをかかえている', from) && said(bot, '…どうして、ぼくだけ…。', from), '泣いている 子の 思い出');
   assert.ok(said(bot, '島のしずみが、少し止まった', from));
-  assert.ok(said(bot, '第5章の続きはアップデートで！', from));
+  assert.ok(said(bot, '西の方をさした', from), '星読みの里へ（第5章 Step 5）');
   assert.ok(c.keyItems.includes('earth_shard'), '大地の守り星のかけら');
   assert.equal(c.objective, KUMOI_OBJ.shard);
 });

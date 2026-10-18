@@ -6,7 +6,7 @@ import { OW_W, OW_H } from '../maps/overworld.js';
 import { SEA_W, SEA_H, PORT, SEA_POS } from '../maps/sea.js';
 import { NORTH_W, NORTH_H, NORTH_LANDING, NORTH_ARRIVE } from '../maps/north.js';
 import { SOUTH_W, SOUTH_H, SOUTH_LANDING, SOUTH_ARRIVE, SOUTH_SKY_ZAID } from '../maps/south.js';
-import { KUMOI_W, KUMOI_H, KUMOI_SKY, KUMOI_ARRIVE } from '../maps/kumoi.js';
+import { KUMOI_W, KUMOI_H, KUMOI_SKY, KUMOI_SKY2, KUMOI_ARRIVE } from '../maps/kumoi.js';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -41,10 +41,16 @@ export const SKY_ITEMS = {
     name: '大地の守り星のかけら', type: 'key',
     desc: '大地の守り星から欠けた、小さなかけら。しずみゆく島の古い神殿の、いちばん下にあった。にぎると、だれかの思い出が見えた気がする。',
   },
+  // 第5章 Step 5: 星読みの里で カナタに もらう（data/story-hoshiyomi.js）。思い出の 迷宮の ランプ台に 光を うつす
+  star_lamp: {
+    name: '星読みのランプ', type: 'key',
+    desc: '星読みのじいさまカナタにもらった、小さなランプ。思い出の迷宮のランプ台に光をうつすと、柱の影がのびて、影の中にだけ見える道があらわれる。',
+  },
 };
 export const SKY_ITEM_KANA = {
   wind_flute: 'かぜのふえ',
   earth_shard: 'だいちのまもりぼしのかけら',
+  star_lamp: 'ほしよみのらんぷ',
 };
 
 // ───── 目標 ─────
@@ -80,10 +86,12 @@ export const SKY_MAPS = {
     storm: '砂嵐', boxHint: '北の海辺', lockedHint: { flag: 'c3_clear', text: '竜守りの村の長老ハクゲンに、話を聞いてみよう' },
   },
   // 第5章 Step 3: 雲の上の クモイ地方（天のとばりの 向こう。地上の 地方からは「雲の上」で 行く。world/travel.js の flyVeil）
-  // aboveVeil … とばりの 上の 地方（「雲の上」は 出さない）。島の まわりの 風が あれていて、守り星の かけら（c5_shard）までは ハネノの島の 上だけ
+  // aboveVeil … とばりの 上の 地方（「雲の上」は 出さない）。島の まわりの 風が あれていて、守り星の かけら（c5_shard）までは ハネノの島の 上だけ。
+  // かけらの あとは、星読みの里の 島（西の はし）の ほかは どこでも。里に 着くと（c5_village）どこでも
   kumoi: {
     name: 'クモイ地方', short: 'クモイ', edges: {}, need: 'c5_sky', aboveVeil: true,
-    box: { ...KUMOI_SKY, until: 'c5_shard', hint: 'ハネノの島' }, storm: '風', boxHint: 'ハネノの島',
+    // 第5章 Step 5: かけらの あとも、西の 星読みの里の 島の 上は 里に 着く（c5_village）まで 飛べない（里へは 風の道で）
+    box: [{ ...KUMOI_SKY, until: 'c5_shard', hint: 'ハネノの島' }, { ...KUMOI_SKY2, until: 'c5_village', hint: 'ほかの島' }], storm: '風', boxHint: 'ハネノの島',
   },
 };
 // ───── 第5章: 天のとばり ─────

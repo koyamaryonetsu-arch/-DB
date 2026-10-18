@@ -12,6 +12,7 @@ import { TEMPLE_PROPS } from './tiles-temple.js';
 import { LAB_PROPS } from './tiles-lab.js';
 import { TOWER_PROPS } from './tiles-tower.js';
 import { KUMOI_PROPS } from './tiles-kumoi.js';
+import { MEMORY_PROPS } from './tiles-memory.js';
 import {
   canalWallFace, canalWallTop, canalSidePaint, damTopPaint, paintCanalWater, sluiceTopPaint, sluiceBoardPaint, pillarSidePaint, pillarTopPaint, rubbleAtlasPaint,
   CANAL_SUN,
@@ -332,6 +333,8 @@ Object.assign(PROPS, LAB_PROPS);
 Object.assign(PROPS, TOWER_PROPS);
 // 第5章 Step 3・4: かたむいた 木と 柱・岩・かたむきの石・てんびん・縄ばしご・かけらの 台（render/tiles-kumoi.js）
 Object.assign(PROPS, KUMOI_PROPS);
+// 第5章 Step 5: ランプ台・思い出の かけら・柱・星読みの 水しょう・遠めがね（render/tiles-memory.js）
+Object.assign(PROPS, MEMORY_PROPS);
 export const PROP_TILES = new Set(Object.keys(PROPS).map(Number).filter((k) => PROPS[k]));
 
 // たからばこ（あいている・しまっている）
