@@ -31,6 +31,7 @@ export class ListMenu {
   // press: えらんだ ボタンを この ミリ秒 光らせてから すすむ（どれを おしたか わかるように）
   // start: はじめに カーソルを おく ばんごう（まえに えらんだ ところ など）
   // onSide: 1れつの リストで 左右を おした とき（タブを かえる・せつめいを スクロール など）。-1 か 1
+  //   第35回: 2列・3列の リストでも、いちばん右の 列で 右・いちばん左の 列で 左 を おすと onSide（戦いの 技の タブ など）
   // fit: なまえは 1行で。入りきらない ときは 文字を 小さく して ぜんぶ 見せる（せまい ボタンの たたかいの コマンド）
   // tapConfirm: タップ（クリック）で ほかの 行を えらぶと カーソルと せつめい だけ うごく。えらんでいる 行を もう一度 おすと 決まる
   //   （戦いの 呪文・特技・道具。マウスは 先に カーソルが 合うので 1回で 決まる）
@@ -293,6 +294,24 @@ export class ListMenu {
     return rows;
   }
 
+  // 今の 行が 画面の 行の 左はし（d=-1）・右はし（d=1）か。画面に 出ていない ときは cols で はかる
+  atEdge(d, cols = this.cols) {
+    if (cols <= 1 && !this.items.some((it) => it.header)) {
+      // 1列（CSS で 2列・3列に 見える ものは 下の gridRows）
+      const lis = [...this.root.children].filter((li) => li.classList.contains('item'));
+      if (!lis[0]?.offsetParent) return true;
+    }
+    const rows = this.gridRows();
+    const r = rows.find((row) => row.list.some((p) => p.i === this.idx));
+    if (r) {
+      const k = r.list.findIndex((p) => p.i === this.idx);
+      return d < 0 ? k === 0 : k === r.list.length - 1;
+    }
+    if (cols <= 1) return true;
+    const k = this.idx % cols;
+    return d < 0 ? k === 0 : k === cols - 1 || this.idx === this.items.length - 1;
+  }
+
   nav(a) {
     const n = this.items.length;
     if (!n && a !== 'b') return;
@@ -318,6 +337,7 @@ export class ListMenu {
       const rows = this.gridRows();
       const r = rows.findIndex((row) => row.list.some((p) => p.i === this.idx));
       if (r >= 0 && rows.some((row) => row.list.length > 1)) {
+        if ((a === 'left' || a === 'right') && this.onSide && this.atEdge(a === 'left' ? -1 : 1)) return this.onSide(a === 'left' ? -1 : 1);
         if (a === 'left' || a === 'right') return step(a === 'left' ? -1 : 1);
         const x = rows[r].list.find((p) => p.i === this.idx).x;
         const to = rows[(r + (a === 'up' ? -1 : 1) + rows.length) % rows.length].list;
@@ -325,6 +345,8 @@ export class ListMenu {
         return go(best.i);
       }
     }
+    // 列の はしで 左右 → onSide（タブを かえる など。1列の リストは いつも はし）
+    if ((a === 'left' || a === 'right') && this.onSide && this.atEdge(a === 'left' ? -1 : 1, cols)) return this.onSide(a === 'left' ? -1 : 1);
     switch (a) {
       case 'up': step(-cols); break;
       case 'down': step(cols); break;
