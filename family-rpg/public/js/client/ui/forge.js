@@ -214,12 +214,10 @@ function upgradeBox(game, cand) {
     box.append(el('div', { class: 'hd' }, el('span', { class: 'gold', text: `${it.name} → ${to}` }), el('span', { class: 'rk', text: rankText(cand.id) })));
     if (cand.who) box.append(el('div', { class: 'small muted', text: `${cand.whoName}が装備している` }));
     const how = !hasPot(game.me)
-      ? 'カモメ港へ行くと、どこかのかじ屋で「れん金がま」をもらえる。
-かまに入れると、生まれ変わるぞ。'
+      ? 'カモメ港へ行くと、どこかのかじ屋で「れん金がま」をもらえる。\nかまに入れると、生まれ変わるぞ。'
       : knowsRecipe(game.me, x.id)
         ? `れん金がまに「${insText([x.from, x.mat, 'star_shard'])}」を入れると、${to}に生まれ変わる！`
-        : 'れん金がまで、星のかけらと何かを合わせると、生まれ変わる。
-作り方は、本だな・れん金のメモ・かじ屋の親方からわかるぞ。';
+        : 'れん金がまで、星のかけらと何かを合わせると、生まれ変わる。\n作り方は、本だな・れん金のメモ・かじ屋の親方からわかるぞ。';
     box.append(el('div', { class: 'small forge-reborn forge-seed', style: { whiteSpace: 'pre-line' }, text: `店の品なので、きたえられない。\n…でも、${it.name}が、かすかに光っている。\n${how}` }));
     return box;
   }
