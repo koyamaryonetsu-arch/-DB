@@ -433,7 +433,7 @@ function tavernUI(game, data) {
       four: '★ 4体配合！', material: '★ 素材配合！', rank: '★ ランク配合！', special: '★ めずらしい組み合わせ！', recipe: '★ めずらしい組み合わせ！',
       same: '★ 新生配合（「+」が大きく上がる）',
     };
-    const trendText = (f) => `${TREND_MARK[f.trend]} ${f.trend === 'down' ? '親より弱くなるかも' : f.trend === 'up' ? '育てると親より強くなる' : '育てると親と同じくらい'}`;
+    const trendText = (f) => `${TREND_MARK[f.trend]} ${f.lowRank ? 'ランクが下がる' : f.trend === 'down' ? '親より弱くなるかも' : f.trend === 'up' ? '育てると親より強くなる' : '育てると親と同じくらい'}`;
     const breedRules = () => el('div', { class: 'detail', text: [
       `レベル${BREED_MIN_LEVEL}以上のモンスター2ひきを掛け合わせて、新しいモンスターを生み出す。`,
       '・子のランクは、高いほうの親と同じか1つ上（親を育てると1つ上も）',
@@ -463,7 +463,7 @@ function tavernUI(game, data) {
         main.append(el('div', { class: 'small gold', text: `${e.name}${e.plus ? ` ＋${e.plus}` : ''}（${who(e)}）` }));
         const learned = e.abilities || learnedAbilities({ species: e.species, level: e.level });
         main.append(el('div', { class: 'small', text: `技: ${learned.map((id) => ABILITIES[id]?.name).filter(Boolean).join('・') || 'なし'}` }));
-        main.append(el('div', { class: 'small muted', text: monLines(e).join('\n') }));
+        main.append(...monLines(e).map((t) => el('div', { class: 'small muted', text: t })));
         main.append(el('div', { class: 'small muted', text: A ? '2ひきめにカーソルを合わせると、生まれる子がここに出る' : '選ぶと1ぴきめになる' }));
       }
       if (!A) {
@@ -518,7 +518,7 @@ function tavernUI(game, data) {
         const learned = e.abilities || learnedAbilities({ species: e.species, level: e.level });
         main.append(el('div', { class: 'small', text: `技: ${learned.map((id) => ABILITIES[id]?.name).filter(Boolean).join('・') || 'なし'}` }));
         main.append(el('div', { class: 'small', text: `装備できる物: ${gearText(e.species)}` }));
-        main.append(el('div', { class: 'small muted', text: monLines(e).join('\n') }));
+        main.append(...monLines(e).map((t) => el('div', { class: 'small muted', text: t })));
         if (e.level < BREED_MIN_LEVEL) main.append(el('div', { class: 'small muted', text: `レベル${BREED_MIN_LEVEL}になると配合できる` }));
       }
       main.append(el('div', { class: 'detail', text: e.desc || '' }));

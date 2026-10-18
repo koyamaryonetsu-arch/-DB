@@ -119,6 +119,11 @@ test('配合前の めやす: 強いほうの 親の レベルまで 育てた �
   // とても 強い 親 ＋ 弱い 子 → 弱く なるかも
   const down = breedForecast(lv('ss_oldra', 60, 20), lv('pururin', 10), 'pururin', 2);
   assert.equal(down.trend, 'down');
+  // ランクが 下がる 子（特定配合の 子など。一覧の さいご）は いつも down（赤い 字）
+  const low = breedForecast(lv('silver_king', 40), lv('hedoron', 12), 'king_pururin', 5);
+  assert.ok(low.lowRank);
+  assert.equal(low.trend, 'down');
+  assert.ok(!up.lowRank);
   // レベルの 上限
   assert.equal(up.cap, Math.min(MAX_LEVEL, 50 + 5 * rankIdx('wolf', MONSTERS) + 10));
 });
@@ -278,8 +283,10 @@ test('ほんとうに 配合: 素材配合は 品が なくなる（品が な�
   assert.ok(!companion(c, a.key) && !companion(c, b.key));
 });
 
-test('画面の 文字（漢字の きまり・スペース）', () => {
-  for (const f of ['public/js/shared/data/monsters-boss.js', 'public/js/shared/data/companions.js', 'public/js/shared/world/breed.js', 'public/js/client/ui/services.js']) {
+test('画面の 文字（漢字の きまり・スペース）。monsters-boss.js・farewell.js は kanji-check の 対象', () => {
+  const files = gameFiles().map((f) => f.replace(/\\/g, '/'));
+  for (const f of ['public/js/shared/data/monsters-boss.js', 'public/js/shared/world/farewell.js']) assert.ok(files.some((x) => x.endsWith(f)), f);
+  for (const f of ['public/js/shared/data/monsters-boss.js', 'public/js/shared/data/companions.js', 'public/js/shared/world/breed.js', 'public/js/shared/world/farewell.js', 'public/js/client/ui/services.js']) {
     const r = checkFile(f).filter((x) => x.kind !== 'kana');
     assert.deepEqual(r, [], f);
   }

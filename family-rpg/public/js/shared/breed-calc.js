@@ -3,7 +3,7 @@
 //   親 x は { species, level, plus, bonus, seeds, lineage, name }（サーバーは キャラ、画面は 酒場の 一覧〈world/party.js の companionInfo〉）
 import { computeStats, STAT_KEYS, MAX_LEVEL } from './stats.js';
 import { MONSTERS } from './data/monsters.js';
-import { monsterLevelCap } from './data/companions.js';
+import { monsterLevelCap, rankIdx } from './data/companions.js';
 
 // 能力の 受けつぎ: 両親の 今の 能力（装備を はずした もの）の 1/4ずつ
 export const INHERIT_RATE = 0.25;
@@ -31,7 +31,8 @@ export function powerScore(st) {
 
 // 生まれる 前の めやす（child: しゅぞく、plus: 子の ＋）
 //   born: 生まれた とき（Lv1）の 能力 / grown: 強いほうの 親の レベルまで 育てた ときの 能力（上限まで）/ parent: 強いほうの 親の 今の 能力
-//   ratio: grown ÷ parent / trend: 'up'（親より 強く なる）・'same'・'down'（親より 弱く なるかも）/ cap: 子の レベルの 上限
+//   ratio: grown ÷ parent / trend: 'up'（親より 強く なる）・'same'・'down'（親より 弱く なるかも。ランクが 高いほうの 親より 下がる 子も）
+//   lowRank: 子の ランクが 高いほうの 親より 下 / cap: 子の レベルの 上限
 export function breedForecast(A, B, child, plus) {
   const bonus = inheritBonus(A, B);
   const sa = bareStats(A), sb = bareStats(B);
@@ -42,8 +43,9 @@ export function breedForecast(A, B, child, plus) {
   const grownLv = Math.max(1, Math.min(cap, Math.max(A.level || 1, B.level || 1)));
   const grown = bareStats({ ...kid, level: grownLv });
   const ratio = powerScore(grown) / Math.max(1, powerScore(strong.st));
-  const trend = ratio >= 1.05 ? 'up' : ratio <= 0.95 ? 'down' : 'same';
-  return { bonus, born, grown, grownLv, parent: strong.st, parentName: strong.x.name || '', ratio, trend, cap };
+  const lowRank = rankIdx(child, MONSTERS) < Math.max(rankIdx(A.species, MONSTERS), rankIdx(B.species, MONSTERS));
+  const trend = lowRank || ratio <= 0.95 ? 'down' : ratio >= 1.05 ? 'up' : 'same';
+  return { bonus, born, grown, grownLv, parent: strong.st, parentName: strong.x.name || '', ratio, trend, lowRank, cap };
 }
 
 export const TREND_MARK = { up: '↑', same: '→', down: '↓' };
