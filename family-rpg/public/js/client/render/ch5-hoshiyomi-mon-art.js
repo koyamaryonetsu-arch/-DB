@@ -1,6 +1,6 @@
 // 第5章 Step 5（B）「星読みの里」の まわりと「ノクトの思い出の迷宮」の 魔物と ノクトの影・影の王の え（shared/data/monsters-hoshiyomi.js）
 // render/monsters.js が addHoshiyomiArt を よぶ。かきかたは ch5-kumoi-mon-art.js と おなじ（g … w・h の わりあいで かく。f … 0 か 1 の コマ）
-// ノクトの影: nocto_shadow … フードの 子の 形の 影（図鑑・台本の showMon('nocto_shadow')。フィールドの 大きな NPC にも 使える 'mon:nocto_shadow'）。
+// ノクトの影: nocto_shadow … フードの 子の 形の 影（図鑑・台本の showMon('nocto_shadow')）。
 //   戦いで だれかを まねて いる 間は、client/battle-nocto.js が うしろに まねた 人の 影を かさねる
 import { fit, bez, taper, spark } from './ch3-draw.js';
 
@@ -468,8 +468,8 @@ export function addHoshiyomiArt(ART) {
   ART.kage_boushi = { size: [44, 58], pal: Object.values(KAGE), draw: kageBoushi };
   ART.soul_eater = { size: [60, 56], pal: Object.values(SOUL), draw: soulEater };
   ART.homunculus_shade = { size: [46, 62], pal: Object.values(HOMUN), draw: homunculusShade };
-  // ノクトの影（フィールドの 大きな NPC 'mon:nocto_shadow' にも。npc の 大きさは 人より 少し 大きい くらい）
-  ART.nocto_shadow = { size: [72, 84], npc: 0.45, pal: Object.values(NOCTO_PAL), draw: noctoShadow };
+  // ノクトの影（図鑑・台本の showMon('nocto_shadow')。6階の 人の すがたは A の 人の 絵 nocto_shade）
+  ART.nocto_shadow = { size: [72, 84], pal: Object.values(NOCTO_PAL), draw: noctoShadow };
   // 影の王（ボス級。monsters-boss.js の art）
   ART.shadow_king = { size: [80, 84], pal: Object.values(SKING), draw: shadowKing };
 }
