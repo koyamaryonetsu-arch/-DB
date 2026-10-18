@@ -2,7 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { ITEMS, SLOTS, sellPrice, baseItemId, itemKana, sortItemIds } from '../public/js/shared/data/items.js';
-import { UPGRADE_MAX, UPGRADE_TYPES, UPGRADE_BY_RANK, upgradeId, upgradeLimit, CAP_UP_MAX } from '../public/js/shared/data/items-forge.js';
+import { UPGRADE_MAX, UPGRADE_TYPES, UPGRADE_BY_RANK, upgradeId, upgradeLimit, rankLimit, CAP_UP_MAX } from '../public/js/shared/data/items-forge.js';
 import { RECIPES, RECIPE_OPEN, recipeOpen, upgradeCost, lackOf, canUpgrade, maxPlus } from '../public/js/shared/data/forge.js';
 import { BANK_KINDS, BANK_STACK } from '../public/js/shared/data/facilities.js';
 import { MAT_DROPS, monsterDrops, rollDrops } from '../public/js/shared/data/loot.js';
@@ -291,7 +291,7 @@ test('きたえる: +1〜+3 で 攻撃力（守備力）が もとの 1わりず
   for (const [id, it] of Object.entries(ITEMS)) {
     if (it.base) continue;
     // ランクで きまる 回数＋れん金で ふやせる 回数（第32回 CAP_UP_MAX）まで（むかしの セーブの ため +3 までは どれにも ある）
-    const top = UPGRADE_TYPES.includes(it.type) ? Math.max(3, maxPlus(id) + CAP_UP_MAX) : UPGRADE_MAX;
+    const top = UPGRADE_TYPES.includes(it.type) ? Math.max(3, rankLimit(it) + CAP_UP_MAX) : UPGRADE_MAX;
     if (UPGRADE_TYPES.includes(it.type)) assert.equal(ITEMS[upgradeId(id, top + 1)], undefined, `${id}+${top + 1} は ない`);
     for (let n = 1; n <= top; n++) {
       const up = ITEMS[upgradeId(id, n)];
@@ -315,19 +315,24 @@ test('きたえる: きたえられる 回数は ランクで きまる（ラン
   assert.equal(UPGRADE_MAX, 5);
   assert.equal(upgradeLimit({}), 1, 'ランクが ない 物は ランク1');
   assert.ok(UPGRADE_BY_RANK.every((v, i) => !i || v >= UPGRADE_BY_RANK[i - 1]), 'ランクが 高いほど 多い');
-  // 皮のぼうし（ランク1）は +1 まで（木の剣は 第32回から 生まれ変わる 武器。test/alchemy.test.js）
-  assert.equal(ITEMS.leather_hat.rank, 1);
-  assert.equal(maxPlus('leather_hat'), 1);
-  assert.ok(canUpgrade('leather_hat'));
-  assert.ok(!canUpgrade('leather_hat+1'), '+1 で おしまい');
-  assert.equal(upgradeCost('leather_hat+1'), null);
-  // むかしの セーブで +3 に して あった 品も きえない（使えるが、これ以上は きたえられない）
+  // キバのやり（ランク2・かじ屋で 作る）は +2 まで
+  assert.equal(ITEMS.fang_spear.rank, 2);
+  assert.equal(maxPlus('fang_spear'), 2);
+  assert.ok(canUpgrade('fang_spear+1'));
+  assert.ok(!canUpgrade('fang_spear+2'), '+2 で おしまい');
+  assert.equal(upgradeCost('fang_spear+2'), null);
+  // 第35回: 店で 買える 装備（★1）は きたえられない。むかしの セーブで きたえて あった 品（+1〜）も きえない（使えるが、これ以上は きたえられない）
+  assert.equal(maxPlus('leather_hat'), 0);
+  assert.ok(!canUpgrade('leather_hat'));
+  assert.equal(upgradeLimit(ITEMS.iron_sword), 0);
+  assert.equal(rankLimit(ITEMS.iron_sword), 3);
   assert.equal(ITEMS['wood_sword+3'].atk, 9);
-  assert.ok(!canUpgrade('leather_hat+2') && !canUpgrade('leather_hat+3'));
-  // 鉄（ランク3）は +3、はがね（ランク5）は +4
-  assert.equal(maxPlus('iron_sword'), 3);
-  assert.equal(maxPlus('iron_sword+2'), 3, 'きたえた 物は もとの ランクで');
-  const r5 = Object.keys(ITEMS).find((id) => ITEMS[id].type === 'weapon' && ITEMS[id].rank === 5 && !ITEMS[id].base);
+  assert.ok(!canUpgrade('leather_hat+1') && !canUpgrade('iron_sword+2'));
+  assert.ok(ITEMS[upgradeId('steel_sword', 4 + CAP_UP_MAX)], '店の 品も むかしの 回数まで ある（セーブが こわれない）');
+  // 星くずの剣（ランク3）は +3、ランク5の ★の 品は +4
+  assert.equal(maxPlus('stardust_sword'), 3);
+  assert.equal(maxPlus('stardust_sword+2'), 3, 'きたえた 物は もとの ランクで');
+  const r5 = Object.keys(ITEMS).find((id) => ITEMS[id].type === 'weapon' && ITEMS[id].rank === 5 && !ITEMS[id].base && !(ITEMS[id].price > 0));
   assert.equal(maxPlus(r5), 4);
   assert.ok(ITEMS[upgradeId(r5, 4)], `${r5}+4`);
   assert.ok(ITEMS[upgradeId(r5, 4 + CAP_UP_MAX)], 'れん金で ふやす ぶんも ある');
@@ -338,26 +343,26 @@ test('きたえる: きたえられる 回数は ランクで きまる（ラン
   assert.deepEqual(c4.mats.find(([m]) => m === 'star_shard'), ['star_shard', 3], '+4 には 星のかけら 3個（ランク4から 1個 ふえる）');
   assert.equal(upgradeCost(upgradeId(r5, 4)), null, '+4 で おしまい');
   // ランク7の 物が あれば +5 まで
-  const r7 = { name: 'テストの剣', type: 'weapon', rank: 7, cat: 'sword', atk: 61, price: 9000 };
+  const r7 = { name: 'テストの剣', type: 'weapon', rank: 7, cat: 'sword', atk: 61, price: 0, rarity: 3 };
   assert.equal(upgradeLimit(r7), 5);
   // アクセサリーは 0
   assert.equal(maxPlus('power_ring'), 0);
 });
 
 test('きたえる: 素材と ゴールドは 回数が すすむほど ふえる・+3 には 星のかけら・売っても もうからない', () => {
-  const c1 = upgradeCost('iron_sword');
-  const c2 = upgradeCost('iron_sword+1');
-  const c3 = upgradeCost('iron_sword+2');
-  assert.equal(upgradeCost('iron_sword+3'), null, '+3 で おしまい');
-  assert.equal(c1.to, 'iron_sword+1');
-  assert.equal(c3.to, 'iron_sword+3');
+  const c1 = upgradeCost('flame_sword');
+  const c2 = upgradeCost('flame_sword+1');
+  const c3 = upgradeCost('flame_sword+2');
+  assert.equal(upgradeCost('flame_sword+3'), null, '+3 で おしまい');
+  assert.equal(c1.to, 'flame_sword+1');
+  assert.equal(c3.to, 'flame_sword+3');
   assert.ok(c1.gold < c2.gold && c2.gold < c3.gold, `${c1.gold} < ${c2.gold} < ${c3.gold}`);
   assert.deepEqual(c1.mats, [['iron_shard', 2]]);
   assert.deepEqual(c2.mats, [['iron_shard', 3]]);
   assert.deepEqual(c3.mats, [['iron_shard', 4], ['star_shard', 1]]);
-  assert.equal(upgradeCost('wizard_staff').mats[0][0], 'magic_powder', 'つえは 魔法の粉');
-  assert.equal(upgradeCost('feather_fan').mats[0][0], 'wind_feather', 'おうぎは 風の羽');
-  assert.ok(upgradeCost('silver_sword+1').mats.some(([m]) => m === 'silver_shard'), 'ランク4からは 銀のかけらも');
+  assert.equal(upgradeCost('thunder_staff').mats[0][0], 'magic_powder', 'つえは 魔法の粉');
+  assert.equal(upgradeCost('haze_fan').mats[0][0], 'wind_feather', 'おうぎは 風の羽');
+  assert.ok(upgradeCost('thunder_sword+1').mats.some(([m]) => m === 'silver_shard'), 'ランク4からは 銀のかけらも');
   assert.equal(upgradeCost('power_ring'), null);
   // どの 装備でも: きたえて 売っても かかった ぶんより 高く ならない
   for (const id of Object.keys(ITEMS)) {
@@ -374,41 +379,50 @@ test('きたえる: 素材と ゴールドは 回数が すすむほど ふえ�
 test('きたえる: ふくろの 装備・装備している 装備を きたえる', async () => {
   const { bot, c } = await solo('warrior');
   c.gold = 5000;
-  c.items = [{ id: 'iron_sword', n: 2 }, { id: 'iron_shard', n: 20 }, { id: 'star_shard', n: 1 }];
+  c.items = [{ id: 'flame_sword', n: 2 }, { id: 'iron_shard', n: 20 }, { id: 'star_shard', n: 1 }];
   // ふくろの 1本を +1 に
-  let r = svc(bot, { kind: 'forge', action: 'upgrade', id: 'iron_sword' });
+  let r = svc(bot, { kind: 'forge', action: 'upgrade', id: 'flame_sword' });
   assert.equal(r.ok, true, r.text);
-  assert.match(r.text, /鉄の剣は、鉄の剣\+1になった/);
-  assert.equal(itemCount(c, 'iron_sword'), 1);
-  assert.equal(itemCount(c, 'iron_sword+1'), 1);
+  assert.match(r.text, /炎の剣は、炎の剣\+1になった/);
+  assert.equal(itemCount(c, 'flame_sword'), 1);
+  assert.equal(itemCount(c, 'flame_sword+1'), 1);
   assert.equal(itemCount(c, 'iron_shard'), 18);
-  assert.equal(c.gold, 5000 - upgradeCost('iron_sword').gold);
+  assert.equal(c.gold, 5000 - upgradeCost('flame_sword').gold);
   // 装備している 物を +1 → +2 → +3
-  c.equip.weapon = 'iron_sword+1';
-  removeOne(c, 'iron_sword+1');
+  c.equip.weapon = 'flame_sword+1';
+  removeOne(c, 'flame_sword+1');
   const atk0 = computeStats(c).atk;
-  r = svc(bot, { kind: 'forge', action: 'upgrade', id: 'iron_sword+1', who: 'self' });
+  r = svc(bot, { kind: 'forge', action: 'upgrade', id: 'flame_sword+1', who: 'self' });
   assert.equal(r.ok, true, r.text);
-  assert.equal(c.equip.weapon, 'iron_sword+2');
-  assert.equal(computeStats(c).atk, atk0 + 2);
+  assert.equal(c.equip.weapon, 'flame_sword+2');
+  assert.equal(computeStats(c).atk, atk0 + 3, '25の 1わりを まるめて 3');
   // 持っていない・装備していない
-  assert.equal(svc(bot, { kind: 'forge', action: 'upgrade', id: 'iron_sword+1', who: 'self' }).ok, false);
+  assert.equal(svc(bot, { kind: 'forge', action: 'upgrade', id: 'flame_sword+1', who: 'self' }).ok, false);
   assert.equal(svc(bot, { kind: 'forge', action: 'upgrade', id: 'katana' }).ok, false);
   // +3 には 星のかけら
   c.items = c.items.filter((e) => e.id !== 'star_shard');
-  r = svc(bot, { kind: 'forge', action: 'upgrade', id: 'iron_sword+2', who: 'self' });
+  r = svc(bot, { kind: 'forge', action: 'upgrade', id: 'flame_sword+2', who: 'self' });
   assert.equal(r.ok, false);
   assert.match(r.text, /星のかけら/);
   addItem(c, 'star_shard', 1);
-  r = svc(bot, { kind: 'forge', action: 'upgrade', id: 'iron_sword+2', who: 'self' });
+  r = svc(bot, { kind: 'forge', action: 'upgrade', id: 'flame_sword+2', who: 'self' });
   assert.equal(r.ok, true, r.text);
-  assert.equal(c.equip.weapon, 'iron_sword+3');
-  assert.equal(computeStats(c).atk, atk0 + 4);
-  assert.equal(svc(bot, { kind: 'forge', action: 'upgrade', id: 'iron_sword+3', who: 'self' }).ok, false, '+3 で おしまい');
+  assert.equal(c.equip.weapon, 'flame_sword+3');
+  assert.equal(computeStats(c).atk, atk0 + 6);
+  assert.equal(svc(bot, { kind: 'forge', action: 'upgrade', id: 'flame_sword+3', who: 'self' }).ok, false, '+3 で おしまい');
   // アクセサリーは きたえられない
   addItem(c, 'power_ring', 1);
   assert.equal(svc(bot, { kind: 'forge', action: 'upgrade', id: 'power_ring' }).ok, false);
-  assert.ok(lackOf(c, upgradeCost('iron_sword')).ok);
+  assert.ok(lackOf(c, upgradeCost('flame_sword')).ok);
+  // 第35回: 店で 買える 装備（★1）は きたえられない（むかし きたえた +1 も）
+  addItem(c, 'iron_sword', 1);
+  addItem(c, 'iron_sword+1', 1);
+  for (const id of ['iron_sword', 'iron_sword+1']) {
+    const no = svc(bot, { kind: 'forge', action: 'upgrade', id });
+    assert.equal(no.ok, false);
+    assert.match(no.text, /店の品（★1）は、きたえられない/);
+  }
+  assert.equal(itemCount(c, 'iron_sword+1'), 1, 'むかしの 品は そのまま');
 });
 
 function removeOne(c, id) {

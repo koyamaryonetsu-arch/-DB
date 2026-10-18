@@ -29,6 +29,7 @@ import { isNightFor, timeFlag, fracFor } from './clock.js';
 import { onFly, setFlying, moveAllowed, ridingAlong, canFlyMap } from './travel.js';
 import { walkSteps } from './perks.js';
 import { alchemySteps, alchemyShelf } from './alchemy.js';
+import { shelfHint } from '../data/secret-hints.js';
 import { migrateSky } from '../data/sky.js';
 import { migrateCh4 } from '../data/story-ch4.js';
 import { repairObjective } from '../data/progress.js';
@@ -828,12 +829,14 @@ export class GameWorld {
     // れん金がまを 持っていれば、本だなで れん金の 本を 読む（world/alchemy.js）
     const book = tile === T.BOOKSHELF && alchemyShelf(this, s, key);
     if (book) return runSteps(this, s, book);
-    if (c.searched[key]) return runSteps(this, s, [['say', null, `${nm}を調べた。\nしかし何も見つからなかった。`]]);
+    // 第35回: 本だなの かくし要素の ヒント（data/secret-hints.js。物が 入っていない・もう 調べた 本だなで 読める）
+    const hint = tile === T.BOOKSHELF ? shelfHint(s.map, tx, ty) : null;
+    if (c.searched[key]) return runSteps(this, s, [['say', null, hint || `${nm}を調べた。\nしかし何も見つからなかった。`]]);
     c.searched[key] = true;
     const loot = searchLoot(s.map, tx, ty);
     this.markDirty();
     if (!loot) {
-      if (tile === T.BOOKSHELF) return runSteps(this, s, [['say', null, 'むずかしそうな本が並んでいる…\n「魔法剣の基本」「星の歌」…']]);
+      if (tile === T.BOOKSHELF) return runSteps(this, s, [['say', null, hint || 'むずかしそうな本が並んでいる…\n「魔法剣の基本」「星の歌」…']]);
       return runSteps(this, s, [['say', null, `${nm}を調べた。\nしかし何も見つからなかった。`]]);
     }
     if (loot.gold) {

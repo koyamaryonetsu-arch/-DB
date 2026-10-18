@@ -271,6 +271,8 @@ export function gameFiles() {
     'public/js/shared/data/monsters-boss.js', 'public/js/shared/world/farewell.js',
     // 第35回 A: 技の タブ・お知らせ
     'public/js/shared/skill-tabs.js', 'public/js/shared/data/news.js', 'public/js/client/ui/news.js', 'public/js/client/battle-pad.js', 'public/js/client/ui/padnav.js',
+    // 第35回 B: かくし要素の ヒント（町の 人・本だな・宝箱の メモ・仲間の「はなす」）
+    'public/js/shared/data/secret-hints.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

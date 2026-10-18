@@ -8,6 +8,7 @@ import { ITEMS } from '../data/items.js';
 import { addItem } from '../stats.js';
 import { FIELD_CHEST_COUNT, FIELD_CHEST_RESPAWN_MS, FIELD_CHEST_LIFE_MS, fieldChestLoot } from '../data/fieldchests.js';
 import { alchemyMemoLoot } from './alchemy.js';
+import { chestMemo } from '../data/secret-hints.js';
 
 const GROUND = new Set([T.GRASS, T.FLOWERS, T.TALLGRASS, T.FOREST_FLOOR, T.SAND, T.HILL, T.DIRT, T.SNOW, T.DEEP_SNOW, T.ASH, T.DESERT]);
 const SPACING = 10; // ほかの 宝箱との あいだ（マス）
@@ -161,5 +162,8 @@ export function openFieldChest(world, s, ms, fc) {
     addItem(c, loot.item, loot.n);
     steps.push(['say', null, `${c.name}は宝箱を開けた！\n${ITEMS[loot.item].name}${loot.n > 1 ? `を${loot.n}個` : 'を'}手に入れた！`]);
   }
+  // 第35回: ときどき、かくし要素の ヒントの メモ（data/secret-hints.js）
+  const memo = chestMemo(ms.id, world.rng);
+  if (memo) steps.push(['say', null, memo]);
   return steps;
 }

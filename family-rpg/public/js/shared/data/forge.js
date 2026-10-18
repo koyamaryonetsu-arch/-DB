@@ -2,15 +2,18 @@
 //
 // 作る   … 素材 ＋ ゴールドで、店では 売っていない 装備を 作る。物語が すすむと 作れる 物が ふえる
 // きたえる … 武器・よろい・たて・頭の 装備を +1 → +2 → … に する（アクセサリーは できない）
+//            第35回: 店で 買える 装備（★1）は きたえられない（むかし きたえた +1〜 は そのまま 使える）
 //            きたえられる 回数は 装備の ランクで きまる（items-forge.js の upgradeLimit。ランク1は +1、ランク7からは +5）
 //            1回ごとに 攻撃力（守備力）が もとの 1わり（少なくても 1）上がる（items-forge.js の upgradedItem）
 //            素材と ゴールドは 回数が すすむほど ふえる。+3 からは 星のかけらも いる
 //            第32回: れん金がまで 同じ 武具を 2つ 合わせると、その 装備の きたえられる 回数が 1 ふえる（CAP_UP_MAX 回まで。c.alchemy.cap）
-//            かくし要素: 弱い 武器（items-alchemy.js の REBIRTH）は 上限を こえて きたえられ、上限＋CAP_UP_MAX まで きたえて
+//            かくし要素: 生まれ変わる 武器（items-alchemy.js の REBIRTH）は 上限を こえて きたえられ、上限＋CAP_UP_MAX まで きたえて
 //            もう1回 きたえると 別の 武器に 生まれ変わる（風来のシレンの ように）
+//            第35回: 1だん目は れん金がまで「店の 武器＋素材」から 作る（items-alchemy.js の REBIRTH_START・data/alchemy.js）
 // バランス: 作った 物・きたえた 物を 売っても、かかった ゴールドと 素材より 高くは ならない（テストで たしかめる）
 import { ITEMS, sellPrice } from './items.js';
 import { UPGRADE_TYPES, upgradeId, upgradeLimit, addUpgradeItems, CAP_UP_MAX } from './items-forge.js';
+import { isShopGear } from './items-rare.js';
 import { CH3_RECIPES } from './items-ch3.js';
 import { REBIRTH } from './items-alchemy.js';
 import { capUp } from './alchemy.js';
@@ -94,14 +97,21 @@ function worth(id) {
 export function maxPlus(id, c = viewerChar()) {
   const it = ITEMS[id];
   if (!it || !UPGRADE_TYPES.includes(it.type)) return 0;
-  return upgradeLimit(ITEMS[it.base || id] || it) + capUp(c, it.base || id);
+  const lim = upgradeLimit(ITEMS[it.base || id] || it);
+  // 店で 買える 装備（★1）は 0（れん金で ふやした 回数も きかない）
+  return lim ? lim + capUp(c, it.base || id) : 0;
+}
+// 店で 買える 装備か（★1。きたえられない。第35回）
+export function isShopForge(id) {
+  const it = ITEMS[id];
+  return !!it && UPGRADE_TYPES.includes(it.type) && isShopGear(ITEMS[it.base || id] || it);
 }
 
 // 生まれ変わる 武器か（{ to, gold, mats, at: この 回数で きたえると 生まれ変わる }。ちがう ときは null）
 export function rebirthOf(id) {
   const base = ITEMS[id]?.base || id;
   const rb = REBIRTH[base];
-  if (!rb || !ITEMS[base] || !ITEMS[rb.to]) return null;
+  if (!rb || !ITEMS[base] || !ITEMS[rb.to] || isShopGear(ITEMS[base])) return null;
   return { ...rb, at: upgradeLimit(ITEMS[base]) + CAP_UP_MAX };
 }
 

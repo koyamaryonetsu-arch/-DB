@@ -12,7 +12,7 @@ import { request } from './shop.js';
 import { rareNameHtml } from './rarity.js';
 import { ITEMS, baseItemId, sortItemIds } from '../../shared/data/items.js';
 import { UPGRADE_TYPES } from '../../shared/data/items-forge.js';
-import { setForgeViewer, maxPlus } from '../../shared/data/forge.js';
+import { setForgeViewer, maxPlus, isShopForge } from '../../shared/data/forge.js';
 import {
   ALCHEMY_POT, RECIPE_BY_ID, MERGE_RECIPE, CAP_UP_MAX, hasPot, knownRecipes, recipeLack, pickIngredients, insText, capUp, potSteps,
 } from '../../shared/data/alchemy.js';
@@ -81,12 +81,12 @@ function recipeBox(game, rid) {
   return box;
 }
 
-// 同じ 武具を 2つ（ふくろに 2つ いじょう ある 装備。もとの 装備ごと）
+// 同じ 武具を 2つ（ふくろに 2つ いじょう ある 装備。もとの 装備ごと）。店で 買える 装備（★1）は きたえられない ので 出さない（第35回）
 function mergeChoices(game) {
   const groups = new Map();
   for (const e of game.me.items || []) {
     const it = ITEMS[e.id];
-    if (!it || !UPGRADE_TYPES.includes(it.type) || !(e.n > 0)) continue;
+    if (!it || !UPGRADE_TYPES.includes(it.type) || !(e.n > 0) || isShopForge(e.id)) continue;
     const b = baseItemId(e.id);
     if (!groups.has(b)) groups.set(b, []);
     for (let i = 0; i < e.n; i++) groups.get(b).push(e.id);
@@ -202,7 +202,7 @@ async function mergeLoop(game, ct) {
   while (!ct.closed) {
     const list = mergeChoices(game);
     if (!list.length) {
-      await ct.say('同じ武具を2つ持っていない。\n（武器・よろい・たて・頭の装備）', { narr: true });
+      await ct.say('同じ武具を2つ持っていない。\n（武器・よろい・たて・頭の装備。店の品〈★1〉はのぞく）', { narr: true });
       await ct.tap(2400);
       return false;
     }

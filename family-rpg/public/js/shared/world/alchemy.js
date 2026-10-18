@@ -108,6 +108,7 @@ export function alchemyAction(world, s, msg, reply) {
       for (const [id, n] of need) if (!ITEMS[id] || ITEMS[id].type === 'key' || itemCount(c, id) < n) return reply(false, 'ふくろに入っていない物がある。');
       const m = matchPot(ids, c);
       if (!m.ok) {
+        if (m.why === 'shop') return reply(false, `${ITEMS[baseItemId(ids[0])].name}は店の品（★1）なので、\n2つ合わせても、きたえられる回数はふえない。\n（入れた物は、ふくろにもどした）`);
         if (m.why === 'capMax') return reply(false, `${ITEMS[baseItemId(ids[0])].name}は、もうこれ以上きたえられる回数をふやせない。\n（ふやせるのは${CAP_UP_MAX}回まで）`);
         return reply(false, `${insText(ids)}…\nこの組み合わせは、うまくいきそうにない。\n（入れた物は、ふくろにもどした）`);
       }

@@ -3,9 +3,9 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { ITEMS, SLOTS, ITEM_KANA } from '../public/js/shared/data/items.js';
-import { RARE_GEAR, RARE_GEAR_KANA } from '../public/js/shared/data/items-rare.js';
+import { RARE_GEAR, RARE_GEAR_KANA, starsFor } from '../public/js/shared/data/items-rare.js';
 import {
-  rarityOf, traitText, rareIds, tmGearRank, pickTmGear, TM_WORD_GROUP, TM_THEME_GROUPS, tmGroupOf, bossRareOf, regionOf, regionRareList,
+  rarityOf, starsOf, rareWhereText, traitText, rareIds, tmGearRank, pickTmGear, TM_WORD_GROUP, TM_THEME_GROUPS, tmGroupOf, bossRareOf, regionOf, regionRareList,
   sdGearRank, pickSdGear, SD_GEAR_FROM, REGION_RARE_N, BOSS_RARE_N, luckyShoesRate,
 } from '../public/js/shared/data/rare-loot.js';
 import { chestLoot, caveInfo, TM_THEMES, TM_LV_MAX, equipRankOf } from '../public/js/shared/data/treasure.js';
@@ -35,8 +35,47 @@ test('レア度: どの 装備にも 0〜5。店の 品は 0・★の 品は 2�
   assert.equal(rarityOf('stardust_sword'), 2);
   assert.equal(rarityOf('kusanagi+2'), rarityOf('kusanagi'));
   assert.equal(rarityOf('herb'), 0);
-  assert.equal(rankText('kusanagi'), 'ランク8　★★★★');
-  assert.equal(rankText('iron_sword'), 'ランク3');
+  assert.equal(rankText('kusanagi'), '強さ ★★★★（ランク8）');
+  assert.equal(rankText('iron_sword'), '強さ ★（ランク3）');
+});
+
+test('第35回 ★（強さ）: 店の 品は ★1。店では 買えない 品は ランクで ★2〜★5。★と ランクが さかさまに ならない', () => {
+  assert.deepEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((rank) => starsFor({ type: 'weapon', rank, rarity: 3 })), [2, 2, 2, 2, 3, 3, 3, 4, 5, 5]);
+  for (const [id, it] of EQUIPS) {
+    const s = starsOf(id);
+    assert.ok(Number.isInteger(s) && s >= 1 && s <= 5, id);
+    if (rarityOf(id) === 0) assert.equal(s, 1, `${id}: 店の 品は ★1`);
+    else assert.ok(s >= 2, `${id}: 店で 買えない 品は ★2から`);
+    assert.equal(starsOf(`${id}+1`), ITEMS[`${id}+1`] ? s : 0, `${id}+1: きたえても おなじ`);
+  }
+  // 店では 買えない 品どうし: ランクが 高いほうが ★が 少ない ことは ない
+  const rare = EQUIPS.filter(([id]) => rarityOf(id) > 0);
+  for (const [a, x] of rare) for (const [b, y] of rare) if (x.rank > y.rank) assert.ok(starsOf(a) >= starsOf(b), `${a}（ランク${x.rank}）と ${b}（ランク${y.rank}）`);
+  // 同じ ランクなら、店の 品（★1）より ★が 多い
+  for (const [id, it] of rare) assert.ok(starsOf(id) > 1, id);
+  assert.equal(starsOf('iron_sword'), 1);
+  assert.equal(starsOf('iron_sword+3'), 1);
+  assert.equal(starsOf('light_sword'), 1, 'ランク8の 店の 品も ★1');
+  assert.equal(starsOf('stardust_sword'), 2);
+  assert.equal(starsOf('kusanagi'), 4);
+  assert.equal(starsOf('heaven_earth_sword'), 5);
+  assert.equal(starsOf('herb'), 0);
+  // めずらしさ（★とは べつ。説明に 出す）
+  assert.equal(rareWhereText('iron_sword'), '');
+  assert.equal(rareWhereText('kusanagi'), 'ひみつのダンジョンでしか手に入らない');
+  assert.equal(rareWhereText('kagutsuchi'), '宝の洞窟でしか手に入らない');
+  assert.equal(rareWhereText('flame_sword'), 'ふしぎなかじで作る');
+  assert.equal(rareWhereText('stardust_sword'), '店では買えない');
+  assert.equal(rareWhereText('akagane_sword'), 'ふつうには手に入らない');
+  const d = itemDetail('kusanagi');
+  assert.match(d, /強さ ★★★★（ランク8）/);
+  assert.match(d, /ひみつのダンジョンでしか手に入らない/);
+  assert.match(itemDetail('iron_sword'), /店の品（★1）なので、きたえられない/);
+  assert.doesNotMatch(itemDetail('power_ring'), /きたえられない/, 'アクセサリーは もともと きたえない');
+  // 名前: 店の 品は ★も 色も つけない（一覧が ★だらけに ならない）。色は めずらしさ・★は 強さ
+  assert.equal(rareNameHtml('light_sword'), '光の剣');
+  assert.equal(rareNameHtml('stardust_sword'), '<span class="rar r2">星くずの剣<span class="rs">★★</span></span>');
+  assert.match(rareNameHtml('nyoibo'), /class="rar r4">にょいぼう<span class="rs">★★★</);
 });
 
 test('レア装備: 約100こ。名前は かぶらず、読みがな・説明・手に入る 所が ある。★5は ひみつのダンジョンだけ', () => {

@@ -2,14 +2,14 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { ITEMS, SLOTS, ITEM_KANA, baseItemId, sellPrice } from '../public/js/shared/data/items.js';
-import { ALCHEMY_ITEMS, ALCHEMY_GEAR, REBORN_GEAR, REBIRTH, ALCHEMY_POT, ALCHEMY_MEMO } from '../public/js/shared/data/items-alchemy.js';
+import { ALCHEMY_ITEMS, ALCHEMY_GEAR, REBORN_GEAR, REBIRTH, REBIRTH_START, ALCHEMY_POT, ALCHEMY_MEMO } from '../public/js/shared/data/items-alchemy.js';
 import {
   RECIPES, RECIPE_BY_ID, STARTER_RECIPES, KEEPER_RECIPES, MERGE_RECIPE, CAP_UP_MAX, TIER_FLAG, POT_FLAG,
   matchPot, potSteps, knownRecipes, capUp, pickIngredients, recipeLack, learnableRecipes,
 } from '../public/js/shared/data/alchemy.js';
 import { upgradeLimit, upgradeId } from '../public/js/shared/data/items-forge.js';
 import { maxPlus, forgeTop, canUpgrade, upgradeCost, rebirthOf } from '../public/js/shared/data/forge.js';
-import { rareIds, rarityOf, bossRareOf, BOSS_RARE_N, REGION_RARE_N, traitText } from '../public/js/shared/data/rare-loot.js';
+import { rareIds, rarityOf, starsOf, bossRareOf, BOSS_RARE_N, REGION_RARE_N, traitText } from '../public/js/shared/data/rare-loot.js';
 import { RARE_GEAR } from '../public/js/shared/data/items-rare.js';
 import { SHOPS, shopItems } from '../public/js/shared/data/shops.js';
 import { MONSTERS } from '../public/js/shared/data/monsters.js';
@@ -138,27 +138,66 @@ test('ボスの 品: かならず 落とす。強さは その章の 店の い�
 
 test('同じ 武具を 2つ: きたえられる 回数が 1 ふえる（3回まで）。レア度は かわらない', () => {
   const c = newCharacter({ id: 'a', name: 'ソラ', job: 'warrior' });
-  assert.equal(maxPlus('iron_sword', c), 3);
-  const m = matchPot(['iron_sword+2', 'iron_sword'], c);
-  assert.ok(m.ok && m.merge === 'iron_sword' && m.out === 'iron_sword+2' && m.recipe === MERGE_RECIPE, JSON.stringify(m));
+  assert.equal(maxPlus('stardust_sword', c), 3);
+  const m = matchPot(['stardust_sword+2', 'stardust_sword'], c);
+  assert.ok(m.ok && m.merge === 'stardust_sword' && m.out === 'stardust_sword+2' && m.recipe === MERGE_RECIPE, JSON.stringify(m));
   assert.equal(m.steps, 40);
   assert.ok(!matchPot(['power_ring', 'power_ring'], c).ok, 'アクセサリーは できない');
-  assert.ok(!matchPot(['iron_sword', 'iron_axe'], c).ok);
-  c.alchemy = { cap: { iron_sword: 2 } };
-  assert.equal(capUp(c, 'iron_sword+1'), 2);
-  assert.equal(maxPlus('iron_sword', c), 5);
-  assert.equal(maxPlus('iron_sword', null), 3, 'ほかの 人は かわらない');
-  assert.ok(canUpgrade('iron_sword+3', c) && !canUpgrade('iron_sword+3', null));
-  assert.equal(upgradeCost('iron_sword+4', c).to, 'iron_sword+5');
-  assert.equal(upgradeCost('iron_sword+5', c), null);
-  assert.equal(rarityOf('iron_sword+5'), rarityOf('iron_sword'));
-  c.alchemy.cap.iron_sword = CAP_UP_MAX;
-  assert.equal(matchPot(['iron_sword', 'iron_sword'], c).why, 'capMax');
-  assert.equal(maxPlus('iron_sword', c), 3 + CAP_UP_MAX);
+  assert.ok(!matchPot(['stardust_sword', 'flame_sword'], c).ok);
+  c.alchemy = { cap: { stardust_sword: 2 } };
+  assert.equal(capUp(c, 'stardust_sword+1'), 2);
+  assert.equal(maxPlus('stardust_sword', c), 5);
+  assert.equal(maxPlus('stardust_sword', null), 3, 'ほかの 人は かわらない');
+  assert.ok(canUpgrade('stardust_sword+3', c) && !canUpgrade('stardust_sword+3', null));
+  assert.equal(upgradeCost('stardust_sword+4', c).to, 'stardust_sword+5');
+  assert.equal(upgradeCost('stardust_sword+5', c), null);
+  assert.equal(rarityOf('stardust_sword+5'), rarityOf('stardust_sword'));
+  c.alchemy.cap.stardust_sword = CAP_UP_MAX;
+  assert.equal(matchPot(['stardust_sword', 'stardust_sword'], c).why, 'capMax');
+  assert.equal(maxPlus('stardust_sword', c), 3 + CAP_UP_MAX);
+  // 第35回: 店で 買える 装備（★1）は きたえられない ので、2つ 合わせても ふえない（むかしの 記録が あっても 0）
+  assert.equal(matchPot(['iron_sword+2', 'iron_sword'], c).why, 'shop');
+  assert.equal(matchPot(['iron_sword', 'iron_sword'], c).ok, false);
+  c.alchemy.cap.iron_sword = 2;
+  assert.equal(maxPlus('iron_sword', c), 0);
+  assert.equal(maxPlus('iron_sword+2', c), 0);
+  assert.equal(upgradeCost('iron_sword+2', c), null);
 });
 
-test('生まれ変わり（かくし要素）: 上限＋3 まで きたえて もう1回 → 別の 武器。2だんかい', () => {
-  assert.ok(Object.keys(REBIRTH).length >= 8);
+test('第35回: 店の 品の 同じ 武具を 2つ 入れると「ふえない」と もどってくる', async () => {
+  const { bot, c } = await solo();
+  givePot(c);
+  c.items = [{ id: 'iron_sword', n: 2 }];
+  const r = svc(bot, { kind: 'alchemy', action: 'put', ids: ['iron_sword', 'iron_sword'] });
+  assert.equal(r.ok, false);
+  assert.match(r.text, /店の品（★1）なので/);
+  assert.equal(itemCount(c, 'iron_sword'), 2, 'ふくろに もどる');
+});
+
+test('生まれ変わり（かくし要素）: 1だん目は れん金がまで「店の 武器＋素材＋星のかけら」。1だん目から 上限＋3 まで きたえて もう1回 → 2だん目', () => {
+  // 第35回: 5つの 系統。1だん目は れん金（店の 品は きたえられない）
+  assert.equal(REBIRTH_START.length, 5);
+  assert.deepEqual(REBIRTH_START.map((x) => x.from).sort(), ['bronze_sword', 'oak_staff', 'wood_bat', 'wood_boomerang', 'wood_sword']);
+  const c = newCharacter({ id: 'a', name: 'ソラ', job: 'warrior' });
+  for (const x of REBIRTH_START) {
+    assert.ok(ITEMS[x.from].price > 0 && rarityOf(x.from) === 0 && starsOf(x.from) === 1, `${x.from}: 店の 品（★1）`);
+    assert.equal(maxPlus(x.from, null), 0, `${x.from}: きたえられない`);
+    assert.equal(upgradeCost(x.from, null), null);
+    assert.equal(ITEMS[x.to].src, 'reborn');
+    assert.equal(ITEMS[x.to].cat, ITEMS[x.from].cat);
+    assert.equal(starsOf(x.to), 2, `${x.to}: 1だん目は ★2`);
+    const m = matchPot([x.from, x.mat, 'star_shard'], c);
+    assert.ok(m.ok && m.out === x.to && m.recipe === x.id, JSON.stringify(m));
+    // むかし きたえた 店の 武器（+1〜）も 入れられる
+    assert.equal(matchPot([upgradeId(x.from, 2), x.mat, 'star_shard'], c).out, x.to);
+    assert.ok(RECIPE_BY_ID[x.id].hidden, 'かくし要素');
+    // 1だん目 → 2だん目
+    assert.ok(REBIRTH[x.to], x.to);
+  }
+  // 本だな・メモ・親方では わからない
+  const all = learnableRecipes({}, () => true);
+  assert.ok(!all.some((r) => r.hidden));
+  assert.equal(Object.keys(REBIRTH).length, 5);
   for (const [from, rb] of Object.entries(REBIRTH)) {
     const r = rebirthOf(from);
     assert.ok(r && ITEMS[rb.to] && ITEMS[rb.to].cat === ITEMS[from].cat, from);
@@ -166,40 +205,53 @@ test('生まれ変わり（かくし要素）: 上限＋3 まで きたえて �
     assert.ok(ITEMS[upgradeId(from, r.at)], `${from}+${r.at}`);
     assert.ok(ITEMS[rb.to].atk > ITEMS[upgradeId(from, r.at)].atk, `${from}: 強く なる`);
     for (const [m] of rb.mats) assert.ok(ITEMS[m], m);
+    assert.ok(starsOf(rb.to) > starsOf(from), '2だん目は ★が ふえる');
   }
-  // 銅の剣（ランク2・+2まで）は +5 まで きたえられ、+5 を きたえると あかがねの剣
-  assert.equal(maxPlus('bronze_sword', null), 2, '説明には +2 まで（ひみつ）');
-  assert.equal(forgeTop('bronze_sword', null), 5);
-  const c3 = upgradeCost('bronze_sword+2', null);
-  assert.ok(c3 && c3.to === 'bronze_sword+3' && c3.over && !c3.reborn);
-  const rb = upgradeCost('bronze_sword+5', null);
-  assert.ok(rb.reborn && rb.to === 'akagane_sword', JSON.stringify(rb));
-  // あかがねの剣（ランク4）は +6 で 太陽の剣
+  // あかがねの剣（ランク4・+3まで）は +6 まで きたえられ、+6 を きたえると 太陽の剣
+  assert.equal(maxPlus('akagane_sword', null), 3, '説明には +3 まで（ひみつ）');
+  assert.equal(forgeTop('akagane_sword', null), 6);
+  const c4 = upgradeCost('akagane_sword+3', null);
+  assert.ok(c4 && c4.to === 'akagane_sword+4' && c4.over && !c4.reborn);
   assert.equal(upgradeCost('akagane_sword+6', null).to, 'sun_sword');
+  assert.ok(upgradeCost('akagane_sword+6', null).reborn);
   assert.equal(upgradeCost('sun_sword+5', null), null, '2だんめで おしまい');
-  // ふつうの 武器は 上限で おしまい
+  // 店の 武器は もう 生まれ変わらない（むかしの とちゅうの +5 も）
+  assert.equal(rebirthOf('bronze_sword'), null);
+  assert.equal(upgradeCost('bronze_sword+5', null), null);
   assert.equal(upgradeCost('iron_sword+3', null), null);
 });
 
-test('生まれ変わり: かじ屋で きたえると「〇〇は△△に生まれ変わった！」（装備していても）', async () => {
-  const { bot, c } = await solo();
+test('生まれ変わり: れん金がまで 1だん目 → かじ屋で きたえると「〇〇は△△に生まれ変わった！」（装備していても）', async () => {
+  const { world, bot, c } = await solo();
+  givePot(c);
   c.gold = 99999;
-  c.items = [{ id: 'bronze_sword', n: 1 }, { id: 'iron_shard', n: 99 }, { id: 'star_shard', n: 40 }, { id: 'silver_shard', n: 20 }];
-  let id = 'bronze_sword';
-  for (let n = 1; n <= 5; n++) {
+  c.items = [{ id: 'bronze_sword+2', n: 1 }, { id: 'iron_shard', n: 99 }, { id: 'star_shard', n: 40 }, { id: 'silver_shard', n: 30 }, { id: 'star_iron', n: 1 }, { id: 'flame_stone', n: 3 }];
+  // かじ屋では きたえられない（店の 品）
+  const no = svc(bot, { kind: 'forge', action: 'upgrade', id: 'bronze_sword+2' });
+  assert.equal(no.ok, false);
+  assert.match(no.text, /店の品（★1）は、きたえられない/);
+  // れん金がま（知らない レシピ → 当たり）
+  const put = svc(bot, { kind: 'alchemy', action: 'put', ids: ['bronze_sword+2', 'silver_shard', 'star_shard'] });
+  assert.equal(put.ok, true, put.text);
+  assert.match(put.text, /うまくいきそうだ/);
+  alchemySteps(world, bot.s, 99);
+  assert.equal(itemCount(c, 'akagane_sword'), 1);
+  assert.ok(knownRecipes(c).includes('r_reborn_sword'));
+  let id = 'akagane_sword';
+  for (let n = 1; n <= 6; n++) {
     const r = svc(bot, { kind: 'forge', action: 'upgrade', id });
     assert.equal(r.ok, true, r.text);
     id = r.upgraded;
   }
-  assert.equal(id, 'bronze_sword+5');
+  assert.equal(id, 'akagane_sword+6');
   c.equip.weapon = id;
   c.items = c.items.filter((e) => e.id !== id);
   const r = svc(bot, { kind: 'forge', action: 'upgrade', id, who: 'self' });
   assert.equal(r.ok, true, r.text);
   assert.equal(r.reborn, true);
-  assert.match(r.text, /銅の剣\+5は、あかがねの剣に生まれ変わった！/);
-  assert.equal(c.equip.weapon, 'akagane_sword');
-  assert.equal(svc(bot, { kind: 'forge', action: 'upgrade', id: 'akagane_sword', who: 'self' }).ok, true, 'また きたえられる');
+  assert.match(r.text, /あかがねの剣\+6は、太陽の剣に生まれ変わった！/);
+  assert.equal(c.equip.weapon, 'sun_sword');
+  assert.equal(svc(bot, { kind: 'forge', action: 'upgrade', id: 'sun_sword', who: 'self' }).ok, true, 'また きたえられる');
 });
 
 // ───────────── かま ─────────────
@@ -272,14 +324,14 @@ test('れん金がま: レシピの 材料・同じ 武具・サーバーの 移
   const { world, bot, c } = await solo();
   givePot(c);
   c.alchemy = { known: ['r_jou_herb'] };
-  c.items = [{ id: 'herb', n: 1 }, { id: 'iron_sword+2', n: 1 }, { id: 'iron_sword', n: 1 }];
+  c.items = [{ id: 'herb', n: 1 }, { id: 'stardust_sword+2', n: 1 }, { id: 'stardust_sword', n: 1 }];
   assert.deepEqual(recipeLack(c, 'r_jou_herb'), [{ id: 'herb', need: 2, have: 1 }]);
   addItem(c, 'herb', 1);
   assert.deepEqual(pickIngredients(c, 'r_jou_herb'), ['herb', 'herb']);
   // 同じ 武具: きたえた 回数が 多い ほうが のこる
-  const r = svc(bot, { kind: 'alchemy', action: 'put', ids: ['iron_sword+2', 'iron_sword'] });
+  const r = svc(bot, { kind: 'alchemy', action: 'put', ids: ['stardust_sword+2', 'stardust_sword'] });
   assert.equal(r.ok, true, r.text);
-  assert.match(r.text, /鉄の剣のきたえられる回数がふえる/);
+  assert.match(r.text, /星くずの剣のきたえられる回数がふえる/);
   // サーバーの 移動で 数える（マスが かわった ときだけ）
   const s = bot.s;
   const left = c.alchemy.pot.left;
@@ -296,20 +348,20 @@ test('れん金がま: レシピの 材料・同じ 武具・サーバーの 移
   assert.ok(moved > 0, 'マスを うごいた');
   assert.equal(c.alchemy.pot.left, left - moved);
   alchemySteps(world, s, 99);
-  assert.equal(c.alchemy.cap.iron_sword, 1);
-  assert.equal(itemCount(c, 'iron_sword+2'), 1);
-  assert.equal(itemCount(c, 'iron_sword'), 0);
+  assert.equal(c.alchemy.cap.stardust_sword, 1);
+  assert.equal(itemCount(c, 'stardust_sword+2'), 1);
+  assert.equal(itemCount(c, 'stardust_sword'), 0);
   assert.match(toasts(bot).pop(), /きたえられる回数が1ふえた/);
-  assert.equal(maxPlus('iron_sword', c), 4);
+  assert.equal(maxPlus('stardust_sword', c), 4);
   // かじ屋で +4 まで
   c.gold = 99999;
   c.items.push({ id: 'iron_shard', n: 50 }, { id: 'star_shard', n: 20 });
-  let f = svc(bot, { kind: 'forge', action: 'upgrade', id: 'iron_sword+2' });
+  let f = svc(bot, { kind: 'forge', action: 'upgrade', id: 'stardust_sword+2' });
   assert.equal(f.ok, true, f.text);
-  f = svc(bot, { kind: 'forge', action: 'upgrade', id: 'iron_sword+3' });
+  f = svc(bot, { kind: 'forge', action: 'upgrade', id: 'stardust_sword+3' });
   assert.equal(f.ok, true, f.text);
-  assert.equal(f.upgraded, 'iron_sword+4');
-  assert.equal(svc(bot, { kind: 'forge', action: 'upgrade', id: 'iron_sword+4' }).ok, false);
+  assert.equal(f.upgraded, 'stardust_sword+4');
+  assert.equal(svc(bot, { kind: 'forge', action: 'upgrade', id: 'stardust_sword+4' }).ok, false);
 });
 
 test('レシピが わかる: 本だな（1つの 本だなで 1回）・れん金のメモ・フィールドの 宝箱の メモ', async () => {

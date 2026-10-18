@@ -1,7 +1,7 @@
 // ふしぎなかじ屋（作る・きたえる）の そうさ
 import { ITEMS } from '../data/items.js';
 import { FORGES } from '../data/facilities.js';
-import { RECIPES, recipeOf, recipeOpen, openRecipes, upgradeCost, lackOf, maxPlus } from '../data/forge.js';
+import { RECIPES, recipeOf, recipeOpen, openRecipes, upgradeCost, lackOf, maxPlus, isShopForge } from '../data/forge.js';
 import { addItem, removeItem, itemCount, canEquipChar, computeStats } from '../stats.js';
 import { partyOf } from './party.js';
 import { BAG_STACK } from './bank.js';
@@ -54,6 +54,8 @@ export function forgeAction(world, s, msg, reply, { equipItem, ownChar }) {
       // れん金で ふやした 回数は 持ち主（自分）の きろく
       const cost = upgradeCost(msg.id, c);
       if (!cost) {
+        // 第35回: 店で 買える 装備（★1）は きたえられない
+        if (isShopForge(msg.id)) return reply(false, 'それは店で売っている品だな。\n店の品（★1）は、きたえられないんだ。');
         const top = maxPlus(msg.id, c);
         return reply(false, top ? `それは、これ以上きたえられないな。\n（その装備は+${top}まで。ランクが高い装備ほど、たくさんきたえられる）` : 'それは、きたえられないな。');
       }
