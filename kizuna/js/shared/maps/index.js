@@ -1,21 +1,21 @@
 // マップの ぜんたい（フィールド・どうくつ）と、そこに いる 人や たからばこ
-import { T, parseRows, TILE_INFO } from '../tiles.js?v=88f4b1116681';
-import { makeRng, hash2 } from '../rng.js?v=88f4b1116681';
-import { buildOverworld, PLACES, zoneAt, areaName, OW_W, OW_H, CAVE_ENTRANCE, FOREST_CLEARING, LAKE, SWAMP } from './overworld.js?v=88f4b1116681';
-import { CAVE_B1_ROWS, CAVE_B2_ROWS } from './cave-rows.js?v=88f4b1116681';
-import { npc } from './npc.js?v=88f4b1116681';
-import { buildCh2Maps, SEA_PLACES } from './ch2.js?v=88f4b1116681';
-import { buildTreasureFloor } from './treasure-cave.js?v=88f4b1116681';
-import { buildSecretFloor, buildSecretMaps, SD_DOOR_NPCS, SD_DOOR_TRIGGERS, SD_DOOR_SIGNS } from './secret-dungeon.js?v=88f4b1116681';
-import { addNightNpcs } from './night-npcs.js?v=88f4b1116681';
-import { attachCasino } from './casino.js?v=88f4b1116681';
-import { buildCh3Maps, ch3SearchMats, NORTH_SPARKLE_LOOT } from './ch3.js?v=88f4b1116681';
-import { buildCh4Maps, ch4SearchMats, SOUTH_SPARKLE_LOOT } from './ch4.js?v=88f4b1116681';
-import { attachLab } from './labyrinth.js?v=88f4b1116681';
-import { attachTower } from './tower.js?v=88f4b1116681';
-import { attachKumoi } from './kumoi.js?v=88f4b1116681';
-import { attachHoshiyomi } from './hoshiyomi.js?v=88f4b1116681';
-import { attachEarth } from './earth.js?v=88f4b1116681';
+import { T, parseRows, TILE_INFO } from '../tiles.js?v=8370ffc103a5';
+import { makeRng, hash2 } from '../rng.js?v=8370ffc103a5';
+import { buildOverworld, PLACES, zoneAt, areaName, OW_W, OW_H, CAVE_ENTRANCE, FOREST_CLEARING, LAKE, SWAMP } from './overworld.js?v=8370ffc103a5';
+import { CAVE_B1_ROWS, CAVE_B2_ROWS } from './cave-rows.js?v=8370ffc103a5';
+import { npc } from './npc.js?v=8370ffc103a5';
+import { buildCh2Maps, SEA_PLACES } from './ch2.js?v=8370ffc103a5';
+import { buildTreasureFloor } from './treasure-cave.js?v=8370ffc103a5';
+import { buildSecretFloor, buildSecretMaps, SD_DOOR_NPCS, SD_DOOR_TRIGGERS, SD_DOOR_SIGNS } from './secret-dungeon.js?v=8370ffc103a5';
+import { addNightNpcs } from './night-npcs.js?v=8370ffc103a5';
+import { attachCasino } from './casino.js?v=8370ffc103a5';
+import { buildCh3Maps, ch3SearchMats, NORTH_SPARKLE_LOOT } from './ch3.js?v=8370ffc103a5';
+import { buildCh4Maps, ch4SearchMats, SOUTH_SPARKLE_LOOT } from './ch4.js?v=8370ffc103a5';
+import { attachLab } from './labyrinth.js?v=8370ffc103a5';
+import { attachTower } from './tower.js?v=8370ffc103a5';
+import { attachKumoi } from './kumoi.js?v=8370ffc103a5';
+import { attachHoshiyomi } from './hoshiyomi.js?v=8370ffc103a5';
+import { attachEarth } from './earth.js?v=8370ffc103a5';
 
 const V = (x, y) => [PLACES.village.x + x, PLACES.village.y + y];
 const TW = (x, y) => [PLACES.town.x + x, PLACES.town.y + y];

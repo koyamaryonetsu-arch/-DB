@@ -1,21 +1,21 @@
 // 第4章「砂の海にしずむ星」の マップ
 // コガネ地方（フィールド）・北の古井戸・かれた地下水路（Step 2）・王都サファラと 宮殿の地下水路（Step 3）・王家のピラミッド（Step 4）
 // 村や ダンジョンの 形は south-rows.js・pyramid-rows.js（1文字 = 1マス）
-import { T, TILE_INFO, parseRows } from '../tiles.js?v=88f4b1116681';
-import { makeRng } from '../rng.js?v=88f4b1116681';
-import { npc } from './npc.js?v=88f4b1116681';
-import { SEA_PLACES } from './ch2.js?v=88f4b1116681';
+import { T, TILE_INFO, parseRows } from '../tiles.js?v=8370ffc103a5';
+import { makeRng } from '../rng.js?v=8370ffc103a5';
+import { npc } from './npc.js?v=8370ffc103a5';
+import { SEA_PLACES } from './ch2.js?v=8370ffc103a5';
 import {
   buildSouth, southZoneAt, southAreaName, southWeatherAt, southBgmAt, SOUTH_PLACES, SOUTH_POS, SOUTH_LANDING, LANDING_BEACH, OASIS2, OASIS_CAMP,
   STORM_Y, STORM_FLAG, SAFARA_POS, PALACE_HALL, PYRAMID, PYRAMID_PLAZA, PYRAMID_POS, PYRAMID_FLAG,
   SOUTH_STORM_Y, SOUTH_STORM_FLAG, DUNA_GATE, DUNA_VALLEY,
-} from './south.js?v=88f4b1116681';
-import { HAMIL_ROWS, WELL_ROWS, CANAL1_ROWS, CANAL2_ROWS, CANAL3_ROWS, PALACE_CANAL_ROWS } from './south-rows.js?v=88f4b1116681';
-import { PYR1_ROWS, PYR_B1_ROWS, PYR2_ROWS, PYR3_ROWS, PYR4_ROWS } from './pyramid-rows.js?v=88f4b1116681';
+} from './south.js?v=8370ffc103a5';
+import { HAMIL_ROWS, WELL_ROWS, CANAL1_ROWS, CANAL2_ROWS, CANAL3_ROWS, PALACE_CANAL_ROWS } from './south-rows.js?v=8370ffc103a5';
+import { PYR1_ROWS, PYR_B1_ROWS, PYR2_ROWS, PYR3_ROWS, PYR4_ROWS } from './pyramid-rows.js?v=8370ffc103a5';
 // Step 6: 砂の港ドゥナ・砂の古城・砂の海（maps/duna.js）
-import { buildDunaMaps, DUNA_FLAG, DUNA_POS, DUNA_TOWN, DUNA_VALLEY_EXIT } from './duna.js?v=88f4b1116681';
+import { buildDunaMaps, DUNA_FLAG, DUNA_POS, DUNA_TOWN, DUNA_VALLEY_EXIT } from './duna.js?v=8370ffc103a5';
 // Step 7: 砂の底の神殿（maps/temple.js）
-import { buildTempleMaps, TEMPLE_MAPS, STAR_FLAG, CLEAR4_FLAG } from './temple.js?v=88f4b1116681';
+import { buildTempleMaps, TEMPLE_MAPS, STAR_FLAG, CLEAR4_FLAG } from './temple.js?v=8370ffc103a5';
 
 const HAM = SOUTH_PLACES.hamil;
 const H = (x, y) => [HAM.x + x, HAM.y + y];
@@ -187,8 +187,14 @@ const SOUTH_NPCS = [
   npc('c4_p_maid', '女官のハラ', S(19, 28), 'maid', 'c4_p_maid', { wander: 1, show: DAY }),
   // 学者ハサンの 家・闘技場
   npc('hassan', '学者ハサン', S(41, 19), 'hassan', 'c4_hassan', { dir: 'down' }),
-  npc('c4_s_arena', '闘技場の受付', S(43, 30), 'arena_clerk', 'c4_s_arena', { dir: 'left' }),
+  npc('c4_s_arena', '闘技場の受付', S(43, 30), 'arena_clerk', 'c4_s_arena', { dir: 'left', show: { not: [CLEAR4_FLAG] } }),
   npc('c4_s_fighter', '力じまんの戦士', S(41, 27), 'fighter', 'c4_s_fighter', { wander: 1 }),
+  // 第37回 A: 第4章クリアの あとは 大会が はじまる（受付〈ランク戦〉・砂の 闘技場の かけ試合の 係・観客。data/story-arena.js）
+  npc('arena_desk', '闘技場の受付', S(43, 30), 'arena_clerk', 'arena_desk', { dir: 'left', show: { all: [CLEAR4_FLAG] } }),
+  npc('arena_bet', 'かけ試合の係', S(48, 28), 'caravan', 'arena_bet', { dir: 'left', show: { all: [CLEAR4_FLAG] } }),
+  npc('arena_fan1', '観客のおじさん', S(45, 34), 'desert_m', 'arena_fan1', { dir: 'right', show: { all: [CLEAR4_FLAG] } }),
+  npc('arena_fan2', '観客の女の子', S(48, 34), 'desert_girl', 'arena_fan2', { dir: 'left', show: { all: [CLEAR4_FLAG] } }),
+  npc('arena_fan3', '物知りの観客', S(45, 26), 'desert_elder', 'arena_fan3', { dir: 'right', show: { all: [CLEAR4_FLAG] } }),
   // 宮殿の地下水路の 入り口の 水路番
   npc('c4_s_canalman', '水路番のおじいさん', S(9, 33), 'desert_m2', 'c4_s_canalman', { dir: 'left' }),
   // 南の 門の 門番（Step 5。南の 砂嵐と 砂の港ドゥナの 話）
@@ -382,7 +388,12 @@ function buildField() {
     if (tile === T.LOCKED_DOOR) actions.push({ x, y: DUNA_GATE.y, script: 'c4_duna_fence', show: { not: [DUNA_FLAG] } });
   }
   sb.gates.push({ x: DUNA_GATE.x, y: DUNA_GATE.y, closed: T.LOCKED_DOOR, open: T.DIRT, flag: DUNA_FLAG });
-  actions.push({ x: P.arenaGate.x, y: P.arenaGate.y, script: 'c4_arena_gate' });
+  // 闘技場の 門: 第4章クリアまでは カギが かかっている（大会は お休み）。クリアの あとは 開いて 砂の 闘技場へ（第37回 A）
+  actions.push({ x: P.arenaGate.x, y: P.arenaGate.y, script: 'c4_arena_gate', show: { not: [CLEAR4_FLAG] } });
+  sb.gates.push({ x: P.arenaGate.x, y: P.arenaGate.y, closed: T.LOCKED_DOOR, open: T.DOOR, flag: CLEAR4_FLAG });
+  // 入口の 広間の かんばん（クリアの あとは「大会、はじまりました」）・砂の 闘技場の 北の かべの「王者のかべ」
+  actions.push({ x: SAF.x + 40, y: SAF.y + 33, script: 'arena_sign', show: { all: [CLEAR4_FLAG] } });
+  for (const dx of [1, 2]) actions.push({ x: SAF.x + 45 + dx, y: SAF.y + 24, script: 'arena_wall', show: { all: [CLEAR4_FLAG] } });
   // 王家のピラミッド（Step 4）: 日時計の とびら（開く まで）
   const D = PYRAMID_POS.door;
   actions.push({ x: D.x, y: D.y, script: 'c4_pyr_door', show: { not: [PYRAMID_FLAG] } });

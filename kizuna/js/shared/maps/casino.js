@@ -4,14 +4,15 @@
 // ・メダル王の城 … カモメ港の 東の 海に うかぶ 小さな 島。船で 行ける（第2章）
 // ・小さなメダル … 30枚。つぼ・たる・本だな・井戸など（調べる）、光っている 場所、洞窟・塔の 新しい 宝箱
 //   ここに ある ものは attachCasino(maps) で 今の マップに たす（ほかの マップの ファイルは かえない）
-import { T, parseRows } from '../tiles.js?v=88f4b1116681';
-import { npc } from './npc.js?v=88f4b1116681';
-import { PORT } from './sea.js?v=88f4b1116681';
-import { SEA_PLACES } from './ch2.js?v=88f4b1116681';
-import { PLACES } from './overworld.js?v=88f4b1116681';
+import { T, parseRows } from '../tiles.js?v=8370ffc103a5';
+import { npc } from './npc.js?v=8370ffc103a5';
+import { PORT } from './sea.js?v=8370ffc103a5';
+import { SEA_PLACES } from './ch2.js?v=8370ffc103a5';
+import { PLACES } from './overworld.js?v=8370ffc103a5';
 
 // ───────────── カジノの 中 ─────────────
 // C=カウンター（コイン・景品・ポーカーの 台）  l=ランプ  *=花  r=じゅうたん  S=たな  o=つぼ  O=たる  D=出口
+// 第37回 B: 左下の 台＝ルーレット・右下の 階だん（>）＝すごろく場への 入口（!＝かんばん）
 export const CASINO_ROWS = [
   '############################',
   '#l+++++++++l+rr+l+++++++++l#',
@@ -24,9 +25,9 @@ export const CASINO_ROWS = [
   '#+rrCCCCrr+++rr+++rrCCCCrr+#',
   '#+rrccccrr+++rr+++rrccccrr+#',
   '#S+++++++++++rr+++++++++++S#',
-  '#+Crr++++++++rr++++++++rrC+#',
-  '#+Crr++++++++rr++++++++rrC+#',
-  '#+Crr++++++++rr++++++++rrC+#',
+  '#+Crr++++++++rr++++!+++rrC+#',
+  '#+Crr+CCCC+++rr+++++>++rrC+#',
+  '#+Crr+cccc+++rr++++++++rrC+#',
   '#S+++++++++++rr+++++++++++S#',
   '#++++++++++++rr++++++++++++#',
   '#o++++++++++*rr*++++++++++O#',
@@ -45,6 +46,24 @@ export const CASTLE_ROWS = [
   '#++++++rr++++++#',
   '#######DD#######',
 ];
+
+// ───────────── 第37回 B: すごろく場（カジノの 地下）─────────────
+// 受付で すごろく券を 買って あそぶ（world/sugoroku.js）。ゆかの じゅうたんは すごろくの 道の もよう
+export const SUGOROKU_ROWS = [
+  '################',
+  '#l++*++++++*++l#',
+  '#+++++CCCC+++++#',
+  '#+++++cccc+++++#',
+  '#+rrrrrrrrrrrr+#',
+  '#+r++++++++++r+#',
+  '#+r+!++++++!+r+#',
+  '#+r++++++++++r+#',
+  '#+rrrrrrrrrrrr+#',
+  '#o+++++<++++++O#',
+  '################',
+];
+export const SUGOROKU_STAIRS = { x: 20, y: 12 }; // カジノの 中の 下り階だん
+export const SUGOROKU_HALL_STAIRS = { x: 7, y: 9 }; // すごろく場の 上り階だん
 
 // カモメ港の カジノの 入り口（道具屋の となりの 小さな たてもの）
 const HUT = { x: PORT.x + 10, y: PORT.y + 5, w: 4, h: 3 };
@@ -149,9 +168,13 @@ export function buildCasinoMaps() {
       npc('c_gent', 'スロット好きのおじさん', [9, 3], 'merchant', 'casino_gent', { wander: 1 }),
       npc('c_lady', 'ポーカー通のおばあさん', [20, 10], 'elder', 'casino_lady', { wander: 1 }),
       npc('c_kid', 'カジノに来た男の子', [16, 5], 'boy', 'casino_kid', { wander: 2 }),
+      // 第37回 B: ルーレットの ディーラー（左下の 台）
+      npc('c_croupier', 'ルーレットのディーラー', [7.5, 11], 'dealer', 'casino_roulette'),
     ],
-    chests: [], signs: [],
+    chests: [],
+    signs: [{ x: 19, y: 11, text: '↓ すごろく場\nすごろく券で、さいころのすごろく遊び！\n宝の地図をたくさんクリアすると、大きなすごろくがあらわれる。' }],
     warps: [
+      { x: SUGOROKU_STAIRS.x, y: SUGOROKU_STAIRS.y, to: { map: 'sugoroku_hall', x: SUGOROKU_HALL_STAIRS.x + 0.5, y: SUGOROKU_HALL_STAIRS.y - 0.8, dir: 'up' } },
       { x: 13, y: 17, to: { map: 'sea', x: CASINO_DOOR.x + 0.5, y: CASINO_DOOR.y + 1.6, dir: 'down' } },
       { x: 14, y: 17, to: { map: 'sea', x: CASINO_DOOR.x + 0.5, y: CASINO_DOOR.y + 1.6, dir: 'down' } },
     ],
@@ -160,6 +183,28 @@ export function buildCasinoMaps() {
     roofs: [{ x: 0, y: 0, w: c.w, h: c.h, color: 'purple' }],
     zoneAt: () => 'safe:casino',
     areaName: () => 'カモメ港のカジノ',
+    bgmAt: () => 'casino',
+    spawnCounts: {},
+  };
+  const sg = parseRows(SUGOROKU_ROWS);
+  maps.sugoroku_hall = {
+    id: 'sugoroku_hall', name: 'すごろく場', kind: 'dungeon', bgm: 'casino', dark: false, indoor: true,
+    w: sg.w, h: sg.h, tiles: sg.tiles, gates: [],
+    npcs: [
+      npc('sg_clerk', 'すごろく場の受付', [7.5, 1], 'casino_clerk', 'sugoroku_desk'),
+      npc('sg_master', 'すごろく名人', [3, 7], 'oldman', 'sugoroku_master', { wander: 1 }),
+      npc('sg_girl', 'すごろく好きの女の子', [12, 5], 'girl', 'sugoroku_girl', { wander: 1 }),
+    ],
+    chests: [],
+    signs: [
+      { x: 4, y: 6, text: 'すごろく場へようこそ！\n受付で、すごろく券を使ってあそべます。\nさいころをふれる回数がなくなるか、ゴールしたらおしまい。' },
+      { x: 11, y: 6, text: '宝の地図を3こ・6こ・10こ・15こクリアすると、\n新しいすごろくがあらわれます。\n（はじまり→砂ばく→空→黄金→伝説）' },
+    ],
+    warps: [{ x: SUGOROKU_HALL_STAIRS.x, y: SUGOROKU_HALL_STAIRS.y, to: { map: 'casino', x: SUGOROKU_STAIRS.x + 0.5, y: SUGOROKU_STAIRS.y + 1.5, dir: 'down' } }],
+    triggers: [], sparkles: [],
+    roofs: [{ x: 0, y: 0, w: sg.w, h: sg.h, color: 'purple' }],
+    zoneAt: () => 'safe:casino',
+    areaName: () => 'すごろく場',
     bgmAt: () => 'casino',
     spawnCounts: {},
   };

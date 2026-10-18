@@ -1,18 +1,20 @@
 // モンスターの え（ベクターで かいて ドットえに へんかん）
 // すべて オリジナルの デザイン
 // 2ばいの こまかさで かいて ドットえに → Scale2x で 4ばい → ひかり・かげ・ふちどり（res 4）
-import { makeCanvas, ctxOf, pixelize, shade, painterFrom, scale2x, outline2, volumeShade } from './pixel.js?v=88f4b1116681';
-import { MONSTERS } from '../../shared/data/monsters.js?v=88f4b1116681';
-import { tintCanvas } from './themes.js?v=88f4b1116681';
-import { addNightArt } from './night-art.js?v=88f4b1116681';
-import { addRareArt } from './rare-art.js?v=88f4b1116681';
-import { addCh3Art } from './ch3-art.js?v=88f4b1116681';
-import { addCh4Art } from './ch4-art.js?v=88f4b1116681';
-import { addR23Art } from './r23-art.js?v=88f4b1116681';
-import { addCh5Art } from './ch5-tower-art.js?v=88f4b1116681';
-import { addKumoiArt } from './ch5-kumoi-mon-art.js?v=88f4b1116681';
-import { addHoshiyomiArt } from './ch5-hoshiyomi-mon-art.js?v=88f4b1116681';
-import { addEarthArt } from './ch5-earth-mon-art.js?v=88f4b1116681';
+import { makeCanvas, ctxOf, pixelize, shade, painterFrom, scale2x, outline2, volumeShade } from './pixel.js?v=8370ffc103a5';
+import { MONSTERS } from '../../shared/data/monsters.js?v=8370ffc103a5';
+import { tintCanvas } from './themes.js?v=8370ffc103a5';
+import { addNightArt } from './night-art.js?v=8370ffc103a5';
+import { addRareArt } from './rare-art.js?v=8370ffc103a5';
+import { addCh3Art } from './ch3-art.js?v=8370ffc103a5';
+import { addCh4Art } from './ch4-art.js?v=8370ffc103a5';
+import { addR23Art } from './r23-art.js?v=8370ffc103a5';
+import { addCh5Art } from './ch5-tower-art.js?v=8370ffc103a5';
+import { addKumoiArt } from './ch5-kumoi-mon-art.js?v=8370ffc103a5';
+import { addHoshiyomiArt } from './ch5-hoshiyomi-mon-art.js?v=8370ffc103a5';
+import { addEarthArt } from './ch5-earth-mon-art.js?v=8370ffc103a5';
+// 第37回 A: サファラ闘技場の 王者（arena-art.js）
+import { addArenaArt } from './arena-art.js?v=8370ffc103a5';
 
 export const MRES = 4; // できあがりの こまかさ（せかいの 1ドットを 4×4 で かく）
 const OUT = '#130d24';
@@ -833,6 +835,7 @@ addKumoiArt(MONSTER_ART);
 addHoshiyomiArt(MONSTER_ART);
 // 第5章 Step 6・7「根の島・大地の神殿」の 魔物と ノクト（1回目）・分身・天空のきょ兵（ch5-earth-mon-art.js）
 addEarthArt(MONSTER_ART);
+addArenaArt(MONSTER_ART);
 
 const cache = new Map();
 

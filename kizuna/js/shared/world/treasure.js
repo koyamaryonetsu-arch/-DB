@@ -1,18 +1,20 @@
 // 宝の地図（せかいの しくみ）: 手に入れる・ほる・洞窟に 入る／出る・洞窟の 主・ごほうび
 // データと 洞窟の 形は data/treasure.js と maps/treasure-cave.js
-import { MAPS, isBlocked, tileAt, POS, PLACES } from '../maps/index.js?v=88f4b1116681';
-import { SEA_POS } from '../maps/sea.js?v=88f4b1116681';
-import { T, TILE_INFO } from '../tiles.js?v=88f4b1116681';
-import { makeRng } from '../rng.js?v=88f4b1116681';
-import { MONSTERS } from '../data/monsters.js?v=88f4b1116681';
-import { TM_HOOKS } from '../data/story-tm.js?v=88f4b1116681';
-import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=88f4b1116681';
-import { ScriptRun } from './scripts.js?v=88f4b1116681';
-import { partyOf } from './party.js?v=88f4b1116681';
+import { MAPS, isBlocked, tileAt, POS, PLACES } from '../maps/index.js?v=8370ffc103a5';
+import { SEA_POS } from '../maps/sea.js?v=8370ffc103a5';
+import { T, TILE_INFO } from '../tiles.js?v=8370ffc103a5';
+import { makeRng } from '../rng.js?v=8370ffc103a5';
+import { MONSTERS } from '../data/monsters.js?v=8370ffc103a5';
+import { TM_HOOKS } from '../data/story-tm.js?v=8370ffc103a5';
+import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=8370ffc103a5';
+import { ScriptRun } from './scripts.js?v=8370ffc103a5';
+import { partyOf } from './party.js?v=8370ffc103a5';
 import {
   TM_MAX, TM_THEMES, caveInfo, tmTitle, floorMapId, parseFloorId, isTreasureMapId, clearedFlag, foundFlag, seed36, bossLvOf, tmBossPow,
   mapDropRate, dropMapLevel, nextMapLevel, repairTreasureMaps,
-} from '../data/treasure.js?v=88f4b1116681';
+} from '../data/treasure.js?v=8370ffc103a5';
+
+import { ensureTmClears, addTmClear } from '../data/casino-tier.js?v=8370ffc103a5';
 
 const HUNTER = '宝探しのダイゴ';
 
@@ -285,11 +287,17 @@ async function bossEvent(run) {
   ]);
   if (run.aborted) return;
   // 勝った: 主は いなくなり、宝箱と 出口が あらわれる。地図は「主を たおした」に
+  // 第37回 B: 宝の地図の クリア数（c.tmClears。カジノの 段）… 数えなおしは フラグを たてる 前に（data/casino-tier.js）
+  ensureTmClears(owner);
+  for (const m of run.everyone) ensureTmClears(m.char);
   owner.flags[flag] = true;
   for (const m of run.everyone) {
     const rec = (m.char.treasureMaps || []).find((t) => t.seed === p.seed);
     // おなじ 地図を 持っている 人は みんな「主を たおした」（家族と 入った 時も、あとで ひとりで 来て 主が いない）
-    if (rec) { rec.cleared = true; rec.found = true; m.char.flags[flag] = true; }
+    if (rec) {
+      if (!rec.cleared) addTmClear(m.char);
+      rec.cleared = true; rec.found = true; m.char.flags[flag] = true;
+    }
     pruneTreasureData(m.char);
   }
   const steps = [

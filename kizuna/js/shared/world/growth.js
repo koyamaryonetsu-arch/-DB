@@ -3,10 +3,10 @@
 //     「ユウ　Lv12→15　戦士Lv3→4！　HP+20　力+9　守り+6」
 //     「覚えた：ホイミ、ベホイミ」
 //   マスター・新しい 職業・ヒントは べつの 行（notes。めったに 出ない 大事な 知らせ）
-import { JOB_MAX_LEVEL } from '../data/jobs.js?v=88f4b1116681';
-import { ABILITIES } from '../data/abilities.js?v=88f4b1116681';
-import { abilityFor } from '../ability-label.js?v=88f4b1116681';
-import { jobLabel } from '../job-label.js?v=88f4b1116681';
+import { JOB_MAX_LEVEL } from '../data/jobs.js?v=8370ffc103a5';
+import { ABILITIES } from '../data/abilities.js?v=8370ffc103a5';
+import { abilityFor } from '../ability-label.js?v=8370ffc103a5';
+import { jobLabel } from '../job-label.js?v=8370ffc103a5';
 
 export const GROW_STATS = ['maxHp', 'maxMp', 'str', 'def', 'agi', 'mag', 'heal'];
 const SHORT = { maxHp: 'HP', maxMp: 'MP', str: '力', def: '守り', agi: '素早さ', mag: '魔力', heal: '回復' };

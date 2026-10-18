@@ -1,21 +1,23 @@
 // たたかいの AI（モンスター と サポートなかま）
-import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=88f4b1116681';
+import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=8370ffc103a5';
 // 推理（deduce）の 属性・運しだいの 技を オートで 使う（第26回）
-import { deduceElement } from './data/abilities-jobs6.js?v=88f4b1116681';
-import { mpCost, penaltyFor, weaponOk, comboAllowed } from './stats.js?v=88f4b1116681';
+import { deduceElement } from './data/abilities-jobs6.js?v=8370ffc103a5';
+import { mpCost, penaltyFor, weaponOk, comboAllowed } from './stats.js?v=8370ffc103a5';
 // 第4章の まぼろしの分身と 月の鏡（battle-ch4.js）
-import { mirageAction, mirrorPlan } from './battle-ch4.js?v=88f4b1116681';
+import { mirageAction, mirrorPlan } from './battle-ch4.js?v=8370ffc103a5';
 // 第4章 Step 6 の 砂に もぐる 魔物（battle-ch4.js）
-import { burrowSurface, burrowPlan } from './battle-ch4.js?v=88f4b1116681';
+import { burrowSurface, burrowPlan } from './battle-ch4.js?v=8370ffc103a5';
 // 第4章 Step 7 の 砂の底の神殿と モルガナ（battle-temple.js）
-import { templeAction, templeCond, templePlan, templeAdjust, veilBolt, waveIgnored } from './battle-temple.js?v=88f4b1116681';
-import { labPlan, labIgnored } from './battle-lab.js?v=88f4b1116681';
+import { templeAction, templeCond, templePlan, templeAdjust, veilBolt, waveIgnored } from './battle-temple.js?v=8370ffc103a5';
+import { labPlan, labIgnored } from './battle-lab.js?v=8370ffc103a5';
 // 第5章 Step 2 の 星の番人アルゴス（見通しの目。battle-ch5.js）
-import { towerCond, towerPlan } from './battle-ch5.js?v=88f4b1116681';
+import { towerCond, towerPlan } from './battle-ch5.js?v=8370ffc103a5';
 // 第5章 Step 5 の ノクトの影（職業の まね。battle-nocto.js）
-import { noctoAction } from './battle-nocto.js?v=88f4b1116681';
+import { noctoAction } from './battle-nocto.js?v=8370ffc103a5';
 // 第5章 Step 6・7 の ノクト（1回目。合体技の 前ぶれ）と「手をのばす」（battle-earth.js）
-import { earthAction, reachPlan } from './battle-earth.js?v=88f4b1116681';
+import { earthAction, reachPlan } from './battle-earth.js?v=8370ffc103a5';
+// 第37回 A: 闘技場の 王者の しかけを 知っている 人（シミュレーター。battle-arena.js）
+import { arenaPlan, arenaAdjust } from './battle-arena.js?v=8370ffc103a5';
 
 // さくせん
 export const TACTICS = {
@@ -129,6 +131,9 @@ export function decideAlly(b, c) {
   // 古竜の いにしえの炎の 前に 身を 守る（しかけを 知っている 人。battle-lab.js）
   const lp = labPlan(b, c);
   if (lp) return lp;
+  // 闘技場の 王者の 大技の 前に 身を 守る（しかけを 知っている 人。battle-arena.js）
+  const arp = arenaPlan(b, c);
+  if (arp) return arp;
   // 見通しの目に 読まれた 種類を さける・星のさばきの 前に 身を 守る（battle-ch5.js）
   const fp = towerPlan(b, c, decideAlly);
   if (fp) return fp;
@@ -444,6 +449,7 @@ function chooseAttack(b, c, tac, foes) {
   }
   // 光っている 敵に 呪文を 使わない など（battle-temple.js）
   templeAdjust(b, c, opts);
+  arenaAdjust(b, c, opts);
   opts.sort((x, y) => y.final - x.final);
   // 物理しか ない ときに 反撃の構えの 敵しか いない: 防御して 構えが とけるのを まつ
   if (opts[0]?.risky) return { type: 'defend' };

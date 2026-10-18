@@ -245,10 +245,27 @@ export const PRIZES = [
   { id: 'milkyway_whip', coins: 9000, need: 'c5_argos' },
   { id: 'shooting_boomerang', coins: 10000, need: 'c5_argos' },
   { id: 'little_prince_cape', coins: 12000, need: 'c5_argos' },
+  // 第37回 B: 宝の地図の クリア数の 段（tier。data/casino-tier.js）で ふえる 景品。上の 段ほど めずらしい 種・★4〜★5
+  { id: 'seed_mp', coins: 400, tier: 1 },
+  { id: 'seed_heal', coins: 400, tier: 1 },
+  { id: 'lucky_clover', coins: 7000, tier: 1 },
+  { id: 'roulette_shield', coins: 8000, tier: 1 },
+  { id: 'star_nut', coins: 2500, tier: 2 },
+  { id: 'bunny_band', coins: 12000, tier: 2 },
+  { id: 'joker_sword', coins: 15000, tier: 2 },
+  { id: 'coin_mail', coins: 15000, tier: 2 },
+  { id: 'gambler_hat', coins: 20000, tier: 3 },
+  { id: 'jackpot_shield', coins: 26000, tier: 3 },
+  { id: 'dealer_vest', coins: 26000, tier: 3 },
+  { id: 'royal_fan', coins: 28000, tier: 3 },
+  { id: 'gold_nut', coins: 8000, tier: 4 },
+  { id: 'seven_ring', coins: 35000, tier: 4 },
+  { id: 'fortune_cape', coins: 38000, tier: 4 },
+  { id: 'casino_king_sword', coins: 40000, tier: 4 },
 ];
-// 今 ならんでいる 景品（flags … キャラの フラグ）
-export function prizesFor(flags = {}) {
-  return PRIZES.filter((p) => !p.need || flags?.[p.need]);
+// 今 ならんでいる 景品（flags … キャラの フラグ・tier … 宝の地図の 段 0〜4）
+export function prizesFor(flags = {}, tier = 0) {
+  return PRIZES.filter((p) => (!p.need || flags?.[p.need]) && (p.tier || 0) <= tier);
 }
 
 // ───────────── 小さなメダル（メダル王の ごほうび） ─────────────
@@ -273,9 +290,14 @@ export function medalsGiven(c) {
   const n = Math.floor(Number(c?.medalsGiven));
   return Number.isFinite(n) ? Math.max(0, Math.min(medalsFound(c), n)) : 0;
 }
-// 持っている（まだ わたしていない）数
+// 第37回 B: すごろく券に かえた 数（c.medalsSpent）
+export function medalsSpent(c) {
+  const n = Math.floor(Number(c?.medalsSpent));
+  return Number.isFinite(n) ? Math.max(0, n) : 0;
+}
+// 持っている（まだ わたしていない・すごろく券に かえていない）数
 export function medalsHeld(c) {
-  return Math.max(0, medalsFound(c) - medalsGiven(c));
+  return Math.max(0, medalsFound(c) - medalsGiven(c) - medalsSpent(c));
 }
 // 次の ごほうび（なければ null）
 export function nextMedalReward(c) {

@@ -12,27 +12,29 @@
 //   ['teleport', 'map', x, y, 'dir']  ['spawn', 'map', x, y]  ['chapter', 'だい1しょう', 'サブタイトル']
 //
 // x（じょうほう）: x.name x.flag('f') x.has('item') x.count('item') x.kills('monster') x.quest('key')
-import { POS } from '../maps/index.js?v=88f4b1116681';
-import { PLACES } from '../maps/overworld.js?v=88f4b1116681';
-import { abilityLabel } from '../ability-label.js?v=88f4b1116681';
-import { learnedAbilities, comboUnlocked, hiraAllowed, hiraRelated, partyJobSet } from '../stats.js?v=88f4b1116681';
-import { HIRAMEKI, hiraRatio } from './hirameki.js?v=88f4b1116681';
-import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js?v=88f4b1116681';
-import { CH3_STEPS, CH3_STORY_SCRIPTS, CH3_SCRIPTS, elderCh3 } from './story-ch3.js?v=88f4b1116681';
-import { CH4_STEPS, CH4_STORY_SCRIPTS, CH4_SCRIPTS, elderCh4 } from './story-ch4.js?v=88f4b1116681';
-import { CH5_STEPS, CH5_STORY_SCRIPTS, CH5_SCRIPTS, CH5_TOWN_LINES, elderCh5 } from './story-ch5.js?v=88f4b1116681';
-import { TM_SCRIPTS, TM_STORY_SCRIPTS } from './story-tm.js?v=88f4b1116681';
-import { SD_SCRIPTS } from './story-secret.js?v=88f4b1116681';
-import { CASINO_SCRIPTS } from './story-casino.js?v=88f4b1116681';
-import { innSteps } from './inn.js?v=88f4b1116681';
-import { NIGHT_SCRIPTS } from './night.js?v=88f4b1116681';
-import { skyScripts } from './sky.js?v=88f4b1116681';
-import { FACILITY_SCRIPTS } from './facilities.js?v=88f4b1116681';
-import { wagonEventSteps } from './wagon.js?v=88f4b1116681';
-import { JOB_GREET } from './job-talk.js?v=88f4b1116681';
-import { LAB_SCRIPTS, LAB_STORY_SCRIPTS } from './story-lab.js?v=88f4b1116681';
-import { QUEST_SCRIPTS, QUEST_STORY_SCRIPTS, wrapSideQuests } from './sidequests.js?v=88f4b1116681';
-import { applyTownHints } from './secret-hints.js?v=88f4b1116681';
+import { POS } from '../maps/index.js?v=8370ffc103a5';
+import { PLACES } from '../maps/overworld.js?v=8370ffc103a5';
+import { abilityLabel } from '../ability-label.js?v=8370ffc103a5';
+import { learnedAbilities, comboUnlocked, hiraAllowed, hiraRelated, partyJobSet } from '../stats.js?v=8370ffc103a5';
+import { HIRAMEKI, hiraRatio } from './hirameki.js?v=8370ffc103a5';
+import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js?v=8370ffc103a5';
+import { CH3_STEPS, CH3_STORY_SCRIPTS, CH3_SCRIPTS, elderCh3 } from './story-ch3.js?v=8370ffc103a5';
+import { CH4_STEPS, CH4_STORY_SCRIPTS, CH4_SCRIPTS, elderCh4 } from './story-ch4.js?v=8370ffc103a5';
+import { CH5_STEPS, CH5_STORY_SCRIPTS, CH5_SCRIPTS, CH5_TOWN_LINES, elderCh5 } from './story-ch5.js?v=8370ffc103a5';
+import { TM_SCRIPTS, TM_STORY_SCRIPTS } from './story-tm.js?v=8370ffc103a5';
+import { SD_SCRIPTS } from './story-secret.js?v=8370ffc103a5';
+import { CASINO_SCRIPTS } from './story-casino.js?v=8370ffc103a5';
+import { innSteps } from './inn.js?v=8370ffc103a5';
+import { NIGHT_SCRIPTS } from './night.js?v=8370ffc103a5';
+import { skyScripts } from './sky.js?v=8370ffc103a5';
+import { FACILITY_SCRIPTS } from './facilities.js?v=8370ffc103a5';
+import { wagonEventSteps } from './wagon.js?v=8370ffc103a5';
+import { JOB_GREET } from './job-talk.js?v=8370ffc103a5';
+import { LAB_SCRIPTS, LAB_STORY_SCRIPTS } from './story-lab.js?v=8370ffc103a5';
+import { QUEST_SCRIPTS, QUEST_STORY_SCRIPTS, wrapSideQuests } from './sidequests.js?v=8370ffc103a5';
+// 第37回 A: サファラ闘技場（しょりは world/arena.js）
+import { ARENA_SCRIPTS, ARENA_STORY_SCRIPTS } from './story-arena.js?v=8370ffc103a5';
+import { applyTownHints } from './secret-hints.js?v=8370ffc103a5';
 
 const V = (x, y) => [PLACES.village.x + x + 0.5, PLACES.village.y + y + 0.5];
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
@@ -618,6 +620,9 @@ Object.assign(SCRIPTS, SD_SCRIPTS);
 Object.assign(SCRIPTS, LAB_SCRIPTS, QUEST_SCRIPTS);
 wrapSideQuests(SCRIPTS);
 for (const id of [...LAB_STORY_SCRIPTS, ...QUEST_STORY_SCRIPTS]) STORY_SCRIPTS.add(id);
+// 第37回 A: サファラ闘技場（第4章クリアの あと。受付は パーティー みんなで）
+Object.assign(SCRIPTS, ARENA_SCRIPTS);
+for (const id of ARENA_STORY_SCRIPTS) STORY_SCRIPTS.add(id);
 // 第5章「空にうかぶ大地」（story-ch5.js）。第4章クリアの あとの ホシミばあちゃんから はじまる
 Object.assign(SCRIPTS, CH5_SCRIPTS);
 const elderBase = SCRIPTS.elder;
