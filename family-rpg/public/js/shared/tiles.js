@@ -53,6 +53,9 @@ export const T = {
   TILT_FLOOR_W: 239, TILT_FLOOR_E: 240, BOULDER: 241, TILT_LEVER: 242, TILT_LEVER_ON: 243,
   SCALE_PAN: 244, SCALE_PAN_ON: 245, PAN_ROCK: 246, SCALE_DOOR: 247, SCALE_BEAM: 248,
   CLOUD_FLOOR: 249, RUIN_SHAFT: 250, ROPE_LADDER: 251, ROPE_COIL: 252, RUIN_MURAL: 253, SHARD_ALTAR: 254, GAIA_ROOT: 255,
+  // 第5章 Step 5「ノクトの思い出の迷宮」（maps/memory.js・render/tiles-memory.js。あいている 62〜69）と「星読みの里」（maps/hoshiyomi.js。83・84）
+  MEM_VOID: 62, SHADOW_PATH: 63, SHADOW_FLOOR: 64, LAMP_STAND: 65, LAMP_LIT: 66, MEM_SHARD: 67, MEM_PILLAR: 68, MEM_EXIT: 69,
+  STAR_CRYSTAL: 83, STAR_SCOPE: 84,
 };
 
 export const TILE_INFO = {};
@@ -291,6 +294,18 @@ def(T.ROPE_COIL, 'rope_coil', { solid: true, mapColor: '#a07a40' }); // まる�
 def(T.RUIN_MURAL, 'ruin_mural', { solid: true, mapColor: '#9a8a6a' }); // 古い かべ画（大地の 守り星と ハネビト）
 def(T.SHARD_ALTAR, 'shard_altar', { solid: true, talkThrough: true, light: true, mapColor: '#f0d890' }); // 守り星の かけらの 台
 def(T.GAIA_ROOT, 'gaia_root', { solid: true, mapColor: '#6a5038' }); // 島を ささえる 大きな 根（食べられて ぼろぼろ）
+// 第5章 Step 5「ノクトの思い出の迷宮」（maps/memory.js）。かべと ゆかは 洞窟の タイルを 思い出の 年の 色に（render/themes.js の memory_*）
+def(T.MEM_VOID, 'mem_void', { solid: true, anim: true, mapColor: '#0c0a1a' }); // 思い出の とぎれた ところ（くらい もや。歩けない）
+def(T.SHADOW_PATH, 'shadow_path', { anim: true, mapColor: '#4a3e78' }); // 影の 道（ランプの 光で できた 影の 中に だけ 見える。歩ける）
+def(T.SHADOW_FLOOR, 'shadow_floor', { mapColor: '#4a4468' }); // ゆかに おちた 影（歩ける）
+def(T.LAMP_STAND, 'lamp_stand', { solid: true, mapColor: '#8a7a5a' }); // ランプ台（しらべると 星読みの ランプの 光を うつす）
+def(T.LAMP_LIT, 'lamp_lit', { solid: true, light: true, anim: true, mapColor: '#ffd870' }); // 光っている ランプ台
+def(T.MEM_SHARD, 'mem_shard', { solid: true, light: true, anim: true, mapColor: '#c8e8ff' }); // 思い出の かけら（しらべると その 年の 場面）
+def(T.MEM_PILLAR, 'mem_pillar', { solid: true, mapColor: '#9a90c0' }); // 思い出の 柱（ランプの 光で 影が のびる）
+def(T.MEM_EXIT, 'mem_exit', { light: true, anim: true, mapColor: '#f0e8ff' }); // 思い出の 出口（光の 門。ふむと 星読みの 里へ）
+// 星読みの 里（maps/hoshiyomi.js）
+def(T.STAR_CRYSTAL, 'star_crystal', { solid: true, talkThrough: true, light: true, anim: true, mapColor: '#a8d8ff' }); // 星読みの 水晶（思い出の 中へ 入る）
+def(T.STAR_SCOPE, 'star_scope', { solid: true, mapColor: '#8a7a4a' }); // 星見の 遠めがね
 
 export function isSolid(id) {
   return TILE_INFO[id]?.solid ?? true;
