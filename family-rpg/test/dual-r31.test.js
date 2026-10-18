@@ -97,15 +97,17 @@ test('「職業が だれでも よい」組は ミナデインだけ（全員�
   assert.equal(DUAL_TECHS.dt_zenin.team, 'line');
   for (const [, nm] of DUAL_GROUP_NAMES) assert.ok(!nm.includes('攻撃の技'), `前の「攻撃の技（どの職業でも）」の 組は ない: ${nm}`);
   // せーのでジャンプ（前は 3つとも 体を 使う 32職業）・家族会議・なぞは すべて 解けた！の 4人目は 職業しばり
-  for (const g of DUAL_TECHS.dt_jump.need) assert.ok(groupJobs(g).size <= 5, `せーのでジャンプ: ${DUAL_GROUP_NAMES.get(g)}`);
+  // 第35回: タグの 組（学校・スポーツ・歌とおどり）。体を 使う 32職業 よりは せまい
+  for (const g of DUAL_TECHS.dt_jump.need) assert.ok(groupJobs(g).size <= 13, `せーのでジャンプ: ${DUAL_GROUP_NAMES.get(g)}`);
   const home = groupJobs(DUAL_TECHS.dt_kazoku_kaigi.need[3]);
   assert.ok(home.has('neet') && home.has('neko_robot') && !home.has('warrior'), '家族会議の 4人目: 家に いる 人');
-  const sleuth = groupJobs(DUAL_TECHS.dt_nazo.need[3]);
-  for (const j of ['police', 'spy', 'meitantei']) assert.ok(sleuth.has(j), `なぞの 4人目: ${j}`);
+  // 第35回: なぞは すべて 解けた！は 推理×2＋子ども＋機械（推理の タグ: 探てい・警察官・占い師）
+  const sleuth = groupJobs(DUAL_TECHS.dt_nazo.need[1]);
+  for (const j of ['police', 'oshiri_tantei', 'meitantei']) assert.ok(sleuth.has(j), `なぞの 2人目: ${j}`);
   assert.ok(!sleuth.has('warrior'));
   // 必要な 職業の 説明（メニュー・説明の まど）
   assert.equal(dualNeedText('dt_minadein'), '勇者の系統＋どの職業でも×3');
-  assert.equal(dualNeedText('dt_finale'), '剣の上級職＋こぶしの上級職＋攻撃呪文の上級職＋いやしの上級職');
+  assert.equal(dualNeedText('dt_finale'), '剣の上級職＋こぶしの上級職＋魔法の上級職＋いやしの上級職');
   for (const id of DUAL_ORDER) assert.deepEqual(checkText(dualNeedText(id)), [], dualNeedText(id));
 });
 
@@ -163,7 +165,7 @@ test('グランドフィナーレ: 剣・こぶし・攻撃呪文・いやしの
     assert.ok(!find(dualOptions(team[0], team.slice(1), weaponOk), 'dt_finale'), `${team[i].job}（基本職）が いると 出ない`);
   }
   // 役が たりない（剣の 上級職が 2人で こぶしが いない）
-  assert.ok(!find(dualOptions(p('剣', 'battlemaster'), [p('剣2', 'samurai'), adv[2], adv[3]], weaponOk), 'dt_finale'));
+  assert.ok(!find(dualOptions(p('剣', 'shogun'), [p('剣2', 'samurai'), adv[2], adv[3]], weaponOk), 'dt_finale'));
   // 組は すべて 上級職 いじょう
   for (const g of DUAL_TECHS.dt_finale.need) for (const j of groupJobs(g)) assert.ok(JOBS[j].tier >= 1, `${JOBS[j].name}`);
 });
@@ -174,8 +176,8 @@ test('家族会議・なぞは すべて 解けた！: 4人目も 職業しば�
   assert.ok(find(dualOptions(okan, [papa, kid, p('ネコ', 'doraemon')], weaponOk), 'dt_kazoku_kaigi'), 'ネコ型ロボット');
   for (const j of ['warrior', 'mage', 'hero']) assert.ok(!find(dualOptions(okan, [papa, kid, p('他', j)], weaponOk), 'dt_kazoku_kaigi'), j);
   const det = p('探', 'meitantei'), gamer = p('ゲ', 'gamer'), robot = p('ロ', 'doraemon');
-  for (const j of ['police', 'spy', 'oshiri_tantei']) assert.ok(find(dualOptions(det, [gamer, robot, p('4', j)], weaponOk), 'dt_nazo'), j);
-  for (const j of ['warrior', 'okan']) assert.ok(!find(dualOptions(det, [gamer, robot, p('4', j)], weaponOk), 'dt_nazo'), j);
+  for (const j of ['police', 'fortune', 'oshiri_tantei']) assert.ok(find(dualOptions(det, [gamer, robot, p('4', j)], weaponOk), 'dt_nazo'), j);
+  for (const j of ['warrior', 'okan', 'spy']) assert.ok(!find(dualOptions(det, [gamer, robot, p('4', j)], weaponOk), 'dt_nazo'), j);
 });
 
 // ───────────── ミナデイン ─────────────
@@ -362,7 +364,8 @@ test('合体技の 名前を 大きく: コマンドの 行は 名前だけ。�
   assert.match(menu, /html: `<span class="dual-nm">\$\{esc\(t\.name\)\}<\/span>`/);
   assert.ok(!menu.includes('with-line') && !menu.includes('といっしょに'), '名前の 行に 補足を 書かない');
   const info = src.slice(src.indexOf('export function dualInfo'), src.indexOf('export function dualMenu'));
-  for (const s of ['といっしょに', '必要な職業', 'よやく']) assert.ok(info.includes(s), s);
+  // 第35回: 「必要なタグ：剣＋空」（タグだけ・職業だけ・りょうほうで 見出しが かわる。dualNeedLabel）
+  for (const s of ['といっしょに', 'dualNeedLabel(o.id)', 'よやく']) assert.ok(info.includes(s), s);
   const fx = fs.readFileSync(new URL('../public/js/client/render/dualfx.js', import.meta.url), 'utf8');
   assert.match(fx, /\.dual-nm \{ font-size: 1\.3em/);
   const m = fs.readFileSync(new URL('../public/js/client/ui/menu.js', import.meta.url), 'utf8');

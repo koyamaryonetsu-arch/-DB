@@ -176,7 +176,37 @@ function heroParty(lv, tier) {
   return MINA_PARTIES['勇者＋基本職'].map(([j, g], i) => advChar(j, g, lv, tier, `${JOBS[j].name}${i}`));
 }
 
-if (process.argv[1].endsWith('sim-dual.mjs') && process.argv[3] === 'minadein') {
+// ───── 第35回: タグの 合体技の 強さ: node tools/sim-dual.mjs [回数] tags ─────
+// 作品を またぐ パーティー（タグの 合体技が たくさん 出せる）で、ふつう（合体技なし）と 合体技を くらべる。
+// 勝つ わりあいが はね上がらないか・ボスが 早く たおれすぎないか
+const TAG_PARTIES = {
+  '剣士3人＋パラディン': [['samurai', 'warrior'], ['himura', 'warrior'], ['kisatsu', 'warrior'], ['paladin', 'priest']],
+  'ライバル・師弟': [['hero', 'warrior'], ['konoha', 'monk'], ['meitantei', 'mage'], ['hokage', 'monk']],
+  '空と変身': [['dragon_knight', 'warrior'], ['doraemon', 'monk'], ['harry', 'mage'], ['sailor_moon', 'priest']],
+};
+const TAG_BOSSES = [['armor_scorpion', 31, 23], ['mummy_king', 34, 33, { focusBoss: true }], ['zaid_demon', 37, 33], ['argos', 42, 42], ['lab_dragon', 45, 45]];
+
+if (process.argv[1].endsWith('sim-dual.mjs') && process.argv[3] === 'tags') {
+  for (const [key, list] of Object.entries(TAG_PARTIES)) {
+    console.log(`■ ${key}（${list.map(([j]) => JOBS[j].name).join('・')}）`);
+    console.log(`${'ボス'.padEnd(26)} ふつう  合体技  （平均秒 ふつう→合体技）  よく使った合体技`);
+    for (const [enc, lv, tier, flags = {}] of TAG_BOSSES) {
+      const res = { off: [], on: [] };
+      for (let i = 0; i < N; i++) {
+        for (const duals of [false, true]) {
+          const p = list.map(([j, g], k) => advChar(j, g, lv, tier, `${JOBS[j].name}${k}`));
+          res[duals ? 'on' : 'off'].push(runDual(p, groupOf(enc), { seed: 777 + i * 7919, duals, ...flags }));
+        }
+      }
+      const rate = (l) => `${String(Math.round((l.filter((r) => r.outcome === 'win').length / l.length) * 100)).padStart(3)}%`;
+      const sec = (l) => Math.round(l.reduce((s, r) => s + r.seconds, 0) / l.length);
+      const used = {};
+      for (const r of res.on) for (const [k, v] of Object.entries(r.used)) used[k] = (used[k] || 0) + v;
+      const top = Object.entries(used).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([k, v]) => `${DUAL_TECHS[k].name}${(v / N).toFixed(1)}`).join(' ');
+      console.log(`${`${enc} Lv${lv}`.padEnd(28)} ${rate(res.off)}   ${rate(res.on)}   （${sec(res.off)}→${sec(res.on)}秒）  ${top}`);
+    }
+  }
+} else if (process.argv[1].endsWith('sim-dual.mjs') && process.argv[3] === 'minadein') {
   console.log('ほんとうの 戦い（勇者・戦士・僧侶・魔法使い）');
   console.log(`${'ボス'.padEnd(26)} ふつう  合体技  （平均秒 ふつう→合体技）  よく使った合体技`);
   for (const [enc, lv, tier] of HERO_BOSSES) {

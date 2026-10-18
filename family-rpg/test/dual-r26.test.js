@@ -80,7 +80,8 @@ const PART_TYPES = new Set(['power', 'heal', 'revive', 'buff', 'debuff', 'cure',
 // 第32回: 魔物使い・モンスターマスターの 3こで 41こ（test/dual-r32.test.js）。第33回: 11の 職業の 5こで 46こ（test/jobs-r33.test.js）
 test('第26回の 合体技: 数を しぼった（20〜46こ）・2人技・3人技・4人技・クスッと 笑える 技', () => {
   const ids = DUAL_ORDER;
-  assert.ok(ids.length >= 20 && ids.length <= 46, `合体技 ${ids.length}こ`);
+  // 第35回: タグ方式で 作品を またぐ 技を 足して 59こ（2人技 30〜40・3人技 10〜15・4人技 5 くらい。test/dual-tags.test.js）
+  assert.ok(ids.length >= 20 && ids.length <= 62, `合体技 ${ids.length}こ`);
   const by = (n) => ids.filter((id) => dualSize(id) === n);
   assert.ok(by(2).length >= 12, `2人技 ${by(2).length}こ`);
   assert.ok(by(3).length >= 4, `3人技 ${by(3).length}こ`);

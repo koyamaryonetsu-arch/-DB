@@ -5,7 +5,7 @@
 import { el, esc, ListMenu, toast } from './ui/dom.js';
 import { ABILITIES, ELEMENT_NAMES } from '../shared/data/abilities.js';
 import { comboAllowed, weaponOk } from '../shared/stats.js';
-import { dualOptions, dualKnown, dualNeedText } from '../shared/data/dual.js';
+import { dualOptions, dualKnown, dualNeedText, dualNeedLabel } from '../shared/data/dual.js';
 // 第33回: 男の子の 美少女戦士が 入る ときは 名前・説明が かわる（shared/ability-label.js）
 import { dualFor } from '../shared/ability-label.js';
 import { faceURL } from './field.js';
@@ -43,7 +43,7 @@ export function dualInfo(v, o, more = 0) {
   const when = o.now ? '' : '（よやく）';
   const others = more > 0 ? `（ほか${more}通り）` : '';
   const desc = dualKnown(v.game.me, o.id) ? t.desc : SECRET;
-  return `【${tags}】${o.partnerName}といっしょに${when}${others}\n必要な職業：${dualNeedText(o.id, true, v.myActor)}　MP ${o.mp.join('＋')}\n${desc}`;
+  return `【${tags}】${o.partnerName}といっしょに${when}${others}\n${dualNeedLabel(o.id)}：${dualNeedText(o.id, true, v.myActor)}　MP ${o.mp.join('＋')}\n${desc}`;
 }
 
 // 合体技の 一覧（コマンド → 合体技）。行は 技の 名前だけ（大きく）。おなじ 技を 出せる 仲間の くみあわせが いくつか ある ときは、
