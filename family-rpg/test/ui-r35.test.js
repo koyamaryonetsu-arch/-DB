@@ -1,0 +1,247 @@
+// 第35回 A（画面と そうさ）: 家族が 決めた こと（docs/idea-r35.md の I・L・追加）
+//   1. 戦いの 技えらびを 効果ごとの タブに（shared/skill-tabs.js・client/battle.js・ui/dom.js の 列の はしで タブ）
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import { ABILITIES } from '../public/js/shared/data/abilities.js';
+import { SKILL_TABS, effectTab, skillTabs, startTab, abilityElements } from '../public/js/shared/skill-tabs.js';
+import { NEWS, unreadNews, hasUnreadNews, markNewsRead, newsDate } from '../public/js/shared/data/news.js';
+import { checkFile, gameFiles } from '../tools/kanji-check.mjs';
+import { GameWorld } from '../public/js/shared/world/world.js';
+import { makeRng } from '../public/js/shared/rng.js';
+import { Bot } from './helpers.js';
+import { nearest } from '../public/js/client/ui/padnav.js';
+import { Field, trailAt } from '../public/js/client/field.js';
+
+const src = (p) => fs.readFileSync(new URL(`../public/${p}`, import.meta.url), 'utf8');
+const ab = (id) => ABILITIES[id];
+
+// ───────────── 1. 技の タブ ─────────────
+test('技の タブ: 効果ごとに 分ける（1体・全体・回復・強くする・弱くする・そのほか）', () => {
+  assert.equal(effectTab(ab('mera')), 'one');
+  assert.equal(effectTab(ab('merazoma')), 'one');
+  assert.equal(effectTab(ab('io')), 'all');
+  assert.equal(effectTab(ab('bagi')), 'all', 'グループも 全体の タブ');
+  assert.equal(effectTab(ab('daichi')), 'one');
+  assert.equal(effectTab(ab('hoimi')), 'heal');
+  assert.equal(effectTab(ab('behomara')), 'heal');
+  assert.equal(effectTab(ab('zao')), 'heal', '生き返る も 回復');
+  assert.equal(effectTab(ab('kiarii')), 'heal');
+  assert.equal(effectTab(ab('sukuruto')), 'buff');
+  assert.equal(effectTab(ab('baikiruto')), 'buff');
+  assert.equal(effectTab(ab('chikaratame')), 'buff');
+  assert.equal(effectTab(ab('kabau')), 'buff');
+  assert.equal(effectTab(ab('rukani')), 'debuff');
+  assert.equal(effectTab(ab('rariho')), 'debuff');
+  assert.equal(effectTab(ab('id_wink')), 'debuff', '敵の 行動を おくらせる');
+  assert.equal(effectTab(ab('ss_encore')), 'buff', '味方を はやく');
+  assert.equal(effectTab(ab('rura')), 'other');
+  assert.equal(effectTab(ab('ft_fate')), 'other', 'なにが 出るか わからない 技');
+  // いくつも 効果が ある 技: ダメージが あれば こうげき
+  assert.equal(effectTab(ab('hi_noritsukkomi')), 'one');
+  assert.equal(effectTab(ab('hi_yami_sekai')), 'all');
+  assert.equal(effectTab(ab('hi_okashi_no_ie')), 'heal');
+  assert.equal(effectTab(ab('hr_kizuna')), 'buff');
+  assert.equal(effectTab(ab('hi_yosan_cut')), 'debuff');
+  // ぜんぶの 技が どこかの タブに 入る
+  const ids = new Set(SKILL_TABS.map((t) => t.id));
+  for (const [id, a] of Object.entries(ABILITIES)) assert.ok(ids.has(effectTab(a)), id);
+});
+
+test('技の タブ: 空の タブは 出さない・技の ならびは かえない・今の職業と お気に入り', () => {
+  const ids = ['hoimi', 'mera', 'io', 'merami', 'sukuruto', 'zao', 'merazoma'];
+  const tabs = skillTabs(ids, { abs: ab, job: 'mage', favs: ['zao', 'nothing_here', 'io'] });
+  const by = Object.fromEntries(tabs.map((t) => [t.id, t.ids]));
+  assert.deepEqual(tabs.map((t) => t.id), ['fav', 'job', 'one', 'all', 'heal', 'buff'], '弱くする・そのほかは 空なので 出ない');
+  assert.deepEqual(by.fav, ['zao', 'io'], 'お気に入りは その ならび（覚えていない 技は 出ない）');
+  assert.deepEqual(by.one, ['mera', 'merami', 'merazoma'], 'ならびは 今の じゅん。上の 技が あっても 下の 技も 出す');
+  assert.deepEqual(by.heal, ['hoimi', 'zao']);
+  assert.ok(by.job.includes('mera') && !by.job.includes('hoimi'), '今の職業の タブは その 職業の 技');
+  assert.equal(tabs.find((t) => t.id === 'debuff'), undefined);
+  // はじめの タブ: まえに 見た タブ → お気に入り → 今の職業
+  assert.equal(startTab(tabs, 'heal'), 'heal');
+  assert.equal(startTab(tabs, 'debuff'), 'fav', 'ない タブは お気に入りから');
+  assert.equal(startTab(tabs.filter((t) => t.id !== 'fav'), null), 'job');
+  assert.equal(startTab([], 'x'), null);
+  // 名前（家族が 決めた タブ）
+  assert.deepEqual(SKILL_TABS.map((t) => t.title), ['お気に入り', '今の職業', '攻撃（1体）', '攻撃（全体）', '回復', '強くする', '弱くする・状態異常', 'そのほか']);
+});
+
+test('弱点の しるし: 技の 属性（いくつも ある 技も）・物理は 入れない', () => {
+  assert.deepEqual(abilityElements(ab('mera')), ['fire']);
+  assert.deepEqual(abilityElements(ab('hi_yami_sekai')), ['dark']);
+  assert.deepEqual(abilityElements(ab('daichi')), []);
+  assert.deepEqual(abilityElements(ab('hoimi')), []);
+  // 画面: わかっている 弱点（knownAffinity）だけ。ならびは かえない（sort を しない）
+  const b = src('js/client/battle.js');
+  const menu = b.slice(b.indexOf('  abilityMenu('), b.indexOf('  lastTab('));
+  assert.match(menu, /knownAffinity\(e, elm\) === 'weak'/);
+  assert.match(menu, /tag weak">弱点</);
+  assert.doesNotMatch(menu, /\.sort\(/, '技を 勝手に ならびかえない');
+  assert.match(menu, /this\.menu\.onSide = /, '十字キーの 左右で タブ');
+});
+
+test('十字キー: 2列・3列の リストでも 列の はしで 左右 → onSide（ui/dom.js）', () => {
+  const d = src('js/client/ui/dom.js');
+  assert.match(d, /atEdge\(d, cols = this\.cols\)/);
+  assert.match(d, /this\.onSide && this\.atEdge\(a === 'left' \? -1 : 1, cols\)\) return this\.onSide/);
+});
+
+// ───────────── 2. 職業の 表示 ─────────────
+test('職業の 表示: 戦いの まど・メニューの 札に 短い 職業名（男の子の セーラー系は jobShort）', () => {
+  const b = src('js/client/battle.js');
+  assert.match(b, /s\.jb\.textContent = a\.mon \|\| a\.kind === 'monster' \|\| !JOBS\[a\.job\] \? '' : jobShort\(a\.job, a\)/);
+  const h = src('js/client/ui/hud.js');
+  assert.match(h, /jobShort\(x\.job, x\)/);
+  assert.match(h, /x && !x\.species/, 'モンスターは 出さない');
+  const m = src('js/client/ui/menu.js');
+  assert.match(m, /m\.jb \? el\('div', \{ class: 'jb', text: m\.jb \}\)/);
+  // スマホの たてでは メニューの 札に 出さない（せまい）・たての 戦いの 5人の 上の 3人も
+  const css = src('js/client/ui/r35-css.js');
+  assert.match(css, /orientation: portrait\) \{ \.fm-mem > \.jb \{ display: none; \}/);
+  assert.match(css, /data-n="5"\] \.b-mem:nth-child\(-n \+ 3\) \.jb \{ display: none; \}/);
+});
+
+// ───────────── 3. お知らせ ─────────────
+test('お知らせ: 日付つき・id は 1つずつ・しくみの 紹介（ネタバレなし・短く）', () => {
+  assert.ok(NEWS.length >= 12);
+  assert.equal(new Set(NEWS.map((n) => n.id)).size, NEWS.length, 'id は かぶらない');
+  for (const n of NEWS) {
+    assert.match(n.date, /^\d{4}-\d{2}-\d{2}$/, n.id);
+    assert.ok(n.title && n.title.length <= 14, `${n.id} 題は 短く`);
+    assert.ok(n.text.split('\n').length <= 4 && n.text.length <= 170, `${n.id} 数行`);
+  }
+  // 新しい 物ほど 上
+  for (let i = 1; i < NEWS.length; i++) assert.ok(NEWS[i - 1].date >= NEWS[i].date, '日付の じゅん');
+  const titles = NEWS.map((n) => n.title).join('・');
+  for (const w of ['配合', 'れん金がま', '合体技', 'ひみつのダンジョン', '宝の地図', 'カジノとメダル王', '馬車', '転職と職業レベル', 'ひらめき', 'お気に入り', '作戦', 'しあわせのぼうし']) assert.ok(titles.includes(w), w);
+  assert.equal(newsDate(NEWS[0]), '10/18');
+  // 漢字の きまり（gameFiles に 入っている）
+  assert.ok(gameFiles().some((f) => f.endsWith('shared/data/news.js')));
+  assert.deepEqual(checkFile(new URL('../public/js/shared/data/news.js', import.meta.url).pathname), []);
+});
+
+test('お知らせ: キャラごとに 読んだ 物を 記録（読んでいない 物が あると ●）', () => {
+  const c = { name: 'あ' };
+  assert.equal(unreadNews(c).length, NEWS.length);
+  assert.ok(hasUnreadNews(c));
+  assert.ok(markNewsRead(c, [NEWS[0].id, 'no_such']));
+  assert.deepEqual(c.newsRead, [NEWS[0].id], '知らない id は 入れない');
+  assert.equal(markNewsRead(c, NEWS[0].id), false, 'かわらない');
+  markNewsRead(c, NEWS.map((n) => n.id));
+  assert.ok(!hasUnreadNews(c));
+  assert.ok(!hasUnreadNews(null));
+});
+
+test('お知らせ: サーバーに 読んだ 記録（menu → newsRead。返事の 知らせは 出さない）', async () => {
+  const world = new GameWorld({ offline: true, rng: makeRng(35), rateLimit: false });
+  const bot = new Bot(world, 'ナナ');
+  await bot.login();
+  await bot.createAndPlay('mage');
+  await bot.settle();
+  const c = world.data.characters[bot.char.id];
+  assert.ok(hasUnreadNews(c));
+  const before = bot.msgs.length;
+  bot.send({ t: 'menu', action: 'newsRead', ids: NEWS.map((n) => n.id) });
+  assert.ok(!hasUnreadNews(c));
+  assert.ok(!bot.msgs.slice(before).some((m) => m.t === 'menuRes'), '知らせ（menuRes）は 出さない');
+  assert.ok(bot.msgs.slice(before).some((m) => m.t === 'self' && m.char.newsRead.length === NEWS.length), '自分の ようすを おくる');
+  // メニュー・HUD の ●（ui/menu.js・ui/hud.js）
+  assert.match(src('js/client/ui/menu.js'), /\{ label: 'お知らせ', value: 'news' \}/);
+  assert.match(src('js/client/ui/hud.js'), /classList\.toggle\('has-new', hasUnreadNews\(this\.game\.me\)\)/);
+});
+
+// ───────────── 4. 道具の 分類 ─────────────
+test('道具の タブ: 消もう品・装備品・大事な物・素材・宝の地図（空の タブは 出さない・左右で かえる）', () => {
+  const m = src('js/client/ui/menu.js');
+  assert.match(m, /const ITEM_TABS = \[\['use', '消もう品'\], \['equip', '装備品'\], \['key', '大事な物'\], \['mat', '素材'\], \['tmap', '宝の地図'\]\];/);
+  assert.match(m, /\.filter\(\(t\) => t\.list\.length\)/, '空の タブは 出さない');
+  assert.match(m, /onSide: kinds\.length > 1 \? \(d\) => goTab/, '十字キーの 左右で タブ');
+  // 使った・装備した あとは その 道具の タブに もどる（なくなった ときは 今の タブ）
+  assert.match(m, /const want = fRow \? itemTabOf\(fRow\) : this\.itemTab;/);
+  // 分け方
+  const body = m.slice(m.indexOf('export function itemTabOf'), m.indexOf('// 道具の ならべかえ'));
+  const itemTabOf = new Function('ITEMS', 'GEAR_TYPES', `${body.replace('export ', '')}; return itemTabOf;`)(
+    { herb: { type: 'use' }, iron_sword: { type: 'weapon' }, neko_suzu: { type: 'acc' }, beast_fang: { type: 'mat' }, star_flower: { type: 'key' } },
+    new Set(['weapon', 'armor', 'shield', 'head', 'acc']));
+  assert.equal(itemTabOf({ value: 'herb' }), 'use');
+  assert.equal(itemTabOf({ value: 'iron_sword' }), 'equip');
+  assert.equal(itemTabOf({ value: 'neko_suzu' }), 'equip');
+  assert.equal(itemTabOf({ value: 'beast_fang' }), 'mat');
+  assert.equal(itemTabOf({ value: 'star_flower', key: true }), 'key');
+  assert.equal(itemTabOf({ value: 'alchemy_pot', key: true, pot: true }), 'key');
+  assert.equal(itemTabOf({ value: 'tm:1', tmap: 1 }), 'tmap');
+});
+
+// ───────────── 5. れん金がまの ボタン ─────────────
+test('れん金がま: フィールドの 右の ボタン（大鳥・竜の ボタンと おなじ 列）。持っている 人だけ', () => {
+  const h = src('js/client/ui/hud.js');
+  assert.match(h, /const on = g\.state === 'field' && hasPot\(g\.me\);/);
+  assert.match(h, /class: 'win hud-btn hud-pot', text: 'れん金'/);
+  assert.match(h, /this\.btns\.append\(this\.potBtn\)/, 'hud-btns（sky.js の 大鳥の ボタンと おなじ 所）');
+  assert.match(h, /if \(g\.state !== 'field' \|\| g\.busy \|\| g\.menuOpen \|\| !hasPot\(g\.me\)\) return;/);
+  assert.match(h, /alchemyUI\(g\)\.finally/);
+});
+
+// ───────────── 6. コントローラーだけで 完結 ─────────────
+test('十字キーで ボタンの 画面: いちばん 近い ボタンへ（同じ 行・列を 先に）', () => {
+  const R = (left, top, w = 60, h = 30) => ({ left, top, right: left + w, bottom: top + h, width: w, height: h });
+  const name = R(0, 0, 600, 40); // 名前（はばが ひろい）
+  const male = R(0, 60), female = R(70, 60);
+  const prev = R(0, 120), next = R(300, 120);
+  const list = [name, male, female, prev, next];
+  assert.equal(nearest(name, list, 'down'), male, '下: 重なって いる 列の いちばん 近い もの');
+  assert.equal(nearest(male, list, 'right'), female);
+  assert.equal(nearest(female, list, 'left'), male);
+  assert.equal(nearest(female, list, 'down'), prev);
+  assert.equal(nearest(prev, list, 'right'), next);
+  assert.equal(nearest(male, list, 'up'), name);
+  assert.equal(nearest(name, list, 'up'), null, 'その 向きに ない ときは うごかない');
+});
+
+test('コントローラー: 転職の だれ・戦いの メニュー・大鳥の L・道具の ならべかえ・ボタンの 画面', () => {
+  const sv = src('js/client/ui/services.js');
+  assert.match(sv, /value: '__who'/, '転職: いちばん上の 行で だれを えらぶ');
+  assert.match(sv, /if \(menu\.current\?\.value === '__who'\) return nextWho\(d\);/, '左右で 人を かえる');
+  assert.match(sv, /if \(it\.value === '__who'\) return nextWho\(1\);/, 'A でも かえる');
+  const bp = src('js/client/battle-pad.js');
+  assert.match(bp, /a === 'map' \? battlePadMenu\(scene\)/, '戦い: SELECT・M で 戦いの メニュー');
+  for (const w of ['オートにする', 'の作戦', '合体技のよやくをやめる']) assert.ok(bp.includes(w), w);
+  assert.match(src('js/client/battle.js'), /this\.unbindPad = bindBattlePad\(this\);/);
+  const inp = src('js/client/input.js');
+  assert.match(inp, /if \(!repeat && this\.hot\?\.\(action\)\) return;/);
+  assert.match(inp, /if \(edge\('ride', b\(4\)\)\) this\.emit\('ride'\);/, 'ゲームパッドの L で 大鳥');
+  assert.match(src('js/client/game.js'), /else if \(a === 'ride'\) this\.sky\.padButton\(\);/);
+  assert.match(src('js/client/sky.js'), /if \(this\.flying && !this\.btn2\.hidden\) return this\.regionButton\(\);/);
+  assert.match(src('js/client/ui/menu.js'), /onY: \(\) => \{\n\s+const keys = Object\.keys\(ITEM_SORTS\);/, '道具: Y で ならべかえ');
+  assert.match(src('js/client/ui/dom.js'), /if \(a === 'y' && this\.onY\) return this\.onY\(this\.current, this\.idx\);/);
+  // タップ しか できなかった 画面に padNav（タイトル・キャラえらび・キャラを 作る・引っこしコード・スマホに 持っていく キャラ）
+  const t = src('js/client/ui/title.js');
+  assert.equal((t.match(/padNav\(/g) || []).length, 4);
+  assert.match(src('js/client/ui/syncui.js'), /padNav\(box, /);
+});
+
+// ───────────── 7. 仲間の 動き ─────────────
+test('仲間の 動き: 主人公が 歩くと 仲間も なめらかに（道の 点に とびとびに 合わせない）', () => {
+  const me = { x: 5, y: 5, dir: 'right', trail: [] };
+  const push = Field.prototype.pushTrail;
+  const steps = [];
+  let last = null;
+  // 1コマ 0.05マス（歩く はやさ くらい）。右へ 60コマ → 下へ 60コマ
+  for (let i = 0; i < 120; i++) {
+    if (i < 60) me.x += 0.05; else { me.y += 0.05; me.dir = 'down'; }
+    push.call(null, me);
+    const f = trailAt(me, 0.95);
+    if (last && i > 30) steps.push(Math.hypot(f.x - last.x, f.y - last.y));
+    last = f;
+  }
+  const max = Math.max(...steps);
+  const min = Math.min(...steps.filter((_, i) => i < 25));
+  assert.ok(max <= 0.0501, `1コマで とびすぎない（${max.toFixed(3)}）`);
+  assert.ok(min >= 0.049, `まっすぐ 歩く 間は 毎コマ 同じだけ 動く（${min.toFixed(3)}）`);
+  // 道の とちゅうも 道の 上（点と 点の 間）
+  const o = { x: 2, y: 0, dir: 'right', trail: [{ x: 1, y: 0, dir: 'right' }, { x: 0, y: 0, dir: 'right' }] };
+  assert.deepEqual(trailAt(o, 1.5), { x: 0.5, y: 0, dir: 'right' });
+  assert.deepEqual(trailAt(o, 5), { x: 0, y: 0, dir: 'right' }, '道より 遠い ときは いちばん 古い 点');
+  assert.match(src('js/client/field.js'), /return trailAt\(o, n \* 0\.95\);/);
+});

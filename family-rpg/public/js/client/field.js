@@ -94,6 +94,22 @@ export function playerSprite(look, job, dir, frame, eq, res = 4) {
 // 大きな 魔物（ヴァルドラゴン など）も、ついてくる ときは 主人公を かくさない ように 24ドットまで
 const monFlip = new WeakMap();
 const FOLLOW_MAX = 24;
+// 通った 道（o.trail。新しい ほうが 先）を、今の いち（o.x, o.y）から want マス もどった ところ（点の 間は なめらかに）
+export function trailAt(o, want) {
+  let acc = 0;
+  let prev = { x: o.x, y: o.y, dir: o.dir };
+  for (const p of o.trail) {
+    const seg = Math.hypot(p.x - prev.x, p.y - prev.y);
+    if (acc + seg >= want) {
+      const k = seg > 1e-6 ? (want - acc) / seg : 1;
+      return { x: prev.x + (p.x - prev.x) * k, y: prev.y + (p.y - prev.y) * k, dir: p.dir };
+    }
+    acc += seg;
+    prev = p;
+  }
+  return o.trail.length ? o.trail[o.trail.length - 1] : { x: o.x, y: o.y, dir: o.dir };
+}
+
 export function followerSprite(f, dir, frame) {
   if (f.mon) {
     const c = monsterCanvas(f.mon, frame, FOLLOW_MAX);
@@ -1305,16 +1321,11 @@ export class Field {
     return this.me.running ? 'run' : this.me.moving;
   }
 
+  // 仲間（ついてくる キャラ）の いち: 通った 道（trail）を n 人目 ぶん もどった ところ。
+  // 第35回: 道の 点（0.12マスごと）に とびとびに 合わせると、主人公が 歩く たびに こまかく ふるえた。
+  // 点と 点の 間を なめらかに うめる（trailAt。test/ui-r35.test.js）
   trailPos(o, n) {
-    const want = n * 0.95;
-    let acc = 0;
-    let prev = { x: o.x, y: o.y, dir: o.dir };
-    for (const p of o.trail) {
-      acc += Math.hypot(p.x - prev.x, p.y - prev.y);
-      if (acc >= want) return p;
-      prev = p;
-    }
-    return o.trail.length ? o.trail[o.trail.length - 1] : { x: o.x, y: o.y, dir: o.dir };
+    return trailAt(o, n * 0.95);
   }
 
   myFollowers() {

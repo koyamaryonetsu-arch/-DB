@@ -257,6 +257,14 @@ export class SkyClient {
   // フィールドの ボタン（F キー）
   toggle() { this.onButton(); }
 
+  // 第35回: ゲームパッドの L（キーボードの G）。地上では 呼ぶ、空の 上では「別の地方へ」（行き先が なければ 降りる）
+  padButton() {
+    if (!this.btn.hidden || this.flying) {
+      if (this.flying && !this.btn2.hidden) return this.regionButton();
+      return this.onButton();
+    }
+  }
+
   // えんしゅつ中は うごけない
   blocksMove() {
     const a = this.anim;

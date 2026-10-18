@@ -106,15 +106,26 @@ function jobUI(game) {
       for (const m of list) {
         whoRow.append(el('button', {
           class: `btn ${who === m.key ? 'sel' : ''}`, text: m.name,
-          onclick: () => { who = m.key; renderWho(); menu.setItems(render()); showJob(menu.current?.value || target().job); },
+          onclick: () => { who = m.key; renderWho(); menu.setItems(render()); showJob(menu.current?.value && menu.current.value !== '__who' ? menu.current.value : target().job); },
         }));
       }
+    };
+    // 第35回: だれが 転職するかを 一覧の いちばん上の 行でも かえられる（十字キーの 左右・A。コントローラーだけで えらべる）
+    const people = () => [{ key: 'self', name: game.me.name }, ...mates()];
+    const nextWho = (d) => {
+      const list = people();
+      const i = Math.max(0, list.findIndex((m) => m.key === who));
+      who = list[(i + d + list.length) % list.length].key;
+      game.audio.sfx('cursor');
+      menu.setItems(render());
+      showJob(target().job);
     };
     const render = () => {
       if (!target()) who = 'self';
       const c = target();
       s.right.textContent = `${c.name}: ${jobLabel(c.job, c)}`;
       const out = [];
+      if (people().length > 1) out.push({ html: `だれが転職する？<b class="gold">◀ ${esc(c.name)} ▶</b>`, value: '__who', cls: 'job-who' });
       TIER_ORDERS.forEach((all, tier) => {
         // 体で なれない 職業（フルーツジッパー・アラシ）は 出さない
         const order = all.filter((j) => jobBodyOk(j, c.look));
@@ -143,10 +154,14 @@ function jobUI(game) {
     const menu = new ListMenu(game.input, {
       items: render(),
       sound: (x) => game.audio.sfx(x),
-      onMove: (it) => showJob(it.value),
-      // 左右で せつめいの まどを スクロール（覚える技を 最後まで 見られる）
-      onSide: (d) => { main.scrollBy({ top: d * main.clientHeight * 0.7, behavior: 'smooth' }); },
+      onMove: (it) => showJob(it.value === '__who' ? target().job : it.value),
+      // 左右で せつめいの まどを スクロール（覚える技を 最後まで 見られる）。だれの 行では 人を かえる
+      onSide: (d) => {
+        if (menu.current?.value === '__who') return nextWho(d);
+        main.scrollBy({ top: d * main.clientHeight * 0.7, behavior: 'smooth' });
+      },
       onSelect: async (it) => {
+        if (it.value === '__who') return nextWho(1);
         const c = target();
         if (!c) return;
         if (it.value === c.job) {

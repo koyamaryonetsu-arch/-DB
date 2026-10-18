@@ -281,6 +281,7 @@ export class Game {
     else if (a === 'map') openWorldMap(this);
     else if (a === 'chat') this.hud.chatInput();
     else if (a === 'fly') this.sky.toggle();
+    else if (a === 'ride') this.sky.padButton();
   }
 
   openMenu(section) {

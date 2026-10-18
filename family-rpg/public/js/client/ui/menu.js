@@ -45,6 +45,9 @@ import { wagonMenuView, wagonHereClient, menuArrange } from './wagon.js';
 import { readErrLog, errLogText, clearErrLog } from '../errlog.js';
 import { fieldUsableAbilities } from '../../shared/fieldskills.js';
 import { alchemyRow, alchemyUI, bindAlchemy } from './alchemy.js';
+import './r35-css.js';
+import { newsView } from './news.js';
+import { hasUnreadNews } from '../../shared/data/news.js';
 
 // 見た目装備の せつめい
 const LOOK_HELP = '見た目だけを、持っている装備に変える（強さは変わらない）\n職業で装備できない物も選べる。「装備なし」も選べる';
@@ -65,9 +68,25 @@ const MAIN = [
   { label: '図鑑', value: 'zukan' },
   { label: 'マップ', value: 'map' },
   { label: 'クエスト', value: 'quest' },
+  // 第35回: お知らせ（ui/news.js。まだ 読んでいない 物が あると ●）
+  { label: 'お知らせ', value: 'news' },
   { label: '設定', value: 'settings' },
   { label: '終わる', value: 'quit' },
 ];
+
+// 第35回: 道具の 分類の タブ（メニューの 道具）
+const ITEM_TABS = [['use', '消もう品'], ['equip', '装備品'], ['key', '大事な物'], ['mat', '素材'], ['tmap', '宝の地図']];
+const GEAR_TYPES = new Set(['weapon', 'armor', 'shield', 'head', 'acc']);
+// 一覧の 行（itemsList の items）が どの タブか
+export function itemTabOf(row) {
+  if (row.tmap) return 'tmap';
+  if (row.key || row.pot) return 'key';
+  const t = ITEMS[row.value]?.type;
+  if (GEAR_TYPES.has(t)) return 'equip';
+  if (t === 'mat') return 'mat';
+  if (t === 'use') return 'use';
+  return 'key';
+}
 
 // 道具の ならべかえ（この 端末に おぼえる）
 function itemSortPref() {
@@ -121,7 +140,7 @@ export class FieldMenu {
     document.getElementById('ui').append(this.backdrop, this.root);
     this.updateHead();
     this.menu = new ListMenu(g.input, {
-      items: MAIN,
+      items: MAIN.map((it) => (it.value === 'news' && hasUnreadNews(g.me) ? { ...it, cls: 'has-new' } : it)),
       sound: this.sfx,
       back: null,
       onMove: (it) => this.preview(it.value),
@@ -158,7 +177,9 @@ export class FieldMenu {
         el('div', { class: `n ${m.hpCls}`, text: m.name }),
         el('div', { class: `v ${m.hpCls}` }, el('span', { class: 'k', text: 'H' }), `${Math.max(0, m.hp)}`),
         el('div', { class: 'v' }, el('span', { class: 'k', text: 'M' }), `${m.mp}`),
-        el('div', { class: 'v lv' }, el('span', { class: 'k', text: 'Lv' }), `${m.level}`)));
+        el('div', { class: 'v lv' }, el('span', { class: 'k', text: 'Lv' }), `${m.level}`),
+        // 第35回: 短い 職業名（モンスターは なし。スマホの たてでは せまいので 出さない。ui/r35-css.js）
+        m.jb ? el('div', { class: 'jb', text: m.jb }) : null));
     }
     this.headGold.innerHTML = '';
     this.headGold.append(el('span', { class: 'k', text: '所持金' }), el('span', { class: 'g', text: `${c.gold.toLocaleString('ja-JP')} G` }));
@@ -257,6 +278,7 @@ export class FieldMenu {
       case 'map': this.main.append(el('div', { class: 'muted', text: '探検した場所の地図を見る。（Mキーでも開ける）\n次の行き先はピンク、たのまれごとは水色、報告できるときはみどりのしるし。' })); break;
       case 'quest': this.main.append(this.questView()); break;
       case 'settings': this.main.append(this.settingsView(false)); break;
+      case 'news': this.main.append(newsView(this, false)); break;
       case 'quit': {
         const where = g.net.mode !== 'offline' ? '家族サーバー' : g.net.local?.cloud?.state === 'on' ? 'claude.ai' : 'このブラウザ';
         this.main.append(el('div', { class: 'muted', text: `セーブしてタイトルにもどる。（${where}にセーブされます）` }));
@@ -357,6 +379,11 @@ export class FieldMenu {
       case 'tactics': return this.openView(() => this.tacticsView(true));
       case 'zukan': return this.focusSub(this.zukanView(true));
       case 'settings': return this.focusSub(this.settingsView(true));
+      case 'news':
+        // 読んだら メニューの ● を けす
+        for (const it of this.menu.items) if (it.value === 'news') it.cls = '';
+        this.menu.root.querySelector('.item.has-new')?.classList.remove('has-new');
+        return this.focusSub(newsView(this, true));
       case 'talk':
         this.close();
         return partyTalk(g);
@@ -428,8 +455,27 @@ export class FieldMenu {
       box.append(el('div', { class: 'small', text: items.map((i) => i.label || ITEMS[i.value].name).join('、') }));
       return box;
     }
+    // 第35回: 道具の 分類の タブ（消もう品・装備品・大事な物・素材・宝の地図。空の タブは 出さない）。
+    // スマホは タブを タップ、十字キー・キーボードは 左右（ListMenu の onSide）
+    const kinds = ITEM_TABS.map(([k, label]) => ({ k, label, list: items.filter((x) => itemTabOf(x) === k) })).filter((t) => t.list.length);
+    const fRow = focus && items.find((x) => x.value === focus.id);
+    const want = fRow ? itemTabOf(fRow) : this.itemTab;
+    const cur = kinds.find((t) => t.k === want) || kinds.find((t) => t.k === this.itemTab) || kinds[0];
+    this.itemTab = cur.k;
+    const goTab = (k) => {
+      this.itemTab = k;
+      this.sfx('cursor');
+      this.focusSub(this.itemsList(true));
+    };
+    const kindTabs = kinds.length > 1 ? el('div', { class: 'item-tabs', role: 'tablist' }, ...kinds.map((t) => el('button', {
+      class: `btn ${t.k === cur.k ? 'sel' : ''}`,
+      role: 'tab',
+      text: t.label,
+      onclick: (e) => { e.stopPropagation(); goTab(t.k); },
+    }))) : null;
+    items.splice(0, items.length, ...cur.list);
     // ならべかえ（あいうえお順・種類順・手に入れた順）
-    const tabs = el('div', { class: 'tabs sort-tabs' }, el('span', { class: 'small muted', text: 'ならべかえ' }),
+    const tabs = el('div', { class: 'tabs sort-tabs' }, el('span', { class: 'small muted', text: g.input.touch ? 'ならべかえ' : 'ならべかえ（Y）' }),
       ...Object.entries(ITEM_SORTS).map(([k, label]) => el('button', {
         class: `btn ${k === mode ? 'on' : ''}`,
         text: label,
@@ -459,8 +505,16 @@ export class FieldMenu {
         requestAnimationFrame(() => { if (m.root.isConnected) m.scrollToSel(); });
       },
       onSelect: (it) => this.itemAction(it),
+      onSide: kinds.length > 1 ? (d) => goTab(kinds[(kinds.indexOf(cur) + d + kinds.length) % kinds.length].k) : null,
+      // 第35回: Y で ならべかえ（コントローラー・キーボード。タップは 上の ボタン）
+      onY: () => {
+        const keys = Object.keys(ITEM_SORTS);
+        setItemSortPref(keys[(keys.indexOf(mode) + 1) % keys.length]);
+        this.sfx('cursor');
+        this.focusSub(this.itemsList(true));
+      },
     });
-    box.append(tabs, m.root, detail);
+    box.append(...(kindTabs ? [kindTabs] : []), tabs, m.root, detail);
     return box;
   }
 

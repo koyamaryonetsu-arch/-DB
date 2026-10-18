@@ -5,6 +5,7 @@
 // ・家族サーバーを 開いた とき … ときどき サイトへ ちょっと 行って、スマホの データを 持って もどってくる
 //   （家族サーバーで 遊ぶ まえに、ひとりで 進めた ぶんが かならず 家族サーバーに 入る）
 // どちらで 遊んだ ぶんも なくならない ように、合わせかたは shared/world/sync.js・merge.js
+import { padNav } from './padnav.js';
 import { el, toast, confirmBox, askText } from './dom.js';
 import { downReason, DOWN_TEXT } from '../downreason.js';
 import {
@@ -292,7 +293,8 @@ function pickChars(game) {
       game.input.pop(h);
       resolve(v);
     };
-    const h = { onNav: (a) => { if (a === 'b') done(null); } };
+    // 第35回: 十字キーと A でも えらべる（ui/padnav.js）
+    const h = padNav(box, { sound: (x) => game.audio.sfx(x), onB: () => done(null) });
     game.input.push(h);
     box.append(row,
       el('div', { class: 'small muted', text: '選んだキャラが、このスマホの「ひとりで遊ぶサイト」にも保存されます。' }),
