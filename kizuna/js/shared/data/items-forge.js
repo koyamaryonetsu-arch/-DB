@@ -4,7 +4,11 @@
 // 作れる 装備（forge: true）… 店では 売っていない。ふしぎなかじで 素材と ゴールドで 作る（forge.js の RECIPES）
 // きたえた 装備 … 'iron_sword+1' 〜。ゲームが 読みこむ ときに ぜんぶ 作っておく（addUpgradeItems）
 //   きたえられる 回数は 装備の ランクで きまる（upgradeLimit。ランクが 高いほど たくさん きたえられる）
+//   第35回: 店で 買える 装備（★1・items-rare.js の isShopGear）は きたえられない（upgradeLimit 0）。
+//           むかし きたえた 店の 品（+1〜）は セーブが こわれない ように 今までどおり 作っておく（rankLimit）
 //   base: もとの 装備の ID / plus: きたえた 回数。みため・エフェクト・読みがなは もとの 装備と おなじ
+
+import { isShopGear } from './items-rare.js?v=a21d4486f121';
 
 export const ITEMS_FORGE = {
   // ───── 素材 ─────
@@ -54,10 +58,14 @@ const KEEP_MAX = 3;
 //   生まれ変わる 武器（items-alchemy.js の REBIRTH）も、上限＋この 回数まで きたえてから 生まれ変わる
 export const CAP_UP_MAX = 3;
 
-// その 装備を 何回まで きたえられるか（きたえた 装備は もとの 装備の ランクで）
-export function upgradeLimit(it) {
+// ランクで きまる 回数（店の 品も。むかしの セーブの 品を 作る ため）
+export function rankLimit(it) {
   const rank = Math.max(1, Math.min(UPGRADE_BY_RANK.length - 1, it?.rank || 1));
   return UPGRADE_BY_RANK[rank];
+}
+// その 装備を 何回まで きたえられるか（きたえた 装備は もとの 装備の ランクで）。店で 買える 装備（★1）は 0
+export function upgradeLimit(it) {
+  return isShopGear(it) ? 0 : rankLimit(it);
 }
 // きたえられる 部位（アクセサリーは きたえられない）
 export const UPGRADE_TYPES = ['weapon', 'armor', 'shield', 'head'];
@@ -104,8 +112,9 @@ export function upgradedItem(baseId, base, n) {
 }
 
 // table（ITEMS）の きたえられる 装備 ぜんぶに +1〜 を 足す（なんど よんでも おなじ）
-// ランクで きまる 回数＋れん金で ふやせる 回数（CAP_UP_MAX）まで（むかしの セーブの ために +3 までは どれにも）
-export const upgradeTop = (it) => Math.max(KEEP_MAX, upgradeLimit(it) + CAP_UP_MAX);
+// ランクで きまる 回数＋れん金で ふやせる 回数（CAP_UP_MAX）まで（むかしの セーブの ために +3 までは どれにも。
+// 店の 品も 第34回までは きたえられたので、その ころの 回数まで 作っておく）
+export const upgradeTop = (it) => Math.max(KEEP_MAX, rankLimit(it) + CAP_UP_MAX);
 export function addUpgradeItems(table) {
   for (const [id, it] of Object.entries(table)) {
     if (!it || it.base || !UPGRADE_TYPES.includes(it.type)) continue;

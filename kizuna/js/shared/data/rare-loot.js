@@ -4,9 +4,9 @@
 //   ・ふつうの 魔物 … その地方に 合った 装備を まれに（REGION_RARE_N 体に 1体。第32回 500。loot.js）
 //   ・ひみつのダンジョン … ここだけの ★4〜★5（深いほど 強い。20階から。休み所の ごほうび・魔物・番人。data/secret.js・loot.js）
 //   ・店の 品は レア度なし（0）
-import { ITEMS, baseItemId } from './items.js?v=6206a5e7d2b6';
-import { MONSTERS } from './monsters.js?v=6206a5e7d2b6';
-import { RARITY_OVERRIDE, defaultRarity } from './items-rare.js?v=6206a5e7d2b6';
+import { ITEMS, baseItemId } from './items.js?v=a21d4486f121';
+import { MONSTERS } from './monsters.js?v=a21d4486f121';
+import { RARITY_OVERRIDE, defaultRarity, starsFor, isShopGear } from './items-rare.js?v=a21d4486f121';
 
 export const RARITY_MAX = 5;
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -21,7 +21,26 @@ export function rarityOf(id) {
   // あとから 足された 品（ほかの 担当の 品など）
   return RARITY_OVERRIDE[bid] ?? defaultRarity(it);
 }
-export const rarityStars = (id) => '★'.repeat(rarityOf(id));
+// ★の 数（強さ。第35回）: 店の 品 1・店では 買えない 品は ランクで 2〜5（items-rare.js の starsFor）。装備で ない 物は 0
+export function starsOf(id) {
+  return starsFor(ITEMS[baseItemId(id)]);
+}
+export const rarityStars = (id) => '★'.repeat(starsOf(id));
+// 店で 買える 装備か（★1。きたえられない）
+export const isShopItem = (id) => isShopGear(ITEMS[baseItemId(id)]);
+
+// めずらしさの 文（説明に 出す。店の 品は ''）。ネタバレに ならない ように「どこで」だけ
+const SRC_TEXT = {
+  tm: '宝の洞窟でしか手に入らない', boss: 'ボスからしか手に入らない', region: '魔物がまれに落とす', sd: 'ひみつのダンジョンでしか手に入らない',
+  alchemy: 'れん金でしか作れない', reborn: 'ふつうには手に入らない', ruin: '神殿の宝箱でしか手に入らない',
+};
+export function rareWhereText(id) {
+  const it = ITEMS[baseItemId(id)];
+  if (!it || !EQUIP_TYPES.includes(it.type) || isShopGear(it)) return '';
+  if (SRC_TEXT[it.src]) return SRC_TEXT[it.src];
+  if (it.forge) return 'ふしぎなかじで作る';
+  return '店では買えない';
+}
 
 // とくせいの 文（「炎に強い・ねむりにくい・会心が出やすい・行動するとMP+1・ときどき毒」）
 const EL = { fire: '炎', ice: '氷', wind: '風', blast: '爆発', bolt: '雷', light: '光', dark: '闇', void: '消滅' };

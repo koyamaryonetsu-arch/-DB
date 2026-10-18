@@ -6,14 +6,14 @@
 //   useAlchemyMemo … れん金のメモを 使う（services.js の useItem）
 //   alchemyMemoLoot … フィールドの 宝箱に メモが 入っている ことが ある（world/fieldchests.js）
 //   repairAlchemy・mergeAlchemy … セーブを ととのえる・データ合わせ
-import { ITEMS, baseItemId } from '../data/items.js?v=6206a5e7d2b6';
-import { addItem, removeItem, itemCount, ownsItem } from '../stats.js?v=6206a5e7d2b6';
+import { ITEMS, baseItemId } from '../data/items.js?v=a21d4486f121';
+import { addItem, removeItem, itemCount, ownsItem } from '../stats.js?v=a21d4486f121';
 import {
   ALCHEMY_POT, ALCHEMY_MEMO, POT_FLAG, STARTER_RECIPES, KEEPER_RECIPES, MERGE_RECIPE, CAP_UP_MAX, RECIPE_BY_ID,
   hasPot, matchPot, learnableRecipes, knowsRecipe, insText, capUp, POT_FAST_JOBS, POT_FAST_RATE,
-} from '../data/alchemy.js?v=6206a5e7d2b6';
-import { partyOf } from './party.js?v=6206a5e7d2b6';
-import { bossRareOf } from '../data/rare-loot.js?v=6206a5e7d2b6';
+} from '../data/alchemy.js?v=a21d4486f121';
+import { partyOf } from './party.js?v=a21d4486f121';
+import { bossRareOf } from '../data/rare-loot.js?v=a21d4486f121';
 
 // 本だなの きろくの 数（多すぎる ときは 古い ものから わすれる）
 const SHELF_MAX = 400;
@@ -108,6 +108,7 @@ export function alchemyAction(world, s, msg, reply) {
       for (const [id, n] of need) if (!ITEMS[id] || ITEMS[id].type === 'key' || itemCount(c, id) < n) return reply(false, 'ふくろに入っていない物がある。');
       const m = matchPot(ids, c);
       if (!m.ok) {
+        if (m.why === 'shop') return reply(false, `${ITEMS[baseItemId(ids[0])].name}は店の品（★1）なので、\n2つ合わせても、きたえられる回数はふえない。\n（入れた物は、ふくろにもどした）`);
         if (m.why === 'capMax') return reply(false, `${ITEMS[baseItemId(ids[0])].name}は、もうこれ以上きたえられる回数をふやせない。\n（ふやせるのは${CAP_UP_MAX}回まで）`);
         return reply(false, `${insText(ids)}…\nこの組み合わせは、うまくいきそうにない。\n（入れた物は、ふくろにもどした）`);
       }

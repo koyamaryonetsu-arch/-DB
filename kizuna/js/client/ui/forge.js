@@ -4,27 +4,36 @@
 //   作る:     レシピを えらぶ（みぎに 素材の 数・みんなの 強さが どう かわるか）→「〇〇と〇〇ゴールドがいる。作るか？」
 //             →「すぐに装備するか？」→「だれが装備する？」
 //   きたえる: 装備を えらぶ（E は 装備している 物）→ みぎに きたえる 前→あとの 強さと 素材
+//             第35回: 店で 買える 装備（★1）は きたえられない ので 一覧に 出さない。
+//             ただし 生まれ変わりの もとに なる 店の 武器（銅の剣 など 5つ）は「？？？」で 出して、れん金がまの ヒント
 //             →「〇〇にきたえるには〇〇がいる。きたえるか？」→ カン！カン！カン！
-import { el, esc } from './dom.js?v=6206a5e7d2b6';
-import { Counter, compareTeam, itemInfo, whoItems, myTeam } from './counter.js?v=6206a5e7d2b6';
-import { request } from './shop.js?v=6206a5e7d2b6';
-import { rankText } from './info.js?v=6206a5e7d2b6';
-import { ITEMS } from '../../shared/data/items.js?v=6206a5e7d2b6';
-import { UPGRADE_TYPES, UPGRADE_MAX } from '../../shared/data/items-forge.js?v=6206a5e7d2b6';
-import { recipeOf, upgradeCost, lackOf, canUpgrade, maxPlus } from '../../shared/data/forge.js?v=6206a5e7d2b6';
-import { bindAlchemy } from './alchemy.js?v=6206a5e7d2b6';
-import { computeStats, itemCount } from '../../shared/stats.js?v=6206a5e7d2b6';
-import { boardIconURL } from '../render/boards.js?v=6206a5e7d2b6';
+import { el, esc } from './dom.js?v=a21d4486f121';
+import { Counter, compareTeam, itemInfo, whoItems, myTeam } from './counter.js?v=a21d4486f121';
+import { request } from './shop.js?v=a21d4486f121';
+import { rankText } from './info.js?v=a21d4486f121';
+import { rareNameHtml } from './rarity.js?v=a21d4486f121';
+import { ITEMS } from '../../shared/data/items.js?v=a21d4486f121';
+import { UPGRADE_TYPES, UPGRADE_MAX } from '../../shared/data/items-forge.js?v=a21d4486f121';
+import { recipeOf, upgradeCost, lackOf, canUpgrade, maxPlus, isShopForge } from '../../shared/data/forge.js?v=a21d4486f121';
+import { REBIRTH_START } from '../../shared/data/items-alchemy.js?v=a21d4486f121';
+import { hasPot } from '../../shared/data/alchemy.js?v=a21d4486f121';
+import { bindAlchemy } from './alchemy.js?v=a21d4486f121';
+import { computeStats, itemCount } from '../../shared/stats.js?v=a21d4486f121';
+import { boardIconURL } from '../render/boards.js?v=a21d4486f121';
 
 const BONUS_NAMES = { str: '力', def: '身の守り', agi: '素早さ', mag: '攻撃魔力', heal: '回復魔力', hp: '最大HP', mp: '最大MP' };
 
 const HINTS = {
   craft: '素材とゴールドで、店では売っていない装備を作る。\n物語が進むと、作れる物がふえる。',
-  upgrade: `武器・よろい・たて・頭の装備をきたえる。1回ごとに攻撃力や守備力が上がる。\nきたえられる回数は、装備のランクで決まる。\n（ランク1は+1まで。ランクが高いほど多く、最大+${UPGRADE_MAX}）\n+3からは星のかけらもいる。\nれん金がまで同じ装備を2つ合わせると、回数がふえる。`,
+  upgrade: `店では買えない装備（★2から）をきたえる。1回ごとに攻撃力や守備力が上がる。\n店の品（★1）は、きたえられない。\nきたえられる回数は、装備のランクで決まる。（最大+${UPGRADE_MAX}）\n+3からは星のかけらもいる。\nれん金がまで同じ装備を2つ合わせると、回数がふえる。`,
   exit: '',
 };
 
 const hint = (text) => (text ? el('div', { class: 'detail', text }) : null);
+
+// 生まれ変わりの もとに なる 店の 武器（銅の剣 など。items-alchemy.js の REBIRTH_START）
+const REBIRTH_FROM = new Set(REBIRTH_START.map((x) => x.from));
+const isRebirthSeed = (id) => REBIRTH_FROM.has(ITEMS[id]?.base || id);
 
 // 「鉄のかけら2個・星のかけら1個」
 export function matsText(mats) {
@@ -166,14 +175,16 @@ async function craftOne(game, ct, id) {
 // きたえられる 装備（装備している 物 → ふくろの 物）。まものの 仲間が 武器や よろいを 装備しても おなじ
 function candidates(game) {
   const out = [];
+  // 店で 買える 装備（★1）は きたえられない ので 出さない。生まれ変わりの もとの 店の 武器だけ「？？？」（seed）で 出す（第35回）
+  const shown = (id) => !isShopForge(id) || isRebirthSeed(id);
   for (const m of myTeam(game)) {
     for (const slot of UPGRADE_TYPES) {
       const id = m.char.equip?.[slot];
-      if (id && ITEMS[id]) out.push({ id, who: m.key, whoName: m.name, char: m.char });
+      if (id && ITEMS[id] && shown(id)) out.push({ id, who: m.key, whoName: m.name, char: m.char, seed: isShopForge(id) });
     }
   }
   for (const e of game.me.items || []) {
-    if (e.n > 0 && UPGRADE_TYPES.includes(ITEMS[e.id]?.type)) out.push({ id: e.id, who: null, n: e.n });
+    if (e.n > 0 && UPGRADE_TYPES.includes(ITEMS[e.id]?.type) && shown(e.id)) out.push({ id: e.id, who: null, n: e.n, seed: isShopForge(e.id) });
   }
   return out;
 }
@@ -194,6 +205,13 @@ function upgradeBox(game, cand) {
   const it = ITEMS[cand.id];
   const cost = upgradeCost(cand.id);
   const box = el('div', { class: 'ct-item forge-up' });
+  // 第35回: 生まれ変わりの もとに なる 店の 武器 … きたえられないが、ふしぎな 光（れん金がまの ヒント）
+  if (cand.seed) {
+    box.append(el('div', { class: 'hd' }, el('span', { class: 'gold', text: `${it.name} → ？？？` }), el('span', { class: 'rk', text: rankText(cand.id) })));
+    if (cand.who) box.append(el('div', { class: 'small muted', text: `${cand.whoName}が装備している` }));
+    box.append(el('div', { class: 'small forge-reborn forge-seed', style: { whiteSpace: 'pre-line' }, text: `店の品なので、きたえられない。\n…でも、${it.name}が、かすかに光っている。\n${hasPot(game.me) ? 'れん金がまで、星のかけらと何かを合わせると…？' : 'いつか、ふしぎな大きいかまに入れると、何かが起こりそうだ。'}` }));
+    return box;
+  }
   // 生まれ変わる（かくし要素）: 何に なるかは ひみつ
   const title = cost ? `${it.name} → ${cost.reborn ? '？？？' : ITEMS[cost.to].name}` : it.name;
   box.append(el('div', { class: 'hd' }, el('span', { class: 'gold', text: title }), el('span', { class: 'rk', text: rankText(cand.id) })));
@@ -274,7 +292,7 @@ async function upgradeLoop(game, ct) {
     if (!list.length) {
       ct.list(null);
       ct.info(null);
-      await ct.say('おや？きたえられる装備を持っていないようだな。');
+      await ct.say('おや？きたえられる装備を持っていないようだな。\n店の品（★1）は、きたえられないんだ。');
       await ct.tap(1800);
       return;
     }
@@ -285,8 +303,8 @@ async function upgradeLoop(game, ct) {
       return {
         value: i,
         label: ITEMS[c.id].name,
-        html: `${c.who ? '<span class="tag e">E</span>' : ''}${esc(ITEMS[c.id].name)}${c.who ? `<span class="cnt">${esc(c.whoName)}</span>` : c.n > 1 ? `<span class="cnt">×${c.n}</span>` : ''}`,
-        right: cost ? (cost.reborn ? '？？？' : `+${cost.n}へ${cost.over ? '？' : ''}`) : '最大',
+        html: `${c.who ? '<span class="tag e">E</span>' : ''}${rareNameHtml(c.id)}${c.who ? `<span class="cnt">${esc(c.whoName)}</span>` : c.n > 1 ? `<span class="cnt">×${c.n}</span>` : ''}`,
+        right: c.seed ? '？？？' : cost ? (cost.reborn ? '？？？' : `+${cost.n}へ${cost.over ? '？' : ''}`) : '最大',
         rightCls: !cost ? 'muted' : lack.ok ? 'gold' : 'dis',
         disabled: !canUpgrade(c.id),
       };

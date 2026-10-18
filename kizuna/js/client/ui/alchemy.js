@@ -6,16 +6,16 @@
 //   自分で入れてみる: ふくろの 物を 1つずつ えらぶ（2つ 入れたら「これで、れん金する」）。はずれは もどってくる
 //   中に 何か 入っている 間は「あと〇歩ほど」を 出す（レシピは 見られる）
 // できあがりの 知らせは サーバーから（world/alchemy.js の finishPot。トースト）
-import { el, esc } from './dom.js?v=6206a5e7d2b6';
-import { Counter, itemInfo } from './counter.js?v=6206a5e7d2b6';
-import { request } from './shop.js?v=6206a5e7d2b6';
-import { rareNameHtml } from './rarity.js?v=6206a5e7d2b6';
-import { ITEMS, baseItemId, sortItemIds } from '../../shared/data/items.js?v=6206a5e7d2b6';
-import { UPGRADE_TYPES } from '../../shared/data/items-forge.js?v=6206a5e7d2b6';
-import { setForgeViewer, maxPlus } from '../../shared/data/forge.js?v=6206a5e7d2b6';
+import { el, esc } from './dom.js?v=a21d4486f121';
+import { Counter, itemInfo } from './counter.js?v=a21d4486f121';
+import { request } from './shop.js?v=a21d4486f121';
+import { rareNameHtml } from './rarity.js?v=a21d4486f121';
+import { ITEMS, baseItemId, sortItemIds } from '../../shared/data/items.js?v=a21d4486f121';
+import { UPGRADE_TYPES } from '../../shared/data/items-forge.js?v=a21d4486f121';
+import { setForgeViewer, maxPlus, isShopForge } from '../../shared/data/forge.js?v=a21d4486f121';
 import {
   ALCHEMY_POT, RECIPE_BY_ID, MERGE_RECIPE, CAP_UP_MAX, hasPot, knownRecipes, recipeLack, pickIngredients, insText, capUp, potSteps,
-} from '../../shared/data/alchemy.js?v=6206a5e7d2b6';
+} from '../../shared/data/alchemy.js?v=a21d4486f121';
 
 // きたえる 回数を 見る 人を 自分の キャラに（道具の 説明・かじ屋の 画面。data/forge.js）
 export function bindAlchemy(game) {
@@ -81,12 +81,12 @@ function recipeBox(game, rid) {
   return box;
 }
 
-// 同じ 武具を 2つ（ふくろに 2つ いじょう ある 装備。もとの 装備ごと）
+// 同じ 武具を 2つ（ふくろに 2つ いじょう ある 装備。もとの 装備ごと）。店で 買える 装備（★1）は きたえられない ので 出さない（第35回）
 function mergeChoices(game) {
   const groups = new Map();
   for (const e of game.me.items || []) {
     const it = ITEMS[e.id];
-    if (!it || !UPGRADE_TYPES.includes(it.type) || !(e.n > 0)) continue;
+    if (!it || !UPGRADE_TYPES.includes(it.type) || !(e.n > 0) || isShopForge(e.id)) continue;
     const b = baseItemId(e.id);
     if (!groups.has(b)) groups.set(b, []);
     for (let i = 0; i < e.n; i++) groups.get(b).push(e.id);
@@ -202,7 +202,7 @@ async function mergeLoop(game, ct) {
   while (!ct.closed) {
     const list = mergeChoices(game);
     if (!list.length) {
-      await ct.say('同じ武具を2つ持っていない。\n（武器・よろい・たて・頭の装備）', { narr: true });
+      await ct.say('同じ武具を2つ持っていない。\n（武器・よろい・たて・頭の装備。店の品〈★1〉はのぞく）', { narr: true });
       await ct.tap(2400);
       return false;
     }

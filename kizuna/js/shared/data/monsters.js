@@ -11,19 +11,19 @@
 const ROCK_RESIST = { fire: 0.5, ice: 0.7, wind: 0.6, blast: 1.5, poison: 0, sleep: 0, confuse: 0.3, paralyze: 0.2 };
 const METAL_RESIST = { fire: 0, ice: 0, wind: 0, blast: 0, bolt: 0, light: 0, dark: 0, void: 0.5, sleep: 0, poison: 0, confuse: 0, blind: 0, silence: 0, paralyze: 0, debuff: 0 };
 
-import { MONSTERS_CH2 } from './monsters-ch2.js?v=6206a5e7d2b6';
-import { MONSTERS_TM } from './monsters-tm.js?v=6206a5e7d2b6';
-import { NIGHT_MONSTERS } from './night.js?v=6206a5e7d2b6';
-import { MONSTERS_RARE } from './monsters-rare.js?v=6206a5e7d2b6';
-import { MONSTERS_CH3 } from './monsters-ch3.js?v=6206a5e7d2b6';
-import { MONSTERS_CH4 } from './monsters-ch4.js?v=6206a5e7d2b6';
-import { MONSTERS_R23 } from './monsters-r23.js?v=6206a5e7d2b6';
+import { MONSTERS_CH2 } from './monsters-ch2.js?v=a21d4486f121';
+import { MONSTERS_TM } from './monsters-tm.js?v=a21d4486f121';
+import { NIGHT_MONSTERS } from './night.js?v=a21d4486f121';
+import { MONSTERS_RARE } from './monsters-rare.js?v=a21d4486f121';
+import { MONSTERS_CH3 } from './monsters-ch3.js?v=a21d4486f121';
+import { MONSTERS_CH4 } from './monsters-ch4.js?v=a21d4486f121';
+import { MONSTERS_R23 } from './monsters-r23.js?v=a21d4486f121';
 // 第4章 Step 7「砂の底の神殿とモルガナ」（monsters-temple.js）
-import { MONSTERS_TEMPLE } from './monsters-temple.js?v=6206a5e7d2b6';
-import { MONSTERS_LAB } from './monsters-lab.js?v=6206a5e7d2b6';
-import { MONSTERS_CH5 } from './monsters-ch5.js?v=6206a5e7d2b6';
-import { MONSTERS_KUMOI, addGaiaParts } from './monsters-kumoi.js?v=6206a5e7d2b6';
-import { MONSTERS_BOSS } from './monsters-boss.js?v=6206a5e7d2b6';
+import { MONSTERS_TEMPLE } from './monsters-temple.js?v=a21d4486f121';
+import { MONSTERS_LAB } from './monsters-lab.js?v=a21d4486f121';
+import { MONSTERS_CH5 } from './monsters-ch5.js?v=a21d4486f121';
+import { MONSTERS_KUMOI, addGaiaParts } from './monsters-kumoi.js?v=a21d4486f121';
+import { MONSTERS_BOSS } from './monsters-boss.js?v=a21d4486f121';
 
 export const MONSTERS = {
   pururin: {

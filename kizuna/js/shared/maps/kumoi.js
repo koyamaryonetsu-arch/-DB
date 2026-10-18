@@ -10,11 +10,11 @@
 // ・hanono（フィールド。町）… ハネビトの 町。長ソラネの 家・宿屋・教会・武器と防具の店・道具屋・見晴らし台
 // ・しずみゆく島の 古い 神殿（sink_ruin_1f〜7f）は maps/sink-ruin.js
 // 魔物は 島の 上が t5_kumoi（B が 作る。plan-ch5.md の 13）
-import { T } from '../tiles.js?v=6206a5e7d2b6';
-import { hash2, fbm } from '../rng.js?v=6206a5e7d2b6';
-import { npc } from './npc.js?v=6206a5e7d2b6';
-import { SEA_PLACES } from './ch2.js?v=6206a5e7d2b6';
-import { buildRuinMaps, RUIN_OUT } from './sink-ruin.js?v=6206a5e7d2b6';
+import { T } from '../tiles.js?v=a21d4486f121';
+import { hash2, fbm } from '../rng.js?v=a21d4486f121';
+import { npc } from './npc.js?v=a21d4486f121';
+import { SEA_PLACES } from './ch2.js?v=a21d4486f121';
+import { buildRuinMaps, RUIN_OUT } from './sink-ruin.js?v=a21d4486f121';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 // 物語の すすみぐあい（data/story-ch5.js の CH5_STEPS の c5_sky の うしろ。plan-ch5.md の 13 の 名前の 約束）

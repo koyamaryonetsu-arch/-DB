@@ -2,11 +2,11 @@
 // ・見通しの目: 読まれた 人の まど（名前の 上）に 目の しるしと 読まれた 種類（攻撃・呪文・回復・防御）。
 //   読んで いる 間は アルゴスの 3つの 目が 光る。読んだ とき（目から 光の すじ）・当たった とき（しかえし）・外れた とき（目が くらむ）の えんしゅつと バナー
 // ・敵が 使うと がめんの まん中に 大きく 出す 技（星の光・星のさばき・ふきあげる風・星の尾）・味方の まどの えんしゅつ・音
-import { KIND_NAMES } from '../shared/battle-ch5.js?v=6206a5e7d2b6';
-import { ARGOS_EYES } from './render/ch5-tower-art.js?v=6206a5e7d2b6';
-import { el } from './ui/dom.js?v=6206a5e7d2b6';
+import { KIND_NAMES } from '../shared/battle-ch5.js?v=a21d4486f121';
+import { ARGOS_EYES } from './render/ch5-tower-art.js?v=a21d4486f121';
+import { el } from './ui/dom.js?v=a21d4486f121';
 // 第5章 Step 4 の ガイアイーター（ねらいめ・まもり・土はこびの しるし。battle-gaia.js）
-import { gaiaDraw, gaiaPresent } from './battle-gaia.js?v=6206a5e7d2b6';
+import { gaiaDraw, gaiaPresent } from './battle-gaia.js?v=a21d4486f121';
 
 export const TOWER_SCREEN_ANIMS = ['star_light', 'star_judge', 'tower_gust', 'comet_tail'];
 export const TOWER_ALLY_FX = {

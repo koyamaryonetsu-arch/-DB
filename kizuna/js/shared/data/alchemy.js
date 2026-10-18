@@ -7,12 +7,15 @@
 //   知らない 組み合わせも 入れられる。当たれば できあがった ときに 新しい レシピと して おぼえる。はずれは 入れられない（もどす）
 //   tier … その章（1〜5）。本だなや メモで わかるのは、その章まで 進んだ 人だけ（TIER_FLAG）
 // ・同じ 武具を 2つ 入れると、レア度は かわらないが きたえられる 回数（+の 上限）が 1 ふえる（CAP_UP_MAX 回まで。
-//   その 装備の しゅるいごと。c.alchemy.cap）
-import { ITEMS, baseItemId } from './items.js?v=6206a5e7d2b6';
-import { UPGRADE_TYPES, CAP_UP_MAX } from './items-forge.js?v=6206a5e7d2b6';
-import { ALCHEMY_POT, ALCHEMY_MEMO } from './items-alchemy.js?v=6206a5e7d2b6';
+//   その 装備の しゅるいごと。c.alchemy.cap）。第35回: 店で 買える 装備（★1）は きたえられない ので、これも できない
+// ・第35回: 生まれ変わりの 武器の 1だん目は「店の 武器＋素材＋星のかけら」（items-alchemy.js の REBIRTH_START）。
+//   hidden の レシピは 本だな・メモ・親方では わからない（町の 人などの ヒントを 見て、自分で 入れてみる）
+import { ITEMS, baseItemId } from './items.js?v=a21d4486f121';
+import { UPGRADE_TYPES, CAP_UP_MAX } from './items-forge.js?v=a21d4486f121';
+import { ALCHEMY_POT, ALCHEMY_MEMO, REBIRTH_START } from './items-alchemy.js?v=a21d4486f121';
+import { isShopGear } from './items-rare.js?v=a21d4486f121';
 // 第5章 Step 3・4 の レシピ（items-kumoi.js）
-import { KUMOI_RECIPES } from './items-kumoi.js?v=6206a5e7d2b6';
+import { KUMOI_RECIPES } from './items-kumoi.js?v=a21d4486f121';
 
 export { ALCHEMY_POT, ALCHEMY_MEMO, CAP_UP_MAX };
 
@@ -81,6 +84,8 @@ export const RECIPES = [
   R('r_dragon_slayer', 5, 'dragon_slayer', 'old_fang_sword', 'dragon_scale', 'star_iron'),
   R('r_senrigan', 5, 'senrigan_helm', 'hundred_eye_helm', 'star_shard', 'star_shard'),
   ...KUMOI_RECIPES,
+  // ── 生まれ変わりの 武器の 1だん目（第35回。かくし要素: hidden）──
+  ...REBIRTH_START.map((x) => ({ ...R(x.id, 2, x.to, x.from, x.mat, 'star_shard'), hidden: true })),
 ];
 export const RECIPE_BY_ID = Object.fromEntries(RECIPES.map((r) => [r.id, r]));
 // かまを もらった ときに 教えて もらう レシピ
@@ -118,7 +123,13 @@ export function capUp(c, id) {
 export function isMergePair(ids) {
   if (!Array.isArray(ids) || ids.length !== 2) return false;
   const [a, b] = ids.map((id) => ITEMS[id]);
-  return !!a && !!b && UPGRADE_TYPES.includes(a.type) && baseItemId(ids[0]) === baseItemId(ids[1]);
+  return !!a && !!b && UPGRADE_TYPES.includes(a.type) && baseItemId(ids[0]) === baseItemId(ids[1]) && !isShopGear(ITEMS[baseItemId(ids[0])]);
+}
+// 同じ 店の 武具を 2つ（第35回: 店の 品は きたえられない ので、回数も ふやせない）
+function isShopPair(ids) {
+  if (!Array.isArray(ids) || ids.length !== 2 || baseItemId(ids[0]) !== baseItemId(ids[1])) return false;
+  const it = ITEMS[baseItemId(ids[0])];
+  return !!it && UPGRADE_TYPES.includes(it.type) && isShopGear(it);
 }
 
 // 入れた 物で 何が できるか
@@ -133,7 +144,7 @@ export function matchPot(ids, c = null) {
     return { ok: true, recipe: MERGE_RECIPE, out, merge: base, steps: potSteps(out, true) };
   }
   const r = BY_KEY.get(key(ids));
-  if (!r || !ITEMS[r.out]) return { ok: false, why: 'none' };
+  if (!r || !ITEMS[r.out]) return { ok: false, why: isShopPair(ids) ? 'shop' : 'none' };
   return { ok: true, recipe: r.id, out: r.out, steps: potSteps(r.out) };
 }
 
@@ -145,7 +156,7 @@ export function tierOpen(tier, hasFlag = () => false) {
 // まだ 知らない、その章までの レシピ（本だな・メモ・親方で わかる もの）。章の 早い じゅん
 export function learnableRecipes(c, hasFlag = () => false, pool = null) {
   const known = new Set(knownRecipes(c));
-  return RECIPES.filter((r) => (!pool || pool.includes(r.id)) && !known.has(r.id) && tierOpen(r.tier, hasFlag) && ITEMS[r.out])
+  return RECIPES.filter((r) => !r.hidden && (!pool || pool.includes(r.id)) && !known.has(r.id) && tierOpen(r.tier, hasFlag) && ITEMS[r.out])
     .sort((a, b) => a.tier - b.tier);
 }
 

@@ -1,17 +1,17 @@
 // せつめい文を つくる
-import { ITEMS, SLOT_NAMES, WEAPON_CAT_NAMES } from '../../shared/data/items.js?v=6206a5e7d2b6';
-import { abilityTypeText } from '../../shared/data/abilities.js?v=6206a5e7d2b6';
-import { abilityFor, abilityLabel } from '../../shared/ability-label.js?v=6206a5e7d2b6';
-import { JOBS, ALL_JOBS } from '../../shared/data/jobs.js?v=6206a5e7d2b6';
-import { jobLabel } from '../../shared/job-label.js?v=6206a5e7d2b6';
-import { MONSTERS } from '../../shared/data/monsters.js?v=6206a5e7d2b6';
-import { MONSTER_FRIENDS } from '../../shared/data/companions.js?v=6206a5e7d2b6';
-import { computeStats, canEquip, canEquipMonster, monsterGear, penaltyFor, mpCost, comboJobNames, comboAllowed, jobPower } from '../../shared/stats.js?v=6206a5e7d2b6';
-import { attackReach } from '../../shared/battle.js?v=6206a5e7d2b6';
-import { maxPlus } from '../../shared/data/forge.js?v=6206a5e7d2b6';
-import { SKILL_UPS } from '../../shared/data/skill-ups.js?v=6206a5e7d2b6';
-import { perkText } from '../../shared/data/items-r31.js?v=6206a5e7d2b6';
-import { rarityOf, traitText } from '../../shared/data/rare-loot.js?v=6206a5e7d2b6';
+import { ITEMS, SLOT_NAMES, WEAPON_CAT_NAMES } from '../../shared/data/items.js?v=a21d4486f121';
+import { abilityTypeText } from '../../shared/data/abilities.js?v=a21d4486f121';
+import { abilityFor, abilityLabel } from '../../shared/ability-label.js?v=a21d4486f121';
+import { JOBS, ALL_JOBS } from '../../shared/data/jobs.js?v=a21d4486f121';
+import { jobLabel } from '../../shared/job-label.js?v=a21d4486f121';
+import { MONSTERS } from '../../shared/data/monsters.js?v=a21d4486f121';
+import { MONSTER_FRIENDS } from '../../shared/data/companions.js?v=a21d4486f121';
+import { computeStats, canEquip, canEquipMonster, monsterGear, penaltyFor, mpCost, comboJobNames, comboAllowed, jobPower } from '../../shared/stats.js?v=a21d4486f121';
+import { attackReach } from '../../shared/battle.js?v=a21d4486f121';
+import { maxPlus } from '../../shared/data/forge.js?v=a21d4486f121';
+import { SKILL_UPS } from '../../shared/data/skill-ups.js?v=a21d4486f121';
+import { perkText } from '../../shared/data/items-r31.js?v=a21d4486f121';
+import { starsOf, isShopItem, rareWhereText, traitText } from '../../shared/data/rare-loot.js?v=a21d4486f121';
 
 const TARGET_NAMES = { enemy: '敵1体', group: '敵1グループ', enemies: '敵全体', ally: '味方1人', allies: '味方全員', self: '自分', deadAlly: '死んだ味方', deadAllies: '死んだ味方全員' };
 // 技の リストに つける みじかい しるし（1体・1人・自分は つけない）。a: 技（または 相手の しゅるい）
@@ -37,12 +37,12 @@ export function itemStats(id) {
   return parts.join(' ');
 }
 
-// 装備の ランクと レア度（★1〜★5。店で 買える 品は ★なし。第31回）
+// 装備の 強さ（第35回: ★と ランクを 1つに。「強さ ★★★（ランク7）」。店で 買える 品は ★1。shared/data/rare-loot.js の starsOf）
 export function rankText(id) {
   const it = ITEMS[id];
   if (!it?.rank) return '';
-  const r = rarityOf(id);
-  return `ランク${it.rank}${r ? `　${'★'.repeat(r)}` : ''}`;
+  const s = starsOf(id);
+  return s ? `強さ ${'★'.repeat(s)}（ランク${it.rank}）` : `ランク${it.rank}`;
 }
 
 // mons: じぶんの モンスターの なかま [{ name, species }]（あれば「装備できる 魔物」に 名前を 出す）
@@ -96,8 +96,11 @@ export function itemDetail(id, mons = null, who = null) {
   const tr = traitText(id);
   if (tr) lines.push(tr);
   const rk = rankText(id);
+  // めずらしさ（第35回: 店では買えない・ここでしか手に入らない など。★は 強さ）
+  const where = rareWhereText(id);
   if (it.type === 'weapon') lines.push(`種類: ${WEAPON_CAT_NAMES[it.cat] || it.cat}${rk ? `　${rk}` : ''}`);
   else if (rk) lines.push(rk);
+  if (where) lines.push(where);
   // ムチ・ブーメラン: ふつうの 攻撃が 何体にも 当たる
   const reach = it.type === 'weapon' ? attackReach(it.cat) : 'enemy';
   if (reach !== 'enemy') lines.push(`${reach === 'group' ? '攻撃で同じ種類の敵みんなに当たる' : '攻撃で敵全体に当たる'}（2体目から少しずつ弱くなる）`);
@@ -105,9 +108,10 @@ export function itemDetail(id, mons = null, who = null) {
   if (w) lines.push(w);
   // ふしぎなかじ
   if (it.plus) lines.push(`ふしぎなかじで${it.plus}回きたえてある（+${it.plus}）`);
-  // きたえられる 回数（ランクで きまる。data/forge.js の maxPlus）
+  // きたえられる 回数（ランクで きまる。data/forge.js の maxPlus）。店で 買える 品（★1）は きたえられない（第35回）
   const top = maxPlus(id);
   if (top && (it.plus || 0) < top) lines.push(`ふしぎなかじで+${top}まできたえられる`);
+  else if (!top && isShopItem(id) && ['weapon', 'armor', 'shield', 'head'].includes(it.type)) lines.push('店の品（★1）なので、きたえられない');
   if (it.type === 'mat') lines.push('ふしぎなかじの素材（ルミナの町・カモメ港のかじ屋で使う）');
   return lines.filter(Boolean).join('\n');
 }

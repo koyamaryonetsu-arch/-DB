@@ -1,11 +1,11 @@
 // ふしぎなかじ屋（作る・きたえる）の そうさ
-import { ITEMS } from '../data/items.js?v=6206a5e7d2b6';
-import { FORGES } from '../data/facilities.js?v=6206a5e7d2b6';
-import { RECIPES, recipeOf, recipeOpen, openRecipes, upgradeCost, lackOf, maxPlus } from '../data/forge.js?v=6206a5e7d2b6';
-import { addItem, removeItem, itemCount, canEquipChar, computeStats } from '../stats.js?v=6206a5e7d2b6';
-import { partyOf } from './party.js?v=6206a5e7d2b6';
-import { BAG_STACK } from './bank.js?v=6206a5e7d2b6';
-import { forgePotGift } from './alchemy.js?v=6206a5e7d2b6';
+import { ITEMS } from '../data/items.js?v=a21d4486f121';
+import { FORGES } from '../data/facilities.js?v=a21d4486f121';
+import { RECIPES, recipeOf, recipeOpen, openRecipes, upgradeCost, lackOf, maxPlus, isShopForge } from '../data/forge.js?v=a21d4486f121';
+import { addItem, removeItem, itemCount, canEquipChar, computeStats } from '../stats.js?v=a21d4486f121';
+import { partyOf } from './party.js?v=a21d4486f121';
+import { BAG_STACK } from './bank.js?v=a21d4486f121';
+import { forgePotGift } from './alchemy.js?v=a21d4486f121';
 
 export function forgeInfo(world, s, place) {
   const f = FORGES[place] || FORGES.town;
@@ -54,6 +54,8 @@ export function forgeAction(world, s, msg, reply, { equipItem, ownChar }) {
       // れん金で ふやした 回数は 持ち主（自分）の きろく
       const cost = upgradeCost(msg.id, c);
       if (!cost) {
+        // 第35回: 店で 買える 装備（★1）は きたえられない
+        if (isShopForge(msg.id)) return reply(false, 'それは店で売っている品だな。\n店の品（★1）は、きたえられないんだ。');
         const top = maxPlus(msg.id, c);
         return reply(false, top ? `それは、これ以上きたえられないな。\n（その装備は+${top}まで。ランクが高い装備ほど、たくさんきたえられる）` : 'それは、きたえられないな。');
       }
