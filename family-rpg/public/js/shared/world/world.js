@@ -36,6 +36,7 @@ import { repairObjective } from '../data/progress.js';
 import { wagonLook } from './wagon.js';
 import { medalSearchSteps, medalChestSteps } from './casino.js';
 import { stepHazard } from './hazards.js';
+import { stepTremor } from './tremor.js';
 import { noteDungeonEntry } from './escape.js';
 import { notePyramidMove } from './pyramid.js';
 import { noteSecretMove, fixSecretPos, secretRespawn, pruneSecretStates } from './secret.js';
@@ -583,6 +584,8 @@ export class GameWorld {
     if (this.checkTriggers(s, tx, ty)) return;
     // ようがんの 地面（第3章。world/hazards.js）
     stepHazard(this, s, tx, ty);
+    // 大地の こどう（第5章 Step 6 の 大地の 神殿 7階。world/tremor.js）
+    stepTremor(this, s, tx, ty);
     // ばしょの きろく（きかんのはね）。リーダーの 冒険を 手伝っている あいだは 自分の きろくに しない
     if (this.hostOf(s)) return;
     let found = false;

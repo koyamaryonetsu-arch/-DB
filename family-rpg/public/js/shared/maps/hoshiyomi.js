@@ -133,7 +133,8 @@ const DAY = { not: ['@night'] };
 const at = (p) => [p.x, p.y];
 const HY_NPCS = [
   npc('kanata', '星読みのカナタ', at(HOSHIYOMI_POS.kanata), 'kanata', 'c5_kanata', { dir: 'down' }),
-  npc('elder_hy', 'ホシミばあちゃん', at(HOSHIYOMI_POS.grandma), 'elder', 'c5_y_grandma', { dir: 'left', show: { all: [K6.grandma] } }),
+  // 影の城が うかんだ あと（c5_castle）は ハネノの 町へ（maps/earth.js の 集まる 人たち）
+  npc('elder_hy', 'ホシミばあちゃん', at(HOSHIYOMI_POS.grandma), 'elder', 'c5_y_grandma', { dir: 'left', show: { all: [K6.grandma], not: ['c5_castle'] } }),
   // 宿屋・教会・よろず屋（カウンターの 向こう）
   npc('c5_y_inn', '宿屋のおかみ', [HH.inn.x + 3, HH.inn.y + 1], 'hoshi_f', 'c5_inn_hoshiyomi', { dir: 'down' }),
   npc('c5_y_priest', '神父さま', [HH.church.door, HH.church.y + 2], 'priest', 'church', { dir: 'down' }),
