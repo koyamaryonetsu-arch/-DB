@@ -12,6 +12,8 @@ import { ENCOUNTERS_CH5, FIXED_CH5, ZONE_BG_CH5 } from './encounters-ch5.js';
 import { ENCOUNTERS_KUMOI, FIXED_KUMOI, ZONE_BG_KUMOI } from './encounters-kumoi.js';
 import { ENCOUNTERS_HOSHIYOMI, FIXED_HOSHIYOMI, ZONE_BG_HOSHIYOMI } from './encounters-hoshiyomi.js';
 import { ENCOUNTERS_EARTH, FIXED_EARTH, ZONE_BG_EARTH } from './encounters-earth.js';
+// 第37回 A: サファラ闘技場の ランク戦（3連戦）
+import { FIXED_ARENA } from './encounters-arena.js';
 
 export const ENCOUNTER_TABLES = {
   outskirts: [
@@ -125,4 +127,5 @@ Object.assign(ZONE_BG, ZONE_BG_HOSHIYOMI);
 // 第5章 Step 6・7「根の島・大地の神殿」・ノクト（1回目）（encounters-earth.js）
 Object.assign(ENCOUNTER_TABLES, ENCOUNTERS_EARTH);
 Object.assign(FIXED_ENCOUNTERS, FIXED_EARTH);
+Object.assign(FIXED_ENCOUNTERS, FIXED_ARENA);
 Object.assign(ZONE_BG, ZONE_BG_EARTH);

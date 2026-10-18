@@ -43,3 +43,33 @@
 - マルチプレイ：ひとりずつ自分の乗り物。ほかの人にも その人の乗り物が見える
 - 絵：4方向・動き（2〜3コマ）。主人公の見た目（かみ・服）が分かるように乗せる。2.5D と 2D の両方
 - 乗り物に乗れない所（ダンジョンの中・町の中など）は 作らない（どこでも走れば乗る）。ただし船・竜に乗っている時は、そちらが先
+
+### 実装メモ（A 闘技場）
+
+- **開く時**：`c4_clear`。王都サファラ（map `south`）の受付は2人（`c4_s_arena` … クリア前だけ「お休み」／`arena_desk` … クリアのあと。同じ場所）。力じまんの戦士 `c4_s_fighter` は `fighterTalk`（story-arena.js）に。砂の闘技場の門 `SAFARA_POS.arenaGate` は `gates`（`c4_clear` で開く）・「とざされている」のしかけはクリア前だけ。入口のかんばんは、クリアのあとは しかけのマス `arena_sign` が先。砂の闘技場に かけ試合の係 `arena_bet`・観客 `arena_fan1〜3`・北のかべに 王者のかべ `arena_wall`（2マス）。場所は `data/arena.js` の `ARENA_POS`
+- **ファイル**：`data/arena.js`（ランク・開き方・記録 `c.arena`・王者のかべ・かけ試合の計算・`mergeArena`）・`data/story-arena.js`（だいほん。しょりは `ARENA_HOOKS`）・`world/arena.js`（ランク戦の3連戦・ごほうび・かべ・かけ試合。world.js が import）・`data/monsters-arena.js`（王者。数えない形 `addArenaHidden`）・`data/abilities-arena.js`・`data/encounters-arena.js`（`ar<ランク>_1〜3`。`bg: 'arena'`・`canFlee: false`・`loseOk: true`）・`data/items-arena.js`（`src: 'arena'`）・`battle-arena.js`（しかけ）・`client/ui/arena.js`（`arenaCard`・`arenaBout`・`arenaWall`）・`client/render/arena-art.js`（背景 arena と 王者の絵）・`tools/sim-arena.mjs`・`test/arena-r37.test.js`
+- **ほかの人と同じファイル**（1〜数行ずつ）：`battle.js`（`setupArena`・`arenaDamage`）・`ai.js`（`arenaPlan`・`arenaAdjust`）・`battle-ch5.js`（`arenaCond`・`arenaEffect` を towerCond・towerEffect に）・`data/monsters.js`・`data/abilities.js`・`data/encounters.js`・`data/items.js`（ITEMS_EARTH の あと）・`data/rare-loot.js`（SRC_TEXT の arena）・`data/story.js`・`data/story-ch4.js`・`maps/ch4.js`・`world/world.js`（import 1行）・`world/merge.js`（`arena`）・`client/ui/services.js`・`client/render/monsters.js`・`client/render/battlefx.js`・`tools/kanji-check.mjs`・README
+- **ランク戦**：受付は物語と同じ「パーティーみんなで見る」だいほん（`STORY_SCRIPTS`）。リーダーの記録で ランクを選ぶ（1つ前を勝ちぬくと次へ。伝説の部は さらに `c5_gaia`・`c5_nshadow`・`c5_nocto1`）。3連戦は `call` の中で `startFixedBattle` を3回（戦いの間に 回復しない。`finishBattle` が HP・MPを キャラに もどす）。負け（`loseOk`）… お金は へらない → 受付の前へ `teleport`・`heal`。とちゅうで かけつけた家族（`joinBattle`）は `adopt` で次の戦いから3連戦に入る
+- **ごほうび**：キャラごとに `c.arena.r[ランク] = { n, at, with }`。はじめて … 品と 小さなメダル（`medalSpots` の `arena_r<ランク>_<i>`）／2回目から … `repeatGold` と メダル1まい（`arena_rep_<通し番号>`）
+- **しかけ**（王者1組に1つ）：ランク1 前ぶれ→1人に大技／2・8 チームの合体技 `arCombo`（生きている組の数 ÷ はじめの数ばい。1人では くずれる。合図は cond `c5:arTeam2`）／3 `reflect`（battle-temple.js）／4 `reviveAll`＋`chant`（ふたご）／5 2だんの前ぶれ／6 `burrow`（battle-ch4.js）／7 属性のよろい `arArmor`・`arSpell`（同じ属性は すいこむ・弱点で くだける。くだけて `wait` 回 動くと また まとう。cond `c5:arNoArmor`）。シミュレーターの「知っている人」は `b.knowsArena`（＋ `knowsTemple`・`knowsBurrow`・合体技）
+- **かけ試合**：4ひき（`BET_POOL` から。みんな `BET_LV` 30 まで強く）。1対1は本物の `Battle`（片方を みかたの がわに 入れて 魔物の AI で動かす。どちらが入るかは運。会心・呪文と回復の強さは 魔物と同じに）。オッズは どの組も 1対1を 14回 ためした 勝つわりあい → トーナメントの 優勝のわりあい → `(1 - 0.12) ÷ わりあい`（1.1〜50倍）。はらいもどし = かけた額 × オッズ（切りすて）。ようすは 1試合 7行まで
+- **王者のかべ**：`world.data.characters`（家族サーバーは家族みんな・ひとりのサイトは このスマホのキャラ）。上のランクの人が上
+- **強さ**（`node tools/sim-arena.mjs 40`。3連戦を 勝ちぬく わりあい。ランク1〜5 は tools/sim.js の4人・職業Lv10、伝説の部は 超級職4人・職業Lv10・その時期の★装備）
+
+  | ランク | おすすめ | パーティー | 完全オート | 知っている |
+  |---|---|---|---|---|
+  | 1 力じまんの戦士 | Lv36 | 店（GEAR 38） | 88% | － |
+  | 2 砂嵐三兄弟 | Lv39 | 店（GEAR 42） | 78% | － |
+  | 3 ランプの大魔人 | Lv42 | 店（GEAR 42） | 83% | － |
+  | 4 太陽と月の剣士 | Lv45 | 店（GEAR 45） | 75% | － |
+  | 5 闘技場の王者ガルム | Lv48 | 店（GEAR 45）／レア | 45%／75% | 90%／95% |
+  | 6 砂ザメの王 | Lv50 | 超級職・ガイアのあとの★ | 10% | 80% |
+  | 7 七色の魔導王 | Lv53 | 超級職・ノクトの影のあとの★ | 20% | 78% |
+  | 8 伝説のチャンピオン | Lv56 | 超級職・ノクト（1回目）のあとの★ | 10% | 68% |
+
+- **決めたこと（計画とちがう所）**
+  - 伝説の部の ごほうびは **ランク10 の ★5**（強さの上のせ k・とくせいで「あとのランクほど強い」）。装備のランクは10までの きまり（test/loot.test.js。「伝説」の名前もランク10だけ）なので、ランク11 は 作らなかった
+  - チャンピオンのベルトは **ランク8 の ★4**（第4章のころの いちばん上のごほうびとして、少し先の強さ）。1人1つの `unique` は レア度3の きまりが あるので つけない（はじめての ごほうびは1回だけ）
+  - ランク6〜8 は 物語のフラグに くわえて、1つ前のランクを勝ちぬくことも いる。物語が まだの伝説の部は「？？？」（ランク7・8は 物語が そこまで 進むまで 一覧にも 出さない。ネタバレを さける）
+  - 王者は 図鑑・魔物の数・配合に 入れない（数えない形）。仲間にも ならない
+  - かけ試合・王者のかべ・かんばんは ひとりずつ。受付（ランク戦）だけ パーティーみんなで

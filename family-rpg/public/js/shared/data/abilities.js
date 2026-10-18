@@ -29,6 +29,8 @@ import { CH3_ABILITIES } from './abilities-ch3.js';
 import { CH4_ABILITIES } from './abilities-ch4.js';
 import { TEMPLE_ABILITIES } from './abilities-temple.js';
 import { LAB_ABILITIES } from './abilities-lab.js';
+// 第37回 A: サファラ闘技場の 王者の 技
+import { ARENA_ABILITIES } from './abilities-arena.js';
 import { TOWER_ABILITIES } from './abilities-tower.js';
 import { KUMOI_ABILITIES } from './abilities-kumoi.js';
 import { HOSHIYOMI_ABILITIES } from './abilities-hoshiyomi.js';
@@ -608,6 +610,7 @@ Object.assign(ABILITIES, CH4_ABILITIES);
 Object.assign(ABILITIES, TEMPLE_ABILITIES);
 // 古代の大迷宮の 古竜オルドラ（abilities-lab.js）
 Object.assign(ABILITIES, LAB_ABILITIES);
+Object.assign(ABILITIES, ARENA_ABILITIES);
 // 第5章 Step 2「星の塔」の 魔物と アルゴスの 技（abilities-tower.js）
 Object.assign(ABILITIES, TOWER_ABILITIES);
 // 第5章 Step 3・4 の 魔物と ガイアイーターの 技（abilities-kumoi.js）

@@ -40,6 +40,8 @@ import { stepTremor } from './tremor.js';
 import { noteDungeonEntry } from './escape.js';
 import { notePyramidMove } from './pyramid.js';
 import { noteSecretMove, fixSecretPos, secretRespawn, pruneSecretStates } from './secret.js';
+// 第37回 A: サファラ闘技場（だいほんの しょりを data/story-arena.js の ARENA_HOOKS に 入れる）
+import './arena.js';
 import { shownEquipKey } from '../look-equip.js';
 
 export const PROTOCOL_VERSION = 1;

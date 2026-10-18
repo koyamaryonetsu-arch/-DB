@@ -21,6 +21,7 @@ import { repairChar } from './save.js';
 import { mergeTreasureMaps } from '../data/treasure.js';
 import { mergeSecret } from '../data/secret.js';
 import { mergeAlchemy } from './alchemy.js';
+import { mergeArena } from '../data/arena.js';
 import { COIN_MAX } from '../data/casino.js';
 
 const GOLD_MAX = 9999999;
@@ -162,6 +163,8 @@ function mergeBody(b, a, t, tLater) {
       case 'sd': out.sd = mergeSecret(vb, va, vt); break;
       // れん金がま（レシピは 両方・回数は 多い ほう。world/alchemy.js）
       case 'alchemy': out.alchemy = mergeAlchemy(vb, va, vt, tLater); break;
+      // 第37回 A: 闘技場の 記録（勝ちぬいた 回数は 両方で ふえた ぶん・はじめての 時こくは 早い ほう。data/arena.js）
+      case 'arena': out.arena = mergeArena(vb, va, vt); break;
       case 'supportLog': {
         const seen = new Set((vb || []).map(canon));
         out.supportLog = [...clone(va || []), ...clone((vt || []).filter((e) => !seen.has(canon(e))))].slice(-10);

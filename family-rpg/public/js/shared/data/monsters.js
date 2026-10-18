@@ -21,6 +21,8 @@ import { MONSTERS_R23 } from './monsters-r23.js';
 // 第4章 Step 7「砂の底の神殿とモルガナ」（monsters-temple.js）
 import { MONSTERS_TEMPLE } from './monsters-temple.js';
 import { MONSTERS_LAB } from './monsters-lab.js';
+// 第37回 A: サファラ闘技場の 王者（数えない 形）
+import { addArenaHidden } from './monsters-arena.js';
 import { MONSTERS_CH5 } from './monsters-ch5.js';
 import { MONSTERS_KUMOI, addGaiaParts } from './monsters-kumoi.js';
 import { MONSTERS_HOSHIYOMI } from './monsters-hoshiyomi.js';
@@ -251,6 +253,7 @@ Object.assign(MONSTERS, MONSTERS_HOSHIYOMI);
 // 第5章 Step 6・7「根の島・大地の神殿」の 魔物と ノクト（1回目。分身は 数えない 形。monsters-earth.js）
 Object.assign(MONSTERS, MONSTERS_EARTH);
 addEarthHidden(MONSTERS);
+addArenaHidden(MONSTERS);
 addGaiaParts(MONSTERS);
 // ボス級（ランク SS）の 仲間。配合でしか 生まれない（monsters-boss.js。第35回）
 Object.assign(MONSTERS, MONSTERS_BOSS);

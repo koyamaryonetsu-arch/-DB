@@ -27,6 +27,8 @@ import { gaiaEffect, gaiaCond, gaiaKill, gaiaPlan, gaiaPub } from './battle-gaia
 import { noctoCond, noctoEffect, noctoCheck, noctoKill, noctoPlan, noctoPub } from './battle-nocto.js';
 // 第5章 Step 6・7: ノクト（1回目）・大地の神殿の 魔物（かげぶんしん・地われ・まもる・おこる。battle-earth.js。ここから よぶ）
 import { earthCond, earthEffect, earthKill, earthPlan, earthPub, earthTurnStart } from './battle-earth.js';
+// 第37回 A: サファラ闘技場の 王者の しかけ（チームの 合体技・属性の よろい）
+import { arenaCond, arenaEffect } from './battle-arena.js';
 
 export const ARGOS = 'argos';
 export const JUDGE = 'm_argos_judge';
@@ -89,6 +91,8 @@ export function towerCond(b, m, cond) {
   if (n !== null) return n;
   const e = earthCond(b, m, cond);
   if (e !== null) return e;
+  const ar = arenaCond(b, m, cond);
+  if (ar !== null) return ar;
   if (cond === 'gaze') return !!confOf(m) && readBy(b, m).length < gazeCount(m) && gazeTargets(b).length > 0;
   return true;
 }
@@ -98,6 +102,7 @@ export function towerEffect(b, c, a, eff, ev, targets = []) {
   if (gaiaEffect(b, c, a, eff, ev)) return true;
   if (noctoEffect(b, c, a, eff, ev)) return true;
   if (earthEffect(b, c, a, eff, ev, targets)) return true;
+  if (arenaEffect(b, c, a, eff, ev, targets)) return true;
   if (eff.type !== 'foresee') return false;
   foreseeStart(b, c, ev);
   return true;

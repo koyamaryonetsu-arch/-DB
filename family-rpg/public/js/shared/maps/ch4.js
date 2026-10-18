@@ -187,8 +187,14 @@ const SOUTH_NPCS = [
   npc('c4_p_maid', '女官のハラ', S(19, 28), 'maid', 'c4_p_maid', { wander: 1, show: DAY }),
   // 学者ハサンの 家・闘技場
   npc('hassan', '学者ハサン', S(41, 19), 'hassan', 'c4_hassan', { dir: 'down' }),
-  npc('c4_s_arena', '闘技場の受付', S(43, 30), 'arena_clerk', 'c4_s_arena', { dir: 'left' }),
+  npc('c4_s_arena', '闘技場の受付', S(43, 30), 'arena_clerk', 'c4_s_arena', { dir: 'left', show: { not: [CLEAR4_FLAG] } }),
   npc('c4_s_fighter', '力じまんの戦士', S(41, 27), 'fighter', 'c4_s_fighter', { wander: 1 }),
+  // 第37回 A: 第4章クリアの あとは 大会が はじまる（受付〈ランク戦〉・砂の 闘技場の かけ試合の 係・観客。data/story-arena.js）
+  npc('arena_desk', '闘技場の受付', S(43, 30), 'arena_clerk', 'arena_desk', { dir: 'left', show: { all: [CLEAR4_FLAG] } }),
+  npc('arena_bet', 'かけ試合の係', S(48, 28), 'caravan', 'arena_bet', { dir: 'left', show: { all: [CLEAR4_FLAG] } }),
+  npc('arena_fan1', '観客のおじさん', S(45, 34), 'desert_m', 'arena_fan1', { dir: 'right', show: { all: [CLEAR4_FLAG] } }),
+  npc('arena_fan2', '観客の女の子', S(48, 34), 'desert_girl', 'arena_fan2', { dir: 'left', show: { all: [CLEAR4_FLAG] } }),
+  npc('arena_fan3', '物知りの観客', S(45, 26), 'desert_elder', 'arena_fan3', { dir: 'right', show: { all: [CLEAR4_FLAG] } }),
   // 宮殿の地下水路の 入り口の 水路番
   npc('c4_s_canalman', '水路番のおじいさん', S(9, 33), 'desert_m2', 'c4_s_canalman', { dir: 'left' }),
   // 南の 門の 門番（Step 5。南の 砂嵐と 砂の港ドゥナの 話）
@@ -382,7 +388,12 @@ function buildField() {
     if (tile === T.LOCKED_DOOR) actions.push({ x, y: DUNA_GATE.y, script: 'c4_duna_fence', show: { not: [DUNA_FLAG] } });
   }
   sb.gates.push({ x: DUNA_GATE.x, y: DUNA_GATE.y, closed: T.LOCKED_DOOR, open: T.DIRT, flag: DUNA_FLAG });
-  actions.push({ x: P.arenaGate.x, y: P.arenaGate.y, script: 'c4_arena_gate' });
+  // 闘技場の 門: 第4章クリアまでは カギが かかっている（大会は お休み）。クリアの あとは 開いて 砂の 闘技場へ（第37回 A）
+  actions.push({ x: P.arenaGate.x, y: P.arenaGate.y, script: 'c4_arena_gate', show: { not: [CLEAR4_FLAG] } });
+  sb.gates.push({ x: P.arenaGate.x, y: P.arenaGate.y, closed: T.LOCKED_DOOR, open: T.DOOR, flag: CLEAR4_FLAG });
+  // 入口の 広間の かんばん（クリアの あとは「大会、はじまりました」）・砂の 闘技場の 北の かべの「王者のかべ」
+  actions.push({ x: SAF.x + 40, y: SAF.y + 33, script: 'arena_sign', show: { all: [CLEAR4_FLAG] } });
+  for (const dx of [1, 2]) actions.push({ x: SAF.x + 45 + dx, y: SAF.y + 24, script: 'arena_wall', show: { all: [CLEAR4_FLAG] } });
   // 王家のピラミッド（Step 4）: 日時計の とびら（開く まで）
   const D = PYRAMID_POS.door;
   actions.push({ x: D.x, y: D.y, script: 'c4_pyr_door', show: { not: [PYRAMID_FLAG] } });
