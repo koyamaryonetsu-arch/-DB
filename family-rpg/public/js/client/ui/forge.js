@@ -11,6 +11,7 @@ import { el, esc } from './dom.js';
 import { Counter, compareTeam, itemInfo, whoItems, myTeam } from './counter.js';
 import { request } from './shop.js';
 import { rankText } from './info.js';
+import { rareNameHtml } from './rarity.js';
 import { ITEMS } from '../../shared/data/items.js';
 import { UPGRADE_TYPES, UPGRADE_MAX } from '../../shared/data/items-forge.js';
 import { recipeOf, upgradeCost, lackOf, canUpgrade, maxPlus, isShopForge } from '../../shared/data/forge.js';
@@ -208,7 +209,7 @@ function upgradeBox(game, cand) {
   if (cand.seed) {
     box.append(el('div', { class: 'hd' }, el('span', { class: 'gold', text: `${it.name} → ？？？` }), el('span', { class: 'rk', text: rankText(cand.id) })));
     if (cand.who) box.append(el('div', { class: 'small muted', text: `${cand.whoName}が装備している` }));
-    box.append(el('div', { class: 'detail forge-reborn', text: `店の品なので、かじ屋ではきたえられない。\n…でも、${it.name}が、かすかに光っている。\n${hasPot(game.me) ? 'れん金がまで、星のかけらと何かを合わせると…？' : 'いつか、ふしぎな大きいかまに入れると、何かが起こりそうだ。'}` }));
+    box.append(el('div', { class: 'small forge-reborn forge-seed', style: { whiteSpace: 'pre-line' }, text: `店の品なので、きたえられない。\n…でも、${it.name}が、かすかに光っている。\n${hasPot(game.me) ? 'れん金がまで、星のかけらと何かを合わせると…？' : 'いつか、ふしぎな大きいかまに入れると、何かが起こりそうだ。'}` }));
     return box;
   }
   // 生まれ変わる（かくし要素）: 何に なるかは ひみつ
@@ -302,7 +303,7 @@ async function upgradeLoop(game, ct) {
       return {
         value: i,
         label: ITEMS[c.id].name,
-        html: `${c.who ? '<span class="tag e">E</span>' : ''}${esc(ITEMS[c.id].name)}${c.who ? `<span class="cnt">${esc(c.whoName)}</span>` : c.n > 1 ? `<span class="cnt">×${c.n}</span>` : ''}`,
+        html: `${c.who ? '<span class="tag e">E</span>' : ''}${rareNameHtml(c.id)}${c.who ? `<span class="cnt">${esc(c.whoName)}</span>` : c.n > 1 ? `<span class="cnt">×${c.n}</span>` : ''}`,
         right: c.seed ? '？？？' : cost ? (cost.reborn ? '？？？' : `+${cost.n}へ${cost.over ? '？' : ''}`) : '最大',
         rightCls: !cost ? 'muted' : lack.ok ? 'gold' : 'dis',
         disabled: !canUpgrade(c.id),
