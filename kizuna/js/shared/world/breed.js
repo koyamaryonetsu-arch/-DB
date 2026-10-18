@@ -1,13 +1,13 @@
 // まものの はいごう（ドラゴンクエストモンスターズ ふう。第35回で 作りなおし）
 //   生まれる 子の 候補・＋・ランクは data/companions.js の breedOutcome、能力の 受けつぎ・めやす・血統は shared/breed-calc.js
 //   どちらも 酒場の 画面（client/ui/services.js）と 同じ 計算
-import { MONSTERS } from '../data/monsters.js?v=751dd4575c23';
-import { ABILITIES } from '../data/abilities.js?v=751dd4575c23';
-import { ITEMS, SLOTS } from '../data/items.js?v=751dd4575c23';
-import { MONSTER_FRIENDS, BREED_MIN_LEVEL, BREED_INHERIT_MAX, breedOutcome, bestiaryKnow, RANKS } from '../data/companions.js?v=751dd4575c23';
-import { computeStats, learnedAbilities, newMonsterCompanion, addItem, removeItem, itemCount } from '../stats.js?v=751dd4575c23';
-import { inheritBonus, breedForecast, makeLineage } from '../breed-calc.js?v=751dd4575c23';
-import { ensureCompanions, companionOf, putInParty, afterRosterChange } from './party.js?v=751dd4575c23';
+import { MONSTERS } from '../data/monsters.js?v=6206a5e7d2b6';
+import { ABILITIES } from '../data/abilities.js?v=6206a5e7d2b6';
+import { ITEMS, SLOTS } from '../data/items.js?v=6206a5e7d2b6';
+import { MONSTER_FRIENDS, BREED_MIN_LEVEL, BREED_INHERIT_MAX, breedOutcome, bestiaryKnow, RANKS } from '../data/companions.js?v=6206a5e7d2b6';
+import { computeStats, learnedAbilities, newMonsterCompanion, addItem, removeItem, itemCount } from '../stats.js?v=6206a5e7d2b6';
+import { inheritBonus, breedForecast, makeLineage } from '../breed-calc.js?v=6206a5e7d2b6';
+import { ensureCompanions, companionOf, putInParty, afterRosterChange } from './party.js?v=6206a5e7d2b6';
 
 // おやから うけつげる わざ（かくれた わざは のぞく）
 export function inheritableSkills(A, B) {

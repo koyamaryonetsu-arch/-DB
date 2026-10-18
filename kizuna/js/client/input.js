@@ -7,6 +7,8 @@ const KEYMAP = {
   ArrowUp: 'up', KeyW: 'up', ArrowDown: 'down', KeyS: 'down', ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right',
   KeyZ: 'a', Enter: 'a', Space: 'a', NumpadEnter: 'a', KeyX: 'b', Escape: 'b', Backspace: 'b',
   KeyM: 'map', KeyC: 'chat', Tab: 'menu', KeyF: 'fly', KeyY: 'y',
+  // 第35回: G … ゲームパッドの L と おなじ（大鳥・竜を 呼ぶ／空では 別の地方へ）
+  KeyG: 'ride',
 };
 
 export class Input {
@@ -88,7 +90,9 @@ export class Input {
   }
   get busy() { return this.stack.length > 0; }
 
+  // hot: どの まどが 出ていても 先に うけとる（第35回: 戦いの SELECT・M。battle-pad.js）。true を かえすと そこで おわり
   emit(action, repeat = false) {
+    if (!repeat && this.hot?.(action)) return;
     const top = this.stack[this.stack.length - 1];
     if (top) {
       top.onNav?.(action, repeat);
@@ -354,6 +358,8 @@ export class Input {
     // Y（3）: 長おしの かわり（戦いの 技の お気に入り。ListMenu の yKey）。ほかでは 今までどおり B
     if (edge('menu', b(9) || b(3))) this.emit(b(3) && this.stack[this.stack.length - 1]?.yKey ? 'y' : 'b');
     if (edge('map', b(8))) this.emit('map');
+    // 第35回: L（4）… 大鳥・竜を 呼ぶ／空の 上では 別の地方へ（えらぶ まど）。降りるのは A（sky.js の padButton）
+    if (edge('ride', b(4))) this.emit('ride');
     if (this.busy) {
       const dir = Math.abs(x) > Math.abs(y) ? (x > 0.5 ? 'right' : x < -0.5 ? 'left' : null) : (y > 0.5 ? 'down' : y < -0.5 ? 'up' : null);
       if (dir) {

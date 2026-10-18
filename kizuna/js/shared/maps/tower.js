@@ -9,10 +9,10 @@
 // ・star_tower_top … てっぺん。紋章の さいだんで 天のとばりを 開く（c5_sky）
 // ・どの 階にも 星の エレベーター（1度 来た 階へ 1階から 一気に 行ける 近道。大迷宮の 転送の門と おなじ 考え方）
 // ・みちびきの糸・リレミトは 使える（長いので。noEscape なし）。魔物は 1〜4階 t5_tower_low・5〜8階 t5_tower_high（B が 作る）
-import { T, parseRows } from '../tiles.js?v=751dd4575c23';
-import { npc } from './npc.js?v=751dd4575c23';
-import { PLACES } from './overworld.js?v=751dd4575c23';
-import { TOWER_ROWS, TOP_ROWS, STAR_ORDER, STAR_FAKE } from './tower-rows.js?v=751dd4575c23';
+import { T, parseRows } from '../tiles.js?v=6206a5e7d2b6';
+import { npc } from './npc.js?v=6206a5e7d2b6';
+import { PLACES } from './overworld.js?v=6206a5e7d2b6';
+import { TOWER_ROWS, TOP_ROWS, STAR_ORDER, STAR_FAKE } from './tower-rows.js?v=6206a5e7d2b6';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 // 物語の すすみぐあい（data/story-ch5.js の CH5_STEPS。plan-ch5.md の 11 の 名前の 約束）

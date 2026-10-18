@@ -2,18 +2,18 @@
 // みため（かみがた・いろ）と そうび（ぶき・よろい・たて・かぶと）で かわる
 // 人は 32×42 で くみたてて、2ばいの 64×84 に して こまかく かきたす（res 4: せかいでは 16×21 の 大きさに かく）
 // どうぶつ・船は 16×21 など
-import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=751dd4575c23';
-import { ITEMS, baseItemId } from '../../shared/data/items.js?v=751dd4575c23';
-import { STARTER_EQUIP } from '../../shared/stats.js?v=751dd4575c23';
-import { paintMiraPrison, paintWaterStar } from './temple-chars.js?v=751dd4575c23';
-import { LAB_NPC_LOOKS } from './lab-art.js?v=751dd4575c23';
-import { paintCh5Special } from './ch5-art.js?v=751dd4575c23';
-import { KUMOI_NPC_LOOKS, drawWings } from './ch5-kumoi-art.js?v=751dd4575c23';
-import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js?v=751dd4575c23';
-import { R26_OLD_LOOK } from './hero-r26.js?v=751dd4575c23';
-import { R27_OLD_LOOK } from './hero-r27.js?v=751dd4575c23';
-import { R29_OLD_LOOK } from './hero-r29.js?v=751dd4575c23';
-import { R33_OLD_LOOK, masc33 } from './hero-r33.js?v=751dd4575c23';
+import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=6206a5e7d2b6';
+import { ITEMS, baseItemId } from '../../shared/data/items.js?v=6206a5e7d2b6';
+import { STARTER_EQUIP } from '../../shared/stats.js?v=6206a5e7d2b6';
+import { paintMiraPrison, paintWaterStar } from './temple-chars.js?v=6206a5e7d2b6';
+import { LAB_NPC_LOOKS } from './lab-art.js?v=6206a5e7d2b6';
+import { paintCh5Special } from './ch5-art.js?v=6206a5e7d2b6';
+import { KUMOI_NPC_LOOKS, drawWings } from './ch5-kumoi-art.js?v=6206a5e7d2b6';
+import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js?v=6206a5e7d2b6';
+import { R26_OLD_LOOK } from './hero-r26.js?v=6206a5e7d2b6';
+import { R27_OLD_LOOK } from './hero-r27.js?v=6206a5e7d2b6';
+import { R29_OLD_LOOK } from './hero-r29.js?v=6206a5e7d2b6';
+import { R33_OLD_LOOK, masc33 } from './hero-r33.js?v=6206a5e7d2b6';
 
 export const CW = 16;
 export const CH = 21;

@@ -1,25 +1,25 @@
 // フィールド（あるく・はなす・みる）
-import { MAPS, isBlocked, effectiveTile, condOk, tileAt, onWater, slidesAt, bodyPoints, npcCovers } from '../shared/maps/index.js?v=751dd4575c23';
-import { T, TILE_INFO } from '../shared/tiles.js?v=751dd4575c23';
-import { PLACES } from '../shared/maps/overworld.js?v=751dd4575c23';
-import { TS, tileCanvas, frameOf, prepareMap } from './render/tiles.js?v=751dd4575c23';
-import { paintHuman, npcOpts, paintSpecial, paintShip, paintSandShip, equipKey, CW, CH } from './render/chars.js?v=751dd4575c23';
-import { heroCanvas, heroLookKey } from './render/hero.js?v=751dd4575c23';
-import { shownEquip } from '../shared/look-equip.js?v=751dd4575c23';
-import { monsterCanvas, bigNpcCanvas, bigNpcScale } from './render/monsters.js?v=751dd4575c23';
-import { MONSTERS } from '../shared/data/monsters.js?v=751dd4575c23';
-import { makeCanvas, ctxOf, shade, flipCanvas } from './render/pixel.js?v=751dd4575c23';
-import { chestCanvas as chestCanvas3d } from './render/tex3d.js?v=751dd4575c23';
-import { chestVanishes } from '../shared/data/fieldchests.js?v=751dd4575c23';
-import { boardCanvas } from './render/boards.js?v=751dd4575c23';
-import { el } from './ui/dom.js?v=751dd4575c23';
-import { syncTreasureGates } from './ui/treasure.js?v=751dd4575c23';
-import { skyNpcSprite } from './render/sky-art.js?v=751dd4575c23';
-import { wagonDraws } from './render/wagon.js?v=751dd4575c23';
-import { drawTreasureGlow } from './render/treasure-glow.js?v=751dd4575c23';
-import { Weather } from './render/weather.js?v=751dd4575c23';
-import { flySpeed } from '../shared/data/sky.js?v=751dd4575c23';
-import { timeFlag } from '../shared/world/clock.js?v=751dd4575c23';
+import { MAPS, isBlocked, effectiveTile, condOk, tileAt, onWater, slidesAt, bodyPoints, npcCovers } from '../shared/maps/index.js?v=6206a5e7d2b6';
+import { T, TILE_INFO } from '../shared/tiles.js?v=6206a5e7d2b6';
+import { PLACES } from '../shared/maps/overworld.js?v=6206a5e7d2b6';
+import { TS, tileCanvas, frameOf, prepareMap } from './render/tiles.js?v=6206a5e7d2b6';
+import { paintHuman, npcOpts, paintSpecial, paintShip, paintSandShip, equipKey, CW, CH } from './render/chars.js?v=6206a5e7d2b6';
+import { heroCanvas, heroLookKey } from './render/hero.js?v=6206a5e7d2b6';
+import { shownEquip } from '../shared/look-equip.js?v=6206a5e7d2b6';
+import { monsterCanvas, bigNpcCanvas, bigNpcScale } from './render/monsters.js?v=6206a5e7d2b6';
+import { MONSTERS } from '../shared/data/monsters.js?v=6206a5e7d2b6';
+import { makeCanvas, ctxOf, shade, flipCanvas } from './render/pixel.js?v=6206a5e7d2b6';
+import { chestCanvas as chestCanvas3d } from './render/tex3d.js?v=6206a5e7d2b6';
+import { chestVanishes } from '../shared/data/fieldchests.js?v=6206a5e7d2b6';
+import { boardCanvas } from './render/boards.js?v=6206a5e7d2b6';
+import { el } from './ui/dom.js?v=6206a5e7d2b6';
+import { syncTreasureGates } from './ui/treasure.js?v=6206a5e7d2b6';
+import { skyNpcSprite } from './render/sky-art.js?v=6206a5e7d2b6';
+import { wagonDraws } from './render/wagon.js?v=6206a5e7d2b6';
+import { drawTreasureGlow } from './render/treasure-glow.js?v=6206a5e7d2b6';
+import { Weather } from './render/weather.js?v=6206a5e7d2b6';
+import { flySpeed } from '../shared/data/sky.js?v=6206a5e7d2b6';
+import { timeFlag } from '../shared/world/clock.js?v=6206a5e7d2b6';
 
 const SPEED = 4.6; // マス/びょう
 const RUN = 1.35; // はしると この ばい（はやすぎない ように）
@@ -94,6 +94,22 @@ export function playerSprite(look, job, dir, frame, eq, res = 4) {
 // 大きな 魔物（ヴァルドラゴン など）も、ついてくる ときは 主人公を かくさない ように 24ドットまで
 const monFlip = new WeakMap();
 const FOLLOW_MAX = 24;
+// 通った 道（o.trail。新しい ほうが 先）を、今の いち（o.x, o.y）から want マス もどった ところ（点の 間は なめらかに）
+export function trailAt(o, want) {
+  let acc = 0;
+  let prev = { x: o.x, y: o.y, dir: o.dir };
+  for (const p of o.trail) {
+    const seg = Math.hypot(p.x - prev.x, p.y - prev.y);
+    if (acc + seg >= want) {
+      const k = seg > 1e-6 ? (want - acc) / seg : 1;
+      return { x: prev.x + (p.x - prev.x) * k, y: prev.y + (p.y - prev.y) * k, dir: p.dir };
+    }
+    acc += seg;
+    prev = p;
+  }
+  return o.trail.length ? o.trail[o.trail.length - 1] : { x: o.x, y: o.y, dir: o.dir };
+}
+
 export function followerSprite(f, dir, frame) {
   if (f.mon) {
     const c = monsterCanvas(f.mon, frame, FOLLOW_MAX);
@@ -210,7 +226,7 @@ export class Field {
     if (mode === '3d' && Field.webgl2() && cv) {
       if (!this.r3d) {
         try {
-          const { Field3D } = await import('./render/field3d.js?v=751dd4575c23');
+          const { Field3D } = await import('./render/field3d.js?v=6206a5e7d2b6');
           this.r3d = new Field3D(this, cv);
         } catch (e) {
           console.warn('2.5Dにできませんでした', e);
@@ -1305,16 +1321,11 @@ export class Field {
     return this.me.running ? 'run' : this.me.moving;
   }
 
+  // 仲間（ついてくる キャラ）の いち: 通った 道（trail）を n 人目 ぶん もどった ところ。
+  // 第35回: 道の 点（0.12マスごと）に とびとびに 合わせると、主人公が 歩く たびに こまかく ふるえた。
+  // 点と 点の 間を なめらかに うめる（trailAt。test/ui-r35.test.js）
   trailPos(o, n) {
-    const want = n * 0.95;
-    let acc = 0;
-    let prev = { x: o.x, y: o.y, dir: o.dir };
-    for (const p of o.trail) {
-      acc += Math.hypot(p.x - prev.x, p.y - prev.y);
-      if (acc >= want) return p;
-      prev = p;
-    }
-    return o.trail.length ? o.trail[o.trail.length - 1] : { x: o.x, y: o.y, dir: o.dir };
+    return trailAt(o, n * 0.95);
   }
 
   myFollowers() {

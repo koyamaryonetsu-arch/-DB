@@ -1,28 +1,28 @@
 // お店・転職・酒場・でんごんばん・ほしのかけら・きょうかい の がめん
-import { el, ListMenu, toast, askText, confirmBox, esc } from './dom.js?v=751dd4575c23';
-import { ITEMS } from '../../shared/data/items.js?v=751dd4575c23';
-import { SUPER_ORDER, LEGEND_ORDER, TIER_ORDERS, TIER_NAMES, JOB_MAX_LEVEL, jobReqText, jobReqSets, jobBodyOk, BODY_NAMES, superMasteredCount } from '../../shared/data/jobs.js?v=751dd4575c23';
-import { ABILITIES } from '../../shared/data/abilities.js?v=751dd4575c23';
-import { abilityFor } from '../../shared/ability-label.js?v=751dd4575c23';
-import { jobFor, jobLabel, jobHint } from '../../shared/job-label.js?v=751dd4575c23';
-import { salonUI } from './salon.js?v=751dd4575c23';
-import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered, canEquip } from '../../shared/stats.js?v=751dd4575c23';
-import { MONSTERS } from '../../shared/data/monsters.js?v=751dd4575c23';
-import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES, breedOutcome, breedRumors, rankOf, monsterLevelCap, SPECIAL_KINDS } from '../../shared/data/companions.js?v=751dd4575c23';
-import { breedForecast, TREND_MARK } from '../../shared/breed-calc.js?v=751dd4575c23';
-import { TACTICS } from '../../shared/ai.js?v=751dd4575c23';
-import { itemDetail, gearText } from './info.js?v=751dd4575c23';
-import { playerSprite, followerSprite, faceURL } from '../field.js?v=751dd4575c23';
-import { shopUI, churchUI } from './shop.js?v=751dd4575c23';
-import { bankUI } from './bank.js?v=751dd4575c23';
-import { forgeUI } from './forge.js?v=751dd4575c23';
-import { tavernWagonItems, tavernWagonOpts, tavernWagonAct, tavernPlace, arrangeUI } from './wagon.js?v=751dd4575c23';
-import { casinoUI } from './casino.js?v=751dd4575c23';
-import { sdBoardUI } from './secret.js?v=751dd4575c23';
-import { shownEquip } from '../../shared/look-equip.js?v=751dd4575c23';
-import { jobAskText } from '../../shared/data/job-talk.js?v=751dd4575c23';
-import { sortRoster, rosterSortName, nextRosterSort } from '../../shared/roster-sort.js?v=751dd4575c23';
-import { rosterSortPref, setRosterSortPref } from '../prefs.js?v=751dd4575c23';
+import { el, ListMenu, toast, askText, confirmBox, esc } from './dom.js?v=6206a5e7d2b6';
+import { ITEMS } from '../../shared/data/items.js?v=6206a5e7d2b6';
+import { SUPER_ORDER, LEGEND_ORDER, TIER_ORDERS, TIER_NAMES, JOB_MAX_LEVEL, jobReqText, jobReqSets, jobBodyOk, BODY_NAMES, superMasteredCount } from '../../shared/data/jobs.js?v=6206a5e7d2b6';
+import { ABILITIES } from '../../shared/data/abilities.js?v=6206a5e7d2b6';
+import { abilityFor } from '../../shared/ability-label.js?v=6206a5e7d2b6';
+import { jobFor, jobLabel, jobHint } from '../../shared/job-label.js?v=6206a5e7d2b6';
+import { salonUI } from './salon.js?v=6206a5e7d2b6';
+import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered, canEquip } from '../../shared/stats.js?v=6206a5e7d2b6';
+import { MONSTERS } from '../../shared/data/monsters.js?v=6206a5e7d2b6';
+import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES, breedOutcome, breedRumors, rankOf, monsterLevelCap, SPECIAL_KINDS } from '../../shared/data/companions.js?v=6206a5e7d2b6';
+import { breedForecast, TREND_MARK } from '../../shared/breed-calc.js?v=6206a5e7d2b6';
+import { TACTICS } from '../../shared/ai.js?v=6206a5e7d2b6';
+import { itemDetail, gearText } from './info.js?v=6206a5e7d2b6';
+import { playerSprite, followerSprite, faceURL } from '../field.js?v=6206a5e7d2b6';
+import { shopUI, churchUI } from './shop.js?v=6206a5e7d2b6';
+import { bankUI } from './bank.js?v=6206a5e7d2b6';
+import { forgeUI } from './forge.js?v=6206a5e7d2b6';
+import { tavernWagonItems, tavernWagonOpts, tavernWagonAct, tavernPlace, arrangeUI } from './wagon.js?v=6206a5e7d2b6';
+import { casinoUI } from './casino.js?v=6206a5e7d2b6';
+import { sdBoardUI } from './secret.js?v=6206a5e7d2b6';
+import { shownEquip } from '../../shared/look-equip.js?v=6206a5e7d2b6';
+import { jobAskText } from '../../shared/data/job-talk.js?v=6206a5e7d2b6';
+import { sortRoster, rosterSortName, nextRosterSort } from '../../shared/roster-sort.js?v=6206a5e7d2b6';
+import { rosterSortPref, setRosterSortPref } from '../prefs.js?v=6206a5e7d2b6';
 
 export function openServiceUI(game, kind, data) {
   switch (kind) {
@@ -106,15 +106,26 @@ function jobUI(game) {
       for (const m of list) {
         whoRow.append(el('button', {
           class: `btn ${who === m.key ? 'sel' : ''}`, text: m.name,
-          onclick: () => { who = m.key; renderWho(); menu.setItems(render()); showJob(menu.current?.value || target().job); },
+          onclick: () => { who = m.key; renderWho(); menu.setItems(render()); showJob(menu.current?.value && menu.current.value !== '__who' ? menu.current.value : target().job); },
         }));
       }
+    };
+    // 第35回: だれが 転職するかを 一覧の いちばん上の 行でも かえられる（十字キーの 左右・A。コントローラーだけで えらべる）
+    const people = () => [{ key: 'self', name: game.me.name }, ...mates()];
+    const nextWho = (d) => {
+      const list = people();
+      const i = Math.max(0, list.findIndex((m) => m.key === who));
+      who = list[(i + d + list.length) % list.length].key;
+      game.audio.sfx('cursor');
+      menu.setItems(render());
+      showJob(target().job);
     };
     const render = () => {
       if (!target()) who = 'self';
       const c = target();
       s.right.textContent = `${c.name}: ${jobLabel(c.job, c)}`;
       const out = [];
+      if (people().length > 1) out.push({ html: `だれが転職する？<b class="gold">◀ ${esc(c.name)} ▶</b>`, value: '__who', cls: 'job-who' });
       TIER_ORDERS.forEach((all, tier) => {
         // 体で なれない 職業（フルーツジッパー・アラシ）は 出さない
         const order = all.filter((j) => jobBodyOk(j, c.look));
@@ -143,10 +154,14 @@ function jobUI(game) {
     const menu = new ListMenu(game.input, {
       items: render(),
       sound: (x) => game.audio.sfx(x),
-      onMove: (it) => showJob(it.value),
-      // 左右で せつめいの まどを スクロール（覚える技を 最後まで 見られる）
-      onSide: (d) => { main.scrollBy({ top: d * main.clientHeight * 0.7, behavior: 'smooth' }); },
+      onMove: (it) => showJob(it.value === '__who' ? target().job : it.value),
+      // 左右で せつめいの まどを スクロール（覚える技を 最後まで 見られる）。だれの 行では 人を かえる
+      onSide: (d) => {
+        if (menu.current?.value === '__who') return nextWho(d);
+        main.scrollBy({ top: d * main.clientHeight * 0.7, behavior: 'smooth' });
+      },
       onSelect: async (it) => {
+        if (it.value === '__who') return nextWho(1);
         const c = target();
         if (!c) return;
         if (it.value === c.job) {

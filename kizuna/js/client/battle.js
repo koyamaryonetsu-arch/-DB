@@ -1,44 +1,49 @@
 // たたかいの がめん（むかしの RPG ふう 1がめん）
-import { el, esc, ListMenu, toast } from './ui/dom.js?v=751dd4575c23';
-import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js?v=751dd4575c23';
+import { el, esc, ListMenu, toast } from './ui/dom.js?v=6206a5e7d2b6';
+import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js?v=6206a5e7d2b6';
 // 第33回: 技の 名前は 使う 人 むけ（男の子の 美少女戦士・セーラームーンは タキシード仮面ふう）
-import { abilityFor, abilityLabel } from '../shared/ability-label.js?v=751dd4575c23';
-import { ITEMS } from '../shared/data/items.js?v=751dd4575c23';
-import { JOBS } from '../shared/data/jobs.js?v=751dd4575c23';
-import { MONSTERS } from '../shared/data/monsters.js?v=751dd4575c23';
-import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed, battleAbilityOk } from '../shared/stats.js?v=751dd4575c23';
-import { affinityOf, attackReach, spellSealed, SEALED_REASON } from '../shared/battle.js?v=751dd4575c23';
+import { abilityFor, abilityLabel } from '../shared/ability-label.js?v=6206a5e7d2b6';
+import { ITEMS } from '../shared/data/items.js?v=6206a5e7d2b6';
+import { JOBS } from '../shared/data/jobs.js?v=6206a5e7d2b6';
+import { jobShort } from '../shared/job-label.js?v=6206a5e7d2b6';
+import { MONSTERS } from '../shared/data/monsters.js?v=6206a5e7d2b6';
+import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed, battleAbilityOk } from '../shared/stats.js?v=6206a5e7d2b6';
+import { affinityOf, attackReach, spellSealed, SEALED_REASON } from '../shared/battle.js?v=6206a5e7d2b6';
 // 合体技（2人・3人・4人）の コマンド・さそい・えんしゅつ（battle-dual.js）
-import { myDualOptions, dualMenu, showInvite, askingName, waitText, onDualWait, onDualWaitEnd, onDualHold, onDualAnswer, onDualBreak, dualPre, dualFx } from './battle-dual.js?v=751dd4575c23';
-import { TACTICS } from '../shared/ai.js?v=751dd4575c23';
-import { faceURL } from './field.js?v=751dd4575c23';
-import { monsterCanvas } from './render/monsters.js?v=751dd4575c23';
-import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=751dd4575c23';
-import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js?v=751dd4575c23';
-import { PARTY_ANIMS, JOB2_SFX } from './render/battlefx-jobs2.js?v=751dd4575c23';
-import { PARTY_ANIMS3, JOB3_SFX } from './render/battlefx-jobs3.js?v=751dd4575c23';
-import { SIG4, JOB4_SFX, sigAnim } from './render/battlefx-jobs4.js?v=751dd4575c23';
+import { myDualOptions, dualMenu, showInvite, askingName, waitText, onDualWait, onDualWaitEnd, onDualHold, onDualAnswer, onDualBreak, dualPre, dualFx } from './battle-dual.js?v=6206a5e7d2b6';
+import { TACTICS } from '../shared/ai.js?v=6206a5e7d2b6';
+import { faceURL } from './field.js?v=6206a5e7d2b6';
+import { monsterCanvas } from './render/monsters.js?v=6206a5e7d2b6';
+import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=6206a5e7d2b6';
+import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js?v=6206a5e7d2b6';
+import { PARTY_ANIMS, JOB2_SFX } from './render/battlefx-jobs2.js?v=6206a5e7d2b6';
+import { PARTY_ANIMS3, JOB3_SFX } from './render/battlefx-jobs3.js?v=6206a5e7d2b6';
+import { SIG4, JOB4_SFX, sigAnim } from './render/battlefx-jobs4.js?v=6206a5e7d2b6';
 // 第27回に 作り直した 古い 呪文・特技の エフェクト（段階・あたる じかん・音・味方への えんしゅつ）
-import { r27Anim, r27Hit, r27Sfx, playAllyR27 } from './render/battlefx-r27.js?v=751dd4575c23';
-import { JOB5_SFX } from './render/battlefx-jobs5.js?v=751dd4575c23';
-import { JOB6_SFX } from './render/battlefx-jobs6.js?v=751dd4575c23';
+import { r27Anim, r27Hit, r27Sfx, playAllyR27 } from './render/battlefx-r27.js?v=6206a5e7d2b6';
+import { JOB5_SFX } from './render/battlefx-jobs5.js?v=6206a5e7d2b6';
+import { JOB6_SFX } from './render/battlefx-jobs6.js?v=6206a5e7d2b6';
 // 第33回の 11この 職業の 技（音・あたる じかん・みかたに 出す えんしゅつ）
-import { JOB7_SFX, JOB7_HIT, PARTY_ANIMS7 } from './render/battlefx-jobs7.js?v=751dd4575c23';
-import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js?v=751dd4575c23';
-import { statusNames, buffNames, targetTag } from './ui/info.js?v=751dd4575c23';
-import { battleSkillText, battleItemText, favHint } from './ui/skillinfo.js?v=751dd4575c23';
-import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js?v=751dd4575c23';
-import { ENEMY_RATE_NAMES } from '../shared/data/difficulty.js?v=751dd4575c23';
-import { ResultSheet } from './ui/result.js?v=751dd4575c23';
-import { paintRare } from './ui/rarity.js?v=751dd4575c23';
+import { JOB7_SFX, JOB7_HIT, PARTY_ANIMS7 } from './render/battlefx-jobs7.js?v=6206a5e7d2b6';
+import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js?v=6206a5e7d2b6';
+import { statusNames, buffNames, targetTag } from './ui/info.js?v=6206a5e7d2b6';
+import { battleSkillText, battleItemText, favHint } from './ui/skillinfo.js?v=6206a5e7d2b6';
+// 第35回: 技えらびの タブ（効果ごと）
+import { skillTabs, startTab, abilityElements } from '../shared/skill-tabs.js?v=6206a5e7d2b6';
+import './ui/r35-css.js?v=6206a5e7d2b6';
+import { bindBattlePad } from './battle-pad.js?v=6206a5e7d2b6';
+import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js?v=6206a5e7d2b6';
+import { ENEMY_RATE_NAMES } from '../shared/data/difficulty.js?v=6206a5e7d2b6';
+import { ResultSheet } from './ui/result.js?v=6206a5e7d2b6';
+import { paintRare } from './ui/rarity.js?v=6206a5e7d2b6';
 // 第4章の しかけ（月の鏡・まぼろしの 分身・魔神のランプ・ボスの 大技）
-import { CH4_ALLY_FX, ch4ItemEntries, ch4ItemPick, ch4ItemInfo, ch4Present, vanishFx, drawShade, drawBurrow } from './battle-ch4.js?v=751dd4575c23';
+import { CH4_ALLY_FX, ch4ItemEntries, ch4ItemPick, ch4ItemInfo, ch4Present, vanishFx, drawShade, drawBurrow } from './battle-ch4.js?v=6206a5e7d2b6';
 // 第4章 Step 7 の 砂の底の神殿と モルガナ（鏡のうつし身・水のろうの 絵・水の衣・光・大波・水の守りの歌）
-import { templeSprite, templeDraw, templeStart, TEMPLE_SFX } from './battle-temple.js?v=751dd4575c23';
+import { templeSprite, templeDraw, templeStart, TEMPLE_SFX } from './battle-temple.js?v=6206a5e7d2b6';
 // 第5章 Step 2 の 星の番人アルゴス（見通しの目。battle-ch5.js）
-import { towerDraw, TOWER_SFX } from './battle-ch5.js?v=751dd4575c23';
+import { towerDraw, TOWER_SFX } from './battle-ch5.js?v=6206a5e7d2b6';
 // 第5章 Step 4 の ガイアイーター（部位の え・音。battle-gaia.js）
-import { gaiaSprite, GAIA_SFX } from './battle-gaia.js?v=751dd4575c23';
+import { gaiaSprite, GAIA_SFX } from './battle-gaia.js?v=6206a5e7d2b6';
 
 // たたかいの え の こまかさ（おもい きかいで さげたら、その あいだは さげた まま）
 let battleRes = BRES;
@@ -245,7 +250,9 @@ export class BattleScene {
     this.canvas = makeCanvas(BW * this.res, BH * this.res);
     this.ctx = ctxOf(this.canvas);
     this.floatEl = el('div', { class: 'b-float' });
-    this.autoBtn = el('button', { class: 'btn', text: 'オート', onclick: () => this.toggleAuto() });
+    this.autoBtn = el('button', { class: 'btn', text: 'オート', title: 'SELECT・Mキーでも（戦いのメニュー）', onclick: () => this.toggleAuto() });
+    // 第35回: SELECT・M で 戦いの メニュー（オート・作戦・合体技の よやくを やめる。battle-pad.js）
+    this.unbindPad = bindBattlePad(this);
     this.speedHint = el('div');
     const tools = el('div', { class: 'b-tools' }, this.autoBtn);
     // 敵の 強さ（ハード・ベリーハード・スーパーハード）の しるし
@@ -309,8 +316,10 @@ export class BattleScene {
         box.addEventListener('click', () => this.onAllyClick(a.id));
         const name = el('span', { class: 'n', text: a.name });
         const tag = el('span', { class: 'tg' });
+        // 第35回: 短い 職業名（男の子の 美少女戦士は「しんし」など。shared/job-label.js）
+        const jb = el('span', { class: 'jb' });
         const lv = el('span', { class: 'lv' });
-        const nm = el('div', { class: 'nm' }, el('span', { class: 'nl' }, name, tag), lv);
+        const nm = el('div', { class: 'nm' }, el('span', { class: 'nl' }, name, tag, jb), lv);
         const gauge = (label, kind) => {
           const bar = el('div', { class: `gb ${kind}` }, el('i'));
           const num = el('span', { class: 'gn' });
@@ -323,7 +332,7 @@ export class BattleScene {
         const atb = el('div', { class: 'atb' }, el('i'));
         box.append(nm, hp.row, mp.row, sts, atb);
         this.statusEl.append(box);
-        this.statusBoxes.set(a.id, { box, name, tag, lv, hp, mp, sts, atb: atb.firstChild, atbBox: atb });
+        this.statusBoxes.set(a.id, { box, name, tag, jb, lv, hp, mp, sts, atb: atb.firstChild, atbBox: atb });
       }
     }
     // 家族と いっしょの ときは、人が 動かしている キャラの 名前を 黄緑に
@@ -341,6 +350,7 @@ export class BattleScene {
       s.box.classList.toggle('tac', this.canTactics(a));
       s.name.className = `n ${multi && a.kind === 'player' ? 'player' : ''} ${hpCls}`;
       s.lv.textContent = `Lv${a.lv}`;
+      s.jb.textContent = a.mon || a.kind === 'monster' || !JOBS[a.job] ? '' : jobShort(a.job, a);
       s.hp.row.className = `grow hp ${hpCls}`;
       s.hp.bar.style.width = `${Math.round(r * 100)}%`;
       s.hp.num.textContent = `${Math.max(0, a.hp)}/${a.maxHp}`;
@@ -490,6 +500,7 @@ export class BattleScene {
   showMenu(items, onSelect, onCancel, title, detailFn, start = -1, keep = null, tapConfirm = false) {
     this.closeMenus();
     this.cmdEl.innerHTML = '';
+    this.cmdEl.classList.remove('has-tabs');
     if (title) this.cmdEl.append(el('div', { class: 'who', text: title }));
     const m = new ListMenu(this.game.input, {
       items,
@@ -576,12 +587,18 @@ export class BattleScene {
     this.game.net.send({ t: 'menu', action: 'favorite', who, id, op: on ? 'add' : 'remove' });
   }
 
-  // keep: お気に入りを かえた ときなど、いまの カーソルと 見え方の まま 出しなおす（{ value, off }）
+  // keep: お気に入りを かえた ときなど、いまの カーソルと 見え方の まま 出しなおす（{ value, off, tab }）
+  // 第35回: 効果ごとの タブ（★お気に入り・今の職業・こうげき1体・こうげき全体・回復・強くする・弱くする・そのほか。
+  // 空の タブは 出さない。shared/skill-tabs.js）。スマホは タブを タップ、十字キーは いちばん右の 列で 右 → つぎの タブ
+  // （左は その ぎゃく。ui/dom.js の ListMenu の onSide）。技の ならびは かえない
   abilityMenu(ids, page = 'spell', keep = null) {
     const a = this.myActor;
     // look: 技の 名前・説明を 使う 人 むけに（男の子の 美少女戦士など。shared/ability-label.js）
     const pc = { ...(a.pc || { job: a.job, jobs: this.game.me.jobs }), look: a.look, mon: a.mon };
     const silenced = (a.status || []).includes('silence');
+    // わかっている 弱点（この 戦いの 敵で、図鑑・この 戦いで ためして わかった 物だけ）
+    const foes = this.enemies().filter((e) => e.alive);
+    const weak = (ab) => abilityElements(ab).some((elm) => foes.some((e) => this.knownAffinity(e, elm) === 'weak'));
     const row = (id, fav) => {
       const ab = abilityFor(id, a);
       const isMk = ab.effect.type === 'mahouken';
@@ -593,7 +610,7 @@ export class BattleScene {
       // 相手の しるし（グループ・全体・全員）
       const tt = targetTag(ab);
       return {
-        html: `${ELEMENT_NAMES[el] ? `<span class="elem e-${el}">${ELEMENT_NAMES[el]}</span>` : ''}${ab.name}${tt ? `<span class="tag tgt t-${ab.effect?.random ? 'random' : ab.target}">${tt}</span>` : ''}${pen ? '<span class="tag warn">他</span>' : ''}${ab.hirameki || ab.kind === 'combo' ? '<span class="tag hira">閃</span>' : ''}`,
+        html: `${ELEMENT_NAMES[el] ? `<span class="elem e-${el}">${ELEMENT_NAMES[el]}</span>` : ''}${ab.name}${tt ? `<span class="tag tgt t-${ab.effect?.random ? 'random' : ab.target}">${tt}</span>` : ''}${weak(ab) ? '<span class="tag weak">弱点</span>' : ''}${pen ? '<span class="tag warn">他</span>' : ''}${ab.hirameki || ab.kind === 'combo' ? '<span class="tag hira">閃</span>' : ''}`,
         right: isMk ? '▶' : `${cost}`,
         rightCls: pen ? 'pen' : '',
         value: id,
@@ -602,19 +619,15 @@ export class BattleScene {
         disabled: noMp || sil,
       };
     };
-    // お気に入りの まど（ならびは メニューの「技」で かえられる）＋ ぜんぶ
-    const favs = this.favsOf(a).filter((id) => ids.includes(id));
-    const items = [];
-    if (favs.length) {
-      items.push({ header: true, label: '★ お気に入り', cls: 'fav-h' }, ...favs.map((id) => row(id, true)));
-      items.push({ header: true, label: page === 'spell' ? '呪文（ぜんぶ）' : '特技（ぜんぶ）', cls: 'all-h' });
-    }
-    items.push(...ids.map((id) => row(id, false)));
-    // まえに えらんだ 技から はじめる（リストの 見え方も その ときの まま）
-    const last = keep ? keep.value : this.lastPick(a, page);
-    const view = keep || this.lastScroll(a, page);
-    const find = (fav) => items.findIndex((it) => !it.header && it.value === last && (fav === undefined || !!it.fav === !!fav));
-    const start = !last ? -1 : find(view?.fav) >= 0 ? find(view?.fav) : find();
+    const tabs = skillTabs(ids, { abs: (id) => abilityFor(id, a), job: pc.job, favs: this.favsOf(a) });
+    const tab = startTab(tabs, keep?.tab || this.lastTab(a, page));
+    const cur = tabs.find((t) => t.id === tab) || { id: 'all', ids: [] };
+    const items = cur.ids.map((id) => row(id, cur.id === 'fav'));
+    // まえに えらんだ 技から はじめる（タブごと。リストの 見え方も その ときの まま）
+    const key = `${page}/${cur.id}`;
+    const last = keep ? keep.value : this.lastPick(a, key);
+    const view = keep || this.lastScroll(a, key);
+    const start = last ? items.findIndex((it) => it.value === last) : -1;
     const detail = (it) => {
       if (!it || it.header) return;
       // 効果・威力の 目安・属性・相手・MP（敵が 1体・自分に かける・全体の 技でも 使う 前に 見える。ui/skillinfo.js）
@@ -630,13 +643,13 @@ export class BattleScene {
           e.stopPropagation();
           const off = this.selOffset();
           this.toggleFav(a, it.value);
-          this.abilityMenu(ids, page, { value: it.value, off, fav: !!this.menu?.current?.fav });
+          this.abilityMenu(ids, page, { value: it.value, off, tab: cur.id });
         },
       }));
     };
     this.showMenu(items, (it) => {
       const ab = abilityFor(it.value, a);
-      this.rememberPick(a, page, it.value);
+      this.rememberPick(a, key, it.value);
       if (ab.effect.type === 'mahouken') return this.mahoukenMenu();
       // 相手を えらぶ 間も おなじ せつめい（「もう一度タップ」は もう いらない）
       this.info(battleSkillText(it.value, pc));
@@ -646,16 +659,69 @@ export class BattleScene {
       if (t === 'ally' || t === 'deadAlly') return this.pickAlly((tid) => this.send({ type: 'ability', id: it.value, target: tid }), t === 'deadAlly', ab.name, back);
       return this.send({ type: 'ability', id: it.value });
     }, () => this.openCommand(), null, detail, start, view, true);
+    // タブの 札（タップで かえる）。十字キーは 列の はしで 左右（ListMenu の onSide）
+    const go = (id) => {
+      if (id === cur.id) return;
+      this.rememberTab(a, page, id);
+      this.abilityMenu(ids, page, { tab: id });
+    };
+    if (tabs.length > 1) {
+      // 「← もどる」も 札の ならびの 左に（1行 ぶん 技が 多く 見える。css の .has-tabs）
+      const bar = el('div', { class: 'b-tabs', role: 'tablist' }, el('button', {
+        class: 'btn bt bt-back',
+        'aria-label': 'もどる',
+        text: '←',
+        onclick: (e) => {
+          e.stopPropagation();
+          this.menu?.cancel();
+        },
+      }), ...tabs.map((t) => el('button', {
+        class: `btn bt ${t.id === cur.id ? 'sel' : ''} bt-${t.id}`,
+        role: 'tab',
+        title: t.title,
+        text: t.label,
+        onclick: (e) => {
+          e.stopPropagation();
+          this.game.audio.sfx('cursor');
+          go(t.id);
+        },
+      })));
+      this.cmdEl.insertBefore(bar, this.menu.root);
+      // えらんでいる 札が 見えるように（よこに スクロール）
+      const sel = bar.querySelector('.sel');
+      if (sel) {
+        const x = sel.getBoundingClientRect().left - bar.getBoundingClientRect().left + bar.scrollLeft;
+        bar.scrollLeft = Math.max(0, x - (bar.clientWidth - sel.offsetWidth) / 2);
+      }
+      this.menu.onSide = (d) => {
+        const i = tabs.findIndex((t) => t.id === cur.id);
+        this.game.audio.sfx('cursor');
+        go(tabs[(i + d + tabs.length) % tabs.length].id);
+      };
+    }
+    this.cmdEl.classList.toggle('has-tabs', tabs.length > 1);
     // 長おし・Y: お気に入りに 入れる／はずす を えらぶ 小さな まど（技は 使わない。第27回）
     this.menu.onLong = (it) => {
       if (!it || it.header) return;
       this.favPopup(a, it.value, () => {
         const off = this.selOffset();
-        const fav = !!this.menu?.current?.fav;
         this.toggleFav(a, it.value);
-        this.abilityMenu(ids, page, { value: it.value, off, fav });
+        this.abilityMenu(ids, page, { value: it.value, off, tab: cur.id });
       });
     };
+  }
+
+  // 第35回: まえに 見た タブ（キャラ・呪文／特技ごと。つぎの 戦いでも おぼえておく）
+  lastTab(a, page) {
+    try { return JSON.parse(localStorage.getItem('kizuna_btab') || '{}')[`${a.charId || a.id}:${page}`] || null; } catch { return null; }
+  }
+
+  rememberTab(a, page, tab) {
+    try {
+      const m = JSON.parse(localStorage.getItem('kizuna_btab') || '{}');
+      m[`${a.charId || a.id}:${page}`] = tab;
+      localStorage.setItem('kizuna_btab', JSON.stringify(m));
+    } catch { /* */ }
   }
 
   // 第27回: 技を 長おし（Y）した ときの「お気に入りに入れる／はずす」の まど。toggle: 入れる・はずす を えらんだ とき
@@ -1751,6 +1817,7 @@ export class BattleScene {
 
   destroy() {
     this.destroyed = true;
+    this.unbindPad?.();
     this.closeTactics();
     this.closeResult?.();
     this.closeMenus();

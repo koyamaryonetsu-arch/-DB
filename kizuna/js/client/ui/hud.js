@@ -1,12 +1,16 @@
 // フィールドの がめんの かざり（HP・ばしょ・もくひょう・ちず・チャット）
-import { el, bar, askText, ListMenu } from './dom.js?v=751dd4575c23';
-import { computeStats } from '../../shared/stats.js?v=751dd4575c23';
-import { JOBS } from '../../shared/data/jobs.js?v=751dd4575c23';
-import { renderMiniMap, openWorldMap } from './menu.js?v=751dd4575c23';
-import { makeCanvas } from '../render/pixel.js?v=751dd4575c23';
-import { ClockBadge } from './clock.js?v=751dd4575c23';
-import { powderLabel } from '../../shared/data/friend-powder.js?v=751dd4575c23';
-import { auraLabel } from '../../shared/data/abilities-field27.js?v=751dd4575c23';
+import { el, bar, askText, ListMenu } from './dom.js?v=6206a5e7d2b6';
+import { computeStats } from '../../shared/stats.js?v=6206a5e7d2b6';
+import { JOBS } from '../../shared/data/jobs.js?v=6206a5e7d2b6';
+import { jobShort } from '../../shared/job-label.js?v=6206a5e7d2b6';
+import { hasUnreadNews } from '../../shared/data/news.js?v=6206a5e7d2b6';
+import { hasPot } from '../../shared/data/alchemy.js?v=6206a5e7d2b6';
+import { alchemyUI } from './alchemy.js?v=6206a5e7d2b6';
+import { renderMiniMap, openWorldMap } from './menu.js?v=6206a5e7d2b6';
+import { makeCanvas } from '../render/pixel.js?v=6206a5e7d2b6';
+import { ClockBadge } from './clock.js?v=6206a5e7d2b6';
+import { powderLabel } from '../../shared/data/friend-powder.js?v=6206a5e7d2b6';
+import { auraLabel } from '../../shared/data/abilities-field27.js?v=6206a5e7d2b6';
 
 export const STAMPS = ['よろしく！', 'ありがとう！', '行くよー！', '助けて！', '待ってて！', 'やったね！', 'おつかれさま', 'ご飯だよ〜'];
 
@@ -23,11 +27,14 @@ export function partyRows(g) {
     const hpCls = hp <= 0 ? 'dead' : r <= 0.1 ? 'red' : r <= 0.5 ? 'orange' : '';
     to.push({ name, level, hp, maxHp, mp, maxMp, tag, away, player, hpCls, ref });
   };
+  // 第35回: 短い 職業名（モンスターは なし。shared/job-label.js）
+  const jb = (to, x) => { to[to.length - 1].jb = x && !x.species && JOBS[x.job] ? jobShort(x.job, x) : ''; };
   const st = computeStats(c);
   add(people, c.name, c.level, c.hp, st.maxHp, c.mp, st.maxMp, '', false, true, 'self');
-  for (const m of p?.members || []) if (m.sid !== g.sid) add(people, m.name, m.level, m.hp, m.maxHp, m.mp, m.maxMp, '家族', m.away, true);
-  for (const s of p?.supports || []) add(sups, s.name, s.level, s.hp, s.maxHp, s.mp, s.maxMp, s.family ? '家族サポート' : s.species ? 'モンスター' : '仲間', false, false, s.key);
-  for (const gu of p?.guests || []) add(guests, gu.name, gu.level, gu.hp, gu.maxHp, gu.mp ?? 0, gu.maxMp || 1, 'ゲスト');
+  jb(people, c);
+  for (const m of p?.members || []) if (m.sid !== g.sid) { add(people, m.name, m.level, m.hp, m.maxHp, m.mp, m.maxMp, '家族', m.away, true); jb(people, m); }
+  for (const s of p?.supports || []) { add(sups, s.name, s.level, s.hp, s.maxHp, s.mp, s.maxMp, s.family ? '家族サポート' : s.species ? 'モンスター' : '仲間', false, false, s.key); jb(sups, s); }
+  for (const gu of p?.guests || []) { add(guests, gu.name, gu.level, gu.hp, gu.maxHp, gu.mp ?? 0, gu.maxMp || 1, 'ゲスト'); jb(guests, gu); }
   // ならびかえ（リーダーが きめた じゅんばん）
   const pos = Math.max(0, Math.min(sups.length, p?.selfPos || 0));
   return [...sups.slice(0, pos), ...people, ...sups.slice(pos), ...guests];
@@ -77,6 +84,9 @@ export class Hud {
       this.aura.hidden = !al;
       this.aura.classList.toggle('lure', au?.kind === 'lure');
       this.aura.style.top = pw ? `${this.powder.offsetHeight + 4}px` : '';
+      // 第35回: まだ 読んでいない お知らせが あると メニューボタンに ●（data/news.js）
+      this.btns.firstChild?.classList.toggle('has-new', hasUnreadNews(this.game.me));
+      this.updatePotBtn();
     }
     const f = this.game.field;
     if (!f.map) return;
@@ -89,6 +99,28 @@ export class Hud {
       clearTimeout(this.areaT);
       this.areaT = setTimeout(() => this.area.classList.remove('show'), 2800);
     }
+  }
+
+  // 第35回: れん金がまの ボタン（大鳥・竜の ボタンと おなじ 列。持っている 人だけ。ui/alchemy.js）
+  // はじめて いる ときに 作る（sky.js の ボタンの 下に ならぶ）
+  updatePotBtn() {
+    const g = this.game;
+    const on = g.state === 'field' && hasPot(g.me);
+    if (!on && !this.potBtn) return;
+    if (!this.potBtn) {
+      this.potBtn = el('button', { class: 'win hud-btn hud-pot', text: 'れん金', onclick: () => this.openPot() });
+      this.btns.append(this.potBtn);
+    }
+    this.potBtn.hidden = !on;
+  }
+
+  openPot() {
+    const g = this.game;
+    if (g.state !== 'field' || g.busy || g.menuOpen || !hasPot(g.me)) return;
+    g.audio.sfx('confirm');
+    // 開いている 間は ほかの まど（「いっしょに乗る？」など）を 出さない
+    g.menuOpen = true;
+    alchemyUI(g).finally(() => { g.menuOpen = false; });
   }
 
   // 場所の なまえは 仲間の まどと かさならない ように（人数が 多い とき・たての 画面では 下へ ずらす）

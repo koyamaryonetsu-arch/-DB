@@ -1,15 +1,16 @@
 // タイトル・ログイン・キャラクターえらび・キャラクターづくり
-import { el, ListMenu, toast, askText, confirmBox } from './dom.js?v=751dd4575c23';
-import { JOBS, JOB_ORDER } from '../../shared/data/jobs.js?v=751dd4575c23';
-import { jobLabel } from '../../shared/job-label.js?v=751dd4575c23';
-import { HAIR_STYLES, HAIR_COLORS, SKIN_TONES, FACES, FACE_BY_ID, CLOTH_COLORS, cleanLook } from '../../shared/data/looks.js?v=751dd4575c23';
-import { previewCache } from '../render/hero.js?v=751dd4575c23';
-import { playerSprite } from '../field.js?v=751dd4575c23';
-import { makeCanvas, ctxOf } from '../render/pixel.js?v=751dd4575c23';
-import { LINE_MAX, parseCode } from '../../shared/world/transfer.js?v=751dd4575c23';
-import { DEFAULT_SITE, pendingImport, clearPendingImport, familyServer, setFamilyServer, linkToFamilyServer, linkToSite, siteServerAddress } from '../links.js?v=751dd4575c23';
-import { goFamilyServer, goSite, roundTrip, changeServer, syncOnServer, maybeRoundTrip, notePlayed, familyServerUp } from './syncui.js?v=751dd4575c23';
-import { shownEquip } from '../../shared/look-equip.js?v=751dd4575c23';
+import { padNav } from './padnav.js?v=6206a5e7d2b6';
+import { el, ListMenu, toast, askText, confirmBox } from './dom.js?v=6206a5e7d2b6';
+import { JOBS, JOB_ORDER } from '../../shared/data/jobs.js?v=6206a5e7d2b6';
+import { jobLabel } from '../../shared/job-label.js?v=6206a5e7d2b6';
+import { HAIR_STYLES, HAIR_COLORS, SKIN_TONES, FACES, FACE_BY_ID, CLOTH_COLORS, cleanLook } from '../../shared/data/looks.js?v=6206a5e7d2b6';
+import { previewCache } from '../render/hero.js?v=6206a5e7d2b6';
+import { playerSprite } from '../field.js?v=6206a5e7d2b6';
+import { makeCanvas, ctxOf } from '../render/pixel.js?v=6206a5e7d2b6';
+import { LINE_MAX, parseCode } from '../../shared/world/transfer.js?v=6206a5e7d2b6';
+import { DEFAULT_SITE, pendingImport, clearPendingImport, familyServer, setFamilyServer, linkToFamilyServer, linkToSite, siteServerAddress } from '../links.js?v=6206a5e7d2b6';
+import { goFamilyServer, goSite, roundTrip, changeServer, syncOnServer, maybeRoundTrip, notePlayed, familyServerUp } from './syncui.js?v=6206a5e7d2b6';
+import { shownEquip } from '../../shared/look-equip.js?v=6206a5e7d2b6';
 
 function clearUI() {
   document.getElementById('ui').innerHTML = '';
@@ -122,7 +123,8 @@ export function showTitle(game) {
     game.afterTitle();
   };
   start.addEventListener('click', go);
-  const h = { onNav: (a) => { if (a === 'a') go(); } };
+  // 第35回: 十字キーで「家族サーバーで遊ぶ」も えらべる（ui/padnav.js。A は カーソルの ボタン）
+  const h = padNav(box, { start, sound: (x) => game.audio.sfx(x) });
   game.input.push(h);
   game.audio.play('title');
 }
@@ -190,20 +192,17 @@ export function showSelect(game, chars) {
     notePlayed(game, c.id);
     game.net.send({ t: 'play', id: c.id });
   };
-  const h = {
+  // 第35回: 十字キーで カードの 下の ボタン（引っこしコード・キャラを消す など）にも 行ける（ui/padnav.js）
+  const h = padNav(wrap, {
     pad: true,
-    onNav: (a) => {
-      const cols = Math.max(1, Math.round(grid.clientWidth / (all[0]?.clientWidth || 200)));
-      if (a === 'right') idx = Math.min(all.length - 1, idx + 1);
-      if (a === 'left') idx = Math.max(0, idx - 1);
-      if (a === 'down') idx = Math.min(all.length - 1, idx + cols);
-      if (a === 'up') idx = Math.max(0, idx - cols);
-      if (a === 'a') return all[idx].click();
-      game.audio.sfx('cursor');
-      sel();
-      all[idx].scrollIntoView({ block: 'nearest' });
+    start: () => all[idx],
+    sound: (x) => game.audio.sfx(x),
+    onFocus: (e) => {
+      const i = all.indexOf(e);
+      if (i >= 0) idx = i;
+      all.forEach((c) => c.classList.toggle('sel', c === e));
     },
-  };
+  });
   game.input.push(h);
   const cleanup = () => game.input.pop(h);
   // 「連れていく」リンクで 開いた ときは、ここで 聞く。
@@ -332,7 +331,7 @@ export function showTransfer(game, chars) {
   box.append(head, body);
   wrap.append(box);
   ui.append(wrap);
-  const h = { onNav: (a) => { if (a === 'b') done(); } };
+  const h = padNav(box, { sound: (x) => game.audio.sfx(x), onB: () => done() });
   game.input.push(h);
   const done = () => {
     game.input.pop(h);
@@ -589,7 +588,8 @@ export function showCreate(game) {
   wrap.append(box);
   ui.append(wrap);
   refresh();
-  const h = { onNav: (a) => { if (a === 'b') doBack(); } };
+  // 第35回: 十字キーと A で 作れる（ui/padnav.js。名前は A で 入力 → Enter で おわる）
+  const h = padNav(box, { start: name, sound: (x) => game.audio.sfx(x), onB: () => doBack() });
   game.input.push(h);
   const cleanup = () => {
     clearInterval(timer);

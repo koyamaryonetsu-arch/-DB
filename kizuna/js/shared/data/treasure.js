@@ -6,12 +6,12 @@
 //
 // 洞窟の マップ ID: tm_<seed36>_<lv>_<o|s><x>x<y>_<階>（たとえば tm_k3f9a2_3_o120x45_2）
 //   ID だけで 洞窟が つくれる（サーバーと 画面で おなじ 形。とちゅうで ログインしなおしても おなじ 洞窟）
-import { MONSTERS } from './monsters.js?v=751dd4575c23';
-import { ITEMS, SLOTS } from './items.js?v=751dd4575c23';
-import { ENCOUNTER_TABLES, ZONE_BG } from './encounters.js?v=751dd4575c23';
-import { makeRng } from '../rng.js?v=751dd4575c23';
-import { REWARD_GOLD_RATE } from './difficulty.js?v=751dd4575c23';
-import { tmGearRank, pickTmGear, luckyShoesRate, LUCKY_SHOES } from './rare-loot.js?v=751dd4575c23';
+import { MONSTERS } from './monsters.js?v=6206a5e7d2b6';
+import { ITEMS, SLOTS } from './items.js?v=6206a5e7d2b6';
+import { ENCOUNTER_TABLES, ZONE_BG } from './encounters.js?v=6206a5e7d2b6';
+import { makeRng } from '../rng.js?v=6206a5e7d2b6';
+import { REWARD_GOLD_RATE } from './difficulty.js?v=6206a5e7d2b6';
+import { tmGearRank, pickTmGear, luckyShoesRate, LUCKY_SHOES } from './rare-loot.js?v=6206a5e7d2b6';
 
 export const TM_MAX = 20; // 持てる 地図の 数
 export const TM_LV_MAX = 12; // 地図の レベルの 上限
