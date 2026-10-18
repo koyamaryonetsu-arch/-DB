@@ -353,8 +353,8 @@ const jobsOf = (id, g) => new Set(DUAL_TECHS[id].need[g].map((k) => ABILITIES[k]
 
 test('第27回の 合体技: 10こ（2人・3人・4人）・ぜんぶで 35こ いない・半分くらい クスッと・新しい 職業と 前からの 職業', () => {
   // 第29回で 2こ 足して 37こ、第31回の ミナデインで 38こ、第32回の 魔物使いの 3こで 41こ まで（test/jobs-r29.test.js・test/dual-r31.test.js・test/dual-r32.test.js）
-  // 第33回の 5こで 46こ まで（test/jobs-r33.test.js）
-  assert.ok(DUAL_ORDER.length <= 46, `${DUAL_ORDER.length}こ`);
+  // 第33回の 5こで 46こ まで（test/jobs-r33.test.js）。第35回: タグの 技を 足して 59こ（test/dual-tags.test.js）
+  assert.ok(DUAL_ORDER.length <= 62, `${DUAL_ORDER.length}こ`);
   assert.ok(NEW_DUAL.length >= 8 && NEW_DUAL.length <= 10);
   for (const id of NEW_DUAL) assert.ok(DUAL_TECHS[id], id);
   const sizes = NEW_DUAL.map(dualSize);
@@ -364,11 +364,11 @@ test('第27回の 合体技: 10こ（2人・3人・4人）・ぜんぶで 35こ 
   // ならびは 2人技・3人技・4人技 の じゅん
   const ord = DUAL_ORDER.map(dualSize);
   assert.deepEqual(ord, [...ord].sort((a, b) => a - b));
-  // どれも 新しい 職業の 組が 入る。ほとんどは 前からの 職業の 組も（名探てい×黒の組織 は 新しい 職業どうし）
+  // どれも 新しい 職業の 組が 入る（第35回: タグの 組は 職業 20 まで）。ほとんどは 前からの 職業の 組も（名探てい×黒の組織 は 新しい 職業どうし）
   let withOld = 0;
   for (const id of NEW_DUAL) {
     const t = DUAL_TECHS[id];
-    assert.ok(t.need.some((_, g) => [...jobsOf(id, g)].some((j) => NEW_JOBS.includes(j)) && DUAL_TECHS[id].need[g].length < 80), `${id}: 新しい 職業の 組`);
+    assert.ok(t.need.some((_, g) => [...jobsOf(id, g)].some((j) => NEW_JOBS.includes(j)) && jobsOf(id, g).size <= 20), `${id}: 新しい 職業の 組`);
     if (t.need.some((_, g) => [...jobsOf(id, g)].some((j) => !NEW_JOBS.includes(j)))) withOld++;
   }
   assert.ok(withOld >= NEW_DUAL.length - 1, `前からの 職業と ${withOld}こ`);

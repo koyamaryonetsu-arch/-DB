@@ -11,7 +11,7 @@ import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityP
 import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, TIER_NAMES } from '../../shared/data/jobs.js';
 import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress, partyJobSet, hiraOfJob, monsterSlots, canEquipChar, itemCount, MAX_LEVEL } from '../../shared/stats.js';
 import { HIRAMEKI } from '../../shared/data/hirameki.js';
-import { DUAL_TECHS, DUAL_ORDER, dualKnown, dualRelated, dualNeedText } from '../../shared/data/dual.js';
+import { DUAL_TECHS, DUAL_ORDER, dualKnown, dualRelated, dualNeedText, dualNeedLabel } from '../../shared/data/dual.js';
 import { addDualCss } from '../render/dualfx.js';
 import { MONSTERS } from '../../shared/data/monsters.js';
 import { monsterDrops } from '../../shared/data/loot.js';
@@ -888,7 +888,7 @@ export class FieldMenu {
         const known = dualKnown(c, id) || dualKnown(g.me, id);
         return {
           id, cls: `dual-row n${n}${known ? '' : ' unknown'}`,
-          html: `<span class="nm dual-nm">${esc(t.name)}</span><span class="ln">${esc(`${n}人技・MP ${t.mp.join('＋')}・必要な職業：${dualNeedText(id, false, c)}`)}</span><span class="ln muted">${known ? esc(t.desc) : '効果は？？？（一度使うとわかる。まだ使っていない）'}</span>`,
+          html: `<span class="nm dual-nm">${esc(t.name)}</span><span class="ln">${esc(`${n}人技・MP ${t.mp.join('＋')}・${dualNeedLabel(id)}：${dualNeedText(id, false, c)}`)}</span><span class="ln muted">${known ? esc(t.desc) : '効果は？？？（一度使うとわかる。まだ使っていない）'}</span>`,
         };
       }));
       if (!shownDual.length) box.append(el('div', { class: 'muted', text: '今のパーティーで出せそうな合体技は、まだない。' }));

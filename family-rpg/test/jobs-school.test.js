@@ -338,10 +338,11 @@ test('ひらめきと 合体技: 小学生・地方公務員の ひらめき技�
   assert.ok(ids(dualOptions(papa, [kid], weaponOk)).includes('dt_jugyo_sankan'), 'どちらから でも');
   assert.ok(ids(dualOptions(kid, [clerk], weaponOk)).includes('dt_jugyo_sankan'), '公務員の 技でも');
   assert.ok(!ids(dualOptions(kid, [stranger], weaponOk)).includes('dt_jugyo_sankan'));
-  // 新しい 技も 前からの 合体技に まざる（リコーダー＋おどり → ステージショー）
+  // 第35回: タグで 決める（小学生は 学校・子ども）。子ども＋師しょう → 師弟の一げき。歌とおどりの タグが ないので ステージショーは 出ない
   const flute = { ...kid, abilities: ['es_recorder'] };
   const dancer = { ...papa, job: 'performer', abilities: ['hustle'] };
-  assert.ok(ids(dualOptions(flute, [dancer], weaponOk)).includes('dt_stage'));
+  assert.ok(!ids(dualOptions(flute, [dancer], weaponOk)).includes('dt_stage'));
+  assert.ok(ids(dualOptions(flute, [{ ...papa, job: 'homeroom_3b' }], weaponOk)).includes('dt_shitei'));
 });
 
 test('たたかい: 新しい 技の 効き目（窓口対応・予算会議・じゃんけん・放水・バナナのかわ・救助）', () => {

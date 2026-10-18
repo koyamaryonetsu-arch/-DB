@@ -400,7 +400,8 @@ const jobsOf = (id, g) => groupJobs(DUAL_TECHS[id].need[g]);
 const pair = (id, ...jobs) => jobs.every((j) => DUAL_TECHS[id].need.some((_, g) => jobsOf(id, g).has(j)));
 
 test('第33回の 合体技: 5こ（2人技4・3人技1。ぜんぶで 46こ）・新しい 職業と 今の 職業・だれでも 枠なし・えんしゅつ・文字', () => {
-  assert.equal(DUAL_ORDER.length, 46);
+  // 第35回: タグの 技を 足して 59こ（test/dual-tags.test.js）
+  assert.equal(DUAL_ORDER.length, 59);
   for (const id of NEW_DUAL) assert.ok(DUAL_TECHS[id], id);
   assert.deepEqual(NEW_DUAL.map(dualSize), [2, 2, 2, 2, 3]);
   const ord = DUAL_ORDER.map(dualSize);

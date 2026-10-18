@@ -34,20 +34,22 @@ function mk(job, name, lv = 40) {
 
 test('魔物使い・モンスターマスターの 合体技 3こ（2人技2・3人技1）: 名前・組・MP・えんしゅつ・文字', () => {
   for (const id of NEW) assert.ok(DUAL_TECHS[id], id);
-  // 第33回: 11の 職業の 5こで 46こ（test/jobs-r33.test.js）
-  assert.equal(DUAL_ORDER.length, 46);
+  // 第33回: 11の 職業の 5こで 46こ（test/jobs-r33.test.js）。第35回: タグの 技を 足して 59こ（test/dual-tags.test.js）
+  assert.equal(DUAL_ORDER.length, 59);
   assert.deepEqual(NEW.map((id) => DUAL_TECHS[id].name), ['ビーストクロス', '大サーカス', 'ワイルドラッシュ']);
   assert.deepEqual(NEW.map(dualSize), [2, 2, 3]);
   for (const id of NEW) {
     const t = DUAL_TECHS[id];
-    assert.deepEqual([...groupJobs(t.need[0])].sort(), ['monster_master', 'tamer'], `${t.name}: 1つめは 魔物使い・モンスターマスター`);
+    // 第35回: 大サーカスは「魔物」の タグ（魔物使い・モンスターマスターも 入る）
+    assert.ok(groupJobs(t.need[0]).has('tamer') && groupJobs(t.need[0]).has('monster_master'), `${t.name}: 1つめは 魔物使い・モンスターマスター`);
+    if (id !== 'dt_circus') assert.deepEqual([...groupJobs(t.need[0])].sort(), ['monster_master', 'tamer']);
     assert.ok(DUAL_FX[id]?.finale && ['cross', 'stage', 'quake'].includes(DUAL_FX[id].finale), `${id}: 今ある とどめの 型`);
     for (const s of [t.name, t.desc, DUAL_FX[id].word, dualNeedText(id), dualNeedText(id, true), ...t.parts.flatMap((x) => [x.say, x.msg, x.failMsg]).filter(Boolean)]) {
       assert.deepEqual(checkText(s), [], `${id}: ${s}`);
     }
   }
   assert.equal(dualNeedText('dt_beast_cross'), '魔物使い・モンスターマスター＋モンスターの仲間');
-  assert.equal(dualNeedText('dt_wild_rush', true), '魔物使い＋モンスターの仲間＋こぶし');
+  assert.equal(dualNeedText('dt_wild_rush', true), '魔物使い＋モンスターの仲間＋「こぶし」');
   assert.ok(DUAL_TECHS.dt_circus.funny);
   // 魔物使いの 技・モンスターマスターの 技は 合体技に 入った（前は 全員集合と ミナデインの「だれでも」だけ）
   const inDual = new Set(Object.values(DUAL_TECHS).flatMap((t) => t.need.filter((g) => !ANY_GROUPS.has(g)).flatMap((g) => [...groupJobs(g)])));

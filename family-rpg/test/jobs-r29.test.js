@@ -343,14 +343,15 @@ test('第29回の 合体技: 4つの 職業の 技が 今の 組（剣・回復�
     const inDual = Object.values(DUAL_TECHS).some((t) => t.need.some((list) => list.some((k) => ABILITIES[k]?.job === j)));
     assert.ok(inDual, `${JOBS[j].name} の 技が 合体技に ない`);
   }
-  const sword = byName.get('剣の技');
+  // 第35回: 組は タグ（剣）
+  const sword = byName.get('剣');
   for (const id of ['rurouni_sig', 'hitokiri_sig', 'himura_sig', 'hiten_sig', 'rr_battou', 'htk_ryusho', 'hm_hiryu', 'ht_shinsoku']) assert.ok(sword.includes(id), `剣の技に ${id}`);
-  assert.ok(byName.get('回復の技').includes('rr_sentaku'));
+  assert.ok(byName.get('飛天御剣流の技').includes('rr_sentaku'));
   assert.ok(byName.get('飛天御剣流の技'), '飛天御剣流の 組');
   // 数
   // 第31回: ミナデインで 38こ。第32回: 魔物使いの 3こで 41こ
-  // 第33回: 11の 職業の 5こで 46こ（test/jobs-r33.test.js）
-  assert.ok(DUAL_ORDER.length <= 46, `${DUAL_ORDER.length}こ`);
+  // 第33回: 11の 職業の 5こで 46こ（test/jobs-r33.test.js）。第35回: タグの 技で 59こ
+  assert.ok(DUAL_ORDER.length <= 62, `${DUAL_ORDER.length}こ`);
   for (const id of NEW_DUAL) assert.ok(DUAL_TECHS[id], id);
   assert.equal(dualSize('dt_sentaku_biyori'), 2);
   assert.equal(dualSize('dt_sanken'), 3);

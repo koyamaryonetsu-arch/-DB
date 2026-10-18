@@ -61,6 +61,20 @@ export const DUAL_FX = {
   dt_moonlight: { c: ['#ff7ab8', '#ffe07a', '#ffffff'], finale: 'stage', word: 'ムーンライト！' },
   dt_hippogriff: { c: ['#5a3a1a', '#c8e0ff', '#ffffff'], finale: 'storm', word: 'バサッ！' },
   dt_sotsugyou: { c: ['#3a5a3a', '#ffb0c8', '#ffffff'], finale: 'heal', word: '卒業おめでとう！' },
+  // 第35回: 作品を またぐ タグの 合体技（今ある とどめの 型の 使い回し）
+  dt_oozora: { c: ['#3a8ad8', '#c8e8ff', '#ffffff'], finale: 'storm', word: 'ビューン！' },
+  dt_shitei: { c: ['#8a5a1a', '#ffe07a', '#ffffff'], finale: 'cross', word: '今だ！' },
+  dt_rival: { c: ['#c81a1a', '#1a3ac8', '#ffffff'], finale: 'cross', word: 'うおおおっ！' },
+  dt_kagebunshin: { c: ['#2a2a4a', '#9a9ac8', '#ffffff'], finale: 'cross', word: 'シュシュシュッ！' },
+  dt_himitsu_rensei: { c: ['#1a86e4', '#ffd040', '#ffffff'], finale: 'gadgets', word: 'でっかくなった！' },
+  dt_ikazuchi_ken: { c: ['#1a2a8a', '#ffe95a', '#ffffff'], finale: 'bolt', word: 'ズガーン！' },
+  dt_fubuki: { c: ['#1a7ac8', '#c8f0ff', '#ffffff'], finale: 'storm', word: 'ヒュオオオ！' },
+  dt_hikari_shower: { c: ['#c8a01a', '#fff6b0', '#ffffff'], finale: 'heal', word: 'キラキラ…' },
+  dt_gyakuten: { c: ['#1a6a3a', '#ffffff', '#ffd040'], finale: 'spot', word: 'カキーン！' },
+  dt_oodate: { c: ['#3a5a8a', '#c8e0ff', '#ffe07a'], finale: 'heal', word: 'ガキーン！' },
+  dt_sanken_ooichiban: { c: ['#a01c2c', '#e8ecf4', '#ffd040'], finale: 'cross', word: 'いざ、勝負！' },
+  dt_henshin_hero: { c: ['#c81a3a', '#ffd040', '#3a8aff'], finale: 'nova', word: '変身！' },
+  dt_omatsuri: { c: ['#c8301a', '#ffd040', '#ffffff'], finale: 'stage', word: 'ワッショイ！' },
 };
 const DEFAULT_FX = { c: ['#7a3ac8', '#ffd66b', '#ffffff'], finale: 'nova', word: '' };
 export const dualFxOf = (id) => DUAL_FX[id] || DEFAULT_FX;
