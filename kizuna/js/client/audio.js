@@ -1,10 +1,10 @@
 // おんがくと こうかおん（Web Audio で その場で つくる。きょくは すべて オリジナル）
-import { SFX_R26 } from './sfx-r26.js?v=64263a381100';
-import { SFX_R27 } from './sfx-r27.js?v=64263a381100';
-import { SFX_R29 } from './sfx-r29.js?v=64263a381100';
-import { SFX_R33 } from './sfx-r33.js?v=64263a381100';
-import { KUMOI_TRACKS } from './audio-kumoi.js?v=64263a381100';
-import { HOSHIYOMI_TRACKS } from './audio-hoshiyomi.js?v=64263a381100';
+import { SFX_R26 } from './sfx-r26.js?v=cd32925e7010';
+import { SFX_R27 } from './sfx-r27.js?v=cd32925e7010';
+import { SFX_R29 } from './sfx-r29.js?v=cd32925e7010';
+import { SFX_R33 } from './sfx-r33.js?v=cd32925e7010';
+import { KUMOI_TRACKS } from './audio-kumoi.js?v=cd32925e7010';
+import { HOSHIYOMI_TRACKS } from './audio-hoshiyomi.js?v=cd32925e7010';
 
 const NOTE_BASE = { C: 0, 'C#': 1, Db: 1, D: 2, 'D#': 3, Eb: 3, E: 4, F: 5, 'F#': 6, Gb: 6, G: 7, 'G#': 8, Ab: 8, A: 9, 'A#': 10, Bb: 10, B: 11 };
 

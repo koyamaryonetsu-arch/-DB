@@ -9,14 +9,15 @@
 // ・同じ 武具を 2つ 入れると、レア度は かわらないが きたえられる 回数（+の 上限）が 1 ふえる（CAP_UP_MAX 回まで。
 //   その 装備の しゅるいごと。c.alchemy.cap）。第35回: 店で 買える 装備（★1）は きたえられない ので、これも できない
 // ・第35回: 生まれ変わりの 武器の 1だん目は「店の 武器＋素材＋星のかけら」（items-alchemy.js の REBIRTH_START）。
-//   hidden の レシピは 本だな・メモ・親方では わからない（町の 人などの ヒントを 見て、自分で 入れてみる）
-import { ITEMS, baseItemId } from './items.js?v=64263a381100';
-import { UPGRADE_TYPES, CAP_UP_MAX } from './items-forge.js?v=64263a381100';
-import { ALCHEMY_POT, ALCHEMY_MEMO, REBIRTH_START } from './items-alchemy.js?v=64263a381100';
-import { isShopGear } from './items-rare.js?v=64263a381100';
+//   第36回: かくさない。本だな・れん金のメモ・かじ屋の 親方で わかる（親方は 生まれ変わりの レシピを 先に 教える）。
+//   町の 人・本だな・宝箱・はなす にも ヒント（secret-hints.js）
+import { ITEMS, baseItemId } from './items.js?v=cd32925e7010';
+import { UPGRADE_TYPES, CAP_UP_MAX } from './items-forge.js?v=cd32925e7010';
+import { ALCHEMY_POT, ALCHEMY_MEMO, REBIRTH_START } from './items-alchemy.js?v=cd32925e7010';
+import { isShopGear } from './items-rare.js?v=cd32925e7010';
 // 第5章 Step 3・4 の レシピ（items-kumoi.js）
-import { KUMOI_RECIPES } from './items-kumoi.js?v=64263a381100';
-import { HOSHIYOMI_RECIPES } from './items-hoshiyomi.js?v=64263a381100';
+import { KUMOI_RECIPES } from './items-kumoi.js?v=cd32925e7010';
+import { HOSHIYOMI_RECIPES } from './items-hoshiyomi.js?v=cd32925e7010';
 
 export { ALCHEMY_POT, ALCHEMY_MEMO, CAP_UP_MAX };
 
@@ -86,17 +87,18 @@ export const RECIPES = [
   R('r_senrigan', 5, 'senrigan_helm', 'hundred_eye_helm', 'star_shard', 'star_shard'),
   ...KUMOI_RECIPES,
   ...HOSHIYOMI_RECIPES,
-  // ── 生まれ変わりの 武器の 1だん目（第35回。かくし要素: hidden）──
-  ...REBIRTH_START.map((x) => ({ ...R(x.id, 2, x.to, x.from, x.mat, 'star_shard'), hidden: true })),
+  // ── 生まれ変わりの 武器の 1だん目（第35回。第36回から かくさない）──
+  ...REBIRTH_START.map((x) => ({ ...R(x.id, 2, x.to, x.from, x.mat, 'star_shard'), reborn: true })),
 ];
 export const RECIPE_BY_ID = Object.fromEntries(RECIPES.map((r) => [r.id, r]));
 // かまを もらった ときに 教えて もらう レシピ
 export const STARTER_RECIPES = ['r_jou_herb', 'r_panacea', 'r_silver'];
 // かじ屋の 親方が 教えて くれる レシピ（行く たびに 1つ。facilities.js の FORGES の 場所）
 export const KEEPER_RECIPES = {
-  town: ['r_fang_spear', 'r_feather_hat', 'r_rock_king', 'r_goldsilver'],
-  port: ['r_shell_mail', 'r_wind_brooch', 'r_otohime', 'r_dragon_scale'],
-  kanatoko: ['r_flame_axe', 'r_frost_robe', 'r_hephaestus', 'r_star_iron'],
+  // 第36回: 生まれ変わりの 武器の 1だん目も（親方は これを 先に 教える）
+  town: ['r_reborn_sword', 'r_reborn_bat', 'r_fang_spear', 'r_feather_hat', 'r_rock_king', 'r_goldsilver'],
+  port: ['r_reborn_boomerang', 'r_reborn_staff', 'r_shell_mail', 'r_wind_brooch', 'r_otohime', 'r_dragon_scale'],
+  kanatoko: ['r_reborn_bokuto', 'r_flame_axe', 'r_frost_robe', 'r_hephaestus', 'r_star_iron'],
 };
 
 // 入れた 物の ならび（もとの 装備の ID で。きたえた 装備も もとの 装備と して あつかう）
@@ -158,7 +160,7 @@ export function tierOpen(tier, hasFlag = () => false) {
 // まだ 知らない、その章までの レシピ（本だな・メモ・親方で わかる もの）。章の 早い じゅん
 export function learnableRecipes(c, hasFlag = () => false, pool = null) {
   const known = new Set(knownRecipes(c));
-  return RECIPES.filter((r) => !r.hidden && (!pool || pool.includes(r.id)) && !known.has(r.id) && tierOpen(r.tier, hasFlag) && ITEMS[r.out])
+  return RECIPES.filter((r) => (!pool || pool.includes(r.id)) && !known.has(r.id) && tierOpen(r.tier, hasFlag) && ITEMS[r.out])
     .sort((a, b) => a.tier - b.tier);
 }
 

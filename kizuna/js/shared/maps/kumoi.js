@@ -13,11 +13,11 @@
 // 第5章 Step 5: 西の 小島「星読みの里」（中の 町は maps/hoshiyomi.js の 'hoshiyomi'）。守り星の かけら（c5_shard）の あと、
 //   しずみゆく島の 北西の 風見の石3を 回すと、北へ 風の道（w7）が 開いて 里の 島へ。里の 島から 東へ 風の道（w8）で 帰れる。
 //   竜で 里の 島の 上を 飛べるのは、里に 着いて から（c5_village。data/sky.js の box）。里の 島の まわりの 魔物は t5_village（B）
-import { T } from '../tiles.js?v=64263a381100';
-import { hash2, fbm } from '../rng.js?v=64263a381100';
-import { npc } from './npc.js?v=64263a381100';
-import { SEA_PLACES } from './ch2.js?v=64263a381100';
-import { buildRuinMaps, RUIN_OUT } from './sink-ruin.js?v=64263a381100';
+import { T } from '../tiles.js?v=cd32925e7010';
+import { hash2, fbm } from '../rng.js?v=cd32925e7010';
+import { npc } from './npc.js?v=cd32925e7010';
+import { SEA_PLACES } from './ch2.js?v=cd32925e7010';
+import { buildRuinMaps, RUIN_OUT } from './sink-ruin.js?v=cd32925e7010';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 // 物語の すすみぐあい（data/story-ch5.js の CH5_STEPS の c5_sky の うしろ。plan-ch5.md の 13 の 名前の 約束）

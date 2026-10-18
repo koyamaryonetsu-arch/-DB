@@ -5,21 +5,22 @@
 //             →「すぐに装備するか？」→「だれが装備する？」
 //   きたえる: 装備を えらぶ（E は 装備している 物）→ みぎに きたえる 前→あとの 強さと 素材
 //             第35回: 店で 買える 装備（★1）は きたえられない ので 一覧に 出さない。
-//             ただし 生まれ変わりの もとに なる 店の 武器（銅の剣 など 5つ）は「？？？」で 出して、れん金がまの ヒント
+//             ただし 生まれ変わりの もとに なる 店の 武器（銅の剣 など 5つ）は 出して、れん金がまの レシピを 見せる
+//             （第36回: かくさない。知らない 人には、本だな・メモ・親方で わかると 出す）
 //             →「〇〇にきたえるには〇〇がいる。きたえるか？」→ カン！カン！カン！
-import { el, esc } from './dom.js?v=64263a381100';
-import { Counter, compareTeam, itemInfo, whoItems, myTeam } from './counter.js?v=64263a381100';
-import { request } from './shop.js?v=64263a381100';
-import { rankText } from './info.js?v=64263a381100';
-import { rareNameHtml } from './rarity.js?v=64263a381100';
-import { ITEMS } from '../../shared/data/items.js?v=64263a381100';
-import { UPGRADE_TYPES, UPGRADE_MAX } from '../../shared/data/items-forge.js?v=64263a381100';
-import { recipeOf, upgradeCost, lackOf, canUpgrade, maxPlus, isShopForge } from '../../shared/data/forge.js?v=64263a381100';
-import { REBIRTH_START } from '../../shared/data/items-alchemy.js?v=64263a381100';
-import { hasPot } from '../../shared/data/alchemy.js?v=64263a381100';
-import { bindAlchemy } from './alchemy.js?v=64263a381100';
-import { computeStats, itemCount } from '../../shared/stats.js?v=64263a381100';
-import { boardIconURL } from '../render/boards.js?v=64263a381100';
+import { el, esc } from './dom.js?v=cd32925e7010';
+import { Counter, compareTeam, itemInfo, whoItems, myTeam } from './counter.js?v=cd32925e7010';
+import { request } from './shop.js?v=cd32925e7010';
+import { rankText } from './info.js?v=cd32925e7010';
+import { rareNameHtml } from './rarity.js?v=cd32925e7010';
+import { ITEMS } from '../../shared/data/items.js?v=cd32925e7010';
+import { UPGRADE_TYPES, UPGRADE_MAX } from '../../shared/data/items-forge.js?v=cd32925e7010';
+import { recipeOf, upgradeCost, lackOf, canUpgrade, maxPlus, isShopForge } from '../../shared/data/forge.js?v=cd32925e7010';
+import { REBIRTH_START } from '../../shared/data/items-alchemy.js?v=cd32925e7010';
+import { hasPot, knowsRecipe, insText } from '../../shared/data/alchemy.js?v=cd32925e7010';
+import { bindAlchemy } from './alchemy.js?v=cd32925e7010';
+import { computeStats, itemCount } from '../../shared/stats.js?v=cd32925e7010';
+import { boardIconURL } from '../render/boards.js?v=cd32925e7010';
 
 const BONUS_NAMES = { str: '力', def: '身の守り', agi: '素早さ', mag: '攻撃魔力', heal: '回復魔力', hp: '最大HP', mp: '最大MP' };
 
@@ -34,6 +35,7 @@ const hint = (text) => (text ? el('div', { class: 'detail', text }) : null);
 // 生まれ変わりの もとに なる 店の 武器（銅の剣 など。items-alchemy.js の REBIRTH_START）
 const REBIRTH_FROM = new Set(REBIRTH_START.map((x) => x.from));
 const isRebirthSeed = (id) => REBIRTH_FROM.has(ITEMS[id]?.base || id);
+const seedOf = (id) => REBIRTH_START.find((x) => x.from === (ITEMS[id]?.base || id));
 
 // 「鉄のかけら2個・星のかけら1個」
 export function matsText(mats) {
@@ -175,7 +177,7 @@ async function craftOne(game, ct, id) {
 // きたえられる 装備（装備している 物 → ふくろの 物）。まものの 仲間が 武器や よろいを 装備しても おなじ
 function candidates(game) {
   const out = [];
-  // 店で 買える 装備（★1）は きたえられない ので 出さない。生まれ変わりの もとの 店の 武器だけ「？？？」（seed）で 出す（第35回）
+  // 店で 買える 装備（★1）は きたえられない ので 出さない。生まれ変わりの もとの 店の 武器だけ（seed）出す（第35回）
   const shown = (id) => !isShopForge(id) || isRebirthSeed(id);
   for (const m of myTeam(game)) {
     for (const slot of UPGRADE_TYPES) {
@@ -205,15 +207,24 @@ function upgradeBox(game, cand) {
   const it = ITEMS[cand.id];
   const cost = upgradeCost(cand.id);
   const box = el('div', { class: 'ct-item forge-up' });
-  // 第35回: 生まれ変わりの もとに なる 店の 武器 … きたえられないが、ふしぎな 光（れん金がまの ヒント）
+  // 第35回: 生まれ変わりの もとに なる 店の 武器 … きたえられないが、れん金がまで 生まれ変わる（第36回: かくさない）
   if (cand.seed) {
-    box.append(el('div', { class: 'hd' }, el('span', { class: 'gold', text: `${it.name} → ？？？` }), el('span', { class: 'rk', text: rankText(cand.id) })));
+    const x = seedOf(cand.id);
+    const to = ITEMS[x?.to]?.name || '？？？';
+    box.append(el('div', { class: 'hd' }, el('span', { class: 'gold', text: `${it.name} → ${to}` }), el('span', { class: 'rk', text: rankText(cand.id) })));
     if (cand.who) box.append(el('div', { class: 'small muted', text: `${cand.whoName}が装備している` }));
-    box.append(el('div', { class: 'small forge-reborn forge-seed', style: { whiteSpace: 'pre-line' }, text: `店の品なので、きたえられない。\n…でも、${it.name}が、かすかに光っている。\n${hasPot(game.me) ? 'れん金がまで、星のかけらと何かを合わせると…？' : 'いつか、ふしぎな大きいかまに入れると、何かが起こりそうだ。'}` }));
+    const how = !hasPot(game.me)
+      ? 'カモメ港へ行くと、どこかのかじ屋で「れん金がま」をもらえる。
+かまに入れると、生まれ変わるぞ。'
+      : knowsRecipe(game.me, x.id)
+        ? `れん金がまに「${insText([x.from, x.mat, 'star_shard'])}」を入れると、${to}に生まれ変わる！`
+        : 'れん金がまで、星のかけらと何かを合わせると、生まれ変わる。
+作り方は、本だな・れん金のメモ・かじ屋の親方からわかるぞ。';
+    box.append(el('div', { class: 'small forge-reborn forge-seed', style: { whiteSpace: 'pre-line' }, text: `店の品なので、きたえられない。\n…でも、${it.name}が、かすかに光っている。\n${how}` }));
     return box;
   }
-  // 生まれ変わる（かくし要素）: 何に なるかは ひみつ
-  const title = cost ? `${it.name} → ${cost.reborn ? '？？？' : ITEMS[cost.to].name}` : it.name;
+  // 生まれ変わる: 何に なるかも 見せる（第36回: かくさない）
+  const title = cost ? `${it.name} → ${ITEMS[cost.to]?.name || '？？？'}` : it.name;
   box.append(el('div', { class: 'hd' }, el('span', { class: 'gold', text: title }), el('span', { class: 'rk', text: rankText(cand.id) })));
   if (!cost) {
     if (cand.who) box.append(el('div', { class: 'small muted', text: `${cand.whoName}が装備している` }));
@@ -221,7 +232,7 @@ function upgradeBox(game, cand) {
     return box;
   }
   if (cost.reborn) {
-    box.append(el('div', { class: 'detail forge-reborn', text: `${it.name}が、ふしぎな光をはなっている…。\nもう1回きたえると、何かが起こりそうだ。` }));
+    box.append(el('div', { class: 'detail forge-reborn', text: `${it.name}が、ふしぎな光をはなっている…。\nもう1回きたえると、${ITEMS[cost.to]?.name || '新しい武器'}に生まれ変わる！` }));
     box.append(costBlock(game, cost));
     return box;
   }
@@ -254,7 +265,7 @@ function upgradeBox(game, cand) {
   return box;
 }
 
-// ───────────── 生まれ変わり（かくし要素）─────────────
+// ───────────── 生まれ変わり ─────────────
 const REBORN_CSS = `
 .reborn-flash { position: fixed; inset: 0; z-index: 30; pointer-events: none; background: radial-gradient(circle at 50% 45%, #fff 0%, #fff6c8 30%, rgba(255, 214, 107, 0.4) 60%, rgba(255, 214, 107, 0) 80%); animation: reborn-flash 1.6s ease-out forwards; }
 @keyframes reborn-flash { 0% { opacity: 0; } 12% { opacity: 1; } 100% { opacity: 0; } }

@@ -6,14 +6,14 @@
 //   useAlchemyMemo … れん金のメモを 使う（services.js の useItem）
 //   alchemyMemoLoot … フィールドの 宝箱に メモが 入っている ことが ある（world/fieldchests.js）
 //   repairAlchemy・mergeAlchemy … セーブを ととのえる・データ合わせ
-import { ITEMS, baseItemId } from '../data/items.js?v=64263a381100';
-import { addItem, removeItem, itemCount, ownsItem } from '../stats.js?v=64263a381100';
+import { ITEMS, baseItemId } from '../data/items.js?v=cd32925e7010';
+import { addItem, removeItem, itemCount, ownsItem } from '../stats.js?v=cd32925e7010';
 import {
   ALCHEMY_POT, ALCHEMY_MEMO, POT_FLAG, STARTER_RECIPES, KEEPER_RECIPES, MERGE_RECIPE, CAP_UP_MAX, RECIPE_BY_ID,
   hasPot, matchPot, learnableRecipes, knowsRecipe, insText, capUp, POT_FAST_JOBS, POT_FAST_RATE,
-} from '../data/alchemy.js?v=64263a381100';
-import { partyOf } from './party.js?v=64263a381100';
-import { bossRareOf } from '../data/rare-loot.js?v=64263a381100';
+} from '../data/alchemy.js?v=cd32925e7010';
+import { partyOf } from './party.js?v=cd32925e7010';
+import { bossRareOf } from '../data/rare-loot.js?v=cd32925e7010';
 
 // 本だなの きろくの 数（多すぎる ときは 古い ものから わすれる）
 const SHELF_MAX = 400;
@@ -58,7 +58,10 @@ export function forgePotGift(world, s, place) {
       giftNote: `${c.name}は、れん金がまを手に入れた！\n（メニューの「道具」のいちばん上から使える）`,
     };
   }
-  const r = pickLearnable(learnableRecipes(c, ownFlags(c), KEEPER_RECIPES[place] || []), null);
+  // 第36回: 生まれ変わりの 武器の レシピを 先に
+  const list = learnableRecipes(c, ownFlags(c), KEEPER_RECIPES[place] || []);
+  const reborn = list.filter((x) => x.reborn);
+  const r = pickLearnable(reborn.length ? reborn : list, null);
   if (!r) return {};
   learnRecipe(c, r.id);
   world.sendSelf(s);
