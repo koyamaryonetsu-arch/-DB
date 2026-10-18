@@ -74,6 +74,20 @@ const MAIN = [
   { label: '終わる', value: 'quit' },
 ];
 
+// 第35回: 道具の 分類の タブ（メニューの 道具）
+const ITEM_TABS = [['use', '消耗品'], ['equip', '装備品'], ['key', '大事な物'], ['mat', '素材'], ['tmap', '宝の地図']];
+const GEAR_TYPES = new Set(['weapon', 'armor', 'shield', 'head', 'acc']);
+// 一覧の 行（itemsList の items）が どの タブか
+export function itemTabOf(row) {
+  if (row.tmap) return 'tmap';
+  if (row.key || row.pot) return 'key';
+  const t = ITEMS[row.value]?.type;
+  if (GEAR_TYPES.has(t)) return 'equip';
+  if (t === 'mat') return 'mat';
+  if (t === 'use') return 'use';
+  return 'key';
+}
+
 // 道具の ならべかえ（この 端末に おぼえる）
 function itemSortPref() {
   try { return ITEM_SORTS[localStorage.getItem('kizuna_isort')] ? localStorage.getItem('kizuna_isort') : 'got'; } catch { return 'got'; }
@@ -441,6 +455,25 @@ export class FieldMenu {
       box.append(el('div', { class: 'small', text: items.map((i) => i.label || ITEMS[i.value].name).join('、') }));
       return box;
     }
+    // 第35回: 道具の 分類の タブ（消耗品・装備品・大事な物・素材・宝の地図。空の タブは 出さない）。
+    // スマホは タブを タップ、十字キー・キーボードは 左右（ListMenu の onSide）
+    const kinds = ITEM_TABS.map(([k, label]) => ({ k, label, list: items.filter((x) => itemTabOf(x) === k) })).filter((t) => t.list.length);
+    const fRow = focus && items.find((x) => x.value === focus.id);
+    const want = fRow ? itemTabOf(fRow) : this.itemTab;
+    const cur = kinds.find((t) => t.k === want) || kinds.find((t) => t.k === this.itemTab) || kinds[0];
+    this.itemTab = cur.k;
+    const goTab = (k) => {
+      this.itemTab = k;
+      this.sfx('cursor');
+      this.focusSub(this.itemsList(true));
+    };
+    const kindTabs = kinds.length > 1 ? el('div', { class: 'item-tabs', role: 'tablist' }, ...kinds.map((t) => el('button', {
+      class: `btn ${t.k === cur.k ? 'sel' : ''}`,
+      role: 'tab',
+      text: t.label,
+      onclick: (e) => { e.stopPropagation(); goTab(t.k); },
+    }))) : null;
+    items.splice(0, items.length, ...cur.list);
     // ならべかえ（あいうえお順・種類順・手に入れた順）
     const tabs = el('div', { class: 'tabs sort-tabs' }, el('span', { class: 'small muted', text: 'ならべかえ' }),
       ...Object.entries(ITEM_SORTS).map(([k, label]) => el('button', {
@@ -472,8 +505,9 @@ export class FieldMenu {
         requestAnimationFrame(() => { if (m.root.isConnected) m.scrollToSel(); });
       },
       onSelect: (it) => this.itemAction(it),
+      onSide: kinds.length > 1 ? (d) => goTab(kinds[(kinds.indexOf(cur) + d + kinds.length) % kinds.length].k) : null,
     });
-    box.append(tabs, m.root, detail);
+    box.append(...(kindTabs ? [kindTabs] : []), tabs, m.root, detail);
     return box;
   }
 

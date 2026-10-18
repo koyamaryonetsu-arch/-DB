@@ -148,3 +148,25 @@ test('お知らせ: サーバーに 読んだ 記録（menu → newsRead。返�
   assert.match(src('js/client/ui/menu.js'), /\{ label: 'お知らせ', value: 'news' \}/);
   assert.match(src('js/client/ui/hud.js'), /classList\.toggle\('has-new', hasUnreadNews\(this\.game\.me\)\)/);
 });
+
+// ───────────── 4. 道具の 分類 ─────────────
+test('道具の タブ: 消耗品・装備品・大事な物・素材・宝の地図（空の タブは 出さない・左右で かえる）', () => {
+  const m = src('js/client/ui/menu.js');
+  assert.match(m, /const ITEM_TABS = \[\['use', '消耗品'\], \['equip', '装備品'\], \['key', '大事な物'\], \['mat', '素材'\], \['tmap', '宝の地図'\]\];/);
+  assert.match(m, /\.filter\(\(t\) => t\.list\.length\)/, '空の タブは 出さない');
+  assert.match(m, /onSide: kinds\.length > 1 \? \(d\) => goTab/, '十字キーの 左右で タブ');
+  // 使った・装備した あとは その 道具の タブに もどる（なくなった ときは 今の タブ）
+  assert.match(m, /const want = fRow \? itemTabOf\(fRow\) : this\.itemTab;/);
+  // 分け方
+  const body = m.slice(m.indexOf('export function itemTabOf'), m.indexOf('// 道具の ならべかえ'));
+  const itemTabOf = new Function('ITEMS', 'GEAR_TYPES', `${body.replace('export ', '')}; return itemTabOf;`)(
+    { herb: { type: 'use' }, iron_sword: { type: 'weapon' }, neko_suzu: { type: 'acc' }, beast_fang: { type: 'mat' }, star_flower: { type: 'key' } },
+    new Set(['weapon', 'armor', 'shield', 'head', 'acc']));
+  assert.equal(itemTabOf({ value: 'herb' }), 'use');
+  assert.equal(itemTabOf({ value: 'iron_sword' }), 'equip');
+  assert.equal(itemTabOf({ value: 'neko_suzu' }), 'equip');
+  assert.equal(itemTabOf({ value: 'beast_fang' }), 'mat');
+  assert.equal(itemTabOf({ value: 'star_flower', key: true }), 'key');
+  assert.equal(itemTabOf({ value: 'alchemy_pot', key: true, pot: true }), 'key');
+  assert.equal(itemTabOf({ value: 'tm:1', tmap: 1 }), 'tmap');
+});
