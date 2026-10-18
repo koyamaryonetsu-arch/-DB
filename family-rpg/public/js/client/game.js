@@ -664,6 +664,21 @@ export class Game {
 
   // ようがんの 地面で ダメージ: 画面が 赤く 光る（はじめての ときだけ せつめい）
   onHurt(m) {
+    // 第5章 Step 6: 大地の こどう（kind 'tremor' … ふるえ始めた・'rock' … 落石に 当たった。shared/world/tremor.js）。ことばは サーバーの toast
+    if (m.kind === 'tremor') {
+      this.audio.sfx('rumble');
+      if (this.field) this.field.shakeT = 900;
+      return;
+    }
+    if (m.kind === 'rock') {
+      this.audio.sfx('hurt');
+      if (this.field) this.field.shakeT = 400;
+      const cr = document.getElementById('curtain');
+      cr.classList.add('hurt');
+      clearTimeout(this.hurtT);
+      this.hurtT = setTimeout(() => cr.classList.remove('hurt'), 180);
+      return;
+    }
     this.audio.sfx('hurt');
     const c = document.getElementById('curtain');
     c.classList.add('hurt');

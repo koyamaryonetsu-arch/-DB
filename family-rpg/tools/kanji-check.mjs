@@ -270,6 +270,9 @@ export function gameFiles() {
     // 第5章 Step 5（A: 星読みの里・ノクトの思い出の迷宮）
     'public/js/shared/data/story-hoshiyomi.js', 'public/js/shared/maps/hoshiyomi.js', 'public/js/shared/maps/memory.js', 'public/js/shared/maps/memory-rows.js',
     'public/js/shared/data/shops-hoshiyomi.js',
+    // 第5章 Step 6・7（A: 大地の神殿・ノクト〈1回目〉・影の城・みんなが集まる）
+    'public/js/shared/data/story-earth.js', 'public/js/shared/maps/earth.js', 'public/js/shared/maps/earth-rows.js',
+    'public/js/shared/data/shops-earth.js', 'public/js/shared/world/tremor.js',
     // 第35回 D: 配合の 作りなおし（ボス級の 仲間）・仲間が いっぱいの ときの さよなら
     'public/js/shared/data/monsters-boss.js', 'public/js/shared/world/farewell.js',
     // 第35回 A: 技の タブ・お知らせ

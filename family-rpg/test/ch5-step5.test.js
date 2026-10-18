@@ -191,7 +191,7 @@ function canReachFrom(states, k0, test) {
 test('すすみぐあい: c5_shard → c5_village … c5_nocto（名前の 約束）。目標・仲間会話・地図の しるし・Step 4 の さいごの 文の なおし', () => {
   assert.deepEqual(HOSHIYOMI_STEPS, ['c5_village', 'c5_kanata', 'c5_grandma', 'c5_memory', 'c5_nshadow', 'c5_nocto'], '名前の 約束（plan-ch5.md の 14）');
   const si = CH5_STEPS.indexOf('c5_shard');
-  assert.deepEqual(CH5_STEPS.slice(si + 1), HOSHIYOMI_STEPS, 'c5_shard の うしろに つづく');
+  assert.deepEqual(CH5_STEPS.slice(si + 1, si + 7), HOSHIYOMI_STEPS, 'c5_shard の うしろに つづく');
   assert.deepEqual(STORY_STEPS.slice(STORY_STEPS.indexOf('c5_shard') + 1, STORY_STEPS.indexOf('c5_shard') + 7), HOSHIYOMI_STEPS);
   assert.deepEqual(HOSHIYOMI_MAPS, ['hoshiyomi']);
   assert.deepEqual(MEMORY_MAPS, ['memory_1f', 'memory_2f', 'memory_3f', 'memory_4f', 'memory_5f', 'memory_6f'], 'マップの ID の 約束');
@@ -209,7 +209,10 @@ test('すすみぐあい: c5_shard → c5_village … c5_nocto（名前の 約�
   for (let n = 2; n <= 6; n++) assert.equal(objectiveFromFlags(f('c5_memory', ...[1, 2, 3, 4, 5, 6].filter((k) => k <= n).map(MF))), HOSHIYOMI_OBJ[`m${n}`], `${n}階`);
   assert.equal(objectiveFromFlags(f('c5_nshadow', MF(6))), HOSHIYOMI_OBJ.nshadow);
   assert.equal(objectiveFromFlags(f('c5_nocto')), HOSHIYOMI_OBJ.nocto);
-  assert.ok(HOSHIYOMI_OBJ.nocto.startsWith('第5章の続きはアップデートで！'), 'Step 5 の さいご');
+  // Step 5 の さいごの 文（「第5章の続きはアップデートで！」）は Step 6 で ハネノの 長ソラネへの 文に なおる（OLD_C5_OBJ.nocto）
+  assert.ok(OLD_C5_OBJ.nocto.startsWith('第5章の続きはアップデートで！') && !KNOWN_OBJECTIVES.has(OLD_C5_OBJ.nocto), 'Step 5 の さいご');
+  const old5 = { flags: flagsOf(...UPTO('c5_nocto')), objective: OLD_C5_OBJ.nocto };
+  assert.ok(repairObjective(old5) && old5.objective === HOSHIYOMI_OBJ.nocto);
   // どの 目標にも 仲間会話と 行き先
   for (const [k, t] of Object.entries({ ...HOSHIYOMI_OBJ, shard: KUMOI_OBJ.shard })) {
     assert.ok(KNOWN_OBJECTIVES.has(t), k);
@@ -561,7 +564,7 @@ test('ノクトの影の 台本: showMon → battle（nocto_shadow）。負け�
     assert.ok(c.flags.c5_nshadow && c.flags.c5_nocto, '勝った → 本物の ノクト');
     assert.equal(bot.s.map, 'hoshiyomi', '水しょうの 前へ');
     assert.ok(said(bot, '…見たのか、ぼくの思い出を。', from) && said(bot, '同情なんかいらない', from));
-    assert.ok(said(bot, '大地の神殿', from) && said(bot, '第5章の続きはアップデートで！', from));
+    assert.ok(said(bot, '大地の神殿', from) && said(bot, 'ハネノの町の長ソラネ', from), 'Step 6 へ（ハネノの 長ソラネ）');
     assert.equal(c.objective, HOSHIYOMI_OBJ.nocto);
     assert.equal(said(bot, 'ピピは、元気か', from), allShards, 'かけら 6つで ノクトの ことばが かわる');
     assert.equal(said(bot, 'だれかに、見つけてほしかったんだ', from), allShards, 'かけら 6つで さいごの 場面が かわる');

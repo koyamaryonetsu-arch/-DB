@@ -22,6 +22,10 @@ import { KUMOI_POS } from '../maps/kumoi.js';
 import {
   HOSHIYOMI_STEPS, HOSHIYOMI_STORY_SCRIPTS, HOSHIYOMI_SCRIPTS, HOSHIYOMI_OBJECTIVE_TARGETS, HOSHIYOMI_OBJECTIVE_TALK, HOSHIYOMI_PROGRESS, elderHoshiyomi,
 } from './story-hoshiyomi.js';
+// Step 6・7: 大地の神殿・ノクト（1回目）・影の城・みんなが集まる（story-earth.js）
+import {
+  EARTH_STEPS, EARTH_STORY_SCRIPTS, EARTH_SCRIPTS, EARTH_OBJECTIVE_TARGETS, EARTH_OBJECTIVE_TALK, EARTH_PROGRESS, elderEarth,
+} from './story-earth.js';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -35,7 +39,9 @@ const V = (x, y) => [VIL.x + x + 0.5, VIL.y + y + 0.5];
 //   c5_gaia（ガイアイーターを たおした）・c5_shard（守り星の かけら。Step 4 の さいご）。story-kumoi.js の KUMOI_STEPS
 // Step 5: c5_village（星読みの里に 着いた）・c5_kanata（カナタの 話）・c5_grandma（ばあちゃんの 話）・c5_memory（思い出の 迷宮に 入った）・
 //   c5_nshadow（ノクトの 影を たおした）・c5_nocto（本物の ノクトに 会った。Step 5 の さいご）。story-hoshiyomi.js の HOSHIYOMI_STEPS
-export const CH5_STEPS = [C5.start, C5.hood, C5.stones, C5.wings, C5.veil, C5.tower, C5.argos, C5.sky, ...KUMOI_STEPS, ...HOSHIYOMI_STEPS];
+// Step 6・7: c5_root（ソラネから 大地の 神殿の 話）・c5_etemple（大地の 神殿に 入った）・c5_pipi_save（5階で ピピを 助けた）・
+//   c5_nocto1（ノクト 1回目の 戦いが おわった）・c5_castle（影の城が うかんだ）・c5_gather（みんなと 話した。Step 7 の さいご）。story-earth.js の EARTH_STEPS
+export const CH5_STEPS = [C5.start, C5.hood, C5.stones, C5.wings, C5.veil, C5.tower, C5.argos, C5.sky, ...KUMOI_STEPS, ...HOSHIYOMI_STEPS, ...EARTH_STEPS];
 
 // ───── 目標 ─────
 // 第4章クリアの あと（ホシミばあちゃんに 話しかける。story-ch4-temple.js の TEMPLE_OBJ.clear）
@@ -67,6 +73,8 @@ export const OLD_C5_OBJ = {
   sky: '第5章の続きはアップデートで！（雲の上に、空にうかぶ島々が見える…）',
   // Step 4 の さいご（c5_shard。Step 5 で story-kumoi.js の KUMOI_OBJ.shard を 星読みの里への 文に かえた）
   shard: '第5章の続きはアップデートで！（守り星のかけらの光で、島のしずみが少し止まった…）',
+  // Step 5 の さいご（c5_nocto。Step 6 で story-hoshiyomi.js の HOSHIYOMI_OBJ.nocto を ハネノの 長ソラネへの 文に かえた）
+  nocto: '第5章の続きはアップデートで！（ノクトは「大地の神殿まで来ればいい」と言って、消えた…）',
 };
 
 // パーティー全員で 見る イベント（リーダーの 世界で すすむ）
@@ -75,6 +83,7 @@ export const CH5_STORY_SCRIPTS = [
   ...Object.keys(LIFTS).flatMap((k) => [`c5_lift_${k}`, `c5_weight_${k}`]),
   ...KUMOI_STORY_SCRIPTS,
   ...HOSHIYOMI_STORY_SCRIPTS,
+  ...EARTH_STORY_SCRIPTS,
 ];
 
 // ───────────── 2回目の 星祭り・フードの子（ホシミばあちゃん。c5_start・c5_hood）─────────────
@@ -261,7 +270,9 @@ export function elderCh5(x) {
   }
   // Step 3・4（story-kumoi.js）。守り星の かけらの あとは Step 5（story-hoshiyomi.js）
   if (!x.flag('c5_shard')) return elderKumoi(x);
-  return elderHoshiyomi(x);
+  // 長ソラネから 大地の 神殿の 話を 聞いた あとは Step 6・7（story-earth.js）
+  if (!x.flag('c5_root')) return elderHoshiyomi(x);
+  return elderEarth(x);
 }
 
 // ───────────── 星の塔の とびら（フィールド）─────────────
@@ -570,6 +581,8 @@ export const CH5_SCRIPTS = {
   ...KUMOI_SCRIPTS,
   // Step 5（story-hoshiyomi.js）
   ...HOSHIYOMI_SCRIPTS,
+  // Step 6・7（story-earth.js。風見の石4 c5_kroad_w9 は story-hoshiyomi.js の ものを うわがき）
+  ...EARTH_SCRIPTS,
   c5_argos_door: () => N('星の光でできたとびらだ。', 'かたくとざされている…。\n（星の番人に、みとめてもらわないと、開かないようだ）'),
   // てっぺん
   c5_top_event: (x) => (x.flag(C5.sky) ? [] : topEvent()),
@@ -632,6 +645,7 @@ export const CH5_OBJECTIVE_TARGETS = {
   [C5_OBJ.sky]: [{ map: 'kumoi', x: KUMOI_POS.gate[0].x, y: KUMOI_POS.gate[0].y }],
   ...KUMOI_OBJECTIVE_TARGETS,
   ...HOSHIYOMI_OBJECTIVE_TARGETS,
+  ...EARTH_OBJECTIVE_TARGETS,
 };
 
 // ───── 仲間会話（party-talk.js。「はなす」の ヒント）─────
@@ -734,6 +748,7 @@ export const CH5_OBJECTIVE_TALK = {
   },
   ...KUMOI_OBJECTIVE_TALK,
   ...HOSHIYOMI_OBJECTIVE_TALK,
+  ...EARTH_OBJECTIVE_TALK,
 };
 
 // ───── すすみぐあい（progress.js の PROGRESS の うしろに つづく）─────
@@ -750,6 +765,7 @@ export const CH5_PROGRESS = [
   [C5.sky, C5_OBJ.sky],
   ...KUMOI_PROGRESS,
   ...HOSHIYOMI_PROGRESS,
+  ...EARTH_PROGRESS,
 ];
 
 export { STARS_FLAG, DOOR_FLAG };

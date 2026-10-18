@@ -5,6 +5,7 @@ import { SFX_R29 } from './sfx-r29.js';
 import { SFX_R33 } from './sfx-r33.js';
 import { KUMOI_TRACKS } from './audio-kumoi.js';
 import { HOSHIYOMI_TRACKS } from './audio-hoshiyomi.js';
+import { EARTH_TRACKS } from './audio-earth.js';
 
 const NOTE_BASE = { C: 0, 'C#': 1, Db: 1, D: 2, 'D#': 3, Eb: 3, E: 4, F: 5, 'F#': 6, Gb: 6, G: 7, 'G#': 8, Ab: 8, A: 9, 'A#': 10, Bb: 10, B: 11 };
 
@@ -793,5 +794,7 @@ export const TRACK_IDS = Object.keys(TRACKS);
 Object.assign(TRACKS, KUMOI_TRACKS);
 // 第5章 Step 5: 星読みの里・ノクトの思い出の迷宮・ノクトの影（audio-hoshiyomi.js）
 Object.assign(TRACKS, HOSHIYOMI_TRACKS);
+// 第5章 Step 6・7: 大地の神殿・ノクト（1回目）・影の城が うかんだ あとの クモイ地方（audio-earth.js）
+Object.assign(TRACKS, EARTH_TRACKS);
 export const _TRACKS = TRACKS;
 export const _parse = parse;

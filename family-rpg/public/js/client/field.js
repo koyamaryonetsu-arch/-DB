@@ -915,6 +915,14 @@ export class Field {
     return btoa(s);
   }
 
+  // 夕ぐれの 色（第5章 Step 7。影の城が うかんだ あとの クモイ地方: map.dusk = { flag, color }。昼でも 夕方くらいの 色に）
+  drawDusk(ctx) {
+    const d = this.map?.dusk;
+    if (!d || !this.hasFlag(d.flag)) return;
+    ctx.fillStyle = d.color;
+    ctx.fillRect(0, 0, this.vw, this.vh);
+  }
+
   // ───────────── よる ─────────────
   // くらさ: サーバーの 時計（パーティーの 時間。shared/world/clock.js）。どうくつ・塔の 中は かわらない
   nightAlpha() {
@@ -1037,6 +1045,7 @@ export class Field {
     }
     // くらやみ・よる
     if (m.dark) this.drawDark(camX, camY, x0, y0, x1, y1);
+    this.drawDusk(ctx);
     const na = this.nightAlpha();
     if (na > 0) {
       ctx.fillStyle = `rgba(12, 18, 60, ${na})`;
@@ -1187,7 +1196,8 @@ export class Field {
       x.globalCompositeOperation = 'source-over';
       ctx.drawImage(d, 0, 0);
     }
-    // よる
+    // 夕ぐれの 色（第5章 Step 7）・よる
+    this.drawDusk(ctx);
     const na = this.nightAlpha();
     if (na > 0) {
       ctx.fillStyle = `rgba(12, 18, 60, ${na})`;
@@ -1620,7 +1630,8 @@ export class Field {
 
   areaBgm() {
     // 第4章の 砂ばくは 昼と 夜で 曲が かわる（maps/south.js の southBgmAt）
-    if (this.map.bgmAt) return this.map.bgmAt(Math.floor(this.me.x), Math.floor(this.me.y), !!this.game.sky?.isNight());
+    // 第5章 Step 7: クモイ地方は 影の城が うかぶと 曲が かわる（4つめ … 世界の フラグ）
+    if (this.map.bgmAt) return this.map.bgmAt(Math.floor(this.me.x), Math.floor(this.me.y), !!this.game.sky?.isNight(), (f) => this.hasFlag(f));
     if (this.map.kind === 'dungeon') return this.map.bgm || 'cave';
     const name = this.areaName();
     for (const p of Object.values(PLACES)) if (p.name === name) return p.bgm;
