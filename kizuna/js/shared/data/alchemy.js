@@ -10,12 +10,12 @@
 //   その 装備の しゅるいごと。c.alchemy.cap）。第35回: 店で 買える 装備（★1）は きたえられない ので、これも できない
 // ・第35回: 生まれ変わりの 武器の 1だん目は「店の 武器＋素材＋星のかけら」（items-alchemy.js の REBIRTH_START）。
 //   hidden の レシピは 本だな・メモ・親方では わからない（町の 人などの ヒントを 見て、自分で 入れてみる）
-import { ITEMS, baseItemId } from './items.js?v=a21d4486f121';
-import { UPGRADE_TYPES, CAP_UP_MAX } from './items-forge.js?v=a21d4486f121';
-import { ALCHEMY_POT, ALCHEMY_MEMO, REBIRTH_START } from './items-alchemy.js?v=a21d4486f121';
-import { isShopGear } from './items-rare.js?v=a21d4486f121';
+import { ITEMS, baseItemId } from './items.js?v=d72794b61b43';
+import { UPGRADE_TYPES, CAP_UP_MAX } from './items-forge.js?v=d72794b61b43';
+import { ALCHEMY_POT, ALCHEMY_MEMO, REBIRTH_START } from './items-alchemy.js?v=d72794b61b43';
+import { isShopGear } from './items-rare.js?v=d72794b61b43';
 // 第5章 Step 3・4 の レシピ（items-kumoi.js）
-import { KUMOI_RECIPES } from './items-kumoi.js?v=a21d4486f121';
+import { KUMOI_RECIPES } from './items-kumoi.js?v=d72794b61b43';
 
 export { ALCHEMY_POT, ALCHEMY_MEMO, CAP_UP_MAX };
 

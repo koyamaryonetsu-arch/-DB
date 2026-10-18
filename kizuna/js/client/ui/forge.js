@@ -7,19 +7,19 @@
 //             第35回: 店で 買える 装備（★1）は きたえられない ので 一覧に 出さない。
 //             ただし 生まれ変わりの もとに なる 店の 武器（銅の剣 など 5つ）は「？？？」で 出して、れん金がまの ヒント
 //             →「〇〇にきたえるには〇〇がいる。きたえるか？」→ カン！カン！カン！
-import { el, esc } from './dom.js?v=a21d4486f121';
-import { Counter, compareTeam, itemInfo, whoItems, myTeam } from './counter.js?v=a21d4486f121';
-import { request } from './shop.js?v=a21d4486f121';
-import { rankText } from './info.js?v=a21d4486f121';
-import { rareNameHtml } from './rarity.js?v=a21d4486f121';
-import { ITEMS } from '../../shared/data/items.js?v=a21d4486f121';
-import { UPGRADE_TYPES, UPGRADE_MAX } from '../../shared/data/items-forge.js?v=a21d4486f121';
-import { recipeOf, upgradeCost, lackOf, canUpgrade, maxPlus, isShopForge } from '../../shared/data/forge.js?v=a21d4486f121';
-import { REBIRTH_START } from '../../shared/data/items-alchemy.js?v=a21d4486f121';
-import { hasPot } from '../../shared/data/alchemy.js?v=a21d4486f121';
-import { bindAlchemy } from './alchemy.js?v=a21d4486f121';
-import { computeStats, itemCount } from '../../shared/stats.js?v=a21d4486f121';
-import { boardIconURL } from '../render/boards.js?v=a21d4486f121';
+import { el, esc } from './dom.js?v=d72794b61b43';
+import { Counter, compareTeam, itemInfo, whoItems, myTeam } from './counter.js?v=d72794b61b43';
+import { request } from './shop.js?v=d72794b61b43';
+import { rankText } from './info.js?v=d72794b61b43';
+import { rareNameHtml } from './rarity.js?v=d72794b61b43';
+import { ITEMS } from '../../shared/data/items.js?v=d72794b61b43';
+import { UPGRADE_TYPES, UPGRADE_MAX } from '../../shared/data/items-forge.js?v=d72794b61b43';
+import { recipeOf, upgradeCost, lackOf, canUpgrade, maxPlus, isShopForge } from '../../shared/data/forge.js?v=d72794b61b43';
+import { REBIRTH_START } from '../../shared/data/items-alchemy.js?v=d72794b61b43';
+import { hasPot } from '../../shared/data/alchemy.js?v=d72794b61b43';
+import { bindAlchemy } from './alchemy.js?v=d72794b61b43';
+import { computeStats, itemCount } from '../../shared/stats.js?v=d72794b61b43';
+import { boardIconURL } from '../render/boards.js?v=d72794b61b43';
 
 const BONUS_NAMES = { str: '力', def: '身の守り', agi: '素早さ', mag: '攻撃魔力', heal: '回復魔力', hp: '最大HP', mp: '最大MP' };
 

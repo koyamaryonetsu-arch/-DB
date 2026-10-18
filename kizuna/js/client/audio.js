@@ -1,9 +1,10 @@
 // おんがくと こうかおん（Web Audio で その場で つくる。きょくは すべて オリジナル）
-import { SFX_R26 } from './sfx-r26.js?v=a21d4486f121';
-import { SFX_R27 } from './sfx-r27.js?v=a21d4486f121';
-import { SFX_R29 } from './sfx-r29.js?v=a21d4486f121';
-import { SFX_R33 } from './sfx-r33.js?v=a21d4486f121';
-import { KUMOI_TRACKS } from './audio-kumoi.js?v=a21d4486f121';
+import { SFX_R26 } from './sfx-r26.js?v=d72794b61b43';
+import { SFX_R27 } from './sfx-r27.js?v=d72794b61b43';
+import { SFX_R29 } from './sfx-r29.js?v=d72794b61b43';
+import { SFX_R33 } from './sfx-r33.js?v=d72794b61b43';
+import { KUMOI_TRACKS } from './audio-kumoi.js?v=d72794b61b43';
+import { HOSHIYOMI_TRACKS } from './audio-hoshiyomi.js?v=d72794b61b43';
 
 const NOTE_BASE = { C: 0, 'C#': 1, Db: 1, D: 2, 'D#': 3, Eb: 3, E: 4, F: 5, 'F#': 6, Gb: 6, G: 7, 'G#': 8, Ab: 8, A: 9, 'A#': 10, Bb: 10, B: 11 };
 
@@ -790,5 +791,7 @@ export class GameAudio {
 export const TRACK_IDS = Object.keys(TRACKS);
 // 第5章 Step 3・4: クモイ地方・ハネノ・しずみゆく島の 神殿・ガイアイーター（audio-kumoi.js）
 Object.assign(TRACKS, KUMOI_TRACKS);
+// 第5章 Step 5: 星読みの里・ノクトの思い出の迷宮・ノクトの影（audio-hoshiyomi.js）
+Object.assign(TRACKS, HOSHIYOMI_TRACKS);
 export const _TRACKS = TRACKS;
 export const _parse = parse;

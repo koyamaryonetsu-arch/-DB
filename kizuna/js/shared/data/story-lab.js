@@ -4,7 +4,7 @@
 // マップは maps/labyrinth.js、ボスは data/monsters-lab.js
 import {
   LAB_FLAGS, WARP_FLAGS, REST_FLOORS, LAB_NAMES, FLOOR_POS, CITY_POS, ringPos, labMapId, LAB_FLOORS,
-} from '../maps/labyrinth.js?v=a21d4486f121';
+} from '../maps/labyrinth.js?v=d72794b61b43';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
