@@ -1473,6 +1473,9 @@
   | 6階 | 大広間で、何かが待っています。3階で準備を整えてから |
 
 - 仲間の「**はなす**」で、しかけのヒントが聞けます
+- **魔物**：里のまわりと迷宮には、新しい魔物が8しゅ（どれも仲間になります。深い階の2しゅは なかなか仲間になりません）。迷宮の影の魔物には **光** がよく効きます
+- **装備**：里のよろず屋は、ハネノより少し強い装備（店の品なので★1・きたえられません）。迷宮の各階の宝箱には、そこでしか手に入らない装備（★4。深い階ほどめずらしい）。迷宮で手に入る素材（星の砂・影のしずく）は、れん金がまで使えます
+- **前ぶれに注意**：大技の前ぶれが出たら、身を守ろう。**合体技** をよやくしている時も、だれか1人が身を守っていると、よい事があるかも…？
 
 ## 宝の地図・ふしぎなかじ屋・預かり所・馬車
 
@@ -2188,6 +2191,12 @@ npm start                 # 家族サーバー
   - がめん：`client/battle-gaia.js`（頭の絵 `gaiaSprite`・ねらう順番のヒントは「ねらいめ」の わ だけ・まもりの たて・土はこびの つぶ・部位をたおした時のバナー）、絵 `render/ch5-kumoi-mon-art.js`（`addKumoiArt`。`gaia_head`・`gaia_body`・`gaia_tail` を ならべると1ぴき）・背景 `render/ch5-kumoi-bg.js`・エフェクト `render/battlefx-kumoi.js`
   - シミュレーション：`node tools/sim.js 100 ch5kumoi`（出現表。どれも100%）、`node tools/sim-gaia.mjs 100 44,45,46`（超級職4人・ランク8＋★。`SHOP=1` で★なしも。`LOG=1 KNOW=1` で1戦のようす）。Lv44／45：完全オート 10%／15%・知っている 61%／79%（家族の答え「もっとかたく」）
   - `test/ch5-kumoi-battle.test.js`（21こ。データ・部位・落とす物・仲間・出現表と名前の約束・店・宝箱・空のレアとれん金・はじめ・まもり・こうら・土はこび・前ぶれ・頭をたおすと勝ち・オートと知っている人・シミュレーション・きまった戦い・絵・背景とエフェクト・がめん・文字）。前提を直したテスト：`monsters-r23`（図鑑の数）・`loot`（バットのランクに8）
+- 第5章 Step 5「星読みの里・ノクトの思い出の迷宮」B（戦い・品。ネタバレになるので、しくみと数値は `docs/plan-ch5.md` の「14」の「実装メモ（B）」）
+  - データ：`data/monsters-hoshiyomi.js`（新しい魔物8しゅ・ボス `nocto_shadow`・素材 `HOSHIYOMI_MAT_DROPS`）・`abilities-hoshiyomi.js`・`encounters-hoshiyomi.js`（出現表 `t5_village`・`t5_memory`・`t5_memory_deep`、色ちがい2しゅ、きまった戦い `nocto_shadow`、背景 `hoshiyomi`・`memory`・`memory_deep`）・`companions-hoshiyomi.js`（8しゅとも仲間になる）・`items-hoshiyomi.js`（里の店 `HOSHIYOMI_SHOP_*`〈ランク8の上・★1〉・迷宮の宝箱 `MEMORY_TREASURE`〈`src: 'memory'`・ランク8で★4〉・ボスの品・れん金 `HOSHIYOMI_RECIPES`）。ボス級 `ss_shadow_king`（`monsters-boss.js`。素材配合だけ。`materialOnly`）
+  - しくみ：`shared/battle-nocto.js`（`battle.js` は `setupNocto`・`noctoDamage`、`ai.js` は `noctoAction`、ほかは `battle-ch5.js` の `tower*` から）。知っている人のオートは `b.knowsNocto`（`noctoPlan`）
+  - がめん：`client/battle-nocto.js`（`noctoSprite`・`noctoMarks`・`noctoDraw`・`noctoPresent`）、絵 `render/ch5-hoshiyomi-mon-art.js`（`addHoshiyomiArt`）・背景 `render/ch5-hoshiyomi-bg.js`・エフェクト `render/battlefx-hoshiyomi.js`（`battlefx-kumoi.js` のさいごから）
+  - シミュレーション：`node tools/sim.js 100 ch5hoshiyomi`（出現表。99〜100%）、`node tools/sim-nocto.mjs 100 46,47,48`（超級職4人・里の店＋★。`SHOP=1` で★なしも。`LOG=1 KNOW=1` で1戦のようす）。Lv47：完全オート 14%・知っている 75%
+  - `test/ch5-hoshiyomi-battle.test.js`（21こ）。前提を直したテスト：`monsters-r23`（図鑑の数）・`breed-r35`（ボス7体は影の王をのぞく）・`ch5-step5`（品は `items-hoshiyomi.js` から）
 - 第31回 C：レア装備とレア度（くわしくは `docs/plan-r31.md` の「3.」の「実装メモ（C）」）
   - データ：`data/items-rare.js`（レア装備112こ。`src` … `'tm'`〈`grp`〉・`'boss'`〈`boss`〉・`'region'`〈`region`〉・`'sd'`。`assignRarity` が rarity のない装備に つける）・`data/rare-loot.js`（`rarityOf`・`traitText`・`pickTmGear`・`bossRareOf`・`regionRareList`・`pickSdGear`）
   - 手に入る所：`data/treasure.js` の `chestLoot(rng, lv, kind, cave)`・`data/secret.js` の `sdBigReward`／`sdSmallReward`・`data/loot.js` の `monsterDrops`（`brare`）／`rollDrops(sp, rng, { map })`
