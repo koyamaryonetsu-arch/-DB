@@ -170,3 +170,13 @@ test('道具の タブ: 消もう品・装備品・大事な物・素材・宝�
   assert.equal(itemTabOf({ value: 'alchemy_pot', key: true, pot: true }), 'key');
   assert.equal(itemTabOf({ value: 'tm:1', tmap: 1 }), 'tmap');
 });
+
+// ───────────── 5. れん金がまの ボタン ─────────────
+test('れん金がま: フィールドの 右の ボタン（大鳥・竜の ボタンと おなじ 列）。持っている 人だけ', () => {
+  const h = src('js/client/ui/hud.js');
+  assert.match(h, /const on = g\.state === 'field' && hasPot\(g\.me\);/);
+  assert.match(h, /class: 'win hud-btn hud-pot', text: 'れん金'/);
+  assert.match(h, /this\.btns\.append\(this\.potBtn\)/, 'hud-btns（sky.js の 大鳥の ボタンと おなじ 所）');
+  assert.match(h, /if \(g\.state !== 'field' \|\| g\.busy \|\| g\.menuOpen \|\| !hasPot\(g\.me\)\) return;/);
+  assert.match(h, /alchemyUI\(g\)\.finally/);
+});

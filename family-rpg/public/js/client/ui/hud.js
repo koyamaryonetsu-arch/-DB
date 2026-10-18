@@ -4,6 +4,8 @@ import { computeStats } from '../../shared/stats.js';
 import { JOBS } from '../../shared/data/jobs.js';
 import { jobShort } from '../../shared/job-label.js';
 import { hasUnreadNews } from '../../shared/data/news.js';
+import { hasPot } from '../../shared/data/alchemy.js';
+import { alchemyUI } from './alchemy.js';
 import { renderMiniMap, openWorldMap } from './menu.js';
 import { makeCanvas } from '../render/pixel.js';
 import { ClockBadge } from './clock.js';
@@ -84,6 +86,7 @@ export class Hud {
       this.aura.style.top = pw ? `${this.powder.offsetHeight + 4}px` : '';
       // 第35回: まだ 読んでいない お知らせが あると メニューボタンに ●（data/news.js）
       this.btns.firstChild?.classList.toggle('has-new', hasUnreadNews(this.game.me));
+      this.updatePotBtn();
     }
     const f = this.game.field;
     if (!f.map) return;
@@ -96,6 +99,28 @@ export class Hud {
       clearTimeout(this.areaT);
       this.areaT = setTimeout(() => this.area.classList.remove('show'), 2800);
     }
+  }
+
+  // 第35回: れん金がまの ボタン（大鳥・竜の ボタンと おなじ 列。持っている 人だけ。ui/alchemy.js）
+  // はじめて いる ときに 作る（sky.js の ボタンの 下に ならぶ）
+  updatePotBtn() {
+    const g = this.game;
+    const on = g.state === 'field' && hasPot(g.me);
+    if (!on && !this.potBtn) return;
+    if (!this.potBtn) {
+      this.potBtn = el('button', { class: 'win hud-btn hud-pot', text: 'れん金', onclick: () => this.openPot() });
+      this.btns.append(this.potBtn);
+    }
+    this.potBtn.hidden = !on;
+  }
+
+  openPot() {
+    const g = this.game;
+    if (g.state !== 'field' || g.busy || g.menuOpen || !hasPot(g.me)) return;
+    g.audio.sfx('confirm');
+    // 開いている 間は ほかの まど（「いっしょに乗る？」など）を 出さない
+    g.menuOpen = true;
+    alchemyUI(g).finally(() => { g.menuOpen = false; });
   }
 
   // 場所の なまえは 仲間の まどと かさならない ように（人数が 多い とき・たての 画面では 下へ ずらす）

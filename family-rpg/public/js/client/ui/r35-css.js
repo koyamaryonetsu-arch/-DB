@@ -31,6 +31,9 @@ const CSS = `
 .items-view > .item-tabs .btn.sel { color: #fff; border-color: var(--accent); background: rgba(255, 214, 107, 0.18); }
 .items-view > .tab-hint { flex: none; }
 
+/* れん金がまの ボタン（client/ui/hud.js） */
+.hud-btn.hud-pot { color: #ffe9a8; border-color: #c9a24a; }
+
 /* お知らせ（client/ui/news.js） */
 .news-view .news-row .l { white-space: normal; }
 .news-view .news-row .nd { color: var(--muted); font-size: 0.8em; margin-right: 0.4em; }
