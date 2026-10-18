@@ -1833,6 +1833,14 @@ iPhone の Safari や Claude アプリでは、アーティファクトの中の
   - 本だなは、物を見つけたあとにもう一度調べると、本が読めます
   - 仲間の「はなす」は、ときどき（5回に1回くらい）行き先の話のかわりに、ヒントを話します
 
+### 新しい戦いのしくみ「手をのばす」（第5章 大地の神殿のころ）
+
+- **地われ・のみこまれ**：仲間が地われに落ちたり、魔物にのみこまれたりすると、その仲間は **動けず、回復も受けられません**（まどに「地われの中」「のみこまれた」と出ます）。自分の番が3回来ると、自分の力でもどります
+- **新しいコマンド「手をのばす」**：だれかが落ちている時だけ、コマンドのいちばん上に出ます。使うと、その仲間がすぐにもどります（2人いる時は、だれに手をのばすか選べます）。オートの仲間も、回復のあとで手をのばしてくれます
+- **前ぶれと影**：強い相手の中には、自分の **影** をよび出すものがいます。影がそろうと前ぶれのバナーが出て、次の番に大技がきます。**影を1体でもたおすと、大技は出せません**（影は攻撃をかわしやすいので、全体の技や合体技がたよりになります）。間に合わない時は身を守ろう
+- **新しい魔物のコツ**：大きなダンゴムシは、たたかれるほどおこって目が赤くなり、強くなります（ねむらせるか、大きな一撃でおこらせずにたおそう）。古い機械の兵は、こわれかけると仲間をかばうことがあります。根っこのこびとは、すぐ逃げます（大地の根を持っています）。お面の影は、たおすとお金をたくさん落とします
+- **★5の品**：大地の神殿の深い階の宝箱や、強い相手から、★5の品が手に入ります。**★は5まで** ですが、★5の中でも、あとで手に入る品ほど強くなっていきます（めずらしさは名前の色でわかります）。神殿の素材（大地の根・大地の光石）は、れん金がまで★4の品を★5にするのに使えます
+
 ---
 
 ## 開発向け
@@ -2197,6 +2205,12 @@ npm start                 # 家族サーバー
   - がめん：`client/battle-nocto.js`（`noctoSprite`・`noctoMarks`・`noctoDraw`・`noctoPresent`）、絵 `render/ch5-hoshiyomi-mon-art.js`（`addHoshiyomiArt`）・背景 `render/ch5-hoshiyomi-bg.js`・エフェクト `render/battlefx-hoshiyomi.js`（`battlefx-kumoi.js` のさいごから）
   - シミュレーション：`node tools/sim.js 100 ch5hoshiyomi`（出現表。99〜100%）、`node tools/sim-nocto.mjs 100 46,47,48`（超級職4人・里の店＋★。`SHOP=1` で★なしも。`LOG=1 KNOW=1` で1戦のようす）。Lv47：完全オート 14%・知っている 75%
   - `test/ch5-hoshiyomi-battle.test.js`（21こ）。前提を直したテスト：`monsters-r23`（図鑑の数）・`breed-r35`（ボス7体は影の王をのぞく）・`ch5-step5`（品は `items-hoshiyomi.js` から）
+- 第5章 Step 6・7「根の島・大地の神殿・ノクト（1回目）・みんなが集まる」B（戦い・品。ネタバレになるので、しくみと数値は `docs/plan-ch5.md` の「16」の「実装メモ（B … 戦い・品。Step 6・7）」）
+  - データ：`data/monsters-earth.js`（新しい魔物4しゅ・ボス `nocto_1`・数えない分身 `nocto_clone`〈`addEarthHidden`〉・素材 `EARTH_MAT_DROPS`）・`abilities-earth.js`・`encounters-earth.js`（出現表 `t5_root`・`t5_earth_up`・`t5_earth_low`、色ちがい3しゅ、きまった戦い `nocto_1`、背景 `root_isle`・`earth_temple`・`earth_temple_deep`）・`companions-earth.js`（4しゅとも仲間になる）・`items-earth.js`（ハネノのランク9の店 `HANONO9_SHOP_*`・神殿の宝箱 `EARTH_TREASURE`〈`src: 'earth'`〉・ボスの品・みんながくれる品 `GATHER_GIFTS`〈`src: 'gift'`〉・れん金 `EARTH_RECIPES`）。ボス級 `ss_sky_giant`（`monsters-boss.js`。素材配合だけ）
+  - しくみ：`shared/battle-earth.js`（地われ `status.rift`・新しいコマンド `{ type: 'reach', target }`・かげぶんしんと合体技・HP半分で勝ち・まもり兵・ダンゴムシ）。`battle.js` は `setupEarth`・`earthDamage`・`earthStop`（`checkPhase`）・`riftTurn`・`reachOk`／`reach` と「地われ」の数行、`ai.js` は `earthAction`・`reachPlan`、ほかは `battle-ch5.js` の `tower*` から。知っている人のオートは `b.knowsNocto1`（`earthPlan`）
+  - がめん：`client/battle-earth.js`（`earthMarks`・`earthDraw`・`earthPresent`・コマンド `earthReachItem`／`earthReachPick`）、絵 `render/ch5-earth-mon-art.js`（`addEarthArt`）・背景 `render/ch5-earth-bg.js`・エフェクト `render/battlefx-earth.js`（`battlefx-hoshiyomi.js` のさいごから）
+  - シミュレーション：`node tools/sim.js 100 ch5earth`（出現表。99〜100%）、`node tools/sim-nocto1.mjs 100 49,50,51`（超級職4人・里の店＋★。`SHOP=1` で★なしも。`LOG=1 KNOW=1` で1戦のようす。`LETTER=1` でピピの手紙あり）。Lv50：完全オート 11%・知っている 80%
+  - `test/ch5-earth-battle.test.js`（29こ）。前提を直したテスト：`monsters-r23`（図鑑の数）・`breed-r35`（ボス7体は天空のきょ兵ものぞく）・`loot`（バットのランクに9）
 - 第31回 C：レア装備とレア度（くわしくは `docs/plan-r31.md` の「3.」の「実装メモ（C）」）
   - データ：`data/items-rare.js`（レア装備112こ。`src` … `'tm'`〈`grp`〉・`'boss'`〈`boss`〉・`'region'`〈`region`〉・`'sd'`。`assignRarity` が rarity のない装備に つける）・`data/rare-loot.js`（`rarityOf`・`traitText`・`pickTmGear`・`bossRareOf`・`regionRareList`・`pickSdGear`）
   - 手に入る所：`data/treasure.js` の `chestLoot(rng, lv, kind, cave)`・`data/secret.js` の `sdBigReward`／`sdSmallReward`・`data/loot.js` の `monsterDrops`（`brare`）／`rollDrops(sp, rng, { map })`
