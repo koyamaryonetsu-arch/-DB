@@ -9,6 +9,8 @@
 //     ランク配合 … S ランクで レベル30いじょうの 2ひき → その 系統の ボス級
 //     4体配合 … つちくいムカデ ×4（両親と 祖父母）→ ガイアイーター
 // ・MONSTERS の 数字（hp・str など）は 敵と しての もの（使わない）。仲間の 強さは growth で きまる
+// ・第5章 Step 5: 影の王（ss_shadow_king）… ボスの 仲間では ない 新しい ボス級。たましいすい × ひとがたの影（か 悪魔系の S ＋ S）＋ 影星のペンダント
+//   （ノクトの影の 品）の 素材配合だけで 生まれる（materialOnly … ランク配合では 生まれない）
 
 const STATUS = { sleep: 0.5, poison: 0.5, confuse: 0.5, paralyze: 0.6 };
 
@@ -26,6 +28,8 @@ export const MONSTERS_BOSS = {
   ss_argos: mon('星の番人アルゴス', 44, 'material', 'argos', { light: 0.6, dark: 1.1, blind: 0.3, confuse: 0.3 }, '3つの目をもつ星の番人。配合で生まれ、今は仲間を見守る。'),
   ss_gaia: mon('ガイアイーター', 46, 'beast', 'gaia_head', { poison: 0.2, ice: 1.2, fire: 0.8 }, '島の土を食べる大ムカデ。配合で生まれた、仲間のガイアイーター。'),
   ss_oldra: mon('古竜オルドラ', 48, 'dragon', 'old_dragon', { fire: 0.3, ice: 1.2 }, '大昔の竜。配合で生まれ、今は仲間として炎をはく。'),
+  // 第5章 Step 5: ノクトの影の 品 ＋ たましいすい × ひとがたの影 など（アニメの 敵ふうの 2ひきから 生まれる ボス級。docs/idea-r35.md の K）
+  ss_shadow_king: mon('影の王', 50, 'demon', 'shadow_king', { dark: 0.3, light: 1.2, confuse: 0.3 }, '影の魔物たちをしたがえる王。配合で生まれ、今は仲間として影のつるぎをふるう。'),
 };
 
 // 仲間に なった とき（companions.js で まぜる）。rank: 'SS'・recipeOnly（系統配合の 子には ならない）
@@ -72,6 +76,15 @@ export const FRIENDS_BOSS = {
     gear: { weapons: [], armor: ['cloth', 'heavy'], shield: false, head: false },
     note: 'ボス級。大きなあごと体で、力いっぱい戦う。',
   }),
+  ss_shadow_king: ss({
+    names: ['カゲオウ', 'ヤミノキミ', 'シャドウ', 'よるのおう'],
+    growth: { hp: 1.4, mp: 1.15, str: 1.5, def: 1.25, agi: 1.25, mag: 1.35, heal: 0.7 },
+    learn: [[1, 'm_darkslash'], [4, 'm_homun_claw'], [9, 'm_soul_chill'], [14, 'm_homun_blades'], [20, 'm_soul_joy'], [26, 'm_homun_stone']],
+    gear: { weapons: ['sword', 'claw', 'dagger'], armor: ['cloth', 'heavy'], shield: false },
+    note: 'ボス級。影のつるぎと、こおりつく闇で戦う。',
+    // ランク配合（S × S）では 生まれない。ノクトの影の 品が いる（companions.js の breedCandidates）
+    materialOnly: true,
+  }),
   ss_oldra: ss({
     names: ['オルドラ', 'コリュウ', 'こはく', 'いにしえ'],
     growth: { hp: 1.5, mp: 1.0, str: 1.5, def: 1.35, agi: 1.0, mag: 1.2, heal: 0.8 },
@@ -92,6 +105,9 @@ export const MATERIAL_RECIPES = [
   { a: { race: 'material', minRank: S }, b: { minRank: S }, item: 'argos_pendant', child: 'ss_argos' },
   { a: { race: 'beast', minRank: S }, b: { minRank: S }, item: 'gaia_fang_charm', child: 'ss_gaia' },
   { a: { race: 'dragon', minRank: S }, b: { minRank: S }, item: 'old_dragon_eye', child: 'ss_oldra' },
+  // 影の王: たましいすい × ひとがたの影（とくべつな 組み合わせ）か、悪魔系の S ＋ S ランク ＋ 影星のペンダント（ノクトの影の 品）
+  { a: 'soul_eater', b: 'homunculus_shade', item: 'shade_pendant', child: 'ss_shadow_king' },
+  { a: { race: 'demon', minRank: S }, b: { minRank: S }, item: 'shade_pendant', child: 'ss_shadow_king' },
 ];
 
 // 4体配合（両親と 祖父母 4ひきが みんな その しゅぞく → 子）

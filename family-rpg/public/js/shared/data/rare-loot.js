@@ -32,7 +32,7 @@ export const isShopItem = (id) => isShopGear(ITEMS[baseItemId(id)]);
 // めずらしさの 文（説明に 出す。店の 品は ''）。ネタバレに ならない ように「どこで」だけ
 const SRC_TEXT = {
   tm: '宝の洞窟でしか手に入らない', boss: 'ボスからしか手に入らない', region: '魔物がまれに落とす', sd: 'ひみつのダンジョンでしか手に入らない',
-  alchemy: 'れん金でしか作れない', reborn: 'ふつうには手に入らない', ruin: '神殿の宝箱でしか手に入らない',
+  alchemy: 'れん金でしか作れない', reborn: 'ふつうには手に入らない', ruin: '神殿の宝箱でしか手に入らない', memory: '迷宮の宝箱でしか手に入らない',
 };
 export function rareWhereText(id) {
   const it = ITEMS[baseItemId(id)];

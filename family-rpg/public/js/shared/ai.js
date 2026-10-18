@@ -12,6 +12,8 @@ import { templeAction, templeCond, templePlan, templeAdjust, veilBolt, waveIgnor
 import { labPlan, labIgnored } from './battle-lab.js';
 // 第5章 Step 2 の 星の番人アルゴス（見通しの目。battle-ch5.js）
 import { towerCond, towerPlan } from './battle-ch5.js';
+// 第5章 Step 5 の ノクトの影（職業の まね。battle-nocto.js）
+import { noctoAction } from './battle-nocto.js';
 
 // さくせん
 export const TACTICS = {
@@ -33,6 +35,9 @@ export function decideMonster(b, m) {
   // 鏡のうつし身（仲間の オートの AI）・水の衣を また まとう・大波（battle-temple.js）
   const tf = templeAction(b, m);
   if (tf) return tf;
+  // ノクトの影: まねる 人を かえる・まねた 人の 技（battle-nocto.js）
+  const nf = noctoAction(b, m);
+  if (nf) return nf;
   const foes = b.aliveAllies();
   if (m.telegraph) {
     const id = m.telegraph;

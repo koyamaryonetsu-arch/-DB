@@ -148,7 +148,8 @@ test('レベルの 上限: ランク F で 50・ランクごとに +5・＋で �
 });
 
 test('ボス級（SS）: このゲームの ボス 7体。仲間として 使える 形（え・技・装備・強さは 少し おさえる）。配合でしか 生まれない', () => {
-  const list = bossClassList(MONSTERS);
+  // 第5章 Step 5 の 影の王（ボスの 仲間では ない 新しい ボス級）は test/ch5-hoshiyomi-battle.test.js
+  const list = bossClassList(MONSTERS).filter((sp) => sp !== 'ss_shadow_king');
   assert.deepEqual(list.sort(), Object.keys(BOSS_OF).sort());
   for (const sp of list) {
     const m = MONSTERS[sp], f = MONSTER_FRIENDS[sp], boss = MONSTERS[BOSS_OF[sp]];

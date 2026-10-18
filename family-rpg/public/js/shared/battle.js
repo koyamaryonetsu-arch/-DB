@@ -31,6 +31,8 @@ import { setupTemple, templeTurnStart, prisonTurn, reflectSpell, templeEffect, t
 import { towerTurnStart, foreseeCheck, towerEffect, towerKill, towerPub } from './battle-ch5.js';
 // 第5章 Step 4 の ガイアイーター（多部位の 戦い。battle-gaia.js）
 import { setupGaia, gaiaDamage } from './battle-gaia.js';
+// 第5章 Step 5 の ノクトの影（職業の まね・合体技の よやくを こわす。battle-nocto.js）
+import { setupNocto, noctoDamage } from './battle-nocto.js';
 // 第33回: 3年B組の担任は 学校の 仲間が いると 技が 強く なる（battle-r33.js）
 import { classmateMult } from './battle-r33.js';
 // 第33回: 男の子の 美少女戦士・セーラームーンは タキシード仮面ふうの 技の 名前・セリフ・えんしゅつ（強さは おなじ）
@@ -205,6 +207,7 @@ export class Battle {
     // 鏡のうつし身・水の衣・水の守りの歌（battle-temple.js）
     setupTemple(this, opts);
     setupGaia(this);
+    setupNocto(this);
     // まぼろしの分身（おなじ 魔物の 1体だけが 本物。battle-ch4.js）
     setupMirage(this);
     this.initAtb();
@@ -1539,6 +1542,8 @@ export class Battle {
     dmg = td;
     // ガイアイーターの 頭（体に まもられる）・体（かたい こうら）。battle-gaia.js
     dmg = gaiaDamage(this, c, t, dmg, info, ev);
+    // ノクトの影: まねられた 人の 攻撃は 見切られて 半分（battle-nocto.js）
+    dmg = noctoDamage(this, c, t, dmg, info, ev);
     // 天才しせつ管理者の 予兆保全: 敵の 大技の ダメージが 小さく なる（jobs.js の passive.foresee）
     if (ev.big && c.side === 'enemy' && t.side === 'ally' && dmg > 0) dmg = this.foreseeCut(dmg, ev);
     // 峰打ち: たおさずに HP を 1 のこす
