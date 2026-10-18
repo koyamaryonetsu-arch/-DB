@@ -32,6 +32,8 @@ import { wagonEventSteps } from './wagon.js';
 import { JOB_GREET } from './job-talk.js';
 import { LAB_SCRIPTS, LAB_STORY_SCRIPTS } from './story-lab.js';
 import { QUEST_SCRIPTS, QUEST_STORY_SCRIPTS, wrapSideQuests } from './sidequests.js';
+// 第37回 A: サファラ闘技場（しょりは world/arena.js）
+import { ARENA_SCRIPTS, ARENA_STORY_SCRIPTS } from './story-arena.js';
 import { applyTownHints } from './secret-hints.js';
 
 const V = (x, y) => [PLACES.village.x + x + 0.5, PLACES.village.y + y + 0.5];
@@ -618,6 +620,9 @@ Object.assign(SCRIPTS, SD_SCRIPTS);
 Object.assign(SCRIPTS, LAB_SCRIPTS, QUEST_SCRIPTS);
 wrapSideQuests(SCRIPTS);
 for (const id of [...LAB_STORY_SCRIPTS, ...QUEST_STORY_SCRIPTS]) STORY_SCRIPTS.add(id);
+// 第37回 A: サファラ闘技場（第4章クリアの あと。受付は パーティー みんなで）
+Object.assign(SCRIPTS, ARENA_SCRIPTS);
+for (const id of ARENA_STORY_SCRIPTS) STORY_SCRIPTS.add(id);
 // 第5章「空にうかぶ大地」（story-ch5.js）。第4章クリアの あとの ホシミばあちゃんから はじまる
 Object.assign(SCRIPTS, CH5_SCRIPTS);
 const elderBase = SCRIPTS.elder;

@@ -20,6 +20,8 @@ import { forgeUI } from './forge.js';
 import { tavernWagonItems, tavernWagonOpts, tavernWagonAct, tavernPlace, arrangeUI } from './wagon.js';
 import { casinoUI } from './casino.js';
 import { sdBoardUI } from './secret.js';
+// 第37回 A: サファラ闘技場（かけ試合・王者のかべ）
+import { arenaCardUI, arenaBoutUI, arenaWallUI } from './arena.js';
 import { shownEquip } from '../../shared/look-equip.js';
 import { jobAskText } from '../../shared/data/job-talk.js';
 import { sortRoster, rosterSortName, nextRosterSort } from '../../shared/roster-sort.js';
@@ -42,6 +44,9 @@ export function openServiceUI(game, kind, data) {
     case 'casino': case 'medalKing': return casinoUI(game, kind, data);
     // ひみつのダンジョンの 家族の記録の板（ui/secret.js）
     case 'sdBoard': return sdBoardUI(game, data);
+    case 'arenaCard': return arenaCardUI(game, data);
+    case 'arenaBout': return arenaBoutUI(game, data);
+    case 'arenaWall': return arenaWallUI(game, data);
     default: return Promise.resolve();
   }
 }

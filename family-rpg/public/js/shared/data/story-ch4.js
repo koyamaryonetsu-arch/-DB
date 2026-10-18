@@ -28,6 +28,8 @@ import { SEA_W, SEA_H } from '../maps/sea.js';
 import { innSteps } from './inn.js';
 import { C4_LEAD_OBJECTIVE } from './sky.js';
 import { C3_OBJ } from './story-ch3.js';
+// 第37回 A: 第4章クリアの あとの 闘技場（力じまんの戦士の ことば）
+import { fighterTalk } from './story-arena.js';
 // Step 6: 砂の海賊と 砂クジラ（ドゥナ・砂の古城・すなかぜ号・砂の海）
 import { DUNA_STEPS, DUNA_OBJ, DUNA_STORY_SCRIPTS, DUNA_SCRIPTS, DUNA_TARGETS, DUNA_TALK, DUNA_PROGRESS } from './story-ch4-duna.js';
 // Step 7: 砂の底の神殿と モルガナ・エンディング（A: 世界と物語）
@@ -1261,9 +1263,9 @@ export const CH4_SCRIPTS = {
       : '夜の町は、ひっそりとしているだろう？\n水がないと、みんな、出歩く元気もないのさ。')),
   // 学者ハサン（月の鏡・ピラミッドの 入口の なぞ）
   c4_hassan: (x) => hassanTalk(x),
-  // 闘技場（大会は お休み。闘技場は Step 8）
+  // 闘技場（第4章クリアまでは 大会は お休み。クリアの あとは story-arena.js の arena_desk〈受付〉・かけ試合・王者のかべ）
   c4_s_arena: () => S('闘技場の受付', 'ここは、サファラ闘技場。\n強い者たちが、うでをきそう所だ。', '…だが、水がもどるまで、大会はお休みだ。\nみんな、戦う元気もないからな。'),
-  c4_s_fighter: () => S('力じまんの戦士', '早く大会が開かれないかなあ。\nおれの力を、見せてやりたいのに！', 'うわさじゃ、大会で勝ちぬくと、すごいごほうびがもらえるそうだぜ。'),
+  c4_s_fighter: (x) => (x.flag('c4_clear') ? fighterTalk(x) : S('力じまんの戦士', '早く大会が開かれないかなあ。\nおれの力を、見せてやりたいのに！', 'うわさじゃ、大会で勝ちぬくと、すごいごほうびがもらえるそうだぜ。')),
   c4_arena_gate: () => N('闘技場の門は、かたくとざされている…。', '（大会は、お休みのようだ）'),
   // わらべ歌の 子どもたち（太陽 → 砂 → 月 → 星）
   c4_kid_sun: (x) => kidSong(x, 'sun', 'アリ', ['ねえねえ、旅の人！この町の、古いわらべ歌を知ってる？', 'ぼくが知ってるのは、歌の始めだけなんだ。'],

@@ -37,6 +37,8 @@ const SRC_TEXT = {
   earth: '大地の神殿の宝箱でしか手に入らない', bossrare: 'ボスがまれに落とす', gift: 'たくされた品（ほかでは手に入らない）',
   // 第37回 B: カジノの 景品（宝の地図の 段で ふえる）・すごろくの ゴールや 宝箱
   casino: 'カジノの景品でしか手に入らない', sugoroku: 'すごろくでしか手に入らない',
+  // 第37回 A: サファラ闘技場の ごほうび（items-arena.js）
+  arena: '闘技場のごほうびでしか手に入らない',
 };
 export function rareWhereText(id) {
   const it = ITEMS[baseItemId(id)];

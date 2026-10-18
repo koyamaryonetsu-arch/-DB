@@ -16,6 +16,8 @@ import { towerCond, towerPlan } from './battle-ch5.js';
 import { noctoAction } from './battle-nocto.js';
 // 第5章 Step 6・7 の ノクト（1回目。合体技の 前ぶれ）と「手をのばす」（battle-earth.js）
 import { earthAction, reachPlan } from './battle-earth.js';
+// 第37回 A: 闘技場の 王者の しかけを 知っている 人（シミュレーター。battle-arena.js）
+import { arenaPlan, arenaAdjust } from './battle-arena.js';
 
 // さくせん
 export const TACTICS = {
@@ -129,6 +131,9 @@ export function decideAlly(b, c) {
   // 古竜の いにしえの炎の 前に 身を 守る（しかけを 知っている 人。battle-lab.js）
   const lp = labPlan(b, c);
   if (lp) return lp;
+  // 闘技場の 王者の 大技の 前に 身を 守る（しかけを 知っている 人。battle-arena.js）
+  const arp = arenaPlan(b, c);
+  if (arp) return arp;
   // 見通しの目に 読まれた 種類を さける・星のさばきの 前に 身を 守る（battle-ch5.js）
   const fp = towerPlan(b, c, decideAlly);
   if (fp) return fp;
@@ -444,6 +449,7 @@ function chooseAttack(b, c, tac, foes) {
   }
   // 光っている 敵に 呪文を 使わない など（battle-temple.js）
   templeAdjust(b, c, opts);
+  arenaAdjust(b, c, opts);
   opts.sort((x, y) => y.final - x.final);
   // 物理しか ない ときに 反撃の構えの 敵しか いない: 防御して 構えが とけるのを まつ
   if (opts[0]?.risky) return { type: 'defend' };

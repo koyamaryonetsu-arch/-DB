@@ -291,6 +291,10 @@ export function gameFiles() {
     // 第5章 Step 6・7（B: 戦い・品）: 根の島と 大地の神殿の 魔物・ノクト（1回目。かげぶんしん・地われ・手をのばす）・ハネノの ランク9の 店・神殿の 宝箱・みんなが くれる 品・天空のきょ兵
     'public/js/shared/data/monsters-earth.js', 'public/js/shared/data/abilities-earth.js', 'public/js/shared/data/items-earth.js',
     'public/js/shared/data/encounters-earth.js', 'public/js/shared/data/companions-earth.js', 'public/js/shared/battle-earth.js', 'public/js/client/battle-earth.js',
+    // 第37回 A: サファラ闘技場（ランク戦の 3連戦・王者・ごほうび・かけ試合・王者のかべ）
+    'public/js/shared/data/arena.js', 'public/js/shared/data/story-arena.js', 'public/js/shared/data/monsters-arena.js', 'public/js/shared/data/abilities-arena.js',
+    'public/js/shared/data/items-arena.js', 'public/js/shared/data/encounters-arena.js', 'public/js/shared/battle-arena.js', 'public/js/shared/world/arena.js',
+    'public/js/client/ui/arena.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

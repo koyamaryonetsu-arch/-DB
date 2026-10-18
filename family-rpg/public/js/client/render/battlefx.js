@@ -29,6 +29,8 @@ import { KUMOI_BG, KUMOI_DECOS, drawKumoiBg, drawKumoiFloorBg } from './ch5-kumo
 import { HOSHIYOMI_BG, HOSHIYOMI_DECOS, drawHoshiyomiBg, drawHoshiyomiFloorBg } from './ch5-hoshiyomi-bg.js';
 // 第5章 Step 6・7: 根の島・大地の神殿（ch5-earth-bg.js）
 import { EARTH_BG, EARTH_DECOS, drawEarthBg, drawEarthFloorBg } from './ch5-earth-bg.js';
+// 第37回 A: サファラ闘技場（arena。arena-art.js）
+import { ARENA_BG, ARENA_DECOS, drawArenaBg, drawArenaFloorBg } from './arena-art.js';
 
 export const BW = 256;
 export const BH = 144;
@@ -131,6 +133,8 @@ const BG = {
   ...HOSHIYOMI_BG,
   // 第5章 Step 6・7: 根の島（root_isle）・大地の神殿（earth_temple・earth_temple_deep）
   ...EARTH_BG,
+  // 第37回 A: サファラ闘技場（arena）
+  ...ARENA_BG,
 };
 
 // はいけいの データ（〜_night は 夜空の はいけい。night-art.js）。ない ときは null
@@ -222,6 +226,7 @@ export function battleBackground(id) {
   if (KUMOI_DECOS.has(d.deco)) drawKumoiBg(x, d, hor);
   if (HOSHIYOMI_DECOS.has(d.deco)) drawHoshiyomiBg(x, d, hor);
   if (EARTH_DECOS.has(d.deco)) drawEarthBg(x, d, hor);
+  if (ARENA_DECOS.has(d.deco)) drawArenaBg(x, d, hor);
   if (d.deco === 'houses') {
     x.fillStyle = '#ffd66b';
     for (let k = 10; k < BW; k += 48) x.fillRect(k + 8, hor - 12, 3, 3);
@@ -276,6 +281,7 @@ export function battleBackground(id) {
   else if (KUMOI_DECOS.has(d.deco)) drawKumoiFloorBg(x, d, hor);
   else if (HOSHIYOMI_DECOS.has(d.deco)) drawHoshiyomiFloorBg(x, d, hor);
   else if (EARTH_DECOS.has(d.deco)) drawEarthFloorBg(x, d, hor);
+  else if (ARENA_DECOS.has(d.deco)) drawArenaFloorBg(x, d, hor);
   else {
     x.fillStyle = 'rgba(0,0,0,0.12)';
     for (let i = 0; i < 6; i++) {

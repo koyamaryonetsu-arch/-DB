@@ -564,7 +564,11 @@ test('すごろく: 戦いの マスは ほんとうの 戦い。勝つと 盤�
   assert.equal(FIXED_ENCOUNTERS[ctx.opts.fixed].loseOk, true);
   for (const x of ctx.battle.enemies) { x.hp = 1; x.atk = 0; x.mag = 0; }
   for (const a of ctx.battle.allies) { a.maxHp = 99999; a.hp = 99999; }
-  for (let i = 0; i < 2000 && world.battles.size; i++) { bot.flushQueue(); await tickN(world, 1); }
+  // 魔物が 回復しても すぐ たおせる ように、毎回 HP を 1に もどす（ここで 見たいのは 盤への もどり方）
+  for (let i = 0; i < 2000 && world.battles.size; i++) {
+    for (const x of ctx.battle.enemies) if (x.hp > 1) x.hp = 1;
+    bot.flushQueue(); await tickN(world, 1);
+  }
   assert.equal(world.battles.size, 0, `戦いが おわる ${ctx.battle.over} ${ctx.battle.enemies.map((x) => x.species + x.hp)} ${JSON.stringify(ctx.battle.allies.map((a) => [a.name, a.hp, a.auto, a.controller, a.alive]))} ${bot.s.id}`);
   assert.equal(bot.battles.pop()?.outcome, 'win');
   // また まどが 開いて、盤の つづき

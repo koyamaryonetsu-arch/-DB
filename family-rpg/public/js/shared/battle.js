@@ -37,6 +37,8 @@ import { setupNocto, noctoDamage } from './battle-nocto.js';
 import { setupEarth, earthDamage, earthStop, riftTurn, reachOk, reach } from './battle-earth.js';
 // 第33回: 3年B組の担任は 学校の 仲間が いると 技が 強く なる（battle-r33.js）
 import { classmateMult } from './battle-r33.js';
+// 第37回 A: サファラ闘技場の 王者の しかけ（属性の よろい。battle-arena.js）
+import { setupArena, arenaDamage } from './battle-arena.js';
 // 第33回: 男の子の 美少女戦士・セーラームーンは タキシード仮面ふうの 技の 名前・セリフ・えんしゅつ（強さは おなじ）
 import { abilityFor } from './ability-label.js';
 
@@ -211,6 +213,7 @@ export class Battle {
     setupGaia(this);
     setupNocto(this);
     setupEarth(this);
+    setupArena(this);
     // まぼろしの分身（おなじ 魔物の 1体だけが 本物。battle-ch4.js）
     setupMirage(this);
     this.initAtb();
@@ -1558,6 +1561,10 @@ export class Battle {
     const ed = earthDamage(this, c, t, dmg, info, ev);
     if (ed === null) return;
     dmg = ed;
+    // 闘技場の 七色の魔導王: よろいと おなじ 属性は すいこむ・弱点で くだける（battle-arena.js）
+    const ad = arenaDamage(this, c, t, dmg, info, ev);
+    if (ad === null) return;
+    dmg = ad;
     // 天才しせつ管理者の 予兆保全: 敵の 大技の ダメージが 小さく なる（jobs.js の passive.foresee）
     if (ev.big && c.side === 'enemy' && t.side === 'ally' && dmg > 0) dmg = this.foreseeCut(dmg, ev);
     // 峰打ち: たおさずに HP を 1 のこす
