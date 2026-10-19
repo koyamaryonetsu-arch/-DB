@@ -254,9 +254,9 @@
       ss.set([r, 21], { f: `IF(K${r}="","",IF(T${r}=Q${r},0,T${r}))`, v: oneA, st: HP(u.fCap) });
       const itBy = (v) => items.find((it) => u.capIn(it.kw) === v) || {};
       const part = (v, n) => itBy(v).hp + '馬力（' + itBy(v).model + '）×' + n;
-      const plan = !on ? '' : diff >= 0 ? '更新の必要なし' : '更新を検討：' + (nA > 0 ? part(big, nA) : '') + (nA > 0 && oneA > 0 ? ' ＋ ' : '') + (oneA > 0 ? part(oneA, 1) : '');
+      const plan = !on ? '' : diff >= 0 ? '増強必要なし' : '更新を検討：' + (nA > 0 ? part(big, nA) : '') + (nA > 0 && oneA > 0 ? ' ＋ ' : '') + (oneA > 0 ? part(oneA, 1) : '');
       const P1 = (V, N) => `INDEX(更新の馬力,MATCH(${V},更新の能力,0))&"馬力（"&INDEX(更新の型式,MATCH(${V},更新の能力,0))&"）×"&${N}`;
-      ss.set([r, 11], { f: `IF(E${r}="","",IF(I${r}>=0,"更新の必要なし","更新を検討："&IF(U${r}>0,${P1('Q' + r, 'U' + r)},"")&IF(AND(U${r}>0,V${r}>0)," ＋ ","")&IF(V${r}>0,${P1('V' + r, '1')},"")))`, v: plan, st: CA(null, false, true) });
+      ss.set([r, 11], { f: `IF(E${r}="","",IF(I${r}>=0,"増強必要なし","更新を検討："&IF(U${r}>0,${P1('Q' + r, 'U' + r)},"")&IF(AND(U${r}>0,V${r}>0)," ＋ ","")&IF(V${r}>0,${P1('V' + r, '1')},"")))`, v: plan, st: CA(null, false, true) });
       ss.set([r, 12], { f: `IF(K${r}="","",U${r}*Q${r}+V${r})`, v: on ? nA * big + oneA : '', st: CA(u.fCap) });
       // 3つの条件での過不足
       ['C', 'D', 'E'].forEach((c, k) => {
@@ -746,8 +746,8 @@
       sp.set([rw, 13], { f: `IF(A${rw}="","",INDEX(段階の馬力,${IDX(`I${rw}/K${rw}`)}))`, v: a ? pick.hp : '', st: CA('0.0') });
       sp.set([rw, 14], { f: `IF(A${rw}="",0,N${rw}*K${rw})`, v: a ? pick.hp * qn : 0, st: CA('0.0', true) });
       const short = zr ? zr.diff < 0 : false;
-      const txt = !a ? '' : !zr ? '（計算しない系統）' : !short ? '（この系統は更新の必要なし）' : `${a.id} → ${maker}${a.maker ? '' : '（既設が不明のため）'} ${formStep}${formStep !== kind ? '（' + kind + 'から変える）' : ''} ${pick.name}${qn > 1 ? ' ×' + qn : ''}`;
-      sp.set([rw, 15], { f: `IF(A${rw}="","",IFERROR(IF(INDEX(${RF(SH.res, 'G' + b0)}:${abs('G' + (b0 + zs.length - 1))},MATCH(B${rw},${RF(SH.res, 'A' + b0)}:${abs('A' + (b0 + zs.length - 1))},0))>=0,"（この系統は更新の必要なし）",A${rw}&" → "&E${rw}&IF(${RF(SH.eq, 'B' + ar)}="","（既設が不明のため）","")&" "&D${rw}&IF(D${rw}<>C${rw},"（"&C${rw}&"から変える）","")&" "&M${rw}&IF(K${rw}>1," ×"&K${rw},"")),"（計算しない系統）"))`, v: txt, st: CA(null, false, true) });
+      const txt = !a ? '' : !zr ? '（計算しない系統）' : !short ? '（この系統は増強必要なし）' : `${a.id} → ${maker}${a.maker ? '' : '（既設が不明のため）'} ${formStep}${formStep !== kind ? '（' + kind + 'から変える）' : ''} ${pick.name}${qn > 1 ? ' ×' + qn : ''}`;
+      sp.set([rw, 15], { f: `IF(A${rw}="","",IFERROR(IF(INDEX(${RF(SH.res, 'G' + b0)}:${abs('G' + (b0 + zs.length - 1))},MATCH(B${rw},${RF(SH.res, 'A' + b0)}:${abs('A' + (b0 + zs.length - 1))},0))>=0,"（この系統は増強必要なし）",A${rw}&" → "&E${rw}&IF(${RF(SH.eq, 'B' + ar)}="","（既設が不明のため）","")&" "&D${rw}&IF(D${rw}<>C${rw},"（"&C${rw}&"から変える）","")&" "&M${rw}&IF(K${rw}>1," ×"&K${rw},"")),"（計算しない系統）"))`, v: txt, st: CA(null, false, true) });
       if (a && zr) hpByZone[zKey] = (hpByZone[zKey] || 0) + pick.hp * qn;
     }
     const pRange = (col) => RF(SH.pick, col + p0) + ':' + abs(col + (p0 + nA - 1));
@@ -756,9 +756,9 @@
       const row = resRow[z], zr = bo.zv[z], zn = ZN(z), hasAc = zr._hasAc;
       const hpT = hasAc ? (hpByZone[z] || 0) : r05(zr.kneed / u.HPU);
       sres.set([row, 10], { f: `IF(COUNTIF(${ACr('D')},A${row})=0,ROUND(J${row}/馬力換算*2,0)/2,SUMIF(${pRange('B')},A${row},${pRange('O')}))`, v: hpT, st: CA('0.0', true) });
-      const txt = zr.diff >= 0 ? '今の空調機で足ります（更新の必要なし）' : !hasAc ? '既設の空調機が無い系統です（機器・換気シートで空調機の形を入れてください）' : '更新を検討：合計 約 ' + hpT + ' 馬力（内訳は「更新の選定」シート）';
+      const txt = zr.diff >= 0 ? '今の空調機で足ります（増強必要なし）' : !hasAc ? '既設の空調機が無い系統です（機器・換気シートで空調機の形を入れてください）' : '更新を検討：合計 約 ' + hpT + ' 馬力（内訳は「更新の選定」シート）';
       sres.merge('L' + row + ':N' + row); sres.set([row, 12], { v: '', st: CA(null) }); sres.set([row, 13], { v: '', st: CA(null) });
-      sres.set([row, 11], { f: `IF(G${row}>=0,"今の空調機で足ります（更新の必要なし）",IF(COUNTIF(${ACr('D')},A${row})=0,"既設の空調機が無い系統です（機器・換気シートで空調機の形を入れてください）","更新を検討：合計 約 "&K${row}&" 馬力（内訳は「更新の選定」シート）"))`, v: txt, st: CA(null, false, true) });
+      sres.set([row, 11], { f: `IF(G${row}>=0,"今の空調機で足ります（増強必要なし）",IF(COUNTIF(${ACr('D')},A${row})=0,"既設の空調機が無い系統です（機器・換気シートで空調機の形を入れてください）","更新を検討：合計 約 "&K${row}&" 馬力（内訳は「更新の選定」シート）"))`, v: txt, st: CA(null, false, true) });
     });
     guideItems();
     return wb;

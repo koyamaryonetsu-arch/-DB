@@ -382,7 +382,7 @@
        <div class="hint">1席あたり <b class="num">${sh(p.totK)}</b> ＝ 躯体 ${sh(p.bodyK)} ＋ 人体 ${sh(p.personK)} ＋ 外気 ${sh(p.oaK)}（換気量 ${S.th.oa} m³/h・人）</div>
        ${noSeat.length ? `<div class="hint warn">⚠ 座席数が入っていないスクリーン：${esc(noSeat.join('・'))}</div>` : ''}${noAc.length ? `<div class="hint warn">⚠ 空調機が決まっていないスクリーン：${esc(noAc.join('・'))}</div>` : ''}</div>
      <div class="tbl mt"><table><thead><tr><th>スクリーン</th><th class="r">座席数</th><th class="r">必要空調能力</th><th class="r">今の空調機</th><th class="r">過不足</th><th>更新</th></tr></thead><tbody>
-     ${rows.map((x) => `<tr><td><b>${esc(x.s.id)}</b></td><td class="r num">${+x.s.seats || 0}</td><td class="r num">${kw(x.need)} ${U()}<br><span class="u">約 ${hp(x.need / 1000)} 馬力</span></td><td class="r num">${kw(x.cap)} ${U()}<br><span class="u">約 ${hp(x.cap / 1000)} 馬力（${esc(x.units.map((a) => a.id).join('・') || 'なし')}）</span></td><td class="r"><span class="num vt ${x.diff >= 0 ? 'ok' : 'ng'}">${x.diff >= 0 ? kw(x.diff) + ' ' + U() + ' 余る' : kw(-x.diff) + ' ' + U() + ' 足りない'}</span>${x.diff < 0 ? `<br><span class="u">約 ${hp(-x.diff / 1000)} 馬力</span>` : ''}</td><td>${x.diff < 0 ? `<b>更新を検討</b><br><span class="u">更新する時 ${replacePlan(x.need / 1000 / capFactorT(C.t))}</span>` : '更新の必要なし'}</td></tr>`).join('')}
+     ${rows.map((x) => `<tr><td><b>${esc(x.s.id)}</b></td><td class="r num">${+x.s.seats || 0}</td><td class="r num">${kw(x.need)} ${U()}<br><span class="u">約 ${hp(x.need / 1000)} 馬力</span></td><td class="r num">${kw(x.cap)} ${U()}<br><span class="u">約 ${hp(x.cap / 1000)} 馬力（${esc(x.units.map((a) => a.id).join('・') || 'なし')}）</span></td><td class="r"><span class="num vt ${x.diff >= 0 ? 'ok' : 'ng'}">${x.diff >= 0 ? kw(x.diff) + ' ' + U() + ' 余る' : kw(-x.diff) + ' ' + U() + ' 足りない'}</span>${x.diff < 0 ? `<br><span class="u">約 ${hp(-x.diff / 1000)} 馬力</span>` : ''}</td><td>${x.diff < 0 ? `<b>更新を検討</b><br><span class="u">更新する時 ${replacePlan(x.need / 1000 / capFactorT(C.t))}</span>` : '増強必要なし'}</td></tr>`).join('')}
      </tbody></table></div>
      <p class="hint mt">今の空調機の能力は、選んだ能力の低下と外気温の補正（35℃を超えると1℃につき1.5%）を見込んでいます。馬力は ${hpNote()}。</p></div>${famCard()}`;
   }
@@ -426,7 +426,7 @@
     const parts = chunk(rows, 12);
     parts.forEach((part, pi) => {
       pages.push(`<h5>2. スクリーンごとの必要空調能力と既設能力（${U()}）${parts.length > 1 ? '（' + (pi + 1) + '/' + parts.length + '）' : ''}</h5><table><tr><th style="width:11%">スクリーン</th><th style="width:8%">座席</th><th style="width:14%">必要空調能力</th><th style="width:14%">既設能力</th><th style="width:11%">過不足</th><th>更新の検討（更新する時の機種・馬力）</th></tr>
-       ${part.map((x) => `<tr><td>${esc(x.s.id)}</td><td class="r">${+x.s.seats || 0}</td><td class="r">${kw(x.need)}<br>約${hp(x.need / 1000)}馬力</td><td class="r">${kw(x.cap)}<br>約${hp(x.cap / 1000)}馬力</td><td class="r">${x.diff >= 0 ? '＋' + kw(x.diff) : '－' + kw(-x.diff)}</td><td>${x.diff < 0 ? '更新を検討：' + replacePlan(x.need / 1000 / capFactorT(C.t), 1) : '更新の必要なし'}</td></tr>`).join('')}</table>
+       ${part.map((x) => `<tr><td>${esc(x.s.id)}</td><td class="r">${+x.s.seats || 0}</td><td class="r">${kw(x.need)}<br>約${hp(x.need / 1000)}馬力</td><td class="r">${kw(x.cap)}<br>約${hp(x.cap / 1000)}馬力</td><td class="r">${x.diff >= 0 ? '＋' + kw(x.diff) : '－' + kw(-x.diff)}</td><td>${x.diff < 0 ? '更新を検討：' + replacePlan(x.need / 1000 / capFactorT(C.t), 1) : '増強必要なし'}</td></tr>`).join('')}</table>
        ${pi === parts.length - 1 ? `<div class="mt">更新する時の機種：${esc(famOf().maker + ' ' + famOf().name)}${famOf().byHz ? '（電源 ' + S.hz + 'Hz）' : ''}。能力は ${esc(uText(famOf().src))}</div>
        <h6>注意</h6><div>既設能力は機器表の冷房能力に、選んだ能力の低下（100〜80%）と外気温の補正（35℃超は1℃につき1.5%低下）を掛けた値。最終の機器選定はメーカーの能力表で確認のこと。馬力は ${hpNote()}。</div>` : ''}`);
     });
@@ -595,7 +595,7 @@
       const top = Object.keys(o.partsAt).filter((k) => o.partsAt[k] > 100).sort((x, y) => o.partsAt[y] - o.partsAt[x]).slice(0, 3);
       const units = S.ac.filter((a) => a.zone === z).map((a) => a.id).join('・') || 'なし';
       const pl = sameFormPlan(z, o.need / 1000 / capFactorT(C.t));
-      const rec = o.diff < 0 ? `<b>更新を検討</b>：更新する時は合計 約 ${r1(pl.hp)} 馬力<br><span class="u">${esc(pl.text)}</span>` : '今の空調機で足ります（更新の必要なし）';
+      const rec = o.diff < 0 ? `<b>更新を検討</b>：更新する時は合計 約 ${r1(pl.hp)} 馬力<br><span class="u">${esc(pl.text)}</span>` : '今の空調機で足ります（増強必要なし）';
       return `<div class="zc" style="--zc:${zoneOf(z).c}"><div class="hd"><i class="zdot" style="background:${zoneOf(z).c}"></i><b>${esc(zoneOf(z).n)}</b></div>
         <div class="verdict ${j[0]}"><b class="num">${vtxt(o)}</b></div>
         <div class="pair"><div><span>必要な冷房能力</span><b class="num">${kw(o.need)} ${U()}</b><span>約 ${hp(o.need / 1000)} 馬力</span></div><div><span>今の空調機（${esc(units)}）</span><b class="num">${kw(o.capEff)} ${U()}</b><span>約 ${hp(o.capEff / 1000)} 馬力</span></div></div>
@@ -648,7 +648,7 @@
       pages.push(`<h5>3. 系統ごとの負荷（${esc(S.cases[S.basis].n)} ${S.cases[S.basis].t}℃）${all.length > 1 ? '（' + (pi + 1) + '/' + all.length + '）' : ''}</h5><table><tr><th>内訳 (${U()})</th>${part.map((z) => `<th>${esc(zoneOf(z).n.replace('系統', ''))}</th>`).join('')}</tr>${partNames.filter((k) => part.some((z) => Math.abs(b[z].partsAt[k] || 0) > 50)).map((k) => `<tr><td>${esc(k)}</td>${part.map((z) => `<td class="r">${kw(b[z].partsAt[k] || 0)}</td>`).join('')}</tr>`).join('')}<tr><th>合計</th>${part.map((z) => `<th class="r">${kw(b[z].total)}</th>`).join('')}</tr><tr><th>余裕込み</th>${part.map((z) => `<th class="r">${kw(b[z].need)}</th>`).join('')}</tr><tr><td>ピーク時刻</td>${part.map((z) => `<td class="r">${b[z].flat ? '差なし' : b[z].peakHour + '時'}</td>`).join('')}</tr></table>`);
     });
     chunk(zs, 6).forEach((part, pi, all) => {
-      pages.push(`<h5>4. 既設能力との比較と更新の検討（${U()}）${all.length > 1 ? '（' + (pi + 1) + '/' + all.length + '）' : ''}</h5><table><tr><th>系統</th>${S.cases.map((c) => `<th>${esc(c.n)}<br>必要/既設</th>`).join('')}<th>更新の検討（更新する時の機種・馬力）</th></tr>${part.map((z) => { const pl = sameFormPlan(z, b[z].need / 1000 / capFactorT(S.cases[S.basis].t)); return `<tr><td>${esc(zoneOf(z).n)}</td>${res.map((r) => { const o = r[z], j = judge(o); return `<td>${j[1]}<br>${kw(o.need)}/${kw(o.capEff)}</td>`; }).join('')}<td>${b[z].diff < 0 ? '更新を検討：約' + r1(pl.hp) + '馬力（' + esc(pl.text) + '）' : '更新の必要なし'}</td></tr>`; }).join('')}</table>
+      pages.push(`<h5>4. 既設能力との比較と更新の検討（${U()}）${all.length > 1 ? '（' + (pi + 1) + '/' + all.length + '）' : ''}</h5><table><tr><th>系統</th>${S.cases.map((c) => `<th>${esc(c.n)}<br>必要/既設</th>`).join('')}<th>更新の検討（更新する時の機種・馬力）</th></tr>${part.map((z) => { const pl = sameFormPlan(z, b[z].need / 1000 / capFactorT(S.cases[S.basis].t)); return `<tr><td>${esc(zoneOf(z).n)}</td>${res.map((r) => { const o = r[z], j = judge(o); return `<td>${j[1]}<br>${kw(o.need)}/${kw(o.capEff)}</td>`; }).join('')}<td>${b[z].diff < 0 ? '更新を検討：約' + r1(pl.hp) + '馬力（' + esc(pl.text) + '）' : '増強必要なし'}</td></tr>`; }).join('')}</table>
       ${pi === all.length - 1 ? '<h6>注意</h6><div>図面から読み取った値と現地調査の値にもとづく。機器の発熱は目安（実測値を入れたものは実測）。最終の機器選定はメーカーの能力表で確認のこと。</div>' : ''}`);
     });
     pages.push(`<h5>5. 計算の根拠（1）</h5>${basisTable(0, 5)}`);

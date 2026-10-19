@@ -35,6 +35,11 @@
   const SMALL_CASE_THRESHOLD = 3000000;
   const BASE_RATE = 5; // %
   const PRIVILEGED_DOMAIN = 'ryonetsu.com';
+  // 打合せモード（このタブの中だけ）。くわしくは meetingActive() のところ
+  const MEETING_KEY = 'meetingModeV1';
+  let meetingHiddenLocal = [];   // テストモードの打合せモードで、画面に渡していない案件（保存の時に戻す）
+  let meetingCompany = (() => { try { return sessionStorage.getItem(MEETING_KEY) || ''; } catch (e) { return ''; } })();
+
   // 客先ドメイン → その客先が見られる会社。ここに足すだけで新しい客先を追加できる。
   const CUSTOMER_DOMAIN_COMPANY = {
     'tohocinemas.co.jp': 'TOHOシネマズ',
@@ -371,7 +376,7 @@
     // 操作元（通知文言用）: 菱熱=ryo / 客先=customer。要約時も消えないよう毎回保存（列がある時のみ）
     if (lastUpdateSourceSupported) {
       // sourceOverride='auto' は「登録確認」画面からのメール内容の反映（LINEは自動登録/自動更新と表示）
-      row.last_update_source = sourceOverride || (isPrivileged(currentUser) ? 'ryo' : 'customer');
+      row.last_update_source = sourceOverride || (realPrivileged(currentUser) ? 'ryo' : 'customer');
     }
     // 二重登録の疑い（菱熱のみが判定・解除する）
     if (dupSuspectSupported) row.dup_suspect_id = c.dupSuspectId ? c.dupSuspectId : null;
@@ -544,12 +549,18 @@
       try { await sb.auth.signOut(); } catch (e) {}
     },
     async fetchCases() {
-      if (this.mode === 'local') return loadCases();
+      if (this.mode === 'local') {
+        // テストモード: 打合せモードでは選んだ会社だけを画面に渡し、ほかは保存の時に戻す（消さない）
+        const all = loadCases();
+        if (!meetingActive(currentUser)) { meetingHiddenLocal = []; return all; }
+        meetingHiddenLocal = all.filter((c) => c.company !== meetingCompany);
+        return all.filter((c) => c.company === meetingCompany);
+      }
       // 客先には社内情報カラム（社内用メモ/AI学習メモ/粗利配分/タスク）をデータごと渡さない
       const cols = isPrivileged(currentUser) ? '*' : CUSTOMER_CASE_COLUMNS;
       const { data, error } = await sb.from('cases').select(cols);
       if (error) throw error;
-      return (data || []).map(rowToCase);
+      return meetingScrub((data || []).map(rowToCase));
     },
     async upsertCase(c, sourceOverride) {
       if (this.mode === 'local') { saveCases(); return; }
@@ -1039,7 +1050,7 @@
     });
     return arr;
   }
-  function saveCases() { localStorage.setItem(STORAGE_KEY, JSON.stringify(cases)); }
+  function saveCases() { localStorage.setItem(STORAGE_KEY, JSON.stringify(meetingActive(currentUser) ? meetingHiddenLocal.concat(cases) : cases)); }
   function loadHistory() {
     try {
       const stored = JSON.parse(localStorage.getItem(HISTORY_KEY)) || {};
@@ -1292,9 +1303,19 @@
   function loadAuth() { try { return JSON.parse(localStorage.getItem(AUTH_KEY)); } catch (e) { return null; } }
   function saveAuth(user) { localStorage.setItem(AUTH_KEY, JSON.stringify(user)); }
   function clearAuth() { localStorage.removeItem(AUTH_KEY); }
-  function isPrivileged(user) { return !!(user && user.domain === PRIVILEGED_DOMAIN); }
+  // 打合せモード: 菱熱の人が、客先と一緒に画面を見る時に、選んだ会社の「客先の見せ方」にする。
+  // ほかの会社の案件・劇場は読み込まない（画面のどこにも出ない）。このタブの中だけ（sessionStorage）。
+  function realPrivileged(user) { return !!(user && user.domain === PRIVILEGED_DOMAIN); }
+  function meetingActive(user) { return !!(meetingCompany && realPrivileged(user) && currentUser && user.email === currentUser.email); }
+  function isPrivileged(user) { if (meetingActive(user)) return false; return realPrivileged(user); }
+  // 打合せモードでは、選んだ会社の案件だけを残し、社内情報は消しておく（念のため。保存では送らない）
+  function meetingScrub(list) {
+    if (!meetingActive(currentUser)) return list;
+    return list.filter((c) => c.company === meetingCompany).map((c) => Object.assign(c, { memo: '', adviceNote: '', allocations: {}, tasks: [], purchases: [] }));
+  }
   // 客先ユーザーが閲覧できる会社名（受注者=ryonetsuはnull＝全社）。未知の客先ドメインは既定でTOHO。
   function customerCompany(user) {
+    if (meetingActive(user)) return meetingCompany;
     if (!user || isPrivileged(user)) return null;
     return CUSTOMER_DOMAIN_COMPANY[user.domain] || 'TOHOシネマズ';
   }
@@ -4894,7 +4915,7 @@
   }
   // タイトル横の R担当者 ボタン（全員＋各担当者）。クリックでその担当者の案件に絞る（AND）
   // 絞り込みの保持（アカウント別）
-  function userFilterKey(base) { return base + '_' + ((currentUser && currentUser.email) || 'anon'); }
+  function userFilterKey(base) { return base + '_' + ((currentUser && currentUser.email) || 'anon') + (meetingActive(currentUser) ? '#meeting:' + meetingCompany : ''); }
   function saveUserFilter(base, set) { try { localStorage.setItem(userFilterKey(base), JSON.stringify([...set])); } catch (e) {} }
   function loadSavedFilters() {
     try { const a = JSON.parse(localStorage.getItem(userFilterKey('rpfV1')) || '[]'); rPersonFilter = new Set(Array.isArray(a) ? a : []); } catch (e) {}
@@ -4940,6 +4961,14 @@
   }
   function applyUserScope() {
     $('userEmail').textContent = currentUser.email;
+    // 打合せモード（菱熱の人だけが使える）
+    const meeting = meetingActive(currentUser);
+    document.body.classList.toggle('meeting-mode', meeting);
+    $('meetingBtn').classList.toggle('hidden', !realPrivileged(currentUser) || meeting);
+    $('meetingEndBtn').classList.toggle('hidden', !meeting);
+    $('meetingInfo').classList.toggle('hidden', !meeting);
+    $('meetingInfo').textContent = meeting ? '🤝 打合せモード中：' + meetingCompany + ' の画面' : '';
+    const av = document.querySelector('#userMenuBtn .hdr-av'); if (av) av.textContent = meeting ? '🤝' : '👤';
     $('userMenuBtn').title = currentUser.email + '（表示倍率・列の並び・ログアウト）';
     loadSavedFilters(); // アカウント別に最後の絞り込みを復元
     seedDefaultStatusFilter(); // ログイン時は「完了・取り下げ」を非表示（チェック外し）で開始
@@ -5080,7 +5109,34 @@
     }
   });
 
+  // ---------- 打合せモード ----------
+  function meetingSwitch(company) {
+    const go = () => { try { if (company) sessionStorage.setItem(MEETING_KEY, company); else sessionStorage.removeItem(MEETING_KEY); } catch (e) {} location.reload(); };
+    // 書類棚で保存していない変更があれば、先に聞く
+    if (koteiMode && window.SHELF && window.SHELF.isDirty()) window.SHELF.requestClose(go); else go();
+  }
+  function openMeetingModal() {
+    const list = companyNames();
+    $('meetingList').innerHTML = list.map((n) => {
+      const cnt = cases.filter((c) => c.company === n && c.category !== 'タスク').length;
+      return `<button type="button" class="meeting-co" data-meeting-co="${escapeHtml(n)}"><b>${escapeHtml(n)}</b><span>${cnt} 件</span></button>`;
+    }).join('') || '<p class="modal-hint">会社がありません。</p>';
+    $('meetingModal').classList.remove('hidden');
+  }
+  const closeMeetingModal = () => $('meetingModal').classList.add('hidden');
+  $('meetingBtn').addEventListener('click', () => { $('userMenu').classList.add('hidden'); $('userMenuBtn').setAttribute('aria-expanded', 'false'); openMeetingModal(); });
+  $('meetingList').addEventListener('click', (e) => { const b = e.target.closest('[data-meeting-co]'); if (b) { closeMeetingModal(); meetingSwitch(b.dataset.meetingCo); } });
+  $('closeMeetingModal').addEventListener('click', closeMeetingModal);
+  $('meetingCancelBtn').addEventListener('click', closeMeetingModal);
+  $('meetingModal').addEventListener('click', (e) => { if (e.target === $('meetingModal')) closeMeetingModal(); });
+  $('meetingEndBtn').addEventListener('click', () => {
+    if (!confirm('打合せモードを終わります。ほかの会社の案件も表示されるようになります。\n（お客様に画面が見えていないか確かめてください）\n\n終わりますか？')) return;
+    meetingSwitch('');
+  });
+
   $('logoutBtn').addEventListener('click', async () => {
+    try { sessionStorage.removeItem(MEETING_KEY); } catch (e) {}
+    meetingCompany = '';
     // 開いているモーダル/各モードを全部クリーンに閉じてからログアウト
     if (aggMode) exitAggMode();
     if (taskMode) exitTaskMode();
@@ -6015,7 +6071,9 @@
         const oid = payload.old && payload.old.id;
         if (oid) cases = cases.filter((c) => c.id !== oid);
       } else if (payload.new) {
-        const mapped = rowToCase(payload.new);
+        // 打合せモードでは、選んだ会社以外の更新は取り込まない
+        if (meetingActive(currentUser) && payload.new.company !== meetingCompany) { cases = cases.filter((c) => c.id !== payload.new.id); return; }
+        const mapped = meetingScrub([rowToCase(payload.new)])[0] || rowToCase(payload.new);
         const i = cases.findIndex((c) => c.id === mapped.id);
         if (i >= 0) cases[i] = mapped; else cases.push(mapped);
       }
