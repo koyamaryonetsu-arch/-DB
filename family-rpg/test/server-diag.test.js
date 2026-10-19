@@ -191,3 +191,22 @@ test('外出先用の 設定の アドレスが、今の PC の 名前と ちが
   // tailnet の 名前を かえた ときも
   assert.ok(funnelNameWarning('https://pc.tailabcd.ts.net', 'pc.happy-cat.ts.net').length > 0);
 });
+
+test('外出先の アドレス: 許可は そろっているのに 出ていない ときだけ、自動で 登録しなおす（15分に 1回・3回まで）', async () => {
+  const { shouldRepairFunnel, repairFunnel, funnelRepairLines, REPAIR_GAP_MS, REPAIR_MAX } = await import('../server/funnel.js');
+  const ok = { https: true, funnel: true };
+  assert.equal(shouldRepairFunnel('missing', ok, { now: REPAIR_GAP_MS }), true);
+  assert.equal(shouldRepairFunnel('ok', ok, { now: REPAIR_GAP_MS }), false);
+  assert.equal(shouldRepairFunnel('unknown', ok, { now: REPAIR_GAP_MS }), false, 'しらべられない ときは しない');
+  assert.equal(shouldRepairFunnel('missing', { https: false, funnel: true }, { now: REPAIR_GAP_MS }), false, '許可が ない ときは 手で');
+  assert.equal(shouldRepairFunnel('missing', { https: true, funnel: false }, { now: REPAIR_GAP_MS }), false);
+  assert.equal(shouldRepairFunnel('missing', ok, { lastAt: 1000, now: 1000 + REPAIR_GAP_MS - 1 }), false, '15分 たつまで しない');
+  assert.equal(shouldRepairFunnel('missing', ok, { tries: REPAIR_MAX, now: REPAIR_GAP_MS }), false, '3回 だめなら 手で');
+  // funnel reset → funnel --bg ポート の じゅん（見つからない コマンドは とばす）
+  const calls = [];
+  const runImpl = async (bin, args) => { calls.push([bin, ...args].join(' ')); return bin === 'nope' ? null : ''; };
+  assert.equal(await repairFunnel(3000, { runImpl, candidates: ['nope', 'tailscale'] }), true);
+  assert.deepEqual(calls, ['nope funnel reset', 'tailscale funnel reset', 'tailscale funnel --bg 3000']);
+  assert.equal(await repairFunnel(3000, { runImpl: async () => null, candidates: ['tailscale'] }), false);
+  assert.match(funnelRepairLines('https://pc.tailabcd.ts.net').join('\n'), /自動で登録しなおしました/);
+});

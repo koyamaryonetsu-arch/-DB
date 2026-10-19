@@ -197,3 +197,30 @@ export function funnelDnsWarning(url, state, ts = null) {
   lines.push('   直ったあと、数分で使えるようになります（この画面にも「もどりました」と出ます）。');
   return lines;
 }
+
+// ───── 外出先の アドレスを 自動で 登録しなおす（funnel-off → funnel-on と おなじ）─────
+// PC の スリープの あとなどに、Tailscale が 外出先の アドレスの 登録を 落とす ことが ある。
+// アカウント側の 許可（HTTPS・Funnel）は そろっているのに アドレスが 出ていない ときだけ、黒い 画面が 自分で やりなおす。
+// ・やりなおすのは 15分に 1回まで。3回 続けて だめなら、手で やる 案内に もどす（アドレスが 出たら 数えなおす）
+export const REPAIR_GAP_MS = 15 * 60 * 1000;
+export const REPAIR_MAX = 3;
+export const REPAIR_WAIT_MS = 10 * 60 * 1000; // やりなおして から、アドレスが 出るのを まつ 時間
+export function shouldRepairFunnel(state, ts, { lastAt = 0, tries = 0, now = Date.now() } = {}) {
+  return state === 'missing' && ts?.https === true && ts?.funnel === true && tries < REPAIR_MAX && now - lastAt >= REPAIR_GAP_MS;
+}
+export async function repairFunnel(port, { runImpl = run, candidates = CANDIDATES } = {}) {
+  for (const bin of candidates) {
+    const off = await runImpl(bin, ['funnel', 'reset'], 15000);
+    if (off === null) continue;
+    const on = await runImpl(bin, ['funnel', '--bg', String(port)], 20000);
+    return on !== null;
+  }
+  return false;
+}
+// 自動で やりなおした ときに 黒い 画面に 出す 文（まっている 間も 同じ 文 ＝ 何度も 出さない）
+export function funnelRepairLines(url) {
+  return [
+    `★ 外出先からのアドレス（${url}）が、インターネットに公開されていなかったので、自動で登録しなおしました。`,
+    '   数分で、外出先のスマホから開けるようになります（この画面にも「もどりました」と出ます）。',
+  ];
+}

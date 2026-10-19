@@ -12,7 +12,10 @@ import { acceptUpgrade } from './ws.js';
 import { FileStorage } from './storage.js';
 import { fileSyncStore } from './syncstore.js';
 import { clientAddress, isFromInternet, strongEnough, LoginGuard } from './guard.js';
-import { findFunnelUrl, tailscaleState, tailscaleWarning, funnelPublicDns, funnelDnsWarning, funnelNameWarning } from './funnel.js';
+import {
+  findFunnelUrl, tailscaleState, tailscaleWarning, funnelPublicDns, funnelDnsWarning, funnelNameWarning,
+  shouldRepairFunnel, repairFunnel, funnelRepairLines, REPAIR_WAIT_MS,
+} from './funnel.js';
 import { defaultDataDir, handOverOldSaves } from './savedir.js';
 import { readVersion } from './update.js';
 import { createErrorLog, captureConsole } from './errlog.js';
@@ -379,6 +382,8 @@ async function checkSleep() {
 
 // いま 黒い 画面に 出している Tailscale の 注意（かわった ときだけ 出しなおす）
 let tsWarned = '';
+// 外出先の アドレスを 自動で 登録しなおした 記録（server/funnel.js の shouldRepairFunnel）
+const funnelRepair = { lastAt: 0, tries: 0, ok: false };
 async function checkFunnel(print) {
   try {
     funnel = await findFunnelUrl(PORT);
@@ -398,8 +403,21 @@ async function checkFunnel(print) {
     try {
       // PC の 名前が かわって、外出先用の 設定が 古い 名前の まま
       const named = funnelNameWarning(funnel.url, ts?.dnsName);
-      // 名前は 同じなのに、アドレスが インターネットに 出ていない（Tailscale の がわで Funnel が 有効に なっていない）
-      warn = [...warn, ...(named.length ? named : funnelDnsWarning(funnel.url, await funnelPublicDns(new URL(funnel.url).hostname), ts))];
+      if (named.length) warn = [...warn, ...named];
+      else {
+        // 名前は 同じなのに、アドレスが インターネットに 出ていない
+        const state = await funnelPublicDns(new URL(funnel.url).hostname);
+        if (state === 'ok') funnelRepair.tries = 0;
+        if (shouldRepairFunnel(state, ts, funnelRepair)) {
+          // 許可は そろっているので、PC の Tailscale に 登録しなおしてもらう（funnel-off → funnel-on と おなじ）
+          funnelRepair.lastAt = Date.now();
+          funnelRepair.tries++;
+          funnelRepair.ok = await repairFunnel(PORT);
+          if (funnelRepair.ok) setTimeout(() => checkFunnel(false), 2 * 60 * 1000).unref();
+        }
+        const waiting = state === 'missing' && funnelRepair.ok && Date.now() - funnelRepair.lastAt < REPAIR_WAIT_MS;
+        warn = [...warn, ...(waiting ? funnelRepairLines(funnel.url) : funnelDnsWarning(funnel.url, state, ts))];
+      }
     } catch { /* */ }
   }
   if (print) {
