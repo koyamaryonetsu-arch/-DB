@@ -18,9 +18,21 @@ const onThisPc = () => /^(localhost|127\.|\[::1\])/.test(self.location.hostname)
 
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
+// スマホの 4G などでは、1回 とぎれても すぐ もどる ことが 多い。すぐに「つながりません」に しないで、
+// 少し まって 2回 やり直す（家の PC が 本当に とまっている ときは、3回とも だめなので 案内を 出す）
+const RETRY_WAIT = 1200;
+const wait = (ms) => new Promise((ok) => setTimeout(ok, ms));
+function fetchNav(req, tries) {
+  const again = () => wait(RETRY_WAIT).then(() => fetchNav(req, tries - 1));
+  return fetch(req).then(
+    (r) => (r.status >= 502 && r.status <= 504 && tries > 1 ? again() : r),
+    (err) => (tries > 1 ? again() : Promise.reject(err)),
+  );
+}
+
 self.addEventListener('fetch', (e) => {
   if (e.request.mode !== 'navigate') return;
-  e.respondWith(fetch(e.request).then(
+  e.respondWith(fetchNav(e.request, 3).then(
     (r) => (r.status >= 502 && r.status <= 504 ? downPage('server') : r),
     () => downPage(onThisPc() ? 'server' : 'pc'),
   ));
@@ -37,7 +49,7 @@ function downPage(kind = 'pc') {
   <p class="small">・黒い画面が「続行するには…」で止まった時は、閉じて start.bat をもう一度開く<br>・黒い画面がない時は、start.bat を開く</p>`
     : `<div class="gold">家族サーバーにつながりません</div>
   <p>家のPCまで、通信がとどいていません。</p>
-  <p class="small">・PCの電源が入っているか、スリープしていないか<br>・PCの Tailscale がつながっているか（外からは、このスマホで <a href="https://login.tailscale.com/admin/machines">login.tailscale.com</a> を開くと、PCが「Connected」か見られます）<br>・このページのアドレス（${esc(self.location.host)}）が、家族サーバーの黒い画面の「★外出先から」のアドレスと同じか（PCの名前を変えると、アドレスも変わります）</p>`;
+  <p class="small">・PCの電源が入っているか、スリープしていないか<br>・PCの Tailscale がつながっているか（外からは、このスマホで <a href="https://login.tailscale.com/admin/machines">login.tailscale.com</a> を開くと、PCが「Connected」か見られます）<br>・このページのアドレス（${esc(self.location.host)}）が、家族サーバーの黒い画面の「★外出先から」のアドレスと同じか（PCの名前を変えると、アドレスも変わります）<br>・このスマホにも Tailscale アプリが入っている時は、アプリを開いて「Connected」になっているか見る（なっていない時は、アプリでオフにしても外出先からつながります）</p>`;
   const html = `<!doctype html>
 <html lang="ja">
 <head>

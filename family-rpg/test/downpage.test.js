@@ -14,7 +14,9 @@ import { parseStandbyIdle, sleepSetting, sleepWarning } from '../server/power.js
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 // sw.js を にせの サービスワーカーの 中で 動かして、ページを 開いた ときの へんじを 見る
-async function swNavigate({ host = 'kizuna.taile0000.ts.net', result }) {
+async function swNavigate({ host = 'kizuna.taile0000.ts.net', result, results }) {
+  const queue = results ? [...results] : null;
+  let calls = 0;
   const handlers = {};
   const sandbox = {
     self: {
@@ -23,14 +25,20 @@ async function swNavigate({ host = 'kizuna.taile0000.ts.net', result }) {
       skipWaiting() {},
       clients: { claim: () => Promise.resolve() },
     },
-    fetch: () => (result instanceof Error ? Promise.reject(result) : Promise.resolve(result)),
+    fetch: () => {
+      calls++;
+      const r = queue ? queue.shift() : result;
+      return r instanceof Error ? Promise.reject(r) : Promise.resolve(r);
+    },
+    setTimeout: (fn) => setTimeout(fn, 0),
     Response, URL,
   };
   vm.runInNewContext(fs.readFileSync(path.join(ROOT, 'public', 'sw.js'), 'utf8'), sandbox);
   let responded = null;
   handlers.fetch({ request: { mode: 'navigate' }, respondWith: (p) => { responded = p; } });
   const res = await responded;
-  return { res, text: res === result ? null : await res.text() };
+  const plain = res instanceof Response && res.headers.get('Cache-Control') !== 'no-store';
+  return { res, calls, text: plain || res === result ? null : await res.text() };
 }
 
 test('止まっている 時の ページ: 家の PC まで とどかない（通信エラー）と、PC には とどくが 家族サーバーが 止まっている（502）を 見分ける', async () => {
@@ -123,4 +131,17 @@ test('PC の スリープの 設定: powercfg の 出力を 読んで、電源�
   assert.equal(asked, 'powercfg /query SCHEME_CURRENT SUB_SLEEP STANDBYIDLE');
   assert.equal(await sleepSetting({ platform: 'linux', runImpl }), null);
   assert.equal(await sleepSetting({ platform: 'win32', runImpl: async () => null }), null);
+});
+
+test('止まっている 時の ページ: 1回 とぎれても、やり直して つながれば ゲームの ページを 出す（スマホの 4G など）', async () => {
+  const ok = new Response('<html>ok</html>', { status: 200 });
+  const once = await swNavigate({ results: [new TypeError('Load failed'), ok] });
+  assert.equal(once.res, ok);
+  assert.equal(once.calls, 2);
+  const twice = await swNavigate({ results: [new TypeError('Load failed'), new Response('', { status: 502 }), ok] });
+  assert.equal(twice.res, ok);
+  // 3回 とも だめなら 案内
+  const down = await swNavigate({ results: [new TypeError('a'), new TypeError('b'), new TypeError('c')] });
+  assert.equal(down.calls, 3);
+  assert.match(down.text, /家のPCまで、通信がとどいていません/);
 });
