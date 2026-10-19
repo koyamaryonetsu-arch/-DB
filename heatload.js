@@ -761,6 +761,8 @@
     try { const { data, error } = await sb.from('theaters').select('homepage').eq('name', ctx.theater).maybeSingle(); return (!error && data && data.homepage) || ''; } catch (e) { return ''; }
   }
   async function readSeats(totalOnly) {
+    const inp = root() && root().querySelector('[data-thurl]');
+    if (inp && inp.value.trim() !== (S.th.url || '')) { S.th.url = inp.value.trim(); onChange(); }
     const url = (S.th.url || '').trim(); if (!url) return;
     const d = await callAI('seats', 'ホームページの読み取り', { url }); if (!d) return;
     saveHomepage(url);
@@ -941,6 +943,12 @@
     const el = root(); if (!el || el.dataset.hlBound) return; el.dataset.hlBound = '1';
     el.addEventListener('click', onClick);
     el.addEventListener('change', onChangeEv);
+    // ホームページの URL は、文字を入れた時点でボタンを押せるようにする（入力の確定を待つと、1回目に押しても動かないため）
+    el.addEventListener('input', (e) => {
+      if (!S || !e.target.dataset || !e.target.dataset.thurl) return;
+      const v = e.target.value.trim();
+      el.querySelectorAll('[data-act="thReadSeats"],[data-act="readTotal"]').forEach((b) => { b.disabled = !v || !!reading; });
+    });
     el.addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target.id === 'hlAddName') { e.preventDefault(); onClick({ target: el.querySelector('[data-act="addName"]') }); } });
     el.addEventListener('dragover', (e) => { const z = e.target.closest && e.target.closest('[data-drop]'); if (z) { e.preventDefault(); z.classList.add('over'); } });
     el.addEventListener('dragleave', (e) => { const z = e.target.closest && e.target.closest('[data-drop]'); if (z) z.classList.remove('over'); });
