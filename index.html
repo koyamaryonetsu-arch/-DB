@@ -6,6 +6,7 @@
 <title>案件管理</title>
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="shelf.css">
+<link rel="stylesheet" href="heatload.css">
 <script src="vendor/supabase.min.js"></script>
 <script src="vendor/jszip.min.js"></script>
 <script src="config.js"></script>
@@ -279,7 +280,7 @@
           <div class="sh-crumb" id="shCrumb"></div>
           <span class="sh-grow"></span>
           <div class="sh-seg" id="shFilter" role="group" aria-label="種類で絞り込む">
-            <button type="button" data-filter="all" class="on">すべて</button><button type="button" data-filter="kotei">📊 工程表</button><button type="button" data-filter="photo">📷 写真台帳</button>
+            <button type="button" data-filter="all" class="on">すべて</button><button type="button" data-filter="kotei">📊 工程表</button><button type="button" data-filter="photo">📷 写真台帳</button><button type="button" data-filter="heat">❄ 空調負荷計算</button>
           </div>
           <input type="search" id="shSearch" class="sh-search" placeholder="🔍 書類の名前で探す" aria-label="書類の名前で探す">
           <button type="button" class="sh-btn pri" id="shNewBtn">＋ 新しく作る</button>
@@ -295,6 +296,7 @@
       <input type="text" id="dtName" class="dt-name" aria-label="書類の名前">
       <span class="dt-saved" id="dtSaved" role="status"></span>
       <span class="dt-grow"></span>
+      <button type="button" class="dt-btn dt-pin hidden" id="dtPin" aria-pressed="false" title="この劇場の空調の「正式な計算書」にします（劇場ごとに1つ。テストの計算と混ざらないように）"><span class="sw"></span><span class="tx">劇場情報の基にする</span></button>
       <button type="button" class="dt-btn" id="dtSave" title="上書き保存（Ctrl+S）">💾 上書き保存</button>
       <button type="button" class="dt-btn" id="dtSaveAs">名前を付けて新規に保存</button>
       <button type="button" class="dt-btn" id="dtPrint">🖨 印刷 / PDF</button>
@@ -371,6 +373,9 @@
     </div>
 
     <!-- ===== 工事写真台帳ビュー ===== -->
+    <!-- ===== 空調負荷計算（heatload.js が中身を描く） ===== -->
+    <div id="viewHeat" class="hidden" aria-label="空調負荷計算"></div>
+
     <div id="viewPhoto" class="hidden">
       <div class="ph-left">
         <div class="ph-hdr">
@@ -948,7 +953,9 @@
 <div id="shToast" class="sh-toast hidden" role="status"></div>
 <!-- 写真台帳の印刷用（印刷の時だけ使う） -->
 <div id="photoPrint" class="photo-print"></div>
+<div id="heatPrint"></div>
 <script src="kotei.js"></script>
+<script src="heatload.js"></script>
 <script src="shelf.js"></script>
 </body>
 </html>

@@ -1,0 +1,191 @@
+/* ============================================================
+   空調負荷計算（heatload.js）の見た目。すべて #viewHeat の中だけに効かせる
+   ・計算書のページ（.hlpg）は印刷用の #heatPrint にも効かせる
+   ============================================================ */
+#viewHeat, #heatPrint {
+  --paper:#ffffff; --soft:#f6f8fb; --line:#e1e6ee; --line2:#eef1f5;
+  --ink:#18212f; --muted:#596476; --faint:#8b95a6;
+  --navy:#1f2a44; --accent:#2563eb; --accent-soft:#dbe7ff;
+  --ok:#15803d; --ok-soft:#dcfce7; --warn:#b45309; --warn-soft:#fef3c7; --ng:#c2261f; --ng-soft:#fde4e2;
+  --f-num:"BIZ UDGothic","Hiragino Kaku Gothic ProN",ui-monospace,monospace;
+  color:var(--ink);
+}
+#viewHeat { background:var(--soft); font-size:14px; line-height:1.6; min-height:calc(100dvh - 120px); }
+#viewHeat.hidden { display:none; }
+/* アプリ全体の table/button の決まり（style.css）をここでは使わない */
+#viewHeat button { padding:0; border:none; background:none; border-radius:0; font:inherit; color:inherit; cursor:pointer; }
+#viewHeat button:hover { background:none; }
+#viewHeat button:disabled { opacity:.45; cursor:not-allowed; }
+#viewHeat input, #viewHeat select { font:inherit; color:inherit; }
+#viewHeat table { border-collapse:collapse; width:100%; min-width:0; font-size:13px; }
+#viewHeat thead { background:none; }
+#viewHeat th { font-size:11.5px; color:var(--muted); font-weight:700; text-align:left; padding:7px 8px; background:#f8fafc; border-bottom:1px solid var(--line); white-space:nowrap; vertical-align:middle; }
+#viewHeat td { padding:6px 8px; border-bottom:1px solid var(--line2); vertical-align:middle; white-space:normal; text-align:left; }
+#viewHeat td input, #viewHeat td select { height:30px; border:1px solid #d3dae5; border-radius:6px; padding:0 7px; background:var(--paper); width:100%; min-width:60px; }
+#viewHeat td input[type=checkbox] { width:18px; height:18px; min-width:0; }
+#viewHeat td.r, #viewHeat th.r { text-align:right; }
+#viewHeat tr.chk td { background:#fffbeb; }
+#viewHeat :focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+#viewHeat .num { font-family:var(--f-num); font-variant-numeric:tabular-nums; }
+#viewHeat .src { font-size:11px; color:var(--faint); }
+#viewHeat .hint { font-size:12.5px; color:var(--muted); margin:0; }
+#viewHeat .hint.warn { color:var(--warn); }
+#viewHeat .u { font-size:11px; color:var(--faint); }
+#viewHeat .mt { margin-top:10px; }
+#viewHeat .row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:10px; }
+#viewHeat .row.tight { margin-top:4px; gap:4px; }
+#viewHeat .grow { flex:1; min-width:160px; }
+#viewHeat .row input:not([type=checkbox]), #viewHeat .row select, #viewHeat .grid2 select, #viewHeat .f select, #viewHeat .xin select { height:32px; border:1px solid #cdd5e1; border-radius:7px; padding:0 9px; background:var(--paper); }
+#viewHeat .w64 { width:64px !important; } #viewHeat .w72 { width:72px !important; } #viewHeat .w80 { width:80px !important; } #viewHeat .w110 { width:110px !important; }
+#viewHeat .xin input, #viewHeat .tog input[type=number], #viewHeat .hint input, #viewHeat .hint select { height:28px; border:1px solid #d3dae5; border-radius:6px; padding:0 7px; background:var(--paper); }
+
+/* ボタン・切り替え */
+#viewHeat .btn { height:32px; border-radius:8px; border:1px solid #cdd5e1; background:var(--paper); padding:0 11px; font-size:12.5px; font-weight:700; white-space:nowrap; display:inline-flex; align-items:center; gap:6px; }
+#viewHeat .btn:hover:not(:disabled) { background:var(--soft); }
+#viewHeat .btn.pri { background:var(--accent); border-color:var(--accent); color:#fff; }
+#viewHeat .btn.pri:hover:not(:disabled) { background:#1d4ed8; }
+#viewHeat .btn.sm { height:28px; font-size:12px; padding:0 9px; }
+#viewHeat .lnk { color:var(--accent); text-decoration:underline; font-size:12.5px; margin-right:8px; }
+#viewHeat .seg { display:inline-flex; border:1px solid #cdd5e1; border-radius:8px; overflow:hidden; background:var(--paper); flex-wrap:wrap; }
+#viewHeat .seg button { height:32px; padding:0 11px; font-size:12.5px; font-weight:700; color:var(--muted); }
+#viewHeat .seg button+button { border-left:1px solid var(--line); }
+#viewHeat .seg button.on { background:var(--navy); color:#fff; }
+#viewHeat .seg.sm2 button { height:28px; font-size:12px; padding:0 9px; }
+#viewHeat .sw { display:inline-block; vertical-align:middle; width:36px; height:20px; border-radius:10px; background:#cfd6e2; position:relative; flex:none; transition:background .15s; }
+#viewHeat .sw::after { content:""; position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.25); transition:left .15s; }
+#viewHeat .swb { margin-top:2px; }
+#viewHeat .swb[aria-pressed="true"] .sw { background:var(--accent); }
+#viewHeat .swb[aria-pressed="true"] .sw::after { left:18px; }
+#viewHeat .chip { display:inline-flex; align-items:center; gap:5px; font-size:11.5px; font-weight:700; border-radius:999px; padding:1px 9px; white-space:nowrap; }
+#viewHeat .chip.ok { background:var(--ok-soft); color:var(--ok); } #viewHeat .chip.warn { background:var(--warn-soft); color:var(--warn); } #viewHeat .chip.ng { background:var(--ng-soft); color:var(--ng); }
+#viewHeat .chip.ai { background:#ede9fe; color:#5b21b6; }
+#viewHeat .zdot { width:10px; height:10px; border-radius:3px; display:inline-block; flex:none; }
+
+/* 手順のタブ */
+#viewHeat .steps { display:flex; background:var(--paper); border-bottom:1px solid var(--line); overflow-x:auto; position:sticky; top:0; z-index:5; }
+#viewHeat .steps > button { padding:10px 16px; font-size:13px; font-weight:700; color:var(--muted); border-bottom:3px solid transparent; white-space:nowrap; display:flex; align-items:center; gap:7px; }
+#viewHeat .steps > button .n { width:20px; height:20px; border-radius:50%; background:var(--line); color:var(--muted); font-size:11px; display:inline-flex; align-items:center; justify-content:center; }
+#viewHeat .steps > button.on { color:var(--ink); border-bottom-color:var(--accent); }
+#viewHeat .steps > button.on .n { background:var(--accent); color:#fff; }
+#viewHeat .steps > button.done .n { background:var(--ok); color:#fff; }
+#viewHeat .stepunit { margin-left:auto; display:flex; align-items:center; gap:6px; padding:0 12px; }
+#viewHeat .hl-read { padding:0 16px; }
+#viewHeat .reading { display:flex; align-items:center; gap:10px; flex-wrap:wrap; font-size:13.5px; color:#5b21b6; font-weight:700; background:#f3efff; border:1px solid #ddd6fe; border-radius:8px; padding:8px 12px; margin-top:12px; }
+#viewHeat .stage { padding:16px; }
+#viewHeat .cols { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,440px); gap:16px; align-items:start; }
+@media (max-width:1050px) { #viewHeat .cols { grid-template-columns:1fr; } }
+#viewHeat .card { background:var(--paper); border:1px solid var(--line); border-radius:10px; padding:14px 16px; min-width:0; }
+#viewHeat .card h3 { margin:0 0 10px; font-size:15px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+#viewHeat .card h4 { margin:14px 0 6px; font-size:13px; color:var(--muted); display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+#viewHeat .grid2 { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px; }
+#viewHeat .grid2.two { grid-template-columns:repeat(2,minmax(0,1fr)); }
+#viewHeat .grid2.three { grid-template-columns:repeat(3,minmax(0,1fr)); }
+@media (max-width:560px) { #viewHeat .grid2.two, #viewHeat .grid2.three { grid-template-columns:1fr; } }
+#viewHeat .f { display:grid; gap:3px; min-width:0; }
+#viewHeat .f label { font-size:11.5px; font-weight:700; color:#3b4557; }
+#viewHeat .f > input, #viewHeat .f > select { height:34px; border:1px solid #d3dae5; border-radius:7px; padding:0 9px; background:var(--paper); min-width:0; width:100%; }
+#viewHeat .tbl { overflow-x:auto; }
+#viewHeat .big1 { font-size:18px; font-weight:700; }
+#viewHeat .bar2 { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:12px; }
+
+/* 入口 */
+#viewHeat .entry { max-width:900px; margin:10px auto; }
+#viewHeat .entry h3 { margin:0 0 4px; font-size:18px; }
+#viewHeat .ecards { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:14px; }
+@media (max-width:700px) { #viewHeat .ecards { grid-template-columns:1fr; } }
+#viewHeat .ecard { display:grid; gap:6px; justify-items:start; text-align:left; border:2px solid var(--line); border-radius:12px; background:var(--paper); padding:18px 20px; }
+#viewHeat .ecard:hover { border-color:var(--accent); box-shadow:0 0 0 4px var(--accent-soft); background:var(--paper); }
+#viewHeat .ecard .ei { font-size:30px; }
+#viewHeat .ecard b { font-size:18px; }
+#viewHeat .ecard > span { font-size:12.5px; color:var(--muted); }
+#viewHeat .ecard ul { margin:6px 0 0; padding-left:18px; font-size:13px; line-height:1.8; }
+
+/* ① ファイル */
+#viewHeat .files { display:grid; gap:8px; }
+#viewHeat .file { display:grid; grid-template-columns:44px 1fr auto; gap:10px; align-items:center; border:1px solid var(--line); border-radius:9px; padding:8px 10px; background:var(--paper); }
+#viewHeat .file .ic { width:44px; height:54px; border-radius:5px; background:#eef2f8; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:var(--muted); border:1px solid var(--line); }
+#viewHeat .file b { word-break:break-all; }
+#viewHeat .fbtns { display:flex; gap:6px; }
+#viewHeat .drop { display:block; border:2px dashed #c6cfdc; border-radius:10px; padding:14px; text-align:center; color:var(--muted); font-size:13px; background:#fbfcfe; margin-top:10px; cursor:pointer; }
+#viewHeat .drop:hover, #viewHeat .drop.over { border-color:var(--accent); background:#f1f6ff; }
+#viewHeat .flow { margin:12px 0 8px; padding:0; list-style:none; display:grid; gap:6px; counter-reset:f; }
+#viewHeat .flow li { display:grid; grid-template-columns:24px 1fr; gap:2px 8px; align-items:start; font-size:13px; counter-increment:f; color:var(--muted); }
+#viewHeat .flow li::before { content:counter(f); grid-row:span 2; width:22px; height:22px; border-radius:50%; background:var(--line); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; }
+#viewHeat .flow li.now { color:var(--ink); } #viewHeat .flow li.now::before { background:var(--accent); color:#fff; }
+#viewHeat .flow li.done::before { content:'✓'; background:var(--ok); color:#fff; }
+#viewHeat .flow li span { font-size:12px; }
+
+/* ② 部屋 */
+#viewHeat .rlist { display:grid; gap:6px; }
+#viewHeat .ritem { display:grid; grid-template-columns:auto 1fr auto; gap:8px; align-items:center; border:1px solid var(--line); border-radius:8px; padding:7px 9px; background:var(--paper); text-align:left; width:100%; cursor:pointer; }
+#viewHeat .ritem.on { border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft); }
+#viewHeat .ritem.off b { color:var(--faint); }
+#viewHeat .ritem input { width:18px; height:18px; }
+#viewHeat .rbtn { text-align:left; min-width:0; }
+#viewHeat .ritem .a { font-size:12.5px; color:var(--muted); }
+
+/* ③ 条件 */
+#viewHeat .cases { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
+@media (max-width:640px) { #viewHeat .cases { grid-template-columns:1fr; } }
+#viewHeat .case { border:1px solid var(--line); border-radius:9px; padding:10px; background:var(--paper); display:grid; gap:6px; }
+#viewHeat .case .t { font-weight:700; font-size:13px; }
+#viewHeat .tog { display:grid; grid-template-columns:auto 1fr; gap:10px; align-items:start; padding:8px 0; border-bottom:1px solid var(--line2); }
+#viewHeat .tog:last-child { border-bottom:none; }
+#viewHeat .tog .d { font-size:12px; color:var(--muted); }
+#viewHeat .xin { display:flex; flex-wrap:wrap; gap:6px 12px; align-items:center; margin:6px 0 2px; }
+#viewHeat .thsum { display:grid; gap:6px; }
+#viewHeat .thp { display:inline-flex; flex-wrap:wrap; gap:4px; align-items:center; }
+#viewHeat .thp input { width:72px; height:30px; border:1px solid #d3dae5; border-radius:6px; padding:0 6px; }
+
+/* ⑤ 結果 */
+#viewHeat .zcards { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:12px; }
+#viewHeat .zc { background:var(--paper); border:1px solid var(--line); border-radius:10px; padding:12px 14px; display:grid; gap:10px; border-top:4px solid var(--zc); }
+#viewHeat .zc .hd { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+#viewHeat .zc .hd b { font-size:15px; }
+#viewHeat .rec { background:var(--soft); border-radius:8px; padding:8px 10px; font-size:12.5px; }
+#viewHeat .rec b { color:var(--ink); }
+#viewHeat .verdict { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; border-radius:8px; padding:8px 12px; }
+#viewHeat .verdict b { font-size:20px; }
+#viewHeat .verdict.ok { background:var(--ok-soft); color:var(--ok); } #viewHeat .verdict.warn { background:var(--warn-soft); color:var(--warn); } #viewHeat .verdict.ng { background:var(--ng-soft); color:var(--ng); }
+#viewHeat .pair { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+#viewHeat .pair div { display:grid; gap:1px; align-content:start; }
+#viewHeat .pair span { font-size:11.5px; color:var(--muted); }
+#viewHeat .pair b { font-size:17px; }
+#viewHeat .vt { font-weight:700; } #viewHeat .vt.ok { color:var(--ok); } #viewHeat .vt.warn { color:var(--warn); } #viewHeat .vt.ng { color:var(--ng); }
+#viewHeat .why { font-size:12.5px; color:var(--muted); line-height:1.9; }
+#viewHeat .why > span { display:block; font-size:11.5px; font-weight:700; }
+#viewHeat .why b { color:var(--ink); }
+
+/* ⑥ 計算書（画面では縮小して並べる。印刷では A4） */
+#viewHeat .pages { display:flex; gap:16px; overflow-x:auto; padding:4px 2px 12px; margin-top:12px; }
+:is(#viewHeat,#heatPrint) .hlpg { flex:none; width:420px; min-height:594px; background:#fff; box-shadow:0 2px 10px rgba(0,0,0,.16); padding:26px 26px 26px; font-size:9.5px; line-height:1.55; color:#111; position:relative; font-family:"BIZ UDPGothic","Hiragino Kaku Gothic ProN","Noto Sans JP",Meiryo,sans-serif; box-sizing:border-box; }
+:is(#viewHeat,#heatPrint) .hlpg h5 { margin:0 0 6px; font-size:13px; border-bottom:2px solid #111; padding-bottom:3px; }
+:is(#viewHeat,#heatPrint) .hlpg h6 { margin:10px 0 4px; font-size:10.5px; }
+:is(#viewHeat,#heatPrint) .hlpg table { font-size:8.5px; table-layout:fixed; border-collapse:collapse; width:100%; min-width:0; }
+:is(#viewHeat,#heatPrint) .hlpg th, :is(#viewHeat,#heatPrint) .hlpg td { border:1px solid #777; padding:2px 4px; background:none; color:#111; white-space:normal; vertical-align:top; text-align:left; font-size:8.5px; font-weight:400; }
+:is(#viewHeat,#heatPrint) .hlpg th { background:#eef1f5; font-weight:700; }
+:is(#viewHeat,#heatPrint) .hlpg .r { text-align:right; }
+:is(#viewHeat,#heatPrint) .hlpg .mt { margin-top:6px; }
+:is(#viewHeat,#heatPrint) .hlpg .ft { position:absolute; left:0; right:0; bottom:10px; text-align:center; font-size:8px; color:#555; }
+:is(#viewHeat,#heatPrint) .hlpg .cover { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:540px; text-align:center; gap:10px; }
+:is(#viewHeat,#heatPrint) .hlpg .cover .c1 { font-size:20px; font-weight:700; }
+:is(#viewHeat,#heatPrint) .hlpg .cover .c2 { font-size:13px; }
+:is(#viewHeat,#heatPrint) .hlpg .cover .c3 { font-size:11px; }
+:is(#viewHeat,#heatPrint) .hlpg .cover .c4 { font-size:10px; margin-top:30px; }
+:is(#viewHeat,#heatPrint) .hlpg .cover .c5 { font-size:12px; font-weight:700; margin-top:40px; }
+#heatPrint { display:none; }
+@media print {
+  body.heat-printing > *:not(#heatPrint) { display:none !important; }
+  body.heat-printing { margin:0 !important; padding:0 !important; background:#fff !important; }
+  body.heat-printing #heatPrint { display:block !important; }
+  /* 画面の 420px のページを A4（210mm）に拡大する */
+  body.heat-printing #heatPrint .hlpg { zoom:1.888; width:420px; height:593px; min-height:0; overflow:hidden; box-shadow:none; break-after:page; page-break-after:always; margin:0; }
+  body.heat-printing #heatPrint .hlpg:last-child { break-after:auto; page-break-after:auto; }
+}
+
+.hl-toast { position:fixed; left:50%; bottom:calc(20px + env(safe-area-inset-bottom,0px)); transform:translateX(-50%); background:#1f2a44; color:#fff; border-radius:8px; padding:9px 16px; font-size:13px; box-shadow:0 8px 24px rgba(0,0,0,.25); z-index:3000; max-width:calc(100vw - 32px); }
+@media (max-width:640px) {
+  #viewHeat .stage { padding:10px; }
+  #viewHeat .stepunit { padding:0 8px; }
+  #viewHeat .steps > button { padding:10px 10px; }
+}

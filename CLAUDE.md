@@ -73,10 +73,13 @@
 ├── kotei.js            # 工程表（ガントチャート）の編集。開く/保存は shelf.js が担当
 ├── shelf.js            # 書類棚（工程表・工事写真台帳のフォルダ管理・上書き保存/名前を付けて新規に保存）＋写真台帳
 ├── shelf.css           # 書類棚・写真台帳の見た目（style.css とは別ファイル）
+├── heatload.js         # 空調負荷計算（書類棚の ❄）。シアター/シアター以外・計算・計算書（A4）。window.HL
+├── heatload.css        # 空調負荷計算の見た目（#viewHeat の中だけ）
 ├── img/ryonetsu-logo.png # 写真台帳の表紙のロゴ
 ├── api/
 │   ├── case-created.mjs # Supabase webhook → AI判断 → LINE通知
-│   └── line-webhook.mjs # LINE → Vercel（グループID取得・Phase 2双方向化用）
+│   ├── line-webhook.mjs # LINE → Vercel（グループID取得・Phase 2双方向化用）
+│   └── heatload-read.mjs # 空調負荷計算: 機器表・平面図・劇場HP を Opus で読む
 ├── vendor/
 │   ├── supabase.min.js # @supabase/supabase-js UMD（同梱）
 │   └── jszip.min.js    # JSZip UMD（同梱）
@@ -95,6 +98,7 @@
 |---|---|---|
 | `/api/case-created` | Supabase Webhook 受け口。INSERT on cases → Claude API でAI判断 → LINEグループにpush | `x-webhook-secret` header |
 | `/api/line-webhook` | LINE Messaging API Webhook 受け口。join時/「id」送信時に Group ID を返信 | `x-line-signature` HMAC |
+| `/api/heatload-read` | 空調負荷計算の読み取り（th-ac=機器表 / seats=劇場HPの座席数(web_fetch) / names=室名 / detail=選んだ部屋）。Opus 5.5・決まった形(JSON)で返す。ファイルは Storage heatload-files の期限付きURLで渡す | @ryonetsu.com の Supabase トークン |
 
 必要な環境変数（Vercel Project Settings → Environment Variables）:
 - `SUPABASE_WEBHOOK_SECRET`（任意の長い文字列）
@@ -186,6 +190,14 @@ DBの `theaters` テーブル + フロントの DEFAULT_THEATER_MASTER で管理
 ### 請求書/完了届
 JSZip で Excel テンプレート（templates.js）を直接書き換え。
 赤字(FFFF0000)を黒字(FF000000)に置換、印影位置のVML/画像は保持。
+
+### 空調負荷計算（書類棚の ❄）
+- 書類棚の「新しく作る」→「❄ 空調負荷計算」→「🎬 シアター／🏢 シアター以外」を選ぶ。保存は他の書類と同じ（上書き保存／名前を付けて新規に保存）
+- DB: `heat_loads`（SETUP_HEATLOAD.sql）。`is_basis`＝「劇場情報の基にする」📌。劇場ごとに1つ（部分ユニーク索引）。ごみ箱・別の劇場へ移動で外れる
+- 図面・機器表: Storage `heatload-files`（社内だけ）。劇場のホームページ: `theaters.homepage`
+- シアター: 必要空調能力＝躯体(1.5㎡/席×21℃×0.7)＋人体(85)＋外気(換気量×1.2×Δh)。照明0・余裕なし。室内25℃・54%（標準・変更可）
+- シアター以外: 更新は同じ形・同じメーカー（不明はダイキン）。床置きにはしない
+- kW ⇔ kcal/h は全画面・計算書に適用（混ぜない）。テスト: scratchpad の hltest/hl-e2e.js・hl-sb-e2e.js・api-test.mjs
 
 ## Supabase スキーマ変更時
 
