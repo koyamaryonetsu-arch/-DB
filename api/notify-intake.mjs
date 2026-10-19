@@ -20,16 +20,20 @@ function sbHeaders() {
 
 function buildIntakeMessage(row, waiting) {
   const cands = Array.isArray(row.candidates) ? row.candidates : [];
+  // 出どころ（GAS が件名の頭に【LINE】【Plaud】を付ける。無ければメール）
+  const t = String(row.title || '');
+  const srcName = /^【LINE】/.test(t) ? 'LINE' : /^【Plaud】/.test(t) ? '会議・電話の記録' : 'メール';
+  const fromTalk = srcName !== 'メール';
   const lines = [
     '❓ 新規か更新か確認してください',
-    '（似た案件があるため、まだ登録していません）',
+    fromTalk ? `（${srcName}の話から見つけた案件のため、まだ登録していません）` : '（似た案件があるため、まだ登録していません）',
     '━━━━━━━━━━━━',
     `会社: ${row.company || '-'}`,
     `劇場: ${row.theater || '-'}`,
     `受付日: ${row.received_date || '-'}`,
     `件名: ${(row.title || '-').slice(0, 60)}`,
     '',
-    '【メールの内容】',
+    `【${srcName}の内容】`,
     String(row.content || '(未記入)').slice(0, 300)
   ];
   if (row.reason) lines.push('', `【迷った理由】${String(row.reason).slice(0, 150)}`);
