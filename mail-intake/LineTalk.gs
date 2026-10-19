@@ -17,7 +17,8 @@
  *
  * ※ TheaterInfo.gs / Code.gs と同じプロジェクトに置く
  *    （extractTheaterInfo_ / routeTheaterItem_ / tiTheaterExists_ / normalizeCompany_ / cfg_ を流用）。
- * ※ 有効化: 本ファイルを貼付 → setupLineTalkTrigger() を1回実行（毎日AM2時トリガー作成）。
+ * ※ 2026-10 から: 毎日AM2時のこの処理はやめ、Conversations.gs の updateFromLineAndPlaud（10時・18時）に一本化。
+ *   setupLineTalkTrigger() は使わない（setupConversationTriggers() を使う）。下の読み取りの部品は Conversations.gs も使う。
  */
 
 // 既定の対象スプレッドシート（シネマPJ LINEトーク履歴）。

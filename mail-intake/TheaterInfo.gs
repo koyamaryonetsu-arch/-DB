@@ -169,7 +169,8 @@ function tiExtractOfficeText_(a) {
 }
 
 // ===== Claude: メール本文＋添付から劇場情報の新事実を抽出 =====
-function extractTheaterInfo_(apiKey, text, mediaBlocks) {
+// aiOpts（任意）: { model, effort } … LINE・Plaud は Sonnet 5.5 で読む（Conversations.gs）
+function extractTheaterInfo_(apiKey, text, mediaBlocks, aiOpts) {
   var sys = [
     'あなたはシネコン設備の保守/工事会社のデータ整理担当です。メール本文と添付資料（点検報告書・機器台帳・',
     '図面・見積書・名刺など）を読み、劇場設備台帳に追記すべき「新しい事実」だけをJSONで出力（前後に文章なし）。',
@@ -194,7 +195,7 @@ function extractTheaterInfo_(apiKey, text, mediaBlocks) {
   // 添付が無ければ安いモデル(既定Haiku)。添付ありは視覚対応モデル(既定Sonnet)で本文＋画像/PDFを読む
   if (!mediaBlocks || !mediaBlocks.length) {
     // 抽出項目が多いと1200では途中で切れることがあるため余裕を持たせる
-    return safeJson_(anthropicText_(apiKey, sys, text, 2000));
+    return safeJson_(anthropicText_(apiKey, sys, text, 2000, aiOpts));
   }
   var content = [{ type: 'text', text: text }].concat(mediaBlocks);
   // 呼び方は Code.gs の anthropicText_ に任せる（最新モデルの「考えた内容」を飛ばして答えを読む・

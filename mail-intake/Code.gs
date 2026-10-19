@@ -261,11 +261,12 @@ function suggestTasksFromMail_(th, m) {
   } catch (e) { Logger.log('タスク提案(メール)エラー: ' + e); return 0; }
 }
 // 文章からやることを拾って task_suggestions に入れる。入れた件数を返す
-function suggestTasksFromText_(apiKey, text, source, keyPrefix, sourceUrl) {
+// aiOpts（任意）: { model, effort } … LINE・Plaud は Sonnet 5.5 で読む（Conversations.gs）。CV_DRY の時は書き込まない
+function suggestTasksFromText_(apiKey, text, source, keyPrefix, sourceUrl, aiOpts) {
   var today = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy-MM-dd');
   var sys = [
     'あなたは菱熱工業（シネコン設備の保守・工事会社）の業務アシスタントです。',
-    'メールやLINEのやり取りから、菱熱工業のメンバーがこれからやるべき具体的な作業（個人タスク）を拾い出します。JSONのみ出力（前後に文章なし）。',
+    'メールやLINEのやり取り、会議・電話の記録（Plaud の要約）から、菱熱工業のメンバーがこれからやるべき具体的な作業（個人タスク）を拾い出します。JSONのみ出力（前後に文章なし）。',
     '菱熱工業のメンバー（苗字）: ' + JSON.stringify(RYONETSU_MEMBERS),
     '拾うもの: メンバーが頼まれた・引き受けた・約束した、まだ終わっていない作業。',
     '  例: 資料や見積書を送る／日程を連絡する／発注・手配する／確認して回答する／現地へ行く／書類を作る。',
@@ -276,10 +277,10 @@ function suggestTasksFromText_(apiKey, text, source, keyPrefix, sourceUrl) {
     'text: 30字以内。「劇場名：やること」（劇場が無ければ「やること」だけ）。動詞で終える。例「平和島：厨房水道の見積りを送る」。',
     'due: 期限が書いてあれば YYYY-MM-DD。今日は ' + today + '。「明日」「今週中」「来週月曜」などは日付に直す。無ければ空文字。',
     'reason: 根拠を40字以内（誰が何と言ったか）。',
-    'confidence: 0〜1。確信が持てないものは出さない。最大5件。無ければ空配列。',
+    'confidence: 0〜1。確信が持てないものは出さない。最大' + (source === 'plaud' ? 10 : 5) + '件。無ければ空配列。',
     'スキーマ: {"tasks":[{"person":string,"text":string,"due":string,"reason":string,"confidence":number}]}'
   ].join('\n');
-  var j = safeJson_(anthropicText_(apiKey, sys, text, 800));
+  var j = safeJson_(anthropicText_(apiKey, sys, text, source === 'plaud' ? 1500 : 800, aiOpts));
   var list = (j && Array.isArray(j.tasks)) ? j.tasks : [];
   var rows = [];
   list.forEach(function (t) {
@@ -296,6 +297,7 @@ function suggestTasksFromText_(apiKey, text, source, keyPrefix, sourceUrl) {
     });
   });
   if (!rows.length) return 0;
+  if (typeof CV_DRY !== 'undefined' && CV_DRY) { Logger.log('[確認だけ] タスクを提案: ' + rows.map(function (r) { return r.person + '「' + r.text + '」'; }).join(' / ')); return rows.length; }
   var key = cfg_('SUPABASE_SERVICE_ROLE_KEY');
   if (!key) return 0;
   // 同じ dedupe_key が既にあれば入れない（破棄・登録済みの提案を復活させない）
@@ -706,7 +708,8 @@ function findNearbyActiveCases_(p, received) {
 
 // 確認待ちとして case_intake_pending に積み、LINEで「新規か更新か」を問い合わせる。
 // 案件は登録しない（人がアプリでボタンを押した時に登録/更新される）。
-function queueIntakeConfirm_(p, received, m, th, reason, candidates) {
+// srcUrl（任意）: メール以外（LINE・Plaud）の時の、元の記録へのリンク
+function queueIntakeConfirm_(p, received, m, th, reason, candidates, srcUrl) {
   var key = cfg_('SUPABASE_SERVICE_ROLE_KEY');
   if (!key) { Logger.log('SUPABASE_SERVICE_ROLE_KEY未設定のため確認キューに積めません'); return ''; }
   var cands = candidates || [];
@@ -736,7 +739,7 @@ function queueIntakeConfirm_(p, received, m, th, reason, candidates) {
         estimate_name: x.estimate_name || '', content: String(x.content || '').slice(0, 200)
       };
     }),
-    thread_url: th ? threadUrl_(th) : ''
+    thread_url: th ? threadUrl_(th) : (srcUrl || '')
   };
   var res = UrlFetchApp.fetch(SUPABASE_URL_() + '/rest/v1/case_intake_pending', {
     method: 'post', contentType: 'application/json',
@@ -859,7 +862,8 @@ function insertCase_(f) {
 }
 
 // ===== Supabase: 進捗UPDATE（該当案件に日付/内容を反映） =====
-function updateCase_(matched, prog, summary, quote) {
+// tag（任意）: 社内メモに付ける印。既定は「AI自動更新」（メール）。LINE・Plaud は「LINE自動更新」「Plaud自動更新」
+function updateCase_(matched, prog, summary, quote, tag) {
   var key = cfg_('SUPABASE_SERVICE_ROLE_KEY');
   if (!key) return;
   var patch = {};
@@ -886,7 +890,7 @@ function updateCase_(matched, prog, summary, quote) {
     var today = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy-MM-dd');
     var base = reformatProgress_(String(matched.memo || '')); // 既存の詰まった進捗も読みやすく再整形
     // AIが自動更新したものと分かるようタグを付ける（内容への要約時はこのタグは含めない）
-    var block = '【AI自動更新 ' + today + '】\n' + note;
+    var block = '【' + (tag || 'AI自動更新') + ' ' + today + '】\n' + note;
     patch.memo = base ? (base + '\n\n' + block) : block;
   } else if (note) {
     Logger.log('社内メモと重複のため追記せず: id=' + matched.id);
