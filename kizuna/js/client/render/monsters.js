@@ -1,20 +1,20 @@
 // モンスターの え（ベクターで かいて ドットえに へんかん）
 // すべて オリジナルの デザイン
 // 2ばいの こまかさで かいて ドットえに → Scale2x で 4ばい → ひかり・かげ・ふちどり（res 4）
-import { makeCanvas, ctxOf, pixelize, shade, painterFrom, scale2x, outline2, volumeShade } from './pixel.js?v=fdf2e7d68566';
-import { MONSTERS } from '../../shared/data/monsters.js?v=fdf2e7d68566';
-import { tintCanvas } from './themes.js?v=fdf2e7d68566';
-import { addNightArt } from './night-art.js?v=fdf2e7d68566';
-import { addRareArt } from './rare-art.js?v=fdf2e7d68566';
-import { addCh3Art } from './ch3-art.js?v=fdf2e7d68566';
-import { addCh4Art } from './ch4-art.js?v=fdf2e7d68566';
-import { addR23Art } from './r23-art.js?v=fdf2e7d68566';
-import { addCh5Art } from './ch5-tower-art.js?v=fdf2e7d68566';
-import { addKumoiArt } from './ch5-kumoi-mon-art.js?v=fdf2e7d68566';
-import { addHoshiyomiArt } from './ch5-hoshiyomi-mon-art.js?v=fdf2e7d68566';
-import { addEarthArt } from './ch5-earth-mon-art.js?v=fdf2e7d68566';
+import { makeCanvas, ctxOf, pixelize, shade, painterFrom, scale2x, outline2, volumeShade } from './pixel.js?v=81a20c4ee58e';
+import { MONSTERS } from '../../shared/data/monsters.js?v=81a20c4ee58e';
+import { tintCanvas } from './themes.js?v=81a20c4ee58e';
+import { addNightArt } from './night-art.js?v=81a20c4ee58e';
+import { addRareArt } from './rare-art.js?v=81a20c4ee58e';
+import { addCh3Art } from './ch3-art.js?v=81a20c4ee58e';
+import { addCh4Art } from './ch4-art.js?v=81a20c4ee58e';
+import { addR23Art } from './r23-art.js?v=81a20c4ee58e';
+import { addCh5Art } from './ch5-tower-art.js?v=81a20c4ee58e';
+import { addKumoiArt } from './ch5-kumoi-mon-art.js?v=81a20c4ee58e';
+import { addHoshiyomiArt } from './ch5-hoshiyomi-mon-art.js?v=81a20c4ee58e';
+import { addEarthArt } from './ch5-earth-mon-art.js?v=81a20c4ee58e';
 // 第37回 A: サファラ闘技場の 王者（arena-art.js）
-import { addArenaArt } from './arena-art.js?v=fdf2e7d68566';
+import { addArenaArt } from './arena-art.js?v=81a20c4ee58e';
 
 export const MRES = 4; // できあがりの こまかさ（せかいの 1ドットを 4×4 で かく）
 const OUT = '#130d24';

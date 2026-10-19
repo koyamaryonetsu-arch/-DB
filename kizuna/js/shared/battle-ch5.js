@@ -13,22 +13,22 @@
 //   合体技（ミナデインも）・にげる・混乱した 時の 行動は 読まれない（読みは 消える）
 // ・オートの 仲間: 読まれた 種類の 行動を さけて、ちがう 行動を えらぶ（towerPlan）。シミュレーター（tools/sim.js）の
 //   b.argosNaive … 知らない 人（読まれても そのまま）／ b.knowsArgos … 知っている 人（星のさばきの 前に 身を 守る も）
-import { MONSTERS } from './data/monsters.js?v=fdf2e7d68566';
-import { ABILITIES } from './data/abilities.js?v=fdf2e7d68566';
-import { abilityFor } from './ability-label.js?v=fdf2e7d68566';
-import { ITEMS } from './data/items.js?v=fdf2e7d68566';
-import { mpCost, penaltyFor } from './stats.js?v=fdf2e7d68566';
+import { MONSTERS } from './data/monsters.js?v=81a20c4ee58e';
+import { ABILITIES } from './data/abilities.js?v=81a20c4ee58e';
+import { abilityFor } from './ability-label.js?v=81a20c4ee58e';
+import { ITEMS } from './data/items.js?v=81a20c4ee58e';
+import { mpCost, penaltyFor } from './stats.js?v=81a20c4ee58e';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { atbRate } from './battle.js?v=fdf2e7d68566';
-import { canUse } from './ai.js?v=fdf2e7d68566';
+import { atbRate } from './battle.js?v=81a20c4ee58e';
+import { canUse } from './ai.js?v=81a20c4ee58e';
 // 第5章 Step 4: ガイアイーターの 多部位の 戦い（battle-gaia.js。ここから よぶ）
-import { gaiaEffect, gaiaCond, gaiaKill, gaiaPlan, gaiaPub } from './battle-gaia.js?v=fdf2e7d68566';
+import { gaiaEffect, gaiaCond, gaiaKill, gaiaPlan, gaiaPub } from './battle-gaia.js?v=81a20c4ee58e';
 // 第5章 Step 5: ノクトの影（職業の まね・合体技の よやくを こわす。battle-nocto.js。ここから よぶ）
-import { noctoCond, noctoEffect, noctoCheck, noctoKill, noctoPlan, noctoPub } from './battle-nocto.js?v=fdf2e7d68566';
+import { noctoCond, noctoEffect, noctoCheck, noctoKill, noctoPlan, noctoPub } from './battle-nocto.js?v=81a20c4ee58e';
 // 第5章 Step 6・7: ノクト（1回目）・大地の神殿の 魔物（かげぶんしん・地われ・まもる・おこる。battle-earth.js。ここから よぶ）
-import { earthCond, earthEffect, earthKill, earthPlan, earthPub, earthTurnStart } from './battle-earth.js?v=fdf2e7d68566';
+import { earthCond, earthEffect, earthKill, earthPlan, earthPub, earthTurnStart } from './battle-earth.js?v=81a20c4ee58e';
 // 第37回 A: サファラ闘技場の 王者の しかけ（チームの 合体技・属性の よろい）
-import { arenaCond, arenaEffect } from './battle-arena.js?v=fdf2e7d68566';
+import { arenaCond, arenaEffect } from './battle-arena.js?v=81a20c4ee58e';
 
 export const ARGOS = 'argos';
 export const JUDGE = 'm_argos_judge';
