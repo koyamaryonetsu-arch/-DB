@@ -640,7 +640,7 @@
     $('viewKotei').classList.toggle('hidden', type !== 'kotei');
     $('viewPhoto').classList.toggle('hidden', type !== 'photo');
     $('viewHeat').classList.toggle('hidden', type !== 'heat');
-    $('dtExcel').classList.toggle('hidden', type !== 'kotei');
+    $('dtExcel').classList.toggle('hidden', type !== 'kotei' && type !== 'heat');
     $('dtPin').classList.toggle('hidden', type !== 'heat');
   }
   function showShelf() {
@@ -807,7 +807,10 @@
   $('dtSaveAs').addEventListener('click', saveAs);
   $('dtPrint').addEventListener('click', () => { if (!S.cur) return; if (S.cur.type === 'kotei') { window.KOTEI.setTitle(currentName()); window.KOTEI.print(); } else if (S.cur.type === 'heat') { window.HL.setTitle(currentName()); window.HL.print(); } else PH.print(); });
   $('dtPin').addEventListener('click', togglePin);
-  $('dtExcel').addEventListener('click', () => { if (S.cur && S.cur.type === 'kotei') { window.KOTEI.setTitle(currentName()); window.KOTEI.excel(); } });
+  $('dtExcel').addEventListener('click', () => {
+    if (S.cur && S.cur.type === 'kotei') { window.KOTEI.setTitle(currentName()); window.KOTEI.excel(); }
+    if (S.cur && S.cur.type === 'heat') { window.HL.setTitle(currentName()); window.HL.excel(); }
+  });
   $('dtName').addEventListener('input', () => { sizeName(); if (S.cur && S.cur.type === 'kotei') window.KOTEI.setTitle(currentName()); if (S.cur && S.cur.type === 'heat') window.HL.setTitle(currentName()); markDirty(); });
   $('dtName').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); e.target.blur(); } });
   document.addEventListener('keydown', (e) => {

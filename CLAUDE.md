@@ -75,6 +75,8 @@
 ├── shelf.css           # 書類棚・写真台帳の見た目（style.css とは別ファイル）
 ├── heatload.js         # 空調負荷計算（書類棚の ❄）。シアター/シアター以外・計算・計算書（A4）。window.HL
 ├── heatload.css        # 空調負荷計算の見た目（#viewHeat の中だけ）
+├── heatload-xlsx.js    # 空調負荷計算の Excel（式でつながる・黄色＝入力・灰色＝基準値）。window.HLXL
+├── xlsx-lite.js        # Excel(.xlsx) を作る小さな部品（式・名前の定義・プルダウン・リンク・条件付き書式）
 ├── img/ryonetsu-logo.png # 写真台帳の表紙のロゴ
 ├── api/
 │   ├── case-created.mjs # Supabase webhook → AI判断 → LINE通知
@@ -198,6 +200,7 @@ JSZip で Excel テンプレート（templates.js）を直接書き換え。
 - シアター: 必要空調能力＝躯体(1.5㎡/席×21℃×0.7)＋人体(85)＋外気(換気量×1.2×Δh)。照明0・余裕なし。室内25℃・54%（標準・変更可）
 - シアター以外: 更新は同じ形・同じメーカー（不明はダイキン）。床置きにはしない
 - kW ⇔ kcal/h は全画面・計算書に適用（混ぜない）。テスト: scratchpad の hltest/hl-e2e.js・hl-sb-e2e.js・api-test.mjs
+- Excel（📊）: セルは式でつながる。黄色＝入力、白＝式、灰色＝基準値。式の結果も入れて出す（開くと再計算）。検算は hltest/verify.py（LibreOffice で再計算して全セル比較）・edit-verify.py（黄色を変えて Web と比較）
 
 ## Supabase スキーマ変更時
 

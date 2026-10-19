@@ -968,6 +968,22 @@
   }
 
   /* ============================================================
+     Excel（式でつながった計算書。heatload-xlsx.js が作る）
+     ============================================================ */
+  async function excel() {
+    if (!S || !S.kind) { alert('先に「シアター」か「シアター以外」かを選んでください'); return; }
+    if (S.kind === 'other' && !zonesOn().length) { alert('計算する部屋がありません'); return; }
+    if (!window.HLXL) { alert('Excel を作る部品が読み込まれていません'); return; }
+    try {
+      const blob = await window.HLXL.build(window.HL._x()).blob();
+      const name = (docTitle() || '空調負荷計算').replace(/[\\/:*?"<>|\s]+/g, '_') + '.xlsx';
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click();
+      setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+      toast('Excel を作りました（黄色のセルを変えると計算し直されます）');
+    } catch (e) { console.error(e); alert('Excel を作れませんでした：' + ((e && e.message) || e)); }
+  }
+
+  /* ============================================================
      書類棚（shelf.js）から使う
      ============================================================ */
   function newData(o) {
@@ -994,6 +1010,9 @@
     setTitle: (n) => { ctx.name = n || ''; },
     leave: () => {},
     busy: () => uploading > 0 || !!reading,
-    _calc: (ci) => calc(ci), _thRows: (ci) => thRows(ci), _hzOfAddress: hzOfAddress
+    excel: () => excel(),
+    _calc: (ci) => calc(ci), _thRows: (ci) => thRows(ci), _hzOfAddress: hzOfAddress,
+    // Excel を作る部品（heatload-xlsx.js）に、計算のもとを渡す
+    _x: () => ({ S, ctx, docTitle: docTitle(), theaterName: theaterName(), jpToday: jpToday(), TH_STD, HOURS, DT, SHGF, ETD, K, PEOPLE, PEOPLE_N, CATALOG, cat, FORM_STEPS, FORMS, REPL_FORM, PHP, DEG, PASS_VOL, BASE_ZONES, zonesOn, zoneOf, ZONES: () => ZONES, ZK: () => ZK, calc, thRows, thPer, famOf, capFactorT, xOf, hOf, lobbyPeople, extraPeople, extraFlow, hoodInflow, sameFormPlan, replCombo, cat })
   };
 })();
