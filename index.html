@@ -106,6 +106,9 @@
         <button id="userMenuBtn" class="hdr-user" aria-haspopup="true" aria-expanded="false"><span class="hdr-av" aria-hidden="true">👤</span>▾</button>
         <div id="userMenu" class="hdr-pop right hidden" role="menu">
           <div class="pop-mi" id="userEmail"></div>
+          <div class="pop-mi meeting-info hidden" id="meetingInfo"></div>
+          <button id="meetingBtn" type="button" class="pop-item hidden" title="客先と一緒に画面を見る時に。選んだ会社の客先の見せ方になり、ほかの会社は表示されません">🤝 打合せモード（客先の画面で見せる）</button>
+          <button id="meetingEndBtn" type="button" class="pop-item hidden">打合せモードを終わる</button>
           <div class="pop-sep"></div>
           <div class="pop-mi zoom-control" title="表の表示倍率を変えて全体を見やすくします">
             <span class="zoom-label">表示倍率</span>
@@ -874,6 +877,25 @@
     </div>
     <div class="modal-footer">
       <button type="button" id="tmCloseBtn" class="primary">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<!-- 打合せモード: どの客先の画面で見せるかを選ぶ -->
+<div id="meetingModal" class="modal hidden">
+  <div class="modal-content meeting-modal">
+    <div class="modal-header">
+      <h2>🤝 打合せモード</h2>
+      <button id="closeMeetingModal" class="close-btn" aria-label="閉じる" tabindex="-1">×</button>
+    </div>
+    <div class="meeting-body">
+      <p>客先と一緒に画面を見る時に使います。選んだ会社の<b>客先の見せ方</b>に切り替わり、<b>ほかの会社の案件・劇場は表示されません</b>（社内用のメモ・集計・書類棚なども出ません）。</p>
+      <p><b>どの客先の画面で見せますか？</b></p>
+      <div id="meetingList" class="meeting-list"></div>
+      <p class="modal-hint">終わる時は、右上の 🤝 →「打合せモードを終わる」。このタブを閉じても終わります。</p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" id="meetingCancelBtn">やめる</button>
     </div>
   </div>
 </div>
