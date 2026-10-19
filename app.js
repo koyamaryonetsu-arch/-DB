@@ -6036,7 +6036,7 @@
       teams: () => { try { return loadTeam(); } catch (e) { return []; } },
       companies: () => { try { return companies.map((c) => ({ name: c.name, abbr: c.abbr, officialName: c.officialName || '' })); } catch (e) { return []; } },
       // 書類棚(shelf.js)用: 劇場マスタ・案件（見えている分）・ログイン中の人
-      theaters: () => { try { return theaterMaster.map((t) => ({ name: t.name, company: t.company })); } catch (e) { return []; } },
+      theaters: () => { try { return theaterMaster.map((t) => ({ name: t.name, company: t.company, address: t.address || '' })); } catch (e) { return []; } },
       cases: () => { try { return visibleCases().map((c) => ({ id: c.id, company: c.company, theater: c.theater, estimateName: c.estimateName || '', content: c.content || '' })); } catch (e) { return []; } },
       shortTheater: (name) => shortTheaterName(name),
       userEmail: () => (currentUser && currentUser.email) || ''

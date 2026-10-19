@@ -23,7 +23,8 @@
   const jpDay = (s) => { if (!s) return ''; const [y, m, d] = String(s).slice(0, 10).split('-'); return y + '/' + m + '/' + d; };
   const fmtUpdated = (s) => { if (!s) return ''; const d = new Date(s); if (isNaN(d)) return ''; return isoDay(d).replace(/-/g, '/') + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()); };
   const hhmm = (s) => { const d = new Date(s || Date.now()); return pad(d.getHours()) + ':' + pad(d.getMinutes()); };
-  const TYPES = { kotei: { table: 'koutei', label: '工程表', icon: '📊' }, photo: { table: 'photo_ledgers', label: '写真台帳', icon: '📷' } };
+  const TYPES = { kotei: { table: 'koutei', label: '工程表', icon: '📊' }, photo: { table: 'photo_ledgers', label: '写真台帳', icon: '📷' }, heat: { table: 'heat_loads', label: '空調負荷計算', icon: '❄' } };
+  const DEFAULT_NAME = { kotei: '工程表', photo: '工事写真台帳', heat: '空調負荷計算' };
   const TRASH_DAYS = 30;
   const UNSET = '（劇場未設定）';
   const BUCKET = 'ledger-photos';
@@ -34,7 +35,7 @@
   const LS_DOCS = 'shelfDocsV1', LS_FOLDERS = 'shelfFoldersV1', LS_MIGRATED = 'shelfMigratedV1';
   const lsGet = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } };
   const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } };
-  let setupMissing = { kotei: false, photo: false, folders: false };   // SETUP_SHELF.sql 未実行の時の印
+  let setupMissing = { kotei: false, photo: false, heat: false, folders: false };   // SETUP_SHELF.sql 未実行の時の印
 
   function migrateLocalOnce() {
     if (lsGet(LS_MIGRATED, false)) return;
@@ -47,7 +48,7 @@
     lsSet(LS_DOCS, all); lsSet(LS_MIGRATED, true);
   }
   const rowOf = (type, r) => ({
-    id: r.id, type, name: r.name || (type === 'kotei' ? '工程表' : '工事写真台帳'), company: r.company || '', theater: r.theater || '',
+    id: r.id, type, name: r.name || DEFAULT_NAME[type], company: r.company || '', theater: r.theater || '', is_basis: !!r.is_basis,
     folder_id: r.folder_id || null, case_id: r.case_id || null, data: r.data || {}, updated_at: r.updated_at || '',
     updated_by_name: r.updated_by_name || '', deleted_at: r.deleted_at || null
   });
@@ -56,14 +57,14 @@
       const sb = sbc();
       if (!sb) { migrateLocalOnce(); const all = lsGet(LS_DOCS, {}); return Object.keys(all).map((k) => rowOf(all[k].type, all[k])); }
       const out = [];
-      for (const type of ['kotei', 'photo']) {
-        let res = await sb.from(TYPES[type].table).select('id,name,company,theater,folder_id,case_id,data,updated_at,updated_by_name,deleted_at');
+      for (const type of ['kotei', 'photo', 'heat']) {
+        let res = await sb.from(TYPES[type].table).select('id,name,company,theater,folder_id,case_id,data,updated_at,updated_by_name,deleted_at' + (type === 'heat' ? ',is_basis' : ''));
         if (res.error && type === 'kotei') {   // 列がまだ無い（SQL未実行）→ 今までの列だけで読む
           setupMissing.kotei = true;
           res = await sb.from('koutei').select('id,name,data,updated_at');
         } else if (type === 'kotei') setupMissing.kotei = false;
-        if (res.error) { if (type === 'photo') { setupMissing.photo = true; continue; } throw res.error; }
-        if (type === 'photo') setupMissing.photo = false;
+        if (res.error) { if (type === 'photo' || type === 'heat') { setupMissing[type] = true; continue; } throw res.error; }
+        if (type === 'photo' || type === 'heat') setupMissing[type] = false;
         (res.data || []).forEach((r) => out.push(rowOf(type, r)));
       }
       return out;
@@ -294,6 +295,7 @@
   }
   function subOf(r) {
     if (r.type === 'kotei') { try { return window.KOTEI.summary(r.data); } catch (e) { return ''; } }
+    if (r.type === 'heat') { try { return window.HL.summary(r.data); } catch (e) { return ''; } }
     const n = ((r.data && r.data.items) || []).length;
     return '写真 ' + n + ' 枚';
   }
@@ -301,6 +303,7 @@
     const l = S.loc, rows = listRows();
     let h = '';
     if (setupMissing.kotei || setupMissing.photo) h += `<div class="sh-warn">⚠ データベースの準備がまだです（SETUP_SHELF.sql を Supabase で1回実行してください）。${setupMissing.photo ? '写真台帳はまだ使えません。' : ''}${setupMissing.kotei ? '工程表は今までどおり開けますが、フォルダ分けはまだできません。' : ''}</div>`;
+    if (setupMissing.heat && S.filter === 'heat') h += `<div class="sh-warn">⚠ 空調負荷計算のデータベースの準備がまだです（SETUP_HEATLOAD.sql を Supabase で1回実行してください）。</div>`;
     let body = '';
     // 会社を選んでいる時は劇場のフォルダ、劇場を選んでいる時は自分で作ったフォルダを先に並べる
     if (l.kind === 'place' && !l.th && !S.q) theatersOf(l.co).forEach((th) => {
@@ -318,8 +321,8 @@
         : `<button type="button" class="sh-mini pri" data-openid="${esc(r.id)}">開く</button> <button type="button" class="sh-mini" data-dmenu="${esc(r.id)}" aria-label="ほかの操作">⋯</button>`;
       body += `<tr class="sh-drow${S.sel === r.id ? ' sel' : ''}" data-doc="${esc(r.id)}">
         <td class="ic">${TYPES[r.type].icon}</td>
-        <td><div class="nm">${esc(r.name)}</div><div class="sub">${esc(subOf(r))}</div>${where}</td>
-        <td><span class="sh-kind ${r.type === 'kotei' ? 'k' : 'p'}">${TYPES[r.type].label}</span></td>
+        <td><div class="nm">${esc(r.name)}${r.type === 'heat' && r.is_basis ? ' <span class="sh-pin" title="この劇場の正式な計算書（劇場情報の基）">📌 劇場情報の基</span>' : ''}</div><div class="sub">${esc(subOf(r))}</div>${where}</td>
+        <td><span class="sh-kind ${r.type === 'kotei' ? 'k' : r.type === 'heat' ? 'h' : 'p'}">${TYPES[r.type].label}</span></td>
         <td class="sub">${l.kind === 'trash' ? '削除 ' + esc(fmtUpdated(r.deleted_at)) : esc(fmtUpdated(r.updated_at))}</td>
         <td class="sub">${esc(r.updated_by_name || '')}</td>
         <td class="ra">${actions}</td></tr>`;
@@ -402,16 +405,18 @@
     return (call('cases', []) || []).filter((c) => (!co || c.company === co) && (!th || c.theater === th));
   }
   const workOf = (c) => String(c.estimateName || c.content || '').split('\n')[0].trim().slice(0, 40);
+  const SUFFIX = { kotei: ' 工程表', photo: ' 写真台帳', heat: ' 空調負荷計算' };
   function newDialog(p) {
-    p = Object.assign({ type: 'kotei', co: '', th: '', folder: '', caseId: '', name: '', kind: 'date', start: today(), copyFrom: '' }, p);
+    p = Object.assign({ type: 'kotei', co: '', th: '', folder: '', caseId: '', name: '', kind: 'date', start: today(), copyFrom: '', hk: '' }, p);
     const render = () => {
       const cs = caseList(p.co, p.th).slice(0, 80);
       const kdocs = live().filter((r) => r.type === 'kotei').sort((a, b) => String(b.updated_at).localeCompare(String(a.updated_at)));
       openDlg(`<h3>新しく作る</h3><div class="sh-dlg-b">
-        <div class="sh-f"><label>作るもの</label><div class="sh-seg"><button type="button" class="${p.type === 'kotei' ? 'on' : ''}" data-ntype="kotei">📊 工程表</button><button type="button" class="${p.type === 'photo' ? 'on' : ''}" data-ntype="photo"${setupMissing.photo ? ' disabled title="データベースの準備（SETUP_SHELF.sql）がまだです"' : ''}>📷 工事写真台帳</button></div></div>
+        <div class="sh-f"><label>作るもの</label><div class="sh-seg"><button type="button" class="${p.type === 'kotei' ? 'on' : ''}" data-ntype="kotei">📊 工程表</button><button type="button" class="${p.type === 'photo' ? 'on' : ''}" data-ntype="photo"${setupMissing.photo ? ' disabled title="データベースの準備（SETUP_SHELF.sql）がまだです"' : ''}>📷 工事写真台帳</button><button type="button" class="${p.type === 'heat' ? 'on' : ''}" data-ntype="heat"${setupMissing.heat || !window.HL ? ' disabled title="データベースの準備（SETUP_HEATLOAD.sql）がまだです"' : ''}>❄ 空調負荷計算</button></div></div>
+        ${p.type === 'heat' ? `<div class="sh-f"><label>何を計算しますか？</label><div class="sh-seg sh-seg2"><button type="button" class="${p.hk === 'theater' ? 'on' : ''}" data-nhk="theater">🎬 シアター<small>機器表とホームページの座席数で</small></button><button type="button" class="${p.hk === 'other' ? 'on' : ''}" data-nhk="other">🏢 シアター以外<small>ロビー・売店・事務所など（図面で）</small></button></div></div>` : ''}
         ${placeFields(p)}
         <div class="sh-f"><label for="nCase">案件から作る（工事名などが自動で入ります）</label><select id="nCase"><option value="">案件を選ばない</option>${cs.map((c) => `<option value="${esc(c.id)}"${String(p.caseId) === String(c.id) ? ' selected' : ''}>${esc(theaterLabel(c.company, c.theater))}　${esc(workOf(c) || '（見積り名なし）')}</option>`).join('')}</select>${p.th ? '' : '<p class="sh-hint">劇場を選ぶと、その劇場の案件にしぼれます。</p>'}</div>
-        <div class="sh-f"><label for="nName">名前</label><input id="nName" value="${esc(p.name)}" placeholder="${p.type === 'kotei' ? '例：SCR3 空調機更新 工程表' : '例：コンセッション環境改善工事 写真台帳'}"></div>
+        <div class="sh-f"><label for="nName">名前</label><input id="nName" value="${esc(p.name)}" placeholder="${p.type === 'kotei' ? '例：SCR3 空調機更新 工程表' : p.type === 'heat' ? (p.hk === 'theater' ? '例：シアター 冷房能力の確認' : '例：2F ロビー・売店 空調負荷計算') : '例：コンセッション環境改善工事 写真台帳'}"></div>
         ${p.type === 'kotei' ? `<div class="sh-row2"><div class="sh-f"><label for="nKind">種類</label><select id="nKind"><option value="date"${p.kind === 'date' ? ' selected' : ''}>通常（日付）</option><option value="zero"${p.kind === 'zero' ? ' selected' : ''}>ゼロ工程表（1日目〜）</option><option value="master-week"${p.kind === 'master-week' ? ' selected' : ''}>マスター工程（週）</option><option value="master-month"${p.kind === 'master-month' ? ' selected' : ''}>マスター工程（月）</option></select></div>
           <div class="sh-f"><label for="nStart">着工日</label><input id="nStart" type="date" value="${esc(p.start)}"></div></div>
           <div class="sh-f"><label for="nCopy">もとにする工程表</label><select id="nCopy"><option value="">空から作る（標準の作業が並びます）</option>${kdocs.map((r) => `<option value="${esc(r.id)}"${p.copyFrom === r.id ? ' selected' : ''}>コピー：${esc(r.name)}</option>`).join('')}</select></div>` : ''}
@@ -419,10 +424,11 @@
       const keep = () => { Object.assign(p, readPlace(p)); p.name = $('nName').value; if ($('nKind')) p.kind = $('nKind').value; if ($('nStart')) p.start = $('nStart').value; if ($('nCopy')) p.copyFrom = $('nCopy').value; };
       bindPlace(p, () => { p.name = $('nName') ? $('nName').value : p.name; render(); });
       $('shDlg').querySelectorAll('[data-ntype]').forEach((b) => b.addEventListener('click', () => { keep(); p.type = b.dataset.ntype; render(); }));
+      $('shDlg').querySelectorAll('[data-nhk]').forEach((b) => b.addEventListener('click', () => { keep(); p.hk = b.dataset.nhk; render(); }));
       $('nCase').addEventListener('change', () => {
         keep(); p.caseId = $('nCase').value;
         const c = caseList('', '').find((x) => String(x.id) === String(p.caseId));
-        if (c) { p.co = c.company || p.co; p.th = c.theater || p.th; p.name = (workOf(c) || theaterLabel(c.company, c.theater)) + (p.type === 'kotei' ? ' 工程表' : ' 写真台帳'); }
+        if (c) { p.co = c.company || p.co; p.th = c.theater || p.th; p.name = (workOf(c) || theaterLabel(c.company, c.theater)) + SUFFIX[p.type]; }
         render();
       });
       $('shDlg').querySelector('[data-dlg="cancel"]').addEventListener('click', closeDlg);
@@ -434,13 +440,16 @@
       if ($('nName')) Object.assign(p, readPlace(p), { name: $('nName').value });
       if ($('nKind')) { p.kind = $('nKind').value; p.start = $('nStart').value || today(); p.copyFrom = $('nCopy').value; }
       const c = caseList('', '').find((x) => String(x.id) === String(p.caseId));
-      const name = (p.name || '').trim() || (p.type === 'kotei' ? '新しい工程表' : '新しい写真台帳');
+      if (p.type === 'heat' && !p.hk) { alert('「シアター」か「シアター以外」かを選んでください'); return; }
+      const name = (p.name || '').trim() || (p.type === 'kotei' ? '新しい工程表' : p.type === 'heat' ? (p.hk === 'theater' ? 'シアター 空調負荷計算' : '空調負荷計算') : '新しい写真台帳');
       let data;
       if (p.type === 'kotei') {
         const K = window.KOTEI; let base = null;
         if (p.copyFrom) { const src = await api.get('kotei', p.copyFrom).catch(() => null); if (src) base = K.normalize(src.data); }
         data = base ? Object.assign(base, { title: name, start: p.start }) : K.defaultState({ title: name, start: p.start, content: c ? workOf(c) : '', client: p.co || '', author: userName() });
         if (p.kind.indexOf('master') === 0) { data.kind = 'master'; data.unit = p.kind === 'master-month' ? 'month' : 'week'; if (!base) data.days = 12; data.bars.forEach((b) => { b.night = false; }); } else data.kind = p.kind;
+      } else if (p.type === 'heat') {
+        data = window.HL.newData({ kind: p.hk, theater: p.th || (c && c.theater) || '', caseName: c ? workOf(c) : '' });
       } else {
         data = { theater: p.th || (c && c.theater) || '', work: c ? workOf(c) : '', date: today(), cover: true, showKoshu: true, showShot: true, items: [] };
       }
@@ -509,7 +518,9 @@
     };
     const ok = async () => {
       const q = readPlace(p); closeDlg();
-      try { replaceRow(await api.update(r.type, r.id, { company: q.co, theater: q.th, folder_id: q.folder || null })); renderShelf(); toast('移動しました'); }
+      // 正式な計算書（📌）を別の劇場へ動かす時は📌を外す（劇場ごとに1つのため）
+      const unpin = r.type === 'heat' && r.is_basis && (q.co !== r.company || q.th !== r.theater) ? { is_basis: false } : {};
+      try { replaceRow(await api.update(r.type, r.id, Object.assign({ company: q.co, theater: q.th, folder_id: q.folder || null }, unpin))); renderShelf(); toast('移動しました'); }
       catch (e) { fail('移動', e); }
     };
     render();
@@ -521,7 +532,7 @@
     $('shDlg').querySelector('[data-dlg="ok"]').addEventListener('click', async () => {
       closeDlg();
       try {
-        replaceRow(await api.update(r.type, r.id, { deleted_at: new Date().toISOString() })); renderShelf();
+        replaceRow(await api.update(r.type, r.id, Object.assign({ deleted_at: new Date().toISOString() }, r.type === 'heat' && r.is_basis ? { is_basis: false } : {}))); renderShelf();
         toast('ごみ箱に入れました', { label: '元に戻す', fn: () => restoreDoc(r.id) });
       } catch (e) { fail('削除', e); }
     });
@@ -574,7 +585,7 @@
     if (t.closest('#shTreeBtn')) { S.treeOpen = !S.treeOpen; renderShelf(); return; }
     if (t.closest('#shNewBtn')) {
       const l = S.loc;
-      newDialog({ type: S.filter === 'photo' && !setupMissing.photo ? 'photo' : 'kotei', co: l.kind === 'place' ? l.co : '', th: l.kind === 'place' ? l.th : '', folder: l.kind === 'place' ? l.folder : '' });
+      newDialog({ type: S.filter === 'photo' && !setupMissing.photo ? 'photo' : S.filter === 'heat' && !setupMissing.heat && window.HL ? 'heat' : 'kotei', co: l.kind === 'place' ? l.co : '', th: l.kind === 'place' ? l.th : '', folder: l.kind === 'place' ? l.folder : '' });
       return;
     }
     const it = t.closest('[data-into-th]'); if (it) { goPlace(S.loc.co, it.dataset.intoTh, ''); return; }
@@ -611,6 +622,7 @@
   function currentData() {
     const c = S.cur; if (!c) return null;
     if (c.type === 'kotei') { const st = window.KOTEI.getState(); if (st) st.title = currentName(); return st; }
+    if (c.type === 'heat') return window.HL.getState();
     return PH.getData();
   }
   function markDirty() { if (!S.cur) return; S.cur.dirty = true; saveUi(); saveDraftSoon(); }
@@ -627,11 +639,13 @@
     $('docTop').classList.remove('hidden');
     $('viewKotei').classList.toggle('hidden', type !== 'kotei');
     $('viewPhoto').classList.toggle('hidden', type !== 'photo');
-    $('dtExcel').classList.toggle('hidden', type !== 'kotei');
+    $('viewHeat').classList.toggle('hidden', type !== 'heat');
+    $('dtExcel').classList.toggle('hidden', type !== 'kotei' && type !== 'heat');
+    $('dtPin').classList.toggle('hidden', type !== 'heat');
   }
   function showShelf() {
     if (window.KOTEI) window.KOTEI.leave();
-    $('docTop').classList.add('hidden'); $('viewKotei').classList.add('hidden'); $('viewPhoto').classList.add('hidden');
+    $('docTop').classList.add('hidden'); $('viewKotei').classList.add('hidden'); $('viewPhoto').classList.add('hidden'); $('viewHeat').classList.add('hidden');
     $('viewShelf').classList.remove('hidden');
     renderShelf();
   }
@@ -646,9 +660,43 @@
     $('dtIcon').textContent = TYPES[c.type].icon;
     $('dtName').value = r.name;
     sizeName();
+    pinUi();
     saveUi();
   }
   function sizeName() { const n = $('dtName'); n.style.width = 'min(460px, ' + (Math.max(8, (n.value || '').length) + 2) + 'em)'; }
+
+  // 書類の中身を、種類ごとの画面に読み込む
+  async function loadInto(row, data) {
+    if (row.type === 'kotei') window.KOTEI.load(data, { onChange: markDirty });
+    else if (row.type === 'heat') window.HL.load(data, { onChange: markDirty, ctx: { name: $('dtName').value || row.name, company: row.company, theater: row.theater } });
+    else await PH.load(data);
+  }
+  const busyMsg = () => PH.busy() ? '写真を入れている途中です。終わってから保存してください。' : (window.HL && S.cur && S.cur.type === 'heat' && window.HL.busy()) ? 'ファイルを入れている・読み取っている途中です。終わってから保存してください。' : '';
+  // 「劇場情報の基にする」（空調負荷計算だけ。劇場ごとに1つ。テストの計算が混ざらないように）
+  function pinUi() {
+    const c = S.cur, b = $('dtPin'); if (!c || c.type !== 'heat') return;
+    const on = !!c.row.is_basis; b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    b.querySelector('.tx').textContent = on ? '📌 劇場情報の基（この劇場の正式な計算書）' : '劇場情報の基にする';
+  }
+  let pinning = false;
+  async function togglePin() {
+    const c = S.cur; if (!c || c.type !== 'heat' || pinning) return;
+    if (setupMissing.heat) { alert('データベースの準備（SETUP_HEATLOAD.sql）がまだです。'); return; }
+    if (!c.row.company || !c.row.theater) { alert('劇場が決まっていません。書類棚の「⋯」→「フォルダへ移動」で劇場を決めてから使ってください。'); return; }
+    const on = !c.row.is_basis;
+    const others = S.rows.filter((r) => r.type === 'heat' && r.is_basis && !r.deleted_at && r.id !== c.row.id && r.company === c.row.company && r.theater === c.row.theater);
+    if (on && others.length && !confirm(`この劇場の正式な計算書を、この計算書に切り替えます。\n今の「${others.map((r) => r.name).join('・')}」の📌は外れます。よいですか？`)) return;
+    pinning = true;
+    try {
+      for (const r of on ? others : []) replaceRow(await api.update('heat', r.id, { is_basis: false }));
+      const row = await api.update('heat', c.row.id, { is_basis: on });
+      // 中身は保存しないので、名前や未保存の変更はそのまま（保存の時刻だけ合わせる）
+      c.row.is_basis = row.is_basis; c.row.updated_at = row.updated_at; c.loadedStamp = row.updated_at;
+      const i = S.rows.findIndex((x) => x.id === row.id && x.type === 'heat'); if (i >= 0) Object.assign(S.rows[i], { is_basis: row.is_basis, updated_at: row.updated_at });
+      pinUi(); saveUi();
+      toast(on ? 'この劇場の正式な計算書にしました（書類棚で 📌 が付きます）' : '劇場情報の基から外しました');
+    } catch (e) { fail('切り替え', e); } finally { pinning = false; }
+  }
 
   async function openDoc(id, fresh) {
     const meta = S.rows.find((x) => x.id === id); if (!meta) return;
@@ -659,8 +707,7 @@
     S.cur = { type: row.type, row, dirty: false, loadedStamp: row.updated_at };
     S.sel = row.id;
     renderDocTop(); showEditor(row.type);
-    if (row.type === 'kotei') window.KOTEI.load(row.data, { onChange: markDirty });
-    else await PH.load(row.data);
+    await loadInto(row, row.data);
     // 前に保存しないまま閉じた（ブラウザごと閉じた等）内容が残っていれば、復元するか聞く
     const d = fresh ? null : lsGet(DRAFT(row.type, row.id), null);
     if (d && d.data) {
@@ -670,7 +717,7 @@
       $('shDlg').querySelector('[data-dlg="ok"]').addEventListener('click', async () => {
         closeDlg();
         $('dtName').value = d.name || row.name; sizeName();
-        if (row.type === 'kotei') window.KOTEI.load(d.data, { onChange: markDirty }); else await PH.load(d.data);
+        await loadInto(row, d.data);
         S.cur.dirty = true; saveUi(); toast('復元しました。よければ「💾 上書き保存」を押してください');
       });
     }
@@ -678,7 +725,7 @@
   let saving = false;
   async function saveOver(force) {
     const c = S.cur; if (!c || saving) return false;
-    if (PH.busy()) { alert('写真を入れている途中です。終わってから保存してください。'); return false; }
+    if (busyMsg()) { alert(busyMsg()); return false; }
     saving = true; c.saving = true; saveUi();
     try {
       if (!force) {
@@ -704,7 +751,7 @@
   }
   function saveAs() {
     const c = S.cur; if (!c) return;
-    if (PH.busy()) { alert('写真を入れている途中です。終わってから保存してください。'); return; }
+    if (busyMsg()) { alert(busyMsg()); return; }
     const p = { co: c.row.company, th: c.row.theater, folder: c.row.folder_id || '' };
     let nm = currentName() + ' のコピー';
     const render = () => {
@@ -726,6 +773,7 @@
         S.rows.push(row);
         S.cur = { type: c.type, row, dirty: false, loadedStamp: row.updated_at };
         if (c.type === 'kotei') window.KOTEI.setTitle(name);
+        if (c.type === 'heat') window.HL.setTitle(name);
         renderDocTop();
         toast(`「${name}」として新しく保存しました（元の「${oldName}」はそのまま）`);
       } catch (e) { fail('保存', e); }
@@ -757,9 +805,13 @@
   $('dtBack').addEventListener('click', () => backToShelf('folder'));
   $('dtSave').addEventListener('click', () => saveOver());
   $('dtSaveAs').addEventListener('click', saveAs);
-  $('dtPrint').addEventListener('click', () => { if (!S.cur) return; if (S.cur.type === 'kotei') { window.KOTEI.setTitle(currentName()); window.KOTEI.print(); } else PH.print(); });
-  $('dtExcel').addEventListener('click', () => { if (S.cur && S.cur.type === 'kotei') { window.KOTEI.setTitle(currentName()); window.KOTEI.excel(); } });
-  $('dtName').addEventListener('input', () => { sizeName(); if (S.cur && S.cur.type === 'kotei') window.KOTEI.setTitle(currentName()); markDirty(); });
+  $('dtPrint').addEventListener('click', () => { if (!S.cur) return; if (S.cur.type === 'kotei') { window.KOTEI.setTitle(currentName()); window.KOTEI.print(); } else if (S.cur.type === 'heat') { window.HL.setTitle(currentName()); window.HL.print(); } else PH.print(); });
+  $('dtPin').addEventListener('click', togglePin);
+  $('dtExcel').addEventListener('click', () => {
+    if (S.cur && S.cur.type === 'kotei') { window.KOTEI.setTitle(currentName()); window.KOTEI.excel(); }
+    if (S.cur && S.cur.type === 'heat') { window.HL.setTitle(currentName()); window.HL.excel(); }
+  });
+  $('dtName').addEventListener('input', () => { sizeName(); if (S.cur && S.cur.type === 'kotei') window.KOTEI.setTitle(currentName()); if (S.cur && S.cur.type === 'heat') window.HL.setTitle(currentName()); markDirty(); });
   $('dtName').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); e.target.blur(); } });
   document.addEventListener('keydown', (e) => {
     if (!S.cur || $('docTop').classList.contains('hidden')) return;
@@ -1035,11 +1087,11 @@
     if (S.cur && S.cur.dirty) { const c = S.cur; lsSet(DRAFT(c.type, c.row.id), { at: Date.now(), name: currentName(), data: currentData() }); }
     if (window.KOTEI) window.KOTEI.leave();
     S.cur = null; closeDlg(); closeMenu();
-    ['viewShelf', 'docTop', 'viewKotei', 'viewPhoto'].forEach((id) => $(id).classList.add('hidden'));
+    ['viewShelf', 'docTop', 'viewKotei', 'viewPhoto', 'viewHeat'].forEach((id) => $(id).classList.add('hidden'));
   }
   function newFromCase(c, type) {
     if (!c) return;
-    newDialog({ type: type || 'photo', co: c.company || '', th: c.theater || '', caseId: String(c.id), name: (workOf(c) || theaterLabel(c.company, c.theater)) + ((type || 'photo') === 'kotei' ? ' 工程表' : ' 写真台帳') });
+    newDialog({ type: type || 'photo', co: c.company || '', th: c.theater || '', caseId: String(c.id), name: (workOf(c) || theaterLabel(c.company, c.theater)) + SUFFIX[type || 'photo'] });
   }
   window.SHELF = { open, close, requestClose: (then) => confirmLeave(then), isDirty: () => !!(S.cur && S.cur.dirty), newFromCase };
 })();

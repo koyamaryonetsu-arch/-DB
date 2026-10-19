@@ -330,3 +330,8 @@ create policy "tc_delete" on public.theater_contacts for delete to authenticated
 -- 書類棚（工程表のフォルダ管理・ごみ箱）＋ 工事写真台帳（photo_ledgers・doc_folders・Storage ledger-photos）
 -- 既存環境への適用は SETUP_SHELF.sql を参照
 -- ============================================
+
+-- ============================================
+-- 空調負荷計算（heat_loads・is_basis は劇場ごとに1つ・Storage heatload-files・theaters.homepage）
+-- 既存環境への適用は SETUP_HEATLOAD.sql を参照
+-- ============================================

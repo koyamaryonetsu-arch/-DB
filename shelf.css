@@ -243,3 +243,18 @@ body.kotei-big #docTop{ padding:5px 10px; }
 #viewKotei .btn.k-bigbtn{ color:#1d4ed8; border-color:#9db4f0; }
 #viewKotei .btn.k-bigbtn.on{ background:#1f2a44; border-color:#1f2a44; color:#fff; }
 @media print{ body.kotei-printing #viewKotei .scroll{ height:auto !important; } }
+
+/* 空調負荷計算（❄）: 種類の色・📌 劇場情報の基・「何を計算しますか？」 */
+.sh-kind.h{ background:#e0f2fe; color:#0369a1; }
+.sh-pin{ display:inline-block; font-size:11px; font-weight:700; color:#15803d; background:#dcfce7; border-radius:999px; padding:0 8px; margin-left:4px; white-space:nowrap; vertical-align:1px; }
+.sh-seg.sh-seg2{ display:grid; grid-template-columns:1fr 1fr; width:100%; }
+.sh-seg.sh-seg2 button{ height:auto; padding:8px 10px; display:grid; gap:2px; text-align:left; font-size:13px; }
+.sh-seg.sh-seg2 button small{ font-size:11px; font-weight:400; opacity:.8; }
+.dt-pin{ display:inline-flex; align-items:center; gap:8px; padding:0 12px 0 4px; border-radius:999px; }
+.dt-pin .sw{ display:inline-block; width:36px; height:20px; border-radius:10px; background:#cfd6e2; position:relative; flex:none; transition:background .15s; }
+.dt-pin .sw::after{ content:""; position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.25); transition:left .15s; }
+.dt-pin[aria-pressed="true"]{ border-color:#15803d; background:#dcfce7; color:#15803d; }
+.dt-pin[aria-pressed="true"] .sw{ background:#15803d; }
+.dt-pin[aria-pressed="true"] .sw::after{ left:18px; }
+#viewHeat{ border:1px solid #e3e7ee; border-top:none; border-radius:0 0 10px 10px; overflow:hidden; }
+@media print{ body.heat-printing .sh-toast{ display:none !important; } }
