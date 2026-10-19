@@ -28,7 +28,7 @@ export class Net {
       addEventListener('pageshow', () => net.onVisible());
     } else {
       net.mode = 'offline';
-      const { startOffline } = await import('./offline.js?v=8370ffc103a5');
+      const { startOffline } = await import('./offline.js?v=fdf2e7d68566');
       net.local = startOffline((msg) => net.deliver(msg));
       net.setStatus('ok');
     }
@@ -137,17 +137,25 @@ function watchDownPage(site) {
   } catch { /* */ }
 }
 
+// 外出先（Tailscale Funnel の https）からは、こたえが 来るまで 時間が かかる ことが ある（スマホの 4G など）。
+// その ときは 長めに まって、とぎれたら やり直す。この PC・家の Wi-Fi・ひとりで遊ぶサイト（404 が すぐ 返る）は 今までどおり
 async function detectServer() {
   if (!/^https?:$/.test(location.protocol)) return null;
-  try {
-    const ctrl = new AbortController();
-    const t = setTimeout(() => ctrl.abort(), 1500);
-    const r = await fetch('api/info', { signal: ctrl.signal, cache: 'no-store' });
-    clearTimeout(t);
-    if (!r.ok) return null;
-    const j = await r.json();
-    return j && j.app === 'kizuna' && j.server ? j : null;
-  } catch {
-    return null;
+  const remote = location.protocol === 'https:' && !/^(localhost|127\.|\[::1\])/.test(location.hostname);
+  const tries = remote ? 3 : 1;
+  const ms = remote ? 6000 : 1500;
+  for (let i = 0; i < tries; i++) {
+    try {
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), ms);
+      const r = await fetch('api/info', { signal: ctrl.signal, cache: 'no-store' });
+      clearTimeout(t);
+      if (!r.ok) return null;
+      const j = await r.json();
+      return j && j.app === 'kizuna' && j.server ? j : null;
+    } catch {
+      if (i < tries - 1) await new Promise((ok) => setTimeout(ok, 800));
+    }
   }
+  return null;
 }

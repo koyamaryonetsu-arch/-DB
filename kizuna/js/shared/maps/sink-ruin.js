@@ -8,10 +8,10 @@
 // ・縄ばしご … 5階の まるめた 縄ばしごを 上の たて穴へ かけると、2階 ⇔ 5階を 行き来できる（下から 開く 近道）
 // ・みちびきの糸・リレミトは 使える（クモイ地方の しずみゆく島の 入口へ）。魔物は 1〜3階 t5_ruin_up・4〜7階 t5_ruin_low、
 //   雲の 中は t5_ruin_cloud（B が 作る。plan-ch5.md の 13）
-import { T, parseRows } from '../tiles.js?v=8370ffc103a5';
-import { npc } from './npc.js?v=8370ffc103a5';
-import { RUIN_ROWS } from './sink-ruin-rows.js?v=8370ffc103a5';
-import { RUIN_TREASURE } from '../data/items-kumoi.js?v=8370ffc103a5';
+import { T, parseRows } from '../tiles.js?v=fdf2e7d68566';
+import { npc } from './npc.js?v=fdf2e7d68566';
+import { RUIN_ROWS } from './sink-ruin-rows.js?v=fdf2e7d68566';
+import { RUIN_TREASURE } from '../data/items-kumoi.js?v=fdf2e7d68566';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 export const RUIN_FLOORS = 7;

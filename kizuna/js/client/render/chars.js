@@ -2,19 +2,19 @@
 // みため（かみがた・いろ）と そうび（ぶき・よろい・たて・かぶと）で かわる
 // 人は 32×42 で くみたてて、2ばいの 64×84 に して こまかく かきたす（res 4: せかいでは 16×21 の 大きさに かく）
 // どうぶつ・船は 16×21 など
-import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=8370ffc103a5';
-import { ITEMS, baseItemId } from '../../shared/data/items.js?v=8370ffc103a5';
-import { STARTER_EQUIP } from '../../shared/stats.js?v=8370ffc103a5';
-import { paintMiraPrison, paintWaterStar } from './temple-chars.js?v=8370ffc103a5';
-import { LAB_NPC_LOOKS } from './lab-art.js?v=8370ffc103a5';
-import { paintCh5Special } from './ch5-art.js?v=8370ffc103a5';
-import { KUMOI_NPC_LOOKS, drawWings } from './ch5-kumoi-art.js?v=8370ffc103a5';
-import { HOSHIYOMI_NPC_LOOKS } from './ch5-hoshiyomi-art.js?v=8370ffc103a5';
-import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js?v=8370ffc103a5';
-import { R26_OLD_LOOK } from './hero-r26.js?v=8370ffc103a5';
-import { R27_OLD_LOOK } from './hero-r27.js?v=8370ffc103a5';
-import { R29_OLD_LOOK } from './hero-r29.js?v=8370ffc103a5';
-import { R33_OLD_LOOK, masc33 } from './hero-r33.js?v=8370ffc103a5';
+import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=fdf2e7d68566';
+import { ITEMS, baseItemId } from '../../shared/data/items.js?v=fdf2e7d68566';
+import { STARTER_EQUIP } from '../../shared/stats.js?v=fdf2e7d68566';
+import { paintMiraPrison, paintWaterStar } from './temple-chars.js?v=fdf2e7d68566';
+import { LAB_NPC_LOOKS } from './lab-art.js?v=fdf2e7d68566';
+import { paintCh5Special } from './ch5-art.js?v=fdf2e7d68566';
+import { KUMOI_NPC_LOOKS, drawWings } from './ch5-kumoi-art.js?v=fdf2e7d68566';
+import { HOSHIYOMI_NPC_LOOKS } from './ch5-hoshiyomi-art.js?v=fdf2e7d68566';
+import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js?v=fdf2e7d68566';
+import { R26_OLD_LOOK } from './hero-r26.js?v=fdf2e7d68566';
+import { R27_OLD_LOOK } from './hero-r27.js?v=fdf2e7d68566';
+import { R29_OLD_LOOK } from './hero-r29.js?v=fdf2e7d68566';
+import { R33_OLD_LOOK, masc33 } from './hero-r33.js?v=fdf2e7d68566';
 
 export const CW = 16;
 export const CH = 21;

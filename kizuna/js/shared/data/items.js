@@ -8,27 +8,27 @@
 // unique: 1人 1つの 品（ボスが 落とす 物）。データを 合わせる ときに ふえすぎない
 // rarity: レア度 0〜5（★の 数。items-rare.js の assignRarity が つける。店の 品は 0）
 
-import { ITEMS_CH2 } from './items-ch2.js?v=8370ffc103a5';
-import { ITEMS_TM } from './items-tm.js?v=8370ffc103a5';
-import { NIGHT_ITEMS, NIGHT_ITEM_KANA } from './night.js?v=8370ffc103a5';
-import { SKY_ITEMS, SKY_ITEM_KANA } from './sky.js?v=8370ffc103a5';
-import { ITEMS_FORGE, FORGE_KANA, addUpgradeItems } from './items-forge.js?v=8370ffc103a5';
-import { ITEMS_CASINO, CASINO_KANA } from './items-casino.js?v=8370ffc103a5';
-import { RARE_ITEMS, RARE_ITEM_KANA } from './monsters-rare.js?v=8370ffc103a5';
-import { ESCAPE_ITEMS, ESCAPE_KANA } from './escape.js?v=8370ffc103a5';
-import { ITEMS_CH3, CH3_ITEM_KANA } from './items-ch3.js?v=8370ffc103a5';
-import { ITEMS_CH4, CH4_ITEM_KANA } from './items-ch4.js?v=8370ffc103a5';
-import { ITEMS_TEMPLE, TEMPLE_ITEM_KANA } from './items-temple.js?v=8370ffc103a5';
-import { ITEMS_LAB, LAB_ITEM_KANA } from './items-lab.js?v=8370ffc103a5';
-import { ITEMS_TOWER, TOWER_ITEM_KANA } from './items-tower.js?v=8370ffc103a5';
-import { ITEMS_KUMOI, KUMOI_ITEM_KANA } from './items-kumoi.js?v=8370ffc103a5';
-import { ITEMS_HOSHIYOMI, HOSHIYOMI_ITEM_KANA } from './items-hoshiyomi.js?v=8370ffc103a5';
-import { ITEMS_EARTH, EARTH_ITEM_KANA } from './items-earth.js?v=8370ffc103a5';
+import { ITEMS_CH2 } from './items-ch2.js?v=fdf2e7d68566';
+import { ITEMS_TM } from './items-tm.js?v=fdf2e7d68566';
+import { NIGHT_ITEMS, NIGHT_ITEM_KANA } from './night.js?v=fdf2e7d68566';
+import { SKY_ITEMS, SKY_ITEM_KANA } from './sky.js?v=fdf2e7d68566';
+import { ITEMS_FORGE, FORGE_KANA, addUpgradeItems } from './items-forge.js?v=fdf2e7d68566';
+import { ITEMS_CASINO, CASINO_KANA } from './items-casino.js?v=fdf2e7d68566';
+import { RARE_ITEMS, RARE_ITEM_KANA } from './monsters-rare.js?v=fdf2e7d68566';
+import { ESCAPE_ITEMS, ESCAPE_KANA } from './escape.js?v=fdf2e7d68566';
+import { ITEMS_CH3, CH3_ITEM_KANA } from './items-ch3.js?v=fdf2e7d68566';
+import { ITEMS_CH4, CH4_ITEM_KANA } from './items-ch4.js?v=fdf2e7d68566';
+import { ITEMS_TEMPLE, TEMPLE_ITEM_KANA } from './items-temple.js?v=fdf2e7d68566';
+import { ITEMS_LAB, LAB_ITEM_KANA } from './items-lab.js?v=fdf2e7d68566';
+import { ITEMS_TOWER, TOWER_ITEM_KANA } from './items-tower.js?v=fdf2e7d68566';
+import { ITEMS_KUMOI, KUMOI_ITEM_KANA } from './items-kumoi.js?v=fdf2e7d68566';
+import { ITEMS_HOSHIYOMI, HOSHIYOMI_ITEM_KANA } from './items-hoshiyomi.js?v=fdf2e7d68566';
+import { ITEMS_EARTH, EARTH_ITEM_KANA } from './items-earth.js?v=fdf2e7d68566';
 // 第37回 A: サファラ闘技場の ごほうび
-import { ITEMS_ARENA, ARENA_ITEM_KANA } from './items-arena.js?v=8370ffc103a5';
-import { POWDER_ITEMS, POWDER_KANA } from './friend-powder.js?v=8370ffc103a5';
-import { FIELD27_ITEMS, FIELD27_KANA } from './abilities-field27.js?v=8370ffc103a5';
-import { RARE_GEAR, RARE_GEAR_KANA, assignRarity } from './items-rare.js?v=8370ffc103a5';
+import { ITEMS_ARENA, ARENA_ITEM_KANA } from './items-arena.js?v=fdf2e7d68566';
+import { POWDER_ITEMS, POWDER_KANA } from './friend-powder.js?v=fdf2e7d68566';
+import { FIELD27_ITEMS, FIELD27_KANA } from './abilities-field27.js?v=fdf2e7d68566';
+import { RARE_GEAR, RARE_GEAR_KANA, assignRarity } from './items-rare.js?v=fdf2e7d68566';
 
 export const ITEMS = {
   // ───── つかう どうぐ ─────
@@ -254,15 +254,15 @@ Object.assign(ITEMS, POWDER_ITEMS);
 // 魔物よせの笛（abilities-field27.js）
 Object.assign(ITEMS, FIELD27_ITEMS);
 // 第31回: しあわせのぼうし・こうふくのくつ（items-r31.js）
-import { ITEMS_R31, R31_ITEM_KANA } from './items-r31.js?v=8370ffc103a5'; Object.assign(ITEMS, ITEMS_R31);
+import { ITEMS_R31, R31_ITEM_KANA } from './items-r31.js?v=fdf2e7d68566'; Object.assign(ITEMS, ITEMS_R31);
 // 第32回: ひみつのダンジョンの お店だけの 回復薬（items-secret.js）
-import { SD_POTIONS, SD_POTION_KANA } from './items-secret.js?v=8370ffc103a5'; Object.assign(ITEMS, SD_POTIONS);
+import { SD_POTIONS, SD_POTION_KANA } from './items-secret.js?v=fdf2e7d68566'; Object.assign(ITEMS, SD_POTIONS);
 // 第31回: レア装備（items-rare.js）と、すべての 装備の レア度（★1〜★5。店の 品は 0）
 Object.assign(ITEMS, RARE_GEAR);
 // 第32回: れん金がまの 品・生まれ変わりの 武器（items-alchemy.js）
-import { ALCHEMY_ITEMS, ALCHEMY_KANA } from './items-alchemy.js?v=8370ffc103a5'; Object.assign(ITEMS, ALCHEMY_ITEMS);
+import { ALCHEMY_ITEMS, ALCHEMY_KANA } from './items-alchemy.js?v=fdf2e7d68566'; Object.assign(ITEMS, ALCHEMY_ITEMS);
 // 第33回: 11の 職業の 装備（items-r33.js。店の 品と レア装備）
-import { ITEMS_R33, R33_ITEM_KANA } from './items-r33.js?v=8370ffc103a5'; Object.assign(ITEMS, ITEMS_R33);
+import { ITEMS_R33, R33_ITEM_KANA } from './items-r33.js?v=fdf2e7d68566'; Object.assign(ITEMS, ITEMS_R33);
 assignRarity(ITEMS);
 // きたえた 装備（'iron_sword+1'〜'+3'）。新しい 装備を 足す ときは この 行より 上で
 addUpgradeItems(ITEMS);

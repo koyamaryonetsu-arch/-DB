@@ -3,13 +3,13 @@
 //   2行め: 威力・効果の 目安（ふつうの 攻撃の 何倍・ダメージ・回復の 量・何が 上がるか）
 //   3行め: せつめい（data の desc）。転職の ペナルティ・上位の 技なども
 // 相手を えらぶ 前（敵が 1体・自分に かける・全体の 技でも）に 見える。client/battle.js の abilityMenu・itemMenu
-import { ABILITIES, abilityTypeText, abilityRole } from '../../shared/data/abilities.js?v=8370ffc103a5';
-import { abilityFor, abilityLabel } from '../../shared/ability-label.js?v=8370ffc103a5';
-import { ITEMS } from '../../shared/data/items.js?v=8370ffc103a5';
-import { JOBS } from '../../shared/data/jobs.js?v=8370ffc103a5';
-import { SKILL_UPS } from '../../shared/data/skill-ups.js?v=8370ffc103a5';
-import { mpCost, penaltyFor, comboAllowed } from '../../shared/stats.js?v=8370ffc103a5';
-import { targetText, itemDetail } from './info.js?v=8370ffc103a5';
+import { ABILITIES, abilityTypeText, abilityRole } from '../../shared/data/abilities.js?v=fdf2e7d68566';
+import { abilityFor, abilityLabel } from '../../shared/ability-label.js?v=fdf2e7d68566';
+import { ITEMS } from '../../shared/data/items.js?v=fdf2e7d68566';
+import { JOBS } from '../../shared/data/jobs.js?v=fdf2e7d68566';
+import { SKILL_UPS } from '../../shared/data/skill-ups.js?v=fdf2e7d68566';
+import { mpCost, penaltyFor, comboAllowed } from '../../shared/stats.js?v=fdf2e7d68566';
+import { targetText, itemDetail } from './info.js?v=fdf2e7d68566';
 
 const STAT = { atk: '攻撃力', def: '守備力', agi: '素早さ', mag: '魔力', heal: '回復魔力', eva: 'かわしやすさ', dfn: '守備力', hit: '命中' };
 const STATUS = { sleep: 'ねむり', paralyze: 'マヒ', confuse: '混乱', blind: 'まぼろし', silence: '呪文ふうじ', poison: '毒', stop: '動けない' };

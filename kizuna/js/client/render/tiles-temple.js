@@ -4,9 +4,9 @@
 // ・砂の海賊の ほこら・かべ画・空気の ドームの かべ・水が もどった 王都の ふん水
 // render/tiles-ch4.js が まぜる。2.5D は render/field3d.js（TEMPLE_LIQUIDS・TEMPLE_FLOOR_H・templeBlockSpec）と render/tex3d.js（TEMPLE_PROPS）
 // (p, v, f, m) … Painter / ちがい / アニメの コマ / となりの ようす（templeMask）
-import { T } from '../../shared/tiles.js?v=8370ffc103a5';
-import { HALL_POS } from '../../shared/maps/temple.js?v=8370ffc103a5';
-import { makeCanvas, ctxOf, prand, shade, mix } from './pixel.js?v=8370ffc103a5';
+import { T } from '../../shared/tiles.js?v=fdf2e7d68566';
+import { HALL_POS } from '../../shared/maps/temple.js?v=fdf2e7d68566';
+import { makeCanvas, ctxOf, prand, shade, mix } from './pixel.js?v=fdf2e7d68566';
 
 // 神殿の 石の ゆか（theme 'temple' の 洞窟の ゆかと おなじ くらいの 色）
 const ST = { floor: '#5e808c', floorD: '#4a6a76', floorL: '#7a9ca8', line: '#3e5e6a', wall: '#2e525a', wallL: '#4a7680' };
