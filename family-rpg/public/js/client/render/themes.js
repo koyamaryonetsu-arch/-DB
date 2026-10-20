@@ -10,6 +10,7 @@ import { KUMOI_TILES, KUMOI_THEMES } from './tiles-kumoi.js';
 import { MEMORY_KEEP_COLOR, MEMORY_THEMES } from './tiles-memory.js';
 import { EARTH_KEEP_COLOR, EARTH_THEMES } from './tiles-earth.js';
 import { CASTLE_KEEP_COLOR, CASTLE_THEMES, THEME_PARTS } from './tiles-castle.js';
+import { TOP_KEEP_COLOR, TOP_THEMES } from './tiles-top.js';
 
 // どの 部分か（ゆか・かべ・水）
 const PART_OF_TILE = {
@@ -50,6 +51,8 @@ for (const id of MEMORY_KEEP_COLOR) PART_OF_TILE[id] = 'none';
 for (const id of EARTH_KEEP_COLOR) PART_OF_TILE[id] = 'none';
 // 第5章 Step 8 の 影の城の タイル（風車・炎の 柱）も もとの 色の まま
 for (const id of CASTLE_KEEP_COLOR) PART_OF_TILE[id] = 'none';
+// 第5章 Step 9 の 星のない 広間の ゆかと 祭だんも もとの 色の まま（かべ・柱・かいだんは 広間の 色に）
+for (const id of TOP_KEEP_COLOR) PART_OF_TILE[id] = 'none';
 // mask … 地下水路の え で かいた たいまつ・レバー・かいだん など（mask の CANAL_CTX）も 色を かえない
 // 王家のピラミッドの 石の 文字ばん（かんばんの mask 4）も もとの 色の まま
 // theme … その テーマだけ 色の かえかたを かえる タイル（第5章 Step 8 の 水の階の 流れる ゆか。render/tiles-castle.js の THEME_PARTS）
@@ -197,7 +200,7 @@ const RUINS_DEEP = {
   gem: G([0, '#6a3a08'], [0.5, '#f0a830'], [1, '#fff4c8']),
   flame: null,
 };
-const THEMES = { ice: ICE, lava: LAVA, sand: SAND, canal: CANAL, pyramid: PYRAMID, castle: CASTLE, temple: TEMPLE, ruins: RUINS, ruins_deep: RUINS_DEEP, ...SECRET, ...TOWER_THEMES, ...KUMOI_THEMES, ...MEMORY_THEMES, ...EARTH_THEMES, ...CASTLE_THEMES };
+const THEMES = { ice: ICE, lava: LAVA, sand: SAND, canal: CANAL, pyramid: PYRAMID, castle: CASTLE, temple: TEMPLE, ruins: RUINS, ruins_deep: RUINS_DEEP, ...SECRET, ...TOWER_THEMES, ...KUMOI_THEMES, ...MEMORY_THEMES, ...EARTH_THEMES, ...TOP_THEMES, ...CASTLE_THEMES };
 
 // 1つの 色を かえる
 export function themeRgb(r, g, b, theme, part) {

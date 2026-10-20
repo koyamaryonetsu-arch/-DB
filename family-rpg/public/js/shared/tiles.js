@@ -61,6 +61,8 @@ export const T = {
   GOLEM_FILL: 54, EARTH_DOOR: 58, LIFT_BROKEN: 85, EARTH_LIFT: 86, EARTH_ALTAR: 87, ROOT_GATE: 88, GOLEM_E: 89,
   // 第5章 Step 8「影の城」（maps/castle.js・render/tiles-castle.js。A8 が 使って よい あきは 97・187・188 だけ。ほかは 今の タイルの 色がえ）
   WINDMILL: 97, FIRE_PILLAR: 187, FIRE_VENT: 188,
+  // 第5章 Step 9「影の城の てっぺん（星のない広間）」（maps/castle-top.js・render/tiles-top.js。A9 は 189・229 だけ）
+  STARLESS_FLOOR: 189, STARLESS_ALTAR: 229,
 };
 
 export const TILE_INFO = {};
@@ -331,6 +333,9 @@ def(T.ROOT_GATE, 'root_gate', { mapColor: '#3a2a18' }); // 大地の 神殿の �
 def(T.WINDMILL, 'windmill', { solid: true, anim: true, mapColor: '#9ab0c8' }); // 風車（3階。2つ 同時に 回すと 風の 窓が とじる）
 def(T.FIRE_PILLAR, 'fire_pillar', { solid: true, anim: true, light: true, mapColor: '#ff6a2a' }); // 炎の 柱（ふき上がっている 間は 通れない）
 def(T.FIRE_VENT, 'fire_vent', { mapColor: '#4a3a3a' }); // 炎の 柱の ふき出し口（炎が 止まっている 間は 歩ける）
+// 第5章 Step 9「星のない広間」（maps/castle-top.js）。かべは 洞窟の タイルを 広間の 色に（render/tiles-top.js の ctop）
+def(T.STARLESS_FLOOR, 'starless_floor', { mapColor: '#1c1828' }); // 星のない 広間の ゆか（星の もようが 消えた 黒い 石。歩ける）
+def(T.STARLESS_ALTAR, 'starless_altar', { solid: true, talkThrough: true, anim: true, mapColor: '#5a3a7a' }); // 星のない 祭だん（黒い もやが ゆれる）
 
 export function isSolid(id) {
   return TILE_INFO[id]?.solid ?? true;

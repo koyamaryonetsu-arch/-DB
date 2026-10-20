@@ -15,6 +15,7 @@ import { KUMOI_PROPS } from './tiles-kumoi.js';
 import { MEMORY_PROPS } from './tiles-memory.js';
 import { EARTH_PROPS } from './tiles-earth.js';
 import { CASTLE_PROPS } from './tiles-castle.js';
+import { TOP_PROPS } from './tiles-top.js';
 import {
   canalWallFace, canalWallTop, canalSidePaint, damTopPaint, paintCanalWater, sluiceTopPaint, sluiceBoardPaint, pillarSidePaint, pillarTopPaint, rubbleAtlasPaint,
   CANAL_SUN,
@@ -341,6 +342,8 @@ Object.assign(PROPS, MEMORY_PROPS);
 Object.assign(PROPS, EARTH_PROPS);
 // 第5章 Step 8: 風車・炎の 柱（render/tiles-castle.js）
 Object.assign(PROPS, CASTLE_PROPS);
+// 第5章 Step 9: 星のない 祭だん（render/tiles-top.js）
+Object.assign(PROPS, TOP_PROPS);
 export const PROP_TILES = new Set(Object.keys(PROPS).map(Number).filter((k) => PROPS[k]));
 
 // たからばこ（あいている・しまっている）

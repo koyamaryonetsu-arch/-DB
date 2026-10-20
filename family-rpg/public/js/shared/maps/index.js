@@ -17,6 +17,7 @@ import { attachKumoi } from './kumoi.js';
 import { attachHoshiyomi } from './hoshiyomi.js';
 import { attachEarth } from './earth.js';
 import { attachCastle } from './castle.js';
+import { attachCastleTop } from './castle-top.js';
 
 const V = (x, y) => [PLACES.village.x + x, PLACES.village.y + y];
 const TW = (x, y) => [PLACES.town.x + x, PLACES.town.y + y];
@@ -304,6 +305,8 @@ function buildMaps() {
   attachEarth(maps);
   // 第5章 Step 8: 影の城（maps/castle.js。城の 前の 小島の 風の道も）
   attachCastle(maps);
+  // 第5章 Step 9: 影の城の てっぺん「星のない広間」（maps/castle-top.js。A8 の 影の城 castle_1f〜12f の あと）
+  attachCastleTop(maps);
   // 夜の 町・村（夜だけ 出る 人・夜は 家に 帰る 人）
   addNightNpcs(maps);
   for (const m of Object.values(maps)) finishMap(m);

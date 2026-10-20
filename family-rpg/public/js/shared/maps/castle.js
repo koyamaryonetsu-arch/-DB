@@ -14,8 +14,8 @@ import { npc } from './npc.js';
 import { CASTLE_ROWS, CASTLE_W, CASTLE_H } from './castle-rows.js';
 import { KUMOI_POS } from './kumoi.js';
 import { K7 } from './earth.js';
-// ※※ 仮（まとめる 時に '../data/items-castle.js' に かえる。stubCastleTop は A9 の castle_top が 入ったら 消す）※※
-import { CASTLE_TREASURE, stubCastleTop } from '../data/castle-stub.js';
+import { CASTLE_TREASURE } from '../data/items-castle.js';
+import { CASTLE_TOP_ARRIVE } from './castle-top.js';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 // 物語の すすみぐあい（data/story-ch5.js の CH5_STEPS の c5_gather の うしろ。plan-ch5.md の 17 の 名前の 約束）
@@ -226,7 +226,8 @@ export function castleArrive(n) {
 // その 階に 上から 来た ところ（上りかいだんの となり）
 export const castleFromAbove = (n) => besideOf(n, CASTLE_POS[n].up[0], 'down');
 // てっぺん（A9 の castle_top）へ 上った ところ・てっぺんから 12階へ もどった ところ（A9 は この 場所に 下りかいだんを）
-export const CASTLE_TOP_ARRIVE = { map: CASTLE_TOP, x: 12.5, y: 15.5, dir: 'up' };
+// てっぺんに 着く 所は A9 の maps/castle-top.js が 決める（星のない広間の 入口の 小べや）
+export { CASTLE_TOP_ARRIVE };
 export const CASTLE_FROM_TOP = castleFromAbove(12);
 // 光の門の 行き先（1階の 門 → 5階・9階・12階の 門の となり。むこうの 門 → 1階の 門の となり）
 export function gateArrive(n, i = 0) {
@@ -408,5 +409,4 @@ export function attachCastle(maps) {
   Object.assign(maps, buildCastleMaps());
   addCastleRoad(maps.kumoi);
   // ※※ 仮: A9 の てっぺん（castle_top）が まだ ない ときだけ（まとめる 時に 消す）※※
-  if (!maps[CASTLE_TOP]) maps[CASTLE_TOP] = stubCastleTop(CASTLE_FROM_TOP);
 }

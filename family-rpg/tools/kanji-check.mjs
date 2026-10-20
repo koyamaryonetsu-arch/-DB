@@ -303,6 +303,8 @@ export function gameFiles() {
     'public/js/shared/data/arena.js', 'public/js/shared/data/story-arena.js', 'public/js/shared/data/monsters-arena.js', 'public/js/shared/data/abilities-arena.js',
     'public/js/shared/data/items-arena.js', 'public/js/shared/data/encounters-arena.js', 'public/js/shared/battle-arena.js', 'public/js/shared/world/arena.js',
     'public/js/client/ui/arena.js',
+    // 第5章 Step 9（A9: てっぺんと エンディング）: 星のない広間・ノクト（本気）と ソリトゥスの 台本・エンディング・クリアの あと
+    'public/js/shared/data/story-castle-top.js', 'public/js/shared/maps/castle-top.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

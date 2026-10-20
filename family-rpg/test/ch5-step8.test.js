@@ -22,7 +22,7 @@ import { CH5_STEPS, OLD_C5_OBJ, CH5_OBJECTIVE_TARGETS, CH5_OBJECTIVE_TALK } from
 import { EARTH_OBJ, EARTH_STEPS } from '../public/js/shared/data/story-earth.js';
 import { CASTLE_STEPS, CASTLE_OBJ, CASTLE_STORY_SCRIPTS } from '../public/js/shared/data/story-castle.js';
 // 仮の 品（B8 の data/items-castle.js が 入ったら、ここも そちらに かえる）
-import { CASTLE_TREASURE } from '../public/js/shared/data/castle-stub.js';
+import { CASTLE_TREASURE } from '../public/js/shared/data/items-castle.js';
 import { ITEMS } from '../public/js/shared/data/items.js';
 import { objectiveFromFlags, KNOWN_OBJECTIVES, repairObjective } from '../public/js/shared/data/progress.js';
 import { talkFor } from '../public/js/shared/data/party-talk.js';

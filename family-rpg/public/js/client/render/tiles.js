@@ -14,6 +14,7 @@ import { KUMOI_PAINTERS, KUMOI_FRAMES, KUMOI_SPEED, KUMOI_WALLS, kumoiMask, kumo
 import { MEMORY_PAINTERS, MEMORY_FRAMES, MEMORY_SPEED } from './tiles-memory.js';
 import { EARTH_PAINTERS, EARTH_FRAMES, EARTH_SPEED } from './tiles-earth.js';
 import { CASTLE_PAINTERS, CASTLE_FRAMES, CASTLE_SPEED } from './tiles-castle.js';
+import { TOP_PAINTERS, TOP_FRAMES, TOP_SPEED } from './tiles-top.js';
 
 export const TS = 16;
 
@@ -509,6 +510,8 @@ Object.assign(painters, MEMORY_PAINTERS);
 Object.assign(painters, EARTH_PAINTERS);
 // 第5章 Step 8「影の城」（render/tiles-castle.js）
 Object.assign(painters, CASTLE_PAINTERS);
+// 第5章 Step 9「星のない広間」（render/tiles-top.js）
+Object.assign(painters, TOP_PAINTERS);
 // ピラミッドの 中の かがり火は 金色の 台（mask 4。tiles-ch4.js の ch4Mask）
 for (const [id, lit] of [[T.BRAZIER, false], [T.BRAZIER_LIT, true]]) {
   const base = painters[id];
@@ -530,9 +533,9 @@ const FRAMES = {
   [T.WATER]: 3, [T.DEEP]: 3, [T.SWAMP]: 3, [T.FOUNTAIN]: 2, [T.FIREPLACE]: 2, [T.CAVE_WATER]: 3, [T.CRYSTAL]: 3,
   [T.TORCH]: 3, [T.LAMP]: 2, [T.STEPPING]: 3, [T.BRIDGE_H]: 3, [T.BRIDGE_V]: 3, [T.BROKEN_BRIDGE]: 3, [T.CAVE_BRIDGE]: 3, [T.PIER]: 3,
   [T.WHIRLPOOL]: 3,
-  ...CH3_FRAMES, ...CH4_FRAMES, ...PYRAMID_FRAMES, ...TOWER_FRAMES, ...KUMOI_FRAMES, ...MEMORY_FRAMES, ...EARTH_FRAMES, ...CASTLE_FRAMES,
+  ...CH3_FRAMES, ...CH4_FRAMES, ...PYRAMID_FRAMES, ...TOWER_FRAMES, ...KUMOI_FRAMES, ...MEMORY_FRAMES, ...EARTH_FRAMES, ...CASTLE_FRAMES, ...TOP_FRAMES,
 };
-const SPEED = { [T.TORCH]: 140, [T.FIREPLACE]: 180, [T.CRYSTAL]: 500, [T.LAMP]: 700, ...CH3_SPEED, ...CH4_SPEED, ...PYRAMID_SPEED, ...TOWER_SPEED, ...KUMOI_SPEED, ...MEMORY_SPEED, ...EARTH_SPEED, ...CASTLE_SPEED };
+const SPEED = { [T.TORCH]: 140, [T.FIREPLACE]: 180, [T.CRYSTAL]: 500, [T.LAMP]: 700, ...CH3_SPEED, ...CH4_SPEED, ...PYRAMID_SPEED, ...TOWER_SPEED, ...KUMOI_SPEED, ...MEMORY_SPEED, ...EARTH_SPEED, ...CASTLE_SPEED, ...TOP_SPEED };
 
 export function frameOf(id, t) {
   const n = FRAMES[id];

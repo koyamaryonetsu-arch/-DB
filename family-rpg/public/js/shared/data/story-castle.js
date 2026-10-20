@@ -14,7 +14,6 @@ import {
   statueDir, nextStatueDir, waterLevel, nextWaterLevel, castleMapId, castleBgm, gateArrive,
 } from '../maps/castle.js';
 // ※※ 仮（まとめる 時に 消す）: B8 の 戦いの データが まだ ない ときの 仮の 出現表・まぼろしの 戦い ※※
-import './castle-stub.js';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
