@@ -27,6 +27,8 @@ import { gaiaEffect, gaiaCond, gaiaKill, gaiaPlan, gaiaPub } from './battle-gaia
 import { noctoCond, noctoEffect, noctoCheck, noctoKill, noctoPlan, noctoPub } from './battle-nocto.js';
 // 第5章 Step 6・7: ノクト（1回目）・大地の神殿の 魔物（かげぶんしん・地われ・まもる・おこる。battle-earth.js。ここから よぶ）
 import { earthCond, earthEffect, earthKill, earthPlan, earthPub, earthTurnStart } from './battle-earth.js';
+// 第5章 Step 9: ノクト（本気）・魔王ソリトゥス（ひとりにする・よびかける・きずなを食べる・家族の きずな技。battle-final.js。ここから よぶ）
+import { finalCond, finalEffect, finalCheck, finalKill, finalPlan, finalPub, finalTurnStart } from './battle-final.js';
 // 第37回 A: サファラ闘技場の 王者の しかけ（チームの 合体技・属性の よろい）
 import { arenaCond, arenaEffect } from './battle-arena.js';
 
@@ -91,6 +93,8 @@ export function towerCond(b, m, cond) {
   if (n !== null) return n;
   const e = earthCond(b, m, cond);
   if (e !== null) return e;
+  const fc = finalCond(b, m, cond);
+  if (fc !== null) return fc;
   const ar = arenaCond(b, m, cond);
   if (ar !== null) return ar;
   if (cond === 'gaze') return !!confOf(m) && readBy(b, m).length < gazeCount(m) && gazeTargets(b).length > 0;
@@ -102,6 +106,7 @@ export function towerEffect(b, c, a, eff, ev, targets = []) {
   if (gaiaEffect(b, c, a, eff, ev)) return true;
   if (noctoEffect(b, c, a, eff, ev)) return true;
   if (earthEffect(b, c, a, eff, ev, targets)) return true;
+  if (finalEffect(b, c, a, eff, ev, targets)) return true;
   if (arenaEffect(b, c, a, eff, ev, targets)) return true;
   if (eff.type !== 'foresee') return false;
   foreseeStart(b, c, ev);
@@ -137,6 +142,7 @@ function foreseeStart(b, c, ev) {
 // 動けない 番（ねむり・マヒ・水のろう）でも 読みは 消える。読んだ アルゴスが もう いなければ 消える
 export function towerTurnStart(b, c, ev, cmd) {
   earthTurnStart(b, c, ev);
+  finalTurnStart(b, c, ev, cmd);
   if (c.side !== 'ally' || !c.foresee) return;
   const by = b.get(c.foresee.by);
   if (!by?.alive || cmd?.type === 'incapacitated') {
@@ -152,6 +158,8 @@ export function foreseeCheck(b, c, cmd, ev) {
   if (c.side !== 'ally') return false;
   // ノクトの影は 合体技を 見ると 次に きずなくだきの 前ぶれ（battle-nocto.js）
   if (noctoCheck(b, c, cmd)) return true;
+  // ソリトゥスも 合体技を 見ると 次に きずなを食べるの 前ぶれ（battle-final.js）
+  finalCheck(b, c, cmd);
   const kind = cmd.confused ? null : actKind(cmd);
   const f = c.foresee;
   if (kind) c.lastKind = kind;
@@ -245,6 +253,7 @@ export function towerKill(b, t, ev) {
   gaiaKill(b, t, ev);
   noctoKill(b, t, ev);
   earthKill(b, t, ev);
+  finalKill(b, t, ev);
   if (t.side !== 'enemy' || !confOf(t)) return;
   for (const x of b.allies) {
     if (x.foresee?.by !== t.id) continue;
@@ -267,6 +276,9 @@ export function towerPlan(b, c, decide) {
   // ノクト（1回目。知っている 人: 影を 先に たおす・前ぶれで 身を 守る・手を のばす。battle-earth.js）
   const ep = earthPlan(b, c);
   if (ep) return ep;
+  // 魔王ソリトゥス（だれでも: きずな技の ゲージが たまったら 使う。知っている 人: よびかける・前ぶれで 身を 守る。battle-final.js）
+  const flp = finalPlan(b, c);
+  if (flp) return flp;
   if (b.knowsArgos && c.foresee?.kind !== 'guard') {
     const mine = 100 / atbRate(c);
     const j = b.aliveEnemies().find((e) => e.telegraph === JUDGE);
@@ -320,5 +332,5 @@ export function dodgeCmd(b, c, kind) {
 // ───────────── がめんへ ─────────────
 // pub（battle.js）に まぜる: 読まれている 種類（味方だけ）
 export function towerPub(c) {
-  return c.side === 'ally' ? { foresee: c.foresee?.kind || null, ...noctoPub(c), ...earthPub(c) } : { ...gaiaPub(c), ...noctoPub(c), ...earthPub(c) };
+  return c.side === 'ally' ? { foresee: c.foresee?.kind || null, ...noctoPub(c), ...earthPub(c), ...finalPub(c) } : { ...gaiaPub(c), ...noctoPub(c), ...earthPub(c), ...finalPub(c) };
 }

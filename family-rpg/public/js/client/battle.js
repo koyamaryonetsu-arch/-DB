@@ -48,6 +48,8 @@ import { gaiaSprite, GAIA_SFX } from './battle-gaia.js';
 import { noctoSprite, NOCTO_SFX } from './battle-nocto.js';
 // 第5章 Step 6・7 の ノクト（1回目）と 大地の神殿の 魔物（音・コマンド「手をのばす」。battle-earth.js）
 import { EARTH_SFX, earthReachItem, earthReachPick, REACH_INFO } from './battle-earth.js';
+// 第5章 Step 9 の ノクト（本気）・魔王ソリトゥス（音・コマンド「よびかける」「家族のきずな技」。battle-final.js）
+import { FINAL_SFX, FINAL_HIT, FINAL_OWN_TELE, finalCmdItems, finalCmdPick } from './battle-final.js';
 
 // たたかいの え の こまかさ（おもい きかいで さげたら、その あいだは さげた まま）
 let battleRes = BRES;
@@ -62,6 +64,8 @@ function white(img, color = '#ffffff') {
 
 // じゅもんが とどくまでの じかん（ダメージの かずは あたった ときに だす）
 const HIT_DELAY = {
+  // 第5章 Step 9（client/battle-final.js）
+  ...FINAL_HIT,
   fire1: 320, fire2: 360, fire3: 400, void: 340, ice1: 260, ice2: 180, minadein: 220, slash_light: 100, strash: 300,
   holy_punch: 60, mahouken: 150, fire_wave: 120, wind2: 150, blast2: 110, dark1: 120,
   bolt1: 60, bolt2: 180, gigabreak: 250, whip: 200, shuriken: 260, dragon_beam: 380, summon: 420, meteor: 480, dark_slash: 120,
@@ -142,6 +146,8 @@ const ANIM_SFX = {
   ...NOCTO_SFX,
   // 第5章 Step 6・7 の 根の島・大地の神殿の 魔物と ノクト（1回目）（client/battle-earth.js）
   ...EARTH_SFX,
+  // 第5章 Step 9 の ノクト（本気）・魔王ソリトゥス・家族の きずな技（client/battle-final.js）
+  ...FINAL_SFX,
 };
 
 // ひらめきの 電球（ドット絵ふう）
@@ -483,6 +489,9 @@ export class BattleScene {
     // 地われ・のみこまれ の 仲間が いる 時だけ「手をのばす」（いちばん 上。battle-earth.js）
     const reach = earthReachItem(this, a);
     if (reach) items.unshift(reach);
+    // ひとりの 仲間が いる 時の「よびかける」・ソリトゥスの 第3段階の「家族のきずな技」（いちばん 上。battle-final.js）
+    const fin = finalCmdItems(this, a);
+    if (fin.items.length) items.unshift(...fin.items);
     this.showMenu(items, (it) => {
       switch (it.value) {
         case 'attack': {
@@ -498,11 +507,12 @@ export class BattleScene {
         case 'flee': return this.send({ type: 'flee' });
         case 'wagon': return battleSwapMenu(this);
         case 'reach': return earthReachPick(this, a);
-        default:
+        default: return finalCmdPick(this, a, it.value);
       }
     }, null, this.noSpells ? `${a.name}はどうする？（ここでは呪文がふうじられている）` : `${a.name}はどうする？`);
     // 「手をのばす」が ある ときは せつめいも（battle-earth.js）
     if (reach) this.info(REACH_INFO);
+    if (fin.info) this.info(fin.info);
     if (this.noSpells && spells.length && !this.sealNoted) {
       this.sealNoted = true;
       this.info(`${SEALED_REASON}\n特技・道具・攻撃で戦おう。`);
@@ -1149,7 +1159,8 @@ export class BattleScene {
         }
       }
     }
-    if (fx.type === 'telegraph') { g.audio.sfx('warn'); this.banner(fx.chant ? '！呪文の前ぶれ！大きなダメージで止めろ！' : '！大技が来る！防御で身を守れ！', 'danger'); }
+    // 第5章 Step 9 の ノクト（本気）・ソリトゥスは、自分の 前ぶれの バナー（client/battle-final.js）
+    if (fx.type === 'telegraph' && !FINAL_OWN_TELE.has(actor?.species)) { g.audio.sfx('warn'); this.banner(fx.chant ? '！呪文の前ぶれ！大きなダメージで止めろ！' : '！大技が来る！防御で身を守れ！', 'danger'); }
     // よみがえりの呪文を 止めた
     if (ev.chantBreak) { g.audio.sfx('crit'); this.banner('呪文を止めた！', 'combo'); }
     if (fx.type === 'stance') { g.audio.sfx('warn'); this.banner('！反撃の構え！なぐると反撃される', 'danger'); }

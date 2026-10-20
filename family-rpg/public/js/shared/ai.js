@@ -16,6 +16,8 @@ import { towerCond, towerPlan } from './battle-ch5.js';
 import { noctoAction } from './battle-nocto.js';
 // 第5章 Step 6・7 の ノクト（1回目。合体技の 前ぶれ）と「手をのばす」（battle-earth.js）
 import { earthAction, reachPlan } from './battle-earth.js';
+// 第5章 Step 9 の 魔王ソリトゥス（きずなを食べる・終わらない夜の 前ぶれ。battle-final.js）
+import { finalAction } from './battle-final.js';
 // 第37回 A: 闘技場の 王者の しかけを 知っている 人（シミュレーター。battle-arena.js）
 import { arenaPlan, arenaAdjust } from './battle-arena.js';
 
@@ -45,6 +47,9 @@ export function decideMonster(b, m) {
   // ノクト（1回目）: 影が そろうと 合体技の 前ぶれ（battle-earth.js）
   const ef = earthAction(b, m);
   if (ef) return ef;
+  // 魔王ソリトゥス: 第2段階から きずなを食べる・第3段階で 終わらない夜の 前ぶれ（battle-final.js）
+  const ff = finalAction(b, m);
+  if (ff) return ff;
   const foes = b.aliveAllies();
   if (m.telegraph) {
     const id = m.telegraph;

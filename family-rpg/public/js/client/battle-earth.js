@@ -19,7 +19,8 @@ export const EARTH_SFX = {
   fs_gold: 'sparkle', fs_grab: 'hit', fs_swallow: 'dark', n1_blade: 'smash', n1_dark: 'dark', n1_clones: 'warn', n1_rift: 'blast', n1_combo_ready: 'warn',
   n1_combo: 'blast', n1c_claw: 'hit',
 };
-export const TRAP_LABEL = { rift: '地われの中', swallow: 'のみこまれた' };
+// alone … 第5章 Step 9 の ソリトゥスの「ひとりにする」（もどすのは「よびかける」。client/battle-final.js）
+export const TRAP_LABEL = { rift: '地われの中', swallow: 'のみこまれた', alone: 'ひとりぼっち' };
 
 // ───────────── 地われ・のみこまれ の しるし ─────────────
 const CSS = `
@@ -31,6 +32,8 @@ const CSS = `
   background: rgba(60, 34, 14, 0.94); border: 1px solid #d8a060; border-radius: 4px; box-shadow: 0 0 0 1px #000;
 }
 .b-mem.n1-trap.n1-swallow::after { background: rgba(30, 30, 40, 0.94); border-color: #e8e8f0; }
+.b-mem.n1-trap.n1-alone { box-shadow: 0 0 0 2px #000, inset 0 0 16px rgba(20, 30, 90, 0.95); filter: saturate(0.5) brightness(0.7); }
+.b-mem.n1-trap.n1-alone::after { background: rgba(8, 10, 30, 0.95); border-color: #7ad8ff; color: #d8f0ff; }
 .b-cmd .menu .item.k-reach { border-color: #ffb070; background: linear-gradient(90deg, rgba(200, 110, 40, 0.3), rgba(255, 220, 160, 0.12)); }
 .reach-cmd { color: #ffd0a0; font-weight: bold; }
 `;
@@ -49,6 +52,7 @@ export function earthMarks(scene) {
     if (kind) any = true;
     s.box.classList.toggle('n1-trap', !!kind);
     s.box.classList.toggle('n1-swallow', kind === 'swallow');
+    s.box.classList.toggle('n1-alone', kind === 'alone');
     if (kind) s.box.dataset.trap = TRAP_LABEL[kind] || TRAP_LABEL.rift;
     else delete s.box.dataset.trap;
   }
@@ -58,7 +62,7 @@ export function earthMarks(scene) {
 // ───────────── コマンド「手をのばす」（client/battle.js の openCommand）─────────────
 // だれかが 地われ・のみこまれ の とき だけ 出す（自分は のぞく）
 export function trappedOthers(scene, a) {
-  return scene.allies().filter((x) => x.alive && x.trap && x.id !== a?.id);
+  return scene.allies().filter((x) => x.alive && x.trap && x.trap !== 'alone' && x.id !== a?.id);
 }
 export function earthReachItem(scene, a) {
   const list = trappedOthers(scene, a);
@@ -134,12 +138,12 @@ export function earthPresent(scene, ev, fx, anim, actor) {
     scene.banner('合体技のかまえを、くずした！', 'combo');
   }
   if (ev.n1Torn) scene.banner('合体技の手が、ひきはなされた…！', 'danger');
-  if (ev.n1Trap) {
+  if (ev.n1Trap && ev.n1Trap.kind !== 'alone') {
     g.audio.sfx('warn');
     if (ev.n1Trap.kind !== 'swallow') scene.shake(420, 4);
     scene.banner(`！${nameOf(ev.n1Trap.who)}が${ev.n1Trap.kind === 'swallow' ? 'のみこまれた' : '地われに落ちた'}！「手をのばす」で助けよう`, 'danger');
   }
-  if (fx.type === 'n1Reach' || ev.n1Free?.by) {
+  if (fx.type === 'n1Reach' || (ev.n1Free?.by && !ev.slCall)) {
     const who = ev.n1Free?.who || fx.targets?.[0];
     g.audio.sfx('heal');
     if (who) scene.allyFx?.(who, 'up');

@@ -39,6 +39,8 @@ const SRC_TEXT = {
   casino: 'カジノの景品でしか手に入らない', sugoroku: 'すごろくでしか手に入らない',
   // 第37回 A: サファラ闘技場の ごほうび（items-arena.js）
   arena: '闘技場のごほうびでしか手に入らない',
+  // 第5章 Step 9（items-final.js）: 魔王ソリトゥスの いちばん 強い ★5
+  final: '魔王ソリトゥスからしか手に入らない',
 };
 export function rareWhereText(id) {
   const it = ITEMS[baseItemId(id)];

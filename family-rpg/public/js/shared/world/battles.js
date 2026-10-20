@@ -151,6 +151,8 @@ function makeBattle(world, sessions, party, enemies, opts) {
     // 敵の 強さ（ハード 1.2倍 など）。リーダーの 設定。宝の洞窟の 強さの 上に かける（ほうしゅうは かわらない）
     enemyRate: enemyRateFor(world, party, sessions),
     hooks: {
+      // リーダー（物語の もちぬし）の フラグ（第5章 Step 9 の ノクト〈本気〉: 思い出の かけら・ピピの 手紙で ことばが かわる。battle-final.js）
+      leaderFlag: (id) => !!leader?.char?.flags?.[id],
       hasItem: (actor, id) => {
         const m = actor.controller && world.sessions.get(actor.controller);
         return m ? itemCount(m.char, id) > 0 : false;

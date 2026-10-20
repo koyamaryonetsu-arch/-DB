@@ -35,6 +35,7 @@ import { TOWER_ABILITIES } from './abilities-tower.js';
 import { KUMOI_ABILITIES } from './abilities-kumoi.js';
 import { HOSHIYOMI_ABILITIES } from './abilities-hoshiyomi.js';
 import { EARTH_ABILITIES } from './abilities-earth.js';
+import { FINAL_ABILITIES } from './abilities-final.js';
 import { JOB3_ABILITIES } from './abilities-jobs3.js';
 import { JOB4_ABILITIES } from './abilities-jobs4.js';
 // 2026年10月（第22回）の 新しい 職業の 技（おかん・社ちく・天才しせつ管理者・はかい神 など）
@@ -619,6 +620,8 @@ Object.assign(ABILITIES, KUMOI_ABILITIES);
 Object.assign(ABILITIES, HOSHIYOMI_ABILITIES);
 // 第5章 Step 6・7 の 魔物と ノクト（1回目）の 技（abilities-earth.js）
 Object.assign(ABILITIES, EARTH_ABILITIES);
+// 第5章 Step 9 の ノクト（本気）・魔王ソリトゥスと 仲間の ノクトの 技（abilities-final.js）
+Object.assign(ABILITIES, FINAL_ABILITIES);
 // 料理人・アルバイト・お笑い芸人の 系統、大賢者、ロトの勇者と、攻撃技を 足した 職業（abilities-jobs3.js）
 Object.assign(ABILITIES, JOB3_ABILITIES);
 // ニート・サイヤ人・設備屋・ゴム人間・ユーチューバー・ゲーマーの 系統と 魔王（abilities-jobs4.js）

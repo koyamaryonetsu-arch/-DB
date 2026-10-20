@@ -291,6 +291,9 @@ export function gameFiles() {
     // 第5章 Step 6・7（B: 戦い・品）: 根の島と 大地の神殿の 魔物・ノクト（1回目。かげぶんしん・地われ・手をのばす）・ハネノの ランク9の 店・神殿の 宝箱・みんなが くれる 品・天空のきょ兵
     'public/js/shared/data/monsters-earth.js', 'public/js/shared/data/abilities-earth.js', 'public/js/shared/data/items-earth.js',
     'public/js/shared/data/encounters-earth.js', 'public/js/shared/data/companions-earth.js', 'public/js/shared/battle-earth.js', 'public/js/client/battle-earth.js',
+    // 第5章 Step 9（B9: ノクト本気・ソリトゥス）: ノクト（本気）・魔王ソリトゥス（ひとりにする・よびかける・きずなを食べる・家族の きずな技）・ボスの 品・仲間の ノクト
+    'public/js/shared/data/monsters-final.js', 'public/js/shared/data/abilities-final.js', 'public/js/shared/data/items-final.js',
+    'public/js/shared/data/encounters-final.js', 'public/js/shared/data/companions-castle.js', 'public/js/shared/battle-final.js', 'public/js/client/battle-final.js',
     // 第37回 A: サファラ闘技場（ランク戦の 3連戦・王者・ごほうび・かけ試合・王者のかべ）
     'public/js/shared/data/arena.js', 'public/js/shared/data/story-arena.js', 'public/js/shared/data/monsters-arena.js', 'public/js/shared/data/abilities-arena.js',
     'public/js/shared/data/items-arena.js', 'public/js/shared/data/encounters-arena.js', 'public/js/shared/battle-arena.js', 'public/js/shared/world/arena.js',
