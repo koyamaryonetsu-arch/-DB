@@ -18,24 +18,26 @@ import { PHANTOM_NAME, phantomLook, trialWords, masterName, TRIALS } from './dat
 export const PHANTOM_MODS = { hp: 0.5, str: 1, def: 0.6, agi: 0.5, mag: 1, heal: 0.6 };
 export const PHANTOM_MP = 3000;
 // 職業ごとの ダメージの ちょうせい（[一の試練, 二の試練]。職業の 技の 強さが ちがうので、tools/sim-trial.mjs で 勝ちが そろう ように 合わせた）
-//   （tools/sim-trial-tune.mjs: 完全オートの 勝ちが 75% に なる 倍率。ゆれが 大きい 職業は 2回 さがした 平均。もとの 倍率は monsters-trial.js の dmgRate 0.55）
+//   （第38回 C の バフの きまり〈3回行動で 切れる〉に 合わせて さがし直した。tools/sim-trial-tune.mjs: 完全オートの 勝ちが 75% に なる 倍率。ゆれが 大きい 職業は 2回 さがした 平均。もとの 倍率は monsters-trial.js の dmgRate 0.55）
 export const PHANTOM_ADJ = {
-  dragon_knight: [1.98, 1.95], archmage: [1.46, 1.72], high_priest: [1.87, 1.5], god_hand: [1.66, 1.24], summoner: [1.63, 1.72],
-  magic_swordsman: [1.7, 1.43], guardian: [5.4, 4.54], hero: [1.66, 1.6], monster_master: [3.85, 3.34], star_diva: [1.44, 1.53],
-  sword_master: [0.78, 0.63], shogun: [0.97, 0.67], shacho: [2.06, 1.88], nitoryu: [5.09, 4.64], highschooler: [1.51, 1.38],
-  career: [0.97, 0.92], fruit_idol: [1.41, 1.51], storm_idol: [1.54, 1.57], keikyu_driver: [0.83, 0.68], star_chef: [1.88, 2.13],
-  tatakiage: [1.54, 1.43], m1_champion: [1.29, 1.25], daikenja: [1.62, 1.59], datenshi: [1.63, 1.57], ss2: [0.9, 0.72],
-  ryonetsu: [1.16, 1.12], rubber: [1.02, 0.75], black_star: [1.75, 1.54], enbashira: [1.6, 1.51], black_org: [1.51, 1.27],
-  doraemon: [3.04, 2.35], kinniku_kappa: [1.16, 1.16], konoha: [2.09, 1.95], himura: [1.31, 1.27], kaito_kid: [1.6, 1.34],
-  harry: [1.14, 0.98], fullmetal: [0.83, 0.65], sailor_moon: [1.24, 1.28],
-  loto_hero: [1.8, 1.59], ss3: [1.08, 0.94], nika: [0.85, 0.81], maou: [0.51, 0.51], facility_genius: [1.1, 1.12], hakaishin: [0.62, 0.7],
-  hinokami: [0.97, 0.93], hokage: [0.68, 0.74], abarenbo_shogun: [0.9, 0.9], hiten: [0.72, 0.78], homeroom_3b: [0.85, 0.92],
+  dragon_knight: [1.56, 1.72], archmage: [1.56, 1.64], high_priest: [1.38, 0.87], god_hand: [1.37, 0.89], summoner: [1.52, 1.31],
+  magic_swordsman: [1.3, 0.99], guardian: [2, 2], hero: [1.56, 1.59], monster_master: [2, 2], star_diva: [1.44, 1.37],
+  sword_master: [0.65, 0.48], shogun: [0.55, 0.37], shacho: [1.56, 1.18], nitoryu: [3.43, 2.59], highschooler: [1.3, 1.15],
+  career: [0.87, 0.7], fruit_idol: [1.44, 1.18], storm_idol: [1.44, 1.41], keikyu_driver: [0.42, 0.35], star_chef: [1.9, 1.95],
+  tatakiage: [1.37, 1.21], m1_champion: [0.96, 0.7], daikenja: [1.59, 1.56], datenshi: [1.31, 1.31], ss2: [0.57, 0.45],
+  ryonetsu: [0.89, 0.7], rubber: [0.65, 0.43], black_star: [1.41, 0.99], enbashira: [1.34, 1.15], black_org: [0.87, 0.65],
+  doraemon: [2, 1.72], kinniku_kappa: [1.07, 0.87], konoha: [1.44, 1.04], himura: [1.24, 1.01], kaito_kid: [0.96, 0.46],
+  harry: [0.85, 0.65], fullmetal: [0.58, 0.43], sailor_moon: [1.21, 1.18], loto_hero: [1.3, 1.04], ss3: [0.71, 0.48],
+  nika: [0.61, 0.55], maou: [0.75, 0.55], facility_genius: [0.86, 0.74], hakaishin: [0.6, 0.6], hinokami: [0.63, 0.49],
+  hokage: [0.53, 0.43], abarenbo_shogun: [0.77, 0.7], hiten: [0.68, 0.58], homeroom_3b: [0.58, 0.68],
 };
 // 使わない 技の こうか（生き返らせる・みんなの MP を へらす など。鏡のうつし身の MIRROR_SKIP の ほか）
 const NO_USE = new Set(['revive', 'reviveAll']);
 // 回復の 技（HPが HEAL_BELOW より 少ない ときだけ 使う）
 const HEAL_TYPES = new Set(['heal', 'regen', 'cure', 'mpHeal']);
 export const HEAL_BELOW = 0.4;
+// 1回の 戦いで 回復できる 回数（大きく 回復する 技を もつ 職業だけ。ほかは 今までどおり 何度でも）
+export const HEAL_CAP = { nitoryu: 3 };
 const prim = (a) => (a?.effect?.type === 'multi' ? a.effect.parts?.[0] || a.effect : a?.effect || {});
 
 const pow = (m, k) => Math.pow(Math.max(0.3, m || 1), k);
@@ -94,7 +96,18 @@ export function setupTrialPhantom(b, trial) {
   // 回復の 技は HPが HEAL_BELOW より 少ない ときだけ（ひとりで 回復ばかり して 長い 戦いに ならない ように）
   const all = m.abilities;
   const noHeal = all.filter((id) => !HEAL_TYPES.has(prim(ABILITIES[id]).type));
-  Object.defineProperty(m, 'abilities', { get() { return this.hp < this.maxHp * HEAL_BELOW ? all : noHeal; }, set() {}, enumerable: true, configurable: true });
+  // 回復は 1回の 戦いで HEAL_CAP 回まで（前の 番より HPが ふえていたら 回復した と 数える。二刀流スターの ねむりファーストで いつまでも たおせない のを ふせぐ）
+  const healMax = HEAL_CAP[job] ?? Infinity;
+  let lastHp = m.hp;
+  let heals = 0;
+  Object.defineProperty(m, 'abilities', {
+    get() {
+      if (this.hp > lastHp + 1) heals++;
+      lastHp = this.hp;
+      return this.hp < this.maxHp * HEAL_BELOW && heals < healMax ? all : noHeal;
+    },
+    set() {}, enumerable: true, configurable: true,
+  });
   const words = trialWords(job, trial.who);
   b.emit({ t: 'msg', lines: [`${masterName(job, trial.who)}のまぼろしが、すがたを現した！`, `「${words}」`], dur: 2000 });
   return m;
