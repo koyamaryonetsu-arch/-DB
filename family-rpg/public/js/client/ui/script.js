@@ -363,7 +363,8 @@ ScriptPlayer.prototype.roll = function roll(o, msg) {
     const tick = (now) => {
       // つなぎなおし などで すてられた（reset）
       if (!box.isConnected) { g.input.pop(h); resolve(); return; }
-      const dt = Math.min(0.1, (now - last) / 1000);
+      // コマが おそい 端末でも 時計で すすむ（かくれていた 時の 大きな とびだけ おさえる）
+      const dt = Math.min(0.5, Math.max(0, (now - last) / 1000));
       last = now;
       y -= ROLL_PX_PER_S * speed * dt;
       col.style.transform = `translateY(${Math.round(y)}px)`;
