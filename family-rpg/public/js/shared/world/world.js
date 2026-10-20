@@ -224,7 +224,7 @@ export class GameWorld {
       if (run.init.id === s.id) run.abort();
     }
     if (s.char) {
-      if (!s.busy || s.busy === 'battle') s.char.pos = { map: s.map, x: s.x, y: s.y, dir: s.dir };
+      if (!s.busy || s.busy === 'battle') s.char.pos = posOf(s);
       s.char.lastPlayed = this.now();
     }
     s.inWorld = false;
@@ -346,7 +346,7 @@ export class GameWorld {
     if (!c) return this.send(s, { t: 'exportCode', ok: false, text: '見つかりません' });
     // 遊んでいる とちゅうなら 今の いちも 入れる
     for (const x of this.sessions.values()) {
-      if (x.inWorld && x.charId === c.id && !x.busy) c.pos = { map: x.map, x: x.x, y: x.y, dir: x.dir };
+      if (x.inWorld && x.charId === c.id && !x.busy) c.pos = posOf(x);
     }
     this.send(s, { t: 'exportCode', ok: true, id: c.id, name: c.name, code: exportCode(c, this.now()) });
   }
@@ -377,7 +377,7 @@ export class GameWorld {
     const ids = Array.isArray(msg.ids) ? msg.ids.map(String).slice(0, 24) : null;
     // 遊んでいる とちゅうなら 今の いちも 入れる
     for (const x of this.sessions.values()) {
-      if (x.inWorld && x.char && (!ids || ids.includes(x.charId)) && !x.busy) x.char.pos = { map: x.map, x: x.x, y: x.y, dir: x.dir };
+      if (x.inWorld && x.char && (!ids || ids.includes(x.charId)) && !x.busy) x.char.pos = posOf(x);
     }
     const out = buildSyncOut(this, { ids, onlyChanged: !!msg.onlyChanged, from: this.offline ? 'site' : 'server', now: this.now() });
     this.markDirty();
@@ -688,7 +688,7 @@ export class GameWorld {
     if (secretRespawn(this, s, note)) return;
     // さそわれて 来ている 人は リーダーの いのりの場所で（みんな いっしょに 目を覚ます）
     const own = this.hostOf(s)?.char.spawn || s.char.spawn;
-    const sp = own && MAPS[own.map] ? own : { map: 'overworld', x: POS.villageChurch[0] + 0.5, y: POS.villageChurch[1] + 0.5 };
+    const sp = own && MAPS[own.map] ? layoutFix(own) : { map: 'overworld', x: POS.villageChurch[0] + 0.5, y: POS.villageChurch[1] + 0.5 };
     // 教会の 人・かべ・宝箱と 重ならない、いちばん ちかい ところで 目を覚ます（重なると 動けなく なる）
     const at = standSpot(MAPS[sp.map], sp.x, sp.y, this.hasFlagFn(s));
     fullHeal(s.char);
@@ -888,7 +888,7 @@ export class GameWorld {
         // じぶんの パーティーを ぬける
         this.leaveParty(s, true);
         // 自分の 冒険の 場所を おぼえておく（パーティーが おわったら ここへ もどる）
-        if (!s.char.soloPos) s.char.soloPos = { map: s.map, x: s.x, y: s.y, dir: s.dir, ...(s.flying ? { fly: true } : {}) };
+        if (!s.char.soloPos) s.char.soloPos = posOf(s, s.flying ? { fly: true } : {});
         const own = this.parties.get(s.partyId);
         if (own) this.parties.delete(own.id);
         target.members.push(s.id);
@@ -1102,7 +1102,7 @@ export class GameWorld {
     this.dirty = false;
     // ログイン中の いちも きろく
     for (const s of this.sessions.values()) {
-      if (s.inWorld && s.char && !s.busy) s.char.pos = { map: s.map, x: s.x, y: s.y, dir: s.dir };
+      if (s.inWorld && s.char && !s.busy) s.char.pos = posOf(s);
     }
     try {
       this.storage?.save?.(this.data, opts);
@@ -1118,12 +1118,28 @@ export function equipLook(c) {
   return shownEquipKey(c);
 }
 
-// セーブの 場所が つかえるか（知らない マップ・マップの 外なら null）
+// セーブに のこす 場所（マップの レイアウトの 版 lv も いっしょに。maps の layoutVer。ダンジョンを ひろげた 時に、前の 版の 場所を 見分ける）
+export function posOf(s, extra = {}) {
+  const lv = MAPS[s.map]?.layoutVer;
+  return { map: s.map, x: s.x, y: s.y, dir: s.dir, ...(lv ? { lv } : {}), ...extra };
+}
+// 前の 版の レイアウトで のこした 場所（lv が ちがう）は、その 階の 着く ところ（layoutArrive）へ
+//   （第38回: 第5章の ダンジョンの 階を ひろげて、マスが ずれた。前の 場所の ままだと かべの 中や、しかけの 向こうに なる）
+export function layoutFix(pos) {
+  const m = MAPS[pos?.map];
+  if (!m?.layoutVer || pos.lv === m.layoutVer || !m.layoutArrive) return pos;
+  return { map: pos.map, x: m.layoutArrive.x, y: m.layoutArrive.y, dir: m.layoutArrive.dir || pos.dir || 'down', lv: m.layoutVer, ...(pos.fly ? { fly: true } : {}) };
+}
+
+// セーブの 場所が つかえるか（知らない マップ・マップの 外なら null。前の 版の レイアウトなら 着く ところへ）
 function validPos(pos) {
   if (typeof pos?.map === 'string' && pos.map.startsWith('tm_')) return fixTreasurePos(pos); // 宝の洞窟
   if (typeof pos?.map === 'string' && /^sd_\d+(_[0-9a-z]+)?$/.test(pos.map)) return fixSecretPos(pos); // ひみつのダンジョンの 階
   const pm = pos && typeof pos.map === 'string' && Object.prototype.hasOwnProperty.call(MAPS, pos.map) ? MAPS[pos.map] : null;
   const inside = pm && Number.isFinite(pos.x) && Number.isFinite(pos.y) && pos.x >= 0 && pos.y >= 0 && pos.x < pm.w && pos.y < pm.h;
+  if (!pm) return null;
+  const fixed = layoutFix(pos);
+  if (fixed !== pos) return fixed;
   return inside ? pos : null;
 }
 
