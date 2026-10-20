@@ -24,6 +24,11 @@ if (mode === 'crash-twice') {
   ready();
   if (n <= 2) setTimeout(() => { throw new Error('boom ' + n); }, 150);
   setInterval(() => {}, 1000);
+} else if (mode === 'say') {
+  console.log('hello-from-child');
+  console.error('oops-from-child');
+  ready();
+  setInterval(() => {}, 1000);
 } else if (mode === 'exit0') {
   ready();
   setTimeout(() => process.exit(0), 100);
@@ -118,4 +123,11 @@ test('見はり役: 前の 版の 見はり役から 動かされた 新しい �
   const r = setup('exit7', { justUpdated: true });
   assert.equal(await r.exited, 7);
   assert.equal(r.count(), 1);
+});
+
+test('見はり役: 本体の 文字は 見はり役を 通して 出る（黒い 画面を クリックしても 本体は 止まらない）', { timeout: 30000 }, async () => {
+  const r = setup('say');
+  await r.until(() => /hello-from-child/.test(r.out()) && /oops-from-child/.test(r.out()));
+  r.proc.kill('SIGINT');
+  assert.equal(await r.exited, 0);
 });

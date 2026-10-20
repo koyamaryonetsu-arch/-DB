@@ -12,6 +12,7 @@ import { acceptUpgrade } from './ws.js';
 import { FileStorage } from './storage.js';
 import { fileSyncStore } from './syncstore.js';
 import { clientAddress, isFromInternet, strongEnough, LoginGuard } from './guard.js';
+import { createConnLog, maskIp, watchStalls, stallText } from './connlog.js';
 import {
   findFunnelUrl, tailscaleState, tailscaleWarning, funnelPublicDns, funnelDnsWarning, funnelNameWarning,
   shouldRepairFunnel, repairFunnel, funnelRepairLines, REPAIR_WAIT_MS,
@@ -34,6 +35,12 @@ fs.mkdirSync(DATA_DIR, { recursive: true });
 // エラーの きろく（セーブの 場所の error-log.txt）。console.error・console.warn も ここに 書く
 // （おなじ エラーが つづく ときは 1分に 1回だけ 黒い 画面に 出す）
 const errlog = createErrorLog(DATA_DIR, { version: String(readVersion(ROOT)?.date || '').slice(0, 10) });
+// つながりの きろく（connection-log.txt。スマホから つながらない ときに どこで 止まったかを 見る）
+const connlog = createConnLog(DATA_DIR);
+connlog.note(`家族サーバーを起動しました（版 ${readVersion(ROOT)?.date?.slice(0, 10) || '?'}${Number(process.env.KIZUNA_RESTARTS) > 0 ? `・自動でもう一度動かした ${process.env.KIZUNA_RESTARTS}回目` : ''}）`);
+watchStalls((sec) => {
+  connlog.note(stallText(sec));
+});
 captureConsole(errlog);
 
 // むかしの 版の セーブ（アプリの フォルダの 中の data）を ひっこす
@@ -166,6 +173,11 @@ function serveHttp(req, res) {
     failHttp(res, 400);
     return;
   }
+  // 外出先から（Funnel を 通って）ページを 開いた（スマホの 通信が この PC まで とどいた しるし）
+  if ((reqPath === '/' || reqPath === '/index.html') && isFromInternet(req)) {
+    const who = maskIp(clientAddress(req));
+    connlog.noteOnce(`page:${who}`, `外出先からページが開かれました（${who}）`);
+  }
   if (reqPath === '/api/info') {
     const headers = { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' };
     const origin = String(req.headers.origin || '');
@@ -244,6 +256,8 @@ function upgradeWs(req, socket, head) {
     const ip = clientAddress(req) || ws.remote || '?';
     const fromInternet = isFromInternet(req);
     const guard = fromInternet ? guardNet : guardHome;
+    const openedAt = Date.now();
+    if (fromInternet) connlog.note(`外出先からゲームにつながりました（${maskIp(ip)}）`);
     const conn = {
       send: (msg) => {
         if (msg.t === 'helloFail' && !msg.code) guard.fail(ip);
@@ -270,6 +284,7 @@ function upgradeWs(req, socket, head) {
       if (msg?.t === 'hello') {
         const g = guard.check(ip);
         if (!g.ok) {
+          if (fromInternet) connlog.noteOnce(`wait:${ip}`, `外出先から入れませんでした: 合言葉のまちがいが多いので待ち（${maskIp(ip)}）`);
           ws.send(JSON.stringify({ t: 'helloFail', code: 'wait', reason: `合言葉のまちがいが多いので、${Math.ceil(g.wait / 60000)}分待ってからもう一度入れてね` }));
           return;
         }
@@ -296,6 +311,7 @@ function upgradeWs(req, socket, head) {
     });
     ws.on('close', () => {
       sockets.delete(ws);
+      if (fromInternet) connlog.note(`外出先からのつながりが切れました（${maskIp(ip)}・${Math.round((Date.now() - openedAt) / 60000)}分）`);
       try {
         world.disconnect(session, conn);
       } catch (e) {
@@ -339,12 +355,6 @@ server.listen(PORT, HOST, () => {
     console.log('  同じ Wi-Fi のスマホ・タブレットから:');
     for (const u of urls) console.log(`     ${u}`);
   }
-  // Tailscale（家族だけの つながり）が あれば、外出先からも つながる
-  const far = tailnetAddresses().map((a) => `http://${a}:${PORT}`);
-  if (far.length) {
-    console.log('  外出先から（スマホの Tailscale をONにして）:');
-    for (const u of far) console.log(`     ${u}`);
-  }
   console.log('');
   console.log(`  家族の合言葉:  ${PASSWORD}`);
   console.log(`  （変えるときは ${CONFIG_FILE} の password を編集）`);
@@ -360,8 +370,9 @@ server.listen(PORT, HOST, () => {
   console.log('');
   console.log('  終わるときはこの画面で Ctrl + C をおしてね（自動でセーブされます）');
   if (process.platform === 'win32') {
-    console.log('  ※ この黒い画面の中をクリックすると、家族サーバーが一時停止することがあります。その時は Esc キーをおしてね');
+    console.log('  ※ もし黒い画面の文字が止まって見えても、ゲームは動いています（Esc キーで表示がもどります）');
   }
+  console.log(`  つながりの記録:  ${connlog.file}（スマホからつながらない時は、このファイルを見せてね）`);
   if (Number(process.env.KIZUNA_RESTARTS) > 0) {
     console.log(`  （エラーで止まったので、自動でもう一度動かしました。くわしくは ${errlog.file}）`);
   }
@@ -384,6 +395,7 @@ async function checkSleep() {
 let tsWarned = '';
 // 外出先の アドレスを 自動で 登録しなおした 記録（server/funnel.js の shouldRepairFunnel）
 const funnelRepair = { lastAt: 0, tries: 0, ok: false };
+let lastDnsState = '';
 async function checkFunnel(print) {
   try {
     funnel = await findFunnelUrl(PORT);
@@ -407,12 +419,21 @@ async function checkFunnel(print) {
       else {
         // 名前は 同じなのに、アドレスが インターネットに 出ていない
         const state = await funnelPublicDns(new URL(funnel.url).hostname);
+        if (state !== lastDnsState) {
+          connlog.note(state === 'ok'
+            ? `外出先のアドレス（${funnel.url}）は、インターネットに出ています`
+            : state === 'missing'
+              ? `★ 外出先のアドレス（${funnel.url}）が、インターネットに出ていません（スマホから開けない状態。Tailscale ${ts?.state || '?'}）`
+              : '外出先のアドレスが出ているか、しらべられませんでした（このPCのインターネットが切れている？）');
+          lastDnsState = state;
+        }
         if (state === 'ok') funnelRepair.tries = 0;
         if (shouldRepairFunnel(state, ts, funnelRepair)) {
           // 許可は そろっているので、PC の Tailscale に 登録しなおしてもらう（funnel-off → funnel-on と おなじ）
           funnelRepair.lastAt = Date.now();
           funnelRepair.tries++;
           funnelRepair.ok = await repairFunnel(PORT);
+          connlog.note(funnelRepair.ok ? '外出先のアドレスを、自動で登録しなおしました（funnel-off → funnel-on と同じ）' : '外出先のアドレスを、自動で登録しなおせませんでした');
           if (funnelRepair.ok) setTimeout(() => checkFunnel(false), 2 * 60 * 1000).unref();
         }
         const waiting = state === 'missing' && funnelRepair.ok && Date.now() - funnelRepair.lastAt < REPAIR_WAIT_MS;

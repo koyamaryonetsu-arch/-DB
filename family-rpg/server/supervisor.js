@@ -25,6 +25,8 @@ export function supervise({
   logHint = '',
   signals = process,
   platform = process.platform,
+  out = process.stdout,
+  err = process.stderr,
 } = {}) {
   let child = null;
   let stopping = false;
@@ -47,8 +49,13 @@ export function supervise({
     try {
       c = fork(script, [], {
         env: { ...env, KIZUNA_SUPERVISED: '1', KIZUNA_RESTARTS: String(restarts) },
-        stdio: ['inherit', 'inherit', 'inherit', 'ipc'],
+        // 本体の 文字は 見はり役を 通して 出す（パイプ）。Windows の 黒い 画面は、中を クリックすると
+        // 文字を 書く ところで 止まる（簡易編集モード）。じかに 書くと 本体（ゲーム）まで 止まって、
+        // だれも つながれなく なる。パイプなら 止まるのは 見はり役の 表示だけで、ゲームは 動きつづける
+        stdio: ['inherit', 'pipe', 'pipe', 'ipc'],
       });
+      c.stdout?.on('data', (d) => { try { out.write(d); } catch { /* */ } });
+      c.stderr?.on('data', (d) => { try { err.write(d); } catch { /* */ } });
     } catch (e) {
       log(`\n  家族サーバーを動かせませんでした: ${e.message}\n`);
       return onExit(1, null, null);
