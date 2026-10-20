@@ -13,6 +13,8 @@ import { noctoDraw, noctoPresent } from './battle-nocto.js';
 import { earthDraw, earthPresent } from './battle-earth.js';
 // 第5章 Step 9 の ノクト（本気）・魔王ソリトゥス（前ぶれの わ・段階・よびかける・家族の きずな技。battle-final.js）
 import { finalDraw, finalPresent } from './battle-final.js';
+// 第5章 Step 8 の 影の城の 3人の まぼろし（ざんぞう・風のかべ・かげ火の すじ・水かさ・バナー。battle-phantom.js）
+import { phantomDraw, phantomPresent } from './battle-phantom.js';
 
 export const TOWER_SCREEN_ANIMS = ['star_light', 'star_judge', 'tower_gust', 'comet_tail'];
 export const TOWER_ALLY_FX = {
@@ -63,6 +65,7 @@ export function towerDraw(scene, x, m, c, px, py, w, h, base) {
   noctoDraw(scene, x, m, c, px, py, w, h, base);
   earthDraw(scene, x, m, c, px, py, w, h, base);
   finalDraw(scene, x, m, c, px, py, w, h, base);
+  phantomDraw(scene, x, m, c, px, py, w, h, base);
   if (c.species !== 'argos' || !c.alive) return;
   const reading = scene.allies().some((a) => a.foresee && a.alive);
   const T = scene.time;
@@ -117,5 +120,6 @@ export function towerPresent(scene, ev, fx, anim, actor) {
   noctoPresent(scene, ev, fx, anim, actor);
   earthPresent(scene, ev, fx, anim, actor);
   finalPresent(scene, ev, fx, anim, actor);
+  phantomPresent(scene, ev, fx, anim, actor);
   towerMarks(scene);
 }

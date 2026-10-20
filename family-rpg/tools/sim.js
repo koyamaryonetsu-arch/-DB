@@ -58,6 +58,12 @@ const GEAR = {
     priest: ['polaris_spear', 'hoshi_robe', 'star_shield', 'hoshi_hood', 'mizukagami_crown'], mage: ['hoshi_staff', 'hoshi_robe', null, 'hoshi_hood', 'tide_earring'],
     performer: ['yozora_fan', 'yokaze_gi', 'star_shield', 'hoshi_hood', 'mirage_ring'],
   },
+  // 第5章 Step 8: 影の城の 前の ハネノの ランク9の 店 ＋ ノクト（1回目）の 大地のかけらのお守り・それまでの ボスの アクセサリー
+  52: {
+    warrior: ['akatsuki_sword', 'akatsuki_mail', 'akatsuki_shield', 'akatsuki_helm', 'nocto_earth_charm'], monk: ['hayabusa_claw', 'hayabusa_gi', null, 'shiraha_hat', 'scorpion_brooch'],
+    priest: ['hoshimori_spear', 'hoshimori_robe', 'akatsuki_shield', 'shiraha_hat', 'mizukagami_crown'], mage: ['shiraha_staff', 'hoshimori_robe', null, 'shiraha_hat', 'tide_earring'],
+    performer: ['amanoha_fan', 'hayabusa_gi', 'akatsuki_shield', 'shiraha_hat', 'mirage_ring'],
+  },
 };
 
 // gearTier: そうびの だんかい（GEAR の キー。ないときは レベルで きめる。第3章は 20 / 23 を 指定する）
@@ -315,7 +321,19 @@ export const CH5_HOSHIYOMI = [['t5_village', 46, 48], ['t5_village', 47, 48], ['
 // 第5章 Step 6・7「根の島・大地の神殿」: node tools/sim.js [回数] ch5earth
 // 4人（せんし・そうりょ・まほう・ぶとう）・職業Lv10。装備は 星読みの里の ランク8の 店 ＋ 影星のペンダント（GEAR 50）。ノクト（1回目）は tools/sim-nocto1.mjs
 export const CH5_EARTH = [['t5_root', 48, 50], ['t5_root', 49, 50], ['t5_earth_up', 49, 50], ['t5_earth_up', 50, 50], ['t5_earth_low', 49, 50], ['t5_earth_low', 50, 50]];
-if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'ch5earth') {
+// 第5章 Step 8「影の城」: node tools/sim.js [回数] ch5castle
+// 4人（せんし・そうりょ・まほう・ぶとう）・職業Lv10。装備は ハネノの ランク9の 店 ＋ 大地のかけらのお守り（GEAR 52）。3人の まぼろしは tools/sim-phantom.mjs
+export const CH5_CASTLE = [
+  ['t5_castle_wind', 51, 52], ['t5_castle_wind', 52, 52], ['t5_castle_fire', 52, 52], ['t5_castle_fire', 53, 52], ['t5_castle_water', 53, 52], ['t5_castle_water', 54, 52],
+];
+if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'ch5castle') {
+  const rng = makeRng(5252);
+  for (const [table, lv, tier] of CH5_CASTLE) {
+    const res = [];
+    for (let i = 0; i < N; i++) res.push(runBattle(PARTY(lv, 10, tier), rollGroup(table, rng), { seed: i }));
+    summarize(`${table} Lv${lv}`, res);
+  }
+} else if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'ch5earth') {
   const rng = makeRng(5050);
   for (const [table, lv, tier] of CH5_EARTH) {
     const res = [];

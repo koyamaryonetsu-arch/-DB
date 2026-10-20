@@ -13,6 +13,7 @@ import { ENCOUNTERS_KUMOI, FIXED_KUMOI, ZONE_BG_KUMOI } from './encounters-kumoi
 import { ENCOUNTERS_HOSHIYOMI, FIXED_HOSHIYOMI, ZONE_BG_HOSHIYOMI } from './encounters-hoshiyomi.js';
 import { ENCOUNTERS_EARTH, FIXED_EARTH, ZONE_BG_EARTH } from './encounters-earth.js';
 import { FIXED_FINAL } from './encounters-final.js';
+import { ENCOUNTERS_PHANTOM, FIXED_PHANTOM, ZONE_BG_PHANTOM } from './encounters-phantom.js';
 // 第37回 A: サファラ闘技場の ランク戦（3連戦）
 import { FIXED_ARENA } from './encounters-arena.js';
 
@@ -132,3 +133,7 @@ Object.assign(FIXED_ENCOUNTERS, FIXED_ARENA);
 Object.assign(ZONE_BG, ZONE_BG_EARTH);
 // 第5章 Step 9: ノクト（本気）・魔王ソリトゥス（encounters-final.js）
 Object.assign(FIXED_ENCOUNTERS, FIXED_FINAL);
+// 第5章 Step 8「影の城」・3人の まぼろし（encounters-phantom.js）
+Object.assign(ENCOUNTER_TABLES, ENCOUNTERS_PHANTOM);
+Object.assign(FIXED_ENCOUNTERS, FIXED_PHANTOM);
+Object.assign(ZONE_BG, ZONE_BG_PHANTOM);

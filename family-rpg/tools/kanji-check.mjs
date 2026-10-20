@@ -296,6 +296,9 @@ export function gameFiles() {
     // 第5章 Step 9（B9: ノクト本気・ソリトゥス）: ノクト（本気）・魔王ソリトゥス（ひとりにする・よびかける・きずなを食べる・家族の きずな技）・ボスの 品・仲間の ノクト
     'public/js/shared/data/monsters-final.js', 'public/js/shared/data/abilities-final.js', 'public/js/shared/data/items-final.js',
     'public/js/shared/data/encounters-final.js', 'public/js/shared/data/companions-castle.js', 'public/js/shared/battle-final.js', 'public/js/client/battle-final.js',
+    // 第5章 Step 8（B8: 影の城の 戦い・品）: 風・炎・水の 階の 魔物・3人の まぼろし（風のかべ・かげ火の力・水かさ）・影の城の 宝箱・まぼろしの 品・れん金
+    'public/js/shared/data/monsters-phantom.js', 'public/js/shared/data/abilities-phantom.js', 'public/js/shared/data/items-castle.js',
+    'public/js/shared/data/encounters-phantom.js', 'public/js/shared/data/companions-phantom.js', 'public/js/shared/battle-phantom.js', 'public/js/client/battle-phantom.js',
     // 第37回 A: サファラ闘技場（ランク戦の 3連戦・王者・ごほうび・かけ試合・王者のかべ）
     'public/js/shared/data/arena.js', 'public/js/shared/data/story-arena.js', 'public/js/shared/data/monsters-arena.js', 'public/js/shared/data/abilities-arena.js',
     'public/js/shared/data/items-arena.js', 'public/js/shared/data/encounters-arena.js', 'public/js/shared/battle-arena.js', 'public/js/shared/world/arena.js',

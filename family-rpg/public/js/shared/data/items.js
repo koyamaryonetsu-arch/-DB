@@ -25,6 +25,7 @@ import { ITEMS_KUMOI, KUMOI_ITEM_KANA } from './items-kumoi.js';
 import { ITEMS_HOSHIYOMI, HOSHIYOMI_ITEM_KANA } from './items-hoshiyomi.js';
 import { ITEMS_EARTH, EARTH_ITEM_KANA } from './items-earth.js';
 import { ITEMS_FINAL, FINAL_ITEM_KANA } from './items-final.js';
+import { ITEMS_CASTLE, CASTLE_ITEM_KANA } from './items-castle.js';
 // 第37回 A: サファラ闘技場の ごほうび
 import { ITEMS_ARENA, ARENA_ITEM_KANA } from './items-arena.js';
 import { POWDER_ITEMS, POWDER_KANA } from './friend-powder.js';
@@ -251,6 +252,8 @@ Object.assign(ITEMS, ITEMS_HOSHIYOMI);
 Object.assign(ITEMS, ITEMS_EARTH);
 // 第5章 Step 9: ノクト（本気）・魔王ソリトゥスの 品（items-final.js）
 Object.assign(ITEMS, ITEMS_FINAL);
+// 第5章 Step 8: 影の城の 宝箱・3人の まぼろしの 品・素材・れん金（items-castle.js）
+Object.assign(ITEMS, ITEMS_CASTLE);
 Object.assign(ITEMS, ITEMS_ARENA);
 // なかまの粉（friend-powder.js）
 Object.assign(ITEMS, POWDER_ITEMS);
@@ -355,6 +358,7 @@ Object.assign(ITEM_KANA, KUMOI_ITEM_KANA);
 Object.assign(ITEM_KANA, HOSHIYOMI_ITEM_KANA);
 Object.assign(ITEM_KANA, EARTH_ITEM_KANA);
 Object.assign(ITEM_KANA, FINAL_ITEM_KANA);
+Object.assign(ITEM_KANA, CASTLE_ITEM_KANA);
 Object.assign(ITEM_KANA, ARENA_ITEM_KANA);
 Object.assign(ITEM_KANA, FIELD27_KANA);
 Object.assign(ITEM_KANA, R31_ITEM_KANA);

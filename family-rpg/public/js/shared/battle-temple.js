@@ -301,7 +301,8 @@ export function templeEst(b, c, t, element) {
   if (!t?.veil || !c || c.side === t.side) return 1;
   const conf = MONSTERS[t.species]?.veil;
   if (!conf) return 1;
-  if (element && element === conf.breakBy) return b.knowsTemple ? 1.5 : 1;
+  // （影の城の モルガナのまぼろし〈phantom〉は、ふつうの オートも 雷を 少し えらびやすい。水かさが 下がるので。第5章 Step 8）
+  if (element && element === conf.breakBy) return b.knowsTemple ? 1.5 : MONSTERS[t.species]?.phantom ? 1.3 : 1;
   if (element && (conf.block || []).includes(element)) return 0;
   return conf.cut ?? 0.5;
 }
@@ -438,10 +439,13 @@ export function templePlan(b, c, foes) {
 // 水の衣を まとった 敵に 雷の 技（知っている 人。ai.js の decideAlly。第31回: 前の きずな技〈雷〉の かわり）
 // mine … 使える 技（[{ id, a }]）。雷の ダメージの 技で いちばん MPの 多い もの（強い 技）。合体技の ミナデインは 人が えらぶ
 const hasBolt = (e) => !!e && (e.element === 'bolt' && (e.type === 'phys' || e.type === 'magic' || e.type === 'gather')) || (e?.type === 'multi' && (e.parts || []).some(hasBolt));
+// （影の城の モルガナのまぼろし〈phantom〉は、ふつうの オートも ときどき〈PHANTOM_BOLT〉雷の 技を 使う。水かさが 下がるので。第5章 Step 8）
+export const PHANTOM_BOLT = 0.5;
 export function veilBolt(b, c, foes, mine) {
-  if (c.side !== 'ally' || !b.knowsTemple) return null;
+  if (c.side !== 'ally') return null;
   const v = foes.find((f) => f.veil && !f.clone);
   if (!v) return null;
+  if (!b.knowsTemple && !(MONSTERS[v.species]?.phantom && !b.templeNaive && !b.phNaive && b.rng.chance(PHANTOM_BOLT))) return null;
   const bolt = mine.filter(({ a }) => hasBolt(a.effect) && a.effect.type !== 'gather').sort((x, y) => (y.a.mp || 0) - (x.a.mp || 0))[0];
   if (!bolt) return null;
   return ['enemies', 'allies', 'self'].includes(bolt.a.target) ? { type: 'ability', id: bolt.id } : { type: 'ability', id: bolt.id, target: v.id };
@@ -480,7 +484,8 @@ export function templeAdjust(b, c, opts) {
       o.final *= 0.05;
       o.risky = true;
     }
-    else if (b.knowsTemple && ts.some((x) => MONSTERS[x.species]?.mirrorCopy && !x.clone && x.lastSpell === cmd.id)) o.final *= 0.05;
+    // （影の城の モルガナのまぼろし〈phantom〉は、ふつうの オートも おなじ 呪文を つづけない。第5章 Step 8）
+    else if (ts.some((x) => MONSTERS[x.species]?.mirrorCopy && !x.clone && x.lastSpell === cmd.id && (b.knowsTemple || MONSTERS[x.species]?.phantom))) o.final *= 0.05;
   }
 }
 

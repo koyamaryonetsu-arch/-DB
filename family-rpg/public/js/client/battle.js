@@ -50,6 +50,8 @@ import { noctoSprite, NOCTO_SFX } from './battle-nocto.js';
 import { EARTH_SFX, earthReachItem, earthReachPick, REACH_INFO } from './battle-earth.js';
 // 第5章 Step 9 の ノクト（本気）・魔王ソリトゥス（音・コマンド「よびかける」「家族のきずな技」。battle-final.js）
 import { FINAL_SFX, FINAL_HIT, FINAL_OWN_TELE, finalCmdItems, finalCmdPick } from './battle-final.js';
+// 第5章 Step 8 の 影の城の 魔物と 3人の まぼろし（音。battle-phantom.js）
+import { PHANTOM_SFX } from './battle-phantom.js';
 
 // たたかいの え の こまかさ（おもい きかいで さげたら、その あいだは さげた まま）
 let battleRes = BRES;
@@ -148,6 +150,7 @@ const ANIM_SFX = {
   ...EARTH_SFX,
   // 第5章 Step 9 の ノクト（本気）・魔王ソリトゥス・家族の きずな技（client/battle-final.js）
   ...FINAL_SFX,
+  ...PHANTOM_SFX,
 };
 
 // ひらめきの 電球（ドット絵ふう）

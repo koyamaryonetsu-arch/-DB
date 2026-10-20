@@ -13,6 +13,7 @@ import { addCh5Art } from './ch5-tower-art.js';
 import { addKumoiArt } from './ch5-kumoi-mon-art.js';
 import { addHoshiyomiArt } from './ch5-hoshiyomi-mon-art.js';
 import { addEarthArt } from './ch5-earth-mon-art.js';
+import { addPhantomArt } from './ch5-phantom-art.js';
 // 第37回 A: サファラ闘技場の 王者（arena-art.js）
 import { addArenaArt } from './arena-art.js';
 // 第5章 Step 9: ノクト（本気）・魔王ソリトゥス（ch5-final-mon-art.js）
@@ -839,12 +840,15 @@ addHoshiyomiArt(MONSTER_ART);
 addEarthArt(MONSTER_ART);
 addArenaArt(MONSTER_ART);
 addFinalArt(MONSTER_ART);
+// 第5章 Step 8「影の城」の 魔物と 3人の まぼろし（もとの ボスの え を つつむ ので さいごに。ch5-phantom-art.js）
+addPhantomArt(MONSTER_ART);
 
 const cache = new Map();
 
 // え の きまり。宝の洞窟の 主は ほかの 魔物の え を 大きくして 色がえ（monsters-tm.js の art・artScale・tint）
 function artOf(sp) {
-  if (MONSTER_ART[sp]) return { def: MONSTER_ART[sp] };
+  // （tint … え そのものに 色の かえかたが ある もの。影の城の まぼろし）
+  if (MONSTER_ART[sp]) return { def: MONSTER_ART[sp], tint: MONSTER_ART[sp].tint };
   const md = MONSTERS[sp];
   const base = md?.art && MONSTER_ART[md.art];
   if (!base) return { def: MONSTER_ART.pururin };

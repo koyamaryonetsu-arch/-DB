@@ -29,6 +29,8 @@ import { noctoCond, noctoEffect, noctoCheck, noctoKill, noctoPlan, noctoPub } fr
 import { earthCond, earthEffect, earthKill, earthPlan, earthPub, earthTurnStart } from './battle-earth.js';
 // 第5章 Step 9: ノクト（本気）・魔王ソリトゥス（ひとりにする・よびかける・きずなを食べる・家族の きずな技。battle-final.js。ここから よぶ）
 import { finalCond, finalEffect, finalCheck, finalKill, finalPlan, finalPub, finalTurnStart } from './battle-final.js';
+// 第5章 Step 8: 影の城の 3人の まぼろし（風のかべ・かげ火の力・水かさ。battle-phantom.js。ここから よぶ）
+import { phantomCond, phantomEffect, phantomPlan, phantomPub, phantomTurnStart } from './battle-phantom.js';
 // 第37回 A: サファラ闘技場の 王者の しかけ（チームの 合体技・属性の よろい）
 import { arenaCond, arenaEffect } from './battle-arena.js';
 
@@ -95,6 +97,8 @@ export function towerCond(b, m, cond) {
   if (e !== null) return e;
   const fc = finalCond(b, m, cond);
   if (fc !== null) return fc;
+  const ph = phantomCond(b, m, cond);
+  if (ph !== null) return ph;
   const ar = arenaCond(b, m, cond);
   if (ar !== null) return ar;
   if (cond === 'gaze') return !!confOf(m) && readBy(b, m).length < gazeCount(m) && gazeTargets(b).length > 0;
@@ -107,6 +111,7 @@ export function towerEffect(b, c, a, eff, ev, targets = []) {
   if (noctoEffect(b, c, a, eff, ev)) return true;
   if (earthEffect(b, c, a, eff, ev, targets)) return true;
   if (finalEffect(b, c, a, eff, ev, targets)) return true;
+  if (phantomEffect(b, c, a, eff, ev, targets)) return true;
   if (arenaEffect(b, c, a, eff, ev, targets)) return true;
   if (eff.type !== 'foresee') return false;
   foreseeStart(b, c, ev);
@@ -143,6 +148,7 @@ function foreseeStart(b, c, ev) {
 export function towerTurnStart(b, c, ev, cmd) {
   earthTurnStart(b, c, ev);
   finalTurnStart(b, c, ev, cmd);
+  phantomTurnStart(b, c, ev, cmd);
   if (c.side !== 'ally' || !c.foresee) return;
   const by = b.get(c.foresee.by);
   if (!by?.alive || cmd?.type === 'incapacitated') {
@@ -279,6 +285,9 @@ export function towerPlan(b, c, decide) {
   // 魔王ソリトゥス（だれでも: きずな技の ゲージが たまったら 使う。知っている 人: よびかける・前ぶれで 身を 守る。battle-final.js）
   const flp = finalPlan(b, c);
   if (flp) return flp;
+  // 影の城の まぼろし（知っている 人: 大技の 前に 身を 守る・風のかべには 呪文・かげ火を 先に。battle-phantom.js）
+  const pp = phantomPlan(b, c, decide);
+  if (pp) return pp;
   if (b.knowsArgos && c.foresee?.kind !== 'guard') {
     const mine = 100 / atbRate(c);
     const j = b.aliveEnemies().find((e) => e.telegraph === JUDGE);
@@ -332,5 +341,5 @@ export function dodgeCmd(b, c, kind) {
 // ───────────── がめんへ ─────────────
 // pub（battle.js）に まぜる: 読まれている 種類（味方だけ）
 export function towerPub(c) {
-  return c.side === 'ally' ? { foresee: c.foresee?.kind || null, ...noctoPub(c), ...earthPub(c), ...finalPub(c) } : { ...gaiaPub(c), ...noctoPub(c), ...earthPub(c), ...finalPub(c) };
+  return c.side === 'ally' ? { foresee: c.foresee?.kind || null, ...noctoPub(c), ...earthPub(c), ...finalPub(c) } : { ...gaiaPub(c), ...noctoPub(c), ...earthPub(c), ...finalPub(c), ...phantomPub(c) };
 }

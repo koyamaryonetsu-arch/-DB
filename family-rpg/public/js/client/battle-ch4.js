@@ -17,14 +17,16 @@ import { NOCTO_SCREEN_ANIMS, NOCTO_ALLY_FX } from './battle-nocto.js';
 import { EARTH_SCREEN_ANIMS, EARTH_ALLY_FX } from './battle-earth.js';
 // 第5章 Step 9 の ノクト（本気）・魔王ソリトゥス（battle-final.js）
 import { FINAL_SCREEN_ANIMS, FINAL_ALLY_FX } from './battle-final.js';
+// 第5章 Step 8 の 影の城の 魔物と 3人の まぼろし（battle-phantom.js）
+import { PHANTOM_SCREEN_ANIMS, PHANTOM_ALLY_FX } from './battle-phantom.js';
 
 export const MIRROR_ID = 'moon_mirror';
 const MIRROR_INFO = '月の光で、まぼろしの分身をすべて消す。本物は、まぶしくて1回動けなくなる。\n使うと、光がもどるまで少し時間がかかる。';
 
 // 敵が 使うと、がめんの まん中に 大きく 出す 技
-const SCREEN_ANIMS = new Set(['sandstorm', 'sand_vortex', 'sand_spray', 'whale_jump', ...TEMPLE_SCREEN_ANIMS, ...TOWER_SCREEN_ANIMS, ...GAIA_SCREEN_ANIMS, ...NOCTO_SCREEN_ANIMS, ...EARTH_SCREEN_ANIMS, ...FINAL_SCREEN_ANIMS]);
+const SCREEN_ANIMS = new Set(['sandstorm', 'sand_vortex', 'sand_spray', 'whale_jump', ...TEMPLE_SCREEN_ANIMS, ...TOWER_SCREEN_ANIMS, ...GAIA_SCREEN_ANIMS, ...NOCTO_SCREEN_ANIMS, ...EARTH_SCREEN_ANIMS, ...FINAL_SCREEN_ANIMS, ...PHANTOM_SCREEN_ANIMS]);
 // 味方の まどに 出す えんしゅつ（client/battle.js の allyFxKind）
-export const CH4_ALLY_FX = { sandstorm: 'wind', sand_vortex: 'quake', sand_spray: 'wind', whale_jump: 'quake', ...TEMPLE_ALLY_FX, ...TOWER_ALLY_FX, ...GAIA_ALLY_FX, ...NOCTO_ALLY_FX, ...EARTH_ALLY_FX, ...FINAL_ALLY_FX };
+export const CH4_ALLY_FX = { sandstorm: 'wind', sand_vortex: 'quake', sand_spray: 'wind', whale_jump: 'quake', ...TEMPLE_ALLY_FX, ...TOWER_ALLY_FX, ...GAIA_ALLY_FX, ...NOCTO_ALLY_FX, ...EARTH_ALLY_FX, ...FINAL_ALLY_FX, ...PHANTOM_ALLY_FX };
 
 // 「道具」の はじめに ならべる もの（a … コマンドを えらんでいる 味方）
 export function ch4ItemEntries(scene, a) {

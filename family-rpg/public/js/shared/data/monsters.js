@@ -28,6 +28,7 @@ import { MONSTERS_KUMOI, addGaiaParts } from './monsters-kumoi.js';
 import { MONSTERS_HOSHIYOMI } from './monsters-hoshiyomi.js';
 import { MONSTERS_EARTH, addEarthHidden } from './monsters-earth.js';
 import { MONSTERS_FINAL } from './monsters-final.js';
+import { MONSTERS_PHANTOM, addPhantomHidden } from './monsters-phantom.js';
 import { MONSTERS_BOSS } from './monsters-boss.js';
 
 export const MONSTERS = {
@@ -256,6 +257,9 @@ Object.assign(MONSTERS, MONSTERS_EARTH);
 // 第5章 Step 9「星のない広間」の ノクト（本気）と 魔王ソリトゥス（monsters-final.js）
 Object.assign(MONSTERS, MONSTERS_FINAL);
 addEarthHidden(MONSTERS);
+// 第5章 Step 8「影の城」の 魔物と 3人の まぼろし（まぼろしの 手下は 数えない 形。monsters-phantom.js）
+Object.assign(MONSTERS, MONSTERS_PHANTOM);
+addPhantomHidden(MONSTERS);
 addArenaHidden(MONSTERS);
 addGaiaParts(MONSTERS);
 // ボス級（ランク SS）の 仲間。配合でしか 生まれない（monsters-boss.js。第35回）
