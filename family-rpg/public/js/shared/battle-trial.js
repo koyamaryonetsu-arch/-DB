@@ -28,8 +28,8 @@ export const PHANTOM_ADJ = {
   ryonetsu: [1.16, 1.12], rubber: [1.02, 0.75], black_star: [1.75, 1.54], enbashira: [1.6, 1.51], black_org: [1.51, 1.27],
   doraemon: [3.04, 2.35], kinniku_kappa: [1.16, 1.16], konoha: [2.09, 1.95], himura: [1.31, 1.27], kaito_kid: [1.6, 1.34],
   harry: [1.14, 0.98], fullmetal: [0.83, 0.65], sailor_moon: [1.24, 1.28],
-  loto_hero: [1.8, 1.59], ss3: [1.08, 0.94], nika: [0.85, 0.81], maou: [0.51, 0.51], facility_genius: [1.1, 1.12], hakaishin: [0.65, 0.7],
-  hinokami: [0.97, 0.93], hokage: [0.68, 0.74], abarenbo_shogun: [1.02, 0.9], hiten: [0.72, 0.78], homeroom_3b: [0.85, 0.92],
+  loto_hero: [1.8, 1.59], ss3: [1.08, 0.94], nika: [0.85, 0.81], maou: [0.51, 0.51], facility_genius: [1.1, 1.12], hakaishin: [0.62, 0.7],
+  hinokami: [0.97, 0.93], hokage: [0.68, 0.74], abarenbo_shogun: [0.9, 0.9], hiten: [0.72, 0.78], homeroom_3b: [0.85, 0.92],
 };
 // 使わない 技の こうか（生き返らせる・みんなの MP を へらす など。鏡のうつし身の MIRROR_SKIP の ほか）
 const NO_USE = new Set(['revive', 'reviveAll']);
