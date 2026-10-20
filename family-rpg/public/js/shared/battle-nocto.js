@@ -140,6 +140,21 @@ export function noctoEffect(b, c, a, eff, ev) {
 // きずなくだき: 先に よやくの 組を しらべて（守れたか・くだかれたか）、そのあと みんなに ダメージ
 function bondBreak(b, c, ev) {
   const conf = confOf(c)?.bond || {};
+  const { broke } = crushBonds(b, ev);
+  const targets = b.aliveAllies();
+  ev.fx = { type: 'ability', anim: 'ns_bond_break', actor: c.id, targets: targets.map((t) => t.id), side: 'enemy' };
+  for (const t of targets) b.physHit(c, t, { mult: conf.mult ?? 1.25, ignoreDef: conf.ignoreDef ?? 0.3 }, ev, 'phys');
+  if (broke && c.alive) {
+    ev.lines.push(`${c.name}は、くだいたきずなの力をすいとった！`);
+    b.applyBuff(c, c, { stat: 'atk', mult: conf.buff ?? 1.2, dur: 30 }, ev);
+  }
+  ev.warn = true;
+}
+
+// 合体技の よやくの 組を しらべる: 組の だれかが 身を 守って いれば 守れる。守れないと くだく（ev.nsBond）。
+// 第5章 Step 9 の ノクト（本気）の ひとりぼっちの合体技・ソリトゥスの きずなを食べる も 使う（battle-earth.js・battle-final.js）
+// broken … くだかれた ときの ことば（組の 名前の あと）
+export function crushBonds(b, ev, broken = 'の合体技のよやくが、くだかれた！') {
   const names = (ms) => ms.map((x) => x.name).join('と');
   let broke = 0;
   const guarded = [];
@@ -152,17 +167,10 @@ function bondBreak(b, c, ev) {
     }
     breakTeam(b, tm, ev);
     broke++;
-    ev.lines.push(`${names(tm.members)}の合体技のよやくが、くだかれた！`);
-  }
-  const targets = b.aliveAllies();
-  ev.fx = { type: 'ability', anim: 'ns_bond_break', actor: c.id, targets: targets.map((t) => t.id), side: 'enemy' };
-  for (const t of targets) b.physHit(c, t, { mult: conf.mult ?? 1.25, ignoreDef: conf.ignoreDef ?? 0.3 }, ev, 'phys');
-  if (broke && c.alive) {
-    ev.lines.push(`${c.name}は、くだいたきずなの力をすいとった！`);
-    b.applyBuff(c, c, { stat: 'atk', mult: conf.buff ?? 1.2, dur: 30 }, ev);
+    ev.lines.push(`${names(tm.members)}${broken}`);
   }
   ev.nsBond = { broke, guarded };
-  ev.warn = true;
+  return { broke, guarded };
 }
 
 // よやくを くだく: みんなの ゲージは 0 から（まっていた 仲間も）。第5章 Step 6・7 の 地われも 使う（battle-earth.js）

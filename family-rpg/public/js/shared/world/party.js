@@ -227,6 +227,8 @@ export function makeNpcSupportChar(def, level) {
   c.equip = { weapon: w || null, armor: a || null, shield: s || null, head: h || null, acc: null };
   // ゲストの 装備（第4章の サラ: ムチと 砂の衣。def.gear が あれば それ）
   if (def.gear) Object.assign(c.equip, def.gear);
+  // その 仲間だけの 技（第5章 Step 9 の ノクト。data/companions-castle.js の NOCTO_COMPANION.skills）は ひらめき技として 覚えている
+  if (Array.isArray(def.skills)) c.hirameki = [...def.skills];
   c.items = [];
   c.tactics = def.tactics || 'balanced';
   delete c.explored;

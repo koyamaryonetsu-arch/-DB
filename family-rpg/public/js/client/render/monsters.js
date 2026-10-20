@@ -15,6 +15,8 @@ import { addHoshiyomiArt } from './ch5-hoshiyomi-mon-art.js';
 import { addEarthArt } from './ch5-earth-mon-art.js';
 // 第37回 A: サファラ闘技場の 王者（arena-art.js）
 import { addArenaArt } from './arena-art.js';
+// 第5章 Step 9: ノクト（本気）・魔王ソリトゥス（ch5-final-mon-art.js）
+import { addFinalArt } from './ch5-final-mon-art.js';
 
 export const MRES = 4; // できあがりの こまかさ（せかいの 1ドットを 4×4 で かく）
 const OUT = '#130d24';
@@ -836,6 +838,7 @@ addHoshiyomiArt(MONSTER_ART);
 // 第5章 Step 6・7「根の島・大地の神殿」の 魔物と ノクト（1回目）・分身・天空のきょ兵（ch5-earth-mon-art.js）
 addEarthArt(MONSTER_ART);
 addArenaArt(MONSTER_ART);
+addFinalArt(MONSTER_ART);
 
 const cache = new Map();
 

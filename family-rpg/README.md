@@ -2000,6 +2000,14 @@ iPhone の Safari や Claude アプリでは、アーティファクトの中の
 - **新しい魔物のコツ**：大きなダンゴムシは、たたかれるほどおこって目が赤くなり、強くなります（ねむらせるか、大きな一撃でおこらせずにたおそう）。古い機械の兵は、こわれかけると仲間をかばうことがあります。根っこのこびとは、すぐ逃げます（大地の根を持っています）。お面の影は、たおすとお金をたくさん落とします
 - **★5の品**：大地の神殿の深い階の宝箱や、強い相手から、★5の品が手に入ります。**★は5まで** ですが、★5の中でも、あとで手に入る品ほど強くなっていきます（めずらしさは名前の色でわかります）。神殿の素材（大地の根・大地の光石）は、れん金がまで★4の品を★5にするのに使えます
 
+### 最後の戦いのしくみ「よびかける」「家族のきずな技」（第5章 影の城のてっぺんのころ）
+
+- **ひとりぼっち**：仲間が闇にとじこめられて「ひとりぼっち」になることがあります（まどにしるしが出ます）。その仲間は **動けず、仲間の回復も補助もとどきません**。自分の番が4回来ると、自分の力でもどります
+- **新しいコマンド「よびかける」**：だれかがひとりぼっちの時だけ、コマンドのいちばん上に出ます。名前をよぶと、その仲間がすぐにもどります（「手をのばす」と同じ使い方。オートの仲間も、回復のあとでよびかけてくれます）
+- **段階のある戦い**：相手が弱ってくると、がめんいっぱいに「第2段階」「第3段階」と出て、戦い方がかわります（背景がかわることも）。大きな前ぶれのバナーが出たら、**身を守る** と、ダメージも、合体技のよやくも、強くなった力も守れます
+- **家族のきずな技**：ある戦いでだけ、**職業に関係なく、だれでも** 出せる特別な技があらわれます。がめんの左下の「きずなの光」がいっぱいになると、だれのコマンドにもいちばん上に「家族のきずな技」が出ます。使うと、出した人 **みんなの名前** が出て、大きな光が敵をつらぬき、みんなのHPとMPも回復します（使うと「きずなの光」は0から。仲間が動くとたまります）。家族が手で戦っている時は、オートの仲間は少し待ってくれるので、自分で押してみよう
+- **いちばん強い★5**：最後の相手からは、今までで **いちばん強い★5の剣** が、みんなに1本ずつ手に入ります
+
 ---
 
 ## 開発向け
@@ -2370,6 +2378,12 @@ npm start                 # 家族サーバー
   - がめん：`client/battle-earth.js`（`earthMarks`・`earthDraw`・`earthPresent`・コマンド `earthReachItem`／`earthReachPick`）、絵 `render/ch5-earth-mon-art.js`（`addEarthArt`）・背景 `render/ch5-earth-bg.js`・エフェクト `render/battlefx-earth.js`（`battlefx-hoshiyomi.js` のさいごから）
   - シミュレーション：`node tools/sim.js 100 ch5earth`（出現表。99〜100%）、`node tools/sim-nocto1.mjs 100 49,50,51`（超級職4人・里の店＋★。`SHOP=1` で★なしも。`LOG=1 KNOW=1` で1戦のようす。`LETTER=1` でピピの手紙あり）。Lv50：完全オート 11%・知っている 80%
   - `test/ch5-earth-battle.test.js`（29こ）。前提を直したテスト：`monsters-r23`（図鑑の数）・`breed-r35`（ボス7体は天空のきょ兵ものぞく）・`loot`（バットのランクに9）
+- 第5章 Step 9 B9「ノクト（本気）・魔王ソリトゥス」（戦い・品。ネタバレになるので、しくみと数値は `docs/plan-ch5.md` の「17」の「実装メモ（B9 … ノクト本気・ソリトゥス）」）
+  - データ：`data/monsters-final.js`（`nocto_2`・`solitus`）・`abilities-final.js`（ボスの技と仲間のノクトの技 `nc_*`）・`encounters-final.js`（きまった戦い `nocto_2`・`solitus`。背景 `castle_top`）・`items-final.js`（ボスの品・いちばん強い★5〈`src: 'final'`〉）・`companions-castle.js`（酒場の仲間 `NOCTO_COMPANION`〈A9 が酒場にならべる〉・ゲスト `NOCTO_GUEST`）
+  - しくみ：`shared/battle-final.js`（ソリトゥスの3段階・ひとりにする〈`status.rift` の kind `'alone'`〉・新しいコマンド `{ type: 'call', target }`（よびかける）と `{ type: 'bond' }`（家族のきずな技）・きずなを食べる・終わらない夜・ノクト本気のことば）。`battle.js` は `setupFinal`・`finalDamage`・`finalPhase`（`checkPhase`）・`validate`／`perform` の `call`・`bond`・`applyBuff` の `aloneBlock`、`ai.js` は `finalAction`、ほかは `battle-ch5.js` の `tower*` から。ノクト本気は `battle-nocto.js`（`crushBonds` を export）と `battle-earth.js`（`stopAt: 0`・`combo.bond`・kind `'alone'`）のしくみを使う。`world/battles.js` の hooks に `leaderFlag`、`world/party.js` の `makeNpcSupportChar` は `def.skills` をひらめき技に
+  - がめん：`client/battle-final.js`（`finalCmdItems`／`finalCmdPick`・`finalMarks`〈きずなの光のゲージ〉・`finalPhaseFx`・`finalBondFx`・`finalDraw`・`finalPresent`）、絵 `render/ch5-final-mon-art.js`（`addFinalArt`）・背景 `render/ch5-final-bg.js`・エフェクト `render/battlefx-final.js`（`battlefx-earth.js` のさいごから）
+  - シミュレーション：`node tools/sim-final.mjs 100 54,55,56 both`（超級職4人・ランク9の店＋★。`SHOP=1` で★なしも・`SKIPS=1` で知っている人のしかけを1つずつはずす。`LOG=1 KNOW=1 BOSS=solitus` で1戦のようす）。Lv55：ノクト本気 完全オート 15%・知っている 74%／ソリトゥス 完全オート 10%・知っている 73%
+  - `test/ch5-final-battle.test.js`（19こ）。前提を直したテスト：`monsters-r23`（図鑑の数）
 - 第31回 C：レア装備とレア度（くわしくは `docs/plan-r31.md` の「3.」の「実装メモ（C）」）
   - データ：`data/items-rare.js`（レア装備112こ。`src` … `'tm'`〈`grp`〉・`'boss'`〈`boss`〉・`'region'`〈`region`〉・`'sd'`。`assignRarity` が rarity のない装備に つける）・`data/rare-loot.js`（`rarityOf`・`traitText`・`pickTmGear`・`bossRareOf`・`regionRareList`・`pickSdGear`）
   - 手に入る所：`data/treasure.js` の `chestLoot(rng, lv, kind, cave)`・`data/secret.js` の `sdBigReward`／`sdSmallReward`・`data/loot.js` の `monsterDrops`（`brare`）／`rollDrops(sp, rng, { map })`

@@ -25,7 +25,7 @@ import { NOCTO1, NOCTO_CLONE } from './data/monsters-earth.js';
 import { atbRate, pub } from './battle.js';
 import { canUse } from './ai.js';
 // 合体技の よやくの 組（ノクトの影と おなじ。battle-nocto.js）
-import { bondTeams, breakTeam } from './battle-nocto.js';
+import { bondTeams, breakTeam, crushBonds } from './battle-nocto.js';
 
 export { NOCTO1, NOCTO_CLONE };
 export const REACH = 'reach';
@@ -45,7 +45,9 @@ export const clonesOf = (b, m = null) => b.enemies.filter((e) => e.alive && e.sp
 // 地われ・のみこまれ で 動けない 人
 export const trappedAllies = (b) => b.aliveAllies().filter((x) => x.status?.rift);
 const freeAllies = (b) => b.aliveAllies().filter((x) => !x.status?.rift);
-const TRAP_NAME = { rift: '地われ', swallow: 'のみこまれ' };
+// alone … 第5章 Step 9 の ソリトゥスの「ひとりにする」（battle-final.js。もどすのは「よびかける」）
+const TRAP_NAME = { rift: '地われ', swallow: 'のみこまれ', alone: 'ひとりぼっち' };
+const reachable = (x) => x.status?.rift && x.status.rift.kind !== 'alone';
 
 // ───────────── はじめ（battle.js の constructor）─────────────
 // eva … ゆらめいて 物理が 当たりにくい 魔物（ノクトの分身）。はじめから いる 時も
@@ -140,8 +142,7 @@ function riftStart(b, c, a, eff, ev, targets) {
 }
 
 // 動けなく する（ならんで いた 行動・合体技の よやく・さそいも とりやめ）
-export function trap(b, t, by, kind, ev) {
-  const turns = n1Conf(by)?.rift ?? 3;
+export function trap(b, t, by, kind, ev, turns = n1Conf(by)?.rift ?? 3) {
   t.status.rift = { turns, by: by.id, kind };
   for (const q of b.queue) if (q.id === t.id && q.cmd?.type === 'dual') b.releasePartners(q.cmd);
   b.queue = b.queue.filter((q) => q.id !== t.id);
@@ -149,6 +150,7 @@ export function trap(b, t, by, kind, ev) {
   for (const inv of [...b.invites.values()]) if (inv.from === t.id || inv.to === t.id || inv.partners?.includes(t.id)) b.endInvite(inv, '動けない');
   Object.assign(t, { ready: false, queued: false, defending: false, cover: null, atb: 0 });
   if (kind === 'swallow') ev.lines.push(`${t.name}は、${by.name}にのみこまれてしまった！`, '（動けない！回復もとどかない…！仲間が「手をのばす」と助け出せる）');
+  else if (kind === 'alone') ev.lines.push(`${t.name}は、ひとりぼっちの闇にとじこめられてしまった！`, '（動けない！仲間の回復も補助もとどかない…！仲間が「よびかける」と、もどってこられる）');
   else ev.lines.push(`${t.name}は、地われに落ちてしまった！`, '（動けない！回復もとどかない…！仲間が「手をのばす」と助けられる）');
   ev.n1Trap = { who: t.id, kind };
   ev.warn = true;
@@ -169,11 +171,11 @@ export function riftTurn(b, c, ev) {
   s.turns--;
   const by = b.get(s.by);
   if (s.turns > 0) {
-    ev.lines.push(s.kind === 'swallow' ? `${c.name}は、${by?.name || '影'}の中で、もがいている…！` : `${c.name}は、地われの中から、手をのばしている…！`);
+    ev.lines.push(s.kind === 'swallow' ? `${c.name}は、${by?.name || '影'}の中で、もがいている…！` : s.kind === 'alone' ? `${c.name}は、ひとりぼっちの闇の中で、仲間の声を探している…` : `${c.name}は、地われの中から、手をのばしている…！`);
     return;
   }
   release(b, c, ev);
-  ev.lines.push(s.kind === 'swallow' ? `${c.name}は、自分の力で、外にぬけ出した！` : `${c.name}は、自分の力で、地われからはい上がった！`);
+  ev.lines.push(s.kind === 'swallow' ? `${c.name}は、自分の力で、外にぬけ出した！` : s.kind === 'alone' ? `${c.name}は、自分の力で、闇の中から歩き出した！` : `${c.name}は、自分の力で、地われからはい上がった！`);
   ev.n1Free = { who: c.id, by: null };
   ev.atbAfter = 60;
 }
@@ -181,13 +183,13 @@ export function riftTurn(b, c, ev) {
 // ───────────── 新しい コマンド「手をのばす」（battle.js の validate・perform）─────────────
 export function reachOk(b, c, cmd) {
   const t = b.get(cmd.target);
-  if (t ? t.side !== 'ally' || !t.alive || !t.status?.rift || t === c : !trappedAllies(b).some((x) => x !== c)) return { ok: false, reason: '手をのばす相手がいない' };
+  if (t ? t.side !== 'ally' || !t.alive || !reachable(t) || t === c : !trappedAllies(b).some((x) => x !== c && reachable(x))) return { ok: false, reason: '手をのばす相手がいない' };
   return { ok: true };
 }
 export function reach(b, c, cmd, ev) {
   ev.name = '手をのばす';
   let t = b.get(cmd.target);
-  if (!t || !t.alive || !t.status?.rift || t === c) t = trappedAllies(b).find((x) => x !== c) || null;
+  if (!t || !t.alive || !reachable(t) || t === c) t = trappedAllies(b).find((x) => x !== c && reachable(x)) || null;
   if (!t) {
     ev.lines.push(`${c.name}は手をのばした。`, 'しかし、もうだれも落ちていない。');
     return;
@@ -205,11 +207,13 @@ export function reach(b, c, cmd, ev) {
 }
 
 // オートの 仲間（ai.js の decideAlly。回復の あと）: だれかが 落ちて いたら 手を のばす
+// （ソリトゥスに ひとりに された 人には「よびかける」。type: 'call'。battle-final.js）
 export function reachPlan(b, c) {
-  // b.n1NoReach … シミュレーターで「手を のばさない」人と くらべる とき
+  // b.n1NoReach … シミュレーターで「手を のばさない（よびかけない）」人と くらべる とき
   if (c.side !== 'ally' || c.status?.rift || b.n1NoReach) return null;
   const t = trappedAllies(b).filter((x) => x !== c).sort((x, y) => x.hp / x.maxHp - y.hp / y.maxHp)[0];
-  return t ? { type: REACH, target: t.id } : null;
+  if (!t) return null;
+  return { type: t.status.rift.kind === 'alone' ? 'call' : REACH, target: t.id };
 }
 
 // ───────────── かげぶんしん・ひとりぼっちの合体技 ─────────────
@@ -241,6 +245,8 @@ function combo(b, c, ev) {
     ev.n1Break = true;
     return;
   }
+  // 第5章 Step 9 の ノクト（本気）: 合体技の よやくも くだく（組の だれかが 身を 守れば 守れる。battle-nocto.js の crushBonds）
+  if (conf.bond) crushBonds(b, ev, 'の合体技のよやくが、ひとりぼっちの合体技にくだかれた！');
   const targets = b.aliveAllies();
   ev.fx = { type: 'ability', anim: 'n1_combo', actor: c.id, targets: targets.map((t) => t.id), side: 'enemy' };
   for (const t of targets) b.physHit(c, t, { mult: conf.mult ?? 2.3, ignoreDef: conf.ignoreDef ?? 0.3, acc: 1.2 }, ev, 'phys');
@@ -298,8 +304,8 @@ export function earthDamage(b, c, t, dmg, info, ev) {
     }
     if (m?.anger) anger(b, t, dmg, ev, m.anger);
   }
-  // ノクトは たおれない（HPが 半分で 戦いを やめる。earthStop）
-  if (n1Conf(t) && dmg >= t.hp) dmg = Math.max(0, t.hp - 1);
+  // ノクトは たおれない（HPが 半分で 戦いを やめる。earthStop）。stopAt: 0 … 終わらない（第5章 Step 9 の ノクト〈本気〉）
+  if (n1Conf(t) && (n1Conf(t).stopAt ?? 0.5) > 0 && dmg >= t.hp) dmg = Math.max(0, t.hp - 1);
   return dmg;
 }
 
@@ -330,7 +336,7 @@ function letterHolder(b) {
 }
 export function earthStop(b, t, ev) {
   const conf = n1Conf(t);
-  if (!conf || !t.alive || t.n1Stopped || t.hp / t.maxHp > (conf.stopAt ?? 0.5)) return;
+  if (!conf || !(conf.stopAt ?? 0.5) || !t.alive || t.n1Stopped || t.hp / t.maxHp > (conf.stopAt ?? 0.5)) return;
   t.n1Stopped = true;
   const holder = letterHolder(b);
   const lines = holder
@@ -355,7 +361,7 @@ export function earthKill(b, t, ev) {
     if (!x.alive || x.status?.rift?.by !== t.id) continue;
     const kind = x.status.rift.kind;
     release(b, x, ev);
-    out.push(kind === 'swallow' ? `のみこまれていた${x.name}が、外に出てきた！` : `${x.name}は、地われからはい上がった！`);
+    out.push(kind === 'swallow' ? `のみこまれていた${x.name}が、外に出てきた！` : kind === 'alone' ? `${x.name}は、闇の中からもどってきた！` : `${x.name}は、地われからはい上がった！`);
     if (ev) ev.n1Free = { who: x.id, by: null };
   }
   if (n1Conf(t)) {
@@ -426,7 +432,8 @@ export function bestHit(b, c, t) {
 // ───────────── がめんへ（battle.js の pub。battle-ch5.js の towerPub から）─────────────
 // 味方: 地われ・のみこまれ（trap）/ 敵: おこっている だんかい（anger）・かばっている 仲間（sgGuard）・ノクトの 影（clone）
 export function earthPub(c) {
-  if (c.side === 'ally') return c.status?.rift ? { trap: c.status.rift.kind } : {};
+  // trap: null … もどった とき、がめんの しるしも 消える（Object.assign で 上がき）
+  if (c.side === 'ally') return { trap: c.status?.rift ? c.status.rift.kind : null };
   const o = {};
   if (c.anger) o.anger = c.anger;
   if (c.sgGuard) o.sgGuard = c.sgGuard.target;

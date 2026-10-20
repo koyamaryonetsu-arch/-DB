@@ -35,6 +35,8 @@ import { setupGaia, gaiaDamage } from './battle-gaia.js';
 import { setupNocto, noctoDamage } from './battle-nocto.js';
 // 第5章 Step 6・7 の ノクト（1回目）と 大地の神殿の 魔物（地われ・手をのばす・HP半分で 終わる・まもる・おこる。battle-earth.js）
 import { setupEarth, earthDamage, earthStop, riftTurn, reachOk, reach } from './battle-earth.js';
+// 第5章 Step 9 の ノクト（本気）と 魔王ソリトゥス（3つの 段階・ひとりにする・よびかける・家族の きずな技。battle-final.js）
+import { setupFinal, finalDamage, finalPhase, finalCmdOk, finalCmd, aloneBlock } from './battle-final.js';
 // 第33回: 3年B組の担任は 学校の 仲間が いると 技が 強く なる（battle-r33.js）
 import { classmateMult } from './battle-r33.js';
 // 第37回 A: サファラ闘技場の 王者の しかけ（属性の よろい。battle-arena.js）
@@ -213,6 +215,7 @@ export class Battle {
     setupGaia(this);
     setupNocto(this);
     setupEarth(this);
+    setupFinal(this);
     setupArena(this);
     // まぼろしの分身（おなじ 魔物の 1体だけが 本物。battle-ch4.js）
     setupMirage(this);
@@ -551,6 +554,8 @@ export class Battle {
       case 'dual': return validateDual(this, c, cmd);
       // 手をのばす（地われ・のみこまれ の 仲間を 助ける。battle-earth.js）
       case 'reach': return reachOk(this, c, cmd);
+      // よびかける（ひとりの 仲間を もどす）・家族の きずな技（ソリトゥスの 第3段階。battle-final.js）
+      case 'call': case 'bond': return finalCmdOk(this, c, cmd);
       default: return { ok: false, reason: 'bad' };
     }
   }
@@ -753,6 +758,7 @@ export class Battle {
       case 'mahouken': this.doMahouken(c, cmd, ev); break;
       case 'dual': this.performDual(c, cmd, ev); break;
       case 'reach': reach(this, c, cmd, ev); break;
+      case 'call': case 'bond': finalCmd(this, c, cmd, ev); break;
       case 'ability': {
         // 使う 人 むけの 技（男の子の 美少女戦士・セーラームーンは 名前・セリフ・えんしゅつが かわる。ability-label.js）
         const a = abilityFor(cmd.id, c);
@@ -1561,6 +1567,8 @@ export class Battle {
     const ed = earthDamage(this, c, t, dmg, info, ev);
     if (ed === null) return;
     dmg = ed;
+    // ソリトゥス: ひとりの 人への ダメージが 大きい・1回の 攻撃で 2つの 段階を とばない（battle-final.js）
+    dmg = finalDamage(this, c, t, dmg, info, ev);
     // 闘技場の 七色の魔導王: よろいと おなじ 属性は すいこむ・弱点で くだける（battle-arena.js）
     const ad = arenaDamage(this, c, t, dmg, info, ev);
     if (ad === null) return;
@@ -1716,6 +1724,8 @@ export class Battle {
   // 本職で ない 技（転職ペナルティ）で 使うと、上がりかたも へる（基本職の 補助技が いつまでも いちばん 強く ならない ように）
   applyBuff(c, t, eff, ev, powMult = 1) {
     if (!t.alive) return;
+    // ソリトゥスに ひとりに された 人には、仲間の 補助が とどかない（battle-final.js）
+    if (aloneBlock(c, t, ev)) return;
     const k = Math.min(1, powMult);
     const dur = (eff.dur || 30) * 1000 * (0.5 + powMult / 2);
     const stats = eff.stats || [eff.stat];
@@ -2055,6 +2065,8 @@ export class Battle {
     }
     // ノクト（1回目）: HPが 半分で 戦いを やめる（勝ち。battle-earth.js）
     earthStop(this, t, ev);
+    // ノクト（本気）の ことば・ソリトゥスの 段階（battle-final.js）
+    finalPhase(this, t, ev);
     if (ev.phaseLines && !ev.phaseQueued) {
       ev.phaseQueued = true;
       // メッセージの さいごに つける
