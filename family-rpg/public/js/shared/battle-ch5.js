@@ -248,7 +248,7 @@ function foreseeHit(b, c, cmd, ev, by, kind) {
     // 防御: 身を 守れず、守りが 下がる
     c.defending = false;
     ev.lines.push(`しかし${A}は、守りのすきを見ぬいていた！`);
-    b.applyDebuff(by, c, { stat: 'def', mult: 0.75, dur: 20, chance: 1 }, ev);
+    b.applyDebuff(by, c, { stat: 'def', mult: 0.75, chance: 1 }, ev);
   }
   ev.upd.push(c, by);
   return true;

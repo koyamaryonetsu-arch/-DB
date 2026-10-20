@@ -21,7 +21,10 @@ import { PLACES } from '../../shared/maps/overworld.js';
 import { SEA_PLACES } from '../../shared/maps/ch2.js';
 import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js';
 import { T, TILE_INFO } from '../../shared/tiles.js';
-import { menuItemText } from './skillinfo.js';
+import { menuItemText, skillEffectText } from './skillinfo.js';
+// 第38回 C: 技の レベル（使った 回数で 1〜5。shared/buff-acts.js）
+import { skillLevel, skillLvLeft, SKILL_LV_MAX } from '../../shared/buff-acts.js';
+import '../battle-buffs.js';
 import { itemDetail, abilityDetail, skillBrief, gearText, targetTag, statChanges, statChangesHtml } from './info.js';
 import { bestEquipPlan, bestTeamOrder, gearChoices, sortGearChoices, GEAR_SORTS } from '../../shared/equip-plan.js';
 import { shownEquip, lookChoices, LOOK_SLOTS, LOOK_NONE } from '../../shared/look-equip.js';
@@ -961,8 +964,9 @@ export class FieldMenu {
       const elm = a.effect?.element;
       // 相手の しるし（グループ・全体・全員・ランダム）
       const tt = targetTag(a);
+      const slv = skillLevel(c.skillUse, id);
       return {
-        html: `${ELEMENT_NAMES[elm] ? `<span class="elem e-${elm}">${ELEMENT_NAMES[elm]}</span>` : ''}${esc(a.name)}${tt ? `<span class="tag tgt t-${a.effect?.random ? 'random' : a.target}">${tt}</span>` : ''}${a.kind === 'combo' ? `<span class="tag ${locked ? 'muted' : 'gold'}">掛け合わせ${locked ? '（上級職で）' : ''}</span>` : a.hirameki ? '<span class="tag hira">ひらめき</span>' : ''}${p.penalized ? '<span class="tag warn">他</span>' : ''}<span class="sk-desc">${esc(skillBrief(a))}</span>`,
+        html: `${ELEMENT_NAMES[elm] ? `<span class="elem e-${elm}">${ELEMENT_NAMES[elm]}</span>` : ''}${esc(a.name)}<span class="tag slv${slv >= SKILL_LV_MAX ? ' max' : ''}">Lv${slv}</span>${tt ? `<span class="tag tgt t-${a.effect?.random ? 'random' : a.target}">${tt}</span>` : ''}${a.kind === 'combo' ? `<span class="tag ${locked ? 'muted' : 'gold'}">掛け合わせ${locked ? '（上級職で）' : ''}</span>` : a.hirameki ? '<span class="tag hira">ひらめき</span>' : ''}${p.penalized ? '<span class="tag warn">他</span>' : ''}<span class="sk-desc">${esc(skillBrief(a))}</span>`,
         right: a.effect.type === 'mahouken' ? '' : `MP${mpCost(c, id)}`,
         rightCls: p.penalized ? 'pen' : '',
         value: id,
@@ -981,7 +985,17 @@ export class FieldMenu {
       box.append(el('div', { class: 'detail', text: '「他」は今の職業以外で覚えた技。MPが増えたり、威力が下がったりする。' }));
       return box;
     }
-    const showDetail = (it) => { detail.textContent = it ? `${abilityDetail(it.value, c)}\n使った回数: ${c.skillUse?.[it.value] || 0}回${touch ? '\n▶もう一度タップで「使う・お気に入り」' : ''}` : ''; };
+    // 効果の 目安（数）・技の レベルと 使った 回数（第38回 C）
+    const lvLine = (id) => {
+      const n = c.skillUse?.[id] || 0;
+      const left = skillLvLeft(n);
+      return `技Lv${skillLevel(c.skillUse, id)}（使った回数: ${n}回${left === null ? '・いちばん上' : `・つぎのLvまであと${left}回`}）`;
+    };
+    const showDetail = (it) => {
+      if (!it) { detail.textContent = ''; return; }
+      const eff = skillEffectText(it.value, c, skillLevel(c.skillUse, it.value));
+      detail.textContent = `${abilityDetail(it.value, c)}${eff ? `\n効果：${eff}` : ''}\n${lvLine(it.value)}${touch ? '\n▶もう一度タップで「使う・お気に入り」' : ''}`;
+    };
     const m = list(items, {
       tapConfirm: touch,
       onMove: showDetail,

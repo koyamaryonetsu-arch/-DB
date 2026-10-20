@@ -234,6 +234,8 @@ export function gameFiles() {
     // 家族の 見なおし（第26回）: 第4章・夜の 魔物の 仲間・仲間の粉・上位の 技・戦いの 技の せつめい
     'public/js/shared/data/companions-ch4.js', 'public/js/shared/data/friend-powder.js', 'public/js/shared/world/powder.js',
     'public/js/shared/data/skill-ups.js', 'public/js/client/ui/skillinfo.js',
+    // 第38回 C: バフ・デバフ・じわじわ回復の 回数と しるし・技の レベル
+    'public/js/shared/buff-acts.js', 'public/js/client/battle-buffs.js',
     // 合体技の 作り直し（2人・3人・4人の 合体技・カットイン）
     'public/js/shared/battle-dual.js', 'public/js/client/battle-dual.js', 'public/js/client/render/dualfx.js',
     // 第35回 C: 職業の タグ（合体技の 組）

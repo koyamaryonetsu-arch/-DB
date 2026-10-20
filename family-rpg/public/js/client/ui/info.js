@@ -11,6 +11,7 @@ import { attackReach } from '../../shared/battle.js';
 import { maxPlus } from '../../shared/data/forge.js';
 import { SKILL_UPS } from '../../shared/data/skill-ups.js';
 import { perkText } from '../../shared/data/items-r31.js';
+import { BUFF_MARKS } from '../../shared/buff-acts.js';
 import { starsOf, isShopItem, rareWhereText, traitText } from '../../shared/data/rare-loot.js';
 
 const TARGET_NAMES = { enemy: '敵1体', group: '敵1グループ', enemies: '敵全体', ally: '味方1人', allies: '味方全員', self: '自分', deadAlly: '死んだ味方', deadAllies: '死んだ味方全員' };
@@ -200,14 +201,31 @@ export function statusNames(st) {
   return (st || []).map((s) => n[s] || s).join(' ');
 }
 
-export function buffNames(b) {
-  const n = { '+atk': '攻↑', '+def': '守↑', '+agi': '速↑', '+mag': '魔↑', '+eva': 'かわ↑', '-def': '守↓', '-atk': '攻↓', '-agi': '速↓', '-mag': '魔↓' };
-  // 2だんかいめ（かさねがけ）は 矢じるしが 2つ（'+atk2' → 攻↑↑）
-  return (b || []).map((x) => {
+export function buffNames(b, left = null) {
+  return buffMarks(b, left).map((m) => m.text).join(' ');
+}
+
+// 第38回 C: 戦いの 画面の バフ・デバフの しるし [{ text: '攻↑3', up: true }]
+//   b … pub の buffs（'+atk'・'-def2' など。2だんかいめ〈かさねがけ〉は 矢じるしが 2つ）
+//   left … pub の buffLeft（'+atk' → のこりの 行動の 回数）。ずっと つづく ものは 数を 出さない
+export function buffMarks(b, left = null) {
+  const out = [];
+  for (const x of b || []) {
     const two = x.endsWith('2');
-    const t = n[two ? x.slice(0, -1) : x] || '';
-    return t && two ? t + t.slice(-1) : t;
-  }).filter(Boolean).join(' ');
+    const key = two ? x.slice(0, -1) : x;
+    const mk = BUFF_MARKS[key.slice(1)];
+    if (!mk) continue;
+    const up = key[0] === '+';
+    const arrow = up ? '↑' : '↓';
+    const n = left?.[key];
+    out.push({ text: `${mk}${arrow}${two ? arrow : ''}${Number.isFinite(n) ? n : ''}`, up });
+  }
+  return out;
+}
+
+// じわじわ回復の しるし（のこりの 回数）
+export function regenMark(n) {
+  return n ? `回復${Number.isFinite(n) ? n : ''}` : '';
 }
 
 export { TARGET_NAMES, SLOT_NAMES };

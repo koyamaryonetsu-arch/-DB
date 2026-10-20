@@ -202,16 +202,23 @@ test('見なおし: 本職で ない 技で かける 補助は、上がりか�
 });
 
 test('新しい こうか: じわじわ回復・強さを 消す・いくつかの こうか', () => {
-  // じわじわ回復: 4びょうごとに 少しずつ。時間が たつと 消える
+  // じわじわ回復: かかった 人の 行動の はじめに 少しずつ（第38回 C。技Lv1 は 3回）。時間では 消えない
   let { b, me, mate } = setup('cook');
   mate.hp = 10;
   use(b, me, 'ck_soup', mate.id);
   assert.ok(mate.regen && mate.regen.amt > 0, 'スープ');
+  assert.equal(mate.regen.left, 3, '技Lv1 は 3回');
   const hp0 = mate.hp;
-  b.advance(4100);
-  assert.ok(mate.hp > hp0, `回復した ${hp0} → ${mate.hp}`);
   b.advance(30000);
-  assert.equal(mate.regen, null, '24びょうで 消える');
+  assert.equal(mate.hp, hp0, '時間では 回復しない');
+  assert.ok(mate.regen, '時間では 消えない');
+  b.queue = [];
+  const act = () => { b.enqueue(mate, { type: 'defend' }); b.executeNext(); };
+  act();
+  assert.ok(mate.hp > hp0, `行動の はじめに 回復した ${hp0} → ${mate.hp}`);
+  act();
+  act();
+  assert.equal(mate.regen, null, '3回で 消える');
   // 強さを 消す（ツッコミ）: 敵の バフと 力ため
   ({ b, me } = setup('comedian', ['rockman'], { lucky: true }));
   const e = b.enemies[0];

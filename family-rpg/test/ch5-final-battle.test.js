@@ -244,7 +244,8 @@ test('ひとりにする: 動けない・仲間の 回復も 補助も とどか
   const ev2 = evOf(m);
   b.cur = ev2;
   b.damage(m, a[1], 100, ev2, { element: 'phys' });
-  assert.equal(99999 - a[1].hp, Math.round(100 * MONSTERS[SOLITUS].solitus.alone.hurt));
+  // 第38回 C: ソリトゥスの ダメージの 調整（data/boss-r38.js の bossDmg）も かかる
+  assert.equal(99999 - a[1].hp, Math.round(Math.round(100 * MONSTERS[SOLITUS].solitus.alone.hurt) * b.bossDmg));
   assert.ok(has(ev2, 'ひとりぼっちの') && d1 > 0);
   // よやくの 組
   const B = battle(SOLITUS, { seed: 32 });

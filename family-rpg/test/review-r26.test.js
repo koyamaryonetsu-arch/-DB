@@ -289,7 +289,7 @@ test('技の せつめい: 相手・MP・威力の 目安・属性・効果（�
   assert.doesNotMatch(battleSkillText('sz_kame', pc), /タップ/, 'タッチで ない ときは 出さない');
   const aura = battleSkillText('sz_aura', pc);
   assert.match(aura, /自分/);
-  assert.match(aura, /効果：攻撃力・素早さ×1\.3（35秒）/);
+  assert.match(aura, /効果：攻撃力・素早さ1\.3倍・3回行動のあいだ/);
   assert.match(battleSkillText('sz_kikouha', pc), /敵全体/);
   const mage = { job: 'mage', jobs: { mage: { lv: 1 } } };
   const mera = battleSkillText('mera', mage);
@@ -315,7 +315,8 @@ test('技の せつめい: 相手・MP・威力の 目安・属性・効果（�
 test('技の せつめい: 戦いの 画面は 一覧の タップで せつめい → もう一度で 使う（tapConfirm）', async () => {
   const fs = await import('node:fs');
   const src = fs.readFileSync(new URL('../public/js/client/battle.js', import.meta.url), 'utf8');
-  assert.match(src, /battleSkillText\(it\.value, pc, \{ touch: this\.touchUi\(\) \}\)/);
+  // 第38回 C: 技の レベル（lv）も わたす
+  assert.match(src, /battleSkillText\(it\.value, pc, \{ touch: this\.touchUi\(\)(, lv: [^}]+)? \}\)/);
   assert.match(src, /battleItemText\(it\.value/);
   assert.equal((src.match(/, true\);\n/g) || []).length >= 2, true, '呪文・特技・道具の 一覧は tapConfirm');
   const dom = fs.readFileSync(new URL('../public/js/client/ui/dom.js', import.meta.url), 'utf8');

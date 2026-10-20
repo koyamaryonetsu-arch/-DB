@@ -33,10 +33,14 @@ test('かさねがけ: 2回目で 効き目が 2倍、3回目は かさならな
   assert.ok(Math.abs(stackMult(0.75, 2) - 0.5) < 1e-9);
   assert.ok(Math.abs(stackMult(2.6, 2) - 3.1) < 1e-9, '大防御は ひかえめ');
   const m = {};
-  assert.deepEqual(stackBuff(m, 'atk', 1.3, 100), { lv: 1, max: false });
-  assert.deepEqual(stackBuff(m, 'atk', 1.3, 200), { lv: 2, max: false });
-  assert.deepEqual(stackBuff(m, 'atk', 1.3, 300), { lv: 2, max: true });
-  assert.equal(m.atk.until, 300, '時間は のびる');
+  assert.deepEqual(stackBuff(m, 'atk', 1.3), { lv: 1, max: false });
+  assert.equal(m.atk.left, 3, '3回 行動の あいだ（第38回 C）');
+  m.atk.left = 1;
+  assert.deepEqual(stackBuff(m, 'atk', 1.3), { lv: 2, max: false });
+  assert.equal(m.atk.left, 3, 'かけ直すと 3回に もどる');
+  m.atk.left = 2;
+  assert.deepEqual(stackBuff(m, 'atk', 1.3), { lv: 2, max: true });
+  assert.equal(m.atk.left, 3, 'もう かさならなくても 3回に もどる');
   assert.ok(Math.abs(m.atk.mult - 1.6) < 1e-9);
 });
 

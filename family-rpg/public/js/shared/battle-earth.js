@@ -23,6 +23,7 @@ import { ABILITIES } from './data/abilities.js';
 import { NOCTO1, NOCTO_CLONE } from './data/monsters-earth.js';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
 import { atbRate, pub } from './battle.js';
+import { BUFF_ACTS } from './buff-acts.js';
 import { canUse } from './ai.js';
 // 合体技の よやくの 組（ノクトの影と おなじ。battle-nocto.js）
 import { bondTeams, breakTeam, crushBonds } from './battle-nocto.js';
@@ -35,9 +36,9 @@ export const COMBO_READY = 'm_n1_combo_ready';
 export const COMBO = 'm_n1_combo';
 export const SWALLOW = 'm_fs_swallow';
 export const PIPI_LETTER = 'pipi_letter';
-// 合体技の かまえが くずれた ときの すき（守備力 BREAK_DEF ばい・BREAK_MS ミリびょう）
+// 合体技の かまえが くずれた ときの すき（守備力 BREAK_DEF ばい・ノクトが BREAK_ACTS 回 行動するまで。第38回 C で 時間から 回数に）
 export const BREAK_DEF = 0.7;
-export const BREAK_MS = 20000;
+export const BREAK_ACTS = BUFF_ACTS;
 
 const n1Conf = (m) => MONSTERS[m?.species]?.nocto1 || null;
 const noctoOf = (b) => b.enemies.find((e) => e.alive && n1Conf(e)) || null;
@@ -56,7 +57,7 @@ export function setupEarth(b) {
 }
 function applyEva(m) {
   const e = MONSTERS[m.species]?.eva;
-  if (e) m.buffs.eva = { add: e, until: Infinity };
+  if (e) m.buffs.eva = { add: e, left: Infinity }; // 空を とぶ 魔物の かいひは ずっと
 }
 
 // ───────────── 魔物の 番の はじめ（ai.js の decideMonster。noctoAction の あと）─────────────
@@ -317,7 +318,7 @@ function anger(b, t, dmg, ev, conf) {
   if (lv <= (t.anger || 0)) return;
   t.anger = lv;
   const k = conf.atk[lv - 1];
-  t.buffs.atk = { mult: k, base: k, lv: 1, until: Infinity };
+  t.buffs.atk = { mult: k, base: k, lv: 1, left: Infinity }; // おこった 攻撃力は ずっと
   ev.postLines = (ev.postLines || []).concat(lv >= conf.atk.length ? [`${t.name}の目が、まっかにもえている！`, `（${t.name}は、とてもおこっている…！攻撃力がもっと上がった！）`] : [`${t.name}の目が、赤くなった！`, `（${t.name}は、おこっている…！攻撃力が上がった！）`]);
   ev.pbAnger = { id: t.id, lv };
   ev.upd.push(t);
@@ -372,7 +373,7 @@ export function earthKill(b, t, ev) {
       // かまえが くずれて すきが できる（ゲージは 0 から・しばらく 守りが 下がる）
       n.telegraph = null;
       if (!n.queued) n.atb = 0;
-      n.debuffs.def = { mult: BREAK_DEF, base: BREAK_DEF, lv: 1, until: b.time + BREAK_MS };
+      n.debuffs.def = { mult: BREAK_DEF, base: BREAK_DEF, lv: 1, left: BREAK_ACTS };
       out.push('影がひとり消えて、ノクトの合体技のかまえが、くずれた！', '（ノクトに、すきができた！ノクトの守備力が下がった！）');
       if (ev) {
         ev.n1Break = true;
