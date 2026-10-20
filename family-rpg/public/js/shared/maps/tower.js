@@ -9,6 +9,8 @@
 // ・star_tower_top … てっぺん。紋章の さいだんで 天のとばりを 開く（c5_sky）
 // ・どの 階にも 星の エレベーター（1度 来た 階へ 1階から 一気に 行ける 近道。大迷宮の 転送の門と おなじ 考え方）
 // ・みちびきの糸・リレミトは 使える（長いので。noEscape なし）。魔物は 1〜4階 t5_tower_low・5〜8階 t5_tower_high（B が 作る）
+// ・第38回 A: 1〜8階を 広げた（わき道・宝の 小べや・見晴らしの 広間。2階に 宝の 屋根うらへの 2つ目の 上り下りの ゆか）。
+//   形の 版は TOWER_LAYOUT（古い セーブで 階の 中に いた 人は その 階の 着く 所へ。world.js の layoutFix）
 import { T, parseRows } from '../tiles.js';
 import { npc } from './npc.js';
 import { PLACES } from './overworld.js';
@@ -23,7 +25,7 @@ export const C5 = {
 export const BOOK_FLAG = 'c5_book'; // ばあちゃんと 女王ネフィの 古い 書物を 読んだ（星の 塔の ことが 分かった）
 export const DOOR_FLAG = 'c5_t_door'; // 星の 塔の とびらが 紋章で 開いた
 export const EV = (n) => `c5_ev${n}`; // その 階に 来た（星の エレベーターが 光る）
-export const LIFT_FLAGS = { f2: 'c5_t_lift2', f7a: 'c5_t_lift7a', f7b: 'c5_t_lift7b' }; // 上り下りの ゆかが 上がって 止まった
+export const LIFT_FLAGS = { f2: 'c5_t_lift2', f7a: 'c5_t_lift7a', f7b: 'c5_t_lift7b', f2b: 'c5_t_lift2b' }; // 上り下りの ゆかが 上がって 止まった（f2b … 2階の 宝の 屋根うら。しなくても よい）
 export const WIND_FLAGS = { f3a: 'c5_t_wind3a', f3b: 'c5_t_wind3b', f6a: 'c5_t_wind6', f6road: 'c5_t_road6' }; // 風見の石を 回した
 export const DOOR6_FLAG = 'c5_t_door6'; // 6階の 近道の とびら
 export const STAR_FLAGS = STAR_ORDER.map((_, i) => `c5_t_cs${i + 1}`); // 星座の ゆかの 星を ふんだ（じゅんばん）
@@ -38,6 +40,8 @@ export const TOWER_NAMES = ['', '星の塔　1階', '星の塔　2階', '星の�
 // 階の 見どころ（地図・テスト・README）
 export const TOWER_SIGHTS = ['', '入口と昔の勇者のかべ画', '上り下りのゆか', '風の窓と風見の石', '休み所', '星座のゆか', '風の大広間と風の道', '2つの上り下りのゆか', '星の番人アルゴス', '天のとばり'];
 export const REST_FLOOR = 4;
+// マップの 形の 版（第38回 A で 1〜8階を 広げた。てっぺんは そのまま。world.js の posOf・layoutFix）
+export const TOWER_LAYOUT = 38;
 // 出現表（B が 作る。plan-ch5.md の 11）
 export const towerTable = (n) => (n <= 4 ? 't5_tower_low' : 't5_tower_high');
 // 色（render/tiles-tower.js の テーマ。下は 石、上へ 行くほど 星空）
@@ -101,6 +105,8 @@ export const LIFTS = {
   f2: liftOf(2, ['L', 'u', 'K'], LIFT_FLAGS.f2),
   f7a: liftOf(7, ['L', 'u', 'K'], LIFT_FLAGS.f7a),
   f7b: liftOf(7, ['M', 'm', 'J'], LIFT_FLAGS.f7b),
+  // 2階の 東の 広間の 2つ目の ゆか（宝の 屋根うらへ。先へ 進むのに いらない。目標の しるしも なし）
+  f2b: { ...liftOf(2, ['M', 'm', 'J'], LIFT_FLAGS.f2b), optional: true },
 };
 
 // 風の 窓と 風見の石（3階: 南の 石が 下の 風 a、まん中の 石が 上の 風 b。6階: 南の 石が 風 a、西の 石が ふきぬけの 風の 道 R）
@@ -144,6 +150,8 @@ function safeRects(n) {
 }
 
 const toward = (p, map, dy, dir) => ({ map, x: p.x + 0.5, y: p.y + 0.5 + dy, dir });
+// 1階の 入口（フィールドの とびらから 入って 着く 所）
+export const TOWER_ENTRY = { x: 13.5, y: 19.5 };
 const SKY3D = {
   star_tower: { bg: '#0c0e18', fog: 0x0c0e18 },
   star_tower_mid: { bg: '#0a0c24', fog: 0x0a0c24 },
@@ -164,10 +172,15 @@ function towerMap(n, opts) {
     areaName: () => TOWER_NAMES[n],
     towerFloor: n,
     zoneAt: n > TOWER_FLOORS ? () => 'safe:top' : zoneRect(safeRects(n), table),
-    spawnCounts: n > TOWER_FLOORS ? {} : { [table]: n === REST_FLOOR ? 3 : n === 8 ? 3 : 5 },
+    spawnCounts: n > TOWER_FLOORS ? {} : { [table]: n === REST_FLOOR ? 4 : n === 8 ? 4 : 7 },
     ...opts,
   };
   const P = TOWER_POS[n];
+  // 形の 版と 着く 所（古い セーブで この 階の 中に いた 人を 移す 先。1階は 外からの 入口、ほかは 下からの かいだんの 手前）
+  if (n <= TOWER_FLOORS) {
+    m.layoutVer = TOWER_LAYOUT;
+    m.layoutArrive = n === 1 ? { ...TOWER_ENTRY, dir: 'up' } : { x: P.down.x + 0.5, y: P.down.y - 0.5, dir: 'up' };
+  }
   // かいだん: 上は 1つ 上の 階の 下りかいだんの 手前へ、下は 1つ 下の 階の 上りかいだんの 手前へ
   if (P.up) m.warps.push({ x: P.up.x, y: P.up.y, to: toward(TOWER_POS[n + 1].down, towerMapId(n + 1), -1, 'up') });
   if (P.down && n > 1) m.warps.push({ x: P.down.x, y: P.down.y, to: toward(TOWER_POS[n - 1].up, towerMapId(n - 1), 1, 'down') });
@@ -197,15 +210,24 @@ const SIGNS = {
   6: [{ x: 12, y: 17, text: '石の文字ばんに、こう書いてある。\n「1つ目の石は、風を止める。2つ目の石は、風の道を作る。\n風にのり、ふきぬけをこえよ」' }],
   7: [{ x: 16, y: 15, text: '石の文字ばんに、こう書いてある。\n「上り下りのゆかは、2つ。\n重りのゆかは、それぞれ、はなれた所にある」' }],
 };
+// c・d・e … 第38回 A の わき道の 宝箱（行き止まりの 小べや・見晴らしの 広間。前からの 宝の 表の 品）
 export const TOWER_CHESTS = {
-  1: [{ id: 't5_1a', x: 4, y: 3, item: 'magic_water', n: 2 }, { id: 't5_1b', x: 23, y: 3, item: 'seed_hp' }],
-  2: [{ id: 't5_2a', x: 21, y: 3, item: 'platinum_helm' }, { id: 't5_2b', x: 27, y: 12, item: 'revive_flower' }],
-  3: [{ id: 't5_3a', x: 10, y: 3, item: 'seed_agi' }, { id: 't5_3b', x: 19, y: 8, gold: 6000 }],
-  4: [{ id: 't5_4a', x: 2, y: 4, item: 'seed_mag' }, { id: 't5_4b', x: 27, y: 4, item: 'magic_water', n: 3 }],
-  5: [{ id: 't5_5a', x: 4, y: 5, item: 'star_shard', n: 5 }, { id: 't5_5b', x: 25, y: 15, item: 'seed_def' }],
-  6: [{ id: 't5_6a', x: 28, y: 7, item: 'platinum_shield' }, { id: 't5_6b', x: 3, y: 8, item: 'revive_flower', n: 2 }],
-  7: [{ id: 't5_7a', x: 10, y: 2, item: 'seed_str' }, { id: 't5_7b', x: 25, y: 11, gold: 8000 }],
-  8: [{ id: 't5_8a', x: 7, y: 22, item: 'magic_water', n: 3 }, { id: 't5_8b', x: 22, y: 22, item: 'seed_hp' }],
+  1: [{ id: 't5_1a', x: 4, y: 3, item: 'magic_water', n: 2 }, { id: 't5_1b', x: 23, y: 3, item: 'seed_hp' },
+    { id: 't5_1c', x: 32, y: 18, item: 'star_shard', n: 3 }, { id: 't5_1d', x: 23, y: 20, item: 'magic_water' }],
+  2: [{ id: 't5_2a', x: 21, y: 3, item: 'platinum_helm' }, { id: 't5_2b', x: 27, y: 12, item: 'revive_flower' },
+    { id: 't5_2c', x: 39, y: 2, item: 'seed_str' }, { id: 't5_2d', x: 4, y: 20, item: 'magic_water', n: 2 }],
+  3: [{ id: 't5_3a', x: 10, y: 3, item: 'seed_agi' }, { id: 't5_3b', x: 19, y: 8, gold: 6000 },
+    { id: 't5_3c', x: 35, y: 22, gold: 7000 }, { id: 't5_3d', x: 35, y: 8, item: 'revive_flower' }],
+  4: [{ id: 't5_4a', x: 2, y: 4, item: 'seed_mag' }, { id: 't5_4b', x: 27, y: 4, item: 'magic_water', n: 3 },
+    { id: 't5_4c', x: 37, y: 3, item: 'seed_agi' }, { id: 't5_4d', x: 3, y: 19, item: 'magic_water', n: 2 }],
+  5: [{ id: 't5_5a', x: 4, y: 5, item: 'star_shard', n: 5 }, { id: 't5_5b', x: 25, y: 15, item: 'seed_def' },
+    { id: 't5_5c', x: 38, y: 5, item: 'star_shard', n: 5 }, { id: 't5_5d', x: 29, y: 21, item: 'seed_hp' }],
+  6: [{ id: 't5_6a', x: 28, y: 7, item: 'platinum_shield' }, { id: 't5_6b', x: 3, y: 8, item: 'revive_flower', n: 2 },
+    { id: 't5_6c', x: 38, y: 6, item: 'seed_mag' }, { id: 't5_6d', x: 3, y: 2, item: 'magic_water', n: 2 }],
+  7: [{ id: 't5_7a', x: 10, y: 2, item: 'seed_str' }, { id: 't5_7b', x: 25, y: 11, gold: 8000 },
+    { id: 't5_7c', x: 38, y: 21, item: 'revive_flower', n: 2 }, { id: 't5_7d', x: 3, y: 2, item: 'seed_def' }],
+  8: [{ id: 't5_8a', x: 7, y: 22, item: 'magic_water', n: 3 }, { id: 't5_8b', x: 22, y: 22, item: 'seed_hp' },
+    { id: 't5_8c', x: 38, y: 23, item: 'magic_water', n: 3 }, { id: 't5_8d', x: 23, y: 1, item: 'seed_str' }, { id: 't5_8e', x: 6, y: 1, gold: 10000 }],
 };
 
 function addLift(m, L) {
@@ -247,6 +269,7 @@ function buildTowerMaps() {
   addLift(maps[towerMapId(2)], LIFTS.f2);
   addLift(maps[towerMapId(7)], LIFTS.f7a);
   addLift(maps[towerMapId(7)], LIFTS.f7b);
+  addLift(maps[towerMapId(2)], LIFTS.f2b);
   // 3階・6階: 風の 窓と 風見の石
   addWind(maps[towerMapId(3)], TOWER_ROWS[3], VANES.f3a, 'f3a');
   addWind(maps[towerMapId(3)], TOWER_ROWS[3], VANES.f3b, 'f3b');
@@ -296,7 +319,7 @@ function addOutside(ow) {
   set(O.door.x, O.door.y, T.TOWER_DOOR);
   ow.gates.push({ x: O.door.x, y: O.door.y, closed: T.TOWER_DOOR, open: T.TOWER_GATE, flag: DOOR_FLAG });
   // noMark … 宝の地図の ヒントの 目じるしには しない（第5章の 前の 地図の ことばを かえない。data/treasure-hint.js）
-  ow.warps.push({ x: O.door.x, y: O.door.y, to: { map: towerMapId(1), x: 13.5, y: 19.5, dir: 'up' }, noMark: true });
+  ow.warps.push({ x: O.door.x, y: O.door.y, to: { map: towerMapId(1), ...TOWER_ENTRY, dir: 'up' }, noMark: true });
   ow.actions = [...(ow.actions || []), { x: O.door.x, y: O.door.y, script: 'c5_tower_door', show: { not: [DOOR_FLAG] } }];
   // 塔の すがた（雲の 上まで のびる 大きな え。render/ch5-art.js）
   ow.npcs.push(npc('star_tower', '星の塔', [O.view.x, O.view.y], 'star_tower', 'c5_tower_door', { solid: false }));

@@ -6,6 +6,8 @@
 // ・思い出の かけら … 各階に 1つ。拾うと その 年の 場面。かけらへの 影の 道は、拾うと 消えなくなる（MEMORY_KEEP）
 // ・6階の 大広間で ノクトの 影（きまった 戦い nocto_shadow。B が 作る）
 // ・みちびきの糸・リレミトは 使える（1階の 出口 → 星読みの里の 水しょうの 前）。魔物は 1〜3階 t5_memory・4〜6階 t5_memory_deep（B）
+// ・第38回 A: 1〜6階を 広げた（わき道・宝の へや・思い出の 広場。3階に しなくても よい 2つ目の ランプ台）。
+//   形の 版は MEMORY_LAYOUT（古い セーブで 階の 中に いた 人は その 階の 着く 所へ。world.js の layoutFix）
 import { T, parseRows } from '../tiles.js';
 import { npc } from './npc.js';
 import { MEMORY_ROWS, MEMORY_KEEP } from './memory-rows.js';
@@ -29,6 +31,8 @@ export const MEMORY_NAMES = ['', ...Array.from({ length: MEMORY_FLOORS }, (_, i)
 export const MEMORY_SIGHTS = ['', '初めての影の道', '影の道を2本つなぐ', '休み所', '1本の柱の影を回す', '3つのランプ台', 'ノクトの影'];
 export const MEMORY_REST = 3;
 export const MEMORY_BOSS = 6;
+// マップの 形の 版（第38回 A で 1〜6階を 広げた。world.js の posOf・layoutFix）
+export const MEMORY_LAYOUT = 38;
 // 出現表（B が 作る）と 色
 export const memoryTable = (n) => (n <= 3 ? 't5_memory' : 't5_memory_deep');
 export const memoryTheme = (n) => `memory_${n}`;
@@ -94,7 +98,7 @@ function zoneOf(n, tiles, w) {
   for (const p of [P.up, P.down]) if (p) safe.push([p.x - 2, p.y - 2, p.x + 2, p.y + 2, 'safe:stairs']);
   for (const L of Object.values(P.lamps)) safe.push([L.x - 1, L.y - 1, L.x + 1, L.y + 1, 'safe:lamp']);
   if (n === 1) safe.push([3, 10, 16, 17, 'safe:entry']);
-  if (n === MEMORY_REST) safe.push([0, 0, w - 1, 17, 'safe:rest']); // 休み所の 階は 魔物が 出ない
+  if (n === MEMORY_REST) safe.push([0, 0, w - 1, tiles.length / w - 1, 'safe:rest']); // 休み所の 階は 魔物が 出ない
   if (n === MEMORY_BOSS) safe.push([11, 0, 25, 17, 'safe:boss']);
   const table = memoryTable(n);
   return (x, y) => {
@@ -105,19 +109,21 @@ function zoneOf(n, tiles, w) {
     return table;
   };
 }
-const SPAWNS = { 1: { t5_memory: 3 }, 2: { t5_memory: 4 }, 3: {}, 4: { t5_memory_deep: 4 }, 5: { t5_memory_deep: 4 }, 6: { t5_memory_deep: 2 } };
+// 第38回 A: 広げた ぶん 少し ふやした（前は 3・4・なし・4・4・2）
+const SPAWNS = { 1: { t5_memory: 4 }, 2: { t5_memory: 6 }, 3: {}, 4: { t5_memory_deep: 6 }, 5: { t5_memory_deep: 6 }, 6: { t5_memory_deep: 3 } };
 
 // ───────────── 宝箱（★の 装備は B の MEMORY_TREASURE[階]。そのほかは 道具）─────────────
 const TREASURE_SPOTS = {
   1: [[23, 10], [11, 2]], 2: [[23, 15], [2, 2]], 3: [[21, 9], [23, 5]], 4: [[15, 1], [1, 6]], 5: [[23, 7], [12, 15]], 6: [[6, 4], [2, 7]],
 };
+// 2つ目から うしろは 第38回 A の わき道の 宝箱（前からの 宝の 表の 品と、思い出の 迷宮の 魔物の 素材）
 const EXTRA_CHESTS = {
-  1: [{ x: 4, y: 14, item: 'magic_water', n: 2 }],
-  2: [{ x: 20, y: 6, item: 'seed_agi' }],
-  3: [{ x: 3, y: 12, item: 'revive_flower', n: 2 }],
-  4: [{ x: 4, y: 10, gold: 9000 }],
-  5: [{ x: 2, y: 6, item: 'seed_def' }],
-  6: [],
+  1: [{ x: 4, y: 14, item: 'magic_water', n: 2 }, { x: 31, y: 9, item: 'star_sand', n: 3 }, { x: 20, y: 2, item: 'seed_agi' }],
+  2: [{ x: 20, y: 6, item: 'seed_agi' }, { x: 31, y: 16, item: 'seed_mag' }, { x: 21, y: 18, item: 'shade_drop', n: 2 }],
+  3: [{ x: 3, y: 12, item: 'revive_flower', n: 2 }, { x: 17, y: 18, item: 'seed_hp' }, { x: 30, y: 4, item: 'magic_water', n: 2 }],
+  4: [{ x: 4, y: 10, gold: 9000 }, { x: 30, y: 5, item: 'seed_str' }, { x: 1, y: 15, item: 'shade_drop', n: 3 }],
+  5: [{ x: 2, y: 6, item: 'seed_def' }, { x: 31, y: 2, item: 'revive_flower' }, { x: 4, y: 17, item: 'star_sand', n: 3 }],
+  6: [{ x: 9, y: 1, item: 'magic_water', n: 2 }, { x: 31, y: 14, item: 'seed_hp' }],
 };
 export function memoryChests(n) {
   const list = (MEMORY_TREASURE[n] || []).slice(0, TREASURE_SPOTS[n].length).map((item, i) => ({ id: `m5_${n}${'ab'[i]}`, x: TREASURE_SPOTS[n][i][0], y: TREASURE_SPOTS[n][i][1], item }));
@@ -138,6 +144,9 @@ function memoryMap(n) {
     memoryFloor: n,
     zoneAt: zoneOf(n, t.tiles, t.w),
     spawnCounts: SPAWNS[n],
+    // 形の 版と 着く 所（古い セーブで この 階の 中に いた 人を 移す 先）
+    layoutVer: MEMORY_LAYOUT,
+    layoutArrive: (({ x, y, dir }) => ({ x, y, dir }))(memoryArrive(n)),
   };
   const P = MEMORY_POS[n];
   // かいだん: 上は 1つ 上の 階の 下りかいだんの となりへ（下は 1つ 下の 階の 上りかいだんの となりへ）

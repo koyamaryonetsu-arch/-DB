@@ -370,7 +370,7 @@ test('しかけ: 上り下りの ゆかは、重りの ゆかに だれかが �
     const r1 = reach(m.id, arrive(n), [...before, L.flag]);
     assert.ok(r1(L.top.x, L.top.y), `${L.flag}: 上がると 上の だんへ`);
     assert.ok(near(r0, L.lift) || r0(L.lift.x, L.lift.y), `${L.flag}: ゆかには 行ける`);
-    if (L !== LIFTS.f7a) assert.ok(!r0(TOWER_POS[n].up.x, TOWER_POS[n].up.y), `${L.flag}: 上がる 前は 上の かいだんへ 行けない`);
+    if (L !== LIFTS.f7a && !L.optional) assert.ok(!r0(TOWER_POS[n].up.x, TOWER_POS[n].up.y), `${L.flag}: 上がる 前は 上の かいだんへ 行けない`);
     // 重りの ゆかは、上り下りの ゆかから はなれている（1人では 同時に のれない）
     assert.ok(Math.hypot(L.plate.x - L.lift.x, L.plate.y - L.lift.y) >= 8, `${L.flag}: はなれた 重りの ゆか`);
     assert.equal(effectiveTile(m, L.shaft[0].x, L.shaft[0].y, () => false), T.LIFT_SHAFT);
@@ -379,6 +379,25 @@ test('しかけ: 上り下りの ゆかは、重りの ゆかに だれかが �
   // 7階: 1つ目の ゆかが 上がる 前は、まん中の だんにも 行けない
   const r7 = reach(towerMapId(7), arrive(7), ALL_TOWER.filter((f) => f !== LIFTS.f7a.flag && f !== LIFTS.f7b.flag));
   assert.ok(!r7(LIFTS.f7b.plate.x, LIFTS.f7b.plate.y));
+});
+
+test('第38回 A: 2階の 2つ目の 上り下りの ゆか（宝の 屋根うら）は しなくても 先へ 行ける。上がると 屋根うらの 宝箱へ', () => {
+  const L = LIFTS.f2b, m = MAPS[L.map];
+  assert.ok(L.optional && L.map === towerMapId(2));
+  assert.deepEqual(Object.keys(LIFTS).filter((k) => LIFTS[k].optional), ['f2b'], 'しなくても よい ゆかは これだけ');
+  const P = TOWER_POS[2];
+  const loft = m.chests.find((ch) => ch.id === 't5_2c');
+  // 1つ目の ゆかだけで 上の かいだんへ（2つ目は いらない）
+  assert.ok(reach(m.id, arrive(2), [LIFTS.f2.flag])(P.up.x, P.up.y));
+  // 屋根うらは 2つ目の ゆかが 上がるまで 行けない（どちらの だんからも）
+  for (const fl of [[], [LIFTS.f2.flag]]) assert.ok(!near(reach(m.id, arrive(2), fl), loft), `屋根うら ${fl}`);
+  assert.ok(!near(reach(m.id, [P.up.x, P.up.y + 1], [LIFTS.f2.flag]), loft), '上の だんからも 行けない');
+  const r = reach(m.id, arrive(2), [L.flag]);
+  assert.ok(r(L.top.x, L.top.y) && near(r, loft), '上がると 屋根うらの 宝箱');
+  assert.ok(near(reach(m.id, arrive(2), []), L.lift) && near(reach(m.id, arrive(2), []), L.plate), 'ゆかと 重りの ゆかは 下の 広間から');
+  // しかけの だいほん・目標の しるしには 出ない
+  assert.ok(SCRIPTS.c5_lift_f2b && SCRIPTS.c5_weight_f2b);
+  assert.ok(!JSON.stringify(CH5_OBJECTIVE_TARGETS[C5_OBJ.f2]).includes(`"x":${L.plate.x},"y":${L.plate.y}`), '目標の しるしは 1つ目の ゆかだけ');
 });
 
 test('上り下りの ゆか（ひとり）: 仲間が いれば 重りの ゆかに のってもらう。だれも いなければ 動かない', { timeout: 60000 }, async () => {
