@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>武器と盾の形（かいはつよう）</title>
+<style>
+  body { background: #2a2a34; color: #fff; font-family: sans-serif; margin: 8px; }
+  canvas { image-rendering: pixelated; display: block; }
+  h2 { font-size: 13px; margin: 8px 0 2px; }
+  .row { display: flex; flex-wrap: wrap; gap: 4px; }
+  .cell { background: #3a3a48; padding: 2px; border-radius: 4px; text-align: center; font-size: 10px; }
+  .cell.s4 { background: #4a3a58; } .cell.s5 { background: #5a4a2a; }
+  .dirs { display: flex; }
+  .cell div:last-child { max-width: 300px; }
+</style>
+</head>
+<body>
+<div id="out"></div>
+<script type="module">
+// 使い方: tools/weapon-looks.html            … 武器種ごとの 形（look）を 4方向で（形の 一覧）
+//         tools/weapon-looks.html?mode=items … すべての 品を 武器種ごとに（まえ・よこ）
+//         ?res=4（フィールドの 大きさ。ふつう）/ ?res=10（大きな 絵）  ?z=2（拡大）
+//         ?cat=sword（武器種 1つ・shield）  ?dirs=down,left（むき）  ?ids=lake_holy_sword,yata_mirror（品を えらぶ）
+//   家族サーバーでは 見えない（public の 外）。family-rpg/ を http で 出して 開く
+import { paintHero } from '../public/js/client/render/hero.js';
+import { rgbaCanvas } from '../public/js/client/render/hero-raster.js';
+import { ITEMS, baseItemId } from '../public/js/shared/data/items.js';
+import { weaponOf, shieldOf, WEAPON_LOOKS, SHIELD_LOOKS, gearStars } from '../public/js/client/render/hero-gear.js';
+import { LOOK_NAMES } from '../public/js/shared/data/gear-looks.js';
+
+const q = new URLSearchParams(location.search);
+const mode = q.get('mode') || 'looks';
+const res = Number(q.get('res') || 4);
+const Z = Number(q.get('z') || 1);
+const DIRS = q.get('dirs') ? q.get('dirs').split(',') : mode === 'items' ? ['down', 'left'] : ['down', 'left', 'up', 'right'];
+const CAT = q.get('cat');
+const out = document.getElementById('out');
+const look = { body: 0, style: 'short', hcol: 'brown', tone: 'light', color: 1 };
+
+function pic(eq, dir, f = 0) {
+  const c = rgbaCanvas(paintHero(look, 'warrior', { weapon: null, armor: 'leather_armor', shield: null, head: null, ...eq }, dir, f, res));
+  const z = document.createElement('canvas');
+  z.width = c.width * Z; z.height = c.height * Z;
+  const x = z.getContext('2d'); x.imageSmoothingEnabled = false;
+  x.drawImage(c, 0, 0, z.width, z.height);
+  return z;
+}
+function cell(label, eq, stars = 0, frames = [0]) {
+  const d = document.createElement('div');
+  d.className = 'cell' + (stars >= 5 ? ' s5' : stars >= 4 ? ' s4' : '');
+  const r = document.createElement('div'); r.className = 'dirs';
+  for (const dir of DIRS) r.appendChild(pic(eq, dir, 0));
+  // ★4・★5: あるく 2コマめ（きらめきの 場所が かわる）
+  if (frames.length > 1) r.appendChild(pic(eq, 'down', 1));
+  d.appendChild(r);
+  const t = document.createElement('div'); t.textContent = label; d.appendChild(t);
+  return d;
+}
+function section(title) {
+  const h = document.createElement('h2'); h.textContent = title; out.appendChild(h);
+  const r = document.createElement('div'); r.className = 'row'; out.appendChild(r);
+  return r;
+}
+
+const weapons = {}, shields = [];
+for (const [id, it] of Object.entries(ITEMS)) {
+  if (baseItemId(id) !== id) continue;
+  if (it.type === 'weapon') (weapons[it.cat] ||= []).push(id);
+  if (it.type === 'shield') shields.push(id);
+}
+
+if (q.get('ids')) {
+  const r = section('えらんだ 品');
+  for (const id of q.get('ids').split(',')) r.appendChild(cell(`${ITEMS[id].name}`, { [ITEMS[id].type]: id }, gearStars(id), [0, 1]));
+} else if (mode === 'items') {
+  for (const [cat, ids] of Object.entries(weapons)) {
+    const r = section(`${cat}（${ids.length}）`);
+    for (const id of ids) { const W = weaponOf(id); r.appendChild(cell(`${ITEMS[id].name}／${W.shape}`, { weapon: id }, gearStars(id))); }
+  }
+  const r = section(`shield（${shields.length}）`);
+  for (const id of shields) { const S = shieldOf(id); r.appendChild(cell(`${ITEMS[id].name}／${S.kind}`, { shield: id }, gearStars(id))); }
+} else {
+  // 形ごとに ★の いちばん 少ない 品と、★4・★5 の 品（あれば。5まいめは あるく 2コマめ）
+  for (const [cat, list] of Object.entries(WEAPON_LOOKS)) {
+    if (CAT && CAT !== cat) continue;
+    const r = section(cat);
+    for (const lk of list) {
+      const ids = (weapons[cat] || []).filter((id) => weaponOf(id).look === lk);
+      ids.sort((a, b) => gearStars(a) - gearStars(b));
+      const lo = ids[0], hi = ids[ids.length - 1];
+      const nm = `${lk}（${LOOK_NAMES[cat]?.[lk] || ''}）`;
+      if (!lo) { r.appendChild(cell(`${nm} 品なし`, {})); continue; }
+      r.appendChild(cell(`${nm}：${ITEMS[lo].name}`, { weapon: lo }, gearStars(lo)));
+      if (hi !== lo && gearStars(hi) >= 4) r.appendChild(cell(`${nm}：${ITEMS[hi].name} ★${gearStars(hi)}`, { weapon: hi }, gearStars(hi), [0, 1]));
+    }
+  }
+  const r = !CAT || CAT === 'shield' ? section('shield') : null;
+  for (const lk of r ? SHIELD_LOOKS : []) {
+    const ids = shields.filter((id) => shieldOf(id).look === lk);
+    ids.sort((a, b) => gearStars(a) - gearStars(b));
+    const lo = ids[0], hi = ids[ids.length - 1];
+    const nm = `${lk}（${LOOK_NAMES.shield[lk] || ''}）`;
+    if (!lo) { r.appendChild(cell(`${nm} 品なし`, {})); continue; }
+    r.appendChild(cell(`${nm}：${ITEMS[lo].name}`, { shield: lo }, gearStars(lo)));
+    if (hi !== lo && gearStars(hi) >= 4) r.appendChild(cell(`${nm}：${ITEMS[hi].name} ★${gearStars(hi)}`, { shield: hi }, gearStars(hi), [0, 1]));
+  }
+}
+document.body.dataset.done = '1';
+</script>
+</body>
+</html>

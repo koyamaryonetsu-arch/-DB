@@ -7,6 +7,15 @@ import { R26_HAT, R26_BODY_HAT, drawHat26 } from './hero-r26.js';
 import { R33_HAT, R33_BODY_HAT, R33_WEAPON_LOOK, R33_HEAD_LOOK, drawWand33, masc33 } from './hero-r33.js';
 
 const D = Math.PI / 180;
+// 第38回 D: 武器と 盾の 形（look）。形の きめかたは shared/data/gear-looks.js、新しい 形の 絵は hero-gear-looks.js
+import { lookOfWeapon, lookOfShield, validWeaponLook, TOOL_LOOKS, WEAPON_LOOKS, SHIELD_LOOKS, gearStarsOf } from '../../shared/data/gear-looks.js';
+import {
+  drawSwordLook, drawDaggerLook, drawAxeLook, drawSpearLook, drawClawLook, drawWhipLook, drawStaffLook, drawFanLook, drawBatLook, drawBoomerangLook,
+  ornate, shieldOutline2, shieldFace2, shieldOrnate, shieldBackOrnate, shieldTint,
+} from './hero-gear-looks.js';
+export { WEAPON_LOOKS, SHIELD_LOOKS };
+// ★の 数（★4・★5 は かざりが つく）
+export const gearStars = (id) => { const b = baseItem(id); return b ? gearStarsOf(b.it) : 0; };
 
 // ───────────── ぶきの みため ─────────────
 // shape: かたちの しゅるい  mk: きんぞく  len: ながさ（マス）
@@ -144,12 +153,78 @@ function guessWeapon(it) {
   }
 }
 
+// 形ごとの ながさ（マス。品の みための len が その 形の ものなら そちらを つかう）
+const LOOK_LEN = {
+  sword: { wood: 11.5, leaf: 12.4, broad: 13.0, rapier: 14.6, scimitar: 13.2, great: 15.2, flame: 14.0, crystal: 13.6, bolt: 14.2, dragon: 14.0, holy: 14.4, katana: 14.4 },
+  axe: { stone: 11.6, axe: 12.6, pirate: 13.4, battle: 13.0, crescent: 13.6, hammer: 12.8, pick: 12.6, dragon: 13.4 },
+  dagger: { knife: 7.6, dirk: 8.6, kunai: 7.8, jambiya: 8.0, stiletto: 9.0, kris: 8.6, star: 8.4 },
+  spear: { spear: 10, spear2: 10.5, coral: 10.5, halberd: 10.5, trident: 10, lance: 10, winged: 10.5, dragon: 10.5, pennant: 10.5, rod: 10.5 },
+  staff: { oak: 17, wizard: 18, healing: 18, wave: 18.5, star: 17.2, crystal: 16.0, ring: 16.6, wing: 17.2, dragon: 16.8, ankh: 16.8, broom: 16.0, cane: 11.5 },
+  fan: { feather: 7, fan: 7.4, tessen: 7.4, wing: 7.6, phoenix: 7.2, moon: 7.4 },
+  bat: { bat: 11.5, bamboo: 11.5, mbat: 11.8, gbat: 12.4, club: 11.8, spiked: 12.0 },
+};
+// 名前の ことばで きまる ざいしつ（ランクで きまる ものは null）
+const nameMetal = (name) => { const a = metalOfName(name, 1); return a === metalOfName(name, 10) ? a : null; };
+const DARK_NAME = /影|黒|闇|やみ|夜/;
+// ランクで きまる 武器の ざいしつ（緑の 竜・クリームの 光は 名前に ある ときだけ）
+const WEAPON_RANK_METAL = [null, 'bronze', 'bronze', 'iron', 'iron', 'steel', 'steel', 'silver', 'platinum', 'platinum', 'gold'];
+const LOOK_MK = {
+  'dagger:kunai': 'dark', 'dagger:kris': 'steel', 'sword:great': 'steel', 'sword:rapier': 'silver', 'sword:scimitar': 'steel', 'sword:holy': 'light',
+  'sword:dragon': 'dragon', 'axe:dragon': 'dragon', 'spear:dragon': 'dragon', 'claw:dragon': 'dragon', 'staff:dragon': 'dragon', 'sword:crystal': 'silver',
+};
+const ORB_WORDS = [[/しんじゅ|真珠/, '#f4eeff'], [/めがね/, '#d8f4ff'], [/氷|雪|こおり|オーロラ/, '#9ae6ff'], [/炎|ともしび|火/, '#ff8a3a'], [/水|いずみ|みこ|波|海|オアシス/, '#5ad8ff'],
+  [/星|明星/, '#ffe066'], [/雷|いかずち/, '#ffe46a'], [/森|木|大地|世界樹/, '#7fd06a'], [/天|羽|白|雲/, '#bfe8ff'], [/竜/, '#5ad8a0'], [/ファラオ|アンク|古代/, '#3a8aff'], [/魔|闇|やみ/, '#c070ff']];
+const WHIP_WORDS = [[/金|黄金/, '#e8b030'], [/海|波|さざなみ|大海/, '#3a8ac0'], [/根|森/, '#6a5a2a'], [/ヘビ|まどわし/, '#6a9a3a'], [/天の川|星座|星/, '#3a4aa8'], [/にじ/, '#c86aff'], [/きずな/, '#e86a8a']];
+function tuneLook(L, look, cat, it) {
+  const name = it.name || '';
+  const rank = Math.max(1, Math.min(10, it.rank || 3));
+  let mk = nameMetal(name);
+  if (!mk && DARK_NAME.test(name)) mk = 'dark';
+  if (!mk) mk = LOOK_MK[`${cat}:${look}`] || WEAPON_RANK_METAL[rank];
+  L.mk = mk;
+  const fx = L.fx || fxOf(name);
+  // 炎・氷の 竜の 品は 竜の 緑で なく 炎・氷の 色
+  if (mk === 'dragon' && fx === 'fire') { L.mk = 'bronze'; L.blade = '#ff7a4a'; }
+  if (mk === 'dragon' && fx === 'ice') { L.mk = 'silver'; L.blade = '#bfeaff'; }
+  // 炎の 剣の 形は 名前に ほかの ざいしつが なければ 炎の 色
+  if (cat === 'sword' && look === 'flame' && !fx && !DARK_NAME.test(name) && !nameMetal(name)) L.fx = 'fire';
+  if (cat === 'claw' && look === 'fist') {
+    if (/ゴルド|金/.test(name)) L.mk = 'gold';
+    else if (/岩|石/.test(name)) L.c = '#9a948a';
+    else if (/機械|はがね/.test(name)) L.mk = 'steel';
+  }
+  if (cat === 'staff' && WEAPON_LOOKS.staff.includes(look)) {
+    const o = ORB_WORDS.find(([re]) => re.test(name));
+    if (o) L.orb = o[1];
+    if (/金|黄金|ファラオ/.test(name)) L.mk = 'gold';
+  }
+  if (cat === 'whip' && !['whip', 'chain', 'thorn'].includes(look)) {
+    const w = WHIP_WORDS.find(([re]) => re.test(name));
+    L.c = w ? w[1] : FX_COL[fx] || undefined;
+    if (!L.c) delete L.c;
+  }
+  if (cat === 'fan' && look === 'moon' && /光と影|月/.test(name)) { L.c1 = '#2a3a7a'; L.c2 = /光と影/.test(name) ? 'silver' : 'gold'; }
+}
 export function weaponOf(id) {
   const b = baseItem(id);
   if (!b || b.it.type !== 'weapon') return null;
-  const L = WEAPON_LOOK[b.id] || guessWeapon(b.it);
+  const base = WEAPON_LOOK[b.id] || guessWeapon(b.it);
   const rank = b.it.rank || 1;
-  return { id: b.id, cat: b.it.cat, rank, star: !!b.it.star, plus: b.plus, ...L, fx: L.fx || fxOf(b.it.name) };
+  const cat = b.it.cat;
+  // 形（品の look → 名前と ランクで 自動）。look の ない 品で 名前で わかる 道具（フライパン など）は その 道具の 形
+  let look = lookOfWeapon(b.it);
+  const explicit = !!b.it.look && validWeaponLook(cat, b.it.look);
+  if (!explicit && TOOL_LOOKS.includes(base.shape)) look = base.shape;
+  const L = { ...base };
+  // 名前と 形で 色を きめる（手で きめた 品の みため WEAPON_LOOK が ない 品だけ）
+  if (!WEAPON_LOOK[b.id] && !TOOL_LOOKS.includes(look)) tuneLook(L, look, cat, b.it);
+  if (base.shape !== look) {
+    L.shape = look;
+    const ll = LOOK_LEN[cat]?.[look];
+    if (ll) L.len = ll + Math.min(0.8, Math.max(0, rank - 4) * 0.15);
+    else delete L.len;
+  }
+  return { id: b.id, cat, rank, star: !!b.it.star, plus: b.plus, stars: gearStarsOf(b.it), ...L, look, fx: L.fx || fxOf(b.it.name) };
 }
 
 // ぶきを もつ むき（ど）。まえ: がめんの ひだりの て / うしろ: みぎの て / よこ: まえへ
@@ -212,6 +287,7 @@ function fitScale(cv, key, draw, hx, hy) {
   let s = FIT.get(key);
   if (s !== undefined) return s;
   const t = new HeroCanvas(cv.res, 32 + FIT_PAD * 2, 42 + FIT_PAD);
+  t.trial = true; // ★の きらめきは 大きさに 入れない（hero-gear-looks.js の glint）
   t.T = cv.T;
   t.ox = FIT_PAD;
   t.oy = FIT_PAD;
@@ -232,13 +308,77 @@ function fitScale(cv, key, draw, hx, hy) {
   return s;
 }
 
-function drawWeaponNow(cv, P, A, W, g) {
-  if (g === 'claw') return drawClaw(cv, P, A, W);
-  if (g === 'whip') return drawWhip(cv, P, A, W);
+// 第38回 D: 新しい 形（武器種ごと。hero-gear-looks.js で かく）
+const NEW_LOOK = {
+  sword: new Set(['rapier', 'scimitar', 'great', 'flame', 'crystal', 'dragon', 'holy']),
+  dagger: new Set(['kunai', 'jambiya', 'stiletto', 'kris', 'star']),
+  axe: new Set(['crescent', 'hammer', 'pick', 'dragon']),
+  spear: new Set(['trident', 'lance', 'winged', 'dragon', 'pennant', 'rod']),
+  staff: new Set(['star', 'crystal', 'ring', 'wing', 'dragon', 'ankh', 'broom', 'cane']),
+  fan: new Set(['tessen', 'wing', 'phoenix', 'moon']),
+  bat: new Set(['club', 'spiked']),
+  boomerang: new Set(['cross', 'crescent', 'star', 'wing', 'bone']),
+  claw: new Set(['beast', 'tiger', 'katar', 'fist', 'dragon']),
+  whip: new Set(['snake', 'scorpion', 'star', 'royal']),
+};
+const isNewLook = (W) => !SHAPE_GROUP[W.shape] && !!NEW_LOOK[W.cat]?.has(W.shape);
+const NEW_DRAW = {
+  sword: drawSwordLook, dagger: drawDaggerLook, axe: drawAxeLook, spear: drawSpearLook, staff: drawStaffLook,
+  fan: drawFanLook, bat: drawBatLook, boomerang: drawBoomerangLook,
+};
+
+function drawWeaponNow(cv, P, A, W0, g) {
+  // あるく コマ（ゆれる ふさ・★の きらめきの 場所）
+  const W = { ...W0, f: P.f || 0 };
+  if (g === 'claw') {
+    if (isNewLook(W)) return drawClawLook(cv, frame(...A.hand, holdAngle(P, 'claw')), W);
+    drawClaw(cv, P, A, W);
+    const F = frame(...A.hand, holdAngle(P, 'claw'));
+    return ornate(cv, F, W, { gem: [0.1, 0, 0.55], glints: [[5.8, 1.4], [3.6, -2.0], [5.4, -0.6], [-1.4, 2.0]] });
+  }
+  if (g === 'whip') {
+    if (isNewLook(W)) return drawWhipLook(cv, P, A, W);
+    drawWhip(cv, P, A, W);
+    const [hx, hy] = A.hand, s = P.side ? -P.facing : P.back ? 1 : -1;
+    return ornate(cv, null, W, { abs: true, gem: [hx - s * 0.05, hy - 2.4, 0.62], glints: [[hx + s * 5.2, hy - 1.0], [hx - s * 0.8, hy + 3.4], [hx + s * 4.6, hy + 7.4], [hx + s * 2.0, hy - 1.8]] });
+  }
   const ang = holdAngle(P, g);
   const [hx, hy] = A.hand;
   const F = frame(hx, hy, ang);
   const outward = P.side ? P.facing : (P.back ? 1 : -1); // そとがわ（b の ＋ / －）
+  if (isNewLook(W)) return NEW_DRAW[W.cat](cv, F, W, outward);
+  const id = drawOldShape(cv, P, F, W, outward);
+  oldOrnate(cv, F, W, id, outward);
+}
+
+// むかしからの 形の ★4・★5 の かざり
+function oldOrnate(cv, F, W, id, o) {
+  if ((W.stars || 0) < 4) return;
+  const L = W.len || 12;
+  const has = typeof id === 'number';
+  switch (W.shape) {
+    case 'wood': case 'leaf': case 'broad': case 'long': case 'bolt': case 'hero': case 'knife': case 'dirk':
+      return ornate(cv, F, W, { gem: [1.75, 0, 0.6], line: has ? [[2.8, 0], [L - 2.4, 0]] : null, clip: has ? [id, id + 1] : null, glints: [[L - 0.6, 1.4], [L * 0.5, -1.8], [L - 2.0, 1.8], [1.0, -2.8]] });
+    case 'katana':
+      return ornate(cv, F, W, { gem: [1.5, 0, 0.6], line: has ? [[2.6, 0.2], [L - 1.8, 0.7]] : null, clip: has ? [id, id + 1] : null, lw: 0.22, glints: [[L, 1.6], [L * 0.5, -1.4], [L - 2.4, 2.0], [1.5, -2.6]] });
+    case 'stone': case 'axe': case 'pirate': case 'battle':
+      return ornate(cv, F, W, { gem: [L - 2.8, 2.2 * o, 0.7], glints: [[L - 2.4, 6.0 * o], [L + 1.2, 3.4 * o], [L - 6.4, 4.0 * o], [L - 3.0, -1.6 * o]] });
+    case 'spear': case 'spear2': case 'coral': case 'halberd':
+      return ornate(cv, F, W, { gem: [L - 2.2, 0, 0.6], line: has ? [[L - 0.6, 0], [L + 3.8, 0]] : null, clip: has ? [id, id + 1] : null, lw: 0.2, glints: [[L + 5.6, 1.0], [L + 1.0, -2.6], [L + 1.0, 2.6], [L - 2.2, 1.8]] });
+    case 'oak': case 'wizard': case 'healing': case 'wave':
+      return ornate(cv, F, W, { gems: [[L - 2.4, 0, 0.5]], glints: [[L + 3.0, 1.6], [L - 0.6, -3.4], [L + 2.6, -2.6], [L - 0.6, 3.4]] });
+    case 'feather': case 'fan':
+      return ornate(cv, F, W, { gem: [1.6, 0, 0.55], glints: [[(W.len || 7) + 1.2, 1.0], [4.0, -5.0], [4.0, 5.0], [(W.len || 7) + 0.6, -2.6]] });
+    case 'bat': case 'bamboo': case 'mbat': case 'gbat':
+      return ornate(cv, F, W, { gem: [L - 1.2, 0, 0.6], line: has ? [[2.6, 0], [L - 2.0, 0]] : null, clip: has ? id : null, lw: 0.24, glints: [[L + 1.0, 1.4], [L * 0.6, -2.2], [L - 1.6, 2.6], [L + 0.4, -1.8]] });
+    case 'boomer':
+      return ornate(cv, F, W, { gem: [4.4, 0.25 * o, 0.55], glints: [[6.2, -0.4 * o], [2.6, 5.8 * o], [-2.2, 0], [4.6, 2.6 * o]] });
+    default:
+      return ornate(cv, F, W, { glints: [[L, 1.6], [L * 0.5, -1.8], [L - 1.6, -1.2], [1.0, 2.6]] });
+  }
+}
+
+function drawOldShape(cv, P, F, W, outward) {
   switch (W.shape) {
     case 'wood': case 'leaf': case 'broad': case 'long': case 'crystal': case 'bolt': case 'hero':
       return sword(cv, F, W);
@@ -335,6 +475,7 @@ function sword(cv, F, W) {
   if (W.fx === 'fire' || W.fx === 'holy' || W.fx === 'ice' || W.fx === 'dark') sparkles(cv, F, [[L * 0.55, 1.5], [L - 1.6, -1.4]], '#ffffff', FX_COL[W.fx]);
   if (W.gemc && shape !== 'dirk') { cv.part({ ol: 'soft' }); cv.ell(...F.T(1.7, 0), 0.55, 0.55, gem(W.gemc), { bulge: 0.9 }); }
   if (W.star || W.plus) sparkles(cv, F, [[L - 0.6, 1.2]], '#ffffff', '#fff6b0');
+  return id;
 }
 
 function katana(cv, F, W) {
@@ -355,6 +496,7 @@ function katana(cv, F, W) {
   cv.part({ ol: 'line' });
   const id = blade(cv, F, pts, bm);
   cv.crease(F.P([[2.4, 0.4], [L - 1.6, 0.85]]), 0.2, 0.5, { parts: [id, cv.cur] });
+  return id;
 }
 
 function pen(cv, F, W) {
@@ -399,6 +541,7 @@ function axe(cv, F, W, outward) {
   cv.part({ ol: 'line' });
   cv.poly(F.P([[L - 0.9, -0.85], [L + 0.6, -0.5], [L + 0.6, 0.5], [L - 0.9, 0.85]]), hm, { n: 'row', cx: 0.6 });
   if (W.star || W.plus || W.fx) sparkles(cv, F, [[L - 2.4, 5.6 * o]], '#ffffff', FX_COL[W.fx] || '#fff6b0');
+  return id;
 }
 
 function spear(cv, F, W, outward) {
@@ -426,6 +569,7 @@ function spear(cv, F, W, outward) {
     cv.poly(F.P([[L - 1.2, 0.6 * o], [L - 2.8, 3.8 * o], [L - 0.6, 4.6 * o], [L + 1.0, 3.0 * o], [L + 0.4, 0.6 * o]]), hm, { n: 'bevel', bw: 0.7 });
   }
   if (W.star || W.plus || W.fx) sparkles(cv, F, [[L + 3.0, 1.8]], '#ffffff', FX_COL[W.fx] || '#fff6b0');
+  return id;
 }
 
 function staff(cv, F, W) {
@@ -560,6 +704,7 @@ function bat(cv, F, W) {
   cv.part({ ol: 'line' });
   cv.ell(...F.T(-2.2, 0), 0.95, 0.95, m, { bulge: 0.8 });
   if (shape === 'gbat' || W.fx) sparkles(cv, F, [[L - 1.2, 1.8], [L * 0.6, -1.6]], '#ffffff', '#fff6b0');
+  return id;
 }
 
 // ブーメラン: くの字（にぎった 先で まがって、そとがわへ もどる）。にぎりに いろの ひも
@@ -579,6 +724,7 @@ function boomer(cv, F, W, outward) {
   // きんぞくは まがりかどに びょう
   if (metalM) { cv.part({ ol: 'soft' }); cv.ell(...F.T(4.4, 0.25 * o), 0.42, 0.42, metal('gold'), { bulge: 0.9 }); }
   if (W.fx || W.star || W.plus) sparkles(cv, F, [[5.0, 1.4 * o], [2.4, 4.8 * o]], '#ffffff', FX_COL[W.fx] || '#fff6b0');
+  return id;
 }
 
 // ───── 料理・そうじの どうぐ・マイク ─────
@@ -1110,11 +1256,39 @@ function guessShield(it) {
 export function shieldOf(id) {
   const b = baseItem(id);
   if (!b || b.it.type !== 'shield') return null;
-  return { rank: b.it.rank || 1, star: !!b.it.star, plus: b.plus, ...(SHIELD_LOOK[b.id] || guessShield(b.it)) };
+  const base = SHIELD_LOOK[b.id] || guessShield(b.it);
+  const look = lookOfShield(b.it);
+  const S = { rank: b.it.rank || 1, star: !!b.it.star, plus: b.plus, stars: gearStarsOf(b.it), fx: fxOf(b.it.name), ...base, look };
+  if (base.kind !== look) Object.assign(S, shieldLookSpec(look, b.it, base));
+  return S;
+}
+// 第38回 D: 形が かわった 盾の 面の ざいしつ（名前の ことばで 色）
+function shieldLookSpec(look, it, base) {
+  const name = it.name || '';
+  const rank = it.rank || 2;
+  const mk = base.mk || metalOfName(name, rank);
+  const tint = shieldTint(name, null);
+  switch (look) {
+    case 'round': return /皮|革|木|ぷるりん|てつぼく/.test(name) || rank <= 1
+      ? { kind: 'round', face: /ぷるりん/.test(name) ? 'scale' : 'leather', c: /ぷるりん/.test(name) ? '#4aa0e8' : /てつぼく/.test(name) ? '#6a4a2a' : '#9a6a3a', rim: 'bronze', boss: /ぷるりん/.test(name) ? 'silver' : 'bronze', rivets: 4 }
+      : { kind: 'round', face: /岩|はにわ/.test(name) ? 'scale' : 'metal', c: /岩/.test(name) ? '#8a8478' : tint, mk, rim: rank >= 4 ? 'gold' : mk, boss: 'gold', rivets: 6, emblem: null };
+    case 'kite': return { kind: 'kite', face: tint ? 'scale' : 'metal', c: tint || '#4a9a6a', mk, rim: 'gold', boss: 'gold' };
+    case 'heater': return { kind: 'heater', face: 'metal', mk, rim: rank >= 4 ? 'gold' : mk, emblem: 'cross' };
+    case 'tower': return { kind: 'tower', face: 'metal', mk, rim: mk === 'gold' ? 'silver' : 'gold', emblem: rank >= 5 ? 'gem' : 'cross', gemc: '#4a9aff', big: rank >= 5 };
+    case 'crest': return { kind: 'crest', face: 'paint', c: tint || '#2a4a9a', c2: '#f4f0e6', rim: 'gold', emblem: null, big: rank >= 5 };
+    case 'dragon': return { kind: 'dragon', face: 'scale', c: tint || '#2aa06a', rim: 'gold', emblem: null, big: rank >= 5 };
+    case 'light': return { kind: 'light', face: 'metal', mk: /にじ/.test(name) ? 'platinum' : mk === 'gold' ? 'gold' : 'light', rim: 'gold', emblem: null, gemc: tint && tint !== '#fff0a0' ? tint : null, big: rank >= 5 };
+    case 'mirror': return { kind: 'mirror', face: 'metal', mk: 'silver', c: tint && tint !== '#2a3a7a' ? tint : '#c8dcf0', rim: /銀|氷|雪/.test(name) ? 'silver' : 'gold', emblem: null, big: rank >= 5 };
+    case 'moon': return { kind: 'moon', face: 'paint', c: '#2a3a7a', mk: 'star', rim: 'gold', emblem: null };
+    case 'shell': return { kind: 'shell', face: 'shell' };
+    default: return { kind: look };
+  }
 }
 
 function shieldOutline(kind, z) {
   const w = 3.1 * z, h = 3.7 * z;
+  const n2 = shieldOutline2(kind, z);
+  if (n2) return n2;
   if (kind === 'round') {
     const pts = [];
     for (let i = 0; i < 24; i++) { const a = (i / 24) * Math.PI * 2; pts.push([Math.cos(a) * 3.1 * z, Math.sin(a) * 3.1 * z]); }
@@ -1150,6 +1324,7 @@ export function drawShield(cv, P, A, S) {
     cv.stroke(pts.concat([pts[0]]), 0.5, S.face === 'metal' ? metal(S.rim || 'iron') : metal('bronze'), { n: [0, 0] });
     cv.part({ ol: 'soft' });
     cv.rect(cx - 2.0 * sx, cy - 0.5, 4.0 * sx, 1.0, leather('#3a2414'), { cx: 0.5 });
+    shieldBackOrnate(cv, S, pts, cx, cy, sx, P);
     return;
   }
   cv.part({ ol: 'line' });
@@ -1157,6 +1332,7 @@ export function drawShield(cv, P, A, S) {
   if (S.face === 'leather') faceM = leather(S.c || '#9a6a3a');
   else if (S.face === 'scale') faceM = mat({ r: ramp(S.c || '#4a9a6a', 4), th: TH.matte, spec: 0.97 });
   else if (S.face === 'shell') faceM = mat({ r: ['#a85a6a', '#e8909c', '#ffd0d4', '#fff4f0'], th: TH.matte, spec: 0.96 });
+  else if (S.face === 'paint') faceM = mat({ r: ramp(S.c || '#2a4a9a', 4), th: TH.matte, spec: 0.97 });
   else faceM = metal(S.mk || 'iron');
   const tex = S.face === 'scale' ? scaleTex(cv.k) : S.face === 'leather' ? null : null;
   cv.poly(pts, faceM, { n: 'sphere', cx: 0.55, cy: 0.55, tex });
@@ -1190,6 +1366,8 @@ export function drawShield(cv, P, A, S) {
     cv.part({ ol: 'soft' });
     cv.stroke([[cx - 1.6 * sx, cy - 1.8], [cx + 0.8 * sx, cy - 1.0], [cx - 0.6 * sx, cy + 0.4], [cx + 1.2 * sx, cy + 1.8]], 0.45, metal('gold'), { n: [0, -0.2] });
   }
+  // 第38回 D: 新しい 形の もよう（紋章・竜の あたま・光の すじ・かがみ・三日月）
+  shieldFace2(cv, S, id, cx, cy, sx, z, P);
   if (S.boss) {
     cv.part({ ol: 'line' });
     cv.ell(cx, cy, 1.05 * sx, 1.05, metal(S.boss), { bulge: 0.95 });
@@ -1206,6 +1384,8 @@ export function drawShield(cv, P, A, S) {
     cv.ell(cx, cy - 0.6, 0.9 * sx, 0.9, metal(S.boss || 'gold'), { bulge: 0.9 });
   }
   if (S.star || S.plus) sparkles(cv, null, [[cx + 1.8 * sx, cy - 2.4]], '#ffffff', '#fff6b0', true);
+  // ★4・★5: ふちの 宝石・光の ふち・きらめき
+  shieldOrnate(cv, S, id, pts, cx, cy, sx, P);
 }
 
 function scaleTex(k) {

@@ -31,6 +31,7 @@ import { ITEMS_ARENA, ARENA_ITEM_KANA } from './items-arena.js';
 import { POWDER_ITEMS, POWDER_KANA } from './friend-powder.js';
 import { FIELD27_ITEMS, FIELD27_KANA } from './abilities-field27.js';
 import { RARE_GEAR, RARE_GEAR_KANA, assignRarity } from './items-rare.js';
+import { applyGearLooks } from './gear-looks.js';
 
 export const ITEMS = {
   // ───── つかう どうぐ ─────
@@ -270,6 +271,8 @@ import { ALCHEMY_ITEMS, ALCHEMY_KANA } from './items-alchemy.js'; Object.assign(
 // 第33回: 11の 職業の 装備（items-r33.js。店の 品と レア装備）
 import { ITEMS_R33, R33_ITEM_KANA } from './items-r33.js'; Object.assign(ITEMS, ITEMS_R33);
 assignRarity(ITEMS);
+// 第38回 D: 見た目の 武器と 盾の 形（look。gear-looks.js）
+applyGearLooks(ITEMS);
 // きたえた 装備（'iron_sword+1'〜'+3'）。新しい 装備を 足す ときは この 行より 上で
 addUpgradeItems(ITEMS);
 
