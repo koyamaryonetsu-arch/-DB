@@ -921,7 +921,8 @@ export class Field {
   // 夕ぐれの 色（第5章 Step 7。影の城が うかんだ あとの クモイ地方: map.dusk = { flag, color }。昼でも 夕方くらいの 色に）
   drawDusk(ctx) {
     const d = this.map?.dusk;
-    if (!d || !this.hasFlag(d.flag)) return;
+    // until … その フラグが たつと 晴れる（第5章 Step 9。ソリトゥスを たおした あと）
+    if (!d || !this.hasFlag(d.flag) || (d.until && this.hasFlag(d.until))) return;
     ctx.fillStyle = d.color;
     ctx.fillRect(0, 0, this.vw, this.vh);
   }

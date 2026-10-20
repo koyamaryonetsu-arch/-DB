@@ -59,6 +59,8 @@ export const T = {
   // 第5章 Step 6・7「大地の神殿」と 根の島（maps/earth.js・render/tiles-earth.js。あいていた 20・23〜29・54・58・85〜89）
   ROOT_BRIDGE: 20, ROOT_GAP: 23, WATER_JAR: 24, WATER_JAR_ON: 25, GOLEM_S: 26, GOLEM_SLAB: 27, UNDO_SLAB: 28, EARTH_PIT: 29,
   GOLEM_FILL: 54, EARTH_DOOR: 58, LIFT_BROKEN: 85, EARTH_LIFT: 86, EARTH_ALTAR: 87, ROOT_GATE: 88, GOLEM_E: 89,
+  // 第5章 Step 9「影の城の てっぺん（星のない広間）」（maps/castle-top.js・render/tiles-top.js。A9 は 189・229 だけ）
+  STARLESS_FLOOR: 189, STARLESS_ALTAR: 229,
 };
 
 export const TILE_INFO = {};
@@ -325,6 +327,9 @@ def(T.LIFT_BROKEN, 'lift_broken', { solid: true, mapColor: '#5a4a3a' }); // こ�
 def(T.EARTH_LIFT, 'earth_lift', { light: true, mapColor: '#c8a860' }); // 直った 上り下りの ゆか（1階 ⇔ 5階）
 def(T.EARTH_ALTAR, 'earth_altar', { solid: true, talkThrough: true, light: true, anim: true, mapColor: '#e8905a' }); // 大地の 守り星の 祭だん
 def(T.ROOT_GATE, 'root_gate', { mapColor: '#3a2a18' }); // 大地の 神殿の 入口（根の とびら）
+// 第5章 Step 9「星のない広間」（maps/castle-top.js）。かべは 洞窟の タイルを 広間の 色に（render/tiles-top.js の ctop）
+def(T.STARLESS_FLOOR, 'starless_floor', { mapColor: '#1c1828' }); // 星のない 広間の ゆか（星の もようが 消えた 黒い 石。歩ける）
+def(T.STARLESS_ALTAR, 'starless_altar', { solid: true, talkThrough: true, anim: true, mapColor: '#5a3a7a' }); // 星のない 祭だん（黒い もやが ゆれる）
 
 export function isSolid(id) {
   return TILE_INFO[id]?.solid ?? true;

@@ -588,7 +588,8 @@ export class Game {
       curtain.classList.remove('on', 'flash');
     }
     // だいほんの とちゅうで 何も 出ないまま 長く とまっている・うごこうと しても うごけない: たすけの ボタン
-    const still = since('still', this.busy && this.script.running && !shown);
+    // （エンディングの ふりかえり〈ui/script.js の roll〉が 流れている 間は 止まっていない）
+    const still = since('still', this.busy && this.script.running && !shown && !this.script.rolling);
     const push = since('push', !canMove && !shown && !!(this.input.dir.x || this.input.dir.y));
     if (still > 15000 || push > 4000) this.showRescue();
     else if (canMove && this.rescueBtn && !this.rescueBtn.hidden) this.rescueBtn.hidden = true;

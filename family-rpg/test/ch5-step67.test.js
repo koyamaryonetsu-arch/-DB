@@ -236,7 +236,8 @@ const kumoiStops = (fl, start) => flowReach(MAPS.kumoi, start, (f) => fl.include
 test('すすみぐあい: c5_nocto → c5_root … c5_gather（名前の 約束）。目標・仲間会話・地図の しるし・Step 5 の さいごの 文の なおし', () => {
   assert.deepEqual(EARTH_STEPS, ['c5_root', 'c5_etemple', 'c5_pipi_save', 'c5_nocto1', 'c5_castle', 'c5_gather'], '名前の 約束（plan-ch5.md の 16）');
   const si = CH5_STEPS.indexOf('c5_nocto');
-  assert.deepEqual(CH5_STEPS.slice(si + 1), EARTH_STEPS, 'c5_nocto の うしろに つづく');
+  // Step 8・9 は c5_gather の うしろに たす（plan-ch5.md の 17）
+  assert.deepEqual(CH5_STEPS.slice(si + 1, si + 1 + EARTH_STEPS.length), EARTH_STEPS, 'c5_nocto の うしろに つづく');
   assert.deepEqual(STORY_STEPS.slice(STORY_STEPS.indexOf('c5_nocto') + 1, STORY_STEPS.indexOf('c5_nocto') + 7), EARTH_STEPS);
   assert.deepEqual(EARTH_MAPS, ['earth_1f', 'earth_2f', 'earth_3f', 'earth_4f', 'earth_5f', 'earth_6f', 'earth_7f', 'earth_8f'], 'マップの ID の 約束');
   assert.ok(KUMOI_ISLES.root && KUMOI_ROADS.w9 && KUMOI_VANES.v4 === 'c5_kroad_w9', '根の島・風の道 w9・風見の石4 c5_kroad_w9');

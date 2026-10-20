@@ -10,6 +10,7 @@ import { LAB_NPC_LOOKS } from './lab-art.js';
 import { paintCh5Special } from './ch5-art.js';
 import { KUMOI_NPC_LOOKS, drawWings } from './ch5-kumoi-art.js';
 import { HOSHIYOMI_NPC_LOOKS } from './ch5-hoshiyomi-art.js';
+import { TOP_NPC_LOOKS } from './ch5-top-art.js';
 import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js';
 import { R26_OLD_LOOK } from './hero-r26.js';
 import { R27_OLD_LOOK } from './hero-r27.js';
@@ -366,6 +367,8 @@ Object.assign(NPC_LOOKS, LAB_NPC_LOOKS);
 Object.assign(NPC_LOOKS, KUMOI_NPC_LOOKS);
 // 第5章 Step 5 星読みの里の 人・ノクト・ノクトの 影（render/ch5-hoshiyomi-art.js）
 Object.assign(NPC_LOOKS, HOSHIYOMI_NPC_LOOKS);
+// 第5章 Step 9 エンディングの ノクト（紋章の 金色）・羽が 開いた ピピ（render/ch5-top-art.js）
+Object.assign(NPC_LOOKS, TOP_NPC_LOOKS);
 
 // そうびの かきかた: 'ぶき,よろい,たて,あたま' の もじれつ か { weapon, armor, shield, head }
 export function parseEquip(eq, job) {

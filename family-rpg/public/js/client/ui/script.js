@@ -56,6 +56,8 @@ export class ScriptPlayer {
   // つなぎなおした ときなど: いま とちゅうの だいほんを すてる
   reset() {
     this.gen += 1;
+    this.rolling = false;
+    document.querySelectorAll('#fx .roll').forEach((x) => x.remove());
     this.queue = [];
     this.running = false;
     this.advance = null;
@@ -107,6 +109,8 @@ export class ScriptPlayer {
         g.field.removeActor(a[0]);
         return null;
       case 'chapter': return this.chapter(a[0], a[1]);
+      // 第5章 Step 9: エンディングの ふりかえり（スタッフロールふう）と「第1部 完」
+      case 'roll': return this.roll(a[0] || {}, msg);
       case 'teleport': {
         g.field.lookAt = null;
         const mine = (a[4] || []).find((e) => e[0] === g.sid);
@@ -319,6 +323,61 @@ export class ScriptPlayer {
     return new Promise((resolve) => setTimeout(() => { card.remove(); resolve(); }, 4200));
   }
 }
+
+// ───── エンディングの ふりかえり（第5章 Step 9。data/story-castle-top.js の PART1_ROLL）─────
+// lines: [['h', 見出し] | ['t', 文] | ['s']]。星空の 上を 下から 上へ ゆっくり ながれる。
+// タップ（決定）で 3ばいの はやさ。さいごに end（「第1部 完」）と sub を 出して おわる
+const ROLL_PX_PER_S = 34;
+ScriptPlayer.prototype.roll = function roll(o, msg) {
+  const g = this.game;
+  this.closeDialog();
+  const fx = document.getElementById('fx');
+  const box = el('div', { class: 'roll' });
+  const sky = el('div', { class: 'roll-sky' });
+  for (let i = 0; i < 46; i++) {
+    const st = el('i', { class: 'roll-star' });
+    st.style.left = `${(i * 37) % 100}%`;
+    st.style.top = `${(i * 53) % 100}%`;
+    st.style.animationDelay = `${(i % 7) * 0.4}s`;
+    sky.append(st);
+  }
+  const col = el('div', { class: 'roll-col' });
+  for (const [kind, text] of o.lines || []) {
+    if (kind === 's') col.append(el('div', { class: 'roll-gap' }));
+    else col.append(el('div', { class: kind === 'h' ? 'roll-h' : 'roll-t', text: this.fill(text || '', msg) }));
+  }
+  const end = el('div', { class: 'roll-end' }, el('div', { class: 'e1', text: this.fill(o.end || '', msg) }), el('div', { class: 'e2', text: this.fill(o.sub || '', msg) }));
+  box.append(sky, col, end);
+  fx.append(box);
+  let speed = 1;
+  const fast = () => { speed = 3; };
+  box.addEventListener('click', fast);
+  const h = { onNav: (act) => { if (act === 'a' || act === 'b') fast(); } };
+  g.input.push(h);
+  this.rolling = true;
+  return new Promise((resolve) => {
+    let y = box.clientHeight || 600;
+    let last = performance.now();
+    const stop = col.offsetHeight || 1200;
+    col.style.transform = `translateY(${Math.round(y)}px)`;
+    const tick = (now) => {
+      // つなぎなおし などで すてられた（reset）
+      if (!box.isConnected) { g.input.pop(h); resolve(); return; }
+      const dt = Math.min(0.1, (now - last) / 1000);
+      last = now;
+      y -= ROLL_PX_PER_S * speed * dt;
+      col.style.transform = `translateY(${Math.round(y)}px)`;
+      if (y > -stop) { requestAnimationFrame(tick); return; }
+      col.remove();
+      end.classList.add('show');
+      setTimeout(() => {
+        box.classList.add('out');
+        setTimeout(() => { g.input.pop(h); box.remove(); this.rolling = false; resolve(); }, 1200);
+      }, speed > 1 ? 2600 : 4200);
+    };
+    requestAnimationFrame(tick);
+  });
+};
 
 export function wait(ms) {
   return new Promise((r) => setTimeout(r, ms));
