@@ -1,17 +1,18 @@
 // せつめい文を つくる
-import { ITEMS, SLOT_NAMES, WEAPON_CAT_NAMES } from '../../shared/data/items.js?v=2d8d7ef5c868';
-import { abilityTypeText } from '../../shared/data/abilities.js?v=2d8d7ef5c868';
-import { abilityFor, abilityLabel } from '../../shared/ability-label.js?v=2d8d7ef5c868';
-import { JOBS, ALL_JOBS } from '../../shared/data/jobs.js?v=2d8d7ef5c868';
-import { jobLabel } from '../../shared/job-label.js?v=2d8d7ef5c868';
-import { MONSTERS } from '../../shared/data/monsters.js?v=2d8d7ef5c868';
-import { MONSTER_FRIENDS } from '../../shared/data/companions.js?v=2d8d7ef5c868';
-import { computeStats, canEquip, canEquipMonster, monsterGear, penaltyFor, mpCost, comboJobNames, comboAllowed, jobPower } from '../../shared/stats.js?v=2d8d7ef5c868';
-import { attackReach } from '../../shared/battle.js?v=2d8d7ef5c868';
-import { maxPlus } from '../../shared/data/forge.js?v=2d8d7ef5c868';
-import { SKILL_UPS } from '../../shared/data/skill-ups.js?v=2d8d7ef5c868';
-import { perkText } from '../../shared/data/items-r31.js?v=2d8d7ef5c868';
-import { starsOf, isShopItem, rareWhereText, traitText } from '../../shared/data/rare-loot.js?v=2d8d7ef5c868';
+import { ITEMS, SLOT_NAMES, WEAPON_CAT_NAMES } from '../../shared/data/items.js?v=1aefb7b47111';
+import { abilityTypeText } from '../../shared/data/abilities.js?v=1aefb7b47111';
+import { abilityFor, abilityLabel } from '../../shared/ability-label.js?v=1aefb7b47111';
+import { JOBS, ALL_JOBS } from '../../shared/data/jobs.js?v=1aefb7b47111';
+import { jobLabel } from '../../shared/job-label.js?v=1aefb7b47111';
+import { MONSTERS } from '../../shared/data/monsters.js?v=1aefb7b47111';
+import { MONSTER_FRIENDS } from '../../shared/data/companions.js?v=1aefb7b47111';
+import { computeStats, canEquip, canEquipMonster, monsterGear, penaltyFor, mpCost, comboJobNames, comboAllowed, jobPower } from '../../shared/stats.js?v=1aefb7b47111';
+import { attackReach } from '../../shared/battle.js?v=1aefb7b47111';
+import { maxPlus } from '../../shared/data/forge.js?v=1aefb7b47111';
+import { SKILL_UPS } from '../../shared/data/skill-ups.js?v=1aefb7b47111';
+import { perkText } from '../../shared/data/items-r31.js?v=1aefb7b47111';
+import { BUFF_MARKS } from '../../shared/buff-acts.js?v=1aefb7b47111';
+import { starsOf, isShopItem, rareWhereText, traitText } from '../../shared/data/rare-loot.js?v=1aefb7b47111';
 
 const TARGET_NAMES = { enemy: '敵1体', group: '敵1グループ', enemies: '敵全体', ally: '味方1人', allies: '味方全員', self: '自分', deadAlly: '死んだ味方', deadAllies: '死んだ味方全員' };
 // 技の リストに つける みじかい しるし（1体・1人・自分は つけない）。a: 技（または 相手の しゅるい）
@@ -200,14 +201,31 @@ export function statusNames(st) {
   return (st || []).map((s) => n[s] || s).join(' ');
 }
 
-export function buffNames(b) {
-  const n = { '+atk': '攻↑', '+def': '守↑', '+agi': '速↑', '+mag': '魔↑', '+eva': 'かわ↑', '-def': '守↓', '-atk': '攻↓', '-agi': '速↓', '-mag': '魔↓' };
-  // 2だんかいめ（かさねがけ）は 矢じるしが 2つ（'+atk2' → 攻↑↑）
-  return (b || []).map((x) => {
+export function buffNames(b, left = null) {
+  return buffMarks(b, left).map((m) => m.text).join(' ');
+}
+
+// 第38回 C: 戦いの 画面の バフ・デバフの しるし [{ text: '攻↑3', up: true }]
+//   b … pub の buffs（'+atk'・'-def2' など。2だんかいめ〈かさねがけ〉は 矢じるしが 2つ）
+//   left … pub の buffLeft（'+atk' → のこりの 行動の 回数）。ずっと つづく ものは 数を 出さない
+export function buffMarks(b, left = null) {
+  const out = [];
+  for (const x of b || []) {
     const two = x.endsWith('2');
-    const t = n[two ? x.slice(0, -1) : x] || '';
-    return t && two ? t + t.slice(-1) : t;
-  }).filter(Boolean).join(' ');
+    const key = two ? x.slice(0, -1) : x;
+    const mk = BUFF_MARKS[key.slice(1)];
+    if (!mk) continue;
+    const up = key[0] === '+';
+    const arrow = up ? '↑' : '↓';
+    const n = left?.[key];
+    out.push({ text: `${mk}${arrow}${two ? arrow : ''}${Number.isFinite(n) ? n : ''}`, up });
+  }
+  return out;
+}
+
+// じわじわ回復の しるし（のこりの 回数）
+export function regenMark(n) {
+  return n ? `回復${Number.isFinite(n) ? n : ''}` : '';
 }
 
 export { TARGET_NAMES, SLOT_NAMES };

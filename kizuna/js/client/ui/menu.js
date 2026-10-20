@@ -1,56 +1,59 @@
 // フィールドの メニュー
-import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js?v=2d8d7ef5c868';
-import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js?v=2d8d7ef5c868';
-import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js?v=2d8d7ef5c868';
+import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js?v=1aefb7b47111';
+import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js?v=1aefb7b47111';
+import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js?v=1aefb7b47111';
 // 第33回: 技の 名前は 見ている キャラ むけ（男の子の 美少女戦士・セーラームーンは タキシード仮面ふう）
-import { abilityFor, dualForView } from '../../shared/ability-label.js?v=2d8d7ef5c868';
+import { abilityFor, dualForView } from '../../shared/ability-label.js?v=1aefb7b47111';
 // 職業の 名前は その 人 むけ（男の子の 美少女戦士は「仮面のしんし」、セーラームーンは「タキシード仮面」。第33回）
-import { jobLabel } from '../../shared/job-label.js?v=2d8d7ef5c868';
-import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS, turnSeconds } from '../../shared/battle.js?v=2d8d7ef5c868';
-import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily, gearSortPref, setGearSortPref } from '../prefs.js?v=2d8d7ef5c868';
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, TIER_NAMES } from '../../shared/data/jobs.js?v=2d8d7ef5c868';
-import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress, partyJobSet, hiraOfJob, monsterSlots, canEquipChar, itemCount, MAX_LEVEL } from '../../shared/stats.js?v=2d8d7ef5c868';
-import { HIRAMEKI } from '../../shared/data/hirameki.js?v=2d8d7ef5c868';
-import { DUAL_TECHS, DUAL_ORDER, dualKnown, dualRelated, dualNeedText, dualNeedLabel } from '../../shared/data/dual.js?v=2d8d7ef5c868';
-import { addDualCss } from '../render/dualfx.js?v=2d8d7ef5c868';
-import { MONSTERS } from '../../shared/data/monsters.js?v=2d8d7ef5c868';
-import { monsterDrops } from '../../shared/data/loot.js?v=2d8d7ef5c868';
-import { MONSTER_FRIENDS, RACE_NAMES, recipeHint, joinTier, bestiaryOrder } from '../../shared/data/companions.js?v=2d8d7ef5c868';
-import { TACTICS } from '../../shared/ai.js?v=2d8d7ef5c868';
-import { PLACES } from '../../shared/maps/overworld.js?v=2d8d7ef5c868';
-import { SEA_PLACES } from '../../shared/maps/ch2.js?v=2d8d7ef5c868';
-import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js?v=2d8d7ef5c868';
-import { T, TILE_INFO } from '../../shared/tiles.js?v=2d8d7ef5c868';
-import { menuItemText } from './skillinfo.js?v=2d8d7ef5c868';
-import { itemDetail, abilityDetail, skillBrief, gearText, targetTag, statChanges, statChangesHtml } from './info.js?v=2d8d7ef5c868';
-import { bestEquipPlan, bestTeamOrder, gearChoices, sortGearChoices, GEAR_SORTS } from '../../shared/equip-plan.js?v=2d8d7ef5c868';
-import { shownEquip, lookChoices, LOOK_SLOTS, LOOK_NONE } from '../../shared/look-equip.js?v=2d8d7ef5c868';
-import { makeCanvas, ctxOf } from '../render/pixel.js?v=2d8d7ef5c868';
-import { previewCache } from '../render/hero.js?v=2d8d7ef5c868';
-import { monsterCanvas } from '../render/monsters.js?v=2d8d7ef5c868';
-import { mapIconCanvas, boardIconURL } from '../render/boards.js?v=2d8d7ef5c868';
-import { medalItemRow, walletView } from './casino.js?v=2d8d7ef5c868';
-import { compareTeam, whoItems } from './counter.js?v=2d8d7ef5c868';
-import { faceURL } from '../field.js?v=2d8d7ef5c868';
-import { partyRows } from './hud.js?v=2d8d7ef5c868';
-import { questMarks, subQuests, OBJECTIVE_TARGETS, whereName } from '../../shared/data/quest-targets.js?v=2d8d7ef5c868';
-import { labDoneQuests, sideQuestHint } from '../../shared/data/sidequests.js?v=2d8d7ef5c868';
-import { difficultyOf, visibleMarks, EXP_RATES, EXP_RATE_NAMES, ENEMY_RATES, ENEMY_RATE_NAMES, ENEMY_RATE_NOTES } from '../../shared/data/difficulty.js?v=2d8d7ef5c868';
-import { memberTalk, talkFor } from '../../shared/data/party-talk.js?v=2d8d7ef5c868';
-import { treasureRows, treasureDetail, openTreasureMap } from './treasure.js?v=2d8d7ef5c868';
-import { rareNameHtml } from './rarity.js?v=2d8d7ef5c868';
-import { themeHex } from '../render/themes.js?v=2d8d7ef5c868';
-import { sdRecordOf, sdRecordText } from '../../shared/data/secret.js?v=2d8d7ef5c868';
-import { wagonMenuView, wagonHereClient, menuArrange } from './wagon.js?v=2d8d7ef5c868';
-import { readErrLog, errLogText, clearErrLog } from '../errlog.js?v=2d8d7ef5c868';
-import { fieldUsableAbilities } from '../../shared/fieldskills.js?v=2d8d7ef5c868';
-import { alchemyRow, alchemyUI, bindAlchemy } from './alchemy.js?v=2d8d7ef5c868';
-import './r35-css.js?v=2d8d7ef5c868';
-import { newsView } from './news.js?v=2d8d7ef5c868';
-import { hasUnreadNews } from '../../shared/data/news.js?v=2d8d7ef5c868';
-import { vehicleMenuView } from './vehicles.js?v=2d8d7ef5c868';
+import { jobLabel } from '../../shared/job-label.js?v=1aefb7b47111';
+import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS, turnSeconds } from '../../shared/battle.js?v=1aefb7b47111';
+import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily, gearSortPref, setGearSortPref } from '../prefs.js?v=1aefb7b47111';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, TIER_NAMES } from '../../shared/data/jobs.js?v=1aefb7b47111';
+import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress, partyJobSet, hiraOfJob, monsterSlots, canEquipChar, itemCount, MAX_LEVEL } from '../../shared/stats.js?v=1aefb7b47111';
+import { HIRAMEKI } from '../../shared/data/hirameki.js?v=1aefb7b47111';
+import { DUAL_TECHS, DUAL_ORDER, dualKnown, dualRelated, dualNeedText, dualNeedLabel } from '../../shared/data/dual.js?v=1aefb7b47111';
+import { addDualCss } from '../render/dualfx.js?v=1aefb7b47111';
+import { MONSTERS } from '../../shared/data/monsters.js?v=1aefb7b47111';
+import { monsterDrops } from '../../shared/data/loot.js?v=1aefb7b47111';
+import { MONSTER_FRIENDS, RACE_NAMES, recipeHint, joinTier, bestiaryOrder } from '../../shared/data/companions.js?v=1aefb7b47111';
+import { TACTICS } from '../../shared/ai.js?v=1aefb7b47111';
+import { PLACES } from '../../shared/maps/overworld.js?v=1aefb7b47111';
+import { SEA_PLACES } from '../../shared/maps/ch2.js?v=1aefb7b47111';
+import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js?v=1aefb7b47111';
+import { T, TILE_INFO } from '../../shared/tiles.js?v=1aefb7b47111';
+import { menuItemText, skillEffectText } from './skillinfo.js?v=1aefb7b47111';
+// 第38回 C: 技の レベル（使った 回数で 1〜5。shared/buff-acts.js）
+import { skillLevel, skillLvLeft, SKILL_LV_MAX } from '../../shared/buff-acts.js?v=1aefb7b47111';
+import '../battle-buffs.js?v=1aefb7b47111';
+import { itemDetail, abilityDetail, skillBrief, gearText, targetTag, statChanges, statChangesHtml } from './info.js?v=1aefb7b47111';
+import { bestEquipPlan, bestTeamOrder, gearChoices, sortGearChoices, GEAR_SORTS } from '../../shared/equip-plan.js?v=1aefb7b47111';
+import { shownEquip, lookChoices, LOOK_SLOTS, LOOK_NONE } from '../../shared/look-equip.js?v=1aefb7b47111';
+import { makeCanvas, ctxOf } from '../render/pixel.js?v=1aefb7b47111';
+import { previewCache } from '../render/hero.js?v=1aefb7b47111';
+import { monsterCanvas } from '../render/monsters.js?v=1aefb7b47111';
+import { mapIconCanvas, boardIconURL } from '../render/boards.js?v=1aefb7b47111';
+import { medalItemRow, walletView } from './casino.js?v=1aefb7b47111';
+import { compareTeam, whoItems } from './counter.js?v=1aefb7b47111';
+import { faceURL } from '../field.js?v=1aefb7b47111';
+import { partyRows } from './hud.js?v=1aefb7b47111';
+import { questMarks, subQuests, OBJECTIVE_TARGETS, whereName } from '../../shared/data/quest-targets.js?v=1aefb7b47111';
+import { labDoneQuests, sideQuestHint } from '../../shared/data/sidequests.js?v=1aefb7b47111';
+import { difficultyOf, visibleMarks, EXP_RATES, EXP_RATE_NAMES, ENEMY_RATES, ENEMY_RATE_NAMES, ENEMY_RATE_NOTES } from '../../shared/data/difficulty.js?v=1aefb7b47111';
+import { memberTalk, talkFor } from '../../shared/data/party-talk.js?v=1aefb7b47111';
+import { treasureRows, treasureDetail, openTreasureMap } from './treasure.js?v=1aefb7b47111';
+import { rareNameHtml } from './rarity.js?v=1aefb7b47111';
+import { themeHex } from '../render/themes.js?v=1aefb7b47111';
+import { sdRecordOf, sdRecordText } from '../../shared/data/secret.js?v=1aefb7b47111';
+import { wagonMenuView, wagonHereClient, menuArrange } from './wagon.js?v=1aefb7b47111';
+import { readErrLog, errLogText, clearErrLog } from '../errlog.js?v=1aefb7b47111';
+import { fieldUsableAbilities } from '../../shared/fieldskills.js?v=1aefb7b47111';
+import { alchemyRow, alchemyUI, bindAlchemy } from './alchemy.js?v=1aefb7b47111';
+import './r35-css.js?v=1aefb7b47111';
+import { newsView } from './news.js?v=1aefb7b47111';
+import { hasUnreadNews } from '../../shared/data/news.js?v=1aefb7b47111';
+import { vehicleMenuView } from './vehicles.js?v=1aefb7b47111';
 // 第38回 B: 職業の試練（職業レベルの 上限・しょうごう・修行の とちゅう）
-import { jobLevelText, trialStatusBox, trialQuestBox } from './job-trials.js?v=2d8d7ef5c868';
+import { jobLevelText, trialStatusBox, trialQuestBox } from './job-trials.js?v=1aefb7b47111';
 
 // 見た目装備の せつめい
 const LOOK_HELP = '見た目だけを、持っている装備に変える（強さは変わらない）\n職業で装備できない物も選べる。「装備なし」も選べる';
@@ -963,8 +966,9 @@ export class FieldMenu {
       const elm = a.effect?.element;
       // 相手の しるし（グループ・全体・全員・ランダム）
       const tt = targetTag(a);
+      const slv = skillLevel(c.skillUse, id);
       return {
-        html: `${ELEMENT_NAMES[elm] ? `<span class="elem e-${elm}">${ELEMENT_NAMES[elm]}</span>` : ''}${esc(a.name)}${tt ? `<span class="tag tgt t-${a.effect?.random ? 'random' : a.target}">${tt}</span>` : ''}${a.kind === 'combo' ? `<span class="tag ${locked ? 'muted' : 'gold'}">掛け合わせ${locked ? '（上級職で）' : ''}</span>` : a.hirameki ? '<span class="tag hira">ひらめき</span>' : ''}${p.penalized ? '<span class="tag warn">他</span>' : ''}<span class="sk-desc">${esc(skillBrief(a))}</span>`,
+        html: `${ELEMENT_NAMES[elm] ? `<span class="elem e-${elm}">${ELEMENT_NAMES[elm]}</span>` : ''}${esc(a.name)}<span class="tag slv${slv >= SKILL_LV_MAX ? ' max' : ''}">Lv${slv}</span>${tt ? `<span class="tag tgt t-${a.effect?.random ? 'random' : a.target}">${tt}</span>` : ''}${a.kind === 'combo' ? `<span class="tag ${locked ? 'muted' : 'gold'}">掛け合わせ${locked ? '（上級職で）' : ''}</span>` : a.hirameki ? '<span class="tag hira">ひらめき</span>' : ''}${p.penalized ? '<span class="tag warn">他</span>' : ''}<span class="sk-desc">${esc(skillBrief(a))}</span>`,
         right: a.effect.type === 'mahouken' ? '' : `MP${mpCost(c, id)}`,
         rightCls: p.penalized ? 'pen' : '',
         value: id,
@@ -983,7 +987,17 @@ export class FieldMenu {
       box.append(el('div', { class: 'detail', text: '「他」は今の職業以外で覚えた技。MPが増えたり、威力が下がったりする。' }));
       return box;
     }
-    const showDetail = (it) => { detail.textContent = it ? `${abilityDetail(it.value, c)}\n使った回数: ${c.skillUse?.[it.value] || 0}回${touch ? '\n▶もう一度タップで「使う・お気に入り」' : ''}` : ''; };
+    // 効果の 目安（数）・技の レベルと 使った 回数（第38回 C）
+    const lvLine = (id) => {
+      const n = c.skillUse?.[id] || 0;
+      const left = skillLvLeft(n);
+      return `技Lv${skillLevel(c.skillUse, id)}（使った回数: ${n}回${left === null ? '・いちばん上' : `・つぎのLvまであと${left}回`}）`;
+    };
+    const showDetail = (it) => {
+      if (!it) { detail.textContent = ''; return; }
+      const eff = skillEffectText(it.value, c, skillLevel(c.skillUse, it.value));
+      detail.textContent = `${abilityDetail(it.value, c)}${eff ? `\n効果：${eff}` : ''}\n${lvLine(it.value)}${touch ? '\n▶もう一度タップで「使う・お気に入り」' : ''}`;
+    };
     const m = list(items, {
       tapConfirm: touch,
       onMove: showDetail,

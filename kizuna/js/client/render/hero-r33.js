@@ -29,8 +29,8 @@
 //   drawHat33(cv, P, H, G, view) … シルクハット・ティアラ（drawHat26 から よぶ。かいたら true）
 //   drawProp33(cv, P, A, O) … たての ない 手の もちもの（drawProp26 から よぶ。かいたら true）
 //   handMark33(cv, A, P, O) … 手ぶくろの れん金の 円（hero.js の 手の あとで よぶ）
-import { mat, ramp, TH, mixC } from './hero-raster.js?v=2d8d7ef5c868';
-import { EYE_V } from './hero-face.js?v=2d8d7ef5c868';
+import { mat, ramp, TH, mixC } from './hero-raster.js?v=1aefb7b47111';
+import { EYE_V } from './hero-face.js?v=1aefb7b47111';
 
 export const R33_JOBS = ['magician', 'kaito', 'kaito_kid', 'wizard_student', 'harry', 'homeroom_3b', 'alchemist', 'state_alchemist', 'fullmetal', 'sailor_soldier', 'sailor_moon'];
 
