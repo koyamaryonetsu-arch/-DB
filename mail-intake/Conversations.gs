@@ -5,8 +5,9 @@
  *       ※ 以前の「LINE 毎日AM2時（劇場情報）」はやめて、ここに一本化（劇場情報もここで更新）
  * 何をする:
  *   1) LINEトーク履歴（スプレッドシート）の、前回以降に増えた行だけを読む
- *   2) Googleドライブ「Plaud記録」フォルダの、まだ読んでいない記録だけを読む
- *      （Plaud の要約は、Claude の定期実行が 9:50 と 17:50 にこのフォルダへ書き出す）
+ *   2) Googleドライブ「Plaud記録」の「9:50」「17:50」フォルダの書き出しから、まだ読んでいない記録だけを読む
+ *      （Claude の定期実行が、9:50 に「前日17:51〜当日9:50」、17:50 に「当日9:51〜17:50」の記録を、
+ *        それぞれのフォルダに1つのファイルで書き出す。前のファイルはごみ箱へ＝増えない。記録IDで二重に読まない）
  *   3) それぞれ Sonnet 5.5 で読んで、
  *      ・案件: 今ある案件の続き（日程・進み具合）→ 社内メモに【LINE自動更新】【Plaud自動更新】で書き足し、空いている日程だけ埋める
  *              新しい案件らしい時 → 登録せず「🆕 登録確認」に溜めて LINE で知らせる（人がボタンで決める）
@@ -21,16 +22,17 @@
  *
  * スクリプトプロパティ（任意）:
  *   ANTHROPIC_CONV_MODEL … 既定 claude-sonnet-5-5（LINE・Plaud の読み取り）
- *   PLAUD_FOLDER_ID      … 既定 下の CV_PLAUD_FOLDER_ID（Googleドライブ「Plaud記録」）
+ *   PLAUD_SLOT_FOLDER_IDS … 既定 下の CV_PLAUD_SLOT_FOLDERS（「9:50」「17:50」フォルダ。カンマ区切り）
  */
 
-var CV_PLAUD_FOLDER_ID = '1enQpICuvide-AYHYpfTAibnctQfc6XtZ'; // Googleドライブ「Plaud記録」
+// Googleドライブ「Plaud記録」の中の「9:50」「17:50」フォルダ（Claude の定期実行が、その時間の回の書き出しを置く）
+var CV_PLAUD_SLOT_FOLDERS = ['1B-lLzN4cdrhZkInagw8q1HzRQ8GT_ink', '1xp267RTonlDEaFOPYFKLt7G9y44yk85n'];
 var CV_TIME_BUDGET_MS = 5 * 60 * 1000;   // 1回の実行時間の目安（6分制限の手前で区切る）
 var CV_CHUNK_ROWS = 60;                  // LINE は 60行ずつ AI に渡す（会話の前後が分かるように）
 var CV_MAX_PLAUD_CHARS = 16000;          // Plaud の1記録で AI に渡す最大の文字数
 var CV_PLAUD_FIRST_DAYS = 3;             // 初めて動く時は、直近3日ぶんの Plaud 記録だけ読む
 var CV_MIN_CONF = 0.6;                   // 案件の話として扱う確信度の下限
-var CV_DONE_KEY = 'CV_PLAUD_DONE';       // 読んだ Plaud 記録（ファイルID → 読んだ日時）
+var CV_DONE_KEY = 'CV_PLAUD_DONE';       // 読んだ Plaud 記録（記録ID → 読んだ日時）
 var CV_CONT_FN = 'continueConversations'; // 時間切れの続き（1回だけのトリガー）
 var CV_DRY = false;                      // true の時は書き込まない（testConversationsDryRun）
 
@@ -116,41 +118,59 @@ function cvReadNewRows_(ssId, sh) {
   return { rows: rows, lastRow: lastRow };
 }
 
-// ===== Plaud（Googleドライブ「Plaud記録」） =====
+// ===== Plaud（Googleドライブ「Plaud記録」の「9:50」「17:50」フォルダ） =====
+// それぞれのフォルダには、その回の書き出しが1つだけある（毎回作り直し、前のものはごみ箱へ）。
+//   9:50 の回 … 前日 17:51 〜 当日 9:50 に始まった記録
+//   17:50 の回 … 当日 9:51 〜 17:50 に始まった記録
+// 1つのファイルに複数の記録が入っている。「Plaud 記録ID: …」の行で区切り、記録IDごとに1回だけ読む
+// （同じ記録が両方のファイルに入っても、二度は案件・タスクに使わない）
 function cvPlaud_(apiKey, st) {
-  var folderId = cfg_('PLAUD_FOLDER_ID', CV_PLAUD_FOLDER_ID);
-  var folder;
-  try { folder = DriveApp.getFolderById(folderId); } catch (e) { Logger.log('Plaud: フォルダを開けません: ' + e); return; }
+  var ids = String(cfg_('PLAUD_SLOT_FOLDER_IDS', CV_PLAUD_SLOT_FOLDERS.join(','))).split(',');
   var props = PropertiesService.getScriptProperties();
   var done = {};
   try { done = JSON.parse(props.getProperty(CV_DONE_KEY) || '{}') || {}; } catch (e) { done = {}; }
   var firstRun = !Object.keys(done).length;
-  var since = Date.now() - (firstRun ? CV_PLAUD_FIRST_DAYS : 30) * 86400000;
-  var list = [];
-  var it = folder.getFiles();
-  var skipped = 0;
-  while (it.hasNext()) {
-    var fl = it.next();
-    if (done[fl.getId()]) continue;
-    if (fl.getDateCreated().getTime() < since) {
-      // 初めての時は、古い記録はさかのぼって読まない（読んだことにする）
-      if (firstRun) { done[fl.getId()] = Date.now(); skipped++; }
-      continue;
+  var since = Date.now() - CV_PLAUD_FIRST_DAYS * 86400000;
+  var blocks = [];
+  ids.forEach(function (fid) {
+    fid = String(fid || '').trim(); if (!fid) return;
+    var folder;
+    try { folder = DriveApp.getFolderById(fid); } catch (e) { Logger.log('Plaud: フォルダを開けません(' + fid + '): ' + e); return; }
+    var it = folder.getFiles();
+    while (it.hasNext()) {
+      var fl = it.next();
+      if (fl.isTrashed && fl.isTrashed()) continue;
+      if (fl.getLastUpdated().getTime() < since) continue;   // 3日より前の書き出しは読まない
+      cvSplitRecordings_(cvFileText_(fl)).forEach(function (b) { b.url = fl.getUrl(); b.slot = folder.getName(); blocks.push(b); });
     }
-    list.push(fl);
-  }
-  if (skipped && !CV_DRY) { Logger.log('Plaud: 初めてのため、' + CV_PLAUD_FIRST_DAYS + '日より前の記録 ' + skipped + ' 件はさかのぼって読みません'); cvSaveDone_(props, done); }
-  list.sort(function (a, b) { return a.getDateCreated().getTime() - b.getDateCreated().getTime(); });
-  for (var i = 0; i < list.length && !cvOutOfTime_(st); i++) {
-    var file = list[i], body = cvFileText_(file);
-    if (!body) { done[file.getId()] = Date.now(); continue; }
-    var date = cvPlaudDate_(body) || Utilities.formatDate(file.getDateCreated(), 'Asia/Tokyo', 'yyyy-MM-dd');
-    var text = '# 会議・電話の記録（Plaud の要約）: ' + file.getName() + '\n\n' + body.slice(0, CV_MAX_PLAUD_CHARS);
-    cvHandleText_(apiKey, text, 'plaud', 'plaud', file.getUrl(), date, st);
+  });
+  blocks.sort(function (a, b) { return String(a.date).localeCompare(String(b.date)); });
+  var seen = {};
+  for (var i = 0; i < blocks.length && !cvOutOfTime_(st); i++) {
+    var b = blocks[i];
+    if (done[b.id] || seen[b.id]) continue;
+    seen[b.id] = 1;
+    // 初めての時は、3日より前の記録はさかのぼって読まない（読んだことにする）
+    if (firstRun && b.date && new Date(b.date + 'T00:00:00+09:00').getTime() < since) { done[b.id] = Date.now(); continue; }
+    var text = '# 会議・電話の記録（Plaud の要約）: ' + b.name + '\n\n' + b.body.slice(0, CV_MAX_PLAUD_CHARS);
+    cvHandleText_(apiKey, text, 'plaud', 'plaud', b.url, b.date || cvToday_(), st);
     st.plaud++;
-    done[file.getId()] = Date.now();
+    done[b.id] = Date.now();
     if (!CV_DRY) cvSaveDone_(props, done);
   }
+  if (!CV_DRY) cvSaveDone_(props, done);
+}
+// 書き出しのファイルを、記録ごとに分ける。各記録は「Plaud 記録ID: of_…」の行から始まる
+function cvSplitRecordings_(text) {
+  var out = [], re = /^Plaud 記録ID:\s*(\S+)\s*$/mg, m, marks = [];
+  text = String(text || '');
+  while ((m = re.exec(text))) marks.push({ id: m[1], at: m.index });
+  for (var i = 0; i < marks.length; i++) {
+    var body = text.slice(marks[i].at, i + 1 < marks.length ? marks[i + 1].at : text.length).replace(/[━\s]+$/, '');
+    var nm = (body.match(/^名前[:：]\s*(.+)$/m) || [])[1] || '';
+    out.push({ id: marks[i].id, date: cvPlaudDate_(body), name: nm, body: body });
+  }
+  return out;
 }
 function cvSaveDone_(props, done) {
   // 60日より前の記録は忘れる（大きくなりすぎないように）
