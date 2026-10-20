@@ -14,6 +14,8 @@
  *      ・タスク: メンバーのやること → 「💡 これタスクでは？」に提案（押すと登録・要らなければ破棄）
  *      ・劇場情報: 設備・支配人・連絡先などの新しい事実 → 今までどおり（自動反映／要確認）
  * 時間が足りない時: 1回 5分で区切り、続きは数分後に自動で再開（読んだ所は覚えているので重ならない）
+ * 実行のきろく: 毎回の結果（件数・エラー）を「Plaud記録」フォルダの「GAS 実行ログ（LINE・Plaud）」に1行ずつ書く
+ *   （1つのファイルを上書き・直近60行だけ）。Claude の毎日の確認（11:15・19:15）がこれを読み、おかしい時だけ知らせる
  *
  * 使い方（初めの1回だけ）:
  *   1) このファイルを貼る（Code.gs / LineTalk.gs / TheaterInfo.gs も今回の版に貼り直す）
@@ -51,26 +53,58 @@ function testConversationsDryRun() {
 
 function cvRun_(isContinue) {
   cvDeleteContinueTriggers_();
+  var kind = isContinue ? '続き' : '定時';
   var lock = LockService.getScriptLock();
   // メールの取り込み（5分ごと）が動いている時は、終わるまで少し待つ
-  if (!lock.tryLock(90 * 1000)) { Logger.log('LINE・Plaud: ほかの処理が動いているため、数分後にやり直します'); cvScheduleContinue_(); return; }
+  if (!lock.tryLock(90 * 1000)) {
+    Logger.log('LINE・Plaud: ほかの処理が動いているため、数分後にやり直します');
+    cvRunLog_(kind, '待ち: ほかの処理が動いているため、数分後にやり直し');
+    cvScheduleContinue_(); return;
+  }
   var st = { start: Date.now(), timeUp: false, line: 0, plaud: 0, upd: 0, pend: 0, sugg: 0, ti: 0, skip: 0 };
   try {
     var apiKey = cfg_('ANTHROPIC_API_KEY');
     var svcKey = cfg_('SUPABASE_SERVICE_ROLE_KEY');
-    if (!apiKey || !svcKey) { Logger.log('LINE・Plaud: キー未設定'); return; }
+    if (!apiKey || !svcKey) { Logger.log('LINE・Plaud: キー未設定'); cvRunLog_(kind, 'エラー: キー未設定'); return; }
     cvLine_(apiKey, st);
     if (!st.timeUp) cvPlaud_(apiKey, st);
     // 数は文字にしてからつなぐ（Logger の %s だと「1.0」のように小数で出るため）
     var n = function (v) { return String(Math.round(Number(v) || 0)); };
-    Logger.log('LINE・Plaud' + (CV_DRY ? '（書き込みなし・確認だけ）' : '') + ': LINE ' + n(st.line) + ' 塊 / Plaud ' + n(st.plaud) + ' 件 → 案件の更新 ' + n(st.upd) +
-      ' / 登録確認へ ' + n(st.pend) + ' / タスク提案 ' + n(st.sugg) + ' / 劇場情報 ' + n(st.ti) + ' / 案件の話なし ' + n(st.skip) + (st.timeUp ? '（時間切れ → 続きは数分後）' : ''));
+    var summary = 'LINE ' + n(st.line) + ' 塊 / Plaud ' + n(st.plaud) + ' 件 → 案件の更新 ' + n(st.upd) +
+      ' / 登録確認へ ' + n(st.pend) + ' / タスク提案 ' + n(st.sugg) + ' / 劇場情報 ' + n(st.ti) + ' / 案件の話なし ' + n(st.skip) + (st.timeUp ? '（時間切れ → 続きは数分後）' : '');
+    Logger.log('LINE・Plaud' + (CV_DRY ? '（書き込みなし・確認だけ）' : '') + ': ' + summary);
+    cvRunLog_(kind, (st.timeUp ? '途中: ' : '完了: ') + summary);
     if (st.timeUp && !CV_DRY) cvScheduleContinue_();
   } catch (e) {
     Logger.log('updateFromLineAndPlaud error: ' + e);
+    cvRunLog_(kind, 'エラー: ' + String(e).slice(0, 300));
   } finally {
     lock.releaseLock();
   }
+}
+
+// ===== 実行のきろく（Claude の毎日の確認が読む） =====
+// 「Plaud記録」フォルダ（「9:50」「17:50」の親）に、1回1行で書き足す。1つのファイルを上書きするので増えない（直近60行だけ残す）
+var CV_RUNLOG_NAME = 'GAS 実行ログ（LINE・Plaud）';
+var CV_RUNLOG_KEEP = 60;
+function cvRunLog_(kind, text) {
+  if (CV_DRY) return;   // 確認だけの時は書かない
+  try {
+    var ids = String(cfg_('PLAUD_SLOT_FOLDER_IDS', CV_PLAUD_SLOT_FOLDERS.join(','))).split(',');
+    var parents = DriveApp.getFolderById(String(ids[0]).trim()).getParents();
+    if (!parents.hasNext()) return;
+    var folder = parents.next();
+    var line = Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy-MM-dd HH:mm') + '｜' + kind + '｜' + String(text).replace(/[\r\n]+/g, ' ');
+    var it = folder.getFilesByName(CV_RUNLOG_NAME), file = null;
+    while (it.hasNext()) { var f = it.next(); if (!f.isTrashed()) { file = f; break; } }
+    if (!file) { folder.createFile(CV_RUNLOG_NAME, cvRunLogHead_() + line + '\n', MimeType.PLAIN_TEXT); return; }
+    var body = file.getBlob().getDataAsString('UTF-8').split('\n').filter(function (s) { return /^\d{4}-\d\d-\d\d \d\d:\d\d｜/.test(s); });
+    body.push(line);
+    file.setContent(cvRunLogHead_() + body.slice(-CV_RUNLOG_KEEP).join('\n') + '\n');
+  } catch (e) { Logger.log('実行のきろくを書けません: ' + e); }
+}
+function cvRunLogHead_() {
+  return 'GAS の LINE・Plaud の処理（毎日 10時台・18時台）の結果。1回1行（日時｜定時/続き｜完了・途中・待ち・エラー: 内容）。新しい行が下。\n';
 }
 function cvOutOfTime_(st) { if (Date.now() - st.start > CV_TIME_BUDGET_MS) st.timeUp = true; return st.timeUp; }
 function cvScheduleContinue_() {
