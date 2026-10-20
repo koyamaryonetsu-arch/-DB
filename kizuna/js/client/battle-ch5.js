@@ -2,15 +2,15 @@
 // ・見通しの目: 読まれた 人の まど（名前の 上）に 目の しるしと 読まれた 種類（攻撃・呪文・回復・防御）。
 //   読んで いる 間は アルゴスの 3つの 目が 光る。読んだ とき（目から 光の すじ）・当たった とき（しかえし）・外れた とき（目が くらむ）の えんしゅつと バナー
 // ・敵が 使うと がめんの まん中に 大きく 出す 技（星の光・星のさばき・ふきあげる風・星の尾）・味方の まどの えんしゅつ・音
-import { KIND_NAMES } from '../shared/battle-ch5.js?v=81a20c4ee58e';
-import { ARGOS_EYES } from './render/ch5-tower-art.js?v=81a20c4ee58e';
-import { el } from './ui/dom.js?v=81a20c4ee58e';
+import { KIND_NAMES } from '../shared/battle-ch5.js?v=4cd67bf27571';
+import { ARGOS_EYES } from './render/ch5-tower-art.js?v=4cd67bf27571';
+import { el } from './ui/dom.js?v=4cd67bf27571';
 // 第5章 Step 4 の ガイアイーター（ねらいめ・まもり・土はこびの しるし。battle-gaia.js）
-import { gaiaDraw, gaiaPresent } from './battle-gaia.js?v=81a20c4ee58e';
+import { gaiaDraw, gaiaPresent } from './battle-gaia.js?v=4cd67bf27571';
 // 第5章 Step 5 の ノクトの影（まねた 人の 影・まねられている しるし・きずなくだき。battle-nocto.js）と 星読みの里・迷宮の 魔物
-import { noctoDraw, noctoPresent } from './battle-nocto.js?v=81a20c4ee58e';
+import { noctoDraw, noctoPresent } from './battle-nocto.js?v=4cd67bf27571';
 // 第5章 Step 6・7 の ノクト（1回目。合体技の 前ぶれの わ・地われの しるし・バナー）と 大地の神殿の 魔物（battle-earth.js）
-import { earthDraw, earthPresent } from './battle-earth.js?v=81a20c4ee58e';
+import { earthDraw, earthPresent } from './battle-earth.js?v=4cd67bf27571';
 
 export const TOWER_SCREEN_ANIMS = ['star_light', 'star_judge', 'tower_gust', 'comet_tail'];
 export const TOWER_ALLY_FX = {

@@ -12,9 +12,9 @@
 //  abilityLabel(id か 技, 人) … その 人 むけの 技の 名前（技の 名前を 出す 所は ぜんぶ これ か abilityFor を 使う）
 //  dualFor(id か 合体技, 出す 人たち) / dualLabel … 合体技の おなじ しくみ
 //  人 … キャラ（char）・戦いの 人（combatant。サーバーの c も、クライアントの pub(c) も look を もつ）
-import { ABILITIES } from './data/abilities.js?v=81a20c4ee58e';
-import { DUAL_TECHS, groupJobs } from './data/dual.js?v=81a20c4ee58e';
-import { isMasc } from './job-label.js?v=81a20c4ee58e';
+import { ABILITIES } from './data/abilities.js?v=4cd67bf27571';
+import { DUAL_TECHS, groupJobs } from './data/dual.js?v=4cd67bf27571';
+import { isMasc } from './job-label.js?v=4cd67bf27571';
 
 // 男の子か（見た目の look.body が 1 で ない）。モンスター（仲間の 魔物・敵）は ちがう。
 // look の ない もの（職業だけの { job, jobs }・敵・古い データ）は もとの 技の まま（ちがう 名前を 出さない ため）

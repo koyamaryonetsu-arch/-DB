@@ -9,23 +9,23 @@
 // 塔の 魔物・きまった 戦い argos・見通しの目は B（戦い）が 作る（plan-ch5.md の 11）
 import {
   C5, BOOK_FLAG, DOOR_FLAG, EV, LIFTS, VANES, DOOR6_FLAG, STAR_FLAGS, STARS_FLAG, TOP_FLAG, TOWER_POS, TOWER_FLOORS, towerMapId,
-} from '../maps/tower.js?v=81a20c4ee58e';
-import { PLACES } from '../maps/overworld.js?v=81a20c4ee58e';
-import { TEMPLE_OBJ } from './story-ch4-temple.js?v=81a20c4ee58e';
-import { isNightFor, advanceClock } from '../world/clock.js?v=81a20c4ee58e';
+} from '../maps/tower.js?v=4cd67bf27571';
+import { PLACES } from '../maps/overworld.js?v=4cd67bf27571';
+import { TEMPLE_OBJ } from './story-ch4-temple.js?v=4cd67bf27571';
+import { isNightFor, advanceClock } from '../world/clock.js?v=4cd67bf27571';
 // Step 3・4: クモイ地方・ハネノの町・しずみゆく島の古い神殿（story-kumoi.js）
 import {
   KUMOI_STEPS, KUMOI_STORY_SCRIPTS, KUMOI_SCRIPTS, KUMOI_OBJECTIVE_TARGETS, KUMOI_OBJECTIVE_TALK, KUMOI_PROGRESS, elderKumoi,
-} from './story-kumoi.js?v=81a20c4ee58e';
-import { KUMOI_POS } from '../maps/kumoi.js?v=81a20c4ee58e';
+} from './story-kumoi.js?v=4cd67bf27571';
+import { KUMOI_POS } from '../maps/kumoi.js?v=4cd67bf27571';
 // Step 5: 星読みの里・ノクトの思い出の迷宮（story-hoshiyomi.js）
 import {
   HOSHIYOMI_STEPS, HOSHIYOMI_STORY_SCRIPTS, HOSHIYOMI_SCRIPTS, HOSHIYOMI_OBJECTIVE_TARGETS, HOSHIYOMI_OBJECTIVE_TALK, HOSHIYOMI_PROGRESS, elderHoshiyomi,
-} from './story-hoshiyomi.js?v=81a20c4ee58e';
+} from './story-hoshiyomi.js?v=4cd67bf27571';
 // Step 6・7: 大地の神殿・ノクト（1回目）・影の城・みんなが集まる（story-earth.js）
 import {
   EARTH_STEPS, EARTH_STORY_SCRIPTS, EARTH_SCRIPTS, EARTH_OBJECTIVE_TARGETS, EARTH_OBJECTIVE_TALK, EARTH_PROGRESS, elderEarth,
-} from './story-earth.js?v=81a20c4ee58e';
+} from './story-earth.js?v=4cd67bf27571';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
