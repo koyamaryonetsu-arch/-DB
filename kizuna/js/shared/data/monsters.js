@@ -11,23 +11,25 @@
 const ROCK_RESIST = { fire: 0.5, ice: 0.7, wind: 0.6, blast: 1.5, poison: 0, sleep: 0, confuse: 0.3, paralyze: 0.2 };
 const METAL_RESIST = { fire: 0, ice: 0, wind: 0, blast: 0, bolt: 0, light: 0, dark: 0, void: 0.5, sleep: 0, poison: 0, confuse: 0, blind: 0, silence: 0, paralyze: 0, debuff: 0 };
 
-import { MONSTERS_CH2 } from './monsters-ch2.js?v=b995923bfc44';
-import { MONSTERS_TM } from './monsters-tm.js?v=b995923bfc44';
-import { NIGHT_MONSTERS } from './night.js?v=b995923bfc44';
-import { MONSTERS_RARE } from './monsters-rare.js?v=b995923bfc44';
-import { MONSTERS_CH3 } from './monsters-ch3.js?v=b995923bfc44';
-import { MONSTERS_CH4 } from './monsters-ch4.js?v=b995923bfc44';
-import { MONSTERS_R23 } from './monsters-r23.js?v=b995923bfc44';
+import { MONSTERS_CH2 } from './monsters-ch2.js?v=557fc20ec559';
+import { MONSTERS_TM } from './monsters-tm.js?v=557fc20ec559';
+import { NIGHT_MONSTERS } from './night.js?v=557fc20ec559';
+import { MONSTERS_RARE } from './monsters-rare.js?v=557fc20ec559';
+import { MONSTERS_CH3 } from './monsters-ch3.js?v=557fc20ec559';
+import { MONSTERS_CH4 } from './monsters-ch4.js?v=557fc20ec559';
+import { MONSTERS_R23 } from './monsters-r23.js?v=557fc20ec559';
 // 第4章 Step 7「砂の底の神殿とモルガナ」（monsters-temple.js）
-import { MONSTERS_TEMPLE } from './monsters-temple.js?v=b995923bfc44';
-import { MONSTERS_LAB } from './monsters-lab.js?v=b995923bfc44';
+import { MONSTERS_TEMPLE } from './monsters-temple.js?v=557fc20ec559';
+import { MONSTERS_LAB } from './monsters-lab.js?v=557fc20ec559';
 // 第37回 A: サファラ闘技場の 王者（数えない 形）
-import { addArenaHidden } from './monsters-arena.js?v=b995923bfc44';
-import { MONSTERS_CH5 } from './monsters-ch5.js?v=b995923bfc44';
-import { MONSTERS_KUMOI, addGaiaParts } from './monsters-kumoi.js?v=b995923bfc44';
-import { MONSTERS_HOSHIYOMI } from './monsters-hoshiyomi.js?v=b995923bfc44';
-import { MONSTERS_EARTH, addEarthHidden } from './monsters-earth.js?v=b995923bfc44';
-import { MONSTERS_BOSS } from './monsters-boss.js?v=b995923bfc44';
+import { addArenaHidden } from './monsters-arena.js?v=557fc20ec559';
+import { MONSTERS_CH5 } from './monsters-ch5.js?v=557fc20ec559';
+import { MONSTERS_KUMOI, addGaiaParts } from './monsters-kumoi.js?v=557fc20ec559';
+import { MONSTERS_HOSHIYOMI } from './monsters-hoshiyomi.js?v=557fc20ec559';
+import { MONSTERS_EARTH, addEarthHidden } from './monsters-earth.js?v=557fc20ec559';
+import { MONSTERS_FINAL } from './monsters-final.js?v=557fc20ec559';
+import { MONSTERS_PHANTOM, addPhantomHidden } from './monsters-phantom.js?v=557fc20ec559';
+import { MONSTERS_BOSS } from './monsters-boss.js?v=557fc20ec559';
 
 export const MONSTERS = {
   pururin: {
@@ -252,7 +254,12 @@ Object.assign(MONSTERS, MONSTERS_KUMOI);
 Object.assign(MONSTERS, MONSTERS_HOSHIYOMI);
 // 第5章 Step 6・7「根の島・大地の神殿」の 魔物と ノクト（1回目。分身は 数えない 形。monsters-earth.js）
 Object.assign(MONSTERS, MONSTERS_EARTH);
+// 第5章 Step 9「星のない広間」の ノクト（本気）と 魔王ソリトゥス（monsters-final.js）
+Object.assign(MONSTERS, MONSTERS_FINAL);
 addEarthHidden(MONSTERS);
+// 第5章 Step 8「影の城」の 魔物と 3人の まぼろし（まぼろしの 手下は 数えない 形。monsters-phantom.js）
+Object.assign(MONSTERS, MONSTERS_PHANTOM);
+addPhantomHidden(MONSTERS);
 addArenaHidden(MONSTERS);
 addGaiaParts(MONSTERS);
 // ボス級（ランク SS）の 仲間。配合でしか 生まれない（monsters-boss.js。第35回）

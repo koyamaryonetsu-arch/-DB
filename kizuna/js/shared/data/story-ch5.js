@@ -9,23 +9,31 @@
 // 塔の 魔物・きまった 戦い argos・見通しの目は B（戦い）が 作る（plan-ch5.md の 11）
 import {
   C5, BOOK_FLAG, DOOR_FLAG, EV, LIFTS, VANES, DOOR6_FLAG, STAR_FLAGS, STARS_FLAG, TOP_FLAG, TOWER_POS, TOWER_FLOORS, towerMapId,
-} from '../maps/tower.js?v=b995923bfc44';
-import { PLACES } from '../maps/overworld.js?v=b995923bfc44';
-import { TEMPLE_OBJ } from './story-ch4-temple.js?v=b995923bfc44';
-import { isNightFor, advanceClock } from '../world/clock.js?v=b995923bfc44';
+} from '../maps/tower.js?v=557fc20ec559';
+import { PLACES } from '../maps/overworld.js?v=557fc20ec559';
+import { TEMPLE_OBJ } from './story-ch4-temple.js?v=557fc20ec559';
+import { isNightFor, advanceClock } from '../world/clock.js?v=557fc20ec559';
 // Step 3・4: クモイ地方・ハネノの町・しずみゆく島の古い神殿（story-kumoi.js）
 import {
   KUMOI_STEPS, KUMOI_STORY_SCRIPTS, KUMOI_SCRIPTS, KUMOI_OBJECTIVE_TARGETS, KUMOI_OBJECTIVE_TALK, KUMOI_PROGRESS, elderKumoi,
-} from './story-kumoi.js?v=b995923bfc44';
-import { KUMOI_POS } from '../maps/kumoi.js?v=b995923bfc44';
+} from './story-kumoi.js?v=557fc20ec559';
+import { KUMOI_POS } from '../maps/kumoi.js?v=557fc20ec559';
 // Step 5: 星読みの里・ノクトの思い出の迷宮（story-hoshiyomi.js）
 import {
   HOSHIYOMI_STEPS, HOSHIYOMI_STORY_SCRIPTS, HOSHIYOMI_SCRIPTS, HOSHIYOMI_OBJECTIVE_TARGETS, HOSHIYOMI_OBJECTIVE_TALK, HOSHIYOMI_PROGRESS, elderHoshiyomi,
-} from './story-hoshiyomi.js?v=b995923bfc44';
+} from './story-hoshiyomi.js?v=557fc20ec559';
 // Step 6・7: 大地の神殿・ノクト（1回目）・影の城・みんなが集まる（story-earth.js）
 import {
   EARTH_STEPS, EARTH_STORY_SCRIPTS, EARTH_SCRIPTS, EARTH_OBJECTIVE_TARGETS, EARTH_OBJECTIVE_TALK, EARTH_PROGRESS, elderEarth,
-} from './story-earth.js?v=b995923bfc44';
+} from './story-earth.js?v=557fc20ec559';
+// Step 8: 影の城（story-castle.js。てっぺんと エンディングは A9）
+import {
+  CASTLE_STEPS, CASTLE_STORY_SCRIPTS, CASTLE_SCRIPTS, CASTLE_OBJECTIVE_TARGETS, CASTLE_OBJECTIVE_TALK, CASTLE_PROGRESS,
+} from './story-castle.js?v=557fc20ec559';
+// Step 9: 影の城の てっぺん・ノクト（本気）・魔王ソリトゥス・エンディング（story-castle-top.js）
+import {
+  TOP_STEPS, TOP_STORY_SCRIPTS, TOP_SCRIPTS, TOP_TOWN_LINES, TOP_OBJECTIVE_TARGETS, TOP_OBJECTIVE_TALK, TOP_PROGRESS, elderTop,
+} from './story-castle-top.js?v=557fc20ec559';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -41,7 +49,10 @@ const V = (x, y) => [VIL.x + x + 0.5, VIL.y + y + 0.5];
 //   c5_nshadow（ノクトの 影を たおした）・c5_nocto（本物の ノクトに 会った。Step 5 の さいご）。story-hoshiyomi.js の HOSHIYOMI_STEPS
 // Step 6・7: c5_root（ソラネから 大地の 神殿の 話）・c5_etemple（大地の 神殿に 入った）・c5_pipi_save（5階で ピピを 助けた）・
 //   c5_nocto1（ノクト 1回目の 戦いが おわった）・c5_castle（影の城が うかんだ）・c5_gather（みんなと 話した。Step 7 の さいご）。story-earth.js の EARTH_STEPS
-export const CH5_STEPS = [C5.start, C5.hood, C5.stones, C5.wings, C5.veil, C5.tower, C5.argos, C5.sky, ...KUMOI_STEPS, ...HOSHIYOMI_STEPS, ...EARTH_STEPS];
+// Step 8: c5_croad（影の城への 風の道）・c5_cin（影の城に 入った）・c5_seal1〜c5_seal3（風・炎・水の まぼろしを たおした）。A8 の CASTLE_STEPS
+// Step 9: c5_top（てっぺんに 着いた）・c5_nocto2（ノクト 本気を たおした）・c5_solitus（ソリトゥスを たおした）・c5_clear（エンディング＝第5章クリア・第1部 完）。
+//   story-castle-top.js の TOP_STEPS
+export const CH5_STEPS = [C5.start, C5.hood, C5.stones, C5.wings, C5.veil, C5.tower, C5.argos, C5.sky, ...KUMOI_STEPS, ...HOSHIYOMI_STEPS, ...EARTH_STEPS, ...CASTLE_STEPS, ...TOP_STEPS];
 
 // ───── 目標 ─────
 // 第4章クリアの あと（ホシミばあちゃんに 話しかける。story-ch4-temple.js の TEMPLE_OBJ.clear）
@@ -75,6 +86,8 @@ export const OLD_C5_OBJ = {
   shard: '第5章の続きはアップデートで！（守り星のかけらの光で、島のしずみが少し止まった…）',
   // Step 5 の さいご（c5_nocto。Step 6 で story-hoshiyomi.js の HOSHIYOMI_OBJ.nocto を ハネノの 長ソラネへの 文に かえた）
   nocto: '第5章の続きはアップデートで！（ノクトは「大地の神殿まで来ればいい」と言って、消えた…）',
+  // Step 7 の さいご（c5_gather。Step 8 で story-earth.js の EARTH_OBJ.gather を 長ソラネへの 文に かえた）
+  gather: '第5章の続きはアップデートで！（影の城の入口で、風がまっている…）',
 };
 
 // パーティー全員で 見る イベント（リーダーの 世界で すすむ）
@@ -84,6 +97,8 @@ export const CH5_STORY_SCRIPTS = [
   ...KUMOI_STORY_SCRIPTS,
   ...HOSHIYOMI_STORY_SCRIPTS,
   ...EARTH_STORY_SCRIPTS,
+  ...CASTLE_STORY_SCRIPTS,
+  ...TOP_STORY_SCRIPTS,
 ];
 
 // ───────────── 2回目の 星祭り・フードの子（ホシミばあちゃん。c5_start・c5_hood）─────────────
@@ -272,6 +287,8 @@ export function elderCh5(x) {
   if (!x.flag('c5_shard')) return elderKumoi(x);
   // 長ソラネから 大地の 神殿の 話を 聞いた あとは Step 6・7（story-earth.js）
   if (!x.flag('c5_root')) return elderHoshiyomi(x);
+  // ノクト（本気）を たおした あと（エンディングの 続き・クリアの あと）は Step 9（story-castle-top.js）
+  if (x.flag('c5_nocto2')) return elderTop(x);
   return elderEarth(x);
 }
 
@@ -583,6 +600,9 @@ export const CH5_SCRIPTS = {
   ...HOSHIYOMI_SCRIPTS,
   // Step 6・7（story-earth.js。風見の石4 c5_kroad_w9 は story-hoshiyomi.js の ものを うわがき）
   ...EARTH_SCRIPTS,
+  // Step 8（story-castle.js。クモイ地方の 影の城 c5_castle_view は story-earth.js の ものを うわがき）
+  ...CASTLE_SCRIPTS,
+  ...TOP_SCRIPTS,
   c5_argos_door: () => N('星の光でできたとびらだ。', 'かたくとざされている…。\n（星の番人に、みとめてもらわないと、開かないようだ）'),
   // てっぺん
   c5_top_event: (x) => (x.flag(C5.sky) ? [] : topEvent()),
@@ -619,6 +639,11 @@ export const CH5_TOWN_LINES = {
   },
   v_woman: (x) => (festOn(x) ? S('おくさん', '星祭りのごちそう、たくさん作ったのよ。\n旅のつかれも、ふき飛んじゃうわね！') : null),
 };
+// Step 9: エンディングの 続き・クリアの あとの 町の 人（story-castle-top.js）。おなじ 人は Step 9 の ことばを 先に
+for (const [id, fn] of Object.entries(TOP_TOWN_LINES)) {
+  const prev = CH5_TOWN_LINES[id];
+  CH5_TOWN_LINES[id] = prev ? (x) => fn(x) || prev(x) : fn;
+}
 
 // ───── 目標の 行き先（quest-targets.js）─────
 const at = (n, p) => ({ map: towerMapId(n), x: p.x, y: p.y });
@@ -646,6 +671,8 @@ export const CH5_OBJECTIVE_TARGETS = {
   ...KUMOI_OBJECTIVE_TARGETS,
   ...HOSHIYOMI_OBJECTIVE_TARGETS,
   ...EARTH_OBJECTIVE_TARGETS,
+  ...CASTLE_OBJECTIVE_TARGETS,
+  ...TOP_OBJECTIVE_TARGETS,
 };
 
 // ───── 仲間会話（party-talk.js。「はなす」の ヒント）─────
@@ -749,6 +776,8 @@ export const CH5_OBJECTIVE_TALK = {
   ...KUMOI_OBJECTIVE_TALK,
   ...HOSHIYOMI_OBJECTIVE_TALK,
   ...EARTH_OBJECTIVE_TALK,
+  ...CASTLE_OBJECTIVE_TALK,
+  ...TOP_OBJECTIVE_TALK,
 };
 
 // ───── すすみぐあい（progress.js の PROGRESS の うしろに つづく）─────
@@ -766,6 +795,8 @@ export const CH5_PROGRESS = [
   ...KUMOI_PROGRESS,
   ...HOSHIYOMI_PROGRESS,
   ...EARTH_PROGRESS,
+  ...CASTLE_PROGRESS,
+  ...TOP_PROGRESS,
 ];
 
 export { STARS_FLAG, DOOR_FLAG };

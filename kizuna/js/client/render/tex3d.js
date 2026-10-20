@@ -2,22 +2,24 @@
 // ・タイルの え を 1まいに ならべた「アトラス」
 // ・かべの よこ・うえ、やま、はし など 3D だけで つかう え
 // ・つぼ・さく・かんばん など たてて みせる「もの」の え（せなかは とうめい）
-import { T } from '../../shared/tiles.js?v=b995923bfc44';
-import { tileCanvas } from './tiles.js?v=b995923bfc44';
-import { Painter, prand, makeCanvas, ctxOf, shade } from './pixel.js?v=b995923bfc44';
-import { paintStorm } from './tiles-ch4.js?v=b995923bfc44';
-import { PYRAMID_EXTRAS } from './tiles-pyramid.js?v=b995923bfc44';
+import { T } from '../../shared/tiles.js?v=557fc20ec559';
+import { tileCanvas } from './tiles.js?v=557fc20ec559';
+import { Painter, prand, makeCanvas, ctxOf, shade } from './pixel.js?v=557fc20ec559';
+import { paintStorm } from './tiles-ch4.js?v=557fc20ec559';
+import { PYRAMID_EXTRAS } from './tiles-pyramid.js?v=557fc20ec559';
 // 第4章 Step 7: 砂の底の神殿の たてた もの（3色の レバー・水の 柱の ろう・砂の海賊の ほこら）
-import { TEMPLE_PROPS } from './tiles-temple.js?v=b995923bfc44';
-import { LAB_PROPS } from './tiles-lab.js?v=b995923bfc44';
-import { TOWER_PROPS } from './tiles-tower.js?v=b995923bfc44';
-import { KUMOI_PROPS } from './tiles-kumoi.js?v=b995923bfc44';
-import { MEMORY_PROPS } from './tiles-memory.js?v=b995923bfc44';
-import { EARTH_PROPS } from './tiles-earth.js?v=b995923bfc44';
+import { TEMPLE_PROPS } from './tiles-temple.js?v=557fc20ec559';
+import { LAB_PROPS } from './tiles-lab.js?v=557fc20ec559';
+import { TOWER_PROPS } from './tiles-tower.js?v=557fc20ec559';
+import { KUMOI_PROPS } from './tiles-kumoi.js?v=557fc20ec559';
+import { MEMORY_PROPS } from './tiles-memory.js?v=557fc20ec559';
+import { EARTH_PROPS } from './tiles-earth.js?v=557fc20ec559';
+import { CASTLE_PROPS } from './tiles-castle.js?v=557fc20ec559';
+import { TOP_PROPS } from './tiles-top.js?v=557fc20ec559';
 import {
   canalWallFace, canalWallTop, canalSidePaint, damTopPaint, paintCanalWater, sluiceTopPaint, sluiceBoardPaint, pillarSidePaint, pillarTopPaint, rubbleAtlasPaint,
   CANAL_SUN,
-} from './tiles-canal.js?v=b995923bfc44';
+} from './tiles-canal.js?v=557fc20ec559';
 
 const TAU = Math.PI * 2;
 
@@ -338,6 +340,10 @@ Object.assign(PROPS, KUMOI_PROPS);
 Object.assign(PROPS, MEMORY_PROPS);
 // 第5章 Step 6・7: 根の 水がめ・土の 守り手・石板・大地の 守り星の 祭だん（render/tiles-earth.js）
 Object.assign(PROPS, EARTH_PROPS);
+// 第5章 Step 8: 風車・炎の 柱（render/tiles-castle.js）
+Object.assign(PROPS, CASTLE_PROPS);
+// 第5章 Step 9: 星のない 祭だん（render/tiles-top.js）
+Object.assign(PROPS, TOP_PROPS);
 export const PROP_TILES = new Set(Object.keys(PROPS).map(Number).filter((k) => PROPS[k]));
 
 // たからばこ（あいている・しまっている）

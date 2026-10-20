@@ -10,16 +10,17 @@
 // resist: たいせい（しゅぞくの たいせいを つかう。ここに かけば うわがき）
 // gear:   装備できる 物（しゅぞくの けいの RACE_GEAR を うわがき。下の RACE_GEAR を 見てね）
 
-import { FRIENDS_CH2 } from './companions-ch2.js?v=b995923bfc44';
-import { FRIENDS_RARE } from './monsters-rare.js?v=b995923bfc44';
-import { FRIENDS_CH3 } from './companions-ch3.js?v=b995923bfc44';
-import { FRIENDS_R23, RECIPES_R23 } from './monsters-r23.js?v=b995923bfc44';
-import { FRIENDS_CH4 } from './companions-ch4.js?v=b995923bfc44';
-import { FRIENDS_CH5 } from './companions-ch5.js?v=b995923bfc44';
-import { FRIENDS_KUMOI } from './companions-kumoi.js?v=b995923bfc44';
-import { FRIENDS_HOSHIYOMI } from './companions-hoshiyomi.js?v=b995923bfc44';
-import { FRIENDS_EARTH } from './companions-earth.js?v=b995923bfc44';
-import { FRIENDS_BOSS, MATERIAL_RECIPES, FOUR_RECIPES } from './monsters-boss.js?v=b995923bfc44';
+import { FRIENDS_CH2 } from './companions-ch2.js?v=557fc20ec559';
+import { FRIENDS_RARE } from './monsters-rare.js?v=557fc20ec559';
+import { FRIENDS_CH3 } from './companions-ch3.js?v=557fc20ec559';
+import { FRIENDS_R23, RECIPES_R23 } from './monsters-r23.js?v=557fc20ec559';
+import { FRIENDS_CH4 } from './companions-ch4.js?v=557fc20ec559';
+import { FRIENDS_CH5 } from './companions-ch5.js?v=557fc20ec559';
+import { FRIENDS_KUMOI } from './companions-kumoi.js?v=557fc20ec559';
+import { FRIENDS_HOSHIYOMI } from './companions-hoshiyomi.js?v=557fc20ec559';
+import { FRIENDS_EARTH } from './companions-earth.js?v=557fc20ec559';
+import { FRIENDS_PHANTOM } from './companions-phantom.js?v=557fc20ec559';
+import { FRIENDS_BOSS, MATERIAL_RECIPES, FOUR_RECIPES } from './monsters-boss.js?v=557fc20ec559';
 
 export const MONSTER_FRIENDS = {
   pururin: {
@@ -280,6 +281,8 @@ Object.assign(MONSTER_FRIENDS, FRIENDS_KUMOI);
 Object.assign(MONSTER_FRIENDS, FRIENDS_HOSHIYOMI);
 // 第5章 Step 6・7 の 魔物（companions-earth.js）
 Object.assign(MONSTER_FRIENDS, FRIENDS_EARTH);
+// 第5章 Step 8 の 影の城の 魔物（companions-phantom.js）
+Object.assign(MONSTER_FRIENDS, FRIENDS_PHANTOM);
 // ボス級（ランク SS）の 仲間。配合でしか 生まれない（monsters-boss.js。第35回）
 Object.assign(MONSTER_FRIENDS, FRIENDS_BOSS);
 // しゅぞくごとの 装備の うわがき（上の GEAR）

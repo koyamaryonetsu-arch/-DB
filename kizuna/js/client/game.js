@@ -1,18 +1,18 @@
 // ゲーム ぜんたいの しんこう
-import { Input } from './input.js?v=b995923bfc44';
-import { GameAudio } from './audio.js?v=b995923bfc44';
-import { Field } from './field.js?v=b995923bfc44';
-import { Hud, STAMPS } from './ui/hud.js?v=b995923bfc44';
-import { FieldMenu, openWorldMap } from './ui/menu.js?v=b995923bfc44';
-import { ScriptPlayer, wait } from './ui/script.js?v=b995923bfc44';
-import { BattleScene } from './battle.js?v=b995923bfc44';
-import { showTitle, showLogin, showSelect, showCreate, showLoading, saveWhere } from './ui/title.js?v=b995923bfc44';
-import { showServerDown } from './ui/syncui.js?v=b995923bfc44';
-import { toast, confirmBox, el } from './ui/dom.js?v=b995923bfc44';
-import { MAPS } from '../shared/maps/index.js?v=b995923bfc44';
-import { applyBattlePrefs, applyUiFont } from './prefs.js?v=b995923bfc44';
-import { SkyClient } from './sky.js?v=b995923bfc44';
-import { reportError } from './errlog.js?v=b995923bfc44';
+import { Input } from './input.js?v=557fc20ec559';
+import { GameAudio } from './audio.js?v=557fc20ec559';
+import { Field } from './field.js?v=557fc20ec559';
+import { Hud, STAMPS } from './ui/hud.js?v=557fc20ec559';
+import { FieldMenu, openWorldMap } from './ui/menu.js?v=557fc20ec559';
+import { ScriptPlayer, wait } from './ui/script.js?v=557fc20ec559';
+import { BattleScene } from './battle.js?v=557fc20ec559';
+import { showTitle, showLogin, showSelect, showCreate, showLoading, saveWhere } from './ui/title.js?v=557fc20ec559';
+import { showServerDown } from './ui/syncui.js?v=557fc20ec559';
+import { toast, confirmBox, el } from './ui/dom.js?v=557fc20ec559';
+import { MAPS } from '../shared/maps/index.js?v=557fc20ec559';
+import { applyBattlePrefs, applyUiFont } from './prefs.js?v=557fc20ec559';
+import { SkyClient } from './sky.js?v=557fc20ec559';
+import { reportError } from './errlog.js?v=557fc20ec559';
 
 export class Game {
   constructor(net) {
@@ -588,7 +588,8 @@ export class Game {
       curtain.classList.remove('on', 'flash');
     }
     // だいほんの とちゅうで 何も 出ないまま 長く とまっている・うごこうと しても うごけない: たすけの ボタン
-    const still = since('still', this.busy && this.script.running && !shown);
+    // （エンディングの ふりかえり〈ui/script.js の roll〉が 流れている 間は 止まっていない）
+    const still = since('still', this.busy && this.script.running && !shown && !this.script.rolling);
     const push = since('push', !canMove && !shown && !!(this.input.dir.x || this.input.dir.y));
     if (still > 15000 || push > 4000) this.showRescue();
     else if (canMove && this.rescueBtn && !this.rescueBtn.hidden) this.rescueBtn.hidden = true;
@@ -749,7 +750,7 @@ export class Game {
     if (this.net.mode === 'offline' && !this.saveWarned) {
       this.saveWarned = true;
       const cloud = this.net.local?.cloud;
-      import('./offline.js?v=b995923bfc44').then(({ offlineStorage }) => {
+      import('./offline.js?v=557fc20ec559').then(({ offlineStorage }) => {
         offlineStorage.load();
         if (cloud?.state === 'on') return;
         if (!offlineStorage.ok) toast('このブラウザではセーブができないかもしれません', 5000);

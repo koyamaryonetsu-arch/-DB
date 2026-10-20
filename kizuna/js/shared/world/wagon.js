@@ -1,16 +1,16 @@
 // 馬車（サーバーの きまり）: もらう・乗りかえ・総入れかえ・経験値の おすそわけ・たたかいでの いれかえ
 //   きまりの せつめいは data/wagon.js
-import { MAPS } from '../maps/index.js?v=b995923bfc44';
-import { scaleExp } from '../data/difficulty.js?v=b995923bfc44';
-import { COMPANION_SLOTS } from '../data/companions.js?v=b995923bfc44';
-import { JOBS } from '../data/jobs.js?v=b995923bfc44';
-import { WAGON_SLOTS, wagonExpRate, hasWagon, cleanWagon, wagonMapOk } from '../data/wagon.js?v=b995923bfc44';
-import { computeStats, fullHeal } from '../stats.js?v=b995923bfc44';
-import { pub } from '../battle.js?v=b995923bfc44';
+import { MAPS } from '../maps/index.js?v=557fc20ec559';
+import { scaleExp } from '../data/difficulty.js?v=557fc20ec559';
+import { COMPANION_SLOTS } from '../data/companions.js?v=557fc20ec559';
+import { JOBS } from '../data/jobs.js?v=557fc20ec559';
+import { WAGON_SLOTS, wagonExpRate, hasWagon, cleanWagon, wagonMapOk } from '../data/wagon.js?v=557fc20ec559';
+import { computeStats, fullHeal } from '../stats.js?v=557fc20ec559';
+import { pub } from '../battle.js?v=557fc20ec559';
 import {
   partyOf, companionOf, ensureCompanions, stowGear, afterRosterChange, syncParty, nameOfKey, supportInfo,
   famCopy, humanCharIds, dropMissingFam, creditSupportOwner, PARTY_MAX, BATTLE_FILL,
-} from './party.js?v=b995923bfc44';
+} from './party.js?v=557fc20ec559';
 
 const fail = (reason, extra = {}) => ({ ok: false, reason, ...extra });
 const isFam = (k) => String(k || '').startsWith('fam:');

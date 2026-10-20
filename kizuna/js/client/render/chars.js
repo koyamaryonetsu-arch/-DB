@@ -2,19 +2,20 @@
 // みため（かみがた・いろ）と そうび（ぶき・よろい・たて・かぶと）で かわる
 // 人は 32×42 で くみたてて、2ばいの 64×84 に して こまかく かきたす（res 4: せかいでは 16×21 の 大きさに かく）
 // どうぶつ・船は 16×21 など
-import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=b995923bfc44';
-import { ITEMS, baseItemId } from '../../shared/data/items.js?v=b995923bfc44';
-import { STARTER_EQUIP } from '../../shared/stats.js?v=b995923bfc44';
-import { paintMiraPrison, paintWaterStar } from './temple-chars.js?v=b995923bfc44';
-import { LAB_NPC_LOOKS } from './lab-art.js?v=b995923bfc44';
-import { paintCh5Special } from './ch5-art.js?v=b995923bfc44';
-import { KUMOI_NPC_LOOKS, drawWings } from './ch5-kumoi-art.js?v=b995923bfc44';
-import { HOSHIYOMI_NPC_LOOKS } from './ch5-hoshiyomi-art.js?v=b995923bfc44';
-import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js?v=b995923bfc44';
-import { R26_OLD_LOOK } from './hero-r26.js?v=b995923bfc44';
-import { R27_OLD_LOOK } from './hero-r27.js?v=b995923bfc44';
-import { R29_OLD_LOOK } from './hero-r29.js?v=b995923bfc44';
-import { R33_OLD_LOOK, masc33 } from './hero-r33.js?v=b995923bfc44';
+import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=557fc20ec559';
+import { ITEMS, baseItemId } from '../../shared/data/items.js?v=557fc20ec559';
+import { STARTER_EQUIP } from '../../shared/stats.js?v=557fc20ec559';
+import { paintMiraPrison, paintWaterStar } from './temple-chars.js?v=557fc20ec559';
+import { LAB_NPC_LOOKS } from './lab-art.js?v=557fc20ec559';
+import { paintCh5Special } from './ch5-art.js?v=557fc20ec559';
+import { KUMOI_NPC_LOOKS, drawWings } from './ch5-kumoi-art.js?v=557fc20ec559';
+import { HOSHIYOMI_NPC_LOOKS } from './ch5-hoshiyomi-art.js?v=557fc20ec559';
+import { TOP_NPC_LOOKS } from './ch5-top-art.js?v=557fc20ec559';
+import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js?v=557fc20ec559';
+import { R26_OLD_LOOK } from './hero-r26.js?v=557fc20ec559';
+import { R27_OLD_LOOK } from './hero-r27.js?v=557fc20ec559';
+import { R29_OLD_LOOK } from './hero-r29.js?v=557fc20ec559';
+import { R33_OLD_LOOK, masc33 } from './hero-r33.js?v=557fc20ec559';
 
 export const CW = 16;
 export const CH = 21;
@@ -366,6 +367,8 @@ Object.assign(NPC_LOOKS, LAB_NPC_LOOKS);
 Object.assign(NPC_LOOKS, KUMOI_NPC_LOOKS);
 // 第5章 Step 5 星読みの里の 人・ノクト・ノクトの 影（render/ch5-hoshiyomi-art.js）
 Object.assign(NPC_LOOKS, HOSHIYOMI_NPC_LOOKS);
+// 第5章 Step 9 エンディングの ノクト（紋章の 金色）・羽が 開いた ピピ（render/ch5-top-art.js）
+Object.assign(NPC_LOOKS, TOP_NPC_LOOKS);
 
 // そうびの かきかた: 'ぶき,よろい,たて,あたま' の もじれつ か { weapon, armor, shield, head }
 export function parseEquip(eq, job) {

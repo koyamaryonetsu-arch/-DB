@@ -5,15 +5,15 @@
 //   c.partyKeys  … いま いっしょに ぼうけんしている なかま（じゅんばん）。'fam:ID' は 家族の キャラ
 //   c.guests     … ものがたりで いっしょに いる ゲスト（ルカ など）
 // パーティーには リーダーの なかまが ついてくる（にんげんが ふえると、はいりきらない なかまは いったん まつ）
-import { newCharacter, computeStats, fullHeal, gainExp, gainJobBattles, migrateJobs, expForLevel, addItem, newMonsterCompanion, learnedAbilities, masteredJobs } from '../stats.js?v=b995923bfc44';
-import { jobBattlesForLevel, JOBS } from '../data/jobs.js?v=b995923bfc44';
-import { NPC_SUPPORTS, GUESTS } from '../data/shops.js?v=b995923bfc44';
-import { MONSTERS } from '../data/monsters.js?v=b995923bfc44';
-import { MONSTER_FRIENDS, ROSTER_MAX, COMPANION_SLOTS } from '../data/companions.js?v=b995923bfc44';
-import { SLOTS, ITEMS } from '../data/items.js?v=b995923bfc44';
-import { cleanWagon, hasWagon, WAGON_SLOTS } from '../data/wagon.js?v=b995923bfc44';
-import { wagonState, wagonTavernInfo } from './wagon.js?v=b995923bfc44';
-import { difficultyOf } from '../data/difficulty.js?v=b995923bfc44';
+import { newCharacter, computeStats, fullHeal, gainExp, gainJobBattles, migrateJobs, expForLevel, addItem, newMonsterCompanion, learnedAbilities, masteredJobs } from '../stats.js?v=557fc20ec559';
+import { jobBattlesForLevel, JOBS } from '../data/jobs.js?v=557fc20ec559';
+import { NPC_SUPPORTS, GUESTS } from '../data/shops.js?v=557fc20ec559';
+import { MONSTERS } from '../data/monsters.js?v=557fc20ec559';
+import { MONSTER_FRIENDS, ROSTER_MAX, COMPANION_SLOTS } from '../data/companions.js?v=557fc20ec559';
+import { SLOTS, ITEMS } from '../data/items.js?v=557fc20ec559';
+import { cleanWagon, hasWagon, WAGON_SLOTS } from '../data/wagon.js?v=557fc20ec559';
+import { wagonState, wagonTavernInfo } from './wagon.js?v=557fc20ec559';
+import { difficultyOf } from '../data/difficulty.js?v=557fc20ec559';
 
 // パーティーに 入れる 人（家族の プレイヤー）は 5人まで。いっしょに フィールドを 歩いて、いっしょに 戦う
 export const PARTY_MAX = 5;
@@ -227,6 +227,8 @@ export function makeNpcSupportChar(def, level) {
   c.equip = { weapon: w || null, armor: a || null, shield: s || null, head: h || null, acc: null };
   // ゲストの 装備（第4章の サラ: ムチと 砂の衣。def.gear が あれば それ）
   if (def.gear) Object.assign(c.equip, def.gear);
+  // その 仲間だけの 技（第5章 Step 9 の ノクト。data/companions-castle.js の NOCTO_COMPANION.skills）は ひらめき技として 覚えている
+  if (Array.isArray(def.skills)) c.hirameki = [...def.skills];
   c.items = [];
   c.tactics = def.tactics || 'balanced';
   delete c.explored;

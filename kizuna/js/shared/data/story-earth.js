@@ -10,12 +10,14 @@
 //   （ネフィ・バルガ・ミラ・サラ … B の GATHER_GIFTS の 装備 / ルカ … 道具 / ユキナ … いのりの歌 / ばあちゃん … 星の石の かけら）
 //   → 7人 ぜんぶで ソラネ「影の城へ 行く 風の道を、ハネビト みんなで つくります」（c5_gather。「第5章の続きはアップデートで！」）
 // 根の島と 神殿の 魔物・きまった 戦い nocto_1・ランク9の 店の 品・神殿の 宝箱の 品・みんなの 装備は B（戦い・品）が 作る（plan-ch5.md の 16）
-import { KUMOI_POS, KUMOI_ROADS, KUMOI_VANES, HANONO_POS } from '../maps/kumoi.js?v=b995923bfc44';
+import { KUMOI_POS, KUMOI_ROADS, KUMOI_VANES, HANONO_POS } from '../maps/kumoi.js?v=557fc20ec559';
 import {
   K7, EF, JAR, GOLEM_LOST, PIT_FLAG, LIFT_FLAG, DROP_FLAG, SWITCH_WAIT, DOOR4_FLAG, LETTER_FLAG, GATHER, GATHER_FLAG,
   EARTH_FLOORS, EARTH_POS, EARTH_GOLEMS, EARTH_OUT, EARTH_REST, golemState, golemCellKind, earthMapId,
-} from '../maps/earth.js?v=b995923bfc44';
-import { GATHER_GIFTS } from './items-earth.js?v=b995923bfc44';
+} from '../maps/earth.js?v=557fc20ec559';
+import { GATHER_GIFTS } from './items-earth.js?v=557fc20ec559';
+// Step 8: みんなと 話した あとの 長ソラネ（影の城への 風の道。story-castle.js）
+import { soraneCastle } from './story-castle.js?v=557fc20ec559';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -39,8 +41,8 @@ export const EARTH_OBJ = {
   e8: 'いちばん下の階…。大地の守り星の祭だんで、ノクトが待っている。準備を整えてから進もう',
   nocto1: '大地の神殿のいちばん下の、祭だんを調べよう',
   castle: 'ハネノの町の広場に、地上からなつかしい人たちが来た。みんなと話そう',
-  // Step 7 の さいご。あとの Step で 文を かえる ときは、この 文を OLD_C5_OBJ.gather に のこす（repairObjective で なおる）
-  gather: '第5章の続きはアップデートで！（影の城の入口で、風がまっている…）',
+  // Step 7 の さいご（Step 8 で 長ソラネへの 文に かえた。前の「第5章の続きは…」の 文は story-ch5.js の OLD_C5_OBJ.gather）
+  gather: 'ハネビトたちが、影の城への風の道をつくっている。準備ができたら、ハネノの町の長ソラネに話しかけよう',
 };
 const OBJ = EARTH_OBJ;
 const FLOOR_OBJ = { 1: 'etemple', 2: 'e2', 3: 'e3', 4: 'e4', 5: 'e5', 6: 'e6', 7: 'e7', 8: 'e8' };
@@ -102,7 +104,8 @@ export function soraneEarth(x) {
   if (!x.flag(K7.pipi)) return S('長ソラネ', '…ピピのすがたが、どこにも見えないのです。', 'まさか、あの子…。');
   if (!x.flag(K7.nocto1)) return S('長ソラネ', 'ピピを助けてくださって、ありがとうございました…！', '…あの子ったら。\n…でも、あの子の気持ちも、わかるのです。');
   if (!x.flag(K7.gather)) return S('長ソラネ', '影の城が…。\n雲の海の底に、あんなものがねむっていたなんて…。', '広場に、地上から、たくさんの方々が来てくださいました。\nどうか、みなさんと、話してあげてください。');
-  return S('長ソラネ', 'ハネビトみんなで、影の城へ行く風の道を、つくっています。', '…もう少しだけ、待っていてください。');
+  // みんなと 話した あと（Step 8。影の城への 風の道）
+  return soraneCastle(x);
 }
 
 // ───────────── ハネノの ピピ（c5_nocto の あと。story-kumoi.js の pipi から）─────────────
@@ -535,7 +538,7 @@ function gatherFinale() {
     ['remove', 'sorane_g'],
     ['look'],
     ['flag', K7.gather], ['sync'],
-    ...N('――第5章の続きはアップデートで！――'),
+    ...N('（準備ができたら、長ソラネに話しかけよう）'),
     ['bgm', 'resume'],
     ['objective', OBJ.gather],
   ];
@@ -701,7 +704,7 @@ export const EARTH_OBJECTIVE_TALK = {
     kid: 'ルカもいるのかな？ハネノの広場に行こう！',
   },
   [OBJ.gather]: {
-    self: 'ハネビトたちが、影の城へわたる風の道をつくってくれる。第5章の続きは、アップデートで。',
+    self: 'ハネビトたちが、影の城へわたる風の道をつくってくれる。準備ができたら、ハネノの町の長ソラネに話しかけよう。',
     bold: '影の城…。待ってろよ、ノクト！',
     kind: 'みなさんの思いを、ノクトさんに、とどけましょう。',
     kid: 'みんな、来てくれたね！ノクト兄ちゃんも、いっしょに帰れるといいな。',

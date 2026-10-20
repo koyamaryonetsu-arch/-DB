@@ -1,18 +1,18 @@
 // だいほん（イベント）を すすめる しくみ
-import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js?v=b995923bfc44';
-import { ITEMS } from '../data/items.js?v=b995923bfc44';
-import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js?v=b995923bfc44';
-import { startFixedBattle } from './battles.js?v=b995923bfc44';
-import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=b995923bfc44';
-import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion, befriendLevel } from './party.js?v=b995923bfc44';
-import { sayFarewell } from './farewell.js?v=b995923bfc44';
-import { shareBefriend } from './recruit-share.js?v=b995923bfc44';
-import { openService } from './services.js?v=b995923bfc44';
-import { isNightFor, advanceClock, fracFor } from './clock.js?v=b995923bfc44';
-import { grantWagon, wagonChars, wagonHere } from './wagon.js?v=b995923bfc44';
-import { GUESTS } from '../data/shops.js?v=b995923bfc44';
-import { unstickAll } from './hazards.js?v=b995923bfc44';
-import { MAPS, isBlocked } from '../maps/index.js?v=b995923bfc44';
+import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js?v=557fc20ec559';
+import { ITEMS } from '../data/items.js?v=557fc20ec559';
+import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js?v=557fc20ec559';
+import { startFixedBattle } from './battles.js?v=557fc20ec559';
+import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=557fc20ec559';
+import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion, befriendLevel } from './party.js?v=557fc20ec559';
+import { sayFarewell } from './farewell.js?v=557fc20ec559';
+import { shareBefriend } from './recruit-share.js?v=557fc20ec559';
+import { openService } from './services.js?v=557fc20ec559';
+import { isNightFor, advanceClock, fracFor } from './clock.js?v=557fc20ec559';
+import { grantWagon, wagonChars, wagonHere } from './wagon.js?v=557fc20ec559';
+import { GUESTS } from '../data/shops.js?v=557fc20ec559';
+import { unstickAll } from './hazards.js?v=557fc20ec559';
+import { MAPS, isBlocked } from '../maps/index.js?v=557fc20ec559';
 
 let runSeq = 1;
 
@@ -460,6 +460,8 @@ export class ScriptRun {
         case 'actor': case 'move': case 'face': case 'remove': case 'chapter': case 'guestHide': case 'chestOpen': case 'hideNpc': case 'showMon': case 'crest':
         // 第3章: トロッコに のる・自分を かくす・天気・大きな 役者
         case 'ride': case 'hideMe': case 'weather':
+        // 第5章 Step 9: エンディングの ふりかえり（スタッフロールふう。client/ui/script.js の roll）
+        case 'roll':
         // カメラを その 場所へ（['look', x, y]）・自分に もどす（['look']）
         case 'look':
           this.batch.push(step);

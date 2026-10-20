@@ -1,26 +1,26 @@
 // たたかいの はじまりと おわり（ほうしゅう・ぜんめつ）
-import { Battle, normBattleSettings } from '../battle.js?v=b995923bfc44';
-import { scaleExp, difficultyOf, rewardExp, rewardGold } from '../data/difficulty.js?v=b995923bfc44';
-import { POWDER, powderLeft } from '../data/friend-powder.js?v=b995923bfc44';
-import { MONSTERS } from '../data/monsters.js?v=b995923bfc44';
-import { ITEMS } from '../data/items.js?v=b995923bfc44';
-import { abilityLabel } from '../ability-label.js?v=b995923bfc44';
-import { JOBS } from '../data/jobs.js?v=b995923bfc44';
-import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=b995923bfc44';
-import { gainExp, gainJobBattles, jobTrainMult, itemCount, removeItem, addItem, ownsItem, computeStats, fullHeal } from '../stats.js?v=b995923bfc44';
-import { JOB_MAX_LEVEL } from '../data/jobs.js?v=b995923bfc44';
-import { befriendShare } from './recruit-share.js?v=b995923bfc44';
-import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendChance, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf, PARTY_MAX } from './party.js?v=b995923bfc44';
-import { rollDrops, stealPick } from '../data/loot.js?v=b995923bfc44';
-import { MAPS } from '../maps/index.js?v=b995923bfc44';
-import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js?v=b995923bfc44';
-import { treasureAfterBattle } from './treasure.js?v=b995923bfc44';
-import { wipeGoldLoss, bankGold } from './bank.js?v=b995923bfc44';
-import { lureOn, lureGroup } from './field27.js?v=b995923bfc44';
-import { wagonShare, wagonBattleSwap } from './wagon.js?v=b995923bfc44';
-import { growthSummary } from './growth.js?v=b995923bfc44';
-import { topLevel, battleTeamChars, expHatMult } from './perks.js?v=b995923bfc44';
-import { battleTactics } from './tactics.js?v=b995923bfc44';
+import { Battle, normBattleSettings } from '../battle.js?v=557fc20ec559';
+import { scaleExp, difficultyOf, rewardExp, rewardGold } from '../data/difficulty.js?v=557fc20ec559';
+import { POWDER, powderLeft } from '../data/friend-powder.js?v=557fc20ec559';
+import { MONSTERS } from '../data/monsters.js?v=557fc20ec559';
+import { ITEMS } from '../data/items.js?v=557fc20ec559';
+import { abilityLabel } from '../ability-label.js?v=557fc20ec559';
+import { JOBS } from '../data/jobs.js?v=557fc20ec559';
+import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=557fc20ec559';
+import { gainExp, gainJobBattles, jobTrainMult, itemCount, removeItem, addItem, ownsItem, computeStats, fullHeal } from '../stats.js?v=557fc20ec559';
+import { JOB_MAX_LEVEL } from '../data/jobs.js?v=557fc20ec559';
+import { befriendShare } from './recruit-share.js?v=557fc20ec559';
+import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendChance, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf, PARTY_MAX } from './party.js?v=557fc20ec559';
+import { rollDrops, stealPick } from '../data/loot.js?v=557fc20ec559';
+import { MAPS } from '../maps/index.js?v=557fc20ec559';
+import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js?v=557fc20ec559';
+import { treasureAfterBattle } from './treasure.js?v=557fc20ec559';
+import { wipeGoldLoss, bankGold } from './bank.js?v=557fc20ec559';
+import { lureOn, lureGroup } from './field27.js?v=557fc20ec559';
+import { wagonShare, wagonBattleSwap } from './wagon.js?v=557fc20ec559';
+import { growthSummary } from './growth.js?v=557fc20ec559';
+import { topLevel, battleTeamChars, expHatMult } from './perks.js?v=557fc20ec559';
+import { battleTactics } from './tactics.js?v=557fc20ec559';
 
 let battleSeq = 1;
 
@@ -151,6 +151,8 @@ function makeBattle(world, sessions, party, enemies, opts) {
     // 敵の 強さ（ハード 1.2倍 など）。リーダーの 設定。宝の洞窟の 強さの 上に かける（ほうしゅうは かわらない）
     enemyRate: enemyRateFor(world, party, sessions),
     hooks: {
+      // リーダー（物語の もちぬし）の フラグ（第5章 Step 9 の ノクト〈本気〉: 思い出の かけら・ピピの 手紙で ことばが かわる。battle-final.js）
+      leaderFlag: (id) => !!leader?.char?.flags?.[id],
       hasItem: (actor, id) => {
         const m = actor.controller && world.sessions.get(actor.controller);
         return m ? itemCount(m.char, id) > 0 : false;

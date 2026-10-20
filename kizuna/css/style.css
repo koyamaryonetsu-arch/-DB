@@ -533,6 +533,22 @@ body.touch .hud-chat { bottom: calc(230px + var(--safe-b)); }
 .chapter .c1 { font-size: var(--fs); color: var(--muted); letter-spacing: 0.4em; }
 .chapter .c2 { font-size: calc(var(--fs) * 2); color: var(--accent); letter-spacing: 0.15em; text-shadow: 0 0 18px rgba(255, 214, 107, 0.5); }
 @keyframes chapter { 0% { opacity: 0; } 15%, 85% { opacity: 1; } 100% { opacity: 0; } }
+/* 第5章 Step 9: エンディングの ふりかえり（スタッフロールふう。client/ui/script.js の roll）*/
+.roll { position: absolute; inset: 0; overflow: hidden; background: radial-gradient(ellipse at 50% 120%, #1a2450 0%, #070a1c 60%, #02030a 100%); pointer-events: auto; animation: rollin 1.4s forwards; }
+.roll.out { animation: rollout 1.2s forwards; }
+.roll-sky { position: absolute; inset: 0; }
+.roll-star { position: absolute; width: 2px; height: 2px; background: #fff6d0; border-radius: 50%; box-shadow: 0 0 6px #ffe9a0; animation: rolltw 2.8s infinite alternate; }
+.roll-col { position: absolute; left: 0; right: 0; top: 0; padding: 0 16px; text-align: center; will-change: transform; }
+.roll-h { font-size: calc(var(--fs) * 1.15); color: var(--accent); letter-spacing: 0.08em; margin-top: 0.6em; text-shadow: 0 0 12px rgba(255, 214, 107, 0.45); }
+.roll-t { font-size: var(--fs); color: #e8ecff; margin-top: 0.35em; line-height: 1.5; }
+.roll-gap { height: 2.4em; }
+.roll-end { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.6em; opacity: 0; transition: opacity 1.6s; text-align: center; padding: 1em; }
+.roll-end.show { opacity: 1; }
+.roll-end .e1 { font-size: calc(var(--fs) * 2.2); color: var(--accent); letter-spacing: 0.25em; text-shadow: 0 0 22px rgba(255, 214, 107, 0.6); }
+.roll-end .e2 { font-size: var(--fs); color: var(--muted); letter-spacing: 0.2em; }
+@keyframes rollin { from { opacity: 0; } to { opacity: 1; } }
+@keyframes rollout { from { opacity: 1; } to { opacity: 0; } }
+@keyframes rolltw { from { opacity: 0.25; } to { opacity: 1; } }
 
 /* ───── タイトル ───── */
 .title-screen {

@@ -2,15 +2,19 @@
 // ・見通しの目: 読まれた 人の まど（名前の 上）に 目の しるしと 読まれた 種類（攻撃・呪文・回復・防御）。
 //   読んで いる 間は アルゴスの 3つの 目が 光る。読んだ とき（目から 光の すじ）・当たった とき（しかえし）・外れた とき（目が くらむ）の えんしゅつと バナー
 // ・敵が 使うと がめんの まん中に 大きく 出す 技（星の光・星のさばき・ふきあげる風・星の尾）・味方の まどの えんしゅつ・音
-import { KIND_NAMES } from '../shared/battle-ch5.js?v=b995923bfc44';
-import { ARGOS_EYES } from './render/ch5-tower-art.js?v=b995923bfc44';
-import { el } from './ui/dom.js?v=b995923bfc44';
+import { KIND_NAMES } from '../shared/battle-ch5.js?v=557fc20ec559';
+import { ARGOS_EYES } from './render/ch5-tower-art.js?v=557fc20ec559';
+import { el } from './ui/dom.js?v=557fc20ec559';
 // 第5章 Step 4 の ガイアイーター（ねらいめ・まもり・土はこびの しるし。battle-gaia.js）
-import { gaiaDraw, gaiaPresent } from './battle-gaia.js?v=b995923bfc44';
+import { gaiaDraw, gaiaPresent } from './battle-gaia.js?v=557fc20ec559';
 // 第5章 Step 5 の ノクトの影（まねた 人の 影・まねられている しるし・きずなくだき。battle-nocto.js）と 星読みの里・迷宮の 魔物
-import { noctoDraw, noctoPresent } from './battle-nocto.js?v=b995923bfc44';
+import { noctoDraw, noctoPresent } from './battle-nocto.js?v=557fc20ec559';
 // 第5章 Step 6・7 の ノクト（1回目。合体技の 前ぶれの わ・地われの しるし・バナー）と 大地の神殿の 魔物（battle-earth.js）
-import { earthDraw, earthPresent } from './battle-earth.js?v=b995923bfc44';
+import { earthDraw, earthPresent } from './battle-earth.js?v=557fc20ec559';
+// 第5章 Step 9 の ノクト（本気）・魔王ソリトゥス（前ぶれの わ・段階・よびかける・家族の きずな技。battle-final.js）
+import { finalDraw, finalPresent } from './battle-final.js?v=557fc20ec559';
+// 第5章 Step 8 の 影の城の 3人の まぼろし（ざんぞう・風のかべ・かげ火の すじ・水かさ・バナー。battle-phantom.js）
+import { phantomDraw, phantomPresent } from './battle-phantom.js?v=557fc20ec559';
 
 export const TOWER_SCREEN_ANIMS = ['star_light', 'star_judge', 'tower_gust', 'comet_tail'];
 export const TOWER_ALLY_FX = {
@@ -60,6 +64,8 @@ export function towerDraw(scene, x, m, c, px, py, w, h, base) {
   gaiaDraw(scene, x, m, c, px, py, w, h, base);
   noctoDraw(scene, x, m, c, px, py, w, h, base);
   earthDraw(scene, x, m, c, px, py, w, h, base);
+  finalDraw(scene, x, m, c, px, py, w, h, base);
+  phantomDraw(scene, x, m, c, px, py, w, h, base);
   if (c.species !== 'argos' || !c.alive) return;
   const reading = scene.allies().some((a) => a.foresee && a.alive);
   const T = scene.time;
@@ -113,5 +119,7 @@ export function towerPresent(scene, ev, fx, anim, actor) {
   gaiaPresent(scene, ev, fx, anim, actor);
   noctoPresent(scene, ev, fx, anim, actor);
   earthPresent(scene, ev, fx, anim, actor);
+  finalPresent(scene, ev, fx, anim, actor);
+  phantomPresent(scene, ev, fx, anim, actor);
   towerMarks(scene);
 }

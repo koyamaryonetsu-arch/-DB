@@ -1,20 +1,23 @@
 // モンスターの え（ベクターで かいて ドットえに へんかん）
 // すべて オリジナルの デザイン
 // 2ばいの こまかさで かいて ドットえに → Scale2x で 4ばい → ひかり・かげ・ふちどり（res 4）
-import { makeCanvas, ctxOf, pixelize, shade, painterFrom, scale2x, outline2, volumeShade } from './pixel.js?v=b995923bfc44';
-import { MONSTERS } from '../../shared/data/monsters.js?v=b995923bfc44';
-import { tintCanvas } from './themes.js?v=b995923bfc44';
-import { addNightArt } from './night-art.js?v=b995923bfc44';
-import { addRareArt } from './rare-art.js?v=b995923bfc44';
-import { addCh3Art } from './ch3-art.js?v=b995923bfc44';
-import { addCh4Art } from './ch4-art.js?v=b995923bfc44';
-import { addR23Art } from './r23-art.js?v=b995923bfc44';
-import { addCh5Art } from './ch5-tower-art.js?v=b995923bfc44';
-import { addKumoiArt } from './ch5-kumoi-mon-art.js?v=b995923bfc44';
-import { addHoshiyomiArt } from './ch5-hoshiyomi-mon-art.js?v=b995923bfc44';
-import { addEarthArt } from './ch5-earth-mon-art.js?v=b995923bfc44';
+import { makeCanvas, ctxOf, pixelize, shade, painterFrom, scale2x, outline2, volumeShade } from './pixel.js?v=557fc20ec559';
+import { MONSTERS } from '../../shared/data/monsters.js?v=557fc20ec559';
+import { tintCanvas } from './themes.js?v=557fc20ec559';
+import { addNightArt } from './night-art.js?v=557fc20ec559';
+import { addRareArt } from './rare-art.js?v=557fc20ec559';
+import { addCh3Art } from './ch3-art.js?v=557fc20ec559';
+import { addCh4Art } from './ch4-art.js?v=557fc20ec559';
+import { addR23Art } from './r23-art.js?v=557fc20ec559';
+import { addCh5Art } from './ch5-tower-art.js?v=557fc20ec559';
+import { addKumoiArt } from './ch5-kumoi-mon-art.js?v=557fc20ec559';
+import { addHoshiyomiArt } from './ch5-hoshiyomi-mon-art.js?v=557fc20ec559';
+import { addEarthArt } from './ch5-earth-mon-art.js?v=557fc20ec559';
+import { addPhantomArt } from './ch5-phantom-art.js?v=557fc20ec559';
 // 第37回 A: サファラ闘技場の 王者（arena-art.js）
-import { addArenaArt } from './arena-art.js?v=b995923bfc44';
+import { addArenaArt } from './arena-art.js?v=557fc20ec559';
+// 第5章 Step 9: ノクト（本気）・魔王ソリトゥス（ch5-final-mon-art.js）
+import { addFinalArt } from './ch5-final-mon-art.js?v=557fc20ec559';
 
 export const MRES = 4; // できあがりの こまかさ（せかいの 1ドットを 4×4 で かく）
 const OUT = '#130d24';
@@ -836,12 +839,16 @@ addHoshiyomiArt(MONSTER_ART);
 // 第5章 Step 6・7「根の島・大地の神殿」の 魔物と ノクト（1回目）・分身・天空のきょ兵（ch5-earth-mon-art.js）
 addEarthArt(MONSTER_ART);
 addArenaArt(MONSTER_ART);
+addFinalArt(MONSTER_ART);
+// 第5章 Step 8「影の城」の 魔物と 3人の まぼろし（もとの ボスの え を つつむ ので さいごに。ch5-phantom-art.js）
+addPhantomArt(MONSTER_ART);
 
 const cache = new Map();
 
 // え の きまり。宝の洞窟の 主は ほかの 魔物の え を 大きくして 色がえ（monsters-tm.js の art・artScale・tint）
 function artOf(sp) {
-  if (MONSTER_ART[sp]) return { def: MONSTER_ART[sp] };
+  // （tint … え そのものに 色の かえかたが ある もの。影の城の まぼろし）
+  if (MONSTER_ART[sp]) return { def: MONSTER_ART[sp], tint: MONSTER_ART[sp].tint };
   const md = MONSTERS[sp];
   const base = md?.art && MONSTER_ART[md.art];
   if (!base) return { def: MONSTER_ART.pururin };

@@ -3,11 +3,11 @@
 //   まねられて いる 人の まどに「まねられている」の しるし（noctoMarks）。まねた ときは 短い バナー
 // ・きずなくだき: 前ぶれの 間は 影の まわりに むらさきの わ（noctoDraw）と バナー。よやくを くだかれた・守りぬいた ときも バナー
 // ・敵が 使うと がめんの まん中に 大きく 出す 技・味方の まどの えんしゅつ・音
-import { heroCanvas } from './render/hero.js?v=b995923bfc44';
-import { monsterCanvas } from './render/monsters.js?v=b995923bfc44';
-import { equipKey } from './render/chars.js?v=b995923bfc44';
-import { makeCanvas, ctxOf, flipCanvas } from './render/pixel.js?v=b995923bfc44';
-import { el } from './ui/dom.js?v=b995923bfc44';
+import { heroCanvas } from './render/hero.js?v=557fc20ec559';
+import { monsterCanvas } from './render/monsters.js?v=557fc20ec559';
+import { equipKey } from './render/chars.js?v=557fc20ec559';
+import { makeCanvas, ctxOf, flipCanvas } from './render/pixel.js?v=557fc20ec559';
+import { el } from './ui/dom.js?v=557fc20ec559';
 
 const NOCTO = 'nocto_shadow';
 export const NOCTO_SCREEN_ANIMS = ['ns_dark', 'ns_bond_break', 'soul_chill', 'soul_joy', 'homun_blades', 'stardust_shine', 'owl_wind', 'agent_smoke', 'ghost_song'];
@@ -49,13 +49,15 @@ function shadeTint(src) {
 }
 
 // 戦いの え: ノクトの影が だれかを まねて いる 間は、うしろに その 人の 影（client/battle.js の computeLayout）
+// 第5章 Step 9 の ノクト（本気。nocto_2）も まねる
+const MIMIC_SP = new Set([NOCTO, 'nocto_2']);
 export function noctoSprite(c, frame = 0) {
-  if (c?.species !== NOCTO || !c.mimic) return null;
+  if (!MIMIC_SP.has(c?.species) || !c.mimic) return null;
   const m = c.mimic;
-  const key = `${m.mon || ''}|${JSON.stringify(m.look || null)}|${m.job || ''}|${m.eq || ''}|${frame}`;
+  const key = `${c.species}|${m.mon || ''}|${JSON.stringify(m.look || null)}|${m.job || ''}|${m.eq || ''}|${frame}`;
   let img = cache.get(key);
   if (img) return img;
-  const base = monsterCanvas(NOCTO, frame);
+  const base = monsterCanvas(c.species, frame);
   const r = base.res || 1;
   const bw = base.width / r, bh = base.height / r;
   const p = shadeTint(personCanvas(m));
@@ -126,14 +128,16 @@ export function noctoDraw(scene, x, m, c, px, py, w, h, base) {
 // イベントを 見せる とき（client/battle-ch5.js の towerPresent から）
 export function noctoPresent(scene, ev, fx, anim, actor) {
   const g = scene.game;
+  // まねた のが ノクト（本気）なら「ノクトが」
+  const by = (id) => (scene.c.get(id)?.species === 'nocto_2' ? 'ノクト' : '影');
   if (ev.nsMimic) {
     const who = scene.c.get(ev.nsMimic.who);
-    if (who) scene.banner(`！影が${who.name}をまねた！`, 'danger');
+    if (who) scene.banner(`！${by(ev.nsMimic.by)}が${who.name}をまねた！`, 'danger');
   }
   if (fx.type === 'nsMimic' && !ev.nsMimic) {
     // 戦いの はじめ（msg）
     const who = scene.c.get(fx.targets?.[0]);
-    if (who) scene.banner(`！影が${who.name}をまねた！`, 'danger');
+    if (who) scene.banner(`！${by(fx.actor)}が${who.name}をまねた！`, 'danger');
   }
   if (fx.type === 'telegraph' && actor?.species === NOCTO) {
     g.audio.sfx('warn');
