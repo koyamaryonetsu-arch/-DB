@@ -700,3 +700,22 @@
 - **ボス級「天空のきょ兵」**（`ss_sky_giant`。`data/monsters-boss.js`。「巨」は使える漢字にないので「きょ」）：天空のまもり兵 × 物質系の S ＋ 大地のかけらのお守り（ノクト1回目の品）の素材配合だけで生まれる（`materialOnly`）。`test/breed-r35.test.js` の「ボス7体」は天空のきょ兵ものぞく。絵 `sky_giant`
 - A とまとめる時：A の仮のファイル `data/earth-stub.js` などは消して、店・宝箱・台本は `items-earth.js` から import。`pipi_letter` の大事な物は A（B のテストでは `hooks.hasItem` のかわりで しらべている）。背景の ID・`FIXED_ENCOUNTERS.nocto_1`（`bgm: 'nocto_1'`）はそのまま使える。勝ったあとの台本のちがいは A（`pipi_letter` で分ける）
 - B が1〜数行ずつ足したファイル：`monsters.js`・`abilities.js`・`items.js`・`encounters.js`・`companions.js`・`loot.js`・`rare-loot.js`（`SRC_TEXT.earth`・`bossrare`・`gift`）・`alchemy.js`・`monsters-boss.js`・`battle.js`・`battle-ch5.js`・`battle-dual.js`・`battle-nocto.js`（`breakTeam` を export）・`ai.js`・`client/battle.js`・`client/battle-ch4.js`・`client/battle-ch5.js`・`client/ui/info.js`・`render/battlefx.js`・`render/battlefx-hoshiyomi.js`・`render/monsters.js`・`tools/sim.js`・`tools/kanji-check.mjs` の `gameFiles()`・`test/monsters-r23.test.js`（図鑑の数）・`test/breed-r35.test.js`・`test/loot.test.js`（バットのランクに9）・`README.md`
+
+## 17. Step 8・9 で決めたこと（2026年10月20日）
+
+> ネタバレ注意：第6幕の中みが書いてあります。家族への報告には、遊べる所・しくみだけを書きます。
+
+- 家族：「次のストーリーを実装して」→ Step 8 と Step 9 を一度に作って、**第5章（第1部）を最後まで**。あらすじは 5 の第6幕のとおり。Step 10（より道）は次
+- 強さのめやす：影の城の雑魚 Lv52〜54。3人のまぼろし・ノクト（本気）・ソリトゥスは今までの新しいボスと同じ（超級職4人・職業Lv10・その時期の★装備で、完全オート 1〜2割、しかけを知って手で戦う 7割くらい）。おすすめ：まぼろし Lv52・53・54、ノクト（本気）・ソリトゥス Lv55
+- ★：影の城の宝・ボスの品は ★5（ランク10。テストのきまりで ランクは10まで。強さの倍率で「あとの品ほど強い」）。ソリトゥスの品が いちばん強い
+- タイルの あき ID は 97・187・188・189・229 だけ。**A8 は 97・187・188、A9 は 189・229** だけを使う（ほかは今のタイルの色がえ・テーマで）
+
+### 4つに分けて作る（名前の約束）
+
+- **A8（影の城の世界）**：影の城への風の道（`c5_gather` のあと、影の城の前の小島から）・影の城 `castle_1f`〜`castle_12f`（1階が下、12階が上。上へのぼる）・3つの「ふういんのとびら」（1つ目は大事な物 `yukina_song` で開く。2つ目・3つ目は前のまぼろしをたおすと開く）・4階と8階の休み所・とびらを開けるたびに入口から近道・1つの階に1つの見どころ（風の階1〜4：風の流れ・風車／炎の階5〜8：炎の柱のタイミング・氷の像で炎を止める／水の階9〜12：水の高さを上げ下げ・流れる床）・家族で協力すると早いしかけ（ひとりでも仲間でとける）・まぼろしの前の台本（4階 `phantom_storm`・8階 `phantom_ignia`・12階 `phantom_morgana`）・12階から てっぺんへの階だん（てっぺんのマップは A9）・タイル・人の絵・曲（`castle_wind`・`castle_fire`・`castle_water`・`phantom`）・目標・ヒント・地図・テスト
+- **B8（影の城の戦い・品）**：影の城の魔物（風・炎・水の階で ちがう組。15-4 の かおのない影も）と出現表 `t5_castle_wind`（1〜4階）・`t5_castle_fire`（5〜8階）・`t5_castle_water`（9〜12階）・まぼろし3体（`phantom_storm`・`phantom_ignia`・`phantom_morgana`。前の戦いのしかけを強くし、新しいしかけを1つずつ）・シミュレーション・絵・背景（`castle_wind`・`castle_fire`・`castle_water`）・エフェクト・宝 `CASTLE_TREASURE`（`{ 1: [...], … 12: [...] }`。`data/items-castle.js`）・まぼろしの品・れん金
+- **A9（てっぺんとエンディング）**：てっぺん「星のない広間」`castle_top`・ノクト（本気）の前とあとの台本（思い出のかけら6つ `memoryShardsAll`・ピピの手紙をわたした `c5_letter_given` で ことばがかわる）・ソリトゥスが出てくる場面・`['battle','solitus']` のあと エンディング（光・大地の守り星・ノクトとばあちゃん〈`hoshifuru_stone`〉・ピピの羽が開く・5つの守り星と星祭りの夜空・「第1部 完」）・クリアのあとの世界（目標・町の人のことば・ノクトが酒場で仲間になる〈B9 の `NOCTO_COMPANION`〉）・曲（`nocto_true`・`solitus`・`ending5`）・タイル・人の絵・テスト
+- **B9（ノクト本気・ソリトゥス）**：`nocto_2`（ノクト本気。今までのノクトのしかけ〈かげぶんしん・地われ・まね・きずなくだき〉の組み合わせ。かけら6つ・手紙で とちゅうのことばがかわる）・`solitus`（3段階。第1段階「ひとりにする」→ 新しいコマンド **「よびかける」**（手をのばすと同じ形）／第2段階「きずなを食べる」＝合体技の予約をこわす大技〈前ぶれで守れる〉／第3段階 ノクトが仲間に加わる〈ゲスト〉。ノクトの紋章が光り、この戦いだけ **職業を問わず家族全員で出せる特別な合体技**〈全員の名前が出る〉）・シミュレーション・絵・背景（`castle_top`・`solitus_void`）・エフェクト・ボスの品・`NOCTO_COMPANION`（酒場の仲間のノクト。`data/companions-castle.js`）
+- 物語のすすみ（`CH5_STEPS` の `c5_gather` のうしろ）：A8 が `c5_croad`（影の城への風の道ができた）・`c5_cin`（影の城に入った）・`c5_seal1`（風のまぼろしをたおした）・`c5_seal2`（炎）・`c5_seal3`（水）。A9 が `c5_top`（てっぺんに着いた）・`c5_nocto2`（ノクト本気をたおした）・`c5_solitus`（ソリトゥスをたおした）・`c5_clear`（エンディングを見た＝第5章クリア）
+- 仮のファイル（まとめる時に消す）：A8 `data/castle-stub.js`（`CASTLE_TREASURE`・まぼろしの戦い・出現表）・A9 `data/castle-top-stub.js`（`nocto_2`・`solitus`・`NOCTO_COMPANION`）
+- 戦いが終わったあと：まぼろし・ノクト（本気）・ソリトゥスは勝ちで台本が続く（負けたら今のボスと同じ）
