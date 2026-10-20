@@ -65,6 +65,8 @@ const OVERWORLD_NPCS = [
   npc('mayor', '町長ゴードン', TW(7, 4), 'mayor', 'mayor'),
   npc('priestess', '神官セレナ', TW(23, 5), 'priestess', 'job_change'),
   npc('sage', 'ひらめきの賢者', TW(20, 7), 'sage', 'sage'),
+  // 第38回 B: 職業の試練（超級職から。data/story-trials.js・world/job-trials.js）
+  npc('trial_keeper', '試練の番人', TW(27, 7), 'trial_keeper', 'trial_keeper'),
   npc('bartender', '酒場のマスター', TW(38, 3), 'bartender', 'tavern'),
   npc('weapon_keeper', '武器屋のおやじ', TW(6, 13), 'merchant', 'shop_weapon'),
   npc('armor_keeper', '防具屋のおねえさん', TW(6, 22), 'woman', 'shop_armor'),

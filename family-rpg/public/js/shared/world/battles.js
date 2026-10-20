@@ -8,7 +8,8 @@ import { abilityLabel } from '../ability-label.js';
 import { JOBS } from '../data/jobs.js';
 import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js';
 import { gainExp, gainJobBattles, jobTrainMult, itemCount, removeItem, addItem, ownsItem, computeStats, fullHeal } from '../stats.js';
-import { JOB_MAX_LEVEL } from '../data/jobs.js';
+// 第38回 B: 職業レベルの 上限（超級職からは 職業の試練で 上がる）・試練の 修行（その 職業の 技を 使って 勝つ）
+import { jobLevelCap, trialUseCount, addTrialUses, trialName } from '../data/job-trials.js';
 import { befriendShare } from './recruit-share.js';
 import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendChance, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf, PARTY_MAX } from './party.js';
 import { rollDrops, stealPick } from '../data/loot.js';
@@ -194,6 +195,8 @@ function makeBattle(world, sessions, party, enemies, opts) {
       },
     },
   });
+  // 第38回 B: 戦いを 作った すぐ あとの しかけ（職業の試練の 師しょうのまぼろし。world/job-trials.js）
+  if (opts.setup) opts.setup(b);
   // だれが どの キャラか
   let i = 0;
   for (const e of entries) actorMap[b.allies[i++].id] = e.map;
@@ -243,7 +246,8 @@ export function startFieldBattle(world, s, sym) {
 }
 
 // ストーリーの たたかい（まけると だいほんが とまる）
-export function startFixedBattle(world, initiator, participants, encId) {
+// extra … makeBattle に わたす ほかの もの（第38回 B: setup … 戦いを 作った すぐ あとの しかけ。world/job-trials.js）
+export function startFixedBattle(world, initiator, participants, encId, extra = {}) {
   const enc = FIXED_ENCOUNTERS[encId];
   const party = partyOf(world, initiator);
   const sessions = participants.filter((m) => m && m.inWorld);
@@ -251,7 +255,7 @@ export function startFixedBattle(world, initiator, participants, encId) {
   for (const [sp, mn] of enc.group) for (let i = 0; i < mn; i++) enemies.push(sp);
   return new Promise((resolve) => {
     for (const m of sessions) m.busy = null; // だいほんの あいだは busy='script' だが たたかいに きりかえる
-    const ctx = makeBattle(world, sessions, party, enemies, { bg: enc.bg, bgm: enc.bgm, canFlee: enc.canFlee, boss: enc.boss, fixed: encId, enemyLv: enc.enemyLv, enemyPow: enc.enemyPow, loseOk: !!enc.loseOk });
+    const ctx = makeBattle(world, sessions, party, enemies, { bg: enc.bg, bgm: enc.bgm, canFlee: enc.canFlee, boss: enc.boss, fixed: encId, enemyLv: enc.enemyLv, enemyPow: enc.enemyPow, loseOk: !!enc.loseOk, ...extra });
     ctx.resolve = resolve;
   });
 }
@@ -350,10 +354,13 @@ function finishBattle(world, ctx) {
   }
   // 技を 使った 回数と、ひらめいた 技を のこす（自分・自分の 仲間。家族の キャラと ゲストは のこさない）
   const hiraLines = [];
+  // 第38回 B: 職業の試練の 修行（自分の キャラが 今の 職業の 技を この 戦いで 使った 回数。勝った ときに たす）
+  const trialUse = new Map();
   for (const a of b.allies) {
     const who = ctx.actorMap[a.id];
     const ch = who?.char;
     if (!ch || !a.use || who.type === 'guest' || who.kind === 'family') continue;
+    if (who.type === 'human') trialUse.set(ch, trialUseCount(ch.job, ch.skillUse, a.use));
     ch.skillUse = { ...a.use };
     if (a.hiraNew?.length) {
       ch.hirameki = [...new Set([...(Array.isArray(ch.hirameki) ? ch.hirameki : []), ...a.hiraNew])];
@@ -415,11 +422,17 @@ function finishBattle(world, ctx) {
       }
       const ups = gainExp(c, myExp);
       let jups = [];
-      if (JOBS[c.job] && (c.jobs[c.job]?.lv || 1) < JOB_MAX_LEVEL) {
+      if (JOBS[c.job] && (c.jobs[c.job]?.lv || 1) < jobLevelCap(c, c.job)) {
         jups = gainJobBattles(c, trainN);
         if (oneBlow) lines.push('（一撃で終わったので、職業の修行は半分）');
       }
-      own[m.id] = growthSummary(c.name, ups, jups, c);
+      // 職業の試練の 修行（data/job-trials.js）
+      const tu = addTrialUses(c, c.job, trialUse.get(c) || 0);
+      if (tu) {
+        lines.push(`（${trialName(c.job, tu.trial.n, c)}：修行 ${tu.to}/${tu.need}回）`);
+        if (tu.done) lines.push(`★ ${c.name}は${trialName(c.job, tu.trial.n, c)}の修行をやりとげた！\n（ルミナの町の神殿の、試練の番人に話そう）`);
+      }
+      own[m.id] = growthSummary(c.name, ups, jups, c, { self: true });
       perSession[m.id] = { lines, levelUp: ups.length > 0, jobUp: jups.length > 0, drops };
     }
     // なかま: たたかいに でた なかまだけ そだつ。家族の キャラには おれいが とどく

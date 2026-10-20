@@ -44,6 +44,8 @@ import { notePyramidMove } from './pyramid.js';
 import { noteSecretMove, fixSecretPos, secretRespawn, pruneSecretStates } from './secret.js';
 // 第37回 A: サファラ闘技場（だいほんの しょりを data/story-arena.js の ARENA_HOOKS に 入れる）
 import './arena.js';
+// 第38回 B: 職業の試練（だいほんの しょりを data/story-trials.js の TRIAL_HOOKS に 入れる）
+import './job-trials.js';
 import { shownEquipKey } from '../look-equip.js';
 
 export const PROTOCOL_VERSION = 1;

@@ -4,6 +4,8 @@
 //     「覚えた：ホイミ、ベホイミ」
 //   マスター・新しい 職業・ヒントは べつの 行（notes。めったに 出ない 大事な 知らせ）
 import { JOB_MAX_LEVEL } from '../data/jobs.js';
+// 第38回 B: Lv15・Lv20 の しょうごう・上限に なった ときの 試練の 知らせ（data/job-trials.js）
+import { titleFor, jobTopCap, jobLevelCap, TITLE_LEVELS } from '../data/job-trials.js';
 import { ABILITIES } from '../data/abilities.js';
 import { abilityFor } from '../ability-label.js';
 import { jobLabel } from '../job-label.js';
@@ -21,7 +23,8 @@ export function learnName(id, who = null) {
 
 // name … 名前、ups … gainExp の 結果（1レベルごと）、jups … gainJobBattles の 結果（1職業レベルごと）、who … その キャラ（技・職業の 名前に 使う。job-label.js）
 // かえす もの: { lines: [まとめの 行（0〜2行）], notes: [★の 知らせ] }
-export function growthSummary(name, ups = [], jups = [], who = null) {
+// opt.self … 自分の キャラ（職業の試練を 受けられる。第38回 B）
+export function growthSummary(name, ups = [], jups = [], who = null, opt = {}) {
   const lines = [], notes = [];
   if (!ups.length && !jups.length) return { lines, notes };
   const gains = {}, learned = [];
@@ -44,7 +47,16 @@ export function growthSummary(name, ups = [], jups = [], who = null) {
   lines.push(`${name}　${head.join('　')}！${st ? `　${st}` : ''}`);
   if (learned.length) lines.push(`覚えた：${learned.map((id) => learnName(id, who)).join('、')}`);
   for (const u of jups) {
-    if (u.lv >= JOB_MAX_LEVEL) notes.push(`★ ${name}は${jn(u.job)}をマスターした！`);
+    // マスターは Lv10 に なった 時だけ（第38回 B: Lv11〜 は しょうごう・上限の 知らせ）
+    if (u.lv === JOB_MAX_LEVEL) notes.push(`★ ${name}は${jn(u.job)}をマスターした！`);
+    if (TITLE_LEVELS.includes(u.lv)) {
+      const t = titleFor(u.job, u.lv, who);
+      if (t) notes.push(`★ ${name}は、しょうごう「${t}」を手に入れた！`);
+    }
+    // 上限に なった（まだ 試練で 上げられる）: 試練の番人の 知らせ
+    if (opt.self && who && u.lv >= JOB_MAX_LEVEL && u.lv < jobTopCap(u.job) && u.lv >= jobLevelCap(who, u.job)) {
+      notes.push(`☆ ${jn(u.job)}の職業レベルが、今の上限になった。\n（ルミナの町の神殿の「試練の番人」の試練で、上限を上げられる）`);
+    }
     for (const id of u.unlocked || []) notes.push(`★ ${name}は${jn(id)}になれるようになった！（ルミナの町の神殿で転職できる）`);
     for (const id of u.hinted || []) notes.push(`☆ 新しい職業「${jn(id)}」のヒントを見つけた！（神殿で見られる）`);
   }

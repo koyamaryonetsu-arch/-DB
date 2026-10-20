@@ -8,6 +8,8 @@ import { HIRAMEKI, hiraRatio } from './data/hirameki.js';
 import { cleanLook } from './data/looks.js';
 import { SKILL_UPS } from './data/skill-ups.js';
 import { jobLabel } from './job-label.js';
+// 第38回 B: 超級職からの 職業レベルの 上限（職業の試練）と Lv11〜 の 強さ
+import { jobLevelCap, jobUpStats } from './data/job-trials.js';
 
 // 長い 物語に なるので レベルは 99まで（レベルで ふえる つよさは ひかえめ）
 export const MAX_LEVEL = 99;
@@ -57,7 +59,8 @@ export const JOB_POWER = 0.04;
 // 上位の 技（data/skill-ups.js。超かめはめ波 など）は、もとの 技の 職業レベルの 威力も うけつぐ（大きい ほう）
 export function jobPower(char, abilityId, depth = 0) {
   const a = ABILITIES[abilityId];
-  const own = !a?.job || !JOBS[a.job] || !char?.jobs ? 1 : 1 + JOB_POWER * (jobLevel(char, a.job) - 1);
+  // 第38回 B: Lv11〜（職業の試練）では 威力は ふえない（Lv10 で 止まる）
+  const own = !a?.job || !JOBS[a.job] || !char?.jobs ? 1 : 1 + JOB_POWER * (Math.min(JOB_MAX_LEVEL, jobLevel(char, a.job)) - 1);
   const base = SKILL_UPS[abilityId];
   return base && depth < 8 ? Math.max(own, jobPower(char, base, depth + 1)) : own;
 }
@@ -99,7 +102,8 @@ export function computeStats(char) {
   if (char.species) return monsterCompanionStats(char);
   const job = JOBS[char.job];
   const b = baseStats(char.level);
-  const jl = jobLevel(char);
+  // 第38回 B: 得意な 強さの のびは Lv10 まで（Lv11〜 は jobUpStats の +1〜2 だけ）
+  const jl = Math.min(JOB_MAX_LEVEL, jobLevel(char));
   const boost = 1 + Math.min(LEVEL_AFFINITY_MAX, LEVEL_AFFINITY * (char.level - 1)) + JOB_BOOST * (jl - 1);
   const s = {};
   for (const k of STAT_KEYS) {
@@ -113,9 +117,11 @@ export function computeStats(char) {
   for (const [jid, info] of Object.entries(char.jobs || {})) {
     const per = JOBS[jid]?.perLv;
     if (!per) continue;
-    for (const [k, v] of Object.entries(per)) perSum[k] = (perSum[k] || 0) + v * PER_LV_MULT * ((info.lv || 1) - 1);
+    for (const [k, v] of Object.entries(per)) perSum[k] = (perSum[k] || 0) + v * PER_LV_MULT * (Math.min(JOB_MAX_LEVEL, info.lv || 1) - 1);
   }
   for (const [k, v] of Object.entries(perSum)) s[k] += Math.min(v, b[k] * PER_LV_CAP);
+  // 第38回 B: 職業の試練で Lv10 より 上に なった ぶん（今の 職業の 得意な 数値が 1レベル +1〜2。data/job-trials.js）
+  for (const [k, v] of Object.entries(jobUpStats(char.job, jobLevel(char)))) s[k] += v;
   // たねで ふえた ぶん
   for (const [k, v] of Object.entries(char.seeds || {})) s[k] = (s[k] || 0) + v;
   const eq = equipBonus(char);
@@ -606,13 +612,17 @@ export function jobTrainRate(jobId) {
   return JOBS[jobId]?.passive?.train || 1;
 }
 
+// もどりち: { lv, next（つぎの レベルまで 勝つ 回数）, done（今の 上限まで 上がった）, cap（今の 上限）, master（Lv10 いじょう） }
+// 第38回 B: 超級職・伝説の職業は 職業の試練で 上限が 15・20 に 上がる（data/job-trials.js）
 export function jobProgress(char, jobId = char.job) {
   const j = JOBS[jobId];
   const info = char.jobs?.[jobId] || { lv: 1, b: 0 };
-  if (!j) return { lv: 1, next: 0, done: false };
-  if (info.lv >= JOB_MAX_LEVEL) return { lv: info.lv, next: 0, done: true };
+  if (!j) return { lv: 1, next: 0, done: false, cap: JOB_MAX_LEVEL, master: false };
+  const cap = jobLevelCap(char, jobId);
+  const master = info.lv >= JOB_MAX_LEVEL;
+  if (info.lv >= cap) return { lv: info.lv, next: 0, done: true, cap, master };
   const rest = jobBattlesForLevel(info.lv + 1, j.tier || 0) - (info.b || 0);
-  return { lv: info.lv, next: Math.max(1, Math.ceil(rest / jobTrainRate(jobId) - 1e-9)), done: false };
+  return { lv: info.lv, next: Math.max(1, Math.ceil(rest / jobTrainRate(jobId) - 1e-9)), done: false, cap, master };
 }
 
 // 勝った たたかい 1回が 何回ぶんの 修行に なるか
@@ -628,10 +638,12 @@ export function gainJobBattles(char, n = 1) {
   const j = JOBS[char.job];
   if (n <= 0 || char.species || !j) return ups;
   const info = char.jobs[char.job] || (char.jobs[char.job] = { lv: 1, b: 0 });
-  if (info.lv >= JOB_MAX_LEVEL) return ups;
+  // 上限（ふつうは Lv10。超級職からは 職業の試練で 15・20。data/job-trials.js）
+  const cap = jobLevelCap(char, char.job);
+  if (info.lv >= cap) return ups;
   // のびざかり（小学生など）は 1回の 勝ちが 1.25回ぶん
   info.b = (info.b || 0) + n * jobTrainRate(char.job);
-  while (info.lv < JOB_MAX_LEVEL && info.b >= jobBattlesForLevel(info.lv + 1, j.tier || 0)) {
+  while (info.lv < cap && info.b >= jobBattlesForLevel(info.lv + 1, j.tier || 0)) {
     const learnedBefore = new Set(learnedAbilities(char));
     const lockedBefore = ALL_JOBS.filter((id) => !jobUnlocked(char, id));
     const hiddenBefore = ALL_JOBS.filter((id) => !jobKnown(char, id));
