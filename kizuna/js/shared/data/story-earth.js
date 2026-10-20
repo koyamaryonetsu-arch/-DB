@@ -10,14 +10,14 @@
 //   （ネフィ・バルガ・ミラ・サラ … B の GATHER_GIFTS の 装備 / ルカ … 道具 / ユキナ … いのりの歌 / ばあちゃん … 星の石の かけら）
 //   → 7人 ぜんぶで ソラネ「影の城へ 行く 風の道を、ハネビト みんなで つくります」（c5_gather。「第5章の続きはアップデートで！」）
 // 根の島と 神殿の 魔物・きまった 戦い nocto_1・ランク9の 店の 品・神殿の 宝箱の 品・みんなの 装備は B（戦い・品）が 作る（plan-ch5.md の 16）
-import { KUMOI_POS, KUMOI_ROADS, KUMOI_VANES, HANONO_POS } from '../maps/kumoi.js?v=661924ced2fb';
+import { KUMOI_POS, KUMOI_ROADS, KUMOI_VANES, HANONO_POS } from '../maps/kumoi.js?v=2d8d7ef5c868';
 import {
   K7, EF, JAR, GOLEM_LOST, PIT_FLAG, LIFT_FLAG, DROP_FLAG, SWITCH_WAIT, DOOR4_FLAG, LETTER_FLAG, GATHER, GATHER_FLAG,
   EARTH_FLOORS, EARTH_POS, EARTH_GOLEMS, EARTH_OUT, EARTH_REST, golemState, golemCellKind, earthMapId,
-} from '../maps/earth.js?v=661924ced2fb';
-import { GATHER_GIFTS } from './items-earth.js?v=661924ced2fb';
+} from '../maps/earth.js?v=2d8d7ef5c868';
+import { GATHER_GIFTS } from './items-earth.js?v=2d8d7ef5c868';
 // Step 8: みんなと 話した あとの 長ソラネ（影の城への 風の道。story-castle.js）
-import { soraneCastle } from './story-castle.js?v=661924ced2fb';
+import { soraneCastle } from './story-castle.js?v=2d8d7ef5c868';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -229,7 +229,7 @@ async function slabCheck(run, n) {
     floor: [...off, ['toggle', G.flags[next]], ['sync'], step, ...N('ズシン…！\n土の守り手が、1歩前へ歩いた。')],
     plate: [...off, ['toggle', G.flags[next]], ['flag', LIFT_FLAG], ['sync'], step, ['shake'],
       ...N('ズシン…！\n土の守り手が、重りのゆかの上にのった！', 'ガコン…！\nゴゴゴゴ…。', 'こわれていた上り下りのゆかが、動き出した…！\n（1階と5階を、行き来できるようになった！）')],
-    pit: [...off, ['flag', PIT_FLAG], ['sync'], step, ['shake'],
+    pit: [...off, ['flag', G.done], ['sync'], step, ['shake'],
       ...N('ズシン…ズズーン！', '土の守り手は、あなの中へ落ちて…\nぴったりと、あなをうめた！', '（石の道が、つながった！）')],
     drop: [...off, ['flag', DROP_FLAG], ['sync'], step, ['shake'],
       ...N('土の守り手が、1歩前へ――', '根のすきまから、下の階へ落ちていった…！', '…ズズーン…！\n（ずっと下の方で、何かが止まった音がした）')],
@@ -388,7 +388,7 @@ function afterNocto() {
       ...S('ノクト', '…今のは、ほんの小手調べだ。'),
     ]],
     ['hideNpc', 'nocto_e8'],
-    ['actor', 'nocto_e8b', { sprite: 'nocto', x: B.x + 0.5, y: 4.5, dir: 'up' }],
+    ['actor', 'nocto_e8b', { sprite: 'nocto', x: B.x + 0.5, y: B.y - 1.5, dir: 'up' }],
     ...N('ノクトは、祭だんの前に立ち、手の紋章をかざした――'),
     ['sfx', 'dark'], ['flash'],
     ...N('ノクトの紋章から、黒い光があふれ出す…！', '祭だんの大地の守り星が、ノクトの手の中へ、すいこまれていった…！'),

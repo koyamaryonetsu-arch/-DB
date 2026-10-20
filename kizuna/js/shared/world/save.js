@@ -5,18 +5,19 @@
 // ・知らない 項目や 知らない 品物・職業・モンスターは けさずに とっておく（stash）。
 //   あとで その ゲームが 知っている ものに なったら もとに もどす
 // ・品物・職業・モンスター・マップの ID は けさない・なまえを かえない
-import { ITEMS, SLOTS } from '../data/items.js?v=661924ced2fb';
-import { JOBS } from '../data/jobs.js?v=661924ced2fb';
-import { MONSTERS } from '../data/monsters.js?v=661924ced2fb';
-import { migrateJobs, oldComboUnlocks, addItem, fixBodyJob } from '../stats.js?v=661924ced2fb';
-import { repairTreasureMaps } from '../data/treasure.js?v=661924ced2fb';
-import { ensureTmClears } from '../data/casino-tier.js?v=661924ced2fb';
-import { repairSecret } from '../data/secret.js?v=661924ced2fb';
-import { repairAlchemy } from './alchemy.js?v=661924ced2fb';
-import { normBank } from './bank.js?v=661924ced2fb';
-import { cleanWagon } from '../data/wagon.js?v=661924ced2fb';
-import { cleanLookEquip } from '../look-equip.js?v=661924ced2fb';
-import { cleanVehicles } from '../data/vehicles.js?v=661924ced2fb';
+import { ITEMS, SLOTS } from '../data/items.js?v=2d8d7ef5c868';
+import { JOBS } from '../data/jobs.js?v=2d8d7ef5c868';
+import { MONSTERS } from '../data/monsters.js?v=2d8d7ef5c868';
+import { migrateJobs, oldComboUnlocks, addItem, fixBodyJob } from '../stats.js?v=2d8d7ef5c868';
+import { repairTreasureMaps } from '../data/treasure.js?v=2d8d7ef5c868';
+import { ensureTmClears } from '../data/casino-tier.js?v=2d8d7ef5c868';
+import { repairSecret } from '../data/secret.js?v=2d8d7ef5c868';
+import { repairAlchemy } from './alchemy.js?v=2d8d7ef5c868';
+import { normBank } from './bank.js?v=2d8d7ef5c868';
+import { cleanWagon } from '../data/wagon.js?v=2d8d7ef5c868';
+import { cleanLookEquip } from '../look-equip.js?v=2d8d7ef5c868';
+import { cleanVehicles } from '../data/vehicles.js?v=2d8d7ef5c868';
+import { repairTrialInfo } from '../data/job-trials.js?v=2d8d7ef5c868';
 
 export const SAVE_VERSION = 4;
 
@@ -148,6 +149,9 @@ export function repairChar(c, id) {
     }
     c.jobs = obj(c.jobs);
     if (!c.jobs[c.job]) c.jobs[c.job] = { lv: 1, b: 0 };
+    // 第38回 B: 職業レベルの 上限と 職業の試練の 項目（tr・tq・tn。古い セーブには ない。版は 上げない。data/job-trials.js）
+    // （職業レベルが 1〜20 だった とても 古い しくみ〈jobSys が 2 で ない〉は、あとの migrateJobs が 1〜10 に なおす ので さわらない）
+    if (c.jobSys === 2) for (const [jid, info] of Object.entries(c.jobs)) if (known(JOBS, jid) && info && typeof info === 'object') repairTrialInfo(jid, info);
   }
 
   // 仲間（知らない モンスターは しまう）

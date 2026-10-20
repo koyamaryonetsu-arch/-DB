@@ -2,20 +2,20 @@
 // みため（かみがた・いろ）と そうび（ぶき・よろい・たて・かぶと）で かわる
 // 人は 32×42 で くみたてて、2ばいの 64×84 に して こまかく かきたす（res 4: せかいでは 16×21 の 大きさに かく）
 // どうぶつ・船は 16×21 など
-import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=661924ced2fb';
-import { ITEMS, baseItemId } from '../../shared/data/items.js?v=661924ced2fb';
-import { STARTER_EQUIP } from '../../shared/stats.js?v=661924ced2fb';
-import { paintMiraPrison, paintWaterStar } from './temple-chars.js?v=661924ced2fb';
-import { LAB_NPC_LOOKS } from './lab-art.js?v=661924ced2fb';
-import { paintCh5Special } from './ch5-art.js?v=661924ced2fb';
-import { KUMOI_NPC_LOOKS, drawWings } from './ch5-kumoi-art.js?v=661924ced2fb';
-import { HOSHIYOMI_NPC_LOOKS } from './ch5-hoshiyomi-art.js?v=661924ced2fb';
-import { TOP_NPC_LOOKS } from './ch5-top-art.js?v=661924ced2fb';
-import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js?v=661924ced2fb';
-import { R26_OLD_LOOK } from './hero-r26.js?v=661924ced2fb';
-import { R27_OLD_LOOK } from './hero-r27.js?v=661924ced2fb';
-import { R29_OLD_LOOK } from './hero-r29.js?v=661924ced2fb';
-import { R33_OLD_LOOK, masc33 } from './hero-r33.js?v=661924ced2fb';
+import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=2d8d7ef5c868';
+import { ITEMS, baseItemId } from '../../shared/data/items.js?v=2d8d7ef5c868';
+import { STARTER_EQUIP } from '../../shared/stats.js?v=2d8d7ef5c868';
+import { paintMiraPrison, paintWaterStar } from './temple-chars.js?v=2d8d7ef5c868';
+import { LAB_NPC_LOOKS } from './lab-art.js?v=2d8d7ef5c868';
+import { paintCh5Special } from './ch5-art.js?v=2d8d7ef5c868';
+import { KUMOI_NPC_LOOKS, drawWings } from './ch5-kumoi-art.js?v=2d8d7ef5c868';
+import { HOSHIYOMI_NPC_LOOKS } from './ch5-hoshiyomi-art.js?v=2d8d7ef5c868';
+import { TOP_NPC_LOOKS } from './ch5-top-art.js?v=2d8d7ef5c868';
+import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js?v=2d8d7ef5c868';
+import { R26_OLD_LOOK } from './hero-r26.js?v=2d8d7ef5c868';
+import { R27_OLD_LOOK } from './hero-r27.js?v=2d8d7ef5c868';
+import { R29_OLD_LOOK } from './hero-r29.js?v=2d8d7ef5c868';
+import { R33_OLD_LOOK, masc33 } from './hero-r33.js?v=2d8d7ef5c868';
 
 export const CW = 16;
 export const CH = 21;
@@ -248,6 +248,8 @@ const NPC_LOOKS = {
   woman: { hair: 1, hairStyle: 'bun', skin: 0, outfit: 'dress', cloth: '#2aa0a0', female: true },
   mayor: { hair: 5, hairStyle: 'bald', skin: 0, outfit: 'robe', robeMain: '#c83a3a', robeTrim: '#f2c14e', beard: true },
   sage: { hair: 5, hairStyle: 'long', skin: 0, outfit: 'robe', robeMain: '#3a4a8a', robeTrim: '#f2c14e', beard: true, hat: 'wizard', hatColor: '#3a4a8a', cane: true },
+  // 第38回 B: 試練の番人（星の神殿。むらさきの よろいと 金の かぶと・やり。白い ひげ）
+  trial_keeper: { hair: 5, hairStyle: 'short', skin: 1, outfit: 'armor', cloth: '#6a4a9a', beard: true, hat: 'helmet', hatColor: '#d8b040', spear: true, cape: '#3a2a5a' },
   bartender: { hair: 0, hairStyle: 'short', skin: 1, outfit: 'vest', cloth: '#2d2330', beard: true },
   carpenter: { hair: 1, hairStyle: 'short', skin: 1, outfit: 'tunic', cloth: '#b8773a', hat: 'bandana', hatColor: '#3f7fd0', beard: true },
   cook: { hair: 1, hairStyle: 'short', skin: 0, outfit: 'apron', cloth: '#f4f4f4', hat: 'chef' },

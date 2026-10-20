@@ -1,23 +1,23 @@
 // マップの ぜんたい（フィールド・どうくつ）と、そこに いる 人や たからばこ
-import { T, parseRows, TILE_INFO } from '../tiles.js?v=661924ced2fb';
-import { makeRng, hash2 } from '../rng.js?v=661924ced2fb';
-import { buildOverworld, PLACES, zoneAt, areaName, OW_W, OW_H, CAVE_ENTRANCE, FOREST_CLEARING, LAKE, SWAMP } from './overworld.js?v=661924ced2fb';
-import { CAVE_B1_ROWS, CAVE_B2_ROWS } from './cave-rows.js?v=661924ced2fb';
-import { npc } from './npc.js?v=661924ced2fb';
-import { buildCh2Maps, SEA_PLACES } from './ch2.js?v=661924ced2fb';
-import { buildTreasureFloor } from './treasure-cave.js?v=661924ced2fb';
-import { buildSecretFloor, buildSecretMaps, SD_DOOR_NPCS, SD_DOOR_TRIGGERS, SD_DOOR_SIGNS } from './secret-dungeon.js?v=661924ced2fb';
-import { addNightNpcs } from './night-npcs.js?v=661924ced2fb';
-import { attachCasino } from './casino.js?v=661924ced2fb';
-import { buildCh3Maps, ch3SearchMats, NORTH_SPARKLE_LOOT } from './ch3.js?v=661924ced2fb';
-import { buildCh4Maps, ch4SearchMats, SOUTH_SPARKLE_LOOT } from './ch4.js?v=661924ced2fb';
-import { attachLab } from './labyrinth.js?v=661924ced2fb';
-import { attachTower } from './tower.js?v=661924ced2fb';
-import { attachKumoi } from './kumoi.js?v=661924ced2fb';
-import { attachHoshiyomi } from './hoshiyomi.js?v=661924ced2fb';
-import { attachEarth } from './earth.js?v=661924ced2fb';
-import { attachCastle } from './castle.js?v=661924ced2fb';
-import { attachCastleTop } from './castle-top.js?v=661924ced2fb';
+import { T, parseRows, TILE_INFO } from '../tiles.js?v=2d8d7ef5c868';
+import { makeRng, hash2 } from '../rng.js?v=2d8d7ef5c868';
+import { buildOverworld, PLACES, zoneAt, areaName, OW_W, OW_H, CAVE_ENTRANCE, FOREST_CLEARING, LAKE, SWAMP } from './overworld.js?v=2d8d7ef5c868';
+import { CAVE_B1_ROWS, CAVE_B2_ROWS } from './cave-rows.js?v=2d8d7ef5c868';
+import { npc } from './npc.js?v=2d8d7ef5c868';
+import { buildCh2Maps, SEA_PLACES } from './ch2.js?v=2d8d7ef5c868';
+import { buildTreasureFloor } from './treasure-cave.js?v=2d8d7ef5c868';
+import { buildSecretFloor, buildSecretMaps, SD_DOOR_NPCS, SD_DOOR_TRIGGERS, SD_DOOR_SIGNS } from './secret-dungeon.js?v=2d8d7ef5c868';
+import { addNightNpcs } from './night-npcs.js?v=2d8d7ef5c868';
+import { attachCasino } from './casino.js?v=2d8d7ef5c868';
+import { buildCh3Maps, ch3SearchMats, NORTH_SPARKLE_LOOT } from './ch3.js?v=2d8d7ef5c868';
+import { buildCh4Maps, ch4SearchMats, SOUTH_SPARKLE_LOOT } from './ch4.js?v=2d8d7ef5c868';
+import { attachLab } from './labyrinth.js?v=2d8d7ef5c868';
+import { attachTower } from './tower.js?v=2d8d7ef5c868';
+import { attachKumoi } from './kumoi.js?v=2d8d7ef5c868';
+import { attachHoshiyomi } from './hoshiyomi.js?v=2d8d7ef5c868';
+import { attachEarth } from './earth.js?v=2d8d7ef5c868';
+import { attachCastle } from './castle.js?v=2d8d7ef5c868';
+import { attachCastleTop } from './castle-top.js?v=2d8d7ef5c868';
 
 const V = (x, y) => [PLACES.village.x + x, PLACES.village.y + y];
 const TW = (x, y) => [PLACES.town.x + x, PLACES.town.y + y];
@@ -65,6 +65,8 @@ const OVERWORLD_NPCS = [
   npc('mayor', '町長ゴードン', TW(7, 4), 'mayor', 'mayor'),
   npc('priestess', '神官セレナ', TW(23, 5), 'priestess', 'job_change'),
   npc('sage', 'ひらめきの賢者', TW(20, 7), 'sage', 'sage'),
+  // 第38回 B: 職業の試練（超級職から。data/story-trials.js・world/job-trials.js）
+  npc('trial_keeper', '試練の番人', TW(27, 7), 'trial_keeper', 'trial_keeper'),
   npc('bartender', '酒場のマスター', TW(38, 3), 'bartender', 'tavern'),
   npc('weapon_keeper', '武器屋のおやじ', TW(6, 13), 'merchant', 'shop_weapon'),
   npc('armor_keeper', '防具屋のおねえさん', TW(6, 22), 'woman', 'shop_armor'),

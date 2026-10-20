@@ -8,10 +8,10 @@
 //   谷へ 落ちたら もとに もどす 石板で はじめの 場所へ（倉庫番の ように もどせなく ならない）。位置は フラグ（c5_e<階>_g<番>）
 // ・みちびきの糸・リレミトは 使える（1階の 入口 → 根の島）。魔物は 1〜4階 t5_earth_up・5〜8階 t5_earth_low（B が 作る。plan-ch5.md の 16）
 // クモイ地方の 根の島（外がわ）は maps/kumoi.js（この ファイルの EARTH_OUT を 使う）。だいほんは data/story-earth.js
-import { T, parseRows } from '../tiles.js?v=661924ced2fb';
-import { npc } from './npc.js?v=661924ced2fb';
-import { EARTH_ROWS } from './earth-rows.js?v=661924ced2fb';
-import { EARTH_TREASURE } from '../data/items-earth.js?v=661924ced2fb';
+import { T, parseRows } from '../tiles.js?v=2d8d7ef5c868';
+import { npc } from './npc.js?v=2d8d7ef5c868';
+import { EARTH_ROWS, EARTH_W, EARTH_H, EARTH_OX, EARTH_OY } from './earth-rows.js?v=2d8d7ef5c868';
+import { EARTH_TREASURE } from '../data/items-earth.js?v=2d8d7ef5c868';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 // 物語の すすみぐあい（data/story-ch5.js の CH5_STEPS の c5_nocto の うしろ。plan-ch5.md の 16 の 名前の 約束）
@@ -22,6 +22,7 @@ export const JAR = (n, k) => `c5_e${n}_j${k}`; // その 階の 水がめ k に 
 export const GOLEM_AT = (n, i) => `c5_e${n}_g${i}`; // ゴーレムが 道の i ばんめに いる（0 … はじめの 場所。フラグ なし）
 export const GOLEM_LOST = (n) => `c5_e${n}_glost`; // ゴーレムが 谷へ 落ちた（もとに もどす 石板で もどる）
 export const PIT_FLAG = 'c5_e3_fill'; // 3階の あなを ゴーレムが うめた
+export const PIT4_FLAG = 'c5_e4_fill'; // 4階の 守り手の 小べやの あなを ゴーレムが うめた（第38回で ひろげた ところ）
 export const LIFT_FLAG = 'c5_e_lift'; // 5階の 上り下りの ゆかが 直った（1階 ⇔ 5階の 近道）
 export const DROP_FLAG = 'c5_e_drop'; // 6階の ゴーレムを 根の すきまから 落とした（7階の 足場）
 export const SWITCH_WAIT = { a: 'c5_e4_wait_a', b: 'c5_e4_wait_b' }; // 4階: 仲間が ふむ石の 上で 待っている（ひとりの とき）
@@ -33,6 +34,8 @@ export const GATHER_FLAG = (k) => `c5_g_${k}`;
 
 // ───────────── マップの ID・名前 ─────────────
 export const EARTH_FLOORS = 8;
+// レイアウトの 版（第38回で 階を ひろげた。world/world.js の posOf・layoutFix が 見る）
+export const EARTH_LAYOUT_VER = 38;
 export const earthMapId = (n) => `earth_${n}f`;
 export const EARTH_MAPS = Array.from({ length: EARTH_FLOORS }, (_, i) => earthMapId(i + 1));
 export const EARTH_NAMES = ['', ...Array.from({ length: EARTH_FLOORS }, (_, i) => `大地の神殿　${i + 1}階`)];
@@ -67,6 +70,9 @@ export function cellsOf(rows, chars) {
   return out;
 }
 const one = (rows, ch) => cellsOf(rows, [ch])[0] || null;
+// もとの 階（ひろげる 前。28×20）の 座標 → 今の 紙の 座標（maps/earth-rows.js の EARTH_OX・EARTH_OY）
+export const eo = (x, y) => ({ x: x + EARTH_OX, y: y + EARTH_OY });
+const eoBox = ([x0, y0, x1, y1]) => [x0 + EARTH_OX, y0 + EARTH_OY, x1 + EARTH_OX, y1 + EARTH_OY];
 const same = (p, q) => p && q && p.x === q.x && p.y === q.y;
 
 // ───────────── 場所（レイアウトから きめる）─────────────
@@ -87,28 +93,29 @@ for (let n = 1; n <= EARTH_FLOORS; n++) {
 }
 EARTH_POS[1].exit = cellsOf(EARTH_ROWS[1], ['X']);
 // 根の島から 入って 着く ところ（1階の 入口の 広間）
-EARTH_POS[1].entry = { x: 13.5, y: 16.5 };
+EARTH_POS[1].entry = eo(13.5, 16.5);
 // 5階: ピピ（根の かべの 前で 動けなく なっている）
-EARTH_POS[5].pipi = { x: 11, y: 5 };
+EARTH_POS[5].pipi = eo(11, 5);
 // 8階: ノクト（祭だんの 前）と、大広間に 入る ところ（トリガー）
-EARTH_POS[8].nocto = { x: 13, y: 6 };
-EARTH_POS[8].trigger = { x: 4, y: 11, w: 20, h: 1 };
+EARTH_POS[8].nocto = eo(13, 6);
+EARTH_POS[8].trigger = { ...eo(4, 11), w: 20, h: 1 };
 // 7階: 大地の こどう（落石）が おきない ところ（はじめの へや・かいだんの まわり。world/tremor.js）
-export const TREMOR_SAFE = [[2, 12, 7, 18], [21, 2, 25, 6]];
+export const TREMOR_SAFE = [[2, 12, 7, 18], [21, 2, 25, 6]].map(eoBox);
 // クモイ地方の 根の島の 神殿（外がわ。maps/kumoi.js が 使う）: 古い 石がこいと 南の 入口。入口は 根が からみついて いて、
 // 長ソラネの 話（c5_root）で ほどける
 export const EARTH_OUT = {
   x: 57, y: 50, w: 6, h: 3, door: { x: 59, y: 52 },
-  inside: { x: 13.5, y: 16.5 }, // 1階の 入口の 広間
+  inside: eo(13.5, 16.5), // 1階の 入口の 広間
   outside: { x: 59.5, y: 53.5 }, // 1階から 出て 着く ところ
 };
 
 // ───────────── 土の守り手（ゴーレム）─────────────
-// dir … むいている 向き（歩く 向き）/ done … やくめを はたした フラグ（3階 … あなを うめた・5階 … 重りの ゆかに のった・6階 … 下の 階へ 落ちた）
+// dir … むいている 向き（歩く 向き）/ done … やくめを はたした フラグ（3階・4階 … あなを うめた・5階 … 重りの ゆかに のった・6階 … 下の 階へ 落ちた）
+//   4階の 守り手は 東の 道の わきの 小べや（あなを うめると おくの 宝箱へ。谷が ないので もとに もどす 石板は ない）
 // drop … 落ちると 下の 階の 足場に なる 根（6階の A）/ plate … のると とまる 重りの ゆか（5階）
 const DV = { N: [0, -1], E: [1, 0], S: [0, 1], W: [-1, 0] };
 // stays … やくめを はたしても その 場に のこる（5階。重りの ゆかの 上）
-const GOLEM_DEF = { 3: { dir: 'S', done: PIT_FLAG }, 5: { dir: 'E', done: LIFT_FLAG, stays: true }, 6: { dir: 'E', done: DROP_FLAG, drop: 'A' } };
+const GOLEM_DEF = { 3: { dir: 'S', done: PIT_FLAG }, 4: { dir: 'S', done: PIT4_FLAG }, 5: { dir: 'E', done: LIFT_FLAG, stays: true }, 6: { dir: 'E', done: DROP_FLAG, drop: 'A' } };
 export const EARTH_GOLEMS = {};
 for (const [k, D] of Object.entries(GOLEM_DEF)) {
   const n = Number(k);
@@ -148,7 +155,7 @@ export function golemCellKind(n, i, has) {
   const G = EARTH_GOLEMS[n];
   const c = G.track[i];
   if (!c) return 'wall';
-  if (c.ch === 'o') return has(PIT_FLAG) ? 'floor' : 'pit';
+  if (c.ch === 'o') return has(G.done) ? 'floor' : 'pit';
   if (c.ch === 'P') return 'plate';
   if (c.ch === '~') return 'gap';
   const open = rootOpen(n, c.ch, has);
@@ -163,9 +170,9 @@ function zoneOf(n) {
   for (const p of [P.up, P.down]) if (p) safe.push([p.x - 2, p.y - 2, p.x + 2, p.y + 2, 'safe:stairs']);
   for (const J of Object.values(P.jars)) for (const c of J.cells) safe.push([c.x - 1, c.y - 1, c.x + 1, c.y + 1, 'safe:jar']);
   for (const p of [P.slab, P.undo, P.switchA, P.switchB, P.lift]) if (p) safe.push([p.x - 1, p.y - 1, p.x + 1, p.y + 1, 'safe:device']);
-  if (n === 1) safe.push([9, 13, 18, 18, 'safe:entry']);
-  if (n === EARTH_REST) safe.push([0, 0, 27, 19, 'safe:rest']); // 休み所の 階は 魔物が 出ない
-  if (n === EARTH_BOSS) safe.push([0, 0, 27, 19, 'safe:boss']);
+  if (n === 1) safe.push([...eoBox([9, 13, 18, 18]), 'safe:entry']);
+  if (n === EARTH_REST) safe.push([0, 0, EARTH_W - 1, EARTH_H - 1, 'safe:rest']); // 休み所の 階は 魔物が 出ない
+  if (n === EARTH_BOSS) safe.push([0, 0, EARTH_W - 1, EARTH_H - 1, 'safe:boss']);
   if (n === TREMOR_FLOOR) for (const [x0, y0, x1, y1] of TREMOR_SAFE) safe.push([x0, y0, x1, y1, 'safe:rest7']);
   const table = earthTable(n);
   const rows = EARTH_ROWS[n];
@@ -177,32 +184,34 @@ function zoneOf(n) {
     return table;
   };
 }
+// 第38回で 階を ひろげた ので、1〜2ひき ふやした（もとは 3・4・4・5・-・4・5・-）
 const SPAWNS = {
-  1: { t5_earth_up: 3 }, 2: { t5_earth_up: 4 }, 3: { t5_earth_up: 4 }, 4: { t5_earth_up: 5 },
-  5: {}, 6: { t5_earth_low: 4 }, 7: { t5_earth_low: 5 }, 8: {},
+  1: { t5_earth_up: 4 }, 2: { t5_earth_up: 5 }, 3: { t5_earth_up: 5 }, 4: { t5_earth_up: 7 },
+  5: {}, 6: { t5_earth_low: 5 }, 7: { t5_earth_low: 7 }, 8: {},
 };
 
 // ───────────── 宝箱（★の 装備は B の EARTH_TREASURE[階]。そのほかは 道具）─────────────
+// 座標は もとの 階の 座標（eo で ずらす）。EXTRA_CHESTS の うしろの ほうは 第38回の わき道の 宝箱（id は じゅんばん。前の ものは かえない）
 const TREASURE_SPOTS = {
   1: [[6, 4], [22, 6]], 2: [[14, 17], [25, 8]], 3: [[13, 1], [4, 16]], 4: [[2, 2], [25, 2]],
   5: [[15, 3], [25, 13]], 6: [[13, 7], [22, 12]], 7: [[10, 9], [25, 2]], 8: [[5, 3], [22, 3]],
 };
 const EXTRA_CHESTS = {
-  1: [{ x: 9, y: 17, item: 'magic_water', n: 2 }],
-  2: [{ x: 16, y: 8, item: 'seed_agi' }],
-  3: [{ x: 25, y: 6, gold: 9600 }],
-  4: [{ x: 6, y: 10, item: 'seed_str' }, { x: 21, y: 10, item: 'revive_flower', n: 2 }],
-  5: [{ x: 16, y: 16, item: 'magic_water', n: 3 }],
-  6: [{ x: 7, y: 7, item: 'seed_def' }],
-  7: [{ x: 13, y: 11, item: 'seed_hp' }],
-  8: [],
+  1: [{ x: 9, y: 17, item: 'magic_water', n: 2 }, { x: -3, y: 4, item: 'seed_hp' }, { x: 26, y: 15, item: 'earth_root', n: 2 }],
+  2: [{ x: 16, y: 8, item: 'seed_agi' }, { x: 26, y: 2, item: 'seed_str' }, { x: 31, y: 10, item: 'earth_root', n: 2 }],
+  3: [{ x: 25, y: 6, gold: 9600 }, { x: 8, y: 21, item: 'seed_agi' }, { x: 31, y: 5, item: 'magic_water', n: 2 }],
+  4: [{ x: 6, y: 10, item: 'seed_str' }, { x: 21, y: 10, item: 'revive_flower', n: 2 }, { x: 31, y: 16, item: 'seed_def' }, { x: -3, y: 21, item: 'earth_stone', n: 2 }],
+  5: [{ x: 16, y: 16, item: 'magic_water', n: 3 }, { x: 25, y: 19, item: 'revive_flower', n: 2 }],
+  6: [{ x: 7, y: 7, item: 'seed_def' }, { x: 16, y: 1, item: 'seed_hp' }, { x: 30, y: 15, item: 'earth_stone', n: 2 }],
+  7: [{ x: 13, y: 11, item: 'seed_hp' }, { x: 26, y: 9, gold: 12000 }, { x: 1, y: 1, item: 'earth_root', n: 2 }],
+  8: [{ x: 1, y: 14, item: 'magic_water', n: 3 }],
 };
 export function earthChests(n) {
-  const list = (EARTH_TREASURE[n] || []).slice(0, TREASURE_SPOTS[n].length).map((item, i) => ({ id: `e5_${n}${'ab'[i]}`, x: TREASURE_SPOTS[n][i][0], y: TREASURE_SPOTS[n][i][1], item }));
-  return [...list, ...EXTRA_CHESTS[n].map((c, i) => ({ id: `e5_${n}x${i}`, ...c }))];
+  const list = (EARTH_TREASURE[n] || []).slice(0, TREASURE_SPOTS[n].length).map((item, i) => ({ id: `e5_${n}${'ab'[i]}`, ...eo(...TREASURE_SPOTS[n][i]), item }));
+  return [...list, ...EXTRA_CHESTS[n].map((c, i) => ({ id: `e5_${n}x${i}`, ...c, ...eo(c.x, c.y) }))];
 }
 
-const SIGNS = {
+const SIGNS0 = {
   1: [{ x: 17, y: 13, text: '石の文字ばんに、こう書いてある。\n「大地の神殿。\n根は、大地の守り星の光をすって、島々を空にささえる。\n根の水がめに水をそそげば、根は道をつくる」' }],
   2: [{ x: 2, y: 8, text: '石の文字ばんに、こう書いてある。\n「根は、水をわけあう。\nひとつがのびれば、ひとつがちぢむ」' }],
   3: [{ x: 2, y: 6, text: '石の文字ばんに、こう書いてある。\n「土の守り手は、石板の声にしたがい、前へ一歩ずつ歩む。\n守り手は、ふり返らない」' }],
@@ -210,6 +219,8 @@ const SIGNS = {
   6: [{ x: 2, y: 7, text: '石の文字ばんに、こう書いてある。\n「根がちぢめば、上のものは下へ落ちる。\n落ちた守り手は、下の階で、道をささえる」' }],
   7: [{ x: 2, y: 13, text: '石の文字ばんに、こう書いてある。\n「大地は、ときどき、こどうする。\nふるえを感じたら、足を止めよ」' }],
 };
+
+const SIGNS = Object.fromEntries(Object.entries(SIGNS0).map(([n, l]) => [n, l.map((g) => ({ ...g, ...eo(g.x, g.y) }))]));
 
 // かいだんの となりの 歩ける マス（下 → 左 → 右 → 上の じゅん）
 const WALK = new Set(['.', 'G', 'x', 'y']);
@@ -264,7 +275,7 @@ function addGolem(m, n) {
     if (roots.has(`${c.x},${c.y}`)) return; // 根の マスは addRoots
     if (c.ch === '~') return; // 谷には 立たない（落ちる）
     if (c.ch === 'o') {
-      m.gates.push({ x: c.x, y: c.y, closed: T.EARTH_PIT, levels: [[PIT_FLAG, T.GOLEM_FILL]] });
+      m.gates.push({ x: c.x, y: c.y, closed: T.EARTH_PIT, levels: [[G.done, T.GOLEM_FILL]] });
       return;
     }
     const base = c.ch === 'P' ? T.WEIGHT : T.CAVE_FLOOR;
@@ -290,6 +301,9 @@ function earthMap(n) {
     earthFloor: n,
     zoneAt: zoneOf(n),
     spawnCounts: SPAWNS[n],
+    // レイアウトの 版（第38回で ひろげた。前の 版の セーブの 場所は その 階の 着く ところへ。world/world.js の layoutFix）
+    layoutVer: EARTH_LAYOUT_VER,
+    layoutArrive: (({ x, y, dir }) => ({ x, y, dir }))(earthArrive(n)),
   };
   for (const s of m.signs) m.tiles[s.y * m.w + s.x] = T.SIGN;
   const P = EARTH_POS[n];

@@ -15,8 +15,8 @@
 // 職業レベルは「たたかいに かった かず」で あがる（けいけんちとは べつ）。
 // 1回の こうどうで おわって しまう（ワンパンチの）たたかいは、しゅぎょうが はんぶんしか すすまない。
 
-import { applyField27Learn } from './abilities-field27.js?v=661924ced2fb';
-import { JOB_TAGS } from './job-tags.js?v=661924ced2fb';
+import { applyField27Learn } from './abilities-field27.js?v=2d8d7ef5c868';
+import { JOB_TAGS } from './job-tags.js?v=2d8d7ef5c868';
 export const JOB_MAX_LEVEL = 10;
 // ワンパンチで おわった（なかまの 1回めの こうどうで かった）たたかいの しゅぎょうの わりあい。ほかの たたかいは まるごと 1回ぶん
 export const JOB_EASY_RATE = 0.5;
@@ -1185,13 +1185,17 @@ export const TIER_NAMES = ['基本職', '上級職', '超級職', '伝説の職�
 export const TIER_ORDERS = [JOB_ORDER, ADVANCED_ORDER, SUPER_ORDER, LEGEND_ORDER];
 
 // 職業レベルに ひつような たたかいの かず（るいけい。上級・超級は すこし おおい）
+// 第38回 B: 超級職・伝説の職業は 職業の試練で Lv10 より 上（JOB_TOP_LEVEL まで）。Lv11 からも つづき（1つごとに 24・26・28…回 ふえる）
+// JOB_MAX_LEVEL（10）は「マスター」の レベルの まま（なる ための じょうけん・ペナルティが 軽い・ひらめき など）。上限は data/job-trials.js
+export const JOB_TOP_LEVEL = 20;
 const BATTLES = [0, 3, 7, 13, 21, 31, 43, 58, 76, 98];
+for (let lv = BATTLES.length + 1; lv <= JOB_TOP_LEVEL; lv++) BATTLES.push(BATTLES[lv - 2] + 2 * (lv - 10) + 22);
 const TIER_MULT = [1, 1.4, 1.8, 2.2];
 // 職業レベルの 上がりにくさ（1.4 … はじめの 版の 1.4倍 たたかう ひつようが ある）。上がった レベルは そのまま
 export const JOB_RATE = 1.4;
 export function jobBattlesForLevel(lv, tier = 0) {
   if (lv <= 1) return 0;
-  return Math.round(BATTLES[Math.min(JOB_MAX_LEVEL, lv) - 1] * (TIER_MULT[tier] || 1) * JOB_RATE);
+  return Math.round(BATTLES[Math.min(JOB_TOP_LEVEL, lv) - 1] * (TIER_MULT[tier] || 1) * JOB_RATE);
 }
 
 // なる ための じょうけんの くみあわせ（req と reqAlt。どれか 1つを ぜんぶ マスターすれば なれる）

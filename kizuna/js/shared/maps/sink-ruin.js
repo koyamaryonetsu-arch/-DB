@@ -8,16 +8,18 @@
 // ・縄ばしご … 5階の まるめた 縄ばしごを 上の たて穴へ かけると、2階 ⇔ 5階を 行き来できる（下から 開く 近道）
 // ・みちびきの糸・リレミトは 使える（クモイ地方の しずみゆく島の 入口へ）。魔物は 1〜3階 t5_ruin_up・4〜7階 t5_ruin_low、
 //   雲の 中は t5_ruin_cloud（B が 作る。plan-ch5.md の 13）
-import { T, parseRows } from '../tiles.js?v=661924ced2fb';
-import { npc } from './npc.js?v=661924ced2fb';
-import { RUIN_ROWS } from './sink-ruin-rows.js?v=661924ced2fb';
-import { RUIN_TREASURE } from '../data/items-kumoi.js?v=661924ced2fb';
+// ・第38回 A: 1〜7階を 広げた（わき道・宝の へや・見晴らしの 露台。4階に しなくても よい 重さの てんびんの 宝物庫）。
+//   形の 版は RUIN_LAYOUT（古い セーブで 階の 中に いた 人は その 階の 着く 所へ。world.js の layoutFix）
+import { T, parseRows } from '../tiles.js?v=2d8d7ef5c868';
+import { npc } from './npc.js?v=2d8d7ef5c868';
+import { RUIN_ROWS } from './sink-ruin-rows.js?v=2d8d7ef5c868';
+import { RUIN_TREASURE } from '../data/items-kumoi.js?v=2d8d7ef5c868';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 export const RUIN_FLOORS = 7;
 export const RF = (n) => `c5_rf${n}`; // その 階に 来た（目標が かわる）
 export const TILT_FLAGS = { f2: 'c5_r_tilt2', f3: 'c5_r_tilt3', f5: 'c5_r_tilt5' }; // かたむきの石で 東へ かたむけた（もう 1回 おすと 西へ）
-export const SCALE_FLAGS = { f3: 'c5_r_scale3', f6: 'c5_r_scale6' }; // てんびんが つりあって とびらが 開いた
+export const SCALE_FLAGS = { f3: 'c5_r_scale3', f6: 'c5_r_scale6', f4: 'c5_r_scale4' }; // てんびんが つりあって とびらが 開いた（f4 … 4階の 宝物庫。しなくても よい）
 export const LADDER_FLAG = 'c5_r_ladder'; // 縄ばしごを かけた（2階 ⇔ 5階）
 
 // ───────────── マップの ID ─────────────
@@ -27,6 +29,8 @@ export const RUIN_NAMES = ['', ...Array.from({ length: RUIN_FLOORS }, (_, i) => 
 // 階の 見どころ（地図・テスト・README）
 export const RUIN_SIGHTS = ['', '入口と大地の守り星のかべ画', 'かたむくゆか（岩がころがる）', '重さのてんびん（岩と人）', '休み所', '水が流れるゆかと縄ばしご', 'はなれた重さのてんびん', '島の根の間'];
 export const RUIN_REST = 4;
+// マップの 形の 版（第38回 A で 1〜7階を 広げた。world.js の posOf・layoutFix）
+export const RUIN_LAYOUT = 38;
 // 出現表（B が 作る）と 色
 export const ruinTable = (n) => (n <= 3 ? 't5_ruin_up' : 't5_ruin_low');
 export const RUIN_CLOUD_TABLE = 't5_ruin_cloud';
@@ -67,7 +71,7 @@ RUIN_POS[2].shaft = one(RUIN_ROWS[2], 'H');
 RUIN_POS[5].coil = one(RUIN_ROWS[5], 'h');
 RUIN_POS[4].books = cellsOf(RUIN_ROWS[4], ['k']);
 RUIN_POS[7].gaia = { x: 14.5, y: 12 };
-RUIN_POS[7].trigger = { x: 4, y: 8, w: 22, h: 1 };
+RUIN_POS[7].trigger = { x: 3, y: 8, w: 24, h: 1 }; // 大広間の はしから はしまで（東の 根の へやへも ここを 通る）
 // 縄ばしごで 着く ところ（たて穴・縄ばしごの となり）
 RUIN_POS[2].ladderOut = { x: RUIN_POS[2].shaft.x + 1, y: RUIN_POS[2].shaft.y };
 RUIN_POS[5].ladderOut = { x: RUIN_POS[5].coil.x - 1, y: RUIN_POS[5].coil.y };
@@ -89,7 +93,11 @@ function scaleOf(n, flag, rock) {
     floor: n, map: ruinMapId(n), flag, a: one(rows, 'q') || one(rows, 'a'), b: one(rows, 'b'), beam: one(rows, 'Z'), door: cellsOf(rows, ['|']), rock: rock || null,
   };
 }
-export const SCALES = { f3: scaleOf(3, SCALE_FLAGS.f3, TILT_FLAGS.f3), f6: scaleOf(6, SCALE_FLAGS.f6, null) };
+export const SCALES = {
+  f3: scaleOf(3, SCALE_FLAGS.f3, TILT_FLAGS.f3), f6: scaleOf(6, SCALE_FLAGS.f6, null),
+  // 4階の 休み所の 東の てんびんの 間（宝物庫。先へ 進むのに いらない。目標の しるしも なし）
+  f4: { ...scaleOf(4, SCALE_FLAGS.f4, null), optional: true },
+};
 
 // ───────────── 魔物の 出ない ところ・雲 ─────────────
 function zoneOf(n, tiles, w) {
@@ -97,7 +105,7 @@ function zoneOf(n, tiles, w) {
   const safe = [];
   for (const p of [P.up, P.down]) if (p) safe.push([p.x - 2, p.y - 2, p.x + 2, p.y + 2, 'safe:stairs']);
   if (n === 1) safe.push([11, 15, 18, 21, 'safe:entry']);
-  if (n === RUIN_REST) safe.push([0, 0, 29, 21, 'safe:rest']); // 休み所の 階は 魔物が 出ない
+  if (n === RUIN_REST) safe.push([0, 0, w - 1, tiles.length / w - 1, 'safe:rest']); // 休み所の 階は 魔物が 出ない
   if (n === RUIN_FLOORS) safe.push([3, 7, 26, 20, 'safe:gaia']);
   if (P.lever) safe.push([P.lever.x - 1, P.lever.y - 1, P.lever.x + 1, P.lever.y + 1, 'safe:lever']);
   const table = ruinTable(n);
@@ -107,9 +115,10 @@ function zoneOf(n, tiles, w) {
     return table;
   };
 }
+// 第38回 A: 広げた ぶん 少し ふやした（前は 1: 4・2: 5・3: 5・5: 4＋2・6: 3＋3）
 const SPAWNS = {
-  1: { t5_ruin_up: 4 }, 2: { t5_ruin_up: 5 }, 3: { t5_ruin_up: 5 }, 4: {},
-  5: { t5_ruin_low: 4, t5_ruin_cloud: 2 }, 6: { t5_ruin_low: 3, t5_ruin_cloud: 3 }, 7: {},
+  1: { t5_ruin_up: 6 }, 2: { t5_ruin_up: 7 }, 3: { t5_ruin_up: 7 }, 4: {},
+  5: { t5_ruin_low: 5, t5_ruin_cloud: 3 }, 6: { t5_ruin_low: 4, t5_ruin_cloud: 5 }, 7: {},
 };
 const SKY3D = { sky_ruin: { bg: '#2e2c28', fog: 0x2e2c28 }, sky_ruin_mid: { bg: '#24262e', fog: 0x24262e }, sky_ruin_deep: { bg: '#3a4254', fog: 0x5a6478 } };
 
@@ -118,14 +127,15 @@ const TREASURE_SPOTS = {
   1: [[5, 7], [25, 16]], 2: [[28, 7], [20, 20]], 3: [[2, 10], [24, 13]], 4: [[4, 17], [26, 6]],
   5: [[27, 2], [19, 19]], 6: [[27, 3], [2, 14]], 7: [[4, 17], [25, 17]],
 };
+// 2つ目から うしろは 第38回 A の わき道の 宝箱（前からの 宝の 表の 品と、神殿の 魔物の 素材）
 const EXTRA_CHESTS = {
-  1: [{ x: 21, y: 3, item: 'magic_water', n: 2 }],
-  2: [{ x: 3, y: 5, item: 'seed_hp' }],
-  3: [{ x: 11, y: 20, gold: 7000 }],
-  4: [{ x: 25, y: 18, item: 'revive_flower', n: 2 }],
-  5: [{ x: 2, y: 16, item: 'seed_str' }],
-  6: [{ x: 27, y: 14, item: 'magic_water', n: 3 }],
-  7: [],
+  1: [{ x: 21, y: 3, item: 'magic_water', n: 2 }, { x: 38, y: 6, item: 'cloud_cotton', n: 3 }, { x: 3, y: 2, item: 'seed_mag' }],
+  2: [{ x: 3, y: 5, item: 'seed_hp' }, { x: 38, y: 3, item: 'magic_water', n: 2 }, { x: 17, y: 25, gold: 6000 }],
+  3: [{ x: 11, y: 20, gold: 7000 }, { x: 37, y: 6, item: 'seed_def' }, { x: 18, y: 25, item: 'land_shard', n: 3 }],
+  4: [{ x: 25, y: 18, item: 'revive_flower', n: 2 }, { x: 34, y: 17, item: 'seed_hp' }, { x: 35, y: 17, item: 'seed_agi' }, { x: 3, y: 22, item: 'magic_water', n: 2 }],
+  5: [{ x: 2, y: 16, item: 'seed_str' }, { x: 38, y: 2, item: 'magic_water', n: 2 }, { x: 36, y: 20, item: 'land_shard', n: 3 }, { x: 11, y: 23, gold: 8000 }],
+  6: [{ x: 27, y: 14, item: 'magic_water', n: 3 }, { x: 39, y: 2, item: 'seed_agi' }, { x: 4, y: 25, item: 'cloud_cotton', n: 3 }, { x: 29, y: 25, gold: 9000 }],
+  7: [{ x: 3, y: 2, item: 'seed_str' }, { x: 38, y: 17, item: 'land_shard', n: 5 }],
 };
 export function ruinChests(n) {
   const list = (RUIN_TREASURE[n] || []).slice(0, TREASURE_SPOTS[n].length).map((item, i) => ({ id: `r5_${n}${'ab'[i]}`, x: TREASURE_SPOTS[n][i][0], y: TREASURE_SPOTS[n][i][1], item }));
@@ -164,6 +174,9 @@ function ruinMap(n) {
     ruinFloor: n,
     zoneAt: zoneOf(n, t.tiles, t.w),
     spawnCounts: SPAWNS[n],
+    // 形の 版と 着く 所（古い セーブで この 階の 中に いた 人を 移す 先。1階は 外からの 入口、ほかは 上からの かいだんの 下）
+    layoutVer: RUIN_LAYOUT,
+    layoutArrive: n === 1 ? { ...RUIN_OUT.inside, dir: 'up' } : { x: RUIN_POS[n].up.x + 0.5, y: RUIN_POS[n].up.y + 1.5, dir: 'down' },
   };
   for (const s of m.signs) m.tiles[s.y * m.w + s.x] = T.SIGN;
   const P = RUIN_POS[n];
@@ -228,6 +241,7 @@ export function buildRuinMaps() {
   // 重さの てんびん（3階・6階）
   addScale(maps[ruinMapId(3)], 'f3');
   addScale(maps[ruinMapId(6)], 'f6');
+  addScale(maps[ruinMapId(4)], 'f4');
   // 縄ばしご（2階の たて穴 ⇔ 5階の まるめた 縄ばしご。5階で かけると つながる）
   const f2 = maps[ruinMapId(2)], f5 = maps[ruinMapId(5)];
   const H = RUIN_POS[2].shaft, C = RUIN_POS[5].coil;

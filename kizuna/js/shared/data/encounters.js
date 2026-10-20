@@ -2,20 +2,22 @@
 // group: [[モンスターID, 最小数, 最大数], ...]
 // フィールドでは 先頭の モンスターの すがたで うろうろしている（シンボルエンカウント）
 
-import { ENCOUNTERS_CH2, FIXED_CH2, ZONE_BG_CH2 } from './encounters-ch2.js?v=661924ced2fb';
-import { NIGHT_ENCOUNTERS, NIGHT_ZONE_BG, NIGHT_ZONES } from './night.js?v=661924ced2fb';
-import { ENCOUNTERS_CH3, FIXED_CH3, ZONE_BG_CH3 } from './encounters-ch3.js?v=661924ced2fb';
-import { ENCOUNTERS_CH4, FIXED_CH4, ZONE_BG_CH4, NIGHT_ZONES_CH4 } from './encounters-ch4.js?v=661924ced2fb';
-import { ENCOUNTERS_TEMPLE, FIXED_TEMPLE, ZONE_BG_TEMPLE } from './encounters-temple.js?v=661924ced2fb';
-import { ENCOUNTERS_LAB, FIXED_LAB, ZONE_BG_LAB } from './encounters-lab.js?v=661924ced2fb';
-import { ENCOUNTERS_CH5, FIXED_CH5, ZONE_BG_CH5 } from './encounters-ch5.js?v=661924ced2fb';
-import { ENCOUNTERS_KUMOI, FIXED_KUMOI, ZONE_BG_KUMOI } from './encounters-kumoi.js?v=661924ced2fb';
-import { ENCOUNTERS_HOSHIYOMI, FIXED_HOSHIYOMI, ZONE_BG_HOSHIYOMI } from './encounters-hoshiyomi.js?v=661924ced2fb';
-import { ENCOUNTERS_EARTH, FIXED_EARTH, ZONE_BG_EARTH } from './encounters-earth.js?v=661924ced2fb';
-import { FIXED_FINAL } from './encounters-final.js?v=661924ced2fb';
-import { ENCOUNTERS_PHANTOM, FIXED_PHANTOM, ZONE_BG_PHANTOM } from './encounters-phantom.js?v=661924ced2fb';
+import { ENCOUNTERS_CH2, FIXED_CH2, ZONE_BG_CH2 } from './encounters-ch2.js?v=2d8d7ef5c868';
+import { NIGHT_ENCOUNTERS, NIGHT_ZONE_BG, NIGHT_ZONES } from './night.js?v=2d8d7ef5c868';
+import { ENCOUNTERS_CH3, FIXED_CH3, ZONE_BG_CH3 } from './encounters-ch3.js?v=2d8d7ef5c868';
+import { ENCOUNTERS_CH4, FIXED_CH4, ZONE_BG_CH4, NIGHT_ZONES_CH4 } from './encounters-ch4.js?v=2d8d7ef5c868';
+import { ENCOUNTERS_TEMPLE, FIXED_TEMPLE, ZONE_BG_TEMPLE } from './encounters-temple.js?v=2d8d7ef5c868';
+import { ENCOUNTERS_LAB, FIXED_LAB, ZONE_BG_LAB } from './encounters-lab.js?v=2d8d7ef5c868';
+import { ENCOUNTERS_CH5, FIXED_CH5, ZONE_BG_CH5 } from './encounters-ch5.js?v=2d8d7ef5c868';
+import { ENCOUNTERS_KUMOI, FIXED_KUMOI, ZONE_BG_KUMOI } from './encounters-kumoi.js?v=2d8d7ef5c868';
+import { ENCOUNTERS_HOSHIYOMI, FIXED_HOSHIYOMI, ZONE_BG_HOSHIYOMI } from './encounters-hoshiyomi.js?v=2d8d7ef5c868';
+import { ENCOUNTERS_EARTH, FIXED_EARTH, ZONE_BG_EARTH } from './encounters-earth.js?v=2d8d7ef5c868';
+import { FIXED_FINAL } from './encounters-final.js?v=2d8d7ef5c868';
+import { ENCOUNTERS_PHANTOM, FIXED_PHANTOM, ZONE_BG_PHANTOM } from './encounters-phantom.js?v=2d8d7ef5c868';
 // 第37回 A: サファラ闘技場の ランク戦（3連戦）
-import { FIXED_ARENA } from './encounters-arena.js?v=661924ced2fb';
+import { FIXED_ARENA } from './encounters-arena.js?v=2d8d7ef5c868';
+// 第38回 B: 職業の試練（師しょうのまぼろし）
+import { FIXED_TRIAL } from './monsters-trial.js?v=2d8d7ef5c868';
 
 export const ENCOUNTER_TABLES = {
   outskirts: [
@@ -130,6 +132,7 @@ Object.assign(ZONE_BG, ZONE_BG_HOSHIYOMI);
 Object.assign(ENCOUNTER_TABLES, ENCOUNTERS_EARTH);
 Object.assign(FIXED_ENCOUNTERS, FIXED_EARTH);
 Object.assign(FIXED_ENCOUNTERS, FIXED_ARENA);
+Object.assign(FIXED_ENCOUNTERS, FIXED_TRIAL);
 Object.assign(ZONE_BG, ZONE_BG_EARTH);
 // 第5章 Step 9: ノクト（本気）・魔王ソリトゥス（encounters-final.js）
 Object.assign(FIXED_ENCOUNTERS, FIXED_FINAL);

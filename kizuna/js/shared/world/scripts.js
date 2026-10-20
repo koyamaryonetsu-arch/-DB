@@ -1,18 +1,18 @@
 // だいほん（イベント）を すすめる しくみ
-import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js?v=661924ced2fb';
-import { ITEMS } from '../data/items.js?v=661924ced2fb';
-import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js?v=661924ced2fb';
-import { startFixedBattle } from './battles.js?v=661924ced2fb';
-import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=661924ced2fb';
-import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion, befriendLevel } from './party.js?v=661924ced2fb';
-import { sayFarewell } from './farewell.js?v=661924ced2fb';
-import { shareBefriend } from './recruit-share.js?v=661924ced2fb';
-import { openService } from './services.js?v=661924ced2fb';
-import { isNightFor, advanceClock, fracFor } from './clock.js?v=661924ced2fb';
-import { grantWagon, wagonChars, wagonHere } from './wagon.js?v=661924ced2fb';
-import { GUESTS } from '../data/shops.js?v=661924ced2fb';
-import { unstickAll } from './hazards.js?v=661924ced2fb';
-import { MAPS, isBlocked } from '../maps/index.js?v=661924ced2fb';
+import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js?v=2d8d7ef5c868';
+import { ITEMS } from '../data/items.js?v=2d8d7ef5c868';
+import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js?v=2d8d7ef5c868';
+import { startFixedBattle } from './battles.js?v=2d8d7ef5c868';
+import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=2d8d7ef5c868';
+import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion, befriendLevel } from './party.js?v=2d8d7ef5c868';
+import { sayFarewell } from './farewell.js?v=2d8d7ef5c868';
+import { shareBefriend } from './recruit-share.js?v=2d8d7ef5c868';
+import { openService } from './services.js?v=2d8d7ef5c868';
+import { isNightFor, advanceClock, fracFor } from './clock.js?v=2d8d7ef5c868';
+import { grantWagon, wagonChars, wagonHere } from './wagon.js?v=2d8d7ef5c868';
+import { GUESTS } from '../data/shops.js?v=2d8d7ef5c868';
+import { unstickAll } from './hazards.js?v=2d8d7ef5c868';
+import { MAPS, isBlocked } from '../maps/index.js?v=2d8d7ef5c868';
 
 let runSeq = 1;
 
@@ -434,7 +434,7 @@ export class ScriptRun {
         }
         case 'spawn': {
           const [map, x, y] = a;
-          this.owner.char.spawn = { map, x, y };
+          this.owner.char.spawn = { map, x, y, ...(MAPS[map]?.layoutVer ? { lv: MAPS[map].layoutVer } : {}) };
           break;
         }
         case 'curse': {
