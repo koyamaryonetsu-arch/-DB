@@ -3711,7 +3711,8 @@
     const fromTable = taskSuggestionRows.filter((r) => r.status === 'pending' && r.source !== 'stall');
     return stallSuggestions().concat(fromTable).filter((x) => x.person && !decided.has(x.dedupe_key));
   }
-  const SUGG_SOURCE_LABEL = { stall: '止まり', mail: 'メール', line: 'LINE' };
+  const SUGG_SOURCE_LABEL = { stall: '止まり', mail: 'メール', line: 'LINE', plaud: 'Plaud' };
+  const SUGG_OPEN_TIP = { stall: 'この案件を開く', mail: '元のメールを開く', line: '元のLINEのやり取りを開く', plaud: '元の会議・電話の記録を開く' };
   function suggestionsHtml(list) {
     if (!list.length) return '';
     return `<div class="sugg"><div class="sugg-h">💡 これタスクでは？</div><ul class="sugg-list">${list.map((x) => {
@@ -3720,7 +3721,7 @@
       const due = x.due ? `<span class="task-due">〜${escapeHtml(fmtDateShort(x.due))}</span>` : '';
       return `<li class="sugg-item" data-sugg="${k}">
         <span class="sugg-src sugg-src-${escapeHtml(x.source)}">${escapeHtml(SUGG_SOURCE_LABEL[x.source] || x.source)}</span>
-        <span class="sugg-body"><span class="sugg-text${openable ? ' sugg-link' : ''}" ${openable ? `data-sugg-open="${k}" title="${x.source === 'stall' ? 'この案件を開く' : '元のメールを開く'}"` : ''}>${escapeHtml(x.text)}</span>${due}
+        <span class="sugg-body"><span class="sugg-text${openable ? ' sugg-link' : ''}" ${openable ? `data-sugg-open="${k}" title="${SUGG_OPEN_TIP[x.source] || '元の記録を開く'}"` : ''}>${escapeHtml(x.text)}</span>${due}
           ${x.reason ? `<span class="sugg-why">${escapeHtml(x.reason)}</span>` : ''}</span>
         <span class="sugg-btns"><button type="button" class="sugg-accept" data-sugg-accept="${k}">＋ タスク登録</button><button type="button" class="sugg-dismiss" data-sugg-dismiss="${k}">破棄</button></span>
       </li>`;
@@ -4470,7 +4471,7 @@
           <span class="ik-date">受付 ${escapeHtml(it.received_date || '-')}</span>
           <span class="ik-cat">${escapeHtml(it.category || '')}</span>
         </div>
-        <div class="ik-title">${escapeHtml(it.title || '(件名なし)')}</div>
+        <div class="ik-title">${escapeHtml(it.title || '(件名なし)')}${it.thread_url ? ` <a class="ik-src" href="${escapeHtml(it.thread_url)}" target="_blank" rel="noopener">${/^【LINE】/.test(it.title || '') ? '元のLINEを開く' : /^【Plaud】/.test(it.title || '') ? '元の会議・電話の記録を開く' : '元のメールを開く'}</a>` : ''}</div>
         <div class="ik-content">${escapeHtml(String(it.content || '').slice(0, 500))}</div>
         ${it.reason ? `<div class="ik-reason">迷った理由: ${escapeHtml(it.reason)}</div>` : ''}
         ${intakeCandHtml(it)}
