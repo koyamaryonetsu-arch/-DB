@@ -9,7 +9,7 @@ import { trialFight } from './sim-trial.mjs';
 const N = Number(process.argv[2] || 10);
 const GOAL = Number(process.argv[3] || 0.75);
 const JOBS_ = process.argv[4] ? process.argv[4].split(',') : [...SUPER_ORDER, ...LEGEND_ORDER];
-const LO = 0.3, HI = Number(process.env.HI || 3);
+const LO = Number(process.env.LO || 0.3), HI = Number(process.env.HI || 3);
 const SEED = Number(process.env.SEED || 500);
 
 function rate(job, n, f) {
