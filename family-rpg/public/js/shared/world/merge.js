@@ -12,7 +12,9 @@
 // ・預かり所 … お金も 品物も、両方で 預けた・引き出した ぶんを たす
 // ・いる場所・HP・作戦 など … 両方で かわって いたら、あとで 遊んだ ほう
 import { expForLevel, MAX_LEVEL, computeStats } from '../stats.js';
-import { JOBS, JOB_MAX_LEVEL, jobBattlesForLevel } from '../data/jobs.js';
+import { JOBS, jobBattlesForLevel } from '../data/jobs.js';
+// 第38回 B: 職業の試練（クリアした 数は 多い ほう・受けている 試練の 修行は 多い ほう）。上限は クリアした 数から
+import { mergeTrialInfo, jobCapOf } from '../data/job-trials.js';
 import { ITEMS, SLOTS } from '../data/items.js';
 import { STORY_STEPS } from '../data/story.js';
 import { COMPANION_SLOTS } from '../data/companions.js';
@@ -106,14 +108,19 @@ function levelForExp(exp) {
 }
 
 // 職業ごとの 勝った 数（レベルは 勝った 数から。どちらの レベルより 下には しない）
+// 第38回 B: 上限は 職業の試練の クリアの 数から（ふつう 10・超級職から 15・20）。試練の 項目は data/job-trials.js の mergeTrialInfo
 function mergeJobs(b = {}, a = {}, t = {}) {
   return eachKey(b, a, t, (jb, ja, jt, id) => {
     if (!ja && !jt) return undefined;
     const tier = JOBS[id]?.tier || 0;
     const bb = add(jb?.b, ja?.b, jt?.b);
+    const tri = mergeTrialInfo(id, ja || {}, jt || {});
+    const cap = jobCapOf(id, tri);
     let lv = Math.max(ja?.lv || 1, jt?.lv || 1);
-    while (lv < JOB_MAX_LEVEL && bb >= jobBattlesForLevel(lv + 1, tier)) lv++;
-    return { ...(clone(ja) || clone(jt)), lv, b: Math.max(bb, ja?.b || 0, jt?.b || 0) };
+    while (lv < cap && bb >= jobBattlesForLevel(lv + 1, tier)) lv++;
+    const out = { ...(clone(ja) || clone(jt)), lv, b: Math.max(bb, ja?.b || 0, jt?.b || 0) };
+    for (const k of ['tr', 'tq', 'tn']) delete out[k];
+    return { ...out, ...tri };
   });
 }
 

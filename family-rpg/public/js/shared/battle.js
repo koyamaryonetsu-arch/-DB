@@ -1580,6 +1580,8 @@ export class Battle {
     const ad = arenaDamage(this, c, t, dmg, info, ev);
     if (ad === null) return;
     dmg = ad;
+    // 第38回 B: 与える ダメージの 倍率（職業の試練の 師しょうのまぼろし。プレイヤーの 技を 使う ので 弱める。battle-trial.js）
+    if (c?.dmgRate > 0 && c.side !== t.side && dmg > 0) dmg = Math.max(1, Math.round(dmg * c.dmgRate));
     // 天才しせつ管理者の 予兆保全: 敵の 大技の ダメージが 小さく なる（jobs.js の passive.foresee）
     if (ev.big && c.side === 'enemy' && t.side === 'ally' && dmg > 0) dmg = this.foreseeCut(dmg, ev);
     // 峰打ち: たおさずに HP を 1 のこす

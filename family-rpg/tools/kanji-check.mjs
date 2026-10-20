@@ -305,6 +305,9 @@ export function gameFiles() {
     'public/js/client/ui/arena.js',
     // 第5章 Step 9（A9: てっぺんと エンディング）: 星のない広間・ノクト（本気）と ソリトゥスの 台本・エンディング・クリアの あと
     'public/js/shared/data/story-castle-top.js', 'public/js/shared/maps/castle-top.js',
+    // 第38回 B: 超級職からの 職業レベルの 上限と 職業の試練（試練の番人・修行・師しょうのまぼろし・しょうごう）
+    'public/js/shared/data/job-trials.js', 'public/js/shared/data/story-trials.js', 'public/js/shared/data/monsters-trial.js',
+    'public/js/shared/world/job-trials.js', 'public/js/shared/battle-trial.js', 'public/js/client/ui/job-trials.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

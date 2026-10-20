@@ -23,6 +23,8 @@ import { MONSTERS_TEMPLE } from './monsters-temple.js';
 import { MONSTERS_LAB } from './monsters-lab.js';
 // 第37回 A: サファラ闘技場の 王者（数えない 形）
 import { addArenaHidden } from './monsters-arena.js';
+// 第38回 B: 職業の試練の 師しょうのまぼろし（数えない 形）
+import { addTrialHidden } from './monsters-trial.js';
 import { MONSTERS_CH5 } from './monsters-ch5.js';
 import { MONSTERS_KUMOI, addGaiaParts } from './monsters-kumoi.js';
 import { MONSTERS_HOSHIYOMI } from './monsters-hoshiyomi.js';
@@ -261,6 +263,7 @@ addEarthHidden(MONSTERS);
 Object.assign(MONSTERS, MONSTERS_PHANTOM);
 addPhantomHidden(MONSTERS);
 addArenaHidden(MONSTERS);
+addTrialHidden(MONSTERS);
 addGaiaParts(MONSTERS);
 // ボス級（ランク SS）の 仲間。配合でしか 生まれない（monsters-boss.js。第35回）
 Object.assign(MONSTERS, MONSTERS_BOSS);

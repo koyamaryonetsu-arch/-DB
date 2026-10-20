@@ -17,6 +17,7 @@ import { normBank } from './bank.js';
 import { cleanWagon } from '../data/wagon.js';
 import { cleanLookEquip } from '../look-equip.js';
 import { cleanVehicles } from '../data/vehicles.js';
+import { repairTrialInfo } from '../data/job-trials.js';
 
 export const SAVE_VERSION = 4;
 
@@ -148,6 +149,9 @@ export function repairChar(c, id) {
     }
     c.jobs = obj(c.jobs);
     if (!c.jobs[c.job]) c.jobs[c.job] = { lv: 1, b: 0 };
+    // 第38回 B: 職業レベルの 上限と 職業の試練の 項目（tr・tq・tn。古い セーブには ない。版は 上げない。data/job-trials.js）
+    // （職業レベルが 1〜20 だった とても 古い しくみ〈jobSys が 2 で ない〉は、あとの migrateJobs が 1〜10 に なおす ので さわらない）
+    if (c.jobSys === 2) for (const [jid, info] of Object.entries(c.jobs)) if (known(JOBS, jid) && info && typeof info === 'object') repairTrialInfo(jid, info);
   }
 
   // 仲間（知らない モンスターは しまう）

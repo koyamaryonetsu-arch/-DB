@@ -248,6 +248,8 @@ const NPC_LOOKS = {
   woman: { hair: 1, hairStyle: 'bun', skin: 0, outfit: 'dress', cloth: '#2aa0a0', female: true },
   mayor: { hair: 5, hairStyle: 'bald', skin: 0, outfit: 'robe', robeMain: '#c83a3a', robeTrim: '#f2c14e', beard: true },
   sage: { hair: 5, hairStyle: 'long', skin: 0, outfit: 'robe', robeMain: '#3a4a8a', robeTrim: '#f2c14e', beard: true, hat: 'wizard', hatColor: '#3a4a8a', cane: true },
+  // 第38回 B: 試練の番人（星の神殿。むらさきの よろいと 金の かぶと・やり。白い ひげ）
+  trial_keeper: { hair: 5, hairStyle: 'short', skin: 1, outfit: 'armor', cloth: '#6a4a9a', beard: true, hat: 'helmet', hatColor: '#d8b040', spear: true, cape: '#3a2a5a' },
   bartender: { hair: 0, hairStyle: 'short', skin: 1, outfit: 'vest', cloth: '#2d2330', beard: true },
   carpenter: { hair: 1, hairStyle: 'short', skin: 1, outfit: 'tunic', cloth: '#b8773a', hat: 'bandana', hatColor: '#3f7fd0', beard: true },
   cook: { hair: 1, hairStyle: 'short', skin: 0, outfit: 'apron', cloth: '#f4f4f4', hat: 'chef' },

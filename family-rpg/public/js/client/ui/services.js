@@ -7,7 +7,8 @@ import { abilityFor } from '../../shared/ability-label.js';
 import { jobFor, jobLabel, jobHint } from '../../shared/job-label.js';
 import { salonUI } from './salon.js';
 import { vehicleShopUI } from './vehicles.js';
-import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered, canEquip } from '../../shared/stats.js';
+import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered, canEquip, STAT_NAMES } from '../../shared/stats.js';
+import { jobUpKeys } from '../../shared/data/job-trials.js';
 import { MONSTERS } from '../../shared/data/monsters.js';
 import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES, breedOutcome, breedRumors, rankOf, monsterLevelCap, SPECIAL_KINDS } from '../../shared/data/companions.js';
 import { breedForecast, TREND_MARK } from '../../shared/breed-calc.js';
@@ -148,7 +149,8 @@ function jobUI(game) {
           out.push({
             // 職業の 名前は 転職する 人 むけ（男の子の 美少女戦士は「仮面のしんし」。shared/job-label.js）
             html: ok ? esc(jobLabel(j, c)) : `<span class="muted">🔒 ${esc(jobLabel(j, c))}</span>`,
-            right: !ok ? '' : lv >= JOB_MAX_LEVEL ? '★マスター' : lv ? `Lv${lv}` : '初めて',
+            // 第38回 B: 職業の試練で Lv10 より 上（★Lv12 など）
+            right: !ok ? '' : lv > JOB_MAX_LEVEL ? `★Lv${lv}` : lv >= JOB_MAX_LEVEL ? '★マスター' : lv ? `Lv${lv}` : '初めて',
             rightCls: lv >= JOB_MAX_LEVEL ? 'gold' : '',
             value: j,
             disabled: !ok,
@@ -259,8 +261,10 @@ function jobUI(game) {
       }
       if (open && lv) {
         const pg = jobProgress(c, j);
-        main.append(el('div', { class: 'small', text: pg.done ? `職業レベル ${lv}（★マスター）` : `職業レベル ${lv}　次まであと${pg.next}回勝つ` }));
+        main.append(el('div', { class: 'small', text: pg.done ? `職業レベル ${lv}（${lv > JOB_MAX_LEVEL ? `★上限Lv${pg.cap}` : '★マスター'}）` : `職業レベル ${lv}${pg.cap > JOB_MAX_LEVEL ? `/${pg.cap}` : ''}　次まであと${pg.next}回勝つ` }));
       }
+      // 第38回 B: 超級職・伝説の職業は 職業の試練で 上限が 上がる（Lv11〜 は 得意な 数値が 少し のびる）
+      if ((job.tier || 0) >= 2) main.append(el('div', { class: 'small muted', text: `職業の試練（この神殿の「試練の番人」）をこえると、上限がLv15・Lv20に上がる。\nLv11からは、${jobUpKeys(j).map((k) => STAT_NAMES[k]).join('と')}がレベル1つで1〜2ずつのびる。` }));
       // のびざかり（学校の 職業）
       if (job.passive?.train > 1) main.append(el('div', { class: 'small good', text: `のびざかり：戦いに1回勝つと、${job.passive.train}回分の修行になる` }));
       // 覚える技（全部。どんな 技か 短い せつめいつき）→ 強さの かたむき の じゅん
@@ -283,7 +287,7 @@ function jobUI(game) {
         bars.append(el('span', { text: n }), el('div', { class: 'b' }, el('i', { style: { width: `${Math.min(100, v / 1.5 * 100)}%` } })), el('span', { class: v > 1 ? 'up' : v < 1 ? 'down' : '', text: `${Math.round(v * 100)}%` }));
       }
       main.append(el('div', { class: 'small gold', text: '強さのかたむき' }), bars);
-      main.append(el('div', { class: 'detail', text: `職業レベルは戦いに勝つと上がる（最大${JOB_MAX_LEVEL}）。職業ごとに別で、転職しても今の職業のレベルは残る。ただし、1回の攻撃で終わってしまう戦いでは、修行は半分しか進まない。\n基本職を2つマスターすると上級職、上級職をマスターすると超級職になれる（超級職は、上級職をマスターするとヒントが出る）。超級職をきわめた先には、伝説の職業もある（ロトの勇者・スーパーサイヤ人3・ニカ・魔王・天才しせつ管理者・はかい神・日の呼吸の使い手・七代目火影・暴れんぼう将軍・飛天御剣流けい承者・3年B組の担任）。\n呪文の掛け合わせは、元の職業を合わせ持つ上級職以上で使える。\n他の職業で覚えた技も使えるが、MPが増えたり威力が下がることがある（元になった職業の技はだいじょうぶ）。\n酒場の仲間もここで転職できる。\n（十字キーの左右で、このせつめいをスクロールできる）` }));
+      main.append(el('div', { class: 'detail', text: `職業レベルは戦いに勝つと上がる（最大${JOB_MAX_LEVEL}。超級職からは職業の試練で20まで）。職業ごとに別で、転職しても今の職業のレベルは残る。ただし、1回の攻撃で終わってしまう戦いでは、修行は半分しか進まない。\n基本職を2つマスターすると上級職、上級職をマスターすると超級職になれる（超級職は、上級職をマスターするとヒントが出る）。超級職をきわめた先には、伝説の職業もある（ロトの勇者・スーパーサイヤ人3・ニカ・魔王・天才しせつ管理者・はかい神・日の呼吸の使い手・七代目火影・暴れんぼう将軍・飛天御剣流けい承者・3年B組の担任）。\n呪文の掛け合わせは、元の職業を合わせ持つ上級職以上で使える。\n他の職業で覚えた技も使えるが、MPが増えたり威力が下がることがある（元になった職業の技はだいじょうぶ）。\n酒場の仲間もここで転職できる。\n（十字キーの左右で、このせつめいをスクロールできる）` }));
       // 下に つづく ときの しるし
       const more = el('div', { class: 'scroll-more', text: '▼ 下に続く' });
       main.append(more);

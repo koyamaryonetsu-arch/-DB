@@ -16,6 +16,8 @@ import { FIXED_FINAL } from './encounters-final.js';
 import { ENCOUNTERS_PHANTOM, FIXED_PHANTOM, ZONE_BG_PHANTOM } from './encounters-phantom.js';
 // 第37回 A: サファラ闘技場の ランク戦（3連戦）
 import { FIXED_ARENA } from './encounters-arena.js';
+// 第38回 B: 職業の試練（師しょうのまぼろし）
+import { FIXED_TRIAL } from './monsters-trial.js';
 
 export const ENCOUNTER_TABLES = {
   outskirts: [
@@ -130,6 +132,7 @@ Object.assign(ZONE_BG, ZONE_BG_HOSHIYOMI);
 Object.assign(ENCOUNTER_TABLES, ENCOUNTERS_EARTH);
 Object.assign(FIXED_ENCOUNTERS, FIXED_EARTH);
 Object.assign(FIXED_ENCOUNTERS, FIXED_ARENA);
+Object.assign(FIXED_ENCOUNTERS, FIXED_TRIAL);
 Object.assign(ZONE_BG, ZONE_BG_EARTH);
 // 第5章 Step 9: ノクト（本気）・魔王ソリトゥス（encounters-final.js）
 Object.assign(FIXED_ENCOUNTERS, FIXED_FINAL);

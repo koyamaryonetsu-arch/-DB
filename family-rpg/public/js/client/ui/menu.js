@@ -49,6 +49,8 @@ import './r35-css.js';
 import { newsView } from './news.js';
 import { hasUnreadNews } from '../../shared/data/news.js';
 import { vehicleMenuView } from './vehicles.js';
+// 第38回 B: 職業の試練（職業レベルの 上限・しょうごう・修行の とちゅう）
+import { jobLevelText, trialStatusBox, trialQuestBox } from './job-trials.js';
 
 // 見た目装備の せつめい
 const LOOK_HELP = '見た目だけを、持っている装備に変える（強さは変わらない）\n職業で装備できない物も選べる。「装備なし」も選べる';
@@ -1295,11 +1297,14 @@ export class FieldMenu {
       for (const j of ALL_JOBS) {
         const info = c.jobs?.[j];
         if (!info) continue;
-        const pg = jobProgress(c, j);
+        const lt = jobLevelText(c, j);
         jobs.append(el('div', { class: 'kv small' },
           el('span', { class: j === c.job ? 'good' : '', text: `${jobLabel(j, c)}${JOBS[j].tier ? `（${TIER_NAMES[JOBS[j].tier]}）` : ''}` }),
-          el('span', { class: pg.done ? 'gold' : '', text: pg.done ? `Lv${JOB_MAX_LEVEL} ★マスター` : `Lv${info.lv}（あと${pg.next}回）` })));
+          el('span', { class: lt.cls, text: lt.text })));
       }
+      // 第38回 B: しょうごう・職業の試練の とちゅう（client/ui/job-trials.js）
+      const tb = trialStatusBox(c, !c.companion);
+      if (tb) jobs.append(tb);
       box.append(jobs, el('div', { class: 'detail', text: '1回の攻撃で終わってしまう戦いでは、職業の修行は半分しか進まない。' }));
       // ひみつのダンジョンの 最高の 階（自分の キャラだけ。仲間には ない）
       const sd = sdRecordOf(c);
@@ -1700,6 +1705,9 @@ export class FieldMenu {
       box.append(el('div', { class: 'kv' }, el('span', {}, el('i', { class: `qdot ${q.ready ? 'ready' : 'sub'}` }), q.name), el('span', { class: q.ready ? 'good' : 'muted', text: q.text })));
     }
     for (const [, n] of done) box.append(el('div', { class: 'kv' }, el('span', { class: 'muted', text: n }), el('span', { class: 'good', text: 'クリア！' })));
+    // 第38回 B: 職業の試練（client/ui/job-trials.js）
+    const tq = trialQuestBox(c);
+    if (tq) box.append(tq);
     const chests = Object.keys(c.chests || {}).length;
     const total = Object.values(MAPS).reduce((s, m) => s + m.chests.length, 0);
     box.append(el('div', { class: 'detail', text: `宝箱 ${chests}/${total}　フィールドの宝箱 ${c.fieldChests || 0}こ　倒した魔物 ${Object.values(c.kills || {}).reduce((s, x) => s + x, 0)}ひき` }));
