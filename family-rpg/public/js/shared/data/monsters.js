@@ -27,6 +27,7 @@ import { MONSTERS_CH5 } from './monsters-ch5.js';
 import { MONSTERS_KUMOI, addGaiaParts } from './monsters-kumoi.js';
 import { MONSTERS_HOSHIYOMI } from './monsters-hoshiyomi.js';
 import { MONSTERS_EARTH, addEarthHidden } from './monsters-earth.js';
+import { MONSTERS_PHANTOM, addPhantomHidden } from './monsters-phantom.js';
 import { MONSTERS_BOSS } from './monsters-boss.js';
 
 export const MONSTERS = {
@@ -253,6 +254,9 @@ Object.assign(MONSTERS, MONSTERS_HOSHIYOMI);
 // 第5章 Step 6・7「根の島・大地の神殿」の 魔物と ノクト（1回目。分身は 数えない 形。monsters-earth.js）
 Object.assign(MONSTERS, MONSTERS_EARTH);
 addEarthHidden(MONSTERS);
+// 第5章 Step 8「影の城」の 魔物と 3人の まぼろし（まぼろしの 手下は 数えない 形。monsters-phantom.js）
+Object.assign(MONSTERS, MONSTERS_PHANTOM);
+addPhantomHidden(MONSTERS);
 addArenaHidden(MONSTERS);
 addGaiaParts(MONSTERS);
 // ボス級（ランク SS）の 仲間。配合でしか 生まれない（monsters-boss.js。第35回）

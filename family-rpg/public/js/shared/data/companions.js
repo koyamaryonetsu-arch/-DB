@@ -19,6 +19,7 @@ import { FRIENDS_CH5 } from './companions-ch5.js';
 import { FRIENDS_KUMOI } from './companions-kumoi.js';
 import { FRIENDS_HOSHIYOMI } from './companions-hoshiyomi.js';
 import { FRIENDS_EARTH } from './companions-earth.js';
+import { FRIENDS_PHANTOM } from './companions-phantom.js';
 import { FRIENDS_BOSS, MATERIAL_RECIPES, FOUR_RECIPES } from './monsters-boss.js';
 
 export const MONSTER_FRIENDS = {
@@ -280,6 +281,8 @@ Object.assign(MONSTER_FRIENDS, FRIENDS_KUMOI);
 Object.assign(MONSTER_FRIENDS, FRIENDS_HOSHIYOMI);
 // 第5章 Step 6・7 の 魔物（companions-earth.js）
 Object.assign(MONSTER_FRIENDS, FRIENDS_EARTH);
+// 第5章 Step 8 の 影の城の 魔物（companions-phantom.js）
+Object.assign(MONSTER_FRIENDS, FRIENDS_PHANTOM);
 // ボス級（ランク SS）の 仲間。配合でしか 生まれない（monsters-boss.js。第35回）
 Object.assign(MONSTER_FRIENDS, FRIENDS_BOSS);
 // しゅぞくごとの 装備の うわがき（上の GEAR）

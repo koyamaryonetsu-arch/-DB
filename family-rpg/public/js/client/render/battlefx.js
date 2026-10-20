@@ -31,6 +31,8 @@ import { HOSHIYOMI_BG, HOSHIYOMI_DECOS, drawHoshiyomiBg, drawHoshiyomiFloorBg } 
 import { EARTH_BG, EARTH_DECOS, drawEarthBg, drawEarthFloorBg } from './ch5-earth-bg.js';
 // 第37回 A: サファラ闘技場（arena。arena-art.js）
 import { ARENA_BG, ARENA_DECOS, drawArenaBg, drawArenaFloorBg } from './arena-art.js';
+// 第5章 Step 8: 影の城の 風の階・炎の階・水の階（ch5-phantom-bg.js）
+import { PHANTOM_BG, PHANTOM_DECOS, drawPhantomBg, drawPhantomFloorBg } from './ch5-phantom-bg.js';
 
 export const BW = 256;
 export const BH = 144;
@@ -135,6 +137,8 @@ const BG = {
   ...EARTH_BG,
   // 第37回 A: サファラ闘技場（arena）
   ...ARENA_BG,
+  // 第5章 Step 8: 影の城（castle_wind・castle_fire・castle_water）
+  ...PHANTOM_BG,
 };
 
 // はいけいの データ（〜_night は 夜空の はいけい。night-art.js）。ない ときは null
@@ -208,6 +212,7 @@ export function battleBackground(id) {
       case 'memory': case 'memory_deep': h = 0; break; // 思い出の迷宮は あとで（ch5-hoshiyomi-bg.js）
       case 'root_isle': h = 4 + Math.abs(Math.sin(px * 0.04) * 6); break; // 根の島の 草の おか（ch5-earth-bg.js）
       case 'earth_temple': case 'earth_temple_deep': h = 0; break; // 大地の神殿は あとで（ch5-earth-bg.js）
+      case 'castle_wind': case 'castle_fire': case 'castle_water': h = 0; break; // 影の城は あとで（ch5-phantom-bg.js）
       default: h = 10 + Math.abs(Math.sin(px * 0.035) * 14) + Math.abs(Math.sin(px * 0.11) * 4);
     }
     if (d.deco === 'stalactite' || d.deco === 'crystal') {
@@ -227,6 +232,7 @@ export function battleBackground(id) {
   if (HOSHIYOMI_DECOS.has(d.deco)) drawHoshiyomiBg(x, d, hor);
   if (EARTH_DECOS.has(d.deco)) drawEarthBg(x, d, hor);
   if (ARENA_DECOS.has(d.deco)) drawArenaBg(x, d, hor);
+  if (PHANTOM_DECOS.has(d.deco)) drawPhantomBg(x, d, hor);
   if (d.deco === 'houses') {
     x.fillStyle = '#ffd66b';
     for (let k = 10; k < BW; k += 48) x.fillRect(k + 8, hor - 12, 3, 3);
@@ -282,6 +288,7 @@ export function battleBackground(id) {
   else if (HOSHIYOMI_DECOS.has(d.deco)) drawHoshiyomiFloorBg(x, d, hor);
   else if (EARTH_DECOS.has(d.deco)) drawEarthFloorBg(x, d, hor);
   else if (ARENA_DECOS.has(d.deco)) drawArenaFloorBg(x, d, hor);
+  else if (PHANTOM_DECOS.has(d.deco)) drawPhantomFloorBg(x, d, hor);
   else {
     x.fillStyle = 'rgba(0,0,0,0.12)';
     for (let i = 0; i < 6; i++) {

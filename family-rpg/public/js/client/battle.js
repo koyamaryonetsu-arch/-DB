@@ -48,6 +48,8 @@ import { gaiaSprite, GAIA_SFX } from './battle-gaia.js';
 import { noctoSprite, NOCTO_SFX } from './battle-nocto.js';
 // 第5章 Step 6・7 の ノクト（1回目）と 大地の神殿の 魔物（音・コマンド「手をのばす」。battle-earth.js）
 import { EARTH_SFX, earthReachItem, earthReachPick, REACH_INFO } from './battle-earth.js';
+// 第5章 Step 8 の 影の城の 魔物と 3人の まぼろし（音。battle-phantom.js）
+import { PHANTOM_SFX } from './battle-phantom.js';
 
 // たたかいの え の こまかさ（おもい きかいで さげたら、その あいだは さげた まま）
 let battleRes = BRES;
@@ -142,6 +144,7 @@ const ANIM_SFX = {
   ...NOCTO_SFX,
   // 第5章 Step 6・7 の 根の島・大地の神殿の 魔物と ノクト（1回目）（client/battle-earth.js）
   ...EARTH_SFX,
+  ...PHANTOM_SFX,
 };
 
 // ひらめきの 電球（ドット絵ふう）

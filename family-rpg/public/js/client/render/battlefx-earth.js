@@ -5,6 +5,8 @@
 // ノクト: n1_clones（影が 立ち上がる）・n1_combo_ready（前ぶれ。3つの 影に 光が あつまる）→ n1_combo（大技。3つの 影が ひとつに）・
 //   n1_rift（地われ）・n1_reach（手をのばす。味方の 技。client/battle-earth.js が 味方の まどにも）
 import { ELEMENT_FX } from './battlefx-r27.js';
+// 第5章 Step 8 の 影の城の 魔物と 3人の まぼろし（battlefx-phantom.js。ここの さいごに よぶ）
+import { playPhantomFx } from './battlefx-phantom.js';
 
 const BLAST = ELEMENT_FX.blast?.colors || ['#ffd060', '#ff8a30', '#ffffff'];
 const BARK = ['#5a4228', '#8a6a44', '#b08a5a'];
@@ -153,6 +155,6 @@ export function playEarthFx(fx, anim, targets, element, opts = {}, W = 256, H = 
       }
       return true;
     default:
-      return false;
+      return playPhantomFx(fx, anim, targets, element, opts, W, H);
   }
 }

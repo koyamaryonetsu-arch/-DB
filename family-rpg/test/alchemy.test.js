@@ -48,8 +48,9 @@ const givePot = (c) => {
 const toasts = (bot) => bot.msgs.filter((m) => m.t === 'toast').map((m) => m.text);
 
 // ───────────── データ ─────────────
-test('れん金: レシピは 30〜50こ。材料と できる 物が あり、組み合わせは かぶらない。章ごとに ふえる', () => {
-  assert.ok(RECIPES.length + 1 >= 30 && RECIPES.length + 1 <= 50, `${RECIPES.length + 1}こ`);
+test('れん金: レシピは 30〜60こ。材料と できる 物が あり、組み合わせは かぶらない。章ごとに ふえる', () => {
+  // （第5章 Step 8 で 影の城の 素材の レシピを 足して 50を こえたので、上を 60に）
+  assert.ok(RECIPES.length + 1 >= 30 && RECIPES.length + 1 <= 60, `${RECIPES.length + 1}こ`);
   const keys = new Set();
   for (const r of RECIPES) {
     assert.ok(ITEMS[r.out], `${r.id}: ${r.out}`);

@@ -35,6 +35,8 @@ import { setupGaia, gaiaDamage } from './battle-gaia.js';
 import { setupNocto, noctoDamage } from './battle-nocto.js';
 // 第5章 Step 6・7 の ノクト（1回目）と 大地の神殿の 魔物（地われ・手をのばす・HP半分で 終わる・まもる・おこる。battle-earth.js）
 import { setupEarth, earthDamage, earthStop, riftTurn, reachOk, reach } from './battle-earth.js';
+// 第5章 Step 8 の 影の城の 3人の まぼろし（はじめの ことば・水かさ・風のかべ。battle-phantom.js）
+import { setupPhantom, phantomDamage, phantomEst } from './battle-phantom.js';
 // 第33回: 3年B組の担任は 学校の 仲間が いると 技が 強く なる（battle-r33.js）
 import { classmateMult } from './battle-r33.js';
 // 第37回 A: サファラ闘技場の 王者の しかけ（属性の よろい。battle-arena.js）
@@ -216,6 +218,8 @@ export class Battle {
     setupArena(this);
     // まぼろしの分身（おなじ 魔物の 1体だけが 本物。battle-ch4.js）
     setupMirage(this);
+    // 影の城の まぼろし: はじめの ことば・水かさ（battle-phantom.js）
+    setupPhantom(this);
     this.initAtb();
   }
 
@@ -1448,7 +1452,8 @@ export class Battle {
       return 0;
     }
     if (res.crit) ev.lines.push(c.side === 'ally' ? '会心の一撃！' : 'つうこんの一撃！');
-    this.damage(c, t, res.dmg, ev, { crit: res.crit, element, nonLethal: eff.nonLethal });
+    // phys … 物理の 当たり（影の城の 風のかべ。battle-phantom.js）
+    this.damage(c, t, res.dmg, ev, { crit: res.crit, element, nonLethal: eff.nonLethal, phys: true });
     if (eff.forceCrit !== undefined || res.crit) { /* noop */ }
     return res.dmg;
   }
@@ -1509,8 +1514,8 @@ export class Battle {
     if (t.defending) dmg *= 0.5;
     if (t.metal && !crit) dmg = estimate ? 0.5 : this.rng.int(0, 1);
     if (!estimate) dmg *= this.comboMult(c);
-    // オートの みつもり: 水の衣（battle-temple.js）
-    else dmg *= templeEst(this, c, t, element);
+    // オートの みつもり: 水の衣（battle-temple.js）・風のかべ（battle-phantom.js）
+    else dmg *= templeEst(this, c, t, element) * phantomEst(c, t);
     const final = Math.max(0, Math.round(dmg));
     return { dmg: final, crit, hit };
   }
@@ -1561,6 +1566,8 @@ export class Battle {
     const ed = earthDamage(this, c, t, dmg, info, ev);
     if (ed === null) return;
     dmg = ed;
+    // 影の城の まぼろし: 風のかべ（物理は はばまれる）・水の衣が はじけると 水かさが 下がる（battle-phantom.js）
+    dmg = phantomDamage(this, c, t, dmg, info, ev);
     // 闘技場の 七色の魔導王: よろいと おなじ 属性は すいこむ・弱点で くだける（battle-arena.js）
     const ad = arenaDamage(this, c, t, dmg, info, ev);
     if (ad === null) return;
