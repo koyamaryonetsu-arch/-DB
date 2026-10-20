@@ -26,7 +26,9 @@ import { JOB6_SFX } from './render/battlefx-jobs6.js';
 // 第33回の 11この 職業の 技（音・あたる じかん・みかたに 出す えんしゅつ）
 import { JOB7_SFX, JOB7_HIT, PARTY_ANIMS7 } from './render/battlefx-jobs7.js';
 import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js';
-import { statusNames, buffNames, targetTag } from './ui/info.js';
+import { targetTag } from './ui/info.js';
+// 第38回 C: バフ・デバフ・じわじわ回復の しるし（のこりの 行動の 回数）
+import { fillStatusRow, drawEnemyMarks } from './battle-buffs.js';
 import { battleSkillText, battleItemText, favHint } from './ui/skillinfo.js';
 // 第35回: 技えらびの タブ（効果ごと）
 import { skillTabs, startTab, abilityElements } from '../shared/skill-tabs.js';
@@ -374,8 +376,7 @@ export class BattleScene {
       s.mp.bar.style.width = `${a.maxMp ? Math.round(Math.max(0, a.mp) / a.maxMp * 100) : 0}%`;
       s.mp.num.textContent = `${Math.max(0, a.mp)}/${a.maxMp}`;
       s.tag.textContent = a.auto && a.controller ? 'オート' : a.controller && a.kind !== 'player' ? '命令' : a.kind === 'support' ? '仲間' : a.kind === 'monster' ? '魔物' : a.kind === 'guest' ? 'ゲスト' : '';
-      const st = [statusNames(a.status), buffNames(a.buffs)].filter(Boolean).join(' ');
-      s.sts.textContent = !a.alive ? '死んでいる' : a.defending ? `防御 ${st}` : st;
+      fillStatusRow(s.sts, a);
     }
   }
 
@@ -636,8 +637,10 @@ export class BattleScene {
       const el = ab.effect?.element;
       // 相手の しるし（グループ・全体・全員）
       const tt = targetTag(ab);
+      // 技の レベル（Lv2 から 出す。第38回 C。shared/buff-acts.js）
+      const slv = a.slv?.[id] || 1;
       return {
-        html: `${ELEMENT_NAMES[el] ? `<span class="elem e-${el}">${ELEMENT_NAMES[el]}</span>` : ''}${ab.name}${tt ? `<span class="tag tgt t-${ab.effect?.random ? 'random' : ab.target}">${tt}</span>` : ''}${weak(ab) ? '<span class="tag weak">弱点</span>' : ''}${pen ? '<span class="tag warn">他</span>' : ''}${ab.hirameki || ab.kind === 'combo' ? '<span class="tag hira">閃</span>' : ''}`,
+        html: `${ELEMENT_NAMES[el] ? `<span class="elem e-${el}">${ELEMENT_NAMES[el]}</span>` : ''}${ab.name}${slv >= 2 ? `<span class="tag slv">Lv${slv}</span>` : ''}${tt ? `<span class="tag tgt t-${ab.effect?.random ? 'random' : ab.target}">${tt}</span>` : ''}${weak(ab) ? '<span class="tag weak">弱点</span>' : ''}${pen ? '<span class="tag warn">他</span>' : ''}${ab.hirameki || ab.kind === 'combo' ? '<span class="tag hira">閃</span>' : ''}`,
         right: isMk ? '▶' : `${cost}`,
         rightCls: pen ? 'pen' : '',
         value: id,
@@ -658,7 +661,7 @@ export class BattleScene {
     const detail = (it) => {
       if (!it || it.header) return;
       // 効果・威力の 目安・属性・相手・MP（敵が 1体・自分に かける・全体の 技でも 使う 前に 見える。ui/skillinfo.js）
-      this.info(favHint(battleSkillText(it.value, pc, { touch: this.touchUi() }), this.touchUi()));
+      this.info(favHint(battleSkillText(it.value, pc, { touch: this.touchUi(), lv: a.slv?.[it.value] || 1 }), this.touchUi()));
       const on = this.favsOf(a).includes(it.value);
       this.infoEl.classList.add('hasfav');
       // 右上に うかべる（文は まわりを 回りこむ。css の .b-info .favbtn）
@@ -679,7 +682,7 @@ export class BattleScene {
       this.rememberPick(a, key, it.value);
       if (ab.effect.type === 'mahouken') return this.mahoukenMenu();
       // 相手を えらぶ 間も おなじ せつめい（「もう一度タップ」は もう いらない）
-      this.info(battleSkillText(it.value, pc));
+      this.info(battleSkillText(it.value, pc, { lv: a.slv?.[it.value] || 1 }));
       const t = ab.target;
       const back = () => this.abilityMenu(ids, page);
       if (t === 'enemy' || t === 'group') return this.pickFoe(t, (tid) => this.send({ type: 'ability', id: it.value, target: tid }), ab.name, ab.effect?.element, back);
@@ -1079,6 +1082,13 @@ export class BattleScene {
     }
     for (const j of ev.joined || []) if (!this.c.has(j.id)) this.c.set(j.id, { ...j, flash: 0, dead: 0, lunge: 0, appear: 1 });
     this.say(ev.lines || [], ev.dur || 1000);
+    // 行動の はじめの じわじわ回復（第38回 C）: 回復した 人に みどりの 数
+    for (const r of ev.regenHeal || []) {
+      const t = this.c.get(r.id);
+      if (!t) continue;
+      this.floatNum(t, `+${r.heal}`, 'heal');
+      if (t.side === 'ally') this.glowStatus(t.id, '#8ff0a8');
+    }
     const actor = this.c.get(ev.id);
     const fx = ev.fx || {};
     // 反撃の構え: やりかえされた 味方の ダメージは、こうげきが あたった あとで 見せる
@@ -1753,6 +1763,8 @@ export class BattleScene {
         const a = this.time / 150;
         x.fillRect(Math.round(m.x + m.w / 2 + Math.cos(a) * 8), Math.round(m.y - 2 + Math.sin(a) * 2), 2, 2);
       }
+      // バフ・デバフ・じわじわ回復の 札（足もと。のこりの 行動の 回数。battle-buffs.js）
+      drawEnemyMarks(x, m, c, BH - 1);
     }
     this.fx.draw(x);
     x.setTransform(1, 0, 0, 1, 0, 0);

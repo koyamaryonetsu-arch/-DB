@@ -193,6 +193,12 @@ export function decideAlly(b, c) {
   // （砂に もぐった 敵の とび出しも。b.ignoreBurrow … 気づかない 人）
   const telegraphing = b.aliveEnemies().some((f) => f.telegraph && !(b.ignoreBurrow && f.burrow) && !waveIgnored(b, f) && !labIgnored(b, f));
   if (telegraphing && c.hp / c.maxHp < 0.6 && b.rng.chance(0.75)) return { type: 'defend' };
+  // 第38回 C: バフは 3回行動の あいだだけ。大わざの 前に、みんなの 守備力を 上げる 技（切れている・あと1回 の 人が 半分 いじょう）
+  if (telegraphing && tac.buffs) {
+    const guard = mine.find(({ a }) => a.target === 'allies' && prim(a).type === 'buff' && (prim(a).stats || [prim(a).stat]).includes('def'));
+    const need = allies.filter((x) => !x.buffs.def || (Number.isFinite(x.buffs.def.left) && x.buffs.def.left <= 1));
+    if (guard && need.length >= Math.ceil(allies.length / 2) && b.rng.chance(GUARD_BUFF_CHANCE)) return { type: 'ability', id: guard.id };
+  }
 
   // MPが へってきたら まりょくを あつめる
   if (c.maxMp && c.mp / c.maxMp < 0.25) {
@@ -294,6 +300,11 @@ function chooseHeal(b, c, tac, allies, mine) {
 }
 
 // ほじょ: まだ かかっていない つよく なる わざを えらぶ
+// 第38回 C: バフは かかった 人の 3回行動の あいだだけ（buff-acts.js）。何回も かけなおすと 回復・攻撃の 番が へるので、
+// かける わりあいは 前より ひかえめ（みんなに 0.5→BUFF_CHANCE.allies・1人に 0.4→.ally・自分に 0.3→.self）
+export const BUFF_CHANCE = { allies: 0.2, ally: 0.15, self: 0.12 };
+// 大わざの 前ぶれ（telegraph）の ときに みんなの 守備力を 上げる わりあい（decideAlly）
+export const GUARD_BUFF_CHANCE = 0.6;
 function chooseBuff(b, c, allies, mine) {
   const rng = b.rng;
   const buffs = mine.filter(({ a }) => prim(a).type === 'buff');
@@ -310,14 +321,14 @@ function chooseBuff(b, c, allies, mine) {
   const lacking = (x, a) => stat(a).some((st) => !x.buffs[st]);
   for (const { id, a } of buffs.sort(() => rng.float(-1, 1))) {
     if (a.target === 'allies') {
-      if (allies.filter((x) => lacking(x, a)).length >= Math.ceil(allies.length / 2) && rng.chance(0.5)) return { type: 'ability', id };
+      if (allies.filter((x) => lacking(x, a)).length >= Math.ceil(allies.length / 2) && rng.chance(BUFF_CHANCE.allies)) return { type: 'ability', id };
     } else if (a.target === 'ally') {
       const st = stat(a);
       const pool = allies.filter((x) => lacking(x, a));
       const t = st.includes('atk') ? pool.sort((x, y) => y.atk - x.atk)[0] : pool.sort((x, y) => x.dfn - y.dfn)[0];
-      if (t && rng.chance(0.4) && (!st.includes('atk') || t.atk > 25)) return { type: 'ability', id, target: t.id };
+      if (t && rng.chance(BUFF_CHANCE.ally) && (!st.includes('atk') || t.atk > 25)) return { type: 'ability', id, target: t.id };
     } else if (a.target === 'self') {
-      if (lacking(c, a) && rng.chance(0.3)) return { type: 'ability', id };
+      if (lacking(c, a) && rng.chance(BUFF_CHANCE.self)) return { type: 'ability', id };
     }
   }
   // 仲間の 番を 早める 技（アンコール・伝説のきずな など。第31回: きずなゲージを ためる 技の かわり）

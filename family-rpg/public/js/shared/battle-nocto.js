@@ -146,7 +146,7 @@ function bondBreak(b, c, ev) {
   for (const t of targets) b.physHit(c, t, { mult: conf.mult ?? 1.25, ignoreDef: conf.ignoreDef ?? 0.3 }, ev, 'phys');
   if (broke && c.alive) {
     ev.lines.push(`${c.name}は、くだいたきずなの力をすいとった！`);
-    b.applyBuff(c, c, { stat: 'atk', mult: conf.buff ?? 1.2, dur: 30 }, ev);
+    b.applyBuff(c, c, { stat: 'atk', mult: conf.buff ?? 1.2 }, ev);
   }
   ev.warn = true;
 }

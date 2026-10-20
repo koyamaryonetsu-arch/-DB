@@ -45,6 +45,10 @@ import { classmateMult } from './battle-r33.js';
 import { setupArena, arenaDamage } from './battle-arena.js';
 // 第33回: 男の子の 美少女戦士・セーラームーンは タキシード仮面ふうの 技の 名前・セリフ・えんしゅつ（強さは おなじ）
 import { abilityFor } from './ability-label.js';
+// 第38回 C: バフ・デバフ・かばう は 行動の 回数で 切れる・じわじわ回復は 行動の はじめに・技の レベル（buff-acts.js）
+import { BUFF_ACTS, renewLeft, leftOf, skillLevel, regenTimes, REGEN_BASE } from './buff-acts.js';
+export { BUFF_ACTS } from './buff-acts.js';
+import { bossDmgRate } from './data/boss-r38.js';
 
 // 第31回: きずなゲージ・きずな技（ミナデイン）は なくなった（ミナデインは 合体技に。data/dual.js の dt_minadein）
 // 合体技の 2人の 強さの 合わせかた（dualProxy）: 強い ほうの 強さ ＋ 弱い ほうの この わりあい
@@ -55,7 +59,8 @@ const COMBO_WINDOW = 6000;
 const LETTERS = 'ABCDEFGH';
 
 // ───────────── バフ・デバフの かさねがけ ─────────────
-// 同じ つよさを もう一度 上げる（下げる）と 2だんかいめ（効き目が 2倍）。それより 上は かさならない（時間だけ のびる）
+// 同じ つよさを もう一度 上げる（下げる）と 2だんかいめ（効き目が 2倍）。それより 上は かさならない（のこりの 回数だけ もどる）
+// 第38回 C: 時間では なく、かかった 人が BUFF_ACTS 回 行動したら 切れる（left … のこりの 回数。ずっと つづく ものは Infinity）
 export const BUFF_STACK = 2;
 // base … 1回ぶんの 倍率（1.3 など。下げる ときは 0.75 など）、lv … だんかい
 // （大防御の ような とても 強い こうかは、2だんかいめで ふえる ぶんを ひかえめに: 上げる ときは +0.5、下げる ときは −0.25 まで）
@@ -64,7 +69,8 @@ export function stackMult(base, lv) {
   return base >= 1 ? Math.min(1 + (base - 1) * lv, base + 0.5) : Math.max(0.25, 1 - (1 - base) * lv, base - 0.25);
 }
 // map（c.buffs か c.debuffs）の st に base の こうかを かさねる。もどりち: { lv, max }（max … もう かさならなかった）
-export function stackBuff(map, st, base, until) {
+// left … のこりの 行動の 回数（かけ直すと left に もどる。ずっと つづく こうかに かさねた ときは ずっと）
+export function stackBuff(map, st, base, left = BUFF_ACTS) {
   const cur = map[st];
   // 前より 強い こうかなら そちらを もとに する（上げる ときは 大きい ほう、下げる ときは 小さい ほう）
   const b0 = cur?.base ?? cur?.mult;
@@ -72,7 +78,7 @@ export function stackBuff(map, st, base, until) {
   const b = keep ? b0 : base;
   const was = cur ? (cur.lv || 1) : 0;
   const lv = Math.min(BUFF_STACK, was + 1);
-  map[st] = { mult: stackMult(b, lv), base: b, lv, until: Math.max(cur?.until || 0, until) };
+  map[st] = { mult: stackMult(b, lv), base: b, lv, left: renewLeft(cur, left) };
   return { lv, max: was >= BUFF_STACK };
 }
 
@@ -212,6 +218,8 @@ export class Battle {
     // 設定の「敵の強さ」（1・1.2・1.5・2倍。data/difficulty.js）。とちゅうで 来る 魔物にも かける
     this.enemyRate = ENEMY_RATES.includes(opts.enemyRate) ? opts.enemyRate : 1;
     this.addEnemies(opts.enemies || []);
+    // 第38回 C: バフが 3回行動に なった ぶん、強い ボスの ダメージを 少し へらす（data/boss-r38.js）
+    this.bossDmg = bossDmgRate(opts.enemies);
     // 鏡のうつし身・水の衣・水の守りの歌（battle-temple.js）
     setupTemple(this, opts);
     setupGaia(this);
@@ -369,22 +377,8 @@ export class Battle {
 
   advance(dt) {
     this.time += dt;
-    // バフ・デバフの じかんぎれ
-    for (const c of this.combatants) {
-      if (!c.alive) continue;
-      for (const kind of ['buffs', 'debuffs']) {
-        for (const [stat, b] of Object.entries(c[kind])) {
-          if (b.until <= this.time) {
-            delete c[kind][stat];
-            if (c.side === 'ally' || stat !== 'eva') {
-              this.emit({ t: 'msg', lines: [`${c.name}の${statLabel(stat)}が元にもどった。`], upd: [pub(c)] });
-            }
-          }
-        }
-      }
-      if (c.cover && c.cover.until <= this.time) c.cover = null;
-    }
-    // どく・じわじわ 回復（4びょうごと）
+    // バフ・デバフ・かばう・じわじわ回復は 行動の 回数で 数える（第38回 C。executeNext の actStart・actEnd）
+    // どく（4びょうごと）
     this.poisonTimer += dt;
     if (this.poisonTimer >= 4000) {
       this.poisonTimer = 0;
@@ -396,20 +390,6 @@ export class Battle {
         c.hp = Math.max(0, c.hp - d);
         lines.push(c.side === 'ally' ? `${c.name}は毒で${d}のダメージを受けた！` : `${c.name}は毒で${d}のダメージ！`);
         if (c.hp <= 0) lines.push(...this.kill(c));
-        upd.push(pub(c));
-      }
-      for (const c of this.combatants) {
-        if (!c.regen) continue;
-        if (!c.alive || c.regen.until <= this.time) {
-          c.regen = null;
-          continue;
-        }
-        // 地われ・のみこまれ の 間は 回復を 受けられない（battle-earth.js）
-        if (c.status.rift) continue;
-        const h = Math.min(c.maxHp - c.hp, c.regen.amt);
-        if (h <= 0) continue;
-        c.hp += h;
-        lines.push(`${c.name}のHPが${h}回復した！`);
         upd.push(pub(c));
       }
       if (lines.length) {
@@ -491,7 +471,14 @@ export class Battle {
       c.ready = false;
       c.atb = 0;
       c.defending = true;
-      this.emit({ t: 'act', id: c.id, name: '防御', lines: [`${c.name}は身を守っている。`], upd: [pub(c)], fx: { type: 'defend', actor: c.id } });
+      // 防御も 1回の 行動（じわじわ回復・バフの のこり。第38回 C）
+      const ev = { t: 'act', id: c.id, name: '防御', lines: [], upd: [], fx: { type: 'defend', actor: c.id } };
+      const held = this.heldEffects(c);
+      this.actStart(c, ev);
+      ev.lines.push(`${c.name}は身を守っている。`);
+      this.actEnd(c, held, ev);
+      ev.upd = [...new Set([c, ...ev.upd])].map((x) => (x.id ? pub(x) : x));
+      this.emit(ev);
       return { ok: true };
     }
     this.enqueue(c, cmd);
@@ -591,6 +578,11 @@ export class Battle {
     const ev = { t: 'act', id: c.id, lines: [], upd: [], fx: null };
     this.cur = ev;
     this.turnCount++;
+    // 行動の はじめ: じわじわ回復。この 行動の 前から かかっている バフ・デバフ・かばう を おぼえる（おわりに 1回 へらす。第38回 C）
+    // 合体技は いっしょに 出す 仲間も 1回 行動した ことに なる
+    const actors = [c, ...(q.cmd?.type === 'dual' ? partnersOf(q.cmd).map((id) => this.get(id)).filter((x) => x && x !== c) : [])];
+    const held = actors.map((x) => this.heldEffects(x));
+    this.actStart(c, ev);
     // 反撃の構えは つぎの 自分の 番で とける
     if (c.stance) {
       c.stance = null;
@@ -636,6 +628,8 @@ export class Battle {
     }
     if (ev.postLines) ev.lines.push(...ev.postLines);
     delete ev.postLines;
+    // 行動の おわり: バフ・デバフ・かばう の のこりを 1回 へらす（合体技は 出した 仲間も）
+    actors.forEach((x, i) => { if (i === 0 || ev.dual?.m?.includes(x.id)) this.actEnd(x, held[i], ev); });
     // 合体技が 出なかった（混乱した など）: 相手を もとに もどす
     if (q.cmd?.type === 'dual' && !ev.dual) this.releasePartners(q.cmd);
     // てきが うごいたら れんけいは とぎれる
@@ -1221,8 +1215,8 @@ export class Battle {
       }
       case 'cover': {
         if (eff.all) {
-          c.cover = { target: 'all', until: this.time + eff.dur * 1000 };
-          if (eff.defMult) c.buffs.def = { mult: eff.defMult, until: this.time + eff.dur * 1000 };
+          c.cover = { target: 'all', left: BUFF_ACTS };
+          if (eff.defMult) c.buffs.def = { mult: eff.defMult, left: BUFF_ACTS };
           ev.lines.push(`${c.name}は仲間全員を守る構えだ！`);
         } else {
           const t = targets[0];
@@ -1230,18 +1224,19 @@ export class Battle {
             ev.lines.push('しかし自分をかばうことはできない！');
             break;
           }
-          c.cover = { target: t.id, until: this.time + eff.dur * 1000 };
+          c.cover = { target: t.id, left: BUFF_ACTS };
         }
         ev.upd.push(c);
         break;
       }
       case 'regen': {
-        // じわじわ 回復（料理の スープ など）: REGEN_MS ごとに 少しずつ。強い ほうが のこる
+        // じわじわ 回復（料理人の スープ など）: かかった 人の 行動の はじめに 回復（actStart）。
+        // 回数は 技の レベル（道具・合体技・敵の 技は REGEN_BASE 回。buff-acts.js）。強い ほう・多い ほうが のこる
+        const times = this.regenTimesOf(c, ev);
         for (const t of targets) {
           if (!t.alive) continue;
           const amt = this.healAmountOf(c, eff, powMult);
-          const until = this.time + (eff.dur || 24) * 1000;
-          if (!t.regen || t.regen.amt <= amt || t.regen.until < until) t.regen = { amt: Math.max(amt, t.regen?.amt || 0), until: Math.max(until, t.regen?.until || 0) };
+          t.regen = { amt: Math.max(amt, t.regen?.amt || 0), left: Math.max(times, t.regen?.left || 0) };
           ev.lines.push(`${t.name}は、少しずつ回復する力につつまれた！`);
           ev.upd.push(t);
         }
@@ -1584,6 +1579,8 @@ export class Battle {
     if (c?.dmgRate > 0 && c.side !== t.side && dmg > 0) dmg = Math.max(1, Math.round(dmg * c.dmgRate));
     // 天才しせつ管理者の 予兆保全: 敵の 大技の ダメージが 小さく なる（jobs.js の passive.foresee）
     if (ev.big && c.side === 'enemy' && t.side === 'ally' && dmg > 0) dmg = this.foreseeCut(dmg, ev);
+    // 第38回 C: バフが 3回行動に なった ぶんの ボスの 調整（data/boss-r38.js）
+    if (this.bossDmg < 1 && c.side === 'enemy' && t.side === 'ally' && dmg > 0) dmg = Math.max(1, Math.round(dmg * this.bossDmg));
     // 峰打ち: たおさずに HP を 1 のこす
     if (info.nonLethal && dmg >= t.hp) {
       dmg = Math.max(0, t.hp - 1);
@@ -1736,7 +1733,7 @@ export class Battle {
     // ソリトゥスに ひとりに された 人には、仲間の 補助が とどかない（battle-final.js）
     if (aloneBlock(c, t, ev)) return;
     const k = Math.min(1, powMult);
-    const dur = (eff.dur || 30) * 1000 * (0.5 + powMult / 2);
+    // 第38回 C: かかった 人が BUFF_ACTS 回 行動するまで（かけ直すと もどる。前の 版の 時間〈dur〉は つかわない）
     const stats = eff.stats || [eff.stat];
     const mult = eff.mult >= 1 ? 1 + (eff.mult - 1) * k : eff.mult;
     // 2回目は さらに 上がる（2だんかいまで。stackBuff）
@@ -1745,10 +1742,10 @@ export class Battle {
       if (st === 'eva') {
         const lv = Math.min(BUFF_STACK, (t.buffs.eva?.lv || 0) + 1);
         if (!(t.buffs.eva?.lv >= BUFF_STACK)) maxed = false;
-        t.buffs.eva = { add: Math.min(0.6, (eff.add || 0) * k * lv), lv, until: Math.max(t.buffs.eva?.until || 0, this.time + dur) };
+        t.buffs.eva = { add: Math.min(0.6, (eff.add || 0) * k * lv), lv, left: renewLeft(t.buffs.eva) };
         top = Math.max(top, lv);
       } else {
-        const r = stackBuff(t.buffs, st, mult, this.time + dur);
+        const r = stackBuff(t.buffs, st, mult);
         if (!r.max) maxed = false;
         top = Math.max(top, r.lv);
       }
@@ -1790,7 +1787,7 @@ export class Battle {
       return;
     }
     // 2回目は さらに 下がる（2だんかいまで。stackBuff）
-    const sb = stackBuff(t.debuffs, d.stat, d.mult, this.time + (d.dur || 30) * 1000);
+    const sb = stackBuff(t.debuffs, d.stat, d.mult);
     ev.lines.push(sb.max ? `${t.name}の${statLabel(d.stat)}は、もうこれ以上下がらない！` : sb.lv >= 2 ? `${t.name}の${statLabel(d.stat)}がさらに下がった！` : `${t.name}の${statLabel(d.stat)}が下がった！`);
     ev.upd.push(t);
   }
@@ -1851,6 +1848,56 @@ export class Battle {
     this.combo = { count: n, actor: c.id, element: element || 'phys', time: this.time };
   }
 
+
+  // ───────────── 行動の 回数で 数える こうか（第38回 C。buff-acts.js）─────────────
+  // この 行動の 前から かかっている バフ・デバフ・かばう（この 行動で かけた ものは、つぎの 行動から 数える）
+  heldEffects(c) {
+    return new Set([...Object.values(c.buffs || {}), ...Object.values(c.debuffs || {}), c.cover].filter(Boolean));
+  }
+
+  // 行動の はじめ: じわじわ回復（のこりの 回数を 1 へらして 回復。地われ・のみこまれ の 間は 回復を 受けられない。battle-earth.js）
+  actStart(c, ev) {
+    const r = c.regen;
+    if (!r || !c.alive) return;
+    r.left = leftOf(r) - 1;
+    if (r.left <= 0) c.regen = null;
+    ev.upd.push(c);
+    if (c.status.rift) return;
+    const h = Math.min(c.maxHp - c.hp, r.amt);
+    if (h <= 0) return;
+    c.hp += h;
+    ev.lines.push(`${c.name}のHPが${h}回復した！`);
+    // 画面: 回復した 人の まどを みどりに 光らせる（client/battle.js）
+    (ev.regenHeal = ev.regenHeal || []).push({ id: c.id, heal: h });
+  }
+
+  // 行動の おわり: held（行動の 前から かかっていた もの）の のこりを 1 へらす。0 に なったら 切れる（ずっと つづく ものは へらない）
+  actEnd(c, held, ev) {
+    if (!c.alive) return;
+    const back = [];
+    for (const kind of ['buffs', 'debuffs']) {
+      for (const [st, b] of Object.entries(c[kind] || {})) {
+        if (!b || !held.has(b) || !Number.isFinite(b.left)) continue;
+        b.left--;
+        if (b.left > 0) continue;
+        delete c[kind][st];
+        // 敵の かいひ（空を とぶ など）は だまって 切れる
+        if (c.side === 'ally' || st !== 'eva') back.push(statLabel(st));
+      }
+    }
+    if (back.length) ev.lines.push(`${c.name}の${[...new Set(back)].join('と')}が元にもどった。`);
+    if (c.cover && held.has(c.cover) && Number.isFinite(c.cover.left)) {
+      c.cover.left--;
+      if (c.cover.left <= 0) c.cover = null;
+    }
+    ev.upd.push(c);
+  }
+
+  // じわじわ回復の 回数: 仲間が 自分の 技で かけた ときは その 技の レベル（使った 回数）で。道具・合体技・敵は REGEN_BASE
+  regenTimesOf(c, ev) {
+    if (c.side !== 'ally' || !c.use || !ev?.ability || ev.dual) return REGEN_BASE;
+    return regenTimes(skillLevel(c.use, ev.ability));
+  }
 
   // ───────────── ひらめき ─────────────
   // 技（ふつうの 攻撃は '@atk'）を 使った 回数
@@ -2053,8 +2100,9 @@ export class Battle {
         t.phaseDone = t.phaseDone || {};
         t.phaseDone[i] = true;
         ev.phaseLines = (ev.phaseLines || []).concat(p.msg || []);
-        if (p.buff?.atk) t.buffs.atk = { mult: p.buff.atk, until: Infinity };
-        if (p.debuff?.def) t.debuffs.def = { mult: p.debuff.def, until: Infinity };
+        // ボスの 段階の こうかは ずっと つづく（left: Infinity）
+        if (p.buff?.atk) t.buffs.atk = { mult: p.buff.atk, left: Infinity };
+        if (p.debuff?.def) t.debuffs.def = { mult: p.debuff.def, left: Infinity };
         if (p.turns) t.turns = p.turns;
         // 少し 速く なる（砂クジラ。ゲージの たまる はやさの 倍率）
         if (p.speed) t.speed = (t.speed || 1) * p.speed;
@@ -2220,16 +2268,23 @@ export function pub(c) {
   // 2だんかいめは '+atk2' など（client/ui/info.js の buffNames で ↑↑）
   const lvTag = (b) => (b?.lv >= 2 ? '2' : '');
   const buffs = [...Object.entries(c.buffs || {}).filter(([, b]) => b).map(([k, b]) => '+' + k + lvTag(b)), ...Object.entries(c.debuffs || {}).filter(([, b]) => b).map(([k, b]) => '-' + k + lvTag(b))];
+  // 第38回 C: のこりの 行動の 回数（'+atk' → 3。ずっと つづく ものは 入れない）
+  const buffLeft = {};
+  for (const [sign, map] of [['+', c.buffs], ['-', c.debuffs]]) {
+    for (const [k, b] of Object.entries(map || {})) if (b && Number.isFinite(b.left)) buffLeft[sign + k] = b.left;
+  }
   return {
     id: c.id, side: c.side, kind: c.kind, name: c.name, species: c.species, charId: c.charId,
     controller: c.controller, auto: c.auto, look: c.look, job: c.job, eq: c.eq, mon: c.mon, lv: c.lv,
     waitDual: c.waitDual ? { id: c.waitDual.id, partner: c.waitDual.partner, partners: c.waitDual.partners } : null, dualTarget: c.dualTarget || null, dualWith: c.dualWith || null, dualHold: !!c.dualHold,
     hp: c.hp, maxHp: c.maxHp, mp: c.mp, maxMp: c.maxMp,
     atb: Math.round(c.atb * 10) / 10, rate: atbRate(c),
-    ready: !!c.ready, queued: !!c.queued, alive: !!c.alive, fled: !!c.fled, status: st, buffs,
+    ready: !!c.ready, queued: !!c.queued, alive: !!c.alive, fled: !!c.fled, status: st, buffs, buffLeft,
     defending: !!c.defending, telegraph: !!c.telegraph, stance: c.stance?.kind || null, boss: !!c.boss, size: c.size, slot: c.slot,
-    // じわじわ 回復が かかっている
-    regen: c.regen ? true : undefined,
+    // じわじわ 回復が かかっている（のこりの 回数。第38回 C）
+    regen: c.regen ? leftOf(c.regen) : undefined,
+    // 技の レベル（Lv2 いじょうの 技だけ。メニューの 技の 一覧に 出す。buff-acts.js）
+    slv: c.side === 'ally' && c.use ? skillLvMap(c.use, c.abilities) : undefined,
     // 呪文を となえて いる（よみがえりの呪文）: とぎれるまでの ダメージの たまりぐあい（0〜1）
     chant: c.chant ? Math.min(1, Math.round((c.chant.dmg / c.chant.need) * 100) / 100) : null,
     // まぼろしの 分身の いる たたかいの 本物（足もとに 小さな 影。battle-ch4.js）
@@ -2246,6 +2301,7 @@ export function pub(c) {
     tactics: c.side === 'ally' ? (c.manualTac ? 'manual' : c.tactics) : undefined,
     tacBy: c.side === 'ally' ? c.tacBy || null : undefined,
     covering: c.cover ? c.cover.target : null,
+    coverLeft: c.cover && Number.isFinite(c.cover.left) ? c.cover.left : undefined,
     // 水の衣・光（呪文を はね返す）・大波の 前ぶれ・鏡のうつし身・水のろうの 中の 人（battle-temple.js）
     ...templePub(c),
     // 見通しの目に 読まれている 種類（battle-ch5.js）
@@ -2290,6 +2346,16 @@ export function gritMult(c) {
 export const SEALED_REASON = 'ここでは呪文がふうじられている！';
 export function spellSealed(a) {
   return !!a && (a.kind === 'spell' || !!a.spellLike || a.effect?.type === 'mahouken');
+}
+
+// 技の レベル（Lv2 いじょう）の 一覧 { id: lv }
+function skillLvMap(use, ids) {
+  const out = {};
+  for (const id of ids || []) {
+    const lv = skillLevel(use, id);
+    if (lv >= 2) out[id] = lv;
+  }
+  return out;
 }
 
 function statLabel(stat) {
