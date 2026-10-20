@@ -115,7 +115,9 @@ test('お知らせ: 日付つき・id は 1つずつ・しくみの 紹介（ネ
   for (let i = 1; i < NEWS.length; i++) assert.ok(NEWS[i - 1].date >= NEWS[i].date, '日付の じゅん');
   const titles = NEWS.map((n) => n.title).join('・');
   for (const w of ['配合', 'れん金がま', '合体技', 'ひみつのダンジョン', '宝の地図', 'カジノとメダル王', '馬車', '転職と職業レベル', 'ひらめき', 'お気に入り', '作戦', 'しあわせのぼうし']) assert.ok(titles.includes(w), w);
-  assert.equal(newsDate(NEWS[0]), '10/18');
+  // 日付は「月/日」（いちばん 上の お知らせの 日付から）
+  const [, mo, da] = NEWS[0].date.split('-').map(Number);
+  assert.equal(newsDate(NEWS[0]), `${mo}/${da}`);
   // 漢字の きまり（gameFiles に 入っている）
   assert.ok(gameFiles().some((f) => f.endsWith('shared/data/news.js')));
   assert.deepEqual(checkFile(new URL('../public/js/shared/data/news.js', import.meta.url).pathname), []);
