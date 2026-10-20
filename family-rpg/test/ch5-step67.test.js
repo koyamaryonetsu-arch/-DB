@@ -13,7 +13,7 @@ import { KUMOI_VANES, KUMOI_ROADS, KUMOI_WINDS, KUMOI_POS, KUMOI_ISLES, HANONO_P
 import {
   K7, EF, JAR, GOLEM_LOST, PIT_FLAG, LIFT_FLAG, DROP_FLAG, SWITCH_WAIT, DOOR4_FLAG, LETTER_FLAG, GATHER, GATHER_FLAG, GATHER_POS,
   EARTH_FLOORS, EARTH_MAPS, EARTH_POS, EARTH_GOLEMS, EARTH_OUT, EARTH_REST, EARTH_BOSS, EARTH_SIGHTS, TREMOR_FLOOR, TREMOR_SAFE, LIFT_OUT,
-  golemState, golemCellKind, earthMapId, earthArrive, earthTable, earthTheme,
+  golemState, golemCellKind, earthMapId, earthArrive, earthTable, earthTheme, eo,
 } from '../public/js/shared/maps/earth.js';
 import { STORY_STEPS, SCRIPTS, STORY_SCRIPTS } from '../public/js/shared/data/story.js';
 import { CH5_STEPS, OLD_C5_OBJ, CH5_OBJECTIVE_TARGETS, CH5_OBJECTIVE_TALK } from '../public/js/shared/data/story-ch5.js';
@@ -187,7 +187,7 @@ function earthStates(n, extra = []) {
         if (st.i) nf.delete(G.flags[st.i]);
         if (kind === 'floor' || kind === 'plate') nf.add(G.flags[nx]);
         if (kind === 'plate') nf.add(LIFT_FLAG);
-        if (kind === 'pit') nf.add(PIT_FLAG);
+        if (kind === 'pit') nf.add(G.done);
         if (kind === 'drop') nf.add(DROP_FLAG);
         if (kind === 'gap') nf.add(GOLEM_LOST(n));
         go(P.slab, nf);
@@ -686,11 +686,11 @@ test('大地の こどう（7階）: 歩くと ときどき 地面が ふるえ�
   assert.ok(rockDamage(500, T7.hurt) >= 5 && rockDamage(500, T7.hurt) < 500 / 4, '大きすぎない');
   const { bot, c, clock } = await setup(8801, 'c5_pipi_save', [EF(6), EF(7), DROP_FLAG]);
   // 長い 通路（y = 15）を 東へ
-  const row = Array.from({ length: 10 }, (_, i) => ({ x: 8 + i, y: 15 }));
-  const col = Array.from({ length: 9 }, (_, i) => ({ x: 17, y: 14 - i }));
+  const row = Array.from({ length: 10 }, (_, i) => eo(8 + i, 15));
+  const col = Array.from({ length: 9 }, (_, i) => eo(17, 14 - i));
   const path = [...row, ...col];
   for (const p of path) assert.ok(!isBlocked(m, p.x, p.y, () => true) && !TREMOR_SAFE.some(([x0, y0, x1, y1]) => p.x >= x0 && p.y >= y0 && p.x <= x1 && p.y <= y1), `${p.x},${p.y}`);
-  await place(bot, m.id, 7, 15);
+  await place(bot, m.id, eo(7, 15).x, eo(7, 15).y);
   let i = 0;
   const hp0 = c.hp;
   let from = bot.msgs.length;
@@ -713,9 +713,9 @@ test('大地の こどう（7階）: 歩くと ときどき 地面が ふるえ�
   await stepOn(bot, back[j % back.length].x, back[j++ % back.length].y);
   assert.ok(toast(bot, '落石に当たらなかった', from) && c.hp === hp1, '立ち止まると 当たらない');
   // はじめの へやの 中は ふるえない
-  await place(bot, m.id, 3, 14);
+  await place(bot, m.id, eo(3, 14).x, eo(3, 14).y);
   from = bot.msgs.length;
-  for (let k = 0; k < 30; k++) await stepOn(bot, 3 + (k % 2), 14 + ((k >> 1) % 2));
+  for (let k = 0; k < 30; k++) await stepOn(bot, eo(3 + (k % 2), 0).x, eo(0, 14 + ((k >> 1) % 2)).y);
   assert.ok(!toast(bot, '地面が、ふるえ始めた', from), 'はじめの へやは ふるえない');
   // ほかの 階では おきない
   assert.ok(!MAPS[earthMapId(6)].tremor && !MAPS.kumoi.tremor);
@@ -856,11 +856,11 @@ test('通しで あそべる: c5_nocto → 長ソラネ → 風見の石4 → �
     await examine(bot, p.x, p.y, opts);
   };
   // 1階: 水がめで 根の 橋
-  await use(1, EARTH_POS[1].jars[1].cells.find((p) => p.y > 12));
+  await use(1, EARTH_POS[1].jars[1].cells.find((p) => p.y > eo(0, 12).y));
   got(JAR(1, 1));
   await goDown(1);
   // 2階: 西の 根で まん中の 島へ → まん中の 水がめで 東の 根
-  await use(2, EARTH_POS[2].jars[1].cells.find((p) => p.x > 10 && p.x < 17));
+  await use(2, EARTH_POS[2].jars[1].cells.find((p) => p.x > eo(10, 0).x && p.x < eo(17, 0).x));
   await goDown(2);
   // 3階: 守り手を 5歩（あなを うめる）
   for (let i = 0; i < 5; i++) await use(3, EARTH_POS[3].slab);
@@ -886,15 +886,15 @@ test('通しで あそべる: c5_nocto → 長ソラネ → 風見の石4 → �
   await use(6, EARTH_POS[6].jars[1].cells[0]);
   for (let i = 0; i < 9; i++) await use(6, EARTH_POS[6].slab);
   got(DROP_FLAG);
-  await place(bot, floor(6), 11, 10);
-  await use(6, EARTH_POS[6].jars[1].cells.find((p) => p.x > 9 && p.x < 15));
+  await place(bot, floor(6), eo(11, 10).x, eo(11, 10).y);
+  await use(6, EARTH_POS[6].jars[1].cells.find((p) => p.x > eo(9, 0).x && p.x < eo(15, 0).x));
   await goDown(6);
   // 7階: 足場を わたって
   await goDown(7);
   // 8階: ノクト → 影の城
   const T8 = EARTH_POS[8].trigger;
-  await place(bot, floor(8), 13, T8.y + 1);
-  await stepOn(bot, 13, T8.y, opts);
+  await place(bot, floor(8), eo(13, 0).x, T8.y + 1);
+  await stepOn(bot, eo(13, 0).x, T8.y, opts);
   for (const f of ['c5_nocto1', 'c5_castle', LETTER_FLAG]) got(f);
   assert.equal(bot.s.map, 'kumoi');
   assert.deepEqual(fought.filter((id) => FIXED_ENCOUNTERS[id]), ['nocto_1'], 'きまった 戦いは ノクトだけ');

@@ -434,7 +434,7 @@ export class ScriptRun {
         }
         case 'spawn': {
           const [map, x, y] = a;
-          this.owner.char.spawn = { map, x, y };
+          this.owner.char.spawn = { map, x, y, ...(MAPS[map]?.layoutVer ? { lv: MAPS[map].layoutVer } : {}) };
           break;
         }
         case 'curse': {
