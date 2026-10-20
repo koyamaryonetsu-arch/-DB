@@ -1,18 +1,18 @@
 // マップの タイル（16×16 ドット）を プログラムで かく
-import { T, TILE_INFO } from '../../shared/tiles.js?v=4cd67bf27571';
-import { hash2 } from '../../shared/rng.js?v=4cd67bf27571';
-import { Painter, shade, prand } from './pixel.js?v=4cd67bf27571';
-import { themedCanvas, partOfTile } from './themes.js?v=4cd67bf27571';
-import { CH3_PAINTERS, CH3_FRAMES, CH3_SPEED, RAIL_TILES, CH3_WALLS } from './tiles-ch3.js?v=4cd67bf27571';
-import { CH4_PAINTERS, CH4_FRAMES, CH4_SPEED, CH4_WALLS, ch4Mask, desertBase } from './tiles-ch4.js?v=4cd67bf27571';
-import { CANAL_CTX, CANAL_CTX_PAINTERS, canalVariant, canalBaseBits, canalWallBits } from './tiles-canal.js?v=4cd67bf27571';
-import { PYRAMID_PAINTERS, PYRAMID_FRAMES, PYRAMID_SPEED, PYRAMID_WALLS, paintTablet, paintPyrBrazier, paintPyrLever } from './tiles-pyramid.js?v=4cd67bf27571';
-import { whirlVariant } from './tiles-duna.js?v=4cd67bf27571';
-import { templeVariant } from './tiles-temple.js?v=4cd67bf27571';
-import { TOWER_PAINTERS, TOWER_FRAMES, TOWER_SPEED, TOWER_WALLS, towerMask, towerVariant } from './tiles-tower.js?v=4cd67bf27571';
-import { KUMOI_PAINTERS, KUMOI_FRAMES, KUMOI_SPEED, KUMOI_WALLS, kumoiMask, kumoiVariant } from './tiles-kumoi.js?v=4cd67bf27571';
-import { MEMORY_PAINTERS, MEMORY_FRAMES, MEMORY_SPEED } from './tiles-memory.js?v=4cd67bf27571';
-import { EARTH_PAINTERS, EARTH_FRAMES, EARTH_SPEED } from './tiles-earth.js?v=4cd67bf27571';
+import { T, TILE_INFO } from '../../shared/tiles.js?v=b995923bfc44';
+import { hash2 } from '../../shared/rng.js?v=b995923bfc44';
+import { Painter, shade, prand } from './pixel.js?v=b995923bfc44';
+import { themedCanvas, partOfTile } from './themes.js?v=b995923bfc44';
+import { CH3_PAINTERS, CH3_FRAMES, CH3_SPEED, RAIL_TILES, CH3_WALLS } from './tiles-ch3.js?v=b995923bfc44';
+import { CH4_PAINTERS, CH4_FRAMES, CH4_SPEED, CH4_WALLS, ch4Mask, desertBase } from './tiles-ch4.js?v=b995923bfc44';
+import { CANAL_CTX, CANAL_CTX_PAINTERS, canalVariant, canalBaseBits, canalWallBits } from './tiles-canal.js?v=b995923bfc44';
+import { PYRAMID_PAINTERS, PYRAMID_FRAMES, PYRAMID_SPEED, PYRAMID_WALLS, paintTablet, paintPyrBrazier, paintPyrLever } from './tiles-pyramid.js?v=b995923bfc44';
+import { whirlVariant } from './tiles-duna.js?v=b995923bfc44';
+import { templeVariant } from './tiles-temple.js?v=b995923bfc44';
+import { TOWER_PAINTERS, TOWER_FRAMES, TOWER_SPEED, TOWER_WALLS, towerMask, towerVariant } from './tiles-tower.js?v=b995923bfc44';
+import { KUMOI_PAINTERS, KUMOI_FRAMES, KUMOI_SPEED, KUMOI_WALLS, kumoiMask, kumoiVariant } from './tiles-kumoi.js?v=b995923bfc44';
+import { MEMORY_PAINTERS, MEMORY_FRAMES, MEMORY_SPEED } from './tiles-memory.js?v=b995923bfc44';
+import { EARTH_PAINTERS, EARTH_FRAMES, EARTH_SPEED } from './tiles-earth.js?v=b995923bfc44';
 
 export const TS = 16;
 
