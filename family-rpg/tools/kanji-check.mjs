@@ -279,6 +279,8 @@ export function gameFiles() {
     // 第5章 Step 6・7（A: 大地の神殿・ノクト〈1回目〉・影の城・みんなが集まる）
     'public/js/shared/data/story-earth.js', 'public/js/shared/maps/earth.js', 'public/js/shared/maps/earth-rows.js',
     'public/js/shared/data/shops-earth.js', 'public/js/shared/world/tremor.js',
+    // 第5章 Step 8（A8: 影の城）
+    'public/js/shared/data/story-castle.js', 'public/js/shared/maps/castle.js', 'public/js/shared/maps/castle-rows.js',
     // 第35回 D: 配合の 作りなおし（ボス級の 仲間）・仲間が いっぱいの ときの さよなら
     'public/js/shared/data/monsters-boss.js', 'public/js/shared/world/farewell.js',
     // 第35回 A: 技の タブ・お知らせ

@@ -56,7 +56,14 @@ export function sunSide(frac) {
 export function timeFlag(f, frac) {
   if (f === '@night') return isNightFrac(frac);
   if (f === '@noon' || f === '@am' || f === '@pm') return sunSide(frac) === f.slice(1);
+  // 第5章 Step 8 の 影の城の 炎の 柱（maps/castle.js）: '@fireA' と '@fireB' が FIRE_HALF ミリびょう ごとに こうたい
+  if (f === '@fireA' || f === '@fireB') return firePhase(frac) === (f === '@fireA' ? 0 : 1);
   return false;
+}
+// 影の城の 炎の 柱の じゅんばん（0 … A の 柱が ふき上がる / 1 … B の 柱が ふき上がる）。1日（DAY_MS）は FIRE_HALF で わりきれる
+export const FIRE_HALF = 2400;
+export function firePhase(frac) {
+  return Math.floor((mod(frac, 1) * DAY_MS) / FIRE_HALF + 1e-6) % 2;
 }
 
 // くらさ（0＝昼 〜 1＝まよなか）。夕方と 明け方は だんだん

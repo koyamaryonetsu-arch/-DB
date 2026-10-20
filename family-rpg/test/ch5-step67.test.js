@@ -236,7 +236,7 @@ const kumoiStops = (fl, start) => flowReach(MAPS.kumoi, start, (f) => fl.include
 test('すすみぐあい: c5_nocto → c5_root … c5_gather（名前の 約束）。目標・仲間会話・地図の しるし・Step 5 の さいごの 文の なおし', () => {
   assert.deepEqual(EARTH_STEPS, ['c5_root', 'c5_etemple', 'c5_pipi_save', 'c5_nocto1', 'c5_castle', 'c5_gather'], '名前の 約束（plan-ch5.md の 16）');
   const si = CH5_STEPS.indexOf('c5_nocto');
-  assert.deepEqual(CH5_STEPS.slice(si + 1), EARTH_STEPS, 'c5_nocto の うしろに つづく');
+  assert.deepEqual(CH5_STEPS.slice(si + 1, si + 1 + EARTH_STEPS.length), EARTH_STEPS, 'c5_nocto の うしろに つづく');
   assert.deepEqual(STORY_STEPS.slice(STORY_STEPS.indexOf('c5_nocto') + 1, STORY_STEPS.indexOf('c5_nocto') + 7), EARTH_STEPS);
   assert.deepEqual(EARTH_MAPS, ['earth_1f', 'earth_2f', 'earth_3f', 'earth_4f', 'earth_5f', 'earth_6f', 'earth_7f', 'earth_8f'], 'マップの ID の 約束');
   assert.ok(KUMOI_ISLES.root && KUMOI_ROADS.w9 && KUMOI_VANES.v4 === 'c5_kroad_w9', '根の島・風の道 w9・風見の石4 c5_kroad_w9');
@@ -255,7 +255,9 @@ test('すすみぐあい: c5_nocto → c5_root … c5_gather（名前の 約束�
   assert.equal(objectiveFromFlags(f('c5_nocto1', EF(8))), EARTH_OBJ.nocto1);
   assert.equal(objectiveFromFlags(f('c5_castle')), EARTH_OBJ.castle);
   assert.equal(objectiveFromFlags(f('c5_gather')), EARTH_OBJ.gather);
-  assert.equal(EARTH_OBJ.gather, '第5章の続きはアップデートで！（影の城の入口で、風がまっている…）', 'Step 7 の さいご');
+  // Step 7 の さいごの 文（第5章の続きは…）は Step 8 で 長ソラネへの 文に かえた（ch5-step8.test.js）
+  assert.equal(OLD_C5_OBJ.gather, '第5章の続きはアップデートで！（影の城の入口で、風がまっている…）', 'Step 7 の さいご（前の 文）');
+  assert.ok(EARTH_OBJ.gather.includes('長ソラネ'));
   // どの 目標にも 仲間会話と 行き先
   for (const [k, t] of Object.entries({ ...EARTH_OBJ, nocto: HOSHIYOMI_OBJ.nocto })) {
     assert.ok(KNOWN_OBJECTIVES.has(t), k);
@@ -800,7 +802,7 @@ test('みんなが 集まる（ハネノ）: 7人と 話すと 1人ずつ 力を
   }
   assert.ok(c.flags.c5_gather, '7人 ぜんぶ → c5_gather');
   assert.equal(c.objective, EARTH_OBJ.gather);
-  assert.ok(said(bot, 'ハネビトみんなで、風の道をつくります') && said(bot, '第5章の続きはアップデートで！'));
+  assert.ok(said(bot, 'ハネビトみんなで、風の道をつくります') && said(bot, '長ソラネに話しかけよう'));
   for (const id of Object.values(GATHER_GIFTS)) assert.ok(n0(id) >= 1 || Object.values(c.equip).includes(id), `もらった ${id}`);
   assert.ok(n0('kumo_wataame') > before.wata && n0('revive_flower') > before.rev, 'ルカの 道具');
   assert.ok(c.keyItems.includes('yukina_song') && c.keyItems.includes('hoshifuru_stone'), 'いのりの歌・星の石の かけら');
@@ -905,7 +907,7 @@ test('通しで あそべる: c5_nocto → 長ソラネ → 風見の石4 → �
   for (const f of EARTH_STEPS) got(f);
   assert.equal(c.objective, EARTH_OBJ.gather);
   // そのあとの ことば
-  assert.ok(JSON.stringify(SCRIPTS.c5_sorane(ctx(c.flags))).includes('風の道を'), '長ソラネ');
+  assert.ok(JSON.stringify(SCRIPTS.c5_sorane(ctx(c.flags))).includes('風の道'), '長ソラネ');
   assert.ok(JSON.stringify(SCRIPTS.c5_pipi(ctx(c.flags))).includes('手紙'), 'ピピ');
   assert.ok(JSON.stringify(SCRIPTS.elder(ctx(c.flags))).includes('星の石のかけら'), 'ばあちゃん');
 });

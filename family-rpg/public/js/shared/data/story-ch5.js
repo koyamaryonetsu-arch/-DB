@@ -26,6 +26,10 @@ import {
 import {
   EARTH_STEPS, EARTH_STORY_SCRIPTS, EARTH_SCRIPTS, EARTH_OBJECTIVE_TARGETS, EARTH_OBJECTIVE_TALK, EARTH_PROGRESS, elderEarth,
 } from './story-earth.js';
+// Step 8: 影の城（story-castle.js。てっぺんと エンディングは A9）
+import {
+  CASTLE_STEPS, CASTLE_STORY_SCRIPTS, CASTLE_SCRIPTS, CASTLE_OBJECTIVE_TARGETS, CASTLE_OBJECTIVE_TALK, CASTLE_PROGRESS,
+} from './story-castle.js';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -41,7 +45,8 @@ const V = (x, y) => [VIL.x + x + 0.5, VIL.y + y + 0.5];
 //   c5_nshadow（ノクトの 影を たおした）・c5_nocto（本物の ノクトに 会った。Step 5 の さいご）。story-hoshiyomi.js の HOSHIYOMI_STEPS
 // Step 6・7: c5_root（ソラネから 大地の 神殿の 話）・c5_etemple（大地の 神殿に 入った）・c5_pipi_save（5階で ピピを 助けた）・
 //   c5_nocto1（ノクト 1回目の 戦いが おわった）・c5_castle（影の城が うかんだ）・c5_gather（みんなと 話した。Step 7 の さいご）。story-earth.js の EARTH_STEPS
-export const CH5_STEPS = [C5.start, C5.hood, C5.stones, C5.wings, C5.veil, C5.tower, C5.argos, C5.sky, ...KUMOI_STEPS, ...HOSHIYOMI_STEPS, ...EARTH_STEPS];
+// Step 8: c5_croad（影の城への 風の道が できた）・c5_cin（影の城に 入った）・c5_seal1〜c5_seal3（風・炎・水の まぼろしを たおした）。story-castle.js の CASTLE_STEPS
+export const CH5_STEPS = [C5.start, C5.hood, C5.stones, C5.wings, C5.veil, C5.tower, C5.argos, C5.sky, ...KUMOI_STEPS, ...HOSHIYOMI_STEPS, ...EARTH_STEPS, ...CASTLE_STEPS];
 
 // ───── 目標 ─────
 // 第4章クリアの あと（ホシミばあちゃんに 話しかける。story-ch4-temple.js の TEMPLE_OBJ.clear）
@@ -75,6 +80,8 @@ export const OLD_C5_OBJ = {
   shard: '第5章の続きはアップデートで！（守り星のかけらの光で、島のしずみが少し止まった…）',
   // Step 5 の さいご（c5_nocto。Step 6 で story-hoshiyomi.js の HOSHIYOMI_OBJ.nocto を ハネノの 長ソラネへの 文に かえた）
   nocto: '第5章の続きはアップデートで！（ノクトは「大地の神殿まで来ればいい」と言って、消えた…）',
+  // Step 7 の さいご（c5_gather。Step 8 で story-earth.js の EARTH_OBJ.gather を 長ソラネへの 文に かえた）
+  gather: '第5章の続きはアップデートで！（影の城の入口で、風がまっている…）',
 };
 
 // パーティー全員で 見る イベント（リーダーの 世界で すすむ）
@@ -84,6 +91,7 @@ export const CH5_STORY_SCRIPTS = [
   ...KUMOI_STORY_SCRIPTS,
   ...HOSHIYOMI_STORY_SCRIPTS,
   ...EARTH_STORY_SCRIPTS,
+  ...CASTLE_STORY_SCRIPTS,
 ];
 
 // ───────────── 2回目の 星祭り・フードの子（ホシミばあちゃん。c5_start・c5_hood）─────────────
@@ -583,6 +591,8 @@ export const CH5_SCRIPTS = {
   ...HOSHIYOMI_SCRIPTS,
   // Step 6・7（story-earth.js。風見の石4 c5_kroad_w9 は story-hoshiyomi.js の ものを うわがき）
   ...EARTH_SCRIPTS,
+  // Step 8（story-castle.js。クモイ地方の 影の城 c5_castle_view は story-earth.js の ものを うわがき）
+  ...CASTLE_SCRIPTS,
   c5_argos_door: () => N('星の光でできたとびらだ。', 'かたくとざされている…。\n（星の番人に、みとめてもらわないと、開かないようだ）'),
   // てっぺん
   c5_top_event: (x) => (x.flag(C5.sky) ? [] : topEvent()),
@@ -646,6 +656,7 @@ export const CH5_OBJECTIVE_TARGETS = {
   ...KUMOI_OBJECTIVE_TARGETS,
   ...HOSHIYOMI_OBJECTIVE_TARGETS,
   ...EARTH_OBJECTIVE_TARGETS,
+  ...CASTLE_OBJECTIVE_TARGETS,
 };
 
 // ───── 仲間会話（party-talk.js。「はなす」の ヒント）─────
@@ -749,6 +760,7 @@ export const CH5_OBJECTIVE_TALK = {
   ...KUMOI_OBJECTIVE_TALK,
   ...HOSHIYOMI_OBJECTIVE_TALK,
   ...EARTH_OBJECTIVE_TALK,
+  ...CASTLE_OBJECTIVE_TALK,
 };
 
 // ───── すすみぐあい（progress.js の PROGRESS の うしろに つづく）─────
@@ -766,6 +778,7 @@ export const CH5_PROGRESS = [
   ...KUMOI_PROGRESS,
   ...HOSHIYOMI_PROGRESS,
   ...EARTH_PROGRESS,
+  ...CASTLE_PROGRESS,
 ];
 
 export { STARS_FLAG, DOOR_FLAG };

@@ -22,6 +22,7 @@ import { towerBlockSpec, TOWER_FLOOR_H } from './tiles-tower.js';
 import { kumoiBlockSpec, KUMOI_FLOOR_H, KUMOI_LIQUIDS, CLOUD_OUTSIDE } from './tiles-kumoi.js';
 import { MEMORY_FLOOR_H, MEMORY_LIQUIDS } from './tiles-memory.js';
 import { EARTH_FLOOR_H, EARTH_LIQUIDS, earthBlockSpec } from './tiles-earth.js';
+import { CASTLE_FLOOR_H } from './tiles-castle.js';
 import { TROUGH, CANAL_CTX, CANAL_SUN, canalVariant, canalMask, canalFlow, damVertical } from './tiles-canal.js';
 import { flipCanvas, makeCanvas, ctxOf, whiteCopy } from './pixel.js';
 import { themedCanvas, partOfTile, partOfExtra, partOfProp } from './themes.js';
@@ -61,7 +62,9 @@ const LIQUID_TILES = { [T.LAVA]: { name: 'lava', y: WATER_Y + 0.06, speed: 380 }
 // 第4章 Step 2（かれた地下水路）: 水路の 底・水の たかさ（通路より ひくい）・水門と こうしの とびらの たかさ・がれきの 山の たかさ
 const CANAL_BED_H = -0.42, CANAL_WATER_Y = -0.27, GATE_H = 1.05, DAM_H = 0.62;
 // 地面の たかさ（深い 雪は すこし 高く・谷は ふかく・水路の 底は ひくく）
-const FLOOR_H = { [T.STEPPING]: -0.16, [T.DEEP_SNOW]: 0.14, [T.CHASM]: -0.8, [T.CANAL_BED]: CANAL_BED_H, [T.DAM]: CANAL_BED_H, ...TEMPLE_FLOOR_H, ...TOWER_FLOOR_H, ...KUMOI_FLOOR_H, ...MEMORY_FLOOR_H, ...EARTH_FLOOR_H };
+// 時間で かわる とびらの しるし（第5章 Step 8 の 影の城の 炎の 柱。world/clock.js の timeFlag）
+const TIMED_FLAGS = new Set(['@fireA', '@fireB']);
+const FLOOR_H = { [T.STEPPING]: -0.16, [T.DEEP_SNOW]: 0.14, [T.CHASM]: -0.8, [T.CANAL_BED]: CANAL_BED_H, [T.DAM]: CANAL_BED_H, ...TEMPLE_FLOOR_H, ...TOWER_FLOOR_H, ...KUMOI_FLOOR_H, ...MEMORY_FLOOR_H, ...EARTH_FLOOR_H, ...CASTLE_FLOOR_H };
 // 雪・氷・砂ばくの 地面の よこの え
 const SIDE_OF = {
   [T.SAND]: 'sand_side', [T.SNOW]: 'snow_side', [T.SNOW_PATH]: 'snow_side', [T.DEEP_SNOW]: 'snow_side', [T.ICE]: 'ice_side',
@@ -268,7 +271,9 @@ export class Field3D {
     const t0 = performance.now();
     this.disposeStatic();
     const f = this.field;
-    const gate = (fl) => f.gateFlag(fl);
+    // 時間で かわる とびら（第5章 Step 8 の 炎の 柱 '@fireA'・'@fireB'）は、ゆかを「止まっている」すがたで つくり、
+    // 炎は べつの たてた もの（timedProps）に して、まいフレーム 見える・見えないを きりかえる（つくりなおさない）
+    const gate = (fl) => (TIMED_FLAGS.has(fl) ? false : f.gateFlag(fl));
     const { w, h } = map;
     const dungeon = map.kind === 'dungeon';
     this.dark = !!map.dark;
@@ -330,7 +335,7 @@ export class Field3D {
       const name = kind === 't' ? `t:${a}:${b}:${c}` : `x:${a}:${b}`;
       const art = () => (kind === 't' ? tileArt(a, b, c) : extraCanvas(a, b));
       // 宝の洞窟は しゅるいで 色を かえる
-      if (map.theme) return atlas.uv(name, () => themedCanvas(art(), map.theme, kind === 't' ? partOfTile(a, c) : partOfExtra(a)));
+      if (map.theme) return atlas.uv(name, () => themedCanvas(art(), map.theme, kind === 't' ? partOfTile(a, c, map.theme) : partOfExtra(a)));
       return atlas.uv(name, art);
     };
 
@@ -530,11 +535,28 @@ export class Field3D {
       group.add(roofMesh);
       this.buildings.push({ r, walls, roof: roofMesh });
     }
+    // 時間で ふき上がる 炎の 柱（第5章 Step 8。flag ごとに 1つの メッシュ）
+    const timedGeos = new Map();
+    for (const g of map.gates) {
+      const fl = g.levels?.[0]?.[0];
+      if (!TIMED_FLAGS.has(fl)) continue;
+      const c = propCanvas(g.levels[0][1]);
+      if (!c) continue;
+      if (!timedGeos.has(fl)) timedGeos.set(fl, newGeo());
+      this.addProp(timedGeos.get(fl), map.theme ? themedCanvas(c, map.theme, partOfProp(g.levels[0][1], map.theme)) : c, g.x + 0.5, g.y + 0.78, g.levels[0][1]);
+    }
+    this.timedProps = [];
     // もの（たてた え）
-    if (props.pos.length) {
+    if (props.pos.length || timedGeos.size) {
       const pm = new THREE.MeshBasicMaterial({ map: this.tex(this.propAtlas.canvas), alphaTest: 0.5, side: THREE.DoubleSide });
       materials.push(pm);
-      group.add(new THREE.Mesh(toGeometry(props), pm));
+      if (props.pos.length) group.add(new THREE.Mesh(toGeometry(props), pm));
+      for (const [fl, tg] of timedGeos) {
+        const mesh = new THREE.Mesh(toGeometry(tg), pm);
+        mesh.visible = f.gateFlag(fl);
+        group.add(mesh);
+        this.timedProps.push({ mesh, flag: fl });
+      }
     }
     this.propAtlas = null;
     // き
@@ -832,13 +854,14 @@ export class Field3D {
     const m = f.map;
     if (!m || this.lost) return;
     this.time += dt;
-    // levels の ある とびら（第4章 Step 7 の 水の 高さ）は、どの フラグも 見る
-    const sig = m.gates.map((g) => (g.levels ? g.levels.map(([fl]) => (f.gateFlag(fl) ? 1 : 0)).join('') : f.gateFlag(g.flag) ? 1 : 0)).join('');
+    // levels の ある とびら（第4章 Step 7 の 水の 高さ）は、どの フラグも 見る。時間で かわる 炎の 柱（TIMED_FLAGS）は 見ない
+    const sig = m.gates.map((g) => (g.levels ? g.levels.map(([fl]) => (!TIMED_FLAGS.has(fl) && f.gateFlag(fl) ? 1 : 0)).join('') : f.gateFlag(g.flag) ? 1 : 0)).join('');
     if (this.mapId !== f.mapId || sig !== this.gateSig) {
       this.gateSig = sig;
       this.build(m);
       this.snap = true;
     }
+    for (const t of this.timedProps || []) t.mesh.visible = f.gateFlag(t.flag);
     // カメラ
     const me = f.lookAt || f.me; // だいほんの ['look', x, y] の 間は その 場所を 見る
     const tx = Math.max(3, Math.min(m.w - 3, me.x));

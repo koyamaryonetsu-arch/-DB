@@ -16,6 +16,7 @@ import { attachTower } from './tower.js';
 import { attachKumoi } from './kumoi.js';
 import { attachHoshiyomi } from './hoshiyomi.js';
 import { attachEarth } from './earth.js';
+import { attachCastle } from './castle.js';
 
 const V = (x, y) => [PLACES.village.x + x, PLACES.village.y + y];
 const TW = (x, y) => [PLACES.town.x + x, PLACES.town.y + y];
@@ -301,6 +302,8 @@ function buildMaps() {
   attachHoshiyomi(maps);
   // 第5章 Step 6・7: 大地の神殿（maps/earth.js。根の島は maps/kumoi.js）
   attachEarth(maps);
+  // 第5章 Step 8: 影の城（maps/castle.js。城の 前の 小島の 風の道も）
+  attachCastle(maps);
   // 夜の 町・村（夜だけ 出る 人・夜は 家に 帰る 人）
   addNightNpcs(maps);
   for (const m of Object.values(maps)) finishMap(m);
