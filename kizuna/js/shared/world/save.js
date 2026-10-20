@@ -5,18 +5,18 @@
 // ・知らない 項目や 知らない 品物・職業・モンスターは けさずに とっておく（stash）。
 //   あとで その ゲームが 知っている ものに なったら もとに もどす
 // ・品物・職業・モンスター・マップの ID は けさない・なまえを かえない
-import { ITEMS, SLOTS } from '../data/items.js?v=557fc20ec559';
-import { JOBS } from '../data/jobs.js?v=557fc20ec559';
-import { MONSTERS } from '../data/monsters.js?v=557fc20ec559';
-import { migrateJobs, oldComboUnlocks, addItem, fixBodyJob } from '../stats.js?v=557fc20ec559';
-import { repairTreasureMaps } from '../data/treasure.js?v=557fc20ec559';
-import { ensureTmClears } from '../data/casino-tier.js?v=557fc20ec559';
-import { repairSecret } from '../data/secret.js?v=557fc20ec559';
-import { repairAlchemy } from './alchemy.js?v=557fc20ec559';
-import { normBank } from './bank.js?v=557fc20ec559';
-import { cleanWagon } from '../data/wagon.js?v=557fc20ec559';
-import { cleanLookEquip } from '../look-equip.js?v=557fc20ec559';
-import { cleanVehicles } from '../data/vehicles.js?v=557fc20ec559';
+import { ITEMS, SLOTS } from '../data/items.js?v=661924ced2fb';
+import { JOBS } from '../data/jobs.js?v=661924ced2fb';
+import { MONSTERS } from '../data/monsters.js?v=661924ced2fb';
+import { migrateJobs, oldComboUnlocks, addItem, fixBodyJob } from '../stats.js?v=661924ced2fb';
+import { repairTreasureMaps } from '../data/treasure.js?v=661924ced2fb';
+import { ensureTmClears } from '../data/casino-tier.js?v=661924ced2fb';
+import { repairSecret } from '../data/secret.js?v=661924ced2fb';
+import { repairAlchemy } from './alchemy.js?v=661924ced2fb';
+import { normBank } from './bank.js?v=661924ced2fb';
+import { cleanWagon } from '../data/wagon.js?v=661924ced2fb';
+import { cleanLookEquip } from '../look-equip.js?v=661924ced2fb';
+import { cleanVehicles } from '../data/vehicles.js?v=661924ced2fb';
 
 export const SAVE_VERSION = 4;
 

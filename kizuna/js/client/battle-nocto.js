@@ -3,11 +3,11 @@
 //   まねられて いる 人の まどに「まねられている」の しるし（noctoMarks）。まねた ときは 短い バナー
 // ・きずなくだき: 前ぶれの 間は 影の まわりに むらさきの わ（noctoDraw）と バナー。よやくを くだかれた・守りぬいた ときも バナー
 // ・敵が 使うと がめんの まん中に 大きく 出す 技・味方の まどの えんしゅつ・音
-import { heroCanvas } from './render/hero.js?v=557fc20ec559';
-import { monsterCanvas } from './render/monsters.js?v=557fc20ec559';
-import { equipKey } from './render/chars.js?v=557fc20ec559';
-import { makeCanvas, ctxOf, flipCanvas } from './render/pixel.js?v=557fc20ec559';
-import { el } from './ui/dom.js?v=557fc20ec559';
+import { heroCanvas } from './render/hero.js?v=661924ced2fb';
+import { monsterCanvas } from './render/monsters.js?v=661924ced2fb';
+import { equipKey } from './render/chars.js?v=661924ced2fb';
+import { makeCanvas, ctxOf, flipCanvas } from './render/pixel.js?v=661924ced2fb';
+import { el } from './ui/dom.js?v=661924ced2fb';
 
 const NOCTO = 'nocto_shadow';
 export const NOCTO_SCREEN_ANIMS = ['ns_dark', 'ns_bond_break', 'soul_chill', 'soul_joy', 'homun_blades', 'stardust_shine', 'owl_wind', 'agent_smoke', 'ghost_song'];

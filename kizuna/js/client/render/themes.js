@@ -1,16 +1,16 @@
 // 色の かえかた（宝の洞窟の しゅるい・第3章の 氷と 火の 洞窟・第4章の 砂の 洞窟と 地下水路・洞窟の 主の 色ちがい）
 // もとの ドット絵は そのままに、明るさを たもって 色だけ かえる
-import { T } from '../../shared/tiles.js?v=557fc20ec559';
-import { makeCanvas, ctxOf } from './pixel.js?v=557fc20ec559';
-import { CANAL_CTX, CANAL_CTX_TILES } from './tiles-canal.js?v=557fc20ec559';
-import { TEMPLE_TILES } from './tiles-temple.js?v=557fc20ec559';
-import { LAB_TILES } from './tiles-lab.js?v=557fc20ec559';
-import { TOWER_TILES, TOWER_THEMES } from './tiles-tower.js?v=557fc20ec559';
-import { KUMOI_TILES, KUMOI_THEMES } from './tiles-kumoi.js?v=557fc20ec559';
-import { MEMORY_KEEP_COLOR, MEMORY_THEMES } from './tiles-memory.js?v=557fc20ec559';
-import { EARTH_KEEP_COLOR, EARTH_THEMES } from './tiles-earth.js?v=557fc20ec559';
-import { CASTLE_KEEP_COLOR, CASTLE_THEMES, THEME_PARTS } from './tiles-castle.js?v=557fc20ec559';
-import { TOP_KEEP_COLOR, TOP_THEMES } from './tiles-top.js?v=557fc20ec559';
+import { T } from '../../shared/tiles.js?v=661924ced2fb';
+import { makeCanvas, ctxOf } from './pixel.js?v=661924ced2fb';
+import { CANAL_CTX, CANAL_CTX_TILES } from './tiles-canal.js?v=661924ced2fb';
+import { TEMPLE_TILES } from './tiles-temple.js?v=661924ced2fb';
+import { LAB_TILES } from './tiles-lab.js?v=661924ced2fb';
+import { TOWER_TILES, TOWER_THEMES } from './tiles-tower.js?v=661924ced2fb';
+import { KUMOI_TILES, KUMOI_THEMES } from './tiles-kumoi.js?v=661924ced2fb';
+import { MEMORY_KEEP_COLOR, MEMORY_THEMES } from './tiles-memory.js?v=661924ced2fb';
+import { EARTH_KEEP_COLOR, EARTH_THEMES } from './tiles-earth.js?v=661924ced2fb';
+import { CASTLE_KEEP_COLOR, CASTLE_THEMES, THEME_PARTS } from './tiles-castle.js?v=661924ced2fb';
+import { TOP_KEEP_COLOR, TOP_THEMES } from './tiles-top.js?v=661924ced2fb';
 
 // どの 部分か（ゆか・かべ・水）
 const PART_OF_TILE = {

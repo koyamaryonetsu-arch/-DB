@@ -3,10 +3,10 @@
 //   ・戦いの あとで 魔物が 仲間に なりたがった 時（world.js の offerBefriend → scripts.js の 'befriend' の 4つめ）
 //   ・人間の 仲間とも 別れられる。人間は あとで 酒場で また さそえる（レベル1から。world/party.js の companionRelease）
 //   ・配合は 2ひき → 1ぴきなので いっぱいでも できる（さよならは いらない）
-import { MONSTERS } from '../data/monsters.js?v=557fc20ec559';
-import { ROSTER_MAX } from '../data/companions.js?v=557fc20ec559';
-import { jobLabel } from '../job-label.js?v=557fc20ec559';
-import { ensureCompanions, companionRelease } from './party.js?v=557fc20ec559';
+import { MONSTERS } from '../data/monsters.js?v=661924ced2fb';
+import { ROSTER_MAX } from '../data/companions.js?v=661924ced2fb';
+import { jobLabel } from '../job-label.js?v=661924ced2fb';
+import { ensureCompanions, companionRelease } from './party.js?v=661924ced2fb';
 
 // 酒場が いっぱいか（パーティー・馬車・酒場の 仲間 みんなで ROSTER_MAX）
 export function rosterIsFull(c) {
