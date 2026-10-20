@@ -271,7 +271,8 @@ export function serviceAction(world, s, msg) {
         const host = world.hostOf?.(s);
         if (host) reply(true, `神のご加護がありますように。\n今は${host.char.name}の冒険を手伝っているので、\nいのりの場所は${host.char.name}と同じです。`);
         else {
-          c.spawn = { map: s.map, x: s.x, y: s.y };
+          // lv … マップの レイアウトの 版（world.js の posOf・layoutFix。ひろげた ダンジョンの 前の 版の いのりの場所を 見分ける）
+          c.spawn = { map: s.map, x: s.x, y: s.y, ...(MAPS[s.map]?.layoutVer ? { lv: MAPS[s.map].layoutVer } : {}) };
           reply(true, '神のご加護がありますように。\nここをいのりの場所として記録しました。');
         }
         world.saveNow({ urgent: true });

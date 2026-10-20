@@ -11,7 +11,7 @@
 // クモイ地方の 影の城の 前の 小島から 城の 門への 風の道（c5_croad の あと）も ここで たす（attachCastle）。だいほんは data/story-castle.js
 import { T, parseRows } from '../tiles.js';
 import { npc } from './npc.js';
-import { CASTLE_ROWS, CASTLE_W, CASTLE_H } from './castle-rows.js';
+import { CASTLE_ROWS, CASTLE_W, CASTLE_H, CASTLE_OX, CASTLE_OY } from './castle-rows.js';
 import { KUMOI_POS } from './kumoi.js';
 import { K7 } from './earth.js';
 import { CASTLE_TREASURE } from '../data/items-castle.js';
@@ -48,6 +48,8 @@ export const PHANTOMS = {
 
 // ───────────── マップの ID・名前 ─────────────
 export const CASTLE_FLOORS = 12;
+// レイアウトの 版（第38回で 階を ひろげた。world/world.js の posOf・layoutFix が 見る）
+export const CASTLE_LAYOUT_VER = 38;
 export const castleMapId = (n) => `castle_${n}f`;
 export const CASTLE_MAPS = Array.from({ length: CASTLE_FLOORS }, (_, i) => castleMapId(i + 1));
 export const CASTLE_TOP = 'castle_top'; // てっぺん（A9）
@@ -66,7 +68,7 @@ const SKY3D = {
 // ───────────── タイルの 文字 ─────────────
 export const CASTLE_LEGEND = {
   '#': T.CAVE_WALL, '.': T.CAVE_FLOOR, i: T.TORCH, p: T.PILLAR, o: T.POT, k: T.BOOKSHELF, X: T.CAVE_ENTRANCE,
-  '<': T.STAIRS_UP, '>': T.STAIRS_DOWN, S: T.DRAGON_GATE, '@': T.WARP_RING_OFF, F: T.STAR_FONT, $: T.CAVE_FLOOR, P: T.CAVE_FLOOR, '!': T.SIGN,
+  '<': T.STAIRS_UP, '>': T.STAIRS_DOWN, S: T.DRAGON_GATE, '@': T.WARP_RING_OFF, F: T.STAR_FONT, $: T.CAVE_FLOOR, '&': T.CAVE_FLOOR, P: T.CAVE_FLOOR, '!': T.SIGN,
   '~': T.CLOUD_SEA, n: T.SKYWIND_N, e: T.SKYWIND_E, s: T.SKYWIND_S, w: T.SKYWIND_W, j: T.SKYWIND_W, v: T.VANE,
   W: T.WINDMILL, x: T.PLATE, y: T.PLATE, Z: T.WIND_E, V: T.WIND_WINDOW,
   a: T.FIRE_VENT, b: T.FIRE_VENT, c: T.FIRE_PILLAR, g: T.FIRE_PILLAR, I: T.ICE_BLOCK, L: T.LEVER, '=': T.LAVA,
@@ -81,6 +83,8 @@ export function cellsOf(rows, chars) {
   return out;
 }
 const one = (rows, ch) => cellsOf(rows, [ch])[0] || null;
+// もとの 階（ひろげる 前。26×18）の 座標 → 今の 紙の 座標（maps/castle-rows.js の CASTLE_OX・CASTLE_OY）
+export const co = (x, y) => ({ x: x + CASTLE_OX, y: y + CASTLE_OY });
 
 // ───────────── 場所（レイアウトから きめる）─────────────
 export const CASTLE_POS = {};
@@ -88,16 +92,16 @@ for (let n = 1; n <= CASTLE_FLOORS; n++) {
   const rows = CASTLE_ROWS[n];
   CASTLE_POS[n] = {
     up: cellsOf(rows, ['<']), down: one(rows, '>'), seal: cellsOf(rows, ['S']), gates: cellsOf(rows, ['@']), font: one(rows, 'F'),
-    books: cellsOf(rows, ['k']), chests: cellsOf(rows, ['$']), phantom: one(rows, 'P'),
+    books: cellsOf(rows, ['k']), chests: cellsOf(rows, ['$']), sideChests: cellsOf(rows, ['&']), phantom: one(rows, 'P'),
     plateA: one(rows, 'x'), plateB: one(rows, 'y'), mills: cellsOf(rows, ['W']), statues: cellsOf(rows, ['I']), levers: cellsOf(rows, ['L']),
     handles: cellsOf(rows, ['h']), belts: cellsOf(rows, ['l']), wheels: cellsOf(rows, ['U']), vane: one(rows, 'v'), junction: one(rows, 'j'),
     exit: cellsOf(rows, ['X']),
   };
 }
 // 影の城の 前の 小島から 入って 着く ところ（1階の 入口の 広間）
-CASTLE_POS[1].entry = { x: 12.5, y: 15.5 };
+CASTLE_POS[1].entry = co(12.5, 15.5);
 // まぼろしの 広間に 入る ところ（トリガー。広間の なかほど）
-for (const n of Object.keys(PHANTOMS)) CASTLE_POS[n].trigger = { x: 3, y: 7, w: 20, h: 1 };
+for (const n of Object.keys(PHANTOMS)) CASTLE_POS[n].trigger = { ...co(3, 7), w: 20, h: 1 };
 
 // クモイ地方の 影の城の 前の 小島 ⇔ 城の 門（c5_croad の あと。ハネビトたちが つくった 風の道）
 //   go … ハネノの島の 南西の のりば (50,38) → 西へ → 小島 / back … 小島 → 東へ → 南の 風の道 w6 に のって ハネノの島へ
@@ -125,7 +129,7 @@ export function statueDir(has) {
 export const nextStatueDir = (d) => STATUE_DIRS[(STATUE_DIRS.indexOf(d) + 1) % 4];
 const DV = { N: [0, -1], E: [1, 0], S: [0, 1], W: [-1, 0] };
 // 像の 息が とどく 線（像から まっすぐ。かべで 止まる。雲の 海〈ふきぬけ〉と 炎の 柱は とおる）。その 線の 上の 炎の 柱（c）
-const RAY_PASS = new Set(['.', '~', 'c', '$', '!']);
+const RAY_PASS = new Set(['.', '~', 'c', '$', '&', '!']);
 export const STATUE_RAYS = (() => {
   const rows = CASTLE_ROWS[6];
   const I = one(rows, 'I');
@@ -165,7 +169,7 @@ function zoneOf(n) {
   const safe = [];
   for (const p of [...P.up, P.down, ...P.gates, ...P.seal]) if (p) safe.push([p.x - 2, p.y - 2, p.x + 2, p.y + 2, 'safe:stairs']);
   for (const p of [P.plateA, P.plateB, P.vane, ...P.levers, ...P.handles, ...P.belts, ...P.statues, ...P.mills, ...P.wheels]) if (p) safe.push([p.x - 1, p.y - 1, p.x + 1, p.y + 1, 'safe:device']);
-  if (n === 1) safe.push([6, 11, 19, 16, 'safe:entry']);
+  if (n === 1) { const a = co(6, 11), b = co(19, 16); safe.push([a.x, a.y, b.x, b.y, 'safe:entry']); }
   // 休み所と まぼろしの 階は 魔物が 出ない
   if (CASTLE_REST.includes(n) || BOSS_FLOORS.includes(n)) safe.push([0, 0, CASTLE_W - 1, CASTLE_H - 1, 'safe:rest']);
   const table = castleTable(n);
@@ -177,10 +181,11 @@ function zoneOf(n) {
     return table;
   };
 }
+// 第38回で 階を ひろげた ので、1〜2ひき ふやした（もとは 3・3・4・-・4・4・5・-・4・4・5・-）
 const SPAWNS = {
-  1: { t5_castle_wind: 3 }, 2: { t5_castle_wind: 3 }, 3: { t5_castle_wind: 4 }, 4: {},
-  5: { t5_castle_fire: 4 }, 6: { t5_castle_fire: 4 }, 7: { t5_castle_fire: 5 }, 8: {},
-  9: { t5_castle_water: 4 }, 10: { t5_castle_water: 4 }, 11: { t5_castle_water: 5 }, 12: {},
+  1: { t5_castle_wind: 4 }, 2: { t5_castle_wind: 4 }, 3: { t5_castle_wind: 6 }, 4: {},
+  5: { t5_castle_fire: 5 }, 6: { t5_castle_fire: 5 }, 7: { t5_castle_fire: 6 }, 8: {},
+  9: { t5_castle_water: 5 }, 10: { t5_castle_water: 5 }, 11: { t5_castle_water: 7 }, 12: {},
 };
 
 // ───────────── 宝箱（★の 装備は B8 の CASTLE_TREASURE[階]。$ の はじめの 2つ。のこりは 道具）─────────────
@@ -189,16 +194,33 @@ const EXTRA_CHESTS = {
   5: [{ item: 'seed_agi' }], 6: [{ gold: 12000 }], 7: [], 8: [],
   9: [{ item: 'hoshi_konpeito', n: 3 }], 10: [], 11: [], 12: [],
 };
+// 第38回の わき道の 宝箱（レイアウトの & の じゅん。id は c5c_<階>s<番>。風の階は 黒い風の羽・炎の階は 影火の石・水の階は 黒しんじゅ と 道具）
+const SIDE_CHESTS = {
+  1: [{ item: 'cs_wind_feather', n: 2 }, { item: 'magic_water', n: 2 }],
+  2: [{ item: 'seed_agi' }, { item: 'cs_wind_feather', n: 2 }],
+  3: [{ item: 'kumo_wataame', n: 3 }, { item: 'cs_wind_feather', n: 2 }],
+  4: [{ item: 'cs_wind_feather', n: 3 }, { item: 'magic_water', n: 3 }],
+  5: [{ item: 'cs_ember_stone', n: 2 }, { item: 'magic_water', n: 2 }, { gold: 14000 }],
+  6: [{ item: 'cs_ember_stone', n: 2 }, { item: 'hoshi_konpeito', n: 2 }],
+  7: [{ gold: 15000 }, { item: 'cs_ember_stone', n: 2 }],
+  8: [{ item: 'cs_ember_stone', n: 3 }, { item: 'magic_water', n: 3 }],
+  9: [{ item: 'cs_black_pearl', n: 2 }, { item: 'hoshi_konpeito', n: 3 }],
+  10: [{ item: 'cs_black_pearl', n: 2 }, { item: 'magic_water', n: 3 }],
+  11: [{ item: 'cs_black_pearl', n: 2 }, { item: 'kumo_wataame', n: 3 }],
+  12: [{ item: 'cs_black_pearl', n: 3 }, { item: 'magic_water', n: 3 }],
+};
 export function castleChests(n) {
   const spots = CASTLE_POS[n].chests;
   const stars = (CASTLE_TREASURE[n] || []).slice(0, Math.min(2, spots.length));
   const out = stars.map((item, i) => ({ id: `c5c_${n}${'ab'[i]}`, x: spots[i].x, y: spots[i].y, item }));
   const rest = spots.slice(stars.length);
   (EXTRA_CHESTS[n] || []).forEach((c, i) => { if (rest[i]) out.push({ id: `c5c_${n}x${i}`, x: rest[i].x, y: rest[i].y, ...c }); });
+  const side = CASTLE_POS[n].sideChests;
+  (SIDE_CHESTS[n] || []).forEach((c, i) => { if (side[i]) out.push({ id: `c5c_${n}s${i}`, x: side[i].x, y: side[i].y, ...c }); });
   return out;
 }
 
-const SIGNS = {
+const SIGNS0 = {
   1: [{ x: 10, y: 10, text: '黒い石に、文字がきざまれている。\n「この城の門は、ひとりぼっちの心で、とざされている。\n歌を知る者だけが、ふういんをとく」' }],
   2: [{ x: 2, y: 8, text: '黒い石に、文字がきざまれている。\n「風は、曲がり角で、向きを変える。\n風見の石の声を聞け」' }],
   3: [{ x: 10, y: 10, text: '黒い石に、文字がきざまれている。\n「2つの風車が、同時に回る時、風の窓はとじる。\nひとりで来た者は、友にたのめ」' }],
@@ -210,8 +232,10 @@ const SIGNS = {
   11: [{ x: 9, y: 12, text: '黒い石に、文字がきざまれている。\n「2つの水車を、同時に回せば、水のとびらはひらく」' }],
 };
 
+const SIGNS = Object.fromEntries(Object.entries(SIGNS0).map(([n, l]) => [n, l.map((g) => ({ ...g, ...co(g.x, g.y) }))]));
+
 // かいだんの となりの 歩ける マス（下 → 左 → 右 → 上の じゅん）。上りかいだんの 下が ふういんの とびらの 階は、とびらの 先
-const WALK = new Set(['.', '$', 'P', 'x', 'y']);
+const WALK = new Set(['.', '$', '&', 'P', 'x', 'y']);
 export function besideOf(n, p, dir = 'down') {
   const rows = CASTLE_ROWS[n];
   if (rows[p.y + 1]?.[p.x] === 'S') return { map: castleMapId(n), x: p.x + 0.5, y: p.y + 2.5, dir };
@@ -251,6 +275,9 @@ function castleMap(n) {
     castleFloor: n,
     zoneAt: zoneOf(n),
     spawnCounts: SPAWNS[n],
+    // レイアウトの 版（第38回で ひろげた。前の 版の セーブの 場所は その 階の 着く ところへ。world/world.js の layoutFix）
+    layoutVer: CASTLE_LAYOUT_VER,
+    layoutArrive: (({ x, y, dir }) => ({ x, y, dir }))(castleArrive(n)),
   };
   for (const s of m.signs) m.tiles[s.y * m.w + s.x] = T.SIGN;
   // かいだん: 上は 1つ 上の 階の 下りかいだんの となりへ（12階は てっぺんへ）・下は 1つ 下の 階の 上りかいだんの となりへ

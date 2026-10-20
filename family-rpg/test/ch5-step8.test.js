@@ -15,7 +15,7 @@ import { K7 } from '../public/js/shared/maps/earth.js';
 import {
   K8, CF, DOOR1_FLAG, VANE2_FLAG, PAIR, PAIR_FLOORS, STATUE_FLAG, STATUE_DIRS, STATUE_RAYS, WATER9, BELT10_FLAG, SEAL_FLAGS, GATES, PHANTOMS,
   CASTLE_FLOORS, CASTLE_MAPS, CASTLE_POS, CASTLE_ROAD, CASTLE_SIGHTS, CASTLE_REST, CASTLE_TOP, CASTLE_TOP_ARRIVE, CASTLE_FROM_TOP,
-  castleMapId, castleArrive, castleTable, castleTheme, castleBgm, statueDir, nextStatueDir, waterLevel, nextWaterLevel, gateArrive,
+  castleMapId, castleArrive, castleTable, castleTheme, castleBgm, statueDir, nextStatueDir, waterLevel, nextWaterLevel, gateArrive, co,
 } from '../public/js/shared/maps/castle.js';
 import { STORY_STEPS, SCRIPTS, STORY_SCRIPTS } from '../public/js/shared/data/story.js';
 import { CH5_STEPS, OLD_C5_OBJ, CH5_OBJECTIVE_TARGETS, CH5_OBJECTIVE_TALK } from '../public/js/shared/data/story-ch5.js';
@@ -422,7 +422,8 @@ test('炎の 柱（5階・7階）: A と B が 時間で かわるがわる ふ�
   for (const ms of [0, 1000, FIRE_HALF, FIRE_HALF + 1200]) assert.notEqual(timeFlag('@fireA', fr(ms)), timeFlag('@fireB', fr(ms)), 'いつも どちらか だけ');
   assert.ok(FIRE_HALF >= 2000, '通りぬける 時間が ある');
   const m = MAPS[castleMapId(5)];
-  const a = m.gates.find((g) => g.levels?.[0]?.[0] === '@fireA'), b = m.gates.find((g) => g.levels?.[0]?.[0] === '@fireB');
+  // 西どなりが ゆかの 炎の 柱（そこから 入ってみる）
+  const a = m.gates.find((g) => g.levels?.[0]?.[0] === '@fireA' && effectiveTile(m, g.x - 1, g.y, () => false) === T.CAVE_FLOOR), b = m.gates.find((g) => g.levels?.[0]?.[0] === '@fireB');
   assert.ok(a && b);
   assert.equal(effectiveTile(m, a.x, a.y, (f) => f === '@fireA'), T.FIRE_PILLAR);
   assert.equal(effectiveTile(m, a.x, a.y, (f) => f === '@fireB'), T.FIRE_VENT);
@@ -599,7 +600,7 @@ test('炎の階・水の階: 6階の 氷の像（しらべる・レバー。南 
     for (const p of STATUE_RAYS[want].flames) assert.equal(effectiveTile(m6, p.x, p.y, has()), T.FIRE_VENT);
   }
   // 東の へやの レバーでも 回る
-  const L = P6.levers.find((p) => p.x > 15);
+  const L = P6.levers.find((p) => p.x > co(15, 0).x);
   await place(bot, m6.id, L.x, L.y + 1);
   await examine(bot, L.x, L.y);
   assert.equal(statueDir(has()), 'W', 'レバーでも 回る');
@@ -624,7 +625,7 @@ test('炎の階・水の階: 6階の 氷の像（しらべる・レバー。南 
   // 10階: レバー
   const P10 = CASTLE_POS[10], m10 = MAPS[castleMapId(10)];
   const R = m10.gates.find((g) => g.flag === BELT10_FLAG && g.closed === T.FLOW_E);
-  const l = P10.belts.find((p) => p.y > 10);
+  const l = P10.belts.find((p) => p.y > co(0, 10).y);
   await place(bot, m10.id, l.x, l.y + 1);
   await examine(bot, l.x, l.y);
   assert.ok(c.flags[BELT10_FLAG] && effectiveTile(m10, R.x, R.y, has()) === T.FLOW_W, '西へ');
@@ -648,12 +649,12 @@ test('まぼろしの 台本: showMon → bgm phantom → battle（phantom_storm
     const { world, bot, c } = await setup(9800 + n, before[n], [DOOR1_FLAG, CF(n)]);
     const m = MAPS[castleMapId(n)], Tr = CASTLE_POS[n].trigger;
     const fought = [];
-    await place(bot, m.id, 12, Tr.y + 1);
-    await stepOn(bot, 12, Tr.y, { lose: (id) => id === Ph.id, fought });
+    await place(bot, m.id, co(12, 0).x, Tr.y + 1);
+    await stepOn(bot, co(12, 0).x, Tr.y, { lose: (id) => id === Ph.id, fought });
     assert.ok(fought.includes(Ph.id) && !c.flags[Ph.flag], `${n}階: 負けたら すすまない`);
-    await place(bot, m.id, 12, Tr.y + 1);
+    await place(bot, m.id, co(12, 0).x, Tr.y + 1);
     const from = bot.msgs.length;
-    await stepOn(bot, 12, Tr.y, { fought });
+    await stepOn(bot, co(12, 0).x, Tr.y, { fought });
     assert.ok(c.flags[Ph.flag] && said(bot, 'ふういんのとびら', from), `${n}階: 勝った → とびら`);
     for (const p of CASTLE_POS[n].seal) assert.ok(!isBlocked(m, p.x, p.y, world.hasFlagFn(bot.s)));
     assert.equal(c.objective, CASTLE_OBJ[`seal${{ 4: 1, 8: 2, 12: 3 }[n]}`]);
@@ -690,7 +691,7 @@ test('通しで あそべる: c5_gather → 長ソラネ → 風の道 → 城�
     const u = P.up[0];
     const r = reachNow(n);
     assert.ok(r.pits.has(`${u.x},${u.y}`) || [5, 7].includes(n), `${n}階: 上りかいだんへ 行ける`);
-    const [x, y] = D4.map(([dx, dy]) => [u.x + dx, u.y + dy]).find(([x1, y1]) => !isBlocked(MAPS[floor(n)], x1, y1, has()) && !MAPS[floor(n)].warpAt.has(y1 * 26 + x1));
+    const [x, y] = D4.map(([dx, dy]) => [u.x + dx, u.y + dy]).find(([x1, y1]) => !isBlocked(MAPS[floor(n)], x1, y1, has()) && !MAPS[floor(n)].warpAt.has(y1 * MAPS[floor(n)].w + x1));
     await place(bot, floor(n), x, y);
     await stepOn(bot, u.x, u.y, opts);
     if (n < 12) {
@@ -718,7 +719,7 @@ test('通しで あそべる: c5_gather → 長ソラネ → 風の道 → 城�
   // 2階: 風にのって 北西の 足場 → 風見の石 → 北東の 足場
   await use(2, CASTLE_POS[2].vane);
   got(VANE2_FLAG);
-  await walkTo(2, { x: 20, y: 12 });
+  await walkTo(2, co(20, 12));
   await goUp(2);
   // 3階: 仲間に 西の ハンドルで 待っていてもらって、東の ハンドルへ
   for (const p of [CASTLE_POS[3].plateA, CASTLE_POS[3].plateB]) await use(3, p, stepOn);
@@ -727,8 +728,8 @@ test('通しで あそべる: c5_gather → 長ソラネ → 風の道 → 城�
   // 4階: 休み所 → ストルムの まぼろし
   await use(4, CASTLE_POS[4].font);
   const T4 = CASTLE_POS[4].trigger;
-  await walkTo(4, { x: 12, y: T4.y + 1 });
-  await stepOn(bot, 12, T4.y, opts);
+  await walkTo(4, { x: co(12, 0).x, y: T4.y + 1 });
+  await stepOn(bot, co(12, 0).x, T4.y, opts);
   got('c5_seal1');
   await goUp(4);
   // 5階: 炎の 柱（時間を すすめながら）
@@ -741,8 +742,8 @@ test('通しで あそべる: c5_gather → 長ソラネ → 風の道 → 城�
   // 6階: 像を 東むきに（南 → 西 → 北 → 東）→ 東の へや → レバーで 北むきに（東 → 南 → 西 → 北）→ 北の 通路 → 北西の 上りかいだん
   for (let i = 0; i < 3; i++) await use(6, CASTLE_POS[6].statues[0]);
   assert.equal(statueDir(has()), 'E');
-  await walkTo(6, { x: 21, y: 9 });
-  const L6 = CASTLE_POS[6].levers.find((p) => p.x > 15);
+  await walkTo(6, co(21, 9));
+  const L6 = CASTLE_POS[6].levers.find((p) => p.x > co(15, 0).x);
   for (let i = 0; i < 3; i++) await use(6, L6);
   assert.equal(statueDir(has()), 'N');
   await goUp(6);
@@ -758,23 +759,23 @@ test('通しで あそべる: c5_gather → 長ソラネ → 風の道 → 城�
   // 8階: 休み所 → イグニアの まぼろし
   await use(8, CASTLE_POS[8].font);
   const T8 = CASTLE_POS[8].trigger;
-  await walkTo(8, { x: 12, y: T8.y + 1 });
-  await stepOn(bot, 12, T8.y, opts);
+  await walkTo(8, { x: co(12, 0).x, y: T8.y + 1 });
+  await stepOn(bot, co(12, 0).x, T8.y, opts);
   got('c5_seal2');
   await goUp(8);
   // 9階: 水の 高さ 上（板）→ 西の 島で 中（とび石）→ 東の 島で 下（ふかい 底）
-  await walkTo(9, { x: 5, y: 8 });
-  await use(9, CASTLE_POS[9].handles.find((p) => p.y === 5 && p.x < 8));
+  await walkTo(9, co(5, 8));
+  await use(9, CASTLE_POS[9].handles.find((p) => p.y === co(0, 5).y && p.x < co(8, 0).x));
   assert.equal(waterLevel(has()), 'mid');
-  await walkTo(9, { x: 18, y: 7 });
-  await use(9, CASTLE_POS[9].handles.find((p) => p.x > 18 && p.y > 4));
+  await walkTo(9, co(18, 7));
+  await use(9, CASTLE_POS[9].handles.find((p) => p.x > co(18, 0).x && p.y > co(0, 4).y));
   assert.equal(waterLevel(has()), 'lo');
   await goUp(9);
   // 10階: レバー → 流れる ゆか → まん中 → 北の 通路
-  await use(10, CASTLE_POS[10].belts.find((p) => p.y > 10));
+  await use(10, CASTLE_POS[10].belts.find((p) => p.y > co(0, 10).y));
   got(BELT10_FLAG);
-  await walkTo(10, { x: 21, y: 13 });
-  await stepOn(bot, 21, 12, opts);
+  await walkTo(10, co(21, 13));
+  await stepOn(bot, co(21, 12).x, co(21, 12).y, opts);
   await goUp(10);
   // 11階: 2つの 水車（仲間）
   for (const p of [CASTLE_POS[11].plateA, CASTLE_POS[11].plateB]) await use(11, p, stepOn);
@@ -782,8 +783,8 @@ test('通しで あそべる: c5_gather → 長ソラネ → 風の道 → 城�
   await goUp(11);
   // 12階: モルガナの まぼろし → てっぺんへ
   const T12 = CASTLE_POS[12].trigger;
-  await walkTo(12, { x: 12, y: T12.y + 1 });
-  await stepOn(bot, 12, T12.y, opts);
+  await walkTo(12, { x: co(12, 0).x, y: T12.y + 1 });
+  await stepOn(bot, co(12, 0).x, T12.y, opts);
   got('c5_seal3');
   for (const f of CASTLE_STEPS) got(f);
   assert.equal(c.objective, CASTLE_OBJ.seal3);
