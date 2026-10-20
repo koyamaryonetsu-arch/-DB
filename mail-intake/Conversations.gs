@@ -61,8 +61,10 @@ function cvRun_(isContinue) {
     if (!apiKey || !svcKey) { Logger.log('LINE・Plaud: キー未設定'); return; }
     cvLine_(apiKey, st);
     if (!st.timeUp) cvPlaud_(apiKey, st);
-    Logger.log('LINE・Plaud%s: LINE %s 塊 / Plaud %s 件 → 案件の更新 %s / 登録確認へ %s / タスク提案 %s / 劇場情報 %s / 案件の話なし %s%s',
-      CV_DRY ? '（書き込みなし・確認だけ）' : '', st.line, st.plaud, st.upd, st.pend, st.sugg, st.ti, st.skip, st.timeUp ? '（時間切れ → 続きは数分後）' : '');
+    // 数は文字にしてからつなぐ（Logger の %s だと「1.0」のように小数で出るため）
+    var n = function (v) { return String(Math.round(Number(v) || 0)); };
+    Logger.log('LINE・Plaud' + (CV_DRY ? '（書き込みなし・確認だけ）' : '') + ': LINE ' + n(st.line) + ' 塊 / Plaud ' + n(st.plaud) + ' 件 → 案件の更新 ' + n(st.upd) +
+      ' / 登録確認へ ' + n(st.pend) + ' / タスク提案 ' + n(st.sugg) + ' / 劇場情報 ' + n(st.ti) + ' / 案件の話なし ' + n(st.skip) + (st.timeUp ? '（時間切れ → 続きは数分後）' : ''));
     if (st.timeUp && !CV_DRY) cvScheduleContinue_();
   } catch (e) {
     Logger.log('updateFromLineAndPlaud error: ' + e);
