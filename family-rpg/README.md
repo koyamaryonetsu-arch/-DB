@@ -1536,6 +1536,19 @@
 - **そのあと**：物語が進むと、クモイ地方の空の色や風の道が、少しかわります。ハネノの町の広場で、最後の戦いのための力をもらえます（広場の人たち、全員と話そう）。ハネノの店の品も強いものにかわり（ランク9。店の品なので★1）、宿屋も少しやすくなります
 - 仲間の「**はなす**」で、しかけのヒントが聞けます
 
+## 影の城の戦い（第5章 Step 8）
+
+おすすめは Lv52〜54 くらい（風の階 Lv52・炎の階 Lv53・水の階 Lv54）。
+
+- **階ごとに出る魔物がかわります**：風の階（1〜4階）は風と雷の魔物、炎の階（5〜8階）は炎の魔物、水の階（9〜12階）は水の魔物。弱点は、風の階は炎や雷、炎の階は氷、水の階は雷が多いです。どの魔物も、ときどき仲間になります
+- **ふういんのとびらの前の強い敵**：どこかで見たような しかけを、もっと強くして使ってきます。それに、新しいしかけが1つずつあります
+  - 「**風のかべ**」の間は、たたく攻撃がはね返されます。呪文で戦おう
+  - 「**かげ火**」がのこっていると、大きな技がもっと強くなります。先にたおそう（氷がよく効きます）
+  - 「**水かさ**」が上がっていくと、いっぱいで大きな波が来ます。前ぶれが出たら身を守ろう
+  - 大きな技の前ぶれが出たら「**防御**」。オートの仲間も、HPがへっている時は身を守ってくれます
+- **宝箱**：影の城の宝箱は、ぜんぶ★5。上の階ほど強い品が入っています。とびらの前の強い敵をたおすと、それにちなんだ★5のアクセサリーが、1人1つ手に入ります
+- **素材**：黒い風の羽・影火の石・黒しんじゅ（城の魔物が落とします）。れん金がまで、大地の神殿の★5の品を、もっと強い★5にできます
+
 ## 宝の地図・ふしぎなかじ屋・預かり所・馬車
 
 ### 宝の地図（ドラクエ9ふう）
@@ -2337,6 +2350,12 @@ npm start                 # 家族サーバー
   - がめん：`client/battle-earth.js`（`earthMarks`・`earthDraw`・`earthPresent`・コマンド `earthReachItem`／`earthReachPick`）、絵 `render/ch5-earth-mon-art.js`（`addEarthArt`）・背景 `render/ch5-earth-bg.js`・エフェクト `render/battlefx-earth.js`（`battlefx-hoshiyomi.js` のさいごから）
   - シミュレーション：`node tools/sim.js 100 ch5earth`（出現表。99〜100%）、`node tools/sim-nocto1.mjs 100 49,50,51`（超級職4人・里の店＋★。`SHOP=1` で★なしも。`LOG=1 KNOW=1` で1戦のようす。`LETTER=1` でピピの手紙あり）。Lv50：完全オート 11%・知っている 80%
   - `test/ch5-earth-battle.test.js`（29こ）。前提を直したテスト：`monsters-r23`（図鑑の数）・`breed-r35`（ボス7体は天空のきょ兵ものぞく）・`loot`（バットのランクに9）
+- 第5章 Step 8「影の城」B8（戦い・品。ネタバレになるので、しくみと数値は `docs/plan-ch5.md` の「17」の「実装メモ（B8 … 影の城の戦い・品）」）
+  - データ：`data/monsters-phantom.js`（新しい魔物9しゅ・3人のまぼろし `phantom_storm`・`phantom_ignia`・`phantom_morgana`・数えない手下 `phantom_soldier`・`phantom_flame`〈`addPhantomHidden`〉・素材 `PHANTOM_MAT_DROPS`）・`abilities-phantom.js`・`encounters-phantom.js`（出現表 `t5_castle_wind`・`t5_castle_fire`・`t5_castle_water`、色ちがい3しゅ、きまった戦い3つ〈曲 `phantom`〉、背景 `castle_wind`・`castle_fire`・`castle_water`）・`companions-phantom.js`（9しゅとも仲間になる）・`items-castle.js`（影の城の宝箱 `CASTLE_TREASURE`〈`src: 'castle'`・ぜんぶランク10の★5〉・まぼろしの品〈`src: 'phantom'`〉・素材・れん金 `CASTLE_RECIPES`）
+  - しくみ：`shared/battle-phantom.js`（風のかべ・かげ火の力・水かさ）。`battle.js` は `setupPhantom`・`phantomDamage`・`phantomEst` と `physHit` の `phys: true`、ほかは `battle-ch5.js` の `tower*` から。ふつうのオートも、まぼろしの大技の前に守る（`AUTO_GUARD`）。知っている人のオートは `b.knowsPhantom`（`phantomPlan`）
+  - がめん：`client/battle-phantom.js`（`phantomDraw`・`phantomPresent`）、絵 `render/ch5-phantom-art.js`（`addPhantomArt`。まぼろしは もとのボスの絵の色がえ＋もや＋すきとおり）・背景 `render/ch5-phantom-bg.js`・エフェクト `render/battlefx-phantom.js`（`battlefx-earth.js` のさいごから）
+  - シミュレーション：`node tools/sim.js 60 ch5castle`（出現表。95〜100%）、`node tools/sim-phantom.mjs 60 [storm|ignia|morgana|all]`（超級職4人・ハネノのランク9の店＋★。`SHOP=1` で★なしも。`LOG=1 KNOW=1 BOSS=ignia` で1戦のようす）。おすすめLvで 完全オート 10〜18%・知っている 82〜92%
+  - `test/ch5-castle-battle.test.js`（20こ）。前提を直したテスト：`monsters-r23`（図鑑の数）・`alchemy`（レシピの上限 60）
 - 第31回 C：レア装備とレア度（くわしくは `docs/plan-r31.md` の「3.」の「実装メモ（C）」）
   - データ：`data/items-rare.js`（レア装備112こ。`src` … `'tm'`〈`grp`〉・`'boss'`〈`boss`〉・`'region'`〈`region`〉・`'sd'`。`assignRarity` が rarity のない装備に つける）・`data/rare-loot.js`（`rarityOf`・`traitText`・`pickTmGear`・`bossRareOf`・`regionRareList`・`pickSdGear`）
   - 手に入る所：`data/treasure.js` の `chestLoot(rng, lv, kind, cave)`・`data/secret.js` の `sdBigReward`／`sdSmallReward`・`data/loot.js` の `monsterDrops`（`brare`）／`rollDrops(sp, rng, { map })`
