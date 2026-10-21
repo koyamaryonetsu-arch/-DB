@@ -14,13 +14,13 @@
 //  3. カナトコの料理大会（料理人の 系統・鉱山の町カナトコ）
 //  4. ルミナの町の、消えた教会のかね（警察官・少年探てい団の 系統・ルミナの町）
 //  5. 鉱山トロッコの線路（鉄道員の 系統・鉱山の町カナトコ）
-import { JOBS, jobAncestry } from './jobs.js?v=909bdfecce1d';
-import { medalSteps } from './story-lab.js?v=909bdfecce1d';
-import { FAMILY_VEHICLES } from './vehicles-family.js?v=909bdfecce1d';
-import { FAMILY_ITEMS } from './items-family.js?v=909bdfecce1d';
+import { JOBS, jobAncestry } from './jobs.js?v=511a98cd6e8f';
+import { medalSteps } from './story-lab.js?v=511a98cd6e8f';
+import { FAMILY_VEHICLES } from './vehicles-family.js?v=511a98cd6e8f';
+import { FAMILY_ITEMS } from './items-family.js?v=511a98cd6e8f';
 import {
   FQ, FQ_OPEN, DAMPERS, DIRTY_ZONES, SHOP_VOICES, COOK_RUMORS, BELL_CLUES, BELL_TALKS, RAIL_FIX, RAIL_PATH, MINE_ROOM_ARRIVE,
-} from '../maps/family-quests.js?v=909bdfecce1d';
+} from '../maps/family-quests.js?v=511a98cd6e8f';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -812,6 +812,8 @@ function boardMenu(x) {
   ]]];
 }
 function questBoard(x) {
+  // 第1部クリアの 前: けいじ板は 立っているが、はり紙は まだ ない
+  if (!x.flag(FQ_OPEN)) return N('〜 たのまれごとのけいじ板 〜\nまだ、はり紙は1まいもはられていない。', '（世界が平和になったころ、各地からたのみごとがとどくらしい。\n第1部をクリアしたら、また見にこよう）');
   const left = FAMILY_QUESTS.filter((q) => !x.flag(q.done)).length;
   return [
     ...N('〜 たのまれごとのけいじ板 〜\n各地からとどいた、たのみごとのはり紙がはってある。', left ? `（まだすんでいないたのまれごと：${left}つ）` : '（全部のたのまれごとが、すんでいる！）'),

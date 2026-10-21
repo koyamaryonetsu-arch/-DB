@@ -74,7 +74,7 @@ export const VEHICLES = {
 };
 
 // 第39回 C: たのまれごとで しか もらえない 乗り物（data/vehicles-family.js）
-import { FAMILY_VEHICLES } from './vehicles-family.js?v=909bdfecce1d'; Object.assign(VEHICLES, FAMILY_VEHICLES);
+import { FAMILY_VEHICLES } from './vehicles-family.js?v=511a98cd6e8f'; Object.assign(VEHICLES, FAMILY_VEHICLES);
 export const VEHICLE_ORDER = Object.keys(VEHICLES);
 const has = (id) => typeof id === 'string' && Object.prototype.hasOwnProperty.call(VEHICLES, id);
 export const vehicleKnown = has;

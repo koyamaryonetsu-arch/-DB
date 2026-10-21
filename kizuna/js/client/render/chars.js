@@ -2,22 +2,22 @@
 // みため（かみがた・いろ）と そうび（ぶき・よろい・たて・かぶと）で かわる
 // 人は 32×42 で くみたてて、2ばいの 64×84 に して こまかく かきたす（res 4: せかいでは 16×21 の 大きさに かく）
 // どうぶつ・船は 16×21 など
-import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=909bdfecce1d';
-import { ITEMS, baseItemId } from '../../shared/data/items.js?v=909bdfecce1d';
-import { STARTER_EQUIP } from '../../shared/stats.js?v=909bdfecce1d';
-import { paintMiraPrison, paintWaterStar } from './temple-chars.js?v=909bdfecce1d';
-import { LAB_NPC_LOOKS } from './lab-art.js?v=909bdfecce1d';
-import { paintCh5Special } from './ch5-art.js?v=909bdfecce1d';
-import { KUMOI_NPC_LOOKS, drawWings } from './ch5-kumoi-art.js?v=909bdfecce1d';
-import { HOSHIYOMI_NPC_LOOKS } from './ch5-hoshiyomi-art.js?v=909bdfecce1d';
-import { TOP_NPC_LOOKS } from './ch5-top-art.js?v=909bdfecce1d';
-import { FAMILY_NPC_LOOKS } from './family-art.js?v=909bdfecce1d';
-import { CH6_NPC_LOOKS, paintCh6Special } from './ch6-art.js?v=909bdfecce1d';
-import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js?v=909bdfecce1d';
-import { R26_OLD_LOOK } from './hero-r26.js?v=909bdfecce1d';
-import { R27_OLD_LOOK } from './hero-r27.js?v=909bdfecce1d';
-import { R29_OLD_LOOK } from './hero-r29.js?v=909bdfecce1d';
-import { R33_OLD_LOOK, masc33 } from './hero-r33.js?v=909bdfecce1d';
+import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=511a98cd6e8f';
+import { ITEMS, baseItemId } from '../../shared/data/items.js?v=511a98cd6e8f';
+import { STARTER_EQUIP } from '../../shared/stats.js?v=511a98cd6e8f';
+import { paintMiraPrison, paintWaterStar } from './temple-chars.js?v=511a98cd6e8f';
+import { LAB_NPC_LOOKS } from './lab-art.js?v=511a98cd6e8f';
+import { paintCh5Special } from './ch5-art.js?v=511a98cd6e8f';
+import { KUMOI_NPC_LOOKS, drawWings } from './ch5-kumoi-art.js?v=511a98cd6e8f';
+import { HOSHIYOMI_NPC_LOOKS } from './ch5-hoshiyomi-art.js?v=511a98cd6e8f';
+import { TOP_NPC_LOOKS } from './ch5-top-art.js?v=511a98cd6e8f';
+import { FAMILY_NPC_LOOKS } from './family-art.js?v=511a98cd6e8f';
+import { CH6_NPC_LOOKS, paintCh6Special } from './ch6-art.js?v=511a98cd6e8f';
+import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js?v=511a98cd6e8f';
+import { R26_OLD_LOOK } from './hero-r26.js?v=511a98cd6e8f';
+import { R27_OLD_LOOK } from './hero-r27.js?v=511a98cd6e8f';
+import { R29_OLD_LOOK } from './hero-r29.js?v=511a98cd6e8f';
+import { R33_OLD_LOOK, masc33 } from './hero-r33.js?v=511a98cd6e8f';
 
 export const CW = 16;
 export const CH = 21;

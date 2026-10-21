@@ -1,27 +1,27 @@
 // たたかいの はじまりと おわり（ほうしゅう・ぜんめつ）
-import { Battle, normBattleSettings } from '../battle.js?v=909bdfecce1d';
-import { scaleExp, difficultyOf, rewardExp, rewardGold } from '../data/difficulty.js?v=909bdfecce1d';
-import { POWDER, powderLeft } from '../data/friend-powder.js?v=909bdfecce1d';
-import { MONSTERS } from '../data/monsters.js?v=909bdfecce1d';
-import { ITEMS } from '../data/items.js?v=909bdfecce1d';
-import { abilityLabel } from '../ability-label.js?v=909bdfecce1d';
-import { JOBS } from '../data/jobs.js?v=909bdfecce1d';
-import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=909bdfecce1d';
-import { gainExp, gainJobBattles, jobTrainMult, itemCount, removeItem, addItem, ownsItem, computeStats, fullHeal } from '../stats.js?v=909bdfecce1d';
+import { Battle, normBattleSettings } from '../battle.js?v=511a98cd6e8f';
+import { scaleExp, difficultyOf, rewardExp, rewardGold } from '../data/difficulty.js?v=511a98cd6e8f';
+import { POWDER, powderLeft } from '../data/friend-powder.js?v=511a98cd6e8f';
+import { MONSTERS } from '../data/monsters.js?v=511a98cd6e8f';
+import { ITEMS } from '../data/items.js?v=511a98cd6e8f';
+import { abilityLabel } from '../ability-label.js?v=511a98cd6e8f';
+import { JOBS } from '../data/jobs.js?v=511a98cd6e8f';
+import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=511a98cd6e8f';
+import { gainExp, gainJobBattles, jobTrainMult, itemCount, removeItem, addItem, ownsItem, computeStats, fullHeal } from '../stats.js?v=511a98cd6e8f';
 // 第38回 B: 職業レベルの 上限（超級職からは 職業の試練で 上がる）・試練の 修行（その 職業の 技を 使って 勝つ）
-import { jobLevelCap, trialUseCount, addTrialUses, trialName } from '../data/job-trials.js?v=909bdfecce1d';
-import { befriendShare } from './recruit-share.js?v=909bdfecce1d';
-import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendChance, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf, PARTY_MAX } from './party.js?v=909bdfecce1d';
-import { rollDrops, stealPick } from '../data/loot.js?v=909bdfecce1d';
-import { MAPS } from '../maps/index.js?v=909bdfecce1d';
-import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js?v=909bdfecce1d';
-import { treasureAfterBattle } from './treasure.js?v=909bdfecce1d';
-import { wipeGoldLoss, bankGold } from './bank.js?v=909bdfecce1d';
-import { lureOn, lureGroup } from './field27.js?v=909bdfecce1d';
-import { wagonShare, wagonBattleSwap } from './wagon.js?v=909bdfecce1d';
-import { growthSummary } from './growth.js?v=909bdfecce1d';
-import { topLevel, battleTeamChars, expHatMult } from './perks.js?v=909bdfecce1d';
-import { battleTactics } from './tactics.js?v=909bdfecce1d';
+import { jobLevelCap, trialUseCount, addTrialUses, trialName } from '../data/job-trials.js?v=511a98cd6e8f';
+import { befriendShare } from './recruit-share.js?v=511a98cd6e8f';
+import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendChance, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf, PARTY_MAX } from './party.js?v=511a98cd6e8f';
+import { rollDrops, stealPick } from '../data/loot.js?v=511a98cd6e8f';
+import { MAPS } from '../maps/index.js?v=511a98cd6e8f';
+import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js?v=511a98cd6e8f';
+import { treasureAfterBattle } from './treasure.js?v=511a98cd6e8f';
+import { wipeGoldLoss, bankGold } from './bank.js?v=511a98cd6e8f';
+import { lureOn, lureGroup } from './field27.js?v=511a98cd6e8f';
+import { wagonShare, wagonBattleSwap } from './wagon.js?v=511a98cd6e8f';
+import { growthSummary } from './growth.js?v=511a98cd6e8f';
+import { topLevel, battleTeamChars, expHatMult } from './perks.js?v=511a98cd6e8f';
+import { battleTactics } from './tactics.js?v=511a98cd6e8f';
 
 let battleSeq = 1;
 

@@ -4,22 +4,22 @@
 //   盤（casinoShell）: 盤の 絵（render/sugoroku.js）と、さいころ・分かれ道・宝部屋・お店・戦いの ボタン
 //   戦いの マスで「戦う！」→ まどを とじる → 戦い（サーバーの だいほん）→ 終わると また この まどが 開く（盤は そのまま）
 //   十字キー・A・B: ボタンを えらぶ（ui/padnav.js）。A で 決定・B で 閉じる（ことばは A・B・タップで すすむ）
-import { el } from './dom.js?v=909bdfecce1d';
-import { itemInfo } from './counter.js?v=909bdfecce1d';
-import { request } from './shop.js?v=909bdfecce1d';
-import { padNav } from './padnav.js?v=909bdfecce1d';
-import { CasinoCounter, casinoShell, fmt, sendClose, helpBox } from './casino.js?v=909bdfecce1d';
-import { boardIconURL } from '../render/boards.js?v=909bdfecce1d';
-import { iconURL, symbolURL } from '../render/casino.js?v=909bdfecce1d';
-import { SgBoardView, SQ_LOOK, dieURL } from '../render/sugoroku.js?v=909bdfecce1d';
-import { monsterCanvas } from '../render/monsters.js?v=909bdfecce1d';
-import { playerSprite } from '../field.js?v=909bdfecce1d';
-import { shownEquip } from '../../shared/look-equip.js?v=909bdfecce1d';
-import { ITEMS } from '../../shared/data/items.js?v=909bdfecce1d';
-import { MONSTERS } from '../../shared/data/monsters.js?v=909bdfecce1d';
-import { itemCount } from '../../shared/stats.js?v=909bdfecce1d';
-import { coinsOf, medalsHeld } from '../../shared/data/casino.js?v=909bdfecce1d';
-import { BOARD_BY_ID, DICE, TICKET_ITEM, SQ_NAME, squareText } from '../../shared/data/sugoroku.js?v=909bdfecce1d';
+import { el } from './dom.js?v=511a98cd6e8f';
+import { itemInfo } from './counter.js?v=511a98cd6e8f';
+import { request } from './shop.js?v=511a98cd6e8f';
+import { padNav } from './padnav.js?v=511a98cd6e8f';
+import { CasinoCounter, casinoShell, fmt, sendClose, helpBox } from './casino.js?v=511a98cd6e8f';
+import { boardIconURL } from '../render/boards.js?v=511a98cd6e8f';
+import { iconURL, symbolURL } from '../render/casino.js?v=511a98cd6e8f';
+import { SgBoardView, SQ_LOOK, dieURL } from '../render/sugoroku.js?v=511a98cd6e8f';
+import { monsterCanvas } from '../render/monsters.js?v=511a98cd6e8f';
+import { playerSprite } from '../field.js?v=511a98cd6e8f';
+import { shownEquip } from '../../shared/look-equip.js?v=511a98cd6e8f';
+import { ITEMS } from '../../shared/data/items.js?v=511a98cd6e8f';
+import { MONSTERS } from '../../shared/data/monsters.js?v=511a98cd6e8f';
+import { itemCount } from '../../shared/stats.js?v=511a98cd6e8f';
+import { coinsOf, medalsHeld } from '../../shared/data/casino.js?v=511a98cd6e8f';
+import { BOARD_BY_ID, DICE, TICKET_ITEM, SQ_NAME, squareText } from '../../shared/data/sugoroku.js?v=511a98cd6e8f';
 
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const DIR = (b, from, to) => {

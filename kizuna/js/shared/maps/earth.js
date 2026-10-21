@@ -8,10 +8,10 @@
 //   谷へ 落ちたら もとに もどす 石板で はじめの 場所へ（倉庫番の ように もどせなく ならない）。位置は フラグ（c5_e<階>_g<番>）
 // ・みちびきの糸・リレミトは 使える（1階の 入口 → 根の島）。魔物は 1〜4階 t5_earth_up・5〜8階 t5_earth_low（B が 作る。plan-ch5.md の 16）
 // クモイ地方の 根の島（外がわ）は maps/kumoi.js（この ファイルの EARTH_OUT を 使う）。だいほんは data/story-earth.js
-import { T, parseRows } from '../tiles.js?v=909bdfecce1d';
-import { npc } from './npc.js?v=909bdfecce1d';
-import { EARTH_ROWS, EARTH_W, EARTH_H, EARTH_OX, EARTH_OY } from './earth-rows.js?v=909bdfecce1d';
-import { EARTH_TREASURE } from '../data/items-earth.js?v=909bdfecce1d';
+import { T, parseRows } from '../tiles.js?v=511a98cd6e8f';
+import { npc } from './npc.js?v=511a98cd6e8f';
+import { EARTH_ROWS, EARTH_W, EARTH_H, EARTH_OX, EARTH_OY } from './earth-rows.js?v=511a98cd6e8f';
+import { EARTH_TREASURE } from '../data/items-earth.js?v=511a98cd6e8f';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 // 物語の すすみぐあい（data/story-ch5.js の CH5_STEPS の c5_nocto の うしろ。plan-ch5.md の 16 の 名前の 約束）
