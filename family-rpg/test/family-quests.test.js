@@ -18,7 +18,7 @@ import { FAMILY_VEHICLES } from '../public/js/shared/data/vehicles-family.js';
 import { FAMILY_GIFTS } from '../public/js/shared/data/items-family.js';
 import { starsFor } from '../public/js/shared/data/items-rare.js';
 import {
-  FAMILY_QUESTS, jobLine, jobLineNames, lineMember, partyHasLine, familySubQuests, SHOP_OPTIONS, SHOP_ANSWER, DISHES, DISH_ANSWER, BELL_WHO, BELL_WHY, BELL_ANSWER, RAIL_PUZZLES, METER,
+  FAMILY_QUESTS, boardPage, jobLine, jobLineNames, lineMember, partyHasLine, familySubQuests, SHOP_OPTIONS, SHOP_ANSWER, DISHES, DISH_ANSWER, BELL_WHO, BELL_WHY, BELL_ANSWER, RAIL_PUZZLES, METER,
 } from '../public/js/shared/data/sidequests-family.js';
 import { labDoneQuests, sideQuestHint, SIDE_QUESTS } from '../public/js/shared/data/sidequests.js';
 import { subQuests, questMarks } from '../public/js/shared/data/quest-targets.js';
@@ -560,4 +560,55 @@ test('文字: 新しい ゲームの 文字は 小学校で習う漢字だけ・
   const bad = [];
   for (const f of files) for (const p of checkFile(f)) bad.push(`${f.split('/').pop()}:${p.line} [${p.kind} ${p.detail}] ${p.text}`);
   assert.deepEqual(bad, []);
+});
+
+// ───── ルミナの町の たのまれごとの 掲示板 ─────
+test('掲示板: ルミナの町の広場に、第1部クリアのあとだけ立つ・はり紙に 中み・職業・会う人・ごほうび', async () => {
+  const hit = npcAnywhere('fq_board');
+  assert.ok(hit && hit.map === 'overworld', 'ルミナの町（フィールドの中の町）');
+  assert.ok(!condOk(hit.n.show, (f) => f !== FQ_OPEN), '第1部クリアの前は 出ない');
+  assert.ok(condOk(hit.n.show, () => true));
+  assert.ok(MONSTER_ART.fq_board, '掲示板の絵');
+  // ごほうびの 一らんは 本当の ごほうびと 同じ
+  const src = (await import('node:fs')).readFileSync(new URL('../public/js/shared/data/sidequests-family.js', import.meta.url), 'utf8');
+  for (const qd of FAMILY_QUESTS) {
+    assert.ok(ITEMS[qd.reward.item] && FAMILY_VEHICLES[qd.reward.vehicle], qd.id);
+    assert.ok(src.includes(`['item', '${qd.reward.item}', 1]`) && src.includes(`vehicleSteps('${qd.reward.vehicle}')`), `${qd.id} の ごほうび`);
+    assert.ok(src.includes(`['gold', ${qd.reward.gold}]`), `${qd.id} の ゴールド`);
+    assert.ok(npcAnywhere({ theater: 'fq_th_manager', shop: 'fq_shop_owner', cook: 'fq_cook_host', bell: 'fq_bell_sister', rail: 'fq_rail_miner' }[qd.id]), `${qd.id} の 会う人`);
+  }
+  const { bot, c } = await setup(391);
+  // 1まい目（劇場）を 読んで、一らんに もどって、やめる
+  const msgs = await talkTo(bot, 'fq_board', [0, 5]);
+  assert.ok(said(msgs, /たのまれごとのけいじ板/));
+  assert.ok(said(msgs, /まだすんでいないたのまれごと：5つ/));
+  assert.ok(said(msgs, /劇場が暑くて/));
+  assert.ok(said(msgs, /設備屋・ryonetsu[・\n]天才しせつ管理者/), '系統の 職業 ぜんぶ');
+  assert.ok(said(msgs, /サファラ劇場の中にいる、支配人ラシードに話しかけよう/));
+  assert.ok(said(msgs, /空調名人のバッジ（アクセサリー）\n高所作業車（乗り物）\n5000ゴールド・小さなメダル3まい/));
+  const choices = msgs.filter((m) => m.t === 'script' && m.steps.at(-1)?.[0] === 'choice');
+  assert.equal(choices.length, 2, '読んだら 一らんに もどる');
+  assert.equal(choices[0].steps.at(-1)[2].length, 6, '5まい＋やめる');
+  assert.ok(!bot.s.busy);
+  // 受けている・すんだ の しるし
+  c.flags[FQ.acStart] = true;
+  c.flags[FQ.railDone] = true;
+  const msgs2 = await talkTo(bot, 'fq_board', [5]);
+  const labels = msgs2.find((m) => m.t === 'script' && m.steps.at(-1)?.[0] === 'choice').steps.at(-1)[2];
+  assert.equal(labels[0], '劇場の空調をなおせ（受けている）');
+  assert.equal(labels[4], '鉱山トロッコの線路（すんだ）');
+  assert.ok(said(msgs2, /まだすんでいないたのまれごと：4つ/));
+});
+test('掲示板: 職業の 系統が 長くても 1行20文字・1ページ2行まで（はみ出さない）', () => {
+  for (const qd of FAMILY_QUESTS) {
+    const pages = boardPage({ flag: () => false }, qd).map((st) => st[2]).filter((t) => t.startsWith('【解決できそうな職業】'));
+    assert.ok(pages.length >= 1, qd.id);
+    const names = pages.flatMap((t) => t.split('\n').slice(1)).join('・').split('・');
+    assert.deepEqual(names.sort(), jobLineNames(qd.roots).sort(), `${qd.id}: 系統の 職業が ぜんぶ のる`);
+    for (const t of pages) {
+      const body = t.split('\n').slice(1);
+      assert.ok(body.length <= 2, `${qd.id}: ${t}`);
+      for (const l of body) assert.ok(l.length <= 20 || !l.includes('・'), `${qd.id}: ${l}`);
+    }
+  }
 });
