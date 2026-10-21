@@ -20,6 +20,7 @@ import { KUMOI_RECIPES } from './items-kumoi.js';
 import { HOSHIYOMI_RECIPES } from './items-hoshiyomi.js';
 import { EARTH_RECIPES } from './items-earth.js';
 import { CASTLE_RECIPES } from './items-castle.js';
+import { PAST_RECIPES } from './items-past.js';
 
 export { ALCHEMY_POT, ALCHEMY_MEMO, CAP_UP_MAX };
 
@@ -93,6 +94,8 @@ export const RECIPES = [
   ...EARTH_RECIPES,
   // 第5章 Step 8: 影の城の 素材（黒い風の羽・影火の石・黒しんじゅ）で ★5 → もっと 強い ★5（items-castle.js）
   ...CASTLE_RECIPES,
+  // 第2部 第6章 Step 1・2: 時の砂・古い歯車で ★5 → もっと 強い ★5（items-past.js）
+  ...PAST_RECIPES,
   // ── 生まれ変わりの 武器の 1だん目（第35回。第36回から かくさない）──
   ...REBIRTH_START.map((x) => ({ ...R(x.id, 2, x.to, x.from, x.mat, 'star_shard'), reborn: true })),
 ];

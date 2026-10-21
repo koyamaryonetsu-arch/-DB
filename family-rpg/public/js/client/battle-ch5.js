@@ -15,6 +15,8 @@ import { earthDraw, earthPresent } from './battle-earth.js';
 import { finalDraw, finalPresent } from './battle-final.js';
 // 第5章 Step 8 の 影の城の 3人の まぼろし（ざんぞう・風のかべ・かげ火の すじ・水かさ・バナー。battle-phantom.js）
 import { phantomDraw, phantomPresent } from './battle-phantom.js';
+// 第2部 第6章 Step 1・2 の サンドクロック（砂の 目もり）・ギアドン（まき戻しの わ）。battle-ch6.js
+import { ch6Draw, ch6Present } from './battle-ch6.js';
 
 export const TOWER_SCREEN_ANIMS = ['star_light', 'star_judge', 'tower_gust', 'comet_tail'];
 export const TOWER_ALLY_FX = {
@@ -66,6 +68,7 @@ export function towerDraw(scene, x, m, c, px, py, w, h, base) {
   earthDraw(scene, x, m, c, px, py, w, h, base);
   finalDraw(scene, x, m, c, px, py, w, h, base);
   phantomDraw(scene, x, m, c, px, py, w, h, base);
+  ch6Draw(scene, x, m, c, px, py, w, h, base);
   if (c.species !== 'argos' || !c.alive) return;
   const reading = scene.allies().some((a) => a.foresee && a.alive);
   const T = scene.time;
@@ -121,5 +124,6 @@ export function towerPresent(scene, ev, fx, anim, actor) {
   earthPresent(scene, ev, fx, anim, actor);
   finalPresent(scene, ev, fx, anim, actor);
   phantomPresent(scene, ev, fx, anim, actor);
+  ch6Present(scene, ev, fx, anim, actor);
   towerMarks(scene);
 }

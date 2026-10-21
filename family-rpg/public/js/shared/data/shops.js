@@ -12,6 +12,9 @@ import { R33_SHOP_ADD } from './items-r33.js';
 import { SHOPS_KUMOI } from './shops-kumoi.js';
 import { SHOPS_HOSHIYOMI } from './shops-hoshiyomi.js';
 import { SHOPS_EARTH } from './shops-earth.js';
+// 第2部 第6章: 千年前の ホシフルの里の 店（shops-past.js）・ゲストの ミナモ（companions-past.js）
+import { SHOPS_PAST } from './shops-past.js';
+import { MINAMO_GUEST } from './companions-past.js';
 
 export const SHOPS = {
   village: {
@@ -72,6 +75,7 @@ Object.assign(SHOPS, SHOPS_KUMOI);
 Object.assign(SHOPS, SHOPS_HOSHIYOMI);
 // 第5章 Step 7 影の城が うかんだ あとの ハネノ（shops-earth.js）
 Object.assign(SHOPS, SHOPS_EARTH);
+Object.assign(SHOPS, SHOPS_PAST);
 // 仲間の粉: 「魔物の心」に 目ざめた あと、町の 道具屋で 売る（friend-powder.js）
 for (const id of POWDER_SHOPS) if (SHOPS[id]) SHOPS[id].more = [...(SHOPS[id].more || []), { show: { all: ['monster_bond'] }, items: [POWDER_ID] }];
 // 魔物よせの笛: 町の 道具屋（abilities-field27.js）
@@ -142,3 +146,5 @@ export const GUESTS = {
 };
 // 第3章: 竜のみこユキナ（items-ch3.js）
 Object.assign(GUESTS, CH3_GUESTS);
+// 第2部 第6章: 星読みの むすめ ミナモ（A が 台本の guest で 入れる。companions-past.js）
+GUESTS.minamo = MINAMO_GUEST;

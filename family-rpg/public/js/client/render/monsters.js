@@ -19,6 +19,8 @@ import { addPhantomArt } from './ch5-phantom-art.js';
 import { addArenaArt } from './arena-art.js';
 // 第5章 Step 9: ノクト（本気）・魔王ソリトゥス（ch5-final-mon-art.js）
 import { addFinalArt } from './ch5-final-mon-art.js';
+// 第2部 第6章 Step 1・2: 千年前・時の祠・時の遺跡の 魔物と サンドクロック・ギアドン（ch6-past-art.js）
+import { addPastArt } from './ch6-past-art.js';
 
 export const MRES = 4; // できあがりの こまかさ（せかいの 1ドットを 4×4 で かく）
 const OUT = '#130d24';
@@ -845,6 +847,7 @@ addFinalArt(MONSTER_ART);
 addPhantomArt(MONSTER_ART);
 // 第39回 C: 家族の 仕事の たのまれごとの 物（劇場の 設備・かねの 台・カラス など。family-art.js）
 addFamilyArt(MONSTER_ART);
+addPastArt(MONSTER_ART);
 
 const cache = new Map();
 

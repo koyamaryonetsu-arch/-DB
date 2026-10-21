@@ -9,6 +9,8 @@ import { ELEMENT_FX } from './battlefx-r27.js';
 import { playFinalFx } from './battlefx-final.js';
 // 第5章 Step 8 の 影の城の 魔物と 3人の まぼろし（battlefx-phantom.js。ここの さいごに よぶ）
 import { playPhantomFx } from './battlefx-phantom.js';
+// 第2部 第6章 Step 1・2 の 魔物と サンドクロック・ギアドン（battlefx-ch6.js。ここの さいごに よぶ）
+import { playCh6Fx } from './battlefx-ch6.js';
 
 const BLAST = ELEMENT_FX.blast?.colors || ['#ffd060', '#ff8a30', '#ffffff'];
 const BARK = ['#5a4228', '#8a6a44', '#b08a5a'];
@@ -157,6 +159,6 @@ export function playEarthFx(fx, anim, targets, element, opts = {}, W = 256, H = 
       }
       return true;
     default:
-      return playFinalFx(fx, anim, targets, element, opts, W, H) || playPhantomFx(fx, anim, targets, element, opts, W, H);
+      return playFinalFx(fx, anim, targets, element, opts, W, H) || playPhantomFx(fx, anim, targets, element, opts, W, H) || playCh6Fx(fx, anim, targets, element, opts, W, H);
   }
 }

@@ -25,6 +25,7 @@ import { ITEMS_KUMOI, KUMOI_ITEM_KANA } from './items-kumoi.js';
 import { ITEMS_HOSHIYOMI, HOSHIYOMI_ITEM_KANA } from './items-hoshiyomi.js';
 import { ITEMS_EARTH, EARTH_ITEM_KANA } from './items-earth.js';
 import { ITEMS_FINAL, FINAL_ITEM_KANA } from './items-final.js';
+import { ITEMS_PAST, PAST_ITEM_KANA } from './items-past.js';
 import { ITEMS_CASTLE, CASTLE_ITEM_KANA } from './items-castle.js';
 // 第37回 A: サファラ闘技場の ごほうび
 import { ITEMS_ARENA, ARENA_ITEM_KANA } from './items-arena.js';
@@ -255,6 +256,8 @@ Object.assign(ITEMS, ITEMS_EARTH);
 Object.assign(ITEMS, ITEMS_FINAL);
 // 第5章 Step 8: 影の城の 宝箱・3人の まぼろしの 品・素材・れん金（items-castle.js）
 Object.assign(ITEMS, ITEMS_CASTLE);
+// 第2部 第6章 Step 1・2: 千年前の 里の ランク10の 店・宝箱・ボスの 品・素材・れん金（items-past.js）
+Object.assign(ITEMS, ITEMS_PAST);
 Object.assign(ITEMS, ITEMS_ARENA);
 // なかまの粉（friend-powder.js）
 Object.assign(ITEMS, POWDER_ITEMS);
@@ -294,8 +297,8 @@ export const EQUIP_RANKS = [
   { rank: 6, name: '魔法', where: '第4章の王都サファラ', sword: 50, cloth: 27 },
   { rank: 7, name: 'プラチナ', where: '第4章の砂の港ドゥナ（第4章クリアのあと）', sword: 61, cloth: 33 },
   { rank: 8, name: '光', where: '第5章の雲の上の町ハネノ', sword: 72, cloth: 39 },
-  { rank: 9, name: '竜', where: '第7章（これから）', sword: 85, cloth: 46 },
-  { rank: 10, name: '伝説', where: '最後の章（これから）', sword: 100, cloth: 54 },
+  { rank: 9, name: '竜', where: '第5章の影の城がうかんだあとのハネノ', sword: 85, cloth: 46 },
+  { rank: 10, name: '伝説', where: '第6章の千年前のホシフルの里', sword: 100, cloth: 54 },
 ];
 export const RANK_MAX = EQUIP_RANKS.length;
 
@@ -364,6 +367,7 @@ Object.assign(ITEM_KANA, HOSHIYOMI_ITEM_KANA);
 Object.assign(ITEM_KANA, EARTH_ITEM_KANA);
 Object.assign(ITEM_KANA, FINAL_ITEM_KANA);
 Object.assign(ITEM_KANA, CASTLE_ITEM_KANA);
+Object.assign(ITEM_KANA, PAST_ITEM_KANA);
 Object.assign(ITEM_KANA, ARENA_ITEM_KANA);
 Object.assign(ITEM_KANA, FIELD27_KANA);
 Object.assign(ITEM_KANA, R31_ITEM_KANA);
