@@ -4,7 +4,7 @@
 //   t5_memory      … 思い出の迷宮 1〜3階（さびしさのゆうれい・ひとりぼっちの人形・かげぼうし）
 //   t5_memory_deep … 思い出の迷宮 4〜6階（たましいすい・ひとがたの影・色ちがい。強い・経験値と お金が 多い）
 // 3階の 休み所と 6階の ノクトの影の 広間は 魔物が 出ない（A の マップ）
-import { registerVariant } from './variants.js?v=b0a807bf31f1';
+import { registerVariant } from './variants.js?v=909bdfecce1d';
 
 // 色ちがい（data/variants.js）: 深い 階の シャドウかげぼうし・ダークひとりぼっちの人形
 export const HOSHIYOMI_VARIANTS = [registerVariant('kage_boushi', 'shadow'), registerVariant('lonely_doll', 'dark')];

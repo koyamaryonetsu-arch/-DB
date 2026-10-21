@@ -10,18 +10,18 @@
 // resist: たいせい（しゅぞくの たいせいを つかう。ここに かけば うわがき）
 // gear:   装備できる 物（しゅぞくの けいの RACE_GEAR を うわがき。下の RACE_GEAR を 見てね）
 
-import { FRIENDS_CH2 } from './companions-ch2.js?v=b0a807bf31f1';
-import { FRIENDS_RARE } from './monsters-rare.js?v=b0a807bf31f1';
-import { FRIENDS_CH3 } from './companions-ch3.js?v=b0a807bf31f1';
-import { FRIENDS_R23, RECIPES_R23 } from './monsters-r23.js?v=b0a807bf31f1';
-import { FRIENDS_CH4 } from './companions-ch4.js?v=b0a807bf31f1';
-import { FRIENDS_CH5 } from './companions-ch5.js?v=b0a807bf31f1';
-import { FRIENDS_KUMOI } from './companions-kumoi.js?v=b0a807bf31f1';
-import { FRIENDS_HOSHIYOMI } from './companions-hoshiyomi.js?v=b0a807bf31f1';
-import { FRIENDS_EARTH } from './companions-earth.js?v=b0a807bf31f1';
-import { FRIENDS_PHANTOM } from './companions-phantom.js?v=b0a807bf31f1';
-import { FRIENDS_PAST } from './companions-past.js?v=b0a807bf31f1';
-import { FRIENDS_BOSS, MATERIAL_RECIPES, FOUR_RECIPES } from './monsters-boss.js?v=b0a807bf31f1';
+import { FRIENDS_CH2 } from './companions-ch2.js?v=909bdfecce1d';
+import { FRIENDS_RARE } from './monsters-rare.js?v=909bdfecce1d';
+import { FRIENDS_CH3 } from './companions-ch3.js?v=909bdfecce1d';
+import { FRIENDS_R23, RECIPES_R23 } from './monsters-r23.js?v=909bdfecce1d';
+import { FRIENDS_CH4 } from './companions-ch4.js?v=909bdfecce1d';
+import { FRIENDS_CH5 } from './companions-ch5.js?v=909bdfecce1d';
+import { FRIENDS_KUMOI } from './companions-kumoi.js?v=909bdfecce1d';
+import { FRIENDS_HOSHIYOMI } from './companions-hoshiyomi.js?v=909bdfecce1d';
+import { FRIENDS_EARTH } from './companions-earth.js?v=909bdfecce1d';
+import { FRIENDS_PHANTOM } from './companions-phantom.js?v=909bdfecce1d';
+import { FRIENDS_PAST } from './companions-past.js?v=909bdfecce1d';
+import { FRIENDS_BOSS, MATERIAL_RECIPES, FOUR_RECIPES } from './monsters-boss.js?v=909bdfecce1d';
 
 export const MONSTER_FRIENDS = {
   pururin: {

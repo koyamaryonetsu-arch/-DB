@@ -1,18 +1,18 @@
 // ゲーム ぜんたいの しんこう
-import { Input } from './input.js?v=b0a807bf31f1';
-import { GameAudio } from './audio.js?v=b0a807bf31f1';
-import { Field } from './field.js?v=b0a807bf31f1';
-import { Hud, STAMPS } from './ui/hud.js?v=b0a807bf31f1';
-import { FieldMenu, openWorldMap } from './ui/menu.js?v=b0a807bf31f1';
-import { ScriptPlayer, wait } from './ui/script.js?v=b0a807bf31f1';
-import { BattleScene } from './battle.js?v=b0a807bf31f1';
-import { showTitle, showLogin, showSelect, showCreate, showLoading, saveWhere } from './ui/title.js?v=b0a807bf31f1';
-import { showServerDown } from './ui/syncui.js?v=b0a807bf31f1';
-import { toast, confirmBox, el } from './ui/dom.js?v=b0a807bf31f1';
-import { MAPS } from '../shared/maps/index.js?v=b0a807bf31f1';
-import { applyBattlePrefs, applyUiFont } from './prefs.js?v=b0a807bf31f1';
-import { SkyClient } from './sky.js?v=b0a807bf31f1';
-import { reportError } from './errlog.js?v=b0a807bf31f1';
+import { Input } from './input.js?v=909bdfecce1d';
+import { GameAudio } from './audio.js?v=909bdfecce1d';
+import { Field } from './field.js?v=909bdfecce1d';
+import { Hud, STAMPS } from './ui/hud.js?v=909bdfecce1d';
+import { FieldMenu, openWorldMap } from './ui/menu.js?v=909bdfecce1d';
+import { ScriptPlayer, wait } from './ui/script.js?v=909bdfecce1d';
+import { BattleScene } from './battle.js?v=909bdfecce1d';
+import { showTitle, showLogin, showSelect, showCreate, showLoading, saveWhere } from './ui/title.js?v=909bdfecce1d';
+import { showServerDown } from './ui/syncui.js?v=909bdfecce1d';
+import { toast, confirmBox, el } from './ui/dom.js?v=909bdfecce1d';
+import { MAPS } from '../shared/maps/index.js?v=909bdfecce1d';
+import { applyBattlePrefs, applyUiFont } from './prefs.js?v=909bdfecce1d';
+import { SkyClient } from './sky.js?v=909bdfecce1d';
+import { reportError } from './errlog.js?v=909bdfecce1d';
 
 export class Game {
   constructor(net) {
@@ -750,7 +750,7 @@ export class Game {
     if (this.net.mode === 'offline' && !this.saveWarned) {
       this.saveWarned = true;
       const cloud = this.net.local?.cloud;
-      import('./offline.js?v=b0a807bf31f1').then(({ offlineStorage }) => {
+      import('./offline.js?v=909bdfecce1d').then(({ offlineStorage }) => {
         offlineStorage.load();
         if (cloud?.state === 'on') return;
         if (!offlineStorage.ok) toast('このブラウザではセーブができないかもしれません', 5000);

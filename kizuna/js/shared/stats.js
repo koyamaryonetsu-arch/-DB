@@ -1,15 +1,15 @@
 // キャラクターの つよさ計算・レベルアップ・転職ペナルティ
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_EASY_RATE, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets, jobBodyOk, superMasteredCount } from './data/jobs.js?v=b0a807bf31f1';
-import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=b0a807bf31f1';
-import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=b0a807bf31f1';
-import { MONSTERS } from './data/monsters.js?v=b0a807bf31f1';
-import { MONSTER_FRIENDS, monsterNatural, gearOf, monsterLevelCap } from './data/companions.js?v=b0a807bf31f1';
-import { HIRAMEKI, hiraRatio } from './data/hirameki.js?v=b0a807bf31f1';
-import { cleanLook } from './data/looks.js?v=b0a807bf31f1';
-import { SKILL_UPS } from './data/skill-ups.js?v=b0a807bf31f1';
-import { jobLabel } from './job-label.js?v=b0a807bf31f1';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_EASY_RATE, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets, jobBodyOk, superMasteredCount } from './data/jobs.js?v=909bdfecce1d';
+import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=909bdfecce1d';
+import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=909bdfecce1d';
+import { MONSTERS } from './data/monsters.js?v=909bdfecce1d';
+import { MONSTER_FRIENDS, monsterNatural, gearOf, monsterLevelCap } from './data/companions.js?v=909bdfecce1d';
+import { HIRAMEKI, hiraRatio } from './data/hirameki.js?v=909bdfecce1d';
+import { cleanLook } from './data/looks.js?v=909bdfecce1d';
+import { SKILL_UPS } from './data/skill-ups.js?v=909bdfecce1d';
+import { jobLabel } from './job-label.js?v=909bdfecce1d';
 // 第38回 B: 超級職からの 職業レベルの 上限（職業の試練）と Lv11〜 の 強さ
-import { jobLevelCap, jobUpStats } from './data/job-trials.js?v=b0a807bf31f1';
+import { jobLevelCap, jobUpStats } from './data/job-trials.js?v=909bdfecce1d';
 
 // 長い 物語に なるので レベルは 99まで（レベルで ふえる つよさは ひかえめ）
 export const MAX_LEVEL = 99;

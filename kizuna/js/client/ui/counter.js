@@ -4,17 +4,17 @@
 //   うえ: 店の なまえ・所持金・✕閉じる
 //   まんなか: ひだり＝品物や コマンド、みぎ＝せつめいと「だれが どう かわるか」
 //   した: 店の人の ことば（はい／いいえ は ここの みぎに 出る）
-import { el, ListMenu, esc } from './dom.js?v=b0a807bf31f1';
-import { ITEMS, sellPrice } from '../../shared/data/items.js?v=b0a807bf31f1';
-import { MONSTERS } from '../../shared/data/monsters.js?v=b0a807bf31f1';
-import { jobLabel } from '../../shared/job-label.js?v=b0a807bf31f1';
-import { computeStats, canEquipChar, itemCount } from '../../shared/stats.js?v=b0a807bf31f1';
-import { itemStats, whoCanEquip, rankText } from './info.js?v=b0a807bf31f1';
-import { faceURL } from '../field.js?v=b0a807bf31f1';
-import { boardIconURL } from '../render/boards.js?v=b0a807bf31f1';
-import { partyRows } from './hud.js?v=b0a807bf31f1';
-import { shownEquip } from '../../shared/look-equip.js?v=b0a807bf31f1';
-import { rareNameHtml } from './rarity.js?v=b0a807bf31f1';
+import { el, ListMenu, esc } from './dom.js?v=909bdfecce1d';
+import { ITEMS, sellPrice } from '../../shared/data/items.js?v=909bdfecce1d';
+import { MONSTERS } from '../../shared/data/monsters.js?v=909bdfecce1d';
+import { jobLabel } from '../../shared/job-label.js?v=909bdfecce1d';
+import { computeStats, canEquipChar, itemCount } from '../../shared/stats.js?v=909bdfecce1d';
+import { itemStats, whoCanEquip, rankText } from './info.js?v=909bdfecce1d';
+import { faceURL } from '../field.js?v=909bdfecce1d';
+import { boardIconURL } from '../render/boards.js?v=909bdfecce1d';
+import { partyRows } from './hud.js?v=909bdfecce1d';
+import { shownEquip } from '../../shared/look-equip.js?v=909bdfecce1d';
+import { rareNameHtml } from './rarity.js?v=909bdfecce1d';
 
 const TYPE_MS = 18;
 
