@@ -4,7 +4,7 @@
 //   頭は 体が 生きている 間 青い たての しるし（守られている）。しっぽが 生きている 間は 体へ 土の つぶが ながれる（土はこび）。
 //   ねらう じゅんの ヒントは「ねらいめ」の わ だけ（はじめの バナーは 出さない。家族の 答え）。部位を たおすと 短い バナー
 // ・敵が 使うと がめんの まん中に 大きく 出す 技・味方の まどの えんしゅつ・音
-import { monsterCanvas } from './render/monsters.js?v=6c1c54262b5a';
+import { monsterCanvas } from './render/monsters.js?v=b69d71237e5f';
 
 const TAIL = 'gaia_tail', BODY = 'gaia_body', HEAD = 'gaia_eater';
 const ORDER = [TAIL, BODY, HEAD];

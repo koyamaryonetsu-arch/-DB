@@ -8,30 +8,31 @@
 // unique: 1人 1つの 品（ボスが 落とす 物）。データを 合わせる ときに ふえすぎない
 // rarity: レア度 0〜5（★の 数。items-rare.js の assignRarity が つける。店の 品は 0）
 
-import { ITEMS_CH2 } from './items-ch2.js?v=6c1c54262b5a';
-import { ITEMS_TM } from './items-tm.js?v=6c1c54262b5a';
-import { NIGHT_ITEMS, NIGHT_ITEM_KANA } from './night.js?v=6c1c54262b5a';
-import { SKY_ITEMS, SKY_ITEM_KANA } from './sky.js?v=6c1c54262b5a';
-import { ITEMS_FORGE, FORGE_KANA, addUpgradeItems } from './items-forge.js?v=6c1c54262b5a';
-import { ITEMS_CASINO, CASINO_KANA } from './items-casino.js?v=6c1c54262b5a';
-import { RARE_ITEMS, RARE_ITEM_KANA } from './monsters-rare.js?v=6c1c54262b5a';
-import { ESCAPE_ITEMS, ESCAPE_KANA } from './escape.js?v=6c1c54262b5a';
-import { ITEMS_CH3, CH3_ITEM_KANA } from './items-ch3.js?v=6c1c54262b5a';
-import { ITEMS_CH4, CH4_ITEM_KANA } from './items-ch4.js?v=6c1c54262b5a';
-import { ITEMS_TEMPLE, TEMPLE_ITEM_KANA } from './items-temple.js?v=6c1c54262b5a';
-import { ITEMS_LAB, LAB_ITEM_KANA } from './items-lab.js?v=6c1c54262b5a';
-import { ITEMS_TOWER, TOWER_ITEM_KANA } from './items-tower.js?v=6c1c54262b5a';
-import { ITEMS_KUMOI, KUMOI_ITEM_KANA } from './items-kumoi.js?v=6c1c54262b5a';
-import { ITEMS_HOSHIYOMI, HOSHIYOMI_ITEM_KANA } from './items-hoshiyomi.js?v=6c1c54262b5a';
-import { ITEMS_EARTH, EARTH_ITEM_KANA } from './items-earth.js?v=6c1c54262b5a';
-import { ITEMS_FINAL, FINAL_ITEM_KANA } from './items-final.js?v=6c1c54262b5a';
-import { ITEMS_CASTLE, CASTLE_ITEM_KANA } from './items-castle.js?v=6c1c54262b5a';
+import { ITEMS_CH2 } from './items-ch2.js?v=b69d71237e5f';
+import { ITEMS_TM } from './items-tm.js?v=b69d71237e5f';
+import { NIGHT_ITEMS, NIGHT_ITEM_KANA } from './night.js?v=b69d71237e5f';
+import { SKY_ITEMS, SKY_ITEM_KANA } from './sky.js?v=b69d71237e5f';
+import { ITEMS_FORGE, FORGE_KANA, addUpgradeItems } from './items-forge.js?v=b69d71237e5f';
+import { ITEMS_CASINO, CASINO_KANA } from './items-casino.js?v=b69d71237e5f';
+import { RARE_ITEMS, RARE_ITEM_KANA } from './monsters-rare.js?v=b69d71237e5f';
+import { ESCAPE_ITEMS, ESCAPE_KANA } from './escape.js?v=b69d71237e5f';
+import { ITEMS_CH3, CH3_ITEM_KANA } from './items-ch3.js?v=b69d71237e5f';
+import { ITEMS_CH4, CH4_ITEM_KANA } from './items-ch4.js?v=b69d71237e5f';
+import { ITEMS_TEMPLE, TEMPLE_ITEM_KANA } from './items-temple.js?v=b69d71237e5f';
+import { ITEMS_LAB, LAB_ITEM_KANA } from './items-lab.js?v=b69d71237e5f';
+import { ITEMS_TOWER, TOWER_ITEM_KANA } from './items-tower.js?v=b69d71237e5f';
+import { ITEMS_KUMOI, KUMOI_ITEM_KANA } from './items-kumoi.js?v=b69d71237e5f';
+import { ITEMS_HOSHIYOMI, HOSHIYOMI_ITEM_KANA } from './items-hoshiyomi.js?v=b69d71237e5f';
+import { ITEMS_EARTH, EARTH_ITEM_KANA } from './items-earth.js?v=b69d71237e5f';
+import { ITEMS_FINAL, FINAL_ITEM_KANA } from './items-final.js?v=b69d71237e5f';
+import { ITEMS_PAST, PAST_ITEM_KANA } from './items-past.js?v=b69d71237e5f';
+import { ITEMS_CASTLE, CASTLE_ITEM_KANA } from './items-castle.js?v=b69d71237e5f';
 // 第37回 A: サファラ闘技場の ごほうび
-import { ITEMS_ARENA, ARENA_ITEM_KANA } from './items-arena.js?v=6c1c54262b5a';
-import { POWDER_ITEMS, POWDER_KANA } from './friend-powder.js?v=6c1c54262b5a';
-import { FIELD27_ITEMS, FIELD27_KANA } from './abilities-field27.js?v=6c1c54262b5a';
-import { RARE_GEAR, RARE_GEAR_KANA, assignRarity } from './items-rare.js?v=6c1c54262b5a';
-import { applyGearLooks } from './gear-looks.js?v=6c1c54262b5a';
+import { ITEMS_ARENA, ARENA_ITEM_KANA } from './items-arena.js?v=b69d71237e5f';
+import { POWDER_ITEMS, POWDER_KANA } from './friend-powder.js?v=b69d71237e5f';
+import { FIELD27_ITEMS, FIELD27_KANA } from './abilities-field27.js?v=b69d71237e5f';
+import { RARE_GEAR, RARE_GEAR_KANA, assignRarity } from './items-rare.js?v=b69d71237e5f';
+import { applyGearLooks } from './gear-looks.js?v=b69d71237e5f';
 
 export const ITEMS = {
   // ───── つかう どうぐ ─────
@@ -255,23 +256,25 @@ Object.assign(ITEMS, ITEMS_EARTH);
 Object.assign(ITEMS, ITEMS_FINAL);
 // 第5章 Step 8: 影の城の 宝箱・3人の まぼろしの 品・素材・れん金（items-castle.js）
 Object.assign(ITEMS, ITEMS_CASTLE);
+// 第2部 第6章 Step 1・2: 千年前の 里の ランク10の 店・宝箱・ボスの 品・素材・れん金（items-past.js）
+Object.assign(ITEMS, ITEMS_PAST);
 Object.assign(ITEMS, ITEMS_ARENA);
 // なかまの粉（friend-powder.js）
 Object.assign(ITEMS, POWDER_ITEMS);
 // 魔物よせの笛（abilities-field27.js）
 Object.assign(ITEMS, FIELD27_ITEMS);
 // 第31回: しあわせのぼうし・こうふくのくつ（items-r31.js）
-import { ITEMS_R31, R31_ITEM_KANA } from './items-r31.js?v=6c1c54262b5a'; Object.assign(ITEMS, ITEMS_R31);
+import { ITEMS_R31, R31_ITEM_KANA } from './items-r31.js?v=b69d71237e5f'; Object.assign(ITEMS, ITEMS_R31);
 // 第32回: ひみつのダンジョンの お店だけの 回復薬（items-secret.js）
-import { SD_POTIONS, SD_POTION_KANA } from './items-secret.js?v=6c1c54262b5a'; Object.assign(ITEMS, SD_POTIONS);
+import { SD_POTIONS, SD_POTION_KANA } from './items-secret.js?v=b69d71237e5f'; Object.assign(ITEMS, SD_POTIONS);
 // 第31回: レア装備（items-rare.js）と、すべての 装備の レア度（★1〜★5。店の 品は 0）
 Object.assign(ITEMS, RARE_GEAR);
 // 第32回: れん金がまの 品・生まれ変わりの 武器（items-alchemy.js）
-import { ALCHEMY_ITEMS, ALCHEMY_KANA } from './items-alchemy.js?v=6c1c54262b5a'; Object.assign(ITEMS, ALCHEMY_ITEMS);
+import { ALCHEMY_ITEMS, ALCHEMY_KANA } from './items-alchemy.js?v=b69d71237e5f'; Object.assign(ITEMS, ALCHEMY_ITEMS);
 // 第33回: 11の 職業の 装備（items-r33.js。店の 品と レア装備）
-import { ITEMS_R33, R33_ITEM_KANA } from './items-r33.js?v=6c1c54262b5a'; Object.assign(ITEMS, ITEMS_R33);
+import { ITEMS_R33, R33_ITEM_KANA } from './items-r33.js?v=b69d71237e5f'; Object.assign(ITEMS, ITEMS_R33);
 // 第39回 C: 家族の 仕事の たのまれごとの ★5の アクセサリーと 大事な物（items-family.js）
-import { FAMILY_ITEMS, FAMILY_ITEM_KANA } from './items-family.js?v=6c1c54262b5a'; Object.assign(ITEMS, FAMILY_ITEMS);
+import { FAMILY_ITEMS, FAMILY_ITEM_KANA } from './items-family.js?v=b69d71237e5f'; Object.assign(ITEMS, FAMILY_ITEMS);
 assignRarity(ITEMS);
 // 第38回 D: 見た目の 武器と 盾の 形（look。gear-looks.js）
 applyGearLooks(ITEMS);
@@ -294,8 +297,8 @@ export const EQUIP_RANKS = [
   { rank: 6, name: '魔法', where: '第4章の王都サファラ', sword: 50, cloth: 27 },
   { rank: 7, name: 'プラチナ', where: '第4章の砂の港ドゥナ（第4章クリアのあと）', sword: 61, cloth: 33 },
   { rank: 8, name: '光', where: '第5章の雲の上の町ハネノ', sword: 72, cloth: 39 },
-  { rank: 9, name: '竜', where: '第7章（これから）', sword: 85, cloth: 46 },
-  { rank: 10, name: '伝説', where: '最後の章（これから）', sword: 100, cloth: 54 },
+  { rank: 9, name: '竜', where: '第5章の影の城がうかんだあとのハネノ', sword: 85, cloth: 46 },
+  { rank: 10, name: '伝説', where: '第6章の千年前のホシフルの里', sword: 100, cloth: 54 },
 ];
 export const RANK_MAX = EQUIP_RANKS.length;
 
@@ -364,6 +367,7 @@ Object.assign(ITEM_KANA, HOSHIYOMI_ITEM_KANA);
 Object.assign(ITEM_KANA, EARTH_ITEM_KANA);
 Object.assign(ITEM_KANA, FINAL_ITEM_KANA);
 Object.assign(ITEM_KANA, CASTLE_ITEM_KANA);
+Object.assign(ITEM_KANA, PAST_ITEM_KANA);
 Object.assign(ITEM_KANA, ARENA_ITEM_KANA);
 Object.assign(ITEM_KANA, FIELD27_KANA);
 Object.assign(ITEM_KANA, R31_ITEM_KANA);

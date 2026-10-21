@@ -11,20 +11,20 @@
 // ・仲間 … 両方の 仲間を のこす（べつべつに 仲間に なった まものは 両方とも。家族の パーティーで 酒場に 来た まものも おなじ）
 // ・預かり所 … お金も 品物も、両方で 預けた・引き出した ぶんを たす
 // ・いる場所・HP・作戦 など … 両方で かわって いたら、あとで 遊んだ ほう
-import { expForLevel, MAX_LEVEL, computeStats } from '../stats.js?v=6c1c54262b5a';
-import { JOBS, jobBattlesForLevel } from '../data/jobs.js?v=6c1c54262b5a';
+import { expForLevel, MAX_LEVEL, computeStats } from '../stats.js?v=b69d71237e5f';
+import { JOBS, jobBattlesForLevel } from '../data/jobs.js?v=b69d71237e5f';
 // 第38回 B: 職業の試練（クリアした 数は 多い ほう・受けている 試練の 修行は 多い ほう）。上限は クリアした 数から
-import { mergeTrialInfo, jobCapOf } from '../data/job-trials.js?v=6c1c54262b5a';
-import { ITEMS, SLOTS } from '../data/items.js?v=6c1c54262b5a';
-import { STORY_STEPS } from '../data/story.js?v=6c1c54262b5a';
-import { COMPANION_SLOTS } from '../data/companions.js?v=6c1c54262b5a';
-import { WAGON_SLOTS } from '../data/wagon.js?v=6c1c54262b5a';
-import { repairChar } from './save.js?v=6c1c54262b5a';
-import { mergeTreasureMaps } from '../data/treasure.js?v=6c1c54262b5a';
-import { mergeSecret } from '../data/secret.js?v=6c1c54262b5a';
-import { mergeAlchemy } from './alchemy.js?v=6c1c54262b5a';
-import { mergeArena } from '../data/arena.js?v=6c1c54262b5a';
-import { COIN_MAX } from '../data/casino.js?v=6c1c54262b5a';
+import { mergeTrialInfo, jobCapOf } from '../data/job-trials.js?v=b69d71237e5f';
+import { ITEMS, SLOTS } from '../data/items.js?v=b69d71237e5f';
+import { STORY_STEPS } from '../data/story.js?v=b69d71237e5f';
+import { COMPANION_SLOTS } from '../data/companions.js?v=b69d71237e5f';
+import { WAGON_SLOTS } from '../data/wagon.js?v=b69d71237e5f';
+import { repairChar } from './save.js?v=b69d71237e5f';
+import { mergeTreasureMaps } from '../data/treasure.js?v=b69d71237e5f';
+import { mergeSecret } from '../data/secret.js?v=b69d71237e5f';
+import { mergeAlchemy } from './alchemy.js?v=b69d71237e5f';
+import { mergeArena } from '../data/arena.js?v=b69d71237e5f';
+import { COIN_MAX } from '../data/casino.js?v=b69d71237e5f';
 
 const GOLD_MAX = 9999999;
 const clone = (x) => (x === undefined ? undefined : JSON.parse(JSON.stringify(x)));

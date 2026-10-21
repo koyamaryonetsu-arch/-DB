@@ -1,8 +1,8 @@
 // 第5章 Step 7 の とくべつな え（render/ch5-art.js の paintCh5Special から paintEarthSpecial）
 // ・shadow_castle … 雲の 海の まん中に うかぶ 影の城（黒い 石の 城。とがった 塔・むらさきに 光る 窓・下は 雲と 黒い 風に とける）
-import { Painter } from './pixel.js?v=6c1c54262b5a';
+import { Painter } from './pixel.js?v=b69d71237e5f';
 // 第5章 Step 8: 氷の像（render/ch5-castle-art.js）
-import { paintCastleSpecial } from './ch5-castle-art.js?v=6c1c54262b5a';
+import { paintCastleSpecial } from './ch5-castle-art.js?v=b69d71237e5f';
 
 const K = { dd: '#0e0a16', d: '#1a1426', b: '#2a2238', m: '#3a3050', l: '#544a70' };
 const WIN = ['#b07ae8', '#e0b0ff'];

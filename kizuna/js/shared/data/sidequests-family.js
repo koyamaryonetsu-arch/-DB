@@ -14,12 +14,12 @@
 //  3. カナトコの料理大会（料理人の 系統・鉱山の町カナトコ）
 //  4. ルミナの町の、消えた教会のかね（警察官・少年探てい団の 系統・ルミナの町）
 //  5. 鉱山トロッコの線路（鉄道員の 系統・鉱山の町カナトコ）
-import { JOBS, jobAncestry } from './jobs.js?v=6c1c54262b5a';
-import { medalSteps } from './story-lab.js?v=6c1c54262b5a';
-import { FAMILY_VEHICLES } from './vehicles-family.js?v=6c1c54262b5a';
+import { JOBS, jobAncestry } from './jobs.js?v=b69d71237e5f';
+import { medalSteps } from './story-lab.js?v=b69d71237e5f';
+import { FAMILY_VEHICLES } from './vehicles-family.js?v=b69d71237e5f';
 import {
   FQ, FQ_OPEN, DAMPERS, DIRTY_ZONES, SHOP_VOICES, COOK_RUMORS, BELL_CLUES, BELL_TALKS, RAIL_FIX, RAIL_PATH, MINE_ROOM_ARRIVE,
-} from '../maps/family-quests.js?v=6c1c54262b5a';
+} from '../maps/family-quests.js?v=b69d71237e5f';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

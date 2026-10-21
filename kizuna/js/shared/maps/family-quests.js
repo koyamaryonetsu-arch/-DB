@@ -9,12 +9,12 @@
 //  3. カナトコの料理大会（鉱山の町カナトコの 広場・町の 北の 雪原の きのこ・南の 道の モグラ）
 //  4. ルミナの町の、消えた教会のかね（ルミナの町の 教会の まわり・北西の すみの 大きな 木）
 //  5. 鉱山トロッコの線路（鉱山の町カナトコの 北の 古い 鉱山 → だれも 知らない 小べや）
-import { T, parseRows, TILE_INFO } from '../tiles.js?v=6c1c54262b5a';
-import { npc } from './npc.js?v=6c1c54262b5a';
-import { PLACES } from './overworld.js?v=6c1c54262b5a';
-import { NORTH_PLACES } from './north.js?v=6c1c54262b5a';
-import { SOUTH_PLACES } from './south.js?v=6c1c54262b5a';
-import { openSpot } from './labyrinth.js?v=6c1c54262b5a';
+import { T, parseRows, TILE_INFO } from '../tiles.js?v=b69d71237e5f';
+import { npc } from './npc.js?v=b69d71237e5f';
+import { PLACES } from './overworld.js?v=b69d71237e5f';
+import { NORTH_PLACES } from './north.js?v=b69d71237e5f';
+import { SOUTH_PLACES } from './south.js?v=b69d71237e5f';
+import { openSpot } from './labyrinth.js?v=b69d71237e5f';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 export const FQ_OPEN = 'c5_clear'; // 第1部クリアで たのみたい 人が 立つ

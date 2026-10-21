@@ -2,16 +2,19 @@
 // お店: name 店の なまえ / kind かんばんの しゅるい / keeper 店の人 / hello さいしょの ことば / items 売っている 品物
 //       more: 物語が すすむと ふえる 品物 [{ show: { all: [フラグ] }, items: [...], hello }]（show の 書き方は NPC と おなじ。hello が あれば あいさつも かわる）
 
-import { SHOPS_CH2 } from './items-ch2.js?v=6c1c54262b5a';
-import { NIGHT_SHOPS } from './night.js?v=6c1c54262b5a';
-import { SHOPS_CH3, CH3_GUESTS } from './items-ch3.js?v=6c1c54262b5a';
-import { SHOPS_CH4 } from './items-ch4.js?v=6c1c54262b5a';
-import { POWDER_ID, POWDER_SHOPS } from './friend-powder.js?v=6c1c54262b5a';
-import { LURE_ITEM, FIELD27_SHOPS } from './abilities-field27.js?v=6c1c54262b5a';
-import { R33_SHOP_ADD } from './items-r33.js?v=6c1c54262b5a';
-import { SHOPS_KUMOI } from './shops-kumoi.js?v=6c1c54262b5a';
-import { SHOPS_HOSHIYOMI } from './shops-hoshiyomi.js?v=6c1c54262b5a';
-import { SHOPS_EARTH } from './shops-earth.js?v=6c1c54262b5a';
+import { SHOPS_CH2 } from './items-ch2.js?v=b69d71237e5f';
+import { NIGHT_SHOPS } from './night.js?v=b69d71237e5f';
+import { SHOPS_CH3, CH3_GUESTS } from './items-ch3.js?v=b69d71237e5f';
+import { SHOPS_CH4 } from './items-ch4.js?v=b69d71237e5f';
+import { POWDER_ID, POWDER_SHOPS } from './friend-powder.js?v=b69d71237e5f';
+import { LURE_ITEM, FIELD27_SHOPS } from './abilities-field27.js?v=b69d71237e5f';
+import { R33_SHOP_ADD } from './items-r33.js?v=b69d71237e5f';
+import { SHOPS_KUMOI } from './shops-kumoi.js?v=b69d71237e5f';
+import { SHOPS_HOSHIYOMI } from './shops-hoshiyomi.js?v=b69d71237e5f';
+import { SHOPS_EARTH } from './shops-earth.js?v=b69d71237e5f';
+// 第2部 第6章: 千年前の ホシフルの里の 店（shops-past.js）・ゲストの ミナモ（companions-past.js）
+import { SHOPS_PAST } from './shops-past.js?v=b69d71237e5f';
+import { MINAMO_GUEST } from './companions-past.js?v=b69d71237e5f';
 
 export const SHOPS = {
   village: {
@@ -72,6 +75,7 @@ Object.assign(SHOPS, SHOPS_KUMOI);
 Object.assign(SHOPS, SHOPS_HOSHIYOMI);
 // 第5章 Step 7 影の城が うかんだ あとの ハネノ（shops-earth.js）
 Object.assign(SHOPS, SHOPS_EARTH);
+Object.assign(SHOPS, SHOPS_PAST);
 // 仲間の粉: 「魔物の心」に 目ざめた あと、町の 道具屋で 売る（friend-powder.js）
 for (const id of POWDER_SHOPS) if (SHOPS[id]) SHOPS[id].more = [...(SHOPS[id].more || []), { show: { all: ['monster_bond'] }, items: [POWDER_ID] }];
 // 魔物よせの笛: 町の 道具屋（abilities-field27.js）
@@ -142,3 +146,5 @@ export const GUESTS = {
 };
 // 第3章: 竜のみこユキナ（items-ch3.js）
 Object.assign(GUESTS, CH3_GUESTS);
+// 第2部 第6章: 星読みの むすめ ミナモ（A が 台本の guest で 入れる。companions-past.js）
+GUESTS.minamo = MINAMO_GUEST;
