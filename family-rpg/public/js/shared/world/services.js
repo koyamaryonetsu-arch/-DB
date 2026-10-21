@@ -17,7 +17,9 @@ import { MONSTERS } from '../data/monsters.js';
 import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings, spellSealed } from '../battle.js';
 import { PLACES } from '../maps/overworld.js';
 import { POS, SEA_PLACES, MAPS } from '../maps/index.js';
-import { castRura, warpParty, useTimeBell, warpPlaces, warpOwner } from './travel.js';
+import { castRura, warpParty, useTimeBell, warpPlaces, warpOwner, PAST_WARP_TEXT } from './travel.js';
+// 第6章: 時の砂時計（world/time-glass-use.js）
+import { useTimeGlass } from './time-glass-use.js';
 import { bankInfo, bankAction } from './bank.js';
 import { forgeInfo, forgeAction } from './forge.js';
 import { alchemyAction, useAlchemyMemo } from './alchemy.js';
@@ -427,6 +429,8 @@ export function menuAction(world, s, msg) {
       // れん金のメモ（world/alchemy.js）
       if (eff.type === 'alchemyMemo') return useAlchemyMemo(world, s, msg.id, reply);
       if (eff.type === 'warp') {
+        // 第6章: 千年前では 使えない（行き先の 町が まだ ない。world/travel.js の PAST_WARP_TEXT）
+        if (MAPS[s.map]?.past) return reply(false, PAST_WARP_TEXT(`${c.name}は${it.name}を空に投げた！`));
         // 王家のピラミッド（第4章）: 帰り道の羽は 使えない（道具は へらない。行き先を えらぶ 前に 知らせる）
         if (MAPS[s.map]?.noEscape) return reply(false, noEscapeText(it.name, MAPS[s.map]));
         // 行き先は リーダーと おなじ（パーティーで リーダーの 冒険に 来ている ときは リーダーの きろく。travel.js）
@@ -451,6 +455,8 @@ export function menuAction(world, s, msg) {
       removeItem(c, msg.id, 1);
       return reply(true, `${c.name}は${it.name}を使った！\n${r.text}`);
     }
+    // 第6章: 時の砂時計（大事な物。メニューの「道具」から）
+    case 'timeGlass': return useTimeGlass(world, s, reply);
     case 'cast': {
       const caster = ownChar(s, msg.who);
       if (!caster) return reply(false, '');

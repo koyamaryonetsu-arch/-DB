@@ -21,6 +21,8 @@ import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js';
 import { CH3_STEPS, CH3_STORY_SCRIPTS, CH3_SCRIPTS, elderCh3 } from './story-ch3.js';
 import { CH4_STEPS, CH4_STORY_SCRIPTS, CH4_SCRIPTS, elderCh4 } from './story-ch4.js';
 import { CH5_STEPS, CH5_STORY_SCRIPTS, CH5_SCRIPTS, CH5_TOWN_LINES, elderCh5 } from './story-ch5.js';
+// 第2部 第6章「時の砂時計」Step 1・2（story-ch6.js）
+import { CH6_STEPS, applyCh6 } from './story-ch6.js';
 import { TM_SCRIPTS, TM_STORY_SCRIPTS } from './story-tm.js';
 import { SD_SCRIPTS } from './story-secret.js';
 import { CASINO_SCRIPTS } from './story-casino.js';
@@ -49,6 +51,7 @@ export const STORY_STEPS = [
   ...CH3_STEPS,
   ...CH4_STEPS,
   ...CH5_STEPS,
+  ...CH6_STEPS,
 ];
 
 // パーティー全員で みる ストーリーイベント
@@ -636,6 +639,9 @@ for (const [id, fn] of Object.entries(CH5_TOWN_LINES)) {
   if (!base) continue;
   SCRIPTS[id] = Object.assign((x) => fn(x) || base(x), base);
 }
+
+// 第2部 第6章（story-ch6.js）: 第1部クリアの あとの ばあちゃん・町の 人の ことば・パーティー全員で 見る イベント
+applyCh6(SCRIPTS, STORY_SCRIPTS);
 
 // 第35回: かくし要素の ヒント（町の 人の さいごに 1行。secret-hints.js）
 applyTownHints(SCRIPTS);

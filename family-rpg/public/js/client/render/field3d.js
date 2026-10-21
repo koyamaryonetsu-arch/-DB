@@ -23,6 +23,7 @@ import { kumoiBlockSpec, KUMOI_FLOOR_H, KUMOI_LIQUIDS, CLOUD_OUTSIDE } from './t
 import { MEMORY_FLOOR_H, MEMORY_LIQUIDS } from './tiles-memory.js';
 import { EARTH_FLOOR_H, EARTH_LIQUIDS, earthBlockSpec } from './tiles-earth.js';
 import { CASTLE_FLOOR_H } from './tiles-castle.js';
+import { CH6_FLOOR_H, ch6BlockSpec } from './tiles-ch6.js';
 import { TROUGH, CANAL_CTX, CANAL_SUN, canalVariant, canalMask, canalFlow, damVertical } from './tiles-canal.js';
 import { flipCanvas, makeCanvas, ctxOf, whiteCopy } from './pixel.js';
 import { themedCanvas, partOfTile, partOfExtra, partOfProp } from './themes.js';
@@ -64,7 +65,7 @@ const CANAL_BED_H = -0.42, CANAL_WATER_Y = -0.27, GATE_H = 1.05, DAM_H = 0.62;
 // 地面の たかさ（深い 雪は すこし 高く・谷は ふかく・水路の 底は ひくく）
 // 時間で かわる とびらの しるし（第5章 Step 8 の 影の城の 炎の 柱。world/clock.js の timeFlag）
 const TIMED_FLAGS = new Set(['@fireA', '@fireB']);
-const FLOOR_H = { [T.STEPPING]: -0.16, [T.DEEP_SNOW]: 0.14, [T.CHASM]: -0.8, [T.CANAL_BED]: CANAL_BED_H, [T.DAM]: CANAL_BED_H, ...TEMPLE_FLOOR_H, ...TOWER_FLOOR_H, ...KUMOI_FLOOR_H, ...MEMORY_FLOOR_H, ...EARTH_FLOOR_H, ...CASTLE_FLOOR_H };
+const FLOOR_H = { [T.STEPPING]: -0.16, [T.DEEP_SNOW]: 0.14, [T.CHASM]: -0.8, [T.CANAL_BED]: CANAL_BED_H, [T.DAM]: CANAL_BED_H, ...TEMPLE_FLOOR_H, ...TOWER_FLOOR_H, ...KUMOI_FLOOR_H, ...MEMORY_FLOOR_H, ...EARTH_FLOOR_H, ...CASTLE_FLOOR_H, ...CH6_FLOOR_H };
 // 雪・氷・砂ばくの 地面の よこの え
 const SIDE_OF = {
   [T.SAND]: 'sand_side', [T.SNOW]: 'snow_side', [T.SNOW_PATH]: 'snow_side', [T.DEEP_SNOW]: 'snow_side', [T.ICE]: 'ice_side',
@@ -147,7 +148,7 @@ function blockSpec(id, x, y) {
     case T.PYR_SLAB: return { h: 1.6, top: ['x', 'cave_top', v], side: ['t', T.PYR_SLAB, v, 1], south: ['t', T.PYR_SLAB, v, 1] };
     case T.PYR_CRACK: return { h: 1.6, top: ['x', 'cave_top', v], side: ['t', T.PYR_CRACK, v, 1], south: ['t', T.PYR_CRACK, v, 1] };
     // 第4章 Step 7: 大きな 鏡・かべ画（かべの 前の かお）・空気の ドームの かべ（あわの 向こうの 砂）・水が もどった ふん水
-    default: return templeBlockSpec(id, v) || labBlockSpec(id, v) || towerBlockSpec(id, v) || kumoiBlockSpec(id, v) || earthBlockSpec(id, v);
+    default: return templeBlockSpec(id, v) || labBlockSpec(id, v) || towerBlockSpec(id, v) || kumoiBlockSpec(id, v) || earthBlockSpec(id, v) || ch6BlockSpec(id, v);
   }
 }
 

@@ -63,6 +63,10 @@ export const T = {
   WINDMILL: 97, FIRE_PILLAR: 187, FIRE_VENT: 188,
   // 第5章 Step 9「影の城の てっぺん（星のない広間）」（maps/castle-top.js・render/tiles-top.js。A9 は 189・229 だけ）
   STARLESS_FLOOR: 189, STARLESS_ALTAR: 229,
+  // 第6章 Step 1・2「時の砂時計」（maps/past.js・toki-shrine.js・toki-ruin.js・render/tiles-ch6.js）。0〜255 は ぜんぶ 使われているので 256 から。
+  // 256 いじょうの タイルは 第6章の マップ（タイルの ならびが Uint16Array）だけで 使う（今の フィールドなど Uint8Array の マップには 置かない）
+  SAND_DOOR: 256, SAND_DOOR_OPEN: 257, SAND_DIAL: 258, SAND_DIAL_ON: 259, TIME_ALTAR: 260, TIME_ALTAR_EMPTY: 261,
+  FROZEN_WATER: 262, STRAW_WALL: 263, TIME_PLATE: 264, TIME_PLATE_ON: 265,
 };
 
 export const TILE_INFO = {};
@@ -336,6 +340,17 @@ def(T.FIRE_VENT, 'fire_vent', { mapColor: '#4a3a3a' }); // 炎の 柱の ふき�
 // 第5章 Step 9「星のない広間」（maps/castle-top.js）。かべは 洞窟の タイルを 広間の 色に（render/tiles-top.js の ctop）
 def(T.STARLESS_FLOOR, 'starless_floor', { mapColor: '#1c1828' }); // 星のない 広間の ゆか（星の もようが 消えた 黒い 石。歩ける）
 def(T.STARLESS_ALTAR, 'starless_altar', { solid: true, talkThrough: true, anim: true, mapColor: '#5a3a7a' }); // 星のない 祭だん（黒い もやが ゆれる）
+// 第6章 Step 1・2「時の砂時計」（render/tiles-ch6.js）
+def(T.SAND_DOOR, 'sand_door', { solid: true, mapColor: '#a88a4a' }); // 砂時計の とびら（しまっている。台を しらべると 少しの 間だけ 開く）
+def(T.SAND_DOOR_OPEN, 'sand_door_open', { anim: true, mapColor: '#e8cc84' }); // 開いた 砂時計の とびら（上から 砂が こぼれる）
+def(T.SAND_DIAL, 'sand_dial', { solid: true, mapColor: '#c8a860' }); // 砂時計の 台（しらべると 砂時計が ひっくり返る）
+def(T.SAND_DIAL_ON, 'sand_dial_on', { solid: true, anim: true, light: true, mapColor: '#ffe08a' }); // 砂が 落ちている 砂時計の 台
+def(T.TIME_ALTAR, 'time_altar', { solid: true, talkThrough: true, anim: true, light: true, mapColor: '#ffe8a8' }); // 時の 砂時計の 台座（光の 砂の 大きな 砂時計）
+def(T.TIME_ALTAR_EMPTY, 'time_altar_empty', { solid: true, talkThrough: true, mapColor: '#b8a070' }); // 砂時計を もらった あとの 台座
+def(T.FROZEN_WATER, 'frozen_water', { solid: true, mapColor: '#9aa0a8' }); // 時が 止まった 泉（灰色の まま 動かない 水）
+def(T.STRAW_WALL, 'straw_wall', { solid: true, mapColor: '#c8a860' }); // わらの 家の かべ（千年前の ホシフルの里）
+def(T.TIME_PLATE, 'time_plate', { mapColor: '#8a8aa8' }); // 時の ふむ石（時の遺跡 7階。2つの 時代で 同時に ふむ）
+def(T.TIME_PLATE_ON, 'time_plate_on', { light: true, mapColor: '#ffe680' }); // しずんだ 時の ふむ石
 
 export function isSolid(id) {
   return TILE_INFO[id]?.solid ?? true;

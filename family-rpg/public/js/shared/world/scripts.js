@@ -464,6 +464,8 @@ export class ScriptRun {
         case 'roll':
         // カメラを その 場所へ（['look', x, y]）・自分に もどす（['look']）
         case 'look':
+        // 第6章: 時の砂時計の 砂の うず（client/time-shift.js）
+        case 'timeShift':
           this.batch.push(step);
           break;
         default:

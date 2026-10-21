@@ -227,6 +227,8 @@ export const ITEMS = {
 Object.assign(ITEMS, ITEMS_CH2, ITEMS_TM);
 // 夜の 品物（night.js）・空の 旅（sky.js）
 Object.assign(ITEMS, NIGHT_ITEMS, SKY_ITEMS);
+// 第6章 Step 1・2（A）の 大事な物: 時の砂時計・星の木のなえ・星のしずく（items-ch6-key.js）
+import { CH6_KEY_ITEMS, CH6_KEY_KANA } from './items-ch6-key.js'; Object.assign(ITEMS, CH6_KEY_ITEMS);
 // ふしぎなかじの 素材と 作れる 装備（items-forge.js）
 Object.assign(ITEMS, ITEMS_FORGE);
 // カジノの 景品・メダル王の ごほうび（items-casino.js）
@@ -351,6 +353,7 @@ export const ITEM_KANA = {
 };
 
 Object.assign(ITEM_KANA, NIGHT_ITEM_KANA, SKY_ITEM_KANA);
+Object.assign(ITEM_KANA, CH6_KEY_KANA);
 Object.assign(ITEM_KANA, FORGE_KANA, RARE_ITEM_KANA);
 Object.assign(ITEM_KANA, CASINO_KANA);
 Object.assign(ITEM_KANA, ESCAPE_KANA);
