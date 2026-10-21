@@ -270,6 +270,8 @@ Object.assign(ITEMS, RARE_GEAR);
 import { ALCHEMY_ITEMS, ALCHEMY_KANA } from './items-alchemy.js'; Object.assign(ITEMS, ALCHEMY_ITEMS);
 // 第33回: 11の 職業の 装備（items-r33.js。店の 品と レア装備）
 import { ITEMS_R33, R33_ITEM_KANA } from './items-r33.js'; Object.assign(ITEMS, ITEMS_R33);
+// 第39回 C: 家族の 仕事の たのまれごとの ★5の アクセサリーと 大事な物（items-family.js）
+import { FAMILY_ITEMS, FAMILY_ITEM_KANA } from './items-family.js'; Object.assign(ITEMS, FAMILY_ITEMS);
 assignRarity(ITEMS);
 // 第38回 D: 見た目の 武器と 盾の 形（look。gear-looks.js）
 applyGearLooks(ITEMS);
@@ -369,6 +371,7 @@ Object.assign(ITEM_KANA, RARE_GEAR_KANA);
 Object.assign(ITEM_KANA, SD_POTION_KANA);
 Object.assign(ITEM_KANA, ALCHEMY_KANA);
 Object.assign(ITEM_KANA, R33_ITEM_KANA);
+Object.assign(ITEM_KANA, FAMILY_ITEM_KANA);
 
 export function itemKana(id) {
   // きたえた 装備は もとの 装備の 読み ＋ 回数（鉄の剣 → 鉄の剣+1 の じゅん）

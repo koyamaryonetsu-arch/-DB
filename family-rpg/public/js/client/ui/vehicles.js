@@ -27,6 +27,7 @@ function styles() {
 .veh-pv .nt { white-space: pre-wrap; font-size: var(--fs-small); color: #a8a6c0; }
 .menu .tag.veh-now { color: #9fe8a8; border-color: rgba(159, 232, 168, 0.6); }
 .menu .tag.veh-job { color: #ffb0d8; border-color: rgba(255, 176, 216, 0.55); }
+.menu .tag.veh-gift { color: #ffe08a; border-color: rgba(255, 224, 138, 0.6); }
 .veh-view .detail { white-space: pre-wrap; }
 ` }));
 }
@@ -76,7 +77,7 @@ export function vehiclePreview(game) {
 }
 
 // 職業に ちなんだ 乗り物の しるし
-const jobTag = (id) => (VEHICLES[id]?.jobs ? '<span class="tag veh-job">職業</span>' : '');
+const jobTag = (id) => (VEHICLES[id]?.gift ? '<span class="tag veh-gift">もらった物</span>' : VEHICLES[id]?.jobs ? '<span class="tag veh-job">職業</span>' : '');
 
 // ───────────── 乗り物屋 ─────────────
 export async function vehicleShopUI(game, data) {
@@ -95,7 +96,7 @@ export async function vehicleShopUI(game, data) {
         value: id,
         label: VEHICLES[id].name,
         html: `${esc(VEHICLES[id].name)}${jobTag(id)}`,
-        right: owned.has(id) ? '持っている' : `${VEHICLES[id].price}G`,
+        right: owned.has(id) ? (VEHICLES[id].gift ? 'もらった物' : '持っている') : `${VEHICLES[id].price}G`,
         rightCls: owned.has(id) ? 'muted' : 'gold',
       })),
       { label: 'やめる', value: 'exit' },

@@ -8,6 +8,7 @@ import { addNightArt } from './night-art.js';
 import { addRareArt } from './rare-art.js';
 import { addCh3Art } from './ch3-art.js';
 import { addCh4Art } from './ch4-art.js';
+import { addFamilyArt } from './family-art.js';
 import { addR23Art } from './r23-art.js';
 import { addCh5Art } from './ch5-tower-art.js';
 import { addKumoiArt } from './ch5-kumoi-mon-art.js';
@@ -842,6 +843,8 @@ addArenaArt(MONSTER_ART);
 addFinalArt(MONSTER_ART);
 // 第5章 Step 8「影の城」の 魔物と 3人の まぼろし（もとの ボスの え を つつむ ので さいごに。ch5-phantom-art.js）
 addPhantomArt(MONSTER_ART);
+// 第39回 C: 家族の 仕事の たのまれごとの 物（劇場の 設備・かねの 台・カラス など。family-art.js）
+addFamilyArt(MONSTER_ART);
 
 const cache = new Map();
 

@@ -8,6 +8,7 @@ import { ENCOUNTERS_CH3, FIXED_CH3, ZONE_BG_CH3 } from './encounters-ch3.js';
 import { ENCOUNTERS_CH4, FIXED_CH4, ZONE_BG_CH4, NIGHT_ZONES_CH4 } from './encounters-ch4.js';
 import { ENCOUNTERS_TEMPLE, FIXED_TEMPLE, ZONE_BG_TEMPLE } from './encounters-temple.js';
 import { ENCOUNTERS_LAB, FIXED_LAB, ZONE_BG_LAB } from './encounters-lab.js';
+import { FIXED_FAMILY } from './encounters-family.js';
 import { ENCOUNTERS_CH5, FIXED_CH5, ZONE_BG_CH5 } from './encounters-ch5.js';
 import { ENCOUNTERS_KUMOI, FIXED_KUMOI, ZONE_BG_KUMOI } from './encounters-kumoi.js';
 import { ENCOUNTERS_HOSHIYOMI, FIXED_HOSHIYOMI, ZONE_BG_HOSHIYOMI } from './encounters-hoshiyomi.js';
@@ -115,6 +116,8 @@ Object.assign(ZONE_BG, ZONE_BG_TEMPLE);
 // 第4章クリアの あとの より道: 古代の大迷宮・たのまれごとの 強い 魔物（encounters-lab.js）
 Object.assign(ENCOUNTER_TABLES, ENCOUNTERS_LAB);
 Object.assign(FIXED_ENCOUNTERS, FIXED_LAB);
+// 第39回 C: 家族の 仕事の たのまれごとの 軽い 戦い（encounters-family.js）
+Object.assign(FIXED_ENCOUNTERS, FIXED_FAMILY);
 Object.assign(ZONE_BG, ZONE_BG_LAB);
 // 第5章 Step 2「星の塔」（encounters-ch5.js）
 Object.assign(ENCOUNTER_TABLES, ENCOUNTERS_CH5);

@@ -10,6 +10,7 @@
 //  ・じめんは 絵の いちばん 下から 2ドット 上（人の 絵と おなじ。2D の かげ・2.5D の 足もとが そろう）
 // テスト（test/vehicles.test.js）は paintVehicle で、すべての 乗り物・むき・コマに 絵が あるかを 見る
 import { Painter, scale2x, rimShade, outline2, makeCanvas, ctxOf, flipCanvas, shade } from './pixel.js';
+import { addFamilyVehicleArt } from './family-art.js';
 
 const OUT = '#1b1330';
 export const RIDER_W = 32;
@@ -1581,6 +1582,9 @@ ART.dark_throne = deckArt({
     }
   },
 });
+
+// 第39回 C: たのまれごとで もらう 乗り物（render/family-art.js）
+addFamilyVehicleArt(ART, { carArt, deckArt, box, seg, wheel, poly, rgba, shade, twinkle });
 
 export const VEHICLE_ART = ART;
 

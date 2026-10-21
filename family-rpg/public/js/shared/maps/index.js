@@ -18,6 +18,7 @@ import { attachHoshiyomi } from './hoshiyomi.js';
 import { attachEarth } from './earth.js';
 import { attachCastle } from './castle.js';
 import { attachCastleTop } from './castle-top.js';
+import { attachFamilyQuests } from './family-quests.js';
 
 const V = (x, y) => [PLACES.village.x + x, PLACES.village.y + y];
 const TW = (x, y) => [PLACES.town.x + x, PLACES.town.y + y];
@@ -309,6 +310,8 @@ function buildMaps() {
   attachCastle(maps);
   // 第5章 Step 9: 影の城の てっぺん「星のない広間」（maps/castle-top.js。A8 の 影の城 castle_1f〜12f の あと）
   attachCastleTop(maps);
+  // 第39回 C: 家族の 仕事の たのまれごと（劇場・おみやげ屋・料理大会・消えた鐘・古い 坑道。maps/family-quests.js）
+  attachFamilyQuests(maps);
   // 夜の 町・村（夜だけ 出る 人・夜は 家に 帰る 人）
   addNightNpcs(maps);
   for (const m of Object.values(maps)) finishMap(m);

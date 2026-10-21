@@ -52,3 +52,71 @@
 
 - 各町の掲示板に3〜5件。魔物たいじ・とどけ物・素材あつめ。終わると新しい件（くり返し）
 - ごほうび：ゴールド・小さなメダル・素材
+
+## 5. 実装メモ（第39回 C … 家族の仕事のたのまれごと）
+
+> 家族への報告では、なぞの答えは書かない（この節は作る人むけ）
+
+### 5-1. しくみ
+
+- 始まる時：`c5_clear`（第1部クリア）。たのみたい人は `show: { all: ['c5_clear'] }`。劇場とおみやげ屋の中の人は前からいるが、`c5_clear` の前は受けられない
+- 職業の系統：`data/sidequests-family.js` の `jobLine(roots)`（`data/jobs.js` の `jobAncestry` から出す。roots から転職でつながる職業ぜんぶ）。`lineMember(chars, roots)` が「その系統の人」（魔物の仲間は数えない）
+  - たしかめる人：だいほんの `x.partyChars()`（`world/scripts.js` の `fightingChars` … 自分・家族・パーティーの仲間。馬車の仲間は入れない）
+  - roots：劇場 `setsubiya`・おみやげ屋 `salaryman`＋`parttimer`・料理大会 `cook`・消えたかね `police`＋`shonen_tantei`・線路 `railman`
+  - いない時：「〇〇の人が、パーティーにいてくれたら…。（系統の名前4つまで）」。調べる・話を聞くはだれでもできる。いる時は、その人の名前でせりふが出る
+- 進むフラグはリーダー（今のたのまれごとと同じ。ふつうの人のだいほんは `hostOf`、戦い・トロッコは `STORY_SCRIPTS` でパーティーみんな）
+- ごほうび：★5のアクセサリー（`item` … 話しかけた人たち）・乗り物（`vehicleSteps` … だいほんに入っている人みんな）・ゴールド・小さなメダル（`medalSteps` … 話しかけた人）。どれも done のフラグで1回だけ
+- 戦い（`data/encounters-family.js`）：`fq_dust`（砂嵐の精×3・敵Lv50・劇場の屋上）・`fq_mole`（ほりほりモグラ×3・敵Lv50・カナトコの南の道）。シミュレーション（基本職4人・Lv52〜58・完全オート）で20戦20勝・HP残り8〜9わり。2人でも勝てる
+
+### 5-2. フラグ（`maps/family-quests.js` の `FQ` ほか。セーブにのこるのでかえない）
+
+| たのまれごと | フラグ |
+|---|---|
+| 1 劇場 | `fq_ac_start`・`fq_ac_vent`・`fq_ac_filter`・`fq_ac_dust`・`fq_ac_unit`・`fq_ac_show`・`fq_ac_meter`・`fq_dmp1`〜`fq_dmp4`（ダンパーが開いている）・`fq_ac_air`・`fq_ac_temp`・`fq_ac_done` |
+| 2 おみやげ屋 | `fq_shop_start`・`fq_shop_h1`〜`h4`（町の人の声）・`fq_shop_plan`・`fq_shop_done` |
+| 3 料理大会 | `fq_cook_start`・`fq_cook_r1`〜`r3`（うわさ）・`fq_cook_mole`・`fq_cook_done`（材料は大事な物 `fq_mushroom`・`fq_salt`・`fq_milk`） |
+| 4 消えたかね | `fq_bell_start`・`fq_bell_c1`〜`c3`（足あと・羽・どろ）・`fq_bell_t1`〜`t4`（話）・`fq_bell_solved`・`fq_bell_got`・`fq_bell_done`（大事な物 `fq_button`・`fq_bell`） |
+| 5 線路 | `fq_rail_start`（古い鉱山の入り口が開く）・`fq_rail_fix1`〜`fix3`・`fq_rail_ride`・`fq_rail_done` |
+
+### 5-3. 人と場所（`maps/family-quests.js` の `attachFamilyQuests`）
+
+- 王都サファラ：南西のすみに「サファラ劇場」（日干しれんが・赤いやね・かんばん。入り口 (20,121)・(21,121)）。前によびこみ・直したあとはならぶ人
+  - 小さなマップ：`fq_th_lobby`（支配人ラシード・切ぷ売り・省エネのポスター。右の階だん → 機械室、左 → 屋上、上のとびら → 客席）・`fq_th_hall`（ぶたい・前/まん中/うしろの席・左右のかべのふき出し口・右のかべの空気のよごれメーター・満席のお客さんと役者）・`fq_th_machine`（空調機・ダンパー1〜4・中央かんしばん）・`fq_th_roof`（室外機・すなの山）
+- 温泉の里ユノハ：南におみやげ屋（入り口 (105,92)。中は `fq_shop`、ユキエ）。町の人の声4人（旅人ケン・湯あがりのおばさん・男の子・行商のおじさん）
+- 鉱山の町カナトコ：広場に大会の係ボルト・しんさいんのガンテおばば・牧場のおばさん（ミルク200G）、うわさの3人。北のかべの外の雪の上にきのこ、南の道（ユノハへの道）にモグラ。北のかべに古い鉱山の入り口（(110,36)。たのみを受けるまで板）と年よりの鉱夫ゲン
+  - 小さなマップ：`fq_old_mine`（こわれた線路3か所・トロッコ）・`fq_mine_room`（だれも知らない小べや。宝箱3つ・親方の手紙・もどりのトロッコ）
+- ルミナの町：教会の右にかねの台（終わるとかねがもどった絵）・黒い羽・赤いどろ、シスターのマリア（教会の前）、話を聞く4人（パン屋・男の子・畑のおばあさん・夜の門番）、北西のすみの木にカラスのクロ
+
+### 5-4. ながれと答え
+
+1. **劇場の空調をなおせ**：支配人 → 客席のふき出し口（風が弱い）→ 機械室の空調機（フィルターが砂でつまっている。「外して砂を落とし、水であらう」）→ 屋上の室外機（すなぼこりの魔物と戦う →「砂をはらって、手で回してから電気を入れる」）→ 支配人（ためしの上演で満席）→ メーター（前700・まん中1400・うしろ1600・ぶたい600。1000より上が赤）→ ダンパー2と3だけ開ける（開けすぎ・足りないは中央かんしばんが教える）→ 中央かんしばんで冷ぼう26度（18・22は寒い・電気のむだ、30は暑い）→ 支配人に報告
+2. **おみやげ屋**：ユキエ → 町の人の声（3人以上）→ 大事な3つ＝かんばん・品ぞろえ・あいさつ（じゅんばんはどれでも。値段と店の色はちがう。まちがえると「〇人だけ来てくれた」→ やり直し）→ 夜（宿屋の「夜まで休む」）にユキエ → にぎわう
+3. **料理大会**：係 → うわさ（寒い鉱山で働いた・からいのがにがて・きのことクリームが好き）→ 材料3つ → 料理＝「ぽかぽかきのこのクリームシチュー」（シャーベット・カレーは2位。材料はのこる）
+4. **消えたかね**：シスター → 手がかり3つ・話4人 → だれ＝カラスのクロ・なぜ＝ぴかぴか光っていて気に入ったから（まちがえるとやり直し）→ ボタンをもらう → 北西の木のクロとボタンを取りかえ → シスター（かねがひびく）
+5. **線路**：ゲン → 古い鉱山 → こわれた線路（犬くぎ「ハンマーで打ちなおす」・はば「ゲージではかって元にもどす」・まくら木「新しいのにとりかえる」）→ トロッコの場面（`ride`）→ 小べや → ゲン
+
+### 5-5. ごほうび
+
+| | アクセサリー（ランク10・★5・レア度4・`src: 'gift'`） | 乗り物 | ゴールド | メダル |
+|---|---|---|---|---|
+| 1 | 空調名人のバッジ `fq_air_badge` | 高所作業車 `lift_truck` | 5000 | 3 |
+| 2 | はんじょうのまねきねこ `fq_maneki` | 湯けむりの人力車 `rickshaw` | 3000 | 2 |
+| 3 | 優勝の金のおたま `fq_gold_ladle` | キッチンカー `kitchen_car` | 4000 | 2 |
+| 4 | 名探ていの金の虫めがね `fq_detective_glass` | パトカー `patrol_car` | 3000 | 2 |
+| 5 | まぼろしの金のきっぷ `fq_gold_ticket` | 金のトロッコ `gold_trolley` | 4000 | 2 |
+
+- 乗り物は `data/vehicles-family.js`（`jobs: []`・`gift: true`）。乗り物屋では売らない（持っている時だけ一らんに「もらった物」）。絵は `client/render/family-art.js` の `addFamilyVehicleArt`（第37回の `carArt`・`deckArt` をそのまま使う。2D・2.5D とも同じ絵）
+- 小べやの宝箱：ちからのたね2・すばやさのたね2・3000G
+
+### 5-6. ファイルとまとめのファイルに足した行
+
+- 新しいファイル：`data/sidequests-family.js`・`maps/family-quests.js`・`data/items-family.js`・`data/vehicles-family.js`・`data/encounters-family.js`（きまった戦い。plan にはなかったが、まとめのファイルに1行でまぜるため）・`client/render/family-art.js`・`test/family-quests.test.js`
+- `maps/index.js`：`import { attachFamilyQuests }`・`attachFamilyQuests(maps);`（`attachCastleTop` のあと）
+- `data/sidequests.js`：`import { FAMILY_SCRIPTS, … }`・`labSubQuests` のさいごに `out.push(...familySubQuests(c, f, has))`・`labDoneQuests` に `...familyDoneQuests(c)`・`Object.assign(QUEST_SCRIPTS, FAMILY_SCRIPTS)`・`QUEST_STORY_SCRIPTS.push(...FAMILY_STORY_SCRIPTS)`（`data/story.js` はかえていない）
+- `data/vehicles.js`：`import { FAMILY_VEHICLES } …; Object.assign(VEHICLES, FAMILY_VEHICLES);`（`VEHICLE_ORDER` の前）
+- `data/items.js`：`import { FAMILY_ITEMS, FAMILY_ITEM_KANA } …; Object.assign(ITEMS, FAMILY_ITEMS);`・`Object.assign(ITEM_KANA, FAMILY_ITEM_KANA);`
+- `data/encounters.js`：`import { FIXED_FAMILY }`・`Object.assign(FIXED_ENCOUNTERS, FIXED_FAMILY);`
+- `client/render/monsters.js`：`import { addFamilyArt }`・`addFamilyArt(MONSTER_ART);`／`client/render/chars.js`：`import { FAMILY_NPC_LOOKS }`・`Object.assign(NPC_LOOKS, FAMILY_NPC_LOOKS);`／`client/render/vehicle-art.js`：`import { addFamilyVehicleArt }`・`addFamilyVehicleArt(ART, { carArt, deckArt, … });`
+- `client/ui/vehicles.js`：もらった乗り物のしるし（「もらった物」）
+- `tools/kanji-check.mjs` の `gameFiles()`：上の6ファイル
+- 文字：「鐘・坑・換」は小学校で習わないので「かね・鉱山・かん気」。たのまれごとの名前は「ルミナの町の、消えた教会のかね」
