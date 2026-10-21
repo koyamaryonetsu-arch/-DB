@@ -139,23 +139,17 @@ function besideOf(n, p, dir = 'down') {
 }
 export const shrineArrive = (n) => (n === 1 ? besideOf(1, SHRINE_POS[1].up, 'up') : besideOf(n, SHRINE_POS[n].up, 'down'));
 
-// 宝箱（★は B の PAST_TREASURE.toki_shrine。のこりは 道具）
+// 宝箱（★は B の PAST_TREASURE.toki_shrine（6こ）。1階から じゅんに ★を 入れて、のこりは 道具）
 const ITEM_FILL = [{ item: 'magic_water', n: 2 }, { item: 'revive_flower' }, { item: 'herb', n: 5 }, { item: 'moonherb', n: 3 }];
 function shrineChests() {
   const star = [...(PAST_TREASURE.toki_shrine || [])];
   const out = {};
-  let fill = 0;
-  // ★の 宝箱は 1階の 北の へや・2階の 東の へやの おく（とびらの 先）
-  const starSpots = [[1, SHRINE_POS[1].chests[0]], [2, SHRINE_POS[2].chests[0]]];
-  for (let n = 1; n <= SHRINE_FLOORS; n++) out[n] = [];
-  starSpots.forEach(([n, p], i) => {
-    if (star[i]) out[n].push({ id: `s6_${n}s${i}`, x: p.x, y: p.y, item: star[i] });
-    else out[n].push({ id: `s6_${n}s${i}`, x: p.x, y: p.y, ...ITEM_FILL[fill++ % ITEM_FILL.length] });
-  });
+  let fill = 0, k = 0;
   for (let n = 1; n <= SHRINE_FLOORS; n++) {
-    SHRINE_POS[n].chests.forEach((p, i) => {
-      if (out[n].some((c) => c.x === p.x && c.y === p.y)) return;
-      out[n].push({ id: `s6_${n}x${i}`, x: p.x, y: p.y, ...ITEM_FILL[fill++ % ITEM_FILL.length] });
+    out[n] = SHRINE_POS[n].chests.map((p, i) => {
+      const it = k < star.length ? { item: star[k] } : ITEM_FILL[fill++ % ITEM_FILL.length];
+      k++;
+      return { id: `s6_${n}c${i}`, x: p.x, y: p.y, ...it };
     });
   }
   return out;

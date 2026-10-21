@@ -803,7 +803,7 @@ Object.assign(TRACKS, EARTH_TRACKS);
 Object.assign(TRACKS, CASTLE_TRACKS);
 // 第5章 Step 9: ノクト（本気）・魔王ソリトゥス・エンディング（audio-top.js）
 Object.assign(TRACKS, TOP_TRACKS);
-// 第6章 Step 1・2: 千年前の フィールドと 里・時のほこら・時の遺せき・ボス・ゼンマイ（audio-ch6.js）
+// 第6章 Step 1・2: 千年前の フィールドと 里・時のほこら・時のいせき・ボス・ゼンマイ（audio-ch6.js）
 Object.assign(TRACKS, CH6_TRACKS);
 export const _TRACKS = TRACKS;
 export const _parse = parse;

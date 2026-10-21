@@ -349,7 +349,7 @@ def(T.TIME_ALTAR, 'time_altar', { solid: true, talkThrough: true, anim: true, li
 def(T.TIME_ALTAR_EMPTY, 'time_altar_empty', { solid: true, talkThrough: true, mapColor: '#b8a070' }); // 砂時計を もらった あとの 台座
 def(T.FROZEN_WATER, 'frozen_water', { solid: true, mapColor: '#9aa0a8' }); // 時が 止まった 泉（灰色の まま 動かない 水）
 def(T.STRAW_WALL, 'straw_wall', { solid: true, mapColor: '#c8a860' }); // わらの 家の かべ（千年前の ホシフルの里）
-def(T.TIME_PLATE, 'time_plate', { mapColor: '#8a8aa8' }); // 時の ふむ石（時の遺跡 7階。2つの 時代で 同時に ふむ）
+def(T.TIME_PLATE, 'time_plate', { mapColor: '#8a8aa8' }); // 時の ふむ石（時のいせき 7階。2つの 時代で 同時に ふむ）
 def(T.TIME_PLATE_ON, 'time_plate_on', { light: true, mapColor: '#ffe680' }); // しずんだ 時の ふむ石
 
 export function isSolid(id) {

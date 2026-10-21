@@ -18,7 +18,7 @@ import { attachHoshiyomi } from './hoshiyomi.js';
 import { attachEarth } from './earth.js';
 import { attachCastle } from './castle.js';
 import { attachCastleTop } from './castle-top.js';
-// 第6章 Step 1・2（A）: 千年前の ミドリナ地方・時のほこら・時の遺跡（maps/past.js・toki-shrine.js・toki-ruin.js）
+// 第6章 Step 1・2（A）: 千年前の ミドリナ地方・時のほこら・時のいせき（maps/past.js・toki-shrine.js・toki-ruin.js）
 import { attachCh6 } from './ch6.js';
 
 const V = (x, y) => [PLACES.village.x + x, PLACES.village.y + y];
@@ -311,7 +311,7 @@ function buildMaps() {
   attachCastle(maps);
   // 第5章 Step 9: 影の城の てっぺん「星のない広間」（maps/castle-top.js。A8 の 影の城 castle_1f〜12f の あと）
   attachCastleTop(maps);
-  // 第6章 Step 1・2: 千年前の ミドリナ地方・時のほこら・時の遺跡（maps/ch6.js。今の フィールドを ぜんぶ 作った あと）
+  // 第6章 Step 1・2: 千年前の ミドリナ地方・時のほこら・時のいせき（maps/ch6.js。今の フィールドを ぜんぶ 作った あと）
   attachCh6(maps);
   // 夜の 町・村（夜だけ 出る 人・夜は 家に 帰る 人）
   addNightNpcs(maps);

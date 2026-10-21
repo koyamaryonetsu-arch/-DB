@@ -5,7 +5,7 @@
 // ・時が 止まった 泉（262）… 灰色の まま 動かない 水 / わらの 家の かべ（263。mask 1 … 上から 見た やね）
 // ・時の ふむ石（264）/ しずんだ 時の ふむ石（265）
 // render/tiles.js が まぜる。2.5D は render/field3d.js（CH6_FLOOR_H・ch6BlockSpec）と render/tex3d.js（CH6_PROPS）
-// テーマ: past（千年前の フィールド。もとの 色に 少し セピアを まぜる）・toki_shrine（時のほこら）・toki_ruin（今の 遺せき）・toki_ruin_past（千年前の 神殿）
+// テーマ: past（千年前の フィールド。もとの 色に 少し セピアを まぜる）・toki_shrine（時のほこら）・toki_ruin（今の いせき）・toki_ruin_past（千年前の 神殿）
 // (p, v, f, m) … Painter / ちがい / アニメの コマ / となりの ようす
 import { T } from '../../shared/tiles.js';
 import { prand } from './pixel.js';
@@ -217,7 +217,7 @@ export const CH6_THEMES = {
   past: { ...theme(['#2a1c0c', '#8a6a3e', '#d8b886'], ['#1e140a', '#6a5030', '#b89868'], '#f0d090', null), mix: 0.3 },
   // 時のほこら: 砂色の 石（金の 光）
   toki_shrine: theme(['#2a1e0c', '#8a6a3a', '#d4b478'], ['#1a1206', '#5a4422', '#a88a56'], '#ffe08a', null),
-  // 今の 時の遺せき: こけむした 灰みどりの 古い 石
+  // 今の 時のいせき: こけむした 灰みどりの 古い 石
   toki_ruin: theme(['#141a12', '#4e5a46', '#9aa48a'], ['#0c120c', '#34402e', '#6a7a5e'], '#a8e0a0', null),
   // 千年前の 時の神殿: できたばかりの 白っぽい 石と 金
   toki_ruin_past: theme(['#2a2214', '#a08c64', '#e8dab4'], ['#1e180c', '#7a6a48', '#c8b88e'], '#ffe08a', null),

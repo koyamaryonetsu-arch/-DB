@@ -7,7 +7,7 @@
 // ・過去で したことが 今に のこる: 千年前の ほしみの丘の ふもとに 星の木の なえを 植える（c6_planted）→ 今の その 場所に 大きな 星の木
 //   （つたを のぼって、丘の 上の がけの 先へ → c6_tree）
 // ・今の ミドリナ地方: ほしみの丘の 星の花の あった 所に 時のほこらの 入口（c6_start で 開く）・ルミナの町の 広場の はじまりの勇者の像
-//   （c6_start 〜 c6_flow の あいだ うすく 消えかける）・ルミナの町の 北の 時の遺跡（今は 木の根と がれきに うもれている。c6_rion で 入れる）
+//   （c6_start 〜 c6_flow の あいだ うすく 消えかける）・ルミナの町の 北の 時のいせき（今は 木の根と がれきに うもれている。c6_rion で 入れる）
 // だいほんは data/story-ch6.js
 import { T, parseRows, TILE_INFO, LEGEND } from '../tiles.js';
 import { fbm, hash2 } from '../rng.js';
@@ -51,7 +51,7 @@ export const PAST_POS = {
   vine: { x: SH.x + 5, y: SH.y - 4 }, // がけの 南の ふち（しらべると つたで おりる）
   // 千年前の 鏡の湖の 南の ほとり（星のしずく）
   dew: { x: LAKE.x, y: LAKE.y + LAKE.ry },
-  // 時の遺跡の 入口（今の ルミナの町の 北。千年前は 森の 中の 新しい 神殿）
+  // 時のいせきの 入口（今の ルミナの町の 北。千年前は 森の 中の 新しい 神殿）
   ruin: { x0: 48, y0: 10, x1: 52, y1: 12, door: { x: 50, y: 12 } },
   ruinOut: { x: 50.5, y: 13.6 }, // 遺跡から 出て 着く ところ（今も 千年前も）
   // はじまりの勇者の像（ルミナの町の 広場。ふん水の 南）
@@ -185,7 +185,7 @@ function pastTiles(present) {
   for (let x = 120; x < 146; x++) for (const y of [BRIDGE_Y - 1, BRIDGE_Y, BRIDGE_Y + 1]) if (get(x, y) === T.BRIDGE_H || get(x, y) === T.BROKEN_BRIDGE) set(x, y, T.WATER);
   // 丘の 上の がけの 中は 木（千年前は まだ のぼれない）
   for (let y = P.y0 + 1; y < P.y1; y++) for (let x = P.x0 + 1; x < P.x1; x++) set(x, y, T.TREE);
-  // 時の遺跡（千年前は 森の 中の 新しい 神殿）の まわりは 森・里からの 小道
+  // 時のいせき（千年前は 森の 中の 新しい 神殿）の まわりは 森・里からの 小道
   const R = PAST_POS.ruin;
   for (let y = R.y0 - 4; y <= R.y1 + 4; y++) for (let x = R.x0 - 6; x <= R.x1 + 6; x++) {
     if (y >= R.y0 && y <= R.y1 && x >= R.x0 && x <= R.x1) continue;
@@ -279,7 +279,7 @@ function pastNpcs() {
 }
 
 // 宝箱（★は B の PAST_TREASURE.overworld_past。のこりは 道具）
-const PAST_CHEST_SPOTS = [[44, 15], [LAKE.x, LAKE.y], [SH.x - 6, SH.y + 2]];
+const PAST_CHEST_SPOTS = [[44, 15], [LAKE.x, LAKE.y], [SH.x - 6, SH.y + 2], [24, 72], [100, 60], [33, 21]];
 function pastChests() {
   const list = (PAST_TREASURE.overworld_past || []).slice(0, PAST_CHEST_SPOTS.length).map((item, i) => ({ id: `p6_ow${i}`, x: PAST_CHEST_SPOTS[i][0], y: PAST_CHEST_SPOTS[i][1], item }));
   return [...list, { id: 'p6_owx0', x: HAMLET.x + 24, y: HAMLET.y + 2, item: 'magic_water', n: 2 }];
@@ -334,7 +334,7 @@ function buildPastMap(maps) {
   for (let y = 0; y < SPRING.h; y++) for (let x = 0; x < SPRING.w; x++) {
     if (SPRING_ROWS[y][x] === '~') m.gates.push({ x: SPRING.x + x, y: SPRING.y + y, closed: T.FROZEN_WATER, open: T.WATER, flag: C6.flow });
   }
-  // 時の遺跡（千年前の 時の神殿）の 入口: リオンに 会うと 入れる
+  // 時のいせき（千年前の 時の神殿）の 入口: リオンに 会うと 入れる
   addRuinOutside(m, 'toki_ruin_1f_past');
   // 千年前の ほしみの丘の ほこら（まだ 新しい）
   m.actions.push({ x: SH.x + 5, y: SH.y + 3, script: 'c6_past_altar' });
@@ -351,7 +351,7 @@ function buildPastMap(maps) {
   return m;
 }
 
-// 時の遺跡の 入口（今も 千年前も おなじ 場所。今は がれきと 木の根・千年前は 新しい 神殿の 門）。c6_rion で 入れる
+// 時のいせきの 入口（今も 千年前も おなじ 場所。今は がれきと 木の根・千年前は 新しい 神殿の 門）。c6_rion で 入れる
 function addRuinOutside(m, to) {
   const R = PAST_POS.ruin;
   for (let y = R.y0; y <= R.y1; y++) for (let x = R.x0; x <= R.x1; x++) m.tiles[y * m.w + x] = T.RUIN_WALL;
@@ -400,7 +400,7 @@ function addPresent(maps) {
   ow.npcs.push(npc('hero_statue', 'はじまりの勇者の像', [S.x, S.y], 'hero_statue', 'c6_statue', { show: { not: [C6.start] } }));
   ow.npcs.push(npc('hero_statue_back', 'はじまりの勇者の像', [S.x, S.y], 'hero_statue', 'c6_statue', { show: { all: [C6.flow] } }));
   ow.npcs.push(npc('hero_statue_faded', 'はじまりの勇者の像', [S.x, S.y], 'hero_statue_faded', 'c6_statue', { show: { all: [C6.start], not: [C6.flow] } }));
-  // 時の遺跡（今は 木の根と がれきに うもれた 遺跡）
+  // 時のいせき（今は 木の根と がれきに うもれた 遺跡）
   addRuinOutside(ow, 'toki_ruin_1f');
 }
 

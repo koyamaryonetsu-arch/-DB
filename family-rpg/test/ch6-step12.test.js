@@ -1,6 +1,6 @@
 // 第2部 第6章「時の砂時計」Step 1・2（A: 世界と物語）※ ネタバレ注意（物語の 中みを ためす）
 // 第1部クリア（c5_clear）→ ホシミばあちゃん・6つ目の 星（c6_start）→ 時のほこら（c6_shrine）→ サンドクロック・時の砂時計（c6_glass）
-// → はじめて 千年前へ（c6_past）→ ホシヨ・星のしずく・星の木（c6_tree）→ 泉の里・リオン（c6_rion）→ 時の遺せき 7階（c6_ruin）
+// → はじめて 千年前へ（c6_past）→ ホシヨ・星のしずく・星の木（c6_tree）→ 泉の里・リオン（c6_rion）→ 時のいせき 7階（c6_ruin）
 // → ギアドン（c6_gear）→ 泉の里の 時が 動き出す（c6_flow。「第6章の続きはアップデートで！」）
 // 戦いの しくみ（サンドクロック・ギアドン）と 魔物・品は B（戦い・品）。ここでは 戦いは テストの 中で 勝たせる
 import { test } from 'node:test';
@@ -225,12 +225,12 @@ test('名前の 約束: 物語の すすみ・マップの ID・出現表・き�
     assert.ok(n, npcId);
     assert.deepEqual(SCRIPTS[n.script](ctx({})), [['shop', shop]]);
   }
-  // 宝箱（B の PAST_TREASURE。A が 置いた 数）
+  // 宝箱（B の PAST_TREASURE。B と おなじ 数。時のほこら 6・時のいせき 14・千年前の フィールド 6）
   const starChests = (pre) => Object.values(MAPS).flatMap((m) => m.chests || []).filter((c) => c.id.startsWith(pre) && PAST_TREASURE[{ s6_: 'toki_shrine', r6_: 'toki_ruin', p6_: 'overworld_past' }[pre]].includes(c.item));
   assert.equal(starChests('s6_').length, PAST_TREASURE.toki_shrine.length, '時のほこらの ★');
-  assert.equal(starChests('r6_').length, PAST_TREASURE.toki_ruin.length, '時の遺せきの ★');
+  assert.equal(starChests('r6_').length, PAST_TREASURE.toki_ruin.length, '時のいせきの ★');
   assert.equal(starChests('p6_').length, PAST_TREASURE.overworld_past.length, '千年前の フィールドの ★');
-  assert.deepEqual([PAST_TREASURE.toki_shrine.length, PAST_TREASURE.toki_ruin.length, PAST_TREASURE.overworld_past.length], [2, 10, 3]);
+  assert.deepEqual([PAST_TREASURE.toki_shrine.length, PAST_TREASURE.toki_ruin.length, PAST_TREASURE.overworld_past.length], [6, 14, 6]);
   // ゲスト・大事な物
   assert.ok(GUESTS.minamo && GUESTS.minamo.name === 'ミナモ', 'ゲスト minamo');
   for (const id of ['toki_glass', 'star_seedling', 'star_dew']) assert.equal(ITEMS[id]?.type, 'key', id);
@@ -334,7 +334,7 @@ test('千年前の ミドリナ地方: 今と おなじ 大きさ・今の 地�
   // 里から 歩いて 行ける（大事な 場所・宝箱・人）
   const home = [Math.floor(PAST_POS.hamletIn.x), Math.floor(PAST_POS.hamletIn.y)];
   const r = reach(PAST_ID, home, () => true);
-  for (const [name, p] of [['丘の ほこら', { x: PLACES.shrine.x + 5, y: PLACES.shrine.y + 4 }], ['しずく', PAST_POS.dew], ['なえ', PAST_POS.seed], ['泉の里', PAST_POS.rion], ['リオンに 会う 所', { x: PAST_POS.rionMeet.x + 3, y: PAST_POS.rionMeet.y }], ['遺せきの 入口', { x: PAST_POS.ruin.door.x, y: PAST_POS.ruin.door.y + 1 }]]) {
+  for (const [name, p] of [['丘の ほこら', { x: PLACES.shrine.x + 5, y: PLACES.shrine.y + 4 }], ['しずく', PAST_POS.dew], ['なえ', PAST_POS.seed], ['泉の里', PAST_POS.rion], ['リオンに 会う 所', { x: PAST_POS.rionMeet.x + 3, y: PAST_POS.rionMeet.y }], ['いせきの 入口', { x: PAST_POS.ruin.door.x, y: PAST_POS.ruin.door.y + 1 }]]) {
     assert.ok(near(r, p), name);
   }
   for (const c of past.chests) assert.ok(near(r, c), `宝箱 ${c.id}`);
@@ -346,10 +346,10 @@ test('千年前の ミドリナ地方: 今と おなじ 大きさ・今の 地�
   assert.equal(past.zoneAt(80, 100), 't6_past_field');
   assert.ok(!r(150, 60), '川の 東へは 行けない');
   assert.equal(past.bgmAt(PAST_POS.hamletIn.x | 0, PAST_POS.hamletIn.y | 0, false, () => false), 'past_village');
-  // 時の遺せきの 入口（今も 千年前も おなじ 場所。c6_rion で 開く）
+  // 時のいせきの 入口（今も 千年前も おなじ 場所。c6_rion で 開く）
   const D = PAST_POS.ruin.door;
   for (const m of [now, past]) {
-    assert.ok(isBlocked(m, D.x, D.y, () => false) && !isBlocked(m, D.x, D.y, (fl) => fl === C6.rion), `${m.id}: 遺せきの 入口`);
+    assert.ok(isBlocked(m, D.x, D.y, () => false) && !isBlocked(m, D.x, D.y, (fl) => fl === C6.rion), `${m.id}: いせきの 入口`);
     const w = m.warps.find((q) => q.x === D.x && q.y === D.y);
     assert.equal(w.to.map, m === now ? 'toki_ruin_1f' : 'toki_ruin_1f_past');
   }
@@ -434,7 +434,7 @@ test('時の砂時計: おなじ 座標で 今 ⇔ 千年前・歩けない 所�
   c.keyItems = c.keyItems.filter((k) => k !== TIME_GLASS);
   assert.equal(glassCheck(world, bot.s).key, 'none');
   for (const k of ['leader', 'wall', 'far', 'town', 'shrine', 'boss', 'fly', 'busy', 'none']) assert.ok(GLASS_TEXT[k], k);
-  // 時の遺せきの 階も 組（おなじ 座標）
+  // 時のいせきの 階も 組（おなじ 座標）
   for (let n = 1; n <= RUIN_FLOORS; n++) {
     assert.equal(MAPS[ruinMapId(n, false)].timePair, ruinMapId(n, true));
     assert.equal(MAPS[ruinMapId(n, true)].timePair, ruinMapId(n, false));
@@ -591,7 +591,7 @@ test('砂時計の とびら（サーバー）: 台を しらべると 開く �
   assert.ok(!c.flags[D.flag], 'のこった フラグは 消える');
 });
 
-// ───────────── 時の遺せき ─────────────
+// ───────────── 時のいせき ─────────────
 const DV = { N: [0, -1], E: [1, 0], S: [0, 1], W: [-1, 0] };
 // 階の しかけを ぜんぶ ためす さがし（時代・場所・フラグ）。shift … 時の砂時計を 使えるか
 function ruinSolve(n, startPast, { shift = true } = {}) {
@@ -634,7 +634,7 @@ function ruinSolve(n, startPast, { shift = true } = {}) {
   }
   return { goals, states: seen.size, seen };
 }
-test('時の遺せき: どの 階も 今と 千年前で おなじ 形。どちらの 時代から 入っても 下へ 行ける・時の砂時計を 使わないと 行けない（4階 いがい）', () => {
+test('時のいせき: どの 階も 今と 千年前で おなじ 形。どちらの 時代から 入っても 下へ 行ける・時の砂時計を 使わないと 行けない（4階 いがい）', () => {
   for (let n = 1; n <= RUIN_FLOORS; n++) {
     const now = MAPS[ruinMapId(n, false)], past = MAPS[ruinMapId(n, true)];
     assert.ok(now.w === past.w && now.h === past.h && now.w >= 34 && now.h >= 26, `${n}階: おなじ 大きさ（広め）`);
@@ -819,7 +819,7 @@ async function fullRun(bot, c, fought) {
   await place(bot, PAST_ID, R.x + 5, R.y + 3);
   await stepOn(bot, R.x + 5, R.y + 1, opts);
   assert.ok(c.flags.c6_rion && c.guests.includes('minamo'), 'c6_rion・ミナモ');
-  // 時の遺せき（千年前の 時の神殿）に 入る（c6_ruin）
+  // 時のいせき（千年前の 時の神殿）に 入る（c6_ruin）
   const D = PAST_POS.ruin.door;
   await place(bot, PAST_ID, D.x, D.y + 1);
   await stepOn(bot, D.x, D.y, opts);
@@ -832,7 +832,7 @@ async function fullRun(bot, c, fought) {
   await place(bot, RUIN_BOSS_ID, 12, B.y + 1);
   await stepOn(bot, 12, B.y, opts);
 }
-test('通しで: c5_clear → 6つ目の 星 → 時のほこら → サンドクロック → 千年前 → 星の木 → リオン → 時の遺せき → ギアドン → c6_flow', { timeout: 300000 }, async () => {
+test('通しで: c5_clear → 6つ目の 星 → 時のほこら → サンドクロック → 千年前 → 星の木 → リオン → 時のいせき → ギアドン → c6_flow', { timeout: 300000 }, async () => {
   const { bot, c } = await setup(6201, 'c5_clear');
   const fought = [];
   const from = bot.msgs.length;
@@ -987,7 +987,7 @@ test('文字: 第6章の ファイルは 文字の ルールの チェックに 
   for (const f of gameFiles().filter((g) => mine.some((x) => g.endsWith(x)))) assert.deepEqual(checkFile(f).filter((r) => r.kind !== 'kana'), [], f);
   const all = JSON.stringify(Object.entries(SCRIPTS).filter(([k]) => k.startsWith('c6_')).map(([, fn]) => { try { return fn(ctx(flagsOf(...UPTO('c6_rion')))); } catch { return []; } }));
   assert.ok(!/\d+さい|\d+年生/.test(all), '年を 言わない');
-  assert.ok(!/[祠跡苗扉]/.test(all), '使えない 漢字（ほこら・遺せき・なえ・とびら）');
+  assert.ok(!/[祠跡苗扉]/.test(all), '使えない 漢字（ほこら・いせき・なえ・とびら）');
 });
 
 test('絵と 音: 第6章の タイル（2D は 16×16 を ぬる・2.5D）・テーマ（2D も 2.5D も）・人の え・6きょく', async () => {

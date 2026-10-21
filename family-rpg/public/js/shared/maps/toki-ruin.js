@@ -1,4 +1,4 @@
-// 第6章 Step 2（A: 世界と物語）「時の遺跡」の マップ（maps/ch6.js の attachCh6 で まぜる）
+// 第6章 Step 2（A: 世界と物語）「時のいせき」の マップ（maps/ch6.js の attachCh6 で まぜる）
 // ※ ネタバレ注意（docs/plan-ch6.md の 6 の 第2幕）
 // ・今の 階 toki_ruin_1f〜7f（木の根と がれきに うもれた 遺跡）と 千年前の 階 toki_ruin_1f_past〜7f_past（できたばかりの 時の神殿）。
 //   どの 階も おなじ 形・おなじ 座標（timePair）。時の砂時計で 切りかえながら 進む（world/time-glass.js）
@@ -13,14 +13,14 @@ import { T } from '../tiles.js';
 import { npc } from './npc.js';
 import { RUIN_ROWS, RUIN_W, RUIN_H, BOSS_ROWS } from './toki-ruin-rows.js';
 import { PAST_POS, RUIN_ARRIVE, parseRows16 } from './past.js';
-import { PAST_TREASURE } from '../data/ch6-stub.js';
+import { PAST_TREASURE, PAST_RUIN_FLOORS } from '../data/ch6-stub.js';
 
 export const RUIN_FLOORS = 7;
 export const RUIN_REST = 4;
 export const ruinMapId = (n, past = false) => `toki_ruin_${n}f${past ? '_past' : ''}`;
 export const RUIN_BOSS_ID = 'toki_ruin_boss';
 export const RUIN_MAPS = [...Array.from({ length: RUIN_FLOORS }, (_, i) => ruinMapId(i + 1)), ...Array.from({ length: RUIN_FLOORS }, (_, i) => ruinMapId(i + 1, true)), RUIN_BOSS_ID];
-export const ruinName = (n, past) => `${past ? '時の神殿' : '時の遺せき'}　${n}階${past ? '（千年前）' : ''}`;
+export const ruinName = (n, past) => `${past ? '時の神殿' : '時のいせき'}　${n}階${past ? '（千年前）' : ''}`;
 export const RUIN_BOSS_NAME = '時の神殿　番人の間（千年前）';
 export const RUIN_SIGHTS = ['', '切りかえの練習（とびらと、ゆかのあな）', '木の根の道と、根のかべ', '石像をおす', '休み所（時のいずみ）', '千年前のレバーと、今の根の道', '2つのレバーと根の道', '2つの時代で同時に'];
 
@@ -109,22 +109,17 @@ export function ruinArrive(n, past) {
 const ruinFromBelow = (n, past) => besideOf(RUIN_ROWS[n], ruinMapId(n, past), RUIN_POS[n].down, 'down');
 export const BOSS_ARRIVE = { map: RUIN_BOSS_ID, x: 12.5, y: 17.5, dir: 'up' };
 
-// ───────────── 宝箱（★は B の PAST_TREASURE.toki_ruin（10こ）。のこりは 道具）─────────────
-// [階, レイアウトの $ の じゅんばん, 時代（past … 千年前）]
-const STAR_SPOTS = [[1, 0, true], [1, 1, false], [2, 0, true], [2, 1, false], [3, 0, false], [3, 1, true], [5, 0, true], [5, 1, false], [6, 0, true], [6, 1, false]];
-const ITEM_SPOTS = [[4, 0, false, { item: 'magic_water', n: 3 }], [7, 0, true, { item: 'revive_flower', n: 2 }]];
+// ───────────── 宝箱（★は B の PAST_RUIN_FLOORS（1階ごとに 2つ。PAST_TREASURE.toki_ruin の 14こ））─────────────
+// 階ごとの レイアウトの $ の じゅんばんに、どちらの 時代に 置くか（past … 千年前）。足りない ときは 薬草
+const CHEST_ERA = { 1: [true, false], 2: [true, false], 3: [false, true], 4: [true, false], 5: [true, false], 6: [true, false], 7: [true, false] };
 export function ruinChests(n, past) {
   const P = RUIN_POS[n];
-  const star = PAST_TREASURE.toki_ruin || [];
+  const star = PAST_RUIN_FLOORS?.[n] || (PAST_TREASURE.toki_ruin || []).slice(2 * n - 2, 2 * n);
   const out = [];
-  STAR_SPOTS.forEach(([f, k, era], i) => {
-    if (f !== n || era !== past || !P.chests[k]) return;
-    const c = P.chests[k];
-    out.push(star[i] ? { id: `r6_${i}`, x: c.x, y: c.y, item: star[i] } : { id: `r6_${i}`, x: c.x, y: c.y, item: 'herb', n: 3 });
-  });
-  ITEM_SPOTS.forEach(([f, k, era, it], i) => {
-    if (f !== n || era !== past || !P.chests[k]) return;
-    out.push({ id: `r6_x${i}`, x: P.chests[k].x, y: P.chests[k].y, ...it });
+  P.chests.forEach((c, k) => {
+    if ((CHEST_ERA[n]?.[k] ?? false) !== past) return;
+    const id = `r6_${n}c${k}`;
+    out.push(star[k] ? { id, x: c.x, y: c.y, item: star[k] } : { id, x: c.x, y: c.y, item: 'herb', n: 3 });
   });
   return out;
 }

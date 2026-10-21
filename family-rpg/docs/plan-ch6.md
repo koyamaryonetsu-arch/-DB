@@ -135,3 +135,44 @@
 ## 10. 家族に決めてもらったこと
 
 - 2026年10月21日：第2部の方向 C・サブクエストはおすすめの順（「1も2もおすすめで進めてください」）。この文書の名前・あらすじは、作る人（Claude）がおすすめで決めた
+
+### 実装メモ（A … 世界と物語。第6章 Step 1・2。2026年10月21日）
+
+- フラグ（もう変えない）：物語のすすみぐあいは 9 の名前のとおり（`data/story-ch6.js` の `CH6_STEPS`。`STORY_STEPS` の `c5_clear` のうしろ）。物語のすすみぐあいではないフラグ：`c6_chief`（ホシフルの里の長の話）・`c6_hoshiyo`（ホシヨの話・なえをもらった）・`c6_dew`（星のしずく）・`c6_planted`（なえを植えた）・`c6_spring_seen`（泉の里にはじめて着いた）・`c6_end_a`（さいごの場面を見た。とちゅうで切れた時の続き）・`c6_sf1`〜`c6_sf3`（時のほこらのその階に来た）・`c6_sd_<階><とびら>`（砂時計のとびらが開いている。砂が落ちきると消える）・`c6_rf1`〜`c6_rf7`（時のいせきのその階に来た）・`c6_r<階>_l<1|2>`（千年前のレバー）・`c6_r<階>_<s|w><i>`（石像・重りの石が道の i ばんめにいる）・`c6_r7_open`（7階の2つのふむ石のとびら）・`c6_rboss`（番人の間に入った）
+- 目標：`C6_OBJ`（`lead`・`start`・`shrine`・`sf2`・`sf3`・`glass`・`past`・`chief`・`hoshiyo`・`dew`・`planted`・`tree`・`rion`・`ruin`・`rf2`〜`rf7`・`boss`・`gear`・`endA`・`flow`）。さいごは `flow`「第6章の続きはアップデートで！」（**あとの Step で変える時は `OLD_C6_OBJ` にのこす**）。第1部クリアの文 `TOP_OBJ.clear` を「ホシフル村のホシミばあちゃんに、話しかけてみよう（ルミナの町の酒場では、ノクトが待っている）」にかえた（`story-castle-top.js`。前の文は `OLD_C6_OBJ.clear5`。`repairObjective` でなおる）。仲間の「はなす」（4人分）・地図のしるし（`unless` で、すんだら消える）も目標ごと
+- 今のミドリナ地方（`overworld` にたす。`maps/past.js` の `addPresent`）：ほしみの丘の星の花の所に時のほこらの入口（`c6_start` で開く）・丘のふもとの岩のわ（`ROCK`）と星の木（`c6_planted` で出る大きな NPC）・つた（しらべると丘の上へ → `c6_tree`）・ルミナの町の広場のはじまりの勇者の像（`c6_start`〜`c6_flow` はうすく消えかける）・ルミナの町の北の時のいせきの入口（`c6_rion` で開く）
+- 千年前のミドリナ地方（`overworld_past` 168×128。今の地図から作る）：道は草原・村と町の所は森と草原・橋と桟橋は水・洞窟と塔の入口は山・木を多く。行けない所の地面は木でうめる（とじこめにならない）。テーマ `past`（もとの色にセピアを 3わり）・`dusk`（うすい夕方の色）。ルーラ・帰り道の羽・竜の笛は使えない（`PAST_WARP_TEXT`・`noFlyText`）
+  - ホシフルの里（今のホシフル村の所。わらの家 `STRAW_WALL`・たき火 `REST_FIRE`・長・ホシヨ・宿屋〈長のおくさん〉・店3つ〈`past_weapon`・`past_armor`・`past_item`〉・いのりの石）
+  - 泉の里（今のルミナの町の所）：`c6_flow` まで時が止まって、人は灰色（`frozen_*`）・泉はこおっている（`FROZEN_WATER`）。リオン・ちびアステル（`c6_rion` から）・ミナモ（`c6_flow` のあと家に）
+  - 星のしずく（鏡の湖の南のほとり）・なえを植える所（ほしみの丘のふもと）・千年前のほしみの丘のほこら（新しい）
+  - 宝箱：`p6_ow0`〜`p6_ow5`（★。B の `PAST_TREASURE.overworld_past` の 6こ）と `p6_owx0`（道具）
+- 時の砂時計（`world/time-glass.js`・`time-glass-use.js`）：メニューの「道具」→「大事な物」→ 時の砂時計 →「使う」（`{ t: 'menu', action: 'timeGlass' }`）。マップの `timePair` の時だけ、同じ座標のまま、もう1つの時代のマップへ
+  - 使えない時：町や家の中（`timeNoUse`）・時のほこら・番人の間（`timeBlock`）・戦いの中・空の上・リーダーでない・出る所がかべや水や人の上（`wall`）・フィールドで出る所から里まで歩いて行けない（`far`。`timeHome` から歩いて行ける所だけ）。わけの文は `GLASS_TEXT`
+  - パーティー：リーダーだけが使う。同じマップに家族がいる時は「みんなで」「ひとりで」「やめる」をえらぶ（7階の2つの時代のしかけは「ひとりで」）。家族は自分のいる座標のまま（立てない時はリーダーのそば）。仲間・ゲスト・馬車はいつもいっしょ
+  - 画面：砂色のうず（台本の `['timeShift', 'in'|'out', ids, era]`。`client/time-shift.js`。2D・2.5D どちらも `#fx` の上）
+- 時のほこら（`maps/toki-shrine.js`。地下1〜3階 `toki_shrine_1f`〜`3f`。曲 `toki_shrine`・テーマ `toki_shrine`・出現表 `t6_shrine`）
+  - 砂時計のとびら：台（`c6_dial_<階><とびら>`）をしらべると開いて、しらべた人が歩いた歩数（`DOOR_STEPS` 12〜14歩）で砂が落ちきってしまる（流れる砂に運ばれている間は数えない・とびらの上の人はとなりへよける・のこったフラグは、その階を歩くと消える）
+  - 2階：流れる砂の柱（乗るととびらの前まで運ばれる）と砂の帯（柱の向こうから入る）
+  - 3階：時のいずみ（休んで記録）・時の台座 → 広間に入る（`c6_altar_event`）と、サンドクロック（`['showMon','sand_clock']` → `['bgm','boss6']` → `['battle','sand_clock']`）→ 時の砂時計とトキネ → `c6_glass`。ほこらを出たほしみの丘ではじめて使う（`c6_first_shift`）→ `c6_past`
+  - 宝箱：`s6_<階>c<i>`。★は B の `PAST_TREASURE.toki_shrine` の 6こ（1階から順に）。のこり1つは道具
+- 時のいせき（`maps/toki-ruin.js`・`toki-ruin-rows.js`。34×26 が7階。今 `toki_ruin_<n>f`〈名前「時のいせき」・テーマ `toki_ruin`〉・千年前 `toki_ruin_<n>f_past`〈名前「時の神殿」・テーマ `toki_ruin_past`〉・番人の間 `toki_ruin_boss`〈千年前だけ。`timeBlock`〉。曲 `toki_ruin`・出現表 1〜4階 `t6_ruin_up`・5〜7階 `t6_ruin_low`・4階は魔物なし）
+  - どの階も今と千年前で同じ形・同じ座標。文字のいみが時代でちがう（d 今はくずれて通れる／千年前はとびら・h 今はゆかのあな／千年前はゆか・R 今は根の道／千年前は谷・r 今は根のかべ／千年前はゆか）
+  - 1階 切りかえの練習・2階 根の道と根のかべ・3階 石像をおす（千年前でおすと今もそこにある。今の重りのゆかにのると G が開く。U の石板で元にもどす）・4階 休み所（時のいずみ）・5階 千年前のレバーと今の根の道・6階 2つのレバー・7階 2つの時代で同時にふむ（家族2人なら1人ずつ。ひとりなら、千年前で重りの石を b のふむ石へおしてから、今で a をふむ）→ 千年前だけの下りかいだん → 番人の間
+  - どちらの時代から入っても下へ行ける・時の砂時計を使わないと行けない（4階はのぞく）ことをテストでたしかめた
+  - 番人の間：ギアドン（NPC `geardon_npc`・`big`）。広間に入る（`c6_gear_event`）か話しかけると `['showMon','geardon']` → `['bgm','boss6']` → `['battle','geardon']`。負けたら台本は止まる。勝つと `c6_gear` → 時の台座（`c6_time_core`）→ 泉の里の時が動き出す（ミナモが外れる・`c6_end_a`）→ 今の勇者の像が元にもどる → `c6_flow`
+  - 宝箱：`r6_<階>c<i>`。★は B の `PAST_RUIN_FLOORS[階]`（1階ごとに2つ。どちらの時代に置くかは `CHEST_ERA`）
+- ゲスト：ミナモ（`c6_rion` の場面の `['guest', 'minamo']`。`c6_flow` の場面で外れる）
+- 台本：`STORY_SCRIPTS`（パーティー全員で見る）に 6つ目の星・ほこらに入る・台座・はじめての切りかえ・長・ホシヨ・しずく・植える・星の木・つた・勇者の像・泉の里・リオン・いせきに入る・ギアドン・さいごの場面。ばあちゃん（`elderCh6`）は `c5_clear` のあとに第6章の話（`applyCh6` でつつむ）。町の人の話（`CH6_TOWN_LINES`）
+- 絵と音：タイル ID **256〜265**（255 をこえるので、第6章のマップは `Uint16Array`〈`parseRows16`〉。`render/tiles-ch6.js`・2.5D は `ch6BlockSpec`）・人の絵（`render/ch6-art.js`。トキネ・リオン・ミナモ・ホシヨ・千年前の人・止まった人・勇者の像・星の木・ちびアステル・ギアドンの NPC など）・曲（`client/audio-ch6.js`：`past_field` BPM104・`past_village` 88・`toki_shrine` 76・`toki_ruin` 96・`boss6` 160・`zenmai` 120）
+- テスト：`test/ch6-step12.test.js`（19こ。名前の約束・目標となおし・地図・砂時計のきまり・千年前で使えない物・家族「みんなで／ひとりで」・砂時計のとびら・いせきのとき方〈両方の時代から〉・千年前 → 今にのこる・石像・7階のふむ石〈ひとり・家族〉・c5_clear → c6_flow の通し・負けた時・切れた時・家族で遊ぶ・漢字・絵と曲）。`test/ch5-step9.test.js` は `TOP_OBJ.clear` の文と `STORY_STEPS` のさいごのたしかめをかえた
+- 案とちがうところ・小さく決めたところ
+  - 名前は B に合わせて「時のほこら」「時のいせき」（「祠」「跡」は使えない漢字）。千年前のいせきの名前は「時の神殿」
+  - ほしみの丘のふもとの岩のわは `ROCK`（`CLIFF` は 2D の絵がないため）
+  - 時の砂時計は「みんなで／ひとりで」をえらぶ形（7階のしかけを家族2人でとけるように）
+  - 砂時計のとびらは時間ではなく歩数（しらべた人が歩いた数。止まっている間は落ちない）
+  - フィールドのわざの一覧には時の砂時計を入れていない（「道具」から使う）
+- まとめる時に消すもの・なおすもの
+  - `data/ch6-stub.js` をけす。import しているのは：`data/story-ch6.js` の `import { MINAMO_GUEST } from './ch6-stub.js';` と `if (!GUESTS.minamo) GUESTS.minamo = MINAMO_GUEST;`（B が `data/shops.js` で `GUESTS.minamo = MINAMO_GUEST` をたすので、2行とも消す）・`maps/past.js`・`maps/toki-shrine.js` の `import { PAST_TREASURE } from '../data/ch6-stub.js';`・`maps/toki-ruin.js` の `import { PAST_TREASURE, PAST_RUIN_FLOORS } from '../data/ch6-stub.js';`（どれも `'../data/items-past.js'` から）・`test/ch6-step12.test.js` の `import { PAST_TREASURE } from '../public/js/shared/data/ch6-stub.js';`（`items-past.js` から）と、同じテストの漢字のファイルの一覧（985行め）の `'public/js/shared/data/ch6-stub.js'`・`tools/kanji-check.mjs` の `gameFiles()` の `'public/js/shared/data/ch6-stub.js'`
+  - 店（`past_weapon` など）・出現表・きまった戦い・背景は、stub が「まだない時だけ」たすので、B の物があればそちらが使われる
+  - `data/items.js`・`tools/kanji-check.mjs` は A と B の両方が数行たしている（行がとなりなら手で合わせる）
+- B との約束：出現表 `t6_past_field`・`t6_shrine`・`t6_ruin_up`・`t6_ruin_low`（`spawnCounts` は A のマップ）・きまった戦い `sand_clock`・`geardon`（`boss: true`・`canFlee: false`・`bgm: 'boss6'`。勝つと台本が続く）・背景（`ZONE_BG`）・`SHOPS_PAST`（`data/shops-past.js`。`data/shops.js` で登録）・`PAST_TREASURE`（ほこら 6・いせき 14・フィールド 6）と `PAST_RUIN_FLOORS`（1階ごとに2つ）・`MINAMO_GUEST`（`data/companions-past.js`）。番人の間の大きな NPC の絵は A の `geardon_npc`、`showMon` の絵は B
