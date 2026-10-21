@@ -563,11 +563,10 @@ test('文字: 新しい ゲームの 文字は 小学校で習う漢字だけ・
 });
 
 // ───── ルミナの町の たのまれごとの 掲示板 ─────
-test('掲示板: ルミナの町の広場に、第1部クリアのあとだけ立つ・はり紙に 中み・職業・会う人・ごほうび', async () => {
+test('掲示板: ルミナの町の広場に いつも 立つ・はり紙に 中み・職業・会う人・ごほうび', async () => {
   const hit = npcAnywhere('fq_board');
   assert.ok(hit && hit.map === 'overworld', 'ルミナの町（フィールドの中の町）');
-  assert.ok(!condOk(hit.n.show, (f) => f !== FQ_OPEN), '第1部クリアの前は 出ない');
-  assert.ok(condOk(hit.n.show, () => true));
+  assert.ok(condOk(hit.n.show, () => false), '第1部クリアの前から 立っている（はり紙は まだ ない）');
   assert.ok(MONSTER_ART.fq_board, '掲示板の絵');
   // ごほうびの 一らんは 本当の ごほうびと 同じ
   const src = (await import('node:fs')).readFileSync(new URL('../public/js/shared/data/sidequests-family.js', import.meta.url), 'utf8');
@@ -611,4 +610,12 @@ test('掲示板: 職業の 系統が 長くても 1行20文字・1ページ2行�
       for (const l of body) assert.ok(l.length <= 20 || !l.includes('・'), `${qd.id}: ${l}`);
     }
   }
+});
+
+test('掲示板: 第1部クリアの前に 読むと「まだ はり紙が ない」（はり紙の 一らんは 出ない）', async () => {
+  const { bot } = await setup(392, { flags: ['c4_clear', 'c3_clear', 'c2_clear', 'c1_clear'] });
+  const msgs = await talkTo(bot, 'fq_board');
+  assert.ok(said(msgs, /まだ、はり紙は1まいもはられていない/));
+  assert.ok(said(msgs, /第1部をクリアしたら/));
+  assert.ok(!msgs.some((m) => m.t === 'script' && m.steps.some((st) => st[0] === 'choice')), '一らんは 出ない');
 });

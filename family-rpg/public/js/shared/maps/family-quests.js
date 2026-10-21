@@ -338,7 +338,7 @@ const TOWN_NPCS = [
   ['fq_cook_mole', 'ほりほりモグラ', 'mon:mole_miner', 'fq_cook_mole', 'north', KAN, 12, 32, { show: { all: [FQ_OPEN, FQ.cookStart], not: [FQ.cookMole] }, fixed: true }],
   // 4. ルミナ: 教会の シスター・かねの 台・羽・どろ・話を 聞く 4人・北西の 木の カラス
   // ルミナの町の 広場（ふん水の 東）: たのまれごとの 掲示板（5つの たのまれごとの はり紙）
-  ['fq_board', 'たのまれごとのけいじ板', 'mon:fq_board', 'fq_board', 'overworld', TW, 26, 17, { show: { all: [FQ_OPEN] }, fixed: true }],
+  ['fq_board', 'たのまれごとのけいじ板', 'mon:fq_board', 'fq_board', 'overworld', TW, 26, 17, { fixed: true }],
   ['fq_bell_sister', '教会のシスター', 'priestess', 'fq_bell_sister', 'overworld', TW, 12, 34, { show: SHOWN }],
   ['fq_bell_stand', 'かねの台', 'mon:fq_bell_stand', 'fq_bell_stand', 'overworld', TW, 12, 29, { show: { all: [FQ_OPEN], not: [FQ.bellDone] }, fixed: true }],
   ['fq_bell_stand2', 'かねの台', 'mon:fq_bell_stand_bell', 'fq_bell_stand', 'overworld', TW, 12, 29, { show: opened(FQ.bellDone), fixed: true }],

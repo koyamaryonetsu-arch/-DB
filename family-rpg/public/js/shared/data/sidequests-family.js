@@ -812,6 +812,8 @@ function boardMenu(x) {
   ]]];
 }
 function questBoard(x) {
+  // 第1部クリアの 前: けいじ板は 立っているが、はり紙は まだ ない
+  if (!x.flag(FQ_OPEN)) return N('〜 たのまれごとのけいじ板 〜\nまだ、はり紙は1まいもはられていない。', '（世界が平和になったころ、各地からたのみごとがとどくらしい。\n第1部をクリアしたら、また見にこよう）');
   const left = FAMILY_QUESTS.filter((q) => !x.flag(q.done)).length;
   return [
     ...N('〜 たのまれごとのけいじ板 〜\n各地からとどいた、たのみごとのはり紙がはってある。', left ? `（まだすんでいないたのまれごと：${left}つ）` : '（全部のたのまれごとが、すんでいる！）'),
