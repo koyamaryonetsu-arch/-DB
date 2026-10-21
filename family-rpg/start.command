@@ -6,5 +6,8 @@ if ! command -v node >/dev/null 2>&1; then
   read -r _
   exit 1
 fi
-node server/index.js
+if ! node server/index.js; then
+  # エラーで 止まった: 直った 新しい 版を さがして、あれば もう一度 起動する
+  node server/rescue.js && node server/index.js
+fi
 echo "おわりました。この まどは とじて OK です。"

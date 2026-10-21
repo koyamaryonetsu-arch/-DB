@@ -9,4 +9,9 @@ if errorlevel 1 (
   exit /b 1
 )
 node server\index.js
+if errorlevel 1 (
+  rem The server stopped with an error: look for a fixed version on GitHub, then start again
+  node server\rescue.js
+  if not errorlevel 1 node server\index.js
+)
 pause

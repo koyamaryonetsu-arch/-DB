@@ -8,7 +8,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { spawnSync } from 'node:child_process';
+import { disableQuickEdit } from './quickedit.js';
 import { defaultDataDir } from './savedir.js';
 import { checkAndUpdate, rollback, markExecutables } from './update.js';
 import { supervise } from './supervisor.js';
@@ -33,7 +33,7 @@ const fromOldUpdater = !!process.env.KIZUNA_CHILD;
 // 前の 版の 自動更新で 入った funnel-on.command なども、ダブルクリックで 動く ように
 markExecutables(ROOT);
 // Windows: 黒い 画面の「簡易編集モード」を 切る（中を クリックしても 止まらない ように）
-disableQuickEdit();
+try { disableQuickEdit(); } catch { /* 起動は つづける */ }
 fs.mkdirSync(DATA_DIR, { recursive: true });
 let up = { status: 'skip' };
 if (!fromOldUpdater) {
@@ -50,25 +50,3 @@ supervise({
   note: (t) => errlog.note(t),
   logHint: `（くわしくは ${errlog.file}）`,
 });
-
-// Windows の 黒い 画面は、中を クリックすると 文字を えらぶ モード（簡易編集）に なって、そこで 止まる。
-// この 画面だけ 簡易編集を 切る（PowerShell で コンソールの 設定を かえる。できなくても 気に しない）
-const QUICK_EDIT_PS = [
-  '$s = @"',
-  '[DllImport("kernel32.dll")] public static extern IntPtr GetStdHandle(int h);',
-  '[DllImport("kernel32.dll")] public static extern bool GetConsoleMode(IntPtr h, out uint m);',
-  '[DllImport("kernel32.dll")] public static extern bool SetConsoleMode(IntPtr h, uint m);',
-  '"@',
-  '$k = Add-Type -MemberDefinition $s -Name QE -Namespace Kizuna -PassThru',
-  '$h = $k::GetStdHandle(-10)',
-  '$m = [uint32]0',
-  'if ($k::GetConsoleMode($h, [ref]$m)) { [void]$k::SetConsoleMode($h, (($m -band (-bnot 0x40)) -bor 0x80)) }',
-].join('\r\n');
-function disableQuickEdit() {
-  if (process.platform !== 'win32' || !process.stdin.isTTY) return;
-  // 文字の うけわたしで こわれない ように、UTF-16LE の base64 で わたす
-  const enc = Buffer.from(QUICK_EDIT_PS, 'utf16le').toString('base64');
-  try {
-    spawnSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-EncodedCommand', enc], { stdio: 'inherit', timeout: 15000, windowsHide: false });
-  } catch { /* */ }
-}
