@@ -1,23 +1,23 @@
 // モンスターの え（ベクターで かいて ドットえに へんかん）
 // すべて オリジナルの デザイン
 // 2ばいの こまかさで かいて ドットえに → Scale2x で 4ばい → ひかり・かげ・ふちどり（res 4）
-import { makeCanvas, ctxOf, pixelize, shade, painterFrom, scale2x, outline2, volumeShade } from './pixel.js?v=1aefb7b47111';
-import { MONSTERS } from '../../shared/data/monsters.js?v=1aefb7b47111';
-import { tintCanvas } from './themes.js?v=1aefb7b47111';
-import { addNightArt } from './night-art.js?v=1aefb7b47111';
-import { addRareArt } from './rare-art.js?v=1aefb7b47111';
-import { addCh3Art } from './ch3-art.js?v=1aefb7b47111';
-import { addCh4Art } from './ch4-art.js?v=1aefb7b47111';
-import { addR23Art } from './r23-art.js?v=1aefb7b47111';
-import { addCh5Art } from './ch5-tower-art.js?v=1aefb7b47111';
-import { addKumoiArt } from './ch5-kumoi-mon-art.js?v=1aefb7b47111';
-import { addHoshiyomiArt } from './ch5-hoshiyomi-mon-art.js?v=1aefb7b47111';
-import { addEarthArt } from './ch5-earth-mon-art.js?v=1aefb7b47111';
-import { addPhantomArt } from './ch5-phantom-art.js?v=1aefb7b47111';
+import { makeCanvas, ctxOf, pixelize, shade, painterFrom, scale2x, outline2, volumeShade } from './pixel.js?v=5e1deaa9335e';
+import { MONSTERS } from '../../shared/data/monsters.js?v=5e1deaa9335e';
+import { tintCanvas } from './themes.js?v=5e1deaa9335e';
+import { addNightArt } from './night-art.js?v=5e1deaa9335e';
+import { addRareArt } from './rare-art.js?v=5e1deaa9335e';
+import { addCh3Art } from './ch3-art.js?v=5e1deaa9335e';
+import { addCh4Art } from './ch4-art.js?v=5e1deaa9335e';
+import { addR23Art } from './r23-art.js?v=5e1deaa9335e';
+import { addCh5Art } from './ch5-tower-art.js?v=5e1deaa9335e';
+import { addKumoiArt } from './ch5-kumoi-mon-art.js?v=5e1deaa9335e';
+import { addHoshiyomiArt } from './ch5-hoshiyomi-mon-art.js?v=5e1deaa9335e';
+import { addEarthArt } from './ch5-earth-mon-art.js?v=5e1deaa9335e';
+import { addPhantomArt } from './ch5-phantom-art.js?v=5e1deaa9335e';
 // 第37回 A: サファラ闘技場の 王者（arena-art.js）
-import { addArenaArt } from './arena-art.js?v=1aefb7b47111';
+import { addArenaArt } from './arena-art.js?v=5e1deaa9335e';
 // 第5章 Step 9: ノクト（本気）・魔王ソリトゥス（ch5-final-mon-art.js）
-import { addFinalArt } from './ch5-final-mon-art.js?v=1aefb7b47111';
+import { addFinalArt } from './ch5-final-mon-art.js?v=5e1deaa9335e';
 
 export const MRES = 4; // できあがりの こまかさ（せかいの 1ドットを 4×4 で かく）
 const OUT = '#130d24';

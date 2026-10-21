@@ -12,7 +12,7 @@
 //  jobHint(id, 人)  … 神殿の うわさ（JOB_HINTS か masc.hint）
 //  人 … キャラ（char）・戦いの 人（combatant）・パーティーの 人（look を もつ もの）。
 //       転職の 一覧などは「見ている 人（その 職業に なる 人）」で きめる
-import { JOBS, JOB_HINTS } from './data/jobs.js?v=1aefb7b47111';
+import { JOBS, JOB_HINTS } from './data/jobs.js?v=5e1deaa9335e';
 
 // 男の子か（見た目の look.body が 1 で ない）。モンスター（仲間の 魔物・敵）は ちがう。
 // look の ない もの（職業だけの { job, jobs }・敵・古い データ）は もとの まま（ちがう 名前を 出さない ため）

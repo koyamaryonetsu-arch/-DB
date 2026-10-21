@@ -15,20 +15,20 @@
 //   ・図鑑に 落とす 物が のる（手に入れるまでは ？？？）
 //   ・第31回: ボスは ちなんだ レア装備も（kind 'brare'。第32回から かならず: BOSS_RARE_N = 1）。ふつうの 魔物は その地方の レア装備を まれに
 //     （REGION_RARE_N 体に 1体。図鑑には のらない）。ひみつのダンジョンの 中では、ここだけの ★4〜★5（data/rare-loot.js）
-import { ITEMS } from './items.js?v=1aefb7b47111';
-import { MONSTERS } from './monsters.js?v=1aefb7b47111';
-import { RARE_MAT_DROPS } from './monsters-rare.js?v=1aefb7b47111';
-import { CH3_MAT_DROPS } from './monsters-ch3.js?v=1aefb7b47111';
-import { CH4_MAT_DROPS } from './monsters-ch4.js?v=1aefb7b47111';
-import { R23_MAT_DROPS } from './monsters-r23.js?v=1aefb7b47111';
-import { TEMPLE_MAT_DROPS } from './monsters-temple.js?v=1aefb7b47111';
-import { CH5_MAT_DROPS } from './monsters-ch5.js?v=1aefb7b47111';
-import { KUMOI_MAT_DROPS } from './monsters-kumoi.js?v=1aefb7b47111';
-import { HOSHIYOMI_MAT_DROPS } from './monsters-hoshiyomi.js?v=1aefb7b47111';
-import { EARTH_MAT_DROPS } from './monsters-earth.js?v=1aefb7b47111';
-import { PHANTOM_MAT_DROPS } from './monsters-phantom.js?v=1aefb7b47111';
-import { bossRareOf, BOSS_RARE_N, regionRareList, REGION_RARE_N, pickSdGear, SD_DROP_N, SD_GUARD_DROP_N } from './rare-loot.js?v=1aefb7b47111';
-import { sdFloorOf } from './secret.js?v=1aefb7b47111';
+import { ITEMS } from './items.js?v=5e1deaa9335e';
+import { MONSTERS } from './monsters.js?v=5e1deaa9335e';
+import { RARE_MAT_DROPS } from './monsters-rare.js?v=5e1deaa9335e';
+import { CH3_MAT_DROPS } from './monsters-ch3.js?v=5e1deaa9335e';
+import { CH4_MAT_DROPS } from './monsters-ch4.js?v=5e1deaa9335e';
+import { R23_MAT_DROPS } from './monsters-r23.js?v=5e1deaa9335e';
+import { TEMPLE_MAT_DROPS } from './monsters-temple.js?v=5e1deaa9335e';
+import { CH5_MAT_DROPS } from './monsters-ch5.js?v=5e1deaa9335e';
+import { KUMOI_MAT_DROPS } from './monsters-kumoi.js?v=5e1deaa9335e';
+import { HOSHIYOMI_MAT_DROPS } from './monsters-hoshiyomi.js?v=5e1deaa9335e';
+import { EARTH_MAT_DROPS } from './monsters-earth.js?v=5e1deaa9335e';
+import { PHANTOM_MAT_DROPS } from './monsters-phantom.js?v=5e1deaa9335e';
+import { bossRareOf, BOSS_RARE_N, regionRareList, REGION_RARE_N, pickSdGear, SD_DROP_N, SD_GUARD_DROP_N } from './rare-loot.js?v=5e1deaa9335e';
+import { sdFloorOf } from './secret.js?v=5e1deaa9335e';
 
 export const DROP_N = { common: 8, rare: 64, mat: 8 };
 

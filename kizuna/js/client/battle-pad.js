@@ -3,7 +3,7 @@
 //   ・自分と 仲間の 作戦を 変える（つよさの まどを タップ）
 //   ・合体技の よやくを やめる（「よやくをやめる」ボタン）
 // まどは 作戦の まどと おなじ 場所・おなじ しくみ（battle.js の tac・closeTactics）
-import { el, ListMenu } from './ui/dom.js?v=1aefb7b47111';
+import { el, ListMenu } from './ui/dom.js?v=5e1deaa9335e';
 
 // その 戦いで SELECT／M を うけとる（Input の hot。もどりち: うけとったか）
 export function bindBattlePad(scene) {
