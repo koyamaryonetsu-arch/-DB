@@ -39,6 +39,8 @@ import { setupEarth, earthDamage, earthStop, riftTurn, reachOk, reach } from './
 import { setupFinal, finalDamage, finalPhase, finalCmdOk, finalCmd, aloneBlock } from './battle-final.js';
 // 第5章 Step 8 の 影の城の 3人の まぼろし（はじめの ことば・水かさ・風のかべ。battle-phantom.js）
 import { setupPhantom, phantomDamage, phantomEst } from './battle-phantom.js';
+// 第2部 第6章 Step 1・2 の サンドクロック（砂が落ちきると…）・ギアドン（まき戻し）。battle-ch6.js
+import { setupCh6, ch6Damage } from './battle-ch6.js';
 // 第33回: 3年B組の担任は 学校の 仲間が いると 技が 強く なる（battle-r33.js）
 import { classmateMult } from './battle-r33.js';
 // 第37回 A: サファラ闘技場の 王者の しかけ（属性の よろい。battle-arena.js）
@@ -231,6 +233,8 @@ export class Battle {
     setupMirage(this);
     // 影の城の まぼろし: はじめの ことば・水かさ（battle-phantom.js）
     setupPhantom(this);
+    // 第6章の ボス: 砂・大歯車（battle-ch6.js）
+    setupCh6(this);
     this.initAtb();
   }
 
@@ -1571,6 +1575,8 @@ export class Battle {
     dmg = finalDamage(this, c, t, dmg, info, ev);
     // 影の城の まぼろし: 風のかべ（物理は はばまれる）・水の衣が はじけると 水かさが 下がる（battle-phantom.js）
     dmg = phantomDamage(this, c, t, dmg, info, ev);
+    // 第6章の ボス: 氷で 砂が こおる・雷で 大歯車が こわれる（battle-ch6.js）
+    dmg = ch6Damage(this, c, t, dmg, info, ev);
     // 闘技場の 七色の魔導王: よろいと おなじ 属性は すいこむ・弱点で くだける（battle-arena.js）
     const ad = arenaDamage(this, c, t, dmg, info, ev);
     if (ad === null) return;

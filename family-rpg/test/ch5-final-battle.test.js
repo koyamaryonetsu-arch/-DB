@@ -4,6 +4,8 @@
 //   仲間の 回復と 補助が とどかない・第2段階で 背景が かわる・きずなを食べる（身を 守ると よやくと 強くなる 力が 守れる）・
 //   第3段階で ノクトが ゲストで 加わる・家族の きずな技（だれでも・ゲージ・全員の 名前）・終わらない夜
 // 品（★5・いちばん 強い 剣）・仲間の ノクト（NOCTO_COMPANION）・シミュレーション・絵・背景・エフェクト・がめん・文字
+// 第2部 第6章の 品（items-past.js）は 第1部の あと（ソリトゥスの 剣より 強くて よい）
+import { ITEMS_PAST } from '../public/js/shared/data/items-past.js';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { Battle, pub } from '../public/js/shared/battle.js';
@@ -125,7 +127,7 @@ test('品: ノクト（本気）は ふたつの紋章のお守り（1人 1つ�
   // いちばん 強い 剣・いちばん めずらしい 色（レア度 5）
   const sw = ITEMS.solitus_dawn_sword;
   assert.equal(sw.rarity, 5);
-  const others = Object.entries(ITEMS).filter(([id, it]) => it.type === 'weapon' && it.cat === 'sword' && id !== 'solitus_dawn_sword' && !id.includes('+'));
+  const others = Object.entries(ITEMS).filter(([id, it]) => it.type === 'weapon' && it.cat === 'sword' && id !== 'solitus_dawn_sword' && !id.includes('+') && !ITEMS_PAST[id]);
   assert.ok(others.every(([, it]) => (it.atk || 0) < sw.atk), `いちばん 強い（${sw.atk}）`);
   assert.ok(sw.atk > ITEMS.et_earth_sword.atk * 1.15);
 });

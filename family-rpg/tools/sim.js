@@ -64,6 +64,18 @@ const GEAR = {
     priest: ['hoshimori_spear', 'hoshimori_robe', 'akatsuki_shield', 'shiraha_hat', 'mizukagami_crown'], mage: ['shiraha_staff', 'hoshimori_robe', null, 'shiraha_hat', 'tide_earring'],
     performer: ['amanoha_fan', 'hayabusa_gi', 'akatsuki_shield', 'shiraha_hat', 'mirage_ring'],
   },
+  // 第2部 第6章 Step 1: 時の祠（ハネノの ランク9の 店 ＋ 第1部の ボスの アクセサリー）
+  56: {
+    warrior: ['akatsuki_sword', 'akatsuki_mail', 'akatsuki_shield', 'akatsuki_helm', 'nocto_earth_charm'], monk: ['hayabusa_claw', 'hayabusa_gi', null, 'shiraha_hat', 'ph_storm_bangle'],
+    priest: ['hoshimori_spear', 'hoshimori_robe', 'akatsuki_shield', 'shiraha_hat', 'ph_morgana_pendant'], mage: ['shiraha_staff', 'hoshimori_robe', null, 'shiraha_hat', 'ph_ignia_earring'],
+    performer: ['amanoha_fan', 'hayabusa_gi', 'akatsuki_shield', 'shiraha_hat', 'mirage_ring'],
+  },
+  // 第2部 第6章 Step 1・2: 千年前（ホシフルの里の ランク10の 店 ＋ サンドクロックの 砂時計のペンダント・それまでの ボスの アクセサリー）
+  58: {
+    warrior: ['p6_kodai_sword', 'p6_kodai_mail', 'p6_kodai_shield', 'p6_kodai_helm', 'nocto_earth_charm'], monk: ['p6_kodai_claw', 'p6_kodai_gi', null, 'p6_kodai_hat', 'ph_storm_bangle'],
+    priest: ['p6_kodai_spear', 'p6_kodai_robe', 'p6_kodai_shield', 'p6_kodai_hat', 'p6_sand_pendant'], mage: ['p6_kodai_staff', 'p6_kodai_robe', null, 'p6_kodai_hat', 'ph_ignia_earring'],
+    performer: ['p6_kodai_fan', 'p6_kodai_gi', 'p6_kodai_shield', 'p6_kodai_hat', 'mirage_ring'],
+  },
 };
 
 // gearTier: そうびの だんかい（GEAR の キー。ないときは レベルで きめる。第3章は 20 / 23 を 指定する）
@@ -326,7 +338,21 @@ export const CH5_EARTH = [['t5_root', 48, 50], ['t5_root', 49, 50], ['t5_earth_u
 export const CH5_CASTLE = [
   ['t5_castle_wind', 51, 52], ['t5_castle_wind', 52, 52], ['t5_castle_fire', 52, 52], ['t5_castle_fire', 53, 52], ['t5_castle_water', 53, 52], ['t5_castle_water', 54, 52],
 ];
-if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'ch5castle') {
+// 第2部 第6章 Step 1・2「時の祠」「千年前の ミドリナ地方」「時の遺跡」: node tools/sim.js [回数] ch6
+// 4人（せんし・そうりょ・まほう・ぶとう）・職業Lv10。装備は 時の祠が ハネノの ランク9（GEAR 56）、千年前は 里の ランク10（GEAR 58）。
+// サンドクロック・ギアドンは tools/sim-ch6.mjs
+export const CH6_ZONES = [
+  ['t6_shrine', 56, 56], ['t6_shrine', 57, 56], ['t6_past_field', 57, 58], ['t6_past_field', 58, 58],
+  ['t6_ruin_up', 58, 58], ['t6_ruin_up', 59, 58], ['t6_ruin_low', 59, 58], ['t6_ruin_low', 60, 58],
+];
+if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'ch6') {
+  const rng = makeRng(6060);
+  for (const [table, lv, tier] of CH6_ZONES) {
+    const res = [];
+    for (let i = 0; i < N; i++) res.push(runBattle(PARTY(lv, 10, tier), rollGroup(table, rng), { seed: i }));
+    summarize(`${table} Lv${lv}`, res);
+  }
+} else if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'ch5castle') {
   const rng = makeRng(5252);
   for (const [table, lv, tier] of CH5_CASTLE) {
     const res = [];

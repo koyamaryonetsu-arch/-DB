@@ -98,7 +98,8 @@ test('レア装備: 約100こ。名前は かぶらず、読みがな・説明�
     if (it.type === 'weapon') assert.ok(Object.keys(MONSTERS).length && ['sword', 'axe', 'dagger', 'spear', 'claw', 'whip', 'staff', 'fan', 'boomerang', 'bat'].includes(it.cat), `${id}: 今 ある 武器の 種類`);
   }
   // ★5 は 今の いちばん 強い 装備（ランク8★）より 上
-  const best = (pred, k) => Math.max(...EQUIPS.filter(([id, it]) => !it.src && pred(it)).map(([, it]) => it[k] || 0));
+  // （第6章の 千年前の 里の ランク10の 店の 品は のぞく。ひみつのダンジョンの ★5〈ランク9〉と くらべるのは ランク9まで）
+  const best = (pred, k) => Math.max(...EQUIPS.filter(([id, it]) => !it.src && it.rank < 10 && pred(it)).map(([, it]) => it[k] || 0));
   assert.ok(ITEMS.heaven_earth_sword.atk > best((it) => it.type === 'weapon', 'atk'));
   assert.ok(ITEMS.god_dragon_mail.def > best((it) => it.type === 'armor', 'def'));
   assert.ok(ITEMS.yata_mirror.def > best((it) => it.type === 'shield', 'def'));

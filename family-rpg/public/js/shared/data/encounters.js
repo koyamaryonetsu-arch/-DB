@@ -14,6 +14,7 @@ import { ENCOUNTERS_HOSHIYOMI, FIXED_HOSHIYOMI, ZONE_BG_HOSHIYOMI } from './enco
 import { ENCOUNTERS_EARTH, FIXED_EARTH, ZONE_BG_EARTH } from './encounters-earth.js';
 import { FIXED_FINAL } from './encounters-final.js';
 import { ENCOUNTERS_PHANTOM, FIXED_PHANTOM, ZONE_BG_PHANTOM } from './encounters-phantom.js';
+import { ENCOUNTERS_PAST, FIXED_PAST, ZONE_BG_PAST } from './encounters-past.js';
 // 第37回 A: サファラ闘技場の ランク戦（3連戦）
 import { FIXED_ARENA } from './encounters-arena.js';
 // 第38回 B: 職業の試練（師しょうのまぼろし）
@@ -140,3 +141,7 @@ Object.assign(FIXED_ENCOUNTERS, FIXED_FINAL);
 Object.assign(ENCOUNTER_TABLES, ENCOUNTERS_PHANTOM);
 Object.assign(FIXED_ENCOUNTERS, FIXED_PHANTOM);
 Object.assign(ZONE_BG, ZONE_BG_PHANTOM);
+// 第2部 第6章 Step 1・2「千年前」「時の祠」「時の遺跡」・サンドクロック・ギアドン（encounters-past.js）
+Object.assign(ENCOUNTER_TABLES, ENCOUNTERS_PAST);
+Object.assign(FIXED_ENCOUNTERS, FIXED_PAST);
+Object.assign(ZONE_BG, ZONE_BG_PAST);

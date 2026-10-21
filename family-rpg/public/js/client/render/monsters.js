@@ -18,6 +18,8 @@ import { addPhantomArt } from './ch5-phantom-art.js';
 import { addArenaArt } from './arena-art.js';
 // 第5章 Step 9: ノクト（本気）・魔王ソリトゥス（ch5-final-mon-art.js）
 import { addFinalArt } from './ch5-final-mon-art.js';
+// 第2部 第6章 Step 1・2: 千年前・時の祠・時の遺跡の 魔物と サンドクロック・ギアドン（ch6-past-art.js）
+import { addPastArt } from './ch6-past-art.js';
 
 export const MRES = 4; // できあがりの こまかさ（せかいの 1ドットを 4×4 で かく）
 const OUT = '#130d24';
@@ -842,6 +844,7 @@ addArenaArt(MONSTER_ART);
 addFinalArt(MONSTER_ART);
 // 第5章 Step 8「影の城」の 魔物と 3人の まぼろし（もとの ボスの え を つつむ ので さいごに。ch5-phantom-art.js）
 addPhantomArt(MONSTER_ART);
+addPastArt(MONSTER_ART);
 
 const cache = new Map();
 

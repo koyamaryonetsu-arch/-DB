@@ -246,8 +246,8 @@ test('影の城の 宝箱（CASTLE_TREASURE）: 1〜12階に 1〜2こ。ぜん�
     const e = earth.filter((x) => key(x) === key(it) && x.type !== 'acc');
     for (const x of e) assert.ok(pow(it) > pow(x), `${id} > ${x.name}`);
   }
-  // 12階の 剣は 今の ★5の 剣の 中で いちばん 強い（ソリトゥスの 品〈B9〉より 前）
-  const swords = Object.values(ITEMS).filter((it) => it.type === 'weapon' && it.cat === 'sword' && !it.base && it.rank <= 10 && it.src !== 'alchemy' && it.src !== 'final');
+  // 12階の 剣は 今の ★5の 剣の 中で いちばん 強い（ソリトゥスの 品〈B9〉より 前。第6章の 千年前の 品〈src: 'past'・'pastboss'〉は もっと あと）
+  const swords = Object.values(ITEMS).filter((it) => it.type === 'weapon' && it.cat === 'sword' && !it.base && it.rank <= 10 && it.src !== 'alchemy' && it.src !== 'final' && it.src !== 'past' && it.src !== 'pastboss');
   // ソリトゥスの 夜明けの星の剣（B9。src: 'final'）は もっと 強い（いちばん 最後の 品）
   assert.ok(Object.values(ITEMS).filter((it) => it.src === 'final' && it.cat === 'sword').every((s) => s.atk > ITEMS.cs_castle_sword.atk));
   assert.equal(Math.max(...swords.map((s) => s.atk)), ITEMS.cs_castle_sword.atk);

@@ -54,6 +54,8 @@ import { EARTH_SFX, earthReachItem, earthReachPick, REACH_INFO } from './battle-
 import { FINAL_SFX, FINAL_HIT, FINAL_OWN_TELE, finalCmdItems, finalCmdPick } from './battle-final.js';
 // 第5章 Step 8 の 影の城の 魔物と 3人の まぼろし（音。battle-phantom.js）
 import { PHANTOM_SFX } from './battle-phantom.js';
+// 第2部 第6章 Step 1・2 の 魔物と サンドクロック・ギアドン（音・前ぶれの バナーは 自分で。battle-ch6.js）
+import { CH6_SFX, CH6_OWN_TELE } from './battle-ch6.js';
 
 // たたかいの え の こまかさ（おもい きかいで さげたら、その あいだは さげた まま）
 let battleRes = BRES;
@@ -153,6 +155,7 @@ const ANIM_SFX = {
   // 第5章 Step 9 の ノクト（本気）・魔王ソリトゥス・家族の きずな技（client/battle-final.js）
   ...FINAL_SFX,
   ...PHANTOM_SFX,
+  ...CH6_SFX,
 };
 
 // ひらめきの 電球（ドット絵ふう）
@@ -1173,7 +1176,7 @@ export class BattleScene {
       }
     }
     // 第5章 Step 9 の ノクト（本気）・ソリトゥスは、自分の 前ぶれの バナー（client/battle-final.js）
-    if (fx.type === 'telegraph' && !FINAL_OWN_TELE.has(actor?.species)) { g.audio.sfx('warn'); this.banner(fx.chant ? '！呪文の前ぶれ！大きなダメージで止めろ！' : '！大技が来る！防御で身を守れ！', 'danger'); }
+    if (fx.type === 'telegraph' && !FINAL_OWN_TELE.has(actor?.species) && !CH6_OWN_TELE.has(actor?.species)) { g.audio.sfx('warn'); this.banner(fx.chant ? '！呪文の前ぶれ！大きなダメージで止めろ！' : '！大技が来る！防御で身を守れ！', 'danger'); }
     // よみがえりの呪文を 止めた
     if (ev.chantBreak) { g.audio.sfx('crit'); this.banner('呪文を止めた！', 'combo'); }
     if (fx.type === 'stance') { g.audio.sfx('warn'); this.banner('！反撃の構え！なぐると反撃される', 'danger'); }

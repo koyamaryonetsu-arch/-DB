@@ -301,6 +301,9 @@ export function gameFiles() {
     // 第5章 Step 8（B8: 影の城の 戦い・品）: 風・炎・水の 階の 魔物・3人の まぼろし（風のかべ・かげ火の力・水かさ）・影の城の 宝箱・まぼろしの 品・れん金
     'public/js/shared/data/monsters-phantom.js', 'public/js/shared/data/abilities-phantom.js', 'public/js/shared/data/items-castle.js',
     'public/js/shared/data/encounters-phantom.js', 'public/js/shared/data/companions-phantom.js', 'public/js/shared/battle-phantom.js', 'public/js/client/battle-phantom.js',
+    // 第2部 第6章 Step 1・2（B: 戦い・品）: 千年前・時の祠・時の遺跡の 魔物・サンドクロック（砂が落ちきると…）・ギアドン（まき戻し）・ランク10の 店・宝箱・ミナモ
+    'public/js/shared/data/monsters-past.js', 'public/js/shared/data/abilities-past.js', 'public/js/shared/data/items-past.js', 'public/js/shared/data/shops-past.js',
+    'public/js/shared/data/encounters-past.js', 'public/js/shared/data/companions-past.js', 'public/js/shared/battle-ch6.js', 'public/js/client/battle-ch6.js',
     // 第37回 A: サファラ闘技場（ランク戦の 3連戦・王者・ごほうび・かけ試合・王者のかべ）
     'public/js/shared/data/arena.js', 'public/js/shared/data/story-arena.js', 'public/js/shared/data/monsters-arena.js', 'public/js/shared/data/abilities-arena.js',
     'public/js/shared/data/items-arena.js', 'public/js/shared/data/encounters-arena.js', 'public/js/shared/battle-arena.js', 'public/js/shared/world/arena.js',
