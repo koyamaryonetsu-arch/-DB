@@ -1,23 +1,24 @@
 // マップの ぜんたい（フィールド・どうくつ）と、そこに いる 人や たからばこ
-import { T, parseRows, TILE_INFO } from '../tiles.js?v=5e1deaa9335e';
-import { makeRng, hash2 } from '../rng.js?v=5e1deaa9335e';
-import { buildOverworld, PLACES, zoneAt, areaName, OW_W, OW_H, CAVE_ENTRANCE, FOREST_CLEARING, LAKE, SWAMP } from './overworld.js?v=5e1deaa9335e';
-import { CAVE_B1_ROWS, CAVE_B2_ROWS } from './cave-rows.js?v=5e1deaa9335e';
-import { npc } from './npc.js?v=5e1deaa9335e';
-import { buildCh2Maps, SEA_PLACES } from './ch2.js?v=5e1deaa9335e';
-import { buildTreasureFloor } from './treasure-cave.js?v=5e1deaa9335e';
-import { buildSecretFloor, buildSecretMaps, SD_DOOR_NPCS, SD_DOOR_TRIGGERS, SD_DOOR_SIGNS } from './secret-dungeon.js?v=5e1deaa9335e';
-import { addNightNpcs } from './night-npcs.js?v=5e1deaa9335e';
-import { attachCasino } from './casino.js?v=5e1deaa9335e';
-import { buildCh3Maps, ch3SearchMats, NORTH_SPARKLE_LOOT } from './ch3.js?v=5e1deaa9335e';
-import { buildCh4Maps, ch4SearchMats, SOUTH_SPARKLE_LOOT } from './ch4.js?v=5e1deaa9335e';
-import { attachLab } from './labyrinth.js?v=5e1deaa9335e';
-import { attachTower } from './tower.js?v=5e1deaa9335e';
-import { attachKumoi } from './kumoi.js?v=5e1deaa9335e';
-import { attachHoshiyomi } from './hoshiyomi.js?v=5e1deaa9335e';
-import { attachEarth } from './earth.js?v=5e1deaa9335e';
-import { attachCastle } from './castle.js?v=5e1deaa9335e';
-import { attachCastleTop } from './castle-top.js?v=5e1deaa9335e';
+import { T, parseRows, TILE_INFO } from '../tiles.js?v=6c1c54262b5a';
+import { makeRng, hash2 } from '../rng.js?v=6c1c54262b5a';
+import { buildOverworld, PLACES, zoneAt, areaName, OW_W, OW_H, CAVE_ENTRANCE, FOREST_CLEARING, LAKE, SWAMP } from './overworld.js?v=6c1c54262b5a';
+import { CAVE_B1_ROWS, CAVE_B2_ROWS } from './cave-rows.js?v=6c1c54262b5a';
+import { npc } from './npc.js?v=6c1c54262b5a';
+import { buildCh2Maps, SEA_PLACES } from './ch2.js?v=6c1c54262b5a';
+import { buildTreasureFloor } from './treasure-cave.js?v=6c1c54262b5a';
+import { buildSecretFloor, buildSecretMaps, SD_DOOR_NPCS, SD_DOOR_TRIGGERS, SD_DOOR_SIGNS } from './secret-dungeon.js?v=6c1c54262b5a';
+import { addNightNpcs } from './night-npcs.js?v=6c1c54262b5a';
+import { attachCasino } from './casino.js?v=6c1c54262b5a';
+import { buildCh3Maps, ch3SearchMats, NORTH_SPARKLE_LOOT } from './ch3.js?v=6c1c54262b5a';
+import { buildCh4Maps, ch4SearchMats, SOUTH_SPARKLE_LOOT } from './ch4.js?v=6c1c54262b5a';
+import { attachLab } from './labyrinth.js?v=6c1c54262b5a';
+import { attachTower } from './tower.js?v=6c1c54262b5a';
+import { attachKumoi } from './kumoi.js?v=6c1c54262b5a';
+import { attachHoshiyomi } from './hoshiyomi.js?v=6c1c54262b5a';
+import { attachEarth } from './earth.js?v=6c1c54262b5a';
+import { attachCastle } from './castle.js?v=6c1c54262b5a';
+import { attachCastleTop } from './castle-top.js?v=6c1c54262b5a';
+import { attachFamilyQuests } from './family-quests.js?v=6c1c54262b5a';
 
 const V = (x, y) => [PLACES.village.x + x, PLACES.village.y + y];
 const TW = (x, y) => [PLACES.town.x + x, PLACES.town.y + y];
@@ -309,6 +310,8 @@ function buildMaps() {
   attachCastle(maps);
   // 第5章 Step 9: 影の城の てっぺん「星のない広間」（maps/castle-top.js。A8 の 影の城 castle_1f〜12f の あと）
   attachCastleTop(maps);
+  // 第39回 C: 家族の 仕事の たのまれごと（劇場・おみやげ屋・料理大会・消えた鐘・古い 坑道。maps/family-quests.js）
+  attachFamilyQuests(maps);
   // 夜の 町・村（夜だけ 出る 人・夜は 家に 帰る 人）
   addNightNpcs(maps);
   for (const m of Object.values(maps)) finishMap(m);

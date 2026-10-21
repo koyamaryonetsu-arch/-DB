@@ -6,8 +6,8 @@
 // render/tiles.js が まぜる。2.5D は render/field3d.js（MEMORY_LIQUIDS・MEMORY_FLOOR_H）と render/tex3d.js（MEMORY_PROPS）
 // テーマ（memory_1 … 5さい〈星祭りの 夜。あたたかい 色〉〜 memory_6 … 今〈くらい あい色〉）は render/themes.js
 // (p, v, f, m) … Painter / ちがい / アニメの コマ / となりの ようす
-import { T } from '../../shared/tiles.js?v=5e1deaa9335e';
-import { prand, shade } from './pixel.js?v=5e1deaa9335e';
+import { T } from '../../shared/tiles.js?v=6c1c54262b5a';
+import { prand, shade } from './pixel.js?v=6c1c54262b5a';
 
 // もや（くらい むらさき）・影（あい色）・金の 光・ゆか（色がえ される 灰色）
 const VD = { b: '#0c0a1a', m: '#16122a', l: '#221c3c', s: '#5a5090', st: '#c8c0ff' };

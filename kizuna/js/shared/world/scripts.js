@@ -1,18 +1,18 @@
 // だいほん（イベント）を すすめる しくみ
-import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js?v=5e1deaa9335e';
-import { ITEMS } from '../data/items.js?v=5e1deaa9335e';
-import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js?v=5e1deaa9335e';
-import { startFixedBattle } from './battles.js?v=5e1deaa9335e';
-import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=5e1deaa9335e';
-import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion, befriendLevel } from './party.js?v=5e1deaa9335e';
-import { sayFarewell } from './farewell.js?v=5e1deaa9335e';
-import { shareBefriend } from './recruit-share.js?v=5e1deaa9335e';
-import { openService } from './services.js?v=5e1deaa9335e';
-import { isNightFor, advanceClock, fracFor } from './clock.js?v=5e1deaa9335e';
-import { grantWagon, wagonChars, wagonHere } from './wagon.js?v=5e1deaa9335e';
-import { GUESTS } from '../data/shops.js?v=5e1deaa9335e';
-import { unstickAll } from './hazards.js?v=5e1deaa9335e';
-import { MAPS, isBlocked } from '../maps/index.js?v=5e1deaa9335e';
+import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js?v=6c1c54262b5a';
+import { ITEMS } from '../data/items.js?v=6c1c54262b5a';
+import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js?v=6c1c54262b5a';
+import { startFixedBattle } from './battles.js?v=6c1c54262b5a';
+import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=6c1c54262b5a';
+import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion, befriendLevel } from './party.js?v=6c1c54262b5a';
+import { sayFarewell } from './farewell.js?v=6c1c54262b5a';
+import { shareBefriend } from './recruit-share.js?v=6c1c54262b5a';
+import { openService } from './services.js?v=6c1c54262b5a';
+import { isNightFor, advanceClock, fracFor } from './clock.js?v=6c1c54262b5a';
+import { grantWagon, wagonChars, wagonHere } from './wagon.js?v=6c1c54262b5a';
+import { GUESTS } from '../data/shops.js?v=6c1c54262b5a';
+import { unstickAll } from './hazards.js?v=6c1c54262b5a';
+import { MAPS, isBlocked } from '../maps/index.js?v=6c1c54262b5a';
 
 let runSeq = 1;
 

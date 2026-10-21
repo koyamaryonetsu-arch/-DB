@@ -5,19 +5,19 @@
 // ・知らない 項目や 知らない 品物・職業・モンスターは けさずに とっておく（stash）。
 //   あとで その ゲームが 知っている ものに なったら もとに もどす
 // ・品物・職業・モンスター・マップの ID は けさない・なまえを かえない
-import { ITEMS, SLOTS } from '../data/items.js?v=5e1deaa9335e';
-import { JOBS } from '../data/jobs.js?v=5e1deaa9335e';
-import { MONSTERS } from '../data/monsters.js?v=5e1deaa9335e';
-import { migrateJobs, oldComboUnlocks, addItem, fixBodyJob } from '../stats.js?v=5e1deaa9335e';
-import { repairTreasureMaps } from '../data/treasure.js?v=5e1deaa9335e';
-import { ensureTmClears } from '../data/casino-tier.js?v=5e1deaa9335e';
-import { repairSecret } from '../data/secret.js?v=5e1deaa9335e';
-import { repairAlchemy } from './alchemy.js?v=5e1deaa9335e';
-import { normBank } from './bank.js?v=5e1deaa9335e';
-import { cleanWagon } from '../data/wagon.js?v=5e1deaa9335e';
-import { cleanLookEquip } from '../look-equip.js?v=5e1deaa9335e';
-import { cleanVehicles } from '../data/vehicles.js?v=5e1deaa9335e';
-import { repairTrialInfo } from '../data/job-trials.js?v=5e1deaa9335e';
+import { ITEMS, SLOTS } from '../data/items.js?v=6c1c54262b5a';
+import { JOBS } from '../data/jobs.js?v=6c1c54262b5a';
+import { MONSTERS } from '../data/monsters.js?v=6c1c54262b5a';
+import { migrateJobs, oldComboUnlocks, addItem, fixBodyJob } from '../stats.js?v=6c1c54262b5a';
+import { repairTreasureMaps } from '../data/treasure.js?v=6c1c54262b5a';
+import { ensureTmClears } from '../data/casino-tier.js?v=6c1c54262b5a';
+import { repairSecret } from '../data/secret.js?v=6c1c54262b5a';
+import { repairAlchemy } from './alchemy.js?v=6c1c54262b5a';
+import { normBank } from './bank.js?v=6c1c54262b5a';
+import { cleanWagon } from '../data/wagon.js?v=6c1c54262b5a';
+import { cleanLookEquip } from '../look-equip.js?v=6c1c54262b5a';
+import { cleanVehicles } from '../data/vehicles.js?v=6c1c54262b5a';
+import { repairTrialInfo } from '../data/job-trials.js?v=6c1c54262b5a';
 
 export const SAVE_VERSION = 4;
 

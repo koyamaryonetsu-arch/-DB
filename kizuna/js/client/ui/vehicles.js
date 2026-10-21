@@ -1,16 +1,16 @@
 // 乗り物屋（カウンター）と メニューの「乗り物」（第37回。きまりは shared/data/vehicles.js）
 //   乗り物屋: たなの 乗り物を えらぶと みぎに 見本（自分が 乗って くるくる 回る）→ 買う → 「さっそく乗る？」
 //   メニュー: 持っている 乗り物 と「乗らない」から えらぶ（走ると 乗る。速さは 同じ）
-import { el, esc } from './dom.js?v=5e1deaa9335e';
-import { Counter } from './counter.js?v=5e1deaa9335e';
-import { request } from './shop.js?v=5e1deaa9335e';
-import { boardIconURL } from '../render/boards.js?v=5e1deaa9335e';
-import { vehicleCanvas } from '../render/vehicle-art.js?v=5e1deaa9335e';
-import { heroLookKey } from '../render/hero.js?v=5e1deaa9335e';
-import { equipKey } from '../render/chars.js?v=5e1deaa9335e';
-import { playerSprite } from '../field.js?v=5e1deaa9335e';
-import { shownEquip } from '../../shared/look-equip.js?v=5e1deaa9335e';
-import { VEHICLES, vehicleShelf, ownedVehicles, chosenVehicle } from '../../shared/data/vehicles.js?v=5e1deaa9335e';
+import { el, esc } from './dom.js?v=6c1c54262b5a';
+import { Counter } from './counter.js?v=6c1c54262b5a';
+import { request } from './shop.js?v=6c1c54262b5a';
+import { boardIconURL } from '../render/boards.js?v=6c1c54262b5a';
+import { vehicleCanvas } from '../render/vehicle-art.js?v=6c1c54262b5a';
+import { heroLookKey } from '../render/hero.js?v=6c1c54262b5a';
+import { equipKey } from '../render/chars.js?v=6c1c54262b5a';
+import { playerSprite } from '../field.js?v=6c1c54262b5a';
+import { shownEquip } from '../../shared/look-equip.js?v=6c1c54262b5a';
+import { VEHICLES, vehicleShelf, ownedVehicles, chosenVehicle } from '../../shared/data/vehicles.js?v=6c1c54262b5a';
 
 const DIRS = ['down', 'left', 'up', 'right'];
 const RIDE_NOTE = '走っている時だけ乗る（歩く時はいつもの絵）。速さは同じ。\n乗っている間は、仲間もいっしょに乗っている。';
@@ -27,6 +27,7 @@ function styles() {
 .veh-pv .nt { white-space: pre-wrap; font-size: var(--fs-small); color: #a8a6c0; }
 .menu .tag.veh-now { color: #9fe8a8; border-color: rgba(159, 232, 168, 0.6); }
 .menu .tag.veh-job { color: #ffb0d8; border-color: rgba(255, 176, 216, 0.55); }
+.menu .tag.veh-gift { color: #ffe08a; border-color: rgba(255, 224, 138, 0.6); }
 .veh-view .detail { white-space: pre-wrap; }
 ` }));
 }
@@ -76,7 +77,7 @@ export function vehiclePreview(game) {
 }
 
 // 職業に ちなんだ 乗り物の しるし
-const jobTag = (id) => (VEHICLES[id]?.jobs ? '<span class="tag veh-job">職業</span>' : '');
+const jobTag = (id) => (VEHICLES[id]?.gift ? '<span class="tag veh-gift">もらった物</span>' : VEHICLES[id]?.jobs ? '<span class="tag veh-job">職業</span>' : '');
 
 // ───────────── 乗り物屋 ─────────────
 export async function vehicleShopUI(game, data) {
@@ -95,7 +96,7 @@ export async function vehicleShopUI(game, data) {
         value: id,
         label: VEHICLES[id].name,
         html: `${esc(VEHICLES[id].name)}${jobTag(id)}`,
-        right: owned.has(id) ? '持っている' : `${VEHICLES[id].price}G`,
+        right: owned.has(id) ? (VEHICLES[id].gift ? 'もらった物' : '持っている') : `${VEHICLES[id].price}G`,
         rightCls: owned.has(id) ? 'muted' : 'gold',
       })),
       { label: 'やめる', value: 'exit' },

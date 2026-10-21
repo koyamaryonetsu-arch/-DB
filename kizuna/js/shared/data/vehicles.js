@@ -73,6 +73,8 @@ export const VEHICLES = {
   dark_throne: { name: '空飛ぶ玉座', price: 9000, jobs: ['maou', 'hakaishin'], desc: '魔物の王がすわる、空にうかぶいす。' },
 };
 
+// 第39回 C: たのまれごとで しか もらえない 乗り物（data/vehicles-family.js）
+import { FAMILY_VEHICLES } from './vehicles-family.js?v=6c1c54262b5a'; Object.assign(VEHICLES, FAMILY_VEHICLES);
 export const VEHICLE_ORDER = Object.keys(VEHICLES);
 const has = (id) => typeof id === 'string' && Object.prototype.hasOwnProperty.call(VEHICLES, id);
 export const vehicleKnown = has;

@@ -11,8 +11,9 @@
 //  8. 湯けむりのなぞなぞ（温泉の里ユノハ）… なぞとき
 //  9. はぐれマグマゴーレム（ホシフル村の 見張り）… 強い 魔物の 退治
 // 10. 迷宮の探検家（大迷宮 地下6階の 宝探しのダイゴ）… 大迷宮の 中の さがし物
-import { LAB_FLAGS } from '../maps/labyrinth.js?v=5e1deaa9335e';
-import { medalSteps } from './story-lab.js?v=5e1deaa9335e';
+import { LAB_FLAGS } from '../maps/labyrinth.js?v=6c1c54262b5a';
+import { medalSteps } from './story-lab.js?v=6c1c54262b5a';
+import { FAMILY_SCRIPTS, FAMILY_STORY_SCRIPTS, familySubQuests, familyDoneQuests } from './sidequests-family.js?v=6c1c54262b5a';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -88,6 +89,8 @@ export function labSubQuests(c, f, has) {
       ? { name: '迷宮の探検家', who: 'q_daigo', ready: true, text: '地下6階のダイゴにとどけよう', hint: 'ダイゴのコンパスを、大迷宮の地下6階のダイゴにとどけよう。' }
       : { name: '迷宮の探検家', who: 'q_daigo', find: 'q_compass', ready: false, text: '大迷宮の地下7階で探そう', hint: 'ダイゴのコンパスは、まっくらな地下7階の、南のほうに落ちているらしい。' });
   }
+  // 第39回 C: 家族の 仕事の たのまれごと（sidequests-family.js）
+  out.push(...familySubQuests(c, f, has));
   return out;
 }
 function countOf(c, id) {
@@ -96,7 +99,7 @@ function countOf(c, id) {
 
 // クリアした たのまれごと（クエストの 画面）
 export function labDoneQuests(c) {
-  return SIDE_QUESTS.filter((q) => c?.flags?.[q.done]).map((q) => q.name);
+  return [...SIDE_QUESTS.filter((q) => c?.flags?.[q.done]).map((q) => q.name), ...familyDoneQuests(c)];
 }
 
 // 「はなす」の さいごに 1つ（受けている たのまれごとの ヒント。なければ null）
@@ -448,6 +451,10 @@ export const QUEST_SCRIPTS = {
   q_vguard: vguard, q_golem: golem,
   q_daigo: daigo, q_compass: compass,
 };
+
+// 第39回 C: 家族の 仕事の たのまれごとの だいほん（sidequests-family.js）
+Object.assign(QUEST_SCRIPTS, FAMILY_SCRIPTS);
+QUEST_STORY_SCRIPTS.push(...FAMILY_STORY_SCRIPTS);
 
 // 前から いる 人の ことばの 前に、たのまれごとの ことばを はさむ（null の ときは もとの まま）
 //   prepend … もとの だいほんの 前に たす（テツジイは そのあと「ふしぎなかじ屋」が 開く）
