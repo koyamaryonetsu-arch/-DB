@@ -16,6 +16,7 @@ import { MEMORY_PROPS } from './tiles-memory.js';
 import { EARTH_PROPS } from './tiles-earth.js';
 import { CASTLE_PROPS } from './tiles-castle.js';
 import { TOP_PROPS } from './tiles-top.js';
+import { CH6_PROPS } from './tiles-ch6.js';
 import {
   canalWallFace, canalWallTop, canalSidePaint, damTopPaint, paintCanalWater, sluiceTopPaint, sluiceBoardPaint, pillarSidePaint, pillarTopPaint, rubbleAtlasPaint,
   CANAL_SUN,
@@ -344,6 +345,8 @@ Object.assign(PROPS, EARTH_PROPS);
 Object.assign(PROPS, CASTLE_PROPS);
 // 第5章 Step 9: 星のない 祭だん（render/tiles-top.js）
 Object.assign(PROPS, TOP_PROPS);
+// 第6章 Step 1・2: 砂時計の 台・時の砂時計の 台座（render/tiles-ch6.js）
+Object.assign(PROPS, CH6_PROPS);
 export const PROP_TILES = new Set(Object.keys(PROPS).map(Number).filter((k) => PROPS[k]));
 
 // たからばこ（あいている・しまっている）

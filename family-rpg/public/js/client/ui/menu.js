@@ -551,6 +551,18 @@ export class FieldMenu {
       this.close();
       return alchemyUI(g);
     }
+    // 第6章: 時の砂時計（時代を 切りかえる。world/time-glass.js。使えない ときは サーバーの 知らせ）
+    if (it.hourglass) {
+      this.sub.blur();
+      const act = await this.pick(`${it.name}をどうする？`, [{ label: '使う', value: 'use' }, { label: 'やめる', value: null }]);
+      if (act === 'use') {
+        this.close();
+        g.net.send({ t: 'menu', action: 'timeGlass' });
+        return;
+      }
+      backToList();
+      return;
+    }
     if (entry.key || it.type === 'key') return;
     const acts = [];
     if (it.type === 'use' && it.field) acts.push({ label: '使う', value: 'use' });

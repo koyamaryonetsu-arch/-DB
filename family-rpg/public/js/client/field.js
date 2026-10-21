@@ -922,7 +922,8 @@ export class Field {
   drawDusk(ctx) {
     const d = this.map?.dusk;
     // until … その フラグが たつと 晴れる（第5章 Step 9。ソリトゥスを たおした あと）
-    if (!d || !this.hasFlag(d.flag) || (d.until && this.hasFlag(d.until))) return;
+    // flag が ない ときは いつも（第6章の 千年前の マップの うすい セピアの まく）
+    if (!d || (d.flag && !this.hasFlag(d.flag)) || (d.until && this.hasFlag(d.until))) return;
     ctx.fillStyle = d.color;
     ctx.fillRect(0, 0, this.vw, this.vh);
   }

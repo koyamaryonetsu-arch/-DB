@@ -50,9 +50,14 @@ export function warpParty(world, s, to) {
   world.broadcastPlayers();
 }
 
+// 第6章: 千年前の マップ（map.past）では ルーラ・帰り道の羽は 使えない
+export const PAST_WARP_TEXT = (head) => `${head}\nしかし、何もおこらなかった…\n（この時代には、まだその町はない。今へは、時の砂時計でもどろう）`;
+
 // ルーラ（menuAction の 'cast' から）。reply(ok, text)
 export function castRura(world, s, caster, id, msg, reply) {
   const a = ABILITIES[id];
+  // 第6章: 千年前では 使えない（MPは へらない。帰りは 時の砂時計で）
+  if (MAPS[s.map]?.past) return reply(false, PAST_WARP_TEXT(`${caster.name}は${a.name}を唱えた！`));
   // 洞窟や 塔の 中では 天井に 頭を ぶつける（MPは へらない）
   if (world.mapKind(s.map) !== 'field') return reply(false, `${caster.name}は${a.name}を唱えた！\nしかし天井に頭をぶつけた！\n（洞窟や塔の中では使えない）`);
   const place = typeof msg.place === 'string' ? msg.place : '';

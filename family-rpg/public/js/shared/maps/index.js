@@ -19,6 +19,8 @@ import { attachEarth } from './earth.js';
 import { attachCastle } from './castle.js';
 import { attachCastleTop } from './castle-top.js';
 import { attachFamilyQuests } from './family-quests.js';
+// 第6章 Step 1・2（A）: 千年前の ミドリナ地方・時のほこら・時のいせき（maps/past.js・toki-shrine.js・toki-ruin.js）
+import { attachCh6 } from './ch6.js';
 
 const V = (x, y) => [PLACES.village.x + x, PLACES.village.y + y];
 const TW = (x, y) => [PLACES.town.x + x, PLACES.town.y + y];
@@ -312,6 +314,8 @@ function buildMaps() {
   attachCastleTop(maps);
   // 第39回 C: 家族の 仕事の たのまれごと（劇場・おみやげ屋・料理大会・消えた鐘・古い 坑道。maps/family-quests.js）
   attachFamilyQuests(maps);
+  // 第6章 Step 1・2: 千年前の ミドリナ地方・時のほこら・時のいせき（maps/ch6.js。今の フィールドを ぜんぶ 作った あと）
+  attachCh6(maps);
   // 夜の 町・村（夜だけ 出る 人・夜は 家に 帰る 人）
   addNightNpcs(maps);
   for (const m of Object.values(maps)) finishMap(m);

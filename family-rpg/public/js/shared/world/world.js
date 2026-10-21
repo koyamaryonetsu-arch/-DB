@@ -39,6 +39,7 @@ import { medalSearchSteps, medalChestSteps } from './casino.js';
 import { ensureTmClears } from '../data/casino-tier.js';
 import { stepHazard } from './hazards.js';
 import { stepTremor } from './tremor.js';
+import { stepSand } from './time-glass.js';
 import { noteDungeonEntry } from './escape.js';
 import { notePyramidMove } from './pyramid.js';
 import { noteSecretMove, fixSecretPos, secretRespawn, pruneSecretStates } from './secret.js';
@@ -594,6 +595,8 @@ export class GameWorld {
     stepHazard(this, s, tx, ty);
     // 大地の こどう（第5章 Step 6 の 大地の 神殿 7階。world/tremor.js）
     stepTremor(this, s, tx, ty);
+    // 時のほこらの 砂時計の とびら（第6章。world/time-glass.js）
+    stepSand(this, s, tx, ty);
     // ばしょの きろく（きかんのはね）。リーダーの 冒険を 手伝っている あいだは 自分の きろくに しない
     if (this.hostOf(s)) return;
     let found = false;

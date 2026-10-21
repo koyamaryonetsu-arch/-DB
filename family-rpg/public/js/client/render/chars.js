@@ -12,6 +12,7 @@ import { KUMOI_NPC_LOOKS, drawWings } from './ch5-kumoi-art.js';
 import { HOSHIYOMI_NPC_LOOKS } from './ch5-hoshiyomi-art.js';
 import { TOP_NPC_LOOKS } from './ch5-top-art.js';
 import { FAMILY_NPC_LOOKS } from './family-art.js';
+import { CH6_NPC_LOOKS, paintCh6Special } from './ch6-art.js';
 import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js';
 import { R26_OLD_LOOK } from './hero-r26.js';
 import { R27_OLD_LOOK } from './hero-r27.js';
@@ -374,6 +375,8 @@ Object.assign(NPC_LOOKS, HOSHIYOMI_NPC_LOOKS);
 Object.assign(NPC_LOOKS, TOP_NPC_LOOKS);
 // 第39回 C: 家族の 仕事の たのまれごとの 人（render/family-art.js）
 Object.assign(NPC_LOOKS, FAMILY_NPC_LOOKS);
+// 第6章 Step 1・2 の トキネ・リオン・ミナモ・ホシヨ・千年前の 人・時が 止まった 人（render/ch6-art.js）
+Object.assign(NPC_LOOKS, CH6_NPC_LOOKS);
 
 // そうびの かきかた: 'ぶき,よろい,たて,あたま' の もじれつ か { weapon, armor, shield, head }
 export function parseEquip(eq, job) {
@@ -2380,7 +2383,8 @@ export function paintSpecial(kind, dir, f) {
       return fine(paintSdChest(f), SD_OUTLINE.sd_chest);
     default: {
       // 第5章: 星の塔・星祭りの かざり（render/ch5-art.js）
-      const c5 = paintCh5Special(kind, dir, f);
+      // 第6章: 勇者の像・星の木・ちびアステル・ゼンマイ など（render/ch6-art.js）
+      const c5 = paintCh5Special(kind, dir, f) || paintCh6Special(kind, dir, f);
       return c5 ? fine(c5.p, c5.oc) : null;
     }
   }

@@ -310,6 +310,10 @@ export function gameFiles() {
     'public/js/client/ui/arena.js',
     // 第5章 Step 9（A9: てっぺんと エンディング）: 星のない広間・ノクト（本気）と ソリトゥスの 台本・エンディング・クリアの あと
     'public/js/shared/data/story-castle-top.js', 'public/js/shared/maps/castle-top.js',
+    // 第2部 第6章 Step 1・2（A: 世界と物語）: 6つ目の星・時のほこら・時の砂時計・千年前のミドリナ地方・星の木・泉の里・リオン・時のいせき
+    'public/js/shared/data/story-ch6.js', 'public/js/shared/data/items-ch6-key.js', 'public/js/shared/maps/ch6.js', 'public/js/shared/maps/past.js',
+    'public/js/shared/maps/toki-shrine.js', 'public/js/shared/maps/toki-ruin.js', 'public/js/shared/maps/toki-ruin-rows.js', 'public/js/shared/world/time-glass.js', 'public/js/shared/world/time-glass-use.js',
+    'public/js/client/time-shift.js',
     // 第38回 B: 超級職からの 職業レベルの 上限と 職業の試練（試練の番人・修行・師しょうのまぼろし・しょうごう）
     'public/js/shared/data/job-trials.js', 'public/js/shared/data/story-trials.js', 'public/js/shared/data/monsters-trial.js',
     'public/js/shared/world/job-trials.js', 'public/js/shared/battle-trial.js', 'public/js/client/ui/job-trials.js',

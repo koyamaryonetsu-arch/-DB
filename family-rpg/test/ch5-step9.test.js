@@ -175,7 +175,7 @@ test('すすみぐあい: c5_seal3 → c5_top → c5_nocto2 → c5_solitus → c
   const si = CH5_STEPS.indexOf('c5_seal3');
   assert.ok(CH5_STEPS.indexOf('c5_gather') < CH5_STEPS.indexOf('c5_croad'), 'c5_gather の うしろに A8');
   assert.deepEqual(CH5_STEPS.slice(si + 1), TOP_STEPS, 'c5_seal3 の うしろに つづく（第5章の さいご）');
-  assert.equal(STORY_STEPS.at(-1), 'c5_clear', '第1部の さいごの すすみ');
+  assert.equal(STORY_STEPS[STORY_STEPS.indexOf('c6_start') - 1], 'c5_clear', '第1部の さいごの すすみ（うしろに 第2部 第6章）');
   assert.deepEqual(CASTLE_TOP_MAPS, ['castle_top'], 'マップの ID の 約束');
   // フラグごとの 目標
   const f = (...l) => ({ flags: flagsOf(...SEAL3(), ...UPTO(l[0]), ...l) });
@@ -186,8 +186,8 @@ test('すすみぐあい: c5_seal3 → c5_top → c5_nocto2 → c5_solitus → c
   assert.equal(objectiveFromFlags(f('c5_solitus', END_A, END_B)), TOP_OBJ.endB);
   assert.equal(objectiveFromFlags(f('c5_clear', END_A, END_B)), TOP_OBJ.clear);
   assert.equal(objectiveFromFlags(f('c5_clear')), TOP_OBJ.clear, 'クリアの しるしが あれば クリア');
-  // クリアの 目標: ネタバレなしで「まだ 続く」・酒場の ノクト。「第5章の続きは…」では ない
-  assert.ok(TOP_OBJ.clear.includes('第1部クリア') && TOP_OBJ.clear.includes('酒場') && TOP_OBJ.clear.includes('いつかのアップデート'));
+  // クリアの 目標: ネタバレなしで ホシフル村の ばあちゃんへ（第2部 第6章が できた。前の「いつかのアップデートで」の 文は story-ch6.js の OLD_C6_OBJ.clear5）・酒場の ノクト
+  assert.ok(TOP_OBJ.clear.includes('第1部クリア') && TOP_OBJ.clear.includes('酒場') && TOP_OBJ.clear.includes('ホシミばあちゃん'));
   assert.ok(!/ソリトゥス|第2部の|魔王/.test(TOP_OBJ.clear), 'ネタバレなし');
   // 目標の なおし（今の 版に ない 文 → すすみぐあいから）
   for (const [fl, want] of [[['c5_top'], TOP_OBJ.top], [['c5_solitus'], TOP_OBJ.solitus], [['c5_solitus', END_A], TOP_OBJ.endA], [['c5_clear'], TOP_OBJ.clear]]) {

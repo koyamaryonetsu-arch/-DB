@@ -8,6 +8,7 @@ import { C3_LEAD_OBJECTIVE } from './sky.js';
 import { CH3_PROGRESS } from './story-ch3.js';
 import { CH4_PROGRESS } from './story-ch4.js';
 import { CH5_PROGRESS } from './story-ch5.js';
+import { CH6_PROGRESS } from './story-ch6.js';
 
 // ストーリーの じゅんばん。うしろから 見て、さいしょに 当てはまった ものが 今の 目標
 const PROGRESS = [
@@ -39,6 +40,7 @@ const PROGRESS = [
   ...CH3_PROGRESS,
   ...CH4_PROGRESS,
   ...CH5_PROGRESS,
+  ...CH6_PROGRESS,
 ];
 
 // 今の 版に ある 目標の 文
