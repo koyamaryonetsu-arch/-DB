@@ -11,9 +11,9 @@
 //  8. 湯けむりのなぞなぞ（温泉の里ユノハ）… なぞとき
 //  9. はぐれマグマゴーレム（ホシフル村の 見張り）… 強い 魔物の 退治
 // 10. 迷宮の探検家（大迷宮 地下6階の 宝探しのダイゴ）… 大迷宮の 中の さがし物
-import { LAB_FLAGS } from '../maps/labyrinth.js?v=848d7b87f783';
-import { medalSteps } from './story-lab.js?v=848d7b87f783';
-import { FAMILY_SCRIPTS, FAMILY_STORY_SCRIPTS, familySubQuests, familyDoneQuests } from './sidequests-family.js?v=848d7b87f783';
+import { LAB_FLAGS } from '../maps/labyrinth.js?v=b0a807bf31f1';
+import { medalSteps } from './story-lab.js?v=b0a807bf31f1';
+import { FAMILY_SCRIPTS, FAMILY_STORY_SCRIPTS, familySubQuests, familyDoneQuests } from './sidequests-family.js?v=b0a807bf31f1';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

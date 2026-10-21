@@ -14,12 +14,13 @@
 //  3. カナトコの料理大会（料理人の 系統・鉱山の町カナトコ）
 //  4. ルミナの町の、消えた教会のかね（警察官・少年探てい団の 系統・ルミナの町）
 //  5. 鉱山トロッコの線路（鉄道員の 系統・鉱山の町カナトコ）
-import { JOBS, jobAncestry } from './jobs.js?v=848d7b87f783';
-import { medalSteps } from './story-lab.js?v=848d7b87f783';
-import { FAMILY_VEHICLES } from './vehicles-family.js?v=848d7b87f783';
+import { JOBS, jobAncestry } from './jobs.js?v=b0a807bf31f1';
+import { medalSteps } from './story-lab.js?v=b0a807bf31f1';
+import { FAMILY_VEHICLES } from './vehicles-family.js?v=b0a807bf31f1';
+import { FAMILY_ITEMS } from './items-family.js?v=b0a807bf31f1';
 import {
   FQ, FQ_OPEN, DAMPERS, DIRTY_ZONES, SHOP_VOICES, COOK_RUMORS, BELL_CLUES, BELL_TALKS, RAIL_FIX, RAIL_PATH, MINE_ROOM_ARRIVE,
-} from '../maps/family-quests.js?v=848d7b87f783';
+} from '../maps/family-quests.js?v=b0a807bf31f1';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -27,11 +28,21 @@ const N = (...lines) => lines.map((l) => ['say', null, l]);
 // ───────────── たのまれごとの 一らん ─────────────
 // roots … 職業の 系統の 元（この 職業から 転職で つながる 職業は 全部）、job … ヒントに 出す 名前
 export const FAMILY_QUESTS = [
-  { id: 'theater', name: '劇場の空調をなおせ', done: FQ.acDone, roots: ['setsubiya'], job: '設備屋', town: '王都サファラ' },
-  { id: 'shop', name: 'さびれたおみやげ屋の立て直し', done: FQ.shopDone, roots: ['salaryman', 'parttimer'], job: '会社員かアルバイト', town: '温泉の里ユノハ' },
-  { id: 'cook', name: 'カナトコの料理大会', done: FQ.cookDone, roots: ['cook'], job: '料理人', town: '鉱山の町カナトコ' },
-  { id: 'bell', name: 'ルミナの町の、消えた教会のかね', done: FQ.bellDone, roots: ['police', 'shonen_tantei'], job: '警察官か探てい', town: 'ルミナの町' },
-  { id: 'rail', name: '鉱山トロッコの線路', done: FQ.railDone, roots: ['railman'], job: '鉄道員', town: '鉱山の町カナトコ' },
+  { id: 'theater', name: '劇場の空調をなおせ', done: FQ.acDone, roots: ['setsubiya'], job: '設備屋', town: '王都サファラ',
+    start: FQ.acStart, who: '支配人ラシード', where: '王都サファラの南西のすみ、サファラ劇場の中', paper: '劇場が暑くて、お客さんが来なくなってしまいました。\n空調にくわしい方、どうか助けてください。',
+    reward: { item: 'fq_air_badge', vehicle: 'lift_truck', gold: 5000, medals: 3 } },
+  { id: 'shop', name: 'さびれたおみやげ屋の立て直し', done: FQ.shopDone, roots: ['salaryman', 'parttimer'], job: '会社員かアルバイト', town: '温泉の里ユノハ',
+    start: FQ.shopStart, who: 'おみやげ屋のユキエ', where: '温泉の里ユノハの南、おみやげ屋の中', paper: 'お店に、お客さんが来ません。\nお店を立て直すちえを、かしてください。',
+    reward: { item: 'fq_maneki', vehicle: 'rickshaw', gold: 3000, medals: 2 } },
+  { id: 'cook', name: 'カナトコの料理大会', done: FQ.cookDone, roots: ['cook'], job: '料理人', town: '鉱山の町カナトコ',
+    start: FQ.cookStart, who: '大会の係ボルト', where: '鉱山の町カナトコの広場', paper: 'カナトコで料理大会を開きます！\nしんさいんをうならせる料理人、待ってます。',
+    reward: { item: 'fq_gold_ladle', vehicle: 'kitchen_car', gold: 4000, medals: 2 } },
+  { id: 'bell', name: 'ルミナの町の、消えた教会のかね', done: FQ.bellDone, roots: ['police', 'shonen_tantei'], job: '警察官か探てい', town: 'ルミナの町',
+    start: FQ.bellStart, who: 'シスターのマリア', where: 'ルミナの町の教会の前', paper: '教会の小さなかねが、消えてしまいました。\nなぞをとける方、力をかしてください。',
+    reward: { item: 'fq_detective_glass', vehicle: 'patrol_car', gold: 3000, medals: 2 } },
+  { id: 'rail', name: '鉱山トロッコの線路', done: FQ.railDone, roots: ['railman'], job: '鉄道員', town: '鉱山の町カナトコ',
+    start: FQ.railStart, who: '年よりの鉱夫ゲン', where: '鉱山の町カナトコの北のかべのそば', paper: '古い鉱山の線路が、こわれたままじゃ。\n線路にくわしい人、直してくれんかのう。',
+    reward: { item: 'fq_gold_ticket', vehicle: 'gold_trolley', gold: 4000, medals: 2 } },
 ];
 const Q = Object.fromEntries(FAMILY_QUESTS.map((q) => [q.id, q]));
 
@@ -762,7 +773,54 @@ const railCartBack = () => [
 const railNote = () => N('古い手紙だ。', '「この線路を直して、ここまで来た者へ。」', '「ここには、わしらの宝、金のきっぷと金のトロッコをのこしておく。」', '「線路は、人と人をつなぐもの。\nいちばんの宝は、いっしょに線路を直す仲間じゃ。」\n――カナトコ鉱山の親方より');
 
 // ───────────── だいほんの 一らん（story.js に まぜる）─────────────
+// ───────────── ルミナの町の たのまれごとの 掲示板（第1部クリアの あと）─────────────
+// はり紙を えらぶと: たのみごとの 中み・できそうな 職業（系統の 名前 ぜんぶ）・会う 人と 場所・ごほうび。読みおわると 一らんに もどる
+// （もどりは ['call'] で その 時に 作る。まえもって 作ると えらぶ たびに ふえて しまうので）
+function boardMark(x, q) {
+  if (x.flag(q.done)) return '（すんだ）';
+  return x.flag(q.start) ? '（受けている）' : '';
+}
+// できそうな 職業の ページ（1行 BOARD_LINE 文字まで・1ページ 2行。系統が 長い 職業でも はみ出さない）
+const BOARD_LINE = 20;
+function jobPages(q) {
+  const lines = [];
+  for (const name of jobLineNames(q.roots)) {
+    const last = lines.length - 1;
+    if (last >= 0 && lines[last].length + 1 + name.length <= BOARD_LINE) lines[last] += '・' + name;
+    else lines.push(name);
+  }
+  const out = [];
+  for (let i = 0; i < lines.length; i += 2) out.push(`【解決できそうな職業】${i ? '（続き）' : ''}\n${lines.slice(i, i + 2).join('\n')}`);
+  out.push('（その職業の人が、パーティーにひとりいればだいじょうぶ）');
+  return N(...out);
+}
+export function boardPage(x, q) {
+  const r = q.reward;
+  const state = x.flag(q.done) ? 'このたのまれごとは、もうすんでいる。' : x.flag(q.start) ? '今、このたのまれごとを受けている。' : null;
+  return [
+    ...N(`「${q.name}」\n${q.paper}`),
+    ...jobPages(q),
+    ...N(`【会う人】\n${q.where}にいる、${q.who}に話しかけよう。`),
+    ...N(`【ごほうび】\n${FAMILY_ITEMS[r.item].name}（アクセサリー）\n${FAMILY_VEHICLES[r.vehicle].name}（乗り物）\n${r.gold}ゴールド・小さなメダル${r.medals}まい`),
+    ...(state ? N(`（${state}）`) : []),
+  ];
+}
+function boardMenu(x) {
+  return [['choice', 'どのはり紙を読む？', [...FAMILY_QUESTS.map((q) => q.name + boardMark(x, q)), 'やめる'], [
+    ...FAMILY_QUESTS.map((q) => [...boardPage(x, q), ['call', (run) => run.runSteps(boardMenu(x))]]),
+    [],
+  ]]];
+}
+function questBoard(x) {
+  const left = FAMILY_QUESTS.filter((q) => !x.flag(q.done)).length;
+  return [
+    ...N('〜 たのまれごとのけいじ板 〜\n各地からとどいた、たのみごとのはり紙がはってある。', left ? `（まだすんでいないたのまれごと：${left}つ）` : '（全部のたのまれごとが、すんでいる！）'),
+    ...boardMenu(x),
+  ];
+}
+
 export const FAMILY_SCRIPTS = {
+  fq_board: questBoard,
   fq_th_manager: thManager, fq_th_clerk: thClerk, fq_th_lobbyguest: thLobbyGuest, fq_th_fan: thFan, fq_th_hot: thHot, fq_th_guest: thGuest,
   fq_th_actor: thActor, fq_th_crier: thCrier, fq_th_line: thLine,
   fq_th_vent: thVent, fq_th_ahu: thAhu, fq_th_unit: thUnit, fq_th_meter: thMeter, fq_th_panel: thPanel,

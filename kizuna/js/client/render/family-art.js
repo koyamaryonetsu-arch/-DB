@@ -6,7 +6,7 @@
 // ・FAMILY_NPC_LOOKS … 人の みため（render/chars.js の NPC_LOOKS に まぜる）
 // ・addFamilyVehicleArt(ART, kit) … たのまれごとで もらう 乗り物の 絵（render/vehicle-art.js が よぶ。kit … 乗り物の 絵の どうぐ）
 // かきかたは monsters.js・lab-art.js と おなじ（g … w・h の わりあいで かく。f … 0 か 1 の コマ）
-import { spark } from './ch3-draw.js?v=848d7b87f783';
+import { spark } from './ch3-draw.js?v=b0a807bf31f1';
 
 // ───────────── 人の みため ─────────────
 export const FAMILY_NPC_LOOKS = {
@@ -229,7 +229,29 @@ function note(g, f) {
   g.ell(0.72, 0.68, 0.06, 0.06, f ? C.R : C.RD);
 }
 
+// たのまれごとの 掲示板（木の わくと やね・2本の 足・5まいの はり紙と 色の ピン）
+const QB = { W: '#a8743a', WD: '#6a4420', WL: '#d4a060', R: '#b83a2a', RD: '#7a2418', P: '#f4ecd4', PD: '#cfc0a0', K: '#5a4a3a', pins: ['#e04a3a', '#3a7ad8', '#4ac86a', '#f2c14e', '#c86ad8'] };
+function questBoardArt(g, f) {
+  const C = QB;
+  g.rect(0.16, 0.5, 0.08, 0.48, C.WD); g.rect(0.76, 0.5, 0.08, 0.48, C.WD);
+  g.rect(0.06, 0.16, 0.88, 0.56, C.WD);
+  g.rect(0.09, 0.19, 0.82, 0.5, C.W);
+  g.rect(0.09, 0.19, 0.82, 0.04, C.WL);
+  g.poly([[0.0, 0.18], [0.5, 0.0], [1.0, 0.18], [0.94, 0.2], [0.5, 0.06], [0.06, 0.2]], C.RD);
+  g.poly([[0.02, 0.17], [0.5, 0.02], [0.98, 0.17], [0.5, 0.08]], C.R);
+  const papers = [[0.13, 0.24, 0.22, 0.2], [0.39, 0.23, 0.22, 0.2], [0.65, 0.25, 0.22, 0.19], [0.24, 0.46, 0.22, 0.2], [0.53, 0.46, 0.22, 0.2]];
+  papers.forEach(([x, y, w, h], i) => {
+    g.rect(x + 0.01, y + 0.01, w, h, C.PD);
+    g.rect(x, y, w, h, C.P);
+    for (let k = 0; k < 3; k++) g.rect(x + 0.03, y + 0.07 + k * 0.045, w - 0.06, 0.015, C.K);
+    g.ell(x + w / 2, y + 0.02, 0.022, 0.022, C.pins[i]);
+  });
+  if (f) spark(g, 0.86, 0.12, 0.07, '#fff4c0', '#ffffff');
+}
+
 export function addFamilyArt(ART) {
+  // ルミナの町の たのまれごとの 掲示板
+  ART.fq_board = { size: [28, 30], field: 30, npc: 1, pal: [...Object.values(QB).flat(), '#fff4c0', '#ffffff'], draw: questBoardArt };
   // 劇場の 設備（field … フィールドの 大きさ。大きな 物は NPC の big で 3マス）
   ART.fq_vent = { size: [16, 14], field: 16, pal: MTP, draw: vent };
   ART.fq_meter = { size: [14, 18], field: 18, pal: [...MTP, '#1a2a2a'], draw: meter };

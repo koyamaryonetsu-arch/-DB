@@ -9,12 +9,12 @@
 //  3. カナトコの料理大会（鉱山の町カナトコの 広場・町の 北の 雪原の きのこ・南の 道の モグラ）
 //  4. ルミナの町の、消えた教会のかね（ルミナの町の 教会の まわり・北西の すみの 大きな 木）
 //  5. 鉱山トロッコの線路（鉱山の町カナトコの 北の 古い 鉱山 → だれも 知らない 小べや）
-import { T, parseRows, TILE_INFO } from '../tiles.js?v=848d7b87f783';
-import { npc } from './npc.js?v=848d7b87f783';
-import { PLACES } from './overworld.js?v=848d7b87f783';
-import { NORTH_PLACES } from './north.js?v=848d7b87f783';
-import { SOUTH_PLACES } from './south.js?v=848d7b87f783';
-import { openSpot } from './labyrinth.js?v=848d7b87f783';
+import { T, parseRows, TILE_INFO } from '../tiles.js?v=b0a807bf31f1';
+import { npc } from './npc.js?v=b0a807bf31f1';
+import { PLACES } from './overworld.js?v=b0a807bf31f1';
+import { NORTH_PLACES } from './north.js?v=b0a807bf31f1';
+import { SOUTH_PLACES } from './south.js?v=b0a807bf31f1';
+import { openSpot } from './labyrinth.js?v=b0a807bf31f1';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 export const FQ_OPEN = 'c5_clear'; // 第1部クリアで たのみたい 人が 立つ
@@ -337,6 +337,8 @@ const TOWN_NPCS = [
   ['fq_cook_mush', '雪の下のきのこ', 'mon:fq_mushroom', 'fq_cook_mush', 'north', KAN, 3, -1, { show: opened(FQ.cookStart), solid: false, fixed: true }],
   ['fq_cook_mole', 'ほりほりモグラ', 'mon:mole_miner', 'fq_cook_mole', 'north', KAN, 12, 32, { show: { all: [FQ_OPEN, FQ.cookStart], not: [FQ.cookMole] }, fixed: true }],
   // 4. ルミナ: 教会の シスター・かねの 台・羽・どろ・話を 聞く 4人・北西の 木の カラス
+  // ルミナの町の 広場（ふん水の 東）: たのまれごとの 掲示板（5つの たのまれごとの はり紙）
+  ['fq_board', 'たのまれごとのけいじ板', 'mon:fq_board', 'fq_board', 'overworld', TW, 26, 17, { show: { all: [FQ_OPEN] }, fixed: true }],
   ['fq_bell_sister', '教会のシスター', 'priestess', 'fq_bell_sister', 'overworld', TW, 12, 34, { show: SHOWN }],
   ['fq_bell_stand', 'かねの台', 'mon:fq_bell_stand', 'fq_bell_stand', 'overworld', TW, 12, 29, { show: { all: [FQ_OPEN], not: [FQ.bellDone] }, fixed: true }],
   ['fq_bell_stand2', 'かねの台', 'mon:fq_bell_stand_bell', 'fq_bell_stand', 'overworld', TW, 12, 29, { show: opened(FQ.bellDone), fixed: true }],
