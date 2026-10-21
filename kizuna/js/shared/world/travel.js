@@ -13,17 +13,17 @@
 // ・パーティーの リーダーが よぶと、なかまに「いっしょに 乗る？」と きく（askRiders）。乗る なかまは リーダーの そばへ、
 //   「ついていく」に なって いっしょに とび、いっしょに おりる・となりの 地方へ いく。乗らない なかまは 地上に のこる
 // ・サーバーは とんでいない 人が 歩けない ところへ 入るのを みとめない（world.js の onMove）
-import { MAPS, isBlocked, onWater, condOk } from '../maps/index.js?v=b69d71237e5f';
-import { PLACES } from '../maps/overworld.js?v=b69d71237e5f';
-import { SEA_PLACES } from '../maps/ch2.js?v=b69d71237e5f';
-import { ABILITIES } from '../data/abilities.js?v=b69d71237e5f';
-import { ITEMS } from '../data/items.js?v=b69d71237e5f';
-import { hasKeyItem, mpCost, removeItem, itemCount } from '../stats.js?v=b69d71237e5f';
-import { SKY_MAPS, FLUTE_ID, RIDE_ASK_MS, regionHop, edgeAt, edgeTarget, regionsFrom, skyBox, inSkyBox, mountOf, flySpeed, edgeLockedText, boxLockedText, VEIL, veilState, veilText } from '../data/sky.js?v=b69d71237e5f';
-import { runScript } from './scripts.js?v=b69d71237e5f';
-import { partyOf } from './party.js?v=b69d71237e5f';
-import { warpDest } from './services.js?v=b69d71237e5f';
-import { advanceClock, clockOwner } from './clock.js?v=b69d71237e5f';
+import { MAPS, isBlocked, onWater, condOk } from '../maps/index.js?v=848d7b87f783';
+import { PLACES } from '../maps/overworld.js?v=848d7b87f783';
+import { SEA_PLACES } from '../maps/ch2.js?v=848d7b87f783';
+import { ABILITIES } from '../data/abilities.js?v=848d7b87f783';
+import { ITEMS } from '../data/items.js?v=848d7b87f783';
+import { hasKeyItem, mpCost, removeItem, itemCount } from '../stats.js?v=848d7b87f783';
+import { SKY_MAPS, FLUTE_ID, RIDE_ASK_MS, regionHop, edgeAt, edgeTarget, regionsFrom, skyBox, inSkyBox, mountOf, flySpeed, edgeLockedText, boxLockedText, VEIL, veilState, veilText } from '../data/sky.js?v=848d7b87f783';
+import { runScript } from './scripts.js?v=848d7b87f783';
+import { partyOf } from './party.js?v=848d7b87f783';
+import { warpDest } from './services.js?v=848d7b87f783';
+import { advanceClock, clockOwner } from './clock.js?v=848d7b87f783';
 
 const FOLLOW_RANGE = 12;
 
@@ -50,9 +50,14 @@ export function warpParty(world, s, to) {
   world.broadcastPlayers();
 }
 
+// 第6章: 千年前の マップ（map.past）では ルーラ・帰り道の羽は 使えない
+export const PAST_WARP_TEXT = (head) => `${head}\nしかし、何もおこらなかった…\n（この時代には、まだその町はない。今へは、時の砂時計でもどろう）`;
+
 // ルーラ（menuAction の 'cast' から）。reply(ok, text)
 export function castRura(world, s, caster, id, msg, reply) {
   const a = ABILITIES[id];
+  // 第6章: 千年前では 使えない（MPは へらない。帰りは 時の砂時計で）
+  if (MAPS[s.map]?.past) return reply(false, PAST_WARP_TEXT(`${caster.name}は${a.name}を唱えた！`));
   // 洞窟や 塔の 中では 天井に 頭を ぶつける（MPは へらない）
   if (world.mapKind(s.map) !== 'field') return reply(false, `${caster.name}は${a.name}を唱えた！\nしかし天井に頭をぶつけた！\n（洞窟や塔の中では使えない）`);
   const place = typeof msg.place === 'string' ? msg.place : '';

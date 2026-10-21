@@ -1,18 +1,18 @@
 // だいほん（イベント）を すすめる しくみ
-import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js?v=b69d71237e5f';
-import { ITEMS } from '../data/items.js?v=b69d71237e5f';
-import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js?v=b69d71237e5f';
-import { startFixedBattle } from './battles.js?v=b69d71237e5f';
-import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=b69d71237e5f';
-import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion, befriendLevel } from './party.js?v=b69d71237e5f';
-import { sayFarewell } from './farewell.js?v=b69d71237e5f';
-import { shareBefriend } from './recruit-share.js?v=b69d71237e5f';
-import { openService } from './services.js?v=b69d71237e5f';
-import { isNightFor, advanceClock, fracFor } from './clock.js?v=b69d71237e5f';
-import { grantWagon, wagonChars, wagonHere } from './wagon.js?v=b69d71237e5f';
-import { GUESTS } from '../data/shops.js?v=b69d71237e5f';
-import { unstickAll } from './hazards.js?v=b69d71237e5f';
-import { MAPS, isBlocked } from '../maps/index.js?v=b69d71237e5f';
+import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js?v=848d7b87f783';
+import { ITEMS } from '../data/items.js?v=848d7b87f783';
+import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js?v=848d7b87f783';
+import { startFixedBattle } from './battles.js?v=848d7b87f783';
+import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=848d7b87f783';
+import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion, befriendLevel } from './party.js?v=848d7b87f783';
+import { sayFarewell } from './farewell.js?v=848d7b87f783';
+import { shareBefriend } from './recruit-share.js?v=848d7b87f783';
+import { openService } from './services.js?v=848d7b87f783';
+import { isNightFor, advanceClock, fracFor } from './clock.js?v=848d7b87f783';
+import { grantWagon, wagonChars, wagonHere } from './wagon.js?v=848d7b87f783';
+import { GUESTS } from '../data/shops.js?v=848d7b87f783';
+import { unstickAll } from './hazards.js?v=848d7b87f783';
+import { MAPS, isBlocked } from '../maps/index.js?v=848d7b87f783';
 
 let runSeq = 1;
 
@@ -464,6 +464,8 @@ export class ScriptRun {
         case 'roll':
         // カメラを その 場所へ（['look', x, y]）・自分に もどす（['look']）
         case 'look':
+        // 第6章: 時の砂時計の 砂の うず（client/time-shift.js）
+        case 'timeShift':
           this.batch.push(step);
           break;
         default:

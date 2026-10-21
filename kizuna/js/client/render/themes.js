@@ -1,16 +1,17 @@
 // 色の かえかた（宝の洞窟の しゅるい・第3章の 氷と 火の 洞窟・第4章の 砂の 洞窟と 地下水路・洞窟の 主の 色ちがい）
 // もとの ドット絵は そのままに、明るさを たもって 色だけ かえる
-import { T } from '../../shared/tiles.js?v=b69d71237e5f';
-import { makeCanvas, ctxOf } from './pixel.js?v=b69d71237e5f';
-import { CANAL_CTX, CANAL_CTX_TILES } from './tiles-canal.js?v=b69d71237e5f';
-import { TEMPLE_TILES } from './tiles-temple.js?v=b69d71237e5f';
-import { LAB_TILES } from './tiles-lab.js?v=b69d71237e5f';
-import { TOWER_TILES, TOWER_THEMES } from './tiles-tower.js?v=b69d71237e5f';
-import { KUMOI_TILES, KUMOI_THEMES } from './tiles-kumoi.js?v=b69d71237e5f';
-import { MEMORY_KEEP_COLOR, MEMORY_THEMES } from './tiles-memory.js?v=b69d71237e5f';
-import { EARTH_KEEP_COLOR, EARTH_THEMES } from './tiles-earth.js?v=b69d71237e5f';
-import { CASTLE_KEEP_COLOR, CASTLE_THEMES, THEME_PARTS } from './tiles-castle.js?v=b69d71237e5f';
-import { TOP_KEEP_COLOR, TOP_THEMES } from './tiles-top.js?v=b69d71237e5f';
+import { T } from '../../shared/tiles.js?v=848d7b87f783';
+import { makeCanvas, ctxOf } from './pixel.js?v=848d7b87f783';
+import { CANAL_CTX, CANAL_CTX_TILES } from './tiles-canal.js?v=848d7b87f783';
+import { TEMPLE_TILES } from './tiles-temple.js?v=848d7b87f783';
+import { LAB_TILES } from './tiles-lab.js?v=848d7b87f783';
+import { TOWER_TILES, TOWER_THEMES } from './tiles-tower.js?v=848d7b87f783';
+import { KUMOI_TILES, KUMOI_THEMES } from './tiles-kumoi.js?v=848d7b87f783';
+import { MEMORY_KEEP_COLOR, MEMORY_THEMES } from './tiles-memory.js?v=848d7b87f783';
+import { EARTH_KEEP_COLOR, EARTH_THEMES } from './tiles-earth.js?v=848d7b87f783';
+import { CASTLE_KEEP_COLOR, CASTLE_THEMES, THEME_PARTS } from './tiles-castle.js?v=848d7b87f783';
+import { TOP_KEEP_COLOR, TOP_THEMES } from './tiles-top.js?v=848d7b87f783';
+import { CH6_KEEP_COLOR, CH6_THEMES } from './tiles-ch6.js?v=848d7b87f783';
 
 // どの 部分か（ゆか・かべ・水）
 const PART_OF_TILE = {
@@ -53,6 +54,8 @@ for (const id of EARTH_KEEP_COLOR) PART_OF_TILE[id] = 'none';
 for (const id of CASTLE_KEEP_COLOR) PART_OF_TILE[id] = 'none';
 // 第5章 Step 9 の 星のない 広間の ゆかと 祭だんも もとの 色の まま（かべ・柱・かいだんは 広間の 色に）
 for (const id of TOP_KEEP_COLOR) PART_OF_TILE[id] = 'none';
+// 第6章 Step 1・2 の 砂時計の とびら・台・台座・止まった 泉・わらの かべ・時の ふむ石も もとの 色の まま
+for (const id of CH6_KEEP_COLOR) PART_OF_TILE[id] = 'none';
 // mask … 地下水路の え で かいた たいまつ・レバー・かいだん など（mask の CANAL_CTX）も 色を かえない
 // 王家のピラミッドの 石の 文字ばん（かんばんの mask 4）も もとの 色の まま
 // theme … その テーマだけ 色の かえかたを かえる タイル（第5章 Step 8 の 水の階の 流れる ゆか。render/tiles-castle.js の THEME_PARTS）
@@ -200,7 +203,7 @@ const RUINS_DEEP = {
   gem: G([0, '#6a3a08'], [0.5, '#f0a830'], [1, '#fff4c8']),
   flame: null,
 };
-const THEMES = { ice: ICE, lava: LAVA, sand: SAND, canal: CANAL, pyramid: PYRAMID, castle: CASTLE, temple: TEMPLE, ruins: RUINS, ruins_deep: RUINS_DEEP, ...SECRET, ...TOWER_THEMES, ...KUMOI_THEMES, ...MEMORY_THEMES, ...EARTH_THEMES, ...TOP_THEMES, ...CASTLE_THEMES };
+const THEMES = { ice: ICE, lava: LAVA, sand: SAND, canal: CANAL, pyramid: PYRAMID, castle: CASTLE, temple: TEMPLE, ruins: RUINS, ruins_deep: RUINS_DEEP, ...SECRET, ...TOWER_THEMES, ...KUMOI_THEMES, ...MEMORY_THEMES, ...EARTH_THEMES, ...TOP_THEMES, ...CASTLE_THEMES, ...CH6_THEMES };
 
 // 1つの 色を かえる
 export function themeRgb(r, g, b, theme, part) {
@@ -208,6 +211,11 @@ export function themeRgb(r, g, b, theme, part) {
   if (part === 'carpet') part = P?.keepCarpet ? 'none' : 'floor';
   if (!P || part === 'none') return [r, g, b];
   const l = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  // mix … もとの 色に テーマの 色を その わりあいだけ まぜる（第6章の 千年前の フィールド past。草の 緑も 水の 青も のこる）
+  if (P.mix) {
+    const [sr, sg, sb] = grad(P.floor, l * 1.1);
+    return [Math.round(r + (sr - r) * P.mix), Math.round(g + (sg - g) * P.mix), Math.round(b + (sb - b) * P.mix)];
+  }
   // 'water_all' … 火の 色も ふくめて ぜんぶ 水の 色に（第5章 Step 8 の 水の階の 流れる ゆか。render/tiles-castle.js の THEME_PARTS）
   if (part === 'water_all') return grad(P.water, l * 1.25);
   const warm = r > 170 && g > 70 && b < 110 && r > b + 80; // たいまつの 火

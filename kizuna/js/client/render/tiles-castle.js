@@ -4,8 +4,8 @@
 // 水の階の 流れる ゆか（ピラミッドの 流れる 砂の タイル）は 水の 色に（THEME_PARTS）
 // render/tiles.js が まぜる。2.5D は render/field3d.js（CASTLE_FLOOR_H）と render/tex3d.js（CASTLE_PROPS）
 // (p, v, f) … Painter / ちがい / アニメの コマ
-import { T } from '../../shared/tiles.js?v=b69d71237e5f';
-import { prand } from './pixel.js?v=b69d71237e5f';
+import { T } from '../../shared/tiles.js?v=848d7b87f783';
+import { prand } from './pixel.js?v=848d7b87f783';
 
 // 黒い 城の 石・木の 羽・炎・鉄
 const ST = { d: '#2e2a3a', b: '#4a4458', m: '#625a74', l: '#7e7690', ln: '#3a3448' };

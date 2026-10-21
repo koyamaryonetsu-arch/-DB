@@ -1,35 +1,37 @@
 // お店・やどや・きょうかい・転職・酒場・でんごんばん・メニュー操作
-import { markNewsRead } from '../data/news.js?v=b69d71237e5f';
-import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js?v=b69d71237e5f';
-import { normDifficulty } from '../data/difficulty.js?v=b69d71237e5f';
-import { ITEMS, sellPrice, SLOTS, SLOT_NAMES } from '../data/items.js?v=b69d71237e5f';
-import { JOBS, ALL_JOBS, jobReqText, BODY_NAMES } from '../data/jobs.js?v=b69d71237e5f';
-import { ABILITIES } from '../data/abilities.js?v=b69d71237e5f';
-import { abilityFor, abilityLabel, isMasc } from '../ability-label.js?v=b69d71237e5f';
-import { jobLabel } from '../job-label.js?v=b69d71237e5f';
-import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=b69d71237e5f';
-import { TACTICS } from '../ai.js?v=b69d71237e5f';
-import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js?v=b69d71237e5f';
-import { salonInfo, salonAction } from './salon.js?v=b69d71237e5f';
-import { breedMonsters, breedPreview } from './breed.js?v=b69d71237e5f';
-import { farewellText } from './farewell.js?v=b69d71237e5f';
-import { MONSTERS } from '../data/monsters.js?v=b69d71237e5f';
-import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings, spellSealed } from '../battle.js?v=b69d71237e5f';
-import { PLACES } from '../maps/overworld.js?v=b69d71237e5f';
-import { POS, SEA_PLACES, MAPS } from '../maps/index.js?v=b69d71237e5f';
-import { castRura, warpParty, useTimeBell, warpPlaces, warpOwner } from './travel.js?v=b69d71237e5f';
-import { bankInfo, bankAction } from './bank.js?v=b69d71237e5f';
-import { forgeInfo, forgeAction } from './forge.js?v=b69d71237e5f';
-import { alchemyAction, useAlchemyMemo } from './alchemy.js?v=b69d71237e5f';
-import { FIELD27_EFFECTS, castField27, useAuraItem } from './field27.js?v=b69d71237e5f';
-import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction, wagonHere, wagonHealEntries, ownWagonEntries } from './wagon.js?v=b69d71237e5f';
-import { casinoOpen, casinoAction } from './casino.js?v=b69d71237e5f';
-import { useEscapeItem, noEscapeText } from './escape.js?v=b69d71237e5f';
-import { usePowder } from './powder.js?v=b69d71237e5f';
-import { bestEquipPlan, bestTeamOrder } from '../equip-plan.js?v=b69d71237e5f';
-import { setLookEquip } from '../look-equip.js?v=b69d71237e5f';
-import { jobDoneText } from '../data/job-talk.js?v=b69d71237e5f';
-import { vehicleShopInfo, vehicleShopAction, vehicleMenuAction } from './vehicles.js?v=b69d71237e5f';
+import { markNewsRead } from '../data/news.js?v=848d7b87f783';
+import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js?v=848d7b87f783';
+import { normDifficulty } from '../data/difficulty.js?v=848d7b87f783';
+import { ITEMS, sellPrice, SLOTS, SLOT_NAMES } from '../data/items.js?v=848d7b87f783';
+import { JOBS, ALL_JOBS, jobReqText, BODY_NAMES } from '../data/jobs.js?v=848d7b87f783';
+import { ABILITIES } from '../data/abilities.js?v=848d7b87f783';
+import { abilityFor, abilityLabel, isMasc } from '../ability-label.js?v=848d7b87f783';
+import { jobLabel } from '../job-label.js?v=848d7b87f783';
+import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=848d7b87f783';
+import { TACTICS } from '../ai.js?v=848d7b87f783';
+import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js?v=848d7b87f783';
+import { salonInfo, salonAction } from './salon.js?v=848d7b87f783';
+import { breedMonsters, breedPreview } from './breed.js?v=848d7b87f783';
+import { farewellText } from './farewell.js?v=848d7b87f783';
+import { MONSTERS } from '../data/monsters.js?v=848d7b87f783';
+import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings, spellSealed } from '../battle.js?v=848d7b87f783';
+import { PLACES } from '../maps/overworld.js?v=848d7b87f783';
+import { POS, SEA_PLACES, MAPS } from '../maps/index.js?v=848d7b87f783';
+import { castRura, warpParty, useTimeBell, warpPlaces, warpOwner, PAST_WARP_TEXT } from './travel.js?v=848d7b87f783';
+// 第6章: 時の砂時計（world/time-glass-use.js）
+import { useTimeGlass } from './time-glass-use.js?v=848d7b87f783';
+import { bankInfo, bankAction } from './bank.js?v=848d7b87f783';
+import { forgeInfo, forgeAction } from './forge.js?v=848d7b87f783';
+import { alchemyAction, useAlchemyMemo } from './alchemy.js?v=848d7b87f783';
+import { FIELD27_EFFECTS, castField27, useAuraItem } from './field27.js?v=848d7b87f783';
+import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction, wagonHere, wagonHealEntries, ownWagonEntries } from './wagon.js?v=848d7b87f783';
+import { casinoOpen, casinoAction } from './casino.js?v=848d7b87f783';
+import { useEscapeItem, noEscapeText } from './escape.js?v=848d7b87f783';
+import { usePowder } from './powder.js?v=848d7b87f783';
+import { bestEquipPlan, bestTeamOrder } from '../equip-plan.js?v=848d7b87f783';
+import { setLookEquip } from '../look-equip.js?v=848d7b87f783';
+import { jobDoneText } from '../data/job-talk.js?v=848d7b87f783';
+import { vehicleShopInfo, vehicleShopAction, vehicleMenuAction } from './vehicles.js?v=848d7b87f783';
 
 export function openService(world, s, kind, arg) {
   switch (kind) {
@@ -427,6 +429,8 @@ export function menuAction(world, s, msg) {
       // れん金のメモ（world/alchemy.js）
       if (eff.type === 'alchemyMemo') return useAlchemyMemo(world, s, msg.id, reply);
       if (eff.type === 'warp') {
+        // 第6章: 千年前では 使えない（行き先の 町が まだ ない。world/travel.js の PAST_WARP_TEXT）
+        if (MAPS[s.map]?.past) return reply(false, PAST_WARP_TEXT(`${c.name}は${it.name}を空に投げた！`));
         // 王家のピラミッド（第4章）: 帰り道の羽は 使えない（道具は へらない。行き先を えらぶ 前に 知らせる）
         if (MAPS[s.map]?.noEscape) return reply(false, noEscapeText(it.name, MAPS[s.map]));
         // 行き先は リーダーと おなじ（パーティーで リーダーの 冒険に 来ている ときは リーダーの きろく。travel.js）
@@ -451,6 +455,8 @@ export function menuAction(world, s, msg) {
       removeItem(c, msg.id, 1);
       return reply(true, `${c.name}は${it.name}を使った！\n${r.text}`);
     }
+    // 第6章: 時の砂時計（大事な物。メニューの「道具」から）
+    case 'timeGlass': return useTimeGlass(world, s, reply);
     case 'cast': {
       const caster = ownChar(s, msg.who);
       if (!caster) return reply(false, '');

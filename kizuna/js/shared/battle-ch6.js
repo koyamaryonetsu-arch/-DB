@@ -16,13 +16,13 @@
 // ・オートの 仲間（ふつう）は、大砂流・ギアプレスが 自分の 番より 先に 来る とき、HPが へっていれば よく 身を 守る（AUTO_GUARD。氷・雷は 使い分けない）。
 //   シミュレーター（tools/sim-ch6.mjs）の 知っている 人（b.knowsCh6）は ch6Plan
 //   （b.c6NoIce・b.c6NoBolt・b.c6NoGuard … 知っている 人の しかけを 1つずつ はずして くらべる とき）
-import { MONSTERS } from './data/monsters.js?v=b69d71237e5f';
-import { ABILITIES } from './data/abilities.js?v=b69d71237e5f';
-import { SAND_CLOCK, GEARDON } from './data/monsters-past.js?v=b69d71237e5f';
-import { BUFF_ACTS } from './buff-acts.js?v=b69d71237e5f';
+import { MONSTERS } from './data/monsters.js?v=848d7b87f783';
+import { ABILITIES } from './data/abilities.js?v=848d7b87f783';
+import { SAND_CLOCK, GEARDON } from './data/monsters-past.js?v=848d7b87f783';
+import { BUFF_ACTS } from './buff-acts.js?v=848d7b87f783';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { atbRate } from './battle.js?v=b69d71237e5f';
-import { canUse } from './ai.js?v=b69d71237e5f';
+import { atbRate } from './battle.js?v=848d7b87f783';
+import { canUse } from './ai.js?v=848d7b87f783';
 
 export { SAND_CLOCK, GEARDON };
 export const FALL = 'm6_sc_fall';

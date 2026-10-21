@@ -5,12 +5,13 @@
 //     kid  … ポポロ（元気な 子ども）
 //   self … だれも いない ときの 主人公の ひとりごと
 // ・新しい 目標を 作ったら、ここにも 1つ 足す（ない ときは 目標の 文を そのまま 話す）
-import { MONSTERS } from './monsters.js?v=b69d71237e5f';
-import { C3_LEAD_OBJECTIVE } from './sky.js?v=b69d71237e5f';
-import { CH3_OBJECTIVE_TALK } from './story-ch3.js?v=b69d71237e5f';
-import { CH4_OBJECTIVE_TALK } from './story-ch4.js?v=b69d71237e5f';
-import { CH5_OBJECTIVE_TALK } from './story-ch5.js?v=b69d71237e5f';
-import { nextPartyHint } from './secret-hints.js?v=b69d71237e5f';
+import { MONSTERS } from './monsters.js?v=848d7b87f783';
+import { C3_LEAD_OBJECTIVE } from './sky.js?v=848d7b87f783';
+import { CH3_OBJECTIVE_TALK } from './story-ch3.js?v=848d7b87f783';
+import { CH4_OBJECTIVE_TALK } from './story-ch4.js?v=848d7b87f783';
+import { CH5_OBJECTIVE_TALK } from './story-ch5.js?v=848d7b87f783';
+import { CH6_OBJECTIVE_TALK } from './story-ch6.js?v=848d7b87f783';
+import { nextPartyHint } from './secret-hints.js?v=848d7b87f783';
 
 // 仲間の key（NPC の id）→ 話し方
 export const TALK_STYLE = {
@@ -184,11 +185,14 @@ OBJECTIVE_TALK[C3_LEAD_OBJECTIVE] = {
 Object.assign(OBJECTIVE_TALK, CH3_OBJECTIVE_TALK);
 Object.assign(OBJECTIVE_TALK, CH4_OBJECTIVE_TALK);
 Object.assign(OBJECTIVE_TALK, CH5_OBJECTIVE_TALK);
+// 第6章（story-ch6.js）
+Object.assign(OBJECTIVE_TALK, CH6_OBJECTIVE_TALK);
 
 // 目標の 文の 章（第3〜5章の 表に あれば その章。ほかは 第2章まで あつかい）
 export function objectiveChapter(objective) {
   const o = objective || '';
-  if (CH5_OBJECTIVE_TALK[o]) return 5;
+  // 第6章の 目標は、かくし要素の ヒントでは 第5章（第1部の さいご）と おなじ あつかい
+  if (CH5_OBJECTIVE_TALK[o] || CH6_OBJECTIVE_TALK[o]) return 5;
   if (CH4_OBJECTIVE_TALK[o]) return 4;
   if (CH3_OBJECTIVE_TALK[o] || o === C3_LEAD_OBJECTIVE) return 3;
   return 2;

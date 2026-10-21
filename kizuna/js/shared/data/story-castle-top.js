@@ -13,15 +13,15 @@
 //   てっぺんの 祭だん・ハネノの 長ソラネ／ホシミばあちゃん・ホシフル村の ホシミばあちゃんの どれを しらべても、見ていない ところから 続きを 見られる
 // ・クリアの あと: ノクトが ルミナの町の 酒場で 仲間に なる（B9 の NOCTO_COMPANION。unlock c5_clear）・町の 人の ことばが かわる・クモイ地方の 夕ぐれが 晴れる
 // きまった 戦い nocto_2・solitus と 酒場の ノクトは B9（戦い）が 作る（plan-ch5.md の 17）
-import { TOP, END_A, END_B, FONT_FLAG, TOP_POS, CASTLE_TOP_ID } from '../maps/castle-top.js?v=b69d71237e5f';
-import { memoryShardsAll } from '../maps/memory.js?v=b69d71237e5f';
-import { LETTER_FLAG } from '../maps/earth.js?v=b69d71237e5f';
-import { HANONO_POS, KUMOI_POS } from '../maps/kumoi.js?v=b69d71237e5f';
-import { PLACES } from '../maps/overworld.js?v=b69d71237e5f';
-import { FEST_DECO } from '../maps/tower.js?v=b69d71237e5f';
-import { NPC_SUPPORTS } from './shops.js?v=b69d71237e5f';
-import { isNightFor, advanceClock } from '../world/clock.js?v=b69d71237e5f';
-import { NOCTO_COMPANION } from './companions-castle.js?v=b69d71237e5f';
+import { TOP, END_A, END_B, FONT_FLAG, TOP_POS, CASTLE_TOP_ID } from '../maps/castle-top.js?v=848d7b87f783';
+import { memoryShardsAll } from '../maps/memory.js?v=848d7b87f783';
+import { LETTER_FLAG } from '../maps/earth.js?v=848d7b87f783';
+import { HANONO_POS, KUMOI_POS } from '../maps/kumoi.js?v=848d7b87f783';
+import { PLACES } from '../maps/overworld.js?v=848d7b87f783';
+import { FEST_DECO } from '../maps/tower.js?v=848d7b87f783';
+import { NPC_SUPPORTS } from './shops.js?v=848d7b87f783';
+import { isNightFor, advanceClock } from '../world/clock.js?v=848d7b87f783';
+import { NOCTO_COMPANION } from './companions-castle.js?v=848d7b87f783';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -42,8 +42,9 @@ export const TOP_OBJ = {
   solitus: RESUME,
   endA: RESUME,
   endB: RESUME,
-  // 第5章クリア（第1部 完）。ネタバレなしで「まだ 続く」ことだけ
-  clear: '第1部クリア！ルミナの町の酒場で、ノクトが待っている。夜空のどこかに、まだ見たことのない星が…（物語の続きは、いつかのアップデートで）',
+  // 第5章クリア（第1部 完）。ネタバレなしで「まだ 続く」ことだけ。
+  // 第2部 第6章（data/story-ch6.js）が できたので、ホシフル村の ばあちゃんへ（前の「…いつかのアップデートで」の 文は story-ch6.js の OLD_C6_OBJ.clear5。repairObjective で なおる）
+  clear: '第1部クリア！ホシフル村のホシミばあちゃんに、話しかけてみよう（ルミナの町の酒場では、ノクトが待っている）',
 };
 const OBJ = TOP_OBJ;
 
@@ -519,7 +520,7 @@ export const TOP_OBJECTIVE_TARGETS = {
   [OBJ.nocto2]: [altarAt],
   // solitus・endA・endB は おなじ 文（祭だん・ハネノの 長ソラネ・ホシフル村の ばあちゃん）
   [OBJ.solitus]: [altarAt, { npc: 'sorane' }, { npc: 'elder' }],
-  [OBJ.clear]: [{ npc: 'bartender' }],
+  [OBJ.clear]: [{ npc: 'elder' }, { npc: 'bartender' }],
 };
 
 // ───── 仲間会話（party-talk.js。「はなす」の ヒント）─────
@@ -543,10 +544,10 @@ export const TOP_OBJECTIVE_TALK = {
     kid: 'お星さま、もどってきたね！祭だんを調べよう！',
   },
   [OBJ.clear]: {
-    self: 'ノクトは、ルミナの町の酒場にいる。…夜空のどこかに、まだ見たことのない星があるらしい。',
-    bold: 'ノクトを酒場でさそってやろうぜ！…まだ見たことのない星、か。気になるな！',
-    kind: 'ノクトさんを、酒場でさそってあげましょう。…新しい星のしらせ、気になりますね。',
-    kid: 'ノクト兄ちゃんと、いっしょに冒険したい！酒場に行こう！',
+    self: 'ホシフル村のホシミばあちゃんが、夜空の星のことを気にしていた。会いに行こう。ノクトは、ルミナの町の酒場にいる。',
+    bold: 'ばあちゃんのところに顔を出そうぜ！ノクトを酒場でさそうのも、わすれるなよ！',
+    kind: 'ホシミおばあさまに、会いに行きましょう。…新しい星のしらせ、気になりますね。',
+    kid: 'ばあちゃんに会いに行こう！ノクト兄ちゃんは、酒場にいるよ！',
   },
 };
 

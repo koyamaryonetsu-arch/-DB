@@ -1,11 +1,13 @@
 // だいほんの さいせい（メッセージ・えらぶ・えんしゅつ）
-import { el } from './dom.js?v=b69d71237e5f';
-import { paintRare } from './rarity.js?v=b69d71237e5f';
-import { ListMenu } from './dom.js?v=b69d71237e5f';
-import { openServiceUI } from './services.js?v=b69d71237e5f';
-import { monsterCanvas } from '../render/monsters.js?v=b69d71237e5f';
-import { npcSprite } from '../field.js?v=b69d71237e5f';
-import { reportError } from '../errlog.js?v=b69d71237e5f';
+import { el } from './dom.js?v=848d7b87f783';
+import { paintRare } from './rarity.js?v=848d7b87f783';
+import { ListMenu } from './dom.js?v=848d7b87f783';
+import { openServiceUI } from './services.js?v=848d7b87f783';
+import { monsterCanvas } from '../render/monsters.js?v=848d7b87f783';
+import { npcSprite } from '../field.js?v=848d7b87f783';
+import { reportError } from '../errlog.js?v=848d7b87f783';
+// 第6章: 時の砂時計の 砂の うず
+import { timeShiftFx, clearTimeShift } from '../time-shift.js?v=848d7b87f783';
 
 const TYPE_MS = 28;
 
@@ -58,6 +60,7 @@ export class ScriptPlayer {
     this.gen += 1;
     this.rolling = false;
     document.querySelectorAll('#fx .roll').forEach((x) => x.remove());
+    clearTimeShift();
     this.queue = [];
     this.running = false;
     this.advance = null;
@@ -111,6 +114,8 @@ export class ScriptPlayer {
       case 'chapter': return this.chapter(a[0], a[1]);
       // 第5章 Step 9: エンディングの ふりかえり（スタッフロールふう）と「第1部 完」
       case 'roll': return this.roll(a[0] || {}, msg);
+      // 第6章: 時の砂時計で 時代を 切りかえる（client/time-shift.js）
+      case 'timeShift': return timeShiftFx(g, a[0], a[1], a[2]);
       case 'teleport': {
         g.field.lookAt = null;
         const mine = (a[4] || []).find((e) => e[0] === g.sid);

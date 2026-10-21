@@ -2,21 +2,22 @@
 // みため（かみがた・いろ）と そうび（ぶき・よろい・たて・かぶと）で かわる
 // 人は 32×42 で くみたてて、2ばいの 64×84 に して こまかく かきたす（res 4: せかいでは 16×21 の 大きさに かく）
 // どうぶつ・船は 16×21 など
-import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=b69d71237e5f';
-import { ITEMS, baseItemId } from '../../shared/data/items.js?v=b69d71237e5f';
-import { STARTER_EQUIP } from '../../shared/stats.js?v=b69d71237e5f';
-import { paintMiraPrison, paintWaterStar } from './temple-chars.js?v=b69d71237e5f';
-import { LAB_NPC_LOOKS } from './lab-art.js?v=b69d71237e5f';
-import { paintCh5Special } from './ch5-art.js?v=b69d71237e5f';
-import { KUMOI_NPC_LOOKS, drawWings } from './ch5-kumoi-art.js?v=b69d71237e5f';
-import { HOSHIYOMI_NPC_LOOKS } from './ch5-hoshiyomi-art.js?v=b69d71237e5f';
-import { TOP_NPC_LOOKS } from './ch5-top-art.js?v=b69d71237e5f';
-import { FAMILY_NPC_LOOKS } from './family-art.js?v=b69d71237e5f';
-import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js?v=b69d71237e5f';
-import { R26_OLD_LOOK } from './hero-r26.js?v=b69d71237e5f';
-import { R27_OLD_LOOK } from './hero-r27.js?v=b69d71237e5f';
-import { R29_OLD_LOOK } from './hero-r29.js?v=b69d71237e5f';
-import { R33_OLD_LOOK, masc33 } from './hero-r33.js?v=b69d71237e5f';
+import { Painter, shade, mix, scale2x, outline2, rimShade } from './pixel.js?v=848d7b87f783';
+import { ITEMS, baseItemId } from '../../shared/data/items.js?v=848d7b87f783';
+import { STARTER_EQUIP } from '../../shared/stats.js?v=848d7b87f783';
+import { paintMiraPrison, paintWaterStar } from './temple-chars.js?v=848d7b87f783';
+import { LAB_NPC_LOOKS } from './lab-art.js?v=848d7b87f783';
+import { paintCh5Special } from './ch5-art.js?v=848d7b87f783';
+import { KUMOI_NPC_LOOKS, drawWings } from './ch5-kumoi-art.js?v=848d7b87f783';
+import { HOSHIYOMI_NPC_LOOKS } from './ch5-hoshiyomi-art.js?v=848d7b87f783';
+import { TOP_NPC_LOOKS } from './ch5-top-art.js?v=848d7b87f783';
+import { FAMILY_NPC_LOOKS } from './family-art.js?v=848d7b87f783';
+import { CH6_NPC_LOOKS, paintCh6Special } from './ch6-art.js?v=848d7b87f783';
+import { paintSdDoor, paintSdDoorClosed, paintSdBoard, paintSdChest, SD_OUTLINE } from './secret-art.js?v=848d7b87f783';
+import { R26_OLD_LOOK } from './hero-r26.js?v=848d7b87f783';
+import { R27_OLD_LOOK } from './hero-r27.js?v=848d7b87f783';
+import { R29_OLD_LOOK } from './hero-r29.js?v=848d7b87f783';
+import { R33_OLD_LOOK, masc33 } from './hero-r33.js?v=848d7b87f783';
 
 export const CW = 16;
 export const CH = 21;
@@ -374,6 +375,8 @@ Object.assign(NPC_LOOKS, HOSHIYOMI_NPC_LOOKS);
 Object.assign(NPC_LOOKS, TOP_NPC_LOOKS);
 // 第39回 C: 家族の 仕事の たのまれごとの 人（render/family-art.js）
 Object.assign(NPC_LOOKS, FAMILY_NPC_LOOKS);
+// 第6章 Step 1・2 の トキネ・リオン・ミナモ・ホシヨ・千年前の 人・時が 止まった 人（render/ch6-art.js）
+Object.assign(NPC_LOOKS, CH6_NPC_LOOKS);
 
 // そうびの かきかた: 'ぶき,よろい,たて,あたま' の もじれつ か { weapon, armor, shield, head }
 export function parseEquip(eq, job) {
@@ -2380,7 +2383,8 @@ export function paintSpecial(kind, dir, f) {
       return fine(paintSdChest(f), SD_OUTLINE.sd_chest);
     default: {
       // 第5章: 星の塔・星祭りの かざり（render/ch5-art.js）
-      const c5 = paintCh5Special(kind, dir, f);
+      // 第6章: 勇者の像・星の木・ちびアステル・ゼンマイ など（render/ch6-art.js）
+      const c5 = paintCh5Special(kind, dir, f) || paintCh6Special(kind, dir, f);
       return c5 ? fine(c5.p, c5.oc) : null;
     }
   }

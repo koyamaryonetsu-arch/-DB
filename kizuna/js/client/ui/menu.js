@@ -1,59 +1,59 @@
 // フィールドの メニュー
-import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js?v=b69d71237e5f';
-import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js?v=b69d71237e5f';
-import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js?v=b69d71237e5f';
+import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js?v=848d7b87f783';
+import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js?v=848d7b87f783';
+import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js?v=848d7b87f783';
 // 第33回: 技の 名前は 見ている キャラ むけ（男の子の 美少女戦士・セーラームーンは タキシード仮面ふう）
-import { abilityFor, dualForView } from '../../shared/ability-label.js?v=b69d71237e5f';
+import { abilityFor, dualForView } from '../../shared/ability-label.js?v=848d7b87f783';
 // 職業の 名前は その 人 むけ（男の子の 美少女戦士は「仮面のしんし」、セーラームーンは「タキシード仮面」。第33回）
-import { jobLabel } from '../../shared/job-label.js?v=b69d71237e5f';
-import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS, turnSeconds } from '../../shared/battle.js?v=b69d71237e5f';
-import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily, gearSortPref, setGearSortPref } from '../prefs.js?v=b69d71237e5f';
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, TIER_NAMES } from '../../shared/data/jobs.js?v=b69d71237e5f';
-import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress, partyJobSet, hiraOfJob, monsterSlots, canEquipChar, itemCount, MAX_LEVEL } from '../../shared/stats.js?v=b69d71237e5f';
-import { HIRAMEKI } from '../../shared/data/hirameki.js?v=b69d71237e5f';
-import { DUAL_TECHS, DUAL_ORDER, dualKnown, dualRelated, dualNeedText, dualNeedLabel } from '../../shared/data/dual.js?v=b69d71237e5f';
-import { addDualCss } from '../render/dualfx.js?v=b69d71237e5f';
-import { MONSTERS } from '../../shared/data/monsters.js?v=b69d71237e5f';
-import { monsterDrops } from '../../shared/data/loot.js?v=b69d71237e5f';
-import { MONSTER_FRIENDS, RACE_NAMES, recipeHint, joinTier, bestiaryOrder } from '../../shared/data/companions.js?v=b69d71237e5f';
-import { TACTICS } from '../../shared/ai.js?v=b69d71237e5f';
-import { PLACES } from '../../shared/maps/overworld.js?v=b69d71237e5f';
-import { SEA_PLACES } from '../../shared/maps/ch2.js?v=b69d71237e5f';
-import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js?v=b69d71237e5f';
-import { T, TILE_INFO } from '../../shared/tiles.js?v=b69d71237e5f';
-import { menuItemText, skillEffectText } from './skillinfo.js?v=b69d71237e5f';
+import { jobLabel } from '../../shared/job-label.js?v=848d7b87f783';
+import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS, turnSeconds } from '../../shared/battle.js?v=848d7b87f783';
+import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily, gearSortPref, setGearSortPref } from '../prefs.js?v=848d7b87f783';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, TIER_NAMES } from '../../shared/data/jobs.js?v=848d7b87f783';
+import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress, partyJobSet, hiraOfJob, monsterSlots, canEquipChar, itemCount, MAX_LEVEL } from '../../shared/stats.js?v=848d7b87f783';
+import { HIRAMEKI } from '../../shared/data/hirameki.js?v=848d7b87f783';
+import { DUAL_TECHS, DUAL_ORDER, dualKnown, dualRelated, dualNeedText, dualNeedLabel } from '../../shared/data/dual.js?v=848d7b87f783';
+import { addDualCss } from '../render/dualfx.js?v=848d7b87f783';
+import { MONSTERS } from '../../shared/data/monsters.js?v=848d7b87f783';
+import { monsterDrops } from '../../shared/data/loot.js?v=848d7b87f783';
+import { MONSTER_FRIENDS, RACE_NAMES, recipeHint, joinTier, bestiaryOrder } from '../../shared/data/companions.js?v=848d7b87f783';
+import { TACTICS } from '../../shared/ai.js?v=848d7b87f783';
+import { PLACES } from '../../shared/maps/overworld.js?v=848d7b87f783';
+import { SEA_PLACES } from '../../shared/maps/ch2.js?v=848d7b87f783';
+import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js?v=848d7b87f783';
+import { T, TILE_INFO } from '../../shared/tiles.js?v=848d7b87f783';
+import { menuItemText, skillEffectText } from './skillinfo.js?v=848d7b87f783';
 // 第38回 C: 技の レベル（使った 回数で 1〜5。shared/buff-acts.js）
-import { skillLevel, skillLvLeft, SKILL_LV_MAX } from '../../shared/buff-acts.js?v=b69d71237e5f';
-import '../battle-buffs.js?v=b69d71237e5f';
-import { itemDetail, abilityDetail, skillBrief, gearText, targetTag, statChanges, statChangesHtml } from './info.js?v=b69d71237e5f';
-import { bestEquipPlan, bestTeamOrder, gearChoices, sortGearChoices, GEAR_SORTS } from '../../shared/equip-plan.js?v=b69d71237e5f';
-import { shownEquip, lookChoices, LOOK_SLOTS, LOOK_NONE } from '../../shared/look-equip.js?v=b69d71237e5f';
-import { makeCanvas, ctxOf } from '../render/pixel.js?v=b69d71237e5f';
-import { previewCache } from '../render/hero.js?v=b69d71237e5f';
-import { monsterCanvas } from '../render/monsters.js?v=b69d71237e5f';
-import { mapIconCanvas, boardIconURL } from '../render/boards.js?v=b69d71237e5f';
-import { medalItemRow, walletView } from './casino.js?v=b69d71237e5f';
-import { compareTeam, whoItems } from './counter.js?v=b69d71237e5f';
-import { faceURL } from '../field.js?v=b69d71237e5f';
-import { partyRows } from './hud.js?v=b69d71237e5f';
-import { questMarks, subQuests, OBJECTIVE_TARGETS, whereName } from '../../shared/data/quest-targets.js?v=b69d71237e5f';
-import { labDoneQuests, sideQuestHint } from '../../shared/data/sidequests.js?v=b69d71237e5f';
-import { difficultyOf, visibleMarks, EXP_RATES, EXP_RATE_NAMES, ENEMY_RATES, ENEMY_RATE_NAMES, ENEMY_RATE_NOTES } from '../../shared/data/difficulty.js?v=b69d71237e5f';
-import { memberTalk, talkFor } from '../../shared/data/party-talk.js?v=b69d71237e5f';
-import { treasureRows, treasureDetail, openTreasureMap } from './treasure.js?v=b69d71237e5f';
-import { rareNameHtml } from './rarity.js?v=b69d71237e5f';
-import { themeHex } from '../render/themes.js?v=b69d71237e5f';
-import { sdRecordOf, sdRecordText } from '../../shared/data/secret.js?v=b69d71237e5f';
-import { wagonMenuView, wagonHereClient, menuArrange } from './wagon.js?v=b69d71237e5f';
-import { readErrLog, errLogText, clearErrLog } from '../errlog.js?v=b69d71237e5f';
-import { fieldUsableAbilities } from '../../shared/fieldskills.js?v=b69d71237e5f';
-import { alchemyRow, alchemyUI, bindAlchemy } from './alchemy.js?v=b69d71237e5f';
-import './r35-css.js?v=b69d71237e5f';
-import { newsView } from './news.js?v=b69d71237e5f';
-import { hasUnreadNews } from '../../shared/data/news.js?v=b69d71237e5f';
-import { vehicleMenuView } from './vehicles.js?v=b69d71237e5f';
+import { skillLevel, skillLvLeft, SKILL_LV_MAX } from '../../shared/buff-acts.js?v=848d7b87f783';
+import '../battle-buffs.js?v=848d7b87f783';
+import { itemDetail, abilityDetail, skillBrief, gearText, targetTag, statChanges, statChangesHtml } from './info.js?v=848d7b87f783';
+import { bestEquipPlan, bestTeamOrder, gearChoices, sortGearChoices, GEAR_SORTS } from '../../shared/equip-plan.js?v=848d7b87f783';
+import { shownEquip, lookChoices, LOOK_SLOTS, LOOK_NONE } from '../../shared/look-equip.js?v=848d7b87f783';
+import { makeCanvas, ctxOf } from '../render/pixel.js?v=848d7b87f783';
+import { previewCache } from '../render/hero.js?v=848d7b87f783';
+import { monsterCanvas } from '../render/monsters.js?v=848d7b87f783';
+import { mapIconCanvas, boardIconURL } from '../render/boards.js?v=848d7b87f783';
+import { medalItemRow, walletView } from './casino.js?v=848d7b87f783';
+import { compareTeam, whoItems } from './counter.js?v=848d7b87f783';
+import { faceURL } from '../field.js?v=848d7b87f783';
+import { partyRows } from './hud.js?v=848d7b87f783';
+import { questMarks, subQuests, OBJECTIVE_TARGETS, whereName } from '../../shared/data/quest-targets.js?v=848d7b87f783';
+import { labDoneQuests, sideQuestHint } from '../../shared/data/sidequests.js?v=848d7b87f783';
+import { difficultyOf, visibleMarks, EXP_RATES, EXP_RATE_NAMES, ENEMY_RATES, ENEMY_RATE_NAMES, ENEMY_RATE_NOTES } from '../../shared/data/difficulty.js?v=848d7b87f783';
+import { memberTalk, talkFor } from '../../shared/data/party-talk.js?v=848d7b87f783';
+import { treasureRows, treasureDetail, openTreasureMap } from './treasure.js?v=848d7b87f783';
+import { rareNameHtml } from './rarity.js?v=848d7b87f783';
+import { themeHex } from '../render/themes.js?v=848d7b87f783';
+import { sdRecordOf, sdRecordText } from '../../shared/data/secret.js?v=848d7b87f783';
+import { wagonMenuView, wagonHereClient, menuArrange } from './wagon.js?v=848d7b87f783';
+import { readErrLog, errLogText, clearErrLog } from '../errlog.js?v=848d7b87f783';
+import { fieldUsableAbilities } from '../../shared/fieldskills.js?v=848d7b87f783';
+import { alchemyRow, alchemyUI, bindAlchemy } from './alchemy.js?v=848d7b87f783';
+import './r35-css.js?v=848d7b87f783';
+import { newsView } from './news.js?v=848d7b87f783';
+import { hasUnreadNews } from '../../shared/data/news.js?v=848d7b87f783';
+import { vehicleMenuView } from './vehicles.js?v=848d7b87f783';
 // 第38回 B: 職業の試練（職業レベルの 上限・しょうごう・修行の とちゅう）
-import { jobLevelText, trialStatusBox, trialQuestBox } from './job-trials.js?v=b69d71237e5f';
+import { jobLevelText, trialStatusBox, trialQuestBox } from './job-trials.js?v=848d7b87f783';
 
 // 見た目装備の せつめい
 const LOOK_HELP = '見た目だけを、持っている装備に変える（強さは変わらない）\n職業で装備できない物も選べる。「装備なし」も選べる';
@@ -550,6 +550,18 @@ export class FieldMenu {
     if (entry.pot) {
       this.close();
       return alchemyUI(g);
+    }
+    // 第6章: 時の砂時計（時代を 切りかえる。world/time-glass.js。使えない ときは サーバーの 知らせ）
+    if (it.hourglass) {
+      this.sub.blur();
+      const act = await this.pick(`${it.name}をどうする？`, [{ label: '使う', value: 'use' }, { label: 'やめる', value: null }]);
+      if (act === 'use') {
+        this.close();
+        g.net.send({ t: 'menu', action: 'timeGlass' });
+        return;
+      }
+      backToList();
+      return;
     }
     if (entry.key || it.type === 'key') return;
     const acts = [];

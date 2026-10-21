@@ -1,10 +1,10 @@
 // 第38回 B: 職業の試練の がめん（メニューの「強さ」の 職業レベル・しょうごう、「クエスト」の 試練の とちゅう）
 // きまりは shared/data/job-trials.js。試練の番人の 話は shared/world/job-trials.js
-import { el } from './dom.js?v=b69d71237e5f';
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL } from '../../shared/data/jobs.js?v=b69d71237e5f';
-import { jobProgress } from '../../shared/stats.js?v=b69d71237e5f';
-import { jobLabel } from '../../shared/job-label.js?v=b69d71237e5f';
-import { trialState, trialName, jobTitle, jobTopCap, PHANTOM_NAME } from '../../shared/data/job-trials.js?v=b69d71237e5f';
+import { el } from './dom.js?v=848d7b87f783';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL } from '../../shared/data/jobs.js?v=848d7b87f783';
+import { jobProgress } from '../../shared/stats.js?v=848d7b87f783';
+import { jobLabel } from '../../shared/job-label.js?v=848d7b87f783';
+import { trialState, trialName, jobTitle, jobTopCap, PHANTOM_NAME } from '../../shared/data/job-trials.js?v=848d7b87f783';
 
 // 職業レベルの 右の 字（「Lv7（あと12回）」「Lv10 ★マスター」「Lv12/15（あと40回）」「Lv15 ★上限」「Lv20 ★きわめた」）
 export function jobLevelText(c, j) {
