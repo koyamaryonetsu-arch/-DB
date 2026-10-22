@@ -6,13 +6,13 @@
 //  3) かべの ふちを すこし けずって 洞窟らしく（ゆかを ふやす だけ なので つながりは こわれない）
 //  4) のぼり階段の へや → いちばん 遠い へやに くだり階段（さいごの 階は 主の 大広間）
 //  5) 宝箱・水たまり（ようがん）・水晶・がれき・たいまつ。置くたびに ぜんぶの ゆかへ 行けるか たしかめる
-import { T } from '../tiles.js?v=511a98cd6e8f';
-import { makeRng, hash2 } from '../rng.js?v=511a98cd6e8f';
-import { npc } from './npc.js?v=511a98cd6e8f';
-import { MONSTERS } from '../data/monsters.js?v=511a98cd6e8f';
+import { T } from '../tiles.js?v=d770bf1f3326';
+import { makeRng, hash2 } from '../rng.js?v=d770bf1f3326';
+import { npc } from './npc.js?v=d770bf1f3326';
+import { MONSTERS } from '../data/monsters.js?v=d770bf1f3326';
 import {
-  parseFloorId, caveInfo, floorMapId, enemyLvOf, clearedFlag, chestPrefix, chestLoot, ensureEncounterTable, TM_THEMES,
-} from '../data/treasure.js?v=511a98cd6e8f';
+  parseFloorId, caveInfo, floorMapId, enemyLvOf, clearedFlag, chestPrefix, chestLoot, ensureEncounterTable, TM_THEMES, TM_CAVE_POW,
+} from '../data/treasure.js?v=d770bf1f3326';
 
 const WALK = new Set([T.CAVE_FLOOR, T.RUBBLE, T.BOSS_FLOOR, T.STAIRS_UP, T.STAIRS_DOWN]);
 const DIRS = [[1, 0], [-1, 0], [0, 1], [0, -1]];
@@ -367,7 +367,7 @@ export function buildTreasureFloor(id) {
     || (Math.abs(x - lay.arrive.x) <= 2 && Math.abs(y - lay.arrive.y) <= 2);
   return {
     id, name, kind: 'dungeon', bgm: 'cave', dark: th.dark,
-    theme, enemyLv: enemyLvOf(lv, floor),
+    theme, enemyLv: enemyLvOf(lv, floor), enemyCurve: true, enemyPow: TM_CAVE_POW,
     w: lay.w, h: lay.h, tiles: lay.tiles.slice(), gates,
     npcs, chests, signs: [], warps, triggers, sparkles: [], roofs: [],
     zoneAt: (x, y) => (safe(x, y) ? 'safe:tm' : zone),

@@ -9,31 +9,31 @@
 // 塔の 魔物・きまった 戦い argos・見通しの目は B（戦い）が 作る（plan-ch5.md の 11）
 import {
   C5, BOOK_FLAG, DOOR_FLAG, EV, LIFTS, VANES, DOOR6_FLAG, STAR_FLAGS, STARS_FLAG, TOP_FLAG, TOWER_POS, TOWER_FLOORS, towerMapId,
-} from '../maps/tower.js?v=511a98cd6e8f';
-import { PLACES } from '../maps/overworld.js?v=511a98cd6e8f';
-import { TEMPLE_OBJ } from './story-ch4-temple.js?v=511a98cd6e8f';
-import { isNightFor, advanceClock } from '../world/clock.js?v=511a98cd6e8f';
+} from '../maps/tower.js?v=d770bf1f3326';
+import { PLACES } from '../maps/overworld.js?v=d770bf1f3326';
+import { TEMPLE_OBJ } from './story-ch4-temple.js?v=d770bf1f3326';
+import { isNightFor, advanceClock } from '../world/clock.js?v=d770bf1f3326';
 // Step 3・4: クモイ地方・ハネノの町・しずみゆく島の古い神殿（story-kumoi.js）
 import {
   KUMOI_STEPS, KUMOI_STORY_SCRIPTS, KUMOI_SCRIPTS, KUMOI_OBJECTIVE_TARGETS, KUMOI_OBJECTIVE_TALK, KUMOI_PROGRESS, elderKumoi,
-} from './story-kumoi.js?v=511a98cd6e8f';
-import { KUMOI_POS } from '../maps/kumoi.js?v=511a98cd6e8f';
+} from './story-kumoi.js?v=d770bf1f3326';
+import { KUMOI_POS } from '../maps/kumoi.js?v=d770bf1f3326';
 // Step 5: 星読みの里・ノクトの思い出の迷宮（story-hoshiyomi.js）
 import {
   HOSHIYOMI_STEPS, HOSHIYOMI_STORY_SCRIPTS, HOSHIYOMI_SCRIPTS, HOSHIYOMI_OBJECTIVE_TARGETS, HOSHIYOMI_OBJECTIVE_TALK, HOSHIYOMI_PROGRESS, elderHoshiyomi,
-} from './story-hoshiyomi.js?v=511a98cd6e8f';
+} from './story-hoshiyomi.js?v=d770bf1f3326';
 // Step 6・7: 大地の神殿・ノクト（1回目）・影の城・みんなが集まる（story-earth.js）
 import {
   EARTH_STEPS, EARTH_STORY_SCRIPTS, EARTH_SCRIPTS, EARTH_OBJECTIVE_TARGETS, EARTH_OBJECTIVE_TALK, EARTH_PROGRESS, elderEarth,
-} from './story-earth.js?v=511a98cd6e8f';
+} from './story-earth.js?v=d770bf1f3326';
 // Step 8: 影の城（story-castle.js。てっぺんと エンディングは A9）
 import {
   CASTLE_STEPS, CASTLE_STORY_SCRIPTS, CASTLE_SCRIPTS, CASTLE_OBJECTIVE_TARGETS, CASTLE_OBJECTIVE_TALK, CASTLE_PROGRESS,
-} from './story-castle.js?v=511a98cd6e8f';
+} from './story-castle.js?v=d770bf1f3326';
 // Step 9: 影の城の てっぺん・ノクト（本気）・魔王ソリトゥス・エンディング（story-castle-top.js）
 import {
   TOP_STEPS, TOP_STORY_SCRIPTS, TOP_SCRIPTS, TOP_TOWN_LINES, TOP_OBJECTIVE_TARGETS, TOP_OBJECTIVE_TALK, TOP_PROGRESS, elderTop,
-} from './story-castle-top.js?v=511a98cd6e8f';
+} from './story-castle-top.js?v=d770bf1f3326';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

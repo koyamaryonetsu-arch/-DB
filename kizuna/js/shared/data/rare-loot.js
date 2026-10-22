@@ -4,9 +4,9 @@
 //   ・ふつうの 魔物 … その地方に 合った 装備を まれに（REGION_RARE_N 体に 1体。第32回 500。loot.js）
 //   ・ひみつのダンジョン … ここだけの ★4〜★5（深いほど 強い。20階から。休み所の ごほうび・魔物・番人。data/secret.js・loot.js）
 //   ・店の 品は レア度なし（0）
-import { ITEMS, baseItemId } from './items.js?v=511a98cd6e8f';
-import { MONSTERS } from './monsters.js?v=511a98cd6e8f';
-import { RARITY_OVERRIDE, defaultRarity, starsFor, isShopGear } from './items-rare.js?v=511a98cd6e8f';
+import { ITEMS, baseItemId } from './items.js?v=d770bf1f3326';
+import { MONSTERS } from './monsters.js?v=d770bf1f3326';
+import { RARITY_OVERRIDE, defaultRarity, starsFor, isShopGear } from './items-rare.js?v=d770bf1f3326';
 
 export const RARITY_MAX = 5;
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -97,7 +97,7 @@ export const TM_THEME_GROUPS = { earth: ['rock', 'mirage', 'sleep', 'secret', 'a
 export function tmGroupOf(theme, word) {
   return TM_THEME_GROUP[theme] || TM_WORD_GROUP[word] || 'rock';
 }
-// 地図の レベル → 装備の ランク（Lv1 2・Lv4 4・Lv6 5・Lv8 6・Lv10 7・Lv12 8）
+// 地図の レベル → 装備の ランク（Lv1 2・Lv4 4・Lv6 5・Lv8 6・Lv10 7・Lv12〜 8）
 // 第5章（店は ランク7）で 地図 Lv10〜12 なら、店と おなじ〜1つ 上
 export const tmGearRank = (lv) => clamp(2 + Math.floor((lv || 1) / 2), 2, 8);
 // レア度の 出やすさ（normal: ふつうの 宝箱 / bossA: 主の 宝箱）

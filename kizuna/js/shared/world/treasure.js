@@ -1,20 +1,20 @@
 // 宝の地図（せかいの しくみ）: 手に入れる・ほる・洞窟に 入る／出る・洞窟の 主・ごほうび
 // データと 洞窟の 形は data/treasure.js と maps/treasure-cave.js
-import { MAPS, isBlocked, tileAt, POS, PLACES } from '../maps/index.js?v=511a98cd6e8f';
-import { SEA_POS } from '../maps/sea.js?v=511a98cd6e8f';
-import { T, TILE_INFO } from '../tiles.js?v=511a98cd6e8f';
-import { makeRng } from '../rng.js?v=511a98cd6e8f';
-import { MONSTERS } from '../data/monsters.js?v=511a98cd6e8f';
-import { TM_HOOKS } from '../data/story-tm.js?v=511a98cd6e8f';
-import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=511a98cd6e8f';
-import { ScriptRun } from './scripts.js?v=511a98cd6e8f';
-import { partyOf } from './party.js?v=511a98cd6e8f';
+import { MAPS, isBlocked, tileAt, POS, PLACES } from '../maps/index.js?v=d770bf1f3326';
+import { SEA_POS } from '../maps/sea.js?v=d770bf1f3326';
+import { T, TILE_INFO } from '../tiles.js?v=d770bf1f3326';
+import { makeRng } from '../rng.js?v=d770bf1f3326';
+import { MONSTERS } from '../data/monsters.js?v=d770bf1f3326';
+import { TM_HOOKS } from '../data/story-tm.js?v=d770bf1f3326';
+import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=d770bf1f3326';
+import { ScriptRun } from './scripts.js?v=d770bf1f3326';
+import { partyOf } from './party.js?v=d770bf1f3326';
 import {
   TM_MAX, TM_THEMES, caveInfo, tmTitle, floorMapId, parseFloorId, isTreasureMapId, clearedFlag, foundFlag, seed36, bossLvOf, tmBossPow,
   mapDropRate, dropMapLevel, nextMapLevel, repairTreasureMaps,
-} from '../data/treasure.js?v=511a98cd6e8f';
+} from '../data/treasure.js?v=d770bf1f3326';
 
-import { ensureTmClears, addTmClear } from '../data/casino-tier.js?v=511a98cd6e8f';
+import { ensureTmClears, addTmClear } from '../data/casino-tier.js?v=d770bf1f3326';
 
 const HUNTER = '宝探しのダイゴ';
 
@@ -261,7 +261,7 @@ function bossEncounter(p) {
   const id = `tmboss_${seed36(p.seed)}_${p.lv}`;
   FIXED_ENCOUNTERS[id] = {
     group: [[cave.boss, 1, 1]], bg: TM_THEMES[cave.theme].bossBg, bgm: 'boss', canFlee: false, boss: true,
-    enemyLv: bossLvOf(p.seed, p.lv), enemyPow: tmBossPow(p.lv, cave.boss),
+    enemyLv: bossLvOf(p.seed, p.lv), enemyPow: tmBossPow(p.lv, cave.boss), enemyCurve: true,
   };
   return id;
 }

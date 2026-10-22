@@ -1,27 +1,27 @@
 // たたかいの はじまりと おわり（ほうしゅう・ぜんめつ）
-import { Battle, normBattleSettings } from '../battle.js?v=511a98cd6e8f';
-import { scaleExp, difficultyOf, rewardExp, rewardGold } from '../data/difficulty.js?v=511a98cd6e8f';
-import { POWDER, powderLeft } from '../data/friend-powder.js?v=511a98cd6e8f';
-import { MONSTERS } from '../data/monsters.js?v=511a98cd6e8f';
-import { ITEMS } from '../data/items.js?v=511a98cd6e8f';
-import { abilityLabel } from '../ability-label.js?v=511a98cd6e8f';
-import { JOBS } from '../data/jobs.js?v=511a98cd6e8f';
-import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=511a98cd6e8f';
-import { gainExp, gainJobBattles, jobTrainMult, itemCount, removeItem, addItem, ownsItem, computeStats, fullHeal } from '../stats.js?v=511a98cd6e8f';
+import { Battle, normBattleSettings } from '../battle.js?v=d770bf1f3326';
+import { scaleExp, difficultyOf, rewardExp, rewardGold } from '../data/difficulty.js?v=d770bf1f3326';
+import { POWDER, powderLeft } from '../data/friend-powder.js?v=d770bf1f3326';
+import { MONSTERS } from '../data/monsters.js?v=d770bf1f3326';
+import { ITEMS } from '../data/items.js?v=d770bf1f3326';
+import { abilityLabel } from '../ability-label.js?v=d770bf1f3326';
+import { JOBS } from '../data/jobs.js?v=d770bf1f3326';
+import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=d770bf1f3326';
+import { gainExp, gainJobBattles, jobTrainMult, itemCount, removeItem, addItem, ownsItem, computeStats, fullHeal } from '../stats.js?v=d770bf1f3326';
 // 第38回 B: 職業レベルの 上限（超級職からは 職業の試練で 上がる）・試練の 修行（その 職業の 技を 使って 勝つ）
-import { jobLevelCap, trialUseCount, addTrialUses, trialName } from '../data/job-trials.js?v=511a98cd6e8f';
-import { befriendShare } from './recruit-share.js?v=511a98cd6e8f';
-import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendChance, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf, PARTY_MAX } from './party.js?v=511a98cd6e8f';
-import { rollDrops, stealPick } from '../data/loot.js?v=511a98cd6e8f';
-import { MAPS } from '../maps/index.js?v=511a98cd6e8f';
-import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js?v=511a98cd6e8f';
-import { treasureAfterBattle } from './treasure.js?v=511a98cd6e8f';
-import { wipeGoldLoss, bankGold } from './bank.js?v=511a98cd6e8f';
-import { lureOn, lureGroup } from './field27.js?v=511a98cd6e8f';
-import { wagonShare, wagonBattleSwap } from './wagon.js?v=511a98cd6e8f';
-import { growthSummary } from './growth.js?v=511a98cd6e8f';
-import { topLevel, battleTeamChars, expHatMult } from './perks.js?v=511a98cd6e8f';
-import { battleTactics } from './tactics.js?v=511a98cd6e8f';
+import { jobLevelCap, trialUseCount, addTrialUses, trialName } from '../data/job-trials.js?v=d770bf1f3326';
+import { befriendShare } from './recruit-share.js?v=d770bf1f3326';
+import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendChance, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf, PARTY_MAX } from './party.js?v=d770bf1f3326';
+import { rollDrops, stealPick } from '../data/loot.js?v=d770bf1f3326';
+import { MAPS } from '../maps/index.js?v=d770bf1f3326';
+import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js?v=d770bf1f3326';
+import { treasureAfterBattle } from './treasure.js?v=d770bf1f3326';
+import { wipeGoldLoss, bankGold } from './bank.js?v=d770bf1f3326';
+import { lureOn, lureGroup } from './field27.js?v=d770bf1f3326';
+import { wagonShare, wagonBattleSwap } from './wagon.js?v=d770bf1f3326';
+import { growthSummary } from './growth.js?v=d770bf1f3326';
+import { topLevel, battleTeamChars, expHatMult } from './perks.js?v=d770bf1f3326';
+import { battleTactics } from './tactics.js?v=d770bf1f3326';
 
 let battleSeq = 1;
 
@@ -148,7 +148,8 @@ function makeBattle(world, sessions, party, enemies, opts) {
     bgm: opts.bgm,
     preemptive: opts.preemptive || null,
     // 宝の洞窟: 魔物を 地図の レベルに あわせて 強くする（ひみつのダンジョンの 深い 階は enemyPow 倍）
-    enemyMod: opts.enemyLv ? (m) => scaleEnemy(m, opts.enemyLv, opts.enemyPow) : null,
+    // 第40回: 宝の洞窟は その レベルの ふつうの 魔物と おなじ 強さ（enemyCurve。data/tm-curve.js）
+    enemyMod: opts.enemyLv ? (m) => scaleEnemy(m, opts.enemyLv, opts.enemyPow, { curve: !!opts.enemyCurve }) : null,
     // 敵の 強さ（ハード 1.2倍 など）。リーダーの 設定。宝の洞窟の 強さの 上に かける（ほうしゅうは かわらない）
     enemyRate: enemyRateFor(world, party, sessions),
     hooks: {
@@ -241,6 +242,7 @@ export function startFieldBattle(world, s, sym) {
     mapId: s.map,
     enemyLv: MAPS[s.map].enemyLv,
     enemyPow: MAPS[s.map].enemyPow,
+    enemyCurve: !!MAPS[s.map].enemyCurve,
   });
   return ctx;
 }
@@ -255,7 +257,7 @@ export function startFixedBattle(world, initiator, participants, encId, extra = 
   for (const [sp, mn] of enc.group) for (let i = 0; i < mn; i++) enemies.push(sp);
   return new Promise((resolve) => {
     for (const m of sessions) m.busy = null; // だいほんの あいだは busy='script' だが たたかいに きりかえる
-    const ctx = makeBattle(world, sessions, party, enemies, { bg: enc.bg, bgm: enc.bgm, canFlee: enc.canFlee, boss: enc.boss, fixed: encId, enemyLv: enc.enemyLv, enemyPow: enc.enemyPow, loseOk: !!enc.loseOk, ...extra });
+    const ctx = makeBattle(world, sessions, party, enemies, { bg: enc.bg, bgm: enc.bgm, canFlee: enc.canFlee, boss: enc.boss, fixed: encId, enemyLv: enc.enemyLv, enemyPow: enc.enemyPow, enemyCurve: !!enc.enemyCurve, loseOk: !!enc.loseOk, ...extra });
     ctx.resolve = resolve;
   });
 }

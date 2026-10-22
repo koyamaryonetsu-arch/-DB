@@ -6,15 +6,17 @@
 //
 // 洞窟の マップ ID: tm_<seed36>_<lv>_<o|s><x>x<y>_<階>（たとえば tm_k3f9a2_3_o120x45_2）
 //   ID だけで 洞窟が つくれる（サーバーと 画面で おなじ 形。とちゅうで ログインしなおしても おなじ 洞窟）
-import { MONSTERS } from './monsters.js?v=511a98cd6e8f';
-import { ITEMS, SLOTS } from './items.js?v=511a98cd6e8f';
-import { ENCOUNTER_TABLES, ZONE_BG } from './encounters.js?v=511a98cd6e8f';
-import { makeRng } from '../rng.js?v=511a98cd6e8f';
-import { REWARD_GOLD_RATE } from './difficulty.js?v=511a98cd6e8f';
-import { tmGearRank, pickTmGear, luckyShoesRate, LUCKY_SHOES } from './rare-loot.js?v=511a98cd6e8f';
+import { MONSTERS } from './monsters.js?v=d770bf1f3326';
+import { ITEMS, SLOTS } from './items.js?v=d770bf1f3326';
+import { ENCOUNTER_TABLES, ZONE_BG } from './encounters.js?v=d770bf1f3326';
+import { makeRng } from '../rng.js?v=d770bf1f3326';
+import { REWARD_GOLD_RATE } from './difficulty.js?v=d770bf1f3326';
+import { tmGearRank, pickTmGear, luckyShoesRate, LUCKY_SHOES } from './rare-loot.js?v=d770bf1f3326';
+import { curveK } from './tm-curve.js?v=d770bf1f3326';
 
 export const TM_MAX = 20; // 持てる 地図の 数
-export const TM_LV_MAX = 12; // 地図の レベルの 上限
+// 地図の レベルの 上限（第40回で 12 → 25。Lv25 の 洞窟の 魔物は Lv59〜62。第2部の ころの 家族に 合う）
+export const TM_LV_MAX = 25;
 export const TM_BOSS_LV = 10; // 主の データの レベル（monsters-tm.js）
 
 // 洞窟の しゅるい
@@ -87,6 +89,8 @@ export function tmTitle(tm) {
   return `${caveInfo(tm.seed, tm.lv).mapName} Lv${tm.lv}`;
 }
 
+// 第40回: 洞窟の ふつうの 魔物は、その レベルの ふつうの 魔物より 少し 手ごわく（もとの 魔物は 技が 少ないので。HP・攻撃・魔力に かける）
+export const TM_CAVE_POW = 1.15;
 // 魔物の 強さ（レベル）。深い 階ほど すこし 強い
 export function enemyLvOf(lv, floor = 1) {
   return 9 + lv * 2 + (floor - 1) * 0.6;
@@ -95,16 +99,23 @@ export function enemyLvOf(lv, floor = 1) {
 export function bossLvOf(seed, lv) {
   return enemyLvOf(lv, caveInfo(seed, lv).floors) + 1.5;
 }
-// 第32回: 地図 Lv8 からの 主は さらに 強い（scaleEnemy の pow。HP・攻撃・魔力に かけ、守りは その 平方根）。
-//   地図 Lv7 までは 今まで どおり 1倍。Lv8 は +30%・Lv9 は +60%・Lv10〜12 は +105% を もとに、主ごとの 強さの ちがいを
-//   MONSTERS の tmPow で ならす（ゴーレムは 手下を よぶので ひかえめ・パンサーは 軽いので 多め）。
-//   めやす（tools/sim-boss.mjs）: 地図 Lv10〜12 の 主に 主人公 Lv 2L+18 の 店の 装備で 3〜5割、レア装備で レベル+4 なら 8〜9割。
-//   Lv8・9 は その 間の 上りざか（店の 装備でも 9割 くらい）
+// 主の 強さの 倍率（scaleEnemy の pow。HP・攻撃・魔力に かけ、守りは その 平方根）
+// 第40回: 主も その レベルの 魔物の めやす（data/tm-curve.js）で 強くする ように した ので、倍率を 合わせ直した。
+//   めやす（tools/sim-boss.mjs の tm）: 主の レベル＋3 の 主人公（その ころの 店の 装備・職業Lv10・完全オート）で 勝率 7〜9わり（地図Lv4 88%・8 81%・12 85%・16 72%・20 86%・25 86%。12回ずつ）。
+//   地図 Lv の 間は まっすぐ つなぐ。TM_BOSS_ADJ … 主ごとの ちがいを ならす（ゴーレムは 手下を よぶので ひかえめ・へびと パンサーは 軽いので 多め）
+//   （第32回の 「地図 Lv8 から +30〜105%」 と tmPow は、前の 強くしかた〈(L+6)/(L0+6)〉の ための もの。もう 使わない）
+export const TM_BOSS_POW = [[1, 1.35], [4, 1.35], [8, 1.19], [12, 0.97], [16, 0.86], [20, 0.77], [25, 0.66]];
+export const TM_BOSS_ADJ = { tm_golem: 0.85, tm_dragon: 0.9, tm_king: 0.97, tm_knight: 0.97, tm_serpent: 1.06, tm_panther: 1.06 };
 export const TM_POW_FROM = 8;
 export function tmBossPow(lv, species) {
-  const base = lv >= 10 ? 1.05 : lv === 9 ? 0.6 : lv >= TM_POW_FROM ? 0.3 : 0;
-  if (!base) return 1;
-  return Math.round((1 + base * (MONSTERS[species]?.tmPow ?? 1)) * 100) / 100;
+  const t = TM_BOSS_POW;
+  const L = clamp(lv, t[0][0], t[t.length - 1][0]);
+  let base = t[t.length - 1][1];
+  for (let i = 0; i + 1 < t.length; i++) {
+    const [a, pa] = t[i], [b, pb] = t[i + 1];
+    if (L >= a && L <= b) { base = pa + (pb - pa) * ((L - a) / (b - a)); break; }
+  }
+  return Math.round(base * (TM_BOSS_ADJ[species] ?? 1) * 100) / 100;
 }
 
 // ───────────── 出てくる 魔物 ─────────────
@@ -132,13 +143,17 @@ export function ensureEncounterTable(lv, theme) {
 // 魔物を 地図の レベルに あわせて 強くする（たたかいの はじめに 1体ずつ）
 // pow … さらに かける 倍率（ひみつのダンジョンの 深い 階。data/secret.js の sdPower）。HP・攻撃・守り・魔力に かける
 //   1より 小さい 時は 弱く する（ひみつのダンジョンの 番人の 一部。data/secret-guard.js）。ほうしゅうは へらさない
-export function scaleEnemy(m, L, pow = 1) {
+// curve … 第40回: 宝の洞窟。その レベルの ふつうの 魔物と おなじ くらいの 強さに する（data/tm-curve.js）。
+//   HP・攻撃・守り・魔力・素早さを、それぞれ めやすの わりあいで 上げる（もとの 魔物の 得意・苦手は のこる）。
+//   ほうしゅうも その レベルの ふつうの 魔物と おなじ くらい（rewardExpK・rewardGoldK）
+export function scaleEnemy(m, L, pow = 1, { curve = false } = {}) {
   const L0 = m.lv || 1;
   if (Number.isFinite(pow) && pow > 0 && pow !== 1) powerUp(m, pow);
   if (!Number.isFinite(L) || Math.abs(L - L0) < 0.01) {
     if (m.powK) m.rewardK = m.powK;
     return m;
   }
+  if (curve) return curveScale(m, L0, L);
   const k = (L + 6) / (L0 + 6);
   const hk = Math.pow(k, m.boss ? 1.3 : 1.15);
   m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * hk));
@@ -150,6 +165,24 @@ export function scaleEnemy(m, L, pow = 1) {
   m.agi = Math.round(m.agi * Math.sqrt(k));
   m.lv = Math.round(L);
   m.rewardK = k * (m.powK || 1);
+  return m;
+}
+
+function curveScale(m, L0, L) {
+  const K = (key) => curveK(key, L0, L);
+  const kHp = K('hp'), kStr = K('str'), kMag = K('mag');
+  m.maxHp = m.hp = Math.max(1, Math.round(m.maxHp * kHp));
+  m.maxMp = m.mp = Math.round(m.maxMp * Math.max(kStr, kMag));
+  m.atk = Math.round(m.atk * kStr);
+  m.dfn = Math.round(m.dfn * K('def'));
+  m.mag = Math.round(m.mag * kMag);
+  m.healPow = Math.round(m.healPow * kMag);
+  m.agi = Math.round(m.agi * K('agi'));
+  m.lv = Math.round(L);
+  const pk = m.powK || 1;
+  m.rewardK = kStr * pk;
+  m.rewardExpK = K('exp') * pk;
+  m.rewardGoldK = K('gold') * pk;
   return m;
 }
 
@@ -167,11 +200,11 @@ function powerUp(m, pow) {
 export function scaledRewardBonus(battle) {
   let exp = 0, gold = 0;
   for (const c of battle.combatants) {
-    if (c.side !== 'enemy' || c.alive || c.fled || !c.rewardK) continue;
+    if (c.side !== 'enemy' || c.alive || c.fled || !(c.rewardK || c.rewardExpK)) continue;
     const m = MONSTERS[c.species];
     if (!m) continue;
-    exp += Math.round((m.exp || 0) * (Math.pow(c.rewardK, 1.2) - 1));
-    gold += Math.round((m.gold || 0) * (c.rewardK - 1));
+    exp += Math.round((m.exp || 0) * ((c.rewardExpK ?? Math.pow(c.rewardK, 1.2)) - 1));
+    gold += Math.round((m.gold || 0) * ((c.rewardGoldK ?? c.rewardK) - 1));
   }
   return { exp, gold };
 }
@@ -179,9 +212,9 @@ export function scaledRewardBonus(battle) {
 // ───────────── 宝箱の なかみ ─────────────
 // 第31回: 地図の 名前（大地・氷・炎 …）に ちなんだ レア装備（data/rare-loot.js）。地図の レベルが 高いほど ランクと レア度が 上がる
 //   ふつうの 宝箱 … レア装備 6〜13%（★2〜★4）・店の 装備 15% ほか / 主の 宝箱（bossA）… 75% レア装備（★3・★4 が 出やすい）、こうふくの靴が まれに
-// 店の 装備の ランク（地図 Lv1〜3 は 3・Lv12 で 7）
+// 店の 装備の ランク（地図 Lv1〜3 は 3・Lv12 で 7・Lv16 から 9）
 export function equipRankOf(lv) {
-  return clamp(tmGearRank(lv) - 1, 3, 7);
+  return clamp(tmGearRank(lv) - 1, 3, 9);
 }
 let equipCache = null;
 function equipPools() {
