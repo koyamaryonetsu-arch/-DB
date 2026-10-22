@@ -261,7 +261,7 @@ function bossEncounter(p) {
   const id = `tmboss_${seed36(p.seed)}_${p.lv}`;
   FIXED_ENCOUNTERS[id] = {
     group: [[cave.boss, 1, 1]], bg: TM_THEMES[cave.theme].bossBg, bgm: 'boss', canFlee: false, boss: true,
-    enemyLv: bossLvOf(p.seed, p.lv), enemyPow: tmBossPow(p.lv, cave.boss),
+    enemyLv: bossLvOf(p.seed, p.lv), enemyPow: tmBossPow(p.lv, cave.boss), enemyCurve: true,
   };
   return id;
 }

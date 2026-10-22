@@ -42,7 +42,7 @@ export function dragonRun(lv, kit, know, seed) {
 // 宝の洞窟の 主: 地図 Lv L の 主（6しゅ の どれか）。主の レベルは いちばん 深い 洞窟（6階）の とき
 export function tmRun(L, sp, lv, kit, seed) {
   const s = [...Array(4000).keys()].find((x) => caveInfo(x, L).floors === Math.min(6, 2 + Math.floor((L - 1) / 2) + 1)) ?? 1;
-  return runBattle(bossParty(lv, kit), [sp], { seed, boss: true, enemyLv: bossLvOf(s, L), enemyPow: tmBossPow(L, sp) });
+  return runBattle(bossParty(lv, kit), [sp], { seed, boss: true, enemyLv: bossLvOf(s, L), enemyPow: tmBossPow(L, sp), enemyCurve: true });
 }
 // ひみつのダンジョンの 番人（f 階・番人 sp）
 export function sdRun(f, sp, lv, kit, seed) {

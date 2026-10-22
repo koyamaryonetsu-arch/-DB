@@ -104,7 +104,8 @@ export function runBattle(party, enemyList, opts = {}) {
     // 水の守りの歌（第4章 Step 7。モルガナ 真の すがた）
     song: opts.song,
     // 古代の大迷宮（階の レベル）・たのまれごとの 強い 魔物（きまった 戦いの enemyLv）・宝の洞窟の 主や 番人の 倍率（enemyPow）
-    enemyMod: opts.enemyLv ? (m) => scaleEnemy(m, opts.enemyLv, opts.enemyPow) : null,
+    // 第40回: 宝の洞窟は その レベルの ふつうの 魔物と おなじ 強さ（enemyCurve。data/tm-curve.js）
+    enemyMod: opts.enemyLv ? (m) => scaleEnemy(m, opts.enemyLv, opts.enemyPow, { curve: !!opts.enemyCurve }) : null,
   });
   // 反撃の構えに 気づかない（なぐり続ける）人の つよさを はかる
   if (opts.ignoreStance) b.ignoreStance = true;

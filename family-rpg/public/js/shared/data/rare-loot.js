@@ -97,7 +97,7 @@ export const TM_THEME_GROUPS = { earth: ['rock', 'mirage', 'sleep', 'secret', 'a
 export function tmGroupOf(theme, word) {
   return TM_THEME_GROUP[theme] || TM_WORD_GROUP[word] || 'rock';
 }
-// 地図の レベル → 装備の ランク（Lv1 2・Lv4 4・Lv6 5・Lv8 6・Lv10 7・Lv12 8）
+// 地図の レベル → 装備の ランク（Lv1 2・Lv4 4・Lv6 5・Lv8 6・Lv10 7・Lv12〜 8）
 // 第5章（店は ランク7）で 地図 Lv10〜12 なら、店と おなじ〜1つ 上
 export const tmGearRank = (lv) => clamp(2 + Math.floor((lv || 1) / 2), 2, 8);
 // レア度の 出やすさ（normal: ふつうの 宝箱 / bossA: 主の 宝箱）

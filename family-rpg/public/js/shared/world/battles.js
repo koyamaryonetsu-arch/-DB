@@ -148,7 +148,8 @@ function makeBattle(world, sessions, party, enemies, opts) {
     bgm: opts.bgm,
     preemptive: opts.preemptive || null,
     // 宝の洞窟: 魔物を 地図の レベルに あわせて 強くする（ひみつのダンジョンの 深い 階は enemyPow 倍）
-    enemyMod: opts.enemyLv ? (m) => scaleEnemy(m, opts.enemyLv, opts.enemyPow) : null,
+    // 第40回: 宝の洞窟は その レベルの ふつうの 魔物と おなじ 強さ（enemyCurve。data/tm-curve.js）
+    enemyMod: opts.enemyLv ? (m) => scaleEnemy(m, opts.enemyLv, opts.enemyPow, { curve: !!opts.enemyCurve }) : null,
     // 敵の 強さ（ハード 1.2倍 など）。リーダーの 設定。宝の洞窟の 強さの 上に かける（ほうしゅうは かわらない）
     enemyRate: enemyRateFor(world, party, sessions),
     hooks: {
@@ -241,6 +242,7 @@ export function startFieldBattle(world, s, sym) {
     mapId: s.map,
     enemyLv: MAPS[s.map].enemyLv,
     enemyPow: MAPS[s.map].enemyPow,
+    enemyCurve: !!MAPS[s.map].enemyCurve,
   });
   return ctx;
 }
@@ -255,7 +257,7 @@ export function startFixedBattle(world, initiator, participants, encId, extra = 
   for (const [sp, mn] of enc.group) for (let i = 0; i < mn; i++) enemies.push(sp);
   return new Promise((resolve) => {
     for (const m of sessions) m.busy = null; // だいほんの あいだは busy='script' だが たたかいに きりかえる
-    const ctx = makeBattle(world, sessions, party, enemies, { bg: enc.bg, bgm: enc.bgm, canFlee: enc.canFlee, boss: enc.boss, fixed: encId, enemyLv: enc.enemyLv, enemyPow: enc.enemyPow, loseOk: !!enc.loseOk, ...extra });
+    const ctx = makeBattle(world, sessions, party, enemies, { bg: enc.bg, bgm: enc.bgm, canFlee: enc.canFlee, boss: enc.boss, fixed: encId, enemyLv: enc.enemyLv, enemyPow: enc.enemyPow, enemyCurve: !!enc.enemyCurve, loseOk: !!enc.loseOk, ...extra });
     ctx.resolve = resolve;
   });
 }

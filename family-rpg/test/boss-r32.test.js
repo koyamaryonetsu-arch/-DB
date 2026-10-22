@@ -38,13 +38,13 @@ test('第1〜4章の ボスは 変えない（第31回までの 数）', () => {
   for (const [id, hp] of Object.entries(was)) assert.equal(MONSTERS[id].hp, hp, id);
 });
 
-test('宝の洞窟の 主: 地図 Lv7 までは 今まで どおり。Lv8 から 上がり、Lv10〜12 は 主ごとに ならした 強さ', () => {
+test('宝の洞窟の 主: 第40回の 倍率（その レベルの 魔物の めやすで 強くした うえで、地図 Lv が 上がるほど 少しずつ ひかえめ）', () => {
   for (const sp of Object.keys(MONSTERS_TM)) {
-    for (let L = 1; L < TM_POW_FROM; L++) assert.equal(tmBossPow(L, sp), 1, `${sp} Lv${L}`);
-    assert.ok(tmBossPow(8, sp) > 1 && tmBossPow(9, sp) > tmBossPow(8, sp) && tmBossPow(10, sp) > tmBossPow(9, sp), sp);
-    assert.equal(tmBossPow(TM_LV_MAX, sp), tmBossPow(10, sp));
-    assert.ok(tmBossPow(12, sp) >= 1.8 && tmBossPow(12, sp) <= 2.3, `${sp}: ${tmBossPow(12, sp)}`);
-    assert.ok(MONSTERS_TM[sp].tmPow > 0);
+    assert.ok(tmBossPow(1, sp) > 1, sp);
+    // 地図 Lv8 から 上は だんだん 小さく（めやすの 強さが 高い レベルほど 大きく 上がる ぶん）
+    for (let L = 8; L < TM_LV_MAX; L++) assert.ok(tmBossPow(L + 1, sp) <= tmBossPow(L, sp), `${sp} Lv${L}`);
+    assert.ok(tmBossPow(TM_LV_MAX, sp) >= 0.5 && tmBossPow(TM_LV_MAX, sp) <= 0.8, `${sp}: ${tmBossPow(TM_LV_MAX, sp)}`);
+    assert.equal(tmBossPow(TM_LV_MAX + 5, sp), tmBossPow(TM_LV_MAX, sp));
   }
   // ゴーレム（手下を よぶ）は ひかえめ・パンサー（軽い）は 多め
   assert.ok(tmBossPow(12, 'tm_golem') < tmBossPow(12, 'tm_panther'));
@@ -99,9 +99,10 @@ test('シミュレーション（少しだけ）: レア装備で 育てた ほ�
   const d0 = wins((s) => dragonRun(45, 'shop42', true, s));
   const d1 = wins((s) => dragonRun(49, 'rare42', true, s));
   assert.ok(d1 > d0 && d1 >= 6, `古竜 店 ${d0}/10 → レア ${d1}/10`);
-  const t0 = wins((s) => tmRun(12, 'tm_dragon', 42, 'shop42', s));
-  const t1 = wins((s) => tmRun(12, 'tm_dragon', 48, 'rare42', s));
-  assert.ok(t1 > t0, `地図Lv12の 竜 店 ${t0}/10 → レア ${t1}/10`);
+  // 第40回: 主も その レベルの めやすで 強くした（地図 Lv16 の 竜 … 主 Lv45 くらい）
+  const t0 = wins((s) => tmRun(16, 'tm_dragon', 45, 'shop42', s));
+  const t1 = wins((s) => tmRun(16, 'tm_dragon', 49, 'rare42', s));
+  assert.ok(t1 > t0, `地図Lv16の 竜 店 ${t0}/10 → レア ${t1}/10`);
   const g0 = wins((s) => sdRun(50, 'tm_knight', 52, 'shop42', s));
   const g1 = wins((s) => sdRun(50, 'tm_knight', 57, 'rare42', s));
   assert.ok(g1 >= g0 && g1 >= 6, `50階の 番人 店 ${g0}/10 → レア ${g1}/10`);

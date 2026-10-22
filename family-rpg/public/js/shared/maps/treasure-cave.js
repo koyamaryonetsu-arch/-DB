@@ -11,7 +11,7 @@ import { makeRng, hash2 } from '../rng.js';
 import { npc } from './npc.js';
 import { MONSTERS } from '../data/monsters.js';
 import {
-  parseFloorId, caveInfo, floorMapId, enemyLvOf, clearedFlag, chestPrefix, chestLoot, ensureEncounterTable, TM_THEMES,
+  parseFloorId, caveInfo, floorMapId, enemyLvOf, clearedFlag, chestPrefix, chestLoot, ensureEncounterTable, TM_THEMES, TM_CAVE_POW,
 } from '../data/treasure.js';
 
 const WALK = new Set([T.CAVE_FLOOR, T.RUBBLE, T.BOSS_FLOOR, T.STAIRS_UP, T.STAIRS_DOWN]);
@@ -367,7 +367,7 @@ export function buildTreasureFloor(id) {
     || (Math.abs(x - lay.arrive.x) <= 2 && Math.abs(y - lay.arrive.y) <= 2);
   return {
     id, name, kind: 'dungeon', bgm: 'cave', dark: th.dark,
-    theme, enemyLv: enemyLvOf(lv, floor),
+    theme, enemyLv: enemyLvOf(lv, floor), enemyCurve: true, enemyPow: TM_CAVE_POW,
     w: lay.w, h: lay.h, tiles: lay.tiles.slice(), gates,
     npcs, chests, signs: [], warps, triggers, sparkles: [], roofs: [],
     zoneAt: (x, y) => (safe(x, y) ? 'safe:tm' : zone),
