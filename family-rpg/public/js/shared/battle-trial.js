@@ -34,6 +34,8 @@ export const PHANTOM_ADJ = {
   ryumajin: [1.12, 1.19], neo_queen: [0.52, 0.72],
   // 第41回 B
   snow_queen: [1.56, 1.42], fifth_spirit: [1.01, 0.91],
+  // 第41回 A
+  keikyu_president: [0.64, 0.54], hall_of_fame: [1.02, 0.89],
 };
 // 使わない 技の こうか（生き返らせる・みんなの MP を へらす など。鏡のうつし身の MIRROR_SKIP の ほか）
 const NO_USE = new Set(['revive', 'reviveAll']);

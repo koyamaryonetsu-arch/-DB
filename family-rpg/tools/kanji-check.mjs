@@ -276,6 +276,8 @@ export function gameFiles() {
     'public/js/shared/data/abilities-jobs10.js', 'public/js/shared/data/hirameki-r40.js', 'public/js/client/render/battlefx-jobs8.js',
     // 第41回 B: 雪の女王・第5のせいれいの 技・ひらめき技・えんしゅつ
     'public/js/shared/data/abilities-r41b.js', 'public/js/shared/data/hirameki-r41b.js', 'public/js/client/render/battlefx-r41b.js',
+    // 第41回 A: 2つの 伝説の 職業（京急の社長・野球界の殿堂入り）の 技・ひらめき技・えんしゅつ
+    'public/js/shared/data/abilities-r41a.js', 'public/js/shared/data/hirameki-r41a.js', 'public/js/client/render/battlefx-r41a.js',
     // 第5章 Step 3・4（A: 世界と物語）: クモイ地方・ハネノの町・しずみゆく島の古い神殿（7階）・ガイアイーターの 台本・守り星の かけら
     'public/js/shared/data/story-kumoi.js', 'public/js/shared/maps/kumoi.js', 'public/js/shared/maps/sink-ruin.js', 'public/js/shared/maps/sink-ruin-rows.js',
     'public/js/shared/data/shops-kumoi.js',

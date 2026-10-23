@@ -24,6 +24,8 @@ const AURA = {
   chakra: { glow: 0.55, len: 3.3, wid: 1.2, up: 1.15, gap: 2.1, cols: [['#fff6c0', 205], ['#ffd040', 176], ['#ff9a1c', 146], ['#e8601a', 110]] },
   // 竜魔人: 水色に 光る 竜闘気
   ryuma: { glow: 0.6, len: 3.6, wid: 1.3, up: 1.1, gap: 2.0, cols: [['#f0fcff', 215], ['#a8ecff', 186], ['#58c0f0', 152], ['#2a70c8', 116]] },
+  // 第41回 A 野球界の殿堂入り: みじかい 金の ひかりと きらきら（栄光の かがやき）
+  hof: { glow: 0.5, len: 2.4, wid: 1.05, up: 1.2, gap: 2.4, twinkle: true, cols: [['#fffbe0', 180], ['#ffe890', 150], ['#f6cc4a', 118], ['#d69a2e', 86]] },
 };
 // 第41回 B: 雪の女王（雪の けっしょう）・第5のせいれい（白い ひかりと 4つの せいれいの 光。hero-r41b.js）
 Object.assign(AURA, AURA41B);

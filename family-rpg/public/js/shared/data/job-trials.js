@@ -155,6 +155,9 @@ export const TRIAL_WORDS = {
   // 第41回 B
   snow_queen: 'こわがらないで。その力は、だれかを守るためにあるの。',
   fifth_spirit: '風も火も水も大地も、つながってこそ1つの世界になるのです。',
+  // 第41回 A
+  keikyu_president: 'お客さまの安全と笑顔を運ぶのが、社長のいちばんの仕事だ。',
+  hall_of_fame: '記録よりも、みんなの記おくにのこる選手になれ。',
 };
 export const TRIAL_WORDS_MASC = {
   sailor_moon: '月夜のしんしは、いつでも仲間を守るために現れるのだ。',

@@ -15,6 +15,8 @@ import { R33_OUTFIT, R33_BODY, R33_ARMOR_LOOK, masc33 } from './hero-r33.js';
 import { R40_OUTFIT, R40_BODY, body40 } from './hero-r40.js';
 // 第41回 B の 2つの 職業（雪の女王・第5のせいれい）
 import { R41B_OUTFIT, R41B_BODY } from './hero-r41b.js';
+// 第41回 A の 伝説の 職業 2つ（京急の社長・野球界の殿堂入り）
+import { R41A_OUTFIT, R41A_BODY } from './hero-r41a.js';
 
 // ───────────── ざいしつ ─────────────
 const METALS = {
@@ -200,6 +202,7 @@ const JOB_OUTFIT = {
 };
 Object.assign(JOB_OUTFIT, R26_OUTFIT, R27_OUTFIT, R29_OUTFIT, R33_OUTFIT, R40_OUTFIT);
 Object.assign(JOB_OUTFIT, R41B_OUTFIT);
+Object.assign(JOB_OUTFIT, R41A_OUTFIT);
 // 職業の 服と おなじ よろい（きても 職業の ぼうしが のこる。最強のおかんの ヒョウがらの服）
 const OWN_ARMOR = { saikyo_okan: 'leopard_shirt' };
 export const ownArmor = (job, armorId) => !!armorId && OWN_ARMOR[job] === armorId;
@@ -231,6 +234,7 @@ const JOB_BODY = {
 };
 Object.assign(JOB_BODY, R26_BODY, R27_BODY, R29_BODY, R33_BODY, R40_BODY);
 Object.assign(JOB_BODY, R41B_BODY);
+Object.assign(JOB_BODY, R41A_BODY);
 // fem に false を わたすと 男性の みため（男の子の 美少女戦士・セーラームーンは タキシード仮面ふう。hero-r33.js の R33_MASC）
 export const jobBody = (job, fem) => (fem === false && masc33(job, false)?.body) || JOB_BODY[job] || null;
 

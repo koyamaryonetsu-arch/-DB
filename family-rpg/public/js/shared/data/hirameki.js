@@ -19,6 +19,8 @@ import { HIRA_R33_ABILITIES, HIRAMEKI_R33 } from './hirameki-r33.js';
 import { HIRA_R40_ABILITIES, HIRAMEKI_R40 } from './hirameki-r40.js';
 // 第41回 B: 雪の女王・第5のせいれいの ひらめき技（hirameki-r41b.js）
 import { HIRA_R41B_ABILITIES, HIRAMEKI_R41B } from './hirameki-r41b.js';
+// 第41回 A: 京急の社長・野球界の殿堂入りの ひらめき技（hirameki-r41a.js）
+import { HIRA_R41A_ABILITIES, HIRAMEKI_R41A } from './hirameki-r41a.js';
 
 // ひらめきで 覚える 新しい 技（基本職ごとに 2つ）
 export const HIRA_ABILITIES = {
@@ -190,6 +192,8 @@ export const HIRA_ABILITIES = {
   ...HIRA_R40_ABILITIES,
   // 第41回 B の ひらめき技（hirameki-r41b.js）
   ...HIRA_R41B_ABILITIES,
+  // 第41回 A の ひらめき技（hirameki-r41a.js）
+  ...HIRA_R41A_ABILITIES,
 };
 
 // ひらめきの じょうけん（技 → 使った 回数）。'@atk' は ふつうの 攻撃
@@ -241,6 +245,8 @@ export const HIRAMEKI = {
   ...HIRAMEKI_R40,
   // 第41回 B の ひらめき技（hirameki-r41b.js）
   ...HIRAMEKI_R41B,
+  // 第41回 A の ひらめき技（hirameki-r41a.js）
+  ...HIRAMEKI_R41A,
 };
 
 // 回数の 名前（'@atk' など、技 では ない もの）
