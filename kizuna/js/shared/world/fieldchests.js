@@ -2,13 +2,13 @@
 // ・マップの じょうたい（monsters.js の mapState）に もつ。サーバーに 1つ（家族で 見る ものは おなじ。先に 開けた 人が もらう）
 // ・プレイヤーが その マップに いる ときだけ ふえる。開けられない まま 古く なった ものは べつの 場所へ
 // ・クライアントへは snap の fc（かわった ときだけ）
-import { MAPS, isBlocked } from '../maps/index.js?v=598f83ddee59';
-import { T } from '../tiles.js?v=598f83ddee59';
-import { ITEMS } from '../data/items.js?v=598f83ddee59';
-import { addItem } from '../stats.js?v=598f83ddee59';
-import { FIELD_CHEST_COUNT, FIELD_CHEST_RESPAWN_MS, FIELD_CHEST_LIFE_MS, fieldChestLoot } from '../data/fieldchests.js?v=598f83ddee59';
-import { alchemyMemoLoot } from './alchemy.js?v=598f83ddee59';
-import { chestMemo } from '../data/secret-hints.js?v=598f83ddee59';
+import { MAPS, isBlocked } from '../maps/index.js?v=12f512bf8713';
+import { T } from '../tiles.js?v=12f512bf8713';
+import { ITEMS } from '../data/items.js?v=12f512bf8713';
+import { addItem } from '../stats.js?v=12f512bf8713';
+import { FIELD_CHEST_COUNT, FIELD_CHEST_RESPAWN_MS, FIELD_CHEST_LIFE_MS, fieldChestLoot } from '../data/fieldchests.js?v=12f512bf8713';
+import { alchemyMemoLoot } from './alchemy.js?v=12f512bf8713';
+import { chestMemo } from '../data/secret-hints.js?v=12f512bf8713';
 
 const GROUND = new Set([T.GRASS, T.FLOWERS, T.TALLGRASS, T.FOREST_FLOOR, T.SAND, T.HILL, T.DIRT, T.SNOW, T.DEEP_SNOW, T.ASH, T.DESERT]);
 const SPACING = 10; // ほかの 宝箱との あいだ（マス）

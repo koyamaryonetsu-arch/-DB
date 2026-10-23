@@ -15,8 +15,8 @@
 // 職業レベルは「たたかいに かった かず」で あがる（けいけんちとは べつ）。
 // 1回の こうどうで おわって しまう（ワンパンチの）たたかいは、しゅぎょうが はんぶんしか すすまない。
 
-import { applyField27Learn } from './abilities-field27.js?v=598f83ddee59';
-import { JOB_TAGS } from './job-tags.js?v=598f83ddee59';
+import { applyField27Learn } from './abilities-field27.js?v=12f512bf8713';
+import { JOB_TAGS } from './job-tags.js?v=12f512bf8713';
 export const JOB_MAX_LEVEL = 10;
 // ワンパンチで おわった（なかまの 1回めの こうどうで かった）たたかいの しゅぎょうの わりあい。ほかの たたかいは まるごと 1回ぶん
 export const JOB_EASY_RATE = 0.5;
@@ -1148,6 +1148,32 @@ export const JOBS = {
     perLv: { mag: 1, heal: 0.5, agi: 0.5 },
     learn: [[1, 'mn_stick'], [2, 'mn_bara'], [3, 'mn_luna'], [5, 'mn_heal'], [7, 'mn_inori'], [10, 'sailor_moon_sig']],
   },
+
+  // ───────────── 2026年10月（第40回）: 2つの 伝説の 職業（技は abilities-jobs10.js。docs/plan-r40-jobs.md） ─────────────
+  // 竜の騎士 → 竜魔人（竜の騎士と ほかの 超級職 1つ）。竜と 魔と 人、すべての 力を 目ざめさせた すがた
+  ryumajin: {
+    id: 'ryumajin', name: '竜魔人', kana: 'りゅうまじん', short: '竜魔', tier: 3, req: ['dragon_knight'], reqSuper: 1, family: 'phys', color: '#2e5e8a',
+    desc: '竜の騎士が、竜と魔と人の力をすべて目ざめさせた、最強のすがた。竜の騎士と、ほかの超級職を1つきわめた者だけがなれる。両手の竜の紋章と竜闘気で、魔法剣と大きな光の波をはなつ。',
+    mods: { hp: 1.7, mp: 1.1, str: 1.85, def: 1.5, agi: 1.45, mag: 1.35, heal: 0.85 },
+    weapons: ['sword', 'spear', 'axe', 'claw', 'none'], shield: true, armor: ['cloth', 'heavy', 'gi', 'robe'], helm: true,
+    perLv: { str: 1.5, hp: 1.5, mag: 0.5 },
+    learn: [[1, 'rm_monshou'], [3, 'rm_mahouken'], [5, 'rm_otakebi'], [7, 'rm_mamori'], [8, 'rm_honoo'], [10, 'ryumajin_sig']],
+  },
+  // セーラームーン → ネオ・クイーン・セレニティ（セーラームーンと ほかの 超級職 1つ）。未来の 都の 女王
+  // 男の子は タキシード仮面の 先の「キング・エンディミオン」（masc。見た目 hero-r40.js の R40_MASC・技は ability-label.js）
+  neo_queen: {
+    id: 'neo_queen', name: 'ネオ・クイーン・セレニティ', kana: 'ねおくいーんせれにてぃ', short: 'クイーン', tier: 3, req: ['sailor_moon'], reqSuper: 1, family: 'magic', color: '#c8b4f0',
+    desc: '未来の都をおさめる、やさしい月の女王。セーラームーンと、ほかの超級職を1つきわめた者だけがなれる。銀水しょうの光で仲間をいやして守り、月の王国の力で敵をしずめる。',
+    masc: {
+      name: 'キング・エンディミオン', short: 'キング', kana: 'きんぐえんでぃみおん',
+      desc: '未来の都をおさめる、地球の王。タキシード仮面と、ほかの超級職を1つきわめた者だけがなれる。黄金のクリスタルと王の剣で、仲間をいやして守りぬく。',
+      hint: 'タキシード仮面と、ほかの超級職を1つきわめた者は、未来の都の王になれるらしい…',
+    },
+    mods: { hp: 1.45, mp: 1.65, str: 0.95, def: 1.25, agi: 1.4, mag: 1.6, heal: 1.65 },
+    weapons: ['staff', 'fan', 'boomerang', 'none'], shield: false, armor: ['cloth', 'robe'], helm: false,
+    perLv: { mag: 1, heal: 1, mp: 1 },
+    learn: [[1, 'nq_hikari'], [3, 'nq_kekkai'], [5, 'nq_iyashi'], [7, 'nq_fukkatsu'], [8, 'nq_shizume'], [10, 'neo_queen_sig']],
+  },
 };
 
 // 第33回: 学校の 職業（3年B組の担任の passive.classmates で 数える。学校に 通う 子どもの 職業）
@@ -1178,7 +1204,9 @@ export const SUPER_ORDER = ['dragon_knight', 'archmage', 'high_priest', 'god_han
   // 第33回
   'kaito_kid', 'harry', 'fullmetal', 'sailor_moon'];
 // 伝説の 職業（超級職の 先）
-export const LEGEND_ORDER = ['loto_hero', 'ss3', 'nika', 'maou', 'facility_genius', 'hakaishin', 'hinokami', 'hokage', 'abarenbo_shogun', 'hiten', 'homeroom_3b'];
+export const LEGEND_ORDER = ['loto_hero', 'ss3', 'nika', 'maou', 'facility_genius', 'hakaishin', 'hinokami', 'hokage', 'abarenbo_shogun', 'hiten', 'homeroom_3b',
+  // 第40回
+  'ryumajin', 'neo_queen'];
 export const ALL_JOBS = [...JOB_ORDER, ...ADVANCED_ORDER, ...SUPER_ORDER, ...LEGEND_ORDER];
 export const TIER_NAMES = ['基本職', '上級職', '超級職', '伝説の職業'];
 // 神殿で ならべる じゅん（ランクごと）
@@ -1304,4 +1332,7 @@ export const JOB_HINTS = {
   fullmetal: '国家れん金術師をきわめた者は、両手を合わせるだけでれん成できるらしい…',
   sailor_moon: '美少女戦士をきわめると、月のプリンセスの力が目ざめるらしい…',
   homeroom_3b: '高校生と地方公務員、学校と町の両方をきわめた者は、熱血先生として3年B組を受けもてるらしい…',
+  // 第40回
+  ryumajin: '竜の騎士と、ほかの超級職を1つきわめた者は、竜と魔と人、すべての力を1つにできるらしい…',
+  neo_queen: 'セーラームーンと、ほかの超級職を1つきわめた者は、未来の都の女王になれるらしい…',
 };

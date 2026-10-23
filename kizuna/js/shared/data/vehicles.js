@@ -54,7 +54,7 @@ export const VEHICLES = {
   sakura_dash: { name: '桜の風', price: 2600, jobs: ['rurouni', 'hitokiri', 'himura', 'hiten'], desc: '桜の花びらをまきあげて、風のように走る。' },
   glider: { name: '白いハンググライダー', price: 3600, jobs: ['magician', 'kaito', 'kaito_kid'], desc: '月夜ににあう、白いつばさ。' },
   rock_cart: { name: 'れん成の石車', price: 2400, jobs: ['alchemist', 'state_alchemist', 'fullmetal'], desc: '地面の石をれん成して作った車。' },
-  baby_dragon: { name: '子どもの竜', price: 5000, jobs: ['magic_knight', 'dragon_knight', 'magic_swordsman'], desc: 'せなかに乗せてくれる、みどりの竜の子。' },
+  baby_dragon: { name: '子どもの竜', price: 5000, jobs: ['magic_knight', 'dragon_knight', 'magic_swordsman', 'ryumajin'], desc: 'せなかに乗せてくれる、みどりの竜の子。' },
   pirate_cart: { name: '車輪つきの海賊船', price: 3000, jobs: ['pirate', 'guardian'], desc: '陸の上でも走れる、小さな海賊船。' },
   gomu_rocket: { name: 'ゴムのロケット', price: 4000, jobs: ['rubber', 'nika'], desc: 'うでをのばして、びよーんと前へとぶ。' },
   ninja_dash: { name: '忍び走り', price: 2800, jobs: ['ninja', 'konoha', 'hokage'], desc: 'うでを後ろにのばして、風より速く走る。' },
@@ -68,13 +68,13 @@ export const VEHICLES = {
   steam_train: { name: '蒸気機関車', price: 6500, jobs: ['kisatsu', 'enbashira', 'hinokami'], desc: 'けむりを上げて走る、黒い機関車。' },
   psy_float: { name: '念力ふわり', price: 3000, jobs: ['esper'], desc: '念力で、自分の体をうかせる。' },
   broom: { name: '空飛ぶほうき', price: 2800, jobs: ['wizard_student', 'harry'], desc: '魔法学校の生徒の、空飛ぶほうき。' },
-  crescent: { name: '三日月', price: 4800, jobs: ['sailor_soldier', 'sailor_moon'], desc: '月の光でできた、三日月の乗り物。' },
+  crescent: { name: '三日月', price: 4800, jobs: ['sailor_soldier', 'sailor_moon', 'neo_queen'], desc: '月の光でできた、三日月の乗り物。' },
   hero_pegasus: { name: '勇者の天馬', price: 8000, jobs: ['hero', 'loto_hero'], desc: '金のよろいの、勇者だけの天馬。' },
   dark_throne: { name: '空飛ぶ玉座', price: 9000, jobs: ['maou', 'hakaishin'], desc: '魔物の王がすわる、空にうかぶいす。' },
 };
 
 // 第39回 C: たのまれごとで しか もらえない 乗り物（data/vehicles-family.js）
-import { FAMILY_VEHICLES } from './vehicles-family.js?v=598f83ddee59'; Object.assign(VEHICLES, FAMILY_VEHICLES);
+import { FAMILY_VEHICLES } from './vehicles-family.js?v=12f512bf8713'; Object.assign(VEHICLES, FAMILY_VEHICLES);
 export const VEHICLE_ORDER = Object.keys(VEHICLES);
 const has = (id) => typeof id === 'string' && Object.prototype.hasOwnProperty.call(VEHICLES, id);
 export const vehicleKnown = has;

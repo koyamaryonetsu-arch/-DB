@@ -7,12 +7,12 @@
 //   鏡のうつし身と おなじく 戦いを こわす 技・生き返らせる 技は 使わない）/ 見た目 … 白い かみの 師しょう（鏡の 色。client/battle-temple.js）
 // ・技の えらび方は 鏡のうつし身と おなじ（mirrorOf が ある 敵は battle-temple.js の templeAction → mirrorDecide → 仲間の オートの AI）
 // ・はじめの ことば: 師しょうの 教え（data/job-trials.js の trialWords。職業ごと）
-import { JOBS, JOB_MAX_LEVEL } from './data/jobs.js?v=598f83ddee59';
-import { ABILITIES } from './data/abilities.js?v=598f83ddee59';
-import { strengthenEnemy } from './data/difficulty.js?v=598f83ddee59';
-import { MONSTERS } from './data/monsters.js?v=598f83ddee59';
-import { mirrorSkillOk } from './battle-temple.js?v=598f83ddee59';
-import { PHANTOM_NAME, phantomLook, trialWords, masterName, TRIALS } from './data/job-trials.js?v=598f83ddee59';
+import { JOBS, JOB_MAX_LEVEL } from './data/jobs.js?v=12f512bf8713';
+import { ABILITIES } from './data/abilities.js?v=12f512bf8713';
+import { strengthenEnemy } from './data/difficulty.js?v=12f512bf8713';
+import { MONSTERS } from './data/monsters.js?v=12f512bf8713';
+import { mirrorSkillOk } from './battle-temple.js?v=12f512bf8713';
+import { PHANTOM_NAME, phantomLook, trialWords, masterName, TRIALS } from './data/job-trials.js?v=12f512bf8713';
 
 // 職業の mods の 効き方（1 … そのまま。回復は 弱め … 回復ばかりで 長い 戦いに ならない ように）
 export const PHANTOM_MODS = { hp: 0.5, str: 1, def: 0.6, agi: 0.5, mag: 1, heal: 0.6 };
@@ -30,6 +30,8 @@ export const PHANTOM_ADJ = {
   harry: [0.85, 0.65], fullmetal: [0.58, 0.43], sailor_moon: [1.21, 1.18], loto_hero: [1.3, 1.04], ss3: [0.71, 0.48],
   nika: [0.61, 0.55], maou: [0.75, 0.55], facility_genius: [0.86, 0.74], hakaishin: [0.6, 0.6], hinokami: [0.63, 0.49],
   hokage: [0.53, 0.43], abarenbo_shogun: [0.77, 0.7], hiten: [0.68, 0.58], homeroom_3b: [0.58, 0.68],
+  // 第40回
+  ryumajin: [1.12, 1.19], neo_queen: [0.52, 0.72],
 };
 // 使わない 技の こうか（生き返らせる・みんなの MP を へらす など。鏡のうつし身の MIRROR_SKIP の ほか）
 const NO_USE = new Set(['revive', 'reviveAll']);

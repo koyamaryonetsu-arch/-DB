@@ -4,7 +4,7 @@
 //   千年前の 人たち（past_*）・泉の里の 人たち（spring_*）と、時が 止まった 灰色の すがた（frozen_*）
 // とくべつな え（paintCh6Special）: はじまりの勇者の像（ふつう・うすく 消えかけた）・星の木（大きな 木）・星の木の なえ・やわらかい 土・
 //   星のしずく・テント・いのりの 石・ちびアステル・影の時計師ゼンマイ・ゼンマイの番兵ギアドン（番人の 間の 人の すがた）
-import { Painter } from './pixel.js?v=598f83ddee59';
+import { Painter } from './pixel.js?v=12f512bf8713';
 
 const GRAY = { hair: '#9a9aa2', skin: '#c4c6cc', cloth: '#8a8c94', trim: '#b4b6bc' };
 const person = (o) => o;
