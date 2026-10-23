@@ -25,6 +25,8 @@ import { JOB5_SFX } from './render/battlefx-jobs5.js';
 import { JOB6_SFX } from './render/battlefx-jobs6.js';
 // 第33回の 11この 職業の 技（音・あたる じかん・みかたに 出す えんしゅつ）
 import { JOB7_SFX, JOB7_HIT, PARTY_ANIMS7 } from './render/battlefx-jobs7.js';
+// 第40回の 伝説の 職業 2つの 技（音・あたる じかん・みかたに 出す えんしゅつ）
+import { JOB8_SFX, JOB8_HIT, PARTY_ANIMS8 } from './render/battlefx-jobs8.js';
 import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js';
 import { targetTag } from './ui/info.js';
 // 第38回 C: バフ・デバフ・じわじわ回復の しるし（のこりの 行動の 回数）
@@ -79,6 +81,7 @@ const HIT_DELAY = {
   coins: 380, ice_arrow: 220, holy: 160, blizzard: 350, cross_slash: 260, rock_smash: 120,
 };
 Object.assign(HIT_DELAY, JOB7_HIT);
+Object.assign(HIT_DELAY, JOB8_HIT);
 const SPELL_ANIMS = new Set(['fire1', 'fire2', 'fire3', 'fire_wave', 'fire_tornado', 'ice1', 'ice2', 'wind1', 'wind2', 'blast1', 'blast2', 'void', 'dark1', 'meteor']);
 const ELEM_COLORS = {
   fire: ['#ff5a2a', '#ff9a3a', '#ffe07a'], ice: ['#9ae6ff', '#e6fbff', '#5ab8e8'], wind: ['#d8ffe0', '#9af0b0', '#ffffff'],
@@ -142,6 +145,8 @@ const ANIM_SFX = {
   ...JOB6_SFX,
   // 第33回の 11この 職業の 技（render/battlefx-jobs7.js）
   ...JOB7_SFX,
+  // 第40回の 伝説の 職業 2つの 技（render/battlefx-jobs8.js）
+  ...JOB8_SFX,
   // 第4章 Step 7 の 神殿の 魔物と モルガナ（render/battlefx-temple.js）
   ...TEMPLE_SFX,
   // 第5章 Step 2 の 星の塔と 星の番人アルゴス（render/battlefx-ch5.js）
@@ -1134,7 +1139,7 @@ export class BattleScene {
     // 味方に かける 合体技（回復・ステージ）は、たたかいの 画面にも 大きく
     if (fx.type === 'dual' && anim && !enemyPts.length) this.fx.play(anim, [{ x: BW / 2, y: BH * 0.55 }], fx.element, { fromAlly: true });
     // 自分や 味方に かける 大わざ（金色のオーラ・解放のドラム・空調こう新）も、たたかいの 画面の 下（味方の いる ところ）に 大きく
-    else if (fromAlly && (PARTY_ANIMS.has(anim) || PARTY_ANIMS3.has(anim) || PARTY_ANIMS7.has(anim) || SIG4.has(anim)) && !enemyPts.length) this.fx.play(anim, [{ x: BW / 2, y: BH * 0.62 }], fx.element, { fromAlly: true });
+    else if (fromAlly && (PARTY_ANIMS.has(anim) || PARTY_ANIMS3.has(anim) || PARTY_ANIMS7.has(anim) || PARTY_ANIMS8.has(anim) || SIG4.has(anim)) && !enemyPts.length) this.fx.play(anim, [{ x: BW / 2, y: BH * 0.62 }], fx.element, { fromAlly: true });
     // みかたへの えんしゅつ（てきの じゅもんは たまが とんでくる）
     if (anim && anim !== 'none' && allyTargets.length) {
       const kind = allyFxKind(anim, fx, ab);
@@ -1157,7 +1162,7 @@ export class BattleScene {
         });
       }
       allyTargets.forEach((t, i) => this.allyFx(t.id, kind, (d + (allyTargets.length > 1 ? i * 60 : 0)) / tempo));
-      if (fromAlly && fx.type !== 'dual' && !SIG4.has(anim) && !PARTY_ANIMS.has(anim) && !PARTY_ANIMS3.has(anim) && !PARTY_ANIMS7.has(anim)) playAllyR27(this.fx, anim, allyTargets.map((t) => this.allyPt(t)), { ability: ev.ability, element: fx.element, from: actor && this.allyPt(actor) });
+      if (fromAlly && fx.type !== 'dual' && !SIG4.has(anim) && !PARTY_ANIMS.has(anim) && !PARTY_ANIMS3.has(anim) && !PARTY_ANIMS7.has(anim) && !PARTY_ANIMS8.has(anim)) playAllyR27(this.fx, anim, allyTargets.map((t) => this.allyPt(t)), { ability: ev.ability, element: fx.element, from: actor && this.allyPt(actor) });
       if (!hitDelay) hitDelay = d;
     }
     // じゅもんを となえた みかたは すこし ひかる

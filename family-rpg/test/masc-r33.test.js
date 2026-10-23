@@ -25,7 +25,8 @@ const GIRL = { body: 1 };
 const boy = { job: 'sailor_moon', look: BOY };
 const girl = { job: 'sailor_moon', look: GIRL };
 const SAILOR_IDS = Object.keys(JOB9_ABILITIES).filter((id) => ['sailor_soldier', 'sailor_moon'].includes(JOB9_ABILITIES[id].job));
-const MASC_IDS = Object.keys(ABILITIES).filter((id) => ABILITIES[id].masc);
+// 第40回: ネオ・クイーン・セレニティ（キング・エンディミオン）の 技は test/jobs-r40.test.js
+const MASC_IDS = Object.keys(ABILITIES).filter((id) => ABILITIES[id].masc && ['sailor_soldier', 'sailor_moon'].includes(ABILITIES[id].job));
 // 家族と きめた 男の子 むけの 名前
 const NAMES = {
   bs_heel: 'タキシードキック', bs_henshin: '仮面のしんし', bs_oshioki: '月の光が見ているぞ！', sailor_soldier_sig: 'ローズ・ブーメラン',
@@ -205,7 +206,7 @@ test('メニュー・技の 説明・レベルアップ・転職の ひとこと
   assert.ok(growthSummary('ヒナ', ups, [], { look: GIRL }).lines.some((l) => l.includes('覚えた：ハイヒールキック')));
   assert.ok(growthSummary('ヒナ', ups, []).lines.some((l) => l.includes('覚えた：ハイヒールキック')), 'だれか わからない ときは もとの まま');
   // 転職の ひとこと
-  assert.deepEqual(Object.keys(JOB_SAY_MASC).sort(), ['sailor_moon', 'sailor_soldier']);
+  assert.deepEqual(Object.keys(JOB_SAY_MASC).filter((j) => j !== 'neo_queen').sort(), ['sailor_moon', 'sailor_soldier']);
   for (const s of Object.values(JOB_SAY_MASC)) assert.deepEqual(checkText(s), [], s);
   assert.ok(jobDoneText('ユウ', '美少女戦士', [], 'sailor_soldier', true).endsWith(JOB_SAY_MASC.sailor_soldier));
   assert.ok(jobDoneText('ヒナ', '美少女戦士', [], 'sailor_soldier', false).endsWith(JOB_SAY.sailor_soldier));

@@ -22,7 +22,8 @@ const GIRL = { body: 1 };
 const boy = { job: 'sailor_soldier', look: BOY };
 const girl = { job: 'sailor_soldier', look: GIRL };
 // 家族と きめた 名前
-const NAMES = { sailor_soldier: ['仮面のしんし', '美少女戦士'], sailor_moon: ['タキシード仮面', 'セーラームーン'] };
+// 第40回: ネオ・クイーン・セレニティは 男の子なら キング・エンディミオン（test/jobs-r40.test.js）
+const NAMES = { sailor_soldier: ['仮面のしんし', '美少女戦士'], sailor_moon: ['タキシード仮面', 'セーラームーン'], neo_queen: ['キング・エンディミオン', 'ネオ・クイーン・セレニティ'] };
 
 test('男の子の 美少女戦士は「仮面のしんし」、セーラームーンは「タキシード仮面」（女の子は 今の まま）', () => {
   assert.deepEqual(Object.keys(JOBS).filter((j) => JOBS[j].masc).sort(), Object.keys(NAMES).sort(), 'masc の ある 職業');

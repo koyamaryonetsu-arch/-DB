@@ -149,9 +149,13 @@ export const TRIAL_WORDS = {
   abarenbo_shogun: '成敗！…の前に、まずは人の話を聞くのだ。',
   hiten: '飛天御剣流は、人々を守るためにある。',
   homeroom_3b: 'おまえたちは、くさったミカンなんかじゃない！',
+  // 第40回
+  ryumajin: '竜の力も魔の力も、守りたい者のためにふるうのだ。',
+  neo_queen: 'ほんとうの強さは、だれかをいやすやさしさの中にあるのよ。',
 };
 export const TRIAL_WORDS_MASC = {
   sailor_moon: '月夜のしんしは、いつでも仲間を守るために現れるのだ。',
+  neo_queen: '王とは、いちばん前に立って、みんなを守る者だ。',
 };
 export function trialWords(id, who = null) {
   const masc = who?.look && typeof who.look === 'object' && who.look.body !== 1;

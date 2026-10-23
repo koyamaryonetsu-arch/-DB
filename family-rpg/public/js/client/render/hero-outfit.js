@@ -11,6 +11,8 @@ import { R27_OUTFIT, R27_BODY } from './hero-r27.js';
 import { R29_OUTFIT, R29_BODY } from './hero-r29.js';
 // 第33回の 11この 職業（手品師・かいとう・魔法学校・3年B組・れん金術師・美少女戦士 の 道）
 import { R33_OUTFIT, R33_BODY, R33_ARMOR_LOOK, masc33 } from './hero-r33.js';
+// 第40回の 伝説の 職業 2つ（竜魔人・ネオ・クイーン・セレニティ）
+import { R40_OUTFIT, R40_BODY, body40 } from './hero-r40.js';
 
 // ───────────── ざいしつ ─────────────
 const METALS = {
@@ -29,6 +31,8 @@ const METALS = {
   star: ['#10163a', '#1e2a66', '#33449a', '#5a70c8', '#b8c8ff'],
   // ロトの勇者の あおい よろい
   royal: ['#0c1850', '#1a3a9c', '#2c62d6', '#72a6f6', '#e2f0ff'],
+  // 竜魔人の こい あお緑の 竜の うろこ
+  ryuma: ['#0c1a26', '#1a3a4c', '#2a6670', '#58a8a2', '#cef6ec'],
 };
 // ざいしつは おなじ いろなら つくりなおさない
 const memo = new Map();
@@ -192,7 +196,7 @@ const JOB_OUTFIT = {
   // はかい神（金の ふちの くろい エジプトの 服・はばの ひろい 金の えり・金の うでわ・だぼっと した ズボン）
   hakaishin: { kind: 'hakai', main: '#1e1a32', pants: '#2c2644', flap: '#9a1e34' },
 };
-Object.assign(JOB_OUTFIT, R26_OUTFIT, R27_OUTFIT, R29_OUTFIT, R33_OUTFIT);
+Object.assign(JOB_OUTFIT, R26_OUTFIT, R27_OUTFIT, R29_OUTFIT, R33_OUTFIT, R40_OUTFIT);
 // 職業の 服と おなじ よろい（きても 職業の ぼうしが のこる。最強のおかんの ヒョウがらの服）
 const OWN_ARMOR = { saikyo_okan: 'leopard_shirt' };
 export const ownArmor = (job, armorId) => !!armorId && OWN_ARMOR[job] === armorId;
@@ -222,7 +226,7 @@ const JOB_BODY = {
   facility_genius: { aura: 'circuit', holo: true },
   hakaishin: { iris: '#d8a020', aura: 'hakai', spark: 'ember' },
 };
-Object.assign(JOB_BODY, R26_BODY, R27_BODY, R29_BODY, R33_BODY);
+Object.assign(JOB_BODY, R26_BODY, R27_BODY, R29_BODY, R33_BODY, R40_BODY);
 // fem に false を わたすと 男性の みため（男の子の 美少女戦士・セーラームーンは タキシード仮面ふう。hero-r33.js の R33_MASC）
 export const jobBody = (job, fem) => (fem === false && masc33(job, false)?.body) || JOB_BODY[job] || null;
 
@@ -860,6 +864,8 @@ export function outfitOf(Lk, job, armorId, fem) {
     if (JB.tail) O.tail = { m: mat({ r: ['#3e2414', '#6a4024', '#98633a', '#c08c5c'], th: TH.hair.slice(0, 3) }) };
     if (JB.wings) O.wings = { m: mat({ r: ['#08060e', '#16121e', '#2a2236', '#463a5c', '#7a6a9a'], th: TH.hair, spec: 0.965, sc: '#8a7ab0' }) };
     body26(O, JB);
+    // 第40回: 白い はね・両手の 竜の紋章
+    body40(O, JB);
   }
   // ★の 品・強化した 品は きらめく
   O.sparkle = !!S.star || (S.plus || 0) > 0;

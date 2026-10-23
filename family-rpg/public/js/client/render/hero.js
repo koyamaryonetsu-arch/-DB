@@ -13,6 +13,8 @@ import { R26_HAIR, R26_SKIN, drawR26, face26, drawProp26 } from './hero-r26.js';
 import { R29_HAIR } from './hero-r29.js';
 // 第33回の 職業の かみの いろと、手ぶくろの れん金の 円
 import { R33_HAIR, handMark33 } from './hero-r33.js';
+// 第40回の 職業の かみの いろと、両手の 竜の紋章
+import { R40_HAIR, handMark40 } from './hero-r40.js';
 import { weaponOf, shieldOf, headOf, drawWeapon, drawShield, drawHeadgear, isLongSide } from './hero-gear.js';
 import { lookIds, HCOL_BY_ID, TONE_BY_ID, CLOTH_COLORS } from '../../shared/data/looks.js';
 import { STARTER_EQUIP } from '../../shared/stats.js';
@@ -303,6 +305,7 @@ function handShape(cv, A, P, O) {
   const r = (P.fem ? 1.22 : 1.38) * (1 + ((O.armW || 1) - 1) * 0.4);
   cv.ell(A.hand[0], A.hand[1], r, r * 1.05, O.glove || O.skin, { bulge: 0.85 });
   if (O.handMark) handMark33(cv, A, P, O);
+  if (O.handCrest40) handMark40(cv, A, P, O);
   if (O.fingerless) {
     // ゆびの ない 手ぶくろ（ゆびさきは はだ）
     cv.part({ ol: 'soft', clip: cv.cur });
@@ -377,7 +380,7 @@ const JOB_HAIR_RAMP = {
   // 最強のおかんの むらさきに そめた パーマ
   obapurple: ['#2e1638', '#5a2c6c', '#8a52a0', '#b886cc', '#e4c8f0'],
 };
-Object.assign(JOB_HAIR_RAMP, R26_HAIR, R29_HAIR, R33_HAIR);
+Object.assign(JOB_HAIR_RAMP, R26_HAIR, R29_HAIR, R33_HAIR, R40_HAIR);
 const jobHairMemo = new Map();
 function jobHair(id) {
   let v = jobHairMemo.get(id);
