@@ -19,6 +19,7 @@ import { R27_OLD_LOOK } from './hero-r27.js';
 import { R29_OLD_LOOK } from './hero-r29.js';
 import { R33_OLD_LOOK, masc33 } from './hero-r33.js';
 import { R40_OLD_LOOK } from './hero-r40.js';
+import { R41A_OLD_LOOK } from './hero-r41a.js';
 
 export const CW = 16;
 export const CH = 21;
@@ -117,6 +118,7 @@ const JOB_LOOK = {
 
 // 第26回の 職業（いまの えは render/hero.js と hero-r26.js）
 Object.assign(JOB_LOOK, R26_OLD_LOOK, R27_OLD_LOOK, R29_OLD_LOOK, R33_OLD_LOOK, R40_OLD_LOOK);
+Object.assign(JOB_LOOK, R41A_OLD_LOOK);
 
 // よろい・ふくの みため（'cloth' は じぶんで えらんだ いろ）
 const ARMOR_LOOK = {

@@ -1174,6 +1174,27 @@ export const JOBS = {
     perLv: { mag: 1, heal: 1, mp: 1 },
     learn: [[1, 'nq_hikari'], [3, 'nq_kekkai'], [5, 'nq_iyashi'], [7, 'nq_fukkatsu'], [8, 'nq_shizume'], [10, 'neo_queen_sig']],
   },
+
+  // ───────────── 2026年10月（第41回 A）: 2つの 伝説の 職業（技は abilities-r41a.js。docs/plan-r41-jobs-a.md） ─────────────
+  // 京急の運転士 → 京急の社長（京急の運転士と ほかの 超級職 1つ）。赤い 電車の 会社の いちばん 上
+  keikyu_president: {
+    id: 'keikyu_president', name: '京急の社長', kana: 'けいきゅうのしゃちょう', short: '京急社長', tier: 3, req: ['keikyu_driver'], reqSuper: 1, family: 'phys', color: '#b8141e',
+    desc: '赤い電車を走らせる鉄道会社の社長。京急の運転士と、ほかの超級職を1つきわめた者だけがなれる。号令で仲間をはげまし、ダイヤを立て直し、全部の赤い電車で敵をけちらす。戦いで手に入るお金もふえる。',
+    mods: { hp: 1.6, mp: 1.4, str: 1.6, def: 1.55, agi: 1.45, mag: 1.0, heal: 1.15 },
+    weapons: ['fan', 'staff', 'spear', 'sword', 'none'], shield: true, armor: ['cloth', 'heavy'], helm: true,
+    perLv: { hp: 1, str: 1, def: 0.5, mp: 0.5 },
+    passive: { gold: 1.3 },
+    learn: [[1, 'kqp_gourei'], [3, 'kqp_tokkyu'], [5, 'kqp_tenken'], [7, 'kqp_daiya'], [8, 'kqp_renketsu'], [10, 'keikyu_president_sig']],
+  },
+  // 二刀流スター → 野球界の殿堂入り（二刀流スターと ほかの 超級職 1つ）。野球の 歴史に 名を のこした 名選手
+  hall_of_fame: {
+    id: 'hall_of_fame', name: '野球界の殿堂入り', kana: 'やきゅうかいのでんどういり', short: '殿堂入り', tier: 3, req: ['nitoryu'], reqSuper: 1, family: 'phys', color: '#d6a02e',
+    desc: '野球の歴史に名をのこした、伝説の名選手。二刀流スターと、ほかの超級職を1つきわめた者だけがなれる。予告ホームランに消える魔球、仲間との円じんで、チームを勝利にみちびく。',
+    mods: { hp: 1.6, mp: 1.2, str: 1.85, def: 1.35, agi: 1.6, mag: 1.2, heal: 1.05 },
+    weapons: ['bat', 'none'], shield: false, armor: ['cloth', 'gi', 'heavy'], helm: true,
+    perLv: { str: 1.5, agi: 1, hp: 0.5 },
+    learn: [[1, 'hof_yokoku'], [3, 'hof_makyu'], [5, 'hof_enjin'], [7, 'hof_sanshin'], [8, 'hof_allstar'], [10, 'hall_of_fame_sig']],
+  },
 };
 
 // 第33回: 学校の 職業（3年B組の担任の passive.classmates で 数える。学校に 通う 子どもの 職業）
@@ -1206,7 +1227,9 @@ export const SUPER_ORDER = ['dragon_knight', 'archmage', 'high_priest', 'god_han
 // 伝説の 職業（超級職の 先）
 export const LEGEND_ORDER = ['loto_hero', 'ss3', 'nika', 'maou', 'facility_genius', 'hakaishin', 'hinokami', 'hokage', 'abarenbo_shogun', 'hiten', 'homeroom_3b',
   // 第40回
-  'ryumajin', 'neo_queen'];
+  'ryumajin', 'neo_queen',
+  // 第41回 A
+  'keikyu_president', 'hall_of_fame'];
 export const ALL_JOBS = [...JOB_ORDER, ...ADVANCED_ORDER, ...SUPER_ORDER, ...LEGEND_ORDER];
 export const TIER_NAMES = ['基本職', '上級職', '超級職', '伝説の職業'];
 // 神殿で ならべる じゅん（ランクごと）
@@ -1335,4 +1358,7 @@ export const JOB_HINTS = {
   // 第40回
   ryumajin: '竜の騎士と、ほかの超級職を1つきわめた者は、竜と魔と人、すべての力を1つにできるらしい…',
   neo_queen: 'セーラームーンと、ほかの超級職を1つきわめた者は、未来の都の女王になれるらしい…',
+  // 第41回 A
+  keikyu_president: '京急の運転士と、ほかの超級職を1つきわめた者は、赤い電車の会社のいちばん上に立てるらしい…',
+  hall_of_fame: '二刀流スターと、ほかの超級職を1つきわめた者は、野球の歴史に名をのこせるらしい…',
 };

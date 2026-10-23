@@ -152,6 +152,9 @@ export const TRIAL_WORDS = {
   // 第40回
   ryumajin: '竜の力も魔の力も、守りたい者のためにふるうのだ。',
   neo_queen: 'ほんとうの強さは、だれかをいやすやさしさの中にあるのよ。',
+  // 第41回 A
+  keikyu_president: 'お客さまの安全と笑顔を運ぶのが、社長のいちばんの仕事だ。',
+  hall_of_fame: '記録よりも、みんなの記おくにのこる選手になれ。',
 };
 export const TRIAL_WORDS_MASC = {
   sailor_moon: '月夜のしんしは、いつでも仲間を守るために現れるのだ。',

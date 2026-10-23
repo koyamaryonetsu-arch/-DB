@@ -32,6 +32,8 @@ export const PHANTOM_ADJ = {
   hokage: [0.53, 0.43], abarenbo_shogun: [0.77, 0.7], hiten: [0.68, 0.58], homeroom_3b: [0.58, 0.68],
   // 第40回
   ryumajin: [1.12, 1.19], neo_queen: [0.52, 0.72],
+  // 第41回 A
+  keikyu_president: [0.64, 0.54], hall_of_fame: [1.02, 0.89],
 };
 // 使わない 技の こうか（生き返らせる・みんなの MP を へらす など。鏡のうつし身の MIRROR_SKIP の ほか）
 const NO_USE = new Set(['revive', 'reviveAll']);

@@ -28,6 +28,9 @@ export const JOB_SAY = {
   // 第40回
   ryumajin: '「竜の紋章が、両手に…！」',
   neo_queen: '「未来の都は、わたしが守ります」',
+  // 第41回 A
+  keikyu_president: '「全線、出発進行！」',
+  hall_of_fame: '「ありがとう、野球！」',
 };
 // 男の子（look.body が 1 で ない）の ときの ひとこと（タキシード仮面ふう。shared/ability-label.js）
 export const JOB_SAY_MASC = {
