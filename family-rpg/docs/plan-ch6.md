@@ -378,3 +378,47 @@
   - 店（`past_weapon` など）・出現表・きまった戦い・背景は、stub が「まだない時だけ」たすので、B の物があればそちらが使われる
   - `data/items.js`・`tools/kanji-check.mjs` は A と B の両方が数行たしている（行がとなりなら手で合わせる）
 - B との約束：出現表 `t6_past_field`・`t6_shrine`・`t6_ruin_up`・`t6_ruin_low`（`spawnCounts` は A のマップ）・きまった戦い `sand_clock`・`geardon`（`boss: true`・`canFlee: false`・`bgm: 'boss6'`。勝つと台本が続く）・背景（`ZONE_BG`）・`SHOPS_PAST`（`data/shops-past.js`。`data/shops.js` で登録）・`PAST_TREASURE`（ほこら 6・いせき 14・フィールド 6）と `PAST_RUIN_FLOORS`（1階ごとに2つ）・`MINAMO_GUEST`（`data/companions-past.js`）。番人の間の大きな NPC の絵は A の `geardon_npc`、`showMon` の絵は B
+
+
+### 実装メモ（A … 世界と物語。第6章 Step 3・4。2026年10月23日）
+
+> ネタバレ注意：古道の しかけ・ペンデュラ・オリハの 星読みが 書いてあります。
+
+- フラグ（もう変えない）：物語の すすみぐあいは 12-1 の 名前のとおり（`data/story-ch6b.js` の `CH6B_STEPS`。`story-ch6.js` の `CH6_STEPS` の `c6_flow` の うしろに まぜた）。物語の すすみぐあいではない フラグ：`c6_hf1`〜`c6_hf8`（古道の その階に 来た）・`c6_starsight`（ミナモの 星読みで 夜空が 見えている。歩くと 消える）・`c6_h2_s<i>`・`c6_h7_s<i>`（大きな 石が 道の i ばんめ）・`c6_h3_sap_<n|e|s|w>`（千年前の 星の木の なえの 向き）・`c6_h5_star`（千年前で 星を 受けとめた）・`c6_h6_open`（6階の 近道）・`c6_h6_wait`（ミナモが 千年前の 星の石で 待っている）・`c6_hboss`・`c6_hboss_n`（8階の 広間に 来た。千年前・今）・`c6_end_p`（ペンデュラの あと、社で オリハの 星読みまで 見た。とちゅうで 切れた ときの 続き）。より道は `c6_tc<1〜3>_start|bury|dug`・`c6_tc_done`・`c6_rc_start|learn|done`・`c6_ct_start`・`c6_ct_s<1〜5>`・`c6_ct_given`・`c6_ct_done`
+- 目標：`C6B_OBJ`（`flow`・`omen`・`orih`・`road`・`hf2`〜`hf8`・`bird`・`pendula`・`endP`・`kanata`）。`C6_OBJ.flow` は「千年前の泉の里のミナモに会いに行こう…」に かえ、前の「第6章の続きはアップデートで！」は `OLD_C6_OBJ.flow` に のこした。さいごの `kanata` は また「第6章の続きはアップデートで！」（前の 版の `flow` と おなじ 文なので、`progress.js` の `repairObjective` が `ch6StaleObjective`〈c6_kanata が まだ なのに この 文〉で なおす）。**あとの Step で かえる 時は `OLD_C6_OBJ` に のこす**。仲間の「はなす」（4人分）・地図の しるし（`unless` で すんだら 消える）も 目標ごと。Step 2 の さいごの 場面は「続きはアップデート」を やめて「第6章　第3幕　星読みの社」の 章の 字に
+- 千年前の 泉の里の ミナモ（`minamo_home`。`c6_flow` の あと）に 話すと 星が ゆがむ 夜（パーティーの 時計を 夜へ）→ ミナモが また ゲスト → `c6_omen`。`minamo_home` は `c6_omen` から いない（ゲストで いっしょ）・`c6_kanata` の あとは `minamo_back`
+- 星読みの社（`maps/hoshimichi.js` の `attachShaPast`・`SHA`）：千年前の 森のひろば（`FOREST_CLEARING`）に 木の 社（`WALL_WOOD`＋むらさきの やね）・星読みのオリハ（`oriha`）・見習いコトハ（`kotoha`）・木の札・社の まわりの 宝箱 3つ（`h6_ow0`〜`2`。★は B の `ROAD_FIELD_TREASURE`）。社に 着くと（`c6_orih_meet`）オリハの 話 → 大事な物「ミナモの星読み」→ `c6_orih`。社の うら（北）の 小道の 先に 古道の 入口（千年前は 星の とびら `STAR_DOOR`、`c6_orih` で `RUIN_DOOR`）
+- 今の 森のひろば（`attachShaNow`）：社の あった 所に こけむした 石の 台（`STAR_ALTAR`。しらべると 文）だけ。社の うらの 同じ 所に 古道の 入口（木の根 `GAIA_ROOT`、`c6_orih` で `CAVE_ENTRANCE`）。トレントは そのまま
+- 星めぐりの古道（`maps/hoshimichi.js`・`hoshimichi-rows.js`。40×30 が 8階。今 `hoshimichi_<n>f`〈テーマ `hoshimichi`〉・千年前 `hoshimichi_<n>f_past`〈テーマ `hoshimichi_past`〉。曲 `hoshimichi`〈8階は `zenmai`〉。出現表 1〜4階 `t6_road_up`・5〜8階 `t6_road_low`〈8階と もや・休み所・ボスの 広間は 出ない〉）。どの 階も 今と 千年前で おなじ 形・おなじ 座標。1階の 出口は その 時代の 森のひろば（みちびきの糸も）
+  - 文字の いみが 時代で ちがう：`w` 今は 川（`CAVE_WATER`）/ 千年前は かれた 谷（`DRY_VALLEY`）・`d` 今は くずれて 通れる / 千年前は とびら・`t` 今は 星の大木（大きな 人の え `star_tree`）/ 千年前は なえ（`YOUNG_TREE`）・`b` 根の 橋に なる 谷（今だけ、なえが 南の とき `ROOT_BRIDGE`）・`q` 千年前の 星受けの台（`STAR_CATCH`）・`Q` 今は 落ちた星（`METEOR`）・`P` 今は 光る 道しるべ（`STAR_POST`。星を 受けとめた あと）・`1`/`2` 今と 千年前の 星の石（`STAR_STONE`）・`Z`/`G` とびら・`m`/`r` 星の もや と その 中の 本当の 道
+  - 1階 星の道しるべの 練習（星の もや）・2階 今は川／千年前は谷（千年前で 谷を わたって 石を 西へ おす → 今で くずれた とびら）・3階 千年前の なえを 南へ → 今の 大木の 根が 谷の 橋、星の もや、さいごに 休み所（星の いずみ）・4階 星くいのよる鳥の 広間（どちらの 時代にも いる。たおすと 北の とびら `G`）・5階 千年前の 星受けの台で 夜空が 見える 間に 星を 受けとめる → 今の 落ちた星が 消えて 光る 道しるべ（落ちた星の すぐ 先に 千年前の とびら。千年前で 先へ 行っても 今に 切りかえられない）・6階 2つの 時代の 星の石（近道）と 長い 星の もや・7階 2つめの 川と谷と 石（東へ）、さいごに 休み所・8階 ペンデュラの 広間（千年前だけ。今は がらんとした 広間）と 星の 台座
+  - 「時の砂時計を 使わないと 行けない」は 2・3・5・7階、「星の 道しるべが ないと 通れない」は 1・3階の もや（6階は 近道でも）を テストで たしかめた（どちらの 時代から 入っても 下へ 行ける）
+- 星の道しるべ・ミナモの星読み（`world/star-sight.js`）
+  - もやの 本当の 道は とびら（`ROUTE_LEVELS`: `c6_starsight` か `'@night'` で `HM_ROUTE`、ほかは `HM_MIST`）。夜は 星読みが なくても 光る
+  - もやの まちがった マス（`map.mist.lost`）を ふむと もやの 入口（`E`）へ もどる（`stepStars`。`world.js` の `onEnterTile` の 1行。家族も 1人ずつ）
+  - 大事な物「ミナモの星読み」（`c6s_star_reading`。`menuUse: 'starSight'`。メニューの「道具」→「使う」→ `{ t: 'menu', action: 'starSight' }`。`services.js` の 1行・`menu.js` の 時の砂時計と おなじ 形の 2行）。ミナモが ゲストの ときだけ・リーダーだけ。使った 人が 40歩 歩く まで `c6_starsight`（古道は 夜空の 青い まく `map.dusk`）。のこった フラグは 古道を 歩くと 消える。`c6_kanata` で ミナモと いっしょに なくなる
+- 家族で：6階の 星の石は 2人が 別の 時代で 同時に ふむと 開く（`plateCheck`。ふんだ 人と パーティーの 家族の いる 場所を 見る）。**ひとりなら 千年前の 石で「ミナモに待ってもらう」**（`c6_h6_wait`。今の 石を ふむと 開く）。ほかの しかけ（石・なえ・星受け）は 千年前で したことが 今に のこる 形なので、ひとりでも 家族でも とける。テストで ひとりの 通し（2・3・5・6階を 歩いて）と 家族 2人（どちらが 先でも・ユイの ものがたりは かわらない）を たしかめた
+- 4階 星くいのよる鳥（`star_eater_npc`・`big`。広間に 入る `c6_bird_event`）：`['showMon','star_eater']` → `['bgm','boss6']` → `['battle','star_eater']` → `c6_bird`
+- 8階（千年前）ペンデュラ（`pendula_npc`・`big`。`c6_pendula_event`）：`['showMon','pendula']` → `['battle','pendula']` → `c6_pendula` → 社へ（`timeShift`）→ オリハの 星読み「ひとつの紋章が、ひとりぼっちの星になる」→ `c6_end_p`。とちゅうで 切れたら 8階の 星の 台座（`c6_haltar`）か 社の オリハ（`c6_oriha`）で 続き（`endingFromP`）
+- 今の 星読みの里の カナタ（`c5_kanata` を つつむ。`c6_end_p` の あと）：千年前の 書物の さいごの ページ・「時をこえて来た子ら」・星読みは ミナモから 始まった → ミナモは 千年前へ（`unguest`・星読みを 返す）→ `c6_kanata` →「第6章の続きはアップデートで！」。`['sync']` の あとで ゲストを 外すので、とちゅうで 切れたら もう一度 話すと はじめから
+- より道（12-2。`data/sidequests-ch6.js`・人と 場所 `maps/ch6-side.js`・品 `data/items-ch6-side.js`。どれも `c6_flow` の あと。クエストの 画面・地図の しるし・「はなす」の ヒントは `sidequests.js` の `labSubQuests`・`labDoneQuests` に 2行）
+  - 時のタイムカプセル：千年前の 里の子ども（`p_vil2`）・泉の里の子ども（`s_k1`）・コトハ に たのまれる → 千年前の うめる 所（`tc_bury_<k>`）→ 今の 同じ 座標を ほる（`tc_dig_<k>`）→ ホシフルの里のお守り・めずらしい種（いのちのきのみ 2・すばやさのたね 2・かしこさのたね 1）・星読みのかみかざり → 3つ そろうと ばあちゃん（`elder` を つつむ）から 時をこえたロケット
+  - 千年前のレシピ：今の ルミナの酒場の コック（`cook` を つつむ。ぷるりんゼリーの たのまれごとが 先に あれば そちら）→ 千年前の 泉の里の おくさん（`s_w1`）→ 大事な物「千年前のレシピ」→ コック → 星祭りのごちそう（3こ）・ルミナの町の 道具屋（`SHOPS.item.more`。`sidequests-ch6.js` で たす）に ならぶ
+  - ちびアステルのたからもの：ちびアステル（`c6_chibi` を つつむ）→ 千年前の フィールドの きらきらの石 5つ（`kira_1`〜`5`。地図の しるしは つぎの 1つ）→ わたす → 今の ほしみの丘に アステル（`astel_c6`・`mon:star_dragon`）→ 星竜のうろこ
+  - 品（`src: 'gift'`・ランク10・レア度4＝★5 の アクセ 4つ）と 星祭りのごちそう（戦いだけ・仲間 みんなを 190 回復・900G）・大事な物 2つは `items-ch6-side.js`（`items-ch6-key.js` で まぜる。`data/items.js` は かえていない）
+- 絵と音：タイル ID **280〜288**（`HM_MIST`・`HM_ROUTE`・`DRY_VALLEY`・`YOUNG_TREE`・`METEOR`・`STAR_POST`・`STAR_CATCH`・`STAR_STONE`・`STAR_STONE_ON`。**266〜279 は ほかの 人の ために あけた**。`render/tiles-hoshimichi.js` を `tiles-ch6.js` で まぜる。2.5D は かれた 谷が ひくい・落ちた星は ひくい 岩・なえ／道しるべ／星受けの台は たてた もの）・テーマ `hoshimichi`（夜色の 石）・`hoshimichi_past`（白い 石と 星の 金）・人の え（`render/ch6-road-art.js` を `ch6-art.js` で まぜる。オリハ・コトハ・星くいのよる鳥・ペンデュラ・カプセル・きらきらの石）・曲（`client/audio-ch6.js` に `hoshimichi` BPM92）
+  - **大きな とくべつな え の 直し**：`client/field.js` の 大きな NPC は `bigNpcCanvas`（魔物の え）しか かけず、Step 1・2 の 星の木・テント・ギアドンの すがたも 出ていなかった。ない 時は ふつうの え の 大きさで かく（2D・2.5D。2か所）
+  - ブラウザ（390×844。2D・2.5D）で たしかめた：1階の もや（昼と 星読み）・3階の 大木と 根の 橋・4階の 鳥・5階の 落ちた星・8階の ペンデュラ・2階の かれた 谷・千年前の 社
+- テスト：`test/ch6-step34.test.js`（18こ。名前の 約束・目標と なおし・社と 入口・古道の とき方〈どちらの 時代から・時を こえないと・もや〉・過去 → 今に のこる・星読みと もや（サーバー）・ひとりで とく（2・3・5階を 歩いて）・6階の 星の石〈ひとり・家族 2人〉・家族の 石と 砂時計・c6_flow → c6_kanata の 通し・負けた時・切れた時・家族で・より道 3つ・家族の より道・漢字・絵と曲）。`test/ch6-step12.test.js` は `CH6_STEPS` の はじめの 9つ・`OLD_C6_OBJ.flow`・Step 2 の さいごの ことば・`CH6_TILES` の 256〜265 に かえた
+- 案とちがうところ・小さく決めたところ
+  - 社は 千年前の 森のひろばの 北に たてた（オリハは 社の 前）。今の 古道の 入口も 同じ 所（社の うら）に。今の 森のひろばの トレントは そのまま
+  - ミナモの 星読みは「ゲストの 技」では なく、ミナモが いる ときに 使える 大事な物（時の砂時計と おなじ メニューの 形）。歩数で 消える（時のほこらの 砂時計の とびらと おなじ 考え）
+  - 家族 2人の しかけの ひとりの とき方は「ミナモに 待ってもらう」（7階の 重りの 石と ちがう 形に した）
+  - 休み所は 3階と 7階の さいご（4階と 8階に おりる 前）
+  - 中ボスの 鳥は どちらの 時代にも いる（どちらから 来ても 戦える）。ペンデュラは 千年前だけ
+  - 8階の 宝箱も 2つ（`ROAD_TREASURE_FLOORS[8]`）
+- まとめる時に消すもの・なおすもの
+  - `data/ch6b-stub.js` を けす。import しているのは：`maps/hoshimichi.js` の `import { ROAD_TREASURE_FLOORS, ROAD_FIELD_TREASURE } from '../data/ch6b-stub.js';`（`'../data/items-road.js'` から）・`test/ch6-step34.test.js` の `import { ROAD_TREASURE_FLOORS, ROAD_FIELD_TREASURE } from '../public/js/shared/data/ch6b-stub.js';`（`items-road.js` から）・`tools/kanji-check.mjs` の `gameFiles()` の `'public/js/shared/data/ch6b-stub.js'`（と `test/ch6-step34.test.js` の 漢字の ファイルの 一覧の 同じ 行）
+  - 出現表 `t6_road_up`・`t6_road_low`・きまった 戦い `star_eater`・`pendula`・背景（`ZONE_BG`）は stub が「まだ ない 時だけ」たすので、B の 物が あれば そちらが 使われる
+- B との 約束：出現表 `t6_road_up`（1〜4階）・`t6_road_low`（5〜8階。`spawnCounts` は A の マップ）・きまった 戦い `star_eater`・`pendula`（`boss: true`・`canFlee: false`・`bgm: 'boss6'`。勝つと 台本が 続く）・背景 `hoshimichi`・`hoshimichi_deep`・`ROAD_TREASURE_FLOORS`（{ 1〜8: [2こ] }。今の 時代・千年前の どちらに 置くかは `CHEST_ERA`）・`ROAD_FIELD_TREASURE`（3こ）・`MINAMO_GUEST`。中ボス・ボスの 大きな NPC の 絵は A の `star_eater_npc`・`pendula_npc`、`showMon` の 絵は B
+- まとめの ファイルに 足した 行：`shared/tiles.js`（タイル 280〜288 の ID と `def` 9行）・`shared/world/world.js`（import と `stepStars` の 2行）・`shared/world/services.js`（import と `'starSight'` の 2行）・`shared/data/progress.js`（import と `repairObjective` の 2行）・`shared/data/sidequests.js`（import・`labSubQuests`・`labDoneQuests` の 3行）・`client/ui/menu.js`（`menuUse` の 2行）・`client/field.js`（大きな NPC の 2か所）・`tools/kanji-check.mjs`（`gameFiles()` の 3行）。`maps/index.js`・`data/story.js`・`data/items.js`・`data/shops.js`・`party-talk.js`・`quest-targets.js` は かえていない（`maps/ch6.js`・`story-ch6.js`・`items-ch6-key.js` から まぜる）

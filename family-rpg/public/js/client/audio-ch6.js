@@ -5,6 +5,7 @@
 // ・toki_ruin … 時のいせき・時の神殿（イ短調。2つの 時代を 行き来する ぼうけんの 曲）
 // ・boss6 … 第6章の ボス（ハ短調の はやい 戦い。サンドクロック・ギアドン）
 // ・zenmai … 影の時計師ゼンマイ（ト短調。ぜんまいじかけの ような とぎれる 音）
+// ・hoshimichi … 第6章 Step 3・4 の 星めぐりの古道（ホ短調。星が またたく ような 高い アルペジオと、ゆったり 歩く ベース）
 // 1小節 = 16。どの パートも 16小節（256）
 
 const CHORD = {
@@ -41,8 +42,24 @@ const SHRINE_CH = ['Em', 'C', 'D', 'Bm', 'Em', 'Am', 'B', 'B', 'C', 'D', 'Em', '
 const RUIN_CH = ['Am', 'F', 'G', 'Em', 'Am', 'F', 'E', 'E', 'Dm', 'Am', 'Bb', 'E', 'F', 'G', 'Am', 'Am'];
 const BOSS_CH = ['Cm', 'Ab', 'Bb', 'G', 'Cm', 'Fm', 'G', 'G', 'Ab', 'Bb', 'Eb', 'Cm', 'Fm', 'G', 'Cm', 'G'];
 const ZENMAI_CH = ['Gm', 'Gm', 'Eb', 'D', 'Gm', 'Cm', 'D', 'D', 'Eb', 'F', 'Gm', 'Eb', 'Cm', 'D', 'Gm', 'D'];
+const ROAD_CH = ['Em', 'C', 'G', 'D', 'Em', 'C', 'Am', 'B', 'C', 'G', 'D', 'Bm', 'C', 'Am', 'B', 'Em'];
 
 export const CH6_TRACKS = {
+  // 第6章 Step 3・4: 星めぐりの古道
+  hoshimichi: {
+    bpm: 92,
+    ch: [
+      { w: 'triangle', v: 0.12, n: bars([
+        'E5:4 G5:4 B5:6 A5:2', 'G5:4 E5:4 C6:8', 'D6:4 B5:2 G5:2 B5:4 D6:4', 'F#5:8 A5:4 D6:4',
+        'E6:6 D6:2 B5:4 G5:4', 'C6:4 E6:4 G6:4 E6:4', 'A5:4 C6:4 E6:6 D6:2', 'D#6:8 B5:8',
+        'C6:4 G5:4 E5:4 G5:4', 'B5:4 D6:4 G6:8', 'F#6:4 D6:4 A5:4 F#5:4', 'B5:8 D6:4 F#6:4',
+        'G6:4 E6:4 C6:4 E6:4', 'A6:6 G6:2 E6:4 C6:4', 'B5:4 D#6:4 F#6:4 A6:4', 'E6:12 r:4',
+      ]) },
+      { w: 'sine', v: 0.05, n: arpBox(ROAD_CH, 5) },
+      { w: 'triangle', v: 0.2, n: bassWalk(ROAD_CH) },
+      { drums: true, v: 0.16, n: 'k:4 h:2 h:2 s:4 h:2 h:2 '.repeat(16) },
+    ],
+  },
   past_field: {
     bpm: 104,
     ch: [

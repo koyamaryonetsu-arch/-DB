@@ -8,7 +8,7 @@ import { C3_LEAD_OBJECTIVE } from './sky.js';
 import { CH3_PROGRESS } from './story-ch3.js';
 import { CH4_PROGRESS } from './story-ch4.js';
 import { CH5_PROGRESS } from './story-ch5.js';
-import { CH6_PROGRESS } from './story-ch6.js';
+import { CH6_PROGRESS, ch6StaleObjective } from './story-ch6.js';
 
 // ストーリーの じゅんばん。うしろから 見て、さいしょに 当てはまった ものが 今の 目標
 const PROGRESS = [
@@ -56,7 +56,8 @@ export function objectiveFromFlags(c) {
 
 // 目標が ない・今の 版に ない 文 なら、すすみぐあいから なおす（なおしたら true）
 export function repairObjective(c) {
-  if (c.objective && KNOWN_OBJECTIVES.has(c.objective)) return false;
+  // 第6章: 前の 版の Step 2 の さいごの 文は、今の Step 4 の さいごの 文と おなじ（すすみぐあいで なおす。story-ch6b.js）
+  if (c.objective && KNOWN_OBJECTIVES.has(c.objective) && !ch6StaleObjective(c)) return false;
   c.objective = objectiveFromFlags(c);
   return true;
 }

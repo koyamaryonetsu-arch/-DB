@@ -183,7 +183,8 @@ async function family(seed, upto = 'c5_clear', extraFlags = []) {
 
 // ───────────── 名前の 約束 ─────────────
 test('名前の 約束: 物語の すすみ・マップの ID・出現表・きまった 戦い・背景・曲・店・宝箱・ゲスト・大事な物（plan-ch6.md の 9）', async () => {
-  assert.deepEqual(CH6_STEPS, ['c6_start', 'c6_shrine', 'c6_glass', 'c6_past', 'c6_tree', 'c6_rion', 'c6_ruin', 'c6_gear', 'c6_flow']);
+  // Step 3・4 の すすみぐあいは c6_flow の うしろ（test/ch6-step34.test.js）
+  assert.deepEqual(CH6_STEPS.slice(0, 9), ['c6_start', 'c6_shrine', 'c6_glass', 'c6_past', 'c6_tree', 'c6_rion', 'c6_ruin', 'c6_gear', 'c6_flow']);
   const ci = STORY_STEPS.indexOf('c5_clear');
   assert.deepEqual(STORY_STEPS.slice(ci + 1, ci + 1 + CH6_STEPS.length), CH6_STEPS, '第5章の うしろに つづく');
   const want = ['overworld_past', 'toki_shrine_1f', 'toki_shrine_2f', 'toki_shrine_3f',
@@ -267,7 +268,9 @@ test('目標: 第1部クリアの 文は ばあちゃんへ（前の 文は な�
     const c = { ...f(...fl), objective: 'むかしの版の目標の文' };
     assert.ok(repairObjective(c) && c.objective === want, `なおる ${fl.join(',')}`);
   }
-  assert.equal(C6_OBJ.flow, '第6章の続きはアップデートで！');
+  // Step 2 の さいごの「続きはアップデートで！」は Step 3・4 で OLD_C6_OBJ.flow に（今の c6_flow の 目標は ミナモへ）
+  assert.equal(OLD_C6_OBJ.flow, '第6章の続きはアップデートで！');
+  assert.ok(C6_OBJ.flow.includes('ミナモ'));
   // どの 目標にも 仲間会話と 行き先
   for (const [k, t] of Object.entries(C6_OBJ)) {
     assert.ok(KNOWN_OBJECTIVES.has(t), k);
@@ -838,13 +841,13 @@ test('通しで: c5_clear → 6つ目の 星 → 時のほこら → サンド�
   const from = bot.msgs.length;
   await fullRun(bot, c, fought);
   assert.deepEqual(fought.filter((id) => FIXED_ENCOUNTERS[id]), ['sand_clock', 'geardon'], '戦い');
-  for (const f of CH6_STEPS) assert.ok(c.flags[f], f);
+  for (const f of CH6_STEPS.slice(0, CH6_STEPS.indexOf('c6_flow') + 1)) assert.ok(c.flags[f], f);
   assert.equal(c.objective, C6_OBJ.flow);
   assert.ok(!c.guests.includes('minamo'), 'ミナモは はなれる');
   assert.ok(c.flags[END_A6]);
   // 台本の ならび・ことば
   for (const w of ['夜空に、見たことのない星', '第2部　第6章', 'わたしはトキネ', '影の時計師ゼンマイ', 'さあ、千年前へ', 'なえを植えて', '過去でしたことは、今にのこるの', 'きみの手にも…紋章？',
-    'ミナモが仲間に加わった', 'ゼンマイの番兵ギアドン', '泉の水が、きらきらと光りながら', 'ぼくは、ほんとうに勇者になれるのかな', 'はじまりの勇者　リオン', '第6章の続きはアップデートで！']) {
+    'ミナモが仲間に加わった', 'ゼンマイの番兵ギアドン', '泉の水が、きらきらと光りながら', 'ぼくは、ほんとうに勇者になれるのかな', 'はじまりの勇者　リオン', '星読みの社']) {
     assert.ok(said(bot, w, from), w);
   }
   for (const id of ['zenmai', 'boss6', 'past_field', 'past_village']) assert.ok(said(bot, `"${id}"`, from), `曲 ${id}`);
@@ -1000,7 +1003,8 @@ test('絵と 音: 第6章の タイル（2D は 16×16 を ぬる・2.5D）・�
   const { CH6_NPC_LOOKS, CH6_SPECIALS } = await import('../public/js/client/render/ch6-art.js');
   const { _TRACKS, _parse } = await import('../public/js/client/audio.js');
   const HEX = /^#[0-9a-f]{6}$/i;
-  assert.deepEqual([...CH6_TILES].sort((a, b) => a - b), [256, 257, 258, 259, 260, 261, 262, 263, 264, 265]);
+  // Step 3・4 の タイル（280〜）も CH6_TILES に まざる（test/ch6-step34.test.js）
+  assert.deepEqual([...CH6_TILES].filter((id) => id < 266).sort((a, b) => a - b), [256, 257, 258, 259, 260, 261, 262, 263, 264, 265]);
   for (const id of CH6_TILES) {
     assert.ok(hasTileArt(id) && TILE_INFO[id], `${id}`);
     for (const f of [0, 1, 2]) for (const m of [0, 1, 15]) {
