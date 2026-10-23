@@ -7,8 +7,10 @@
 // render/tiles.js が まぜる。2.5D は render/field3d.js（CH6_FLOOR_H・ch6BlockSpec）と render/tex3d.js（CH6_PROPS）
 // テーマ: past（千年前の フィールド。もとの 色に 少し セピアを まぜる）・toki_shrine（時のほこら）・toki_ruin（今の いせき）・toki_ruin_past（千年前の 神殿）
 // (p, v, f, m) … Painter / ちがい / アニメの コマ / となりの ようす
-import { T } from '../../shared/tiles.js?v=c2ce3805193b';
-import { prand } from './pixel.js?v=c2ce3805193b';
+import { T } from '../../shared/tiles.js?v=9a7a9e52e6f2';
+import { prand } from './pixel.js?v=9a7a9e52e6f2';
+// 第6章 Step 3・4「星めぐりの古道」の タイル・2.5D・色（render/tiles-hoshimichi.js。ここで まぜる）
+import { HM_PAINTERS, HM_FRAMES, HM_SPEED, HM_FLOOR_H, hmBlockSpec, HM_PROPS, HM_THEMES } from './tiles-hoshimichi.js?v=9a7a9e52e6f2';
 
 const SD = { d: '#5a4220', b: '#8a6a3a', m: '#a8844a', l: '#c8a868', hl: '#e8d098' }; // 砂色の 石
 const SAND = { d: '#b8904a', b: '#e0b860', l: '#f8dc90', w: '#fff4c8' };
@@ -169,20 +171,21 @@ export const CH6_PAINTERS = {
   [T.STRAW_WALL]: (p, v, f, m) => paintStrawWall(p, v, f, m),
   [T.TIME_PLATE]: (p, v) => paintTimePlate(p, v, false),
   [T.TIME_PLATE_ON]: (p, v) => paintTimePlate(p, v, true),
+  ...HM_PAINTERS,
 };
-export const CH6_FRAMES = { [T.SAND_DOOR_OPEN]: DOOR_FRAMES, [T.SAND_DIAL_ON]: DIAL_FRAMES, [T.TIME_ALTAR]: ALTAR_FRAMES };
-export const CH6_SPEED = { [T.SAND_DOOR_OPEN]: 160, [T.SAND_DIAL_ON]: 300, [T.TIME_ALTAR]: 220 };
+export const CH6_FRAMES = { [T.SAND_DOOR_OPEN]: DOOR_FRAMES, [T.SAND_DIAL_ON]: DIAL_FRAMES, [T.TIME_ALTAR]: ALTAR_FRAMES, ...HM_FRAMES };
+export const CH6_SPEED = { [T.SAND_DOOR_OPEN]: 160, [T.SAND_DIAL_ON]: 300, [T.TIME_ALTAR]: 220, ...HM_SPEED };
 export const CH6_TILES = Object.keys(CH6_PAINTERS).map(Number);
 // 色を かえない タイル（もとの 色で かいてある。render/themes.js）
 export const CH6_KEEP_COLOR = CH6_TILES;
 
 // ───── 2.5D（render/field3d.js・render/tex3d.js）─────
 // 泉は 地面より 少し ひくい。とびらと わらの かべは かべ（とびらは 洞窟の かべと おなじ 高さ。わらの かべは 家の かべ）
-export const CH6_FLOOR_H = { [T.FROZEN_WATER]: -0.28, [T.TIME_PLATE_ON]: -0.05 };
+export const CH6_FLOOR_H = { [T.FROZEN_WATER]: -0.28, [T.TIME_PLATE_ON]: -0.05, ...HM_FLOOR_H };
 export function ch6BlockSpec(id, v) {
   if (id === T.SAND_DOOR) return { h: 1.6, top: ['x', 'cave_top', v], side: ['x', 'cave_side', v], south: ['t', T.SAND_DOOR, 0, 0] };
   if (id === T.STRAW_WALL) return { h: 1.25, top: ['t', T.STRAW_WALL, v, 1], side: ['t', T.STRAW_WALL, v, 0], south: ['t', T.STRAW_WALL, v, 0] };
-  return null;
+  return hmBlockSpec(id, v);
 }
 // たてた もの（[はば, 高さ, かく 関数]）
 const dialProp = (on) => [16, 22, (p) => {
@@ -200,6 +203,7 @@ const altarProp = (empty) => [20, 26, (p) => {
 export const CH6_PROPS = {
   [T.SAND_DIAL]: dialProp(false), [T.SAND_DIAL_ON]: dialProp(true),
   [T.TIME_ALTAR]: altarProp(false), [T.TIME_ALTAR_EMPTY]: altarProp(true),
+  ...HM_PROPS,
 };
 
 // ───── 色（render/themes.js の THEMES に まぜる。明るさを たもって 色だけ かえる）─────
@@ -221,4 +225,6 @@ export const CH6_THEMES = {
   toki_ruin: theme(['#141a12', '#4e5a46', '#9aa48a'], ['#0c120c', '#34402e', '#6a7a5e'], '#a8e0a0', null),
   // 千年前の 時の神殿: できたばかりの 白っぽい 石と 金
   toki_ruin_past: theme(['#2a2214', '#a08c64', '#e8dab4'], ['#1e180c', '#7a6a48', '#c8b88e'], '#ffe08a', null),
+  // 第6章 Step 3・4: 星めぐりの古道（今・千年前）
+  ...HM_THEMES,
 };

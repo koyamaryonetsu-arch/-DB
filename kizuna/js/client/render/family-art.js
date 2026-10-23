@@ -1,4 +1,4 @@
-// 家族の 仕事の たのまれごと（第39回 C）の 絵
+// お仕事いらい板の たのまれごと（第39回 C）の 絵（第41回で ふえた 6つの 絵は render/work-art.js。ここで まぜる）
 // ・addFamilyArt(ART) … 物の 絵（'mon:<id>' の NPC。render/monsters.js が よぶ）
 //     劇場: ふき出し口・空気の よごれメーター・空調機・室外機（止まっている／回っている）・ダンパー（しまっている／開いている）・中央かんしばん
 //     料理大会: 雪わりきのこ　消えた 教会の かね: かねの 台（からっぽ／かねが もどった）・黒い 羽・赤い どろ・カラスの クロ
@@ -6,7 +6,8 @@
 // ・FAMILY_NPC_LOOKS … 人の みため（render/chars.js の NPC_LOOKS に まぜる）
 // ・addFamilyVehicleArt(ART, kit) … たのまれごとで もらう 乗り物の 絵（render/vehicle-art.js が よぶ。kit … 乗り物の 絵の どうぐ）
 // かきかたは monsters.js・lab-art.js と おなじ（g … w・h の わりあいで かく。f … 0 か 1 の コマ）
-import { spark } from './ch3-draw.js?v=c2ce3805193b';
+import { spark } from './ch3-draw.js?v=9a7a9e52e6f2';
+import { WORK_NPC_LOOKS, addWorkArt, addWorkVehicleArt } from './work-art.js?v=9a7a9e52e6f2';
 
 // ───────────── 人の みため ─────────────
 export const FAMILY_NPC_LOOKS = {
@@ -22,6 +23,8 @@ export const FAMILY_NPC_LOOKS = {
   fq_judge: { hair: 5, hairStyle: 'bun', skin: 1, outfit: 'robe', robeMain: '#8a5a3a', robeTrim: '#f2c14e', female: true, cane: true, hunch: true, glasses: true },
   // 年よりの 鉱夫ゲン（黄色い ヘルメット・白い ひげ・つえ）
   fq_old_miner: { hair: 5, hairStyle: 'bald', skin: 1, outfit: 'tunic', cloth: '#6a5a4a', beard: true, hat: 'miner', hatColor: '#f4cc2a', cane: true, hunch: true },
+  // 第41回（render/work-art.js）
+  ...WORK_NPC_LOOKS,
 };
 
 // ───────────── 劇場の 設備 ─────────────
@@ -229,7 +232,7 @@ function note(g, f) {
   g.ell(0.72, 0.68, 0.06, 0.06, f ? C.R : C.RD);
 }
 
-// たのまれごとの 掲示板（木の わくと やね・2本の 足・5まいの はり紙と 色の ピン）
+// お仕事いらい板（木の わくと やね・2本の 足・8まいの はり紙と 色の ピン。第41回で はり紙が ふえた）
 const QB = { W: '#a8743a', WD: '#6a4420', WL: '#d4a060', R: '#b83a2a', RD: '#7a2418', P: '#f4ecd4', PD: '#cfc0a0', K: '#5a4a3a', pins: ['#e04a3a', '#3a7ad8', '#4ac86a', '#f2c14e', '#c86ad8'] };
 function questBoardArt(g, f) {
   const C = QB;
@@ -239,18 +242,19 @@ function questBoardArt(g, f) {
   g.rect(0.09, 0.19, 0.82, 0.04, C.WL);
   g.poly([[0.0, 0.18], [0.5, 0.0], [1.0, 0.18], [0.94, 0.2], [0.5, 0.06], [0.06, 0.2]], C.RD);
   g.poly([[0.02, 0.17], [0.5, 0.02], [0.98, 0.17], [0.5, 0.08]], C.R);
-  const papers = [[0.13, 0.24, 0.22, 0.2], [0.39, 0.23, 0.22, 0.2], [0.65, 0.25, 0.22, 0.19], [0.24, 0.46, 0.22, 0.2], [0.53, 0.46, 0.22, 0.2]];
-  papers.forEach(([x, y, w, h], i) => {
+  const papers = [[0.12, 0.24], [0.31, 0.23], [0.5, 0.25], [0.69, 0.24], [0.13, 0.46], [0.32, 0.47], [0.51, 0.45], [0.7, 0.47]];
+  papers.forEach(([x, y], i) => {
+    const w = 0.17, h = 0.19;
     g.rect(x + 0.01, y + 0.01, w, h, C.PD);
     g.rect(x, y, w, h, C.P);
-    for (let k = 0; k < 3; k++) g.rect(x + 0.03, y + 0.07 + k * 0.045, w - 0.06, 0.015, C.K);
-    g.ell(x + w / 2, y + 0.02, 0.022, 0.022, C.pins[i]);
+    for (let k = 0; k < 3; k++) g.rect(x + 0.025, y + 0.07 + k * 0.045, w - 0.05, 0.015, C.K);
+    g.ell(x + w / 2, y + 0.02, 0.022, 0.022, C.pins[i % C.pins.length]);
   });
   if (f) spark(g, 0.86, 0.12, 0.07, '#fff4c0', '#ffffff');
 }
 
 export function addFamilyArt(ART) {
-  // ルミナの町の たのまれごとの 掲示板
+  // ルミナの町の お仕事いらい板
   ART.fq_board = { size: [28, 30], field: 30, npc: 1, pal: [...Object.values(QB).flat(), '#fff4c0', '#ffffff'], draw: questBoardArt };
   // 劇場の 設備（field … フィールドの 大きさ。大きな 物は NPC の big で 3マス）
   ART.fq_vent = { size: [16, 14], field: 16, pal: MTP, draw: vent };
@@ -270,6 +274,8 @@ export function addFamilyArt(ART) {
   ART.fq_crow = { size: [20, 16], field: 20, pal: Object.values(CR), draw: crow };
   ART.fq_rail_broken = { size: [16, 16], field: 16, pal: Object.values(RB), draw: railBroken };
   ART.fq_note = { size: [12, 10], field: 12, pal: Object.values(NT), draw: note };
+  // 第41回（render/work-art.js）
+  addWorkArt(ART);
 }
 
 // ───────────── たのまれごとで もらう 乗り物 ─────────────
@@ -428,4 +434,6 @@ export function addFamilyVehicleArt(ART, kit) {
       twinkle(p, f ? w - 10 : 10, top + 2, rgba('#ffffff', 0.8));
     },
   });
+  // 第41回（render/work-art.js）
+  addWorkVehicleArt(ART, kit);
 }

@@ -4,9 +4,9 @@
 //   ・ふつうの 魔物 … その地方に 合った 装備を まれに（REGION_RARE_N 体に 1体。第32回 500。loot.js）
 //   ・ひみつのダンジョン … ここだけの ★4〜★5（深いほど 強い。20階から。休み所の ごほうび・魔物・番人。data/secret.js・loot.js）
 //   ・店の 品は レア度なし（0）
-import { ITEMS, baseItemId } from './items.js?v=c2ce3805193b';
-import { MONSTERS } from './monsters.js?v=c2ce3805193b';
-import { RARITY_OVERRIDE, defaultRarity, starsFor, isShopGear } from './items-rare.js?v=c2ce3805193b';
+import { ITEMS, baseItemId } from './items.js?v=9a7a9e52e6f2';
+import { MONSTERS } from './monsters.js?v=9a7a9e52e6f2';
+import { RARITY_OVERRIDE, defaultRarity, starsFor, isShopGear } from './items-rare.js?v=9a7a9e52e6f2';
 
 export const RARITY_MAX = 5;
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -39,6 +39,8 @@ const SRC_TEXT = {
   castle: '影の城の宝箱でしか手に入らない', phantom: 'まぼろしからしか手に入らない',
   // 第2部 第6章 Step 1・2（items-past.js）: 千年前の 宝箱・サンドクロックと ギアドンの 品
   past: '千年前の宝箱でしか手に入らない', pastboss: '時の魔物からしか手に入らない',
+  // 第2部 第6章 Step 3・4（items-road.js）: 星めぐりの古道の 宝箱
+  road: '星めぐりの古道の宝箱でしか手に入らない',
   // 第37回 B: カジノの 景品（宝の地図の 段で ふえる）・すごろくの ゴールや 宝箱
   casino: 'カジノの景品でしか手に入らない', sugoroku: 'すごろくでしか手に入らない',
   // 第37回 A: サファラ闘技場の ごほうび（items-arena.js）

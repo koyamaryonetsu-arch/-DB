@@ -4,6 +4,8 @@
 // ・うすい ところは すきとおる（2D）。こい ところ（からだの すぐ そと）は 2.5D でも 見える
 // ・あるく コマ（f）で ほのおの ながさが かわる（ゆらぐ）
 // ・えの はし 1ドットには かかない（はみ出さない）
+// 第41回 B: 雪の女王・第5のせいれいの オーラ（hero-r41b.js）
+import { AURA41B, aura41b } from './hero-r41b.js?v=9a7a9e52e6f2';
 
 // glow: からだの すぐ そとの うすい ひかり（マス）  len・wid: ほのおの ながさ・はば（マス）  up: うえへ むく つよさ
 // cols: [いろ, こさ]（ねもと → さき）
@@ -22,7 +24,11 @@ const AURA = {
   chakra: { glow: 0.55, len: 3.3, wid: 1.2, up: 1.15, gap: 2.1, cols: [['#fff6c0', 205], ['#ffd040', 176], ['#ff9a1c', 146], ['#e8601a', 110]] },
   // 竜魔人: 水色に 光る 竜闘気
   ryuma: { glow: 0.6, len: 3.6, wid: 1.3, up: 1.1, gap: 2.0, cols: [['#f0fcff', 215], ['#a8ecff', 186], ['#58c0f0', 152], ['#2a70c8', 116]] },
+  // 第41回 A 野球界の殿堂入り: みじかい 金の ひかりと きらきら（栄光の かがやき）
+  hof: { glow: 0.5, len: 2.4, wid: 1.05, up: 1.2, gap: 2.4, twinkle: true, cols: [['#fffbe0', 180], ['#ffe890', 150], ['#f6cc4a', 118], ['#d69a2e', 86]] },
 };
+// 第41回 B: 雪の女王（雪の けっしょう）・第5のせいれい（白い ひかりと 4つの せいれいの 光。hero-r41b.js）
+Object.assign(AURA, AURA41B);
 
 const hash = (a, b) => {
   const s = Math.sin(a * 12.9898 + b * 78.233) * 43758.5453;
@@ -52,6 +58,7 @@ export function drawAura(img, B, f, dir = 'down') {
   if (B.holo) holoTablet(img, filled, f, k, dir);
   if (B.spark === 'ember') embers(img, filled, bb, f, k);
   else if (B.spark) sparks(img, filled, f, k);
+  aura41b(img, filled, bb, f, k, B);
 }
 
 // 1ドット かく（からだ・えの はしには かかない。a: こさ。もう ある うすい ドットより こい ときだけ）

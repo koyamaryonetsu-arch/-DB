@@ -11,9 +11,11 @@
 //  8. 湯けむりのなぞなぞ（温泉の里ユノハ）… なぞとき
 //  9. はぐれマグマゴーレム（ホシフル村の 見張り）… 強い 魔物の 退治
 // 10. 迷宮の探検家（大迷宮 地下6階の 宝探しのダイゴ）… 大迷宮の 中の さがし物
-import { LAB_FLAGS } from '../maps/labyrinth.js?v=c2ce3805193b';
-import { medalSteps } from './story-lab.js?v=c2ce3805193b';
-import { FAMILY_SCRIPTS, FAMILY_STORY_SCRIPTS, familySubQuests, familyDoneQuests } from './sidequests-family.js?v=c2ce3805193b';
+import { LAB_FLAGS } from '../maps/labyrinth.js?v=9a7a9e52e6f2';
+import { medalSteps } from './story-lab.js?v=9a7a9e52e6f2';
+import { FAMILY_SCRIPTS, FAMILY_STORY_SCRIPTS, familySubQuests, familyDoneQuests } from './sidequests-family.js?v=9a7a9e52e6f2';
+// 第6章 Step 3・4（A）: 時のタイムカプセル・千年前のレシピ・ちびアステルのたからもの（sidequests-ch6.js）
+import { ch6SubQuests, ch6DoneQuests } from './sidequests-ch6.js?v=9a7a9e52e6f2';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -40,7 +42,7 @@ export const SIDE_QUESTS = [
 // 受けている たのまれごと（quest-targets.js の subQuests に たす）
 //   who … 報告する 人（地図の しるし）、find … さがす 物の NPC、ready … 報告できる、text … クエストの 画面、hint … 「はなす」
 export function labSubQuests(c, f, has) {
-  const out = [];
+  const out = [...ch6SubQuests(c, f, has)];
   const q = (o) => out.push(o);
   if (f('q_camel_start') && !f('q_camel_done')) {
     q(f('q_camel_found')
@@ -89,7 +91,7 @@ export function labSubQuests(c, f, has) {
       ? { name: '迷宮の探検家', who: 'q_daigo', ready: true, text: '地下6階のダイゴにとどけよう', hint: 'ダイゴのコンパスを、大迷宮の地下6階のダイゴにとどけよう。' }
       : { name: '迷宮の探検家', who: 'q_daigo', find: 'q_compass', ready: false, text: '大迷宮の地下7階で探そう', hint: 'ダイゴのコンパスは、まっくらな地下7階の、南のほうに落ちているらしい。' });
   }
-  // 第39回 C: 家族の 仕事の たのまれごと（sidequests-family.js）
+  // 第39回 C・第41回: お仕事いらい板の たのまれごと（sidequests-family.js・sidequests-work.js）
   out.push(...familySubQuests(c, f, has));
   return out;
 }
@@ -99,7 +101,7 @@ function countOf(c, id) {
 
 // クリアした たのまれごと（クエストの 画面）
 export function labDoneQuests(c) {
-  return [...SIDE_QUESTS.filter((q) => c?.flags?.[q.done]).map((q) => q.name), ...familyDoneQuests(c)];
+  return [...SIDE_QUESTS.filter((q) => c?.flags?.[q.done]).map((q) => q.name), ...familyDoneQuests(c), ...ch6DoneQuests(c)];
 }
 
 // 「はなす」の さいごに 1つ（受けている たのまれごとの ヒント。なければ null）
@@ -452,7 +454,7 @@ export const QUEST_SCRIPTS = {
   q_daigo: daigo, q_compass: compass,
 };
 
-// 第39回 C: 家族の 仕事の たのまれごとの だいほん（sidequests-family.js）
+// 第39回 C・第41回: お仕事いらい板の たのまれごとの だいほん（sidequests-family.js・sidequests-work.js）
 Object.assign(QUEST_SCRIPTS, FAMILY_SCRIPTS);
 QUEST_STORY_SCRIPTS.push(...FAMILY_STORY_SCRIPTS);
 

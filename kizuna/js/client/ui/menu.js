@@ -1,59 +1,59 @@
 // フィールドの メニュー
-import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js?v=c2ce3805193b';
-import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js?v=c2ce3805193b';
-import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js?v=c2ce3805193b';
+import { el, ListMenu, toast, confirmBox, bar, esc } from './dom.js?v=9a7a9e52e6f2';
+import { ITEMS, SLOTS, SLOT_NAMES, ITEM_SORTS, sortItemIds } from '../../shared/data/items.js?v=9a7a9e52e6f2';
+import { ABILITIES, ELEMENT_NAMES, ELEMENT_ORDER, abilityRole } from '../../shared/data/abilities.js?v=9a7a9e52e6f2';
 // 第33回: 技の 名前は 見ている キャラ むけ（男の子の 美少女戦士・セーラームーンは タキシード仮面ふう）
-import { abilityFor, dualForView } from '../../shared/ability-label.js?v=c2ce3805193b';
+import { abilityFor, dualForView } from '../../shared/ability-label.js?v=9a7a9e52e6f2';
 // 職業の 名前は その 人 むけ（男の子の 美少女戦士は「仮面のしんし」、セーラームーンは「タキシード仮面」。第33回）
-import { jobLabel } from '../../shared/job-label.js?v=c2ce3805193b';
-import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS, turnSeconds } from '../../shared/battle.js?v=c2ce3805193b';
-import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily, gearSortPref, setGearSortPref } from '../prefs.js?v=c2ce3805193b';
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, TIER_NAMES } from '../../shared/data/jobs.js?v=c2ce3805193b';
-import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress, partyJobSet, hiraOfJob, monsterSlots, canEquipChar, itemCount, MAX_LEVEL } from '../../shared/stats.js?v=c2ce3805193b';
-import { HIRAMEKI } from '../../shared/data/hirameki.js?v=c2ce3805193b';
-import { DUAL_TECHS, DUAL_ORDER, dualKnown, dualRelated, dualNeedText, dualNeedLabel } from '../../shared/data/dual.js?v=c2ce3805193b';
-import { addDualCss } from '../render/dualfx.js?v=c2ce3805193b';
-import { MONSTERS } from '../../shared/data/monsters.js?v=c2ce3805193b';
-import { monsterDrops } from '../../shared/data/loot.js?v=c2ce3805193b';
-import { MONSTER_FRIENDS, RACE_NAMES, recipeHint, joinTier, bestiaryOrder } from '../../shared/data/companions.js?v=c2ce3805193b';
-import { TACTICS } from '../../shared/ai.js?v=c2ce3805193b';
-import { PLACES } from '../../shared/maps/overworld.js?v=c2ce3805193b';
-import { SEA_PLACES } from '../../shared/maps/ch2.js?v=c2ce3805193b';
-import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js?v=c2ce3805193b';
-import { T, TILE_INFO } from '../../shared/tiles.js?v=c2ce3805193b';
-import { menuItemText, skillEffectText } from './skillinfo.js?v=c2ce3805193b';
+import { jobLabel } from '../../shared/job-label.js?v=9a7a9e52e6f2';
+import { affinityOf, normBattleSettings, BATTLE_SPEEDS, TEXT_SPEEDS, turnSeconds } from '../../shared/battle.js?v=9a7a9e52e6f2';
+import { battleFontPref, battleDensityPref, setBattleFontPref, setBattleDensityPref, UI_FONTS, uiFontPref, setUiFontPref, uiFontFamily, gearSortPref, setGearSortPref } from '../prefs.js?v=9a7a9e52e6f2';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, TIER_NAMES } from '../../shared/data/jobs.js?v=9a7a9e52e6f2';
+import { computeStats, learnedAbilities, mpCost, penaltyFor, expForLevel, comboAllowed, comboJobNames, jobProgress, hiraProgress, partyJobSet, hiraOfJob, monsterSlots, canEquipChar, itemCount, MAX_LEVEL } from '../../shared/stats.js?v=9a7a9e52e6f2';
+import { HIRAMEKI } from '../../shared/data/hirameki.js?v=9a7a9e52e6f2';
+import { DUAL_TECHS, DUAL_ORDER, dualKnown, dualRelated, dualNeedText, dualNeedLabel } from '../../shared/data/dual.js?v=9a7a9e52e6f2';
+import { addDualCss } from '../render/dualfx.js?v=9a7a9e52e6f2';
+import { MONSTERS } from '../../shared/data/monsters.js?v=9a7a9e52e6f2';
+import { monsterDrops } from '../../shared/data/loot.js?v=9a7a9e52e6f2';
+import { MONSTER_FRIENDS, RACE_NAMES, recipeHint, joinTier, bestiaryOrder } from '../../shared/data/companions.js?v=9a7a9e52e6f2';
+import { TACTICS } from '../../shared/ai.js?v=9a7a9e52e6f2';
+import { PLACES } from '../../shared/maps/overworld.js?v=9a7a9e52e6f2';
+import { SEA_PLACES } from '../../shared/maps/ch2.js?v=9a7a9e52e6f2';
+import { MAPS, tileAt, effectiveTile } from '../../shared/maps/index.js?v=9a7a9e52e6f2';
+import { T, TILE_INFO } from '../../shared/tiles.js?v=9a7a9e52e6f2';
+import { menuItemText, skillEffectText } from './skillinfo.js?v=9a7a9e52e6f2';
 // 第38回 C: 技の レベル（使った 回数で 1〜5。shared/buff-acts.js）
-import { skillLevel, skillLvLeft, SKILL_LV_MAX } from '../../shared/buff-acts.js?v=c2ce3805193b';
-import '../battle-buffs.js?v=c2ce3805193b';
-import { itemDetail, abilityDetail, skillBrief, gearText, targetTag, statChanges, statChangesHtml } from './info.js?v=c2ce3805193b';
-import { bestEquipPlan, bestTeamOrder, gearChoices, sortGearChoices, GEAR_SORTS } from '../../shared/equip-plan.js?v=c2ce3805193b';
-import { shownEquip, lookChoices, LOOK_SLOTS, LOOK_NONE } from '../../shared/look-equip.js?v=c2ce3805193b';
-import { makeCanvas, ctxOf } from '../render/pixel.js?v=c2ce3805193b';
-import { previewCache } from '../render/hero.js?v=c2ce3805193b';
-import { monsterCanvas } from '../render/monsters.js?v=c2ce3805193b';
-import { mapIconCanvas, boardIconURL } from '../render/boards.js?v=c2ce3805193b';
-import { medalItemRow, walletView } from './casino.js?v=c2ce3805193b';
-import { compareTeam, whoItems } from './counter.js?v=c2ce3805193b';
-import { faceURL } from '../field.js?v=c2ce3805193b';
-import { partyRows } from './hud.js?v=c2ce3805193b';
-import { questMarks, subQuests, OBJECTIVE_TARGETS, whereName } from '../../shared/data/quest-targets.js?v=c2ce3805193b';
-import { labDoneQuests, sideQuestHint } from '../../shared/data/sidequests.js?v=c2ce3805193b';
-import { difficultyOf, visibleMarks, EXP_RATES, EXP_RATE_NAMES, ENEMY_RATES, ENEMY_RATE_NAMES, ENEMY_RATE_NOTES } from '../../shared/data/difficulty.js?v=c2ce3805193b';
-import { memberTalk, talkFor } from '../../shared/data/party-talk.js?v=c2ce3805193b';
-import { treasureRows, treasureDetail, openTreasureMap } from './treasure.js?v=c2ce3805193b';
-import { rareNameHtml } from './rarity.js?v=c2ce3805193b';
-import { themeHex } from '../render/themes.js?v=c2ce3805193b';
-import { sdRecordOf, sdRecordText } from '../../shared/data/secret.js?v=c2ce3805193b';
-import { wagonMenuView, wagonHereClient, menuArrange } from './wagon.js?v=c2ce3805193b';
-import { readErrLog, errLogText, clearErrLog } from '../errlog.js?v=c2ce3805193b';
-import { fieldUsableAbilities } from '../../shared/fieldskills.js?v=c2ce3805193b';
-import { alchemyRow, alchemyUI, bindAlchemy } from './alchemy.js?v=c2ce3805193b';
-import './r35-css.js?v=c2ce3805193b';
-import { newsView } from './news.js?v=c2ce3805193b';
-import { hasUnreadNews } from '../../shared/data/news.js?v=c2ce3805193b';
-import { vehicleMenuView } from './vehicles.js?v=c2ce3805193b';
+import { skillLevel, skillLvLeft, SKILL_LV_MAX } from '../../shared/buff-acts.js?v=9a7a9e52e6f2';
+import '../battle-buffs.js?v=9a7a9e52e6f2';
+import { itemDetail, abilityDetail, skillBrief, gearText, targetTag, statChanges, statChangesHtml } from './info.js?v=9a7a9e52e6f2';
+import { bestEquipPlan, bestTeamOrder, gearChoices, sortGearChoices, GEAR_SORTS } from '../../shared/equip-plan.js?v=9a7a9e52e6f2';
+import { shownEquip, lookChoices, LOOK_SLOTS, LOOK_NONE } from '../../shared/look-equip.js?v=9a7a9e52e6f2';
+import { makeCanvas, ctxOf } from '../render/pixel.js?v=9a7a9e52e6f2';
+import { previewCache } from '../render/hero.js?v=9a7a9e52e6f2';
+import { monsterCanvas } from '../render/monsters.js?v=9a7a9e52e6f2';
+import { mapIconCanvas, boardIconURL } from '../render/boards.js?v=9a7a9e52e6f2';
+import { medalItemRow, walletView } from './casino.js?v=9a7a9e52e6f2';
+import { compareTeam, whoItems } from './counter.js?v=9a7a9e52e6f2';
+import { faceURL } from '../field.js?v=9a7a9e52e6f2';
+import { partyRows } from './hud.js?v=9a7a9e52e6f2';
+import { questMarks, subQuests, OBJECTIVE_TARGETS, whereName } from '../../shared/data/quest-targets.js?v=9a7a9e52e6f2';
+import { labDoneQuests, sideQuestHint } from '../../shared/data/sidequests.js?v=9a7a9e52e6f2';
+import { difficultyOf, visibleMarks, EXP_RATES, EXP_RATE_NAMES, ENEMY_RATES, ENEMY_RATE_NAMES, ENEMY_RATE_NOTES } from '../../shared/data/difficulty.js?v=9a7a9e52e6f2';
+import { memberTalk, talkFor } from '../../shared/data/party-talk.js?v=9a7a9e52e6f2';
+import { treasureRows, treasureDetail, openTreasureMap } from './treasure.js?v=9a7a9e52e6f2';
+import { rareNameHtml } from './rarity.js?v=9a7a9e52e6f2';
+import { themeHex } from '../render/themes.js?v=9a7a9e52e6f2';
+import { sdRecordOf, sdRecordText } from '../../shared/data/secret.js?v=9a7a9e52e6f2';
+import { wagonMenuView, wagonHereClient, menuArrange } from './wagon.js?v=9a7a9e52e6f2';
+import { readErrLog, errLogText, clearErrLog } from '../errlog.js?v=9a7a9e52e6f2';
+import { fieldUsableAbilities } from '../../shared/fieldskills.js?v=9a7a9e52e6f2';
+import { alchemyRow, alchemyUI, bindAlchemy } from './alchemy.js?v=9a7a9e52e6f2';
+import './r35-css.js?v=9a7a9e52e6f2';
+import { newsView } from './news.js?v=9a7a9e52e6f2';
+import { hasUnreadNews } from '../../shared/data/news.js?v=9a7a9e52e6f2';
+import { vehicleMenuView } from './vehicles.js?v=9a7a9e52e6f2';
 // 第38回 B: 職業の試練（職業レベルの 上限・しょうごう・修行の とちゅう）
-import { jobLevelText, trialStatusBox, trialQuestBox } from './job-trials.js?v=c2ce3805193b';
+import { jobLevelText, trialStatusBox, trialQuestBox } from './job-trials.js?v=9a7a9e52e6f2';
 
 // 見た目装備の せつめい
 const LOOK_HELP = '見た目だけを、持っている装備に変える（強さは変わらない）\n職業で装備できない物も選べる。「装備なし」も選べる';
@@ -552,12 +552,13 @@ export class FieldMenu {
       return alchemyUI(g);
     }
     // 第6章: 時の砂時計（時代を 切りかえる。world/time-glass.js。使えない ときは サーバーの 知らせ）
-    if (it.hourglass) {
+    // 第6章 Step 3・4: ミナモの 星読み（menuUse: 'starSight'。world/star-sight.js）も おなじ 形
+    if (it.hourglass || it.menuUse) {
       this.sub.blur();
       const act = await this.pick(`${it.name}をどうする？`, [{ label: '使う', value: 'use' }, { label: 'やめる', value: null }]);
       if (act === 'use') {
         this.close();
-        g.net.send({ t: 'menu', action: 'timeGlass' });
+        g.net.send({ t: 'menu', action: it.menuUse || 'timeGlass' });
         return;
       }
       backToList();
@@ -1659,10 +1660,16 @@ export class FieldMenu {
     const box = el('div');
     const off = new Set(Array.isArray(c.autoOff) ? c.autoOff : []);
     // 戦いで 使える 技だけ（ルーラなど フィールドだけの 技・きずな技は のぞく）
+    // 同じ 名前の 技（大神官と 大賢者の ザオリク など）は 1つに まとめる（サーバーが いっしょに 切りかえる。第41回）
+    const seen = new Set();
     const ids = learnedAbilities(c).filter((id) => {
       const a = abilityFor(id, c);
-      return a && !a.fieldOnly && !a.hidden && a.kind !== 'bond';
+      if (!a || a.fieldOnly || a.hidden || a.kind === 'bond' || seen.has(a.name)) return false;
+      seen.add(a.name);
+      return true;
     });
+    // 同じ 名前の どれかが「使わない」なら「使わない」と 出す
+    const offNames = new Set([...off].map((id) => abilityFor(id, c)?.name).filter(Boolean));
     box.append(el('div', { class: 'gold small', text: `${c.name}がオートで使う技` }));
     if (!ids.length) {
       box.append(el('div', { class: 'muted', text: 'まだ技を覚えていない。' }));
@@ -1679,7 +1686,7 @@ export class FieldMenu {
       { label: '全部使う', value: '__all', disabled: !off.size },
       ...ids.map((id) => {
         const a = abilityFor(id, c);
-        const no = off.has(id);
+        const no = off.has(id) || offNames.has(a.name);
         return {
           html: `${esc(a.name)}<span class="sk-desc">${esc(skillBrief(a))}</span>`,
           right: no ? '使わない' : '使う',
@@ -1696,8 +1703,10 @@ export class FieldMenu {
           setLocal([]);
           g.net.send({ t: 'menu', action: 'autoSkill', key, op: 'all' });
         } else {
-          const no = off.has(it.value);
-          const next = no ? [...off].filter((x) => x !== it.value) : [...off, it.value];
+          const nm = abilityFor(it.value, c)?.name;
+          const same = learnedAbilities(c).filter((x) => abilityFor(x, c)?.name === nm);
+          const no = off.has(it.value) || offNames.has(nm);
+          const next = no ? [...off].filter((x) => !same.includes(x)) : [...new Set([...off, ...same])];
           setLocal(next);
           g.net.send({ t: 'menu', action: 'autoSkill', key, id: it.value, op: no ? 'on' : 'off' });
         }

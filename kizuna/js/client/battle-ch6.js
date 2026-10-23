@@ -4,10 +4,13 @@
 //   ギアプレスの 前ぶれの 間は 赤い わ
 // ・前ぶれ・止めた・こわした・まきもどした ときの バナー（ふつうの「大技が来る！」は 出さない … CH6_OWN_TELE）
 // ・敵が 使うと がめんの まん中に 大きく 出す 技・味方の まどの えんしゅつ・音
+// 第2部 第6章 Step 3・4 の 星くいのよる鳥・ペンデュラ（battle-road.js。ここから よぶ）
+import { ROAD_OWN_TELE, roadDraw, roadPresent } from './battle-road.js?v=9a7a9e52e6f2';
+
 const SAND = 'sand_clock';
 const GEAR = 'geardon';
 // 前ぶれの バナーを 自分で 出す 魔物（client/battle.js の ふつうの「大技が来る！」を 出さない）
-export const CH6_OWN_TELE = new Set([SAND, GEAR]);
+export const CH6_OWN_TELE = new Set([SAND, GEAR, ...ROAD_OWN_TELE]);
 
 export const CH6_SCREEN_ANIMS = ['a6_stomp', 'a6_storm', 'a6_fall', 'a6_steam', 'a6_press', 'a6_rewind_big', 'a6_slow'];
 export const CH6_ALLY_FX = {
@@ -30,6 +33,7 @@ export const CH6_SFX = {
 // ───────────── たたかいの え（client/battle-ch5.js の towerDraw から）─────────────
 export function ch6Draw(scene, x, m, c, px, py, w, h, base) {
   if (!c?.alive) return;
+  roadDraw(scene, x, m, c, px, py, w, h, base);
   const T = scene.time || 0;
   // サンドクロック: 砂の 目もり（右よこ）と 前ぶれの うず
   if (c.species === SAND && c.sand !== undefined) {
@@ -108,6 +112,7 @@ export function ch6Draw(scene, x, m, c, px, py, w, h, base) {
 // ───────────── イベントを 見せる とき（client/battle-ch5.js の towerPresent から）─────────────
 export function ch6Present(scene, ev, fx, anim, actor) {
   const g = scene.game;
+  roadPresent(scene, ev, fx, anim, actor);
   if (fx.type === 'telegraph' && actor?.species === SAND) {
     g.audio.sfx('warn');
     scene.banner('！大砂流の前ぶれ！氷を当てるか、身を守れ！', 'danger');

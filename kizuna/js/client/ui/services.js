@@ -1,32 +1,32 @@
 // お店・転職・酒場・でんごんばん・ほしのかけら・きょうかい の がめん
-import { el, ListMenu, toast, askText, confirmBox, esc } from './dom.js?v=c2ce3805193b';
-import { ITEMS } from '../../shared/data/items.js?v=c2ce3805193b';
-import { SUPER_ORDER, LEGEND_ORDER, TIER_ORDERS, TIER_NAMES, JOB_MAX_LEVEL, jobReqText, jobReqSets, jobBodyOk, BODY_NAMES, superMasteredCount } from '../../shared/data/jobs.js?v=c2ce3805193b';
-import { ABILITIES } from '../../shared/data/abilities.js?v=c2ce3805193b';
-import { abilityFor } from '../../shared/ability-label.js?v=c2ce3805193b';
-import { jobFor, jobLabel, jobHint } from '../../shared/job-label.js?v=c2ce3805193b';
-import { salonUI } from './salon.js?v=c2ce3805193b';
-import { vehicleShopUI } from './vehicles.js?v=c2ce3805193b';
-import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered, canEquip, STAT_NAMES } from '../../shared/stats.js?v=c2ce3805193b';
-import { jobUpKeys } from '../../shared/data/job-trials.js?v=c2ce3805193b';
-import { MONSTERS } from '../../shared/data/monsters.js?v=c2ce3805193b';
-import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES, breedOutcome, breedRumors, rankOf, monsterLevelCap, SPECIAL_KINDS } from '../../shared/data/companions.js?v=c2ce3805193b';
-import { breedForecast, TREND_MARK } from '../../shared/breed-calc.js?v=c2ce3805193b';
-import { TACTICS } from '../../shared/ai.js?v=c2ce3805193b';
-import { itemDetail, gearText } from './info.js?v=c2ce3805193b';
-import { playerSprite, followerSprite, faceURL } from '../field.js?v=c2ce3805193b';
-import { shopUI, churchUI } from './shop.js?v=c2ce3805193b';
-import { bankUI } from './bank.js?v=c2ce3805193b';
-import { forgeUI } from './forge.js?v=c2ce3805193b';
-import { tavernWagonItems, tavernWagonOpts, tavernWagonAct, tavernPlace, arrangeUI } from './wagon.js?v=c2ce3805193b';
-import { casinoUI } from './casino.js?v=c2ce3805193b';
-import { sdBoardUI } from './secret.js?v=c2ce3805193b';
+import { el, ListMenu, toast, askText, confirmBox, esc } from './dom.js?v=9a7a9e52e6f2';
+import { ITEMS } from '../../shared/data/items.js?v=9a7a9e52e6f2';
+import { SUPER_ORDER, LEGEND_ORDER, TIER_ORDERS, TIER_NAMES, JOB_MAX_LEVEL, jobReqText, jobReqSets, jobBodyOk, BODY_NAMES, superMasteredCount } from '../../shared/data/jobs.js?v=9a7a9e52e6f2';
+import { ABILITIES } from '../../shared/data/abilities.js?v=9a7a9e52e6f2';
+import { abilityFor } from '../../shared/ability-label.js?v=9a7a9e52e6f2';
+import { jobFor, jobLabel, jobHint } from '../../shared/job-label.js?v=9a7a9e52e6f2';
+import { salonUI } from './salon.js?v=9a7a9e52e6f2';
+import { vehicleShopUI } from './vehicles.js?v=9a7a9e52e6f2';
+import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered, canEquip, STAT_NAMES } from '../../shared/stats.js?v=9a7a9e52e6f2';
+import { jobUpKeys } from '../../shared/data/job-trials.js?v=9a7a9e52e6f2';
+import { MONSTERS } from '../../shared/data/monsters.js?v=9a7a9e52e6f2';
+import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES, breedOutcome, breedRumors, rankOf, monsterLevelCap, SPECIAL_KINDS } from '../../shared/data/companions.js?v=9a7a9e52e6f2';
+import { breedForecast, TREND_MARK } from '../../shared/breed-calc.js?v=9a7a9e52e6f2';
+import { TACTICS } from '../../shared/ai.js?v=9a7a9e52e6f2';
+import { itemDetail, gearText } from './info.js?v=9a7a9e52e6f2';
+import { playerSprite, followerSprite, faceURL } from '../field.js?v=9a7a9e52e6f2';
+import { shopUI, churchUI } from './shop.js?v=9a7a9e52e6f2';
+import { bankUI } from './bank.js?v=9a7a9e52e6f2';
+import { forgeUI } from './forge.js?v=9a7a9e52e6f2';
+import { tavernWagonItems, tavernWagonOpts, tavernWagonAct, tavernPlace, arrangeUI } from './wagon.js?v=9a7a9e52e6f2';
+import { casinoUI } from './casino.js?v=9a7a9e52e6f2';
+import { sdBoardUI } from './secret.js?v=9a7a9e52e6f2';
 // 第37回 A: サファラ闘技場（かけ試合・王者のかべ）
-import { arenaCardUI, arenaBoutUI, arenaWallUI } from './arena.js?v=c2ce3805193b';
-import { shownEquip } from '../../shared/look-equip.js?v=c2ce3805193b';
-import { jobAskText } from '../../shared/data/job-talk.js?v=c2ce3805193b';
-import { sortRoster, rosterSortName, nextRosterSort } from '../../shared/roster-sort.js?v=c2ce3805193b';
-import { rosterSortPref, setRosterSortPref } from '../prefs.js?v=c2ce3805193b';
+import { arenaCardUI, arenaBoutUI, arenaWallUI } from './arena.js?v=9a7a9e52e6f2';
+import { shownEquip } from '../../shared/look-equip.js?v=9a7a9e52e6f2';
+import { jobAskText } from '../../shared/data/job-talk.js?v=9a7a9e52e6f2';
+import { sortRoster, rosterSortName, nextRosterSort } from '../../shared/roster-sort.js?v=9a7a9e52e6f2';
+import { rosterSortPref, setRosterSortPref } from '../prefs.js?v=9a7a9e52e6f2';
 
 export function openServiceUI(game, kind, data) {
   switch (kind) {
@@ -287,7 +287,7 @@ function jobUI(game) {
         bars.append(el('span', { text: n }), el('div', { class: 'b' }, el('i', { style: { width: `${Math.min(100, v / 1.5 * 100)}%` } })), el('span', { class: v > 1 ? 'up' : v < 1 ? 'down' : '', text: `${Math.round(v * 100)}%` }));
       }
       main.append(el('div', { class: 'small gold', text: '強さのかたむき' }), bars);
-      main.append(el('div', { class: 'detail', text: `職業レベルは戦いに勝つと上がる（最大${JOB_MAX_LEVEL}。超級職からは職業の試練で20まで）。職業ごとに別で、転職しても今の職業のレベルは残る。ただし、1回の攻撃で終わってしまう戦いでは、修行は半分しか進まない。\n基本職を2つマスターすると上級職、上級職をマスターすると超級職になれる（超級職は、上級職をマスターするとヒントが出る）。超級職をきわめた先には、伝説の職業もある（ロトの勇者・スーパーサイヤ人3・ニカ・魔王・天才しせつ管理者・はかい神・日の呼吸の使い手・七代目火影・暴れんぼう将軍・飛天御剣流けい承者・3年B組の担任・竜魔人・「ネオ・クイーン・セレニティ」）。\n呪文の掛け合わせは、元の職業を合わせ持つ上級職以上で使える。\n他の職業で覚えた技も使えるが、MPが増えたり威力が下がることがある（元になった職業の技はだいじょうぶ）。\n酒場の仲間もここで転職できる。\n（十字キーの左右で、このせつめいをスクロールできる）` }));
+      main.append(el('div', { class: 'detail', text: `職業レベルは戦いに勝つと上がる（最大${JOB_MAX_LEVEL}。超級職からは職業の試練で20まで）。職業ごとに別で、転職しても今の職業のレベルは残る。ただし、1回の攻撃で終わってしまう戦いでは、修行は半分しか進まない。\n基本職を2つマスターすると上級職、上級職をマスターすると超級職になれる（超級職は、上級職をマスターするとヒントが出る）。超級職をきわめた先には、伝説の職業もある（ロトの勇者・スーパーサイヤ人3・ニカ・魔王・天才しせつ管理者・はかい神・日の呼吸の使い手・七代目火影・暴れんぼう将軍・飛天御剣流けい承者・3年B組の担任・竜魔人・「ネオ・クイーン・セレニティ」・第5のせいれい・京急の社長・野球界の殿堂入り）。\n呪文の掛け合わせは、元の職業を合わせ持つ上級職以上で使える。\n他の職業で覚えた技も使えるが、MPが増えたり威力が下がることがある（元になった職業の技はだいじょうぶ）。\n酒場の仲間もここで転職できる。\n（十字キーの左右で、このせつめいをスクロールできる）` }));
       // 下に つづく ときの しるし
       const more = el('div', { class: 'scroll-more', text: '▼ 下に続く' });
       main.append(more);

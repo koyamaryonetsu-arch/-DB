@@ -1,5 +1,6 @@
-// 家族の 仕事の たのまれごと（第39回 C。docs/plan-side.md の 2）の だいほん
+// お仕事いらい板の たのまれごと（第39回 C。docs/plan-side.md の 2）の だいほん
 // 人と 物の 置き場所は maps/family-quests.js、品は data/items-family.js、乗り物は data/vehicles-family.js
+// 第41回で ふえた 6つ（docs/plan-side.md の 6・7）は data/sidequests-work.js・maps/work-quests.js。一らん・だいほん・クエストの 画面は ここで まぜる
 //
 // ・第1部クリア（c5_clear）の あと。それぞれの 町に たのみたい 人が 立つ（地図の しるし・クエストの 画面・「はなす」の ヒント）
 // ・職業の しばり: 解決の だいじな 所（直す・作る・見ぬく）は、パーティーの だれかが その 職業の 系統の 時だけ。
@@ -14,16 +15,19 @@
 //  3. カナトコの料理大会（料理人の 系統・鉱山の町カナトコ）
 //  4. ルミナの町の、消えた教会のかね（警察官・少年探てい団の 系統・ルミナの町）
 //  5. 鉱山トロッコの線路（鉄道員の 系統・鉱山の町カナトコ）
-import { JOBS, jobAncestry } from './jobs.js?v=c2ce3805193b';
-import { medalSteps } from './story-lab.js?v=c2ce3805193b';
-import { FAMILY_VEHICLES } from './vehicles-family.js?v=c2ce3805193b';
-import { FAMILY_ITEMS } from './items-family.js?v=c2ce3805193b';
+//  6〜11. 第41回（data/sidequests-work.js）
+import { medalSteps } from './story-lab.js?v=9a7a9e52e6f2';
+import { FAMILY_VEHICLES } from './vehicles-family.js?v=9a7a9e52e6f2';
+import { FAMILY_ITEMS } from './items-family.js?v=9a7a9e52e6f2';
 import {
   FQ, FQ_OPEN, DAMPERS, DIRTY_ZONES, SHOP_VOICES, COOK_RUMORS, BELL_CLUES, BELL_TALKS, RAIL_FIX, RAIL_PATH, MINE_ROOM_ARRIVE,
-} from '../maps/family-quests.js?v=c2ce3805193b';
+} from '../maps/family-quests.js?v=9a7a9e52e6f2';
+// 職業の 系統・ヒント・乗り物の どうぐ（data/fq-common.js。第41回で 分けた）
+import { S, N, jobLine, jobLineNames, lineMember, partyHasLine, proOf, need, vehicleSteps, cnt, firstMissing } from './fq-common.js?v=9a7a9e52e6f2';
+// 第41回: ふえた 6つの たのまれごと（data/sidequests-work.js）
+import { WORK_QUESTS, WORK_SCRIPTS, WORK_STORY_SCRIPTS, workSubQuests } from './sidequests-work.js?v=9a7a9e52e6f2';
 
-const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
-const N = (...lines) => lines.map((l) => ['say', null, l]);
+export { jobLine, jobLineNames, lineMember, partyHasLine };
 
 // ───────────── たのまれごとの 一らん ─────────────
 // roots … 職業の 系統の 元（この 職業から 転職で つながる 職業は 全部）、job … ヒントに 出す 名前
@@ -43,63 +47,12 @@ export const FAMILY_QUESTS = [
   { id: 'rail', name: '鉱山トロッコの線路', done: FQ.railDone, roots: ['railman'], job: '鉄道員', town: '鉱山の町カナトコ',
     start: FQ.railStart, who: '年よりの鉱夫ゲン', where: '鉱山の町カナトコの北のかべのそば', paper: '古い鉱山の線路が、こわれたままじゃ。\n線路にくわしい人、直してくれんかのう。',
     reward: { item: 'fq_gold_ticket', vehicle: 'gold_trolley', gold: 4000, medals: 2 } },
+  // 6〜11（第41回。data/sidequests-work.js）
+  ...WORK_QUESTS,
 ];
 const Q = Object.fromEntries(FAMILY_QUESTS.map((q) => [q.id, q]));
 
-// ───────────── 職業の 系統 ─────────────
-// roots の どれかから 転職で つながる 職業（roots も 入る。新しい 職業が ふえても 合う）
-const lineCache = new Map();
-export function jobLine(roots) {
-  const key = roots.join(',');
-  if (lineCache.has(key)) return lineCache.get(key);
-  const set = new Set();
-  for (const id of Object.keys(JOBS)) if (roots.some((r) => jobAncestry(id).has(r))) set.add(id);
-  lineCache.set(key, set);
-  return set;
-}
-// 系統の 職業の 名前（基本職 → 上級職 → 超級職 → その先 の じゅん）
-export function jobLineNames(roots) {
-  return [...jobLine(roots)].sort((a, b) => (JOBS[a].tier || 0) - (JOBS[b].tier || 0)).map((id) => JOBS[id].name);
-}
-// chars … いっしょに 戦う 人の キャラ。その 系統の 人（魔物の 仲間は 職業が ないので 数えない）
-export function lineMember(chars, roots) {
-  const line = jobLine(roots);
-  return (chars || []).find((c) => c && !c.species && line.has(c.job)) || null;
-}
-export function partyHasLine(chars, roots) {
-  return !!lineMember(chars, roots);
-}
-const partyOfCtx = (x) => (x.partyChars ? x.partyChars() : [x.c].filter(Boolean));
-const proOf = (x, q) => lineMember(partyOfCtx(x), q.roots);
-
-// いない 時の ヒント（系統の 名前は 4つまで）
-function needText(q) {
-  const names = jobLineNames(q.roots);
-  const list = names.slice(0, 4).join('・') + (names.length > 4 ? ' など' : '');
-  return [`${q.job}の人が、パーティーにいてくれたら…。`, `（${list}の人と、いっしょに来よう。\n酒場の仲間や、家族の仲間でもいいよ）`];
-}
-const need = (q) => N(...needText(q));
-
-// 乗り物を もらう（パーティーの みんな。もう 持っていたら そのまま）
-function vehicleSteps(id) {
-  const v = FAMILY_VEHICLES[id];
-  return [
-    ['call', (run) => {
-      for (const m of run.everyone) {
-        const c = m.char;
-        if (!Array.isArray(c.vehicles)) c.vehicles = [];
-        if (!c.vehicles.includes(id)) c.vehicles.push(id);
-      }
-      run.world.markDirty();
-      run.say(`${run.who()}は${v.name}をもらった！\n（メニューの「乗り物」で、走る時に乗れる）`);
-    }],
-    ['sfx', 'key'],
-  ];
-}
-
 // ───────────── クエストの 画面・地図の しるし（sidequests.js の labSubQuests に たす）─────────────
-const cnt = (f, list) => list.filter((k) => f(k)).length;
-const firstMissing = (f, list) => list.findIndex((k) => !f(k));
 export function familySubQuests(c, f, has) {
   const out = [];
   const q = (id, o) => out.push({ name: Q[id].name, ...o });
@@ -150,6 +103,8 @@ export function familySubQuests(c, f, has) {
       else q('rail', { who: 'fq_rail_miner', find: 'fq_rail_cart', ready: false, text: 'トロッコに乗ってみよう', hint: '線路は、全部つながった。古い鉱山のトロッコに乗ってみよう。' });
     } else q('rail', { who: 'fq_rail_miner', ready: true, text: 'ゲンじいさんに知らせよう', hint: '線路の先の、だれも知らない小べや。カナトコのゲンじいさんに知らせよう。' });
   }
+  // 6〜11（第41回）
+  out.push(...workSubQuests(c, f, has));
   return out;
 }
 // クリアした たのまれごとの 名前（クエストの 画面）
@@ -772,21 +727,21 @@ const railCartBack = () => [
 ];
 const railNote = () => N('古い手紙だ。', '「この線路を直して、ここまで来た者へ。」', '「ここには、わしらの宝、金のきっぷと金のトロッコをのこしておく。」', '「線路は、人と人をつなぐもの。\nいちばんの宝は、いっしょに線路を直す仲間じゃ。」\n――カナトコ鉱山の親方より');
 
-// ───────────── だいほんの 一らん（story.js に まぜる）─────────────
-// ───────────── ルミナの町の たのまれごとの 掲示板（第1部クリアの あと）─────────────
+// ───────────── ルミナの町の お仕事いらい板（第1部クリアの あと）─────────────
 // はり紙を えらぶと: たのみごとの 中み・できそうな 職業（系統の 名前 ぜんぶ）・会う 人と 場所・ごほうび。読みおわると 一らんに もどる
 // （もどりは ['call'] で その 時に 作る。まえもって 作ると えらぶ たびに ふえて しまうので）
 function boardMark(x, q) {
   if (x.flag(q.done)) return '（すんだ）';
   return x.flag(q.start) ? '（受けている）' : '';
 }
-// できそうな 職業の ページ（1行 BOARD_LINE 文字まで・1ページ 2行。系統が 長い 職業でも はみ出さない）
+// できそうな 職業の ページ（1行 BOARD_LINE 文字まで・1ページ 2行。系統が 長い 職業でも はみ出さない）。
+// 名前の 間は「、」（「ネオ・クイーン・セレニティ」の ように 名前に「・」が ある 職業が あるので）
 const BOARD_LINE = 20;
 function jobPages(q) {
   const lines = [];
   for (const name of jobLineNames(q.roots)) {
     const last = lines.length - 1;
-    if (last >= 0 && lines[last].length + 1 + name.length <= BOARD_LINE) lines[last] += '・' + name;
+    if (last >= 0 && lines[last].length + 1 + name.length <= BOARD_LINE) lines[last] += '、' + name;
     else lines.push(name);
   }
   const out = [];
@@ -805,22 +760,33 @@ export function boardPage(x, q) {
     ...(state ? N(`（${state}）`) : []),
   ];
 }
-function boardMenu(x) {
-  return [['choice', 'どのはり紙を読む？', [...FAMILY_QUESTS.map((q) => q.name + boardMark(x, q)), 'やめる'], [
-    ...FAMILY_QUESTS.map((q) => [...boardPage(x, q), ['call', (run) => run.runSteps(boardMenu(x))]]),
-    [],
-  ]]];
+// はり紙の 一らんは 1ページ BOARD_PAGE まい（第41回で 11まいに ふえた。ページ送りで 読みやすく）。
+// 読みおわると、その ページの 一らんに もどる
+export const BOARD_PAGE = 6;
+export const boardPages = () => Math.ceil(FAMILY_QUESTS.length / BOARD_PAGE);
+function boardMenu(x, page = 0) {
+  const pages = boardPages();
+  const list = FAMILY_QUESTS.slice(page * BOARD_PAGE, (page + 1) * BOARD_PAGE);
+  const go = (p) => [['call', (run) => run.runSteps(boardMenu(x, p))]];
+  const opts = list.map((q) => q.name + boardMark(x, q));
+  const acts = list.map((q) => [...boardPage(x, q), ...go(page)]);
+  if (page + 1 < pages) { opts.push('つぎのページへ'); acts.push(go(page + 1)); }
+  if (page > 0) { opts.push('前のページへ'); acts.push(go(page - 1)); }
+  opts.push('やめる');
+  acts.push([]);
+  return [['choice', `どのはり紙を読む？${pages > 1 ? `（${page + 1}/${pages}ページ）` : ''}`, opts, acts]];
 }
 function questBoard(x) {
   // 第1部クリアの 前: けいじ板は 立っているが、はり紙は まだ ない
   if (!x.flag(FQ_OPEN)) return N('〜 お仕事いらい板 〜\nまだ、はり紙は1まいもはられていない。', '（世界が平和になったころ、各地からたのみごとがとどくらしい。\n第1部をクリアしたら、また見にこよう）');
   const left = FAMILY_QUESTS.filter((q) => !x.flag(q.done)).length;
   return [
-    ...N('〜 お仕事いらい板 〜\n各地からとどいた、たのみごとのはり紙がはってある。', left ? `（まだすんでいないたのまれごと：${left}つ）` : '（全部のたのまれごとが、すんでいる！）'),
+    ...N('〜 お仕事いらい板 〜\n各地からとどいた、たのみごとのはり紙がはってある。', left ? `（はり紙は${FAMILY_QUESTS.length}まい。まだすんでいないのは${left}まい）` : '（全部のたのまれごとが、すんでいる！）'),
     ...boardMenu(x),
   ];
 }
 
+// ───────────── だいほんの 一らん（story.js に まぜる）─────────────
 export const FAMILY_SCRIPTS = {
   fq_board: questBoard,
   fq_th_manager: thManager, fq_th_clerk: thClerk, fq_th_lobbyguest: thLobbyGuest, fq_th_fan: thFan, fq_th_hot: thHot, fq_th_guest: thGuest,
@@ -835,6 +801,7 @@ export const FAMILY_SCRIPTS = {
   fq_bell_talk1: bellTalk1, fq_bell_talk2: bellTalk2, fq_bell_talk3: bellTalk3, fq_bell_talk4: bellTalk4,
   fq_rail_miner: railMiner, fq_rail_cart: railCart, fq_rail_cart_back: railCartBack, fq_rail_note: railNote,
   ...Object.fromEntries(RAIL_FIX.map((_, i) => [`fq_rail_broken${i + 1}`, railBroken(i)])),
+  ...WORK_SCRIPTS,
 };
 // パーティー全員で 見る イベント（戦い・トロッコ）
-export const FAMILY_STORY_SCRIPTS = ['fq_th_unit', 'fq_cook_mole', 'fq_rail_cart', 'fq_rail_cart_back'];
+export const FAMILY_STORY_SCRIPTS = ['fq_th_unit', 'fq_cook_mole', 'fq_rail_cart', 'fq_rail_cart_back', ...WORK_STORY_SCRIPTS];

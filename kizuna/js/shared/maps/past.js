@@ -9,11 +9,11 @@
 // ・今の ミドリナ地方: ほしみの丘の 星の花の あった 所に 時のほこらの 入口（c6_start で 開く）・ルミナの町の 広場の はじまりの勇者の像
 //   （c6_start 〜 c6_flow の あいだ うすく 消えかける）・ルミナの町の 北の 時のいせき（今は 木の根と がれきに うもれている。c6_rion で 入れる）
 // だいほんは data/story-ch6.js
-import { T, parseRows, TILE_INFO, LEGEND } from '../tiles.js?v=c2ce3805193b';
-import { fbm, hash2 } from '../rng.js?v=c2ce3805193b';
-import { npc } from './npc.js?v=c2ce3805193b';
-import { PLACES, BRIDGE_Y, LAKE, riverXAt } from './overworld.js?v=c2ce3805193b';
-import { PAST_TREASURE } from '../data/items-past.js?v=c2ce3805193b';
+import { T, parseRows, TILE_INFO, LEGEND } from '../tiles.js?v=9a7a9e52e6f2';
+import { fbm, hash2 } from '../rng.js?v=9a7a9e52e6f2';
+import { npc } from './npc.js?v=9a7a9e52e6f2';
+import { PLACES, BRIDGE_Y, LAKE, riverXAt } from './overworld.js?v=9a7a9e52e6f2';
+import { PAST_TREASURE } from '../data/items-past.js?v=9a7a9e52e6f2';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 // 物語の すすみぐあい（data/story-ch6.js の CH6_STEPS。plan-ch6.md の 9 の 名前の 約束）
@@ -273,7 +273,9 @@ function pastNpcs() {
     ...FROZEN.map(([id, name, [x, y], k]) => npc(`s${id.slice(1)}`, name, [SPRING.x + x, SPRING.y + y], `spring_${k}`, `c6_s${id.slice(1)}`, { show: { all: [C6.flow] }, wander: 1 })),
     npc('rion', 'リオン', [C.rion.x, C.rion.y], 'rion', 'c6_rion_talk', { show: { all: [C6.rion] } }),
     npc('chibi_astel', 'ちびアステル', [C.chibi.x, C.chibi.y], 'chibi_astel', 'c6_chibi', { show: { all: [C6.rion] } }),
-    npc('minamo_home', 'ミナモ', [C.minamo.x, C.minamo.y], 'minamo', 'c6_minamo_home', { show: { all: [C6.flow] } }),
+    // ミナモ（c6_flow の あと 家に。Step 3・4 では c6_omen から c6_kanata まで ゲストで いっしょなので いない）
+    npc('minamo_home', 'ミナモ', [C.minamo.x, C.minamo.y], 'minamo', 'c6_minamo_home', { show: { all: [C6.flow], not: ['c6_omen'] } }),
+    npc('minamo_back', 'ミナモ', [C.minamo.x, C.minamo.y], 'minamo', 'c6_minamo_home', { show: { all: ['c6_kanata'] } }),
   ];
   return out;
 }

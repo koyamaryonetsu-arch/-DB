@@ -172,6 +172,12 @@ export const JOB_TAGS = {
   // 第40回
   ryumajin: ['henshin', 'sword', 'bolt', 'magic'], // 竜魔人（いなずまの魔法剣）
   neo_queen: ['light', 'heal', 'guard', 'master'], // ネオ・クイーン・セレニティ（月の女王）
+  // 第41回 B
+  snow_queen: ['ice', 'magic', 'guard', 'henshin'], // 雪の女王（氷のかべ・氷のドレスに変身。歌とおどりは 13職業の 上限）
+  fifth_spirit: ['ice', 'wind', 'fire', 'magic'], // 第5のせいれい（風・火・水・大地）
+  // 第41回 A
+  keikyu_president: ['ride', 'work', 'money', 'master'], // 京急の社長（赤い電車・会社のお金）
+  hall_of_fame: ['sport', 'master', 'rival'], // 野球界の殿堂入り
 };
 
 // そのタグの 職業（JOB_TAGS の じゅん）

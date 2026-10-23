@@ -1,37 +1,39 @@
 // お店・やどや・きょうかい・転職・酒場・でんごんばん・メニュー操作
-import { markNewsRead } from '../data/news.js?v=c2ce3805193b';
-import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js?v=c2ce3805193b';
-import { normDifficulty } from '../data/difficulty.js?v=c2ce3805193b';
-import { ITEMS, sellPrice, SLOTS, SLOT_NAMES } from '../data/items.js?v=c2ce3805193b';
-import { JOBS, ALL_JOBS, jobReqText, BODY_NAMES } from '../data/jobs.js?v=c2ce3805193b';
-import { ABILITIES } from '../data/abilities.js?v=c2ce3805193b';
-import { abilityFor, abilityLabel, isMasc } from '../ability-label.js?v=c2ce3805193b';
-import { jobLabel } from '../job-label.js?v=c2ce3805193b';
-import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=c2ce3805193b';
-import { TACTICS } from '../ai.js?v=c2ce3805193b';
-import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js?v=c2ce3805193b';
-import { salonInfo, salonAction } from './salon.js?v=c2ce3805193b';
-import { breedMonsters, breedPreview } from './breed.js?v=c2ce3805193b';
-import { farewellText } from './farewell.js?v=c2ce3805193b';
-import { MONSTERS } from '../data/monsters.js?v=c2ce3805193b';
-import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings, spellSealed } from '../battle.js?v=c2ce3805193b';
-import { PLACES } from '../maps/overworld.js?v=c2ce3805193b';
-import { POS, SEA_PLACES, MAPS } from '../maps/index.js?v=c2ce3805193b';
-import { castRura, warpParty, useTimeBell, warpPlaces, warpOwner, PAST_WARP_TEXT } from './travel.js?v=c2ce3805193b';
+import { markNewsRead } from '../data/news.js?v=9a7a9e52e6f2';
+import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js?v=9a7a9e52e6f2';
+import { normDifficulty } from '../data/difficulty.js?v=9a7a9e52e6f2';
+import { ITEMS, sellPrice, SLOTS, SLOT_NAMES } from '../data/items.js?v=9a7a9e52e6f2';
+import { JOBS, ALL_JOBS, jobReqText, BODY_NAMES } from '../data/jobs.js?v=9a7a9e52e6f2';
+import { ABILITIES } from '../data/abilities.js?v=9a7a9e52e6f2';
+import { abilityFor, abilityLabel, isMasc } from '../ability-label.js?v=9a7a9e52e6f2';
+import { jobLabel } from '../job-label.js?v=9a7a9e52e6f2';
+import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=9a7a9e52e6f2';
+import { TACTICS } from '../ai.js?v=9a7a9e52e6f2';
+import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js?v=9a7a9e52e6f2';
+import { salonInfo, salonAction } from './salon.js?v=9a7a9e52e6f2';
+import { breedMonsters, breedPreview } from './breed.js?v=9a7a9e52e6f2';
+import { farewellText } from './farewell.js?v=9a7a9e52e6f2';
+import { MONSTERS } from '../data/monsters.js?v=9a7a9e52e6f2';
+import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings, spellSealed } from '../battle.js?v=9a7a9e52e6f2';
+import { PLACES } from '../maps/overworld.js?v=9a7a9e52e6f2';
+import { POS, SEA_PLACES, MAPS } from '../maps/index.js?v=9a7a9e52e6f2';
+import { castRura, warpParty, useTimeBell, warpPlaces, warpOwner, PAST_WARP_TEXT } from './travel.js?v=9a7a9e52e6f2';
 // 第6章: 時の砂時計（world/time-glass-use.js）
-import { useTimeGlass } from './time-glass-use.js?v=c2ce3805193b';
-import { bankInfo, bankAction } from './bank.js?v=c2ce3805193b';
-import { forgeInfo, forgeAction } from './forge.js?v=c2ce3805193b';
-import { alchemyAction, useAlchemyMemo } from './alchemy.js?v=c2ce3805193b';
-import { FIELD27_EFFECTS, castField27, useAuraItem } from './field27.js?v=c2ce3805193b';
-import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction, wagonHere, wagonHealEntries, ownWagonEntries } from './wagon.js?v=c2ce3805193b';
-import { casinoOpen, casinoAction } from './casino.js?v=c2ce3805193b';
-import { useEscapeItem, noEscapeText } from './escape.js?v=c2ce3805193b';
-import { usePowder } from './powder.js?v=c2ce3805193b';
-import { bestEquipPlan, bestTeamOrder } from '../equip-plan.js?v=c2ce3805193b';
-import { setLookEquip } from '../look-equip.js?v=c2ce3805193b';
-import { jobDoneText } from '../data/job-talk.js?v=c2ce3805193b';
-import { vehicleShopInfo, vehicleShopAction, vehicleMenuAction } from './vehicles.js?v=c2ce3805193b';
+import { useTimeGlass } from './time-glass-use.js?v=9a7a9e52e6f2';
+// 第6章 Step 3・4: ミナモの 星読み（world/star-sight.js）
+import { useStarSight } from './star-sight.js?v=9a7a9e52e6f2';
+import { bankInfo, bankAction } from './bank.js?v=9a7a9e52e6f2';
+import { forgeInfo, forgeAction } from './forge.js?v=9a7a9e52e6f2';
+import { alchemyAction, useAlchemyMemo } from './alchemy.js?v=9a7a9e52e6f2';
+import { FIELD27_EFFECTS, castField27, useAuraItem } from './field27.js?v=9a7a9e52e6f2';
+import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction, wagonHere, wagonHealEntries, ownWagonEntries } from './wagon.js?v=9a7a9e52e6f2';
+import { casinoOpen, casinoAction } from './casino.js?v=9a7a9e52e6f2';
+import { useEscapeItem, noEscapeText } from './escape.js?v=9a7a9e52e6f2';
+import { usePowder } from './powder.js?v=9a7a9e52e6f2';
+import { bestEquipPlan, bestTeamOrder } from '../equip-plan.js?v=9a7a9e52e6f2';
+import { setLookEquip } from '../look-equip.js?v=9a7a9e52e6f2';
+import { jobDoneText } from '../data/job-talk.js?v=9a7a9e52e6f2';
+import { vehicleShopInfo, vehicleShopAction, vehicleMenuAction } from './vehicles.js?v=9a7a9e52e6f2';
 
 export function openService(world, s, kind, arg) {
   switch (kind) {
@@ -457,6 +459,7 @@ export function menuAction(world, s, msg) {
     }
     // 第6章: 時の砂時計（大事な物。メニューの「道具」から）
     case 'timeGlass': return useTimeGlass(world, s, reply);
+    case 'starSight': return useStarSight(world, s, reply);
     case 'cast': {
       const caster = ownChar(s, msg.who);
       if (!caster) return reply(false, '');
@@ -517,9 +520,14 @@ export function menuAction(world, s, msg) {
       if (msg.op === 'all') off.clear();
       else {
         const id = String(msg.id || '');
-        if (!ABILITIES[id] || !learnedAbilities(t0).includes(id)) return reply(false, '');
-        if (msg.op === 'off') off.add(id);
-        else off.delete(id);
+        const learned = learnedAbilities(t0);
+        if (!ABILITIES[id] || !learned.includes(id)) return reply(false, '');
+        // 第41回: 同じ 名前の 技（大神官と 大賢者の ザオリク など）は いっしょに「使う／使わない」
+        const same = learned.filter((x) => ABILITIES[x]?.name === ABILITIES[id].name);
+        for (const x of same) {
+          if (msg.op === 'off') off.add(x);
+          else off.delete(x);
+        }
       }
       const list = [...off].filter((x) => ABILITIES[x]).slice(0, 200);
       for (const t of targets) {

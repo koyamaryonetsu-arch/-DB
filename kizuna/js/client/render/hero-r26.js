@@ -12,15 +12,19 @@
 //                                    はなかっぱの かお・楽天カードマンの メガネと カード（phase 'over': ぼうしの あと）
 //   drawHat26(cv, P, H, G, view) … 新しい ぼうし（かえりち: かいたら true）
 //   drawProp26(cv, P, A, O) … たての ない 手に もつ もの（カード・スプーン・虫めがね・きゅうり など）
-import { mat, ramp, TH, mixC, HeroCanvas } from './hero-raster.js?v=c2ce3805193b';
+import { mat, ramp, TH, mixC, HeroCanvas } from './hero-raster.js?v=9a7a9e52e6f2';
 // 第27回の 暴れんぼう将軍の 家もんと せんす（hero-r27.js）
-import { drawR27, drawProp27 } from './hero-r27.js?v=c2ce3805193b';
+import { drawR27, drawProp27 } from './hero-r27.js?v=9a7a9e52e6f2';
 // 第29回の るろうに剣士の 道の マント・十字の きず（hero-r29.js）
-import { outfit29, drawR29, face29 } from './hero-r29.js?v=c2ce3805193b';
+import { outfit29, drawR29, face29 } from './hero-r29.js?v=9a7a9e52e6f2';
 // 第33回の 11この 職業の マント・リボン・めがね・シルクハット・もちもの（hero-r33.js）
-import { outfit33, body33, drawR33, face33, drawHat33, drawProp33 } from './hero-r33.js?v=c2ce3805193b';
+import { outfit33, body33, drawR33, face33, drawHat33, drawProp33 } from './hero-r33.js?v=9a7a9e52e6f2';
 // 第40回の 伝説の 職業 2つの ドレス・ひたいの しるし・つえ（hero-r40.js）
-import { outfit40, face40, drawProp40 } from './hero-r40.js?v=c2ce3805193b';
+import { outfit40, face40, drawProp40 } from './hero-r40.js?v=9a7a9e52e6f2';
+// 第41回 B の 雪の女王・第5のせいれいの ドレス・すける マント（hero-r41b.js）
+import { outfit41b } from './hero-r41b.js?v=9a7a9e52e6f2';
+// 第41回 A の 伝説の 職業 2つの 手ぶくろ・むねの かざり・もちもの（hero-r41a.js）
+import { outfit41a, drawR41a, drawProp41a } from './hero-r41a.js?v=9a7a9e52e6f2';
 
 // ───────────── ざいしつ（mat は おなじ ものを つくりなおさない） ─────────────
 const cl = (c, o = {}) => mat({ r: ramp(c, 4, o), th: o.th || TH.cloth });
@@ -224,6 +228,10 @@ export function outfit26(O, S, Lk, fem, main, phase) {
   if (S.r33) outfit33(O, S, Lk, fem);
   // 第40回: 足もとまでの ドレス・竜の とげの かたあて
   if (S.r40) outfit40(O, S);
+  // 第41回 B: 足もとまでの ドレス・すける そでと マント
+  if (S.r41b) outfit41b(O, S);
+  // 第41回 A: 白い 手ぶくろ・金の メダル・時計の くさり
+  if (S.r41a) outfit41a(O, S);
   return false;
 }
 
@@ -343,6 +351,8 @@ export function drawR26(cv, P, O, layer) {
   if (O.mantle29) drawR29(cv, P, O, layer);
   // 第33回: マント・マフラー・ほうき・リボン など
   if (O.r33) drawR33(cv, P, O, layer);
+  // 第41回 A: 金の メダル・時計の くさり
+  if (O.r41a) drawR41a(cv, P, O, layer);
 }
 function draw26(cv, P, O, layer) {
   const view = P.side ? 'side' : P.back ? 'back' : 'front';
@@ -1053,7 +1063,7 @@ export function drawHat26(cv, P, H, G, view) {
 // まえ: がめんの みぎの 手、うしろ: ひだりの 手、よこ: その 手（P.facing の ほうへ むける）
 export function drawProp26(cv, P, A, O) {
   const kind = O.body?.prop;
-  if (!kind || drawProp27(cv, P, A, O) || drawProp33(cv, P, A, O) || drawProp40(cv, P, A, O)) return;
+  if (!kind || drawProp27(cv, P, A, O) || drawProp33(cv, P, A, O) || drawProp40(cv, P, A, O) || drawProp41a(cv, P, A, O)) return;
   const [hx, hy] = A.hand;
   const d = P.side ? P.facing : A.s || 1;
   switch (kind) {

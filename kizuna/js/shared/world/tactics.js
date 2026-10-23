@@ -3,8 +3,8 @@
 //   かえられるのは じぶん（オートの ときの さくせん。めいれいさせろ は なし）と じぶんの なかま だけ。
 //   家族の キャラ（ほかの 人が うごかす）・ほかの 人の なかま・ゲストは かえられない。
 //   かえた さくせんは すぐ たたかいに つかい、キャラにも のこす（メニューの「作戦」と おなじ）
-import { TACTICS } from '../ai.js?v=c2ce3805193b';
-import { partyOf, companionOf, ensureCompanions } from './party.js?v=c2ce3805193b';
+import { TACTICS } from '../ai.js?v=9a7a9e52e6f2';
+import { partyOf, companionOf, ensureCompanions } from './party.js?v=9a7a9e52e6f2';
 
 export function battleTactics(world, s, ctx, msg) {
   const b = ctx.battle;

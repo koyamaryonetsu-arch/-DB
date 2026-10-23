@@ -5,7 +5,7 @@
 //   かげ火が 来た・大炎の 前ぶれ・大炎（すいこんだ 数）の バナー
 // ・モルガナのまぼろし: 広間の 水かさ（下から 上がる 水と 目もり）。いっぱい・水の衣を はじいて 下がった ときの バナー
 // ・敵が 使うと がめんの まん中に 大きく 出す 技・味方の まどの えんしゅつ・音
-import { whiteCopy } from './render/pixel.js?v=c2ce3805193b';
+import { whiteCopy } from './render/pixel.js?v=9a7a9e52e6f2';
 
 const STORM = 'phantom_storm';
 const IGNIA = 'phantom_ignia';
