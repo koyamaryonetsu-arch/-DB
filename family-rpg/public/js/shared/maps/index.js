@@ -312,7 +312,7 @@ function buildMaps() {
   attachCastle(maps);
   // 第5章 Step 9: 影の城の てっぺん「星のない広間」（maps/castle-top.js。A8 の 影の城 castle_1f〜12f の あと）
   attachCastleTop(maps);
-  // 第39回 C: 家族の 仕事の たのまれごと（劇場・おみやげ屋・料理大会・消えた鐘・古い 坑道。maps/family-quests.js）
+  // 第39回 C・第41回: お仕事いらい板の たのまれごと（maps/family-quests.js。第41回の 6つは そこから maps/work-quests.js）
   attachFamilyQuests(maps);
   // 第6章 Step 1・2: 千年前の ミドリナ地方・時のほこら・時のいせき（maps/ch6.js。今の フィールドを ぜんぶ 作った あと）
   attachCh6(maps);

@@ -25,6 +25,7 @@ import { ENCOUNTER_TABLES, ZONE_BG } from '../public/js/shared/data/encounters.j
 import { DAY_MS, REST_TO, clockHour, fracFor, isNightFor, isNightFrac, phaseOf, restShift, dayFrac } from '../public/js/shared/world/clock.js';
 import { T } from '../public/js/shared/tiles.js';
 import { npcOpts, paintHuman, paintSpecial } from '../public/js/client/render/chars.js';
+import { MONSTER_ART } from '../public/js/client/render/monsters.js';
 import { SKY_FLAG, FLUTE_ID } from '../public/js/shared/data/sky.js';
 import { gainExp, expForLevel } from '../public/js/shared/stats.js';
 import { Bot, tickN } from './helpers.js';
@@ -670,7 +671,8 @@ test('王都の 人の みため: 女王（小さな かんむり）・水に �
   }
   // 王都の NPC は みんな みためが ある
   // （第4章クリアの あとの 台座の 水の守り星〈Step 7〉は とくべつな え）
-  for (const n of MAPS.south.npcs) if (n.x >= SAF.x && n.x < SAF.x + SAF.w && n.y >= SAF.y && n.y < SAF.y + SAF.h) assert.ok(npcOpts(n.sprite) || paintSpecial(n.sprite, 'down', 0), `${n.id}: ${n.sprite}`);
+  // （お仕事いらい板の たのまれごとの 物〈第41回の お祭りの ぶたい・白い ハト〉は 'mon:' の 絵）
+  for (const n of MAPS.south.npcs) if (n.x >= SAF.x && n.x < SAF.x + SAF.w && n.y >= SAF.y && n.y < SAF.y + SAF.h) assert.ok(npcOpts(n.sprite) || paintSpecial(n.sprite, 'down', 0) || (n.id.startsWith('fq_') && MONSTER_ART[n.sprite.replace(/^mon:/, '')]), `${n.id}: ${n.sprite}`);
   assert.equal(npcOpts('nefi').hat, 'tiara');
   assert.ok(npcOpts('nefi').small, '女王ネフィは 12さい');
   // 水に うつる 女王は はだも かみも 水の いろ

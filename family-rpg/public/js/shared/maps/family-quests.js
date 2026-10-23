@@ -1,4 +1,5 @@
-// 家族の 仕事の たのまれごと（第39回 C。docs/plan-side.md の 2）の 人・しらべる 所・小さな へや
+// お仕事いらい板の たのまれごと（第39回 C。docs/plan-side.md の 2）の 人・しらべる 所・小さな へや
+// 第41回で ふえた 6つは maps/work-quests.js（attachFamilyQuests の さいごに attachWorkQuests を よぶ）
 //
 // ・第1部クリア（c5_clear）の あと、それぞれの 町に たのみたい 人が 立つ
 // ・ここで 今の 町の マップに たてもの・人・小さな へやを 足す（attachFamilyQuests。maps/index.js から よぶ）
@@ -9,8 +10,11 @@
 //  3. カナトコの料理大会（鉱山の町カナトコの 広場・町の 北の 雪原の きのこ・南の 道の モグラ）
 //  4. ルミナの町の、消えた教会のかね（ルミナの町の 教会の まわり・北西の すみの 大きな 木）
 //  5. 鉱山トロッコの線路（鉱山の町カナトコの 北の 古い 鉱山 → だれも 知らない 小べや）
-import { T, parseRows, TILE_INFO } from '../tiles.js';
+import { T, TILE_INFO } from '../tiles.js';
 import { npc } from './npc.js';
+import { grid, room, stamp } from './fq-kit.js';
+// 第41回: ふえた 6つの たのまれごとの 人と へや（maps/work-quests.js）
+import { attachWorkQuests } from './work-quests.js';
 import { PLACES } from './overworld.js';
 import { NORTH_PLACES } from './north.js';
 import { SOUTH_PLACES } from './south.js';
@@ -155,16 +159,6 @@ export const RAIL_PATH = [[3.5, 11.5], [20.5, 11.5], [20.5, 4.5], [23.5, 4.5]];
 export const MINE_ROOM_ARRIVE = { x: 3.5, y: 4.5 };
 export const MINE_ROOM_CART = [2, 4];
 
-// ───────────── マップを かく どうぐ ─────────────
-function grid(w, h, fill) {
-  const g = Array.from({ length: h }, () => Array(w).fill(fill));
-  const api = {
-    rect(x, y, rw, rh, ch) { for (let j = y; j < y + rh; j++) for (let i = x; i < x + rw; i++) if (g[j]?.[i] !== undefined) g[j][i] = ch; return api; },
-    put(x, y, ch) { if (g[y]?.[x] !== undefined) g[y][x] = ch; return api; },
-    rows() { return g.map((r) => r.join('')); },
-  };
-  return api;
-}
 function oldMineRows() {
   const s = grid(26, 14, 'G');
   s.rect(1, 10, 21, 3, 'g'); // 東西の 通路（線路の 両がわを 歩ける）
@@ -188,22 +182,6 @@ function mineRoomRows() {
   for (const [x, y] of [[9, 1], [10, 2], [1, 7], [10, 7]]) s.put(x, y, 'y');
   s.put(5, 1, 'i').put(8, 7, 'O');
   return s.rows();
-}
-
-// 小さな へやの マップ（インドアは roofs で かべを ひくく）
-function room(id, name, rows, o) {
-  const p = parseRows(rows);
-  return {
-    id, name, kind: 'dungeon', bgm: o.bgm, dark: !!o.dark, indoor: o.indoor !== false,
-    w: p.w, h: p.h, tiles: p.tiles, gates: o.gates || [],
-    npcs: o.npcs || [], chests: o.chests || [], signs: o.signs || [], warps: o.warps || [],
-    triggers: [], sparkles: [], actions: o.actions || [],
-    roofs: o.indoor === false ? [] : [{ x: 0, y: 0, w: p.w, h: p.h, color: o.roof || 'red' }],
-    zoneAt: () => `safe:${id}`,
-    areaName: () => name,
-    bgmAt: () => o.bgm,
-    spawnCounts: {},
-  };
 }
 
 const SHOWN = { all: [FQ_OPEN] };
@@ -337,7 +315,7 @@ const TOWN_NPCS = [
   ['fq_cook_mush', '雪の下のきのこ', 'mon:fq_mushroom', 'fq_cook_mush', 'north', KAN, 3, -1, { show: opened(FQ.cookStart), solid: false, fixed: true }],
   ['fq_cook_mole', 'ほりほりモグラ', 'mon:mole_miner', 'fq_cook_mole', 'north', KAN, 12, 32, { show: { all: [FQ_OPEN, FQ.cookStart], not: [FQ.cookMole] }, fixed: true }],
   // 4. ルミナ: 教会の シスター・かねの 台・羽・どろ・話を 聞く 4人・北西の 木の カラス
-  // ルミナの町の 広場（ふん水の 東）: たのまれごとの 掲示板（5つの たのまれごとの はり紙）
+  // ルミナの町の 広場（ふん水の 東）: お仕事いらい板（たのまれごとの はり紙。第41回で 11まい）
   ['fq_board', 'お仕事いらい板', 'mon:fq_board', 'fq_board', 'overworld', TW, 26, 17, { fixed: true }],
   ['fq_bell_sister', '教会のシスター', 'priestess', 'fq_bell_sister', 'overworld', TW, 12, 34, { show: SHOWN }],
   ['fq_bell_stand', 'かねの台', 'mon:fq_bell_stand', 'fq_bell_stand', 'overworld', TW, 12, 29, { show: { all: [FQ_OPEN], not: [FQ.bellDone] }, fixed: true }],
@@ -352,13 +330,6 @@ const TOWN_NPCS = [
   // 5. カナトコ: 古い 鉱山の 前の 年よりの 鉱夫
   ['fq_rail_miner', '年よりの鉱夫ゲン', 'fq_old_miner', 'fq_rail_miner', 'north', KAN, 14, 2, { show: SHOWN }],
 ];
-
-function stamp(m, x0, y0, w, h, wall, roof, door) {
-  for (let y = y0; y < y0 + h; y++) for (let x = x0; x < x0 + w; x++) m.tiles[y * m.w + x] = wall;
-  // とびらの 内がわは ゆか（入ると すぐ べつの マップ。とびらの 上も 下も ふさがない）
-  for (const d of door) { m.tiles[d.y * m.w + d.x] = T.DOOR; m.tiles[(d.y - 1) * m.w + d.x] = T.FLOOR_STONE; }
-  m.roofs.push({ x: x0, y: y0, w, h, color: roof });
-}
 
 // maps/index.js の buildMaps から（ほかの マップが そろった あと・finishMap の 前）
 export function attachFamilyQuests(maps) {
@@ -388,6 +359,8 @@ export function attachFamilyQuests(maps) {
     const [x, y] = fixed ? [base.x + dx, base.y + dy] : openSpot(m, base.x + dx, base.y + dy);
     m.npcs.push(npc(id, name, [x, y], sprite, script, { dir: 'down', ...opts }));
   }
+  // 6〜11（第41回）
+  attachWorkQuests(maps);
   return maps;
 }
 

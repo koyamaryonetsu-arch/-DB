@@ -378,7 +378,7 @@ Object.assign(NPC_LOOKS, KUMOI_NPC_LOOKS);
 Object.assign(NPC_LOOKS, HOSHIYOMI_NPC_LOOKS);
 // 第5章 Step 9 エンディングの ノクト（紋章の 金色）・羽が 開いた ピピ（render/ch5-top-art.js）
 Object.assign(NPC_LOOKS, TOP_NPC_LOOKS);
-// 第39回 C: 家族の 仕事の たのまれごとの 人（render/family-art.js）
+// 第39回 C・第41回: お仕事いらい板の たのまれごとの 人（render/family-art.js・work-art.js）
 Object.assign(NPC_LOOKS, FAMILY_NPC_LOOKS);
 // 第6章 Step 1・2 の トキネ・リオン・ミナモ・ホシヨ・千年前の 人・時が 止まった 人（render/ch6-art.js）
 Object.assign(NPC_LOOKS, CH6_NPC_LOOKS);
