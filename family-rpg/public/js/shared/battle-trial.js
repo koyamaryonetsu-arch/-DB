@@ -30,6 +30,8 @@ export const PHANTOM_ADJ = {
   harry: [0.85, 0.65], fullmetal: [0.58, 0.43], sailor_moon: [1.21, 1.18], loto_hero: [1.3, 1.04], ss3: [0.71, 0.48],
   nika: [0.61, 0.55], maou: [0.75, 0.55], facility_genius: [0.86, 0.74], hakaishin: [0.6, 0.6], hinokami: [0.63, 0.49],
   hokage: [0.53, 0.43], abarenbo_shogun: [0.77, 0.7], hiten: [0.68, 0.58], homeroom_3b: [0.58, 0.68],
+  // 第40回
+  ryumajin: [1.12, 1.19], neo_queen: [0.52, 0.72],
 };
 // 使わない 技の こうか（生き返らせる・みんなの MP を へらす など。鏡のうつし身の MIRROR_SKIP の ほか）
 const NO_USE = new Set(['revive', 'reviveAll']);

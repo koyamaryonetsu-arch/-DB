@@ -169,6 +169,9 @@ export const JOB_TAGS = {
   abarenbo_shogun: ['sword', 'master', 'ride'], // 暴れんぼう将軍（白馬）
   hiten: ['sword', 'master', 'wind'], // 飛天御剣流けい承者（飛天の大竜巻）
   homeroom_3b: ['school', 'master', 'work'], // 3年B組の担任
+  // 第40回
+  ryumajin: ['henshin', 'sword', 'bolt', 'magic'], // 竜魔人（いなずまの魔法剣）
+  neo_queen: ['light', 'heal', 'guard', 'master'], // ネオ・クイーン・セレニティ（月の女王）
 };
 
 // そのタグの 職業（JOB_TAGS の じゅん）

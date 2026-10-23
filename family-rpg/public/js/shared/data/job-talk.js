@@ -25,11 +25,15 @@ export const JOB_SAY = {
   fullmetal: '「だれがチビだって！？」',
   sailor_soldier: '「メイクアップ！」',
   sailor_moon: '「月にかわっておしおきよ！」',
+  // 第40回
+  ryumajin: '「竜の紋章が、両手に…！」',
+  neo_queen: '「未来の都は、わたしが守ります」',
 };
 // 男の子（look.body が 1 で ない）の ときの ひとこと（タキシード仮面ふう。shared/ability-label.js）
 export const JOB_SAY_MASC = {
   sailor_soldier: '「仮面のしんし、ただいま参上！」',
   sailor_moon: '「月の光が見ているぞ！」',
+  neo_queen: '「地球の王として、みんなを守る」',
 };
 
 // removed: 装備できなく なって はずした 物の 名前（多い ときは 2つ と「など」）

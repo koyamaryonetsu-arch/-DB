@@ -51,6 +51,8 @@ import { JOB7_ABILITIES } from './abilities-jobs7.js';
 import { JOB8_ABILITIES } from './abilities-jobs8.js';
 // 2026年10月（第33回）の 新しい 職業の 技（手品師・かいとう・魔法学校・3年B組の担任・れん金術師・美少女戦士 など 11）
 import { JOB9_ABILITIES } from './abilities-jobs9.js';
+// 2026年10月（第40回）の 2つの 伝説の 職業の 技（竜魔人・ネオ・クイーン・セレニティ）
+import { JOB10_ABILITIES } from './abilities-jobs10.js';
 
 export const ABILITIES = {
   // ───────────── 戦士 ─────────────
@@ -644,6 +646,8 @@ Object.assign(ABILITIES, JOB7_ABILITIES);
 Object.assign(ABILITIES, JOB8_ABILITIES);
 // 第33回の 11の 職業（abilities-jobs9.js）
 Object.assign(ABILITIES, JOB9_ABILITIES);
+// 第40回の 2つの 伝説の 職業（abilities-jobs10.js）
+Object.assign(ABILITIES, JOB10_ABILITIES);
 
 // 攻撃呪文かどうか（魔法剣で使える）
 export function isAttackSpell(id) {
