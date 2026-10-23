@@ -579,7 +579,7 @@ test('掲示板: ルミナの町の広場に いつも 立つ・はり紙に 中
   const { bot, c } = await setup(391);
   // 1まい目（劇場）を 読んで、一らんに もどって、やめる
   const msgs = await talkTo(bot, 'fq_board', [0, 5]);
-  assert.ok(said(msgs, /たのまれごとのけいじ板/));
+  assert.ok(said(msgs, /お仕事いらい板/));
   assert.ok(said(msgs, /まだすんでいないたのまれごと：5つ/));
   assert.ok(said(msgs, /劇場が暑くて/));
   assert.ok(said(msgs, /設備屋・ryonetsu[・\n]天才しせつ管理者/), '系統の 職業 ぜんぶ');

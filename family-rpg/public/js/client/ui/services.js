@@ -932,7 +932,7 @@ export function choose(game, title, items, { top = null, onMove = null } = {}) {
 // ───────────── でんごんばん ─────────────
 function boardUI(game, data) {
   return new Promise((resolve) => {
-    const s = shell('家族の伝言板');
+    const s = shell('けいじ板');
     s.game = game;
     const main = el('div', { class: 'win main scroll', style: { gridColumn: '1 / -1' } });
     s.body.append(main);
@@ -952,7 +952,7 @@ function boardUI(game, data) {
       onSelect: async (it) => {
         if (it.value === 'close') return close();
         menu.blur();
-        const text = await askText(game.input, { title: '伝言板に書く', placeholder: '今日は洞窟まで行ったよ！', max: 120 });
+        const text = await askText(game.input, { title: 'けいじ板に書く', placeholder: '今日は洞窟まで行ったよ！', max: 120 });
         if (text) {
           const r = await request(game, { kind: 'board', action: 'post', text });
           toast(r.text || '');

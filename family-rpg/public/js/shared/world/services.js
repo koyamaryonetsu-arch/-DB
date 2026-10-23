@@ -247,7 +247,7 @@ export function serviceAction(world, s, msg) {
         world.data.board.unshift({ from: c.name, text, time: Date.now() });
         world.data.board = world.data.board.slice(0, 40);
         world.broadcast({ t: 'board', posts: world.data.board });
-        return reply(true, '伝言板に書きこんだ！', { posts: world.data.board });
+        return reply(true, 'けいじ板に書きこんだ！', { posts: world.data.board });
       }
       return;
     }
