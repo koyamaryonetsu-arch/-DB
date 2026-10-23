@@ -117,7 +117,7 @@ Object.assign(ZONE_BG, ZONE_BG_TEMPLE);
 // 第4章クリアの あとの より道: 古代の大迷宮・たのまれごとの 強い 魔物（encounters-lab.js）
 Object.assign(ENCOUNTER_TABLES, ENCOUNTERS_LAB);
 Object.assign(FIXED_ENCOUNTERS, FIXED_LAB);
-// 第39回 C: 家族の 仕事の たのまれごとの 軽い 戦い（encounters-family.js）
+// 第39回 C・第41回: お仕事いらい板の たのまれごとの 軽い 戦い（encounters-family.js）
 Object.assign(FIXED_ENCOUNTERS, FIXED_FAMILY);
 Object.assign(ZONE_BG, ZONE_BG_LAB);
 // 第5章 Step 2「星の塔」（encounters-ch5.js）

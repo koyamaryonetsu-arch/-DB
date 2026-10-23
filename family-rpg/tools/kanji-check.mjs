@@ -319,8 +319,10 @@ export function gameFiles() {
     // 第38回 B: 超級職からの 職業レベルの 上限と 職業の試練（試練の番人・修行・師しょうのまぼろし・しょうごう）
     'public/js/shared/data/job-trials.js', 'public/js/shared/data/story-trials.js', 'public/js/shared/data/monsters-trial.js',
     'public/js/shared/world/job-trials.js', 'public/js/shared/battle-trial.js', 'public/js/client/ui/job-trials.js',
-    // 第39回 C: 家族の 仕事の たのまれごと（劇場の空調・おみやげ屋・料理大会・消えた教会のかね・鉱山トロッコの線路）
+    // 第39回 C: お仕事いらい板の たのまれごと（劇場の空調・おみやげ屋・料理大会・消えた教会のかね・鉱山トロッコの線路）
     'public/js/shared/data/sidequests-family.js', 'public/js/shared/maps/family-quests.js', 'public/js/shared/data/items-family.js', 'public/js/shared/data/vehicles-family.js', 'public/js/shared/data/encounters-family.js', 'public/js/client/render/family-art.js',
+    // 第41回: お仕事いらい板を ふやす（歌のステージ・こわれた橋・子ども野球・名物動画・宿の大そうじ・手品ショー）
+    'public/js/shared/data/sidequests-work.js', 'public/js/shared/maps/work-quests.js', 'public/js/shared/data/fq-common.js', 'public/js/shared/maps/fq-kit.js', 'public/js/client/render/work-art.js',
   ];
   return list.map((f) => join(ROOT, f));
 }

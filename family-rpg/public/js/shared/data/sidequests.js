@@ -89,7 +89,7 @@ export function labSubQuests(c, f, has) {
       ? { name: '迷宮の探検家', who: 'q_daigo', ready: true, text: '地下6階のダイゴにとどけよう', hint: 'ダイゴのコンパスを、大迷宮の地下6階のダイゴにとどけよう。' }
       : { name: '迷宮の探検家', who: 'q_daigo', find: 'q_compass', ready: false, text: '大迷宮の地下7階で探そう', hint: 'ダイゴのコンパスは、まっくらな地下7階の、南のほうに落ちているらしい。' });
   }
-  // 第39回 C: 家族の 仕事の たのまれごと（sidequests-family.js）
+  // 第39回 C・第41回: お仕事いらい板の たのまれごと（sidequests-family.js・sidequests-work.js）
   out.push(...familySubQuests(c, f, has));
   return out;
 }
@@ -452,7 +452,7 @@ export const QUEST_SCRIPTS = {
   q_daigo: daigo, q_compass: compass,
 };
 
-// 第39回 C: 家族の 仕事の たのまれごとの だいほん（sidequests-family.js）
+// 第39回 C・第41回: お仕事いらい板の たのまれごとの だいほん（sidequests-family.js・sidequests-work.js）
 Object.assign(QUEST_SCRIPTS, FAMILY_SCRIPTS);
 QUEST_STORY_SCRIPTS.push(...FAMILY_STORY_SCRIPTS);
 

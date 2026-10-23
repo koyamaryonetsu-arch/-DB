@@ -1,12 +1,11 @@
-// 第39回 C: 家族の 仕事の たのまれごと（劇場の空調・おみやげ屋・料理大会・消えた教会のかね・鉱山トロッコの線路）
+// 第39回 C: お仕事いらい板の たのまれごと（劇場の空調・おみやげ屋・料理大会・消えた教会のかね・鉱山トロッコの線路）
+// 第41回で ふえた 6つは test/work-quests.test.js（ここは 11まいに なった 一らん・お仕事いらい板・ごほうびの 数も 見る）
 // 受けて → すすめて → ごほうび（世界と だいほんで）・職業の しばり（いる／いない・酒場の 仲間も 数える・馬車は 数えない）・
 // まちがえても やり直せる・ごほうびは 1回だけ・乗り物・第1部クリアの 前は 出ない・文字
 // 戦いは テストの 中で すぐ 勝たせる（強さは さいごの テストで 完全オートの 戦いを ためす）
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { GameWorld } from '../public/js/shared/world/world.js';
-import { makeRng } from '../public/js/shared/rng.js';
-import { DAY_MS, advanceClock } from '../public/js/shared/world/clock.js';
+import { advanceClock } from '../public/js/shared/world/clock.js';
 import { MAPS, isBlocked, effectiveTile, condOk } from '../public/js/shared/maps/index.js';
 import { T } from '../public/js/shared/tiles.js';
 import { SCRIPTS, STORY_SCRIPTS } from '../public/js/shared/data/story.js';
@@ -26,111 +25,26 @@ import { FQ, FQ_OPEN, DAMPERS, DIRTY_ZONES, THEATER_DOOR, SOUVENIR_DOOR, OLD_MIN
 import { scriptCtx } from '../public/js/shared/world/scripts.js';
 import { recruitNpc } from '../public/js/shared/world/party.js';
 import { grantWagon } from '../public/js/shared/world/wagon.js';
-import { gainExp, expForLevel, computeStats, itemCount } from '../public/js/shared/stats.js';
+import { itemCount } from '../public/js/shared/stats.js';
 import { medalsFound } from '../public/js/shared/data/casino.js';
 import { checkFile, gameFiles } from '../tools/kanji-check.mjs';
 import { makeChar, runBattle } from '../tools/sim.js';
 import { VEHICLE_ART, VIEWS, paintVehicle } from '../public/js/client/render/vehicle-art.js';
 import { MONSTER_ART } from '../public/js/client/render/monsters.js';
 import { FAMILY_NPC_LOOKS } from '../public/js/client/render/family-art.js';
-import { Bot, tickN } from './helpers.js';
+import { setup, place, npcAnywhere, talkTo, said, spoke, battled } from './fq-helpers.js';
 
-const CLEAR = ['c5_clear', 'c4_clear', 'c3_clear', 'c2_clear', 'c1_clear', 'c3_onsen'];
-
-async function setup(seed = 39, { job = 'warrior', flags = CLEAR } = {}) {
-  // 時計は 昼から（おみやげ屋は 夜に にぎわう）
-  const t0 = Date.now();
-  const world = new GameWorld({ offline: true, rng: makeRng(seed), rateLimit: false, now: () => 50 * DAY_MS + Math.round(0.3 * DAY_MS) + (Date.now() - t0) });
-  const bot = new Bot(world, 'ソラ');
-  await bot.login();
-  await bot.createAndPlay(job);
-  await bot.settle();
-  const c = world.data.characters[bot.char.id];
-  for (const f of flags) c.flags[f] = true;
-  gainExp(c, expForLevel(56) - c.exp);
-  c.hp = computeStats(c).maxHp;
-  c.gold = 1000;
-  world.sendSelf(bot.s);
-  bot.s.repelUntil = 1e15;
-  return { world, bot, c };
-}
-// 戦いは すぐ 勝つ
-async function play(bot, max = 30000) {
-  const world = bot.world;
-  for (let i = 0; i < max; i++) {
-    for (const c2 of world.battles.values()) {
-      if (c2.battle.over || c2.done) continue;
-      c2.done = true;
-      for (let k = 0; k < 20; k++) {
-        const alive = c2.battle.enemies.filter((e) => e.alive);
-        if (!alive.length) break;
-        for (const e of alive) c2.battle.kill(e);
-      }
-      c2.battle.checkEnd();
-    }
-    bot.flushQueue();
-    await tickN(world, 1);
-    bot.flushQueue();
-    if (!bot.s.busy && !bot.queue.length && !bot.inBattle && !world.battles.size) {
-      await tickN(world, 2);
-      bot.flushQueue();
-      if (!bot.s.busy && !bot.queue.length && !world.battles.size) return true;
-    }
-  }
-  return false;
-}
-const place = async (bot, map, x, y) => {
-  bot.world.placeSession(bot.s, map, x + 0.5, y + 0.5, 'up', true);
-  await play(bot);
-};
-const npcAnywhere = (id) => {
-  for (const m of Object.values(MAPS)) {
-    const n = m.npcs.find((x) => x.id === id);
-    if (n) return { map: m.id, n };
-  }
-  return null;
-};
-// NPC の となりへ 行って 話す。choices … 選たくしが 来るたびに 1つずつ（たりない 時は 0）
-async function talkTo(bot, id, choices = []) {
-  const list = [...choices];
-  const orig = bot.onMsg;
-  bot.onMsg = (m) => {
-    if (m.t === 'script' && !m.spectator) {
-      const last = m.steps[m.steps.length - 1];
-      if (last?.[0] === 'choice') bot.choice = list.length ? list.shift() : 0;
-    }
-    orig.call(bot, m);
-  };
-  const { map, n } = npcAnywhere(id);
-  const m = MAPS[map];
-  const nx = Math.floor(n.x), ny = Math.floor(n.y);
-  const has = () => true;
-  let spot = null;
-  for (const [dx, dy] of [[0, 1], [0, -1], [1, 0], [-1, 0], [0, 2], [2, 0], [-2, 0], [0, -2], [1, 1], [-1, 1], [1, -1], [-1, -1]]) {
-    const x = nx + dx, y = ny + dy;
-    if (x < 0 || y < 0 || x >= m.w || y >= m.h) continue;
-    if (!isBlocked(m, x, y, has) && !m.warpAt.has(y * m.w + x) && !m.npcs.some((o) => o !== n && o.solid && Math.floor(o.x) === x && Math.floor(o.y) === y)) { spot = [x, y]; break; }
-  }
-  assert.ok(spot, `${id} の となりに 立てる`);
-  await place(bot, map, spot[0], spot[1]);
-  const before = bot.msgs.length;
-  bot.send({ t: 'interact', kind: 'npc', id });
-  await play(bot);
-  bot.onMsg = orig;
-  bot.choice = 0;
-  return bot.msgs.slice(before);
-}
-// 話の 中の ことば
-const said = (msgs, re) => msgs.some((m) => m.t === 'script' && m.steps.some((st) => (st[0] === 'say' || st[0] === 'choice') && re.test(String(st[0] === 'say' ? st[2] : st[1]))));
-const spoke = (msgs, who) => msgs.some((m) => m.t === 'script' && m.steps.some((st) => st[0] === 'say' && st[1] === who));
-const battled = (msgs, id) => msgs.some((m) => m.t === 'battleStart' || (m.t === 'script' && m.steps.some((st) => st[0] === 'battle' && st[1] === id)));
 const q = (c, name) => subQuests(c).find((x) => x.name === name);
 const NEED = /の人が、パーティーにいてくれたら/;
 
 // ───── しくみ ─────
-test('しくみ: 5つの たのまれごと・職業の系統は 転職の つながりから出す（手で書かない）', () => {
-  assert.equal(FAMILY_QUESTS.length, 5);
-  assert.deepEqual(FAMILY_QUESTS.map((x) => x.name), ['劇場の空調をなおせ', 'さびれたおみやげ屋の立て直し', 'カナトコの料理大会', 'ルミナの町の、消えた教会のかね', '鉱山トロッコの線路']);
+test('しくみ: 11の たのまれごと（第39回の 5つ＋第41回の 6つ）・職業の系統は 転職の つながりから出す（手で書かない）', () => {
+  assert.equal(FAMILY_QUESTS.length, 11);
+  assert.deepEqual(FAMILY_QUESTS.slice(0, 5).map((x) => x.name), ['劇場の空調をなおせ', 'さびれたおみやげ屋の立て直し', 'カナトコの料理大会', 'ルミナの町の、消えた教会のかね', '鉱山トロッコの線路']);
+  // id・名前・フラグ・ごほうびは かさならない。名前に「家族の」は つけない
+  for (const k of ['id', 'name', 'done', 'start']) assert.equal(new Set(FAMILY_QUESTS.map((x) => x[k])).size, 11, k);
+  for (const k of ['item', 'vehicle']) assert.equal(new Set(FAMILY_QUESTS.map((x) => x.reward[k])).size, 11, k);
+  for (const qd of FAMILY_QUESTS) assert.ok(!qd.name.includes('家族の') && qd.who && qd.where && qd.paper && qd.town, qd.id);
   const line = jobLine(['setsubiya']);
   for (const id of ['setsubiya', 'ryonetsu', 'facility_genius']) assert.ok(line.has(id), id);
   for (const id of ['warrior', 'salaryman', 'cook']) assert.ok(!line.has(id), id);
@@ -471,7 +385,7 @@ test('鉱山トロッコの線路: 鉄道員の系統が いないと 線路を�
 
 // ───── ごほうび ─────
 test('ごほうび: ★5の アクセサリー（ランク10・店で買えない）・たのまれごとでしか もらえない乗り物（乗り物屋に「もらった物」として出る・買えない・乗れる）', () => {
-  assert.equal(Object.keys(FAMILY_GIFTS).length, 5);
+  assert.equal(Object.keys(FAMILY_GIFTS).length, 11);
   for (const [id, it] of Object.entries(FAMILY_GIFTS)) {
     assert.equal(ITEMS[id], it);
     assert.equal(it.type, 'acc');
@@ -479,8 +393,8 @@ test('ごほうび: ★5の アクセサリー（ランク10・店で買えな�
     assert.ok(!(it.price > 0) && it.sell > 0, `${id} は 店で 買えない`);
     assert.ok(it.desc && it.name);
   }
-  assert.equal(Object.keys(FAMILY_VEHICLES).length, 5);
-  const rich = { job: 'setsubiya', jobs: { setsubiya: {}, railman: {}, cook: {}, police: {}, salaryman: {} }, gold: 1e6 };
+  assert.equal(Object.keys(FAMILY_VEHICLES).length, 11);
+  const rich = { job: 'setsubiya', jobs: Object.fromEntries(Object.keys(JOBS).map((j) => [j, {}])), gold: 1e6 };
   for (const id of Object.keys(FAMILY_VEHICLES)) {
     assert.equal(VEHICLES[id], FAMILY_VEHICLES[id], `${id} は 乗り物に まざる`);
     assert.ok(VEHICLES[id].gift);
@@ -554,7 +468,8 @@ test('絵: 劇場の設備（ふき出し口・メーター・空調機・室外
 
 // ───── 文字 ─────
 test('文字: 新しい ゲームの 文字は 小学校で習う漢字だけ・スペースなし・ひらがなのまま も なし（kanji-check の gameFiles に入っている）', () => {
-  const mine = ['data/sidequests-family.js', 'maps/family-quests.js', 'data/items-family.js', 'data/vehicles-family.js', 'data/encounters-family.js', 'render/family-art.js'];
+  const mine = ['data/sidequests-family.js', 'maps/family-quests.js', 'data/items-family.js', 'data/vehicles-family.js', 'data/encounters-family.js', 'render/family-art.js',
+    'data/sidequests-work.js', 'maps/work-quests.js', 'data/fq-common.js', 'maps/fq-kit.js', 'render/work-art.js'];
   const files = gameFiles().filter((f) => mine.some((m) => f.endsWith(m)));
   assert.equal(files.length, mine.length);
   const bad = [];
@@ -569,45 +484,47 @@ test('掲示板: ルミナの町の広場に いつも 立つ・はり紙に 中
   assert.ok(condOk(hit.n.show, () => false), '第1部クリアの前から 立っている（はり紙は まだ ない）');
   assert.ok(MONSTER_ART.fq_board, '掲示板の絵');
   // ごほうびの 一らんは 本当の ごほうびと 同じ
+  // （第41回の 6つは だいほんが reward(Q.<id>) で 一らんの ごほうびを そのまま 使う。work-quests.test.js で 本当に もらえるかを 見る）
   const src = (await import('node:fs')).readFileSync(new URL('../public/js/shared/data/sidequests-family.js', import.meta.url), 'utf8');
-  for (const qd of FAMILY_QUESTS) {
+  for (const qd of FAMILY_QUESTS.slice(0, 5)) {
     assert.ok(ITEMS[qd.reward.item] && FAMILY_VEHICLES[qd.reward.vehicle], qd.id);
     assert.ok(src.includes(`['item', '${qd.reward.item}', 1]`) && src.includes(`vehicleSteps('${qd.reward.vehicle}')`), `${qd.id} の ごほうび`);
     assert.ok(src.includes(`['gold', ${qd.reward.gold}]`), `${qd.id} の ゴールド`);
     assert.ok(npcAnywhere({ theater: 'fq_th_manager', shop: 'fq_shop_owner', cook: 'fq_cook_host', bell: 'fq_bell_sister', rail: 'fq_rail_miner' }[qd.id]), `${qd.id} の 会う人`);
   }
   const { bot, c } = await setup(391);
-  // 1まい目（劇場）を 読んで、一らんに もどって、やめる
-  const msgs = await talkTo(bot, 'fq_board', [0, 5]);
+  // 1まい目（劇場）を 読んで、一らんに もどって、やめる（1ページ目は 6まい＋つぎのページへ＋やめる）
+  const msgs = await talkTo(bot, 'fq_board', [0, 7]);
   assert.ok(said(msgs, /お仕事いらい板/));
-  assert.ok(said(msgs, /まだすんでいないたのまれごと：5つ/));
+  assert.ok(said(msgs, /はり紙は11まい。まだすんでいないのは11まい/));
   assert.ok(said(msgs, /劇場が暑くて/));
-  assert.ok(said(msgs, /設備屋・ryonetsu[・\n]天才しせつ管理者/), '系統の 職業 ぜんぶ');
+  assert.ok(said(msgs, /設備屋、ryonetsu[、\n]天才しせつ管理者/), '系統の 職業 ぜんぶ');
   assert.ok(said(msgs, /サファラ劇場の中にいる、支配人ラシードに話しかけよう/));
   assert.ok(said(msgs, /空調名人のバッジ（アクセサリー）\n高所作業車（乗り物）\n5000ゴールド・小さなメダル3まい/));
   const choices = msgs.filter((m) => m.t === 'script' && m.steps.at(-1)?.[0] === 'choice');
   assert.equal(choices.length, 2, '読んだら 一らんに もどる');
-  assert.equal(choices[0].steps.at(-1)[2].length, 6, '5まい＋やめる');
+  assert.equal(choices[0].steps.at(-1)[2].length, 8, '6まい＋つぎのページへ＋やめる');
+  assert.match(choices[0].steps.at(-1)[1], /1\/2ページ/);
   assert.ok(!bot.s.busy);
   // 受けている・すんだ の しるし
   c.flags[FQ.acStart] = true;
   c.flags[FQ.railDone] = true;
-  const msgs2 = await talkTo(bot, 'fq_board', [5]);
+  const msgs2 = await talkTo(bot, 'fq_board', [7]);
   const labels = msgs2.find((m) => m.t === 'script' && m.steps.at(-1)?.[0] === 'choice').steps.at(-1)[2];
   assert.equal(labels[0], '劇場の空調をなおせ（受けている）');
   assert.equal(labels[4], '鉱山トロッコの線路（すんだ）');
-  assert.ok(said(msgs2, /まだすんでいないたのまれごと：4つ/));
+  assert.ok(said(msgs2, /まだすんでいないのは10まい/));
 });
 test('掲示板: 職業の 系統が 長くても 1行20文字・1ページ2行まで（はみ出さない）', () => {
   for (const qd of FAMILY_QUESTS) {
     const pages = boardPage({ flag: () => false }, qd).map((st) => st[2]).filter((t) => t.startsWith('【解決できそうな職業】'));
     assert.ok(pages.length >= 1, qd.id);
-    const names = pages.flatMap((t) => t.split('\n').slice(1)).join('・').split('・');
+    const names = pages.flatMap((t) => t.split('\n').slice(1)).join('、').split('、');
     assert.deepEqual(names.sort(), jobLineNames(qd.roots).sort(), `${qd.id}: 系統の 職業が ぜんぶ のる`);
     for (const t of pages) {
       const body = t.split('\n').slice(1);
       assert.ok(body.length <= 2, `${qd.id}: ${t}`);
-      for (const l of body) assert.ok(l.length <= 20 || !l.includes('・'), `${qd.id}: ${l}`);
+      for (const l of body) assert.ok(l.length <= 20 || !l.includes('、'), `${qd.id}: ${l}`);
     }
   }
 });
