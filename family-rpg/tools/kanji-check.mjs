@@ -310,6 +310,9 @@ export function gameFiles() {
     // 第2部 第6章 Step 1・2（B: 戦い・品）: 千年前・時の祠・時の遺跡の 魔物・サンドクロック（砂が落ちきると…）・ギアドン（まき戻し）・ランク10の 店・宝箱・ミナモ
     'public/js/shared/data/monsters-past.js', 'public/js/shared/data/abilities-past.js', 'public/js/shared/data/items-past.js', 'public/js/shared/data/shops-past.js',
     'public/js/shared/data/encounters-past.js', 'public/js/shared/data/companions-past.js', 'public/js/shared/battle-ch6.js', 'public/js/client/battle-ch6.js',
+    // 第2部 第6章 Step 3・4（B: 戦い・品）: 星めぐりの古道の 魔物・星くいのよる鳥（星くい）・ペンデュラ（時のふりこ）・古道の 宝箱
+    'public/js/shared/data/monsters-road.js', 'public/js/shared/data/abilities-road.js', 'public/js/shared/data/items-road.js', 'public/js/shared/data/encounters-road.js',
+    'public/js/shared/data/companions-road.js', 'public/js/shared/battle-road.js', 'public/js/client/battle-road.js',
     // 第37回 A: サファラ闘技場（ランク戦の 3連戦・王者・ごほうび・かけ試合・王者のかべ）
     'public/js/shared/data/arena.js', 'public/js/shared/data/story-arena.js', 'public/js/shared/data/monsters-arena.js', 'public/js/shared/data/abilities-arena.js',
     'public/js/shared/data/items-arena.js', 'public/js/shared/data/encounters-arena.js', 'public/js/shared/battle-arena.js', 'public/js/shared/world/arena.js',

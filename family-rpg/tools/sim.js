@@ -106,6 +106,8 @@ export function runBattle(party, enemyList, opts = {}) {
     // 古代の大迷宮（階の レベル）・たのまれごとの 強い 魔物（きまった 戦いの enemyLv）・宝の洞窟の 主や 番人の 倍率（enemyPow）
     // 第40回: 宝の洞窟は その レベルの ふつうの 魔物と おなじ 強さ（enemyCurve。data/tm-curve.js）
     enemyMod: opts.enemyLv ? (m) => scaleEnemy(m, opts.enemyLv, opts.enemyPow, { curve: !!opts.enemyCurve }) : null,
+    // 第6章 Step 3・4: 夜の 戦い（星座の 魔物。battle-road.js）
+    hooks: opts.night ? { night: () => true } : undefined,
   });
   // 反撃の構えに 気づかない（なぐり続ける）人の つよさを はかる
   if (opts.ignoreStance) b.ignoreStance = true;
@@ -346,7 +348,18 @@ export const CH6_ZONES = [
   ['t6_shrine', 56, 56], ['t6_shrine', 57, 56], ['t6_past_field', 57, 58], ['t6_past_field', 58, 58],
   ['t6_ruin_up', 58, 58], ['t6_ruin_up', 59, 58], ['t6_ruin_low', 59, 58], ['t6_ruin_low', 60, 58],
 ];
-if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'ch6') {
+// 第2部 第6章 Step 3・4「星めぐりの古道」: node tools/sim.js [回数] ch6road（昼と 夜。装備は 里の ランク10〈GEAR 58〉。ボスは tools/sim-ch6.mjs）
+export const CH6_ROAD_ZONES = [['t6_road_up', 61, 58], ['t6_road_up', 62, 58], ['t6_road_low', 63, 58], ['t6_road_low', 64, 58]];
+if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'ch6road') {
+  for (const night of [false, true]) {
+    const rng = makeRng(6161);
+    for (const [table, lv, tier] of CH6_ROAD_ZONES) {
+      const res = [];
+      for (let i = 0; i < N; i++) res.push(runBattle(PARTY(lv, 10, tier), rollGroup(table, rng), { seed: i, night }));
+      summarize(`${table} Lv${lv}${night ? '（夜）' : '（昼）'}`, res);
+    }
+  }
+} else if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'ch6') {
   const rng = makeRng(6060);
   for (const [table, lv, tier] of CH6_ZONES) {
     const res = [];

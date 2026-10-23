@@ -1,5 +1,7 @@
-// 第2部 第6章 Step 1・2: サンドクロック・ギアドンの 強さを 見る
-// つかいかた: node tools/sim-ch6.mjs [回数] [sand|gear|all] [lv,…]
+// 第2部 第6章 Step 1・2: サンドクロック・ギアドン ／ Step 3・4: 星くいのよる鳥・ペンデュラの 強さを 見る
+// つかいかた: node tools/sim-ch6.mjs [回数] [sand|gear|eater|pend|all] [lv,…]（all … 4体）
+//   星くいのよる鳥（知っている 人: 星を ねらったら 光・よぞらのはばたきで 守る）・ペンデュラ（時止めで ねらわれた 人は 守る・
+//   大ふりこで 守る・合体技は ふりこが 右の 間は しない）。NIGHT=1 … 夜の 戦い（星座の 魔物）
 //   LOG=1 … 1回だけ ようすを 出す（KNOW=1 で 知っている 人・BOSS=sand など・LV・SEED）
 //   めやす（docs/plan-ch6.md の 8）: 超級職 4人（勇者・大賢者・ゴッドハンド・大神官。職業Lv10）・その ころの 店 ＋ ★装備で
 //     知っている 人 … 8〜9わり（サンドクロック: 大砂流の 前ぶれに 氷・砂が へったら 氷で もどす・止められない ときは 身を 守る／
@@ -13,7 +15,9 @@ import { ITEMS } from '../public/js/shared/data/items.js';
 import { FIXED_ENCOUNTERS } from '../public/js/shared/data/encounters.js';
 import { DUAL_TECHS } from '../public/js/shared/data/dual.js';
 import { MONSTERS } from '../public/js/shared/data/monsters.js';
+import { ABILITIES } from '../public/js/shared/data/abilities.js';
 import { SAND_CLOCK, GEARDON } from '../public/js/shared/battle-ch6.js';
+import { STAR_EATER, PENDULA } from '../public/js/shared/battle-road.js';
 import { jobChar } from './sim-jobs.mjs';
 
 // 調整用（データを かえる 前に ためす）
@@ -22,12 +26,25 @@ if (process.env.ICE) MONSTERS[SAND_CLOCK].ch6.sand.ice = Number(process.env.ICE)
 if (process.env.EVERY) MONSTERS[GEARDON].ch6.gear.every = Number(process.env.EVERY);
 if (process.env.WIND) MONSTERS[GEARDON].ch6.gear.wind = Number(process.env.WIND);
 if (process.env.NEED) MONSTERS[GEARDON].ch6.gear.need = Number(process.env.NEED);
+// ペンデュラ（PALLY・PBOSS … 左,右 の 速さ・PSTOP … 時止めの 長さ）・星くいのよる鳥（SEVERY・SHEAL・SPOW）
+const nums = (v) => v.split(',').map(Number);
+if (process.env.PALLY) MONSTERS[PENDULA].ch6.pend.ally = nums(process.env.PALLY);
+if (process.env.PBOSS) MONSTERS[PENDULA].ch6.pend.boss = nums(process.env.PBOSS);
+if (process.env.PSTOP) MONSTERS[PENDULA].ch6.pend.stop = Number(process.env.PSTOP);
+if (process.env.SEVERY) MONSTERS[STAR_EATER].ch6.stars.every = Number(process.env.SEVERY);
+if (process.env.SHEAL) MONSTERS[STAR_EATER].ch6.stars.heal = Number(process.env.SHEAL);
+if (process.env.SPOW) MONSTERS[STAR_EATER].ch6.stars.pow = Number(process.env.SPOW);
+if (process.env.DARKM) ABILITIES.m6_se_dark.effect.mult = Number(process.env.DARKM);
+if (process.env.SDARK) MONSTERS[STAR_EATER].ch6.stars.dark = process.env.SDARK === '1';
+if (process.env.SSTUN) MONSTERS[STAR_EATER].ch6.stars.stun = process.env.SSTUN === '1';
+if (process.env.SCUT) MONSTERS[STAR_EATER].ch6.stars.cut = Number(process.env.SCUT) || null;
 
-export const CH6_IDS = { sand: SAND_CLOCK, gear: GEARDON };
+export const CH6_IDS = { sand: SAND_CLOCK, gear: GEARDON, eater: STAR_EATER, pend: PENDULA };
 // おすすめの レベル（plan-ch6.md の 8: 時のほこら Lv56〜57 の あと・時のいせき Lv58〜60 の あと）
-export const CH6_LV = { sand: 58, gear: 61 };
+// 星くいのよる鳥・ペンデュラ（plan-ch6.md の 12-1: 星めぐりの古道 Lv61〜64）
+export const CH6_LV = { sand: 58, gear: 61, eater: 62, pend: 64 };
 // 店の ランク（サンドクロックは 千年前へ 行く 前なので ハネノの ランク9・ギアドンは 千年前の 里の ランク10）
-export const CH6_RANK = { sand: 9, gear: 10 };
+export const CH6_RANK = { sand: 9, gear: 10, eater: 10, pend: 10 };
 export const CH6_JOBS = [['hero', '勇者'], ['daikenja', '大賢者'], ['god_hand', 'ゴッドハンド'], ['high_priest', '大神官']];
 // その ころの ★装備（[武器, よろい, たて, 頭, アクセ]。null は 店の いちばん よい 品）
 //   サンドクロック … 第1部の さいごまでの ★（影の城の 宝箱・まぼろしの 品・ノクト〈本気〉と ソリトゥスの 品）
@@ -44,6 +61,20 @@ export const CH6_KIT = {
     daikenja: ['p6_sand_staff', 'p6_spring_robe', null, 'p6_clock_crown', 'p6_sand_pendant'],
     god_hand: ['p6_scorpion_claw', 'p6_ruin_gi', null, 'p6_leaf_hat', 'p6_hare_boots'],
     high_priest: ['p6_bell_staff', 'p6_sand_robe', 'p6_hourglass_shield', 'p6_clock_crown', 'ph_morgana_pendant'],
+  },
+  // 星くいのよる鳥 … ＋ ギアドンの 品・星読みの社の まわりと 古道 1〜4階の 宝箱
+  eater: {
+    hero: ['p6_tick_sword', 'p6r_road_mail', 'p6_hourglass_shield', 'p6_ruin_helm', 'p6_gear_charm'],
+    daikenja: ['p6_sand_staff', 'p6r_reader_robe', null, 'p6r_dust_hat', 'p6_gear_charm'],
+    god_hand: ['p6_scorpion_claw', 'p6_ruin_gi', null, 'p6r_dust_hat', 'p6_gear_charm'],
+    high_priest: ['p6r_shrine_staff', 'p6r_reader_robe', 'p6_hourglass_shield', 'p6_clock_crown', 'p6_gear_charm'],
+  },
+  // ペンデュラ … ＋ 古道 5〜8階の 宝箱と 星くいのよる鳥の 品
+  pend: {
+    hero: ['p6r_road_sword', 'p6r_road_mail', 'p6r_crab_shield', 'p6r_night_helm', 'p6r_eater_plume'],
+    daikenja: ['p6_sand_staff', 'p6r_reader_robe', null, 'p6r_dust_hat', 'p6r_eater_plume'],
+    god_hand: ['p6r_night_claw', 'p6r_twin_gi', null, 'p6r_dust_hat', 'p6r_eater_plume'],
+    high_priest: ['p6r_shrine_staff', 'p6r_reader_robe', 'p6r_crab_shield', 'p6_clock_crown', 'p6r_eater_plume'],
   },
 };
 const SLOTS = ['weapon', 'armor', 'shield', 'head', 'acc'];
@@ -65,8 +96,10 @@ const group = (boss) => FIXED_ENCOUNTERS[CH6_IDS[boss]].group.flatMap(([sp, n]) 
 
 // 合体技を えらぶ（知っている 人）: ダメージの 合体技。仲間の HPが へっている・前ぶれ・まきもどしの 間・MPが のこり 少なく なる ときは 使わない
 const hurts = (t) => t.parts.some((p) => p.type === 'power');
-function dualPlan(b, a, bossId) {
+function dualPlan(b, a, bossId, skip = null) {
   const boss = b.aliveEnemies().find((e) => e.species === bossId);
+  // ペンデュラ: 知っている 人は ふりこが 右の 間（自分たちが おそい）は 合体技を しない
+  if (boss?.pend && boss.pend.pos > 0 && skip !== 'trick') return false;
   if (!boss || boss.telegraph || boss.gear?.rec !== null && boss.gear?.rec !== undefined || (boss.sand && boss.sand.lv <= 2)) return false;
   if (b.aliveAllies().some((x) => x.hp < x.maxHp * 0.55) || b.allies.some((x) => !x.alive && !x.fled)) return false;
   const opts = b.dualOptionsFor(a, null, false, true).filter((o) => {
@@ -88,7 +121,7 @@ function dualPlan(b, a, bossId) {
 export function ch6Run(boss, lv, know, seed, { log = false, kit = true, skip = null } = {}) {
   const party = ch6Party(boss, lv, kit);
   const b = new Battle({
-    rng: makeRng(seed), boss: true, canFlee: false,
+    rng: makeRng(seed), boss: true, canFlee: false, hooks: { night: () => !!process.env.NIGHT },
     allies: party.map((c) => ({ char: c, kind: 'support', controller: 'sim', auto: !know, tactics: 'balanced' })),
     enemies: group(boss),
   });
@@ -99,6 +132,7 @@ export function ch6Run(boss, lv, know, seed, { log = false, kit = true, skip = n
     if (skip === 'ice' || skip === 'trick') b.c6NoIce = true;
     if (skip === 'bolt' || skip === 'trick') b.c6NoBolt = true;
     if (skip === 'guard' || skip === 'trick') b.c6NoGuard = true;
+    if (skip === 'light' || skip === 'trick') b.c6NoLight = true;
   }
   for (const e of b.enemies) {
     const k = (v) => Number(process.env[v] || 1);
@@ -108,7 +142,7 @@ export function ch6Run(boss, lv, know, seed, { log = false, kit = true, skip = n
     if (e.boss) e.speed = (e.speed || 1) * k('SPD');
   }
   let real = 0;
-  const n = { duals: 0, falls: 0, stops: 0, iceBacks: 0, records: 0, rewinds: 0, healed: 0, breaks: 0, presses: 0 };
+  const n = { duals: 0, falls: 0, stops: 0, iceBacks: 0, records: 0, rewinds: 0, healed: 0, breaks: 0, presses: 0, eats: 0, stuns: 0, darks: 0, tstops: 0, tguards: 0, bigs: 0 };
   while (!b.over && real < 30 * 60 * 1000) {
     const evs = b.tick(50);
     real += 50;
@@ -126,11 +160,17 @@ export function ch6Run(boss, lv, know, seed, { log = false, kit = true, skip = n
       }
       if (e.gdBreak) n.breaks++;
       if (e.ability === 'm6_gd_press') n.presses++;
+      if (e.seEat) n.eats++;
+      if (e.seStun) n.stuns++;
+      if (e.ability === 'm6_se_dark') n.darks++;
+      if (e.pdStop) n.tstops++;
+      if (e.pdGuard) n.tguards++;
+      if (e.ability === 'm6_pd_big') n.bigs++;
     }
     if (!know) continue;
     for (const a of b.allies) {
       if (!a.ready || !a.alive) continue;
-      if (skip === 'dual' || !dualPlan(b, a, bossId)) {
+      if (skip === 'dual' || !dualPlan(b, a, bossId, skip)) {
         a.ready = false;
         b.enqueue(a, { type: 'ai' });
       }
@@ -146,13 +186,15 @@ export function ch6Run(boss, lv, know, seed, { log = false, kit = true, skip = n
 }
 
 const pct = (w, n) => `${String(Math.round((w / n) * 100)).padStart(3)}%`;
-export function summary(res) {
+export function summary(res, boss = null) {
   const w = res.filter((r) => r.outcome === 'win').length;
   const avg = (k) => res.reduce((s, r) => s + (r[k] || 0), 0) / res.length;
   return {
     rate: w / res.length,
     text: `勝率 ${pct(w, res.length)}  平均${avg('seconds').toFixed(0).padStart(4)}秒  HP残${(avg('hpLeft') * 100).toFixed(0).padStart(3)}%  ボスの残${(avg('bossLeft') * 100).toFixed(0).padStart(3)}%  死者${avg('deaths').toFixed(2)}  合体技${avg('duals').toFixed(1)}` +
-      `  大砂流${avg('falls').toFixed(1)}（止めた${avg('stops').toFixed(1)}・氷で もどす${avg('iceBacks').toFixed(1)}）  おぼえる${avg('records').toFixed(1)} まきもどし${avg('rewinds').toFixed(1)}（${avg('healed').toFixed(0)}）こわした${avg('breaks').toFixed(1)} プレス${avg('presses').toFixed(1)}`,
+      (boss === 'eater' ? `  星くい${avg('eats').toFixed(1)}  目をくらませた${avg('stuns').toFixed(1)}  よぞらのはばたき${avg('darks').toFixed(1)}`
+        : boss === 'pend' ? `  時止め${avg('tstops').toFixed(1)}（守って はねかえした${avg('tguards').toFixed(1)}）  大ふりこ${avg('bigs').toFixed(1)}`
+          : `  大砂流${avg('falls').toFixed(1)}（止めた${avg('stops').toFixed(1)}・氷で もどす${avg('iceBacks').toFixed(1)}）  おぼえる${avg('records').toFixed(1)} まきもどし${avg('rewinds').toFixed(1)}（${avg('healed').toFixed(0)}）こわした${avg('breaks').toFixed(1)} プレス${avg('presses').toFixed(1)}`),
   };
 }
 
@@ -160,15 +202,17 @@ export function summary(res) {
 export const SKIPS = {
   sand: [['ice', '氷を 使わない'], ['guard', '大砂流で 守らない'], ['dual', '合体技 だけ しない']],
   gear: [['bolt', '雷を 使わない'], ['guard', 'プレスで 守らない'], ['dual', '合体技 だけ しない']],
+  eater: [['light', '光を 使わない'], ['guard', 'はばたきで 守らない'], ['dual', '合体技 だけ しない']],
+  pend: [['guard', '時止め・大ふりこで 守らない'], ['dual', '合体技 だけ しない']],
 };
 
 if (process.argv[1].endsWith('sim-ch6.mjs')) {
   const N = Number(process.argv[2] || 40);
-  const which = process.argv[3] && process.argv[3] !== 'all' ? [process.argv[3]] : ['sand', 'gear'];
+  const which = process.argv[3] && process.argv[3] !== 'all' ? [process.argv[3]] : ['sand', 'gear', 'eater', 'pend'];
   const seedOf = (i) => 6060 + i * 7919;
   if (process.env.LOG) {
     const boss = process.env.BOSS || 'sand';
-    const r = ch6Run(boss, Number(process.env.LV || CH6_LV[boss]), !!process.env.KNOW, Number(process.env.SEED || 1), { log: true });
+    const r = ch6Run(boss, Number(process.env.LV || CH6_LV[boss]), !!process.env.KNOW, Number(process.env.SEED || 1), { log: true, skip: process.env.SKIPONE || null });
     console.log(r);
   } else {
     for (const boss of which) {
@@ -184,7 +228,7 @@ if (process.argv[1].endsWith('sim-ch6.mjs')) {
           // 完全オート（ふつうの オート）・知らない（しかけを 知らない。合体技は する）・知っている
           for (const [know, skip, label] of [[false, null, '完全オート　'], [true, 'trick', '知らない　　'], [true, null, '知っている　']]) {
             const res = [...Array(N).keys()].map((i) => ch6Run(boss, lv, know, seedOf(i), { kit, skip }));
-            console.log(`  Lv${lv} ${kit ? '店＋★' : '店だけ'} ${label} ${summary(res).text}`);
+            console.log(`  Lv${lv} ${kit ? '店＋★' : '店だけ'} ${label} ${summary(res, boss).text}`);
           }
         }
         if (!process.env.SHOP) break;
@@ -192,7 +236,7 @@ if (process.argv[1].endsWith('sim-ch6.mjs')) {
       if (process.env.SKIP !== '0') {
         for (const [skip, label] of SKIPS[boss]) {
           const res = [...Array(N).keys()].map((i) => ch6Run(boss, base, true, seedOf(i), { skip }));
-          console.log(`  Lv${base} 知っている（${label}）${''.padEnd(Math.max(0, 12 - label.length), '　')} ${summary(res).text}`);
+          console.log(`  Lv${base} 知っている（${label}）${''.padEnd(Math.max(0, 12 - label.length), '　')} ${summary(res, boss).text}`);
         }
       }
     }

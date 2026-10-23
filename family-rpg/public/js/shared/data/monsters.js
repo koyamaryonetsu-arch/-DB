@@ -32,6 +32,7 @@ import { MONSTERS_EARTH, addEarthHidden } from './monsters-earth.js';
 import { MONSTERS_FINAL } from './monsters-final.js';
 import { MONSTERS_PHANTOM, addPhantomHidden } from './monsters-phantom.js';
 import { MONSTERS_PAST } from './monsters-past.js';
+import { MONSTERS_ROAD } from './monsters-road.js';
 import { MONSTERS_BOSS } from './monsters-boss.js';
 
 export const MONSTERS = {
@@ -265,6 +266,8 @@ Object.assign(MONSTERS, MONSTERS_PHANTOM);
 addPhantomHidden(MONSTERS);
 // 第2部 第6章 Step 1・2「千年前」「時の祠」「時の遺跡」の 魔物と サンドクロック・ギアドン（monsters-past.js）
 Object.assign(MONSTERS, MONSTERS_PAST);
+// 第2部 第6章 Step 3・4「星めぐりの古道」の 魔物と 星くいのよる鳥・ペンデュラ（monsters-road.js）
+Object.assign(MONSTERS, MONSTERS_ROAD);
 addArenaHidden(MONSTERS);
 addTrialHidden(MONSTERS);
 addGaiaParts(MONSTERS);

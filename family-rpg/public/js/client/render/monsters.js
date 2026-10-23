@@ -21,6 +21,8 @@ import { addArenaArt } from './arena-art.js';
 import { addFinalArt } from './ch5-final-mon-art.js';
 // 第2部 第6章 Step 1・2: 千年前・時の祠・時の遺跡の 魔物と サンドクロック・ギアドン（ch6-past-art.js）
 import { addPastArt } from './ch6-past-art.js';
+// 第2部 第6章 Step 3・4: 星めぐりの古道の 魔物と 星くいのよる鳥・ペンデュラ（ch6-road-art.js）
+import { addRoadArt } from './ch6-road-art.js';
 
 export const MRES = 4; // できあがりの こまかさ（せかいの 1ドットを 4×4 で かく）
 const OUT = '#130d24';
@@ -848,6 +850,7 @@ addPhantomArt(MONSTER_ART);
 // 第39回 C・第41回: お仕事いらい板の たのまれごとの 物（劇場の 設備・かねの 台・カラス・ステージ など。family-art.js・work-art.js）
 addFamilyArt(MONSTER_ART);
 addPastArt(MONSTER_ART);
+addRoadArt(MONSTER_ART);
 
 const cache = new Map();
 

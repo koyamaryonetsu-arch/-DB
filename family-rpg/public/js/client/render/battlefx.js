@@ -43,6 +43,8 @@ import { FINAL_BG, FINAL_DECOS, drawFinalBg, drawFinalFloorBg } from './ch5-fina
 import { PHANTOM_BG, PHANTOM_DECOS, drawPhantomBg, drawPhantomFloorBg } from './ch5-phantom-bg.js';
 // 第2部 第6章 Step 1・2: 千年前の フィールド・時の祠・時の遺跡・番人の間（ch6-past-bg.js）
 import { PAST_BG, PAST_DECOS, drawPastBg, drawPastFloorBg } from './ch6-past-bg.js';
+// 第2部 第6章 Step 3・4: 星めぐりの古道（ch6-road-bg.js）
+import { ROAD_BG, ROAD_DECOS, drawRoadBg, drawRoadFloorBg } from './ch6-road-bg.js';
 
 export const BW = 256;
 export const BH = 144;
@@ -153,6 +155,8 @@ const BG = {
   ...PHANTOM_BG,
   // 第2部 第6章 Step 1・2（past_field・toki_shrine・toki_ruin・toki_ruin_boss）
   ...PAST_BG,
+  // 第2部 第6章 Step 3・4（hoshimichi・hoshimichi_deep）
+  ...ROAD_BG,
 };
 
 // はいけいの データ（〜_night は 夜空の はいけい。night-art.js）。ない ときは null
@@ -252,6 +256,7 @@ export function battleBackground(id) {
   if (FINAL_DECOS.has(d.deco)) drawFinalBg(x, d, hor);
   if (PHANTOM_DECOS.has(d.deco)) drawPhantomBg(x, d, hor);
   if (PAST_DECOS.has(d.deco)) drawPastBg(x, d, hor);
+  if (ROAD_DECOS.has(d.deco)) drawRoadBg(x, d, hor);
   if (d.deco === 'houses') {
     x.fillStyle = '#ffd66b';
     for (let k = 10; k < BW; k += 48) x.fillRect(k + 8, hor - 12, 3, 3);
@@ -310,6 +315,7 @@ export function battleBackground(id) {
   else if (FINAL_DECOS.has(d.deco)) drawFinalFloorBg(x, d, hor);
   else if (PHANTOM_DECOS.has(d.deco)) drawPhantomFloorBg(x, d, hor);
   else if (PAST_DECOS.has(d.deco)) drawPastFloorBg(x, d, hor);
+  else if (ROAD_DECOS.has(d.deco)) drawRoadFloorBg(x, d, hor);
   else {
     x.fillStyle = 'rgba(0,0,0,0.12)';
     for (let i = 0; i < 6; i++) {

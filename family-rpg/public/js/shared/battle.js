@@ -138,6 +138,8 @@ export function speedMult(c) {
   let m = c?.speed || 1;
   if (c?.buffs?.agi) m *= 1 + (c.buffs.agi.mult - 1) * ATB.buff;
   if (c?.debuffs?.agi) m *= 1 - (1 - c.debuffs.agi.mult) * ATB.buff;
+  // 第6章 Step 3・4: ペンデュラの 時のふりこ（左右で 速さが かわる・時止めは 0。battle-road.js）
+  m *= c?.tmul ?? 1;
   return m;
 }
 
