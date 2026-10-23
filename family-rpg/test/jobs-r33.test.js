@@ -599,7 +599,8 @@ test('第33回の 装備: はじめの 装備・店の 品（レア度なし）�
 
 test('転職の ひとこと: 新しい 職業は 2行目に ひとこと（はずした 物が ある ときは そちら。2行まで）', async () => {
   // 第40回の 2つの 伝説の 職業にも ひとこと（test/jobs-r40.test.js）
-  assert.deepEqual(Object.keys(JOB_SAY).filter((j) => !['ryumajin', 'neo_queen'].includes(j)).sort(), [...NEW].sort());
+  // 第41回 B の 雪の女王・第5のせいれいにも ひとこと（test/jobs-r41b.test.js）
+  assert.deepEqual(Object.keys(JOB_SAY).filter((j) => !['ryumajin', 'neo_queen', 'snow_queen', 'fifth_spirit'].includes(j)).sort(), [...NEW].sort());
   for (const [j, s] of Object.entries(JOB_SAY)) {
     textOk(s, j);
     assert.ok(s.length <= 24 && s.startsWith('「') && s.endsWith('」'), s);

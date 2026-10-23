@@ -89,7 +89,8 @@ test('第40回の 職業: 竜魔人（竜の騎士の 上）・ネオ・クイ�
     assert.ok(!BAD.test(j.name + j.desc + JOB_HINTS[id]), id);
     assert.match(j.color, /^#[0-9a-f]{6}$/);
   }
-  assert.deepEqual(LEGEND_ORDER.slice(-2), NEW);
+  // 第41回 B から あとに 伝説の 職業が ふえても よい（第40回の 2つが この じゅんで つづく）
+  assert.deepEqual(LEGEND_ORDER.slice(LEGEND_ORDER.indexOf(NEW[0]), LEGEND_ORDER.indexOf(NEW[0]) + 2), NEW);
   assert.equal(jobReqText('ryumajin'), '竜の騎士Lv10＋ほかの超級職1つLv10');
   assert.equal(jobReqText('neo_queen'), 'セーラームーンLv10＋ほかの超級職1つLv10');
   const services = readFileSync(new URL('../public/js/client/ui/services.js', import.meta.url), 'utf8');

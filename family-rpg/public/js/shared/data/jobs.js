@@ -1149,6 +1149,32 @@ export const JOBS = {
     learn: [[1, 'mn_stick'], [2, 'mn_bara'], [3, 'mn_luna'], [5, 'mn_heal'], [7, 'mn_inori'], [10, 'sailor_moon_sig']],
   },
 
+  // ───────────── 2026年10月（第41回 B）: 雪の女王（超級職）→ 第5のせいれい（伝説の職業）（技は abilities-r41b.js。docs/plan-r41-jobs-b.md） ─────────────
+  // 賢者＋スーパースター → 雪の女王。氷の 魔法と 歌の 女王（男の子は「雪の王」。masc。見た目 hero-r41b.js の R41B_MASC）
+  snow_queen: {
+    id: 'snow_queen', name: '雪の女王', kana: 'ゆきのじょおう', short: '雪の女王', tier: 2, req: ['sage', 'superstar'], family: 'magic', color: '#8ad0f0',
+    desc: '氷と雪の魔法をあやつる、北の国の女王。賢者とスーパースターをきわめた者だけがなれる。氷のかべで仲間を守り、雪の仲間をよび、心をこめた歌で力をときはなつ。',
+    masc: {
+      name: '雪の王', short: '雪の王', kana: 'ゆきのおう',
+      desc: '氷と雪の魔法をあやつる、北の国の王。賢者とスーパースターをきわめた者だけがなれる。氷のかべで仲間を守り、雪の仲間をよび、心をこめた歌で力をときはなつ。',
+      hint: '賢者とスーパースター、両方をきわめた男の人は、氷と雪の国の王になれるらしい…',
+    },
+    mods: { hp: 1.15, mp: 1.6, str: 0.8, def: 1.1, agi: 1.3, mag: 1.7, heal: 1.25 },
+    weapons: ['staff', 'fan', 'none'], shield: false, armor: ['cloth', 'robe'], helm: false,
+    perLv: { mag: 1, mp: 0.5, agi: 0.5 },
+    learn: [[1, 'sq_tsubute'], [2, 'sq_kabe'], [3, 'sq_yukidaruma'], [5, 'sq_ootoko'], [7, 'sq_uta'], [10, 'snow_queen_sig']],
+  },
+  // 雪の女王 → 第5のせいれい（雪の女王と ほかの 超級職 1つ）。風・火・水・大地の 4つの せいれいを つなぐ 5つめの せいれい
+  // 名前・説明は 男の子も おなじ（見た目だけ hero-r41b.js の R41B_MASC）
+  fifth_spirit: {
+    id: 'fifth_spirit', name: '第5のせいれい', kana: 'だいごのせいれい', short: 'せいれい', tier: 3, req: ['snow_queen'], reqSuper: 1, family: 'magic', color: '#e4f6ff',
+    desc: '風・火・水・大地、4つのせいれいをつなぐ、5つめのせいれい。氷の魔法をきわめ、ほかの超級職も1つきわめた者だけがなれる。4つのせいれいの力を、氷と光で1つにする。',
+    mods: { hp: 1.4, mp: 1.7, str: 0.95, def: 1.3, agi: 1.45, mag: 1.75, heal: 1.4 },
+    weapons: ['staff', 'fan', 'none'], shield: false, armor: ['cloth', 'robe'], helm: false,
+    perLv: { mag: 1, mp: 1, agi: 0.5 },
+    learn: [[1, 'fs_kaze'], [3, 'fs_hi'], [5, 'fs_mizu'], [7, 'fs_daichi'], [8, 'fs_kokoro'], [10, 'fifth_spirit_sig']],
+  },
+
   // ───────────── 2026年10月（第40回）: 2つの 伝説の 職業（技は abilities-jobs10.js。docs/plan-r40-jobs.md） ─────────────
   // 竜の騎士 → 竜魔人（竜の騎士と ほかの 超級職 1つ）。竜と 魔と 人、すべての 力を 目ざめさせた すがた
   ryumajin: {
@@ -1202,11 +1228,15 @@ export const SUPER_ORDER = ['dragon_knight', 'archmage', 'high_priest', 'god_han
   'star_chef', 'tatakiage', 'm1_champion', 'daikenja', 'datenshi', 'ss2', 'ryonetsu', 'rubber', 'black_star',
   'enbashira', 'black_org', 'doraemon', 'kinniku_kappa', 'konoha', 'himura',
   // 第33回
-  'kaito_kid', 'harry', 'fullmetal', 'sailor_moon'];
+  'kaito_kid', 'harry', 'fullmetal', 'sailor_moon',
+  // 第41回 B
+  'snow_queen'];
 // 伝説の 職業（超級職の 先）
 export const LEGEND_ORDER = ['loto_hero', 'ss3', 'nika', 'maou', 'facility_genius', 'hakaishin', 'hinokami', 'hokage', 'abarenbo_shogun', 'hiten', 'homeroom_3b',
   // 第40回
-  'ryumajin', 'neo_queen'];
+  'ryumajin', 'neo_queen',
+  // 第41回 B
+  'fifth_spirit'];
 export const ALL_JOBS = [...JOB_ORDER, ...ADVANCED_ORDER, ...SUPER_ORDER, ...LEGEND_ORDER];
 export const TIER_NAMES = ['基本職', '上級職', '超級職', '伝説の職業'];
 // 神殿で ならべる じゅん（ランクごと）
@@ -1335,4 +1365,7 @@ export const JOB_HINTS = {
   // 第40回
   ryumajin: '竜の騎士と、ほかの超級職を1つきわめた者は、竜と魔と人、すべての力を1つにできるらしい…',
   neo_queen: 'セーラームーンと、ほかの超級職を1つきわめた者は、未来の都の女王になれるらしい…',
+  // 第41回 B
+  snow_queen: '賢者とスーパースター、両方をきわめた女の人は、氷と雪の国の女王になれるらしい…',
+  fifth_spirit: '氷と雪の国をおさめる者が、ほかの超級職も1つきわめると、4つのせいれいをつなぐ、5つめのせいれいになれるらしい…',
 };

@@ -770,6 +770,8 @@ ART.carpet = deckArt({
 ART.armor_horse = horseArt({ coat: '#6a6a78', mane: '#2a2630', saddle: '#3a4a8a', armor: '#b8bcc8', trim: '#f2c14e' });
 ART.white_horse = horseArt({ coat: '#f4f2ee', mane: '#d8d4e0', saddle: '#c83a3a', trim: '#f2c14e', hoof: '#5a4a3a', muzzle: '#f8e0d8' });
 ART.pegasus = horseArt({ coat: '#f8f6ff', mane: '#a8d8f8', saddle: '#5a9ad8', wings: '#ffffff', fly: true, muzzle: '#f8e8f0' });
+// 第41回 B: 水の馬（雪の女王・第5のせいれい。すきとおった 水色・白い しぶきの たてがみ）
+ART.water_horse = horseArt({ coat: '#6cc4ee', mane: '#eafcff', saddle: '#3a8ed0', hoof: '#2e74b4', muzzle: '#a8e2fa' });
 ART.hero_pegasus = horseArt({ coat: '#f4f0e8', mane: '#e8b030', saddle: '#2a4ab8', wings: '#ffe8a8', armor: '#f2c14e', trim: '#c83a3a', fly: true });
 ART.baby_dragon = horseArt({ coat: '#4aa85a', mane: '#2a7a3a', saddle: '#a8683a', dragon: true, belly: '#e8e08a', spike: '#f2a03a', wings: '#7ac88a' });
 

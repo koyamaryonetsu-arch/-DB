@@ -206,7 +206,7 @@ test('メニュー・技の 説明・レベルアップ・転職の ひとこと
   assert.ok(growthSummary('ヒナ', ups, [], { look: GIRL }).lines.some((l) => l.includes('覚えた：ハイヒールキック')));
   assert.ok(growthSummary('ヒナ', ups, []).lines.some((l) => l.includes('覚えた：ハイヒールキック')), 'だれか わからない ときは もとの まま');
   // 転職の ひとこと
-  assert.deepEqual(Object.keys(JOB_SAY_MASC).filter((j) => j !== 'neo_queen').sort(), ['sailor_moon', 'sailor_soldier']);
+  assert.deepEqual(Object.keys(JOB_SAY_MASC).filter((j) => !['neo_queen', 'snow_queen'].includes(j)).sort(), ['sailor_moon', 'sailor_soldier']);
   for (const s of Object.values(JOB_SAY_MASC)) assert.deepEqual(checkText(s), [], s);
   assert.ok(jobDoneText('ユウ', '美少女戦士', [], 'sailor_soldier', true).endsWith(JOB_SAY_MASC.sailor_soldier));
   assert.ok(jobDoneText('ヒナ', '美少女戦士', [], 'sailor_soldier', false).endsWith(JOB_SAY.sailor_soldier));

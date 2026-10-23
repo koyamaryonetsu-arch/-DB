@@ -26,6 +26,8 @@ export const VEHICLES = {
   armor_horse: { name: 'よろい馬', price: 2400, jobs: ['warrior', 'battlemaster', 'sword_master'], desc: '鉄のよろいを着た、たくましい馬。' },
   cloud: { name: '黄色い雲', price: 2800, jobs: ['monk', 'holyfist', 'god_hand'], desc: '心のきれいな人だけが乗れる、ふわふわの雲。' },
   pegasus: { name: '天馬', price: 4000, jobs: ['priest', 'paladin', 'high_priest'], desc: '白いつばさのある、聖なる馬。' },
+  // 第41回 B: 雪の女王・第5のせいれい（水の せいれいの 馬）
+  water_horse: { name: '水の馬', price: 6000, jobs: ['snow_queen', 'fifth_spirit'], desc: '水でできた、すきとおった馬。走るたびに、しぶきが光る。' },
   book: { name: '空飛ぶ本', price: 2600, jobs: ['mage', 'sage', 'archmage', 'daikenja'], desc: '大きな呪文の本。開くと空にうかぶ。' },
   big_ball: { name: '大玉', price: 900, jobs: ['performer'], desc: 'サーカスの大玉。玉の上で、上手に走る。' },
   pogo: { name: 'ホッピング', price: 600, jobs: ['jester'], desc: 'ぴょんぴょんはねる、ばねの乗り物。' },
