@@ -2185,6 +2185,12 @@ export class Battle {
 }
 
 // ───────────── つくる ─────────────
+// オートで 使わない 技（作戦）。同じ 名前の 技（大神官と 大賢者の ザオリク など）は、どれか 1つが「使わない」なら みんな 使わない（第41回）
+export function autoOffFor(char, abilities) {
+  if (!Array.isArray(char?.autoOff) || !char.autoOff.length) return [];
+  const names = new Set(char.autoOff.map((id) => ABILITIES[id]?.name).filter(Boolean));
+  return abilities.filter((id) => char.autoOff.includes(id) || names.has(ABILITIES[id]?.name));
+}
 export function allyFromCharacter(char, init = {}) {
   const st = computeStats(char);
   const abilities = init.abilities || learnedAbilities(char);
@@ -2220,7 +2226,7 @@ export function allyFromCharacter(char, init = {}) {
     race: char.species ? (MONSTERS[char.species]?.race || 'beast') : 'human',
     abilities,
     // オートの ときに 使わない 技（作戦の「オートで使う技」。ai.js）
-    autoOff: Array.isArray(char.autoOff) ? char.autoOff.filter((id) => abilities.includes(id)) : [],
+    autoOff: autoOffFor(char, abilities),
     penChar: { job: char.job, jobs: char.jobs },
     // お気に入りの 技（ならび じゅん）
     favs: char.species ? [] : (Array.isArray(char.favorites) ? char.favorites.slice(0, 30) : []),

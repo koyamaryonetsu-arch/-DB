@@ -219,13 +219,14 @@ export function decideAlly(b, c) {
   }
 
   // 6) ほじょ（つよい てきの とき）
-  const tough = b.boss || foes.reduce((s, f) => s + f.hp, 0) > 180;
-  if (tac.buffs && tough) {
+  // 第41回: 敵と 味方の 強さを くらべて きめる（前は 敵の HPの 合計 180 より 多いと いつも 補助を していた）
+  const fw = fightWeight(b);
+  if (tac.buffs && fw.hard) {
     const buff = chooseBuff(b, c, allies, mine);
     if (buff) return buff;
   }
   // てきが おおい ときは ねむらせたり こんらんさせたり
-  if (tac.buffs && !b.boss && foes.length >= 3 && b.rng.chance(0.2)) {
+  if (tac.buffs && !b.boss && foes.length >= 3 && fw.hard && fw.rounds >= FIGHT_STATUS_ROUNDS && b.rng.chance(0.2)) {
     const st = mine.filter(({ a }) => a.effect.type === 'status' && ['enemies', 'group', 'enemy'].includes(a.target) && a.effect.status !== 'poison');
     const t = foes.find((f) => !f.status.sleep && !f.status.confuse && !f.status.blind && !f.status.paralyze);
     if (st.length && t) {
@@ -251,6 +252,7 @@ export function canUse(b, c, id) {
 }
 
 // オートで 使って よい 技か（作戦の「オートで使う技」で「使わない」に した 技・noAuto の 技〈マダンテ など〉は えらばない）
+// （同じ 名前の 技は battle.js の autoOffFor で autoOff に ひろげて ある。第41回）
 const autoOk = (c, id) => !c.autoOff?.includes(id) && !ABILITIES[id]?.noAuto;
 
 // 技の おもな こうか（いくつかの こうかを もつ 技〈multi〉は さいしょの こうかで えらぶ）
@@ -305,6 +307,48 @@ function chooseHeal(b, c, tac, allies, mine) {
 export const BUFF_CHANCE = { allies: 0.2, ally: 0.15, self: 0.12 };
 // 大わざの 前ぶれ（telegraph）の ときに みんなの 守備力を 上げる わりあい（decideAlly）
 export const GUARD_BUFF_CHANCE = 0.6;
+// 第41回: 相手と こっちの 強さを くらべる（家族の 声:「ふつうの 魔物に バフ・デバフ やりすぎ」）
+//   rounds … 味方 みんなが ふつうの 攻撃を 1回ずつ した ときに、敵 ぜんぶを たおすまでの 回数（みつもり。技を 使うと もっと はやいので 大きめに 出る）
+//   threat … 敵 みんなが 1回ずつ こうげきした ときの ダメージ ÷ 味方の のこりHPの 合計（2回行動の 敵は 2回）
+//   hard … ボス・すぐには たおせない（rounds が FIGHT_HARD.rounds 以上）・こわい（threat が FIGHT_HARD.threat 以上）
+//   補助（バフ・じわじわ回復）と ねむり・こんらん などは hard の 時だけ（ねむり などは さらに rounds が FIGHT_STATUS_ROUNDS 以上）。
+//   めやす（同じ レベルの フィールド・ダンジョン）: threat は 0.05〜0.11。ボスでは いつも hard
+export const FIGHT_HARD = { rounds: 30, threat: 0.13 };
+export const FIGHT_STATUS_ROUNDS = 6;
+export function fightWeight(b) {
+  const key = `${b.allyActs || 0}:${b.combatants.length}`;
+  if (b._fightW?.key === key) return b._fightW;
+  const allies = b.aliveAllies();
+  const foes = b.aliveEnemies().filter((f) => !f.burrow);
+  let dmg = 0, foeHp = 0, threat = 0, allyHp = 0;
+  for (const c of allies) {
+    allyHp += c.hp;
+    if (!foes.length) continue;
+    let sum = 0;
+    for (const f of foes) {
+      const r = b.calcPhys(c, f, { mult: 1 }, 1, 'phys', true);
+      sum += Math.max(r.dmg * r.hit, c.mag ? c.mag * 0.25 : 0);
+    }
+    dmg += sum / foes.length;
+  }
+  for (const f of foes) {
+    foeHp += f.hp;
+    if (!allies.length) continue;
+    let sum = 0;
+    for (const a of allies) {
+      const r = b.calcPhys(f, a, { mult: 1 }, 1, 'phys', true);
+      // 呪文の 魔物は 魔力で ざっくり
+      sum += Math.max(r.dmg * r.hit, (f.mag || 0) * 0.5);
+    }
+    threat += (sum / allies.length) * (f.turns || 1) * (f.dmgRate || 1);
+  }
+  const rounds = dmg > 0 ? foeHp / dmg : 99;
+  const t = allyHp > 0 ? threat / allyHp : 1;
+  const hard = !!b.boss || rounds >= FIGHT_HARD.rounds || t >= FIGHT_HARD.threat;
+  b._fightW = { key, rounds, threat: t, hard };
+  return b._fightW;
+}
+
 function chooseBuff(b, c, allies, mine) {
   const rng = b.rng;
   const buffs = mine.filter(({ a }) => prim(a).type === 'buff');

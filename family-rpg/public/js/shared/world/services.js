@@ -517,9 +517,14 @@ export function menuAction(world, s, msg) {
       if (msg.op === 'all') off.clear();
       else {
         const id = String(msg.id || '');
-        if (!ABILITIES[id] || !learnedAbilities(t0).includes(id)) return reply(false, '');
-        if (msg.op === 'off') off.add(id);
-        else off.delete(id);
+        const learned = learnedAbilities(t0);
+        if (!ABILITIES[id] || !learned.includes(id)) return reply(false, '');
+        // 第41回: 同じ 名前の 技（大神官と 大賢者の ザオリク など）は いっしょに「使う／使わない」
+        const same = learned.filter((x) => ABILITIES[x]?.name === ABILITIES[id].name);
+        for (const x of same) {
+          if (msg.op === 'off') off.add(x);
+          else off.delete(x);
+        }
       }
       const list = [...off].filter((x) => ABILITIES[x]).slice(0, 200);
       for (const t of targets) {

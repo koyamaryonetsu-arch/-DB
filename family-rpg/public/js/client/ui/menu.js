@@ -1659,10 +1659,16 @@ export class FieldMenu {
     const box = el('div');
     const off = new Set(Array.isArray(c.autoOff) ? c.autoOff : []);
     // 戦いで 使える 技だけ（ルーラなど フィールドだけの 技・きずな技は のぞく）
+    // 同じ 名前の 技（大神官と 大賢者の ザオリク など）は 1つに まとめる（サーバーが いっしょに 切りかえる。第41回）
+    const seen = new Set();
     const ids = learnedAbilities(c).filter((id) => {
       const a = abilityFor(id, c);
-      return a && !a.fieldOnly && !a.hidden && a.kind !== 'bond';
+      if (!a || a.fieldOnly || a.hidden || a.kind === 'bond' || seen.has(a.name)) return false;
+      seen.add(a.name);
+      return true;
     });
+    // 同じ 名前の どれかが「使わない」なら「使わない」と 出す
+    const offNames = new Set([...off].map((id) => abilityFor(id, c)?.name).filter(Boolean));
     box.append(el('div', { class: 'gold small', text: `${c.name}がオートで使う技` }));
     if (!ids.length) {
       box.append(el('div', { class: 'muted', text: 'まだ技を覚えていない。' }));
@@ -1679,7 +1685,7 @@ export class FieldMenu {
       { label: '全部使う', value: '__all', disabled: !off.size },
       ...ids.map((id) => {
         const a = abilityFor(id, c);
-        const no = off.has(id);
+        const no = off.has(id) || offNames.has(a.name);
         return {
           html: `${esc(a.name)}<span class="sk-desc">${esc(skillBrief(a))}</span>`,
           right: no ? '使わない' : '使う',
@@ -1696,8 +1702,10 @@ export class FieldMenu {
           setLocal([]);
           g.net.send({ t: 'menu', action: 'autoSkill', key, op: 'all' });
         } else {
-          const no = off.has(it.value);
-          const next = no ? [...off].filter((x) => x !== it.value) : [...off, it.value];
+          const nm = abilityFor(it.value, c)?.name;
+          const same = learnedAbilities(c).filter((x) => abilityFor(x, c)?.name === nm);
+          const no = off.has(it.value) || offNames.has(nm);
+          const next = no ? [...off].filter((x) => !same.includes(x)) : [...new Set([...off, ...same])];
           setLocal(next);
           g.net.send({ t: 'menu', action: 'autoSkill', key, id: it.value, op: no ? 'on' : 'off' });
         }
