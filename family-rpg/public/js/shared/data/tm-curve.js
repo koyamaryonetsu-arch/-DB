@@ -7,7 +7,7 @@
 import { MONSTERS } from './monsters.js';
 
 export const CURVE_KEYS = ['hp', 'str', 'def', 'mag', 'agi', 'exp', 'gold'];
-const MAX_LV = 99;
+const MAX_LV = 150;
 let table = null;
 
 // めやすに 使う 魔物（ボス・宝の洞窟の 主・メタルの ような とくべつな 魔物は 入れない）

@@ -150,12 +150,12 @@ test('オートで 使う 技: 仲間の 分も 決められる（覚えてい�
   assert.equal(mina.autoOff, undefined);
 });
 
-test('レベルは 99まで（経験値が ふえても 99で とまる）', async () => {
+test('レベルは 150まで（第40回で 99 → 150。経験値が ふえても 150で とまる）', async () => {
   const { s } = await hero('warrior', 1);
-  assert.equal(MAX_LEVEL, 99);
+  assert.equal(MAX_LEVEL, 150);
   gainExp(s.char, expForLevel(MAX_LEVEL) + 1_000_000);
-  assert.equal(s.char.level, 99);
-  const ups = gainExp(s.char, 5_000_000);
+  assert.equal(s.char.level, 150);
+  const ups = gainExp(s.char, 50_000_000);
   assert.equal(ups.length, 0);
-  assert.equal(s.char.level, 99);
+  assert.equal(s.char.level, 150);
 });

@@ -346,11 +346,11 @@ export function rankIdx(sp, MONSTERS) {
 }
 export const rankOf = (sp, MONSTERS) => RANKS[rankIdx(sp, MONSTERS)];
 
-// レベルの 上限: ランク F で Lv50、ランクが 1つ上がるごとに +5（SS で 85）、＋1 ごとに +1。max（今は 99）は こえない
+// レベルの 上限: ランク F で Lv50、ランクが 1つ上がるごとに +5（SS で 85）、＋1 ごとに +1。max（stats.js の MAX_LEVEL。第40回から 150）は こえない
 // 第35回より 前から いる 仲間（ranked が ない）は 今までどおり max まで（下がらない ように）
 export const LV_CAP_BASE = 50;
 export const LV_CAP_RANK = 5;
-export function monsterLevelCap(ch, MONSTERS, max = 99) {
+export function monsterLevelCap(ch, MONSTERS, max = 150) {
   if (!ch?.species || !ch.ranked) return max;
   return Math.max(1, Math.min(max, LV_CAP_BASE + LV_CAP_RANK * rankIdx(ch.species, MONSTERS) + Math.floor(ch.plus || 0)));
 }

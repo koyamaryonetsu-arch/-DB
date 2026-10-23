@@ -1301,7 +1301,7 @@ export class FieldMenu {
     const c = this.charOf(who) || this.game.me;
     const st = computeStats(c);
     const box = el('div');
-    // レベルは 99まで（stats.js の MAX_LEVEL）
+    // レベルは 150まで（stats.js の MAX_LEVEL）
     const next = c.level >= MAX_LEVEL ? null : expForLevel(c.level + 1) - (c.exp || 0);
     const kind = c.species ? `${MONSTERS[c.species]?.name || ''}（モンスター）` : jobLabel(c.job, c);
     box.append(el('h3', { text: `${c.name}　${kind}` }));

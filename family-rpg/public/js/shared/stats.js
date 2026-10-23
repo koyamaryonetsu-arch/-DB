@@ -11,8 +11,8 @@ import { jobLabel } from './job-label.js';
 // 第38回 B: 超級職からの 職業レベルの 上限（職業の試練）と Lv11〜 の 強さ
 import { jobLevelCap, jobUpStats } from './data/job-trials.js';
 
-// 長い 物語に なるので レベルは 99まで（レベルで ふえる つよさは ひかえめ）
-export const MAX_LEVEL = 99;
+// 長い 物語に なるので レベルは 150まで（第40回で 99 → 150。レベルで ふえる つよさは ひかえめ）
+export const MAX_LEVEL = 150;
 export const STAT_KEYS = ['hp', 'mp', 'str', 'def', 'agi', 'mag', 'heal'];
 export const STAT_NAMES = {
   hp: '最大HP', mp: '最大MP', str: '力', def: '身の守り', agi: '素早さ',

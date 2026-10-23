@@ -128,23 +128,24 @@ test('配合前の めやす: 強いほうの 親の レベルまで 育てた �
   assert.equal(up.cap, Math.min(MAX_LEVEL, 50 + 5 * rankIdx('wolf', MONSTERS) + 10));
 });
 
-test('レベルの 上限: ランク F で 50・ランクごとに +5・＋で 上がる。99は こえない。むかしの 仲間は 今までどおり 99まで', () => {
+test('レベルの 上限: ランク F で 50・ランクごとに +5・＋で 上がる。150（MAX_LEVEL）は こえない。むかしの 仲間は 150まで', () => {
   const m = newMonsterCompanion({ id: 'x', species: 'pururin', level: 1 });
   assert.equal(m.ranked, 1);
   assert.equal(monsterLevelCap(m, MONSTERS), 50);
   assert.equal(monsterLevelCap({ ...m, plus: 12 }, MONSTERS), 62);
-  assert.equal(monsterLevelCap({ ...m, species: 'ss_oldra', plus: 30 }, MONSTERS), 99);
+  assert.equal(monsterLevelCap({ ...m, species: 'ss_oldra', plus: 30 }, MONSTERS), 115);
+  assert.equal(monsterLevelCap({ ...m, species: 'ss_oldra', plus: 90 }, MONSTERS), 150);
   assert.equal(monsterLevelCap({ ...m, species: 'ss_oldra' }, MONSTERS), 85);
   // 上限で 止まる
   gainExp(m, expForLevel(70));
   assert.equal(m.level, 50);
-  // むかしの 仲間（ranked が ない）は 99まで
+  // むかしの 仲間（ranked が ない）は 150まで
   const old = { ...newMonsterCompanion({ id: 'o', species: 'pururin', level: 1 }) };
   delete old.ranked;
   gainExp(old, expForLevel(70));
   assert.equal(old.level, 70);
   // 人間は かわらない
-  assert.equal(monsterLevelCap({ level: 1 }, MONSTERS), 99);
+  assert.equal(monsterLevelCap({ level: 1 }, MONSTERS), 150);
 });
 
 test('ボス級（SS）: このゲームの ボス 7体。仲間として 使える 形（え・技・装備・強さは 少し おさえる）。配合でしか 生まれない', () => {
