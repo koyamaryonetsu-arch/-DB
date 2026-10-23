@@ -152,10 +152,14 @@ export const TRIAL_WORDS = {
   // 第40回
   ryumajin: '竜の力も魔の力も、守りたい者のためにふるうのだ。',
   neo_queen: 'ほんとうの強さは、だれかをいやすやさしさの中にあるのよ。',
+  // 第41回 B
+  snow_queen: 'こわがらないで。その力は、だれかを守るためにあるの。',
+  fifth_spirit: '風も火も水も大地も、つながってこそ1つの世界になるのです。',
 };
 export const TRIAL_WORDS_MASC = {
   sailor_moon: '月夜のしんしは、いつでも仲間を守るために現れるのだ。',
   neo_queen: '王とは、いちばん前に立って、みんなを守る者だ。',
+  snow_queen: 'こわがるな。その力は、だれかを守るためにあるのだ。',
 };
 export function trialWords(id, who = null) {
   const masc = who?.look && typeof who.look === 'object' && who.look.body !== 1;

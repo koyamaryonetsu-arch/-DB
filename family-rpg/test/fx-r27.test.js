@@ -15,6 +15,7 @@ import { playJob5Fx } from '../public/js/client/render/battlefx-jobs5.js';
 import { playJob6Fx } from '../public/js/client/render/battlefx-jobs6.js';
 import { playJob7Fx } from '../public/js/client/render/battlefx-jobs7.js';
 import { playJob8Fx } from '../public/js/client/render/battlefx-jobs8.js';
+import { playR41bFx } from '../public/js/client/render/battlefx-r41b.js';
 import { playCh4Fx } from '../public/js/client/render/battlefx-ch4.js';
 import {
   R27_FINE, R27_ANIMS, R27_ALLY_ANIMS, ELEMENT_FX, STAT_FX, SPELL_SERIES, SPELL_TIER, ANIM_OVERRIDE, TIER_SCALE,
@@ -85,7 +86,7 @@ test('第27回: 味方の 技は みんな エフェクトが ある（なにも
   const fake = new Proxy({}, { get: () => () => undefined });
   const handled = (anim) => R27_ANIMS.has(anim) || OLD_CASES.has(anim)
     || playJobFx(fake, anim, ONE, null, {}) || playJob2Fx(fake, anim, ONE, null, {}) || playJob3Fx(fake, anim, ONE, null, {})
-    || playJob4Fx(fake, anim, ONE, null, {}) || playJob5Fx(fake, anim, ONE, null, {}) || playJob6Fx(fake, anim, ONE, null, {}) || playJob7Fx(fake, anim, ONE, null, {}) || playJob8Fx(fake, anim, ONE, null, {}) || playCh4Fx(fake, anim, ONE, null, {});
+    || playJob4Fx(fake, anim, ONE, null, {}) || playJob5Fx(fake, anim, ONE, null, {}) || playJob6Fx(fake, anim, ONE, null, {}) || playJob7Fx(fake, anim, ONE, null, {}) || playJob8Fx(fake, anim, ONE, null, {}) || playR41bFx(fake, anim, ONE, null, {}) || playCh4Fx(fake, anim, ONE, null, {});
   for (const [id, ab] of ALLY_ABILITIES) {
     const anim = finalAnim(id, ab);
     const types = ab.effect?.type === 'multi' ? (ab.effect.parts || []).map((p) => p.type) : [ab.effect?.type];

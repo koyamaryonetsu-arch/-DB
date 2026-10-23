@@ -21,6 +21,8 @@ import { outfit29, drawR29, face29 } from './hero-r29.js';
 import { outfit33, body33, drawR33, face33, drawHat33, drawProp33 } from './hero-r33.js';
 // 第40回の 伝説の 職業 2つの ドレス・ひたいの しるし・つえ（hero-r40.js）
 import { outfit40, face40, drawProp40 } from './hero-r40.js';
+// 第41回 B の 雪の女王・第5のせいれいの ドレス・すける マント（hero-r41b.js）
+import { outfit41b } from './hero-r41b.js';
 
 // ───────────── ざいしつ（mat は おなじ ものを つくりなおさない） ─────────────
 const cl = (c, o = {}) => mat({ r: ramp(c, 4, o), th: o.th || TH.cloth });
@@ -224,6 +226,8 @@ export function outfit26(O, S, Lk, fem, main, phase) {
   if (S.r33) outfit33(O, S, Lk, fem);
   // 第40回: 足もとまでの ドレス・竜の とげの かたあて
   if (S.r40) outfit40(O, S);
+  // 第41回 B: 足もとまでの ドレス・すける そでと マント
+  if (S.r41b) outfit41b(O, S);
   return false;
 }
 
