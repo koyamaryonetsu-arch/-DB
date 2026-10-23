@@ -429,10 +429,13 @@ export function askText(input, { title, placeholder = '', max = 40, initial = ''
   });
 }
 
+// たしかめる まど。ほかの ポップアップ（宝の地図・道具の まど など。z-index 4〜7）の 上から 開く ことが あるので、
+// いつも いちばん 前に 出す（第40回: 宝の地図の「地図を捨てる」で、たしかめる まどが うしろに かくれていた）
+export const CONFIRM_Z = 20;
 export function confirmBox(input, text, yes = 'はい', no = 'いいえ', sound) {
   return new Promise((resolve) => {
     const ui = document.getElementById('ui');
-    const back = el('div', { class: 'modal-back', onclick: () => finish(false) });
+    const back = el('div', { class: 'modal-back', style: { zIndex: CONFIRM_Z }, onclick: () => finish(false) });
     const menu = new ListMenu(input, {
       items: [{ label: yes, value: true }, { label: no, value: false }],
       sound,
@@ -440,7 +443,7 @@ export function confirmBox(input, text, yes = 'はい', no = 'いいえ', sound)
       onSelect: (it) => finish(it.value),
       onCancel: () => finish(false),
     });
-    const box = el('div', { class: 'win panel center-panel', style: { width: 'min(90vw, 520px)' } }, el('div', { style: { whiteSpace: 'pre-line', marginBottom: '0.5em' }, text }), menu.root);
+    const box = el('div', { class: 'win panel center-panel', style: { width: 'min(90vw, 520px)', zIndex: CONFIRM_Z + 1, background: 'var(--win-solid)' } }, el('div', { style: { whiteSpace: 'pre-line', marginBottom: '0.5em' }, text }), menu.root);
     const finish = (v) => {
       menu.blur();
       back.remove();

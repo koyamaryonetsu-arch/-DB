@@ -10,18 +10,18 @@
 // resist: たいせい（しゅぞくの たいせいを つかう。ここに かけば うわがき）
 // gear:   装備できる 物（しゅぞくの けいの RACE_GEAR を うわがき。下の RACE_GEAR を 見てね）
 
-import { FRIENDS_CH2 } from './companions-ch2.js?v=d770bf1f3326';
-import { FRIENDS_RARE } from './monsters-rare.js?v=d770bf1f3326';
-import { FRIENDS_CH3 } from './companions-ch3.js?v=d770bf1f3326';
-import { FRIENDS_R23, RECIPES_R23 } from './monsters-r23.js?v=d770bf1f3326';
-import { FRIENDS_CH4 } from './companions-ch4.js?v=d770bf1f3326';
-import { FRIENDS_CH5 } from './companions-ch5.js?v=d770bf1f3326';
-import { FRIENDS_KUMOI } from './companions-kumoi.js?v=d770bf1f3326';
-import { FRIENDS_HOSHIYOMI } from './companions-hoshiyomi.js?v=d770bf1f3326';
-import { FRIENDS_EARTH } from './companions-earth.js?v=d770bf1f3326';
-import { FRIENDS_PHANTOM } from './companions-phantom.js?v=d770bf1f3326';
-import { FRIENDS_PAST } from './companions-past.js?v=d770bf1f3326';
-import { FRIENDS_BOSS, MATERIAL_RECIPES, FOUR_RECIPES } from './monsters-boss.js?v=d770bf1f3326';
+import { FRIENDS_CH2 } from './companions-ch2.js?v=598f83ddee59';
+import { FRIENDS_RARE } from './monsters-rare.js?v=598f83ddee59';
+import { FRIENDS_CH3 } from './companions-ch3.js?v=598f83ddee59';
+import { FRIENDS_R23, RECIPES_R23 } from './monsters-r23.js?v=598f83ddee59';
+import { FRIENDS_CH4 } from './companions-ch4.js?v=598f83ddee59';
+import { FRIENDS_CH5 } from './companions-ch5.js?v=598f83ddee59';
+import { FRIENDS_KUMOI } from './companions-kumoi.js?v=598f83ddee59';
+import { FRIENDS_HOSHIYOMI } from './companions-hoshiyomi.js?v=598f83ddee59';
+import { FRIENDS_EARTH } from './companions-earth.js?v=598f83ddee59';
+import { FRIENDS_PHANTOM } from './companions-phantom.js?v=598f83ddee59';
+import { FRIENDS_PAST } from './companions-past.js?v=598f83ddee59';
+import { FRIENDS_BOSS, MATERIAL_RECIPES, FOUR_RECIPES } from './monsters-boss.js?v=598f83ddee59';
 
 export const MONSTER_FRIENDS = {
   pururin: {
@@ -346,11 +346,11 @@ export function rankIdx(sp, MONSTERS) {
 }
 export const rankOf = (sp, MONSTERS) => RANKS[rankIdx(sp, MONSTERS)];
 
-// レベルの 上限: ランク F で Lv50、ランクが 1つ上がるごとに +5（SS で 85）、＋1 ごとに +1。max（今は 99）は こえない
+// レベルの 上限: ランク F で Lv50、ランクが 1つ上がるごとに +5（SS で 85）、＋1 ごとに +1。max（stats.js の MAX_LEVEL。第40回から 150）は こえない
 // 第35回より 前から いる 仲間（ranked が ない）は 今までどおり max まで（下がらない ように）
 export const LV_CAP_BASE = 50;
 export const LV_CAP_RANK = 5;
-export function monsterLevelCap(ch, MONSTERS, max = 99) {
+export function monsterLevelCap(ch, MONSTERS, max = 150) {
   if (!ch?.species || !ch.ranked) return max;
   return Math.max(1, Math.min(max, LV_CAP_BASE + LV_CAP_RANK * rankIdx(ch.species, MONSTERS) + Math.floor(ch.plus || 0)));
 }

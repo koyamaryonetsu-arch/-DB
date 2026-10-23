@@ -1,18 +1,18 @@
 // キャラクターの つよさ計算・レベルアップ・転職ペナルティ
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_EASY_RATE, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets, jobBodyOk, superMasteredCount } from './data/jobs.js?v=d770bf1f3326';
-import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=d770bf1f3326';
-import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=d770bf1f3326';
-import { MONSTERS } from './data/monsters.js?v=d770bf1f3326';
-import { MONSTER_FRIENDS, monsterNatural, gearOf, monsterLevelCap } from './data/companions.js?v=d770bf1f3326';
-import { HIRAMEKI, hiraRatio } from './data/hirameki.js?v=d770bf1f3326';
-import { cleanLook } from './data/looks.js?v=d770bf1f3326';
-import { SKILL_UPS } from './data/skill-ups.js?v=d770bf1f3326';
-import { jobLabel } from './job-label.js?v=d770bf1f3326';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_EASY_RATE, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets, jobBodyOk, superMasteredCount } from './data/jobs.js?v=598f83ddee59';
+import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=598f83ddee59';
+import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=598f83ddee59';
+import { MONSTERS } from './data/monsters.js?v=598f83ddee59';
+import { MONSTER_FRIENDS, monsterNatural, gearOf, monsterLevelCap } from './data/companions.js?v=598f83ddee59';
+import { HIRAMEKI, hiraRatio } from './data/hirameki.js?v=598f83ddee59';
+import { cleanLook } from './data/looks.js?v=598f83ddee59';
+import { SKILL_UPS } from './data/skill-ups.js?v=598f83ddee59';
+import { jobLabel } from './job-label.js?v=598f83ddee59';
 // 第38回 B: 超級職からの 職業レベルの 上限（職業の試練）と Lv11〜 の 強さ
-import { jobLevelCap, jobUpStats } from './data/job-trials.js?v=d770bf1f3326';
+import { jobLevelCap, jobUpStats } from './data/job-trials.js?v=598f83ddee59';
 
-// 長い 物語に なるので レベルは 99まで（レベルで ふえる つよさは ひかえめ）
-export const MAX_LEVEL = 99;
+// 長い 物語に なるので レベルは 150まで（第40回で 99 → 150。レベルで ふえる つよさは ひかえめ）
+export const MAX_LEVEL = 150;
 export const STAT_KEYS = ['hp', 'mp', 'str', 'def', 'agi', 'mag', 'heal'];
 export const STAT_NAMES = {
   hp: '最大HP', mp: '最大MP', str: '力', def: '身の守り', agi: '素早さ',
