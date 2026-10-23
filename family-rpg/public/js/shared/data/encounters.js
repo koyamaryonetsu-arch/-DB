@@ -16,6 +16,7 @@ import { ENCOUNTERS_EARTH, FIXED_EARTH, ZONE_BG_EARTH } from './encounters-earth
 import { FIXED_FINAL } from './encounters-final.js';
 import { ENCOUNTERS_PHANTOM, FIXED_PHANTOM, ZONE_BG_PHANTOM } from './encounters-phantom.js';
 import { ENCOUNTERS_PAST, FIXED_PAST, ZONE_BG_PAST } from './encounters-past.js';
+import { ENCOUNTERS_ROAD, FIXED_ROAD, ZONE_BG_ROAD } from './encounters-road.js';
 // 第37回 A: サファラ闘技場の ランク戦（3連戦）
 import { FIXED_ARENA } from './encounters-arena.js';
 // 第38回 B: 職業の試練（師しょうのまぼろし）
@@ -148,3 +149,7 @@ Object.assign(ZONE_BG, ZONE_BG_PHANTOM);
 Object.assign(ENCOUNTER_TABLES, ENCOUNTERS_PAST);
 Object.assign(FIXED_ENCOUNTERS, FIXED_PAST);
 Object.assign(ZONE_BG, ZONE_BG_PAST);
+// 第2部 第6章 Step 3・4「星めぐりの古道」・星くいのよる鳥・ペンデュラ（encounters-road.js）
+Object.assign(ENCOUNTER_TABLES, ENCOUNTERS_ROAD);
+Object.assign(FIXED_ENCOUNTERS, FIXED_ROAD);
+Object.assign(ZONE_BG, ZONE_BG_ROAD);

@@ -22,6 +22,8 @@ import { wagonShare, wagonBattleSwap } from './wagon.js';
 import { growthSummary } from './growth.js';
 import { topLevel, battleTeamChars, expHatMult } from './perks.js';
 import { battleTactics } from './tactics.js';
+// 第6章 Step 3・4: 昼か 夜か（星座の 魔物。battle-road.js）
+import { isNightFor } from './clock.js';
 
 let battleSeq = 1;
 
@@ -155,6 +157,8 @@ function makeBattle(world, sessions, party, enemies, opts) {
     hooks: {
       // リーダー（物語の もちぬし）の フラグ（第5章 Step 9 の ノクト〈本気〉: 思い出の かけら・ピピの 手紙で ことばが かわる。battle-final.js）
       leaderFlag: (id) => !!leader?.char?.flags?.[id],
+      // 第6章 Step 3・4: 昼か 夜か（星座の 魔物は 夜だけ 強い／昼だけ 強い。battle-road.js）
+      night: () => isNightFor(world, leader),
       hasItem: (actor, id) => {
         const m = actor.controller && world.sessions.get(actor.controller);
         return m ? itemCount(m.char, id) > 0 : false;

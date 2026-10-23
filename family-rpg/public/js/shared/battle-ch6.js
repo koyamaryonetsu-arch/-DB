@@ -23,6 +23,8 @@ import { BUFF_ACTS } from './buff-acts.js';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
 import { atbRate } from './battle.js';
 import { canUse } from './ai.js';
+// 第2部 第6章 Step 3・4: 星くいのよる鳥（星くい）・ペンデュラ（時のふりこ）・星座の 魔物（昼と 夜）。battle-road.js
+import { setupRoad, roadTurnStart, roadEffect, roadDamage, roadKnow, roadPub, ROAD_BIG } from './battle-road.js';
 
 export { SAND_CLOCK, GEARDON };
 export const FALL = 'm6_sc_fall';
@@ -32,7 +34,7 @@ export const REWIND = 'm6_gd_rewind';
 export const PRESS = 'm6_gd_press';
 // ふつうの オートが 大技の 前に 身を 守る（HPが この わりあいより 少ない とき・この たしかさで。影の城の まぼろしと おなじ）
 export const AUTO_GUARD = { hp: 0.8, chance: 0.6 };
-const BIG = new Set([FALL, PRESS]);
+const BIG = new Set([FALL, PRESS, ...ROAD_BIG]);
 const FOES = new Set(['enemy', 'group', 'enemies']);
 const prim = (a) => (a?.effect?.type === 'multi' ? a.effect.parts?.[0] || {} : a?.effect || {});
 
@@ -53,7 +55,8 @@ export function setupCh6(b) {
     if (gc) e.gear = { count: 0, rec: null, left: 0, hits: 0, fast: false };
     if (sc || gc) kinds.add(confOf(e).kind);
   }
-  for (const k of kinds) b.emit({ t: 'msg', lines: INTRO[k].slice(), dur: 1300 });
+  for (const k of kinds) if (INTRO[k]) b.emit({ t: 'msg', lines: INTRO[k].slice(), dur: 1300 });
+  setupRoad(b);
 }
 
 // ───────────── 魔物の こうどうの じょうけん（battle-ch5.js の towerCond から。'c5:' の あと）─────────────
@@ -105,6 +108,7 @@ export function ch6TurnStart(b, c, ev, cmd = null) {
     }
     ev.upd.push(c);
   }
+  roadTurnStart(b, c, ev, cmd);
 }
 
 // ───────────── 技の こうか（battle-ch5.js の towerEffect から）─────────────
@@ -113,7 +117,7 @@ export function ch6Effect(b, c, a, eff, ev, targets = []) {
     case 'scFall': sandFall(b, c, eff, ev); return true;
     case 'gdRecord': record(b, c, ev); return true;
     case 'gdRewind': rewind(b, c, ev); return true;
-    default: return false;
+    default: return roadEffect(b, c, a, eff, ev, targets);
   }
 }
 
@@ -211,7 +215,7 @@ export function ch6Damage(b, c, t, dmg, info, ev) {
     }
     ev.upd.push(t);
   }
-  return dmg;
+  return roadDamage(b, c, t, dmg, info, ev);
 }
 
 // ───────────── 知っている 人の オート（battle-ch5.js の towerPlan から。b.knowsCh6）─────────────
@@ -239,6 +243,7 @@ export function ch6Plan(b, c, decide) {
   const a = base?.type === 'ability' ? ABILITIES[base.id] : null;
   const saving = a && ['heal', 'revive', 'reviveAll'].includes(prim(a).type) && b.allies.some((x) => !x.fled && (!x.alive || x.hp / x.maxHp < 0.35));
   if (saving) return base;
+  if (boss.stars || boss.pend) return roadKnow(b, c, boss, base, { elemHit });
   if (boss.sand) {
     if (boss.telegraph === FALL) {
       const ice = b.c6NoIce ? null : elemHit(b, c, boss, 'ice');
@@ -283,7 +288,7 @@ export function elemHit(b, c, t, el) {
 // 敵: 砂（sand・sandMax）・まきもどし（gearRec … 覚えている・gearLeft … まきもどしまで・gearHits … 当てた 雷・gearNeed）
 export function ch6Pub(c) {
   if (c.side !== 'enemy') return {};
-  const o = {};
+  const o = roadPub(c);
   if (c.sand) {
     o.sand = c.sand.lv;
     o.sandMax = c.sand.max;

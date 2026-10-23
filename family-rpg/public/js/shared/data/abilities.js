@@ -38,6 +38,7 @@ import { EARTH_ABILITIES } from './abilities-earth.js';
 import { FINAL_ABILITIES } from './abilities-final.js';
 import { PHANTOM_ABILITIES } from './abilities-phantom.js';
 import { PAST_ABILITIES } from './abilities-past.js';
+import { ROAD_ABILITIES } from './abilities-road.js';
 import { JOB3_ABILITIES } from './abilities-jobs3.js';
 import { JOB4_ABILITIES } from './abilities-jobs4.js';
 // 2026年10月（第22回）の 新しい 職業の 技（おかん・社ちく・天才しせつ管理者・はかい神 など）
@@ -630,6 +631,8 @@ Object.assign(ABILITIES, FINAL_ABILITIES);
 Object.assign(ABILITIES, PHANTOM_ABILITIES);
 // 第2部 第6章 Step 1・2 の 魔物・サンドクロック・ギアドン・ゲストの ミナモの 技（abilities-past.js）
 Object.assign(ABILITIES, PAST_ABILITIES);
+// 第2部 第6章 Step 3・4 の 魔物・星くいのよる鳥・ペンデュラの 技（abilities-road.js）
+Object.assign(ABILITIES, ROAD_ABILITIES);
 // 料理人・アルバイト・お笑い芸人の 系統、大賢者、ロトの勇者と、攻撃技を 足した 職業（abilities-jobs3.js）
 Object.assign(ABILITIES, JOB3_ABILITIES);
 // ニート・サイヤ人・設備屋・ゴム人間・ユーチューバー・ゲーマーの 系統と 魔王（abilities-jobs4.js）
