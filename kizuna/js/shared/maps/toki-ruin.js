@@ -9,11 +9,11 @@
 //   千年前で おす 石像（今も その 場所に。今の 重りの ゆかに のると 今の とびらが 開く）・7階の 2つの 時代の ふむ石
 // ・4階は 休み所（時の いずみ）。みちびきの糸・リレミトは 使える（今の 階は 今の 外へ・千年前の 階は 千年前の 外へ）
 // ・魔物: 1〜4階 t6_ruin_up・5〜7階 t6_ruin_low（B が 作る。今も 千年前も）
-import { T } from '../tiles.js?v=12f512bf8713';
-import { npc } from './npc.js?v=12f512bf8713';
-import { RUIN_ROWS, RUIN_W, RUIN_H, BOSS_ROWS } from './toki-ruin-rows.js?v=12f512bf8713';
-import { PAST_POS, RUIN_ARRIVE, parseRows16 } from './past.js?v=12f512bf8713';
-import { PAST_TREASURE, PAST_RUIN_FLOORS } from '../data/items-past.js?v=12f512bf8713';
+import { T } from '../tiles.js?v=3cd47488267e';
+import { npc } from './npc.js?v=3cd47488267e';
+import { RUIN_ROWS, RUIN_W, RUIN_H, BOSS_ROWS } from './toki-ruin-rows.js?v=3cd47488267e';
+import { PAST_POS, RUIN_ARRIVE, parseRows16 } from './past.js?v=3cd47488267e';
+import { PAST_TREASURE, PAST_RUIN_FLOORS } from '../data/items-past.js?v=3cd47488267e';
 
 export const RUIN_FLOORS = 7;
 export const RUIN_REST = 4;

@@ -1,14 +1,14 @@
 // おんがくと こうかおん（Web Audio で その場で つくる。きょくは すべて オリジナル）
-import { SFX_R26 } from './sfx-r26.js?v=12f512bf8713';
-import { SFX_R27 } from './sfx-r27.js?v=12f512bf8713';
-import { SFX_R29 } from './sfx-r29.js?v=12f512bf8713';
-import { SFX_R33 } from './sfx-r33.js?v=12f512bf8713';
-import { KUMOI_TRACKS } from './audio-kumoi.js?v=12f512bf8713';
-import { HOSHIYOMI_TRACKS } from './audio-hoshiyomi.js?v=12f512bf8713';
-import { EARTH_TRACKS } from './audio-earth.js?v=12f512bf8713';
-import { CASTLE_TRACKS } from './audio-castle.js?v=12f512bf8713';
-import { TOP_TRACKS } from './audio-top.js?v=12f512bf8713';
-import { CH6_TRACKS } from './audio-ch6.js?v=12f512bf8713';
+import { SFX_R26 } from './sfx-r26.js?v=3cd47488267e';
+import { SFX_R27 } from './sfx-r27.js?v=3cd47488267e';
+import { SFX_R29 } from './sfx-r29.js?v=3cd47488267e';
+import { SFX_R33 } from './sfx-r33.js?v=3cd47488267e';
+import { KUMOI_TRACKS } from './audio-kumoi.js?v=3cd47488267e';
+import { HOSHIYOMI_TRACKS } from './audio-hoshiyomi.js?v=3cd47488267e';
+import { EARTH_TRACKS } from './audio-earth.js?v=3cd47488267e';
+import { CASTLE_TRACKS } from './audio-castle.js?v=3cd47488267e';
+import { TOP_TRACKS } from './audio-top.js?v=3cd47488267e';
+import { CH6_TRACKS } from './audio-ch6.js?v=3cd47488267e';
 
 const NOTE_BASE = { C: 0, 'C#': 1, Db: 1, D: 2, 'D#': 3, Eb: 3, E: 4, F: 5, 'F#': 6, Gb: 6, G: 7, 'G#': 8, Ab: 8, A: 9, 'A#': 10, Bb: 10, B: 11 };
 

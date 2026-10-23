@@ -29,10 +29,10 @@
 //   drawHat33(cv, P, H, G, view) … シルクハット・ティアラ（drawHat26 から よぶ。かいたら true）
 //   drawProp33(cv, P, A, O) … たての ない 手の もちもの（drawProp26 から よぶ。かいたら true）
 //   handMark33(cv, A, P, O) … 手ぶくろの れん金の 円（hero.js の 手の あとで よぶ）
-import { mat, ramp, TH, mixC } from './hero-raster.js?v=12f512bf8713';
-import { EYE_V } from './hero-face.js?v=12f512bf8713';
+import { mat, ramp, TH, mixC } from './hero-raster.js?v=3cd47488267e';
+import { EYE_V } from './hero-face.js?v=3cd47488267e';
 // 第40回: 男の子の ネオ・クイーン・セレニティ（キング・エンディミオン）も masc33 で かえす
-import { R40_MASC } from './hero-r40.js?v=12f512bf8713';
+import { R40_MASC } from './hero-r40.js?v=3cd47488267e';
 
 export const R33_JOBS = ['magician', 'kaito', 'kaito_kid', 'wizard_student', 'harry', 'homeroom_3b', 'alchemist', 'state_alchemist', 'fullmetal', 'sailor_soldier', 'sailor_moon'];
 

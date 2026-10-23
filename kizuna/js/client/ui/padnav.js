@@ -7,7 +7,7 @@
 //   const h = padNav(root, { onB, start, sound });  game.input.push(h);  …  game.input.pop(h);
 //   h.refresh() … 中みを 作りなおした あと（カーソルの ボタンが なくなったら はじめの ボタンへ）
 //   h.focusEl(e) … カーソルを その ボタンへ
-import './r35-css.js?v=12f512bf8713';
+import './r35-css.js?v=3cd47488267e';
 
 const SEL = 'button:not([disabled]), input:not([disabled]), textarea:not([disabled]), [data-pad]';
 
