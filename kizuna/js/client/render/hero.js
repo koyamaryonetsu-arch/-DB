@@ -2,22 +2,22 @@
 // みため（体・かみがた・かみの色・はだ・目もと）と、しょくぎょう・そうび（ぶき・よろい・たて・かぶと）から かく
 //   heroImage(look, job, equip, dir, frame, res) → { w, h, res, rgba }
 // res 4: 64×84（フィールド）  res 8: 128×168（大きな みほん）
-import { HeroCanvas, mat, ramp, TH, mixC, rgbaCanvas } from './hero-raster.js?v=3cd47488267e';
-import { faceFront, faceSide, faceMarks, faceOver } from './hero-face.js?v=3cd47488267e';
-import { drawHair } from './hero-hair.js?v=3cd47488267e';
-import { outfitOf, jobBody, drawTorsoFront, drawTorsoBack, drawTorsoSide, drawSkirt, drawCape, drawPauldron, drawBelt, drawNeckwear, drawPack, drawApron, drawWings, drawTail, drawCollar } from './hero-outfit.js?v=3cd47488267e';
-import { drawAura } from './hero-aura.js?v=3cd47488267e';
+import { HeroCanvas, mat, ramp, TH, mixC, rgbaCanvas } from './hero-raster.js?v=c2ce3805193b';
+import { faceFront, faceSide, faceMarks, faceOver } from './hero-face.js?v=c2ce3805193b';
+import { drawHair } from './hero-hair.js?v=c2ce3805193b';
+import { outfitOf, jobBody, drawTorsoFront, drawTorsoBack, drawTorsoSide, drawSkirt, drawCape, drawPauldron, drawBelt, drawNeckwear, drawPack, drawApron, drawWings, drawTail, drawCollar } from './hero-outfit.js?v=c2ce3805193b';
+import { drawAura } from './hero-aura.js?v=c2ce3805193b';
 // 第26回の 職業（羽織・こうら・ネコ型ロボットの おなか・もちもの・かおの しるし）
-import { R26_HAIR, R26_SKIN, drawR26, face26, drawProp26 } from './hero-r26.js?v=3cd47488267e';
+import { R26_HAIR, R26_SKIN, drawR26, face26, drawProp26 } from './hero-r26.js?v=c2ce3805193b';
 // 第29回の るろうに剣士の 道の 赤毛
-import { R29_HAIR } from './hero-r29.js?v=3cd47488267e';
+import { R29_HAIR } from './hero-r29.js?v=c2ce3805193b';
 // 第33回の 職業の かみの いろと、手ぶくろの れん金の 円
-import { R33_HAIR, handMark33 } from './hero-r33.js?v=3cd47488267e';
+import { R33_HAIR, handMark33 } from './hero-r33.js?v=c2ce3805193b';
 // 第40回の 職業の かみの いろと、両手の 竜の紋章
-import { R40_HAIR, handMark40 } from './hero-r40.js?v=3cd47488267e';
-import { weaponOf, shieldOf, headOf, drawWeapon, drawShield, drawHeadgear, isLongSide } from './hero-gear.js?v=3cd47488267e';
-import { lookIds, HCOL_BY_ID, TONE_BY_ID, CLOTH_COLORS } from '../../shared/data/looks.js?v=3cd47488267e';
-import { STARTER_EQUIP } from '../../shared/stats.js?v=3cd47488267e';
+import { R40_HAIR, handMark40 } from './hero-r40.js?v=c2ce3805193b';
+import { weaponOf, shieldOf, headOf, drawWeapon, drawShield, drawHeadgear, isLongSide } from './hero-gear.js?v=c2ce3805193b';
+import { lookIds, HCOL_BY_ID, TONE_BY_ID, CLOTH_COLORS } from '../../shared/data/looks.js?v=c2ce3805193b';
+import { STARTER_EQUIP } from '../../shared/stats.js?v=c2ce3805193b';
 
 // そうびの かきかた: 'ぶき,よろい,たて,あたま' の もじれつ か { weapon, armor, shield, head }（ない ときは しょくぎょうの はじめの そうび）
 export function parseEquip(eq, job) {

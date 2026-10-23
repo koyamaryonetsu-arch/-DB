@@ -12,32 +12,32 @@
 //   ['teleport', 'map', x, y, 'dir']  ['spawn', 'map', x, y]  ['chapter', 'だい1しょう', 'サブタイトル']
 //
 // x（じょうほう）: x.name x.flag('f') x.has('item') x.count('item') x.kills('monster') x.quest('key')
-import { POS } from '../maps/index.js?v=3cd47488267e';
-import { PLACES } from '../maps/overworld.js?v=3cd47488267e';
-import { abilityLabel } from '../ability-label.js?v=3cd47488267e';
-import { learnedAbilities, comboUnlocked, hiraAllowed, hiraRelated, partyJobSet } from '../stats.js?v=3cd47488267e';
-import { HIRAMEKI, hiraRatio } from './hirameki.js?v=3cd47488267e';
-import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js?v=3cd47488267e';
-import { CH3_STEPS, CH3_STORY_SCRIPTS, CH3_SCRIPTS, elderCh3 } from './story-ch3.js?v=3cd47488267e';
-import { CH4_STEPS, CH4_STORY_SCRIPTS, CH4_SCRIPTS, elderCh4 } from './story-ch4.js?v=3cd47488267e';
-import { CH5_STEPS, CH5_STORY_SCRIPTS, CH5_SCRIPTS, CH5_TOWN_LINES, elderCh5 } from './story-ch5.js?v=3cd47488267e';
+import { POS } from '../maps/index.js?v=c2ce3805193b';
+import { PLACES } from '../maps/overworld.js?v=c2ce3805193b';
+import { abilityLabel } from '../ability-label.js?v=c2ce3805193b';
+import { learnedAbilities, comboUnlocked, hiraAllowed, hiraRelated, partyJobSet } from '../stats.js?v=c2ce3805193b';
+import { HIRAMEKI, hiraRatio } from './hirameki.js?v=c2ce3805193b';
+import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js?v=c2ce3805193b';
+import { CH3_STEPS, CH3_STORY_SCRIPTS, CH3_SCRIPTS, elderCh3 } from './story-ch3.js?v=c2ce3805193b';
+import { CH4_STEPS, CH4_STORY_SCRIPTS, CH4_SCRIPTS, elderCh4 } from './story-ch4.js?v=c2ce3805193b';
+import { CH5_STEPS, CH5_STORY_SCRIPTS, CH5_SCRIPTS, CH5_TOWN_LINES, elderCh5 } from './story-ch5.js?v=c2ce3805193b';
 // 第2部 第6章「時の砂時計」Step 1・2（story-ch6.js）
-import { CH6_STEPS, applyCh6 } from './story-ch6.js?v=3cd47488267e';
-import { TM_SCRIPTS, TM_STORY_SCRIPTS } from './story-tm.js?v=3cd47488267e';
-import { SD_SCRIPTS } from './story-secret.js?v=3cd47488267e';
-import { CASINO_SCRIPTS } from './story-casino.js?v=3cd47488267e';
-import { innSteps } from './inn.js?v=3cd47488267e';
-import { NIGHT_SCRIPTS } from './night.js?v=3cd47488267e';
-import { skyScripts } from './sky.js?v=3cd47488267e';
-import { FACILITY_SCRIPTS } from './facilities.js?v=3cd47488267e';
-import { wagonEventSteps } from './wagon.js?v=3cd47488267e';
-import { JOB_GREET } from './job-talk.js?v=3cd47488267e';
-import { LAB_SCRIPTS, LAB_STORY_SCRIPTS } from './story-lab.js?v=3cd47488267e';
-import { QUEST_SCRIPTS, QUEST_STORY_SCRIPTS, wrapSideQuests } from './sidequests.js?v=3cd47488267e';
+import { CH6_STEPS, applyCh6 } from './story-ch6.js?v=c2ce3805193b';
+import { TM_SCRIPTS, TM_STORY_SCRIPTS } from './story-tm.js?v=c2ce3805193b';
+import { SD_SCRIPTS } from './story-secret.js?v=c2ce3805193b';
+import { CASINO_SCRIPTS } from './story-casino.js?v=c2ce3805193b';
+import { innSteps } from './inn.js?v=c2ce3805193b';
+import { NIGHT_SCRIPTS } from './night.js?v=c2ce3805193b';
+import { skyScripts } from './sky.js?v=c2ce3805193b';
+import { FACILITY_SCRIPTS } from './facilities.js?v=c2ce3805193b';
+import { wagonEventSteps } from './wagon.js?v=c2ce3805193b';
+import { JOB_GREET } from './job-talk.js?v=c2ce3805193b';
+import { LAB_SCRIPTS, LAB_STORY_SCRIPTS } from './story-lab.js?v=c2ce3805193b';
+import { QUEST_SCRIPTS, QUEST_STORY_SCRIPTS, wrapSideQuests } from './sidequests.js?v=c2ce3805193b';
 // 第37回 A: サファラ闘技場（しょりは world/arena.js）
-import { ARENA_SCRIPTS, ARENA_STORY_SCRIPTS } from './story-arena.js?v=3cd47488267e';
-import { TRIAL_SCRIPTS } from './story-trials.js?v=3cd47488267e';
-import { applyTownHints } from './secret-hints.js?v=3cd47488267e';
+import { ARENA_SCRIPTS, ARENA_STORY_SCRIPTS } from './story-arena.js?v=c2ce3805193b';
+import { TRIAL_SCRIPTS } from './story-trials.js?v=c2ce3805193b';
+import { applyTownHints } from './secret-hints.js?v=c2ce3805193b';
 
 const V = (x, y) => [PLACES.village.x + x + 0.5, PLACES.village.y + y + 0.5];
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
@@ -318,7 +318,7 @@ export const SCRIPTS = {
     'メニューの「仲間」から、遊んでいる家族をパーティーにさそえるよ。',
     '家族がいない時は、酒場で家族のキャラを「サポート仲間」として連れていけるんだ。'),
   t_kid: (x) => S('子ども', '知ってる？同じ技を何回も使っていると、\n新しい技を「ひらめく」ことがあるんだって！', '神殿のひらめきの賢者さまがくわしいよ！'),
-  t_lady: (x) => S('おばさん', 'ルミナの町へようこそ。', '真ん中のふんすいの近くに「家族の伝言板」があるのよ。\n家族にメッセージを残せるわ。'),
+  t_lady: (x) => S('おばさん', 'ルミナの町へようこそ。', '真ん中のふんすいの近くに「けいじ板」があるのよ。\n家族にメッセージを残せるわ。'),
   t_oldman: (x) => S('物知りじいさん', '昔、勇者たちは5つの守り星を守るために旅をしたそうじゃ…',
     '戦いで仲間が続けて攻撃すると「れんけい」が起こる。\n炎と風を続けると…ふふ、試してみなされ。'),
   t_drinker: (x) => S('よっぱらい', 'ういっく…東の洞窟には\n岩の魔物がねむってるってうわさだぜ…ひっく'),

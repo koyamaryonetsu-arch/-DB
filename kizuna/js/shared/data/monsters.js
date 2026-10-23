@@ -11,28 +11,28 @@
 const ROCK_RESIST = { fire: 0.5, ice: 0.7, wind: 0.6, blast: 1.5, poison: 0, sleep: 0, confuse: 0.3, paralyze: 0.2 };
 const METAL_RESIST = { fire: 0, ice: 0, wind: 0, blast: 0, bolt: 0, light: 0, dark: 0, void: 0.5, sleep: 0, poison: 0, confuse: 0, blind: 0, silence: 0, paralyze: 0, debuff: 0 };
 
-import { MONSTERS_CH2 } from './monsters-ch2.js?v=3cd47488267e';
-import { MONSTERS_TM } from './monsters-tm.js?v=3cd47488267e';
-import { NIGHT_MONSTERS } from './night.js?v=3cd47488267e';
-import { MONSTERS_RARE } from './monsters-rare.js?v=3cd47488267e';
-import { MONSTERS_CH3 } from './monsters-ch3.js?v=3cd47488267e';
-import { MONSTERS_CH4 } from './monsters-ch4.js?v=3cd47488267e';
-import { MONSTERS_R23 } from './monsters-r23.js?v=3cd47488267e';
+import { MONSTERS_CH2 } from './monsters-ch2.js?v=c2ce3805193b';
+import { MONSTERS_TM } from './monsters-tm.js?v=c2ce3805193b';
+import { NIGHT_MONSTERS } from './night.js?v=c2ce3805193b';
+import { MONSTERS_RARE } from './monsters-rare.js?v=c2ce3805193b';
+import { MONSTERS_CH3 } from './monsters-ch3.js?v=c2ce3805193b';
+import { MONSTERS_CH4 } from './monsters-ch4.js?v=c2ce3805193b';
+import { MONSTERS_R23 } from './monsters-r23.js?v=c2ce3805193b';
 // 第4章 Step 7「砂の底の神殿とモルガナ」（monsters-temple.js）
-import { MONSTERS_TEMPLE } from './monsters-temple.js?v=3cd47488267e';
-import { MONSTERS_LAB } from './monsters-lab.js?v=3cd47488267e';
+import { MONSTERS_TEMPLE } from './monsters-temple.js?v=c2ce3805193b';
+import { MONSTERS_LAB } from './monsters-lab.js?v=c2ce3805193b';
 // 第37回 A: サファラ闘技場の 王者（数えない 形）
-import { addArenaHidden } from './monsters-arena.js?v=3cd47488267e';
+import { addArenaHidden } from './monsters-arena.js?v=c2ce3805193b';
 // 第38回 B: 職業の試練の 師しょうのまぼろし（数えない 形）
-import { addTrialHidden } from './monsters-trial.js?v=3cd47488267e';
-import { MONSTERS_CH5 } from './monsters-ch5.js?v=3cd47488267e';
-import { MONSTERS_KUMOI, addGaiaParts } from './monsters-kumoi.js?v=3cd47488267e';
-import { MONSTERS_HOSHIYOMI } from './monsters-hoshiyomi.js?v=3cd47488267e';
-import { MONSTERS_EARTH, addEarthHidden } from './monsters-earth.js?v=3cd47488267e';
-import { MONSTERS_FINAL } from './monsters-final.js?v=3cd47488267e';
-import { MONSTERS_PHANTOM, addPhantomHidden } from './monsters-phantom.js?v=3cd47488267e';
-import { MONSTERS_PAST } from './monsters-past.js?v=3cd47488267e';
-import { MONSTERS_BOSS } from './monsters-boss.js?v=3cd47488267e';
+import { addTrialHidden } from './monsters-trial.js?v=c2ce3805193b';
+import { MONSTERS_CH5 } from './monsters-ch5.js?v=c2ce3805193b';
+import { MONSTERS_KUMOI, addGaiaParts } from './monsters-kumoi.js?v=c2ce3805193b';
+import { MONSTERS_HOSHIYOMI } from './monsters-hoshiyomi.js?v=c2ce3805193b';
+import { MONSTERS_EARTH, addEarthHidden } from './monsters-earth.js?v=c2ce3805193b';
+import { MONSTERS_FINAL } from './monsters-final.js?v=c2ce3805193b';
+import { MONSTERS_PHANTOM, addPhantomHidden } from './monsters-phantom.js?v=c2ce3805193b';
+import { MONSTERS_PAST } from './monsters-past.js?v=c2ce3805193b';
+import { MONSTERS_BOSS } from './monsters-boss.js?v=c2ce3805193b';
 
 export const MONSTERS = {
   pururin: {

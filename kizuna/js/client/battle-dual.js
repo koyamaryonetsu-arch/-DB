@@ -2,16 +2,16 @@
 //  ・コマンドの「合体技」の 一覧（第31回: 行は 技の 名前だけ 大きく。だれと・何人で・よやくか・必要な 職業は 説明の まどに）
 //  ・家族から さそわれた ときの「参加する！／ことわる」
 //  ・出す ときの カットインと とどめの えんしゅつ（render/dualfx.js）
-import { el, esc, ListMenu, toast } from './ui/dom.js?v=3cd47488267e';
-import { ABILITIES, ELEMENT_NAMES } from '../shared/data/abilities.js?v=3cd47488267e';
-import { comboAllowed, weaponOk } from '../shared/stats.js?v=3cd47488267e';
-import { dualOptions, dualKnown, dualNeedText, dualNeedLabel } from '../shared/data/dual.js?v=3cd47488267e';
+import { el, esc, ListMenu, toast } from './ui/dom.js?v=c2ce3805193b';
+import { ABILITIES, ELEMENT_NAMES } from '../shared/data/abilities.js?v=c2ce3805193b';
+import { comboAllowed, weaponOk } from '../shared/stats.js?v=c2ce3805193b';
+import { dualOptions, dualKnown, dualNeedText, dualNeedLabel } from '../shared/data/dual.js?v=c2ce3805193b';
 // 第33回: 男の子の 美少女戦士が 入る ときは 名前・説明が かわる（shared/ability-label.js）
-import { dualFor } from '../shared/ability-label.js?v=3cd47488267e';
-import { faceURL } from './field.js?v=3cd47488267e';
-import { targetText } from './ui/info.js?v=3cd47488267e';
-import { playDualCutin, playDualFinale, cutMs, dualFxOf, addDualCss } from './render/dualfx.js?v=3cd47488267e';
-import { BW, BH } from './render/battlefx.js?v=3cd47488267e';
+import { dualFor } from '../shared/ability-label.js?v=c2ce3805193b';
+import { faceURL } from './field.js?v=c2ce3805193b';
+import { targetText } from './ui/info.js?v=c2ce3805193b';
+import { playDualCutin, playDualFinale, cutMs, dualFxOf, addDualCss } from './render/dualfx.js?v=c2ce3805193b';
+import { BW, BH } from './render/battlefx.js?v=c2ce3805193b';
 
 const SECRET = '効果は？？？（一度使うとわかる）';
 // その くみあわせ（o.who … 出す 人の id）むけの 合体技

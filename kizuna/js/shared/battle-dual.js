@@ -9,14 +9,14 @@
 //   その 人の ゲージは 半分から やり直し（よやくは つづく。ゲージが まだ たまって いない 人は かわらない。dualHurt）
 // ・強さ: 出す 人が それぞれ、その 組の 技（か ふつうの 攻撃）を 出した ときの ダメージの 合計 × DUAL_POWER[人数] × k
 //   （この 敵に 当てた ときの 見つもり。守り・弱点・バフも 入る。属性は 合体技の 属性で かかる）
-import { ABILITIES, ELEMENT_NAMES } from './data/abilities.js?v=3cd47488267e';
-import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js?v=3cd47488267e';
-import { weaponOk, comboAllowed, penaltyFor } from './stats.js?v=3cd47488267e';
+import { ABILITIES, ELEMENT_NAMES } from './data/abilities.js?v=c2ce3805193b';
+import { DUAL_TECHS, dualOptions, partnerNow } from './data/dual.js?v=c2ce3805193b';
+import { weaponOk, comboAllowed, penaltyFor } from './stats.js?v=c2ce3805193b';
 // 第27回: 推理（敵 それぞれの いちばんの 弱点の 属性で 当てる）の 合体技
-import { deduceElement } from './data/abilities-jobs6.js?v=3cd47488267e';
-import { MONSTERS } from './data/monsters.js?v=3cd47488267e';
+import { deduceElement } from './data/abilities-jobs6.js?v=c2ce3805193b';
+import { MONSTERS } from './data/monsters.js?v=c2ce3805193b';
 // 第33回: 男の子の 美少女戦士が 出す ときは 合体技の 名前・セリフが かわる（ability-label.js の dualFor）
-import { dualFor } from './ability-label.js?v=3cd47488267e';
+import { dualFor } from './ability-label.js?v=c2ce3805193b';
 
 // 人数ごとの 強さ（別々に 1回ずつ 動いた ときの 合計の 何倍か。全体技は parts の k で 下げる）
 export const DUAL_POWER = { 2: 1.8, 3: 2.2, 4: 3.0 };

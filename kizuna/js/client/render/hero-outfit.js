@@ -1,18 +1,18 @@
 // ふく・よろい（そうびの よろいと しょくぎょうで きまる）
 // outfitOf(みため, しょくぎょう, よろいの ID, おんな？) → かく ための せってい
 // 知らない よろい（これからの もの）は、種類（armorType）・ランク・名前の ことば から きめる
-import { mat, ramp, TH, mixC, HeroCanvas } from './hero-raster.js?v=3cd47488267e';
-import { ITEMS } from '../../shared/data/items.js?v=3cd47488267e';
+import { mat, ramp, TH, mixC, HeroCanvas } from './hero-raster.js?v=c2ce3805193b';
+import { ITEMS } from '../../shared/data/items.js?v=c2ce3805193b';
 // 第26回の 新しい 職業（楽天カードマン・きさつ隊・ネコ型ロボット・カッパ・火影 など）の 服と からだ
-import { R26_OUTFIT, R26_BODY, outfit26, body26, capeFlame, robotTail } from './hero-r26.js?v=3cd47488267e';
+import { R26_OUTFIT, R26_BODY, outfit26, body26, capeFlame, robotTail } from './hero-r26.js?v=c2ce3805193b';
 // 第27回の 暴れんぼう将軍（はかまと 羽織・ちょんまげ・せんす）
-import { R27_OUTFIT, R27_BODY } from './hero-r27.js?v=3cd47488267e';
+import { R27_OUTFIT, R27_BODY } from './hero-r27.js?v=c2ce3805193b';
 // 第29回の るろうに剣士の 道（赤い 着物と はかま・白い マント・長い 赤毛・十字の きず）
-import { R29_OUTFIT, R29_BODY } from './hero-r29.js?v=3cd47488267e';
+import { R29_OUTFIT, R29_BODY } from './hero-r29.js?v=c2ce3805193b';
 // 第33回の 11この 職業（手品師・かいとう・魔法学校・3年B組・れん金術師・美少女戦士 の 道）
-import { R33_OUTFIT, R33_BODY, R33_ARMOR_LOOK, masc33 } from './hero-r33.js?v=3cd47488267e';
+import { R33_OUTFIT, R33_BODY, R33_ARMOR_LOOK, masc33 } from './hero-r33.js?v=c2ce3805193b';
 // 第40回の 伝説の 職業 2つ（竜魔人・ネオ・クイーン・セレニティ）
-import { R40_OUTFIT, R40_BODY, body40 } from './hero-r40.js?v=3cd47488267e';
+import { R40_OUTFIT, R40_BODY, body40 } from './hero-r40.js?v=c2ce3805193b';
 
 // ───────────── ざいしつ ─────────────
 const METALS = {
