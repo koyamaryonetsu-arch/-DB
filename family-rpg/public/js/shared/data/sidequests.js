@@ -14,6 +14,8 @@
 import { LAB_FLAGS } from '../maps/labyrinth.js';
 import { medalSteps } from './story-lab.js';
 import { FAMILY_SCRIPTS, FAMILY_STORY_SCRIPTS, familySubQuests, familyDoneQuests } from './sidequests-family.js';
+// 第6章 Step 3・4（A）: 時のタイムカプセル・千年前のレシピ・ちびアステルのたからもの（sidequests-ch6.js）
+import { ch6SubQuests, ch6DoneQuests } from './sidequests-ch6.js';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -40,7 +42,7 @@ export const SIDE_QUESTS = [
 // 受けている たのまれごと（quest-targets.js の subQuests に たす）
 //   who … 報告する 人（地図の しるし）、find … さがす 物の NPC、ready … 報告できる、text … クエストの 画面、hint … 「はなす」
 export function labSubQuests(c, f, has) {
-  const out = [];
+  const out = [...ch6SubQuests(c, f, has)];
   const q = (o) => out.push(o);
   if (f('q_camel_start') && !f('q_camel_done')) {
     q(f('q_camel_found')
@@ -99,7 +101,7 @@ function countOf(c, id) {
 
 // クリアした たのまれごと（クエストの 画面）
 export function labDoneQuests(c) {
-  return [...SIDE_QUESTS.filter((q) => c?.flags?.[q.done]).map((q) => q.name), ...familyDoneQuests(c)];
+  return [...SIDE_QUESTS.filter((q) => c?.flags?.[q.done]).map((q) => q.name), ...familyDoneQuests(c), ...ch6DoneQuests(c)];
 }
 
 // 「はなす」の さいごに 1つ（受けている たのまれごとの ヒント。なければ null）

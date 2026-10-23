@@ -323,6 +323,9 @@ export function gameFiles() {
     'public/js/shared/data/story-ch6.js', 'public/js/shared/data/items-ch6-key.js', 'public/js/shared/maps/ch6.js', 'public/js/shared/maps/past.js',
     'public/js/shared/maps/toki-shrine.js', 'public/js/shared/maps/toki-ruin.js', 'public/js/shared/maps/toki-ruin-rows.js', 'public/js/shared/world/time-glass.js', 'public/js/shared/world/time-glass-use.js',
     'public/js/client/time-shift.js',
+    // 第2部 第6章 Step 3・4（A: 世界と物語）: 星読みの社・星めぐりの古道・ミナモの星読み・ペンデュラと カナタの 台本・より道
+    'public/js/shared/data/story-ch6b.js', 'public/js/shared/data/sidequests-ch6.js', 'public/js/shared/data/items-ch6-side.js',
+    'public/js/shared/maps/hoshimichi.js', 'public/js/shared/maps/hoshimichi-rows.js', 'public/js/shared/maps/ch6-side.js', 'public/js/shared/world/star-sight.js',
     // 第38回 B: 超級職からの 職業レベルの 上限と 職業の試練（試練の番人・修行・師しょうのまぼろし・しょうごう）
     'public/js/shared/data/job-trials.js', 'public/js/shared/data/story-trials.js', 'public/js/shared/data/monsters-trial.js',
     'public/js/shared/world/job-trials.js', 'public/js/shared/battle-trial.js', 'public/js/client/ui/job-trials.js',

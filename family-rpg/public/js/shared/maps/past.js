@@ -273,7 +273,9 @@ function pastNpcs() {
     ...FROZEN.map(([id, name, [x, y], k]) => npc(`s${id.slice(1)}`, name, [SPRING.x + x, SPRING.y + y], `spring_${k}`, `c6_s${id.slice(1)}`, { show: { all: [C6.flow] }, wander: 1 })),
     npc('rion', 'リオン', [C.rion.x, C.rion.y], 'rion', 'c6_rion_talk', { show: { all: [C6.rion] } }),
     npc('chibi_astel', 'ちびアステル', [C.chibi.x, C.chibi.y], 'chibi_astel', 'c6_chibi', { show: { all: [C6.rion] } }),
-    npc('minamo_home', 'ミナモ', [C.minamo.x, C.minamo.y], 'minamo', 'c6_minamo_home', { show: { all: [C6.flow] } }),
+    // ミナモ（c6_flow の あと 家に。Step 3・4 では c6_omen から c6_kanata まで ゲストで いっしょなので いない）
+    npc('minamo_home', 'ミナモ', [C.minamo.x, C.minamo.y], 'minamo', 'c6_minamo_home', { show: { all: [C6.flow], not: ['c6_omen'] } }),
+    npc('minamo_back', 'ミナモ', [C.minamo.x, C.minamo.y], 'minamo', 'c6_minamo_home', { show: { all: ['c6_kanata'] } }),
   ];
   return out;
 }

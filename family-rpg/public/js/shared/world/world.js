@@ -40,6 +40,7 @@ import { ensureTmClears } from '../data/casino-tier.js';
 import { stepHazard } from './hazards.js';
 import { stepTremor } from './tremor.js';
 import { stepSand } from './time-glass.js';
+import { stepStars } from './star-sight.js';
 import { noteDungeonEntry } from './escape.js';
 import { notePyramidMove } from './pyramid.js';
 import { noteSecretMove, fixSecretPos, secretRespawn, pruneSecretStates } from './secret.js';
@@ -597,6 +598,8 @@ export class GameWorld {
     stepTremor(this, s, tx, ty);
     // 時のほこらの 砂時計の とびら（第6章。world/time-glass.js）
     stepSand(this, s, tx, ty);
+    // 星めぐりの古道の 星の もや・ミナモの 星読みの 歩数（第6章 Step 3・4。world/star-sight.js）
+    if (stepStars(this, s, tx, ty)) return;
     // ばしょの きろく（きかんのはね）。リーダーの 冒険を 手伝っている あいだは 自分の きろくに しない
     if (this.hostOf(s)) return;
     let found = false;

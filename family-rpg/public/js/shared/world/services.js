@@ -20,6 +20,8 @@ import { POS, SEA_PLACES, MAPS } from '../maps/index.js';
 import { castRura, warpParty, useTimeBell, warpPlaces, warpOwner, PAST_WARP_TEXT } from './travel.js';
 // 第6章: 時の砂時計（world/time-glass-use.js）
 import { useTimeGlass } from './time-glass-use.js';
+// 第6章 Step 3・4: ミナモの 星読み（world/star-sight.js）
+import { useStarSight } from './star-sight.js';
 import { bankInfo, bankAction } from './bank.js';
 import { forgeInfo, forgeAction } from './forge.js';
 import { alchemyAction, useAlchemyMemo } from './alchemy.js';
@@ -457,6 +459,7 @@ export function menuAction(world, s, msg) {
     }
     // 第6章: 時の砂時計（大事な物。メニューの「道具」から）
     case 'timeGlass': return useTimeGlass(world, s, reply);
+    case 'starSight': return useStarSight(world, s, reply);
     case 'cast': {
       const caster = ownChar(s, msg.who);
       if (!caster) return reply(false, '');

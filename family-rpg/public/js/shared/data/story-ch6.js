@@ -22,6 +22,10 @@ import { isNightFor, advanceClock } from '../world/clock.js';
 import { unstickAll } from '../world/hazards.js';
 import { partyOf } from '../world/party.js';
 import { TOP_OBJ } from './story-castle-top.js';
+// 第6章 Step 3・4（story-ch6b.js）: 星読みの社・星めぐりの古道・ペンデュラ・今の カナタ（ここで まぜる）
+import {
+  CH6B_STEPS, C6B_OBJ, CH6B_OBJECTIVE_TARGETS, CH6B_OBJECTIVE_TALK, CH6B_PROGRESS, applyCh6b, elderCh6b, ch6StaleObjective,
+} from './story-ch6b.js';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -30,7 +34,7 @@ const V = (x, y) => [VIL.x + x + 0.5, VIL.y + y + 0.5];
 const TW = PLACES.town;
 
 // ───── 第6章の すすみかた（STORY_STEPS の 第5章の うしろ。plan-ch6.md の 9 の 名前の 約束）─────
-export const CH6_STEPS = [C6.start, C6.shrine, C6.glass, C6.past, C6.tree, C6.rion, C6.ruin, C6.gear, C6.flow];
+export const CH6_STEPS = [C6.start, C6.shrine, C6.glass, C6.past, C6.tree, C6.rion, C6.ruin, C6.gear, C6.flow, ...CH6B_STEPS];
 
 // ───── 目標 ─────
 const RESUME = '時の神殿の番人の間の、時の台座を調べよう（ホシフル村のホシミばあちゃんや、ルミナの町の勇者の像でも、続きが見られる）';
@@ -59,13 +63,18 @@ export const C6_OBJ = {
   boss: '時の神殿の番人の間。ゼンマイの家来が待っている…（準備を整えてから進もう）',
   gear: RESUME,
   endA: RESUME,
-  flow: '第6章の続きはアップデートで！',
+  // Step 2 の さいご。Step 3 の はじまり（前の 版の 文は OLD_C6_OBJ.flow）。Step 3・4 の 目標は story-ch6b.js の C6B_OBJ
+  flow: C6B_OBJ.flow,
 };
 // 今の 目標の 文から 外した 文（セーブに のこっている ことが ある。今は 知らない 文なので repairObjective が なおす）
 export const OLD_C6_OBJ = {
   // 第1部クリアの 文（第6章が できる 前。story-castle-top.js の TOP_OBJ.clear）
   clear5: '第1部クリア！ルミナの町の酒場で、ノクトが待っている。夜空のどこかに、まだ見たことのない星が…（物語の続きは、いつかのアップデートで）',
+  // 第6章 Step 2 の さいご（Step 3・4 が できる 前）。今の さいごの 文（C6B_OBJ.kanata）と おなじ 文なので、
+  // すすみぐあいで なおす（story-ch6b.js の ch6StaleObjective。progress.js の repairObjective）
+  flow: '第6章の続きはアップデートで！',
 };
+export { ch6StaleObjective };
 
 // パーティー全員で 見る イベント（リーダーの 世界で すすむ）
 export const CH6_STORY_SCRIPTS = [
@@ -622,8 +631,8 @@ function endingStatue() {
     ['hideNpc', 'hero_statue_faded', false],
     ['guestHide', false],
     ['sync'], ['flag', C6.flow], ['sync'],
-    ['chapter', '第6章「時の砂時計」', 'つづく'],
-    ...N('――第6章の続きはアップデートで！――'),
+    ...N('――そのころ、千年前の夜空では、星が、かすかにゆがみ始めていた…――'),
+    ['chapter', '第6章　第3幕', '星読みの社'],
     ['bgm', 'resume'],
     ['objective', C6_OBJ.flow],
   ];
@@ -652,6 +661,7 @@ export function elderCh6(x) {
   if (!x.flag(C6.gear)) {
     return S('ホシミばあちゃん', 'アステルさまに、千年前のアステルさまのことを話したらな…', '「千年前のことは、覚えておらぬ…いや、どこかで…」\nと、遠い目をしておられたよ。');
   }
+  if (x.flag(C6.flow)) return elderCh6b(x);
   return S('ホシミばあちゃん', 'ルミナの町の勇者の像が、元にもどったそうじゃな。', '…{name}。千年前の勇者さまも、きっと、{name}と同じように、\n仲間とのきずなを信じておったんじゃろうな。');
 }
 
@@ -682,7 +692,7 @@ export const CH6_SCRIPTS = {
   c6_p_vil1: (x) => S('里の男の人', x.flag(C6.flow) ? '泉の里から、お礼の品がとどいたぞ！\nあっちの里も、元気になったんだな。' : '東の泉の里と、急に連らくがとれなくなってなあ…。\n何か、あったのかもしれん。'),
   c6_p_vil2: () => S('里の子ども', '星の竜が、森にいるんだって！\nまだ小さくて、空も飛べないんだって！'),
   c6_p_vil3: () => S('里のおばあさん', 'この里の名前はね、「星がふる里」から来ておるんじゃ。', 'いつか、この里も、大きな村になるかのう…。'),
-  c6_p_vil4: (x) => S('星を見る男の人', x.flag(C6.flow) ? '星読みのむすめミナモちゃんが言うには、\n西の森の「星読みの社」で、星がくもっているそうだ。' : '夜空の星が、近ごろ、ときどき、くもって見えるんだ。\n…時計の音みたいなものが、聞こえることもある。'),
+  c6_p_vil4: (x) => S('星を見る男の人', x.flag(C6.flow) ? '星読みのむすめミナモちゃんが言うには、\n北東の森の「星読みの社」で、星がくもっているそうだ。' : '夜空の星が、近ごろ、ときどき、くもって見えるんだ。\n…時計の音みたいなものが、聞こえることもある。'),
   c6_dew: (x) => dewSteps(x),
   c6_seed: (x) => seedSteps(x),
   c6_sapling: () => N('星の木のなえだ。', '小さな葉が、星の光をすって、ほんのり光っている。'),
@@ -704,7 +714,7 @@ export const CH6_SCRIPTS = {
     ? S('リオン', '…ぼく、もっと強くなる。', 'みんなを守れるくらい、強く。\nまた、いっしょに冒険してくれる？')
     : S('リオン', '里のみんなは、ぼくが見ている。', '時の神殿は、泉の里の北の森の中だよ。\n…気を付けて。')),
   c6_chibi: () => [...S('ちびアステル', 'キュイ！キュイ！'), ...N('（小さな羽を、いっしょうけんめい、ぱたぱたさせている…）')],
-  c6_minamo_home: () => S('ミナモ', 'また会えたわね！', '星読みは、星の声を聞く仕事なの。\n…近ごろ、西の空の星が、ないているの。'),
+  // ミナモの 家（c6_minamo_home）は story-ch6b.js（星が ゆがむ 夜。c6_omen）
   c6_ruin_door: () => N('古い石のとびらだ。', '木の根と、光のまくのようなものに、ふさがれている…。\n（千年前の泉の里の人に、話を聞いてみよう）'),
   // 時のいせき（時の神殿）
   ...Object.fromEntries(Array.from({ length: RUIN_FLOORS }, (_, i) => [`c6_rf${i + 1}`, (x) => RUIN_ENTER[i + 1](x)])),
@@ -781,8 +791,9 @@ export const CH6_OBJECTIVE_TARGETS = {
   [C6_OBJ.rf7]: [{ ...ruinAt(7, true, RUIN_POS[7].b), unless: OPEN7 }, { ...ruinAt(7, false, RUIN_POS[7].a), unless: OPEN7 }, ...ruinObjAt(7, true).map((p) => ({ ...p, unless: OPEN7 })), ruinAt(7, true, RUIN_POS[7].down)],
   [C6_OBJ.boss]: [{ npc: 'geardon_npc' }],
   [C6_OBJ.gear]: [{ map: RUIN_BOSS_ID, x: RUIN_POS.boss.core.x, y: RUIN_POS.boss.core.y }, { npc: 'elder' }, { npc: 'hero_statue_faded' }],
-  [C6_OBJ.flow]: [{ npc: 'elder' }],
 };
+// Step 3・4 の 行き先（c6_flow の あとの 目標は story-ch6b.js）
+Object.assign(CH6_OBJECTIVE_TARGETS, CH6B_OBJECTIVE_TARGETS);
 void RUIN_REST;
 
 // ───── 仲間会話（party-talk.js。「はなす」の ヒント）─────
@@ -832,8 +843,6 @@ export const CH6_OBJECTIVE_TALK = {
     'ゼンマイの家来…。しっかり準備をしてから、行きましょう。', 'こわそうな歯車のやつがいるよ…！'),
   [C6_OBJ.gear]: T4('番人の間の時の台座を調べると、続きが見られる。ホシフル村のばあちゃんや、ルミナの町の勇者の像でもいい。', '台座を調べようぜ！村や町でも、続きが見られるってよ！',
     '時の台座を調べてみましょう。', '台座を調べよう！続きが見られるよ！'),
-  [C6_OBJ.flow]: T4('泉の里の時が動き出して、勇者の像も今にもどった。…でも、ゼンマイは、まだ千年前のどこかにいる。', 'やったな！…でも、ゼンマイのやつ、まだいるんだよな。',
-    'リオンさんは、きっと、すてきな勇者になりますね。…星読みの社のことが、気になります。', 'リオン兄ちゃん、がんばれ！'),
 };
 
 // ───── すすみぐあい（progress.js の PROGRESS の うしろ）─────
@@ -856,7 +865,10 @@ export const CH6_PROGRESS = [
   [C6.gear, C6_OBJ.gear],
   [END_A6, C6_OBJ.endA],
   [C6.flow, C6_OBJ.flow],
+  ...CH6B_PROGRESS,
 ];
+// Step 3・4 の 仲間会話（story-ch6b.js）
+Object.assign(CH6_OBJECTIVE_TALK, CH6B_OBJECTIVE_TALK);
 
 // ───── story.js から: だいほんを まぜる（ばあちゃん・町の 人の ことば・パーティー全員で 見る イベント）─────
 export function applyCh6(SCRIPTS, STORY_SCRIPTS) {
@@ -869,6 +881,8 @@ export function applyCh6(SCRIPTS, STORY_SCRIPTS) {
     if (!base) continue;
     SCRIPTS[id] = Object.assign((x) => fn(x) || base(x), base);
   }
+  // Step 3・4（story-ch6b.js）: 星読みの社・古道・今の カナタ・より道
+  applyCh6b(SCRIPTS, STORY_SCRIPTS);
 }
 
 export { HAMLET, SPRING };

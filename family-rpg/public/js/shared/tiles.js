@@ -67,6 +67,8 @@ export const T = {
   // 256 いじょうの タイルは 第6章の マップ（タイルの ならびが Uint16Array）だけで 使う（今の フィールドなど Uint8Array の マップには 置かない）
   SAND_DOOR: 256, SAND_DOOR_OPEN: 257, SAND_DIAL: 258, SAND_DIAL_ON: 259, TIME_ALTAR: 260, TIME_ALTAR_EMPTY: 261,
   FROZEN_WATER: 262, STRAW_WALL: 263, TIME_PLATE: 264, TIME_PLATE_ON: 265,
+  // 第6章 Step 3・4「星めぐりの古道」（maps/hoshimichi.js・render/tiles-hoshimichi.js）。266〜279 は ほかの 人の ために あけて 280 から
+  HM_MIST: 280, HM_ROUTE: 281, DRY_VALLEY: 282, YOUNG_TREE: 283, METEOR: 284, STAR_POST: 285, STAR_CATCH: 286, STAR_STONE: 287, STAR_STONE_ON: 288,
 };
 
 export const TILE_INFO = {};
@@ -351,6 +353,16 @@ def(T.FROZEN_WATER, 'frozen_water', { solid: true, mapColor: '#9aa0a8' }); // �
 def(T.STRAW_WALL, 'straw_wall', { solid: true, mapColor: '#c8a860' }); // わらの 家の かべ（千年前の ホシフルの里）
 def(T.TIME_PLATE, 'time_plate', { mapColor: '#8a8aa8' }); // 時の ふむ石（時のいせき 7階。2つの 時代で 同時に ふむ）
 def(T.TIME_PLATE_ON, 'time_plate_on', { light: true, mapColor: '#ffe680' }); // しずんだ 時の ふむ石
+// 第6章 Step 3・4「星めぐりの古道」（render/tiles-hoshimichi.js）
+def(T.HM_MIST, 'hm_mist', { mapColor: '#6a6a9a' }); // 星の もや（歩ける。道を まちがえると もやの 入口に もどされる）
+def(T.HM_ROUTE, 'hm_route', { anim: true, light: true, mapColor: '#c8d8ff' }); // 星の 道しるべ（夜空が 見える 間、もやの 中の 本当の 道に 星が 光る）
+def(T.DRY_VALLEY, 'dry_valley', { mapColor: '#a08a62' }); // 千年前の かれた 谷（今は 川。歩ける）
+def(T.YOUNG_TREE, 'young_tree', { solid: true, mapColor: '#5aa04a' }); // 千年前の 星の木の なえ（しらべると 向きを かえられる）
+def(T.METEOR, 'meteor', { solid: true, mapColor: '#5a5068' }); // 今の 落ちた星（道を ふさぐ 大きな 星の 岩）
+def(T.STAR_POST, 'star_post', { solid: true, anim: true, light: true, mapColor: '#fff0a0' }); // 光る 道しるべ（千年前で 受けとめた 星）
+def(T.STAR_CATCH, 'star_catch', { solid: true, talkThrough: true, mapColor: '#c8b8e8' }); // 千年前の 星受けの台
+def(T.STAR_STONE, 'star_stone', { mapColor: '#7a7aa8' }); // 星の石（ふむ石。2つの 時代で 同時に ふむ）
+def(T.STAR_STONE_ON, 'star_stone_on', { light: true, mapColor: '#ffe680' }); // ともった 星の石
 
 export function isSolid(id) {
   return TILE_INFO[id]?.solid ?? true;
