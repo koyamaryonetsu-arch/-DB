@@ -350,7 +350,23 @@ export class Field {
   // 自分の 体が (x, y) に 入れるか
   boxFree(x, y) {
     const pass = this.leavingNpcs(x, y);
-    return bodyPoints(x, y).every(([px, py]) => !this.solidAt(Math.floor(px), Math.floor(py), null, pass));
+    const under = this.stuckTiles();
+    return bodyPoints(x, y).every(([px, py]) => {
+      const tx = Math.floor(px), ty = Math.floor(py);
+      return under.has(ty * this.map.w + tx) || !this.solidAt(tx, ty, null, pass);
+    });
+  }
+
+  // いま 体が 重なっている、とおれない マス（立っている 所で 炎の 柱が ふき上がった など）。
+  // そこからは 出ていける（重なった まま 動けなく ならないように。新しく 入る マスは いつもどおり しらべる）
+  stuckTiles() {
+    const me = this.me, out = new Set();
+    if (!me || !this.map) return out;
+    for (const [px, py] of bodyPoints(me.x, me.y)) {
+      const tx = Math.floor(px), ty = Math.floor(py);
+      if (isBlocked(this.map, tx, ty, (f) => this.gateFlag(f))) out.add(ty * this.map.w + tx);
+    }
+    return out;
   }
 
   // いま 体が 重なっている 人（目を覚ました ところに 人が いた・歩く 人が 来た など）。

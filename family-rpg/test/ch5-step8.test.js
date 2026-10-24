@@ -146,8 +146,11 @@ function castleStates(n, extra = []) {
       out.push(keyOf(c, nf));
       q.push([c, nf]);
     };
-    // 炎の 柱の 時間（どこでも 待てる）
-    if ([5, 7].includes(n)) for (const k of r.stops) go(k.split(',').map(Number), toggled(fl, '@fireA'));
+    // 炎の 柱の 時間（待てるのは、炎が ふき上がっても ふさがらない マスだけ。柱の 上で 待つと 炎の 中で 動けなく なる）
+    if ([5, 7].includes(n)) {
+      const nf = toggled(fl, '@fireA');
+      for (const k of r.stops) { const c = k.split(',').map(Number); if (!isBlocked(m, c[0], c[1], hasOf(nf))) go(c, nf); }
+    }
     if (n === 1 && !fl.has(DOOR1_FLAG)) for (const p of P.seal) { const c = near(p); if (c) { go(c, toggled(fl, DOOR1_FLAG)); break; } }
     if (n === 2) { const c = near(P.vane); if (c) go(c, toggled(fl, VANE2_FLAG)); }
     if (n === 6) {
