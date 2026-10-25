@@ -1,7 +1,7 @@
 // 第2部 第6章「千年前のホシフルの里」の お店（data/shops.js で まぜる。名前の 約束 docs/plan-ch6.md の 9）
 // 品ぞろえ（ランク10・店の 品なので ★1）は B の data/items-past.js の PAST_SHOP_WEAPONS・PAST_SHOP_ARMOR・PAST_SHOP_TOOLS。
 // 店の 人の すがた・置く 場所は A（maps・台本）。千年前は キメラのつばさが 使えないので、道具屋では 売らない
-import { PAST_SHOP_WEAPONS, PAST_SHOP_ARMOR, PAST_SHOP_TOOLS } from './items-past.js?v=f2f4be342cfa';
+import { PAST_SHOP_WEAPONS, PAST_SHOP_ARMOR, PAST_SHOP_TOOLS } from './items-past.js?v=0c8f643f1d08';
 
 export const SHOPS_PAST = {
   past_weapon: {

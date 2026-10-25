@@ -3,16 +3,16 @@
 // ・1. 修行（その 職業の 技を、勝った 戦いで N回 使う。world/battles.js が 数える）→ 2. 師しょうのまぼろしと 戦う → 上限が 15・20 に
 // ・ひとりずつ（自分の 職業）。師しょうのまぼろしの 戦いには、そばに いる 家族も 入る（とちゅうから かけつけても よい）。
 //   勝っても 上限が 上がるのは 試練を 受けた 人だけ。負けても お金は へらない（その場で 立ち上がる）
-import { TRIAL_HOOKS, TRIAL_KEEPER } from '../data/story-trials.js?v=f2f4be342cfa';
+import { TRIAL_HOOKS, TRIAL_KEEPER } from '../data/story-trials.js?v=0c8f643f1d08';
 import {
   TRIALS, trialState, acceptTrial, clearTrial, trialName, masterName, trialWords, titleFor, jobUpKeys, jobTopCap,
-} from '../data/job-trials.js?v=f2f4be342cfa';
-import { JOBS, TIER_NAMES, JOB_MAX_LEVEL } from '../data/jobs.js?v=f2f4be342cfa';
-import { jobLabel } from '../job-label.js?v=f2f4be342cfa';
-import { STAT_NAMES } from '../stats.js?v=f2f4be342cfa';
-import { startFixedBattle, battleSessions } from './battles.js?v=f2f4be342cfa';
-import { partyOf } from './party.js?v=f2f4be342cfa';
-import { setupTrialPhantom } from '../battle-trial.js?v=f2f4be342cfa';
+} from '../data/job-trials.js?v=0c8f643f1d08';
+import { JOBS, TIER_NAMES, JOB_MAX_LEVEL } from '../data/jobs.js?v=0c8f643f1d08';
+import { jobLabel } from '../job-label.js?v=0c8f643f1d08';
+import { STAT_NAMES } from '../stats.js?v=0c8f643f1d08';
+import { startFixedBattle, battleSessions } from './battles.js?v=0c8f643f1d08';
+import { partyOf } from './party.js?v=0c8f643f1d08';
+import { setupTrialPhantom } from '../battle-trial.js?v=0c8f643f1d08';
 
 const say = (text) => ['say', TRIAL_KEEPER, text];
 const note = (text) => ['say', null, text];

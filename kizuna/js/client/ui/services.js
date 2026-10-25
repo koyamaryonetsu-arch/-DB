@@ -1,32 +1,32 @@
 // お店・転職・酒場・でんごんばん・ほしのかけら・きょうかい の がめん
-import { el, ListMenu, toast, askText, confirmBox, esc } from './dom.js?v=f2f4be342cfa';
-import { ITEMS } from '../../shared/data/items.js?v=f2f4be342cfa';
-import { SUPER_ORDER, LEGEND_ORDER, TIER_ORDERS, TIER_NAMES, JOB_MAX_LEVEL, jobReqText, jobReqSets, jobBodyOk, BODY_NAMES, superMasteredCount } from '../../shared/data/jobs.js?v=f2f4be342cfa';
-import { ABILITIES } from '../../shared/data/abilities.js?v=f2f4be342cfa';
-import { abilityFor } from '../../shared/ability-label.js?v=f2f4be342cfa';
-import { jobFor, jobLabel, jobHint } from '../../shared/job-label.js?v=f2f4be342cfa';
-import { salonUI } from './salon.js?v=f2f4be342cfa';
-import { vehicleShopUI } from './vehicles.js?v=f2f4be342cfa';
-import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered, canEquip, STAT_NAMES } from '../../shared/stats.js?v=f2f4be342cfa';
-import { jobUpKeys } from '../../shared/data/job-trials.js?v=f2f4be342cfa';
-import { MONSTERS } from '../../shared/data/monsters.js?v=f2f4be342cfa';
-import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES, breedOutcome, breedRumors, rankOf, monsterLevelCap, SPECIAL_KINDS } from '../../shared/data/companions.js?v=f2f4be342cfa';
-import { breedForecast, TREND_MARK } from '../../shared/breed-calc.js?v=f2f4be342cfa';
-import { TACTICS } from '../../shared/ai.js?v=f2f4be342cfa';
-import { itemDetail, gearText } from './info.js?v=f2f4be342cfa';
-import { playerSprite, followerSprite, faceURL } from '../field.js?v=f2f4be342cfa';
-import { shopUI, churchUI } from './shop.js?v=f2f4be342cfa';
-import { bankUI } from './bank.js?v=f2f4be342cfa';
-import { forgeUI } from './forge.js?v=f2f4be342cfa';
-import { tavernWagonItems, tavernWagonOpts, tavernWagonAct, tavernPlace, arrangeUI } from './wagon.js?v=f2f4be342cfa';
-import { casinoUI } from './casino.js?v=f2f4be342cfa';
-import { sdBoardUI } from './secret.js?v=f2f4be342cfa';
+import { el, ListMenu, toast, askText, confirmBox, esc } from './dom.js?v=0c8f643f1d08';
+import { ITEMS } from '../../shared/data/items.js?v=0c8f643f1d08';
+import { SUPER_ORDER, LEGEND_ORDER, TIER_ORDERS, TIER_NAMES, JOB_MAX_LEVEL, jobReqText, jobReqSets, jobBodyOk, BODY_NAMES, superMasteredCount } from '../../shared/data/jobs.js?v=0c8f643f1d08';
+import { ABILITIES } from '../../shared/data/abilities.js?v=0c8f643f1d08';
+import { abilityFor } from '../../shared/ability-label.js?v=0c8f643f1d08';
+import { jobFor, jobLabel, jobHint } from '../../shared/job-label.js?v=0c8f643f1d08';
+import { salonUI } from './salon.js?v=0c8f643f1d08';
+import { vehicleShopUI } from './vehicles.js?v=0c8f643f1d08';
+import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered, canEquip, STAT_NAMES } from '../../shared/stats.js?v=0c8f643f1d08';
+import { jobUpKeys } from '../../shared/data/job-trials.js?v=0c8f643f1d08';
+import { MONSTERS } from '../../shared/data/monsters.js?v=0c8f643f1d08';
+import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES, breedOutcome, breedRumors, rankOf, monsterLevelCap, SPECIAL_KINDS } from '../../shared/data/companions.js?v=0c8f643f1d08';
+import { breedForecast, TREND_MARK } from '../../shared/breed-calc.js?v=0c8f643f1d08';
+import { TACTICS } from '../../shared/ai.js?v=0c8f643f1d08';
+import { itemDetail, gearText } from './info.js?v=0c8f643f1d08';
+import { playerSprite, followerSprite, faceURL } from '../field.js?v=0c8f643f1d08';
+import { shopUI, churchUI } from './shop.js?v=0c8f643f1d08';
+import { bankUI } from './bank.js?v=0c8f643f1d08';
+import { forgeUI } from './forge.js?v=0c8f643f1d08';
+import { tavernWagonItems, tavernWagonOpts, tavernWagonAct, tavernPlace, arrangeUI } from './wagon.js?v=0c8f643f1d08';
+import { casinoUI } from './casino.js?v=0c8f643f1d08';
+import { sdBoardUI } from './secret.js?v=0c8f643f1d08';
 // 第37回 A: サファラ闘技場（かけ試合・王者のかべ）
-import { arenaCardUI, arenaBoutUI, arenaWallUI } from './arena.js?v=f2f4be342cfa';
-import { shownEquip } from '../../shared/look-equip.js?v=f2f4be342cfa';
-import { jobAskText } from '../../shared/data/job-talk.js?v=f2f4be342cfa';
-import { sortRoster, rosterSortName, nextRosterSort } from '../../shared/roster-sort.js?v=f2f4be342cfa';
-import { rosterSortPref, setRosterSortPref } from '../prefs.js?v=f2f4be342cfa';
+import { arenaCardUI, arenaBoutUI, arenaWallUI } from './arena.js?v=0c8f643f1d08';
+import { shownEquip } from '../../shared/look-equip.js?v=0c8f643f1d08';
+import { jobAskText } from '../../shared/data/job-talk.js?v=0c8f643f1d08';
+import { sortRoster, rosterSortName, nextRosterSort } from '../../shared/roster-sort.js?v=0c8f643f1d08';
+import { rosterSortPref, setRosterSortPref } from '../prefs.js?v=0c8f643f1d08';
 
 export function openServiceUI(game, kind, data) {
   switch (kind) {
