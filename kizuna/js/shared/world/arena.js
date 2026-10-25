@@ -7,21 +7,21 @@
 //   とちゅうで かけつけた 家族（battles.js の joinBattle）も、次の 戦いから 3連戦の なかまに 入る（adopt）
 // ・かけ試合（かけ試合の 係。ひとりずつ）: 4ひきの 魔物の トーナメント。本物の 戦いの しくみで 戦わせる（betDuel）。
 //   オッズは 強さ（data/arena.js の winChances）から。けっかは 短い 戦いの ようす（client/ui/arena.js の arenaBoutUI）で 見せる
-import { Battle } from '../battle.js?v=6f0cf3958911';
-import { decideMonster } from '../ai.js?v=6f0cf3958911';
-import { enemyFixedScale } from '../battle.js?v=6f0cf3958911';
-import { MONSTERS } from '../data/monsters.js?v=6f0cf3958911';
-import { ITEMS } from '../data/items.js?v=6f0cf3958911';
-import { addItem } from '../stats.js?v=6f0cf3958911';
-import { scaleEnemy } from '../data/treasure.js?v=6f0cf3958911';
-import { startFixedBattle } from './battles.js?v=6f0cf3958911';
-import { partyOf } from './party.js?v=6f0cf3958911';
-import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=6f0cf3958911';
-import { ARENA_HOOKS } from '../data/story-arena.js?v=6f0cf3958911';
+import { Battle } from '../battle.js?v=345c127ce483';
+import { decideMonster } from '../ai.js?v=345c127ce483';
+import { enemyFixedScale } from '../battle.js?v=345c127ce483';
+import { MONSTERS } from '../data/monsters.js?v=345c127ce483';
+import { ITEMS } from '../data/items.js?v=345c127ce483';
+import { addItem } from '../stats.js?v=345c127ce483';
+import { scaleEnemy } from '../data/treasure.js?v=345c127ce483';
+import { startFixedBattle } from './battles.js?v=345c127ce483';
+import { partyOf } from './party.js?v=345c127ce483';
+import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=345c127ce483';
+import { ARENA_HOOKS } from '../data/story-arena.js?v=345c127ce483';
 import {
   ARENA_RANKS, ARENA_POS, ARENA_MAP, rankInfo, rankLabel, rankOpen, rankCleared, visibleRanks, noteClear, nextRepeatMedal, firstMedalId,
   wallRows, arenaRecord, BET_LV, BET_POOL, BET_AMOUNTS, BET_PAIRS, ODDS_TRIES, duelRate, winChances, oddsOf, payout,
-} from '../data/arena.js?v=6f0cf3958911';
+} from '../data/arena.js?v=345c127ce483';
 
 const say = (who, text) => ['say', who, text];
 const CLERK = '闘技場の受付';

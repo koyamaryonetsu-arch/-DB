@@ -1,29 +1,29 @@
 // たたかいの はじまりと おわり（ほうしゅう・ぜんめつ）
-import { Battle, normBattleSettings } from '../battle.js?v=6f0cf3958911';
-import { scaleExp, difficultyOf, rewardExp, rewardGold } from '../data/difficulty.js?v=6f0cf3958911';
-import { POWDER, powderLeft } from '../data/friend-powder.js?v=6f0cf3958911';
-import { MONSTERS } from '../data/monsters.js?v=6f0cf3958911';
-import { ITEMS } from '../data/items.js?v=6f0cf3958911';
-import { abilityLabel } from '../ability-label.js?v=6f0cf3958911';
-import { JOBS } from '../data/jobs.js?v=6f0cf3958911';
-import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=6f0cf3958911';
-import { gainExp, gainJobBattles, jobTrainMult, itemCount, removeItem, addItem, ownsItem, computeStats, fullHeal } from '../stats.js?v=6f0cf3958911';
+import { Battle, normBattleSettings } from '../battle.js?v=345c127ce483';
+import { scaleExp, difficultyOf, rewardExp, rewardGold } from '../data/difficulty.js?v=345c127ce483';
+import { POWDER, powderLeft } from '../data/friend-powder.js?v=345c127ce483';
+import { MONSTERS } from '../data/monsters.js?v=345c127ce483';
+import { ITEMS } from '../data/items.js?v=345c127ce483';
+import { abilityLabel } from '../ability-label.js?v=345c127ce483';
+import { JOBS } from '../data/jobs.js?v=345c127ce483';
+import { FIXED_ENCOUNTERS, ZONE_BG } from '../data/encounters.js?v=345c127ce483';
+import { gainExp, gainJobBattles, jobTrainMult, itemCount, removeItem, addItem, ownsItem, computeStats, fullHeal } from '../stats.js?v=345c127ce483';
 // 第38回 B: 職業レベルの 上限（超級職からは 職業の試練で 上がる）・試練の 修行（その 職業の 技を 使って 勝つ）
-import { jobLevelCap, trialUseCount, addTrialUses, trialName } from '../data/job-trials.js?v=6f0cf3958911';
-import { befriendShare } from './recruit-share.js?v=6f0cf3958911';
-import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendChance, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf, PARTY_MAX } from './party.js?v=6f0cf3958911';
-import { rollDrops, stealPick } from '../data/loot.js?v=6f0cf3958911';
-import { MAPS } from '../maps/index.js?v=6f0cf3958911';
-import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js?v=6f0cf3958911';
-import { treasureAfterBattle } from './treasure.js?v=6f0cf3958911';
-import { wipeGoldLoss, bankGold } from './bank.js?v=6f0cf3958911';
-import { lureOn, lureGroup } from './field27.js?v=6f0cf3958911';
-import { wagonShare, wagonBattleSwap } from './wagon.js?v=6f0cf3958911';
-import { growthSummary } from './growth.js?v=6f0cf3958911';
-import { topLevel, battleTeamChars, expHatMult } from './perks.js?v=6f0cf3958911';
-import { battleTactics } from './tactics.js?v=6f0cf3958911';
+import { jobLevelCap, trialUseCount, addTrialUses, trialName } from '../data/job-trials.js?v=345c127ce483';
+import { befriendShare } from './recruit-share.js?v=345c127ce483';
+import { partyOf, creditSupportOwner, growCompanion, rollBefriend, befriendChance, befriendLevel, noteSeen, noteTried, noteDrop, selfPosOf, PARTY_MAX } from './party.js?v=345c127ce483';
+import { rollDrops, stealPick } from '../data/loot.js?v=345c127ce483';
+import { MAPS } from '../maps/index.js?v=345c127ce483';
+import { scaleEnemy, scaledRewardBonus } from '../data/treasure.js?v=345c127ce483';
+import { treasureAfterBattle } from './treasure.js?v=345c127ce483';
+import { wipeGoldLoss, bankGold } from './bank.js?v=345c127ce483';
+import { lureOn, lureGroup } from './field27.js?v=345c127ce483';
+import { wagonShare, wagonBattleSwap } from './wagon.js?v=345c127ce483';
+import { growthSummary } from './growth.js?v=345c127ce483';
+import { topLevel, battleTeamChars, expHatMult } from './perks.js?v=345c127ce483';
+import { battleTactics } from './tactics.js?v=345c127ce483';
 // 第6章 Step 3・4: 昼か 夜か（星座の 魔物。battle-road.js）
-import { isNightFor } from './clock.js?v=6f0cf3958911';
+import { isNightFor } from './clock.js?v=345c127ce483';
 
 let battleSeq = 1;
 

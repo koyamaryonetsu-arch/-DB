@@ -1,15 +1,16 @@
 // キャラクターの つよさ計算・レベルアップ・転職ペナルティ
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_EASY_RATE, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets, jobBodyOk, superMasteredCount } from './data/jobs.js?v=6f0cf3958911';
-import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=6f0cf3958911';
-import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=6f0cf3958911';
-import { MONSTERS } from './data/monsters.js?v=6f0cf3958911';
-import { MONSTER_FRIENDS, monsterNatural, gearOf, monsterLevelCap } from './data/companions.js?v=6f0cf3958911';
-import { HIRAMEKI, hiraRatio } from './data/hirameki.js?v=6f0cf3958911';
-import { cleanLook } from './data/looks.js?v=6f0cf3958911';
-import { SKILL_UPS } from './data/skill-ups.js?v=6f0cf3958911';
-import { jobLabel } from './job-label.js?v=6f0cf3958911';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_EASY_RATE, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets, jobBodyOk, superMasteredCount } from './data/jobs.js?v=345c127ce483';
+import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=345c127ce483';
+import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=345c127ce483';
+import { MONSTERS } from './data/monsters.js?v=345c127ce483';
+import { MONSTER_FRIENDS, monsterNatural, gearOf, monsterLevelCap } from './data/companions.js?v=345c127ce483';
+import { ougiLearn } from './data/abilities-ougi.js?v=345c127ce483';
+import { HIRAMEKI, hiraRatio } from './data/hirameki.js?v=345c127ce483';
+import { cleanLook } from './data/looks.js?v=345c127ce483';
+import { SKILL_UPS } from './data/skill-ups.js?v=345c127ce483';
+import { jobLabel } from './job-label.js?v=345c127ce483';
 // 第38回 B: 超級職からの 職業レベルの 上限（職業の試練）と Lv11〜 の 強さ
-import { jobLevelCap, jobUpStats } from './data/job-trials.js?v=6f0cf3958911';
+import { jobLevelCap, jobUpStats } from './data/job-trials.js?v=345c127ce483';
 
 // 長い 物語に なるので レベルは 150まで（第40回で 99 → 150。レベルで ふえる つよさは ひかえめ）
 export const MAX_LEVEL = 150;
@@ -185,6 +186,8 @@ export function monsterAbilities(char) {
   const out = f ? f.learn.filter(([l, id]) => l <= char.level && ABILITIES[id]).map(([, id]) => id) : [];
   // はいごうで おやから うけついだ わざ
   for (const id of char.inherit || []) if (ABILITIES[id] && !out.includes(id)) out.push(id);
+  // 第43回 B: 系統の 奥義（Lv30・45・60。data/abilities-ougi.js）
+  for (const [l, id] of ougiLearn(MONSTERS[char.species]?.race)) if (l <= char.level && ABILITIES[id] && !out.includes(id)) out.push(id);
   return out;
 }
 

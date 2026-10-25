@@ -10,19 +10,19 @@
 // resist: たいせい（しゅぞくの たいせいを つかう。ここに かけば うわがき）
 // gear:   装備できる 物（しゅぞくの けいの RACE_GEAR を うわがき。下の RACE_GEAR を 見てね）
 
-import { FRIENDS_CH2 } from './companions-ch2.js?v=6f0cf3958911';
-import { FRIENDS_RARE } from './monsters-rare.js?v=6f0cf3958911';
-import { FRIENDS_CH3 } from './companions-ch3.js?v=6f0cf3958911';
-import { FRIENDS_R23, RECIPES_R23 } from './monsters-r23.js?v=6f0cf3958911';
-import { FRIENDS_CH4 } from './companions-ch4.js?v=6f0cf3958911';
-import { FRIENDS_CH5 } from './companions-ch5.js?v=6f0cf3958911';
-import { FRIENDS_KUMOI } from './companions-kumoi.js?v=6f0cf3958911';
-import { FRIENDS_HOSHIYOMI } from './companions-hoshiyomi.js?v=6f0cf3958911';
-import { FRIENDS_EARTH } from './companions-earth.js?v=6f0cf3958911';
-import { FRIENDS_PHANTOM } from './companions-phantom.js?v=6f0cf3958911';
-import { FRIENDS_PAST } from './companions-past.js?v=6f0cf3958911';
-import { FRIENDS_ROAD } from './companions-road.js?v=6f0cf3958911';
-import { FRIENDS_BOSS, MATERIAL_RECIPES, FOUR_RECIPES } from './monsters-boss.js?v=6f0cf3958911';
+import { FRIENDS_CH2 } from './companions-ch2.js?v=345c127ce483';
+import { FRIENDS_RARE } from './monsters-rare.js?v=345c127ce483';
+import { FRIENDS_CH3 } from './companions-ch3.js?v=345c127ce483';
+import { FRIENDS_R23, RECIPES_R23 } from './monsters-r23.js?v=345c127ce483';
+import { FRIENDS_CH4 } from './companions-ch4.js?v=345c127ce483';
+import { FRIENDS_CH5 } from './companions-ch5.js?v=345c127ce483';
+import { FRIENDS_KUMOI } from './companions-kumoi.js?v=345c127ce483';
+import { FRIENDS_HOSHIYOMI } from './companions-hoshiyomi.js?v=345c127ce483';
+import { FRIENDS_EARTH } from './companions-earth.js?v=345c127ce483';
+import { FRIENDS_PHANTOM } from './companions-phantom.js?v=345c127ce483';
+import { FRIENDS_PAST } from './companions-past.js?v=345c127ce483';
+import { FRIENDS_ROAD } from './companions-road.js?v=345c127ce483';
+import { FRIENDS_BOSS, MATERIAL_RECIPES, FOUR_RECIPES } from './monsters-boss.js?v=345c127ce483';
 
 export const MONSTER_FRIENDS = {
   pururin: {
@@ -311,7 +311,9 @@ export function joinTier(species) {
 }
 
 export const BREED_MIN_LEVEL = 10;
+// 受けつげる 技: 親 1ぴきあたり 4つ・あわせて 8つ（第43回 B。前は 両方の 親で 4つ）
 export const BREED_INHERIT_MAX = 4;
+export const BREED_INHERIT_TOTAL = 8;
 
 export const RACE_NAMES = {
   slime: 'スライム系', beast: 'けもの系', plant: '植物系', spirit: 'せいれい系', demon: '悪魔系',
