@@ -14,7 +14,7 @@ import { ABILITIES } from '../public/js/shared/data/abilities.js';
 import { ITEMS } from '../public/js/shared/data/items.js';
 import { FIXED_ENCOUNTERS, ENCOUNTER_TABLES, ZONE_BG } from '../public/js/shared/data/encounters.js';
 import { monsterDrops, MAT_DROPS, rollDrops } from '../public/js/shared/data/loot.js';
-import { MONSTER_FRIENDS, familyPool, breedCandidates, breedOutcome, rankOf, recipeHint, RANK_BREED_LV } from '../public/js/shared/data/companions.js';
+import { MONSTER_FRIENDS, familyPool, breedCandidates, breedOutcome, rankOf, recipeHint, RANK_BREED_LV, RANKS } from '../public/js/shared/data/companions.js';
 import { regionOf, starsOf, rarityOf, bossRareOf, isShopItem, rareWhereText } from '../public/js/shared/data/rare-loot.js';
 import { starsFor, STARS_MAX } from '../public/js/shared/data/items-rare.js';
 import { RECIPES } from '../public/js/shared/data/alchemy.js';
@@ -285,22 +285,24 @@ test('天空のきょ兵: 天空のまもり兵 × 物質系の S ＋ 大地の�
   for (const [, ab] of f.learn) assert.ok(ABILITIES[ab], ab);
   const sum = Object.values(f.growth).reduce((s, v) => s + v, 0);
   assert.ok(sum >= 7 && sum <= 8.7, `${sum}`);
-  assert.equal(rankOf('sky_guard', MONSTERS), 'S');
+  // 第43回 A: ランクは めずらしさ（天空のまもり兵は よく出る・仲間に なりやすい → S では ない。品の 配合は まもり兵 なら ランクを とわない）
+  assert.ok(RANKS.includes(rankOf('sky_guard', MONSTERS)));
   assert.ok(MATERIAL_RECIPES.some((r) => r.a === 'sky_guard' && r.item === 'nocto_earth_charm' && r.child === sk));
   const lv = (sp, level = 20) => ({ species: sp, level });
   const bag = { items: [{ id: 'nocto_earth_charm', n: 1 }] };
-  // まもり兵 × 物質系の S（ひとりぼっちの人形・天空のまもり兵 どうし）。どちらを 1ぴきめに しても
-  for (const [x, y] of [['sky_guard', 'lonely_doll'], ['lonely_doll', 'sky_guard'], ['sky_guard', 'sky_guard']]) {
+  // まもり兵 × 物質系の S（からくり騎士）。どちらを 1ぴきめに しても
+  for (const [x, y] of [['sky_guard', 'clockwork_knight'], ['clockwork_knight', 'sky_guard']]) {
     const o = breedOutcome(lv(x), lv(y), MONSTERS, bag);
     assert.equal(o.child, sk, `${x} × ${y}`);
     assert.equal(o.kind, 'material');
     assert.equal(o.item, 'nocto_earth_charm');
   }
-  // まもり兵が いない・品が ない・ランク配合（S Lv30 × S Lv30）では 生まれない
+  // まもり兵が いない・品が ない・物質系が S で ない（第43回 A: ひとりぼっちの人形は S で ない）・ランク配合（第43回 A で なくなった）では 生まれない
   assert.ok(!breedCandidates(lv('lonely_doll'), lv('stone_keeper'), MONSTERS, bag).list.includes(sk));
-  assert.ok(!breedCandidates(lv('sky_guard'), lv('lonely_doll'), MONSTERS, { items: [] }).list.includes(sk));
-  const rank = breedCandidates(lv('sky_guard', RANK_BREED_LV), lv('lonely_doll', RANK_BREED_LV), MONSTERS);
-  assert.ok(rank.items.some((it) => it.kind === 'rank') && !rank.list.includes(sk));
+  assert.ok(!breedCandidates(lv('sky_guard'), lv('clockwork_knight'), MONSTERS, { items: [] }).list.includes(sk));
+  assert.ok(!breedCandidates(lv('sky_guard'), lv('lonely_doll'), MONSTERS, bag).list.includes(sk));
+  const rank = breedCandidates(lv('sky_guard', RANK_BREED_LV), lv('clockwork_knight', RANK_BREED_LV), MONSTERS);
+  assert.ok(!rank.items.some((it) => it.kind === 'rank') && !rank.list.includes(sk));
   assert.match(recipeHint(sk, MONSTERS), /配合でしか会えない/);
   assert.ok(MONSTER_ART[MONSTERS[sk].art], 'え');
 });

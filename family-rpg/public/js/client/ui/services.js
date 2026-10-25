@@ -407,7 +407,7 @@ function tavernUI(game, data) {
     //   o … おすすめの 子（data/companions.js の breedOutcome）、f … めやす（shared/breed-calc.js の breedForecast）
     const pairInfo = (A, X) => {
       const o = breedOutcome(A, X, MONSTERS, game.me);
-      return { o, f: breedForecast(A, X, o.child, o.plus), can: o.items.some((it) => SPECIAL_KINDS.slice(0, 3).includes(it.kind)) };
+      return { o, f: breedForecast(A, X, o.child, o.plus), can: o.items.some((it) => SPECIAL_KINDS.slice(0, 2).includes(it.kind)) };
     };
     const TREND_CLS = { up: 'good', same: '', down: 'danger' };
     const breedItems = () => {
@@ -433,7 +433,7 @@ function tavernUI(game, data) {
         } else if (!A) row.right = row.right || rankOf(e.species, MONSTERS);
         rows.push(row);
       }
-      // 4体配合・素材配合・ランク配合が できる 相手は 上に
+      // 4体配合・素材配合が できる 相手は 上に（第43回 A: ランク配合は やめた）
       if (can.length) out.push({ header: true, label: '★ とくべつな配合ができる！' }, ...can, { header: true, label: 'そのほかの相手' });
       out.push(...rows);
       // ならびは いちばん 下（カーソルは さいしょの 魔物から）
@@ -450,6 +450,8 @@ function tavernUI(game, data) {
     // ランク・＋・レベルの 上限・血統（両親と 祖父母。world/breed.js の lineage）
     const monLines = (e) => {
       const out = [`ランク${rankOf(e.species, MONSTERS)}${e.plus ? `　＋${e.plus}` : ''}${e.ranked ? `　レベルの上限 ${monsterLevelCap(e, MONSTERS)}` : ''}`];
+      // 第43回 A: 配合の あとの 追いつき（world/party.js の companionInfo）
+      if (e.catchUp > e.level) out.push(`追いつき中：Lv${e.catchUp}まで経験値3倍`);
       const p = e.lineage?.p;
       if (e.parents || p) out.push(`両親: ${[0, 1].map((i) => `${e.parents?.[i] || ''}${p?.[i] ? `（${spName(p[i])}）` : ''}`).join(' ＋ ')}`);
       const g = e.lineage?.g;

@@ -37,7 +37,8 @@ async function solo(seed = 35) {
 const lastRes = (bot) => bot.msgs.filter((m) => m.t === 'svcRes').pop();
 const companion = (c, key) => c.companions.find((e) => e.key === key);
 
-test('ランク: すべての 仲間の 魔物に F〜SS。ボス級は SS・ほかは lv で きまる（強い ほど 上）', () => {
+// 第43回 A: ランクは「めずらしさ」（data/monster-ranks.js）。くわしくは test/monsters-r43a.test.js
+test('ランク: すべての 仲間の 魔物に F〜SS。ボス級は SS・ほかは S まで（第43回 A から めずらしさで きまる）', () => {
   assert.deepEqual(RANKS, ['F', 'E', 'D', 'C', 'B', 'A', 'S', 'SS', '★']);
   for (const sp of Object.keys(MONSTER_FRIENDS)) {
     const r = rankOf(sp, MONSTERS);
@@ -46,11 +47,10 @@ test('ランク: すべての 仲間の 魔物に F〜SS。ボス級は SS・ほ
     else assert.ok(rankIdx(sp, MONSTERS) <= 6, `${sp}: S まで`);
   }
   assert.equal(rankOf('pururin', MONSTERS), 'F');
-  assert.equal(rankOf('gaia_larva', MONSTERS), 'S');
-  // lv が 高いほど ランクは 下がらない（いかずちタイガーは 親の 星形パンサーと 同じ C）
-  const sorted = Object.keys(MONSTER_FRIENDS).filter((sp) => !MONSTER_FRIENDS[sp].rank && sp !== 'ikazuchi_tiger').sort((a, b) => MONSTERS[a].lv - MONSTERS[b].lv);
-  for (let i = 1; i < sorted.length; i++) assert.ok(rankIdx(sorted[i], MONSTERS) >= rankIdx(sorted[i - 1], MONSTERS), sorted[i]);
-  assert.equal(rankOf('ikazuchi_tiger', MONSTERS), rankOf('star_panther', MONSTERS));
+  // 第5章の よく出る 魔物は もう S では ない
+  assert.ok(rankIdx('gaia_larva', MONSTERS) < 6);
+  // いかずちタイガー（夜だけ・滅多に）は S。親の 星形パンサーより 下がらない
+  assert.ok(rankIdx('ikazuchi_tiger', MONSTERS) >= rankIdx('star_panther', MONSTERS));
 });
 
 test('弱く ならない: 子の ランクは 高いほうの 親と 同じか 1つ上（特定配合でも 下がる 子は さいご）。どちらの 親から えらんでも 同じ 候補・同じ ならび', () => {
@@ -92,22 +92,22 @@ test('＋値: 両親の ＋の 合計÷2 ＋ 両親の レベルで 少し。新
   assert.ok(g.items.some((it) => it.sp === 'gaia_larva' && it.kind === 'same'));
 });
 
-test('能力の 受けつぎ: 子の Lv1 の 能力に 両親の 今の 能力の 1/4ずつ。育てた 親ほど 強い 子', () => {
+test('能力の 受けつぎ: 子の Lv1 の 能力に 両親の 今の 能力の 3/10ずつ（第43回 A。前は 1/4）。育てた 親ほど 強い 子', () => {
   const A = lv('wolf', 30, 5), B = lv('frog', 20, 0);
   const bonus = inheritBonus(A, B);
   const sa = bareStats(A), sb = bareStats(B);
-  for (const k of ['hp', 'str', 'def', 'agi']) assert.equal(bonus[k], Math.round((sa[k] + sb[k]) / 4), k);
+  for (const k of ['hp', 'str', 'def', 'agi']) assert.equal(bonus[k], Math.round((sa[k] + sb[k]) * 0.3), k);
   const weak = inheritBonus(lv('wolf', 10), lv('frog', 10));
   assert.ok(bonus.str > weak.str);
   // 子の 能力に 足される（セーブの ch.bonus）
   const kid = { ...newMonsterCompanion({ id: 'k', species: 'wolf', level: 1 }), bonus };
   const plain = newMonsterCompanion({ id: 'p', species: 'wolf', level: 1 });
   assert.equal(computeStats(kid).str, computeStats(plain).str + bonus.str);
-  // 何世代 くりかえしても ふくらみすぎない（受けつぎは 親の 半分）
+  // 何世代 くりかえしても ふくらみすぎない（受けつぎは 親の 6わり → 2.5倍で 止まる）
   let p = lv('wolf', 30, 0);
   for (let i = 0; i < 12; i++) p = { species: 'wolf', level: 30, plus: 0, bonus: inheritBonus(p, p) };
   const plainSt = bareStats(lv('wolf', 30));
-  assert.ok(bareStats(p).str < plainSt.str * 2.2, `${bareStats(p).str} / ${plainSt.str}`);
+  assert.ok(bareStats(p).str < plainSt.str * 2.55, `${bareStats(p).str} / ${plainSt.str}`);
 });
 
 test('配合前の めやす: 強いほうの 親の レベルまで 育てた 子と、強いほうの 親を くらべる（↑→↓）。弱く なる 時は down', () => {
@@ -125,25 +125,25 @@ test('配合前の めやす: 強いほうの 親の レベルまで 育てた �
   assert.equal(low.trend, 'down');
   assert.ok(!up.lowRank);
   // レベルの 上限
-  assert.equal(up.cap, Math.min(MAX_LEVEL, 50 + 5 * rankIdx('wolf', MONSTERS) + 10));
+  assert.equal(up.cap, Math.min(MAX_LEVEL, 70 + 10 * rankIdx('wolf', MONSTERS) + 10));
 });
 
-test('レベルの 上限: ランク F で 50・ランクごとに +5・＋で 上がる。150（MAX_LEVEL）は こえない。むかしの 仲間は 150まで', () => {
+test('レベルの 上限: ランク F で 70・ランクごとに +10・＋で 上がる（第43回 A。前は 50・+5）。150（MAX_LEVEL）は こえない。むかしの 仲間は 150まで', () => {
   const m = newMonsterCompanion({ id: 'x', species: 'pururin', level: 1 });
   assert.equal(m.ranked, 1);
-  assert.equal(monsterLevelCap(m, MONSTERS), 50);
-  assert.equal(monsterLevelCap({ ...m, plus: 12 }, MONSTERS), 62);
-  assert.equal(monsterLevelCap({ ...m, species: 'ss_oldra', plus: 30 }, MONSTERS), 115);
-  assert.equal(monsterLevelCap({ ...m, species: 'ss_oldra', plus: 90 }, MONSTERS), 150);
-  assert.equal(monsterLevelCap({ ...m, species: 'ss_oldra' }, MONSTERS), 85);
+  assert.equal(monsterLevelCap(m, MONSTERS), 70);
+  assert.equal(monsterLevelCap({ ...m, plus: 12 }, MONSTERS), 82);
+  assert.equal(monsterLevelCap({ ...m, species: 'ss_oldra', plus: 5 }, MONSTERS), 145);
+  assert.equal(monsterLevelCap({ ...m, species: 'ss_oldra', plus: 30 }, MONSTERS), 150);
+  assert.equal(monsterLevelCap({ ...m, species: 'ss_oldra' }, MONSTERS), 140);
   // 上限で 止まる
-  gainExp(m, expForLevel(70));
-  assert.equal(m.level, 50);
+  gainExp(m, expForLevel(90));
+  assert.equal(m.level, 70);
   // むかしの 仲間（ranked が ない）は 150まで
   const old = { ...newMonsterCompanion({ id: 'o', species: 'pururin', level: 1 }) };
   delete old.ranked;
-  gainExp(old, expForLevel(70));
-  assert.equal(old.level, 70);
+  gainExp(old, expForLevel(90));
+  assert.equal(old.level, 90);
   // 人間は かわらない
   assert.equal(monsterLevelCap({ level: 1 }, MONSTERS), 150);
 });
@@ -187,20 +187,17 @@ test('素材配合: ボスの 品 ＋ S ランク 2ひき → その ボス級�
   assert.equal(o.kind, 'material');
   assert.equal(o.item, 'argos_pendant');
   assert.equal(o.rank, 'SS');
-  // S ランクで ない 親では 生まれない
+  // S ランクで ない 親では 生まれない（第43回 A: 第5章の 魔物は もう S では ない）
   assert.ok(!breedCandidates(lv('yeti', 20), lv('rock_mole', 20), MONSTERS, { items: [{ id: 'gaia_fang_charm', n: 1 }] }).list.includes('ss_gaia'));
-  assert.ok(breedCandidates(lv('sky_ray', 20), lv('rock_mole', 20), MONSTERS, { items: [{ id: 'gaia_fang_charm', n: 1 }] }).list.includes('ss_gaia'));
+  assert.ok(!breedCandidates(lv('sky_ray', 20), lv('rock_mole', 20), MONSTERS, { items: [{ id: 'gaia_fang_charm', n: 1 }] }).list.includes('ss_gaia'));
+  assert.ok(breedCandidates(lv('ikazuchi_tiger', 20), lv('great_dragon', 20), MONSTERS, { items: [{ id: 'gaia_fang_charm', n: 1 }] }).list.includes('ss_gaia'));
 });
 
-test('ランク配合: S ランクで レベル30いじょうの 2ひき → 親と 同じ 系統の ボス級', () => {
-  const lo = breedCandidates(lv('gazer_eye', RANK_BREED_LV - 1), lv('stone_gargoyle', 40), MONSTERS);
-  assert.ok(!lo.items.some((it) => it.kind === 'rank'));
-  const hi = breedCandidates(lv('gazer_eye', RANK_BREED_LV), lv('stone_gargoyle', RANK_BREED_LV), MONSTERS);
-  const got = hi.items.filter((it) => it.kind === 'rank').map((it) => it.sp).sort();
-  assert.deepEqual(got, ['ss_ignia', 'ss_storm'], '悪魔系の ボス級');
-  assert.equal(hi.list[0].startsWith('ss_'), true, 'いちばん 上');
-  const mix = breedCandidates(lv('cloud_wyvern', 30), lv('cloud_sheep', 30), MONSTERS);
-  assert.deepEqual(mix.items.filter((it) => it.kind === 'rank').map((it) => it.sp).sort(), ['ss_gaia', 'ss_kraken', 'ss_oldra']);
+test('ランク配合は ない（第43回 A）: S どうし・Lv60 でも 品が なければ ボス級は 生まれない', () => {
+  const hi = breedCandidates(lv('shadow_mage', 60, 20), lv('clockwork_knight', 60, 20), MONSTERS);
+  assert.ok(!hi.items.some((it) => it.kind === 'rank'));
+  assert.ok(!hi.items.some((it) => MONSTER_FRIENDS[it.sp].rank === 'SS'));
+  assert.equal(RANK_BREED_LV, 30, '数だけ のこす');
 });
 
 test('4体配合: 両親と 祖父母が みんな つちくいムカデ → ガイアイーター（血統を 記録）。ぷるりん ×4 → きらきらぷるりん', () => {
@@ -218,14 +215,17 @@ test('4体配合: 両親と 祖父母が みんな つちくいムカデ → ガ
   assert.deepEqual(L, { p: ['gaia_larva', 'rock_mole'], g: [['gaia_larva', 'gaia_larva'], null] });
 });
 
-test('特定配合（ふえた 組み合わせ）: 第4章・第5章の 強い 魔物も 配合で。子の ランクは 親の 1つ上まで', () => {
+test('特定配合（ふえた 組み合わせ）: 第4章・第5章の 強い 魔物も 配合で。親より ランクが 低い 子は 一覧の さいご（第43回 A: やせいの 子の ランクは めずらしさ）', () => {
   const R35 = BREED_RECIPES.slice(-7);
   for (const r of R35) {
     assert.ok(MONSTER_FRIENDS[r.a] && MONSTER_FRIENDS[r.b] && MONSTER_FRIENDS[r.child], r.child);
     const hi = Math.max(rankIdx(r.a, MONSTERS), rankIdx(r.b, MONSTERS));
-    assert.ok(rankIdx(r.child, MONSTERS) >= hi && rankIdx(r.child, MONSTERS) <= hi + 1, r.child);
-    assert.equal(breedOutcome(lv(r.a), lv(r.b), MONSTERS).child, r.child);
-    assert.equal(breedOutcome(lv(r.b), lv(r.a), MONSTERS).child, r.child);
+    for (const [x, y] of [[r.a, r.b], [r.b, r.a]]) {
+      const o = breedOutcome(lv(x), lv(y), MONSTERS);
+      assert.ok(o.list.includes(r.child), r.child);
+      if (rankIdx(r.child, MONSTERS) >= hi) assert.equal(o.child, r.child);
+      else assert.equal(o.list[o.list.length - 1] === r.child || o.items.filter((it) => it.rank < hi).some((it) => it.sp === r.child), true, r.child);
+    }
   }
 });
 

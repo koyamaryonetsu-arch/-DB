@@ -5,8 +5,8 @@ import { computeStats, STAT_KEYS, MAX_LEVEL } from './stats.js';
 import { MONSTERS } from './data/monsters.js';
 import { monsterLevelCap, rankIdx } from './data/companions.js';
 
-// 能力の 受けつぎ: 両親の 今の 能力（装備を はずした もの）の 1/4ずつ
-export const INHERIT_RATE = 0.25;
+// 能力の 受けつぎ: 両親の 今の 能力（装備を はずした もの）の 3/10ずつ（第43回 A で 1/4 → 3/10。くり返しても 2.5倍で 止まる）
+export const INHERIT_RATE = 0.3;
 
 // 装備を はずした 魔物の 能力
 export function bareStats(x) {

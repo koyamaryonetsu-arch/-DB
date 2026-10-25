@@ -7,7 +7,7 @@ import { makeRng } from '../public/js/shared/rng.js';
 import { MONSTERS } from '../public/js/shared/data/monsters.js';
 import {
   MONSTER_FRIENDS, RACE_GEAR, BREED_RECIPES, BREED_MIN_LEVEL, joinTier, recipeHint, breedOutcome, breedResult, breedCandidates,
-  bestiaryKnow, breedRumors, bestiaryOrder, familyPool, rankIdx, rankUpNeed,
+  bestiaryKnow, breedRumors, bestiaryOrder, familyPool, rankIdx, rankUpNeed, RANKS,
 } from '../public/js/shared/data/companions.js';
 import { ABILITIES } from '../public/js/shared/data/abilities.js';
 import { ITEMS, SLOTS } from '../public/js/shared/data/items.js';
@@ -102,7 +102,8 @@ test('あたらしい 仲間モンスター: 仲間の 強さは いままでの
     const median = others.map(score).sort((x, y) => x - y)[Math.floor(others.length / 2)];
     for (const sp of NEW) {
       const s = st(sp);
-      for (const k of ['maxHp', 'maxMp', 'atk', 'dfn', 'agi', 'mag', 'heal']) assert.ok(s[k] <= maxOf(k) * 1.06, `Lv${lv} ${sp}: ${k} ${s[k]}（いままでの いちばん ${maxOf(k)}）`);
+      // 第43回 A: ランクの 強さ（RANK_MULT。F 1.00〜S 1.12）の ぶん ゆるめる
+      for (const k of ['maxHp', 'maxMp', 'atk', 'dfn', 'agi', 'mag', 'heal']) assert.ok(s[k] <= maxOf(k) * 1.06 * 1.12, `Lv${lv} ${sp}: ${k} ${s[k]}（いままでの いちばん ${maxOf(k)}）`);
     }
     // きまった 組み合わせだけの 魔物（いちばん 上の ランク）は ふつうより 強い
     for (const sp of BREED_ONLY.filter((x) => MONSTER_FRIENDS[x].recipeOnly)) assert.ok(score(st(sp)) > median, `Lv${lv} ${sp}`);
@@ -254,7 +255,8 @@ test('配合: いままでの 組み合わせは かわらない（図鑑を わ
   assert.equal(breedResult('skeleton', 'goblin', MONSTERS), 'demon_knight');
   assert.equal(breedResult('pururin', 'koumorin', MONSTERS), 'fuwari');
   assert.equal(breedResult('koumorin', 'pururin', MONSTERS), 'fuwari');
-  assert.equal(breedResult('wolf', 'kirakira', MONSTERS), 'star_panther');
+  // 第43回 A: きらきらぷるりんは S（めずらしい）。星形パンサー（A まで）は 親より 下がるので 一覧の さいご。おすすめは S の 系統配合
+  assert.ok(breedOutcome(lv('wolf'), lv('kirakira'), MONSTERS).list.includes('star_panther'));
   assert.equal(breedResult('chibi_dragon', 'sea_serpent', MONSTERS), 'great_dragon');
 });
 
@@ -266,8 +268,13 @@ test('配合: 特殊配合（きまった 組み合わせ）は どちらが 1�
     for (const [x, y] of [[a, b], [b, a]]) {
       for (const know of [null, all]) {
         const o = breedOutcome(lv(x), lv(y), MONSTERS, know);
-        assert.equal(o.child, r.child, `${x} ＋ ${y}`);
-        assert.equal(o.kind, 'special');
+        // 第43回 A: 子の ランクが 親より 低い（S の 親 ＋ A までの 子）ときは、おすすめでは なく 一覧に 入る
+        const it = o.items.find((z) => z.sp === r.child);
+        assert.equal(it?.kind, 'special', `${x} ＋ ${y}`);
+        if (it.rank >= RANKS.indexOf(o.hi)) {
+          assert.equal(o.child, r.child, `${x} ＋ ${y}`);
+          assert.equal(o.kind, 'special');
+        }
       }
     }
   }
@@ -311,9 +318,10 @@ test('配合: 系統配合は 両方の 親の 系統。親を 育てるほど 1
   // ちがう 系統どうしは 両方の 系統から
   const mix = breedCandidates(lv('pururin', 10), lv('wolf', 10), MONSTERS);
   assert.ok(mix.list.some((sp) => MONSTERS[sp].race === 'slime') && mix.list.some((sp) => MONSTERS[sp].race === 'beast'));
-  // はじめの ころ（レベル10の 第1章の 魔物どうし）は 第2章いこうの 強い 魔物は 生まれない（特定配合の 子は のぞく）
+  // はじめの ころ（レベル10の 第1章の 魔物どうし）は 第4章いこうの 魔物（noFamily）は 生まれない（特定配合の 子は のぞく）
+  //   第43回 A: ランクは めずらしさなので、同じ ランクの 第3章の 魔物は 生まれる ことが ある（Lv1 から）
   for (const [a, b] of [['wolf', 'frog'], ['pururin', 'hedoron'], ['skeleton', 'goblin'], ['kobushi', 'nemuri'], ['lamp', 'koumorin']]) {
-    for (const it of breedCandidates(lv(a, 10), lv(b, 10), MONSTERS).items) if (it.kind === 'family') assert.ok(MONSTERS[it.sp].lv <= 18, `${a}＋${b} → ${it.sp}`);
+    for (const it of breedCandidates(lv(a, 10), lv(b, 10), MONSTERS).items) if (it.kind === 'family') assert.ok(!MONSTER_FRIENDS[it.sp].noFamily && MONSTERS[it.sp].lv <= 40, `${a}＋${b} → ${it.sp}`);
   }
 });
 
