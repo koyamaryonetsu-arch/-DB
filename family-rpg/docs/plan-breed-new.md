@@ -186,6 +186,28 @@
   - 音: `public/js/client/sfx-pokemon.js`（`SFX_PK`。なまえは anim と おなじ。`audio.js` の しらない 音の ところで よぶ）
 - テスト: `test/pokemon-art-r44.test.js`（19しゅの 絵が 2コマ かける・パレット・はみだし・しんかで 大きく、12この えんしゅつが 敵1体／敵3体／みんな で こわれない・あたる じかん・音・つながり。データが まだ なくても とおる）。`test/fx-r27.test.js` の「エフェクトが ある 技」にも `playPokemonFx` を 足した
 
+## 実装メモ（ドラクエふう D2）
+
+> 第45回。配合だけの 第2だん（ドラクエふう 11しゅ）の **絵と 技の えんしゅつ**だけ（データ・技の 中身・レシピは D1）。名前の やくそく（種族 id・anim の 名前）は D1 と おなじ。作りかたは ポケモン P2 と おなじ
+
+- **絵**: `public/js/client/render/dqm-art.js`（`addDqmArt(ART)` を `render/monsters.js` から よぶ。import 1行・よぶ 1行。コマ0 … ゆらゆら まつ、コマ1 … こうげきの ポーズ）
+  - 11しゅ: `queen_pururin`（ピンクの ぷるりん・ティアラ・立った えりの 小さな マント。コマ1で ハートの つえ）・`gold_pururin`（金の ぷるりん・きらきら・コイン。コマ1で コインを はじく）・`rose_queen`（バラの かみ・金の かんむり・大きな 赤い 花びらの ドレス・トゲの つる。コマ1で つるの ムチ）・`yggdra_child`（光る はっぱの かみ・はっぱの かんむり・えだの うで・ねっこの あし。コマ1で うでを あげる）・`lantern_ghost`（おばけ ＋ 青みどりの おにびの ランタン）・`skeleton_king`（金の かんむり・赤い マント・大きな 剣・赤く 光る め。コマ1で 剣を ななめに ふりおろす）・`koyomi_spirit`（4色の ドレス と さくら・たいよう・もみじ・ゆきの しるしが のった 4色の わ。わの うしろ半分は からだの うしろに かく。コマ1で わが まわる）・`killer_karakuri`（青い 金ぞく・赤い 1つ目・みぎ手 剣・ひだり手 弓・4本あし）・`hitokui_box`（赤い 宝箱・キバ・長い した。コマ1で 大きく あけて コインが とぶ。前から ある「ばけばこ」〈茶色〉と 色・した で ちがいが わかる）・`petit_devil`（赤い まるい 小さな あくま・コウモリの はね・やじるしの しっぽ・金の フォーク）・`ryuou_grandson`（むらさきの ローブ・つの・金の えり・みどりがかった はだ と 金の め・りゅうの つえ・せなかに 竜の はねの かげ・しっぽ）
+  - ぷるりんの なかまは monsters.js の `jelly` と おなじ 形・め・口（`slime()` で 大きさと いちを かえて かく）
+  - 大きさ: プチデビ 28×28・ゴールド 32×30・ランタン 36×42・ひとくい 40×38・クイーン 40×40（キングぷるりん 42×40 と おなじ くらい）・ローズ 40×48・キラー 52×50 → S の 4しゅ（せかいじゅ 58×60・がいこつ王 62×64・こよみ 60×58・竜王のまご 52×58）。大きい ものは `field`（23〜28）で フィールドでも すこし 大きい
+- **技の えんしゅつ**: `public/js/client/render/battlefx-dqm.js`（`playDqmFx` を `battlefx.js` の `play()` の ポケモンの すぐ あとで よぶ。つぶの 絵は `DQ_FINE`〈dqCoin・dqSwirl・dqLeafFall・dqTree・dqWisp・dqBone・dqSkull・dqRing4・dqJaws・dqDragon・dqBreath・dqEye〉）
+  - 9こ: dq_gold_rain（空から コイン）・dq_rose_storm（バラの 花びらの うず → トゲの きりさき）・dq_world_tree（うすい 世界樹の かげ と 光る はっぱが ふって 回復）・dq_lantern（おにびが ゆらゆら → ボッと もえる）・dq_bone_king（ほねが とぶ → かんむりの がいこつの かお → ほねが はじける）・dq_seasons（さくら → たいよう → もみじ → ゆき の うず と 4色の わ）・dq_killer_slash（赤い 目 → ×の 字の 2本の きりさき）・dq_chomp（宝箱の 口が ひらいて ガブッ）・dq_dragon_lord（大きな 竜の かげ → 口から 敵みんなに ほのお）
+  - 出どころ（`opts.from`）→ あいての むきで かく。竜王のまごの 竜は、味方が つかう ときは がめんの 下に うしろすがた（め なし）、敵が つかう ときは 敵の うしろに まえむき（光る め）。どれも 2びょう いないで おわる
+  - `client/battle.js`: あたる じかん `DQ_HIT` を HIT_DELAY に、音 `DQ_SFX` を ANIM_SFX に まぜる。まどの えんしゅつ `DQ_ALLY_FX`（せかいじゅは `heal`）。ポケモンの「みんなの いちに 出す」 しくみ（`pkHit`）に `DQ_ANIMS` を 足した → 敵が dq_ の 技を みんなに つかう とき・**味方が せかいじゅの子で みんなを 回復する とき**も、みんなの いちに 出る（ふつうの「てまえの こうげき」や `playAllyR27` は 出さない）
+  - 音: `public/js/client/sfx-dqm.js`（`SFX_DQ`。なまえは anim と おなじ。`audio.js` の しらない 音の ところで よぶ）
+- テスト: `test/dqm-art-r45.test.js`（11しゅの 絵が 2コマ かける・パレット・はみだし・S は 大きい、9この えんしゅつが 敵1体／3体／5体・敵 → 1人／みんな・味方 → みんな（回復）で こわれない・2びょう いない・あたる じかん・音・竜の むき・つながり。データが まだ なくても とおる）
+
+### 共有の ファイルで さわった 所
+
+- `client/render/monsters.js`: import 1行（＋コメント 1行）・`addDqmArt(MONSTER_ART)` 1行（`addPokemonArt` の 下）
+- `client/render/battlefx.js`: import 1行（＋コメント）・`Object.assign(FINE, DQ_FINE)` 1行・`play()` の `playDqmFx` 1行（＋コメント。`playPokemonFx` の 下）
+- `client/battle.js`: import 1行・`Object.assign(HIT_DELAY, DQ_HIT)`・`allyFxKind` の 1行・ANIM_SFX の `...DQ_SFX`・みんなに あたる 所の `pkHit`（`|| DQ_ANIMS.has(anim)` と あたる じかん `hitMs`）
+- `client/audio.js`: import 1行・しらない 音の ところ 1行
+
 ## 実装メモ（ポケモン P1）（第44回。2026年10月25日）
 
 7-1 の 1回目（ポケモン 19しゅ・レベルで 進化・石で 進化・かわらずのいし・ミュウ）を 作った。絵（client の 魔物の 絵）と 技の えんしゅつ（`pk_〜`）は 絵の 係（P2）が 名前の 約束で 作る（ここでは かいていない）。

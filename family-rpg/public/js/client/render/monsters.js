@@ -25,6 +25,8 @@ import { addPastArt } from './ch6-past-art.js';
 import { addRoadArt } from './ch6-road-art.js';
 // 第44回: ポケモン（第1だん 19しゅるい。pokemon-art.js）
 import { addPokemonArt } from './pokemon-art.js';
+// 第45回: ドラクエふう（配合だけの 第2だん 11しゅるい。dqm-art.js）
+import { addDqmArt } from './dqm-art.js';
 
 export const MRES = 4; // できあがりの こまかさ（せかいの 1ドットを 4×4 で かく）
 const OUT = '#130d24';
@@ -854,6 +856,7 @@ addFamilyArt(MONSTER_ART);
 addPastArt(MONSTER_ART);
 addRoadArt(MONSTER_ART);
 addPokemonArt(MONSTER_ART);
+addDqmArt(MONSTER_ART);
 
 const cache = new Map();
 
