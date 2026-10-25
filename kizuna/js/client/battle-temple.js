@@ -4,11 +4,11 @@
 // ・水の衣（青く ゆらめく 水の まく）・水を まとい始めた（しずくが あつまる）・体が 光った（呪文を はね返す。白く 光る ◇）・
 //   大波の 前ぶれ（足もとの 水の うず）
 // ・バナー（はね返された・鏡写し・水の衣が はじけた・大波・水のろう）と、水の守りの歌の しるし
-import { heroCanvas } from './render/hero.js?v=961a15d6120a';
-import { monsterCanvas } from './render/monsters.js?v=961a15d6120a';
-import { equipKey } from './render/chars.js?v=961a15d6120a';
-import { makeCanvas, ctxOf, flipCanvas } from './render/pixel.js?v=961a15d6120a';
-import { el } from './ui/dom.js?v=961a15d6120a';
+import { heroCanvas } from './render/hero.js?v=f7adbedf412d';
+import { monsterCanvas } from './render/monsters.js?v=f7adbedf412d';
+import { equipKey } from './render/chars.js?v=f7adbedf412d';
+import { makeCanvas, ctxOf, flipCanvas } from './render/pixel.js?v=f7adbedf412d';
+import { el } from './ui/dom.js?v=f7adbedf412d';
 
 // 敵が 使うと がめんの まん中に 大きく 出す 技・味方の まどの えんしゅつ・音（client/battle-ch4.js・client/battle.js で まぜる）
 export const TEMPLE_SCREEN_ANIMS = ['whirlpool', 'water_breath', 'big_wave', 'water_rain', 'siren_song'];

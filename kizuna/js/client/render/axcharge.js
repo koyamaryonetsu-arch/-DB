@@ -3,12 +3,14 @@
 // ・tier（段階）: basic（みじかい）→ advanced → super（画面が くらく・すこし ゆれる・じめんの いしが うく）
 //                → legend（さらに カットインの 帯・つよい ゆれ・はなつ 直前の スローモーションの ひかり）
 // ・時間は ms（エフェクトの 時計。たたかいの 速さは Effects.tempo が かける）
-import { aura, gather, bolt, tint, cutIn, shapes, pillar, rnd, mixHex } from './axkit.js?v=961a15d6120a';
+import { aura, gather, bolt, tint, cutIn, shapes, pillar, rnd, mixHex } from './axkit.js?v=f7adbedf412d';
+// 段階・ためかたの なまえ・ためる 時間は サーバーと おなじ 表（shared/ax-time.js）
+import { AX_CHARGE_KINDS, AX_TIERS, AX_TIER_CHARGE_MS, axTierOf, axKindOf, axChargeMs } from '../../shared/ax-time.js?v=f7adbedf412d';
 
-export const CHARGE_KINDS = ['ki', 'chakra', 'gomu', 'breath', 'sword', 'dragon', 'holy', 'magic', 'alchemy', 'idol', 'tech', 'ice', 'star', 'generic'];
-export const TIERS = ['basic', 'advanced', 'super', 'legend'];
+export const CHARGE_KINDS = AX_CHARGE_KINDS;
+export const TIERS = AX_TIERS;
 // ためる 時間（ms。def.charge.ms で かえられる）
-export const TIER_CHARGE_MS = { basic: 320, advanced: 560, super: 860, legend: 1300 };
+export const TIER_CHARGE_MS = AX_TIER_CHARGE_MS;
 // 段階の つよさ（つぶの かず・大きさ）
 export const TIER_K = { basic: 0.75, advanced: 1, super: 1.3, legend: 1.65 };
 
@@ -99,17 +101,13 @@ const KIND_FX = {
 };
 
 // 段階を たしかめる（しらない ものは advanced）
-export const tierOf = (t) => (TIERS.includes(t) ? t : 'advanced');
-export const kindOf = (k) => (CHARGE_KINDS.includes(k) ? k : 'generic');
+export const tierOf = axTierOf;
+export const kindOf = axKindOf;
 // ためる 時間（ms。エフェクトの 時計）。charge が ない・false なら 0
-export function chargeMs(charge, tier) {
-  if (!charge) return 0;
-  const ms = charge.ms ?? TIER_CHARGE_MS[tierOf(tier)];
-  return Math.max(0, Math.round(ms));
-}
+export const chargeMs = axChargeMs;
 
 // ためる えんしゅつを はじめる。P … ためる 人の いち { x, y, w, h, foot }（y は からだの まん中）
-// o: { kind, tier, ms, color, color2, foe（敵が ためる）, img（カットインの かげ）, power（つよさの かけざん） }
+// o: { kind, tier, ms, color, color2, foe（敵が ためる）, img（カットインの かげ）, power（つよさの かけざん）, repeat（2回目: カットイン なし） }
 // へんじ: ためる 時間（ms。この 時間に はなつ）
 export function playCharge(fx, P, o = {}) {
   const kind = kindOf(o.kind);
@@ -151,7 +149,7 @@ export function playCharge(fx, P, o = {}) {
   // legend: カットインの 帯・はなつ 直前の スローモーションの ひかり・はなつ ときに 白く ひかる
   if (ti === 3) {
     const band = mixHex(/^#[0-9a-f]{6}$/i.test(color) ? color : '#4ab8ff', '#02030a', 0.8);
-    cutIn(fx, { color, color2: band, dark: mixHex(band, '#000000', 0.5), img: o.img || null, delay: ms * 0.2, life: ms * 0.5, y: H * 0.4, h: 46, dir: foe ? -1 : 1 });
+    if (!o.repeat) cutIn(fx, { color, color2: band, dark: mixHex(band, '#000000', 0.5), img: o.img || null, delay: ms * 0.2, life: ms * 0.5, y: H * 0.4, h: 46, dir: foe ? -1 : 1 });
     const fz = Math.min(240, ms * 0.2);
     fx.add({ kind: 'axFreeze', x: P.x, y: P.y, color, delay: ms - fz, life: fz, top: true, seed: Math.random() * 100 });
     fx.flashAt(150, '#ffffff', ms);

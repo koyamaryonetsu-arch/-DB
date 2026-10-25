@@ -11,21 +11,21 @@
 // ・仲間 … 両方の 仲間を のこす（べつべつに 仲間に なった まものは 両方とも。家族の パーティーで 酒場に 来た まものも おなじ）
 // ・預かり所 … お金も 品物も、両方で 預けた・引き出した ぶんを たす
 // ・いる場所・HP・作戦 など … 両方で かわって いたら、あとで 遊んだ ほう
-import { expForLevel, MAX_LEVEL, computeStats } from '../stats.js?v=961a15d6120a';
-import { JOBS, jobBattlesForLevel } from '../data/jobs.js?v=961a15d6120a';
+import { expForLevel, MAX_LEVEL, computeStats } from '../stats.js?v=f7adbedf412d';
+import { JOBS, jobBattlesForLevel } from '../data/jobs.js?v=f7adbedf412d';
 // 第38回 B: 職業の試練（クリアした 数は 多い ほう・受けている 試練の 修行は 多い ほう）。上限は クリアした 数から
-import { mergeTrialInfo, jobCapOf } from '../data/job-trials.js?v=961a15d6120a';
-import { ITEMS, SLOTS } from '../data/items.js?v=961a15d6120a';
-import { STORY_STEPS } from '../data/story.js?v=961a15d6120a';
-import { COMPANION_SLOTS } from '../data/companions.js?v=961a15d6120a';
-import { STORAGE_MAX } from './party.js?v=961a15d6120a';
-import { WAGON_SLOTS } from '../data/wagon.js?v=961a15d6120a';
-import { repairChar } from './save.js?v=961a15d6120a';
-import { mergeTreasureMaps } from '../data/treasure.js?v=961a15d6120a';
-import { mergeSecret } from '../data/secret.js?v=961a15d6120a';
-import { mergeAlchemy } from './alchemy.js?v=961a15d6120a';
-import { mergeArena } from '../data/arena.js?v=961a15d6120a';
-import { COIN_MAX } from '../data/casino.js?v=961a15d6120a';
+import { mergeTrialInfo, jobCapOf } from '../data/job-trials.js?v=f7adbedf412d';
+import { ITEMS, SLOTS } from '../data/items.js?v=f7adbedf412d';
+import { STORY_STEPS } from '../data/story.js?v=f7adbedf412d';
+import { COMPANION_SLOTS } from '../data/companions.js?v=f7adbedf412d';
+import { STORAGE_MAX } from './party.js?v=f7adbedf412d';
+import { WAGON_SLOTS } from '../data/wagon.js?v=f7adbedf412d';
+import { repairChar } from './save.js?v=f7adbedf412d';
+import { mergeTreasureMaps } from '../data/treasure.js?v=f7adbedf412d';
+import { mergeSecret } from '../data/secret.js?v=f7adbedf412d';
+import { mergeAlchemy } from './alchemy.js?v=f7adbedf412d';
+import { mergeArena } from '../data/arena.js?v=f7adbedf412d';
+import { COIN_MAX } from '../data/casino.js?v=f7adbedf412d';
 
 const GOLD_MAX = 9999999;
 const clone = (x) => (x === undefined ? undefined : JSON.parse(JSON.stringify(x)));

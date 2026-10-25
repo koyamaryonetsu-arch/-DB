@@ -1,7 +1,14 @@
 // 第48回: 大技の「ためる」音と「はなつ」音（Web Audio で その場で つくる。audio.js の sfx() が 知らない なまえの ときに ここを 見る）
 // ・ax_c_<ためかた> … ためはじめの 音（render/axfx.js が ためる ときに ならす）。ax_c_legend … 伝説の 段階の ゴゴゴゴ
 // ・ax_beam・ax_slash・ax_orb・ax_boom・ax_holy・ax_ice・ax_water・ax_fire・ax_bolt … はなつ 音（技の def.sfx に 書く。今までの 音の なまえも つかえる）
+// ・グループの 音（client/sfx-ax-g1.js 〜 g6.js。なまえは ax_g1_〜）も この SFX_AX に まざる（いちばん 下）
 // a: Audio（tone・noise を もつ）  T: a.tone の みじかい かきかた
+import { SFX_AX_G1 } from './sfx-ax-g1.js?v=f7adbedf412d';
+import { SFX_AX_G2 } from './sfx-ax-g2.js?v=f7adbedf412d';
+import { SFX_AX_G3 } from './sfx-ax-g3.js?v=f7adbedf412d';
+import { SFX_AX_G4 } from './sfx-ax-g4.js?v=f7adbedf412d';
+import { SFX_AX_G5 } from './sfx-ax-g5.js?v=f7adbedf412d';
+import { SFX_AX_G6 } from './sfx-ax-g6.js?v=f7adbedf412d';
 const swell = (a, dur, from, to, vol = 0.18, delay = 0) => {
   // だんだん 大きく なる ざわざわ（みじかい ノイズを かさねる）
   const n = Math.max(2, Math.round(dur / 0.12));
@@ -53,3 +60,15 @@ export const SFX_AX = {
   ax_fire: (a) => { a.noise(0.5, { vol: 0.4, from: 500, to: 3000 }); a.noise(0.7, { vol: 0.45, delay: 0.25, from: 2800, to: 120 }); },
   ax_bolt: (a, T) => { a.noise(0.08, { vol: 0.6, type: 'highpass', from: 2500, to: 2500 }); a.noise(1.0, { vol: 0.5, delay: 0.06, from: 900, to: 30 }); T(1800, 0.1, { vol: 0.06, type: 'saw', slide: 300 }); },
 };
+
+// ───────────── グループの 音（G0 が 書いた。グループは client/sfx-ax-gN.js だけ さわる。なまえは ax_gN_〜） ─────────────
+// 音の なまえ → グループ（テストが 見る）
+export const SFX_AX_GROUP = {};
+for (const [g, table] of Object.entries({ g1: SFX_AX_G1, g2: SFX_AX_G2, g3: SFX_AX_G3, g4: SFX_AX_G4, g5: SFX_AX_G5, g6: SFX_AX_G6 })) {
+  for (const [id, fn] of Object.entries(table)) {
+    if (!id.startsWith(`ax_${g}_`)) throw new Error(`sfx-ax-${g}.js: 音の なまえ ${id} は ax_${g}_ で はじめる`);
+    if (SFX_AX[id]) throw new Error(`sfx-ax-${g}.js: 音 ${id} は もう ある`);
+    SFX_AX[id] = fn;
+    SFX_AX_GROUP[id] = g;
+  }
+}
