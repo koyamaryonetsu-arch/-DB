@@ -110,3 +110,35 @@
 2. **ランク**：出やすさ ＋ 仲間になりにくさ で決める（2-2 の点の つけかた。おすすめ）
 3. **SS**：ランク配合を やめる（おすすめ）／きびしくして のこす
 4. **技**：両方の親から 4つずつ（家族の案どおり）。系統ごとの「奥義」も足すか（おすすめ：足す）
+
+## 5. 家族の答え（2026年10月25日）
+
+- 1〜4 ぜんぶ おすすめ（強さは のび＋追いつき・ランクは めずらしさ・SS のランク配合は やめる・奥義も足す）
+- **レベルの上限も上げる**（2-1 の 3。F 70・1ランク +10・S 130・SS 140・＋1 ごとに +1・150 まで）
+- 家族の使える量が少ない週なので、作るのは次の回。下の 6 は、すぐ作れるようにした手順
+
+## 6. 作り方（第43回。2つに分けて同時に作る）
+
+### A … 強さ・ランク・上限・追いつき・SS（`shared/`）
+
+1. `stats.js` の `monsterCompanionStats`：`MON_GROW = 0.012`・`MON_GROW_MAX = 0.6` と `RANK_MULT = [1.00, 1.02, 1.04, 1.06, 1.08, 1.10, 1.12, 1.15, 1.15]`（F〜★）を足し、`s[k] = b[k] * g * plus * (1 + min(MON_GROW_MAX, MON_GROW * (L - 1))) * RANK_MULT[rank] + bonus`。`monsterNatural`（からだの強さ）にも同じ育ちを かける
+2. ランク：`tools/gen-monster-ranks.mjs` で 2-2 の点を計算して **`data/monster-ranks.js`（しゅぞく → ランクの 決まった表）** を作る（出る表の わりあい・`rate`・夜だけ／宝の地図／ひみつのダンジョン）。`companions.js` の `rankIdx` は `MONSTER_FRIENDS[sp].rank`（SS・★・手で決めた物）→ `MONSTER_RANKS[sp]` → 配合だけの魔物は 親のきまり（今の Lv の決め方は さいごの 予備）。これからの章は 表に 1行ずつ足す（テストで「表にない やせいの魔物が ない」）
+3. 上限：`LV_CAP_BASE = 70`・`LV_CAP_RANK = 10`。`monsterLevelCap` は `max(今のレベル, 計算)`（下げない）
+4. 追いつき：`breed.js` で 子に `ch.catchUp = floor(3/4 * 強いほうの親の Lv)`。経験値を あげる所（`world/battles.js` 429行あたり・`world/party.js` 520・531行あたりの `gainExp`）で、魔物かつ `level < catchUp` なら 3倍。追いついたら `catchUp` を消す
+5. 受けつぐ強さ：`breed-calc.js` の `INHERIT_RATE = 0.3`
+6. SS：`breedCandidates` の ランク配合（`'rank'`）の かたまりを消す（`SPECIAL_KINDS`・`KIND_PRI` の `rank` も）。`rankUpNeed(hi) = hi >= 4 ? 80 + 20 * (hi - 4) : 20 + 8 * hi`（B→A 80・A→S 100）
+7. 配合の めやす（`breedForecast`）と 酒場の文字は 新しい計算に そのまま つく（同じ関数）
+
+### B … 技の受けつぎ 4＋4・系統の奥義（`shared/` と 酒場の画面）
+
+1. `companions.js`：`BREED_INHERIT_MAX = 4` を「親1ぴきあたり」に。`BREED_INHERIT_TOTAL = 8`
+2. `breed.js`：`inheritableSkills(A, B)` → `{ a: [...], b: [...] }`（両方にある技は a に。子が 自分で覚える技は のぞく）。`autoInherit` は それぞれ MP の大きい技から 4つ。`breedMonsters` の `inherit` は `{ a: [], b: [] }`（前の 平らな ならびも 受けて、親ごとに 4つまでに しぼる）。`ch.inherit` は 8つまでの ならび（セーブの形は そのまま）
+3. 酒場の画面（`client/ui/services.js` 760行あたりの `pickSkills`）：2つの列（親の名前の見出し・それぞれ 4つまで・おまかせ ボタン）
+4. 奥義：`data/abilities-ougi.js`（8系統 × 3つ。Lv30・45・60）。`stats.js` の `monsterAbilities` で しゅぞくの 系統（`MONSTERS[sp].race`）から足す。えんしゅつは 今の えんしゅつを 使う（新しい絵は なしで よい）。漢字のきまり・`kanji-check.mjs` の 一覧に 足す
+
+### まとめ・たしかめ
+
+- テスト `test/monsters-r43.test.js`：強さ（Lv60・＋10 で ランク F 約 860・S 約 950・SS 約 1290 ± 10%）・ランクの ちらばり（どの章にも F〜C・S は 少し）・上限（下げない）・追いつき（3倍・追いついたら ふつう）・SS は 素材と 4体だけ・受けつぎ 4＋4（同じ技・自分の技・古い形）・奥義
+- 前からのテストで 数が かわる物（`breed-r35`・`monsters-r23` の ランク・上限・候補）を 新しい きまりに 直す
+- シミュレーション：魔物 2ひき＋人 2人の パーティーで 第5章・第6章の ボス（`tools/sim-ch6.mjs` など）に 勝てるか
+- お知らせ（ランクの文字が かわる こと・今の仲間は 弱くならない こと）・README の 配合の 節
