@@ -11,33 +11,34 @@
 const ROCK_RESIST = { fire: 0.5, ice: 0.7, wind: 0.6, blast: 1.5, poison: 0, sleep: 0, confuse: 0.3, paralyze: 0.2 };
 const METAL_RESIST = { fire: 0, ice: 0, wind: 0, blast: 0, bolt: 0, light: 0, dark: 0, void: 0.5, sleep: 0, poison: 0, confuse: 0, blind: 0, silence: 0, paralyze: 0, debuff: 0 };
 
-import { MONSTERS_CH2 } from './monsters-ch2.js?v=a2abc3298a71';
-import { MONSTERS_TM } from './monsters-tm.js?v=a2abc3298a71';
-import { NIGHT_MONSTERS } from './night.js?v=a2abc3298a71';
-import { MONSTERS_RARE } from './monsters-rare.js?v=a2abc3298a71';
-import { MONSTERS_CH3 } from './monsters-ch3.js?v=a2abc3298a71';
-import { MONSTERS_CH4 } from './monsters-ch4.js?v=a2abc3298a71';
-import { MONSTERS_R23 } from './monsters-r23.js?v=a2abc3298a71';
+import { MONSTERS_CH2 } from './monsters-ch2.js?v=f6a4d212e9b8';
+import { MONSTERS_TM } from './monsters-tm.js?v=f6a4d212e9b8';
+import { NIGHT_MONSTERS } from './night.js?v=f6a4d212e9b8';
+import { MONSTERS_RARE } from './monsters-rare.js?v=f6a4d212e9b8';
+import { MONSTERS_CH3 } from './monsters-ch3.js?v=f6a4d212e9b8';
+import { MONSTERS_CH4 } from './monsters-ch4.js?v=f6a4d212e9b8';
+import { MONSTERS_R23 } from './monsters-r23.js?v=f6a4d212e9b8';
 // 第4章 Step 7「砂の底の神殿とモルガナ」（monsters-temple.js）
-import { MONSTERS_TEMPLE } from './monsters-temple.js?v=a2abc3298a71';
-import { MONSTERS_LAB } from './monsters-lab.js?v=a2abc3298a71';
+import { MONSTERS_TEMPLE } from './monsters-temple.js?v=f6a4d212e9b8';
+import { MONSTERS_LAB } from './monsters-lab.js?v=f6a4d212e9b8';
 // 第37回 A: サファラ闘技場の 王者（数えない 形）
-import { addArenaHidden } from './monsters-arena.js?v=a2abc3298a71';
+import { addArenaHidden } from './monsters-arena.js?v=f6a4d212e9b8';
 // 第38回 B: 職業の試練の 師しょうのまぼろし（数えない 形）
-import { addTrialHidden } from './monsters-trial.js?v=a2abc3298a71';
-import { MONSTERS_CH5 } from './monsters-ch5.js?v=a2abc3298a71';
-import { MONSTERS_KUMOI, addGaiaParts } from './monsters-kumoi.js?v=a2abc3298a71';
-import { MONSTERS_HOSHIYOMI } from './monsters-hoshiyomi.js?v=a2abc3298a71';
-import { MONSTERS_EARTH, addEarthHidden } from './monsters-earth.js?v=a2abc3298a71';
-import { MONSTERS_FINAL } from './monsters-final.js?v=a2abc3298a71';
-import { MONSTERS_PHANTOM, addPhantomHidden } from './monsters-phantom.js?v=a2abc3298a71';
-import { MONSTERS_PAST } from './monsters-past.js?v=a2abc3298a71';
-import { MONSTERS_ROAD } from './monsters-road.js?v=a2abc3298a71';
-import { MONSTERS_BOSS } from './monsters-boss.js?v=a2abc3298a71';
+import { addTrialHidden } from './monsters-trial.js?v=f6a4d212e9b8';
+import { MONSTERS_CH5 } from './monsters-ch5.js?v=f6a4d212e9b8';
+import { MONSTERS_KUMOI, addGaiaParts } from './monsters-kumoi.js?v=f6a4d212e9b8';
+import { MONSTERS_HOSHIYOMI } from './monsters-hoshiyomi.js?v=f6a4d212e9b8';
+import { MONSTERS_EARTH, addEarthHidden } from './monsters-earth.js?v=f6a4d212e9b8';
+import { MONSTERS_FINAL } from './monsters-final.js?v=f6a4d212e9b8';
+import { MONSTERS_PHANTOM, addPhantomHidden } from './monsters-phantom.js?v=f6a4d212e9b8';
+import { MONSTERS_PAST } from './monsters-past.js?v=f6a4d212e9b8';
+import { MONSTERS_ROAD } from './monsters-road.js?v=f6a4d212e9b8';
+import { MONSTERS_TOKEI } from './monsters-tokei.js?v=f6a4d212e9b8';
+import { MONSTERS_BOSS } from './monsters-boss.js?v=f6a4d212e9b8';
 // 第44回（ポケモン P1）: ポケモンの 魔物（配合と 進化で 生まれる。monsters-pokemon.js）
-import { MONSTERS_POKEMON } from './monsters-pokemon.js?v=a2abc3298a71';
+import { MONSTERS_POKEMON } from './monsters-pokemon.js?v=f6a4d212e9b8';
 // 第45回（ドラクエふう D1）: ドラクエふうの 魔物（配合で 生まれる。monsters-dqm.js）
-import { MONSTERS_DQM } from './monsters-dqm.js?v=a2abc3298a71';
+import { MONSTERS_DQM } from './monsters-dqm.js?v=f6a4d212e9b8';
 
 export const MONSTERS = {
   pururin: {
@@ -272,6 +273,8 @@ addPhantomHidden(MONSTERS);
 Object.assign(MONSTERS, MONSTERS_PAST);
 // 第2部 第6章 Step 3・4「星めぐりの古道」の 魔物と 星くいのよる鳥・ペンデュラ（monsters-road.js）
 Object.assign(MONSTERS, MONSTERS_ROAD);
+// 第2部 第6章 Step 5「止まった時計塔」の 魔物と カリヨン（monsters-tokei.js）
+Object.assign(MONSTERS, MONSTERS_TOKEI);
 addArenaHidden(MONSTERS);
 addTrialHidden(MONSTERS);
 addGaiaParts(MONSTERS);

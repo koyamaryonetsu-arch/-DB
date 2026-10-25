@@ -1,25 +1,27 @@
 // たたかいの AI（モンスター と サポートなかま）
-import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=a2abc3298a71';
+import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=f6a4d212e9b8';
 // 推理（deduce）の 属性・運しだいの 技を オートで 使う（第26回）
-import { deduceElement } from './data/abilities-jobs6.js?v=a2abc3298a71';
-import { mpCost, penaltyFor, weaponOk, comboAllowed } from './stats.js?v=a2abc3298a71';
+import { deduceElement } from './data/abilities-jobs6.js?v=f6a4d212e9b8';
+import { mpCost, penaltyFor, weaponOk, comboAllowed } from './stats.js?v=f6a4d212e9b8';
 // 第4章の まぼろしの分身と 月の鏡（battle-ch4.js）
-import { mirageAction, mirrorPlan } from './battle-ch4.js?v=a2abc3298a71';
+import { mirageAction, mirrorPlan } from './battle-ch4.js?v=f6a4d212e9b8';
 // 第4章 Step 6 の 砂に もぐる 魔物（battle-ch4.js）
-import { burrowSurface, burrowPlan } from './battle-ch4.js?v=a2abc3298a71';
+import { burrowSurface, burrowPlan } from './battle-ch4.js?v=f6a4d212e9b8';
 // 第4章 Step 7 の 砂の底の神殿と モルガナ（battle-temple.js）
-import { templeAction, templeCond, templePlan, templeAdjust, veilBolt, waveIgnored } from './battle-temple.js?v=a2abc3298a71';
-import { labPlan, labIgnored } from './battle-lab.js?v=a2abc3298a71';
+import { templeAction, templeCond, templePlan, templeAdjust, veilBolt, waveIgnored } from './battle-temple.js?v=f6a4d212e9b8';
+import { labPlan, labIgnored } from './battle-lab.js?v=f6a4d212e9b8';
 // 第5章 Step 2 の 星の番人アルゴス（見通しの目。battle-ch5.js）
-import { towerCond, towerPlan } from './battle-ch5.js?v=a2abc3298a71';
+import { towerCond, towerPlan } from './battle-ch5.js?v=f6a4d212e9b8';
 // 第5章 Step 5 の ノクトの影（職業の まね。battle-nocto.js）
-import { noctoAction } from './battle-nocto.js?v=a2abc3298a71';
+import { noctoAction } from './battle-nocto.js?v=f6a4d212e9b8';
 // 第5章 Step 6・7 の ノクト（1回目。合体技の 前ぶれ）と「手をのばす」（battle-earth.js）
-import { earthAction, reachPlan } from './battle-earth.js?v=a2abc3298a71';
+import { earthAction, reachPlan } from './battle-earth.js?v=f6a4d212e9b8';
 // 第5章 Step 9 の 魔王ソリトゥス（きずなを食べる・終わらない夜の 前ぶれ。battle-final.js）
-import { finalAction } from './battle-final.js?v=a2abc3298a71';
+import { finalAction } from './battle-final.js?v=f6a4d212e9b8';
 // 第37回 A: 闘技場の 王者の しかけを 知っている 人（シミュレーター。battle-arena.js）
-import { arenaPlan, arenaAdjust } from './battle-arena.js?v=a2abc3298a71';
+import { arenaPlan, arenaAdjust } from './battle-arena.js?v=f6a4d212e9b8';
+// 第2部 第6章 Step 5: カリヨンの 時のかねが 近い ときは 強くする 技を 使わない（鳴ると 消える。battle-tokei.js）
+import { tokeiQuiet } from './battle-tokei.js?v=f6a4d212e9b8';
 
 // さくせん
 export const TACTICS = {
@@ -194,7 +196,8 @@ export function decideAlly(b, c) {
   const telegraphing = b.aliveEnemies().some((f) => f.telegraph && !(b.ignoreBurrow && f.burrow) && !waveIgnored(b, f) && !labIgnored(b, f));
   if (telegraphing && c.hp / c.maxHp < 0.6 && b.rng.chance(0.75)) return { type: 'defend' };
   // 第38回 C: バフは 3回行動の あいだだけ。大わざの 前に、みんなの 守備力を 上げる 技（切れている・あと1回 の 人が 半分 いじょう）
-  if (telegraphing && tac.buffs) {
+  const quiet = tokeiQuiet(b);
+  if (telegraphing && tac.buffs && !quiet) {
     const guard = mine.find(({ a }) => a.target === 'allies' && prim(a).type === 'buff' && (prim(a).stats || [prim(a).stat]).includes('def'));
     const need = allies.filter((x) => !x.buffs.def || (Number.isFinite(x.buffs.def.left) && x.buffs.def.left <= 1));
     if (guard && need.length >= Math.ceil(allies.length / 2) && b.rng.chance(GUARD_BUFF_CHANCE)) return { type: 'ability', id: guard.id };
@@ -222,7 +225,7 @@ export function decideAlly(b, c) {
   // 第41回: 敵と 味方の 強さを くらべて きめる（前は 敵の HPの 合計 180 より 多いと いつも 補助を していた）
   const fw = fightWeight(b);
   if (tac.buffs && fw.hard) {
-    const buff = chooseBuff(b, c, allies, mine);
+    const buff = chooseBuff(b, c, allies, mine, quiet);
     if (buff) return buff;
   }
   // てきが おおい ときは ねむらせたり こんらんさせたり
@@ -349,9 +352,10 @@ export function fightWeight(b) {
   return b._fightW;
 }
 
-function chooseBuff(b, c, allies, mine) {
+// quiet … カリヨンの 時のかねが 近い（強くする 技は 使わない。じわじわ回復・力ため などは 使う。battle-tokei.js の tokeiQuiet）
+function chooseBuff(b, c, allies, mine, quiet = false) {
   const rng = b.rng;
-  const buffs = mine.filter(({ a }) => prim(a).type === 'buff');
+  const buffs = quiet ? [] : mine.filter(({ a }) => prim(a).type === 'buff');
   const stat = (a) => prim(a).stats || [prim(a).stat];
   // じわじわ 回復: 少し へっている 仲間が いて、まだ かかっていない とき
   const regen = mine.filter(({ a }) => prim(a).type === 'regen');
@@ -377,7 +381,8 @@ function chooseBuff(b, c, allies, mine) {
   }
   // 仲間の 番を 早める 技（アンコール・伝説のきずな など。第31回: きずなゲージを ためる 技の かわり）
   const hurry = mine.find(({ a }) => a.target === 'allies' && (a.effect.type === 'multi' ? a.effect.parts || [] : [a.effect]).some((p) => p.type === 'atbSet' && p.add));
-  if (hurry && b.boss && rng.chance(0.2)) return { type: 'ability', id: hurry.id };
+  // （時のかねの 前は、強くする こうかの ついた 技〈きずなのちかい など〉も 使わない）
+  if (hurry && b.boss && !(quiet && prim(hurry.a).type === 'buff') && rng.chance(0.2)) return { type: 'ability', id: hurry.id };
   const charge = mine.find(({ a }) => a.effect.type === 'charge');
   if (charge && b.boss && c.charge <= 1 && rng.chance(0.25)) return { type: 'ability', id: charge.id };
   return null;

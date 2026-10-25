@@ -16,15 +16,17 @@
 // ・オートの 仲間（ふつう）は、大砂流・ギアプレスが 自分の 番より 先に 来る とき、HPが へっていれば よく 身を 守る（AUTO_GUARD。氷・雷は 使い分けない）。
 //   シミュレーター（tools/sim-ch6.mjs）の 知っている 人（b.knowsCh6）は ch6Plan
 //   （b.c6NoIce・b.c6NoBolt・b.c6NoGuard … 知っている 人の しかけを 1つずつ はずして くらべる とき）
-import { MONSTERS } from './data/monsters.js?v=a2abc3298a71';
-import { ABILITIES } from './data/abilities.js?v=a2abc3298a71';
-import { SAND_CLOCK, GEARDON } from './data/monsters-past.js?v=a2abc3298a71';
-import { BUFF_ACTS } from './buff-acts.js?v=a2abc3298a71';
+import { MONSTERS } from './data/monsters.js?v=f6a4d212e9b8';
+import { ABILITIES } from './data/abilities.js?v=f6a4d212e9b8';
+import { SAND_CLOCK, GEARDON } from './data/monsters-past.js?v=f6a4d212e9b8';
+import { BUFF_ACTS } from './buff-acts.js?v=f6a4d212e9b8';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { atbRate } from './battle.js?v=a2abc3298a71';
-import { canUse } from './ai.js?v=a2abc3298a71';
+import { atbRate } from './battle.js?v=f6a4d212e9b8';
+import { canUse } from './ai.js?v=f6a4d212e9b8';
 // 第2部 第6章 Step 3・4: 星くいのよる鳥（星くい）・ペンデュラ（時のふりこ）・星座の 魔物（昼と 夜）。battle-road.js
-import { setupRoad, roadTurnStart, roadEffect, roadDamage, roadKnow, roadPub, ROAD_BIG } from './battle-road.js?v=a2abc3298a71';
+import { setupRoad, roadTurnStart, roadEffect, roadDamage, roadKnow, roadPub, ROAD_BIG } from './battle-road.js?v=f6a4d212e9b8';
+// 第2部 第6章 Step 5: カリヨン（時のかね。知っている 人・かねの 前の 守り）。battle-tokei.js
+import { tokeiKnow, bellBefore } from './battle-tokei.js?v=f6a4d212e9b8';
 
 export { SAND_CLOCK, GEARDON };
 export const FALL = 'm6_sc_fall';
@@ -230,7 +232,9 @@ export function ch6Plan(b, c, decide) {
   // ふつうの オート（家族が「オート」に した とき）も、大砂流・ギアプレスが 自分の 番より 先に 来る ときは、HPが へっていれば よく 身を 守る
   //   （b.c6Naive … シミュレーターで これも しない 人）
   if (!b.knowsCh6) {
-    if (b.c6Naive || !BIG.has(boss.telegraph) || (100 - boss.atb) / atbRate(boss) > mine) return null;
+    // カリヨンの 時のかねは 前ぶれで なく、かねの しるしで 分かる（battle-tokei.js の bellBefore）
+    const soon = boss.bell ? bellBefore(b, c, boss) : BIG.has(boss.telegraph) && (100 - boss.atb) / atbRate(boss) <= mine;
+    if (b.c6Naive || !soon) return null;
     return c.hp / c.maxHp < AUTO_GUARD.hp && b.rng.chance(AUTO_GUARD.chance) ? { type: 'defend' } : null;
   }
   let base;
@@ -244,6 +248,7 @@ export function ch6Plan(b, c, decide) {
   const saving = a && ['heal', 'revive', 'reviveAll'].includes(prim(a).type) && b.allies.some((x) => !x.fled && (!x.alive || x.hp / x.maxHp < 0.35));
   if (saving) return base;
   if (boss.stars || boss.pend) return roadKnow(b, c, boss, base, { elemHit });
+  if (boss.bell) return tokeiKnow(b, c, boss, base);
   if (boss.sand) {
     if (boss.telegraph === FALL) {
       const ice = b.c6NoIce ? null : elemHit(b, c, boss, 'ice');

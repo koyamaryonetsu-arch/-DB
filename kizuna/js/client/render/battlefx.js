@@ -1,56 +1,58 @@
 // たたかいの はいけいと エフェクト
-import { makeCanvas, ctxOf, hexToRgb, mix } from './pixel.js?v=a2abc3298a71';
-import { weaponLook, playWeapon, playReach } from './weaponfx.js?v=a2abc3298a71';
-import { nightBg, drawNightSky } from './night-art.js?v=a2abc3298a71';
-import { playJobFx, JOB_FINE } from './battlefx-jobs.js?v=a2abc3298a71';
-import { playJob2Fx, JOB2_FINE } from './battlefx-jobs2.js?v=a2abc3298a71';
-import { playJob3Fx, JOB3_FINE } from './battlefx-jobs3.js?v=a2abc3298a71';
-import { playJob4Fx, JOB4_FINE } from './battlefx-jobs4.js?v=a2abc3298a71';
+import { makeCanvas, ctxOf, hexToRgb, mix } from './pixel.js?v=f6a4d212e9b8';
+import { weaponLook, playWeapon, playReach } from './weaponfx.js?v=f6a4d212e9b8';
+import { nightBg, drawNightSky } from './night-art.js?v=f6a4d212e9b8';
+import { playJobFx, JOB_FINE } from './battlefx-jobs.js?v=f6a4d212e9b8';
+import { playJob2Fx, JOB2_FINE } from './battlefx-jobs2.js?v=f6a4d212e9b8';
+import { playJob3Fx, JOB3_FINE } from './battlefx-jobs3.js?v=f6a4d212e9b8';
+import { playJob4Fx, JOB4_FINE } from './battlefx-jobs4.js?v=f6a4d212e9b8';
 // 第27回の 暴れんぼう将軍の 看板の技（battlefx-jobs5.js）
-import { playJob5Fx, JOB5_FINE } from './battlefx-jobs5.js?v=a2abc3298a71';
+import { playJob5Fx, JOB5_FINE } from './battlefx-jobs5.js?v=f6a4d212e9b8';
 // 第29回の るろうに剣士の 道の 看板の技（battlefx-jobs6.js）
-import { playJob6Fx, JOB6_FINE } from './battlefx-jobs6.js?v=a2abc3298a71';
+import { playJob6Fx, JOB6_FINE } from './battlefx-jobs6.js?v=f6a4d212e9b8';
 // 第33回の 11この 職業の 技（battlefx-jobs7.js）
-import { playJob7Fx, JOB7_FINE } from './battlefx-jobs7.js?v=a2abc3298a71';
+import { playJob7Fx, JOB7_FINE } from './battlefx-jobs7.js?v=f6a4d212e9b8';
 // 第40回の 伝説の 職業 2つの 技（battlefx-jobs8.js）
-import { playJob8Fx, JOB8_FINE } from './battlefx-jobs8.js?v=a2abc3298a71';
+import { playJob8Fx, JOB8_FINE } from './battlefx-jobs8.js?v=f6a4d212e9b8';
 // 第41回 B の 雪の女王・第5のせいれいの 技（battlefx-r41b.js）
-import { playR41bFx, R41B_FINE } from './battlefx-r41b.js?v=a2abc3298a71';
+import { playR41bFx, R41B_FINE } from './battlefx-r41b.js?v=f6a4d212e9b8';
 // 第41回 A の 伝説の 職業 2つの 技（battlefx-r41a.js）
-import { playR41aFx, R41A_FINE } from './battlefx-r41a.js?v=a2abc3298a71';
+import { playR41aFx, R41A_FINE } from './battlefx-r41a.js?v=f6a4d212e9b8';
 // 第43回の 配管工の 系統の 技（battlefx-r43j.js）
-import { playR43jFx, R43J_FINE } from './battlefx-r43j.js?v=a2abc3298a71';
+import { playR43jFx, R43J_FINE } from './battlefx-r43j.js?v=f6a4d212e9b8';
 // 第44回の ポケモンの 技（battlefx-pokemon.js。anim は 'pk_…'）
-import { playPokemonFx, PK_FINE } from './battlefx-pokemon.js?v=a2abc3298a71';
+import { playPokemonFx, PK_FINE } from './battlefx-pokemon.js?v=f6a4d212e9b8';
 // 第45回の ドラクエふうの 魔物の 技（battlefx-dqm.js。anim は 'dq_…'）
-import { playDqmFx, DQ_FINE } from './battlefx-dqm.js?v=a2abc3298a71';
-import { drawPalaceHall, drawPalaceFloor } from './ch4-palace-bg.js?v=a2abc3298a71';
+import { playDqmFx, DQ_FINE } from './battlefx-dqm.js?v=f6a4d212e9b8';
+import { drawPalaceHall, drawPalaceFloor } from './ch4-palace-bg.js?v=f6a4d212e9b8';
 // 第4章 Step 6: 砂の古城・砂の海（すなかぜ号の かんぱん）・砂クジラの ねどこ（ch4-duna-bg.js）
-import { drawCastleHall, drawCastleFloor, drawSandSea } from './ch4-duna-bg.js?v=a2abc3298a71';
-import { playCh4Fx } from './battlefx-ch4.js?v=a2abc3298a71';
+import { drawCastleHall, drawCastleFloor, drawSandSea } from './ch4-duna-bg.js?v=f6a4d212e9b8';
+import { playCh4Fx } from './battlefx-ch4.js?v=f6a4d212e9b8';
 // 第27回: 古い 呪文・特技の エフェクトの 作り直し（battlefx-r27.js）
-import { playR27Fx, R27_FINE } from './battlefx-r27.js?v=a2abc3298a71';
+import { playR27Fx, R27_FINE } from './battlefx-r27.js?v=f6a4d212e9b8';
 // 第4章 Step 7: 砂の底の神殿・鏡の間・水鏡の広間（ch4-temple-bg.js）
-import { TEMPLE_BG, TEMPLE_DECOS, drawTempleBg, drawTempleFloorBg } from './ch4-temple-bg.js?v=a2abc3298a71';
-import { SECRET_BG } from './secret-art.js?v=a2abc3298a71';
+import { TEMPLE_BG, TEMPLE_DECOS, drawTempleBg, drawTempleFloorBg } from './ch4-temple-bg.js?v=f6a4d212e9b8';
+import { SECRET_BG } from './secret-art.js?v=f6a4d212e9b8';
 // 第5章 Step 2: 星の塔の 中・塔の てっぺん（ch5-tower-bg.js）
-import { TOWER_BG, TOWER_DECOS, drawTowerBg, drawTowerFloorBg } from './ch5-tower-bg.js?v=a2abc3298a71';
+import { TOWER_BG, TOWER_DECOS, drawTowerBg, drawTowerFloorBg } from './ch5-tower-bg.js?v=f6a4d212e9b8';
 // 第5章 Step 3・4: 雲の上の 島・しずみゆく島の 古い神殿（ch5-kumoi-bg.js）
-import { KUMOI_BG, KUMOI_DECOS, drawKumoiBg, drawKumoiFloorBg } from './ch5-kumoi-bg.js?v=a2abc3298a71';
+import { KUMOI_BG, KUMOI_DECOS, drawKumoiBg, drawKumoiFloorBg } from './ch5-kumoi-bg.js?v=f6a4d212e9b8';
 // 第5章 Step 5: 星読みの里の まわり・ノクトの思い出の迷宮（ch5-hoshiyomi-bg.js）
-import { HOSHIYOMI_BG, HOSHIYOMI_DECOS, drawHoshiyomiBg, drawHoshiyomiFloorBg } from './ch5-hoshiyomi-bg.js?v=a2abc3298a71';
+import { HOSHIYOMI_BG, HOSHIYOMI_DECOS, drawHoshiyomiBg, drawHoshiyomiFloorBg } from './ch5-hoshiyomi-bg.js?v=f6a4d212e9b8';
 // 第5章 Step 6・7: 根の島・大地の神殿（ch5-earth-bg.js）
-import { EARTH_BG, EARTH_DECOS, drawEarthBg, drawEarthFloorBg } from './ch5-earth-bg.js?v=a2abc3298a71';
+import { EARTH_BG, EARTH_DECOS, drawEarthBg, drawEarthFloorBg } from './ch5-earth-bg.js?v=f6a4d212e9b8';
 // 第37回 A: サファラ闘技場（arena。arena-art.js）
-import { ARENA_BG, ARENA_DECOS, drawArenaBg, drawArenaFloorBg } from './arena-art.js?v=a2abc3298a71';
+import { ARENA_BG, ARENA_DECOS, drawArenaBg, drawArenaFloorBg } from './arena-art.js?v=f6a4d212e9b8';
 // 第5章 Step 9: 星のない広間・ひとりぼっちの闇（ch5-final-bg.js）
-import { FINAL_BG, FINAL_DECOS, drawFinalBg, drawFinalFloorBg } from './ch5-final-bg.js?v=a2abc3298a71';
+import { FINAL_BG, FINAL_DECOS, drawFinalBg, drawFinalFloorBg } from './ch5-final-bg.js?v=f6a4d212e9b8';
 // 第5章 Step 8: 影の城の 風の階・炎の階・水の階（ch5-phantom-bg.js）
-import { PHANTOM_BG, PHANTOM_DECOS, drawPhantomBg, drawPhantomFloorBg } from './ch5-phantom-bg.js?v=a2abc3298a71';
+import { PHANTOM_BG, PHANTOM_DECOS, drawPhantomBg, drawPhantomFloorBg } from './ch5-phantom-bg.js?v=f6a4d212e9b8';
 // 第2部 第6章 Step 1・2: 千年前の フィールド・時の祠・時の遺跡・番人の間（ch6-past-bg.js）
-import { PAST_BG, PAST_DECOS, drawPastBg, drawPastFloorBg } from './ch6-past-bg.js?v=a2abc3298a71';
+import { PAST_BG, PAST_DECOS, drawPastBg, drawPastFloorBg } from './ch6-past-bg.js?v=f6a4d212e9b8';
 // 第2部 第6章 Step 3・4: 星めぐりの古道（ch6-road-bg.js）
-import { ROAD_BG, ROAD_DECOS, drawRoadBg, drawRoadFloorBg } from './ch6-road-bg.js?v=a2abc3298a71';
+import { ROAD_BG, ROAD_DECOS, drawRoadBg, drawRoadFloorBg } from './ch6-road-bg.js?v=f6a4d212e9b8';
+// 第2部 第6章 Step 5: 止まった時計塔（ch6-tokei-bg.js）
+import { TOKEI_BG, TOKEI_DECOS, drawTokeiBg, drawTokeiFloorBg } from './ch6-tokei-bg.js?v=f6a4d212e9b8';
 
 export const BW = 256;
 export const BH = 144;
@@ -163,6 +165,8 @@ const BG = {
   ...PAST_BG,
   // 第2部 第6章 Step 3・4（hoshimichi・hoshimichi_deep）
   ...ROAD_BG,
+  // 第2部 第6章 Step 5（tokei）
+  ...TOKEI_BG,
 };
 
 // はいけいの データ（〜_night は 夜空の はいけい。night-art.js）。ない ときは null
@@ -240,6 +244,7 @@ export function battleBackground(id) {
       case 'castle_wind': case 'castle_fire': case 'castle_water': h = 0; break; // 影の城は あとで（ch5-phantom-bg.js）
       case 'past_field': h = 16 + Math.abs(Math.sin(px * 0.17) * 12) + (px % 9 < 3 ? 5 : 0); break; // 千年前の 森（ch6-past-bg.js）
       case 'toki_shrine': case 'toki_ruin': case 'toki_ruin_boss': h = 0; break; // 時の祠・時の遺跡は あとで（ch6-past-bg.js）
+      case 'tokei': h = 0; break; // 止まった時計塔は あとで（ch6-tokei-bg.js）
       default: h = 10 + Math.abs(Math.sin(px * 0.035) * 14) + Math.abs(Math.sin(px * 0.11) * 4);
     }
     if (d.deco === 'stalactite' || d.deco === 'crystal') {
@@ -263,6 +268,7 @@ export function battleBackground(id) {
   if (PHANTOM_DECOS.has(d.deco)) drawPhantomBg(x, d, hor);
   if (PAST_DECOS.has(d.deco)) drawPastBg(x, d, hor);
   if (ROAD_DECOS.has(d.deco)) drawRoadBg(x, d, hor);
+  if (TOKEI_DECOS.has(d.deco)) drawTokeiBg(x, d, hor);
   if (d.deco === 'houses') {
     x.fillStyle = '#ffd66b';
     for (let k = 10; k < BW; k += 48) x.fillRect(k + 8, hor - 12, 3, 3);
@@ -322,6 +328,7 @@ export function battleBackground(id) {
   else if (PHANTOM_DECOS.has(d.deco)) drawPhantomFloorBg(x, d, hor);
   else if (PAST_DECOS.has(d.deco)) drawPastFloorBg(x, d, hor);
   else if (ROAD_DECOS.has(d.deco)) drawRoadFloorBg(x, d, hor);
+  else if (TOKEI_DECOS.has(d.deco)) drawTokeiFloorBg(x, d, hor);
   else {
     x.fillStyle = 'rgba(0,0,0,0.12)';
     for (let i = 0; i < 6; i++) {

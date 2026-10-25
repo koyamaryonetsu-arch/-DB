@@ -2,7 +2,7 @@
 // render/monsters.js が addEarthArt を よぶ。かきかたは ch5-hoshiyomi-mon-art.js と おなじ（g … w・h の わりあいで かく。f … 0 か 1 の コマ）
 // ノクト: nocto_1 … フードを かぶった 黒い かみの 少年（図鑑・台本の showMon('nocto_1')）。nocto_clone … ノクトの 形の 影（むらさき・赤い 目）
 // 大地のダンゴムシ: 左を むいた よこ向き。おこると client/battle-earth.js が 目（0.15,0.56・0.24,0.55 あたり）を 赤く 光らせる
-import { fit, spark } from './ch3-draw.js?v=a2abc3298a71';
+import { fit, spark } from './ch3-draw.js?v=f6a4d212e9b8';
 
 // ───── 根っこのこびと ─────
 const SPRITE = {

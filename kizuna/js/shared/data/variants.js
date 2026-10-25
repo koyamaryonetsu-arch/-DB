@@ -12,7 +12,7 @@
 //   ・強さ: もとの 魔物に しゅるいの 倍率（k）を かける。レベルは もとと おなじ（ひみつのダンジョンでは 階の レベルまで 強くなる）
 //   ・経験値・お金: しゅるいの 倍率（exp・gold）。落とす 物は もとと おなじ（素材〈loot.js の MAT_DROPS〉は 落とさない）
 //   ・仲間に ならない（noBefriend。MONSTER_FRIENDS にも 入れない）。図鑑には 出ない（見た・たおした 記録は 色ちがいの ID で のこる）
-import { MONSTERS } from './monsters.js?v=a2abc3298a71';
+import { MONSTERS } from './monsters.js?v=f6a4d212e9b8';
 
 // しゅるい（名前の 前に つける ことば・色・強さ）
 export const VARIANT_KINDS = {
@@ -35,6 +35,12 @@ export const VARIANT_KINDS = {
     prefix: 'ゴールド', tint: { hueTo: 46, sat: 1.4, light: 1.18 },
     k: { hp: 1.5, str: 1.1, def: 1.3, agi: 1, mag: 1 }, exp: 2.5, gold: 6,
     resist: {}, desc: '金色にかがやく、めずらしい色ちがい。たおすとお金をたくさん落とす。',
+  },
+  // 第2部 第6章 Step 5: 止まった時計塔の ぜんまいじかけ（真ちゅう色。時のいせきの からくりの 魔物を 使い回す。encounters-tokei.js）
+  clock: {
+    prefix: 'ぜんまい', tint: { hueTo: 38, sat: 0.85, light: 0.95 },
+    k: { hp: 1.25, str: 1.2, def: 1.25, agi: 1.05, mag: 1.15 }, exp: 1.7, gold: 1.6,
+    resist: { bolt: 1.2, poison: 0.5 }, desc: '時計塔のぜんまいで動く、真ちゅう色の色ちがい。体がかたく、雷に少し弱い。',
   },
 };
 export const VARIANT_PREFIX = 'v_';
