@@ -3,9 +3,9 @@
 // 色は 第27回の 属性の 色（battlefx-r27.js の ELEMENT_FX）: 雷＝黄・水色の「いなずま」、風＝緑・白の「うず」、氷＝青・白
 // 土と 岩の 技は 土の 色（茶・こけ・岩の 灰色）。敵が みかたに 使う 大技は、client/battle-ch4.js が がめんの まん中を ねらって よぶ
 // ガイアイーター: maw_charge・rumble_charge・needle_charge（前ぶれ）→ gaia_devour・gaia_quake・needle_rain（大技）。gaia_feed（土はこび。しっぽ → 体・頭）
-import { ELEMENT_FX } from './battlefx-r27.js?v=0c8f643f1d08';
+import { ELEMENT_FX } from './battlefx-r27.js?v=6f0cf3958911';
 // 第5章 Step 5: 星読みの里の まわり・思い出の迷宮の 魔物と ノクトの影（battlefx-hoshiyomi.js）
-import { playHoshiyomiFx } from './battlefx-hoshiyomi.js?v=0c8f643f1d08';
+import { playHoshiyomiFx } from './battlefx-hoshiyomi.js?v=6f0cf3958911';
 
 const BOLT = ELEMENT_FX.bolt.colors, WIND = ELEMENT_FX.wind.colors, ICE = ELEMENT_FX.ice.colors;
 const EARTH = ['#7a5232', '#a87a4e', '#d0a478', '#4a301c'];

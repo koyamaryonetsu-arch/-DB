@@ -12,19 +12,19 @@
 //                                    はなかっぱの かお・楽天カードマンの メガネと カード（phase 'over': ぼうしの あと）
 //   drawHat26(cv, P, H, G, view) … 新しい ぼうし（かえりち: かいたら true）
 //   drawProp26(cv, P, A, O) … たての ない 手に もつ もの（カード・スプーン・虫めがね・きゅうり など）
-import { mat, ramp, TH, mixC, HeroCanvas } from './hero-raster.js?v=0c8f643f1d08';
+import { mat, ramp, TH, mixC, HeroCanvas } from './hero-raster.js?v=6f0cf3958911';
 // 第27回の 暴れんぼう将軍の 家もんと せんす（hero-r27.js）
-import { drawR27, drawProp27 } from './hero-r27.js?v=0c8f643f1d08';
+import { drawR27, drawProp27 } from './hero-r27.js?v=6f0cf3958911';
 // 第29回の るろうに剣士の 道の マント・十字の きず（hero-r29.js）
-import { outfit29, drawR29, face29 } from './hero-r29.js?v=0c8f643f1d08';
+import { outfit29, drawR29, face29 } from './hero-r29.js?v=6f0cf3958911';
 // 第33回の 11この 職業の マント・リボン・めがね・シルクハット・もちもの（hero-r33.js）
-import { outfit33, body33, drawR33, face33, drawHat33, drawProp33 } from './hero-r33.js?v=0c8f643f1d08';
+import { outfit33, body33, drawR33, face33, drawHat33, drawProp33 } from './hero-r33.js?v=6f0cf3958911';
 // 第40回の 伝説の 職業 2つの ドレス・ひたいの しるし・つえ（hero-r40.js）
-import { outfit40, face40, drawProp40 } from './hero-r40.js?v=0c8f643f1d08';
+import { outfit40, face40, drawProp40 } from './hero-r40.js?v=6f0cf3958911';
 // 第41回 B の 雪の女王・第5のせいれいの ドレス・すける マント（hero-r41b.js）
-import { outfit41b } from './hero-r41b.js?v=0c8f643f1d08';
+import { outfit41b } from './hero-r41b.js?v=6f0cf3958911';
 // 第41回 A の 伝説の 職業 2つの 手ぶくろ・むねの かざり・もちもの（hero-r41a.js）
-import { outfit41a, drawR41a, drawProp41a } from './hero-r41a.js?v=0c8f643f1d08';
+import { outfit41a, drawR41a, drawProp41a } from './hero-r41a.js?v=6f0cf3958911';
 
 // ───────────── ざいしつ（mat は おなじ ものを つくりなおさない） ─────────────
 const cl = (c, o = {}) => mat({ r: ramp(c, 4, o), th: o.th || TH.cloth });

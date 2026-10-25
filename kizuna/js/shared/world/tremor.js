@@ -4,10 +4,10 @@
 // ・立ち止まって いれば 当たらない。ふるえが おさまった あとの 1歩めで「よけられた」と 出る
 // ・safe … ふるえない ところ（[x0, y0, x1, y1] の ならび。はじめの へや・かいだんの まわり）
 // じょうたいは セッションに だけ もつ（セーブには のこさない）
-import { MAPS } from '../maps/index.js?v=0c8f643f1d08';
-import { computeStats } from '../stats.js?v=0c8f643f1d08';
-import { partyOf } from './party.js?v=0c8f643f1d08';
-import { wagonChars } from './wagon.js?v=0c8f643f1d08';
+import { MAPS } from '../maps/index.js?v=6f0cf3958911';
+import { computeStats } from '../stats.js?v=6f0cf3958911';
+import { partyOf } from './party.js?v=6f0cf3958911';
+import { wagonChars } from './wagon.js?v=6f0cf3958911';
 
 // 落石の ダメージ（さいだいHPの わりあい。すくなくても 5。1は のこる）
 export function rockDamage(maxHp, rate) {

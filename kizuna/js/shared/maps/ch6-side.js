@@ -3,9 +3,9 @@
 // ・千年前のレシピ: 今の ルミナの酒場の コック → 千年前の 泉の里の おくさん → 今の コック（人は 今まで いる 人）
 // ・ちびアステルのたからもの: 千年前の フィールドの きらきらの石 5つ → ちびアステル → 今の ほしみの丘に おりてくる アステル
 // だいほんは data/sidequests-ch6.js。どれも c6_flow の あとから
-import { npc } from './npc.js?v=0c8f643f1d08';
-import { PLACES } from './overworld.js?v=0c8f643f1d08';
-import { PAST_ID } from './past.js?v=0c8f643f1d08';
+import { npc } from './npc.js?v=6f0cf3958911';
+import { PLACES } from './overworld.js?v=6f0cf3958911';
+import { PAST_ID } from './past.js?v=6f0cf3958911';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 export const TC = {

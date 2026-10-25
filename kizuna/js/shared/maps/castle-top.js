@@ -8,9 +8,9 @@
 //   てっぺんの 下りかいだん → 12階の「castle_top へ 行く ワープ」の となり（12階の ワープを さがして きめる。名前の 約束が いらない）。
 //   12階が まだ ない とき（A9 の 作業中）は クモイ地方の 影の城の 前の 小島へ
 // だいほんは data/story-castle-top.js
-import { T, parseRows } from '../tiles.js?v=0c8f643f1d08';
-import { npc } from './npc.js?v=0c8f643f1d08';
-import { FEST_DECO } from './tower.js?v=0c8f643f1d08';
+import { T, parseRows } from '../tiles.js?v=6f0cf3958911';
+import { npc } from './npc.js?v=6f0cf3958911';
+import { FEST_DECO } from './tower.js?v=6f0cf3958911';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 // 物語の すすみぐあい（data/story-ch5.js の CH5_STEPS の c5_seal3 の うしろ。plan-ch5.md の 17 の 名前の 約束）
