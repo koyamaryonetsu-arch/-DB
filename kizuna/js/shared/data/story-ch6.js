@@ -8,24 +8,24 @@
 //   → 時のいせき（今）・時の神殿（千年前）の 7階（c6_ruin）→ 番人の 間で ゼンマイの 番兵 ギアドン（geardon。c6_gear）
 //   → 泉の里の 時が 動き出す・勇者の像が 今に もどる → 「第6章の続きはアップデートで！」（c6_flow。ミナモは はなれる）
 // 魔物・きまった 戦い（sand_clock・geardon）・品・ミナモの 強さは B（戦い・品）が 作る（plan-ch6.md の 9）
-import { MAPS } from '../maps/index.js?v=309a12f58992';
-import { PLACES } from '../maps/overworld.js?v=309a12f58992';
+import { MAPS } from '../maps/index.js?v=30d090c54010';
+import { PLACES } from '../maps/overworld.js?v=30d090c54010';
 import {
   C6, HOSHIYO_FLAG, DEW_FLAG, PLANT_FLAG, END_A6, CHIEF_FLAG, PAST_ID, PAST_POS, SPRING, HAMLET,
-} from '../maps/past.js?v=309a12f58992';
-import { SHRINE_POS, SF, SAND_FLAG, shrineArrive, shrineMapId } from '../maps/toki-shrine.js?v=309a12f58992';
+} from '../maps/past.js?v=30d090c54010';
+import { SHRINE_POS, SF, SAND_FLAG, shrineArrive, shrineMapId } from '../maps/toki-shrine.js?v=30d090c54010';
 import {
   RUIN_POS, RUIN_OBJS, RF, LEVER_FLAG, OPEN7, BOSS_SEEN, objIndex, objOn, ruinMapId, RUIN_BOSS_ID, RUIN_FLOORS, RUIN_REST,
-} from '../maps/toki-ruin.js?v=309a12f58992';
-import { flipSand, shiftSteps } from '../world/time-glass.js?v=309a12f58992';
-import { isNightFor, advanceClock } from '../world/clock.js?v=309a12f58992';
-import { unstickAll } from '../world/hazards.js?v=309a12f58992';
-import { partyOf } from '../world/party.js?v=309a12f58992';
-import { TOP_OBJ } from './story-castle-top.js?v=309a12f58992';
+} from '../maps/toki-ruin.js?v=30d090c54010';
+import { flipSand, shiftSteps } from '../world/time-glass.js?v=30d090c54010';
+import { isNightFor, advanceClock } from '../world/clock.js?v=30d090c54010';
+import { unstickAll } from '../world/hazards.js?v=30d090c54010';
+import { partyOf } from '../world/party.js?v=30d090c54010';
+import { TOP_OBJ } from './story-castle-top.js?v=30d090c54010';
 // 第6章 Step 3・4（story-ch6b.js）: 星読みの社・星めぐりの古道・ペンデュラ・今の カナタ（ここで まぜる）
 import {
   CH6B_STEPS, C6B_OBJ, CH6B_OBJECTIVE_TARGETS, CH6B_OBJECTIVE_TALK, CH6B_PROGRESS, applyCh6b, elderCh6b, ch6StaleObjective,
-} from './story-ch6b.js?v=309a12f58992';
+} from './story-ch6b.js?v=30d090c54010';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
