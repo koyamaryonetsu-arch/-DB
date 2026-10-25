@@ -63,6 +63,15 @@ export function drawSwirl(L, level, t) {
     x.lineTo(cx + s, cy + s * 1.4); x.lineTo(cx - s, cy + s * 1.4); x.lineTo(cx, cy);
     x.closePath();
     x.fill();
+    // 第6章 Step 5: トキネの砂時計のかざりを 12こ 集めた（c6_orn_done）… 砂時計の まわりに 12の かざりが 光る
+    if (L.deco) {
+      for (let i = 0; i < 12; i++) {
+        const ang = (i * Math.PI) / 6 + t / 900;
+        const rr = s * 2.3;
+        x.fillStyle = rgba(i % 3 ? [255, 228, 140] : [255, 255, 255], a);
+        x.fillRect(Math.round(cx + Math.cos(ang) * rr) - 2, Math.round(cy + Math.sin(ang) * rr) - 2, 4, 4);
+      }
+    }
   }
 }
 
@@ -85,6 +94,7 @@ function animate(L, from, to, ms) {
 export async function timeShiftFx(game, phase, ids = null, era = 'past') {
   if (Array.isArray(ids) && game?.sid && !ids.includes(game.sid)) return;
   const L = ensureLayer();
+  L.deco = !!(game?.me?.flags?.c6_orn_done || game?.worldFlagSet?.has?.('c6_orn_done'));
   if (phase === 'in') {
     L.era = era === 'present' ? 'present' : 'past';
     game?.audio?.sfx('wind');

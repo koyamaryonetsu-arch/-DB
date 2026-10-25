@@ -6,6 +6,7 @@
 // ・boss6 … 第6章の ボス（ハ短調の はやい 戦い。サンドクロック・ギアドン）
 // ・zenmai … 影の時計師ゼンマイ（ト短調。ぜんまいじかけの ような とぎれる 音）
 // ・hoshimichi … 第6章 Step 3・4 の 星めぐりの古道（ホ短調。星が またたく ような 高い アルペジオと、ゆったり 歩く ベース）
+// ・tokei … 第6章 Step 5 の 止まった時計塔（ニ短調。こちこちと きざむ 音と、ぜんまいの ような ベース）
 // 1小節 = 16。どの パートも 16小節（256）
 
 const CHORD = {
@@ -44,7 +45,25 @@ const BOSS_CH = ['Cm', 'Ab', 'Bb', 'G', 'Cm', 'Fm', 'G', 'G', 'Ab', 'Bb', 'Eb', 
 const ZENMAI_CH = ['Gm', 'Gm', 'Eb', 'D', 'Gm', 'Cm', 'D', 'D', 'Eb', 'F', 'Gm', 'Eb', 'Cm', 'D', 'Gm', 'D'];
 const ROAD_CH = ['Em', 'C', 'G', 'D', 'Em', 'C', 'Am', 'B', 'C', 'G', 'D', 'Bm', 'C', 'Am', 'B', 'Em'];
 
+const TOKEI_CH = ['Dm', 'Bb', 'C', 'A', 'Dm', 'Gm', 'A', 'A', 'Bb', 'C', 'F', 'Dm', 'Gm', 'A', 'Dm', 'Dm'];
+
 export const CH6_TRACKS = {
+  // 第6章 Step 5: 止まった時計塔（ニ短調。こちこちと きざむ 時計の 音と、ぜんまいの ような ベース）
+  tokei: {
+    bpm: 100,
+    ch: [
+      { w: 'square', v: 0.075, n: bars([
+        'D5:2 F5:2 A5:4 G5:2 F5:2 E5:4', 'D5:4 F5:4 Bb5:8', 'C6:2 Bb5:2 A5:2 G5:2 E5:8', 'C#5:4 E5:4 A5:8',
+        'F5:2 A5:2 D6:4 C6:4 A5:4', 'Bb5:4 G5:4 D5:8', 'E5:2 G5:2 C#6:4 A5:8', 'A5:12 r:4',
+        'Bb5:4 D6:4 F6:4 D6:4', 'C6:2 E6:2 G6:4 E6:8', 'F6:4 C6:4 A5:4 F5:4', 'D6:8 A5:4 F5:4',
+        'G5:4 Bb5:4 D6:4 G6:4', 'E6:4 C#6:4 A5:4 E5:4', 'F5:2 E5:2 D5:4 A5:4 F5:4', 'D5:12 r:4',
+      ]) },
+      { w: 'sine', v: 0.05, n: arpBox(TOKEI_CH, 4) },
+      { w: 'triangle', v: 0.21, n: bassTick(TOKEI_CH) },
+      // 時計の こちこち
+      { drums: true, v: 0.2, n: 'h:2 h:2 k:2 h:2 h:2 h:2 s:2 h:2 '.repeat(16) },
+    ],
+  },
   // 第6章 Step 3・4: 星めぐりの古道
   hoshimichi: {
     bpm: 92,

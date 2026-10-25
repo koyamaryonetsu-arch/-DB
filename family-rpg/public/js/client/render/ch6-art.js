@@ -7,6 +7,8 @@
 import { Painter } from './pixel.js';
 // 第6章 Step 3・4: オリハ・コトハ・星くいのよる鳥・ペンデュラ・タイムカプセル・きらきらの石（render/ch6-road-npc-art.js。ここで まぜる）
 import { ROAD_NPC_LOOKS, paintRoadSpecial, ROAD_SPECIALS } from './ch6-road-npc-art.js';
+// 第6章 Step 5: 止まった時計塔・カリヨン・止まった 魔物・砂時計の かざり（render/ch6-tokei-npc-art.js。ここで まぜる）
+import { paintTokeiSpecial, TOKEI_SPECIALS } from './ch6-tokei-npc-art.js';
 
 const GRAY = { hair: '#9a9aa2', skin: '#c4c6cc', cloth: '#8a8c94', trim: '#b4b6bc' };
 const person = (o) => o;
@@ -207,7 +209,7 @@ export function paintCh6Special(kind, dir, f) {
     case 'chibi_astel': return paintChibiAstel(dir, f);
     case 'zenmai': return paintZenmai(f);
     case 'geardon_npc': return paintGeardon(f);
-    default: return paintRoadSpecial(kind, dir, f);
+    default: return paintRoadSpecial(kind, dir, f) || paintTokeiSpecial(kind, dir, f);
   }
 }
-export const CH6_SPECIALS = ['hero_statue', 'hero_statue_faded', 'star_tree', 'star_sapling', 'seed_spot', 'star_dew', 'past_tent', 'prayer_stone', 'chibi_astel', 'zenmai', 'geardon_npc', ...ROAD_SPECIALS];
+export const CH6_SPECIALS = ['hero_statue', 'hero_statue_faded', 'star_tree', 'star_sapling', 'seed_spot', 'star_dew', 'past_tent', 'prayer_stone', 'chibi_astel', 'zenmai', 'geardon_npc', ...ROAD_SPECIALS, ...TOKEI_SPECIALS];

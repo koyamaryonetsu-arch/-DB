@@ -34,6 +34,9 @@ export const GLASS_TEXT = {
   none: '時の砂時計をかざした…\nしかし、何もおこらない。\n（「時の組」がある場所でだけ、時をこえられる）',
   wall: '（ここでは、時をこえられない…\n向こうの時代では、かべの中のようだ）',
   far: '（ここでは、時をこえられない…\n向こうの時代のこの場所は、深い森や川の向こうのようだ）',
+  // 第6章 Step 5: 止まった時計塔（map.timeBlock）と、時の すきまの ある 階（map.timeSpot）
+  tower: '砂時計の砂が、塔の時計の音に合わせて、カチ…カチ…と止まってしまう…\n（この塔の中では、時をこえられない。光るゆか「時のすきま」のほかは）',
+  gap: '（ここでは、時をこえられない…\n光るゆか「時のすきま」の上で使おう）',
 };
 
 // フィールドの「歩いて 行ける ところ」（map.timeHome から。しかけは ぜんぶ 開いた として。マップごとに 1回）
@@ -81,6 +84,9 @@ export function glassCheck(world, s) {
   const map = MAPS[s.map];
   if (!map?.timePair || !MAPS[map.timePair]) return { ok: false, key: map?.timeBlock || 'none' };
   if (map.timeNoUse?.(Math.floor(s.x), Math.floor(s.y))) return { ok: false, key: 'town' };
+  // 第6章 Step 5: 時の すきまの 上だけ（止まった時計塔の 3階 ⇔ 今の 星の塔の 2階。maps/tokei.js）
+  const spot = map.timeSpot?.(Math.floor(s.x), Math.floor(s.y), world.hasFlagFn(s));
+  if (spot) return { ok: false, key: spot };
   const to = MAPS[map.timePair];
   const key = landingKey(to, s.x, s.y, world.hasFlagFn(s));
   if (key) return { ok: false, key };

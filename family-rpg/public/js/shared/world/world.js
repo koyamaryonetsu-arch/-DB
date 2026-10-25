@@ -43,6 +43,7 @@ import { stepHazard } from './hazards.js';
 import { stepTremor } from './tremor.js';
 import { stepSand } from './time-glass.js';
 import { stepStars } from './star-sight.js';
+import { stepTokei } from './tokei.js';
 import { noteDungeonEntry } from './escape.js';
 import { notePyramidMove } from './pyramid.js';
 import { noteSecretMove, fixSecretPos, secretRespawn, pruneSecretStates } from './secret.js';
@@ -604,6 +605,8 @@ export class GameWorld {
     stepSand(this, s, tx, ty);
     // 星めぐりの古道の 星の もや・ミナモの 星読みの 歩数（第6章 Step 3・4。world/star-sight.js）
     if (stepStars(this, s, tx, ty)) return;
+    // 止まった時計塔の 止まった 部屋の 歩数（第6章 Step 5。world/tokei.js）
+    if (stepTokei(this, s, tx, ty)) return;
     // ばしょの きろく（きかんのはね）。リーダーの 冒険を 手伝っている あいだは 自分の きろくに しない
     if (this.hostOf(s)) return;
     let found = false;
