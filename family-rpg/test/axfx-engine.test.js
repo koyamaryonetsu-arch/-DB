@@ -203,7 +203,7 @@ test('第48回: ためかた 14しゅるい × 段階 4つ（味方・敵）が 
 });
 
 test('第48回: どうぐばこ（axkit）は にせの キャンバスで こわれない・あたる 時間を かえす', () => {
-  assert.ok(Object.keys(AX_FINE).every((k) => k.startsWith('ax')), 'つぶの なまえは ax〜');
+  assert.ok(Object.keys(AX_FINE).every((k) => k.startsWith('ax') || /^g\d/.test(k)), 'つぶの なまえは ax〜 か、グループの g1〜g6〜');
   const fine = src('../public/js/client/render/battlefx.js');
   for (const k of Object.keys(AX_FINE)) assert.ok(!new RegExp(`^  ${k}\\(`, 'm').test(fine), `${k} が battlefx.js の FINE と かさなる`);
   for (const el of ['fire', 'ice', 'water', 'wind', 'blast', 'bolt', 'light', 'dark', 'void', 'ki', 'holy', 'heal', 'earth']) {
