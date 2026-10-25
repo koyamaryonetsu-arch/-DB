@@ -1,33 +1,33 @@
 // お店・転職・酒場・でんごんばん・ほしのかけら・きょうかい の がめん
-import { el, ListMenu, toast, askText, confirmBox, esc } from './dom.js?v=345c127ce483';
-import { ITEMS } from '../../shared/data/items.js?v=345c127ce483';
-import { SUPER_ORDER, LEGEND_ORDER, TIER_ORDERS, TIER_NAMES, JOB_MAX_LEVEL, jobReqText, jobReqSets, jobBodyOk, BODY_NAMES, superMasteredCount } from '../../shared/data/jobs.js?v=345c127ce483';
-import { ABILITIES } from '../../shared/data/abilities.js?v=345c127ce483';
-import { abilityFor } from '../../shared/ability-label.js?v=345c127ce483';
-import { jobFor, jobLabel, jobHint } from '../../shared/job-label.js?v=345c127ce483';
-import { salonUI } from './salon.js?v=345c127ce483';
-import { vehicleShopUI } from './vehicles.js?v=345c127ce483';
-import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered, canEquip, STAT_NAMES } from '../../shared/stats.js?v=345c127ce483';
-import { jobUpKeys } from '../../shared/data/job-trials.js?v=345c127ce483';
-import { MONSTERS } from '../../shared/data/monsters.js?v=345c127ce483';
-import { ougiLearn } from '../../shared/data/abilities-ougi.js?v=345c127ce483';
-import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES, breedOutcome, breedRumors, rankOf, monsterLevelCap, SPECIAL_KINDS } from '../../shared/data/companions.js?v=345c127ce483';
-import { breedForecast, TREND_MARK } from '../../shared/breed-calc.js?v=345c127ce483';
-import { TACTICS } from '../../shared/ai.js?v=345c127ce483';
-import { itemDetail, gearText } from './info.js?v=345c127ce483';
-import { playerSprite, followerSprite, faceURL } from '../field.js?v=345c127ce483';
-import { shopUI, churchUI } from './shop.js?v=345c127ce483';
-import { bankUI } from './bank.js?v=345c127ce483';
-import { forgeUI } from './forge.js?v=345c127ce483';
-import { tavernWagonItems, tavernWagonOpts, tavernWagonAct, tavernPlace, arrangeUI } from './wagon.js?v=345c127ce483';
-import { casinoUI } from './casino.js?v=345c127ce483';
-import { sdBoardUI } from './secret.js?v=345c127ce483';
+import { el, ListMenu, toast, askText, confirmBox, esc } from './dom.js?v=e0707600e726';
+import { ITEMS } from '../../shared/data/items.js?v=e0707600e726';
+import { SUPER_ORDER, LEGEND_ORDER, TIER_ORDERS, TIER_NAMES, JOB_MAX_LEVEL, jobReqText, jobReqSets, jobBodyOk, BODY_NAMES, superMasteredCount } from '../../shared/data/jobs.js?v=e0707600e726';
+import { ABILITIES } from '../../shared/data/abilities.js?v=e0707600e726';
+import { abilityFor } from '../../shared/ability-label.js?v=e0707600e726';
+import { jobFor, jobLabel, jobHint } from '../../shared/job-label.js?v=e0707600e726';
+import { salonUI } from './salon.js?v=e0707600e726';
+import { vehicleShopUI } from './vehicles.js?v=e0707600e726';
+import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered, canEquip, STAT_NAMES } from '../../shared/stats.js?v=e0707600e726';
+import { jobUpKeys } from '../../shared/data/job-trials.js?v=e0707600e726';
+import { MONSTERS } from '../../shared/data/monsters.js?v=e0707600e726';
+import { ougiLearn } from '../../shared/data/abilities-ougi.js?v=e0707600e726';
+import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES, breedOutcome, breedRumors, rankOf, monsterLevelCap, SPECIAL_KINDS } from '../../shared/data/companions.js?v=e0707600e726';
+import { breedForecast, TREND_MARK } from '../../shared/breed-calc.js?v=e0707600e726';
+import { TACTICS } from '../../shared/ai.js?v=e0707600e726';
+import { itemDetail, gearText } from './info.js?v=e0707600e726';
+import { playerSprite, followerSprite, faceURL } from '../field.js?v=e0707600e726';
+import { shopUI, churchUI } from './shop.js?v=e0707600e726';
+import { bankUI } from './bank.js?v=e0707600e726';
+import { forgeUI } from './forge.js?v=e0707600e726';
+import { tavernWagonItems, tavernWagonOpts, tavernWagonAct, tavernPlace, arrangeUI } from './wagon.js?v=e0707600e726';
+import { casinoUI } from './casino.js?v=e0707600e726';
+import { sdBoardUI } from './secret.js?v=e0707600e726';
 // 第37回 A: サファラ闘技場（かけ試合・王者のかべ）
-import { arenaCardUI, arenaBoutUI, arenaWallUI } from './arena.js?v=345c127ce483';
-import { shownEquip } from '../../shared/look-equip.js?v=345c127ce483';
-import { jobAskText } from '../../shared/data/job-talk.js?v=345c127ce483';
-import { sortRoster, rosterSortName, nextRosterSort } from '../../shared/roster-sort.js?v=345c127ce483';
-import { rosterSortPref, setRosterSortPref } from '../prefs.js?v=345c127ce483';
+import { arenaCardUI, arenaBoutUI, arenaWallUI } from './arena.js?v=e0707600e726';
+import { shownEquip } from '../../shared/look-equip.js?v=e0707600e726';
+import { jobAskText } from '../../shared/data/job-talk.js?v=e0707600e726';
+import { sortRoster, rosterSortName, nextRosterSort } from '../../shared/roster-sort.js?v=e0707600e726';
+import { rosterSortPref, setRosterSortPref } from '../prefs.js?v=e0707600e726';
 
 export function openServiceUI(game, kind, data) {
   switch (kind) {
@@ -408,7 +408,7 @@ function tavernUI(game, data) {
     //   o … おすすめの 子（data/companions.js の breedOutcome）、f … めやす（shared/breed-calc.js の breedForecast）
     const pairInfo = (A, X) => {
       const o = breedOutcome(A, X, MONSTERS, game.me);
-      return { o, f: breedForecast(A, X, o.child, o.plus), can: o.items.some((it) => SPECIAL_KINDS.slice(0, 3).includes(it.kind)) };
+      return { o, f: breedForecast(A, X, o.child, o.plus), can: o.items.some((it) => SPECIAL_KINDS.slice(0, 2).includes(it.kind)) };
     };
     const TREND_CLS = { up: 'good', same: '', down: 'danger' };
     const breedItems = () => {
@@ -434,7 +434,7 @@ function tavernUI(game, data) {
         } else if (!A) row.right = row.right || rankOf(e.species, MONSTERS);
         rows.push(row);
       }
-      // 4体配合・素材配合・ランク配合が できる 相手は 上に
+      // 4体配合・素材配合が できる 相手は 上に（第43回 A: ランク配合は やめた）
       if (can.length) out.push({ header: true, label: '★ とくべつな配合ができる！' }, ...can, { header: true, label: 'そのほかの相手' });
       out.push(...rows);
       // ならびは いちばん 下（カーソルは さいしょの 魔物から）
@@ -451,6 +451,8 @@ function tavernUI(game, data) {
     // ランク・＋・レベルの 上限・血統（両親と 祖父母。world/breed.js の lineage）
     const monLines = (e) => {
       const out = [`ランク${rankOf(e.species, MONSTERS)}${e.plus ? `　＋${e.plus}` : ''}${e.ranked ? `　レベルの上限 ${monsterLevelCap(e, MONSTERS)}` : ''}`];
+      // 第43回 A: 配合の あとの 追いつき（world/party.js の companionInfo）
+      if (e.catchUp > e.level) out.push(`追いつき中：Lv${e.catchUp}まで経験値3倍`);
       const p = e.lineage?.p;
       if (e.parents || p) out.push(`両親: ${[0, 1].map((i) => `${e.parents?.[i] || ''}${p?.[i] ? `（${spName(p[i])}）` : ''}`).join(' ＋ ')}`);
       const g = e.lineage?.g;

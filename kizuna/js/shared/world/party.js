@@ -5,15 +5,15 @@
 //   c.partyKeys  … いま いっしょに ぼうけんしている なかま（じゅんばん）。'fam:ID' は 家族の キャラ
 //   c.guests     … ものがたりで いっしょに いる ゲスト（ルカ など）
 // パーティーには リーダーの なかまが ついてくる（にんげんが ふえると、はいりきらない なかまは いったん まつ）
-import { newCharacter, computeStats, fullHeal, gainExp, gainJobBattles, migrateJobs, expForLevel, addItem, newMonsterCompanion, learnedAbilities, masteredJobs } from '../stats.js?v=345c127ce483';
-import { jobBattlesForLevel, JOBS } from '../data/jobs.js?v=345c127ce483';
-import { NPC_SUPPORTS, GUESTS } from '../data/shops.js?v=345c127ce483';
-import { MONSTERS } from '../data/monsters.js?v=345c127ce483';
-import { MONSTER_FRIENDS, ROSTER_MAX, COMPANION_SLOTS } from '../data/companions.js?v=345c127ce483';
-import { SLOTS, ITEMS } from '../data/items.js?v=345c127ce483';
-import { cleanWagon, hasWagon, WAGON_SLOTS } from '../data/wagon.js?v=345c127ce483';
-import { wagonState, wagonTavernInfo } from './wagon.js?v=345c127ce483';
-import { difficultyOf } from '../data/difficulty.js?v=345c127ce483';
+import { newCharacter, computeStats, fullHeal, gainExp, gainJobBattles, migrateJobs, expForLevel, addItem, newMonsterCompanion, learnedAbilities, masteredJobs } from '../stats.js?v=e0707600e726';
+import { jobBattlesForLevel, JOBS } from '../data/jobs.js?v=e0707600e726';
+import { NPC_SUPPORTS, GUESTS } from '../data/shops.js?v=e0707600e726';
+import { MONSTERS } from '../data/monsters.js?v=e0707600e726';
+import { MONSTER_FRIENDS, ROSTER_MAX, COMPANION_SLOTS } from '../data/companions.js?v=e0707600e726';
+import { SLOTS, ITEMS } from '../data/items.js?v=e0707600e726';
+import { cleanWagon, hasWagon, WAGON_SLOTS } from '../data/wagon.js?v=e0707600e726';
+import { wagonState, wagonTavernInfo } from './wagon.js?v=e0707600e726';
+import { difficultyOf } from '../data/difficulty.js?v=e0707600e726';
 
 // パーティーに 入れる 人（家族の プレイヤー）は 5人まで。いっしょに フィールドを 歩いて、いっしょに 戦う
 export const PARTY_MAX = 5;
@@ -163,6 +163,8 @@ function companionInfo(e, activeKeys, partyKeys) {
     plus: ch.plus || 0, abilities: e.kind === 'monster' ? learnedAbilities(ch) : undefined, parents: ch.parents || null,
     // 配合の めやす・血統（shared/breed-calc.js。第35回）
     ...(e.kind === 'monster' ? { bonus: ch.bonus || null, seeds: ch.seeds || null, lineage: ch.lineage || null, ranked: ch.ranked || 0 } : {}),
+    // 第43回 A: 配合の あとの 追いつき（この レベルまで 経験値 3倍）
+    ...(e.kind === 'monster' && ch.catchUp > ch.level ? { catchUp: ch.catchUp } : {}),
   };
 }
 

@@ -16,11 +16,11 @@
 //   その 人の ゲージが 0 に なって、ペンデュラが pend.stop 回 動くまで（ふりこが はしから もどり始めるまで）止まる。身を 守っていると 止まらない。
 //   右の はしに 来ると「大ふりこ」の 前ぶれ → 次の 番に 大ふりこ（みんなに 物理の 大技。身を 守ると 半分）
 // ・知っている 人（シミュレーター。b.knowsCh6）は roadKnow（b.c6NoLight・b.c6NoGuard … しかけを 1つずつ はずして くらべる とき）
-import { MONSTERS } from './data/monsters.js?v=345c127ce483';
-import { STAR_EATER, PENDULA } from './data/monsters-road.js?v=345c127ce483';
-import { BUFF_ACTS } from './buff-acts.js?v=345c127ce483';
+import { MONSTERS } from './data/monsters.js?v=e0707600e726';
+import { STAR_EATER, PENDULA } from './data/monsters-road.js?v=e0707600e726';
+import { BUFF_ACTS } from './buff-acts.js?v=e0707600e726';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { atbRate } from './battle.js?v=345c127ce483';
+import { atbRate } from './battle.js?v=e0707600e726';
 
 export { STAR_EATER, PENDULA };
 export const AIM = 'm6_se_aim';

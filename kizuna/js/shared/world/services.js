@@ -1,39 +1,39 @@
 // お店・やどや・きょうかい・転職・酒場・でんごんばん・メニュー操作
-import { markNewsRead } from '../data/news.js?v=345c127ce483';
-import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js?v=345c127ce483';
-import { normDifficulty } from '../data/difficulty.js?v=345c127ce483';
-import { ITEMS, sellPrice, SLOTS, SLOT_NAMES } from '../data/items.js?v=345c127ce483';
-import { JOBS, ALL_JOBS, jobReqText, BODY_NAMES } from '../data/jobs.js?v=345c127ce483';
-import { ABILITIES } from '../data/abilities.js?v=345c127ce483';
-import { abilityFor, abilityLabel, isMasc } from '../ability-label.js?v=345c127ce483';
-import { jobLabel } from '../job-label.js?v=345c127ce483';
-import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=345c127ce483';
-import { TACTICS } from '../ai.js?v=345c127ce483';
-import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js?v=345c127ce483';
-import { salonInfo, salonAction } from './salon.js?v=345c127ce483';
-import { breedMonsters, breedPreview } from './breed.js?v=345c127ce483';
-import { farewellText } from './farewell.js?v=345c127ce483';
-import { MONSTERS } from '../data/monsters.js?v=345c127ce483';
-import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings, spellSealed } from '../battle.js?v=345c127ce483';
-import { PLACES } from '../maps/overworld.js?v=345c127ce483';
-import { POS, SEA_PLACES, MAPS } from '../maps/index.js?v=345c127ce483';
-import { castRura, warpParty, useTimeBell, warpPlaces, warpOwner, PAST_WARP_TEXT } from './travel.js?v=345c127ce483';
+import { markNewsRead } from '../data/news.js?v=e0707600e726';
+import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js?v=e0707600e726';
+import { normDifficulty } from '../data/difficulty.js?v=e0707600e726';
+import { ITEMS, sellPrice, SLOTS, SLOT_NAMES } from '../data/items.js?v=e0707600e726';
+import { JOBS, ALL_JOBS, jobReqText, BODY_NAMES } from '../data/jobs.js?v=e0707600e726';
+import { ABILITIES } from '../data/abilities.js?v=e0707600e726';
+import { abilityFor, abilityLabel, isMasc } from '../ability-label.js?v=e0707600e726';
+import { jobLabel } from '../job-label.js?v=e0707600e726';
+import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=e0707600e726';
+import { TACTICS } from '../ai.js?v=e0707600e726';
+import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js?v=e0707600e726';
+import { salonInfo, salonAction } from './salon.js?v=e0707600e726';
+import { breedMonsters, breedPreview } from './breed.js?v=e0707600e726';
+import { farewellText } from './farewell.js?v=e0707600e726';
+import { MONSTERS } from '../data/monsters.js?v=e0707600e726';
+import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings, spellSealed } from '../battle.js?v=e0707600e726';
+import { PLACES } from '../maps/overworld.js?v=e0707600e726';
+import { POS, SEA_PLACES, MAPS } from '../maps/index.js?v=e0707600e726';
+import { castRura, warpParty, useTimeBell, warpPlaces, warpOwner, PAST_WARP_TEXT } from './travel.js?v=e0707600e726';
 // 第6章: 時の砂時計（world/time-glass-use.js）
-import { useTimeGlass } from './time-glass-use.js?v=345c127ce483';
+import { useTimeGlass } from './time-glass-use.js?v=e0707600e726';
 // 第6章 Step 3・4: ミナモの 星読み（world/star-sight.js）
-import { useStarSight } from './star-sight.js?v=345c127ce483';
-import { bankInfo, bankAction } from './bank.js?v=345c127ce483';
-import { forgeInfo, forgeAction } from './forge.js?v=345c127ce483';
-import { alchemyAction, useAlchemyMemo } from './alchemy.js?v=345c127ce483';
-import { FIELD27_EFFECTS, castField27, useAuraItem } from './field27.js?v=345c127ce483';
-import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction, wagonHere, wagonHealEntries, ownWagonEntries } from './wagon.js?v=345c127ce483';
-import { casinoOpen, casinoAction } from './casino.js?v=345c127ce483';
-import { useEscapeItem, noEscapeText } from './escape.js?v=345c127ce483';
-import { usePowder } from './powder.js?v=345c127ce483';
-import { bestEquipPlan, bestTeamOrder } from '../equip-plan.js?v=345c127ce483';
-import { setLookEquip } from '../look-equip.js?v=345c127ce483';
-import { jobDoneText } from '../data/job-talk.js?v=345c127ce483';
-import { vehicleShopInfo, vehicleShopAction, vehicleMenuAction } from './vehicles.js?v=345c127ce483';
+import { useStarSight } from './star-sight.js?v=e0707600e726';
+import { bankInfo, bankAction } from './bank.js?v=e0707600e726';
+import { forgeInfo, forgeAction } from './forge.js?v=e0707600e726';
+import { alchemyAction, useAlchemyMemo } from './alchemy.js?v=e0707600e726';
+import { FIELD27_EFFECTS, castField27, useAuraItem } from './field27.js?v=e0707600e726';
+import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction, wagonHere, wagonHealEntries, ownWagonEntries } from './wagon.js?v=e0707600e726';
+import { casinoOpen, casinoAction } from './casino.js?v=e0707600e726';
+import { useEscapeItem, noEscapeText } from './escape.js?v=e0707600e726';
+import { usePowder } from './powder.js?v=e0707600e726';
+import { bestEquipPlan, bestTeamOrder } from '../equip-plan.js?v=e0707600e726';
+import { setLookEquip } from '../look-equip.js?v=e0707600e726';
+import { jobDoneText } from '../data/job-talk.js?v=e0707600e726';
+import { vehicleShopInfo, vehicleShopAction, vehicleMenuAction } from './vehicles.js?v=e0707600e726';
 
 export function openService(world, s, kind, arg) {
   switch (kind) {
