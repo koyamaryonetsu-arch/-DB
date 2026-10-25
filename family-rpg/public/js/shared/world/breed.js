@@ -4,25 +4,61 @@
 import { MONSTERS } from '../data/monsters.js';
 import { ABILITIES } from '../data/abilities.js';
 import { ITEMS, SLOTS } from '../data/items.js';
-import { MONSTER_FRIENDS, BREED_MIN_LEVEL, BREED_INHERIT_MAX, breedOutcome, bestiaryKnow, RANKS } from '../data/companions.js';
+import { MONSTER_FRIENDS, BREED_MIN_LEVEL, BREED_INHERIT_MAX, BREED_INHERIT_TOTAL, breedOutcome, bestiaryKnow, RANKS } from '../data/companions.js';
+import { ougiLearn } from '../data/abilities-ougi.js';
 import { computeStats, learnedAbilities, newMonsterCompanion, addItem, removeItem, itemCount } from '../stats.js';
 import { inheritBonus, breedForecast, makeLineage } from '../breed-calc.js';
 import { ensureCompanions, companionOf, putInParty, afterRosterChange } from './party.js';
 
-// おやから うけつげる わざ（かくれた わざは のぞく）
-export function inheritableSkills(A, B) {
-  const out = [];
-  for (const p of [A, B]) for (const id of learnedAbilities(p.char)) if (ABILITIES[id] && !ABILITIES[id].hidden && !out.includes(id)) out.push(id);
-  return out;
+// おやから うけつげる わざ（第43回 B: 親ごとに 4つずつ・あわせて 8つ。docs/plan-monsters.md の 2-4）
+//   { a: [親A の 技], b: [親B の 技] }。両方の 親が 知っている 技は a に だけ 入れる（1つと 数える。b の あいた ぶんは ほかの 技から えらべる）
+//   かくれた 技・系統の おうぎ（data/abilities-ougi.js）・子が じぶんで 覚える 技（child を わたした とき）は のぞく
+export function inheritableSkills(A, B, child = null) {
+  const own = ownSkills(child);
+  const seen = new Set();
+  const list = (p) => {
+    const out = [];
+    for (const id of learnedAbilities(p.char)) {
+      const ab = ABILITIES[id];
+      if (!ab || ab.hidden || ab.ougi || own.has(id) || seen.has(id)) continue;
+      seen.add(id);
+      out.push(id);
+    }
+    return out;
+  };
+  const a = list(A);
+  return { a, b: list(B) };
 }
 
-// おまかせ: MPの おおきい（つよい）わざから、こどもが じぶんで おぼえない ものを えらぶ
-export function autoInherit(A, B, child) {
+// 子が じぶんで 覚える 技（しゅぞくの 技・系統の おうぎ）
+function ownSkills(child) {
   const own = new Set((MONSTER_FRIENDS[child]?.learn || []).map(([, id]) => id));
-  return inheritableSkills(A, B)
-    .filter((id) => !own.has(id))
-    .sort((x, y) => (ABILITIES[y].mp || 0) - (ABILITIES[x].mp || 0))
-    .slice(0, BREED_INHERIT_MAX);
+  for (const [, id] of ougiLearn(MONSTERS[child]?.race)) own.add(id);
+  return own;
+}
+
+// MPの おおきい（つよい）じゅんに n こ
+const strongest = (ids, n = BREED_INHERIT_MAX) => [...ids].sort((x, y) => (ABILITIES[y].mp || 0) - (ABILITIES[x].mp || 0)).slice(0, n);
+
+// おまかせ: 親ごとに MPの おおきい（つよい）わざから 4つずつ（こどもが じぶんで おぼえる ものは のぞく）。{ a: [], b: [] }
+export function autoInherit(A, B, child) {
+  const sk = inheritableSkills(A, B, child);
+  return { a: strongest(sk.a), b: strongest(sk.b) };
+}
+
+// うけつぐ わざを えらんだ ものに しぼる（親ごとに 4つまで・あわせて 8つまで）
+//   inherit: { a: [], b: [] }（第43回 B）か、前の 平らな ならび（どちらの 親の 技かで わける）。それ いがいは おまかせ
+export function pickInherit(sk, inherit, auto) {
+  let a, b;
+  if (Array.isArray(inherit)) {
+    a = inherit.filter((id) => sk.a.includes(id));
+    b = inherit.filter((id) => sk.b.includes(id));
+  } else if (inherit && typeof inherit === 'object' && (Array.isArray(inherit.a) || Array.isArray(inherit.b))) {
+    a = (Array.isArray(inherit.a) ? inherit.a : []).filter((id) => sk.a.includes(id));
+    b = (Array.isArray(inherit.b) ? inherit.b : []).filter((id) => sk.b.includes(id));
+  } else return { a: [...auto.a], b: [...auto.b] };
+  const uniq = (l) => [...new Set(l)].slice(0, BREED_INHERIT_MAX);
+  return { a: uniq(a), b: uniq(b) };
 }
 
 // 配合の 計算に わたす 親（companions.js・breed-calc.js の 形）
@@ -49,11 +85,13 @@ export function breedPreview(c, keyA, keyB, pick = null) {
     ok: true, child: o.child, childName: MONSTERS[o.child].name, plus: o.plus, rank: o.rank, special: o.special, kind: o.kind, item: o.item,
     itemName: o.item ? ITEMS[o.item]?.name || '' : '', unseen: o.unseen, firstFriend: o.firstFriend, count: o.count, unseenCount: o.unseenCount,
     choices, trend: fc.trend, cap: fc.cap,
-    skills: inheritableSkills(A, B), auto: autoInherit(A, B, o.child), max: BREED_INHERIT_MAX,
+    // 受けつげる 技（第43回 B）: skills・auto は { a: 親A, b: 親B }。max は 親ごと（4）・total は あわせて（8）。names は 列の 見出し
+    skills: inheritableSkills(A, B, o.child), auto: autoInherit(A, B, o.child), max: BREED_INHERIT_MAX, total: BREED_INHERIT_TOTAL,
+    names: { a: A.char.name, b: B.char.name },
   };
 }
 
-// はいごう する。child: えらんだ 子（なければ おすすめ）、inherit: うけつぐ わざ（4つまで）、name: こどもの なまえ
+// はいごう する。child: えらんだ 子（なければ おすすめ）、inherit: うけつぐ わざ（{ a: [], b: [] } で 親ごとに 4つまで。前の 平らな ならびも よい。なければ おまかせ）、name: こどもの なまえ
 export function breedMonsters(world, s, { a, b, child, inherit, name } = {}) {
   const c = ensureCompanions(s.char);
   const pv = breedPreview(c, a, b, child || null);
@@ -61,7 +99,9 @@ export function breedMonsters(world, s, { a, b, child, inherit, name } = {}) {
   // 素材配合: ボスの 品が ふくろに ある か（配合すると なくなる）
   if (pv.item && itemCount(c, pv.item) < 1) return { ok: false, reason: `${pv.itemName}がふくろにない` };
   const A = companionOf(c, a), B = companionOf(c, b);
-  const pick = Array.isArray(inherit) ? inherit.filter((id) => pv.skills.includes(id)).slice(0, BREED_INHERIT_MAX) : pv.auto;
+  const chosen = pickInherit(pv.skills, inherit, pv.auto);
+  // ch.inherit は 前と 同じ 平らな ならび（8つまで。セーブの 形は かわらない）
+  const pick = [...chosen.a, ...chosen.b].slice(0, BREED_INHERIT_TOTAL);
   const nm = String(name || '').replace(/[<>&"'\s]/g, '').slice(0, 8) || MONSTERS[pv.child].name;
   const wasInParty = c.partyKeys.includes(a) || c.partyKeys.includes(b);
   // 受けつぐ 能力と 血統は 親が いる うちに

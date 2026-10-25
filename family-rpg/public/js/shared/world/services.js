@@ -229,7 +229,7 @@ export function serviceAction(world, s, msg) {
           return;
         }
         case 'breed':
-          r = breedMonsters(world, s, { a: String(msg.a || ''), b: String(msg.b || ''), child: msg.child ? String(msg.child) : null, inherit: Array.isArray(msg.inherit) ? msg.inherit.map(String) : null, name: msg.name });
+          r = breedMonsters(world, s, { a: String(msg.a || ''), b: String(msg.b || ''), child: msg.child ? String(msg.child) : null, inherit: msg.inherit ?? null, name: msg.name });
           if (r.ok) text = `${r.itemName ? `${r.itemName}が光につつまれた…！\n` : ''}${r.name}（${MONSTERS[r.species].name}＋${r.plus}・ランク${r.rank}）が生まれた！${r.newEntry ? `\n${MONSTERS[r.species].name}が図鑑にのった！` : ''}${r.joined ? '' : `\n${r.name}は酒場で待っている。`}`;
           break;
         default:

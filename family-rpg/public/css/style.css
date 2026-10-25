@@ -1812,3 +1812,10 @@ body.dot-font { --font-ui: 'KizunaDot', 'Hiragino Kaku Gothic ProN', 'Hiragino S
 }
 .rar .rs { font-size: 0.7em; margin-left: 0.12em; letter-spacing: -0.06em; font-weight: normal; vertical-align: 0.08em; }
 .menu .item.dis .rar { opacity: 0.55; }
+
+/* ───── 配合の 受けつぐ 技（第43回 B）: 2つの 列（親A・親B）。せまい スマホでも 1行に おさめる（ListMenu の fit） ───── */
+.breed-pick .menu.cols2 { column-gap: 0.5em; }
+.breed-pick .menu .hdr.pk-gap { border: 0; margin: 0; padding: 0.12em 0.4em; color: var(--muted); }
+.breed-pick .menu .hdr.pk-hdr { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.breed-pick .menu .item { padding-left: 1.1em; gap: 0.3em; }
+.breed-pick .menu .item .l { min-width: 0; white-space: nowrap; overflow: hidden; }

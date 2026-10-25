@@ -58,6 +58,8 @@ import { JOB10_ABILITIES } from './abilities-jobs10.js';
 import { R41B_ABILITIES } from './abilities-r41b.js';
 // 2026年10月（第41回 A）の 2つの 伝説の 職業の 技（京急の社長・野球界の殿堂入り）
 import { R41A_ABILITIES } from './abilities-r41a.js';
+// 2026年10月（第43回 B）の 魔物の 系統の 奥義（Lv30・45・60）
+import { OUGI_ABILITIES } from './abilities-ougi.js';
 
 export const ABILITIES = {
   // ───────────── 戦士 ─────────────
@@ -659,6 +661,8 @@ Object.assign(ABILITIES, JOB10_ABILITIES);
 Object.assign(ABILITIES, R41B_ABILITIES);
 // 第41回 A の 2つの 伝説の 職業（abilities-r41a.js）
 Object.assign(ABILITIES, R41A_ABILITIES);
+// 第43回 B の 魔物の 系統の 奥義（abilities-ougi.js）
+Object.assign(ABILITIES, OUGI_ABILITIES);
 
 // 攻撃呪文かどうか（魔法剣で使える）
 export function isAttackSpell(id) {

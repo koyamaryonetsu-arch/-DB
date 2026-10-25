@@ -14,6 +14,7 @@ import { HIRAMEKI } from '../../shared/data/hirameki.js';
 import { DUAL_TECHS, DUAL_ORDER, dualKnown, dualRelated, dualNeedText, dualNeedLabel } from '../../shared/data/dual.js';
 import { addDualCss } from '../render/dualfx.js';
 import { MONSTERS } from '../../shared/data/monsters.js';
+import { ougiLearn } from '../../shared/data/abilities-ougi.js';
 import { monsterDrops } from '../../shared/data/loot.js';
 import { MONSTER_FRIENDS, RACE_NAMES, recipeHint, joinTier, bestiaryOrder } from '../../shared/data/companions.js';
 import { TACTICS } from '../../shared/ai.js';
@@ -1318,6 +1319,8 @@ export class FieldMenu {
       const f = MONSTER_FRIENDS[c.species];
       const learnList = el('div', { style: { marginTop: '0.6em' } }, el('div', { class: 'gold small', text: '覚える技（レベル）' }));
       for (const [l, id] of f?.learn || []) learnList.append(el('div', { class: `small ${c.level >= l ? 'good' : 'muted'}`, text: `Lv${l}　${ABILITIES[id]?.name || id}` }));
+      // 第43回 B: 系統の おうぎ（Lv30・45・60。data/abilities-ougi.js）
+      for (const [l, id] of ougiLearn(MONSTERS[c.species]?.race)) learnList.append(el('div', { class: `small ${c.level >= l ? 'good' : 'muted'}`, text: `Lv${l}　${ABILITIES[id]?.name || id}（おうぎ）` }));
       box.append(learnList, el('div', { class: 'small', style: { marginTop: '0.4em' }, text: `装備できる物: ${gearText(c.species)}` }), el('div', { class: 'detail', text: f?.note || '' }));
     } else {
       const jobs = el('div', { style: { marginTop: '0.6em' } }, el('div', { class: 'gold small', text: '職業レベル（勝った戦いの数で上がる）' }));

@@ -311,7 +311,9 @@ export function joinTier(species) {
 }
 
 export const BREED_MIN_LEVEL = 10;
+// 受けつげる 技: 親 1ぴきあたり 4つ・あわせて 8つ（第43回 B。前は 両方の 親で 4つ）
 export const BREED_INHERIT_MAX = 4;
+export const BREED_INHERIT_TOTAL = 8;
 
 export const RACE_NAMES = {
   slime: 'スライム系', beast: 'けもの系', plant: '植物系', spirit: 'せいれい系', demon: '悪魔系',

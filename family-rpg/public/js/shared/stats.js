@@ -4,6 +4,7 @@ import { ITEMS, SLOTS, baseItemId } from './data/items.js';
 import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js';
 import { MONSTERS } from './data/monsters.js';
 import { MONSTER_FRIENDS, monsterNatural, gearOf, monsterLevelCap } from './data/companions.js';
+import { ougiLearn } from './data/abilities-ougi.js';
 import { HIRAMEKI, hiraRatio } from './data/hirameki.js';
 import { cleanLook } from './data/looks.js';
 import { SKILL_UPS } from './data/skill-ups.js';
@@ -185,6 +186,8 @@ export function monsterAbilities(char) {
   const out = f ? f.learn.filter(([l, id]) => l <= char.level && ABILITIES[id]).map(([, id]) => id) : [];
   // はいごうで おやから うけついだ わざ
   for (const id of char.inherit || []) if (ABILITIES[id] && !out.includes(id)) out.push(id);
+  // 第43回 B: 系統の 奥義（Lv30・45・60。data/abilities-ougi.js）
+  for (const [l, id] of ougiLearn(MONSTERS[char.species]?.race)) if (l <= char.level && ABILITIES[id] && !out.includes(id)) out.push(id);
   return out;
 }
 

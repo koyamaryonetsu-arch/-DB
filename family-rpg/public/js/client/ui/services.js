@@ -10,6 +10,7 @@ import { vehicleShopUI } from './vehicles.js';
 import { itemCount, learnedAbilities, jobUnlocked, jobProgress, jobKnown, jobMastered, canEquip, STAT_NAMES } from '../../shared/stats.js';
 import { jobUpKeys } from '../../shared/data/job-trials.js';
 import { MONSTERS } from '../../shared/data/monsters.js';
+import { ougiLearn } from '../../shared/data/abilities-ougi.js';
 import { MONSTER_FRIENDS, BREED_MIN_LEVEL, RACE_NAMES, breedOutcome, breedRumors, rankOf, monsterLevelCap, SPECIAL_KINDS } from '../../shared/data/companions.js';
 import { breedForecast, TREND_MARK } from '../../shared/breed-calc.js';
 import { TACTICS } from '../../shared/ai.js';
@@ -636,28 +637,40 @@ function tavernUI(game, data) {
       if (r) refresh(r);
     };
     // はいごう: うまれる こを みる → うけつぐ わざ → なまえ
+    // 第43回 B: 両方の 親から 4つずつ（あわせて 8つ）。2つの 列（親の 名前の 見出し・それぞれの おまかせ）。
+    //   十字キーは 上下で 列の 中・左右で となりの 列。えらんだ ものは { a: [], b: [] } で かえす（やめたら null）
     const pickSkills = (pv) => new Promise((resolve) => {
-      let sel = new Set(pv.auto);
+      const SIDES = ['a', 'b'];
+      const sel = { a: new Set(pv.auto.a), b: new Set(pv.auto.b) };
       const back = el('div', { class: 'modal-back', style: { zIndex: 6 } });
-      const box = el('div', { class: 'win panel center-panel choose-pop', style: { width: 'min(94vw, 480px)', zIndex: 7 } });
+      const box = el('div', { class: 'win panel center-panel choose-pop breed-pick', style: { width: 'min(94vw, 480px)', zIndex: 7 } });
       const img = childImg(pv.child, pv.unseen, { style: { height: '3.6em', width: 'auto', imageRendering: 'pixelated', flex: 'none' } });
       // まだ 見たことがない 子は、生まれるまで ひみつ
       const own = pv.unseen ? '？？？' : (MONSTER_FRIENDS[pv.child]?.learn || []).map(([lv, id]) => `Lv${lv} ${ABILITIES[id]?.name || id}`).join('・');
+      const ougi = pv.unseen ? '？？？' : ougiLearn(MONSTERS[pv.child]?.race).map(([lv, id]) => `Lv${lv} ${ABILITIES[id]?.name || id}`).join('・');
       box.append(
         el('div', { style: { display: 'flex', gap: '0.6em', alignItems: 'flex-start' } },
           el('div', { style: { flex: '1', minWidth: '0' } },
             el('div', { class: 'small gold', style: { whiteSpace: 'pre-line' }, text: `生まれる子: ${childLabel(pv)}（ランク${pv.rank}・${RACE_NAMES[MONSTERS[pv.child]?.race] || ''}）＋${pv.plus}${pv.unseen ? '\n★ まだ見たことがない魔物！' : ''}${KIND_TEXT[pv.kind] ? `\n${KIND_TEXT[pv.kind]}` : ''}` }),
             el('div', { class: 'small muted', text: `自分で覚える技: ${own || 'なし'}` }),
+            ougi ? el('div', { class: 'small muted', text: `系統のおうぎ: ${ougi}` }) : null,
             el('div', { class: 'small muted', text: `装備できる物: ${pv.unseen ? '？？？' : gearText(pv.child)}` })),
           img),
-        el('div', { class: 'small', text: `親から受けつぐ技を${pv.max}つまで選んでね` }));
+        el('div', { class: 'small', text: `親から受けつぐ技を、それぞれ${pv.max}つまで選んでね（あわせて${pv.total || pv.max * 2}つまで）` }));
       const desc = el('div', { class: 'small detail', style: { minHeight: '2.4em' } });
-      const rows = () => [
-        { html: `これで決定 <span class="muted small">（${sel.size}/${pv.max}）</span>`, value: '#ok' },
-        { label: 'おまかせにする', value: '#auto' },
-        ...pv.skills.map((id) => ({ html: `${sel.has(id) ? '●' : '○'} ${esc(ABILITIES[id]?.name || id)}`, right: ABILITIES[id]?.mp ? `MP${ABILITIES[id].mp}` : '', value: id, cls: sel.has(id) ? 'good' : '' })),
-        { label: 'やめる', value: null },
-      ];
+      const gap = (label = '') => ({ header: true, label, cls: 'pk-gap' });
+      const cell = (side, id) => (id
+        ? { html: `${sel[side].has(id) ? '●' : '○'} ${esc(ABILITIES[id]?.name || id)}`, right: ABILITIES[id]?.mp ? `MP${ABILITIES[id].mp}` : '', value: `${side}:${id}`, cls: sel[side].has(id) ? 'good' : '' }
+        : gap());
+      // 2列の ならび（左が 親A・右が 親B。行ごとに 左・右の じゅん）
+      const rows = () => {
+        const out = [{ html: `これで決定 <span class="muted small">（${sel.a.size + sel.b.size}/${pv.total || pv.max * 2}）</span>`, value: '#ok' }, { label: 'やめる', value: null }];
+        for (const k of SIDES) out.push({ header: true, label: `${pv.names?.[k] || ''}から（${sel[k].size}/${pv.max}）`, cls: 'pk-hdr' });
+        for (const k of SIDES) out.push(pv.skills[k].length ? { label: 'おまかせ', value: `#auto:${k}` } : gap('受けつげる技はない'));
+        const n = Math.max(pv.skills.a.length, pv.skills.b.length);
+        for (let i = 0; i < n; i++) for (const k of SIDES) out.push(cell(k, pv.skills[k][i]));
+        return out;
+      };
       const done = (v) => {
         m.blur();
         back.remove();
@@ -666,16 +679,27 @@ function tavernUI(game, data) {
       };
       const m = new ListMenu(game.input, {
         items: rows(),
+        cols: 2,
+        fit: true,
         sound: sfx,
         back: null,
-        onMove: (it) => { desc.textContent = ABILITIES[it?.value]?.desc || ''; },
+        onMove: (it) => {
+          const id = typeof it?.value === 'string' && /^[ab]:/.test(it.value) ? it.value.slice(2) : null;
+          desc.textContent = id ? ABILITIES[id]?.desc || '' : it?.value?.startsWith?.('#auto:') ? `${pv.names?.[it.value.slice(6)] || ''}の強い技から${pv.max}つ選ぶ` : '';
+        },
         onSelect: (it) => {
-          if (it.value === '#ok') return done([...sel]);
-          if (it.value === '#auto') { sel = new Set(pv.auto); m.setItems(rows()); return; }
+          if (it.value === '#ok') return done({ a: [...sel.a], b: [...sel.b] });
           if (it.value === null) return done(null);
-          if (sel.has(it.value)) sel.delete(it.value);
-          else if (sel.size < pv.max) sel.add(it.value);
-          else { toast(`受けつげる技は${pv.max}つまで`); return; }
+          if (it.value.startsWith('#auto:')) {
+            const k = it.value.slice(6);
+            sel[k] = new Set(pv.auto[k]);
+            m.setItems(rows());
+            return;
+          }
+          const k = it.value[0], id = it.value.slice(2);
+          if (sel[k].has(id)) sel[k].delete(id);
+          else if (sel[k].size < pv.max) sel[k].add(id);
+          else { toast(`${pv.names?.[k] || ''}から受けつげる技は${pv.max}つまで`); return; }
           m.setItems(rows());
         },
         onCancel: () => done(null),
@@ -759,7 +783,7 @@ function tavernUI(game, data) {
           pv = r.preview;
         }
       }
-      const inherit = pv.skills.length ? await pickSkills(pv) : [];
+      const inherit = pv.skills.a.length || pv.skills.b.length ? await pickSkills(pv) : { a: [], b: [] };
       if (!inherit) return null;
       // まだ 見たことがない 子は 名前も ひみつ（空のままなら 種族の 名前。酒場で あとから 変えられる）
       const label = childLabel(pv);

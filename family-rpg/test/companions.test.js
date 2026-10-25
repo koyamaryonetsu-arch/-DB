@@ -261,13 +261,13 @@ test('はいごう: レベル10いじょうの 2ひきから レベル1の こ�
   const pv = breedPreview(c, a.key, b.key);
   assert.ok(pv.ok, pv.reason);
   assert.equal(pv.child, 'fuwari', 'ぷるりん＋そらを とぶ まもの＝ふわりん');
-  assert.ok(pv.skills.includes('m_drain'), 'おやの わざを うけつげる');
+  assert.ok(pv.skills.b.includes('m_drain'), 'おやの わざを うけつげる（第43回 B: 親ごとの 列）');
   // みるだけの よこく（なにも かわらない）
   const before = JSON.stringify(c.companions);
   bot.send({ t: 'svc', kind: 'tavern', action: 'breedPreview', a: a.key, b: b.key });
   const pr = bot.msgs.filter((m) => m.t === 'svcRes').pop();
   assert.ok(pr.ok && pr.preview?.child === 'fuwari' && pr.preview.special, 'よこく: めずらしい くみあわせ');
-  assert.ok(pr.preview.auto.length <= pr.preview.max);
+  assert.ok(pr.preview.auto.a.length <= pr.preview.max && pr.preview.auto.b.length <= pr.preview.max);
   assert.equal(JSON.stringify(c.companions), before, 'よこくでは かわらない');
   bot.send({ t: 'svc', kind: 'tavern', action: 'breedPreview', a: a.key, b: a.key });
   assert.equal(bot.msgs.filter((m) => m.t === 'svcRes').pop().ok, false, 'おなじ まものどうしは だめ');

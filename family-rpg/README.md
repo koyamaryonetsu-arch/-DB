@@ -376,7 +376,8 @@
   - **生まれる子を選べる**：生まれる子が2種類以上ある時は、一覧から選びます（いちばん上がおすすめ）。まだ見たことがない魔物は **「？？？」とかげ・NEW** のしるし（名前・技は生まれてからのお楽しみ）
   - 生まれた子は **レベル1** から。でも
     - **親の今の強さの1/4ずつを受けつぎます**（育てた親ほど強い子）
-    - **親の技を4つまで受けつげます**（自分で選ぶか、おまかせ）
+    - **親の技を、両方の親から4つずつ（あわせて8つまで）受けつげます**（親ごとの2つの列から自分で選ぶか、それぞれおまかせ。両方の親が同じ技を持っている時は1つと数えます。子が自分で覚える技は出ません。受けついだ技は、次の配合でもまた受けつげます）
+    - **系統のおうぎ**：魔物はLv30・45・60で、その系統（スライム系・ドラゴン系など8つ）の強い技「おうぎ」を1つずつ覚えます。もともと弱い技しか覚えない魔物も、育てると強くなります（おうぎは配合では受けつぎません）
     - 「**＋値**」がつきます（両親の＋の合計の半分 ＋ 親のレベルで少し）。＋が多いほどよく育ち、**レベルの上限も上がります**（ランクFで50、ランクが上がるごとに＋5、＋1ごとに1。150まで。前からいる仲間は150まで）
   - **同じ種類の2匹（新生配合）**：同じ魔物のまま、＋が大きく上がります。「今の仲間を強くしたいだけ」の時はこれ
   - **いろいろな配合**
@@ -2247,6 +2248,11 @@ npm start                 # 家族サーバー
   - **ボス級**：`shared/data/monsters-boss.js`（`MONSTERS_BOSS`・`FRIENDS_BOSS`〈rank 'SS'・recipeOnly〉）。ボスとは別の種族ID（`ss_storm` など。え は `art` でボスの え）なので、戦いのしかけ（ガイアイーターの部位・アルゴスの読み）は仲間に出ない。図鑑のヒントは `recipeHint` が「？？？（配合でしか会えない）」
   - **さよなら**：`shared/world/farewell.js`（`farewellList`・`befriendFarewellSteps`。`world.js` の `offerBefriend` がいっぱいの時に使う → `scripts.js` の `['befriend', id, bench, farewellKey]`）。`party.js` の `rollBefriend` はいっぱいでも魔物を返す・`companionRelease` は人間（npc）も（`human: true`）。`world/services.js` の `'recruit'` は `farewell` を受けとる
   - `test/breed-r35.test.js`（ランク・下がらない・順番で変わらない・＋・受けつぎ・めやす・上限・ボス級・素材／ランク／4体配合・特定配合・ほんとうの配合・さよなら）。前提を直したテスト：`monsters-r23`（図鑑で子が変わるテストを、選べる形に）・`companions`（人間と別れられる）・`review-r26`（いっぱいでも仲間になりたがる）
+- 技の受けつぎ 4＋4・系統のおうぎ（2026年10月 第43回 B。`docs/plan-monsters.md` の 2-4・6 B・実装メモ（B））
+  - `companions.js` の `BREED_INHERIT_MAX = 4`（親1ぴきあたり）・`BREED_INHERIT_TOTAL = 8`。`world/breed.js` の `inheritableSkills(A, B, child)` → `{ a, b }`（両方の親にある技は a だけ・子が自分で覚える技・おうぎ・hidden はのぞく）・`autoInherit`（親ごとに MP の大きい順に4つ）・`pickInherit`（`{ a, b }` か前の平らなならび。親ごとに4つまで）。`breedPreview` の `skills`・`auto` は `{ a, b }`、`max`（4）・`total`（8）・`names`（列の見出し）。`ch.inherit` は前と同じ平らなならび（8つまで。セーブの形は同じ）
+  - 酒場の画面：`client/ui/services.js` の `pickSkills`（`ListMenu` の `cols: 2`・見出し・`fit`。左が1匹目・右が2匹目。CSS は `.breed-pick`）
+  - おうぎ：`shared/data/abilities-ougi.js`（`OUGI_ABILITIES`・`RACE_OUGI`・`ougiLearn(race)`。kind `'monster'`・`ougi: 系統`）。`stats.js` の `monsterAbilities` が `MONSTERS[sp].race` で足す（レベルアップの「覚えた」・メニューの「覚える技」にも出る）
+  - `test/monsters-r43b.test.js`。前提を直したテスト：`companions`（`pv.skills.b`・`auto` が親ごと）
 - 図鑑の「仲間になりやすさ」：`shared/data/companions.js` の `JOIN_TIERS`（`rate` の区切り。1/12以上・1/18以上・1/28以上・それより下）と `joinTier`。新しい魔物も `rate` を書けば自動で段階が決まる（`test/companions.test.js`）
 - 第4章の設計書：`docs/plan-ch4.md`（**ネタバレ注意**。物語・難しさのしかけ・ボス・作る順番 Step 1〜8）
 - 第4章 Step 1（砂の国の入口）
