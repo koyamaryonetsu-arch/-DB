@@ -3,7 +3,7 @@
 // ガイアイーター: gaia_eater … 体ぜんぶ（図鑑・台本の showMon('gaia_eater')）。戦いでは 部位ごとの え
 //   gaia_tail（しっぽ・左）・gaia_body（体・まん中）・gaia_head（頭・右。client/battle-gaia.js の gaiaSprite）。
 //   3つを 左から ならべると 1ぴきの 大ムカデに 見える（ふしの つなぎめが まどの はしに かかる）
-import { fit, bez, taper, spark } from './ch3-draw.js?v=c5a1851e14d9';
+import { fit, bez, taper, spark } from './ch3-draw.js?v=961a15d6120a';
 
 // 部分の わくの 中に かく（x0, y0 … わくの 左上、sx, sy … わくの 大きさ。どれも 0〜1）
 function sub(g, x0, y0, sx, sy) {

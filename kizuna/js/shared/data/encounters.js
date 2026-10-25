@@ -2,26 +2,26 @@
 // group: [[モンスターID, 最小数, 最大数], ...]
 // フィールドでは 先頭の モンスターの すがたで うろうろしている（シンボルエンカウント）
 
-import { ENCOUNTERS_CH2, FIXED_CH2, ZONE_BG_CH2 } from './encounters-ch2.js?v=c5a1851e14d9';
-import { NIGHT_ENCOUNTERS, NIGHT_ZONE_BG, NIGHT_ZONES } from './night.js?v=c5a1851e14d9';
-import { ENCOUNTERS_CH3, FIXED_CH3, ZONE_BG_CH3 } from './encounters-ch3.js?v=c5a1851e14d9';
-import { ENCOUNTERS_CH4, FIXED_CH4, ZONE_BG_CH4, NIGHT_ZONES_CH4 } from './encounters-ch4.js?v=c5a1851e14d9';
-import { ENCOUNTERS_TEMPLE, FIXED_TEMPLE, ZONE_BG_TEMPLE } from './encounters-temple.js?v=c5a1851e14d9';
-import { ENCOUNTERS_LAB, FIXED_LAB, ZONE_BG_LAB } from './encounters-lab.js?v=c5a1851e14d9';
-import { FIXED_FAMILY } from './encounters-family.js?v=c5a1851e14d9';
-import { ENCOUNTERS_CH5, FIXED_CH5, ZONE_BG_CH5 } from './encounters-ch5.js?v=c5a1851e14d9';
-import { ENCOUNTERS_KUMOI, FIXED_KUMOI, ZONE_BG_KUMOI } from './encounters-kumoi.js?v=c5a1851e14d9';
-import { ENCOUNTERS_HOSHIYOMI, FIXED_HOSHIYOMI, ZONE_BG_HOSHIYOMI } from './encounters-hoshiyomi.js?v=c5a1851e14d9';
-import { ENCOUNTERS_EARTH, FIXED_EARTH, ZONE_BG_EARTH } from './encounters-earth.js?v=c5a1851e14d9';
-import { FIXED_FINAL } from './encounters-final.js?v=c5a1851e14d9';
-import { ENCOUNTERS_PHANTOM, FIXED_PHANTOM, ZONE_BG_PHANTOM } from './encounters-phantom.js?v=c5a1851e14d9';
-import { ENCOUNTERS_PAST, FIXED_PAST, ZONE_BG_PAST } from './encounters-past.js?v=c5a1851e14d9';
-import { ENCOUNTERS_ROAD, FIXED_ROAD, ZONE_BG_ROAD } from './encounters-road.js?v=c5a1851e14d9';
-import { ENCOUNTERS_TOKEI, FIXED_TOKEI, ZONE_BG_TOKEI } from './encounters-tokei.js?v=c5a1851e14d9';
+import { ENCOUNTERS_CH2, FIXED_CH2, ZONE_BG_CH2 } from './encounters-ch2.js?v=961a15d6120a';
+import { NIGHT_ENCOUNTERS, NIGHT_ZONE_BG, NIGHT_ZONES } from './night.js?v=961a15d6120a';
+import { ENCOUNTERS_CH3, FIXED_CH3, ZONE_BG_CH3 } from './encounters-ch3.js?v=961a15d6120a';
+import { ENCOUNTERS_CH4, FIXED_CH4, ZONE_BG_CH4, NIGHT_ZONES_CH4 } from './encounters-ch4.js?v=961a15d6120a';
+import { ENCOUNTERS_TEMPLE, FIXED_TEMPLE, ZONE_BG_TEMPLE } from './encounters-temple.js?v=961a15d6120a';
+import { ENCOUNTERS_LAB, FIXED_LAB, ZONE_BG_LAB } from './encounters-lab.js?v=961a15d6120a';
+import { FIXED_FAMILY } from './encounters-family.js?v=961a15d6120a';
+import { ENCOUNTERS_CH5, FIXED_CH5, ZONE_BG_CH5 } from './encounters-ch5.js?v=961a15d6120a';
+import { ENCOUNTERS_KUMOI, FIXED_KUMOI, ZONE_BG_KUMOI } from './encounters-kumoi.js?v=961a15d6120a';
+import { ENCOUNTERS_HOSHIYOMI, FIXED_HOSHIYOMI, ZONE_BG_HOSHIYOMI } from './encounters-hoshiyomi.js?v=961a15d6120a';
+import { ENCOUNTERS_EARTH, FIXED_EARTH, ZONE_BG_EARTH } from './encounters-earth.js?v=961a15d6120a';
+import { FIXED_FINAL } from './encounters-final.js?v=961a15d6120a';
+import { ENCOUNTERS_PHANTOM, FIXED_PHANTOM, ZONE_BG_PHANTOM } from './encounters-phantom.js?v=961a15d6120a';
+import { ENCOUNTERS_PAST, FIXED_PAST, ZONE_BG_PAST } from './encounters-past.js?v=961a15d6120a';
+import { ENCOUNTERS_ROAD, FIXED_ROAD, ZONE_BG_ROAD } from './encounters-road.js?v=961a15d6120a';
+import { ENCOUNTERS_TOKEI, FIXED_TOKEI, ZONE_BG_TOKEI } from './encounters-tokei.js?v=961a15d6120a';
 // 第37回 A: サファラ闘技場の ランク戦（3連戦）
-import { FIXED_ARENA } from './encounters-arena.js?v=c5a1851e14d9';
+import { FIXED_ARENA } from './encounters-arena.js?v=961a15d6120a';
 // 第38回 B: 職業の試練（師しょうのまぼろし）
-import { FIXED_TRIAL } from './monsters-trial.js?v=c5a1851e14d9';
+import { FIXED_TRIAL } from './monsters-trial.js?v=961a15d6120a';
 
 export const ENCOUNTER_TABLES = {
   outskirts: [

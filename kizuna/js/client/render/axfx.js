@@ -8,8 +8,8 @@
 //   play(fx, ctx) … はなつ ところ。ctx の 時間は はなつ しゅんかんが 0（ためる 時間は 気に しない）
 // ・battlefx.js の play() の いちばん はじめに playAxFx を よぶ。battle.js は axTiming で ダメージの 数を 出す 時間を きめる
 // つかいかたは docs/plan-r48-fx-engine.md の「エンジンの使い方」。
-import { playCharge, chargeMs, tierOf, kindOf, TIERS, TIER_K, CHARGE_KINDS, KIND_LOOK } from './axcharge.js?v=c5a1851e14d9';
-import { bindKit, pal, rnd, lerp, clamp01, angleOf, centerOf, hitMark } from './axkit.js?v=c5a1851e14d9';
+import { playCharge, chargeMs, tierOf, kindOf, TIERS, TIER_K, CHARGE_KINDS, KIND_LOOK } from './axcharge.js?v=961a15d6120a';
+import { bindKit, pal, rnd, lerp, clamp01, angleOf, centerOf, hitMark } from './axkit.js?v=961a15d6120a';
 
 const AX = new Map();
 // 技の id → { anim, over }（over … その 技だけの tier・charge・vars・element）
@@ -184,5 +184,5 @@ export function playAxFx(fx, anim, targets, element, opts = {}, W = 256, H = 144
 }
 
 // ───────────── グループの とうろく（1グループ … import 1行 ＋ useAxGroup 1行。ほかの 行は さわらない） ─────────────
-import { AX_DEMO } from './ax-demo.js?v=c5a1851e14d9';
+import { AX_DEMO } from './ax-demo.js?v=961a15d6120a';
 useAxGroup('demo', AX_DEMO);

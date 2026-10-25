@@ -3,7 +3,7 @@
 // ・tier（段階）: basic（みじかい）→ advanced → super（画面が くらく・すこし ゆれる・じめんの いしが うく）
 //                → legend（さらに カットインの 帯・つよい ゆれ・はなつ 直前の スローモーションの ひかり）
 // ・時間は ms（エフェクトの 時計。たたかいの 速さは Effects.tempo が かける）
-import { aura, gather, bolt, tint, cutIn, shapes, pillar, rnd, mixHex } from './axkit.js?v=c5a1851e14d9';
+import { aura, gather, bolt, tint, cutIn, shapes, pillar, rnd, mixHex } from './axkit.js?v=961a15d6120a';
 
 export const CHARGE_KINDS = ['ki', 'chakra', 'gomu', 'breath', 'sword', 'dragon', 'holy', 'magic', 'alchemy', 'idol', 'tech', 'ice', 'star', 'generic'];
 export const TIERS = ['basic', 'advanced', 'super', 'legend'];
