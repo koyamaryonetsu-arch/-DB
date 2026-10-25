@@ -132,8 +132,20 @@ test('第48回: 時間の けいさん（ためる＋あたる。たたかいの
   assert.equal(T2.chargeReal, T.charge / 2);
   assert.equal(T2.hitReal, T.hit / 2);
   assert.equal(T2.totalReal, T.total / 2);
-  assert.equal(axTiming('ax_demo_beam', { tempo: 0.5 }).hitReal, T.hit * 2);
-  assert.equal(axHoldMs('ax_demo_beam', { tempo: 2 }), Math.round((T.hit + 350) / 2));
+  // おそい 設定（0.85 より 下）でも 大技は 0.85 の 速さ（ts。shared/ax-time.js）
+  const Ts = axTiming('ax_demo_beam', { tempo: 0.5 });
+  assert.equal(Ts.hitReal, Math.round(T.hit / 0.85));
+  assert.ok(Math.abs(Ts.ts - 1.7) < 1e-9);
+  assert.equal(Ts.hitAt, Math.round(T.hit / Ts.ts));
+  assert.equal(axTiming('ax_demo_beam', { tempo: 0.85 }).hitReal, Math.round(T.hit / 0.85));
+  assert.equal(T.ts, 1);
+  assert.equal(T.hitAt, T.hit);
+  // 2回目は ため 半分・合体技は ため なし
+  assert.equal(axTiming('ax_demo_beam', { repeat: true }).charge, TIER_CHARGE_MS.legend / 2);
+  assert.equal(axTiming('ax_demo_beam', { dual: true }).charge, 0);
+  assert.equal(axTiming('ax_demo_beam', { dual: true }).cutin, false);
+  assert.equal(T.cutin, true);
+  assert.equal(axHoldMs('ax_demo_beam', { tempo: 2 }), Math.round(T.hit / 2 + 350 / 2));
   assert.equal(axHoldMs('fire1'), 0);
   assert.equal(axTiming('fire1'), null);
   // 技ごとの 段階で ためる 時間が かわる
@@ -349,7 +361,7 @@ test('第48回: battle.js・battlefx.js の つなぎ（え だけ。ダメー�
   assert.match(b, /from '\.\/render\/axfx\.js'/);
   assert.match(b, /ev\.axAnim = axEventAnim\(ev\)/);
   assert.match(b, /const anim = ev\.axAnim \|\| sigAnim\(ev\.ability\)/);
-  assert.match(b, /hitDelay = axT \? axT\.hit : r27Hit/);
+  assert.match(b, /hitDelay = axT \? axT\.hitAt : r27Hit/);
   assert.match(b, /this\.fx\.at\(hitDelay, apply\)/, '大技の ダメージは エフェクトの 時計で');
   assert.match(b, /left: Math\.max\(350, \(ev\.dur \|\| 900\) \* 0\.75, ev\.axHold \|\| 0\)/, 'つぎの 行動は あたる まで まつ');
   assert.match(b, /ev\.axHold \? ev\.axHold \+ 200 : 0/, '名前の ふだは あたる まで');
@@ -367,11 +379,11 @@ test('第48回: たたかいの 中み（shared/）は かわらない', () => {
   const walk = (d, out = []) => { for (const n of readdirSync(d)) { const p = join(d, n); if (statSync(p).isDirectory()) walk(p, out); else if (n.endsWith('.js')) out.push(p); } return out; };
   for (const f of walk(root)) {
     const s = readFileSync(f, 'utf8');
-    assert.ok(!/axfx|axkit|axcharge|ax-demo|ax_demo/.test(s), `${f} が 大技エンジンを 見ている`);
+    assert.ok(!/from '[^']*(axfx|axkit|axcharge|ax-demo)/.test(s) && !s.includes('ax_demo'), `${f} が 大技エンジンを 見ている`);
   }
   // 行動の 時間（lock）の けいさんは そのまま
   const sh = src('../public/js/shared/battle.js');
-  assert.match(sh, /this\.lock = this\.pace\(450, 380, ev\.lines\.length, 900\) \+ \(ev\.extraLock \|\| 0\) \/ this\.speed;/);
+  assert.match(sh, /this\.axMark\(c, ev\);\n\s+this\.lock = this\.pace\(450, 380, ev\.lines\.length, 900\) \+ \(ev\.extraLock \|\| 0\) \/ this\.speed;/);
   // おためしの 技は どの 技にも つないで いない
   const data = readdirSync(new URL('../public/js/shared/data/', import.meta.url)).map((n) => readFileSync(new URL(`../public/js/shared/data/${n}`, import.meta.url), 'utf8')).join('\n');
   assert.ok(!data.includes('ax_demo_'), 'ax_demo_ は データに ない');

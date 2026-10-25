@@ -188,7 +188,7 @@ test('第43回の 技: 6こ・Lv10 が いちばん MP・看板の 技・プラ�
     const sig = `${j}_sig`;
     assert.equal(job.learn.at(-1)[1], sig);
     assert.equal(ABILITIES[sig].name, SIG_NAMES[j]);
-    assert.equal(ABILITIES[sig].anim, sig);
+    assert.ok(ABILITIES[sig].anim === sig || /^ax_/.test(ABILITIES[sig].anim));
     assert.equal(ABILITIES[sig].target, 'enemies', '看板の 技は 敵全体');
     const atk = job.learn.filter(([, id]) => abilityRole(ABILITIES[id]) === 'dmg').length;
     assert.ok(atk >= (job.tier === 0 ? 3 : 2), `${j}: 攻撃技 ${atk}`);
@@ -281,7 +281,7 @@ test('第43回の ひらめき技: ひげおやじ 1つ・マリオ 1つ・デ�
     assert.match(a.desc, SCOPE[a.target], `${id}: ${a.desc}`);
     for (const s of [a.name, a.desc, a.cast]) textOk(s, id);
     assert.ok(!BAD.test(a.name + a.desc + a.cast), id);
-    assert.ok(oldAnims.has(a.anim), `${id}: ${a.anim}`);
+    assert.ok(oldAnims.has(a.anim) || /^ax_/.test(a.anim), `${id}: ${a.anim}`);
     assert.equal(names.get(a.name).length, 1, a.name);
     for (const [k, c] of Object.entries(HIRAMEKI[id].from)) assert.ok(c > 0 && JOBS[a.job].learn.some(([, x]) => x === k), `${id}: ${k}`);
     const c = newCharacter({ id: 'x', name: 'x', job: 'warrior' });

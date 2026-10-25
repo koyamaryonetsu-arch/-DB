@@ -46,7 +46,10 @@ import { classmateMult } from './battle-r33.js';
 // 第37回 A: サファラ闘技場の 王者の しかけ（属性の よろい。battle-arena.js）
 import { setupArena, arenaDamage } from './battle-arena.js';
 // 第33回: 男の子の 美少女戦士・セーラームーンは タキシード仮面ふうの 技の 名前・セリフ・えんしゅつ（強さは おなじ）
-import { abilityFor } from './ability-label.js';
+import { abilityFor, isMasc, dualMasc } from './ability-label.js';
+// 第48回: 大技（ax_〜）の 時間（ためて はなつ あいだ つぎの 行動を まつ。shared/ax-time.js）
+import { axMarkEvent } from './ax-time.js';
+import { DUAL_TECHS } from './data/dual.js';
 // 第38回 C: バフ・デバフ・かばう は 行動の 回数で 切れる・じわじわ回復は 行動の はじめに・技の レベル（buff-acts.js）
 import { BUFF_ACTS, renewLeft, leftOf, skillLevel, regenTimes, REGEN_BASE } from './buff-acts.js';
 export { BUFF_ACTS } from './buff-acts.js';
@@ -326,6 +329,13 @@ export class Battle {
   aliveEnemies() { return this.enemies.filter((c) => c.alive); }
   get(id) { return this.combatants.find((c) => c.id === id); }
   humans() { return this.allies.filter((c) => c.controller && !c.auto); }
+
+  // 第48回の 大技（shared/ax-time.js）: 男の子の 版・合体技・2回目を 見て ev.fx.ax と ev.extraLock
+  axMark(c, ev) {
+    if (!ev.fx) return null;
+    const masc = ev.dual ? dualMasc(DUAL_TECHS[ev.dual.id], (ev.dual.m || [ev.dual.a, ev.dual.b]).map((id) => this.get(id))) : isMasc(c);
+    return axMarkEvent(ev, c, { masc, used: this.axUsed || (this.axUsed = new Set()), speed: this.speed });
+  }
 
   // ───────────── イベント ─────────────
   emit(ev) { this.events.push(ev); }
@@ -647,6 +657,8 @@ export class Battle {
     if (c.mpRegen && c.alive && c.side === 'ally') c.mp = Math.min(c.maxMp, c.mp + c.mpRegen); // レア装備: 行動ごとの MP回復
     if (!ev.upd.includes(c)) ev.upd.push(c);
     ev.upd = [...new Set(ev.upd)].map((x) => (x.id ? pub(x) : x));
+    // 第48回の 大技: ためて はなつ 時間だけ ev.extraLock を のばす（2回目は ため 半分。ev.fx.ax で クライアントに つたえる）
+    this.axMark(c, ev);
     this.lock = this.pace(450, 380, ev.lines.length, 900) + (ev.extraLock || 0) / this.speed;
     ev.dur = this.lock;
     delete ev.extraLock;

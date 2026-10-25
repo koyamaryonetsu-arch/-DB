@@ -1006,3 +1006,120 @@ export const AX_FAMILIES_G1 = { かめはめ波: ['ax_kamehameha', 'ax_kamehameh
 - [ ] 2回目は ため 半分
 - [ ] スマホ（つぶの 上限）で かくつかない
 - [ ] `npm test` 全部 OK
+
+---
+
+## 10. G0 の 決めごと（グループは これに したがう）
+
+エンジン（`docs/plan-r48-fx-engine.md`）と この 設計図（5章）を あわせた 最終の きまり。**5章・7章・8章と ちがう ところは ここが 正しい**。
+エンジンの 形（`render/axfx.js` の `play(fx, c)`・`c.k.beam(…)` などの どうぐばこ・ためかた 14しゅ）は そのまま つかう。
+
+### 10-1. 5章との ちがい（読みかえ）
+| 5章 | 決めごと |
+|---|---|
+| 段 `'B'`・`'A'`・`'S'`・`'L'` | `'basic'`・`'advanced'`・`'super'`・`'legend'`（B=basic … L=legend。予算は 2章 と おなじ） |
+| 表の `total`（発射→おわり） | `len`（はなって おわる まで ms）。`hit` は はなって あたる まで（6章の「合計 − ため」が `len`） |
+| `charge: { kind, ms, variant, colors }` | 表に `charge: { kind, ms? }`（`ms` を 書かなければ 段の ふだん: 320・560・860・1300）。`false` で ため なし。色は え の def に `charge: { color, color2, power }`。variant は なし（色と `vars` で 分ける） |
+| `registerAx('g1', { ax_…: { release(fx, c) } })` | `export const AX_G1 = { ax_…: { play(fx, c) { … } } }`（`play` の 時間は はなつ しゅんかんが 0） |
+| `registerAxFine('g1', {…})` | `export const AX_G1_FINE = { g1Beam(x, p, t, fx) { … } }`（なまえは `g1` で はじめる。`fx.add({ kind: 'g1Beam', … })` で 出す） |
+| `axDim`・`axBg`・`axBeam`・`axImpact`・`axText`… | `c.k.dim`・`c.k.tint`・`c.k.beam`・`c.k.impact`・`c.k.cutIn`・`c.k.speedLines` …（エンジンの 表）。背景・文字の どうぐは ない → 自分の `g1〜` の つぶで 描く |
+| `c.toParty`・`c.party`・`c.masc`・`c.repeat`・`c.dual` | ある（`c.fromAlly`・`c.dir`（`'up'`/`'down'`）・`c.n`・`c.each` も）。`c.ability` は `@masc` を とった 技の id |
+| `axfx-index.js` | なし。G0 が `axfx.js` の いちばん 下に 6行 書いた |
+| データの `anim:` を `ax_…` に かえる（7章・8-2） | **かえない**。技の つなぎは 表の `AX_SKILLS_Gn` だけ（下 10-3） |
+| `tools/ax-preview.html`・`ax-shot.mjs` | `tools/fx-preview.mjs`（下 10-6） |
+| L の DOM の 顔カットイン（5-4） | まだ ない（canvas の カットインの 帯は エンジンが ため の 中で 出す） |
+
+### 10-2. グループの ファイル（自分の ものだけ さわる。ぜんぶ G0 が からっぽで 作って つないで ある）
+| ファイル | 中身 |
+|---|---|
+| `public/js/shared/data/ax-time-gN.js` | `AX_TIME_GN`（時間）・`AX_SKILLS_GN`（技 → anim）・`AX_FAMILIES_GN`（なかま）。**サーバーも 読む**ので import・canvas なし |
+| `public/js/client/render/axfx-gN.js` | `AX_GN`（え: `{ ax_…: { charge: { color, color2, power }, sfx, allyFx, pal, vars, play(fx, c) } }`）・`AX_GN_FINE`（つぶの かきかた）。大きく なったら `axfx-gN-〜.js` に 分けて ここから import |
+| `public/js/client/sfx-ax-gN.js` | `SFX_AX_GN`（音。なまえは `ax_gN_〜`。書きかたは `sfx-ax.js` と おなじ。1つ 0.8s まで） |
+| `test/ax-gN.test.js` | その グループだけの 決め手（8-5）。共通の しらべは `test/ax-groups.test.js` が やる |
+
+**さわらない もの**: `render/axfx.js`・`axcharge.js`・`axkit.js`・`ax-demo.js`・`client/sfx-ax.js`・`client/audio.js`・`client/battle.js`・`render/battlefx.js`・`render/dualfx.js`・`client/battle-dual.js`・`shared/battle.js`・`shared/ax-time.js`・`test/ax-check.js`・`test/ax-groups.test.js`・`test/ax-time.test.js`・`test/axfx-engine.test.js`・古い テスト・古い 絵の ファイル（`battlefx-jobs*.js`・`battlefx-r27.js` など）・**データの ファイル（`abilities-*.js`・`hirameki-*.js`・`dual.js`）**・ほかの グループの ファイル。
+足りない どうぐ（axkit）・ためかたが いる ときは 自分の ファイルの 中で つくる（つぶ `gN〜`・ため の 足しは `play` の 中で なく ため に 重ねたい なら 取りまとめに 相談）。
+
+### 10-3. 書きかた（コピー用）
+```js
+// shared/data/ax-time-g1.js
+export const AX_TIME_G1 = {
+  // tier・charge（kind・ms）・hit（はなって あたる）・len（はなって おわる）・stagger（敵全体の ずらし。ふだん 60）・party（味方に かける）
+  ax_kamehameha: { tier: 'basic', charge: { kind: 'ki', ms: 300 }, hit: 160, len: 600 },
+  ax_kamehameha_kiwami: { tier: 'legend', charge: { kind: 'ki', ms: 1300 }, hit: 200, len: 1700, stagger: 70 },
+  ax_ssj_aura: { tier: 'advanced', charge: { kind: 'ki' }, hit: 300, len: 900, party: true },
+  ax_gomu_kame: { tier: 'super', charge: false, hit: 300, len: 1700 },          // 合体技（ため なし。super の 長さ）
+};
+export const AX_SKILLS_G1 = {
+  sy_kamehameha: 'ax_kamehameha',
+  s3_kame: 'ax_kamehameha_kiwami',
+  sz_aura: 'ax_ssj_aura',
+  dt_gomu_kame: 'ax_gomu_kame',                                                  // 合体技は dt_〜
+  // 'bs_heel@masc': 'ax_tuxedo_kick',                                           // 男の子の 版（G5）
+  // 段・色だけ かえて 共有する とき: hi_x: { anim: 'ax_y', tier: 'super', vars: { gold: true } }
+};
+export const AX_FAMILIES_G1 = { かめはめ波: ['ax_kamehameha', 'ax_kamehameha_super', 'ax_kamehameha_spark', 'ax_kamehameha_kiwami'] };
+
+// client/render/axfx-g1.js
+import { pal } from './axkit.js';
+export const AX_G1 = {
+  ax_kamehameha: {
+    charge: { color: '#4ab8ff', color2: '#e8f8ff' },   // 色だけ（kind・ms は 表）
+    sfx: 'ax_g1_kame',                                 // はなつ 音（sfx-ax-g1.js か ax_beam など）
+    allyFx: 'bolt',                                    // 敵が 味方に つかった ときの まどの 光
+    play(fx, c) {                                      // c の 時間は はなつ しゅんかんが 0
+      const ox = c.from.x, oy = c.fromAlly ? c.H + 6 : c.from.y;
+      c.each((t, i, d) => {
+        c.k.beam(ox, oy, t.x, t.y, { w: 9 * c.sz, color: '#4ab8ff', glow: '#a8e4ff', core: '#ffffff', delay: d, life: c.len - 100, grow: c.hit });
+        c.k.impact(t.x, t.y, { r: 16 * c.sz, delay: d + c.hit, heavy: i === 0 });
+      });
+    },
+  },
+};
+export const AX_G1_FINE = {};
+
+// client/sfx-ax-g1.js
+export const SFX_AX_G1 = { ax_g1_kame: (a, T) => { a.noise(0.6, { vol: 0.4, from: 2400, to: 80 }); } };
+```
+def に `tier`・`hit`・`len`・`stagger`・`party`・`abilities`・`charge.kind`・`charge.ms` を 書くと とうろくで エラー（表に 書く）。
+
+### 10-4. 時間（サーバーと クライアントで 1つの 表。`shared/ax-time.js`）
+- `charge`（ため）→ `hit = charge + 表の hit`（ダメージの 数が 出る）→ `total = charge + len` → 敵全体は `end = total + min(300, stagger × (的の かず − 1))`。
+  **`len` は 余韻の さいごの つぶが 消える まで**に する（テストは `end ＋ 300ms` より のこったら だめ）。
+- 2回目（おなじ 戦い・おなじ 人・おなじ 技）: ため 半分・伝説の カットインの 帯 なし（`c.repeat`）。ひらめいた しゅんかんは いつも 1回目。
+- 合体技: ため なし（`c.dual`）。カットイン（`AX_DUAL_CUT_MS` 1.0〜1.6s）の あとに 出る。
+- おそい 設定（0.6・0.75）: 大技の あいだは 0.85 の 速さ（つぶに `ts` が つく。グループは 何も しなくて よい）。
+- サーバー（`shared/battle.js` の `axMark` → `axMarkEvent`）: 技が 表に あれば `ev.fx.ax`（anim）・`ev.fx.axKey`（`id@masc`・`dt_〜`）・`ev.fx.axRepeat` を つけ、
+  `ev.extraLock = max(今の extraLock, (前に 見せる ms ＋ end ÷ ts) − 1000)`（ほかの extraLock と おなじく ÷ 速さ）。つぎの 行動は 余韻の さいご 200ms より 前に 出ない。
+  ATB の ゲージは 今まで どおり 行動の あいだ（lock・クライアントの showing）は とまる。
+- クライアント（`client/battle.js`）: `ev.fx.ax` が いちばん さき（看板の 技 `sigAnim`・`r27Anim`（テラデイン）・データの anim・ひらめき・合体技 より さき）。
+  敵に・味方に かける（`party` か 味方が 的）・敵が 味方に（ノクトの影・鏡のうつし身。`c.toParty`・`c.dir === 'down'`）・合体技（味方に かける 合体技も）の どれも ax の 道。
+  ダメージの 数は `hitAt`（エフェクトの 時計）、味方が ためて いる あいだは その 人の まどが 光る。
+
+### 10-5. 共通テスト（`test/ax-groups.test.js`。`AX_SKILLS_Gn` に 入れた 技は ぜんぶ しらべられる）
+- 技（`id`・`id@masc` の id・`dt_〜`）が データに ある・anim が 自分の 表と え の 両方に ある・え の グループが あう。
+- anim は 技ごとに 自分の もの（2つの 技で 共有する なら `tier`・`vars` が ちがう こと）。
+- 段の 予算（2章・±150ms）: ため・合計。合体技は ため 0 で super の 合計。`hit < len`。
+- クライアントの 時間 ＝ サーバーの 時間（的 1・3・会心・2回目・速さ 0.6・1.25）。待ち時間で つぎが かぶらない。2回目は 半分。0.6 ＝ 0.85。
+- うごき: 敵 1・3・5（会心）、敵→味方 1・4（攻撃の 技 ぜんぶ。まねされる ため）、味方に かける 技は 味方 1・4。
+  エラー・NaN・マイナスの 半径・画面から 140px より とおい つぶ・`end + 300ms` より のこる・あたる 前に おわる が ない。
+  同時の つぶ: 段の 上限 ＋10% まで、敵1体で 段の 下限 いじょう（補助は 下限の 半分。合体技は super）。あたる 時間 ±150ms に 1体めの 28px いないで 光る つぶ。
+- 音（`sfx`・`charge.sfx`）が ある。音の なまえ `ax_gN_〜`・つぶの なまえ `gN〜`。
+- なかま: 下から 上へ 段・合計の 長さ・同時の つぶ（−5% まで）が へらない。
+- え の ファイルの 文字（`'…'`）に 漢字なし（「人」だけ OK。コメントは よい）。
+- 中身は `test/ax-check.js` の `groupReport('gN')`。自分の テストでは `playAx(anim, ONE, { ability })` で つぶを しらべられる。
+
+### 10-6. 見る どうぐ（`tools/fx-preview.mjs`。PNG を Read で 見る）
+```sh
+node tools/fx-preview.mjs --group g1 --out <スクラッチ>/g1                    # G1 の 大技 ぜんぶ（1 anim 1まい。ふだんは fx-out/g1/）
+node tools/fx-preview.mjs --ability sy_kamehameha                             # たたかいで ほんとうに 出る え（つなぎの あと。味方に かける 技は 味方に）
+node tools/fx-preview.mjs --ability sy_kamehameha --dir enemy --targets 3     # 敵が まねて 味方 3人に
+node tools/fx-preview.mjs --ability 'bs_heel@masc'                            # 男の子の 版
+node tools/fx-preview.mjs ax_kamehameha --ability s2_kame --repeat --speed 0.6   # 2回目・おそい 設定
+node tools/fx-preview.mjs --ability dt_gomu_kame                              # 合体技（ため なし）
+```
+
+### 10-7. マージの ちゅうい
+- グループどうしは ファイルが 分かれて いるので ぶつからない（データの ファイルも さわらない）。
+- 大技に した 技は 戦いの 待ち時間が のびる（伝説で 速さ 1 なら 2〜3びょう）。たくさん つなぐと、決まった 回数だけ 時計を すすめる 古い テスト（戦いが おわる まで）が おそく なる かも。マージの たびに `npm test`。
+- 古い テストの「看板の 技の anim は 技の id」「ひらめきの anim は 前から ある もの」は `ax_` も OK に ゆるめて ある（データを かえない ので ふつうは 関係 ない）。`fx-r27` の 呪文の 段・色の テストは 大技に うつった 技を はずす（G4 の ギガデイン・テラデインも そのまま で よい）。

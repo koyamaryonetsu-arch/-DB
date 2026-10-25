@@ -21,7 +21,7 @@ import { playR43jFx } from '../public/js/client/render/battlefx-r43j.js';
 import { playPokemonFx } from '../public/js/client/render/battlefx-pokemon.js';
 import { playCh4Fx } from '../public/js/client/render/battlefx-ch4.js';
 // 第48回の 大技エンジン（anim を データに 書いた 技も エフェクトが ある あつかい）
-import { playAxFx, isAx } from '../public/js/client/render/axfx.js';
+import { playAxFx, isAx, axAnimFor } from '../public/js/client/render/axfx.js';
 import {
   R27_FINE, R27_ANIMS, R27_ALLY_ANIMS, ELEMENT_FX, STAT_FX, SPELL_SERIES, SPELL_TIER, ANIM_OVERRIDE, TIER_SCALE,
   playR27Fx, playAllyR27, allyAnimFor, fxTier, fxLook, r27Anim, r27Hit, r27Sfx,
@@ -77,7 +77,9 @@ function colorsOf(fx) {
 }
 const isAllyTarget = (ab) => ['ally', 'allies', 'self', 'deadAlly', 'deadAllies'].includes(ab.target);
 const ALLY_ABILITIES = Object.entries(ABILITIES).filter(([, a]) => a.kind !== 'monster');
-const finalAnim = (id, ab) => sigAnim(id) || r27Anim(id) || ab.anim || null;
+// 第48回: 大技（shared/data/ax-time-gN.js の AX_SKILLS）が いちばん さき（battle.js と おなじ）。大技に うつった 技は 第27回の 段・色の テストから はずす
+const finalAnim = (id, ab) => axAnimFor(id) || sigAnim(id) || r27Anim(id) || ab.anim || null;
+const movedToAx = (id) => isAx(finalAnim(id, ABILITIES[id] || {}));
 
 // 4つの 出かた（battle.js と おなじ ばしょ）
 const ONE = [{ x: 128, y: 66 }];
@@ -126,7 +128,8 @@ test('第27回: 使い回しの anim でも 段階か 色が ちがう（同じ 
     groups.get(anim).push(id);
   }
   // 呪文の なかま（メラ系・ギラ系・ヒャド系・バギ系・イオ系・デイン系・ホイミ系・ザオ系・スカラ系）は、段階が かならず ちがう
-  for (const [name, ids] of Object.entries(SPELL_SERIES)) {
+  for (const [name, ids0] of Object.entries(SPELL_SERIES)) {
+    const ids = ids0.filter((id) => !movedToAx(id));
     const tiers = ids.map((id) => fxTier(id, finalAnim(id, ABILITIES[id])));
     for (let i = 1; i < tiers.length; i++) assert.ok(tiers[i] > tiers[i - 1], `${name}: ${ids.join('→')} の 段階 ${tiers.join(',')}`);
   }
@@ -156,7 +159,9 @@ test('第27回: 呪文の 段階が 上がるほど 大きく・派手に・長�
   Math.random = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
   try {
   withFakeDocument(() => {
-    for (const [name, ids] of Object.entries(SPELL_SERIES)) {
+    for (const [name, ids0] of Object.entries(SPELL_SERIES)) {
+      const ids = ids0.filter((id) => !movedToAx(id));
+      if (ids.length < 2) continue;
       const stats = ids.map((id) => {
         const ab = ABILITIES[id];
         const anim = finalAnim(id, ab);
@@ -202,6 +207,7 @@ test('第27回: 属性の 色が そろっている（炎は 炎の 色、氷は
   withFakeDocument(() => {
     for (const [el, list] of Object.entries(FAM)) {
       for (const [id, anim] of list) {
+        if (movedToAx(id)) continue;
         assert.equal(finalAnim(id, ABILITIES[id]), anim, id);
         const fx = new Effects();
         if (el === 'heal') playAllyR27(fx, anim, ABILITIES[id].target === 'allies' ? ALLY4 : ALLY1, { ability: id });
@@ -255,6 +261,7 @@ test('第27回: あたる じかん（r27Hit）と エフェクトが そろう'
     for (const anim of R27_ANIMS) {
       for (const tier of [1, 2, 3, 4]) {
         const ab = Object.keys(SPELL_TIER).find((id) => SPELL_TIER[id] === tier && finalAnim(id, ABILITIES[id]) === anim);
+        // （大技に うつった 技は finalAnim が ax_〜 なので ここには 来ない）
         const want = ab ? r27Hit(anim, ab) : null;
         if (want === null) continue;
         const fx = new Effects();

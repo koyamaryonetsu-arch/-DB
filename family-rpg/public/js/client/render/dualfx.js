@@ -8,6 +8,8 @@
 // client/battle-dual.js の dualFx から よぶ。CSS は ここで 1回だけ 入れる（style.css は さわらない）
 // 第31回: 合体技の 名前を 大きく（たたかいの コマンドの 一覧・メニューの 合体技の タブ）の CSS も ここ（addDualCss）
 
+import { AX_DUAL_CUT_MS } from '../../shared/ax-time.js';
+
 // 技ごとの えんしゅつ: c … 色（[こい, あかるい, ひかり]）、finale … とどめの かたち、word … 画面に 出る ことば
 export const DUAL_FX = {
   dt_taishoumetsu: { c: ['#6a3aff', '#ff6a3a', '#9ae6ff'], finale: 'nova', word: 'ジュワッ！' },
@@ -80,7 +82,8 @@ const DEFAULT_FX = { c: ['#7a3ac8', '#ffd66b', '#ffffff'], finale: 'nova', word:
 export const dualFxOf = (id) => DUAL_FX[id] || DEFAULT_FX;
 
 // カットインの 長さ（ミリびょう。たたかいの 速さ 1 の とき）: 人数が 多いほど 長く 豪華に
-export const CUT_MS = { 2: 1000, 3: 1300, 4: 1600 };
+// 第48回: 数は サーバーの 待ち時間と おなじ 表（shared/ax-time.js の AX_DUAL_CUT_MS。合体技の 大技は カットインの あとに 出る）
+export const CUT_MS = AX_DUAL_CUT_MS;
 export const cutMs = (n) => CUT_MS[n] || CUT_MS[2];
 
 // 合体技の 名前を 大きく（第31回）: たたかいの コマンドは 1列に して、名前だけを 大きく（入りきらない ときは ListMenu の fit が 小さく する）。

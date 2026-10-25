@@ -3,6 +3,10 @@
 アニメの 必殺技（かめはめ波・螺旋丸・ヒノカミ神楽・アバンストラッシュ…）を 派手に するための 土台。
 技の グループ（作品ごと）の 人は、この エンジンの 上に「はなつ ところ」だけを 書けば よい。
 
+> **G1〜G6 の 人へ**: ファイルの なまえ・時間の 表（サーバーと おなじ 数）・技の つなぎかたは
+> `docs/plan-r48-fx.md` の さいごの「G0 の 決めごと」が 正しい（下の 1〜3 の 「ax-dbz.js を つくって axfx.js に 2行 たす」「def に tier・hit・len・abilities を 書く」は
+> おためし（ax-demo.js）だけの 書きかた。グループは `axfx-gN.js`・`shared/data/ax-time-gN.js` に 書く）。
+
 | ファイル | なかみ |
 |---|---|
 | `public/js/client/render/axfx.js` | とうろく（`registerAx`・`useAxGroup`）・時間の けいさん（`axTiming`）・`playAxFx`（battlefx.js の play() の さいしょ） |

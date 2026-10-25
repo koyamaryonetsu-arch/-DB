@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 // 第48回: 技の エフェクトを 見る どうぐ（コンタクトシート PNG を つくる）
 //
-//   node tools/fx-preview.mjs <anim> [--frames 12] [--dir ally|enemy] [--targets 1|3] [--out <png>]
+//   node tools/fx-preview.mjs <anim> [--frames 12] [--dir ally|enemy|party] [--targets 1|3] [--out <png>]
+//   node tools/fx-preview.mjs --ability <技の id>              … たたかいで ほんとうに 出る え（大技の つなぎ・看板の 技・作り直しの 上書き の あと）
+//                                                              （'id@masc' … 男の子の 版、'dt_〜' … 合体技。味方に かける 技は 味方の いちに）
+//   node tools/fx-preview.mjs --group g1 [--out <dir>]         … G1 の 大技 ぜんぶ（1 anim 1まい。ふだんは fx-out/g1/）
 //   node tools/fx-preview.mjs --all <prefix> [--out <dir>]     … とうろくした 大技（axfx）を 1つずつ 1まいに
 //   node tools/fx-preview.mjs --list [prefix]                  … とうろくした 大技の なまえ
 //   node tools/fx-preview.mjs --charges [tier]                 … ためかた 14しゅるいを 1まいに（1しゅるい 1行・4こま）
@@ -9,7 +12,9 @@
 //   ほかの オプション:
 //     --tier basic|advanced|super|legend  段階を ためしに かえる（大技だけ）
 //     --charge ki|chakra|…                ためかたを ためしに かえる（大技だけ）
-//     --ability <技の id>                 技ごとの ちがい（abilities）で 見る
+//     --ability <技の id>                 技ごとの ちがい（shared/data/ax-time-gN.js の AX_SKILLS）で 見る（anim を 書かなければ その 技の え）
+//     --repeat                            2回目（ため 半分・伝説の カットイン なし）
+//     --dual                              合体技（ため なし）
 //     --speed 1                           たたかいの 速さ（0.5〜2。時間が ちぢむ）
 //     --element fire …                    属性（battle.js が わたす fx.element）
 //     --crit                              かいしん
@@ -36,7 +41,7 @@ const PW_PATHS = [process.env.PLAYWRIGHT_MODULE, '/opt/node22/lib/node_modules/p
 
 function parseArgs(argv) {
   const a = { frames: 12, dir: 'ally', targets: 1, scale: 2, cols: 4, seed: 7, speed: 1, positional: [] };
-  const flags = new Set(['crit', 'list', 'help', 'charges']);
+  const flags = new Set(['crit', 'list', 'help', 'charges', 'repeat', 'dual']);
   for (let i = 0; i < argv.length; i++) {
     const s = argv[i];
     if (s.startsWith('--')) {
@@ -54,17 +59,19 @@ function parseArgs(argv) {
 }
 
 const USAGE = `つかいかた:
-  node tools/fx-preview.mjs <anim> [--frames 12] [--dir ally|enemy] [--targets 1|3] [--out <png>]
+  node tools/fx-preview.mjs <anim> [--frames 12] [--dir ally|enemy|party] [--targets 1|3] [--out <png>]
+  node tools/fx-preview.mjs --ability <技の id> [--dir enemy] [--targets 3]    … たたかいで 出る え
+  node tools/fx-preview.mjs --group g1 [--out <dir>]                         … グループ ぜんぶ（fx-out/g1/<anim>.png）
   node tools/fx-preview.mjs --all <prefix> [--out <dir>]
   node tools/fx-preview.mjs --list [prefix]
   node tools/fx-preview.mjs --charges [tier] [--dir enemy] [--out <png>]
-  そのほか: --tier --charge --ability --speed --element --crit --bg --scale --cols --seed --times --ms --hit`;
+  そのほか: --tier --charge --ability --repeat --dual --speed --element --crit --bg --scale --cols --seed --times --ms --hit`;
 
 const MIME = { '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.html': 'text/html; charset=utf-8', '.css': 'text/css', '.json': 'application/json', '.png': 'image/png', '.svg': 'image/svg+xml', '.woff2': 'font/woff2' };
 
 // ───────────── ブラウザの 中で うごく ところ（toString して ページに うめこむ。そとの 変数は つかわない） ─────────────
 function harnessMain(M) {
-  const { Effects, battleBackground, BW, BH, monsterCanvas, isAx, axList, axTiming, axDef, actPose, glowSprite, CHARGE_KINDS } = M;
+  const { Effects, battleBackground, BW, BH, monsterCanvas, isAx, axList, axTiming, axDef, actPose, glowSprite, CHARGE_KINDS, axAnimFor, axGroupList, axSkill, AX_SKILLS, ABILITIES, DUAL_TECHS, sigAnim, r27Anim, r27Hit } = M;
   const mulberry = (seed) => () => {
     seed |= 0; seed = (seed + 0x6d2b79f5) | 0;
     let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
@@ -113,28 +120,31 @@ function harnessMain(M) {
     const R = cfg.scale || 2;
     const speed = Math.max(0.25, Math.min(4, cfg.speed || 1));
     const fromAlly = cfg.dir !== 'enemy';
-    const n = Math.max(1, Math.min(fromAlly ? 5 : 4, cfg.targets || 1));
+    // party … 味方が 味方に かける（回復・強化）。的は 味方の いち
+    const toAllies = cfg.dir === 'enemy' || cfg.dir === 'party';
+    const n = Math.max(1, Math.min(toAllies ? 4 : 5, cfg.targets || 1));
     const ax = isAx(cfg.anim);
     const errors = [];
     const sim = (capture) => {
       Math.random = mulberry(cfg.seed ?? 7);
-      const enemies = enemyLayout(SETS[fromAlly ? n : n >= 3 ? 3 : 1]);
+      const enemies = enemyLayout(SETS[!toAllies ? n : n >= 3 ? 3 : 1]);
       const party = [0, 1, 2, 3].map((i) => ({ i, ...allyPt(i), col: PARTY_COLS[i], glow: 0 }));
       const actorAlly = party[1];
       const actorEnemy = enemies[Math.floor(enemies.length / 2)];
-      const targets = fromAlly ? enemies.map(center) : (n === 1 ? [party[1]] : party.slice(0, n)).map((p) => ({ x: p.x, y: p.y }));
+      const targets = !toAllies ? enemies.map(center) : (n === 1 ? [party[1]] : party.slice(0, n)).map((p) => ({ x: p.x, y: p.y }));
       const from = fromAlly ? { x: actorAlly.x, y: actorAlly.y } : center(actorEnemy);
       const fx = new Effects();
       fx.tempo = speed;
       const sfx = [];
       let now = 0;
-      const timing = ax ? axTiming(cfg.anim, { tempo: speed, ability: cfg.ability, tier: cfg.tier, chargeKind: cfg.charge, targets: targets.length, crit: !!cfg.crit }) : null;
+      const timing = ax ? axTiming(cfg.anim, { tempo: speed, ability: cfg.ability, tier: cfg.tier, chargeKind: cfg.charge, targets: targets.length, crit: !!cfg.crit, repeat: !!cfg.repeat, dual: !!cfg.dual }) : null;
       // battle.js と おなじ: 敵が ためる 間は うごき 'buff'
       if (!fromAlly && timing && timing.charge) actorEnemy.act = { kind: 'buff', age: 0, dur: timing.charge + 120, color: '#ffd66b' };
       if (fromAlly) actorAlly.glow = 1;
       try {
         fx.play(cfg.anim, targets, cfg.element || null, {
           crit: !!cfg.crit, fromAlly, from, ability: cfg.ability || undefined, tier: cfg.tier || undefined, chargeKind: cfg.charge || undefined,
+          repeat: !!cfg.repeat, dual: !!cfg.dual, toParty: cfg.dir === 'enemy',
           sfx: (id) => sfx.push([Math.round(now), id]), actorImg: fromAlly ? null : actorEnemy.img,
         });
       } catch (e) { errors.push(String(e && e.stack || e)); }
@@ -156,7 +166,7 @@ function harnessMain(M) {
           if (e.act) { e.act.age += dt * speed; if (e.act.age >= e.act.dur) e.act = null; }
           if (e.flash > 0) e.flash -= dt;
         }
-        if (hitAt !== null && now < hitAt && now + dt >= hitAt && fromAlly) for (const e of enemies) e.flash = 320;
+        if (hitAt !== null && now < hitAt && now + dt >= hitAt && !toAllies) for (const e of enemies) e.flash = 320;
         out.maxParts = Math.max(out.maxParts, fx.parts.length);
       }
       out.end = Math.min(now, cap);
@@ -269,7 +279,7 @@ function harnessMain(M) {
     x.fillStyle = '#c8c8d8';
     const def = T ? axDef(cfg.anim) : null;
     const desc = T
-      ? `tier=${T.tier} charge=${T.kind || '-'}  dir=${cfg.dir || 'ally'} targets=${S.targets.length} speed=${cfg.speed || 1}${cfg.ability ? ` ability=${cfg.ability}` : ''}${cfg.crit ? ' crit' : ''}  | charge ${T.chargeReal}ms  hit ${T.hitReal}ms  total ${T.totalReal}ms (real)${def && def.group ? `  group=${def.group}` : ''}`
+      ? `tier=${T.tier} charge=${T.kind || '-'}${cfg.repeat ? ' repeat' : ''}${cfg.dual ? ' dual' : ''}  dir=${cfg.dir || 'ally'} targets=${S.targets.length} speed=${cfg.speed || 1}${cfg.ability ? ` ability=${cfg.ability}` : ''}${cfg.crit ? ' crit' : ''}  | charge ${T.chargeReal}ms  hit ${T.hitReal}ms  total ${T.totalReal}ms (real)${def && def.group ? `  group=${def.group}` : ''}`
       : `(not an ax anim) dir=${cfg.dir || 'ally'} targets=${S.targets.length} speed=${cfg.speed || 1}  length ${dur}ms`;
     x.fillText(desc, pad, 38);
     // 時間の おび（ためる・はなつ・あたる・とった こま）
@@ -328,15 +338,41 @@ function harnessMain(M) {
   window.fxpRun = (cfg) => run(cfg);
   window.fxpCharges = (cfg) => runCharges(cfg);
   window.fxpList = (prefix) => axList(prefix || '');
+  // 味方に かける 技（データの target）
+  const ALLY_T = new Set(['ally', 'allies', 'self', 'deadAlly', 'deadAllies']);
+  // 技の id → たたかいで 出る anim（battle.js と おなじ じゅん: 大技の つなぎ → 看板の 技 → 作り直しの 上書き → データの anim）
+  window.fxpResolve = (key) => {
+    const id = String(key).replace(/@masc$/, '');
+    const masc = String(key).endsWith('@masc');
+    const dual = id.startsWith('dt_');
+    const t = dual ? DUAL_TECHS[id] : ABILITIES[id];
+    if (!t) return { error: `技 ${key} が ない` };
+    const data = (masc && t.masc && t.masc.anim) || t.anim;
+    const axA = axAnimFor(id, { masc });
+    const s = axA ? axSkill(id, { masc }) : null;
+    const anim = axA || (dual ? data : sigAnim(id) || r27Anim(id) || data);
+    const party = ALLY_T.has(t.target) || (isAx(anim) && !!axDef(anim).party);
+    return { anim, ability: s ? s.key : id, ax: isAx(anim), party, dual, hit: isAx(anim) ? null : r27Hit(anim, id), data, name: t.name };
+  };
+  // グループの 大技（1 anim に 1つ: いちばん はじめに つないだ 技で）
+  window.fxpGroup = (g) => axGroupList(g).map((anim) => {
+    const s = Object.values(AX_SKILLS).find((x) => x.anim === anim);
+    return { anim, ability: s ? s.key : null, party: !!axDef(anim).party, dual: !!(s && s.key.startsWith('dt_')) };
+  });
   window.fxpReady = true;
 }
 
 const HARNESS_JS = `import { Effects, battleBackground, BW, BH, glowSprite } from '/js/client/render/battlefx.js';
 import { monsterCanvas } from '/js/client/render/monsters.js';
-import { isAx, axList, axTiming, axDef } from '/js/client/render/axfx.js';
+import { isAx, axList, axTiming, axDef, axAnimFor, axGroupList } from '/js/client/render/axfx.js';
 import { CHARGE_KINDS } from '/js/client/render/axcharge.js';
 import { actPose } from '/js/client/render/enemyfx.js';
-(${harnessMain.toString()})({ Effects, battleBackground, BW, BH, glowSprite, monsterCanvas, isAx, axList, axTiming, axDef, actPose, CHARGE_KINDS });
+import { AX_SKILLS, axSkill } from '/js/shared/ax-time.js';
+import { ABILITIES } from '/js/shared/data/abilities.js';
+import { DUAL_TECHS } from '/js/shared/data/dual.js';
+import { sigAnim } from '/js/client/render/battlefx-jobs4.js';
+import { r27Anim, r27Hit } from '/js/client/render/battlefx-r27.js';
+(${harnessMain.toString()})({ Effects, battleBackground, BW, BH, glowSprite, monsterCanvas, isAx, axList, axTiming, axDef, actPose, CHARGE_KINDS, axAnimFor, axGroupList, axSkill, AX_SKILLS, ABILITIES, DUAL_TECHS, sigAnim, r27Anim, r27Hit });
 `;
 const HARNESS_HTML = `<!doctype html><html><head><meta charset="utf-8"><title>fx-preview</title></head><body style="margin:0;background:#111">
 <script>window.addEventListener('error', (e) => { window.fxpError = String(e.message || e); });</script>
@@ -375,7 +411,7 @@ async function loadPlaywright() {
 
 async function main() {
   const a = parseArgs(process.argv.slice(2));
-  if (a.help || (!a.anim && !a.all && !a.list && !a.charges)) {
+  if (a.help || (!a.anim && !a.all && !a.list && !a.charges && !a.group && !a.ability)) {
     console.log(USAGE);
     process.exit(a.help ? 0 : 1);
   }
@@ -408,18 +444,35 @@ async function main() {
       for (const e of [...res.info.errors, ...consoleErrors]) { console.log(`  エラー: ${e}`); failed = true; }
       return;
     }
-    let anims = [];
+    // jobs … { anim, ability, dir, dual, hit }（1つ 1まい）
+    let jobs = [];
     let outDir = null, outFile = null;
-    if (a.all !== undefined) {
-      anims = await page.evaluate((p) => window.fxpList(p), a.all === true ? '' : a.all);
+    const dirArg = process.argv.includes('--dir') ? a.dir : null;
+    const sfx = `${a.dir === 'enemy' ? '-enemy' : a.dir === 'party' ? '-party' : ''}${a.targets > 1 ? `-x${a.targets}` : ''}${a.repeat ? '-repeat' : ''}`;
+    if (a.group) {
+      const list = await page.evaluate((g) => window.fxpGroup(g), a.group);
+      if (!list.length) throw new Error(`グループ '${a.group}' の 大技が ない（render/axfx-${a.group}.js と shared/data/ax-time-${a.group}.js）`);
+      jobs = list.map((x) => ({ anim: x.anim, ability: a.ability || x.ability || undefined, dir: dirArg || (x.party ? 'party' : 'ally'), dual: a.dual || x.dual }));
+      outDir = path.resolve(a.out || path.join(ROOT, 'fx-out', a.group));
+    } else if (a.all !== undefined) {
+      const anims = await page.evaluate((p) => window.fxpList(p), a.all === true ? '' : a.all);
       if (!anims.length) throw new Error(`'${a.all}' で はじまる 大技が ない（--list で 見られる）`);
+      jobs = anims.map((anim) => ({ anim, ability: a.ability, dir: a.dir, dual: a.dual }));
       outDir = path.resolve(a.out || path.join(ROOT, 'fx-out'));
+    } else if (!a.anim && a.ability) {
+      // 技の id から: たたかいで ほんとうに 出る え
+      const r = await page.evaluate((k) => window.fxpResolve(k), a.ability);
+      if (r.error) throw new Error(r.error);
+      console.log(`${a.ability}（${r.name}）: ${r.ax ? '大技' : 'ふつうの anim'} ${r.anim}${r.anim !== r.data ? `（データの anim は ${r.data}）` : ''}${r.party ? ' … 味方に かける' : ''}`);
+      jobs = [{ anim: r.anim, ability: r.ability, dir: dirArg || (r.party ? 'party' : 'ally'), dual: a.dual || r.dual, hit: a.hit ?? (r.hit || undefined) }];
+      outFile = path.resolve(a.out || path.join(ROOT, 'fx-out', `ability-${a.ability.replace(/[^\w@-]/g, '_')}${sfx}.png`));
     } else {
-      anims = [a.anim];
-      outFile = path.resolve(a.out || path.join(ROOT, 'fx-out', `${a.anim}${a.dir === 'enemy' ? '-enemy' : ''}${a.targets > 1 ? `-x${a.targets}` : ''}.png`));
+      jobs = [{ anim: a.anim, ability: a.ability, dir: a.dir, dual: a.dual }];
+      outFile = path.resolve(a.out || path.join(ROOT, 'fx-out', `${a.anim}${sfx}.png`));
     }
-    for (const anim of anims) {
-      const cfg = { anim, frames: a.frames, dir: a.dir, targets: a.targets, tier: a.tier, charge: a.charge, ability: a.ability, speed: a.speed, element: a.element, crit: !!a.crit, scale: a.scale, cols: a.cols, seed: a.seed, times: a.times, ms: a.ms, hit: a.hit, bg: a.bg };
+    for (const job of jobs) {
+      const { anim } = job;
+      const cfg = { anim, frames: a.frames, dir: job.dir, targets: a.targets, tier: a.tier, charge: a.charge, ability: job.ability, repeat: !!a.repeat, dual: !!job.dual, speed: a.speed, element: a.element, crit: !!a.crit, scale: a.scale, cols: a.cols, seed: a.seed, times: a.times, ms: a.ms, hit: job.hit ?? a.hit, bg: a.bg };
       const before = consoleErrors.length;
       const res = await page.evaluate((c) => {
         const r = window.fxpRun(c);

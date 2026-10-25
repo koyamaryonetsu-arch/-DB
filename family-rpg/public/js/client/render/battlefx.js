@@ -1947,7 +1947,10 @@ export class Effects {
 
   update(dt) {
     dt *= this.tempo || 1;
+    const dt1 = dt;
     for (const p of this.parts) {
+      // 第48回の 大技: おそい 設定でも 0.85 の 速さ（p.ts。render/axfx.js の withTs）
+      const dt = p.ts ? dt1 * p.ts : dt1;
       if (p.delay > 0) { p.delay -= dt; continue; }
       p.age += dt;
       if (p.kind === 'proj') {
