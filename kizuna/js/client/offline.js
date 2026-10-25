@@ -1,8 +1,8 @@
 // ひとりモード: ブラウザの なかで サーバーを うごかす
 // セーブは このブラウザ（localStorage）と、claude.ai の アーティファクトの 中なら クラウド（cloudsave.js）の 両方に
-import { GameWorld } from '../shared/world/world.js?v=c553fc066ee8';
-import { pruneEntries } from '../shared/world/sync.js?v=c553fc066ee8';
-import { openCloud, adoptCloud } from './cloudsave.js?v=c553fc066ee8';
+import { GameWorld } from '../shared/world/world.js?v=e71638c3a938';
+import { pruneEntries } from '../shared/world/sync.js?v=e71638c3a938';
+import { openCloud, adoptCloud } from './cloudsave.js?v=e71638c3a938';
 
 const KEY = 'kizuna_offline_save_v1';
 const SYNC_KEY = 'kizuna_sync_v1';

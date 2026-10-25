@@ -4,11 +4,11 @@
 // ・maps/toki-ruin.js … 時のいせき（今 toki_ruin_1f〜7f・千年前 toki_ruin_1f_past〜7f_past・番人の間 toki_ruin_boss）
 // ・maps/hoshimichi.js … Step 3・4: 星読みの社（千年前の 森のひろば）と 星めぐりの古道（今 hoshimichi_1f〜8f・千年前 hoshimichi_1f_past〜8f_past）
 // ・maps/ch6-side.js … Step 3・4: 第6章の より道（時のタイムカプセル・千年前のレシピ・ちびアステルのたからもの）の 人と 場所
-import { attachPast, PAST_MAPS, PAST_POS, PAST_ID } from './past.js?v=c553fc066ee8';
-import { buildShrineMaps, SHRINE_MAPS } from './toki-shrine.js?v=c553fc066ee8';
-import { buildRuinMaps, RUIN_MAPS } from './toki-ruin.js?v=c553fc066ee8';
-import { buildHoshimichiMaps, HM_MAPS, attachShaPast, attachShaNow } from './hoshimichi.js?v=c553fc066ee8';
-import { attachCh6Side } from './ch6-side.js?v=c553fc066ee8';
+import { attachPast, PAST_MAPS, PAST_POS, PAST_ID } from './past.js?v=e71638c3a938';
+import { buildShrineMaps, SHRINE_MAPS } from './toki-shrine.js?v=e71638c3a938';
+import { buildRuinMaps, RUIN_MAPS } from './toki-ruin.js?v=e71638c3a938';
+import { buildHoshimichiMaps, HM_MAPS, attachShaPast, attachShaNow } from './hoshimichi.js?v=e71638c3a938';
+import { attachCh6Side } from './ch6-side.js?v=e71638c3a938';
 
 // 第6章 Step 1・2 の マップの ID（セーブに のこるので かえない）
 export const CH6_MAPS = [...PAST_MAPS, ...SHRINE_MAPS, ...RUIN_MAPS];

@@ -10,14 +10,14 @@
 //   （ネフィ・バルガ・ミラ・サラ … B の GATHER_GIFTS の 装備 / ルカ … 道具 / ユキナ … いのりの歌 / ばあちゃん … 星の石の かけら）
 //   → 7人 ぜんぶで ソラネ「影の城へ 行く 風の道を、ハネビト みんなで つくります」（c5_gather。「第5章の続きはアップデートで！」）
 // 根の島と 神殿の 魔物・きまった 戦い nocto_1・ランク9の 店の 品・神殿の 宝箱の 品・みんなの 装備は B（戦い・品）が 作る（plan-ch5.md の 16）
-import { KUMOI_POS, KUMOI_ROADS, KUMOI_VANES, HANONO_POS } from '../maps/kumoi.js?v=c553fc066ee8';
+import { KUMOI_POS, KUMOI_ROADS, KUMOI_VANES, HANONO_POS } from '../maps/kumoi.js?v=e71638c3a938';
 import {
   K7, EF, JAR, GOLEM_LOST, PIT_FLAG, LIFT_FLAG, DROP_FLAG, SWITCH_WAIT, DOOR4_FLAG, LETTER_FLAG, GATHER, GATHER_FLAG,
   EARTH_FLOORS, EARTH_POS, EARTH_GOLEMS, EARTH_OUT, EARTH_REST, golemState, golemCellKind, earthMapId,
-} from '../maps/earth.js?v=c553fc066ee8';
-import { GATHER_GIFTS } from './items-earth.js?v=c553fc066ee8';
+} from '../maps/earth.js?v=e71638c3a938';
+import { GATHER_GIFTS } from './items-earth.js?v=e71638c3a938';
 // Step 8: みんなと 話した あとの 長ソラネ（影の城への 風の道。story-castle.js）
-import { soraneCastle } from './story-castle.js?v=c553fc066ee8';
+import { soraneCastle } from './story-castle.js?v=e71638c3a938';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
