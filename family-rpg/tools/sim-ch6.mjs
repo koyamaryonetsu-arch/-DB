@@ -96,7 +96,7 @@ const group = (boss) => FIXED_ENCOUNTERS[CH6_IDS[boss]].group.flatMap(([sp, n]) 
 
 // 合体技を えらぶ（知っている 人）: ダメージの 合体技。仲間の HPが へっている・前ぶれ・まきもどしの 間・MPが のこり 少なく なる ときは 使わない
 const hurts = (t) => t.parts.some((p) => p.type === 'power');
-function dualPlan(b, a, bossId, skip = null) {
+export function dualPlan(b, a, bossId, skip = null) {
   const boss = b.aliveEnemies().find((e) => e.species === bossId);
   // ペンデュラ: 知っている 人は ふりこが 右の 間（自分たちが おそい）は 合体技を しない
   if (boss?.pend && boss.pend.pos > 0 && skip !== 'trick') return false;

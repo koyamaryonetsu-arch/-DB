@@ -12,7 +12,7 @@ import { ABILITIES } from '../public/js/shared/data/abilities.js';
 import { ITEMS } from '../public/js/shared/data/items.js';
 import { FIXED_ENCOUNTERS, ENCOUNTER_TABLES, ZONE_BG } from '../public/js/shared/data/encounters.js';
 import { monsterDrops, MAT_DROPS } from '../public/js/shared/data/loot.js';
-import { MONSTER_FRIENDS, familyPool, breedCandidates, breedOutcome, rankOf, recipeHint, RANK_BREED_LV } from '../public/js/shared/data/companions.js';
+import { MONSTER_FRIENDS, familyPool, breedCandidates, breedOutcome, rankOf, recipeHint, RANK_BREED_LV, RANKS } from '../public/js/shared/data/companions.js';
 import { regionOf, starsOf, rarityOf, bossRareOf, isShopItem, rareWhereText } from '../public/js/shared/data/rare-loot.js';
 import { RECIPES } from '../public/js/shared/data/alchemy.js';
 import { MONSTERS_HOSHIYOMI, HOSHIYOMI_MAT_DROPS, NOCTO } from '../public/js/shared/data/monsters-hoshiyomi.js';
@@ -207,8 +207,8 @@ test('影の王: たましいすい × ひとがたの影（か 悪魔系の S �
   const f = MONSTER_FRIENDS[sk];
   assert.ok(f === FRIENDS_BOSS[sk] && f.rank === 'SS' && f.recipeOnly && f.materialOnly && f.rate === 0);
   for (const [, ab] of f.learn) assert.ok(ABILITIES[ab], ab);
-  assert.equal(rankOf('soul_eater', MONSTERS), 'S');
-  assert.equal(rankOf('homunculus_shade', MONSTERS), 'S');
+  // 第43回 A: ランクは めずらしさ（たましいすい・ひとがたの影は S では ない。この 2ひきの 組み合わせは ランクを とわない）
+  assert.ok(RANKS.includes(rankOf('soul_eater', MONSTERS)) && RANKS.includes(rankOf('homunculus_shade', MONSTERS)));
   assert.ok(MATERIAL_RECIPES.some((r) => r.a === 'soul_eater' && r.b === 'homunculus_shade' && r.item === 'shade_pendant' && r.child === sk));
   const lv = (sp, level = 20) => ({ species: sp, level });
   const bag = { items: [{ id: 'shade_pendant', n: 1 }] };
@@ -220,12 +220,13 @@ test('影の王: たましいすい × ひとがたの影（か 悪魔系の S �
     assert.equal(o.item, 'shade_pendant');
     assert.equal(o.rank, 'SS');
   }
-  // 悪魔系の S ＋ S ランク でも（黒ずくめの追っ手 ＋ 星読みフクロウ）
-  assert.ok(breedCandidates(lv('black_agent'), lv('star_owl'), MONSTERS, bag).list.includes(sk));
+  // 悪魔系の S ＋ S ランク でも（かげの魔道士 ＋ からくり騎士。第43回 A: 黒ずくめの追っ手・星読みフクロウは もう S では ない）
+  assert.ok(breedCandidates(lv('shadow_mage'), lv('clockwork_knight'), MONSTERS, bag).list.includes(sk));
+  assert.ok(!breedCandidates(lv('black_agent'), lv('star_owl'), MONSTERS, bag).list.includes(sk));
   // 品が ない・ランク配合（S Lv30 × S Lv30）では 生まれない
   assert.ok(!breedCandidates(lv('soul_eater'), lv('homunculus_shade'), MONSTERS, { items: [] }).list.includes(sk));
   const rank = breedCandidates(lv('soul_eater', RANK_BREED_LV), lv('homunculus_shade', RANK_BREED_LV), MONSTERS);
-  assert.ok(rank.items.some((it) => it.kind === 'rank') && !rank.list.includes(sk));
+  assert.ok(!rank.items.some((it) => it.kind === 'rank') && !rank.list.includes(sk));
   assert.match(recipeHint(sk, MONSTERS), /配合でしか会えない/);
   assert.ok(MONSTER_ART[MONSTERS[sk].art], 'え');
 });

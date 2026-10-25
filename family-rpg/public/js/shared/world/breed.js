@@ -7,6 +7,8 @@ import { ITEMS, SLOTS } from '../data/items.js';
 import { MONSTER_FRIENDS, BREED_MIN_LEVEL, BREED_INHERIT_MAX, BREED_INHERIT_TOTAL, breedOutcome, bestiaryKnow, RANKS } from '../data/companions.js';
 import { ougiLearn } from '../data/abilities-ougi.js';
 import { computeStats, learnedAbilities, newMonsterCompanion, addItem, removeItem, itemCount } from '../stats.js';
+// 第43回 A: 配合の あとの 追いつき
+import { catchUpLevel } from '../stats.js';
 import { inheritBonus, breedForecast, makeLineage } from '../breed-calc.js';
 import { ensureCompanions, companionOf, putInParty, afterRosterChange } from './party.js';
 
@@ -121,6 +123,8 @@ export function breedMonsters(world, s, { a, b, child, inherit, name } = {}) {
   ch.inherit = pick;
   ch.parents = [A.char.name, B.char.name];
   ch.lineage = lineage;
+  // 第43回 A: 追いつき（強いほうの 親の レベルの 3/4 までは 経験値 3倍。stats.js の gainExp）
+  ch.catchUp = catchUpLevel(A.char, B.char);
   const st = computeStats(ch);
   ch.hp = st.maxHp;
   ch.mp = st.maxMp;

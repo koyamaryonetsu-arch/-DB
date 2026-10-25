@@ -163,6 +163,8 @@ function companionInfo(e, activeKeys, partyKeys) {
     plus: ch.plus || 0, abilities: e.kind === 'monster' ? learnedAbilities(ch) : undefined, parents: ch.parents || null,
     // 配合の めやす・血統（shared/breed-calc.js。第35回）
     ...(e.kind === 'monster' ? { bonus: ch.bonus || null, seeds: ch.seeds || null, lineage: ch.lineage || null, ranked: ch.ranked || 0 } : {}),
+    // 第43回 A: 配合の あとの 追いつき（この レベルまで 経験値 3倍）
+    ...(e.kind === 'monster' && ch.catchUp > ch.level ? { catchUp: ch.catchUp } : {}),
   };
 }
 

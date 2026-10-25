@@ -5,6 +5,8 @@ import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js';
 import { MONSTERS } from './data/monsters.js';
 import { MONSTER_FRIENDS, monsterNatural, gearOf, monsterLevelCap } from './data/companions.js';
 import { ougiLearn } from './data/abilities-ougi.js';
+// 第43回 A: 魔物の 育ち・ランクの 強さ（data/companions.js の rankIdx）
+import { rankIdx } from './data/companions.js';
 import { HIRAMEKI, hiraRatio } from './data/hirameki.js';
 import { cleanLook } from './data/looks.js';
 import { SKILL_UPS } from './data/skill-ups.js';
@@ -143,7 +145,20 @@ export function computeStats(char) {
   return r;
 }
 
-// なかまの モンスターの つよさ（しゅぞくの のびかた × レベル ＋ からだの つよさ）
+// 第43回 A: 魔物の 育ち（人の「レベルで 得意な 強さが のびる」＋「職業の ボーナス」の かわり。魔物は 転職しないので レベルだけで のびる）
+//   レベル 1つで MON_GROW ずつ。Lv51 で 1＋MON_GROW_MAX（1.6倍）で 上げ止まり
+export const MON_GROW = 0.012;
+export const MON_GROW_MAX = 0.6;
+// ランクの 強さ（F〜★。めずらしい 魔物ほど 少し 強い。ランクは data/monster-ranks.js の「めずらしさ」）
+export const RANK_MULT = [1.00, 1.02, 1.04, 1.06, 1.08, 1.10, 1.12, 1.15, 1.15];
+// その 魔物の 育ちの 倍率（レベル × ランク）
+export function monsterGrowMult(char) {
+  const L = Math.max(1, char.level || 1);
+  const r = RANK_MULT[rankIdx(char.species, MONSTERS)] ?? 1;
+  return (1 + Math.min(MON_GROW_MAX, MON_GROW * (L - 1))) * r;
+}
+
+// なかまの モンスターの つよさ（しゅぞくの のびかた × レベル × 育ち ＋ からだの つよさ）
 function monsterCompanionStats(char) {
   const f = MONSTER_FRIENDS[char.species] || {};
   const g = f.growth || {};
@@ -151,13 +166,16 @@ function monsterCompanionStats(char) {
   const s = {};
   // はいごうの「＋」と おやから うけついだ つよさ
   const plus = 1 + Math.min(99, char.plus || 0) * 0.01;
-  for (const k of STAT_KEYS) s[k] = b[k] * (g[k] ?? 1) * plus + (char.bonus?.[k] || 0);
+  // 第43回 A: 育ち（レベル × ランク）
+  const grow = monsterGrowMult(char);
+  for (const k of STAT_KEYS) s[k] = b[k] * (g[k] ?? 1) * plus * grow + (char.bonus?.[k] || 0);
   for (const [k, v] of Object.entries(char.seeds || {})) s[k] = (s[k] || 0) + v;
   const eq = equipBonus(char);
   for (const k of STAT_KEYS) s[k] += eq.out[k] || 0;
   const r = {};
   for (const k of STAT_KEYS) r[k] = Math.max(k === 'hp' || k === 'agi' ? 1 : 0, Math.round(s[k]));
-  const nat = monsterNatural(char.level);
+  // からだの つよさにも 同じ 育ちを かける（第43回 A）
+  const nat = monsterNatural(char.level, grow);
   r.mag += Math.round(nat.mag * (g.mag ?? 1));
   r.heal += Math.round(nat.heal * (g.heal ?? 1));
   r.maxHp = r.hp;
@@ -560,10 +578,23 @@ export function newMonsterCompanion({ id, name, species, level }) {
   return c;
 }
 
+// 第43回 A: 配合の あとの 追いつき。生まれた 子は 強いほうの 親の レベルの CATCH_UP_RATE（3/4）に なるまで 経験値が CATCH_UP_MULT 倍
+export const CATCH_UP_RATE = 0.75;
+export const CATCH_UP_MULT = 3;
+export function catchUpLevel(a, b) {
+  return Math.floor(CATCH_UP_RATE * Math.max(a?.level || 1, b?.level || 1));
+}
+// 追いつきの 経験値（魔物で level < catchUp なら 3倍）
+export function catchUpExp(char, exp) {
+  return char?.species && char.catchUp > (char.level || 1) ? exp * CATCH_UP_MULT : exp;
+}
+
 // けいけんちを えて レベルアップ。 もどりち: レベルアップ情報の 配列
 export function gainExp(char, exp) {
   const ups = [];
   if (exp <= 0) return ups;
+  // 第43回 A: 追いつき（追いついたら catchUp を 消す）
+  exp = catchUpExp(char, exp);
   char.exp += exp;
   // 魔物の 仲間は ランクと ＋で きまる 上限まで（data/companions.js の monsterLevelCap。第35回）
   while (char.level < (char.species ? monsterLevelCap(char, MONSTERS, MAX_LEVEL) : MAX_LEVEL) && char.exp >= expForLevel(char.level + 1)) {
@@ -581,6 +612,7 @@ export function gainExp(char, exp) {
     const learned = learnedAbilities(char).filter((a) => !learnedBefore.has(a));
     ups.push({ level: char.level, gains, learned });
   }
+  if (char.catchUp !== undefined && (!(char.catchUp > char.level) || char.level >= monsterLevelCap(char, MONSTERS, MAX_LEVEL))) delete char.catchUp;
   return ups;
 }
 

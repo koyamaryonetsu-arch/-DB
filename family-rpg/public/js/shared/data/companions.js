@@ -23,6 +23,8 @@ import { FRIENDS_PHANTOM } from './companions-phantom.js';
 import { FRIENDS_PAST } from './companions-past.js';
 import { FRIENDS_ROAD } from './companions-road.js';
 import { FRIENDS_BOSS, MATERIAL_RECIPES, FOUR_RECIPES } from './monsters-boss.js';
+// 第43回 A: やせいの 魔物の ランク（めずらしさ）の 表（tools/gen-monster-ranks.mjs が 作る）
+import { MONSTER_RANKS } from './monster-ranks.js';
 
 export const MONSTER_FRIENDS = {
   pururin: {
@@ -208,9 +210,10 @@ export const ROSTER_MAX = 40;
 export const COMPANION_SLOTS = 3;
 
 // モンスターの なかまの 「からだの つよさ」（ぶきや よろいが なくても たたかえる。装備の ぶんは この 上に たす）
-export function monsterNatural(level) {
+//   grow … 育ちの 倍率（stats.js の monsterGrowMult。第43回 A。なければ 1）
+export function monsterNatural(level, grow = 1) {
   const L = level - 1;
-  return { atk: 4 + 1.4 * L, dfn: 4 + 1.5 * L, mag: 1.5 + 1.0 * L, heal: 1.5 + 1.0 * L };
+  return { atk: (4 + 1.4 * L) * grow, dfn: (4 + 1.5 * L) * grow, mag: (1.5 + 1.0 * L) * grow, heal: (1.5 + 1.0 * L) * grow };
 }
 
 // ───────────── はいごうで うまれる まもの ─────────────
@@ -330,7 +333,7 @@ export const RACE_NAMES = {
 // 配合の しゅるい（kind）:
 //   'four'     4体配合 … 両親と 祖父母が みんな その しゅぞく（monsters-boss.js の FOUR_RECIPES）
 //   'material' 素材配合 … ボスの 品 ＋ S ランク 2ひき（MATERIAL_RECIPES。品が ふくろに ある とき だけ。配合すると なくなる）
-//   'rank'     ランク配合 … S ランクで レベル RANK_BREED_LV いじょうの 2ひき → どちらかの 親と 同じ 系統の ボス級（SS）
+//   （'rank' ランク配合〈S どうし → SS〉は 第43回 A で やめた）
 //   'special'  特定配合 … しゅぞくID が 入った 組み合わせ（BREED_RECIPES）
 //   'recipe'   系統どうしの 組み合わせ（例: スライム系 ＋ スライム系 → キングぷるりん）
 //   'same'     新生配合 … 同じ しゅぞく 2ひき → 同じ しゅぞく（＋が 大きく 上がる。弱く ならない 道）
@@ -338,26 +341,59 @@ export const RACE_NAMES = {
 //   'family'   系統配合 … 両方の 親の 系統の 魔物のうち、ランクが 高いほうの 親と 同じ（親を 育てると 1つ上も）
 export const RANKS = ['F', 'E', 'D', 'C', 'B', 'A', 'S', 'SS', '★'];
 const RANK_S = 6;
-// ランクの きめかた: しゅぞくの lv が この 数 いか → F, E, D, C, B, A。それより 上は S。MONSTER_FRIENDS の rank が あれば それ
+// 第43回 A: ランクは「めずらしさ」で きめる（前は 出てくる 場所の 強さ〈しゅぞくの lv〉で、第5章の 魔物が ほとんど S だった）
+//   1. MONSTER_FRIENDS の rank（ボス級 SS・★・手で きめた 物）
+//   2. やせいの 魔物: data/monster-ranks.js の 表（出やすさ ＋ 仲間に なりにくさ）
+//   3. 配合だけの 魔物: 親の きまり（きまった 組み合わせ〈特定配合〉の 子は、親の 高いほうより 1つ上。A まで）
+//   4. さいごの 予備: 前の きめかた（しゅぞくの lv が この 数 いか → F, E, D, C, B, A。それより 上は S）
+//      系統どうしの 組み合わせ・系統配合だけで 生まれる 子も これ（A まで）
 const RANK_LV = [4, 9, 15, 22, 30, 38];
-// lv の さかいめで 親より 下に なる 特定配合の 子（いかずちタイガーは 星形パンサーから 生まれるので 同じ C）
-const RANK_FIX = { ikazuchi_tiger: 'C' };
-export function rankIdx(sp, MONSTERS) {
-  const r = MONSTER_FRIENDS[sp]?.rank || RANK_FIX[sp];
-  if (r && RANKS.includes(r)) return RANKS.indexOf(r);
+const RANK_A = 5;
+const breedRankMemo = new Map();
+function lvRank(sp, MONSTERS) {
   const lv = MONSTERS[sp]?.lv || 1;
   const i = RANK_LV.findIndex((x) => lv <= x);
   return i < 0 ? RANK_S : i;
 }
+// 配合だけの 魔物の ランク（特定配合の 親〈しゅぞくID〉の 高いほう ＋1。A まで。じゅんかんは 予備の きめかた）
+function breedOnlyRank(sp, MONSTERS, seen) {
+  if (breedRankMemo.has(sp)) return breedRankMemo.get(sp);
+  if (seen.has(sp)) return Math.min(RANK_A, lvRank(sp, MONSTERS));
+  seen.add(sp);
+  let best = null;
+  for (const r of BREED_RECIPES) {
+    if (r.child !== sp) continue;
+    const ids = [r.a, r.b].filter((x) => typeof x === 'string');
+    if (!ids.length) continue;
+    const hi = Math.max(...ids.map((x) => rankIdxOf(x, MONSTERS, seen)));
+    const v = Math.min(RANK_A, hi + 1);
+    best = best === null ? v : Math.min(best, v);
+  }
+  const out = best ?? Math.min(RANK_A, lvRank(sp, MONSTERS));
+  seen.delete(sp);
+  breedRankMemo.set(sp, out);
+  return out;
+}
+function rankIdxOf(sp, MONSTERS, seen) {
+  const r = MONSTER_FRIENDS[sp]?.rank || MONSTER_RANKS[sp];
+  if (r && RANKS.includes(r)) return RANKS.indexOf(r);
+  if (MONSTER_FRIENDS[sp]?.breedOnly) return breedOnlyRank(sp, MONSTERS, seen);
+  return lvRank(sp, MONSTERS);
+}
+export function rankIdx(sp, MONSTERS) {
+  return rankIdxOf(sp, MONSTERS, new Set());
+}
 export const rankOf = (sp, MONSTERS) => RANKS[rankIdx(sp, MONSTERS)];
 
-// レベルの 上限: ランク F で Lv50、ランクが 1つ上がるごとに +5（SS で 85）、＋1 ごとに +1。max（stats.js の MAX_LEVEL。第40回から 150）は こえない
+// レベルの 上限: ランク F で Lv70、ランクが 1つ上がるごとに +10（S で 130・SS で 140）、＋1 ごとに +1。max（stats.js の MAX_LEVEL。第40回から 150）は こえない
 // 第35回より 前から いる 仲間（ranked が ない）は 今までどおり max まで（下がらない ように）
-export const LV_CAP_BASE = 50;
-export const LV_CAP_RANK = 5;
+// 第43回 A: 50＋5 → 70＋10。ランクが かわって 上限が 今の レベルより 下に なっても、今の レベルは 下げない（それより 上には 上がらない）
+export const LV_CAP_BASE = 70;
+export const LV_CAP_RANK = 10;
 export function monsterLevelCap(ch, MONSTERS, max = 150) {
   if (!ch?.species || !ch.ranked) return max;
-  return Math.max(1, Math.min(max, LV_CAP_BASE + LV_CAP_RANK * rankIdx(ch.species, MONSTERS) + Math.floor(ch.plus || 0)));
+  const cap = Math.max(1, Math.min(max, LV_CAP_BASE + LV_CAP_RANK * rankIdx(ch.species, MONSTERS) + Math.floor(ch.plus || 0)));
+  return Math.max(cap, Math.min(max, Number.isFinite(ch.level) ? ch.level : 0));
 }
 
 // 特定配合（しゅぞくID が 入った 組み合わせ）・系統どうしの 組み合わせ
@@ -424,10 +460,11 @@ export function bossClassList(MONSTERS) {
 const lvOf = (x) => (Number.isFinite(x?.level) ? x.level : BREED_MIN_LEVEL);
 const plusOf = (x) => Math.max(0, Math.floor(x?.plus || 0));
 // 1つ上の ランクの 子も 候補に 入る（親を 育てると）: 両親の レベルの 合計 ＋ ＋の 合計の 半分 が この 数 いじょう
-//   F どうし Lv10＋Lv10 → E も。ランクが 1つ上がるごとに 8 ふえる（A どうしで S を ねらうなら Lv30＋Lv30）
-export const rankUpNeed = (hi) => 20 + 8 * hi;
+//   F どうし Lv10＋Lv10 → E も。ランクが 1つ上がるごとに 8 ふえる
+//   第43回 A: B から 上は きびしく（B→A 80・A→S 100。前は 60・68）
+export const rankUpNeed = (hi) => (hi >= 4 ? 80 + 20 * (hi - 4) : 20 + 8 * hi);
 export const rankUpOk = (a, b, hi) => lvOf(a) + lvOf(b) + Math.floor((plusOf(a) + plusOf(b)) / 2) >= rankUpNeed(hi);
-// ランク配合（S × S → SS）の 親の レベル
+// ランク配合（S × S → SS）の 親の レベル。第43回 A で ランク配合は やめた（SS は 素材配合と 4体配合だけ）。前の テスト・画面の ために 数は のこす
 export const RANK_BREED_LV = 30;
 
 // ふくろに その 品が あるか（装備して いる 物は 数えない。c が ない ときは ない もの と する）
@@ -436,8 +473,8 @@ const hasItem = (c, id) => Array.isArray(c?.items) && c.items.some((e) => e && e
 const fourOk = (x, sp) => x.species === sp && Array.isArray(x.lineage?.p) && x.lineage.p.length === 2 && x.lineage.p.every((p) => p === sp);
 
 // ならびの じゅん: きまった 組み合わせ → 新生配合 → そのほか（ランクの 高い じゅん → 強い じゅん → ID）。親より ランクの 低い 子は さいご
-const KIND_PRI = { four: 0, material: 0, rank: 0, special: 1, recipe: 1, same: 2, parent: 3, family: 3 };
-export const SPECIAL_KINDS = ['four', 'material', 'rank', 'special', 'recipe'];
+const KIND_PRI = { four: 0, material: 0, special: 1, recipe: 1, same: 2, parent: 3, family: 3 };
+export const SPECIAL_KINDS = ['four', 'material', 'special', 'recipe'];
 
 // 生まれる 子の 候補（a・b は { species, level, plus, lineage }。c … 品を もつ キャラ）
 //   list: しゅぞくID の ならび（いちばん 上が おすすめ）/ items: { sp, kind, rank, item? } / hi: 高いほうの 親の ランク / up: 1つ上の ランクも 入るか
@@ -454,11 +491,7 @@ export function breedCandidates(a, b, MONSTERS, c = null) {
   };
   for (const r of FOUR_RECIPES) if (fourOk(a, r.all) && fourOk(b, r.all)) add(r.child, 'four');
   for (const r of MATERIAL_RECIPES) if (hasItem(c, r.item) && recipeMatch(r, spA, spB, MONSTERS)) add(r.child, 'material', { item: r.item });
-  if (ra >= RANK_S && rb >= RANK_S && lvOf(a) >= RANK_BREED_LV && lvOf(b) >= RANK_BREED_LV) {
-    const races = [MONSTERS[spA]?.race, MONSTERS[spB]?.race];
-    // materialOnly … 素材配合でしか 生まれない ボス級（影の王。monsters-boss.js）
-    for (const sp of bossClassList(MONSTERS)) if (races.includes(MONSTERS[sp].race) && !MONSTER_FRIENDS[sp].materialOnly) add(sp, 'rank');
-  }
+  // 第43回 A: ランク配合（S どうし → SS）は やめた。SS は 素材配合（ボスの 品 ＋ 2ひき）と 4体配合だけ
   for (const r of BREED_RECIPES) if (isSpecialRecipe(r) && recipeMatch(r, spA, spB, MONSTERS)) add(r.child, 'special');
   for (const r of BREED_RECIPES) if (!isSpecialRecipe(r) && recipeMatch(r, spA, spB, MONSTERS)) add(r.child, 'recipe');
   if (spA === spB) add(spA, 'same');
