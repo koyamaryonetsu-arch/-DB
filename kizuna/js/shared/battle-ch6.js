@@ -16,17 +16,17 @@
 // ・オートの 仲間（ふつう）は、大砂流・ギアプレスが 自分の 番より 先に 来る とき、HPが へっていれば よく 身を 守る（AUTO_GUARD。氷・雷は 使い分けない）。
 //   シミュレーター（tools/sim-ch6.mjs）の 知っている 人（b.knowsCh6）は ch6Plan
 //   （b.c6NoIce・b.c6NoBolt・b.c6NoGuard … 知っている 人の しかけを 1つずつ はずして くらべる とき）
-import { MONSTERS } from './data/monsters.js?v=f7adbedf412d';
-import { ABILITIES } from './data/abilities.js?v=f7adbedf412d';
-import { SAND_CLOCK, GEARDON } from './data/monsters-past.js?v=f7adbedf412d';
-import { BUFF_ACTS } from './buff-acts.js?v=f7adbedf412d';
+import { MONSTERS } from './data/monsters.js?v=2551bc2b5aab';
+import { ABILITIES } from './data/abilities.js?v=2551bc2b5aab';
+import { SAND_CLOCK, GEARDON } from './data/monsters-past.js?v=2551bc2b5aab';
+import { BUFF_ACTS } from './buff-acts.js?v=2551bc2b5aab';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { atbRate } from './battle.js?v=f7adbedf412d';
-import { canUse } from './ai.js?v=f7adbedf412d';
+import { atbRate } from './battle.js?v=2551bc2b5aab';
+import { canUse } from './ai.js?v=2551bc2b5aab';
 // 第2部 第6章 Step 3・4: 星くいのよる鳥（星くい）・ペンデュラ（時のふりこ）・星座の 魔物（昼と 夜）。battle-road.js
-import { setupRoad, roadTurnStart, roadEffect, roadDamage, roadKnow, roadPub, ROAD_BIG } from './battle-road.js?v=f7adbedf412d';
+import { setupRoad, roadTurnStart, roadEffect, roadDamage, roadKnow, roadPub, ROAD_BIG } from './battle-road.js?v=2551bc2b5aab';
 // 第2部 第6章 Step 5: カリヨン（時のかね。知っている 人・かねの 前の 守り）。battle-tokei.js
-import { tokeiKnow, bellBefore } from './battle-tokei.js?v=f7adbedf412d';
+import { tokeiKnow, bellBefore } from './battle-tokei.js?v=2551bc2b5aab';
 
 export { SAND_CLOCK, GEARDON };
 export const FALL = 'm6_sc_fall';

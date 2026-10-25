@@ -3,7 +3,7 @@
 //   kind  … 種類じゅん（人の 仲間 → 魔物は 図鑑の じゅん。同じ 種類は レベルの 高い じゅん）
 //   level … レベルの 高い じゅん（同じ レベルは 仲間に なった じゅん）
 // 画面は client/ui/services.js の 酒場。えらんだ ならびは この 機械に のこす（client/prefs.js の rosterSortPref）
-import { MONSTERS } from './data/monsters.js?v=f7adbedf412d';
+import { MONSTERS } from './data/monsters.js?v=2551bc2b5aab';
 
 export const ROSTER_SORTS = [
   ['got', '仲間になった順'],

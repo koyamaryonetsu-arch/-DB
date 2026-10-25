@@ -10,9 +10,9 @@
 //   （サーバーも おなじ 数で 待つ。shared/ax-time.js）。def には 見た目だけ（charge の 色・sfx・allyFx・pal・vars・play）
 // ・battlefx.js の play() の いちばん はじめに playAxFx を よぶ。battle.js は axTiming で ダメージの 数を 出す 時間を きめる
 // つかいかたは docs/plan-r48-fx-engine.md の「エンジンの使い方」と docs/plan-r48-fx.md の「G0 の 決めごと」。
-import { playCharge, TIERS, TIER_K, CHARGE_KINDS, KIND_LOOK } from './axcharge.js?v=f7adbedf412d';
-import { bindKit, pal, rnd, lerp, clamp01, angleOf, centerOf, hitMark, AX_FINE } from './axkit.js?v=f7adbedf412d';
-import { AX_TIME, AX_SPREAD_MAX, axSkill, axTimes, axTs, axResolveCharge, axKindOf, axGroupOf, AX_GROUP_IDS } from '../../shared/ax-time.js?v=f7adbedf412d';
+import { playCharge, TIERS, TIER_K, CHARGE_KINDS, KIND_LOOK } from './axcharge.js?v=2551bc2b5aab';
+import { bindKit, pal, rnd, lerp, clamp01, angleOf, centerOf, hitMark, AX_FINE } from './axkit.js?v=2551bc2b5aab';
+import { AX_TIME, AX_SPREAD_MAX, axSkill, axTimes, axTs, axResolveCharge, axKindOf, axGroupOf, AX_GROUP_IDS } from '../../shared/ax-time.js?v=2551bc2b5aab';
 
 const AX = new Map();
 // 技の id → { anim, over }（over … その 技だけの tier・charge・vars・element）。def の abilities（shared に ない もの）
@@ -265,13 +265,13 @@ export function playAxFx(fx, anim, targets, element, opts = {}, W = 256, H = 144
 
 // ───────────── グループの とうろく（G0 が 書いた。グループは この 下を さわらない） ─────────────
 // 1グループ … import 1行 ＋ useAxGroup 1行（え・つぶ）。時間と 技の つなぎは shared/data/ax-time-gN.js、音は client/sfx-ax-gN.js
-import { AX_DEMO } from './ax-demo.js?v=f7adbedf412d';
-import { AX_G1, AX_G1_FINE } from './axfx-g1.js?v=f7adbedf412d';
-import { AX_G2, AX_G2_FINE } from './axfx-g2.js?v=f7adbedf412d';
-import { AX_G3, AX_G3_FINE } from './axfx-g3.js?v=f7adbedf412d';
-import { AX_G4, AX_G4_FINE } from './axfx-g4.js?v=f7adbedf412d';
-import { AX_G5, AX_G5_FINE } from './axfx-g5.js?v=f7adbedf412d';
-import { AX_G6, AX_G6_FINE } from './axfx-g6.js?v=f7adbedf412d';
+import { AX_DEMO } from './ax-demo.js?v=2551bc2b5aab';
+import { AX_G1, AX_G1_FINE } from './axfx-g1.js?v=2551bc2b5aab';
+import { AX_G2, AX_G2_FINE } from './axfx-g2.js?v=2551bc2b5aab';
+import { AX_G3, AX_G3_FINE } from './axfx-g3.js?v=2551bc2b5aab';
+import { AX_G4, AX_G4_FINE } from './axfx-g4.js?v=2551bc2b5aab';
+import { AX_G5, AX_G5_FINE } from './axfx-g5.js?v=2551bc2b5aab';
+import { AX_G6, AX_G6_FINE } from './axfx-g6.js?v=2551bc2b5aab';
 useAxGroup('demo', AX_DEMO);
 useAxGroup('g1', AX_G1, AX_G1_FINE);
 useAxGroup('g2', AX_G2, AX_G2_FINE);

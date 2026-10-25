@@ -3,12 +3,12 @@
 //   チップ（1・10・100枚）を 選んで、かけたい 所を タップ（いくつでも）→「回す」
 //   十字キー・A・B: ボタンや 数字の マスを えらぶ（ui/padnav.js）。A で チップを おく・B で 閉じる
 //   たての 画面（スマホ）: 円ばんが 上・数字の 表は たて ならび / よこの 画面: 円ばんが 左・表は よこ ならび
-import { el } from './dom.js?v=f7adbedf412d';
-import { request } from './shop.js?v=f7adbedf412d';
-import { padNav } from './padnav.js?v=f7adbedf412d';
-import { casinoShell, countUp, fmt, sendClose } from './casino.js?v=f7adbedf412d';
-import { ROULETTE_CHIPS, ROULETTE_MAX_TOTAL, ROULETTE_MAX_SPOTS, WHEEL, numColor, BET_KINDS, betKey, betName } from '../../shared/data/roulette.js?v=f7adbedf412d';
-import { coinsOf } from '../../shared/data/casino.js?v=f7adbedf412d';
+import { el } from './dom.js?v=2551bc2b5aab';
+import { request } from './shop.js?v=2551bc2b5aab';
+import { padNav } from './padnav.js?v=2551bc2b5aab';
+import { casinoShell, countUp, fmt, sendClose } from './casino.js?v=2551bc2b5aab';
+import { ROULETTE_CHIPS, ROULETTE_MAX_TOTAL, ROULETTE_MAX_SPOTS, WHEEL, numColor, BET_KINDS, betKey, betName } from '../../shared/data/roulette.js?v=2551bc2b5aab';
+import { coinsOf } from '../../shared/data/casino.js?v=2551bc2b5aab';
 
 const STEP = (Math.PI * 2) / WHEEL.length;
 const WIDX = Object.fromEntries(WHEEL.map((n, i) => [n, i]));

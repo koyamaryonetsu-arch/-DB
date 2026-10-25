@@ -3,12 +3,12 @@
 // ・もう 読んだ 階は、しおりに のこった 短い ことばだけ（なんどでも）
 // ・時計塔の 外では 使えない
 // だいほんを はじめるので、だいほんの しくみ scripts.js を 読む（story-ch6c.js は ここを 読まない）
-import { MAPS } from '../maps/index.js?v=f7adbedf412d';
-import { BM } from '../maps/tokei.js?v=f7adbedf412d';
-import { hasKeyItem } from '../stats.js?v=f7adbedf412d';
-import { ScriptRun } from './scripts.js?v=f7adbedf412d';
-import { partyOf } from './party.js?v=f7adbedf412d';
-import { TK_HINTS, BOOKMARK } from '../data/story-ch6c.js?v=f7adbedf412d';
+import { MAPS } from '../maps/index.js?v=2551bc2b5aab';
+import { BM } from '../maps/tokei.js?v=2551bc2b5aab';
+import { hasKeyItem } from '../stats.js?v=2551bc2b5aab';
+import { ScriptRun } from './scripts.js?v=2551bc2b5aab';
+import { partyOf } from './party.js?v=2551bc2b5aab';
+import { TK_HINTS, BOOKMARK } from '../data/story-ch6c.js?v=2551bc2b5aab';
 
 export const BOOK_TEXT = {
   none: '星読みのしおりを持っていない。',

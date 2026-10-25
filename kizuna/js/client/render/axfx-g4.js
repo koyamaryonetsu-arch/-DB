@@ -4,7 +4,7 @@
 // ・ここには 見た目だけ: { ax_〜: { charge: { color, color2, power }, sfx, allyFx, pal, vars, play(fx, c) } }
 // ・大きく なったら axfx-g4-〜.js に 分けて ここから import して よい
 // ・つぶの かきかた（Effects の FINE）は AX_G4_FINE に。なまえは 'g4' で はじめる（例: g4Beam）
-// import { pal } from './axkit.js?v=f7adbedf412d';
+// import { pal } from './axkit.js?v=2551bc2b5aab';
 
 export const AX_G4 = {
 };
