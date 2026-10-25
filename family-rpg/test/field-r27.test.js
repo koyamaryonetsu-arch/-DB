@@ -187,6 +187,7 @@ test('引っこしコード: 仲間 40人（いっぱい）でも LINE で 1回�
   assert.equal(r.ok, true, r.reason);
   const want = repairChar(JSON.parse(JSON.stringify(c)));
   assert.deepEqual(r.char.companions, want.companions, '仲間は もとどおり');
+  assert.deepEqual(r.char.kills, want.kills, 'たおした 数も もとどおり（同じ 数ごとに まとめた 形から もどす）');
   // 少ない ときは 今までどおり KIZUNA-2（前の 版でも 読める）
   const few = { ...JSON.parse(JSON.stringify(c)), companions: c.companions.slice(0, 3) };
   assert.ok(exportCode(few).startsWith('KIZUNA-2-'));
