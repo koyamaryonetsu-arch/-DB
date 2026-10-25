@@ -12,32 +12,32 @@
 //   ['teleport', 'map', x, y, 'dir']  ['spawn', 'map', x, y]  ['chapter', 'だい1しょう', 'サブタイトル']
 //
 // x（じょうほう）: x.name x.flag('f') x.has('item') x.count('item') x.kills('monster') x.quest('key')
-import { POS } from '../maps/index.js?v=2049a4e68a4c';
-import { PLACES } from '../maps/overworld.js?v=2049a4e68a4c';
-import { abilityLabel } from '../ability-label.js?v=2049a4e68a4c';
-import { learnedAbilities, comboUnlocked, hiraAllowed, hiraRelated, partyJobSet } from '../stats.js?v=2049a4e68a4c';
-import { HIRAMEKI, hiraRatio } from './hirameki.js?v=2049a4e68a4c';
-import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js?v=2049a4e68a4c';
-import { CH3_STEPS, CH3_STORY_SCRIPTS, CH3_SCRIPTS, elderCh3 } from './story-ch3.js?v=2049a4e68a4c';
-import { CH4_STEPS, CH4_STORY_SCRIPTS, CH4_SCRIPTS, elderCh4 } from './story-ch4.js?v=2049a4e68a4c';
-import { CH5_STEPS, CH5_STORY_SCRIPTS, CH5_SCRIPTS, CH5_TOWN_LINES, elderCh5 } from './story-ch5.js?v=2049a4e68a4c';
+import { POS } from '../maps/index.js?v=c5a1851e14d9';
+import { PLACES } from '../maps/overworld.js?v=c5a1851e14d9';
+import { abilityLabel } from '../ability-label.js?v=c5a1851e14d9';
+import { learnedAbilities, comboUnlocked, hiraAllowed, hiraRelated, partyJobSet } from '../stats.js?v=c5a1851e14d9';
+import { HIRAMEKI, hiraRatio } from './hirameki.js?v=c5a1851e14d9';
+import { CH2_STEPS, CH2_STORY_SCRIPTS, CH2_SCRIPTS } from './story-ch2.js?v=c5a1851e14d9';
+import { CH3_STEPS, CH3_STORY_SCRIPTS, CH3_SCRIPTS, elderCh3 } from './story-ch3.js?v=c5a1851e14d9';
+import { CH4_STEPS, CH4_STORY_SCRIPTS, CH4_SCRIPTS, elderCh4 } from './story-ch4.js?v=c5a1851e14d9';
+import { CH5_STEPS, CH5_STORY_SCRIPTS, CH5_SCRIPTS, CH5_TOWN_LINES, elderCh5 } from './story-ch5.js?v=c5a1851e14d9';
 // 第2部 第6章「時の砂時計」Step 1・2（story-ch6.js）
-import { CH6_STEPS, applyCh6 } from './story-ch6.js?v=2049a4e68a4c';
-import { TM_SCRIPTS, TM_STORY_SCRIPTS } from './story-tm.js?v=2049a4e68a4c';
-import { SD_SCRIPTS } from './story-secret.js?v=2049a4e68a4c';
-import { CASINO_SCRIPTS } from './story-casino.js?v=2049a4e68a4c';
-import { innSteps } from './inn.js?v=2049a4e68a4c';
-import { NIGHT_SCRIPTS } from './night.js?v=2049a4e68a4c';
-import { skyScripts } from './sky.js?v=2049a4e68a4c';
-import { FACILITY_SCRIPTS } from './facilities.js?v=2049a4e68a4c';
-import { wagonEventSteps } from './wagon.js?v=2049a4e68a4c';
-import { JOB_GREET } from './job-talk.js?v=2049a4e68a4c';
-import { LAB_SCRIPTS, LAB_STORY_SCRIPTS } from './story-lab.js?v=2049a4e68a4c';
-import { QUEST_SCRIPTS, QUEST_STORY_SCRIPTS, wrapSideQuests } from './sidequests.js?v=2049a4e68a4c';
+import { CH6_STEPS, applyCh6 } from './story-ch6.js?v=c5a1851e14d9';
+import { TM_SCRIPTS, TM_STORY_SCRIPTS } from './story-tm.js?v=c5a1851e14d9';
+import { SD_SCRIPTS } from './story-secret.js?v=c5a1851e14d9';
+import { CASINO_SCRIPTS } from './story-casino.js?v=c5a1851e14d9';
+import { innSteps } from './inn.js?v=c5a1851e14d9';
+import { NIGHT_SCRIPTS } from './night.js?v=c5a1851e14d9';
+import { skyScripts } from './sky.js?v=c5a1851e14d9';
+import { FACILITY_SCRIPTS } from './facilities.js?v=c5a1851e14d9';
+import { wagonEventSteps } from './wagon.js?v=c5a1851e14d9';
+import { JOB_GREET } from './job-talk.js?v=c5a1851e14d9';
+import { LAB_SCRIPTS, LAB_STORY_SCRIPTS } from './story-lab.js?v=c5a1851e14d9';
+import { QUEST_SCRIPTS, QUEST_STORY_SCRIPTS, wrapSideQuests } from './sidequests.js?v=c5a1851e14d9';
 // 第37回 A: サファラ闘技場（しょりは world/arena.js）
-import { ARENA_SCRIPTS, ARENA_STORY_SCRIPTS } from './story-arena.js?v=2049a4e68a4c';
-import { TRIAL_SCRIPTS } from './story-trials.js?v=2049a4e68a4c';
-import { applyTownHints } from './secret-hints.js?v=2049a4e68a4c';
+import { ARENA_SCRIPTS, ARENA_STORY_SCRIPTS } from './story-arena.js?v=c5a1851e14d9';
+import { TRIAL_SCRIPTS } from './story-trials.js?v=c5a1851e14d9';
+import { applyTownHints } from './secret-hints.js?v=c5a1851e14d9';
 
 const V = (x, y) => [PLACES.village.x + x + 0.5, PLACES.village.y + y + 0.5];
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);

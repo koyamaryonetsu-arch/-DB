@@ -1,58 +1,61 @@
 // たたかいの はいけいと エフェクト
-import { makeCanvas, ctxOf, hexToRgb, mix } from './pixel.js?v=2049a4e68a4c';
-import { weaponLook, playWeapon, playReach } from './weaponfx.js?v=2049a4e68a4c';
-import { nightBg, drawNightSky } from './night-art.js?v=2049a4e68a4c';
-import { playJobFx, JOB_FINE } from './battlefx-jobs.js?v=2049a4e68a4c';
-import { playJob2Fx, JOB2_FINE } from './battlefx-jobs2.js?v=2049a4e68a4c';
-import { playJob3Fx, JOB3_FINE } from './battlefx-jobs3.js?v=2049a4e68a4c';
-import { playJob4Fx, JOB4_FINE } from './battlefx-jobs4.js?v=2049a4e68a4c';
+import { makeCanvas, ctxOf, hexToRgb, mix } from './pixel.js?v=c5a1851e14d9';
+import { weaponLook, playWeapon, playReach } from './weaponfx.js?v=c5a1851e14d9';
+import { nightBg, drawNightSky } from './night-art.js?v=c5a1851e14d9';
+import { playJobFx, JOB_FINE } from './battlefx-jobs.js?v=c5a1851e14d9';
+import { playJob2Fx, JOB2_FINE } from './battlefx-jobs2.js?v=c5a1851e14d9';
+import { playJob3Fx, JOB3_FINE } from './battlefx-jobs3.js?v=c5a1851e14d9';
+import { playJob4Fx, JOB4_FINE } from './battlefx-jobs4.js?v=c5a1851e14d9';
 // 第27回の 暴れんぼう将軍の 看板の技（battlefx-jobs5.js）
-import { playJob5Fx, JOB5_FINE } from './battlefx-jobs5.js?v=2049a4e68a4c';
+import { playJob5Fx, JOB5_FINE } from './battlefx-jobs5.js?v=c5a1851e14d9';
 // 第29回の るろうに剣士の 道の 看板の技（battlefx-jobs6.js）
-import { playJob6Fx, JOB6_FINE } from './battlefx-jobs6.js?v=2049a4e68a4c';
+import { playJob6Fx, JOB6_FINE } from './battlefx-jobs6.js?v=c5a1851e14d9';
 // 第33回の 11この 職業の 技（battlefx-jobs7.js）
-import { playJob7Fx, JOB7_FINE } from './battlefx-jobs7.js?v=2049a4e68a4c';
+import { playJob7Fx, JOB7_FINE } from './battlefx-jobs7.js?v=c5a1851e14d9';
 // 第40回の 伝説の 職業 2つの 技（battlefx-jobs8.js）
-import { playJob8Fx, JOB8_FINE } from './battlefx-jobs8.js?v=2049a4e68a4c';
+import { playJob8Fx, JOB8_FINE } from './battlefx-jobs8.js?v=c5a1851e14d9';
 // 第41回 B の 雪の女王・第5のせいれいの 技（battlefx-r41b.js）
-import { playR41bFx, R41B_FINE } from './battlefx-r41b.js?v=2049a4e68a4c';
+import { playR41bFx, R41B_FINE } from './battlefx-r41b.js?v=c5a1851e14d9';
 // 第41回 A の 伝説の 職業 2つの 技（battlefx-r41a.js）
-import { playR41aFx, R41A_FINE } from './battlefx-r41a.js?v=2049a4e68a4c';
+import { playR41aFx, R41A_FINE } from './battlefx-r41a.js?v=c5a1851e14d9';
 // 第43回の 配管工の 系統の 技（battlefx-r43j.js）
-import { playR43jFx, R43J_FINE } from './battlefx-r43j.js?v=2049a4e68a4c';
+import { playR43jFx, R43J_FINE } from './battlefx-r43j.js?v=c5a1851e14d9';
 // 第44回の ポケモンの 技（battlefx-pokemon.js。anim は 'pk_…'）
-import { playPokemonFx, PK_FINE } from './battlefx-pokemon.js?v=2049a4e68a4c';
+import { playPokemonFx, PK_FINE } from './battlefx-pokemon.js?v=c5a1851e14d9';
 // 第45回の ドラクエふうの 魔物の 技（battlefx-dqm.js。anim は 'dq_…'）
-import { playDqmFx, DQ_FINE } from './battlefx-dqm.js?v=2049a4e68a4c';
-import { drawPalaceHall, drawPalaceFloor } from './ch4-palace-bg.js?v=2049a4e68a4c';
+import { playDqmFx, DQ_FINE } from './battlefx-dqm.js?v=c5a1851e14d9';
+// 第48回の 大技エンジン（ためる → はなつ。axfx.js・axkit.js。anim は registerAx で とうろくした もの）
+import { playAxFx } from './axfx.js?v=c5a1851e14d9';
+import { AX_FINE } from './axkit.js?v=c5a1851e14d9';
+import { drawPalaceHall, drawPalaceFloor } from './ch4-palace-bg.js?v=c5a1851e14d9';
 // 第4章 Step 6: 砂の古城・砂の海（すなかぜ号の かんぱん）・砂クジラの ねどこ（ch4-duna-bg.js）
-import { drawCastleHall, drawCastleFloor, drawSandSea } from './ch4-duna-bg.js?v=2049a4e68a4c';
-import { playCh4Fx } from './battlefx-ch4.js?v=2049a4e68a4c';
+import { drawCastleHall, drawCastleFloor, drawSandSea } from './ch4-duna-bg.js?v=c5a1851e14d9';
+import { playCh4Fx } from './battlefx-ch4.js?v=c5a1851e14d9';
 // 第27回: 古い 呪文・特技の エフェクトの 作り直し（battlefx-r27.js）
-import { playR27Fx, R27_FINE } from './battlefx-r27.js?v=2049a4e68a4c';
+import { playR27Fx, R27_FINE } from './battlefx-r27.js?v=c5a1851e14d9';
 // 第4章 Step 7: 砂の底の神殿・鏡の間・水鏡の広間（ch4-temple-bg.js）
-import { TEMPLE_BG, TEMPLE_DECOS, drawTempleBg, drawTempleFloorBg } from './ch4-temple-bg.js?v=2049a4e68a4c';
-import { SECRET_BG } from './secret-art.js?v=2049a4e68a4c';
+import { TEMPLE_BG, TEMPLE_DECOS, drawTempleBg, drawTempleFloorBg } from './ch4-temple-bg.js?v=c5a1851e14d9';
+import { SECRET_BG } from './secret-art.js?v=c5a1851e14d9';
 // 第5章 Step 2: 星の塔の 中・塔の てっぺん（ch5-tower-bg.js）
-import { TOWER_BG, TOWER_DECOS, drawTowerBg, drawTowerFloorBg } from './ch5-tower-bg.js?v=2049a4e68a4c';
+import { TOWER_BG, TOWER_DECOS, drawTowerBg, drawTowerFloorBg } from './ch5-tower-bg.js?v=c5a1851e14d9';
 // 第5章 Step 3・4: 雲の上の 島・しずみゆく島の 古い神殿（ch5-kumoi-bg.js）
-import { KUMOI_BG, KUMOI_DECOS, drawKumoiBg, drawKumoiFloorBg } from './ch5-kumoi-bg.js?v=2049a4e68a4c';
+import { KUMOI_BG, KUMOI_DECOS, drawKumoiBg, drawKumoiFloorBg } from './ch5-kumoi-bg.js?v=c5a1851e14d9';
 // 第5章 Step 5: 星読みの里の まわり・ノクトの思い出の迷宮（ch5-hoshiyomi-bg.js）
-import { HOSHIYOMI_BG, HOSHIYOMI_DECOS, drawHoshiyomiBg, drawHoshiyomiFloorBg } from './ch5-hoshiyomi-bg.js?v=2049a4e68a4c';
+import { HOSHIYOMI_BG, HOSHIYOMI_DECOS, drawHoshiyomiBg, drawHoshiyomiFloorBg } from './ch5-hoshiyomi-bg.js?v=c5a1851e14d9';
 // 第5章 Step 6・7: 根の島・大地の神殿（ch5-earth-bg.js）
-import { EARTH_BG, EARTH_DECOS, drawEarthBg, drawEarthFloorBg } from './ch5-earth-bg.js?v=2049a4e68a4c';
+import { EARTH_BG, EARTH_DECOS, drawEarthBg, drawEarthFloorBg } from './ch5-earth-bg.js?v=c5a1851e14d9';
 // 第37回 A: サファラ闘技場（arena。arena-art.js）
-import { ARENA_BG, ARENA_DECOS, drawArenaBg, drawArenaFloorBg } from './arena-art.js?v=2049a4e68a4c';
+import { ARENA_BG, ARENA_DECOS, drawArenaBg, drawArenaFloorBg } from './arena-art.js?v=c5a1851e14d9';
 // 第5章 Step 9: 星のない広間・ひとりぼっちの闇（ch5-final-bg.js）
-import { FINAL_BG, FINAL_DECOS, drawFinalBg, drawFinalFloorBg } from './ch5-final-bg.js?v=2049a4e68a4c';
+import { FINAL_BG, FINAL_DECOS, drawFinalBg, drawFinalFloorBg } from './ch5-final-bg.js?v=c5a1851e14d9';
 // 第5章 Step 8: 影の城の 風の階・炎の階・水の階（ch5-phantom-bg.js）
-import { PHANTOM_BG, PHANTOM_DECOS, drawPhantomBg, drawPhantomFloorBg } from './ch5-phantom-bg.js?v=2049a4e68a4c';
+import { PHANTOM_BG, PHANTOM_DECOS, drawPhantomBg, drawPhantomFloorBg } from './ch5-phantom-bg.js?v=c5a1851e14d9';
 // 第2部 第6章 Step 1・2: 千年前の フィールド・時の祠・時の遺跡・番人の間（ch6-past-bg.js）
-import { PAST_BG, PAST_DECOS, drawPastBg, drawPastFloorBg } from './ch6-past-bg.js?v=2049a4e68a4c';
+import { PAST_BG, PAST_DECOS, drawPastBg, drawPastFloorBg } from './ch6-past-bg.js?v=c5a1851e14d9';
 // 第2部 第6章 Step 3・4: 星めぐりの古道（ch6-road-bg.js）
-import { ROAD_BG, ROAD_DECOS, drawRoadBg, drawRoadFloorBg } from './ch6-road-bg.js?v=2049a4e68a4c';
+import { ROAD_BG, ROAD_DECOS, drawRoadBg, drawRoadFloorBg } from './ch6-road-bg.js?v=c5a1851e14d9';
 // 第2部 第6章 Step 5: 止まった時計塔（ch6-tokei-bg.js）
-import { TOKEI_BG, TOKEI_DECOS, drawTokeiBg, drawTokeiFloorBg } from './ch6-tokei-bg.js?v=2049a4e68a4c';
+import { TOKEI_BG, TOKEI_DECOS, drawTokeiBg, drawTokeiFloorBg } from './ch6-tokei-bg.js?v=c5a1851e14d9';
 
 export const BW = 256;
 export const BH = 144;
@@ -1244,6 +1247,7 @@ Object.assign(FINE, R41A_FINE);
 Object.assign(FINE, R43J_FINE);
 Object.assign(FINE, PK_FINE);
 Object.assign(FINE, DQ_FINE);
+Object.assign(FINE, AX_FINE);
 
 export class Effects {
   constructor() {
@@ -1505,6 +1509,8 @@ export class Effects {
   // anim の しゅるいで エフェクトを だす
   // opts: { crit, element, fromAlly }
   play(anim, targets, element, opts = {}) {
+    // 第48回の 大技エンジン（axfx.js。ためる → はなつ。敵が みんなに つかう ときも ここ）
+    if (playAxFx(this, anim, targets, element, opts, BW, BH)) return;
     // 第44回の ポケモンの 技（battlefx-pokemon.js。anim は 'pk_…'。敵が みんなに つかう ときも ここ）
     if (playPokemonFx(this, anim, targets, element, opts, BW, BH)) return;
     // 第45回の ドラクエふうの 魔物の 技（battlefx-dqm.js。anim は 'dq_…'。敵が みんなに つかう ときも ここ）
@@ -2077,8 +2083,11 @@ export class Effects {
     x.lineJoin = 'round';
     // ひばなは いろ・ふとさ・こさ ごとに まとめて 1かいで かく（かるく する）
     const sparks = new Map();
+    // top: いちばん 上に かく つぶ（第48回の カットインの 帯 など）
+    let tops = null;
     for (const p of this.parts) {
       if (p.delay > 0 || p.kind === 'flash' || p.kind === 'shake' || p.kind === 'call') continue;
+      if (p.top) { (tops || (tops = [])).push(p); continue; }
       const t = Math.min(1, p.age / p.life);
       if (p.kind === 'spark') {
         const a = Math.ceil(Math.max(0, 1 - t * t) * 4) / 4;
@@ -2395,6 +2404,13 @@ export class Effects {
       x.beginPath();
       for (let i = 0; i < arr.length; i += 4) { x.moveTo(arr[i], arr[i + 1]); x.lineTo(arr[i + 2], arr[i + 3]); }
       x.stroke();
+    }
+    if (tops) {
+      for (const p of tops) {
+        x.globalCompositeOperation = 'source-over';
+        x.globalAlpha = 1;
+        if (FINE[p.kind]) FINE[p.kind](x, p, Math.min(1, p.age / p.life), this);
+      }
     }
     x.globalAlpha = 1;
     x.globalCompositeOperation = 'source-over';

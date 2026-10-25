@@ -1,76 +1,78 @@
 // たたかいの がめん（むかしの RPG ふう 1がめん）
-import { el, esc, ListMenu, toast } from './ui/dom.js?v=2049a4e68a4c';
-import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js?v=2049a4e68a4c';
+import { el, esc, ListMenu, toast } from './ui/dom.js?v=c5a1851e14d9';
+import { ABILITIES, ELEMENT_NAMES, abilityRole } from '../shared/data/abilities.js?v=c5a1851e14d9';
 // 第33回: 技の 名前は 使う 人 むけ（男の子の 美少女戦士・セーラームーンは タキシード仮面ふう）
-import { abilityFor, abilityLabel } from '../shared/ability-label.js?v=2049a4e68a4c';
-import { ITEMS } from '../shared/data/items.js?v=2049a4e68a4c';
-import { JOBS } from '../shared/data/jobs.js?v=2049a4e68a4c';
-import { jobShort } from '../shared/job-label.js?v=2049a4e68a4c';
-import { MONSTERS } from '../shared/data/monsters.js?v=2049a4e68a4c';
-import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed, battleAbilityOk } from '../shared/stats.js?v=2049a4e68a4c';
-import { affinityOf, attackReach, spellSealed, SEALED_REASON } from '../shared/battle.js?v=2049a4e68a4c';
+import { abilityFor, abilityLabel } from '../shared/ability-label.js?v=c5a1851e14d9';
+import { ITEMS } from '../shared/data/items.js?v=c5a1851e14d9';
+import { JOBS } from '../shared/data/jobs.js?v=c5a1851e14d9';
+import { jobShort } from '../shared/job-label.js?v=c5a1851e14d9';
+import { MONSTERS } from '../shared/data/monsters.js?v=c5a1851e14d9';
+import { mpCost, penaltyFor, weaponOk, mahoukenOptions, comboAllowed, battleAbilityOk } from '../shared/stats.js?v=c5a1851e14d9';
+import { affinityOf, attackReach, spellSealed, SEALED_REASON } from '../shared/battle.js?v=c5a1851e14d9';
 // 合体技（2人・3人・4人）の コマンド・さそい・えんしゅつ（battle-dual.js）
-import { myDualOptions, dualMenu, showInvite, askingName, waitText, onDualWait, onDualWaitEnd, onDualHold, onDualAnswer, onDualBreak, dualPre, dualFx } from './battle-dual.js?v=2049a4e68a4c';
-import { TACTICS } from '../shared/ai.js?v=2049a4e68a4c';
-import { faceURL } from './field.js?v=2049a4e68a4c';
-import { monsterCanvas } from './render/monsters.js?v=2049a4e68a4c';
-import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=2049a4e68a4c';
-import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js?v=2049a4e68a4c';
-import { PARTY_ANIMS, JOB2_SFX } from './render/battlefx-jobs2.js?v=2049a4e68a4c';
-import { PARTY_ANIMS3, JOB3_SFX } from './render/battlefx-jobs3.js?v=2049a4e68a4c';
-import { SIG4, JOB4_SFX, sigAnim } from './render/battlefx-jobs4.js?v=2049a4e68a4c';
+import { myDualOptions, dualMenu, showInvite, askingName, waitText, onDualWait, onDualWaitEnd, onDualHold, onDualAnswer, onDualBreak, dualPre, dualFx } from './battle-dual.js?v=c5a1851e14d9';
+import { TACTICS } from '../shared/ai.js?v=c5a1851e14d9';
+import { faceURL } from './field.js?v=c5a1851e14d9';
+import { monsterCanvas } from './render/monsters.js?v=c5a1851e14d9';
+import { whiteCopy, ctxOf, makeCanvas } from './render/pixel.js?v=c5a1851e14d9';
+import { battleBackground, Effects, BW, BH, BRES, glowSprite } from './render/battlefx.js?v=c5a1851e14d9';
+import { PARTY_ANIMS, JOB2_SFX } from './render/battlefx-jobs2.js?v=c5a1851e14d9';
+import { PARTY_ANIMS3, JOB3_SFX } from './render/battlefx-jobs3.js?v=c5a1851e14d9';
+import { SIG4, JOB4_SFX, sigAnim } from './render/battlefx-jobs4.js?v=c5a1851e14d9';
 // 第27回に 作り直した 古い 呪文・特技の エフェクト（段階・あたる じかん・音・味方への えんしゅつ）
-import { r27Anim, r27Hit, r27Sfx, playAllyR27 } from './render/battlefx-r27.js?v=2049a4e68a4c';
-import { JOB5_SFX } from './render/battlefx-jobs5.js?v=2049a4e68a4c';
-import { JOB6_SFX } from './render/battlefx-jobs6.js?v=2049a4e68a4c';
+import { r27Anim, r27Hit, r27Sfx, playAllyR27 } from './render/battlefx-r27.js?v=c5a1851e14d9';
+import { JOB5_SFX } from './render/battlefx-jobs5.js?v=c5a1851e14d9';
+import { JOB6_SFX } from './render/battlefx-jobs6.js?v=c5a1851e14d9';
 // 第33回の 11この 職業の 技（音・あたる じかん・みかたに 出す えんしゅつ）
-import { JOB7_SFX, JOB7_HIT, PARTY_ANIMS7 } from './render/battlefx-jobs7.js?v=2049a4e68a4c';
+import { JOB7_SFX, JOB7_HIT, PARTY_ANIMS7 } from './render/battlefx-jobs7.js?v=c5a1851e14d9';
 // 第40回の 伝説の 職業 2つの 技（音・あたる じかん・みかたに 出す えんしゅつ）
-import { JOB8_SFX, JOB8_HIT, PARTY_ANIMS8 } from './render/battlefx-jobs8.js?v=2049a4e68a4c';
+import { JOB8_SFX, JOB8_HIT, PARTY_ANIMS8 } from './render/battlefx-jobs8.js?v=c5a1851e14d9';
 // 第41回 B の 雪の女王・第5のせいれいの 技（音・あたる じかん・みかたに 出す えんしゅつ）
-import { R41B_SFX, R41B_HIT, PARTY_ANIMS_R41B } from './render/battlefx-r41b.js?v=2049a4e68a4c';
+import { R41B_SFX, R41B_HIT, PARTY_ANIMS_R41B } from './render/battlefx-r41b.js?v=c5a1851e14d9';
 // 第41回 A の 伝説の 職業 2つの 技（京急の社長・野球界の殿堂入り）
-import { R41A_SFX, R41A_HIT, PARTY_ANIMS_R41A } from './render/battlefx-r41a.js?v=2049a4e68a4c';
+import { R41A_SFX, R41A_HIT, PARTY_ANIMS_R41A } from './render/battlefx-r41a.js?v=c5a1851e14d9';
 // 第43回の 配管工・ひげおやじ・マリオ（ももの姫・おてんば姫・ピーチ）の 技
-import { R43J_SFX, R43J_HIT, PARTY_ANIMS_R43J } from './render/battlefx-r43j.js?v=2049a4e68a4c';
+import { R43J_SFX, R43J_HIT, PARTY_ANIMS_R43J } from './render/battlefx-r43j.js?v=c5a1851e14d9';
 // 第44回の ポケモンの 技（味方の ポケモンが 敵に・敵の ポケモンが みんなに）
-import { PK_ANIMS, PK_SFX, PK_HIT, PK_ALLY_FX } from './render/battlefx-pokemon.js?v=2049a4e68a4c';
-import { DQ_ANIMS, DQ_SFX, DQ_HIT, DQ_ALLY_FX } from './render/battlefx-dqm.js?v=2049a4e68a4c';
-import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js?v=2049a4e68a4c';
-import { targetTag } from './ui/info.js?v=2049a4e68a4c';
+import { PK_ANIMS, PK_SFX, PK_HIT, PK_ALLY_FX } from './render/battlefx-pokemon.js?v=c5a1851e14d9';
+import { DQ_ANIMS, DQ_SFX, DQ_HIT, DQ_ALLY_FX } from './render/battlefx-dqm.js?v=c5a1851e14d9';
+// 第48回の 大技エンジン（ためる → はなつ。render/axfx.js）: 時間は axTiming、ダメージの 数は はなって あたった ときに
+import { axTiming, axHoldMs, axAllyFx, axIsParty, axEventAnim, axEnemyPose } from './render/axfx.js?v=c5a1851e14d9';
+import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js?v=c5a1851e14d9';
+import { targetTag } from './ui/info.js?v=c5a1851e14d9';
 // 第38回 C: バフ・デバフ・じわじわ回復の しるし（のこりの 行動の 回数）
-import { fillStatusRow, drawEnemyMarks } from './battle-buffs.js?v=2049a4e68a4c';
-import { battleSkillText, battleItemText, favHint } from './ui/skillinfo.js?v=2049a4e68a4c';
+import { fillStatusRow, drawEnemyMarks } from './battle-buffs.js?v=c5a1851e14d9';
+import { battleSkillText, battleItemText, favHint } from './ui/skillinfo.js?v=c5a1851e14d9';
 // 第35回: 技えらびの タブ（効果ごと）
-import { skillTabs, startTab, abilityElements } from '../shared/skill-tabs.js?v=2049a4e68a4c';
-import './ui/r35-css.js?v=2049a4e68a4c';
-import { bindBattlePad } from './battle-pad.js?v=2049a4e68a4c';
-import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js?v=2049a4e68a4c';
-import { ENEMY_RATE_NAMES } from '../shared/data/difficulty.js?v=2049a4e68a4c';
-import { ResultSheet } from './ui/result.js?v=2049a4e68a4c';
-import { paintRare } from './ui/rarity.js?v=2049a4e68a4c';
+import { skillTabs, startTab, abilityElements } from '../shared/skill-tabs.js?v=c5a1851e14d9';
+import './ui/r35-css.js?v=c5a1851e14d9';
+import { bindBattlePad } from './battle-pad.js?v=c5a1851e14d9';
+import { battleWagon, battleSwapMenu, applyBattleSwap, wagonSwapFx } from './ui/wagon.js?v=c5a1851e14d9';
+import { ENEMY_RATE_NAMES } from '../shared/data/difficulty.js?v=c5a1851e14d9';
+import { ResultSheet } from './ui/result.js?v=c5a1851e14d9';
+import { paintRare } from './ui/rarity.js?v=c5a1851e14d9';
 // 第4章の しかけ（月の鏡・まぼろしの 分身・魔神のランプ・ボスの 大技）
-import { CH4_ALLY_FX, ch4ItemEntries, ch4ItemPick, ch4ItemInfo, ch4Present, vanishFx, drawShade, drawBurrow } from './battle-ch4.js?v=2049a4e68a4c';
+import { CH4_ALLY_FX, ch4ItemEntries, ch4ItemPick, ch4ItemInfo, ch4Present, vanishFx, drawShade, drawBurrow } from './battle-ch4.js?v=c5a1851e14d9';
 // 第4章 Step 7 の 砂の底の神殿と モルガナ（鏡のうつし身・水のろうの 絵・水の衣・光・大波・水の守りの歌）
-import { templeSprite, templeDraw, templeStart, TEMPLE_SFX } from './battle-temple.js?v=2049a4e68a4c';
+import { templeSprite, templeDraw, templeStart, TEMPLE_SFX } from './battle-temple.js?v=c5a1851e14d9';
 // 第5章 Step 2 の 星の番人アルゴス（見通しの目。battle-ch5.js）
-import { towerDraw, TOWER_SFX } from './battle-ch5.js?v=2049a4e68a4c';
+import { towerDraw, TOWER_SFX } from './battle-ch5.js?v=c5a1851e14d9';
 // 第5章 Step 4 の ガイアイーター（部位の え・音。battle-gaia.js）
-import { gaiaSprite, GAIA_SFX } from './battle-gaia.js?v=2049a4e68a4c';
+import { gaiaSprite, GAIA_SFX } from './battle-gaia.js?v=c5a1851e14d9';
 // 第5章 Step 5 の ノクトの影（まねた 人の 影を かさねた え。battle-nocto.js）
-import { noctoSprite, NOCTO_SFX } from './battle-nocto.js?v=2049a4e68a4c';
+import { noctoSprite, NOCTO_SFX } from './battle-nocto.js?v=c5a1851e14d9';
 // 第5章 Step 6・7 の ノクト（1回目）と 大地の神殿の 魔物（音・コマンド「手をのばす」。battle-earth.js）
-import { EARTH_SFX, earthReachItem, earthReachPick, REACH_INFO } from './battle-earth.js?v=2049a4e68a4c';
+import { EARTH_SFX, earthReachItem, earthReachPick, REACH_INFO } from './battle-earth.js?v=c5a1851e14d9';
 // 第5章 Step 9 の ノクト（本気）・魔王ソリトゥス（音・コマンド「よびかける」「家族のきずな技」。battle-final.js）
-import { FINAL_SFX, FINAL_HIT, FINAL_OWN_TELE, finalCmdItems, finalCmdPick } from './battle-final.js?v=2049a4e68a4c';
+import { FINAL_SFX, FINAL_HIT, FINAL_OWN_TELE, finalCmdItems, finalCmdPick } from './battle-final.js?v=c5a1851e14d9';
 // 第5章 Step 8 の 影の城の 魔物と 3人の まぼろし（音。battle-phantom.js）
-import { PHANTOM_SFX } from './battle-phantom.js?v=2049a4e68a4c';
+import { PHANTOM_SFX } from './battle-phantom.js?v=c5a1851e14d9';
 // 第2部 第6章 Step 1・2 の 魔物と サンドクロック・ギアドン（音・前ぶれの バナーは 自分で。battle-ch6.js）
-import { CH6_SFX, CH6_OWN_TELE } from './battle-ch6.js?v=2049a4e68a4c';
+import { CH6_SFX, CH6_OWN_TELE } from './battle-ch6.js?v=c5a1851e14d9';
 // 第2部 第6章 Step 3・4 の 魔物と 星くいのよる鳥・ペンデュラの 音（battle-road.js。前ぶれの バナーは CH6_OWN_TELE に 入っている）
-import { ROAD_SFX } from './battle-road.js?v=2049a4e68a4c';
+import { ROAD_SFX } from './battle-road.js?v=c5a1851e14d9';
 // 第2部 第6章 Step 5 の 時計塔の 魔物と カリヨンの 音（battle-tokei.js）
-import { TOKEI_SFX } from './battle-tokei.js?v=2049a4e68a4c';
+import { TOKEI_SFX } from './battle-tokei.js?v=c5a1851e14d9';
 
 // たたかいの え の こまかさ（おもい きかいで さげたら、その あいだは さげた まま）
 let battleRes = BRES;
@@ -122,6 +124,7 @@ function allyFxKind(anim, fx, ab) {
   if (CH4_ALLY_FX[anim]) return CH4_ALLY_FX[anim];
   if (PK_ALLY_FX[anim]) return PK_ALLY_FX[anim];
   if (DQ_ALLY_FX[anim]) return DQ_ALLY_FX[anim];
+  if (axAllyFx(anim)) return axAllyFx(anim);
   const el = fx.element;
   if (/^bolt|gigabreak|dragon_beam/.test(anim) || el === 'bolt') return 'bolt';
   if (anim === 'dark_slash') return 'dark';
@@ -1090,6 +1093,9 @@ export class BattleScene {
   }
 
   present(ev) {
+    // 第48回の 大技: ためる → はなつ ので、名前の ふだと つぎの 行動を あたる まで まつ（え だけ。たたかいの 中みは かわらない）
+    ev.axAnim = axEventAnim(ev);
+    ev.axHold = ev.axAnim ? axHoldMs(ev.axAnim, { tempo: this.fxTempo(), ability: ev.ability, targets: (ev.fx?.targets || []).length, crit: (ev.results || []).some((r) => r.crit) }) : 0;
     if (ev.t === 'act') this.plate(ev);
     // 合体技を 使ったら、自分の キャラは 効果が わかる（サーバーでも おぼえる）
     if (ev.dual?.id && (ev.dual.m || [ev.dual.a, ev.dual.b]).some((id) => this.mine.includes(id))) {
@@ -1102,6 +1108,7 @@ export class BattleScene {
       this.say((ev.lines || []).slice(0, ev.dual ? 2 : 1), 500);
       if (ev.dual) this.dualFx(ev);
       else this.hiramekiFx(ev);
+      if (ev.axHold) ev.axHold += pre;
       setTimeout(() => { if (!this.destroyed) this.presentBody(ev); }, pre);
       return;
     }
@@ -1111,11 +1118,16 @@ export class BattleScene {
   presentBody(ev) {
     const g = this.game;
     const wasTele = !!this.c.get(ev.id)?.telegraph;
+    // 第48回の 大技: ためて いる 間は 味方の HPの 数を まえの まま（あたった ときに かわる。たおれた 人は すぐ）
+    const axHp = ev.axAnim ? new Map() : null;
+    const axHit = new Set(ev.axAnim ? (ev.results || []).filter((r) => r.dmg > 0 || r.heal > 0).map((r) => r.id) : []);
     for (const u of ev.upd || []) {
       const c = this.c.get(u.id);
       if (c) {
         const was = c.alive;
+        const oldHp = c.hp;
         Object.assign(c, u, { ready: u.ready });
+        if (axHp && c.side === 'ally' && c.alive && axHit.has(c.id) && Number.isFinite(oldHp) && c.hp !== oldHp) { axHp.set(c.id, [oldHp, c.hp]); c.hp = oldHp; }
         // 生き返った 敵（ミイラの王アンクの よみがえりの呪文）: もう一度 すがたを あらわす
         if (c.side === 'enemy' && c.alive && !was) { c.dead = 0; c.appear = 1; c.vanished = false; }
       } else this.c.set(u.id, { ...u, flash: 0, dead: 0, lunge: 0 });
@@ -1139,14 +1151,18 @@ export class BattleScene {
     // エフェクト
     const targets = (fx.targets || []).map((id) => this.c.get(id)).filter(Boolean);
     const enemyPts = targets.filter((t) => t.side === 'enemy').map((t) => this.center(t)).filter(Boolean);
-    const anim = sigAnim(ev.ability) || r27Anim(ev.ability) || fx.anim || (fx.type === 'attack' ? (fx.side === 'ally' ? (fx.weapon === 'claw' || fx.weapon === 'none' ? 'punch' : 'slash_heavy') : 'hit') : null);
+    const anim = ev.axAnim || sigAnim(ev.ability) || r27Anim(ev.ability) || fx.anim || (fx.type === 'attack' ? (fx.side === 'ally' ? (fx.weapon === 'claw' || fx.weapon === 'none' ? 'punch' : 'slash_heavy') : 'hit') : null);
     const crit = (ev.results || []).some((r) => r.crit);
     const fromAlly = fx.side === 'ally';
     const ab = ev.ability ? ABILITIES[ev.ability] : null;
     const tempo = this.fxTempo();
     const allyTargets = targets.filter((t) => t.side === 'ally');
     // こうどうした てきが うごく（こうげき・じゅもん・ブレス…）。lead: みかたに とどく じかん
-    const lead = actor && actor.side === 'enemy' && ev.t === 'act' ? this.enemyAct(actor, fx, ab, allyTargets, wasTele) : 0;
+    // 大技（第48回）を ためる 敵は ためる すがた（まつ 時間は ためる ほうに ふくまれる）
+    const axT = ev.axAnim ? axTiming(ev.axAnim, { tempo, ability: ev.ability, targets: Math.max(enemyPts.length, allyTargets.length), crit }) : null;
+    const lead = actor && actor.side === 'enemy' && ev.t === 'act' ? (axT?.charge ? axEnemyPose(actor, ev.axAnim, { ability: ev.ability }) : this.enemyAct(actor, fx, ab, allyTargets, wasTele)) : 0;
+    // 大技の えに わたす もの（音・カットインの かげ）
+    const axOpts = ev.axAnim ? { sfx: (id) => { if (!this.destroyed) g.audio.sfx(id); }, actorImg: actor?.side === 'enemy' ? (this.layout || []).find((m) => m.c === actor)?.img || null : null } : {};
     let hitDelay = 0;
     // ムチ（グループ）・ブーメラン（全体）: 敵ごとに あたる じかんが ちがう（id → ms）
     let perHit = null;
@@ -1164,14 +1180,19 @@ export class BattleScene {
         if (fx.weapon === 'bat') g.audio.sfx('bat');
         else if (fx.weapon === 'axe') g.audio.sfx('smash');
       } else {
-        this.fx.play(anim, enemyPts, fx.element, { crit, fromAlly, ability: ev.ability, from: actor && (actor.side === 'ally' ? this.allyPt(actor) : this.center(actor)) });
-        hitDelay = r27Hit(anim, ev.ability) ?? HIT_DELAY[anim] ?? 0;
+        this.fx.play(anim, enemyPts, fx.element, { crit, fromAlly, ability: ev.ability, from: actor && (actor.side === 'ally' ? this.allyPt(actor) : this.center(actor)), ...axOpts });
+        hitDelay = axT ? axT.hit : r27Hit(anim, ev.ability) ?? HIT_DELAY[anim] ?? 0;
       }
     }
     // 味方に かける 合体技（回復・ステージ）は、たたかいの 画面にも 大きく
     if (fx.type === 'dual' && anim && !enemyPts.length) this.fx.play(anim, [{ x: BW / 2, y: BH * 0.55 }], fx.element, { fromAlly: true });
     // 自分や 味方に かける 大わざ（金色のオーラ・解放のドラム・空調こう新）も、たたかいの 画面の 下（味方の いる ところ）に 大きく
-    else if (fromAlly && (PARTY_ANIMS.has(anim) || PARTY_ANIMS3.has(anim) || PARTY_ANIMS7.has(anim) || PARTY_ANIMS8.has(anim) || PARTY_ANIMS_R41B.has(anim) || PARTY_ANIMS_R41A.has(anim) || PARTY_ANIMS_R43J.has(anim) || SIG4.has(anim)) && !enemyPts.length) this.fx.play(anim, [{ x: BW / 2, y: BH * 0.62 }], fx.element, { fromAlly: true });
+    // 第48回の 大技を 味方に かける（回復・強化 など）: 味方の いちに（ためるのは つかった 人）
+    else if (fromAlly && axT && !enemyPts.length) {
+      const pts = allyTargets.length ? allyTargets.map((t) => this.allyPt(t)) : [{ x: BW / 2, y: BH * 0.62 }];
+      if (allyTargets.length || axIsParty(anim)) this.fx.play(anim, pts, fx.element, { crit, fromAlly: true, ability: ev.ability, from: actor?.side === 'ally' ? this.allyPt(actor) : undefined, ...axOpts });
+      hitDelay = axT.hit;
+    } else if (fromAlly && (PARTY_ANIMS.has(anim) || PARTY_ANIMS3.has(anim) || PARTY_ANIMS7.has(anim) || PARTY_ANIMS8.has(anim) || PARTY_ANIMS_R41B.has(anim) || PARTY_ANIMS_R41A.has(anim) || PARTY_ANIMS_R43J.has(anim) || SIG4.has(anim)) && !enemyPts.length) this.fx.play(anim, [{ x: BW / 2, y: BH * 0.62 }], fx.element, { fromAlly: true });
     // みかたへの えんしゅつ（てきの じゅもんは たまが とんでくる）
     if (anim && anim !== 'none' && allyTargets.length) {
       const kind = allyFxKind(anim, fx, ab);
@@ -1186,17 +1207,19 @@ export class BattleScene {
       if (!fromAlly && anim === 'breath') this.fx.tintAt(fx.element === 'fire' ? 'rgba(255, 120, 40, 0.16)' : 'rgba(200, 230, 255, 0.14)', 500 + lead);
       // ポケモンの 技が みんなに あたる: 出どころ（敵の まん中）から みんなの いちへ（render/battlefx-pokemon.js。あたる ときが うごきの おわりに あう）
       // 第45回の ドラクエふうの 技（dq_…）も おなじ。せかいじゅの子の 回復（味方に かける）も ここで みんなの いちに 出す
-      const pkHit = PK_ANIMS.has(anim) || DQ_ANIMS.has(anim);
-      if (pkHit) {
+      // 第48回の 大技（敵が みんなに。味方が 味方に かけた ときは うえで 出した）も おなじ
+      const pkHit = PK_ANIMS.has(anim) || DQ_ANIMS.has(anim) || !!axT;
+      if (pkHit && !(axT && fromAlly)) {
         const from = actor && (actor.side === 'ally' ? this.allyPt(actor) : this.center(actor));
         const at = allyTargets.map((t) => this.allyPt(t));
-        const hitMs = PK_HIT[anim] || DQ_HIT[anim] || 0;
+        const hitMs = axT ? axT.hit : PK_HIT[anim] || DQ_HIT[anim] || 0;
         d = Math.max(lead, hitMs);
-        const go = () => { if (!this.destroyed) this.fx.play(anim, at, fx.element, { crit, fromAlly: false, from: from || undefined }); };
+        const go = () => { if (!this.destroyed) this.fx.play(anim, at, fx.element, { crit, fromAlly: false, from: from || undefined, ability: ev.ability, ...axOpts }); };
         if (d - hitMs > 0) this.fx.at(d - hitMs, go);
         else go();
       }
       // てきの こうげきが こちらに あたる（がめんの てまえに 大きく）
+      if (axT && fromAlly) d = Math.max(d, axT.hit);
       if (actor?.side === 'enemy' && !pkHit) {
         const style = hitStyle(fx, ab, actor);
         const col = actColor('shimmy', fx, ab);
@@ -1237,9 +1260,10 @@ export class BattleScene {
     ch4Present(this, ev, fx, anim, actor, lead);
     if (ev.combo >= 2 && !ev.dual) this.banner(`れんけい ${ev.combo}！`, 'combo');
     if (anim === 'minadein') g.audio.sfx('bolt');
-    const sfxId = (fx.type !== 'attack' && r27Sfx(anim, ev.ability)) || ANIM_SFX[anim];
+    // 大技（第48回）の 音は render/axfx.js が ためる とき・はなつ ときに ならす
+    const sfxId = axT ? null : (fx.type !== 'attack' && r27Sfx(anim, ev.ability)) || ANIM_SFX[anim];
     if (anim && sfxId) g.audio.sfx(sfxId);
-    else if (fx.type === 'ability' && fromAlly) g.audio.sfx('spell');
+    else if (fx.type === 'ability' && fromAlly && !axT) g.audio.sfx('spell');
     if (fx.anim === 'quake') {
       const q = () => { if (!this.destroyed) this.shake(500, 7); };
       if (lead) setTimeout(q, lead / tempo);
@@ -1249,6 +1273,12 @@ export class BattleScene {
     const apply = (only = null) => {
       if (this.destroyed) return;
       let hurtAlly = false;
+      // 大技で まっていた 味方の HPの 数（その あいだに つぎの 行動で かわって いたら そのまま）
+      if (axHp?.size) {
+        for (const [id, [was, now]] of axHp) { const c = this.c.get(id); if (c && c.hp === was) c.hp = now; }
+        axHp.clear();
+        this.renderStatus();
+      }
       for (const r of ev.results || []) {
         if (only && r.id !== only) continue;
         const t = this.c.get(r.id);
@@ -1306,7 +1336,8 @@ export class BattleScene {
         if (rest) for (const r of ev.results || []) if (!perHit.has(r.id)) apply(r.id);
         for (const c of this.c.values()) if (c.side === 'enemy' && !c.alive && !c.dead) c.dead = 1;
       });
-    } else if (hitDelay > 0) setTimeout(apply, hitDelay / tempo);
+    } else if (hitDelay > 0 && axT) this.fx.at(hitDelay, apply); // 大技は エフェクトの 時計で（おもい きかいでも はなつ 前に 数が 出ない）
+    else if (hitDelay > 0) setTimeout(apply, hitDelay / tempo);
     else apply();
     if (ev.counter?.length) this.counterFx(ev.counter, counterRes, (perHit ? Math.max(...perHit.values()) : hitDelay) + 380);
     // えらんでいる とちゅうで たおれた・ねむった など
@@ -1420,7 +1451,7 @@ export class BattleScene {
     this.stage.append(e);
     this.plateEl = e;
     clearTimeout(this.plateT);
-    this.plateT = setTimeout(() => e.remove(), Math.max(1400, (ev.dur || 900) * 0.9));
+    this.plateT = setTimeout(() => e.remove(), Math.max(1400, (ev.dur || 900) * 0.9, ev.axHold ? ev.axHold + 200 : 0));
     if (a.side === 'ally' && !ev.dual) this.glowStatus(a.id, ev.hirameki ? '#fff6b0' : '#9ad8ff');
   }
 
@@ -1607,7 +1638,7 @@ export class BattleScene {
     if (!this.showing && this.queue.length) {
       const ev = this.queue.shift();
       this.present(ev);
-      this.showing = { left: Math.max(350, (ev.dur || 900) * 0.75) };
+      this.showing = { left: Math.max(350, (ev.dur || 900) * 0.75, ev.axHold || 0) };
     }
     if (!this.showing && !this.queue.length && this.endPending && !this.ended) {
       this.ended = true;
