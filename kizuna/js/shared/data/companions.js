@@ -10,21 +10,21 @@
 // resist: たいせい（しゅぞくの たいせいを つかう。ここに かけば うわがき）
 // gear:   装備できる 物（しゅぞくの けいの RACE_GEAR を うわがき。下の RACE_GEAR を 見てね）
 
-import { FRIENDS_CH2 } from './companions-ch2.js?v=855c00e900d9';
-import { FRIENDS_RARE } from './monsters-rare.js?v=855c00e900d9';
-import { FRIENDS_CH3 } from './companions-ch3.js?v=855c00e900d9';
-import { FRIENDS_R23, RECIPES_R23 } from './monsters-r23.js?v=855c00e900d9';
-import { FRIENDS_CH4 } from './companions-ch4.js?v=855c00e900d9';
-import { FRIENDS_CH5 } from './companions-ch5.js?v=855c00e900d9';
-import { FRIENDS_KUMOI } from './companions-kumoi.js?v=855c00e900d9';
-import { FRIENDS_HOSHIYOMI } from './companions-hoshiyomi.js?v=855c00e900d9';
-import { FRIENDS_EARTH } from './companions-earth.js?v=855c00e900d9';
-import { FRIENDS_PHANTOM } from './companions-phantom.js?v=855c00e900d9';
-import { FRIENDS_PAST } from './companions-past.js?v=855c00e900d9';
-import { FRIENDS_ROAD } from './companions-road.js?v=855c00e900d9';
-import { FRIENDS_BOSS, MATERIAL_RECIPES, FOUR_RECIPES } from './monsters-boss.js?v=855c00e900d9';
+import { FRIENDS_CH2 } from './companions-ch2.js?v=df2b5cb0d2d6';
+import { FRIENDS_RARE } from './monsters-rare.js?v=df2b5cb0d2d6';
+import { FRIENDS_CH3 } from './companions-ch3.js?v=df2b5cb0d2d6';
+import { FRIENDS_R23, RECIPES_R23 } from './monsters-r23.js?v=df2b5cb0d2d6';
+import { FRIENDS_CH4 } from './companions-ch4.js?v=df2b5cb0d2d6';
+import { FRIENDS_CH5 } from './companions-ch5.js?v=df2b5cb0d2d6';
+import { FRIENDS_KUMOI } from './companions-kumoi.js?v=df2b5cb0d2d6';
+import { FRIENDS_HOSHIYOMI } from './companions-hoshiyomi.js?v=df2b5cb0d2d6';
+import { FRIENDS_EARTH } from './companions-earth.js?v=df2b5cb0d2d6';
+import { FRIENDS_PHANTOM } from './companions-phantom.js?v=df2b5cb0d2d6';
+import { FRIENDS_PAST } from './companions-past.js?v=df2b5cb0d2d6';
+import { FRIENDS_ROAD } from './companions-road.js?v=df2b5cb0d2d6';
+import { FRIENDS_BOSS, MATERIAL_RECIPES, FOUR_RECIPES } from './monsters-boss.js?v=df2b5cb0d2d6';
 // 第43回 A: やせいの 魔物の ランク（めずらしさ）の 表（tools/gen-monster-ranks.mjs が 作る）
-import { MONSTER_RANKS } from './monster-ranks.js?v=855c00e900d9';
+import { MONSTER_RANKS } from './monster-ranks.js?v=df2b5cb0d2d6';
 
 export const MONSTER_FRIENDS = {
   pururin: {

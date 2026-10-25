@@ -4,7 +4,7 @@
 // ・star_dew … 星のしずく（千年前の 鏡の湖の ほとりで 手に 入れる）
 // ふつうの 道具・装備は B（data/items-past.js）
 // 第6章 Step 3・4（A）の 大事な物・より道の ごほうびは items-ch6-side.js（ここで まぜる。data/items.js は かえない）
-import { CH6_SIDE_ITEMS, CH6_SIDE_KANA } from './items-ch6-side.js?v=855c00e900d9';
+import { CH6_SIDE_ITEMS, CH6_SIDE_KANA } from './items-ch6-side.js?v=df2b5cb0d2d6';
 export const CH6_KEY_ITEMS = {
   toki_glass: {
     name: '時の砂時計', type: 'key', hourglass: true,

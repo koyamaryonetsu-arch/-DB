@@ -7,9 +7,9 @@
 //  3. ちびアステルのたからもの … 千年前の ちびアステルが きらきらの石を 集めている（千年前の フィールドで 5つ）→ わたす
 //     → 今の ほしみの丘に アステルが おりてくる「…思い出した」→ 星竜のうろこ（★5）
 // クエストの 画面・地図の しるし・「はなす」の ヒントは sidequests.js の labSubQuests・labDoneQuests から（ch6SubQuests・ch6DoneQuests）
-import { C6 } from '../maps/past.js?v=855c00e900d9';
-import { TC, RC, CT, TC_ASKERS, TC_NAMES, KIRA_SPOTS } from '../maps/ch6-side.js?v=855c00e900d9';
-import { SHOPS } from './shops.js?v=855c00e900d9';
+import { C6 } from '../maps/past.js?v=df2b5cb0d2d6';
+import { TC, RC, CT, TC_ASKERS, TC_NAMES, KIRA_SPOTS } from '../maps/ch6-side.js?v=df2b5cb0d2d6';
+import { SHOPS } from './shops.js?v=df2b5cb0d2d6';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

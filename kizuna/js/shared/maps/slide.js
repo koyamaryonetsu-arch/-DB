@@ -2,7 +2,7 @@
 //  ・ふつうの ゆかから となりへ: 氷なら すべりだす / ゆかなら 1歩
 //  ・氷の 上で とまっている ときは、むいた ほうへ すべる
 //  ・すべると、つぎの マスが ふさがっているか、氷では ない ゆかに 着いたら とまる
-import { isBlocked, slidesAt } from './index.js?v=855c00e900d9';
+import { isBlocked, slidesAt } from './index.js?v=df2b5cb0d2d6';
 
 const DIRS = [[0, -1], [1, 0], [0, 1], [-1, 0]];
 

@@ -1,18 +1,18 @@
 // まものの はいごう（ドラゴンクエストモンスターズ ふう。第35回で 作りなおし）
 //   生まれる 子の 候補・＋・ランクは data/companions.js の breedOutcome、能力の 受けつぎ・めやす・血統は shared/breed-calc.js
 //   どちらも 酒場の 画面（client/ui/services.js）と 同じ 計算
-import { MONSTERS } from '../data/monsters.js?v=855c00e900d9';
-import { ABILITIES } from '../data/abilities.js?v=855c00e900d9';
-import { ITEMS, SLOTS } from '../data/items.js?v=855c00e900d9';
-import { MONSTER_FRIENDS, BREED_MIN_LEVEL, BREED_INHERIT_MAX, BREED_INHERIT_TOTAL, breedOutcome, bestiaryKnow, RANKS } from '../data/companions.js?v=855c00e900d9';
-import { ougiLearn } from '../data/abilities-ougi.js?v=855c00e900d9';
-import { computeStats, learnedAbilities, newMonsterCompanion, addItem, removeItem, itemCount } from '../stats.js?v=855c00e900d9';
+import { MONSTERS } from '../data/monsters.js?v=df2b5cb0d2d6';
+import { ABILITIES } from '../data/abilities.js?v=df2b5cb0d2d6';
+import { ITEMS, SLOTS } from '../data/items.js?v=df2b5cb0d2d6';
+import { MONSTER_FRIENDS, BREED_MIN_LEVEL, BREED_INHERIT_MAX, BREED_INHERIT_TOTAL, breedOutcome, bestiaryKnow, RANKS } from '../data/companions.js?v=df2b5cb0d2d6';
+import { ougiLearn } from '../data/abilities-ougi.js?v=df2b5cb0d2d6';
+import { computeStats, learnedAbilities, newMonsterCompanion, addItem, removeItem, itemCount } from '../stats.js?v=df2b5cb0d2d6';
 // 第43回 A: 配合の あとの 追いつき
-import { catchUpLevel } from '../stats.js?v=855c00e900d9';
-import { inheritBonus, breedForecast, makeLineage } from '../breed-calc.js?v=855c00e900d9';
-import { ensureCompanions, companionOf, putInParty, afterRosterChange } from './party.js?v=855c00e900d9';
+import { catchUpLevel } from '../stats.js?v=df2b5cb0d2d6';
+import { inheritBonus, breedForecast, makeLineage } from '../breed-calc.js?v=df2b5cb0d2d6';
+import { ensureCompanions, companionOf, putInParty, afterRosterChange } from './party.js?v=df2b5cb0d2d6';
 // 第43回 C: あずかり中の 魔物も 親に なれる（world/party.js の breedEntry・world/storage.js）
-import { breedEntry, storedOf } from './party.js?v=855c00e900d9';
+import { breedEntry, storedOf } from './party.js?v=df2b5cb0d2d6';
 
 // おやから うけつげる わざ（第43回 B: 親ごとに 4つずつ・あわせて 8つ。docs/plan-monsters.md の 2-4）
 //   { a: [親A の 技], b: [親B の 技] }。両方の 親が 知っている 技は a に だけ 入れる（1つと 数える。b の あいた ぶんは ほかの 技から えらべる）
