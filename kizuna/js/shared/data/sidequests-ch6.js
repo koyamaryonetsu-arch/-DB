@@ -7,9 +7,11 @@
 //  3. ちびアステルのたからもの … 千年前の ちびアステルが きらきらの石を 集めている（千年前の フィールドで 5つ）→ わたす
 //     → 今の ほしみの丘に アステルが おりてくる「…思い出した」→ 星竜のうろこ（★5）
 // クエストの 画面・地図の しるし・「はなす」の ヒントは sidequests.js の labSubQuests・labDoneQuests から（ch6SubQuests・ch6DoneQuests）
-import { C6 } from '../maps/past.js?v=f6a4d212e9b8';
-import { TC, RC, CT, TC_ASKERS, TC_NAMES, KIRA_SPOTS } from '../maps/ch6-side.js?v=f6a4d212e9b8';
-import { SHOPS } from './shops.js?v=f6a4d212e9b8';
+import { C6 } from '../maps/past.js?v=b4e31baa770b';
+import { TC, RC, CT, TC_ASKERS, TC_NAMES, KIRA_SPOTS } from '../maps/ch6-side.js?v=b4e31baa770b';
+import { SHOPS } from './shops.js?v=b4e31baa770b';
+// 第6章 Step 5（A）: トキネの砂時計のかざり（sidequests-ch6c.js。ここで まぜる）
+import { ch6cSubQuests, ch6cDoneQuests, applyCh6cSide } from './sidequests-ch6c.js?v=b4e31baa770b';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -191,7 +193,7 @@ export const CH6_SIDE_QUESTS = [
   { id: 'chibi', name: 'ちびアステルのたからもの', done: CT.done },
 ];
 export function ch6SubQuests(c, f, has) {
-  const out = [];
+  const out = [...ch6cSubQuests(c, f)];
   if (!f(C6.flow)) return out;
   for (const k of KS) {
     const name = `時のタイムカプセル（${TC_NAMES[k]}）`;
@@ -218,7 +220,7 @@ export function ch6SubQuests(c, f, has) {
   return out;
 }
 export function ch6DoneQuests(c) {
-  return CH6_SIDE_QUESTS.filter((q) => c?.flags?.[q.done]).map((q) => q.name);
+  return [...CH6_SIDE_QUESTS.filter((q) => c?.flags?.[q.done]).map((q) => q.name), ...ch6cDoneQuests(c)];
 }
 
 // ───────────── だいほんを まぜる（story-ch6b.js の applyCh6b から）─────────────
@@ -243,5 +245,7 @@ export function applyCh6Side(SCRIPTS, STORY_SCRIPTS) {
   wrap(SCRIPTS, 'c6_chibi', (x, base) => chibiSteps(x, base));
   KIRA_SPOTS.forEach((_, i) => { SCRIPTS[`c6_kira_${i + 1}`] = (x) => kiraSteps(x, i + 1); });
   SCRIPTS.c6_astel_scale = (x) => astelSteps(x);
+  // 第6章 Step 5: トキネの砂時計のかざり
+  applyCh6cSide(SCRIPTS);
   for (const id of CH6_SIDE_STORY_SCRIPTS) STORY_SCRIPTS.add(id);
 }

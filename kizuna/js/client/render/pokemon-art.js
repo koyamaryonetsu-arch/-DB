@@ -3,7 +3,7 @@
 // ・子どもが 見て すぐ わかるように、形と 色は もとの すがたに そろえる（ピカチュウは 黄色・赤い ほっぺ・いなずまの しっぽ …）
 // ・コマ0 … ゆらゆら まつ すがた、コマ1 … こうげきの ポーズ
 // ・しんかするほど 大きく。リザードン・フシギバナ・カメックス・カビゴンは 大きな 魔物と おなじ くらい（field で フィールドでも すこし 大きく）
-import { fit, flame, taper, bez, spark } from './ch3-draw.js?v=f6a4d212e9b8';
+import { fit, flame, taper, bez, spark } from './ch3-draw.js?v=b4e31baa770b';
 
 const W = '#ffffff', K = '#1a1010';
 const pal = (P) => [...new Set(Object.values(P).map((c) => c.toLowerCase()))];

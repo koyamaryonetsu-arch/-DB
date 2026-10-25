@@ -17,12 +17,12 @@
 //   南へ 風の道（w9）が 開く。根の島から 北へ 風の道（w10）で 帰れる（竜でも 行ける）。神殿の 入口は 根が からみついていて、長ソラネの 話（c5_root）で ほどける。
 //   影の城が うかぶと（c5_castle）: 雲の 海の まん中に 影の城（まだ 入れない）・西の 船着き場の 風の道（w1）が とぎれる・しずんでいた 小島が 1つ 出てくる・
 //   空が 夕ぐれの 色に（map.dusk）・曲が kumoi_dusk に。根の島の 魔物は t5_root（B）
-import { T } from '../tiles.js?v=f6a4d212e9b8';
-import { hash2, fbm } from '../rng.js?v=f6a4d212e9b8';
-import { npc } from './npc.js?v=f6a4d212e9b8';
-import { SEA_PLACES } from './ch2.js?v=f6a4d212e9b8';
-import { buildRuinMaps, RUIN_OUT } from './sink-ruin.js?v=f6a4d212e9b8';
-import { EARTH_OUT, HANONO_GATHER_NPCS, K7 } from './earth.js?v=f6a4d212e9b8';
+import { T } from '../tiles.js?v=b4e31baa770b';
+import { hash2, fbm } from '../rng.js?v=b4e31baa770b';
+import { npc } from './npc.js?v=b4e31baa770b';
+import { SEA_PLACES } from './ch2.js?v=b4e31baa770b';
+import { buildRuinMaps, RUIN_OUT } from './sink-ruin.js?v=b4e31baa770b';
+import { EARTH_OUT, HANONO_GATHER_NPCS, K7 } from './earth.js?v=b4e31baa770b';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 // 物語の すすみぐあい（data/story-ch5.js の CH5_STEPS の c5_sky の うしろ。plan-ch5.md の 13 の 名前の 約束）

@@ -1,8 +1,8 @@
 // お仕事いらい板の たのまれごとで 使う どうぐ（第39回 C の sidequests-family.js から 分けた。第41回）
 // ・職業の 系統（jobLine）・その 系統の 人（lineMember）・いない 時の ヒント（need）・乗り物を もらう（vehicleSteps）
 // ・sidequests-family.js（はじめの 5つ）と sidequests-work.js（第41回の 6つ）の どちらも ここを 使う
-import { JOBS, jobAncestry } from './jobs.js?v=f6a4d212e9b8';
-import { FAMILY_VEHICLES } from './vehicles-family.js?v=f6a4d212e9b8';
+import { JOBS, jobAncestry } from './jobs.js?v=b4e31baa770b';
+import { FAMILY_VEHICLES } from './vehicles-family.js?v=b4e31baa770b';
 
 export const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 export const N = (...lines) => lines.map((l) => ['say', null, l]);

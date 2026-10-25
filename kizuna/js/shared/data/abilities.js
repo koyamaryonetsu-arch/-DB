@@ -17,56 +17,56 @@
 // 名前の一部は「ダイの大冒険」「ロトの紋章」へのオマージュです。
 // 上級職・超級職の 技は abilities-adv.js（さいごに まぜる）
 
-import { ADV_ABILITIES } from './abilities-adv.js?v=f6a4d212e9b8';
-import { CH2_ABILITIES } from './abilities-ch2.js?v=f6a4d212e9b8';
-import { JOB_ABILITIES } from './abilities-jobs.js?v=f6a4d212e9b8';
-import { HIRA_ABILITIES } from './hirameki.js?v=f6a4d212e9b8';
-import { TRAVEL_ABILITIES } from './sky.js?v=f6a4d212e9b8';
-import { RARE_ABILITIES } from './monsters-rare.js?v=f6a4d212e9b8';
-import { R23_ABILITIES } from './monsters-r23.js?v=f6a4d212e9b8';
-import { JOB2_ABILITIES } from './abilities-jobs2.js?v=f6a4d212e9b8';
-import { CH3_ABILITIES } from './abilities-ch3.js?v=f6a4d212e9b8';
-import { CH4_ABILITIES } from './abilities-ch4.js?v=f6a4d212e9b8';
-import { TEMPLE_ABILITIES } from './abilities-temple.js?v=f6a4d212e9b8';
-import { LAB_ABILITIES } from './abilities-lab.js?v=f6a4d212e9b8';
+import { ADV_ABILITIES } from './abilities-adv.js?v=b4e31baa770b';
+import { CH2_ABILITIES } from './abilities-ch2.js?v=b4e31baa770b';
+import { JOB_ABILITIES } from './abilities-jobs.js?v=b4e31baa770b';
+import { HIRA_ABILITIES } from './hirameki.js?v=b4e31baa770b';
+import { TRAVEL_ABILITIES } from './sky.js?v=b4e31baa770b';
+import { RARE_ABILITIES } from './monsters-rare.js?v=b4e31baa770b';
+import { R23_ABILITIES } from './monsters-r23.js?v=b4e31baa770b';
+import { JOB2_ABILITIES } from './abilities-jobs2.js?v=b4e31baa770b';
+import { CH3_ABILITIES } from './abilities-ch3.js?v=b4e31baa770b';
+import { CH4_ABILITIES } from './abilities-ch4.js?v=b4e31baa770b';
+import { TEMPLE_ABILITIES } from './abilities-temple.js?v=b4e31baa770b';
+import { LAB_ABILITIES } from './abilities-lab.js?v=b4e31baa770b';
 // 第37回 A: サファラ闘技場の 王者の 技
-import { ARENA_ABILITIES } from './abilities-arena.js?v=f6a4d212e9b8';
-import { TOWER_ABILITIES } from './abilities-tower.js?v=f6a4d212e9b8';
-import { KUMOI_ABILITIES } from './abilities-kumoi.js?v=f6a4d212e9b8';
-import { HOSHIYOMI_ABILITIES } from './abilities-hoshiyomi.js?v=f6a4d212e9b8';
-import { EARTH_ABILITIES } from './abilities-earth.js?v=f6a4d212e9b8';
-import { FINAL_ABILITIES } from './abilities-final.js?v=f6a4d212e9b8';
-import { PHANTOM_ABILITIES } from './abilities-phantom.js?v=f6a4d212e9b8';
-import { PAST_ABILITIES } from './abilities-past.js?v=f6a4d212e9b8';
-import { ROAD_ABILITIES } from './abilities-road.js?v=f6a4d212e9b8';
-import { TOKEI_ABILITIES } from './abilities-tokei.js?v=f6a4d212e9b8';
-import { JOB3_ABILITIES } from './abilities-jobs3.js?v=f6a4d212e9b8';
-import { JOB4_ABILITIES } from './abilities-jobs4.js?v=f6a4d212e9b8';
+import { ARENA_ABILITIES } from './abilities-arena.js?v=b4e31baa770b';
+import { TOWER_ABILITIES } from './abilities-tower.js?v=b4e31baa770b';
+import { KUMOI_ABILITIES } from './abilities-kumoi.js?v=b4e31baa770b';
+import { HOSHIYOMI_ABILITIES } from './abilities-hoshiyomi.js?v=b4e31baa770b';
+import { EARTH_ABILITIES } from './abilities-earth.js?v=b4e31baa770b';
+import { FINAL_ABILITIES } from './abilities-final.js?v=b4e31baa770b';
+import { PHANTOM_ABILITIES } from './abilities-phantom.js?v=b4e31baa770b';
+import { PAST_ABILITIES } from './abilities-past.js?v=b4e31baa770b';
+import { ROAD_ABILITIES } from './abilities-road.js?v=b4e31baa770b';
+import { TOKEI_ABILITIES } from './abilities-tokei.js?v=b4e31baa770b';
+import { JOB3_ABILITIES } from './abilities-jobs3.js?v=b4e31baa770b';
+import { JOB4_ABILITIES } from './abilities-jobs4.js?v=b4e31baa770b';
 // 2026年10月（第22回）の 新しい 職業の 技（おかん・社ちく・天才しせつ管理者・はかい神 など）
-import { JOB5_ABILITIES } from './abilities-jobs5.js?v=f6a4d212e9b8';
+import { JOB5_ABILITIES } from './abilities-jobs5.js?v=b4e31baa770b';
 // 2026年10月（第26回）の 新しい 職業の 技（楽天カードマン・きさつ隊・スパイ・探てい・ネコ型ロボット・カッパ・木の葉の忍び など）
-import { JOB6_ABILITIES } from './abilities-jobs6.js?v=f6a4d212e9b8';
-import { FIELD27_ABILITIES } from './abilities-field27.js?v=f6a4d212e9b8';
+import { JOB6_ABILITIES } from './abilities-jobs6.js?v=b4e31baa770b';
+import { FIELD27_ABILITIES } from './abilities-field27.js?v=b4e31baa770b';
 // 2026年10月（第27回）の 新しい 職業の 技（暴れんぼう将軍）
-import { JOB7_ABILITIES } from './abilities-jobs7.js?v=f6a4d212e9b8';
+import { JOB7_ABILITIES } from './abilities-jobs7.js?v=b4e31baa770b';
 // 2026年10月（第29回）の 新しい 職業の 技（るろうに剣士 → 人斬りばっ刀さい → ひ村ばっ刀さい → 飛天御剣流けい承者）
-import { JOB8_ABILITIES } from './abilities-jobs8.js?v=f6a4d212e9b8';
+import { JOB8_ABILITIES } from './abilities-jobs8.js?v=b4e31baa770b';
 // 2026年10月（第33回）の 新しい 職業の 技（手品師・かいとう・魔法学校・3年B組の担任・れん金術師・美少女戦士 など 11）
-import { JOB9_ABILITIES } from './abilities-jobs9.js?v=f6a4d212e9b8';
+import { JOB9_ABILITIES } from './abilities-jobs9.js?v=b4e31baa770b';
 // 2026年10月（第40回）の 2つの 伝説の 職業の 技（竜魔人・ネオ・クイーン・セレニティ）
-import { JOB10_ABILITIES } from './abilities-jobs10.js?v=f6a4d212e9b8';
+import { JOB10_ABILITIES } from './abilities-jobs10.js?v=b4e31baa770b';
 // 2026年10月（第41回 B）の 雪の女王・第5のせいれいの 技
-import { R41B_ABILITIES } from './abilities-r41b.js?v=f6a4d212e9b8';
+import { R41B_ABILITIES } from './abilities-r41b.js?v=b4e31baa770b';
 // 2026年10月（第41回 A）の 2つの 伝説の 職業の 技（京急の社長・野球界の殿堂入り）
-import { R41A_ABILITIES } from './abilities-r41a.js?v=f6a4d212e9b8';
+import { R41A_ABILITIES } from './abilities-r41a.js?v=b4e31baa770b';
 // 2026年10月（第43回 B）の 魔物の 系統の 奥義（Lv30・45・60）
-import { OUGI_ABILITIES } from './abilities-ougi.js?v=f6a4d212e9b8';
+import { OUGI_ABILITIES } from './abilities-ougi.js?v=b4e31baa770b';
 // 2026年10月（第43回）の 配管工 → ひげおやじ → マリオ（ももの姫 → おてんば姫 → ピーチ）の 技
-import { R43J_ABILITIES } from './abilities-r43j.js?v=f6a4d212e9b8';
+import { R43J_ABILITIES } from './abilities-r43j.js?v=b4e31baa770b';
 // 第44回（ポケモン P1）の ポケモンの 魔物の 技（abilities-pokemon.js）
-import { POKEMON_ABILITIES } from './abilities-pokemon.js?v=f6a4d212e9b8';
+import { POKEMON_ABILITIES } from './abilities-pokemon.js?v=b4e31baa770b';
 // 第45回（ドラクエふう D1）の ドラクエふうの 魔物の 技（abilities-dqm.js）
-import { DQM_ABILITIES } from './abilities-dqm.js?v=f6a4d212e9b8';
+import { DQM_ABILITIES } from './abilities-dqm.js?v=b4e31baa770b';
 
 export const ABILITIES = {
   // ───────────── 戦士 ─────────────

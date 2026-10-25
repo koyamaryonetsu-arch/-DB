@@ -8,21 +8,21 @@
 //   c.medalSpots   … 小さなメダルを 見つけた 場所 { id: 時こく }
 //   c.medalsGiven  … メダル王に わたした 数
 //   c.medalRewards … もらった ごほうび { 5: true, 10: true, … }
-import { ITEMS } from '../data/items.js?v=f6a4d212e9b8';
-import { addItem, itemCount } from '../stats.js?v=f6a4d212e9b8';
+import { ITEMS } from '../data/items.js?v=b4e31baa770b';
+import { addItem, itemCount } from '../stats.js?v=b4e31baa770b';
 import {
   COIN_PRICE, COIN_MAX, COIN_BUY_MAX, COIN_PACKS, coinsOf, SLOT_BETS, REELS, slotLine, slotPay,
   POKER_BETS, JOKER, DOUBLE_MAX, evalPoker, doubleOutcome, PRIZES, prizesFor, MEDAL_REWARDS,
   medalsFound, medalsGiven, medalsHeld,
-} from '../data/casino.js?v=f6a4d212e9b8';
-import { MEDAL_SPOTS, MEDAL_SPOT_BY_ID, medalSparkleId } from '../maps/casino.js?v=f6a4d212e9b8';
-import { MAPS, tileAt, condOk } from '../maps/index.js?v=f6a4d212e9b8';
-import { T } from '../tiles.js?v=f6a4d212e9b8';
+} from '../data/casino.js?v=b4e31baa770b';
+import { MEDAL_SPOTS, MEDAL_SPOT_BY_ID, medalSparkleId } from '../maps/casino.js?v=b4e31baa770b';
+import { MAPS, tileAt, condOk } from '../maps/index.js?v=b4e31baa770b';
+import { T } from '../tiles.js?v=b4e31baa770b';
 // 第37回 B: ルーレット・すごろく場・宝の地図の 段で ふえる 景品
-import { ROULETTE_CHIPS, ROULETTE_MAX_TOTAL, normBets, roulettePayout } from '../data/roulette.js?v=f6a4d212e9b8';
-import { tierInfo } from '../data/casino-tier.js?v=f6a4d212e9b8';
-import { sugorokuInfo, sugorokuAction } from './sugoroku.js?v=f6a4d212e9b8';
-import { SUGOROKU_MAP } from '../data/sugoroku.js?v=f6a4d212e9b8';
+import { ROULETTE_CHIPS, ROULETTE_MAX_TOTAL, normBets, roulettePayout } from '../data/roulette.js?v=b4e31baa770b';
+import { tierInfo } from '../data/casino-tier.js?v=b4e31baa770b';
+import { sugorokuInfo, sugorokuAction } from './sugoroku.js?v=b4e31baa770b';
+import { SUGOROKU_MAP } from '../data/sugoroku.js?v=b4e31baa770b';
 
 // 見つけた 光る 場所は もう 光らない（sparkles の 時こくを ずっと 先に）
 export const MEDAL_TAKEN_AT = 9e15;

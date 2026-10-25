@@ -69,6 +69,10 @@ export const T = {
   FROZEN_WATER: 262, STRAW_WALL: 263, TIME_PLATE: 264, TIME_PLATE_ON: 265,
   // 第6章 Step 3・4「星めぐりの古道」（maps/hoshimichi.js・render/tiles-hoshimichi.js）。266〜279 は ほかの 人の ために あけて 280 から
   HM_MIST: 280, HM_ROUTE: 281, DRY_VALLEY: 282, YOUNG_TREE: 283, METEOR: 284, STAR_POST: 285, STAR_CATCH: 286, STAR_STONE: 287, STAR_STONE_ON: 288,
+  // 第6章 Step 5「止まった時計塔」（maps/tokei.js・render/tiles-tokei.js）。289 から
+  CLOCK_PIT: 289, HAND_BRIDGE: 290, CLOCK_HUB: 291, HAND_SWITCH: 292, CLOCK_PAINT: 293, THUD_FLOOR: 294, THUD_STONE: 295, STOP_FLOOR: 296,
+  STOP_WATER: 297, BIG_GEAR: 298, GEAR_FLAT: 299, TIME_GAP: 300, CLOCK_DOOR: 301, BIG_BELL: 302, FROZEN_TREE: 303, FROZEN_GRASS: 304,
+  MURAL_NEW: 305, CLOCK_FACE: 306,
 };
 
 export const TILE_INFO = {};
@@ -363,6 +367,25 @@ def(T.STAR_POST, 'star_post', { solid: true, anim: true, light: true, mapColor: 
 def(T.STAR_CATCH, 'star_catch', { solid: true, talkThrough: true, mapColor: '#c8b8e8' }); // 千年前の 星受けの台
 def(T.STAR_STONE, 'star_stone', { mapColor: '#7a7aa8' }); // 星の石（ふむ石。2つの 時代で 同時に ふむ）
 def(T.STAR_STONE_ON, 'star_stone_on', { light: true, mapColor: '#ffe680' }); // ともった 星の石
+// 第6章 Step 5「止まった時計塔」（render/tiles-tokei.js）
+def(T.CLOCK_PIT, 'clock_pit', { solid: true, mapColor: '#14100c' }); // 大時計の 文字ばんの あな（下で 歯車が 止まっている。通れない）
+def(T.HAND_BRIDGE, 'hand_bridge', { mapColor: '#d8b050' }); // 時計の 針の 橋（スイッチで 1時間ずつ 回る。歩ける）
+def(T.CLOCK_HUB, 'clock_hub', { mapColor: '#b89040' }); // 文字ばんの まん中の 台（針の 根もと。歩ける）
+def(T.HAND_SWITCH, 'hand_switch', { solid: true, talkThrough: true, mapColor: '#e8c060' }); // 針の スイッチ（しらべると 針が 回る）
+def(T.CLOCK_PAINT, 'clock_paint', { solid: true, mapColor: '#c8a878' }); // かべの 時計の 絵（何時に 合わせるかの ヒント）
+def(T.THUD_FLOOR, 'thud_floor', { mapColor: '#6a5a4a' }); // 落ちてくる 石（ドッスン）の 下の ゆか（石が 上がっている 間は 歩ける）
+def(T.THUD_STONE, 'thud_stone', { solid: true, mapColor: '#8a8a9a' }); // 落ちてきた 石（ドッスン。通れない）
+def(T.STOP_FLOOR, 'stop_floor', { mapColor: '#9a98a0' }); // 止まった 部屋の ゆか（時の 砂時計の 光の 中の 人だけ 動ける）
+def(T.STOP_WATER, 'stop_water', { mapColor: '#a8b0b8' }); // 止まった 水（止まっている 間は 上を 歩ける）
+def(T.BIG_GEAR, 'big_gear', { solid: true, mapColor: '#a07a30' }); // 止まった 大きな 歯車（千年前では 動かない）
+def(T.GEAR_FLAT, 'gear_flat', { mapColor: '#8a6a2a' }); // 回って 道に なった 歯車（歩ける）
+def(T.TIME_GAP, 'time_gap', { anim: true, light: true, mapColor: '#e8e0ff' }); // 時の すきま（光る ゆか。ここで 時の 砂時計を 使うと、今の 星の塔と 行き来できる）
+def(T.CLOCK_DOOR, 'clock_door', { solid: true, mapColor: '#8a6a3a' }); // 歯車の とびら（時計塔）
+def(T.BIG_BELL, 'big_bell', { solid: true, talkThrough: true, mapColor: '#d8a840' }); // 大きな 鐘（5階）
+def(T.FROZEN_TREE, 'frozen_tree', { solid: true, mapColor: '#8a8c90' }); // 時が 止まった 灰色の 木（千年前の 北の 山）
+def(T.FROZEN_GRASS, 'frozen_grass', { mapColor: '#a8aaae' }); // 時が 止まった 灰色の 草（歩ける）
+def(T.MURAL_NEW, 'mural_new', { solid: true, mapColor: '#b8b0a0' }); // 星の塔 1階の 新しい かべ画（うすく、半分しか 見えない）
+def(T.CLOCK_FACE, 'clock_face', { solid: true, mapColor: '#d8c890' }); // かべの 大時計（12時で 止まっている）
 
 export function isSolid(id) {
   return TILE_INFO[id]?.solid ?? true;

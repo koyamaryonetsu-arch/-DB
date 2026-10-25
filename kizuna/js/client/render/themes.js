@@ -1,17 +1,19 @@
 // 色の かえかた（宝の洞窟の しゅるい・第3章の 氷と 火の 洞窟・第4章の 砂の 洞窟と 地下水路・洞窟の 主の 色ちがい）
 // もとの ドット絵は そのままに、明るさを たもって 色だけ かえる
-import { T } from '../../shared/tiles.js?v=f6a4d212e9b8';
-import { makeCanvas, ctxOf } from './pixel.js?v=f6a4d212e9b8';
-import { CANAL_CTX, CANAL_CTX_TILES } from './tiles-canal.js?v=f6a4d212e9b8';
-import { TEMPLE_TILES } from './tiles-temple.js?v=f6a4d212e9b8';
-import { LAB_TILES } from './tiles-lab.js?v=f6a4d212e9b8';
-import { TOWER_TILES, TOWER_THEMES } from './tiles-tower.js?v=f6a4d212e9b8';
-import { KUMOI_TILES, KUMOI_THEMES } from './tiles-kumoi.js?v=f6a4d212e9b8';
-import { MEMORY_KEEP_COLOR, MEMORY_THEMES } from './tiles-memory.js?v=f6a4d212e9b8';
-import { EARTH_KEEP_COLOR, EARTH_THEMES } from './tiles-earth.js?v=f6a4d212e9b8';
-import { CASTLE_KEEP_COLOR, CASTLE_THEMES, THEME_PARTS } from './tiles-castle.js?v=f6a4d212e9b8';
-import { TOP_KEEP_COLOR, TOP_THEMES } from './tiles-top.js?v=f6a4d212e9b8';
-import { CH6_KEEP_COLOR, CH6_THEMES } from './tiles-ch6.js?v=f6a4d212e9b8';
+import { T } from '../../shared/tiles.js?v=b4e31baa770b';
+import { makeCanvas, ctxOf } from './pixel.js?v=b4e31baa770b';
+import { CANAL_CTX, CANAL_CTX_TILES } from './tiles-canal.js?v=b4e31baa770b';
+import { TEMPLE_TILES } from './tiles-temple.js?v=b4e31baa770b';
+import { LAB_TILES } from './tiles-lab.js?v=b4e31baa770b';
+import { TOWER_TILES, TOWER_THEMES } from './tiles-tower.js?v=b4e31baa770b';
+import { KUMOI_TILES, KUMOI_THEMES } from './tiles-kumoi.js?v=b4e31baa770b';
+import { MEMORY_KEEP_COLOR, MEMORY_THEMES } from './tiles-memory.js?v=b4e31baa770b';
+import { EARTH_KEEP_COLOR, EARTH_THEMES } from './tiles-earth.js?v=b4e31baa770b';
+import { CASTLE_KEEP_COLOR, CASTLE_THEMES, THEME_PARTS } from './tiles-castle.js?v=b4e31baa770b';
+import { TOP_KEEP_COLOR, TOP_THEMES } from './tiles-top.js?v=b4e31baa770b';
+import { CH6_KEEP_COLOR, CH6_THEMES } from './tiles-ch6.js?v=b4e31baa770b';
+// 第6章 Step 5: 時計塔の レバー・ドッスン・かねの たてた ものは もとの 色の まま（render/tiles-tokei.js）
+import { TK_PROPS_KEEP } from './tiles-tokei.js?v=b4e31baa770b';
 
 // どの 部分か（ゆか・かべ・水）
 const PART_OF_TILE = {
@@ -62,7 +64,7 @@ for (const id of CH6_KEEP_COLOR) PART_OF_TILE[id] = 'none';
 export const partOfTile = (id, mask = 0, theme = null) => (theme && THEME_PARTS[theme]?.[id]) || ((mask & CANAL_CTX && CANAL_CTX_TILES.has(id)) || (id === T.SIGN && mask & 4) ? 'none' : PART_OF_TILE[id] || 'floor');
 export const partOfExtra = (name) => PART_OF_EXTRA[name] || 'floor';
 // 2.5D の たてた もの（レバー など）。地下水路では 2D と おなじ ように レバーの 色を かえない
-export const partOfProp = (id, theme) => (theme === 'canal' ? partOfTile(id) : 'floor');
+export const partOfProp = (id, theme) => (theme === 'canal' || TK_PROPS_KEEP.has(id) ? partOfTile(id) : 'floor');
 
 const hex = (h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
 const G = (...stops) => stops.map(([p, h]) => [p, hex(h)]);

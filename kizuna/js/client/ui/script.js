@@ -1,13 +1,13 @@
 // だいほんの さいせい（メッセージ・えらぶ・えんしゅつ）
-import { el } from './dom.js?v=f6a4d212e9b8';
-import { paintRare } from './rarity.js?v=f6a4d212e9b8';
-import { ListMenu } from './dom.js?v=f6a4d212e9b8';
-import { openServiceUI } from './services.js?v=f6a4d212e9b8';
-import { monsterCanvas } from '../render/monsters.js?v=f6a4d212e9b8';
-import { npcSprite } from '../field.js?v=f6a4d212e9b8';
-import { reportError } from '../errlog.js?v=f6a4d212e9b8';
+import { el } from './dom.js?v=b4e31baa770b';
+import { paintRare } from './rarity.js?v=b4e31baa770b';
+import { ListMenu } from './dom.js?v=b4e31baa770b';
+import { openServiceUI } from './services.js?v=b4e31baa770b';
+import { monsterCanvas } from '../render/monsters.js?v=b4e31baa770b';
+import { npcSprite } from '../field.js?v=b4e31baa770b';
+import { reportError } from '../errlog.js?v=b4e31baa770b';
 // 第6章: 時の砂時計の 砂の うず
-import { timeShiftFx, clearTimeShift } from '../time-shift.js?v=f6a4d212e9b8';
+import { timeShiftFx, clearTimeShift } from '../time-shift.js?v=b4e31baa770b';
 
 const TYPE_MS = 28;
 

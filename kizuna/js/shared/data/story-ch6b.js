@@ -4,19 +4,21 @@
 //   → 千年前の 北東の 森（今の 森のひろば）の 星読みの社・星読みのオリハ（c6_orih。ミナモの 星読み）
 //   → 社の うらの 星めぐりの古道（c6_road。8階。どの 階も 今と 千年前）→ 4階の 星くいのよる鳥（star_eater。c6_bird）
 //   → 8階（千年前）の ふりこの魔女ペンデュラ（pendula。c6_pendula）→ 社で オリハの 星読み「ひとつの紋章が、ひとりぼっちの星になる」
-//   → 今の 雲の上の 星読みの里の カナタ（c6_kanata。ミナモは 千年前へ 帰る）→「第6章の続きはアップデートで！」
+//   → 今の 雲の上の 星読みの里の カナタ（c6_kanata。ミナモは 千年前へ 帰る）→ 第4幕「止まった時計塔」へ（Step 5。story-ch6c.js）
 // 魔物・きまった 戦い（star_eater・pendula）・品は B（戦い・品）が 作る（plan-ch6.md の 12-1）
 // このファイルは story-ch6.js を 読まない（story-ch6.js が ここを 読んで まぜる）
-import { MAPS } from '../maps/index.js?v=f6a4d212e9b8';
-import { C6, PAST_ID } from '../maps/past.js?v=f6a4d212e9b8';
+import { MAPS } from '../maps/index.js?v=b4e31baa770b';
+import { C6, PAST_ID } from '../maps/past.js?v=b4e31baa770b';
 import {
   C6B, HF, STARSIGHT, SAP_DIRS, SAP_FLAG, SAP_GOOD, CATCH5, OPEN6, WAIT6, HBOSS, END_P6,
   HM_POS, HM_STONES, HM_FLOORS, HM_BOSS_FLOOR, SHA, stoneIndex, hmMapId,
-} from '../maps/hoshimichi.js?v=f6a4d212e9b8';
-import { isNightFor, advanceClock } from '../world/clock.js?v=f6a4d212e9b8';
-import { unstickAll } from '../world/hazards.js?v=f6a4d212e9b8';
-import { partyOf } from '../world/party.js?v=f6a4d212e9b8';
-import { applyCh6Side, CH6_SIDE_STORY_SCRIPTS } from './sidequests-ch6.js?v=f6a4d212e9b8';
+} from '../maps/hoshimichi.js?v=b4e31baa770b';
+import { isNightFor, advanceClock } from '../world/clock.js?v=b4e31baa770b';
+import { unstickAll } from '../world/hazards.js?v=b4e31baa770b';
+import { partyOf } from '../world/party.js?v=b4e31baa770b';
+import { applyCh6Side, CH6_SIDE_STORY_SCRIPTS } from './sidequests-ch6.js?v=b4e31baa770b';
+// 第6章 Step 5（story-ch6c.js）: c6_kanata の あとの 目標・ばあちゃん・前の 版の 目標の なおし
+import { C6C_OBJ, elderCh6c, ch6StaleObjective } from './story-ch6c.js?v=b4e31baa770b';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);
@@ -41,13 +43,12 @@ export const C6B_OBJ = {
   hf8: '8階。千年前の広間で、ゼンマイの2番目の家来が待っている…（準備を整えてから進もう）',
   pendula: '古道の8階のおくの、星の台座を調べよう（千年前の星読みの社のオリハでも、続きが見られる）',
   endP: '今の時代の、雲の上の星読みの里へ。星読みのカナタに会いに行こう（ミナモもいっしょに）',
-  kanata: '第6章の続きはアップデートで！',
+  // Step 4 の さいご。Step 5 の はじまり（前の 版の「第6章の続きはアップデートで！」は story-ch6.js の OLD_C6_OBJ.kanata）
+  kanata: C6C_OBJ.kanata,
 };
-// 前の 版で セーブした 人の「第6章の続きはアップデートで！」（c6_flow の さいごの 文）は、今の さいごの 文と おなじ 文なので、
-// すすみぐあい（c6_kanata が まだ）で なおす（progress.js の repairObjective）
-export function ch6StaleObjective(c) {
-  return c?.objective === C6B_OBJ.kanata && !c.flags?.[C6B.kanata];
-}
+// 前の 版で セーブした 人の「第6章の続きはアップデートで！」（c6_flow・c6_kanata の さいごの 文）は、今の さいごの 文（Step 5 の
+// c6_heart）と おなじ 文なので、すすみぐあい（c6_heart が まだ）で なおす（progress.js の repairObjective。きまりは story-ch6c.js）
+export { ch6StaleObjective };
 
 // パーティー全員で 見る イベント
 export const CH6B_STORY_SCRIPTS = [
@@ -435,8 +436,8 @@ function kanataScene() {
     ...N('ミナモは、光の砂につつまれて、千年前へ帰っていった…。'),
     ...S('星読みのカナタ', '…ひとりぼっちの星、か。', 'そなたたちは、ノクトの手をつかんだ子らじゃ。\n千年前の星も、きっと…。'),
     ['flag', C6B.kanata], ['sync'],
-    ['chapter', '第6章「時の砂時計」', 'つづく'],
-    ...N('――第6章の続きはアップデートで！――'),
+    ...N('――そのころ、千年前の北の山では、大きな時計の針が、12時をさしたまま止まっていた…――'),
+    ['chapter', '第6章　第4幕', '止まった時計塔'],
     ['bgm', 'resume'],
     ['objective', C6B_OBJ.kanata],
   ];
@@ -444,7 +445,8 @@ function kanataScene() {
 
 // ───────────── ばあちゃん（今の ホシフル村。c6_flow の あと。story-ch6.js の elderCh6 から）─────────────
 export function elderCh6b(x) {
-  if (x.flag(C6B.kanata)) return S('ホシミばあちゃん', 'ひとりぼっちの星…か。', '{name}。だれかが、ひとりぼっちになっていたら、\nそばにいてやるんじゃよ。…ノクトの時のようにな。');
+  // Step 5（story-ch6c.js）: 北の山の 星の塔の かね
+  if (x.flag(C6B.kanata)) return elderCh6c(x);
   if (x.flag(END_P6)) return S('ホシミばあちゃん', '千年前の星読みのむすめさんを、未来の星読みに会わせる…？', '雲の上の星読みの里じゃな。\nカナタどのも、きっと、おどろくじゃろうて。');
   if (x.flag(C6B.orih)) return S('ホシミばあちゃん', '星めぐりの古道…。', 'ほしみの丘から見る星も、ときどき、くもって見えるんじゃ。\n…気をつけて行っておいで。');
   if (x.flag(C6B.omen)) return S('ホシミばあちゃん', '星読みの社…とな。', '雲の上の星読みの里の、はじまりの場所かもしれんのう。');
