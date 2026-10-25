@@ -4,9 +4,9 @@
 //   ・ふつうの 魔物 … その地方に 合った 装備を まれに（REGION_RARE_N 体に 1体。第32回 500。loot.js）
 //   ・ひみつのダンジョン … ここだけの ★4〜★5（深いほど 強い。20階から。休み所の ごほうび・魔物・番人。data/secret.js・loot.js）
 //   ・店の 品は レア度なし（0）
-import { ITEMS, baseItemId } from './items.js?v=b4e31baa770b';
-import { MONSTERS } from './monsters.js?v=b4e31baa770b';
-import { RARITY_OVERRIDE, defaultRarity, starsFor, isShopGear } from './items-rare.js?v=b4e31baa770b';
+import { ITEMS, baseItemId } from './items.js?v=2049a4e68a4c';
+import { MONSTERS } from './monsters.js?v=2049a4e68a4c';
+import { RARITY_OVERRIDE, defaultRarity, starsFor, isShopGear } from './items-rare.js?v=2049a4e68a4c';
 
 export const RARITY_MAX = 5;
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -59,7 +59,7 @@ export function rareWhereText(id) {
 }
 
 // とくせいの 文（「炎に強い・ねむりにくい・会心が出やすい・行動するとMP+1・ときどき毒」）
-const EL = { fire: '炎', ice: '氷', wind: '風', blast: '爆発', bolt: '雷', light: '光', dark: '闇', void: '消滅' };
+const EL = { fire: '炎', ice: '氷', water: '水', wind: '風', blast: '爆発', bolt: '雷', light: '光', dark: '闇', void: '消滅' };
 const ST = { sleep: 'ねむり', paralyze: 'マヒ', confuse: '混乱', blind: 'マヌーサ', silence: 'マホトーン', poison: '毒' };
 export function traitText(id) {
   const it = ITEMS[id];

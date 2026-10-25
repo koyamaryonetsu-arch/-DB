@@ -1313,6 +1313,7 @@ body.talking .mon-pop { top: 26%; }
 .elem { display: inline-block; font-size: 0.72em; line-height: 1.35; padding: 0 0.3em; margin-right: 0.35em; border-radius: 4px; color: #111; font-weight: bold; vertical-align: 0.12em; }
 .elem.e-fire { background: #ff7a4a; }
 .elem.e-ice { background: #8ad8ff; }
+.elem.e-water { background: #4f8cff; }
 .elem.e-wind { background: #7fe08a; }
 .elem.e-blast { background: #ffb13d; }
 .elem.e-bolt { background: #ffe34d; }

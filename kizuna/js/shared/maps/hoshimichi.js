@@ -12,13 +12,13 @@
 //   今は 落ちた星・千年前は まだ 空（5階）… 千年前の 星受けの台で、夜空が 見える 間に 星を 受けとめると、今は 星が 消えて 光る 道しるべに
 //   2つの 時代の 星の石（6階）… 家族 2人なら 1人ずつ 別の 時代で 同時に ふむと 近道が 開く。ひとりなら ミナモに 千年前の 石で 待ってもらう
 // ・魔物: 1〜4階 t6_road_up・5〜8階 t6_road_low（B）。もや・休み所・ボスの 広間は 出ない
-import { T, TILE_INFO } from '../tiles.js?v=b4e31baa770b';
-import { hash2 } from '../rng.js?v=b4e31baa770b';
-import { npc } from './npc.js?v=b4e31baa770b';
-import { FOREST_CLEARING } from './overworld.js?v=b4e31baa770b';
-import { HM_ROWS, HM_W, HM_H, MIST_ROUTES } from './hoshimichi-rows.js?v=b4e31baa770b';
-import { parseRows16, PAST_ID } from './past.js?v=b4e31baa770b';
-import { ROAD_TREASURE_FLOORS, ROAD_FIELD_TREASURE } from '../data/items-road.js?v=b4e31baa770b';
+import { T, TILE_INFO } from '../tiles.js?v=2049a4e68a4c';
+import { hash2 } from '../rng.js?v=2049a4e68a4c';
+import { npc } from './npc.js?v=2049a4e68a4c';
+import { FOREST_CLEARING } from './overworld.js?v=2049a4e68a4c';
+import { HM_ROWS, HM_W, HM_H, MIST_ROUTES } from './hoshimichi-rows.js?v=2049a4e68a4c';
+import { parseRows16, PAST_ID } from './past.js?v=2049a4e68a4c';
+import { ROAD_TREASURE_FLOORS, ROAD_FIELD_TREASURE } from '../data/items-road.js?v=2049a4e68a4c';
 
 export const HM_FLOORS = 8;
 export const HM_RESTS = [3, 7]; // 休み所の ある 階（4階と 8階の 前）

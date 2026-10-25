@@ -105,7 +105,7 @@ export const PHANTOM_ABILITIES = {
   },
   m_mj_bubble: {
     name: '光るあわ', kind: 'monster', mp: 5, target: 'enemies',
-    effect: { type: 'magic', base: [64, 78], thr: 99 }, cast: '{a}は、きらきら光るあわを、たくさんはきだした！', anim: 'mj_bubble',
+    effect: { type: 'magic', element: 'water', base: [64, 78], thr: 99 }, cast: '{a}は、きらきら光るあわを、たくさんはきだした！', anim: 'mj_bubble',
     desc: '光るあわで、敵みんなにダメージ。',
   },
   // 体が 光る（次の 自分の 番まで 呪文を はね返す。battle-temple.js の reflect）
@@ -128,14 +128,14 @@ export const PHANTOM_ABILITIES = {
   },
   m_ss_tide: {
     name: 'うずしお', kind: 'monster', mp: 6, target: 'enemies',
-    effect: { type: 'magic', base: [70, 84], thr: 99 }, cast: '{a}は、水路の水を、うずまかせた！', anim: 'ss_tide',
+    effect: { type: 'magic', element: 'water', base: [70, 84], thr: 99 }, cast: '{a}は、水路の水を、うずまかせた！', anim: 'ss_tide',
     desc: 'うずしおで、敵みんなにダメージ。',
   },
 
   // ── あわの歌姫 ──
   m_fsi_shot: {
     name: '水のつぶて', kind: 'monster', mp: 3, target: 'enemy',
-    effect: { type: 'magic', base: [104, 122], thr: 99 }, cast: '{a}は、水のつぶてを、{t}にはなった！', anim: 'fsi_shot',
+    effect: { type: 'magic', element: 'water', base: [104, 122], thr: 99 }, cast: '{a}は、水のつぶてを、{t}にはなった！', anim: 'fsi_shot',
     desc: '水のつぶてで、1人にダメージ。',
   },
   m_fsi_lull: {
@@ -227,18 +227,18 @@ export const PHANTOM_ABILITIES = {
   // ── モルガナのまぼろし（水の衣・まぼろしの 分身・鏡写しは 第4章の モルガナと おなじ しくみ。shared/battle-phantom.js）──
   m_pm_blade: {
     name: '水のやいば', kind: 'monster', mp: 6, target: 'enemy',
-    effect: { type: 'magic', base: [210, 240], thr: 99 }, cast: '{a}は、水のやいばを、{t}にはなった！', anim: 'pm_blade',
+    effect: { type: 'magic', element: 'water', base: [210, 240], thr: 99 }, cast: '{a}は、水のやいばを、{t}にはなった！', anim: 'pm_blade',
     desc: '水のやいばで、1人に大きなダメージ。',
   },
   m_pm_whirl: {
     name: 'うずしお', kind: 'monster', mp: 10, target: 'group',
-    effect: { type: 'magic', base: [140, 162], thr: 99 }, cast: '{a}は、広間の水をうずまかせた！\nうずしおが、みんなをのみこむ！', anim: 'pm_whirl',
+    effect: { type: 'magic', element: 'water', base: [140, 162], thr: 99 }, cast: '{a}は、広間の水をうずまかせた！\nうずしおが、みんなをのみこむ！', anim: 'pm_whirl',
     desc: 'うずしおで、敵みんなにダメージ。',
   },
   // 分身も 使う（まぼろしの 分身は ふつうの 攻撃と これだけ）
   m_pm_splash: {
     name: '水しぶき', kind: 'monster', mp: 0, target: 'enemy',
-    effect: { type: 'magic', base: [110, 128], thr: 99 }, cast: '{a}は、つめたい水しぶきを、{t}にあびせた！', anim: 'pm_splash',
+    effect: { type: 'magic', element: 'water', base: [110, 128], thr: 99 }, cast: '{a}は、つめたい水しぶきを、{t}にあびせた！', anim: 'pm_splash',
     desc: 'つめたい水しぶきで、1人にダメージ。',
   },
   // 月の鏡で まぶしい（第4章の モルガナより 早く 立ちなおる。この 1回だけ 動けない。2回行動の のこりは 動く）
@@ -265,7 +265,7 @@ export const PHANTOM_ABILITIES = {
   },
   m_pm_wave: {
     name: '大波', kind: 'monster', target: 'enemies',
-    effect: { type: 'phys', mult: 1.6, ignoreDef: 0.5 }, cast: '{a}の大波！\n広間いっぱいの水が、みんなにおそいかかる！', anim: 'pm_wave',
+    effect: { type: 'phys', element: 'water', mult: 1.6, ignoreDef: 0.5 }, cast: '{a}の大波！\n広間いっぱいの水が、みんなにおそいかかる！', anim: 'pm_wave',
     desc: '広間いっぱいの大波で、敵みんなにとても大きなダメージ。身を守ると半分になる。',
   },
 };

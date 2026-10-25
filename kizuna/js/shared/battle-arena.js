@@ -10,10 +10,10 @@
 // ・オートの 仲間（ふつう）は 何も かわらない。シミュレーター（tools/sim-arena.mjs）の 知っている 人（b.knowsArena）は、
 //   大技の 前に 身を 守る（arenaPlan）・合体技の 組の 子分を 先に ねらう・よろいの 属性を さけて 弱点を ねらう・
 //   ふたごの 剣士は HPの 多い ほうを ねらって 2人を そろえて たおす（arenaAdjust）
-import { MONSTERS } from './data/monsters.js?v=b4e31baa770b';
-import { ABILITIES, ELEMENT_NAMES } from './data/abilities.js?v=b4e31baa770b';
+import { MONSTERS } from './data/monsters.js?v=2049a4e68a4c';
+import { ABILITIES, ELEMENT_NAMES } from './data/abilities.js?v=2049a4e68a4c';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { atbRate } from './battle.js?v=b4e31baa770b';
+import { atbRate } from './battle.js?v=2049a4e68a4c';
 
 // 知っている 人が 身を 守る 大技（前ぶれの つぎ）
 export const ARENA_BIG = new Set(['m_ar1_bomb', 'm_ar2_combo', 'm_ar5_finish', 'm_ar7_rainbow', 'm_ar8_combo']);

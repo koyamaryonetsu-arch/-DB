@@ -1,8 +1,8 @@
 // ひみつのダンジョンの「家族の記録の板」（入口の 広間。world/secret.js の boardData）
 //   data.rows … 深い じゅん（家族サーバーでは 家族みんな、ひとりの サイトでは 自分の キャラたち）
 //   data.me   … 自分の 記録
-import { el, ListMenu } from './dom.js?v=b4e31baa770b';
-import { sdDate, sdStartText } from '../../shared/data/secret.js?v=b4e31baa770b';
+import { el, ListMenu } from './dom.js?v=2049a4e68a4c';
+import { sdDate, sdStartText } from '../../shared/data/secret.js?v=2049a4e68a4c';
 
 export function sdBoardUI(game, data) {
   return new Promise((resolve) => {

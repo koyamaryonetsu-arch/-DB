@@ -64,7 +64,7 @@ const TREASURE = {
   cs_ripple_whip: { ...W('whip', K[10]), ...CASTLE, name: 'さざなみのムチ', bonus: { agi: 6 }, onHit: { status: 'sleep', chance: 0.12 }, desc: 'さざなみのようにしなるムチ。ときどき敵をねむらせる。' },
   // 11階（流れる 床）
   cs_pearl_robe: { ...A('robe', K[11]), ...CASTLE, name: '黒しんじゅのローブ', bonus: { mag: 18, heal: 18 }, resist: { ice: 0.8, sleep: 0.6 }, desc: '黒しんじゅをぬいつけたローブ。魔力が上がり、氷に強く、ねむりにくい。' },
-  cs_tide_crown: { ...H(false, K[11]), ...CASTLE, name: '水の王のかんむり', bonus: { hp: 24, mag: 10, agi: 6 }, resist: { confuse: 0.5, ice: 0.85 }, desc: '水の国の王がかぶっていたかんむり。だれでも装備でき、混乱に強い。' },
+  cs_tide_crown: { ...H(false, K[11]), ...CASTLE, name: '水の王のかんむり', bonus: { hp: 24, mag: 10, agi: 6 }, resist: { confuse: 0.5, ice: 0.85, water: 0.85 }, desc: '水の国の王がかぶっていたかんむり。だれでも装備でき、混乱に強い。氷と水にも少し強い。' },
   // 12階（水の ふういんの とびら。てっぺんへの 階だんの 前）
   cs_castle_sword: { ...W('sword', K[12]), ...CASTLE, name: '影の城の剣', bonus: { str: 10, agi: 6 }, resist: { dark: 0.75, wind: 0.85 }, desc: '影の城のいちばん上の宝箱にねむっていた剣。闇に強く、風に少し強い。' },
   cs_wave_bat: { ...W('bat', K[12]), ...CASTLE, name: '大波のバット', bonus: { str: 6, agi: 3 }, crit: 0.05, desc: '大波のように、ずしんとひびくバット。会心が出やすい。' },

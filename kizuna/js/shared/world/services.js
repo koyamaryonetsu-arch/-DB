@@ -1,45 +1,45 @@
 // お店・やどや・きょうかい・転職・酒場・でんごんばん・メニュー操作
-import { markNewsRead } from '../data/news.js?v=b4e31baa770b';
-import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js?v=b4e31baa770b';
-import { normDifficulty } from '../data/difficulty.js?v=b4e31baa770b';
-import { ITEMS, sellPrice, SLOTS, SLOT_NAMES } from '../data/items.js?v=b4e31baa770b';
-import { JOBS, ALL_JOBS, jobReqText, BODY_NAMES } from '../data/jobs.js?v=b4e31baa770b';
-import { ABILITIES } from '../data/abilities.js?v=b4e31baa770b';
-import { abilityFor, abilityLabel, isMasc } from '../ability-label.js?v=b4e31baa770b';
-import { jobLabel } from '../job-label.js?v=b4e31baa770b';
-import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=b4e31baa770b';
-import { TACTICS } from '../ai.js?v=b4e31baa770b';
-import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js?v=b4e31baa770b';
-import { salonInfo, salonAction } from './salon.js?v=b4e31baa770b';
-import { breedMonsters, breedPreview } from './breed.js?v=b4e31baa770b';
-import { farewellText } from './farewell.js?v=b4e31baa770b';
+import { markNewsRead } from '../data/news.js?v=2049a4e68a4c';
+import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js?v=2049a4e68a4c';
+import { normDifficulty } from '../data/difficulty.js?v=2049a4e68a4c';
+import { ITEMS, sellPrice, SLOTS, SLOT_NAMES } from '../data/items.js?v=2049a4e68a4c';
+import { JOBS, ALL_JOBS, jobReqText, BODY_NAMES } from '../data/jobs.js?v=2049a4e68a4c';
+import { ABILITIES } from '../data/abilities.js?v=2049a4e68a4c';
+import { abilityFor, abilityLabel, isMasc } from '../ability-label.js?v=2049a4e68a4c';
+import { jobLabel } from '../job-label.js?v=2049a4e68a4c';
+import { addItem, removeItem, itemCount, canEquipChar, changeJob, computeStats, learnedAbilities, mpCost, penaltyFor, fullHeal } from '../stats.js?v=2049a4e68a4c';
+import { TACTICS } from '../ai.js?v=2049a4e68a4c';
+import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease, companionRename, companionOf, ensureCompanions, partyOf, setPartyOrder } from './party.js?v=2049a4e68a4c';
+import { salonInfo, salonAction } from './salon.js?v=2049a4e68a4c';
+import { breedMonsters, breedPreview } from './breed.js?v=2049a4e68a4c';
+import { farewellText } from './farewell.js?v=2049a4e68a4c';
 // 第43回 C: 魔物あずかり所（world/storage.js）
-import { storageInfo, storageAction, depositMonster, storeText } from './storage.js?v=b4e31baa770b';
-import { MONSTERS } from '../data/monsters.js?v=b4e31baa770b';
-import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings, spellSealed } from '../battle.js?v=b4e31baa770b';
-import { PLACES } from '../maps/overworld.js?v=b4e31baa770b';
-import { POS, SEA_PLACES, MAPS } from '../maps/index.js?v=b4e31baa770b';
-import { castRura, warpParty, useTimeBell, warpPlaces, warpOwner, PAST_WARP_TEXT } from './travel.js?v=b4e31baa770b';
+import { storageInfo, storageAction, depositMonster, storeText } from './storage.js?v=2049a4e68a4c';
+import { MONSTERS } from '../data/monsters.js?v=2049a4e68a4c';
+import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings, spellSealed } from '../battle.js?v=2049a4e68a4c';
+import { PLACES } from '../maps/overworld.js?v=2049a4e68a4c';
+import { POS, SEA_PLACES, MAPS } from '../maps/index.js?v=2049a4e68a4c';
+import { castRura, warpParty, useTimeBell, warpPlaces, warpOwner, PAST_WARP_TEXT } from './travel.js?v=2049a4e68a4c';
 // 第6章: 時の砂時計（world/time-glass-use.js）
-import { useTimeGlass } from './time-glass-use.js?v=b4e31baa770b';
+import { useTimeGlass } from './time-glass-use.js?v=2049a4e68a4c';
 // 第6章 Step 3・4: ミナモの 星読み（world/star-sight.js）
-import { useStarSight } from './star-sight.js?v=b4e31baa770b';
+import { useStarSight } from './star-sight.js?v=2049a4e68a4c';
 // 第6章 Step 5: 星読みの しおり（world/tokei-use.js）
-import { useBookmark } from './tokei-use.js?v=b4e31baa770b';
-import { bankInfo, bankAction } from './bank.js?v=b4e31baa770b';
-import { forgeInfo, forgeAction } from './forge.js?v=b4e31baa770b';
-import { alchemyAction, useAlchemyMemo } from './alchemy.js?v=b4e31baa770b';
-import { FIELD27_EFFECTS, castField27, useAuraItem } from './field27.js?v=b4e31baa770b';
-import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction, wagonHere, wagonHealEntries, ownWagonEntries } from './wagon.js?v=b4e31baa770b';
-import { casinoOpen, casinoAction } from './casino.js?v=b4e31baa770b';
-import { useEscapeItem, noEscapeText } from './escape.js?v=b4e31baa770b';
-import { usePowder } from './powder.js?v=b4e31baa770b';
-import { bestEquipPlan, bestTeamOrder } from '../equip-plan.js?v=b4e31baa770b';
-import { setLookEquip } from '../look-equip.js?v=b4e31baa770b';
-import { jobDoneText } from '../data/job-talk.js?v=b4e31baa770b';
-import { vehicleShopInfo, vehicleShopAction, vehicleMenuAction } from './vehicles.js?v=b4e31baa770b';
+import { useBookmark } from './tokei-use.js?v=2049a4e68a4c';
+import { bankInfo, bankAction } from './bank.js?v=2049a4e68a4c';
+import { forgeInfo, forgeAction } from './forge.js?v=2049a4e68a4c';
+import { alchemyAction, useAlchemyMemo } from './alchemy.js?v=2049a4e68a4c';
+import { FIELD27_EFFECTS, castField27, useAuraItem } from './field27.js?v=2049a4e68a4c';
+import { wagonChurch, wagonRefChar, wagonTavernAction, wagonMenuAction, wagonHere, wagonHealEntries, ownWagonEntries } from './wagon.js?v=2049a4e68a4c';
+import { casinoOpen, casinoAction } from './casino.js?v=2049a4e68a4c';
+import { useEscapeItem, noEscapeText } from './escape.js?v=2049a4e68a4c';
+import { usePowder } from './powder.js?v=2049a4e68a4c';
+import { bestEquipPlan, bestTeamOrder } from '../equip-plan.js?v=2049a4e68a4c';
+import { setLookEquip } from '../look-equip.js?v=2049a4e68a4c';
+import { jobDoneText } from '../data/job-talk.js?v=2049a4e68a4c';
+import { vehicleShopInfo, vehicleShopAction, vehicleMenuAction } from './vehicles.js?v=2049a4e68a4c';
 // 第44回（ポケモン P1）: 進化の 石（world/evolve.js）
-import { useEvoStone } from './evolve.js?v=b4e31baa770b';
+import { useEvoStone } from './evolve.js?v=2049a4e68a4c';
 
 export function openService(world, s, kind, arg) {
   switch (kind) {

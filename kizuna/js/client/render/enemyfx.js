@@ -1,5 +1,5 @@
 // てきの うごき（こうげき・じゅもん・ブレス…）と、みかたに あたった ときの えんしゅつ
-import { MONSTERS } from '../../shared/data/monsters.js?v=b4e31baa770b';
+import { MONSTERS } from '../../shared/data/monsters.js?v=2049a4e68a4c';
 
 const clamp01 = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
 const easeOut = (t) => 1 - (1 - t) * (1 - t) * (1 - t);
@@ -21,7 +21,7 @@ export const ACTS = {
   charge: { dur: 820, hit: 0.5 },
 };
 
-const ELEM_COL = { fire: '#ff7a3a', ice: '#9ae6ff', wind: '#9af0b0', bolt: '#fff6b0', dark: '#b07ae0', light: '#fff6b0', blast: '#ffb04a', void: '#c8a8ff' };
+const ELEM_COL = { fire: '#ff7a3a', ice: '#9ae6ff', water: '#4f8cff', wind: '#9af0b0', bolt: '#fff6b0', dark: '#b07ae0', light: '#fff6b0', blast: '#ffb04a', void: '#c8a8ff' };
 const STATUS_COL = { sleep: '#f7a1d4', poison: '#b06ae0', paralyze: '#ffe066', blind: '#8a8aa0', confuse: '#ffe066', silence: '#9ad8ff' };
 
 // なにを したかで うごきを えらぶ
@@ -256,7 +256,7 @@ export function actPose(a, ageOverride) {
 
 // みかたに あたる ときの えの しゅるい
 const RACE_HIT = { beast: 'claw', demon: 'claw', dragon: 'claw', undead: 'slash', spirit: 'dark' };
-const ELEM_HIT = { fire: 'fire', ice: 'ice', wind: 'wind', bolt: 'bolt', dark: 'darkm', light: 'light', blast: 'blast', void: 'light' };
+const ELEM_HIT = { fire: 'fire', ice: 'ice', water: 'ice', wind: 'wind', bolt: 'bolt', dark: 'darkm', light: 'light', blast: 'blast', void: 'light' };
 export function hitStyle(fx, ab, actor) {
   const e = ab?.effect || {};
   const anim = fx?.anim;

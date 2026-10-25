@@ -2,7 +2,7 @@
 export const CH2_ABILITIES = {
   m_splash: {
     name: '水てっぽう', kind: 'monster', mp: 3, target: 'enemy',
-    effect: { type: 'magic', base: [16, 22], thr: 99 }, cast: '{a}は口から水てっぽうをとばした！', anim: 'ice1',
+    effect: { type: 'magic', element: 'water', base: [16, 22], thr: 99 }, cast: '{a}は口から水てっぽうをとばした！', anim: 'ice1',
     desc: 'いきおいのある水をとばす。',
   },
   m_dive: {
@@ -22,7 +22,7 @@ export const CH2_ABILITIES = {
   },
   m_tidal: {
     name: '大波', kind: 'monster', mp: 6, target: 'enemies',
-    effect: { type: 'magic', base: [12, 18], thr: 99 }, cast: '{a}は大波をおこした！', anim: 'ice2',
+    effect: { type: 'magic', element: 'water', base: [12, 18], thr: 99 }, cast: '{a}は大波をおこした！', anim: 'ice2',
     desc: '大波で敵みんなをおしながす。',
   },
   m_coconut: {
@@ -80,7 +80,7 @@ export const CH2_ABILITIES = {
   },
   m_maelstrom: {
     name: '大うずしお', kind: 'monster', target: 'enemies',
-    effect: { type: 'phys', mult: 1.2, ignoreDef: 0.3 }, cast: '{a}の大うずしお！はげしい水が敵をのみこむ！', anim: 'wind2',
+    effect: { type: 'phys', element: 'water', mult: 1.2, ignoreDef: 0.3 }, cast: '{a}の大うずしお！はげしい水が敵をのみこむ！', anim: 'wind2',
     desc: '大きなうずしおで敵みんなに大ダメージ。',
   },
   // ── 嵐の将軍ストルム ──

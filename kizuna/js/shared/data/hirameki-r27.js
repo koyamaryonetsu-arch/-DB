@@ -23,8 +23,8 @@ export const HIRA_R27_ABILITIES = {
   }),
   hi_oouzushio: sk('pirate', {
     name: '海賊のうずまき', kana: 'かいぞくのうずまき', mp: 10, target: 'enemies',
-    effect: { type: 'magic', element: 'ice', base: [48, 60], thr: 35 },
-    desc: '海をかきまわして、大きなうずしおを起こす。敵全体に氷のダメージ。', cast: '{a}「みんな、海をかきまわせ！」', anim: 'whirlpool',
+    effect: { type: 'magic', element: 'water', base: [48, 60], thr: 35 },
+    desc: '海をかきまわして、大きなうずしおを起こす。敵全体に水のダメージ。', cast: '{a}「みんな、海をかきまわせ！」', anim: 'whirlpool',
   }),
   hi_happou_shuriken: sk('ninja', {
     name: '八方手裏剣', kana: 'はっぽうしゅりけん', mp: 7, target: 'enemies',
@@ -75,7 +75,7 @@ export const HIRA_R27_ABILITIES = {
   }),
   hi_shoukaki: sk('firefighter', {
     name: '消火器', kana: 'しょうかき', mp: 6, target: 'group',
-    effect: { type: 'phys', mult: 1.35, element: 'ice', vsElement: { fire: 1.5 } },
+    effect: { type: 'phys', mult: 1.35, element: 'water', vsElement: { fire: 1.5 } },
     desc: '消火器で、同じ種類の敵にまっ白なあわをふきつける。炎の敵によく効く。', cast: '{a}は消火器のピンをぬいた！', anim: 'water',
   }),
   hi_kaisoku: sk('train_driver', {
@@ -100,7 +100,7 @@ export const HIRA_R27_ABILITIES = {
   }),
   hi_suiryuu: sk('kisatsu', {
     name: '水の呼吸・流流まい', kana: 'みずのこきゅうりゅうりゅうまい', mp: 10, target: 'enemies',
-    effect: { type: 'phys', mult: 0.75, hits: 4, random: true },
+    effect: { type: 'phys', mult: 0.75, hits: 4, random: true, element: 'water' },
     desc: '流れる水のように、止まらずに動きながら斬る。4回、敵にランダムで当たる。', cast: '{a}の水の呼吸！流流まい！', anim: 'slash_multi',
   }),
   hi_haigo: sk('assassin', {

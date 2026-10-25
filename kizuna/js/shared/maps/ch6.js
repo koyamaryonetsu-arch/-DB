@@ -6,13 +6,13 @@
 // ・maps/ch6-side.js … Step 3・4: 第6章の より道（時のタイムカプセル・千年前のレシピ・ちびアステルのたからもの）の 人と 場所
 // ・maps/tokei.js … Step 5: 千年前の 北の 山の 止まった時計塔（tokei_1f〜5f）・灰色の 森・今の 星の塔の かべ画と 時の すきま
 // ・maps/ch6c-side.js … Step 5: より道「トキネの砂時計のかざり」（12こ）
-import { attachPast, PAST_MAPS, PAST_POS, PAST_ID } from './past.js?v=b4e31baa770b';
-import { buildShrineMaps, SHRINE_MAPS } from './toki-shrine.js?v=b4e31baa770b';
-import { buildRuinMaps, RUIN_MAPS } from './toki-ruin.js?v=b4e31baa770b';
-import { buildHoshimichiMaps, HM_MAPS, attachShaPast, attachShaNow } from './hoshimichi.js?v=b4e31baa770b';
-import { attachCh6Side } from './ch6-side.js?v=b4e31baa770b';
-import { buildTokeiMaps, TK_MAPS, attachTokeiPast, attachTokeiNow } from './tokei.js?v=b4e31baa770b';
-import { attachCh6cSide } from './ch6c-side.js?v=b4e31baa770b';
+import { attachPast, PAST_MAPS, PAST_POS, PAST_ID } from './past.js?v=2049a4e68a4c';
+import { buildShrineMaps, SHRINE_MAPS } from './toki-shrine.js?v=2049a4e68a4c';
+import { buildRuinMaps, RUIN_MAPS } from './toki-ruin.js?v=2049a4e68a4c';
+import { buildHoshimichiMaps, HM_MAPS, attachShaPast, attachShaNow } from './hoshimichi.js?v=2049a4e68a4c';
+import { attachCh6Side } from './ch6-side.js?v=2049a4e68a4c';
+import { buildTokeiMaps, TK_MAPS, attachTokeiPast, attachTokeiNow } from './tokei.js?v=2049a4e68a4c';
+import { attachCh6cSide } from './ch6c-side.js?v=2049a4e68a4c';
 
 // 第6章 Step 1・2 の マップの ID（セーブに のこるので かえない）
 export const CH6_MAPS = [...PAST_MAPS, ...SHRINE_MAPS, ...RUIN_MAPS];

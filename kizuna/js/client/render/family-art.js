@@ -6,8 +6,8 @@
 // ・FAMILY_NPC_LOOKS … 人の みため（render/chars.js の NPC_LOOKS に まぜる）
 // ・addFamilyVehicleArt(ART, kit) … たのまれごとで もらう 乗り物の 絵（render/vehicle-art.js が よぶ。kit … 乗り物の 絵の どうぐ）
 // かきかたは monsters.js・lab-art.js と おなじ（g … w・h の わりあいで かく。f … 0 か 1 の コマ）
-import { spark } from './ch3-draw.js?v=b4e31baa770b';
-import { WORK_NPC_LOOKS, addWorkArt, addWorkVehicleArt } from './work-art.js?v=b4e31baa770b';
+import { spark } from './ch3-draw.js?v=2049a4e68a4c';
+import { WORK_NPC_LOOKS, addWorkArt, addWorkVehicleArt } from './work-art.js?v=2049a4e68a4c';
 
 // ───────────── 人の みため ─────────────
 export const FAMILY_NPC_LOOKS = {

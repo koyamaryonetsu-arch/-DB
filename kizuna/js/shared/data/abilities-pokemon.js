@@ -61,17 +61,17 @@ export const POKEMON_ABILITIES = {
   // ───────────── みず（ゼニガメ・カメール・カメックス・シャワーズ）─────────────
   pk_watergun: {
     name: 'みずでっぽう', kana: 'みずでっぽう', kind: 'monster', mp: 3, target: 'enemy',
-    effect: { type: 'magic', base: [24, 32], thr: 20 },
+    effect: { type: 'magic', element: 'water', base: [24, 32], thr: 20 },
     desc: '口から水をいきおいよくとばす。敵1体にダメージ。', cast: '{a}のみずでっぽう！', anim: 'pk_water',
   },
   pk_surf: {
     name: 'なみのり', kana: 'なみのり', kind: 'monster', mp: 10, target: 'enemies',
-    effect: { type: 'magic', base: [70, 88], thr: 50 },
+    effect: { type: 'magic', element: 'water', base: [70, 88], thr: 50 },
     desc: '大きな波を起こして、敵全体をおし流す。', cast: '{a}は大きな波に乗った！なみのり！', anim: 'pk_hydro',
   },
   pk_hydropump: {
     name: 'ハイドロポンプ', kana: 'はいどろぽんぷ', kind: 'monster', mp: 16, target: 'enemy',
-    effect: { type: 'magic', base: [150, 180], thr: 80 },
+    effect: { type: 'magic', element: 'water', base: [150, 180], thr: 80 },
     desc: 'ものすごいいきおいの水をうち出す。敵1体にとても大きなダメージ。', cast: '{a}のハイドロポンプ！', anim: 'pk_hydro',
   },
   pk_aquaring: {

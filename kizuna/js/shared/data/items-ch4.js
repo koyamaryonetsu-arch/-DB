@@ -92,8 +92,8 @@ export const ITEMS_CH4 = {
   },
   // ランク7の よろい（地下1階の とび石の 先の 宝箱。第4章クリアの あとは ドゥナの 防具屋でも 買える）
   water_hagoromo: {
-    name: '水の羽衣', type: 'armor', rank: 7, armorType: 'cloth', def: 33, bonus: { mag: 5 }, resist: { fire: 0.8 }, price: 5600,
-    desc: '水の神殿に伝わる、うすい青の羽衣。水のように軽く、だれでも装備できる。魔力が上がり、炎に少し強い。',
+    name: '水の羽衣', type: 'armor', rank: 7, armorType: 'cloth', def: 33, bonus: { mag: 5 }, resist: { fire: 0.8, water: 0.85 }, price: 5600,
+    desc: '水の神殿に伝わる、うすい青の羽衣。水のように軽く、だれでも装備できる。魔力が上がり、炎と水に少し強い。',
   },
 
   // ───── ランク7「プラチナ」: 砂の港ドゥナの 武器と防具（第4章クリアの あと。Step 7）─────

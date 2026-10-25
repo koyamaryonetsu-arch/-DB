@@ -17,56 +17,56 @@
 // 名前の一部は「ダイの大冒険」「ロトの紋章」へのオマージュです。
 // 上級職・超級職の 技は abilities-adv.js（さいごに まぜる）
 
-import { ADV_ABILITIES } from './abilities-adv.js?v=b4e31baa770b';
-import { CH2_ABILITIES } from './abilities-ch2.js?v=b4e31baa770b';
-import { JOB_ABILITIES } from './abilities-jobs.js?v=b4e31baa770b';
-import { HIRA_ABILITIES } from './hirameki.js?v=b4e31baa770b';
-import { TRAVEL_ABILITIES } from './sky.js?v=b4e31baa770b';
-import { RARE_ABILITIES } from './monsters-rare.js?v=b4e31baa770b';
-import { R23_ABILITIES } from './monsters-r23.js?v=b4e31baa770b';
-import { JOB2_ABILITIES } from './abilities-jobs2.js?v=b4e31baa770b';
-import { CH3_ABILITIES } from './abilities-ch3.js?v=b4e31baa770b';
-import { CH4_ABILITIES } from './abilities-ch4.js?v=b4e31baa770b';
-import { TEMPLE_ABILITIES } from './abilities-temple.js?v=b4e31baa770b';
-import { LAB_ABILITIES } from './abilities-lab.js?v=b4e31baa770b';
+import { ADV_ABILITIES } from './abilities-adv.js?v=2049a4e68a4c';
+import { CH2_ABILITIES } from './abilities-ch2.js?v=2049a4e68a4c';
+import { JOB_ABILITIES } from './abilities-jobs.js?v=2049a4e68a4c';
+import { HIRA_ABILITIES } from './hirameki.js?v=2049a4e68a4c';
+import { TRAVEL_ABILITIES } from './sky.js?v=2049a4e68a4c';
+import { RARE_ABILITIES } from './monsters-rare.js?v=2049a4e68a4c';
+import { R23_ABILITIES } from './monsters-r23.js?v=2049a4e68a4c';
+import { JOB2_ABILITIES } from './abilities-jobs2.js?v=2049a4e68a4c';
+import { CH3_ABILITIES } from './abilities-ch3.js?v=2049a4e68a4c';
+import { CH4_ABILITIES } from './abilities-ch4.js?v=2049a4e68a4c';
+import { TEMPLE_ABILITIES } from './abilities-temple.js?v=2049a4e68a4c';
+import { LAB_ABILITIES } from './abilities-lab.js?v=2049a4e68a4c';
 // 第37回 A: サファラ闘技場の 王者の 技
-import { ARENA_ABILITIES } from './abilities-arena.js?v=b4e31baa770b';
-import { TOWER_ABILITIES } from './abilities-tower.js?v=b4e31baa770b';
-import { KUMOI_ABILITIES } from './abilities-kumoi.js?v=b4e31baa770b';
-import { HOSHIYOMI_ABILITIES } from './abilities-hoshiyomi.js?v=b4e31baa770b';
-import { EARTH_ABILITIES } from './abilities-earth.js?v=b4e31baa770b';
-import { FINAL_ABILITIES } from './abilities-final.js?v=b4e31baa770b';
-import { PHANTOM_ABILITIES } from './abilities-phantom.js?v=b4e31baa770b';
-import { PAST_ABILITIES } from './abilities-past.js?v=b4e31baa770b';
-import { ROAD_ABILITIES } from './abilities-road.js?v=b4e31baa770b';
-import { TOKEI_ABILITIES } from './abilities-tokei.js?v=b4e31baa770b';
-import { JOB3_ABILITIES } from './abilities-jobs3.js?v=b4e31baa770b';
-import { JOB4_ABILITIES } from './abilities-jobs4.js?v=b4e31baa770b';
+import { ARENA_ABILITIES } from './abilities-arena.js?v=2049a4e68a4c';
+import { TOWER_ABILITIES } from './abilities-tower.js?v=2049a4e68a4c';
+import { KUMOI_ABILITIES } from './abilities-kumoi.js?v=2049a4e68a4c';
+import { HOSHIYOMI_ABILITIES } from './abilities-hoshiyomi.js?v=2049a4e68a4c';
+import { EARTH_ABILITIES } from './abilities-earth.js?v=2049a4e68a4c';
+import { FINAL_ABILITIES } from './abilities-final.js?v=2049a4e68a4c';
+import { PHANTOM_ABILITIES } from './abilities-phantom.js?v=2049a4e68a4c';
+import { PAST_ABILITIES } from './abilities-past.js?v=2049a4e68a4c';
+import { ROAD_ABILITIES } from './abilities-road.js?v=2049a4e68a4c';
+import { TOKEI_ABILITIES } from './abilities-tokei.js?v=2049a4e68a4c';
+import { JOB3_ABILITIES } from './abilities-jobs3.js?v=2049a4e68a4c';
+import { JOB4_ABILITIES } from './abilities-jobs4.js?v=2049a4e68a4c';
 // 2026年10月（第22回）の 新しい 職業の 技（おかん・社ちく・天才しせつ管理者・はかい神 など）
-import { JOB5_ABILITIES } from './abilities-jobs5.js?v=b4e31baa770b';
+import { JOB5_ABILITIES } from './abilities-jobs5.js?v=2049a4e68a4c';
 // 2026年10月（第26回）の 新しい 職業の 技（楽天カードマン・きさつ隊・スパイ・探てい・ネコ型ロボット・カッパ・木の葉の忍び など）
-import { JOB6_ABILITIES } from './abilities-jobs6.js?v=b4e31baa770b';
-import { FIELD27_ABILITIES } from './abilities-field27.js?v=b4e31baa770b';
+import { JOB6_ABILITIES } from './abilities-jobs6.js?v=2049a4e68a4c';
+import { FIELD27_ABILITIES } from './abilities-field27.js?v=2049a4e68a4c';
 // 2026年10月（第27回）の 新しい 職業の 技（暴れんぼう将軍）
-import { JOB7_ABILITIES } from './abilities-jobs7.js?v=b4e31baa770b';
+import { JOB7_ABILITIES } from './abilities-jobs7.js?v=2049a4e68a4c';
 // 2026年10月（第29回）の 新しい 職業の 技（るろうに剣士 → 人斬りばっ刀さい → ひ村ばっ刀さい → 飛天御剣流けい承者）
-import { JOB8_ABILITIES } from './abilities-jobs8.js?v=b4e31baa770b';
+import { JOB8_ABILITIES } from './abilities-jobs8.js?v=2049a4e68a4c';
 // 2026年10月（第33回）の 新しい 職業の 技（手品師・かいとう・魔法学校・3年B組の担任・れん金術師・美少女戦士 など 11）
-import { JOB9_ABILITIES } from './abilities-jobs9.js?v=b4e31baa770b';
+import { JOB9_ABILITIES } from './abilities-jobs9.js?v=2049a4e68a4c';
 // 2026年10月（第40回）の 2つの 伝説の 職業の 技（竜魔人・ネオ・クイーン・セレニティ）
-import { JOB10_ABILITIES } from './abilities-jobs10.js?v=b4e31baa770b';
+import { JOB10_ABILITIES } from './abilities-jobs10.js?v=2049a4e68a4c';
 // 2026年10月（第41回 B）の 雪の女王・第5のせいれいの 技
-import { R41B_ABILITIES } from './abilities-r41b.js?v=b4e31baa770b';
+import { R41B_ABILITIES } from './abilities-r41b.js?v=2049a4e68a4c';
 // 2026年10月（第41回 A）の 2つの 伝説の 職業の 技（京急の社長・野球界の殿堂入り）
-import { R41A_ABILITIES } from './abilities-r41a.js?v=b4e31baa770b';
+import { R41A_ABILITIES } from './abilities-r41a.js?v=2049a4e68a4c';
 // 2026年10月（第43回 B）の 魔物の 系統の 奥義（Lv30・45・60）
-import { OUGI_ABILITIES } from './abilities-ougi.js?v=b4e31baa770b';
+import { OUGI_ABILITIES } from './abilities-ougi.js?v=2049a4e68a4c';
 // 2026年10月（第43回）の 配管工 → ひげおやじ → マリオ（ももの姫 → おてんば姫 → ピーチ）の 技
-import { R43J_ABILITIES } from './abilities-r43j.js?v=b4e31baa770b';
+import { R43J_ABILITIES } from './abilities-r43j.js?v=2049a4e68a4c';
 // 第44回（ポケモン P1）の ポケモンの 魔物の 技（abilities-pokemon.js）
-import { POKEMON_ABILITIES } from './abilities-pokemon.js?v=b4e31baa770b';
+import { POKEMON_ABILITIES } from './abilities-pokemon.js?v=2049a4e68a4c';
 // 第45回（ドラクエふう D1）の ドラクエふうの 魔物の 技（abilities-dqm.js）
-import { DQM_ABILITIES } from './abilities-dqm.js?v=b4e31baa770b';
+import { DQM_ABILITIES } from './abilities-dqm.js?v=2049a4e68a4c';
 
 export const ABILITIES = {
   // ───────────── 戦士 ─────────────
@@ -692,10 +692,10 @@ export function isSwordSkill(id) {
 }
 
 export const ELEMENT_NAMES = {
-  fire: '炎', ice: '氷', wind: '風', blast: '爆発', bolt: '雷', light: '光', dark: '闇', void: '消滅',
+  fire: '炎', ice: '氷', water: '水', wind: '風', blast: '爆発', bolt: '雷', light: '光', dark: '闇', void: '消滅',
 };
-// 敵の 得手不得手を しらべる 属性（図鑑に のる じゅん）
-export const ELEMENT_ORDER = ['fire', 'ice', 'wind', 'blast', 'bolt', 'light', 'dark'];
+// 敵の 得手不得手を しらべる 属性（図鑑に のる じゅん）。水は 第47回（data/water.js）
+export const ELEMENT_ORDER = ['fire', 'ice', 'water', 'wind', 'blast', 'bolt', 'light', 'dark'];
 
 // 技の 種類（色分け）: dmg=ダメージ heal=回復 sup=補助
 const DMG_TYPES = new Set(['phys', 'magic', 'drainHp', 'drainMp', 'mahouken', 'telegraph', 'multi', 'goldThrow', 'gamble', 'fixed', 'allMp', 'gather', 'destroy', 'deduce']);

@@ -24,10 +24,10 @@
 //   今の 職業が その タグを 持つ 人が うけもてる（今の 職業で 判定は そのまま）。
 //   作品の ネタの 技（おかん・カッパ・魔王と はかい神 など）は、前と おなじ「特別な 組」（職業しばり）の まま。
 //   合体技の id・名前・えんしゅつは そのまま（古い セーブ・お気に入り・dualSeen は こわれない）。作品を またぐ 新しい 技を 13こ 足した
-import { ABILITIES } from './abilities.js?v=b4e31baa770b';
-import { JOBS, ALL_JOBS, jobBases } from './jobs.js?v=b4e31baa770b';
-import { TAG_ORDER, jobsWithTag, tagName } from './job-tags.js?v=b4e31baa770b';
-import { isMasc, jobLabel } from '../job-label.js?v=b4e31baa770b';
+import { ABILITIES } from './abilities.js?v=2049a4e68a4c';
+import { JOBS, ALL_JOBS, jobBases } from './jobs.js?v=2049a4e68a4c';
+import { TAG_ORDER, jobsWithTag, tagName } from './job-tags.js?v=2049a4e68a4c';
+import { isMasc, jobLabel } from '../job-label.js?v=2049a4e68a4c';
 
 // その 職業の 技（ひらめき技も）
 const byJob = (...jobs) => Object.keys(ABILITIES).filter((id) => {
@@ -233,7 +233,7 @@ export const DUAL_TECHS = {
     parts: [
       { type: 'revive', pct: 0.4 }, { type: 'heal', pct: 0.45, k: 0.5 },
       { type: 'cure', statuses: ['poison', 'sleep', 'confuse', 'paralyze', 'blind', 'silence'] },
-      { type: 'power', target: 'enemies', kind: 'phys', element: 'ice', k: 0.45, say: '消防車がいっせい放水！' },
+      { type: 'power', target: 'enemies', kind: 'phys', element: 'water', k: 0.45, say: '消防車がいっせい放水！' },
     ],
     desc: 'パトカー・消防車・救急車が、いっぺんにかけつけた！たおれた仲間も起きて、仲間全員が回復し、状態異常も治る。敵全体には放水。', anim: 'siren',
   },

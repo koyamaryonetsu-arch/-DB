@@ -14,7 +14,7 @@
 //  ・random の autoRandom … オートの 仲間も、運しだいの 技を 使う（ひみつ道具・あたまの花。中みの 攻撃の 強さで えらぶ）
 
 // 属性の じゅん（abilities.js の ELEMENT_ORDER と おなじ。abilities.js と おたがいに 読みこまない ように ここにも 書く）
-const ELEMENT_ORDER = ['fire', 'ice', 'wind', 'blast', 'bolt', 'light', 'dark'];
+const ELEMENT_ORDER = ['fire', 'ice', 'water', 'wind', 'blast', 'bolt', 'light', 'dark'];
 
 const STATUS_ALL = ['poison', 'sleep', 'paralyze', 'confuse', 'blind', 'silence'];
 
@@ -64,7 +64,7 @@ export const JOB6_ABILITIES = {
   // ───────────── きさつ隊（上級職。戦士＋武闘家） ─────────────
   ks_minamo: {
     name: '水面斬り', kana: 'みなもぎり', kind: 'skill', job: 'kisatsu', mp: 3, target: 'enemy',
-    effect: { type: 'phys', mult: 1.8 },
+    effect: { type: 'phys', element: 'water', mult: 1.8 },
     desc: '水の呼吸の一の型。水平に、敵1体を切りつける。', cast: '{a}の水の呼吸！水面斬り！', anim: 'slash_heavy',
   },
   ks_zenshuu: {
@@ -79,17 +79,17 @@ export const JOB6_ABILITIES = {
   },
   ks_uchishio: {
     name: '打ち潮', kana: 'うちしお', kind: 'skill', job: 'kisatsu', mp: 7, target: 'group',
-    effect: { type: 'phys', mult: 1.15 },
+    effect: { type: 'phys', element: 'water', mult: 1.15 },
     desc: '水の呼吸の三の型。波のような太刀すじで、同じ種類の敵を切る。', cast: '{a}の水の呼吸！打ち潮！', anim: 'slash_multi',
   },
   ks_nejire: {
     name: 'ねじれうず', kana: 'ねじれうず', kind: 'skill', job: 'kisatsu', mp: 9, target: 'enemies',
-    effect: { type: 'phys', mult: 0.95 },
+    effect: { type: 'phys', element: 'water', mult: 0.95 },
     desc: '水の呼吸の六の型。体をねじって大きなうずを作り、敵全体を切る。', cast: '{a}の水の呼吸！ねじれうず！', anim: 'wind2',
   },
   kisatsu_sig: {
     name: '生生流転', kana: 'せいせいるてん', kind: 'skill', job: 'kisatsu', mp: 15, target: 'enemy',
-    effect: { type: 'phys', mult: 0.8, hits: 4 },
+    effect: { type: 'phys', element: 'water', mult: 0.8, hits: 4 },
     desc: '水の呼吸の十の型。回るほど強くなる水の竜で、敵1体を4回切りつける。', cast: '{a}の水の呼吸、十の型！生生流転！', anim: 'kisatsu_sig',
   },
 
@@ -562,7 +562,7 @@ export const JOB6_ABILITIES = {
   },
   kp_mizu: {
     name: '水でっぽう', kana: 'みずでっぽう', kind: 'skill', job: 'kappa', mp: 3, target: 'group',
-    effect: { type: 'magic', base: [16, 22], thr: 14 },
+    effect: { type: 'magic', element: 'water', base: [16, 22], thr: 14 },
     desc: '口から水をピューッとふき出して、同じ種類の敵に当てる。', cast: '{a}の水でっぽう！ピューッ！', anim: 'water',
   },
   kp_osara: {
