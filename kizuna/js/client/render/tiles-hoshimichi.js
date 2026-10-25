@@ -3,8 +3,8 @@
 // ・かれた 谷（282）… 千年前の 川の 底（ひびわれた 砂と 小石）/ 星の木の なえ（283）/ 落ちた星（284）… 光る ひびの 入った 星の 岩
 // ・光る 道しるべ（285）… 星を のせた 石の 柱（3コマ）/ 星受けの台（286）/ 星の石（287）・ともった 星の石（288）
 // (p, v, f, m) … Painter / ちがい / アニメの コマ / となりの ようす
-import { T } from '../../shared/tiles.js?v=5afd260db5f5';
-import { prand } from './pixel.js?v=5afd260db5f5';
+import { T } from '../../shared/tiles.js?v=f2f4be342cfa';
+import { prand } from './pixel.js?v=f2f4be342cfa';
 
 const NS = { d: '#1a1c34', b: '#2a2e50', l: '#3c4270', ln: '#14162a' }; // 夜色の 石
 const MIST = { a: '#9aa0d0', b: '#c8ccf0', w: '#eef0ff' };

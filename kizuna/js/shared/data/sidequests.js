@@ -11,11 +11,11 @@
 //  8. 湯けむりのなぞなぞ（温泉の里ユノハ）… なぞとき
 //  9. はぐれマグマゴーレム（ホシフル村の 見張り）… 強い 魔物の 退治
 // 10. 迷宮の探検家（大迷宮 地下6階の 宝探しのダイゴ）… 大迷宮の 中の さがし物
-import { LAB_FLAGS } from '../maps/labyrinth.js?v=5afd260db5f5';
-import { medalSteps } from './story-lab.js?v=5afd260db5f5';
-import { FAMILY_SCRIPTS, FAMILY_STORY_SCRIPTS, familySubQuests, familyDoneQuests } from './sidequests-family.js?v=5afd260db5f5';
+import { LAB_FLAGS } from '../maps/labyrinth.js?v=f2f4be342cfa';
+import { medalSteps } from './story-lab.js?v=f2f4be342cfa';
+import { FAMILY_SCRIPTS, FAMILY_STORY_SCRIPTS, familySubQuests, familyDoneQuests } from './sidequests-family.js?v=f2f4be342cfa';
 // 第6章 Step 3・4（A）: 時のタイムカプセル・千年前のレシピ・ちびアステルのたからもの（sidequests-ch6.js）
-import { ch6SubQuests, ch6DoneQuests } from './sidequests-ch6.js?v=5afd260db5f5';
+import { ch6SubQuests, ch6DoneQuests } from './sidequests-ch6.js?v=f2f4be342cfa';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

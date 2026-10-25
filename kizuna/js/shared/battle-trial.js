@@ -7,12 +7,12 @@
 //   鏡のうつし身と おなじく 戦いを こわす 技・生き返らせる 技は 使わない）/ 見た目 … 白い かみの 師しょう（鏡の 色。client/battle-temple.js）
 // ・技の えらび方は 鏡のうつし身と おなじ（mirrorOf が ある 敵は battle-temple.js の templeAction → mirrorDecide → 仲間の オートの AI）
 // ・はじめの ことば: 師しょうの 教え（data/job-trials.js の trialWords。職業ごと）
-import { JOBS, JOB_MAX_LEVEL } from './data/jobs.js?v=5afd260db5f5';
-import { ABILITIES } from './data/abilities.js?v=5afd260db5f5';
-import { strengthenEnemy } from './data/difficulty.js?v=5afd260db5f5';
-import { MONSTERS } from './data/monsters.js?v=5afd260db5f5';
-import { mirrorSkillOk } from './battle-temple.js?v=5afd260db5f5';
-import { PHANTOM_NAME, phantomLook, trialWords, masterName, TRIALS } from './data/job-trials.js?v=5afd260db5f5';
+import { JOBS, JOB_MAX_LEVEL } from './data/jobs.js?v=f2f4be342cfa';
+import { ABILITIES } from './data/abilities.js?v=f2f4be342cfa';
+import { strengthenEnemy } from './data/difficulty.js?v=f2f4be342cfa';
+import { MONSTERS } from './data/monsters.js?v=f2f4be342cfa';
+import { mirrorSkillOk } from './battle-temple.js?v=f2f4be342cfa';
+import { PHANTOM_NAME, phantomLook, trialWords, masterName, TRIALS } from './data/job-trials.js?v=f2f4be342cfa';
 
 // 職業の mods の 効き方（1 … そのまま。回復は 弱め … 回復ばかりで 長い 戦いに ならない ように）
 export const PHANTOM_MODS = { hp: 0.5, str: 1, def: 0.6, agi: 0.5, mag: 1, heal: 0.6 };

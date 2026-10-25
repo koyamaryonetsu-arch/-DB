@@ -4,9 +4,9 @@
 //   千年前の 人たち（past_*）・泉の里の 人たち（spring_*）と、時が 止まった 灰色の すがた（frozen_*）
 // とくべつな え（paintCh6Special）: はじまりの勇者の像（ふつう・うすく 消えかけた）・星の木（大きな 木）・星の木の なえ・やわらかい 土・
 //   星のしずく・テント・いのりの 石・ちびアステル・影の時計師ゼンマイ・ゼンマイの番兵ギアドン（番人の 間の 人の すがた）
-import { Painter } from './pixel.js?v=5afd260db5f5';
+import { Painter } from './pixel.js?v=f2f4be342cfa';
 // 第6章 Step 3・4: オリハ・コトハ・星くいのよる鳥・ペンデュラ・タイムカプセル・きらきらの石（render/ch6-road-npc-art.js。ここで まぜる）
-import { ROAD_NPC_LOOKS, paintRoadSpecial, ROAD_SPECIALS } from './ch6-road-npc-art.js?v=5afd260db5f5';
+import { ROAD_NPC_LOOKS, paintRoadSpecial, ROAD_SPECIALS } from './ch6-road-npc-art.js?v=f2f4be342cfa';
 
 const GRAY = { hair: '#9a9aa2', skin: '#c4c6cc', cloth: '#8a8c94', trim: '#b4b6bc' };
 const person = (o) => o;
