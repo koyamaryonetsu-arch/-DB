@@ -35,6 +35,7 @@ import { R41A_SFX, R41A_HIT, PARTY_ANIMS_R41A } from './render/battlefx-r41a.js'
 import { R43J_SFX, R43J_HIT, PARTY_ANIMS_R43J } from './render/battlefx-r43j.js';
 // 第44回の ポケモンの 技（味方の ポケモンが 敵に・敵の ポケモンが みんなに）
 import { PK_ANIMS, PK_SFX, PK_HIT, PK_ALLY_FX } from './render/battlefx-pokemon.js';
+import { DQ_ANIMS, DQ_SFX, DQ_HIT, DQ_ALLY_FX } from './render/battlefx-dqm.js';
 import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js';
 import { targetTag } from './ui/info.js';
 // 第38回 C: バフ・デバフ・じわじわ回復の しるし（のこりの 行動の 回数）
@@ -96,6 +97,7 @@ Object.assign(HIT_DELAY, R41B_HIT);
 Object.assign(HIT_DELAY, R41A_HIT);
 Object.assign(HIT_DELAY, R43J_HIT);
 Object.assign(HIT_DELAY, PK_HIT);
+Object.assign(HIT_DELAY, DQ_HIT);
 const SPELL_ANIMS = new Set(['fire1', 'fire2', 'fire3', 'fire_wave', 'fire_tornado', 'ice1', 'ice2', 'wind1', 'wind2', 'blast1', 'blast2', 'void', 'dark1', 'meteor']);
 const ELEM_COLORS = {
   fire: ['#ff5a2a', '#ff9a3a', '#ffe07a'], ice: ['#9ae6ff', '#e6fbff', '#5ab8e8'], wind: ['#d8ffe0', '#9af0b0', '#ffffff'],
@@ -117,6 +119,7 @@ function allyFxKind(anim, fx, ab) {
   }
   if (CH4_ALLY_FX[anim]) return CH4_ALLY_FX[anim];
   if (PK_ALLY_FX[anim]) return PK_ALLY_FX[anim];
+  if (DQ_ALLY_FX[anim]) return DQ_ALLY_FX[anim];
   const el = fx.element;
   if (/^bolt|gigabreak|dragon_beam/.test(anim) || el === 'bolt') return 'bolt';
   if (anim === 'dark_slash') return 'dark';
@@ -170,6 +173,8 @@ const ANIM_SFX = {
   ...R43J_SFX,
   // 第44回の ポケモンの 技（render/battlefx-pokemon.js・sfx-pokemon.js）
   ...PK_SFX,
+  // 第45回の ドラクエふうの 魔物の 技（render/battlefx-dqm.js・sfx-dqm.js）
+  ...DQ_SFX,
   // 第4章 Step 7 の 神殿の 魔物と モルガナ（render/battlefx-temple.js）
   ...TEMPLE_SFX,
   // 第5章 Step 2 の 星の塔と 星の番人アルゴス（render/battlefx-ch5.js）
@@ -1177,13 +1182,15 @@ export class BattleScene {
       }
       if (!fromAlly && anim === 'breath') this.fx.tintAt(fx.element === 'fire' ? 'rgba(255, 120, 40, 0.16)' : 'rgba(200, 230, 255, 0.14)', 500 + lead);
       // ポケモンの 技が みんなに あたる: 出どころ（敵の まん中）から みんなの いちへ（render/battlefx-pokemon.js。あたる ときが うごきの おわりに あう）
-      const pkHit = PK_ANIMS.has(anim);
+      // 第45回の ドラクエふうの 技（dq_…）も おなじ。せかいじゅの子の 回復（味方に かける）も ここで みんなの いちに 出す
+      const pkHit = PK_ANIMS.has(anim) || DQ_ANIMS.has(anim);
       if (pkHit) {
         const from = actor && (actor.side === 'ally' ? this.allyPt(actor) : this.center(actor));
         const at = allyTargets.map((t) => this.allyPt(t));
-        d = Math.max(lead, PK_HIT[anim] || 0);
+        const hitMs = PK_HIT[anim] || DQ_HIT[anim] || 0;
+        d = Math.max(lead, hitMs);
         const go = () => { if (!this.destroyed) this.fx.play(anim, at, fx.element, { crit, fromAlly: false, from: from || undefined }); };
-        if (d - (PK_HIT[anim] || 0) > 0) this.fx.at(d - (PK_HIT[anim] || 0), go);
+        if (d - hitMs > 0) this.fx.at(d - hitMs, go);
         else go();
       }
       // てきの こうげきが こちらに あたる（がめんの てまえに 大きく）
