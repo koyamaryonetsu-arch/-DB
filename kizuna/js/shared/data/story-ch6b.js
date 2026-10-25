@@ -7,16 +7,16 @@
 //   → 今の 雲の上の 星読みの里の カナタ（c6_kanata。ミナモは 千年前へ 帰る）→「第6章の続きはアップデートで！」
 // 魔物・きまった 戦い（star_eater・pendula）・品は B（戦い・品）が 作る（plan-ch6.md の 12-1）
 // このファイルは story-ch6.js を 読まない（story-ch6.js が ここを 読んで まぜる）
-import { MAPS } from '../maps/index.js?v=df2b5cb0d2d6';
-import { C6, PAST_ID } from '../maps/past.js?v=df2b5cb0d2d6';
+import { MAPS } from '../maps/index.js?v=13534ab82dda';
+import { C6, PAST_ID } from '../maps/past.js?v=13534ab82dda';
 import {
   C6B, HF, STARSIGHT, SAP_DIRS, SAP_FLAG, SAP_GOOD, CATCH5, OPEN6, WAIT6, HBOSS, END_P6,
   HM_POS, HM_STONES, HM_FLOORS, HM_BOSS_FLOOR, SHA, stoneIndex, hmMapId,
-} from '../maps/hoshimichi.js?v=df2b5cb0d2d6';
-import { isNightFor, advanceClock } from '../world/clock.js?v=df2b5cb0d2d6';
-import { unstickAll } from '../world/hazards.js?v=df2b5cb0d2d6';
-import { partyOf } from '../world/party.js?v=df2b5cb0d2d6';
-import { applyCh6Side, CH6_SIDE_STORY_SCRIPTS } from './sidequests-ch6.js?v=df2b5cb0d2d6';
+} from '../maps/hoshimichi.js?v=13534ab82dda';
+import { isNightFor, advanceClock } from '../world/clock.js?v=13534ab82dda';
+import { unstickAll } from '../world/hazards.js?v=13534ab82dda';
+import { partyOf } from '../world/party.js?v=13534ab82dda';
+import { applyCh6Side, CH6_SIDE_STORY_SCRIPTS } from './sidequests-ch6.js?v=13534ab82dda';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

@@ -2,19 +2,19 @@
 // お店: name 店の なまえ / kind かんばんの しゅるい / keeper 店の人 / hello さいしょの ことば / items 売っている 品物
 //       more: 物語が すすむと ふえる 品物 [{ show: { all: [フラグ] }, items: [...], hello }]（show の 書き方は NPC と おなじ。hello が あれば あいさつも かわる）
 
-import { SHOPS_CH2 } from './items-ch2.js?v=df2b5cb0d2d6';
-import { NIGHT_SHOPS } from './night.js?v=df2b5cb0d2d6';
-import { SHOPS_CH3, CH3_GUESTS } from './items-ch3.js?v=df2b5cb0d2d6';
-import { SHOPS_CH4 } from './items-ch4.js?v=df2b5cb0d2d6';
-import { POWDER_ID, POWDER_SHOPS } from './friend-powder.js?v=df2b5cb0d2d6';
-import { LURE_ITEM, FIELD27_SHOPS } from './abilities-field27.js?v=df2b5cb0d2d6';
-import { R33_SHOP_ADD } from './items-r33.js?v=df2b5cb0d2d6';
-import { SHOPS_KUMOI } from './shops-kumoi.js?v=df2b5cb0d2d6';
-import { SHOPS_HOSHIYOMI } from './shops-hoshiyomi.js?v=df2b5cb0d2d6';
-import { SHOPS_EARTH } from './shops-earth.js?v=df2b5cb0d2d6';
+import { SHOPS_CH2 } from './items-ch2.js?v=13534ab82dda';
+import { NIGHT_SHOPS } from './night.js?v=13534ab82dda';
+import { SHOPS_CH3, CH3_GUESTS } from './items-ch3.js?v=13534ab82dda';
+import { SHOPS_CH4 } from './items-ch4.js?v=13534ab82dda';
+import { POWDER_ID, POWDER_SHOPS } from './friend-powder.js?v=13534ab82dda';
+import { LURE_ITEM, FIELD27_SHOPS } from './abilities-field27.js?v=13534ab82dda';
+import { R33_SHOP_ADD } from './items-r33.js?v=13534ab82dda';
+import { SHOPS_KUMOI } from './shops-kumoi.js?v=13534ab82dda';
+import { SHOPS_HOSHIYOMI } from './shops-hoshiyomi.js?v=13534ab82dda';
+import { SHOPS_EARTH } from './shops-earth.js?v=13534ab82dda';
 // 第2部 第6章: 千年前の ホシフルの里の 店（shops-past.js）・ゲストの ミナモ（companions-past.js）
-import { SHOPS_PAST } from './shops-past.js?v=df2b5cb0d2d6';
-import { MINAMO_GUEST } from './companions-past.js?v=df2b5cb0d2d6';
+import { SHOPS_PAST } from './shops-past.js?v=13534ab82dda';
+import { MINAMO_GUEST } from './companions-past.js?v=13534ab82dda';
 
 export const SHOPS = {
   village: {

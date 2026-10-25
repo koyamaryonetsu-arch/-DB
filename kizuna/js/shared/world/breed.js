@@ -1,18 +1,20 @@
 // まものの はいごう（ドラゴンクエストモンスターズ ふう。第35回で 作りなおし）
 //   生まれる 子の 候補・＋・ランクは data/companions.js の breedOutcome、能力の 受けつぎ・めやす・血統は shared/breed-calc.js
 //   どちらも 酒場の 画面（client/ui/services.js）と 同じ 計算
-import { MONSTERS } from '../data/monsters.js?v=df2b5cb0d2d6';
-import { ABILITIES } from '../data/abilities.js?v=df2b5cb0d2d6';
-import { ITEMS, SLOTS } from '../data/items.js?v=df2b5cb0d2d6';
-import { MONSTER_FRIENDS, BREED_MIN_LEVEL, BREED_INHERIT_MAX, BREED_INHERIT_TOTAL, breedOutcome, bestiaryKnow, RANKS } from '../data/companions.js?v=df2b5cb0d2d6';
-import { ougiLearn } from '../data/abilities-ougi.js?v=df2b5cb0d2d6';
-import { computeStats, learnedAbilities, newMonsterCompanion, addItem, removeItem, itemCount } from '../stats.js?v=df2b5cb0d2d6';
+import { MONSTERS } from '../data/monsters.js?v=13534ab82dda';
+import { ABILITIES } from '../data/abilities.js?v=13534ab82dda';
+import { ITEMS, SLOTS } from '../data/items.js?v=13534ab82dda';
+import { MONSTER_FRIENDS, BREED_MIN_LEVEL, BREED_INHERIT_MAX, BREED_INHERIT_TOTAL, breedOutcome, bestiaryKnow, RANKS } from '../data/companions.js?v=13534ab82dda';
+import { ougiLearn } from '../data/abilities-ougi.js?v=13534ab82dda';
+import { computeStats, learnedAbilities, newMonsterCompanion, addItem, removeItem, itemCount } from '../stats.js?v=13534ab82dda';
 // 第43回 A: 配合の あとの 追いつき
-import { catchUpLevel } from '../stats.js?v=df2b5cb0d2d6';
-import { inheritBonus, breedForecast, makeLineage } from '../breed-calc.js?v=df2b5cb0d2d6';
-import { ensureCompanions, companionOf, putInParty, afterRosterChange } from './party.js?v=df2b5cb0d2d6';
+import { catchUpLevel } from '../stats.js?v=13534ab82dda';
+// 第44回: 大事な物を 使う 素材配合（ミュウ）
+import { hasKeyItem } from '../stats.js?v=13534ab82dda';
+import { inheritBonus, breedForecast, makeLineage } from '../breed-calc.js?v=13534ab82dda';
+import { ensureCompanions, companionOf, putInParty, afterRosterChange } from './party.js?v=13534ab82dda';
 // 第43回 C: あずかり中の 魔物も 親に なれる（world/party.js の breedEntry・world/storage.js）
-import { breedEntry, storedOf } from './party.js?v=df2b5cb0d2d6';
+import { breedEntry, storedOf } from './party.js?v=13534ab82dda';
 
 // おやから うけつげる わざ（第43回 B: 親ごとに 4つずつ・あわせて 8つ。docs/plan-monsters.md の 2-4）
 //   { a: [親A の 技], b: [親B の 技] }。両方の 親が 知っている 技は a に だけ 入れる（1つと 数える。b の あいた ぶんは ほかの 技から えらべる）
@@ -101,7 +103,9 @@ export function breedMonsters(world, s, { a, b, child, inherit, name } = {}) {
   const pv = breedPreview(c, a, b, child || null);
   if (!pv.ok) return pv;
   // 素材配合: ボスの 品が ふくろに ある か（配合すると なくなる）
-  if (pv.item && itemCount(c, pv.item) < 1) return { ok: false, reason: `${pv.itemName}がふくろにない` };
+  // 第44回: ふしぎないでんし（ミュウ）は 大事な物（c.keyItems）
+  const keyItem = !!pv.item && ITEMS[pv.item]?.type === 'key';
+  if (pv.item && (keyItem ? !hasKeyItem(c, pv.item) : itemCount(c, pv.item) < 1)) return { ok: false, reason: `${pv.itemName}がふくろにない` };
   const A = breedEntry(c, a), B = breedEntry(c, b);
   // あずかり中の 親から 生まれた 子は あずかり所に 入る（仲間の 親の ぶん 1つ あく。第43回 C）
   const fromStore = !!(storedOf(c, a) || storedOf(c, b));
@@ -113,7 +117,8 @@ export function breedMonsters(world, s, { a, b, child, inherit, name } = {}) {
   // 受けつぐ 能力と 血統は 親が いる うちに
   const bonus = inheritBonus(parentOf(A), parentOf(B));
   const lineage = makeLineage(parentOf(A), parentOf(B));
-  if (pv.item) removeItem(c, pv.item, 1);
+  if (keyItem) c.keyItems = c.keyItems.filter((k) => k !== pv.item);
+  else if (pv.item) removeItem(c, pv.item, 1);
   // おやは たびだっていく（そうびは ふくろへ）
   for (const p of [A, B]) for (const slot of SLOTS) if (p.char.equip?.[slot]) addItem(c, p.char.equip[slot], 1);
   c.companions = c.companions.filter((e) => e !== A && e !== B);

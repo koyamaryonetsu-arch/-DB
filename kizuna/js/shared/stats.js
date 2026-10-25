@@ -1,18 +1,20 @@
 // キャラクターの つよさ計算・レベルアップ・転職ペナルティ
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_EASY_RATE, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets, jobBodyOk, superMasteredCount } from './data/jobs.js?v=df2b5cb0d2d6';
-import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=df2b5cb0d2d6';
-import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=df2b5cb0d2d6';
-import { MONSTERS } from './data/monsters.js?v=df2b5cb0d2d6';
-import { MONSTER_FRIENDS, monsterNatural, gearOf, monsterLevelCap } from './data/companions.js?v=df2b5cb0d2d6';
-import { ougiLearn } from './data/abilities-ougi.js?v=df2b5cb0d2d6';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_EASY_RATE, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets, jobBodyOk, superMasteredCount } from './data/jobs.js?v=13534ab82dda';
+import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=13534ab82dda';
+import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=13534ab82dda';
+import { MONSTERS } from './data/monsters.js?v=13534ab82dda';
+import { MONSTER_FRIENDS, monsterNatural, gearOf, monsterLevelCap } from './data/companions.js?v=13534ab82dda';
+import { ougiLearn } from './data/abilities-ougi.js?v=13534ab82dda';
 // 第43回 A: 魔物の 育ち・ランクの 強さ（data/companions.js の rankIdx）
-import { rankIdx } from './data/companions.js?v=df2b5cb0d2d6';
-import { HIRAMEKI, hiraRatio } from './data/hirameki.js?v=df2b5cb0d2d6';
-import { cleanLook } from './data/looks.js?v=df2b5cb0d2d6';
-import { SKILL_UPS } from './data/skill-ups.js?v=df2b5cb0d2d6';
-import { jobLabel } from './job-label.js?v=df2b5cb0d2d6';
+import { rankIdx } from './data/companions.js?v=13534ab82dda';
+// 第44回（ポケモン P1）: レベルで 進化
+import { levelEvolveTo } from './data/companions.js?v=13534ab82dda';
+import { HIRAMEKI, hiraRatio } from './data/hirameki.js?v=13534ab82dda';
+import { cleanLook } from './data/looks.js?v=13534ab82dda';
+import { SKILL_UPS } from './data/skill-ups.js?v=13534ab82dda';
+import { jobLabel } from './job-label.js?v=13534ab82dda';
 // 第38回 B: 超級職からの 職業レベルの 上限（職業の試練）と Lv11〜 の 強さ
-import { jobLevelCap, jobUpStats } from './data/job-trials.js?v=df2b5cb0d2d6';
+import { jobLevelCap, jobUpStats } from './data/job-trials.js?v=13534ab82dda';
 
 // 長い 物語に なるので レベルは 150まで（第40回で 99 → 150。レベルで ふえる つよさは ひかえめ）
 export const MAX_LEVEL = 150;
@@ -443,7 +445,8 @@ export function canEquip(jobId, itemId) {
     case 'armor': return job.armor.includes(it.armorType);
     case 'shield': return !!job.shield;
     case 'head': return !it.helm || !!job.helm;
-    case 'acc': return true;
+    // 第44回: かわらずのいし（魔物だけ。monsterOnly）
+    case 'acc': return !it.monsterOnly;
     default: return false;
   }
 }
@@ -615,6 +618,12 @@ export function gainExp(char, exp) {
     ups.push({ level: char.level, gains, learned });
   }
   if (char.catchUp !== undefined && (!(char.catchUp > char.level) || char.level >= monsterLevelCap(char, MONSTERS, MAX_LEVEL))) delete char.catchUp;
+  // 第44回: レベルで 進化する 魔物（data/companions-pokemon.js の evolve）。レベルが 上がったら 進化の 用意（world/evolve.js が たずねる）
+  //   「とめる」と evolveTo を 消す → 次に レベルが 上がった ときに また たずねる。かわらずのいしを 装備していると 用意しない
+  if (ups.length && char.species) {
+    const to = levelEvolveTo(char);
+    if (to) char.evolveTo = to;
+  }
   return ups;
 }
 

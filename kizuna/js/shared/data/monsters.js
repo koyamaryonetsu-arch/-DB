@@ -11,29 +11,31 @@
 const ROCK_RESIST = { fire: 0.5, ice: 0.7, wind: 0.6, blast: 1.5, poison: 0, sleep: 0, confuse: 0.3, paralyze: 0.2 };
 const METAL_RESIST = { fire: 0, ice: 0, wind: 0, blast: 0, bolt: 0, light: 0, dark: 0, void: 0.5, sleep: 0, poison: 0, confuse: 0, blind: 0, silence: 0, paralyze: 0, debuff: 0 };
 
-import { MONSTERS_CH2 } from './monsters-ch2.js?v=df2b5cb0d2d6';
-import { MONSTERS_TM } from './monsters-tm.js?v=df2b5cb0d2d6';
-import { NIGHT_MONSTERS } from './night.js?v=df2b5cb0d2d6';
-import { MONSTERS_RARE } from './monsters-rare.js?v=df2b5cb0d2d6';
-import { MONSTERS_CH3 } from './monsters-ch3.js?v=df2b5cb0d2d6';
-import { MONSTERS_CH4 } from './monsters-ch4.js?v=df2b5cb0d2d6';
-import { MONSTERS_R23 } from './monsters-r23.js?v=df2b5cb0d2d6';
+import { MONSTERS_CH2 } from './monsters-ch2.js?v=13534ab82dda';
+import { MONSTERS_TM } from './monsters-tm.js?v=13534ab82dda';
+import { NIGHT_MONSTERS } from './night.js?v=13534ab82dda';
+import { MONSTERS_RARE } from './monsters-rare.js?v=13534ab82dda';
+import { MONSTERS_CH3 } from './monsters-ch3.js?v=13534ab82dda';
+import { MONSTERS_CH4 } from './monsters-ch4.js?v=13534ab82dda';
+import { MONSTERS_R23 } from './monsters-r23.js?v=13534ab82dda';
 // 第4章 Step 7「砂の底の神殿とモルガナ」（monsters-temple.js）
-import { MONSTERS_TEMPLE } from './monsters-temple.js?v=df2b5cb0d2d6';
-import { MONSTERS_LAB } from './monsters-lab.js?v=df2b5cb0d2d6';
+import { MONSTERS_TEMPLE } from './monsters-temple.js?v=13534ab82dda';
+import { MONSTERS_LAB } from './monsters-lab.js?v=13534ab82dda';
 // 第37回 A: サファラ闘技場の 王者（数えない 形）
-import { addArenaHidden } from './monsters-arena.js?v=df2b5cb0d2d6';
+import { addArenaHidden } from './monsters-arena.js?v=13534ab82dda';
 // 第38回 B: 職業の試練の 師しょうのまぼろし（数えない 形）
-import { addTrialHidden } from './monsters-trial.js?v=df2b5cb0d2d6';
-import { MONSTERS_CH5 } from './monsters-ch5.js?v=df2b5cb0d2d6';
-import { MONSTERS_KUMOI, addGaiaParts } from './monsters-kumoi.js?v=df2b5cb0d2d6';
-import { MONSTERS_HOSHIYOMI } from './monsters-hoshiyomi.js?v=df2b5cb0d2d6';
-import { MONSTERS_EARTH, addEarthHidden } from './monsters-earth.js?v=df2b5cb0d2d6';
-import { MONSTERS_FINAL } from './monsters-final.js?v=df2b5cb0d2d6';
-import { MONSTERS_PHANTOM, addPhantomHidden } from './monsters-phantom.js?v=df2b5cb0d2d6';
-import { MONSTERS_PAST } from './monsters-past.js?v=df2b5cb0d2d6';
-import { MONSTERS_ROAD } from './monsters-road.js?v=df2b5cb0d2d6';
-import { MONSTERS_BOSS } from './monsters-boss.js?v=df2b5cb0d2d6';
+import { addTrialHidden } from './monsters-trial.js?v=13534ab82dda';
+import { MONSTERS_CH5 } from './monsters-ch5.js?v=13534ab82dda';
+import { MONSTERS_KUMOI, addGaiaParts } from './monsters-kumoi.js?v=13534ab82dda';
+import { MONSTERS_HOSHIYOMI } from './monsters-hoshiyomi.js?v=13534ab82dda';
+import { MONSTERS_EARTH, addEarthHidden } from './monsters-earth.js?v=13534ab82dda';
+import { MONSTERS_FINAL } from './monsters-final.js?v=13534ab82dda';
+import { MONSTERS_PHANTOM, addPhantomHidden } from './monsters-phantom.js?v=13534ab82dda';
+import { MONSTERS_PAST } from './monsters-past.js?v=13534ab82dda';
+import { MONSTERS_ROAD } from './monsters-road.js?v=13534ab82dda';
+import { MONSTERS_BOSS } from './monsters-boss.js?v=13534ab82dda';
+// 第44回（ポケモン P1）: ポケモンの 魔物（配合と 進化で 生まれる。monsters-pokemon.js）
+import { MONSTERS_POKEMON } from './monsters-pokemon.js?v=13534ab82dda';
 
 export const MONSTERS = {
   pururin: {
@@ -273,3 +275,5 @@ addTrialHidden(MONSTERS);
 addGaiaParts(MONSTERS);
 // ボス級（ランク SS）の 仲間。配合でしか 生まれない（monsters-boss.js。第35回）
 Object.assign(MONSTERS, MONSTERS_BOSS);
+// 第44回（ポケモン P1）: ポケモンの 魔物 19しゅ（配合と 進化で 生まれる。monsters-pokemon.js）
+Object.assign(MONSTERS, MONSTERS_POKEMON);

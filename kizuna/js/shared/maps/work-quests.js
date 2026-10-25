@@ -10,13 +10,13 @@
 //  9. ハネノの町の名物動画（ユーチューバーの 系統。ハネノの町の 見晴らし台・広場）
 // 10. 湯けむり宿の大そうじ（おかんの 系統。ユノハの 宿屋の 2階。べつの 小さな マップ）
 // 11. 王都のお祭りの手品ショー（手品師の 系統。王都サファラの 南の 広場・宿屋）
-import { T } from '../tiles.js?v=df2b5cb0d2d6';
-import { npc } from './npc.js?v=df2b5cb0d2d6';
-import { NORTH_PLACES } from './north.js?v=df2b5cb0d2d6';
-import { SOUTH_PLACES } from './south.js?v=df2b5cb0d2d6';
-import { PORT } from './sea.js?v=df2b5cb0d2d6';
-import { openSpot } from './labyrinth.js?v=df2b5cb0d2d6';
-import { room } from './fq-kit.js?v=df2b5cb0d2d6';
+import { T } from '../tiles.js?v=13534ab82dda';
+import { npc } from './npc.js?v=13534ab82dda';
+import { NORTH_PLACES } from './north.js?v=13534ab82dda';
+import { SOUTH_PLACES } from './south.js?v=13534ab82dda';
+import { PORT } from './sea.js?v=13534ab82dda';
+import { openSpot } from './labyrinth.js?v=13534ab82dda';
+import { room } from './fq-kit.js?v=13534ab82dda';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 export const WQ_OPEN = 'c5_clear'; // 第1部クリアで たのみたい 人が 立つ（maps/family-quests.js の FQ_OPEN と おなじ）

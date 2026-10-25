@@ -1,23 +1,25 @@
 // だいほん（イベント）を すすめる しくみ
-import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js?v=df2b5cb0d2d6';
-import { ITEMS } from '../data/items.js?v=df2b5cb0d2d6';
-import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js?v=df2b5cb0d2d6';
-import { startFixedBattle } from './battles.js?v=df2b5cb0d2d6';
-import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=df2b5cb0d2d6';
-import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion, befriendLevel } from './party.js?v=df2b5cb0d2d6';
-import { sayFarewell } from './farewell.js?v=df2b5cb0d2d6';
+import { SCRIPTS, STORY_STEPS, STORY_SCRIPTS } from '../data/story.js?v=13534ab82dda';
+import { ITEMS } from '../data/items.js?v=13534ab82dda';
+import { addItem, removeItem, itemCount, hasKeyItem, fullHeal } from '../stats.js?v=13534ab82dda';
+import { startFixedBattle } from './battles.js?v=13534ab82dda';
+import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=13534ab82dda';
+import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion, befriendLevel } from './party.js?v=13534ab82dda';
+import { sayFarewell } from './farewell.js?v=13534ab82dda';
 // 第43回 C: 仲間が いっぱいの 時の えらぶ文・配合して あける・あずかり所へ 送る（world/farewell.js・world/storage.js）
-import { befriendFullSteps, rosterIsFull } from './farewell.js?v=df2b5cb0d2d6';
-import { depositMonster, storeText } from './storage.js?v=df2b5cb0d2d6';
-import { tavernInfo, ensureStorage } from './party.js?v=df2b5cb0d2d6';
-import { MONSTERS } from '../data/monsters.js?v=df2b5cb0d2d6';
-import { shareBefriend } from './recruit-share.js?v=df2b5cb0d2d6';
-import { openService } from './services.js?v=df2b5cb0d2d6';
-import { isNightFor, advanceClock, fracFor } from './clock.js?v=df2b5cb0d2d6';
-import { grantWagon, wagonChars, wagonHere } from './wagon.js?v=df2b5cb0d2d6';
-import { GUESTS } from '../data/shops.js?v=df2b5cb0d2d6';
-import { unstickAll } from './hazards.js?v=df2b5cb0d2d6';
-import { MAPS, isBlocked } from '../maps/index.js?v=df2b5cb0d2d6';
+import { befriendFullSteps, rosterIsFull } from './farewell.js?v=13534ab82dda';
+import { depositMonster, storeText } from './storage.js?v=13534ab82dda';
+import { tavernInfo, ensureStorage } from './party.js?v=13534ab82dda';
+import { MONSTERS } from '../data/monsters.js?v=13534ab82dda';
+import { shareBefriend } from './recruit-share.js?v=13534ab82dda';
+import { openService } from './services.js?v=13534ab82dda';
+import { isNightFor, advanceClock, fracFor } from './clock.js?v=13534ab82dda';
+import { grantWagon, wagonChars, wagonHere } from './wagon.js?v=13534ab82dda';
+import { GUESTS } from '../data/shops.js?v=13534ab82dda';
+import { unstickAll } from './hazards.js?v=13534ab82dda';
+import { MAPS, isBlocked } from '../maps/index.js?v=13534ab82dda';
+// 第44回（ポケモン P1）: 魔物の 進化（world/evolve.js）
+import { pendingEvolve, evolveAskSteps, evolveScriptStep } from './evolve.js?v=13534ab82dda';
 
 let runSeq = 1;
 
@@ -123,6 +125,8 @@ export class ScriptRun {
 
   finish() {
     this.world.runs.delete(this.id);
+    // 第44回: 台本が おわったら、進化を まっている 仲間が いないか 見る（world.js の tick。checkEvolve）
+    if (!this.aborted) for (const m of this.everyone) m.evoCheck = true;
     // リーダーの ものがたりが すすんだら、なかまの 画面の 世界（人・橋 など）も あわせる
     const p = partyOf(this.world, this.owner);
     if (p && p.members.length > 1) this.world.sendParty(p);
@@ -409,6 +413,11 @@ export class ScriptRun {
           w.sendSelf(s);
           break;
         }
+        case 'evolve': case 'evolveStop': {
+          // 第44回: 魔物の 進化（['evolve', 仲間の key, 進化した すがた] … みまもる / ['evolveStop', key] … とめる。world/evolve.js）
+          for (const st of evolveScriptStep(w, this.init, op, a[0], a[1])) this.batch.push(st);
+          break;
+        }
         case 'befriendFull': case 'breedOpen': {
           // 第43回 C: 仲間が いっぱいの 時（world/farewell.js の befriendFullSteps）
           //   ['befriendFull', id] … えらぶ文に もどる / ['breedOpen', id] … 酒場の 配合の 画面を「あける モード」で 開く
@@ -556,6 +565,15 @@ export function runScript(world, s, scriptId, opts = {}) {
   }
   const run = new ScriptRun(world, init, participants, steps, { scriptId, owner });
   run.start();
+  return true;
+}
+
+// 第44回: 進化を まっている 仲間が いれば「…おや？」の 台本を その 人だけに 出す（world.js の tick から。ひまな ときだけ）
+export function checkEvolve(world, s) {
+  if (!s || !world.sessions.has(s.id) || !s.inWorld || s.busy || s.away) return false;
+  const e = pendingEvolve(s.char);
+  if (!e) return false;
+  runSteps(world, s, evolveAskSteps(e));
   return true;
 }
 

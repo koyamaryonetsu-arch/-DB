@@ -1,10 +1,10 @@
 // フィールドを うろうろする モンスター（シンボル）
-import { ENCOUNTER_TABLES } from '../data/encounters.js?v=df2b5cb0d2d6';
-import { MONSTERS } from '../data/monsters.js?v=df2b5cb0d2d6';
-import { MAPS, isBlocked } from '../maps/index.js?v=df2b5cb0d2d6';
-import { NIGHT_ZONES, NIGHT_MORE } from '../data/night.js?v=df2b5cb0d2d6';
-import { cursedOn, CURSE_SPAWN, CURSE_SPAWN_MS, CURSE_CHASE } from './pyramid.js?v=df2b5cb0d2d6';
-import { LURE } from '../data/abilities-field27.js?v=df2b5cb0d2d6';
+import { ENCOUNTER_TABLES } from '../data/encounters.js?v=13534ab82dda';
+import { MONSTERS } from '../data/monsters.js?v=13534ab82dda';
+import { MAPS, isBlocked } from '../maps/index.js?v=13534ab82dda';
+import { NIGHT_ZONES, NIGHT_MORE } from '../data/night.js?v=13534ab82dda';
+import { cursedOn, CURSE_SPAWN, CURSE_SPAWN_MS, CURSE_CHASE } from './pyramid.js?v=13534ab82dda';
+import { LURE } from '../data/abilities-field27.js?v=13534ab82dda';
 
 // 魔物よせ（マモノヨセ・魔物よせの笛。world/field27.js の s.lureUntil）が 効いている 人か
 const lured = (world, p) => p?.lureUntil > world.now();

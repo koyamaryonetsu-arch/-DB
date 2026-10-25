@@ -7,13 +7,13 @@
 // 島と 神殿の 魔物・きまった 戦い gaia_eater・ランク8の 店の 品・神殿の 宝箱の ★の 品は B（戦い・品）が 作る（plan-ch5.md の 13）
 import {
   K5, HANONO_SEEN, KUMOI_VANES, KUMOI_JUNCTIONS, KUMOI_POS, HANONO_POS,
-} from '../maps/kumoi.js?v=df2b5cb0d2d6';
+} from '../maps/kumoi.js?v=13534ab82dda';
 import {
   RF, RUIN_FLOORS, RUIN_POS, RUIN_OUT, TILTS, SCALES, LADDER_FLAG, ruinMapId,
-} from '../maps/sink-ruin.js?v=df2b5cb0d2d6';
-import { innSteps } from './inn.js?v=df2b5cb0d2d6';
+} from '../maps/sink-ruin.js?v=13534ab82dda';
+import { innSteps } from './inn.js?v=13534ab82dda';
 // 第5章 Step 6・7: 本物の ノクトに 会った あとの 長ソラネ・ピピ（story-earth.js）
-import { soraneEarth, pipiEarth } from './story-earth.js?v=df2b5cb0d2d6';
+import { soraneEarth, pipiEarth } from './story-earth.js?v=13534ab82dda';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

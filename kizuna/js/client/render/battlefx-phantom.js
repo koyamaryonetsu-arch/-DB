@@ -3,7 +3,7 @@
 // 色: 風の階＝黒い 羽・あおむらさきの 風・いなずまの 黄色、炎の階＝赤い 火と むらさきの 黒い 炎、水の階＝鏡の 銀・あおい 水・あわ、
 //     まぼろし＝ストルム（あおみどりの 風）・イグニア（むらさきの 炎。かげ火を すいこむ）・モルガナ（あい色の 水）
 // ps_wall（風のかべ）・pi_call（かげ火を よぶ）・pi_inferno（大炎）・pm_wave（大波）は がめんの まん中に 大きく（client/battle-phantom.js）
-import { ELEMENT_FX } from './battlefx-r27.js?v=df2b5cb0d2d6';
+import { ELEMENT_FX } from './battlefx-r27.js?v=13534ab82dda';
 
 const WIND = ELEMENT_FX.wind?.colors || ['#c8f0e0', '#8ad8c0', '#ffffff'];
 const BOLT = ['#fff070', '#ffd040', '#ffffff'];
