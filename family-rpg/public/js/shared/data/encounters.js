@@ -17,6 +17,7 @@ import { FIXED_FINAL } from './encounters-final.js';
 import { ENCOUNTERS_PHANTOM, FIXED_PHANTOM, ZONE_BG_PHANTOM } from './encounters-phantom.js';
 import { ENCOUNTERS_PAST, FIXED_PAST, ZONE_BG_PAST } from './encounters-past.js';
 import { ENCOUNTERS_ROAD, FIXED_ROAD, ZONE_BG_ROAD } from './encounters-road.js';
+import { ENCOUNTERS_TOKEI, FIXED_TOKEI, ZONE_BG_TOKEI } from './encounters-tokei.js';
 // 第37回 A: サファラ闘技場の ランク戦（3連戦）
 import { FIXED_ARENA } from './encounters-arena.js';
 // 第38回 B: 職業の試練（師しょうのまぼろし）
@@ -153,3 +154,7 @@ Object.assign(ZONE_BG, ZONE_BG_PAST);
 Object.assign(ENCOUNTER_TABLES, ENCOUNTERS_ROAD);
 Object.assign(FIXED_ENCOUNTERS, FIXED_ROAD);
 Object.assign(ZONE_BG, ZONE_BG_ROAD);
+// 第2部 第6章 Step 5「止まった時計塔」・カリヨン（encounters-tokei.js）
+Object.assign(ENCOUNTER_TABLES, ENCOUNTERS_TOKEI);
+Object.assign(FIXED_ENCOUNTERS, FIXED_TOKEI);
+Object.assign(ZONE_BG, ZONE_BG_TOKEI);

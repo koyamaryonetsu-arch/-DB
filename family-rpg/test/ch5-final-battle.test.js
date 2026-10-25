@@ -8,6 +8,8 @@
 import { ITEMS_PAST } from '../public/js/shared/data/items-past.js';
 // 第6章 Step 3・4 の 星めぐりの古道の 品（items-road.js）も おなじ
 import { ITEMS_ROAD } from '../public/js/shared/data/items-road.js';
+// 第6章 Step 5 の 時計塔の 品（items-tokei.js）も おなじ
+import { ITEMS_TOKEI } from '../public/js/shared/data/items-tokei.js';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { Battle, pub } from '../public/js/shared/battle.js';
@@ -129,7 +131,7 @@ test('品: ノクト（本気）は ふたつの紋章のお守り（1人 1つ�
   // いちばん 強い 剣・いちばん めずらしい 色（レア度 5）
   const sw = ITEMS.solitus_dawn_sword;
   assert.equal(sw.rarity, 5);
-  const others = Object.entries(ITEMS).filter(([id, it]) => it.type === 'weapon' && it.cat === 'sword' && id !== 'solitus_dawn_sword' && !id.includes('+') && !ITEMS_PAST[id] && !ITEMS_ROAD[id]);
+  const others = Object.entries(ITEMS).filter(([id, it]) => it.type === 'weapon' && it.cat === 'sword' && id !== 'solitus_dawn_sword' && !id.includes('+') && !ITEMS_PAST[id] && !ITEMS_ROAD[id] && !ITEMS_TOKEI[id]);
   assert.ok(others.every(([, it]) => (it.atk || 0) < sw.atk), `いちばん 強い（${sw.atk}）`);
   assert.ok(sw.atk > ITEMS.et_earth_sword.atk * 1.15);
 });

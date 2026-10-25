@@ -27,6 +27,7 @@ import { ITEMS_EARTH, EARTH_ITEM_KANA } from './items-earth.js';
 import { ITEMS_FINAL, FINAL_ITEM_KANA } from './items-final.js';
 import { ITEMS_PAST, PAST_ITEM_KANA } from './items-past.js';
 import { ITEMS_ROAD, ROAD_ITEM_KANA } from './items-road.js';
+import { ITEMS_TOKEI, TOKEI_ITEM_KANA } from './items-tokei.js';
 import { ITEMS_CASTLE, CASTLE_ITEM_KANA } from './items-castle.js';
 // 第37回 A: サファラ闘技場の ごほうび
 import { ITEMS_ARENA, ARENA_ITEM_KANA } from './items-arena.js';
@@ -263,6 +264,8 @@ Object.assign(ITEMS, ITEMS_CASTLE);
 Object.assign(ITEMS, ITEMS_PAST);
 // 第2部 第6章 Step 3・4: 星めぐりの古道の 宝箱・星くいのよる鳥と ペンデュラの 品（items-road.js）
 Object.assign(ITEMS, ITEMS_ROAD);
+// 第2部 第6章 Step 5: 止まった時計塔の 宝箱・カリヨンの 品（items-tokei.js。宝箱の ならびは items-tower.js の TOWER_TREASURE_FLOORS）
+Object.assign(ITEMS, ITEMS_TOKEI);
 Object.assign(ITEMS, ITEMS_ARENA);
 // なかまの粉（friend-powder.js）
 Object.assign(ITEMS, POWDER_ITEMS);
@@ -379,6 +382,7 @@ Object.assign(ITEM_KANA, FINAL_ITEM_KANA);
 Object.assign(ITEM_KANA, CASTLE_ITEM_KANA);
 Object.assign(ITEM_KANA, PAST_ITEM_KANA);
 Object.assign(ITEM_KANA, ROAD_ITEM_KANA);
+Object.assign(ITEM_KANA, TOKEI_ITEM_KANA);
 Object.assign(ITEM_KANA, ARENA_ITEM_KANA);
 Object.assign(ITEM_KANA, FIELD27_KANA);
 Object.assign(ITEM_KANA, R31_ITEM_KANA);

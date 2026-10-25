@@ -325,6 +325,9 @@ export function gameFiles() {
     // 第2部 第6章 Step 3・4（B: 戦い・品）: 星めぐりの古道の 魔物・星くいのよる鳥（星くい）・ペンデュラ（時のふりこ）・古道の 宝箱
     'public/js/shared/data/monsters-road.js', 'public/js/shared/data/abilities-road.js', 'public/js/shared/data/items-road.js', 'public/js/shared/data/encounters-road.js',
     'public/js/shared/data/companions-road.js', 'public/js/shared/battle-road.js', 'public/js/client/battle-road.js',
+    // 第2部 第6章 Step 5（B: 戦い・品）: 止まった時計塔の 魔物・カリヨン（時のかね）・時計塔の 宝箱・ゲストの リオン
+    'public/js/shared/data/monsters-tokei.js', 'public/js/shared/data/abilities-tokei.js', 'public/js/shared/data/items-tokei.js', 'public/js/shared/data/encounters-tokei.js',
+    'public/js/shared/data/companions-tokei.js', 'public/js/shared/battle-tokei.js', 'public/js/client/battle-tokei.js',
     // 第37回 A: サファラ闘技場（ランク戦の 3連戦・王者・ごほうび・かけ試合・王者のかべ）
     'public/js/shared/data/arena.js', 'public/js/shared/data/story-arena.js', 'public/js/shared/data/monsters-arena.js', 'public/js/shared/data/abilities-arena.js',
     'public/js/shared/data/items-arena.js', 'public/js/shared/data/encounters-arena.js', 'public/js/shared/battle-arena.js', 'public/js/shared/world/arena.js',

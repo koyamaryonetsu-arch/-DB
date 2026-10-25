@@ -69,6 +69,8 @@ import { PHANTOM_SFX } from './battle-phantom.js';
 import { CH6_SFX, CH6_OWN_TELE } from './battle-ch6.js';
 // 第2部 第6章 Step 3・4 の 魔物と 星くいのよる鳥・ペンデュラの 音（battle-road.js。前ぶれの バナーは CH6_OWN_TELE に 入っている）
 import { ROAD_SFX } from './battle-road.js';
+// 第2部 第6章 Step 5 の 時計塔の 魔物と カリヨンの 音（battle-tokei.js）
+import { TOKEI_SFX } from './battle-tokei.js';
 
 // たたかいの え の こまかさ（おもい きかいで さげたら、その あいだは さげた まま）
 let battleRes = BRES;
@@ -190,6 +192,7 @@ const ANIM_SFX = {
   ...PHANTOM_SFX,
   ...CH6_SFX,
   ...ROAD_SFX,
+  ...TOKEI_SFX,
 };
 
 // ひらめきの 電球（ドット絵ふう）

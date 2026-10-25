@@ -26,6 +26,7 @@ import { MONSTERS_FINAL } from '../public/js/shared/data/monsters-final.js';
 import { MONSTERS_PHANTOM } from '../public/js/shared/data/monsters-phantom.js';
 import { MONSTERS_PAST } from '../public/js/shared/data/monsters-past.js';
 import { MONSTERS_ROAD } from '../public/js/shared/data/monsters-road.js';
+import { MONSTERS_TOKEI } from '../public/js/shared/data/monsters-tokei.js';
 import { MONSTERS_BOSS } from '../public/js/shared/data/monsters-boss.js';
 // 第44回（ポケモン P1）: ポケモンの 魔物（test/pokemon-r44.test.js）
 import { MONSTERS_POKEMON } from '../public/js/shared/data/monsters-pokemon.js';
@@ -52,7 +53,7 @@ test('あたらしい 仲間モンスター: 27しゅ（やせい 11・配合だ
   assert.equal(NEW.length, 27);
   assert.equal(WILD.length, 11);
   assert.equal(BREED_ONLY.length, 16);
-  assert.equal(Object.keys(MONSTERS).length, 136 + Object.keys(MONSTERS_TEMPLE).length + Object.keys(MONSTERS_LAB).length + Object.keys(MONSTERS_CH5).length + Object.keys(MONSTERS_KUMOI).length + Object.keys(MONSTERS_HOSHIYOMI).length + Object.keys(MONSTERS_EARTH).length + Object.keys(MONSTERS_FINAL).length + Object.keys(MONSTERS_PHANTOM).length + Object.keys(MONSTERS_PAST).length + Object.keys(MONSTERS_ROAD).length + Object.keys(MONSTERS_BOSS).length + Object.keys(MONSTERS_POKEMON).length + Object.keys(MONSTERS_DQM).length);
+  assert.equal(Object.keys(MONSTERS).length, 136 + Object.keys(MONSTERS_TEMPLE).length + Object.keys(MONSTERS_LAB).length + Object.keys(MONSTERS_CH5).length + Object.keys(MONSTERS_KUMOI).length + Object.keys(MONSTERS_HOSHIYOMI).length + Object.keys(MONSTERS_EARTH).length + Object.keys(MONSTERS_FINAL).length + Object.keys(MONSTERS_PHANTOM).length + Object.keys(MONSTERS_PAST).length + Object.keys(MONSTERS_ROAD).length + Object.keys(MONSTERS_TOKEI).length + Object.keys(MONSTERS_BOSS).length + Object.keys(MONSTERS_POKEMON).length + Object.keys(MONSTERS_DQM).length);
   for (const sp of NEW) {
     assert.equal(MONSTERS[sp], MONSTERS_R23[sp], `${sp}: monsters.js に まざる`);
     assert.equal(MONSTER_FRIENDS[sp], FRIENDS_R23[sp], `${sp}: companions.js に まざる`);

@@ -29,6 +29,7 @@ import { EARTH_MAT_DROPS } from './monsters-earth.js';
 import { PHANTOM_MAT_DROPS } from './monsters-phantom.js';
 import { PAST_MAT_DROPS } from './monsters-past.js';
 import { ROAD_MAT_DROPS } from './monsters-road.js';
+import { TOKEI_MAT_DROPS } from './monsters-tokei.js';
 import { bossRareOf, BOSS_RARE_N, regionRareList, REGION_RARE_N, pickSdGear, SD_DROP_N, SD_GUARD_DROP_N } from './rare-loot.js';
 import { sdFloorOf } from './secret.js';
 
@@ -86,6 +87,8 @@ export const MAT_DROPS = {
   ...PAST_MAT_DROPS,
   // 第2部 第6章 Step 3・4（monsters-road.js）
   ...ROAD_MAT_DROPS,
+  // 第2部 第6章 Step 5（monsters-tokei.js）
+  ...TOKEI_MAT_DROPS,
 };
 // ぬすむ ときは レアが 出やすい（この 倍。でも 半分まで）
 export const STEAL_RARE_MULT = 8;

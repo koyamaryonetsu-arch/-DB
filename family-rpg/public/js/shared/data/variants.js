@@ -36,6 +36,12 @@ export const VARIANT_KINDS = {
     k: { hp: 1.5, str: 1.1, def: 1.3, agi: 1, mag: 1 }, exp: 2.5, gold: 6,
     resist: {}, desc: '金色にかがやく、めずらしい色ちがい。たおすとお金をたくさん落とす。',
   },
+  // 第2部 第6章 Step 5: 止まった時計塔の ぜんまいじかけ（真ちゅう色。時のいせきの からくりの 魔物を 使い回す。encounters-tokei.js）
+  clock: {
+    prefix: 'ぜんまい', tint: { hueTo: 38, sat: 0.85, light: 0.95 },
+    k: { hp: 1.25, str: 1.2, def: 1.25, agi: 1.05, mag: 1.15 }, exp: 1.7, gold: 1.6,
+    resist: { bolt: 1.2, poison: 0.5 }, desc: '時計塔のぜんまいで動く、真ちゅう色の色ちがい。体がかたく、雷に少し弱い。',
+  },
 };
 export const VARIANT_PREFIX = 'v_';
 export const variantId = (baseId, kind) => `${VARIANT_PREFIX}${kind}_${baseId}`;

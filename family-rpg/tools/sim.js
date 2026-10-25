@@ -350,7 +350,16 @@ export const CH6_ZONES = [
 ];
 // 第2部 第6章 Step 3・4「星めぐりの古道」: node tools/sim.js [回数] ch6road（昼と 夜。装備は 里の ランク10〈GEAR 58〉。ボスは tools/sim-ch6.mjs）
 export const CH6_ROAD_ZONES = [['t6_road_up', 61, 58], ['t6_road_up', 62, 58], ['t6_road_low', 63, 58], ['t6_road_low', 64, 58]];
-if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'ch6road') {
+// 第2部 第6章 Step 5「止まった時計塔」1〜5階: node tools/sim.js [回数] ch6tower（装備は 里の ランク10〈GEAR 58〉。カリヨンは tools/sim-ch6.mjs の bell）
+export const CH6_TOWER_ZONES = [['t6_tower_low', 64, 58], ['t6_tower_low', 65, 58], ['t6_tower_low', 66, 58]];
+if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'ch6tower') {
+  const rng = makeRng(6565);
+  for (const [table, lv, tier] of CH6_TOWER_ZONES) {
+    const res = [];
+    for (let i = 0; i < N; i++) res.push(runBattle(PARTY(lv, 10, tier), rollGroup(table, rng), { seed: i }));
+    summarize(`${table} Lv${lv}`, res);
+  }
+} else if (process.argv[1].endsWith('sim.js') && process.argv[3] === 'ch6road') {
   for (const night of [false, true]) {
     const rng = makeRng(6161);
     for (const [table, lv, tier] of CH6_ROAD_ZONES) {

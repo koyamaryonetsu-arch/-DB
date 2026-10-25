@@ -33,6 +33,7 @@ import { MONSTERS_FINAL } from './monsters-final.js';
 import { MONSTERS_PHANTOM, addPhantomHidden } from './monsters-phantom.js';
 import { MONSTERS_PAST } from './monsters-past.js';
 import { MONSTERS_ROAD } from './monsters-road.js';
+import { MONSTERS_TOKEI } from './monsters-tokei.js';
 import { MONSTERS_BOSS } from './monsters-boss.js';
 // 第44回（ポケモン P1）: ポケモンの 魔物（配合と 進化で 生まれる。monsters-pokemon.js）
 import { MONSTERS_POKEMON } from './monsters-pokemon.js';
@@ -272,6 +273,8 @@ addPhantomHidden(MONSTERS);
 Object.assign(MONSTERS, MONSTERS_PAST);
 // 第2部 第6章 Step 3・4「星めぐりの古道」の 魔物と 星くいのよる鳥・ペンデュラ（monsters-road.js）
 Object.assign(MONSTERS, MONSTERS_ROAD);
+// 第2部 第6章 Step 5「止まった時計塔」の 魔物と カリヨン（monsters-tokei.js）
+Object.assign(MONSTERS, MONSTERS_TOKEI);
 addArenaHidden(MONSTERS);
 addTrialHidden(MONSTERS);
 addGaiaParts(MONSTERS);

@@ -20,6 +20,8 @@ import { earthAction, reachPlan } from './battle-earth.js';
 import { finalAction } from './battle-final.js';
 // 第37回 A: 闘技場の 王者の しかけを 知っている 人（シミュレーター。battle-arena.js）
 import { arenaPlan, arenaAdjust } from './battle-arena.js';
+// 第2部 第6章 Step 5: カリヨンの 時のかねが 近い ときは 強くする 技を 使わない（鳴ると 消える。battle-tokei.js）
+import { tokeiQuiet } from './battle-tokei.js';
 
 // さくせん
 export const TACTICS = {
@@ -194,7 +196,8 @@ export function decideAlly(b, c) {
   const telegraphing = b.aliveEnemies().some((f) => f.telegraph && !(b.ignoreBurrow && f.burrow) && !waveIgnored(b, f) && !labIgnored(b, f));
   if (telegraphing && c.hp / c.maxHp < 0.6 && b.rng.chance(0.75)) return { type: 'defend' };
   // 第38回 C: バフは 3回行動の あいだだけ。大わざの 前に、みんなの 守備力を 上げる 技（切れている・あと1回 の 人が 半分 いじょう）
-  if (telegraphing && tac.buffs) {
+  const quiet = tokeiQuiet(b);
+  if (telegraphing && tac.buffs && !quiet) {
     const guard = mine.find(({ a }) => a.target === 'allies' && prim(a).type === 'buff' && (prim(a).stats || [prim(a).stat]).includes('def'));
     const need = allies.filter((x) => !x.buffs.def || (Number.isFinite(x.buffs.def.left) && x.buffs.def.left <= 1));
     if (guard && need.length >= Math.ceil(allies.length / 2) && b.rng.chance(GUARD_BUFF_CHANCE)) return { type: 'ability', id: guard.id };
@@ -222,7 +225,7 @@ export function decideAlly(b, c) {
   // 第41回: 敵と 味方の 強さを くらべて きめる（前は 敵の HPの 合計 180 より 多いと いつも 補助を していた）
   const fw = fightWeight(b);
   if (tac.buffs && fw.hard) {
-    const buff = chooseBuff(b, c, allies, mine);
+    const buff = chooseBuff(b, c, allies, mine, quiet);
     if (buff) return buff;
   }
   // てきが おおい ときは ねむらせたり こんらんさせたり
@@ -349,9 +352,10 @@ export function fightWeight(b) {
   return b._fightW;
 }
 
-function chooseBuff(b, c, allies, mine) {
+// quiet … カリヨンの 時のかねが 近い（強くする 技は 使わない。じわじわ回復・力ため などは 使う。battle-tokei.js の tokeiQuiet）
+function chooseBuff(b, c, allies, mine, quiet = false) {
   const rng = b.rng;
-  const buffs = mine.filter(({ a }) => prim(a).type === 'buff');
+  const buffs = quiet ? [] : mine.filter(({ a }) => prim(a).type === 'buff');
   const stat = (a) => prim(a).stats || [prim(a).stat];
   // じわじわ 回復: 少し へっている 仲間が いて、まだ かかっていない とき
   const regen = mine.filter(({ a }) => prim(a).type === 'regen');
@@ -377,7 +381,8 @@ function chooseBuff(b, c, allies, mine) {
   }
   // 仲間の 番を 早める 技（アンコール・伝説のきずな など。第31回: きずなゲージを ためる 技の かわり）
   const hurry = mine.find(({ a }) => a.target === 'allies' && (a.effect.type === 'multi' ? a.effect.parts || [] : [a.effect]).some((p) => p.type === 'atbSet' && p.add));
-  if (hurry && b.boss && rng.chance(0.2)) return { type: 'ability', id: hurry.id };
+  // （時のかねの 前は、強くする こうかの ついた 技〈きずなのちかい など〉も 使わない）
+  if (hurry && b.boss && !(quiet && prim(hurry.a).type === 'buff') && rng.chance(0.2)) return { type: 'ability', id: hurry.id };
   const charge = mine.find(({ a }) => a.effect.type === 'charge');
   if (charge && b.boss && c.charge <= 1 && rng.chance(0.25)) return { type: 'ability', id: charge.id };
   return null;

@@ -15,6 +15,7 @@ import { SHOPS_EARTH } from './shops-earth.js';
 // 第2部 第6章: 千年前の ホシフルの里の 店（shops-past.js）・ゲストの ミナモ（companions-past.js）
 import { SHOPS_PAST } from './shops-past.js';
 import { MINAMO_GUEST } from './companions-past.js';
+import { RION_GUEST } from './companions-tokei.js';
 
 export const SHOPS = {
   village: {
@@ -148,3 +149,5 @@ export const GUESTS = {
 Object.assign(GUESTS, CH3_GUESTS);
 // 第2部 第6章: 星読みの むすめ ミナモ（A が 台本の guest で 入れる。companions-past.js）
 GUESTS.minamo = MINAMO_GUEST;
+// 第2部 第6章 Step 5: 最初の 紋章の 勇者 リオン（A が 台本の guest で 入れる。companions-tokei.js）
+GUESTS.rion = RION_GUEST;

@@ -136,7 +136,7 @@ export const MONSTER_RANKS = {
   mirror_jelly: 'F', // 出0＋仲1
   shade_serpent: 'C', // 出1＋仲3
   foam_siren: 'E', // 出1＋仲1
-  // 第6章（F4 E8 D2 C4 B3 A0 S0）
+  // 第6章（F4 E9 D3 C5 B3 A0 S0）
   moss_deer: 'C', // 出1＋仲3
   amber_moth: 'D', // 出2＋仲1
   elder_sprout: 'D', // 出2＋仲1
@@ -158,4 +158,7 @@ export const MONSTER_RANKS = {
   toki_owl: 'E', // 出1＋仲1
   twin_star: 'E', // 出1＋仲1
   dust_drake: 'B', // 出2＋仲3
+  cog_roller: 'C', // 出1＋仲3
+  spring_box: 'E', // 出1＋仲1
+  killer: 'D', // 出2＋仲1
 };

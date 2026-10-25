@@ -2,6 +2,8 @@
 // （battlefx-ch6.js の playCh6Fx の さいごに よばれる。ない anim なら false）
 // 色: 星座＝青白い 星の 線、ひなた＝金色、星くず＝黄色の つぶ、時の ゆがみ＝むらさきと みどり、よる鳥＝夜の あい色と 星、ペンデュラ＝金の ふりこと むらさきの 時
 // a6r_dark（よぞらのはばたき）・a6r_big（大ふりこ）などは がめんの まん中に 大きく（client/battle-road.js の ROAD_SCREEN_ANIMS）
+// 第2部 第6章 Step 5 の 時計塔の 魔物・カリヨン・リオン（battlefx-tokei.js。ここの さいごに よぶ）
+import { playTokeiFx } from './battlefx-tokei.js';
 const STARL = ['#fff6c0', '#cfe0ff', '#9ad0ff', '#ffffff'];
 const SUN = ['#f4d070', '#fff0b0', '#e8a830'];
 const DUST = ['#ffe070', '#fff8d8', '#c8983a'];
@@ -275,6 +277,6 @@ export function playRoadFx(fx, anim, targets, element, opts = {}, W = 256, H = 1
       fx.hitStop(170, 220, 1.9);
       return true;
     default:
-      return false;
+      return playTokeiFx(fx, anim, targets, element, opts, W, H);
   }
 }

@@ -6,6 +6,8 @@
 // ・敵が 使うと がめんの まん中に 大きく 出す 技・味方の まどの えんしゅつ・音
 // 第2部 第6章 Step 3・4 の 星くいのよる鳥・ペンデュラ（battle-road.js。ここから よぶ）
 import { ROAD_OWN_TELE, roadDraw, roadPresent } from './battle-road.js';
+// 第2部 第6章 Step 5 の カリヨン（かねの しるし。battle-tokei.js。ここから よぶ）
+import { tokeiDraw, tokeiPresent } from './battle-tokei.js';
 
 const SAND = 'sand_clock';
 const GEAR = 'geardon';
@@ -34,6 +36,7 @@ export const CH6_SFX = {
 export function ch6Draw(scene, x, m, c, px, py, w, h, base) {
   if (!c?.alive) return;
   roadDraw(scene, x, m, c, px, py, w, h, base);
+  tokeiDraw(scene, x, m, c, px, py, w, h, base);
   const T = scene.time || 0;
   // サンドクロック: 砂の 目もり（右よこ）と 前ぶれの うず
   if (c.species === SAND && c.sand !== undefined) {
@@ -113,6 +116,7 @@ export function ch6Draw(scene, x, m, c, px, py, w, h, base) {
 export function ch6Present(scene, ev, fx, anim, actor) {
   const g = scene.game;
   roadPresent(scene, ev, fx, anim, actor);
+  tokeiPresent(scene, ev, fx, anim, actor);
   if (fx.type === 'telegraph' && actor?.species === SAND) {
     g.audio.sfx('warn');
     scene.banner('！大砂流の前ぶれ！氷を当てるか、身を守れ！', 'danger');

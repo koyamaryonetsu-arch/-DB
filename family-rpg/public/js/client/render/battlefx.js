@@ -51,6 +51,8 @@ import { PHANTOM_BG, PHANTOM_DECOS, drawPhantomBg, drawPhantomFloorBg } from './
 import { PAST_BG, PAST_DECOS, drawPastBg, drawPastFloorBg } from './ch6-past-bg.js';
 // 第2部 第6章 Step 3・4: 星めぐりの古道（ch6-road-bg.js）
 import { ROAD_BG, ROAD_DECOS, drawRoadBg, drawRoadFloorBg } from './ch6-road-bg.js';
+// 第2部 第6章 Step 5: 止まった時計塔（ch6-tokei-bg.js）
+import { TOKEI_BG, TOKEI_DECOS, drawTokeiBg, drawTokeiFloorBg } from './ch6-tokei-bg.js';
 
 export const BW = 256;
 export const BH = 144;
@@ -163,6 +165,8 @@ const BG = {
   ...PAST_BG,
   // 第2部 第6章 Step 3・4（hoshimichi・hoshimichi_deep）
   ...ROAD_BG,
+  // 第2部 第6章 Step 5（tokei）
+  ...TOKEI_BG,
 };
 
 // はいけいの データ（〜_night は 夜空の はいけい。night-art.js）。ない ときは null
@@ -240,6 +244,7 @@ export function battleBackground(id) {
       case 'castle_wind': case 'castle_fire': case 'castle_water': h = 0; break; // 影の城は あとで（ch5-phantom-bg.js）
       case 'past_field': h = 16 + Math.abs(Math.sin(px * 0.17) * 12) + (px % 9 < 3 ? 5 : 0); break; // 千年前の 森（ch6-past-bg.js）
       case 'toki_shrine': case 'toki_ruin': case 'toki_ruin_boss': h = 0; break; // 時の祠・時の遺跡は あとで（ch6-past-bg.js）
+      case 'tokei': h = 0; break; // 止まった時計塔は あとで（ch6-tokei-bg.js）
       default: h = 10 + Math.abs(Math.sin(px * 0.035) * 14) + Math.abs(Math.sin(px * 0.11) * 4);
     }
     if (d.deco === 'stalactite' || d.deco === 'crystal') {
@@ -263,6 +268,7 @@ export function battleBackground(id) {
   if (PHANTOM_DECOS.has(d.deco)) drawPhantomBg(x, d, hor);
   if (PAST_DECOS.has(d.deco)) drawPastBg(x, d, hor);
   if (ROAD_DECOS.has(d.deco)) drawRoadBg(x, d, hor);
+  if (TOKEI_DECOS.has(d.deco)) drawTokeiBg(x, d, hor);
   if (d.deco === 'houses') {
     x.fillStyle = '#ffd66b';
     for (let k = 10; k < BW; k += 48) x.fillRect(k + 8, hor - 12, 3, 3);
@@ -322,6 +328,7 @@ export function battleBackground(id) {
   else if (PHANTOM_DECOS.has(d.deco)) drawPhantomFloorBg(x, d, hor);
   else if (PAST_DECOS.has(d.deco)) drawPastFloorBg(x, d, hor);
   else if (ROAD_DECOS.has(d.deco)) drawRoadFloorBg(x, d, hor);
+  else if (TOKEI_DECOS.has(d.deco)) drawTokeiFloorBg(x, d, hor);
   else {
     x.fillStyle = 'rgba(0,0,0,0.12)';
     for (let i = 0; i < 6; i++) {

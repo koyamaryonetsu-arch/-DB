@@ -23,6 +23,8 @@ import { addFinalArt } from './ch5-final-mon-art.js';
 import { addPastArt } from './ch6-past-art.js';
 // 第2部 第6章 Step 3・4: 星めぐりの古道の 魔物と 星くいのよる鳥・ペンデュラ（ch6-road-art.js）
 import { addRoadArt } from './ch6-road-art.js';
+// 第2部 第6章 Step 5: 止まった時計塔の 魔物と カリヨン（ch6-tokei-art.js）
+import { addTokeiArt } from './ch6-tokei-art.js';
 // 第44回: ポケモン（第1だん 19しゅるい。pokemon-art.js）
 import { addPokemonArt } from './pokemon-art.js';
 // 第45回: ドラクエふう（配合だけの 第2だん 11しゅるい。dqm-art.js）
@@ -855,6 +857,7 @@ addPhantomArt(MONSTER_ART);
 addFamilyArt(MONSTER_ART);
 addPastArt(MONSTER_ART);
 addRoadArt(MONSTER_ART);
+addTokeiArt(MONSTER_ART);
 addPokemonArt(MONSTER_ART);
 addDqmArt(MONSTER_ART);
 
