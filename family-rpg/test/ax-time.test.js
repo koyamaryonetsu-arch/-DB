@@ -29,7 +29,7 @@ axAddTimes('gt', {
   'mera@masc': { anim: 'ax_tfix_slash', tier: 'super' },
   merami: { anim: 'ax_tfix_beam', tier: 'super', vars: { gold: true } },
   hoimi: 'ax_tfix_heal',
-  dt_gomu_kame: { anim: 'ax_tfix_slash' },
+  dt_bentou: { anim: 'ax_tfix_slash' },
 }, { テスト: ['ax_tfix_slash', 'ax_tfix_beam'] });
 useAxGroup('gt', {
   ax_tfix_beam: { charge: { color: '#4ab8ff' }, sfx: 'ax_beam', allyFx: 'bolt', play: AX_DEMO.ax_demo_beam.play },
@@ -83,7 +83,7 @@ test('第48回 G0: 時間（ため・2回目・合体技・おそい 設定・�
   assert.equal(R.charge, AX_TIER_CHARGE_MS.legend / 2);
   assert.equal(R.cutin, false);
   // 合体技: ため なし
-  assert.equal(axPlan('ax_tfix_slash', { key: 'dt_gomu_kame', dual: true }).charge, 0);
+  assert.equal(axPlan('ax_tfix_slash', { key: 'dt_bentou', dual: true }).charge, 0);
   // おそい 設定: 0.6・0.75 でも 0.85 の 速さ。速い 設定は そのまま
   assert.equal(axTs(0.6), AX_SLOW / 0.6);
   assert.equal(axTs(0.85), 1);
@@ -134,14 +134,14 @@ test('第48回 G0: クライアントの 時間は サーバーと おなじ 表
   // 技の id → anim（男の子の 版・合体技も）
   assert.equal(axAnimFor('mera'), 'ax_tfix_beam');
   assert.equal(axAnimFor('mera', { masc: true }), 'ax_tfix_slash');
-  assert.equal(axAnimFor('dt_gomu_kame'), 'ax_tfix_slash');
+  assert.equal(axAnimFor('dt_bentou'), 'ax_tfix_slash');
   // サーバーが きめた ev.fx.ax が いちばん
   assert.equal(axEventAnim({ t: 'act', ability: 'mera', fx: { type: 'ability', anim: 'fire1', ax: 'ax_tfix_slash', axKey: 'mera@masc' } }), 'ax_tfix_slash');
   assert.equal(axEventAnim({ t: 'act', ability: 'mera', fx: { type: 'ability', anim: 'fire1' } }), 'ax_tfix_beam');
-  assert.equal(axEventAnim({ t: 'act', dual: { id: 'dt_gomu_kame' }, fx: { type: 'dual', anim: 'kamehameha' } }), 'ax_tfix_slash');
+  assert.equal(axEventAnim({ t: 'act', dual: { id: 'dt_bentou' }, fx: { type: 'dual', anim: 'kamehameha' } }), 'ax_tfix_slash');
   assert.equal(axEventAnim({ t: 'act', ability: 'mera', fx: { type: 'attack', anim: 'slash', ax: 'ax_tfix_beam' } }), null);
   assert.deepEqual(axEventOpts({ ability: 'mera', fx: { type: 'ability', axKey: 'mera@masc', axRepeat: 1, targets: ['a', 'b'] } }), { ability: 'mera@masc', repeat: true, dual: false, n: 2 });
-  assert.deepEqual(axEventOpts({ dual: { id: 'dt_gomu_kame' }, fx: { type: 'dual', axKey: 'dt_gomu_kame', targets: ['e1'] } }), { ability: 'dt_gomu_kame', repeat: false, dual: true, n: 1 });
+  assert.deepEqual(axEventOpts({ dual: { id: 'dt_bentou' }, fx: { type: 'dual', axKey: 'dt_bentou', targets: ['e1'] } }), { ability: 'dt_bentou', repeat: false, dual: true, n: 1 });
 });
 
 test('第48回 G0: おそい 設定・2回目・合体技の え（エフェクトの 時計）', () => {
@@ -253,11 +253,11 @@ test('第48回 G0: サーバーの しるし（男の子の 版・合体技・�
   assert.equal(ev1.fx.ax, 'ax_tfix_slash');
   assert.equal(ev1.fx.axKey, 'mera@masc');
   // 合体技: ため なし・カットインの ぶん 待つ（今までの extraLock より みじかく しない）
-  const ev2 = { t: 'act', dual: { id: 'dt_gomu_kame', n: 2 }, fx: { type: 'dual', anim: 'kamehameha', targets: ['e1'] }, extraLock: 700, lines: [] };
+  const ev2 = { t: 'act', dual: { id: 'dt_bentou', n: 2 }, fx: { type: 'dual', anim: 'kamehameha', targets: ['e1'] }, extraLock: 700, lines: [] };
   const P2 = axMarkEvent(ev2, c, { used: new Set() });
   assert.equal(P2.charge, 0);
   assert.equal(ev2.fx.ax, 'ax_tfix_slash');
-  assert.equal(ev2.fx.axKey, 'dt_gomu_kame');
+  assert.equal(ev2.fx.axKey, 'dt_bentou');
   assert.equal(P2.realMs, AX_DUAL_CUT_MS[2] + P2.end);
   assert.equal(ev2.extraLock, Math.max(700, P2.lockMs));
   // ひらめいた しゅんかんは いつも ため フル
