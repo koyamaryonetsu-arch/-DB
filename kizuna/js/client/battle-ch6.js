@@ -5,7 +5,7 @@
 // ・前ぶれ・止めた・こわした・まきもどした ときの バナー（ふつうの「大技が来る！」は 出さない … CH6_OWN_TELE）
 // ・敵が 使うと がめんの まん中に 大きく 出す 技・味方の まどの えんしゅつ・音
 // 第2部 第6章 Step 3・4 の 星くいのよる鳥・ペンデュラ（battle-road.js。ここから よぶ）
-import { ROAD_OWN_TELE, roadDraw, roadPresent } from './battle-road.js?v=13534ab82dda';
+import { ROAD_OWN_TELE, roadDraw, roadPresent } from './battle-road.js?v=521ab50e1f2b';
 
 const SAND = 'sand_clock';
 const GEAR = 'geardon';

@@ -10,23 +10,25 @@
 // resist: たいせい（しゅぞくの たいせいを つかう。ここに かけば うわがき）
 // gear:   装備できる 物（しゅぞくの けいの RACE_GEAR を うわがき。下の RACE_GEAR を 見てね）
 
-import { FRIENDS_CH2 } from './companions-ch2.js?v=13534ab82dda';
-import { FRIENDS_RARE } from './monsters-rare.js?v=13534ab82dda';
-import { FRIENDS_CH3 } from './companions-ch3.js?v=13534ab82dda';
-import { FRIENDS_R23, RECIPES_R23 } from './monsters-r23.js?v=13534ab82dda';
-import { FRIENDS_CH4 } from './companions-ch4.js?v=13534ab82dda';
-import { FRIENDS_CH5 } from './companions-ch5.js?v=13534ab82dda';
-import { FRIENDS_KUMOI } from './companions-kumoi.js?v=13534ab82dda';
-import { FRIENDS_HOSHIYOMI } from './companions-hoshiyomi.js?v=13534ab82dda';
-import { FRIENDS_EARTH } from './companions-earth.js?v=13534ab82dda';
-import { FRIENDS_PHANTOM } from './companions-phantom.js?v=13534ab82dda';
-import { FRIENDS_PAST } from './companions-past.js?v=13534ab82dda';
-import { FRIENDS_ROAD } from './companions-road.js?v=13534ab82dda';
-import { FRIENDS_BOSS, MATERIAL_RECIPES, FOUR_RECIPES } from './monsters-boss.js?v=13534ab82dda';
+import { FRIENDS_CH2 } from './companions-ch2.js?v=521ab50e1f2b';
+import { FRIENDS_RARE } from './monsters-rare.js?v=521ab50e1f2b';
+import { FRIENDS_CH3 } from './companions-ch3.js?v=521ab50e1f2b';
+import { FRIENDS_R23, RECIPES_R23 } from './monsters-r23.js?v=521ab50e1f2b';
+import { FRIENDS_CH4 } from './companions-ch4.js?v=521ab50e1f2b';
+import { FRIENDS_CH5 } from './companions-ch5.js?v=521ab50e1f2b';
+import { FRIENDS_KUMOI } from './companions-kumoi.js?v=521ab50e1f2b';
+import { FRIENDS_HOSHIYOMI } from './companions-hoshiyomi.js?v=521ab50e1f2b';
+import { FRIENDS_EARTH } from './companions-earth.js?v=521ab50e1f2b';
+import { FRIENDS_PHANTOM } from './companions-phantom.js?v=521ab50e1f2b';
+import { FRIENDS_PAST } from './companions-past.js?v=521ab50e1f2b';
+import { FRIENDS_ROAD } from './companions-road.js?v=521ab50e1f2b';
+import { FRIENDS_BOSS, MATERIAL_RECIPES, FOUR_RECIPES } from './monsters-boss.js?v=521ab50e1f2b';
 // 第43回 A: やせいの 魔物の ランク（めずらしさ）の 表（tools/gen-monster-ranks.mjs が 作る）
-import { MONSTER_RANKS } from './monster-ranks.js?v=13534ab82dda';
+import { MONSTER_RANKS } from './monster-ranks.js?v=521ab50e1f2b';
 // 第44回（ポケモン P1）: ポケモンの 魔物 19しゅ（配合と 進化。companions-pokemon.js）
-import { FRIENDS_POKEMON, RECIPES_POKEMON, MATERIAL_RECIPES_POKEMON } from './companions-pokemon.js?v=13534ab82dda';
+import { FRIENDS_POKEMON, RECIPES_POKEMON, MATERIAL_RECIPES_POKEMON } from './companions-pokemon.js?v=521ab50e1f2b';
+// 第45回（ドラクエふう D1）: ドラクエふうの 魔物 11しゅ（配合だけ。companions-dqm.js）
+import { FRIENDS_DQM, RECIPES_DQM, MATERIAL_RECIPES_DQM } from './companions-dqm.js?v=521ab50e1f2b';
 
 export const MONSTER_FRIENDS = {
   pururin: {
@@ -298,6 +300,8 @@ Object.assign(MONSTER_FRIENDS, FRIENDS_ROAD);
 Object.assign(MONSTER_FRIENDS, FRIENDS_BOSS);
 // 第44回（ポケモン P1）: ポケモンの 魔物。配合と 進化でしか 会えない（companions-pokemon.js）
 Object.assign(MONSTER_FRIENDS, FRIENDS_POKEMON);
+// 第45回（ドラクエふう D1）: ドラクエふうの 魔物。配合でしか 会えない（companions-dqm.js）
+Object.assign(MONSTER_FRIENDS, FRIENDS_DQM);
 // しゅぞくごとの 装備の うわがき（上の GEAR）
 for (const [sp, g] of Object.entries(GEAR)) if (MONSTER_FRIENDS[sp]) MONSTER_FRIENDS[sp].gear = { ...g, ...(MONSTER_FRIENDS[sp].gear || {}) };
 
@@ -429,12 +433,16 @@ export const BREED_RECIPES = [
   { a: { race: 'plant' }, b: { race: 'plant' }, child: 'chibi_treant' },
   // 第44回（ポケモン P1。companions-pokemon.js）。RECIPES_R35 は さいごの 7つの まま（test/breed-r35.test.js）
   ...RECIPES_POKEMON,
+  // 第45回（ドラクエふう D1。companions-dqm.js）。minLv … どちらの 親も その レベル いじょう（S の 特定配合）
+  ...RECIPES_DQM,
   // あたらしい 仲間モンスター（monsters-r23.js）
   ...RECIPES_R23,
   ...RECIPES_R35,
 ];
 // 第44回: ミュウ（進化した ポケモン 2ひき ＋ ふしぎないでんし）
 MATERIAL_RECIPES.push(...MATERIAL_RECIPES_POKEMON);
+// 第45回: こよみのせいれい（せいれい系 2ひき ＋ 四季のこよみ）・竜王のまご（ドラゴン系 2ひき ＋ 竜王のしるし）
+MATERIAL_RECIPES.push(...MATERIAL_RECIPES_DQM);
 export { MATERIAL_RECIPES, FOUR_RECIPES };
 
 function specMatch(spec, sp, MONSTERS) {
@@ -481,6 +489,8 @@ export const RANK_BREED_LV = 30;
 //   第44回: 大事な物（ふしぎないでんし）も 見る（c.keyItems）
 const hasItem = (c, id) => (Array.isArray(c?.items) && c.items.some((e) => e && e.id === id && e.n > 0))
   || (Array.isArray(c?.keyItems) && c.keyItems.includes(id));
+// 第45回: レシピの レベルの じょうけん（minLv。どちらの 親も その レベル いじょう）
+const recipeLvOk = (r, a, b) => !r.minLv || (lvOf(a) >= r.minLv && lvOf(b) >= r.minLv);
 // その 親が 4体配合の 親に なれるか（両親が みんな sp）
 const fourOk = (x, sp) => x.species === sp && Array.isArray(x.lineage?.p) && x.lineage.p.length === 2 && x.lineage.p.every((p) => p === sp);
 
@@ -504,7 +514,8 @@ export function breedCandidates(a, b, MONSTERS, c = null) {
   for (const r of FOUR_RECIPES) if (fourOk(a, r.all) && fourOk(b, r.all)) add(r.child, 'four');
   for (const r of MATERIAL_RECIPES) if (hasItem(c, r.item) && recipeMatch(r, spA, spB, MONSTERS)) add(r.child, 'material', { item: r.item });
   // 第43回 A: ランク配合（S どうし → SS）は やめた。SS は 素材配合（ボスの 品 ＋ 2ひき）と 4体配合だけ
-  for (const r of BREED_RECIPES) if (isSpecialRecipe(r) && recipeMatch(r, spA, spB, MONSTERS)) add(r.child, 'special');
+  // 第45回: minLv（S の 特定配合）… どちらの 親も その レベル いじょう
+  for (const r of BREED_RECIPES) if (isSpecialRecipe(r) && recipeMatch(r, spA, spB, MONSTERS) && recipeLvOk(r, a, b)) add(r.child, 'special');
   for (const r of BREED_RECIPES) if (!isSpecialRecipe(r) && recipeMatch(r, spA, spB, MONSTERS)) add(r.child, 'recipe');
   if (spA === spB) add(spA, 'same');
   const ranks = up ? [hi, hi + 1] : [hi];
@@ -575,7 +586,7 @@ export function recipeHint(child, MONSTERS) {
   // 第44回: label（かみなりの魔物 など）・minRank（「Dランク以上」。前から ある レシピには minRank は ない）
   const nm = (spec) => (typeof spec === 'string' ? MONSTERS[spec]?.name : spec.label ? spec.label : spec.flying ? '空を飛ぶ魔物'
     : `${RACE_NAMES[spec.race] || '？'}${spec.minRank !== undefined ? `（${RANKS[spec.minRank]}ランク以上）` : ''}`);
-  if (r) return `${nm(r.a)} ＋ ${nm(r.b)}`;
+  if (r) return `${nm(r.a)} ＋ ${nm(r.b)}${r.minLv ? `（どちらもLv${r.minLv}以上）` : ''}`;
   const f = MONSTER_FRIENDS[child];
   if (f?.breedOnly && !f.recipeOnly && MONSTERS[child]) return `${RACE_NAMES[MONSTERS[child].race]} ＋ どの魔物でも（強い親から）`;
   return '';
@@ -603,10 +614,20 @@ export function bestiaryOrder(MONSTERS) {
     if (breed.includes(sp) || !MONSTERS[sp]) return;
     breed.push(sp);
     for (const to of evolveTargets(sp)) line(to);
+    // 第45回: その しゅぞくの うしろに ならぶ 魔物（MONSTER_FRIENDS の after。ドラクエふう）
+    for (const nx of BESTIARY_NEXT[sp] || []) line(nx);
   };
-  for (const sp of all.filter((x) => MONSTERS[x].breedOnly && !EVOLVE_FROM[x]).sort(byLv)) line(sp);
+  for (const sp of all.filter((x) => MONSTERS[x].breedOnly && !EVOLVE_FROM[x] && !bestiaryAfter(x)).sort(byLv)) line(sp);
   for (const sp of all) if (MONSTERS[sp].breedOnly && !breed.includes(sp)) breed.push(sp);
   return [...normal, ...breed, ...all.filter((sp) => MONSTERS[sp].boss)];
+}
+
+// 第45回: 図鑑で すぐ うしろに ならぶ しゅぞく（MONSTER_FRIENDS の after。その しゅぞくは 配合だけの 魔物）
+export const bestiaryAfter = (sp) => MONSTER_FRIENDS[sp]?.after || null;
+const BESTIARY_NEXT = {};
+for (const sp of Object.keys(MONSTER_FRIENDS)) {
+  const to = bestiaryAfter(sp);
+  if (to) (BESTIARY_NEXT[to] = BESTIARY_NEXT[to] || []).push(sp);
 }
 
 // ───────────── 進化（第44回 ポケモン P1。docs/plan-breed-new.md の 2 の C・D）─────────────

@@ -15,11 +15,11 @@
 // ・台を しらべると、とびらの フラグ（SAND_FLAG）が たって 開く。しらべた 人が 自分で 歩いた 歩数で 砂が 落ちる
 //   （流れる 砂に 流されて いる 間は 数えない）。落ちきると フラグを 消して しまる（とびらの 上の 人は となりへ よける）
 // ・とちゅうで 切れた などで のこった フラグは、だれも 砂を 落として いない とき、その 階を 歩くと 消える
-import { MAPS, canStand, standSpot, isBlocked, effectiveTile } from '../maps/index.js?v=13534ab82dda';
-import { TILE_INFO } from '../tiles.js?v=13534ab82dda';
-import { hasKeyItem } from '../stats.js?v=13534ab82dda';
-import { partyOf } from './party.js?v=13534ab82dda';
-import { unstickAll } from './hazards.js?v=13534ab82dda';
+import { MAPS, canStand, standSpot, isBlocked, effectiveTile } from '../maps/index.js?v=521ab50e1f2b';
+import { TILE_INFO } from '../tiles.js?v=521ab50e1f2b';
+import { hasKeyItem } from '../stats.js?v=521ab50e1f2b';
+import { partyOf } from './party.js?v=521ab50e1f2b';
+import { unstickAll } from './hazards.js?v=521ab50e1f2b';
 
 export const TIME_GLASS = 'toki_glass';
 

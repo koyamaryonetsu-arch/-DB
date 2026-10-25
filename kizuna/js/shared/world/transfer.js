@@ -8,8 +8,8 @@
 // 仲間が 多くて 1万文字を こえる ときは KIZUNA-3-（仲間の 空の 項目と ID を はぶいた 形。slimChar / unslimChar）。
 //   仲間 40人（いっぱい）でも 9千文字ほど。こえない ときは 今までどおり KIZUNA-2-（前の 版でも 読める）
 // むかしの KIZUNA-1-<しるし>-<base64> も 読める
-import { repairChar, upgradeSave, SAVE_VERSION } from './save.js?v=13534ab82dda';
-import { dropGoneFamily } from '../data/wagon.js?v=13534ab82dda';
+import { repairChar, upgradeSave, SAVE_VERSION } from './save.js?v=521ab50e1f2b';
+import { dropGoneFamily } from '../data/wagon.js?v=521ab50e1f2b';
 
 const PREFIX = 'KIZUNA-2-';
 const PREFIX_V1 = 'KIZUNA-1-';
@@ -147,13 +147,31 @@ const slimList = (char, list) => list.map((e) => {
   }
   return { ...e, char: ch };
 });
+// たおした 魔物の 数（kills）は 同じ 数ごとに まとめる: { a: 99, b: 99, c: 3 } → [[99, 'a', 'b'], [3, 'c']]（魔物が ふえても LINE の 1回に 入るように）
+function slimKills(kills) {
+  if (!kills || typeof kills !== 'object' || Array.isArray(kills)) return kills;
+  const by = new Map();
+  for (const [sp, n] of Object.entries(kills)) {
+    if (!Number.isFinite(n)) return kills;
+    if (!by.has(n)) by.set(n, [n]);
+    by.get(n).push(sp);
+  }
+  return [...by.values()];
+}
+function unslimKills(kills) {
+  if (!Array.isArray(kills)) return kills;
+  const out = {};
+  for (const [n, ...sps] of kills) for (const sp of sps) out[sp] = n;
+  return out;
+}
 export function slimChar(char) {
   if (!Array.isArray(char?.companions)) return char;
   const companions = slimList(char, char.companions);
-  return { ...char, companions, ...(Array.isArray(char.storage) ? { storage: slimList(char, char.storage) } : {}) };
+  return { ...char, companions, ...(Array.isArray(char.storage) ? { storage: slimList(char, char.storage) } : {}), ...(char.kills ? { kills: slimKills(char.kills) } : {}) };
 }
 export function unslimChar(char) {
   if (!Array.isArray(char?.companions)) return char;
+  if (Array.isArray(char.kills)) char.kills = unslimKills(char.kills);
   for (const e of [...char.companions, ...(Array.isArray(char.storage) ? char.storage : [])]) {
     const ch = e?.char;
     if (!ch || typeof ch !== 'object') continue;

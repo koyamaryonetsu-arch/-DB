@@ -1,15 +1,16 @@
 // おんがくと こうかおん（Web Audio で その場で つくる。きょくは すべて オリジナル）
-import { SFX_R26 } from './sfx-r26.js?v=13534ab82dda';
-import { SFX_R27 } from './sfx-r27.js?v=13534ab82dda';
-import { SFX_R29 } from './sfx-r29.js?v=13534ab82dda';
-import { SFX_R33 } from './sfx-r33.js?v=13534ab82dda';
-import { SFX_PK } from './sfx-pokemon.js?v=13534ab82dda';
-import { KUMOI_TRACKS } from './audio-kumoi.js?v=13534ab82dda';
-import { HOSHIYOMI_TRACKS } from './audio-hoshiyomi.js?v=13534ab82dda';
-import { EARTH_TRACKS } from './audio-earth.js?v=13534ab82dda';
-import { CASTLE_TRACKS } from './audio-castle.js?v=13534ab82dda';
-import { TOP_TRACKS } from './audio-top.js?v=13534ab82dda';
-import { CH6_TRACKS } from './audio-ch6.js?v=13534ab82dda';
+import { SFX_R26 } from './sfx-r26.js?v=521ab50e1f2b';
+import { SFX_R27 } from './sfx-r27.js?v=521ab50e1f2b';
+import { SFX_R29 } from './sfx-r29.js?v=521ab50e1f2b';
+import { SFX_R33 } from './sfx-r33.js?v=521ab50e1f2b';
+import { SFX_PK } from './sfx-pokemon.js?v=521ab50e1f2b';
+import { SFX_DQ } from './sfx-dqm.js?v=521ab50e1f2b';
+import { KUMOI_TRACKS } from './audio-kumoi.js?v=521ab50e1f2b';
+import { HOSHIYOMI_TRACKS } from './audio-hoshiyomi.js?v=521ab50e1f2b';
+import { EARTH_TRACKS } from './audio-earth.js?v=521ab50e1f2b';
+import { CASTLE_TRACKS } from './audio-castle.js?v=521ab50e1f2b';
+import { TOP_TRACKS } from './audio-top.js?v=521ab50e1f2b';
+import { CH6_TRACKS } from './audio-ch6.js?v=521ab50e1f2b';
 
 const NOTE_BASE = { C: 0, 'C#': 1, Db: 1, D: 2, 'D#': 3, Eb: 3, E: 4, F: 5, 'F#': 6, Gb: 6, G: 7, 'G#': 8, Ab: 8, A: 9, 'A#': 10, Bb: 10, B: 11 };
 
@@ -791,6 +792,8 @@ export class GameAudio {
         else if (SFX_R33[id]) SFX_R33[id](this, T);
         // 第44回の ポケモンの 技の 音（sfx-pokemon.js）
         else if (SFX_PK[id]) SFX_PK[id](this, T);
+        // 第45回の ドラクエふうの 魔物の 技の 音（sfx-dqm.js）
+        else if (SFX_DQ[id]) SFX_DQ[id](this, T);
     }
   }
 }

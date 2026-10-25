@@ -22,14 +22,16 @@
 //     got  … 大きな ごほうびを もらった 休み所の 階 [5, 10, …] / tries … ちょうせんした 回数
 //     run  … 今の ちょうせん { f: 今の 階, mid: とちゅうから 来た（さそわれて 来た など。記録に ならない）, took: ごほうびを 開けた 階,
 //              seed: この ちょうせんの 階の 形の もと（入口から 入る たびに 新しく。いっしょに 入った 家族は おなじ）}
-import { MONSTERS } from './monsters.js?v=13534ab82dda';
-import { registerVariant, variantFits, variantId } from './variants.js?v=13534ab82dda';
-import { ITEMS, SLOTS } from './items.js?v=13534ab82dda';
-import { ENCOUNTER_TABLES, ZONE_BG, FIXED_ENCOUNTERS } from './encounters.js?v=13534ab82dda';
-import { makeRng } from '../rng.js?v=13534ab82dda';
-import { rewardGold } from './difficulty.js?v=13534ab82dda';
-import { pickSdGear, SD_GEAR_FROM } from './rare-loot.js?v=13534ab82dda';
-import { sdGuardStrength } from './secret-guard.js?v=13534ab82dda';
+import { MONSTERS } from './monsters.js?v=521ab50e1f2b';
+import { registerVariant, variantFits, variantId } from './variants.js?v=521ab50e1f2b';
+import { ITEMS, SLOTS } from './items.js?v=521ab50e1f2b';
+import { ENCOUNTER_TABLES, ZONE_BG, FIXED_ENCOUNTERS } from './encounters.js?v=521ab50e1f2b';
+import { makeRng } from '../rng.js?v=521ab50e1f2b';
+import { rewardGold } from './difficulty.js?v=521ab50e1f2b';
+import { pickSdGear, SD_GEAR_FROM } from './rare-loot.js?v=521ab50e1f2b';
+import { sdGuardStrength } from './secret-guard.js?v=521ab50e1f2b';
+// 第45回: 四季のこよみを もらえるか（companions-dqm.js）
+import { dqKeyDue } from './companions-dqm.js?v=521ab50e1f2b';
 
 export const SD_GATE = 'sd_gate';
 export const SD_NAME = 'ひみつのダンジョン';
@@ -292,6 +294,14 @@ export function sdBigReward(f) {
   // 第44回（ポケモン P1）: いちばん おくの 星空のはての階（50階）の 休み所に、ふしぎないでんし（大事な物。1人 1回。ミュウの 素材配合）
   if (f === SD_MEW_FLOOR) out.push({ item: 'mew_gene', n: 1 });
   return out;
+}
+
+// 第45回（ドラクエふう D1）: 四季のこよみ（こよみのせいれいの 素材配合の 大事な物）が ある 階（黄金の古代の階の はじめ）
+export const SD_KOYOMI_FLOOR = 40;
+// 休み所の 宝箱に たす 大事な物（c … 開けた キャラ）。まだ 持っていない・こよみのせいれいを 生んだ ことが ない 人に 1回
+//   （大きな ごほうびの 時も・2回目からの 時も。前の 版で 40階の ごほうびを もらった 人も もらえる）
+export function sdKeyRewards(f, c) {
+  return f === SD_KOYOMI_FLOOR && dqKeyDue(c, 'koyomi_book') ? [{ item: 'koyomi_book', n: 1 }] : [];
 }
 
 // 2回目からの 小さな ごほうび（1つ。rng … 世界の 乱数）

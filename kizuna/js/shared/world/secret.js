@@ -14,18 +14,18 @@
 // ・階の 形は ちょうせんごとに かわる（2026年10月 第32回）: 入口から 始める ときに seed を 作って c.sd.run.seed に 入れ、
 //   マップの ID（'sd_<階>_<seed>'）にも 入れる。いっしょに 下りる 家族は おなじ ID の 階へ 行くので おなじ 形。
 //   ログインしなおしても 場所の ID に seed が のこる。前の 版の 'sd_<階>' に いた 人は、次の 階から 新しい seed
-import { MAPS, isBlocked } from '../maps/index.js?v=13534ab82dda';
-import { fullHeal, addItem } from '../stats.js?v=13534ab82dda';
-import { MONSTERS } from '../data/monsters.js?v=13534ab82dda';
-import { SD_HOOKS } from '../data/story-secret.js?v=13534ab82dda';
-import { partyOf } from './party.js?v=13534ab82dda';
-import { SD_DOOR_OUT, GATE_ARRIVE, SD_INN_KEEPER } from '../maps/secret-dungeon.js?v=13534ab82dda';
+import { MAPS, isBlocked } from '../maps/index.js?v=521ab50e1f2b';
+import { fullHeal, addItem } from '../stats.js?v=521ab50e1f2b';
+import { MONSTERS } from '../data/monsters.js?v=521ab50e1f2b';
+import { SD_HOOKS } from '../data/story-secret.js?v=521ab50e1f2b';
+import { partyOf } from './party.js?v=521ab50e1f2b';
+import { SD_DOOR_OUT, GATE_ARRIVE, SD_INN_KEEPER } from '../maps/secret-dungeon.js?v=521ab50e1f2b';
 import {
   SD_GATE, SD_NAME, SD_OPEN_FLAG, sdFloorId, sdFloorOf, isSdFloorId, isRestFloor, isGuardFloor, sdGuardian, sdGuardEncounter,
   sdRecommendLv, sdBigReward, sdSmallReward, rewardText, sdMedalId, noteSdFloor, sdRecordOf, sdRecordText, sdBoardRows, sdBand,
-  sdSaveOf, noteSdSave, sdStartFloors, sdStartText, sdRunSeedOf, newSdSeed, sdInnPrice,
-} from '../data/secret.js?v=13534ab82dda';
-import { ensureSdShop } from '../data/secret-shop.js?v=13534ab82dda';
+  sdSaveOf, noteSdSave, sdStartFloors, sdStartText, sdRunSeedOf, newSdSeed, sdInnPrice, sdKeyRewards,
+} from '../data/secret.js?v=521ab50e1f2b';
+import { ensureSdShop } from '../data/secret-shop.js?v=521ab50e1f2b';
 
 const GUIDE = 'ひみつのダンジョンの案内人';
 const FAIRY = '休み所のようせい';
@@ -404,7 +404,8 @@ async function chestEvent(run) {
     if (r.took.includes(f)) continue;
     r.took.push(f);
     const big = !r.mid && !sd.got.includes(f);
-    const list = big ? sdBigReward(f) : [sdSmallReward(f, world.rng)];
+    // 第45回: 40階の 四季のこよみ（大事な物。1人 1つ。data/secret.js の sdKeyRewards）
+    const list = [...(big ? sdBigReward(f) : [sdSmallReward(f, world.rng)]), ...sdKeyRewards(f, c)];
     if (big) sd.got.push(f);
     for (const e of list) {
       if (e.gold) c.gold = Math.min(9999999, (c.gold || 0) + e.gold);

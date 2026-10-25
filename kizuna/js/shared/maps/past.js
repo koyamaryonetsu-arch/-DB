@@ -9,11 +9,11 @@
 // ・今の ミドリナ地方: ほしみの丘の 星の花の あった 所に 時のほこらの 入口（c6_start で 開く）・ルミナの町の 広場の はじまりの勇者の像
 //   （c6_start 〜 c6_flow の あいだ うすく 消えかける）・ルミナの町の 北の 時のいせき（今は 木の根と がれきに うもれている。c6_rion で 入れる）
 // だいほんは data/story-ch6.js
-import { T, parseRows, TILE_INFO, LEGEND } from '../tiles.js?v=13534ab82dda';
-import { fbm, hash2 } from '../rng.js?v=13534ab82dda';
-import { npc } from './npc.js?v=13534ab82dda';
-import { PLACES, BRIDGE_Y, LAKE, riverXAt } from './overworld.js?v=13534ab82dda';
-import { PAST_TREASURE } from '../data/items-past.js?v=13534ab82dda';
+import { T, parseRows, TILE_INFO, LEGEND } from '../tiles.js?v=521ab50e1f2b';
+import { fbm, hash2 } from '../rng.js?v=521ab50e1f2b';
+import { npc } from './npc.js?v=521ab50e1f2b';
+import { PLACES, BRIDGE_Y, LAKE, riverXAt } from './overworld.js?v=521ab50e1f2b';
+import { PAST_TREASURE } from '../data/items-past.js?v=521ab50e1f2b';
 
 // ───────────── フラグ（セーブに のこるので かえない）─────────────
 // 物語の すすみぐあい（data/story-ch6.js の CH6_STEPS。plan-ch6.md の 9 の 名前の 約束）

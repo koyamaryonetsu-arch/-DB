@@ -7,21 +7,23 @@
 //   とちゅうで かけつけた 家族（battles.js の joinBattle）も、次の 戦いから 3連戦の なかまに 入る（adopt）
 // ・かけ試合（かけ試合の 係。ひとりずつ）: 4ひきの 魔物の トーナメント。本物の 戦いの しくみで 戦わせる（betDuel）。
 //   オッズは 強さ（data/arena.js の winChances）から。けっかは 短い 戦いの ようす（client/ui/arena.js の arenaBoutUI）で 見せる
-import { Battle } from '../battle.js?v=13534ab82dda';
-import { decideMonster } from '../ai.js?v=13534ab82dda';
-import { enemyFixedScale } from '../battle.js?v=13534ab82dda';
-import { MONSTERS } from '../data/monsters.js?v=13534ab82dda';
-import { ITEMS } from '../data/items.js?v=13534ab82dda';
-import { addItem } from '../stats.js?v=13534ab82dda';
-import { scaleEnemy } from '../data/treasure.js?v=13534ab82dda';
-import { startFixedBattle } from './battles.js?v=13534ab82dda';
-import { partyOf } from './party.js?v=13534ab82dda';
-import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=13534ab82dda';
-import { ARENA_HOOKS } from '../data/story-arena.js?v=13534ab82dda';
+import { Battle } from '../battle.js?v=521ab50e1f2b';
+import { decideMonster } from '../ai.js?v=521ab50e1f2b';
+import { enemyFixedScale } from '../battle.js?v=521ab50e1f2b';
+import { MONSTERS } from '../data/monsters.js?v=521ab50e1f2b';
+import { ITEMS } from '../data/items.js?v=521ab50e1f2b';
+import { addItem } from '../stats.js?v=521ab50e1f2b';
+import { scaleEnemy } from '../data/treasure.js?v=521ab50e1f2b';
+import { startFixedBattle } from './battles.js?v=521ab50e1f2b';
+import { partyOf } from './party.js?v=521ab50e1f2b';
+import { FIXED_ENCOUNTERS } from '../data/encounters.js?v=521ab50e1f2b';
+import { ARENA_HOOKS } from '../data/story-arena.js?v=521ab50e1f2b';
 import {
   ARENA_RANKS, ARENA_POS, ARENA_MAP, rankInfo, rankLabel, rankOpen, rankCleared, visibleRanks, noteClear, nextRepeatMedal, firstMedalId,
   wallRows, arenaRecord, BET_LV, BET_POOL, BET_AMOUNTS, BET_PAIRS, ODDS_TRIES, duelRate, winChances, oddsOf, payout,
-} from '../data/arena.js?v=13534ab82dda';
+} from '../data/arena.js?v=521ab50e1f2b';
+// 第45回: 竜王のしるしを もらえるか（data/companions-dqm.js）
+import { dqKeyDue } from '../data/companions-dqm.js?v=521ab50e1f2b';
 
 const say = (who, text) => ['say', who, text];
 const CLERK = '闘技場の受付';
@@ -208,6 +210,11 @@ export function clearRewards(run, n) {
       c.medalSpots = c.medalSpots && typeof c.medalSpots === 'object' ? c.medalSpots : {};
       c.medalSpots[nextRepeatMedal(c)] = now;
       out.push(['sfx', 'item'], say(null, `${c.name}は${fmt(R.repeatGold)}ゴールドと、小さなメダルを1枚手に入れた！`));
+    }
+    // 第45回: 大事な物（ランク8 の 竜王のしるし。1人 1つ）
+    if (R.key && dqKeyDue(c, R.key)) {
+      addItem(c, R.key, 1);
+      out.push(['sfx', 'key'], say(null, `${c.name}は${ITEMS[R.key].name}を手に入れた！\n（ドラゴン系の魔物2ひきと配合すると…？）`));
     }
     w.sendSelf(m);
   }

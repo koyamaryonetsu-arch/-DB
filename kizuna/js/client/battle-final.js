@@ -6,8 +6,8 @@
 // ・段階が かわる ときは、がめんいっぱいの 大きな 文字（finalPhaseFx）。第2段階から 背景が ひとりぼっちの闇に かわる
 // ・前ぶれ: ノクト（本気）は 合体技の かまえ（赤むらさきの わ）・きずなくだき（むらさきの わ）、ソリトゥスは きずなを食べる（むねの 口が 光る）・
 //   終わらない夜（黒い わ）。第3段階の ソリトゥスの まわりには、もどってきた 星が またたく
-import { el } from './ui/dom.js?v=13534ab82dda';
-import { battleBackground } from './render/battlefx.js?v=13534ab82dda';
+import { el } from './ui/dom.js?v=521ab50e1f2b';
+import { battleBackground } from './render/battlefx.js?v=521ab50e1f2b';
 
 const N2 = 'nocto_2';
 const SL = 'solitus';

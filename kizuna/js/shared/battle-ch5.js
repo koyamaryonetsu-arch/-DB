@@ -13,28 +13,28 @@
 //   合体技（ミナデインも）・にげる・混乱した 時の 行動は 読まれない（読みは 消える）
 // ・オートの 仲間: 読まれた 種類の 行動を さけて、ちがう 行動を えらぶ（towerPlan）。シミュレーター（tools/sim.js）の
 //   b.argosNaive … 知らない 人（読まれても そのまま）／ b.knowsArgos … 知っている 人（星のさばきの 前に 身を 守る も）
-import { MONSTERS } from './data/monsters.js?v=13534ab82dda';
-import { ABILITIES } from './data/abilities.js?v=13534ab82dda';
-import { abilityFor } from './ability-label.js?v=13534ab82dda';
-import { ITEMS } from './data/items.js?v=13534ab82dda';
-import { mpCost, penaltyFor } from './stats.js?v=13534ab82dda';
+import { MONSTERS } from './data/monsters.js?v=521ab50e1f2b';
+import { ABILITIES } from './data/abilities.js?v=521ab50e1f2b';
+import { abilityFor } from './ability-label.js?v=521ab50e1f2b';
+import { ITEMS } from './data/items.js?v=521ab50e1f2b';
+import { mpCost, penaltyFor } from './stats.js?v=521ab50e1f2b';
 // たがいに よびあうが、つかうのは たたかいの 中だけ
-import { atbRate } from './battle.js?v=13534ab82dda';
-import { canUse } from './ai.js?v=13534ab82dda';
+import { atbRate } from './battle.js?v=521ab50e1f2b';
+import { canUse } from './ai.js?v=521ab50e1f2b';
 // 第5章 Step 4: ガイアイーターの 多部位の 戦い（battle-gaia.js。ここから よぶ）
-import { gaiaEffect, gaiaCond, gaiaKill, gaiaPlan, gaiaPub } from './battle-gaia.js?v=13534ab82dda';
+import { gaiaEffect, gaiaCond, gaiaKill, gaiaPlan, gaiaPub } from './battle-gaia.js?v=521ab50e1f2b';
 // 第5章 Step 5: ノクトの影（職業の まね・合体技の よやくを こわす。battle-nocto.js。ここから よぶ）
-import { noctoCond, noctoEffect, noctoCheck, noctoKill, noctoPlan, noctoPub } from './battle-nocto.js?v=13534ab82dda';
+import { noctoCond, noctoEffect, noctoCheck, noctoKill, noctoPlan, noctoPub } from './battle-nocto.js?v=521ab50e1f2b';
 // 第5章 Step 6・7: ノクト（1回目）・大地の神殿の 魔物（かげぶんしん・地われ・まもる・おこる。battle-earth.js。ここから よぶ）
-import { earthCond, earthEffect, earthKill, earthPlan, earthPub, earthTurnStart } from './battle-earth.js?v=13534ab82dda';
+import { earthCond, earthEffect, earthKill, earthPlan, earthPub, earthTurnStart } from './battle-earth.js?v=521ab50e1f2b';
 // 第5章 Step 9: ノクト（本気）・魔王ソリトゥス（ひとりにする・よびかける・きずなを食べる・家族の きずな技。battle-final.js。ここから よぶ）
-import { finalCond, finalEffect, finalCheck, finalKill, finalPlan, finalPub, finalTurnStart } from './battle-final.js?v=13534ab82dda';
+import { finalCond, finalEffect, finalCheck, finalKill, finalPlan, finalPub, finalTurnStart } from './battle-final.js?v=521ab50e1f2b';
 // 第5章 Step 8: 影の城の 3人の まぼろし（風のかべ・かげ火の力・水かさ。battle-phantom.js。ここから よぶ）
-import { phantomCond, phantomEffect, phantomPlan, phantomPub, phantomTurnStart } from './battle-phantom.js?v=13534ab82dda';
+import { phantomCond, phantomEffect, phantomPlan, phantomPub, phantomTurnStart } from './battle-phantom.js?v=521ab50e1f2b';
 // 第2部 第6章 Step 1・2: サンドクロック（砂が落ちきると…）・ギアドン（まき戻し）。battle-ch6.js。ここから よぶ
-import { ch6Cond, ch6Effect, ch6Plan, ch6Pub, ch6TurnStart } from './battle-ch6.js?v=13534ab82dda';
+import { ch6Cond, ch6Effect, ch6Plan, ch6Pub, ch6TurnStart } from './battle-ch6.js?v=521ab50e1f2b';
 // 第37回 A: サファラ闘技場の 王者の しかけ（チームの 合体技・属性の よろい）
-import { arenaCond, arenaEffect } from './battle-arena.js?v=13534ab82dda';
+import { arenaCond, arenaEffect } from './battle-arena.js?v=521ab50e1f2b';
 
 export const ARGOS = 'argos';
 export const JUDGE = 'm_argos_judge';
