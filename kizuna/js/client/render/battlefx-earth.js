@@ -4,13 +4,13 @@
 //     ノクト＝黒むらさき・あかむらさき（合体技）・大地の われめ＝茶と あかね色
 // ノクト: n1_clones（影が 立ち上がる）・n1_combo_ready（前ぶれ。3つの 影に 光が あつまる）→ n1_combo（大技。3つの 影が ひとつに）・
 //   n1_rift（地われ）・n1_reach（手をのばす。味方の 技。client/battle-earth.js が 味方の まどにも）
-import { ELEMENT_FX } from './battlefx-r27.js?v=39775812c9e2';
+import { ELEMENT_FX } from './battlefx-r27.js?v=c553fc066ee8';
 // 第5章 Step 9 の ノクト（本気）・魔王ソリトゥス・家族の きずな技（battlefx-final.js）
-import { playFinalFx } from './battlefx-final.js?v=39775812c9e2';
+import { playFinalFx } from './battlefx-final.js?v=c553fc066ee8';
 // 第5章 Step 8 の 影の城の 魔物と 3人の まぼろし（battlefx-phantom.js。ここの さいごに よぶ）
-import { playPhantomFx } from './battlefx-phantom.js?v=39775812c9e2';
+import { playPhantomFx } from './battlefx-phantom.js?v=c553fc066ee8';
 // 第2部 第6章 Step 1・2 の 魔物と サンドクロック・ギアドン（battlefx-ch6.js。ここの さいごに よぶ）
-import { playCh6Fx } from './battlefx-ch6.js?v=39775812c9e2';
+import { playCh6Fx } from './battlefx-ch6.js?v=c553fc066ee8';
 
 const BLAST = ELEMENT_FX.blast?.colors || ['#ffd060', '#ff8a30', '#ffffff'];
 const BARK = ['#5a4228', '#8a6a44', '#b08a5a'];
