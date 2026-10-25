@@ -135,24 +135,26 @@ const COMP_EMPTY = {
 };
 const MON_KEYS = ['look', 'job', 'jobs', 'items', 'seeds', 'status', 'flags', 'equip'];
 const sameJson = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+// 魔物あずかり所の 魔物（c.storage。第43回 C）も 同じ 形なので いっしょに はぶく
+const slimList = (char, list) => list.map((e) => {
+  if (!e?.char || typeof e.char !== 'object') return e;
+  const ch = {};
+  for (const [k, v] of Object.entries(e.char)) {
+    if (k === 'id' && v === `${char.id}:${e.key}`) continue;
+    if (k in COMP_EMPTY && sameJson(v, COMP_EMPTY[k])) continue;
+    if (k === 'species' && v === e.species) continue;
+    ch[k] = v;
+  }
+  return { ...e, char: ch };
+});
 export function slimChar(char) {
   if (!Array.isArray(char?.companions)) return char;
-  const companions = char.companions.map((e) => {
-    if (!e?.char || typeof e.char !== 'object') return e;
-    const ch = {};
-    for (const [k, v] of Object.entries(e.char)) {
-      if (k === 'id' && v === `${char.id}:${e.key}`) continue;
-      if (k in COMP_EMPTY && sameJson(v, COMP_EMPTY[k])) continue;
-      if (k === 'species' && v === e.species) continue;
-      ch[k] = v;
-    }
-    return { ...e, char: ch };
-  });
-  return { ...char, companions };
+  const companions = slimList(char, char.companions);
+  return { ...char, companions, ...(Array.isArray(char.storage) ? { storage: slimList(char, char.storage) } : {}) };
 }
 export function unslimChar(char) {
   if (!Array.isArray(char?.companions)) return char;
-  for (const e of char.companions) {
+  for (const e of [...char.companions, ...(Array.isArray(char.storage) ? char.storage : [])]) {
     const ch = e?.char;
     if (!ch || typeof ch !== 'object') continue;
     if (ch.id === undefined && typeof e.key === 'string') ch.id = `${char.id}:${e.key}`;

@@ -8,6 +8,8 @@ import { MONSTER_FRIENDS, BREED_MIN_LEVEL, BREED_INHERIT_MAX, breedOutcome, best
 import { computeStats, learnedAbilities, newMonsterCompanion, addItem, removeItem, itemCount } from '../stats.js';
 import { inheritBonus, breedForecast, makeLineage } from '../breed-calc.js';
 import { ensureCompanions, companionOf, putInParty, afterRosterChange } from './party.js';
+// 第43回 C: あずかり中の 魔物も 親に なれる（world/party.js の breedEntry・world/storage.js）
+import { breedEntry, storedOf } from './party.js';
 
 // おやから うけつげる わざ（かくれた わざは のぞく）
 export function inheritableSkills(A, B) {
@@ -32,7 +34,7 @@ const parentOf = (e) => ({ ...e.char, species: e.species });
 //   choices: 生まれる ことが ある 子 みんな（{ sp, kind, rank, item, unseen, plus, trend }）。2つ いじょうなら 酒場で えらぶ
 export function breedPreview(c, keyA, keyB, pick = null) {
   ensureCompanions(c);
-  const A = companionOf(c, keyA), B = companionOf(c, keyB);
+  const A = breedEntry(c, keyA), B = breedEntry(c, keyB);
   if (!A || !B || A === B) return { ok: false, reason: '魔物を2ひき選んでね' };
   if (A.kind !== 'monster' || B.kind !== 'monster') return { ok: false, reason: '配合できるのはモンスターの仲間だけ' };
   if (A.char.level < BREED_MIN_LEVEL || B.char.level < BREED_MIN_LEVEL) return { ok: false, reason: `レベル${BREED_MIN_LEVEL}以上の魔物同士でないと配合できない` };
@@ -60,7 +62,9 @@ export function breedMonsters(world, s, { a, b, child, inherit, name } = {}) {
   if (!pv.ok) return pv;
   // 素材配合: ボスの 品が ふくろに ある か（配合すると なくなる）
   if (pv.item && itemCount(c, pv.item) < 1) return { ok: false, reason: `${pv.itemName}がふくろにない` };
-  const A = companionOf(c, a), B = companionOf(c, b);
+  const A = breedEntry(c, a), B = breedEntry(c, b);
+  // あずかり中の 親から 生まれた 子は あずかり所に 入る（仲間の 親の ぶん 1つ あく。第43回 C）
+  const fromStore = !!(storedOf(c, a) || storedOf(c, b));
   const pick = Array.isArray(inherit) ? inherit.filter((id) => pv.skills.includes(id)).slice(0, BREED_INHERIT_MAX) : pv.auto;
   const nm = String(name || '').replace(/[<>&"'\s]/g, '').slice(0, 8) || MONSTERS[pv.child].name;
   const wasInParty = c.partyKeys.includes(a) || c.partyKeys.includes(b);
@@ -71,6 +75,7 @@ export function breedMonsters(world, s, { a, b, child, inherit, name } = {}) {
   // おやは たびだっていく（そうびは ふくろへ）
   for (const p of [A, B]) for (const slot of SLOTS) if (p.char.equip?.[slot]) addItem(c, p.char.equip[slot], 1);
   c.companions = c.companions.filter((e) => e !== A && e !== B);
+  if (fromStore) c.storage = c.storage.filter((e) => e !== A && e !== B);
   c.partyKeys = c.partyKeys.filter((k) => k !== a && k !== b);
   if (Array.isArray(c.wagonKeys)) c.wagonKeys = c.wagonKeys.filter((k) => k !== a && k !== b);
   while (c.companions.some((e) => e.key === `m${c.monsterSeq}`)) c.monsterSeq++;
@@ -84,12 +89,12 @@ export function breedMonsters(world, s, { a, b, child, inherit, name } = {}) {
   const st = computeStats(ch);
   ch.hp = st.maxHp;
   ch.mp = st.maxMp;
-  c.companions.push({ key, kind: 'monster', species: pv.child, char: ch });
-  if (wasInParty) putInParty(c, key);
+  (fromStore ? c.storage : c.companions).push({ key, kind: 'monster', species: pv.child, char: ch });
+  if (wasInParty && !fromStore) putInParty(c, key);
   c.bestiary = c.bestiary || {};
   const bs = c.bestiary[pv.child] || (c.bestiary[pv.child] = {});
   bs.bred = (bs.bred || 0) + 1;
   bs.friend = (bs.friend || 0) + 1;
   afterRosterChange(world, s);
-  return { ok: true, key, name: nm, species: pv.child, plus: pv.plus, rank: pv.rank, kind: pv.kind, itemName: pv.itemName, inherit: pick, joined: wasInParty, newEntry: pv.unseen };
+  return { ok: true, key, name: nm, species: pv.child, plus: pv.plus, rank: pv.rank, kind: pv.kind, itemName: pv.itemName, inherit: pick, joined: wasInParty && !fromStore, newEntry: pv.unseen, stored: fromStore };
 }

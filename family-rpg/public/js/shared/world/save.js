@@ -79,7 +79,7 @@ function stashOf(c) {
 
 function cleanStash(c) {
   const st = c.stash;
-  if (st && !st.items.length && !st.keyItems.length && !st.companions.length && !st.job) delete c.stash;
+  if (st && !st.items.length && !st.keyItems.length && !st.companions.length && !st.job && !st.storage?.length) delete c.stash;
 }
 
 // 1人ぶんを 読める 形に ととのえる（何回 よんでも おなじ けっか）
@@ -166,6 +166,20 @@ export function repairChar(c, id) {
         c.companions.push(e);
       }
     }
+  }
+  // 魔物あずかり所（第43回 C。ない ときは そのまま〈空と 同じ〉。知らない モンスターは しまう。新しい 項目なので 版は 上げない）
+  if (Array.isArray(c.storage) || st.storage?.length) {
+    const all = [...(Array.isArray(c.storage) ? c.storage : []), ...(Array.isArray(st.storage) ? st.storage.splice(0) : [])];
+    c.storage = [];
+    for (const e of all) {
+      if (!e || !e.key || !e.char) continue;
+      if (!known(MONSTERS, e.species || e.char.species)) (st.storage = Array.isArray(st.storage) ? st.storage : []).push(e);
+      else {
+        repairChar(e.char);
+        c.storage.push(e);
+      }
+    }
+    if (Array.isArray(st.storage) && !st.storage.length) delete st.storage;
   }
   repairTreasureMaps(c); // 宝の地図（なくても よい）
   // 第37回 B: 宝の地図の クリア数（カジノの 段）。むかしの セーブは 1回だけ のこっている きろくから 数える（版は 上げない）

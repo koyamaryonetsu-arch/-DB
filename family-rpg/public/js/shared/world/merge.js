@@ -18,6 +18,7 @@ import { mergeTrialInfo, jobCapOf } from '../data/job-trials.js';
 import { ITEMS, SLOTS } from '../data/items.js';
 import { STORY_STEPS } from '../data/story.js';
 import { COMPANION_SLOTS } from '../data/companions.js';
+import { STORAGE_MAX } from './party.js';
 import { WAGON_SLOTS } from '../data/wagon.js';
 import { repairChar } from './save.js';
 import { mergeTreasureMaps } from '../data/treasure.js';
@@ -211,6 +212,7 @@ function mergeBody(b, a, t, tLater) {
       // 馬車は どちらかで もらって いれば もっている
       case 'wagon': out.wagon = va || vt ? true : undefined; break;
       case 'level': case 'companions': case 'items': case 'equip': case 'partyKeys': case 'wagonKeys': break; // あとで
+      case 'storage': break; // あとで（魔物あずかり所。第43回 C）
       default: out[k] = pick(vb, va, vt, tLater);
     }
     if (out[k] === undefined) delete out[k];
@@ -291,6 +293,7 @@ export function mergeChars(base, ours, theirs) {
 
   // 仲間（まものの 番号が かさなったら あたらしい 番号に）
   const used = new Set([...(a.companions || []), ...(t.companions || [])].map((e) => e?.key));
+  for (const e of [...(a.storage || []), ...(t.storage || [])]) used.add(e?.key);
   let seq = Math.max(num(a.monsterSeq), num(t.monsterSeq), 1);
   const nextKey = () => {
     while (used.has(`m${seq}`)) seq++;
@@ -303,6 +306,13 @@ export function mergeChars(base, ours, theirs) {
     const r = mergeCompanions(b.companions, a.companions, t.companions, tLater, nextKey);
     out.companions = r.list;
     renamed = r.renamed;
+    out.monsterSeq = Math.max(out.monsterSeq || 1, seq);
+  }
+  // 魔物あずかり所（第43回 C）: 仲間と 同じ 合わせかた。仲間に いる 魔物は あずかり所から はずす（両方で 出し入れした 時）
+  if (a.storage || t.storage) {
+    const r = mergeCompanions(b.storage, a.storage, t.storage, tLater, nextKey);
+    const inRoster = new Set((out.companions || []).map((e) => e.key));
+    out.storage = r.list.filter((e) => !inRoster.has(e.key)).slice(0, STORAGE_MAX);
     out.monsterSeq = Math.max(out.monsterSeq || 1, seq);
   }
   out.equip = mergeEquip(b.equip, a.equip, t.equip, tLater);

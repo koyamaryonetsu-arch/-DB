@@ -351,7 +351,8 @@ test('さよなら: 仲間が いっぱいでも 魔物は 仲間に なりた�
   assert.equal(list.length, ROSTER_MAX);
   assert.ok(list[0].label.includes('Lv1'));
   let n = bot.msgs.length;
-  const answers = [0, 0];
+  // 第43回 C: 「はい」→ えらぶ文（あずかり所へ送る・だれかとさよならする・やめる。Lv10 の 組が ないので 配合は 出ない）→ さよならの 一覧
+  const answers = [0, 1, 0];
   const orig = bot.onMsg.bind(bot);
   bot.onMsg = (m) => {
     if (m.t === 'script' && m.steps.at(-1)?.[0] === 'choice') bot.choice = answers.shift() ?? 0;
@@ -361,15 +362,15 @@ test('さよなら: 仲間が いっぱいでも 魔物は 仲間に なりた�
   await bot.settle();
   const ch = choicesOf(bot, n).find((st) => st[1] === 'だれとさよならする？');
   assert.ok(ch, 'だれと さよならするか 聞く');
-  assert.equal(ch[2].length, ROSTER_MAX + 1, 'みんな ＋ やめる');
+  assert.equal(ch[2].length, ROSTER_MAX + 1, 'みんな ＋ もどる');
   assert.ok(said(bot, /仲間がいっぱいだ/, n));
   assert.ok(said(bot, /さよならした/, n));
   assert.ok(!companion(c, list[0].key), 'さよならした');
   assert.ok(c.companions.some((e) => e.species === 'koumorin'), '新しい 魔物が 入った');
   assert.equal(c.companions.length, ROSTER_MAX);
-  // やめる（さいご）: だれも かわらない
+  // やめる（えらぶ文の さいご）: だれも かわらない
   n = bot.msgs.length;
-  answers.push(0, ROSTER_MAX);
+  answers.push(0, 2);
   const keys = c.companions.map((e) => e.key).join();
   world.offerBefriend(bot.s, 'frog');
   await bot.settle();

@@ -51,4 +51,6 @@ export const FACILITY_SCRIPTS = {
   forge_kanatoko: () => [['forge', 'kanatoko']],
   // 第37回: 乗り物屋（ルミナの町。data/vehicles.js・world/vehicles.js）
   vehicle_shop: () => [['vehicles']],
+  // 第43回 C: 魔物あずかり所（ルミナの町。world/storage.js・client/ui/storage.js）
+  monster_storage: () => [['storage']],
 };

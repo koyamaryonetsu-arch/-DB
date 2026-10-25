@@ -6,6 +6,11 @@ import { startFixedBattle } from './battles.js';
 import { FIXED_ENCOUNTERS } from '../data/encounters.js';
 import { partyOf, syncParty, ensureCompanions, recruitNpc, addMonsterCompanion, befriendLevel } from './party.js';
 import { sayFarewell } from './farewell.js';
+// 第43回 C: 仲間が いっぱいの 時の えらぶ文・配合して あける・あずかり所へ 送る（world/farewell.js・world/storage.js）
+import { befriendFullSteps, rosterIsFull } from './farewell.js';
+import { depositMonster, storeText } from './storage.js';
+import { tavernInfo, ensureStorage } from './party.js';
+import { MONSTERS } from '../data/monsters.js';
 import { shareBefriend } from './recruit-share.js';
 import { openService } from './services.js';
 import { isNightFor, advanceClock, fracFor } from './clock.js';
@@ -381,6 +386,8 @@ export class ScriptRun {
           if (a[1] === false) break;
           // 仲間が いっぱいの ときは a[2] の 仲間と さよならしてから（world/farewell.js）
           if (a[2]) this.say(sayFarewell(w, s, a[2]));
+          // a[3] の 魔物を あずかり所へ 送ってから（world/storage.js。第43回 C）
+          if (a[3]) this.say(storeText(depositMonster(w, s, a[3])));
           // たたかいで なかまに なった まものは いつも レベル1（party.js の befriendLevel）
           const r = addMonsterCompanion(w, s, off.species, befriendLevel(), a[1]);
           if (!r.ok) {
@@ -400,6 +407,35 @@ export class ScriptRun {
           if (sh.got.length) this.say(`いっしょに戦った${sh.got.join('と')}の酒場にも、\n${sh.spName}が仲間になってくれた！`);
           if (sh.full.length) this.say(`${sh.full.join('と')}の酒場はいっぱいで、\n${sh.spName}は入れなかった…`);
           w.sendSelf(s);
+          break;
+        }
+        case 'befriendFull': case 'breedOpen': {
+          // 第43回 C: 仲間が いっぱいの 時（world/farewell.js の befriendFullSteps）
+          //   ['befriendFull', id] … えらぶ文に もどる / ['breedOpen', id] … 酒場の 配合の 画面を「あける モード」で 開く
+          //   配合が すんで 1つ あいたら、まっていた 魔物が 仲間に なる。とじたら（やめたら）えらぶ文に もどる
+          //   この 台本は なつかれた 人だけ（world.js の offerBefriend の runSteps）なので、家族の ほかの 人には 画面は 出ない
+          const s = this.init;
+          const off = s.befriendOffer;
+          if (!off || off.id !== a[0]) break;
+          const name = MONSTERS[off.species]?.name || '';
+          let bred = false;
+          if (op === 'breedOpen' && rosterIsFull(s.char)) {
+            const before = s.char.companions.length + ensureStorage(s.char).storage.length;
+            const r = await this.flush();
+            if (r.aborted) return this.abort();
+            this.batch.push(['ui', 'tavern', { ...tavernInfo(w, s), makeRoom: { name } }]);
+            const r2 = await this.flush();
+            if (r2.aborted) return this.abort();
+            if (s.befriendOffer !== off) break;
+            bred = s.char.companions.length + ensureStorage(s.char).storage.length < before;
+          }
+          if (!rosterIsFull(s.char)) {
+            await this.runSteps([['befriend', off.id, null]]);
+            break;
+          }
+          // あずかり中の 2ひきで 配合した 時は、仲間は あかない
+          if (bred) this.say('あずかり中の魔物どうしの配合では、仲間はあかない…');
+          await this.runSteps(befriendFullSteps(s.char, off.id, name, true));
           break;
         }
         case 'battle': {
@@ -445,6 +481,8 @@ export class ScriptRun {
           }
           break;
         }
+        // 第43回 C: 魔物あずかり所（world/storage.js）
+        case 'storage':
         case 'shop': case 'jobChange': case 'tavern': case 'board': case 'starTrade': case 'church': case 'bank': case 'forge': case 'casino': case 'medalKing': case 'salon': case 'vehicles': {
           const r = await this.flush();
           if (r.aborted) return this.abort();

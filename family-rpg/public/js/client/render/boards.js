@@ -274,6 +274,21 @@ const ICONS = {
     ],
     pal: { o: '#ffffff', f: '#ffd24a', h: '#2a2230', s: '#2a2230', y: '#ff6a6a' },
   },
+  // まるい 魔物（魔物あずかり所。第43回 C）
+  monster: {
+    rows: [
+      '....o....',
+      '...oBo...',
+      '..oBBBo..',
+      '.oBBBBBo.',
+      '.oBwBwBo.',
+      'oBBkBkBBo',
+      'oBBBBBBBo',
+      'oBBBrBBBo',
+      '.ooooooo.',
+    ],
+    pal: { o: '#1e3a6a', B: '#6ab8f0', w: '#ffffff', k: '#2a2230', r: '#e85a6a' },
+  },
 };
 
 ICONS.general = ICONS.item;
@@ -313,6 +328,7 @@ const BOARD = {
   arena: ['#a83a2a', '#4a1a10', '#d8604a'],
   scholar: ['#6a4a8a', '#2a1a40', '#9a7ab8'],
   vehicle: ['#2a8a8a', '#0f3a3a', '#5ab8b8'],
+  monster: ['#8a6a2a', '#3a2a10', '#c8a050'],
 };
 
 // たてものに かける かんばん（16×15）

@@ -60,6 +60,29 @@ export function companionOf(c, key) {
   return (c.companions || []).find((e) => e.key === key) || null;
 }
 
+// 魔物あずかり所（第43回 C。world/storage.js）
+//   c.storage … あずけた 魔物（仲間と 同じ 形 { key, kind: 'monster', species, char }）。60 まで。仲間の 40 とは 別に 数える
+//   あずけた 魔物は 戦わない・育たない。酒場の 配合の 親には なれる（world/breed.js の breedEntry）
+//   古い セーブには ない（空の ならびに する）
+export const STORAGE_MAX = 60;
+export function ensureStorage(c) {
+  if (!Array.isArray(c.storage)) c.storage = [];
+  c.storage = c.storage.filter((e) => e && e.key && e.char && e.kind === 'monster');
+  // 魔物の 番号（m12 など）が 仲間と かさならない ように、番号を あずけた 魔物より 先へ
+  for (const e of c.storage) {
+    const n = /^m(\d+)$/.exec(e.key);
+    if (n && Number(n[1]) >= (c.monsterSeq || 1)) c.monsterSeq = Number(n[1]) + 1;
+  }
+  return c;
+}
+export function storedOf(c, key) {
+  return ensureStorage(c).storage.find((e) => e.key === key) || null;
+}
+// 配合の 親: 酒場の 仲間か あずかり中の 魔物
+export function breedEntry(c, key) {
+  return companionOf(c, key) || storedOf(c, key);
+}
+
 // 家族の キャラクターを サポートとして つれていく（その ときの すがたを うつす）
 //   うつしは パーティーと 馬車で おなじ ものを つかう（p.famCopies。セーブには のこらない）。
 //   パーティー ⇄ 馬車の 乗りかえでは HP・MPは そのまま。酒場に もどると わすれる（つぎは 元気いっぱい）
@@ -199,6 +222,8 @@ export function tavernInfo(world, s) {
   return wagonTavernInfo(c, {
     roster, recruits, family, slots: COMPANION_SLOTS, used: c.partyKeys.length,
     isLeader: !p || p.leader === s.id, rosterMax: ROSTER_MAX, humans: p?.members.length || 1,
+    // あずかり中の 魔物（配合の 親に なれる。第43回 C）
+    stored: ensureStorage(c).storage.map((e) => ({ ...companionInfo(e, activeKeys, []), stored: true })), storageMax: STORAGE_MAX,
   });
 }
 
@@ -460,7 +485,8 @@ export function befriendLevel() {
 
 function monsterName(c, species) {
   const f = MONSTER_FRIENDS[species];
-  const used = new Set(c.companions.map((e) => e.char.name));
+  // あずかり中の 魔物の 名前とも かさならない ように（第43回 C）
+  const used = new Set([...c.companions, ...(c.storage || [])].map((e) => e.char.name));
   for (const n of f?.names || []) if (!used.has(n)) return n;
   const base = MONSTERS[species]?.name || '魔物';
   for (let i = 2; i < 99; i++) if (!used.has(`${base}${i}`.slice(0, 8))) return `${base}${i}`.slice(0, 8);

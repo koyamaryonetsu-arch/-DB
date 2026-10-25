@@ -17,7 +17,7 @@ import { startFieldBattle, battleTick, abortBattle, battleCommand, battleLeave, 
 import { runScript, runSteps } from './scripts.js';
 import { serviceAction, menuAction } from './services.js';
 import { newParty, partyOf, partyState, syncParty, ensureCompanions, companionWait, PARTY_MAX, befriendLevel, rosterFull, nameOfKey, dropMissingFam } from './party.js';
-import { rosterIsFull, befriendFarewellSteps } from './farewell.js';
+import { rosterIsFull, befriendFullSteps } from './farewell.js';
 import { hasWagon, dropGoneFamily } from '../data/wagon.js';
 import { takeTavernNews } from './recruit-share.js';
 import { MONSTERS } from '../data/monsters.js';
@@ -500,8 +500,8 @@ export class GameWorld {
     s.befriendOffer = { id, species, level, share: Array.isArray(share) ? share : [] };
     const p = partyOf(this, s);
     let yes;
-    // 仲間が いっぱい（ROSTER_MAX）: だれと さよならするか えらぶ（world/farewell.js。第35回）
-    if (rosterIsFull(c)) yes = befriendFarewellSteps(c, id, m.name);
+    // 仲間が いっぱい（ROSTER_MAX）: 配合して あける・あずかり所へ 送る・さよなら・やめる（world/farewell.js。第35回・第43回 C）
+    if (rosterIsFull(c)) yes = befriendFullSteps(c, id, m.name);
     else if (!rosterFull(c)) {
       yes = [['befriend', id, null]];
     } else {
