@@ -170,3 +170,72 @@
 - 出す 所の 案：ルミナの 町の 近くに「土管」（ミドリナ地方の かくれた 所）→ 土管の 中の 小さな ステージ（より道）。第7章の 千年前の 緑の王国にも 合う
 - 敵を 作る 量：マリオの 敵は 形が かんたんで、色ちがいが もともと 多い（赤・緑の ノコノコ など）ので、1しゅ かけば 色ちがいで 2〜3しゅに ふやせる
 - 音：ジャンプ・こうら・コインの 音は 短い こうか音を 足す（BGM は 今の 曲で）
+
+## 実装メモ（ポケモン P1）（第44回。2026年10月25日）
+
+7-1 の 1回目（ポケモン 19しゅ・レベルで 進化・石で 進化・かわらずのいし・ミュウ）を 作った。絵（client の 魔物の 絵）と 技の えんしゅつ（`pk_〜`）は 絵の 係（P2）が 名前の 約束で 作る（ここでは かいていない）。
+
+### 名前の 約束（P2 と 同じ）
+
+- しゅぞくID・系統: `pikachu`・`raichu`（けもの）／`charmander`・`charmeleon`・`charizard`（ドラゴン）／`squirtle`・`wartortle`・`blastoise`（物質）／`bulbasaur`・`ivysaur`・`venusaur`（植物）／`eevee`・`flareon`・`vaporeon`・`jolteon`・`umbreon`・`snorlax`（けもの）／`gengar`（ゾンビ）／`mew`（せいれい・SS）
+- えんしゅつ: `pk_spark`（でんきショック・でんじは）・`pk_thunder`（10まんボルト・かみなり）・`pk_quick`（でんこうせっか・ミサイルばり）・`pk_ember`・`pk_flame`（かえんほうしゃ・だいもんじ）・`pk_water`・`pk_hydro`（ハイドロポンプ・なみのり）・`pk_leaf`（はっぱカッター・つるのムチ）・`pk_solar`・`pk_shadow`（シャドーボール・あくのはどう）・`pk_psychic`・`pk_bodyslam`（のしかかり・ギガインパクト）。ほかの 技は 今 ある えんしゅつ（`holy`・`sleep`・`dance`・`heal1`）
+
+### ファイル
+
+- `data/monsters-pokemon.js`（MONSTERS。敵としても 出せる 数字・技・説明。`breedOnly`）・`data/companions-pokemon.js`（MONSTER_FRIENDS・レシピ・ミュウの 素材配合）・`data/abilities-pokemon.js`（技 28。`pk_`）・`data/items-pokemon.js`（石 4つ・かわらずのいし・ふしぎないでんし）・`world/evolve.js`（進化の しょり）
+- ランク（手で きめた `rank`）: ピカチュウ C・ライチュウ B／ヒトカゲ・ゼニガメ・フシギダネ D・まん中 B・さいご A／イーブイ C・石の 4つ B／カビゴン B・ゲンガー B／ミュウ SS。みんな `recipeOnly`（系統配合では 生まれない）・`rate: 0`（やせいに いない。`monster-ranks.js` の 表には 入らない。`gen-monster-ranks.mjs` で 作りなおしても 表は かわらない）
+- 強さ（Lv60・＋10・装備なし の powerScore）: 進化の 前 980〜1055・まん中 1090〜1160・さいご（A）1225〜1260（今の A の いちばん 上 1235 くらい）・カビゴン 1144（HP の のび 2.0）・ゲンガー 1114（魔力 1.55）・ミュウ 1382（どれも 1.23。SS の まん中 1286 より 少し 上・ボス級の はば 8.7 いか）
+
+### 生まれかた（`BREED_RECIPES` の `RECIPES_R23` の 前。R35 の 7つは さいごの まま）
+
+| 子 | 組み合わせ |
+|---|---|
+| ピカチュウ | けもの系 ＋ かみなりの魔物（雷こぞう・かみなりぐも・空とびエイ・いかずちタイガー・雷雲ワイバーン・いかずちドラゴン・ピカチュウの 系統・サンダース） |
+| ヒトカゲ | ドラゴン系 ＋ ほのおの魔物（火こぞう・ひのこネズミ・ファイアハウンド・ひばなドリ・マグマトカゲ・ランプの精・ちびドラゴン など 19） |
+| ゼニガメ | 物質系 ＋ 水の魔物（マリンぷるりん・海へび・サンゴゴーレム・うずまきガイ・よろいガニ・ペンギン騎士 など 17） |
+| フシギダネ | 植物系（Dランク以上）＋ 植物系（Dランク以上）（「強い 親から」。ちびトレントと ならぶ） |
+| イーブイ | けもの系 ＋ スライム系（Dランク以上。はぐれウルフ ＋ ぷるりん では 生まれない） |
+| カビゴン | けもの系 ＋ キングぷるりん |
+| ゲンガー | ゾンビ系（Dランク以上）＋ 悪魔系（Dランク以上）（がいこつ剣士 ＋ ゴブリン は 今までどおり 悪魔の騎士） |
+| ミュウ | 素材配合: リザードン・フシギバナ・カメックス・ライチュウの どれか 2ひき（同じ しゅぞくでも よい）＋ ふしぎないでんし |
+
+- `specMatch` に `{ any: [しゅぞくID…], label }` を 足した（どれか 1つ。ヒントは label）。前から ある レシピは かわらない
+- ヒントの `minRank` は「（Dランク以上）」と 出す（前の レシピには minRank が ない ので 前の ヒントは かわらない）
+- ふしぎないでんしは 大事な物（`type: 'key'`）。`hasItem`（companions.js）は `c.keyItems` も 見る。`breedMonsters` は 大事な物なら `keyItems` から 消す
+- ひみつのダンジョン 地下50階（星空のはての階の はじめ）の 休み所の「初めて 着いた ごほうび」に 1つ（`sdBigReward(50)`・`SD_MEW_FLOOR`。1人 1回）
+
+### レベルで 進化
+
+- `MONSTER_FRIENDS[sp].evolve = { lv, to }`。`stats.js` の `gainExp` で レベルが 上がった とき `levelEvolveTo(char)`（companions.js）が あれば `char.evolveTo` を つける（かわらずのいしを 装備していると つけない）
+- たずねる 時: `s.evoCheck`（戦いの おわり〈battles.js〉・台本の おわり〈scripts.js の finish〉・ログイン〈world.js の 入る 所〉で つける）→ `world.js` の tick で、ひま（busy でない・けっかを 読みおわった）な ときに `checkEvolve`（scripts.js）→ `evolveAskSteps`（showMon・「…おや？〇〇のようすが…！」・「〇〇をどうする？」みまもる／とめる）。台本は もちぬし だけ（`runSteps` の 1人）。家族の ほかの 人には 進化した 時の お知らせ（toast）だけ。仲間に なりたがる 魔物の 台本が 先なら、その あとで たずねる
+- 台本の 命令 `['evolve', key, to]`（みまもる。光る〈`flash`〉→ 新しい すがたの `showMon` →「おめでとう！\n〇〇は△△に進化した！」）・`['evolveStop', key]`（とめる。`evolveTo` を 消す → 次の レベルアップで また たずねる）
+- `evolveEntry`（world/evolve.js）: しゅぞく（`e.species` と `char.species`）だけ かえる。レベル・＋・bonus・inherit・seeds・catchUp・lineage・parents・ranked は そのまま。名前は もとの しゅぞくの 名前（例: ヒトカゲ）なら 新しい 名前、はじめの 名前の 一覧（names）の n ばんめなら 新しい しゅぞくの n ばんめ、自分で つけた 名前は そのまま。装備できない 物は ふくろへ。HP・MP 満タン。図鑑 `friend`・`evolved` を ふやす。まだ 次の 進化の レベル（Lv55 の ヒトカゲ など）なら つづけて たずねる
+- 用意の あとで かわらずのいしを 装備した ときは `pendingEvolve` が 用意を 消す
+- 画面: 白い 光は 今 ある 台本の `flash`（client は かえていない。P2 が もっと よい えんしゅつを 足しても よい）
+
+### 石で 進化・かわらずのいし
+
+- 石（`type: 'use'`・`field: true`・`effect.type: 'evoStone'`）は メニューの「道具」→「使う」→ だれに（パーティー・馬車の 仲間）。`world/services.js` の `useItem` で `useEvoStone`（world/evolve.js）。自分の 仲間の イーブイ だけ（ほかの 魔物・人・家族の 仲間には 効かない。石は へらない）。すぐ 進化して 石は なくなる（メニューの まどに「〇〇は△△に進化した！」）
+- かわらずのいし: アクセサリー（ランク2）・`monsterOnly`（`stats.js` の `canEquip` で 人は 装備できない）
+- 手に入る 所: カジノの 景品（`c2_clear` の あと。石 1500〜2000枚・かわらずのいし 800枚）・メダル王 45まい（石 4つ ＋ かわらずのいし）・宝の地図の 宝箱（地図 Lv3 から、種の かわりに 15% で 石。かわらずのいしは 装備なので 宝箱には 入れない〈宝箱の 装備の ランク・レア度の テスト〉）
+
+### 図鑑
+
+- `bestiaryOrder`: 配合だけの 魔物の ならびで、進化の 前の すがたの すぐ うしろに 進化した すがた（ヒトカゲ → リザード → リザードン・イーブイ → 4つ）
+- `recipeHint`: 進化した すがたは「ヒトカゲがLv25で進化」「イーブイにみずのいしを使う」。ミュウは `hint`。`evolveNote`（「Lv25で進化する」「〇〇のいし…で進化する」）を 図鑑の 説明に 足した（`client/ui/menu.js` の 2行。見る 前は「進化で会えるらしい…」）
+- 酒場の うわさ（`breedRumors`）には 進化した すがたは 出さない
+
+### 共有の ファイルで さわった 所（ほかの 人の 作業と 合わせる 時）
+
+- `data/companions.js`: import 1行・`Object.assign(MONSTER_FRIENDS, FRIENDS_POKEMON)`・`BREED_RECIPES` に `...RECIPES_POKEMON`・`MATERIAL_RECIPES.push`・`specMatch` の 1行・`hasItem`・`recipeHint` の はじめ と `nm`・`breedRumors` の filter・`bestiaryOrder`・さいごに 進化の 関数（`EVERSTONE`・`evolveTargets`・`EVOLVE_FROM`・`levelEvolveTo`・`stoneEvolveTo`・`evolveHint`・`evolveNote`・`STONE_NAMES`）
+- `data/monsters.js`・`data/abilities.js`・`data/items.js`: import と `Object.assign` 1行ずつ（さいご）
+- `data/casino.js`（PRIZES 5行・MEDAL_REWARDS 1行）・`data/treasure.js`（`TM_STONES` と 種の 行）・`data/secret.js`（`SD_MEW_FLOOR` と `sdBigReward` の 1行）
+- `stats.js`: import 1行・`canEquip` の acc の 行・`gainExp` の さいご（進化の 用意）
+- `world/battles.js`（`m.evoCheck = true` 1行）・`world/scripts.js`（import・`finish` の 1行・`'evolve'`/`'evolveStop'` の case・`checkEvolve`）・`world/world.js`（import・入る 所の 1行・tick の 4行）・`world/services.js`（import・`useItem` の 1行）・`world/breed.js`（import・大事な物の 品の 3行）
+- `client/ui/menu.js`: import 1行・図鑑の 2行
+- `tools/kanji-check.mjs`: `gameFiles()` に 5つ
+- テスト: `test/pokemon-r44.test.js`（新しい。17こ）・`test/monsters-r23.test.js`（魔物の 数 ＋ ポケモン・配合だけの 強さじゅんは 進化した すがたを のぞく）・`test/breed-r35.test.js`（ボス級の 一覧から ミュウを のぞく）
+
+### たしかめ
+
+- シミュレーション（`tools/sim-monster-party.mjs`・12回・オート・第6章の ボス）: リザードン＋フシギバナ（＋15）sand 33%・gear 0%・eater 0%・pend 0%／カメックス＋ライチュウ（＋15）sand 42%・pend 8%／前からの ほしかげオオカミ＋ときの守り手（＋15）sand 33%・pend 0%。強すぎない（今の 魔物と ならぶ くらい）

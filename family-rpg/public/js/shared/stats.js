@@ -7,6 +7,8 @@ import { MONSTER_FRIENDS, monsterNatural, gearOf, monsterLevelCap } from './data
 import { ougiLearn } from './data/abilities-ougi.js';
 // 第43回 A: 魔物の 育ち・ランクの 強さ（data/companions.js の rankIdx）
 import { rankIdx } from './data/companions.js';
+// 第44回（ポケモン P1）: レベルで 進化
+import { levelEvolveTo } from './data/companions.js';
 import { HIRAMEKI, hiraRatio } from './data/hirameki.js';
 import { cleanLook } from './data/looks.js';
 import { SKILL_UPS } from './data/skill-ups.js';
@@ -443,7 +445,8 @@ export function canEquip(jobId, itemId) {
     case 'armor': return job.armor.includes(it.armorType);
     case 'shield': return !!job.shield;
     case 'head': return !it.helm || !!job.helm;
-    case 'acc': return true;
+    // 第44回: かわらずのいし（魔物だけ。monsterOnly）
+    case 'acc': return !it.monsterOnly;
     default: return false;
   }
 }
@@ -615,6 +618,12 @@ export function gainExp(char, exp) {
     ups.push({ level: char.level, gains, learned });
   }
   if (char.catchUp !== undefined && (!(char.catchUp > char.level) || char.level >= monsterLevelCap(char, MONSTERS, MAX_LEVEL))) delete char.catchUp;
+  // 第44回: レベルで 進化する 魔物（data/companions-pokemon.js の evolve）。レベルが 上がったら 進化の 用意（world/evolve.js が たずねる）
+  //   「とめる」と evolveTo を 消す → 次に レベルが 上がった ときに また たずねる。かわらずのいしを 装備していると 用意しない
+  if (ups.length && char.species) {
+    const to = levelEvolveTo(char);
+    if (to) char.evolveTo = to;
+  }
   return ups;
 }
 

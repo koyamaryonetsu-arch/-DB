@@ -150,7 +150,8 @@ test('レベルの 上限: ランク F で 70・ランクごとに +10・＋で 
 
 test('ボス級（SS）: このゲームの ボス 7体。仲間として 使える 形（え・技・装備・強さは 少し おさえる）。配合でしか 生まれない', () => {
   // 第5章 Step 5 の 影の王・Step 6・7 の 天空のきょ兵（ボスの 仲間では ない 新しい ボス級）は test/ch5-hoshiyomi-battle.test.js・test/ch5-earth-battle.test.js
-  const list = bossClassList(MONSTERS).filter((sp) => sp !== 'ss_shadow_king' && sp !== 'ss_sky_giant');
+  // 第44回 の ミュウ（ポケモン。test/pokemon-r44.test.js）も ボスの 仲間では ない SS
+  const list = bossClassList(MONSTERS).filter((sp) => sp !== 'ss_shadow_king' && sp !== 'ss_sky_giant' && sp !== 'mew');
   assert.deepEqual(list.sort(), Object.keys(BOSS_OF).sort());
   for (const sp of list) {
     const m = MONSTERS[sp], f = MONSTER_FRIENDS[sp], boss = MONSTERS[BOSS_OF[sp]];

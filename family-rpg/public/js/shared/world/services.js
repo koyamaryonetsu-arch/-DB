@@ -36,6 +36,8 @@ import { bestEquipPlan, bestTeamOrder } from '../equip-plan.js';
 import { setLookEquip } from '../look-equip.js';
 import { jobDoneText } from '../data/job-talk.js';
 import { vehicleShopInfo, vehicleShopAction, vehicleMenuAction } from './vehicles.js';
+// 第44回（ポケモン P1）: 進化の 石（world/evolve.js）
+import { useEvoStone } from './evolve.js';
 
 export function openService(world, s, kind, arg) {
   switch (kind) {
@@ -468,6 +470,8 @@ export function menuAction(world, s, msg) {
       if (String(msg.ref || '').startsWith('wagon:') && !wagonHere(s.map)) return reply(false, '馬車は入り口で待っている…');
       const target = refChar(world, s, msg.ref);
       if (!target) return reply(false, '');
+      // 第44回: 進化の 石（イーブイに 使うと 進化。world/evolve.js）
+      if (eff.type === 'evoStone') return useEvoStone(world, s, msg.id, target, reply);
       const r = applyFieldEffect(world, c, target, eff);
       if (!r.ok) return reply(false, r.text);
       removeItem(c, msg.id, 1);

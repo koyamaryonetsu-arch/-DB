@@ -17,6 +17,8 @@ import { MONSTERS } from '../../shared/data/monsters.js';
 import { ougiLearn } from '../../shared/data/abilities-ougi.js';
 import { monsterDrops } from '../../shared/data/loot.js';
 import { MONSTER_FRIENDS, RACE_NAMES, recipeHint, joinTier, bestiaryOrder } from '../../shared/data/companions.js';
+// 第44回（ポケモン P1）: 進化の ヒント
+import { EVOLVE_FROM, evolveNote } from '../../shared/data/companions.js';
 import { TACTICS } from '../../shared/ai.js';
 import { PLACES } from '../../shared/maps/overworld.js';
 import { SEA_PLACES } from '../../shared/maps/ch2.js';
@@ -1533,7 +1535,7 @@ export class FieldMenu {
       detail.append(cv);
       if (!s.seen) {
         detail.append(el('div', { class: 'gold', text: '？？？' }));
-        if (M.breedOnly) detail.append(el('div', { class: 'small', text: `配合で生まれるらしい…\nヒント: ${recipeHint(sp, MONSTERS)}` }));
+        if (M.breedOnly) detail.append(el('div', { class: 'small', text: `${EVOLVE_FROM[sp] ? '進化で会えるらしい…' : '配合で生まれるらしい…'}\nヒント: ${recipeHint(sp, MONSTERS)}${evolveNote(sp) ? `\n（${evolveNote(sp)}）` : ''}` }));
         else detail.append(el('div', { class: 'small muted', text: M.boss ? 'どこかにいる大きな魔物…' : 'まだ出会っていない' }));
         return;
       }
@@ -1542,7 +1544,7 @@ export class FieldMenu {
       // 仲間に なりやすさ（4段階。companions.js の JOIN_TIERS）。スマホでも 見えるように 名前の すぐ 下に 1行で
       const tier = M.boss ? null : joinTier(sp);
       const join = el('div', { class: 'small zukan-join' });
-      if (M.breedOnly) join.append(el('span', { text: `配合で生まれる（${hint}）` }));
+      if (M.breedOnly) join.append(el('span', { text: `${EVOLVE_FROM[sp] ? '進化で生まれる' : '配合で生まれる'}（${hint}）${evolveNote(sp) ? `・${evolveNote(sp)}` : ''}` }));
       else if (tier) {
         join.append(
           el('span', { class: 'muted', text: '仲間になりやすさ' }),

@@ -15,6 +15,8 @@ import { tickFieldChests, fieldChestSnap, fieldChestNear, openFieldChest } from 
 import { chestVanishes } from '../data/fieldchests.js';
 import { startFieldBattle, battleTick, abortBattle, battleCommand, battleLeave, joinBattle, mineOf, resultDone } from './battles.js';
 import { runScript, runSteps } from './scripts.js';
+// 第44回（ポケモン P1）: 進化を まっている 仲間（world/evolve.js）
+import { checkEvolve } from './scripts.js';
 import { serviceAction, menuAction } from './services.js';
 import { newParty, partyOf, partyState, syncParty, ensureCompanions, companionWait, PARTY_MAX, befriendLevel, rosterFull, nameOfKey, dropMissingFam } from './party.js';
 import { rosterIsFull, befriendFullSteps } from './farewell.js';
@@ -464,6 +466,8 @@ export class GameWorld {
     s.inWorld = true;
     s.busy = null;
     s.level = c.level;
+    // 第44回: 前に 進化を まっていた 仲間が いれば、フィールドに 出た あとで たずねる
+    s.evoCheck = true;
     // 大鳥に のったまま 終わった ときは 空から つづける
     setFlying(s, canFlyMap(pos.map) && (home ? !!home.fly : pos === c.pos && !!c.riding));
     const p = newParty(this, s.id);
@@ -1041,6 +1045,11 @@ export class GameWorld {
     for (const s of this.sessions.values()) {
       if (!s.inWorld) continue;
       if (s.invuln > 0) s.invuln -= dt;
+      // 第44回: 戦いの けっかを 読みおわった・台本が おわった あと（ひまな とき）に、進化を まっている 仲間を たずねる（world/evolve.js）
+      if (s.evoCheck && !s.busy && !s.away && !(s.reading && s.invuln > 0)) {
+        s.evoCheck = false;
+        checkEvolve(this, s);
+      }
       // 夜か（パーティーの 時計。夜の まものが 見える）
       s.night = isNightFor(this, s);
       // さそわれて 来ていた 人が ひとりに なった → 自分の 冒険の 場所へ

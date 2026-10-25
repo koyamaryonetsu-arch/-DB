@@ -9,6 +9,8 @@ import { ougiLearn } from '../data/abilities-ougi.js';
 import { computeStats, learnedAbilities, newMonsterCompanion, addItem, removeItem, itemCount } from '../stats.js';
 // 第43回 A: 配合の あとの 追いつき
 import { catchUpLevel } from '../stats.js';
+// 第44回: 大事な物を 使う 素材配合（ミュウ）
+import { hasKeyItem } from '../stats.js';
 import { inheritBonus, breedForecast, makeLineage } from '../breed-calc.js';
 import { ensureCompanions, companionOf, putInParty, afterRosterChange } from './party.js';
 // 第43回 C: あずかり中の 魔物も 親に なれる（world/party.js の breedEntry・world/storage.js）
@@ -101,7 +103,9 @@ export function breedMonsters(world, s, { a, b, child, inherit, name } = {}) {
   const pv = breedPreview(c, a, b, child || null);
   if (!pv.ok) return pv;
   // 素材配合: ボスの 品が ふくろに ある か（配合すると なくなる）
-  if (pv.item && itemCount(c, pv.item) < 1) return { ok: false, reason: `${pv.itemName}がふくろにない` };
+  // 第44回: ふしぎないでんし（ミュウ）は 大事な物（c.keyItems）
+  const keyItem = !!pv.item && ITEMS[pv.item]?.type === 'key';
+  if (pv.item && (keyItem ? !hasKeyItem(c, pv.item) : itemCount(c, pv.item) < 1)) return { ok: false, reason: `${pv.itemName}がふくろにない` };
   const A = breedEntry(c, a), B = breedEntry(c, b);
   // あずかり中の 親から 生まれた 子は あずかり所に 入る（仲間の 親の ぶん 1つ あく。第43回 C）
   const fromStore = !!(storedOf(c, a) || storedOf(c, b));
@@ -113,7 +117,8 @@ export function breedMonsters(world, s, { a, b, child, inherit, name } = {}) {
   // 受けつぐ 能力と 血統は 親が いる うちに
   const bonus = inheritBonus(parentOf(A), parentOf(B));
   const lineage = makeLineage(parentOf(A), parentOf(B));
-  if (pv.item) removeItem(c, pv.item, 1);
+  if (keyItem) c.keyItems = c.keyItems.filter((k) => k !== pv.item);
+  else if (pv.item) removeItem(c, pv.item, 1);
   // おやは たびだっていく（そうびは ふくろへ）
   for (const p of [A, B]) for (const slot of SLOTS) if (p.char.equip?.[slot]) addItem(c, p.char.equip[slot], 1);
   c.companions = c.companions.filter((e) => e !== A && e !== B);

@@ -231,6 +231,8 @@ const CONSUMABLES = [
   ['return_wing', 2, 1, 99], ['revive_flower', 1, 1, 99], ['smoke_ball', 1, 1, 99],
 ];
 const SEEDS = ['seed_str', 'seed_def', 'seed_agi', 'seed_mag', 'seed_hp'];
+// （かわらずのいしは 装備なので 宝箱には 入れない。カジノ・メダル王）
+const TM_STONES = ['fire_stone', 'water_stone', 'thunder_stone', 'moon_stone'];
 
 // rng … 宝箱ごとに きまった 乱数（洞窟の seed から）/ kind: 'normal' | 'bossA' | 'bossB'
 // cave … { theme, word }（caveInfo。宝箱の レア装備を 地図の 名前に ちなませる）
@@ -258,7 +260,8 @@ export function chestLoot(rng, lv, kind = 'normal', cave = null) {
   const rareP = 0.06 + lv * 0.006;
   if (r < rareP) return rare();
   if (r < rareP + 0.15) return equip();
-  if (r < rareP + 0.28) return { item: rng.pick(SEEDS) };
+  // 第44回（ポケモン P1）: 種の かわりに、ときどき 進化の 石（地図 Lv3 から。data/items-pokemon.js）
+  if (r < rareP + 0.28) return lv >= 3 && rng.chance(0.15) ? { item: rng.pick(TM_STONES) } : { item: rng.pick(SEEDS) };
   if (r < rareP + 0.57) return { gold: Math.round((50 + lv * 40) * rng.float(0.7, 1.4) * REWARD_GOLD_RATE / 10) * 10 };
   const list = CONSUMABLES.filter(([, , a, b]) => lv >= a && lv <= b).map(([id, w]) => ({ id, w }));
   const id = rng.weighted(list).id;

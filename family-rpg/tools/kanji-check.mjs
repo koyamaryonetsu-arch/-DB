@@ -191,6 +191,9 @@ export function gameFiles() {
     'public/js/shared/data/vehicles.js', 'public/js/shared/world/vehicles.js', 'public/js/client/ui/vehicles.js', 'public/js/client/render/vehicle-art.js',
     // 魔物あずかり所（第43回 C）
     'public/js/shared/world/storage.js', 'public/js/client/ui/storage.js',
+    // ポケモンの 魔物・進化（第44回 ポケモン P1）
+    'public/js/shared/data/monsters-pokemon.js', 'public/js/shared/data/companions-pokemon.js', 'public/js/shared/data/abilities-pokemon.js',
+    'public/js/shared/data/items-pokemon.js', 'public/js/shared/world/evolve.js',
     // みちびきの糸（洞窟から 入り口へ）
     'public/js/shared/data/escape.js', 'public/js/shared/world/escape.js',
     // カジノ・小さなメダル・メダル王

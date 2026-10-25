@@ -540,6 +540,8 @@ function finishBattle(world, ctx) {
   for (const m of sessions) {
     m.busy = ctx.resolve ? 'script' : null;
     m.battleId = null;
+    // 第44回: レベルが 上がって 進化を まっている 仲間は、けっかを 読みおわった あとで たずねる（world.js の tick・world/evolve.js）
+    m.evoCheck = true;
     const r = perSession[m.id] || { lines: [] };
     // けっかの まどを 読んでいる あいだは むてき（読みおわると AFTER_RESULT_MS だけ のこる）
     m.reading = r.lines.length > 0;
