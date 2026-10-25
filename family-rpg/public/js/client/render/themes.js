@@ -12,6 +12,8 @@ import { EARTH_KEEP_COLOR, EARTH_THEMES } from './tiles-earth.js';
 import { CASTLE_KEEP_COLOR, CASTLE_THEMES, THEME_PARTS } from './tiles-castle.js';
 import { TOP_KEEP_COLOR, TOP_THEMES } from './tiles-top.js';
 import { CH6_KEEP_COLOR, CH6_THEMES } from './tiles-ch6.js';
+// 第6章 Step 5: 時計塔の レバー・ドッスン・かねの たてた ものは もとの 色の まま（render/tiles-tokei.js）
+import { TK_PROPS_KEEP } from './tiles-tokei.js';
 
 // どの 部分か（ゆか・かべ・水）
 const PART_OF_TILE = {
@@ -62,7 +64,7 @@ for (const id of CH6_KEEP_COLOR) PART_OF_TILE[id] = 'none';
 export const partOfTile = (id, mask = 0, theme = null) => (theme && THEME_PARTS[theme]?.[id]) || ((mask & CANAL_CTX && CANAL_CTX_TILES.has(id)) || (id === T.SIGN && mask & 4) ? 'none' : PART_OF_TILE[id] || 'floor');
 export const partOfExtra = (name) => PART_OF_EXTRA[name] || 'floor';
 // 2.5D の たてた もの（レバー など）。地下水路では 2D と おなじ ように レバーの 色を かえない
-export const partOfProp = (id, theme) => (theme === 'canal' ? partOfTile(id) : 'floor');
+export const partOfProp = (id, theme) => (theme === 'canal' || TK_PROPS_KEEP.has(id) ? partOfTile(id) : 'floor');
 
 const hex = (h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
 const G = (...stops) => stops.map(([p, h]) => [p, hex(h)]);

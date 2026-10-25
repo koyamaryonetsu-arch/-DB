@@ -203,7 +203,7 @@ async function family(seed, upto = 'c6_flow', extraFlags = []) {
 // ───────────── 名前の 約束 ─────────────
 test('名前の 約束（plan-ch6.md の 12-1）: 物語の すすみ・マップの ID・出現表・きまった 戦い・曲・宝箱・ゲスト・大事な物・タイル', async () => {
   const fi = CH6_STEPS.indexOf('c6_flow');
-  assert.deepEqual(CH6_STEPS.slice(fi + 1), HM_STEP_FLAGS);
+  assert.deepEqual(CH6_STEPS.slice(fi + 1, fi + 7), HM_STEP_FLAGS);
   assert.deepEqual(CH6B_STEPS, HM_STEP_FLAGS);
   assert.deepEqual(STORY_STEPS.slice(STORY_STEPS.indexOf('c6_flow') + 1, STORY_STEPS.indexOf('c6_flow') + 7), HM_STEP_FLAGS, 'c6_flow の うしろ');
   const want = [...Array.from({ length: 8 }, (_, i) => `hoshimichi_${i + 1}f`), ...Array.from({ length: 8 }, (_, i) => `hoshimichi_${i + 1}f_past`)];
@@ -272,7 +272,9 @@ test('名前の 約束（plan-ch6.md の 12-1）: 物語の すすみ・マッ�
 // ───────────── 目標 ─────────────
 test('目標: c6_flow の あとの 目標・フラグごとの 目標・前の 版の「続きはアップデート」は なおる・仲間会話・地図の しるし', () => {
   assert.equal(OLD_C6_OBJ.flow, '第6章の続きはアップデートで！');
-  assert.equal(C6B_OBJ.kanata, '第6章の続きはアップデートで！', 'さいごは また「続きはアップデート」');
+  // Step 4 の さいごの「続きはアップデート」は Step 5 で OLD_C6_OBJ.kanata に（今の c6_kanata の 目標は ばあちゃんへ。test/ch6-step5.test.js）
+  assert.equal(OLD_C6_OBJ.kanata, '第6章の続きはアップデートで！');
+  assert.notEqual(C6B_OBJ.kanata, OLD_C6_OBJ.kanata);
   assert.equal(C6_OBJ.flow, C6B_OBJ.flow);
   // 前の 版で c6_flow まで 遊んだ セーブ（目標の 文は「続きはアップデート」）は、ミナモへの 目標に なおる
   const old = { flags: flagsOf(...UPTO('c6_flow')), objective: OLD_C6_OBJ.flow };
@@ -713,11 +715,11 @@ test('通しで: c6_flow → ミナモ → 星読みの社 → 古道 → 星く
   assert.deepEqual(fought.filter((id) => FIXED_ENCOUNTERS[id]), ['star_eater', 'pendula'], '戦い');
   for (const f of HM_STEP_FLAGS) assert.ok(c.flags[f], f);
   assert.equal(c.objective, C6B_OBJ.kanata);
-  assert.equal(c.objective, '第6章の続きはアップデートで！');
+  assert.ok(c.objective.includes('ホシミばあちゃん'), 'Step 5 へ（ばあちゃん）');
   assert.ok(!c.guests.includes('minamo'), 'ミナモは はなれる（千年前へ 帰る）');
   assert.ok(!c.keyItems.includes(STAR_ITEM), '星読みも ミナモと いっしょに');
   for (const w of ['星と星をつなぐ線が、ぐにゃりと', 'ミナモが仲間に加わった', '星めぐりの古道', '星の道しるべを、食べている', 'ふりこの魔女ペンデュラ',
-    'ひとつの紋章が、ひとりぼっちの星になる', '千年前の、星読みのむすめです', 'ミナモは、光の砂につつまれて', '第6章の続きはアップデートで！']) {
+    'ひとつの紋章が、ひとりぼっちの星になる', '千年前の、星読みのむすめです', 'ミナモは、光の砂につつまれて', '止まった時計塔']) {
     assert.ok(said(bot, w, from), w);
   }
   for (const id of ['zenmai', 'boss6', 'hoshimichi', 'past_village']) assert.ok(said(bot, `"${id}"`, from), `曲 ${id}`);
@@ -725,7 +727,7 @@ test('通しで: c6_flow → ミナモ → 星読みの社 → 古道 → 星く
   // クリアの あと: ミナモは 千年前の 家に もどる・ばあちゃん
   const has = (f) => !!c.flags[f];
   assert.ok(!condOk(MAPS[PAST_ID].npcById.minamo_home.show, has) && condOk(MAPS[PAST_ID].npcById.minamo_back.show, has));
-  assert.ok(JSON.stringify(SCRIPTS.elder(ctx(c.flags))).includes('ひとりぼっちの星'));
+  assert.ok(JSON.stringify(SCRIPTS.elder(ctx(c.flags))).includes('ひとりでに鳴った'), 'ばあちゃん（Step 5 の はじまり）');
 });
 
 test('負けた とき: 星くいのよる鳥・ペンデュラに 負けたら すすまない', { timeout: 120000 }, async () => {
