@@ -27,6 +27,9 @@ import { MONSTERS_PHANTOM } from '../public/js/shared/data/monsters-phantom.js';
 import { MONSTERS_PAST } from '../public/js/shared/data/monsters-past.js';
 import { MONSTERS_ROAD } from '../public/js/shared/data/monsters-road.js';
 import { MONSTERS_BOSS } from '../public/js/shared/data/monsters-boss.js';
+// 第44回（ポケモン P1）: ポケモンの 魔物（test/pokemon-r44.test.js）
+import { MONSTERS_POKEMON } from '../public/js/shared/data/monsters-pokemon.js';
+import { EVOLVE_FROM } from '../public/js/shared/data/companions.js';
 import { MONSTER_ART } from '../public/js/client/render/monsters.js';
 import { addR23Art } from '../public/js/client/render/r23-art.js';
 import { computeStats, newMonsterCompanion, gainExp, expForLevel, learnedAbilities, monsterSlots } from '../public/js/shared/stats.js';
@@ -47,7 +50,7 @@ test('あたらしい 仲間モンスター: 27しゅ（やせい 11・配合だ
   assert.equal(NEW.length, 27);
   assert.equal(WILD.length, 11);
   assert.equal(BREED_ONLY.length, 16);
-  assert.equal(Object.keys(MONSTERS).length, 136 + Object.keys(MONSTERS_TEMPLE).length + Object.keys(MONSTERS_LAB).length + Object.keys(MONSTERS_CH5).length + Object.keys(MONSTERS_KUMOI).length + Object.keys(MONSTERS_HOSHIYOMI).length + Object.keys(MONSTERS_EARTH).length + Object.keys(MONSTERS_FINAL).length + Object.keys(MONSTERS_PHANTOM).length + Object.keys(MONSTERS_PAST).length + Object.keys(MONSTERS_ROAD).length + Object.keys(MONSTERS_BOSS).length);
+  assert.equal(Object.keys(MONSTERS).length, 136 + Object.keys(MONSTERS_TEMPLE).length + Object.keys(MONSTERS_LAB).length + Object.keys(MONSTERS_CH5).length + Object.keys(MONSTERS_KUMOI).length + Object.keys(MONSTERS_HOSHIYOMI).length + Object.keys(MONSTERS_EARTH).length + Object.keys(MONSTERS_FINAL).length + Object.keys(MONSTERS_PHANTOM).length + Object.keys(MONSTERS_PAST).length + Object.keys(MONSTERS_ROAD).length + Object.keys(MONSTERS_BOSS).length + Object.keys(MONSTERS_POKEMON).length);
   for (const sp of NEW) {
     assert.equal(MONSTERS[sp], MONSTERS_R23[sp], `${sp}: monsters.js に まざる`);
     assert.equal(MONSTER_FRIENDS[sp], FRIENDS_R23[sp], `${sp}: companions.js に まざる`);
@@ -428,7 +431,8 @@ test('図鑑: あたらしい 魔物も のる（ふつうの 魔物は 強さ�
   const firstBoss = order.findIndex((sp) => MONSTERS[sp].boss);
   assert.ok(order.slice(0, firstBreed).every((sp) => !MONSTERS[sp].breedOnly && !MONSTERS[sp].boss));
   assert.ok(order.slice(firstBreed, firstBoss).every((sp) => MONSTERS[sp].breedOnly));
-  const blv = order.slice(firstBreed, firstBoss).map((sp) => MONSTERS[sp].lv);
+  // 第44回: 進化した すがた（ポケモン）は 進化の 前の すがたの うしろ（test/pokemon-r44.test.js）なので のぞいて くらべる
+  const blv = order.slice(firstBreed, firstBoss).filter((sp) => !EVOLVE_FROM[sp]).map((sp) => MONSTERS[sp].lv);
   assert.deepEqual(blv, [...blv].sort((x, y) => x - y), '配合だけの 魔物も 強さじゅん');
   assert.equal(order[0], 'pururin');
   // 酒場の うわさ: まだ 見たことがない 配合だけの 魔物の ヒント（弱い じゅん）

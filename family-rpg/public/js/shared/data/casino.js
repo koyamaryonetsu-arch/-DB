@@ -245,6 +245,12 @@ export const PRIZES = [
   { id: 'milkyway_whip', coins: 9000, need: 'c5_argos' },
   { id: 'shooting_boomerang', coins: 10000, need: 'c5_argos' },
   { id: 'little_prince_cape', coins: 12000, need: 'c5_argos' },
+  // 第44回（ポケモン P1）: 進化の 石・かわらずのいし（data/items-pokemon.js。第2章クリアの あと）
+  { id: 'fire_stone', coins: 1500, need: 'c2_clear' },
+  { id: 'water_stone', coins: 1500, need: 'c2_clear' },
+  { id: 'thunder_stone', coins: 1500, need: 'c2_clear' },
+  { id: 'moon_stone', coins: 2000, need: 'c2_clear' },
+  { id: 'everstone', coins: 800, need: 'c2_clear' },
   // 第37回 B: 宝の地図の クリア数の 段（tier。data/casino-tier.js）で ふえる 景品。上の 段ほど めずらしい 種・★4〜★5
   { id: 'seed_mp', coins: 400, tier: 1 },
   { id: 'seed_heal', coins: 400, tier: 1 },
@@ -279,6 +285,8 @@ export const MEDAL_REWARDS = [
   { at: 30, items: [['kira_sword', 1]] },
   { at: 35, items: [['koufuku_kutsu', 1]] }, // 第31回: 歩くとMPが回復するくつ（data/items-r31.js）
   { at: 40, items: [['kira_shield', 1]] },
+  // 第44回（ポケモン P1）: 進化の 石 4つ・かわらずのいし（data/items-pokemon.js）
+  { at: 45, items: [['fire_stone', 1], ['water_stone', 1], ['thunder_stone', 1], ['moon_stone', 1], ['everstone', 1]] },
   { at: 50, items: [['medal_crown', 1]] },
 ];
 

@@ -266,6 +266,8 @@ function equipPools() {
 export const sdEquipRank = (f) => clamp(1 + Math.ceil(f / 10), 2, 7);
 export const sdStarRank = (f) => clamp(3 + Math.floor(f / 20), 4, 7);
 
+// 第44回: ふしぎないでんし（ミュウ）が ある 階（星空のはての階の はじめ）
+export const SD_MEW_FLOOR = 50;
 // 初めて 着いた 休み所の 大きな ごほうび（階の 番号だけで きまる。家族みんな おなじ）
 //   [{ gold } | { item, n } | { medal: true }]
 export function sdBigReward(f) {
@@ -287,6 +289,8 @@ export function sdBigReward(f) {
     const id = pickSdGear(r, f);
     if (id) out.push({ item: id, n: 1 });
   }
+  // 第44回（ポケモン P1）: いちばん おくの 星空のはての階（50階）の 休み所に、ふしぎないでんし（大事な物。1人 1回。ミュウの 素材配合）
+  if (f === SD_MEW_FLOOR) out.push({ item: 'mew_gene', n: 1 });
   return out;
 }
 

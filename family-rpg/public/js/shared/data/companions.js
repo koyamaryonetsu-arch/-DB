@@ -25,6 +25,8 @@ import { FRIENDS_ROAD } from './companions-road.js';
 import { FRIENDS_BOSS, MATERIAL_RECIPES, FOUR_RECIPES } from './monsters-boss.js';
 // 第43回 A: やせいの 魔物の ランク（めずらしさ）の 表（tools/gen-monster-ranks.mjs が 作る）
 import { MONSTER_RANKS } from './monster-ranks.js';
+// 第44回（ポケモン P1）: ポケモンの 魔物 19しゅ（配合と 進化。companions-pokemon.js）
+import { FRIENDS_POKEMON, RECIPES_POKEMON, MATERIAL_RECIPES_POKEMON } from './companions-pokemon.js';
 
 export const MONSTER_FRIENDS = {
   pururin: {
@@ -294,6 +296,8 @@ Object.assign(MONSTER_FRIENDS, FRIENDS_PAST);
 Object.assign(MONSTER_FRIENDS, FRIENDS_ROAD);
 // ボス級（ランク SS）の 仲間。配合でしか 生まれない（monsters-boss.js。第35回）
 Object.assign(MONSTER_FRIENDS, FRIENDS_BOSS);
+// 第44回（ポケモン P1）: ポケモンの 魔物。配合と 進化でしか 会えない（companions-pokemon.js）
+Object.assign(MONSTER_FRIENDS, FRIENDS_POKEMON);
 // しゅぞくごとの 装備の うわがき（上の GEAR）
 for (const [sp, g] of Object.entries(GEAR)) if (MONSTER_FRIENDS[sp]) MONSTER_FRIENDS[sp].gear = { ...g, ...(MONSTER_FRIENDS[sp].gear || {}) };
 
@@ -423,10 +427,14 @@ export const BREED_RECIPES = [
   { a: { race: 'undead' }, b: { race: 'demon' }, child: 'demon_knight' },
   { a: { race: 'slime' }, b: { race: 'slime' }, child: 'king_pururin' },
   { a: { race: 'plant' }, b: { race: 'plant' }, child: 'chibi_treant' },
+  // 第44回（ポケモン P1。companions-pokemon.js）。RECIPES_R35 は さいごの 7つの まま（test/breed-r35.test.js）
+  ...RECIPES_POKEMON,
   // あたらしい 仲間モンスター（monsters-r23.js）
   ...RECIPES_R23,
   ...RECIPES_R35,
 ];
+// 第44回: ミュウ（進化した ポケモン 2ひき ＋ ふしぎないでんし）
+MATERIAL_RECIPES.push(...MATERIAL_RECIPES_POKEMON);
 export { MATERIAL_RECIPES, FOUR_RECIPES };
 
 function specMatch(spec, sp, MONSTERS) {
@@ -436,6 +444,8 @@ function specMatch(spec, sp, MONSTERS) {
   if (spec.race && m.race !== spec.race) return false;
   if (spec.flying !== undefined && !!m.flying !== spec.flying) return false;
   if (spec.minRank !== undefined && rankIdx(sp, MONSTERS) < spec.minRank) return false;
+  // 第44回: { any: [しゅぞくID…] } … その どれか（かみなりの魔物・ほのおの魔物 など。companions-pokemon.js）
+  if (Array.isArray(spec.any) && !spec.any.includes(sp)) return false;
   return true;
 }
 
@@ -468,7 +478,9 @@ export const rankUpOk = (a, b, hi) => lvOf(a) + lvOf(b) + Math.floor((plusOf(a) 
 export const RANK_BREED_LV = 30;
 
 // ふくろに その 品が あるか（装備して いる 物は 数えない。c が ない ときは ない もの と する）
-const hasItem = (c, id) => Array.isArray(c?.items) && c.items.some((e) => e && e.id === id && e.n > 0);
+//   第44回: 大事な物（ふしぎないでんし）も 見る（c.keyItems）
+const hasItem = (c, id) => (Array.isArray(c?.items) && c.items.some((e) => e && e.id === id && e.n > 0))
+  || (Array.isArray(c?.keyItems) && c.keyItems.includes(id));
 // その 親が 4体配合の 親に なれるか（両親が みんな sp）
 const fourOk = (x, sp) => x.species === sp && Array.isArray(x.lineage?.p) && x.lineage.p.length === 2 && x.lineage.p.every((p) => p === sp);
 
@@ -554,9 +566,15 @@ export function breedOutcome(a, b, MONSTERS, c = null, pick = null) {
 // ずかんの ヒント（例: 「スライム系 ＋ スライム系」）。系統配合だけで 生まれる 魔物は「植物系 ＋ どの魔物でも（強い親から）」
 // ボス級（SS）は 名前を 出さない（図鑑では ？？？）
 export function recipeHint(child, MONSTERS) {
+  // 第44回: きまった ヒント（ミュウ）・進化で 生まれる すがた（「ヒトカゲがLv25で進化」）
+  if (MONSTER_FRIENDS[child]?.hint) return MONSTER_FRIENDS[child].hint;
+  const evo = evolveHint(child, MONSTERS);
+  if (evo) return evo;
   if (MONSTER_FRIENDS[child]?.rank === 'SS') return 'ボスの品 ＋ Sランク2ひき（配合でしか会えない）';
   const r = BREED_RECIPES.find((x) => x.child === child);
-  const nm = (spec) => (typeof spec === 'string' ? MONSTERS[spec]?.name : spec.flying ? '空を飛ぶ魔物' : RACE_NAMES[spec.race] || '？');
+  // 第44回: label（かみなりの魔物 など）・minRank（「Dランク以上」。前から ある レシピには minRank は ない）
+  const nm = (spec) => (typeof spec === 'string' ? MONSTERS[spec]?.name : spec.label ? spec.label : spec.flying ? '空を飛ぶ魔物'
+    : `${RACE_NAMES[spec.race] || '？'}${spec.minRank !== undefined ? `（${RANKS[spec.minRank]}ランク以上）` : ''}`);
   if (r) return `${nm(r.a)} ＋ ${nm(r.b)}`;
   const f = MONSTER_FRIENDS[child];
   if (f?.breedOnly && !f.recipeOnly && MONSTERS[child]) return `${RACE_NAMES[MONSTERS[child].race]} ＋ どの魔物でも（強い親から）`;
@@ -567,7 +585,7 @@ export function recipeHint(child, MONSTERS) {
 export function breedRumors(c, MONSTERS, n = 3) {
   const know = bestiaryKnow(c);
   return Object.keys(MONSTER_FRIENDS)
-    .filter((sp) => MONSTER_FRIENDS[sp].breedOnly && MONSTERS[sp] && know(sp) === 0)
+    .filter((sp) => MONSTER_FRIENDS[sp].breedOnly && MONSTERS[sp] && know(sp) === 0 && !EVOLVE_FROM[sp])
     .sort((x, y) => MONSTERS[x].lv - MONSTERS[y].lv)
     .slice(0, n)
     .map((sp) => recipeHint(sp, MONSTERS))
@@ -575,9 +593,66 @@ export function breedRumors(c, MONSTERS, n = 3) {
 }
 
 // ずかんの ならび: ふつうの まもの（つよさじゅん）→ はいごう だけの まもの（つよさじゅん）→ ボス（client/ui/menu.js）
+//   第44回: 進化した すがたは 進化の 前の すがたの すぐ うしろ（ヒトカゲ → リザード → リザードン。イーブイ → 石の 4つ）
 export function bestiaryOrder(MONSTERS) {
   const all = Object.keys(MONSTERS);
   const byLv = (a, b) => (MONSTERS[a].lv || 0) - (MONSTERS[b].lv || 0);
   const normal = all.filter((sp) => !MONSTERS[sp].boss && !MONSTERS[sp].breedOnly).sort(byLv);
-  return [...normal, ...all.filter((sp) => MONSTERS[sp].breedOnly).sort(byLv), ...all.filter((sp) => MONSTERS[sp].boss)];
+  const breed = [];
+  const line = (sp) => {
+    if (breed.includes(sp) || !MONSTERS[sp]) return;
+    breed.push(sp);
+    for (const to of evolveTargets(sp)) line(to);
+  };
+  for (const sp of all.filter((x) => MONSTERS[x].breedOnly && !EVOLVE_FROM[x]).sort(byLv)) line(sp);
+  for (const sp of all) if (MONSTERS[sp].breedOnly && !breed.includes(sp)) breed.push(sp);
+  return [...normal, ...breed, ...all.filter((sp) => MONSTERS[sp].boss)];
 }
+
+// ───────────── 進化（第44回 ポケモン P1。docs/plan-breed-new.md の 2 の C・D）─────────────
+// MONSTER_FRIENDS[sp].evolve = { lv, to }（レベルで 進化）・stones = { 品ID: しゅぞくID }（石で 進化）。data/companions-pokemon.js
+// 進化の しょり（みまもる／とめる・石を 使う）は world/evolve.js
+export const EVERSTONE = 'everstone';
+// その しゅぞくが 進化する 先（レベル → 石の じゅん）
+export function evolveTargets(sp) {
+  const f = MONSTER_FRIENDS[sp];
+  if (!f) return [];
+  const out = [];
+  if (f.evolve?.to) out.push(f.evolve.to);
+  for (const to of Object.values(f.stones || {})) if (!out.includes(to)) out.push(to);
+  return out;
+}
+// 進化した すがた → 進化の 前の すがた
+export const EVOLVE_FROM = {};
+for (const sp of Object.keys(MONSTER_FRIENDS)) for (const to of evolveTargets(sp)) EVOLVE_FROM[to] = sp;
+// レベルで 進化する 先（まだ その レベルで ない・かわらずのいしを 装備している ときは null）
+export function levelEvolveTo(ch) {
+  const ev = MONSTER_FRIENDS[ch?.species]?.evolve;
+  if (!ev?.to || !MONSTER_FRIENDS[ev.to] || !((ch.level || 0) >= ev.lv)) return null;
+  if (Object.values(ch.equip || {}).includes(EVERSTONE)) return null;
+  return ev.to;
+}
+// 石で 進化する 先（その 石で 進化しない ときは null）
+export function stoneEvolveTo(sp, itemId) {
+  const to = MONSTER_FRIENDS[sp]?.stones?.[itemId];
+  return to && MONSTER_FRIENDS[to] ? to : null;
+}
+// 図鑑の ヒント: 進化で 生まれる すがた（「ヒトカゲがLv25で進化」「イーブイにほのおのいしを使う」）。進化の すがたで ない ときは ''
+export function evolveHint(sp, MONSTERS) {
+  const from = EVOLVE_FROM[sp];
+  if (!from) return '';
+  const f = MONSTER_FRIENDS[from];
+  const name = MONSTERS[from]?.name || '？';
+  if (f.evolve?.to === sp) return `${name}がLv${f.evolve.lv}で進化`;
+  const stone = Object.keys(f.stones || {}).find((id) => f.stones[id] === sp);
+  return stone ? `${name}に${STONE_NAMES[stone] || stone}を使う` : '';
+}
+// 図鑑の 説明: その しゅぞくの 進化（「Lv25で進化する」「石で進化する」。進化しない ときは ''）
+export function evolveNote(sp) {
+  const f = MONSTER_FRIENDS[sp];
+  if (f?.evolve?.to) return `Lv${f.evolve.lv}で進化する`;
+  if (f?.stones && Object.keys(f.stones).length) return `${Object.keys(f.stones).map((id) => STONE_NAMES[id] || id).join('・')}で進化する`;
+  return '';
+}
+// 進化の 石の 名前（data/items-pokemon.js と おなじ。data どうしの じゅんかんを さける ため ここにも）
+export const STONE_NAMES = { fire_stone: 'ほのおのいし', water_stone: 'みずのいし', thunder_stone: 'かみなりのいし', moon_stone: 'つきのいし' };

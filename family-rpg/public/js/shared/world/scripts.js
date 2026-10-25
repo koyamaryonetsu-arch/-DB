@@ -18,6 +18,8 @@ import { grantWagon, wagonChars, wagonHere } from './wagon.js';
 import { GUESTS } from '../data/shops.js';
 import { unstickAll } from './hazards.js';
 import { MAPS, isBlocked } from '../maps/index.js';
+// 第44回（ポケモン P1）: 魔物の 進化（world/evolve.js）
+import { pendingEvolve, evolveAskSteps, evolveScriptStep } from './evolve.js';
 
 let runSeq = 1;
 
@@ -123,6 +125,8 @@ export class ScriptRun {
 
   finish() {
     this.world.runs.delete(this.id);
+    // 第44回: 台本が おわったら、進化を まっている 仲間が いないか 見る（world.js の tick。checkEvolve）
+    if (!this.aborted) for (const m of this.everyone) m.evoCheck = true;
     // リーダーの ものがたりが すすんだら、なかまの 画面の 世界（人・橋 など）も あわせる
     const p = partyOf(this.world, this.owner);
     if (p && p.members.length > 1) this.world.sendParty(p);
@@ -409,6 +413,11 @@ export class ScriptRun {
           w.sendSelf(s);
           break;
         }
+        case 'evolve': case 'evolveStop': {
+          // 第44回: 魔物の 進化（['evolve', 仲間の key, 進化した すがた] … みまもる / ['evolveStop', key] … とめる。world/evolve.js）
+          for (const st of evolveScriptStep(w, this.init, op, a[0], a[1])) this.batch.push(st);
+          break;
+        }
         case 'befriendFull': case 'breedOpen': {
           // 第43回 C: 仲間が いっぱいの 時（world/farewell.js の befriendFullSteps）
           //   ['befriendFull', id] … えらぶ文に もどる / ['breedOpen', id] … 酒場の 配合の 画面を「あける モード」で 開く
@@ -556,6 +565,15 @@ export function runScript(world, s, scriptId, opts = {}) {
   }
   const run = new ScriptRun(world, init, participants, steps, { scriptId, owner });
   run.start();
+  return true;
+}
+
+// 第44回: 進化を まっている 仲間が いれば「…おや？」の 台本を その 人だけに 出す（world.js の tick から。ひまな ときだけ）
+export function checkEvolve(world, s) {
+  if (!s || !world.sessions.has(s.id) || !s.inWorld || s.busy || s.away) return false;
+  const e = pendingEvolve(s.char);
+  if (!e) return false;
+  runSteps(world, s, evolveAskSteps(e));
   return true;
 }
 
