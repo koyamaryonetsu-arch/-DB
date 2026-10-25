@@ -197,6 +197,8 @@ export function gameFiles() {
     // ドラクエふうの 魔物（第45回 ドラクエふう D1）
     'public/js/shared/data/monsters-dqm.js', 'public/js/shared/data/companions-dqm.js', 'public/js/shared/data/abilities-dqm.js',
     'public/js/shared/data/items-dqm.js',
+    // 水の 属性（第47回）
+    'public/js/shared/data/water.js',
     // みちびきの糸（洞窟から 入り口へ）
     'public/js/shared/data/escape.js', 'public/js/shared/world/escape.js',
     // カジノ・小さなメダル・メダル王

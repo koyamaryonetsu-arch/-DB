@@ -69,7 +69,7 @@ test('あたらしい 仲間モンスター: 27しゅ（やせい 11・配合だ
 });
 
 test('あたらしい 仲間モンスター: データ（強さ・技・属性・説明・仲間の 育ちかた・装備）', () => {
-  const ELEM = ['fire', 'ice', 'wind', 'blast', 'bolt', 'light', 'dark', 'void', 'sleep', 'poison', 'confuse', 'blind', 'silence', 'paralyze', 'debuff'];
+  const ELEM = ['fire', 'ice', 'water', 'wind', 'blast', 'bolt', 'light', 'dark', 'void', 'sleep', 'poison', 'confuse', 'blind', 'silence', 'paralyze', 'debuff'];
   for (const sp of NEW) {
     const m = MONSTERS[sp];
     assert.ok(m.name && m.desc && m.race && m.size && m.lv > 0 && m.hp > 0, sp);

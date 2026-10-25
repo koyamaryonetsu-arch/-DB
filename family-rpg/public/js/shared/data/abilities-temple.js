@@ -10,12 +10,12 @@ export const TEMPLE_ABILITIES = {
   },
   m_water_shot: {
     name: '水のつぶて', kind: 'monster', mp: 4, target: 'enemy',
-    effect: { type: 'magic', base: [64, 78], thr: 99 }, cast: '{a}は、{t}に、かたい水のつぶてをはなった！', anim: 'water_shot',
+    effect: { type: 'magic', element: 'water', base: [64, 78], thr: 99 }, cast: '{a}は、{t}に、かたい水のつぶてをはなった！', anim: 'water_shot',
     desc: 'かたい水のつぶてで、1人にダメージ。',
   },
   m_water_rain: {
     name: 'しずくの雨', kind: 'monster', mp: 6, target: 'enemies',
-    effect: { type: 'magic', base: [36, 44], thr: 99 }, cast: '{a}は、天井から、つめたいしずくの雨をふらせた！', anim: 'water_rain',
+    effect: { type: 'magic', element: 'water', base: [36, 44], thr: 99 }, cast: '{a}は、天井から、つめたいしずくの雨をふらせた！', anim: 'water_rain',
     desc: 'しずくの雨で、敵みんなにダメージ。',
   },
   m_dragon_bite: {
@@ -25,7 +25,7 @@ export const TEMPLE_ABILITIES = {
   },
   m_water_breath: {
     name: '水のブレス', kind: 'monster', mp: 6, target: 'enemies',
-    effect: { type: 'magic', base: [44, 54], thr: 99, breath: true }, cast: '{a}は、うずまく水のブレスをはいた！', anim: 'water_breath',
+    effect: { type: 'magic', element: 'water', base: [44, 54], thr: 99, breath: true }, cast: '{a}は、うずまく水のブレスをはいた！', anim: 'water_breath',
     desc: '水のブレスで、敵みんなにダメージ。',
   },
   m_dragon_tail: {
@@ -63,12 +63,12 @@ export const TEMPLE_ABILITIES = {
   // ── 水のろうの番人 ──
   m_guard_spear: {
     name: '水のほこ', kind: 'monster', mp: 2, target: 'enemy',
-    effect: { type: 'phys', mult: 1.5, acc: 0.95 }, cast: '{a}は、水のほこで、{t}をつきさした！', anim: 'water_shot',
+    effect: { type: 'phys', element: 'water', mult: 1.5, acc: 0.95 }, cast: '{a}は、水のほこで、{t}をつきさした！', anim: 'water_shot',
     desc: '水のほこで、1人を強くつく。',
   },
   m_guard_whirl: {
     name: 'うずまく水', kind: 'monster', mp: 6, target: 'enemies',
-    effect: { type: 'magic', base: [40, 50], thr: 99 }, cast: '{a}は、ほこを回して、水のうずを作り出した！', anim: 'whirlpool',
+    effect: { type: 'magic', element: 'water', base: [40, 50], thr: 99 }, cast: '{a}は、ほこを回して、水のうずを作り出した！', anim: 'whirlpool',
     desc: '水のうずで、敵みんなにダメージ。',
   },
   m_guard_chain: {
@@ -90,13 +90,13 @@ export const TEMPLE_ABILITIES = {
   // ── モルガナ（第1段階）──
   m_morgana_blade: {
     name: '水のやいば', kind: 'monster', mp: 6, target: 'enemy',
-    effect: { type: 'magic', base: [76, 90], thr: 99 }, cast: '{a}は、水のやいばを、{t}にはなった！', anim: 'water_shot',
+    effect: { type: 'magic', element: 'water', base: [76, 90], thr: 99 }, cast: '{a}は、水のやいばを、{t}にはなった！', anim: 'water_shot',
     desc: '水のやいばで、1人に大きなダメージ。',
   },
   // うずしお（グループの 呪文。魔物の グループの 技は みんなに 当たる）
   m_morgana_whirl: {
     name: 'うずしお', kind: 'monster', mp: 10, target: 'group',
-    effect: { type: 'magic', base: [40, 50], thr: 99 }, cast: '{a}は、広間の水をうずまかせた！\nうずしおが、みんなをのみこむ！', anim: 'whirlpool',
+    effect: { type: 'magic', element: 'water', base: [40, 50], thr: 99 }, cast: '{a}は、広間の水をうずまかせた！\nうずしおが、みんなをのみこむ！', anim: 'whirlpool',
     desc: 'うずしおで、敵みんなにダメージ。',
   },
   m_morgana_song: {
@@ -140,7 +140,7 @@ export const TEMPLE_ABILITIES = {
   },
   m_mtrue_breath: {
     name: '水鏡のブレス', kind: 'monster', mp: 8, target: 'enemies',
-    effect: { type: 'magic', base: [60, 72], thr: 99, breath: true }, cast: '{a}は、きらきら光る水のブレスをはいた！', anim: 'water_breath',
+    effect: { type: 'magic', element: 'water', base: [60, 72], thr: 99, breath: true }, cast: '{a}は、きらきら光る水のブレスをはいた！', anim: 'water_breath',
     desc: '光る水のブレスで、敵みんなにダメージ。',
   },
   // 大波: 2だんの 前ぶれ（「水がうずをまいている…」→「うずが大きくなっていく…」）→ つぎの 番に 大波
@@ -156,7 +156,7 @@ export const TEMPLE_ABILITIES = {
   },
   m_big_wave: {
     name: '大波', kind: 'monster', target: 'enemies',
-    effect: { type: 'phys', mult: 2.2, ignoreDef: 0.5 }, cast: '{a}の大波！\n広間いっぱいの水が、みんなにおそいかかる！', anim: 'big_wave',
+    effect: { type: 'phys', element: 'water', mult: 2.2, ignoreDef: 0.5 }, cast: '{a}の大波！\n広間いっぱいの水が、みんなにおそいかかる！', anim: 'big_wave',
     desc: '広間いっぱいの大波で、敵みんなにとても大きなダメージ。防御で半分になる。',
   },
   // 水のろう: 1人を とじこめる（2回の 番 動けない。ろうを こわすと 早く 出られる）

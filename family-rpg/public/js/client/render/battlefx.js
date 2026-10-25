@@ -763,6 +763,7 @@ function drawCanalFloor(x, hor) {
 const COL = {
   fire: ['#ff5a2a', '#ff9a3a', '#ffe07a', '#ffffff'],
   ice: ['#9ae6ff', '#e6fbff', '#5ab8e8', '#ffffff'],
+  water: ['#2f7bff', '#a8d0ff', '#1a5ad8', '#ffffff'],
   wind: ['#d8ffe0', '#9af0b0', '#ffffff', '#6ad89a'],
   blast: ['#ffffff', '#ffd66b', '#ff8a2a', '#ff5a2a'],
   bolt: ['#ffffff', '#fff6b0', '#9ad8ff'],

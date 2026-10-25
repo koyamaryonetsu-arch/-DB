@@ -159,7 +159,7 @@ const GEAR = {
   needle_sword: { ...W('dagger', 3, 2), ...region(1), name: 'ぬいばりの剣', crit: 0.05, desc: '小さな体で大おにをたおした、ぬいばりの剣。会心が出やすい。' },
   // 2: 風の海
   sea_trident: { ...W('spear', 5, 3), ...region(2), name: '海神のほこ', resist: { ice: 0.9 }, desc: '海の神の三つまたのほこ。' },
-  mermaid_shield: { ...S(4, 2), ...region(2), name: '人魚のたて', resist: { ice: 0.85 }, desc: '人魚の住む海でひろったたて。少し氷に強い。' },
+  mermaid_shield: { ...S(4, 2), ...region(2), name: '人魚のたて', resist: { ice: 0.85, water: 0.85 }, desc: '人魚の住む海でひろったたて。少し氷と水に強い。' },
   kappa_claw: { ...W('claw', 4, 2), ...region(2), name: 'カッパの水かきのツメ', bonus: { agi: 4 }, resist: { ice: 0.9 }, desc: '泳ぎの名人カッパの水かきのツメ。素早さが上がる。' },
   // 3: シロガネ地方
   dwarf_pick: { ...W('axe', 5, 2), ...region(3), name: 'ドワーフのつるはし', bonus: { def: 2 }, desc: '山にすむ小人たちの、こわれないつるはし。' },

@@ -69,7 +69,7 @@ const GEAR = {
   // 第4章（店 ランク6 → 7）
   ifrit_sword: { ...W('sword', 7, 4), ...AL, name: 'イフリートの剣', bonus: { str: 6 }, resist: { fire: 0.7 }, onHit: { status: 'sleep', chance: 0.08 }, desc: '炎の魔神の力が宿る剣。炎に強く、ときどき敵をねむらせる。' },
   pharaoh_staff: { ...W('staff', 7, 4), ...AL, name: 'ファラオのつえ', bonus: { heal: 26, mag: 10 }, resist: { dark: 0.75 }, mpRegen: 2, desc: '古代の王のつえ。回復の力がとても上がり、闇に強い。行動するたびにMPが2回復する。' },
-  mermaid_dress: { ...A('robe', 7, 4), ...AL, name: '人魚姫のドレス', bonus: { mag: 12, heal: 10, mp: 15 }, resist: { ice: 0.7 }, desc: '海の歌姫のドレス。魔力と回復の力が上がり、氷に強い。' },
+  mermaid_dress: { ...A('robe', 7, 4), ...AL, name: '人魚姫のドレス', bonus: { mag: 12, heal: 10, mp: 15 }, resist: { ice: 0.7, water: 0.7 }, desc: '海の歌姫のドレス。魔力と回復の力が上がり、氷と水に強い。' },
   // 第5章（店 ランク7 → 8）
   dragon_slayer: { ...W('sword', 8, 4), ...AL, name: 'ドラゴンスレイヤー', bonus: { str: 6, hp: 20 }, resist: { fire: 0.75 }, crit: 0.04, desc: '竜をたおすためにきたえられた剣。炎に強く、会心が出やすい。' },
   senrigan_helm: { ...H(8, 4, true), ...AL, name: '千里眼のかぶと', bonus: { agi: 6, mag: 4 }, resist: { blind: 0.3, confuse: 0.5 }, crit: 0.04, desc: '遠くまで見通す目のかぶと。マヌーサと混乱に強く、会心が出やすい。' },

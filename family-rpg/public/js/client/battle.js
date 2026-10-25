@@ -104,7 +104,7 @@ const SPELL_ANIMS = new Set(['fire1', 'fire2', 'fire3', 'fire_wave', 'fire_torna
 const ELEM_COLORS = {
   fire: ['#ff5a2a', '#ff9a3a', '#ffe07a'], ice: ['#9ae6ff', '#e6fbff', '#5ab8e8'], wind: ['#d8ffe0', '#9af0b0', '#ffffff'],
   blast: ['#ffffff', '#ffd66b', '#ff8a2a'], dark: ['#8a5ac8', '#3a2a5a', '#c8a8f0'], light: ['#ffffff', '#fff6b0', '#ffd66b'],
-  bolt: ['#ffffff', '#fff6b0', '#9ad8ff'],
+  bolt: ['#ffffff', '#fff6b0', '#9ad8ff'], water: ['#2f7bff', '#a8d0ff', '#e8f4ff'],
 };
 
 // みかたの まどに だす えんしゅつの しゅるい
@@ -126,7 +126,7 @@ function allyFxKind(anim, fx, ab) {
   if (/^bolt|gigabreak|dragon_beam/.test(anim) || el === 'bolt') return 'bolt';
   if (anim === 'dark_slash') return 'dark';
   if (/^fire|blast|meteor|summon/.test(anim) || el === 'fire') return 'fire';
-  if (/^ice/.test(anim) || el === 'ice') return 'ice';
+  if (/^ice/.test(anim) || el === 'ice' || el === 'water') return 'ice';
   if (/^wind/.test(anim) || el === 'wind') return 'wind';
   if (anim === 'dark1' || el === 'dark' || anim === 'void') return 'dark';
   if (anim === 'sleep') return 'sleep';

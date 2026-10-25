@@ -692,10 +692,10 @@ export function isSwordSkill(id) {
 }
 
 export const ELEMENT_NAMES = {
-  fire: '炎', ice: '氷', wind: '風', blast: '爆発', bolt: '雷', light: '光', dark: '闇', void: '消滅',
+  fire: '炎', ice: '氷', water: '水', wind: '風', blast: '爆発', bolt: '雷', light: '光', dark: '闇', void: '消滅',
 };
-// 敵の 得手不得手を しらべる 属性（図鑑に のる じゅん）
-export const ELEMENT_ORDER = ['fire', 'ice', 'wind', 'blast', 'bolt', 'light', 'dark'];
+// 敵の 得手不得手を しらべる 属性（図鑑に のる じゅん）。水は 第47回（data/water.js）
+export const ELEMENT_ORDER = ['fire', 'ice', 'water', 'wind', 'blast', 'bolt', 'light', 'dark'];
 
 // 技の 種類（色分け）: dmg=ダメージ heal=回復 sup=補助
 const DMG_TYPES = new Set(['phys', 'magic', 'drainHp', 'drainMp', 'mahouken', 'telegraph', 'multi', 'goldThrow', 'gamble', 'fixed', 'allMp', 'gather', 'destroy', 'deduce']);

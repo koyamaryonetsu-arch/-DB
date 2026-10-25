@@ -190,7 +190,7 @@ function monsterCompanionStats(char) {
   // しゅぞくの たいせい（つよすぎない ように ぞくせいは 0.3まで）
   const base = f.resist || MONSTERS[char.species]?.resist || {};
   const res = {};
-  for (const [k, v] of Object.entries(base)) res[k] = ['fire', 'ice', 'wind', 'blast', 'bolt', 'light', 'dark', 'void'].includes(k) ? Math.max(0.3, v) : v;
+  for (const [k, v] of Object.entries(base)) res[k] = ['fire', 'ice', 'water', 'wind', 'blast', 'bolt', 'light', 'dark', 'void'].includes(k) ? Math.max(0.3, v) : v;
   for (const [k, v] of Object.entries(eq.resist)) res[k] = (res[k] ?? 1) * v;
   r.resist = res;
   // 毒のナイフ など（武器の おまけ）

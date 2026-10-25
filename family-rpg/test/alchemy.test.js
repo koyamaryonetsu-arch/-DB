@@ -116,7 +116,7 @@ test('ボスの 品: かならず 落とす。強さは その章の 店の い�
   const cats = (id) => {
     const it = ITEMS[id];
     const res = Object.keys(it.resist || {});
-    return [res.some((k) => ['fire', 'ice', 'wind', 'bolt', 'dark', 'light', 'blast'].includes(k)), res.some((k) => ['sleep', 'paralyze', 'confuse', 'blind', 'poison', 'silence'].includes(k)), it.crit > 0, it.mpRegen > 0, !!it.onHit].filter(Boolean).length;
+    return [res.some((k) => ['fire', 'ice', 'water', 'wind', 'bolt', 'dark', 'light', 'blast'].includes(k)), res.some((k) => ['sleep', 'paralyze', 'confuse', 'blind', 'poison', 'silence'].includes(k)), it.crit > 0, it.mpRegen > 0, !!it.onHit].filter(Boolean).length;
   };
   for (const id of rareIds('boss')) {
     const it = ITEMS[id];

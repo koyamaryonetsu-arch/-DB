@@ -97,7 +97,7 @@ export const ADV_ABILITIES = {
   },
   pr_uzushio: {
     name: 'うずしお', kana: 'うずしお', kind: 'skill', job: 'pirate', mp: 6, target: 'enemies', spellLike: true,
-    effect: { type: 'magic', element: 'ice', base: [30, 40], thr: 30 },
+    effect: { type: 'magic', element: 'water', base: [30, 40], thr: 30 },
     desc: '大きなうずしおで敵全体を飲みこむ。', cast: '{a}はうずしおを呼び出した！', anim: 'ice2',
   },
   pr_ikari: {

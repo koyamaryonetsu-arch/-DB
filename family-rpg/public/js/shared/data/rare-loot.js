@@ -59,7 +59,7 @@ export function rareWhereText(id) {
 }
 
 // とくせいの 文（「炎に強い・ねむりにくい・会心が出やすい・行動するとMP+1・ときどき毒」）
-const EL = { fire: '炎', ice: '氷', wind: '風', blast: '爆発', bolt: '雷', light: '光', dark: '闇', void: '消滅' };
+const EL = { fire: '炎', ice: '氷', water: '水', wind: '風', blast: '爆発', bolt: '雷', light: '光', dark: '闇', void: '消滅' };
 const ST = { sleep: 'ねむり', paralyze: 'マヒ', confuse: '混乱', blind: 'マヌーサ', silence: 'マホトーン', poison: '毒' };
 export function traitText(id) {
   const it = ITEMS[id];

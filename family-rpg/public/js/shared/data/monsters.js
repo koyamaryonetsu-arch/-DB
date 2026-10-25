@@ -39,6 +39,8 @@ import { MONSTERS_BOSS } from './monsters-boss.js';
 import { MONSTERS_POKEMON } from './monsters-pokemon.js';
 // 第45回（ドラクエふう D1）: ドラクエふうの 魔物（配合で 生まれる。monsters-dqm.js）
 import { MONSTERS_DQM } from './monsters-dqm.js';
+// 第47回: 水の 属性（きまりで つける。data/water.js）
+import { applyWater } from './water.js';
 
 export const MONSTERS = {
   pururin: {
@@ -284,3 +286,5 @@ Object.assign(MONSTERS, MONSTERS_BOSS);
 Object.assign(MONSTERS, MONSTERS_POKEMON);
 // 第45回（ドラクエふう D1）: ドラクエふうの 魔物 11しゅ（配合で 生まれる。monsters-dqm.js）
 Object.assign(MONSTERS, MONSTERS_DQM);
+// 第47回: 水の 効きぐあい（resist.water）を きまりで つける。いちばん さいごに（数えない 形の 魔物も ふくめる。色ちがいは もとを うけつぐ）
+applyWater(MONSTERS);

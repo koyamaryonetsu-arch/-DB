@@ -30,6 +30,7 @@ const fadeIn = (t, to = 0.12) => (t >= to ? 1 : t / to);
 export const ELEMENT_FX = {
   fire: { name: '炎', shape: 'ほのお', colors: ['#ff3a10', '#ff8a2a', '#ffd040', '#fff8d0'] },
   ice: { name: '氷', shape: '氷のけっしょう', colors: ['#3a9ae8', '#7ad8ff', '#d8f6ff', '#ffffff'] },
+  water: { name: '水', shape: '水しぶき（形は氷とおなじ・青）', colors: ['#1a5ad8', '#2f7bff', '#a8d0ff', '#ffffff'] },
   wind: { name: '風', shape: 'うず', colors: ['#2ab878', '#7af0a8', '#d8ffe8', '#ffffff'] },
   bolt: { name: '雷', shape: 'いなずま', colors: ['#ffc820', '#fff070', '#bfe8ff', '#ffffff'] },
   light: { name: '光', shape: '光の柱', colors: ['#ffd66b', '#fff2a0', '#fffbe8', '#ffffff'] },

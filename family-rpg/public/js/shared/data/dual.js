@@ -233,7 +233,7 @@ export const DUAL_TECHS = {
     parts: [
       { type: 'revive', pct: 0.4 }, { type: 'heal', pct: 0.45, k: 0.5 },
       { type: 'cure', statuses: ['poison', 'sleep', 'confuse', 'paralyze', 'blind', 'silence'] },
-      { type: 'power', target: 'enemies', kind: 'phys', element: 'ice', k: 0.45, say: '消防車がいっせい放水！' },
+      { type: 'power', target: 'enemies', kind: 'phys', element: 'water', k: 0.45, say: '消防車がいっせい放水！' },
     ],
     desc: 'パトカー・消防車・救急車が、いっぺんにかけつけた！たおれた仲間も起きて、仲間全員が回復し、状態異常も治る。敵全体には放水。', anim: 'siren',
   },

@@ -82,7 +82,7 @@ export const ROAD_ABILITIES = {
   },
   m6_cb_foam: {
     name: '星のあわ', kind: 'monster', mp: 5, target: 'enemies',
-    effect: { type: 'magic', element: 'ice', base: [70, 84], thr: 99 }, cast: '{a}は、星のようにきらめくあわを、ぶくぶくとはいた！', anim: 'a6r_foam',
+    effect: { type: 'magic', element: 'water', base: [70, 84], thr: 99 }, cast: '{a}は、星のようにきらめくあわを、ぶくぶくとはいた！', anim: 'a6r_foam',
     desc: 'つめたい星のあわで、敵みんなにダメージ。',
   },
   m6_cb_shell: {

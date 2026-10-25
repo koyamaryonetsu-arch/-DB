@@ -263,7 +263,7 @@ export const JOB2_ABILITIES = {
   // ───────────── 消防士（火事と 事故から 町を 守る） ─────────────
   ff_housui: {
     name: '放水', kana: 'ほうすい', kind: 'skill', job: 'firefighter', mp: 3, target: 'group',
-    effect: { type: 'phys', mult: 1.15, element: 'ice', vsElement: { fire: 1.5 } },
+    effect: { type: 'phys', mult: 1.15, element: 'water', vsElement: { fire: 1.5 } },
     desc: 'ホースで水をかける。同じ種類の敵をまとめて水びたしにする。炎の敵によく効く。', cast: '{a}はホースで放水した！', anim: 'water',
   },
   ff_teate: {
@@ -283,7 +283,7 @@ export const JOB2_ABILITIES = {
   },
   ff_issei: {
     name: 'いっせい放水', kana: 'いっせいほうすい', kind: 'skill', job: 'firefighter', mp: 14, target: 'enemies',
-    effect: { type: 'phys', mult: 1.7, element: 'ice', vsElement: { fire: 1.5 } },
+    effect: { type: 'phys', mult: 1.7, element: 'water', vsElement: { fire: 1.5 } },
     desc: '消防車がそろっていっせいに放水！敵全体に大きなダメージ。炎の敵によく効く。', cast: '消防車がかけつけた！{a}たちのいっせい放水！', anim: 'water',
   },
 
