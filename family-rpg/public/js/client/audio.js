@@ -5,6 +5,8 @@ import { SFX_R29 } from './sfx-r29.js';
 import { SFX_R33 } from './sfx-r33.js';
 import { SFX_PK } from './sfx-pokemon.js';
 import { SFX_DQ } from './sfx-dqm.js';
+// 第48回の 大技の ためる 音・はなつ 音（sfx-ax.js）
+import { SFX_AX } from './sfx-ax.js';
 import { KUMOI_TRACKS } from './audio-kumoi.js';
 import { HOSHIYOMI_TRACKS } from './audio-hoshiyomi.js';
 import { EARTH_TRACKS } from './audio-earth.js';
@@ -794,6 +796,8 @@ export class GameAudio {
         else if (SFX_PK[id]) SFX_PK[id](this, T);
         // 第45回の ドラクエふうの 魔物の 技の 音（sfx-dqm.js）
         else if (SFX_DQ[id]) SFX_DQ[id](this, T);
+        // 第48回の 大技の 音（sfx-ax.js。ax_c_〜 … ためる、ax_beam など … はなつ）
+        else if (SFX_AX[id]) SFX_AX[id](this, T);
     }
   }
 }

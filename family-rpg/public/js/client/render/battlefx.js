@@ -24,6 +24,9 @@ import { playR43jFx, R43J_FINE } from './battlefx-r43j.js';
 import { playPokemonFx, PK_FINE } from './battlefx-pokemon.js';
 // 第45回の ドラクエふうの 魔物の 技（battlefx-dqm.js。anim は 'dq_…'）
 import { playDqmFx, DQ_FINE } from './battlefx-dqm.js';
+// 第48回の 大技エンジン（ためる → はなつ。axfx.js・axkit.js。anim は registerAx で とうろくした もの）
+import { playAxFx } from './axfx.js';
+import { AX_FINE } from './axkit.js';
 import { drawPalaceHall, drawPalaceFloor } from './ch4-palace-bg.js';
 // 第4章 Step 6: 砂の古城・砂の海（すなかぜ号の かんぱん）・砂クジラの ねどこ（ch4-duna-bg.js）
 import { drawCastleHall, drawCastleFloor, drawSandSea } from './ch4-duna-bg.js';
@@ -1244,6 +1247,7 @@ Object.assign(FINE, R41A_FINE);
 Object.assign(FINE, R43J_FINE);
 Object.assign(FINE, PK_FINE);
 Object.assign(FINE, DQ_FINE);
+Object.assign(FINE, AX_FINE);
 
 export class Effects {
   constructor() {
@@ -1505,6 +1509,8 @@ export class Effects {
   // anim の しゅるいで エフェクトを だす
   // opts: { crit, element, fromAlly }
   play(anim, targets, element, opts = {}) {
+    // 第48回の 大技エンジン（axfx.js。ためる → はなつ。敵が みんなに つかう ときも ここ）
+    if (playAxFx(this, anim, targets, element, opts, BW, BH)) return;
     // 第44回の ポケモンの 技（battlefx-pokemon.js。anim は 'pk_…'。敵が みんなに つかう ときも ここ）
     if (playPokemonFx(this, anim, targets, element, opts, BW, BH)) return;
     // 第45回の ドラクエふうの 魔物の 技（battlefx-dqm.js。anim は 'dq_…'。敵が みんなに つかう ときも ここ）
@@ -2077,8 +2083,11 @@ export class Effects {
     x.lineJoin = 'round';
     // ひばなは いろ・ふとさ・こさ ごとに まとめて 1かいで かく（かるく する）
     const sparks = new Map();
+    // top: いちばん 上に かく つぶ（第48回の カットインの 帯 など）
+    let tops = null;
     for (const p of this.parts) {
       if (p.delay > 0 || p.kind === 'flash' || p.kind === 'shake' || p.kind === 'call') continue;
+      if (p.top) { (tops || (tops = [])).push(p); continue; }
       const t = Math.min(1, p.age / p.life);
       if (p.kind === 'spark') {
         const a = Math.ceil(Math.max(0, 1 - t * t) * 4) / 4;
@@ -2395,6 +2404,13 @@ export class Effects {
       x.beginPath();
       for (let i = 0; i < arr.length; i += 4) { x.moveTo(arr[i], arr[i + 1]); x.lineTo(arr[i + 2], arr[i + 3]); }
       x.stroke();
+    }
+    if (tops) {
+      for (const p of tops) {
+        x.globalCompositeOperation = 'source-over';
+        x.globalAlpha = 1;
+        if (FINE[p.kind]) FINE[p.kind](x, p, Math.min(1, p.age / p.life), this);
+      }
     }
     x.globalAlpha = 1;
     x.globalCompositeOperation = 'source-over';

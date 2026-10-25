@@ -4,3 +4,5 @@
 node_modules/
 *.log
 dist/
+# 第48回: tools/fx-preview.mjs の できた え
+fx-out/

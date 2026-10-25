@@ -20,6 +20,8 @@ import { playR41aFx } from '../public/js/client/render/battlefx-r41a.js';
 import { playR43jFx } from '../public/js/client/render/battlefx-r43j.js';
 import { playPokemonFx } from '../public/js/client/render/battlefx-pokemon.js';
 import { playCh4Fx } from '../public/js/client/render/battlefx-ch4.js';
+// 第48回の 大技エンジン（anim を データに 書いた 技も エフェクトが ある あつかい）
+import { playAxFx, isAx } from '../public/js/client/render/axfx.js';
 import {
   R27_FINE, R27_ANIMS, R27_ALLY_ANIMS, ELEMENT_FX, STAT_FX, SPELL_SERIES, SPELL_TIER, ANIM_OVERRIDE, TIER_SCALE,
   playR27Fx, playAllyR27, allyAnimFor, fxTier, fxLook, r27Anim, r27Hit, r27Sfx,
@@ -89,7 +91,7 @@ test('第27回: 味方の 技は みんな エフェクトが ある（なにも
   const fake = new Proxy({}, { get: () => () => undefined });
   const handled = (anim) => R27_ANIMS.has(anim) || OLD_CASES.has(anim)
     || playJobFx(fake, anim, ONE, null, {}) || playJob2Fx(fake, anim, ONE, null, {}) || playJob3Fx(fake, anim, ONE, null, {})
-    || playJob4Fx(fake, anim, ONE, null, {}) || playJob5Fx(fake, anim, ONE, null, {}) || playJob6Fx(fake, anim, ONE, null, {}) || playJob7Fx(fake, anim, ONE, null, {}) || playJob8Fx(fake, anim, ONE, null, {}) || playR41bFx(fake, anim, ONE, null, {}) || playR41aFx(fake, anim, ONE, null, {}) || playR43jFx(fake, anim, ONE, null, {}) || playPokemonFx(fake, anim, ONE, null, {}) || playCh4Fx(fake, anim, ONE, null, {});
+    || playJob4Fx(fake, anim, ONE, null, {}) || playJob5Fx(fake, anim, ONE, null, {}) || playJob6Fx(fake, anim, ONE, null, {}) || playJob7Fx(fake, anim, ONE, null, {}) || playJob8Fx(fake, anim, ONE, null, {}) || playR41bFx(fake, anim, ONE, null, {}) || playR41aFx(fake, anim, ONE, null, {}) || playR43jFx(fake, anim, ONE, null, {}) || playPokemonFx(fake, anim, ONE, null, {}) || playCh4Fx(fake, anim, ONE, null, {}) || playAxFx(fake, anim, ONE, null, {});
   for (const [id, ab] of ALLY_ABILITIES) {
     const anim = finalAnim(id, ab);
     const types = ab.effect?.type === 'multi' ? (ab.effect.parts || []).map((p) => p.type) : [ab.effect?.type];
@@ -100,7 +102,7 @@ test('第27回: 味方の 技は みんな エフェクトが ある（なにも
     }
     if (!handled(anim)) noFx.push(`${id}:${anim}`);
     // 味方に かける 技は、がめんの したにも 出る（看板の技・PARTY_ANIMS は じぶんの エフェクト）
-    if (isAllyTarget(ab) && !SIG4.has(anim) && !PARTY_ANIMS.has(anim) && !PARTY_ANIMS3.has(anim)) {
+    if (isAllyTarget(ab) && !SIG4.has(anim) && !PARTY_ANIMS.has(anim) && !PARTY_ANIMS3.has(anim) && !isAx(anim)) {
       const t = types.filter((x) => !['nothing', 'random', 'warp', 'escape', 'callHelp', 'flee', 'steal', 'scan', 'deduce', 'goldThrow', 'overtime', 'stance', 'dispel', 'reflect', 'atbSet'].includes(x));
       if (t.length && !allyAnimFor(anim, id)) noFx.push(`${id}:${anim}（味方）`);
     }

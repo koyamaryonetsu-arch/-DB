@@ -36,6 +36,8 @@ import { R43J_SFX, R43J_HIT, PARTY_ANIMS_R43J } from './render/battlefx-r43j.js'
 // 第44回の ポケモンの 技（味方の ポケモンが 敵に・敵の ポケモンが みんなに）
 import { PK_ANIMS, PK_SFX, PK_HIT, PK_ALLY_FX } from './render/battlefx-pokemon.js';
 import { DQ_ANIMS, DQ_SFX, DQ_HIT, DQ_ALLY_FX } from './render/battlefx-dqm.js';
+// 第48回の 大技エンジン（ためる → はなつ。render/axfx.js）: 時間は axTiming、ダメージの 数は はなって あたった ときに
+import { axTiming, axHoldMs, axAllyFx, axIsParty, axEventAnim, axEnemyPose } from './render/axfx.js';
 import { enemyActKind, startEnemyAct, actPose, actColor, hitStyle, closeUp } from './render/enemyfx.js';
 import { targetTag } from './ui/info.js';
 // 第38回 C: バフ・デバフ・じわじわ回復の しるし（のこりの 行動の 回数）
@@ -122,6 +124,7 @@ function allyFxKind(anim, fx, ab) {
   if (CH4_ALLY_FX[anim]) return CH4_ALLY_FX[anim];
   if (PK_ALLY_FX[anim]) return PK_ALLY_FX[anim];
   if (DQ_ALLY_FX[anim]) return DQ_ALLY_FX[anim];
+  if (axAllyFx(anim)) return axAllyFx(anim);
   const el = fx.element;
   if (/^bolt|gigabreak|dragon_beam/.test(anim) || el === 'bolt') return 'bolt';
   if (anim === 'dark_slash') return 'dark';
@@ -1090,6 +1093,9 @@ export class BattleScene {
   }
 
   present(ev) {
+    // 第48回の 大技: ためる → はなつ ので、名前の ふだと つぎの 行動を あたる まで まつ（え だけ。たたかいの 中みは かわらない）
+    ev.axAnim = axEventAnim(ev);
+    ev.axHold = ev.axAnim ? axHoldMs(ev.axAnim, { tempo: this.fxTempo(), ability: ev.ability, targets: (ev.fx?.targets || []).length, crit: (ev.results || []).some((r) => r.crit) }) : 0;
     if (ev.t === 'act') this.plate(ev);
     // 合体技を 使ったら、自分の キャラは 効果が わかる（サーバーでも おぼえる）
     if (ev.dual?.id && (ev.dual.m || [ev.dual.a, ev.dual.b]).some((id) => this.mine.includes(id))) {
@@ -1102,6 +1108,7 @@ export class BattleScene {
       this.say((ev.lines || []).slice(0, ev.dual ? 2 : 1), 500);
       if (ev.dual) this.dualFx(ev);
       else this.hiramekiFx(ev);
+      if (ev.axHold) ev.axHold += pre;
       setTimeout(() => { if (!this.destroyed) this.presentBody(ev); }, pre);
       return;
     }
@@ -1111,11 +1118,16 @@ export class BattleScene {
   presentBody(ev) {
     const g = this.game;
     const wasTele = !!this.c.get(ev.id)?.telegraph;
+    // 第48回の 大技: ためて いる 間は 味方の HPの 数を まえの まま（あたった ときに かわる。たおれた 人は すぐ）
+    const axHp = ev.axAnim ? new Map() : null;
+    const axHit = new Set(ev.axAnim ? (ev.results || []).filter((r) => r.dmg > 0 || r.heal > 0).map((r) => r.id) : []);
     for (const u of ev.upd || []) {
       const c = this.c.get(u.id);
       if (c) {
         const was = c.alive;
+        const oldHp = c.hp;
         Object.assign(c, u, { ready: u.ready });
+        if (axHp && c.side === 'ally' && c.alive && axHit.has(c.id) && Number.isFinite(oldHp) && c.hp !== oldHp) { axHp.set(c.id, [oldHp, c.hp]); c.hp = oldHp; }
         // 生き返った 敵（ミイラの王アンクの よみがえりの呪文）: もう一度 すがたを あらわす
         if (c.side === 'enemy' && c.alive && !was) { c.dead = 0; c.appear = 1; c.vanished = false; }
       } else this.c.set(u.id, { ...u, flash: 0, dead: 0, lunge: 0 });
@@ -1139,14 +1151,18 @@ export class BattleScene {
     // エフェクト
     const targets = (fx.targets || []).map((id) => this.c.get(id)).filter(Boolean);
     const enemyPts = targets.filter((t) => t.side === 'enemy').map((t) => this.center(t)).filter(Boolean);
-    const anim = sigAnim(ev.ability) || r27Anim(ev.ability) || fx.anim || (fx.type === 'attack' ? (fx.side === 'ally' ? (fx.weapon === 'claw' || fx.weapon === 'none' ? 'punch' : 'slash_heavy') : 'hit') : null);
+    const anim = ev.axAnim || sigAnim(ev.ability) || r27Anim(ev.ability) || fx.anim || (fx.type === 'attack' ? (fx.side === 'ally' ? (fx.weapon === 'claw' || fx.weapon === 'none' ? 'punch' : 'slash_heavy') : 'hit') : null);
     const crit = (ev.results || []).some((r) => r.crit);
     const fromAlly = fx.side === 'ally';
     const ab = ev.ability ? ABILITIES[ev.ability] : null;
     const tempo = this.fxTempo();
     const allyTargets = targets.filter((t) => t.side === 'ally');
     // こうどうした てきが うごく（こうげき・じゅもん・ブレス…）。lead: みかたに とどく じかん
-    const lead = actor && actor.side === 'enemy' && ev.t === 'act' ? this.enemyAct(actor, fx, ab, allyTargets, wasTele) : 0;
+    // 大技（第48回）を ためる 敵は ためる すがた（まつ 時間は ためる ほうに ふくまれる）
+    const axT = ev.axAnim ? axTiming(ev.axAnim, { tempo, ability: ev.ability, targets: Math.max(enemyPts.length, allyTargets.length), crit }) : null;
+    const lead = actor && actor.side === 'enemy' && ev.t === 'act' ? (axT?.charge ? axEnemyPose(actor, ev.axAnim, { ability: ev.ability }) : this.enemyAct(actor, fx, ab, allyTargets, wasTele)) : 0;
+    // 大技の えに わたす もの（音・カットインの かげ）
+    const axOpts = ev.axAnim ? { sfx: (id) => { if (!this.destroyed) g.audio.sfx(id); }, actorImg: actor?.side === 'enemy' ? (this.layout || []).find((m) => m.c === actor)?.img || null : null } : {};
     let hitDelay = 0;
     // ムチ（グループ）・ブーメラン（全体）: 敵ごとに あたる じかんが ちがう（id → ms）
     let perHit = null;
@@ -1164,14 +1180,19 @@ export class BattleScene {
         if (fx.weapon === 'bat') g.audio.sfx('bat');
         else if (fx.weapon === 'axe') g.audio.sfx('smash');
       } else {
-        this.fx.play(anim, enemyPts, fx.element, { crit, fromAlly, ability: ev.ability, from: actor && (actor.side === 'ally' ? this.allyPt(actor) : this.center(actor)) });
-        hitDelay = r27Hit(anim, ev.ability) ?? HIT_DELAY[anim] ?? 0;
+        this.fx.play(anim, enemyPts, fx.element, { crit, fromAlly, ability: ev.ability, from: actor && (actor.side === 'ally' ? this.allyPt(actor) : this.center(actor)), ...axOpts });
+        hitDelay = axT ? axT.hit : r27Hit(anim, ev.ability) ?? HIT_DELAY[anim] ?? 0;
       }
     }
     // 味方に かける 合体技（回復・ステージ）は、たたかいの 画面にも 大きく
     if (fx.type === 'dual' && anim && !enemyPts.length) this.fx.play(anim, [{ x: BW / 2, y: BH * 0.55 }], fx.element, { fromAlly: true });
     // 自分や 味方に かける 大わざ（金色のオーラ・解放のドラム・空調こう新）も、たたかいの 画面の 下（味方の いる ところ）に 大きく
-    else if (fromAlly && (PARTY_ANIMS.has(anim) || PARTY_ANIMS3.has(anim) || PARTY_ANIMS7.has(anim) || PARTY_ANIMS8.has(anim) || PARTY_ANIMS_R41B.has(anim) || PARTY_ANIMS_R41A.has(anim) || PARTY_ANIMS_R43J.has(anim) || SIG4.has(anim)) && !enemyPts.length) this.fx.play(anim, [{ x: BW / 2, y: BH * 0.62 }], fx.element, { fromAlly: true });
+    // 第48回の 大技を 味方に かける（回復・強化 など）: 味方の いちに（ためるのは つかった 人）
+    else if (fromAlly && axT && !enemyPts.length) {
+      const pts = allyTargets.length ? allyTargets.map((t) => this.allyPt(t)) : [{ x: BW / 2, y: BH * 0.62 }];
+      if (allyTargets.length || axIsParty(anim)) this.fx.play(anim, pts, fx.element, { crit, fromAlly: true, ability: ev.ability, from: actor?.side === 'ally' ? this.allyPt(actor) : undefined, ...axOpts });
+      hitDelay = axT.hit;
+    } else if (fromAlly && (PARTY_ANIMS.has(anim) || PARTY_ANIMS3.has(anim) || PARTY_ANIMS7.has(anim) || PARTY_ANIMS8.has(anim) || PARTY_ANIMS_R41B.has(anim) || PARTY_ANIMS_R41A.has(anim) || PARTY_ANIMS_R43J.has(anim) || SIG4.has(anim)) && !enemyPts.length) this.fx.play(anim, [{ x: BW / 2, y: BH * 0.62 }], fx.element, { fromAlly: true });
     // みかたへの えんしゅつ（てきの じゅもんは たまが とんでくる）
     if (anim && anim !== 'none' && allyTargets.length) {
       const kind = allyFxKind(anim, fx, ab);
@@ -1186,17 +1207,19 @@ export class BattleScene {
       if (!fromAlly && anim === 'breath') this.fx.tintAt(fx.element === 'fire' ? 'rgba(255, 120, 40, 0.16)' : 'rgba(200, 230, 255, 0.14)', 500 + lead);
       // ポケモンの 技が みんなに あたる: 出どころ（敵の まん中）から みんなの いちへ（render/battlefx-pokemon.js。あたる ときが うごきの おわりに あう）
       // 第45回の ドラクエふうの 技（dq_…）も おなじ。せかいじゅの子の 回復（味方に かける）も ここで みんなの いちに 出す
-      const pkHit = PK_ANIMS.has(anim) || DQ_ANIMS.has(anim);
-      if (pkHit) {
+      // 第48回の 大技（敵が みんなに。味方が 味方に かけた ときは うえで 出した）も おなじ
+      const pkHit = PK_ANIMS.has(anim) || DQ_ANIMS.has(anim) || !!axT;
+      if (pkHit && !(axT && fromAlly)) {
         const from = actor && (actor.side === 'ally' ? this.allyPt(actor) : this.center(actor));
         const at = allyTargets.map((t) => this.allyPt(t));
-        const hitMs = PK_HIT[anim] || DQ_HIT[anim] || 0;
+        const hitMs = axT ? axT.hit : PK_HIT[anim] || DQ_HIT[anim] || 0;
         d = Math.max(lead, hitMs);
-        const go = () => { if (!this.destroyed) this.fx.play(anim, at, fx.element, { crit, fromAlly: false, from: from || undefined }); };
+        const go = () => { if (!this.destroyed) this.fx.play(anim, at, fx.element, { crit, fromAlly: false, from: from || undefined, ability: ev.ability, ...axOpts }); };
         if (d - hitMs > 0) this.fx.at(d - hitMs, go);
         else go();
       }
       // てきの こうげきが こちらに あたる（がめんの てまえに 大きく）
+      if (axT && fromAlly) d = Math.max(d, axT.hit);
       if (actor?.side === 'enemy' && !pkHit) {
         const style = hitStyle(fx, ab, actor);
         const col = actColor('shimmy', fx, ab);
@@ -1237,9 +1260,10 @@ export class BattleScene {
     ch4Present(this, ev, fx, anim, actor, lead);
     if (ev.combo >= 2 && !ev.dual) this.banner(`れんけい ${ev.combo}！`, 'combo');
     if (anim === 'minadein') g.audio.sfx('bolt');
-    const sfxId = (fx.type !== 'attack' && r27Sfx(anim, ev.ability)) || ANIM_SFX[anim];
+    // 大技（第48回）の 音は render/axfx.js が ためる とき・はなつ ときに ならす
+    const sfxId = axT ? null : (fx.type !== 'attack' && r27Sfx(anim, ev.ability)) || ANIM_SFX[anim];
     if (anim && sfxId) g.audio.sfx(sfxId);
-    else if (fx.type === 'ability' && fromAlly) g.audio.sfx('spell');
+    else if (fx.type === 'ability' && fromAlly && !axT) g.audio.sfx('spell');
     if (fx.anim === 'quake') {
       const q = () => { if (!this.destroyed) this.shake(500, 7); };
       if (lead) setTimeout(q, lead / tempo);
@@ -1249,6 +1273,12 @@ export class BattleScene {
     const apply = (only = null) => {
       if (this.destroyed) return;
       let hurtAlly = false;
+      // 大技で まっていた 味方の HPの 数（その あいだに つぎの 行動で かわって いたら そのまま）
+      if (axHp?.size) {
+        for (const [id, [was, now]] of axHp) { const c = this.c.get(id); if (c && c.hp === was) c.hp = now; }
+        axHp.clear();
+        this.renderStatus();
+      }
       for (const r of ev.results || []) {
         if (only && r.id !== only) continue;
         const t = this.c.get(r.id);
@@ -1306,7 +1336,8 @@ export class BattleScene {
         if (rest) for (const r of ev.results || []) if (!perHit.has(r.id)) apply(r.id);
         for (const c of this.c.values()) if (c.side === 'enemy' && !c.alive && !c.dead) c.dead = 1;
       });
-    } else if (hitDelay > 0) setTimeout(apply, hitDelay / tempo);
+    } else if (hitDelay > 0 && axT) this.fx.at(hitDelay, apply); // 大技は エフェクトの 時計で（おもい きかいでも はなつ 前に 数が 出ない）
+    else if (hitDelay > 0) setTimeout(apply, hitDelay / tempo);
     else apply();
     if (ev.counter?.length) this.counterFx(ev.counter, counterRes, (perHit ? Math.max(...perHit.values()) : hitDelay) + 380);
     // えらんでいる とちゅうで たおれた・ねむった など
@@ -1420,7 +1451,7 @@ export class BattleScene {
     this.stage.append(e);
     this.plateEl = e;
     clearTimeout(this.plateT);
-    this.plateT = setTimeout(() => e.remove(), Math.max(1400, (ev.dur || 900) * 0.9));
+    this.plateT = setTimeout(() => e.remove(), Math.max(1400, (ev.dur || 900) * 0.9, ev.axHold ? ev.axHold + 200 : 0));
     if (a.side === 'ally' && !ev.dual) this.glowStatus(a.id, ev.hirameki ? '#fff6b0' : '#9ad8ff');
   }
 
@@ -1607,7 +1638,7 @@ export class BattleScene {
     if (!this.showing && this.queue.length) {
       const ev = this.queue.shift();
       this.present(ev);
-      this.showing = { left: Math.max(350, (ev.dur || 900) * 0.75) };
+      this.showing = { left: Math.max(350, (ev.dur || 900) * 0.75, ev.axHold || 0) };
     }
     if (!this.showing && !this.queue.length && this.endPending && !this.ended) {
       this.ended = true;
