@@ -13,6 +13,8 @@ import { tavernInfo, recruitNpc, companionJoin, companionWait, companionRelease,
 import { salonInfo, salonAction } from './salon.js';
 import { breedMonsters, breedPreview } from './breed.js';
 import { farewellText } from './farewell.js';
+// 第43回 C: 魔物あずかり所（world/storage.js）
+import { storageInfo, storageAction, depositMonster, storeText } from './storage.js';
 import { MONSTERS } from '../data/monsters.js';
 import { BATTLE_SPEEDS, TEXT_SPEEDS, normBattleSettings, spellSealed } from '../battle.js';
 import { PLACES } from '../maps/overworld.js';
@@ -45,6 +47,10 @@ export function openService(world, s, kind, arg) {
       return { shop: arg, name: shop.name, items: shopItems(shop, has), keeper: shop.keeper, hello: shopHello(shop, has), kind: shop.kind, prices: shop.prices };
     }
     case 'jobChange': return { jobs: ALL_JOBS };
+    // 第43回 C: 魔物あずかり所（world/storage.js）
+    case 'storage':
+      s.openStorage = true;
+      return storageInfo(world, s);
     case 'tavern': return tavernInfo(world, s);
     case 'salon': return salonInfo(world, s);
     // 乗り物屋（第37回。world/vehicles.js）
@@ -121,6 +127,7 @@ export function serviceAction(world, s, msg) {
   };
   switch (msg.kind) {
     case 'casino': case 'medal': return casinoAction(world, s, msg);
+    case 'storage': return storageAction(world, s, msg, reply);
     case 'shop': {
       const shop = SHOPS[s.openShop];
       if (msg.action === 'buy') {
@@ -201,6 +208,13 @@ export function serviceAction(world, s, msg) {
             if (!f.ok) return reply(false, f.reason, { tavern: tavernInfo(world, s) });
             bye = `${farewellText(f)}\n`;
           }
+          // 酒場が いっぱい: store の 魔物を あずかり所へ 送ってから（world/storage.js。第43回 C）
+          if (msg.store && !msg.farewell) {
+            if (!tavernInfo(world, s).recruits.some((x) => x.key === msg.key)) return reply(false, '見つかりません');
+            const f = depositMonster(world, s, String(msg.store));
+            if (!f.ok) return reply(false, f.reason, { tavern: tavernInfo(world, s) });
+            bye = `${storeText(f)}\n`;
+          }
           // パーティー → 馬車 → 入れかわり（party.js の placeMember）
           r = recruitNpc(world, s, String(msg.key || ''), { swap: msg.swap ? String(msg.swap) : null, join: msg.join !== false });
           if (r.ok) text = bye + (r.joined ? `${r.name}が仲間に加わった！${r.where === 'wagon' ? `\n${r.name}は馬車に乗りこんだ。` : ''}${r.benchedName ? `\n${r.benchedName}は酒場で待っている。` : ''}${stowText(r.stowed)}` : `${r.name}が仲間になった！\n（今は酒場で待っている）`);
@@ -238,6 +252,8 @@ export function serviceAction(world, s, msg) {
           if (!r) return;
           text = r.text;
       }
+      // あずかり中の 親から 生まれた 子は あずかり所に いる（world/breed.js。第43回 C）
+      if (msg.action === 'breed' && r.ok && r.stored) text = `${text.replace(`\n${r.name}は酒場で待っている。`, '')}\n${r.name}はあずかり所にいる。`;
       if (!r.ok) return reply(false, r.reason || 'できません', { full: !!r.full, tavern: tavernInfo(world, s) });
       return reply(true, text, { tavern: tavernInfo(world, s) });
     }

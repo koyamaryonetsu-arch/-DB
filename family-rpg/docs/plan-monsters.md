@@ -279,3 +279,49 @@
 - やせいの 魔物が 子の 特定配合（第35回の 7つ など）は、子の ランクが 親より 低いと おすすめ（いちばん 上）では なく 一覧の さいごに なる（前からの「下がる 子は さいご」の きまり）。たとえば いかずちドラゴン（A）＋ かみなりぐも → 雷雲ワイバーン（C）
 - 素材配合は 前の まま「S ランク 2ひき」が いる。S は 7しゅ だけ なので、ボス級は 前より ずっと 作りにくい（おすすめ どおり）。決まった 組み合わせ（星見の目玉 ＋ 星くらげ など）は ランクを とわない
 - これからの 章で 魔物を 足したら `node tools/gen-monster-ranks.mjs` で 表を 作りなおす（`monsters-r43a` の テストが 表に ない・古い 魔物を 見つける）
+
+## 実装メモ（C）（第43回。仲間が いっぱいの 時の 配合・魔物あずかり所）
+
+### いっぱいの 時の えらぶ文（`world/farewell.js`）
+
+- `befriendFullSteps(c, id, monName, again)`：「配合してあける」「あずかり所へ送る」「だれかとさよならする」「やめる」。前の 名前 `befriendFarewellSteps` も 同じ 関数（のこした）
+- 「配合してあける」は `canBreedRoom(c)` の 時だけ：Lv10いじょうの 魔物が 2ひき。**1ぴきは 仲間（40）の 中**（あずかり中の 魔物も 数えるが、あずかり中 どうしでは 仲間は あかない）
+- 「あずかり所へ送る」は `canStore(c)`（あずかり所に あき・仲間に 魔物）。一覧は `storeList`（さよならと 同じ ならび・魔物だけ）。さよならと 送る の 一覧の さいごは「もどる」（前は「やめる」で 去っていった）
+- 台本の 新しい 命令（`world/scripts.js`）
+  - `['breedOpen', id]` … `['ui', 'tavern', { ...tavernInfo, makeRoom: { name } }]` を 送って まつ。とじたら、1つ あいていれば `['befriend', id, null]`、あいて いなければ えらぶ文に もどる（あずかり中 どうしで 配合した 時は「仲間はあかない…」）
+  - `['befriendFull', id]` … えらぶ文に もどる（さいしょの ことばは くりかえさない）
+  - `['befriend', id, bench, farewell, store]` … 5つめ（store）の 魔物を あずかり所へ 送ってから 入れる
+- この 台本は なつかれた 人だけ（`offerBefriend` の `runSteps`）。家族の ほかの 人には 画面も えらぶ文も 出ない（お知らせだけ）。通信が 切れたら 台本が おわって 魔物は 去る（今までと 同じ）
+- 酒場で 人間を さそう 時（`client/ui/services.js` の `pickFull`・`breedRoom`・`pickStore`）：同じ 4つ。配合は 酒場の 中で 配合の 画面に きりかえ（上に「〇〇がまっている（配合すると1ぴきあく）」）。配合が すむと「仲間にする？」へ。「もどる」で えらぶ文へ。あずかり所へ 送るは `'recruit'` の `store`（`world/services.js`）
+
+### 酒場の 配合の 画面（`client/ui/services.js` の `tavernUI`）
+
+- `data.makeRoom` が あれば 配合の 画面から 開く（あける モード）。配合が すむと とじる（サーバーが つづける）。「もどる」も とじる
+- あずかり中の 魔物は `info.stored`（`tavernInfo` に 足した）。`entries` に `sec: 'stored'` で 入れ、人間・モンスターの 一覧からは のぞく（`ofKind`）。配合の 一覧だけ（`breedMons`）に 出して「あずかり中」の しるし
+- あける モードでは、1ぴきめが あずかり中なら、2ひきめの あずかり中は えらべない（「仲間はあかない」）
+- B の 技の 画面（`pickSkills`）は さわっていない
+
+### 魔物あずかり所（`world/storage.js`・`client/ui/storage.js`）
+
+- `c.storage`：仲間と 同じ 形の ならび（魔物だけ）。`STORAGE_MAX = 60`・`ensureStorage`・`storedOf`・`breedEntry`（配合の 親）は `world/party.js`
+- あずける：パーティー・馬車から はずれる・装備は ふくろへ。ひきとる：40 いっぱいなら できない・酒場で 待つ・げんき いっぱい。番号が 仲間と かさなったら 新しい 番号に
+- `ensureStorage` は 魔物の 番号（`monsterSeq`）を あずかり中の 番号より 先へ（配合の 子と かさならない）
+- 配合（`world/breed.js`）：親の さがしかたを `breedEntry` に。**あずかり中の 親から 生まれた 子は あずかり所に 入る**（仲間の 親の ぶん 1つ あく。パーティーにも 入らない）。`breedMonsters` の かえりちに `stored`
+- 場所：ルミナの町の 町長の 家と 星の神殿の 間（`maps/stamps.js` の x12〜16・y3〜8 の 小屋。カウンターの おくに「魔物あずかり所のモモ」。とびら x14・y8）。かんばんは 新しい `monster`（まるい 魔物。`client/render/boards.js`）
+- 魔物の 名前は あずかり中の 魔物とも かさならない（`party.js` の `monsterName`）
+
+### セーブ・引っこし・データ合わせ
+
+- `save.js` の `repairChar`：`c.storage` が ある 時だけ ととのえる（ない 古い セーブは そのまま＝空）。知らない 魔物は `stash.storage` に しまう。版は 上げない
+- `transfer.js`：KIZUNA-3 の はぶく 形に あずかり所も（`slimList`）。仲間 40＋あずかり 60 でも もどる
+- `merge.js`：仲間と 同じ `mergeCompanions` で 合わせ、仲間に いる 魔物は あずかり所から のぞく。番号の かさなりも 見る
+
+### 共有の ファイルで さわった 所（ほかの 人の 作業と 合わせる 時）
+
+- `world/breed.js`：import 1行 足す・`breedPreview` と `breedMonsters` の 親の さがす 行（`companionOf` → `breedEntry`）・`fromStore` の 2行・子を 入れる 行・`putInParty` の 行・かえりち
+- `world/party.js`：`companionOf` の 下に あずかり所の 関数・`tavernInfo` の かえりちに `stored`・`storageMax`・`monsterName` の 1行
+- `client/ui/services.js`：import・`openServiceUI` の 1行・`tavernUI` の 中（`room`・`byKey`・`breedMons`・`ofKind`・`breedItems` の 見出しと しるし・`showBreed` の 1行・`back`・`breedPick` の あと・人を さそう 所・`close`）
+- `world/scripts.js`：import・`'befriend'` の 1行・新しい `case`・サービスの `case 'storage'`
+- `world/services.js`：import・`openService` と `serviceAction` の `storage`・`'recruit'` の `store`・配合の ことば（あずかり所に いる）
+- `world/world.js`：`offerBefriend` の 1行（`befriendFullSteps`）
+- テスト：`test/storage-r43.test.js`（新しい）・`test/breed-r35.test.js` の さよならの テスト（えらぶ文が 1つ ふえた）

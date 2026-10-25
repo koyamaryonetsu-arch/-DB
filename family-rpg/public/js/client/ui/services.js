@@ -28,12 +28,16 @@ import { shownEquip } from '../../shared/look-equip.js';
 import { jobAskText } from '../../shared/data/job-talk.js';
 import { sortRoster, rosterSortName, nextRosterSort } from '../../shared/roster-sort.js';
 import { rosterSortPref, setRosterSortPref } from '../prefs.js';
+// 第43回 C: 魔物あずかり所（ui/storage.js）と、仲間が いっぱいの 時の えらぶ文（shared/world/farewell.js）
+import { storageUI } from './storage.js';
+import { canBreedRoom, canStore } from '../../shared/world/farewell.js';
 
 export function openServiceUI(game, kind, data) {
   switch (kind) {
     case 'shop': return shopUI(game, data);
     case 'jobChange': return jobUI(game);
     case 'tavern': return tavernUI(game, data);
+    case 'storage': return storageUI(game, data);
     case 'salon': return salonUI(game, data);
     // 乗り物屋（第37回。ui/vehicles.js）
     case 'vehicles': return vehicleShopUI(game, data);
@@ -328,8 +332,13 @@ function tavernUI(game, data) {
     let topIdx = -1;
     let parentA = null;
     let sortMode = rosterSortPref();
+    // 第43回 C: 配合して あける モード（room.name … まっている 仲間。戦いの あと〈data.makeRoom・台本の breedOpen〉か、酒場で 人を さそう 時〈room.done〉）
+    let room = data.makeRoom ? { name: data.makeRoom.name } : null;
+    let shut = false;
     const byKey = () => {
       const m = new Map();
+      // あずかり中の 魔物（配合の 親だけ。人間・モンスターの 一覧には 出さない）
+      for (const e of info.stored || []) m.set(e.key, { ...e, sec: 'stored' });
       for (const e of info.roster) m.set(e.key, { ...e, sec: 'roster' });
       for (const e of info.family) m.set(e.key, { ...e, sec: 'family' });
       for (const e of info.recruits) m.set(e.key, { ...e, sec: 'recruit' });
@@ -338,9 +347,11 @@ function tavernUI(game, data) {
     let entries = byKey();
     const partyKeys = () => [...entries.values()].filter((e) => e.inParty).map((e) => e.key);
     const mons = () => info.roster.filter((e) => e.species);
-    const ready = () => mons().filter((e) => e.level >= BREED_MIN_LEVEL);
+    // 配合の 親に なれる 魔物（あずかり中も。第43回 C）
+    const breedMons = () => [...mons(), ...(info.stored || []).map((e) => ({ ...e, sec: 'stored' }))];
+    const ready = () => breedMons().filter((e) => e.level >= BREED_MIN_LEVEL);
     // 人間（酒場の 仲間・家族の キャラ）か モンスターか で わけた 一覧
-    const ofKind = (monster) => new Map([...entries].filter(([, e]) => !!e.species === monster));
+    const ofKind = (monster) => new Map([...entries].filter(([, e]) => !!e.species === monster && e.sec !== 'stored'));
     const rowOf = (e, tags = '') => ({ face: face(e), html: `${esc(e.name)}${plusTag(e)} <span class="muted small">${who(e)}</span>${tags}`, value: e.key });
     const sortRow = (n) => (n > 1 ? [{ html: `ならび：<span class="gold">${rosterSortName(sortMode)}</span> <span class="muted small">（選ぶと変わる）</span>`, value: SORT_KEY }] : []);
     // 馬車の 仲間（ui/wagon.js）。人間・モンスターの 画面ごとに その 人だけ
@@ -414,8 +425,10 @@ function tavernUI(game, data) {
     const breedItems = () => {
       const A = parentA && entries.get(parentA);
       if (parentA && !A) parentA = null;
-      const all = sortRoster(mons(), sortMode);
+      const all = sortRoster(breedMons(), sortMode);
       const out = [{ header: true, label: A ? `2ひきめ：${A.name}の相手を選んでね` : '1ぴきめの親を選んでね' }];
+      // 配合して あける モード: まっている 仲間（第43回 C）
+      if (room) out.unshift({ header: true, label: `${room.name}がまっている（配合すると1ぴきあく）` });
       if (ready().length < 2) out.push({ label: `レベル${BREED_MIN_LEVEL}以上のモンスターが2ひき必要だよ`, value: null, disabled: true });
       const rows = [], can = [];
       for (const e of all) {
@@ -425,6 +438,14 @@ function tavernUI(game, data) {
           face: face(e), html: `${isA ? '<span class="good">●</span> ' : ''}${esc(e.name)}${plusTag(e)} <span class="muted small">${who(e)}</span>`, value: e.key,
           disabled: low, right: isA ? '1ぴきめ' : low ? `Lv${BREED_MIN_LEVEL}から` : '', rightCls: isA ? 'good' : '', cls: isA ? 'breed-a' : '',
         };
+        // あずかり中の しるし（第43回 C）。あける モードでは あずかり中 どうしの 配合は できない（仲間が あかない）
+        if (e.sec === 'stored') row.html += '<span class="tag muted">あずかり中</span>';
+        if (room && A?.sec === 'stored' && e.sec === 'stored' && !isA) {
+          row.disabled = true;
+          row.right = '仲間はあかない';
+          rows.push(row);
+          continue;
+        }
         if (A && !isA && !low) {
           const { o, f, can: sp } = pairInfo(A, e);
           row.html += ` <span class="small ${f.trend === 'down' ? 'danger' : 'muted'}">→${o.unseen ? '？？？' : esc(MONSTERS[o.child]?.name || '')}</span>`;
@@ -486,6 +507,7 @@ function tavernUI(game, data) {
         if (X.level < BREED_MIN_LEVEL) top.append(el('div', { class: 'small muted', text: `${X.name}はレベル${BREED_MIN_LEVEL}になると配合できる` }));
         else breedPreviewBox(top, A, X);
         main.append(el('div', { class: 'small muted', text: '選ぶと配合する（受けつぐ技と名前を決める）。\n「もどる」で1ぴきめを選びなおせる。' }));
+        if (A.sec === 'stored' || X.sec === 'stored') main.append(el('div', { class: 'small muted', text: 'あずかり中の親から生まれた子は、あずかり所に入る。' }));
         return;
       }
       const e = (key && entries.get(key)) || A;
@@ -595,6 +617,8 @@ function tavernUI(game, data) {
         refresh();
         return;
       }
+      // 配合して あける モード: もどる ＝ えらぶ文に もどる（第43回 C）
+      if (room) return endRoom(false);
       if (view !== 'top') return setView('top');
       close();
     };
@@ -826,6 +850,60 @@ function tavernUI(game, data) {
       if (r?.ok) parentA = null;
       refresh();
       menu.focus();
+      // 配合して あける モード: 配合が すんだら、まっている 仲間の ところへ（第43回 C）
+      if (r?.ok && room) endRoom(true);
+    };
+    // 配合して あける モードを おわる（ok … 配合した）。戦いの あとは 画面を とじる（サーバーが つづける）
+    const endRoom = (ok) => {
+      const done = room?.done;
+      room = null;
+      if (!done) return close();
+      parentA = null;
+      setView('human');
+      done(ok);
+    };
+    // 酒場で 人を さそう 時: 配合して あける（配合したら true・やめたら false）
+    const breedRoom = (name) => new Promise((resolve) => {
+      room = { name, done: resolve };
+      parentA = null;
+      setView('breed');
+      menu.focus();
+    });
+    // あずかり所へ 送る 魔物（酒場で 待っている 魔物が 先・レベルの 低い じゅん。world/farewell.js の storeList と 同じ）
+    const pickStore = async () => {
+      const busy = (x) => (x.inParty || x.inWagon ? 1 : 0);
+      const list = info.roster.filter((x) => x.species).map((x, i) => ({ x, i })).sort((p, q) => busy(p.x) - busy(q.x) || p.x.level - q.x.level || p.i - q.i).map(({ x }) => x);
+      const key = await ask('だれをあずかり所へ送る？\n（あずかり所の魔物は、あとで酒場にもどせる）', [
+        ...list.map((x) => ({ face: face(x), label: `${x.name}（${who(x)}${busy(x) ? '・いっしょ' : ''}）`, value: x.key })),
+        { label: 'もどる', value: null },
+      ]);
+      return (key && entries.get(key)) || null;
+    };
+    // 仲間が いっぱいの 時: 配合して あける・あずかり所へ 送る・さよなら・やめる（world/farewell.js の befriendFullSteps と 同じ）
+    //   もどりち: { farewell } / { store } / { bred: true } / null（やめる）
+    const pickFull = async (e) => {
+      for (;;) {
+        const me = game.me || {};
+        const opts = [];
+        if (canBreedRoom(me)) opts.push({ label: '配合してあける', value: 'breed' });
+        if (canStore(me)) opts.push({ label: 'あずかり所へ送る', value: 'store' });
+        opts.push({ label: 'だれかとさよならする', value: 'bye' }, { label: 'やめる', value: null });
+        const a = await ask(`仲間がいっぱい！（${info.roster.length}/${info.rosterMax}）\n${e.name}のために、どうする？`, opts);
+        if (!a) return null;
+        if (a === 'bye') {
+          const x = await pickFarewell(e.name);
+          if (x) return { farewell: x };
+        } else if (a === 'store') {
+          const x = await pickStore();
+          if (x) return { store: x };
+        } else if (a === 'breed') {
+          const ok = await breedRoom(e.name);
+          if (shut) return null;
+          menu.blur();
+          if (ok && info.roster.length < info.rosterMax) return { bred: true };
+          if (ok) toast('あずかり中の魔物どうしの配合では、仲間はあかない…');
+        }
+      }
     };
     const act = async (key) => {
       if (key === V_HUMAN) return setView('human');
@@ -854,14 +932,19 @@ function tavernUI(game, data) {
       if (e.sec === 'recruit') {
         // 仲間が いっぱい: だれかと さよならして 入れる？（world/farewell.js。第35回）
         let bye = null;
+        let store = null;
         if (info.roster.length >= (info.rosterMax || info.roster.length + 1)) {
-          bye = await pickFarewell(e.name);
-          if (!bye) {
-            menu.focus();
+          // 配合して あける・あずかり所へ 送る・さよなら（第43回 C の pickFull）
+          const how = await pickFull(e);
+          if (!how) {
+            if (!shut) menu.focus();
             return;
           }
+          bye = how.farewell || null;
+          store = how.store || null;
         }
-        const full2 = full && !(bye && (bye.inParty || bye.inWagon));
+        const gone = bye || store;
+        const full2 = tavernPlace(info, partyKeys().length).full && !(gone && (gone.inParty || gone.inWagon));
         const farewell = bye?.key || null;
         const a = await ask(`${e.name}（${who(e)}）を仲間にする？`, [
           { label: full2 ? '仲間にして入れかわる' : `仲間にして連れていく${place.note}`, value: 'join' },
@@ -871,8 +954,8 @@ function tavernUI(game, data) {
         if (a === 'join') {
           let swap = null;
           if (full2) swap = await pickSwap(e.name);
-          if (!full2 || swap) await doReq({ action: 'recruit', key, swap, farewell });
-        } else if (a === 'wait') await doReq({ action: 'recruit', key, join: false, farewell });
+          if (!full2 || swap) await doReq({ action: 'recruit', key, swap, farewell, store: store?.key || null });
+        } else if (a === 'wait') await doReq({ action: 'recruit', key, join: false, farewell, store: store?.key || null });
       } else if (e.inWagon) {
         const opts = [...tavernWagonOpts(info, e)];
         if (e.sec === 'roster') opts.push({ label: '名前を変える', value: 'rename' });
@@ -918,10 +1001,16 @@ function tavernUI(game, data) {
     const close = () => {
       menu.blur();
       s.root.remove();
+      // 酒場で 人を さそう とちゅうで とじた（第43回 C の breedRoom）
+      shut = true;
+      room?.done?.(false);
+      room = null;
       resolve();
     };
     s.onClose = close;
     side.append(menu.root);
+    // 戦いの あとの 配合して あける モードは 配合の 画面から（第43回 C）
+    if (room) setView('breed');
     s.right.textContent = partyText();
     show(menu.current?.value);
     menu.focus();
