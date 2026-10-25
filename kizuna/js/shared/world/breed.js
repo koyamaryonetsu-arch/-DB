@@ -1,16 +1,16 @@
 // まものの はいごう（ドラゴンクエストモンスターズ ふう。第35回で 作りなおし）
 //   生まれる 子の 候補・＋・ランクは data/companions.js の breedOutcome、能力の 受けつぎ・めやす・血統は shared/breed-calc.js
 //   どちらも 酒場の 画面（client/ui/services.js）と 同じ 計算
-import { MONSTERS } from '../data/monsters.js?v=e0707600e726';
-import { ABILITIES } from '../data/abilities.js?v=e0707600e726';
-import { ITEMS, SLOTS } from '../data/items.js?v=e0707600e726';
-import { MONSTER_FRIENDS, BREED_MIN_LEVEL, BREED_INHERIT_MAX, BREED_INHERIT_TOTAL, breedOutcome, bestiaryKnow, RANKS } from '../data/companions.js?v=e0707600e726';
-import { ougiLearn } from '../data/abilities-ougi.js?v=e0707600e726';
-import { computeStats, learnedAbilities, newMonsterCompanion, addItem, removeItem, itemCount } from '../stats.js?v=e0707600e726';
+import { MONSTERS } from '../data/monsters.js?v=2173b59e8cbd';
+import { ABILITIES } from '../data/abilities.js?v=2173b59e8cbd';
+import { ITEMS, SLOTS } from '../data/items.js?v=2173b59e8cbd';
+import { MONSTER_FRIENDS, BREED_MIN_LEVEL, BREED_INHERIT_MAX, BREED_INHERIT_TOTAL, breedOutcome, bestiaryKnow, RANKS } from '../data/companions.js?v=2173b59e8cbd';
+import { ougiLearn } from '../data/abilities-ougi.js?v=2173b59e8cbd';
+import { computeStats, learnedAbilities, newMonsterCompanion, addItem, removeItem, itemCount } from '../stats.js?v=2173b59e8cbd';
 // 第43回 A: 配合の あとの 追いつき
-import { catchUpLevel } from '../stats.js?v=e0707600e726';
-import { inheritBonus, breedForecast, makeLineage } from '../breed-calc.js?v=e0707600e726';
-import { ensureCompanions, companionOf, putInParty, afterRosterChange } from './party.js?v=e0707600e726';
+import { catchUpLevel } from '../stats.js?v=2173b59e8cbd';
+import { inheritBonus, breedForecast, makeLineage } from '../breed-calc.js?v=2173b59e8cbd';
+import { ensureCompanions, companionOf, putInParty, afterRosterChange } from './party.js?v=2173b59e8cbd';
 
 // おやから うけつげる わざ（第43回 B: 親ごとに 4つずつ・あわせて 8つ。docs/plan-monsters.md の 2-4）
 //   { a: [親A の 技], b: [親B の 技] }。両方の 親が 知っている 技は a に だけ 入れる（1つと 数える。b の あいた ぶんは ほかの 技から えらべる）

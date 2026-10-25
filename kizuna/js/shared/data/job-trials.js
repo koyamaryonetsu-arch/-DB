@@ -10,9 +10,9 @@
 //   2. 師しょうのまぼろし … その 職業の 技を 使う 相手（shared/battle-trial.js。鏡のうつし身の しくみ）。負けても お金は へらない
 // ・キャラの jobs[職業] に のこす: tr … クリアした 試練の 数 / tq … 受けている 試練（1・2）/ tn … 修行の 数
 //   （家族で 遊んでも 1人ずつ。world/merge.js は 多い ほう、world/save.js が 古い セーブを ととのえる）
-import { JOBS, JOB_MAX_LEVEL, JOB_TOP_LEVEL } from './jobs.js?v=e0707600e726';
-import { ABILITIES } from './abilities.js?v=e0707600e726';
-import { jobLabel } from '../job-label.js?v=e0707600e726';
+import { JOBS, JOB_MAX_LEVEL, JOB_TOP_LEVEL } from './jobs.js?v=2173b59e8cbd';
+import { ABILITIES } from './abilities.js?v=2173b59e8cbd';
+import { jobLabel } from '../job-label.js?v=2173b59e8cbd';
 
 export const TRIAL_MIN_TIER = 2;
 // n … 何番目 / name … 名前 / needLv … 受けられる 職業レベル / cap … クリアした あとの 上限 / uses … 修行の 回数 /
@@ -158,11 +158,14 @@ export const TRIAL_WORDS = {
   // 第41回 A
   keikyu_president: 'お客さまの安全と笑顔を運ぶのが、社長のいちばんの仕事だ。',
   hall_of_fame: '記録よりも、みんなの記おくにのこる選手になれ。',
+  // 第43回（女の子のピーチ。男の子のマリオは TRIAL_WORDS_MASC）
+  mario: 'おひめさまだって、ときには自分で走り出すものよ。',
 };
 export const TRIAL_WORDS_MASC = {
   sailor_moon: '月夜のしんしは、いつでも仲間を守るために現れるのだ。',
   neo_queen: '王とは、いちばん前に立って、みんなを守る者だ。',
   snow_queen: 'こわがるな。その力は、だれかを守るためにあるのだ。',
+  mario: 'こまっている人がいたら、まずはジャンプだ！',
 };
 export function trialWords(id, who = null) {
   const masc = who?.look && typeof who.look === 'object' && who.look.body !== 1;

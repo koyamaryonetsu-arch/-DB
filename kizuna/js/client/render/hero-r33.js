@@ -29,12 +29,14 @@
 //   drawHat33(cv, P, H, G, view) … シルクハット・ティアラ（drawHat26 から よぶ。かいたら true）
 //   drawProp33(cv, P, A, O) … たての ない 手の もちもの（drawProp26 から よぶ。かいたら true）
 //   handMark33(cv, A, P, O) … 手ぶくろの れん金の 円（hero.js の 手の あとで よぶ）
-import { mat, ramp, TH, mixC } from './hero-raster.js?v=e0707600e726';
-import { EYE_V } from './hero-face.js?v=e0707600e726';
+import { mat, ramp, TH, mixC } from './hero-raster.js?v=2173b59e8cbd';
+import { EYE_V } from './hero-face.js?v=2173b59e8cbd';
 // 第40回: 男の子の ネオ・クイーン・セレニティ（キング・エンディミオン）も masc33 で かえす
-import { R40_MASC } from './hero-r40.js?v=e0707600e726';
+import { R40_MASC } from './hero-r40.js?v=2173b59e8cbd';
 // 第41回 B: 男の子の 雪の女王（雪の王）・第5のせいれいの 見た目
-import { R41B_MASC } from './hero-r41b.js?v=e0707600e726';
+import { R41B_MASC } from './hero-r41b.js?v=2173b59e8cbd';
+// 第43回: 男の子の 配管工の 系統（配管工・ひげおやじ・マリオ）の 見た目
+import { R43J_MASC } from './hero-r43j.js?v=2173b59e8cbd';
 
 export const R33_JOBS = ['magician', 'kaito', 'kaito_kid', 'wizard_student', 'harry', 'homeroom_3b', 'alchemist', 'state_alchemist', 'fullmetal', 'sailor_soldier', 'sailor_moon'];
 
@@ -147,7 +149,7 @@ export const R33_MASC = {
   },
 };
 // 男性で タキシード仮面ふうに なる 職業なら その 見た目（ほかは null）。fem: 女性か（look.body === 1）
-export const masc33 = (job, fem) => (!fem && (R33_MASC[job] || R40_MASC[job] || R41B_MASC[job])) || null;
+export const masc33 = (job, fem) => (!fem && (R33_MASC[job] || R40_MASC[job] || R41B_MASC[job] || R43J_MASC[job])) || null;
 
 // ───────────── 服の つけたし（outfit26 の つけたしから） ─────────────
 export function outfit33(O, S, Lk, fem) {

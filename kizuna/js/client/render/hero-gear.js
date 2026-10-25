@@ -1,20 +1,22 @@
 // ぶき・たて・かぶと（そうびの ID から みためを きめて かく）
 // 知らない 品（これからの もの）は、種類・ランク・名前の ことば から きめる
-import { mat, ramp, TH, mixC, mixI, hex, HeroCanvas } from './hero-raster.js?v=e0707600e726';
-import { metal, metalRamp, cloth, leather, gem, glow, neon, metalOfName, baseItem, fruitIcon, ownArmor } from './hero-outfit.js?v=e0707600e726';
-import { R26_HAT, R26_BODY_HAT, drawHat26 } from './hero-r26.js?v=e0707600e726';
+import { mat, ramp, TH, mixC, mixI, hex, HeroCanvas } from './hero-raster.js?v=2173b59e8cbd';
+import { metal, metalRamp, cloth, leather, gem, glow, neon, metalOfName, baseItem, fruitIcon, ownArmor } from './hero-outfit.js?v=2173b59e8cbd';
+import { R26_HAT, R26_BODY_HAT, drawHat26 } from './hero-r26.js?v=2173b59e8cbd';
 // 第33回: シルクハット（布の服の とき）・ティアラ（よろいでも のこる）
-import { R33_HAT, R33_BODY_HAT, R33_WEAPON_LOOK, R33_HEAD_LOOK, drawWand33, masc33 } from './hero-r33.js?v=e0707600e726';
+import { R33_HAT, R33_BODY_HAT, R33_WEAPON_LOOK, R33_HEAD_LOOK, drawWand33, masc33 } from './hero-r33.js?v=2173b59e8cbd';
 // 第41回 A: 京急の社長・野球界の殿堂入りの ぼうし
-import { R41A_HAT } from './hero-r41a.js?v=e0707600e726';
+import { R41A_HAT } from './hero-r41a.js?v=2173b59e8cbd';
+// 第43回: ももの姫・おてんば姫の ティアラ・ピーチの 王冠
+import { R43J_HAT } from './hero-r43j.js?v=2173b59e8cbd';
 
 const D = Math.PI / 180;
 // 第38回 D: 武器と 盾の 形（look）。形の きめかたは shared/data/gear-looks.js、新しい 形の 絵は hero-gear-looks.js
-import { lookOfWeapon, lookOfShield, validWeaponLook, TOOL_LOOKS, WEAPON_LOOKS, SHIELD_LOOKS, gearStarsOf } from '../../shared/data/gear-looks.js?v=e0707600e726';
+import { lookOfWeapon, lookOfShield, validWeaponLook, TOOL_LOOKS, WEAPON_LOOKS, SHIELD_LOOKS, gearStarsOf } from '../../shared/data/gear-looks.js?v=2173b59e8cbd';
 import {
   drawSwordLook, drawDaggerLook, drawAxeLook, drawSpearLook, drawClawLook, drawWhipLook, drawStaffLook, drawFanLook, drawBatLook, drawBoomerangLook,
   ornate, shieldOutline2, shieldFace2, shieldOrnate, shieldBackOrnate, shieldTint,
-} from './hero-gear-looks.js?v=e0707600e726';
+} from './hero-gear-looks.js?v=2173b59e8cbd';
 export { WEAPON_LOOKS, SHIELD_LOOKS };
 // ★の 数（★4・★5 は かざりが つく）
 export const gearStars = (id) => { const b = baseItem(id); return b ? gearStarsOf(b.it) : 0; };
@@ -1536,6 +1538,7 @@ const JOB_HAT = {
 // 第26回の 職業の ぼうし（黒の組織の ぼうし・ひたいあて など）と、からだの いちぶの ぼうし（ネコ型ロボットの フード・カッパの おさら・花）
 Object.assign(JOB_HAT, R26_HAT, R33_HAT);
 Object.assign(JOB_HAT, R41A_HAT);
+Object.assign(JOB_HAT, R43J_HAT);
 Object.assign(R26_BODY_HAT, R33_BODY_HAT);
 function guessHead(it) {
   const name = it.name || '';

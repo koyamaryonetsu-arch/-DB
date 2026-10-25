@@ -34,6 +34,10 @@ export const JOB_SAY = {
   // 第41回 A
   keikyu_president: '「全線、出発進行！」',
   hall_of_fame: '「ありがとう、野球！」',
+  // 第43回（女の子。男の子は JOB_SAY_MASC）
+  plumber: '「ジャンプなら、まかせて！」',
+  mustache: '「おひめさまだって、走るのよ！」',
+  mario: '「キノコの国は、わたしが守ります」',
 };
 // 男の子（look.body が 1 で ない）の ときの ひとこと（タキシード仮面ふう。shared/ability-label.js）
 export const JOB_SAY_MASC = {
@@ -41,6 +45,10 @@ export const JOB_SAY_MASC = {
   sailor_moon: '「月の光が見ているぞ！」',
   neo_queen: '「地球の王として、みんなを守る」',
   snow_queen: '「もう、かくさない。これがぼくだ！」',
+  // 第43回: 配管工・ひげおやじ・マリオ
+  plumber: '「さあ、行くぞ！ヤッフー！」',
+  mustache: '「このひげが、ぼくのじまんさ」',
+  mario: '「ヒアウィーゴー！」',
 };
 
 // removed: 装備できなく なって はずした 物の 名前（多い ときは 2つ と「など」）

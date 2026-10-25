@@ -178,6 +178,10 @@ export const JOB_TAGS = {
   // 第41回 A
   keikyu_president: ['ride', 'work', 'money', 'master'], // 京急の社長（赤い電車・会社のお金）
   hall_of_fame: ['sport', 'master', 'rival'], // 野球界の殿堂入り
+  // 第43回（基本職・上級職・超級職。女の子は ももの姫・おてんば姫・ピーチ）
+  plumber: ['fist', 'work', 'machine'], // 配管工（ジャンプふみつけ・スパナ）
+  mustache: ['fist', 'fire', 'work'], // ひげおやじ（ファイアボール）
+  mario: ['fist', 'fire', 'ride', 'master'], // マリオ（ヨッシーに乗る）
 };
 
 // そのタグの 職業（JOB_TAGS の じゅん）

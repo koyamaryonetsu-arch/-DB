@@ -1,16 +1,16 @@
 // タイトル・ログイン・キャラクターえらび・キャラクターづくり
-import { padNav } from './padnav.js?v=e0707600e726';
-import { el, ListMenu, toast, askText, confirmBox } from './dom.js?v=e0707600e726';
-import { JOBS, JOB_ORDER } from '../../shared/data/jobs.js?v=e0707600e726';
-import { jobLabel } from '../../shared/job-label.js?v=e0707600e726';
-import { HAIR_STYLES, HAIR_COLORS, SKIN_TONES, FACES, FACE_BY_ID, CLOTH_COLORS, cleanLook } from '../../shared/data/looks.js?v=e0707600e726';
-import { previewCache } from '../render/hero.js?v=e0707600e726';
-import { playerSprite } from '../field.js?v=e0707600e726';
-import { makeCanvas, ctxOf } from '../render/pixel.js?v=e0707600e726';
-import { LINE_MAX, parseCode } from '../../shared/world/transfer.js?v=e0707600e726';
-import { DEFAULT_SITE, pendingImport, clearPendingImport, familyServer, setFamilyServer, linkToFamilyServer, linkToSite, siteServerAddress } from '../links.js?v=e0707600e726';
-import { goFamilyServer, goSite, roundTrip, changeServer, syncOnServer, maybeRoundTrip, notePlayed, familyServerUp } from './syncui.js?v=e0707600e726';
-import { shownEquip } from '../../shared/look-equip.js?v=e0707600e726';
+import { padNav } from './padnav.js?v=2173b59e8cbd';
+import { el, ListMenu, toast, askText, confirmBox } from './dom.js?v=2173b59e8cbd';
+import { JOBS, JOB_ORDER } from '../../shared/data/jobs.js?v=2173b59e8cbd';
+import { jobLabel, jobFor } from '../../shared/job-label.js?v=2173b59e8cbd';
+import { HAIR_STYLES, HAIR_COLORS, SKIN_TONES, FACES, FACE_BY_ID, CLOTH_COLORS, cleanLook } from '../../shared/data/looks.js?v=2173b59e8cbd';
+import { previewCache } from '../render/hero.js?v=2173b59e8cbd';
+import { playerSprite } from '../field.js?v=2173b59e8cbd';
+import { makeCanvas, ctxOf } from '../render/pixel.js?v=2173b59e8cbd';
+import { LINE_MAX, parseCode } from '../../shared/world/transfer.js?v=2173b59e8cbd';
+import { DEFAULT_SITE, pendingImport, clearPendingImport, familyServer, setFamilyServer, linkToFamilyServer, linkToSite, siteServerAddress } from '../links.js?v=2173b59e8cbd';
+import { goFamilyServer, goSite, roundTrip, changeServer, syncOnServer, maybeRoundTrip, notePlayed, familyServerUp } from './syncui.js?v=2173b59e8cbd';
+import { shownEquip } from '../../shared/look-equip.js?v=2173b59e8cbd';
 
 function clearUI() {
   document.getElementById('ui').innerHTML = '';
@@ -547,7 +547,7 @@ export function showCreate(game) {
   } });
   const jobsEl = el('div', { class: 'jobs' });
   JOB_ORDER.forEach((j) => {
-    const b = el('button', { class: `btn jobbtn ${j === job ? 'sel' : ''}` }, el('span', { class: 'jn', text: JOBS[j].name }), el('span', { class: 'jd', text: {
+    const b = el('button', { class: `btn jobbtn ${j === job ? 'sel' : ''}` }, el('span', { class: 'jn', text: jobLabel(j, { look }) }), el('span', { class: 'jd', text: {
       warrior: '固くて強い', monk: 'とても素早い', priest: '回復の女神', mage: '攻撃呪文', performer: 'みんなをおうえん',
       jester: '何が起こるかな？', salaryman: 'チームを支える', idol: 'みんなの人気者', railman: '時間に正確', ballplayer: 'かっとばせ！',
       schoolkid: 'のびざかり！', civil_local: '町を守る', cook: '食べて元気に', parttimer: '何でもこなす',
@@ -555,17 +555,20 @@ export function showCreate(game) {
       spy: 'ひみつの任務', shonen_tantei: 'なぞを解く', neko_robot: '未来から来た', kappa: 'すもうが得意',
       rurouni: '旅の剣士でござる',
       magician: 'タネも仕かけもない', alchemist: '形を作りかえる',
+      plumber: 'ジャンプが得意',
     }[j] }));
     b.addEventListener('click', () => {
       job = j;
       [...jobsEl.children].forEach((x) => x.classList.toggle('sel', x === b));
-      jobDesc.textContent = JOBS[j].desc;
+      jobDesc.textContent = jobFor(j, { look }).desc;
       game.audio.sfx('cursor');
       draw();
     });
     jobsEl.append(b);
+    // 第43回: 体で 名前が かわる 職業（ももの姫／配管工。shared/job-label.js）
+    if (JOBS[j].masc) upd.push(() => { b.firstChild.textContent = jobLabel(j, { look }); if (j === job) jobDesc.textContent = jobFor(j, { look }).desc; });
   });
-  jobDesc.textContent = JOBS[job].desc;
+  jobDesc.textContent = jobFor(job, { look }).desc;
   const turn = el('button', { class: 'btn', text: '回す', onclick: () => { dirI = (dirI + 1) % 4; draw(); } });
   const ok = el('button', { class: 'btn primary', text: 'これで始める！' });
   const back = el('button', { class: 'btn', text: 'もどる' });

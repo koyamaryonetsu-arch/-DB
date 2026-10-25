@@ -5,7 +5,9 @@
 // ・あるく コマ（f）で ほのおの ながさが かわる（ゆらぐ）
 // ・えの はし 1ドットには かかない（はみ出さない）
 // 第41回 B: 雪の女王・第5のせいれいの オーラ（hero-r41b.js）
-import { AURA41B, aura41b } from './hero-r41b.js?v=e0707600e726';
+import { AURA41B, aura41b } from './hero-r41b.js?v=2173b59e8cbd';
+// 第43回: ピーチ（ピンクの ひかり）・マリオ（金の 星）の オーラ（hero-r43j.js）
+import { AURA43J, aura43j } from './hero-r43j.js?v=2173b59e8cbd';
 
 // glow: からだの すぐ そとの うすい ひかり（マス）  len・wid: ほのおの ながさ・はば（マス）  up: うえへ むく つよさ
 // cols: [いろ, こさ]（ねもと → さき）
@@ -29,6 +31,7 @@ const AURA = {
 };
 // 第41回 B: 雪の女王（雪の けっしょう）・第5のせいれい（白い ひかりと 4つの せいれいの 光。hero-r41b.js）
 Object.assign(AURA, AURA41B);
+Object.assign(AURA, AURA43J);
 
 const hash = (a, b) => {
   const s = Math.sin(a * 12.9898 + b * 78.233) * 43758.5453;
@@ -59,6 +62,7 @@ export function drawAura(img, B, f, dir = 'down') {
   if (B.spark === 'ember') embers(img, filled, bb, f, k);
   else if (B.spark) sparks(img, filled, f, k);
   aura41b(img, filled, bb, f, k, B);
+  aura43j(img, filled, bb, f, k, B);
 }
 
 // 1ドット かく（からだ・えの はしには かかない。a: こさ。もう ある うすい ドットより こい ときだけ）
