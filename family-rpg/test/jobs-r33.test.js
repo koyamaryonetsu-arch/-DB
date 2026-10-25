@@ -128,7 +128,8 @@ test('第33回の 職業: 職業の 木（id・名前・ランク・なる じ�
     assert.ok(!BAD.test(j.name + j.desc + (JOB_HINTS[id] || '')), id);
   }
   // 基本職 2つは 今の 基本職の さいごに
-  assert.deepEqual(JOB_ORDER.slice(-2), ['magician', 'alchemist']);
+  // 第43回から あとに 基本職が ふえても よい（第33回の 2つが この じゅんで つづく）
+  assert.deepEqual(JOB_ORDER.slice(JOB_ORDER.indexOf('magician'), JOB_ORDER.indexOf('magician') + 2), ['magician', 'alchemist']);
   assert.equal(jobReqText('kaito'), '手品師Lv10＋スパイLv10');
   assert.equal(jobReqText('homeroom_3b'), '高校生Lv10＋地方公務員Lv10');
   assert.equal(jobReqText('fullmetal'), '国家れん金術師Lv10');
@@ -601,7 +602,8 @@ test('転職の ひとこと: 新しい 職業は 2行目に ひとこと（は�
   // 第40回の 2つの 伝説の 職業にも ひとこと（test/jobs-r40.test.js）
   // 第41回 B の 雪の女王・第5のせいれいにも ひとこと（test/jobs-r41b.test.js）
   // 第41回 A の 伝説の 職業にも ひとこと（test/jobs-r41a.test.js）
-  assert.deepEqual(Object.keys(JOB_SAY).filter((j) => !['ryumajin', 'neo_queen', 'snow_queen', 'fifth_spirit', 'keikyu_president', 'hall_of_fame'].includes(j)).sort(), [...NEW].sort());
+  // 第43回の 配管工の 系統にも ひとこと（test/jobs-r43.test.js）
+  assert.deepEqual(Object.keys(JOB_SAY).filter((j) => !['ryumajin', 'neo_queen', 'snow_queen', 'fifth_spirit', 'keikyu_president', 'hall_of_fame', 'plumber', 'mustache', 'mario'].includes(j)).sort(), [...NEW].sort());
   for (const [j, s] of Object.entries(JOB_SAY)) {
     textOk(s, j);
     assert.ok(s.length <= 24 && s.startsWith('「') && s.endsWith('」'), s);

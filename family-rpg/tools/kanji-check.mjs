@@ -44,7 +44,7 @@ export const MUST_WORDS = [
   ['すこし', '少し'], ['つよい', '強い'], ['つよく', '強く'], ['よわい', '弱い'], ['よわく', '弱く'],
   ['おおきい', '大きい'], ['おおきな', '大きな'], ['ちいさい', '小さい'], ['ちいさな', '小さな'], ['ひかり', '光'],
   ['こころ', '心'], ['ひがし', '東'], ['みなみ', '南'], ['みぎ', '右'], ['ひだり', '左'],
-  ['(?<!に[らぎ]?)みつけ', '見つけ'], ['はなし', '話'], ['たすけ', '助け'], ['まもる', '守る'], ['まもり', '守り'],
+  ['(?<!に[らぎ]?|ふ)みつけ', '見つけ'], ['はなし', '話'], ['たすけ', '助け'], ['まもる', '守る'], ['まもり', '守り'],
   ['あつめ', '集め'], ['さがし', '探し'], ['あるく', '歩く'], ['はしる', '走る'], ['ちず', '地図'],
   ['おかね', 'お金'], ['ねだん', '値段'], ['じかん', '時間'], ['こども', '子ども'], ['ともだち', '友だち'],
   ['いきかえ', '生き返'], ['しんで', '死んで'], ['(?<![あ-ん])まけ', '負け'], ['(?<![あ-んァ-ヶ一-龠])かった', '勝った／買った'],
@@ -280,6 +280,8 @@ export function gameFiles() {
     'public/js/shared/data/abilities-r41a.js', 'public/js/shared/data/hirameki-r41a.js', 'public/js/client/render/battlefx-r41a.js',
     // 第43回 B: 魔物の 系統の 奥義
     'public/js/shared/data/abilities-ougi.js',
+    // 第43回: 配管工 → ひげおやじ → マリオ（ももの姫 → おてんば姫 → ピーチ）の 技・ひらめき技・えんしゅつ
+    'public/js/shared/data/abilities-r43j.js', 'public/js/shared/data/hirameki-r43j.js', 'public/js/client/render/battlefx-r43j.js',
     // 第5章 Step 3・4（A: 世界と物語）: クモイ地方・ハネノの町・しずみゆく島の古い神殿（7階）・ガイアイーターの 台本・守り星の かけら
     'public/js/shared/data/story-kumoi.js', 'public/js/shared/maps/kumoi.js', 'public/js/shared/maps/sink-ruin.js', 'public/js/shared/maps/sink-ruin-rows.js',
     'public/js/shared/data/shops-kumoi.js',

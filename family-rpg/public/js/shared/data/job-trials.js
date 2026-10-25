@@ -158,11 +158,14 @@ export const TRIAL_WORDS = {
   // 第41回 A
   keikyu_president: 'お客さまの安全と笑顔を運ぶのが、社長のいちばんの仕事だ。',
   hall_of_fame: '記録よりも、みんなの記おくにのこる選手になれ。',
+  // 第43回（女の子のピーチ。男の子のマリオは TRIAL_WORDS_MASC）
+  mario: 'おひめさまだって、ときには自分で走り出すものよ。',
 };
 export const TRIAL_WORDS_MASC = {
   sailor_moon: '月夜のしんしは、いつでも仲間を守るために現れるのだ。',
   neo_queen: '王とは、いちばん前に立って、みんなを守る者だ。',
   snow_queen: 'こわがるな。その力は、だれかを守るためにあるのだ。',
+  mario: 'こまっている人がいたら、まずはジャンプだ！',
 };
 export function trialWords(id, who = null) {
   const masc = who?.look && typeof who.look === 'object' && who.look.body !== 1;

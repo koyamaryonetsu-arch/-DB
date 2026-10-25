@@ -2,7 +2,7 @@
 import { padNav } from './padnav.js';
 import { el, ListMenu, toast, askText, confirmBox } from './dom.js';
 import { JOBS, JOB_ORDER } from '../../shared/data/jobs.js';
-import { jobLabel } from '../../shared/job-label.js';
+import { jobLabel, jobFor } from '../../shared/job-label.js';
 import { HAIR_STYLES, HAIR_COLORS, SKIN_TONES, FACES, FACE_BY_ID, CLOTH_COLORS, cleanLook } from '../../shared/data/looks.js';
 import { previewCache } from '../render/hero.js';
 import { playerSprite } from '../field.js';
@@ -547,7 +547,7 @@ export function showCreate(game) {
   } });
   const jobsEl = el('div', { class: 'jobs' });
   JOB_ORDER.forEach((j) => {
-    const b = el('button', { class: `btn jobbtn ${j === job ? 'sel' : ''}` }, el('span', { class: 'jn', text: JOBS[j].name }), el('span', { class: 'jd', text: {
+    const b = el('button', { class: `btn jobbtn ${j === job ? 'sel' : ''}` }, el('span', { class: 'jn', text: jobLabel(j, { look }) }), el('span', { class: 'jd', text: {
       warrior: '固くて強い', monk: 'とても素早い', priest: '回復の女神', mage: '攻撃呪文', performer: 'みんなをおうえん',
       jester: '何が起こるかな？', salaryman: 'チームを支える', idol: 'みんなの人気者', railman: '時間に正確', ballplayer: 'かっとばせ！',
       schoolkid: 'のびざかり！', civil_local: '町を守る', cook: '食べて元気に', parttimer: '何でもこなす',
@@ -555,17 +555,20 @@ export function showCreate(game) {
       spy: 'ひみつの任務', shonen_tantei: 'なぞを解く', neko_robot: '未来から来た', kappa: 'すもうが得意',
       rurouni: '旅の剣士でござる',
       magician: 'タネも仕かけもない', alchemist: '形を作りかえる',
+      plumber: 'ジャンプが得意',
     }[j] }));
     b.addEventListener('click', () => {
       job = j;
       [...jobsEl.children].forEach((x) => x.classList.toggle('sel', x === b));
-      jobDesc.textContent = JOBS[j].desc;
+      jobDesc.textContent = jobFor(j, { look }).desc;
       game.audio.sfx('cursor');
       draw();
     });
     jobsEl.append(b);
+    // 第43回: 体で 名前が かわる 職業（ももの姫／配管工。shared/job-label.js）
+    if (JOBS[j].masc) upd.push(() => { b.firstChild.textContent = jobLabel(j, { look }); if (j === job) jobDesc.textContent = jobFor(j, { look }).desc; });
   });
-  jobDesc.textContent = JOBS[job].desc;
+  jobDesc.textContent = jobFor(job, { look }).desc;
   const turn = el('button', { class: 'btn', text: '回す', onclick: () => { dirI = (dirI + 1) % 4; draw(); } });
   const ok = el('button', { class: 'btn primary', text: 'これで始める！' });
   const back = el('button', { class: 'btn', text: 'もどる' });

@@ -60,6 +60,8 @@ import { R41B_ABILITIES } from './abilities-r41b.js';
 import { R41A_ABILITIES } from './abilities-r41a.js';
 // 2026年10月（第43回 B）の 魔物の 系統の 奥義（Lv30・45・60）
 import { OUGI_ABILITIES } from './abilities-ougi.js';
+// 2026年10月（第43回）の 配管工 → ひげおやじ → マリオ（ももの姫 → おてんば姫 → ピーチ）の 技
+import { R43J_ABILITIES } from './abilities-r43j.js';
 
 export const ABILITIES = {
   // ───────────── 戦士 ─────────────
@@ -663,6 +665,8 @@ Object.assign(ABILITIES, R41B_ABILITIES);
 Object.assign(ABILITIES, R41A_ABILITIES);
 // 第43回 B の 魔物の 系統の 奥義（abilities-ougi.js）
 Object.assign(ABILITIES, OUGI_ABILITIES);
+// 第43回の 配管工の 系統（abilities-r43j.js）
+Object.assign(ABILITIES, R43J_ABILITIES);
 
 // 攻撃呪文かどうか（魔法剣で使える）
 export function isAttackSpell(id) {

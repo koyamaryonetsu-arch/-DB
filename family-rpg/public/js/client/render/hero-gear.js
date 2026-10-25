@@ -7,6 +7,8 @@ import { R26_HAT, R26_BODY_HAT, drawHat26 } from './hero-r26.js';
 import { R33_HAT, R33_BODY_HAT, R33_WEAPON_LOOK, R33_HEAD_LOOK, drawWand33, masc33 } from './hero-r33.js';
 // 第41回 A: 京急の社長・野球界の殿堂入りの ぼうし
 import { R41A_HAT } from './hero-r41a.js';
+// 第43回: ももの姫・おてんば姫の ティアラ・ピーチの 王冠
+import { R43J_HAT } from './hero-r43j.js';
 
 const D = Math.PI / 180;
 // 第38回 D: 武器と 盾の 形（look）。形の きめかたは shared/data/gear-looks.js、新しい 形の 絵は hero-gear-looks.js
@@ -1536,6 +1538,7 @@ const JOB_HAT = {
 // 第26回の 職業の ぼうし（黒の組織の ぼうし・ひたいあて など）と、からだの いちぶの ぼうし（ネコ型ロボットの フード・カッパの おさら・花）
 Object.assign(JOB_HAT, R26_HAT, R33_HAT);
 Object.assign(JOB_HAT, R41A_HAT);
+Object.assign(JOB_HAT, R43J_HAT);
 Object.assign(R26_BODY_HAT, R33_BODY_HAT);
 function guessHead(it) {
   const name = it.name || '';

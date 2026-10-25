@@ -26,6 +26,8 @@ const girl = { job: 'sailor_soldier', look: GIRL };
 const NAMES = { sailor_soldier: ['仮面のしんし', '美少女戦士'], sailor_moon: ['タキシード仮面', 'セーラームーン'], neo_queen: ['キング・エンディミオン', 'ネオ・クイーン・セレニティ'] };
 // 第41回 B: 雪の女王は 男の子なら 雪の王（test/jobs-r41b.test.js）
 NAMES.snow_queen = ['雪の王', '雪の女王'];
+// 第43回: 配管工の 系統は 男の子なら 配管工・ひげおやじ・マリオ（test/jobs-r43.test.js）
+Object.assign(NAMES, { plumber: ['配管工', 'ももの姫'], mustache: ['ひげおやじ', 'おてんば姫'], mario: ['マリオ', 'ピーチ'] });
 
 test('男の子の 美少女戦士は「仮面のしんし」、セーラームーンは「タキシード仮面」（女の子は 今の まま）', () => {
   assert.deepEqual(Object.keys(JOBS).filter((j) => JOBS[j].masc).sort(), Object.keys(NAMES).sort(), 'masc の ある 職業');
@@ -172,7 +174,7 @@ test('合体技の 必要な 職業（見ている 人で きめる）・技の 
   assert.ok(penaltyFor(other(GIRL), 'mn_stick').label.startsWith('セーラームーンの技：'));
   // 掛け合わせ技の 職業・装備できる 職業（いまは 美少女戦士が 出ない が、見ている 人を うけとる）
   for (const id of Object.keys(ABILITIES).filter((x) => ABILITIES[x].kind === 'combo').slice(0, 5)) assert.deepEqual(comboJobNames(id, boy), comboJobNames(id), id);
-  assert.equal(whoCanEquip('tiara_boomerang', null, boy).replace(/仮面のしんし/g, '美少女戦士'), whoCanEquip('tiara_boomerang', null, girl));
+  assert.equal(whoCanEquip('tiara_boomerang', null, boy).replace(/仮面のしんし/g, '美少女戦士').replace(/配管工/g, 'ももの姫'), whoCanEquip('tiara_boomerang', null, girl));
 });
 
 // ───────────── 画面（ソース を 見る） ─────────────
