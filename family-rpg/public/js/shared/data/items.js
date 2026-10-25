@@ -282,6 +282,8 @@ import { ITEMS_R33, R33_ITEM_KANA } from './items-r33.js'; Object.assign(ITEMS, 
 import { FAMILY_ITEMS, FAMILY_ITEM_KANA } from './items-family.js'; Object.assign(ITEMS, FAMILY_ITEMS);
 // 第44回（ポケモン P1）: 進化の 石・かわらずのいし・ふしぎないでんし（items-pokemon.js）
 import { POKEMON_ITEMS, POKEMON_ITEM_KANA } from './items-pokemon.js'; Object.assign(ITEMS, POKEMON_ITEMS);
+// 第45回（ドラクエふう D1）: 四季のこよみ・竜王のしるし（素材配合の 大事な物。items-dqm.js）
+import { DQM_ITEMS, DQM_ITEM_KANA } from './items-dqm.js'; Object.assign(ITEMS, DQM_ITEMS);
 assignRarity(ITEMS);
 // 第38回 D: 見た目の 武器と 盾の 形（look。gear-looks.js）
 applyGearLooks(ITEMS);
@@ -386,6 +388,7 @@ Object.assign(ITEM_KANA, ALCHEMY_KANA);
 Object.assign(ITEM_KANA, R33_ITEM_KANA);
 Object.assign(ITEM_KANA, FAMILY_ITEM_KANA);
 Object.assign(ITEM_KANA, POKEMON_ITEM_KANA);
+Object.assign(ITEM_KANA, DQM_ITEM_KANA);
 
 export function itemKana(id) {
   // きたえた 装備は もとの 装備の 読み ＋ 回数（鉄の剣 → 鉄の剣+1 の じゅん）

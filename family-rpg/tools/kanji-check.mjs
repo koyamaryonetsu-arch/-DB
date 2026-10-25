@@ -194,6 +194,9 @@ export function gameFiles() {
     // ポケモンの 魔物・進化（第44回 ポケモン P1）
     'public/js/shared/data/monsters-pokemon.js', 'public/js/shared/data/companions-pokemon.js', 'public/js/shared/data/abilities-pokemon.js',
     'public/js/shared/data/items-pokemon.js', 'public/js/shared/world/evolve.js',
+    // ドラクエふうの 魔物（第45回 ドラクエふう D1）
+    'public/js/shared/data/monsters-dqm.js', 'public/js/shared/data/companions-dqm.js', 'public/js/shared/data/abilities-dqm.js',
+    'public/js/shared/data/items-dqm.js',
     // みちびきの糸（洞窟から 入り口へ）
     'public/js/shared/data/escape.js', 'public/js/shared/world/escape.js',
     // カジノ・小さなメダル・メダル王

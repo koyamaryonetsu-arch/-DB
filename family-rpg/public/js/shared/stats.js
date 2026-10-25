@@ -195,7 +195,8 @@ function monsterCompanionStats(char) {
   r.resist = res;
   // 毒のナイフ など（武器の おまけ）
   r.onHit = eq.onHit;
-  r.crit = eq.crit;
+  // 第45回: しゅぞくの 会心の 出やすさ（ひとくい箱。data/companions-dqm.js の crit）
+  r.crit = eq.crit + (f.crit || 0);
   r.mpRegen = eq.mpRegen;
   return r;
 }

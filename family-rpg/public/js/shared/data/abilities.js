@@ -64,6 +64,8 @@ import { OUGI_ABILITIES } from './abilities-ougi.js';
 import { R43J_ABILITIES } from './abilities-r43j.js';
 // 第44回（ポケモン P1）の ポケモンの 魔物の 技（abilities-pokemon.js）
 import { POKEMON_ABILITIES } from './abilities-pokemon.js';
+// 第45回（ドラクエふう D1）の ドラクエふうの 魔物の 技（abilities-dqm.js）
+import { DQM_ABILITIES } from './abilities-dqm.js';
 
 export const ABILITIES = {
   // ───────────── 戦士 ─────────────
@@ -671,6 +673,8 @@ Object.assign(ABILITIES, OUGI_ABILITIES);
 Object.assign(ABILITIES, R43J_ABILITIES);
 // 第44回（ポケモン P1）の ポケモンの 魔物の 技（abilities-pokemon.js）
 Object.assign(ABILITIES, POKEMON_ABILITIES);
+// 第45回（ドラクエふう D1）の ドラクエふうの 魔物の 技（abilities-dqm.js）
+Object.assign(ABILITIES, DQM_ABILITIES);
 
 // 攻撃呪文かどうか（魔法剣で使える）
 export function isAttackSpell(id) {

@@ -36,6 +36,8 @@ import { MONSTERS_ROAD } from './monsters-road.js';
 import { MONSTERS_BOSS } from './monsters-boss.js';
 // 第44回（ポケモン P1）: ポケモンの 魔物（配合と 進化で 生まれる。monsters-pokemon.js）
 import { MONSTERS_POKEMON } from './monsters-pokemon.js';
+// 第45回（ドラクエふう D1）: ドラクエふうの 魔物（配合で 生まれる。monsters-dqm.js）
+import { MONSTERS_DQM } from './monsters-dqm.js';
 
 export const MONSTERS = {
   pururin: {
@@ -277,3 +279,5 @@ addGaiaParts(MONSTERS);
 Object.assign(MONSTERS, MONSTERS_BOSS);
 // 第44回（ポケモン P1）: ポケモンの 魔物 19しゅ（配合と 進化で 生まれる。monsters-pokemon.js）
 Object.assign(MONSTERS, MONSTERS_POKEMON);
+// 第45回（ドラクエふう D1）: ドラクエふうの 魔物 11しゅ（配合で 生まれる。monsters-dqm.js）
+Object.assign(MONSTERS, MONSTERS_DQM);

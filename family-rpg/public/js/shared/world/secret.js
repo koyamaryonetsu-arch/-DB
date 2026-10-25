@@ -23,7 +23,7 @@ import { SD_DOOR_OUT, GATE_ARRIVE, SD_INN_KEEPER } from '../maps/secret-dungeon.
 import {
   SD_GATE, SD_NAME, SD_OPEN_FLAG, sdFloorId, sdFloorOf, isSdFloorId, isRestFloor, isGuardFloor, sdGuardian, sdGuardEncounter,
   sdRecommendLv, sdBigReward, sdSmallReward, rewardText, sdMedalId, noteSdFloor, sdRecordOf, sdRecordText, sdBoardRows, sdBand,
-  sdSaveOf, noteSdSave, sdStartFloors, sdStartText, sdRunSeedOf, newSdSeed, sdInnPrice,
+  sdSaveOf, noteSdSave, sdStartFloors, sdStartText, sdRunSeedOf, newSdSeed, sdInnPrice, sdKeyRewards,
 } from '../data/secret.js';
 import { ensureSdShop } from '../data/secret-shop.js';
 
@@ -404,7 +404,8 @@ async function chestEvent(run) {
     if (r.took.includes(f)) continue;
     r.took.push(f);
     const big = !r.mid && !sd.got.includes(f);
-    const list = big ? sdBigReward(f) : [sdSmallReward(f, world.rng)];
+    // 第45回: 40階の 四季のこよみ（大事な物。1人 1つ。data/secret.js の sdKeyRewards）
+    const list = [...(big ? sdBigReward(f) : [sdSmallReward(f, world.rng)]), ...sdKeyRewards(f, c)];
     if (big) sd.got.push(f);
     for (const e of list) {
       if (e.gold) c.gold = Math.min(9999999, (c.gold || 0) + e.gold);

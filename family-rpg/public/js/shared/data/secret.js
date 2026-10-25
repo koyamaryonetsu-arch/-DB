@@ -30,6 +30,8 @@ import { makeRng } from '../rng.js';
 import { rewardGold } from './difficulty.js';
 import { pickSdGear, SD_GEAR_FROM } from './rare-loot.js';
 import { sdGuardStrength } from './secret-guard.js';
+// 第45回: 四季のこよみを もらえるか（companions-dqm.js）
+import { dqKeyDue } from './companions-dqm.js';
 
 export const SD_GATE = 'sd_gate';
 export const SD_NAME = 'ひみつのダンジョン';
@@ -292,6 +294,14 @@ export function sdBigReward(f) {
   // 第44回（ポケモン P1）: いちばん おくの 星空のはての階（50階）の 休み所に、ふしぎないでんし（大事な物。1人 1回。ミュウの 素材配合）
   if (f === SD_MEW_FLOOR) out.push({ item: 'mew_gene', n: 1 });
   return out;
+}
+
+// 第45回（ドラクエふう D1）: 四季のこよみ（こよみのせいれいの 素材配合の 大事な物）が ある 階（黄金の古代の階の はじめ）
+export const SD_KOYOMI_FLOOR = 40;
+// 休み所の 宝箱に たす 大事な物（c … 開けた キャラ）。まだ 持っていない・こよみのせいれいを 生んだ ことが ない 人に 1回
+//   （大きな ごほうびの 時も・2回目からの 時も。前の 版で 40階の ごほうびを もらった 人も もらえる）
+export function sdKeyRewards(f, c) {
+  return f === SD_KOYOMI_FLOOR && dqKeyDue(c, 'koyomi_book') ? [{ item: 'koyomi_book', n: 1 }] : [];
 }
 
 // 2回目からの 小さな ごほうび（1つ。rng … 世界の 乱数）

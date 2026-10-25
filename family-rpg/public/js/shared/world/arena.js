@@ -22,6 +22,8 @@ import {
   ARENA_RANKS, ARENA_POS, ARENA_MAP, rankInfo, rankLabel, rankOpen, rankCleared, visibleRanks, noteClear, nextRepeatMedal, firstMedalId,
   wallRows, arenaRecord, BET_LV, BET_POOL, BET_AMOUNTS, BET_PAIRS, ODDS_TRIES, duelRate, winChances, oddsOf, payout,
 } from '../data/arena.js';
+// 第45回: 竜王のしるしを もらえるか（data/companions-dqm.js）
+import { dqKeyDue } from '../data/companions-dqm.js';
 
 const say = (who, text) => ['say', who, text];
 const CLERK = '闘技場の受付';
@@ -208,6 +210,11 @@ export function clearRewards(run, n) {
       c.medalSpots = c.medalSpots && typeof c.medalSpots === 'object' ? c.medalSpots : {};
       c.medalSpots[nextRepeatMedal(c)] = now;
       out.push(['sfx', 'item'], say(null, `${c.name}は${fmt(R.repeatGold)}ゴールドと、小さなメダルを1枚手に入れた！`));
+    }
+    // 第45回: 大事な物（ランク8 の 竜王のしるし。1人 1つ）
+    if (R.key && dqKeyDue(c, R.key)) {
+      addItem(c, R.key, 1);
+      out.push(['sfx', 'key'], say(null, `${c.name}は${ITEMS[R.key].name}を手に入れた！\n（ドラゴン系の魔物2ひきと配合すると…？）`));
     }
     w.sendSelf(m);
   }

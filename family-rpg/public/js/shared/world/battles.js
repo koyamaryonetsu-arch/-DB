@@ -24,6 +24,8 @@ import { topLevel, battleTeamChars, expHatMult } from './perks.js';
 import { battleTactics } from './tactics.js';
 // 第6章 Step 3・4: 昼か 夜か（星座の 魔物。battle-road.js）
 import { isNightFor } from './clock.js';
+// 第45回: お金が ふえる 魔物の 仲間（ゴールドぷるりん。data/companions-dqm.js の passive.gold）
+import { MONSTER_FRIENDS } from '../data/companions.js';
 
 let battleSeq = 1;
 
@@ -388,7 +390,8 @@ function finishBattle(world, ctx) {
     exp += bonus.exp;
     gold += bonus.gold;
     // 海賊・会社員など: お金が ふえる 職業が いると ゴールドが ふえる
-    const goldMult = Math.max(1, ...Object.values(ctx.actorMap).map((w) => JOBS[w?.char?.job]?.passive?.gold || 1));
+    //   第45回: ゴールドぷるりん（魔物の 仲間）も（いちばん 大きい 倍率だけ）
+    const goldMult = Math.max(1, ...Object.values(ctx.actorMap).map((w) => JOBS[w?.char?.job]?.passive?.gold || MONSTER_FRIENDS[w?.char?.species]?.passive?.gold || 1));
     // きほんの 倍率（経験値 0.6・お金 0.7。data/difficulty.js。設定の「もらえる経験値」は この あとの scaleExp）
     exp = rewardExp(exp);
     gold = rewardGold(Math.round(gold * goldMult));

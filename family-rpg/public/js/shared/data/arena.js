@@ -64,6 +64,9 @@ export const ARENA_RANKS = [
     rank: 8, lv: 56, champ: '伝説のチャンピオン', battles: ['ar8_1', 'ar8_2', 'ar8_3'], legend: true, needFlag: 'c5_nocto1',
     lockText: '（大地の神殿のおくで、ある少年と戦ったあとに、開くらしい）',
     first: { items: ['ar_legend_belt', 'ar_legend_mantle'], medals: 5 }, repeatGold: 6000,
+    // 第45回（ドラクエふう D1）: 大事な物「竜王のしるし」（竜王のまごの 素材配合）。まだ 持っていない・竜王のまごを 生んだ ことが ない 人に、
+    //   勝ちぬいた 時（はじめて でも 2回目からでも）1回（world/arena.js の clearRewards・companions-dqm.js の dqKeyDue）
+    key: 'ryuou_seal',
     hint: '剣を高くかかげたら、3人の合体技の合図。弟子を先にたおすと弱くなる。',
   },
 ];
