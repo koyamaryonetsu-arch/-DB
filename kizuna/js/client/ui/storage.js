@@ -3,12 +3,12 @@
 // 「どうする？」→ 魔物をあずける／魔物をひきとる／やめる
 //   あずける: 仲間の 魔物を えらぶ（パーティー・馬車に いても よい。装備は ふくろへ）→「〇〇をあずかるね。いい？」
 //   ひきとる: あずかり中の 魔物を えらぶ → 酒場へ（仲間が いっぱい〈40〉なら できない）
-import { el, esc } from './dom.js?v=2551bc2b5aab';
-import { Counter } from './counter.js?v=2551bc2b5aab';
-import { request } from './shop.js?v=2551bc2b5aab';
-import { faceURL } from '../field.js?v=2551bc2b5aab';
-import { boardIconURL } from '../render/boards.js?v=2551bc2b5aab';
-import { MONSTERS } from '../../shared/data/monsters.js?v=2551bc2b5aab';
+import { el, esc } from './dom.js?v=6ce2458453d2';
+import { Counter } from './counter.js?v=6ce2458453d2';
+import { request } from './shop.js?v=6ce2458453d2';
+import { faceURL } from '../field.js?v=6ce2458453d2';
+import { boardIconURL } from '../render/boards.js?v=6ce2458453d2';
+import { MONSTERS } from '../../shared/data/monsters.js?v=6ce2458453d2';
 
 const AGAIN = 'ほかにもご用はある？';
 

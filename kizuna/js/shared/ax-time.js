@@ -7,12 +7,12 @@
 // ・おそい 設定（速さ 0.85 より 下）でも 大技は 0.85 の 速さ（ts … エフェクトの 時計を 何ばい 速める か）
 // ・サーバーは lockMs だけ つぎの 行動を まつ（ev.extraLock。ほかの extraLock と おなじく ÷ 速さ）
 // きまりは docs/plan-r48-fx.md の「G0 の 決めごと」
-import { AX_TIME_G1, AX_SKILLS_G1, AX_FAMILIES_G1 } from './data/ax-time-g1.js?v=2551bc2b5aab';
-import { AX_TIME_G2, AX_SKILLS_G2, AX_FAMILIES_G2 } from './data/ax-time-g2.js?v=2551bc2b5aab';
-import { AX_TIME_G3, AX_SKILLS_G3, AX_FAMILIES_G3 } from './data/ax-time-g3.js?v=2551bc2b5aab';
-import { AX_TIME_G4, AX_SKILLS_G4, AX_FAMILIES_G4 } from './data/ax-time-g4.js?v=2551bc2b5aab';
-import { AX_TIME_G5, AX_SKILLS_G5, AX_FAMILIES_G5 } from './data/ax-time-g5.js?v=2551bc2b5aab';
-import { AX_TIME_G6, AX_SKILLS_G6, AX_FAMILIES_G6 } from './data/ax-time-g6.js?v=2551bc2b5aab';
+import { AX_TIME_G1, AX_SKILLS_G1, AX_FAMILIES_G1 } from './data/ax-time-g1.js?v=6ce2458453d2';
+import { AX_TIME_G2, AX_SKILLS_G2, AX_FAMILIES_G2 } from './data/ax-time-g2.js?v=6ce2458453d2';
+import { AX_TIME_G3, AX_SKILLS_G3, AX_FAMILIES_G3 } from './data/ax-time-g3.js?v=6ce2458453d2';
+import { AX_TIME_G4, AX_SKILLS_G4, AX_FAMILIES_G4 } from './data/ax-time-g4.js?v=6ce2458453d2';
+import { AX_TIME_G5, AX_SKILLS_G5, AX_FAMILIES_G5 } from './data/ax-time-g5.js?v=6ce2458453d2';
+import { AX_TIME_G6, AX_SKILLS_G6, AX_FAMILIES_G6 } from './data/ax-time-g6.js?v=6ce2458453d2';
 
 // 段階（B 基本・A 上級・S 超級・L 伝説）
 export const AX_TIERS = ['basic', 'advanced', 'super', 'legend'];

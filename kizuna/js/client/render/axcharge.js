@@ -3,9 +3,9 @@
 // ・tier（段階）: basic（みじかい）→ advanced → super（画面が くらく・すこし ゆれる・じめんの いしが うく）
 //                → legend（さらに カットインの 帯・つよい ゆれ・はなつ 直前の スローモーションの ひかり）
 // ・時間は ms（エフェクトの 時計。たたかいの 速さは Effects.tempo が かける）
-import { aura, gather, bolt, tint, cutIn, shapes, pillar, rnd, mixHex } from './axkit.js?v=2551bc2b5aab';
+import { aura, gather, bolt, tint, cutIn, shapes, pillar, rnd, mixHex } from './axkit.js?v=6ce2458453d2';
 // 段階・ためかたの なまえ・ためる 時間は サーバーと おなじ 表（shared/ax-time.js）
-import { AX_CHARGE_KINDS, AX_TIERS, AX_TIER_CHARGE_MS, axTierOf, axKindOf, axChargeMs } from '../../shared/ax-time.js?v=2551bc2b5aab';
+import { AX_CHARGE_KINDS, AX_TIERS, AX_TIER_CHARGE_MS, axTierOf, axKindOf, axChargeMs } from '../../shared/ax-time.js?v=6ce2458453d2';
 
 export const CHARGE_KINDS = AX_CHARGE_KINDS;
 export const TIERS = AX_TIERS;

@@ -4,11 +4,11 @@
 // ・メダル王の城 … カモメ港の 東の 海に うかぶ 小さな 島。船で 行ける（第2章）
 // ・小さなメダル … 30枚。つぼ・たる・本だな・井戸など（調べる）、光っている 場所、洞窟・塔の 新しい 宝箱
 //   ここに ある ものは attachCasino(maps) で 今の マップに たす（ほかの マップの ファイルは かえない）
-import { T, parseRows } from '../tiles.js?v=2551bc2b5aab';
-import { npc } from './npc.js?v=2551bc2b5aab';
-import { PORT } from './sea.js?v=2551bc2b5aab';
-import { SEA_PLACES } from './ch2.js?v=2551bc2b5aab';
-import { PLACES } from './overworld.js?v=2551bc2b5aab';
+import { T, parseRows } from '../tiles.js?v=6ce2458453d2';
+import { npc } from './npc.js?v=6ce2458453d2';
+import { PORT } from './sea.js?v=6ce2458453d2';
+import { SEA_PLACES } from './ch2.js?v=6ce2458453d2';
+import { PLACES } from './overworld.js?v=6ce2458453d2';
 
 // ───────────── カジノの 中 ─────────────
 // C=カウンター（コイン・景品・ポーカーの 台）  l=ランプ  *=花  r=じゅうたん  S=たな  o=つぼ  O=たる  D=出口

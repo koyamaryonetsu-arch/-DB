@@ -3,15 +3,15 @@
 //   2行め: 威力・効果の 目安（ふつうの 攻撃の 何倍・ダメージ・回復の 量・何が 上がるか）
 //   3行め: せつめい（data の desc）。転職の ペナルティ・上位の 技なども
 // 相手を えらぶ 前（敵が 1体・自分に かける・全体の 技でも）に 見える。client/battle.js の abilityMenu・itemMenu
-import { ABILITIES, abilityTypeText, abilityRole } from '../../shared/data/abilities.js?v=2551bc2b5aab';
-import { abilityFor, abilityLabel } from '../../shared/ability-label.js?v=2551bc2b5aab';
-import { ITEMS } from '../../shared/data/items.js?v=2551bc2b5aab';
-import { JOBS } from '../../shared/data/jobs.js?v=2551bc2b5aab';
-import { SKILL_UPS } from '../../shared/data/skill-ups.js?v=2551bc2b5aab';
-import { mpCost, penaltyFor, comboAllowed } from '../../shared/stats.js?v=2551bc2b5aab';
-import { targetText, itemDetail } from './info.js?v=2551bc2b5aab';
+import { ABILITIES, abilityTypeText, abilityRole } from '../../shared/data/abilities.js?v=6ce2458453d2';
+import { abilityFor, abilityLabel } from '../../shared/ability-label.js?v=6ce2458453d2';
+import { ITEMS } from '../../shared/data/items.js?v=6ce2458453d2';
+import { JOBS } from '../../shared/data/jobs.js?v=6ce2458453d2';
+import { SKILL_UPS } from '../../shared/data/skill-ups.js?v=6ce2458453d2';
+import { mpCost, penaltyFor, comboAllowed } from '../../shared/stats.js?v=6ce2458453d2';
+import { targetText, itemDetail } from './info.js?v=6ce2458453d2';
 // 第38回 C: バフ・デバフは 3回行動のあいだ・じわじわ回復の 回数は 技の レベルで（shared/buff-acts.js）
-import { BUFF_ACTS, REGEN_BASE, regenTimes, skillLevel } from '../../shared/buff-acts.js?v=2551bc2b5aab';
+import { BUFF_ACTS, REGEN_BASE, regenTimes, skillLevel } from '../../shared/buff-acts.js?v=6ce2458453d2';
 
 const STAT = { atk: '攻撃力', def: '守備力', agi: '素早さ', mag: '魔力', heal: '回復魔力', eva: 'かわしやすさ', dfn: '守備力', hit: '命中' };
 const STATUS = { sleep: 'ねむり', paralyze: 'マヒ', confuse: '混乱', blind: 'まぼろし', silence: '呪文ふうじ', poison: '毒', stop: '動けない' };
