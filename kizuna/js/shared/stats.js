@@ -1,18 +1,18 @@
 // キャラクターの つよさ計算・レベルアップ・転職ペナルティ
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_EASY_RATE, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets, jobBodyOk, superMasteredCount } from './data/jobs.js?v=2173b59e8cbd';
-import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=2173b59e8cbd';
-import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=2173b59e8cbd';
-import { MONSTERS } from './data/monsters.js?v=2173b59e8cbd';
-import { MONSTER_FRIENDS, monsterNatural, gearOf, monsterLevelCap } from './data/companions.js?v=2173b59e8cbd';
-import { ougiLearn } from './data/abilities-ougi.js?v=2173b59e8cbd';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_EASY_RATE, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets, jobBodyOk, superMasteredCount } from './data/jobs.js?v=855c00e900d9';
+import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=855c00e900d9';
+import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=855c00e900d9';
+import { MONSTERS } from './data/monsters.js?v=855c00e900d9';
+import { MONSTER_FRIENDS, monsterNatural, gearOf, monsterLevelCap } from './data/companions.js?v=855c00e900d9';
+import { ougiLearn } from './data/abilities-ougi.js?v=855c00e900d9';
 // 第43回 A: 魔物の 育ち・ランクの 強さ（data/companions.js の rankIdx）
-import { rankIdx } from './data/companions.js?v=2173b59e8cbd';
-import { HIRAMEKI, hiraRatio } from './data/hirameki.js?v=2173b59e8cbd';
-import { cleanLook } from './data/looks.js?v=2173b59e8cbd';
-import { SKILL_UPS } from './data/skill-ups.js?v=2173b59e8cbd';
-import { jobLabel } from './job-label.js?v=2173b59e8cbd';
+import { rankIdx } from './data/companions.js?v=855c00e900d9';
+import { HIRAMEKI, hiraRatio } from './data/hirameki.js?v=855c00e900d9';
+import { cleanLook } from './data/looks.js?v=855c00e900d9';
+import { SKILL_UPS } from './data/skill-ups.js?v=855c00e900d9';
+import { jobLabel } from './job-label.js?v=855c00e900d9';
 // 第38回 B: 超級職からの 職業レベルの 上限（職業の試練）と Lv11〜 の 強さ
-import { jobLevelCap, jobUpStats } from './data/job-trials.js?v=2173b59e8cbd';
+import { jobLevelCap, jobUpStats } from './data/job-trials.js?v=855c00e900d9';
 
 // 長い 物語に なるので レベルは 150まで（第40回で 99 → 150。レベルで ふえる つよさは ひかえめ）
 export const MAX_LEVEL = 150;

@@ -11,20 +11,21 @@
 // ・仲間 … 両方の 仲間を のこす（べつべつに 仲間に なった まものは 両方とも。家族の パーティーで 酒場に 来た まものも おなじ）
 // ・預かり所 … お金も 品物も、両方で 預けた・引き出した ぶんを たす
 // ・いる場所・HP・作戦 など … 両方で かわって いたら、あとで 遊んだ ほう
-import { expForLevel, MAX_LEVEL, computeStats } from '../stats.js?v=2173b59e8cbd';
-import { JOBS, jobBattlesForLevel } from '../data/jobs.js?v=2173b59e8cbd';
+import { expForLevel, MAX_LEVEL, computeStats } from '../stats.js?v=855c00e900d9';
+import { JOBS, jobBattlesForLevel } from '../data/jobs.js?v=855c00e900d9';
 // 第38回 B: 職業の試練（クリアした 数は 多い ほう・受けている 試練の 修行は 多い ほう）。上限は クリアした 数から
-import { mergeTrialInfo, jobCapOf } from '../data/job-trials.js?v=2173b59e8cbd';
-import { ITEMS, SLOTS } from '../data/items.js?v=2173b59e8cbd';
-import { STORY_STEPS } from '../data/story.js?v=2173b59e8cbd';
-import { COMPANION_SLOTS } from '../data/companions.js?v=2173b59e8cbd';
-import { WAGON_SLOTS } from '../data/wagon.js?v=2173b59e8cbd';
-import { repairChar } from './save.js?v=2173b59e8cbd';
-import { mergeTreasureMaps } from '../data/treasure.js?v=2173b59e8cbd';
-import { mergeSecret } from '../data/secret.js?v=2173b59e8cbd';
-import { mergeAlchemy } from './alchemy.js?v=2173b59e8cbd';
-import { mergeArena } from '../data/arena.js?v=2173b59e8cbd';
-import { COIN_MAX } from '../data/casino.js?v=2173b59e8cbd';
+import { mergeTrialInfo, jobCapOf } from '../data/job-trials.js?v=855c00e900d9';
+import { ITEMS, SLOTS } from '../data/items.js?v=855c00e900d9';
+import { STORY_STEPS } from '../data/story.js?v=855c00e900d9';
+import { COMPANION_SLOTS } from '../data/companions.js?v=855c00e900d9';
+import { STORAGE_MAX } from './party.js?v=855c00e900d9';
+import { WAGON_SLOTS } from '../data/wagon.js?v=855c00e900d9';
+import { repairChar } from './save.js?v=855c00e900d9';
+import { mergeTreasureMaps } from '../data/treasure.js?v=855c00e900d9';
+import { mergeSecret } from '../data/secret.js?v=855c00e900d9';
+import { mergeAlchemy } from './alchemy.js?v=855c00e900d9';
+import { mergeArena } from '../data/arena.js?v=855c00e900d9';
+import { COIN_MAX } from '../data/casino.js?v=855c00e900d9';
 
 const GOLD_MAX = 9999999;
 const clone = (x) => (x === undefined ? undefined : JSON.parse(JSON.stringify(x)));
@@ -211,6 +212,7 @@ function mergeBody(b, a, t, tLater) {
       // 馬車は どちらかで もらって いれば もっている
       case 'wagon': out.wagon = va || vt ? true : undefined; break;
       case 'level': case 'companions': case 'items': case 'equip': case 'partyKeys': case 'wagonKeys': break; // あとで
+      case 'storage': break; // あとで（魔物あずかり所。第43回 C）
       default: out[k] = pick(vb, va, vt, tLater);
     }
     if (out[k] === undefined) delete out[k];
@@ -291,6 +293,7 @@ export function mergeChars(base, ours, theirs) {
 
   // 仲間（まものの 番号が かさなったら あたらしい 番号に）
   const used = new Set([...(a.companions || []), ...(t.companions || [])].map((e) => e?.key));
+  for (const e of [...(a.storage || []), ...(t.storage || [])]) used.add(e?.key);
   let seq = Math.max(num(a.monsterSeq), num(t.monsterSeq), 1);
   const nextKey = () => {
     while (used.has(`m${seq}`)) seq++;
@@ -303,6 +306,13 @@ export function mergeChars(base, ours, theirs) {
     const r = mergeCompanions(b.companions, a.companions, t.companions, tLater, nextKey);
     out.companions = r.list;
     renamed = r.renamed;
+    out.monsterSeq = Math.max(out.monsterSeq || 1, seq);
+  }
+  // 魔物あずかり所（第43回 C）: 仲間と 同じ 合わせかた。仲間に いる 魔物は あずかり所から はずす（両方で 出し入れした 時）
+  if (a.storage || t.storage) {
+    const r = mergeCompanions(b.storage, a.storage, t.storage, tLater, nextKey);
+    const inRoster = new Set((out.companions || []).map((e) => e.key));
+    out.storage = r.list.filter((e) => !inRoster.has(e.key)).slice(0, STORAGE_MAX);
     out.monsterSeq = Math.max(out.monsterSeq || 1, seq);
   }
   out.equip = mergeEquip(b.equip, a.equip, t.equip, tLater);

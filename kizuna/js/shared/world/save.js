@@ -5,19 +5,19 @@
 // ・知らない 項目や 知らない 品物・職業・モンスターは けさずに とっておく（stash）。
 //   あとで その ゲームが 知っている ものに なったら もとに もどす
 // ・品物・職業・モンスター・マップの ID は けさない・なまえを かえない
-import { ITEMS, SLOTS } from '../data/items.js?v=2173b59e8cbd';
-import { JOBS } from '../data/jobs.js?v=2173b59e8cbd';
-import { MONSTERS } from '../data/monsters.js?v=2173b59e8cbd';
-import { migrateJobs, oldComboUnlocks, addItem, fixBodyJob } from '../stats.js?v=2173b59e8cbd';
-import { repairTreasureMaps } from '../data/treasure.js?v=2173b59e8cbd';
-import { ensureTmClears } from '../data/casino-tier.js?v=2173b59e8cbd';
-import { repairSecret } from '../data/secret.js?v=2173b59e8cbd';
-import { repairAlchemy } from './alchemy.js?v=2173b59e8cbd';
-import { normBank } from './bank.js?v=2173b59e8cbd';
-import { cleanWagon } from '../data/wagon.js?v=2173b59e8cbd';
-import { cleanLookEquip } from '../look-equip.js?v=2173b59e8cbd';
-import { cleanVehicles } from '../data/vehicles.js?v=2173b59e8cbd';
-import { repairTrialInfo } from '../data/job-trials.js?v=2173b59e8cbd';
+import { ITEMS, SLOTS } from '../data/items.js?v=855c00e900d9';
+import { JOBS } from '../data/jobs.js?v=855c00e900d9';
+import { MONSTERS } from '../data/monsters.js?v=855c00e900d9';
+import { migrateJobs, oldComboUnlocks, addItem, fixBodyJob } from '../stats.js?v=855c00e900d9';
+import { repairTreasureMaps } from '../data/treasure.js?v=855c00e900d9';
+import { ensureTmClears } from '../data/casino-tier.js?v=855c00e900d9';
+import { repairSecret } from '../data/secret.js?v=855c00e900d9';
+import { repairAlchemy } from './alchemy.js?v=855c00e900d9';
+import { normBank } from './bank.js?v=855c00e900d9';
+import { cleanWagon } from '../data/wagon.js?v=855c00e900d9';
+import { cleanLookEquip } from '../look-equip.js?v=855c00e900d9';
+import { cleanVehicles } from '../data/vehicles.js?v=855c00e900d9';
+import { repairTrialInfo } from '../data/job-trials.js?v=855c00e900d9';
 
 export const SAVE_VERSION = 4;
 
@@ -79,7 +79,7 @@ function stashOf(c) {
 
 function cleanStash(c) {
   const st = c.stash;
-  if (st && !st.items.length && !st.keyItems.length && !st.companions.length && !st.job) delete c.stash;
+  if (st && !st.items.length && !st.keyItems.length && !st.companions.length && !st.job && !st.storage?.length) delete c.stash;
 }
 
 // 1人ぶんを 読める 形に ととのえる（何回 よんでも おなじ けっか）
@@ -166,6 +166,20 @@ export function repairChar(c, id) {
         c.companions.push(e);
       }
     }
+  }
+  // 魔物あずかり所（第43回 C。ない ときは そのまま〈空と 同じ〉。知らない モンスターは しまう。新しい 項目なので 版は 上げない）
+  if (Array.isArray(c.storage) || st.storage?.length) {
+    const all = [...(Array.isArray(c.storage) ? c.storage : []), ...(Array.isArray(st.storage) ? st.storage.splice(0) : [])];
+    c.storage = [];
+    for (const e of all) {
+      if (!e || !e.key || !e.char) continue;
+      if (!known(MONSTERS, e.species || e.char.species)) (st.storage = Array.isArray(st.storage) ? st.storage : []).push(e);
+      else {
+        repairChar(e.char);
+        c.storage.push(e);
+      }
+    }
+    if (Array.isArray(st.storage) && !st.storage.length) delete st.storage;
   }
   repairTreasureMaps(c); // 宝の地図（なくても よい）
   // 第37回 B: 宝の地図の クリア数（カジノの 段）。むかしの セーブは 1回だけ のこっている きろくから 数える（版は 上げない）

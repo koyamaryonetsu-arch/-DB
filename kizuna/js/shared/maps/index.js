@@ -1,26 +1,26 @@
 // マップの ぜんたい（フィールド・どうくつ）と、そこに いる 人や たからばこ
-import { T, parseRows, TILE_INFO } from '../tiles.js?v=2173b59e8cbd';
-import { makeRng, hash2 } from '../rng.js?v=2173b59e8cbd';
-import { buildOverworld, PLACES, zoneAt, areaName, OW_W, OW_H, CAVE_ENTRANCE, FOREST_CLEARING, LAKE, SWAMP } from './overworld.js?v=2173b59e8cbd';
-import { CAVE_B1_ROWS, CAVE_B2_ROWS } from './cave-rows.js?v=2173b59e8cbd';
-import { npc } from './npc.js?v=2173b59e8cbd';
-import { buildCh2Maps, SEA_PLACES } from './ch2.js?v=2173b59e8cbd';
-import { buildTreasureFloor } from './treasure-cave.js?v=2173b59e8cbd';
-import { buildSecretFloor, buildSecretMaps, SD_DOOR_NPCS, SD_DOOR_TRIGGERS, SD_DOOR_SIGNS } from './secret-dungeon.js?v=2173b59e8cbd';
-import { addNightNpcs } from './night-npcs.js?v=2173b59e8cbd';
-import { attachCasino } from './casino.js?v=2173b59e8cbd';
-import { buildCh3Maps, ch3SearchMats, NORTH_SPARKLE_LOOT } from './ch3.js?v=2173b59e8cbd';
-import { buildCh4Maps, ch4SearchMats, SOUTH_SPARKLE_LOOT } from './ch4.js?v=2173b59e8cbd';
-import { attachLab } from './labyrinth.js?v=2173b59e8cbd';
-import { attachTower } from './tower.js?v=2173b59e8cbd';
-import { attachKumoi } from './kumoi.js?v=2173b59e8cbd';
-import { attachHoshiyomi } from './hoshiyomi.js?v=2173b59e8cbd';
-import { attachEarth } from './earth.js?v=2173b59e8cbd';
-import { attachCastle } from './castle.js?v=2173b59e8cbd';
-import { attachCastleTop } from './castle-top.js?v=2173b59e8cbd';
-import { attachFamilyQuests } from './family-quests.js?v=2173b59e8cbd';
+import { T, parseRows, TILE_INFO } from '../tiles.js?v=855c00e900d9';
+import { makeRng, hash2 } from '../rng.js?v=855c00e900d9';
+import { buildOverworld, PLACES, zoneAt, areaName, OW_W, OW_H, CAVE_ENTRANCE, FOREST_CLEARING, LAKE, SWAMP } from './overworld.js?v=855c00e900d9';
+import { CAVE_B1_ROWS, CAVE_B2_ROWS } from './cave-rows.js?v=855c00e900d9';
+import { npc } from './npc.js?v=855c00e900d9';
+import { buildCh2Maps, SEA_PLACES } from './ch2.js?v=855c00e900d9';
+import { buildTreasureFloor } from './treasure-cave.js?v=855c00e900d9';
+import { buildSecretFloor, buildSecretMaps, SD_DOOR_NPCS, SD_DOOR_TRIGGERS, SD_DOOR_SIGNS } from './secret-dungeon.js?v=855c00e900d9';
+import { addNightNpcs } from './night-npcs.js?v=855c00e900d9';
+import { attachCasino } from './casino.js?v=855c00e900d9';
+import { buildCh3Maps, ch3SearchMats, NORTH_SPARKLE_LOOT } from './ch3.js?v=855c00e900d9';
+import { buildCh4Maps, ch4SearchMats, SOUTH_SPARKLE_LOOT } from './ch4.js?v=855c00e900d9';
+import { attachLab } from './labyrinth.js?v=855c00e900d9';
+import { attachTower } from './tower.js?v=855c00e900d9';
+import { attachKumoi } from './kumoi.js?v=855c00e900d9';
+import { attachHoshiyomi } from './hoshiyomi.js?v=855c00e900d9';
+import { attachEarth } from './earth.js?v=855c00e900d9';
+import { attachCastle } from './castle.js?v=855c00e900d9';
+import { attachCastleTop } from './castle-top.js?v=855c00e900d9';
+import { attachFamilyQuests } from './family-quests.js?v=855c00e900d9';
 // 第6章 Step 1・2（A）: 千年前の ミドリナ地方・時のほこら・時のいせき（maps/past.js・toki-shrine.js・toki-ruin.js）
-import { attachCh6 } from './ch6.js?v=2173b59e8cbd';
+import { attachCh6 } from './ch6.js?v=855c00e900d9';
 
 const V = (x, y) => [PLACES.village.x + x, PLACES.village.y + y];
 const TW = (x, y) => [PLACES.town.x + x, PLACES.town.y + y];
@@ -95,6 +95,8 @@ const OVERWORLD_NPCS = [
   npc('town_smith', 'かじ屋の親方', TW(31, 29), 'smith', 'forge_town'),
   // 第37回: 乗り物屋（南の 広場の 下。data/vehicles.js）
   npc('vehicle_keeper', '乗り物屋のハヤテ', TW(29, 24), 'vehicle_keeper', 'vehicle_shop', { dir: 'down' }),
+  // 第43回 C: 魔物あずかり所（町長の 家の 東の 小屋。world/storage.js）
+  npc('monster_keeper', '魔物あずかり所のモモ', TW(14, 4), 'girl', 'monster_storage', { dir: 'down' }),
 
   // フィールド
   npc('bridge_worker', '橋の番人', [123, 61], 'carpenter', 'bridge_worker'),
@@ -146,6 +148,8 @@ export const BOARD_NAMES = {
   bank: '預かり所', smith: 'かじ屋',
   // 第37回
   vehicle: '乗り物屋',
+  // 第43回 C
+  monster: '魔物あずかり所',
   // 第4章 王都サファラ
   palace: '宮殿', arena: '闘技場', scholar: '学者の家',
 };
@@ -164,6 +168,7 @@ const OVERWORLD_BOARDS = [
   board(TW(28, 32), 'bank'),
   board(TW(30, 32), 'smith'),
   board(TW(30, 26), 'vehicle'),
+  board(TW(13, 8), 'monster'),
 ];
 
 // ───────────── ワープ（出入り口） ─────────────
@@ -221,7 +226,9 @@ function buildMaps() {
         [3, 21, 8, 6, 'teal'], [37, 21, 8, 6, 'brown'], [3, 28, 9, 6, 'purple'], [14, 29, 7, 5, 'pink'], [36, 29, 9, 5, 'brown'],
         [26, 28, 7, 5, 'orange'],
         // 第37回: 乗り物屋
-        [26, 23, 7, 4, 'teal']]
+        [26, 23, 7, 4, 'teal'],
+        // 第43回 C: 魔物あずかり所
+        [12, 3, 5, 6, 'orange']]
         .map(([x, y, w, h, color]) => ({ x: PLACES.town.x + x, y: PLACES.town.y + y, w, h, color })),
     ],
     zoneAt, areaName,
