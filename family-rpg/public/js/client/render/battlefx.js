@@ -20,6 +20,8 @@ import { playR41bFx, R41B_FINE } from './battlefx-r41b.js';
 import { playR41aFx, R41A_FINE } from './battlefx-r41a.js';
 // 第43回の 配管工の 系統の 技（battlefx-r43j.js）
 import { playR43jFx, R43J_FINE } from './battlefx-r43j.js';
+// 第44回の ポケモンの 技（battlefx-pokemon.js。anim は 'pk_…'）
+import { playPokemonFx, PK_FINE } from './battlefx-pokemon.js';
 import { drawPalaceHall, drawPalaceFloor } from './ch4-palace-bg.js';
 // 第4章 Step 6: 砂の古城・砂の海（すなかぜ号の かんぱん）・砂クジラの ねどこ（ch4-duna-bg.js）
 import { drawCastleHall, drawCastleFloor, drawSandSea } from './ch4-duna-bg.js';
@@ -1230,6 +1232,7 @@ Object.assign(FINE, JOB_FINE, JOB2_FINE, JOB3_FINE, JOB4_FINE, JOB5_FINE, JOB6_F
 Object.assign(FINE, R41B_FINE);
 Object.assign(FINE, R41A_FINE);
 Object.assign(FINE, R43J_FINE);
+Object.assign(FINE, PK_FINE);
 
 export class Effects {
   constructor() {
@@ -1491,6 +1494,8 @@ export class Effects {
   // anim の しゅるいで エフェクトを だす
   // opts: { crit, element, fromAlly }
   play(anim, targets, element, opts = {}) {
+    // 第44回の ポケモンの 技（battlefx-pokemon.js。anim は 'pk_…'。敵が みんなに つかう ときも ここ）
+    if (playPokemonFx(this, anim, targets, element, opts, BW, BH)) return;
     // 学校・公務員・町の みかた・アイドルの 技（battlefx-jobs.js）
     if (playJobFx(this, anim, targets, element, opts, BW, BH)) return;
     // サイヤ人・ゴム人間・中二病・配信者・魔王 などの 技（battlefx-jobs2.js）

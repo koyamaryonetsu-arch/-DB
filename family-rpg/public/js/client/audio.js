@@ -3,6 +3,7 @@ import { SFX_R26 } from './sfx-r26.js';
 import { SFX_R27 } from './sfx-r27.js';
 import { SFX_R29 } from './sfx-r29.js';
 import { SFX_R33 } from './sfx-r33.js';
+import { SFX_PK } from './sfx-pokemon.js';
 import { KUMOI_TRACKS } from './audio-kumoi.js';
 import { HOSHIYOMI_TRACKS } from './audio-hoshiyomi.js';
 import { EARTH_TRACKS } from './audio-earth.js';
@@ -788,6 +789,8 @@ export class GameAudio {
         else if (SFX_R29[id]) SFX_R29[id](this, T);
         // 第33回の 11この 職業の 技の 音（sfx-r33.js）
         else if (SFX_R33[id]) SFX_R33[id](this, T);
+        // 第44回の ポケモンの 技の 音（sfx-pokemon.js）
+        else if (SFX_PK[id]) SFX_PK[id](this, T);
     }
   }
 }

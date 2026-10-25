@@ -170,3 +170,18 @@
 - 出す 所の 案：ルミナの 町の 近くに「土管」（ミドリナ地方の かくれた 所）→ 土管の 中の 小さな ステージ（より道）。第7章の 千年前の 緑の王国にも 合う
 - 敵を 作る 量：マリオの 敵は 形が かんたんで、色ちがいが もともと 多い（赤・緑の ノコノコ など）ので、1しゅ かけば 色ちがいで 2〜3しゅに ふやせる
 - 音：ジャンプ・こうら・コインの 音は 短い こうか音を 足す（BGM は 今の 曲で）
+
+## 実装メモ（ポケモン P2）
+
+> 第44回。ポケモン 第1だん（19しゅ）の **絵と 技の えんしゅつ**だけ（データ・しんか・技の 中身は P1）。名前の やくそく（種族 id・anim の 名前）は P1 と おなじ
+
+- **絵**: `public/js/client/render/pokemon-art.js`（`addPokemonArt(ART)` を `render/monsters.js` から よぶ。かきかたは ほかの 章の 絵と おなじ。コマ0 … ゆらゆら まつ、コマ1 … こうげきの ポーズ）
+  - 19しゅ: pikachu・raichu／charmander・charmeleon・charizard／squirtle・wartortle・blastoise／bulbasaur・ivysaur・venusaur／eevee・flareon・vaporeon・jolteon・umbreon／snorlax・gengar・mew
+  - 大きさ: 1だんめ 30〜36 ドット → 2だんめ 38〜46 → 3だんめ（リザードン 72×64・カメックス 62×60・フシギバナ 70×60）。カビゴン 66×64。大きい 4しゅは `field`（27〜28）で フィールドでも すこし 大きい
+  - 子どもが 見て すぐ わかる 形と 色（ピカチュウの 赤い ほっぺと いなずまの しっぽ、リザードンの 青みどりの つばさと しっぽの 火、カメックスの 2本の 大ほう、フシギバナの 大きな 花、カビゴンは ねむって Z → コマ1で 目を あけて 手を 上げる、ゲンガーの 赤い め と にやり口 など）
+- **技の えんしゅつ**: `public/js/client/render/battlefx-pokemon.js`（`playPokemonFx` を `battlefx.js` の `play()` の いちばん はじめに よぶ。つぶの 絵は `PK_FINE`）
+  - 12こ: pk_spark・pk_thunder・pk_quick・pk_ember・pk_flame（かえんほうしゃ → 「大」の 形の 火）・pk_water・pk_hydro・pk_leaf・pk_solar（ためて ビーム）・pk_shadow・pk_psychic・pk_bodyslam
+  - 出どころ（`opts.from`）→ あいての むきで かくので、**味方の ポケモンが 敵に**（がめんの 下 → 上）でも **敵の ポケモンが みんなに**（敵 → がめんの 下の みんなの いち）でも 形が くずれない。2びょう いないで おわる
+  - `client/battle.js`: あたる じかん `PK_HIT` を HIT_DELAY に、音 `PK_SFX` を ANIM_SFX に まぜる。敵が pk_ の 技を みんなに つかうと、ふつうの「てまえの こうげき（closeUp）」の かわりに ポケモンの 技を みんなの いちに 出す（あたる ときは 敵の うごきの おわりに あわせる）。まどの えんしゅつは `PK_ALLY_FX`
+  - 音: `public/js/client/sfx-pokemon.js`（`SFX_PK`。なまえは anim と おなじ。`audio.js` の しらない 音の ところで よぶ）
+- テスト: `test/pokemon-art-r44.test.js`（19しゅの 絵が 2コマ かける・パレット・はみだし・しんかで 大きく、12この えんしゅつが 敵1体／敵3体／みんな で こわれない・あたる じかん・音・つながり。データが まだ なくても とおる）。`test/fx-r27.test.js` の「エフェクトが ある 技」にも `playPokemonFx` を 足した
