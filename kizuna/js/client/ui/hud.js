@@ -1,16 +1,16 @@
 // フィールドの がめんの かざり（HP・ばしょ・もくひょう・ちず・チャット）
-import { el, bar, askText, ListMenu } from './dom.js?v=521ab50e1f2b';
-import { computeStats } from '../../shared/stats.js?v=521ab50e1f2b';
-import { JOBS } from '../../shared/data/jobs.js?v=521ab50e1f2b';
-import { jobShort } from '../../shared/job-label.js?v=521ab50e1f2b';
-import { hasUnreadNews } from '../../shared/data/news.js?v=521ab50e1f2b';
-import { hasPot } from '../../shared/data/alchemy.js?v=521ab50e1f2b';
-import { alchemyUI } from './alchemy.js?v=521ab50e1f2b';
-import { renderMiniMap, openWorldMap } from './menu.js?v=521ab50e1f2b';
-import { makeCanvas } from '../render/pixel.js?v=521ab50e1f2b';
-import { ClockBadge } from './clock.js?v=521ab50e1f2b';
-import { powderLabel } from '../../shared/data/friend-powder.js?v=521ab50e1f2b';
-import { auraLabel } from '../../shared/data/abilities-field27.js?v=521ab50e1f2b';
+import { el, bar, askText, ListMenu } from './dom.js?v=a2abc3298a71';
+import { computeStats } from '../../shared/stats.js?v=a2abc3298a71';
+import { JOBS } from '../../shared/data/jobs.js?v=a2abc3298a71';
+import { jobShort } from '../../shared/job-label.js?v=a2abc3298a71';
+import { hasUnreadNews } from '../../shared/data/news.js?v=a2abc3298a71';
+import { hasPot } from '../../shared/data/alchemy.js?v=a2abc3298a71';
+import { alchemyUI } from './alchemy.js?v=a2abc3298a71';
+import { renderMiniMap, openWorldMap } from './menu.js?v=a2abc3298a71';
+import { makeCanvas } from '../render/pixel.js?v=a2abc3298a71';
+import { ClockBadge } from './clock.js?v=a2abc3298a71';
+import { powderLabel } from '../../shared/data/friend-powder.js?v=a2abc3298a71';
+import { auraLabel } from '../../shared/data/abilities-field27.js?v=a2abc3298a71';
 
 export const STAMPS = ['よろしく！', 'ありがとう！', '行くよー！', '助けて！', '待ってて！', 'やったね！', 'おつかれさま', 'ご飯だよ〜'];
 

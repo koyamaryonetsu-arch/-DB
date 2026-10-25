@@ -1,24 +1,24 @@
 // ふく・よろい（そうびの よろいと しょくぎょうで きまる）
 // outfitOf(みため, しょくぎょう, よろいの ID, おんな？) → かく ための せってい
 // 知らない よろい（これからの もの）は、種類（armorType）・ランク・名前の ことば から きめる
-import { mat, ramp, TH, mixC, HeroCanvas } from './hero-raster.js?v=521ab50e1f2b';
-import { ITEMS } from '../../shared/data/items.js?v=521ab50e1f2b';
+import { mat, ramp, TH, mixC, HeroCanvas } from './hero-raster.js?v=a2abc3298a71';
+import { ITEMS } from '../../shared/data/items.js?v=a2abc3298a71';
 // 第26回の 新しい 職業（楽天カードマン・きさつ隊・ネコ型ロボット・カッパ・火影 など）の 服と からだ
-import { R26_OUTFIT, R26_BODY, outfit26, body26, capeFlame, robotTail } from './hero-r26.js?v=521ab50e1f2b';
+import { R26_OUTFIT, R26_BODY, outfit26, body26, capeFlame, robotTail } from './hero-r26.js?v=a2abc3298a71';
 // 第27回の 暴れんぼう将軍（はかまと 羽織・ちょんまげ・せんす）
-import { R27_OUTFIT, R27_BODY } from './hero-r27.js?v=521ab50e1f2b';
+import { R27_OUTFIT, R27_BODY } from './hero-r27.js?v=a2abc3298a71';
 // 第29回の るろうに剣士の 道（赤い 着物と はかま・白い マント・長い 赤毛・十字の きず）
-import { R29_OUTFIT, R29_BODY } from './hero-r29.js?v=521ab50e1f2b';
+import { R29_OUTFIT, R29_BODY } from './hero-r29.js?v=a2abc3298a71';
 // 第33回の 11この 職業（手品師・かいとう・魔法学校・3年B組・れん金術師・美少女戦士 の 道）
-import { R33_OUTFIT, R33_BODY, R33_ARMOR_LOOK, masc33 } from './hero-r33.js?v=521ab50e1f2b';
+import { R33_OUTFIT, R33_BODY, R33_ARMOR_LOOK, masc33 } from './hero-r33.js?v=a2abc3298a71';
 // 第40回の 伝説の 職業 2つ（竜魔人・ネオ・クイーン・セレニティ）
-import { R40_OUTFIT, R40_BODY, body40 } from './hero-r40.js?v=521ab50e1f2b';
+import { R40_OUTFIT, R40_BODY, body40 } from './hero-r40.js?v=a2abc3298a71';
 // 第41回 B の 2つの 職業（雪の女王・第5のせいれい）
-import { R41B_OUTFIT, R41B_BODY } from './hero-r41b.js?v=521ab50e1f2b';
+import { R41B_OUTFIT, R41B_BODY } from './hero-r41b.js?v=a2abc3298a71';
 // 第41回 A の 伝説の 職業 2つ（京急の社長・野球界の殿堂入り）
-import { R41A_OUTFIT, R41A_BODY } from './hero-r41a.js?v=521ab50e1f2b';
+import { R41A_OUTFIT, R41A_BODY } from './hero-r41a.js?v=a2abc3298a71';
 // 第43回の 配管工の 系統（女の子の ももの姫・おてんば姫・ピーチ。男の子は hero-r43j.js の R43J_MASC）
-import { R43J_OUTFIT, R43J_BODY } from './hero-r43j.js?v=521ab50e1f2b';
+import { R43J_OUTFIT, R43J_BODY } from './hero-r43j.js?v=a2abc3298a71';
 
 // ───────────── ざいしつ ─────────────
 const METALS = {

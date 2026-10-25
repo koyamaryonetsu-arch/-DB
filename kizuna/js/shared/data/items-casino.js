@@ -1,7 +1,7 @@
 // カジノの 景品と メダル王の ごほうび（items.js で まぜる）
 // ・どれも 店では 買えない（price: 0）。売ると 少しだけ（コインで 買うより ずっと 安い）
 // ・ランク4〜5（第2章の カモメ港の 品より 少し 強い）。40枚・50枚の ごほうびは これからの 章の ランク6
-import { ITEMS_CASINO_R37, CASINO_R37_KANA } from './items-casino-r37.js?v=521ab50e1f2b';
+import { ITEMS_CASINO_R37, CASINO_R37_KANA } from './items-casino-r37.js?v=a2abc3298a71';
 
 export const ITEMS_CASINO = {
   // ───── カジノの 景品 ─────
