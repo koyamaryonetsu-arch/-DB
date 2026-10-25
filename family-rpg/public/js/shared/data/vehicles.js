@@ -28,6 +28,8 @@ export const VEHICLES = {
   pegasus: { name: '天馬', price: 4000, jobs: ['priest', 'paladin', 'high_priest'], desc: '白いつばさのある、聖なる馬。' },
   // 第41回 B: 雪の女王・第5のせいれい（水の せいれいの 馬）
   water_horse: { name: '水の馬', price: 6000, jobs: ['snow_queen', 'fifth_spirit'], desc: '水でできた、すきとおった馬。走るたびに、しぶきが光る。' },
+  // 第43回: マリオ・ピーチ（緑の きょうりゅう。絵は client/render/vehicle-r43j.js）
+  yoshi: { name: 'ヨッシー', price: 5000, jobs: ['mario'], desc: '緑の体に赤いくらをのせた、なかよしのきょうりゅう。' },
   book: { name: '空飛ぶ本', price: 2600, jobs: ['mage', 'sage', 'archmage', 'daikenja'], desc: '大きな呪文の本。開くと空にうかぶ。' },
   big_ball: { name: '大玉', price: 900, jobs: ['performer'], desc: 'サーカスの大玉。玉の上で、上手に走る。' },
   pogo: { name: 'ホッピング', price: 600, jobs: ['jester'], desc: 'ぴょんぴょんはねる、ばねの乗り物。' },
@@ -47,7 +49,7 @@ export const VEHICLES = {
   dark_wings: { name: '闇のつばさ', price: 3300, jobs: ['chuuni', 'datenshi'], desc: '黒い羽がまう、闇のつばさ。' },
   bukujutsu: { name: 'ぶくう術', price: 4000, jobs: ['saiyan', 'super_saiyan', 'ss2', 'ss3'], desc: '気をまとって、空を飛ぶ術。' },
   drone: { name: '大きなドローン', price: 2400, jobs: ['youtuber', 'streamer', 'creator'], desc: 'カメラつきの、人を乗せて飛ぶドローン。' },
-  kart: { name: 'レーシングカート', price: 2000, jobs: ['gamer', 'pro_gamer'], desc: 'ゲームの中から出てきたような、みどりのカート。' },
+  kart: { name: 'レーシングカート', price: 2000, jobs: ['gamer', 'pro_gamer', 'plumber', 'mustache', 'mario'], desc: 'ゲームの中から出てきたような、みどりのカート。' },
   mamachari: { name: 'ママチャリ', price: 700, jobs: ['okan', 'saikyo_okan'], desc: '前のかごに、ネギが入った自転車。' },
   spy_car: { name: '黒いスポーツカー', price: 4200, jobs: ['spy', 'assassin', 'black_org'], desc: 'ひくくて速い、なぞの黒い車。' },
   skateboard: { name: 'ターボつきスケボー', price: 1500, jobs: ['shonen_tantei', 'oshiri_tantei', 'meitantei'], desc: 'うしろからけむりが出る、速いスケボー。' },

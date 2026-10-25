@@ -1221,6 +1221,47 @@ export const JOBS = {
     perLv: { str: 1.5, agi: 1, hp: 0.5 },
     learn: [[1, 'hof_yokoku'], [3, 'hof_makyu'], [5, 'hof_enjin'], [7, 'hof_sanshin'], [8, 'hof_allstar'], [10, 'hall_of_fame_sig']],
   },
+
+  // ───────────── 2026年10月（第43回）: 配管工 → ひげおやじ → マリオ（技は abilities-r43j.js。docs/plan-r43-jobs.md） ─────────────
+  // データの 名前は 女の子（ももの姫 → おてんば姫 → ピーチ）。男の子は masc で 配管工・ひげおやじ・マリオ（雪の女王／雪の王 と おなじ）
+  // 強さ・技は 男女 おなじ（力と 素早さ。ジャンプと ふみつけ）。見た目は hero-r43j.js（男の子は R43J_MASC）
+  plumber: {
+    id: 'plumber', name: 'ももの姫', kana: 'もものひめ', short: 'もも姫', tier: 0, family: 'phys', color: '#f27aa8',
+    desc: 'キノコの国から来た、元気なおひめさま。高くジャンプして敵をふみつけ、スパナで仲間をなおし、土管にもぐってにげる。力と素早さが高い。きわめるとおてんば姫になれる。',
+    masc: {
+      name: '配管工', short: '配管工', kana: 'はいかんこう',
+      desc: '赤いぼうしと青いつなぎの、はたらき者の配管工。高くジャンプして敵をふみつけ、スパナで仲間をなおし、土管にもぐってにげる。力と素早さが高い。きわめるとひげおやじになれる。',
+    },
+    mods: { hp: 1.1, mp: 0.85, str: 1.25, def: 0.95, agi: 1.3, mag: 0.8, heal: 0.85 },
+    weapons: ['axe', 'boomerang', 'none'], shield: false, armor: ['cloth', 'gi', 'robe'], helm: true,
+    perLv: { str: 0.5, agi: 0.5 },
+    learn: [[1, 'pl_jump'], [2, 'pl_spanner'], [3, 'pl_dokan'], [5, 'pl_dash'], [7, 'pl_hammer'], [10, 'plumber_sig']],
+  },
+  mustache: {
+    id: 'mustache', name: 'おてんば姫', kana: 'おてんばひめ', short: 'おてんば', tier: 1, req: ['plumber'], family: 'phys', color: '#e8508a',
+    desc: 'じっとしていられない、元気いっぱいのおひめさま。火の玉を投げ、キノコで大きくなり、こうらをけって敵全体をけちらす。ももの姫をきわめるとなれる。',
+    masc: {
+      name: 'ひげおやじ', short: 'ひげ', kana: 'ひげおやじ',
+      desc: '鼻の下のりっぱなひげがじまんの、たよれる配管工。火の玉を投げ、キノコで大きくなり、こうらをけって敵全体をけちらす。配管工をきわめるとなれる。',
+    },
+    mods: { hp: 1.2, mp: 0.95, str: 1.4, def: 1.05, agi: 1.4, mag: 0.85, heal: 0.9 },
+    weapons: ['axe', 'boomerang', 'none'], shield: false, armor: ['cloth', 'gi', 'robe'], helm: true,
+    perLv: { str: 1, agi: 0.5 },
+    learn: [[1, 'mu_fire'], [2, 'mu_kinoko'], [3, 'mu_koura'], [5, 'mu_pow'], [7, 'mu_1up'], [10, 'mustache_sig']],
+  },
+  mario: {
+    id: 'mario', name: 'ピーチ', kana: 'ぴーち', short: 'ピーチ', tier: 2, req: ['mustache'], family: 'phys', color: '#ff8ab8',
+    desc: 'キノコの国をおさめる、ピンクのドレスのおひめさま。スターで光りかがやき、ヒップドロップで敵を気ぜつさせ、スーパースターラッシュで敵全体をとびこえる。',
+    masc: {
+      name: 'マリオ', short: 'マリオ', kana: 'まりお',
+      desc: '赤いぼうしと青いつなぎの、世界一有名なひげの配管工。スターで光りかがやき、ヒップドロップで敵を気ぜつさせ、スーパースターラッシュで敵全体をとびこえる。',
+      hint: 'ひげおやじをきわめた男の人は、伝説の配管工になれるらしい…',
+    },
+    mods: { hp: 1.45, mp: 1.1, str: 1.6, def: 1.25, agi: 1.55, mag: 1.0, heal: 1.0 },
+    weapons: ['axe', 'boomerang', 'none'], shield: false, armor: ['cloth', 'gi', 'robe'], helm: true,
+    perLv: { hp: 1, str: 1, agi: 1 },
+    learn: [[1, 'mr_hip'], [2, 'mr_star'], [3, 'mr_egg'], [5, 'mr_kinoko'], [7, 'mr_kart'], [10, 'mario_sig']],
+  },
 };
 
 // 第33回: 学校の 職業（3年B組の担任の passive.classmates で 数える。学校に 通う 子どもの 職業）
@@ -1236,14 +1277,18 @@ export const JOB_ORDER = ['warrior', 'monk', 'priest', 'mage', 'performer', 'jes
   'schoolkid', 'civil_local', 'cook', 'parttimer', 'neet', 'saiyan', 'youtuber', 'gamer', 'okan',
   'spy', 'shonen_tantei', 'neko_robot', 'kappa', 'rurouni',
   // 第33回
-  'magician', 'alchemist'];
+  'magician', 'alchemist',
+  // 第43回
+  'plumber'];
 export const ADVANCED_ORDER = ['battlemaster', 'paladin', 'magic_knight', 'pirate', 'holyfist', 'ninja', 'tamer', 'sage', 'superstar', 'fortune',
   'samurai', 'bucho', 'major_leaguer', 'middleschooler', 'civil_national', 'police', 'firefighter', 'train_driver',
   'patissier', 'seishain', 'comedian', 'chuuni', 'super_saiyan', 'setsubiya', 'streamer', 'pro_gamer', 'saikyo_okan', 'shachiku',
   'rakuten_cardman', 'kisatsu', 'assassin', 'esper', 'oshiri_tantei', 'meitantei', 'creator', 'mimi_robot', 'hanakappa',
   'hitokiri',
   // 第33回
-  'kaito', 'wizard_student', 'state_alchemist', 'sailor_soldier'];
+  'kaito', 'wizard_student', 'state_alchemist', 'sailor_soldier',
+  // 第43回
+  'mustache'];
 export const SUPER_ORDER = ['dragon_knight', 'archmage', 'high_priest', 'god_hand', 'summoner', 'magic_swordsman', 'guardian', 'hero', 'monster_master', 'star_diva',
   'sword_master', 'shogun', 'shacho', 'nitoryu', 'highschooler', 'career', 'fruit_idol', 'storm_idol', 'keikyu_driver',
   'star_chef', 'tatakiage', 'm1_champion', 'daikenja', 'datenshi', 'ss2', 'ryonetsu', 'rubber', 'black_star',
@@ -1251,7 +1296,9 @@ export const SUPER_ORDER = ['dragon_knight', 'archmage', 'high_priest', 'god_han
   // 第33回
   'kaito_kid', 'harry', 'fullmetal', 'sailor_moon',
   // 第41回 B
-  'snow_queen'];
+  'snow_queen',
+  // 第43回
+  'mario'];
 // 伝説の 職業（超級職の 先）
 export const LEGEND_ORDER = ['loto_hero', 'ss3', 'nika', 'maou', 'facility_genius', 'hakaishin', 'hinokami', 'hokage', 'abarenbo_shogun', 'hiten', 'homeroom_3b',
   // 第40回
@@ -1394,4 +1441,6 @@ export const JOB_HINTS = {
   // 第41回 A
   keikyu_president: '京急の運転士と、ほかの超級職を1つきわめた者は、赤い電車の会社のいちばん上に立てるらしい…',
   hall_of_fame: '二刀流スターと、ほかの超級職を1つきわめた者は、野球の歴史に名をのこせるらしい…',
+  // 第43回（男の子は masc.hint）
+  mario: 'おてんば姫をきわめた女の人は、キノコの国をおさめるおひめさまになれるらしい…',
 };

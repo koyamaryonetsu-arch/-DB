@@ -178,6 +178,8 @@ test('合体技（戦い）: 男の子の 美少女戦士と アイドルで 出
   for (const [look, name] of [[BOY, '月夜のダンスパーティー'], [GIRL, 'ムーンライト・ステージ']]) {
     const b = sailorBattle('sailor_soldier', look, [['idol', GIRL]]);
     const [me, idol] = b.allies;
+    // アイドルは 先に 動かない（職業が ふえると 乱数の じゅんばんが かわり、ちょうど 行動中に なる ことが ある。第43回）
+    idol.atb = -1e9;
     assert.ok(readyUp(b, me));
     idol.atb = 100;
     const o = b.dualOptionsFor(me).find((x) => x.id === 'dt_moonlight');
@@ -206,7 +208,7 @@ test('メニュー・技の 説明・レベルアップ・転職の ひとこと
   assert.ok(growthSummary('ヒナ', ups, [], { look: GIRL }).lines.some((l) => l.includes('覚えた：ハイヒールキック')));
   assert.ok(growthSummary('ヒナ', ups, []).lines.some((l) => l.includes('覚えた：ハイヒールキック')), 'だれか わからない ときは もとの まま');
   // 転職の ひとこと
-  assert.deepEqual(Object.keys(JOB_SAY_MASC).filter((j) => !['neo_queen', 'snow_queen'].includes(j)).sort(), ['sailor_moon', 'sailor_soldier']);
+  assert.deepEqual(Object.keys(JOB_SAY_MASC).filter((j) => !['neo_queen', 'snow_queen', 'plumber', 'mustache', 'mario'].includes(j)).sort(), ['sailor_moon', 'sailor_soldier']);
   for (const s of Object.values(JOB_SAY_MASC)) assert.deepEqual(checkText(s), [], s);
   assert.ok(jobDoneText('ユウ', '美少女戦士', [], 'sailor_soldier', true).endsWith(JOB_SAY_MASC.sailor_soldier));
   assert.ok(jobDoneText('ヒナ', '美少女戦士', [], 'sailor_soldier', false).endsWith(JOB_SAY.sailor_soldier));

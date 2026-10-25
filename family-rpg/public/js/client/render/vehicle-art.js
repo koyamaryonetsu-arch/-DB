@@ -11,6 +11,8 @@
 // テスト（test/vehicles.test.js）は paintVehicle で、すべての 乗り物・むき・コマに 絵が あるかを 見る
 import { Painter, scale2x, rimShade, outline2, makeCanvas, ctxOf, flipCanvas, shade } from './pixel.js';
 import { addFamilyVehicleArt } from './family-art.js';
+// 第43回: ヨッシー（マリオ・ピーチ）
+import { addR43jVehicleArt } from './vehicle-r43j.js';
 
 const OUT = '#1b1330';
 export const RIDER_W = 32;
@@ -1587,6 +1589,8 @@ ART.dark_throne = deckArt({
 
 // 第39回 C: たのまれごとで もらう 乗り物（render/family-art.js）
 addFamilyVehicleArt(ART, { carArt, deckArt, box, seg, wheel, poly, rgba, shade, twinkle });
+// 第43回: ヨッシー（render/vehicle-r43j.js）
+addR43jVehicleArt(ART, { box, seg, poly, shade, seat });
 
 export const VEHICLE_ART = ART;
 
