@@ -448,7 +448,7 @@ test('第49回 O0: もとからの 技の 予算（AX_BUDGET_ORIG）・名前の
   assert.equal(AX_DUAL_PARTS_ORIG[4][1], 300);
   // 名前: o グループは ox_〜 だけ
   assert.throws(() => axAddTimes('o9', { ax_x9: { tier: 'basic', hit: 1, len: 2 } }), /ox_/);
-  assert.throws(() => axAddTimes('o9', {}, { kabau: 'ax_tfix_beam' }), /ox_/);
+  assert.throws(() => axAddTimes('o9', {}, { zz_no_such_skill: 'ax_tfix_beam' }), /ox_/);
   assert.throws(() => axAddTimes('o9', { ox_Bad: { tier: 'basic', hit: 1, len: 2 } }), /ox_/);
   assert.throws(() => useAxGroup('o9', {}, { g1Wrong: () => {} }), /o9/);
   assert.throws(() => registerAx('ox_nothing', { group: 'o1', play() {} }), /ax-time-o1/);
