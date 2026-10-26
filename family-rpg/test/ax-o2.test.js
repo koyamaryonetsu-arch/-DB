@@ -3,7 +3,7 @@
 //   test/ax-groups.test.js が AX_SKILLS_O2 を 見て やる。ここには O2 だけの「決め手」を 書く（plan-r49-fx.md 7-3）
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { groupReport, playAx, ONE, THREE, ALLY1, ALLY4 } from './ax-check.js';
+import { groupReport, playAx, ONE, THREE, FIVE, ALLY1, ALLY4 } from './ax-check.js';
 import { AX_TIME_O2, AX_SKILLS_O2, AX_FAMILIES_O2 } from '../public/js/shared/data/ax-time-o2.js';
 
 test('第49回 O2: 表と え が そろう', () => {
@@ -14,9 +14,39 @@ test('第49回 O2: 表と え が そろう', () => {
   for (const v of Object.values(AX_SKILLS_O2)) assert.ok((typeof v === 'string' ? v : v.anim) in AX_TIME_O2);
 });
 
-// 例（決め手。plan-r49-fx.md 7-3）:
-// test('第49回 O2: なかまは 段が 上がるほど つぶが 多い', () => {
-//   const n = ['ox_弱い', 'ox_強い'].map((a) => playAx(a, ONE).maxParts);
-//   assert.ok(n[1] > n[0]);
-// });
-void [playAx, ONE, THREE, ALLY1, ALLY4];
+// 決め手（plan-r49-fx.md 7-3）
+import { axPlan } from '../public/js/shared/ax-time.js';
+
+test('第49回 O2: こぶしの なかまは 段が 上がるほど つぶが 多く 長い（せいけんづき → 神速の拳）', () => {
+  const a = playAx('ox_seiken_zuki', ONE, { ability: 'seiken' });
+  const b = playAx('ox_shinsoku_ken', ONE, { ability: 'gh_shinsoku' });
+  assert.ok(b.maxParts > a.maxParts, `${a.maxParts} → ${b.maxParts}`);
+  assert.ok(axPlan('ox_shinsoku_ken', { key: 'gh_shinsoku' }).total > axPlan('ox_seiken_zuki', { key: 'seiken' }).total);
+});
+
+test('第49回 O2: 構えなしの すばやい 技（いっせんづき・神速の拳）と 魔王の 技は 伝説の 長さ', () => {
+  for (const [anim, key] of [['ox_issen_zuki', 'issen'], ['ox_shinsoku_ken', 'gh_shinsoku'], ['ox_maou_tsume', 'mo_tsume']]) assert.equal(axPlan(anim, { key }).charge, 0, anim);
+  const sup = axPlan('ox_god_hand', { key: 'gh_godfist' }).total;
+  for (const [anim, key] of [['ox_hametsu_hikari', 'mo_hametsu'], ['ox_yami_no_sekai', 'hi_yami_sekai']]) {
+    const P = axPlan(anim, { key });
+    assert.equal(P.tier, 'legend');
+    assert.ok(P.total > sup, anim);
+  }
+});
+
+test('第49回 O2: ダ天使の 技（dt_〜）は 合体技で なく 構えが ある。合体技は ため なし', () => {
+  for (const key of ['dt_hohoemi', 'dt_keiyaku', 'dt_tsubasa', 'dt_darkangel']) {
+    const s = AX_SKILLS_O2[key];
+    assert.ok(axPlan(s, { key }).charge > 0, key);
+  }
+  for (const key of ['dt_hametsu', 'dt_wild_rush', 'dt_henshin_hero']) assert.equal(axPlan(AX_SKILLS_O2[key], { key, dual: true }).charge, 0, key);
+  assert.ok(axPlan('ox_wild_rush', { key: 'dt_wild_rush', dual: true }).total > axPlan('ox_beast_cross', { key: 'dt_beast_cross', dual: true }).total, '3人 > 2人');
+});
+
+test('第49回 O2: 敵全体の 技は 敵5体でも 上限を こえない（c.all で へらす）', () => {
+  for (const [anim, key] of [['ox_mawashi_geri', 'mawashigeri'], ['ox_senpuu_kyaku', 'hk_senpuukyaku'], ['ox_bakuretsu_ken', 'bakuretsu']]) {
+    const r = playAx(anim, FIVE, { ability: key, crit: true, n: 5 });
+    assert.ok(r.maxParts <= 132, `${anim} ${r.maxParts}`);
+  }
+});
+void [THREE, ALLY1, ALLY4];
