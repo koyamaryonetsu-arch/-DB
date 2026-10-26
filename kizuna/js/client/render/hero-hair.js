@@ -6,7 +6,7 @@
 //   back(…)   … うしろむき（からだの うえに かぶさる）
 //   side(…), sideBehind(…) … よこむき
 // hat: ぼうし・かぶとの とき（'top': あたまの うえの ボリュームを かかない / 'band': はちまき など）
-import { HeroCanvas } from './hero-raster.js?v=3b236c4d2218';
+import { HeroCanvas } from './hero-raster.js?v=dd582b3d4c53';
 
 // ───────────── べんりな かんすう ─────────────
 const rad = (d) => (d * Math.PI) / 180;

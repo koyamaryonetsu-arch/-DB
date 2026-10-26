@@ -1,16 +1,16 @@
 // タイトル・ログイン・キャラクターえらび・キャラクターづくり
-import { padNav } from './padnav.js?v=3b236c4d2218';
-import { el, ListMenu, toast, askText, confirmBox } from './dom.js?v=3b236c4d2218';
-import { JOBS, JOB_ORDER } from '../../shared/data/jobs.js?v=3b236c4d2218';
-import { jobLabel, jobFor } from '../../shared/job-label.js?v=3b236c4d2218';
-import { HAIR_STYLES, HAIR_COLORS, SKIN_TONES, FACES, FACE_BY_ID, CLOTH_COLORS, cleanLook } from '../../shared/data/looks.js?v=3b236c4d2218';
-import { previewCache } from '../render/hero.js?v=3b236c4d2218';
-import { playerSprite } from '../field.js?v=3b236c4d2218';
-import { makeCanvas, ctxOf } from '../render/pixel.js?v=3b236c4d2218';
-import { LINE_MAX, parseCode } from '../../shared/world/transfer.js?v=3b236c4d2218';
-import { DEFAULT_SITE, pendingImport, clearPendingImport, familyServer, setFamilyServer, linkToFamilyServer, linkToSite, siteServerAddress } from '../links.js?v=3b236c4d2218';
-import { goFamilyServer, goSite, roundTrip, changeServer, syncOnServer, maybeRoundTrip, notePlayed, familyServerUp } from './syncui.js?v=3b236c4d2218';
-import { shownEquip } from '../../shared/look-equip.js?v=3b236c4d2218';
+import { padNav } from './padnav.js?v=dd582b3d4c53';
+import { el, ListMenu, toast, askText, confirmBox } from './dom.js?v=dd582b3d4c53';
+import { JOBS, JOB_ORDER } from '../../shared/data/jobs.js?v=dd582b3d4c53';
+import { jobLabel, jobFor } from '../../shared/job-label.js?v=dd582b3d4c53';
+import { HAIR_STYLES, HAIR_COLORS, SKIN_TONES, FACES, FACE_BY_ID, CLOTH_COLORS, cleanLook } from '../../shared/data/looks.js?v=dd582b3d4c53';
+import { previewCache } from '../render/hero.js?v=dd582b3d4c53';
+import { playerSprite } from '../field.js?v=dd582b3d4c53';
+import { makeCanvas, ctxOf } from '../render/pixel.js?v=dd582b3d4c53';
+import { LINE_MAX, parseCode } from '../../shared/world/transfer.js?v=dd582b3d4c53';
+import { DEFAULT_SITE, pendingImport, clearPendingImport, familyServer, setFamilyServer, linkToFamilyServer, linkToSite, siteServerAddress } from '../links.js?v=dd582b3d4c53';
+import { goFamilyServer, goSite, roundTrip, changeServer, syncOnServer, maybeRoundTrip, notePlayed, familyServerUp } from './syncui.js?v=dd582b3d4c53';
+import { shownEquip } from '../../shared/look-equip.js?v=dd582b3d4c53';
 
 function clearUI() {
   document.getElementById('ui').innerHTML = '';

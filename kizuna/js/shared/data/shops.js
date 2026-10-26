@@ -2,20 +2,20 @@
 // お店: name 店の なまえ / kind かんばんの しゅるい / keeper 店の人 / hello さいしょの ことば / items 売っている 品物
 //       more: 物語が すすむと ふえる 品物 [{ show: { all: [フラグ] }, items: [...], hello }]（show の 書き方は NPC と おなじ。hello が あれば あいさつも かわる）
 
-import { SHOPS_CH2 } from './items-ch2.js?v=3b236c4d2218';
-import { NIGHT_SHOPS } from './night.js?v=3b236c4d2218';
-import { SHOPS_CH3, CH3_GUESTS } from './items-ch3.js?v=3b236c4d2218';
-import { SHOPS_CH4 } from './items-ch4.js?v=3b236c4d2218';
-import { POWDER_ID, POWDER_SHOPS } from './friend-powder.js?v=3b236c4d2218';
-import { LURE_ITEM, FIELD27_SHOPS } from './abilities-field27.js?v=3b236c4d2218';
-import { R33_SHOP_ADD } from './items-r33.js?v=3b236c4d2218';
-import { SHOPS_KUMOI } from './shops-kumoi.js?v=3b236c4d2218';
-import { SHOPS_HOSHIYOMI } from './shops-hoshiyomi.js?v=3b236c4d2218';
-import { SHOPS_EARTH } from './shops-earth.js?v=3b236c4d2218';
+import { SHOPS_CH2 } from './items-ch2.js?v=dd582b3d4c53';
+import { NIGHT_SHOPS } from './night.js?v=dd582b3d4c53';
+import { SHOPS_CH3, CH3_GUESTS } from './items-ch3.js?v=dd582b3d4c53';
+import { SHOPS_CH4 } from './items-ch4.js?v=dd582b3d4c53';
+import { POWDER_ID, POWDER_SHOPS } from './friend-powder.js?v=dd582b3d4c53';
+import { LURE_ITEM, FIELD27_SHOPS } from './abilities-field27.js?v=dd582b3d4c53';
+import { R33_SHOP_ADD } from './items-r33.js?v=dd582b3d4c53';
+import { SHOPS_KUMOI } from './shops-kumoi.js?v=dd582b3d4c53';
+import { SHOPS_HOSHIYOMI } from './shops-hoshiyomi.js?v=dd582b3d4c53';
+import { SHOPS_EARTH } from './shops-earth.js?v=dd582b3d4c53';
 // 第2部 第6章: 千年前の ホシフルの里の 店（shops-past.js）・ゲストの ミナモ（companions-past.js）
-import { SHOPS_PAST } from './shops-past.js?v=3b236c4d2218';
-import { MINAMO_GUEST } from './companions-past.js?v=3b236c4d2218';
-import { RION_GUEST } from './companions-tokei.js?v=3b236c4d2218';
+import { SHOPS_PAST } from './shops-past.js?v=dd582b3d4c53';
+import { MINAMO_GUEST } from './companions-past.js?v=dd582b3d4c53';
+import { RION_GUEST } from './companions-tokei.js?v=dd582b3d4c53';
 
 export const SHOPS = {
   village: {
