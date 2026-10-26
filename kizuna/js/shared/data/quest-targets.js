@@ -4,13 +4,13 @@
 // 行き先の 書き方: { npc: 'NPCのID' }（その 人の いる 場所）か { map, x, y }
 //   unless: 'フラグ' … その フラグが もう ある 人には 出さない（もう 話を 聞いた 人など。ぜんぶ 消えたら そのまま 出す）
 // 新しい 目標を 作ったら、ここにも 行き先を 足す
-import { MAPS } from '../maps/index.js?v=4ed9358095f4';
-import { SKY_OBJECTIVE_TARGETS, C3_LEAD_OBJECTIVE } from './sky.js?v=4ed9358095f4';
-import { CH3_OBJECTIVE_TARGETS, ch3SubQuests } from './story-ch3.js?v=4ed9358095f4';
-import { CH4_OBJECTIVE_TARGETS } from './story-ch4.js?v=4ed9358095f4';
-import { CH5_OBJECTIVE_TARGETS } from './story-ch5.js?v=4ed9358095f4';
-import { CH6_OBJECTIVE_TARGETS } from './story-ch6.js?v=4ed9358095f4';
-import { labSubQuests } from './sidequests.js?v=4ed9358095f4';
+import { MAPS } from '../maps/index.js?v=5cf16f1946f7';
+import { SKY_OBJECTIVE_TARGETS, C3_LEAD_OBJECTIVE } from './sky.js?v=5cf16f1946f7';
+import { CH3_OBJECTIVE_TARGETS, ch3SubQuests } from './story-ch3.js?v=5cf16f1946f7';
+import { CH4_OBJECTIVE_TARGETS } from './story-ch4.js?v=5cf16f1946f7';
+import { CH5_OBJECTIVE_TARGETS } from './story-ch5.js?v=5cf16f1946f7';
+import { CH6_OBJECTIVE_TARGETS } from './story-ch6.js?v=5cf16f1946f7';
+import { labSubQuests } from './sidequests.js?v=5cf16f1946f7';
 
 export const OBJECTIVE_TARGETS = {
   'ホシミばあちゃんの家（村の南東）へ行こう': [{ npc: 'elder' }],

@@ -4,7 +4,7 @@
 //   前は (L+6)/(L0+6) の 1本の 倍率だったので、高い レベルほど ふつうの 魔物より 弱く なっていた（Lv33 で HP は 半分 くらい）。
 // ・新しい 魔物が ふえても 自動で 合う（はじめて 使う 時に 作る）
 // ・いちばん 強い ふつうの 魔物より 上の レベルは、その 前の 10レベルの のびかたで のばす
-import { MONSTERS } from './monsters.js?v=4ed9358095f4';
+import { MONSTERS } from './monsters.js?v=5cf16f1946f7';
 
 export const CURVE_KEYS = ['hp', 'str', 'def', 'mag', 'agi', 'exp', 'gold'];
 const MAX_LV = 150;

@@ -2,7 +2,7 @@
 // 人（ROAD_NPC_LOOKS）: 星読みのオリハ（ミナモの おばあさん。こい 青の ころもに 星の ふち・白い かみ・つえ）・社の見習いコトハ
 // とくべつな え（paintRoadSpecial）: 星くいのよる鳥（大きな 黒い 鳥。おなかに 食べた 星の 光）・ふりこの魔女ペンデュラ（大きな ふりこを もつ 魔女）・
 //   タイムカプセルを うめる 所（千年前）・ほる 所（今。土の 下から 光）・きらきらの石
-import { Painter } from './pixel.js?v=4ed9358095f4';
+import { Painter } from './pixel.js?v=5cf16f1946f7';
 
 export const ROAD_NPC_LOOKS = {
   oriha: { hair: 5, hairStyle: 'bun', skin: 0, outfit: 'robe', robeMain: '#2a3a7a', robeTrim: '#f0d870', female: true, cane: true, hunch: true, hat: 'circlet', hatGem: '#a8d8ff' },

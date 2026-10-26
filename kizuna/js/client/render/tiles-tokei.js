@@ -6,8 +6,8 @@
 // ・止まった 大きな 歯車（298）・回って 道に なった 歯車（299）・時の すきま（300。光る ゆか。3コマ）
 // ・歯車の とびら（301）・大きな かね（302）・灰色の 木（303）・灰色の 草（304）・星の塔の 新しい かべ画（305。うすく 半分）・かべの 大時計（306）
 // (p, v, f, m) … Painter / ちがい / アニメの コマ / となりの ようす
-import { T } from '../../shared/tiles.js?v=4ed9358095f4';
-import { prand } from './pixel.js?v=4ed9358095f4';
+import { T } from '../../shared/tiles.js?v=5cf16f1946f7';
+import { prand } from './pixel.js?v=5cf16f1946f7';
 
 const BR = { d: '#5a3e18', b: '#a07a30', l: '#d8b050', hl: '#f8e090' }; // 金の 真ちゅう
 const FL = { b: '#6e5a46', l: '#86705a', d: '#56463a', ln: '#3e322a' }; // 塔の ゆか（くすんだ 茶色の 石）

@@ -1,8 +1,8 @@
 // 第48回 G2: 野球（二刀流スター・野球界の殿堂入り）の 大技の え
 // ・球（g2Ball）・バット（g2Bat）・光の 人かげ（g2Batter）・花火（g2Firework）・ナイターの 背景（g2Bg stadium）
 // ・時間は shared/data/ax-time-g2.js。ここは 見た目だけ（play の 時間は はなつ しゅんかんが 0）
-import { rnd, lerp } from './axkit.js?v=4ed9358095f4';
-import { darken, bg, blow, icon, text, firework } from './axfx-g2-kit.js?v=4ed9358095f4';
+import { rnd, lerp } from './axkit.js?v=5cf16f1946f7';
+import { darken, bg, blow, icon, text, firework } from './axfx-g2-kit.js?v=5cf16f1946f7';
 
 const PI = Math.PI;
 const GOLD = ['#ffffff', '#ffd23a', '#ffa00a'];

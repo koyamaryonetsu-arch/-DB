@@ -5,9 +5,9 @@
 // ・あるく コマ（f）で ほのおの ながさが かわる（ゆらぐ）
 // ・えの はし 1ドットには かかない（はみ出さない）
 // 第41回 B: 雪の女王・第5のせいれいの オーラ（hero-r41b.js）
-import { AURA41B, aura41b } from './hero-r41b.js?v=4ed9358095f4';
+import { AURA41B, aura41b } from './hero-r41b.js?v=5cf16f1946f7';
 // 第43回: ピーチ（ピンクの ひかり）・マリオ（金の 星）の オーラ（hero-r43j.js）
-import { AURA43J, aura43j } from './hero-r43j.js?v=4ed9358095f4';
+import { AURA43J, aura43j } from './hero-r43j.js?v=5cf16f1946f7';
 
 // glow: からだの すぐ そとの うすい ひかり（マス）  len・wid: ほのおの ながさ・はば（マス）  up: うえへ むく つよさ
 // cols: [いろ, こさ]（ねもと → さき）
