@@ -3,7 +3,7 @@
 // ・6こ … ★5の アクセサリー「時の砂のブローチ」（トキネの 声。拾った その 場で）
 // ・12こ … 時の砂時計が 千年前の すがたに もどる（時を こえる ときの 砂の うずに 12の かざりが 光る。client/time-shift.js）＋ つよい 種
 // 人と 場所は maps/ch6c-side.js。品は data/items-ch6c.js。sidequests-ch6.js の ch6SubQuests・ch6DoneQuests・applyCh6Side から まぜる
-import { ORN, ORN_SPOTS, ORN_NEED } from '../maps/ch6c-side.js?v=6ce2458453d2';
+import { ORN, ORN_SPOTS, ORN_NEED } from '../maps/ch6c-side.js?v=3b236c4d2218';
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);
 const N = (...lines) => lines.map((l) => ['say', null, l]);

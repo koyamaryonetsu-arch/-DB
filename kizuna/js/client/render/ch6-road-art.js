@@ -1,7 +1,7 @@
 // 第2部 第6章 Step 3・4（B）「星めぐりの古道」の 魔物と、星くいのよる鳥・ペンデュラの え（shared/data/monsters-road.js）
 // render/monsters.js が addRoadArt を よぶ。かきかたは ch6-past-art.js と おなじ（g … w・h の わりあいで かく。f … 0 か 1 の コマ）
 // ボスは 台本の showMon でも 大きく 見える 大きさ（星くいのよる鳥 120×108・ペンデュラ 104×112）
-import { fit, spark } from './ch3-draw.js?v=6ce2458453d2';
+import { fit, spark } from './ch3-draw.js?v=3b236c4d2218';
 
 // 4つの 光の 星（小さい ときは まるだけ）
 function star4(g, x, y, s, c, core) {

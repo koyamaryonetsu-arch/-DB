@@ -1,7 +1,7 @@
 // 第48回 G2: ナルト（木の葉の忍び・七代目火影）と 合体技「忍びの影分身」の 大技の え
 // ・時間は shared/data/ax-time-g2.js。ここは 見た目だけ（play の 時間は はなつ しゅんかんが 0）
-import { rnd, lerp } from './axkit.js?v=6ce2458453d2';
-import { darken, bg, pop, ninja, blow, icon } from './axfx-g2-kit.js?v=6ce2458453d2';
+import { rnd, lerp } from './axkit.js?v=3b236c4d2218';
+import { darken, bg, pop, ninja, blow, icon } from './axfx-g2-kit.js?v=3b236c4d2218';
 
 const BLUE = { deep: '#1a4ad8', mid: '#3a8cff', light: '#9ad8ff', core: '#ffffff' };
 const RCOL = [BLUE.deep, BLUE.mid, BLUE.light, BLUE.core];
@@ -168,7 +168,6 @@ export const AX_G2_NARUTO = {
       spiral(fx, [[0, o.x, o.y - 8, 5], [160, o.x, o.y - 18, r], [c.hit, C.x, C.y, r * 1.1]], { blades: 1, spin: 6, life: c.hit + 60 });
       k.gather(o.x, o.y - 18, { colors: ['#ffffff', '#c8ffd8', '#9ad8ff'], n: 16, r: 60, life: 260, waves: 2, gap: 100 });
       for (let m = 1; m <= 4; m++) fx.gust(lerp(o.x, C.x, m / 5) - 20, lerp(o.y, C.y, m / 5), { len: 50, amp: 3, color: '#ffffff', w: 0.9, delay: c.hit * m / 5, life: 300 });
-      k.cutIn({ color: '#9ad8ff', color2: '#0a1a3a', delay: 0, life: 360, y: 26, h: 26, dir: c.fromAlly ? 1 : -1 });
       const xs = c.targets.map((t) => t.x);
       const R = Math.min(96, Math.max(46 * c.sz, (Math.max(...xs) - Math.min(...xs)) / 2 + 30));
       fx.add({ kind: 'g2Dome', x: C.x, y: C.y, keys: [[0, 6], [170, R], [560, R * 1.04], [720, R * 0.35]], life: 720, delay: c.hit, n: 90 });
@@ -273,6 +272,9 @@ export const AX_G2_NARUTO = {
         k.sparkles(t.x, t.y - 8, { n: 4, r: 14, colors: ['#ffe0a0', '#ffffff'], delay: d + c.hit + 100 });
       });
       k.shockwave(c.W / 2, c.H - 8, { r0: 10, r1: 130, sy: 0.25, color: '#ffd06a', w: 2, delay: c.hit });
+      // マントの すその 赤い 炎の 火の粉（第49回: ため が みじかく なった ぶん、守りの 光を 足す）
+      k.particles(c.W / 2, c.H - 30, { colors: ['#ff6a1a', '#ffd06a', '#ffffff'], n: 36, speed: 70, ang: -Math.PI / 2, spread: 1.6, g: -30, delay: c.hit - 80, life: 620 });
+      c.each((t, i, d) => k.sparkles(t.x, t.y - 6, { n: 8, r: 20, colors: ['#ffd06a', '#ffffff'], delay: d + c.hit + 40 }));
     },
   },
   // びじゅう玉: 九尾の 口に 赤と 青の つぶが 集まり 黒い 玉に → 一しゅん 静か → 白い ドームの 大爆発（ふちが 赤と 青）
@@ -323,6 +325,8 @@ export const AX_G2_NARUTO = {
         k.flames(C.x + Math.cos(an) * RX, C.y - 6 + Math.sin(an) * 10, { w: 9, h: 14, n: 3, cols: ['#ff6a0a', '#ffa02a', '#ffe08a'], delay: c.hit + 100 + m * 30, life: 600, embers: false });
       }
       fx.shock(C.x, C.y - 6, { r0: RX * 0.9, r1: RX * 1.25, sy: 0.28, color: '#ffa02a', w: 2.4, delay: c.hit + 100, life: 600 });
+      // 輪から のぼる 火の粉（第49回: ため が みじかく なった ぶん）
+      k.particles(C.x, C.y - 6, { colors: ['#ff6a0a', '#ffe08a', '#ffffff'], n: 26, speed: 60, ang: -Math.PI / 2, spread: 1.5, g: -40, delay: c.hit + 60, life: 560 });
       k.flash('#ffb04a', 80, c.hit);
     },
   },

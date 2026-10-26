@@ -7,12 +7,12 @@
 // render/tiles.js が まぜる。2.5D は render/field3d.js（CH6_FLOOR_H・ch6BlockSpec）と render/tex3d.js（CH6_PROPS）
 // テーマ: past（千年前の フィールド。もとの 色に 少し セピアを まぜる）・toki_shrine（時のほこら）・toki_ruin（今の いせき）・toki_ruin_past（千年前の 神殿）
 // (p, v, f, m) … Painter / ちがい / アニメの コマ / となりの ようす
-import { T } from '../../shared/tiles.js?v=6ce2458453d2';
-import { prand } from './pixel.js?v=6ce2458453d2';
+import { T } from '../../shared/tiles.js?v=3b236c4d2218';
+import { prand } from './pixel.js?v=3b236c4d2218';
 // 第6章 Step 3・4「星めぐりの古道」の タイル・2.5D・色（render/tiles-hoshimichi.js。ここで まぜる）
-import { HM_PAINTERS, HM_FRAMES, HM_SPEED, HM_FLOOR_H, hmBlockSpec, HM_PROPS, HM_THEMES } from './tiles-hoshimichi.js?v=6ce2458453d2';
+import { HM_PAINTERS, HM_FRAMES, HM_SPEED, HM_FLOOR_H, hmBlockSpec, HM_PROPS, HM_THEMES } from './tiles-hoshimichi.js?v=3b236c4d2218';
 // 第6章 Step 5「止まった時計塔」の タイル・2.5D・色（render/tiles-tokei.js。ここで まぜる）
-import { TK_PAINTERS, TK_FRAMES, TK_SPEED, TK_FLOOR_H, tkBlockSpec, TK_PROPS, TK_THEMES } from './tiles-tokei.js?v=6ce2458453d2';
+import { TK_PAINTERS, TK_FRAMES, TK_SPEED, TK_FLOOR_H, tkBlockSpec, TK_PROPS, TK_THEMES } from './tiles-tokei.js?v=3b236c4d2218';
 
 const SD = { d: '#5a4220', b: '#8a6a3a', m: '#a8844a', l: '#c8a868', hl: '#e8d098' }; // 砂色の 石
 const SAND = { d: '#b8904a', b: '#e0b860', l: '#f8dc90', w: '#fff4c8' };

@@ -1,7 +1,7 @@
 // 第48回 G4: ダイの大冒険（アバン流・竜の騎士・竜魔人・大魔道士）の 大技の え。この ファイルは G4 だけが さわる
 // 時間は shared/data/ax-time-g4.js。play の 時間は はなつ しゅんかんが 0
-import { pal, rnd } from './axkit.js?v=6ce2458453d2';
-import { add, obj, bg, darken, hands, ground, per } from './axfx-g4-kit.js?v=6ce2458453d2';
+import { pal, rnd } from './axkit.js?v=3b236c4d2218';
+import { add, obj, bg, darken, hands, ground, per } from './axfx-g4-kit.js?v=3b236c4d2218';
 
 const FIRE = pal('fire');
 // 竜闘気（青白）・竜魔人（むらさき）・アバンの 金
@@ -219,7 +219,6 @@ export const AX_G4_DAI = {
     play(fx, c) {
       const { k } = c;
       darken(c, 0.45);
-      k.cutIn({ color: '#5ad0ff', color2: '#06142a', delay: 0, life: 260, y: 30, h: 26, dir: c.fromAlly ? 1 : -1 });
       const h = c.fromAlly ? { x: c.from.x, y: c.H - 20 } : hands(c, 0);
       // 両手の あいだで ちぢむ 球（まわりの 光を すいこむ）
       c.k.orb(h.x, h.y, { r: 11, color: '#5ad0ff', glow: '#bfeaff', rim: '#ffffff', grow: 60, hold: 120, life: 200 });
@@ -477,7 +476,6 @@ export const AX_G4_DAI = {
     play(fx, c) {
       const { k } = c;
       darken(c, 0.45);
-      k.cutIn({ color: '#c8a8ff', color2: '#140a28', delay: 0, life: 240, y: 30, h: 24, dir: c.fromAlly ? 1 : -1 });
       const h = hands(c, 26);
       const mid = { x: h.x, y: h.y };
       // ほのお（赤）と こおり（青）が 1つに

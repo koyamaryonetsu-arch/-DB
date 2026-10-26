@@ -1,8 +1,8 @@
 // 第48回 G4: マリオ（ももの姫/配管工・おてんば姫/ひげおやじ・ピーチ/マリオ）の 大技の え。この ファイルは G4 だけが さわる
 // 女の子は ピンクの ドレスと 金の かんむり、男の子（c.masc）は 赤い ぼうしと 青い ふく の かげ
 // 時間は shared/data/ax-time-g4.js。play の 時間は はなつ しゅんかんが 0
-import { rnd } from './axkit.js?v=6ce2458453d2';
-import { add, obj, darken, ground, per, solo } from './axfx-g4-kit.js?v=6ce2458453d2';
+import { rnd } from './axkit.js?v=3b236c4d2218';
+import { add, obj, darken, ground, per, solo } from './axfx-g4-kit.js?v=3b236c4d2218';
 
 const STAR = ['#ffe066', '#ffffff', '#ffd23a'];
 const RAINBOW = ['#ff5a5a', '#ffb03a', '#ffe066', '#5ae07a', '#5ab8ff', '#b07aff'];
@@ -426,7 +426,6 @@ export const AX_G4_MARIO = {
     play(fx, c) {
       const { k } = c;
       darken(c, 0.4);
-      k.cutIn({ color: '#ffe066', color2: '#2a1050', delay: 0, life: 260, y: 30, h: 26, dir: c.fromAlly ? 1 : -1 });
       const L = look(c), f = from(c, 14);
       obj(c, 'star', { rainbow: true, x0: f.x + 40, y0: f.y - 40, x1: f.x, y1: f.y, travel: 180, spin: 12, s: 12.2, glow: '#ffffff', life: 190, fout: 20 });
       // ジグザグの みち（敵1体なら その まわりを なんども つきぬける）

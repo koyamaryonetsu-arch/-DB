@@ -2,7 +2,7 @@
 // 飛天御剣流 … 白い 神速の 太刀すじ。竜巻閃の なかまは 白い 回転 → 竜巻 → 大竜巻、縦の 技は 真上から → 上下 → 天翔る 竜
 // 九頭竜閃は 9本の 白い すじ（真は 9ひきの 金の 竜）。天翔龍閃は 1撃目（神速の 金白の 弧＋竜）→ 真空 → 2撃目
 // 時間は shared/data/ax-time-g3.js（ここは 見た目だけ）。画面の 文字は ひらがな・記号だけ
-import { ribbon, dragon, line, tornado, bg, prop, text, embers, arcPts, per, hitBurst, blast, glitter, rich } from './axfx-g3-kit.js?v=6ce2458453d2';
+import { ribbon, dragon, line, tornado, bg, prop, text, embers, arcPts, per, hitBurst, blast, glitter, rich } from './axfx-g3-kit.js?v=3b236c4d2218';
 
 const WHITE = ['#ffffff', '#e8f4ff', '#bfe4ff'];
 const GOLD = ['#ffffff', '#fff0a0', '#ffd23a'];
@@ -428,7 +428,6 @@ export const AX_G3_RUROUNI = {
     play(fx, c) {
       const { k } = c;
       k.dim({ a: 0.45, life: c.len - 60, fin: 0, fout: 320 });
-      k.cutIn({ color: '#9ad8ff', color2: '#0a1a30', dark: '#040a14', delay: 0, life: 260, y: c.H * 0.36, h: 30, dir: c.fromAlly ? 1 : -1 });
       c.each((t, i, d) => {
         rich(fx, c, t, d + c.hit, 32, WHITE);
         const s = c.sz * (i ? 0.75 : 1);
