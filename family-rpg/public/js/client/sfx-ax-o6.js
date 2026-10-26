@@ -1,5 +1,131 @@
 // 第49回 O6（魔法・星・お笑い・配信）: もとからの 技の 音（sfx-ax.js が まぜる）。なまえは 'ax_o6_' で はじめる。1つ 0.8びょう まで
 // 書きかたは sfx-ax.js と おなじ: ax_o6_〜: (a, T) => { a.noise(…); T(f, dur, { vol, type, slide, delay }); }
 // この ファイルは O6 だけが さわる
+const arp = (T, fs, gap, o = {}) => fs.forEach((f, i) => T(f, o.dur ?? 0.16, { vol: o.vol ?? 0.05, delay: (o.delay || 0) + i * gap, type: o.type || 'sine', slide: o.slide }));
+const sparkle = (T, delay = 0, vol = 0.04) => arp(T, [2637, 3136, 3520, 4186], 0.04, { delay, vol, dur: 0.12 });
+const cheer = (a, dur = 0.6, vol = 0.2, delay = 0) => { for (let i = 0; i < 4; i++) a.noise(dur - i * 0.08, { vol: vol * (1 - i * 0.15), delay: delay + i * 0.05, type: 'bandpass', from: 900 + i * 400, to: 1400 + i * 300, q: 1.2 }); };
+const smack = (a, T, delay = 0, vol = 0.5) => { a.noise(0.05, { vol, delay, type: 'highpass', from: 2500, to: 6000 }); a.noise(0.12, { vol: vol * 0.7, delay: delay + 0.02, from: 3500, to: 600 }); T(220, 0.08, { vol: 0.1, delay, type: 'square', slide: 110 }); };
+const boom = (a, T, delay = 0, vol = 0.45) => { a.noise(0.5, { vol, delay, from: 1800, to: 60 }); T(110, 0.4, { vol: 0.14, delay, type: 'saw', slide: 45 }); };
+const laugh = (T, delay = 0, n = 5, f = 520, vol = 0.05) => { for (let i = 0; i < n; i++) T(f + (i % 2) * 90, 0.07, { vol, delay: delay + i * 0.09, type: 'square', slide: f - 120 }); };
+const chip = (T, fs, gap, delay = 0, vol = 0.05) => arp(T, fs, gap, { delay, vol, dur: gap * 0.9, type: 'square' });
+const coin = (T, delay = 0, vol = 0.05) => { T(988, 0.06, { vol, delay, type: 'square' }); T(1319, 0.2, { vol, delay: delay + 0.06, type: 'square' }); };
+
 export const SFX_AX_O6 = {
+  // ── 旅芸人 ──
+  ax_o6_chacha: (a, T) => { [0, 0.14, 0.28, 0.42].forEach((d, i) => { a.noise(0.05, { vol: 0.18, delay: d, type: 'highpass', from: 5000, to: 8000 }); T(i % 2 ? 784 : 659, 0.1, { vol: 0.05, delay: d, type: 'pulse' }); }); sparkle(T, 0.5); },
+  ax_o6_fuuboo: (a, T) => { a.noise(0.18, { vol: 0.2, type: 'bandpass', from: 800, to: 1600, q: 1.5 }); a.noise(0.6, { vol: 0.45, delay: 0.16, from: 1400, to: 120 }); T(90, 0.5, { vol: 0.1, delay: 0.16, type: 'saw', slide: 60 }); },
+  ax_o6_kunekune: (a, T) => { T(440, 0.6, { vol: 0.06, type: 'triangle', slide: 880 }); arp(T, [988, 784, 1175, 880, 1319], 0.1, { vol: 0.04, type: 'pulse' }); },
+  ax_o6_hyunkaka: (a, T) => { for (let i = 0; i < 3; i++) a.noise(0.08, { vol: 0.15, delay: i * 0.08, type: 'bandpass', from: 1500, to: 3500, q: 3 }); for (let i = 0; i < 4; i++) { a.noise(0.03, { vol: 0.3, delay: 0.32 + i * 0.07, type: 'highpass', from: 3000, to: 6000 }); T(1760, 0.05, { vol: 0.04, delay: 0.32 + i * 0.07, type: 'square' }); } },
+  ax_o6_fure: (a, T) => { cheer(a, 0.3, 0.16); cheer(a, 0.3, 0.16, 0.35); arp(T, [523, 659, 784, 1047], 0.08, { vol: 0.05, type: 'pulse' }); },
+  ax_o6_donpappa: (a, T) => { [0, 0.15].forEach((d) => { T(80, 0.15, { vol: 0.25, delay: d, type: 'sine', slide: 50 }); a.noise(0.08, { vol: 0.25, delay: d, from: 800, to: 100 }); }); [523, 659, 784].forEach((f) => T(f, 0.35, { vol: 0.05, delay: 0.32, type: 'saw' })); },
+  ax_o6_korodon: (a, T) => { for (let i = 0; i < 4; i++) T(300 + i * 40, 0.06, { vol: 0.05, delay: i * 0.07, type: 'triangle' }); boom(a, T, 0.32, 0.4); sparkle(T, 0.4); },
+  ax_o6_kokekokko: (a, T) => { T(700, 0.08, { vol: 0.07, type: 'square', slide: 900 }); T(900, 0.08, { vol: 0.07, delay: 0.1, type: 'square' }); T(1100, 0.3, { vol: 0.07, delay: 0.2, type: 'square', slide: 800 }); a.noise(0.05, { vol: 0.25, delay: 0.55, from: 3000, to: 1000 }); T(1568, 0.15, { vol: 0.05, delay: 0.56 }); },
+  ax_o6_runrun: (a, T) => { arp(T, [784, 988, 1175, 988, 1319, 1568], 0.08, { vol: 0.05, type: 'triangle' }); sparkle(T, 0.45); },
+  ax_o6_hyuzaza: (a, T) => { T(1200, 0.35, { vol: 0.05, type: 'sine', slide: 2400 }); for (let i = 0; i < 5; i++) a.noise(0.05, { vol: 0.28, delay: 0.38 + i * 0.06, type: 'highpass', from: 3000, to: 7000 }); },
+  // ── 遊び人 ──
+  ax_o6_pyoko: (a, T) => { [0, 0.12, 0.24].forEach((d, i) => T(600 + i * 200, 0.08, { vol: 0.06, delay: d, type: 'square', slide: 900 + i * 200 })); T(700, 0.2, { vol: 0.05, delay: 0.4, type: 'triangle', slide: 1100 }); },
+  ax_o6_puwaha: (a, T) => { a.noise(0.08, { vol: 0.3, type: 'bandpass', from: 400, to: 900, q: 2 }); laugh(T, 0.15, 6); },
+  ax_o6_dice: (a, T) => { for (let i = 0; i < 6; i++) a.noise(0.03, { vol: 0.2, delay: i * 0.06, type: 'bandpass', from: 2000, to: 2000, q: 4 }); a.noise(0.06, { vol: 0.4, delay: 0.42, type: 'highpass', from: 3000, to: 6000 }); T(1319, 0.2, { vol: 0.06, delay: 0.42, type: 'triangle' }); },
+  ax_o6_guu: (a, T) => { T(140, 0.35, { vol: 0.12, type: 'saw', slide: 90 }); a.noise(0.3, { vol: 0.1, type: 'lowpass', from: 300, to: 200 }); a.noise(0.04, { vol: 0.4, delay: 0.45, type: 'highpass', from: 3000, to: 7000 }); },
+  ax_o6_piii: (a, T) => { T(1760, 0.5, { vol: 0.06, type: 'sine', slide: 2093 }); T(2093, 0.2, { vol: 0.05, delay: 0.5, type: 'sine', slide: 1760 }); },
+  ax_o6_kurukuru: (a, T) => { for (let i = 0; i < 2; i++) a.noise(0.18, { vol: 0.18, delay: i * 0.18, type: 'bandpass', from: 600, to: 2400, q: 2 }); a.noise(0.06, { vol: 0.35, delay: 0.4, from: 2000, to: 300 }); sparkle(T, 0.44); },
+  ax_o6_kocho: (a, T) => { for (let i = 0; i < 5; i++) a.noise(0.05, { vol: 0.14, delay: i * 0.06, type: 'bandpass', from: 4000, to: 5000, q: 3 }); laugh(T, 0.3, 5, 700); },
+  ax_o6_dartston: (a, T) => { for (let i = 0; i < 3; i++) { a.noise(0.04, { vol: 0.15, delay: i * 0.12, type: 'highpass', from: 3000, to: 5000 }); a.noise(0.04, { vol: 0.35, delay: 0.1 + i * 0.12, from: 2000, to: 500 }); } },
+  ax_o6_becha: (a, T) => { T(1000, 0.3, { vol: 0.04, type: 'sine', slide: 500 }); a.noise(0.2, { vol: 0.45, delay: 0.32, type: 'lowpass', from: 1500, to: 200 }); T(160, 0.15, { vol: 0.1, delay: 0.32, type: 'sine', slide: 90 }); },
+  ax_o6_lucky: (a, T) => { arp(T, [1047, 1319, 1568, 2093, 2637, 3136], 0.05, { vol: 0.05 }); [523, 659, 784, 1047].forEach((f) => T(f, 0.4, { vol: 0.05, delay: 0.32, type: 'saw' })); },
+  ax_o6_wahaha: (a, T) => { laugh(T, 0, 8, 480, 0.06); cheer(a, 0.6, 0.12, 0.05); },
+  ax_o6_kiraan: (a, T) => { for (let i = 0; i < 5; i++) a.noise(0.03, { vol: 0.3, delay: i * 0.06, from: 2000, to: 500 }); T(2637, 0.4, { vol: 0.06, delay: 0.32, type: 'sine' }); sparkle(T, 0.35); },
+  // ── ユーチューバー・配信 ──
+  ax_o6_pasha: (a, T) => { a.noise(0.15, { vol: 0.12, type: 'bandpass', from: 1500, to: 3000, q: 2 }); a.noise(0.04, { vol: 0.4, delay: 0.16, type: 'highpass', from: 4000, to: 8000 }); smack(a, T, 0.28, 0.4); },
+  ax_o6_piroron: (a, T) => { T(1568, 0.06, { vol: 0.06, type: 'square' }); arp(T, [1319, 1568, 1760, 2093], 0.06, { vol: 0.045, delay: 0.1 }); },
+  ax_o6_jan: (a, T) => { [523, 659, 784, 1047].forEach((f) => T(f, 0.45, { vol: 0.05, type: 'saw' })); a.noise(0.3, { vol: 0.2, type: 'highpass', from: 4000, to: 8000 }); T(880, 0.2, { vol: 0.04, delay: 0.3, type: 'triangle', slide: 1320 }); },
+  ax_o6_choki: (a, T) => { for (let i = 0; i < 4; i++) { a.noise(0.03, { vol: 0.3, delay: i * 0.1, type: 'highpass', from: 4000, to: 7000 }); T(2400, 0.03, { vol: 0.04, delay: i * 0.1, type: 'square' }); } },
+  ax_o6_kachin: (a, T) => { a.noise(0.04, { vol: 0.45, type: 'highpass', from: 2500, to: 6000 }); T(1200, 0.04, { vol: 0.08, type: 'square' }); [523, 659, 784, 1047, 1319].forEach((f, i) => T(f, 0.3, { vol: 0.05, delay: 0.2 + i * 0.05, type: 'pulse' })); },
+  ax_o6_pikon: (a, T) => { T(1319, 0.08, { vol: 0.07, type: 'square' }); T(1976, 0.25, { vol: 0.06, delay: 0.08, type: 'square' }); arp(T, [2637, 3136], 0.12, { vol: 0.05, delay: 0.3, dur: 0.3 }); },
+  ax_o6_view: (a, T) => { for (let i = 0; i < 8; i++) T(880 + i * 120, 0.04, { vol: 0.04, delay: i * 0.04, type: 'square' }); boom(a, T, 0.38, 0.35); sparkle(T, 0.4); },
+  ax_o6_gyun: (a, T) => { T(300, 0.35, { vol: 0.07, type: 'saw', slide: 1600 }); [784, 988, 1175, 1568].forEach((f) => T(f, 0.35, { vol: 0.05, delay: 0.35, type: 'pulse' })); },
+  ax_o6_buzz: (a, T) => { for (let i = 0; i < 10; i++) T(1200 + (i % 4) * 300, 0.04, { vol: 0.04, delay: i * 0.05, type: 'square' }); cheer(a, 0.4, 0.12, 0.3); },
+  ax_o6_collab: (a, T) => { T(1568, 0.06, { vol: 0.06, type: 'square' }); T(2093, 0.12, { vol: 0.06, delay: 0.07, type: 'square' }); cheer(a, 0.45, 0.2, 0.2); },
+  ax_o6_bion: (a, T) => { a.noise(0.05, { vol: 0.35, type: 'highpass', from: 2000, to: 5000 }); T(200, 0.5, { vol: 0.1, delay: 0.05, type: 'triangle', slide: 900 }); T(900, 0.2, { vol: 0.06, delay: 0.35, type: 'triangle', slide: 400 }); },
+  ax_o6_enjou: (a, T) => { for (let i = 0; i < 8; i++) T(1500 + (i % 3) * 200, 0.03, { vol: 0.035, delay: i * 0.035, type: 'square' }); a.noise(0.6, { vol: 0.45, delay: 0.25, from: 2000, to: 150 }); },
+  ax_o6_kusudama: (a, T) => { a.noise(0.05, { vol: 0.4, type: 'highpass', from: 2000, to: 5000 }); a.noise(0.4, { vol: 0.2, delay: 0.05, type: 'highpass', from: 4000, to: 8000 }); arp(T, [784, 988, 1175, 1568, 1976], 0.06, { vol: 0.05, delay: 0.1, type: 'triangle' }); },
+  ax_o6_faa: (a, T) => { [523, 659, 784, 1047].forEach((f, i) => T(f, 0.7, { vol: 0.04, delay: i * 0.04, type: 'sine', attack: 0.3 })); sparkle(T, 0.3, 0.03); },
+  ax_o6_chalin: (a, T) => { for (let i = 0; i < 6; i++) coin(T, i * 0.08, 0.035); },
+  ax_o6_waaa: (a, T) => { for (let i = 0; i < 6; i++) T(1500 + i * 150, 0.03, { vol: 0.03, delay: i * 0.03, type: 'square' }); cheer(a, 0.7, 0.26, 0.15); },
+  ax_o6_zudon: (a, T) => { arp(T, [1319, 1568, 1976, 2637], 0.05, { vol: 0.05, type: 'square' }); a.noise(0.08, { vol: 0.5, delay: 0.3, type: 'highpass', from: 2000, to: 4000 }); boom(a, T, 0.32, 0.5); },
+  // ── ゲーマー ──
+  ax_o6_kachikachi: (a, T) => { for (let i = 0; i < 6; i++) { a.noise(0.02, { vol: 0.25, delay: i * 0.06, type: 'highpass', from: 3000, to: 5000 }); T(660 + (i % 2) * 220, 0.04, { vol: 0.04, delay: i * 0.06, type: 'square' }); } },
+  ax_o6_save: (a, T) => { chip(T, [1047, 1319, 1568, 2093, 1568, 2093], 0.07); },
+  ax_o6_bug: (a, T) => { for (let i = 0; i < 6; i++) a.noise(0.04, { vol: 0.2, delay: i * 0.05, type: 'bandpass', from: 300 + i * 700, to: 3000, q: 4 }); T(1800, 0.15, { vol: 0.05, delay: 0.35, type: 'square', slide: 2400 }); },
+  ax_o6_gacha: (a, T) => { a.noise(0.2, { vol: 0.2, type: 'bandpass', from: 500, to: 900, q: 3 }); a.noise(0.04, { vol: 0.35, delay: 0.22, type: 'highpass', from: 3000, to: 6000 }); arp(T, [1568, 2093, 2637, 3136], 0.05, { vol: 0.05, delay: 0.28 }); },
+  ax_o6_bunbun: (a, T) => { for (let i = 0; i < 2; i++) a.noise(0.15, { vol: 0.25, delay: i * 0.14, type: 'bandpass', from: 400, to: 1500, q: 2 }); smack(a, T, 0.32, 0.5); },
+  ax_o6_pikopiko: (a, T) => { chip(T, [523, 659, 523, 659], 0.08); T(220, 0.2, { vol: 0.08, delay: 0.38, type: 'square', slide: 440 }); },
+  ax_o6_loop: (a, T) => { for (let k = 0; k < 3; k++) chip(T, [880, 660, 990], 0.05, k * 0.17, 0.04); },
+  ax_o6_combo: (a, T) => { for (let i = 0; i < 7; i++) a.noise(0.03, { vol: 0.25 + i * 0.02, delay: i * 0.05, from: 3000, to: 600 }); T(880, 0.25, { vol: 0.06, delay: 0.38, type: 'square', slide: 1760 }); },
+  ax_o6_fanfare: (a, T) => { chip(T, [523, 659, 784], 0.06); smack(a, T, 0.2, 0.45); chip(T, [784, 1047, 1319, 1568], 0.08, 0.36, 0.05); },
+  ax_o6_konami: (a, T) => { chip(T, [988, 988, 784, 784, 659, 880], 0.045, 0, 0.045); T(1568, 0.35, { vol: 0.06, delay: 0.32, type: 'square', slide: 2093 }); smack(a, T, 0.36, 0.4); },
+  ax_o6_timeatk: (a, T) => { T(2400, 0.03, { vol: 0.08, type: 'square' }); a.noise(0.1, { vol: 0.4, delay: 0.1, type: 'highpass', from: 2000, to: 8000 }); T(1760, 0.12, { vol: 0.04, delay: 0.12, type: 'saw', slide: 440 }); },
+  // ── スーパースター ──
+  ax_o6_kirakira: (a, T) => { arp(T, [1319, 1568, 2093, 2637, 3136], 0.06, { vol: 0.05, dur: 0.2 }); a.noise(0.5, { vol: 0.1, type: 'highpass', from: 5000, to: 8000 }); },
+  ax_o6_sharara: (a, T) => { arp(T, [2093, 2349, 2637, 3136, 3520, 4186, 3520, 3136], 0.05, { vol: 0.04, dur: 0.14 }); a.noise(0.6, { vol: 0.14, type: 'highpass', from: 4000, to: 8000 }); },
+  ax_o6_banlight: (a, T) => { a.noise(0.08, { vol: 0.5, type: 'lowpass', from: 1200, to: 200 }); T(110, 0.2, { vol: 0.15, type: 'square', slide: 80 }); T(1760, 0.4, { vol: 0.04, delay: 0.1, type: 'sine' }); },
+  ax_o6_kyun: (a, T) => { T(2093, 0.04, { vol: 0.07, type: 'square' }); T(1047, 0.25, { vol: 0.06, delay: 0.12, type: 'sine', slide: 1568 }); sparkle(T, 0.3); },
+  ax_o6_parade: (a, T) => { chip(T, [523, 523, 659, 784, 659, 784, 1047], 0.07, 0, 0.045); [0, 0.28].forEach((d) => T(90, 0.1, { vol: 0.2, delay: d, type: 'sine', slide: 60 })); },
+  ax_o6_nova: (a, T) => { T(400, 0.4, { vol: 0.06, type: 'sine', slide: 2400, attack: 0.35 }); a.noise(0.7, { vol: 0.5, delay: 0.42, from: 6000, to: 200 }); T(110, 0.3, { vol: 0.12, delay: 0.42, type: 'saw', slide: 50 }); },
+  ax_o6_encore: (a, T) => { [0, 0.18, 0.36].forEach((d) => cheer(a, 0.15, 0.22, d)); for (let i = 0; i < 6; i++) a.noise(0.03, { vol: 0.2, delay: 0.1 + i * 0.08, type: 'bandpass', from: 2000, to: 2500, q: 2 }); },
+  // ── 占い師 ──
+  ax_o6_tarot: (a, T) => { a.noise(0.06, { vol: 0.3, type: 'highpass', from: 3000, to: 7000 }); arp(T, [880, 1175, 1568, 2349], 0.07, { vol: 0.045, delay: 0.08, type: 'triangle', dur: 0.3 }); },
+  ax_o6_moon: (a, T) => { a.noise(0.06, { vol: 0.3, type: 'highpass', from: 3000, to: 7000 }); arp(T, [1568, 1319, 1175, 988], 0.12, { vol: 0.04, delay: 0.08, dur: 0.35 }); },
+  ax_o6_tower: (a, T) => { a.noise(0.05, { vol: 0.3, type: 'highpass', from: 3000, to: 7000 }); a.noise(0.08, { vol: 0.55, delay: 0.3, type: 'highpass', from: 3000, to: 3000 }); boom(a, T, 0.38, 0.55); },
+  ax_o6_karakara: (a, T) => { for (let i = 0; i < 9; i++) a.noise(0.02, { vol: 0.2, delay: Math.pow(i / 9, 1.6) * 0.5, type: 'bandpass', from: 2500, to: 2500, q: 5 }); T(1568, 0.25, { vol: 0.06, delay: 0.55, type: 'triangle' }); },
+  // ── お笑い ──
+  ax_o6_pishi: (a, T) => { smack(a, T, 0.02, 0.6); T(1760, 0.1, { vol: 0.05, delay: 0.06, type: 'square', slide: 1320 }); },
+  ax_o6_hyuu: (a, T) => { T(900, 0.4, { vol: 0.04, type: 'sine', slide: 300 }); a.noise(0.5, { vol: 0.12, delay: 0.1, type: 'bandpass', from: 600, to: 300, q: 2 }); laugh(T, 0.45, 3, 600, 0.04); },
+  ax_o6_janwaha: (a, T) => { [659, 784, 1047].forEach((f) => T(f, 0.2, { vol: 0.06, type: 'saw' })); laugh(T, 0.25, 6, 500); },
+  ax_o6_conte: (a, T) => { T(330, 0.4, { vol: 0.07, type: 'square' }); T(165, 0.3, { vol: 0.08, delay: 0.02, type: 'square' }); a.noise(0.06, { vol: 0.3, delay: 0.2, type: 'bandpass', from: 1500, to: 600, q: 2 }); T(900, 0.2, { vol: 0.05, delay: 0.32, type: 'sine', slide: 300 }); a.noise(0.1, { vol: 0.4, delay: 0.5, from: 800, to: 100 }); },
+  ax_o6_aharaha: (a, T) => { laugh(T, 0, 6, 600, 0.05); arp(T, [1568, 2093, 2637], 0.08, { vol: 0.04, delay: 0.4 }); },
+  ax_o6_monomane: (a, T) => { for (let i = 0; i < 4; i++) T(400 + i * 150, 0.08, { vol: 0.05, delay: i * 0.08, type: ['square', 'saw', 'triangle', 'pulse'][i] }); [523, 659, 784].forEach((f) => T(f, 0.3, { vol: 0.05, delay: 0.38, type: 'pulse' })); },
+  ax_o6_bakushou: (a, T) => { laugh(T, 0, 9, 440, 0.06); laugh(T, 0.04, 8, 620, 0.04); cheer(a, 0.7, 0.18); },
+  ax_o6_noritsukkomi: (a, T) => { T(392, 0.15, { vol: 0.05, type: 'triangle' }); T(392, 0.15, { vol: 0.05, delay: 0.22, type: 'triangle' }); smack(a, T, 0.62, 0.65); },
+  ax_o6_goon: (a, T) => { [0, 0.18, 0.36, 0.54].forEach((d, i) => { T(330 - i * 20, 0.25, { vol: 0.07 + i * 0.015, delay: d, type: 'triangle' }); T(990 - i * 60, 0.2, { vol: 0.03, delay: d, type: 'sine' }); a.noise(0.04, { vol: 0.2, delay: d, from: 3000, to: 1500 }); }); },
+  ax_o6_dokkiri: (a, T) => { a.noise(0.05, { vol: 0.3, type: 'bandpass', from: 1000, to: 2000, q: 3 }); T(200, 0.4, { vol: 0.08, delay: 0.1, type: 'triangle', slide: 700 }); for (let i = 0; i < 4; i++) T(500 + (i % 2) * 200, 0.06, { vol: 0.05, delay: 0.3 + i * 0.06, type: 'square' }); },
+  // ── プロゲーマー ──
+  ax_o6_suh: (a, T) => { T(2400, 0.03, { vol: 0.08, type: 'square' }); a.noise(0.25, { vol: 0.25, delay: 0.08, type: 'bandpass', from: 3000, to: 900, q: 1.5 }); },
+  ax_o6_bakii: (a, T) => { a.noise(0.15, { vol: 0.25, type: 'bandpass', from: 400, to: 1500, q: 2 }); for (let i = 0; i < 6; i++) a.noise(0.03, { vol: 0.35, delay: 0.3 + i * 0.03, type: 'highpass', from: 2000, to: 6000 }); T(150, 0.2, { vol: 0.12, delay: 0.3, type: 'square', slide: 60 }); },
+  ax_o6_katata: (a, T) => { for (let i = 0; i < 12; i++) a.noise(0.015, { vol: 0.2, delay: i * 0.035, type: 'highpass', from: 3000, to: 5000 }); T(1760, 0.1, { vol: 0.05, delay: 0.45, type: 'square' }); },
+  ax_o6_kyukkyu: (a, T) => { for (let i = 0; i < 2; i++) a.noise(0.08, { vol: 0.15, delay: i * 0.12, type: 'bandpass', from: 2500, to: 3500, q: 6 }); T(1319, 0.08, { vol: 0.06, delay: 0.3, type: 'square' }); T(988, 0.2, { vol: 0.05, delay: 0.38, type: 'square' }); },
+  ax_o6_kami: (a, T) => { T(600, 0.3, { vol: 0.04, type: 'sine', slide: 300 }); a.noise(0.12, { vol: 0.5, delay: 0.3, type: 'highpass', from: 2500, to: 7000 }); for (let i = 0; i < 5; i++) a.noise(0.03, { vol: 0.2, delay: 0.45 + i * 0.07, type: 'bandpass', from: 2000, to: 2500, q: 2 }); },
+  ax_o6_okay: (a, T) => { T(1568, 0.05, { vol: 0.06, type: 'square' }); T(784, 0.15, { vol: 0.06, delay: 0.1, type: 'triangle' }); T(1047, 0.25, { vol: 0.06, delay: 0.25, type: 'triangle' }); cheer(a, 0.3, 0.12, 0.3); },
+  ax_o6_worldwin: (a, T) => { cheer(a, 0.6, 0.25); [523, 659, 784, 1047, 1319].forEach((f) => T(f, 0.6, { vol: 0.04, delay: 0.15, type: 'saw' })); },
+  ax_o6_nomiss: (a, T) => { for (let i = 0; i < 5; i++) a.noise(0.03, { vol: 0.2, delay: i * 0.06, type: 'bandpass', from: 800, to: 1200, q: 2 }); chip(T, [784, 784, 784, 988, 1175, 1568], 0.06, 0.3, 0.05); },
+  // ── 超級職 ──
+  ax_o6_izumi: (a, T) => { for (let i = 0; i < 4; i++) T(500 + i * 120, 0.08, { vol: 0.05, delay: i * 0.1, type: 'sine', slide: 900 + i * 120 }); T(2637, 0.4, { vol: 0.05, delay: 0.45, type: 'sine' }); },
+  ax_o6_ifrit: (a, T) => { a.noise(0.4, { vol: 0.3, from: 300, to: 80 }); T(70, 0.4, { vol: 0.14, type: 'saw', slide: 110 }); a.noise(0.5, { vol: 0.5, delay: 0.3, from: 2200, to: 150 }); },
+  ax_o6_undine: (a, T) => { T(600, 0.12, { vol: 0.06, type: 'sine', slide: 1200 }); a.noise(0.6, { vol: 0.2, delay: 0.15, type: 'highpass', from: 2000, to: 5000 }); arp(T, [1047, 1319, 1568, 2093], 0.08, { vol: 0.04, delay: 0.2 }); },
+  ax_o6_kyojin: (a, T) => { a.noise(0.5, { vol: 0.4, from: 400, to: 60 }); T(55, 0.45, { vol: 0.16, type: 'saw', slide: 40 }); T(90, 0.2, { vol: 0.2, delay: 0.5, type: 'sine', slide: 40 }); },
+  ax_o6_ryuujin: (a, T) => { T(300, 0.5, { vol: 0.07, type: 'saw', slide: 900, attack: 0.3 }); a.noise(0.5, { vol: 0.2, type: 'bandpass', from: 800, to: 2500, q: 1.5 }); arp(T, [1568, 2093, 2637, 3136], 0.06, { vol: 0.05, delay: 0.5 }); },
+  ax_o6_kenja: (a, T) => { T(2637, 0.5, { vol: 0.05, type: 'sine' }); T(3520, 0.4, { vol: 0.03, delay: 0.05, type: 'sine' }); arp(T, [784, 988, 1175, 1568], 0.08, { vol: 0.045, delay: 0.3, dur: 0.3 }); },
+  ax_o6_satori: (a, T) => { T(1047, 0.7, { vol: 0.04, type: 'sine', attack: 0.3 }); T(1568, 0.6, { vol: 0.03, delay: 0.1, type: 'sine', attack: 0.3 }); a.noise(0.05, { vol: 0.2, delay: 0.6, from: 2500, to: 800 }); },
+  ax_o6_kekkai: (a, T) => { [0, 0.1, 0.2].forEach((d, i) => T(2093 + i * 300, 0.12, { vol: 0.05, delay: d, type: 'triangle' })); T(130, 0.5, { vol: 0.12, delay: 0.35, type: 'sine', slide: 110 }); [523, 784, 1047].forEach((f) => T(f, 0.4, { vol: 0.03, delay: 0.35, type: 'sine' })); },
+  ax_o6_hoshiuta: (a, T) => { arp(T, [880, 1047, 1319, 1175, 1568], 0.12, { vol: 0.045, dur: 0.3, type: 'triangle' }); sparkle(T, 0.55, 0.03); },
+  ax_o6_komori: (a, T) => { arp(T, [784, 659, 698, 587, 523], 0.14, { vol: 0.04, dur: 0.3 }); },
+  ax_o6_shukufuku: (a, T) => { [0, 0.18, 0.36].forEach((d, i) => { T(2093 + i * 260, 0.3, { vol: 0.05, delay: d, type: 'sine', slide: 3000 }); a.noise(0.1, { vol: 0.12, delay: d, type: 'highpass', from: 5000, to: 8000 }); }); },
+  ax_o6_amanogawa: (a, T) => { arp(T, [1319, 1568, 1760, 2093, 2349, 2637, 3136, 3520], 0.06, { vol: 0.04, dur: 0.3 }); [523, 659, 784].forEach((f) => T(f, 0.6, { vol: 0.03, type: 'sine', attack: 0.2 })); },
+  // ── M-1 ──
+  ax_o6_machinegun: (a, T) => { for (let i = 0; i < 14; i++) T(500 + ((i * 7) % 5) * 90, 0.035, { vol: 0.04, delay: i * 0.05, type: 'square' }); for (let i = 0; i < 7; i++) a.noise(0.02, { vol: 0.15, delay: i * 0.1, from: 3000, to: 800 }); },
+  ax_o6_bassin: (a, T) => { a.noise(0.15, { vol: 0.2, type: 'bandpass', from: 500, to: 1500, q: 2 }); smack(a, T, 0.3, 0.75); T(1047, 0.3, { vol: 0.05, delay: 0.32, type: 'saw' }); },
+  ax_o6_doumo: (a, T) => { T(330, 0.12, { vol: 0.06, type: 'triangle', slide: 440 }); T(440, 0.18, { vol: 0.06, delay: 0.14, type: 'triangle', slide: 330 }); cheer(a, 0.45, 0.14, 0.35); laugh(T, 0.4, 3, 520, 0.04); },
+  ax_o6_kansei: (a, T) => { cheer(a, 0.75, 0.3); cheer(a, 0.5, 0.2, 0.2); },
+  ax_o6_yuushou: (a, T) => { [523, 659, 784, 1047].forEach((f, i) => T(f, 0.6, { vol: 0.05, delay: i * 0.02, type: 'saw' })); a.noise(0.08, { vol: 0.5, delay: 0.4, type: 'highpass', from: 2000, to: 6000 }); a.noise(0.35, { vol: 0.2, delay: 0.45, type: 'highpass', from: 4000, to: 8000 }); },
+  ax_o6_yonpun: (a, T) => { for (let i = 0; i < 4; i++) { T(330, 0.06, { vol: 0.05, delay: i * 0.16, type: 'triangle' }); smack(a, T, 0.08 + i * 0.16, 0.35); } laugh(T, 0.66, 2, 500, 0.04); },
+  // ── 合体技 ──
+  ax_o6_taishou: (a, T) => { T(300, 0.3, { vol: 0.06, type: 'saw', slide: 200 }); T(2400, 0.3, { vol: 0.04, type: 'sine', slide: 3000 }); T(500, 0.3, { vol: 0.06, delay: 0.3, type: 'sine', slide: 2400 }); boom(a, T, 0.6, 0.5); },
+  ax_o6_tatsumaki: (a, T) => { a.noise(0.4, { vol: 0.25, type: 'bandpass', from: 600, to: 2000, q: 2 }); a.noise(0.4, { vol: 0.4, delay: 0.35, from: 1500, to: 200 }); T(80, 0.4, { vol: 0.12, delay: 0.35, type: 'saw', slide: 120 }); },
+  ax_o6_iyashiwa: (a, T) => { arp(T, [1047, 1319, 1568, 2093, 2637], 0.07, { vol: 0.045, dur: 0.3 }); [523, 659, 784].forEach((f) => T(f, 0.5, { vol: 0.03, delay: 0.35, type: 'sine' })); },
+  ax_o6_stage: (a, T) => { [0, 0.2, 0.4].forEach((d) => { T(90, 0.1, { vol: 0.2, delay: d, type: 'sine', slide: 55 }); a.noise(0.05, { vol: 0.2, delay: d + 0.1, type: 'highpass', from: 5000, to: 8000 }); }); [523, 659, 784].forEach((f) => T(f, 0.25, { vol: 0.04, delay: 0.5, type: 'saw' })); },
+  ax_o6_manzai: (a, T) => { T(330, 0.12, { vol: 0.06, type: 'triangle', slide: 440 }); smack(a, T, 0.3, 0.6); laugh(T, 0.45, 4, 520, 0.05); },
+  ax_o6_hikariyami: (a, T) => { for (let i = 0; i < 6; i++) T(i % 2 ? 1760 : 220, 0.08, { vol: 0.05, delay: i * 0.07, type: i % 2 ? 'sine' : 'saw' }); boom(a, T, 0.5, 0.5); },
+  ax_o6_fubuki: (a, T) => { a.noise(0.7, { vol: 0.35, type: 'bandpass', from: 1200, to: 3000, q: 1.5 }); for (let i = 0; i < 4; i++) T(2637 + i * 300, 0.1, { vol: 0.03, delay: 0.3 + i * 0.07, type: 'sine' }); },
+  ax_o6_shower: (a, T) => { a.noise(0.7, { vol: 0.2, type: 'highpass', from: 3000, to: 7000 }); arp(T, [1568, 2093, 2637, 3136, 2637, 3136], 0.06, { vol: 0.04 }); },
+  ax_o6_daicollab: (a, T) => { for (let i = 0; i < 8; i++) T(1300 + (i % 4) * 200, 0.04, { vol: 0.035, delay: i * 0.04, type: 'square' }); cheer(a, 0.6, 0.26, 0.25); arp(T, [784, 988, 1175, 1568], 0.06, { vol: 0.04, delay: 0.3, type: 'pulse' }); },
 };
