@@ -8,7 +8,7 @@
 //   3. 料理・そうじの 道具・マイク などの「道具の 形」（TOOL_LOOKS）は その 道具の 絵（hero-gear.js の 道具の 形）
 //
 // ★4・★5 の 品（items-rare.js の starsFor）は 宝石・光の すじ・きらめき が つく（絵の がわで きめる）
-import { starsFor } from './items-rare.js?v=754c2ad0d696';
+import { starsFor } from './items-rare.js?v=4ed9358095f4';
 
 // 武器種ごとの 形（ならびは だいたい 弱い 形 → 強い 形）
 export const WEAPON_LOOKS = {

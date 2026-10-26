@@ -3,12 +3,14 @@
 // ・時間（tier・charge.kind/ms・hit・len・stagger・party）と 技の つなぎは shared/data/ax-time-o3.js に 書く（ここには 書かない）
 // ・ここには 見た目だけ: { ox_〜: { charge: { color, color2, power }, sfx, allyFx, pal, vars, play(fx, c) } }
 // ・カットインの 帯（c.k.cutIn）・画面の くらさ（c.k.dim）は つかわない。画面の 文字に 漢字は 出さない（「人」だけ OK）
-// ・大きく なったら axfx-o3-〜.js に 分けて ここから import して よい
-// ・つぶの かきかた（Effects の FINE）は AX_O3_FINE に。なまえは 'o3' で はじめる（例: o3Card）
-// import { pal } from './axkit.js?v=754c2ad0d696';
+// ・職業ごとに 分けた: axfx-o3-kaisha.js（会社員・アルバイト）・axfx-o3-joushi.js（部長・正社員・社ちく・楽天カードマン）・
+//   axfx-o3-shachou.js（社長・キャリア組・たたき上げ社長・ブラックきぎょうの星・合体技）。絵と つぶの かきかたは axfx-o3-lib.js
+// ・どの え も さいごに balance（もとからの 技の 予算 AX_BUDGET_ORIG の つぶの かず: 敵1体でも 下限 いじょう、敵5体でも 上限 いか）
+import { AX_O3_FINE as FINE, withBalance } from './axfx-o3-lib.js?v=4ed9358095f4';
+import { AX_O3_KAISHA } from './axfx-o3-kaisha.js?v=4ed9358095f4';
+import { AX_O3_JOUSHI } from './axfx-o3-joushi.js?v=4ed9358095f4';
+import { AX_O3_SHACHOU } from './axfx-o3-shachou.js?v=4ed9358095f4';
 
-export const AX_O3 = {
-};
+export const AX_O3 = withBalance({ ...AX_O3_KAISHA, ...AX_O3_JOUSHI, ...AX_O3_SHACHOU });
 
-export const AX_O3_FINE = {
-};
+export const AX_O3_FINE = { ...FINE };

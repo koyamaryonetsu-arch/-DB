@@ -3,7 +3,7 @@
 // 色: 千年前の 森＝みどりと こはく色、時のほこら＝金色の 砂、時のいせき＝銀の 歯車と 青い 時の 光、ミナモ＝星の 光
 // a6_fall（大砂流）・a6_press（ギアプレス）・a6_rewind_big（まきもどし）などは がめんの まん中に 大きく（client/battle-ch6.js）
 // 第2部 第6章 Step 3・4 の 魔物・星くいのよる鳥・ペンデュラ（battlefx-road.js。ここの さいごに よぶ）
-import { playRoadFx } from './battlefx-road.js?v=754c2ad0d696';
+import { playRoadFx } from './battlefx-road.js?v=4ed9358095f4';
 
 const SAND = ['#e8c070', '#fff0b8', '#b08a3a', '#ffffff'];
 const AMBER = ['#e0a040', '#f4cc70', '#fff0a0'];

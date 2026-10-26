@@ -5,7 +5,7 @@
 // ・カットインの 帯（c.k.cutIn）・画面の くらさ（c.k.dim）は つかわない。画面の 文字に 漢字は 出さない（「人」だけ OK）
 // ・大きく なったら axfx-o6-〜.js に 分けて ここから import して よい
 // ・つぶの かきかた（Effects の FINE）は AX_O6_FINE に。なまえは 'o6' で はじめる（例: o6Card）
-// import { pal } from './axkit.js?v=754c2ad0d696';
+// import { pal } from './axkit.js?v=4ed9358095f4';
 
 export const AX_O6 = {
 };

@@ -1,6 +1,6 @@
 // お仕事いらい板の たのまれごとの マップを かく どうぐ（第39回 C の maps/family-quests.js から 分けた。第41回）
 // maps/family-quests.js（はじめの 5つ）と maps/work-quests.js（第41回の 6つ）の どちらも 使う
-import { T, parseRows } from '../tiles.js?v=754c2ad0d696';
+import { T, parseRows } from '../tiles.js?v=4ed9358095f4';
 
 // 文字の マップを 1マスずつ かく
 export function grid(w, h, fill) {

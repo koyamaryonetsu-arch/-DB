@@ -3,7 +3,7 @@
 // ・ぷるりんの なかま（クイーン・ゴールド）は 今の ぷるりん（monsters.js の jelly）と おなじ 形・め・口
 // ・コマ0 … ゆらゆら まつ すがた、コマ1 … こうげきの ポーズ
 // ・S ランク（せかいじゅの子・がいこつ王・こよみのせいれい・竜王のまご）は 大きな 魔物と おなじ くらい（field で フィールドでも すこし 大きく）
-import { fit, spark, bez, taper, flame, snowflake } from './ch3-draw.js?v=754c2ad0d696';
+import { fit, spark, bez, taper, flame, snowflake } from './ch3-draw.js?v=4ed9358095f4';
 
 const W = '#ffffff', K = '#1a1026';
 const pal = (P) => [...new Set(Object.values(P).map((c) => c.toLowerCase()))];

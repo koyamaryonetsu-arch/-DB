@@ -1,20 +1,20 @@
 // キャラクターの つよさ計算・レベルアップ・転職ペナルティ
-import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_EASY_RATE, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets, jobBodyOk, superMasteredCount } from './data/jobs.js?v=754c2ad0d696';
-import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=754c2ad0d696';
-import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=754c2ad0d696';
-import { MONSTERS } from './data/monsters.js?v=754c2ad0d696';
-import { MONSTER_FRIENDS, monsterNatural, gearOf, monsterLevelCap } from './data/companions.js?v=754c2ad0d696';
-import { ougiLearn } from './data/abilities-ougi.js?v=754c2ad0d696';
+import { JOBS, ALL_JOBS, JOB_MAX_LEVEL, JOB_EASY_RATE, jobBattlesForLevel, jobBases, jobAncestry, jobReqSets, jobBodyOk, superMasteredCount } from './data/jobs.js?v=4ed9358095f4';
+import { ITEMS, SLOTS, baseItemId } from './data/items.js?v=4ed9358095f4';
+import { ABILITIES, isAttackSpell, isSwordSkill } from './data/abilities.js?v=4ed9358095f4';
+import { MONSTERS } from './data/monsters.js?v=4ed9358095f4';
+import { MONSTER_FRIENDS, monsterNatural, gearOf, monsterLevelCap } from './data/companions.js?v=4ed9358095f4';
+import { ougiLearn } from './data/abilities-ougi.js?v=4ed9358095f4';
 // 第43回 A: 魔物の 育ち・ランクの 強さ（data/companions.js の rankIdx）
-import { rankIdx } from './data/companions.js?v=754c2ad0d696';
+import { rankIdx } from './data/companions.js?v=4ed9358095f4';
 // 第44回（ポケモン P1）: レベルで 進化
-import { levelEvolveTo } from './data/companions.js?v=754c2ad0d696';
-import { HIRAMEKI, hiraRatio } from './data/hirameki.js?v=754c2ad0d696';
-import { cleanLook } from './data/looks.js?v=754c2ad0d696';
-import { SKILL_UPS } from './data/skill-ups.js?v=754c2ad0d696';
-import { jobLabel } from './job-label.js?v=754c2ad0d696';
+import { levelEvolveTo } from './data/companions.js?v=4ed9358095f4';
+import { HIRAMEKI, hiraRatio } from './data/hirameki.js?v=4ed9358095f4';
+import { cleanLook } from './data/looks.js?v=4ed9358095f4';
+import { SKILL_UPS } from './data/skill-ups.js?v=4ed9358095f4';
+import { jobLabel } from './job-label.js?v=4ed9358095f4';
 // 第38回 B: 超級職からの 職業レベルの 上限（職業の試練）と Lv11〜 の 強さ
-import { jobLevelCap, jobUpStats } from './data/job-trials.js?v=754c2ad0d696';
+import { jobLevelCap, jobUpStats } from './data/job-trials.js?v=4ed9358095f4';
 
 // 長い 物語に なるので レベルは 150まで（第40回で 99 → 150。レベルで ふえる つよさは ひかえめ）
 export const MAX_LEVEL = 150;
