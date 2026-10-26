@@ -20,6 +20,10 @@ import { groupReport, playAx, ONE, ALLY1 } from './ax-check.js';
 const src = (p) => readFileSync(new URL(p, import.meta.url), 'utf8');
 
 // ためしの 表（グループと おなじ 書きかた。テストの 中だけ）
+// テストの 中だけで、本物の 技を ためしの 大技に つなぐ（グループが もう つないで いる 技は、この テストの 中でだけ 一度 はずす）
+import { AX_SKILLS as AX_SKILLS_BORROW } from '../public/js/shared/ax-time.js';
+const borrowSkills = (keys) => { for (const k of keys) delete AX_SKILLS_BORROW[k]; };
+borrowSkills(['mera', 'mera@masc', 'merami', 'hoimi', 'dt_bentou']);
 axAddTimes('gt', {
   ax_tfix_beam: { tier: 'legend', charge: { kind: 'ki' }, hit: 150, len: 1100 },
   ax_tfix_heal: { tier: 'advanced', charge: { kind: 'holy', ms: 400 }, hit: 200, len: 700, party: true },
@@ -378,6 +382,7 @@ import { AX_BUDGET_ORIG, AX_DUAL_TOTAL, AX_DUAL_TOTAL_ORIG, AX_DUAL_PARTS_ORIG, 
 import { isDualKey, skillExists, THREE } from './ax-check.js';
 
 const O0_COL = { main: '#9ad8ff', glow: '#5ab8ff', core: '#ffffff' };
+borrowSkills(['kabutowari', 'dt_hane', 'dt_hametsu']);
 axAddTimes('o0', {
   ox__demo_stance: { tier: 'basic', charge: { kind: 'sword', ms: 200 }, hit: 200, len: 620 },
   ox__demo_dual: { tier: 'super', charge: false, hit: 420, len: 1600 },
