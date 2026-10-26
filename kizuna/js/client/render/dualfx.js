@@ -8,7 +8,7 @@
 // client/battle-dual.js の dualFx から よぶ。CSS は ここで 1回だけ 入れる（style.css は さわらない）
 // 第31回: 合体技の 名前を 大きく（たたかいの コマンドの 一覧・メニューの 合体技の タブ）の CSS も ここ（addDualCss）
 
-import { AX_DUAL_CUT_MS } from '../../shared/ax-time.js?v=dd582b3d4c53';
+import { AX_DUAL_CUT_MS } from '../../shared/ax-time.js?v=1dff4be9c13e';
 
 // 技ごとの えんしゅつ: c … 色（[こい, あかるい, ひかり]）、finale … とどめの かたち、word … 画面に 出る ことば
 export const DUAL_FX = {

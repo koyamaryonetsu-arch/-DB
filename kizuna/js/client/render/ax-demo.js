@@ -3,7 +3,7 @@
 //  ax_demo_slash … 剣を かまえて（sword・super）ダッシュ ＋ 三日月の 3れん斬り
 //  ax_demo_orb   … チャクラを ねって（chakra・advanced）まわる たまを ぶつける
 // グループの ファイルの 見本: { anim: def } を export して、axfx.js で useAxGroup する
-import { pal } from './axkit.js?v=dd582b3d4c53';
+import { pal } from './axkit.js?v=1dff4be9c13e';
 
 const KI = pal('ki');
 

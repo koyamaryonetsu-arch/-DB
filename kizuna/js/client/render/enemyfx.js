@@ -1,5 +1,5 @@
 // てきの うごき（こうげき・じゅもん・ブレス…）と、みかたに あたった ときの えんしゅつ
-import { MONSTERS } from '../../shared/data/monsters.js?v=dd582b3d4c53';
+import { MONSTERS } from '../../shared/data/monsters.js?v=1dff4be9c13e';
 
 const clamp01 = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
 const easeOut = (t) => 1 - (1 - t) * (1 - t) * (1 - t);
