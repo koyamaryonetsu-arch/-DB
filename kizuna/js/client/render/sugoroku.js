@@ -1,7 +1,7 @@
 // 第37回 B: すごろくの 盤の 絵（マス・道・こま・さいころ）
 //   盤の 形は shared/data/sugoroku.js。こまの 場所・さいころの 目は サーバーが きめる（ここは 見せるだけ）
 //   マスが 画面に 入りきらない 大きな 盤は、こまを 追いかけて 動く（「盤ぜんたい」で ぜんぶ 見る）
-import { monsterCanvas } from './monsters.js?v=1dff4be9c13e';
+import { monsterCanvas } from './monsters.js?v=754c2ad0d696';
 
 const FONT = "'KizunaDot', 'DotGothic16', monospace";
 

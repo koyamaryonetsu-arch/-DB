@@ -15,12 +15,12 @@
 // ・砂に もぐる（Step 6 の 砂クジラ）: 技の 効果 { type: 'burrow', next: '<とび出す 技>' }。
 //   「砂の中に もぐった！」→ つぎの 自分の 番まで ねらえない（味方の 攻撃・呪文・特技の 的に ならない。全体の 呪文も 当たらない）。
 //   ゲージが たまってくると「砂が もり上がった…！」（前ぶれ。身を 守る じかん）→ つぎの 番に 出てきて とび出す 技（ai.js の telegraph）
-import { MONSTERS } from './data/monsters.js?v=1dff4be9c13e';
-import { ITEMS } from './data/items.js?v=1dff4be9c13e';
-import { ABILITIES } from './data/abilities.js?v=1dff4be9c13e';
-import { DUAL_TECHS } from './data/dual.js?v=1dff4be9c13e';
+import { MONSTERS } from './data/monsters.js?v=754c2ad0d696';
+import { ITEMS } from './data/items.js?v=754c2ad0d696';
+import { ABILITIES } from './data/abilities.js?v=754c2ad0d696';
+import { DUAL_TECHS } from './data/dual.js?v=754c2ad0d696';
 // こうどうゲージの はやさ（battle.js。たがいに よびあうが、つかうのは たたかいの 中だけ）
-import { atbRate } from './battle.js?v=1dff4be9c13e';
+import { atbRate } from './battle.js?v=754c2ad0d696';
 
 export const MIRROR_ID = 'moon_mirror';
 const LETTERS = 'ABCDEFGH';

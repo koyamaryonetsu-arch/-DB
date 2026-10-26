@@ -5,15 +5,15 @@
 //   c.partyKeys  … いま いっしょに ぼうけんしている なかま（じゅんばん）。'fam:ID' は 家族の キャラ
 //   c.guests     … ものがたりで いっしょに いる ゲスト（ルカ など）
 // パーティーには リーダーの なかまが ついてくる（にんげんが ふえると、はいりきらない なかまは いったん まつ）
-import { newCharacter, computeStats, fullHeal, gainExp, gainJobBattles, migrateJobs, expForLevel, addItem, newMonsterCompanion, learnedAbilities, masteredJobs } from '../stats.js?v=1dff4be9c13e';
-import { jobBattlesForLevel, JOBS } from '../data/jobs.js?v=1dff4be9c13e';
-import { NPC_SUPPORTS, GUESTS } from '../data/shops.js?v=1dff4be9c13e';
-import { MONSTERS } from '../data/monsters.js?v=1dff4be9c13e';
-import { MONSTER_FRIENDS, ROSTER_MAX, COMPANION_SLOTS } from '../data/companions.js?v=1dff4be9c13e';
-import { SLOTS, ITEMS } from '../data/items.js?v=1dff4be9c13e';
-import { cleanWagon, hasWagon, WAGON_SLOTS } from '../data/wagon.js?v=1dff4be9c13e';
-import { wagonState, wagonTavernInfo } from './wagon.js?v=1dff4be9c13e';
-import { difficultyOf } from '../data/difficulty.js?v=1dff4be9c13e';
+import { newCharacter, computeStats, fullHeal, gainExp, gainJobBattles, migrateJobs, expForLevel, addItem, newMonsterCompanion, learnedAbilities, masteredJobs } from '../stats.js?v=754c2ad0d696';
+import { jobBattlesForLevel, JOBS } from '../data/jobs.js?v=754c2ad0d696';
+import { NPC_SUPPORTS, GUESTS } from '../data/shops.js?v=754c2ad0d696';
+import { MONSTERS } from '../data/monsters.js?v=754c2ad0d696';
+import { MONSTER_FRIENDS, ROSTER_MAX, COMPANION_SLOTS } from '../data/companions.js?v=754c2ad0d696';
+import { SLOTS, ITEMS } from '../data/items.js?v=754c2ad0d696';
+import { cleanWagon, hasWagon, WAGON_SLOTS } from '../data/wagon.js?v=754c2ad0d696';
+import { wagonState, wagonTavernInfo } from './wagon.js?v=754c2ad0d696';
+import { difficultyOf } from '../data/difficulty.js?v=754c2ad0d696';
 
 // パーティーに 入れる 人（家族の プレイヤー）は 5人まで。いっしょに フィールドを 歩いて、いっしょに 戦う
 export const PARTY_MAX = 5;

@@ -4,7 +4,7 @@
 //   t6_road_low … 5〜8階（星座ガニ・時わすれフクロウ・ふたご星の精・星くずドラゴン。上の 階の 魔物と 色ちがいも。Lv63〜64）
 // 4階と 8階の 前の 休み所は 魔物が 出ない（A の マップ）
 // 星座の 魔物は 昼か 夜かで 強さが かわる（monsters-road.js の c6tod。battle-road.js）
-import { registerVariant } from './variants.js?v=1dff4be9c13e';
+import { registerVariant } from './variants.js?v=754c2ad0d696';
 
 // 色ちがい（data/variants.js）: まれに 出る（経験値と お金が 多い）
 export const ROAD_VARIANTS = [registerVariant('dust_mole', 'gold'), registerVariant('star_wolf', 'shadow'), registerVariant('dust_drake', 'dark')];
