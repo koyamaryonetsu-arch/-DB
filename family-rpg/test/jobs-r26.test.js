@@ -200,7 +200,7 @@ test('第26回の 職業: 技の 数（4〜6こ）・看板の 技・攻撃技�
     const sig = `${j}_sig`;
     assert.ok(ABILITIES[sig], `${j}: 看板の 技 ${sig}`);
     assert.ok(job.learn.some(([, id]) => id === sig), `${j}: 看板の 技を 覚える`);
-    assert.ok(ABILITIES[sig].anim === sig || /^ax_/.test(ABILITIES[sig].anim), `${sig} の anim`);
+    assert.ok(ABILITIES[sig].anim === sig || /^(ax|ox)_/.test(ABILITIES[sig].anim), `${sig} の anim`);
     assert.ok(!ABILITIES[sig].hidden && !ABILITIES[sig].noAuto, sig);
     sigs++;
     // 攻撃技: 基本職は 3つ いじょう、ほかは 2つ いじょう

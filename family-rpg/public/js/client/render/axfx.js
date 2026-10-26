@@ -1,5 +1,5 @@
 // 第48回: 大技の エフェクトの とうろく（axfx）。「ためる → はなつ」の 2だんの えんしゅつを まとめて うごかす
-// ・グループの ファイル（render/axfx-g1.js 〜 g6.js）は { anim: def } の かたまりを export する。この ファイルの いちばん 下で とうろく
+// ・グループの ファイル（render/axfx-g1.js 〜 g6.js。第49回の もとからの 技は axfx-o1.js 〜 o6.js・anim は ox_〜）は { anim: def } の かたまりを export する。この ファイルの いちばん 下で とうろく
 //   （G0 が 6行 書いて ある。グループは この ファイルを さわらない）
 // ・def: { tier, charge: { kind, ms, color, color2, power, sfx }, hit, len, stagger, sfx, allyFx, party, pal, vars, abilities, play(fx, ctx) }
 //   tier … 'basic' | 'advanced' | 'super' | 'legend'（ためかたの つよさ・長さ。abilities で 技ごとに かえられる）
@@ -61,10 +61,10 @@ export function registerAx(anim, def) {
   AX.set(anim, d);
   return d;
 }
-// グループ（{ anim: def, … }）を まとめて とうろく。fine … つぶの かきかた（なまえは グループの なまえで はじめる。g1 なら g1〜）
+// グループ（{ anim: def, … }）を まとめて とうろく。fine … つぶの かきかた（なまえは グループの なまえで はじめる。g1 なら g1〜、o1 なら o1〜）
 // へんじ: とうろくした anim の ならび
 export function useAxGroup(name, defs, fine = null) {
-  const pre = /^g\d+$/.test(name) ? name : 'ax';
+  const pre = /^[go]\d+$/.test(name) ? name : 'ax';
   for (const [kind, fn] of Object.entries(fine || {})) {
     if (!kind.startsWith(pre)) throw new Error(`useAxGroup(${name}): つぶの なまえ ${kind} は '${pre}' で はじめる`);
     if (typeof fn !== 'function') throw new Error(`useAxGroup(${name}): つぶ ${kind} が 関数で ない`);
@@ -282,3 +282,16 @@ useAxGroup('g3', AX_G3, AX_G3_FINE);
 useAxGroup('g4', AX_G4, AX_G4_FINE);
 useAxGroup('g5', AX_G5, AX_G5_FINE);
 useAxGroup('g6', AX_G6, AX_G6_FINE);
+// 第49回: もとからの 技（ふつうの 職業・ひらめき・合体技）。anim は ox_〜、つぶは o1〜、時間は shared/data/ax-time-oN.js、音は client/sfx-ax-oN.js
+import { AX_O1, AX_O1_FINE } from './axfx-o1.js';
+import { AX_O2, AX_O2_FINE } from './axfx-o2.js';
+import { AX_O3, AX_O3_FINE } from './axfx-o3.js';
+import { AX_O4, AX_O4_FINE } from './axfx-o4.js';
+import { AX_O5, AX_O5_FINE } from './axfx-o5.js';
+import { AX_O6, AX_O6_FINE } from './axfx-o6.js';
+useAxGroup('o1', AX_O1, AX_O1_FINE);
+useAxGroup('o2', AX_O2, AX_O2_FINE);
+useAxGroup('o3', AX_O3, AX_O3_FINE);
+useAxGroup('o4', AX_O4, AX_O4_FINE);
+useAxGroup('o5', AX_O5, AX_O5_FINE);
+useAxGroup('o6', AX_O6, AX_O6_FINE);

@@ -112,7 +112,7 @@ test('暴れんぼう将軍: 強さは 今の 伝説の職業と 同じ くら�
   assert.ok(learn.length >= 5 && learn.length <= 6);
   assert.deepEqual(learn.map(([, id]) => id).sort(), Object.keys(JOB7_ABILITIES).sort());
   assert.equal(learn[learn.length - 1][1], 'abarenbo_shogun_sig');
-  assert.ok(ABILITIES.abarenbo_shogun_sig.anim === 'abarenbo_shogun_sig' || /^ax_/.test(ABILITIES.abarenbo_shogun_sig.anim));
+  assert.ok(ABILITIES.abarenbo_shogun_sig.anim === 'abarenbo_shogun_sig' || /^(ax|ox)_/.test(ABILITIES.abarenbo_shogun_sig.anim));
   assert.equal(ABILITIES.abarenbo_shogun_sig.name, '成敗！');
   const mps = learn.map(([, id]) => ABILITIES[id].mp);
   assert.equal(Math.max(...mps), mps[mps.length - 1]);
@@ -280,7 +280,7 @@ test('第27回の ひらめき技: データ・文字・ねらい・前から �
     assert.match(a.desc, SCOPE[a.target], `${id}: ${a.desc}`);
     for (const s of [a.name, a.desc, a.cast, ...lines(a.effect)]) assert.deepEqual(checkText(s), [], `${id}: ${s}`);
     assert.deepEqual(checkText(a.kana).filter((p) => p.kind !== 'kana'), [], id);
-    assert.ok(oldAnims.has(a.anim) || /^ax_/.test(a.anim), `${id}: ${a.anim}`);
+    assert.ok(oldAnims.has(a.anim) || /^(ax|ox)_/.test(a.anim), `${id}: ${a.anim}`);
     assert.equal(names.get(a.name).length, 1, `${a.name} が かぶる`);
     for (const [k, n] of Object.entries(HIRAMEKI[id].from)) {
       const s = ABILITIES[k];

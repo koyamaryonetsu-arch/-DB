@@ -10,12 +10,20 @@
 // ・おそい 設定（速さ 0.85 より 下）でも 大技は 0.85 の 速さ（ts … エフェクトの 時計を 何ばい 速める か）
 // ・サーバーは lockMs だけ つぎの 行動を まつ（ev.extraLock。ほかの extraLock と おなじく ÷ 速さ）
 // きまりは docs/plan-r48-fx.md の「G0 の 決めごと」
+// ・第49回: もとからの 技（ふつうの 職業・ひらめき・合体技）の グループ o1〜o6（shared/data/ax-time-o1.js 〜 o6.js）も まぜる。
+//   anim の なまえは ox_〜（アニメの g1〜g6 は ax_〜）。予算は AX_BUDGET_ORIG（アニメの 大技より 軽い。気は つかわない）。きまりは docs/plan-r49-fx.md
 import { AX_TIME_G1, AX_SKILLS_G1, AX_FAMILIES_G1 } from './data/ax-time-g1.js';
 import { AX_TIME_G2, AX_SKILLS_G2, AX_FAMILIES_G2 } from './data/ax-time-g2.js';
 import { AX_TIME_G3, AX_SKILLS_G3, AX_FAMILIES_G3 } from './data/ax-time-g3.js';
 import { AX_TIME_G4, AX_SKILLS_G4, AX_FAMILIES_G4 } from './data/ax-time-g4.js';
 import { AX_TIME_G5, AX_SKILLS_G5, AX_FAMILIES_G5 } from './data/ax-time-g5.js';
 import { AX_TIME_G6, AX_SKILLS_G6, AX_FAMILIES_G6 } from './data/ax-time-g6.js';
+import { AX_TIME_O1, AX_SKILLS_O1, AX_FAMILIES_O1 } from './data/ax-time-o1.js';
+import { AX_TIME_O2, AX_SKILLS_O2, AX_FAMILIES_O2 } from './data/ax-time-o2.js';
+import { AX_TIME_O3, AX_SKILLS_O3, AX_FAMILIES_O3 } from './data/ax-time-o3.js';
+import { AX_TIME_O4, AX_SKILLS_O4, AX_FAMILIES_O4 } from './data/ax-time-o4.js';
+import { AX_TIME_O5, AX_SKILLS_O5, AX_FAMILIES_O5 } from './data/ax-time-o5.js';
+import { AX_TIME_O6, AX_SKILLS_O6, AX_FAMILIES_O6 } from './data/ax-time-o6.js';
 
 // 段階（B 基本・A 上級・S 超級・L 伝説）
 export const AX_TIERS = ['basic', 'advanced', 'super', 'legend'];
@@ -40,10 +48,31 @@ export const AX_BUDGET = {
   legend: budget([1200, 1800], [150, 300], [800, 900], [200, 360]),
 };
 export const AX_DUAL_TOTAL = [1500, 2200];
-// 段と ためかたの 予算 { len, charge, total, parts }（ki だけ 気の ため）
-export function axBudget(tier, kind) {
-  const B = AX_BUDGET[tier] || AX_BUDGET.advanced;
-  const ki = kind === 'ki';
+// 第49回: もとからの 技（o1〜o6）の 予算（plan-r49-fx.md 2章）。total … 構え こみの 合計、charge … 構え（basic 200・ほか 300 まで）、parts … 同時の つぶ
+// len … はなって おわる まで（total − 構え）。気（ki）は つかわない（chargeKi は 0）。補助は 段の 下半分・つぶの 下限は 半分（テストが 見る）
+const budgetOrig = (total, charge, parts) => ({
+  len: [total[0] - charge[1], total[1] - charge[0]], charge, chargeKi: [0, 0], parts, total, totalKi: total,
+});
+export const AX_BUDGET_ORIG = {
+  basic: budgetOrig([600, 900], [0, 200], [40, 120]),
+  advanced: budgetOrig([900, 1300], [0, 300], [60, 170]),
+  super: budgetOrig([1200, 1800], [0, 300], [90, 230]),
+  legend: budgetOrig([1600, 2400], [0, 300], [120, 300]),
+};
+// もとからの 合体技（ため なし）: 人数ごとの 合計の めやす（ms）。しらべるのは AX_DUAL_TOTAL（1.5〜2.2s）の 中か。
+// つぶは super の [90, 230]、4人は 上限 300 まで
+export const AX_DUAL_TOTAL_ORIG = { 2: 1600, 3: 1900, 4: 2100 };
+export const AX_DUAL_PARTS_ORIG = { 2: [90, 230], 3: [90, 230], 4: [90, 300] };
+// もとからの 技の グループ（o1〜o6。テストの o0 なども）か
+export const axIsOrigGroup = (group) => typeof group === 'string' && /^o\d+$/.test(group);
+// 段の 予算の 表（group が o〜 なら AX_BUDGET_ORIG）
+export const axBudgetTable = (group) => (axIsOrigGroup(group) ? AX_BUDGET_ORIG : AX_BUDGET);
+// 段と ためかたの 予算 { len, charge, total, parts }（ki だけ 気の ため）。group が o〜 なら もとからの 技の 予算（気は ない）
+export function axBudget(tier, kind, group = null) {
+  const orig = axIsOrigGroup(group);
+  const table = axBudgetTable(group);
+  const B = table[tier] || table.advanced;
+  const ki = kind === 'ki' && !orig;
   return { len: B.len, charge: ki ? B.chargeKi : B.charge, total: ki ? B.totalKi : B.total, parts: B.parts };
 }
 // 予算の ゆるみ（ms）
@@ -57,7 +86,10 @@ export const AX_LOCK_BASE = 1000;
 // 大技の 前に 見せる もの（クライアントと おなじ 数）: 合体技の カットイン（人数ごと）・ひらめきの 電球
 export const AX_DUAL_CUT_MS = { 2: 1000, 3: 1300, 4: 1600 };
 export const AX_HIRA_PRE_MS = 700;
-export const AX_GROUP_IDS = ['g1', 'g2', 'g3', 'g4', 'g5', 'g6'];
+export const AX_GROUP_IDS = ['g1', 'g2', 'g3', 'g4', 'g5', 'g6', 'o1', 'o2', 'o3', 'o4', 'o5', 'o6'];
+// anim の なまえ: アニメの 大技（g1〜g6）は ax_〜、もとからの 技（o1〜o6。第49回）は ox_〜
+export const AX_ANIM_RE = /^(ax|ox)_[a-z0-9_]+$/;
+export const axIsAxName = (anim) => typeof anim === 'string' && /^(ax|ox)_/.test(anim);
 
 // まぜた 表
 export const AX_TIME = {};
@@ -82,7 +114,8 @@ export function axAddTimes(group, time = {}, skills = {}, families = {}) {
   const g = AX_GROUPS[group] || (AX_GROUPS[group] = { time: {}, skills: {}, families: {} });
   for (const [anim, e] of Object.entries(time)) {
     const where = `ax-time ${group} ${anim}`;
-    if (!/^ax_[a-z0-9_]+$/.test(anim)) throw new Error(`${where}: なまえは ax_〜（小文字・数字・_）`);
+    if (!AX_ANIM_RE.test(anim)) throw new Error(`${where}: なまえは ax_〜 か ox_〜（小文字・数字・_）`);
+    if (axIsOrigGroup(group) && !anim.startsWith('ox_')) throw new Error(`${where}: もとからの 技の グループの なまえは ox_〜`);
     if (AX_TIME[anim]) throw new Error(`${where}: もう ${OWNER[anim]} に ある`);
     for (const k of Object.keys(e)) if (!TIME_KEYS.has(k)) throw new Error(`${where}: しらない キー ${k}（${[...TIME_KEYS].join('・')}）`);
     if (!AX_TIERS.includes(e.tier)) throw new Error(`${where}: tier '${e.tier}' は ない（${AX_TIERS.join('・')}）`);
@@ -98,7 +131,8 @@ export function axAddTimes(group, time = {}, skills = {}, families = {}) {
     if (AX_SKILLS[key]) throw new Error(`${where}: もう ${AX_SKILLS[key].group} に ある`);
     const s = typeof v === 'string' ? { anim: v } : { ...(v || {}) };
     for (const k of Object.keys(s)) if (!SKILL_KEYS.has(k)) throw new Error(`${where}: しらない キー ${k}（${[...SKILL_KEYS].join('・')}）`);
-    if (typeof s.anim !== 'string' || !s.anim.startsWith('ax_')) throw new Error(`${where}: anim（ax_〜）が いる`);
+    if (!axIsAxName(s.anim)) throw new Error(`${where}: anim（ax_〜 か ox_〜）が いる`);
+    if (axIsOrigGroup(group) && !s.anim.startsWith('ox_')) throw new Error(`${where}: もとからの 技の グループの anim は ox_〜`);
     if (s.tier !== undefined && !AX_TIERS.includes(s.tier)) throw new Error(`${where}: tier '${s.tier}' は ない`);
     checkCharge(where, s.charge);
     const { anim, ...over } = s;
@@ -119,6 +153,12 @@ axAddTimes('g3', AX_TIME_G3, AX_SKILLS_G3, AX_FAMILIES_G3);
 axAddTimes('g4', AX_TIME_G4, AX_SKILLS_G4, AX_FAMILIES_G4);
 axAddTimes('g5', AX_TIME_G5, AX_SKILLS_G5, AX_FAMILIES_G5);
 axAddTimes('g6', AX_TIME_G6, AX_SKILLS_G6, AX_FAMILIES_G6);
+axAddTimes('o1', AX_TIME_O1, AX_SKILLS_O1, AX_FAMILIES_O1);
+axAddTimes('o2', AX_TIME_O2, AX_SKILLS_O2, AX_FAMILIES_O2);
+axAddTimes('o3', AX_TIME_O3, AX_SKILLS_O3, AX_FAMILIES_O3);
+axAddTimes('o4', AX_TIME_O4, AX_SKILLS_O4, AX_FAMILIES_O4);
+axAddTimes('o5', AX_TIME_O5, AX_SKILLS_O5, AX_FAMILIES_O5);
+axAddTimes('o6', AX_TIME_O6, AX_SKILLS_O6, AX_FAMILIES_O6);
 
 export const axTimeOf = (anim) => (typeof anim === 'string' && AX_TIME[anim]) || null;
 export const axGroupOf = (anim) => OWNER[anim] || null;

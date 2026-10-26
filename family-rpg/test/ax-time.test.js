@@ -67,7 +67,7 @@ test('第48回 G0: 表の かたち（段・ためかた・予算・グループ
   assert.equal(axChargeMs({ kind: 'ki' }, 'super'), 650);
   assert.equal(axChargeMs({ kind: 'holy' }, 'super'), 300);
   assert.equal(axChargeMs({ ms: 900 }, 'basic'), 200, 'kind なしは generic（構え）');
-  assert.deepEqual(AX_GROUP_IDS, ['g1', 'g2', 'g3', 'g4', 'g5', 'g6']);
+  assert.deepEqual(AX_GROUP_IDS, ['g1', 'g2', 'g3', 'g4', 'g5', 'g6', 'o1', 'o2', 'o3', 'o4', 'o5', 'o6']);
   for (const g of AX_GROUP_IDS) assert.ok(AX_GROUPS[g], g);
   assert.deepEqual(CUT_MS, AX_DUAL_CUT_MS, '合体技の カットインの 長さは サーバーと おなじ');
   assert.equal(AX_HIRA_PRE_MS, 700);
@@ -370,6 +370,134 @@ test('第48回 G0: グループの しらべかた（ax-check.js）は まちが
 });
 import { kanjiProblems as groupReportKanji0 } from './ax-check.js';
 const groupReportKanji = (s) => groupReportKanji0(s, 'x.js');
+
+// ───────────── 第49回 O0: もとからの 技（o1〜o6・anim は ox_〜） ─────────────
+// 見本 ox__demo_stance（構え 0.2s ＋ basic の 予算）・ox__demo_dual（合体技。ため なし）。テストの 中だけ（データの anim は かえない）
+// kabutowari・dt_hane（ダ天使の 技。dt_ で はじまるが 合体技で ない）・dt_hametsu（合体技）に ためしに つなぐ（o1・o2 の 表は この テストでは からっぽ）
+import { AX_BUDGET_ORIG, AX_DUAL_TOTAL, AX_DUAL_TOTAL_ORIG, AX_DUAL_PARTS_ORIG, axIsOrigGroup, axBudgetTable } from '../public/js/shared/ax-time.js';
+import { isDualKey, skillExists, THREE } from './ax-check.js';
+
+const O0_COL = { main: '#9ad8ff', glow: '#5ab8ff', core: '#ffffff' };
+axAddTimes('o0', {
+  ox__demo_stance: { tier: 'basic', charge: { kind: 'sword', ms: 200 }, hit: 200, len: 620 },
+  ox__demo_dual: { tier: 'super', charge: false, hit: 420, len: 1600 },
+}, {
+  kabutowari: 'ox__demo_stance',
+  dt_hane: { anim: 'ox__demo_stance', vars: { dark: true } },
+  dt_hametsu: 'ox__demo_dual',
+}, { おためし: ['ox__demo_stance', 'ox__demo_dual'] });
+useAxGroup('o0', {
+  ox__demo_stance: {
+    charge: { color: '#9ad8ff', color2: '#ffffff' },
+    sfx: 'ax_slash',
+    allyFx: 'claw',
+    play(fx, c) {
+      const col = c.vars.dark ? { main: '#8a5ad8', glow: '#b48aff', core: '#ffffff' } : O0_COL;
+      c.each((t, i, d) => {
+        // 敵全体では 1体ずつ 小さく（basic の つぶの 上限 120）
+        c.k.slash(t.x, t.y, { r: 24 * c.sz, ang: c.dir === 'down' ? 0.6 : -0.6, color: col.main, glow: col.glow, core: col.core, delay: d + c.hit - 80, spark: !c.all });
+        if (i < 2) c.k.impact(t.x, t.y, { r: 13 * c.sz, glow: col.glow, delay: d + c.hit, heavy: i === 0 });
+        else c.hitMark(t, d + c.hit, [col.glow]);
+        c.k.particles(t.x, t.y, { n: c.all ? 4 : 16, colors: [col.core, col.glow], speed: 120, delay: d + c.hit, life: 360 });
+      });
+    },
+  },
+  ox__demo_dual: {
+    sfx: 'ax_boom',
+    allyFx: 'dark',
+    play(fx, c) {
+      c.each((t, i, d) => {
+        c.k.orb(c.from.x, c.from.y - 10, { r: 10, color: '#8a5ad8', glow: '#b48aff', to: t, travel: c.hit, delay: d });
+        c.k.explosion(t.x, t.y, { r: 20 * c.sz, pal: { main: '#8a5ad8', glow: '#b48aff', core: '#ffffff', dark: '#301848', list: ['#b48aff', '#ffffff', '#8a5ad8'] }, delay: d + c.hit, heavy: i === 0 });
+        c.k.particles(t.x, t.y, { n: c.all ? 10 : 40, colors: ['#ffffff', '#b48aff'], speed: 150, delay: d + c.hit + 40, life: 700 });
+        if (!c.all) c.k.shapes(t.x, t.y, { shape: 'star', n: 16, colors: ['#ffffff', '#b48aff'], speed: 70, delay: d + c.hit + 60, life: 700 });
+      });
+    },
+  },
+});
+
+test('第49回 O0: もとからの 技の 予算（AX_BUDGET_ORIG）・名前の きまり・合体技の みわけ', () => {
+  assert.ok(axIsOrigGroup('o1') && axIsOrigGroup('o6') && axIsOrigGroup('o0'));
+  assert.ok(!axIsOrigGroup('g1') && !axIsOrigGroup('demo') && !axIsOrigGroup('gt'));
+  // plan-r49-fx.md 2章の 表
+  const want = { basic: [[600, 900], [0, 200], [40, 120]], advanced: [[900, 1300], [0, 300], [60, 170]], super: [[1200, 1800], [0, 300], [90, 230]], legend: [[1600, 2400], [0, 300], [120, 300]] };
+  for (const [t, [total, charge, parts]] of Object.entries(want)) {
+    const B = axBudget(t, 'sword', 'o3');
+    assert.deepEqual(B.total, total, t);
+    assert.deepEqual(B.charge, charge, t);
+    assert.deepEqual(B.parts, parts, t);
+    assert.ok(B.len[0] === total[0] - charge[1] && B.len[1] === total[1], t);
+    // 構えの 上限は エンジンの 上限と おなじ（basic 200・ほか 300）
+    assert.equal(charge[1], AX_TIER_CHARGE_MS[t]);
+    // 気は つかわない（ki でも 構えの 予算）
+    assert.deepEqual(axBudget(t, 'ki', 'o1').charge, charge);
+    // g1〜g6 は 前の まま
+    assert.deepEqual(axBudget(t, 'sword', 'g2'), axBudget(t, 'sword'));
+    assert.deepEqual(axBudget(t, 'ki').charge, AX_BUDGET[t].chargeKi);
+    assert.equal(axBudgetTable('o2')[t], AX_BUDGET_ORIG[t]);
+    assert.equal(axBudgetTable('g2')[t], AX_BUDGET[t]);
+  }
+  // 合体技: 人数ごとの めやすは AX_DUAL_TOTAL の 中。4人だけ つぶの 上限 300
+  for (const [n, ms] of Object.entries(AX_DUAL_TOTAL_ORIG)) assert.ok(ms >= AX_DUAL_TOTAL[0] && ms <= AX_DUAL_TOTAL[1], `${n}人`);
+  assert.deepEqual(AX_DUAL_PARTS_ORIG[2], AX_BUDGET_ORIG.super.parts);
+  assert.equal(AX_DUAL_PARTS_ORIG[4][1], 300);
+  // 名前: o グループは ox_〜 だけ
+  assert.throws(() => axAddTimes('o9', { ax_x9: { tier: 'basic', hit: 1, len: 2 } }), /ox_/);
+  assert.throws(() => axAddTimes('o9', {}, { kabau: 'ax_tfix_beam' }), /ox_/);
+  assert.throws(() => axAddTimes('o9', { ox_Bad: { tier: 'basic', hit: 1, len: 2 } }), /ox_/);
+  assert.throws(() => useAxGroup('o9', {}, { g1Wrong: () => {} }), /o9/);
+  assert.throws(() => registerAx('ox_nothing', { group: 'o1', play() {} }), /ax-time-o1/);
+  // ダ天使の 技（dt_hane・dt_hohoemi…）は 合体技で ない。合体技は DUAL_TECHS で みわける
+  for (const id of ['dt_hane', 'dt_hohoemi', 'dt_keiyaku', 'dt_ochita', 'dt_tsubasa', 'dt_darkangel']) {
+    assert.equal(isDualKey(id), false, id);
+    assert.ok(skillExists(id), id);
+  }
+  assert.equal(isDualKey('dt_hametsu'), true);
+  assert.equal(isDualKey('dt_bentou'), true);
+  assert.equal(isDualKey('mera'), false);
+});
+
+test('第49回 O0: 見本 ox__demo_stance（構え 0.2s ＋ basic）・ox__demo_dual（合体技）が しらべを 通る', () => {
+  const r = groupReport('o0');
+  assert.deepEqual(r.problems, []);
+  // 構え 0.2s・basic の 合計（600〜900）
+  const P = axPlan('ox__demo_stance', { key: 'kabutowari' });
+  assert.equal(P.tier, 'basic');
+  assert.equal(P.kind, 'sword');
+  assert.equal(P.charge, 200);
+  assert.ok(P.total >= 600 && P.total <= 900, `${P.total}`);
+  assert.ok(r.plans.kabutowari.maxParts >= AX_BUDGET_ORIG.basic.parts[0] && r.plans.kabutowari.maxParts <= AX_BUDGET_ORIG.basic.parts[1], `つぶ ${r.plans.kabutowari.maxParts}`);
+  // ダ天使の 技は ふつうの 技（構え あり・敵→味方も しらべる）
+  assert.equal(r.plans.dt_hane.charge, 200, 'dt_hane は 合体技で ない');
+  // 合体技: ため なし・AX_DUAL_TOTAL の 中・つぶは もとからの 合体技の 下限 いじょう
+  const D = r.plans.dt_hametsu;
+  assert.equal(D.charge, 0);
+  assert.ok(D.total >= AX_DUAL_TOTAL_ORIG[2] - 150 && D.total <= AX_DUAL_TOTAL_ORIG[2] + 150, `${D.total}`);
+  assert.ok(D.maxParts >= AX_DUAL_PARTS_ORIG[2][0], `つぶ ${D.maxParts}`);
+  // サーバー: ox_ も ax_ と おなじ ように ev.fx.ax と 待ち時間（ダ天使の 技は 合体技あつかい しない）
+  const ev = { t: 'act', ability: 'dt_hane', fx: { type: 'ability', anim: 'dark_wings', targets: ['e1', 'e2'] }, lines: [] };
+  const SP = axMarkEvent(ev, { id: 'p0' }, { used: new Set() });
+  assert.equal(ev.fx.ax, 'ox__demo_stance');
+  assert.equal(SP.dual, false);
+  assert.equal(ev.extraLock, SP.lockMs);
+  const evD = { t: 'act', dual: { id: 'dt_hametsu', n: 2 }, fx: { type: 'dual', anim: 'hakai_ball', targets: ['e1'] }, lines: [] };
+  const SD = axMarkEvent(evD, { id: 'p0' }, { used: new Set() });
+  assert.equal(evD.fx.ax, 'ox__demo_dual');
+  assert.equal(SD.charge, 0);
+  assert.equal(SD.realMs, AX_DUAL_CUT_MS[2] + SD.end, '合体技の 顔の カットインの あとに 出る');
+  // クライアント: ox_ が 看板の 技・作り直し・データの anim・合体技の anim より さき
+  assert.equal(axAnimFor('kabutowari'), 'ox__demo_stance');
+  assert.equal(axEventAnim({ t: 'act', ability: 'kabutowari', fx: { type: 'ability', anim: 'slash_heavy' } }), 'ox__demo_stance');
+  assert.equal(axEventAnim({ t: 'act', ability: 'dt_hane', fx: { type: 'ability', anim: 'dark_wings', ax: 'ox__demo_stance' } }), 'ox__demo_stance');
+  assert.equal(axEventAnim({ t: 'act', dual: { id: 'dt_hametsu' }, fx: { type: 'dual', anim: 'hakai_ball' } }), 'ox__demo_dual');
+  assert.deepEqual(axEventOpts({ ability: 'dt_hane', fx: { type: 'ability', targets: ['e1'] } }), { ability: 'dt_hane', repeat: false, dual: false, n: 1 });
+  // 敵が まねて 味方に（下むき）・時間は サーバーと おなじ
+  const CT = axTiming('ox__demo_stance', { ability: 'kabutowari', targets: 3 });
+  const S3 = axPlan('ox__demo_stance', { key: 'kabutowari', n: 3 });
+  for (const k of ['charge', 'hit', 'len', 'total', 'end']) assert.equal(CT[k], S3[k], k);
+  const m = playAx('ox__demo_stance', THREE, { ability: 'kabutowari', fromAlly: false, toParty: true });
+  assert.deepEqual(m.errors, []);
+});
 
 test('第48回 G0: 見る どうぐ（技の id・グループ）', () => {
   const tool = src('../tools/fx-preview.mjs');

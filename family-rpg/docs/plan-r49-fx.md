@@ -1352,3 +1352,19 @@ node tools/fx-preview.mjs --ability sb_aircon                       # そのま�
 1. **攻撃の 技を 先に 全部**（攻撃・Lv10・ひらめき・合体技の 約350技）。補助の 189技は できた ところまで
 2. 合体技の 前の 顔の カットイン（`playDualCutin`）は **そのまま 残す**
 3. 前から 専用の えんしゅつが ある 16技（エアコン全開 など）は **そのまま**
+
+---
+
+## 9. O0 の 決めごと（第49回 O0 が 作った。グループは これに したがう）
+
+4章の 下準備は ぜんぶ 入った。グループ（O1〜O6）は 自分の 4つの ファイルだけ さわる（`shared/data/ax-time-oN.js`・`client/render/axfx-oN.js`（と `axfx-oN-〜.js`）・`client/sfx-ax-oN.js`・`test/ax-oN.test.js`）。書きかたは 7-2 と 第48回 10-3 と おなじ（anim は `ox_〜`・つぶは `oN〜`・音は `ax_oN_〜`）。
+
+- **予算**（`shared/ax-time.js`）: `AX_BUDGET_ORIG`（2章の 表。`total` は 構え こみ、`charge` は basic [0,200]・ほか [0,300]、`parts` は 同時の つぶ。`len` は total − 構え）。`axBudget(tier, kind, group)` は group が `o〜` なら この 表。g1〜g6 の 予算・しらべは 前の まま。
+- **合体技**（o の 中）: ため なし（表に `charge: false`）・合計は `AX_DUAL_TOTAL`（1.5〜2.2s ±150）の 中。めやすは `AX_DUAL_TOTAL_ORIG`（2人 1600・3人 1900・4人 2100）。つぶは `AX_DUAL_PARTS_ORIG`（2・3人 [90,230]、4人 [90,300]。人数は `DUAL_TECHS[id].need.length`）。合体技の 顔の カットイン（`playDualCutin`・`AX_DUAL_CUT_MS`）は そのまま、その あとに 出る。
+- **合体技か どうか** は `DUAL_TECHS` で 見る（`test/ax-check.js` の `isDualKey`・`tools/fx-preview.mjs`）。ダ天使の `dt_hane`・`dt_hohoemi`・`dt_keiyaku`・`dt_tsubasa`・`dt_darkangel` は ふつうの 技 として しらべられる（構え あり・敵→味方 も）。
+- **共通の しらべ**（`groupReport('oN')`。`test/ax-groups.test.js` と `test/ax-oN.test.js`）: 第48回 10-5 ＋ 予算は ORIG・構えの 上限（basic 200・ほか 300）・`ki` は だめ（g1 の ほか ぜんぶ）・anim は `ox_〜`（`ox__〜`・`ox_demo〜` は O0 の おためし）・え の ファイル（`axfx-oN.js` から import した `axfx-oN-〜.js` も たどる）に 漢字なし・**`cutIn(`・`.dim(` を 書かない**。
+- **敵全体の つぶ**: 上限は 敵5体（会心）・敵→味方4人でも 段の 上限 ＋10%。basic（120）は きつい ので、敵ごとの つぶは `c.all` で へらす（見本 `test/ax-time.test.js` の `ox__demo_stance`: 2体目から `c.hitMark`）。
+- **つなぎ**: `AX_SKILLS_ON` に 入れた 技は、味方・敵が まねて 味方に・味方に かける・合体技の どの 道でも `sigAnim`・`r27Anim`・データの anim・ひらめき・合体技の anim より さき（サーバーの `ev.fx.ax`・`extraLock` も おなじ 表）。データの `anim:` は かえない。
+- **見る どうぐ**: `node tools/fx-preview.mjs --group oN --out <スクラッチ>/oN`（からっぽの あいだは 「大技が ない」と 出る）・`--ability <id>`（o の つなぎを 見る。`dt_hane` も OK）。
+- **見本**: `test/ax-time.test.js` の 「第49回 O0」（`ox__demo_stance` … 構え 0.2s ＋ basic 合計 0.82s・`ox__demo_dual` … 合体技 1.6s。テストの 中だけで つなぐ）。
+- 古い テストの 「看板の 技・ひらめきの anim は 前から ある もの か `ax_`」は `ox_` も OK に ゆるめた（データを かえない ので ふつうは 関係 ない）。

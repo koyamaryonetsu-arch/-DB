@@ -157,7 +157,7 @@ test('第41回 A の 技: 6こ・Lv10 が いちばん MP・看板の 技・攻�
     const sig = `${j}_sig`;
     assert.equal(job.learn.at(-1)[1], sig);
     assert.equal(ABILITIES[sig].name, SIG_NAMES[j]);
-    assert.ok(ABILITIES[sig].anim === sig || /^ax_/.test(ABILITIES[sig].anim));
+    assert.ok(ABILITIES[sig].anim === sig || /^(ax|ox)_/.test(ABILITIES[sig].anim));
     assert.equal(abilityRole(ABILITIES[sig]), 'dmg');
     assert.equal(ABILITIES[sig].target, 'enemies', '看板の 技は 敵全体');
     assert.ok(job.learn.filter(([, id]) => abilityRole(ABILITIES[id]) === 'dmg').length >= 2, `${j}: 攻撃技 2つ いじょう`);
@@ -247,7 +247,7 @@ test('第41回 A の ひらめき技: 2つの 職業に 2つずつ・データ�
     for (const s of [a.name, a.desc, a.cast]) textOk(s, id);
     assert.deepEqual(checkText(a.kana).filter((p) => p.kind !== 'kana'), [], id);
     assert.ok(!BAD.test(a.name + a.desc + a.cast), id);
-    assert.ok(oldAnims.has(a.anim) || /^ax_/.test(a.anim), `${id}: ${a.anim}`);
+    assert.ok(oldAnims.has(a.anim) || /^(ax|ox)_/.test(a.anim), `${id}: ${a.anim}`);
     assert.equal(names.get(a.name).length, 1, a.name);
     for (const [k, c] of Object.entries(HIRAMEKI[id].from)) {
       assert.ok(c > 0 && JOBS[a.job].learn.some(([, x]) => x === k), `${id}: ${k}`);

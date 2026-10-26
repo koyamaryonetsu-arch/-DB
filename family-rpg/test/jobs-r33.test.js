@@ -345,7 +345,7 @@ test('第33回の ひらめき技: 上級職より 上の 9つに 1つずつ（�
     for (const s of [a.name, a.desc, a.cast, ...lines(a.effect)]) textOk(s, id);
     assert.deepEqual(checkText(a.kana).filter((p) => p.kind !== 'kana'), [], id);
     assert.ok(!BAD.test(a.name + a.desc + a.cast), id);
-    assert.ok(oldAnims.has(a.anim) || /^ax_/.test(a.anim), `${id}: ${a.anim}`);
+    assert.ok(oldAnims.has(a.anim) || /^(ax|ox)_/.test(a.anim), `${id}: ${a.anim}`);
     assert.equal(names.get(a.name).length, 1, a.name);
     for (const [k, n] of Object.entries(HIRAMEKI[id].from)) {
       const s = ABILITIES[k];

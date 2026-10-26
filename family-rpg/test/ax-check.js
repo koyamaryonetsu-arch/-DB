@@ -2,11 +2,16 @@
 // ・groupReport('g1') … G1 の 表（shared/data/ax-time-g1.js）と え（render/axfx-g1.js）・音（client/sfx-ax-g1.js）を ぜんぶ しらべて problems（日本語の 文の ならび）を かえす
 // ・playAx(anim, pts, opts) … にせの キャンバスで 1回 うごかして { fx, maxParts, t, log, errors, nearHit } を かえす（グループの 決め手の テストに）
 // きまりは docs/plan-r48-fx.md の「G0 の 決めごと」
+// ・第49回: もとからの 技の グループ（o1〜o6。anim は ox_〜）は 予算が AX_BUDGET_ORIG（axBudget の 3ばんめに group）。合体技の つぶは AX_DUAL_PARTS_ORIG（人数ごと）。
+//   g1〜g6 の しらべかたは 前と おなじ。合体技か どうかは DUAL_TECHS で 見る（ダ天使の 技 dt_hane なども dt_ で はじまる ため）
 import { readFileSync } from 'node:fs';
 import { Effects, BW, BH } from '../public/js/client/render/battlefx.js';
 import { isAx, axDef, axTiming, axGroupList, axGroupFine } from '../public/js/client/render/axfx.js';
 import { AX_FINE } from '../public/js/client/render/axkit.js';
-import { AX_GROUPS, AX_TIME, AX_BUDGET, AX_BUDGET_TOL, AX_DUAL_TOTAL, AX_TIERS, AX_CHARGE_KINDS, axPlan, axTimeOf, axGroupOf, axBudget } from '../public/js/shared/ax-time.js';
+import {
+  AX_GROUPS, AX_TIME, AX_BUDGET_TOL, AX_DUAL_TOTAL, AX_DUAL_PARTS_ORIG, AX_TIERS, AX_CHARGE_KINDS, AX_GROUP_IDS,
+  axPlan, axTimeOf, axGroupOf, axBudget, axBudgetTable, axIsOrigGroup,
+} from '../public/js/shared/ax-time.js';
 import { ABILITIES } from '../public/js/shared/data/abilities.js';
 import { DUAL_TECHS } from '../public/js/shared/data/dual.js';
 import { SFX_AX, SFX_AX_GROUP } from '../public/js/client/sfx-ax.js';
@@ -99,12 +104,18 @@ export function sfxExists(id) {
   return !!(SFX_AX[id] || SFX_R26[id] || SFX_R27[id] || SFX_R29[id] || SFX_R33[id] || SFX_PK[id] || SFX_DQ[id] || AUDIO_SRC.includes(`case '${id}':`));
 }
 
-// 技の id（'id@masc'・'dt_〜'）が データに ある
+// 合体技か（DUAL_TECHS の id。ダ天使の 技 dt_hane・dt_hohoemi… も dt_ で はじまるので、なまえで なく 表で 見る）
+export const isDualKey = (key) => {
+  const id = String(key).replace(/@masc$/, '');
+  return !!DUAL_TECHS[id] && !ABILITIES[id];
+};
+// 技の id（'id@masc'・合体技の id）が データに ある
 export function skillExists(key) {
   const id = key.replace(/@masc$/, '');
-  return !!(id.startsWith('dt_') ? DUAL_TECHS[id] : ABILITIES[id]);
+  return !!(isDualKey(id) ? DUAL_TECHS[id] : ABILITIES[id]);
 }
-const isDualKey = (key) => key.startsWith('dt_');
+// 合体技の 人数（2〜4）
+const dualSize = (key) => DUAL_TECHS[String(key).replace(/@masc$/, '')]?.need?.length || 2;
 // 味方・自分に かける 技（データの target）
 const ALLY_TARGETS = new Set(['ally', 'allies', 'self', 'deadAlly', 'deadAllies']);
 export function isSupportKey(key, anim) {
@@ -136,19 +147,21 @@ function checkSkill(group, key, s, problems, opts = {}) {
   const P = axPlan(anim, { key, n: 1, dual });
   if (!P) { problems.push(`${tag}: 時間の 表に ない`); return null; }
   // 段の 予算（第49回: ため は ki だけ 気の 長さ、ほかは 構え 300ms まで。合体技は ため なしで AX_DUAL_TOTAL）
-  const B = axBudget(P.tier, P.kind);
+  // もとからの 技の グループ（o1〜o6）は AX_BUDGET_ORIG（plan-r49-fx.md 2章）
+  const BT = axBudgetTable(group);
+  const B = axBudget(P.tier, P.kind, group);
   if (dual) {
     if (P.charge !== 0) problems.push(`${tag}: 合体技は ため なし`);
     if (!within(AX_DUAL_TOTAL, P.total)) problems.push(`${tag}: 合体技の 長さ ${P.total}ms が 予算 ${AX_DUAL_TOTAL.join('〜')}ms（±${AX_BUDGET_TOL}）の そと`);
   } else {
     const kk = P.kind === 'ki' ? '気' : '構え';
     if (!within(B.charge, P.charge)) problems.push(`${tag}: ため（${kk}）${P.charge}ms が ${P.tier} の 予算 ${B.charge.join('〜')}ms（±${AX_BUDGET_TOL}）の そと`);
-    if (P.kind !== 'ki' && P.charge > AX_BUDGET[P.tier].charge[1]) problems.push(`${tag}: 構えの ため ${P.charge}ms が 上限 ${AX_BUDGET[P.tier].charge[1]}ms より 長い`);
+    if (P.kind !== 'ki' && P.charge > BT[P.tier].charge[1]) problems.push(`${tag}: 構えの ため ${P.charge}ms が 上限 ${BT[P.tier].charge[1]}ms より 長い`);
     if (!within(B.len, P.len)) problems.push(`${tag}: len ${P.len}ms が ${P.tier} の 予算 ${B.len.join('〜')}ms（±${AX_BUDGET_TOL}）の そと`);
     if (!within(B.total, P.total)) problems.push(`${tag}: 合計 ${P.total}ms が ${P.tier} の 予算 ${B.total.join('〜')}ms（±${AX_BUDGET_TOL}）の そと`);
   }
-  // 気（ki）は ドラゴンボールの 技だけ（G1）
-  if (P.kind === 'ki' && /^g[2-6]$/.test(group)) problems.push(`${tag}: ためかた ki は ドラゴンボール（G1）だけ`);
+  // 気（ki）は ドラゴンボールの 技だけ（G1）。もとからの 技（o1〜o6）も 気は だめ
+  if (P.kind === 'ki' && group !== 'g1') problems.push(`${tag}: ためかた ki は ドラゴンボール（G1）だけ`);
   if (!(P.release < P.len)) problems.push(`${tag}: hit（${P.release}）は len（${P.len}）より 前`);
   // クライアントの 時間 ＝ サーバーの 時間（1つの 表から）
   for (const o of [{ n: 1 }, { n: 3, crit: true }, { n: 1, repeat: true }, { n: 4, speed: 0.6 }, { n: 2, speed: 1.25 }]) {
@@ -173,6 +186,9 @@ function checkSkill(group, key, s, problems, opts = {}) {
       { pts: ONE, o: { fromAlly: true }, main: true }, { pts: THREE, o: { fromAlly: true } }, { pts: FIVE, o: { fromAlly: true, crit: true } },
       ...(dual ? [] : [{ pts: ALLY1, o: { fromAlly: false, toParty: true } }, { pts: ALLY4, o: { fromAlly: false, toParty: true } }]),
     ];
+  // 同時の つぶの [下限, 上限]: 段の 表（合体技は super。もとからの 合体技は 人数ごと・4人は 300 まで）
+  const bt = dual ? 'super' : P.tier;
+  const partsRange = dual && axIsOrigGroup(group) ? AX_DUAL_PARTS_ORIG[dualSize(key)] || AX_DUAL_PARTS_ORIG[2] : BT[bt].parts;
   let mainParts = 0;
   for (const { pts, o, main } of runs) {
     const T = axPlan(anim, { key, dual, n: pts.length, crit: o.crit });
@@ -184,19 +200,35 @@ function checkSkill(group, key, s, problems, opts = {}) {
     if (r.far) problems.push(`${rt}: つぶが 画面から とおい ${r.far}`);
     if (r.t > T.end + 300) problems.push(`${rt}: ${r.t}ms まで のこる（end ${T.end}ms ＋300 まで）`);
     if (r.t < T.hit) problems.push(`${rt}: あたる（${T.hit}ms）前に おわる`);
-    const bt = dual ? 'super' : T.tier;
-    const cap = Math.round(AX_BUDGET[bt].parts[1] * 1.1);
-    if (r.maxParts > cap) problems.push(`${rt}: 同時の つぶ ${r.maxParts}こ が ${bt} の 上限 ${AX_BUDGET[bt].parts[1]}（＋10%）より 多い`);
+    const cap = Math.round(partsRange[1] * 1.1);
+    if (r.maxParts > cap) problems.push(`${rt}: 同時の つぶ ${r.maxParts}こ が ${bt} の 上限 ${partsRange[1]}（＋10%）より 多い`);
     if (main) {
       mainParts = r.maxParts;
       if (!r.nearHit) problems.push(`${rt}: あたる 時間（${T.hit}ms）の ±150ms に 的の 近く（28px）で 光る つぶが ない`);
     }
     if (support && pts === ALLY1) mainParts = r.maxParts;
   }
-  const bt = dual ? 'super' : P.tier;
-  const lo = AX_BUDGET[bt].parts[0] * (support ? 0.5 : 1);
+  const lo = partsRange[0] * (support ? 0.5 : 1);
   if (mainParts < lo) problems.push(`${tag}: 同時の つぶ ${mainParts}こ が ${bt} の 下限 ${lo}${support ? '（補助は 半分）' : ''} より 少ない（ふつうの 攻撃より 豪華に）`);
   return { ...P, maxParts: mainParts };
+}
+
+// グループの え の ファイル [[path, src], …]（axfx-gN.js と そこから import する axfx-gN-〜.js。もとからの 技（oN）は その 先の import も たどる）
+function groupFiles(group) {
+  const out = new Map();
+  const deep = axIsOrigGroup(group);
+  const visit = (name) => {
+    const f = `../public/js/client/render/${name}`;
+    if (out.has(f)) return;
+    const src = read(f);
+    out.set(f, src);
+    for (const m of src.matchAll(/from '\.\/(axfx-[go]\d-[\w-]+\.js)'/g)) {
+      if (deep) visit(m[1]);
+      else if (!out.has(`../public/js/client/render/${m[1]}`)) out.set(`../public/js/client/render/${m[1]}`, read(`../public/js/client/render/${m[1]}`));
+    }
+  };
+  visit(`axfx-${group}.js`);
+  return [...out];
 }
 
 // グループ ぜんぶ。へんじ: { anims, skills, problems, plans: { key: plan } }
@@ -212,6 +244,9 @@ export function groupReport(group, opts = {}) {
     if (!AX_TIERS.includes(e.tier)) problems.push(`${group} ${anim}: tier`);
     if (e.charge && e.charge.kind && !AX_CHARGE_KINDS.includes(e.charge.kind)) problems.push(`${group} ${anim}: charge.kind`);
     if (anim.startsWith('ax_demo') || anim.startsWith('ax__')) problems.push(`${group} ${anim}: ax_demo・ax__ は G0 の おためし`);
+    // 第49回: もとからの 技の グループは ox_〜（ox__〜 は O0 の おためし）
+    if (axIsOrigGroup(group) && !anim.startsWith('ox_')) problems.push(`${group} ${anim}: もとからの 技の anim は ox_〜`);
+    if (AX_GROUP_IDS.includes(group) && (anim.startsWith('ox_demo') || anim.startsWith('ox__'))) problems.push(`${group} ${anim}: ox_demo・ox__ は O0 の おためし`);
   }
   for (const anim of axGroupList(group)) if (!axTimeOf(anim) || axGroupOf(anim) !== group) problems.push(`${group} ${anim}: 時間の 表（shared/data/ax-time-${group}.js）に ない`);
   // え の 音
@@ -257,11 +292,17 @@ export function groupReport(group, opts = {}) {
     }
   }
   // 画面の 文字の 漢字（グループの え の ファイル）
-  if (opts.kanji !== false && /^g\d$/.test(group)) {
-    const files = [`../public/js/client/render/axfx-${group}.js`];
-    const src = read(files[0]);
-    for (const m of src.matchAll(/from '\.\/(axfx-g\d-[\w-]+\.js)'/g)) files.push(`../public/js/client/render/${m[1]}`);
-    for (const f of files) problems.push(...kanjiProblems(f === files[0] ? src : read(f), f.replace('../public/js/', '')));
+  if (opts.kanji !== false && /^[go]\d$/.test(group) && AX_GROUP_IDS.includes(group)) {
+    const files = groupFiles(group);
+    for (const [f, src] of files) problems.push(...kanjiProblems(src, f.replace('../public/js/', '')));
+    // 第49回: もとからの 技は カットインの 帯（k.cutIn）・画面の くらさ（k.dim）を つかわない（plan-r49-fx.md 0章・3章）
+    if (axIsOrigGroup(group)) {
+      for (const [f, src] of files) {
+        const code = src.replace(/\/\*[\s\S]*?\*\//g, '').split('\n').map((l) => l.replace(/(^|[^:'"`\\])\/\/.*$/, '$1')).join('\n');
+        if (/\bcutIn\s*\(/.test(code)) problems.push(`${f.replace('../public/js/', '')}: カットインの 帯（cutIn）は つかわない`);
+        if (/\.dim\s*\(/.test(code)) problems.push(`${f.replace('../public/js/', '')}: 画面を くらく する（dim）は つかわない`);
+      }
+    }
   }
   return { anims, skills: Object.keys(G.skills), problems, plans };
 }

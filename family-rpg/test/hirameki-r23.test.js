@@ -97,7 +97,7 @@ test('第23回の ひらめき技: データ・文字・ねらい・エフェク
     assert.match(a.desc, SCOPE[a.target], `${id}（${a.target}）の せつめい: ${a.desc}`);
     for (const s of [a.name, a.desc, a.cast, ...lines(a.effect)]) assert.deepEqual(checkText(s), [], `${id}: ${s}`);
     assert.deepEqual(checkText(a.kana).filter((p) => p.kind !== 'kana'), [], `${id} kana`);
-    assert.ok(OLD_ANIMS.has(a.anim) || /^ax_/.test(a.anim), `${id}: エフェクト ${a.anim} は 前から ある もの`);
+    assert.ok(OLD_ANIMS.has(a.anim) || /^(ax|ox)_/.test(a.anim), `${id}: エフェクト ${a.anim} は 前から ある もの`);
     assert.equal(names.get(a.name).length, 1, `${a.name} が ほかの 技と おなじ 名前`);
     // 元に なる 技は、その 職業の 道で 覚える 技（ひらめく 職業と 同じ 道に ある）
     for (const [k, n] of Object.entries(HIRAMEKI[id].from)) {
@@ -168,7 +168,7 @@ test('第23回の 合体技: データ・文字・組の 名前・エフェク�
     assert.match(t.desc, SCOPE[t.target], `${id}（${t.target}）: ${t.desc}`);
     for (const s of [t.name, t.desc, ...t.parts.flatMap((p) => [p.msg, p.failMsg]).filter(Boolean)]) assert.deepEqual(checkText(s), [], `${id}: ${s}`);
     assert.deepEqual(checkText(t.kana).filter((p) => p.kind !== 'kana'), [], `${id} kana`);
-    assert.ok(OLD_ANIMS.has(t.anim) || /^ax_/.test(t.anim), `${id}: エフェクト ${t.anim}`);
+    assert.ok(OLD_ANIMS.has(t.anim) || /^(ax|ox)_/.test(t.anim), `${id}: エフェクト ${t.anim}`);
     for (const p of t.parts) if (p.type === 'atbSet' && ['enemy', 'group', 'enemies'].includes(p.target || t.target)) assert.ok(p.chance > 0 && p.chance < 1, `${t.name}: 効く わりあい`);
   }
   for (const [, nm] of DUAL_GROUP_NAMES) assert.deepEqual(checkText(nm), [], nm);

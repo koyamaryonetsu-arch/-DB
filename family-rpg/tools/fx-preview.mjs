@@ -3,8 +3,8 @@
 //
 //   node tools/fx-preview.mjs <anim> [--frames 12] [--dir ally|enemy|party] [--targets 1|3] [--out <png>]
 //   node tools/fx-preview.mjs --ability <技の id>              … たたかいで ほんとうに 出る え（大技の つなぎ・看板の 技・作り直しの 上書き の あと）
-//                                                              （'id@masc' … 男の子の 版、'dt_〜' … 合体技。味方に かける 技は 味方の いちに）
-//   node tools/fx-preview.mjs --group g1 [--out <dir>]         … G1 の 大技 ぜんぶ（1 anim 1まい。ふだんは fx-out/g1/）
+//                                                              （'id@masc' … 男の子の 版、合体技の id（DUAL_TECHS）… 合体技。味方に かける 技は 味方の いちに）
+//   node tools/fx-preview.mjs --group g1 [--out <dir>]         … G1 の 大技 ぜんぶ（1 anim 1まい。ふだんは fx-out/g1/。第49回の o1〜o6 も おなじ）
 //   node tools/fx-preview.mjs --all <prefix> [--out <dir>]     … とうろくした 大技（axfx）を 1つずつ 1まいに
 //   node tools/fx-preview.mjs --list [prefix]                  … とうろくした 大技の なまえ
 //   node tools/fx-preview.mjs --charges [tier]                 … ためかた 14しゅるいを 1まいに（1しゅるい 1行・4こま）
@@ -61,7 +61,7 @@ function parseArgs(argv) {
 const USAGE = `つかいかた:
   node tools/fx-preview.mjs <anim> [--frames 12] [--dir ally|enemy|party] [--targets 1|3] [--out <png>]
   node tools/fx-preview.mjs --ability <技の id> [--dir enemy] [--targets 3]    … たたかいで 出る え
-  node tools/fx-preview.mjs --group g1 [--out <dir>]                         … グループ ぜんぶ（fx-out/g1/<anim>.png）
+  node tools/fx-preview.mjs --group g1 [--out <dir>]                         … グループ ぜんぶ（fx-out/g1/<anim>.png。o1〜o6 も）
   node tools/fx-preview.mjs --all <prefix> [--out <dir>]
   node tools/fx-preview.mjs --list [prefix]
   node tools/fx-preview.mjs --charges [tier] [--dir enemy] [--out <png>]
@@ -340,11 +340,14 @@ function harnessMain(M) {
   window.fxpList = (prefix) => axList(prefix || '');
   // 味方に かける 技（データの target）
   const ALLY_T = new Set(['ally', 'allies', 'self', 'deadAlly', 'deadAllies']);
+  // 合体技の id（DUAL_TECHS に あって ふつうの 技で ない）
+  const isDualId = (id) => !!DUAL_TECHS[id] && !ABILITIES[id];
   // 技の id → たたかいで 出る anim（battle.js と おなじ じゅん: 大技の つなぎ → 看板の 技 → 作り直しの 上書き → データの anim）
   window.fxpResolve = (key) => {
     const id = String(key).replace(/@masc$/, '');
     const masc = String(key).endsWith('@masc');
-    const dual = id.startsWith('dt_');
+    // 合体技か は 表で 見る（ダ天使の 技 dt_hane なども dt_ で はじまる）
+    const dual = isDualId(id);
     const t = dual ? DUAL_TECHS[id] : ABILITIES[id];
     if (!t) return { error: `技 ${key} が ない` };
     const data = (masc && t.masc && t.masc.anim) || t.anim;
@@ -357,7 +360,7 @@ function harnessMain(M) {
   // グループの 大技（1 anim に 1つ: いちばん はじめに つないだ 技で）
   window.fxpGroup = (g) => axGroupList(g).map((anim) => {
     const s = Object.values(AX_SKILLS).find((x) => x.anim === anim);
-    return { anim, ability: s ? s.key : null, party: !!axDef(anim).party, dual: !!(s && s.key.startsWith('dt_')) };
+    return { anim, ability: s ? s.key : null, party: !!axDef(anim).party, dual: !!(s && isDualId(s.key.replace(/@masc$/, ''))) };
   });
   window.fxpReady = true;
 }
@@ -482,7 +485,7 @@ async function main() {
       await mkdir(path.dirname(file), { recursive: true });
       await writeFile(file, Buffer.from(res.png.split(',')[1], 'base64'));
       const errs = [...res.info.errors, ...consoleErrors.slice(before)];
-      if (!res.info.ax && anim.startsWith('ax_')) errs.push(`${anim} は とうろく されて いない（axfx.js の useAxGroup を わすれて いない？ --list で 見られる）`);
+      if (!res.info.ax && /^(ax|ox)_/.test(anim)) errs.push(`${anim} は とうろく されて いない（axfx.js の useAxGroup を わすれて いない？ --list で 見られる）`);
       if (errs.length) failed = true;
       const T = res.info.timing;
       console.log(`${anim}: ${file}`);

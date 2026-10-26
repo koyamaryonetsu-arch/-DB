@@ -5,6 +5,7 @@
 // ・2回目は ため 半分・おそい 設定でも 0.85 の 速さ・サーバーの 待ち時間で つぎの 行動が かぶらない
 // ・なかま（AX_FAMILIES）は 下から 上へ 段・長さ・つぶが へらない・音が ある・画面の 文字に 漢字（人 の ほか）が ない
 // しらべかたは test/ax-check.js（G0。グループは さわらない）
+// ・第49回: もとからの 技の グループ o1〜o6（anim は ox_〜）も AX_GROUP_IDS から おなじ ように しらべる（予算は AX_BUDGET_ORIG）
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'node:fs';
@@ -37,7 +38,8 @@ test('第48回: グループの ファイルが ある・G0 が つないだ（�
 
 test('第48回: 大技は ぜんぶ どこかの グループ（おためし ax_demo_ の ほか）・技は 1つの グループだけ', () => {
   for (const anim of Object.keys(AX_TIME)) assert.ok(AX_GROUP_IDS.includes(axGroupOf(anim)), `${anim} の グループ`);
-  for (const anim of axList('ax_')) {
+  // 第49回: もとからの 技（o1〜o6）の ox_〜 も
+  for (const anim of [...axList('ax_'), ...axList('ox_')]) {
     const g = axDef(anim).group;
     assert.ok(g === 'demo' || AX_GROUP_IDS.includes(g), `${anim}: グループ ${g}`);
   }
