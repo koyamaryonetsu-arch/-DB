@@ -1086,7 +1086,8 @@ def に `tier`・`hit`・`len`・`stagger`・`party`・`abilities`・`charge.kin
 ### 10-4. 時間（サーバーと クライアントで 1つの 表。`shared/ax-time.js`）
 - `charge`（ため）→ `hit = charge + 表の hit`（ダメージの 数が 出る）→ `total = charge + len` → 敵全体は `end = total + min(300, stagger × (的の かず − 1))`。
   **`len` は 余韻の さいごの つぶが 消える まで**に する（テストは `end ＋ 300ms` より のこったら だめ）。
-- 2回目（おなじ 戦い・おなじ 人・おなじ 技）: ため 半分・伝説の カットインの 帯 なし（`c.repeat`）。ひらめいた しゅんかんは いつも 1回目。
+- 2回目（おなじ 戦い・おなじ 人・おなじ 技）: ため 半分（`c.repeat`）。ひらめいた しゅんかんは いつも 1回目。
+- **第49回（家族の 声）**: カットインの 帯・スローの ひかり・ためる あいだの 画面の くらさは ぜんぶ なくした。ためるのは 気（ki。ドラゴンボールだけ。黄色い オーラ・basic 300 / advanced 450 / super 650 / legend 900ms）、ほかは みじかい 構え（300ms まで。basic 200）。表の `charge.ms` は `axChargeMs` が 上限で きる。くわしくは `docs/plan-r48-fx-engine.md` の「ためる きまり（第49回）」。2〜6章・9章の ため・カットインの 話は 前の 計画（この きまりが 正しい）。
 - 合体技: ため なし（`c.dual`）。カットイン（`AX_DUAL_CUT_MS` 1.0〜1.6s）の あとに 出る。
 - おそい 設定（0.6・0.75）: 大技の あいだは 0.85 の 速さ（つぶに `ts` が つく。グループは 何も しなくて よい）。
 - サーバー（`shared/battle.js` の `axMark` → `axMarkEvent`）: 技が 表に あれば `ev.fx.ax`（anim）・`ev.fx.axKey`（`id@masc`・`dt_〜`）・`ev.fx.axRepeat` を つけ、

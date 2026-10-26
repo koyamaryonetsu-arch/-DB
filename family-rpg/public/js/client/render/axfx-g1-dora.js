@@ -345,7 +345,6 @@ export const AX_G1_DORA = {
     play(fx, c) {
       const { k } = c;
       darken(c, 0.35, c.len - 60);
-      k.cutIn({ color: '#ffffff', color2: '#1a5aa0', delay: 0, life: 320, y: c.H * 0.3, h: 30 });
       const a = selfAt(c, c.t);
       const py = a.ally ? c.H - 28 : a.y + 4;
       prop(c, 'pocket', a.x, py, { s: 1.6, life: c.len - 60, pop: 80 });
@@ -777,7 +776,6 @@ export const AX_G1_DORA = {
     play(fx, c) {
       const { k } = c;
       darken(c, 0.42, c.len - 60);
-      k.cutIn({ color: '#ff8a2a', color2: '#3a1404', delay: 0, life: 320, y: c.H * 0.3, h: 30 });
       const t = c.t, o = org(c, 18);
       // 太い 花びらの ムキムキの 花が さいて、花ごと 頭つきで ドーン
       flower(c, o.x, o.y, { to: { x: t.x, y: t.y }, travel: c.hit - 260, start: 260, r: 26, n: 7, fat: 0.42, cols: ['#ff8a2a', '#ffe066', '#ffd08a'], open: 200, at: 40, glow: '#ffd08a', life: c.hit + 80 });

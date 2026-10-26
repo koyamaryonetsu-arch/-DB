@@ -4,8 +4,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
-  AX_TIME, AX_SKILLS, AX_GROUPS, AX_GROUP_IDS, AX_TIERS, AX_TIER_CHARGE_MS, AX_CHARGE_KINDS, AX_BUDGET, AX_LOCK_BASE, AX_SLOW, AX_SPREAD_MAX,
-  AX_DUAL_CUT_MS, AX_HIRA_PRE_MS, axAddTimes, axSkill, axPlan, axTimes, axTs, axMarkEvent, axTimeOf,
+  AX_TIME, AX_SKILLS, AX_GROUPS, AX_GROUP_IDS, AX_TIERS, AX_TIER_CHARGE_MS, AX_KI_CHARGE_MS, AX_CHARGE_KINDS, AX_BUDGET, AX_LOCK_BASE, AX_SLOW, AX_SPREAD_MAX,
+  AX_DUAL_CUT_MS, AX_HIRA_PRE_MS, axAddTimes, axSkill, axPlan, axTimes, axTs, axMarkEvent, axTimeOf, axBudget, axChargeMs,
 } from '../public/js/shared/ax-time.js';
 import { Battle } from '../public/js/shared/battle.js';
 import { newCharacter, gainExp, expForLevel, fullHeal } from '../public/js/shared/stats.js';
@@ -46,7 +46,27 @@ test('第48回 G0: 表の かたち（段・ためかた・予算・グループ
   for (const t of AX_TIERS) {
     const B = AX_BUDGET[t];
     assert.ok(B.total[0] < B.total[1] && B.charge[0] <= B.charge[1] && B.parts[0] < B.parts[1], t);
+    assert.ok(B.totalKi[0] < B.totalKi[1] && B.chargeKi[0] <= B.chargeKi[1] && B.len[0] < B.len[1], t);
+    // 第49回: 構えは 300ms まで・気は 0.9びょう まで。上限は 予算の 中
+    assert.ok(AX_TIER_CHARGE_MS[t] <= 300 && AX_TIER_CHARGE_MS[t] <= B.charge[1], `${t}: 構えの ため`);
+    assert.ok(AX_KI_CHARGE_MS[t] <= 900 && AX_KI_CHARGE_MS[t] <= B.chargeKi[1], `${t}: 気の ため`);
+    assert.deepEqual(axBudget(t, 'ki').charge, B.chargeKi);
+    assert.deepEqual(axBudget(t, 'sword').charge, B.charge);
   }
+  assert.equal(AX_TIER_CHARGE_MS.basic, 200);
+  assert.deepEqual(AX_KI_CHARGE_MS, { basic: 300, advanced: 450, super: 650, legend: 900 });
+  for (let i = 1; i < AX_TIERS.length; i++) {
+    assert.ok(AX_KI_CHARGE_MS[AX_TIERS[i]] > AX_KI_CHARGE_MS[AX_TIERS[i - 1]], '気は 段が 上がるほど 長く');
+    assert.ok(AX_TIER_CHARGE_MS[AX_TIERS[i]] >= AX_TIER_CHARGE_MS[AX_TIERS[i - 1]], '構えは 段で へらない');
+  }
+  // 表の charge.ms は 上限で きる（構えは 300ms まで・気は 段の 長さ まで）。短い ものは そのまま
+  assert.equal(axChargeMs({ kind: 'sword', ms: 1400 }, 'legend'), 300);
+  assert.equal(axChargeMs({ kind: 'breath', ms: 120 }, 'legend'), 120);
+  assert.equal(axChargeMs({ kind: 'ki', ms: 1400 }, 'legend'), 900);
+  assert.equal(axChargeMs({ kind: 'ki', ms: 350 }, 'advanced'), 350);
+  assert.equal(axChargeMs({ kind: 'ki' }, 'super'), 650);
+  assert.equal(axChargeMs({ kind: 'holy' }, 'super'), 300);
+  assert.equal(axChargeMs({ ms: 900 }, 'basic'), 200, 'kind なしは generic（構え）');
   assert.deepEqual(AX_GROUP_IDS, ['g1', 'g2', 'g3', 'g4', 'g5', 'g6']);
   for (const g of AX_GROUP_IDS) assert.ok(AX_GROUPS[g], g);
   assert.deepEqual(CUT_MS, AX_DUAL_CUT_MS, '合体技の カットインの 長さは サーバーと おなじ');
@@ -66,22 +86,27 @@ test('第48回 G0: 表の かたち（段・ためかた・予算・グループ
 test('第48回 G0: 時間（ため・2回目・合体技・おそい 設定・敵全体の ずらし）', () => {
   const P = axPlan('ax_tfix_beam', { key: 'mera' });
   assert.equal(P.tier, 'legend');
-  assert.equal(P.charge, AX_TIER_CHARGE_MS.legend);
+  assert.equal(P.kind, 'ki');
+  assert.equal(P.charge, AX_KI_CHARGE_MS.legend);
   assert.equal(P.hit, P.charge + 150);
   assert.equal(P.total, P.charge + 1100);
   assert.equal(P.end, P.total);
-  assert.equal(P.cutin, true);
+  assert.equal(P.cutin, false, '第49回: カットインの 帯は ない');
   assert.equal(P.ts, 1);
   assert.equal(P.lockMs, P.total - AX_LOCK_BASE);
   // 技ごとの 段（merami は super）
   const S = axPlan('ax_tfix_beam', { key: 'merami' });
   assert.equal(S.tier, 'super');
-  assert.equal(S.charge, AX_TIER_CHARGE_MS.super);
+  assert.equal(S.charge, AX_KI_CHARGE_MS.super);
   assert.deepEqual(S.vars, { gold: true });
-  // 2回目: ため 半分・カットイン なし
+  // 構え（ki の ほか）は みじかい（tfix_slash は sword・super）
+  assert.equal(axPlan('ax_tfix_slash').charge, AX_TIER_CHARGE_MS.super);
+  assert.ok(axPlan('ax_tfix_slash').charge <= 300);
+  // 2回目: ため 半分
   const R = axPlan('ax_tfix_beam', { key: 'mera', repeat: true });
-  assert.equal(R.charge, AX_TIER_CHARGE_MS.legend / 2);
+  assert.equal(R.charge, AX_KI_CHARGE_MS.legend / 2);
   assert.equal(R.cutin, false);
+  assert.equal(axPlan('ax_tfix_slash', { repeat: true }).charge, AX_TIER_CHARGE_MS.super / 2);
   // 合体技: ため なし
   assert.equal(axPlan('ax_tfix_slash', { key: 'dt_bentou', dual: true }).charge, 0);
   // おそい 設定: 0.6・0.75 でも 0.85 の 速さ。速い 設定は そのまま
@@ -162,14 +187,13 @@ test('第48回 G0: おそい 設定・2回目・合体技の え（エフェク�
   assert.ok(Math.abs(a.rel - T.chargeReal) <= 32);
   // 2回目: ため 半分。合体技: すぐ はなつ
   const r = run(1, { repeat: true });
-  assert.ok(Math.abs(r.rel - AX_TIER_CHARGE_MS.legend / 2) <= 32, `2回目 ${r.rel}`);
+  assert.ok(Math.abs(r.rel - AX_KI_CHARGE_MS.legend / 2) <= 32, `2回目 ${r.rel}`);
   assert.ok(run(1, { dual: true }).rel <= 16, '合体技は ため なし');
-  // 2回目は カットインの 帯 なし
+  // 第49回: 1回目も 2回目も カットインの 帯・スローの ひかり・画面の くらさ（ため の あいだ）は ない
   const f1 = new Effects(), f2 = new Effects();
   playAxFx(f1, 'ax_tfix_beam', ONE, null, { ability: 'mera' });
   playAxFx(f2, 'ax_tfix_beam', ONE, null, { ability: 'mera', repeat: true });
-  assert.ok(f1.parts.some((p) => p.kind === 'axBand'));
-  assert.ok(!f2.parts.some((p) => p.kind === 'axBand'));
+  for (const f of [f1, f2]) assert.ok(!f.parts.some((p) => p.kind === 'axBand' || p.kind === 'axFreeze' || p.kind === 'axFigure'));
   // ctx: 技の id・男の子・2回目・合体技・敵→味方
   let ctx = null;
   axAddTimes('gt', { ax_tfix_ctx: { tier: 'basic', charge: false, hit: 100, len: 500 } }, { 'gira@masc': 'ax_tfix_ctx' });
@@ -328,7 +352,10 @@ test('第48回 G0: グループの しらべかた（ax-check.js）は まちが
   });
   const bad = groupReport('gbad', { kanji: false }).problems.join('\n');
   assert.match(bad, /no_such_skill: その 技/);
-  assert.match(bad, /ため 900ms が basic の 予算/);
+  // 第49回: 表の ため 900ms は 気の basic の 上限（300ms）で きられる → 予算の そとには ならない。len・合計は 見つける
+  assert.doesNotMatch(bad, /ため（気）900ms/);
+  assert.equal(axPlan('ax_tbad_long').charge, AX_KI_CHARGE_MS.basic);
+  assert.match(bad, /len \d+ms が basic の 予算/);
   assert.match(bad, /合計 \d+ms が basic の 予算/);
   assert.match(bad, /音 ax_nai_oto が ない/);
   assert.match(bad, /エラー/);

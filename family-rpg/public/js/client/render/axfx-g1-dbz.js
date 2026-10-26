@@ -556,7 +556,6 @@ export const AX_G1_DBZ = {
     play(fx, c) {
       const { k } = c;
       darken(c, 0.45, c.len - 60);
-      k.cutIn({ color: '#ffe23a', color2: '#0a1840', delay: 0, life: 300, y: c.H * 0.32, h: 34 });
       const o = org(c);
       const pre = 190;
       // 左右に 黄色・まん中に 青の 光 → らせんで 1つに

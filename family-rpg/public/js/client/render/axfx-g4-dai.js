@@ -219,7 +219,6 @@ export const AX_G4_DAI = {
     play(fx, c) {
       const { k } = c;
       darken(c, 0.45);
-      k.cutIn({ color: '#5ad0ff', color2: '#06142a', delay: 0, life: 260, y: 30, h: 26, dir: c.fromAlly ? 1 : -1 });
       const h = c.fromAlly ? { x: c.from.x, y: c.H - 20 } : hands(c, 0);
       // 両手の あいだで ちぢむ 球（まわりの 光を すいこむ）
       c.k.orb(h.x, h.y, { r: 11, color: '#5ad0ff', glow: '#bfeaff', rim: '#ffffff', grow: 60, hold: 120, life: 200 });
@@ -477,7 +476,6 @@ export const AX_G4_DAI = {
     play(fx, c) {
       const { k } = c;
       darken(c, 0.45);
-      k.cutIn({ color: '#c8a8ff', color2: '#140a28', delay: 0, life: 240, y: 30, h: 24, dir: c.fromAlly ? 1 : -1 });
       const h = hands(c, 26);
       const mid = { x: h.x, y: h.y };
       // ほのお（赤）と こおり（青）が 1つに

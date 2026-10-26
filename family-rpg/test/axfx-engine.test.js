@@ -12,7 +12,7 @@ import { Effects, BW, BH } from '../public/js/client/render/battlefx.js';
 import {
   registerAx, useAxGroup, isAx, axDef, axList, axAnimFor, axAllyFx, axIsParty, axResolve, axTiming, axHoldMs, axEventAnim, axEnemyPose, playAxFx,
 } from '../public/js/client/render/axfx.js';
-import { CHARGE_KINDS, TIERS, TIER_CHARGE_MS, TIER_K, KIND_LOOK, playCharge, chargeMs } from '../public/js/client/render/axcharge.js';
+import { CHARGE_KINDS, TIERS, TIER_CHARGE_MS, KI_CHARGE_MS, TIER_K, KIND_LOOK, playCharge, chargeMs } from '../public/js/client/render/axcharge.js';
 import { AX_FINE, KIT_FNS, bindKit, PAL, pal, AURA_STYLES } from '../public/js/client/render/axkit.js';
 import { AX_DEMO } from '../public/js/client/render/ax-demo.js';
 import { SFX_AX } from '../public/js/client/sfx-ax.js';
@@ -115,14 +115,17 @@ test('第48回: とうろく（registerAx・useAxGroup・技ごとの 段階）'
 test('第48回: 時間の けいさん（ためる＋あたる。たたかいの 速さで ちぢむ）', () => {
   assert.deepEqual(TIERS, ['basic', 'advanced', 'super', 'legend']);
   for (let i = 1; i < TIERS.length; i++) {
-    assert.ok(TIER_CHARGE_MS[TIERS[i]] > TIER_CHARGE_MS[TIERS[i - 1]], '段階が 上がるほど 長く ためる');
+    assert.ok(KI_CHARGE_MS[TIERS[i]] > KI_CHARGE_MS[TIERS[i - 1]], '気は 段階が 上がるほど 長く ためる');
+    assert.ok(TIER_CHARGE_MS[TIERS[i]] >= TIER_CHARGE_MS[TIERS[i - 1]], '構えは 段階で みじかく ならない');
     assert.ok(TIER_K[TIERS[i]] > TIER_K[TIERS[i - 1]], '段階が 上がるほど つよく');
   }
-  assert.ok(TIER_CHARGE_MS.legend <= 1400, '伝説でも ためるのは 1.4びょう まで');
+  // 第49回: 気（ドラゴンボール）は 伝説でも 0.9びょう、構えは 0.3びょう まで
+  assert.ok(KI_CHARGE_MS.legend <= 900, '気は 伝説でも 0.9びょう まで');
+  for (const t of TIERS) assert.ok(TIER_CHARGE_MS[t] <= 300, `${t}: 構えは 0.3びょう まで`);
   const T = axTiming('ax_demo_beam');
   assert.equal(T.tier, 'legend');
   assert.equal(T.kind, 'ki');
-  assert.equal(T.charge, TIER_CHARGE_MS.legend);
+  assert.equal(T.charge, KI_CHARGE_MS.legend);
   assert.equal(T.release, 150);
   assert.equal(T.hit, T.charge + 150);
   assert.equal(T.total, T.charge + 1050);
@@ -141,18 +144,23 @@ test('第48回: 時間の けいさん（ためる＋あたる。たたかいの
   assert.equal(T.ts, 1);
   assert.equal(T.hitAt, T.hit);
   // 2回目は ため 半分・合体技は ため なし
-  assert.equal(axTiming('ax_demo_beam', { repeat: true }).charge, TIER_CHARGE_MS.legend / 2);
+  assert.equal(axTiming('ax_demo_beam', { repeat: true }).charge, KI_CHARGE_MS.legend / 2);
   assert.equal(axTiming('ax_demo_beam', { dual: true }).charge, 0);
   assert.equal(axTiming('ax_demo_beam', { dual: true }).cutin, false);
-  assert.equal(T.cutin, true);
+  assert.equal(T.cutin, false, '第49回: カットインの 帯は ない');
+  // 構え（ki の ほか）は みじかい: おためしの 剣（super）・チャクラ（advanced）
+  assert.equal(axTiming('ax_demo_slash').charge, TIER_CHARGE_MS.super);
+  assert.equal(axTiming('ax_demo_orb').charge, TIER_CHARGE_MS.advanced);
   assert.equal(axHoldMs('ax_demo_beam', { tempo: 2 }), Math.round(T.hit / 2 + 350 / 2));
   assert.equal(axHoldMs('fire1'), 0);
   assert.equal(axTiming('fire1'), null);
-  // 技ごとの 段階で ためる 時間が かわる
-  assert.equal(axTiming('ax_t_one', { ability: 't_kame' }).charge, TIER_CHARGE_MS.advanced);
-  assert.equal(axTiming('ax_t_one', { ability: 't_kame_super' }).charge, TIER_CHARGE_MS.super);
-  assert.equal(axTiming('ax_t_one', { ability: 't_kame_final' }).charge, TIER_CHARGE_MS.legend);
-  assert.equal(axTiming('ax_t_one', { ability: 't_kame_final' }).hit, TIER_CHARGE_MS.legend + 200);
+  // 技ごとの 段階で ためる 時間が かわる（ax_t_one は 気）
+  assert.equal(axTiming('ax_t_one', { ability: 't_kame' }).charge, KI_CHARGE_MS.advanced);
+  assert.equal(axTiming('ax_t_one', { ability: 't_kame_super' }).charge, KI_CHARGE_MS.super);
+  assert.equal(axTiming('ax_t_one', { ability: 't_kame_final' }).charge, KI_CHARGE_MS.legend);
+  assert.equal(axTiming('ax_t_one', { ability: 't_kame_final' }).hit, KI_CHARGE_MS.legend + 200);
+  // ためしに ためかたを かえると その 上限（気 → 剣の 構え）
+  assert.equal(axTiming('ax_t_one', { ability: 't_kame_final', chargeKind: 'sword' }).charge, TIER_CHARGE_MS.legend);
   // ためない・hit が 関数（的の かず）
   const P = axTiming('ax_t_party', { targets: 4 });
   assert.equal(P.charge, 0);
@@ -161,12 +169,17 @@ test('第48回: 時間の けいさん（ためる＋あたる。たたかいの
   assert.ok(P.len >= P.release + 120, 'len は あたる より あと');
   assert.equal(axTiming('ax_demo_slash', { targets: 3 }).len, 840);
   // ためる 時間を じぶんで きめる
-  assert.equal(chargeMs({ kind: 'ki', ms: 777 }, 'basic'), 777);
+  // ためる 時間を じぶんで きめる（上限まで）
+  assert.equal(chargeMs({ kind: 'ki', ms: 777 }, 'legend'), 777);
+  assert.equal(chargeMs({ kind: 'ki', ms: 777 }, 'basic'), KI_CHARGE_MS.basic, '上限で きる');
+  assert.equal(chargeMs({ kind: 'sword', ms: 120 }, 'legend'), 120);
+  assert.equal(chargeMs({ kind: 'sword', ms: 1300 }, 'legend'), TIER_CHARGE_MS.legend);
   assert.equal(chargeMs(null, 'legend'), 0);
-  assert.equal(chargeMs({ kind: 'ki' }, 'nanika'), TIER_CHARGE_MS.advanced);
+  assert.equal(chargeMs({ kind: 'ki' }, 'nanika'), KI_CHARGE_MS.advanced);
+  assert.equal(chargeMs({ kind: 'magic' }, 'nanika'), TIER_CHARGE_MS.advanced);
 });
 
-test('第48回: ためかた 14しゅるい × 段階 4つ（味方・敵）が こわれない。段階で 画面の えんしゅつが ふえる', () => {
+test('第48回: ためかた 14しゅるい × 段階 4つ（味方・敵）が こわれない。第49回: カットイン・画面の くらさ なし、気だけ ゆれる', () => {
   assert.deepEqual(CHARGE_KINDS, ['ki', 'chakra', 'gomu', 'breath', 'sword', 'dragon', 'holy', 'magic', 'alchemy', 'idol', 'tech', 'ice', 'star', 'generic']);
   for (const k of CHARGE_KINDS) {
     assert.ok(KIND_LOOK[k], k);
@@ -179,20 +192,29 @@ test('第48回: ためかた 14しゅるい × 段階 4つ（味方・敵）が 
         const fx = new Effects();
         const P = foe ? FOE_FROM : { x: 102, y: BH - 26, w: 30, h: 32, foot: BH + 2 };
         const ms = playCharge(fx, P, { kind, tier, foe, img: null });
-        assert.equal(ms, TIER_CHARGE_MS[tier], `${kind}/${tier}`);
+        const ki = kind === 'ki';
+        assert.equal(ms, (ki ? KI_CHARGE_MS : TIER_CHARGE_MS)[tier], `${kind}/${tier}`);
         const ks = kinds(fx);
         assert.ok(ks.has('axAura'), `${kind}/${tier}: オーラ`);
-        assert.equal(ks.has('axTint'), TIERS.indexOf(tier) >= 2, `${kind}/${tier}: super から 画面が くらく`);
-        assert.equal(ks.has('axBand'), tier === 'legend', `${kind}/${tier}: legend だけ カットイン`);
-        assert.equal(ks.has('axFreeze'), tier === 'legend', `${kind}/${tier}: legend だけ スローの ひかり`);
-        assert.equal(fx.parts.some((p) => p.kind === 'shake'), TIERS.indexOf(tier) >= 2, `${kind}/${tier}: super から ゆれる`);
-        assert.equal(ks.has('axFigure'), !foe && tier !== 'basic', `${kind}/${tier}: 味方の かげ`);
-        if (tier === 'legend') assert.ok(fx.parts.filter((p) => p.top).every((p) => p.kind === 'axBand' || p.kind === 'axFreeze'));
+        // 第49回: どの 段でも カットインの 帯・スローの ひかり・かげ・画面の くらさ・画面の いちばん 上の もの は ない
+        for (const no of ['axTint', 'axBand', 'axFreeze', 'axFigure', 'axStreaks']) assert.ok(!ks.has(no), `${kind}/${tier}: ${no} は ない`);
+        assert.ok(!fx.parts.some((p) => p.top), `${kind}/${tier}: 画面の いちばん 上に かく もの なし`);
+        assert.ok(!fx.parts.some((p) => p.kind === 'flash'), `${kind}/${tier}: 画面の ひかり なし`);
+        // ゆれるのは 気（advanced から）だけ。小石は 気の legend だけ
+        assert.equal(fx.parts.some((p) => p.kind === 'shake'), ki && tier !== 'basic', `${kind}/${tier}: ゆれ`);
+        assert.equal(fx.parts.some((p) => p.shape === 'rock'), ki && tier === 'legend', `${kind}/${tier}: 小石`);
+        if (ki) assert.ok(fx.parts.filter((p) => p.kind === 'axAura').every((p) => ['#ffd23a', '#ff9a1a'].includes(p.color)), `${tier}: 気は 黄色い オーラ`);
+        // その 人の まわりだけ（画面ぜんたいに ひろがる ものは ない）
+        for (const p of fx.parts) {
+          if (!Number.isFinite(p.x) || p.kind === 'shake' || p.kind === 'call') continue;
+          assert.ok(Math.abs(p.x - P.x) <= 70 && Math.abs(p.y - P.y) <= 70, `${kind}/${tier}: ${p.kind} が はなれて いる（${Math.round(p.x)},${Math.round(p.y)}）`);
+          if (p.r1 !== undefined) assert.ok(p.r1 <= 80, `${kind}/${tier}: ${p.kind} の わ が 大きい ${p.r1}`);
+        }
         // ためる 時間を すぎて のこる ものは すくない（はなつ えんしゅつの じゃまを しない）
         const { t, log } = runFx(fx);
         assert.deepEqual([...new Set(log.nan)], [], `${kind}/${tier}: NaN`);
         assert.deepEqual(log.neg, [], `${kind}/${tier}: マイナスの 半径`);
-        assert.ok(t <= ms + 1100, `${kind}/${tier}: ${t}ms で おわる`);
+        assert.ok(t <= ms + 700, `${kind}/${tier}: ${t}ms で おわる`);
       }
     }
   }
@@ -276,7 +298,7 @@ test('第48回: おためしの 技は 敵1体・敵全体・味方→敵・敵�
         // 音: ためはじめ → (legend の ゴゴゴ) → はなつ（ためおわりに）
         const ids = sounds.map(([, id]) => id);
         assert.equal(ids[0], `ax_c_${T.kind}`, tag);
-        assert.equal(ids.includes('ax_c_legend'), T.tier === 'legend', tag);
+        assert.equal(ids.includes('ax_c_legend'), T.tier === 'legend' && T.kind === 'ki', `${tag}: ゴゴゴは 伝説の 気だけ`);
         const rel = sounds.find(([, id]) => id === axDef(anim).sfx);
         assert.ok(rel && rel[0] >= T.charge - 16 && rel[0] <= T.charge + 32, `${tag}: はなつ 音は ためおわりに（${rel?.[0]}）`);
       }
@@ -289,7 +311,7 @@ test('第48回: おためしの 技は 敵1体・敵全体・味方→敵・敵�
   let clock2 = 0;
   fx.play('ax_demo_beam', ONE, null, { fromAlly: true, from: ALLY_FROM, sfx: (id) => { if (id === 'ax_beam') at = clock2; } });
   runFx(fx, 4000, (now) => { clock2 = now; });
-  assert.ok(at !== null && Math.abs(at - TIER_CHARGE_MS.legend / 2) <= 32, `速さ 2: ${at}`);
+  assert.ok(at !== null && Math.abs(at - KI_CHARGE_MS.legend / 2) <= 32, `速さ 2: ${at}`);
   // 的が ない・とうろく していない anim は false（ほかの えんしゅつへ）。party の 技は 的が なくても 画面の 下に
   assert.equal(playAxFx(new Effects(), 'ax_demo_beam', [], null, {}), false);
   assert.equal(playAxFx(new Effects(), 'fire1', ONE, null, {}), false);

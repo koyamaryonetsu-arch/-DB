@@ -309,7 +309,7 @@ export const AX_G3_KIMETSU = {
         prop(fx, 'flame', t.x, cy, { s: 1.8, life: c.len - 200, fout: 240, delay: dd + 40, add: true, glow: '#ff6a1a', glowR: 10 });
         k.flames(t.x, t.y + 10, { w: 22, h: 50, n: 4, delay: dd + c.hit - 120, life: 640 });
         k.pillar(t.x, t.y + 6, { w: 8, color: '#ff4a10', glow: '#ff8a2a', core: '#ffd060', delay: dd + c.hit - 60, life: 480, burst: false, alpha: 0.55, widths: [0.4, 1, 0.8, 1, 0.5] });
-        embers(fx, t.x, cy, { n: per(c, 12), spread: 14, colors: ['#ffd23a', '#fff2a0', '#ff8a2a'], delay: dd + c.hit, life: 560 });
+        embers(fx, t.x, cy, { n: per(c, 16), spread: 14, colors: ['#ffd23a', '#fff2a0', '#ff8a2a'], delay: dd + c.hit, life: 560 });
         k.shockwave(t.x, t.y + 8, { r0: 6, r1: 30, sy: 0.35, color: '#ffd23a', w: 2, n: 2, gap: 100, delay: dd + c.hit });
         fx.glow(t.x, cy, { color: '#ff8a2a', r: 22, delay: dd + c.hit, life: 420, alpha: 0.9 });
       });
@@ -330,7 +330,6 @@ export const AX_G3_KIMETSU = {
       const o = src(c);
       k.dim({ a: 0.45, life: c.len - 60, fin: 0, fout: 320 });
       bg(fx, 'flame', { a: 0.55, life: c.len - 80, fin: 120, fout: 320 });
-      k.cutIn({ color: '#ff6a1a', color2: '#3a0600', dark: '#1a0200', delay: 0, life: 300, y: c.H * 0.38, h: 34, dir: c.fromAlly ? 1 : -1 });
       c.each((t, i, d) => {
         const s = c.sz * (i ? 0.7 : 1);
         const side = t.x >= c.W / 2 ? 1 : -1;
@@ -517,6 +516,8 @@ export const AX_G3_KIMETSU = {
         k.flames(t.x, t.y + 14, { w: 40, h: 34, n: 6, cols: ['#e8201a', '#ff6a1a', '#ffd23a'], delay: d + c.hit, life: 600 });
         embers(fx, t.x, t.y - 10, { n: per(c, 18), colors: SUN, spread: 26, delay: d + c.hit + 40, life: 560 });
         k.sparkles(t.x, t.y - 20, { n: per(c, 10), colors: ['#ffffff', '#ffd23a'], r: 24, delay: d + c.hit + 100, life: 360 });
+        // あたたかい 光の 火の粉（第49回: ため が みじかく なった ぶん）
+        embers(fx, t.x, t.y, { n: per(c, 12), colors: SUN, spread: 20, delay: d + c.hit - 60, life: 520 });
       });
       // 朝日の すじ
       k.streaks({ ang: -Math.PI / 2 + 0.25, color: '#ffd08a', n: 18, delay: c.hit - 100, life: 600, speed: 0.5, alpha: 0.5 });

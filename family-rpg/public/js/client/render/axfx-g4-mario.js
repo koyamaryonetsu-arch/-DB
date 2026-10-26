@@ -426,7 +426,6 @@ export const AX_G4_MARIO = {
     play(fx, c) {
       const { k } = c;
       darken(c, 0.4);
-      k.cutIn({ color: '#ffe066', color2: '#2a1050', delay: 0, life: 260, y: 30, h: 26, dir: c.fromAlly ? 1 : -1 });
       const L = look(c), f = from(c, 14);
       obj(c, 'star', { rainbow: true, x0: f.x + 40, y0: f.y - 40, x1: f.x, y1: f.y, travel: 180, spin: 12, s: 12.2, glow: '#ffffff', life: 190, fout: 20 });
       // ジグザグの みち（敵1体なら その まわりを なんども つきぬける）

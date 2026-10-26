@@ -1166,11 +1166,12 @@ export class BattleScene {
     // 時間は サーバーと おなじ 数（shared/ax-time.js）。hitAt … エフェクトの 時計で あたる 時間（おそい 設定の しぼり こみ）
     const axT = ev.axAnim ? axTiming(ev.axAnim, { tempo, ...ev.axOpts, targets: ev.axOpts.n, crit }) : null;
     const lead = actor && actor.side === 'enemy' && ev.t === 'act' ? (axT?.charge ? axEnemyPose(actor, ev.axAnim, ev.axOpts) : this.enemyAct(actor, fx, ab, allyTargets, wasTele)) : 0;
-    // 大技の えに わたす もの（技の キー・2回目・合体技・的の かず・音・カットインの かげ）
+    // 大技の えに わたす もの（技の キー・2回目・合体技・的の かず・音。actorImg は 第49回から つかわない）
     const axOpts = ev.axAnim ? { ...ev.axOpts, sfx: (id) => { if (!this.destroyed) g.audio.sfx(id); }, actorImg: actor?.side === 'enemy' ? (this.layout || []).find((m) => m.c === actor)?.img || null : null } : {};
     // 味方が ためて いる 間は その 人の まども 光る
     if (axT?.charge && actor?.side === 'ally') {
-      const col = axDef(ev.axAnim)?.charge?.color || '#ffd66b';
+      // 気（ki）は 黄色い オーラと おなじ 色（第49回）
+      const col = axT.kind === 'ki' ? '#ffd23a' : axDef(ev.axAnim)?.charge?.color || '#ffd66b';
       for (let t = 0; t < axT.chargeAt; t += 300) this.fx.at(t, () => { if (!this.destroyed) this.glowStatus(actor.id, col); });
     }
     let hitDelay = 0;

@@ -428,7 +428,6 @@ export const AX_G3_RUROUNI = {
     play(fx, c) {
       const { k } = c;
       k.dim({ a: 0.45, life: c.len - 60, fin: 0, fout: 320 });
-      k.cutIn({ color: '#9ad8ff', color2: '#0a1a30', dark: '#040a14', delay: 0, life: 260, y: c.H * 0.36, h: 30, dir: c.fromAlly ? 1 : -1 });
       c.each((t, i, d) => {
         rich(fx, c, t, d + c.hit, 32, WHITE);
         const s = c.sz * (i ? 0.75 : 1);

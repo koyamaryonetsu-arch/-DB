@@ -6,7 +6,7 @@ import { readFileSync } from 'node:fs';
 import { Effects, BW, BH } from '../public/js/client/render/battlefx.js';
 import { isAx, axDef, axTiming, axGroupList, axGroupFine } from '../public/js/client/render/axfx.js';
 import { AX_FINE } from '../public/js/client/render/axkit.js';
-import { AX_GROUPS, AX_TIME, AX_BUDGET, AX_BUDGET_TOL, AX_TIERS, AX_CHARGE_KINDS, axPlan, axTimeOf, axGroupOf } from '../public/js/shared/ax-time.js';
+import { AX_GROUPS, AX_TIME, AX_BUDGET, AX_BUDGET_TOL, AX_DUAL_TOTAL, AX_TIERS, AX_CHARGE_KINDS, axPlan, axTimeOf, axGroupOf, axBudget } from '../public/js/shared/ax-time.js';
 import { ABILITIES } from '../public/js/shared/data/abilities.js';
 import { DUAL_TECHS } from '../public/js/shared/data/dual.js';
 import { SFX_AX, SFX_AX_GROUP } from '../public/js/client/sfx-ax.js';
@@ -135,15 +135,20 @@ function checkSkill(group, key, s, problems, opts = {}) {
   const dual = isDualKey(key);
   const P = axPlan(anim, { key, n: 1, dual });
   if (!P) { problems.push(`${tag}: 時間の 表に ない`); return null; }
-  const B = AX_BUDGET[P.tier];
-  // 段の 予算（合体技は ため なしで super の 長さ）
+  // 段の 予算（第49回: ため は ki だけ 気の 長さ、ほかは 構え 300ms まで。合体技は ため なしで AX_DUAL_TOTAL）
+  const B = axBudget(P.tier, P.kind);
   if (dual) {
     if (P.charge !== 0) problems.push(`${tag}: 合体技は ため なし`);
-    if (!within(AX_BUDGET.super.total, P.total)) problems.push(`${tag}: 合体技の 長さ ${P.total}ms が super の 予算 ${AX_BUDGET.super.total.join('〜')}ms（±${AX_BUDGET_TOL}）の そと`);
+    if (!within(AX_DUAL_TOTAL, P.total)) problems.push(`${tag}: 合体技の 長さ ${P.total}ms が 予算 ${AX_DUAL_TOTAL.join('〜')}ms（±${AX_BUDGET_TOL}）の そと`);
   } else {
-    if (!within(B.charge, P.charge)) problems.push(`${tag}: ため ${P.charge}ms が ${P.tier} の 予算 ${B.charge.join('〜')}ms（±${AX_BUDGET_TOL}）の そと`);
+    const kk = P.kind === 'ki' ? '気' : '構え';
+    if (!within(B.charge, P.charge)) problems.push(`${tag}: ため（${kk}）${P.charge}ms が ${P.tier} の 予算 ${B.charge.join('〜')}ms（±${AX_BUDGET_TOL}）の そと`);
+    if (P.kind !== 'ki' && P.charge > AX_BUDGET[P.tier].charge[1]) problems.push(`${tag}: 構えの ため ${P.charge}ms が 上限 ${AX_BUDGET[P.tier].charge[1]}ms より 長い`);
+    if (!within(B.len, P.len)) problems.push(`${tag}: len ${P.len}ms が ${P.tier} の 予算 ${B.len.join('〜')}ms（±${AX_BUDGET_TOL}）の そと`);
     if (!within(B.total, P.total)) problems.push(`${tag}: 合計 ${P.total}ms が ${P.tier} の 予算 ${B.total.join('〜')}ms（±${AX_BUDGET_TOL}）の そと`);
   }
+  // 気（ki）は ドラゴンボールの 技だけ（G1）
+  if (P.kind === 'ki' && /^g[2-6]$/.test(group)) problems.push(`${tag}: ためかた ki は ドラゴンボール（G1）だけ`);
   if (!(P.release < P.len)) problems.push(`${tag}: hit（${P.release}）は len（${P.len}）より 前`);
   // クライアントの 時間 ＝ サーバーの 時間（1つの 表から）
   for (const o of [{ n: 1 }, { n: 3, crit: true }, { n: 1, repeat: true }, { n: 4, speed: 0.6 }, { n: 2, speed: 1.25 }]) {

@@ -676,7 +676,8 @@ export const AX_FINE = {
   // ためる ときの オーラ（style ごとに かたちが ちがう）
   axAura(x, p) {
     const age = p.age, life = p.life;
-    const env = easeOut(clamp01(age / (life * 0.3))) * (age > life - 90 ? clamp01((life - age) / 90) : 1);
+    // alpha … うすさ（第49回: 気の オーラは からだが すけて 見える ように うすく）
+    const env = easeOut(clamp01(age / (life * 0.3))) * (age > life - 90 ? clamp01((life - age) / 90) : 1) * (p.alpha ?? 1);
     if (env <= 0) return;
     const grow = 0.55 + 0.45 * clamp01(age / life);
     const k = p.k || 1;
@@ -1023,12 +1024,14 @@ const AURA = {
     const { cx, cy, H, env, age } = o;
     const cols = [p.color, p.color2, '#ffe066'];
     for (let i = 0; i < 3; i++) {
-      const top = cx + (i - 1) * 60 + Math.sin(age / 400 + i * 2) * 20;
+      // 第49回: スポットライトは その 人の 上 だけ（画面の 上から では ない）
+      const top = cx + (i - 1) * 22 + Math.sin(age / 400 + i * 2) * 8;
+      const ty = Math.max(-8, cy - H * 1.6);
       const bx = cx + (i - 1) * 6 + Math.sin(age / 300 + i) * 4;
       x.globalAlpha = 0.22 * env;
       x.fillStyle = cols[i];
       x.beginPath();
-      x.moveTo(top - 3, -8); x.lineTo(top + 3, -8); x.lineTo(bx + 18, cy + H * 0.55); x.lineTo(bx - 18, cy + H * 0.55); x.closePath();
+      x.moveTo(top - 3, ty); x.lineTo(top + 3, ty); x.lineTo(bx + 18, cy + H * 0.55); x.lineTo(bx - 18, cy + H * 0.55); x.closePath();
       x.fill();
     }
     x.strokeStyle = p.color;
@@ -1340,8 +1343,8 @@ export function glyph(fx, x, y, o = {}) {
 }
 // オーラ（style: flame・swirl・rings・glint・crest・ribbons・glyph・spot・cards・snow・star・gomu・pulse）
 export function aura(fx, x, y, o = {}) {
-  const { style = 'pulse', r = 14, h = 30, color = '#7ad8ff', color2 = '#ffffff', delay = 0, life = 700, k = 1, variant } = o;
-  fx.add({ kind: 'axAura', x, y, r, h, color, color2, style, delay, life, k, variant, seed: Math.random() * 100 });
+  const { style = 'pulse', r = 14, h = 30, color = '#7ad8ff', color2 = '#ffffff', delay = 0, life = 700, k = 1, variant, alpha } = o;
+  fx.add({ kind: 'axAura', x, y, r, h, color, color2, style, delay, life, k, variant, alpha, seed: Math.random() * 100 });
   return delay;
 }
 // あたった ときの きまりの しるし（しろい まる＋火花）

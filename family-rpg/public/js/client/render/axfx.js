@@ -159,7 +159,9 @@ export function axEnemyPose(actor, anim, o = {}) {
   const R = axResolve(anim, o);
   const T = axTiming(anim, o);
   if (!actor || !T || !T.charge) return 0;
-  const col = R.charge?.color || KIND_LOOK[axKindOf(R.charge?.kind)].color;
+  // 気（ki）は いつも 黄色い オーラ（第49回）
+  const kind = axKindOf(R.charge?.kind);
+  const col = kind === 'ki' ? KIND_LOOK.ki.color : R.charge?.color || KIND_LOOK[kind].color;
   actor.act = { kind: 'buff', age: 0, dur: T.chargeAt + 120, color: /^#[0-9a-f]{6}$/i.test(col) ? col : '#ffd66b', boss: !!actor.boss };
   return 0;
 }
@@ -216,7 +218,7 @@ function makeCtx(fx, anim, R, T, actor, pts, element, opts, W, H) {
 
 // battlefx.js の play() から よぶ。ax の anim で なければ false
 // opts: { crit, fromAlly, from: { x, y, w, h, foot }, ability（'id@masc'・'dt_〜' も）, masc, repeat（2回目: ため 半分）, dual（合体技: ため なし）,
-//         n（時間を きめる 的の かず。サーバーと おなじ）, tier・chargeKind（ためしに かえる）, sfx(id)（音を ならす）, actorImg（カットインの かげ） }
+//         n（時間を きめる 的の かず。サーバーと おなじ）, tier・chargeKind（ためしに かえる）, sfx(id)（音を ならす）, actorImg（第49回から つかわない） }
 export function playAxFx(fx, anim, targets, element, opts = {}, W = 256, H = 144) {
   const R = axResolve(anim, opts);
   if (!R) return false;
@@ -243,9 +245,10 @@ export function playAxFx(fx, anim, targets, element, opts = {}, W = 256, H = 144
   withTs(fx, T.ts, () => {
     if (T.charge > 0) {
       const c = R.charge;
-      playCharge(fx, actor, { kind: c.kind, tier: R.tier, ms: T.charge, color: c.color, color2: c.color2, power: c.power, foe: !fromAlly, img: opts.actorImg || null, repeat: !!opts.repeat });
+      playCharge(fx, actor, { kind: c.kind, tier: R.tier, ms: T.charge, color: c.color, color2: c.color2, power: c.power, foe: !fromAlly, n });
       sound(c.sfx || `ax_c_${axKindOf(c.kind)}`, 0);
-      if (R.tier === 'legend' && !opts.repeat) sound('ax_c_legend', T.charge * 0.2);
+      // 伝説の 気だけ ゴゴゴ（構えは みじかいので ならさない）
+      if (R.tier === 'legend' && T.kind === 'ki' && !opts.repeat) sound('ax_c_legend', T.charge * 0.2);
     }
     const release = () => {
       const ctx = makeCtx(fx, anim, R, T, actor, pts, element, opts, W, H);

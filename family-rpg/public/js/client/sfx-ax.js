@@ -45,7 +45,7 @@ export const SFX_AX = {
   ax_c_star: (a, T) => { [1568, 2093, 2637, 3136].forEach((f, i) => T(f, 0.2, { vol: 0.05, delay: i * 0.07, type: 'sine' })); },
   ax_c_generic: (a, T) => { rise(T, 300, 900, 0.4, 0.05, 'triangle'); swell(a, 0.3, 400, 1200, 0.1); },
   // 伝説: ゴゴゴゴ…（地ひびき＋たかまる 音）
-  ax_c_legend: (a, T) => { a.noise(1.0, { vol: 0.4, from: 260, to: 40 }); rise(T, 110, 440, 0.8, 0.08, 'saw', 0.1); rise(T, 220, 880, 0.8, 0.05, 'triangle', 0.2); },
+  ax_c_legend: (a, T) => { a.noise(0.7, { vol: 0.4, from: 260, to: 40 }); rise(T, 110, 440, 0.55, 0.08, 'saw', 0.05); rise(T, 220, 880, 0.55, 0.05, 'triangle', 0.1); },
   // ビーム: ドォォォン（はなつ）
   ax_beam: (a, T) => { a.noise(0.08, { vol: 0.5, type: 'highpass', from: 3000, to: 3000 }); a.noise(0.9, { vol: 0.5, delay: 0.04, from: 2400, to: 80 }); T(140, 0.7, { vol: 0.16, type: 'saw', slide: 60, delay: 0.02 }); },
   // 斬げき: ズバッ

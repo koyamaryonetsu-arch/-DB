@@ -38,7 +38,7 @@ export const AX_TIME_G5 = {
   ax_tuxedo_henshin: A(500, 400, 800, P),
   ax_oshiokiyo: A(450, 320, 850),
   ax_tsuki_no_hikari: A(450, 320, 850),
-  ax_yuujou_kizuna: A(400, 360, 800, P),
+  ax_yuujou_kizuna: A(400, 360, 840, P), // 第49回: 味方 4人の さいごの きらきらが len を すこし こえる ことが あった
   ax_shabon_spray: A(400, 300, 800),
   ax_moon_tiara: A(500, 380, 900),
   ax_rose_boomerang: A(500, 330, 900),

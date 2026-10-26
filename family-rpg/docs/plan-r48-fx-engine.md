@@ -111,8 +111,8 @@ node tools/fx-preview.mjs --charges super --dir enemy
 
 | キー | なかみ |
 |---|---|
-| `tier` | 段階。`basic`（320ms ためる）・`advanced`（560ms）・`super`（860ms。画面が くらく・すこし ゆれる・じめんの いしが うく）・`legend`（1300ms。さらに カットインの 帯・つよい ゆれ・はなつ 直前の スローモーションの ひかり・白い ひかり） |
-| `charge` | `{ kind, ms, color, color2, power, sfx }`。`ms` で ためる 時間を かえる。`power` … つぶの かずの かけざん。`sfx` … ためる 音（ふだんは `ax_c_<kind>`）。書かないと `generic`、`false` で ためない |
+| `tier` | 段階。`basic`・`advanced`・`super`・`legend`。ためる 長さは 下の「ためる きまり（第49回）」（ki だけ 長め、ほかは 300ms まで） |
+| `charge` | `{ kind, ms, color, color2, power, sfx }`。`ms` で ためる 時間を かえる（**上限で きられる**）。`power` … つぶの かずの かけざん。`sfx` … ためる 音（ふだんは `ax_c_<kind>`）。書かないと `generic`、`false` で ためない |
 | `hit` | はなってから あたる まで（ms）。数 か `({ tier, n, all, crit, vars }) => 数` |
 | `len` | はなってから おわる まで（ms。ふだんは hit + 500） |
 | `stagger` | 敵全体の とき 1体ずつ ずらす ms（ふだん 60）。`c.each` の 3ばんめ |
@@ -147,29 +147,51 @@ node tools/fx-preview.mjs --charges super --dir enemy
 
 `fx` は Effects（battlefx.js）。前からの `fx.sparks`・`fx.glow`・`fx.shock`・`fx.puff`・`fx.twinkle`・`fx.petal`・`fx.swirl`・`fx.converge`・`fx.flashAt`・`fx.hitStop`・`fx.tintAt` も そのまま つかえる。
 
+## ためる きまり（第49回。家族の 声で かえた）
+
+家族の 声: 「上の 段の 技で ぜんぶ ためる カットインは いらない。気を ためるのは ドラゴンボールだけ。気は 自分の キャラの まわりに 黄色い オーラ で よい。顔の カットインが すべって くるのは わかりにくい」。
+
+- **なくした もの（どの 技・どの 段でも）**: legend の カットインの 帯（かげ・顔・目の きらり・集中線）、はなつ 直前の スローの ひかり（色の 反転・白い ひかり）、ためる あいだの 画面の くらさ、味方の うしろ すがたの かげ、super 以上の じめんの いし・ゆれ（ki の ほか）。
+  グループの え の 中で ためる かざりに つかって いた `k.cutIn` の 帯（G1 ファイナルかめはめ波・ひみつ道具・マッスル頭の花、G2 らせん手裏剣、G3 れんごく・九頭竜閃、G4 ドルオーラ・メドローア・スーパースターラッシュ）も けした。はなつ ところの ゆれ・爆発・集中線は そのまま。
+- **ki（気）＝ ドラゴンボールだけ**（G1 の ドラゴンボール・はかい神。ドラえもん・はなかっぱは `generic`）: つかった 人の まわりに **黄色い（金の）オーラ** が もえあがる（からだが すけて 見える うすさ）・のぼる 火花・足もとの 気の わ。段で すこし 大きく（advanced < super < legend）、super から 小さな バチバチ、advanced から **すこし ゆれる**（amp 0.25〜0.6）、**legend は 小石が 4つ うく**。技の `charge.color` は 火花の さし色だけ（オーラは いつも 黄色）。味方は まどの いち（`allyPt`）、敵は 魔物の え の まわり。
+- **ほかの 13しゅるい ＝ みじかい 構え**（300ms まで。つかった 人の まわりだけ。画面ぜんたいの もの なし）: それぞれの 作品らしさは のこす（下の 表）。
+- はなつ しゅんかんに その 人の まわりで 小さく はじける 火花（的が 3つ いじょうの ときは なし）。
+
+| 段 | 気（ki）の ため | 構え（ほか）の ため（上限） |
+|---|---|---|
+| basic | 300ms | 200ms（0〜200） |
+| advanced | 450ms | 300ms |
+| super | 650ms | 300ms |
+| legend | 900ms | 300ms |
+
+- 1つの 表: `shared/ax-time.js` の `AX_KI_CHARGE_MS`（気）・`AX_TIER_CHARGE_MS`（構え）。`axChargeMs` が 表の `charge.ms` を **読む ときに 上限で きる**（グループの 表は 書きかえなくて よい。短い ものは そのまま）。
+  サーバー（`axPlan` → `ev.extraLock`）も クライアント（`axTiming`）も この 数なので いっしょに みじかく なる。
+- 2回目は いままで どおり ため 半分。合体技は ため なし。音: `ax_c_<kind>`、`ax_c_legend`（ゴゴゴ。0.7s に みじかく）は **legend の 気だけ**。
+- 予算（`AX_BUDGET`）: `len`（はなって おわる まで）は 前と おなじ、`charge`（構え）・`chargeKi`（気）、`total`・`totalKi` は その たし算。合体技は `AX_DUAL_TOTAL`（1.5〜2.2s）。`axBudget(tier, kind)` で ひける。
+  テスト（`test/ax-check.js`）は ため・len・合計を しらべ、構えの ため が 上限を こえない こと、ki が G2〜G6 に ない ことも 見る。
+
 ## ためかた（charge.kind）
 
-| kind | 見た目 |
+| kind | 見た目（第49回から ki の ほかは 300ms の 構え） |
 |---|---|
-| `ki` | もえあがる オーラ（上が とがって ゆらめく）・のぼる 光の すじ・super から バチバチ（いなずま） |
-| `chakra` | からだの まわりを まわる うず・らせんの つぶ |
-| `gomu` | ぶよぶよ ゆれる わ・湯気・どくん どくん（わ） |
-| `breath` | ひろがって すいこまれる 呼吸の わ・口もとに あつまる 空気 |
-| `sword` | 刀身を はしる ひかり・さきっぽの ほし・きらっと 切れる すじ・風 |
-| `dragon` | ひたいの 竜の紋章・まわる ひかりの すじ・のぼる 光 |
-| `holy` | からだを まわる リボン・ふる きらきら・super から 光の はしら |
+| `ki` | 黄色い もえあがる オーラ（上が とがって ゆらめく）・のぼる 火花・足もとの わ・super から バチバチ・legend は 小石 |
+| `chakra` | からだの まわりを まわる チャクラの うず（ちらちら） |
+| `gomu` | ぶよぶよ ゆれる わ・湯気・どくん（わ 1つ） |
+| `breath` | 呼吸の わ・口もとに あつまる 空気・白い 息 |
+| `sword` | 刀身の きらり（ななめの 光）・みじかい 風 |
+| `dragon` | ひたいの 竜の紋章・のぼる 光・小さな わ |
+| `holy` | からだを まわる リボン・ふる きらきら |
 | `magic` | あしもとの まほうじん（五芒星）・のぼる 文字の つぶ |
-| `alchemy` | 錬成陣（円・三角・四角）・青い いなずま |
-| `idol` | 上から スポットライト・ハート・音ぷ・きらきら |
-| `tech` | まわる カード・けむり（さいごに ボン） |
+| `alchemy` | 錬成陣（円・三角・四角）・小さな 青い いなずま |
+| `idol` | その 人の 上 だけの スポットライト・ハート・音ぷ・きらきら |
+| `tech` | まわる カード・けむり |
 | `ice` | まわる 雪の けっしょう・つめたい もや・ふる 雪 |
-| `star` | うしろで まわる 大きな ほし・きらめき |
+| `star` | うしろで まわる ほし・きらめき |
 | `generic` | どくどく ひかる わ |
 
-どれも あつまる ひかりつき。味方が ためる ときは（advanced から）うしろ すがたの かげが 画面の 下に 出る。
-legend の カットインの かげは、敵なら その 魔物の え、味方なら 人の かたち（charge.color で ひかる）。
+どれも 小さな あつまる ひかりつき。
 
-色は `charge.color`（おもな 色）・`charge.color2`（しんの 色）で かえる（例: ヒノカミ神楽 `{ kind: 'breath', color: '#ff7a1a', color2: '#ffe08a' }`、水の呼吸 `{ kind: 'breath', color: '#3a8cff', color2: '#e0f4ff' }`）。
+色は `charge.color`（おもな 色）・`charge.color2`（しんの 色）で かえる（例: ヒノカミ神楽 `{ kind: 'breath', color: '#ff7a1a', color2: '#ffe08a' }`、水の呼吸 `{ kind: 'breath', color: '#3a8cff', color2: '#e0f4ff' }`）。ki だけは オーラが いつも 黄色。
 
 ## どうぐばこ（axkit.js。`c.k.〜` は fx を はぶいた もの。へんじは あたる 時間 ms）
 
@@ -195,8 +217,8 @@ legend の カットインの かげは、敵なら その 魔物の え、味�
 | `speedLines(x, y, { r1 })` / `streaks({ ang, color, n })` | 集中線 / 画面いっぱいの 平行な すじ |
 | `tint(color, { a, life, fin, fout })` / `dim({ a })` / `flash(color, ms, delay)` / `shake(ms, amp, delay)` | 画面の 色 / くらく / ひかる / ゆれる |
 | `dash(x0, y0, x1, y1, { color, travel, w, img })` | ダッシュの ざんぞう |
-| `cutIn({ color, color2, img, delay, life, y, h, dir })` | カットインの 帯（文字なし） |
-| `glyph(x, y, { r, variant })` / `aura(x, y, { style, r, h })` | まほうじん / オーラ |
+| `cutIn({ color, color2, img, delay, life, y, h, dir })` | カットインの 帯（文字なし）。**第49回から つかわない**（家族が わかりにくいと 言った） |
+| `glyph(x, y, { r, variant })` / `aura(x, y, { style, r, h, alpha })` | まほうじん / オーラ（alpha … うすさ） |
 
 色: `pal('fire' | 'ice' | 'water' | 'wind' | 'blast' | 'bolt' | 'light' | 'dark' | 'void' | 'ki' | 'gold' | 'holy' | 'heal' | 'earth' | 'poison' | 'pink')` → `{ main, glow, core, dark, list }`。
 
@@ -207,8 +229,8 @@ legend の カットインの かげは、敵なら その 魔物の え、味�
 - battle.js: ダメージの 数・味方の HPの 数は `fx.at(hit)`（エフェクトの 時計）。名前の ふだと つぎの 行動の 表示は `axHoldMs`（hit + 350ms）まで まつ。
   ATB の ゲージ・サーバーの ターンは かわらない（おくれが たまったら 前からの 「たまったら とばす」きまりで おいつく）。
 - 敵が ためる ときは その 魔物が ふくらんで ひかる（`axEnemyPose`。enemyfx.js の `buff` の うごき）。
-- legend は ためる だけで 1.3びょう。ふつうの 行動の 時間（およそ 1.2びょう）より 長いので、**legend は 職業の いちばん 上の 技だけ** に する。
-- 音: ためはじめに `ax_c_<kind>`、legend は とちゅうで `ax_c_legend`、はなつ ときに `def.sfx`。あたった 音（`hit`・`crit`・`hurt`）は battle.js が 数と いっしょに ならす。
+- 第49回から ためるのは 気（ki）で 0.3〜0.9びょう、ほかは 0.3びょう まで（上の「ためる きまり」）。**legend は 職業の いちばん 上の 技だけ** は そのまま。
+- 音: ためはじめに `ax_c_<kind>`、legend の 気だけ とちゅうで `ax_c_legend`、はなつ ときに `def.sfx`。あたった 音（`hit`・`crit`・`hurt`）は battle.js が 数と いっしょに ならす。
 
 ## テストで たしかめる こと（グループの テストの 見本）
 
