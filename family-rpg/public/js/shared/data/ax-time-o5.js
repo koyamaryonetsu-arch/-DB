@@ -161,9 +161,7 @@ export const AX_SKILLS_O5 = {
   sc_tetsujin: 'ox_tetsujin_bouchou', sc_ajimi: 'ox_ajimi', sc_honoo: 'ox_honoo_furaipan', sc_osusume: 'ox_honjitsu_osusume',
   sc_fullcourse: 'ox_mitsuboshi_course', sc_kyuukyoku: 'ox_kyuukyoku_hitosara', hi_kimagure_salad: 'ox_kimagure_salad',
   // 合体技
-  // dt_bentou（お弁当とどけに来たよ）→ ox_bentou_todoke は まだ つながない: test/ax-time.test.js（O0 の 共有テスト）が ためしの 表で dt_bentou を つかって いて
-  // 「もう o5 に ある」で こわれる。取りまとめで そのテストの キーを かえたら ここに dt_bentou: 'ox_bentou_todoke' を 足す（え・時間・音は できて いる）
-  dt_jugyo_sankan: 'ox_jugyou_sankan', dt_hataraki: 'ox_hayaku_hataraki', dt_gyouretsu: 'ox_gyouretsu_mise',
+  dt_bentou: 'ox_bentou_todoke', dt_jugyo_sankan: 'ox_jugyou_sankan', dt_hataraki: 'ox_hayaku_hataraki', dt_gyouretsu: 'ox_gyouretsu_mise',
   dt_kyuuri_zushi: 'ox_kyuuri_zushi', dt_okusuri: 'ox_okusuri_techou', dt_jump: 'ox_seeno_jump', dt_oosouji: 'ox_oosouji_daisakusen',
   dt_omatsuri: 'ox_machi_omatsuri', dt_zenin: 'ox_zenin_shuugou', dt_kazoku_kaigi: 'ox_kazoku_kaigi',
 };

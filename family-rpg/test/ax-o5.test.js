@@ -19,12 +19,11 @@ test('第49回 O5: 表と え が そろう', () => {
   for (const v of Object.values(AX_SKILLS_O5)) assert.ok((typeof v === 'string' ? v : v.anim) in AX_TIME_O5);
 });
 
-test('第49回 O5: 6章の 93技（dt_bentou の ほか）を つないだ・1技 1anim', () => {
-  // dt_bentou だけ まだ つながない（test/ax-time.test.js の ためしの 表が つかって いる。ax-time-o5.js の コメント）
-  assert.equal(Object.keys(AX_SKILLS_O5).length, 92);
+test('第49回 O5: 6章の 93技を ぜんぶ つないだ・1技 1anim', () => {
+  assert.equal(Object.keys(AX_SKILLS_O5).length, 93);
   assert.equal(Object.keys(AX_TIME_O5).length, 93);
-  assert.equal(new Set(Object.values(AX_SKILLS_O5)).size, 92);
-  assert.ok(!('dt_bentou' in AX_SKILLS_O5) && 'ox_bentou_todoke' in AX_TIME_O5);
+  assert.equal(new Set(Object.values(AX_SKILLS_O5)).size, 93);
+  assert.ok(AX_SKILLS_O5.dt_bentou === 'ox_bentou_todoke' && 'ox_bentou_todoke' in AX_TIME_O5);
 });
 
 test('第49回 O5: 構えは みじかい（basic 200・ほか 300 まで）・気なし・合体技は ため なし', () => {
