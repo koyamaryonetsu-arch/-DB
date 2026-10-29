@@ -667,7 +667,8 @@ export class BattleScene {
   abilityMenu(ids, page = 'spell', keep = null) {
     const a = this.myActor;
     // look: 技の 名前・説明を 使う 人 むけに（男の子の 美少女戦士など。shared/ability-label.js）
-    const pc = { ...(a.pc || { job: a.job, jobs: this.game.me.jobs }), look: a.look, mon: a.mon };
+    // pow: 今の 魔力（呪文の ダメージの 目安。第50回 N1）
+    const pc = { ...(a.pc || { job: a.job, jobs: this.game.me.jobs }), look: a.look, mon: a.mon, pow: a.pow };
     const silenced = (a.status || []).includes('silence');
     // わかっている 弱点（この 戦いの 敵で、図鑑・この 戦いで ためして わかった 物だけ）
     const foes = this.enemies().filter((e) => e.alive);

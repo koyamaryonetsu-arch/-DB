@@ -2323,6 +2323,8 @@ export function pub(c) {
     abilities: c.side === 'ally' ? c.abilities : undefined,
     weaponCat: c.side === 'ally' ? c.weaponCat : undefined,
     pc: c.side === 'ally' ? c.penChar : undefined,
+    // 今の 魔力・回復魔力（バフも 入れる）。技の せつめいで 今の 魔力での ダメージを 出す（第50回 N1。shared/skill-power.js）
+    pow: c.side === 'ally' ? { mag: Math.round(effMag(c)), heal: Math.round(c.healPow || 0) } : undefined,
     favs: c.side === 'ally' ? c.favs : undefined,
     tactics: c.side === 'ally' ? (c.manualTac ? 'manual' : c.tactics) : undefined,
     tacBy: c.side === 'ally' ? c.tacBy || null : undefined,

@@ -12,6 +12,9 @@ import { mpCost, penaltyFor, comboAllowed } from '../../shared/stats.js';
 import { targetText, itemDetail } from './info.js';
 // 第38回 C: バフ・デバフは 3回行動のあいだ・じわじわ回復の 回数は 技の レベルで（shared/buff-acts.js）
 import { BUFF_ACTS, REGEN_BASE, regenTimes, skillLevel } from '../../shared/buff-acts.js';
+// 第50回 N1: 今の 魔力・回復魔力での 威力の 目安（shared/skill-power.js）
+import { powStats, powMults, partPower, partPowerText } from '../../shared/skill-power.js';
+export { powStats };
 
 const STAT = { atk: '攻撃力', def: '守備力', agi: '素早さ', mag: '魔力', heal: '回復魔力', eva: 'かわしやすさ', dfn: '守備力', hit: '命中' };
 const STATUS = { sleep: 'ねむり', paralyze: 'マヒ', confuse: '混乱', blind: 'まぼろし', silence: '呪文ふうじ', poison: '毒', stop: '動けない' };
@@ -25,7 +28,8 @@ const pct = (x) => `${Math.round(x * 100)}%`;
 const ACTS = `${BUFF_ACTS}回行動のあいだ`;
 
 // 1つの 効果の 威力の 目安（pm: 職業レベル・転職の ペナルティを かけた 威力の 倍率。lv: 技の レベル〈じわじわ回復の 回数〉。道具は 0）
-function partText(e, pm, lv = 0) {
+// st: 今の 魔力・回復魔力（{ mag, heal }。あれば 魔力で 上がる 呪文は 今の 魔力での ダメージ・回復を 出す。第50回 N1）
+function partText(e, pm, lv = 0, st = null) {
   if (!e) return '';
   switch (e.type) {
     case 'phys': {
@@ -34,9 +38,14 @@ function partText(e, pm, lv = 0) {
       const extra = [e.ignoreDef ? `守りを${pct(e.ignoreDef)}むし` : '', e.status ? `${STATUS[e.status.status] || ''}（${pct(e.status.chance ?? 1)}）` : '', e.debuff ? `${STAT[e.debuff.stat] || ''}${num(e.debuff.mult)}倍（${BUFF_ACTS}回行動）` : ''].filter(Boolean).join('・');
       return `ふつうの攻撃の約${num(m)}倍${hits}${extra ? `・${extra}` : ''}`;
     }
-    case 'magic': return `ダメージ約${range(e.base, pm)}${e.stat === 'heal' ? '（回復魔力で上がる）' : (e.thr ?? 20) < 99 ? '（魔力で上がる）' : ''}${e.status ? `・${STATUS[e.status.status] || ''}` : ''}`;
-    case 'heal': return `HPを約${range(e.base, pm)}回復`;
-    case 'regen': return `毎ターンの初めにHPを${range(e.base)}回復・${lv ? regenTimes(lv) : REGEN_BASE}回`;
+    case 'magic':
+      if (st) return `${nowText(e, pm, st)}${e.status ? `・${STATUS[e.status.status] || ''}` : ''}`;
+      return `ダメージ約${range(e.base, pm)}${e.stat === 'heal' ? '（回復魔力で上がる）' : (e.thr ?? 20) < 99 ? '（魔力で上がる）' : ''}${e.status ? `・${STATUS[e.status.status] || ''}` : ''}`;
+    case 'heal': return st && !e.fixed ? `今の回復魔力でHPを約${range(nowRange(e, pm, st))}回復` : `HPを約${range(e.base, pm)}回復`;
+    case 'regen': return st && !e.fixed ? `毎ターンの初めにHPを${range(nowRange(e, pm, st))}回復・${lv ? regenTimes(lv) : REGEN_BASE}回（今の回復魔力で）` : `毎ターンの初めにHPを${range(e.base)}回復・${lv ? regenTimes(lv) : REGEN_BASE}回`;
+    // 推理（弱点の 属性で 攻撃）・ミナデイン（仲間の MPを 集める）
+    case 'deduce':
+    case 'gather': return e.base ? (st ? nowText(e, pm, st) : `ダメージ約${range(e.base, pm)}`) : '';
     case 'mpHeal': return `MPを約${range(e.base)}回復`;
     case 'buff': {
       const st = (e.stats || [e.stat]).map((s) => STAT[s] || s).join('・');
@@ -56,9 +65,34 @@ function partText(e, pm, lv = 0) {
     case 'dispel': return '敵の強化を消す';
     case 'escape': return '戦いからにげる';
     case 'seed': return `${SEED[e.stat] || ''}が${range(e.amount)}上がる（ずっと）`;
-    case 'multi': return (e.parts || []).map((p) => partText(p, pm, lv)).filter(Boolean).join('＋');
+    case 'multi': return (e.parts || []).map((p) => partText(p, pm, lv, st)).filter(Boolean).join('＋');
     default: return '';
   }
+}
+
+// 今の 魔力での ダメージ（「今の魔力でダメージ約120〜150」。相手の 耐性は 考えない）
+function nowText(e, pm, st) {
+  return partPowerText(partPower(e, pm, st));
+}
+function nowRange(e, pm, st) {
+  const p = partPower(e, pm, st);
+  return p ? [p.min, p.max] : e.base;
+}
+
+// リストの 2行めに 出す 威力の みじかい 文（第50回 N1。オートで 使う 技・メニューの「呪文・技」）
+//   物理「威力×1.8」・魔力「今の魔力でダメージ約120〜150」・回復「今の回復魔力で約80〜95回復」・そのほかは 効果の 文
+// st: 今の 魔力（{ mag, heal }。たくさん ならべる ときは 先に powStats で 1回だけ 出して わたす）
+export function skillPowerLine(id, pc, { who = pc, lv = null, st = powStats(pc) } = {}) {
+  const a = abilityFor(id, who);
+  if (!a?.effect) return '';
+  const { pm, base } = powMults(pc, id);
+  const slv = lv || skillLvFor(pc, id);
+  const one = (e) => {
+    if (e?.type === 'multi') return (e.parts || []).map(one).filter(Boolean).join('＋');
+    const p = partPower(e, pm, st, base);
+    return p ? partPowerText(p) : partText(e, pm, slv, st);
+  };
+  return one(a.effect);
 }
 
 // 技の 効果の 目安（メニューの「呪文・技」にも 出す。lv: 技の レベル）
@@ -66,7 +100,7 @@ export function skillEffectText(id, pc, lv = 1, who = pc) {
   const a = abilityFor(id, who);
   if (!a) return '';
   const pen = pc ? penaltyFor(pc, id) : { powMult: 1 };
-  return partText(a.effect, pen.powMult || 1, lv);
+  return partText(a.effect, pen.powMult || 1, lv, powStats(pc));
 }
 
 // 技の レベル（pc.skillUse か、戦いの slv〈Lv2 いじょうの 技〉から）
@@ -89,7 +123,7 @@ export function battleSkillText(id, pc, { touch = false, who = pc, lv = null } =
   lines.push(`【${abilityTypeText(a)}】${cost === null ? '' : `MP${cost}・`}${targetText(a) || '—'}`);
   const role = abilityRole(a);
   const slv = lv || skillLvFor(pc, id);
-  const pw = partText(a.effect, pm, slv);
+  const pw = partText(a.effect, pm, slv, powStats(pc));
   if (pw) lines.push(`${role === 'dmg' ? '威力' : '効果'}：${pw}`);
   const notes = [];
   if (slv > 1) notes.push(`技Lv${slv}`);

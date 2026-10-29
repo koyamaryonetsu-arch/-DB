@@ -248,6 +248,8 @@ export function gameFiles() {
     'public/js/shared/data/skill-ups.js', 'public/js/client/ui/skillinfo.js',
     // 第38回 C: バフ・デバフ・じわじわ回復の 回数と しるし・技の レベル
     'public/js/shared/buff-acts.js', 'public/js/client/battle-buffs.js',
+    // 第50回 N1: 技の 威力の 目安（今の 魔力で）
+    'public/js/shared/skill-power.js',
     // 合体技の 作り直し（2人・3人・4人の 合体技・カットイン）
     'public/js/shared/battle-dual.js', 'public/js/client/battle-dual.js', 'public/js/client/render/dualfx.js',
     // 第35回 C: 職業の タグ（合体技の 組）
