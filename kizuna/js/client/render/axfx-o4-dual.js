@@ -1,7 +1,7 @@
 // 第49回 O4: 合体技（ため なし。顔の カットインの あとに 出る）
 // ・全館リニューアル・なんとかしてよ〜！・一晩で大リフォーム・ひみつ道具とれん金・9回ウラの大逆転・ウーウーカンカンピーポー・はっけよい、のこった！
 // ・時間は shared/data/ax-time-o4.js。ここは 見た目だけ（play の 時間は はなつ しゅんかんが 0）
-import { obj, car, hose, rings, txt, line, bg, pow, boom, blessing, arrows, N, org, ground, rnd } from './axfx-o4-kit.js?v=acb97b73a32c';
+import { obj, car, hose, rings, txt, line, bg, pow, boom, blessing, arrows, N, org, ground, rnd } from './axfx-o4-kit.js?v=99ee8fb62a40';
 
 const PI = Math.PI;
 const COOL = ['#ffffff', '#bfeaff', '#5ac8ff'];

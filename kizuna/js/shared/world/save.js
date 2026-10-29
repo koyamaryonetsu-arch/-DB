@@ -5,19 +5,20 @@
 // ・知らない 項目や 知らない 品物・職業・モンスターは けさずに とっておく（stash）。
 //   あとで その ゲームが 知っている ものに なったら もとに もどす
 // ・品物・職業・モンスター・マップの ID は けさない・なまえを かえない
-import { ITEMS, SLOTS } from '../data/items.js?v=acb97b73a32c';
-import { JOBS } from '../data/jobs.js?v=acb97b73a32c';
-import { MONSTERS } from '../data/monsters.js?v=acb97b73a32c';
-import { migrateJobs, oldComboUnlocks, addItem, fixBodyJob } from '../stats.js?v=acb97b73a32c';
-import { repairTreasureMaps } from '../data/treasure.js?v=acb97b73a32c';
-import { ensureTmClears } from '../data/casino-tier.js?v=acb97b73a32c';
-import { repairSecret } from '../data/secret.js?v=acb97b73a32c';
-import { repairAlchemy } from './alchemy.js?v=acb97b73a32c';
-import { normBank } from './bank.js?v=acb97b73a32c';
-import { cleanWagon } from '../data/wagon.js?v=acb97b73a32c';
-import { cleanLookEquip } from '../look-equip.js?v=acb97b73a32c';
-import { cleanVehicles } from '../data/vehicles.js?v=acb97b73a32c';
-import { repairTrialInfo } from '../data/job-trials.js?v=acb97b73a32c';
+import { ITEMS, SLOTS } from '../data/items.js?v=99ee8fb62a40';
+import { JOBS } from '../data/jobs.js?v=99ee8fb62a40';
+import { MONSTERS } from '../data/monsters.js?v=99ee8fb62a40';
+import { migrateJobs, oldComboUnlocks, addItem, fixBodyJob } from '../stats.js?v=99ee8fb62a40';
+import { repairTreasureMaps } from '../data/treasure.js?v=99ee8fb62a40';
+import { ensureTmClears } from '../data/casino-tier.js?v=99ee8fb62a40';
+import { repairSecret } from '../data/secret.js?v=99ee8fb62a40';
+import { repairAlchemy } from './alchemy.js?v=99ee8fb62a40';
+import { normBank } from './bank.js?v=99ee8fb62a40';
+import { cleanWagon } from '../data/wagon.js?v=99ee8fb62a40';
+import { cleanLookEquip } from '../look-equip.js?v=99ee8fb62a40';
+import { cleanVehicles } from '../data/vehicles.js?v=99ee8fb62a40';
+import { repairTrialInfo } from '../data/job-trials.js?v=99ee8fb62a40';
+import { cleanQuick } from '../data/quick-item.js?v=99ee8fb62a40';
 
 export const SAVE_VERSION = 4;
 
@@ -137,6 +138,8 @@ export function repairChar(c, id) {
   cleanLookEquip(c);
   // 乗り物（第37回。ない ことも ある。新しい 項目なので 版は 上げない。data/vehicles.js）
   if (!c.species) cleanVehicles(c);
+  // 第50回 N3: 大事な物の すぐ使う ボタン（ない ことも ある。新しい 項目なので 版は 上げない。data/quick-item.js）
+  cleanQuick(c);
 
   // 職業（知らない 職業なら 戦士に して、もとの 職業を おぼえておく）
   if (!c.species) {

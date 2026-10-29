@@ -9,6 +9,8 @@ const KEYMAP = {
   KeyM: 'map', KeyC: 'chat', Tab: 'menu', KeyF: 'fly', KeyY: 'y',
   // 第35回: G … ゲームパッドの L と おなじ（大鳥・竜を 呼ぶ／空では 別の地方へ）
   KeyG: 'ride',
+  // 第50回 N3: T … 大事な物の すぐ使う ボタン（時の砂時計 など。ui/quick-item.js）
+  KeyT: 'quick',
 };
 
 export class Input {
@@ -18,6 +20,8 @@ export class Input {
     this.fieldHandler = null;
     this.stick = { x: 0, y: 0, active: false };
     this.pad = { prev: {}, dir: { x: 0, y: 0 }, repeat: {}, run: false };
+    // 第50回 N3: 大事な物の ボタンの 番号（キャラの 設定。game.js が 入れる。-1 … なし。data/quick-item.js の QUICK_PADS）
+    this.quickPad = 6;
     this.runToggle = false; // タッチの「はしる」ボタン（おすたびに ON/OFF）
     this.shift = false;
     this.touch = matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window;
@@ -360,6 +364,8 @@ export class Input {
     if (edge('map', b(8))) this.emit('map');
     // 第35回: L（4）… 大鳥・竜を 呼ぶ／空の 上では 別の地方へ（えらぶ まど）。降りるのは A（sky.js の padButton）
     if (edge('ride', b(4))) this.emit('ride');
+    // 第50回 N3: 大事な物の すぐ使う ボタン（ZL・L3・R3 から えらぶ。メニューの「設定」）
+    if (edge('quick', this.quickPad >= 0 && b(this.quickPad))) this.emit('quick');
     if (this.busy) {
       const dir = Math.abs(x) > Math.abs(y) ? (x > 0.5 ? 'right' : x < -0.5 ? 'left' : null) : (y > 0.5 ? 'down' : y < -0.5 ? 'up' : null);
       if (dir) {

@@ -1,8 +1,8 @@
 // 第49回 O5: 学校の 技（小学生・中学生・高校生 と 学校の 合体技）の え。この ファイルは O5 だけが さわる
 // ランドセル・リコーダー・給食・ドッジボール・部活・合唱・全国大会・文化祭・修学旅行・打ち上げ花火… あたたかくて ちょっと わらえる 学校の 毎日
 // 時間は shared/data/ax-time-o5.js。play の 時間は はなつ しゅんかんが 0
-import { rnd } from './axkit.js?v=acb97b73a32c';
-import { add, obj, text, arrow, UP, line, bg, fly, toss, hands, ground, above, pick, per, solo, partyTop, hitFx, tierShake, allyGlow } from './axfx-o5-kit.js?v=acb97b73a32c';
+import { rnd } from './axkit.js?v=99ee8fb62a40';
+import { add, obj, text, arrow, UP, line, bg, fly, toss, hands, ground, above, pick, per, solo, partyTop, hitFx, tierShake, allyGlow } from './axfx-o5-kit.js?v=99ee8fb62a40';
 
 const CONFETTI = ['#ff5a8a', '#ffe060', '#5ac8ff', '#7ae070', '#ffffff', '#ff9a3a'];
 const NOTE = ['#ffffff', '#ffe060', '#9ad8ff'];

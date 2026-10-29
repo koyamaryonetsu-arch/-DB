@@ -7,12 +7,12 @@
 //   8階: 休み所・イグニアの まぼろし（phantom_ignia → c5_seal2）・ふういんの とびら3 / 12階: モルガナの まぼろし（phantom_morgana → c5_seal3）→ てっぺんへ（A9）
 // ・とびらを 開けるたびに、1階の 光の門が 1つずつ 光る（5階・9階・12階への 近道）
 // 影の城の 魔物・3人の まぼろしの 戦い・宝箱の 品は B8、てっぺん（castle_top）と ノクト（本気）・ソリトゥス・エンディングは A9（plan-ch5.md の 17）
-import { HANONO_POS } from '../maps/kumoi.js?v=acb97b73a32c';
-import { K7 } from '../maps/earth.js?v=acb97b73a32c';
+import { HANONO_POS } from '../maps/kumoi.js?v=99ee8fb62a40';
+import { K7 } from '../maps/earth.js?v=99ee8fb62a40';
 import {
   K8, CF, DOOR1_FLAG, VANE2_FLAG, PAIR, PAIR_FLOORS, STATUE_FLAG, WATER9, BELT10_FLAG, GATES, PHANTOMS, CASTLE_FLOORS, CASTLE_POS, CASTLE_ROAD,
   statueDir, nextStatueDir, waterLevel, nextWaterLevel, castleMapId, castleBgm, gateArrive,
-} from '../maps/castle.js?v=acb97b73a32c';
+} from '../maps/castle.js?v=99ee8fb62a40';
 // ※※ 仮（まとめる 時に 消す）: B8 の 戦いの データが まだ ない ときの 仮の 出現表・まぼろしの 戦い ※※
 
 const S = (who, ...lines) => lines.map((l) => ['say', who, l]);

@@ -1,18 +1,20 @@
 // ゲーム ぜんたいの しんこう
-import { Input } from './input.js?v=acb97b73a32c';
-import { GameAudio } from './audio.js?v=acb97b73a32c';
-import { Field } from './field.js?v=acb97b73a32c';
-import { Hud, STAMPS } from './ui/hud.js?v=acb97b73a32c';
-import { FieldMenu, openWorldMap } from './ui/menu.js?v=acb97b73a32c';
-import { ScriptPlayer, wait } from './ui/script.js?v=acb97b73a32c';
-import { BattleScene } from './battle.js?v=acb97b73a32c';
-import { showTitle, showLogin, showSelect, showCreate, showLoading, saveWhere } from './ui/title.js?v=acb97b73a32c';
-import { showServerDown } from './ui/syncui.js?v=acb97b73a32c';
-import { toast, confirmBox, el } from './ui/dom.js?v=acb97b73a32c';
-import { MAPS } from '../shared/maps/index.js?v=acb97b73a32c';
-import { applyBattlePrefs, applyUiFont } from './prefs.js?v=acb97b73a32c';
-import { SkyClient } from './sky.js?v=acb97b73a32c';
-import { reportError } from './errlog.js?v=acb97b73a32c';
+import { Input } from './input.js?v=99ee8fb62a40';
+import { GameAudio } from './audio.js?v=99ee8fb62a40';
+import { Field } from './field.js?v=99ee8fb62a40';
+import { Hud, STAMPS } from './ui/hud.js?v=99ee8fb62a40';
+import { FieldMenu, openWorldMap } from './ui/menu.js?v=99ee8fb62a40';
+import { ScriptPlayer, wait } from './ui/script.js?v=99ee8fb62a40';
+import { BattleScene } from './battle.js?v=99ee8fb62a40';
+import { showTitle, showLogin, showSelect, showCreate, showLoading, saveWhere } from './ui/title.js?v=99ee8fb62a40';
+import { showServerDown } from './ui/syncui.js?v=99ee8fb62a40';
+import { toast, confirmBox, el } from './ui/dom.js?v=99ee8fb62a40';
+import { MAPS } from '../shared/maps/index.js?v=99ee8fb62a40';
+import { applyBattlePrefs, applyUiFont } from './prefs.js?v=99ee8fb62a40';
+import { SkyClient } from './sky.js?v=99ee8fb62a40';
+// 第50回 N3: 大事な物の すぐ使う ボタン
+import { QuickButton } from './ui/quick-item.js?v=99ee8fb62a40';
+import { reportError } from './errlog.js?v=99ee8fb62a40';
 
 export class Game {
   constructor(net) {
@@ -23,6 +25,8 @@ export class Game {
     this.hud = new Hud(this);
     // 昼・夜の 時計と 大鳥フウラ（sky.js）
     this.sky = new SkyClient(this);
+    // 第50回 N3: 大事な物の すぐ使う ボタン（大鳥・竜の ボタンの 下。ui/quick-item.js）
+    this.quick = new QuickButton(this);
     this.menu = new FieldMenu(this);
     this.script = new ScriptPlayer(this);
     this.state = 'boot';
@@ -190,6 +194,7 @@ export class Game {
       const canMove = !this.busy && !this.menuOpen && !this.input.busy;
       this.watchStuck(dt, canMove);
       this.sky.update(dt);
+      this.quick.update();
       this.field.update(dt, { dir: this.input.dir, canMove, run: this.input.run });
       this.field.render();
       this.hud.update(dt);
@@ -282,6 +287,7 @@ export class Game {
     else if (a === 'chat') this.hud.chatInput();
     else if (a === 'fly') this.sky.toggle();
     else if (a === 'ride') this.sky.padButton();
+    else if (a === 'quick') this.quick.use();
   }
 
   openMenu(section) {
@@ -750,7 +756,7 @@ export class Game {
     if (this.net.mode === 'offline' && !this.saveWarned) {
       this.saveWarned = true;
       const cloud = this.net.local?.cloud;
-      import('./offline.js?v=acb97b73a32c').then(({ offlineStorage }) => {
+      import('./offline.js?v=99ee8fb62a40').then(({ offlineStorage }) => {
         offlineStorage.load();
         if (cloud?.state === 'on') return;
         if (!offlineStorage.ok) toast('このブラウザではセーブができないかもしれません', 5000);

@@ -3,7 +3,7 @@
 //   星空が 見える アーチの まど・星の ランプ。ゆかは 石だたみに 星の 紋
 // ・star_tower_top（deco 'stop'）… 塔の てっぺん: 天の川の かかる 星空・ゆらめく「天のとばり」（光の まく）・
 //   遠くの 雲の 海・両がわの くずれた 柱。ゆかは 星座の 円が きざまれた 石の 台
-import { mix } from './pixel.js?v=acb97b73a32c';
+import { mix } from './pixel.js?v=99ee8fb62a40';
 
 const BW = 256, BH = 144;
 

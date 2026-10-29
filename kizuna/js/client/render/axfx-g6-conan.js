@@ -1,8 +1,8 @@
 // 第48回 G6: 名探偵コナン（少年探てい団・名探てい・黒の組織）・おしり探偵・合体技（月夜のかけひき・ヒッポグリフの空の旅）の 大技の え
 // コナンの 道具: 腕時計型麻酔銃・キック力増強シューズ・蝶ネクタイ型変声機・ターボエンジン付きスケボー・ボール射出ベルト
 // 黒の組織は こわく しすぎない（黒い かげ・紫の ひかり・マンガっぽく）。おしり探偵は 黄色い おならの 雲で 「プゥ〜」
-import { spr, txt, cloud, night, frame, smell, trace, spot, glitter, along, org, gnd, q, EASE } from './axfx-g6-lib.js?v=acb97b73a32c';
-import { rnd, angleOf } from './axkit.js?v=acb97b73a32c';
+import { spr, txt, cloud, night, frame, smell, trace, spot, glitter, along, org, gnd, q, EASE } from './axfx-g6-lib.js?v=99ee8fb62a40';
+import { rnd, angleOf } from './axkit.js?v=99ee8fb62a40';
 
 const PURPLE = '#a050e0', PURPLE2 = '#e0b8ff';
 const dizzy = (c, t, delay, life) => spr(c.fx, 'stars', { x: t.x, y: t.y - 20 * c.sz, delay, life, fin: 60, fout: 140 });

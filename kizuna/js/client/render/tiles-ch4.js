@@ -2,16 +2,16 @@
 // Step 2 の かれた地下水路（石だたみ・切り石の かべ・水路の 底と 水・水門・鉄の こうし・がれきの せき）は render/tiles-canal.js
 // (p, v, f, m) … Painter / ちがい（0〜3。砂嵐だけは ばしょ 0〜15。水路の 中は ばしょと 流れの むき）/ アニメの コマ / となりの ようす（mask。ch4Mask）
 // ひかりは 左上から
-import { T } from '../../shared/tiles.js?v=acb97b73a32c';
-import { Painter, prand, shade } from './pixel.js?v=acb97b73a32c';
-import { CANAL_PAINTERS, CANAL_FRAMES, CANAL_SPEED, CANAL_WALLS, canalMask } from './tiles-canal.js?v=acb97b73a32c';
+import { T } from '../../shared/tiles.js?v=99ee8fb62a40';
+import { Painter, prand, shade } from './pixel.js?v=99ee8fb62a40';
+import { CANAL_PAINTERS, CANAL_FRAMES, CANAL_SPEED, CANAL_WALLS, canalMask } from './tiles-canal.js?v=99ee8fb62a40';
 // 王家のピラミッド（Step 4）の タイルの え は render/tiles-pyramid.js（render/tiles.js が まぜる）。ここでは となりの ようす だけ
-import { pyramidMask } from './tiles-pyramid.js?v=acb97b73a32c';
+import { pyramidMask } from './tiles-pyramid.js?v=99ee8fb62a40';
 // 砂の港ドゥナ・砂の海（Step 6）の 砂の海と 砂の うず（render/tiles-duna.js）
-import { DUNA_PAINTERS, DUNA_FRAMES, DUNA_SPEED, dunaMask } from './tiles-duna.js?v=acb97b73a32c';
+import { DUNA_PAINTERS, DUNA_FRAMES, DUNA_SPEED, dunaMask } from './tiles-duna.js?v=99ee8fb62a40';
 // Step 7: 砂の底の神殿（水の 高さ・鏡の 床・水の ろう・水鏡・ほこら・かべ画・ドームの かべ）と 水が もどった ふん水
-import { TEMPLE_PAINTERS, TEMPLE_FRAMES, TEMPLE_SPEED, templeMask } from './tiles-temple.js?v=acb97b73a32c';
-import { LAB_PAINTERS, LAB_FRAMES, LAB_SPEED, LAB_WALLS, labMask } from './tiles-lab.js?v=acb97b73a32c';
+import { TEMPLE_PAINTERS, TEMPLE_FRAMES, TEMPLE_SPEED, templeMask } from './tiles-temple.js?v=99ee8fb62a40';
+import { LAB_PAINTERS, LAB_FRAMES, LAB_SPEED, LAB_WALLS, labMask } from './tiles-lab.js?v=99ee8fb62a40';
 
 const TAU = Math.PI * 2;
 // 4×4 の ディザ（だんだんの いろを まぜる）

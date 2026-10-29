@@ -12,11 +12,11 @@
 // 進化で かわるのは しゅぞく だけ: レベル・＋・受けついだ 強さ（bonus）・受けついだ 技・種・追いつき・血統・ランクの しるしは そのまま。
 //   名前は、まだ もとの しゅぞくの 名前（ヒトカゲ・はじめの 名前の 一覧）の ときだけ 新しい しゅぞくの 名前に。
 //   新しい すがたで 装備できない 物は ふくろへ。HP・MP は 満タンに。図鑑に のる
-import { MONSTERS } from '../data/monsters.js?v=acb97b73a32c';
-import { ITEMS, SLOTS } from '../data/items.js?v=acb97b73a32c';
-import { MONSTER_FRIENDS, levelEvolveTo, stoneEvolveTo } from '../data/companions.js?v=acb97b73a32c';
-import { addItem, removeItem, canEquipMonster, fullHeal } from '../stats.js?v=acb97b73a32c';
-import { ensureCompanions, partyOf } from './party.js?v=acb97b73a32c';
+import { MONSTERS } from '../data/monsters.js?v=99ee8fb62a40';
+import { ITEMS, SLOTS } from '../data/items.js?v=99ee8fb62a40';
+import { MONSTER_FRIENDS, levelEvolveTo, stoneEvolveTo } from '../data/companions.js?v=99ee8fb62a40';
+import { addItem, removeItem, canEquipMonster, fullHeal } from '../stats.js?v=99ee8fb62a40';
+import { ensureCompanions, partyOf } from './party.js?v=99ee8fb62a40';
 
 // 進化した あとの 名前（もとの しゅぞくの 名前の ままなら 新しい しゅぞくの 名前。自分で つけた 名前は そのまま）
 export function evolvedName(name, from, to) {
