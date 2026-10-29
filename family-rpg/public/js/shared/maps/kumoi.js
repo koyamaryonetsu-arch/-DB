@@ -308,9 +308,9 @@ const KUMOI_CHESTS = [
   { id: 'k5_sink', x: 10, y: 46, gold: 4800 },
   // c5_shard の あと（雲から 出てきた 島・竜で 行く はなれ小島）
   { id: 'k5_rise', x: 40, y: 51, item: 'seed_hp', show: { all: [K5.shard] } },
-  { id: 'k5_far', x: 70, y: 9, item: 'seed_mag' },
+  { id: 'k5_far', x: 70, y: 9, item: 'elf_drink' },
   // 第5章 Step 6・7: 根の島・影の城の 前の 小島（c5_castle の あと）
-  { id: 'k5_root', x: 65, y: 53, item: 'seed_str' },
+  { id: 'k5_root', x: 65, y: 53, item: 'revive_flower', n: 2 },
   { id: 'k5_shade', x: 45, y: 38, item: 'seed_hp', show: { all: [K7.castle] } },
 ];
 // 影の城が うかんだ あとの 空の 色（クモイ地方・ハネノの 町。昼でも 夕方くらいの 色）
@@ -488,7 +488,7 @@ const HN_NPCS = [
 ];
 const HN_CHESTS = [
   { id: 'hn_sorane', x: HH.sorane.x + HH.sorane.w - 3, y: HH.sorane.y + 1, item: 'magic_water', n: 2 },
-  { id: 'hn_lookout', x: 42, y: 9, item: 'seed_def' },
+  { id: 'hn_lookout', x: 42, y: 9, item: 'elf_drink' },
 ];
 const HN_SIGNS = [{ ...HANONO_POS.sign, text: 'ここは雲の上の町ハネノ。\nハネビトの町。\n「風とともに生き、風に感謝せよ」' }];
 const HB = (B, kind, name) => ({ x: B.door + 1, y: B.y + B.h - 1, kind, name });

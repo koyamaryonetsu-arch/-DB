@@ -43,7 +43,7 @@ export const MONSTERS_RARE = {
     name: 'いかずちタイガー', lv: 15, hp: 132, mp: 20, str: 58, def: 33, agi: 46, mag: 24, exp: 90, gold: 54,
     race: 'beast', size: 'l', night: true, hit: 'bite',
     resist: { bolt: 0.2, wind: 0.8, ice: 1.3, paralyze: 0.3 },
-    drops: { common: ['herb', 6], rare: ['seed_agi', 32] },
+    drops: { common: ['herb', 6], rare: ['seed_agi', 96] },
     actions: [{ w: 3, id: 'attack' }, { w: 2, id: 'm_thunder_fang' }, { w: 1, id: 'm_thunder' }, { w: 1, id: 'm_pounce' }],
     desc: 'いなずまのもようの、白く大きな虎。夜の島にあらわれ、雷のような速さで飛びかかる。',
   },

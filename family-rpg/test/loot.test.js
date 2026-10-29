@@ -81,7 +81,9 @@ test('落とす物: ふつうの 魔物は「よく」と「レア」、ボス�
     const common = list.find((d) => d.kind === 'common');
     const rare = list.find((d) => d.kind === 'rare');
     assert.ok(common && rare, `${sp} に よく落とす物と レアが ある`);
-    assert.ok(rare.n >= 32 && rare.n <= 128, `${sp}: レアは 32〜128回に 1回`);
+    // 第50回: 種の レアは 前の 1/3（96〜384回に 1回。test/seeds-r50.test.js）
+    if (ITEMS[rare.item].effect?.type === 'seed') assert.ok(rare.n >= 96 && rare.n <= 384, `${sp}: 種の レアは 96〜384回に 1回`);
+    else assert.ok(rare.n >= 32 && rare.n <= 128, `${sp}: レアは 32〜128回に 1回`);
     assert.ok(common.n <= 32, `${sp}: よく落とす物は 32回に 1回より よく出る`);
     const r = ITEMS[rare.item];
     assert.ok(r.type === 'use' || r.type === 'acc' || SLOTS.includes(r.type), `${sp}: レアは 装備か 種`);

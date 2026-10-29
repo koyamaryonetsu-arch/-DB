@@ -198,12 +198,12 @@ const TREASURE_SPOTS = {
 };
 const EXTRA_CHESTS = {
   1: [{ x: 9, y: 17, item: 'magic_water', n: 2 }, { x: -3, y: 4, item: 'seed_hp' }, { x: 26, y: 15, item: 'earth_root', n: 2 }],
-  2: [{ x: 16, y: 8, item: 'seed_agi' }, { x: 26, y: 2, item: 'seed_str' }, { x: 31, y: 10, item: 'earth_root', n: 2 }],
-  3: [{ x: 25, y: 6, gold: 9600 }, { x: 8, y: 21, item: 'seed_agi' }, { x: 31, y: 5, item: 'magic_water', n: 2 }],
-  4: [{ x: 6, y: 10, item: 'seed_str' }, { x: 21, y: 10, item: 'revive_flower', n: 2 }, { x: 31, y: 16, item: 'seed_def' }, { x: -3, y: 21, item: 'earth_stone', n: 2 }],
+  2: [{ x: 16, y: 8, item: 'elf_drink' }, { x: 26, y: 2, item: 'seed_str' }, { x: 31, y: 10, item: 'earth_root', n: 2 }],
+  3: [{ x: 25, y: 6, gold: 9600 }, { x: 8, y: 21, item: 'revive_flower', n: 2 }, { x: 31, y: 5, item: 'magic_water', n: 2 }],
+  4: [{ x: 6, y: 10, item: 'seed_str' }, { x: 21, y: 10, item: 'revive_flower', n: 2 }, { x: 31, y: 16, item: 'elf_drink' }, { x: -3, y: 21, item: 'earth_stone', n: 2 }],
   5: [{ x: 16, y: 16, item: 'magic_water', n: 3 }, { x: 25, y: 19, item: 'revive_flower', n: 2 }],
-  6: [{ x: 7, y: 7, item: 'seed_def' }, { x: 16, y: 1, item: 'seed_hp' }, { x: 30, y: 15, item: 'earth_stone', n: 2 }],
-  7: [{ x: 13, y: 11, item: 'seed_hp' }, { x: 26, y: 9, gold: 12000 }, { x: 1, y: 1, item: 'earth_root', n: 2 }],
+  6: [{ x: 7, y: 7, item: 'seed_def' }, { x: 16, y: 1, item: 'revive_flower', n: 2 }, { x: 30, y: 15, item: 'earth_stone', n: 2 }],
+  7: [{ x: 13, y: 11, item: 'elf_drink' }, { x: 26, y: 9, gold: 12000 }, { x: 1, y: 1, item: 'earth_root', n: 2 }],
   8: [{ x: 1, y: 14, item: 'magic_water', n: 3 }],
 };
 export function earthChests(n) {

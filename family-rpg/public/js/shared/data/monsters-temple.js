@@ -23,7 +23,7 @@ export const MONSTERS_TEMPLE = {
   water_spirit: {
     name: '水の精', lv: 36, hp: 420, mp: 160, str: 108, def: 80, agi: 66, mag: 130, exp: 370, gold: 170,
     race: 'spirit', size: 'm', flying: true,
-    resist: { bolt: 1.4, fire: 0.5, ice: 0.6, poison: 0, sleep: 0.5, confuse: 0.6, blind: 0.5 }, drops: { common: ['magic_water', 14], rare: ['seed_mag', 48] },
+    resist: { bolt: 1.4, fire: 0.5, ice: 0.6, poison: 0, sleep: 0.5, confuse: 0.6, blind: 0.5 }, drops: { common: ['magic_water', 14], rare: ['seed_mag', 144] },
     actions: [
       { w: 4, id: 'm_spirit_mend', cond: 'allyHurt' }, { w: 3, id: 'm_water_shot' }, { w: 2, id: 'm_water_rain', cond: 'notRecent:m_water_rain' }, { w: 2, id: 'attack' },
     ],
@@ -33,7 +33,7 @@ export const MONSTERS_TEMPLE = {
   water_dragon: {
     name: '水竜', lv: 37, hp: 640, mp: 60, str: 146, def: 96, agi: 50, mag: 90, exp: 430, gold: 190,
     race: 'dragon', size: 'l', hit: 'bite',
-    resist: { bolt: 1.4, fire: 0.5, ice: 0.7, poison: 0.5, sleep: 0.3, confuse: 0.5 }, drops: { common: ['moonherb', 8], rare: ['seed_hp', 48] },
+    resist: { bolt: 1.4, fire: 0.5, ice: 0.7, poison: 0.5, sleep: 0.3, confuse: 0.5 }, drops: { common: ['moonherb', 8], rare: ['seed_hp', 144] },
     actions: [{ w: 3, id: 'attack' }, { w: 3, id: 'm_dragon_bite' }, { w: 2, id: 'm_water_breath', cond: 'notRecent:m_water_breath' }, { w: 1, id: 'm_dragon_tail' }],
     desc: '神殿の水路をおよぐ、青い竜。水のブレスで、敵みんなをおそう。雷がよく効き、炎は効きにくい。',
   },
@@ -42,7 +42,7 @@ export const MONSTERS_TEMPLE = {
   sand_crab: {
     name: '砂ガニ', lv: 37, hp: 520, str: 142, def: 140, agi: 40, mag: 20, exp: 410, gold: 180,
     race: 'beast', size: 'm', hit: 'slash',
-    resist: { bolt: 1.35, ice: 1.2, fire: 0.8, poison: 0.5, sleep: 0.4, confuse: 0.5 }, drops: { common: ['antidote', 5], rare: ['seed_def', 40] },
+    resist: { bolt: 1.35, ice: 1.2, fire: 0.8, poison: 0.5, sleep: 0.4, confuse: 0.5 }, drops: { common: ['antidote', 5], rare: ['seed_def', 120] },
     actions: [
       { w: 4, id: 'attack' }, { w: 2, id: 'm_scissor_combo' }, { w: 1, id: 'm_harden', cond: 'notRecent:m_harden' },
       { w: 1, id: 'm_claw_guard', cond: 'notRecent:m_claw_guard' },
@@ -54,7 +54,7 @@ export const MONSTERS_TEMPLE = {
   mirror_knight: {
     name: '鏡の騎士', lv: 36, hp: 560, mp: 40, str: 144, def: 158, agi: 46, mag: 60, exp: 410, gold: 190,
     race: 'material', size: 'm', hit: 'slash',
-    resist: { bolt: 1.3, blast: 1.25, light: 0.8, poison: 0, sleep: 0.2, confuse: 0.4, blind: 0.5 }, drops: { common: ['silver_shard', 10], rare: ['seed_def', 40] },
+    resist: { bolt: 1.3, blast: 1.25, light: 0.8, poison: 0, sleep: 0.2, confuse: 0.4, blind: 0.5 }, drops: { common: ['silver_shard', 10], rare: ['seed_def', 120] },
     actions: [{ w: 4, id: 'attack' }, { w: 2, id: 'm_mirror_blade' }, { w: 3, id: 'm_knight_glow', cond: ['notRecent:m_knight_glow', 't:noReflect'] }],
     desc: '鏡の間を守る、鏡のよろいの騎士。守りがとてもかたい。体がまぶしく光ったら、次の番まで呪文をはね返す。光っている時は、武器で戦おう。',
   },
@@ -62,7 +62,7 @@ export const MONSTERS_TEMPLE = {
   trick_mirror: {
     name: 'まどわしの鏡', lv: 37, hp: 380, mp: 120, str: 100, def: 92, agi: 70, mag: 124, exp: 390, gold: 230,
     race: 'material', size: 's', flying: true,
-    resist: { blast: 1.3, bolt: 1.2, light: 0.3, dark: 1.2, poison: 0, sleep: 0.3, confuse: 0, blind: 0 }, drops: { common: ['magic_water', 16], rare: ['seed_agi', 48] },
+    resist: { blast: 1.3, bolt: 1.2, light: 0.3, dark: 1.2, poison: 0, sleep: 0.3, confuse: 0, blind: 0 }, drops: { common: ['magic_water', 16], rare: ['seed_agi', 144] },
     actions: [
       { w: 3, id: 'm_mirror_beam' }, { w: 2, id: 'm_trick_light', cond: 'notRecent:m_trick_light' }, { w: 2, id: 'attack' },
       { w: 2, id: 'm_mirror_glow', cond: ['notRecent:m_mirror_glow', 't:noReflect'] },
@@ -73,7 +73,7 @@ export const MONSTERS_TEMPLE = {
   prison_guard: {
     name: '水のろうの番人', lv: 38, hp: 1500, mp: 120, str: 150, def: 112, agi: 48, mag: 112, exp: 1400, gold: 600,
     race: 'demon', size: 'm', hit: 'slash',
-    resist: { bolt: 1.4, fire: 0.5, ice: 0.7, poison: 0.2, sleep: 0.2, confuse: 0.3, blind: 0.5 }, drops: { common: ['magic_water', 6], rare: ['seed_str', 32] },
+    resist: { bolt: 1.4, fire: 0.5, ice: 0.7, poison: 0.2, sleep: 0.2, confuse: 0.3, blind: 0.5 }, drops: { common: ['magic_water', 6], rare: ['seed_str', 96] },
     actions: [
       { w: 3, id: 'attack' }, { w: 2, id: 'm_guard_spear' }, { w: 2, id: 'm_guard_whirl', cond: 'notRecent:m_guard_whirl' },
       { w: 1, id: 'm_guard_chain', cond: 'notRecent:m_guard_chain' }, { w: 1, id: 'm_guard_wall', cond: 'notRecent:m_guard_wall' },
@@ -85,7 +85,7 @@ export const MONSTERS_TEMPLE = {
   // 強さ・技・見た目は うつした 人から。ここの exp・gold は 1体ぶんの きまった 値
   utsushimi: {
     name: '鏡のうつし身', lv: 38, hp: 400, str: 120, def: 90, agi: 50, mag: 60, exp: 1500, gold: 450,
-    race: 'human', size: 'm', hit: 'slash', resist: {}, drops: { common: ['magic_water', 8], rare: ['seed_hp', 48] },
+    race: 'human', size: 'm', hit: 'slash', resist: {}, drops: { common: ['magic_water', 8], rare: ['seed_hp', 144] },
     actions: [{ w: 1, id: 'attack' }],
     desc: '鏡の間の大きな鏡から出てくる、パーティーとそっくりのすがた。同じ職業・同じ技で戦う。自分たちの強さを、反対の立場から知る相手。',
   },

@@ -29,7 +29,7 @@ export const MONSTERS_PHANTOM = {
   gale_crow: {
     name: 'あらしガラス', lv: 52, hp: 1180, mp: 120, str: 188, def: 138, agi: 150, mag: 190, exp: 1260, gold: 560,
     race: 'beast', size: 'm', flying: true, hit: 'claw', region: 6,
-    resist: { bolt: 1.35, wind: 0.3, ice: 1.1, dark: 0.8, poison: 0.6, sleep: 0.6, confuse: 0.6 }, drops: { common: ['jou_herb', 10], rare: ['seed_agi', 36] },
+    resist: { bolt: 1.35, wind: 0.3, ice: 1.1, dark: 0.8, poison: 0.6, sleep: 0.6, confuse: 0.6 }, drops: { common: ['jou_herb', 10], rare: ['seed_agi', 108] },
     actions: [{ w: 3, id: 'attack' }, { w: 3, id: 'm_gc_wing', cond: 'notRecent:m_gc_wing' }, { w: 2, id: 'm_gc_dive' }, { w: 2, id: 'm_gc_feather' }],
     desc: '黒い雲をまとった、大きなカラス。風のつばさで、みんなをあおぐ。かみなりの羽にさされると、体がしびれる。雷がよく効く。',
   },
@@ -37,7 +37,7 @@ export const MONSTERS_PHANTOM = {
   mill_keeper: {
     name: '風車の番人', lv: 52, hp: 1560, mp: 80, str: 206, def: 196, agi: 62, mag: 150, exp: 1320, gold: 600,
     race: 'material', size: 'l', hit: 'bash', region: 6,
-    resist: { fire: 1.3, wind: 0.4, bolt: 0.9, dark: 0.7, poison: 0, sleep: 0.3, confuse: 0.3 }, drops: { common: ['magic_water', 12], rare: ['seed_def', 36] },
+    resist: { fire: 1.3, wind: 0.4, bolt: 0.9, dark: 0.7, poison: 0, sleep: 0.3, confuse: 0.3 }, drops: { common: ['magic_water', 12], rare: ['seed_def', 108] },
     actions: [{ w: 3, id: 'attack' }, { w: 3, id: 'm_mk_blade', cond: 'notRecent:m_mk_blade' }, { w: 2, id: 'm_mk_gust', cond: 'notRecent:m_mk_gust' }, { w: 1, id: 'm_mk_brace', cond: 'notRecent:m_mk_brace' }],
     desc: '影の城の風車を守る、石と木の番人。風車のはねのようなうでを、ぐるぐる回してなぎはらう。炎がよく効く。',
   },
@@ -45,7 +45,7 @@ export const MONSTERS_PHANTOM = {
   wind_weasel: {
     name: 'かまいたち', lv: 52, hp: 980, mp: 90, str: 196, def: 120, agi: 196, mag: 130, exp: 1180, gold: 520,
     race: 'beast', size: 's', hit: 'claw', region: 6,
-    resist: { wind: 0.2, fire: 1.3, ice: 1.1, poison: 0.7, sleep: 0.7, confuse: 0.6 }, drops: { common: ['herb', 4], rare: ['seed_str', 36] },
+    resist: { wind: 0.2, fire: 1.3, ice: 1.1, poison: 0.7, sleep: 0.7, confuse: 0.6 }, drops: { common: ['herb', 4], rare: ['seed_str', 108] },
     actions: [{ w: 3, id: 'attack' }, { w: 3, id: 'm_ww_cut' }, { w: 1, id: 'm_ww_dance', cond: 'notRecent:m_ww_dance' }],
     desc: 'つむじ風にのって走る、小さなけもの。見えない風のやいばで、何回も切りつけてくる。とても素早い。炎がよく効く。',
   },
@@ -55,7 +55,7 @@ export const MONSTERS_PHANTOM = {
   ember_wolf: {
     name: '火の粉オオカミ', lv: 53, hp: 1380, mp: 90, str: 222, def: 150, agi: 120, mag: 160, exp: 1340, gold: 600,
     race: 'beast', size: 'm', hit: 'bite', region: 6,
-    resist: { fire: 0.1, ice: 1.4, wind: 1.1, poison: 0.6, sleep: 0.6, confuse: 0.6 }, drops: { common: ['jou_herb', 10], rare: ['seed_str', 36] },
+    resist: { fire: 0.1, ice: 1.4, wind: 1.1, poison: 0.6, sleep: 0.6, confuse: 0.6 }, drops: { common: ['jou_herb', 10], rare: ['seed_str', 108] },
     actions: [{ w: 3, id: 'attack' }, { w: 3, id: 'm_ew_breath', cond: 'notRecent:m_ew_breath' }, { w: 2, id: 'm_ew_fang' }, { w: 1, id: 'm_ew_howl', cond: 'notRecent:m_ew_howl' }],
     desc: 'もえる毛なみのオオカミ。火の粉のいきをはき、もえるキバでかみつく。氷がよく効く。',
   },
@@ -63,7 +63,7 @@ export const MONSTERS_PHANTOM = {
   candle_ghost: {
     name: 'ろうそくおばけ', lv: 53, hp: 1120, mp: 160, str: 170, def: 128, agi: 96, mag: 214, exp: 1300, gold: 640,
     race: 'undead', size: 's', flying: true, region: 6,
-    resist: { fire: 0, ice: 1.3, light: 1.3, dark: 0.3, poison: 0, sleep: 0.4, confuse: 0.4 }, drops: { common: ['magic_water', 10], rare: ['seed_mag', 36] },
+    resist: { fire: 0, ice: 1.3, light: 1.3, dark: 0.3, poison: 0, sleep: 0.4, confuse: 0.4 }, drops: { common: ['magic_water', 10], rare: ['seed_mag', 108] },
     actions: [{ w: 3, id: 'm_cg_flame' }, { w: 2, id: 'm_cg_wax', cond: 'notRecent:m_cg_wax' }, { w: 2, id: 'm_cg_sway', cond: 'notRecent:m_cg_sway' }, { w: 1, id: 'attack' }],
     desc: '影の城のろうそくの火にやどった、小さなおばけ。とけたろうをたらして、足をとめてくる。氷と光がよく効く。',
   },
@@ -71,7 +71,7 @@ export const MONSTERS_PHANTOM = {
   blackflame_knight: {
     name: '黒ほのおの騎士', lv: 53, hp: 1620, mp: 100, str: 232, def: 204, agi: 70, mag: 170, exp: 1400, gold: 660,
     race: 'demon', size: 'l', hit: 'slash', region: 6,
-    resist: { fire: 0.2, ice: 1.3, dark: 0.5, light: 1.1, poison: 0.3, sleep: 0.3, confuse: 0.3 }, drops: { common: ['jou_herb', 10], rare: ['seed_def', 36] },
+    resist: { fire: 0.2, ice: 1.3, dark: 0.5, light: 1.1, poison: 0.3, sleep: 0.3, confuse: 0.3 }, drops: { common: ['jou_herb', 10], rare: ['seed_def', 108] },
     actions: [{ w: 3, id: 'attack' }, { w: 3, id: 'm_bk_slash' }, { w: 2, id: 'm_bk_wall', cond: 'notRecent:m_bk_wall' }],
     desc: '黒い炎をまとった、よろいの騎士。黒い炎の剣で切りかかり、炎のかべでみんなをつつむ。氷がよく効く。',
   },
@@ -81,7 +81,7 @@ export const MONSTERS_PHANTOM = {
   mirror_jelly: {
     name: '鏡くらげ', lv: 54, hp: 1240, mp: 160, str: 186, def: 150, agi: 90, mag: 210, exp: 1360, gold: 640,
     race: 'slime', size: 'm', flying: true, region: 6,
-    resist: { bolt: 1.4, ice: 0.6, fire: 0.6, light: 0.6, poison: 0, sleep: 0.4, confuse: 0.3 }, drops: { common: ['magic_water', 12], rare: ['seed_mag', 36] },
+    resist: { bolt: 1.4, ice: 0.6, fire: 0.6, light: 0.6, poison: 0, sleep: 0.4, confuse: 0.3 }, drops: { common: ['magic_water', 12], rare: ['seed_mag', 108] },
     actions: [{ w: 3, id: 'm_mj_sting' }, { w: 2, id: 'm_mj_bubble', cond: 'notRecent:m_mj_bubble' }, { w: 2, id: 'attack' }, { w: 2, id: 'm_mj_glow', cond: ['notRecent:m_mj_glow', 't:noReflect'] }],
     desc: '鏡のように光る、すきとおったくらげ。体が光ったら、次の番まで呪文をはね返す。しびれる手にも気をつけよう。雷がよく効く。',
   },
@@ -89,7 +89,7 @@ export const MONSTERS_PHANTOM = {
   shade_serpent: {
     name: '水かげの大へび', lv: 54, hp: 1680, mp: 90, str: 236, def: 176, agi: 92, mag: 160, exp: 1440, gold: 680,
     race: 'dragon', size: 'l', hit: 'bite', region: 6,
-    resist: { bolt: 1.3, ice: 0.5, fire: 0.6, poison: 0.3, sleep: 0.5, confuse: 0.5 }, drops: { common: ['jou_herb', 10], rare: ['seed_hp', 40] },
+    resist: { bolt: 1.3, ice: 0.5, fire: 0.6, poison: 0.3, sleep: 0.5, confuse: 0.5 }, drops: { common: ['jou_herb', 10], rare: ['seed_hp', 120] },
     actions: [{ w: 3, id: 'attack' }, { w: 3, id: 'm_ss_bite' }, { w: 2, id: 'm_ss_coil', cond: 'notRecent:m_ss_coil' }, { w: 2, id: 'm_ss_tide', cond: 'notRecent:m_ss_tide' }],
     desc: '水の階の水路にひそむ、大きなへび。かみつき、しめつけて、うずしおをおこす。雷がよく効く。',
   },
@@ -97,7 +97,7 @@ export const MONSTERS_PHANTOM = {
   foam_siren: {
     name: 'あわの歌姫', lv: 54, hp: 1060, mp: 200, str: 160, def: 130, agi: 110, mag: 220, exp: 1380, gold: 700,
     race: 'spirit', size: 'm', region: 6,
-    resist: { bolt: 1.3, ice: 0.5, fire: 0.7, dark: 0.8, poison: 0, sleep: 0, confuse: 0.4 }, drops: { common: ['magic_water', 12], rare: ['seed_mag', 36] },
+    resist: { bolt: 1.3, ice: 0.5, fire: 0.7, dark: 0.8, poison: 0, sleep: 0, confuse: 0.4 }, drops: { common: ['magic_water', 12], rare: ['seed_mag', 108] },
     actions: [{ w: 3, id: 'm_fsi_shot' }, { w: 2, id: 'm_fsi_lull', cond: 'notRecent:m_fsi_lull' }, { w: 2, id: 'm_fsi_mend', cond: ['allyHurt', 'notRecent:m_fsi_mend'] }, { w: 1, id: 'attack' }],
     desc: '水のあわから生まれた、すきとおった歌姫。ねむりの歌で敵をねむらせ、いやしの歌で仲間を回復する。雷がよく効く。',
   },
@@ -106,7 +106,7 @@ export const MONSTERS_PHANTOM = {
   // castle.wall … 風のかべ（cut … 物理の ダメージの ばい・back … はね返す ダメージ〈当てた 人の さいだいHPの わりあい〉・acts … ストルムが 何回 動くまで）
   [PHANTOM_STORM]: {
     name: 'ストルムのまぼろし', lv: 52, hp: 24200, mp: 3000, str: 617, def: 176, agi: 100, mag: 400, exp: 20000, gold: 7000,
-    race: 'demon', size: 'xl', boss: true, turns: 2, speed: 0.68, hit: 'slash', phantom: true, drops: { boss: ['ph_storm_bangle'], rare: ['seed_agi', 3] },
+    race: 'demon', size: 'xl', boss: true, turns: 2, speed: 0.68, hit: 'slash', phantom: true, drops: { boss: ['ph_storm_bangle'], rare: ['seed_agi', 9] },
     resist: { ...BOSS_STATUS, sleep: 0, confuse: 0, paralyze: 0, wind: 0.3, bolt: 0.6, light: 1.3, dark: 0.6 },
     castle: { kind: 'storm', wall: { cut: 0.2, back: 0.15, acts: 3 } },
     // たおれると 嵐の兵の まぼろしも 消える
@@ -132,7 +132,7 @@ export const MONSTERS_PHANTOM = {
   // castle.fuel … 大炎の とき すいこむ かげ火 1体ごとに 大炎が この ぶん 強く なる（per）。call … 1回に よぶ かげ火の 数・max … いっしょに いる 数
   [PHANTOM_IGNIA]: {
     name: 'イグニアのまぼろし', lv: 53, hp: 22500, mp: 3000, str: 624, def: 170, agi: 104, mag: 504, exp: 21000, gold: 7400,
-    race: 'demon', size: 'xl', boss: true, turns: 2, speed: 0.68, phantom: true, drops: { boss: ['ph_ignia_earring'], rare: ['seed_mag', 3] },
+    race: 'demon', size: 'xl', boss: true, turns: 2, speed: 0.68, phantom: true, drops: { boss: ['ph_ignia_earring'], rare: ['seed_mag', 9] },
     resist: { ...BOSS_STATUS, sleep: 0, confuse: 0, fire: 0, ice: 1.25, light: 1.2, dark: 0.5 },
     castle: { kind: 'ignia', fuel: { per: 0.8 }, call: 2, max: 4 },
     minionsFall: [PHANTOM_FLAME], fallMsg: 'かげ火のまぼろしも、ふっと消えていった…！',
@@ -155,7 +155,7 @@ export const MONSTERS_PHANTOM = {
   // castle.tide … 水かさ（max … いっぱい・down … 水の衣を 雷で はじいた ときに 下がる ぶん）
   [PHANTOM_MORGANA]: {
     name: 'モルガナのまぼろし', lv: 54, hp: 23400, mp: 3000, str: 648, def: 176, agi: 100, mag: 504, exp: 22000, gold: 7800,
-    race: 'demon', size: 'l', boss: true, turns: 2, speed: 0.8, hit: 'slash', phantom: true, drops: { boss: ['ph_morgana_pendant'], rare: ['seed_hp', 3] },
+    race: 'demon', size: 'l', boss: true, turns: 2, speed: 0.8, hit: 'slash', phantom: true, drops: { boss: ['ph_morgana_pendant'], rare: ['seed_hp', 9] },
     resist: { ...BOSS_STATUS, sleep: 0, confuse: 0, bolt: 1.2, fire: 0.6, ice: 0.6, dark: 0.6 },
     // まぼろしの 分身（battle-ch4.js の mirage。分身に 当てると 本物の キズが いえる）。月の鏡の 光が もどるのは 本物が 10回 動いてから・
     // まぶしいのは 1回だけ（第4章の モルガナより 強い）

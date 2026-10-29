@@ -21,7 +21,7 @@ export const MONSTERS_CH5 = {
   stone_gargoyle: {
     name: '石のガーゴイル', lv: 40, hp: 560, mp: 30, str: 150, def: 150, agi: 52, mag: 60, exp: 480, gold: 210,
     race: 'demon', size: 'm', flying: true, hit: 'slash',
-    resist: { blast: 1.3, bolt: 1.2, fire: 0.6, ice: 0.7, poison: 0, sleep: 0.3, confuse: 0.4, blind: 0.5 }, drops: { common: ['moonherb', 8], rare: ['seed_def', 40] },
+    resist: { blast: 1.3, bolt: 1.2, fire: 0.6, ice: 0.7, poison: 0, sleep: 0.3, confuse: 0.4, blind: 0.5 }, drops: { common: ['moonherb', 8], rare: ['seed_def', 120] },
     actions: [{ w: 4, id: 'attack' }, { w: 3, id: 'm_garg_dive' }, { w: 1, id: 'm_stone_skin', cond: 'notRecent:m_stone_skin' }],
     desc: '星の塔のかべにとまっている、石のガーゴイル。人が通ると動き出す。石の体になると守りがとてもかたくなるので、呪文で戦おう。爆発がよく効く。',
   },
@@ -29,7 +29,7 @@ export const MONSTERS_CH5 = {
   clockwork_guard: {
     name: 'からくりの守り手', lv: 41, hp: 640, mp: 20, str: 152, def: 160, agi: 44, mag: 40, exp: 520, gold: 240,
     race: 'material', size: 'm', hit: 'slash',
-    resist: { bolt: 1.4, blast: 1.2, ice: 0.8, poison: 0, sleep: 0, confuse: 0.3, blind: 0.5 }, drops: { common: ['magic_water', 14], rare: ['seed_str', 40] },
+    resist: { bolt: 1.4, blast: 1.2, ice: 0.8, poison: 0, sleep: 0, confuse: 0.3, blind: 0.5 }, drops: { common: ['magic_water', 14], rare: ['seed_str', 120] },
     actions: [
       { w: 3, id: 'attack' }, { w: 3, id: 'm_gear_cutter' }, { w: 1, id: 'm_clock_stance', cond: 'notRecent:m_clock_stance' },
       { w: 1, id: 'm_clock_wind', cond: 'notRecent:m_clock_wind' },
@@ -40,7 +40,7 @@ export const MONSTERS_CH5 = {
   tower_wind: {
     name: '塔のつむじ風', lv: 40, hp: 400, mp: 120, str: 110, def: 84, agi: 78, mag: 128, exp: 440, gold: 200,
     race: 'spirit', size: 's', flying: true,
-    resist: { wind: 0.2, ice: 1.3, fire: 0.8, poison: 0, sleep: 0.4, confuse: 0.6 }, drops: { common: ['herb', 5], rare: ['seed_agi', 40] },
+    resist: { wind: 0.2, ice: 1.3, fire: 0.8, poison: 0, sleep: 0.4, confuse: 0.6 }, drops: { common: ['herb', 5], rare: ['seed_agi', 120] },
     actions: [{ w: 3, id: 'm_tower_gust', cond: 'notRecent:m_tower_gust' }, { w: 3, id: 'm_wind_cut' }, { w: 2, id: 'attack' }, { w: 1, id: 'piorimu', cond: 'notRecent:piorimu' }],
     desc: '星の塔のかいだんを、下から上へふきあがるつむじ風。風のやいばをとばしてくる。氷がよく効く。',
   },
@@ -50,7 +50,7 @@ export const MONSTERS_CH5 = {
   star_jelly: {
     name: '星くらげ', lv: 42, hp: 480, mp: 160, str: 100, def: 96, agi: 60, mag: 140, exp: 520, gold: 230,
     race: 'spirit', size: 'm', flying: true,
-    resist: { light: 0.5, bolt: 1.3, dark: 1.2, poison: 0.3, sleep: 0.4, confuse: 0.5 }, drops: { common: ['magic_water', 10], rare: ['seed_mag', 44] },
+    resist: { light: 0.5, bolt: 1.3, dark: 1.2, poison: 0.3, sleep: 0.4, confuse: 0.5 }, drops: { common: ['magic_water', 10], rare: ['seed_mag', 132] },
     actions: [
       { w: 4, id: 'm_jelly_heal', cond: 'allyHurt' }, { w: 3, id: 'm_star_dust', cond: 'notRecent:m_star_dust' }, { w: 2, id: 'm_jelly_sting' }, { w: 2, id: 'attack' },
     ],
@@ -60,7 +60,7 @@ export const MONSTERS_CH5 = {
   comet_bird: {
     name: 'ほうき星の鳥', lv: 42, hp: 600, mp: 40, str: 160, def: 100, agi: 80, mag: 90, exp: 540, gold: 240,
     race: 'beast', size: 'm', flying: true, hit: 'bite',
-    resist: { fire: 0.5, wind: 0.7, ice: 1.3, bolt: 1.2, sleep: 0.4, confuse: 0.5 }, drops: { common: ['moonherb', 8], rare: ['seed_agi', 44] },
+    resist: { fire: 0.5, wind: 0.7, ice: 1.3, bolt: 1.2, sleep: 0.4, confuse: 0.5 }, drops: { common: ['moonherb', 8], rare: ['seed_agi', 132] },
     actions: [{ w: 3, id: 'attack' }, { w: 3, id: 'm_comet_dive' }, { w: 2, id: 'm_double_peck' }, { w: 1, id: 'm_comet_tail', cond: 'notRecent:m_comet_tail' }],
     desc: '星のしっぽを引いて夜空をとぶ鳥。もえながらつっこんでくる。氷がよく効き、炎は効きにくい。',
   },
@@ -68,7 +68,7 @@ export const MONSTERS_CH5 = {
   gazer_eye: {
     name: '星見の目玉', lv: 43, hp: 520, mp: 140, str: 120, def: 104, agi: 64, mag: 136, exp: 560, gold: 260,
     race: 'demon', size: 's', flying: true,
-    resist: { light: 0.5, dark: 1.3, blast: 1.2, poison: 0.4, sleep: 0.5, confuse: 0.5, blind: 0 }, drops: { common: ['star_shard', 24], rare: ['seed_mag', 48] },
+    resist: { light: 0.5, dark: 1.3, blast: 1.2, poison: 0.4, sleep: 0.5, confuse: 0.5, blind: 0 }, drops: { common: ['star_shard', 24], rare: ['seed_mag', 144] },
     actions: [{ w: 3, id: 'm_eye_beam' }, { w: 2, id: 'm_glare', cond: 'notRecent:m_glare' }, { w: 1, id: 'm_eye_seal', cond: 'notRecent:m_eye_seal' }, { w: 2, id: 'attack' }],
     desc: '星の番人アルゴスの目からこぼれた、と言われる目玉の魔物。目から光線を出し、呪文を見やぶってふうじる。闇がよく効く。',
   },

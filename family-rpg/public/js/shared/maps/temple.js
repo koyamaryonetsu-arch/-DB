@@ -220,7 +220,7 @@ function b2() {
       npc('temple_spring', 'いやしの泉', [P.spring.x, P.spring.y], 'spring', 'c4_t_spring', { solid: true }),
     ],
     chests: [
-      { id: 'tb2_w', x: 3, y: 18, item: 'seed_def' },
+      { id: 'tb2_w', x: 3, y: 18, item: 'elf_drink' },
       { id: 'tb2_e', x: 25, y: 7, item: 'revive_flower' },
       { id: 'tb2_spring', x: 20, y: 3, gold: 3600 },
     ],

@@ -139,11 +139,22 @@ export function rollDrops(species, rng, where = null) {
   return out;
 }
 
+// 第50回: 種・木の実（強さを ずっと 上げる 道具）か
+export function isStatSeed(id) {
+  const e = ITEMS[id]?.effect;
+  return !!e && (e.type === 'seed' || (Array.isArray(e.parts) && e.parts.some((p) => p.type === 'seed')));
+}
+// 第50回: 種・木の実は ぬすみにくい（1回で この 確率まで。ほかの 物が とれない ときの かわりにも ならない）
+export const STEAL_SEED_MAX = 1 / 3;
+
 // ぬすむ ときに とれる 物（ボスの 品は とれない）
 export function stealPick(species, rng) {
   const list = monsterDrops(species);
   const rare = list.find((x) => x.kind === 'rare');
   const common = list.find((x) => x.kind === 'common');
-  if (rare && rng.chance(Math.min(0.5, rare.rate * STEAL_RARE_MULT))) return rare.item;
-  return common?.item || rare?.item || null;
+  const p = (x, cap) => Math.min(isStatSeed(x.item) ? STEAL_SEED_MAX : cap, x.rate * STEAL_RARE_MULT);
+  if (rare && rng.chance(p(rare, 0.5))) return rare.item;
+  if (common && isStatSeed(common.item)) return rng.chance(p(common, 1)) ? common.item : null;
+  if (common) return common.item;
+  return rare && !isStatSeed(rare.item) ? rare.item : null;
 }

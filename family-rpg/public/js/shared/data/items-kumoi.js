@@ -135,7 +135,8 @@ export const RUIN_TREASURE = {
 export const KUMOI_RECIPES = [
   { id: 'r_kumo_hagoromo', tier: 5, out: 'kumo_hagoromo', ins: ['little_prince_cape', 'cloud_cotton', 'cloud_cotton'] },
   { id: 'r_gaia_god', tier: 5, out: 'gaia_god_mail', ins: ['mukade_mail', 'land_shard', 'land_shard'] },
-  { id: 'r_life_seed', tier: 5, out: 'seed_hp', ins: ['land_shard', 'land_shard', 'cloud_cotton'] },
+  // 第50回: 種（強さを 上げる 道具）は れん金で 作れない。おぼえた レシピの ID は そのまま、できる 物を かえた
+  { id: 'r_life_seed', tier: 5, out: 'elf_drink', ins: ['land_shard', 'land_shard', 'cloud_cotton'] },
 ];
 
 // 読みがな（あいうえお順の ならびかえ）

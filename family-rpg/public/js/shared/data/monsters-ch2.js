@@ -5,13 +5,13 @@ export const MONSTERS_CH2 = {
   // ── 海 ──
   marine_slime: {
     name: 'マリンぷるりん', lv: 11, hp: 62, mp: 24, str: 34, def: 26, agi: 18, mag: 26, exp: 34, gold: 22,
-    race: 'slime', size: 's', resist: { ice: 0.5, bolt: 1.4 }, drops: { common: ['herb', 5], rare: ['seed_def', 96] },
+    race: 'slime', size: 's', resist: { ice: 0.5, bolt: 1.4 }, drops: { common: ['herb', 5], rare: ['seed_def', 288] },
     actions: [{ w: 4, id: 'attack' }, { w: 2, id: 'm_splash' }, { w: 1, id: 'hoimi', cond: 'allyHurt' }],
     desc: '海でくらす、すきとおったぷるりん。水てっぽうをとばしてくる。',
   },
   wild_gull: {
     name: 'あばれカモメ', lv: 12, hp: 55, str: 39, def: 18, agi: 34, exp: 36, gold: 20,
-    race: 'beast', size: 's', flying: true, resist: { wind: 0.6, bolt: 1.3 }, drops: { common: ['return_wing', 16], rare: ['seed_agi', 96] },
+    race: 'beast', size: 's', flying: true, resist: { wind: 0.6, bolt: 1.3 }, drops: { common: ['return_wing', 16], rare: ['seed_agi', 288] },
     actions: [{ w: 4, id: 'attack' }, { w: 3, id: 'm_dive' }, { w: 1, id: 'm_gust' }],
     desc: '船の上をとびまわる、らんぼうなカモメ。空から急降下してくる。',
   },
@@ -23,7 +23,7 @@ export const MONSTERS_CH2 = {
   },
   sea_serpent: {
     name: '海へび', lv: 14, hp: 94, mp: 20, str: 47, def: 27, agi: 26, mag: 24, exp: 50, gold: 34,
-    race: 'dragon', size: 'l', resist: { ice: 0.6, bolt: 1.3 }, drops: { common: ['moonherb', 10], rare: ['seed_hp', 48] },
+    race: 'dragon', size: 'l', resist: { ice: 0.6, bolt: 1.3 }, drops: { common: ['moonherb', 10], rare: ['seed_hp', 144] },
     actions: [{ w: 3, id: 'attack' }, { w: 2, id: 'm_coil' }, { w: 1, id: 'm_tidal' }],
     desc: '波の間から顔を出す、長い長い海のへび。まきついて動けなくする。',
   },
@@ -36,7 +36,7 @@ export const MONSTERS_CH2 = {
   },
   coconut: {
     name: 'ココナッツン', lv: 12, hp: 70, str: 40, def: 27, agi: 14, exp: 36, gold: 22,
-    race: 'plant', size: 'm', resist: { fire: 1.4, wind: 0.8 }, drops: { common: ['herb', 4], rare: ['seed_str', 96] },
+    race: 'plant', size: 'm', resist: { fire: 1.4, wind: 0.8 }, drops: { common: ['herb', 4], rare: ['seed_str', 288] },
     actions: [{ w: 3, id: 'attack' }, { w: 2, id: 'm_coconut' }, { w: 1, id: 'm_sleep_powder' }],
     desc: 'ヤシの木に化けた魔物。頭の実をなげつけてくる。',
   },
@@ -49,7 +49,7 @@ export const MONSTERS_CH2 = {
   // ── 嵐の島の まわり ──
   thunder_imp: {
     name: '雷こぞう', lv: 15, hp: 62, mp: 50, str: 32, def: 22, agi: 36, mag: 44, exp: 55, gold: 34,
-    race: 'spirit', size: 's', resist: { bolt: 0.2, ice: 1.3 }, drops: { common: ['magic_water', 20], rare: ['seed_mag', 64] },
+    race: 'spirit', size: 's', resist: { bolt: 0.2, ice: 1.3 }, drops: { common: ['magic_water', 20], rare: ['seed_mag', 192] },
     actions: [{ w: 3, id: 'm_thunder' }, { w: 2, id: 'attack' }, { w: 1, id: 'm_gust' }],
     desc: '嵐の雲から生まれた雷のこぞう。雷を落としてくる。',
   },

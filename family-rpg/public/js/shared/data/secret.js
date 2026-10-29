@@ -253,7 +253,8 @@ export function sdGuardEncounter(f) {
 }
 
 // ───────────── ごほうび ─────────────
-const SEEDS = ['seed_str', 'seed_def', 'seed_agi', 'seed_mag', 'seed_hp'];
+// 第50回: 種（強さを 上げる 道具）は ひみつのダンジョンから 出ない。かわりに めずらしい 回復の 道具
+const SD_GOODIES = ['elf_drink', 'revive_flower'];
 let equipCache = null;
 function equipPools() {
   if (equipCache) return equipCache;
@@ -275,7 +276,7 @@ export const SD_MEW_FLOOR = 50;
 export function sdBigReward(f) {
   const r = makeRng((sdSeed(f) ^ 0xb16b00b) >>> 0);
   const out = [{ gold: rewardGold(Math.min(50000, 100 * f)) }];
-  out.push({ item: r.pick(SEEDS), n: f >= 30 ? 2 : 1 });
+  out.push({ item: r.pick(SD_GOODIES), n: f >= 30 ? 2 : 1 });
   if (f % 10 === 0) out.push({ medal: true });
   if (f % 10 === 5) {
     const list = equipPools().shop(sdEquipRank(f));
@@ -310,7 +311,7 @@ export function sdSmallReward(f, rng) {
     { k: 'gold', w: 4 },
     { k: 'herb', w: f < 15 ? 3 : 1 },
     { k: 'magic_water', w: 3 },
-    { k: 'seed', w: 1 + Math.floor(f / 25) },
+    { k: 'elf_drink', w: 1 + Math.floor(f / 25) },
     { k: 'revive_flower', w: f >= 10 ? 2 : 0 },
     { k: 'star_shard', w: f >= 15 ? 1 : 0 },
     // 第31回: 30階からは ★4〜★5 の 装備も まれに
@@ -319,7 +320,6 @@ export function sdSmallReward(f, rng) {
   const k = rng.weighted(list).k;
   if (k === 'gold') return { gold: rewardGold(Math.min(20000, 20 * f)) };
   if (k === 'herb') return { item: 'herb', n: 3 };
-  if (k === 'seed') return { item: rng.pick(SEEDS), n: 1 };
   if (k === 'sdgear') return { item: pickSdGear(rng, f) || 'revive_flower', n: 1 };
   return { item: k, n: 1 };
 }

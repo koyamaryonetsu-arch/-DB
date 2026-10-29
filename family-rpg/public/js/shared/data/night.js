@@ -12,13 +12,13 @@ const N = (...lines) => lines.map((l) => ['say', null, l]);
 export const NIGHT_MONSTERS = {
   moon_pururin: {
     name: '月夜ぷるりん', lv: 3, hp: 16, mp: 10, str: 13, def: 6, agi: 10, mag: 10, exp: 6, gold: 8,
-    race: 'slime', size: 's', night: true, resist: { bolt: 1.3, dark: 0.7, light: 1.3 }, drops: { common: ['moon_drop', 16], rare: ['seed_mag', 96] },
+    race: 'slime', size: 's', night: true, resist: { bolt: 1.3, dark: 0.7, light: 1.3 }, drops: { common: ['moon_drop', 16], rare: ['seed_mag', 288] },
     actions: [{ w: 4, id: 'attack' }, { w: 1, id: 'm_sleep_powder' }],
     desc: '月の光をあびて、うすむらさきにかがやくぷるりん。夜にだけあらわれる。',
   },
   night_owl: {
     name: '夜ふかしフクロウ', lv: 5, hp: 30, mp: 12, str: 24, def: 11, agi: 24, exp: 15, gold: 14,
-    race: 'beast', size: 's', flying: true, night: true, resist: { wind: 1.3, dark: 0.7, sleep: 0.3 }, drops: { common: ['moonherb', 12], rare: ['seed_agi', 64] },
+    race: 'beast', size: 's', flying: true, night: true, resist: { wind: 1.3, dark: 0.7, sleep: 0.3 }, drops: { common: ['moonherb', 12], rare: ['seed_agi', 192] },
     actions: [{ w: 3, id: 'attack' }, { w: 1, id: 'm_peck' }, { w: 1, id: 'm_glare' }],
     desc: '夜の森や平原を、音もなくとぶフクロウ。大きな目でにらみつけてくる。',
   },
@@ -36,7 +36,7 @@ export const NIGHT_MONSTERS = {
   },
   glow_jelly: {
     name: '夜光ぷるりん', lv: 13, hp: 72, mp: 30, str: 38, def: 28, agi: 22, mag: 30, exp: 54, gold: 36,
-    race: 'slime', size: 's', night: true, resist: { ice: 0.5, bolt: 1.4, light: 0.7 }, drops: { common: ['moon_drop', 12], rare: ['seed_hp', 64] },
+    race: 'slime', size: 's', night: true, resist: { ice: 0.5, bolt: 1.4, light: 0.7 }, drops: { common: ['moon_drop', 12], rare: ['seed_hp', 192] },
     actions: [{ w: 4, id: 'attack' }, { w: 2, id: 'm_splash' }, { w: 1, id: 'rariho' }],
     desc: '夜の海でぼんやり光るぷるりん。光にさそわれた船乗りをねむらせる。',
   },

@@ -45,7 +45,7 @@ import { applyWater } from './water.js';
 export const MONSTERS = {
   pururin: {
     name: 'ぷるりん', lv: 1, hp: 8, mp: 0, str: 9, def: 4, agi: 5, mag: 0, exp: 2, gold: 3,
-    race: 'slime', size: 's', resist: { bolt: 1.3, wind: 0.8 }, drops: { common: ['jelly', 4], rare: ['seed_hp', 128] },
+    race: 'slime', size: 's', resist: { bolt: 1.3, wind: 0.8 }, drops: { common: ['jelly', 4], rare: ['seed_hp', 384] },
     actions: [{ w: 1, id: 'attack' }],
     desc: 'ぷるぷるふるえる青いゼリーの魔物。いたずら好きだが弱い。',
   },
@@ -57,13 +57,13 @@ export const MONSTERS = {
   },
   kobushi: {
     name: 'こぶしキノコ', lv: 2, hp: 14, str: 11, def: 7, agi: 4, exp: 4, gold: 5,
-    race: 'plant', size: 's', resist: { fire: 1.5, wind: 0.8 }, drops: { common: ['herb', 8], rare: ['seed_str', 128] },
+    race: 'plant', size: 's', resist: { fire: 1.5, wind: 0.8 }, drops: { common: ['herb', 8], rare: ['seed_str', 384] },
     actions: [{ w: 4, id: 'attack' }, { w: 1, id: 'm_sleep_powder' }],
     desc: '小さなこぶしでなぐってくるキノコ。ねむりの粉に注意。',
   },
   koumorin: {
     name: 'こうもりん', lv: 3, hp: 14, str: 17, def: 6, agi: 16, exp: 5, gold: 5,
-    race: 'beast', size: 's', flying: true, resist: { wind: 1.5, dark: 0.7 }, drops: { common: ['herb', 8], rare: ['seed_agi', 128] },
+    race: 'beast', size: 's', flying: true, resist: { wind: 1.5, dark: 0.7 }, drops: { common: ['herb', 8], rare: ['seed_agi', 384] },
     actions: [{ w: 3, id: 'attack' }, { w: 1, id: 'm_drain' }],
     desc: 'ひらひら飛び回るこうもり。血を吸って元気になる。',
   },
@@ -75,13 +75,13 @@ export const MONSTERS = {
   },
   pururin_beth: {
     name: 'ぷるりんベス', lv: 4, hp: 20, mp: 12, str: 16, def: 8, agi: 8, mag: 12, exp: 7, gold: 8,
-    race: 'slime', size: 's', resist: { fire: 0.5, ice: 1.5 }, drops: { common: ['jelly', 4], rare: ['seed_mag', 128] },
+    race: 'slime', size: 's', resist: { fire: 0.5, ice: 1.5 }, drops: { common: ['jelly', 4], rare: ['seed_mag', 384] },
     actions: [{ w: 2, id: 'attack' }, { w: 1, id: 'mera' }],
     desc: '赤いぷるりん。メラを使う。',
   },
   shadow_soldier: {
     name: '影の兵', lv: 3, hp: 18, str: 15, def: 8, agi: 9, exp: 10, gold: 0,
-    race: 'demon', size: 'm', resist: { dark: 0.5, light: 1.5 }, drops: { common: ['herb', 4], rare: ['seed_def', 128] },
+    race: 'demon', size: 'm', resist: { dark: 0.5, light: 1.5 }, drops: { common: ['herb', 4], rare: ['seed_def', 384] },
     actions: [{ w: 1, id: 'attack' }],
     desc: '闇の魔道士が呼び出した影の兵士。',
   },
@@ -111,7 +111,7 @@ export const MONSTERS = {
   },
   hedoron: {
     name: 'ヘドロン', lv: 6, hp: 37, str: 24, def: 15, agi: 7, exp: 13, gold: 10,
-    race: 'slime', size: 'm', resist: { poison: 0, fire: 1.3, ice: 0.7 }, drops: { common: ['antidote', 5], rare: ['seed_hp', 96] },
+    race: 'slime', size: 'm', resist: { poison: 0, fire: 1.3, ice: 0.7 }, drops: { common: ['antidote', 5], rare: ['seed_hp', 288] },
     actions: [{ w: 3, id: 'attack' }, { w: 1, id: 'm_poison_spray' }],
     desc: '沼に住むどろどろの魔物。毒をまき散らす。',
   },
@@ -123,13 +123,13 @@ export const MONSTERS = {
   },
   ice_pururin: {
     name: 'ヒャドぷるりん', lv: 7, hp: 31, mp: 30, str: 22, def: 15, agi: 13, mag: 22, exp: 16, gold: 12,
-    race: 'slime', size: 's', resist: { ice: 0, fire: 1.5 }, drops: { common: ['jelly', 4], rare: ['seed_mag', 96] },
+    race: 'slime', size: 's', resist: { ice: 0, fire: 1.5 }, drops: { common: ['jelly', 4], rare: ['seed_mag', 288] },
     actions: [{ w: 2, id: 'hyado' }, { w: 2, id: 'attack' }],
     desc: '冷たい体のぷるりん。ヒャドを使う。',
   },
   crow: {
     name: '大ガラス', lv: 7, hp: 33, str: 30, def: 13, agi: 23, exp: 17, gold: 14,
-    race: 'beast', size: 'm', flying: true, resist: { wind: 1.5, bolt: 1.2, dark: 0.7 }, drops: { common: ['herb', 6], rare: ['seed_agi', 64] },
+    race: 'beast', size: 'm', flying: true, resist: { wind: 1.5, bolt: 1.2, dark: 0.7 }, drops: { common: ['herb', 6], rare: ['seed_agi', 192] },
     actions: [{ w: 3, id: 'attack' }, { w: 2, id: 'm_peck' }, { w: 1, id: 'm_gust' }],
     desc: '東の平原を飛び回る大きなカラス。',
   },
@@ -141,13 +141,13 @@ export const MONSTERS = {
   },
   dark_bat: {
     name: '闇コウモリ', lv: 8, hp: 35, str: 31, def: 15, agi: 25, exp: 22, gold: 16,
-    race: 'beast', size: 's', flying: true, resist: { dark: 0.5, light: 1.5 }, drops: { common: ['herb', 6], rare: ['seed_agi', 96] },
+    race: 'beast', size: 's', flying: true, resist: { dark: 0.5, light: 1.5 }, drops: { common: ['herb', 6], rare: ['seed_agi', 288] },
     actions: [{ w: 3, id: 'attack' }, { w: 2, id: 'm_drain' }, { w: 1, id: 'manusa' }],
     desc: '暗闇に住むこうもり。マヌーサでまどわせてくる。',
   },
   rockman: {
     name: '岩男', lv: 9, hp: 63, str: 39, def: 32, agi: 5, exp: 30, gold: 18,
-    race: 'material', size: 'l', resist: ROCK_RESIST, drops: { common: ['star_shard', 8], rare: ['seed_def', 48] },
+    race: 'material', size: 'l', resist: ROCK_RESIST, drops: { common: ['star_shard', 8], rare: ['seed_def', 144] },
     actions: [{ w: 3, id: 'attack' }, { w: 1, id: 'm_boulder' }, { w: 1, id: 'm_harden' }],
     desc: '岩が動き出した魔物。爆発に弱い。',
   },
@@ -165,7 +165,7 @@ export const MONSTERS = {
   },
   kirakira: {
     name: 'きらきらぷるりん', lv: 8, hp: 4, mp: 10, str: 15, def: 255, agi: 80, mag: 10, exp: 320, gold: 12,
-    race: 'slime', size: 's', metal: true, resist: METAL_RESIST, drops: { common: ['seed_agi', 8], rare: ['swift_ring', 64] },
+    race: 'slime', size: 's', metal: true, resist: METAL_RESIST, drops: { common: ['seed_agi', 24], rare: ['swift_ring', 64] },
     actions: [{ w: 3, id: 'm_flee' }, { w: 2, id: 'attack' }, { w: 1, id: 'mera' }],
     desc: 'めったに会えない銀色のぷるりん。とても固く、すぐ逃げる。倒せばたくさんの経験値！',
   },

@@ -55,11 +55,11 @@ const SEA_BOARDS = [
 const SEA_CHESTS = [
   { id: 'sea_islet1', x: ISLETS[0][0], y: ISLETS[0][1], item: 'bottle_letter' },
   { id: 'sea_islet2', x: ISLETS[1][0], y: ISLETS[1][1], item: 'seed_agi' },
-  { id: 'sea_islet3', x: ISLETS[2][0], y: ISLETS[2][1], item: 'seed_mag' },
+  { id: 'sea_islet3', x: ISLETS[2][0], y: ISLETS[2][1], item: 'revive_flower' },
   { id: 'sea_islet4', x: ISLETS[3][0], y: ISLETS[3][1], item: 'seed_hp' },
   { id: 'sea_light', x: 69, y: 11, item: 'magic_water' },
   { id: 'sea_caveisle', x: 13, y: 64, gold: 300 },
-  { id: 'sea_storm', x: 70, y: 56, item: 'seed_str' },
+  { id: 'sea_storm', x: 70, y: 56, item: 'magic_water', n: 2 },
 ];
 
 const SEA_SIGNS = [
@@ -115,7 +115,7 @@ export function buildCh2Maps() {
     chests: [
       { id: 'sc_a', x: 5, y: 9, item: 'magic_water' },
       { id: 'sc_b', x: 35, y: 17, item: 'shell_shield' },
-      { id: 'sc_c', x: 18, y: 11, item: 'seed_def' },
+      { id: 'sc_c', x: 18, y: 11, item: 'revive_flower' },
       { id: 'sc_boss', x: 24, y: 4, item: 'seed_str', show: { all: ['c2_kraken'] } },
       { id: 'sc_mat', x: 36, y: 6, item: 'pretty_shell', n: 3 },
       { id: 'sc_scale', x: 4, y: 8, item: 'dragon_scale' },
@@ -166,7 +166,7 @@ export function buildCh2Maps() {
     chests: [
       { id: 'tw2_a', x: 3, y: 18, item: 'thunder_sword' },
       { id: 'tw2_b', x: 18, y: 18, item: 'moonherb', n: 2 },
-      { id: 'tw2_c', x: 7, y: 3, item: 'seed_mag' },
+      { id: 'tw2_c', x: 7, y: 3, item: 'magic_water', n: 2 },
       { id: 'tw2_mat', x: 20, y: 8, item: 'silver_shard', n: 2 },
     ],
     warps: [

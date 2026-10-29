@@ -172,7 +172,8 @@ export const PAST_DROPS = { sand_clock: ['p6_sand_pendant', 'p6_sand_staff'], ge
 export const PAST_RECIPES = [
   { id: 'r_past_sand_sword', tier: 5, out: 'p6_alch_sword', ins: ['cs_castle_sword', 'p6_time_sand', 'p6_old_gear'] },
   { id: 'r_past_gear_mail', tier: 5, out: 'p6_alch_mail', ins: ['cs_blackfire_mail', 'p6_old_gear', 'p6_old_gear'] },
-  { id: 'r_past_sand_seed', tier: 5, out: 'seed_agi', ins: ['p6_time_sand', 'p6_time_sand', 'p6_old_gear'] },
+  // 第50回: 種（強さを 上げる 道具）は れん金で 作れない。おぼえた レシピの ID は そのまま、できる 物を かえた
+  { id: 'r_past_sand_seed', tier: 5, out: 'revive_flower', ins: ['p6_time_sand', 'p6_time_sand', 'p6_old_gear'] },
 ];
 
 // 読みがな（あいうえお順の ならびかえ）

@@ -14,13 +14,13 @@ export const MONSTERS_CH4 = {
   // ── 砂ばく・海辺 ──
   sand_slime: {
     name: '砂ぷるりん', lv: 29, hp: 250, mp: 30, str: 100, def: 66, agi: 38, mag: 56, exp: 150, gold: 72,
-    race: 'slime', size: 's', resist: { wind: 0.6, ice: 1.4, blast: 1.2, blind: 0 }, drops: { common: ['herb', 6], rare: ['seed_agi', 64] },
+    race: 'slime', size: 's', resist: { wind: 0.6, ice: 1.4, blast: 1.2, blind: 0 }, drops: { common: ['herb', 6], rare: ['seed_agi', 192] },
     actions: [{ w: 4, id: 'attack' }, { w: 2, id: 'm_sand_throw' }, { w: 1, id: 'm_sand_call', cond: 'callHelp' }],
     desc: '砂つぶからできた、黄色いぷるりん。かわいた砂をまき上げて、目をくらませる。',
   },
   scorpion_soldier: {
     name: 'サソリ兵', lv: 30, hp: 350, str: 116, def: 86, agi: 34, exp: 182, gold: 84,
-    race: 'beast', size: 'm', hit: 'slash', resist: { ice: 1.35, bolt: 1.3, fire: 0.8, poison: 0 }, drops: { common: ['antidote', 4], rare: ['seed_def', 48] },
+    race: 'beast', size: 'm', hit: 'slash', resist: { ice: 1.35, bolt: 1.3, fire: 0.8, poison: 0 }, drops: { common: ['antidote', 4], rare: ['seed_def', 144] },
     actions: [
       { w: 4, id: 'attack' }, { w: 3, id: 'm_poison_sting' }, { w: 2, id: 'm_scissor_combo' }, { w: 1, id: 'm_harden', cond: 'notRecent:m_harden' },
       { w: 1, id: 'm_claw_guard', cond: 'notRecent:m_claw_guard' },
@@ -29,26 +29,26 @@ export const MONSTERS_CH4 = {
   },
   sand_vulture: {
     name: '砂ハゲタカ', lv: 30, hp: 270, str: 112, def: 52, agi: 74, exp: 172, gold: 80,
-    race: 'beast', size: 'm', flying: true, hit: 'bite', resist: { wind: 0.5, bolt: 1.4, ice: 1.1 }, drops: { common: ['moonherb', 10], rare: ['seed_agi', 64] },
+    race: 'beast', size: 'm', flying: true, hit: 'bite', resist: { wind: 0.5, bolt: 1.4, ice: 1.1 }, drops: { common: ['moonherb', 10], rare: ['seed_agi', 192] },
     actions: [{ w: 3, id: 'attack' }, { w: 3, id: 'm_double_peck' }, { w: 2, id: 'm_vulture_dive' }],
     desc: '砂ばくの空をぐるぐる回る、大きなハゲタカ。弱った旅人を見つけると、急降下してくる。',
   },
   gold_beetle: {
     name: '黄金虫', lv: 31, hp: 6, mp: 10, str: 72, def: 255, agi: 92, mag: 10, exp: 900, gold: 640,
-    race: 'beast', size: 's', metal: true, resist: METAL_RESIST, drops: { common: ['star_shard', 4], rare: ['seed_hp', 32] },
+    race: 'beast', size: 's', metal: true, resist: METAL_RESIST, drops: { common: ['star_shard', 4], rare: ['seed_hp', 96] },
     actions: [{ w: 3, id: 'm_flee' }, { w: 2, id: 'attack' }, { w: 1, id: 'm_harden' }],
     desc: '金色にかがやく、とても固い虫。すぐににげてしまうが、たおすとゴールドがたくさん手に入る。',
   },
   mirage_flower: {
     name: 'まぼろしの花', lv: 31, hp: 260, mp: 60, str: 86, def: 58, agi: 44, mag: 96, exp: 176, gold: 82,
-    race: 'plant', size: 'm', resist: { fire: 1.5, ice: 0.8, wind: 1.2, confuse: 0, sleep: 0.5 }, drops: { common: ['moonherb', 8], rare: ['seed_mag', 48] },
+    race: 'plant', size: 'm', resist: { fire: 1.5, ice: 0.8, wind: 1.2, confuse: 0, sleep: 0.5 }, drops: { common: ['moonherb', 8], rare: ['seed_mag', 144] },
     actions: [{ w: 3, id: 'm_sweet_scent', cond: 'notRecent:m_sweet_scent' }, { w: 2, id: 'm_mirage_pollen' }, { w: 2, id: 'attack' }, { w: 1, id: 'm_root_drain' }],
     desc: 'オアシスのそばにさく、ゆらゆら光る花の魔物。あまい香りで、旅人をまどわせる。',
   },
   // ── 夜の 砂ばく ──
   moon_ghost: {
     name: '月のゆうれい', lv: 33, hp: 330, mp: 90, str: 104, def: 58, agi: 64, mag: 112, exp: 236, gold: 104,
-    race: 'undead', size: 'm', night: true, resist: { light: 1.6, dark: 0.3, fire: 1.2, ice: 0.8, sleep: 0.2, poison: 0 }, drops: { common: ['moon_drop', 10], rare: ['seed_mag', 48] },
+    race: 'undead', size: 'm', night: true, resist: { light: 1.6, dark: 0.3, fire: 1.2, ice: 0.8, sleep: 0.2, poison: 0 }, drops: { common: ['moon_drop', 10], rare: ['seed_mag', 144] },
     actions: [
       { w: 3, id: 'm_moon_beam' }, { w: 2, id: 'm_soul_sip' }, { w: 2, id: 'attack' },
       { w: 1, id: 'mahoton', cond: 'notRecent:mahoton' }, { w: 1, id: 'm_ghost_fade', cond: 'notRecent:m_ghost_fade' },
@@ -58,7 +58,7 @@ export const MONSTERS_CH4 = {
   // ── かれた地下水路（Step 2）──
   dry_frog: {
     name: 'からからガエル', lv: 30, hp: 310, mp: 40, str: 108, def: 60, agi: 52, mag: 70, exp: 176, gold: 80,
-    race: 'beast', size: 'm', hit: 'bite', resist: { fire: 1.4, wind: 1.2, ice: 0.7, poison: 0.5 }, drops: { common: ['magic_water', 24], rare: ['seed_mag', 48] },
+    race: 'beast', size: 'm', hit: 'bite', resist: { fire: 1.4, wind: 1.2, ice: 0.7, poison: 0.5 }, drops: { common: ['magic_water', 24], rare: ['seed_mag', 144] },
     actions: [{ w: 3, id: 'attack' }, { w: 3, id: 'm_tongue_sip' }, { w: 2, id: 'm_frog_jump' }, { w: 1, id: 'm_dry_croak', cond: 'notRecent:m_dry_croak' }],
     desc: '水がかれた水路で、からからにひからびてしまったカエル。長い舌で、旅人のMPを吸い取る。',
   },
@@ -83,7 +83,7 @@ export const MONSTERS_CH4 = {
   mummy_soldier: {
     name: 'ミイラ兵', lv: 32, hp: 360, str: 122, def: 74, agi: 30, mag: 40, exp: 214, gold: 98,
     race: 'undead', size: 'm', hit: 'slash', revive: { hp: 0.5, not: ['fire', 'light'] },
-    resist: { fire: 1.5, light: 1.5, dark: 0.3, poison: 0, ice: 0.9, sleep: 0.3, confuse: 0.6 }, drops: { common: ['moonherb', 10], rare: ['seed_hp', 64] },
+    resist: { fire: 1.5, light: 1.5, dark: 0.3, poison: 0, ice: 0.9, sleep: 0.3, confuse: 0.6 }, drops: { common: ['moonherb', 10], rare: ['seed_hp', 192] },
     actions: [{ w: 4, id: 'attack' }, { w: 2, id: 'm_mummy_bandage' }, { w: 2, id: 'm_mummy_grab' }],
     desc: '王家のピラミッドを守る、ほうたいにまかれた兵士。たおしても、1回だけ起き上がる。炎か光でとどめをさすと、もう起き上がれない。',
   },
@@ -91,7 +91,7 @@ export const MONSTERS_CH4 = {
   cursed_pot: {
     name: 'のろいのつぼ', lv: 33, hp: 300, mp: 80, str: 100, def: 118, agi: 46, mag: 96, exp: 250, gold: 220,
     race: 'material', size: 's', resist: { light: 1.5, dark: 0.3, poison: 0, sleep: 0.4, blast: 1.25, confuse: 0.5, blind: 0.5 },
-    drops: { common: ['magic_water', 20], rare: ['seed_mag', 48] },
+    drops: { common: ['magic_water', 20], rare: ['seed_mag', 144] },
     actions: [{ w: 3, id: 'm_pot_suck' }, { w: 2, id: 'attack' }, { w: 2, id: 'm_pot_spin' }, { w: 1, id: 'm_pot_smoke', cond: 'notRecent:m_pot_smoke' }],
     desc: '宝物の入ったつぼのふりをして、近づいた旅人のMPをすいとる。光の呪文がよく効く。',
   },
@@ -99,7 +99,7 @@ export const MONSTERS_CH4 = {
   sandstone_golem: {
     name: '砂岩ゴーレム', lv: 33, hp: 520, str: 136, def: 124, agi: 24, mag: 20, exp: 300, gold: 140,
     race: 'material', size: 'l', hit: 'smash',
-    resist: { ice: 1.4, blast: 1.4, fire: 0.6, wind: 0.8, bolt: 0.8, poison: 0, sleep: 0.3, confuse: 0.3, paralyze: 0.5 }, drops: { common: ['silver_shard', 12], rare: ['seed_def', 40] },
+    resist: { ice: 1.4, blast: 1.4, fire: 0.6, wind: 0.8, bolt: 0.8, poison: 0, sleep: 0.3, confuse: 0.3, paralyze: 0.5 }, drops: { common: ['silver_shard', 12], rare: ['seed_def', 120] },
     actions: [{ w: 4, id: 'attack' }, { w: 2, id: 'm_golem_windup', cond: 'notRecent:m_golem_windup' }, { w: 1, id: 'm_golem_harden', cond: 'notRecent:m_golem_harden' }],
     desc: '岩山とピラミッドを守る、砂岩でできた大きな人形。守りがとても高い。うでをふりかぶったら、大ぶりの一撃が来る。氷と爆発が効く。',
   },
@@ -107,7 +107,7 @@ export const MONSTERS_CH4 = {
   lamp_genie: {
     name: 'ランプの魔人', lv: 34, hp: 400, mp: 220, str: 102, def: 76, agi: 60, mag: 132, exp: 330, gold: 210,
     race: 'demon', size: 'm', night: true, resist: { ice: 1.4, fire: 0.5, dark: 0.6, sleep: 0.4, confuse: 0.5, poison: 0.5 },
-    drops: { common: ['magic_water', 16], rare: ['seed_mag', 40] },
+    drops: { common: ['magic_water', 16], rare: ['seed_mag', 120] },
     actions: [{ w: 3, id: 'm_genie_flame' }, { w: 2, id: 'm_genie_blaze' }, { w: 2, id: 'attack' }, { w: 1, id: 'm_genie_smoke', cond: 'notRecent:m_genie_smoke' }],
     desc: '夜の砂ばくにあらわれる、古いランプから出てくる魔人。強い炎の呪文をとなえる。氷が効く。',
   },
@@ -116,7 +116,7 @@ export const MONSTERS_CH4 = {
   royal_mummy: {
     name: '王のミイラ兵', lv: 33, hp: 900, str: 100, def: 58, agi: 32, mag: 40, exp: 420, gold: 160,
     race: 'undead', size: 'm', hit: 'slash', speed: 0.6,
-    resist: { fire: 1.5, light: 1.5, dark: 0.3, poison: 0, ice: 0.9, sleep: 0.3, confuse: 0.6 }, drops: { common: ['moonherb', 8], rare: ['seed_str', 96] },
+    resist: { fire: 1.5, light: 1.5, dark: 0.3, poison: 0, ice: 0.9, sleep: 0.3, confuse: 0.6 }, drops: { common: ['moonherb', 8], rare: ['seed_str', 288] },
     actions: [{ w: 4, id: 'attack' }, { w: 1, id: 'm_mummy_bandage' }, { w: 1, id: 'm_mummy_grab' }],
     desc: '王のへやを守る、金のかざりをつけたミイラ兵。ミイラの王の呪文で、何度でも生き返る。',
   },
@@ -149,7 +149,7 @@ export const MONSTERS_CH4 = {
   sand_worm: {
     name: 'サンドワーム', lv: 34, hp: 540, str: 132, def: 80, agi: 34, mag: 20, exp: 310, gold: 150,
     race: 'beast', size: 'l', hit: 'bite',
-    resist: { bolt: 1.4, ice: 1.2, fire: 0.8, blast: 0.8, poison: 0.5, sleep: 0.4, confuse: 0.5 }, drops: { common: ['antidote', 5], rare: ['seed_hp', 48] },
+    resist: { bolt: 1.4, ice: 1.2, fire: 0.8, blast: 0.8, poison: 0.5, sleep: 0.4, confuse: 0.5 }, drops: { common: ['antidote', 5], rare: ['seed_hp', 144] },
     actions: [{ w: 4, id: 'attack' }, { w: 2, id: 'm_worm_bite' }, { w: 2, id: 'm_worm_dive', cond: 'notRecent:m_worm_dive' }, { w: 1, id: 'm_worm_spit', cond: 'notRecent:m_worm_spit' }],
     desc: '南の砂ばくの砂の中にすむ、大きなミミズの魔物。砂にもぐったら、次の番に砂の中から飛び出してくる。身を守ろう。雷がよく効く。',
   },
@@ -157,7 +157,7 @@ export const MONSTERS_CH4 = {
   sandstorm_spirit: {
     name: '砂嵐の精', lv: 35, hp: 380, mp: 120, str: 100, def: 70, agi: 72, mag: 128, exp: 320, gold: 140,
     race: 'spirit', size: 'm', flying: true,
-    resist: { wind: 0.2, ice: 1.4, bolt: 1.2, fire: 0.8, blind: 0, poison: 0, sleep: 0.3, confuse: 0.6 }, drops: { common: ['magic_water', 18], rare: ['seed_agi', 48] },
+    resist: { wind: 0.2, ice: 1.4, bolt: 1.2, fire: 0.8, blind: 0, poison: 0, sleep: 0.3, confuse: 0.6 }, drops: { common: ['magic_water', 18], rare: ['seed_agi', 144] },
     actions: [{ w: 3, id: 'm_spirit_gust' }, { w: 2, id: 'm_spirit_dust' }, { w: 2, id: 'm_spirit_whirl' }, { w: 2, id: 'attack' }],
     desc: '南の砂嵐から生まれた、砂のつむじ風。砂つむじで敵みんなを風でおそい、目つぶしもしてくる。氷がよく効く。',
   },
@@ -165,7 +165,7 @@ export const MONSTERS_CH4 = {
   dark_scorpion: {
     name: 'やみサソリ', lv: 36, hp: 520, str: 138, def: 104, agi: 44, mag: 30, exp: 360, gold: 170,
     race: 'beast', size: 'm', night: true, hit: 'slash',
-    resist: { ice: 1.35, bolt: 1.3, light: 1.2, fire: 0.8, dark: 0.5, poison: 0 }, drops: { common: ['antidote', 4], rare: ['seed_str', 48] },
+    resist: { ice: 1.35, bolt: 1.3, light: 1.2, fire: 0.8, dark: 0.5, poison: 0 }, drops: { common: ['antidote', 4], rare: ['seed_str', 144] },
     actions: [
       { w: 4, id: 'attack' }, { w: 3, id: 'm_dark_sting' }, { w: 2, id: 'm_scissor_combo' },
       { w: 1, id: 'm_dark_stance', cond: 'notRecent:m_dark_stance' },
@@ -212,7 +212,7 @@ export const MONSTERS_CH4 = {
   sand_shark: {
     name: '砂ザメ', lv: 35, hp: 470, str: 138, def: 82, agi: 70, mag: 20, exp: 340, gold: 150,
     race: 'beast', size: 'm', hit: 'bite',
-    resist: { bolt: 1.4, ice: 1.2, fire: 0.8, wind: 0.8, poison: 0.5, sleep: 0.4, confuse: 0.6 }, drops: { common: ['moonherb', 8], rare: ['seed_str', 48] },
+    resist: { bolt: 1.4, ice: 1.2, fire: 0.8, wind: 0.8, poison: 0.5, sleep: 0.4, confuse: 0.6 }, drops: { common: ['moonherb', 8], rare: ['seed_str', 144] },
     actions: [{ w: 3, id: 'attack' }, { w: 3, id: 'm_shark_double' }, { w: 2, id: 'm_shark_fin', cond: 'notRecent:m_shark_fin' }],
     desc: '砂の海を、せびれだけ出して泳ぎ回るサメ。するどい歯で、2回続けてかみついてくる。雷がよく効く。',
   },
@@ -220,7 +220,7 @@ export const MONSTERS_CH4 = {
   castle_armor: {
     name: '古城のよろい', lv: 35, hp: 540, mp: 20, str: 140, def: 116, agi: 38, mag: 30, exp: 360, gold: 170,
     race: 'material', size: 'm', hit: 'slash',
-    resist: { bolt: 1.4, blast: 1.25, fire: 0.8, ice: 0.9, poison: 0, sleep: 0, confuse: 0.3, blind: 0.5 }, drops: { common: ['silver_shard', 12], rare: ['seed_def', 40] },
+    resist: { bolt: 1.4, blast: 1.25, fire: 0.8, ice: 0.9, poison: 0, sleep: 0, confuse: 0.3, blind: 0.5 }, drops: { common: ['silver_shard', 12], rare: ['seed_def', 120] },
     actions: [{ w: 4, id: 'attack' }, { w: 2, id: 'm_armor_sweep' }, { w: 1, id: 'm_armor_guard', cond: 'notRecent:m_armor_guard' }],
     desc: '砂の古城をさまよう、からっぽのよろい。重い剣で、まとめてなぎはらう。たてをかまえると、守りが上がる。雷と爆発がよく効く。',
   },

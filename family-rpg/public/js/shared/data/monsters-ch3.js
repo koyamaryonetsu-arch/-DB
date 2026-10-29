@@ -9,7 +9,7 @@ export const MONSTERS_CH3 = {
   // ── 雪原・森 ──
   snow_slime: {
     name: 'ゆきぷるりん', lv: 19, hp: 124, mp: 30, str: 58, def: 40, agi: 22, mag: 40, exp: 80, gold: 40,
-    race: 'slime', size: 's', resist: { ice: 0.3, fire: 1.5 }, drops: { common: ['herb', 6], rare: ['seed_def', 64] },
+    race: 'slime', size: 's', resist: { ice: 0.3, fire: 1.5 }, drops: { common: ['herb', 6], rare: ['seed_def', 192] },
     actions: [{ w: 4, id: 'attack' }, { w: 2, id: 'm_snowball' }, { w: 1, id: 'hyado' }],
     desc: '頭に雪をのせた、つめたいぷるりん。ほっぺが赤いのは、さむいから。',
   },
@@ -27,19 +27,19 @@ export const MONSTERS_CH3 = {
   },
   yeti: {
     name: 'イエティ', lv: 23, hp: 262, str: 78, def: 48, agi: 24, exp: 132, gold: 60,
-    race: 'beast', size: 'l', resist: { ice: 0.3, fire: 1.3 }, drops: { common: ['moonherb', 8], rare: ['seed_str', 32] },
+    race: 'beast', size: 'l', resist: { ice: 0.3, fire: 1.3 }, drops: { common: ['moonherb', 8], rare: ['seed_str', 96] },
     actions: [{ w: 3, id: 'attack' }, { w: 2, id: 'm_yeti_punch' }, { w: 2, id: 'm_snow_quake' }, { w: 1, id: 'm_warcry', cond: 'notRecent:m_warcry' }],
     desc: '雪山にすむ、白い毛むくじゃらの大男。大きなこぶしで、雪ごと地面をたたく。',
   },
   ice_bat: {
     name: 'つららコウモリ', lv: 19, hp: 104, str: 56, def: 30, agi: 52, exp: 76, gold: 36,
-    race: 'beast', size: 's', flying: true, hit: 'bite', resist: { ice: 0.3, fire: 1.3, wind: 1.2 }, drops: { common: ['herb', 8], rare: ['seed_agi', 64] },
+    race: 'beast', size: 's', flying: true, hit: 'bite', resist: { ice: 0.3, fire: 1.3, wind: 1.2 }, drops: { common: ['herb', 8], rare: ['seed_agi', 192] },
     actions: [{ w: 3, id: 'attack' }, { w: 3, id: 'm_icicle_dive' }, { w: 1, id: 'm_drain' }],
     desc: 'つららのつばさをもつコウモリ。天井から、つららのように落ちてくる。',
   },
   snow_wisp: {
     name: 'ゆきんこ', lv: 20, hp: 112, mp: 60, str: 42, def: 34, agi: 40, mag: 56, exp: 86, gold: 44,
-    race: 'spirit', size: 's', resist: { ice: 0, fire: 1.5, sleep: 0.3 }, drops: { common: ['magic_water', 24], rare: ['seed_mag', 48] },
+    race: 'spirit', size: 's', resist: { ice: 0, fire: 1.5, sleep: 0.3 }, drops: { common: ['magic_water', 24], rare: ['seed_mag', 144] },
     actions: [{ w: 3, id: 'hyado' }, { w: 2, id: 'm_snow_flurry' }, { w: 2, id: 'attack' }, { w: 1, id: 'rariho', cond: 'notRecent:rariho' }],
     desc: '雪のみのを着た、小さな雪のせいれい。いたずらで、ふぶきをおこす。',
   },
@@ -58,7 +58,7 @@ export const MONSTERS_CH3 = {
   },
   kiba_walrus: {
     name: 'キバセイウチ', lv: 22, hp: 246, mp: 20, str: 76, def: 44, agi: 18, mag: 30, exp: 122, gold: 55,
-    race: 'beast', size: 'l', resist: { ice: 0.5, bolt: 1.3, fire: 1.1 }, drops: { common: ['moonherb', 8], rare: ['seed_hp', 32] },
+    race: 'beast', size: 'l', resist: { ice: 0.5, bolt: 1.3, fire: 1.1 }, drops: { common: ['moonherb', 8], rare: ['seed_hp', 96] },
     actions: [{ w: 3, id: 'attack' }, { w: 3, id: 'm_tusk' }, { w: 1, id: 'm_tidal' }],
     desc: '長いキバのセイウチ。キバをつき立てて、氷ごとえものをつきさす。',
   },
@@ -71,7 +71,7 @@ export const MONSTERS_CH3 = {
   },
   ore_slime: {
     name: 'こうせきぷるりん', lv: 22, hp: 138, mp: 20, str: 62, def: 82, agi: 20, mag: 30, exp: 110, gold: 96,
-    race: 'slime', size: 's', resist: { fire: 0.8, ice: 0.8, bolt: 1.5, poison: 0 }, drops: { common: ['iron_shard', 6], rare: ['seed_def', 32] },
+    race: 'slime', size: 's', resist: { fire: 0.8, ice: 0.8, bolt: 1.5, poison: 0 }, drops: { common: ['iron_shard', 6], rare: ['seed_def', 96] },
     actions: [{ w: 3, id: 'attack' }, { w: 2, id: 'm_ore_bash' }, { w: 1, id: 'm_harden', cond: 'notRecent:m_harden' }],
     desc: '鉱石のかけらをのみこんで、かたくなったぷるりん。雷に弱い。お金をたくさん持っている。',
   },
@@ -83,14 +83,14 @@ export const MONSTERS_CH3 = {
   },
   fire_imp: {
     name: '火こぞう', lv: 23, hp: 134, mp: 60, str: 52, def: 36, agi: 44, mag: 62, exp: 108, gold: 58,
-    race: 'spirit', size: 's', resist: { fire: 0.2, ice: 1.5 }, drops: { common: ['magic_water', 20], rare: ['seed_mag', 48] },
+    race: 'spirit', size: 's', resist: { fire: 0.2, ice: 1.5 }, drops: { common: ['magic_water', 20], rare: ['seed_mag', 144] },
     actions: [{ w: 3, id: 'm_fire_spark' }, { w: 2, id: 'gira' }, { w: 2, id: 'attack' }, { w: 1, id: 'm_dance' }],
     desc: 'ほのおのくせっ毛の、いたずらこぞう。イグニアの手下になって、鉱山で火の玉をとばしている。',
   },
   // ── 炎の山 ──
   lava_lizard: {
     name: 'マグマトカゲ', lv: 24, hp: 236, mp: 30, str: 78, def: 56, agi: 28, mag: 40, exp: 118, gold: 62,
-    race: 'dragon', size: 'm', resist: { fire: 0.1, ice: 1.5 }, drops: { common: ['herb', 6], rare: ['seed_hp', 48] },
+    race: 'dragon', size: 'm', resist: { fire: 0.1, ice: 1.5 }, drops: { common: ['herb', 6], rare: ['seed_hp', 144] },
     actions: [{ w: 3, id: 'attack' }, { w: 2, id: 'm_lava_spit' }, { w: 2, id: 'm_tail_whip' }],
     desc: 'ようがんの中でもへいきな、黒と赤のトカゲ。ひびの間から、マグマが光っている。',
   },
@@ -102,13 +102,13 @@ export const MONSTERS_CH3 = {
   },
   magma_slime: {
     name: 'マグマぷるりん', lv: 24, hp: 176, mp: 40, str: 66, def: 52, agi: 26, mag: 50, exp: 112, gold: 58,
-    race: 'slime', size: 's', resist: { fire: 0, ice: 1.6 }, drops: { common: ['herb', 6], rare: ['seed_def', 48] },
+    race: 'slime', size: 's', resist: { fire: 0, ice: 1.6 }, drops: { common: ['herb', 6], rare: ['seed_def', 144] },
     actions: [{ w: 3, id: 'attack' }, { w: 2, id: 'm_magma_splash' }, { w: 1, id: 'behoimi', cond: 'allyHurt' }],
     desc: 'どろどろにとけた、あついぷるりん。仲間がきずつくと、ベホイミでなおす。',
   },
   ember_bird: {
     name: 'ひばなドリ', lv: 24, hp: 152, str: 68, def: 38, agi: 58, mag: 48, exp: 110, gold: 56,
-    race: 'beast', size: 's', flying: true, resist: { fire: 0.2, ice: 1.4, wind: 1.2 }, drops: { common: ['wind_feather', 8], rare: ['seed_agi', 48] },
+    race: 'beast', size: 's', flying: true, resist: { fire: 0.2, ice: 1.4, wind: 1.2 }, drops: { common: ['wind_feather', 8], rare: ['seed_agi', 144] },
     actions: [{ w: 3, id: 'attack' }, { w: 2, id: 'm_dive' }, { w: 2, id: 'm_spark_wing' }],
     desc: '火の粉のつばさの小鳥。とびまわると、あたりに火の粉がまいちる。',
   },
@@ -121,7 +121,7 @@ export const MONSTERS_CH3 = {
   // ── 竜の試練の神殿・星竜山 ──
   dragon_statue: {
     name: '竜の石像', lv: 26, hp: 344, mp: 30, str: 86, def: 76, agi: 16, mag: 40, exp: 160, gold: 70,
-    race: 'material', size: 'l', resist: { sleep: 0, poison: 0, blast: 1.4, bolt: 1.3, fire: 0.8, ice: 0.8, paralyze: 0 }, drops: { common: ['star_shard', 6], rare: ['seed_def', 32] },
+    race: 'material', size: 'l', resist: { sleep: 0, poison: 0, blast: 1.4, bolt: 1.3, fire: 0.8, ice: 0.8, paralyze: 0 }, drops: { common: ['star_shard', 6], rare: ['seed_def', 96] },
     actions: [{ w: 3, id: 'attack' }, { w: 2, id: 'm_stomp' }, { w: 1, id: 'm_stone_gaze' }, { w: 1, id: 'm_harden', cond: 'notRecent:m_harden' }],
     desc: 'こけむした、竜の石像。試練をうける者の力を、ためしてくる。',
   },
@@ -133,7 +133,7 @@ export const MONSTERS_CH3 = {
   },
   shadow_flame: {
     name: 'かげ火', lv: 25, hp: 152, mp: 60, str: 52, def: 40, agi: 46, mag: 70, exp: 120, gold: 60,
-    race: 'undead', size: 's', resist: { fire: 0.2, dark: 0.3, light: 1.6, ice: 1.3, poison: 0 }, drops: { common: ['magic_water', 16], rare: ['seed_mag', 32] },
+    race: 'undead', size: 's', resist: { fire: 0.2, dark: 0.3, light: 1.6, ice: 1.3, poison: 0 }, drops: { common: ['magic_water', 16], rare: ['seed_mag', 96] },
     actions: [{ w: 3, id: 'm_shadow_fire' }, { w: 2, id: 'm_dark_bolt' }, { w: 1, id: 'attack' }, { w: 1, id: 'manusa', cond: 'notRecent:manusa' }],
     desc: 'むらさき色にゆらめく、目のある炎。炎の魔女イグニアの手下。',
   },
