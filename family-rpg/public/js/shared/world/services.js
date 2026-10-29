@@ -40,6 +40,8 @@ import { jobDoneText } from '../data/job-talk.js';
 import { vehicleShopInfo, vehicleShopAction, vehicleMenuAction } from './vehicles.js';
 // 第44回（ポケモン P1）: 進化の 石（world/evolve.js）
 import { useEvoStone } from './evolve.js';
+// 第50回 N6: 家族に 道具を あげる（world/gift.js）
+import { giftTargets, giveItem } from './gift.js';
 
 export function openService(world, s, kind, arg) {
   switch (kind) {
@@ -438,6 +440,13 @@ export function menuAction(world, s, msg) {
       if (!it || it.type === 'key') return reply(false, 'それは捨てられない');
       if (!removeItem(c, msg.id, Math.max(1, msg.n || 1))) return reply(false, '');
       return reply(true, `${it.name}を捨てた。`);
+    }
+    // 第50回 N6: 家族に 道具を あげる（world/gift.js）。giftList … あげる 相手の 一覧（返事の family）
+    case 'giftList':
+      return world.send(s, { t: 'menuRes', ok: true, text: '', family: giftTargets(world, s) });
+    case 'gift': {
+      const r = giveItem(world, s, msg);
+      return reply(r.ok, r.text);
     }
     case 'useItem': {
       const it = ITEMS[msg.id];

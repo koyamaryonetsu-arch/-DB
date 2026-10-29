@@ -57,6 +57,8 @@ import { hasUnreadNews } from '../../shared/data/news.js';
 import { vehicleMenuView } from './vehicles.js';
 // 第38回 B: 職業の試練（職業レベルの 上限・しょうごう・修行の とちゅう）
 import { jobLevelText, trialStatusBox, trialQuestBox } from './job-trials.js';
+// 第50回 N6: 家族に 道具を あげる（ui/gift.js）
+import { canGift, giftFlow } from './gift.js';
 
 // 見た目装備の せつめい
 const LOOK_HELP = '見た目だけを、持っている装備に変える（強さは変わらない）\n職業で装備できない物も選べる。「装備なし」も選べる';
@@ -572,6 +574,8 @@ export class FieldMenu {
     if (it.type === 'use' && it.field) acts.push({ label: '使う', value: 'use' });
     const team = ['weapon', 'armor', 'shield', 'head', 'acc'].includes(it.type) ? compareTeam(g, entry.value) : null;
     if (team) acts.push({ label: '装備する', value: 'equip', disabled: !team.some((r) => r.can && !r.same) });
+    // 第50回 N6: 家族にあげる（家族サーバーで、ほかの キャラが いる 時だけ。ui/gift.js）
+    if (canGift(g, entry.value)) acts.push({ label: '家族にあげる', value: 'gift' });
     acts.push({ label: '捨てる', value: 'drop' }, { label: 'やめる', value: 'cancel' });
     this.sub.blur();
     const act = await this.pick(`${it.name}をどうする？`, acts);
@@ -607,6 +611,8 @@ export class FieldMenu {
       const who = team.length === 1 ? 'self'
         : await this.pick(`だれが${it.name}を装備する？`, [...whoItems(team.filter((r) => r.can)), { label: 'やめる', value: null }], { wide: true });
       if (who) await this.menuCall({ t: 'menu', action: 'equip', id: entry.value, who });
+    } else if (act === 'gift') {
+      await giftFlow(this, entry.value);
     } else if (act === 'drop') {
       if (await confirmBox(g.input, `${it.name}を捨てますか？`, '捨てる', 'やめる', this.sfx)) await this.menuCall({ t: 'menu', action: 'discard', id: entry.value, n: 1 });
     }

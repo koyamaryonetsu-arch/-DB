@@ -12,6 +12,8 @@
 //   つぎに 入った ときに 出す（world.js の takeTavernNews）
 import { MONSTERS } from '../data/monsters.js';
 import { addMonsterEntry } from './party.js';
+// 第50回 N6: 家族から もらった 道具の 知らせも 同じ 所に のこす（world/gift.js）
+import { giftNewsText } from './gift.js';
 
 export const TAVERN_NEWS_MAX = 10;
 
@@ -34,6 +36,7 @@ function liveSession(world, charId) {
 
 // 知らせの 文
 export function tavernNewsText(n) {
+  if (n?.gift) return giftNewsText(n);
   const sp = MONSTERS[n?.species]?.name || '魔物';
   const who = String(n?.who || '');
   if (n?.full) return `${sp}が${who}の仲間にもなりたそうだったが、\n酒場がいっぱいで入れなかった…\n（酒場でだれかと別れると入れるよ）`;
