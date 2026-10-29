@@ -238,3 +238,20 @@ test('第51回 W: 技は ぜんぶ たたかいで 使えて、攻撃技は ダ�
   runUntilAct(b, me.id);
   assert.ok(m.hp > 10 && m.regen?.amt > 0, 'めぐみの雨');
 });
+
+// 第51回（まとめ役）: 天候をあやつる者の 技は 戦いの 天気も かえる（battle-weather.js の skillWeather）
+import { skillWeather, SKILL_WEATHER_TURNS } from '../public/js/shared/battle-weather.js';
+test('第51回: setWeather の ある 技は 使った 側の 天気に する', () => {
+  for (const [id, kind] of [['tt_manatsu', 'sun'], ['tt_gouu', 'rain'], ['tt_sanrenpatsu', 'thunder']]) {
+    const a = ABILITIES[id];
+    assert.equal(a?.setWeather, kind, id);
+    const b = { weather: null };
+    const ev = { lines: [] };
+    skillWeather(b, { side: 'ally', id: 'p1', alive: true }, a, ev);
+    assert.deepEqual([b.weather.kind, b.weather.side, b.weather.left], [kind, 'ally', SKILL_WEATHER_TURNS]);
+    assert.ok(ev.lines.length >= 2 && ev.weather);
+  }
+  const b = { weather: null };
+  skillWeather(b, { side: 'ally', alive: true }, ABILITIES.tt_ikazuchi || { setWeather: undefined }, { lines: [] });
+  assert.equal(b.weather, null);
+});

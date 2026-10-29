@@ -45,7 +45,7 @@ import { setupCh6, ch6Damage } from './battle-ch6.js';
 import { classmateMult } from './battle-r33.js';
 // 第51回 C3: 幻の職業の しかる・消す・装備の 作りかえ・観客（battle-phantom-c.js）と 戦いの 天気（battle-weather.js）
 import { phantomCEffect, phantomCDamage } from './battle-phantom-c.js';
-import { weatherMult, weatherTick, weatherSnap } from './battle-weather.js';
+import { weatherMult, weatherTick, weatherSnap, skillWeather } from './battle-weather.js';
 // 第37回 A: サファラ闘技場の 王者の しかけ（属性の よろい。battle-arena.js）
 import { setupArena, arenaDamage } from './battle-arena.js';
 // 第33回: 男の子の 美少女戦士・セーラームーンは タキシード仮面ふうの 技の 名前・セリフ・えんしゅつ（強さは おなじ）
@@ -836,6 +836,8 @@ export class Battle {
         // 光っている 敵・鏡写し: 呪文を はね返す（battle-temple.js）
         if (reflectSpell(this, c, a, cmd, ev, pen.powMult, targets)) break;
         this.applyAbility(c, a, cmd, ev, pen.powMult * classmateMult(this, c), targets);
+        // 第51回: 天候をあやつる者の 技は 空も かえる（battle-weather.js）
+        skillWeather(this, c, a, ev);
         break;
       }
       default:

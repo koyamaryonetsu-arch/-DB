@@ -93,7 +93,7 @@ export function weatherDamage(battle, c, t, dmg, info = {}) {
 }
 
 // 天気を かえて ことばを 出す
-function changeWeather(b, c, kind, turns, ev) {
+export function changeWeather(b, c, kind, turns, ev) {
   const w = b.weather;
   if (w && w.kind === kind && w.side === c.side) {
     w.left = Math.max(w.left, Math.round(turns ?? WEATHER_TURNS));
@@ -111,6 +111,13 @@ export function nextWeather(b, c, first = 'thunder') {
   if (!w) return first;
   if (w.side !== c.side) return w.kind;
   return WEATHER_CYCLE[(WEATHER_CYCLE.indexOf(w.kind) + 1) % WEATHER_CYCLE.length];
+}
+
+// 第51回: 天候をあやつる者の 技（abilities-weather.js の setWeather）は、使った あとに 空も かえる（6回）
+export const SKILL_WEATHER_TURNS = 6;
+export function skillWeather(b, c, a, ev) {
+  if (!a?.setWeather || !WEATHER_KINDS[a.setWeather] || !c?.alive) return;
+  changeWeather(b, c, a.setWeather, SKILL_WEATHER_TURNS, ev);
 }
 
 // 技の 効果（battle.js の applyAbility の さいご。わからない type は false）
