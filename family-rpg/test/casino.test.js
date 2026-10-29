@@ -318,12 +318,15 @@ test('景品・ごほうびの 装備: ランク4〜5（40・50枚は ランク6
     // 売っても コインで 買う ねだん（1枚 20G）より ずっと 安い
     assert.ok((it.sell ?? 0) < p.coins * COIN_PRICE / 2, `${p.id} の 売値`);
     // 第37回 B: 宝の地図の 段（tier）の 景品は ★3〜★5（ランク7〜10）
-    if (it.rank) assert.ok(it.rank >= 2 && it.rank <= (p.tier ? 10 : p.need ? 8 : 5), `${p.id} rank ${it.rank}`);
+    // 第50回 D3: 星の番人の あと・第1部クリア・第6章の 景品は その段の 宝箱の 品と ならぶ（ランク9〜10）
+    const late = ['c5_argos', 'c5_clear', 'c6_flow', 'c6_kanata', 'c6_heart'].includes(p.need) && p.r;
+    if (it.rank) assert.ok(it.rank >= 2 && it.rank <= (p.tier || late ? 10 : p.need ? 8 : 5), `${p.id} rank ${it.rank}`);
   }
   for (const r of MEDAL_REWARDS) for (const [id] of r.items) {
     const it = ITEMS[id];
     assert.ok(it, id);
-    if (it.rank) assert.ok(it.rank <= (r.at >= 40 ? 6 : 5), `${id} rank`);
+    // 第50回 D3: 55枚から 先は お話が 進むと もらえる 強い 品（ランク8〜10）
+    if (it.rank) assert.ok(it.rank <= (r.at >= 55 ? 10 : r.at >= 40 ? 6 : 5), `${id} rank`);
     assert.ok(ITEM_KANA[id] || !/[一-龯]/.test(it.name), `${id} の 読み`);
   }
   // さいこうの 剣でも 次の ランクの めやすを 大きく こえない
@@ -547,10 +550,12 @@ test('景品（第31回）: 物語が 進むと ふえる（第2〜4章クリア
   const { prizesFor } = await import('../public/js/shared/data/casino.js');
   const base = prizesFor({}).length;
   const c2 = prizesFor({ c2_clear: true }).length;
-  const all = prizesFor({ c2_clear: true, c3_clear: true, c4_clear: true, c5_argos: true }).length;
+  // 第50回 D3: 第1部クリア・第6章の 3つの 区切りでも ふえる（data/prizes-r50.js の PRIZE_STAGES）
+  const STAGES = ['c2_clear', 'c3_clear', 'c4_clear', 'c5_argos', 'c5_clear', 'c6_flow', 'c6_kanata', 'c6_heart'];
+  const all = prizesFor(Object.fromEntries(STAGES.map((f) => [f, true]))).length;
   assert.ok(base < c2 && c2 < all, `${base} → ${c2} → ${all}`);
   assert.equal(all, PRIZES.filter((p) => !p.tier).length, '宝の地図の 段の 景品は べつ（第37回 B）');
-  for (const p of PRIZES) if (p.need) assert.ok(['c2_clear', 'c3_clear', 'c4_clear', 'c5_argos'].includes(p.need), p.need);
+  for (const p of PRIZES) if (p.need) assert.ok(STAGES.includes(p.need), p.need);
   const { c, open, act } = await gambler();
   c.coins = 20000;
   c.flags.c5_argos = true;

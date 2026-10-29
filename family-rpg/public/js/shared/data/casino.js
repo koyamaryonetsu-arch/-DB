@@ -9,6 +9,8 @@ export const COIN_PRICE = 20; // コイン 1枚の ねだん（ゴールド）
 export const COIN_MAX = 99999; // 持てる コインの 数
 export const COIN_BUY_MAX = 9999; // 1回に 買える 数
 export const COIN_PACKS = [10, 50, 100, 500, 1000];
+// 第50回 D3: 景品を 豪華に（data/prizes-r50.js の 品を PRIZES・MEDAL_REWARDS の うしろに まぜる）
+import { PRIZES_R50, MEDAL_REWARDS_R50 } from './prizes-r50.js';
 
 // コインの 数（こわれた セーブでも 0〜COIN_MAX の 整数）
 export function coinsOf(c) {
@@ -221,20 +223,22 @@ export function doubleOutcome(shown, picked) {
 
 // ───────────── 景品 ─────────────
 // coins: コインの 数（ゴールドで 買うと 1枚 20G）
+// 第50回 D3: 種・木の実は 手に入りやすすぎたので ねあげ（ふつうの 種 300 → 800・ふしぎな木の実・いやしの種 400 → 1000・
+//   星の木の実 2500 → 6000・黄金の木の実 8000 → 20000。メダル王の ごほうびの 種は そのまま）
 export const PRIZES = [
   { id: 'magic_water', coins: 30 },
   { id: 'revive_flower', coins: 60 },
-  { id: 'seed_str', coins: 300 },
-  { id: 'seed_agi', coins: 300 },
-  { id: 'seed_hp', coins: 300 },
+  { id: 'seed_str', coins: 800 },
+  { id: 'seed_agi', coins: 800 },
+  { id: 'seed_hp', coins: 800 },
   { id: 'sea_charm', coins: 500 },
   { id: 'pururin_shield', coins: 900 },
   { id: 'starry_cloak', coins: 2000 },
   { id: 'hayabusa_sword', coins: 3000 },
   { id: 'shiawase_boushi', coins: 5000 }, // 第31回: 経験値2倍のぼうし（data/items-r31.js）
   // 第31回: 物語が 進むと 景品が ふえる（need … その フラグが ついたら ならぶ。地方の レア装備は data/items-rare.js）
-  { id: 'seed_def', coins: 300, need: 'c2_clear' },
-  { id: 'seed_mag', coins: 300, need: 'c2_clear' },
+  { id: 'seed_def', coins: 800, need: 'c2_clear' },
+  { id: 'seed_mag', coins: 800, need: 'c2_clear' },
   { id: 'mermaid_shield', coins: 1500, need: 'c2_clear' },
   { id: 'sea_trident', coins: 2500, need: 'c2_clear' },
   { id: 'yeti_club', coins: 3500, need: 'c3_clear' },
@@ -252,11 +256,11 @@ export const PRIZES = [
   { id: 'moon_stone', coins: 2000, need: 'c2_clear' },
   { id: 'everstone', coins: 800, need: 'c2_clear' },
   // 第37回 B: 宝の地図の クリア数の 段（tier。data/casino-tier.js）で ふえる 景品。上の 段ほど めずらしい 種・★4〜★5
-  { id: 'seed_mp', coins: 400, tier: 1 },
-  { id: 'seed_heal', coins: 400, tier: 1 },
+  { id: 'seed_mp', coins: 1000, tier: 1 },
+  { id: 'seed_heal', coins: 1000, tier: 1 },
   { id: 'lucky_clover', coins: 7000, tier: 1 },
   { id: 'roulette_shield', coins: 8000, tier: 1 },
-  { id: 'star_nut', coins: 2500, tier: 2 },
+  { id: 'star_nut', coins: 6000, tier: 2 },
   { id: 'bunny_band', coins: 12000, tier: 2 },
   { id: 'joker_sword', coins: 15000, tier: 2 },
   { id: 'coin_mail', coins: 15000, tier: 2 },
@@ -264,10 +268,12 @@ export const PRIZES = [
   { id: 'jackpot_shield', coins: 26000, tier: 3 },
   { id: 'dealer_vest', coins: 26000, tier: 3 },
   { id: 'royal_fan', coins: 28000, tier: 3 },
-  { id: 'gold_nut', coins: 8000, tier: 4 },
+  { id: 'gold_nut', coins: 20000, tier: 4 },
   { id: 'seven_ring', coins: 35000, tier: 4 },
   { id: 'fortune_cape', coins: 38000, tier: 4 },
   { id: 'casino_king_sword', coins: 40000, tier: 4 },
+  // 第50回 D3: 4つの なかま（強い装備・見た目・便利な道具・めずらしい魔物）。お話が 進むと ふえる（data/prizes-r50.js）
+  ...PRIZES_R50,
 ];
 // 今 ならんでいる 景品（flags … キャラの フラグ・tier … 宝の地図の 段 0〜4）
 export function prizesFor(flags = {}, tier = 0) {
@@ -288,7 +294,11 @@ export const MEDAL_REWARDS = [
   // 第44回（ポケモン P1）: 進化の 石 4つ・かわらずのいし（data/items-pokemon.js）
   { at: 45, items: [['fire_stone', 1], ['water_stone', 1], ['thunder_stone', 1], ['moon_stone', 1], ['everstone', 1]] },
   { at: 50, items: [['medal_crown', 1]] },
+  // 第50回 D3: 55〜100枚（need … お話が その フラグまで 進むと もらえる。data/prizes-r50.js）
+  ...MEDAL_REWARDS_R50,
 ];
+// その ごほうびが もう もらえる お話か（need が ない・その フラグが ついた）
+export const medalRewardOpen = (flags, r) => !r?.need || !!flags?.[r.need];
 
 // メダルの 数（c.medalSpots … 見つけた 場所 / c.medalsGiven … メダル王に わたした 数）
 export function medalsFound(c) {
@@ -310,5 +320,5 @@ export function medalsHeld(c) {
 // 次の ごほうび（なければ null）
 export function nextMedalReward(c) {
   const got = c?.medalRewards && typeof c.medalRewards === 'object' ? c.medalRewards : {};
-  return MEDAL_REWARDS.find((r) => !got[r.at]) || null;
+  return MEDAL_REWARDS.find((r) => !got[r.at] && medalRewardOpen(c?.flags, r)) || null;
 }

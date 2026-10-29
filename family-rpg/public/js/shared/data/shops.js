@@ -2,6 +2,8 @@
 // お店: name 店の なまえ / kind かんばんの しゅるい / keeper 店の人 / hello さいしょの ことば / items 売っている 品物
 //       more: 物語が すすむと ふえる 品物 [{ show: { all: [フラグ] }, items: [...], hello }]（show の 書き方は NPC と おなじ。hello が あれば あいさつも かわる）
 
+// 第50回 D3: 星のかけらの こうかんの ふえた ぶん（data/prizes-r50.js）
+import { STAR_TRADES_R50 } from './prizes-r50.js';
 import { SHOPS_CH2 } from './items-ch2.js';
 import { NIGHT_SHOPS } from './night.js';
 import { SHOPS_CH3, CH3_GUESTS } from './items-ch3.js';
@@ -117,6 +119,7 @@ export function shopHello(shop, hasFlag = () => false) {
 }
 
 // ほしのかけら と こうかん
+// 第50回 D3: お話が 進むと ふえる（need。装備・乗り物・便利な道具・めずらしい魔物。種は 入れない。data/prizes-r50.js）
 export const STAR_TRADES = [
   { shards: 2, item: 'magic_water' },
   { shards: 4, item: 'revive_flower' },
@@ -124,7 +127,12 @@ export const STAR_TRADES = [
   { shards: 8, item: 'guard_ring' },
   { shards: 10, item: 'swift_ring' },
   { shards: 15, item: 'star_mail' },
+  ...STAR_TRADES_R50,
 ];
+// 今 ならんでいる こうかん（flags … キャラの フラグ）
+export function starTradesFor(flags = {}) {
+  return STAR_TRADES.filter((t) => !t.need || flags?.[t.need]);
+}
 
 // やどや・きょうかいの ねだん
 export const INN_PRICE = { village: 0, town: 12 };

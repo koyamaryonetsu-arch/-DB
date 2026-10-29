@@ -79,6 +79,8 @@ export const VEHICLES = {
 
 // 第39回 C: たのまれごとで しか もらえない 乗り物（data/vehicles-family.js）
 import { FAMILY_VEHICLES } from './vehicles-family.js'; Object.assign(VEHICLES, FAMILY_VEHICLES);
+// 第50回 D3: 景品の 乗り物券で しか もらえない 乗り物（data/vehicles-prize.js）
+import { PRIZE_VEHICLES } from './vehicles-prize.js'; Object.assign(VEHICLES, PRIZE_VEHICLES);
 export const VEHICLE_ORDER = Object.keys(VEHICLES);
 const has = (id) => typeof id === 'string' && Object.prototype.hasOwnProperty.call(VEHICLES, id);
 export const vehicleKnown = has;

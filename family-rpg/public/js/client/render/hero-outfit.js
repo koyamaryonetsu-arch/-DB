@@ -19,6 +19,8 @@ import { R41B_OUTFIT, R41B_BODY } from './hero-r41b.js';
 import { R41A_OUTFIT, R41A_BODY } from './hero-r41a.js';
 // 第43回の 配管工の 系統（女の子の ももの姫・おてんば姫・ピーチ。男の子は hero-r43j.js の R43J_MASC）
 import { R43J_OUTFIT, R43J_BODY } from './hero-r43j.js';
+// 第50回 D3: 景品の おしゃれ着（タキシード・ドレス・マント。prize-looks.js）
+import { PRIZE_ARMOR_LOOK } from './prize-looks.js';
 
 // ───────────── ざいしつ ─────────────
 const METALS = {
@@ -267,6 +269,8 @@ const ARMOR_OUTFIT = {
 
 // 第33回の よろい（魔法学校のローブ・かいとうの白いマント・熱血先生のジャージ。hero-r33.js）
 Object.assign(ARMOR_OUTFIT, R33_ARMOR_LOOK);
+// 第50回 D3: 景品の おしゃれ着（prize-looks.js）
+Object.assign(ARMOR_OUTFIT, PRIZE_ARMOR_LOOK);
 
 // 知らない よろい: 名前と 種類から
 function guessArmor(it) {

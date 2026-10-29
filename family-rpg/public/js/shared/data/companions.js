@@ -30,6 +30,8 @@ import { MONSTER_RANKS } from './monster-ranks.js';
 import { FRIENDS_POKEMON, RECIPES_POKEMON, MATERIAL_RECIPES_POKEMON } from './companions-pokemon.js';
 // 第45回（ドラクエふう D1）: ドラクエふうの 魔物 11しゅ（配合だけ。companions-dqm.js）
 import { FRIENDS_DQM, RECIPES_DQM, MATERIAL_RECIPES_DQM } from './companions-dqm.js';
+// 第50回 D3: 景品で しか 会えない 魔物（monsters-prize.js）
+import { FRIENDS_PRIZE } from './monsters-prize.js';
 
 export const MONSTER_FRIENDS = {
   pururin: {
@@ -305,6 +307,8 @@ Object.assign(MONSTER_FRIENDS, FRIENDS_BOSS);
 Object.assign(MONSTER_FRIENDS, FRIENDS_POKEMON);
 // 第45回（ドラクエふう D1）: ドラクエふうの 魔物。配合でしか 会えない（companions-dqm.js）
 Object.assign(MONSTER_FRIENDS, FRIENDS_DQM);
+// 第50回 D3: 景品の よびぶえで 仲間に なる 魔物（monsters-prize.js）
+Object.assign(MONSTER_FRIENDS, FRIENDS_PRIZE);
 // しゅぞくごとの 装備の うわがき（上の GEAR）
 for (const [sp, g] of Object.entries(GEAR)) if (MONSTER_FRIENDS[sp]) MONSTER_FRIENDS[sp].gear = { ...g, ...(MONSTER_FRIENDS[sp].gear || {}) };
 

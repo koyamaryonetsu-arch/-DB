@@ -15,12 +15,13 @@ import {
 
 export function casinoUI(game, kind, data) {
   ensureStyle();
-  if (kind === 'medalKing') return medalKingUI(game, data || {});
+  // 第50回 D3: 景品コーナー・メダル王は ui/prizes.js（この ファイルの 部品を つかうので あとから 読む）
+  if (kind === 'medalKing') return import('./prizes.js').then((m) => m.medalKingUI(game, data || {}));
   switch (data?.mode) {
     case 'coins': return coinsUI(game, data);
     case 'slot': return slotUI(game, data);
     case 'poker': return pokerUI(game, data);
-    case 'prizes': return prizesUI(game, data);
+    case 'prizes': return import('./prizes.js').then((m) => m.prizesUI(game, data));
     // 第37回 B: ルーレット・すごろく場（ui/roulette.js・ui/sugoroku.js。この ファイルの 部品を つかうので あとから 読む）
     case 'roulette': return import('./roulette.js').then((m) => m.rouletteUI(game, data));
     case 'sugoroku': return import('./sugoroku.js').then((m) => m.sugorokuUI(game, data));
@@ -166,167 +167,8 @@ async function coinsUI(game, data) {
   sendClose(game);
 }
 
-// ───────────── 景品コーナー ─────────────
-async function prizesUI(game, data) {
-  const ct = new CasinoCounter(game, { title: '景品コーナー', keeper: '景品係', icon: boardIconURL('casino'), purse: 'coins' });
-  // 第37回 B: 宝の地図の クリア数の 段で 景品が ふえる（data/casino-tier.js）。たなに「あと〇こ」
-  const t = data.tier;
-  const shelf = t && t.left > 0 ? `\n（宝の地図をあと${t.left}こクリアすると、新しい景品が入ります）` : '';
-  const AGAIN = `ほかにも何かこうかんしますか？${shelf}`;
-  let line = `いらっしゃいませ！\nコインを、すてきな景品とこうかんいたします。${shelf || (data.story ?? data.more ? '\n（お話が進むと、景品がふえますよ）' : '')}`;
-  let idx = 0;
-  while (!ct.closed) {
-    await ct.say(line);
-    const coins = coinsOf(game.me);
-    const rows = (data.prizes || []).filter((p) => ITEMS[p.id]).map((p) => ({
-      value: p.id, label: ITEMS[p.id].name, right: `${fmt(p.coins)}枚`, rightCls: coins < p.coins ? 'dis' : 'gold', coins: p.coins,
-    }));
-    const pick = await ct.pick(rows, { start: idx, back: 'やめる', onMove: (x) => ct.info(x ? itemInfo(game, x.value) : null) });
-    if (ct.closed || !pick) break;
-    idx = rows.findIndex((r) => r.value === pick.value);
-    const it = ITEMS[pick.value];
-    if (coinsOf(game.me) < pick.coins) {
-      game.audio.sfx('buzz');
-      await ct.say(`${it.name}は、コイン${fmt(pick.coins)}枚です。\nおや？コインが足りないようですね。`);
-      await ct.tap(1800);
-      line = AGAIN;
-      continue;
-    }
-    const yes = await ct.ask(`${it.name}ですね。\nコイン${fmt(pick.coins)}枚とこうかんしますか？`);
-    if (ct.closed) break;
-    if (yes !== 0) {
-      line = AGAIN;
-      continue;
-    }
-    const r = await request(game, { kind: 'casino', action: 'prize', id: pick.value });
-    ct.updGold();
-    if (!r.ok) {
-      game.audio.sfx('buzz');
-      await ct.say(r.text || 'おや？何かおかしいようですね。');
-      await ct.tap(1800);
-      line = AGAIN;
-      continue;
-    }
-    game.audio.sfx('item');
-    ct.info(itemInfo(game, pick.value));
-    await ct.say(`${r.text}\n（持っている数: ${itemCount(game.me, pick.value)}）`, { narr: true });
-    await ct.tap(2400);
-    line = `おめでとうございます！\n${AGAIN}`;
-  }
-  if (!ct.closed) {
-    ct.list(null);
-    ct.info(null);
-    await ct.say('またのおこしをお待ちしております。');
-    await ct.tap(1400);
-    ct.close();
-  }
-  sendClose(game);
-}
-
-// ───────────── メダル王 ─────────────
-async function medalKingUI(game, data) {
-  const ct = new CasinoCounter(game, { title: 'メダル王の城', keeper: 'メダル王', icon: boardIconURL('medal'), purse: 'medals' });
-  let info = data;
-  const held = () => medalsHeld(game.me);
-  let line = held() ? `おお、小さなメダルを${held()}枚持っておるな！\nさあ、どうするかな？` : 'さあ、どうするかな？';
-  while (!ct.closed) {
-    await ct.say(line);
-    ct.info(medalSummary(game, info));
-    const cmd = await ct.pick([
-      { label: 'メダルをわたす', value: 'give' },
-      { label: 'ごほうびの一覧', value: 'list' },
-      { label: 'やめる', value: 'exit' },
-    ], { back: null });
-    if (ct.closed || !cmd || cmd.value === 'exit') break;
-    if (cmd.value === 'list') {
-      await rewardList(game, ct, info);
-      line = 'ほかに何か用かな？';
-      continue;
-    }
-    const n = held();
-    // もう わたした 数で もらえる ごほうびが 残っている（あとから ふえた ごほうび）
-    const pend = (info.rewards || []).some((x) => !x.got && x.at <= (info.given ?? medalsGiven(game.me)));
-    if (!n && !pend) {
-      await ct.say('おや、小さなメダルを持っておらんようじゃな。\nつぼやたる、井戸の中などを調べて探してみるのじゃ。');
-      await ct.tap(2200);
-      line = 'ほかに何か用かな？';
-      continue;
-    }
-    const yes = n ? await ct.ask(`小さなメダルを${n}枚、わしにわたしてくれるかな？`) : 0;
-    if (ct.closed) break;
-    if (yes !== 0) {
-      line = 'そうか。気が向いたら、いつでも持ってくるがよい。';
-      continue;
-    }
-    const r = await request(game, { kind: 'medal', action: 'give' });
-    ct.updGold();
-    if (r.medal) info = r.medal;
-    if (!r.ok) {
-      await ct.say(r.text || 'おや？');
-      await ct.tap(1800);
-      line = 'ほかに何か用かな？';
-      continue;
-    }
-    ct.info(medalSummary(game, info));
-    if (r.gave) {
-      game.audio.sfx('coin');
-      await ct.say(`${r.gave}枚のメダル、たしかにうけとったぞ！\nこれで、わしにわたしたメダルは全部で${r.total}枚じゃな。`);
-      await ct.tap(2400);
-    } else {
-      await ct.say(`おお、そなたにはまだ、わたしていないほうびがあったのじゃ！`);
-      await ct.tap(1800);
-    }
-    for (const g of r.got || []) {
-      game.audio.play('jackpot');
-      await ct.say(`${g.at}枚のほうびとして、これをとらせよう！`);
-      await ct.tap(1600);
-      await ct.say(`${game.me.name}は${itemsText(g.items)}を手に入れた！`, { narr: true });
-      ct.info(itemInfo(game, g.items[0][0]));
-      await ct.tap(2600);
-    }
-    const next = info.rewards?.find((x) => !x.got);
-    line = next ? `次は${next.at}枚で、${itemsText(next.items)}をやろう。\nがんばって探すのじゃぞ！` : 'わしのほうびは、これで全部じゃ！\nそなたこそ、真のメダル王じゃ！';
-  }
-  if (!ct.closed) {
-    ct.list(null);
-    ct.info(null);
-    await ct.say('また小さなメダルを見つけたら、持ってくるのじゃぞ。');
-    await ct.tap(1400);
-    ct.close();
-  }
-  sendClose(game, 'medal');
-}
-
-// ごほうびまで あと何枚（持っている メダルを わたせば とどく ときは そう 言う）
-function rewardLeft(game, given, r) {
-  if (r.got) return { text: 'もらった', cls: 'good' };
-  const left = r.at - given - medalsHeld(game.me);
-  return left <= 0 ? { text: 'わたすともらえる', cls: 'gold' } : { text: `あと${left}枚`, cls: '' };
-}
-
-function medalSummary(game, info) {
-  const given = info.given ?? medalsGiven(game.me);
-  const next = info.rewards?.find((x) => !x.got);
-  const box = el('div', { class: 'cs-medal-sum' });
-  box.append(el('div', { class: 'kv' }, el('span', { class: 'k', text: '持っているメダル' }), el('span', { class: 'gold', text: `${medalsHeld(game.me)}枚` })));
-  box.append(el('div', { class: 'kv' }, el('span', { class: 'k', text: 'メダル王にわたした数' }), el('span', { text: `${given}枚` })));
-  if (next) box.append(el('div', { class: 'detail', text: `次のごほうび: ${next.at}枚で「${itemsText(next.items)}」（${rewardLeft(game, given, next).text}）` }));
-  else box.append(el('div', { class: 'detail good', text: 'ごほうびは全部もらった！' }));
-  box.append(el('div', { class: 'detail', text: '小さなメダルは、つぼ・たる・本だな・井戸などを調べると見つかることがある。光っている地面や、宝箱に入っていることもある。' }));
-  return box;
-}
-
-async function rewardList(game, ct, info) {
-  const given = info.given ?? medalsGiven(game.me);
-  await ct.say('わしにわたしたメダルの数に合わせて、\nこれらのほうびをとらせよう。');
-  const rows = (info.rewards || []).map((r) => {
-    const left = rewardLeft(game, given, r);
-    // 名前の とちゅうでは おりかえさない（品と 品の あいだだけ）。せまい 画面では みぎの じょうたいが 下の 行へ
-    const names = r.items.map(([id, n]) => `<span class="nw">${ITEMS[id]?.name || id}${n > 1 ? `×${n}` : ''}</span>`).join('と<wbr>');
-    return { value: r.at, cls: 'cs-rw', html: `<span class="cs-at">${r.at}枚</span><span class="cs-rn">${names}</span>`, right: left.text, rightCls: left.cls, items: r.items };
-  });
-  await ct.pick(rows, { back: 'もどる', onMove: (x) => ct.info(x ? itemInfo(game, x.items[0][0]) : null) });
-}
+// ───────────── 景品コーナー・メダル王 ─────────────
+// 第50回 D3: ui/prizes.js へ 引っこした（なかまの 絵・NEW・装備の くらべ・こうかんの えんしゅつ）
 
 // ───────────── スロット・ポーカーの まど ─────────────
 export function casinoShell(game, { title, cls }) {

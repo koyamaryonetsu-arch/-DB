@@ -33,6 +33,8 @@ import { SHOPS_PAST } from '../public/js/shared/data/shops-past.js';
 import { ITEMS_ROAD } from '../public/js/shared/data/items-road.js';
 // 第6章 Step 5 の 時計塔の 品（items-tokei.js）も おなじ
 import { ITEMS_TOKEI } from '../public/js/shared/data/items-tokei.js';
+// 第50回 D3: 第6章の 区切りの あとに ならぶ 景品（時計塔の 品と おなじ ころ）は のぞく
+import { ITEMS_PRIZE_R50 } from '../public/js/shared/data/items-prize-r50.js';
 import { HANONO9_SHOP_WEAPONS, HANONO9_SHOP_ARMOR } from '../public/js/shared/data/items-earth.js';
 import { CASTLE_TREASURE } from '../public/js/shared/data/items-castle.js';
 import { FALL, FALL_CHARGE, RECORD, REWIND, PRESS, AUTO_GUARD, ch6Plan, elemHit } from '../public/js/shared/battle-ch6.js';
@@ -158,7 +160,7 @@ test('落とす物: ボスは かならず 1人 1つの ★5（レア度3）と�
   const [sp, gc] = [ITEMS.p6_sand_pendant, ITEMS.p6_gear_charm];
   assert.ok(bsum(ITEMS.solitus_bond_star) < bsum(sp) && bsum(sp) < bsum(gc), 'アクセサリー: きずなの星 < 砂時計のペンダント < 大歯車のお守り');
   // ときをきざむ剣は 今までで いちばん 強い 剣（Step 3・4 の 古道の 品は のぞく）
-  const swords = Object.entries(ITEMS).filter(([id, it]) => it.type === 'weapon' && it.cat === 'sword' && !it.base && !ITEMS_ROAD[id] && !ITEMS_TOKEI[id]);
+  const swords = Object.entries(ITEMS).filter(([id, it]) => it.type === 'weapon' && it.cat === 'sword' && !it.base && !ITEMS_ROAD[id] && !ITEMS_TOKEI[id] && !ITEMS_PRIZE_R50[id]);
   const top = swords.sort((x, y) => y[1].atk - x[1].atk)[0];
   assert.equal(top[0], 'p6_tick_sword');
   assert.ok(ITEMS.p6_tick_sword.atk > ITEMS.solitus_dawn_sword.atk && ITEMS.p6_tick_sword.atk > ITEMS.p6_ruin_sword.atk);

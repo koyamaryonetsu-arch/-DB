@@ -1,6 +1,6 @@
 // お店・やどや・きょうかい・転職・酒場・でんごんばん・メニュー操作
 import { markNewsRead } from '../data/news.js';
-import { SHOPS, STAR_TRADES, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js';
+import { SHOPS, revivePrice, CURE_PRICE, shopItems, shopHello } from '../data/shops.js';
 import { normDifficulty } from '../data/difficulty.js';
 import { ITEMS, sellPrice, SLOTS, SLOT_NAMES } from '../data/items.js';
 import { JOBS, ALL_JOBS, jobReqText, BODY_NAMES } from '../data/jobs.js';
@@ -40,6 +40,8 @@ import { jobDoneText } from '../data/job-talk.js';
 import { vehicleShopInfo, vehicleShopAction, vehicleMenuAction } from './vehicles.js';
 // 第44回（ポケモン P1）: 進化の 石（world/evolve.js）
 import { useEvoStone } from './evolve.js';
+// 第50回 D3: 景品（星のかけらの こうかん・乗り物券・よびぶえ・修行の書・経験の書。world/prizes-r50.js）
+import { starTradeInfo, starTradeAction, usePrizeItem, PRIZE_USE } from './prizes-r50.js';
 
 export function openService(world, s, kind, arg) {
   switch (kind) {
@@ -60,7 +62,7 @@ export function openService(world, s, kind, arg) {
     // 乗り物屋（第37回。world/vehicles.js）
     case 'vehicles': return vehicleShopInfo(world, s);
     case 'board': return { posts: world.data.board || [] };
-    case 'starTrade': return { trades: STAR_TRADES };
+    case 'starTrade': return starTradeInfo(world, s);
     case 'church': return churchInfo(world, s);
     case 'bank': return bankInfo(world, s, arg);
     case 'forge': return forgeInfo(world, s, arg);
@@ -281,14 +283,8 @@ export function serviceAction(world, s, msg) {
       const r = wagonMenuAction(world, s, msg);
       return reply(r.ok, r.ok ? r.text : r.reason, { same: !!r.same });
     }
-    case 'starTrade': {
-      const tr = STAR_TRADES[msg.index];
-      if (!tr) return reply(false, '');
-      if (itemCount(c, 'star_shard') < tr.shards) return reply(false, '星のかけらが足りないねえ');
-      removeItem(c, 'star_shard', tr.shards);
-      addItem(c, tr.item, 1);
-      return reply(true, `星のかけら${tr.shards}個と${ITEMS[tr.item].name}をこうかんした！`);
-    }
+    // 第50回 D3: お話が 進むと ふえる（world/prizes-r50.js）
+    case 'starTrade': return starTradeAction(world, s, msg, reply);
     case 'church': {
       if (msg.action === 'record') {
         // さそわれて 手伝っている ときは、自分の いのりの場所は そのまま（自分の 冒険は かわらない）
@@ -474,6 +470,8 @@ export function menuAction(world, s, msg) {
       if (!target) return reply(false, '');
       // 第44回: 進化の 石（イーブイに 使うと 進化。world/evolve.js）
       if (eff.type === 'evoStone') return useEvoStone(world, s, msg.id, target, reply);
+      // 第50回 D3: 景品の 道具（乗り物券・よびぶえ・修行の書・経験の書。world/prizes-r50.js）
+      if (PRIZE_USE.has(eff.type)) return usePrizeItem(world, s, msg.id, target, reply);
       const r = applyFieldEffect(world, c, target, eff);
       if (!r.ok) return reply(false, r.text);
       removeItem(c, msg.id, 1);
